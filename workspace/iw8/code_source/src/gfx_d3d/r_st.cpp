@@ -602,29 +602,7 @@ CopyTerrainLayerDataCode<HLSL::TerrainLayerDataCode>
 */
 void CopyTerrainLayerDataCode<HLSL::TerrainLayerDataCode>(const StTerrainMaterialLayer *layer, HLSL::TerrainLayerDataCode *layerOut)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovups xmm1, xmmword ptr [rcx+50h]
-    vmovups xmmword ptr [rdx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+60h]
-    vmovups xmmword ptr [rdx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+70h]
-    vmovups xmmword ptr [rdx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+80h]
-    vmovups xmmword ptr [rdx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+90h]
-    vmovups xmmword ptr [rdx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+0A0h]
-    vmovups xmmword ptr [rdx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rcx+0B0h]
-    vmovups xmmword ptr [rdx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+0C0h]
-    vmovups xmmword ptr [rdx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+0D0h]
-    vmovups xmmword ptr [rdx+90h], xmm0
-  }
+  *layerOut = layer->layerData;
 }
 
 /*
@@ -780,57 +758,31 @@ R_ST_SetupMaterialLayerInternal<HLSL::TerrainLayerDataCode>
 void R_ST_SetupMaterialLayerInternal<HLSL::TerrainLayerDataCode>(const StDiskTerrainSurface *surface, const StTerrainMaterialLayer *layer, HLSL::TerrainLayerDataCode *layerOut)
 {
   unsigned int layerMaskMapIdxsCount; 
-  HLSL::TerrainLayerDataCode *v15; 
-  const StTerrainMaterialLayer *v16; 
   unsigned __int16 *materialTextureIdxs; 
-  unsigned __int16 v18; 
-  unsigned __int16 v19; 
-  unsigned __int16 v20; 
-  unsigned __int16 v21; 
+  unsigned __int16 v8; 
+  unsigned __int16 v9; 
+  unsigned __int16 v10; 
+  unsigned __int16 v11; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [r8], xmm0
-    vmovups xmm1, xmmword ptr [rdx+50h]
-    vmovups xmmword ptr [r8+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [r8+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [r8+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [r8+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+90h]
-    vmovups xmmword ptr [r8+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0A0h]
-    vmovups xmmword ptr [r8+60h], xmm0
-    vmovups xmm0, xmmword ptr [rdx+0B0h]
-    vmovups xmmword ptr [r8+70h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0C0h]
-    vmovups xmmword ptr [r8+80h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0D0h]
-    vmovups xmmword ptr [r8+90h], xmm0
-  }
+  *layerOut = layer->layerData;
   layerMaskMapIdxsCount = surface->layerMaskMapIdxsCount;
-  v15 = layerOut;
-  v16 = layer;
   if ( layer->layer >= layerMaskMapIdxsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1116, ASSERT_TYPE_ASSERT, "(unsigned)( layer.layer ) < (unsigned)( surface.layerMaskMapIdxsCount )", "layer.layer doesn't index surface.layerMaskMapIdxsCount\n\t%i not in [0, %i)", layer->layer, layerMaskMapIdxsCount) )
     __debugbreak();
-  v15->alphaLayer = surface->layerMaskMapIdxs[v16->layer];
-  materialTextureIdxs = v16->materialTextureIdxs;
-  v18 = *materialTextureIdxs;
-  v19 = materialTextureIdxs[1];
-  v20 = materialTextureIdxs[2];
-  v21 = materialTextureIdxs[3];
-  v15->colorMap = R_ST_GetBindlessIndexFromFlattenedIndex(*materialTextureIdxs);
-  v15->normalMap = R_ST_GetBindlessIndexFromFlattenedIndex(v19);
-  v15->revealMap = R_ST_GetBindlessIndexFromFlattenedIndex(v20);
-  v15->displacementMap = R_ST_GetBindlessIndexFromFlattenedIndex(v21);
-  if ( v19 != 0xFFFF )
-    v15->normalMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v19]->semanticSpecific.albedoMapScaleBias;
-  if ( v18 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1171, ASSERT_TYPE_ASSERT, "(albedoMapIndex != 0xFFFF)", (const char *)&queryFormat, "albedoMapIndex != TERRAIN_TEXTURE_INDEX_INVALID") )
+  layerOut->alphaLayer = surface->layerMaskMapIdxs[layer->layer];
+  materialTextureIdxs = layer->materialTextureIdxs;
+  v8 = *materialTextureIdxs;
+  v9 = materialTextureIdxs[1];
+  v10 = materialTextureIdxs[2];
+  v11 = materialTextureIdxs[3];
+  layerOut->colorMap = R_ST_GetBindlessIndexFromFlattenedIndex(*materialTextureIdxs);
+  layerOut->normalMap = R_ST_GetBindlessIndexFromFlattenedIndex(v9);
+  layerOut->revealMap = R_ST_GetBindlessIndexFromFlattenedIndex(v10);
+  layerOut->displacementMap = R_ST_GetBindlessIndexFromFlattenedIndex(v11);
+  if ( v9 != 0xFFFF )
+    layerOut->normalMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v9]->semanticSpecific.albedoMapScaleBias;
+  if ( v8 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1171, ASSERT_TYPE_ASSERT, "(albedoMapIndex != 0xFFFF)", (const char *)&queryFormat, "albedoMapIndex != TERRAIN_TEXTURE_INDEX_INVALID") )
     __debugbreak();
-  v15->albedoMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v18]->semanticSpecific.albedoMapScaleBias;
+  layerOut->albedoMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v8]->semanticSpecific.albedoMapScaleBias;
 }
 
 /*
@@ -984,39 +936,23 @@ R_ST_SetupTileDataForSurfaceInternal<HLSL::TerrainTileDataCode>
 */
 void R_ST_SetupTileDataForSurfaceInternal<HLSL::TerrainTileDataCode>(const StDiskTerrainSurface *surface, const vec3_t *cameraWorldPosition, bool setFrameCount, HLSL::TerrainTileDataCode *tileDataOut)
 {
-  char v20[208]; 
+  __m256i v7; 
+  __m256i v8[6]; 
+  __int128 v9; 
 
-  _RDI = surface;
-  _RSI = tileDataOut;
-  memset_0(v20, 0, sizeof(v20));
-  _RAX = v20;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rsi], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+60h], ymm0
-    vmovups ymmword ptr [rsi+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rsi+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0C0h]
-    vmovups xmmword ptr [rsi+0C0h], xmm1
-    vmovss  xmm0, dword ptr [rdi+84h]
-    vmulss  xmm2, xmm0, cs:__real@40000000
-    vmovss  dword ptr [rsi+14h], xmm2
-    vmovss  xmm1, dword ptr [rdi+70h]
-    vsubss  xmm0, xmm1, dword ptr [rbx]
-    vmovss  dword ptr [rsi+34h], xmm0
-    vmovss  xmm2, dword ptr [rdi+74h]
-    vsubss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rsi+38h], xmm1
-  }
-  _RSI->surfaceMapSetIndex = _RDI->surfaceMapSetIndex;
+  memset_0(v8, 0, 0xD0ui64);
+  v7 = v8[4];
+  *(__m256i *)&tileDataOut->flags = v8[0];
+  *(__m256i *)&tileDataOut->vertexScale.xy.v[1] = v8[1];
+  *(__m256i *)&tileDataOut->surfaceMapBaseIndex = v8[2];
+  *(__m256i *)&tileDataOut->offToSurfaceMapY.xyz.v[1] = v8[3];
+  *(__m256i *)&tileDataOut->windDir.xyz.v[1] = v7;
+  *(__m256i *)&tileDataOut->surfaceIndex = v8[5];
+  *(_OWORD *)tileDataOut->heightMapDx.v = v9;
+  tileDataOut->terrainSize = surface->halfWldSize * 2.0;
+  tileDataOut->surfaceMapOffOrigin.v[0] = surface->surfaceMapOrigin.v[0] - cameraWorldPosition->v[0];
+  tileDataOut->surfaceMapOffOrigin.v[1] = surface->surfaceMapOrigin.v[1] - cameraWorldPosition->v[1];
+  tileDataOut->surfaceMapSetIndex = surface->surfaceMapSetIndex;
 }
 
 /*
@@ -1026,30 +962,11 @@ R_ST_SetupTileDataForSurfaceInternal<HLSL::TerrainTileDataCodeCS>
 */
 void R_ST_SetupTileDataForSurfaceInternal<HLSL::TerrainTileDataCodeCS>(const StDiskTerrainSurface *surface, const vec3_t *cameraWorldPosition, bool setFrameCount, HLSL::TerrainTileDataCodeCS *tileDataOut)
 {
-  __int128 v12; 
-  __int64 v13; 
-
-  v12 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+28h+var_28]
-    vmovups xmmword ptr [r9], xmm0
-  }
-  v13 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovsd  qword ptr [r9+10h], xmm1
-    vmovss  xmm0, dword ptr [rcx+84h]
-    vmulss  xmm2, xmm0, cs:__real@40000000
-    vmovss  dword ptr [r9+8], xmm2
-    vmovss  xmm1, dword ptr [rcx+70h]
-    vsubss  xmm0, xmm1, dword ptr [rdx]
-    vmovss  dword ptr [r9+0Ch], xmm0
-    vmovss  xmm2, dword ptr [rcx+74h]
-    vsubss  xmm1, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [r9+10h], xmm1
-  }
+  *(_OWORD *)&tileDataOut->layerCount = 0ui64;
+  *(double *)((char *)&tileDataOut->surfaceMapOffOrigin + 4) = 0i64;
+  tileDataOut->terrainSize = surface->halfWldSize * 2.0;
+  tileDataOut->surfaceMapOffOrigin.v[0] = surface->surfaceMapOrigin.v[0] - cameraWorldPosition->v[0];
+  tileDataOut->surfaceMapOffOrigin.v[1] = surface->surfaceMapOrigin.v[1] - cameraWorldPosition->v[1];
   tileDataOut->surfaceMapSetIndex = surface->surfaceMapSetIndex;
 }
 
@@ -1190,115 +1107,120 @@ R_ST_AddAllSurfacesCamera
 void R_ST_AddAllSurfacesCamera(const void *const cmd)
 {
   const StTerrain *terrain; 
-  std::pair<float,unsigned int> *v6; 
-  __int64 v7; 
+  std::pair<float,unsigned int> *v3; 
+  __int64 v4; 
   __int64 surfaceCount; 
-  __int64 v9; 
-  unsigned int v10; 
+  __int64 v6; 
+  unsigned int v7; 
+  const GfxViewInfo *v8; 
+  unsigned int *p_second; 
+  __int64 p_z; 
+  float v12; 
+  __int128 v14; 
+  float v17; 
+  __m128 v19; 
+  float v22; 
+  __m128 v24; 
   __int64 frameDataIndex; 
-  StFrameData *v39; 
+  StFrameData *v34; 
   int integer; 
   __int64 second; 
-  const StDiskTerrainSurface *v42; 
-  __int64 v47; 
-  std::less<void> v48; 
-  __int128 v49; 
-  __int128 v50; 
-  __int128 v51; 
+  const StDiskTerrainSurface *v37; 
+  __int64 v38; 
+  std::less<void> v39; 
+  __int128 v40; 
+  __m128 v41; 
+  __m128 v42; 
   StCachedFrontEndDvars cachedDvarsOut; 
   std::pair<float,unsigned int> _First[257]; 
-  char v54; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R15 = (const GfxViewInfo **)cmd;
   if ( r_st_enable->current.enabled )
   {
     Profile_Begin(98);
     terrain = s_stGlob.terrain;
     if ( s_stGlob.terrain )
     {
-      if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2115, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
+      if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2115, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
         __debugbreak();
-      v6 = _First;
-      v7 = 256i64;
+      v3 = _First;
+      v4 = 256i64;
       do
       {
-        std::pair<float,unsigned int>::pair<float,unsigned int>(v6++);
-        --v7;
+        std::pair<float,unsigned int>::pair<float,unsigned int>(v3++);
+        --v4;
       }
-      while ( v7 );
+      while ( v4 );
       surfaceCount = terrain->surfaceCount;
-      v9 = 0i64;
-      v10 = 0;
+      v6 = 0i64;
+      v7 = 0;
       if ( (_DWORD)surfaceCount )
       {
-        _RCX = *_R15;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
-        _R9 = &_First[0].second;
-        _RAX = (__int64)&terrain->surfaces->wldBounds.halfSize.z;
-        __asm { vmovups xmm7, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero }
+        v8 = *(const GfxViewInfo **)cmd;
+        p_second = &_First[0].second;
+        p_z = (__int64)&terrain->surfaces->wldBounds.halfSize.z;
+        _XMM7 = g_negativeZero.v;
         do
         {
-          __asm { vmovss  xmm0, dword ptr [rcx+100h] }
-          HIDWORD(v49) = 0;
+          v12 = v8->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+          HIDWORD(v40) = 0;
+          v14 = v40;
+          *(float *)&v14 = v12;
+          _XMM5 = v14;
           __asm
           {
-            vmovups xmm5, [rsp+920h+var_8C0]
-            vmovss  xmm5, xmm5, xmm0
             vinsertps xmm5, xmm5, dword ptr [rcx+104h], 10h
             vinsertps xmm5, xmm5, dword ptr [rcx+108h], 20h ; ' '
-            vmovups [rsp+920h+var_8C0], xmm5
-            vmovss  xmm0, dword ptr [rax-14h]
           }
-          HIDWORD(v50) = 0;
+          v40 = (__int128)_XMM5;
+          v17 = *(float *)(p_z - 20);
+          v41.m128_i32[3] = 0;
+          v19 = v41;
+          v19.m128_f32[0] = v17;
+          _XMM4 = v19;
           __asm
           {
-            vmovups xmm4, xmmword ptr [rsp+70h]
-            vmovss  xmm4, xmm4, xmm0
             vinsertps xmm4, xmm4, dword ptr [rax-10h], 10h
             vinsertps xmm4, xmm4, dword ptr [rax-0Ch], 20h ; ' '
-            vmovups xmmword ptr [rsp+70h], xmm4
-            vmovss  xmm0, dword ptr [rax-8]
           }
-          HIDWORD(v51) = 0;
+          v41 = _XMM4;
+          v22 = *(float *)(p_z - 8);
+          v42.m128_i32[3] = 0;
+          v24 = v42;
+          v24.m128_f32[0] = v22;
+          _XMM3 = v24;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rbp-80h]
-            vmovss  xmm3, xmm3, xmm0
             vinsertps xmm3, xmm3, dword ptr [rax-4], 10h
             vinsertps xmm3, xmm3, dword ptr [rax], 20h ; ' '
-            vmovups xmmword ptr [rbp-80h], xmm3
-            vsubps  xmm0, xmm5, xmm4
-            vandnps xmm1, xmm7, xmm0
-            vsubps  xmm2, xmm1, xmm3
-            vmaxps  xmm0, xmm2, xmm6
-            vmulps  xmm1, xmm0, xmm0
+          }
+          v42 = _XMM3;
+          _mm128_sub_ps(_XMM5, _XMM4);
+          __asm { vandnps xmm1, xmm7, xmm0 }
+          _XMM2 = _mm128_sub_ps(_XMM1, _XMM3);
+          __asm { vmaxps  xmm0, xmm2, xmm6 }
+          _XMM1 = _mm128_mul_ps(_XMM0, _XMM0);
+          __asm
+          {
             vhaddps xmm2, xmm1, xmm1
             vhaddps xmm0, xmm2, xmm2
-            vmovss  dword ptr [r9-4], xmm0
           }
-          *_R9 = v10++;
-          _RAX += 376i64;
-          _R9 += 2;
+          *(p_second - 1) = _XMM0;
+          *p_second = v7++;
+          p_z += 376i64;
+          p_second += 2;
         }
-        while ( v10 < (unsigned int)surfaceCount );
+        while ( v7 < (unsigned int)surfaceCount );
       }
-      std::_Sort_unchecked<std::pair<float,unsigned int> *,std::less<void>>(_First, &_First[surfaceCount], surfaceCount, v48);
+      std::_Sort_unchecked<std::pair<float,unsigned int> *,std::less<void>>(_First, &_First[surfaceCount], surfaceCount, v39);
       R_ST_CacheFrontEndDvars(&cachedDvarsOut);
       frameDataIndex = s_stGlob.frameDataIndex;
       if ( s_stGlob.frameDataIndex >= 2 )
       {
-        LODWORD(v47) = s_stGlob.frameDataIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 837, ASSERT_TYPE_ASSERT, "(unsigned)( frameDataIndex ) < (unsigned)( ST_FRAME_DATA_COUNT )", "frameDataIndex doesn't index ST_FRAME_DATA_COUNT\n\t%i not in [0, %i)", v47, 2) )
+        LODWORD(v38) = s_stGlob.frameDataIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 837, ASSERT_TYPE_ASSERT, "(unsigned)( frameDataIndex ) < (unsigned)( ST_FRAME_DATA_COUNT )", "frameDataIndex doesn't index ST_FRAME_DATA_COUNT\n\t%i not in [0, %i)", v38, 2) )
           __debugbreak();
       }
-      v39 = &s_stGlob.frameData[frameDataIndex];
+      v34 = &s_stGlob.frameData[frameDataIndex];
       if ( terrain->surfaceCount )
       {
         do
@@ -1306,33 +1228,23 @@ void R_ST_AddAllSurfacesCamera(const void *const cmd)
           integer = r_st_drawSingleSurface->current.integer;
           if ( integer == -1 )
             goto LABEL_20;
-          second = (int)_First[v9].second;
+          second = (int)_First[v6].second;
           if ( (unsigned int)second > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned int>(unsigned int)", "signed", second, "unsigned", (unsigned int)second) )
             __debugbreak();
           if ( integer == (_DWORD)second )
           {
 LABEL_20:
-            v42 = &terrain->surfaces[_First[v9].second];
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [r15+8]
-              vmovsd  qword ptr [rsp+920h+var_8C0], xmm0
-            }
-            DWORD2(v49) = *((_DWORD *)_R15 + 4);
-            R_ST_AddSurfacesForTerrainSurfaceCamera(v42, *_R15, (const vec3_t *)&v49, &cachedDvarsOut, v39);
+            v37 = &terrain->surfaces[_First[v6].second];
+            *(_QWORD *)&v40 = *((_QWORD *)cmd + 1);
+            DWORD2(v40) = *((_DWORD *)cmd + 4);
+            R_ST_AddSurfacesForTerrainSurfaceCamera(v37, *(const GfxViewInfo **)cmd, (const vec3_t *)&v40, &cachedDvarsOut, v34);
           }
-          v9 = (unsigned int)(v9 + 1);
+          v6 = (unsigned int)(v6 + 1);
         }
-        while ( (unsigned int)v9 < terrain->surfaceCount );
+        while ( (unsigned int)v6 < terrain->surfaceCount );
       }
     }
     Profile_EndInternal(NULL);
-  }
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -1476,17 +1388,15 @@ char R_ST_AddCachedSunShadowDrawSurfsToList(const StTerrain *terrain, GfxViewInf
 {
   __int64 surfaceIdx; 
   const StTerrainNode *node; 
-  StCachedSunShadowSurfaceState *v13; 
-  const StDiskTerrainSurface *v14; 
+  StCachedSunShadowSurfaceState *v12; 
+  const StDiskTerrainSurface *v13; 
   unsigned __int16 cutoutTriCount; 
-  unsigned int v16; 
+  unsigned int v15; 
+  bool v16; 
   bool v17; 
-  bool v18; 
   unsigned int cutoutMeshFilter; 
-  GfxStDrawSurf *v21; 
-  float fmt; 
+  GfxStDrawSurf *v19; 
   __int64 lodBias; 
-  float lodBiasa; 
   unsigned int tileDataIndex; 
   HLSL::hlsl_2_t<float,vec2_t> vertexBias; 
   HLSL::hlsl_2_t<float,vec2_t> vertexScale; 
@@ -1499,87 +1409,81 @@ char R_ST_AddCachedSunShadowDrawSurfsToList(const StTerrain *terrain, GfxViewInf
     __debugbreak();
   surfaceIdx = cacheNode->surfaceIdx;
   node = cacheNode->node;
-  v13 = &surfaces->states[surfaceIdx];
+  v12 = &surfaces->states[surfaceIdx];
   if ( (unsigned int)surfaceIdx >= terrain->surfaceCount )
   {
     LODWORD(lodBias) = cacheNode->surfaceIdx;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2564, ASSERT_TYPE_ASSERT, "(unsigned)( cacheNode.surfaceIdx ) < (unsigned)( terrain.surfaceCount )", "cacheNode.surfaceIdx doesn't index terrain.surfaceCount\n\t%i not in [0, %i)", lodBias, terrain->surfaceCount) )
       __debugbreak();
   }
-  v14 = &terrain->surfaces[cacheNode->surfaceIdx];
-  R_ST_TerrainSurface_PopulateDataInfo(v14, &terrainSurfaceDataInfo);
+  v13 = &terrain->surfaces[cacheNode->surfaceIdx];
+  R_ST_TerrainSurface_PopulateDataInfo(v13, &terrainSurfaceDataInfo);
   if ( (node->mesh.flags.packed & 8) == 0 )
-    R_ST_SurfaceBaseResourceStreamRequest(v14, ST_SURFACE_STREAM_REQUEST_GEO_HEIGHTMAP);
+    R_ST_SurfaceBaseResourceStreamRequest(v13, ST_SURFACE_STREAM_REQUEST_GEO_HEIGHTMAP);
   cutoutTriCount = node->mesh.cutoutTriCount;
-  v16 = 1;
+  v15 = 1;
   if ( cutoutTriCount )
   {
-    R_ST_SurfaceBaseResourceStreamRequest(v14, ST_SURFACE_STREAM_REQUEST_GEO_CUTOUTMAP);
+    R_ST_SurfaceBaseResourceStreamRequest(v13, ST_SURFACE_STREAM_REQUEST_GEO_CUTOUTMAP);
     cutoutTriCount = node->mesh.cutoutTriCount;
   }
-  v17 = (node->mesh.flags.packed & 2) != 0;
+  v16 = (node->mesh.flags.packed & 2) != 0;
   if ( (node->mesh.flags.packed & 8) == 0 )
   {
-    v17 = 0;
+    v16 = 0;
     if ( (node->mesh.flags.packed & 2) != 0 )
     {
       terrainSurfaceDataInfo.baseResourceRequestMask |= 1u;
       if ( (terrainSurfaceDataInfo.baseResourceAvailableMask & 1) != 0 )
-        v17 = 1;
+        v16 = 1;
     }
   }
   if ( cutoutTriCount )
   {
-    if ( !v17 )
+    if ( !v16 )
       return 0;
     terrainSurfaceDataInfo.baseResourceRequestMask |= 2u;
-    v18 = (terrainSurfaceDataInfo.baseResourceAvailableMask & 2) == 0;
+    v17 = (terrainSurfaceDataInfo.baseResourceAvailableMask & 2) == 0;
   }
   else
   {
-    v18 = !v17;
+    v17 = !v16;
   }
-  if ( v18 )
+  if ( v17 )
     return 0;
-  if ( !v13->tileDataInited )
+  if ( !v12->tileDataInited )
   {
-    R_ST_SetupTileDataForSurface(v14, &vec3_origin, 1, &v13->tileData);
-    v13->tileDataInited = 1;
+    R_ST_SetupTileDataForSurface(v13, &vec3_origin, 1, &v12->tileData);
+    v12->tileDataInited = 1;
   }
   vertexBias = (HLSL::hlsl_2_t<float,vec2_t>)node->compressBase;
   vertexScale = (HLSL::hlsl_2_t<float,vec2_t>)node->compressScale;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   materialLayerInput = 0i64;
-  __asm
-  {
-    vmovss  [rsp+148h+lodBias], xmm0
-    vmovss  dword ptr [rsp+148h+fmt], xmm0
-  }
-  if ( !R_ST_AddTileDataForNode(&v13->tileData, node, v14, &materialLayerInput, fmt, lodBiasa, &vertexScale, &vertexBias, 1u, cachedDvars, 0, frameData, &tileDataIndex) )
+  if ( !R_ST_AddTileDataForNode(&v12->tileData, node, v13, &materialLayerInput, 0.0, 0.0, &vertexScale, &vertexBias, 1u, cachedDvars, 0, frameData, &tileDataIndex) )
     return 0;
   cutoutMeshFilter = cachedDvars->cutoutMeshFilter;
   if ( !cutoutMeshFilter )
   {
-    v16 = (node->mesh.cutoutTriCount != 0) + 1;
+    v15 = (node->mesh.cutoutTriCount != 0) + 1;
     goto LABEL_28;
   }
   if ( cutoutMeshFilter != 1 )
   {
-    v16 = node->mesh.cutoutTriCount != 0;
+    v15 = node->mesh.cutoutTriCount != 0;
 LABEL_28:
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2592, ASSERT_TYPE_ASSERT, "(drawSurfCountForNode)", (const char *)&queryFormat, "drawSurfCountForNode") )
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2592, ASSERT_TYPE_ASSERT, "(drawSurfCountForNode)", (const char *)&queryFormat, "drawSurfCountForNode") )
       __debugbreak();
   }
-  v21 = R_ST_AllocFromSharedArray<0,GfxStDrawSurf>(surfList->surfs, &surfList->count, 0x100u, R_WARN_ST_FRAME_SUN_SHADOW_SURF_LIMIT, v16, (unsigned int *)&vertexBias);
-  if ( v21 )
+  v19 = R_ST_AllocFromSharedArray<0,GfxStDrawSurf>(surfList->surfs, &surfList->count, 0x100u, R_WARN_ST_FRAME_SUN_SHADOW_SURF_LIMIT, v15, (unsigned int *)&vertexBias);
+  if ( v19 )
   {
-    R_ST_PopulateDrawSurfsForNode(node, v14, viewInfoa, &v13->tileData, cachedDvars, v21, v16, tileDataIndex, 0, &terrainSurfaceDataInfo);
-    R_ST_TerrainSurface_IssueDataInfoRequests(v14, &terrainSurfaceDataInfo);
+    R_ST_PopulateDrawSurfsForNode(node, v13, viewInfoa, &v12->tileData, cachedDvars, v19, v15, tileDataIndex, 0, &terrainSurfaceDataInfo);
+    R_ST_TerrainSurface_IssueDataInfoRequests(v13, &terrainSurfaceDataInfo);
     return 1;
   }
   else
   {
-    R_ST_TerrainSurface_IssueDataInfoRequests(v14, &terrainSurfaceDataInfo);
+    R_ST_TerrainSurface_IssueDataInfoRequests(v13, &terrainSurfaceDataInfo);
     return 0;
   }
 }
@@ -1592,38 +1496,26 @@ R_ST_AddNodeDrawSurfsToList
 bool R_ST_AddNodeDrawSurfsToList(const StTerrainNode *node, const StDiskTerrainSurface *surface, const GfxViewInfo *viewInfo, const HLSL::TerrainTileDataCode *surfaceTileData, const StCachedFrontEndDvars *cachedDvars, unsigned int drawSurfCountForNode, unsigned int tileDataIndex, bool lightmapped, GfxStDrawSurf *dest, unsigned int destCapacity, volatile int *destCountInOut, GfxStDrawSurf **populatedSurfsInOut, TerrainSurfaceDataInfo *terrainSurfaceDataInfo)
 {
   GfxStDrawSurf *v17; 
+  GfxStDrawSurf *v18; 
+  GfxStDrawSurf *v19; 
   unsigned int indexOut[4]; 
 
   v17 = R_ST_AllocFromSharedArray<0,GfxStDrawSurf>(dest, destCountInOut, destCapacity, R_WARN_ST_FRAME_SUN_SHADOW_SURF_LIMIT, drawSurfCountForNode, indexOut);
-  _RBX = v17;
+  v18 = v17;
   if ( v17 )
   {
-    _RAX = *populatedSurfsInOut;
+    v19 = *populatedSurfsInOut;
     if ( *populatedSurfsInOut )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbx+20h], xmm1
-      }
+      *(__m256i *)&v18->drawGroup.fields = *(__m256i *)&v19->drawGroup.fields;
+      *(_OWORD *)&v18->baseIndex = *(_OWORD *)&v19->baseIndex;
       if ( drawSurfCountForNode > 1 )
-      {
-        _RAX = *populatedSurfsInOut;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+30h]
-          vmovups ymmword ptr [rbx+30h], ymm0
-          vmovups xmm1, xmmword ptr [rax+50h]
-          vmovups xmmword ptr [rbx+50h], xmm1
-        }
-      }
+        v18[1] = (*populatedSurfsInOut)[1];
     }
     else
     {
-      R_ST_PopulateDrawSurfsForNode(node, surface, viewInfo, surfaceTileData, cachedDvars, _RBX, drawSurfCountForNode, tileDataIndex, lightmapped, terrainSurfaceDataInfo);
-      *populatedSurfsInOut = _RBX;
+      R_ST_PopulateDrawSurfsForNode(node, surface, viewInfo, surfaceTileData, cachedDvars, v18, drawSurfCountForNode, tileDataIndex, lightmapped, terrainSurfaceDataInfo);
+      *populatedSurfsInOut = v18;
     }
     LOBYTE(v17) = 1;
   }
@@ -1641,16 +1533,16 @@ void R_ST_AddNodeToCachedSunShadowCells(const StCachedSunShadowNodeInfo *nodeInf
   unsigned int cutoutMeshFilter; 
   unsigned int v10; 
   int v11; 
+  unsigned int *v12; 
   unsigned int v13; 
   unsigned int v14; 
   unsigned int v15; 
   __int64 v16; 
 
-  _R15 = nodeInfo;
   if ( !nodeInfo->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2414, ASSERT_TYPE_ASSERT, "(nodeInfo.node)", (const char *)&queryFormat, "nodeInfo.node") )
     __debugbreak();
-  node = _R15->node;
-  if ( (_R15->node->mesh.flags.packed & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2416, ASSERT_TYPE_ASSERT, "(!node.mesh.flags.clippedOut)", (const char *)&queryFormat, "!node.mesh.flags.clippedOut") )
+  node = nodeInfo->node;
+  if ( (nodeInfo->node->mesh.flags.packed & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2416, ASSERT_TYPE_ASSERT, "(!node.mesh.flags.clippedOut)", (const char *)&queryFormat, "!node.mesh.flags.clippedOut") )
     __debugbreak();
   if ( !activeCells && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2417, ASSERT_TYPE_ASSERT, "(activeCells)", (const char *)&queryFormat, "activeCells") )
     __debugbreak();
@@ -1667,9 +1559,9 @@ LABEL_16:
         {
           do
           {
-            _RBX = (unsigned int *)&cellList->cells[v10];
-            v13 = _RBX[8195];
-            v14 = _RBX[8196];
+            v12 = (unsigned int *)&cellList->cells[v10];
+            v13 = v12[8195];
+            v14 = v12[8196];
             if ( (v13 >= 3 || v14 >= 0xA) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2173, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && cellIndex < ( 9 + 1 ))", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && cellIndex < CACHED_SUN_SHADOW_CELL_MAX_OVERLAP") )
               __debugbreak();
             v15 = v14 + 10 * (v13 - rg.firstCachedSunShadowPartition) + 3;
@@ -1677,17 +1569,15 @@ LABEL_16:
               __debugbreak();
             if ( _bittest((const int *)&activeCells, v15) )
             {
-              v16 = _RBX[8194];
+              v16 = v12[8194];
               if ( (unsigned int)v16 >= 0x800 )
               {
                 R_WarnOncePerFrame(R_WARN_ST_CACHED_SUN_SHADOW_NODES_PER_CELL_LIMIT, 2048i64);
               }
               else
               {
-                __asm { vmovups xmm0, xmmword ptr [r15] }
-                _RAX = 2 * v16;
-                __asm { vmovups xmmword ptr [rbx+rax*8+8], xmm0 }
-                ++_RBX[8194];
+                *(StCachedSunShadowNodeInfo *)&v12[4 * v16 + 2] = *nodeInfo;
+                ++v12[8194];
               }
             }
             ++v10;
@@ -1719,15 +1609,14 @@ char R_ST_AddSurfacesCameraNodeCallback(const StTerrainNode *node, unsigned int 
   const StDiskTerrainSurface *surface; 
   StreamKey *streamKey; 
   const StDiskTerrainSurface *v10; 
-  __int64 v13; 
-  const StTerrainNode *v14; 
+  __int64 v11; 
+  const StTerrainNode *v12; 
   bool IsAnyLitRenderingMethodAvailbleForNode; 
-  StMeshFlags v16; 
-  bool v17; 
-  const StDiskTerrainSurface *v18; 
+  StMeshFlags v14; 
+  bool v15; 
+  const StDiskTerrainSurface *v16; 
   const StTerrain *terrain; 
-  int v20; 
-  float fmt; 
+  int v18; 
   vec4_t color; 
   _QWORD childNodesOut[4]; 
 
@@ -1763,15 +1652,7 @@ char R_ST_AddSurfacesCameraNodeCallback(const StTerrainNode *node, unsigned int 
   if ( streamKey )
     Stream_RequestGeneric(streamKey);
   v10 = staticCallbackParams->surface;
-  if ( gridLevel == 0 || !staticCallbackParams->traverse )
-    goto LABEL_44;
-  _RAX = staticCallbackParams->cachedDvars;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-  }
-  if ( R_ST_CanDrawNode(staticCallbackParams->surface, node, gridLevel, &staticCallbackParams->worldSpaceCamPos, fmt) )
+  if ( gridLevel == 0 || !staticCallbackParams->traverse || R_ST_CanDrawNode(staticCallbackParams->surface, node, gridLevel, &staticCallbackParams->worldSpaceCamPos, staticCallbackParams->cachedDvars->adjustedLodDistanceScale) )
   {
 LABEL_44:
     R_ST_GenerateDrawSurfsForNode(node, v10, staticCallbackParams->materialLayers, staticCallbackParams->viewInfo, staticCallbackParams->surfaceTileData, staticCallbackParams->cachedDvars, staticCallbackParams->frameData, staticCallbackParams->lightmapped, staticCallbackParams->terrainSurfaceDataInfo);
@@ -1780,41 +1661,34 @@ LABEL_44:
       terrain = s_stGlob.terrain;
       if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1536, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
         __debugbreak();
-      v20 = truncate_cast<unsigned int,__int64>(v10 - terrain->surfaces);
-      R_DebugUniqueColorFromIndex(v20, (vec3_t *)childNodesOut);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0C8h+childNodesOut]
-        vmovss  xmm1, dword ptr [rsp+0C8h+childNodesOut+4]
-        vmovss  dword ptr [rsp+0C8h+color], xmm0
-        vmovss  xmm0, [rsp+0C8h+var_58]
-        vmovss  dword ptr [rsp+0C8h+color+4], xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vmovss  dword ptr [rsp+0C8h+color+8], xmm0
-        vmovss  dword ptr [rsp+0C8h+color+0Ch], xmm1
-      }
+      v18 = truncate_cast<unsigned int,__int64>(v10 - terrain->surfaces);
+      R_DebugUniqueColorFromIndex(v18, (vec3_t *)childNodesOut);
+      color.v[0] = *(float *)childNodesOut;
+      color.v[1] = *((float *)childNodesOut + 1);
+      color.v[2] = *(float *)&childNodesOut[1];
+      color.v[3] = FLOAT_1_0;
       R_AddDebugBox(&frontEndDataOut->debugGlobals, &node->wldBounds, &color, 1);
     }
     return 0;
   }
   R_ST_ChildNodesForNode(v10, node, gridLevel, (const StTerrainNode **)childNodesOut);
-  v13 = 0i64;
-  while ( (unsigned int)v13 < 4 )
+  v11 = 0i64;
+  while ( (unsigned int)v11 < 4 )
   {
-    v14 = (const StTerrainNode *)childNodesOut[v13];
-    IsAnyLitRenderingMethodAvailbleForNode = R_ST_IsAnyLitRenderingMethodAvailbleForNode(v14, staticCallbackParams->surface, staticCallbackParams->surfaceTileData, staticCallbackParams->terrainSurfaceDataInfo);
-    v16.packed = (unsigned __int8)v14->mesh.flags;
-    v17 = !IsAnyLitRenderingMethodAvailbleForNode && (v16.packed & 1) == 0;
-    if ( (v16.packed & 1) == 0 )
+    v12 = (const StTerrainNode *)childNodesOut[v11];
+    IsAnyLitRenderingMethodAvailbleForNode = R_ST_IsAnyLitRenderingMethodAvailbleForNode(v12, staticCallbackParams->surface, staticCallbackParams->surfaceTileData, staticCallbackParams->terrainSurfaceDataInfo);
+    v14.packed = (unsigned __int8)v12->mesh.flags;
+    v15 = !IsAnyLitRenderingMethodAvailbleForNode && (v14.packed & 1) == 0;
+    if ( (v14.packed & 1) == 0 )
     {
-      v18 = staticCallbackParams->surface;
-      if ( (v16.packed & 8) == 0 )
+      v16 = staticCallbackParams->surface;
+      if ( (v14.packed & 8) == 0 )
         R_ST_SurfaceBaseResourceStreamRequest(staticCallbackParams->surface, ST_SURFACE_STREAM_REQUEST_GEO_HEIGHTMAP);
-      if ( v14->mesh.cutoutTriCount )
-        R_ST_SurfaceBaseResourceStreamRequest(v18, ST_SURFACE_STREAM_REQUEST_GEO_CUTOUTMAP);
+      if ( v12->mesh.cutoutTriCount )
+        R_ST_SurfaceBaseResourceStreamRequest(v16, ST_SURFACE_STREAM_REQUEST_GEO_CUTOUTMAP);
     }
-    v13 = (unsigned int)(v13 + 1);
-    if ( v17 )
+    v11 = (unsigned int)(v11 + 1);
+    if ( v15 )
       goto LABEL_44;
   }
   return 1;
@@ -1839,31 +1713,32 @@ void R_ST_AddSurfacesForTerrainSurfaceCamera(const StDiskTerrainSurface *surface
   unsigned int v16; 
   int v17; 
   unsigned int lightmapIndex; 
-  bool v21; 
-  StLightmap *v22; 
-  const GfxImage *v23; 
-  signed int v24; 
+  double v19; 
+  bool v20; 
+  StLightmap *v21; 
+  const GfxImage *v22; 
+  signed int v23; 
   int forceLod; 
-  unsigned int v26; 
-  const char *v27; 
-  const vec4_t *v29; 
+  unsigned int v25; 
+  const char *v26; 
+  const vec4_t *v27; 
   unsigned __int8 nodeCallbackDynamicParams[4]; 
   int IsBoxVisible; 
   volatile int layerDataCount; 
-  Bounds *v33; 
-  int v34[2]; 
-  const GfxViewInfo *v35; 
-  const vec3_t *v36; 
+  Bounds *v31; 
+  int v32[2]; 
+  const GfxViewInfo *v33; 
+  const vec3_t *v34; 
   StAddSurfacesCameraCallbackStaticParams nodeCallbackStaticParams; 
   TerrainSurfaceDataInfo terrainSurfaceDataInfo; 
   HLSL::TerrainTileDataCode tileDataOut; 
   HLSL::TerrainLayerDataCode layersOut[32]; 
 
   p_wldBounds = &surface->wldBounds;
-  v36 = dpvsCamPos;
+  v34 = dpvsCamPos;
   viewInfoIndex = viewInfo->viewInfoIndex;
-  v35 = viewInfo;
-  v33 = &surface->wldBounds;
+  v33 = viewInfo;
+  v31 = &surface->wldBounds;
   IsBoxVisible = R_Umbra_IsBoxVisible(&surface->wldBounds, 0, viewInfoIndex, 0);
   v9 = IsBoxVisible;
   if ( IsBoxVisible )
@@ -1902,56 +1777,55 @@ void R_ST_AddSurfacesForTerrainSurfaceCamera(const StDiskTerrainSurface *surface
             }
             while ( v17 != v12 );
           }
-          v34[0] = layerDataCount;
-          nodeCallbackStaticParams.viewInfo = v35;
-          nodeCallbackStaticParams.materialLayers = (const MaterialLayerInput *)v34;
-          v34[1] = v12;
+          v32[0] = layerDataCount;
+          nodeCallbackStaticParams.viewInfo = v33;
+          nodeCallbackStaticParams.materialLayers = (const MaterialLayerInput *)v32;
+          v32[1] = v12;
           nodeCallbackStaticParams.terrainSurfaceDataInfo = &terrainSurfaceDataInfo;
           nodeCallbackStaticParams.surface = surface;
           nodeCallbackStaticParams.cachedDvars = cachedDvars;
           nodeCallbackStaticParams.frameData = frameData;
-          R_ST_SetupTileDataForSurface(surface, &v35->viewParmsSet.frames[0].viewParms.camera.origin, 1, &tileDataOut);
+          R_ST_SetupTileDataForSurface(surface, &v33->viewParmsSet.frames[0].viewParms.camera.origin, 1, &tileDataOut);
           lightmapIndex = surface->lightmapIndex;
           nodeCallbackStaticParams.surfaceTileData = &tileDataOut;
-          _RAX = v36;
-          __asm { vmovsd  xmm0, qword ptr [rax] }
-          nodeCallbackStaticParams.worldSpaceCamPos.v[2] = v36->v[2];
-          v21 = 0;
-          __asm { vmovsd  qword ptr [rbp+1520h+nodeCallbackStaticParams.worldSpaceCamPos], xmm0 }
+          v19 = *(double *)v34->v;
+          nodeCallbackStaticParams.worldSpaceCamPos.v[2] = v34->v[2];
+          v20 = 0;
+          *(double *)nodeCallbackStaticParams.worldSpaceCamPos.v = v19;
           if ( lightmapIndex != 510 )
           {
             if ( lightmapIndex >= s_stGlob.terrain->lightmapCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2047, ASSERT_TYPE_ASSERT, "(surface.lightmapIndex < s_stGlob.terrain->lightmapCount)", (const char *)&queryFormat, "surface.lightmapIndex < s_stGlob.terrain->lightmapCount") )
               __debugbreak();
-            v21 = 1;
-            v22 = &s_stGlob.terrain->lightmaps[surface->lightmapIndex];
+            v20 = 1;
+            v21 = &s_stGlob.terrain->lightmaps[surface->lightmapIndex];
             do
             {
-              if ( !v21 )
+              if ( !v20 )
                 break;
-              v23 = v22->images[0];
-              Stream_UsedImage(v22->images[0]);
-              v21 = Stream_CheckImageLowMipUsable(v23);
+              v22 = v21->images[0];
+              Stream_UsedImage(v21->images[0]);
+              v20 = Stream_CheckImageLowMipUsable(v22);
               ++v16;
-              v22 = (StLightmap *)((char *)v22 + 8);
+              v21 = (StLightmap *)((char *)v21 + 8);
             }
             while ( v16 < 3 );
           }
-          v24 = surface->grid.numLevels - 1;
-          nodeCallbackStaticParams.lightmapped = v21;
+          v23 = surface->grid.numLevels - 1;
+          nodeCallbackStaticParams.lightmapped = v20;
           forceLod = cachedDvars->forceLod;
           nodeCallbackStaticParams.traverse = 1;
           if ( forceLod >= 0 )
           {
             nodeCallbackStaticParams.traverse = 0;
-            if ( v24 < forceLod )
-              forceLod = v24;
-            v24 = forceLod;
+            if ( v23 < forceLod )
+              forceLod = v23;
+            v23 = forceLod;
           }
           nodeCallbackDynamicParams[0] = 0;
-          R_ST_TraverseTree_StAddSurfacesCameraCallbackStaticParams_unsigned_char_(surface, v24, (bool (__fastcall *)(const StTerrainNode *, unsigned int, StAddSurfacesCameraCallbackStaticParams *, const unsigned __int8 *, unsigned __int8 *))R_ST_AddSurfacesCameraNodeCallback, &nodeCallbackStaticParams, nodeCallbackDynamicParams);
+          R_ST_TraverseTree_StAddSurfacesCameraCallbackStaticParams_unsigned_char_(surface, v23, (bool (__fastcall *)(const StTerrainNode *, unsigned int, StAddSurfacesCameraCallbackStaticParams *, const unsigned __int8 *, unsigned __int8 *))R_ST_AddSurfacesCameraNodeCallback, &nodeCallbackStaticParams, nodeCallbackDynamicParams);
         }
       }
-      p_wldBounds = v33;
+      p_wldBounds = v31;
       v9 = IsBoxVisible;
     }
     else
@@ -1966,14 +1840,13 @@ void R_ST_AddSurfacesForTerrainSurfaceCamera(const StDiskTerrainSurface *surface
   {
     if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2091, ASSERT_TYPE_ASSERT, "(s_stGlob.terrain)", (const char *)&queryFormat, "s_stGlob.terrain") )
       __debugbreak();
-    v26 = truncate_cast<unsigned int,__int64>(surface - s_stGlob.terrain->surfaces);
-    v27 = j_va("%u", v26);
-    __asm { vmovss  xmm3, cs:__real@451c4000; size }
-    R_AddDebugString(&frontEndDataOut->debugGlobals, &p_wldBounds->midPoint, &colorGreen, *(float *)&_XMM3, v27);
-    v29 = &colorRed;
+    v25 = truncate_cast<unsigned int,__int64>(surface - s_stGlob.terrain->surfaces);
+    v26 = j_va("%u", v25);
+    R_AddDebugString(&frontEndDataOut->debugGlobals, &p_wldBounds->midPoint, &colorGreen, 2500.0, v26);
+    v27 = &colorRed;
     if ( v9 )
-      v29 = &colorGreen;
-    R_AddDebugBox(&frontEndDataOut->debugGlobals, p_wldBounds, v29, 1);
+      v27 = &colorGreen;
+    R_AddDebugBox(&frontEndDataOut->debugGlobals, p_wldBounds, v27, 1);
   }
 }
 
@@ -2069,174 +1942,120 @@ LABEL_43:
 R_ST_AddTileDataForNode
 ==============
 */
-bool R_ST_AddTileDataForNode(const HLSL::TerrainTileDataCode *surfaceTileData, const StTerrainNode *node, const StDiskTerrainSurface *surface, const MaterialLayerInput *materialLayerInput, float lodScale, float lodBias, const HLSL::hlsl_2_t<float,vec2_t> *vertexScale, const HLSL::hlsl_2_t<float,vec2_t> *vertexBias, unsigned int tileDataCount, const StCachedFrontEndDvars *cachedDvars, bool addVirtualTexturingInfo, StFrameData *frameData, unsigned int *tileDataIndexOut)
+char R_ST_AddTileDataForNode(const HLSL::TerrainTileDataCode *surfaceTileData, const StTerrainNode *node, const StDiskTerrainSurface *surface, const MaterialLayerInput *materialLayerInput, float lodScale, float lodBias, const HLSL::hlsl_2_t<float,vec2_t> *vertexScale, const HLSL::hlsl_2_t<float,vec2_t> *vertexBias, unsigned int tileDataCount, const StCachedFrontEndDvars *cachedDvars, bool addVirtualTexturingInfo, StFrameData *frameData, unsigned int *tileDataIndexOut)
 {
   const StTerrain *terrain; 
-  unsigned int count; 
+  __m256i v18; 
+  signed int count; 
   int layerLimit; 
-  bool v31; 
-  signed __int64 v35; 
-  unsigned int v42; 
+  float lodMorphOverride; 
+  signed __int64 v22; 
+  float v23; 
+  unsigned __int16 v24; 
+  unsigned int v25; 
+  bool v26; 
+  __int64 v27; 
   unsigned int displacementScalesCount; 
+  StTerrainDisplacementScale *displacementScales; 
   unsigned int tileDataLimit; 
   char *data; 
   volatile int *p_tileDataCount; 
-  __int64 v50; 
-  unsigned int v51; 
-  HLSL::TerrainTileData *v52; 
-  bool result; 
+  __int64 v33; 
+  unsigned int v34; 
+  HLSL::TerrainTileData *v35; 
   HLSL::TerrainTileDataCode p; 
-  char v57; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   terrain = s_stGlob.terrain;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RBX = surfaceTileData;
-  if ( !terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1288, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
+  if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1288, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymm1, ymmword ptr [rbx+80h]
-  }
-  _RAX = &p;
-  __asm
-  {
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rax+20h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rax+60h], ymm0
-    vmovups ymmword ptr [rax+80h], ymm1
-    vmovups ymm1, ymmword ptr [rbx+0A0h]
-    vmovups ymmword ptr [rax+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rbx+0C0h]
-  }
-  _RBX = cachedDvars;
-  __asm { vmovups xmmword ptr [rax+0C0h], xmm1 }
+  v18 = *(__m256i *)&surfaceTileData->windDir.xyz.v[1];
+  *(__m256i *)&p.flags = *(__m256i *)&surfaceTileData->flags;
+  *(__m256i *)&p.vertexScale.xy.v[1] = *(__m256i *)&surfaceTileData->vertexScale.xy.v[1];
+  *(__m256i *)&p.surfaceMapBaseIndex = *(__m256i *)&surfaceTileData->surfaceMapBaseIndex;
+  *(__m256i *)&p.offToSurfaceMapY.xyz.v[1] = *(__m256i *)&surfaceTileData->offToSurfaceMapY.xyz.v[1];
+  *(__m256i *)&p.windDir.xyz.v[1] = v18;
+  *(__m256i *)&p.surfaceIndex = *(__m256i *)&surfaceTileData->surfaceIndex;
+  *(_OWORD *)p.heightMapDx.v = *(_OWORD *)surfaceTileData->heightMapDx.v;
   count = materialLayerInput->count;
   layerLimit = cachedDvars->layerLimit;
-  v31 = layerLimit != -1;
-  if ( layerLimit > -1 )
-  {
-    v31 = layerLimit < count;
-    if ( layerLimit < (int)count )
-      count = cachedDvars->layerLimit;
-  }
-  __asm { vmovss  xmm0, dword ptr [rbx+20h] }
+  if ( layerLimit > -1 && layerLimit < count )
+    count = cachedDvars->layerLimit;
+  lodMorphOverride = cachedDvars->lodMorphOverride;
   p.layerCount = count;
   p.layerOffset = materialLayerInput->offset;
   p.layerMask = node->layerMask;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
   p.vertexScale = *vertexScale;
   p.vertexOffset = *vertexBias;
-  if ( v31 )
+  if ( lodMorphOverride < 0.0 )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+128h+lodScale]
-      vmovss  xmm1, [rsp+128h+lodBias]
-      vmovss  [rsp+128h+p.lodParamScale], xmm0
-      vmovss  [rsp+128h+p.lodParamOffset], xmm1
-    }
+    p.lodParamScale = lodScale;
+    p.lodParamOffset = lodBias;
   }
   else
   {
-    __asm
-    {
-      vmovss  [rsp+128h+p.lodParamScale], xmm6
-      vmovss  [rsp+128h+p.lodParamOffset], xmm0
-    }
+    p.lodParamScale = 0.0;
+    p.lodParamOffset = lodMorphOverride;
   }
-  v35 = (char *)surface - (char *)terrain->surfaces;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3f000000
-  }
+  v22 = (char *)surface - (char *)terrain->surfaces;
+  v23 = (float)(node->xIndex & 1) * 0.5;
+  v24 = node->yIndex & 1;
   p.layerSurfaceMapBaseIndex = 0;
-  __asm
+  p.generatedVerticesOffset.v[0] = v23;
+  p.generatedVerticesOffset.v[1] = (float)v24 * 0.5;
+  v25 = truncate_cast<unsigned int,__int64>(v22 / 376);
+  v26 = cachedDvars->displacementDistanceSquared > 0.0;
+  p.surfaceIndex = v25;
+  if ( v26 )
   {
-    vmovss  dword ptr [rsp+128h+p.generatedVerticesOffset], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmovss  dword ptr [rsp+128h+p.generatedVerticesOffset+4], xmm1
-  }
-  v42 = truncate_cast<unsigned int,__int64>(v35 / 376);
-  __asm { vcomiss xmm6, dword ptr [rbx+10h] }
-  p.surfaceIndex = v42;
-  if ( v31 )
-  {
-    _RAX = 0i64;
+    v27 = 0i64;
     displacementScalesCount = surface->displacementScalesCount;
     if ( displacementScalesCount )
     {
-      _R9 = surface->displacementScales;
-      while ( (node->layerMask & surface->layerDisplacementMask & _R9[_RAX].mask) == 0 )
+      displacementScales = surface->displacementScales;
+      while ( (node->layerMask & surface->layerDisplacementMask & displacementScales[v27].mask) == 0 )
       {
-        _RAX = (unsigned int)(_RAX + 1);
-        if ( (unsigned int)_RAX >= displacementScalesCount )
+        v27 = (unsigned int)(v27 + 1);
+        if ( (unsigned int)v27 >= displacementScalesCount )
           goto LABEL_17;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r9+rax*8+4]
-        vmovss  [rsp+128h+p.maxDisplacementScale], xmm0
-      }
+      p.maxDisplacementScale = displacementScales[v27].scale;
     }
   }
 LABEL_17:
   tileDataLimit = s_stGlob.tileDataLimit;
   data = (char *)frameData->tileData.data;
   p_tileDataCount = &frameData->tileDataCount;
-  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 561, ASSERT_TYPE_ASSERT, "(resourceArray)", (const char *)&queryFormat, "resourceArray") )
+  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 561, ASSERT_TYPE_ASSERT, "(resourceArray)", (const char *)&queryFormat, "resourceArray", *(_QWORD *)&p.flags, *(_QWORD *)&p.layerOffset, *(_QWORD *)&p.layerGrassMask, *(_OWORD *)&p.maxDisplacementScale, *(_QWORD *)((char *)&p.vertexOffset + 4), *(_OWORD *)&p.lodParamOffset, *(_QWORD *)&p.surfaceMapBaseIndex, *(_OWORD *)&p.surfaceMapXCount, *(_OWORD *)&p.vertXCount, *(_OWORD *)&p.vertSpacing, *(_OWORD *)&p.heightOffsetAndScale.xy.v[1], *(_QWORD *)&p.windStrength, *(_QWORD *)&p.windSpeed, *(_QWORD *)&p.grassSurfStep, *(_QWORD *)&p.surfaceIndex, *(_QWORD *)&p.sectorKey, *(_OWORD *)&p.defaultSectorStartMip, *(_QWORD *)&p.heightMapDx, *(_QWORD *)&p.heightMapDy) )
     __debugbreak();
-  v50 = tileDataCount;
+  v33 = tileDataCount;
   if ( !tileDataCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 562, ASSERT_TYPE_ASSERT, "(allocCount > 0)", (const char *)&queryFormat, "allocCount > 0") )
     __debugbreak();
   if ( ((unsigned __int8)p_tileDataCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)p_tileDataCount) )
     __debugbreak();
-  v51 = _InterlockedExchangeAdd(p_tileDataCount, tileDataCount);
-  *tileDataIndexOut = v51;
-  if ( v51 + tileDataCount >= tileDataLimit )
+  v34 = _InterlockedExchangeAdd(p_tileDataCount, tileDataCount);
+  *tileDataIndexOut = v34;
+  if ( v34 + tileDataCount >= tileDataLimit )
   {
     *tileDataIndexOut = 0;
     R_WarnOncePerFrame(R_WARN_ST_FRAME_TILE_DATA_LIMIT, tileDataLimit);
     if ( ((unsigned __int8)p_tileDataCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)p_tileDataCount) )
       __debugbreak();
     _InterlockedExchangeAdd(p_tileDataCount, -tileDataCount);
-    goto LABEL_35;
+    return 0;
   }
-  v52 = (HLSL::TerrainTileData *)&data[172 * v51];
-  if ( !v52 )
-  {
-LABEL_35:
-    result = 0;
-    goto LABEL_36;
-  }
+  v35 = (HLSL::TerrainTileData *)&data[172 * v34];
+  if ( !v35 )
+    return 0;
   if ( tileDataCount )
   {
     do
     {
-      HLSL::TerrainTileData::SetFrom(v52++, &p);
-      --v50;
+      HLSL::TerrainTileData::SetFrom(v35++, &p);
+      --v33;
     }
-    while ( v50 );
+    while ( v33 );
   }
-  result = 1;
-LABEL_36:
-  _R11 = &v57;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return 1;
 }
 
 /*
@@ -2322,134 +2141,107 @@ R_ST_AreNodeLayersReadyForCompositing
 */
 char R_ST_AreNodeLayersReadyForCompositing(const StDiskTerrainSurface *surface, const StTerrainNode *node, unsigned int virtualTextureMipLevel)
 {
-  unsigned int v5; 
-  const StDiskTerrainSurface *v6; 
-  char v9; 
-  unsigned int v10; 
+  unsigned int v3; 
+  char v6; 
+  unsigned int v7; 
   unsigned int layerMask; 
-  __int64 v14; 
-  unsigned __int16 *v18; 
-  unsigned __int16 v22; 
-  int v23; 
-  unsigned __int16 v24; 
-  unsigned __int16 v25; 
-  GfxImage *v26; 
-  int v27; 
-  StreamImageMip v28; 
-  char v29; 
-  GfxImage *v30; 
-  int v31; 
-  StreamImageMip v32; 
-  char v33; 
-  GfxImage *v34; 
-  int v35; 
-  StreamImageMip v36; 
+  float i; 
+  StTerrainMaterialLayer *v10; 
+  unsigned __int16 *materialTextureIdxs; 
+  unsigned __int16 v14; 
+  bool v15; 
+  unsigned int v16; 
+  unsigned __int16 v17; 
+  unsigned __int16 v18; 
+  GfxImage *v19; 
+  int v20; 
+  StreamImageMip v21; 
+  char v22; 
+  GfxImage *v23; 
+  int v24; 
+  StreamImageMip v25; 
+  char v26; 
+  GfxImage *v27; 
+  int v28; 
+  StreamImageMip v29; 
 
-  v5 = virtualTextureMipLevel;
-  v6 = surface;
+  v3 = virtualTextureMipLevel;
   if ( (node->mesh.flags.packed & 1) != 0 )
     return 0;
-  __asm { vmovss  xmm0, dword ptr [rcx+84h] }
-  v9 = 1;
-  v10 = 0;
+  v6 = 1;
+  v7 = 0;
   layerMask = node->layerMask;
-  __asm
+  for ( i = surface->halfWldSize * 50.0; v7 < surface->layerMaterialsCount; ++v7 )
   {
-    vmovaps [rsp+68h+var_38], xmm6
-    vmulss  xmm6, xmm0, cs:__real@42480000
-  }
-  if ( surface->layerMaterialsCount )
-  {
-    __asm
+    if ( _bittest((const int *)&layerMask, v7) )
     {
-      vmovaps [rsp+68h+var_48], xmm7
-      vmovss  xmm7, cs:__real@40000000
-    }
-    do
-    {
-      if ( _bittest((const int *)&layerMask, v10) )
+      v10 = &surface->layerMaterials[v7];
+      log2f(i / (float)((float)(2.0 * v10->layerData.textureScale.v[0]) * surface->halfWldSize));
+      materialTextureIdxs = v10->materialTextureIdxs;
+      _XMM1 = 0i64;
+      __asm { vroundss xmm1, xmm1, xmm0, 2 }
+      v14 = *materialTextureIdxs;
+      v15 = (int)((int)*(float *)&_XMM1 - v3) < 0;
+      v16 = (int)*(float *)&_XMM1 - v3;
+      v17 = materialTextureIdxs[1];
+      if ( v15 )
+        v16 = 0;
+      v18 = materialTextureIdxs[2];
+      if ( v14 != 0xFFFF )
       {
-        v14 = (__int64)&v6->layerMaterials[v10];
-        __asm
-        {
-          vmulss  xmm1, xmm7, dword ptr [rbx+68h]
-          vmulss  xmm2, xmm1, dword ptr [r15+84h]
-          vdivss  xmm0, xmm6, xmm2; X
-        }
-        log2f(*(float *)&_XMM0);
-        v18 = *(unsigned __int16 **)(v14 + 8);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm1, xmm1, xmm0, 2
-          vcvttss2si ebp, xmm1
-        }
-        v22 = *v18;
-        v23 = _EBP - v5;
-        v24 = v18[1];
-        if ( v23 < 0 )
-          v23 = 0;
-        v25 = v18[2];
-        if ( v22 != 0xFFFF )
-        {
-          v26 = s_stGlob.terrain->flattenedImages[v22];
-          v27 = v26->levelCount - v23;
-          if ( v27 < 0 )
-            v27 = 0;
-          v28 = 4 - v27;
-          if ( 4 - v27 < 1 )
-            v28 = MIP3;
-          if ( !Stream_TouchImageAndCheck(v26, v28) )
-            goto LABEL_16;
-        }
-        if ( v9 )
-          v29 = 1;
-        else
-LABEL_16:
-          v29 = 0;
-        if ( v24 != 0xFFFF )
-        {
-          v30 = s_stGlob.terrain->flattenedImages[v24];
-          v31 = v30->levelCount - v23;
-          if ( v31 < 0 )
-            v31 = 0;
-          v32 = 4 - v31;
-          if ( 4 - v31 < 1 )
-            v32 = MIP3;
-          if ( !Stream_TouchImageAndCheck(v30, v32) )
-            goto LABEL_23;
-        }
-        if ( v29 )
-          v33 = 1;
-        else
-LABEL_23:
-          v33 = 0;
-        if ( v25 != 0xFFFF )
-        {
-          v34 = s_stGlob.terrain->flattenedImages[v25];
-          v35 = v34->levelCount - v23;
-          if ( v35 < 0 )
-            v35 = 0;
-          v36 = 4 - v35;
-          if ( 4 - v35 < 1 )
-            v36 = MIP3;
-          if ( !Stream_TouchImageAndCheck(v34, v36) )
-            goto LABEL_30;
-        }
-        if ( v33 )
-          v9 = 1;
-        else
-LABEL_30:
-          v9 = 0;
-        v5 = virtualTextureMipLevel;
+        v19 = s_stGlob.terrain->flattenedImages[v14];
+        v20 = v19->levelCount - v16;
+        if ( v20 < 0 )
+          v20 = 0;
+        v21 = 4 - v20;
+        if ( 4 - v20 < 1 )
+          v21 = MIP3;
+        if ( !Stream_TouchImageAndCheck(v19, v21) )
+          goto LABEL_15;
       }
-      ++v10;
+      if ( v6 )
+        v22 = 1;
+      else
+LABEL_15:
+        v22 = 0;
+      if ( v17 != 0xFFFF )
+      {
+        v23 = s_stGlob.terrain->flattenedImages[v17];
+        v24 = v23->levelCount - v16;
+        if ( v24 < 0 )
+          v24 = 0;
+        v25 = 4 - v24;
+        if ( 4 - v24 < 1 )
+          v25 = MIP3;
+        if ( !Stream_TouchImageAndCheck(v23, v25) )
+          goto LABEL_22;
+      }
+      if ( v22 )
+        v26 = 1;
+      else
+LABEL_22:
+        v26 = 0;
+      if ( v18 != 0xFFFF )
+      {
+        v27 = s_stGlob.terrain->flattenedImages[v18];
+        v28 = v27->levelCount - v16;
+        if ( v28 < 0 )
+          v28 = 0;
+        v29 = 4 - v28;
+        if ( 4 - v28 < 1 )
+          v29 = MIP3;
+        if ( !Stream_TouchImageAndCheck(v27, v29) )
+          goto LABEL_29;
+      }
+      if ( v26 )
+        v6 = 1;
+      else
+LABEL_29:
+        v6 = 0;
+      v3 = virtualTextureMipLevel;
     }
-    while ( v10 < v6->layerMaterialsCount );
-    __asm { vmovaps xmm7, [rsp+68h+var_48] }
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
-  return v9;
+  return v6;
 }
 
 /*
@@ -2459,85 +2251,54 @@ R_ST_CacheFrontEndDvars
 */
 void R_ST_CacheFrontEndDvars(StCachedFrontEndDvars *cachedDvarsOut)
 {
-  bool v14; 
+  float value; 
+  float AdjustedLodDistanceScale; 
+  bool v4; 
+  const dvar_t *v5; 
+  float v6; 
   bool enabled; 
-  const dvar_t *v23; 
-  char v24; 
-  volatile __int64 v26; 
+  const dvar_t *v8; 
+  bool v9; 
 
-  _RAX = r_st_lodMorphControl;
-  _RBX = cachedDvarsOut;
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.stLodDistanceScale; distanceScale
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rax+28h]
-  }
-  v26 = s_sceneLodScaleBias;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsp+58h+arg_0+4]; sceneLodBias
-    vmovss  xmm2, dword ptr [rsp+58h+arg_0]; sceneLodScale
-    vmovaps xmm1, xmm6; morphControl
-  }
-  *(float *)&_XMM0 = R_ST_GetAdjustedLodDistanceScale(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm0, xmm6
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vsubss  xmm0, xmm2, xmm6
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  v14 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
-  _RAX = r_st_combined_bias_low;
-  if ( v14 )
-    _RAX = r_st_combined_bias_high;
-  __asm
-  {
-    vmovss  xmm2, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  xmm1, dword ptr [rax+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm2, xmm0
-  }
-  if ( !v14 )
-    __asm { vdivss  xmm1, xmm1, xmm2 }
-  __asm { vmovss  dword ptr [rbx+0Ch], xmm1 }
-  _RAX = r_st_displacementDistance;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  dword ptr [rbx+10h], xmm1
-  }
-  _RBX->shadowLod = r_st_sm_lod->current.integer;
-  LODWORD(_RBX->geomStreamLeadFactor) = r_st_streamLeadFactor->current.integer;
-  _RBX->forceLod = r_st_forceLod->current.integer;
-  LODWORD(_RBX->lodMorphOverride) = r_st_lodMorphOverride->current.integer;
-  _RBX->layerLimit = r_st_layerLimit->current.integer;
-  _RBX->cutoutMeshFilter = r_st_cutoutMeshFilter->current.unsignedInt;
-  _RBX->allowLayerMask = r_st_allowLayerMask->current.enabled;
-  _RBX->singleLayer = r_st_singleLayer->current.integer;
-  _RBX->surfaceDebugColorMode = r_st_surfaceDebugColorMode->current.integer;
-  _RBX->layerDebugColorMode = r_st_layerDebugColorMode->current.integer;
+  value = r_st_lodMorphControl->current.value;
+  AdjustedLodDistanceScale = R_ST_GetAdjustedLodDistanceScale(rg.stLodDistanceScale, value, *(float *)&s_sceneLodScaleBias, *((float *)&s_sceneLodScaleBias + 1));
+  cachedDvarsOut->adjustedLodDistanceScale = AdjustedLodDistanceScale;
+  cachedDvarsOut->lodBias = 1.0 - value;
+  cachedDvarsOut->lodScale = (float)(AdjustedLodDistanceScale * value) * 0.5;
+  v4 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
+  v5 = r_st_combined_bias_low;
+  if ( v4 )
+    v5 = r_st_combined_bias_high;
+  v6 = v5->current.value;
+  if ( rg.correctedLodParms.invFovScale != 0.0 )
+    v6 = v6 / rg.correctedLodParms.invFovScale;
+  cachedDvarsOut->combinedBias = v6;
+  cachedDvarsOut->displacementDistanceSquared = r_st_displacementDistance->current.value * r_st_displacementDistance->current.value;
+  cachedDvarsOut->shadowLod = r_st_sm_lod->current.integer;
+  LODWORD(cachedDvarsOut->geomStreamLeadFactor) = r_st_streamLeadFactor->current.integer;
+  cachedDvarsOut->forceLod = r_st_forceLod->current.integer;
+  LODWORD(cachedDvarsOut->lodMorphOverride) = r_st_lodMorphOverride->current.integer;
+  cachedDvarsOut->layerLimit = r_st_layerLimit->current.integer;
+  cachedDvarsOut->cutoutMeshFilter = r_st_cutoutMeshFilter->current.unsignedInt;
+  cachedDvarsOut->allowLayerMask = r_st_allowLayerMask->current.enabled;
+  cachedDvarsOut->singleLayer = r_st_singleLayer->current.integer;
+  cachedDvarsOut->surfaceDebugColorMode = r_st_surfaceDebugColorMode->current.integer;
+  cachedDvarsOut->layerDebugColorMode = r_st_layerDebugColorMode->current.integer;
   enabled = r_st_showSurfaceBounds->current.enabled;
-  _RBX->showSurfaceBounds = enabled;
+  cachedDvarsOut->showSurfaceBounds = enabled;
   if ( enabled )
     goto LABEL_11;
-  v23 = DVARINT_cg_drawTerrainStreamingInfo;
+  v8 = DVARINT_cg_drawTerrainStreamingInfo;
   if ( !DVARINT_cg_drawTerrainStreamingInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawTerrainStreamingInfo") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.integer > 1 )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.integer > 1 )
 LABEL_11:
-    v24 = 1;
+    v9 = 1;
   else
-    v24 = 0;
-  _RBX->showSurfaceBounds = v24;
-  _RBX->showTileBounds = r_st_showTileBounds->current.enabled;
+    v9 = 0;
+  cachedDvarsOut->showSurfaceBounds = v9;
+  cachedDvarsOut->showTileBounds = r_st_showTileBounds->current.enabled;
 }
 
 /*
@@ -2547,126 +2308,56 @@ R_ST_CachedSunShadowMapBitsForBounds
 */
 void R_ST_CachedSunShadowMapBitsForBounds(const Bounds *wldBounds, const GfxSunShadow *sunShadow, unsigned int *mapsToDrawInOut)
 {
-  const GfxSunShadow *v13; 
-  unsigned int firstCachedSunShadowPartition; 
-  __int64 v18; 
-  __int64 v19; 
-  unsigned int v20; 
-  unsigned int v21; 
-  int v28; 
-  __int64 v29; 
-  bool v30; 
+  const GfxSunShadow *v4; 
+  unsigned int i; 
+  __int64 v7; 
+  __int64 v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  int v11; 
+  __int64 v12; 
 
-  v13 = sunShadow;
-  _RSI = wldBounds;
+  v4 = sunShadow;
   if ( !*mapsToDrawInOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2214, ASSERT_TYPE_ASSERT, "(mapsToDrawInOut)", (const char *)&queryFormat, "mapsToDrawInOut") )
     __debugbreak();
-  firstCachedSunShadowPartition = rg.firstCachedSunShadowPartition;
-  if ( rg.firstCachedSunShadowPartition <= (unsigned int)rg.lastCachedSunShadowPartition )
+  for ( i = rg.firstCachedSunShadowPartition; i <= rg.lastCachedSunShadowPartition; ++i )
   {
-    __asm
+    if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 383, ASSERT_TYPE_ASSERT, "(sunShadow)", (const char *)&queryFormat, "sunShadow") )
+      __debugbreak();
+    if ( !R_IsCachedSunShadowPartition(v4, i) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 384, ASSERT_TYPE_ASSERT, "(R_IsCachedSunShadowPartition( sunShadow, partitionIndex ))", (const char *)&queryFormat, "R_IsCachedSunShadowPartition( sunShadow, partitionIndex )") )
+      __debugbreak();
+    v7 = i - v4->firstCachedSunShadowPartition;
+    v8 = (__int64)&v4->partitionCache[v7];
+    if ( (const GfxSunShadow *)((char *)v4 + 8656 * v7) == (const GfxSunShadow *)-2480i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2219, ASSERT_TYPE_ASSERT, "(partitionCache)", (const char *)&queryFormat, "partitionCache") )
+      __debugbreak();
+    v9 = 0;
+    if ( *(_DWORD *)(v8 + 4) )
     {
-      vmovaps [rsp+0E8h+var_38], xmm6
-      vmovaps [rsp+0E8h+var_48], xmm7
-      vmovaps [rsp+0E8h+var_58], xmm8
-      vmovaps [rsp+0E8h+var_68], xmm9
-      vmovaps [rsp+0E8h+var_78], xmm10
-      vmovaps [rsp+0E8h+var_88], xmm11
-      vmovaps [rsp+0E8h+var_98], xmm12
-      vmovaps [rsp+0E8h+var_A8], xmm13
-      vmovss  xmm13, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+0E8h+var_B8], xmm14
-      vxorps  xmm14, xmm14, xmm14
-    }
-    do
-    {
-      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 383, ASSERT_TYPE_ASSERT, "(sunShadow)", (const char *)&queryFormat, "sunShadow") )
-        __debugbreak();
-      if ( !R_IsCachedSunShadowPartition(v13, firstCachedSunShadowPartition) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 384, ASSERT_TYPE_ASSERT, "(R_IsCachedSunShadowPartition( sunShadow, partitionIndex ))", (const char *)&queryFormat, "R_IsCachedSunShadowPartition( sunShadow, partitionIndex )") )
-        __debugbreak();
-      v18 = firstCachedSunShadowPartition - v13->firstCachedSunShadowPartition;
-      v19 = (__int64)&v13->partitionCache[v18];
-      if ( (const GfxSunShadow *)((char *)v13 + 8656 * v18) == (const GfxSunShadow *)-2480i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2219, ASSERT_TYPE_ASSERT, "(partitionCache)", (const char *)&queryFormat, "partitionCache") )
-        __debugbreak();
-      v20 = 0;
-      if ( *(_DWORD *)(v19 + 4) )
+      do
       {
-        do
+        if ( (i >= 3 || v9 >= 0xA) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2173, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && cellIndex < ( 9 + 1 ))", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && cellIndex < CACHED_SUN_SHADOW_CELL_MAX_OVERLAP") )
+          __debugbreak();
+        v10 = v9 + 10 * (i - rg.firstCachedSunShadowPartition) + 3;
+        if ( v10 >= 0x17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2175, ASSERT_TYPE_ASSERT, "(shift < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT)", (const char *)&queryFormat, "shift < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT") )
+          __debugbreak();
+        if ( (*mapsToDrawInOut & (1 << v10)) != 0 )
         {
-          if ( (firstCachedSunShadowPartition >= 3 || v20 >= 0xA) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2173, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && cellIndex < ( 9 + 1 ))", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && cellIndex < CACHED_SUN_SHADOW_CELL_MAX_OVERLAP") )
-            __debugbreak();
-          v21 = v20 + 10 * (firstCachedSunShadowPartition - rg.firstCachedSunShadowPartition) + 3;
-          if ( v21 >= 0x17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2175, ASSERT_TYPE_ASSERT, "(shift < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT)", (const char *)&queryFormat, "shift < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT") )
-            __debugbreak();
-          if ( (*mapsToDrawInOut & (1 << v21)) != 0 )
+          v11 = 0;
+          v12 = *(_QWORD *)(864i64 * v9 + v8 + 16) + 48i64;
+          while ( (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(*(_DWORD *)v12 & _xmm) * wldBounds->halfSize.v[0]) + (float)((float)(wldBounds->midPoint.v[0] * *(float *)v12) + *(float *)(v12 + 12))) + (float)(wldBounds->midPoint.v[1] * *(float *)(v12 + 4))) + (float)(COERCE_FLOAT(*(_DWORD *)(v12 + 4) & _xmm) * wldBounds->halfSize.v[1])) + (float)(wldBounds->midPoint.v[2] * *(float *)(v12 + 8))) + (float)(COERCE_FLOAT(*(_DWORD *)(v12 + 8) & _xmm) * wldBounds->halfSize.v[2])) > 0.0 )
           {
-            __asm
-            {
-              vmovss  xmm7, dword ptr [rsi+0Ch]
-              vmovss  xmm8, dword ptr [rsi]
-              vmovss  xmm9, dword ptr [rsi+4]
-              vmovss  xmm10, dword ptr [rsi+10h]
-              vmovss  xmm11, dword ptr [rsi+8]
-              vmovss  xmm12, dword ptr [rsi+14h]
-            }
-            v28 = 0;
-            v29 = *(_QWORD *)(864i64 * v20 + v19 + 16);
-            v30 = __CFADD__(v29, 48i64) || v29 == -48;
-            _RAX = v29 + 48;
-            while ( 1 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rax]
-                vmovss  xmm5, dword ptr [rax+4]
-                vmovss  xmm6, dword ptr [rax+8]
-                vandps  xmm0, xmm1, xmm13
-                vmulss  xmm2, xmm0, xmm7
-                vmulss  xmm0, xmm8, xmm1
-                vaddss  xmm1, xmm0, dword ptr [rax+0Ch]
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm2, xmm9, xmm5
-                vmulss  xmm1, xmm11, xmm6
-                vaddss  xmm4, xmm3, xmm2
-                vandps  xmm5, xmm5, xmm13
-                vmulss  xmm0, xmm5, xmm10
-                vaddss  xmm2, xmm4, xmm0
-                vandps  xmm6, xmm6, xmm13
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm6, xmm12
-                vaddss  xmm1, xmm3, xmm0
-                vcomiss xmm1, xmm14
-              }
-              if ( v30 )
-                break;
-              ++v28;
-              _RAX += 16i64;
-              v30 = (unsigned int)v28 <= 4;
-              if ( v28 >= 4 )
-                goto LABEL_29;
-            }
-            *mapsToDrawInOut &= ~(1 << v21);
+            ++v11;
+            v12 += 16i64;
+            if ( v11 >= 4 )
+              goto LABEL_28;
           }
-LABEL_29:
-          ++v20;
+          *mapsToDrawInOut &= ~(1 << v10);
         }
-        while ( v20 < *(_DWORD *)(v19 + 4) );
-        v13 = sunShadow;
+LABEL_28:
+        ++v9;
       }
-      ++firstCachedSunShadowPartition;
-    }
-    while ( firstCachedSunShadowPartition <= rg.lastCachedSunShadowPartition );
-    __asm
-    {
-      vmovaps xmm14, [rsp+0E8h+var_B8]
-      vmovaps xmm13, [rsp+0E8h+var_A8]
-      vmovaps xmm12, [rsp+0E8h+var_98]
-      vmovaps xmm11, [rsp+0E8h+var_88]
-      vmovaps xmm10, [rsp+0E8h+var_78]
-      vmovaps xmm9, [rsp+0E8h+var_68]
-      vmovaps xmm8, [rsp+0E8h+var_58]
-      vmovaps xmm7, [rsp+0E8h+var_48]
-      vmovaps xmm6, [rsp+0E8h+var_38]
+      while ( v9 < *(_DWORD *)(v8 + 4) );
+      v4 = sunShadow;
     }
   }
 }
@@ -2676,33 +2367,24 @@ LABEL_29:
 R_ST_CanDrawNode
 ==============
 */
-_BOOL8 R_ST_CanDrawNode(const StDiskTerrainSurface *surface, const StTerrainNode *node, unsigned int gridLevel, const vec3_t *worldSpaceCamPos)
+_BOOL8 R_ST_CanDrawNode(const StDiskTerrainSurface *surface, const StTerrainNode *node, unsigned int gridLevel, const vec3_t *worldSpaceCamPos, float adjustedLodDistanceScale)
 {
   unsigned int v9; 
-  char v13; 
-  char v14; 
-  bool v15; 
-  StCombinedMapUsage v16; 
-  bool v17; 
+  float v10; 
+  float v11; 
+  StCombinedMapUsage v12; 
+  bool v13; 
 
-  _RBX = node;
   v9 = surface->grid.numLevels - 1;
-  *(float *)&_XMM0 = R_ST_DistanceToNodeWorldSpace(worldSpaceCamPos, node, surface);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+64h]
-    vmulss  xmm2, xmm1, cs:__real@40000000
-    vmulss  xmm3, xmm0, [rsp+28h+adjustedLodDistanceScale]
-    vcomiss xmm3, xmm2
-  }
-  v15 = !(v13 | v14);
-  if ( v13 | v14 || gridLevel != v9 )
-    return v15;
-  v16 = R_ST_CombinedMapUsageForSurface(surface, worldSpaceCamPos);
-  v17 = v15;
-  if ( v16 != ST_COMBINED_MAP_USAGE_ALL )
+  v10 = R_ST_DistanceToNodeWorldSpace(worldSpaceCamPos, node, surface);
+  v11 = node->wldBounds.halfSize.v[0] * 2.0;
+  if ( (float)(v10 * adjustedLodDistanceScale) <= v11 || gridLevel != v9 )
+    return (float)(v10 * adjustedLodDistanceScale) > v11;
+  v12 = R_ST_CombinedMapUsageForSurface(surface, worldSpaceCamPos);
+  v13 = (float)(v10 * adjustedLodDistanceScale) > v11;
+  if ( v12 != ST_COMBINED_MAP_USAGE_ALL )
     return 0;
-  return v17;
+  return v13;
 }
 
 /*
@@ -2788,29 +2470,18 @@ R_ST_CombinedMapDistanceSqThreshold
 */
 float R_ST_CombinedMapDistanceSqThreshold(bool applyADSZoomFactor)
 {
-  bool v3; 
+  bool v2; 
+  const dvar_t *v3; 
+  float value; 
 
-  v3 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
-  _RAX = r_st_combined_bias_low;
-  if ( v3 )
-    _RAX = r_st_combined_bias_high;
-  __asm { vmovss  xmm1, dword ptr [rax+28h] }
-  if ( applyADSZoomFactor )
-  {
-    __asm
-    {
-      vmovss  xmm2, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm2, xmm0
-      vdivss  xmm1, xmm1, xmm2
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm1, xmm1
-    vmulss  xmm0, xmm0, cs:__real@4d8fd72a
-  }
-  return *(float *)&_XMM0;
+  v2 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
+  v3 = r_st_combined_bias_low;
+  if ( v2 )
+    v3 = r_st_combined_bias_high;
+  value = v3->current.value;
+  if ( applyADSZoomFactor && rg.correctedLodParms.invFovScale != 0.0 )
+    value = value / rg.correctedLodParms.invFovScale;
+  return (float)(value * value) * 301655360.0;
 }
 
 /*
@@ -2820,108 +2491,79 @@ R_ST_CombinedMapUsageForSurface
 */
 __int64 R_ST_CombinedMapUsageForSurface(const StDiskTerrainSurface *surface, const vec3_t *viewPos)
 {
-  __int64 result; 
-  bool v34; 
-  bool v41; 
-  __int128 v49; 
-  __int128 v50; 
-  __int128 v51; 
+  __int128 v4; 
+  __m128 v8; 
+  __m128 v12; 
+  __m128 v21; 
+  bool v26; 
+  const dvar_t *v27; 
+  float value; 
+  const dvar_t *v29; 
+  __int128 v30; 
+  __m128 v31; 
+  __m128 v32; 
 
   if ( r_st_combined_force->current.enabled )
     return 2i64;
+  HIDWORD(v30) = 0;
+  v4 = v30;
+  *(float *)&v4 = viewPos->v[0];
+  _XMM4 = v4;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovaps [rsp+78h+var_18], xmm7
-  }
-  HIDWORD(v49) = 0;
-  __asm
-  {
-    vmovups xmm4, xmmword ptr [rsp+20h]
-    vmovss  xmm4, xmm4, xmm0
     vinsertps xmm4, xmm4, dword ptr [rdx+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rdx+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [rcx+44h]
-    vmovups xmmword ptr [rsp+20h], xmm4
   }
-  HIDWORD(v50) = 0;
+  v31 = _XMM4;
+  v31.m128_i32[3] = 0;
+  v8 = v31;
+  v8.m128_f32[0] = surface->wldBounds.midPoint.v[0];
+  _XMM3 = v8;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+20h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+48h], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+4Ch], 20h ; ' '
-    vmovss  xmm0, dword ptr [rcx+50h]
-    vmovups xmmword ptr [rsp+20h], xmm3
-    vsubps  xmm1, xmm4, xmm3
   }
-  HIDWORD(v51) = 0;
+  v32 = _XMM3;
+  _mm128_sub_ps(_XMM4, _XMM3);
+  v32.m128_i32[3] = 0;
+  v12 = v32;
+  v12.m128_f32[0] = surface->wldBounds.halfSize.v[0];
+  _XMM5 = v12;
+  _XMM0 = g_negativeZero.v;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp+20h]
-    vmovss  xmm5, xmm5, xmm0
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
     vinsertps xmm5, xmm5, dword ptr [rcx+54h], 10h
     vinsertps xmm5, xmm5, dword ptr [rcx+58h], 20h ; ' '
     vandnps xmm4, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm2, xmm4, xmm5
-    vmaxps  xmm1, xmm2, xmm0
-    vmulps  xmm3, xmm1, xmm1
-    vhaddps xmm0, xmm3, xmm3
-    vmovaps [rsp+78h+var_28], xmm8
-    vaddps  xmm1, xmm5, xmm4
-    vhaddps xmm8, xmm0, xmm0
-    vmulps  xmm0, xmm1, xmm1
+  }
+  _XMM2 = _mm128_sub_ps(_XMM4, _XMM5);
+  __asm { vmaxps  xmm1, xmm2, xmm0 }
+  _XMM3 = _mm128_mul_ps(_XMM1, _XMM1);
+  __asm { vhaddps xmm0, xmm3, xmm3 }
+  v21 = _mm128_add_ps(_XMM5, _XMM4);
+  __asm { vhaddps xmm8, xmm0, xmm0 }
+  _XMM0 = _mm128_mul_ps(v21, v21);
+  __asm
+  {
     vhaddps xmm2, xmm0, xmm0
-    vmovaps [rsp+78h+var_38], xmm9
     vhaddps xmm9, xmm2, xmm2
   }
-  v34 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
-  _RAX = r_st_combined_bias_low;
-  if ( v34 )
-    _RAX = r_st_combined_bias_high;
-  __asm
-  {
-    vmovss  xmm2, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  xmm1, dword ptr [rax+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm2, xmm0
-  }
-  if ( !v34 )
-    __asm { vdivss  xmm1, xmm1, xmm2 }
-  __asm
-  {
-    vmulss  xmm0, xmm1, xmm1
-    vmulss  xmm7, xmm0, cs:__real@4d8fd72a
-  }
-  v41 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
-  _RAX = r_st_combined_bias_low;
-  if ( v41 )
-    _RAX = r_st_combined_bias_high;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vcomiss xmm8, xmm7
-    vmovaps xmm8, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_18]
-  }
-  if ( v41 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm0, cs:__real@4d8fd72a
-      vcomiss xmm1, xmm9
-    }
-    result = 1i64;
-  }
+  v26 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
+  v27 = r_st_combined_bias_low;
+  if ( v26 )
+    v27 = r_st_combined_bias_high;
+  value = v27->current.value;
+  if ( rg.correctedLodParms.invFovScale != 0.0 )
+    value = value / rg.correctedLodParms.invFovScale;
+  v26 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
+  v29 = r_st_combined_bias_low;
+  if ( v26 )
+    v29 = r_st_combined_bias_high;
+  if ( *(float *)&_XMM8 <= (float)((float)(value * value) * 301655360.0) )
+    return (float)((float)(v29->current.value * v29->current.value) * 301655360.0) <= *(float *)&_XMM9;
   else
-  {
-    result = 2i64;
-  }
-  __asm { vmovaps xmm9, [rsp+78h+var_38] }
-  return result;
+    return 2i64;
 }
 
 /*
@@ -2933,221 +2575,85 @@ void R_ST_ComputeOffsetToSurfaceMap(const StDiskTerrainSurface *surface, const v
 {
   const StTerrain *terrain; 
   GfxImage *heightMap; 
-  unsigned int v28; 
-  double v144; 
-  double v145; 
-  double v146; 
-  double v147; 
-  double v148; 
-  char v152; 
-  void *retaddr; 
+  float v12; 
+  float v13; 
+  int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float halfWldSize; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
   terrain = s_stGlob.terrain;
-  _RDI = surface;
-  _R15 = outHeightMapDx;
-  _R14 = offToSurfaceMapY;
-  _R12 = outHeightMapDy;
-  _RBP = offToSurfaceMapX;
   if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1412, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
     __debugbreak();
-  __asm { vmovss  xmm15, cs:__real@3f800000 }
-  heightMap = _RDI->heightMap;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+2Ch]
-    vmovss  xmm5, dword ptr [rdi+28h]
-  }
-  v28 = terrain->maps[_RDI->surfaceMapSetIndex].paddedResolution - terrain->maps[_RDI->surfaceMapSetIndex].mapResolution;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+30h]
-    vmovss  xmm7, dword ptr [rdi+34h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, dword ptr [rdi+78h]
-    vdivss  xmm0, xmm15, xmm1
-    vmovss  [rsp+168h+var_118], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, dword ptr [rdi+78h]
-    vdivss  xmm3, xmm15, xmm1
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vmovss  [rsp+168h+var_110], xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, xmm15
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-  }
-  if ( heightMap->height >= v28 )
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm2, xmm2
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+168h+var_120], xmm1
-      vcvtss2sd xmm0, xmm4, xmm4
-      vcvtss2sd xmm2, xmm7, xmm7
-      vmovsd  [rsp+168h+var_128], xmm2
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovsd  [rsp+168h+var_130], xmm3
-      vmovsd  [rsp+168h+var_138], xmm0
-      vcvtss2sd xmm4, xmm5, xmm5
-      vmovsd  [rsp+168h+var_140], xmm4
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 770, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v144, v145, v146, v147, v148) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+2Ch]
-    vmovss  xmm5, cs:__real@40000000
-    vmulss  xmm1, xmm5, dword ptr [rdi+28h]
-    vmulss  xmm14, xmm1, dword ptr [rdi+28h]
-    vmulss  xmm6, xmm2, xmm1
-    vmulss  xmm0, xmm2, xmm5
-    vmulss  xmm11, xmm2, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rdi+30h]
-    vmulss  xmm2, xmm0, dword ptr [rdi+34h]
-    vmulss  xmm5, xmm0, dword ptr [rdi+30h]
-    vaddss  xmm13, xmm2, xmm6
-    vaddss  xmm1, xmm5, xmm11
-    vsubss  xmm12, xmm15, xmm1
-    vsubss  xmm1, xmm6, xmm2
-    vmovss  xmm6, cs:__real@3f000000
-    vmovss  [rsp+168h+var_114], xmm1
-    vmulss  xmm1, xmm13, dword ptr [r13+4]
-    vaddss  xmm0, xmm5, xmm14
-    vmovss  xmm5, [rsp+168h+var_118]
-    vsubss  xmm15, xmm15, xmm0
-    vmulss  xmm0, xmm12, dword ptr [r13+0]
-    vaddss  xmm4, xmm1, xmm0
-    vmovss  dword ptr [rbp+0], xmm12
-    vmovss  dword ptr [rbp+4], xmm13
-    vmovss  xmm3, dword ptr [rdi+84h]
-    vmovss  xmm2, dword ptr [rdi+38h]
-    vmulss  xmm0, xmm12, xmm5
-    vmovss  dword ptr [rbp+0], xmm0
-    vsubss  xmm0, xmm3, xmm2
-    vaddss  xmm2, xmm0, xmm4
-    vmovss  xmm4, [rsp+168h+var_114]
-    vmulss  xmm1, xmm13, xmm5
-    vmovss  dword ptr [rbp+4], xmm1
-    vmulss  xmm1, xmm2, xmm5
-    vmovss  dword ptr [rbp+8], xmm1
-  }
-  _EAX = heightMap->width - v28;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm0, xmm6, xmm0
-    vaddss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rbp+8], xmm1
-    vmulss  xmm0, xmm4, dword ptr [r13+0]
-    vmulss  xmm2, xmm15, dword ptr [r13+4]
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  xmm2, [rsp+168h+var_110]
-    vmovss  dword ptr [r14], xmm4
-    vmovss  dword ptr [r14+4], xmm15
-    vmovss  xmm1, dword ptr [rdi+84h]
-    vmovss  xmm0, dword ptr [rdi+3Ch]
-    vsubss  xmm0, xmm1, xmm0
-    vaddss  xmm1, xmm0, xmm3
-    vmulss  xmm5, xmm4, xmm2
-    vmulss  xmm4, xmm15, xmm2
-    vmulss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r14+8], xmm2
-    vmovss  dword ptr [r14], xmm5
-    vmovss  dword ptr [r14+4], xmm4
-  }
-  _EAX = heightMap->height - v28;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm0, xmm6, xmm0
-    vaddss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [r14+8], xmm1
-    vmovss  xmm3, dword ptr [rbp+4]
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm0, xmm0
-    vaddss  xmm7, xmm2, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-    vmulss  xmm3, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm6, xmm3, xmm0
-  }
-  if ( !_EAX )
-    goto LABEL_16;
-  __asm { vucomiss xmm6, xmm1 }
-  if ( !heightMap->width || !heightMap->height )
-  {
-LABEL_16:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1439, ASSERT_TYPE_ASSERT, "(offToSurfaceMapXLenSq != 0.0f && offToSurfaceMapYLenSq != 0.0f && heightMap->width != 0 && heightMap->height != 0)", (const char *)&queryFormat, "offToSurfaceMapXLenSq != 0.0f && offToSurfaceMapYLenSq != 0.0f && heightMap->width != 0 && heightMap->height != 0") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+0]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm7
-    vdivss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r15], xmm2
-    vmovss  xmm1, dword ptr [rbp+4]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm7
-    vdivss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r15+4], xmm2
-    vmovss  xmm1, dword ptr [r14]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm6
-    vdivss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r12], xmm2
-    vmovss  xmm1, dword ptr [r14+4]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm6
-    vdivss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r12+4], xmm2
-  }
-  _R11 = &v152;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  heightMap = surface->heightMap;
+  v12 = surface->objToWld.quat.v[1];
+  v13 = surface->objToWld.quat.v[0];
+  v14 = terrain->maps[surface->surfaceMapSetIndex].paddedResolution - terrain->maps[surface->surfaceMapSetIndex].mapResolution;
+  v15 = surface->objToWld.quat.v[2];
+  v16 = surface->objToWld.quat.v[3];
+  v36 = 1.0 / (float)((float)(heightMap->width - v14) * surface->surfaceMapWorldSize);
+  v38 = 1.0 / (float)((float)(heightMap->height - v14) * surface->surfaceMapWorldSize);
+  v17 = (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v15 * v15)) + (float)(v16 * v16);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v17 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 770, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v13, v12, v15, v16, fsqrt(v17)) )
+    __debugbreak();
+  v18 = surface->objToWld.quat.v[1];
+  v19 = 2.0 * surface->objToWld.quat.v[0];
+  v20 = v18 * v19;
+  v21 = v18 * (float)(v18 * 2.0);
+  v22 = 2.0 * surface->objToWld.quat.v[2];
+  v23 = v22 * surface->objToWld.quat.v[3];
+  v24 = v22 * surface->objToWld.quat.v[2];
+  v25 = v23 + v20;
+  v26 = 1.0 - (float)(v24 + v21);
+  v37 = v20 - v23;
+  v27 = 1.0 - (float)(v24 + (float)(v19 * surface->objToWld.quat.v[0]));
+  v28 = (float)((float)(v23 + v20) * cameraWorldPosition->v[1]) + (float)(v26 * cameraWorldPosition->v[0]);
+  offToSurfaceMapX->v[0] = v26;
+  offToSurfaceMapX->v[1] = v23 + v20;
+  halfWldSize = surface->halfWldSize;
+  v30 = surface->objToWld.origin.v[0];
+  offToSurfaceMapX->v[0] = v26 * v36;
+  v31 = (float)(halfWldSize - v30) + v28;
+  offToSurfaceMapX->v[1] = v25 * v36;
+  offToSurfaceMapX->v[2] = v31 * v36;
+  offToSurfaceMapX->v[2] = (float)(0.5 / _mm_cvtepi32_ps((__m128i)((unsigned int)heightMap->width - v14)).m128_f32[0]) + (float)(v31 * v36);
+  v32 = (float)(v27 * cameraWorldPosition->v[1]) + (float)(v37 * cameraWorldPosition->v[0]);
+  offToSurfaceMapY->v[0] = v37;
+  offToSurfaceMapY->v[1] = v27;
+  v33 = (float)((float)(surface->halfWldSize - surface->objToWld.origin.v[1]) + v32) * v38;
+  offToSurfaceMapY->v[2] = v33;
+  offToSurfaceMapY->v[0] = v37 * v38;
+  offToSurfaceMapY->v[1] = v27 * v38;
+  offToSurfaceMapY->v[2] = (float)(0.5 / _mm_cvtepi32_ps((__m128i)((unsigned int)heightMap->height - v14)).m128_f32[0]) + v33;
+  v34 = (float)(offToSurfaceMapX->v[0] * offToSurfaceMapX->v[0]) + (float)(offToSurfaceMapX->v[1] * offToSurfaceMapX->v[1]);
+  v35 = (float)((float)(v27 * v38) * (float)(v27 * v38)) + (float)((float)(v37 * v38) * (float)(v37 * v38));
+  if ( (v34 == 0.0 || v35 == 0.0 || !heightMap->width || !heightMap->height) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1439, ASSERT_TYPE_ASSERT, "(offToSurfaceMapXLenSq != 0.0f && offToSurfaceMapYLenSq != 0.0f && heightMap->width != 0 && heightMap->height != 0)", (const char *)&queryFormat, "offToSurfaceMapXLenSq != 0.0f && offToSurfaceMapYLenSq != 0.0f && heightMap->width != 0 && heightMap->height != 0") )
+    __debugbreak();
+  outHeightMapDx->v[0] = offToSurfaceMapX->v[0] / (float)((float)heightMap->width * v34);
+  outHeightMapDx->v[1] = offToSurfaceMapX->v[1] / (float)((float)heightMap->width * v34);
+  outHeightMapDy->v[0] = offToSurfaceMapY->v[0] / (float)((float)heightMap->height * v35);
+  outHeightMapDy->v[1] = offToSurfaceMapY->v[1] / (float)((float)heightMap->height * (float)((float)((float)(v27 * v38) * (float)(v27 * v38)) + (float)((float)(v37 * v38) * (float)(v37 * v38))));
 }
 
 /*
@@ -3161,42 +2667,34 @@ char R_ST_DebugGetRenderedGeoStatsCallback(const StTerrainNode *node, unsigned i
   const StDiskTerrainSurface *surface; 
   bool CanDrawNode; 
   __int64 i; 
-  int v12; 
+  int v11; 
   unsigned __int16 vertexCount; 
-  int v14; 
+  int v13; 
   StTerrainNode *childNodesOut[4]; 
 
-  _RDI = staticCallbackParams;
   v5 = gridLevel;
   if ( !staticCallbackParams->debugInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3516, ASSERT_TYPE_ASSERT, "(staticCallbackParams.debugInfo)", (const char *)&queryFormat, "staticCallbackParams.debugInfo") )
     __debugbreak();
   if ( (node->mesh.flags.packed & 1) != 0 )
     return 0;
-  surface = _RDI->surface;
+  surface = staticCallbackParams->surface;
   CanDrawNode = (_DWORD)v5 == 0;
   if ( (_DWORD)v5 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    CanDrawNode = R_ST_CanDrawNode(_RDI->surface, node, v5, &_RDI->worldSpaceCamPos);
-  }
+    CanDrawNode = R_ST_CanDrawNode(staticCallbackParams->surface, node, v5, &staticCallbackParams->worldSpaceCamPos, staticCallbackParams->cachedDvars.adjustedLodDistanceScale);
   if ( CanDrawNode )
   {
-    ++_RDI->debugInfo->idealNodesRenderedPerLevel[v5];
+    ++staticCallbackParams->debugInfo->idealNodesRenderedPerLevel[v5];
     if ( (_DWORD)v5 )
     {
-      v12 = 8;
-      _RDI->debugInfo->indexSizePerLevel[v5] += 6 * node->mesh.triCount;
+      v11 = 8;
+      staticCallbackParams->debugInfo->indexSizePerLevel[v5] += 6 * node->mesh.triCount;
       vertexCount = node->mesh.vertexCount;
       if ( (node->mesh.flags.packed & 4) != 0 )
-        v12 = 4;
-      v14 = 0;
+        v11 = 4;
+      v13 = 0;
       if ( (node->mesh.flags.packed & 0x10) != 0 )
-        v14 = vertexCount;
-      _RDI->debugInfo->vertSizePerLevel[v5] += v12 * vertexCount + 4 * v14;
+        v13 = vertexCount;
+      staticCallbackParams->debugInfo->vertSizePerLevel[v5] += v11 * vertexCount + 4 * v13;
     }
     return 0;
   }
@@ -3204,7 +2702,7 @@ char R_ST_DebugGetRenderedGeoStatsCallback(const StTerrainNode *node, unsigned i
   for ( i = 0i64; (unsigned int)i < 4; i = (unsigned int)(i + 1) )
   {
     if ( (childNodesOut[i]->mesh.flags.packed & 3) == 0 )
-      ++_RDI->debugInfo->missingNodesPerLevel[v5];
+      ++staticCallbackParams->debugInfo->missingNodesPerLevel[v5];
   }
   return 1;
 }
@@ -3216,24 +2714,23 @@ R_ST_DebugGetRenderedGeoStatsForSurface
 */
 void R_ST_DebugGetRenderedGeoStatsForSurface(const vec3_t *dpvsCamPos, const StDiskTerrainSurface *surface, StRenderedMeshGeoDebugInfo *renderedMeshGeoInfo)
 {
-  float v5; 
-  unsigned int v8; 
+  double v3; 
+  float v4; 
+  unsigned int v7; 
   unsigned __int8 nodeCallbackDynamicParams[16]; 
   StRenderedMeshGeoDebugInfoCallbackStaticParams nodeCallbackStaticParams; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovsd  xmm0, qword ptr [rcx] }
-  v5 = dpvsCamPos->v[2];
+  v3 = *(double *)dpvsCamPos->v;
+  v4 = dpvsCamPos->v[2];
   nodeCallbackStaticParams.surface = surface;
-  __asm { vmovsd  qword ptr [r11-30h], xmm0 }
-  nodeCallbackStaticParams.worldSpaceCamPos.v[2] = v5;
+  *(double *)nodeCallbackStaticParams.worldSpaceCamPos.v = v3;
+  nodeCallbackStaticParams.worldSpaceCamPos.v[2] = v4;
   R_ST_CacheFrontEndDvars(&nodeCallbackStaticParams.cachedDvars);
   memset_0(renderedMeshGeoInfo, 0, sizeof(StRenderedMeshGeoDebugInfo));
-  v8 = surface->grid.numLevels - 1;
+  v7 = surface->grid.numLevels - 1;
   nodeCallbackStaticParams.debugInfo = renderedMeshGeoInfo;
   nodeCallbackDynamicParams[0] = 0;
-  R_ST_TraverseTree_StRenderedMeshGeoDebugInfoCallbackStaticParams_unsigned_char_(surface, v8, (bool (__fastcall *)(const StTerrainNode *, unsigned int, StRenderedMeshGeoDebugInfoCallbackStaticParams *, const unsigned __int8 *, unsigned __int8 *))R_ST_DebugGetRenderedGeoStatsCallback, &nodeCallbackStaticParams, nodeCallbackDynamicParams);
+  R_ST_TraverseTree_StRenderedMeshGeoDebugInfoCallbackStaticParams_unsigned_char_(surface, v7, (bool (__fastcall *)(const StTerrainNode *, unsigned int, StRenderedMeshGeoDebugInfoCallbackStaticParams *, const unsigned __int8 *, unsigned __int8 *))R_ST_DebugGetRenderedGeoStatsCallback, &nodeCallbackStaticParams, nodeCallbackDynamicParams);
 }
 
 /*
@@ -3243,77 +2740,36 @@ R_ST_DistanceToNodeWorldSpace
 */
 float R_ST_DistanceToNodeWorldSpace(const vec3_t *worldSpacePos, const StTerrainNode *node, const StDiskTerrainSurface *surface)
 {
-  unsigned int v13; 
-  char v44; 
-  void *retaddr; 
+  float v3; 
+  signed int i; 
+  __int64 v6; 
+  float v7; 
+  int v8; 
+  float v9; 
+  double v10; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  _RAX = &retaddr;
-  __asm
+  v3 = worldSpacePos->v[1];
+  v12 = worldSpacePos->v[0];
+  v14 = worldSpacePos->v[2];
+  v13 = v3;
+  for ( i = 0; (unsigned int)i < 2; ++i )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  [rsp+0A8h+var_68], xmm0
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+0A8h+var_60], xmm0
-    vmovss  [rsp+0A8h+var_64], xmm1
+    v6 = i;
+    v7 = node->wldBounds.midPoint.v[i] + node->wldBounds.halfSize.v[i];
+    v8 = *((int *)&v12 + i);
+    if ( *(float *)&v8 <= (float)(node->wldBounds.midPoint.v[i] - node->wldBounds.halfSize.v[i]) )
+      *(float *)&v8 = node->wldBounds.midPoint.v[i] - node->wldBounds.halfSize.v[i];
+    *(&v12 + i) = *(float *)&v8;
+    if ( *(float *)&v8 >= v7 )
+      *(float *)&v8 = v7;
+    *(&v12 + v6) = *(float *)&v8;
   }
-  _R14 = surface;
-  _RSI = node;
-  _RBP = worldSpacePos;
-  v13 = 0;
-  do
-  {
-    _RDI = (int)v13;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+rdi*4+58h]
-      vsubss  xmm7, xmm0, dword ptr [rsi+rdi*4+64h]
-      vmovss  xmm0, dword ptr [rsi+rdi*4+58h]
-      vaddss  xmm8, xmm0, dword ptr [rsi+rdi*4+64h]
-      vmovss  xmm6, [rsp+rdi*4+0A8h+var_68]
-      vcomiss xmm6, xmm7
-      vmovaps xmm6, xmm7
-      vmovss  [rsp+rdi*4+0A8h+var_68], xmm6
-      vcomiss xmm6, xmm8
-    }
-    ++v13;
-    __asm { vmovss  [rsp+rdi*4+0A8h+var_68], xmm6 }
-  }
-  while ( v13 < 2 );
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r14+7Ch]
-    vaddss  xmm1, xmm1, dword ptr [r14+40h]; min
-    vaddss  xmm2, xmm1, dword ptr [r14+80h]; max
-    vmovss  xmm0, dword ptr [rbp+8]; val
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+0]
-    vsubss  xmm5, xmm1, [rsp+0A8h+var_68]
-    vmovss  xmm2, dword ptr [rbp+4]
-    vsubss  xmm3, xmm2, [rsp+0A8h+var_64]
-    vmovss  xmm1, dword ptr [rbp+8]
-    vsubss  xmm4, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-  }
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0A8h+var_38]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return *(float *)&_XMM0;
+  v9 = surface->heightOffset + surface->objToWld.origin.v[2];
+  v10 = I_fclamp(worldSpacePos->v[2], v9, v9 + surface->heightScale);
+  return fsqrt((float)((float)((float)(worldSpacePos->v[1] - v13) * (float)(worldSpacePos->v[1] - v13)) + (float)((float)(worldSpacePos->v[0] - v12) * (float)(worldSpacePos->v[0] - v12))) + (float)((float)(worldSpacePos->v[2] - *(float *)&v10) * (float)(worldSpacePos->v[2] - *(float *)&v10)));
 }
 
 /*
@@ -3422,13 +2878,14 @@ R_ST_GenerateDrawSurfsForNode
 */
 void R_ST_GenerateDrawSurfsForNode(const StTerrainNode *node, const StDiskTerrainSurface *surface, const MaterialLayerInput *materialLayers, const GfxViewInfo *viewInfo, const HLSL::TerrainTileDataCode *surfaceTileData, const StCachedFrontEndDvars *cachedDvars, StFrameData *frameData, bool lightmapped, TerrainSurfaceDataInfo *terrainSurfaceDataInfo)
 {
+  const StCachedFrontEndDvars *v13; 
   unsigned int cutoutMeshFilter; 
   unsigned int v15; 
   const MaterialLayerInput *v16; 
-  const HLSL::TerrainTileDataCode *v21; 
-  GfxStDrawSurf *v22; 
-  float fmt; 
   float lodBias; 
+  float v18; 
+  const HLSL::TerrainTileDataCode *v19; 
+  GfxStDrawSurf *v20; 
   HLSL::hlsl_2_t<float,vec2_t> vertexBias; 
   HLSL::hlsl_2_t<float,vec2_t> vertexScale; 
   unsigned int tileDataIndex; 
@@ -3437,7 +2894,7 @@ void R_ST_GenerateDrawSurfsForNode(const StTerrainNode *node, const StDiskTerrai
     __debugbreak();
   if ( node->mesh.triCount )
   {
-    _RSI = cachedDvars;
+    v13 = cachedDvars;
     cutoutMeshFilter = cachedDvars->cutoutMeshFilter;
     if ( cutoutMeshFilter )
     {
@@ -3446,22 +2903,12 @@ void R_ST_GenerateDrawSurfsForNode(const StTerrainNode *node, const StDiskTerrai
         v15 = 1;
 LABEL_11:
         v16 = materialLayers;
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f000000
-          vdivss  xmm1, xmm0, dword ptr [rdi+64h]
-          vmovss  xmm0, dword ptr [rsi+8]
-          vmulss  xmm2, xmm1, dword ptr [rsi+4]
-        }
-        v21 = surfaceTileData;
+        lodBias = cachedDvars->lodBias;
+        v18 = (float)(0.5 / node->wldBounds.halfSize.v[0]) * cachedDvars->lodScale;
+        v19 = surfaceTileData;
         vertexBias = (HLSL::hlsl_2_t<float,vec2_t>)node->compressBase;
         vertexScale = (HLSL::hlsl_2_t<float,vec2_t>)node->compressScale;
-        __asm
-        {
-          vmovss  [rsp+0A8h+lodBias], xmm0
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm2
-        }
-        if ( R_ST_AddTileDataForNode(surfaceTileData, node, surface, v16, fmt, lodBias, &vertexScale, &vertexBias, 1u, cachedDvars, 1, frameData, &tileDataIndex) )
+        if ( R_ST_AddTileDataForNode(surfaceTileData, node, surface, v16, v18, lodBias, &vertexScale, &vertexBias, 1u, cachedDvars, 1, frameData, &tileDataIndex) )
         {
           if ( v15 + scene.superTerrainSurfCount > 0x400 )
           {
@@ -3469,10 +2916,10 @@ LABEL_11:
           }
           else
           {
-            v22 = &scene.superTerrainSurfs[scene.superTerrainSurfCount];
+            v20 = &scene.superTerrainSurfs[scene.superTerrainSurfCount];
             scene.superTerrainSurfCount += v15;
-            if ( v22 )
-              R_ST_PopulateDrawSurfsForNode(node, surface, viewInfo, v21, _RSI, v22, v15, tileDataIndex, lightmapped, terrainSurfaceDataInfo);
+            if ( v20 )
+              R_ST_PopulateDrawSurfsForNode(node, surface, viewInfo, v19, v13, v20, v15, tileDataIndex, lightmapped, terrainSurfaceDataInfo);
           }
         }
         return;
@@ -3496,15 +2943,13 @@ R_ST_GenerateSunShadowDrawSurfsForNode
 */
 void R_ST_GenerateSunShadowDrawSurfsForNode(const StTerrainNode *node, const StDiskTerrainSurface *surface, const GfxViewInfo *viewInfo, const GfxSunShadow *sunShadow, const HLSL::TerrainTileDataCode *baseTileData, unsigned int mapsToDraw, const StCachedFrontEndDvars *cachedDvars, StFrameData *frameData, TerrainSurfaceDataInfo *terrainSurfaceDataInfo)
 {
+  unsigned int v11; 
   unsigned int v12; 
-  unsigned int v13; 
-  const StCachedFrontEndDvars *v14; 
-  int v15; 
+  const StCachedFrontEndDvars *v13; 
+  int v14; 
   unsigned int cutoutMeshFilter; 
-  unsigned int v17; 
-  const HLSL::TerrainTileDataCode *v19; 
-  float fmt; 
-  float lodBias; 
+  unsigned int v16; 
+  const HLSL::TerrainTileDataCode *v17; 
   HLSL::hlsl_2_t<float,vec2_t> vertexScale; 
   MaterialLayerInput materialLayerInput; 
   HLSL::hlsl_2_t<float,vec2_t> vertexBias; 
@@ -3513,52 +2958,46 @@ void R_ST_GenerateSunShadowDrawSurfsForNode(const StTerrainNode *node, const StD
   viewInfoa = (GfxViewInfo *)viewInfo;
   if ( (node->mesh.flags.packed & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2268, ASSERT_TYPE_ASSERT, "(!node.mesh.flags.clippedOut)", (const char *)&queryFormat, "!node.mesh.flags.clippedOut") )
     __debugbreak();
-  v12 = mapsToDraw;
+  v11 = mapsToDraw;
   if ( !mapsToDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2269, ASSERT_TYPE_ASSERT, "(mapsToDraw)", (const char *)&queryFormat, "mapsToDraw") )
     __debugbreak();
   if ( node->mesh.triCount )
   {
-    v13 = 0;
-    v14 = cachedDvars;
-    v15 = 1;
+    v12 = 0;
+    v13 = cachedDvars;
+    v14 = 1;
     cutoutMeshFilter = cachedDvars->cutoutMeshFilter;
     if ( cutoutMeshFilter )
     {
       if ( cutoutMeshFilter == 1 )
       {
-        v17 = 1;
+        v16 = 1;
 LABEL_14:
         vertexBias = (HLSL::hlsl_2_t<float,vec2_t>)node->compressBase;
         vertexScale = (HLSL::hlsl_2_t<float,vec2_t>)node->compressScale;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  [rsp+0B8h+lodBias], xmm0
-        }
-        v19 = baseTileData;
+        v17 = baseTileData;
         materialLayerInput = 0i64;
-        __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm0 }
-        if ( R_ST_AddTileDataForNode(baseTileData, node, surface, &materialLayerInput, fmt, lodBias, &vertexScale, &vertexBias, 1u, cachedDvars, 0, frameData, &mapsToDraw) )
+        if ( R_ST_AddTileDataForNode(baseTileData, node, surface, &materialLayerInput, 0.0, 0.0, &vertexScale, &vertexBias, 1u, cachedDvars, 0, frameData, &mapsToDraw) )
         {
           vertexBias = 0i64;
           do
           {
-            if ( (v15 & v12) != 0 )
-              R_ST_AddNodeDrawSurfsToList(node, surface, viewInfoa, v19, v14, v17, mapsToDraw, 0, scene.superTerrainSurfsSunShadow[v13], 0x200u, &scene.superTerrainSunShadowSurfCount[v13], (GfxStDrawSurf **)&vertexBias, terrainSurfaceDataInfo);
-            ++v13;
-            v15 = __ROL4__(v15, 1);
+            if ( (v14 & v11) != 0 )
+              R_ST_AddNodeDrawSurfsToList(node, surface, viewInfoa, v17, v13, v16, mapsToDraw, 0, scene.superTerrainSurfsSunShadow[v12], 0x200u, &scene.superTerrainSunShadowSurfCount[v12], (GfxStDrawSurf **)&vertexBias, terrainSurfaceDataInfo);
+            ++v12;
+            v14 = __ROL4__(v14, 1);
           }
-          while ( v13 < 3 );
+          while ( v12 < 3 );
         }
         return;
       }
-      v17 = node->mesh.cutoutTriCount != 0;
+      v16 = node->mesh.cutoutTriCount != 0;
     }
     else
     {
-      v17 = (node->mesh.cutoutTriCount != 0) + 1;
+      v16 = (node->mesh.cutoutTriCount != 0) + 1;
     }
-    if ( !v17 )
+    if ( !v16 )
       return;
     goto LABEL_14;
   }
@@ -3569,67 +3008,31 @@ LABEL_14:
 R_ST_GeomStreamTerrainSurface
 ==============
 */
-
-void __fastcall R_ST_GeomStreamTerrainSurface(const StDiskTerrainSurface *surface, const vec3_t *dpvsCamPos, double zoomFactor)
+void R_ST_GeomStreamTerrainSurface(const StDiskTerrainSurface *surface, const vec3_t *dpvsCamPos, float zoomFactor)
 {
-  float v7; 
+  float v3; 
+  double v5; 
   unsigned int numLevels; 
-  __int64 v27; 
+  float stLodDistanceScale; 
+  int integer; 
   unsigned __int8 nodeCallbackDynamicParams[8]; 
-  volatile __int64 v29; 
+  volatile __int64 v10; 
   StGeomStreamStaticParams nodeCallbackStaticParams; 
-  char v32; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-  }
-  v7 = dpvsCamPos->v[2];
-  __asm { vmovsd  xmm0, qword ptr [rdx] }
+  v3 = dpvsCamPos->v[2];
+  v5 = *(double *)dpvsCamPos->v;
   numLevels = surface->grid.numLevels;
-  __asm { vmovss  xmm7, cs:?rg@@3Ur_globals_t@@A.stLodDistanceScale; r_globals_t rg }
+  stLodDistanceScale = rg.stLodDistanceScale;
   nodeCallbackStaticParams.surface = surface;
-  nodeCallbackStaticParams.worldSpaceCamPos.v[2] = v7;
-  _RAX = r_st_lodMorphControl;
-  __asm
-  {
-    vmovsd  qword ptr [rsp+98h+nodeCallbackStaticParams.worldSpaceCamPos], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovss  xmm8, dword ptr [rax+28h]
-  }
-  v29 = s_sceneLodScaleBiasWithoutFov;
-  __asm { vmovaps xmm6, xmm2 }
-  if ( (unsigned __int64)&v27 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1980, ASSERT_TYPE_ASSERT, "(zoomFactor > 0.0f)", (const char *)&queryFormat, "zoomFactor > 0.0f") )
+  nodeCallbackStaticParams.worldSpaceCamPos.v[2] = v3;
+  *(double *)nodeCallbackStaticParams.worldSpaceCamPos.v = v5;
+  integer = r_st_lodMorphControl->current.integer;
+  v10 = s_sceneLodScaleBiasWithoutFov;
+  if ( zoomFactor <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1980, ASSERT_TYPE_ASSERT, "(zoomFactor > 0.0f)", (const char *)&queryFormat, "zoomFactor > 0.0f") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000
-    vdivss  xmm4, xmm2, xmm6
-    vmulss  xmm3, xmm4, dword ptr [rsp+98h+var_60+4]; sceneLodBias
-    vmulss  xmm2, xmm4, dword ptr [rsp+98h+var_60]; sceneLodScale
-    vmovaps xmm1, xmm8; morphControl
-    vmovaps xmm0, xmm7; distanceScale
-  }
-  *(float *)&_XMM0 = R_ST_GetAdjustedLodDistanceScale(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
   nodeCallbackDynamicParams[0] = 0;
-  __asm
-  {
-    vmulss  xmm0, xmm0, dword ptr [rax+28h]
-    vmovss  [rsp+98h+nodeCallbackStaticParams.adjustedLodDistanceScale], xmm0
-  }
+  nodeCallbackStaticParams.adjustedLodDistanceScale = R_ST_GetAdjustedLodDistanceScale(stLodDistanceScale, *(float *)&integer, (float)(1.0 / zoomFactor) * *(float *)&v10, (float)(1.0 / zoomFactor) * *((float *)&v10 + 1)) * r_st_streamLeadFactor->current.value;
   R_ST_TraverseTree_StGeomStreamStaticParams_unsigned_char_(surface, numLevels - 1, R_ST_GeomStream_Callback, &nodeCallbackStaticParams, nodeCallbackDynamicParams);
-  _R11 = &v32;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -3644,7 +3047,6 @@ bool R_ST_GeomStream_Callback(const StTerrainNode *node, unsigned int gridLevel,
   StreamKey *v9; 
   const StDiskTerrainSurface *surface; 
 
-  _RSI = staticCallbackParams;
   streamKey = node->mesh.streamKey;
   if ( streamKey )
   {
@@ -3655,17 +3057,12 @@ bool R_ST_GeomStream_Callback(const StTerrainNode *node, unsigned int gridLevel,
     else
       Stream_RequestGeneric(v9);
   }
-  surface = _RSI->surface;
+  surface = staticCallbackParams->surface;
   if ( (node->mesh.flags.packed & 8) == 0 )
-    R_ST_SurfaceBaseResourceStreamRequest(_RSI->surface, ST_SURFACE_STREAM_REQUEST_GEO_HEIGHTMAP);
+    R_ST_SurfaceBaseResourceStreamRequest(staticCallbackParams->surface, ST_SURFACE_STREAM_REQUEST_GEO_HEIGHTMAP);
   if ( node->mesh.cutoutTriCount )
     R_ST_SurfaceBaseResourceStreamRequest(surface, ST_SURFACE_STREAM_REQUEST_GEO_CUTOUTMAP);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+14h]
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  return !R_ST_CanDrawNode(_RSI->surface, node, gridLevel, &_RSI->worldSpaceCamPos);
+  return !R_ST_CanDrawNode(staticCallbackParams->surface, node, gridLevel, &staticCallbackParams->worldSpaceCamPos, staticCallbackParams->adjustedLodDistanceScale);
 }
 
 /*
@@ -3674,45 +3071,25 @@ R_ST_GetAdjustedLodDistanceScale
 ==============
 */
 
-float __fastcall R_ST_GetAdjustedLodDistanceScale(double distanceScale, double morphControl, double sceneLodScale, double sceneLodBias)
+float __fastcall R_ST_GetAdjustedLodDistanceScale(double distanceScale, float morphControl, float sceneLodScale, float sceneLodBias)
 {
-  bool v12; 
+  bool v4; 
+  const dvar_t *v5; 
+  __int128 v6; 
 
+  v4 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
+  v5 = r_st_lod_transition_scaler_low;
+  if ( v4 )
+    v5 = r_st_lod_transition_scaler_high;
+  v6 = *(_OWORD *)&distanceScale;
+  *(float *)&v6 = (float)((float)(*(float *)&distanceScale / v5->current.value) * sceneLodScale) + sceneLodBias;
+  _XMM2 = v6;
   __asm
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-  }
-  v12 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
-  _RAX = r_st_lod_transition_scaler_low;
-  if ( v12 )
-    _RAX = r_st_lod_transition_scaler_high;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rax+28h]
-    vdivss  xmm0, xmm9, xmm4
-    vmovaps xmm9, [rsp+68h+var_48]
-    vmulss  xmm1, xmm0, xmm8
-    vmovaps xmm8, [rsp+68h+var_38]
-    vaddss  xmm2, xmm1, xmm7
     vminss  xmm3, xmm2, cs:__real@3f800000
-    vsubss  xmm1, xmm6, cs:__real@3f800000
-    vmovaps xmm7, [rsp+68h+var_28]
-    vxorps  xmm0, xmm0, xmm0
     vmaxss  xmm4, xmm3, xmm0
-    vmovss  xmm0, cs:__real@3f3504f3
-    vdivss  xmm2, xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmulss  xmm5, xmm4, xmm1
-    vmulss  xmm0, xmm5, xmm2
   }
-  return *(float *)&_XMM0;
+  return (float)(*(float *)&_XMM4 * (float)(morphControl - 1.0)) * (float)(0.70710677 / morphControl);
 }
 
 /*
@@ -3759,116 +3136,52 @@ __int64 R_ST_GetBindlessIndexFromFlattenedIndex(unsigned __int16 index)
 R_ST_GetNodeAtLocation
 ==============
 */
-
-const StTerrainNode *__fastcall R_ST_GetNodeAtLocation(const StDiskTerrainSurface *surface, unsigned int tileX, unsigned int tileY, double tileWidth)
+const StTerrainNode *R_ST_GetNodeAtLocation(const StDiskTerrainSurface *surface, unsigned int tileX, unsigned int tileY, float tileWidth)
 {
-  const StDiskTerrainSurface *v11; 
-  char v12; 
-  char v13; 
-  char v17; 
-  char v18; 
+  float v5; 
+  float v8; 
+  unsigned int v9; 
+  bool v10; 
+  bool v11; 
   unsigned int numLevels; 
-  unsigned int v20; 
-  __int64 v24; 
-  const StTerrainNode *result; 
-  double v34; 
+  unsigned int v13; 
+  StTerrainGridLevel *v14; 
+  __int64 v15; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+84h]
-    vmulss  xmm0, xmm0, cs:__real@40000000
-    vdivss  xmm0, xmm0, xmm3; X
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
-  v11 = surface;
-  *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vcvttss2si rbx, xmm0
-  }
-  if ( v12 )
-    goto LABEL_4;
-  __asm { vcomiss xmm0, cs:__real@4b800000 }
-  if ( !(v12 | v13) )
-  {
-LABEL_4:
-    v17 = 0;
-    v12 = 0;
-    v13 = 1;
-  }
-  else
-  {
-    v17 = 1;
-  }
-  __asm
-  {
-    vcomiss xmm0, xmm1
-    vcomiss xmm0, cs:__real@4f800000
-  }
-  if ( v12 | v13 )
-    v18 = 1;
-  else
-    v18 = 0;
-  if ( !v17 || !v18 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+68h+var_30], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", (unsigned int)_RBX, v34) )
-      __debugbreak();
-  }
-  if ( tileX >= (unsigned int)_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3011, ASSERT_TYPE_SANITY, "( tileX < widthInSectors )", (const char *)&queryFormat, "tileX < widthInSectors") )
+  v5 = tileWidth;
+  v8 = roundf((float)(surface->halfWldSize * 2.0) / tileWidth);
+  v9 = (int)v8;
+  v10 = v8 >= 0.0 && v8 <= 16777216.0;
+  v11 = v8 >= 0.0 && v8 <= 4294967300.0;
+  if ( (!v10 || !v11) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", v9, v8) )
     __debugbreak();
-  if ( tileY >= (unsigned int)_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3012, ASSERT_TYPE_SANITY, "( tileY < widthInSectors )", (const char *)&queryFormat, "tileY < widthInSectors") )
+  if ( tileX >= v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3011, ASSERT_TYPE_SANITY, "( tileX < widthInSectors )", (const char *)&queryFormat, "tileX < widthInSectors") )
     __debugbreak();
-  if ( !(_DWORD)_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 212, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
+  if ( tileY >= v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3012, ASSERT_TYPE_SANITY, "( tileY < widthInSectors )", (const char *)&queryFormat, "tileY < widthInSectors") )
     __debugbreak();
-  numLevels = v11->grid.numLevels;
-  v20 = 32 - __lzcnt(_RBX - 1);
-  if ( v20 >= numLevels )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 212, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
+    __debugbreak();
+  numLevels = surface->grid.numLevels;
+  v13 = 32 - __lzcnt(v9 - 1);
+  if ( v13 >= numLevels )
   {
-    LODWORD(_RBX) = (unsigned int)_RBX >> (v20 - numLevels + 1);
-    tileX >>= v20 - numLevels + 1;
-    tileY >>= v20 - numLevels + 1;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm6, xmm6, xmm0
-    }
-    v20 = numLevels - 1;
+    v9 >>= v13 - numLevels + 1;
+    tileX >>= v13 - numLevels + 1;
+    tileY >>= v13 - numLevels + 1;
+    v5 = tileWidth * (float)(1 << (v13 - numLevels + 1));
+    v13 = numLevels - 1;
   }
-  v24 = (__int64)&v11->grid.levels[numLevels - v20 - 1];
-  if ( (*(_DWORD *)v24 != (_DWORD)_RBX || *(_DWORD *)(v24 + 4) != (_DWORD)_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3026, ASSERT_TYPE_SANITY, "( level.width == widthInSectors && level.height == widthInSectors )", (const char *)&queryFormat, "level.width == widthInSectors && level.height == widthInSectors") )
+  v14 = &surface->grid.levels[numLevels - v13 - 1];
+  if ( (v14->width != v9 || v14->height != v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3026, ASSERT_TYPE_SANITY, "( level.width == widthInSectors && level.height == widthInSectors )", (const char *)&queryFormat, "level.width == widthInSectors && level.height == widthInSectors") )
     __debugbreak();
-  _RBX = (const StTerrainNode *)(*(_QWORD *)(v24 + 8) + 136i64 * (tileX + tileY * (_DWORD)_RBX));
-  if ( _RBX->xIndex != tileX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3028, ASSERT_TYPE_SANITY, "( node.xIndex == tileX )", (const char *)&queryFormat, "node.xIndex == tileX") )
+  v15 = (__int64)&v14->nodes[tileX + tileY * v9];
+  if ( *(unsigned __int16 *)(v15 + 132) != tileX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3028, ASSERT_TYPE_SANITY, "( node.xIndex == tileX )", (const char *)&queryFormat, "node.xIndex == tileX") )
     __debugbreak();
-  if ( _RBX->yIndex != tileY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3029, ASSERT_TYPE_SANITY, "( node.yIndex == tileY )", (const char *)&queryFormat, "node.yIndex == tileY") )
+  if ( *(unsigned __int16 *)(v15 + 134) != tileY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3029, ASSERT_TYPE_SANITY, "( node.yIndex == tileY )", (const char *)&queryFormat, "node.yIndex == tileY") )
     __debugbreak();
-  if ( (_RBX->mesh.flags.packed & 1) == 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+64h]
-      vmulss  xmm1, xmm0, cs:__real@40000000
-      vmovss  xmm2, cs:__real@3f800000
-      vdivss  xmm3, xmm1, xmm6
-      vsubss  xmm0, xmm2, xmm3
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@3a83126f
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3031, ASSERT_TYPE_SANITY, "( node.mesh.flags.clippedOut || fabsf( 1 - 2 * node.wldBounds.halfSize.x / tileWidth ) < 0.001f )", (const char *)&queryFormat, "node.mesh.flags.clippedOut || fabsf( 1 - 2 * node.wldBounds.halfSize.x / tileWidth ) < 0.001f") )
-      __debugbreak();
-  }
-  result = _RBX;
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  if ( (*(_BYTE *)(v15 + 86) & 1) == 0 && COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - (float)((float)(*(float *)(v15 + 100) * 2.0) / v5)) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3031, ASSERT_TYPE_SANITY, "( node.mesh.flags.clippedOut || fabsf( 1 - 2 * node.wldBounds.halfSize.x / tileWidth ) < 0.001f )", (const char *)&queryFormat, "node.mesh.flags.clippedOut || fabsf( 1 - 2 * node.wldBounds.halfSize.x / tileWidth ) < 0.001f") )
+    __debugbreak();
+  return (const StTerrainNode *)v15;
 }
 
 /*
@@ -3878,10 +3191,10 @@ R_ST_Init
 */
 void R_ST_Init(void)
 {
-  __m256i v3; 
-  __m256i v4; 
-  __int64 v5; 
-  StreamKeyBehavior v6; 
+  __m256i v0; 
+  __m256i v1; 
+  double v2; 
+  StreamKeyBehavior v3; 
 
   if ( s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 853, ASSERT_TYPE_ASSERT, "(glob.terrain == nullptr)", (const char *)&queryFormat, "glob.terrain == nullptr") )
     __debugbreak();
@@ -3892,26 +3205,20 @@ void R_ST_Init(void)
   if ( s_stGlob.frameDataIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 856, ASSERT_TYPE_ASSERT, "(glob.frameDataIndex == 0)", (const char *)&queryFormat, "glob.frameDataIndex == 0") )
     __debugbreak();
   R_ST_Clutter_Init();
-  HIDWORD(v5) = 64;
-  v3.m256i_i64[1] = 0i64;
-  v4.m256i_i64[1] = 0i64;
-  LOBYTE(v5) = 0;
-  v3.m256i_i64[0] = (__int64)R_ST_StreamKeyLoadedFrontend;
-  v3.m256i_i64[2] = (__int64)R_ST_StreamKeyUnloadedFrontend;
-  v3.m256i_i64[3] = (__int64)R_ST_StreamKeyUnloadedBackend;
-  __asm { vmovups ymm0, [rsp+0D8h+var_A8] }
-  v4.m256i_i64[0] = (__int64)R_ST_StreamKeyDBPreRelease;
-  v4.m256i_i64[2] = (__int64)R_ST_StreamKeyPtrFixupRelocateBackend;
-  v4.m256i_i64[3] = (__int64)R_ST_StreamKeyUnmapOldAddressBackend;
-  __asm
-  {
-    vmovups ymm1, [rsp+0D8h+var_88]
-    vmovups [rsp+0D8h+var_58], ymm0
-    vmovsd  xmm0, [rsp+0D8h+var_68]
-    vmovups [rsp+0D8h+var_38], ymm1
-    vmovsd  [rsp+0D8h+var_18], xmm0
-  }
-  StreamKey_SetBehavior(SKBI_TERRAIN, &v6);
+  HIDWORD(v2) = 64;
+  v0.m256i_i64[1] = 0i64;
+  v1.m256i_i64[1] = 0i64;
+  LOBYTE(v2) = 0;
+  v0.m256i_i64[0] = (__int64)R_ST_StreamKeyLoadedFrontend;
+  v0.m256i_i64[2] = (__int64)R_ST_StreamKeyUnloadedFrontend;
+  v0.m256i_i64[3] = (__int64)R_ST_StreamKeyUnloadedBackend;
+  v1.m256i_i64[0] = (__int64)R_ST_StreamKeyDBPreRelease;
+  v1.m256i_i64[2] = (__int64)R_ST_StreamKeyPtrFixupRelocateBackend;
+  v1.m256i_i64[3] = (__int64)R_ST_StreamKeyUnmapOldAddressBackend;
+  *(__m256i *)&v3.loadedFrontend = v0;
+  *(__m256i *)&v3.dbPreRelease = v1;
+  *(double *)&v3.forceFixedRegion = v2;
+  StreamKey_SetBehavior(SKBI_TERRAIN, &v3);
 }
 
 /*
@@ -4250,72 +3557,60 @@ R_ST_PopulateDrawSurfsForNode
 */
 void R_ST_PopulateDrawSurfsForNode(const StTerrainNode *node, const StDiskTerrainSurface *surface, const GfxViewInfo *viewInfo, const HLSL::TerrainTileDataCode *surfaceTileData, const StCachedFrontEndDvars *cachedDvars, GfxStDrawSurf *drawSurfs, unsigned int drawSurfCount, unsigned int tileDataIndex, bool lightmapped, TerrainSurfaceDataInfo *terrainSurfaceDataInfo)
 {
-  unsigned int v18; 
-  char v22; 
-  __int64 v26; 
-  Material *v27; 
-  Material *v28; 
-  int v29; 
+  unsigned int v14; 
+  float combinedBias; 
+  double v16; 
+  float displacementDistanceSquared; 
+  double v18; 
+  __int64 v19; 
+  Material *v20; 
+  Material *v21; 
+  int v22; 
+  __int64 v23; 
   ID3D12Resource *highLODIndexBuffer; 
   ID3D12Resource *vb; 
-  unsigned __int64 v33; 
-  __int64 v34; 
+  unsigned __int64 v26; 
+  __int64 v27; 
 
-  _RDI = drawSurfs;
   if ( !drawSurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1663, ASSERT_TYPE_ASSERT, "(drawSurfs)", (const char *)&queryFormat, "drawSurfs") )
     __debugbreak();
   if ( drawSurfCount - 1 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1664, ASSERT_TYPE_ASSERT, "(drawSurfCount == 1 || drawSurfCount == 2)", (const char *)&queryFormat, "drawSurfCount == 1 || drawSurfCount == 2") )
     __debugbreak();
-  _R14 = cachedDvars;
-  v18 = (node->mesh.flags.packed >> 1) & 2;
+  v14 = (node->mesh.flags.packed >> 1) & 2;
   if ( (node->mesh.flags.packed & 8) != 0 )
-    v18 = 40;
-  if ( (v18 & 8) == 0 )
+    v14 = 40;
+  if ( (v14 & 8) == 0 )
   {
-    __asm { vmovaps [rsp+88h+var_38], xmm6 }
-    if ( (surfaceTileData->flags & 0x20) != 0 )
-      goto LABEL_16;
-    if ( !R_ST_AreAllLayeredTextureBaseMipsAvailable(node, surface, terrainSurfaceDataInfo) )
-      goto LABEL_16;
-    __asm { vmovss  xmm6, dword ptr [r14+0Ch] }
-    *(double *)&_XMM0 = Bounds_DistToPointSq(&node->wldBounds, &viewInfo->viewParmsSet.frames[0].viewParms.camera.origin);
-    __asm
+    if ( (surfaceTileData->flags & 0x20) != 0 || !R_ST_AreAllLayeredTextureBaseMipsAvailable(node, surface, terrainSurfaceDataInfo) || (combinedBias = cachedDvars->combinedBias, v16 = Bounds_DistToPointSq(&node->wldBounds, &viewInfo->viewParmsSet.frames[0].viewParms.camera.origin), *(float *)&v16 >= (float)((float)(combinedBias * combinedBias) * 301655360.0)) )
     {
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm2, xmm1, cs:__real@4d8fd72a
-      vcomiss xmm0, xmm2
-    }
-    if ( v22 )
-    {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [r14+10h]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-      }
-      if ( (node->mesh.flags.packed & 0x10) != 0 && cachedDvars->allowLayerMask )
-        v18 |= 0x40u;
+      v14 |= 8u;
     }
     else
     {
-LABEL_16:
-      v18 |= 8u;
+      displacementDistanceSquared = cachedDvars->displacementDistanceSquared;
+      if ( displacementDistanceSquared > 0.0 && (surface->layerDisplacementMask & node->layerMask) != 0 )
+      {
+        v18 = Bounds_DistToPointSq(&node->wldBounds, &viewInfo->viewParmsSet.frames[0].viewParms.camera.origin);
+        if ( *(float *)&v18 < displacementDistanceSquared )
+          v14 |= 4u;
+      }
+      if ( (node->mesh.flags.packed & 0x10) != 0 && cachedDvars->allowLayerMask )
+        v14 |= 0x40u;
     }
-    __asm { vmovaps xmm6, [rsp+88h+var_38] }
   }
-  v26 = v18 | 0x10;
+  v19 = v14 | 0x10;
   if ( !lightmapped )
-    v26 = v18;
-  v27 = rgp.superTerrainMaterials[v26];
-  v28 = rgp.superTerrainMaterials[(unsigned int)v26 | 1i64];
-  if ( (!v27 || !v28) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1657, ASSERT_TYPE_ASSERT, "(materialOut && cutoutMaterialOut)", (const char *)&queryFormat, "materialOut && cutoutMaterialOut") )
+    v19 = v14;
+  v20 = rgp.superTerrainMaterials[v19];
+  v21 = rgp.superTerrainMaterials[(unsigned int)v19 | 1i64];
+  if ( (!v20 || !v21) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1657, ASSERT_TYPE_ASSERT, "(materialOut && cutoutMaterialOut)", (const char *)&queryFormat, "materialOut && cutoutMaterialOut") )
     __debugbreak();
-  *(_WORD *)&drawSurfs->drawGroup.fields = Material_GetSortedIndex(v27);
-  v29 = 0x10000;
-  _RBX = 0i64;
-  if ( (((v27->drawSurf.packed.p1 & 0x70000) - 0x10000i64) & 0xFFFFFFFFFFFDFFFFui64) != 0 )
-    v29 = 0;
-  drawSurfs->drawGroup.packed = v29 & 0xFC05FFFF | drawSurfs->drawGroup.packed & 0xFC04FFFF | 0x40000;
+  *(_WORD *)&drawSurfs->drawGroup.fields = Material_GetSortedIndex(v20);
+  v22 = 0x10000;
+  v23 = 0i64;
+  if ( (((v20->drawSurf.packed.p1 & 0x70000) - 0x10000i64) & 0xFFFFFFFFFFFDFFFFui64) != 0 )
+    v22 = 0;
+  drawSurfs->drawGroup.packed = v22 & 0xFC05FFFF | drawSurfs->drawGroup.packed & 0xFC04FFFF | 0x40000;
   if ( tileDataIndex > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)tileDataIndex, "unsigned", tileDataIndex) )
     __debugbreak();
   drawSurfs->tileDataIndex = tileDataIndex;
@@ -4333,28 +3628,22 @@ LABEL_16:
   if ( !vb && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1682, ASSERT_TYPE_ASSERT, "(!( ((drawSurfs[0].vertexBuffer)) == 0 ))", (const char *)&queryFormat, "!VERTEX_BUFFER_IS_NULL( VERTEX_BUFFER_FROM_HANDLE( drawSurfs[0].vertexBuffer ) )") )
     __debugbreak();
   drawSurfs->vertexCount = node->mesh.vertexCount;
-  v33 = (__int64)((unsigned __int128)(((char *)surface - (char *)s_stGlob.terrain->surfaces) * (__int128)0x572620AE4C415C99i64) >> 64) >> 7;
-  v34 = (v33 >> 63) + v33;
-  if ( (v34 < 0 || (unsigned __int64)v34 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,__int64>(__int64)", "unsigned", (unsigned __int8)v34, "signed", v34) )
+  v26 = (__int64)((unsigned __int128)(((char *)surface - (char *)s_stGlob.terrain->surfaces) * (__int128)0x572620AE4C415C99i64) >> 64) >> 7;
+  v27 = (v26 >> 63) + v26;
+  if ( (v27 < 0 || (unsigned __int64)v27 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,__int64>(__int64)", "unsigned", (unsigned __int8)v27, "signed", v27) )
     __debugbreak();
-  drawSurfs->surfaceIndex = v34;
+  drawSurfs->surfaceIndex = v27;
   drawSurfs->layerMaskBuffer = node->mesh.layerMask.buffer;
   if ( drawSurfCount == 2 || cachedDvars->cutoutMeshFilter == 2 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rdi] }
     if ( cachedDvars->cutoutMeshFilter != 2 )
-      _RBX = 1i64;
-    __asm
-    {
-      vmovups ymmword ptr [rbx+rdi], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+rdi+20h], xmm1
-    }
-    if ( ((LODWORD(v27->drawSurf.packed.p1) ^ LODWORD(v28->drawSurf.packed.p1)) & 0x70000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1705, ASSERT_TYPE_ASSERT, "(cutoutMaterial->drawSurf.fields.tessellation == material->drawSurf.fields.tessellation)", (const char *)&queryFormat, "cutoutMaterial->drawSurf.fields.tessellation == material->drawSurf.fields.tessellation") )
+      v23 = 1i64;
+    drawSurfs[v23] = *drawSurfs;
+    if ( ((LODWORD(v20->drawSurf.packed.p1) ^ LODWORD(v21->drawSurf.packed.p1)) & 0x70000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1705, ASSERT_TYPE_ASSERT, "(cutoutMaterial->drawSurf.fields.tessellation == material->drawSurf.fields.tessellation)", (const char *)&queryFormat, "cutoutMaterial->drawSurf.fields.tessellation == material->drawSurf.fields.tessellation") )
       __debugbreak();
-    *(_WORD *)&drawSurfs[_RBX].drawGroup.fields = Material_GetSortedIndex(v28);
-    drawSurfs[_RBX].baseIndex = 3 * drawSurfs->triCount;
-    drawSurfs[_RBX].triCount = node->mesh.cutoutTriCount;
+    *(_WORD *)&drawSurfs[v23].drawGroup.fields = Material_GetSortedIndex(v21);
+    drawSurfs[v23].baseIndex = 3 * drawSurfs->triCount;
+    drawSurfs[v23].triCount = node->mesh.cutoutTriCount;
   }
 }
 
@@ -4397,123 +3686,29 @@ _BOOL8 R_ST_QueryAndClearSurfaceBaseResourceStreamRequest(const StDiskTerrainSur
 R_ST_RegisterDvars
 ==============
 */
-void R_ST_RegisterDvars()
+void R_ST_RegisterDvars(void)
 {
-  const dvar_t *v9; 
-  const dvar_t *v14; 
-  const dvar_t *v24; 
-  const dvar_t *v37; 
-
-  __asm
-  {
-    vmovss  xmm3, cs:__real@4b189680; max
-    vmovss  xmm1, cs:__real@43000000; value
-    vmovaps [rsp+58h+var_18], xmm8
-    vmovss  xmm8, cs:__real@40000000
-    vmovaps xmm2, xmm8; min
-    vmovaps [rsp+58h+var_28], xmm9
-  }
-  r_st_lodMorphControl = Dvar_RegisterFloat("LPNQPNMOQO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "'q' parameter expressing size of transition area when lod morphing, from 2 to infinity");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41000000; max
-    vmovss  xmm1, cs:__real@3f000000; value
-  }
+  r_st_lodMorphControl = Dvar_RegisterFloat("LPNQPNMOQO", 128.0, 2.0, 10000000.0, 4u, "'q' parameter expressing size of transition area when lod morphing, from 2 to infinity");
   r_st_combined_force = Dvar_RegisterBool("LQSSTRMLQN", 0, 4u, "Force terrain combined map to be used.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v9 = Dvar_RegisterFloat("MOKOTLQNQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Adjust distance that the terrain combined map is used at. Used on base consoles");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@41000000; max
-  }
-  r_st_combined_bias_low = v9;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v14 = Dvar_RegisterFloat("MMKTLNPQTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Adjust distance that the terrain combined map is used at. Used on Neo/Scorpio/PC consoles");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
-  r_st_combined_bias_high = v14;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  r_st_lod_transition_scaler_low = Dvar_RegisterFloat("MMTSOPMLPR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Adjust how quickly we will be going down super terrain quad tree for a surface. Higher number means we will want quad tree nodes when the camera is further away. Used on Base consoles");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  r_st_lod_transition_scaler_high = Dvar_RegisterFloat("LLSNLQLRMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Adjust how quickly we will be going down super terrain quad tree for a surface. Higher number means we will want quad tree nodes when the camera is further away. Used on Neo/Scorpio/PC consoles");
-  __asm { vmovss  xmm3, cs:__real@479d7af6; max }
+  r_st_combined_bias_low = Dvar_RegisterFloat("MOKOTLQNQK", 0.5, 0.0, 8.0, 0, "Adjust distance that the terrain combined map is used at. Used on base consoles");
+  r_st_combined_bias_high = Dvar_RegisterFloat("MMKTLNPQTS", 1.0, 0.0, 8.0, 0, "Adjust distance that the terrain combined map is used at. Used on Neo/Scorpio/PC consoles");
+  r_st_lod_transition_scaler_low = Dvar_RegisterFloat("MMTSOPMLPR", 0.5, 0.0, 2.0, 0, "Adjust how quickly we will be going down super terrain quad tree for a surface. Higher number means we will want quad tree nodes when the camera is further away. Used on Base consoles");
+  r_st_lod_transition_scaler_high = Dvar_RegisterFloat("LLSNLQLRMN", 1.0, 0.0, 2.0, 0, "Adjust how quickly we will be going down super terrain quad tree for a surface. Higher number means we will want quad tree nodes when the camera is further away. Used on Neo/Scorpio/PC consoles");
   r_st_fallbackImagesOkForLayering = Dvar_RegisterBool("LPOPSSSNMK", 1, 0, "Allow layering using fallback images");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v24 = Dvar_RegisterFloat("LQNORLOQNM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Distance of max tessellation density for super terrain displacement");
-  __asm { vmovss  xmm3, cs:__real@479d7af6; max }
-  r_st_displacementLodNear = v24;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  r_st_displacementDistance = Dvar_RegisterFloat("ORTSSLPSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Use displacement mapping on super terrain out to the given distance from the camera.  0 -> disabled");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42800000; max
-    vmovss  xmm1, cs:__real@41000000; value
-    vmovaps xmm2, xmm9; min
-  }
-  r_st_displacementPixelCoverage = Dvar_RegisterFloat("MKQMOQMNNR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Triangle edge size in pixels for super terrain displacement");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@47800000; max
-    vmovss  xmm2, cs:__real@c7800000; min
-    vmovss  xmm1, cs:__real@40a00000; value
-  }
+  r_st_displacementLodNear = Dvar_RegisterFloat("LQNORLOQNM", 0.0, 0.0, 80629.922, 4u, "Distance of max tessellation density for super terrain displacement");
+  r_st_displacementDistance = Dvar_RegisterFloat("ORTSSLPSK", 0.0, 0.0, 80629.922, 4u, "Use displacement mapping on super terrain out to the given distance from the camera.  0 -> disabled");
+  r_st_displacementPixelCoverage = Dvar_RegisterFloat("MKQMOQMNNR", 8.0, 1.0, 64.0, 4u, "Triangle edge size in pixels for super terrain displacement");
   r_st_sm_lod = Dvar_RegisterInt("MMNQSMKTOQ", 1, -1, 8, 4u, "Super terrain lod to use for shadows. -1 -> disable shadows");
-  r_st_sm_polygonOffsetScale = Dvar_RegisterFloat("NLQMSLORTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Super terrain shadow map offset scale");
-  __asm { vmovss  xmm3, cs:__real@46000000; max }
+  r_st_sm_polygonOffsetScale = Dvar_RegisterFloat("NLQMSLORTM", 5.0, -65536.0, 65536.0, 4u, "Super terrain shadow map offset scale");
   r_st_sm_polygonOffsetBias = Dvar_RegisterInt("NSQSOQTTQT", 8, -65536, 0x10000, 4u, "Super terrain shadow map offset bias");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v37 = Dvar_RegisterFloat("RLKMTPMKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Super terrain shadow map offset clamp");
-  __asm { vmovss  xmm1, cs:__real@3f666666; value }
-  r_st_sm_polygonOffsetClamp = v37;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  r_st_streamLeadFactor = Dvar_RegisterFloat("LSNNTTKSTR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "How early to stream in super terrain geometry");
+  r_st_sm_polygonOffsetClamp = Dvar_RegisterFloat("RLKMTPMKN", 0.0, 0.0, 8192.0, 4u, "Super terrain shadow map offset clamp");
+  r_st_streamLeadFactor = Dvar_RegisterFloat("LSNNTTKSTR", 0.89999998, 0.0, 2.0, 4u, "How early to stream in super terrain geometry");
   r_st_enable = Dvar_RegisterBool("MPTQPQRTMT", 1, 4u, "Enable rendering of super terrain");
-  __asm { vmovss  xmm1, cs:__real@bf800000; value }
   r_st_forceLod = Dvar_RegisterInt("LPNOLRKMQQ", -1, -1, 8, 4u, "Force super terrain rendering to the given lod. -1 -> disabled");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm1; min
-  }
-  r_st_lodMorphOverride = Dvar_RegisterFloat("TOTOKNPKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Override lod morph calculation for testing");
+  r_st_lodMorphOverride = Dvar_RegisterFloat("TOTOKNPKN", -1.0, -1.0, 1.0, 4u, "Override lod morph calculation for testing");
   r_st_layerLimit = Dvar_RegisterInt("MLTOPQRSTK", -1, -1, 32, 4u, "Limits the number of layers drawn on all Super Terrain instances.  0 -> disabled");
-  __asm { vmovss  xmm3, cs:__real@42c80000; max }
   r_st_cutoutMeshFilter = Dvar_RegisterEnum("LRSRRLTRNT", r_st_cutoutMeshFilterNames, 0, 4u, "Filter cutout or non-cutout meshes from rendering");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  r_st_combinedMapStreamMetricScale = Dvar_RegisterFloat("RLSNLNQOT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Scale combined map streaming metric by this value.  Bigger = less streamed in");
+  r_st_combinedMapStreamMetricScale = Dvar_RegisterFloat("RLSNLNQOT", 1.0, 0.0, 100.0, 4u, "Scale combined map streaming metric by this value.  Bigger = less streamed in");
   r_st_drawSingleSurface = Dvar_RegisterInt("NOQSRPPRSN", -1, -1, 256, 4u, "Draws only the selected ST surface when enabled.  -1 -> disabled");
   r_st_allowLayerMask = Dvar_RegisterBool("MPKRNORPS", 1, 4u, "Allow use of layer mask (if available)");
   r_st_singleLayer = Dvar_RegisterInt("MQMSPSMOSP", -1, -1, 32, 4u, "Apply the given super terrain material layer only.  -1 -> disabled");
@@ -4521,11 +3716,6 @@ void R_ST_RegisterDvars()
   r_st_layerDebugColorMode = Dvar_RegisterInt("MNNPPKLSTM", -1, -1, 32, 4u, "Tint super terrain material layer. -1 -> disabled, 0 -> all layers");
   r_st_showSurfaceBounds = Dvar_RegisterBool("NKTRRRQRSN", 0, 4u, "Show super terrain surface bounds");
   r_st_showTileBounds = Dvar_RegisterBool("NRSRNNRKTS", 0, 4u, "Show super terrain tile bounds");
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_18]
-    vmovaps xmm9, [rsp+58h+var_28]
-  }
   R_ST_ClutterRegisterDvars();
 }
 
@@ -4621,80 +3811,42 @@ R_ST_SetSceneConstants
 */
 void R_ST_SetSceneConstants(GfxViewInfo *viewInfo, const vec3_t *dpvsCamPos)
 {
-  bool v13; 
+  float v4; 
+  float v5; 
+  float v6; 
+  bool v7; 
+  const dvar_t *v8; 
+  float value; 
+  float v10; 
   int integer; 
-  volatile __int64 v30; 
+  volatile __int64 v12; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RDI = viewInfo;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
-  _RBX = dpvsCamPos;
   R_ST_SetTerrainComboSetInfoConstants(viewInfo->input.sceneConstants.terrainComboSetInfo);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm6, xmm0, dword ptr [rdi+100h]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm8, xmm0, dword ptr [rdi+108h]
-    vsubss  xmm7, xmm1, dword ptr [rdi+104h]
-  }
-  v13 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
-  _RAX = r_st_combined_bias_low;
-  if ( v13 )
-    _RAX = r_st_combined_bias_high;
-  __asm
-  {
-    vmovss  xmm2, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  xmm1, dword ptr [rax+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm2, xmm0
-  }
-  if ( !v13 )
-    __asm { vdivss  xmm1, xmm1, xmm2 }
-  __asm
-  {
-    vmovss  dword ptr [rdi+25E0h], xmm6
-    vmovss  dword ptr [rdi+25E4h], xmm7
-    vmovss  dword ptr [rdi+25E8h], xmm8
-    vmovss  dword ptr [rdi+25ECh], xmm1
-  }
-  _RAX = r_st_displacementPixelCoverage;
-  __asm { vmovss  xmm1, dword ptr [rax+28h] }
-  _RAX = r_st_displacementDistance;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
+  v4 = dpvsCamPos->v[0] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  v5 = dpvsCamPos->v[2] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  v6 = dpvsCamPos->v[1] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  v7 = !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging();
+  v8 = r_st_combined_bias_low;
+  if ( v7 )
+    v8 = r_st_combined_bias_high;
+  value = v8->current.value;
+  if ( rg.correctedLodParms.invFovScale != 0.0 )
+    value = value / rg.correctedLodParms.invFovScale;
+  viewInfo->input.sceneConstants.dpvsCamPosOffset.v[0] = v4;
+  viewInfo->input.sceneConstants.dpvsCamPosOffset.v[1] = v6;
+  viewInfo->input.sceneConstants.dpvsCamPosOffset.v[2] = v5;
+  viewInfo->input.sceneConstants.dpvsCamPosOffset.v[3] = value;
+  v10 = r_st_displacementPixelCoverage->current.value;
   integer = r_st_displacementLodNear->current.integer;
-  __asm
-  {
-    vmovss  dword ptr [rdi+25F4h], xmm0
-    vmovss  dword ptr [rdi+25F8h], xmm1
-  }
-  LODWORD(_RDI->input.sceneConstants.terrainTesselationParms.v[0]) = integer;
+  viewInfo->input.sceneConstants.terrainTesselationParms.v[1] = r_st_displacementDistance->current.value;
+  viewInfo->input.sceneConstants.terrainTesselationParms.v[2] = v10;
+  LODWORD(viewInfo->input.sceneConstants.terrainTesselationParms.v[0]) = integer;
   if ( !rg.correctedLodParms.valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2842, ASSERT_TYPE_ASSERT, "(rg.correctedLodParms.valid)", (const char *)&queryFormat, "rg.correctedLodParms.valid") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.scaleWithoutFovScale; r_globals_t rg
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.biasWithoutFovScale; r_globals_t rg
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovss  dword ptr [rsp+78h+var_48], xmm0
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.scale; r_globals_t rg
-    vmovss  dword ptr [rsp+78h+var_48+4], xmm1
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.bias; r_globals_t rg
-  }
-  s_sceneLodScaleBiasWithoutFov = v30;
-  __asm
-  {
-    vmovss  dword ptr [rsp+78h+var_48], xmm0
-    vmovss  dword ptr [rsp+78h+var_48+4], xmm1
-  }
-  s_sceneLodScaleBias = v30;
+  s_sceneLodScaleBiasWithoutFov = *(_QWORD *)&rg.correctedLodParms.ramp.scaleWithoutFovScale;
+  *(float *)&v12 = rg.correctedLodParms.ramp.scale;
+  *((float *)&v12 + 1) = rg.correctedLodParms.ramp.bias;
+  s_sceneLodScaleBias = v12;
 }
 
 /*
@@ -4702,179 +3854,162 @@ void R_ST_SetSceneConstants(GfxViewInfo *viewInfo, const vec3_t *dpvsCamPos)
 R_ST_SetTerrainComboSetInfoConstants
 ==============
 */
-
-void __fastcall R_ST_SetTerrainComboSetInfoConstants(vec4_t *terrainComboSetInfo, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void R_ST_SetTerrainComboSetInfoConstants(vec4_t *terrainComboSetInfo)
 {
-  vec4_t *v5; 
-  __int64 v6; 
+  vec4_t *v1; 
+  unsigned __int64 v2; 
   const StTerrain *terrain; 
   __int64 mapsCount; 
-  unsigned int v9; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v7; 
+  __int64 v8; 
+  float *v9; 
   __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
-  __int64 v14; 
-  unsigned int v21; 
-  __int64 v22; 
-  __int64 v36; 
-  __int64 v40; 
-  __int64 v41; 
-  int v43[16]; 
+  StTerrainMaps *maps; 
+  float mapResolution; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
+  float v16; 
+  GfxImage *whiteImage; 
+  __int64 p_z; 
+  unsigned int v19; 
+  __int64 v20; 
+  float width; 
+  int height; 
+  float v23; 
+  int v24; 
+  float v25; 
+  int v26; 
+  float v27; 
+  int v28; 
+  __int64 v29; 
+  __int64 v30; 
+  float v31; 
+  int v32; 
+  __int64 v33; 
+  __int64 v34; 
+  int v36[16]; 
 
-  v5 = terrainComboSetInfo;
-  v6 = 0i64;
+  v1 = terrainComboSetInfo;
+  v2 = 0i64;
   terrain = s_stGlob.terrain;
   if ( s_stGlob.terrain )
   {
     mapsCount = s_stGlob.terrain->mapsCount;
-    v9 = 0;
-    memset(v43, 0, sizeof(v43));
+    v5 = 0;
+    memset(v36, 0, sizeof(v36));
     if ( s_stGlob.terrain->surfaceCount )
     {
       do
       {
-        v10 = (__int64)&terrain->surfaces[v9];
-        if ( *(_DWORD *)(v10 + 96) >= 8u )
+        v6 = (__int64)&terrain->surfaces[v5];
+        if ( *(_DWORD *)(v6 + 96) >= 8u )
         {
-          LODWORD(v41) = 8;
-          LODWORD(v40) = *(_DWORD *)(v10 + 96);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2805, ASSERT_TYPE_ASSERT, "(unsigned)( surface.surfaceMapSetIndex ) < (unsigned)( 8 )", "surface.surfaceMapSetIndex doesn't index TERRAIN_TEXTURES_MAX_RESOLUTION_SETS\n\t%i not in [0, %i)", v40, v41) )
+          LODWORD(v34) = 8;
+          LODWORD(v33) = *(_DWORD *)(v6 + 96);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2805, ASSERT_TYPE_ASSERT, "(unsigned)( surface.surfaceMapSetIndex ) < (unsigned)( 8 )", "surface.surfaceMapSetIndex doesn't index TERRAIN_TEXTURES_MAX_RESOLUTION_SETS\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        if ( !*(_QWORD *)(v10 + 336) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2806, ASSERT_TYPE_ASSERT, "(surface.heightMap)", (const char *)&queryFormat, "surface.heightMap") )
+        if ( !*(_QWORD *)(v6 + 336) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2806, ASSERT_TYPE_ASSERT, "(surface.heightMap)", (const char *)&queryFormat, "surface.heightMap") )
           __debugbreak();
-        v11 = *(_QWORD *)(v10 + 336);
-        ++v9;
-        v12 = *(unsigned int *)(v10 + 96);
-        v43[2 * v12] = *(unsigned __int16 *)(v11 + 36);
-        v43[2 * v12 + 1] = *(unsigned __int16 *)(v11 + 38);
+        v7 = *(_QWORD *)(v6 + 336);
+        ++v5;
+        v8 = *(unsigned int *)(v6 + 96);
+        v36[2 * v8] = *(unsigned __int16 *)(v7 + 36);
+        v36[2 * v8 + 1] = *(unsigned __int16 *)(v7 + 38);
       }
-      while ( v9 < terrain->surfaceCount );
-      v5 = terrainComboSetInfo;
-      v6 = 0i64;
+      while ( v5 < terrain->surfaceCount );
+      v1 = terrainComboSetInfo;
+      v2 = 0i64;
     }
     if ( (_DWORD)mapsCount )
     {
-      _RDI = &v5->v[2];
-      v14 = mapsCount;
+      v9 = &v1->v[2];
+      v10 = mapsCount;
       do
       {
-        if ( !terrain->maps[v6].paddedResolution && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2814, ASSERT_TYPE_ASSERT, "(maps[mapIndex].paddedResolution != 0)", (const char *)&queryFormat, "maps[mapIndex].paddedResolution != 0") )
+        maps = terrain->maps;
+        if ( !maps[v2 / 2].paddedResolution && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2814, ASSERT_TYPE_ASSERT, "(maps[mapIndex].paddedResolution != 0)", (const char *)&queryFormat, "maps[mapIndex].paddedResolution != 0") )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+rsi+4]
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2ss xmm3, xmm3, dword ptr [rbx+rsi]
-          vdivss  xmm2, xmm3, xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-        }
-        ++v6;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vmovss  dword ptr [rdi-4], xmm1
-          vmovss  dword ptr [rdi-8], xmm0
-          vmovss  dword ptr [rdi], xmm2
-          vmovss  dword ptr [rdi+4], xmm3
-        }
-        _RDI += 4;
-        --v14;
+        mapResolution = (float)maps[v2 / 2].mapResolution;
+        v13 = mapResolution / (float)maps[v2 / 2].paddedResolution;
+        v14 = (float)(unsigned int)v36[v2];
+        v15 = (unsigned int)v36[v2 + 1];
+        v2 += 2i64;
+        v16 = (float)v15;
+        *(v9 - 1) = v16;
+        *(v9 - 2) = v14;
+        *v9 = v13;
+        v9[1] = mapResolution;
+        v9 += 4;
+        --v10;
       }
-      while ( v14 );
-      v5 = terrainComboSetInfo;
+      while ( v10 );
+      v1 = terrainComboSetInfo;
     }
   }
   else
   {
     LODWORD(mapsCount) = 0;
   }
+  whiteImage = rgp.whiteImage;
   if ( (unsigned int)mapsCount < 8 )
   {
     if ( (unsigned int)(8 - mapsCount) >= 4 )
     {
-      _RCX = (__int64)&v5[(unsigned int)mapsCount + 1].xyz.z;
-      v21 = ((unsigned int)(4 - mapsCount) >> 2) + 1;
-      v22 = v21;
-      LODWORD(mapsCount) = mapsCount + 4 * v21;
+      p_z = (__int64)&v1[(unsigned int)mapsCount + 1].xyz.z;
+      v19 = ((unsigned int)(4 - mapsCount) >> 2) + 1;
+      v20 = v19;
+      LODWORD(mapsCount) = mapsCount + 4 * v19;
       do
       {
-        _RCX += 64i64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmovss  dword ptr [rcx-58h], xmm1
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rcx-54h], xmm0
-        }
-        *(_DWORD *)(_RCX - 80) = 1065353216;
-        __asm
-        {
-          vmovss  dword ptr [rcx-4Ch], xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, eax
-          vmovss  dword ptr [rcx-48h], xmm2
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rcx-44h], xmm0
-        }
-        *(_DWORD *)(_RCX - 64) = 1065353216;
-        __asm
-        {
-          vmovss  dword ptr [rcx-3Ch], xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmovss  dword ptr [rcx-38h], xmm1
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rcx-34h], xmm0
-        }
-        *(_DWORD *)(_RCX - 48) = 1065353216;
-        __asm
-        {
-          vmovss  dword ptr [rcx-2Ch], xmm1
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, eax
-          vmovss  dword ptr [rcx-28h], xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rcx-24h], xmm0
-        }
-        *(_DWORD *)(_RCX - 32) = 1065353216;
-        __asm { vmovss  dword ptr [rcx-1Ch], xmm2 }
-        --v22;
+        p_z += 64i64;
+        width = (float)whiteImage->width;
+        height = whiteImage->height;
+        *(float *)(p_z - 88) = width;
+        *(float *)(p_z - 84) = (float)height;
+        *(_DWORD *)(p_z - 80) = 1065353216;
+        *(float *)(p_z - 76) = width;
+        v23 = (float)whiteImage->width;
+        v24 = whiteImage->height;
+        *(float *)(p_z - 72) = v23;
+        *(float *)(p_z - 68) = (float)v24;
+        *(_DWORD *)(p_z - 64) = 1065353216;
+        *(float *)(p_z - 60) = v23;
+        v25 = (float)whiteImage->width;
+        v26 = whiteImage->height;
+        *(float *)(p_z - 56) = v25;
+        *(float *)(p_z - 52) = (float)v26;
+        *(_DWORD *)(p_z - 48) = 1065353216;
+        *(float *)(p_z - 44) = v25;
+        v27 = (float)whiteImage->width;
+        v28 = whiteImage->height;
+        *(float *)(p_z - 40) = v27;
+        *(float *)(p_z - 36) = (float)v28;
+        *(_DWORD *)(p_z - 32) = 1065353216;
+        *(float *)(p_z - 28) = v27;
+        --v20;
       }
-      while ( v22 );
+      while ( v20 );
     }
     if ( (unsigned int)mapsCount < 8 )
     {
-      v36 = (unsigned int)(8 - mapsCount);
-      _RCX = (__int64)&v5[(unsigned int)mapsCount].xyz.z;
+      v29 = (unsigned int)(8 - mapsCount);
+      v30 = (__int64)&v1[(unsigned int)mapsCount].xyz.z;
       do
       {
-        _RCX += 16i64;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-        }
-        *(_DWORD *)(_RCX - 16) = 1065353216;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rcx-14h], xmm0
-          vmovss  dword ptr [rcx-18h], xmm1
-          vmovss  dword ptr [rcx-0Ch], xmm1
-        }
-        --v36;
+        v30 += 16i64;
+        v31 = (float)whiteImage->width;
+        v32 = whiteImage->height;
+        *(_DWORD *)(v30 - 16) = 1065353216;
+        *(float *)(v30 - 20) = (float)v32;
+        *(float *)(v30 - 24) = v31;
+        *(float *)(v30 - 12) = v31;
+        --v29;
       }
-      while ( v36 );
+      while ( v29 );
     }
   }
 }
@@ -4887,57 +4022,31 @@ R_ST_SetupMaterialLayer
 void R_ST_SetupMaterialLayer(const StDiskTerrainSurface *surface, const StTerrainMaterialLayer *layer, HLSL::TerrainLayerDataCode *layerOut)
 {
   unsigned int layerMaskMapIdxsCount; 
-  HLSL::TerrainLayerDataCode *v15; 
-  const StTerrainMaterialLayer *v16; 
   unsigned __int16 *materialTextureIdxs; 
-  unsigned __int16 v18; 
-  unsigned __int16 v19; 
-  unsigned __int16 v20; 
-  unsigned __int16 v21; 
+  unsigned __int16 v8; 
+  unsigned __int16 v9; 
+  unsigned __int16 v10; 
+  unsigned __int16 v11; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [r8], xmm0
-    vmovups xmm1, xmmword ptr [rdx+50h]
-    vmovups xmmword ptr [r8+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [r8+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [r8+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [r8+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+90h]
-    vmovups xmmword ptr [r8+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0A0h]
-    vmovups xmmword ptr [r8+60h], xmm0
-    vmovups xmm0, xmmword ptr [rdx+0B0h]
-    vmovups xmmword ptr [r8+70h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0C0h]
-    vmovups xmmword ptr [r8+80h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0D0h]
-    vmovups xmmword ptr [r8+90h], xmm0
-  }
+  *layerOut = layer->layerData;
   layerMaskMapIdxsCount = surface->layerMaskMapIdxsCount;
-  v15 = layerOut;
-  v16 = layer;
   if ( layer->layer >= layerMaskMapIdxsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1116, ASSERT_TYPE_ASSERT, "(unsigned)( layer.layer ) < (unsigned)( surface.layerMaskMapIdxsCount )", "layer.layer doesn't index surface.layerMaskMapIdxsCount\n\t%i not in [0, %i)", layer->layer, layerMaskMapIdxsCount) )
     __debugbreak();
-  v15->alphaLayer = surface->layerMaskMapIdxs[v16->layer];
-  materialTextureIdxs = v16->materialTextureIdxs;
-  v18 = *materialTextureIdxs;
-  v19 = materialTextureIdxs[1];
-  v20 = materialTextureIdxs[2];
-  v21 = materialTextureIdxs[3];
-  v15->colorMap = R_ST_GetBindlessIndexFromFlattenedIndex(*materialTextureIdxs);
-  v15->normalMap = R_ST_GetBindlessIndexFromFlattenedIndex(v19);
-  v15->revealMap = R_ST_GetBindlessIndexFromFlattenedIndex(v20);
-  v15->displacementMap = R_ST_GetBindlessIndexFromFlattenedIndex(v21);
-  if ( v19 != 0xFFFF )
-    v15->normalMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v19]->semanticSpecific.albedoMapScaleBias;
-  if ( v18 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1171, ASSERT_TYPE_ASSERT, "(albedoMapIndex != 0xFFFF)", (const char *)&queryFormat, "albedoMapIndex != TERRAIN_TEXTURE_INDEX_INVALID") )
+  layerOut->alphaLayer = surface->layerMaskMapIdxs[layer->layer];
+  materialTextureIdxs = layer->materialTextureIdxs;
+  v8 = *materialTextureIdxs;
+  v9 = materialTextureIdxs[1];
+  v10 = materialTextureIdxs[2];
+  v11 = materialTextureIdxs[3];
+  layerOut->colorMap = R_ST_GetBindlessIndexFromFlattenedIndex(*materialTextureIdxs);
+  layerOut->normalMap = R_ST_GetBindlessIndexFromFlattenedIndex(v9);
+  layerOut->revealMap = R_ST_GetBindlessIndexFromFlattenedIndex(v10);
+  layerOut->displacementMap = R_ST_GetBindlessIndexFromFlattenedIndex(v11);
+  if ( v9 != 0xFFFF )
+    layerOut->normalMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v9]->semanticSpecific.albedoMapScaleBias;
+  if ( v8 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1171, ASSERT_TYPE_ASSERT, "(albedoMapIndex != 0xFFFF)", (const char *)&queryFormat, "albedoMapIndex != TERRAIN_TEXTURE_INDEX_INVALID") )
     __debugbreak();
-  v15->albedoMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v18]->semanticSpecific.albedoMapScaleBias;
+  layerOut->albedoMapPackedScaleBias = s_stGlob.terrain->flattenedImages[v8]->semanticSpecific.albedoMapScaleBias;
 }
 
 /*
@@ -5006,40 +4115,46 @@ __int64 R_ST_SetupMaterialLayers(const StDiskTerrainSurface *surface, const StCa
   __int64 layerMaterialsCount; 
   int v7; 
   __int64 v8; 
+  unsigned int *p_colorMap; 
   const StDiskTerrainSurface *v10; 
-  unsigned __int16 *v22; 
+  char *v11; 
+  unsigned __int16 *v12; 
   const StTerrain *terrain; 
-  unsigned __int16 v24; 
-  unsigned __int16 v25; 
-  unsigned __int16 v26; 
-  unsigned __int16 v27; 
-  unsigned int v28; 
-  const StTerrain *v29; 
-  unsigned int v30; 
-  const StTerrain *v31; 
-  unsigned int v32; 
-  const StTerrain *v33; 
-  unsigned int v34; 
-  bool v35; 
+  unsigned __int16 v14; 
+  unsigned __int16 v15; 
+  unsigned __int16 v16; 
+  unsigned __int16 v17; 
+  unsigned int v18; 
+  const StTerrain *v19; 
+  unsigned int v20; 
+  const StTerrain *v21; 
+  unsigned int v22; 
+  const StTerrain *v23; 
+  unsigned int v24; 
+  bool v25; 
   __int64 layerDebugColorMode; 
-  unsigned int v37; 
-  int v39; 
-  float v40; 
-  __int64 v42; 
-  float v45; 
+  unsigned int v27; 
+  double *p_flags; 
+  int v29; 
+  float v30; 
+  __int64 v31; 
+  __int64 p_colorTint; 
+  float v33; 
   int surfaceDebugColorMode; 
-  const StTerrain *v47; 
-  int v48; 
-  __int64 v50; 
-  float v51; 
-  __int64 v54; 
-  float v55; 
+  const StTerrain *v35; 
+  int v36; 
+  double *v37; 
+  __int64 v38; 
+  float v39; 
+  double *v40; 
+  __int64 v41; 
+  float v42; 
   int singleLayer; 
-  __int64 v59; 
-  __int64 v60; 
-  int v61; 
-  __int64 v62; 
-  __int64 v63; 
+  __int64 v45; 
+  __int64 v46; 
+  int v47; 
+  __int64 v48; 
+  __int64 v49; 
   vec3_t outColor; 
 
   v3 = layersOut;
@@ -5048,92 +4163,79 @@ __int64 R_ST_SetupMaterialLayers(const StDiskTerrainSurface *surface, const StCa
   if ( !layersOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1206, ASSERT_TYPE_ASSERT, "(layersOut)", (const char *)&queryFormat, "layersOut") )
     __debugbreak();
   layerMaterialsCount = v4->layerMaterialsCount;
-  v61 = layerMaterialsCount;
+  v47 = layerMaterialsCount;
   if ( (unsigned int)layerMaterialsCount > 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1208, ASSERT_TYPE_ASSERT, "(layerCount <= ST_MAX_LAYERS_PER_SURFACE)", (const char *)&queryFormat, "layerCount <= ST_MAX_LAYERS_PER_SURFACE") )
     __debugbreak();
   v7 = 0;
   if ( (_DWORD)layerMaterialsCount )
   {
     v8 = 0i64;
-    v63 = layerMaterialsCount;
-    v62 = 0i64;
-    _RSI = &v3->colorMap;
+    v49 = layerMaterialsCount;
+    v48 = 0i64;
+    p_colorMap = &v3->colorMap;
     v10 = v4;
     do
     {
-      _RBX = (char *)v10->layerMaterials + v8;
-      __asm
+      v11 = (char *)v10->layerMaterials + v8;
+      *(_OWORD *)(p_colorMap - 22) = *((_OWORD *)v11 + 4);
+      *(_OWORD *)(p_colorMap - 18) = *((_OWORD *)v11 + 5);
+      *(_OWORD *)(p_colorMap - 14) = *((_OWORD *)v11 + 6);
+      *(_OWORD *)(p_colorMap - 10) = *((_OWORD *)v11 + 7);
+      *(_OWORD *)(p_colorMap - 6) = *((_OWORD *)v11 + 8);
+      *(_OWORD *)(p_colorMap - 2) = *((_OWORD *)v11 + 9);
+      *(_OWORD *)(p_colorMap + 2) = *((_OWORD *)v11 + 10);
+      *(_OWORD *)(p_colorMap + 6) = *((_OWORD *)v11 + 11);
+      *(_OWORD *)(p_colorMap + 10) = *((_OWORD *)v11 + 12);
+      *(_OWORD *)(p_colorMap + 14) = *((_OWORD *)v11 + 13);
+      if ( *((_DWORD *)v11 + 13) >= v10->layerMaskMapIdxsCount )
       {
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rsi-58h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+50h]
-        vmovups xmmword ptr [rsi-48h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rsi-38h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rsi-28h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+80h]
-        vmovups xmmword ptr [rsi-18h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+90h]
-        vmovups xmmword ptr [rsi-8], xmm1
-        vmovups xmm0, xmmword ptr [rbx+0A0h]
-        vmovups xmmword ptr [rsi+8], xmm0
-        vmovups xmm1, xmmword ptr [rbx+0B0h]
-        vmovups xmmword ptr [rsi+18h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+0C0h]
-        vmovups xmmword ptr [rsi+28h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+0D0h]
-        vmovups xmmword ptr [rsi+38h], xmm1
-      }
-      if ( *((_DWORD *)_RBX + 13) >= v10->layerMaskMapIdxsCount )
-      {
-        LODWORD(v60) = v10->layerMaskMapIdxsCount;
-        LODWORD(v59) = *((_DWORD *)_RBX + 13);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1116, ASSERT_TYPE_ASSERT, "(unsigned)( layer.layer ) < (unsigned)( surface.layerMaskMapIdxsCount )", "layer.layer doesn't index surface.layerMaskMapIdxsCount\n\t%i not in [0, %i)", v59, v60) )
+        LODWORD(v46) = v10->layerMaskMapIdxsCount;
+        LODWORD(v45) = *((_DWORD *)v11 + 13);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1116, ASSERT_TYPE_ASSERT, "(unsigned)( layer.layer ) < (unsigned)( surface.layerMaskMapIdxsCount )", "layer.layer doesn't index surface.layerMaskMapIdxsCount\n\t%i not in [0, %i)", v45, v46) )
           __debugbreak();
       }
-      *(_RSI - 13) = v10->layerMaskMapIdxs[*((int *)_RBX + 13)];
-      v22 = (unsigned __int16 *)*((_QWORD *)_RBX + 1);
+      *(p_colorMap - 13) = v10->layerMaskMapIdxs[*((int *)v11 + 13)];
+      v12 = (unsigned __int16 *)*((_QWORD *)v11 + 1);
       terrain = s_stGlob.terrain;
-      v24 = *v22;
-      v25 = v22[1];
-      v26 = v22[2];
-      v27 = v22[3];
+      v14 = *v12;
+      v15 = v12[1];
+      v16 = v12[2];
+      v17 = v12[3];
       if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1013, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
         __debugbreak();
-      if ( v24 == 0xFFFF || (v28 = v24, v24 >= terrain->flattenedImagesCount) )
-        v28 = 0;
-      *_RSI = v28;
-      v29 = s_stGlob.terrain;
+      if ( v14 == 0xFFFF || (v18 = v14, v14 >= terrain->flattenedImagesCount) )
+        v18 = 0;
+      *p_colorMap = v18;
+      v19 = s_stGlob.terrain;
       if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1013, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
         __debugbreak();
-      if ( v25 == 0xFFFF || (v30 = v25, v25 >= v29->flattenedImagesCount) )
-        v30 = 0;
-      _RSI[3] = v30;
-      v31 = s_stGlob.terrain;
+      if ( v15 == 0xFFFF || (v20 = v15, v15 >= v19->flattenedImagesCount) )
+        v20 = 0;
+      p_colorMap[3] = v20;
+      v21 = s_stGlob.terrain;
       if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1013, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
         __debugbreak();
-      if ( v26 == 0xFFFF || (v32 = v26, v26 >= v31->flattenedImagesCount) )
-        v32 = 0;
-      _RSI[5] = v32;
-      v33 = s_stGlob.terrain;
+      if ( v16 == 0xFFFF || (v22 = v16, v16 >= v21->flattenedImagesCount) )
+        v22 = 0;
+      p_colorMap[5] = v22;
+      v23 = s_stGlob.terrain;
       if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1013, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
         __debugbreak();
-      if ( v27 == 0xFFFF || (v34 = v27, v27 >= v33->flattenedImagesCount) )
-        v34 = 0;
-      _RSI[9] = v34;
-      if ( v25 != 0xFFFF )
-        *(_RSI - 3) = s_stGlob.terrain->flattenedImages[v25]->semanticSpecific.albedoMapScaleBias;
-      if ( v24 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1171, ASSERT_TYPE_ASSERT, "(albedoMapIndex != 0xFFFF)", (const char *)&queryFormat, "albedoMapIndex != TERRAIN_TEXTURE_INDEX_INVALID") )
+      if ( v17 == 0xFFFF || (v24 = v17, v17 >= v23->flattenedImagesCount) )
+        v24 = 0;
+      p_colorMap[9] = v24;
+      if ( v15 != 0xFFFF )
+        *(p_colorMap - 3) = s_stGlob.terrain->flattenedImages[v15]->semanticSpecific.albedoMapScaleBias;
+      if ( v14 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1171, ASSERT_TYPE_ASSERT, "(albedoMapIndex != 0xFFFF)", (const char *)&queryFormat, "albedoMapIndex != TERRAIN_TEXTURE_INDEX_INVALID") )
         __debugbreak();
-      *(_RSI - 2) = s_stGlob.terrain->flattenedImages[v24]->semanticSpecific.albedoMapScaleBias;
-      _RSI += 40;
-      v8 = v62 + 224;
-      v35 = v63-- == 1;
-      v62 += 224i64;
+      *(p_colorMap - 2) = s_stGlob.terrain->flattenedImages[v14]->semanticSpecific.albedoMapScaleBias;
+      p_colorMap += 40;
+      v8 = v48 + 224;
+      v25 = v49-- == 1;
+      v48 += 224i64;
     }
-    while ( !v35 );
-    LODWORD(layerMaterialsCount) = v61;
+    while ( !v25 );
+    LODWORD(layerMaterialsCount) = v47;
     v3 = layersOut;
     v4 = surface;
     v5 = cachedDvars;
@@ -5145,89 +4247,76 @@ __int64 R_ST_SetupMaterialLayers(const StDiskTerrainSurface *surface, const StCa
     {
       if ( (int)layerDebugColorMode - 1 < (unsigned int)layerMaterialsCount )
       {
-        v42 = v5->layerDebugColorMode;
+        v31 = v5->layerDebugColorMode;
         v3[layerDebugColorMode - 1].flags |= 0x800u;
         R_DebugUniqueColorFromIndex(0, &outColor);
-        __asm { vmovsd  xmm0, qword ptr [rsp+0C8h+outColor] }
-        _RCX = (__int64)&v3[v42 - 1].colorTint;
-        v45 = outColor.v[2];
-        __asm { vmovsd  qword ptr [rcx], xmm0 }
-        *(float *)(_RCX + 8) = v45;
+        p_colorTint = (__int64)&v3[v31 - 1].colorTint;
+        v33 = outColor.v[2];
+        *(double *)p_colorTint = *(double *)outColor.v;
+        *(float *)(p_colorTint + 8) = v33;
       }
     }
     else
     {
-      v37 = 0;
+      v27 = 0;
       if ( (_DWORD)layerMaterialsCount )
       {
-        _RBX = (float *)&v3->flags;
+        p_flags = (double *)&v3->flags;
         do
         {
-          *(_DWORD *)_RBX |= 0x800u;
-          v39 = v37++;
-          R_DebugUniqueColorFromIndex(v39, &outColor);
-          v40 = outColor.v[2];
-          _RBX += 40;
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsp+0C8h+outColor]
-            vmovsd  qword ptr [rbx-88h], xmm0
-          }
-          *(_RBX - 32) = v40;
+          *(_DWORD *)p_flags |= 0x800u;
+          v29 = v27++;
+          R_DebugUniqueColorFromIndex(v29, &outColor);
+          v30 = outColor.v[2];
+          p_flags += 20;
+          *(p_flags - 17) = *(double *)outColor.v;
+          *((float *)p_flags - 32) = v30;
         }
-        while ( v37 < (unsigned int)layerMaterialsCount );
+        while ( v27 < (unsigned int)layerMaterialsCount );
       }
     }
   }
   surfaceDebugColorMode = v5->surfaceDebugColorMode;
   if ( surfaceDebugColorMode != -1 )
   {
-    v47 = s_stGlob.terrain;
+    v35 = s_stGlob.terrain;
     if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1246, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
       __debugbreak();
-    v48 = truncate_cast<unsigned int,__int64>(v4 - v47->surfaces);
+    v36 = truncate_cast<unsigned int,__int64>(v4 - v35->surfaces);
     if ( surfaceDebugColorMode )
     {
-      if ( surfaceDebugColorMode - 1 == v48 && (_DWORD)layerMaterialsCount )
+      if ( surfaceDebugColorMode - 1 == v36 && (_DWORD)layerMaterialsCount )
       {
-        _RBX = (float *)&v3->flags;
-        v54 = (unsigned int)layerMaterialsCount;
+        v40 = (double *)&v3->flags;
+        v41 = (unsigned int)layerMaterialsCount;
         do
         {
-          *(_DWORD *)_RBX |= 0x800u;
+          *(_DWORD *)v40 |= 0x800u;
           R_DebugUniqueColorFromIndex(0, &outColor);
-          v55 = outColor.v[2];
-          _RBX += 40;
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsp+0C8h+outColor]
-            vmovsd  qword ptr [rbx-88h], xmm0
-          }
-          *(_RBX - 32) = v55;
-          --v54;
+          v42 = outColor.v[2];
+          v40 += 20;
+          *(v40 - 17) = *(double *)outColor.v;
+          *((float *)v40 - 32) = v42;
+          --v41;
         }
-        while ( v54 );
+        while ( v41 );
       }
     }
     else if ( (_DWORD)layerMaterialsCount )
     {
-      _RBX = (float *)&v3->flags;
-      v50 = (unsigned int)layerMaterialsCount;
+      v37 = (double *)&v3->flags;
+      v38 = (unsigned int)layerMaterialsCount;
       do
       {
-        *(_DWORD *)_RBX |= 0x800u;
-        R_DebugUniqueColorFromIndex(v48, &outColor);
-        v51 = outColor.v[2];
-        _RBX += 40;
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rsp+0C8h+outColor]
-          vmovsd  qword ptr [rbx-88h], xmm0
-        }
-        *(_RBX - 32) = v51;
-        --v50;
+        *(_DWORD *)v37 |= 0x800u;
+        R_DebugUniqueColorFromIndex(v36, &outColor);
+        v39 = outColor.v[2];
+        v37 += 20;
+        *(v37 - 17) = *(double *)outColor.v;
+        *((float *)v37 - 32) = v39;
+        --v38;
       }
-      while ( v50 );
+      while ( v38 );
     }
   }
   singleLayer = v5->singleLayer;
@@ -5320,66 +4409,45 @@ void R_ST_SetupTileDataForSurface(const StDiskTerrainSurface *surface, const vec
 {
   const StTerrain *terrain; 
   unsigned int frameCount; 
-  int v28; 
-  char v29[208]; 
+  __m256i v10; 
+  float v11; 
+  unsigned int v12; 
+  __m256i v13[6]; 
+  __int128 v14; 
 
   terrain = s_stGlob.terrain;
-  _RBX = tileDataOut;
-  _RBP = surface;
   if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 1451, ASSERT_TYPE_ASSERT, "(terrain)", (const char *)&queryFormat, "terrain") )
     __debugbreak();
-  memset_0(v29, 0, sizeof(v29));
-  _RAX = v29;
+  memset_0(v13, 0, 0xD0ui64);
   frameCount = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+60h], ymm0
-    vmovups ymmword ptr [rbx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rbx+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0C0h]
-    vmovups xmmword ptr [rbx+0C0h], xmm1
-    vmovss  xmm0, dword ptr [rbp+84h]
-    vmulss  xmm2, xmm0, cs:__real@40000000
-    vmovss  dword ptr [rbx+14h], xmm2
-    vmovss  xmm1, dword ptr [rbp+70h]
-    vsubss  xmm0, xmm1, dword ptr [r14]
-    vmovss  dword ptr [rbx+34h], xmm0
-    vmovss  xmm2, dword ptr [rbp+74h]
-    vsubss  xmm1, xmm2, dword ptr [r14+4]
-    vmovss  dword ptr [rbx+38h], xmm1
-  }
-  _RBX->surfaceMapSetIndex = _RBP->surfaceMapSetIndex;
-  _RBX->surfaceMapBaseIndex = 0;
-  _RBX->surfaceMapXCount = _RBP->surfaceMapXCount;
-  R_ST_ComputeOffsetToSurfaceMap(_RBP, cameraWorldPosition, (vec3_t *)&_RBX->offToSurfaceMapX, (vec3_t *)&_RBX->offToSurfaceMapY, (vec2_t *)&_RBX->heightMapDx, (vec2_t *)&_RBX->heightMapDy);
-  __asm { vmovss  xmm0, cs:__real@3f000000 }
-  _RBX->vertXCount = _RBP->tileVertXCount;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rbx+68h], xmm1
-  }
-  _RBX->heightOffsetAndScale.v[0] = _RBP->heightOffset;
-  _RBX->heightOffsetAndScale.v[1] = _RBP->heightScale;
-  _RBX->surfaceIndex = _RBP - terrain->surfaces;
+  v10 = v13[4];
+  *(__m256i *)&tileDataOut->flags = v13[0];
+  *(__m256i *)&tileDataOut->vertexScale.xy.v[1] = v13[1];
+  *(__m256i *)&tileDataOut->surfaceMapBaseIndex = v13[2];
+  *(__m256i *)&tileDataOut->offToSurfaceMapY.xyz.v[1] = v13[3];
+  *(__m256i *)&tileDataOut->windDir.xyz.v[1] = v10;
+  *(__m256i *)&tileDataOut->surfaceIndex = v13[5];
+  *(_OWORD *)tileDataOut->heightMapDx.v = v14;
+  tileDataOut->terrainSize = surface->halfWldSize * 2.0;
+  tileDataOut->surfaceMapOffOrigin.v[0] = surface->surfaceMapOrigin.v[0] - cameraWorldPosition->v[0];
+  tileDataOut->surfaceMapOffOrigin.v[1] = surface->surfaceMapOrigin.v[1] - cameraWorldPosition->v[1];
+  tileDataOut->surfaceMapSetIndex = surface->surfaceMapSetIndex;
+  tileDataOut->surfaceMapBaseIndex = 0;
+  tileDataOut->surfaceMapXCount = surface->surfaceMapXCount;
+  R_ST_ComputeOffsetToSurfaceMap(surface, cameraWorldPosition, (vec3_t *)&tileDataOut->offToSurfaceMapX, (vec3_t *)&tileDataOut->offToSurfaceMapY, (vec2_t *)&tileDataOut->heightMapDx, (vec2_t *)&tileDataOut->heightMapDy);
+  tileDataOut->vertXCount = surface->tileVertXCount;
+  v11 = (float)(surface->tileVertXCount - 1);
+  tileDataOut->vertSpacing = 0.5 / v11;
+  tileDataOut->heightOffsetAndScale.v[0] = surface->heightOffset;
+  tileDataOut->heightOffsetAndScale.v[1] = surface->heightScale;
+  tileDataOut->surfaceIndex = surface - terrain->surfaces;
   if ( setFrameCount )
     frameCount = frontEndDataOut->frameCount;
-  v28 = _RBX->flags | 0x10;
-  _RBX->frameCount = frameCount;
-  _RBX->flags = v28;
+  v12 = tileDataOut->flags | 0x10;
+  tileDataOut->frameCount = frameCount;
+  tileDataOut->flags = v12;
   if ( r_st_combined_force->current.enabled )
-    _RBX->flags = v28 | 0x20;
+    tileDataOut->flags = v12 | 0x20;
 }
 
 /*
@@ -5389,30 +4457,11 @@ R_ST_SetupTileDataForSurface
 */
 void R_ST_SetupTileDataForSurface(const StDiskTerrainSurface *surface, const vec3_t *cameraWorldPosition, bool setFrameCount, HLSL::TerrainTileDataCodeCS *tileDataOut)
 {
-  __int128 v12; 
-  __int64 v13; 
-
-  v12 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+28h+var_28]
-    vmovups xmmword ptr [r9], xmm0
-  }
-  v13 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovsd  qword ptr [r9+10h], xmm1
-    vmovss  xmm0, dword ptr [rcx+84h]
-    vmulss  xmm2, xmm0, cs:__real@40000000
-    vmovss  dword ptr [r9+8], xmm2
-    vmovss  xmm1, dword ptr [rcx+70h]
-    vsubss  xmm0, xmm1, dword ptr [rdx]
-    vmovss  dword ptr [r9+0Ch], xmm0
-    vmovss  xmm2, dword ptr [rcx+74h]
-    vsubss  xmm1, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [r9+10h], xmm1
-  }
+  *(_OWORD *)&tileDataOut->layerCount = 0ui64;
+  *(double *)((char *)&tileDataOut->surfaceMapOffOrigin + 4) = 0i64;
+  tileDataOut->terrainSize = surface->halfWldSize * 2.0;
+  tileDataOut->surfaceMapOffOrigin.v[0] = surface->surfaceMapOrigin.v[0] - cameraWorldPosition->v[0];
+  tileDataOut->surfaceMapOffOrigin.v[1] = surface->surfaceMapOrigin.v[1] - cameraWorldPosition->v[1];
   tileDataOut->surfaceMapSetIndex = surface->surfaceMapSetIndex;
 }
 
@@ -5555,11 +4604,6 @@ void R_ST_StreamKeyUnloadedBackend(const StreamKey *streamKey)
   {
     item.m_image = (const GfxImage *)streamKey;
     item.m_type = STREAM_ITEM_GENERIC;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+item.___u0]
-      vmovdqa xmmword ptr [rsp+48h+item.___u0], xmm0
-    }
     Stream_Logger_Dump(&item);
     if ( (*((_BYTE *)behaviorUserPtr + 86) & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 3210, ASSERT_TYPE_ASSERT, "(!node->mesh.flags.renderable)", (const char *)&queryFormat, "!node->mesh.flags.renderable") )
       __debugbreak();
@@ -5628,12 +4672,7 @@ __int64 R_ST_Stream_UpdateMaterialDistances(const StDiskTerrainSurface *surface,
       integer = v4;
     v4 = integer;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+84h]
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vmovss  [rsp+58h+arg_0.nextTileSize], xmm1
-  }
+  nodeCallbackDynamicParams.nextTileSize = surface->halfWldSize * 2.0;
   R_ST_TraverseTree_StStreamingUpdateMaterialDistancesCallbackStaticParams_StStreamingUpdateMaterialDistancesCallbackDynamicParams_(surface, v4, R_ST_Stream_UpdateMaterialDistances_Callback, &nodeCallbackStaticParams, &nodeCallbackDynamicParams);
   return nodeCallbackStaticParams.layerMask;
 }
@@ -5645,169 +4684,122 @@ R_ST_Stream_UpdateMaterialDistances_Callback
 */
 char R_ST_Stream_UpdateMaterialDistances_Callback(const StTerrainNode *node, unsigned int gridLevel, StStreamingUpdateMaterialDistancesCallbackStaticParams *staticCallbackParams, const StStreamingUpdateMaterialDistancesCallbackDynamicParams *inDynamicParms, StStreamingUpdateMaterialDistancesCallbackDynamicParams *outDynamicParms)
 {
-  const StTerrainNode *v16; 
+  float v9; 
+  const StreamUpdateMultiView *multiView; 
+  __m128 v12; 
+  float v13; 
+  __m128 v17; 
+  __m128 v20; 
   __int64 viewCount; 
-  bool v33; 
-  bool v34; 
-  bool v57; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float4 v70; 
-  float4 v71; 
-  float4 v72; 
-  float4 v73; 
-  float4 v74; 
-  __int128 v75; 
-  float4 v77[6]; 
-  void *retaddr; 
+  float *viewCosFovLimit; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __m128 v29; 
+  char v34; 
+  float *tileMaterialDistancesSq; 
+  float v41; 
+  float4 v42; 
+  float4 v43; 
+  float4 v44; 
+  float4 v45; 
+  float4 v46; 
+  __m128 v47; 
+  __m128 v48; 
+  float4 v49; 
 
-  _R11 = &retaddr;
-  __asm { vmovss  xmm0, dword ptr [r9] }
-  _RAX = outDynamicParms;
-  _R12 = inDynamicParms;
-  __asm { vmulss  xmm0, xmm0, cs:__real@3f000000 }
-  v16 = node;
-  __asm { vmovss  dword ptr [rax], xmm0 }
+  outDynamicParms->nextTileSize = inDynamicParms->nextTileSize * 0.5;
   if ( (node->mesh.flags.packed & 1) != 0 )
     return 0;
-  __asm { vmovss  xmm0, dword ptr [rcx+58h] }
-  _RBX = staticCallbackParams->multiView;
-  HIDWORD(v75) = 0;
+  v9 = node->wldBounds.midPoint.v[0];
+  multiView = staticCallbackParams->multiView;
+  v47.m128_i32[3] = 0;
+  v12 = v47;
+  v12.m128_f32[0] = v9;
+  _XMM4 = v12;
+  v13 = node->wldBounds.halfSize.v[0];
   __asm
   {
-    vmovups xmm4, xmmword ptr [rbp-50h]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rcx+64h]
     vinsertps xmm4, xmm4, dword ptr [rcx+5Ch], 10h
     vinsertps xmm4, xmm4, dword ptr [rcx+60h], 20h ; ' '
-    vmovups xmmword ptr [rbp-50h], xmm4
   }
-  HIDWORD(v75) = 0;
+  v47 = _XMM4;
+  v47.m128_i32[3] = 0;
+  v17 = v47;
+  v17.m128_f32[0] = v13;
+  _XMM3 = v17;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rbp-50h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+68h], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+6Ch], 20h ; ' '
-    vmovss  xmm0, cs:__real@7f7fffff
-    vmovups xmmword ptr [rbp-50h], xmm3
-    vsubps  xmm5, xmm4, xmm3
-    vaddps  xmm3, xmm4, xmm3
-    vmovups xmmword ptr [rbp-50h], xmm3
-    vmovss  dword ptr [rsp+54h], xmm0
-    vmovss  dword ptr [rsp+50h], xmm0
-    vmovups [rbp+60h+var_A0], xmm5
   }
-  viewCount = _RBX->viewCount;
-  v33 = 0;
-  v34 = viewCount == 0;
+  v20 = _mm128_sub_ps(_XMM4, _XMM3);
+  _XMM3 = _mm128_add_ps(_XMM4, _XMM3);
+  v47 = _XMM3;
+  v41 = FLOAT_3_4028235e38;
+  v48 = v20;
+  viewCount = multiView->viewCount;
   if ( viewCount > 0 )
   {
-    _RDI = _RBX->viewCosFovLimit;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-    }
+    viewCosFovLimit = multiView->viewCosFovLimit;
     do
     {
+      v24 = viewCosFovLimit[16];
+      v25 = *viewCosFovLimit;
+      v26 = *(viewCosFovLimit - 32);
+      v44.v = (__m128)multiView->viewPos[0];
+      v42.v = _XMM3;
+      v43.v = v20;
+      Stream_AdjustViewPosForST(&v49, &v44, &v43, &v42);
+      _XMM3 = v47;
+      __asm { vminps  xmm0, xmm3, xmmword ptr [rbx] }
+      v20 = v48;
+      __asm { vmaxps  xmm4, xmm0, xmm5 }
+      v29 = _mm128_sub_ps(_XMM4, v49.v);
+      _XMM1 = _mm128_mul_ps(v29, v29);
       __asm
       {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovss  xmm7, dword ptr [rdi+40h]
-        vmovss  xmm8, dword ptr [rdi]
-        vmovss  xmm9, dword ptr [rdi-80h]
-        vmovups [rbp+60h+var_E0], xmm0
-        vmovdqa [rsp+160h+var_108+8], xmm3
-        vmovdqa xmmword ptr [rsp+160h+var_F8+8], xmm5
-      }
-      Stream_AdjustViewPosForST(v77, &v72, &v71, &v70);
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rbp-50h]
-        vminps  xmm0, xmm3, xmmword ptr [rbx]
-        vmovups xmm5, [rbp+60h+var_A0]
-        vmovups xmm6, [rbp+60h+var_90]
-        vmaxps  xmm4, xmm0, xmm5
-        vsubps  xmm0, xmm4, xmm6
-        vmulps  xmm1, xmm0, xmm0
         vinsertps xmm2, xmm1, xmm1, 8
         vhaddps xmm0, xmm2, xmm2
         vhaddps xmm1, xmm0, xmm0
-        vcomiss xmm1, dword ptr [rsp+50h]
       }
-      if ( v33 )
+      if ( *(float *)&_XMM1 < v41 )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsp+40h], xmm7
-          vmovss  [rsp+160h+var_128], xmm8
-          vmovss  [rsp+160h+var_130], xmm9
-          vmovss  dword ptr [rsp+50h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+100h]
-          vmovaps xmm2, xmm1
-          vmovups [rbp+60h+var_E0], xmm0
-          vmovdqa xmmword ptr [rsp+160h+var_F8+8], xmm6
-          vmovdqa [rsp+160h+var_108+8], xmm4
-          vmovdqa [rbp+60h+var_D0], xmm3
-          vmovdqa [rbp+60h+var_C0], xmm5
-        }
-        *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor(&v74, &v73, *(float *)&_XMM2, &v70, &v71, &v72, v65, v66, v67);
-        __asm
-        {
-          vmovups xmm3, xmmword ptr [rbp-50h]
-          vmovups xmm5, [rbp+60h+var_A0]
-          vmovss  dword ptr [rsp+54h], xmm0
-        }
+        v41 = *(float *)&_XMM1;
+        v44.v = (__m128)multiView->viewDir[0];
+        v43.v = v49.v;
+        v42.v = _XMM4;
+        v45.v = v47;
+        v46.v = v48;
+        Stream_CalculateDistanceSq_ApplyZoomFactor(&v46, &v45, *(float *)&_XMM1, &v42, &v43, &v44, v26, v25, v24);
+        _XMM3 = v47;
+        v20 = v48;
       }
-      ++_RDI;
-      _RBX = (const StreamUpdateMultiView *)((char *)_RBX + 16);
-      v33 = viewCount-- == 0;
-      v34 = viewCount == 0;
+      ++viewCosFovLimit;
+      multiView = (const StreamUpdateMultiView *)((char *)multiView + 16);
+      --viewCount;
     }
     while ( viewCount );
-    __asm
-    {
-      vmovaps xmm9, [rsp+160h+var_78+8]
-      vmovaps xmm8, [rsp+160h+var_68+8]
-      vmovaps xmm7, [rsp+160h+var_58+8]
-      vmovaps xmm6, [rsp+160h+var_48+8]
-    }
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+50h]
-    vsqrtss xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vcomiss xmm1, dword ptr [r12]
-  }
-  v57 = !staticCallbackParams->shouldTraverse || !v33 && !v34;
+  v34 = !staticCallbackParams->shouldTraverse | ((float)(fsqrt(v41) * 0.5) > inDynamicParms->nextTileSize);
   if ( !gridLevel )
-    v57 = 1;
-  if ( v57 )
+    v34 = 1;
+  if ( v34 )
   {
-    _ECX = v16->layerMask;
-    _RDX = staticCallbackParams->tileMaterialDistancesSq;
-    __asm { vmovss  xmm2, dword ptr [rsp+54h] }
+    _ECX = node->layerMask;
+    tileMaterialDistancesSq = staticCallbackParams->tileMaterialDistancesSq;
     if ( _ECX )
     {
       do
       {
         __asm { tzcnt   eax, ecx }
-        _ECX &= ~(1 << _RAX);
-        _RAX = (unsigned int)_RAX;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx+rax*4]
-          vminss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rdx+rax*4], xmm1
-        }
+        _ECX &= ~(1 << _EAX);
+        _XMM0 = LODWORD(tileMaterialDistancesSq[_EAX]);
+        __asm { vminss  xmm1, xmm0, xmm2 }
+        tileMaterialDistancesSq[_EAX] = *(float *)&_XMM1;
       }
       while ( _ECX );
-      _ECX = v16->layerMask;
+      _ECX = node->layerMask;
     }
     staticCallbackParams->layerMask |= _ECX;
     return 0;
@@ -5822,110 +4814,44 @@ R_ST_SunShadowMapBitsForBounds
 */
 void R_ST_SunShadowMapBitsForBounds(const Bounds *wldBounds, const GfxSunShadow *sunShadow, unsigned int *mapsToDrawInOut)
 {
-  unsigned int v15; 
-  int v18; 
-  unsigned int v19; 
-  int v26; 
-  char v27; 
-  char v28; 
+  unsigned int i; 
+  int v7; 
+  unsigned int v8; 
+  int v9; 
+  DpvsPlane *frustumSidePlanes; 
 
-  _RDI = wldBounds;
   if ( !*mapsToDrawInOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2185, ASSERT_TYPE_ASSERT, "(mapsToDrawInOut)", (const char *)&queryFormat, "mapsToDrawInOut") )
     __debugbreak();
-  if ( R_CullBoxDpvs(_RDI, sunShadow->cameraPlanes, sunShadow->cameraPlaneCount) )
+  if ( R_CullBoxDpvs(wldBounds, sunShadow->cameraPlanes, sunShadow->cameraPlaneCount) )
   {
     *mapsToDrawInOut &= 0xFFFFFFF8;
   }
   else
   {
-    v15 = 2;
-    __asm
+    for ( i = 2; ; --i )
     {
-      vmovaps [rsp+0D8h+var_28], xmm6
-      vmovaps [rsp+0D8h+var_38], xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+0D8h+var_48], xmm8
-      vmovaps [rsp+0D8h+var_58], xmm9
-      vmovaps [rsp+0D8h+var_68], xmm10
-      vmovaps [rsp+0D8h+var_78], xmm11
-      vmovaps [rsp+0D8h+var_88], xmm12
-      vmovaps [rsp+0D8h+var_98], xmm13
-      vmovaps [rsp+0D8h+var_A8], xmm14
-      vxorps  xmm14, xmm14, xmm14
-    }
-    while ( 1 )
-    {
-      v18 = v15;
-      if ( v15 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2148, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT)", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT") )
+      v7 = i;
+      if ( i >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2148, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT)", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT") )
         __debugbreak();
-      v19 = *mapsToDrawInOut;
-      if ( _bittest((const int *)&v19, v15) )
+      v8 = *mapsToDrawInOut;
+      if ( _bittest((const int *)&v8, i) )
         break;
 LABEL_14:
-      --v15;
-      if ( v18 <= 0 )
-        goto LABEL_20;
+      if ( v7 <= 0 )
+        return;
     }
-    __asm
+    v9 = 0;
+    frustumSidePlanes = sunShadow->partition[i].frustumSidePlanes;
+    while ( (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(frustumSidePlanes->coeffs.v[0]) & _xmm) * wldBounds->halfSize.v[0]) + (float)((float)(wldBounds->midPoint.v[0] * frustumSidePlanes->coeffs.v[0]) + frustumSidePlanes->coeffs.v[3])) + (float)(wldBounds->midPoint.v[1] * frustumSidePlanes->coeffs.v[1])) + (float)(COERCE_FLOAT(LODWORD(frustumSidePlanes->coeffs.v[1]) & _xmm) * wldBounds->halfSize.v[1])) + (float)(wldBounds->midPoint.v[2] * frustumSidePlanes->coeffs.v[2])) + (float)(COERCE_FLOAT(LODWORD(frustumSidePlanes->coeffs.v[2]) & _xmm) * wldBounds->halfSize.v[2])) > 0.0 )
     {
-      vmovss  xmm8, dword ptr [rdi+0Ch]
-      vmovss  xmm9, dword ptr [rdi]
-      vmovss  xmm10, dword ptr [rdi+4]
-      vmovss  xmm11, dword ptr [rdi+10h]
-      vmovss  xmm12, dword ptr [rdi+8]
-      vmovss  xmm13, dword ptr [rdi+14h]
-    }
-    v26 = 0;
-    v28 = ((unsigned __int128)(544 * (__int128)(int)v15) >> 64 != 0) | v27;
-    _RAX = sunShadow->partition[v15].frustumSidePlanes;
-    while ( 1 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rax]
-        vmovss  xmm5, dword ptr [rax+4]
-        vmovss  xmm6, dword ptr [rax+8]
-        vandps  xmm0, xmm1, xmm7
-        vmulss  xmm2, xmm0, xmm8
-        vmulss  xmm0, xmm9, xmm1
-        vaddss  xmm1, xmm0, dword ptr [rax+0Ch]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm10, xmm5
-        vmulss  xmm1, xmm12, xmm6
-        vaddss  xmm4, xmm3, xmm2
-        vandps  xmm5, xmm5, xmm7
-        vmulss  xmm0, xmm5, xmm11
-        vaddss  xmm2, xmm4, xmm0
-        vandps  xmm6, xmm6, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm13
-        vaddss  xmm1, xmm3, xmm0
-        vcomiss xmm1, xmm14
-      }
-      if ( v28 )
-        break;
-      ++v26;
-      ++_RAX;
-      v28 = (unsigned int)v26 <= 4;
-      if ( v26 >= 4 )
+      ++v9;
+      ++frustumSidePlanes;
+      if ( v9 >= 4 )
         goto LABEL_14;
     }
-    if ( v15 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2156, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT)", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT") )
+    if ( i >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st.cpp", 2156, ASSERT_TYPE_ASSERT, "(partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT)", (const char *)&queryFormat, "partitionIndex < R_SUNSHADOW_OPAQUE_PARTITION_COUNT && partitionIndex < ST_SUN_SHADOW_MAP_BITS_BIT_COUNT") )
       __debugbreak();
-    *mapsToDrawInOut &= -1 << (v15 + 1);
-LABEL_20:
-    __asm
-    {
-      vmovaps xmm13, [rsp+0D8h+var_98]
-      vmovaps xmm12, [rsp+0D8h+var_88]
-      vmovaps xmm11, [rsp+0D8h+var_78]
-      vmovaps xmm10, [rsp+0D8h+var_68]
-      vmovaps xmm9, [rsp+0D8h+var_58]
-      vmovaps xmm8, [rsp+0D8h+var_48]
-      vmovaps xmm7, [rsp+0D8h+var_38]
-      vmovaps xmm6, [rsp+0D8h+var_28]
-      vmovaps xmm14, [rsp+0D8h+var_A8]
-    }
+    *mapsToDrawInOut &= -1 << (i + 1);
   }
 }
 

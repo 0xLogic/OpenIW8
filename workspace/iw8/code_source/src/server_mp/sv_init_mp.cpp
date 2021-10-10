@@ -845,20 +845,10 @@ void SV_InitMP_PrintMemoryEstimates(const SvServerInitSettings *initSettings)
 SV_InitMP_RegisterDvars
 ==============
 */
-
-const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+const dvar_t *SV_InitMP_RegisterDvars()
 {
-  const dvar_t *v15; 
-  const dvar_t *v23; 
-  const dvar_t *v27; 
-  const dvar_t *v40; 
   const dvar_t *result; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   SV_Init_RegisterDvarsCommon();
   DCONST_DVARBOOL_sv_dedicatedServerBandwidthTest = Dvar_RegisterBool("sv_dedicatedServerBandwidthTest", 1, 0x40004u, "Allow dedicated server to skip its bandwidth check");
   DCONST_DVARINT_sv_streamSync_peerWaitTimeout = Dvar_RegisterInt("sv_streamSync_peerWaitTimeout", 15000, 0, 600000, 0x40004u, "How much time in milliseconds do we wait before letting players in even though they haven't finished loading.");
@@ -868,18 +858,8 @@ const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double 
   DCONST_DVARBOOL_sv_streamSync_devVerbose = Dvar_RegisterBool("sv_streamSync_devVerbose", 0, 0x40004u, "Turns on extra spam");
   DCONST_DVARBOOL_sv_streamSync_devDisablePresets = Dvar_RegisterBool("sv_streamSync_devDisablePresets", 0, 0x40004u, "Disable preset customization (used by bots)");
   DCONST_DVARINT_badhost_maxHappyPingTime = Dvar_RegisterInt("badhost_maxHappyPingTime", 400, 0, 999, 0x40004u, "Max ping that a player can have that we consider acceptable when calculating if the server is swamped");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3f028f5c; value
-  }
   DCONST_DVARINT_badhost_minTotalClientsForHappyTest = Dvar_RegisterInt("badhost_minTotalClientsForHappyTest", 3, 1, 200, 0x40004u, "Minimum number of clients before it does the 'suck as host' test");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_badhost_minPercentClientsUnhappyToSuck = Dvar_RegisterFloat("badhost_minPercentClientsUnhappyToSuck", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "What percentage of clients need to have a ping higher than sv_maxHappyPingTime before it aborts");
+  DCONST_DVARFLT_badhost_minPercentClientsUnhappyToSuck = Dvar_RegisterFloat("badhost_minPercentClientsUnhappyToSuck", 0.50999999, 0.0, 1.0, 0x40004u, "What percentage of clients need to have a ping higher than sv_maxHappyPingTime before it aborts");
   DCONST_DVARBOOL_badhost_debug = Dvar_RegisterBool("badhost_debug", 0, 0x40004u, "Bad host debugging");
   DCONST_DVARBOOL_badhost_endGameIfISuck = Dvar_RegisterBool("badhost_endGameIfISuck", 1, 0x40004u, "End the match if most of the players are lagged out");
   DVARINT_protocol = Dvar_RegisterInt("protocol", 1098, 1098, 1098, 0x2400u, "Protocol version");
@@ -898,14 +878,8 @@ const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double 
   DVARINT_sv_min_reconnect_time = Dvar_RegisterInt("LKTLKNKSLN", 1000, 0, 0x7FFFFFFF, 0, "Minimum time in milliseconds between consecutive connect packets; otherwise packet is dropped.");
   DVARINT_sv_max_reconnect_time = Dvar_RegisterInt("NSKOLSTNMN", 5000, 0, 0x7FFFFFFF, 0, "Maximum time in milliseconds for what is still considered a reconnect; otherwise the connecting client is fully re-added.");
   DVARSTR_sv_allowedClan1 = Dvar_RegisterString("LSSPQRSQQQ", (const char *)&queryFormat.fmt + 3, 0, "Allow this clan to join the server");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@45610000; max
-    vmovss  xmm1, cs:__real@43960000; value
-  }
   DVARSTR_sv_allowedClan2 = Dvar_RegisterString("OLKSKMQPMT", (const char *)&queryFormat.fmt + 3, 0, "Allow this clan to join the server");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_sv_kickBanTime = Dvar_RegisterFloat("LMPMSPPOMT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Time in seconds for a player to be banned from the server after being kicked");
+  DVARFLT_sv_kickBanTime = Dvar_RegisterFloat("LMPMSPPOMT", 300.0, 0.0, 3600.0, 0, "Time in seconds for a player to be banned from the server after being kicked");
   DVARBOOL_sv_debugMessageKey = Dvar_RegisterBool("TLKTQPQNK", 0, 0, "net message key generation debugging");
   DVARINT_sv_debugPacketContents = Dvar_RegisterInt("LSTOPTLOTM", 0, 0, 3, 0, "print out the contents of every snapshot (VERY SLOW)");
   DVARBOOL_sv_debugTrackPacketContents = Dvar_RegisterBool("LPMTRTSTON", 0, 0, "whether to track packet contents when debug packet contents is off");
@@ -919,50 +893,13 @@ const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double 
   DVARINT_sv_botsSimulatedJitter = Dvar_RegisterInt("OLMKKTSOQN", 0, 0, 1000, 0, "simulate X ms of jitter on bots before they acknowledge a snapshot");
   DVARINT_sv_minPingClamp = Dvar_RegisterInt("MROPPRSMRO", 100, 50, 200, 0, "Clamp the minimum ping to this value");
   DVARINT_sv_cumulThinkTime = Dvar_RegisterInt("NMOKTTPPM", 100, 75, 0x7FFFFFFF, 0, "Max client think per server 50 msec frame");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
   DVARINT_sv_cmdMinBufferBurst = Dvar_RegisterInt("TPPRRKPLN", 50, 0, 0x7FFFFFFF, 0, "Minimum amount of observed burst time before the client begins buffering commands");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v15 = Dvar_RegisterFloat("MTNMQMRQKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Minimum fraction of a server frame for desired client think time");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@3fc00000; value
-  }
-  DVARFLT_sv_cmdMinCumulThinkFrac = v15;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_sv_cmdMaxCumulThinkFrac = Dvar_RegisterFloat("MPOMMQSPN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Maximum fraction of a server frame for desired client think time");
-  __asm { vmovss  xmm1, cs:__real@3f400000; value }
+  DVARFLT_sv_cmdMinCumulThinkFrac = Dvar_RegisterFloat("MTNMQMRQKN", 0.5, 0.0, 1.0, 0, "Minimum fraction of a server frame for desired client think time");
+  DVARFLT_sv_cmdMaxCumulThinkFrac = Dvar_RegisterFloat("MPOMMQSPN", 1.5, 1.0, 3.4028235e38, 0, "Maximum fraction of a server frame for desired client think time");
   DVARINT_sv_cmdBufferStepTime = Dvar_RegisterInt("LRLTNKPLMQ", 5000, 1, 0x7FFFFFFF, 0, "The amount of time (msec) to decay the last maximum observed burst to the current maximum observed burst");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v23 = Dvar_RegisterFloat("MSNQTSQQTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The proportional response in adjusting the command execution time when our available buffer does not match the target buffer size");
-  __asm { vmovss  xmm1, cs:__real@3e4ccccd; value }
-  DVARFLT_sv_cmdBufferResponse = v23;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v27 = Dvar_RegisterFloat("OMOTNQRTNM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The integral response in adjusting the command execution time applied to the cumulative error between the available and target buffer sizes");
-  __asm { vmovss  xmm1, cs:__real@3f4ccccd; value }
-  DVARFLT_sv_cmdBufferCumulResponse = v27;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_sv_cmdBufferCumulWindupScale = Dvar_RegisterFloat("MOLOQPNTPK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The scale to apply to the integral response when the response exceeds the maximum");
+  DVARFLT_sv_cmdBufferResponse = Dvar_RegisterFloat("MSNQTSQQTS", 0.75, 0.0, 3.4028235e38, 0, "The proportional response in adjusting the command execution time when our available buffer does not match the target buffer size");
+  DVARFLT_sv_cmdBufferCumulResponse = Dvar_RegisterFloat("OMOTNQRTNM", 0.2, 0.0, 3.4028235e38, 0, "The integral response in adjusting the command execution time applied to the cumulative error between the available and target buffer sizes");
+  DVARFLT_sv_cmdBufferCumulWindupScale = Dvar_RegisterFloat("MOLOQPNTPK", 0.80000001, 0.0, 3.4028235e38, 0, "The scale to apply to the integral response when the response exceeds the maximum");
   DVARINT_sv_cmdMaxCumulThinkError = Dvar_RegisterInt("OKTQNQTPQR", 48, 16, 0x7FFFFFFF, 0, "The maximum command time in addition to the current frame time that can be executed on a given server frame");
   DVARINT_sv_cmdMaxExtrapTime = Dvar_RegisterInt("MNKQRTQRPS", 48, 0, 0x7FFFFFFF, 0, "The maximum time the server will extrapolate client positions before predicting player input");
   DVARINT_sv_cmdMaxBufferTime = Dvar_RegisterInt("ROSKKRMOS", 512, 0, 0x7FFFFFFF, 0, "The maximum time the server will buffer client input before predicting player input");
@@ -1014,20 +951,8 @@ const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double 
   DCONST_DVARINT_migration_limit = Dvar_RegisterInt("migration_limit", 5, 0, 0x7FFFFFFF, 0x40004u, "maximum number of migrations within migration_timeBetween dvar's value in milliseconds.");
   DCONST_DVARINT_migration_timeBetween = Dvar_RegisterInt("migration_timeBetween", 30000, 0, 0x7FFFFFFF, 0x40004u, "milliseconds between migration_limit dvar's value of migrations.");
   DCONST_DVARINT_migration_verboseBroadcastTime = Dvar_RegisterInt("migration_verboseBroadcastTime", 100, 0, 0x7FFFFFFF, 0x40004u, "time in milliseconds between verbose migration state broadcasts");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_migrationStressRandTime = Dvar_RegisterFloat("migrationStressRandTime", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Random time for host migrations.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41200000; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_migrationStressMinTime = Dvar_RegisterFloat("migrationStressMinTime", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The min time before a host migration will start.");
+  DCONST_DVARFLT_migrationStressRandTime = Dvar_RegisterFloat("migrationStressRandTime", 0.0, 0.0, 3.4028235e38, 0x40004u, "Random time for host migrations.");
+  DCONST_DVARFLT_migrationStressMinTime = Dvar_RegisterFloat("migrationStressMinTime", 10.0, 0.0, 3.4028235e38, 0x40004u, "The min time before a host migration will start.");
   DCONST_DVARBOOL_migrationStressSaveLoadOnly = Dvar_RegisterBool("migrationStressSaveLoadOnly", 1, 0x40004u, "If set to true, only save and load will be tested. This case is nice, because it is simple and can be done with a single kit.");
   DVARBOOL_migration_kickoldhost = Dvar_RegisterBool("LNSNKRQNTT", 1, 0, "whether to kick the old host on migration");
   DVARBOOL_migration_crossplay_allow_pc_host = Dvar_RegisterBool("MMTLLQSMNR", 0, 0, "whether PC's can host listen matches in a game with consoles");
@@ -1066,22 +991,9 @@ const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double 
   DCONST_DVARBOOL_sv_snapshot_transientStorageEnabled = Dvar_RegisterBool("sv_snapshot_transientStorageEnabled", 1, 0x40004u, "Allow the server to send snapshots without storing them to reduce memory usage");
   DCONST_DVARINT_sv_snapshot_transientStorageMaxAllowedSendMsec = Dvar_RegisterInt("sv_snapshot_transientStorageMaxAllowedSendMsec", 50, 0, 100, 0x40004u, "Rate after which the transient snapshot storage is disabled. E.g. by default, only 50ms and below will use this");
   DVARINT_sv_forceNetfieldLoD = Dvar_RegisterInt("OKTSLRSQMS", 1, -1, 1, 0, "Force the netfields' LoD (-1: dynamic lod, 0: low LoD, 1: high LoD).");
-  __asm { vmovss  xmm1, cs:__real@45fa0000; value }
   DVARINT_sv_useLowLodEntityEvents = Dvar_RegisterEnum("LQMTQKONKR", g_lowLoDEntityEventModeStrings, 0, 0, "Generate low lod entity events (will steal one event from high lod event buffer). Changing this dvar mid-match may cause a mix of event types/invalid event sequences.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v40 = Dvar_RegisterFloat("LSKPPLSTSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Entities that are in cells within clientpos +- sv_entitiesPartitioningNearbyRangeX X axis will be returned by the nearby search.");
-  __asm { vmovss  xmm1, cs:__real@45fa0000; value }
-  DVARFLT_sv_entitiesPartitioningNearbyRangeX = v40;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_sv_entitiesPartitioningNearbyRangeY = Dvar_RegisterFloat("NSRSLNSOLR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Entities that are in cells within clientpos +- sv_entitiesPartitioningNearbyRangeX Y axis will be returned by the nearby search.");
+  DVARFLT_sv_entitiesPartitioningNearbyRangeX = Dvar_RegisterFloat("LSKPPLSTSO", 8000.0, 0.0, 3.4028235e38, 0, "Entities that are in cells within clientpos +- sv_entitiesPartitioningNearbyRangeX X axis will be returned by the nearby search.");
+  DVARFLT_sv_entitiesPartitioningNearbyRangeY = Dvar_RegisterFloat("NSRSLNSOLR", 8000.0, 0.0, 3.4028235e38, 0, "Entities that are in cells within clientpos +- sv_entitiesPartitioningNearbyRangeX Y axis will be returned by the nearby search.");
   DCONST_DVARBOOL_sv_entitiesPartitioningDrawOverlay = Dvar_RegisterBool("sv_entitiesPartitioningDrawOverlay", 0, 0x40004u, "Displays an overlay of the last entities query.");
   DCONST_DVARINT_sv_default_client_bandwidth = Dvar_RegisterInt("sv_default_client_bandwidth", 49152, 1024, 0x7FFFFFFF, 0x40004u, "Default client downstream bandwidth in bytes if none was provided in userinfo. Default to 1Mbit.");
   DCONST_DVARINT_sv_min_client_bandwidth = Dvar_RegisterInt("sv_min_client_bandwidth", 1024, 1024, 0x7FFFFFFF, 0x40004u, "Minimum client downstream bandwidth in bytes if provided value was unreasonably low. Default to 256Kbit");
@@ -1138,127 +1050,27 @@ const dvar_t *__fastcall SV_InitMP_RegisterDvars(__int64 a1, __int64 a2, double 
   DVARBOOL_bot_ScoreShowFactors = Dvar_RegisterBool("LLMTNNQOQQ", 0, 0, "draw all factors along with node scores");
   DVARINT_bot_ScoreMinCutoff = Dvar_RegisterInt("NNTSRNQSRM", 0, 0, 4095, 0, "When using bot_ScoreType, will not draw any nodes that score less than this amount");
   DVARINT_bot_ScoreMaxCutoff = Dvar_RegisterInt("NOLLPMSPMQ", 4095, 0, 4095, 0, "When using bot_ScoreType, will not draw any nodes that score more than this amount");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42c80000
-    vmovss  xmm6, cs:__real@c2c80000
-  }
   DVARBOOL_bot_ScoreValReset = Dvar_RegisterBool("LKQMNSMQQL", 0, 0, "resets all score factor weight offsets to zero then sets itself to false");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal0 = Dvar_RegisterFloat("ORORLTMRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 0");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal1 = Dvar_RegisterFloat("MPORNNSRKP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 1");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal2 = Dvar_RegisterFloat("NMOTTKSOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 2");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal3 = Dvar_RegisterFloat("MNTRQLKMRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 3");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal4 = Dvar_RegisterFloat("LRPMQMOLM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 4");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal5 = Dvar_RegisterFloat("MMORSSLSOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 5");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal6 = Dvar_RegisterFloat("MPPNNTSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 6");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal7 = Dvar_RegisterFloat("MKTSLPNOLP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 7");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal8 = Dvar_RegisterFloat("LKRNQNMTTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 8");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal9 = Dvar_RegisterFloat("NLOQMPMOMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 9");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal10 = Dvar_RegisterFloat("LMPSPQSSRR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 10");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal11 = Dvar_RegisterFloat("NOSKTLQROK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 11");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal12 = Dvar_RegisterFloat("LLKSSOKOOR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 12");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal13 = Dvar_RegisterFloat("NNNLLSSNLK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 13");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_bot_ScoreVal14 = Dvar_RegisterFloat("LPPSKMPRNR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "debug dvar for offsetting scoring factor weight 14");
+  DVARFLT_bot_ScoreVal0 = Dvar_RegisterFloat("ORORLTMRM", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 0");
+  DVARFLT_bot_ScoreVal1 = Dvar_RegisterFloat("MPORNNSRKP", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 1");
+  DVARFLT_bot_ScoreVal2 = Dvar_RegisterFloat("NMOTTKSOM", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 2");
+  DVARFLT_bot_ScoreVal3 = Dvar_RegisterFloat("MNTRQLKMRP", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 3");
+  DVARFLT_bot_ScoreVal4 = Dvar_RegisterFloat("LRPMQMOLM", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 4");
+  DVARFLT_bot_ScoreVal5 = Dvar_RegisterFloat("MMORSSLSOP", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 5");
+  DVARFLT_bot_ScoreVal6 = Dvar_RegisterFloat("MPPNNTSM", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 6");
+  DVARFLT_bot_ScoreVal7 = Dvar_RegisterFloat("MKTSLPNOLP", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 7");
+  DVARFLT_bot_ScoreVal8 = Dvar_RegisterFloat("LKRNQNMTTM", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 8");
+  DVARFLT_bot_ScoreVal9 = Dvar_RegisterFloat("NLOQMPMOMP", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 9");
+  DVARFLT_bot_ScoreVal10 = Dvar_RegisterFloat("LMPSPQSSRR", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 10");
+  DVARFLT_bot_ScoreVal11 = Dvar_RegisterFloat("NOSKTLQROK", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 11");
+  DVARFLT_bot_ScoreVal12 = Dvar_RegisterFloat("LLKSSOKOOR", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 12");
+  DVARFLT_bot_ScoreVal13 = Dvar_RegisterFloat("NNNLLSSNLK", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 13");
+  DVARFLT_bot_ScoreVal14 = Dvar_RegisterFloat("LPPSKMPRNR", 0.0, -100.0, 100.0, 0, "debug dvar for offsetting scoring factor weight 14");
   DVARINT_scrAgent_DebugEnt = Dvar_RegisterInt("LOKTORKSMR", -1, -1, 2048, 4u, "Use this to turn off all Script agents except for the one with this entity number.");
   DVARBOOL_sv_anticheat_dataCollectionEnabled = Dvar_RegisterBool("NKTLOQKPRO", 0, 0, "Enable sv anticheat data collection.");
   DVARBOOL_sv_anticheat_perKillEventEnabled = Dvar_RegisterBool("OLRRKTQKKP", 1, 0, "Enable per-kill event logging (all logging will be disabled by sv_anticheat_dataCollectionEnabled = false)");
   DVARINT_sv_anticheat_playerKilled_angle_speed_window = Dvar_RegisterInt("MNSNKTPMTM", 2048, 1, 12288, 0, "Window of time (in ms) for which we'll record player angle speeds and report with kill data. NOTE: internal buffer is 256 frames long. Max is based on 48ms frame length.");
   result = Dvar_RegisterInt("OMTTLOSKR", 1000, 0, 0x7FFFFFFF, 0, "Time (in ms) after which 'sighted'-ness is considered to be lost when tracking first sighted time reported with kill data.");
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
   DVARINT_sv_anticheat_playerRecentlySighted_resetTime = result;
   return result;
 }
@@ -1426,25 +1238,26 @@ void SV_InitMP_SetXUIDConfigStrings()
   SvClient *CommonClient; 
   const XUID *v3; 
   int MemberNatType; 
-  unsigned int v8; 
+  unsigned int v5; 
   const PartyData *PartyData; 
-  const char *v12; 
-  const char *v13; 
-  const char *v14; 
-  __int64 v15; 
+  const bdSecurityID *PrivatePartyId; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
+  __int64 v11; 
   XUID xuid; 
-  __int64 v17; 
+  __int64 v13; 
   XUID result; 
-  bdSecurityID v19; 
-  BG_SynchronizedPlayerInfo v20; 
+  bdSecurityID v15; 
+  BG_SynchronizedPlayerInfo v16; 
   XNADDR outAddr; 
   char str[32]; 
   char buffer[176]; 
 
-  v17 = -2i64;
+  v13 = -2i64;
   XUID::XUID(&xuid);
-  bdSecurityID::bdSecurityID(&v20.partyId);
-  XUID::XUID(&v20.xuid);
+  bdSecurityID::bdSecurityID(&v16.partyId);
+  XUID::XUID(&v16.xuid);
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 186, ASSERT_TYPE_ASSERT, "(!SvPersistentGlobalsMP::IsFrontEndServer())", "%s\n\tCan't modify the session from the front end server", "!SvPersistentGlobalsMP::IsFrontEndServer()") )
     __debugbreak();
   if ( !SV_IsDemoPlaying() && !SV_IsDemoPlayingNext() )
@@ -1465,69 +1278,56 @@ void SV_InitMP_SetXUIDConfigStrings()
             XUID::operator=(&xuid, v3);
             if ( XUID::IsValid(&xuid) )
             {
-              bdSecurityID::bdSecurityID(&v19);
-              BG_SynchronizedPlayerInfo_Reset(&v20);
-              XUID::operator=(&v20.xuid, &xuid);
+              bdSecurityID::bdSecurityID(&v15);
+              BG_SynchronizedPlayerInfo_Reset(&v16);
+              XUID::operator=(&v16.xuid, &xuid);
               if ( !SV_ClientMP_IsClientConnected(i) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 221, ASSERT_TYPE_ASSERT, "(SV_ClientMP_IsClientConnected( clientNum ))", (const char *)&queryFormat, "SV_ClientMP_IsClientConnected( clientNum )") )
                 __debugbreak();
               SV_ClientMP_GetXNAddr(i, &outAddr);
               XNADDR::ToString(&outAddr, buffer);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+130h+outAddr.addrBuff]
-                vmovups ymmword ptr [rsp+230h+var_1E8.ab+8], ymm0
-                vmovups ymm1, ymmword ptr [rbp+130h+outAddr.addrBuff+20h]
-                vmovups [rsp+230h+var_1C8+8], ymm1
-                vmovups xmm0, xmmword ptr [rbp+130h+outAddr.addrBuff+40h]
-                vmovups [rbp+130h+var_1A0], xmm0
-              }
-              *(_DWORD *)&v20.xnaddr.addrBuff[80] = *(_DWORD *)&outAddr.addrBuff[80];
+              v16.xnaddr = outAddr;
               MemberNatType = Party_GetMemberNatType(ServerLobby, i);
-              v8 = MemberNatType;
+              v5 = MemberNatType;
               if ( (unsigned int)(MemberNatType - 1) > 2 )
               {
-                LODWORD(v15) = MemberNatType;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 227, ASSERT_TYPE_ASSERT, "( ( natType > 0 && natType <= XONLINE_NAT_STRICT ) )", "( natType ) = %i", v15) )
+                LODWORD(v11) = MemberNatType;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 227, ASSERT_TYPE_ASSERT, "( ( natType > 0 && natType <= XONLINE_NAT_STRICT ) )", "( natType ) = %i", v11) )
                   __debugbreak();
               }
-              v20.natType = v8;
-              Com_Printf(131087, "Setting client %i NATTYPE to %i\n", i, v8);
+              v16.natType = v5;
+              Com_Printf(131087, "Setting client %i NATTYPE to %i\n", i, v5);
               Com_Printf(131087, "Setting client %i XNADDR to %s\n", i, buffer);
               if ( Lobby_IsInLobby() )
               {
                 PartyData = Lobby_GetPartyData();
-                v20.platformId = Party_GetPlatformId(PartyData, i);
-                Com_Printf(131087, "Setting client %i PLATFORMUID to %llu\n", i, v20.platformId);
+                v16.platformId = Party_GetPlatformId(PartyData, i);
+                Com_Printf(131087, "Setting client %i PLATFORMUID to %llu\n", i, v16.platformId);
               }
               else
               {
-                v20.platformId = 0i64;
+                v16.platformId = 0i64;
               }
-              v20.clientPlatform[0] = Party_GetMemberPlatform(ServerLobby, i);
-              Com_Printf(131087, "Setting client %i PLATFORM to %d\n", i, (unsigned int)(char)v20.clientPlatform[0]);
-              _RDI = SV_ClientMP_GetPrivatePartyId(i);
-              XNKIDToString(_RDI, str, 21);
-              __asm
-              {
-                vmovsd  xmm0, qword ptr [rdi]
-                vmovsd  qword ptr [rbp+130h+var_18C.ab], xmm0
-              }
+              v16.clientPlatform[0] = Party_GetMemberPlatform(ServerLobby, i);
+              Com_Printf(131087, "Setting client %i PLATFORM to %d\n", i, (unsigned int)(char)v16.clientPlatform[0]);
+              PrivatePartyId = SV_ClientMP_GetPrivatePartyId(i);
+              XNKIDToString(PrivatePartyId, str, 21);
+              v16.partyId = *PrivatePartyId;
               Com_Printf(131087, "Setting client %i XNKID to %s\n", i, str);
-              v12 = XUID::ToDevString(&xuid);
-              Com_Printf(131087, "Setting client %i XUID to %s\n", i, v12);
-              v13 = Info_ValueForKey((const char *)&CommonClient[1].lastUsercmd.buttons + 4, "guest");
-              LODWORD(_RDI) = atoi(v13);
-              Com_Printf(131087, "Setting client %i GUEST to %i\n", i, (_DWORD)_RDI != 0);
-              v20.isGuestAccount = (_DWORD)_RDI != 0;
-              LODWORD(_RDI) = NetConnection::GetNetId((NetConnection *)&CommonClient[642].lastUsercmd.sightedClientsMask.data[6]);
-              Com_Printf(131087, "Setting client %i NETID to %i\n", i, (unsigned int)_RDI);
-              v20.localNetId = (int)_RDI;
-              v14 = Info_ValueForKey((const char *)&CommonClient[1].lastUsercmd.buttons + 4, "headless");
-              LOBYTE(_RDI) = atoi(v14) != 0;
-              Com_Printf(131087, "Setting client %i HEADLESS to %i\n", i, (unsigned __int8)_RDI);
-              v20.isHeadless = (char)_RDI;
-              SV_Live_SetPlayerInfo(i, &v20);
-              bdSecurityID::~bdSecurityID(&v19);
+              v8 = XUID::ToDevString(&xuid);
+              Com_Printf(131087, "Setting client %i XUID to %s\n", i, v8);
+              v9 = Info_ValueForKey((const char *)&CommonClient[1].lastUsercmd.buttons + 4, "guest");
+              LODWORD(PrivatePartyId) = atoi(v9);
+              Com_Printf(131087, "Setting client %i GUEST to %i\n", i, (_DWORD)PrivatePartyId != 0);
+              v16.isGuestAccount = (_DWORD)PrivatePartyId != 0;
+              LODWORD(PrivatePartyId) = NetConnection::GetNetId((NetConnection *)&CommonClient[642].lastUsercmd.sightedClientsMask.data[6]);
+              Com_Printf(131087, "Setting client %i NETID to %i\n", i, (unsigned int)PrivatePartyId);
+              v16.localNetId = (int)PrivatePartyId;
+              v10 = Info_ValueForKey((const char *)&CommonClient[1].lastUsercmd.buttons + 4, "headless");
+              LOBYTE(PrivatePartyId) = atoi(v10) != 0;
+              Com_Printf(131087, "Setting client %i HEADLESS to %i\n", i, (unsigned __int8)PrivatePartyId);
+              v16.isHeadless = (char)PrivatePartyId;
+              SV_Live_SetPlayerInfo(i, &v16);
+              bdSecurityID::~bdSecurityID(&v15);
             }
           }
         }
@@ -1538,7 +1338,7 @@ void SV_InitMP_SetXUIDConfigStrings()
       __debugbreak();
     }
   }
-  bdSecurityID::~bdSecurityID(&v20.partyId);
+  bdSecurityID::~bdSecurityID(&v16.partyId);
 }
 
 /*
@@ -2611,40 +2411,40 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
 {
   bool IsServerThread; 
   int serverThreadStartup; 
-  __int64 v7; 
+  __int64 v6; 
   bool isFrontEnd; 
-  int v9; 
-  signed int v10; 
-  char v11; 
-  signed int v12; 
+  int v8; 
+  signed int v9; 
+  char v10; 
+  signed int v11; 
   SvClient *CommonClient; 
   signed int i; 
-  SvClientMP *v15; 
+  SvClientMP *v14; 
   const char *MapName; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  const dvar_t *v18; 
+  const dvar_t *v17; 
   SvGameGlobals *SvGameGlobalsCommon; 
-  SvGameGlobals *v20; 
-  SvPersistentGlobalsMP *v21; 
+  SvGameGlobals *v19; 
+  SvPersistentGlobalsMP *v20; 
+  SvGameGlobals *v21; 
   SvGameGlobals *v22; 
-  SvGameGlobals *v23; 
+  int v23; 
   int v24; 
-  int v25; 
+  bool v25; 
   bool v26; 
-  bool v27; 
   unsigned __int8 Byte; 
-  SvClient *v29; 
-  SvClientMP *v30; 
+  SvClient *v28; 
+  SvClientMP *v29; 
   SvClientConnectionState state; 
-  const char *v32; 
-  const dvar_t *v33; 
+  const char *v31; 
+  const dvar_t *v32; 
   int integer; 
-  const dvar_t *v35; 
-  __int64 v41; 
-  __int64 v42; 
-  __int64 v43; 
+  const dvar_t *v34; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
   int ServerThreadOwnsGame; 
-  __int64 v45; 
+  __int64 v41; 
   char filename[64]; 
   char dest[64]; 
 
@@ -2660,8 +2460,8 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
     __debugbreak();
   if ( g_serverThreadOwnership != 1 )
   {
-    LODWORD(v41) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2033, ASSERT_TYPE_ASSERT, "( ( g_serverThreadOwnership == 1 ) )", "( g_serverThreadOwnership ) = %i", v41) )
+    LODWORD(v37) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2033, ASSERT_TYPE_ASSERT, "( ( g_serverThreadOwnership == 1 ) )", "( g_serverThreadOwnership ) = %i", v37) )
       __debugbreak();
   }
   serverThreadStartup = initSettings->serverThreadStartup;
@@ -2675,8 +2475,8 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
     __debugbreak();
   if ( g_serverThreadOwnership != 1 )
   {
-    LODWORD(v41) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1841, ASSERT_TYPE_ASSERT, "( ( g_serverThreadOwnership == 1 ) )", "( g_serverThreadOwnership ) = %i", v41) )
+    LODWORD(v37) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1841, ASSERT_TYPE_ASSERT, "( ( g_serverThreadOwnership == 1 ) )", "( g_serverThreadOwnership ) = %i", v37) )
       __debugbreak();
   }
   if ( !initSettings->isFrontEnd )
@@ -2686,7 +2486,7 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
     if ( !DB_AreFastfileLoadsCompleted() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1848, ASSERT_TYPE_ASSERT, "(DB_AreFastfileLoadsCompleted())", (const char *)&queryFormat, "DB_AreFastfileLoadsCompleted()") )
       __debugbreak();
   }
-  v7 = tls_index;
+  v6 = tls_index;
   *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) = -1;
   DLog_ResetMeasurementDictionaries();
   SV_Profile_Init(!initSettings->isFrontEnd);
@@ -2707,8 +2507,8 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
       __debugbreak();
     if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
     {
-      LODWORD(v41) = g_serverThreadOwnership;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1241, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v41) )
+      LODWORD(v37) = g_serverThreadOwnership;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1241, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v37) )
         __debugbreak();
     }
     Live_Frame(0);
@@ -2716,45 +2516,45 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
       __debugbreak();
     if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
     {
-      LODWORD(v41) = g_serverThreadOwnership;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1245, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v41) )
+      LODWORD(v37) = g_serverThreadOwnership;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1245, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v37) )
         __debugbreak();
     }
   }
   SV_MigrationInit();
   SV_CmdsMP_ClearLoadGame();
-  v9 = initSettings->serverThreadStartup;
-  if ( SV_Main_GetServerThreadOwnsGame() != v9 )
+  v8 = initSettings->serverThreadStartup;
+  if ( SV_Main_GetServerThreadOwnsGame() != v8 )
   {
-    LODWORD(v45) = v9;
-    LODWORD(v43) = SV_Main_GetServerThreadOwnsGame();
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2082, ASSERT_TYPE_ASSERT, "( SV_Main_GetServerThreadOwnsGame() ) == ( static_cast<qboolean>( initSettings->serverThreadStartup ) )", "%s == %s\n\t%i, %i", "SV_Main_GetServerThreadOwnsGame()", "static_cast<qboolean>( initSettings->serverThreadStartup )", v43, v45) )
+    LODWORD(v41) = v8;
+    LODWORD(v39) = SV_Main_GetServerThreadOwnsGame();
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2082, ASSERT_TYPE_ASSERT, "( SV_Main_GetServerThreadOwnsGame() ) == ( static_cast<qboolean>( initSettings->serverThreadStartup ) )", "%s == %s\n\t%i, %i", "SV_Main_GetServerThreadOwnsGame()", "static_cast<qboolean>( initSettings->serverThreadStartup )", v39, v41) )
       __debugbreak();
   }
-  v10 = 0;
+  v9 = 0;
   if ( !initSettings->isFrontEnd )
   {
     if ( Com_IsAnyLocalServerRunning() )
     {
+      v10 = 0;
       v11 = 0;
-      v12 = 0;
       if ( (int)SvClient::ms_clientCount > 0 )
       {
         do
         {
-          if ( SvClient::GetCommonClient(v12)->state >= CS_CLIENTLOADING && !SV_ClientMP_IsLocalClient(v12) )
+          if ( SvClient::GetCommonClient(v11)->state >= CS_CLIENTLOADING && !SV_ClientMP_IsLocalClient(v11) )
           {
             Com_sprintf(dest, 0x40ui64, "loadingnewmap\n%s\n%s", initSettings->mapName, initSettings->gameType);
             if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
               __debugbreak();
-            CommonClient = SvClient::GetCommonClient(v12);
+            CommonClient = SvClient::GetCommonClient(v11);
             NetConnection::SendUnreliable((NetConnection *)&CommonClient[642].lastUsercmd.sightedClientsMask.data[6], dest);
-            v11 = 1;
+            v10 = 1;
           }
-          ++v12;
+          ++v11;
         }
-        while ( v12 < (int)SvClient::ms_clientCount );
-        if ( v11 )
+        while ( v11 < (int)SvClient::ms_clientCount );
+        if ( v10 )
           NET_Sleep(250);
       }
     }
@@ -2767,13 +2567,13 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
     {
       if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
         __debugbreak();
-      v15 = (SvClientMP *)SvClient::GetCommonClient(i);
-      SV_ClientMP_DropClient(v15, "EXE/PLAYERKICKED", 0);
+      v14 = (SvClientMP *)SvClient::GetCommonClient(i);
+      SV_ClientMP_DropClient(v14, "EXE/PLAYERKICKED", 0);
     }
   }
   Com_Printf(15, "------ Server Initialization ------\n");
   Com_Printf(131087, "Server: %s\n", initSettings->mapName);
-  *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v7) + 1052i64) = -513;
+  *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v6) + 1052i64) = -513;
   if ( Com_IsAnyLocalServerRunning() )
   {
     MapName = SV_Game_GetMapName();
@@ -2787,23 +2587,23 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
   if ( !PersistentGlobalsMP->m_svMemoryInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2124, ASSERT_TYPE_ASSERT, "( svPers->m_svMemoryInitialized )", (const char *)&queryFormat, "svPers->m_svMemoryInitialized") )
     __debugbreak();
-  v18 = DVARINT_sv_cmdMaxCommandTime;
+  v17 = DVARINT_sv_cmdMaxCommandTime;
   if ( !DVARINT_sv_cmdMaxCommandTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdMaxCommandTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  this->m_svCurCmdDuration = v18->current.unsignedInt;
+  Dvar_CheckFrontendServerThread(v17);
+  this->m_svCurCmdDuration = v17->current.unsignedInt;
   if ( !initSettings->mapName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1023, ASSERT_TYPE_ASSERT, "( initSettings->mapName[0] )", (const char *)&queryFormat, "initSettings->mapName[0]") )
     __debugbreak();
   if ( !initSettings->gameType[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1024, ASSERT_TYPE_ASSERT, "( initSettings->gameType[0] )", (const char *)&queryFormat, "initSettings->gameType[0]") )
     __debugbreak();
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF_HALF )
   {
-    LODWORD(v42) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v42) )
+    LODWORD(v38) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v38) )
       __debugbreak();
   }
   SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
-  v20 = SvGameGlobalsCommon;
+  v19 = SvGameGlobalsCommon;
   if ( initSettings->isFrontEnd )
   {
     SvGameGlobalsCommon[2].profile.vmBuiltinTimeAccum = 0.0;
@@ -2811,26 +2611,26 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
   else
   {
     ProfLoad_Begin("BG_NetDataChecksum");
-    LODWORD(v20[2].profile.vmBuiltinTimeAccum) = BG_NetDataChecksum();
+    LODWORD(v19[2].profile.vmBuiltinTimeAccum) = BG_NetDataChecksum();
     ProfLoad_End();
   }
-  Core_strcpy(v20->m_mapname, 0x40ui64, initSettings->mapName);
-  Core_strcpy((char *)&v20[2].profile.wallClockTime + 1, 0x40ui64, initSettings->gameType);
-  BYTE1(v20[2].profile.vmBuiltinTime) = initSettings->hardcoreMode;
-  *(_QWORD *)&v20[107].skelMemPos = Com_PlayerData_GetRequiredStatPacketBitmask();
-  v21 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+  Core_strcpy(v19->m_mapname, 0x40ui64, initSettings->mapName);
+  Core_strcpy((char *)&v19[2].profile.wallClockTime + 1, 0x40ui64, initSettings->gameType);
+  BYTE1(v19[2].profile.vmBuiltinTime) = initSettings->hardcoreMode;
+  *(_QWORD *)&v19[107].skelMemPos = Com_PlayerData_GetRequiredStatPacketBitmask();
+  v20 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
   if ( !initSettings->serverHostName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 1057, ASSERT_TYPE_ASSERT, "( initSettings->serverHostName[0] )", (const char *)&queryFormat, "initSettings->serverHostName[0]") )
     __debugbreak();
-  Core_strcpy(v21->m_hostname, 0x40ui64, initSettings->serverHostName);
+  Core_strcpy(v20->m_hostname, 0x40ui64, initSettings->serverHostName);
   ProfLoad_Begin("SV_SpawnServerMP_InitConfigStrings");
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF_HALF )
   {
-    LODWORD(v42) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v42) )
+    LODWORD(v38) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v38) )
       __debugbreak();
   }
-  v22 = SvGameGlobals::GetSvGameGlobalsCommon();
-  SvGameGlobals::InitConfigStrings(v22);
+  v21 = SvGameGlobals::GetSvGameGlobalsCommon();
+  SvGameGlobals::InitConfigStrings(v21);
   NetConstStrings_BuildStringMap();
   BgDynamicLimits::UpdateDynamicValues();
   BG_Omnvar_InitializeDefaultValues();
@@ -2855,34 +2655,34 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
   Com_GetBspFilename(filename, 64, initSettings->mapName);
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF_HALF )
   {
-    LODWORD(v42) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v42) )
+    LODWORD(v38) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v38) )
       __debugbreak();
   }
-  v23 = SvGameGlobals::GetSvGameGlobalsCommon();
-  CM_LoadMap(filename, &v23->mapcrc);
+  v22 = SvGameGlobals::GetSvGameGlobalsCommon();
+  CM_LoadMap(filename, &v22->mapcrc);
   Com_LoadWorld(filename);
   BgDynamicLimits::UpdateDynamicValues();
-  v24 = (unsigned __int8)(sv_serverId_value + 16);
-  sv_serverId_value = v24;
-  if ( (v24 & 0xF0) == 0 )
-    sv_serverId_value = v24 + 16;
+  v23 = (unsigned __int8)(sv_serverId_value + 16);
+  sv_serverId_value = v23;
+  if ( (v23 & 0xF0) == 0 )
+    sv_serverId_value = v23 + 16;
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF_HALF )
   {
-    LODWORD(v42) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v42) )
+    LODWORD(v38) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v38) )
       __debugbreak();
   }
   SvGameGlobals::GetSvGameGlobalsCommon()[1].restarting = com_frameTime;
   SvStaticGlobals::ms_svStaticGlobals.state = SS_LOADING;
   if ( !initSettings->isFrontEnd )
     Live_SetCurrentMapname(initSettings->mapName);
-  v25 = initSettings->serverThreadStartup;
-  if ( SV_Main_GetServerThreadOwnsGame() != v25 )
+  v24 = initSettings->serverThreadStartup;
+  if ( SV_Main_GetServerThreadOwnsGame() != v24 )
   {
-    LODWORD(v45) = v25;
-    LODWORD(v43) = SV_Main_GetServerThreadOwnsGame();
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2167, ASSERT_TYPE_ASSERT, "( SV_Main_GetServerThreadOwnsGame() ) == ( static_cast<qboolean>(initSettings->serverThreadStartup) )", "%s == %s\n\t%i, %i", "SV_Main_GetServerThreadOwnsGame()", "static_cast<qboolean>(initSettings->serverThreadStartup)", v43, v45) )
+    LODWORD(v41) = v24;
+    LODWORD(v39) = SV_Main_GetServerThreadOwnsGame();
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2167, ASSERT_TYPE_ASSERT, "( SV_Main_GetServerThreadOwnsGame() ) == ( static_cast<qboolean>(initSettings->serverThreadStartup) )", "%s == %s\n\t%i, %i", "SV_Main_GetServerThreadOwnsGame()", "static_cast<qboolean>(initSettings->serverThreadStartup)", v39, v41) )
       __debugbreak();
   }
   if ( !initSettings->isFrontEnd && !SV_IsDemoPlaying() && !SV_IsDemoPlayingNext() )
@@ -2893,23 +2693,23 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
   ProfLoad_End();
   CL_TransientsWorldMP_EndListenServerStall();
   SV_InitMP_SpawnServer_ResetConnectedClients(!initSettings->isSaveGame);
+  v25 = 0;
   v26 = 0;
-  v27 = 0;
   if ( SV_IsDemoPlaying() )
   {
     if ( !SV_DemoMP_UsingDemoHistory() )
     {
       Byte = SV_Demo_GetByte();
-      v27 = Byte != 0;
+      v26 = Byte != 0;
       if ( Byte )
-        v26 = SV_Demo_GetByte() != 0;
+        v25 = SV_Demo_GetByte() != 0;
     }
   }
   else
   {
     SV_Record_GetByte(0);
   }
-  SV_ClientMP_UpdateConnectedClientsOnRestart(v27, v26);
+  SV_ClientMP_UpdateConnectedClientsOnRestart(v26, v25);
   SV_InitMP_SaveSystemInfo();
   if ( (int)SvClient::ms_clientCount > 0 )
   {
@@ -2917,42 +2717,42 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
     {
       if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
         __debugbreak();
-      v29 = SvClient::GetCommonClient(v10);
-      v30 = (SvClientMP *)v29;
-      state = v29->state;
+      v28 = SvClient::GetCommonClient(v9);
+      v29 = (SvClientMP *)v28;
+      state = v28->state;
       if ( state )
       {
-        v32 = *(const char **)&v29[1].state;
-        if ( v32 )
+        v31 = *(const char **)&v28[1].state;
+        if ( v31 )
         {
-          if ( !strcmp_0(v32, "EXE/PLAYERKICKED") )
+          if ( !strcmp_0(v31, "EXE/PLAYERKICKED") )
           {
             if ( state != CS_RECONNECTING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2018, ASSERT_TYPE_ASSERT, "(client->state == SvClientConnectionState::CS_RECONNECTING)", "%s\n\tUnexpected client state during load", "client->state == SvClientConnectionState::CS_RECONNECTING") )
               __debugbreak();
-            SV_ClientMP_DropClient(v30, v30->dropReason, 1);
+            SV_ClientMP_DropClient(v29, v29->dropReason, 1);
           }
         }
       }
-      ++v10;
+      ++v9;
     }
-    while ( v10 < (int)SvClient::ms_clientCount );
+    while ( v9 < (int)SvClient::ms_clientCount );
   }
-  v33 = DVARINT_badHost_detectMinServerTime;
+  v32 = DVARINT_badHost_detectMinServerTime;
   if ( !DVARINT_badHost_detectMinServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "badHost_detectMinServerTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v33);
+  Dvar_CheckFrontendServerThread(v32);
   integer = 30000;
-  if ( v33->current.integer < 30000 )
-    integer = v33->current.integer;
+  if ( v32->current.integer < 30000 )
+    integer = v32->current.integer;
   PersistentGlobalsMP->badHostDetectionTime = PersistentGlobalsMP->time + integer;
   SV_SnapshotMP_CreateBaselineIfNeeded();
   if ( !initSettings->isFrontEnd )
   {
-    v35 = DVARBOOL_sv_usePrecomputedLOSData;
+    v34 = DVARBOOL_sv_usePrecomputedLOSData;
     if ( DVARBOOL_sv_usePrecomputedLOSData )
     {
       Dvar_CheckFrontendServerThread(DVARBOOL_sv_usePrecomputedLOSData);
-      if ( v35->current.enabled )
+      if ( v34->current.enabled )
         LOSPrecomputeSystem::LoadTimingDataFromFile(&g_losPrecomputeData, initSettings->mapName);
     }
   }
@@ -2969,24 +2769,15 @@ void SvGameModeAppMP::ServerStart_Spawn(SvGameModeAppMP *this, const SvServerIni
     Sys_ProfEndNamedEvent();
     R_EndRemoteScreenUpdate();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(__rdtsc() - g_timerTickAtBoot) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(0, "Time since boot: %.2fs\n", *(double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(0, "Time since boot: %.2fs\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
   if ( g_serverThreadOwnership != 1 )
   {
-    LODWORD(v41) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2231, ASSERT_TYPE_ASSERT, "( ( g_serverThreadOwnership == 1 ) )", "( g_serverThreadOwnership ) = %i", v41) )
+    LODWORD(v37) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_init_mp.cpp", 2231, ASSERT_TYPE_ASSERT, "( ( g_serverThreadOwnership == 1 ) )", "( g_serverThreadOwnership ) = %i", v37) )
       __debugbreak();
   }
 }

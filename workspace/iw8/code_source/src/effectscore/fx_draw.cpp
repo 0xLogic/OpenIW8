@@ -29,7 +29,6 @@ void FXIR_DrawSpriteElems(GfxCodeSurfGlob *codeSurfGlob, FxSystem *localSystemWr
 {
   FxDrawState mem; 
 
-  _RBX = camera;
   DebugWipe(&mem, 0x6A0ui64);
   if ( !localSystemWrite && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_draw.cpp", 64, ASSERT_TYPE_ASSERT, "(localSystemWrite)", (const char *)&queryFormat, "localSystemWrite") )
     __debugbreak();
@@ -47,41 +46,34 @@ void FXIR_DrawSpriteElems(GfxCodeSurfGlob *codeSurfGlob, FxSystem *localSystemWr
   DebugWipe(&mem.sprite, 0x30ui64);
   mem.sprite.indexCount = 0;
   mem.system = localSystemWrite;
-  if ( !_RBX )
-    _RBX = &localSystemWrite->camera;
-  __asm { vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  mem.camera = _RBX;
+  if ( !camera )
+    camera = &localSystemWrite->camera;
+  mem.camera = camera;
+  _XMM0 = 0i64;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+78h]
-    vmovss  xmm1, dword ptr [rbx+70h]
-    vxorps  xmm4, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rbx+74h]
-    vxorps  xmm3, xmm0, xmm5
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm1, xmm5
     vinsertps xmm0, xmm0, xmm2, 0
     vinsertps xmm0, xmm0, xmm3, 10h
     vinsertps xmm0, xmm0, xmm4, 20h ; ' '
-    vmovups [rsp+6F8h+var_678], xmm0
-    vmovss  xmm0, dword ptr [rbx+84h]
-    vmovss  xmm1, dword ptr [rbx+80h]
-    vxorps  xmm4, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rbx+7Ch]
-    vxorps  xmm2, xmm0, xmm5
-    vxorps  xmm3, xmm1, xmm5
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
+  }
+  mem.negCameraNormal = (float4)_XMM0.v;
+  _XMM1 = 0i64;
+  _XMM0 = 0i64;
+  __asm
+  {
     vinsertps xmm1, xmm1, xmm2, 0
     vinsertps xmm1, xmm1, xmm3, 10h
     vinsertps xmm1, xmm1, xmm4, 20h ; ' '
-    vmovups [rsp+6F8h+var_668], xmm1
+  }
+  mem.negCameraTangent = (float4)_XMM1.v;
+  __asm
+  {
     vinsertps xmm0, xmm0, dword ptr [rbx+88h], 0
     vinsertps xmm0, xmm0, dword ptr [rbx+8Ch], 10h
     vinsertps xmm0, xmm0, dword ptr [rbx+90h], 20h ; ' '
   }
   mem.codeSurfListType = codeSurfListType;
-  __asm { vmovups [rsp+6F8h+var_658], xmm0 }
+  mem.cameraBitangent = (float4)_XMM0.v;
   FX_DrawModularParticles(&mem, localSystemWrite, codeSurfGlob, backEndData);
   if ( mem.sprite.indexCount )
     FX_SpriteDirectFlush(codeSurfGlob, &mem.sprite, mem.sprite.perFrameActiveEmitterIndex != -1);
@@ -96,41 +88,36 @@ FX_DrawElement_Setup_Camera
 */
 void FX_DrawElement_Setup_Camera(FxDrawState *drawState, const FxCamera *camera)
 {
-  _RAX = camera;
+  const FxCamera *p_camera; 
+
+  p_camera = camera;
   if ( !camera )
-    _RAX = &drawState->system->camera;
-  __asm { vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  drawState->camera = _RAX;
+    p_camera = &drawState->system->camera;
+  drawState->camera = p_camera;
+  _XMM0 = 0i64;
   __asm
   {
-    vmovss  xmm0, dword ptr [rax+78h]
-    vmovss  xmm1, dword ptr [rax+70h]
-    vxorps  xmm4, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rax+74h]
-    vxorps  xmm3, xmm0, xmm5
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm1, xmm5
     vinsertps xmm0, xmm0, xmm2, 0
     vinsertps xmm0, xmm0, xmm3, 10h
     vinsertps xmm0, xmm0, xmm4, 20h ; ' '
-    vmovups xmmword ptr [rcx+50h], xmm0
-    vmovss  xmm0, dword ptr [rax+84h]
-    vmovss  xmm1, dword ptr [rax+80h]
-    vxorps  xmm4, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rax+7Ch]
-    vxorps  xmm2, xmm0, xmm5
-    vxorps  xmm3, xmm1, xmm5
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
+  }
+  drawState->negCameraNormal = (float4)_XMM0.v;
+  _XMM1 = 0i64;
+  _XMM0 = 0i64;
+  __asm
+  {
     vinsertps xmm1, xmm1, xmm2, 0
     vinsertps xmm1, xmm1, xmm3, 10h
     vinsertps xmm1, xmm1, xmm4, 20h ; ' '
-    vmovups xmmword ptr [rcx+60h], xmm1
+  }
+  drawState->negCameraTangent = (float4)_XMM1.v;
+  __asm
+  {
     vinsertps xmm0, xmm0, dword ptr [rax+88h], 0
     vinsertps xmm0, xmm0, dword ptr [rax+8Ch], 10h
     vinsertps xmm0, xmm0, dword ptr [rax+90h], 20h ; ' '
-    vmovups xmmword ptr [rcx+70h], xmm0
   }
+  drawState->cameraBitangent = (float4)_XMM0.v;
 }
 
 /*

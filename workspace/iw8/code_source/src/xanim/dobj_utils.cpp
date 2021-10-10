@@ -836,668 +836,366 @@ DObjApplySkelPoseInternal
 */
 void DObjApplySkelPoseInternal(const DSkel *srcSkel, const DObj *dstObj)
 {
-  const DObj *v13; 
+  const DObj *v2; 
   DSkel *p_skel; 
   const XModel *Model; 
   unsigned __int8 numRootBones; 
-  unsigned int v18; 
-  unsigned __int64 v19; 
+  unsigned int v7; 
+  unsigned __int64 v8; 
   unsigned __int16 numClientBones; 
-  int v21; 
-  unsigned int v22; 
-  vector3 *v24; 
-  const float4 *v25; 
-  unsigned int v33; 
+  int v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  vector3 *v13; 
+  const float4 *v14; 
+  DObjAnimMat *v15; 
+  __m128 quat; 
+  unsigned int v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __int128 v25; 
+  __m128 v29; 
+  __m128 v36; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __m128 v50; 
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *p_anim; 
-  DObjAnimMat *v98; 
-  DObjAnimMat *v99; 
-  unsigned __int64 v104; 
-  unsigned int v106; 
-  int v115; 
-  unsigned int v159; 
-  __int64 v161; 
-  __int64 v207; 
-  unsigned __int16 v217; 
-  __int64 v218; 
-  __int64 v230; 
-  __int64 v231; 
-  DObjAnimMat *v232; 
-  int v233; 
-  int v234; 
-  int v235; 
-  int v236; 
-  int v237; 
-  int v238; 
-  int v239; 
-  int v240; 
-  int v241; 
-  int v242; 
-  int v243; 
-  int v244; 
-  int v245; 
-  int v246; 
-  int v247; 
-  int v248; 
-  int v249; 
-  int v250; 
-  int v251; 
-  int v252; 
-  int v253; 
-  int v254; 
-  int v255; 
-  int v256; 
-  int v257; 
-  int v258; 
-  int v259; 
-  int v260; 
-  unsigned int v261; 
+  DObjAnimMat *v52; 
+  DObjAnimMat *v53; 
+  char *v54; 
+  unsigned __int64 v55; 
+  __int64 p_trans; 
+  unsigned int v57; 
+  int v58; 
+  __m128 v59; 
+  __m128 v61; 
+  __m128 v64; 
+  __m128 v65; 
+  __m128 v66; 
+  __m128 v72; 
+  __m128 v74; 
+  unsigned int v75; 
+  signed __int64 v76; 
+  __int64 v77; 
+  __int64 p_z; 
+  __m128 v79; 
+  __m128 v81; 
+  __m128 v84; 
+  __m128 v85; 
+  __m128 v86; 
+  __m128 v92; 
+  __m128 v94; 
+  __int64 v95; 
+  _DWORD *v96; 
+  unsigned __int16 v97; 
+  __int64 v98; 
+  __int64 v99; 
+  __int64 v100; 
+  __m128 *v101; 
+  unsigned int v102; 
   unsigned int numBones; 
-  DObjAnimMat *mat; 
-  DObjAnimMat *v264; 
-  DSkel *v267; 
-  __int128 v269; 
-  __int128 v270; 
-  __int128 v272; 
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v273; 
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v274; 
-  char v275; 
-  void *retaddr; 
+  __m128 *mat; 
+  DObjAnimMat *v105; 
+  DSkel *v108; 
+  __m256i v109; 
+  __int128 v110; 
+  __m128 v111; 
+  __m128 v112; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v113; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v114; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  v13 = dstObj;
+  v2 = dstObj;
   p_skel = &dstObj->skel;
-  v267 = &dstObj->skel;
+  v108 = &dstObj->skel;
   Model = DObjGetModel(dstObj, 0);
   numRootBones = Model->numRootBones;
   if ( numRootBones )
   {
-    v18 = numRootBones;
+    v7 = numRootBones;
   }
   else
   {
     if ( !Model->numClientBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 364, ASSERT_TYPE_ASSERT, "(model->numClientBones)", (const char *)&queryFormat, "model->numClientBones") )
       __debugbreak();
-    v18 = 1;
+    v7 = 1;
   }
-  numBones = v13->numBones;
-  v19 = 0i64;
-  if ( !DObjHasClientFlag(v13) || (numClientBones = v13->numClientBones, (v21 = numClientBones) == 0) )
-    v21 = 0;
-  v261 = v21 + v13->numBones;
+  numBones = v2->numBones;
+  v8 = 0i64;
+  if ( !DObjHasClientFlag(v2) || (numClientBones = v2->numClientBones, (v10 = numClientBones) == 0) )
+    v10 = 0;
+  v102 = v10 + v2->numBones;
   if ( (srcSkel->partBits.skel.array[0] & 0x80000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1426, ASSERT_TYPE_ASSERT, "(srcSkel->partBits.skel.testBit( ROOT_BONE_INDEX ))", (const char *)&queryFormat, "srcSkel->partBits.skel.testBit( ROOT_BONE_INDEX )") )
     __debugbreak();
   if ( (p_skel->partBits.anim.array[0] & 0x80000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1427, ASSERT_TYPE_ASSERT, "(dstSkel->partBits.anim.testBit( ROOT_BONE_INDEX ))", (const char *)&queryFormat, "dstSkel->partBits.anim.testBit( ROOT_BONE_INDEX )") )
     __debugbreak();
-  v22 = 0;
-  mat = srcSkel->mat;
-  v232 = v13->skel.mat;
-  _RSI = 0i64;
+  v11 = 0;
+  mat = (__m128 *)srcSkel->mat;
+  v101 = (__m128 *)v2->skel.mat;
+  v12 = 0i64;
   do
   {
-    if ( v22 >= 0x100 )
+    if ( v11 >= 0x100 )
     {
-      LODWORD(v231) = 256;
-      LODWORD(v230) = v22;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v230, v231) )
+      LODWORD(v100) = 256;
+      LODWORD(v99) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v99, v100) )
         __debugbreak();
     }
-    v24 = (vector3 *)(v22 & 0x1F);
-    v25 = (const float4 *)(0x80000000 >> (char)v24);
-    if ( ((unsigned int)v25 & v13->skel.partBits.anim.array[v19 >> 5]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1435, ASSERT_TYPE_ASSERT, "(dstSkel->partBits.anim.testBit( boneIndex ))", (const char *)&queryFormat, "dstSkel->partBits.anim.testBit( boneIndex )") )
+    v13 = (vector3 *)(v11 & 0x1F);
+    v14 = (const float4 *)(0x80000000 >> (char)v13);
+    if ( ((unsigned int)v14 & v2->skel.partBits.anim.array[v8 >> 5]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1435, ASSERT_TYPE_ASSERT, "(dstSkel->partBits.anim.testBit( boneIndex ))", (const char *)&queryFormat, "dstSkel->partBits.anim.testBit( boneIndex )") )
       __debugbreak();
-    _RAX = v13->skel.mat;
-    ++v22;
-    ++v19;
+    v15 = v2->skel.mat;
+    ++v11;
+    ++v8;
+    quat = (__m128)v15[v12].quat;
+    _XMM0 = _mm128_mul_ps(quat, quat);
     __asm
     {
-      vmovups xmm2, xmmword ptr [rsi+rax]
-      vmulps  xmm0, xmm2, xmm2
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm0, xmm1, xmm1
-      vsqrtps xmm1, xmm0
-      vdivps  xmm2, xmm2, xmm1
-      vmovups xmmword ptr [rsi+rax], xmm2
     }
-    _RAX[_RSI++].transWeight = 2.0;
+    v15[v12].quat = (vec4_t)_mm128_div_ps(quat, _mm_sqrt_ps(_XMM0));
+    v15[v12++].transWeight = 2.0;
   }
-  while ( v22 < v18 );
-  v33 = numBones;
-  _R12 = mat;
-  _RAX = v232;
+  while ( v11 < v7 );
+  v20 = numBones;
+  v21 = *v101;
+  v22 = _mm128_mul_ps(*mat, (__m128)_xmm);
+  v23 = _mm_shuffle_ps(v21, v21, 255);
+  HIDWORD(v110) = 0;
+  v25 = v110;
+  *(float *)&v25 = v101[1].m128_f32[0];
+  _XMM10 = v25;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rax]
-    vmovss  xmm0, dword ptr [rax+10h]
-    vmovss  xmm1, dword ptr [rax+14h]
-    vmovss  xmm2, dword ptr [rax+18h]
-    vmovups xmm3, xmmword ptr [r12]
-    vmulps  xmm7, xmm3, cs:__xmm@3f800000bf800000bf800000bf800000
-    vshufps xmm6, xmm4, xmm4, 0FFh
-  }
-  HIDWORD(v269) = 0;
-  __asm
-  {
-    vmovups xmm10, [rsp+1F8h+var_148]
-    vmovss  xmm10, xmm10, xmm0
-    vmovss  xmm0, dword ptr [r12+10h]
     vinsertps xmm10, xmm10, xmm1, 10h
     vinsertps xmm10, xmm10, xmm2, 20h ; ' '
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-    vmovups [rsp+1F8h+var_148], xmm10
   }
-  HIDWORD(v270) = 0;
+  v111 = _XMM10;
+  v111.m128_i32[3] = 0;
+  v29 = v111;
+  v29.m128_f32[0] = mat[1].m128_f32[0];
+  _XMM9 = v29;
   __asm
   {
-    vmovups xmm9, [rsp+1F8h+var_148]
-    vmovss  xmm9, xmm9, xmm0
     vinsertps xmm9, xmm9, dword ptr [r12+14h], 10h
     vinsertps xmm9, xmm9, dword ptr [r12+18h], 20h ; ' '
-    vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm4, xmm7
+  }
+  _XMM1 = _mm128_mul_ps(*v101, v22);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vshufps xmm8, xmm7, xmm7, 0FFh
-    vmulps  xmm4, xmm4, xmm8
-    vmulps  xmm1, xmm7, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vmulps  xmm0, xmm8, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm3, xmm2, xmm0, 7
-    vmulps  xmm1, xmm3, xmm3
+  }
+  v36 = _mm_shuffle_ps(v22, v22, 255);
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v36, v23), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v21, v21, 201), _mm_shuffle_ps(v22, v22, 210)), _mm128_mul_ps(_mm_shuffle_ps(v21, v21, 210), _mm_shuffle_ps(v22, v22, 201))), _mm128_add_ps(_mm128_mul_ps(v21, v36), _mm128_mul_ps(v22, v23)));
+  __asm { vblendps xmm3, xmm2, xmm0, 7 }
+  _XMM1 = _mm128_mul_ps(_XMM3, _XMM3);
+  __asm
+  {
     vhaddps xmm0, xmm1, xmm1
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm11, xmm3, xmm1
-    vshufps xmm5, xmm11, xmm11, 0FFh
-    vshufps xmm7, xmm11, xmm11, 0D2h ; 'Ò'
-    vshufps xmm6, xmm11, xmm11, 0C9h ; 'É'
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm2, xmm0, xmm7
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm3, xmm1, xmm5
-    vmovups xmm0, xmm11
-    vsubps  xmm12, xmm10, xmm3
-    vmovups [rsp+1F8h+var_148], xmm9
   }
-  Float4UnitQuatToAxis(v24, v25);
-  __asm
+  v42 = _mm128_div_ps(_XMM3, _mm_sqrt_ps(_XMM0));
+  v43 = _mm_shuffle_ps(v42, v42, 210);
+  v44 = _mm_shuffle_ps(v42, v42, 201);
+  v45 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v44), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v43));
+  v46 = _mm128_add_ps(v45, v45);
+  v47 = _mm128_mul_ps(_mm_shuffle_ps(v46, v46, 201), v43);
+  v48 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v46, v46, 210), v44), v47);
+  v49 = _mm128_sub_ps(_XMM10, _mm128_add_ps(v48, _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v42, v42, 255), v46), _XMM9)));
+  Float4UnitQuatToAxis(v13, v14);
+  *(__m128 *)&v114.array[4] = v48;
+  *(__m128 *)v114.array = v42;
+  v109 = (__m256i)v114;
+  v50 = v47;
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v114, &srcSkel->partBits.skel);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v114, &v2->skel.partBits.skel);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v113, &srcSkel->partBits.anim);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v113, &srcSkel->partBits.skel);
+  p_anim = &v2->skel.partBits.anim;
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v113, &v2->skel.partBits.anim);
+  v52 = srcSkel->mat;
+  v53 = v2->skel.mat;
+  v105 = v52;
+  if ( v7 < numBones )
   {
-    vmovups xmmword ptr [rsp+1F8h+var_108.baseclass_0.array+10h], xmm1
-    vmovups xmmword ptr [rsp+1F8h+var_108.baseclass_0.array], xmm0
-    vmovups ymm3, ymmword ptr [rsp+1F8h+var_108.baseclass_0.array]
-    vmovups [rsp+1F8h+var_188], ymm3
-    vmovups xmm10, xmm2
-  }
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v274, &srcSkel->partBits.skel);
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v274, &v13->skel.partBits.skel);
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v273, &srcSkel->partBits.anim);
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v273, &srcSkel->partBits.skel);
-  p_anim = &v13->skel.partBits.anim;
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v273, &v13->skel.partBits.anim);
-  v98 = srcSkel->mat;
-  v99 = v13->skel.mat;
-  v264 = v98;
-  __asm
-  {
-    vmovups xmm13, cs:__xmm@40000000400000004000000040000000
-    vmovups xmm14, xmmword ptr [rsp+1F8h+var_188+10h]
-    vmovups xmm15, xmmword ptr [rsp+1F8h+var_188]
-  }
-  if ( v18 < numBones )
-  {
-    _R13 = (char *)((char *)v98 - (char *)v99);
-    v104 = v18;
-    _RBX = (__int64)&v99[v18].trans;
+    v54 = (char *)((char *)v52 - (char *)v53);
+    v55 = v7;
+    p_trans = (__int64)&v53[v7].trans;
     while ( 1 )
     {
-      if ( v18 >= 0x100 )
+      if ( v7 >= 0x100 )
       {
-        LODWORD(v231) = 256;
-        LODWORD(v230) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v230, v231) )
+        LODWORD(v100) = 256;
+        LODWORD(v99) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v99, v100) )
           __debugbreak();
       }
-      v106 = 0x80000000 >> (v18 & 0x1F);
-      if ( (v106 & v274.array[v104 >> 5]) != 0 )
+      v57 = 0x80000000 >> (v7 & 0x1F);
+      if ( (v57 & v114.array[v55 >> 5]) != 0 )
       {
+        v59 = *(__m128 *)&v54[p_trans - 16];
+        v112.m128_i32[3] = 0;
+        v61 = v112;
+        v61.m128_f32[0] = *(float *)&v54[p_trans];
+        _XMM9 = v61;
         __asm
         {
-          vmovups xmm8, xmmword ptr [rbx+r13-10h]
-          vmovss  xmm0, dword ptr [rbx+r13]
-        }
-        HIDWORD(v272) = 0;
-        __asm
-        {
-          vmovups xmm9, xmmword ptr [rsp+0C0h]
-          vmovss  xmm9, xmm9, xmm0
           vinsertps xmm9, xmm9, dword ptr [rbx+r13+4], 10h
           vinsertps xmm9, xmm9, dword ptr [rbx+r13+8], 20h ; ' '
-          vshufps xmm6, xmm8, xmm8, 0FFh
-          vshufps xmm5, xmm11, xmm11, 0FFh
-          vmulps  xmm4, xmm11, xmm6
-          vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-          vshufps xmm1, xmm11, xmm11, 0C9h ; 'É'
-          vmulps  xmm3, xmm1, xmm0
-          vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-          vshufps xmm2, xmm11, xmm11, 0D2h ; 'Ò'
-          vmulps  xmm0, xmm2, xmm1
-          vsubps  xmm7, xmm3, xmm0
-          vmulps  xmm1, xmm11, xmm8
+        }
+        v64 = _mm_shuffle_ps(v59, v59, 255);
+        v65 = _mm_shuffle_ps(v42, v42, 255);
+        v66 = _mm128_mul_ps(v42, v64);
+        _XMM1 = _mm128_mul_ps(v42, v59);
+        __asm
+        {
           vinsertps xmm0, xmm1, xmm1, 8
           vhaddps xmm2, xmm0, xmm0
           vhaddps xmm3, xmm2, xmm2
-          vmulps  xmm0, xmm6, xmm5
-          vsubps  xmm6, xmm0, xmm3
-          vmulps  xmm1, xmm8, xmm5
-          vaddps  xmm5, xmm4, xmm1
-          vshufps xmm0, xmm9, xmm9, 0AAh ; 'ª'
-          vmulps  xmm0, xmm10, xmm0
-          vaddps  xmm2, xmm0, xmm12
-          vshufps xmm1, xmm9, xmm9, 55h ; 'U'
-          vmulps  xmm1, xmm14, xmm1
-          vaddps  xmm3, xmm1, xmm2
-          vshufps xmm4, xmm9, xmm9, 0
-          vmulps  xmm0, xmm15, xmm4
-          vaddps  xmm2, xmm0, xmm3
-          vaddps  xmm0, xmm7, xmm5
-          vblendps xmm1, xmm6, xmm0, 7
-          vshufps xmm0, xmm2, xmm13, 0FAh ; 'ú'
-          vshufps xmm2, xmm2, xmm0, 84h ; '„'
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm2
-          vmovups xmmword ptr [rbx-10h], xmm1
-          vmovups xmmword ptr [rsp+0C0h], xmm9
-          vmovups xmmword ptr [rbx], xmm2
         }
-        if ( (v240 & 0x7F800000) == 2139095040 )
-          goto LABEL_100;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-        }
-        if ( (v241 & 0x7F800000) == 2139095040 )
-          goto LABEL_100;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-        }
-        if ( (v242 & 0x7F800000) == 2139095040 )
-        {
-LABEL_100:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1510, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx-10h]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-        }
-        if ( (v243 & 0x7F800000) != 2139095040 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-0Ch]
-            vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-          }
-          if ( (v244 & 0x7F800000) != 2139095040 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx-8]
-              vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-            }
-            if ( (v245 & 0x7F800000) != 2139095040 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx-4]
-                vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-              }
-              if ( (v246 & 0x7F800000) != 2139095040 )
-                goto LABEL_56;
-            }
-          }
-        }
-        v115 = 1511;
+        _XMM6 = _mm128_sub_ps(_mm128_mul_ps(v64, v65), _XMM3);
+        v72 = _mm128_add_ps(_mm128_mul_ps(*(__m128 *)v109.m256i_i8, _mm_shuffle_ps(_XMM9, _XMM9, 0)), _mm128_add_ps(_mm128_mul_ps(*(__m128 *)&v109.m256i_u64[2], _mm_shuffle_ps(_XMM9, _XMM9, 85)), _mm128_add_ps(_mm128_mul_ps(v50, _mm_shuffle_ps(_XMM9, _XMM9, 170)), v49)));
+        _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v42, v42, 201), _mm_shuffle_ps(v59, v59, 210)), _mm128_mul_ps(_mm_shuffle_ps(v42, v42, 210), _mm_shuffle_ps(v59, v59, 201))), _mm128_add_ps(v66, _mm128_mul_ps(v59, v65)));
+        __asm { vblendps xmm1, xmm6, xmm0, 7 }
+        v74 = _mm_shuffle_ps(v72, _mm_shuffle_ps(v72, (__m128)_xmm, 250), 132);
+        *(_OWORD *)(p_trans - 16) = _XMM1;
+        v112 = _XMM9;
+        *(__m128 *)p_trans = v74;
+        if ( ((v74.m128_i32[0] & 0x7F800000) == 2139095040 || (*(_DWORD *)(p_trans + 4) & 0x7F800000) == 2139095040 || (*(_DWORD *)(p_trans + 8) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1510, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
+          __debugbreak();
+        if ( (*(_DWORD *)(p_trans - 16) & 0x7F800000) != 2139095040 && (*(_DWORD *)(p_trans - 12) & 0x7F800000) != 2139095040 && (*(_DWORD *)(p_trans - 8) & 0x7F800000) != 2139095040 && (*(_DWORD *)(p_trans - 4) & 0x7F800000) != 2139095040 )
+          goto LABEL_56;
+        v58 = 1511;
       }
       else
       {
-        if ( v18 >= 0x100 )
+        if ( v7 >= 0x100 )
         {
-          LODWORD(v231) = 256;
-          LODWORD(v230) = v18;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v230, v231) )
+          LODWORD(v100) = 256;
+          LODWORD(v99) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v99, v100) )
             __debugbreak();
         }
-        if ( (v106 & v273.array[v104 >> 5]) == 0 )
+        if ( (v57 & v113.array[v55 >> 5]) == 0 )
           goto LABEL_56;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+r13-10h]
-          vmovups ymmword ptr [rbx-10h], ymm0
-          vmovss  xmm1, dword ptr [rbx]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm1
-        }
-        if ( (v233 & 0x7F800000) == 2139095040 )
-          goto LABEL_101;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-        }
-        if ( (v234 & 0x7F800000) == 2139095040 )
-          goto LABEL_101;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-        }
-        if ( (v235 & 0x7F800000) == 2139095040 )
-        {
-LABEL_101:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1494, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx-10h]
-          vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-        }
-        if ( (v236 & 0x7F800000) != 2139095040 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-0Ch]
-            vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-          }
-          if ( (v237 & 0x7F800000) != 2139095040 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx-8]
-              vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-            }
-            if ( (v238 & 0x7F800000) != 2139095040 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx-4]
-                vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-              }
-              if ( (v239 & 0x7F800000) != 2139095040 )
-                goto LABEL_56;
-            }
-          }
-        }
-        v115 = 1495;
+        *(__m256i *)(p_trans - 16) = *(__m256i *)&v54[p_trans - 16];
+        if ( ((*(_DWORD *)p_trans & 0x7F800000) == 2139095040 || (*(_DWORD *)(p_trans + 4) & 0x7F800000) == 2139095040 || (*(_DWORD *)(p_trans + 8) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1494, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
+          __debugbreak();
+        if ( (*(_DWORD *)(p_trans - 16) & 0x7F800000) != 2139095040 && (*(_DWORD *)(p_trans - 12) & 0x7F800000) != 2139095040 && (*(_DWORD *)(p_trans - 8) & 0x7F800000) != 2139095040 && (*(_DWORD *)(p_trans - 4) & 0x7F800000) != 2139095040 )
+          goto LABEL_56;
+        v58 = 1495;
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", v115, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", v58, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] )") )
         __debugbreak();
 LABEL_56:
-      v33 = numBones;
-      ++v18;
-      ++v104;
-      _RBX += 32i64;
-      if ( v18 >= numBones )
+      v20 = numBones;
+      ++v7;
+      ++v55;
+      p_trans += 32i64;
+      if ( v7 >= numBones )
       {
-        v13 = dstObj;
-        v98 = v264;
-        p_anim = &v267->partBits.anim;
+        v2 = dstObj;
+        v52 = v105;
+        p_anim = &v108->partBits.anim;
         break;
       }
     }
   }
-  if ( (v274.array[7] & 2) != 0 )
+  if ( (v114.array[7] & 2) != 0 )
   {
-    v159 = v261;
-    if ( v33 >= v261 )
+    v75 = v102;
+    if ( v20 >= v102 )
       goto LABEL_91;
-    _RSI = (char *)v99 - (char *)v98;
-    v161 = v261 - v33;
-    _RBX = (__int64)&v98[v33].trans.z;
+    v76 = (char *)v53 - (char *)v52;
+    v77 = v102 - v20;
+    p_z = (__int64)&v52[v20].trans.z;
     do
     {
+      v79 = *(__m128 *)(p_z - 24);
+      v112.m128_i32[3] = 0;
+      v81 = v112;
+      v81.m128_f32[0] = *(float *)(p_z - 8);
+      _XMM9 = v81;
       __asm
       {
-        vmovups xmm8, xmmword ptr [rbx-18h]
-        vmovss  xmm0, dword ptr [rbx-8]
-      }
-      HIDWORD(v272) = 0;
-      __asm
-      {
-        vmovups xmm9, xmmword ptr [rsp+0C0h]
-        vmovss  xmm9, xmm9, xmm0
         vinsertps xmm9, xmm9, dword ptr [rbx-4], 10h
         vinsertps xmm9, xmm9, dword ptr [rbx], 20h ; ' '
-        vshufps xmm6, xmm8, xmm8, 0FFh
-        vshufps xmm5, xmm11, xmm11, 0FFh
-        vmulps  xmm4, xmm11, xmm6
-        vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-        vshufps xmm1, xmm11, xmm11, 0C9h ; 'É'
-        vmulps  xmm3, xmm1, xmm0
-        vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-        vshufps xmm2, xmm11, xmm11, 0D2h ; 'Ò'
-        vmulps  xmm0, xmm2, xmm1
-        vsubps  xmm7, xmm3, xmm0
-        vmulps  xmm1, xmm11, xmm8
+      }
+      v84 = _mm_shuffle_ps(v79, v79, 255);
+      v85 = _mm_shuffle_ps(v42, v42, 255);
+      v86 = _mm128_mul_ps(v42, v84);
+      _XMM1 = _mm128_mul_ps(v42, v79);
+      __asm
+      {
         vinsertps xmm0, xmm1, xmm1, 8
         vhaddps xmm2, xmm0, xmm0
         vhaddps xmm3, xmm2, xmm2
-        vmulps  xmm0, xmm6, xmm5
-        vsubps  xmm6, xmm0, xmm3
-        vmulps  xmm1, xmm8, xmm5
-        vaddps  xmm5, xmm4, xmm1
-        vshufps xmm0, xmm9, xmm9, 0AAh ; 'ª'
-        vmulps  xmm0, xmm10, xmm0
-        vaddps  xmm2, xmm0, xmm12
-        vshufps xmm1, xmm9, xmm9, 55h ; 'U'
-        vmulps  xmm1, xmm14, xmm1
-        vaddps  xmm3, xmm1, xmm2
-        vshufps xmm4, xmm9, xmm9, 0
-        vmulps  xmm0, xmm15, xmm4
-        vaddps  xmm2, xmm0, xmm3
-        vaddps  xmm0, xmm7, xmm5
-        vblendps xmm1, xmm6, xmm0, 7
-        vmovups xmmword ptr [rbx+rsi-18h], xmm1
-        vshufps xmm0, xmm2, xmm13, 0FAh ; 'ú'
-        vshufps xmm1, xmm2, xmm0, 84h ; '„'
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm1
-        vmovups xmmword ptr [rsp+0C0h], xmm9
-        vmovups xmmword ptr [rbx+rsi-8], xmm1
       }
-      if ( (v247 & 0x7F800000) == 2139095040 )
-        goto LABEL_102;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rbx-4]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v248 & 0x7F800000) == 2139095040 )
-        goto LABEL_102;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rbx]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v249 & 0x7F800000) == 2139095040 )
-      {
-LABEL_102:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1537, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+rsi-18h]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v250 & 0x7F800000) == 2139095040 )
-        goto LABEL_103;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rbx-14h]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v251 & 0x7F800000) == 2139095040 )
-        goto LABEL_103;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rbx-10h]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v252 & 0x7F800000) == 2139095040 )
-        goto LABEL_103;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rbx-0Ch]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v253 & 0x7F800000) == 2139095040 )
-      {
-LABEL_103:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1538, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] )") )
-          __debugbreak();
-      }
-      _RBX += 32i64;
-      --v161;
+      _XMM6 = _mm128_sub_ps(_mm128_mul_ps(v84, v85), _XMM3);
+      v92 = _mm128_add_ps(_mm128_mul_ps(*(__m128 *)v109.m256i_i8, _mm_shuffle_ps(_XMM9, _XMM9, 0)), _mm128_add_ps(_mm128_mul_ps(*(__m128 *)&v109.m256i_u64[2], _mm_shuffle_ps(_XMM9, _XMM9, 85)), _mm128_add_ps(_mm128_mul_ps(v50, _mm_shuffle_ps(_XMM9, _XMM9, 170)), v49)));
+      _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v42, v42, 201), _mm_shuffle_ps(v79, v79, 210)), _mm128_mul_ps(_mm_shuffle_ps(v42, v42, 210), _mm_shuffle_ps(v79, v79, 201))), _mm128_add_ps(v86, _mm128_mul_ps(v79, v85)));
+      __asm { vblendps xmm1, xmm6, xmm0, 7 }
+      *(_OWORD *)(p_z + v76 - 24) = _XMM1;
+      v94 = _mm_shuffle_ps(v92, _mm_shuffle_ps(v92, (__m128)_xmm, 250), 132);
+      v112 = _XMM9;
+      *(__m128 *)(p_z + v76 - 8) = v94;
+      if ( ((v94.m128_i32[0] & 0x7F800000) == 2139095040 || (*(_DWORD *)(v76 + p_z - 4) & 0x7F800000) == 2139095040 || (*(_DWORD *)(v76 + p_z) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1537, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
+        __debugbreak();
+      if ( ((*(_DWORD *)(p_z + v76 - 24) & 0x7F800000) == 2139095040 || (*(_DWORD *)(v76 + p_z - 20) & 0x7F800000) == 2139095040 || (*(_DWORD *)(v76 + p_z - 16) & 0x7F800000) == 2139095040 || (*(_DWORD *)(v76 + p_z - 12) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1538, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] )") )
+        __debugbreak();
+      p_z += 32i64;
+      --v77;
     }
-    while ( v161 );
+    while ( v77 );
 LABEL_89:
-    v13 = dstObj;
+    v2 = dstObj;
     goto LABEL_90;
   }
-  if ( (v273.array[7] & 2) != 0 )
+  if ( (v113.array[7] & 2) != 0 )
   {
-    v159 = v261;
-    if ( v33 >= v261 )
+    v75 = v102;
+    if ( v20 >= v102 )
       goto LABEL_91;
-    _R13 = (char *)v264 - (char *)v99;
-    v207 = v261 - v33;
-    _RBX = (__int64)&v99[v33].trans.y;
+    v95 = v102 - v20;
+    v96 = (_DWORD *)&v53[v20].trans.v[1];
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+r13-14h]
-        vmovups ymmword ptr [rbx-14h], ymm0
-        vmovss  xmm1, dword ptr [rbx-4]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm1
-      }
-      if ( (v254 & 0x7F800000) == 2139095040 )
-        goto LABEL_104;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v255 & 0x7F800000) == 2139095040 )
-        goto LABEL_104;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v256 & 0x7F800000) == 2139095040 )
-      {
-LABEL_104:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1551, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-14h]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v257 & 0x7F800000) == 2139095040 )
-        goto LABEL_105;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-10h]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v258 & 0x7F800000) == 2139095040 )
-        goto LABEL_105;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-0Ch]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v259 & 0x7F800000) == 2139095040 )
-        goto LABEL_105;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-8]
-        vmovss  dword ptr [rsp+1F8h+var_1B8], xmm0
-      }
-      if ( (v260 & 0x7F800000) == 2139095040 )
-      {
-LABEL_105:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1552, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] )") )
-          __debugbreak();
-      }
-      _RBX += 32i64;
-      --v207;
+      *(__m256i *)(v96 - 5) = *(__m256i *)((char *)v96 + (char *)v105 - (char *)v53 - 20);
+      if ( ((*(v96 - 1) & 0x7F800000) == 2139095040 || (*v96 & 0x7F800000) == 2139095040 || (v96[1] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1551, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->trans )[0] ) && !IS_NAN( ( dstBoneMat->trans )[1] ) && !IS_NAN( ( dstBoneMat->trans )[2] )") )
+        __debugbreak();
+      if ( ((*(v96 - 5) & 0x7F800000) == 2139095040 || (*(v96 - 4) & 0x7F800000) == 2139095040 || (*(v96 - 3) & 0x7F800000) == 2139095040 || (*(v96 - 2) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1552, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( dstBoneMat->quat )[0] ) && !IS_NAN( ( dstBoneMat->quat )[1] ) && !IS_NAN( ( dstBoneMat->quat )[2] ) && !IS_NAN( ( dstBoneMat->quat )[3] )") )
+        __debugbreak();
+      v96 += 8;
+      --v95;
     }
-    while ( v207 );
+    while ( v95 );
     goto LABEL_89;
   }
 LABEL_90:
-  v159 = v261;
+  v75 = v102;
 LABEL_91:
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(p_anim, &srcSkel->partBits.anim);
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v13->skel.partBits.skel, &srcSkel->partBits.skel);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v2->skel.partBits.skel, &srcSkel->partBits.skel);
   if ( srcSkel->partBits.blendShapesCalculated )
   {
-    v13->skel.partBits.blendShapesCalculated = 1;
-    if ( DObjHasClientFlag(v13) && (v217 = v13->numClientBones) != 0 )
-      v218 = v217;
+    v2->skel.partBits.blendShapesCalculated = 1;
+    if ( DObjHasClientFlag(v2) && (v97 = v2->numClientBones) != 0 )
+      v98 = v97;
     else
-      v218 = 0i64;
-    memcpy_0(&v13->skel.mat[v218 + v13->numBones], &srcSkel->mat[v159], 4i64 * v13->blendShapeTargetCount);
-  }
-  _R11 = &v275;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+      v98 = 0i64;
+    memcpy_0(&v2->skel.mat[v98 + v2->numBones], &srcSkel->mat[v75], 4i64 * v2->blendShapeTargetCount);
   }
 }
 
@@ -2433,29 +2131,23 @@ DObjGetHidePartBits
 */
 void DObjGetHidePartBits(const DObj *obj, DObjPartBitsAligned *partBits)
 {
-  unsigned int v5; 
+  unsigned int v4; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = partBits;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1164, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1165, ASSERT_TYPE_ASSERT, "(partBits)", (const char *)&queryFormat, "partBits") )
+  if ( !partBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1165, ASSERT_TYPE_ASSERT, "(partBits)", (const char *)&queryFormat, "partBits") )
     __debugbreak();
-  v5 = 0;
+  v4 = 0;
   _RSI = &obj->hidePartBits;
   do
   {
-    __asm
-    {
-      vlddqu  xmm6, xmmword ptr [rsi]
-      vmovdqu xmmword ptr [rdi], xmm6
-    }
-    _RDI = (DObjPartBitsAligned *)((char *)_RDI + 16);
-    ++v5;
+    __asm { vlddqu  xmm6, xmmword ptr [rsi] }
+    *(_OWORD *)partBits->array = _XMM6;
+    partBits = (DObjPartBitsAligned *)((char *)partBits + 16);
+    ++v4;
     _RSI = (DObjPartBits *)((char *)_RSI + 16);
   }
-  while ( v5 < 2 );
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  while ( v4 < 2 );
 }
 
 /*
@@ -2875,7 +2567,6 @@ DObjInitModel
 */
 void DObjInitModel(const XModel *const model, scr_string_t boneName, bool ignoreCollision, bool stowedWeapon, const DObjCamoParams *camoParams, DObjModel *outDObjModel)
 {
-  _RBX = outDObjModel;
   if ( !outDObjModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1179, ASSERT_TYPE_ASSERT, "(outDObjModel)", (const char *)&queryFormat, "outDObjModel") )
     __debugbreak();
   outDObjModel->model = model;
@@ -2883,10 +2574,9 @@ void DObjInitModel(const XModel *const model, scr_string_t boneName, bool ignore
   outDObjModel->parentSlot = -1;
   *(_QWORD *)outDObjModel->offsets.v = 0i64;
   outDObjModel->offsets.v[2] = 0.0;
-  __asm { vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity }
   outDObjModel->ignoreCollision = ignoreCollision;
   outDObjModel->stowedWeapon = stowedWeapon;
-  __asm { vmovups xmmword ptr [rbx+1Ch], xmm0 }
+  outDObjModel->quat = quat_identity;
   if ( camoParams )
   {
     outDObjModel->camoParams.overrideType = camoParams->overrideType;
@@ -2907,8 +2597,6 @@ DObjInitSubmodel
 */
 void DObjInitSubmodel(const XModel *const model, const scr_string_t boneName, const int parentSlot, const vec3_t *const offsets, const vec4_t *const quat, const bool ignoreCollision, const bool stowedWeapon, const DObjCamoParams *const camoParams, DObjModel *const outDObjModel)
 {
-  _RBX = outDObjModel;
-  _RDI = offsets;
   if ( !outDObjModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1179, ASSERT_TYPE_ASSERT, "(outDObjModel)", (const char *)&queryFormat, "outDObjModel") )
     __debugbreak();
   outDObjModel->model = model;
@@ -2916,10 +2604,9 @@ void DObjInitSubmodel(const XModel *const model, const scr_string_t boneName, co
   outDObjModel->parentSlot = -1;
   *(_QWORD *)outDObjModel->offsets.v = 0i64;
   outDObjModel->offsets.v[2] = 0.0;
-  __asm { vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity }
   outDObjModel->ignoreCollision = ignoreCollision;
   outDObjModel->stowedWeapon = stowedWeapon;
-  __asm { vmovups xmmword ptr [rbx+1Ch], xmm0 }
+  outDObjModel->quat = quat_identity;
   if ( camoParams )
   {
     outDObjModel->camoParams.overrideType = camoParams->overrideType;
@@ -2932,18 +2619,8 @@ void DObjInitSubmodel(const XModel *const model, const scr_string_t boneName, co
     outDObjModel->camoParams.overrideType = MATERIAL_OVERRIDETYPE_NONE;
   }
   outDObjModel->parentSlot = parentSlot;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovsd  qword ptr [rbx+10h], xmm0
-  }
-  outDObjModel->offsets.v[2] = _RDI->v[2];
-  _RAX = quat;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx+1Ch], xmm0
-  }
+  outDObjModel->offsets = *offsets;
+  outDObjModel->quat = *quat;
 }
 
 /*
@@ -3072,44 +2749,32 @@ __int64 DObjNumClientOnlyBones(const DObj *obj)
 DObjRecordSkelOnSkinning
 ==============
 */
-
-void __fastcall DObjRecordSkelOnSkinning(const DObj *obj, double radius)
+void DObjRecordSkelOnSkinning(const DObj *obj, float radius)
 {
-  _DWORD *v6; 
-  int v12; 
+  DObjPartBits *SkelRecord; 
+  DObjPartBits *v4; 
+  unsigned int v5; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RDI = obj;
-  __asm { vmovaps xmm6, xmm1 }
   if ( !R_Screenshot_InProcess() )
   {
-    _RAX = Com_GetSkelRecord(_RDI);
-    v6 = _RAX;
-    if ( _RAX )
+    SkelRecord = (DObjPartBits *)Com_GetSkelRecord(obj);
+    v4 = SkelRecord;
+    if ( SkelRecord )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+38h]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm1, ymmword ptr [rdi+58h]
-        vmovups ymmword ptr [rax+20h], ymm1
-        vmovups ymm0, ymmword ptr [rdi+78h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups ymm1, ymmword ptr [rdi+98h]
-        vmovups ymmword ptr [rax+60h], ymm1
-        vmovups xmm0, xmmword ptr [rdi+0B8h]
-        vmovups xmmword ptr [rax+80h], xmm0
-        vmovss  dword ptr [rax+98h], xmm6
-      }
-      _RAX[36] = _RDI->numBones;
-      if ( DObjHasClientFlag(_RDI) && (LOWORD(v12) = _RDI->numClientBones, (_WORD)v12) )
-        v12 = (unsigned __int16)v12;
+      *SkelRecord = obj->skel.partBits.anim;
+      SkelRecord[1] = obj->skel.partBits.control;
+      SkelRecord[2] = obj->skel.partBits.worldCtrl;
+      SkelRecord[3] = obj->skel.partBits.skel;
+      *(_OWORD *)SkelRecord[4].array = *(_OWORD *)&obj->skel.partBits.animCalculated;
+      *(float *)&SkelRecord[4].array[6] = radius;
+      SkelRecord[4].array[4] = obj->numBones;
+      if ( DObjHasClientFlag(obj) && (LOWORD(v5) = obj->numClientBones, (_WORD)v5) )
+        v5 = (unsigned __int16)v5;
       else
-        v12 = 0;
-      v6[37] = v12;
+        v5 = 0;
+      v4[4].array[5] = v5;
     }
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -3119,60 +2784,32 @@ DObjSetAngles
 */
 void DObjSetAngles(DObjAnimMat *rotTrans, const vec3_t *angles)
 {
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   float s; 
   float c; 
-  float v38; 
-  float v39; 
-  float v40; 
-  float v41; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovss  xmm6, cs:__real@3c0efa35
-    vmulss  xmm0, xmm6, dword ptr [rdx+4]; radians
-  }
-  _RDI = rotTrans;
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm { vmulss  xmm0, xmm6, dword ptr [rbx]; radians }
-  FastSinCos(*(const float *)&_XMM0, &v38, &v39);
-  __asm { vmulss  xmm0, xmm6, dword ptr [rbx+8]; radians }
-  FastSinCos(*(const float *)&_XMM0, &v40, &v41);
-  __asm
-  {
-    vmovss  xmm8, [rsp+88h+var_58]
-    vmovss  xmm5, [rsp+88h+var_54]
-    vmovss  xmm3, [rsp+88h+s]
-    vmulss  xmm0, xmm3, [rsp+88h+var_60]
-    vxorps  xmm9, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm1, [rsp+88h+c]
-    vmulss  xmm6, xmm1, [rsp+88h+var_60]
-    vmulss  xmm7, xmm1, [rsp+88h+var_5C]
-    vmulss  xmm4, xmm3, [rsp+88h+var_5C]
-    vmulss  xmm0, xmm9, xmm5
-    vmulss  xmm1, xmm7, xmm8
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm2, xmm4, xmm8
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm0, xmm6, xmm8
-    vmulss  xmm3, xmm4, xmm5
-    vsubss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rdi+8], xmm1
-    vmulss  xmm0, xmm9, xmm8
-    vmulss  xmm2, xmm7, xmm5
-    vsubss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rdi+0Ch], xmm1
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-  }
+  FastSinCos(0.0087266462 * angles->v[1], &s, &c);
+  FastSinCos(0.0087266462 * angles->v[0], &v12, &v13);
+  FastSinCos(0.0087266462 * angles->v[2], &v14, &v15);
+  v4 = v14;
+  v5 = v15;
+  LODWORD(v6) = COERCE_UNSIGNED_INT(s * v12) ^ _xmm;
+  v7 = c * v12;
+  v8 = c * v13;
+  v9 = s * v13;
+  rotTrans->quat.v[0] = (float)((float)(c * v13) * v14) + (float)(v6 * v15);
+  rotTrans->quat.v[1] = (float)(v9 * v4) + (float)(v7 * v5);
+  rotTrans->quat.v[2] = (float)(v9 * v5) - (float)(v7 * v4);
+  rotTrans->quat.v[3] = (float)(v8 * v5) - (float)(v6 * v4);
 }
 
 /*
@@ -3271,94 +2908,54 @@ DObjSetLocalTagInternal
 */
 void DObjSetLocalTagInternal(const DObj *obj, const vec3_t *trans, const vec3_t *angles, int boneIndex)
 {
-  __int64 v12; 
+  __int64 v4; 
+  DObjAnimMat *mat; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   float s; 
   float c; 
-  float v51; 
-  float v52; 
-  float v53; 
-  float v54; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
 
-  v12 = boneIndex;
+  v4 = boneIndex;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 34, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  _RDI = obj->skel.mat;
-  if ( _RDI )
+  mat = obj->skel.mat;
+  if ( mat )
   {
-    _RBX = v12;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_68], xmm10
-      vmovaps [rsp+0C8h+var_78], xmm11
-    }
+    v9 = v4;
     if ( angles )
     {
-      __asm
-      {
-        vmovaps [rsp+0C8h+var_28], xmm6
-        vmovss  xmm6, cs:__real@3c0efa35
-        vmulss  xmm0, xmm6, dword ptr [rbp+4]; radians
-        vmovaps [rsp+0C8h+var_38], xmm7
-        vmovaps [rsp+0C8h+var_48], xmm8
-        vmovaps [rsp+0C8h+var_58], xmm9
-      }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      __asm { vmulss  xmm0, xmm6, dword ptr [rbp+0]; radians }
-      FastSinCos(*(const float *)&_XMM0, &v51, &v52);
-      __asm { vmulss  xmm0, xmm6, dword ptr [rbp+8]; radians }
-      FastSinCos(*(const float *)&_XMM0, &v53, &v54);
-      __asm
-      {
-        vmovss  xmm7, [rsp+0C8h+var_84]
-        vmovss  xmm4, [rsp+0C8h+var_88]
-        vmovss  xmm3, [rsp+0C8h+s]
-        vmulss  xmm0, xmm3, [rsp+0C8h+var_90]
-        vxorps  xmm9, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm1, [rsp+0C8h+c]
-        vmulss  xmm6, xmm1, [rsp+0C8h+var_8C]
-        vmulss  xmm8, xmm1, [rsp+0C8h+var_90]
-        vmulss  xmm5, xmm3, [rsp+0C8h+var_8C]
-        vmulss  xmm1, xmm6, xmm7
-        vmulss  xmm2, xmm5, xmm7
-        vmulss  xmm0, xmm9, xmm4
-        vsubss  xmm11, xmm1, xmm0
-        vmulss  xmm0, xmm8, xmm7
-        vmulss  xmm1, xmm8, xmm4
-        vmovaps xmm8, [rsp+0C8h+var_48]
-        vsubss  xmm10, xmm2, xmm1
-        vmulss  xmm1, xmm9, xmm7
-        vmovaps xmm9, [rsp+0C8h+var_58]
-        vmovaps xmm7, [rsp+0C8h+var_38]
-        vmulss  xmm2, xmm6, xmm4
-        vmovaps xmm6, [rsp+0C8h+var_28]
-        vmulss  xmm3, xmm5, xmm4
-        vaddss  xmm5, xmm3, xmm0
-        vaddss  xmm0, xmm2, xmm1
-      }
+      FastSinCos(0.0087266462 * angles->v[1], &s, &c);
+      FastSinCos(0.0087266462 * angles->v[0], &v17, &v18);
+      FastSinCos(0.0087266462 * angles->v[2], &v19, &v20);
+      LODWORD(v10) = COERCE_UNSIGNED_INT(s * v17) ^ _xmm;
+      v11 = (float)((float)(c * v18) * v20) - (float)(v10 * v19);
+      v12 = (float)((float)(s * v18) * v20) - (float)((float)(c * v17) * v19);
+      v13 = (float)((float)(s * v18) * v19) + (float)((float)(c * v17) * v20);
+      v14 = (float)((float)(c * v18) * v19) + (float)(v10 * v20);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm11, cs:__real@3f800000
-        vxorps  xmm10, xmm10, xmm10
-        vxorps  xmm5, xmm5, xmm5
-        vxorps  xmm0, xmm0, xmm0
-      }
+      v11 = FLOAT_1_0;
+      v12 = 0.0;
+      v13 = 0.0;
+      v14 = 0.0;
     }
-    __asm
-    {
-      vmovss  dword ptr [rbx+rdi], xmm0
-      vmovss  dword ptr [rbx+rdi+4], xmm5
-      vmovss  dword ptr [rbx+rdi+8], xmm10
-      vmovss  dword ptr [rbx+rdi+0Ch], xmm11
-      vmovaps xmm11, [rsp+0C8h+var_78]
-      vmovaps xmm10, [rsp+0C8h+var_68]
-    }
-    _RDI[_RBX].transWeight = 0.0;
-    _RDI[_RBX].trans.v[0] = trans->v[0];
-    _RDI[_RBX].trans.v[1] = trans->v[1];
-    _RDI[_RBX].trans.v[2] = trans->v[2];
+    mat[v9].quat.v[0] = v14;
+    mat[v9].quat.v[1] = v13;
+    mat[v9].quat.v[2] = v12;
+    mat[v9].quat.v[3] = v11;
+    mat[v9].transWeight = 0.0;
+    mat[v9].trans.v[0] = trans->v[0];
+    mat[v9].trans.v[1] = trans->v[1];
+    mat[v9].trans.v[2] = trans->v[2];
   }
 }
 
@@ -3605,10 +3202,8 @@ DObjSkelAreBonesUpToDate
 */
 __int64 DObjSkelAreBonesUpToDate(const DObj *obj, DObjPartBits *partBits)
 {
-  unsigned int v6; 
-  __int64 result; 
+  unsigned int v5; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   _RBP = partBits;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 858, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -3617,10 +3212,10 @@ __int64 DObjSkelAreBonesUpToDate(const DObj *obj, DObjPartBits *partBits)
   _RSI = &obj->skel;
   if ( obj == (const DObj *)-56i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 862, ASSERT_TYPE_ASSERT, "(skel)", (const char *)&queryFormat, "skel") )
     __debugbreak();
-  v6 = 0;
+  v5 = 0;
   while ( 1 )
   {
-    _RDI = 2i64 * v6;
+    _RDI = 2i64 * v5;
     __asm
     {
       vlddqu  xmm6, xmmword ptr [rbp+rdi*8+0]
@@ -3629,16 +3224,10 @@ __int64 DObjSkelAreBonesUpToDate(const DObj *obj, DObjPartBits *partBits)
     }
     if ( !_CF )
       break;
-    if ( ++v6 >= 2 )
-    {
-      result = 1i64;
-      goto LABEL_15;
-    }
+    if ( ++v5 >= 2 )
+      return 1i64;
   }
-  result = 0i64;
-LABEL_15:
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -3708,38 +3297,38 @@ void DObjTransferAndMergeSkinningSkelRecords(const DObj *obj, const bool matchMo
   const scr_string_t *v13; 
   _DWORD *v15; 
   int *v16; 
+  DObjPartBits *SkelRecord; 
   unsigned __int16 numClientBones; 
   unsigned int v19; 
   int v20; 
   unsigned int AllocSkelSize; 
-  char *v22; 
-  signed int v28; 
+  DObjAnimMat *v22; 
+  signed int v23; 
+  scr_string_t v24; 
+  unsigned int v25; 
+  const XModel **v26; 
+  const XModel *v27; 
+  const scr_string_t *v28; 
   scr_string_t v29; 
-  unsigned int v30; 
-  const XModel **v31; 
-  const XModel *v32; 
+  bool v30; 
+  unsigned int v31; 
+  const XModel **v32; 
   const scr_string_t *v33; 
   scr_string_t v34; 
   bool v35; 
-  unsigned int v39; 
-  const XModel **v40; 
-  const scr_string_t *v41; 
-  scr_string_t v42; 
-  bool v43; 
-  __int64 v47; 
-  __int64 v48; 
-  const XModel *v49; 
-  const scr_string_t *v51; 
-  const XModel **v52; 
+  __int64 v36; 
+  __int64 v37; 
+  const XModel *v38; 
+  const scr_string_t *v40; 
+  const XModel **v41; 
 
-  v52 = dstModels;
-  v51 = dstPartNames;
+  v41 = dstModels;
+  v40 = dstPartNames;
   v12 = dstModels;
   v13 = dstPartNames;
-  _RBX = obj;
   if ( !R_Screenshot_InProcess() )
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1717, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1717, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
       __debugbreak();
     if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1718, ASSERT_TYPE_ASSERT, "(dstPartNames)", (const char *)&queryFormat, "dstPartNames") )
       __debugbreak();
@@ -3757,107 +3346,93 @@ void DObjTransferAndMergeSkinningSkelRecords(const DObj *obj, const bool matchMo
     {
       if ( cls.skelMemoryStart )
       {
-        _R13 = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)Com_GetSkelRecord(_RBX);
-        _R13[4].array[4] = _RBX->numBones;
-        if ( DObjHasClientFlag(_RBX) && (numClientBones = _RBX->numClientBones) != 0 )
+        SkelRecord = (DObjPartBits *)Com_GetSkelRecord(obj);
+        SkelRecord[4].array[4] = obj->numBones;
+        if ( DObjHasClientFlag(obj) && (numClientBones = obj->numClientBones) != 0 )
           v19 = numClientBones;
         else
           v19 = 0;
-        _R13[4].array[5] = v19;
+        SkelRecord[4].array[5] = v19;
         if ( skelRecord0 )
           v20 = *((_DWORD *)skelRecord0 + 33);
         else
           v20 = *((_DWORD *)skelRecord1 + 33);
-        if ( !_RBX->skel.mat )
+        if ( !obj->skel.mat )
         {
-          DObjLock(_RBX);
-          AllocSkelSize = DObjGetAllocSkelSize(_RBX);
-          v22 = CL_Pose_AllocSkelMemory(_RBX, AllocSkelSize);
+          DObjLock(obj);
+          AllocSkelSize = DObjGetAllocSkelSize(obj);
+          v22 = (DObjAnimMat *)CL_Pose_AllocSkelMemory(obj, AllocSkelSize);
           if ( v22 )
           {
-            _RBX->skel.mat = (DObjAnimMat *)v22;
-            DObjCreateSkel(_RBX, v22, v20);
+            obj->skel.mat = v22;
+            DObjCreateSkel(obj, (char *)v22, v20);
           }
-          DObjUnlock(_RBX);
+          DObjUnlock(obj);
         }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+38h]
-          vmovups ymmword ptr [r13+0], ymm0
-          vmovups ymm1, ymmword ptr [rbx+58h]
-          vmovups ymmword ptr [r13+20h], ymm1
-          vmovups ymm0, ymmword ptr [rbx+78h]
-          vmovups ymmword ptr [r13+40h], ymm0
-          vmovups ymm1, ymmword ptr [rbx+98h]
-          vmovups ymmword ptr [r13+60h], ymm1
-          vmovups xmm0, xmmword ptr [rbx+0B8h]
-          vmovups xmmword ptr [r13+80h], xmm0
-        }
-        _R13[4].array[1] = v20;
-        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(_R13);
-        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(_R13 + 1, &_RBX->skel.partBits.control);
-        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(_R13 + 2, &_RBX->skel.partBits.worldCtrl);
-        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(_R13 + 3);
-        v28 = 0;
-        if ( (int)_R13[4].array[4] > 0 )
+        *SkelRecord = obj->skel.partBits.anim;
+        SkelRecord[1] = obj->skel.partBits.control;
+        SkelRecord[2] = obj->skel.partBits.worldCtrl;
+        SkelRecord[3] = obj->skel.partBits.skel;
+        *(_OWORD *)SkelRecord[4].array = *(_OWORD *)&obj->skel.partBits.animCalculated;
+        SkelRecord[4].array[1] = v20;
+        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(SkelRecord);
+        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(SkelRecord + 1, &obj->skel.partBits.control);
+        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(SkelRecord + 2, &obj->skel.partBits.worldCtrl);
+        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(SkelRecord + 3);
+        v23 = 0;
+        if ( (int)SkelRecord[4].array[4] > 0 )
         {
           while ( 1 )
           {
-            v29 = *v13;
-            v49 = *v12;
+            v24 = *v13;
+            v38 = *v12;
             if ( v15 )
             {
               if ( *((_QWORD *)v15 + 17) )
               {
-                v30 = 0;
+                v25 = 0;
                 if ( (int)v15[36] > 0 )
                 {
-                  v31 = srcModels0;
-                  v32 = *v12;
-                  v33 = srcPartNames0;
+                  v26 = srcModels0;
+                  v27 = *v12;
+                  v28 = srcPartNames0;
                   while ( 1 )
                   {
-                    if ( v30 >= 0x100 )
+                    if ( v25 >= 0x100 )
                     {
-                      LODWORD(v48) = 256;
-                      LODWORD(v47) = v30;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v47, v48) )
+                      LODWORD(v37) = 256;
+                      LODWORD(v36) = v25;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v36, v37) )
                         __debugbreak();
                     }
-                    if ( ((0x80000000 >> (v30 & 0x1F)) & srcParts0->array[(unsigned __int64)v30 >> 5]) == 0 )
+                    if ( ((0x80000000 >> (v25 & 0x1F)) & srcParts0->array[(unsigned __int64)v25 >> 5]) == 0 )
                       goto LABEL_48;
-                    v34 = *v33;
+                    v29 = *v28;
                     if ( !matchModels )
                       break;
-                    if ( v29 == v34 )
+                    if ( v24 == v29 )
                     {
-                      v35 = v32 == *v31;
+                      v30 = v27 == *v26;
                       goto LABEL_46;
                     }
 LABEL_48:
-                    ++v30;
-                    ++v33;
-                    ++v31;
-                    if ( (signed int)v30 >= v15[36] )
+                    ++v25;
+                    ++v28;
+                    ++v26;
+                    if ( (signed int)v25 >= v15[36] )
                     {
                       v16 = (int *)skelRecord1;
-                      v12 = v52;
+                      v12 = v41;
                       goto LABEL_50;
                     }
                   }
-                  v35 = v29 == v34;
+                  v30 = v24 == v29;
 LABEL_46:
-                  if ( v35 )
+                  if ( v30 )
                   {
-                    bitarray_base<bitarray<256>>::setBit(_R13, v28);
-                    bitarray_base<bitarray<256>>::setBit(_R13 + 3, v28);
-                    _RCX = *((_QWORD *)v15 + 17) + 32i64 * (int)v30;
-                    _RAX = *(_QWORD *)&_R13[4].array[2] + 32i64 * v28;
-                    __asm
-                    {
-                      vmovups ymm0, ymmword ptr [rcx]
-                      vmovups ymmword ptr [rax], ymm0
-                    }
+                    bitarray_base<bitarray<256>>::setBit(SkelRecord, v23);
+                    bitarray_base<bitarray<256>>::setBit(SkelRecord + 3, v23);
+                    *(__m256i *)(*(_QWORD *)&SkelRecord[4].array[2] + 32i64 * v23) = *(__m256i *)(*((_QWORD *)v15 + 17) + 32i64 * (int)v25);
                   }
                   goto LABEL_48;
                 }
@@ -3868,65 +3443,59 @@ LABEL_50:
             {
               if ( *((_QWORD *)v16 + 17) )
               {
-                v39 = 0;
+                v31 = 0;
                 if ( v16[36] > 0 )
                   break;
               }
             }
 LABEL_66:
-            v13 = v51 + 1;
+            v13 = v40 + 1;
             ++v12;
-            ++v28;
-            ++v51;
-            v52 = v12;
-            if ( v28 >= (signed int)_R13[4].array[4] )
+            ++v23;
+            ++v40;
+            v41 = v12;
+            if ( v23 >= (signed int)SkelRecord[4].array[4] )
               return;
           }
-          v40 = srcModels1;
-          v41 = srcPartNames1;
+          v32 = srcModels1;
+          v33 = srcPartNames1;
           while ( 1 )
           {
-            if ( v39 >= 0x100 )
+            if ( v31 >= 0x100 )
             {
-              LODWORD(v48) = 256;
-              LODWORD(v47) = v39;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v47, v48) )
+              LODWORD(v37) = 256;
+              LODWORD(v36) = v31;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v36, v37) )
                 __debugbreak();
             }
-            if ( ((0x80000000 >> (v39 & 0x1F)) & srcParts1->array[(unsigned __int64)v39 >> 5]) == 0 )
+            if ( ((0x80000000 >> (v31 & 0x1F)) & srcParts1->array[(unsigned __int64)v31 >> 5]) == 0 )
               goto LABEL_64;
-            v42 = *v41;
+            v34 = *v33;
             if ( !matchModels )
               break;
-            if ( v29 == v42 )
+            if ( v24 == v34 )
             {
-              v43 = v49 == *v40;
+              v35 = v38 == *v32;
               goto LABEL_62;
             }
 LABEL_64:
-            ++v39;
-            ++v41;
-            ++v40;
-            if ( (int)v39 >= v16[36] )
+            ++v31;
+            ++v33;
+            ++v32;
+            if ( (int)v31 >= v16[36] )
             {
               v15 = skelRecord0;
-              v12 = v52;
+              v12 = v41;
               goto LABEL_66;
             }
           }
-          v43 = v29 == v42;
+          v35 = v24 == v34;
 LABEL_62:
-          if ( v43 )
+          if ( v35 )
           {
-            bitarray_base<bitarray<256>>::setBit(_R13, v28);
-            bitarray_base<bitarray<256>>::setBit(_R13 + 3, v28);
-            _RCX = *((_QWORD *)v16 + 17) + 32i64 * (int)v39;
-            _RAX = *(_QWORD *)&_R13[4].array[2] + 32i64 * v28;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rcx]
-              vmovups ymmword ptr [rax], ymm0
-            }
+            bitarray_base<bitarray<256>>::setBit(SkelRecord, v23);
+            bitarray_base<bitarray<256>>::setBit(SkelRecord + 3, v23);
+            *(__m256i *)(*(_QWORD *)&SkelRecord[4].array[2] + 32i64 * v23) = *(__m256i *)(*((_QWORD *)v16 + 17) + 32i64 * (int)v31);
           }
           goto LABEL_64;
         }
@@ -3974,67 +3543,55 @@ DObjUpdatePrevSkinningSkel
 */
 void DObjUpdatePrevSkinningSkel(DSkel *savedSkel, const DSkel *curSkel, unsigned int numBones, unsigned int numClientBones, DObjPartBits *prevBits, const DObjPartBits *curBits, DObjPartBits *copiedBits)
 {
-  __int64 v11; 
-  unsigned int v12; 
-  __int64 v13; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *v8; 
+  __int64 v9; 
+  unsigned int v10; 
+  unsigned __int64 v11; 
   unsigned int i; 
-  const DSkel *v21; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *v19; 
   unsigned int j; 
   unsigned int k; 
-  unsigned int v30; 
-  DSkel *v33; 
-  unsigned int v34; 
-  unsigned __int64 v35; 
+  unsigned int v27; 
+  DSkel *v28; 
+  unsigned int v29; 
+  unsigned __int64 v30; 
+  unsigned __int64 v31; 
   DObjAnimMat *mat; 
-  DObjAnimMat *v49; 
-  __int64 v51; 
-  DObjAnimMat *v63; 
-  __int64 v67; 
-  __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  int v79; 
-  int v80; 
-  int v81; 
-  int v82; 
-  int v83; 
-  int v84; 
-  int v85; 
-  int v86; 
-  int v87; 
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v90; 
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v91; 
-  char v92; 
-  void *retaddr; 
+  DObjAnimMat *v33; 
+  float v34; 
+  DObjAnimMat *v35; 
+  DObjAnimMat *v36; 
+  DObjAnimMat *v37; 
+  __int64 v38; 
+  unsigned __int64 v39; 
+  DObjAnimMat *v40; 
+  DObjAnimMat *v41; 
+  float v42; 
+  DObjAnimMat *v43; 
+  __int64 v44; 
+  __int64 v45; 
+  __int64 v46; 
+  __int64 v47; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v51; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v52; 
+  __int128 v53; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _RDI = &v90;
-  LODWORD(v11) = 0;
-  v12 = 0;
-  v13 = numBones;
+  v53 = _XMM7;
+  v8 = &v51;
+  LODWORD(v9) = 0;
+  v10 = 0;
+  v11 = numBones;
   __asm { vpxor   xmm7, xmm7, xmm7 }
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm7 }
-    _RDI = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)_RDI + 16);
-    ++v12;
+    *(_OWORD *)v8->array = _XMM7;
+    v8 = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)v8 + 16);
+    ++v10;
   }
-  while ( v12 < 2 );
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v90, curBits);
-  _RBP = (char *)prevBits - (char *)&v90;
-  _RDI = &v90;
+  while ( v10 < 2 );
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v51, curBits);
+  _RBP = (char *)prevBits - (char *)&v51;
+  _RDI = &v51;
   for ( i = 0; i < 2; ++i )
   {
     __asm
@@ -4042,21 +3599,20 @@ void DObjUpdatePrevSkinningSkel(DSkel *savedSkel, const DSkel *curSkel, unsigned
       vlddqu  xmm6, xmmword ptr [rdi+rbp]
       vlddqu  xmm0, xmmword ptr [rdi]
       vpxor   xmm6, xmm0, xmm6
-      vmovdqu xmmword ptr [rdi], xmm6
     }
+    *(_OWORD *)_RDI->array = _XMM6;
     _RDI = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)_RDI + 16);
   }
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v90, copiedBits);
-  v21 = curSkel;
-  _RDI = &v91;
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::nandAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v51, copiedBits);
+  v19 = &v52;
   for ( j = 0; j < 2; ++j )
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm7 }
-    _RDI = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)_RDI + 16);
+    *(_OWORD *)v19->array = _XMM7;
+    v19 = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)v19 + 16);
   }
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v91, &v90);
-  _RBP = (char *)curBits - (char *)&v91;
-  _RDI = &v91;
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v52, &v51);
+  _RBP = (char *)curBits - (char *)&v52;
+  _RDI = &v52;
   for ( k = 0; k < 2; ++k )
   {
     __asm
@@ -4064,236 +3620,112 @@ void DObjUpdatePrevSkinningSkel(DSkel *savedSkel, const DSkel *curSkel, unsigned
       vlddqu  xmm6, xmmword ptr [rdi+rbp]
       vlddqu  xmm0, xmmword ptr [rdi]
       vpand   xmm6, xmm0, xmm6
-      vmovdqu xmmword ptr [rdi], xmm6
     }
+    *(_OWORD *)_RDI->array = _XMM6;
     _RDI = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)_RDI + 16);
   }
-  v30 = v91.array[0];
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v27 = v52.array[0];
 LABEL_10:
-  v33 = savedSkel;
-  while ( v30 )
+  v28 = savedSkel;
+  while ( v27 )
   {
 LABEL_14:
-    v34 = __lzcnt(v30);
-    v35 = v34 + 32 * (_DWORD)v11;
-    if ( v34 >= 0x20 )
+    v29 = __lzcnt(v27);
+    v30 = v29 + 32 * (_DWORD)v9;
+    if ( v29 >= 0x20 )
     {
-      LODWORD(v68) = 32;
-      LODWORD(v67) = v34;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v67, v68) )
+      LODWORD(v45) = 32;
+      LODWORD(v44) = v29;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v44, v45) )
         __debugbreak();
     }
-    if ( (v30 & (0x80000000 >> v34)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v27 & (0x80000000 >> v29)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v30 &= ~(0x80000000 >> v34);
-    if ( (unsigned int)v35 >= (unsigned int)v13 )
+    v27 &= ~(0x80000000 >> v29);
+    if ( (unsigned int)v30 >= (unsigned int)v11 )
     {
-      if ( (unsigned int)v35 >= 0x100 )
+      if ( (unsigned int)v30 >= 0x100 )
       {
-        LODWORD(v70) = 256;
-        LODWORD(v69) = v34 + 32 * v11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v69, v70) )
+        LODWORD(v47) = 256;
+        LODWORD(v46) = v29 + 32 * v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v46, v47) )
           __debugbreak();
       }
-      v90.array[(unsigned __int64)(v34 + 32 * (_DWORD)v11) >> 5] &= ~(0x80000000 >> ((v34 + 32 * v11) & 0x1F));
+      v51.array[(unsigned __int64)(v29 + 32 * (_DWORD)v9) >> 5] &= ~(0x80000000 >> ((v29 + 32 * v9) & 0x1F));
       goto LABEL_10;
     }
-    _RAX = v21->mat;
-    _RBX = v35;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+rbx+1Ch]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v72 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1317, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[it.index].transWeight ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[it.index].transWeight )") )
+    v31 = v30;
+    if ( (LODWORD(curSkel->mat[v31].transWeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1317, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[it.index].transWeight ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[it.index].transWeight )") )
       __debugbreak();
-    _RCX = v21->mat;
-    __asm
+    mat = curSkel->mat;
+    if ( ((LODWORD(mat[v31].trans.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(mat[v31].trans.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(mat[v31].trans.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1318, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[it.index].trans[0] ) && !IS_NAN( curSkel->mat[it.index].trans[1] ) && !IS_NAN( curSkel->mat[it.index].trans[2] ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[it.index].trans[0] ) && !IS_NAN( curSkel->mat[it.index].trans[1] ) && !IS_NAN( curSkel->mat[it.index].trans[2] )") )
+      __debugbreak();
+    v33 = curSkel->mat;
+    if ( (LODWORD(v33[v31].quat.v[0]) & 0x7F800000) == 2139095040 || (v33[v31].quat.v[1] == 0.0 || (LODWORD(v33[v31].quat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(v33[v31].quat.v[3]) & 0x7F800000) == 2139095040 ? (v34 = 0.0) : (v34 = FLOAT_1_0), (LODWORD(v34) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rcx+rbx+10h]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v73 & 0x7F800000) == 2139095040 )
-      goto LABEL_66;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rbx+14h]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v74 & 0x7F800000) == 2139095040 )
-      goto LABEL_66;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rbx+18h]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v75 & 0x7F800000) == 2139095040 )
-    {
-LABEL_66:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1318, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[it.index].trans[0] ) && !IS_NAN( curSkel->mat[it.index].trans[1] ) && !IS_NAN( curSkel->mat[it.index].trans[2] ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[it.index].trans[0] ) && !IS_NAN( curSkel->mat[it.index].trans[1] ) && !IS_NAN( curSkel->mat[it.index].trans[2] )") )
-        __debugbreak();
-    }
-    _RCX = v21->mat;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rbx]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v76 & 0x7F800000) == 2139095040 )
-      goto LABEL_67;
-    __asm { vucomiss xmm6, dword ptr [rcx+rbx+4] }
-    if ( (v76 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rbx+8]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v77 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rbx+0Ch]
-      vmovss  dword ptr [rsp+128h+var_D8], xmm0
-    }
-    if ( (v78 & 0x7F800000) == 2139095040 )
-LABEL_38:
-      __asm { vmovaps xmm0, xmm6 }
-    else
-      __asm { vmovaps xmm0, xmm7 }
-    __asm { vmovss  dword ptr [rsp+128h+var_D8], xmm0 }
-    if ( (v79 & 0x7F800000) == 2139095040 )
-    {
-LABEL_67:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1319, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[it.index].quat[0] ) && !IS_NAN( curSkel->mat[it.index].quat[1] && !IS_NAN( curSkel->mat[it.index].quat[2] ) && !IS_NAN( curSkel->mat[it.index].quat[3] ) ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[it.index].quat[0] ) && !IS_NAN( curSkel->mat[it.index].quat[1] && !IS_NAN( curSkel->mat[it.index].quat[2] ) && !IS_NAN( curSkel->mat[it.index].quat[3] ) )") )
         __debugbreak();
     }
-    v33 = savedSkel;
-    savedSkel->mat[_RBX].transWeight = v21->mat[_RBX].transWeight;
-    mat = v21->mat;
-    v49 = savedSkel->mat;
-    v49[_RBX].trans.v[0] = mat[_RBX].trans.v[0];
-    v49[_RBX].trans.v[1] = mat[_RBX].trans.v[1];
-    v49[_RBX].trans.v[2] = mat[_RBX].trans.v[2];
-    v49[_RBX].quat.v[0] = mat[_RBX].quat.v[0];
-    v49[_RBX].quat.v[1] = mat[_RBX].quat.v[1];
-    v49[_RBX].quat.v[2] = mat[_RBX].quat.v[2];
-    v49[_RBX].quat.v[3] = mat[_RBX].quat.v[3];
+    v28 = savedSkel;
+    savedSkel->mat[v31].transWeight = curSkel->mat[v31].transWeight;
+    v35 = curSkel->mat;
+    v36 = savedSkel->mat;
+    v36[v31].trans.v[0] = v35[v31].trans.v[0];
+    v36[v31].trans.v[1] = v35[v31].trans.v[1];
+    v36[v31].trans.v[2] = v35[v31].trans.v[2];
+    v36[v31].quat.v[0] = v35[v31].quat.v[0];
+    v36[v31].quat.v[1] = v35[v31].quat.v[1];
+    v36[v31].quat.v[2] = v35[v31].quat.v[2];
+    v36[v31].quat.v[3] = v35[v31].quat.v[3];
   }
   while ( 1 )
   {
-    v11 = (unsigned int)(v11 + 1);
-    if ( (unsigned int)v11 >= 8 )
+    v9 = (unsigned int)(v9 + 1);
+    if ( (unsigned int)v9 >= 8 )
       break;
-    v30 = v91.array[v11];
-    if ( v30 )
+    v27 = v52.array[v9];
+    if ( v27 )
       goto LABEL_14;
   }
-  if ( (v91.array[7] & 2) != 0 )
+  if ( (v52.array[7] & 2) != 0 )
   {
-    v90.array[7] |= 2u;
-    if ( (unsigned int)v13 < (unsigned int)v13 + numClientBones )
+    v51.array[7] |= 2u;
+    if ( (unsigned int)v11 < (unsigned int)v11 + numClientBones )
     {
-      _RCX = v21->mat;
-      v51 = numClientBones;
-      _RBX = v13;
+      v37 = curSkel->mat;
+      v38 = numClientBones;
+      v39 = v11;
       do
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rcx+1Ch]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v80 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1332, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[skelBoneIndex].transWeight ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[skelBoneIndex].transWeight )") )
+        if ( (LODWORD(v37[v39].transWeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1332, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[skelBoneIndex].transWeight ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[skelBoneIndex].transWeight )") )
           __debugbreak();
-        _RCX = v21->mat;
-        __asm
+        v40 = curSkel->mat;
+        if ( ((LODWORD(v40[v39].trans.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v40[v39].trans.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v40[v39].trans.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1333, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[skelBoneIndex].trans[0] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[1] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[2] ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[skelBoneIndex].trans[0] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[1] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[2] )") )
+          __debugbreak();
+        v41 = curSkel->mat;
+        if ( (LODWORD(v41[v39].quat.v[0]) & 0x7F800000) == 2139095040 || (v41[v39].quat.v[1] == 0.0 || (LODWORD(v41[v39].quat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(v41[v39].quat.v[3]) & 0x7F800000) == 2139095040 ? (v42 = 0.0) : (v42 = FLOAT_1_0), (LODWORD(v42) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rbx+rcx+10h]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v81 & 0x7F800000) == 2139095040 )
-          goto LABEL_68;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rcx+14h]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v82 & 0x7F800000) == 2139095040 )
-          goto LABEL_68;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rcx+18h]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v83 & 0x7F800000) == 2139095040 )
-        {
-LABEL_68:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1333, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[skelBoneIndex].trans[0] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[1] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[2] ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[skelBoneIndex].trans[0] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[1] ) && !IS_NAN( curSkel->mat[skelBoneIndex].trans[2] )") )
-            __debugbreak();
-        }
-        _RCX = v21->mat;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rcx]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v84 & 0x7F800000) == 2139095040 )
-          goto LABEL_69;
-        __asm
-        {
-          vucomiss xmm6, dword ptr [rbx+rcx+4]
-          vmovss  xmm0, dword ptr [rbx+rcx+8]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v85 & 0x7F800000) == 2139095040 )
-          goto LABEL_58;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rcx+0Ch]
-          vmovss  dword ptr [rsp+128h+var_D8], xmm0
-        }
-        if ( (v86 & 0x7F800000) == 2139095040 )
-LABEL_58:
-          __asm { vmovaps xmm0, xmm6 }
-        else
-          __asm { vmovaps xmm0, xmm7 }
-        __asm { vmovss  dword ptr [rsp+128h+var_D8], xmm0 }
-        if ( (v87 & 0x7F800000) == 2139095040 )
-        {
-LABEL_69:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj_utils.cpp", 1334, ASSERT_TYPE_ASSERT, "(!IS_NAN( curSkel->mat[skelBoneIndex].quat[0] ) && !IS_NAN( curSkel->mat[skelBoneIndex].quat[1] && !IS_NAN( curSkel->mat[skelBoneIndex].quat[2] ) && !IS_NAN( curSkel->mat[skelBoneIndex].quat[3] ) ))", (const char *)&queryFormat, "!IS_NAN( curSkel->mat[skelBoneIndex].quat[0] ) && !IS_NAN( curSkel->mat[skelBoneIndex].quat[1] && !IS_NAN( curSkel->mat[skelBoneIndex].quat[2] ) && !IS_NAN( curSkel->mat[skelBoneIndex].quat[3] ) )") )
             __debugbreak();
         }
-        v33->mat[_RBX].transWeight = v21->mat[_RBX].transWeight;
-        _RCX = v21->mat;
-        v63 = v33->mat;
-        v63[_RBX].trans.v[0] = _RCX[_RBX].trans.v[0];
-        v63[_RBX].trans.v[1] = _RCX[_RBX].trans.v[1];
-        v63[_RBX].trans.v[2] = _RCX[_RBX].trans.v[2];
-        v63[_RBX].quat.v[0] = _RCX[_RBX].quat.v[0];
-        v63[_RBX].quat.v[1] = _RCX[_RBX].quat.v[1];
-        v63[_RBX].quat.v[2] = _RCX[_RBX].quat.v[2];
-        v63[_RBX].quat.v[3] = _RCX[_RBX].quat.v[3];
-        ++_RBX;
-        --v51;
+        v28->mat[v39].transWeight = curSkel->mat[v39].transWeight;
+        v37 = curSkel->mat;
+        v43 = v28->mat;
+        v43[v39].trans.v[0] = v37[v39].trans.v[0];
+        v43[v39].trans.v[1] = v37[v39].trans.v[1];
+        v43[v39].trans.v[2] = v37[v39].trans.v[2];
+        v43[v39].quat.v[0] = v37[v39].quat.v[0];
+        v43[v39].quat.v[1] = v37[v39].quat.v[1];
+        v43[v39].quat.v[2] = v37[v39].quat.v[2];
+        v43[v39].quat.v[3] = v37[v39].quat.v[3];
+        ++v39;
+        --v38;
       }
-      while ( v51 );
+      while ( v38 );
     }
   }
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(copiedBits, &v90);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(copiedBits, &v51);
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(prevBits, curBits);
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*

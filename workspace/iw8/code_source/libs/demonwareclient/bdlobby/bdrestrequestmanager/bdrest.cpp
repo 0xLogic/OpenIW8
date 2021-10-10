@@ -432,47 +432,43 @@ bdRESTInternal::isTcharString
 */
 _BOOL8 bdRESTInternal::isTcharString(const char *str, unsigned __int64 *invalidIdx)
 {
-  bool v5; 
-  unsigned __int64 v6; 
-  char v7; 
-  __int64 v8; 
-  char v9; 
-  __int128 v11; 
+  bool v4; 
+  unsigned __int64 v5; 
+  char v6; 
+  __int64 v7; 
+  char v8; 
+  char v10[16]; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:asc_1446E8C70; "!#$%&'*+-.^_`|~"
-    vmovups [rsp+28h+var_28], xmm0
-  }
-  v5 = 1;
-  v6 = 0i64;
+  strcpy(v10, "!#$%&'*+-.^_`|~");
+  v4 = 1;
+  v5 = 0i64;
   do
   {
     if ( !str )
       break;
-    v7 = str[v6];
-    if ( !v7 )
+    v6 = str[v5];
+    if ( !v6 )
       break;
-    v5 = (unsigned __int8)(v7 - 48) <= 9u || (unsigned __int8)(v7 - 65) <= 0x19u || (unsigned __int8)(v7 - 97) <= 0x19u;
-    v8 = 0i64;
-    if ( !v5 )
+    v4 = (unsigned __int8)(v6 - 48) <= 9u || (unsigned __int8)(v6 - 65) <= 0x19u || (unsigned __int8)(v6 - 97) <= 0x19u;
+    v7 = 0i64;
+    if ( !v4 )
     {
       do
       {
-        if ( v8 >= 16 )
+        if ( v7 >= 16 )
           break;
-        v9 = *((_BYTE *)&v11 + v8);
-        v5 = v7 == v9;
-        ++v8;
+        v8 = v10[v7];
+        v4 = v6 == v8;
+        ++v7;
       }
-      while ( v7 != v9 );
-      if ( !v5 && invalidIdx )
-        *invalidIdx = v6;
+      while ( v6 != v8 );
+      if ( !v4 && invalidIdx )
+        *invalidIdx = v5;
     }
-    ++v6;
+    ++v5;
   }
-  while ( v5 );
-  return v5;
+  while ( v4 );
+  return v4;
 }
 
 /*

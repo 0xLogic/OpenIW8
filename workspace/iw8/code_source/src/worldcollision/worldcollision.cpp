@@ -1266,72 +1266,48 @@ WorldCollision_IsCollisionReadyAt
 char WorldCollision_IsCollisionReadyAt(const Physics_WorldId worldId, const vec2_t *position, __int16 *gridIdx)
 {
   __int64 v3; 
-  int v17; 
-  int v18; 
-  const CollisionTile *v19; 
-  __int64 v20; 
-  __int64 v21; 
-  int v22; 
-  int v23; 
+  float v7; 
+  int v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  const CollisionTile *v12; 
+  __int64 v13; 
+  __int64 v14; 
 
   v3 = worldId;
-  _RDI = position;
   if ( (unsigned int)worldId >= PHYSICS_WORLD_ID_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\worldcollision\\worldcollision.cpp", 395, ASSERT_TYPE_ASSERT, "(unsigned)( worldId ) < (unsigned)( PHYSICS_WORLD_ID_COUNT )", "worldId doesn't index PHYSICS_WORLD_ID_COUNT\n\t%i not in [0, %i)", worldId, 8) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\worldcollision\\worldcollision.cpp", 396, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(position->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(position->v[1]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\worldcollision\\worldcollision.cpp", 396, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] )") )
+    __debugbreak();
   if ( !s_worldCollision_NumTilesToExpect )
     return s_worldCollision_PhysicsInstances[v3] != -1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm3, xmm0, cs:__real@c8000000
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, cs:__real@c8000000
-    vmulss  xmm1, xmm1, cs:__real@39000000
-    vmulss  xmm0, xmm3, cs:__real@39000000
-    vcvttss2si eax, xmm1
-  }
-  *gridIdx = _EAX;
-  __asm { vcvttss2si ecx, xmm0 }
-  gridIdx[1] = _ECX;
-  if ( (_EAX & 0x8000u) != 0 )
+  v7 = position->v[1] - -131072.0;
+  v8 = (int)(float)((float)(position->v[0] - -131072.0) * 0.00012207031);
+  *gridIdx = v8;
+  v9 = (int)(float)(v7 * 0.00012207031);
+  gridIdx[1] = v9;
+  if ( (v8 & 0x8000u) != 0 )
     return 0;
-  if ( (__int16)_EAX >= 32 )
+  if ( (__int16)v8 >= 32 )
     return 0;
-  if ( (unsigned __int16)_ECX > 0x1Fu )
+  if ( (unsigned __int16)v9 > 0x1Fu )
     return 0;
-  v17 = (__int16)_EAX;
-  v18 = (__int16)_ECX;
-  v19 = g_worldCollision_CollisionTiles[(__int16)_EAX + 32 * (__int16)_ECX];
-  if ( !v19 )
+  v10 = (__int16)v8;
+  v11 = (__int16)v9;
+  v12 = g_worldCollision_CollisionTiles[(__int16)v8 + 32 * (__int16)v9];
+  if ( !v12 )
     return 0;
-  if ( !v19->havokTileShapeDataSize )
+  if ( !v12->havokTileShapeDataSize )
     return 1;
   if ( (unsigned int)v3 >= 8 )
   {
-    LODWORD(v21) = 8;
-    LODWORD(v20) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\worldcollision\\worldcollision.cpp", 383, ASSERT_TYPE_ASSERT, "(unsigned)( worldId ) < (unsigned)( PHYSICS_WORLD_ID_COUNT )", "worldId doesn't index PHYSICS_WORLD_ID_COUNT\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v14) = 8;
+    LODWORD(v13) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\worldcollision\\worldcollision.cpp", 383, ASSERT_TYPE_ASSERT, "(unsigned)( worldId ) < (unsigned)( PHYSICS_WORLD_ID_COUNT )", "worldId doesn't index PHYSICS_WORLD_ID_COUNT\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
-  return s_worldCollision_TilePhysicsInstances[v17][v18][v3] != -1;
+  return s_worldCollision_TilePhysicsInstances[v10][v11][v3] != -1;
 }
 
 /*

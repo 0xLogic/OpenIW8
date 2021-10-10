@@ -236,23 +236,17 @@ GeneralChannelRequest::GeneralChannelRequest
 */
 void GeneralChannelRequest::GeneralChannelRequest(GeneralChannelRequest *this, const GeneralChannelRequest *__that, int a3)
 {
-  _RDI = __that;
-  _RBX = this;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &GeneralChannelRequest::`vbtable';
     bdReferencable::bdReferencable((bdReferencable *)(&this->m_password + 1), (const bdReferencable *)((char *)&__that->__vftable + *(int *)(*((_QWORD *)&__that->__vftable + 1) + 4i64) + 8));
   }
-  bdStructBufferSerializable::bdStructBufferSerializable(_RBX, _RDI);
-  _RBX->__vftable = (GeneralChannelRequest_vtbl *)&GeneralChannelRequest::`vftable'{for `bdStructBufferSerializable'};
-  *(GeneralChannelRequest_vtbl **)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8) = (GeneralChannelRequest_vtbl *)&GeneralChannelRequest::`vftable'{for `bdReferencable'};
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+10h]
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
-  _RBX->m_channelID = _RDI->m_channelID;
-  _RBX->m_password = _RDI->m_password;
+  bdStructBufferSerializable::bdStructBufferSerializable(this, __that);
+  this->__vftable = (GeneralChannelRequest_vtbl *)&GeneralChannelRequest::`vftable'{for `bdStructBufferSerializable'};
+  *(GeneralChannelRequest_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (GeneralChannelRequest_vtbl *)&GeneralChannelRequest::`vftable'{for `bdReferencable'};
+  *((_OWORD *)&this->__vftable + 1) = *((_OWORD *)&__that->__vftable + 1);
+  this->m_channelID = __that->m_channelID;
+  this->m_password = __that->m_password;
 }
 
 /*

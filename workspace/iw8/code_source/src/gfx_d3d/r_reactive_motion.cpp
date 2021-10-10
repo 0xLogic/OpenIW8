@@ -466,18 +466,15 @@ CompareReactiveMotionSpheres
 */
 __int64 CompareReactiveMotionSpheres(const void *p0, const void *p1)
 {
-  char v2; 
+  float v2; 
+  float v3; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+20h]
-    vmovss  xmm1, dword ptr [rdx+20h]
-    vcomiss xmm0, xmm1
-  }
-  if ( v2 )
+  v2 = *((float *)p0 + 8);
+  v3 = *((float *)p1 + 8);
+  if ( v2 >= v3 )
+    return v2 > v3;
+  else
     return 0xFFFFFFFFi64;
-  __asm { vcomiss xmm0, xmm1 }
-  return 0i64;
 }
 
 /*
@@ -489,19 +486,13 @@ void Copy_ReactiveMotionEffector(ReactiveMotionEffector *out, const ReactiveMoti
 {
   vec3_t to; 
 
-  _RDI = in;
-  _RBX = out;
   if ( !in && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3482, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
     __debugbreak();
-  GetSecureVec3(&_RDI->pos, &to, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx], ymm0
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3501, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
+  GetSecureVec3(&in->pos, &to, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
+  *out = *in;
+  if ( !out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3501, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
     __debugbreak();
-  SetSecureVec3(&to, &_RBX->pos, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
+  SetSecureVec3(&to, &out->pos, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
 }
 
 /*
@@ -603,230 +594,225 @@ void RB_UploadReactiveMotionVectorFieldData(GfxReactiveMotionFrameData *frameDat
   const dvar_t *v4; 
   unsigned int v5; 
   unsigned int v6; 
+  __int64 v7; 
   bool enabled; 
-  char v11; 
+  float *v9; 
+  char v10; 
+  __int64 v11; 
   __int64 v12; 
+  int v13; 
   int v14; 
-  int v15; 
-  unsigned int v16; 
+  unsigned int v15; 
+  char *v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
-  int v20; 
-  unsigned int v21; 
-  int v22; 
-  unsigned int v23; 
+  int v19; 
+  unsigned int v20; 
+  int v21; 
+  unsigned int v22; 
+  int v23; 
   int v24; 
-  int v25; 
+  unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
-  unsigned int v28; 
-  unsigned int v36; 
-  unsigned int v37; 
-  int v38; 
-  unsigned int v39; 
-  bool v40; 
-  __int64 v41; 
-  char *v42; 
-  __int64 *v43; 
+  float v28; 
+  unsigned int v29; 
+  unsigned int v30; 
+  int v31; 
+  unsigned int v32; 
+  bool v33; 
+  __int64 v34; 
+  char *v35; 
+  __int64 *v36; 
+  unsigned __int64 v37; 
+  GfxReactiveMotionFrameData *v38; 
+  char v39; 
+  unsigned int v40; 
+  float *v41; 
+  __int64 v42; 
   unsigned __int64 v44; 
-  GfxReactiveMotionFrameData *v45; 
-  char v46; 
-  unsigned int v47; 
-  _DWORD *v48; 
-  __int64 v49; 
-  unsigned __int64 v51; 
   __int64 data[2678]; 
-  __int64 v53[510]; 
-  char v54[24]; 
-  char v55; 
+  __int64 v46[510]; 
+  char v47[24]; 
+  char v48; 
 
   InstancePool = CG_VectorField_GetInstancePool();
   bufferBaseAddr = s_reactiveMotionGlobFrameData.inplaceBuffers[0].bufferBaseAddr;
   v3 = InstancePool;
   v4 = DVARBOOL_cg_vectorFieldsForceUniform;
   v5 = 0;
-  v47 = 0;
+  v40 = 0;
   v6 = 0;
-  v51 = s_reactiveMotionGlobFrameData.inplaceBuffers[0].bufferBaseAddr + s_reactiveMotionGlobFrameData.inplaceBuffers[0].bufferSize;
+  v44 = s_reactiveMotionGlobFrameData.inplaceBuffers[0].bufferBaseAddr + s_reactiveMotionGlobFrameData.inplaceBuffers[0].bufferSize;
   if ( !DVARBOOL_cg_vectorFieldsForceUniform && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsForceUniform") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
   enabled = v4->current.enabled;
-  _R11 = (_DWORD *)&v3->orient.axis.m[0].v[2];
-  __asm { vmovss  xmm3, cs:__real@3f800000 }
-  v11 = 0;
-  v48 = (_DWORD *)&v3->orient.axis.m[0].v[2];
-  v46 = 0;
-  v49 = 255i64;
+  v9 = &v3->orient.axis.m[0].v[2];
+  v10 = 0;
+  v41 = &v3->orient.axis.m[0].v[2];
+  v39 = 0;
+  v42 = 255i64;
   do
   {
-    v12 = *(_QWORD *)(_R11 - 7);
-    _R9 = 84i64 * v5;
-    if ( _R11[9] && v12 && (v14 = *(_DWORD *)(v12 + 52), v14 + v6 <= 0x1FE) )
+    v11 = *(_QWORD *)(v9 - 7);
+    v12 = 84i64 * v5;
+    if ( *((_DWORD *)v9 + 9) && v11 && (v13 = *(_DWORD *)(v11 + 52), v13 + v6 <= 0x1FE) )
     {
-      _R8 = *(_QWORD *)(v12 + 8);
+      v7 = *(_QWORD *)(v11 + 8);
+      v14 = 0;
       v15 = 0;
-      v16 = 0;
-      _R10 = &v54[32 * v6];
-      if ( v14 )
+      v16 = &v47[32 * v6];
+      if ( v13 )
       {
         do
         {
-          if ( (unsigned int)(*(_DWORD *)(_R8 + 60) - 1) <= 1 )
+          if ( (unsigned int)(*(_DWORD *)(v7 + 60) - 1) <= 1 )
           {
-            v18 = 16i64 * (unsigned int)(*(_DWORD *)(_R8 + 48) * *(_DWORD *)(_R8 + 44) * *(_DWORD *)(_R8 + 52));
-            if ( v18 )
+            v17 = 16i64 * (unsigned int)(*(_DWORD *)(v7 + 48) * *(_DWORD *)(v7 + 44) * *(_DWORD *)(v7 + 52));
+            if ( v17 )
             {
-              v19 = *(_QWORD *)_R8;
-              if ( *(_QWORD *)_R8 < bufferBaseAddr || v18 + v19 > v51 )
+              v18 = *(_QWORD *)v7;
+              if ( *(_QWORD *)v7 < bufferBaseAddr || v17 + v18 > v44 )
               {
-                v11 = 1;
+                v10 = 1;
               }
               else
               {
-                v53[v6] = v19;
-                *((_DWORD *)_R10 + 6) = 0;
-                v20 = *(_DWORD *)(_R8 + 44) - 1;
-                if ( v20 > 1023 )
-                  v20 = 1023;
-                if ( v20 < 0 )
-                  v20 = 0;
-                v21 = *((_DWORD *)_R10 + 7) & 0xFFFFFC00 | v20;
-                *((_DWORD *)_R10 + 7) = v21;
-                v22 = *(_DWORD *)(_R8 + 48) - 1;
-                if ( v22 > 1023 )
-                  v22 = 1023;
-                if ( v22 < 0 )
-                  v22 = 0;
-                v23 = v21 & 0xFFF003FF | (v22 << 10);
-                v24 = 0;
-                *((_DWORD *)_R10 + 7) = v23;
-                v25 = *(_DWORD *)(_R8 + 52) - 1;
-                if ( v25 > 1023 )
-                  v25 = 1023;
-                if ( v25 < 0 )
-                  v25 = 0;
-                v26 = v23 & 0xC00FFFFF | (v25 << 20);
-                *((_DWORD *)_R10 + 7) = v26;
-                if ( *(_DWORD *)(_R8 + 60) == 2 )
-                  v24 = 0x40000000;
-                v27 = v26 & 0xBFFFFFFF | v24;
-                *((_DWORD *)_R10 + 7) = v27;
-                if ( (*(_BYTE *)(_R8 + 56) & 1) != 0 || (v28 = 0, enabled) )
-                  v28 = 0x80000000;
-                *((_DWORD *)_R10 + 7) = v28 | v27 & 0x7FFFFFFF;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [r8+14h]
-                  vsubss  xmm1, xmm0, dword ptr [r8+8]
-                  vmovss  dword ptr [r10], xmm1
-                  vmovss  xmm2, dword ptr [r8+18h]
-                  vsubss  xmm0, xmm2, dword ptr [r8+0Ch]
-                  vmovss  dword ptr [r10+4], xmm0
-                  vmovss  xmm1, dword ptr [r8+1Ch]
-                  vsubss  xmm2, xmm1, dword ptr [r8+10h]
-                  vmovss  dword ptr [r10+8], xmm2
-                }
-                *((_DWORD *)_R10 + 3) = *(_DWORD *)(_R8 + 32);
-                *((_DWORD *)_R10 + 4) = *(_DWORD *)(_R8 + 36);
-                *((_DWORD *)_R10 + 5) = *(_DWORD *)(_R8 + 40);
-                _R10 += 32;
-                ++v15;
+                v46[v6] = v18;
+                *((_DWORD *)v16 + 6) = 0;
+                v19 = *(_DWORD *)(v7 + 44) - 1;
+                if ( v19 > 1023 )
+                  v19 = 1023;
+                if ( v19 < 0 )
+                  v19 = 0;
+                v20 = *((_DWORD *)v16 + 7) & 0xFFFFFC00 | v19;
+                *((_DWORD *)v16 + 7) = v20;
+                v21 = *(_DWORD *)(v7 + 48) - 1;
+                if ( v21 > 1023 )
+                  v21 = 1023;
+                if ( v21 < 0 )
+                  v21 = 0;
+                v22 = v20 & 0xFFF003FF | (v21 << 10);
+                v23 = 0;
+                *((_DWORD *)v16 + 7) = v22;
+                v24 = *(_DWORD *)(v7 + 52) - 1;
+                if ( v24 > 1023 )
+                  v24 = 1023;
+                if ( v24 < 0 )
+                  v24 = 0;
+                v25 = v22 & 0xC00FFFFF | (v24 << 20);
+                *((_DWORD *)v16 + 7) = v25;
+                if ( *(_DWORD *)(v7 + 60) == 2 )
+                  v23 = 0x40000000;
+                v26 = v25 & 0xBFFFFFFF | v23;
+                *((_DWORD *)v16 + 7) = v26;
+                if ( (*(_BYTE *)(v7 + 56) & 1) != 0 || (v27 = 0, enabled) )
+                  v27 = 0x80000000;
+                *((_DWORD *)v16 + 7) = v27 | v26 & 0x7FFFFFFF;
+                *(float *)v16 = *(float *)(v7 + 20) - *(float *)(v7 + 8);
+                *((float *)v16 + 1) = *(float *)(v7 + 24) - *(float *)(v7 + 12);
+                *((float *)v16 + 2) = *(float *)(v7 + 28) - *(float *)(v7 + 16);
+                *((_DWORD *)v16 + 3) = *(_DWORD *)(v7 + 32);
+                *((_DWORD *)v16 + 4) = *(_DWORD *)(v7 + 36);
+                *((_DWORD *)v16 + 5) = *(_DWORD *)(v7 + 40);
+                v16 += 32;
+                ++v14;
               }
             }
           }
-          ++v16;
+          ++v15;
         }
-        while ( v16 < *(_DWORD *)(v12 + 52) );
-        _R9 = 84i64 * v5;
-        _R11 = v48;
-        v5 = v47;
-        v46 = v11;
+        while ( v15 < *(_DWORD *)(v11 + 52) );
+        v12 = 84i64 * v5;
+        v9 = v41;
+        v5 = v40;
+        v39 = v10;
       }
-      *(_DWORD *)((char *)&data[7] + _R9) = *(_DWORD *)(v12 + 16);
-      *(_DWORD *)((char *)&data[7] + _R9 + 4) = *(_DWORD *)(v12 + 20);
-      *(_DWORD *)((char *)&data[8] + _R9) = *(_DWORD *)(v12 + 24);
-      *(_DWORD *)((char *)&data[8] + _R9 + 4) = *(_DWORD *)(v12 + 28);
-      *(_DWORD *)((char *)&data[9] + _R9) = *(_DWORD *)(v12 + 32);
-      *(_DWORD *)((char *)&data[9] + _R9 + 4) = *(_DWORD *)(v12 + 36);
-      if ( _R11[10] )
+      *(_DWORD *)((char *)&data[7] + v12) = *(_DWORD *)(v11 + 16);
+      *(_DWORD *)((char *)&data[7] + v12 + 4) = *(_DWORD *)(v11 + 20);
+      *(_DWORD *)((char *)&data[8] + v12) = *(_DWORD *)(v11 + 24);
+      *(_DWORD *)((char *)&data[8] + v12 + 4) = *(_DWORD *)(v11 + 28);
+      *(_DWORD *)((char *)&data[9] + v12) = *(_DWORD *)(v11 + 32);
+      *(_DWORD *)((char *)&data[9] + v12 + 4) = *(_DWORD *)(v11 + 36);
+      if ( *((_DWORD *)v9 + 10) )
       {
-        *(_DWORD *)((char *)data + _R9) = *(_R11 - 2);
-        *(_DWORD *)((char *)data + _R9 + 4) = *(_R11 - 1);
-        *(_DWORD *)((char *)&data[1] + _R9) = *_R11;
-        *(_DWORD *)((char *)&data[1] + _R9 + 4) = _R11[1];
-        *(_DWORD *)((char *)&data[2] + _R9) = _R11[2];
-        *(_DWORD *)((char *)&data[2] + _R9 + 4) = _R11[3];
-        *(_DWORD *)((char *)&data[3] + _R9) = _R11[4];
-        *(_DWORD *)((char *)&data[3] + _R9 + 4) = _R11[5];
-        __asm { vmovss  xmm0, dword ptr [r11+18h] }
+        *(float *)((char *)data + v12) = *(v9 - 2);
+        *(float *)((char *)data + v12 + 4) = *(v9 - 1);
+        *(float *)((char *)&data[1] + v12) = *v9;
+        *(float *)((char *)&data[1] + v12 + 4) = v9[1];
+        *(float *)((char *)&data[2] + v12) = v9[2];
+        *(float *)((char *)&data[2] + v12 + 4) = v9[3];
+        *(float *)((char *)&data[3] + v12) = v9[4];
+        *(float *)((char *)&data[3] + v12 + 4) = v9[5];
+        v28 = v9[6];
       }
       else
       {
-        *(__int64 *)((char *)data + _R9) = 1065353216i64;
-        *(__int64 *)((char *)&data[1] + _R9) = 0i64;
-        *(__int64 *)((char *)&data[2] + _R9) = 1065353216i64;
-        *(__int64 *)((char *)&data[3] + _R9) = 0i64;
-        __asm { vmovaps xmm0, xmm3 }
+        *(__int64 *)((char *)data + v12) = 1065353216i64;
+        *(__int64 *)((char *)&data[1] + v12) = 0i64;
+        *(__int64 *)((char *)&data[2] + v12) = 1065353216i64;
+        *(__int64 *)((char *)&data[3] + v12) = 0i64;
+        v28 = FLOAT_1_0;
       }
-      __asm { vmovss  [rsp+r9+0A428h+var_A378], xmm0 }
-      *(_DWORD *)((char *)&data[4] + _R9 + 4) = *(_R11 - 5);
-      *(_DWORD *)((char *)&data[5] + _R9) = *(_R11 - 4);
-      *(_DWORD *)((char *)&data[5] + _R9 + 4) = *(_R11 - 3);
-      *(_DWORD *)((char *)&data[10] + _R9) |= 0x1000000u;
-      v36 = *(_DWORD *)((_BYTE *)&data[10] + _R9) & 0xFDFFFFFF | (_R11[10] != 0 ? 0x2000000 : 0);
-      *(_DWORD *)((char *)&data[10] + _R9) = v36;
-      *(_DWORD *)((char *)&data[6] + _R9 + 4) = _R11[8];
-      *(_DWORD *)((char *)&data[6] + _R9) = _R11[7];
-      v37 = v6 << 12;
-      v6 += v15;
-      v38 = v36 ^ (v36 ^ v37) & 0xFFF000;
-      *(_DWORD *)((char *)&data[10] + _R9) = v38;
-      v39 = v38 ^ ((unsigned __int16)v15 ^ (unsigned __int16)v38) & 0xFFF;
+      *(float *)((char *)&data[4] + v12) = v28;
+      *(float *)((char *)&data[4] + v12 + 4) = *(v9 - 5);
+      *(float *)((char *)&data[5] + v12) = *(v9 - 4);
+      *(float *)((char *)&data[5] + v12 + 4) = *(v9 - 3);
+      *(_DWORD *)((char *)&data[10] + v12) |= 0x1000000u;
+      v29 = *(_DWORD *)((_BYTE *)&data[10] + v12) & 0xFDFFFFFF | (*((_DWORD *)v9 + 10) != 0 ? 0x2000000 : 0);
+      *(_DWORD *)((char *)&data[10] + v12) = v29;
+      *(float *)((char *)&data[6] + v12 + 4) = v9[8];
+      *(float *)((char *)&data[6] + v12) = v9[7];
+      v30 = v6 << 12;
+      v6 += v14;
+      v31 = v29 ^ (v29 ^ v30) & 0xFFF000;
+      *(_DWORD *)((char *)&data[10] + v12) = v31;
+      v32 = v31 ^ ((unsigned __int16)v14 ^ (unsigned __int16)v31) & 0xFFF;
     }
     else
     {
       *((_DWORD *)&data[10] + 21 * v5) &= ~0x1000000u;
-      v39 = *((_DWORD *)&data[10] + 21 * v5) & 0xFFFFF000;
+      v32 = *((_DWORD *)&data[10] + 21 * v5) & 0xFFFFF000;
     }
     ++v5;
-    *(_DWORD *)((char *)&data[10] + _R9) = v39;
-    _R11 += 20;
-    v47 = v5;
-    v40 = v49-- == 1;
-    v48 = _R11;
+    *(_DWORD *)((char *)&data[10] + v12) = v32;
+    v9 += 20;
+    v40 = v5;
+    v33 = v42-- == 1;
+    v41 = v9;
   }
-  while ( !v40 );
+  while ( !v33 );
   if ( v6 )
   {
-    v41 = v6;
-    v42 = &v55;
-    v43 = v53;
+    v34 = v6;
+    v35 = &v48;
+    v36 = v46;
     do
     {
-      v44 = (*v43 - bufferBaseAddr) >> 4;
-      if ( v44 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v44, "unsigned", (*v43 - bufferBaseAddr) >> 4) )
+      v37 = (*v36 - bufferBaseAddr) >> 4;
+      if ( v37 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v37, "unsigned", (*v36 - bufferBaseAddr) >> 4) )
         __debugbreak();
-      *(_DWORD *)v42 = v44;
-      ++v43;
-      v42 += 32;
-      --v41;
+      *(_DWORD *)v35 = v37;
+      ++v36;
+      v35 += 32;
+      --v34;
     }
-    while ( v41 );
-    v11 = v46;
+    while ( v34 );
+    v10 = v39;
   }
-  v45 = frameData;
+  v38 = frameData;
   frameData->numVectorFields = v5;
   frameData->numVectorSubFields = v6;
   if ( v5 )
   {
     R_UpdateGfxWrappedBuffer(&frameData->reactiveMotionVectorFieldBuffer, data, 84 * v5);
-    v45 = frameData;
+    v38 = frameData;
   }
   if ( v6 )
-    R_UpdateGfxWrappedBuffer(&v45->reactiveMotionVectorSubFieldBuffer, v54, 32 * v6);
-  if ( v11 )
-    Com_PrintWarning(8, "At least one VectorSubField is out of buffer range\n", _R8);
+    R_UpdateGfxWrappedBuffer(&v38->reactiveMotionVectorSubFieldBuffer, v47, 32 * v6);
+  if ( v10 )
+    Com_PrintWarning(8, "At least one VectorSubField is out of buffer range\n", v7);
 }
 
 /*
@@ -874,129 +860,75 @@ bool R_AddReactiveMotionSimComputeCmd(ComputeCmdList *list)
 R_DebugCircle
 ==============
 */
-
-void __fastcall R_DebugCircle(const vec3_t *center, double radius, const vec3_t *dir, const vec4_t *color)
+void R_DebugCircle(const vec3_t *center, float radius, const vec3_t *dir, const vec4_t *color)
 {
-  unsigned int v42; 
-  char v60; 
-  const vec3_t *v61; 
-  __int64 v62; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
+  __int128 v7; 
+  float v13; 
+  float v14; 
+  float v15; 
+  unsigned int v16; 
+  float *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  char v22; 
+  const vec3_t *v23; 
+  __int64 v24; 
   float s; 
   float c; 
   vec3_t src; 
   vec3_t dst; 
   vec3_t end[16]; 
-  char v74; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v4 = dir->v[1];
+  v5 = LODWORD(dir->v[0]);
+  v6 = dir->v[2];
+  v7 = v5;
+  *(float *)&v7 = fsqrt((float)((float)(*(float *)&v5 * *(float *)&v5) + (float)(v4 * v4)) + (float)(v6 * v6));
+  _XMM4 = v7;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovss  xmm6, dword ptr [r8+4]
-    vmovss  xmm5, dword ptr [r8]
-    vmovss  xmm7, dword ptr [r8+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm2, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm2, xmm7, xmm7
-    vaddss  xmm3, xmm3, xmm2
-    vsqrtss xmm4, xmm3, xmm3
     vcmpless xmm0, xmm4, cs:__real@80000000
-    vmovaps xmm8, xmm1
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+188h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+188h+src+8], xmm0
-    vmovss  dword ptr [rsp+188h+src+4], xmm1
   }
+  src.v[0] = *(float *)&v5 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v4 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+188h+src+8]
-    vmovss  xmm6, dword ptr [rsp+188h+src+4]
-    vmovss  xmm5, dword ptr [rsp+188h+dst+8]
-    vmovss  xmm4, dword ptr [rsp+188h+dst+4]
-    vmovss  xmm10, cs:__real@3ec90fdb
-    vmulss  xmm1, xmm6, xmm5
-    vmulss  xmm0, xmm2, xmm4
-    vsubss  xmm7, xmm1, xmm0
-    vmulss  xmm1, xmm2, dword ptr [rsp+188h+dst]
-    vmulss  xmm0, xmm5, dword ptr [rsp+188h+src]
-    vmulss  xmm2, xmm4, dword ptr [rsp+188h+src]
-    vsubss  xmm9, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+188h+dst]
-    vsubss  xmm6, xmm2, xmm1
-  }
-  v42 = 0;
-  _RBX = &end[0].v[2];
+  v13 = (float)(src.v[1] * dst.v[2]) - (float)(src.v[2] * dst.v[1]);
+  v14 = (float)(src.v[2] * dst.v[0]) - (float)(dst.v[2] * src.v[0]);
+  v15 = (float)(dst.v[1] * src.v[0]) - (float)(src.v[1] * dst.v[0]);
+  v16 = 0;
+  v17 = &end[0].v[2];
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm10; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmulss  xmm5, xmm8, [rsp+188h+s]
-      vmulss  xmm4, xmm8, [rsp+188h+c]
-      vmulss  xmm1, xmm4, dword ptr [rsp+188h+dst]
-      vmulss  xmm0, xmm7, xmm5
-      vaddss  xmm2, xmm0, dword ptr [rsi]
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  dword ptr [rbx-8], xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+188h+dst+4]
-      vmulss  xmm0, xmm9, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi+4]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+188h+dst+8]
-      vmulss  xmm1, xmm6, xmm5
-      vaddss  xmm3, xmm1, dword ptr [rsi+8]
-      vaddss  xmm1, xmm3, xmm2
-    }
-    ++v42;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm1
-      vmovss  dword ptr [rbx-4], xmm0
-    }
-    _RBX += 3;
-    __asm
-    {
-      vmovss  [rsp+188h+s], xmm5
-      vmovss  [rsp+188h+c], xmm4
-    }
+    v18 = (float)v16;
+    FastSinCos(v18 * 0.39269909, &s, &c);
+    v19 = radius * s;
+    v20 = radius * c;
+    *(v17 - 2) = (float)((float)(v13 * (float)(radius * s)) + center->v[0]) + (float)((float)(radius * c) * dst.v[0]);
+    v21 = (float)((float)(v14 * v19) + center->v[1]) + (float)(v20 * dst.v[1]);
+    ++v16;
+    *v17 = (float)((float)(v15 * v19) + center->v[2]) + (float)(v20 * dst.v[2]);
+    *(v17 - 1) = v21;
+    v17 += 3;
+    s = v19;
+    c = v20;
   }
-  while ( v42 < 0x10 );
-  v60 = 1;
-  v61 = end;
-  v62 = 16i64;
+  while ( v16 < 0x10 );
+  v22 = 1;
+  v23 = end;
+  v24 = 16i64;
   do
   {
-    CG_DebugLine(v61++, &end[v60++ & 0xF], color, 0, 1);
-    --v62;
+    CG_DebugLine(v23++, &end[v22++ & 0xF], color, 0, 1);
+    --v24;
   }
-  while ( v62 );
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v24 );
 }
 
 /*
@@ -1220,32 +1152,35 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
   signed int v14; 
   int v15; 
   unsigned int numEffectors; 
-  int v19; 
-  signed int v20; 
-  signed int v22; 
+  int v17; 
+  signed int v18; 
+  signed int v19; 
   signed int reactiveMotionDataCurrentPartTweakIndex; 
-  unsigned int v26; 
+  unsigned int v21; 
   ComputeShader *reactiveMotionCalcModelsComputeShader; 
   ComputeShader *reactiveMotionCalcModelPartsComputeShader; 
   GfxShaderBufferRWView *views; 
-  int v30; 
+  int v25; 
   unsigned int framea; 
   unsigned int data; 
-  int v33; 
-  int v34; 
-  int v35; 
+  int v28; 
+  int v29; 
+  int v30; 
   unsigned int reactiveMotionClutterLayerCount; 
   unsigned int start; 
-  __int64 v38[2]; 
-  float v39; 
-  unsigned int v43; 
-  unsigned int v44; 
-  unsigned int v45; 
-  unsigned int v46; 
-  unsigned int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
+  __int64 v33[2]; 
+  float v34; 
+  __int128 v35; 
+  float velocityTailScale; 
+  float effectorStrengthScale; 
+  unsigned int v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  unsigned int v41; 
+  unsigned int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
   unsigned int numVectorFields; 
   unsigned int numVectorSubFields; 
   ReactiveMotionEffector out[15]; 
@@ -1257,7 +1192,7 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
     if ( !s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentIndex && !s_reactiveMotionGlobFrameData.frameData[v2].bUsesClutterPass && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3147, ASSERT_TYPE_ASSERT, "(frameData->reactiveMotionDataCurrentIndex || frameData->bUsesClutterPass)", (const char *)&queryFormat, "frameData->reactiveMotionDataCurrentIndex || frameData->bUsesClutterPass") )
       __debugbreak();
     frameUploaded = s_reactiveMotionGlobFrameData.frameData[v2].frameUploaded;
-    LOBYTE(v30) = frameUploaded;
+    LOBYTE(v25) = frameUploaded;
     if ( !frameUploaded )
     {
       v5 = state->data;
@@ -1290,9 +1225,9 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
         R_SetComputeRWViewsWithCounters(state, 5, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
         views = &s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionClutterSModelInstanceIndexBuffer.rwView;
         R_SetComputeRWViewsWithCounters(state, 6, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-        v35 = 55552;
+        v30 = 55552;
         reactiveMotionDataCurrentIndex = 3472;
-        v34 = 3472;
+        v29 = 3472;
         if ( (int)s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentIndex < 3472 )
           reactiveMotionDataCurrentIndex = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentIndex;
         reactiveMotionDataCurrentPartIndex = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentPartIndex;
@@ -1300,7 +1235,7 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
         v11 = 55552;
         if ( reactiveMotionDataCurrentPartIndex < 55552 )
           v11 = reactiveMotionDataCurrentPartIndex;
-        v33 = v11;
+        v28 = v11;
         R_UploadAndSetComputeConstants(state, 4, &data, 0x10u, NULL);
         R_GPU_GenerateClutter(state, state->data, 0, 1);
         R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.reactiveMotionClutterSModelInstanceData, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
@@ -1308,7 +1243,7 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
         R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionClutterInstanceOffsetsBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionModelInfoBufferRW, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionCounts, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        frameUploaded = v30;
+        frameUploaded = v25;
         v7 = 3472;
       }
       else
@@ -1318,9 +1253,9 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
       R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.reactiveMotionIndirectArgs, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionClutterIndirectArgs, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_HW_FlushResourceTransitions(state);
-      v34 = 3472;
+      v29 = 3472;
       v12 = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentIndex;
-      v35 = 55552;
+      v30 = 55552;
       v13 = 3472;
       if ( v12 < 3472 )
         v13 = v12;
@@ -1330,7 +1265,7 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
       if ( v14 < 55552 )
         v15 = v14;
       reactiveMotionClutterLayerCount = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionClutterLayerCount;
-      v33 = v15;
+      v28 = v15;
       start = rgp.world->smodels.clutterInstancePool.start;
       R_UploadAndSetComputeConstants(state, 1, &data, 0x20u, NULL);
       views = &s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionCounts.rwView;
@@ -1354,58 +1289,38 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
       Sys_ProfEndNamedEvent();
     }
     R_ReactiveMotionGenModelPartIndicesCompute(state, framea);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.windDir; ReactiveMotionParams g_backendReactiveMotionParams
-      vmovaps xmm1, xmmword ptr cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.windAreaScale; ReactiveMotionParams g_backendReactiveMotionParams
-    }
     numEffectors = g_backendReactiveMotionParams.numEffectors;
-    v19 = 55552;
-    v39 = g_backendReactiveMotionParams.windDir.v[2];
-    v20 = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentIndex;
-    __asm
-    {
-      vmovsd  qword ptr [rsp+2E0h+var_27C], xmm0
-      vmovss  xmm0, cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.windStrength; ReactiveMotionParams g_backendReactiveMotionParams
-    }
-    if ( v20 < 3472 )
-      v7 = v20;
-    v47 = g_backendReactiveMotionParams.numEffectors;
-    v22 = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentPartIndex;
-    __asm
-    {
-      vmovss  dword ptr [rsp+2E0h+var_284+4], xmm0
-      vmovss  xmm0, cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.effectorStrengthScale; ReactiveMotionParams g_backendReactiveMotionParams
-    }
-    if ( v22 < 55552 )
-      v19 = v22;
-    v48 = v7;
+    v17 = 55552;
+    v34 = g_backendReactiveMotionParams.windDir.v[2];
+    v18 = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentIndex;
+    v33[1] = *(__int64 *)g_backendReactiveMotionParams.windDir.v;
+    if ( v18 < 3472 )
+      v7 = v18;
+    v42 = g_backendReactiveMotionParams.numEffectors;
+    v19 = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentPartIndex;
+    *((float *)v33 + 1) = g_backendReactiveMotionParams.windStrength;
+    if ( v19 < 55552 )
+      v17 = v19;
+    v43 = v7;
     reactiveMotionDataCurrentPartTweakIndex = s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentPartTweakIndex;
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+2E0h+var_278+8], xmm1
-      vmovss  xmm1, cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.velocityTailScale; ReactiveMotionParams g_backendReactiveMotionParams
-    }
+    v35 = *(_OWORD *)&g_backendReactiveMotionParams.windAreaScale;
     if ( reactiveMotionDataCurrentPartTweakIndex < 55552 )
       v8 = reactiveMotionDataCurrentPartTweakIndex;
-    v49 = v19;
+    v44 = v17;
     numVectorFields = s_reactiveMotionGlobFrameData.frameData[v2].numVectorFields;
-    v26 = 0;
+    v21 = 0;
     numVectorSubFields = s_reactiveMotionGlobFrameData.frameData[v2].numVectorSubFields;
-    v43 = s_reactivemotion_aab_X;
-    v44 = s_reactivemotion_aab_Y;
-    v45 = s_reactivemotion_aab_Z;
-    v50 = v8;
-    v46 = (unsigned int)out;
-    __asm
+    v38 = s_reactivemotion_aab_X;
+    v39 = s_reactivemotion_aab_Y;
+    v40 = s_reactivemotion_aab_Z;
+    v45 = v8;
+    v41 = (unsigned int)out;
+    velocityTailScale = g_backendReactiveMotionParams.velocityTailScale;
+    effectorStrengthScale = g_backendReactiveMotionParams.effectorStrengthScale;
+    while ( v21 < numEffectors )
     {
-      vmovss  [rbp+1E0h+var_260], xmm1
-      vmovss  [rbp+1E0h+var_25C], xmm0
-    }
-    while ( v26 < numEffectors )
-    {
-      Copy_ReactiveMotionEffector(&out[v26], &g_backendReactiveMotionParams.effectors[v26]);
-      if ( ++v26 >= 0xF )
+      Copy_ReactiveMotionEffector(&out[v21], &g_backendReactiveMotionParams.effectors[v21]);
+      if ( ++v21 >= 0xF )
         break;
       numEffectors = g_backendReactiveMotionParams.numEffectors;
     }
@@ -1433,13 +1348,13 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
     if ( bUsesClutterPass )
       reactiveMotionCalcModelsComputeShader = rgp.reactiveMotionCalcModelsIndirectComputeShader;
     R_SetComputeShader(state, reactiveMotionCalcModelsComputeShader);
-    R_UploadAndSetComputeConstants(state, 1, (char *)v38 + 4, 0x240u, NULL);
+    R_UploadAndSetComputeConstants(state, 1, (char *)v33 + 4, 0x240u, NULL);
     if ( !R_ComputeCheckReserveDescriptorHeaps(state) )
       Sys_Error((const ObfuscateErrorText)&stru_1443CC330);
     if ( bUsesClutterPass )
       R_DispatchIndirect(state, s_reactiveMotionGlobFrameData.reactiveMotionIndirectArgs.buffer, 0);
     else
-      R_Dispatch(state, (unsigned int)(v48 + 63) >> 6, 1u, 1u);
+      R_Dispatch(state, (unsigned int)(v43 + 63) >> 6, 1u, 1u);
     R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.reactiveMotionModelWindBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.reactiveMotionOffsetsRWBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_HW_FlushResourceTransitions(state);
@@ -1463,13 +1378,13 @@ void R_ReactiveMotionCalcCompute(ComputeCmdBufState *state, unsigned int frame)
     if ( bUsesClutterPass )
       reactiveMotionCalcModelPartsComputeShader = rgp.reactiveMotionCalcModelPartsIndirectComputeShader;
     R_SetComputeShader(state, reactiveMotionCalcModelPartsComputeShader);
-    R_UploadAndSetComputeConstants(state, 1, (char *)v38 + 4, 0x240u, NULL);
+    R_UploadAndSetComputeConstants(state, 1, (char *)v33 + 4, 0x240u, NULL);
     if ( !R_ComputeCheckReserveDescriptorHeaps(state) )
       Sys_Error((const ObfuscateErrorText)&stru_1443CC330);
     if ( bUsesClutterPass )
       R_DispatchIndirect(state, s_reactiveMotionGlobFrameData.reactiveMotionIndirectArgs.buffer, 0x20u);
     else
-      R_Dispatch(state, (unsigned int)(v49 + 63) >> 6, 1u, 1u);
+      R_Dispatch(state, (unsigned int)(v44 + 63) >> 6, 1u, 1u);
     R_HW_AddResourceTransition(state, &s_reactiveMotionGlobFrameData.reactiveMotionOffsetsRWBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_HW_FlushResourceTransitions(state);
   }
@@ -1603,10 +1518,13 @@ R_ReactiveMotion_AddEffector_MT
 void R_ReactiveMotion_AddEffector_MT(const vec3_t *pos, const vec3_t *vel, const int entIndex)
 {
   signed __int32 v6; 
+  ReactiveMotionSphere *v7; 
+  float v8; 
+  float defaultActorRadius; 
+  __int128 v10; 
+  __int128 v11; 
   vec3_t origin; 
 
-  _RSI = vel;
-  _RBX = pos;
   if ( ((unsigned __int8)s_numReactiveMotionSpheres & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", s_numReactiveMotionSpheres) )
     __debugbreak();
   v6 = _InterlockedExchangeAdd(s_numReactiveMotionSpheres, 1u);
@@ -1618,46 +1536,30 @@ void R_ReactiveMotion_AddEffector_MT(const vec3_t *pos, const vec3_t *vel, const
   }
   else
   {
-    _RDI = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v6;
+    v7 = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v6;
+    *(_QWORD *)origin.v = *(_QWORD *)pos->v;
+    v8 = pos->v[2];
+    defaultActorRadius = s_reactiveMotionGlobFrameData.defaultActorRadius;
+    v7->radius = s_reactiveMotionGlobFrameData.defaultActorRadius;
+    origin.v[2] = defaultActorRadius + v8;
+    ReactiveMotionSphere_SetPos(v7, &origin);
+    v10 = LODWORD(vel->v[1]);
+    v11 = v10;
+    *(float *)&v11 = fsqrt((float)(*(float *)&v10 * *(float *)&v10) + (float)(vel->v[0] * vel->v[0]));
+    _XMM4 = v11;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  dword ptr [rsp+68h+origin], xmm0
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rsp+68h+origin+4], xmm1
-      vmovss  xmm2, dword ptr [rbx+8]
-      vmovss  xmm0, cs:s_reactiveMotionGlobFrameData.defaultActorRadius
-      vmovss  dword ptr [rdi+0Ch], xmm0
-      vaddss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rsp+68h+origin+8], xmm0
-    }
-    ReactiveMotionSphere_SetPos(_RDI, &origin);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi]
-      vmovss  xmm5, dword ptr [rsi+4]
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm4, xmm1, xmm1
       vcmpless xmm0, xmm4, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm4, xmm2, xmm0
-      vdivss  xmm1, xmm2, xmm1
-      vmulss  xmm0, xmm1, xmm3
-      vmovss  dword ptr [rdi+10h], xmm0
-      vmulss  xmm1, xmm1, xmm5
-      vmovss  dword ptr [rdi+14h], xmm1
     }
-    _RDI->velDir.v[2] = 0.0;
-    __asm
-    {
-      vmovss  xmm2, cs:s_reactiveMotionGlobFrameData.defaultActorVelocityMax
-      vminss  xmm0, xmm2, xmm4
-      vdivss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rdi+1Ch], xmm1
-    }
-    _RDI->entIndex = entIndex;
+    *(float *)&_XMM1 = 1.0 / *(float *)&_XMM1;
+    v7->velDir.v[0] = *(float *)&_XMM1 * vel->v[0];
+    v7->velDir.v[1] = *(float *)&_XMM1 * *(float *)&v10;
+    v7->velDir.v[2] = 0.0;
+    _XMM2 = LODWORD(s_reactiveMotionGlobFrameData.defaultActorVelocityMax);
+    __asm { vminss  xmm0, xmm2, xmm4 }
+    v7->velMag = *(float *)&_XMM0 / s_reactiveMotionGlobFrameData.defaultActorVelocityMax;
+    v7->entIndex = entIndex;
     memset(&origin, 0, sizeof(origin));
   }
 }
@@ -1707,8 +1609,9 @@ __int64 R_ReactiveMotion_CalcModelPartsGpu(const XModel *model, const unsigned i
   __int64 v6; 
   unsigned int reactiveMotionDataCurrentPartIndex; 
   unsigned int v11; 
+  __m256i v12; 
   __int64 result; 
-  float v17; 
+  __m256i *v14; 
   ReactiveMotionModelInfoGpu modelInfo; 
 
   v6 = reactiveIndex;
@@ -1724,24 +1627,12 @@ __int64 R_ReactiveMotion_CalcModelPartsGpu(const XModel *model, const unsigned i
   {
     reactiveMotionDataCurrentPartIndex = 0;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+modelTransformScale]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  R_ReactiveMotion_GetReactiveMotionModelInfoGPU(frameData, smodelInstanceIndex, reactiveMotionDataCurrentPartIndex, reactiveMotionDataCurrentPartIndex, v6, 0, model, modelTransform, v17, &modelInfo);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0C8h+var_78.windParams]
-    vmovups ymm1, ymmword ptr [rsp+0C8h+var_78.modelBoundsMidPoint]
-  }
+  R_ReactiveMotion_GetReactiveMotionModelInfoGPU(frameData, smodelInstanceIndex, reactiveMotionDataCurrentPartIndex, reactiveMotionDataCurrentPartIndex, v6, 0, model, modelTransform, modelTransformScale, &modelInfo);
+  v12 = *(__m256i *)modelInfo.modelBoundsMidPoint.v;
   result = reactiveMotionDataCurrentPartIndex;
-  _RCX = &frameData->reactiveMotionModelInfo[v6];
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymmword ptr [rcx+20h], ymm1
-  }
+  v14 = (__m256i *)&frameData->reactiveMotionModelInfo[v6];
+  *v14 = *(__m256i *)modelInfo.windParams.v;
+  v14[1] = v12;
   return result;
 }
 
@@ -1792,50 +1683,37 @@ R_ReactiveMotion_GetClutterReactiveMotionModelInfoGPU
 */
 void R_ReactiveMotion_GetClutterReactiveMotionModelInfoGPU(const unsigned int frame, const XModel *model, GPClutterReactiveMotionModelInfoGpu *clutterModelInfo)
 {
+  float v4; 
   unsigned int basePartIdx_tweakOffset; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   unsigned int smodelInstanceIndex_numParts_flags; 
-  float v17; 
   ReactiveMotionModelInfoGpu modelInfo; 
 
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  _RBX = clutterModelInfo;
-  __asm { vmovss  [rsp+0A8h+var_68], xmm0 }
-  R_ReactiveMotion_GetReactiveMotionModelInfoGPU(&s_reactiveMotionGlobFrameData.frameData[frame], 0, 0, s_reactiveMotionGlobFrameData.frameData[frame].reactiveMotionDataCurrentPartIndex + s_reactiveMotionGlobFrameData.frameData[frame].reactiveMotionDataCurrentModelPartOffset, 0, 4u, model, NULL, v17, &modelInfo);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_58.windParams]
-    vmovss  xmm1, dword ptr [rsp+0A8h+var_58.windParams+4]
-  }
+  R_ReactiveMotion_GetReactiveMotionModelInfoGPU(&s_reactiveMotionGlobFrameData.frameData[frame], 0, 0, s_reactiveMotionGlobFrameData.frameData[frame].reactiveMotionDataCurrentPartIndex + s_reactiveMotionGlobFrameData.frameData[frame].reactiveMotionDataCurrentModelPartOffset, 0, 4u, model, NULL, 1.0, &modelInfo);
+  v4 = modelInfo.windParams.v[1];
   basePartIdx_tweakOffset = modelInfo.basePartIdx_tweakOffset;
-  __asm
-  {
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_58.windParams+8]
-    vmovss  dword ptr [rbx+0Ch], xmm0
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_58.modelBoundsHalfSize]
-    vmovss  dword ptr [rbx+8], xmm1
-    vmovss  xmm1, [rsp+0A8h+var_58.modelRadius]
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm1, dword ptr [rsp+0A8h+var_58.modelBoundsHalfSize+4]
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_58.modelBoundsHalfSize+8]
-    vmovss  dword ptr [rbx+18h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_58.modelBoundsMidPoint]
-    vmovss  dword ptr [rbx+14h], xmm1
-    vmovss  xmm1, dword ptr [rsp+0A8h+var_58.modelBoundsMidPoint+4]
-  }
-  _RBX->basePartIdx_tweakOffset = basePartIdx_tweakOffset;
+  clutterModelInfo->windParams.v[0] = modelInfo.windParams.v[0];
+  clutterModelInfo->windParams.v[2] = modelInfo.windParams.v[2];
+  v6 = modelInfo.modelBoundsHalfSize.v[0];
+  clutterModelInfo->windParams.v[1] = v4;
+  clutterModelInfo->modelRadius = modelInfo.modelRadius;
+  v7 = modelInfo.modelBoundsHalfSize.v[1];
+  clutterModelInfo->modelBoundsHalfSize.v[0] = v6;
+  clutterModelInfo->modelBoundsHalfSize.v[2] = modelInfo.modelBoundsHalfSize.v[2];
+  v8 = modelInfo.modelBoundsMidPoint.v[0];
+  clutterModelInfo->modelBoundsHalfSize.v[1] = v7;
+  v9 = modelInfo.modelBoundsMidPoint.v[1];
+  clutterModelInfo->basePartIdx_tweakOffset = basePartIdx_tweakOffset;
   smodelInstanceIndex_numParts_flags = modelInfo.smodelInstanceIndex_numParts_flags;
-  __asm
-  {
-    vmovss  dword ptr [rbx+20h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_58.modelBoundsMidPoint+8]
-    vmovss  dword ptr [rbx+28h], xmm0
-    vmovss  dword ptr [rbx+24h], xmm1
-  }
-  _RBX->smodelInstanceIndex_numParts_flags = smodelInstanceIndex_numParts_flags;
-  _RBX->modelPartOffsetQW = modelInfo.modelPartOffsetQW;
-  _RBX->modelPartTweakOffsetQW = modelInfo.modelPartTweakOffsetQW;
+  clutterModelInfo->modelBoundsMidPoint.v[0] = v8;
+  clutterModelInfo->modelBoundsMidPoint.v[2] = modelInfo.modelBoundsMidPoint.v[2];
+  clutterModelInfo->modelBoundsMidPoint.v[1] = v9;
+  clutterModelInfo->smodelInstanceIndex_numParts_flags = smodelInstanceIndex_numParts_flags;
+  clutterModelInfo->modelPartOffsetQW = modelInfo.modelPartOffsetQW;
+  clutterModelInfo->modelPartTweakOffsetQW = modelInfo.modelPartTweakOffsetQW;
 }
 
 /*
@@ -1883,12 +1761,11 @@ R_ReactiveMotion_GetReactiveMotionModelInfoGPU
 void R_ReactiveMotion_GetReactiveMotionModelInfoGPU(GfxReactiveMotionFrameData *frameData, const unsigned int smodelInstanceIndex, const unsigned int basePartIndex, const unsigned int baseModelPartOffset, unsigned int reactiveIndex, unsigned int flags, const XModel *model, const vector4 *modelTransform, float modelTransformScale, ReactiveMotionModelInfoGpu *modelInfo)
 {
   ReactiveMotionModelInfo *reactiveMotionInfo; 
-  int v14; 
+  int v13; 
+  unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
-  char v18; 
+  int v16; 
 
-  _RBX = model;
   if ( (model->flags & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 1871, ASSERT_TYPE_ASSERT, "(model->flags & XMODEL_FLAG_REACTIVE_MOTION)", (const char *)&queryFormat, "model->flags & XMODEL_FLAG_REACTIVE_MOTION") )
     __debugbreak();
   if ( !model->reactiveMotionInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 1872, ASSERT_TYPE_ASSERT, "(model->reactiveMotionInfo)", (const char *)&queryFormat, "model->reactiveMotionInfo") )
@@ -1900,23 +1777,23 @@ void R_ReactiveMotion_GetReactiveMotionModelInfoGPU(GfxReactiveMotionFrameData *
   modelInfo->modelBoundsMidPoint = model->bounds.midPoint;
   modelInfo->modelRadius = model->radius;
   modelInfo->smodelInstanceIndex_numParts_flags ^= (smodelInstanceIndex ^ modelInfo->smodelInstanceIndex_numParts_flags) & 0xFFFFFF;
-  v14 = reactiveMotionInfo->numParts - 1;
-  if ( v14 > 15 )
-    v14 = 15;
-  if ( v14 < 0 )
-    v14 = 0;
-  v15 = flags | 1;
-  v16 = modelInfo->smodelInstanceIndex_numParts_flags ^ (modelInfo->smodelInstanceIndex_numParts_flags ^ (v14 << 24)) & 0xF000000;
-  modelInfo->smodelInstanceIndex_numParts_flags = v16;
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+  v13 = reactiveMotionInfo->numParts - 1;
+  if ( v13 > 15 )
+    v13 = 15;
+  if ( v13 < 0 )
+    v13 = 0;
+  v14 = flags | 1;
+  v15 = modelInfo->smodelInstanceIndex_numParts_flags ^ (modelInfo->smodelInstanceIndex_numParts_flags ^ (v13 << 24)) & 0xF000000;
+  modelInfo->smodelInstanceIndex_numParts_flags = v15;
   if ( (reactiveMotionInfo->flags & 1) == 0 )
-    v15 = flags;
-  v18 = v15 | 2;
-  __asm { vcomiss xmm0, cs:__real@43960000 }
-  modelInfo->smodelInstanceIndex_numParts_flags = v16 & 0xFFFFFFF | ((v15 | 2) << 28);
+    v14 = flags;
+  v16 = v14 | 2;
+  if ( model->radius <= 300.0 )
+    v16 = v14;
+  modelInfo->smodelInstanceIndex_numParts_flags = v15 & 0xFFFFFFF | (v16 << 28);
   modelInfo->modelPartOffsetQW = ReactiveMotionInplaceBuffer::GetQWOffset(&s_reactiveMotionGlobFrameData.inplaceBuffers[1], (unsigned __int64)reactiveMotionInfo->modelParts, 32i64 * reactiveMotionInfo->numParts);
   modelInfo->basePartIdx_tweakOffset = basePartIndex;
-  if ( (v18 & 1) != 0 )
+  if ( (v16 & 1) != 0 )
     modelInfo->modelPartTweakOffsetQW = ReactiveMotionInplaceBuffer::GetQWOffset(&s_reactiveMotionGlobFrameData.inplaceBuffers[2], (unsigned __int64)reactiveMotionInfo->modelPartTweaks, 32i64 * reactiveMotionInfo->numParts);
   else
     modelInfo->modelPartTweakOffsetQW = 0;
@@ -2087,312 +1964,240 @@ R_ReactiveMotion_SetupParts
 */
 void R_ReactiveMotion_SetupParts(const unsigned int frame, const unsigned int smodelInstanceIndex, const XModel *model)
 {
-  const dvar_t *v8; 
-  __int64 v10; 
-  __int64 v11; 
+  const dvar_t *v3; 
+  __int64 v5; 
+  __int64 v6; 
   bool enabled; 
-  GfxReactiveMotionFrameData *v13; 
+  GfxReactiveMotionFrameData *v8; 
   __int64 reactiveMotionDataCurrentIndex; 
-  unsigned __int16 v15; 
+  unsigned __int16 v10; 
   unsigned int firstStaticObjectsIndirectionIndex; 
   unsigned int lastStaticObjectsIndirectionIndex; 
   bool bUsesCpuCalc; 
-  __int64 v45; 
+  __m128 v14; 
+  __m128 v16; 
+  __m128 v20; 
+  __m128 v24; 
+  __m128 v28; 
+  __int64 v31; 
   unsigned int reactiveMotionDataCurrentPartIndex; 
-  unsigned int v47; 
+  unsigned int v33; 
+  __m256i v34; 
+  __m256i *v35; 
   ReactiveMotionModelInfo *reactiveMotionInfo; 
-  __int64 v64; 
-  PackedQuatDec3n v65; 
-  float v98; 
-  bool v99; 
+  __m128 v37; 
+  __int64 v38; 
+  PackedQuatDec3n v39; 
+  float v40; 
+  vec3_t *v41; 
+  __int64 v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  bool v47; 
   float outScale; 
   float binormalSign; 
   vec3_t out; 
-  __int128 v103; 
-  tmat44_t<vec4_t> axis; 
+  __m128 v51; 
+  vector4 axis; 
   vec3_t in; 
-  vec3_t v106; 
+  vec3_t v54; 
   vector4 modelTransform; 
   GfxPlacement outPlacement; 
   vec4_t outQuat; 
-  vec4_t v110; 
+  vec4_t v58; 
   vec3_t start[16]; 
   vec4_t in2[16]; 
 
-  v8 = DVARBOOL_r_reactiveMotionPivotDebugDraw;
-  v10 = smodelInstanceIndex;
-  v11 = frame;
+  v3 = DVARBOOL_r_reactiveMotionPivotDebugDraw;
+  v5 = smodelInstanceIndex;
+  v6 = frame;
   if ( !DVARBOOL_r_reactiveMotionPivotDebugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionPivotDebugDraw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  enabled = v8->current.enabled;
-  v99 = enabled;
+  Dvar_CheckFrontendServerThread(v3);
+  enabled = v3->current.enabled;
+  v47 = enabled;
   if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 2666, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
   if ( !model->reactiveMotionInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 2667, ASSERT_TYPE_ASSERT, "(model->reactiveMotionInfo)", (const char *)&queryFormat, "model->reactiveMotionInfo") )
     __debugbreak();
   if ( (model->flags & 0x28000) == 0 )
   {
-    v13 = &s_reactiveMotionGlobFrameData.frameData[v11];
-    reactiveMotionDataCurrentIndex = v13->reactiveMotionDataCurrentIndex;
-    v13->reactiveMotionDataCurrentIndex = reactiveMotionDataCurrentIndex + 1;
+    v8 = &s_reactiveMotionGlobFrameData.frameData[v6];
+    reactiveMotionDataCurrentIndex = v8->reactiveMotionDataCurrentIndex;
+    v8->reactiveMotionDataCurrentIndex = reactiveMotionDataCurrentIndex + 1;
     if ( (unsigned int)reactiveMotionDataCurrentIndex >= 0xD90 )
       R_WarnOncePerFrame(R_WARN_REACTIVEMOTION_CBS, 3472i64);
-    if ( (_DWORD)v10 != -1 )
+    if ( (_DWORD)v5 != -1 )
     {
       if ( (unsigned int)reactiveMotionDataCurrentIndex < 0xD90 )
-        v15 = truncate_cast<unsigned short,unsigned int>(reactiveMotionDataCurrentIndex);
+        v10 = truncate_cast<unsigned short,unsigned int>(reactiveMotionDataCurrentIndex);
       else
-        v15 = -1;
-      v13->reactiveMotionDataIndices[v10] = v15;
-      firstStaticObjectsIndirectionIndex = v13->firstStaticObjectsIndirectionIndex;
-      if ( firstStaticObjectsIndirectionIndex > (unsigned int)v10 )
-        firstStaticObjectsIndirectionIndex = v10;
-      v13->firstStaticObjectsIndirectionIndex = firstStaticObjectsIndirectionIndex;
-      lastStaticObjectsIndirectionIndex = v13->lastStaticObjectsIndirectionIndex;
-      if ( (unsigned int)v10 > lastStaticObjectsIndirectionIndex )
-        lastStaticObjectsIndirectionIndex = v10;
-      v13->lastStaticObjectsIndirectionIndex = lastStaticObjectsIndirectionIndex;
+        v10 = -1;
+      v8->reactiveMotionDataIndices[v5] = v10;
+      firstStaticObjectsIndirectionIndex = v8->firstStaticObjectsIndirectionIndex;
+      if ( firstStaticObjectsIndirectionIndex > (unsigned int)v5 )
+        firstStaticObjectsIndirectionIndex = v5;
+      v8->firstStaticObjectsIndirectionIndex = firstStaticObjectsIndirectionIndex;
+      lastStaticObjectsIndirectionIndex = v8->lastStaticObjectsIndirectionIndex;
+      if ( (unsigned int)v5 > lastStaticObjectsIndirectionIndex )
+        lastStaticObjectsIndirectionIndex = v5;
+      v8->lastStaticObjectsIndirectionIndex = lastStaticObjectsIndirectionIndex;
     }
     if ( (unsigned int)reactiveMotionDataCurrentIndex < 0xD90 )
     {
-      bUsesCpuCalc = v13->bUsesCpuCalc;
-      __asm
+      bUsesCpuCalc = v8->bUsesCpuCalc;
+      if ( (enabled || bUsesCpuCalc) && (_DWORD)v5 != -1 )
       {
-        vmovaps [rsp+3B8h+var_48], xmm6
-        vmovaps [rsp+3B8h+var_58], xmm7
-        vmovaps [rsp+3B8h+var_68], xmm8
-        vmovaps [rsp+3B8h+var_78], xmm9
-        vmovaps [rsp+3B8h+var_88], xmm10
-      }
-      if ( (enabled || bUsesCpuCalc) && (_DWORD)v10 != -1 )
-      {
-        R_StaticModelInstance_GetPlacement(v10, &outPlacement, &outScale);
+        R_StaticModelInstance_GetPlacement(v5, &outPlacement, &outScale);
         QuatToAxis(&outPlacement.quat, (tmat33_t<vec3_t> *)&axis);
+        v14 = (__m128)LODWORD(outScale);
+        v51.m128_i32[3] = 0;
+        v16 = v51;
+        v16.m128_f32[0] = axis.x.v.m128_f32[0];
+        _XMM9 = v16;
         __asm
         {
-          vmovss  xmm0, dword ptr [rsp+3B8h+axis]
-          vmovss  xmm6, [rsp+3B8h+outScale]
-        }
-        HIDWORD(v103) = 0;
-        __asm
-        {
-          vmovups xmm9, xmmword ptr [rsp+70h]
-          vmovss  xmm9, xmm9, xmm0
-          vmovss  xmm0, dword ptr [rsp+3B8h+axis+0Ch]
           vinsertps xmm9, xmm9, dword ptr [rsp+3B8h+axis+4], 10h
           vinsertps xmm9, xmm9, dword ptr [rsp+3B8h+axis+8], 20h
-          vmovups xmmword ptr [rsp+70h], xmm9
         }
-        HIDWORD(v103) = 0;
+        v51 = _XMM9;
+        v51.m128_i32[3] = 0;
+        v20 = v51;
+        v20.m128_f32[0] = axis.x.v.m128_f32[3];
+        _XMM10 = v20;
         __asm
         {
-          vmovups xmm10, xmmword ptr [rsp+70h]
-          vmovss  xmm10, xmm10, xmm0
-          vmovss  xmm0, dword ptr [rsp+3B8h+axis+18h]
           vinsertps xmm10, xmm10, dword ptr [rsp+3B8h+axis+10h], 10h
           vinsertps xmm10, xmm10, dword ptr [rsp+3B8h+axis+14h], 20h
-          vmovups xmmword ptr [rsp+70h], xmm10
         }
-        HIDWORD(v103) = 0;
+        v51 = _XMM10;
+        v51.m128_i32[3] = 0;
+        v24 = v51;
+        v24.m128_f32[0] = axis.y.v.m128_f32[2];
+        _XMM7 = v24;
         __asm
         {
-          vmovups xmm7, xmmword ptr [rsp+70h]
-          vmovss  xmm7, xmm7, xmm0
           vinsertps xmm7, xmm7, dword ptr [rsp+3B8h+axis+1Ch], 10h
           vinsertps xmm7, xmm7, dword ptr [rsp+3B8h+axis+20h], 20h
-          vmovss  xmm0, dword ptr [rsp+3B8h+outPlacement.origin]
-          vmovups xmmword ptr [rsp+70h], xmm7
         }
-        HIDWORD(v103) = 0;
+        v51 = _XMM7;
+        v51.m128_i32[3] = 0;
+        v28 = v51;
+        v28.m128_f32[0] = outPlacement.origin.v[0];
+        _XMM8 = v28;
         __asm
         {
-          vmovups xmm8, xmmword ptr [rsp+70h]
-          vmovss  xmm8, xmm8, xmm0
           vinsertps xmm8, xmm8, dword ptr [rsp+3B8h+outPlacement.origin+4], 10h
           vinsertps xmm8, xmm8, dword ptr [rsp+3B8h+outPlacement.origin+8], 20h
-          vmovups xmmword ptr [rsp+70h], xmm8
         }
+        v51 = _XMM8;
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-          vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-          vmovss  xmm6, cs:__real@3f800000
-          vmovdqa xmmword ptr [rsp+3B8h+axis+10h], xmm1
-          vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-          vmovdqa xmmword ptr [rsp+3B8h+axis], xmm0
-          vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-          vmovdqa xmmword ptr [rsp+3B8h+axis+20h], xmm0
-          vmovups ymm0, ymmword ptr [rsp+3B8h+axis]
-          vmovups ymmword ptr [rsp+3B8h+var_2D8.baseclass_0.x.v], ymm0
-          vmovups xmm10, xmmword ptr [rsp+3B8h+var_2D8.baseclass_0.y.v]
-          vmovups xmm9, xmmword ptr [rsp+3B8h+var_2D8.baseclass_0.x.v]
-          vmovdqa xmmword ptr [rsp+3B8h+axis+30h], xmm1
-          vmovups ymm1, ymmword ptr [rsp+3B8h+axis+20h]
-          vmovups ymmword ptr [rsp+3B8h+var_2D8.baseclass_0.z.v], ymm1
-          vmovups xmm8, xmmword ptr [rsp+3B8h+var_2D8.w.v]
-          vmovups xmm7, xmmword ptr [rsp+3B8h+var_2D8.baseclass_0.z.v]
-          vmovss  [rsp+3B8h+outScale], xmm6
-        }
+        v14 = (__m128)LODWORD(FLOAT_1_0);
+        axis.y = (float4)g_0100.v;
+        axis.x = (float4)g_1000.v;
+        axis.z = (float4)g_0010.v;
+        _XMM10 = g_0100.v;
+        _XMM9 = g_1000.v;
+        axis.w = (float4)g_0001.v;
+        modelTransform = axis;
+        _XMM8 = g_0001.v;
+        _XMM7 = g_0010.v;
+        outScale = FLOAT_1_0;
       }
-      v45 = 0i64;
+      v31 = 0i64;
       if ( !bUsesCpuCalc )
       {
-        reactiveMotionDataCurrentPartIndex = v13->reactiveMotionDataCurrentPartIndex;
-        v47 = reactiveMotionDataCurrentPartIndex + model->reactiveMotionInfo->numParts;
-        if ( v47 > 0xD900 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 1815, ASSERT_TYPE_ASSERT, "(endPart <= (( 3 * 1024 + 400 ) * 16))", (const char *)&queryFormat, "endPart <= MAX_REACTIVEMOTION_PARTS") )
+        reactiveMotionDataCurrentPartIndex = v8->reactiveMotionDataCurrentPartIndex;
+        v33 = reactiveMotionDataCurrentPartIndex + model->reactiveMotionInfo->numParts;
+        if ( v33 > 0xD900 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 1815, ASSERT_TYPE_ASSERT, "(endPart <= (( 3 * 1024 + 400 ) * 16))", (const char *)&queryFormat, "endPart <= MAX_REACTIVEMOTION_PARTS") )
           __debugbreak();
-        v13->reactiveMotionDataCurrentPartIndex = v47;
-        __asm { vmovss  [rsp+3B8h+var_378], xmm6 }
-        R_ReactiveMotion_GetReactiveMotionModelInfoGPU(v13, v10, reactiveMotionDataCurrentPartIndex, reactiveMotionDataCurrentPartIndex, reactiveMotionDataCurrentIndex, 0, model, &modelTransform, v98, (ReactiveMotionModelInfoGpu *)&modelTransform);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+3B8h+var_2D8.baseclass_0.x.v]
-          vmovups ymm1, ymmword ptr [rsp+3B8h+var_2D8.baseclass_0.z.v]
-        }
-        _RAX = &v13->reactiveMotionModelInfo[reactiveMotionDataCurrentIndex];
-        __asm
-        {
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymmword ptr [rax+20h], ymm1
-          vmovss  xmm6, [rsp+3B8h+outScale]
-        }
+        v8->reactiveMotionDataCurrentPartIndex = v33;
+        R_ReactiveMotion_GetReactiveMotionModelInfoGPU(v8, v5, reactiveMotionDataCurrentPartIndex, reactiveMotionDataCurrentPartIndex, reactiveMotionDataCurrentIndex, 0, model, &modelTransform, v14.m128_f32[0], (ReactiveMotionModelInfoGpu *)&modelTransform);
+        v34 = *(__m256i *)modelTransform.z.v.m128_f32;
+        v35 = (__m256i *)&v8->reactiveMotionModelInfo[reactiveMotionDataCurrentIndex];
+        *v35 = *(__m256i *)modelTransform.x.v.m128_f32;
+        v35[1] = v34;
+        v14 = (__m128)LODWORD(outScale);
       }
-      if ( v99 )
+      if ( v47 )
       {
-        __asm { vmovss  xmm1, cs:__real@40a00000 }
         reactiveMotionInfo = model->reactiveMotionInfo;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [rsp+3B8h+axis+20h], xmm7
-          vmulss  xmm2, xmm6, dword ptr [rsp+3B8h+axis+24h]
-          vmovss  dword ptr [rsp+3B8h+in], xmm1
-          vmovss  dword ptr [rsp+3B8h+var_2E8+4], xmm1
-          vmovss  dword ptr [rsp+3B8h+var_348+8], xmm1
-          vmovss  dword ptr [rsp+3B8h+in+4], xmm0
-          vmovss  dword ptr [rsp+3B8h+in+8], xmm0
-          vmovss  dword ptr [rsp+3B8h+var_2E8], xmm0
-          vmovss  dword ptr [rsp+3B8h+var_2E8+8], xmm0
-          vmovss  dword ptr [rsp+3B8h+var_348], xmm0
-          vmovss  dword ptr [rsp+3B8h+var_348+4], xmm0
-          vmovaps xmm1, xmm6
-          vshufps xmm1, xmm1, xmm1, 0
-          vmulps  xmm0, xmm1, xmm9
-          vmovups xmmword ptr [rsp+3B8h+axis], xmm0
-          vmulss  xmm0, xmm7, xmm6
-          vmulps  xmm1, xmm1, xmm10
-          vmovss  dword ptr [rsp+3B8h+axis+20h], xmm0
-          vmulss  xmm0, xmm6, dword ptr [rsp+3B8h+axis+2Ch]
-          vmovups xmmword ptr [rsp+3B8h+axis+10h], xmm1
-          vmulss  xmm1, xmm6, dword ptr [rsp+3B8h+axis+28h]
-          vmovaps xmmword ptr [rsp+3B8h+var_2D8.baseclass_0.x.v], xmm9
-          vmovaps xmmword ptr [rsp+3B8h+var_2D8.baseclass_0.y.v], xmm10
-          vmovaps xmmword ptr [rsp+3B8h+var_2D8.baseclass_0.z.v], xmm7
-          vmovaps xmmword ptr [rsp+3B8h+var_2D8.w.v], xmm8
-          vmovss  dword ptr [rsp+3B8h+axis+2Ch], xmm0
-          vmovss  dword ptr [rsp+3B8h+axis+24h], xmm2
-          vmovss  dword ptr [rsp+3B8h+axis+28h], xmm1
-          vmovaps xmmword ptr [rsp+3B8h+axis+30h], xmm8
-        }
+        in.v[0] = FLOAT_5_0;
+        v54.v[1] = FLOAT_5_0;
+        v51.m128_f32[2] = FLOAT_5_0;
+        in.v[1] = 0.0;
+        in.v[2] = 0.0;
+        v54.v[0] = 0.0;
+        v54.v[2] = 0.0;
+        v51.m128_f32[0] = 0.0;
+        v51.m128_f32[1] = 0.0;
+        v37 = _mm_shuffle_ps(v14, v14, 0);
+        axis.x.v = _mm128_mul_ps(v37, _XMM9);
+        axis.z.v.m128_f32[0] = _XMM7.m128_f32[0] * v14.m128_f32[0];
+        axis.y.v = _mm128_mul_ps(v37, _XMM10);
+        modelTransform.x.v = _XMM9;
+        modelTransform.y.v = _XMM10;
+        modelTransform.z.v = _XMM7;
+        modelTransform.w.v = _XMM8;
+        axis.z.v.m128_f32[3] = v14.m128_f32[0] * _XMM7.m128_f32[3];
+        axis.z.v.m128_f32[1] = v14.m128_f32[0] * _XMM7.m128_f32[1];
+        axis.z.v.m128_f32[2] = v14.m128_f32[0] * _XMM7.m128_f32[2];
+        axis.w.v = _XMM8;
         if ( reactiveMotionInfo->numParts )
         {
-          __asm { vmovss  xmm6, cs:__real@40400000 }
           do
           {
-            v64 = (__int64)&reactiveMotionInfo->modelParts[(unsigned int)v45];
-            v65.packed = *(unsigned int *)(v64 + 28);
-            if ( *(_WORD *)(v64 + 14) == 0xFFFF )
+            v38 = (__int64)&reactiveMotionInfo->modelParts[(unsigned int)v31];
+            v39.packed = *(unsigned int *)(v38 + 28);
+            if ( *(_WORD *)(v38 + 14) == 0xFFFF )
             {
-              QuatDec3nToUnitQuat(v65, &outPlacement.quat, &binormalSign);
-              AxisComponentsToQuat((const vec3_t *)&modelTransform, (const vec3_t *)&modelTransform.y, (const vec3_t *)&modelTransform.z, &v110);
-              QuatMultiply(&outPlacement.quat, &v110, &in2[(unsigned int)v45]);
-              _RDI = &start[v45];
-              MatrixTransformPosition44((const vec3_t *)(v64 + 16), (const tmat44_t<vec4_t> *)&modelTransform, _RDI);
+              QuatDec3nToUnitQuat(v39, &outPlacement.quat, &binormalSign);
+              AxisComponentsToQuat((const vec3_t *)&modelTransform, (const vec3_t *)&modelTransform.y, (const vec3_t *)&modelTransform.z, &v58);
+              QuatMultiply(&outPlacement.quat, &v58, &in2[(unsigned int)v31]);
+              v41 = &start[v31];
+              MatrixTransformPosition44((const vec3_t *)(v38 + 16), (const tmat44_t<vec4_t> *)&modelTransform, v41);
             }
             else
             {
-              QuatDec3nToUnitQuat(v65, &outQuat, &binormalSign);
-              QuatMultiply(&outQuat, &in2[*(unsigned __int16 *)(v64 + 14)], &in2[(unsigned int)v45]);
-              QuatTransform(&in2[*(unsigned __int16 *)(v64 + 14)], (const vec3_t *)(v64 + 16), &out);
-              __asm
-              {
-                vmovss  xmm3, [rsp+3B8h+outScale]
-                vmulss  xmm1, xmm3, dword ptr [rsp+3B8h+out]
-                vmulss  xmm0, xmm3, dword ptr [rsp+3B8h+out+8]
-              }
-              _RDI = &start[v45];
-              __asm
-              {
-                vaddss  xmm2, xmm1, dword ptr [rsp+rcx*4+3B8h+start]
-                vmulss  xmm1, xmm3, dword ptr [rsp+3B8h+out+4]
-                vmovss  dword ptr [rdi], xmm2
-                vaddss  xmm2, xmm1, dword ptr [rsp+rcx*4+3B8h+start+4]
-                vmovss  dword ptr [rdi+4], xmm2
-                vaddss  xmm1, xmm0, dword ptr [rsp+rcx*4+3B8h+start+8]
-                vmovss  dword ptr [rdi+8], xmm1
-              }
+              QuatDec3nToUnitQuat(v39, &outQuat, &binormalSign);
+              QuatMultiply(&outQuat, &in2[*(unsigned __int16 *)(v38 + 14)], &in2[(unsigned int)v31]);
+              QuatTransform(&in2[*(unsigned __int16 *)(v38 + 14)], (const vec3_t *)(v38 + 16), &out);
+              v40 = outScale * out.v[2];
+              v41 = &start[v31];
+              v42 = *(unsigned __int16 *)(v38 + 14);
+              v43 = outScale * out.v[1];
+              v41->v[0] = (float)(outScale * out.v[0]) + start[v42].v[0];
+              v41->v[1] = v43 + start[v42].v[1];
+              v41->v[2] = v40 + start[v42].v[2];
             }
-            QuatTransform(&in2[(unsigned int)v45], &in, &out);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+3B8h+out]
-              vaddss  xmm1, xmm0, dword ptr [rdi]
-              vmovss  xmm2, dword ptr [rsp+3B8h+out+4]
-              vaddss  xmm0, xmm2, dword ptr [rdi+4]
-              vmovss  dword ptr [rsp+3B8h+out], xmm1
-              vmovss  xmm1, dword ptr [rsp+3B8h+out+8]
-              vaddss  xmm2, xmm1, dword ptr [rdi+8]
-              vmovss  dword ptr [rsp+3B8h+out+8], xmm2
-              vmovss  dword ptr [rsp+3B8h+out+4], xmm0
-            }
-            R_AddDebugLine(&frontEndDataOut->debugGlobals, _RDI, &out, &colorRed);
-            QuatTransform(&in2[(unsigned int)v45], &v106, &out);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+3B8h+out]
-              vaddss  xmm1, xmm0, dword ptr [rdi]
-              vmovss  xmm2, dword ptr [rsp+3B8h+out+4]
-              vaddss  xmm0, xmm2, dword ptr [rdi+4]
-              vmovss  dword ptr [rsp+3B8h+out], xmm1
-              vmovss  xmm1, dword ptr [rsp+3B8h+out+8]
-              vaddss  xmm2, xmm1, dword ptr [rdi+8]
-              vmovss  dword ptr [rsp+3B8h+out+8], xmm2
-              vmovss  dword ptr [rsp+3B8h+out+4], xmm0
-            }
-            R_AddDebugLine(&frontEndDataOut->debugGlobals, _RDI, &out, &colorGreen);
-            QuatTransform(&in2[(unsigned int)v45], (const vec3_t *)&v103, &out);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+3B8h+out]
-              vaddss  xmm1, xmm0, dword ptr [rdi]
-              vmovss  xmm2, dword ptr [rsp+3B8h+out+4]
-              vaddss  xmm0, xmm2, dword ptr [rdi+4]
-              vmovss  dword ptr [rsp+3B8h+out], xmm1
-              vmovss  xmm1, dword ptr [rsp+3B8h+out+8]
-              vaddss  xmm2, xmm1, dword ptr [rdi+8]
-              vmovss  dword ptr [rsp+3B8h+out+8], xmm2
-              vmovss  dword ptr [rsp+3B8h+out+4], xmm0
-            }
-            R_AddDebugLine(&frontEndDataOut->debugGlobals, _RDI, &out, &colorBlue);
-            MatrixTransformPosition44((const vec3_t *)v64, &axis, &out);
-            __asm { vmovaps xmm2, xmm6; size }
-            R_AddDebugStar(&frontEndDataOut->debugGlobals, &out, *(const float *)&_XMM2, &colorCyan);
-            v45 = (unsigned int)(v45 + 1);
+            QuatTransform(&in2[(unsigned int)v31], &in, &out);
+            v44 = out.v[1] + v41->v[1];
+            out.v[0] = out.v[0] + v41->v[0];
+            out.v[2] = out.v[2] + v41->v[2];
+            out.v[1] = v44;
+            R_AddDebugLine(&frontEndDataOut->debugGlobals, v41, &out, &colorRed);
+            QuatTransform(&in2[(unsigned int)v31], &v54, &out);
+            v45 = out.v[1] + v41->v[1];
+            out.v[0] = out.v[0] + v41->v[0];
+            out.v[2] = out.v[2] + v41->v[2];
+            out.v[1] = v45;
+            R_AddDebugLine(&frontEndDataOut->debugGlobals, v41, &out, &colorGreen);
+            QuatTransform(&in2[(unsigned int)v31], (const vec3_t *)&v51, &out);
+            v46 = out.v[1] + v41->v[1];
+            out.v[0] = out.v[0] + v41->v[0];
+            out.v[2] = out.v[2] + v41->v[2];
+            out.v[1] = v46;
+            R_AddDebugLine(&frontEndDataOut->debugGlobals, v41, &out, &colorBlue);
+            MatrixTransformPosition44((const vec3_t *)v38, (const tmat44_t<vec4_t> *)&axis, &out);
+            R_AddDebugStar(&frontEndDataOut->debugGlobals, &out, 3.0, &colorCyan);
+            v31 = (unsigned int)(v31 + 1);
           }
-          while ( (unsigned int)v45 < reactiveMotionInfo->numParts );
+          while ( (unsigned int)v31 < reactiveMotionInfo->numParts );
         }
-      }
-      __asm
-      {
-        vmovaps xmm9, [rsp+3B8h+var_78]
-        vmovaps xmm8, [rsp+3B8h+var_68]
-        vmovaps xmm7, [rsp+3B8h+var_58]
-        vmovaps xmm6, [rsp+3B8h+var_48]
-        vmovaps xmm10, [rsp+3B8h+var_88]
       }
     }
   }
@@ -2434,96 +2239,63 @@ R_ReactiveMotion_SortEffectors
 */
 void R_ReactiveMotion_SortEffectors(const vec3_t *cameraPos)
 {
-  bool v5; 
-  signed __int64 v6; 
-  signed __int64 v7; 
-  signed __int64 v8; 
-  __int64 v30; 
+  bool v2; 
+  signed __int64 v3; 
+  signed __int64 v4; 
+  signed __int64 v5; 
+  ReactiveMotionSphere *v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  ReactiveMotionSphere *v10; 
+  __int64 v11; 
   vec3_t to; 
   vec3_t from; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v30 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R15 = cameraPos;
-  v5 = s_numReactiveMotionSpheres[0] > 1;
-  v6 = s_numReactiveMotionSpheres[0];
-  v7 = 0i64;
+  v11 = -2i64;
+  v2 = s_numReactiveMotionSpheres[0] > 1;
+  v3 = s_numReactiveMotionSpheres[0];
+  v4 = 0i64;
   if ( s_numReactiveMotionSpheres[0] > 0 )
   {
-    v8 = 0i64;
+    v5 = 0i64;
     do
     {
-      _RDI = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v8;
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3519, ASSERT_TYPE_ASSERT, "(reactiveMotionSphere)", (const char *)&queryFormat, "reactiveMotionSphere", v30) )
+      v6 = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v5;
+      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3519, ASSERT_TYPE_ASSERT, "(reactiveMotionSphere)", (const char *)&queryFormat, "reactiveMotionSphere", v11) )
         __debugbreak();
-      GetSecureVec3(&_RDI->pos, &to, s_reactivemotionsphere_aab_X, s_reactivemotionsphere_aab_Y, s_reactivemotionsphere_aab_Z);
-      __asm
+      GetSecureVec3(&v6->pos, &to, s_reactivemotionsphere_aab_X, s_reactivemotionsphere_aab_Y, s_reactivemotionsphere_aab_Z);
+      v7 = to.v[0];
+      v8 = to.v[1];
+      v9 = to.v[2];
+      v6->distFromCamera = (float)((float)((float)(cameraPos->v[1] - to.v[1]) * (float)(cameraPos->v[1] - to.v[1])) + (float)((float)(cameraPos->v[0] - to.v[0]) * (float)(cameraPos->v[0] - to.v[0]))) + (float)((float)(cameraPos->v[2] - to.v[2]) * (float)(cameraPos->v[2] - to.v[2]));
+      if ( v2 )
       {
-        vmovss  xmm0, dword ptr [r15]
-        vmovss  xmm5, dword ptr [rsp+0A8h+to]
-        vsubss  xmm4, xmm0, xmm5
-        vmovss  xmm1, dword ptr [r15+4]
-        vmovss  xmm6, dword ptr [rsp+0A8h+to+4]
-        vsubss  xmm2, xmm1, xmm6
-        vmovss  xmm0, dword ptr [r15+8]
-        vmovss  xmm7, dword ptr [rsp+0A8h+to+8]
-        vsubss  xmm3, xmm0, xmm7
-        vmulss  xmm1, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rdi+20h], xmm2
-      }
-      if ( v5 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rdi], xmm5
-          vmovss  dword ptr [rdi+4], xmm6
-          vmovss  dword ptr [rdi+8], xmm7
-        }
+        v6->pos.v[0] = v7;
+        v6->pos.v[1] = v8;
+        v6->pos.v[2] = v9;
       }
       memset(&to, 0, sizeof(to));
-      ++v8;
+      ++v5;
     }
-    while ( v8 < v6 );
-    v7 = 0i64;
+    while ( v5 < v3 );
+    v4 = 0i64;
   }
-  if ( v5 )
+  if ( v2 )
   {
-    qsort(&s_reactiveMotionSpheres + 128 * s_curReactiveMotionSphereFrame, v6, 0x30ui64, (_CoreCrtNonSecureSearchSortCompareFunction)CompareReactiveMotionSpheres);
-    if ( v6 > 0 )
+    qsort(&s_reactiveMotionSpheres + 128 * s_curReactiveMotionSphereFrame, v3, 0x30ui64, (_CoreCrtNonSecureSearchSortCompareFunction)CompareReactiveMotionSpheres);
+    if ( v3 > 0 )
     {
       do
       {
-        _RDX = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v7;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx]
-          vmovss  dword ptr [rsp+0A8h+from], xmm0
-          vmovss  xmm1, dword ptr [rdx+4]
-          vmovss  dword ptr [rsp+0A8h+from+4], xmm1
-          vmovss  xmm0, dword ptr [rdx+8]
-          vmovss  dword ptr [rsp+0A8h+from+8], xmm0
-        }
-        SetSecureVec3(&from, &_RDX->pos, s_reactivemotionsphere_aab_X, s_reactivemotionsphere_aab_Y, s_reactivemotionsphere_aab_Z);
+        v10 = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v4;
+        from = v10->pos;
+        SetSecureVec3(&from, &v10->pos, s_reactivemotionsphere_aab_X, s_reactivemotionsphere_aab_Y, s_reactivemotionsphere_aab_Z);
         memset(&from, 0, sizeof(from));
-        ++v7;
+        ++v4;
       }
-      while ( v7 < v6 );
+      while ( v4 < v3 );
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
   }
 }
 
@@ -2532,345 +2304,208 @@ void R_ReactiveMotion_SortEffectors(const vec3_t *cameraPos)
 R_ReactiveMotion_Update
 ==============
 */
-
-void __fastcall R_ReactiveMotion_Update(LocalClientNum_t localClientNum, const float gameTimeSec, double deltaGameTimeSec, const vec3_t *clientPos, const vec3_t *clientVel)
+void R_ReactiveMotion_Update(LocalClientNum_t localClientNum, const float gameTimeSec, const float deltaGameTimeSec, const vec3_t *clientPos, const vec3_t *clientVel)
 {
-  char v29; 
-  const dvar_t *v40; 
-  unsigned int v59; 
-  char v88; 
-  unsigned int v102; 
-  __int64 v103; 
-  __int64 v104; 
-  const dvar_t *v113; 
+  __int64 v6; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  unsigned int v10; 
+  __int128 v12; 
+  const dvar_t *v13; 
+  float value; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  __int128 avgVel_low; 
+  float avgVelPeak; 
+  float v24; 
+  __int128 v26; 
+  float v28; 
+  float v29; 
+  unsigned int v30; 
+  __int64 v31; 
+  __int64 v32; 
+  ReactiveMotionEffector *v33; 
+  ReactiveMotionSphere *v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  const dvar_t *v37; 
+  ReactiveMotionEffector *v38; 
   vec3_t outOrigin; 
   vec3_t center; 
   vec3_t to; 
-  __int64 v133; 
+  __int64 v42; 
   vec3_t from; 
   vec3_t dir; 
-  vec3_t v136; 
-  vec3_t v137; 
+  vec3_t v45; 
+  vec3_t v46; 
   WindParams outParams; 
   vec4_t color; 
-  char v140; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v133 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
-  _RBX = clientPos;
-  __asm { vmovaps xmm6, xmm2 }
-  _R14 = localClientNum;
+  v42 = -2i64;
+  v6 = localClientNum;
   CG_Wind_GetDefaultParams(&outParams);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbp+0B0h+outParams.defaultDir]
-    vmovss  dword ptr cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windDir, xmm4; ReactiveMotionParams g_reactiveMotionParams
-    vmovss  xmm0, dword ptr [rbp+0B0h+outParams.defaultDir+4]
-    vmovss  dword ptr cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windDir+4, xmm0; ReactiveMotionParams g_reactiveMotionParams
-    vmovss  xmm3, dword ptr [rbp+0B0h+outParams.defaultDir+8]
-    vmovss  dword ptr cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windDir+8, xmm3; ReactiveMotionParams g_reactiveMotionParams
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm14, cs:__real@3f800000
-    vsubss  xmm0, xmm3, xmm14
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-  }
-  if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 927, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( g_reactiveMotionParams.windDir ))", (const char *)&queryFormat, "Vec3IsNormalized( g_reactiveMotionParams.windDir )") )
+  g_reactiveMotionParams.windDir.v[0] = outParams.defaultDir.v[0];
+  g_reactiveMotionParams.windDir.v[1] = outParams.defaultDir.v[1];
+  g_reactiveMotionParams.windDir.v[2] = outParams.defaultDir.v[2];
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outParams.defaultDir.v[1] * outParams.defaultDir.v[1]) + (float)(g_reactiveMotionParams.windDir.v[0] * g_reactiveMotionParams.windDir.v[0])) + (float)(outParams.defaultDir.v[2] * outParams.defaultDir.v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 927, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( g_reactiveMotionParams.windDir ))", (const char *)&queryFormat, "Vec3IsNormalized( g_reactiveMotionParams.windDir )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rbp+0B0h+outParams.defaultStrength]
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windStrength, xmm0; ReactiveMotionParams g_reactiveMotionParams
-    vmovss  xmm1, [rbp+0B0h+outParams.defaultAreaScale]
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windAreaScale, xmm1; ReactiveMotionParams g_reactiveMotionParams
-    vmovss  xmm0, [rbp+0B0h+outParams.defaultAmplitudeScale]
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windAmplitudeScale, xmm0; ReactiveMotionParams g_reactiveMotionParams
-    vmovss  xmm1, [rbp+0B0h+outParams.defaultNoiseStrength]
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windNoiseScale, xmm1; ReactiveMotionParams g_reactiveMotionParams
-    vmulss  xmm0, xmm6, [rbp+0B0h+outParams.defaultFrequencyScale]
-    vaddss  xmm0, xmm0, cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windTimeSec; X
-    vmovss  xmm1, cs:__real@4728c000; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windTimeSec, xmm0; ReactiveMotionParams g_reactiveMotionParams }
+  g_reactiveMotionParams.windStrength = outParams.defaultStrength;
+  g_reactiveMotionParams.windAreaScale = outParams.defaultAreaScale;
+  g_reactiveMotionParams.windAmplitudeScale = outParams.defaultAmplitudeScale;
+  g_reactiveMotionParams.windNoiseScale = outParams.defaultNoiseStrength;
+  g_reactiveMotionParams.windTimeSec = fmodf_0((float)(deltaGameTimeSec * outParams.defaultFrequencyScale) + g_reactiveMotionParams.windTimeSec, 43200.0);
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 937, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", "%s\n\tAccessing networked dvars must be done from the main thread", "Sys_IsMainThread()") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rsp+1B0h+from], xmm0
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+1B0h+from+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+0B0h+from+8], xmm0
-  }
-  v40 = DVARFLT_r_reactiveMotionPlayerHeightAdjust;
+  from = *clientPos;
+  v7 = DVARFLT_r_reactiveMotionPlayerHeightAdjust;
   if ( !DVARFLT_r_reactiveMotionPlayerHeightAdjust && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionPlayerHeightAdjust") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v40);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0B0h+from+8]
-    vaddss  xmm1, xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbp+0B0h+from+8], xmm1
-  }
-  _RDI = DVARFLT_r_reactiveMotionVelocityTailScale;
+  Dvar_CheckFrontendServerThread(v7);
+  from.v[2] = from.v[2] + v7->current.value;
+  v8 = DVARFLT_r_reactiveMotionVelocityTailScale;
   if ( !DVARFLT_r_reactiveMotionVelocityTailScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionVelocityTailScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.velocityTailScale, xmm0; ReactiveMotionParams g_reactiveMotionParams
-  }
-  _RDI = DVARFLT_r_reactiveMotionEffectorStrengthScale;
+  Dvar_CheckFrontendServerThread(v8);
+  LODWORD(g_reactiveMotionParams.velocityTailScale) = v8->current.integer;
+  v9 = DVARFLT_r_reactiveMotionEffectorStrengthScale;
   if ( !DVARFLT_r_reactiveMotionEffectorStrengthScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionEffectorStrengthScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.effectorStrengthScale, xmm0; ReactiveMotionParams g_reactiveMotionParams
-  }
-  R_ReactiveMotion_SortEffectors(_RBX);
+  Dvar_CheckFrontendServerThread(v9);
+  LODWORD(g_reactiveMotionParams.effectorStrengthScale) = v9->current.integer;
+  R_ReactiveMotion_SortEffectors(clientPos);
   ReactiveMotionEffector_GetPos(g_reactiveMotionParams.effectors, &outOrigin);
-  __asm
+  v10 = 0;
+  if ( (float)((float)((float)((float)(from.v[1] - outOrigin.v[1]) * (float)(from.v[1] - outOrigin.v[1])) + (float)((float)(from.v[0] - outOrigin.v[0]) * (float)(from.v[0] - outOrigin.v[0]))) + (float)((float)(from.v[2] - outOrigin.v[2]) * (float)(from.v[2] - outOrigin.v[2]))) > 3600.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+1B0h+from]
-    vsubss  xmm3, xmm0, dword ptr [rsp+1B0h+outOrigin]
-    vmovss  xmm1, dword ptr [rsp+1B0h+from+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+1B0h+outOrigin+4]
-    vmovss  xmm0, dword ptr [rbp+0B0h+from+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+1B0h+outOrigin+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
+    s_reactiveMotionGlobFrameData.clientData[v6].avgVel = 0.0;
+    s_reactiveMotionGlobFrameData.clientData[v6].avgVelPeak = 1.0;
   }
-  _R12 = &s_reactiveMotionGlobFrameData;
-  v59 = 0;
-  __asm { vcomiss xmm4, cs:__real@45610000 }
   SetSecureVec3(&from, &g_reactiveMotionParams.effectors[0].pos, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
-  _RAX = clientVel;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rax+4]
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm3, dword ptr [rax+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm7, xmm2, xmm2
-  }
-  _RDI = DVARFLT_r_reactiveMotionPlayerRadius;
+  v12 = LODWORD(clientVel->v[0]);
+  *(float *)&v12 = fsqrt((float)((float)(clientVel->v[0] * clientVel->v[0]) + (float)(clientVel->v[1] * clientVel->v[1])) + (float)(clientVel->v[2] * clientVel->v[2]));
+  _XMM7 = v12;
+  v13 = DVARFLT_r_reactiveMotionPlayerRadius;
   if ( !DVARFLT_r_reactiveMotionPlayerRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionPlayerRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm13, dword ptr [rdi+28h] }
-  _RBX = &s_reactiveMotionGlobFrameData.clientData[0].avgVelPeak;
-  _RDI = DVARFLT_r_reactiveMotionPlayerPushFrequency;
+  Dvar_CheckFrontendServerThread(v13);
+  value = v13->current.value;
+  v15 = DVARFLT_r_reactiveMotionPlayerPushFrequency;
   if ( !DVARFLT_r_reactiveMotionPlayerPushFrequency && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionPlayerPushFrequency") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm12, dword ptr [rdi+28h] }
-  _RDI = DVARFLT_r_reactiveMotionPlayerPushAmplitude;
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = v15->current.value;
+  v17 = DVARFLT_r_reactiveMotionPlayerPushAmplitude;
   if ( !DVARFLT_r_reactiveMotionPlayerPushAmplitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionPlayerPushAmplitude") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm11, dword ptr [rdi+28h] }
-  _RDI = DVARFLT_r_reactiveMotionPlayerPushDecay;
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = v17->current.value;
+  v19 = DVARFLT_r_reactiveMotionPlayerPushDecay;
   if ( !DVARFLT_r_reactiveMotionPlayerPushDecay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionPlayerPushDecay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rdi+28h]
-    vmovss  xmm6, dword ptr [r12+r14*8]
-    vmovss  xmm9, dword ptr [rbx+r14*8]
-    vmovss  xmm1, cs:__real@3dcccccd; min
-    vcomiss xmm7, xmm1
-  }
-  if ( v29 )
-    __asm { vmovaps xmm0, xmm1 }
-  else
+  Dvar_CheckFrontendServerThread(v19);
+  v20 = v19->current.value;
+  avgVel_low = LODWORD(s_reactiveMotionGlobFrameData.clientData[v6].avgVel);
+  avgVelPeak = s_reactiveMotionGlobFrameData.clientData[v6].avgVelPeak;
+  if ( *(float *)&v12 >= 0.1 )
     __asm { vminss  xmm0, xmm7, xmm14 }
-  __asm
+  else
+    _XMM0 = LODWORD(FLOAT_0_1);
+  *(double *)&_XMM0 = I_fclamp((float)((float)(*(float *)&_XMM0 - *(float *)&avgVel_low) * 0.0099999998) + *(float *)&avgVel_low, 0.1, 1.0);
+  v24 = *(float *)&_XMM0;
+  if ( *(float *)&avgVel_low <= *(float *)&_XMM0 )
   {
-    vsubss  xmm0, xmm0, xmm6
-    vmulss  xmm2, xmm0, cs:__real@3c23d70a
-    vaddss  xmm0, xmm2, xmm6; val
-    vmovaps xmm2, xmm14; max
+    avgVel_low = _XMM0;
+    avgVelPeak = *(float *)&_XMM0;
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm8, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v29 | v88 )
-  {
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovaps xmm9, xmm0
-    }
-  }
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm10
-    vminss  xmm3, xmm1, xmm9
-    vsubss  xmm2, xmm9, xmm3
-    vdivss  xmm7, xmm2, xmm9
-    vmovss  dword ptr [rbx+r14*8], xmm9
-    vmovss  dword ptr [r12+r14*8], xmm3
-    vmulss  xmm1, xmm7, cs:__real@40c90fdb
-    vmulss  xmm0, xmm1, xmm12; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmulss  xmm0, xmm7, cs:__real@c0400000; X
-  }
-  expf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm2, xmm6, xmm0
-    vmulss  xmm1, xmm8, xmm11
-    vmulss  xmm2, xmm2, xmm1
-    vsubss  xmm0, xmm13, xmm2
-    vmovss  cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.effectors.radius, xmm0; ReactiveMotionParams g_reactiveMotionParams
-    vxorps  xmm1, xmm1, xmm1
-    vmovups xmmword ptr cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.effectors.velDir, xmm1; ReactiveMotionParams g_reactiveMotionParams
-  }
-  v102 = 1;
+  v26 = avgVel_low;
+  *(float *)&v26 = *(float *)&avgVel_low * v20;
+  _XMM1 = v26;
+  __asm { vminss  xmm3, xmm1, xmm9 }
+  v28 = (float)(avgVelPeak - *(float *)&_XMM3) / avgVelPeak;
+  s_reactiveMotionGlobFrameData.clientData[v6].avgVelPeak = avgVelPeak;
+  s_reactiveMotionGlobFrameData.clientData[v6].avgVel = *(float *)&_XMM3;
+  v29 = sinf_0((float)(v28 * 6.2831855) * v16);
+  g_reactiveMotionParams.effectors[0].radius = value - (float)((float)(v29 * expf_0(v28 * -3.0)) * (float)(v24 * v18));
+  *(_OWORD *)g_reactiveMotionParams.effectors[0].velDir.v = 0i64;
+  v30 = 1;
   memset(&outOrigin, 0, sizeof(outOrigin));
-  v103 = s_numReactiveMotionSpheres[0];
+  v31 = s_numReactiveMotionSpheres[0];
   if ( s_numReactiveMotionSpheres[0] > 0 )
   {
-    v104 = 0i64;
+    v32 = 0i64;
     do
     {
-      if ( v102 >= 0xF )
+      if ( v30 >= 0xF )
         break;
-      _RBX = &g_reactiveMotionParams.effectors[v102++];
-      _RDI = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v104;
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3519, ASSERT_TYPE_ASSERT, "(reactiveMotionSphere)", (const char *)&queryFormat, "reactiveMotionSphere") )
+      v33 = &g_reactiveMotionParams.effectors[v30++];
+      v34 = &s_reactiveMotionSpheres + 128 * (__int64)s_curReactiveMotionSphereFrame + v32;
+      if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3519, ASSERT_TYPE_ASSERT, "(reactiveMotionSphere)", (const char *)&queryFormat, "reactiveMotionSphere") )
         __debugbreak();
-      GetSecureVec3(&_RDI->pos, &to, s_reactivemotionsphere_aab_X, s_reactivemotionsphere_aab_Y, s_reactivemotionsphere_aab_Z);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3501, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
+      GetSecureVec3(&v34->pos, &to, s_reactivemotionsphere_aab_X, s_reactivemotionsphere_aab_Y, s_reactivemotionsphere_aab_Z);
+      if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3501, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
         __debugbreak();
-      SetSecureVec3(&to, &_RBX->pos, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
-      _RBX->radius = _RDI->radius;
-      _RBX->velDir.v[0] = _RDI->velDir.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+14h]
-        vmovss  dword ptr [rbx+14h], xmm0
-        vmovss  xmm1, dword ptr [rdi+18h]
-        vmovss  dword ptr [rbx+18h], xmm1
-      }
-      _RBX->velMag = _RDI->velMag;
+      SetSecureVec3(&to, &v33->pos, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
+      v33->radius = v34->radius;
+      v33->velDir.v[0] = v34->velDir.v[0];
+      v33->velDir.v[1] = v34->velDir.v[1];
+      v33->velDir.v[2] = v34->velDir.v[2];
+      v33->velMag = v34->velMag;
       memset(&to, 0, sizeof(to));
-      ++v104;
+      ++v32;
     }
-    while ( v104 < v103 );
-    v59 = 0;
+    while ( v32 < v31 );
+    v10 = 0;
   }
-  g_reactiveMotionParams.numEffectors = v102;
+  g_reactiveMotionParams.numEffectors = v30;
   s_numReactiveMotionSpheres[0] = 0;
   s_curReactiveMotionSphereFrame = 0;
-  _RDI = DVARFLT_r_reactiveMotionActorRadius;
+  v35 = DVARFLT_r_reactiveMotionActorRadius;
   if ( !DVARFLT_r_reactiveMotionActorRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionActorRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  cs:s_reactiveMotionGlobFrameData.defaultActorRadius, xmm0
-  }
-  _RDI = DVARFLT_r_reactiveMotionActorVelocityMax;
+  Dvar_CheckFrontendServerThread(v35);
+  LODWORD(s_reactiveMotionGlobFrameData.defaultActorRadius) = v35->current.integer;
+  v36 = DVARFLT_r_reactiveMotionActorVelocityMax;
   if ( !DVARFLT_r_reactiveMotionActorVelocityMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionActorVelocityMax") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  cs:s_reactiveMotionGlobFrameData.defaultActorVelocityMax, xmm0
-  }
-  v113 = DVARBOOL_r_reactiveMotionEffectorDebugDraw;
+  Dvar_CheckFrontendServerThread(v36);
+  LODWORD(s_reactiveMotionGlobFrameData.defaultActorVelocityMax) = v36->current.integer;
+  v37 = DVARBOOL_r_reactiveMotionEffectorDebugDraw;
   if ( !DVARBOOL_r_reactiveMotionEffectorDebugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_reactiveMotionEffectorDebugDraw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v113);
-  if ( v113->current.enabled )
+  Dvar_CheckFrontendServerThread(v37);
+  if ( v37->current.enabled )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+0B0h+dir], xmm14
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rbp+0B0h+dir+4], xmm0
-      vmovss  dword ptr [rbp+0B0h+dir+8], xmm0
-      vmovss  dword ptr [rbp+0B0h+var_118], xmm0
-      vmovss  dword ptr [rbp+0B0h+var_118+4], xmm14
-      vmovss  dword ptr [rbp+0B0h+var_118+8], xmm0
-      vmovss  dword ptr [rbp+0B0h+var_108], xmm0
-      vmovss  dword ptr [rbp+0B0h+var_108+4], xmm0
-      vmovss  dword ptr [rbp+0B0h+var_108+8], xmm14
-      vmovups xmm0, cs:__xmm@3f800000000000003f8000003f800000
-      vmovups xmmword ptr [rbp+0B0h+color], xmm0
-    }
+    dir.v[0] = FLOAT_1_0;
+    dir.v[1] = 0.0;
+    dir.v[2] = 0.0;
+    v45.v[0] = 0.0;
+    v45.v[1] = FLOAT_1_0;
+    v45.v[2] = 0.0;
+    v46.v[0] = 0.0;
+    v46.v[1] = 0.0;
+    v46.v[2] = FLOAT_1_0;
+    color = (vec4_t)_xmm;
     if ( g_reactiveMotionParams.numEffectors )
     {
       do
       {
-        _RDI = &g_reactiveMotionParams.effectors[v59];
-        if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3482, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
+        v38 = &g_reactiveMotionParams.effectors[v10];
+        if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reactive_motion.cpp", 3482, ASSERT_TYPE_ASSERT, "(reactiveMotionEffector)", (const char *)&queryFormat, "reactiveMotionEffector") )
           __debugbreak();
-        GetSecureVec3(&_RDI->pos, &center, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
-        __asm { vmovss  xmm1, dword ptr [rdi+0Ch]; radius }
-        R_DebugCircle(&center, *(double *)&_XMM1, &dir, &color);
-        __asm { vmovss  xmm1, dword ptr [rdi+0Ch]; radius }
-        R_DebugCircle(&center, *(double *)&_XMM1, &v136, &color);
-        __asm { vmovss  xmm1, dword ptr [rdi+0Ch]; radius }
-        R_DebugCircle(&center, *(double *)&_XMM1, &v137, &color);
-        ++v59;
+        GetSecureVec3(&v38->pos, &center, s_reactivemotion_aab_X, s_reactivemotion_aab_Y, s_reactivemotion_aab_Z);
+        R_DebugCircle(&center, v38->radius, &dir, &color);
+        R_DebugCircle(&center, v38->radius, &v45, &color);
+        R_DebugCircle(&center, v38->radius, &v46, &color);
+        ++v10;
       }
-      while ( v59 < g_reactiveMotionParams.numEffectors );
+      while ( v10 < g_reactiveMotionParams.numEffectors );
     }
     memset(&center, 0, sizeof(center));
-  }
-  _R11 = &v140;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
   }
 }
 
@@ -2906,6 +2541,8 @@ __int64 R_ToggleReactiveMotionFrame()
   __int64 v2; 
   bool enabled; 
   unsigned int v4; 
+  __m256i v5; 
+  __m256i v6; 
   __int64 result; 
 
   frame = s_reactiveMotionGlobFrameData.frame;
@@ -2922,17 +2559,11 @@ __int64 R_ToggleReactiveMotionFrame()
   Dvar_CheckFrontendServerThread(v1);
   enabled = v1->current.enabled;
   v4 = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.windDir; ReactiveMotionParams g_reactiveMotionParams
-    vmovups ymm1, ymmword ptr cs:?g_reactiveMotionParams@@3UReactiveMotionParams@@A.velocityTailScale; ReactiveMotionParams g_reactiveMotionParams
-  }
+  v5 = *(__m256i *)g_reactiveMotionParams.windDir.v;
+  v6 = *(__m256i *)&g_reactiveMotionParams.velocityTailScale;
   s_reactiveMotionGlobFrameData.frameData[v2].bUsesClutterSupport = enabled;
-  __asm
-  {
-    vmovups ymmword ptr cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.windDir, ymm0; ReactiveMotionParams g_backendReactiveMotionParams
-    vmovups ymmword ptr cs:?g_backendReactiveMotionParams@@3UReactiveMotionParams@@A.velocityTailScale, ymm1; ReactiveMotionParams g_backendReactiveMotionParams
-  }
+  *(__m256i *)g_backendReactiveMotionParams.windDir.v = v5;
+  *(__m256i *)&g_backendReactiveMotionParams.velocityTailScale = v6;
   s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionClutterLayerCount = 0;
   s_reactiveMotionGlobFrameData.frameData[v2].reactiveMotionDataCurrentModelPartOffset = 0;
   do

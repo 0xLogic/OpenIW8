@@ -58,159 +58,69 @@ void Com_MemDumpInit(void)
 Com_MemDumpCommon
 ==============
 */
-
-void __fastcall Com_MemDumpCommon(double _XMM0_8)
+void Com_MemDumpCommon(void)
 {
+  float CommitSize; 
+  float v1; 
+  float CommitSizeBanks; 
+  float CommitSizeAlwaysLoadedBanks; 
+  float CommitSizeCurrentTransientBanks; 
+  float v5; 
+  float v6; 
+  float v7; 
   ntl::nxheap *Heap; 
-  ntl::nxheap *v54; 
-  bool v55; 
+  float m_used_mem; 
+  float m_used_mem_max; 
+  ntl::nxheap *v11; 
+  bool v12; 
   ntl::nxheap_region *p_mp_top_ptr; 
-  ntl::nxheap *v57; 
+  ntl::nxheap *v14; 
+  void *mp_start_ptr; 
   void *mp_top_ptr; 
+  float v17; 
+  float v18; 
+  float MinFreeSize; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  Mem_Virtual_GetCommitSize();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@35800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm6
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "mem_virtual commit", *(double *)&_XMM2);
-  SD_GetCommitSize();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit", *(double *)&_XMM2);
-  SD_GetCommitSizeBanks();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit (banks)", *(double *)&_XMM2);
-  SD_GetCommitSizeAlwaysLoadedBanks();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit (always loaded banks)", *(double *)&_XMM2);
-  SD_GetCommitSizeCurrentTransientBanks();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit (current transient banks)", *(double *)&_XMM2);
-  R_RT_GetCommitSize();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "RT commit", *(double *)&_XMM2);
-  Mem_NewDeleteHeap_GetTotalSize();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "NewDelete heap total", *(double *)&_XMM2);
-  Mem_NewDeleteHeap_GetFreeSize();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "NewDelete heap free", *(double *)&_XMM2);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  CommitSize = (float)(__int64)Mem_Virtual_GetCommitSize();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "mem_virtual commit", (float)(CommitSize * 0.00000095367432));
+  v1 = (float)(__int64)SD_GetCommitSize();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit", (float)(v1 * 0.00000095367432));
+  CommitSizeBanks = (float)(__int64)SD_GetCommitSizeBanks();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit (banks)", (float)(CommitSizeBanks * 0.00000095367432));
+  CommitSizeAlwaysLoadedBanks = (float)(__int64)SD_GetCommitSizeAlwaysLoadedBanks();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit (always loaded banks)", (float)(CommitSizeAlwaysLoadedBanks * 0.00000095367432));
+  CommitSizeCurrentTransientBanks = (float)(__int64)SD_GetCommitSizeCurrentTransientBanks();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "sound commit (current transient banks)", (float)(CommitSizeCurrentTransientBanks * 0.00000095367432));
+  v5 = (float)R_RT_GetCommitSize();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "RT commit", (float)(v5 * 0.00000095367432));
+  v6 = (float)(__int64)Mem_NewDeleteHeap_GetTotalSize();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "NewDelete heap total", (float)(v6 * 0.00000095367432));
+  v7 = (float)(__int64)Mem_NewDeleteHeap_GetFreeSize();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "NewDelete heap free", (float)(v7 * 0.00000095367432));
   Heap = DW_GetHeap();
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, qword ptr [rax+30h]
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "DW heap used", *(double *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, qword ptr [rsi+40h]
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "DW heap max used", *(double *)&_XMM2);
-  v54 = Heap->mp_parent_region->mp_heap[0];
-  v55 = v54 == NULL;
-  p_mp_top_ptr = (ntl::nxheap_region *)&v54->mp_top_ptr;
-  v57 = Heap->mp_parent_region->mp_heap[1];
-  if ( v55 )
+  m_used_mem = (float)(__int64)Heap->m_used_mem;
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "DW heap used", (float)(m_used_mem * 0.00000095367432));
+  m_used_mem_max = (float)(__int64)Heap->m_used_mem_max;
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "DW heap max used", (float)(m_used_mem_max * 0.00000095367432));
+  v11 = Heap->mp_parent_region->mp_heap[0];
+  v12 = v11 == NULL;
+  p_mp_top_ptr = (ntl::nxheap_region *)&v11->mp_top_ptr;
+  v14 = Heap->mp_parent_region->mp_heap[1];
+  if ( v12 )
     p_mp_top_ptr = Heap->mp_parent_region;
-  if ( v57 )
-    mp_top_ptr = v57->mp_top_ptr;
+  mp_start_ptr = p_mp_top_ptr->mp_start_ptr;
+  if ( v14 )
+    mp_top_ptr = v14->mp_top_ptr;
   else
     mp_top_ptr = Heap->mp_parent_region->mp_end_ptr;
-  if ( mp_top_ptr < p_mp_top_ptr->mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
+  if ( mp_top_ptr < mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "DW heap min free", *(double *)&_XMM2);
-  HttpHeapLargestFreeBlock();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "http largest free", *(double *)&_XMM2);
-  HttpHeapGetMinFreeSize();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "http min free", *(double *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  v17 = (float)(__int64)((__int64)mp_top_ptr + Heap->m_free_fragment_mem - (_QWORD)mp_start_ptr);
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "DW heap min free", (float)(v17 * 0.00000095367432));
+  v18 = (float)(__int64)HttpHeapLargestFreeBlock();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "http largest free", (float)(v18 * 0.00000095367432));
+  MinFreeSize = (float)(__int64)HttpHeapGetMinFreeSize();
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", "http min free", (float)(MinFreeSize * 0.00000095367432));
   Com_MemDumpPrintf("----------------------------------------------------------------------------------------------------------------------\n");
 }
 
@@ -249,15 +159,10 @@ Com_MemDumpStatsLine
 */
 void Com_MemDumpStatsLine(const char *name, const unsigned __int64 size)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, cs:__real@35800000
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_MemDumpPrintf("%-34.34s %-10.3f\n", name, *(double *)&_XMM2);
+  float v2; 
+
+  v2 = (float)(__int64)size;
+  Com_MemDumpPrintf("%-34.34s %-10.3f\n", name, (float)(v2 * 0.00000095367432));
 }
 
 /*

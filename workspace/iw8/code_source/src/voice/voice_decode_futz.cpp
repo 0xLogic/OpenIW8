@@ -253,162 +253,144 @@ void VoiceDecode_FutzInitAssets(VoiceFutz *futz, unsigned int startAliasId, unsi
 {
   sd_decoder *inDec; 
   const SndAliasList *AliasFromId; 
-  const SndAliasList *v13; 
+  const SndAliasList *v10; 
+  SndAlias *head; 
+  float volMin; 
+  double v13; 
+  double v14; 
   sd_decoder *loopDec; 
-  const SndAliasList *v21; 
-  const SndAliasList *v22; 
+  const SndAliasList *v16; 
+  const SndAliasList *v17; 
+  SndAlias *v18; 
+  float v19; 
+  double v20; 
+  double v21; 
   sd_decoder *outDec; 
-  const SndAliasList *v30; 
-  const SndAliasList *v31; 
+  const SndAliasList *v23; 
+  const SndAliasList *v24; 
+  SndAlias *v25; 
+  float v26; 
+  double v27; 
+  double v28; 
   sd_source *decInSource; 
   sd_source *decLoopSource; 
   sd_source *decOutSource; 
 
-  _RDI = futz;
-  __asm { vmovaps [rsp+48h+var_28], xmm6 }
   if ( futz->curInAlias != startAliasId && futz->playbackState == PLAY_DONE )
   {
     inDec = futz->inDec;
     if ( inDec )
     {
       SD_DecoderFree(inDec);
-      _RDI->inDec = NULL;
+      futz->inDec = NULL;
     }
-    SD_SourceShutdown(_RDI->decInSource);
+    SD_SourceShutdown(futz->decInSource);
     if ( startAliasId )
     {
       AliasFromId = SND_FindAliasFromId(startAliasId);
-      v13 = AliasFromId;
+      v10 = AliasFromId;
       if ( AliasFromId )
       {
-        if ( VoiceDecode_FutzAllocateSource(AliasFromId, _RDI->decInSource) )
+        if ( VoiceDecode_FutzAllocateSource(AliasFromId, futz->decInSource) )
         {
-          _RBX = v13->head;
-          __asm { vmovss  xmm6, dword ptr [rbx+4Ch] }
-          *(double *)&_XMM0 = I_random();
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+50h]
-            vsubss  xmm2, xmm1, xmm6
-            vmulss  xmm0, xmm0, xmm2
-            vmovss  xmm2, cs:__real@40800000; max
-            vaddss  xmm0, xmm0, xmm6; val
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovss  dword ptr [rdi+70h], xmm0 }
+          head = v10->head;
+          volMin = head->volMin;
+          v13 = I_random();
+          v14 = I_fclamp((float)(*(float *)&v13 * (float)(head->volMax - volMin)) + volMin, 0.0, 4.0);
+          futz->inDecVolume = *(float *)&v14;
         }
       }
     }
-    _RDI->curInAlias = startAliasId;
+    futz->curInAlias = startAliasId;
   }
-  if ( _RDI->curLoopAlias != loopAliasId && _RDI->playbackState == PLAY_DONE )
+  if ( futz->curLoopAlias != loopAliasId && futz->playbackState == PLAY_DONE )
   {
-    loopDec = _RDI->loopDec;
+    loopDec = futz->loopDec;
     if ( loopDec )
     {
       SD_DecoderFree(loopDec);
-      _RDI->loopDec = NULL;
+      futz->loopDec = NULL;
     }
-    SD_SourceShutdown(_RDI->decLoopSource);
+    SD_SourceShutdown(futz->decLoopSource);
     if ( loopAliasId )
     {
-      v21 = SND_FindAliasFromId(loopAliasId);
-      v22 = v21;
-      if ( v21 )
+      v16 = SND_FindAliasFromId(loopAliasId);
+      v17 = v16;
+      if ( v16 )
       {
-        if ( VoiceDecode_FutzAllocateSource(v21, _RDI->decLoopSource) )
+        if ( VoiceDecode_FutzAllocateSource(v16, futz->decLoopSource) )
         {
-          _RBX = v22->head;
-          __asm { vmovss  xmm6, dword ptr [rbx+4Ch] }
-          *(double *)&_XMM0 = I_random();
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+50h]
-            vsubss  xmm2, xmm1, xmm6
-            vmulss  xmm0, xmm0, xmm2
-            vmovss  xmm2, cs:__real@40800000; max
-            vaddss  xmm0, xmm0, xmm6; val
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovss  dword ptr [rdi+88h], xmm0 }
+          v18 = v17->head;
+          v19 = v18->volMin;
+          v20 = I_random();
+          v21 = I_fclamp((float)(*(float *)&v20 * (float)(v18->volMax - v19)) + v19, 0.0, 4.0);
+          futz->loopDecVolume = *(float *)&v21;
         }
       }
     }
-    _RDI->curLoopAlias = loopAliasId;
+    futz->curLoopAlias = loopAliasId;
   }
-  if ( _RDI->curOutAlias != stopAliasId && _RDI->playbackState == PLAY_DONE )
+  if ( futz->curOutAlias != stopAliasId && futz->playbackState == PLAY_DONE )
   {
-    outDec = _RDI->outDec;
+    outDec = futz->outDec;
     if ( outDec )
     {
       SD_DecoderFree(outDec);
-      _RDI->outDec = NULL;
+      futz->outDec = NULL;
     }
-    SD_SourceShutdown(_RDI->decOutSource);
+    SD_SourceShutdown(futz->decOutSource);
     if ( stopAliasId )
     {
-      v30 = SND_FindAliasFromId(stopAliasId);
-      v31 = v30;
-      if ( v30 )
+      v23 = SND_FindAliasFromId(stopAliasId);
+      v24 = v23;
+      if ( v23 )
       {
-        if ( VoiceDecode_FutzAllocateSource(v30, _RDI->decOutSource) )
+        if ( VoiceDecode_FutzAllocateSource(v23, futz->decOutSource) )
         {
-          _RBX = v31->head;
-          __asm { vmovss  xmm6, dword ptr [rbx+4Ch] }
-          *(double *)&_XMM0 = I_random();
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rbx+50h]
-            vmovss  xmm2, cs:__real@40800000; max
-            vsubss  xmm4, xmm3, xmm6
-            vmulss  xmm0, xmm0, xmm4
-            vaddss  xmm0, xmm0, xmm6; val
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovss  dword ptr [rdi+0A0h], xmm0 }
+          v25 = v24->head;
+          v26 = v25->volMin;
+          v27 = I_random();
+          v28 = I_fclamp((float)(*(float *)&v27 * (float)(v25->volMax - v26)) + v26, 0.0, 4.0);
+          futz->outDecVolume = *(float *)&v28;
         }
       }
     }
-    _RDI->curOutAlias = stopAliasId;
+    futz->curOutAlias = stopAliasId;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_28] }
-  if ( !_RDI->inDec )
+  if ( !futz->inDec )
   {
-    decInSource = _RDI->decInSource;
+    decInSource = futz->decInSource;
     if ( decInSource->entry )
     {
       decInSource->stream = NULL;
       *(_WORD *)&decInSource->primed = 1;
       decInSource->eos = 0;
       decInSource->startFrame = 0i64;
-      _RDI->inDec = SD_DecoderAllocate(decInSource);
+      futz->inDec = SD_DecoderAllocate(decInSource);
     }
   }
-  if ( !_RDI->loopDec )
+  if ( !futz->loopDec )
   {
-    decLoopSource = _RDI->decLoopSource;
+    decLoopSource = futz->decLoopSource;
     if ( decLoopSource->entry )
     {
       decLoopSource->stream = NULL;
       *(_WORD *)&decLoopSource->primed = 1;
       decLoopSource->eos = 0;
       decLoopSource->startFrame = 0i64;
-      _RDI->loopDec = SD_DecoderAllocate(decLoopSource);
+      futz->loopDec = SD_DecoderAllocate(decLoopSource);
     }
   }
-  if ( !_RDI->outDec )
+  if ( !futz->outDec )
   {
-    decOutSource = _RDI->decOutSource;
+    decOutSource = futz->decOutSource;
     if ( decOutSource->entry )
     {
       decOutSource->stream = NULL;
       *(_WORD *)&decOutSource->primed = 1;
       decOutSource->eos = 0;
       decOutSource->startFrame = 0i64;
-      _RDI->outDec = SD_DecoderAllocate(decOutSource);
+      futz->outDec = SD_DecoderAllocate(decOutSource);
     }
   }
 }
@@ -420,41 +402,34 @@ VoiceDecode_FutzMix
 */
 void VoiceDecode_FutzMix(unsigned int *maxSamplesDecoded)
 {
-  unsigned int v4; 
+  unsigned int v2; 
   sd_decoder **p_inDec; 
-  volatile __int32 *v6; 
-  __int64 v7; 
-  int v8; 
-  sd_decoder *v9; 
-  sd_decoder *v10; 
+  volatile __int32 *v4; 
+  __int64 v5; 
+  int v6; 
+  sd_decoder *v7; 
+  sd_decoder *v8; 
 
   if ( s_futzParamsPending.isNew )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_futzParamsPending.isNew
-      vmovups ymm1, ymmword ptr cs:s_futzParamsPending.futzDspParams.pregain
-      vmovups ymmword ptr cs:s_futzParamsCurrent.isNew, ymm0
-      vmovups ymmword ptr cs:s_futzParamsCurrent.futzDspParams.pregain, ymm1
-    }
-    s_futzParamsCurrent.stopAliasId = s_futzParamsPending.stopAliasId;
+    s_futzParamsCurrent = s_futzParamsPending;
     s_futzParamsPending.isNew = 0;
   }
-  v4 = 0;
+  v2 = 0;
   p_inDec = &s_voiceFutzPool[0].inDec;
   do
   {
-    v6 = (volatile __int32 *)(p_inDec - 13);
+    v4 = (volatile __int32 *)(p_inDec - 13);
     if ( *((_DWORD *)p_inDec - 26) == 2 )
     {
-      v7 = *((int *)p_inDec - 25);
+      v5 = *((int *)p_inDec - 25);
       VoiceDecode_FutzInitAssets((VoiceFutz *)(p_inDec - 13), s_futzParamsCurrent.startAliasId, s_futzParamsCurrent.loopAliasId, s_futzParamsCurrent.stopAliasId);
-      v8 = maxSamplesDecoded[v7];
-      if ( (unsigned int)v7 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd.h", 616, ASSERT_TYPE_ASSERT, "(i<SND_VOICE_BUS_COUNT)", (const char *)&queryFormat, "i<SND_VOICE_BUS_COUNT") )
+      v6 = maxSamplesDecoded[v5];
+      if ( (unsigned int)v5 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd.h", 616, ASSERT_TYPE_ASSERT, "(i<SND_VOICE_BUS_COUNT)", (const char *)&queryFormat, "i<SND_VOICE_BUS_COUNT") )
         __debugbreak();
-      VoiceDecode_FutzProcess((VoiceFutz *)(p_inDec - 13), &g_sd.voiceBusBuffers[(_DWORD)v7 << 8], v8, 256, &s_futzParamsCurrent.futzDspParams);
+      VoiceDecode_FutzProcess((VoiceFutz *)(p_inDec - 13), &g_sd.voiceBusBuffers[(_DWORD)v5 << 8], v6, 256, &s_futzParamsCurrent.futzDspParams);
     }
-    else if ( *v6 == 3 )
+    else if ( *v4 == 3 )
     {
       if ( *p_inDec )
       {
@@ -462,28 +437,28 @@ void VoiceDecode_FutzMix(unsigned int *maxSamplesDecoded)
         *p_inDec = NULL;
       }
       SD_SourceShutdown((sd_source *)*(p_inDec - 1));
-      v9 = p_inDec[3];
-      if ( v9 )
+      v7 = p_inDec[3];
+      if ( v7 )
       {
-        SD_DecoderFree(v9);
+        SD_DecoderFree(v7);
         p_inDec[3] = NULL;
       }
       SD_SourceShutdown((sd_source *)p_inDec[2]);
-      v10 = p_inDec[6];
-      if ( v10 )
+      v8 = p_inDec[6];
+      if ( v8 )
       {
-        SD_DecoderFree(v10);
+        SD_DecoderFree(v8);
         p_inDec[6] = NULL;
       }
       SD_SourceShutdown((sd_source *)p_inDec[5]);
-      if ( ((unsigned __int8)v6 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", p_inDec - 13) )
+      if ( ((unsigned __int8)v4 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", p_inDec - 13) )
         __debugbreak();
-      _InterlockedExchange(v6, 0);
+      _InterlockedExchange(v4, 0);
     }
-    ++v4;
+    ++v2;
     p_inDec += 21;
   }
-  while ( v4 < 8 );
+  while ( v2 < 8 );
 }
 
 /*
@@ -493,266 +468,222 @@ VoiceDecode_FutzProcess
 */
 void VoiceDecode_FutzProcess(VoiceFutz *futz, float *inPlace, int count, int maxCount, const SndDspFutzParam *futzParams)
 {
-  unsigned __int64 v9; 
-  int v12; 
-  int v13; 
-  int v15; 
+  unsigned __int64 v5; 
+  int v8; 
+  int v9; 
+  int v10; 
   sd_decoder *loopDec; 
-  int v19; 
-  __int64 v20; 
-  unsigned int v21; 
-  float *v22; 
-  __int64 v24; 
-  __int64 v28; 
+  int v12; 
+  __int64 v13; 
+  unsigned int v14; 
+  float *v15; 
+  __m128 loopDecVolume_low; 
+  __int64 v17; 
+  unsigned __int64 v20; 
+  __int64 v21; 
+  __m256i v22; 
   sd_decoder *outDec; 
-  int v33; 
-  float *v34; 
-  __int64 v36; 
-  __int64 v40; 
-  sd_decoder *v43; 
-  _DWORD *v44; 
+  int v24; 
+  float *v25; 
+  __m128 v26; 
+  __int64 v27; 
+  unsigned __int64 v30; 
+  __int64 v31; 
+  __m256i v32; 
+  sd_decoder *v33; 
+  _DWORD *v34; 
   __int64 i; 
-  int v47; 
-  int v49; 
-  unsigned int v50; 
-  unsigned int v51; 
-  __int64 v54; 
-  float *v56; 
+  int v36; 
+  __m128 inDecVolume_low; 
+  int v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  __int64 v43; 
+  float *v44; 
+  __m256 *v45; 
+  __m256i v46; 
   sd_decoder *inDec; 
   sd_source *decInSource; 
-  int v61; 
+  VoiceFutz::EFutzPlaybackState v49; 
   sd_source *decOutSource; 
-  __int64 v65; 
-  char v66[2096]; 
-  void *retaddr; 
+  __int64 v51; 
+  char v52[2096]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  v9 = (unsigned __int64)v66 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(v9 + 2080) = (unsigned __int64)&v65 ^ _security_cookie;
-  _RBX = futz;
-  *(_DWORD *)(v9 + 4) = maxCount;
-  *(_DWORD *)v9 = count;
-  v12 = maxCount;
-  v13 = count;
+  v5 = (unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v5 + 2080) = (unsigned __int64)&v51 ^ _security_cookie;
+  *(_DWORD *)(v5 + 4) = maxCount;
+  *(_DWORD *)v5 = count;
+  v8 = maxCount;
+  v9 = count;
   Sys_ProfBeginNamedEvent(0xFFFF00u, "VoiceDecode_FutzProcess");
-  if ( v13 > 0 )
+  if ( v9 > 0 )
+    SND_DspFutzMono(futzParams, &futz->futzDSPState, 48000.0, v9, inPlace, (float *)(v5 + 32), (float *)(v5 + 1056));
+  v10 = v8;
+  while ( v10 > 0 )
   {
-    __asm { vmovss  xmm2, cs:__real@473b8000; rate }
-    SND_DspFutzMono(futzParams, &_RBX->futzDSPState, *(float *)&_XMM2, v13, inPlace, (float *)(v9 + 32), (float *)(v9 + 1056));
-  }
-  v15 = v12;
-  if ( v12 > 0 )
-  {
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
-    do
+    if ( futz->playbackState == PLAY_START )
     {
-      if ( _RBX->playbackState == PLAY_START )
+      v49 = PLAY_LOOP;
+      if ( futz->inDec )
+        v49 = PLAY_IN;
+      futz->playbackState = v49;
+    }
+    else
+    {
+      if ( futz->playbackState == PLAY_IN )
       {
-        v61 = 4;
-        if ( _RBX->inDec )
-          v61 = 2;
-        _RBX->playbackState = v61;
+        v34 = (_DWORD *)(v5 + 32);
+        for ( i = 256i64; i; --i )
+          *v34++ = 0;
+        v36 = VoiceDecode_DecoderRead(futz->inDec, 1.0, (float *)(v5 + 32), v10);
+        inDecVolume_low = (__m128)LODWORD(futz->inDecVolume);
+        v38 = v36;
+        v39 = v36 + 7;
+        if ( (((_BYTE)v5 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v5 + 32) )
+          __debugbreak();
+        if ( ((unsigned __int8)inPlace & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", inPlace) )
+          __debugbreak();
+        v40 = v39 >> 3;
+        _YMM2 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(inDecVolume_low, inDecVolume_low, 0);
+        __asm { vinsertf128 ymm2, ymm2, xmm2, 1 }
+        if ( v40 )
+        {
+          v43 = v40;
+          v44 = inPlace;
+          v45 = (__m256 *)inPlace;
+          do
+          {
+            v44 += 8;
+            v46 = (__m256i)_mm256_add_ps(_mm256_mul_ps(_YMM2, *(__m256 *)((char *)v45 + v5 + 32 - (_QWORD)inPlace)), *v45);
+            ++v45;
+            *((__m256i *)v44 - 1) = v46;
+            --v43;
+          }
+          while ( v43 );
+        }
+        inDec = futz->inDec;
+        v10 -= v38;
+        if ( !inDec->output.count )
+        {
+          SD_DecoderFree(inDec);
+          decInSource = futz->decInSource;
+          decInSource->stream = NULL;
+          *(_WORD *)&decInSource->primed = 1;
+          decInSource->eos = 0;
+          decInSource->startFrame = 0i64;
+          futz->inDec = SD_DecoderAllocate(decInSource);
+          futz->playbackState = PLAY_LOOP;
+        }
       }
       else
       {
-        if ( _RBX->playbackState == PLAY_IN )
+        if ( futz->playbackState != PLAY_OUT )
         {
-          v44 = (_DWORD *)(v9 + 32);
-          for ( i = 256i64; i; --i )
-            *v44++ = 0;
-          __asm { vmovaps xmm1, xmm7; pitchRatio }
-          v47 = VoiceDecode_DecoderRead(_RBX->inDec, *(float *)&_XMM1, (float *)(v9 + 32), v15);
-          __asm { vmovss  xmm6, dword ptr [rbx+70h] }
-          v49 = v47;
-          v50 = v47 + 7;
-          if ( (((_BYTE)v9 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v9 + 32) )
-            __debugbreak();
-          if ( ((unsigned __int8)inPlace & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", inPlace) )
-            __debugbreak();
-          v51 = v50 >> 3;
-          __asm
+          if ( futz->playbackState == PLAY_LOOP )
           {
-            vmovaps xmm2, xmm6
-            vshufps xmm2, xmm2, xmm2, 0
-            vinsertf128 ymm2, ymm2, xmm2, 1
-          }
-          if ( v51 )
-          {
-            v54 = v51;
-            _RCX = inPlace;
-            v56 = inPlace;
-            do
+            loopDec = futz->loopDec;
+            if ( loopDec && (v12 = VoiceDecode_DecoderRead(loopDec, 1.0, (float *)(v5 + 32), v10), v13 = v12, v12 > 0) )
             {
-              _RCX += 8;
-              __asm
+              v14 = v12 + 7;
+              v15 = &inPlace[v8 - v10];
+              memcpy_0((void *)(v5 + 1056), v15, 4i64 * v12);
+              loopDecVolume_low = (__m128)LODWORD(futz->loopDecVolume);
+              if ( (((_BYTE)v5 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v5 + 32) )
+                __debugbreak();
+              if ( (((_BYTE)v5 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v5 + 1056) )
+                __debugbreak();
+              v17 = v14 >> 3;
+              _YMM2 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(loopDecVolume_low, loopDecVolume_low, 0);
+              __asm { vinsertf128 ymm2, ymm2, xmm2, 1 }
+              if ( (_DWORD)v17 )
               {
-                vmulps  ymm0, ymm2, ymmword ptr [rdi+rax]
-                vaddps  ymm1, ymm0, ymmword ptr [rax]
-              }
-              v56 += 8;
-              __asm { vmovups ymmword ptr [rcx-20h], ymm1 }
-              --v54;
-            }
-            while ( v54 );
-          }
-          inDec = _RBX->inDec;
-          v15 -= v49;
-          if ( !inDec->output.count )
-          {
-            SD_DecoderFree(inDec);
-            decInSource = _RBX->decInSource;
-            decInSource->stream = NULL;
-            *(_WORD *)&decInSource->primed = 1;
-            decInSource->eos = 0;
-            decInSource->startFrame = 0i64;
-            _RBX->inDec = SD_DecoderAllocate(decInSource);
-            _RBX->playbackState = PLAY_LOOP;
-          }
-        }
-        else
-        {
-          if ( _RBX->playbackState != PLAY_OUT )
-          {
-            if ( _RBX->playbackState == PLAY_LOOP )
-            {
-              loopDec = _RBX->loopDec;
-              if ( !loopDec )
-                goto LABEL_23;
-              __asm { vmovaps xmm1, xmm7; pitchRatio }
-              v19 = VoiceDecode_DecoderRead(loopDec, *(float *)&_XMM1, (float *)(v9 + 32), v15);
-              v20 = v19;
-              if ( v19 > 0 )
-              {
-                v21 = v19 + 7;
-                v22 = &inPlace[v12 - v15];
-                memcpy_0((void *)(v9 + 1056), v22, 4i64 * v19);
-                __asm { vmovss  xmm6, dword ptr [rbx+88h] }
-                if ( (((_BYTE)v9 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v9 + 32) )
-                  __debugbreak();
-                if ( (((_BYTE)v9 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v9 + 1056) )
-                  __debugbreak();
-                v24 = v21 >> 3;
-                __asm
+                v20 = v5 + 1056;
+                v21 = 0i64;
+                do
                 {
-                  vmovaps xmm2, xmm6
-                  vshufps xmm2, xmm2, xmm2, 0
-                  vinsertf128 ymm2, ymm2, xmm2, 1
+                  v20 += 32i64;
+                  v22 = (__m256i)_mm256_add_ps(_mm256_mul_ps(_YMM2, *(__m256 *)(v5 + v21 + 32)), *(__m256 *)(v5 + v21 + 1056));
+                  v21 += 32i64;
+                  *(__m256i *)(v20 - 32) = v22;
+                  --v17;
                 }
-                if ( (_DWORD)v24 )
-                {
-                  _RDX = v9 + 1056;
-                  v28 = 0i64;
-                  do
-                  {
-                    _RDX += 32i64;
-                    __asm
-                    {
-                      vmulps  ymm0, ymm2, ymmword ptr [rbp+rax+20h]
-                      vaddps  ymm1, ymm0, ymmword ptr [rbp+rax+420h]
-                    }
-                    v28 += 32i64;
-                    __asm { vmovups ymmword ptr [rdx-20h], ymm1 }
-                    --v24;
-                  }
-                  while ( v24 );
-                }
-                memcpy_0(v22, (const void *)(v9 + 1056), 4 * v20);
-                v12 = *(_DWORD *)(((unsigned __int64)v66 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
-                v15 -= v20;
-                v13 = *(_DWORD *)v9;
+                while ( v17 );
               }
-              else
-              {
-LABEL_23:
-                v15 = 0;
-              }
-              if ( v13 < v12 )
-              {
-                _RBX->playbackState = PLAY_OUT;
-                v15 = v12 - v13;
-              }
+              memcpy_0(v15, (const void *)(v5 + 1056), 4 * v13);
+              v8 = *(_DWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+              v10 -= v13;
+              v9 = *(_DWORD *)v5;
             }
             else
             {
-              if ( !v13 )
-                break;
-              _RBX->playbackState = PLAY_START;
+              v10 = 0;
             }
-            continue;
-          }
-          outDec = _RBX->outDec;
-          if ( !outDec )
-          {
-            _RBX->playbackState = PLAY_DONE;
-            break;
-          }
-          __asm { vmovaps xmm1, xmm7; pitchRatio }
-          v33 = VoiceDecode_DecoderRead(outDec, *(float *)&_XMM1, (float *)(v9 + 32), v15);
-          v34 = &inPlace[v12 - v15];
-          memcpy_0((void *)(v9 + 1056), v34, 4i64 * v33);
-          __asm { vmovss  xmm6, dword ptr [rbx+70h] }
-          if ( (((_BYTE)v9 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v9 + 32) )
-            __debugbreak();
-          if ( (((_BYTE)v9 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v9 + 1056) )
-            __debugbreak();
-          v36 = (unsigned int)(v33 + 7) >> 3;
-          __asm
-          {
-            vmovaps xmm2, xmm6
-            vshufps xmm2, xmm2, xmm2, 0
-            vinsertf128 ymm2, ymm2, xmm2, 1
-          }
-          if ( (_DWORD)v36 )
-          {
-            _RDX = v9 + 1056;
-            v40 = 0i64;
-            do
+            if ( v9 < v8 )
             {
-              _RDX += 32i64;
-              __asm
-              {
-                vmulps  ymm0, ymm2, ymmword ptr [rbp+rax+20h]
-                vaddps  ymm1, ymm0, ymmword ptr [rbp+rax+420h]
-              }
-              v40 += 32i64;
-              __asm { vmovups ymmword ptr [rdx-20h], ymm1 }
-              --v36;
+              futz->playbackState = PLAY_OUT;
+              v10 = v8 - v9;
             }
-            while ( v36 );
           }
-          memcpy_0(v34, (const void *)(v9 + 1056), 4i64 * v33);
-          v43 = _RBX->outDec;
-          v15 -= v33;
-          if ( !v43->output.count )
+          else
           {
-            SD_DecoderFree(v43);
-            decOutSource = _RBX->decOutSource;
-            decOutSource->stream = NULL;
-            *(_WORD *)&decOutSource->primed = 1;
-            decOutSource->eos = 0;
-            decOutSource->startFrame = 0i64;
-            _RBX->outDec = SD_DecoderAllocate(decOutSource);
-            _RBX->playbackState = PLAY_DONE;
-            break;
+            if ( !v9 )
+              break;
+            futz->playbackState = PLAY_START;
           }
-          v12 = *(_DWORD *)(((unsigned __int64)v66 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+          continue;
         }
-        v13 = *(_DWORD *)v9;
+        outDec = futz->outDec;
+        if ( !outDec )
+        {
+          futz->playbackState = PLAY_DONE;
+          break;
+        }
+        v24 = VoiceDecode_DecoderRead(outDec, 1.0, (float *)(v5 + 32), v10);
+        v25 = &inPlace[v8 - v10];
+        memcpy_0((void *)(v5 + 1056), v25, 4i64 * v24);
+        v26 = (__m128)LODWORD(futz->inDecVolume);
+        if ( (((_BYTE)v5 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v5 + 32) )
+          __debugbreak();
+        if ( (((_BYTE)v5 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v5 + 1056) )
+          __debugbreak();
+        v27 = (unsigned int)(v24 + 7) >> 3;
+        _YMM2 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v26, v26, 0);
+        __asm { vinsertf128 ymm2, ymm2, xmm2, 1 }
+        if ( (_DWORD)v27 )
+        {
+          v30 = v5 + 1056;
+          v31 = 0i64;
+          do
+          {
+            v30 += 32i64;
+            v32 = (__m256i)_mm256_add_ps(_mm256_mul_ps(_YMM2, *(__m256 *)(v5 + v31 + 32)), *(__m256 *)(v5 + v31 + 1056));
+            v31 += 32i64;
+            *(__m256i *)(v30 - 32) = v32;
+            --v27;
+          }
+          while ( v27 );
+        }
+        memcpy_0(v25, (const void *)(v5 + 1056), 4i64 * v24);
+        v33 = futz->outDec;
+        v10 -= v24;
+        if ( !v33->output.count )
+        {
+          SD_DecoderFree(v33);
+          decOutSource = futz->decOutSource;
+          decOutSource->stream = NULL;
+          *(_WORD *)&decOutSource->primed = 1;
+          decOutSource->eos = 0;
+          decOutSource->startFrame = 0i64;
+          futz->outDec = SD_DecoderAllocate(decOutSource);
+          futz->playbackState = PLAY_DONE;
+          break;
+        }
+        v8 = *(_DWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
       }
+      v9 = *(_DWORD *)v5;
     }
-    while ( v15 > 0 );
   }
   Sys_ProfEndNamedEvent();
-  __asm
-  {
-    vmovaps xmm6, [rsp+8F8h+var_58]
-    vmovaps xmm7, [rsp+8F8h+var_68]
-  }
 }
 
 /*
@@ -766,35 +697,19 @@ char VoiceDecode_FutzUpdateParam(const SndFutz *futzDef)
 
   if ( !futzDef || s_futzParamsPending.isNew )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+78h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.blend, xmm0
-    vmovss  xmm1, dword ptr [rcx+48h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.bpfF, xmm1
-    vmovss  xmm0, dword ptr [rcx+4Ch]
-    vmovss  cs:s_futzParamsPending.futzDspParams.bpfQ, xmm0
-    vmovss  xmm1, dword ptr [rcx+5Ch]
-    vmovss  cs:s_futzParamsPending.futzDspParams.distortion, xmm1
-    vmovss  xmm0, dword ptr [rcx+54h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.lsF, xmm0
-    vmovss  xmm1, dword ptr [rcx+50h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.lsG, xmm1
-    vmovss  xmm0, dword ptr [rcx+58h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.lsQ, xmm0
-    vmovss  xmm1, dword ptr [rcx+74h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.postclip, xmm1
-    vmovss  xmm0, dword ptr [rcx+64h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.postgain, xmm0
-    vmovss  xmm1, dword ptr [rcx+70h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.preclip, xmm1
-    vmovss  xmm0, dword ptr [rcx+60h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.pregain, xmm0
-    vmovss  xmm1, dword ptr [rcx+6Ch]
-    vmovss  cs:s_futzParamsPending.futzDspParams.squelch.tg, xmm1
-    vmovss  xmm0, dword ptr [rcx+68h]
-    vmovss  cs:s_futzParamsPending.futzDspParams.squelch.th, xmm0
-  }
+  s_futzParamsPending.futzDspParams.blend = futzDef->blend;
+  s_futzParamsPending.futzDspParams.bpfF = futzDef->bpfF;
+  s_futzParamsPending.futzDspParams.bpfQ = futzDef->bpfQ;
+  s_futzParamsPending.futzDspParams.distortion = futzDef->dist;
+  s_futzParamsPending.futzDspParams.lsF = futzDef->lsF;
+  s_futzParamsPending.futzDspParams.lsG = futzDef->lsG;
+  s_futzParamsPending.futzDspParams.lsQ = futzDef->lsQ;
+  s_futzParamsPending.futzDspParams.postclip = futzDef->clippost;
+  s_futzParamsPending.futzDspParams.postgain = futzDef->postG;
+  s_futzParamsPending.futzDspParams.preclip = futzDef->clippre;
+  s_futzParamsPending.futzDspParams.pregain = futzDef->preG;
+  s_futzParamsPending.futzDspParams.squelch.tg = futzDef->tg;
+  s_futzParamsPending.futzDspParams.squelch.th = futzDef->th;
   s_futzParamsPending.startAliasId = futzDef->startAliasId;
   s_futzParamsPending.loopAliasId = futzDef->loopAliasId;
   s_futzParamsPending.stopAliasId = futzDef->stopAliasId;

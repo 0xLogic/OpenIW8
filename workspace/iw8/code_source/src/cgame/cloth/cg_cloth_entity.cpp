@@ -184,41 +184,39 @@ CG_Cloth_Entity_Create
 */
 void CG_Cloth_Entity_Create(const LocalClientNum_t localClientNum, const int entNum, const unsigned int numModels, const XModel **models, const unsigned int numClothAssets, const ClothAsset **clothAssets)
 {
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v8; 
+  __int64 v9; 
   CgEntitySystem *EntitySystem; 
   centity_t *Entity; 
   DObj *ClientDObj; 
-  CG_Cloth_Entity_Binding *v15; 
-  unsigned int v16; 
+  CG_Cloth_Entity_Binding *v13; 
+  unsigned int v14; 
+  unsigned __int64 v15; 
+  unsigned int *v16; 
   unsigned __int64 v17; 
-  unsigned int *v18; 
-  unsigned __int64 v19; 
-  const ClothAsset **v21; 
-  const ClothAsset *v22; 
+  const ClothAsset **v18; 
+  const ClothAsset *v19; 
   unsigned int Ref; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  unsigned int v37; 
+  __int128 v25; 
+  unsigned int v35; 
   BOOL ownerTypea; 
   vec3_t position; 
-  int v42; 
-  const ClothAsset **v43; 
+  int v39; 
+  const ClothAsset **v40; 
   DObj *dObj; 
-  __int64 v45; 
+  __int64 v42; 
   vec4_t quat; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v45 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v10 = entNum;
-  v42 = entNum;
-  v11 = localClientNum;
-  v43 = clothAssets;
+  v42 = -2i64;
+  v8 = entNum;
+  v39 = entNum;
+  v9 = localClientNum;
+  v40 = clothAssets;
   Sys_ProfBeginNamedEvent(0xFFFA8072, "CG_Cloth_Entity_Create");
-  if ( (unsigned int)v11 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 236, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, 2) )
+  if ( (unsigned int)v9 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 236, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v9, 2) )
     __debugbreak();
-  if ( (unsigned int)v10 > 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 237, ASSERT_TYPE_ASSERT, "(entNum >= 0 && entNum < ( 2048 ) && entNum < s_CG_Cloth_Entity_Max_Num_Bindings)", (const char *)&queryFormat, "entNum >= 0 && entNum < MAX_GENTITIES && entNum < s_CG_Cloth_Entity_Max_Num_Bindings") )
+  if ( (unsigned int)v8 > 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 237, ASSERT_TYPE_ASSERT, "(entNum >= 0 && entNum < ( 2048 ) && entNum < s_CG_Cloth_Entity_Max_Num_Bindings)", (const char *)&queryFormat, "entNum >= 0 && entNum < MAX_GENTITIES && entNum < s_CG_Cloth_Entity_Max_Num_Bindings") )
     __debugbreak();
   if ( !numModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 238, ASSERT_TYPE_ASSERT, "(numModels > 0)", (const char *)&queryFormat, "numModels > 0") )
     __debugbreak();
@@ -228,65 +226,64 @@ void CG_Cloth_Entity_Create(const LocalClientNum_t localClientNum, const int ent
     __debugbreak();
   if ( !clothAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 241, ASSERT_TYPE_ASSERT, "(clothAssets)", (const char *)&queryFormat, "clothAssets") )
     __debugbreak();
-  if ( CG_Cloth_Entity_HasClothBinding((const LocalClientNum_t)v11, v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 242, ASSERT_TYPE_ASSERT, "(!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum ))", (const char *)&queryFormat, "!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum )") )
+  if ( CG_Cloth_Entity_HasClothBinding((const LocalClientNum_t)v9, v8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 242, ASSERT_TYPE_ASSERT, "(!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum ))", (const char *)&queryFormat, "!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum )") )
     __debugbreak();
-  if ( !CG_Cloth_Entity_TryUnstowCloth((const LocalClientNum_t)v11, v10, numClothAssets, clothAssets) )
+  if ( !CG_Cloth_Entity_TryUnstowCloth((const LocalClientNum_t)v9, v8, numClothAssets, clothAssets) )
   {
-    if ( (CG_Cloth_Entity_HasClothBinding((const LocalClientNum_t)v11, v10) || CG_Cloth_Entity_HasStowedClothBinding((const LocalClientNum_t)v11, v10)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 249, ASSERT_TYPE_ASSERT, "(!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum ) && !CG_Cloth_Entity_HasStowedClothBinding( localClientNum, entNum ))", (const char *)&queryFormat, "!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum ) && !CG_Cloth_Entity_HasStowedClothBinding( localClientNum, entNum )") )
+    if ( (CG_Cloth_Entity_HasClothBinding((const LocalClientNum_t)v9, v8) || CG_Cloth_Entity_HasStowedClothBinding((const LocalClientNum_t)v9, v8)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 249, ASSERT_TYPE_ASSERT, "(!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum ) && !CG_Cloth_Entity_HasStowedClothBinding( localClientNum, entNum ))", (const char *)&queryFormat, "!CG_Cloth_Entity_HasClothBinding( localClientNum, entNum ) && !CG_Cloth_Entity_HasStowedClothBinding( localClientNum, entNum )") )
       __debugbreak();
-    EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v11);
+    EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v9);
     if ( !EntitySystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 253, ASSERT_TYPE_ASSERT, "(entitySystem)", (const char *)&queryFormat, "entitySystem") )
       __debugbreak();
-    Entity = CgEntitySystem::GetEntity(EntitySystem, v10);
+    Entity = CgEntitySystem::GetEntity(EntitySystem, v8);
     if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 257, ASSERT_TYPE_ASSERT, "(cEntity)", (const char *)&queryFormat, "cEntity") )
       __debugbreak();
     AnglesToQuat(&Entity->pose.angles, &quat);
-    ClientDObj = Com_GetClientDObj(v10, (LocalClientNum_t)v11);
+    ClientDObj = Com_GetClientDObj(v8, (LocalClientNum_t)v9);
     dObj = ClientDObj;
     if ( !ClientDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 266, ASSERT_TYPE_ASSERT, "(dObj)", (const char *)&queryFormat, "dObj") )
       __debugbreak();
-    v15 = &s_CG_Cloth_Entity_Bindings[v11][v10];
-    bitarray_base<bitarray<2048>>::setBit(&s_CG_Cloth_Entity_BindingAllocated[v11], v10);
-    CG_Cloth_Entity_ActivateClothNode((const LocalClientNum_t)v11, ClientDObj);
-    if ( v15->clothInstances.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 82, ASSERT_TYPE_ASSERT, "( ( m_data.begin() == 0 ) || ( memory_block_type::is_fixed_memory_block::value ) )", "Reallocation is not supported") )
+    v13 = &s_CG_Cloth_Entity_Bindings[v9][v8];
+    bitarray_base<bitarray<2048>>::setBit(&s_CG_Cloth_Entity_BindingAllocated[v9], v8);
+    CG_Cloth_Entity_ActivateClothNode((const LocalClientNum_t)v9, ClientDObj);
+    if ( v13->clothInstances.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 82, ASSERT_TYPE_ASSERT, "( ( m_data.begin() == 0 ) || ( memory_block_type::is_fixed_memory_block::value ) )", "Reallocation is not supported") )
       __debugbreak();
     if ( !ntl::static_shared_allocator<CG_Cloth_Entity_InstanceAllocator,ntl::fixed_heap_allocator<16384,0>>::mp_allocator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\shared_allocator.h", 137, ASSERT_TYPE_ASSERT, "( mp_allocator )", "Shared allocator is not set") )
       __debugbreak();
-    v15->clothInstances.m_data.m_buffer = (unsigned int *)ntl::nxheap::allocate(&ntl::static_shared_allocator<CG_Cloth_Entity_InstanceAllocator,ntl::fixed_heap_allocator<16384,0>>::mp_allocator->m_heap, 4i64 * numClothAssets, 4ui64, 1);
-    v15->clothInstances.m_data.m_size = numClothAssets;
-    v16 = 0;
-    v17 = 0i64;
+    v13->clothInstances.m_data.m_buffer = (unsigned int *)ntl::nxheap::allocate(&ntl::static_shared_allocator<CG_Cloth_Entity_InstanceAllocator,ntl::fixed_heap_allocator<16384,0>>::mp_allocator->m_heap, 4i64 * numClothAssets, 4ui64, 1);
+    v13->clothInstances.m_data.m_size = numClothAssets;
+    v14 = 0;
+    v15 = 0i64;
     if ( numClothAssets )
     {
       do
       {
-        if ( v17 >= v15->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
+        if ( v15 >= v13->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
           __debugbreak();
-        v18 = &v15->clothInstances.m_data.m_buffer[v17];
-        if ( v18 )
-          *v18 = 0;
-        ++v17;
+        v16 = &v13->clothInstances.m_data.m_buffer[v15];
+        if ( v16 )
+          *v16 = 0;
+        ++v15;
       }
-      while ( v17 < numClothAssets );
-      LODWORD(v10) = v42;
-      LODWORD(v11) = localClientNum;
+      while ( v15 < numClothAssets );
+      LODWORD(v8) = v39;
+      LODWORD(v9) = localClientNum;
     }
     ownerTypea = !CG_Cloth_Entity_IsCharacter(Entity);
     if ( numClothAssets )
     {
-      v19 = 0i64;
-      __asm { vmovsd  xmm6, cs:__real@3f30000000000000 }
-      v21 = v43;
+      v17 = 0i64;
+      v18 = v40;
       do
       {
-        v22 = *v21;
-        if ( !*v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 288, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+        v19 = *v18;
+        if ( !*v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 288, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
           __debugbreak();
-        if ( ((int)v10 < 0 || (unsigned int)v10 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v10, "signed", (int)v10) )
+        if ( ((int)v8 < 0 || (unsigned int)v8 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v8, "signed", (int)v8) )
           __debugbreak();
-        if ( v16 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v16, "unsigned", v19) )
+        if ( v14 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v14, "unsigned", v17) )
           __debugbreak();
-        Ref = CG_Cloth_MakeRef(CG_CLOTH_REF_SYSTEM_CLIENTENTITY, v10, v16);
+        Ref = CG_Cloth_MakeRef(CG_CLOTH_REF_SYSTEM_CLIENTENTITY, v8, v14);
         if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
           __debugbreak();
         if ( !Entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
@@ -295,46 +292,48 @@ void CG_Cloth_Entity_Create(const LocalClientNum_t localClientNum, const int ent
         FunctionPointer_origin(&Entity->pose.origin.origin.origin, &position);
         if ( Entity->pose.isPosePrecise )
         {
-          __asm
-          {
-            vmovd   xmm0, dword ptr [rsp+0F8h+position]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0F8h+position], xmm2
-            vmovd   xmm0, dword ptr [rsp+0F8h+position+4]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0F8h+position+4], xmm2
-            vmovd   xmm0, dword ptr [rsp+0F8h+position+8]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0F8h+position+8], xmm2
-          }
+          _XMM0 = LODWORD(position.v[0]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v25 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v25;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          position.v[0] = *(float *)&_XMM2;
+          _XMM0 = LODWORD(position.v[1]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v25 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v25;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          position.v[1] = *(float *)&_XMM2;
+          _XMM0 = LODWORD(position.v[2]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v25 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v25;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          position.v[2] = *(float *)&_XMM2;
         }
-        v37 = Cloth_InstantiateAsset(v11, v22, Ref, (const Cloth_OwnerType)ownerTypea, &position, &quat, dObj, 0);
-        if ( v37 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 299, ASSERT_TYPE_ASSERT, "(clothInstanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "clothInstanceId != CLOTH_INSTANCEID_INVALID") )
+        v35 = Cloth_InstantiateAsset(v9, v19, Ref, (const Cloth_OwnerType)ownerTypea, &position, &quat, dObj, 0);
+        if ( v35 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 299, ASSERT_TYPE_ASSERT, "(clothInstanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "clothInstanceId != CLOTH_INSTANCEID_INVALID") )
           __debugbreak();
-        if ( v19 >= v15->clothInstances.m_data.m_size )
+        if ( v17 >= v13->clothInstances.m_data.m_size )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 169, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
-          if ( v19 >= v15->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
+          if ( v17 >= v13->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
             __debugbreak();
         }
-        v15->clothInstances.m_data.m_buffer[v19] = v37;
+        v13->clothInstances.m_data.m_buffer[v17] = v35;
         memset(&position, 0, sizeof(position));
-        ++v16;
-        ++v19;
-        v21 = ++v43;
+        ++v14;
+        ++v17;
+        v18 = ++v40;
       }
-      while ( v16 < numClothAssets );
+      while ( v14 < numClothAssets );
     }
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
 }
 
 /*
@@ -886,104 +885,100 @@ CG_Cloth_Entity_Update
 */
 void CG_Cloth_Entity_Update(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
   CgEntitySystem *EntitySystem; 
+  __int64 v3; 
+  bitarray<2048> *v4; 
   __int64 v5; 
-  bitarray<2048> *v6; 
-  __int64 v7; 
+  unsigned int v6; 
+  unsigned int v7; 
   unsigned int v8; 
-  unsigned int v10; 
-  unsigned int v11; 
   const cpose_t *p_pose; 
-  CG_Cloth_Entity_Binding *v13; 
+  CG_Cloth_Entity_Binding *v10; 
   unsigned __int64 m_size; 
-  unsigned __int64 v15; 
-  __int64 v16; 
-  unsigned int v17; 
-  unsigned int v18; 
+  unsigned __int64 v12; 
+  __int64 v13; 
+  unsigned int v14; 
+  unsigned int v15; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  int v37; 
+  __int128 v20; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  int v33; 
   vec3_t origin; 
   unsigned int globalWorldId; 
-  unsigned int v40; 
-  bitarray<2048> *v41; 
-  CgEntitySystem *v42; 
-  __int64 v43; 
-  __int64 v44; 
+  unsigned int v36; 
+  bitarray<2048> *v37; 
+  CgEntitySystem *v38; 
+  __int64 v39; 
+  __int64 v40; 
   vec4_t quat; 
-  char v46; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v44 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v3 = localClientNum;
+  v40 = -2i64;
+  v1 = localClientNum;
   globalWorldId = localClientNum;
   Sys_ProfBeginNamedEvent(0xFFFA8072, "CG_Cloth_Entity_Update");
-  if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 428, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v3, 2) )
+  if ( (unsigned int)v1 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 428, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v1, 2) )
     __debugbreak();
-  EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v3);
-  v42 = EntitySystem;
+  EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v1);
+  v38 = EntitySystem;
   if ( !EntitySystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 432, ASSERT_TYPE_ASSERT, "(entitySystem)", (const char *)&queryFormat, "entitySystem") )
     __debugbreak();
-  v5 = v3;
-  v43 = v3;
-  v6 = &s_CG_Cloth_Entity_BindingAllocated[v3];
-  v41 = v6;
-  LODWORD(v7) = 0;
-  v37 = 0;
-  v8 = v6->array[0];
-  __asm { vmovsd  xmm6, cs:__real@3f30000000000000 }
-  while ( v8 )
+  v3 = v1;
+  v39 = v1;
+  v4 = &s_CG_Cloth_Entity_BindingAllocated[v1];
+  v37 = v4;
+  LODWORD(v5) = 0;
+  v33 = 0;
+  v6 = v4->array[0];
+  while ( v6 )
   {
 LABEL_12:
-    v10 = __lzcnt(v8);
-    v11 = v10 + 32 * v7;
-    if ( v10 >= 0x20 )
+    v7 = __lzcnt(v6);
+    v8 = v7 + 32 * v5;
+    if ( v7 >= 0x20 )
     {
-      LODWORD(v36) = 32;
-      LODWORD(v34) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v34, v36) )
+      LODWORD(v32) = 32;
+      LODWORD(v30) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v30, v32) )
         __debugbreak();
     }
-    if ( (v8 & (0x80000000 >> v10)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v6 & (0x80000000 >> v7)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v8 &= ~(0x80000000 >> v10);
-    v40 = v8;
-    if ( v11 >= 0x800 )
+    v6 &= ~(0x80000000 >> v7);
+    v36 = v6;
+    if ( v8 >= 0x800 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 441, ASSERT_TYPE_ASSERT, "(entNum >= 0 && entNum < ( 2048 ) && entNum < s_CG_Cloth_Entity_Max_Num_Bindings)", (const char *)&queryFormat, "entNum >= 0 && entNum < MAX_GENTITIES && entNum < s_CG_Cloth_Entity_Max_Num_Bindings") )
         __debugbreak();
-      LODWORD(v36) = 2048;
-      LODWORD(v35) = v10 + 32 * v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v35, v36) )
+      LODWORD(v32) = 2048;
+      LODWORD(v31) = v7 + 32 * v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v31, v32) )
         __debugbreak();
     }
-    p_pose = &EntitySystem->m_entities[v11].pose;
+    p_pose = &EntitySystem->m_entities[v8].pose;
     if ( !p_pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 445, ASSERT_TYPE_ASSERT, "(cEntity)", (const char *)&queryFormat, "cEntity") )
       __debugbreak();
     AnglesToQuat(&p_pose->angles, &quat);
-    v13 = &s_CG_Cloth_Entity_Bindings[v5][v11];
-    m_size = v13->clothInstances.m_data.m_size;
+    v10 = &s_CG_Cloth_Entity_Bindings[v3][v8];
+    m_size = v10->clothInstances.m_data.m_size;
     if ( (_DWORD)m_size )
     {
-      v15 = 0i64;
-      v16 = (unsigned int)m_size;
-      v17 = globalWorldId;
+      v12 = 0i64;
+      v13 = (unsigned int)m_size;
+      v14 = globalWorldId;
       do
       {
-        if ( v15 >= v13->clothInstances.m_data.m_size )
+        if ( v12 >= v10->clothInstances.m_data.m_size )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 176, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
-          if ( v15 >= v13->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 114, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
+          if ( v12 >= v10->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 114, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
             __debugbreak();
         }
-        v18 = v13->clothInstances.m_data.m_buffer[v15];
-        if ( v18 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 464, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
+        v15 = v10->clothInstances.m_data.m_buffer[v12];
+        if ( v15 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 464, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
           __debugbreak();
         if ( !p_pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
           __debugbreak();
@@ -993,56 +988,57 @@ LABEL_12:
         FunctionPointer_origin(&p_pose->origin.origin.origin, &origin);
         if ( p_pose->isPosePrecise )
         {
-          __asm
-          {
-            vmovd   xmm0, dword ptr [rsp+0D8h+origin]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0D8h+origin], xmm2
-            vmovd   xmm0, dword ptr [rsp+0D8h+origin+4]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0D8h+origin+4], xmm2
-            vmovd   xmm0, dword ptr [rsp+0D8h+origin+8]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0D8h+origin+8], xmm2
-          }
+          _XMM0 = LODWORD(origin.v[0]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v20;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          origin.v[0] = *(float *)&_XMM2;
+          _XMM0 = LODWORD(origin.v[1]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v20;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          origin.v[1] = *(float *)&_XMM2;
+          _XMM0 = LODWORD(origin.v[2]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v20;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          origin.v[2] = *(float *)&_XMM2;
         }
-        Cloth_Update_SetInstanceTransform(v17, v18, &origin, &quat);
+        Cloth_Update_SetInstanceTransform(v14, v15, &origin, &quat);
         memset(&origin, 0, sizeof(origin));
-        ++v15;
-        --v16;
+        ++v12;
+        --v13;
       }
-      while ( v16 );
-      LODWORD(v7) = v37;
-      v8 = v40;
-      v6 = v41;
+      while ( v13 );
+      LODWORD(v5) = v33;
+      v6 = v36;
+      v4 = v37;
     }
     else
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_entity.cpp", 459, ASSERT_TYPE_ASSERT, "(numClothInstances > 0)", (const char *)&queryFormat, "numClothInstances > 0") )
         __debugbreak();
-      v6 = v41;
+      v4 = v37;
     }
-    v5 = v43;
-    EntitySystem = v42;
+    v3 = v39;
+    EntitySystem = v38;
   }
   while ( 1 )
   {
-    v7 = (unsigned int)(v7 + 1);
-    v37 = v7;
-    if ( (unsigned int)v7 >= 0x40 )
+    v5 = (unsigned int)(v5 + 1);
+    v33 = v5;
+    if ( (unsigned int)v5 >= 0x40 )
       break;
-    v8 = v6->array[v7];
-    if ( v8 )
+    v6 = v4->array[v5];
+    if ( v6 )
       goto LABEL_12;
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v46;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 

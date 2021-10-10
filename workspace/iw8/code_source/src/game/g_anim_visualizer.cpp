@@ -208,6 +208,7 @@ void __fastcall AnimVisualizer_CmdSetPlaybackControls(double _XMM0_8)
   int v3; 
   int v4; 
   AnimVyzScene *i; 
+  AnimVyzScene *v6; 
   const char *v7; 
   const char *v8; 
   bool v9; 
@@ -230,8 +231,8 @@ void __fastcall AnimVisualizer_CmdSetPlaybackControls(double _XMM0_8)
       if ( (unsigned int)++v4 >= 0x10 )
         return;
     }
-    _RBP = &s_AnimVyzScenes[v4];
-    if ( _RBP )
+    v6 = &s_AnimVyzScenes[v4];
+    if ( v6 )
     {
       v7 = Cmd_Argv(2);
       if ( !I_strcmp(v7, "playing") )
@@ -246,21 +247,20 @@ void __fastcall AnimVisualizer_CmdSetPlaybackControls(double _XMM0_8)
       _XMM0_8 = atof(v14);
       v15 = s_AnimVyzPlaybackLocation == Server;
       __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
-      _RBP->looping = v9;
-      _RBP->moving = v11;
-      __asm { vmovss  dword ptr [rbp+20h], xmm1 }
-      _RBP->noteTrackPlayback = v13;
-      _RBP->playbackState = v3;
+      v6->looping = v9;
+      v6->moving = v11;
+      v6->playbackSpeed = *(float *)&_XMM1;
+      v6->noteTrackPlayback = v13;
+      v6->playbackState = v3;
       if ( v15 )
       {
-        _RBP->playbackSpeed = 1.0;
+        v6->playbackSpeed = 1.0;
         v17 = "NSRPLOQMNR";
         if ( v3 != 1 )
           v17 = "QLSLNROSO";
-        Dvar_SetCommandByName(v17, _RBP->sceneName, 0);
+        Dvar_SetCommandByName(v17, v6->sceneName, 0);
       }
-      __asm { vmovss  xmm1, dword ptr [rbp+14h]; currentTime }
-      AnimVisualizer_UpdateScene(_RBP, *(float *)&_XMM1, 1);
+      AnimVisualizer_UpdateScene(v6, v6->currentTime, 1);
     }
   }
 }
@@ -297,19 +297,8 @@ void __fastcall AnimVisualizer_CmdSetPlaybackPosition(double _XMM0_8)
         return;
     }
     v7 = &s_AnimVyzScenes[v4];
-    if ( v7 )
-    {
-      if ( s_AnimVyzPlaybackLocation != Server )
-        goto LABEL_9;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm1, xmm0
-      }
-      if ( s_AnimVyzPlaybackLocation == Server )
-LABEL_9:
-        AnimVisualizer_SetPlaybackPosition(v7, *(float *)&_XMM1, 0);
-    }
+    if ( v7 && (s_AnimVyzPlaybackLocation != Server || *(float *)&_XMM1 == 0.0) )
+      AnimVisualizer_SetPlaybackPosition(v7, *(float *)&_XMM1, 0);
   }
 }
 
@@ -572,76 +561,84 @@ AnimVisualizer_CmdSetAnimations
 
 void __fastcall AnimVisualizer_CmdSetAnimations(double _XMM0_8)
 {
-  int v11; 
-  const char *v12; 
-  unsigned int v13; 
-  const char *v14; 
-  unsigned int v15; 
-  unsigned int v16; 
+  int er8_2; 
+  const char *v2; 
+  unsigned int v3; 
+  const char *v4; 
+  unsigned int v5; 
+  unsigned int v6; 
   AnimVyzScene *i; 
-  __int64 v18; 
-  AnimVyzScene *v19; 
-  AnimVyzScene *v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  const char *v26; 
-  int v27; 
-  __int64 v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  __int64 v32; 
-  unsigned int v33; 
-  unsigned int v34; 
-  int v35; 
-  signed int v36; 
+  __int64 v8; 
+  bool v9; 
+  AnimVyzScene *v10; 
+  AnimVyzModel *modelList; 
+  AnimVyzScene *v12; 
+  int v13; 
+  int v14; 
+  int v15; 
+  int v16; 
+  const char *v17; 
+  int v18; 
+  __int64 v19; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  unsigned int v25; 
+  int maxBindings; 
+  signed int v27; 
   XAnim_s *AnimsWithParameters; 
-  XAnim_s *v38; 
-  int v40; 
+  XAnim_s *v29; 
+  int v30; 
   unsigned __int64 linkPointer; 
-  __int64 v42; 
-  int v44; 
-  AnimVyzAnimation *v45; 
-  unsigned int v49; 
-  __int64 v50; 
-  int v51; 
-  const char *v52; 
-  unsigned int v53; 
+  __int64 v32; 
+  int v33; 
+  AnimVyzAnimation *v34; 
+  float v37; 
+  unsigned int v38; 
+  __int64 v39; 
+  int v40; 
+  const char *v41; 
+  unsigned int v42; 
+  AnimVyzAnimation *v43; 
   AnimVyzAnimation *next; 
-  const char *v56; 
-  const char *v57; 
-  const char *v59; 
-  const char *v61; 
-  const char *v63; 
-  const char *v65; 
-  unsigned int v67; 
-  unsigned int v69; 
-  unsigned int v70; 
-  bool v71; 
-  bool v72; 
-  char v73; 
-  const char *v74; 
+  const char *v45; 
+  const char *v46; 
+  const char *v48; 
+  const char *v50; 
+  const char *v52; 
+  const char *v54; 
+  XAssetHeader v55; 
+  unsigned int v56; 
+  float v57; 
+  unsigned int v58; 
+  unsigned int v59; 
+  const char *v60; 
   _DWORD *p_treeIndex; 
-  __int64 v76; 
-  bool v78; 
+  __int64 v62; 
+  double Length; 
+  bool v64; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
+  __int128 v72; 
   const XAnimParts *Parts; 
   scr_string_t String; 
-  int maxBindings; 
+  AnimVyzScene *v75; 
   XAnimSyncGroupID Alloca; 
   XAnimSyncGroupID Allocb; 
   XAnimSyncGroupID Alloc; 
   XAnimNodeTypeID outNodeTypeID[4]; 
   unsigned int animIndex; 
-  int v108; 
-  int v109; 
+  int v81; 
+  int v82; 
   scr_anim_t animationIndex; 
-  __int64 v111; 
-  unsigned int v112; 
-  __int64 v113; 
-  XAnimEntry *v114; 
-  __int64 v115; 
+  __int64 v84; 
+  unsigned int v85; 
+  __int64 v86; 
+  XAnimEntry *v87; 
+  __int64 v88; 
   AnimVyzScene *scene; 
   float v1[4]; 
   vec3_t trans; 
@@ -649,327 +646,282 @@ void __fastcall AnimVisualizer_CmdSetAnimations(double _XMM0_8)
 
   if ( Cmd_Argc() >= 3 )
   {
-    v11 = Cmd_Argc() - 3;
-    if ( v11 == 6 * (v11 / 6) && s_AnimVyzPlaybackLocation != Server )
+    er8_2 = Cmd_Argc() - 3;
+    if ( er8_2 == 6 * (er8_2 / 6) && s_AnimVyzPlaybackLocation != Server )
     {
-      v12 = Cmd_Argv(1);
-      v13 = I_atoui(v12);
-      v14 = Cmd_Argv(2);
-      v15 = I_atoui(v14);
-      v16 = 0;
-      for ( i = s_AnimVyzScenes; i->sceneInstanceId != v13; ++i )
+      v2 = Cmd_Argv(1);
+      v3 = I_atoui(v2);
+      v4 = Cmd_Argv(2);
+      v5 = I_atoui(v4);
+      v6 = 0;
+      for ( i = s_AnimVyzScenes; i->sceneInstanceId != v3; ++i )
       {
-        if ( ++v16 >= 0x10 )
+        if ( ++v6 >= 0x10 )
           return;
       }
-      v18 = v16;
-      v72 = &s_AnimVyzScenes[v18] == NULL;
-      v19 = &s_AnimVyzScenes[v18];
-      scene = v19;
-      if ( !v72 )
+      v8 = v6;
+      v9 = &s_AnimVyzScenes[v8] == NULL;
+      v10 = &s_AnimVyzScenes[v8];
+      scene = v10;
+      if ( !v9 )
       {
-        _R14 = v19->modelList;
-        if ( _R14 )
+        modelList = v10->modelList;
+        if ( modelList )
         {
-          while ( _R14->modelInstanceId != v15 )
+          while ( modelList->modelInstanceId != v5 )
           {
-            _R14 = _R14->next;
-            if ( !_R14 )
+            modelList = modelList->next;
+            if ( !modelList )
               return;
           }
-          if ( _R14->clientModelIndex != -1 )
+          if ( modelList->clientModelIndex != -1 )
           {
-            _R14->currentAnimation[0] = NULL;
-            _R14->currentAnimation[1] = NULL;
-            AnimVisualizer_DestroyAnimations(_R14);
-            AnimVisualizer_UpdateSceneDuration(v21);
-            v22 = (Cmd_Argc() - 3) / 6;
-            v112 = v22;
-            if ( v22 )
+            modelList->currentAnimation[0] = NULL;
+            modelList->currentAnimation[1] = NULL;
+            AnimVisualizer_DestroyAnimations(modelList);
+            AnimVisualizer_UpdateSceneDuration(v12);
+            v13 = (Cmd_Argc() - 3) / 6;
+            v85 = v13;
+            if ( v13 )
             {
-              v23 = 0;
-              v111 = 0i64;
-              v24 = 0;
-              if ( v22 > 0 )
+              v14 = 0;
+              v84 = 0i64;
+              v15 = 0;
+              if ( v13 > 0 )
               {
-                v25 = 3;
+                v16 = 3;
                 while ( 1 )
                 {
-                  v26 = Cmd_Argv(v25 + 5);
-                  v27 = I_atoui(v26);
-                  v28 = v27;
-                  if ( v27 < 2 )
+                  v17 = Cmd_Argv(v16 + 5);
+                  v18 = I_atoui(v17);
+                  v19 = v18;
+                  if ( v18 < 2 )
                   {
-                    v29 = Cmd_Argv(v25);
-                    if ( (_DWORD)v28 == 1 )
+                    v20 = Cmd_Argv(v16);
+                    if ( (_DWORD)v19 == 1 )
                     {
-                      if ( !DB_FindXAssetHeader(ASSET_TYPE_MAYHEM, v29, 0).physicsLibrary )
+                      if ( !DB_FindXAssetHeader(ASSET_TYPE_MAYHEM, v20, 0).physicsLibrary )
                       {
-                        v30 = Cmd_Argv(v25);
-                        Com_PrintWarning(1, "Facial Animation \"%s\" cannot be found\n", v30);
+                        v21 = Cmd_Argv(v16);
+                        Com_PrintWarning(1, "Facial Animation \"%s\" cannot be found\n", v21);
                         return;
                       }
                     }
-                    else if ( !XAnimFindData(v29) )
+                    else if ( !XAnimFindData(v20) )
                     {
-                      v31 = Cmd_Argv(v25);
-                      Com_PrintWarning(1, "Animation \"%s\" cannot be found\n", v31);
+                      v22 = Cmd_Argv(v16);
+                      Com_PrintWarning(1, "Animation \"%s\" cannot be found\n", v22);
                       return;
                     }
-                    ++*((_DWORD *)&v111 + v28);
+                    ++*((_DWORD *)&v84 + v19);
                   }
-                  ++v24;
-                  v25 += 6;
-                  if ( v24 >= v22 )
+                  ++v15;
+                  v16 += 6;
+                  if ( v15 >= v13 )
                   {
-                    v23 = v111;
+                    v14 = v84;
                     break;
                   }
                 }
               }
-              if ( v22 <= s_AnimVyzAnimationPoolFreeCount )
+              if ( v13 <= s_AnimVyzAnimationPoolFreeCount )
               {
-                v32 = s_UniqueNameCounter;
-                __asm
-                {
-                  vmovaps [rsp+188h+var_38], xmm6
-                  vmovaps [rsp+188h+var_48], xmm7
-                  vmovaps [rsp+188h+var_58], xmm8
-                  vmovaps [rsp+188h+var_68], xmm9
-                  vmovaps [rsp+188h+var_78], xmm10
-                  vmovaps [rsp+188h+var_88], xmm11
-                  vmovaps [rsp+188h+var_98], xmm12
-                  vmovaps [rsp+188h+var_A8], xmm13
-                  vmovaps [rsp+188h+var_B8], xmm14
-                  vmovaps [rsp+188h+var_C8], xmm15
-                }
-                _R14->cinematicAnimations = 0;
-                _R14->totalAnimationDuration = 0.0;
-                Com_sprintf(_R14->animDebugName, 0x40ui64, "YanimVyz%d", v32);
-                v33 = v23 + 3;
+                v23 = s_UniqueNameCounter;
+                modelList->cinematicAnimations = 0;
+                modelList->totalAnimationDuration = 0.0;
+                Com_sprintf(modelList->animDebugName, 0x40ui64, "YanimVyz%d", v23);
+                v24 = v14 + 3;
                 ++s_UniqueNameCounter;
-                v34 = 11 * v23;
+                v25 = 11 * v14;
                 outNodeTypeID[0] = XANIM_NODE_TYPE_INVALID;
-                v35 = 2 * HIDWORD(v111);
-                v36 = v34 + 3;
-                animIndex = v34 + 3;
+                maxBindings = 2 * HIDWORD(v84);
+                v27 = v25 + 3;
+                animIndex = v25 + 3;
                 XAnimAcquireMemoryLocks();
-                AnimsWithParameters = XAnimCreateAnimsWithParameters(_R14->animDebugName, XANIM_SUBTREE_DEFAULT, v34 + v35 + 3, v35, v35, 0, AnimVisualizer_AllocXAnim);
+                AnimsWithParameters = XAnimCreateAnimsWithParameters(modelList->animDebugName, XANIM_SUBTREE_DEFAULT, v25 + maxBindings + 3, maxBindings, maxBindings, 0, AnimVisualizer_AllocXAnim);
                 LOBYTE(Alloca) = 4;
-                v38 = AnimsWithParameters;
-                XAnimBlend(AnimsWithParameters, 0, "root", 1u, (v35 > 0) + 1, 0, Alloca, 1);
+                v29 = AnimsWithParameters;
+                XAnimBlend(AnimsWithParameters, 0, "root", 1u, (maxBindings > 0) + 1, 0, Alloca, 1);
                 LOBYTE(Allocb) = 4;
-                XAnimBlend(v38, 1u, "xanims", 3u, v34, 0, Allocb, 1);
-                if ( v35 > 0 )
+                XAnimBlend(v29, 1u, "xanims", 3u, v25, 0, Allocb, 1);
+                if ( maxBindings > 0 )
                 {
                   LOBYTE(Alloc) = 4;
-                  XAnimBlend(v38, 2u, "faces", v36, v35, 0, Alloc, 1);
+                  XAnimBlend(v29, 2u, "faces", v27, maxBindings, 0, Alloc, 1);
                   XAnimFindNodeTypeByName(scr_const.xanimMayhemLink, outNodeTypeID);
                 }
-                __asm { vmovss  xmm15, cs:__real@3f800000 }
-                v40 = 0;
-                linkPointer = v36;
-                v42 = 0i64;
-                v109 = 0;
-                animationIndex = (scr_anim_t)v36;
-                v113 = 0i64;
-                __asm { vxorps  xmm9, xmm9, xmm9 }
+                v30 = 0;
+                linkPointer = v27;
+                v32 = 0i64;
+                v82 = 0;
+                animationIndex = (scr_anim_t)v27;
+                v86 = 0i64;
                 do
                 {
-                  v108 = 0;
-                  v44 = 0;
-                  v45 = NULL;
-                  __asm
+                  v81 = 0;
+                  v33 = 0;
+                  v34 = NULL;
+                  v1[0] = 0.0;
+                  v1[1] = 0.0;
+                  v1[2] = 0.0;
+                  _XMM8 = 0i64;
+                  _XMM13 = 0i64;
+                  v37 = 0.0;
+                  if ( v13 > 0 )
                   {
-                    vmovss  [rsp+188h+v1], xmm9
-                    vmovss  [rsp+188h+var_FC], xmm9
-                    vmovss  [rsp+188h+var_F8], xmm9
-                    vmovaps xmm8, xmm9
-                    vmovaps xmm13, xmm9
-                    vmovaps xmm11, xmm9
-                  }
-                  if ( v22 > 0 )
-                  {
-                    v49 = 3;
-                    v50 = v112;
-                    v51 = 4;
-                    v115 = v112;
-                    v114 = &v38->entries[linkPointer];
+                    v38 = 3;
+                    v39 = v85;
+                    v40 = 4;
+                    v88 = v85;
+                    v87 = &v29->entries[linkPointer];
                     do
                     {
-                      v52 = Cmd_Argv(v51 + 4);
-                      v53 = I_atoui(v52);
-                      v40 = v109;
-                      if ( v53 == v109 )
+                      v41 = Cmd_Argv(v40 + 4);
+                      v42 = I_atoui(v41);
+                      v30 = v82;
+                      if ( v42 == v82 )
                       {
-                        _RDI = s_AnimationPoolHead;
+                        v43 = s_AnimationPoolHead;
                         if ( s_AnimationPoolHead )
                         {
                           next = s_AnimationPoolHead->next;
                           --s_AnimVyzAnimationPoolFreeCount;
                           s_AnimationPoolHead = next;
                         }
-                        _RDI->next = NULL;
-                        if ( v45 )
-                          v45->next = _RDI;
+                        v43->next = NULL;
+                        if ( v34 )
+                          v34->next = v43;
                         else
-                          _R14->animationList[v113] = _RDI;
-                        v56 = Cmd_Argv(v51 - 1);
-                        _RDI->name = SL_GetString(v56, 0);
-                        v57 = Cmd_Argv(v51);
-                        _XMM0_8 = atof(v57);
+                          modelList->animationList[v86] = v43;
+                        v45 = Cmd_Argv(v40 - 1);
+                        v43->name = SL_GetString(v45, 0);
+                        v46 = Cmd_Argv(v40);
+                        _XMM0_8 = atof(v46);
                         __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-                        v59 = Cmd_Argv(v51 + 1);
-                        _XMM0_8 = atof(v59);
+                        v48 = Cmd_Argv(v40 + 1);
+                        _XMM0_8 = atof(v48);
                         __asm { vcvtsd2ss xmm14, xmm0, xmm0 }
-                        v61 = Cmd_Argv(v51 + 2);
-                        _XMM0_8 = atof(v61);
+                        v50 = Cmd_Argv(v40 + 2);
+                        _XMM0_8 = atof(v50);
                         __asm { vcvtsd2ss xmm10, xmm0, xmm0 }
-                        v63 = Cmd_Argv(v51 + 3);
-                        _XMM0_8 = atof(v63);
+                        v52 = Cmd_Argv(v40 + 3);
+                        _XMM0_8 = atof(v52);
                         __asm { vcvtsd2ss xmm12, xmm0, xmm0 }
-                        if ( v113 == 1 )
+                        if ( v86 == 1 )
                         {
-                          v65 = Cmd_Argv(v51 - 1);
-                          _RAX.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_MAYHEM, v65, 1).physicsLibrary;
-                          v67 = animIndex;
-                          _RDI->deltaAnimationTreeIndex = animIndex;
-                          __asm { vmovss  xmm6, dword ptr [rax+48h] }
-                          v69 = v67 + 1;
+                          v54 = Cmd_Argv(v40 - 1);
+                          v55.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_MAYHEM, v54, 1).physicsLibrary;
+                          v56 = animIndex;
+                          v43->deltaAnimationTreeIndex = animIndex;
+                          v57 = *(float *)&v55.physicsLibrary[3].name;
+                          v58 = v56 + 1;
                           LOBYTE(Alloc) = 4;
-                          XAnimBlend(v38, v67, "facial", v67 + 1, 1u, 0x40u, Alloc, 1);
-                          v70 = animIndex;
-                          v114->nodeType = outNodeTypeID[0];
-                          XAnimBindStringToNodeParameter(v38, v70, scr_const.xanimMayhemName, _RDI->name);
-                          XAnimBindStringToNodeParameter(v38, animIndex, scr_const.xanimMayhemAttachBone, scr_const.j_spine4);
-                          XAnimCreate(v38, v69, "void", 1);
+                          XAnimBlend(v29, v56, "facial", v56 + 1, 1u, 0x40u, Alloc, 1);
+                          v59 = animIndex;
+                          v87->nodeType = outNodeTypeID[0];
+                          XAnimBindStringToNodeParameter(v29, v59, scr_const.xanimMayhemName, v43->name);
+                          XAnimBindStringToNodeParameter(v29, animIndex, scr_const.xanimMayhemAttachBone, scr_const.j_spine4);
+                          XAnimCreate(v29, v58, "void", 1);
                           animIndex += 2;
                           *(_QWORD *)&animationIndex += 2i64;
-                          v71 = __CFADD__(v114, 32i64);
-                          v72 = &v114[2] == NULL;
-                          v73 = __CFADD__(v114, 32i64) || v72;
-                          v114 += 2;
+                          v87 += 2;
+                        }
+                        else if ( modelList->isSiege )
+                        {
+                          v57 = FLOAT_1_0;
                         }
                         else
                         {
-                          v71 = 0;
-                          v72 = !_R14->isSiege;
-                          v73 = v72;
-                          if ( _R14->isSiege )
+                          v60 = Cmd_Argv(v40 - 1);
+                          XAnimCreate(v29, v38, v60, 1);
+                          v43->deltaAnimationTreeIndex = v38;
+                          p_treeIndex = &v43->additiveAnimations[0].treeIndex;
+                          v62 = 5i64;
+                          do
                           {
-                            __asm { vmovaps xmm6, xmm15 }
+                            LOBYTE(Alloc) = 4;
+                            *((_BYTE *)p_treeIndex - 4) = 0;
+                            *p_treeIndex = v24;
+                            XAnimBlend(v29, v24, "additive", v24 + 1, 1u, 0x10u, Alloc, 1);
+                            v24 += 2;
+                            p_treeIndex += 4;
+                            --v62;
                           }
-                          else
-                          {
-                            v74 = Cmd_Argv(v51 - 1);
-                            XAnimCreate(v38, v49, v74, 1);
-                            _RDI->deltaAnimationTreeIndex = v49;
-                            p_treeIndex = &_RDI->additiveAnimations[0].treeIndex;
-                            v76 = 5i64;
-                            do
-                            {
-                              LOBYTE(Alloc) = 4;
-                              *((_BYTE *)p_treeIndex - 4) = 0;
-                              *p_treeIndex = v33;
-                              XAnimBlend(v38, v33, "additive", v33 + 1, 1u, 0x10u, Alloc, 1);
-                              v33 += 2;
-                              p_treeIndex += 4;
-                              --v76;
-                            }
-                            while ( v76 );
-                            _XMM0_8 = XAnimGetLength(v38, v49);
-                            __asm
-                            {
-                              vmovss  [rsp+188h+maxBindings], xmm9
-                              vmovaps xmm6, xmm0
-                            }
-                            XAnimGetAbsDelta(v38, v49, &rot, &trans, *(float *)&maxBindings);
-                            __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-                            v78 = VecNCompareCustomEpsilon(trans.v, v1, *(float *)&_XMM2, 3);
-                            v44 = v108;
-                            v71 = 0;
-                            v72 = !v78;
-                            v73 = !v78;
-                            if ( !v78 )
-                              _R14->cinematicAnimations = 1;
-                          }
+                          while ( v62 );
+                          Length = XAnimGetLength(v29, v38);
+                          v57 = *(float *)&Length;
+                          XAnimGetAbsDelta(v29, v38, &rot, &trans, 0.0);
+                          v64 = VecNCompareCustomEpsilon(trans.v, v1, 0.001, 3);
+                          v33 = v81;
+                          if ( !v64 )
+                            modelList->cinematicAnimations = 1;
                         }
-                        __asm { vucomiss xmm8, xmm7 }
-                        if ( !v72 )
+                        if ( *(float *)&_XMM8 != *(float *)&_XMM7 )
                         {
-                          v73 = v71 | (++v44 == 0);
-                          v108 = v44;
-                          __asm { vmovaps xmm11, xmm9 }
+                          v81 = ++v33;
+                          v37 = 0.0;
                         }
                         __asm
                         {
                           vcmpneqss xmm0, xmm8, xmm7
                           vblendvps xmm0, xmm8, xmm7, xmm0
-                          vmovss  dword ptr [rsp+188h+var_130], xmm0
+                        }
+                        *(float *)&v84 = *(float *)&_XMM0;
+                        __asm
+                        {
                           vcmpneqss xmm0, xmm8, xmm7
                           vblendvps xmm0, xmm13, xmm7, xmm0
-                          vsubss  xmm3, xmm0, xmm11
-                          vsubss  xmm2, xmm6, xmm12
-                          vdivss  xmm0, xmm12, xmm6
-                          vsubss  xmm1, xmm2, xmm10
-                          vaddss  xmm13, xmm3, xmm2
-                          vmovss  dword ptr [rdi+0Ch], xmm0
-                          vmovss  dword ptr [rdi+4], xmm3
-                          vmovss  dword ptr [rdi+10h], xmm14
-                          vmovss  dword ptr [rdi+8], xmm1
-                          vmovss  dword ptr [rdi+14h], xmm10
-                          vmovss  dword ptr [rdi+18h], xmm12
-                          vmovss  dword ptr [rdi+1Ch], xmm6
                         }
-                        _RDI->shotNumber = v44;
-                        __asm { vcomiss xmm13, dword ptr [r14+0E4h] }
-                        if ( !v73 )
-                          __asm { vmovss  dword ptr [r14+0E4h], xmm13 }
-                        __asm { vmovss  xmm8, dword ptr [rsp+188h+var_130] }
-                        v40 = v109;
-                        v45 = _RDI;
-                        v50 = v115;
-                        ++v49;
-                        __asm { vmovaps xmm11, xmm10 }
+                        v70 = _XMM0;
+                        *(float *)&v70 = *(float *)&_XMM0 - v37;
+                        v69 = v70;
+                        v71 = _XMM12;
+                        *(float *)&v71 = *(float *)&_XMM12 / v57;
+                        *(_OWORD *)&_XMM0_8 = v71;
+                        v72 = v69;
+                        *(float *)&v72 = *(float *)&v69 + (float)(v57 - *(float *)&_XMM12);
+                        _XMM13 = v72;
+                        v43->startTimeRatio = *(float *)&_XMM0_8;
+                        v43->startTime = *(float *)&v69;
+                        v43->blendInTime = *(float *)&_XMM14;
+                        v43->duration = (float)(v57 - *(float *)&_XMM12) - *(float *)&_XMM10;
+                        v43->blendOutTime = *(float *)&_XMM10;
+                        v43->startTrimTime = *(float *)&_XMM12;
+                        v43->animationDuration = v57;
+                        v43->shotNumber = v33;
+                        if ( *(float *)&v72 > modelList->totalAnimationDuration )
+                          modelList->totalAnimationDuration = *(float *)&v72;
+                        _XMM8 = (unsigned int)v84;
+                        v30 = v82;
+                        v34 = v43;
+                        v39 = v88;
+                        ++v38;
+                        v37 = *(float *)&_XMM10;
                       }
-                      v51 += 6;
-                      v115 = --v50;
+                      v40 += 6;
+                      v88 = --v39;
                     }
-                    while ( v50 );
-                    v42 = v113;
-                    v22 = v112;
+                    while ( v39 );
+                    v32 = v86;
+                    v13 = v85;
                     linkPointer = animationIndex.linkPointer;
                   }
-                  ++v40;
-                  ++v42;
-                  v109 = v40;
-                  v113 = v42;
+                  ++v30;
+                  ++v32;
+                  v82 = v30;
+                  v86 = v32;
                 }
-                while ( v42 < 2 );
-                XAnimSetupBindingIndexes(v38);
+                while ( v32 < 2 );
+                XAnimSetupBindingIndexes(v29);
                 animationIndex.index = 3;
                 *(_DWORD *)((char *)&animationIndex.linkPointer + 2) = 0;
                 HIWORD(animationIndex.linkPointer) = 0;
-                Parts = XAnimGetParts(v38, 3u);
-                String = SL_GetString(_R14->animDebugName, 0);
-                CG_ClientModel_SetAnimation(LOCAL_CLIENT_0, _R14->clientModelIndex, String, v38, Parts, animationIndex);
+                Parts = XAnimGetParts(v29, 3u);
+                String = SL_GetString(modelList->animDebugName, 0);
+                CG_ClientModel_SetAnimation(LOCAL_CLIENT_0, modelList->clientModelIndex, String, v29, Parts, animationIndex);
                 AnimVisualizer_UpdateSceneDuration(scene);
-                __asm { vmovss  xmm1, dword ptr [rcx+14h]; time }
-                AnimVisualizer_SetPlaybackPosition(_RCX, *(float *)&_XMM1, 1);
+                AnimVisualizer_SetPlaybackPosition(v75, v75->currentTime, 1);
                 XanimReleaseMemoryLocks();
-                __asm
-                {
-                  vmovaps xmm15, [rsp+188h+var_C8]
-                  vmovaps xmm14, [rsp+188h+var_B8]
-                  vmovaps xmm13, [rsp+188h+var_A8]
-                  vmovaps xmm12, [rsp+188h+var_98]
-                  vmovaps xmm11, [rsp+188h+var_88]
-                  vmovaps xmm10, [rsp+188h+var_78]
-                  vmovaps xmm9, [rsp+188h+var_68]
-                  vmovaps xmm8, [rsp+188h+var_58]
-                  vmovaps xmm7, [rsp+188h+var_48]
-                  vmovaps xmm6, [rsp+188h+var_38]
-                }
               }
               else
               {
@@ -998,13 +950,17 @@ void __fastcall AnimVisualizer_CmdSetCameraAnimations(double _XMM0_8)
   int v5; 
   AnimVyzScene *i; 
   AnimVyzScene *v7; 
+  AnimVyzModel *modelList; 
   int v9; 
+  AnimVyzCameraAnimation *v10; 
   int v11; 
   __int64 v12; 
   const char *v13; 
+  AnimVyzCameraAnimation *v14; 
   AnimVyzCameraAnimation *next; 
   XAssetHeader v16; 
-  const char *v17; 
+  XAssetHeader v17; 
+  const char *v18; 
 
   if ( Cmd_Argc() >= 3 && (((unsigned __int8)Cmd_Argc() - 1) & 1) == 0 && s_AnimVyzPlaybackLocation != Server )
   {
@@ -1021,25 +977,25 @@ void __fastcall AnimVisualizer_CmdSetCameraAnimations(double _XMM0_8)
     v7 = &s_AnimVyzScenes[v5];
     if ( v7 )
     {
-      _RBX = v7->modelList;
-      if ( _RBX )
+      modelList = v7->modelList;
+      if ( modelList )
       {
-        while ( _RBX->modelInstanceId != v4 )
+        while ( modelList->modelInstanceId != v4 )
         {
-          _RBX = _RBX->next;
-          if ( !_RBX )
+          modelList = modelList->next;
+          if ( !modelList )
             return;
         }
-        if ( _RBX->clientModelIndex != -1 )
+        if ( modelList->clientModelIndex != -1 )
         {
-          AnimVisualizer_DestroyCameraAnimations(_RBX);
+          AnimVisualizer_DestroyCameraAnimations(modelList);
           AnimVisualizer_UpdateSceneDuration(v7);
           v9 = (Cmd_Argc() - 3) / 2;
           if ( v9 )
           {
             if ( v9 <= s_CameraAnimationPoolFreeCount )
             {
-              _RBP = NULL;
+              v10 = NULL;
               if ( v9 > 0 )
               {
                 v11 = 4;
@@ -1047,51 +1003,37 @@ void __fastcall AnimVisualizer_CmdSetCameraAnimations(double _XMM0_8)
                 do
                 {
                   v13 = Cmd_Argv(v11 - 1);
-                  _RDI = (XAssetHeader *)s_CameraAnimationPoolHead;
+                  v14 = s_CameraAnimationPoolHead;
                   if ( s_CameraAnimationPoolHead )
                   {
                     next = s_CameraAnimationPoolHead->next;
                     --s_CameraAnimationPoolFreeCount;
                     s_CameraAnimationPoolHead = next;
                   }
-                  _RDI[2].physicsLibrary = NULL;
-                  if ( _RBP )
-                    _RBP[2].physicsLibrary = (PhysicsLibrary *)_RDI;
+                  v14->next = NULL;
+                  if ( v10 )
+                    v10->next = v14;
                   else
-                    _RBX->cameraAnimationList = (AnimVyzCameraAnimation *)_RDI;
+                    modelList->cameraAnimationList = v14;
                   v16.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XCAM, v13, 0).physicsLibrary;
+                  v17.physicsLibrary = v16.physicsLibrary;
                   if ( v16.physicsLibrary )
                   {
-                    _RDI->physicsLibrary = v16.physicsLibrary;
-                    v17 = Cmd_Argv(v11);
-                    _XMM0_8 = atof(v17);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  dword ptr [rdi+8], xmm1
-                    }
-                    _RBP = _RDI;
-                    __asm
-                    {
-                      vxorps  xmm1, xmm1, xmm1
-                      vxorps  xmm0, xmm0, xmm0
-                      vcvtsi2ss xmm0, xmm0, dword ptr [r14+20h]
-                      vcvtsi2ss xmm1, xmm1, ecx
-                      vdivss  xmm1, xmm1, xmm0
-                      vmovss  dword ptr [rdi+0Ch], xmm1
-                    }
+                    v14->cameraIndex = v16.xcam;
+                    v18 = Cmd_Argv(v11);
+                    _XMM0_8 = atof(v18);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    v14->startTime = *(float *)&_XMM1;
+                    v10 = v14;
+                    *(&_XMM0_8 + 1) = 0.0;
+                    v14->duration = (float)(HIDWORD(v17.physicsLibrary[1].name) - 1) / (float)*(int *)&v17.physicsLibrary[1].isMaterialList;
                   }
                   v11 += 2;
                   --v12;
                 }
                 while ( v12 );
               }
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+0Ch]
-                vaddss  xmm1, xmm0, dword ptr [rbp+8]
-                vmovss  dword ptr [rbx+100h], xmm1
-              }
+              modelList->totalCameraAnimationDuration = v10->duration + v10->startTime;
               AnimVisualizer_UpdateSceneDuration(v7);
             }
             else
@@ -1232,6 +1174,7 @@ void __fastcall AnimVisualizer_CmdSetSceneAlignment(double _XMM0_8)
   int v8; 
   int v9; 
   int v10; 
+  float *p_startTime; 
   const char *v12; 
   const char *v13; 
   const char *v14; 
@@ -1271,7 +1214,7 @@ void __fastcall AnimVisualizer_CmdSetSceneAlignment(double _XMM0_8)
         if ( v9 > 0 )
         {
           v10 = 3;
-          _R15 = &v7->alignmentValues[0].startTime;
+          p_startTime = &v7->alignmentValues[0].startTime;
           do
           {
             v12 = (char *)&queryFormat.fmt + 3;
@@ -1282,67 +1225,43 @@ void __fastcall AnimVisualizer_CmdSetSceneAlignment(double _XMM0_8)
             v15 = Cmd_Argv(v10);
             if ( !I_strcmp(v15, ":") )
               v13 = Cmd_Argv(v10) + 1;
-            Core_strcpy((char *)_R15 - 128, 0x40ui64, v12);
-            Core_strcpy((char *)_R15 - 64, 0x40ui64, v13);
+            Core_strcpy((char *)p_startTime - 128, 0x40ui64, v12);
+            Core_strcpy((char *)p_startTime - 64, 0x40ui64, v13);
             v16 = Cmd_Argv(v10 + 1);
             _XMM0_8 = atof(v16);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            *p_startTime = *(float *)&_XMM1;
             v18 = Cmd_Argv(v10 + 2);
             _XMM0_8 = atof(v18);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+4], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[1] = *(float *)&_XMM1;
             v20 = Cmd_Argv(v10 + 3);
             _XMM0_8 = atof(v20);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+8], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[2] = *(float *)&_XMM1;
             v22 = Cmd_Argv(v10 + 4);
             _XMM0_8 = atof(v22);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+0Ch], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[3] = *(float *)&_XMM1;
             v24 = Cmd_Argv(v10 + 5);
             _XMM0_8 = atof(v24);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+10h], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[4] = *(float *)&_XMM1;
             v26 = Cmd_Argv(v10 + 6);
             _XMM0_8 = atof(v26);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+14h], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[5] = *(float *)&_XMM1;
             v28 = Cmd_Argv(v10 + 7);
             _XMM0_8 = atof(v28);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+18h], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[6] = *(float *)&_XMM1;
             v30 = Cmd_Argv(v10 + 8);
             _XMM0_8 = atof(v30);
             ++v4;
             v10 += 10;
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+1Ch], xmm1
-            }
-            _R15 += 40;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            p_startTime[7] = *(float *)&_XMM1;
+            p_startTime += 40;
           }
           while ( v4 < v7->alignmentValueCount );
         }
@@ -1361,37 +1280,33 @@ AnimVisualizer_CmdSetSceneInfo
 
 void __fastcall AnimVisualizer_CmdSetSceneInfo(double _XMM0_8)
 {
-  const char *v2; 
-  unsigned int v3; 
-  int v4; 
+  const char *v1; 
+  unsigned int v2; 
+  int v3; 
   AnimVyzScene *i; 
+  AnimVyzScene *v5; 
+  const char *v6; 
   const char *v7; 
-  const char *v8; 
 
   if ( Cmd_Argc() == 4 )
   {
-    v2 = Cmd_Argv(1);
-    v3 = I_atoui(v2);
-    v4 = 0;
-    for ( i = s_AnimVyzScenes; i->sceneInstanceId != v3; ++i )
+    v1 = Cmd_Argv(1);
+    v2 = I_atoui(v1);
+    v3 = 0;
+    for ( i = s_AnimVyzScenes; i->sceneInstanceId != v2; ++i )
     {
-      if ( (unsigned int)++v4 >= 0x10 )
+      if ( (unsigned int)++v3 >= 0x10 )
         return;
     }
-    _RDI = &s_AnimVyzScenes[v4];
-    if ( _RDI )
+    v5 = &s_AnimVyzScenes[v3];
+    if ( v5 )
     {
-      __asm { vmovaps [rsp+38h+var_18], xmm6 }
-      v7 = Cmd_Argv(2);
-      v8 = Cmd_Argv(3);
-      _XMM0_8 = atof(v8);
+      v6 = Cmd_Argv(2);
+      v7 = Cmd_Argv(3);
+      _XMM0_8 = atof(v7);
       __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-      Core_strcpy(_RDI->sceneName, 0x40ui64, v7);
-      __asm
-      {
-        vmovss  dword ptr [rdi+10h], xmm6
-        vmovaps xmm6, [rsp+38h+var_18]
-      }
+      Core_strcpy(v5->sceneName, 0x40ui64, v6);
+      v5->sceneDuration = *(float *)&_XMM6;
     }
   }
 }
@@ -1430,6 +1345,8 @@ void __fastcall AnimVisualizer_CmdSetObjectDisplacement(double _XMM0_8)
   unsigned int v4; 
   AnimVyzScene *v5; 
   unsigned int v6; 
+  AnimVyzScene *v7; 
+  AnimVyzModel *modelList; 
   const char *v9; 
   const char *v11; 
   const char *v13; 
@@ -1452,64 +1369,45 @@ void __fastcall AnimVisualizer_CmdSetObjectDisplacement(double _XMM0_8)
       if ( v6 >= 0x10 )
         return;
     }
-    _RDI = &s_AnimVyzScenes[v6];
-    if ( _RDI )
+    v7 = &s_AnimVyzScenes[v6];
+    if ( v7 )
     {
-      _RBX = _RDI->modelList;
-      if ( _RBX )
+      modelList = v7->modelList;
+      if ( modelList )
       {
-        while ( _RBX->modelInstanceId != v4 )
+        while ( modelList->modelInstanceId != v4 )
         {
-          _RBX = _RBX->next;
-          if ( !_RBX )
+          modelList = modelList->next;
+          if ( !modelList )
             return;
         }
-        if ( _RBX->clientModelIndex != -1 )
+        if ( modelList->clientModelIndex != -1 )
         {
           v9 = Cmd_Argv(3);
           _XMM0_8 = atof(v9);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+11Ch], xmm1
-          }
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->displacementPosition.v[0] = *(float *)&_XMM1;
           v11 = Cmd_Argv(4);
           _XMM0_8 = atof(v11);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+120h], xmm1
-          }
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->displacementPosition.v[1] = *(float *)&_XMM1;
           v13 = Cmd_Argv(5);
           _XMM0_8 = atof(v13);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+124h], xmm1
-          }
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->displacementPosition.v[2] = *(float *)&_XMM1;
           v15 = Cmd_Argv(6);
           _XMM0_8 = atof(v15);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+128h], xmm1
-          }
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->displacementAngles.v[0] = *(float *)&_XMM1;
           v17 = Cmd_Argv(7);
           _XMM0_8 = atof(v17);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+12Ch], xmm1
-          }
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->displacementAngles.v[1] = *(float *)&_XMM1;
           v19 = Cmd_Argv(8);
           _XMM0_8 = atof(v19);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+130h], xmm1
-            vmovss  xmm1, dword ptr [rdi+14h]; time
-          }
-          AnimVisualizer_SetPlaybackPosition(_RDI, *(float *)&_XMM1, 1);
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->displacementAngles.v[2] = *(float *)&_XMM1;
+          AnimVisualizer_SetPlaybackPosition(v7, v7->currentTime, 1);
         }
       }
     }
@@ -1613,6 +1511,7 @@ void AnimVisualizer_CmdSetAttachedObjects()
   unsigned int v3; 
   AnimVyzScene *v4; 
   unsigned int v5; 
+  AnimVyzScene *v6; 
   AnimVyzModel *modelList; 
   int v8; 
   const XModel **models; 
@@ -1645,10 +1544,10 @@ void AnimVisualizer_CmdSetAttachedObjects()
       if ( v5 >= 0x10 )
         return;
     }
-    _R15 = &s_AnimVyzScenes[v5];
-    if ( _R15 )
+    v6 = &s_AnimVyzScenes[v5];
+    if ( v6 )
     {
-      modelList = _R15->modelList;
+      modelList = v6->modelList;
       if ( modelList )
       {
         while ( modelList->modelInstanceId != v3 )
@@ -1721,8 +1620,7 @@ void AnimVisualizer_CmdSetAttachedObjects()
               while ( v21 );
             }
           }
-          __asm { vmovss  xmm1, dword ptr [r15+14h]; time }
-          AnimVisualizer_SetPlaybackPosition(_R15, *(float *)&_XMM1, 1);
+          AnimVisualizer_SetPlaybackPosition(v6, v6->currentTime, 1);
         }
       }
     }
@@ -1747,18 +1645,12 @@ void __fastcall AnimVisualizer_CmdSetDvrRecordParams(double _XMM0_8)
     s_AnimVyzDVRRecordEnabled = I_strcmp(v1, "enable") == 0;
     v2 = Cmd_Argv(2);
     _XMM0_8 = atof(v2);
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  cs:s_AnimVyzDVRRecordStartTime, xmm1
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    s_AnimVyzDVRRecordStartTime = *(float *)&_XMM1;
     v4 = Cmd_Argv(3);
     _XMM0_8 = atof(v4);
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  cs:s_AnimVyzDVRRecordEndTime, xmm1
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    s_AnimVyzDVRRecordEndTime = *(float *)&_XMM1;
   }
 }
 
@@ -1823,6 +1715,7 @@ void __fastcall AnimVisualizer_CmdOverrideNotetrack(double _XMM0_8, __int64 a2, 
   unsigned int v17; 
   const char *v18; 
   unsigned int v19; 
+  XAnimNotifyInfo *notifyInfo; 
   int v21; 
   __int64 v22; 
   const char *v23; 
@@ -1889,7 +1782,7 @@ LABEL_13:
           v12->inUse = 1;
           strncpy(v12->animationName, v8->animationName, 0x100ui64);
           v12->originalParts = Data;
-          _R15 = v12->notifyInfo;
+          notifyInfo = v12->notifyInfo;
           v21 = 5;
           v22 = v19;
           do
@@ -1898,14 +1791,11 @@ LABEL_13:
             _XMM0_8 = atof(v23);
             v24 = v21 + 1;
             v21 += 2;
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r15+4], xmm1
-            }
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            notifyInfo->time = *(float *)&_XMM1;
             v26 = Cmd_Argv(v24);
-            _R15->name = SL_GetLowercaseString(v26, 0);
-            ++_R15;
+            notifyInfo->name = SL_GetLowercaseString(v26, 0);
+            ++notifyInfo;
             --v22;
           }
           while ( v22 );
@@ -1946,11 +1836,13 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimations(double _XMM0_8)
   unsigned int v5; 
   AnimVyzScene *v6; 
   unsigned int v7; 
+  AnimVyzScene *v8; 
   AnimVyzModel *modelList; 
   unsigned int clientModelIndex; 
   AnimVyzAnimation *v11; 
   int v12; 
   const DObj *DObj; 
+  int *p_treeIndex; 
   __int64 v15; 
   int v16; 
   int v17; 
@@ -1980,10 +1872,10 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimations(double _XMM0_8)
         if ( v7 >= 0x10 )
           return;
       }
-      _R13 = &s_AnimVyzScenes[v7];
-      if ( _R13 )
+      v8 = &s_AnimVyzScenes[v7];
+      if ( v8 )
       {
-        modelList = _R13->modelList;
+        modelList = v8->modelList;
         if ( modelList )
         {
           while ( modelList->modelInstanceId != v5 )
@@ -2002,7 +1894,7 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimations(double _XMM0_8)
             {
               for ( ; v11; v11 = v11->next )
               {
-                _R14 = &v11->additiveAnimations[0].treeIndex;
+                p_treeIndex = &v11->additiveAnimations[0].treeIndex;
                 v15 = 5i64;
                 do
                 {
@@ -2012,8 +1904,8 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimations(double _XMM0_8)
                   v19 = v18;
                   if ( asc_143D6868C[0] != *v18 || asc_143D6868C[1] != v18[1] )
                   {
-                    v20 = *_R14;
-                    *((_BYTE *)_R14 - 4) = 1;
+                    v20 = *p_treeIndex;
+                    *((_BYTE *)p_treeIndex - 4) = 1;
                     Tree = DObjGetTree(DObj);
                     XAnimCreate(Tree->anims, v20 + 1, v19, 1);
                   }
@@ -2021,25 +1913,18 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimations(double _XMM0_8)
                   _XMM0_8 = atof(v22);
                   v23 = v17 + 1;
                   v12 = v17 + 2;
-                  __asm
-                  {
-                    vcvtsd2ss xmm1, xmm0, xmm0
-                    vmovss  dword ptr [r14+4], xmm1
-                  }
+                  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                  p_treeIndex[1] = _XMM1;
                   v25 = Cmd_Argv(v23);
                   _XMM0_8 = atof(v25);
-                  __asm
-                  {
-                    vcvtsd2ss xmm1, xmm0, xmm0
-                    vmovss  dword ptr [r14+8], xmm1
-                  }
-                  _R14 += 4;
+                  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                  p_treeIndex[2] = _XMM1;
+                  p_treeIndex += 4;
                   --v15;
                 }
                 while ( v15 );
               }
-              __asm { vmovss  xmm1, dword ptr [r13+14h]; time }
-              AnimVisualizer_SetPlaybackPosition(_R13, *(float *)&_XMM1, 1);
+              AnimVisualizer_SetPlaybackPosition(v8, v8->currentTime, 1);
             }
           }
         }
@@ -2062,8 +1947,11 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimationWeights(double _XMM0_8)
   unsigned int v4; 
   AnimVyzScene *v5; 
   unsigned int v6; 
+  AnimVyzScene *v7; 
+  AnimVyzModel *modelList; 
   const char *v9; 
   int v10; 
+  float *additiveAnimationWeights; 
   __int64 v13; 
   const char *v14; 
 
@@ -2082,46 +1970,39 @@ void __fastcall AnimVisualizer_CmdSetAdditiveAnimationWeights(double _XMM0_8)
       if ( v6 >= 0x10 )
         return;
     }
-    _RSI = &s_AnimVyzScenes[v6];
-    if ( _RSI )
+    v7 = &s_AnimVyzScenes[v6];
+    if ( v7 )
     {
-      _RBX = _RSI->modelList;
-      if ( _RBX )
+      modelList = v7->modelList;
+      if ( modelList )
       {
-        while ( _RBX->modelInstanceId != v4 )
+        while ( modelList->modelInstanceId != v4 )
         {
-          _RBX = _RBX->next;
-          if ( !_RBX )
+          modelList = modelList->next;
+          if ( !modelList )
             return;
         }
-        if ( _RBX->clientModelIndex != -1 )
+        if ( modelList->clientModelIndex != -1 )
         {
           v9 = Cmd_Argv(3);
           _XMM0_8 = atof(v9);
           v10 = 4;
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx+17Ch], xmm1
-          }
-          _RBX = _RBX->additiveAnimationWeights;
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          modelList->additiveAnimationBlendRate = *(float *)&_XMM1;
+          additiveAnimationWeights = modelList->additiveAnimationWeights;
           v13 = 5i64;
           do
           {
             v14 = Cmd_Argv(v10);
             _XMM0_8 = atof(v14);
             ++v10;
-            ++_RBX;
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [rbx-4], xmm1
-            }
+            ++additiveAnimationWeights;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            *(additiveAnimationWeights - 1) = *(float *)&_XMM1;
             --v13;
           }
           while ( v13 );
-          __asm { vmovss  xmm1, dword ptr [rsi+14h]; time }
-          AnimVisualizer_SetPlaybackPosition(_RSI, *(float *)&_XMM1, 1);
+          AnimVisualizer_SetPlaybackPosition(v7, v7->currentTime, 1);
         }
       }
     }
@@ -2181,134 +2062,88 @@ AnimVisualizer_ApplySceneAlignment
 */
 void AnimVisualizer_ApplySceneAlignment(AnimVyzScene *scene, const AnimVyzModel *modelInstance, const vec3_t *positionIn, const vec3_t *anglesIn, vec3_t *positionOut, vec3_t *anglesOut)
 {
-  float v28; 
-  float v33; 
-  float v50; 
-  float v52; 
+  float v7; 
+  double v9; 
+  float v10; 
+  double v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  double v18; 
+  float v19; 
   float v1[4]; 
 
-  __asm
+  positionOut->v[0] = positionIn->v[0] + scene->position.v[0];
+  positionOut->v[1] = scene->position.v[1] + positionIn->v[1];
+  positionOut->v[2] = scene->position.v[2] + positionIn->v[2];
+  anglesOut->v[0] = scene->angles.v[0] + anglesIn->v[0];
+  anglesOut->v[1] = scene->angles.v[1] + anglesIn->v[1];
+  v7 = scene->angles.v[2] + anglesIn->v[2];
+  v16 = 0.0;
+  v17 = 0.0;
+  v18 = 0.0;
+  v19 = 0.0;
+  v1[0] = 0.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  anglesOut->v[2] = v7;
+  if ( VecNCompareCustomEpsilon(scene->shotDisplacementPosition.v, v1, 0.001, 3) )
   {
-    vmovaps [rsp+70h+var_10], xmm6
-    vmovss  xmm0, dword ptr [r8]
-    vaddss  xmm1, xmm0, dword ptr [rcx+38h]
-  }
-  _RBX = positionOut;
-  _R14 = modelInstance;
-  _RDI = anglesOut;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3a83126f
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm0, dword ptr [rcx+3Ch]
-    vaddss  xmm1, xmm0, dword ptr [r8+4]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovss  xmm0, dword ptr [rcx+40h]
-    vaddss  xmm1, xmm0, dword ptr [r8+8]
-    vmovss  dword ptr [rbx+8], xmm1
-    vmovss  xmm0, dword ptr [rcx+44h]
-    vaddss  xmm1, xmm0, dword ptr [r9]
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm0, dword ptr [rcx+48h]
-    vaddss  xmm1, xmm0, dword ptr [r9+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  xmm0, dword ptr [rcx+4Ch]
-    vaddss  xmm1, xmm0, dword ptr [r9+8]
-    vmovss  dword ptr [rbp+var_50], xmm2
-    vmovss  dword ptr [rbp+var_50+4], xmm2
-    vmovss  [rbp+var_48], xmm2
-    vmovss  dword ptr [rbp+var_40], xmm2
-    vmovss  dword ptr [rbp+var_40+4], xmm2
-    vmovss  [rbp+var_38], xmm2
-    vmovss  [rbp+v1], xmm2
-    vmovss  [rbp+var_2C], xmm2
-    vmovss  [rbp+var_28], xmm2
-  }
-  _R15 = scene;
-  __asm
-  {
-    vmovaps xmm2, xmm6; epsilon
-    vmovss  dword ptr [rdi+8], xmm1
-  }
-  if ( VecNCompareCustomEpsilon(scene->shotDisplacementPosition.v, v1, *(float *)&_XMM2, 3) )
-  {
-    if ( !_R14 )
-      goto LABEL_6;
-    __asm { vmovaps xmm2, xmm6; epsilon }
-    if ( VecNCompareCustomEpsilon(_R14->displacementPosition.v, v1, *(float *)&_XMM2, 3) )
+    if ( !modelInstance || VecNCompareCustomEpsilon(modelInstance->displacementPosition.v, v1, 0.001, 3) )
     {
-LABEL_6:
-      __asm { vmovaps xmm2, xmm6; epsilon }
-      if ( VecNCompareCustomEpsilon(_R15->sceneDisplacementPosition.v, v1, *(float *)&_XMM2, 3) )
+      if ( VecNCompareCustomEpsilon(scene->sceneDisplacementPosition.v, v1, 0.001, 3) )
         goto LABEL_9;
-      __asm { vmovsd  xmm0, qword ptr [r15+0A5Ch] }
-      v28 = _R15->sceneDisplacementPosition.v[2];
+      v9 = *(double *)scene->sceneDisplacementPosition.v;
+      v10 = scene->sceneDisplacementPosition.v[2];
     }
     else
     {
-      __asm { vmovsd  xmm0, qword ptr [r14+11Ch] }
-      v28 = _R14->displacementPosition.v[2];
+      v9 = *(double *)modelInstance->displacementPosition.v;
+      v10 = modelInstance->displacementPosition.v[2];
     }
   }
   else
   {
-    __asm { vmovsd  xmm0, qword ptr [r15+0A74h] }
-    v28 = _R15->shotDisplacementPosition.v[2];
+    v9 = *(double *)scene->shotDisplacementPosition.v;
+    v10 = scene->shotDisplacementPosition.v[2];
   }
-  __asm { vmovsd  [rbp+var_50], xmm0 }
-  v50 = v28;
+  v16 = v9;
+  v17 = v10;
 LABEL_9:
-  __asm { vmovaps xmm2, xmm6; epsilon }
-  if ( !VecNCompareCustomEpsilon(_R15->shotDisplacementAngles.v, v1, *(float *)&_XMM2, 3) )
+  if ( !VecNCompareCustomEpsilon(scene->shotDisplacementAngles.v, v1, 0.001, 3) )
   {
-    __asm { vmovsd  xmm0, qword ptr [r15+0A80h] }
-    v33 = _R15->shotDisplacementAngles.v[2];
+    v11 = *(double *)scene->shotDisplacementAngles.v;
+    v12 = scene->shotDisplacementAngles.v[2];
 LABEL_16:
-    __asm { vmovsd  [rbp+var_40], xmm0 }
-    v52 = v33;
+    v18 = v11;
+    v19 = v12;
     goto LABEL_17;
   }
-  if ( _R14 )
+  if ( modelInstance && !VecNCompareCustomEpsilon(modelInstance->displacementAngles.v, v1, 0.001, 3) )
   {
-    __asm { vmovaps xmm2, xmm6; epsilon }
-    if ( !VecNCompareCustomEpsilon(_R14->displacementAngles.v, v1, *(float *)&_XMM2, 3) )
-    {
-      __asm { vmovsd  xmm0, qword ptr [r14+128h] }
-      v33 = _R14->displacementAngles.v[2];
-      goto LABEL_16;
-    }
+    v11 = *(double *)modelInstance->displacementAngles.v;
+    v12 = modelInstance->displacementAngles.v[2];
+    goto LABEL_16;
   }
-  __asm { vmovaps xmm2, xmm6; epsilon }
-  if ( !VecNCompareCustomEpsilon(_R15->sceneDisplacementAngles.v, v1, *(float *)&_XMM2, 3) )
+  if ( !VecNCompareCustomEpsilon(scene->sceneDisplacementAngles.v, v1, 0.001, 3) )
   {
-    __asm { vmovsd  xmm0, qword ptr [r15+0A68h] }
-    v33 = _R15->sceneDisplacementAngles.v[2];
+    v11 = *(double *)scene->sceneDisplacementAngles.v;
+    v12 = scene->sceneDisplacementAngles.v[2];
     goto LABEL_16;
   }
 LABEL_17:
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+var_50]
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm2, dword ptr [rbp+var_50+4]
-    vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm1, [rbp+var_48]
-    vaddss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  xmm0, dword ptr [rbp+var_40]
-    vmovss  dword ptr [rbx+8], xmm2
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmovss  xmm2, dword ptr [rbp+var_40+4]
-    vaddss  xmm0, xmm2, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm1, [rbp+var_38]
-    vaddss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm2
-    vmovss  dword ptr [rdi+4], xmm0
-    vmovaps xmm6, [rsp+70h+var_10]
-  }
+  v13 = *((float *)&v16 + 1) + positionOut->v[1];
+  positionOut->v[0] = *(float *)&v16 + positionOut->v[0];
+  v14 = v17 + positionOut->v[2];
+  positionOut->v[1] = v13;
+  positionOut->v[2] = v14;
+  v15 = *((float *)&v18 + 1) + anglesOut->v[1];
+  anglesOut->v[0] = *(float *)&v18 + anglesOut->v[0];
+  anglesOut->v[2] = v19 + anglesOut->v[2];
+  anglesOut->v[1] = v15;
 }
 
 /*
@@ -2585,45 +2420,16 @@ void AnimVisualizer_FreeModel(AnimVyzModel *model)
 AnimVisualizer_GetModifiedDeltaTime_ToolUseOnly
 ==============
 */
-
-float __fastcall AnimVisualizer_GetModifiedDeltaTime_ToolUseOnly(int entityIndex, double deltaTime)
+float AnimVisualizer_GetModifiedDeltaTime_ToolUseOnly(int entityIndex, float deltaTime)
 {
   AnimVyzScene *SceneFromEntityIndex; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   SceneFromEntityIndex = AnimVisualizer_FindSceneFromEntityIndex(entityIndex);
-  if ( SceneFromEntityIndex )
-  {
-    if ( SceneFromEntityIndex->playbackState == Playing )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rax+20h]
-        vmovaps xmm6, [rsp+38h+var_18]
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovaps xmm6, [rsp+38h+var_18]
-      }
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+  if ( !SceneFromEntityIndex )
+    return deltaTime;
+  if ( SceneFromEntityIndex->playbackState == Playing )
+    return deltaTime * SceneFromEntityIndex->playbackSpeed;
+  return 0.0;
 }
 
 /*
@@ -2667,32 +2473,29 @@ LABEL_6:
 AnimVisualizer_Initialize
 ==============
 */
-
-void __fastcall AnimVisualizer_Initialize(__int64 a1, double _XMM1_8)
+void AnimVisualizer_Initialize(void)
 {
-  AnimVyzCommand *v4; 
+  AnimVyzCommand *v0; 
   cmd_function_s *p_cmd_function; 
-  __int64 v6; 
-  AnimVyzAnimation *v7; 
-  __int64 v8; 
+  __int64 v2; 
+  AnimVyzAnimation *v3; 
+  __int64 v4; 
   AnimVyzAnimation **p_next; 
-  AnimVyzCameraAnimation **v10; 
-  int v11; 
-  __int64 v12; 
+  AnimVyzCameraAnimation **v6; 
+  int v7; 
+  __int64 v8; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v4 = s_Commands;
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
+  v0 = s_Commands;
   p_cmd_function = &s_Commands[0].cmd_function;
-  v6 = 25i64;
+  v2 = 25i64;
   do
   {
-    Cmd_AddCommandInternal(v4->commandString, v4->commandHandler, p_cmd_function);
+    Cmd_AddCommandInternal(v0->commandString, v0->commandHandler, p_cmd_function);
     p_cmd_function = (cmd_function_s *)((char *)p_cmd_function + 56);
-    ++v4;
-    --v6;
+    ++v0;
+    --v2;
   }
-  while ( v6 );
+  while ( v2 );
   s_ModelPoolHead = s_AnimVyzModelPool;
   s_AnimVyzModelPool[0].next = &s_AnimVyzModelPool[1];
   s_AnimVyzModelPool[1].next = &s_AnimVyzModelPool[2];
@@ -2734,12 +2537,12 @@ void __fastcall AnimVisualizer_Initialize(__int64 a1, double _XMM1_8)
   s_AnimVyzModelPool[37].next = &s_AnimVyzModelPool[38];
   s_AnimVyzModelPool[38].next = &s_AnimVyzModelPool[39];
   s_AnimVyzModelPool[39].next = &s_AnimVyzModelPool[40];
-  v7 = &s_AnimVyzAnimationPool[1];
+  v3 = &s_AnimVyzAnimationPool[1];
   s_AnimVyzAnimationPoolFreeCount = 256;
   s_AnimVyzModelPool[40].next = &s_AnimVyzModelPool[41];
   s_AnimVyzModelPool[63].next = NULL;
   s_AnimVyzModelPool[41].next = &s_AnimVyzModelPool[42];
-  v8 = 255i64;
+  v4 = 255i64;
   s_AnimVyzModelPool[42].next = &s_AnimVyzModelPool[43];
   s_AnimVyzModelPool[43].next = &s_AnimVyzModelPool[44];
   s_AnimVyzModelPool[44].next = &s_AnimVyzModelPool[45];
@@ -2765,24 +2568,24 @@ void __fastcall AnimVisualizer_Initialize(__int64 a1, double _XMM1_8)
   p_next = &s_AnimVyzAnimationPool[0].next;
   do
   {
-    *p_next = v7;
+    *p_next = v3;
     p_next += 16;
-    ++v7;
-    --v8;
+    ++v3;
+    --v4;
   }
-  while ( v8 );
+  while ( v4 );
   s_AnimVyzAnimationPool[255].next = NULL;
   s_CameraAnimationPoolHead = s_CameraAnimationPool;
-  v10 = &s_CameraAnimationPool[0].next;
+  v6 = &s_CameraAnimationPool[0].next;
   s_CameraAnimationPoolFreeCount = 128;
-  v11 = 1;
+  v7 = 1;
   do
   {
-    v12 = v11++;
-    *v10 = &s_CameraAnimationPool[v12];
-    v10 += 3;
+    v8 = v7++;
+    *v6 = &s_CameraAnimationPool[v8];
+    v6 += 3;
   }
-  while ( (__int64)v10 < (__int64)&s_CameraAnimationPool[127].next );
+  while ( (__int64)v6 < (__int64)&s_CameraAnimationPool[127].next );
   s_CameraAnimationPool[127].next = NULL;
   s_AnimVyzCameraState.type = None;
   s_AnimVyzCameraState.model = NULL;
@@ -2804,58 +2607,13 @@ void __fastcall AnimVisualizer_Initialize(__int64 a1, double _XMM1_8)
   s_AnimVyzNoteTrackOverrides[15].inUse = 0;
   s_AnimVyzRequestDVar = Dvar_RegisterInt("NMMKOOSRMO", 0, 0, 1, 0x100u, "YanimVyz alignment request");
   s_AnimVyzAlignTargetDVar = Dvar_RegisterString("OMLKNQQMPQ", (const char *)&queryFormat.fmt + 3, 0x100u, "YanimVyz alignment target");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@47c35000
-    vmovss  xmm6, cs:__real@c7c35000
-  }
   s_AnimVyzAlignTagDVar = Dvar_RegisterString("NNTPLTSSMN", (const char *)&queryFormat.fmt + 3, 0x100u, "YanimVyz alignment tag");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  s_AnimVyzAlignPositionXDVar = Dvar_RegisterFloat("SMNOPRPON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "YanimVyz alignment position x");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  s_AnimVyzAlignPositionYDVar = Dvar_RegisterFloat("NKOPSKPOKQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "YanimVyz alignment position y");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  xmm7, cs:__real@43b40000
-    vmovss  xmm6, cs:__real@c3b40000
-  }
-  s_AnimVyzAlignPositionZDVar = Dvar_RegisterFloat("TRNLSPTRN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "YanimVyz alignment position z");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  s_AnimVyzAlignAngleXDVar = Dvar_RegisterFloat("NPLPTKSMRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "YanimVyz alignment angle x");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  s_AnimVyzAlignAngleYDVar = Dvar_RegisterFloat("LOONMSSSOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "YanimVyz alignment angle y");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  s_AnimVyzAlignAngleZDVar = Dvar_RegisterFloat("NQQPQNQRKP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "YanimVyz alignment angle z");
+  s_AnimVyzAlignPositionXDVar = Dvar_RegisterFloat("SMNOPRPON", 0.0, -100000.0, 100000.0, 0x100u, "YanimVyz alignment position x");
+  s_AnimVyzAlignPositionYDVar = Dvar_RegisterFloat("NKOPSKPOKQ", 0.0, -100000.0, 100000.0, 0x100u, "YanimVyz alignment position y");
+  s_AnimVyzAlignPositionZDVar = Dvar_RegisterFloat("TRNLSPTRN", 0.0, -100000.0, 100000.0, 0x100u, "YanimVyz alignment position z");
+  s_AnimVyzAlignAngleXDVar = Dvar_RegisterFloat("NPLPTKSMRP", 0.0, -360.0, 360.0, 0x100u, "YanimVyz alignment angle x");
+  s_AnimVyzAlignAngleYDVar = Dvar_RegisterFloat("LOONMSSSOM", 0.0, -360.0, 360.0, 0x100u, "YanimVyz alignment angle y");
+  s_AnimVyzAlignAngleZDVar = Dvar_RegisterFloat("NQQPQNQRKP", 0.0, -360.0, 360.0, 0x100u, "YanimVyz alignment angle z");
 }
 
 /*
@@ -3080,110 +2838,77 @@ void __fastcall AnimVisualizer_SetPlaybackPosition(AnimVyzScene *scene, double t
 {
   bool looping; 
   AnimVyzScene::PlaybackState playbackState; 
-  bool i; 
+  float playbackSpeed; 
   AnimVyzModel *modelList; 
-  AnimVyzModel *v16; 
-  AnimVyzModel *v18; 
-  bool v20; 
-  char v30; 
-  __int64 v31; 
+  float *p_currentTime; 
+  __int128 v10; 
+  AnimVyzModel *v11; 
+  AnimVyzModel *v13; 
+  float v14; 
+  bool v15; 
+  __int128 v16; 
+  __int64 v17; 
 
   looping = scene->looping;
   playbackState = scene->playbackState;
-  _RSI = scene;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovaps [rsp+78h+var_48], xmm8
-  }
   scene->looping = 0;
   scene->playbackState = Playing;
-  __asm { vmovss  xmm8, dword ptr [rcx+20h] }
+  playbackSpeed = scene->playbackSpeed;
   scene->playbackSpeed = 1.0;
-  __asm { vmovaps xmm7, xmm1 }
-  i = !forcePlayFromStart;
+  _XMM7 = *(_OWORD *)&time;
   if ( forcePlayFromStart )
   {
     modelList = scene->modelList;
-    scene->currentTime = 0.0;
-    for ( i = modelList == NULL; modelList; i = modelList == NULL )
-    {
+    for ( scene->currentTime = 0.0; modelList; modelList = modelList->next )
       modelList->currentAnimation[0] = NULL;
-      modelList = modelList->next;
-    }
   }
-  __asm
+  p_currentTime = &scene->currentTime;
+  if ( *(float *)&time == 0.0 || (v10 = *(unsigned int *)p_currentTime, *(float *)&_XMM7 <= *(float *)&v10) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm7, xmm0
-  }
-  _RDI = &scene->currentTime;
-  if ( i )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi]
-    vcomiss xmm7, xmm1
-  }
-  if ( i )
-  {
-LABEL_18:
-    v16 = scene->modelList;
-    *_RDI = 0.0;
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    if ( v16 )
+    v11 = scene->modelList;
+    *p_currentTime = 0.0;
+    v10 = 0i64;
+    if ( v11 )
     {
       do
       {
-        v16->currentAnimation[0] = NULL;
-        v16 = v16->next;
+        v11->currentAnimation[0] = NULL;
+        v11 = v11->next;
       }
-      while ( v16 );
-      __asm { vmovss  xmm1, dword ptr [rdi] }
+      while ( v11 );
+      v10 = *(unsigned int *)p_currentTime;
     }
   }
   __asm { vminss  xmm6, xmm7, cs:__real@3c23d70a }
-  v18 = scene->modelList;
-  if ( v18 )
+  do
   {
-    do
+    v13 = scene->modelList;
+    if ( v13 )
     {
-      if ( v18->clientModelIndex != -1 )
+      do
       {
-        __asm { vmovss  xmm1, dword ptr [rdi]; currentTime }
-        AnimVisualizer_UpdateAnimationState(v18, *(float *)&_XMM1, 0);
-        if ( CG_ClientModel_GetDObj(LOCAL_CLIENT_0, v18->clientModelIndex) )
+        if ( v13->clientModelIndex != -1 )
         {
-          __asm { vmovaps xmm2, xmm6 }
-          DObjUpdateClientInfo((DObj *)&v31, *(float *)&_XMM1, v20, 0);
+          v14 = *p_currentTime;
+          AnimVisualizer_UpdateAnimationState(v13, *p_currentTime, 0);
+          if ( CG_ClientModel_GetDObj(LOCAL_CLIENT_0, v13->clientModelIndex) )
+            DObjUpdateClientInfo((DObj *)&v17, v14, v15, 0);
         }
+        v13 = v13->next;
       }
-      v18 = v18->next;
+      while ( v13 );
+      v10 = *(unsigned int *)p_currentTime;
     }
-    while ( v18 );
-    __asm { vmovss  xmm1, dword ptr [rdi] }
+    v16 = v10;
+    *(float *)&v16 = *(float *)&v10 + *(float *)&_XMM6;
+    v10 = v16;
+    *p_currentTime = *(float *)&v16;
   }
-  __asm
-  {
-    vaddss  xmm1, xmm1, xmm6
-    vcomiss xmm1, xmm7
-    vmovss  dword ptr [rdi], xmm1
-  }
-  _RSI->looping = looping;
-  _RSI->playbackState = playbackState;
-  __asm
-  {
-    vmovss  dword ptr [rsi+20h], xmm8
-    vmovaps xmm6, [rsp+78h+var_28]
-  }
-  _R11 = &v30;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
-  AnimVisualizer_UpdateScene(_RSI, *(float *)&_XMM1, 1);
+  while ( *(float *)&v16 < *(float *)&_XMM7 );
+  scene->looping = looping;
+  scene->playbackState = playbackState;
+  scene->playbackSpeed = playbackSpeed;
+  AnimVisualizer_UpdateScene(scene, *(float *)&v16, 1);
 }
 
 /*
@@ -3222,83 +2947,62 @@ void AnimVisualizer_Terminate(void)
 AnimVisualizer_Update
 ==============
 */
-
-void __fastcall AnimVisualizer_Update(double deltaTimeSeconds)
+void AnimVisualizer_Update(float deltaTimeSeconds)
 {
-  __int64 v4; 
-  __int64 v8; 
-  AnimVyzScene *v9; 
-  __int64 p_playbackState; 
+  AnimVyzScene::PlaybackState *p_playbackState; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  __int64 v6; 
+  AnimVyzScene *v7; 
+  __int64 p_currentTime; 
+  __int64 v9; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( s_AnimVyzReady )
   {
-    _RBX = &s_AnimVyzScenes[0].playbackState;
-    v4 = 16i64;
+    p_playbackState = &s_AnimVyzScenes[0].playbackState;
+    v3 = 16i64;
     do
     {
-      if ( *((_DWORD *)_RBX - 6) )
+      if ( *((_DWORD *)p_playbackState - 6) )
       {
-        __asm { vmovss  xmm1, dword ptr [rbx-4] }
-        if ( *_RBX == Playing )
+        v4 = *((float *)p_playbackState - 1);
+        if ( *p_playbackState == Playing )
         {
-          __asm
-          {
-            vmulss  xmm0, xmm6, dword ptr [rbx+8]
-            vaddss  xmm2, xmm6, dword ptr [rbx+0A78h]
-            vmovss  dword ptr [rbx+0A78h], xmm2
-            vaddss  xmm1, xmm1, xmm0; currentTime
-          }
+          v5 = deltaTimeSeconds * *((float *)p_playbackState + 2);
+          *((float *)p_playbackState + 670) = deltaTimeSeconds + *((float *)p_playbackState + 670);
+          v4 = v4 + v5;
         }
-        AnimVisualizer_UpdateScene((AnimVyzScene *)(_RBX - 6), *(float *)&_XMM1, 0);
-        AnimVisualizer_UpdateSceneAlignment((AnimVyzScene *)(_RBX - 6));
+        AnimVisualizer_UpdateScene((AnimVyzScene *)(p_playbackState - 6), v4, 0);
+        AnimVisualizer_UpdateSceneAlignment((AnimVyzScene *)(p_playbackState - 6));
       }
-      _RBX += 694;
-      --v4;
+      p_playbackState += 694;
+      --v3;
     }
-    while ( v4 );
+    while ( v3 );
     AnimVisualizer_UpdateCameraState();
     if ( !s_AnimVyzDVRRecordEnabled || !s_AnimVyzActiveSceneInstanceId )
       goto LABEL_20;
-    v8 = 0i64;
-    v9 = s_AnimVyzScenes;
-    while ( v9->sceneInstanceId != s_AnimVyzActiveSceneInstanceId )
+    v6 = 0i64;
+    v7 = s_AnimVyzScenes;
+    while ( v7->sceneInstanceId != s_AnimVyzActiveSceneInstanceId )
     {
-      v8 = (unsigned int)(v8 + 1);
-      ++v9;
-      if ( (unsigned int)v8 >= 0x10 )
+      v6 = (unsigned int)(v6 + 1);
+      ++v7;
+      if ( (unsigned int)v6 >= 0x10 )
       {
-        _RDX = 20i64;
-        p_playbackState = 24i64;
+        p_currentTime = 20i64;
+        v9 = 24i64;
         goto LABEL_15;
       }
     }
-    _RDX = (__int64)&s_AnimVyzScenes[v8].currentTime;
-    p_playbackState = (__int64)&s_AnimVyzScenes[v8].playbackState;
-    if ( *(_DWORD *)p_playbackState != 1 )
-      goto LABEL_20;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdx]
-      vmovss  xmm0, cs:s_AnimVyzDVRRecordStartTime
-      vcomiss xmm0, xmm1
-    }
-    if ( *(_DWORD *)p_playbackState > 1u )
-      goto LABEL_20;
+    p_currentTime = (__int64)&s_AnimVyzScenes[v6].currentTime;
+    v9 = (__int64)&s_AnimVyzScenes[v6].playbackState;
 LABEL_15:
-    __asm { vcomiss xmm1, cs:s_AnimVyzDVRRecordEndTime }
-    if ( !*(_DWORD *)p_playbackState )
+    if ( *(_DWORD *)v9 == 1 && s_AnimVyzDVRRecordStartTime <= *(float *)p_currentTime && *(float *)p_currentTime < s_AnimVyzDVRRecordEndTime )
     {
       if ( !s_AnimVyzDVRRecordActive )
-      {
         s_AnimVyzDVRRecordActive = 1;
-        __asm { vmovaps xmm6, [rsp+38h+var_18] }
-        return;
-      }
     }
     else
     {
@@ -3306,7 +3010,6 @@ LABEL_20:
       s_AnimVyzDVRRecordActive = 0;
     }
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -3314,314 +3017,220 @@ LABEL_20:
 AnimVisualizer_UpdateAnimationState
 ==============
 */
-
-void __fastcall AnimVisualizer_UpdateAnimationState(AnimVyzModel *modelInstance, double currentTime, bool reset)
+void AnimVisualizer_UpdateAnimationState(AnimVyzModel *modelInstance, float currentTime, bool reset)
 {
-  AnimVyzAnimation *v12; 
+  AnimVyzAnimation *v3; 
+  AnimVyzAnimation *v4; 
+  AnimVyzAnimation *v5; 
   char tree; 
-  bool v16; 
-  bool v20; 
-  AnimVyzAnimation *v23; 
-  const XModel *v24; 
+  float v8; 
+  float startTime; 
+  AnimVyzAnimation *v10; 
+  float v11; 
+  AnimVyzAnimation *v12; 
+  const XModel *v13; 
   int clientModelIndex; 
-  const XModel **v26; 
-  int v27; 
-  XModel **v28; 
-  scr_string_t *v29; 
-  char v30; 
-  char v31; 
+  const XModel **v15; 
+  int v16; 
+  XModel **v17; 
+  scr_string_t *v18; 
+  char v19; 
+  char v20; 
   const DObj *DObj; 
-  bool v33; 
-  unsigned int deltaAnimationTreeIndex; 
-  XAnimTree *v40; 
-  unsigned int v43; 
-  XAnimTree *v44; 
-  bool v45; 
-  int v47; 
-  const DObj *v49; 
-  __int64 i; 
-  unsigned int v58; 
-  XAnimTree *v59; 
-  __int64 v62; 
-  __int64 v63; 
-  int treeIndex; 
+  bool v22; 
+  bool v23; 
   float time; 
-  float timea; 
-  float timeb; 
-  float timec; 
-  float timed; 
-  float v78; 
-  float v79; 
-  float v80; 
-  float v81; 
-  float v82; 
-  float v83; 
+  unsigned int deltaAnimationTreeIndex; 
+  XAnimTree *v26; 
+  float v27; 
+  unsigned int v28; 
+  XAnimTree *v29; 
+  bool v30; 
+  int v31; 
+  AnimVyzAnimation *v32; 
+  const DObj *v33; 
+  __int64 i; 
+  float bias; 
+  float v36; 
+  float v37; 
+  float v38; 
+  unsigned int v39; 
+  XAnimTree *v40; 
+  double Length; 
+  bool v42; 
+  float v43; 
+  __int64 v44; 
+  __int64 v45; 
+  int treeIndex; 
+  __int64 v47; 
   DObj obj; 
-  int v85; 
-  int v86; 
-  char v93; 
+  int v49; 
+  int v50; 
 
-  __asm { vmovaps [rsp+318h+var_78], xmm9 }
-  _RDI = modelInstance->animationList[0];
-  _R13 = NULL;
-  v12 = NULL;
+  v3 = modelInstance->animationList[0];
+  v4 = NULL;
+  v5 = NULL;
   tree = reset;
   LOBYTE(obj.tree) = reset;
-  __asm { vmovaps xmm9, xmm1 }
-  v16 = _RDI == NULL;
-  if ( _RDI )
+  v8 = currentTime;
+  if ( v3 )
   {
     while ( 1 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vcomiss xmm0, xmm9
-      }
-      if ( v16 )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [rdi+8]
-          vcomiss xmm0, xmm9
-        }
-        if ( !v16 )
-          break;
-      }
-      _RDI = _RDI->next;
-      v16 = _RDI == NULL;
-      if ( !_RDI )
+      startTime = v3->startTime;
+      if ( startTime <= currentTime && (float)(startTime + v3->duration) > currentTime )
+        break;
+      v3 = v3->next;
+      if ( !v3 )
         goto LABEL_7;
     }
-    _R13 = _RDI;
+    v4 = v3;
   }
 LABEL_7:
-  _RAX = modelInstance->animationList[1];
-  v20 = _RAX == NULL;
-  if ( _RAX )
+  v10 = modelInstance->animationList[1];
+  if ( v10 )
   {
     while ( 1 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+4]
-        vcomiss xmm0, xmm9
-      }
-      if ( v20 )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [rax+8]
-          vcomiss xmm0, xmm9
-        }
-        if ( !v20 )
-          break;
-      }
-      _RAX = _RAX->next;
-      v20 = _RAX == NULL;
-      if ( !_RAX )
+      v11 = v10->startTime;
+      if ( v11 <= currentTime && (float)(v11 + v10->duration) > currentTime )
+        break;
+      v10 = v10->next;
+      if ( !v10 )
         goto LABEL_13;
     }
-    v12 = _RAX;
+    v5 = v10;
   }
 LABEL_13:
-  v23 = modelInstance->currentAnimation[1];
-  *(_QWORD *)&obj.duplicateParts = v23;
-  if ( (v12 == NULL) == modelInstance->headOn )
+  v12 = modelInstance->currentAnimation[1];
+  *(_QWORD *)&obj.duplicateParts = v12;
+  if ( (v5 == NULL) == modelInstance->headOn )
   {
-    v30 = 0;
+    v19 = 0;
   }
   else
   {
-    v24 = modelInstance->models[0];
+    v13 = modelInstance->models[0];
     clientModelIndex = modelInstance->clientModelIndex;
-    modelInstance->headOn = v12 == NULL;
-    CG_ClientModel_SetModel(LOCAL_CLIENT_0, clientModelIndex, v24);
-    v26 = (const XModel **)&modelInstance->models[1];
-    v27 = 1;
+    modelInstance->headOn = v5 == NULL;
+    CG_ClientModel_SetModel(LOCAL_CLIENT_0, clientModelIndex, v13);
+    v15 = (const XModel **)&modelInstance->models[1];
+    v16 = 1;
     if ( modelInstance->models[1] )
     {
-      v28 = &modelInstance->models[1];
-      v29 = &modelInstance->attachNames[1];
+      v17 = &modelInstance->models[1];
+      v18 = &modelInstance->attachNames[1];
       do
       {
-        if ( modelInstance->headOn || modelInstance->headIdx != v27 )
-          CG_ClientModel_AddModel(LOCAL_CLIENT_0, modelInstance->clientModelIndex, *v26, *v29);
-        ++v28;
-        ++v27;
-        ++v29;
-        v26 = (const XModel **)v28;
+        if ( modelInstance->headOn || modelInstance->headIdx != v16 )
+          CG_ClientModel_AddModel(LOCAL_CLIENT_0, modelInstance->clientModelIndex, *v15, *v18);
+        ++v17;
+        ++v16;
+        ++v18;
+        v15 = (const XModel **)v17;
       }
-      while ( *v28 );
-      v23 = *(AnimVyzAnimation **)&obj.duplicateParts;
+      while ( *v17 );
+      v12 = *(AnimVyzAnimation **)&obj.duplicateParts;
       tree = (char)obj.tree;
     }
-    v30 = 1;
+    v19 = 1;
   }
-  v31 = 1;
-  if ( !v30 )
-    v31 = tree;
+  v20 = 1;
+  if ( !v19 )
+    v20 = tree;
   DObj = CG_ClientModel_GetDObj(LOCAL_CLIENT_0, modelInstance->clientModelIndex);
   if ( DObj )
   {
-    __asm
+    if ( modelInstance->currentAnimation[0] != v4 || v20 )
     {
-      vmovaps [rsp+318h+var_48], xmm6
-      vmovaps [rsp+318h+var_58], xmm7
-      vmovaps [rsp+318h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( modelInstance->currentAnimation[0] != _R13 || v31 )
-    {
-      v16 = !modelInstance->isSiege;
-      modelInstance->currentAnimation[0] = _R13;
-      if ( v16 && _R13 )
+      v23 = !modelInstance->isSiege;
+      modelInstance->currentAnimation[0] = v4;
+      if ( v23 && v4 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r13+10h]
-          vmovss  [rsp+318h+var_2E8], xmm8
-          vmovss  [rsp+318h+var_2F0], xmm0
-          vmovss  [rsp+318h+time], xmm8
-        }
-        XAnimSetGoalWeightKnob(DObj, 0, XANIM_SUBTREE_DEFAULT, _R13->deltaAnimationTreeIndex, time, v78, v81, (scr_string_t)0, 0, LINEAR);
-        __asm
-        {
-          vsubss  xmm0, xmm9, dword ptr [r13+4]
-          vdivss  xmm1, xmm0, dword ptr [r13+8]
-          vaddss  xmm6, xmm1, dword ptr [r13+0Ch]
-        }
-        deltaAnimationTreeIndex = _R13->deltaAnimationTreeIndex;
-        v40 = DObjGetTree(DObj);
-        __asm { vmovss  [rsp+318h+time], xmm6 }
-        XAnimSetTime(v40, 0, XANIM_SUBTREE_DEFAULT, deltaAnimationTreeIndex, timea);
+        XAnimSetGoalWeightKnob(DObj, 0, XANIM_SUBTREE_DEFAULT, v4->deltaAnimationTreeIndex, 1.0, v4->blendInTime, 1.0, (scr_string_t)0, 0, LINEAR);
+        currentTime = (float)(currentTime - v4->startTime) / v4->duration;
+        time = currentTime + v4->startTimeRatio;
+        deltaAnimationTreeIndex = v4->deltaAnimationTreeIndex;
+        v26 = DObjGetTree(DObj);
+        XAnimSetTime(v26, 0, XANIM_SUBTREE_DEFAULT, deltaAnimationTreeIndex, time);
       }
-      __asm { vxorps  xmm2, xmm2, xmm2 }
-      DObjUpdateClientInfo(&obj, *(float *)&currentTime, v33, 0);
+      DObjUpdateClientInfo(&obj, currentTime, v22, 0);
     }
     if ( modelInstance->isSiege && modelInstance->currentAnimation[0] )
     {
-      __asm
-      {
-        vsubss  xmm0, xmm9, dword ptr [rdi+4]
-        vdivss  xmm6, xmm0, dword ptr [rdi+1Ch]
-      }
-      v43 = _RDI->deltaAnimationTreeIndex;
-      v44 = DObjGetTree(DObj);
-      __asm { vmovss  [rsp+318h+time], xmm6 }
-      XAnimSetTime(v44, 0, XANIM_SUBTREE_DEFAULT, v43, timeb);
-      __asm { vxorps  xmm2, xmm2, xmm2 }
-      DObjUpdateClientInfo(&obj, *(float *)&currentTime, v45, 0);
+      v27 = (float)(v8 - v3->startTime) / v3->animationDuration;
+      v28 = v3->deltaAnimationTreeIndex;
+      v29 = DObjGetTree(DObj);
+      XAnimSetTime(v29, 0, XANIM_SUBTREE_DEFAULT, v28, v27);
+      DObjUpdateClientInfo(&obj, currentTime, v30, 0);
     }
-    if ( modelInstance->currentAnimation[1] != v12 || v31 )
+    if ( modelInstance->currentAnimation[1] != v5 || v20 )
     {
-      if ( v23 )
-      {
-        __asm
-        {
-          vmovss  [rsp+318h+var_2E8], xmm8
-          vmovss  [rsp+318h+var_2F0], xmm7
-          vmovss  [rsp+318h+time], xmm7
-        }
-        XAnimSetCompleteGoalWeight(DObj, 0, XANIM_SUBTREE_DEFAULT, v23->deltaAnimationTreeIndex, timec, v79, v82, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      }
       if ( v12 )
-      {
-        __asm
-        {
-          vmovss  [rsp+318h+var_2E8], xmm8
-          vmovss  [rsp+318h+var_2F0], xmm7
-          vmovss  [rsp+318h+time], xmm8
-        }
-        XAnimSetCompleteGoalWeight(DObj, 0, XANIM_SUBTREE_DEFAULT, v12->deltaAnimationTreeIndex, timed, v80, v83, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      }
-      __asm { vxorps  xmm2, xmm2, xmm2 }
-      DObjUpdateClientInfo(&obj, *(float *)&currentTime, v33, 0);
-      modelInstance->currentAnimation[1] = v12;
+        XAnimSetCompleteGoalWeight(DObj, 0, XANIM_SUBTREE_DEFAULT, v12->deltaAnimationTreeIndex, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      if ( v5 )
+        XAnimSetCompleteGoalWeight(DObj, 0, XANIM_SUBTREE_DEFAULT, v5->deltaAnimationTreeIndex, 1.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      DObjUpdateClientInfo(&obj, currentTime, v22, 0);
+      modelInstance->currentAnimation[1] = v5;
     }
-    v47 = modelInstance->clientModelIndex;
-    _RBP = modelInstance->animationList[0];
+    v31 = modelInstance->clientModelIndex;
+    v32 = modelInstance->animationList[0];
     obj.skel.partBits.control.array[6] = 0;
     obj.hidePartBits.array[1] = 0;
     obj.modelHasBadRootBoneMeld.array[2] = 0;
-    v85 = 0;
-    v86 = 0;
-    v49 = CG_ClientModel_GetDObj(LOCAL_CLIENT_0, v47);
-    if ( v49 && _RBP )
+    v49 = 0;
+    v50 = 0;
+    v33 = CG_ClientModel_GetDObj(LOCAL_CLIENT_0, v31);
+    if ( v33 && v32 )
     {
-      __asm
-      {
-        vmovaps [rsp+318h+var_88], xmm10
-        vmovaps [rsp+318h+var_98], xmm11
-        vmovsd  xmm11, cs:__real@3fa0e5604189374c
-      }
       do
       {
         for ( i = 0i64; i < 5; ++i )
         {
-          _RSI = 2 * i;
-          if ( _RBP->additiveAnimations[i].inUse )
+          if ( v32->additiveAnimations[i].inUse )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbp+rsi*8+2Ch]
-              vmovss  xmm0, dword ptr [rbp+8]
-              vaddss  xmm6, xmm1, dword ptr [rbp+4]
-              vsubss  xmm1, xmm0, xmm1
-              vmovaps xmm8, xmm7
-            }
+            bias = v32->additiveAnimations[i].bias;
+            v36 = bias + v32->startTime;
+            v37 = v32->duration - bias;
+            v38 = 0.0;
             if ( i == 4 )
             {
-              v58 = _RBP->additiveAnimations[4].treeIndex + 1;
-              v59 = DObjGetTree(v49);
-              *(double *)&_XMM0 = XAnimGetLength(v59->anims, v58);
-              __asm
-              {
-                vmulss  xmm1, xmm0, dword ptr [rbp+rsi*8+30h]; duration
-                vmovaps xmm8, xmm0
-              }
+              v39 = v32->additiveAnimations[4].treeIndex + 1;
+              v40 = DObjGetTree(v33);
+              Length = XAnimGetLength(v40->anims, v39);
+              v37 = *(float *)&Length * v32->additiveAnimations[4].loopFactor;
+              v38 = *(float *)&Length;
             }
-            __asm
+            v42 = 0;
+            v43 = 0.0;
+            if ( v37 > 0.0 && v36 >= 0.0 && v36 <= v8 && (float)(v37 + v36) > v8 )
             {
-              vcomiss xmm1, xmm7
-              vmovaps xmm10, xmm7
+              v43 = lambda_1ac17ad0f998f08f1d8f3f8382fc4590_::_lambda_invoker_cdecl_(v8 - v36, v37, modelInstance->additiveAnimationWeights[i], modelInstance->additiveAnimationBlendRate);
+              if ( v38 != 0.0 )
+                v42 = fmodf_0(v8 - v36, v38) < 0.033;
             }
-            v62 = (int)obj.skel.partBits.control.array[25 * i + 6];
-            if ( (int)v62 >= 8 )
+            v44 = (int)obj.skel.partBits.control.array[25 * i + 6];
+            if ( (int)v44 >= 8 )
             {
               Com_PrintWarning(1, "Animation Visualizer max additive animations exceeded\n");
             }
             else
             {
-              v63 = 3 * v62;
-              treeIndex = _RBP->additiveAnimations[i].treeIndex;
-              _RDX = 100 * i + 4 * v63;
-              __asm { vmovss  [rsp+rdx+318h+obj.ignoreCollision.baseclass_0.array], xmm10 }
-              *(_DWORD *)(&obj.numBones + _RDX) = treeIndex;
-              *((_BYTE *)&obj.ignoreCollision.array[1] + _RDX) = 0;
+              v45 = 3 * v44;
+              treeIndex = v32->additiveAnimations[i].treeIndex;
+              v47 = 100 * i + 4 * v45;
+              *(float *)((char *)obj.ignoreCollision.array + v47) = v43;
+              *(_DWORD *)(&obj.numBones + v47) = treeIndex;
+              *((_BYTE *)&obj.ignoreCollision.array[1] + v47) = v42;
               ++obj.skel.partBits.control.array[25 * i + 6];
             }
           }
         }
-        _RBP = _RBP->next;
+        v32 = v32->next;
       }
-      while ( _RBP );
-      __asm
-      {
-        vmovaps xmm11, [rsp+318h+var_98]
-        vmovaps xmm10, [rsp+318h+var_88]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+318h+var_58]
-      vmovaps xmm6, [rsp+318h+var_48]
-      vmovaps xmm8, [rsp+318h+var_68]
+      while ( v32 );
     }
   }
-  _R11 = &v93;
-  __asm { vmovaps xmm9, xmmword ptr [r11-40h] }
 }
 
 /*
@@ -3629,76 +3238,78 @@ LABEL_13:
 AnimVisualizer_UpdateCameraState
 ==============
 */
-
-void __fastcall AnimVisualizer_UpdateCameraState(double _XMM0_8)
+void AnimVisualizer_UpdateCameraState()
 {
   const XCam *cameraIndex; 
-  __int64 v5; 
-  AnimVyzScene *v6; 
+  AnimVyzScene *v1; 
+  __int64 v2; 
+  AnimVyzScene *v3; 
   AnimVyzCamera::CameraType type; 
-  char v8; 
-  bool v9; 
-  gentity_s *v10; 
+  char v5; 
+  bool v6; 
+  gentity_s *v7; 
   cg_t *LocalClientGlobals; 
   gclient_s *client; 
-  cg_t *v13; 
+  cg_t *v10; 
   AnimVyzModel *model; 
+  cg_t *v12; 
   const DObj *DObj; 
   const cpose_t *Pose; 
-  const cpose_t *v18; 
-  float v19; 
-  gclient_s *v21; 
-  gclient_s *v24; 
-  cg_t *v26; 
-  cg_t *v27; 
-  bool v30; 
+  const cpose_t *v15; 
+  float v16; 
+  gclient_s *v17; 
+  gclient_s *v18; 
+  float currentTime; 
+  cg_t *v20; 
+  cg_t *v21; 
+  float v22; 
+  AnimVyzCameraAnimation *i; 
+  float startTime; 
+  float v25; 
   XCamData *p_xCam; 
-  gclient_s *v37; 
+  gclient_s *v27; 
   vec3_t in1; 
   vec3_t angles; 
   vec4_t origin; 
   tmat33_t<vec3_t> outTagMat; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v44; 
+  tmat33_t<vec3_t> v33; 
   tmat43_t<vec3_t> out; 
 
   cameraIndex = NULL;
-  _RBX = NULL;
+  v1 = NULL;
   if ( s_AnimVyzActiveSceneInstanceId )
   {
-    v5 = 0i64;
-    v6 = s_AnimVyzScenes;
-    while ( v6->sceneInstanceId != s_AnimVyzActiveSceneInstanceId )
+    v2 = 0i64;
+    v3 = s_AnimVyzScenes;
+    while ( v3->sceneInstanceId != s_AnimVyzActiveSceneInstanceId )
     {
-      v5 = (unsigned int)(v5 + 1);
-      ++v6;
-      if ( (unsigned int)v5 >= 0x10 )
+      v2 = (unsigned int)(v2 + 1);
+      ++v3;
+      if ( (unsigned int)v2 >= 0x10 )
         goto LABEL_7;
     }
-    _RBX = &s_AnimVyzScenes[v5];
+    v1 = &s_AnimVyzScenes[v2];
   }
 LABEL_7:
   type = s_AnimVyzCameraState.type;
-  v8 = 0;
-  if ( _RBX )
+  v5 = 0;
+  if ( !v1 )
   {
-    if ( _RBX->cameraState.type != s_AnimVyzCameraState.type )
-    {
-LABEL_12:
-      v8 = 1;
+    v6 = s_AnimVyzCameraState.type == None;
+    goto LABEL_11;
+  }
+  if ( v1->cameraState.type == s_AnimVyzCameraState.type )
+  {
+    v6 = v1->cameraState.model == s_AnimVyzCameraState.model;
+LABEL_11:
+    if ( v6 )
       goto LABEL_13;
-    }
-    v9 = _RBX->cameraState.model == s_AnimVyzCameraState.model;
   }
-  else
-  {
-    v9 = s_AnimVyzCameraState.type == None;
-  }
-  if ( !v9 )
-    goto LABEL_12;
+  v5 = 1;
 LABEL_13:
-  v10 = g_entities;
-  if ( v8 )
+  v7 = g_entities;
+  if ( v5 )
   {
     if ( s_AnimVyzCameraState.type )
     {
@@ -3706,9 +3317,9 @@ LABEL_13:
       if ( s_AnimVyzCameraState.type == 2 )
       {
         LocalClientGlobals->radiantCamInUse = 0;
-        if ( v10 )
+        if ( v7 )
         {
-          client = v10->client;
+          client = v7->client;
           if ( client )
             client->flags &= ~2u;
         }
@@ -3721,146 +3332,113 @@ LABEL_13:
       s_AnimVyzCameraState.model = NULL;
       s_AnimVyzCameraState.type = None;
     }
-    if ( _RBX && _RBX->cameraState.type )
+    if ( v1 && v1->cameraState.type )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+28h]
-        vmovups xmmword ptr cs:s_AnimVyzCameraState.type, xmm0
-      }
+      s_AnimVyzCameraState = v1->cameraState;
       type = s_AnimVyzCameraState.type;
     }
   }
   if ( type == 2 )
   {
-    v13 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+    v10 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
     model = s_AnimVyzCameraState.model;
-    _RBX = v13;
+    v12 = v10;
     DObj = CG_ClientModel_GetDObj(LOCAL_CLIENT_0, s_AnimVyzCameraState.model->clientModelIndex);
     Pose = CG_ClientModel_GetPose(LOCAL_CLIENT_0, model->clientModelIndex);
-    v18 = Pose;
+    v15 = Pose;
     if ( DObj && Pose )
     {
       if ( CG_DObjGetWorldTagMatrix(Pose, DObj, scr_const.tag_camera, &outTagMat, (vec3_t *)&origin) )
       {
-        AxisToAngles(&outTagMat, &_RBX->radiantCameraAngles);
-        v19 = origin.v[2];
-        _RBX->radiantCamInUse = 1;
-        _RBX->radiantCamReceived = 1;
-        __asm
+        AxisToAngles(&outTagMat, &v12->radiantCameraAngles);
+        v16 = origin.v[2];
+        v12->radiantCamInUse = 1;
+        v12->radiantCamReceived = 1;
+        *(double *)v12->radiantCameraOrigin.v = *(double *)origin.v;
+        v12->radiantCameraOrigin.v[2] = v16;
+        if ( v7 )
         {
-          vmovsd  xmm0, qword ptr [rsp+140h+origin]
-          vmovsd  qword ptr [rbx+18048h], xmm0
-        }
-        _RBX->radiantCameraOrigin.v[2] = v19;
-        if ( v10 )
-        {
-          v21 = v10->client;
-          if ( v21 )
-            v21->flags |= 2u;
+          v17 = v7->client;
+          if ( v17 )
+            v17->flags |= 2u;
         }
       }
-      else if ( CG_DObjGetWorldTagMatrix(v18, DObj, scr_const.j_head, &outTagMat, (vec3_t *)&origin) )
+      else if ( CG_DObjGetWorldTagMatrix(v15, DObj, scr_const.j_head, &outTagMat, (vec3_t *)&origin) )
       {
         if ( model->currentAnimation[0] )
         {
-          __asm
-          {
-            vmovss  xmm3, cs:__real@3f800000; scale
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rsp+140h+angles], xmm0
-            vmovss  dword ptr [rsp+140h+angles+4], xmm0
-            vmovss  dword ptr [rsp+140h+angles+8], xmm0
-            vmovss  dword ptr [rsp+140h+in1], xmm0
-            vmovss  dword ptr [rsp+140h+in1+4], xmm0
-            vmovss  dword ptr [rsp+140h+in1+8], xmm0
-          }
-          MatrixSet43(&out, (const vec3_t *)&origin, &outTagMat, *(float *)&_XMM3);
-          MatrixTransformVector43(&in1, &out, &_RBX->radiantCameraOrigin);
+          angles.v[0] = 0.0;
+          angles.v[1] = 0.0;
+          angles.v[2] = 0.0;
+          in1.v[0] = 0.0;
+          in1.v[1] = 0.0;
+          in1.v[2] = 0.0;
+          MatrixSet43(&out, (const vec3_t *)&origin, &outTagMat, 1.0);
+          MatrixTransformVector43(&in1, &out, &v12->radiantCameraOrigin);
           AnglesToAxis(&angles, &axis);
-          MatrixMultiply(&axis, &outTagMat, &v44);
-          AxisToAngles(&v44, &_RBX->radiantCameraAngles);
-          _RBX->radiantCamInUse = 1;
-          _RBX->radiantCamReceived = 1;
-          if ( v10 )
+          MatrixMultiply(&axis, &outTagMat, &v33);
+          AxisToAngles(&v33, &v12->radiantCameraAngles);
+          v12->radiantCamInUse = 1;
+          v12->radiantCamReceived = 1;
+          if ( v7 )
           {
-            v24 = v10->client;
-            if ( v24 )
-              v24->flags |= 2u;
+            v18 = v7->client;
+            if ( v18 )
+              v18->flags |= 2u;
           }
         }
       }
     }
-    return;
   }
-  if ( type != 1 )
-    return;
-  __asm
+  else if ( type == 1 )
   {
-    vmovaps [rsp+140h+var_20], xmm6
-    vmovss  xmm6, dword ptr [rbx+14h]
-    vmovaps [rsp+140h+var_30], xmm7
-  }
-  v26 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-  v27 = v26;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  _RDX = s_AnimVyzCameraState.model->cameraAnimationList;
-  v30 = _RDX == NULL;
-  if ( !_RDX )
-    goto LABEL_42;
-  while ( 1 )
-  {
-    __asm
+    currentTime = v1->currentTime;
+    v20 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+    v21 = v20;
+    v22 = 0.0;
+    for ( i = s_AnimVyzCameraState.model->cameraAnimationList; i; i = i->next )
     {
-      vmovss  xmm0, dword ptr [rdx+8]
-      vcomiss xmm0, xmm6
-    }
-    if ( !v30 )
-      goto LABEL_45;
-    __asm { vaddss  xmm1, xmm0, dword ptr [rdx+0Ch] }
-    if ( !_RDX->next )
-      break;
-    __asm { vcomiss xmm1, xmm6 }
-    if ( _RDX->next )
-      goto LABEL_41;
-LABEL_45:
-    _RDX = _RDX->next;
-    v30 = _RDX == NULL;
-    if ( !_RDX )
-      goto LABEL_42;
-  }
-  __asm { vcomiss xmm1, xmm6 }
+      startTime = i->startTime;
+      if ( startTime <= currentTime )
+      {
+        v25 = startTime + i->duration;
+        if ( i->next )
+        {
+          if ( v25 > currentTime )
+          {
 LABEL_41:
-  cameraIndex = _RDX->cameraIndex;
-  __asm { vsubss  xmm7, xmm6, xmm0 }
-LABEL_42:
-  __asm { vmovaps xmm6, [rsp+140h+var_20] }
-  p_xCam = &v26->xCam;
-  if ( cameraIndex )
-  {
-    if ( XCamData::GetActiveXCam(p_xCam) != cameraIndex )
-      XCamData::Init(&v27->xCam, cameraIndex);
-    __asm
-    {
-      vmulss  xmm0, xmm7, cs:__real@447a0000
-      vcvttss2si eax, xmm0
+            cameraIndex = i->cameraIndex;
+            v22 = currentTime - startTime;
+            break;
+          }
+        }
+        else if ( v25 >= currentTime )
+        {
+          goto LABEL_41;
+        }
+      }
     }
-    XCamData::SetStartTime(&v27->xCam, v27->time - _EAX);
-    AnimVisualizer_ApplySceneAlignment(_RBX, NULL, &vec3_origin, &vec3_origin, &in1, &angles);
-    AnglesToQuat(&angles, &origin);
-    XCamData::SetSceneTransform(&v27->xCam, &in1, &origin);
-    if ( v10 )
+    p_xCam = &v20->xCam;
+    if ( cameraIndex )
     {
-      v37 = v10->client;
-      if ( v37 )
-        v37->flags |= 2u;
+      if ( XCamData::GetActiveXCam(p_xCam) != cameraIndex )
+        XCamData::Init(&v21->xCam, cameraIndex);
+      XCamData::SetStartTime(&v21->xCam, v21->time - (int)(float)(v22 * 1000.0));
+      AnimVisualizer_ApplySceneAlignment(v1, NULL, &vec3_origin, &vec3_origin, &in1, &angles);
+      AnglesToQuat(&angles, &origin);
+      XCamData::SetSceneTransform(&v21->xCam, &in1, &origin);
+      if ( v7 )
+      {
+        v27 = v7->client;
+        if ( v27 )
+          v27->flags |= 2u;
+      }
+    }
+    else
+    {
+      XCamData::Clear(p_xCam);
     }
   }
-  else
-  {
-    XCamData::Clear(p_xCam);
-  }
-  __asm { vmovaps xmm7, [rsp+140h+var_30] }
 }
 
 /*
@@ -3871,293 +3449,196 @@ AnimVisualizer_UpdatePositionAndAngles
 void AnimVisualizer_UpdatePositionAndAngles(AnimVyzScene *scene, AnimVyzModel *modelInstance)
 {
   vec3_t *p_initialPosition; 
-  const DObj *v15; 
-  bool v20; 
-  int v22; 
-  unsigned int v38; 
-  const XAnim_s *Anims; 
+  const DObj *v5; 
+  AnimVyzAnimation *v6; 
+  AnimVyzAnimation *v7; 
+  float v8; 
+  unsigned int v9; 
+  XAnimTree *v10; 
+  AnimVyzAnimation *v11; 
+  int v12; 
+  __int128 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float currentTime; 
+  float startTrimTime; 
+  float animationDuration; 
+  float blendInTime; 
+  float blendOutTime; 
+  float v22; 
+  __int128 currentTime_low; 
   unsigned int deltaAnimationTreeIndex; 
+  const XAnim_s *Anims; 
+  unsigned int v28; 
+  float v29; 
   XAnimTree *Tree; 
-  unsigned int v48; 
-  XAnimTree *v49; 
-  char v58; 
-  float positionOut; 
-  float positionOuta; 
-  float positionOutb; 
+  __int128 v31; 
+  unsigned int v34; 
+  XAnimTree *v35; 
+  float v36; 
+  float v37; 
+  __int128 v38; 
   DObj *obj; 
   vec3_t origin; 
   vec3_t angles; 
   vec4_t to; 
   vec3_t in1; 
-  vec3_t v114; 
-  float v116; 
+  vec3_t v44; 
+  __int64 v45; 
+  float v46; 
   vec3_t trans; 
   vec4_t rot; 
   vec4_t quat; 
-  vec3_t v120; 
-  vec4_t v121; 
+  vec3_t v50; 
+  vec4_t v51; 
   vec4_t from; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
   tmat43_t<vec3_t> result; 
   tmat43_t<vec3_t> in2; 
-  tmat43_t<vec3_t> v127; 
-  tmat33_t<vec3_t> v128; 
+  tmat43_t<vec3_t> v57; 
+  tmat33_t<vec3_t> v58; 
   tmat33_t<vec3_t> mat; 
-  tmat33_t<vec3_t> v130; 
+  tmat33_t<vec3_t> v60; 
 
   p_initialPosition = &modelInstance->initialPosition;
-  _R14 = scene;
   AnimVisualizer_ApplySceneAlignment(scene, modelInstance, &modelInstance->initialPosition, &modelInstance->initialAngles, &origin, &angles);
   obj = CG_ClientModel_GetDObj(LOCAL_CLIENT_0, modelInstance->clientModelIndex);
-  v15 = obj;
+  v5 = obj;
   if ( obj )
   {
-    v20 = !_R14->moving;
-    __asm { vmovaps [rsp+330h+var_40], xmm6 }
-    if ( !v20 )
+    if ( !scene->moving )
+      goto LABEL_26;
+    v6 = modelInstance->animationList[0];
+    if ( !v6 || modelInstance->isSiege )
+      goto LABEL_26;
+    if ( !modelInstance->cinematicAnimations )
     {
-      _RDI = modelInstance->animationList[0];
-      if ( _RDI )
+      v11 = NULL;
+      v12 = 0;
+      v44.v[0] = 0.0;
+      v44.v[1] = 0.0;
+      v44.v[2] = 0.0;
+      v13 = 0i64;
+      v14 = 0.0;
+      v15 = 0.0;
+      v16 = 0.0;
+      while ( 1 )
       {
-        if ( !modelInstance->isSiege )
+        currentTime = scene->currentTime;
+        if ( *(float *)&v13 > currentTime )
+          break;
+        startTrimTime = v6->startTrimTime;
+        animationDuration = v6->animationDuration;
+        blendInTime = 0.0;
+        blendOutTime = 0.0;
+        if ( v6->next )
+          blendOutTime = v6->blendOutTime;
+        if ( v11 )
+          blendInTime = v11->blendInTime;
+        v22 = (float)(animationDuration - startTrimTime) - blendOutTime;
+        currentTime_low = LODWORD(scene->currentTime);
+        *(float *)&currentTime_low = currentTime - *(float *)&v13;
+        _XMM0 = currentTime_low;
+        __asm { vminss  xmm9, xmm0, xmm12 }
+        if ( startTrimTime == 0.0 )
         {
-          if ( modelInstance->cinematicAnimations )
+          if ( v6->shotNumber != v12 )
           {
-            if ( modelInstance->currentAnimation[0] )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r14+14h]
-                vsubss  xmm1, xmm0, dword ptr [rax+4]
-                vdivss  xmm6, xmm1, dword ptr [rax+8]
-                vcomiss xmm6, cs:__real@3f800000
-              }
-            }
-            goto LABEL_27;
+            AnimVisualizer_ApplySceneAlignment(scene, modelInstance, p_initialPosition, &modelInstance->initialAngles, &origin, &angles);
+            ++v12;
           }
-          v20 = 1;
-          _RAX = NULL;
-          __asm { vmovaps [rsp+330h+var_50], xmm7 }
-          v22 = 0;
-          __asm
-          {
-            vmovaps [rsp+330h+var_60], xmm8
-            vmovaps [rsp+330h+var_B0], xmm13
-            vmovaps [rsp+330h+var_C0], xmm14
-            vmovaps [rsp+330h+var_D0], xmm15
-            vmovaps [rsp+330h+var_70], xmm9
-            vxorps  xmm7, xmm7, xmm7
-            vmovaps [rsp+330h+var_80], xmm10
-            vmovaps [rsp+330h+var_90], xmm11
-            vmovaps [rsp+330h+var_A0], xmm12
-            vmovss  dword ptr [rsp+330h+var_2B8], xmm7
-            vmovss  dword ptr [rsp+330h+var_2B8+4], xmm7
-            vmovss  dword ptr [rbp+230h+var_2B8+8], xmm7
-            vxorps  xmm8, xmm8, xmm8
-            vxorps  xmm13, xmm13, xmm13
-            vxorps  xmm14, xmm14, xmm14
-            vxorps  xmm15, xmm15, xmm15
-          }
-          while ( 1 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r14+14h]
-              vcomiss xmm8, xmm0
-            }
-            if ( !v20 )
-              break;
-            __asm
-            {
-              vmovss  xmm10, dword ptr [rdi+18h]
-              vmovss  xmm2, dword ptr [rdi+1Ch]
-              vsubss  xmm6, xmm2, xmm10
-              vmovaps xmm11, xmm7
-              vmovaps xmm1, xmm7
-            }
-            if ( _RDI->next )
-              __asm { vmovss  xmm1, dword ptr [rdi+14h] }
-            if ( _RAX )
-              __asm { vmovss  xmm11, dword ptr [rax+10h] }
-            __asm
-            {
-              vucomiss xmm10, xmm7
-              vsubss  xmm12, xmm6, xmm1
-              vsubss  xmm0, xmm0, xmm8
-              vminss  xmm9, xmm0, xmm12
-            }
-            if ( _RAX )
-            {
-              __asm { vmovss  xmm0, cs:__real@3f800000 }
-              deltaAnimationTreeIndex = _RDI->deltaAnimationTreeIndex;
-              __asm { vdivss  xmm6, xmm0, xmm2 }
-              Tree = DObjGetTree(v15);
-              __asm
-              {
-                vaddss  xmm0, xmm9, xmm10
-                vmulss  xmm1, xmm0, xmm6
-                vminss  xmm2, xmm1, cs:__real@3f800000
-                vmovss  dword ptr [rsp+330h+positionOut], xmm2
-              }
-              XAnimGetAbsDelta(Tree->anims, deltaAnimationTreeIndex, &v121, &v120, positionOuta);
-              v48 = _RDI->deltaAnimationTreeIndex;
-              v49 = DObjGetTree(obj);
-              __asm
-              {
-                vmulss  xmm0, xmm6, xmm10
-                vmovss  dword ptr [rsp+330h+positionOut], xmm0
-              }
-              XAnimGetAbsDelta(v49->anims, v48, &quat, &in1, positionOutb);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsp+330h+in1]
-                vmovss  xmm2, dword ptr [rsp+330h+in1+4]
-                vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-                vxorps  xmm1, xmm0, xmm10
-                vxorps  xmm0, xmm2, xmm10
-                vmovss  dword ptr [rsp+330h+in1], xmm1
-                vmovss  xmm1, dword ptr [rsp+330h+in1+8]
-                vxorps  xmm2, xmm1, xmm10
-                vmovss  dword ptr [rsp+330h+in1+8], xmm2
-                vmovss  dword ptr [rsp+330h+in1+4], xmm0
-              }
-              QuatToAxis(&quat, &out);
-              MatrixInverse(&out, &axis);
-              AxisToQuat(&axis, &quat);
-              AnglesAndOriginToMatrix43((const vec3_t *)&v121, &v120, &in2);
-              MatrixTransformVector43(&in1, &in2, &trans);
-              QuatToAxis(&quat, &v128);
-              MatrixMultiply(&v128, (const tmat33_t<vec3_t> *)&in2, &mat);
-              AxisToQuat(&mat, &rot);
-            }
-            else
-            {
-              if ( _RDI->shotNumber != v22 )
-              {
-                AnimVisualizer_ApplySceneAlignment(_R14, modelInstance, p_initialPosition, &modelInstance->initialAngles, &origin, &angles);
-                ++v22;
-              }
-              v38 = _RDI->deltaAnimationTreeIndex;
-              Anims = CG_ClientModel_GetAnims(LOCAL_CLIENT_0, modelInstance->clientModelIndex);
-              __asm
-              {
-                vdivss  xmm0, xmm9, xmm6
-                vmovss  dword ptr [rsp+330h+positionOut], xmm0
-              }
-              XAnimGetAbsDelta(Anims, v38, &rot, &trans, positionOut);
-            }
-            AnglesAndOriginToMatrix43(&angles, &origin, &v127);
-            MatrixTransformVector43(&trans, &v127, &origin);
-            QuatToAxis(&rot, &v130);
-            MatrixMultiply(&v130, (const tmat33_t<vec3_t> *)&v127, (tmat33_t<vec3_t> *)&result);
-            AxisToAngles((const tmat33_t<vec3_t> *)&result, &angles);
-            __asm { vcomiss xmm9, xmm11 }
-            if ( v58 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsp+330h+origin]
-                vsubss  xmm1, xmm0, xmm13
-                vmovss  xmm0, dword ptr [rsp+330h+origin+4]
-                vdivss  xmm6, xmm9, xmm11
-                vmulss  xmm2, xmm1, xmm6
-                vsubss  xmm1, xmm0, xmm14
-                vmovss  xmm0, dword ptr [rsp+330h+origin+8]
-                vaddss  xmm3, xmm2, xmm13
-                vmovss  dword ptr [rsp+330h+origin], xmm3
-                vmulss  xmm3, xmm1, xmm6
-                vaddss  xmm4, xmm3, xmm14
-                vsubss  xmm1, xmm0, xmm15
-                vmulss  xmm3, xmm1, xmm6
-                vmovss  dword ptr [rsp+330h+origin+4], xmm4
-                vaddss  xmm4, xmm3, xmm15
-                vmovss  dword ptr [rsp+330h+origin+8], xmm4
-              }
-              AnglesToQuat(&v114, &from);
-              AnglesToQuat(&angles, &to);
-              __asm { vmovaps xmm2, xmm6; frac }
-              QuatSlerp(&from, &to, *(float *)&_XMM2, &to);
-              __asm
-              {
-                vmovss  xmm4, dword ptr [rsp+330h+to+4]
-                vmovss  xmm5, dword ptr [rsp+330h+to]
-                vmovss  xmm6, dword ptr [rsp+330h+to+8]
-                vmovss  xmm9, dword ptr [rsp+330h+to+0Ch]
-                vmulss  xmm1, xmm4, xmm4
-                vmulss  xmm0, xmm5, xmm5
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm6, xmm6
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm9, xmm9
-                vaddss  xmm1, xmm3, xmm0
-                vsqrtss xmm2, xmm1, xmm1
-                vucomiss xmm2, xmm7
-              }
-              if ( !v20 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, cs:__real@3f800000
-                  vdivss  xmm2, xmm0, xmm2
-                  vmulss  xmm0, xmm5, xmm2
-                  vmulss  xmm1, xmm4, xmm2
-                  vmovss  dword ptr [rsp+330h+to], xmm0
-                  vmovss  dword ptr [rsp+330h+to+4], xmm1
-                  vmulss  xmm0, xmm6, xmm2
-                  vmulss  xmm1, xmm9, xmm2
-                  vmovss  dword ptr [rsp+330h+to+8], xmm0
-                  vmovss  dword ptr [rsp+330h+to+0Ch], xmm1
-                }
-              }
-              UnitQuatToAngles(&to, &angles);
-            }
-            __asm { vmovsd  xmm0, qword ptr [rsp+330h+angles] }
-            v114.v[2] = angles.v[2];
-            __asm
-            {
-              vmovsd  qword ptr [rsp+330h+var_2B8], xmm0
-              vmovsd  xmm0, qword ptr [rsp+330h+origin]
-            }
-            v116 = origin.v[2];
-            _RAX = _RDI;
-            _RDI = _RDI->next;
-            __asm
-            {
-              vmovsd  [rbp+230h+var_2A8], xmm0
-              vaddss  xmm8, xmm8, xmm12
-            }
-            v20 = _RDI == NULL;
-            if ( !_RDI )
-              break;
-            __asm
-            {
-              vmovss  xmm15, [rbp+230h+var_2A0]
-              vmovss  xmm14, dword ptr [rbp+230h+var_2A8+4]
-              vmovss  xmm13, dword ptr [rbp+230h+var_2A8]
-            }
-            v15 = obj;
-            p_initialPosition = &modelInstance->initialPosition;
-          }
-          __asm
-          {
-            vmovaps xmm9, [rsp+330h+var_70]
-            vmovaps xmm10, [rsp+330h+var_80]
-            vmovaps xmm12, [rsp+330h+var_A0]
-            vmovaps xmm11, [rsp+330h+var_90]
-            vmovaps xmm13, [rsp+330h+var_B0]
-            vmovaps xmm8, [rsp+330h+var_60]
-            vmovaps xmm7, [rsp+330h+var_50]
-            vmovaps xmm14, [rsp+330h+var_C0]
-            vmovaps xmm15, [rsp+330h+var_D0]
-          }
+          deltaAnimationTreeIndex = v6->deltaAnimationTreeIndex;
+          Anims = CG_ClientModel_GetAnims(LOCAL_CLIENT_0, modelInstance->clientModelIndex);
+          XAnimGetAbsDelta(Anims, deltaAnimationTreeIndex, &rot, &trans, *(float *)&_XMM9 / (float)(animationDuration - startTrimTime));
         }
+        else
+        {
+          v28 = v6->deltaAnimationTreeIndex;
+          v29 = 1.0 / animationDuration;
+          Tree = DObjGetTree(v5);
+          v31 = _XMM9;
+          *(float *)&v31 = (float)(*(float *)&_XMM9 + startTrimTime) * (float)(1.0 / animationDuration);
+          _XMM1 = v31;
+          __asm { vminss  xmm2, xmm1, cs:__real@3f800000 }
+          XAnimGetAbsDelta(Tree->anims, v28, &v51, &v50, *(float *)&_XMM2);
+          v34 = v6->deltaAnimationTreeIndex;
+          v35 = DObjGetTree(obj);
+          XAnimGetAbsDelta(v35->anims, v34, &quat, &in1, v29 * startTrimTime);
+          LODWORD(in1.v[0]) ^= _xmm;
+          LODWORD(in1.v[2]) ^= _xmm;
+          LODWORD(in1.v[1]) ^= _xmm;
+          QuatToAxis(&quat, &out);
+          MatrixInverse(&out, &axis);
+          AxisToQuat(&axis, &quat);
+          AnglesAndOriginToMatrix43((const vec3_t *)&v51, &v50, &in2);
+          MatrixTransformVector43(&in1, &in2, &trans);
+          QuatToAxis(&quat, &v58);
+          MatrixMultiply(&v58, (const tmat33_t<vec3_t> *)&in2, &mat);
+          AxisToQuat(&mat, &rot);
+        }
+        AnglesAndOriginToMatrix43(&angles, &origin, &v57);
+        MatrixTransformVector43(&trans, &v57, &origin);
+        QuatToAxis(&rot, &v60);
+        MatrixMultiply(&v60, (const tmat33_t<vec3_t> *)&v57, (tmat33_t<vec3_t> *)&result);
+        AxisToAngles((const tmat33_t<vec3_t> *)&result, &angles);
+        if ( *(float *)&_XMM9 < blendInTime )
+        {
+          origin.v[0] = (float)((float)(origin.v[0] - v14) * (float)(*(float *)&_XMM9 / blendInTime)) + v14;
+          origin.v[1] = (float)((float)(origin.v[1] - v15) * (float)(*(float *)&_XMM9 / blendInTime)) + v15;
+          origin.v[2] = (float)((float)(origin.v[2] - v16) * (float)(*(float *)&_XMM9 / blendInTime)) + v16;
+          AnglesToQuat(&v44, &from);
+          AnglesToQuat(&angles, &to);
+          QuatSlerp(&from, &to, *(float *)&_XMM9 / blendInTime, &to);
+          v36 = fsqrt((float)((float)((float)(to.v[1] * to.v[1]) + (float)(to.v[0] * to.v[0])) + (float)(to.v[2] * to.v[2])) + (float)(to.v[3] * to.v[3]));
+          if ( v36 != 0.0 )
+          {
+            v37 = 1.0 / v36;
+            to.v[0] = to.v[0] * v37;
+            to.v[1] = to.v[1] * v37;
+            to.v[2] = to.v[2] * v37;
+            to.v[3] = to.v[3] * v37;
+          }
+          UnitQuatToAngles(&to, &angles);
+        }
+        v44 = angles;
+        v46 = origin.v[2];
+        v11 = v6;
+        v6 = v6->next;
+        v45 = *(__int64 *)origin.v;
+        v38 = v13;
+        *(float *)&v38 = *(float *)&v13 + v22;
+        v13 = v38;
+        if ( !v6 )
+          break;
+        v16 = v46;
+        v15 = *((float *)&v45 + 1);
+        v14 = *(float *)&v45;
+        v5 = obj;
+        p_initialPosition = &modelInstance->initialPosition;
+      }
+      goto LABEL_26;
+    }
+    v7 = modelInstance->currentAnimation[0];
+    if ( v7 )
+    {
+      v8 = (float)(scene->currentTime - v7->startTime) / v7->duration;
+      if ( v8 < 1.0 )
+      {
+        v9 = v7->deltaAnimationTreeIndex;
+        v10 = DObjGetTree(obj);
+        XAnimGetAbsDelta(v10->anims, v9, &rot, &trans, v8);
+        AnglesAndOriginToMatrix43(&angles, &origin, &result);
+        MatrixTransformVector43(&trans, &result, &origin);
+        QuatToAxis(&rot, &axis);
+        MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)&result, &out);
+        AxisToAngles(&out, &angles);
+LABEL_26:
+        CG_ClientModel_SetOrigin(LOCAL_CLIENT_0, modelInstance->clientModelIndex, &origin);
+        CG_ClientModel_SetAngles(LOCAL_CLIENT_0, modelInstance->clientModelIndex, &angles);
       }
     }
-    CG_ClientModel_SetOrigin(LOCAL_CLIENT_0, modelInstance->clientModelIndex, &origin);
-    CG_ClientModel_SetAngles(LOCAL_CLIENT_0, modelInstance->clientModelIndex, &angles);
-LABEL_27:
-    __asm { vmovaps xmm6, [rsp+330h+var_40] }
   }
 }
 
@@ -4166,85 +3647,68 @@ LABEL_27:
 AnimVisualizer_UpdateScene
 ==============
 */
-
-void __fastcall AnimVisualizer_UpdateScene(AnimVyzScene *scene, double currentTime, bool forceHostSend)
+void AnimVisualizer_UpdateScene(AnimVyzScene *scene, float currentTime, bool forceHostSend)
 {
+  __int128 v3; 
+  float i; 
+  float sceneDuration; 
   char v7; 
   AnimVyzModel *modelList; 
-  bool i; 
-  AnimVyzModel *v11; 
+  AnimVyzModel *j; 
+  float v10; 
   __int64 sceneInstanceId; 
-  const char *v17; 
-  __int64 v19; 
-  double v20; 
+  const char *v12; 
+  __int64 v13; 
   char dest[512]; 
+  __int128 v16; 
 
-  __asm { vmovaps [rsp+258h+var_18], xmm6 }
-  _RDI = scene;
-  __asm { vmovaps xmm6, xmm1 }
+  v16 = v3;
+  i = currentTime;
   if ( forceHostSend )
     scene->sendPeriod = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+10h]
-    vcomiss xmm1, xmm0
-  }
+  sceneDuration = scene->sceneDuration;
   v7 = 1;
-  if ( _RDI->looping )
+  if ( currentTime >= sceneDuration )
   {
-    modelList = _RDI->modelList;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    for ( ; modelList; modelList = modelList->next )
-      modelList->currentAnimation[0] = NULL;
+    if ( scene->looping )
+    {
+      modelList = scene->modelList;
+      for ( i = 0.0; modelList; modelList = modelList->next )
+        modelList->currentAnimation[0] = NULL;
+    }
+    else
+    {
+      i = sceneDuration;
+      scene->playbackState = Stopped;
+      v7 = 0;
+      scene->sendPeriod = 0.0;
+    }
   }
-  else
-  {
-    __asm { vmovaps xmm6, xmm0 }
-    _RDI->playbackState = Stopped;
-    v7 = 0;
-    _RDI->sendPeriod = 0.0;
-  }
-  __asm { vmovss  dword ptr [rdi+14h], xmm6 }
-  i = v7 == 0;
+  scene->currentTime = i;
   if ( v7 )
   {
-    v11 = _RDI->modelList;
-    for ( i = v11 == NULL; v11; i = v11 == NULL )
+    for ( j = scene->modelList; j; j = j->next )
     {
-      if ( v11->clientModelIndex != -1 )
+      if ( j->clientModelIndex != -1 )
       {
-        __asm { vmovaps xmm1, xmm6; currentTime }
-        AnimVisualizer_UpdateAnimationState(v11, *(double *)&_XMM1, 0);
-        AnimVisualizer_UpdatePositionAndAngles(_RDI, v11);
+        AnimVisualizer_UpdateAnimationState(j, i, 0);
+        AnimVisualizer_UpdatePositionAndAngles(scene, j);
       }
-      v11 = v11->next;
     }
   }
-  __asm
+  if ( scene->sendPeriod <= scene->sendTime )
   {
-    vmovss  xmm0, dword ptr [rdi+0A8Ch]
-    vcomiss xmm0, dword ptr [rdi+0A90h]
-    vmovaps xmm6, [rsp+258h+var_18]
-  }
-  if ( i )
-  {
-    __asm { vmovss  xmm0, dword ptr [rdi+14h] }
-    sceneInstanceId = _RDI->sceneInstanceId;
-    v17 = "playing";
-    if ( _RDI->playbackState != Playing )
-      v17 = "stopped";
-    *(_QWORD *)&_RDI->sendPeriod = 1023969417i64;
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+258h+var_230], xmm0
-    }
-    Com_sprintf(dest, 0x200ui64, "animvyz_playbackstate %u %s %f", sceneInstanceId, v17, v20);
-    v19 = -1i64;
-    do
-      i = dest[++v19] == 0;
-    while ( !i );
-    Com_DevhostSendMessage(5, 5u, v19 + 1, dest);
+    v10 = scene->currentTime;
+    sceneInstanceId = scene->sceneInstanceId;
+    v12 = "playing";
+    if ( scene->playbackState != Playing )
+      v12 = "stopped";
+    *(_QWORD *)&scene->sendPeriod = 1023969417i64;
+    Com_sprintf(dest, 0x200ui64, "animvyz_playbackstate %u %s %f", sceneInstanceId, v12, v10);
+    v13 = -1i64;
+    while ( dest[++v13] != 0 )
+      ;
+    Com_DevhostSendMessage(5, 5u, v13 + 1, dest);
   }
 }
 
@@ -4255,143 +3719,121 @@ AnimVisualizer_UpdateSceneAlignment
 */
 void AnimVisualizer_UpdateSceneAlignment(AnimVyzScene *scene)
 {
-  const dvar_t *v3; 
+  const dvar_t *v2; 
+  double Float_Internal; 
   const dvar_t *v4; 
-  const dvar_t *v5; 
+  double v5; 
   const dvar_t *v6; 
-  const dvar_t *v7; 
+  double v7; 
   const dvar_t *v8; 
+  double v9; 
+  const dvar_t *v10; 
+  double v11; 
+  const dvar_t *v12; 
+  double v13; 
+  float currentTime; 
   int alignmentValueCount; 
-  int v11; 
-  char v13; 
-  int v14; 
-  bool v18; 
-  char v23; 
+  int v16; 
+  int v17; 
+  char v18; 
+  float v19; 
+  float *p_duration; 
+  float v21; 
+  char v22; 
+  float v23; 
 
-  _RBX = scene;
   if ( s_AnimVyzActiveAlignementRequestSceneInstanceId == scene->sceneInstanceId )
   {
-    v3 = s_AnimVyzRequestDVar;
+    v2 = s_AnimVyzRequestDVar;
     if ( !s_AnimVyzRequestDVar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v3);
-    if ( v3->current.enabled )
+    Dvar_CheckFrontendServerThread(v2);
+    if ( v2->current.enabled )
       return;
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(s_AnimVyzAlignPositionXDVar);
+    Float_Internal = Dvar_GetFloat_Internal(s_AnimVyzAlignPositionXDVar);
     v4 = s_AnimVyzAlignPositionYDVar;
-    __asm { vmovss  dword ptr [rbx+38h], xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(v4);
-    v5 = s_AnimVyzAlignPositionZDVar;
-    __asm { vmovss  dword ptr [rbx+3Ch], xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(v5);
-    v6 = s_AnimVyzAlignAngleXDVar;
-    __asm { vmovss  dword ptr [rbx+40h], xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(v6);
-    v7 = s_AnimVyzAlignAngleYDVar;
-    __asm { vmovss  dword ptr [rbx+44h], xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(v7);
-    v8 = s_AnimVyzAlignAngleZDVar;
-    __asm { vmovss  dword ptr [rbx+48h], xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(v8);
-    __asm
-    {
-      vmovss  dword ptr [rbx+4Ch], xmm0
-      vmovss  xmm1, dword ptr [rbx+14h]; currentTime
-    }
+    scene->position.v[0] = *(float *)&Float_Internal;
+    v5 = Dvar_GetFloat_Internal(v4);
+    v6 = s_AnimVyzAlignPositionZDVar;
+    scene->position.v[1] = *(float *)&v5;
+    v7 = Dvar_GetFloat_Internal(v6);
+    v8 = s_AnimVyzAlignAngleXDVar;
+    scene->position.v[2] = *(float *)&v7;
+    v9 = Dvar_GetFloat_Internal(v8);
+    v10 = s_AnimVyzAlignAngleYDVar;
+    scene->angles.v[0] = *(float *)&v9;
+    v11 = Dvar_GetFloat_Internal(v10);
+    v12 = s_AnimVyzAlignAngleZDVar;
+    scene->angles.v[1] = *(float *)&v11;
+    v13 = Dvar_GetFloat_Internal(v12);
+    scene->angles.v[2] = *(float *)&v13;
+    currentTime = scene->currentTime;
     s_AnimVyzActiveAlignementRequestSceneInstanceId = 0;
-    _RBX->pendingAlignmentRequest = 0;
-    AnimVisualizer_UpdateScene(_RBX, *(double *)&_XMM1, 1);
+    scene->pendingAlignmentRequest = 0;
+    AnimVisualizer_UpdateScene(scene, currentTime, 1);
   }
-  alignmentValueCount = _RBX->alignmentValueCount;
-  v11 = -1;
+  alignmentValueCount = scene->alignmentValueCount;
+  v16 = -1;
   if ( alignmentValueCount )
   {
-    __asm
+    v17 = 0;
+    if ( scene->alignmentValues[0].startTime < 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbx+0D0h]
+      v18 = scene->alignmentValues[0].target[0];
+      v17 = 1;
+      *(double *)scene->sceneDisplacementAngles.v = *(double *)scene->alignmentValues[0].deltaAngles.v;
+      scene->sceneDisplacementAngles.v[2] = scene->alignmentValues[0].deltaAngles.v[2];
+      *(double *)scene->sceneDisplacementPosition.v = *(double *)scene->alignmentValues[0].deltaPosition.v;
+      scene->sceneDisplacementPosition.v[2] = scene->alignmentValues[0].deltaPosition.v[2];
+      v16 = (v18 != 0) - 1;
     }
-    v13 = _RBX->alignmentValues[0].target[0];
-    v14 = 1;
-    __asm
+    v19 = scene->currentTime;
+    if ( v17 < alignmentValueCount )
     {
-      vmovsd  xmm0, qword ptr [rbx+0E4h]
-      vmovsd  qword ptr [rbx+0A68h], xmm0
-    }
-    _RBX->sceneDisplacementAngles.v[2] = _RBX->alignmentValues[0].deltaAngles.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+0D8h]
-      vmovsd  qword ptr [rbx+0A5Ch], xmm0
-    }
-    _RBX->sceneDisplacementPosition.v[2] = _RBX->alignmentValues[0].deltaPosition.v[2];
-    v11 = (v13 != 0) - 1;
-    __asm { vmovss  xmm1, dword ptr [rbx+14h] }
-    if ( alignmentValueCount > 1 )
-    {
-      v18 = __CFSHL__(5i64, 5);
-      _RDX = &_RBX->alignmentValues[1].duration;
+      p_duration = &scene->alignmentValues[v17].duration;
       while ( 1 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx-4]
-          vcomiss xmm0, xmm1
-        }
-        if ( v18 )
-        {
-          __asm
-          {
-            vaddss  xmm0, xmm0, dword ptr [rdx]
-            vcomiss xmm0, xmm1
-          }
-          if ( !v18 )
-            break;
-        }
-        ++v14;
-        _RDX += 40;
-        v18 = v14 <= (unsigned int)alignmentValueCount;
-        if ( v14 >= alignmentValueCount )
+        v21 = *(p_duration - 1);
+        if ( v21 <= v19 && (float)(v21 + *p_duration) > v19 )
+          break;
+        ++v17;
+        p_duration += 40;
+        if ( v17 >= alignmentValueCount )
           goto LABEL_19;
       }
-      __asm { vmovsd  xmm0, qword ptr [rdx+10h] }
-      v23 = *((_BYTE *)_RDX - 132);
-      __asm { vmovsd  qword ptr [rbx+0A80h], xmm0 }
-      _RBX->shotDisplacementAngles.v[2] = _RDX[6];
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rdx+4]
-        vmovsd  qword ptr [rbx+0A74h], xmm0
-      }
-      if ( !v23 )
-        v14 = v11;
-      _RBX->shotDisplacementPosition.v[2] = _RDX[3];
-      v11 = v14;
+      v22 = *((_BYTE *)p_duration - 132);
+      *(double *)scene->shotDisplacementAngles.v = *((double *)p_duration + 2);
+      scene->shotDisplacementAngles.v[2] = p_duration[6];
+      *(double *)scene->shotDisplacementPosition.v = *(double *)(p_duration + 1);
+      if ( !v22 )
+        v17 = v16;
+      scene->shotDisplacementPosition.v[2] = p_duration[3];
+      v16 = v17;
     }
   }
 LABEL_19:
-  if ( v11 != _RBX->currentAlignmentIndex )
+  if ( v16 != scene->currentAlignmentIndex )
   {
-    _RBX->currentAlignmentIndex = v11;
-    if ( v11 == -1 )
+    scene->currentAlignmentIndex = v16;
+    if ( v16 == -1 )
     {
-      *(_QWORD *)_RBX->position.v = 0i64;
-      *(_QWORD *)&_RBX->position.z = 0i64;
-      *(_QWORD *)&_RBX->angles.y = 0i64;
-      __asm { vmovss  xmm1, dword ptr [rbx+14h]; currentTime }
-      _RBX->pendingAlignmentRequest = 0;
-      AnimVisualizer_UpdateScene(_RBX, *(double *)&_XMM1, 1);
+      *(_QWORD *)scene->position.v = 0i64;
+      *(_QWORD *)&scene->position.z = 0i64;
+      *(_QWORD *)&scene->angles.y = 0i64;
+      v23 = scene->currentTime;
+      scene->pendingAlignmentRequest = 0;
+      AnimVisualizer_UpdateScene(scene, v23, 1);
     }
     else
     {
-      _RBX->pendingAlignmentRequest = 1;
+      scene->pendingAlignmentRequest = 1;
     }
   }
-  if ( _RBX->pendingAlignmentRequest && !s_AnimVyzActiveAlignementRequestSceneInstanceId )
+  if ( scene->pendingAlignmentRequest && !s_AnimVyzActiveAlignementRequestSceneInstanceId )
   {
-    s_AnimVyzActiveAlignementRequestSceneInstanceId = _RBX->sceneInstanceId;
-    Dvar_SetString_Internal(s_AnimVyzAlignTargetDVar, _RBX->alignmentValues[_RBX->currentAlignmentIndex].target);
-    Dvar_SetString_Internal(s_AnimVyzAlignTagDVar, _RBX->alignmentValues[_RBX->currentAlignmentIndex].tag);
+    s_AnimVyzActiveAlignementRequestSceneInstanceId = scene->sceneInstanceId;
+    Dvar_SetString_Internal(s_AnimVyzAlignTargetDVar, scene->alignmentValues[scene->currentAlignmentIndex].target);
+    Dvar_SetString_Internal(s_AnimVyzAlignTagDVar, scene->alignmentValues[scene->currentAlignmentIndex].tag);
     Dvar_SetInt_Internal(s_AnimVyzRequestDVar, 1);
   }
 }
@@ -4401,21 +3843,19 @@ LABEL_19:
 AnimVisualizer_UpdateSceneDuration
 ==============
 */
-
-void __fastcall AnimVisualizer_UpdateSceneDuration(AnimVyzScene *scene, __int64 a2, double _XMM2_8)
+void AnimVisualizer_UpdateSceneDuration(AnimVyzScene *scene)
 {
-  _RAX = scene->modelList;
-  __asm { vxorps  xmm2, xmm2, xmm2 }
-  while ( _RAX )
+  AnimVyzModel *modelList; 
+
+  modelList = scene->modelList;
+  LODWORD(_XMM2) = 0;
+  while ( modelList )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+100h]
-      vmaxss  xmm1, xmm0, dword ptr [rax+0E4h]
-    }
-    _RAX = _RAX->next;
+    _XMM0 = LODWORD(modelList->totalCameraAnimationDuration);
+    __asm { vmaxss  xmm1, xmm0, dword ptr [rax+0E4h] }
+    modelList = modelList->next;
     __asm { vmaxss  xmm2, xmm1, xmm2 }
   }
-  __asm { vmovss  dword ptr [rcx+10h], xmm2 }
+  scene->sceneDuration = *(float *)&_XMM2;
 }
 

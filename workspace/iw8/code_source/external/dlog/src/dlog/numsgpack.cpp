@@ -1043,11 +1043,11 @@ const MsgPack *MsgPack::operator[](MsgPack *this, const MsgPack *result, const c
   const unsigned __int8 *m_key; 
   const unsigned __int8 *v9; 
   const unsigned __int8 *v10; 
+  const unsigned __int8 *v11; 
   MsgPack resulta; 
   char value[128]; 
 
   result->m_key = NULL;
-  _R14 = result;
   result->m_value = NULL;
   result->m_count = 0i64;
   m_value = this->m_value;
@@ -1062,23 +1062,16 @@ LABEL_4:
   {
     if ( MsgPack_DecodeString(m_key, value, 0x80ui64) && !strcmp(value, key) )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+0E8h+result.m_count]
-        vmovsd  xmm1, [rsp+0E8h+result.m_value]
-        vmovups xmmword ptr [r14], xmm0
-        vmovsd  qword ptr [r14+10h], xmm1
-      }
-      return _R14;
+      v11 = resulta.m_value;
+      *(_OWORD *)&result->m_count = *(_OWORD *)&resulta.m_count;
+      result->m_value = v11;
+      return result;
     }
     resulta.m_count = --m_count;
     if ( !m_count )
     {
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+0E8h+result.m_key], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&resulta.m_key = _XMM0;
       goto LABEL_4;
     }
     v10 = MsgPack_Skip(v9);
@@ -1091,7 +1084,7 @@ LABEL_4:
     v9 = v10;
     resulta.m_value = v10;
   }
-  return _R14;
+  return result;
 }
 
 /*
@@ -1107,11 +1100,11 @@ const MsgPack *MsgPack::operator[](MsgPack *this, const MsgPack *result, __int64
   const unsigned __int8 *v9; 
   const unsigned __int8 *v10; 
   const unsigned __int8 *v11; 
+  const unsigned __int8 *v12; 
   MsgPack resulta; 
   __int64 value; 
 
   result->m_key = NULL;
-  _RDI = result;
   result->m_value = NULL;
   result->m_count = 0i64;
   m_value = this->m_value;
@@ -1126,23 +1119,16 @@ LABEL_4:
   {
     if ( MsgPack_DecodeInt(m_key, &value) && value == key )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+48h+result.m_count]
-        vmovsd  xmm1, [rsp+48h+result.m_value]
-        vmovups xmmword ptr [rdi], xmm0
-        vmovsd  qword ptr [rdi+10h], xmm1
-      }
-      return _RDI;
+      v12 = resulta.m_value;
+      *(_OWORD *)&result->m_count = *(_OWORD *)&resulta.m_count;
+      result->m_value = v12;
+      return result;
     }
     resulta.m_count = --m_count;
     if ( !m_count )
     {
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+48h+result.m_key], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&resulta.m_key = _XMM0;
       goto LABEL_4;
     }
     v11 = MsgPack_Skip(v10);
@@ -1154,7 +1140,7 @@ LABEL_4:
     v9 = v11;
     resulta.m_value = v11;
   }
-  return _RDI;
+  return result;
 }
 
 /*
@@ -1175,11 +1161,14 @@ MsgPack::operator++
 MsgPack *MsgPack::operator++(MsgPack *this, MsgPack *result)
 {
   bool v2; 
+  MsgPack *v3; 
+  MsgPack *v4; 
   const unsigned __int8 *v5; 
+  double v6; 
 
   v2 = this->m_count-- == 1;
-  _R9 = result;
-  _R8 = this;
+  v3 = result;
+  v4 = this;
   if ( v2 )
   {
     this->m_key = NULL;
@@ -1188,21 +1177,17 @@ MsgPack *MsgPack::operator++(MsgPack *this, MsgPack *result)
   else
   {
     v5 = MsgPack_Skip(this->m_value);
-    if ( _R8->m_key )
+    if ( v4->m_key )
     {
-      _R8->m_key = v5;
+      v4->m_key = v5;
       v5 = MsgPack_Skip(v5);
     }
-    _R8->m_value = v5;
+    v4->m_value = v5;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovsd  xmm1, qword ptr [r8+10h]
-    vmovups xmmword ptr [r9], xmm0
-    vmovsd  qword ptr [r9+10h], xmm1
-  }
-  return _R9;
+  v6 = *(double *)&v4->m_value;
+  *(_OWORD *)&v3->m_count = *(_OWORD *)&v4->m_count;
+  *(double *)&v3->m_value = v6;
+  return v3;
 }
 
 /*
@@ -1805,28 +1790,25 @@ LABEL_18:
 MsgPackSerializer::Float32
 ==============
 */
-
-bool __fastcall MsgPackSerializer::Float32(MsgPackSerializer *this, double value)
+bool MsgPackSerializer::Float32(MsgPackSerializer *this, float value)
 {
   __int64 m_parentCount; 
   unsigned __int8 *m_pos; 
   unsigned __int8 *m_end; 
   _BYTE *v6; 
   unsigned __int8 *v7; 
-  int v9; 
 
   m_parentCount = this->m_parentCount;
   if ( (int)m_parentCount > 0 )
     ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
   m_pos = this->m_pos;
   m_end = this->m_end;
-  __asm { vmovss  [rsp+arg_8], xmm1 }
   if ( m_pos && this->m_end != m_pos && (*m_pos = -54, (v6 = m_pos + 1) != NULL) && (unsigned __int64)(m_end - v6) >= 4 )
   {
-    *v6 = HIBYTE(v9);
-    v6[1] = BYTE2(v9);
-    v6[2] = BYTE1(v9);
-    v6[3] = v9;
+    *v6 = HIBYTE(value);
+    v6[1] = BYTE2(value);
+    v6[2] = BYTE1(value);
+    v6[3] = LOBYTE(value);
     v7 = v6 + 4;
     this->m_pos = v7;
     return v7 != NULL;
@@ -1843,51 +1825,42 @@ bool __fastcall MsgPackSerializer::Float32(MsgPackSerializer *this, double value
 MsgPackSerializer::Float32
 ==============
 */
-
-bool __fastcall MsgPackSerializer::Float32(MsgPackSerializer *this, const char *key, double value)
+bool MsgPackSerializer::Float32(MsgPackSerializer *this, const char *key, float value)
 {
   __int64 m_parentCount; 
+  unsigned __int8 *v5; 
+  __int64 v6; 
   unsigned __int8 *v7; 
-  __int64 v8; 
-  unsigned __int8 *v9; 
   unsigned __int8 *m_end; 
-  _BYTE *v11; 
-  int v15; 
+  _BYTE *v9; 
 
   m_parentCount = this->m_parentCount;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( (int)m_parentCount > 0 )
     ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
-  v7 = NULL;
-  if ( key && (v8 = this->m_parentCount, (int)v8 > 0) && *((_DWORD *)&this->m_buffer + 6 * v8) == 2 )
-    v9 = MsgPack_EncodeString(this->m_pos, this->m_end - this->m_pos, key);
+  v5 = NULL;
+  if ( key && (v6 = this->m_parentCount, (int)v6 > 0) && *((_DWORD *)&this->m_buffer + 6 * v6) == 2 )
+    v7 = MsgPack_EncodeString(this->m_pos, this->m_end - this->m_pos, key);
   else
-    v9 = NULL;
+    v7 = NULL;
   m_end = this->m_end;
-  __asm { vmovss  [rsp+38h+arg_10], xmm6 }
-  if ( v9 )
+  if ( v7 )
   {
-    if ( this->m_end != v9 )
+    if ( this->m_end != v7 )
     {
-      v11 = v9 + 1;
-      *v9 = -54;
-      if ( v9 != (unsigned __int8 *)-1i64 && (unsigned __int64)(m_end - v11) >= 4 )
+      v9 = v7 + 1;
+      *v7 = -54;
+      if ( v7 != (unsigned __int8 *)-1i64 && (unsigned __int64)(m_end - v9) >= 4 )
       {
-        v7 = v9 + 5;
-        *v11 = HIBYTE(v15);
-        v9[2] = BYTE2(v15);
-        v9[3] = BYTE1(v15);
-        v9[4] = v15;
+        v5 = v7 + 5;
+        *v9 = HIBYTE(value);
+        v7[2] = BYTE2(value);
+        v7[3] = BYTE1(value);
+        v7[4] = LOBYTE(value);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  this->m_pos = v7;
-  return v7 != NULL;
+  this->m_pos = v5;
+  return v5 != NULL;
 }
 
 /*
@@ -1895,51 +1868,88 @@ bool __fastcall MsgPackSerializer::Float32(MsgPackSerializer *this, const char *
 MsgPackSerializer::Float32
 ==============
 */
-
-bool __fastcall MsgPackSerializer::Float32(MsgPackSerializer *this, __int64 key, double value)
+bool MsgPackSerializer::Float32(MsgPackSerializer *this, __int64 key, float value)
 {
   __int64 m_parentCount; 
-  MsgPackSerializer *v5; 
-  unsigned __int8 *v7; 
-  unsigned __int8 *v8; 
+  MsgPackSerializer *v4; 
+  unsigned __int8 *v5; 
+  unsigned __int8 *v6; 
   unsigned __int8 *m_end; 
-  _BYTE *v10; 
-  int v14; 
+  _BYTE *v8; 
 
   m_parentCount = this->m_parentCount;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  v5 = this;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = this;
   if ( (int)m_parentCount > 0 )
   {
     ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
     LODWORD(m_parentCount) = this->m_parentCount;
   }
-  v7 = NULL;
+  v5 = NULL;
   if ( (int)m_parentCount > 0 && *((_DWORD *)&this->m_buffer + 6 * (int)m_parentCount) == 2 )
-    v8 = MsgPack_EncodeUInt(this->m_pos, this->m_end - this->m_pos, key);
+    v6 = MsgPack_EncodeUInt(this->m_pos, this->m_end - this->m_pos, key);
   else
-    v8 = NULL;
-  m_end = v5->m_end;
-  __asm { vmovss  [rsp+38h+arg_10], xmm6 }
-  if ( v8 )
+    v6 = NULL;
+  m_end = v4->m_end;
+  if ( v6 )
   {
-    if ( v5->m_end != v8 )
+    if ( v4->m_end != v6 )
     {
-      v10 = v8 + 1;
-      *v8 = -54;
-      if ( v8 != (unsigned __int8 *)-1i64 && (unsigned __int64)(m_end - v10) >= 4 )
+      v8 = v6 + 1;
+      *v6 = -54;
+      if ( v6 != (unsigned __int8 *)-1i64 && (unsigned __int64)(m_end - v8) >= 4 )
       {
-        v7 = v8 + 5;
-        *v10 = HIBYTE(v14);
-        v8[2] = BYTE2(v14);
-        v8[3] = BYTE1(v14);
-        v8[4] = v14;
+        v5 = v6 + 5;
+        *v8 = HIBYTE(value);
+        v6[2] = BYTE2(value);
+        v6[3] = BYTE1(value);
+        v6[4] = LOBYTE(value);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  v5->m_pos = v7;
+  v4->m_pos = v5;
+  return v5 != NULL;
+}
+
+/*
+==============
+MsgPackSerializer::Float64
+==============
+*/
+bool MsgPackSerializer::Float64(MsgPackSerializer *this, long double value)
+{
+  __int64 m_parentCount; 
+  unsigned __int8 *v3; 
+  __int64 v4; 
+
+  m_parentCount = this->m_parentCount;
+  if ( (int)m_parentCount > 0 )
+    ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
+  v3 = MsgPack_EncodeFloat64(this->m_pos, this->m_end - this->m_pos, value);
+  *(_QWORD *)(v4 + 16) = v3;
+  return v3 != NULL;
+}
+
+/*
+==============
+MsgPackSerializer::Float64
+==============
+*/
+bool MsgPackSerializer::Float64(MsgPackSerializer *this, const char *key, long double value)
+{
+  __int64 m_parentCount; 
+  __int64 v5; 
+  unsigned __int8 *v6; 
+  unsigned __int8 *v7; 
+
+  m_parentCount = this->m_parentCount;
+  if ( (int)m_parentCount > 0 )
+    ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
+  if ( key && (v5 = this->m_parentCount, (int)v5 > 0) && *((_DWORD *)&this->m_buffer + 6 * v5) == 2 )
+    v6 = MsgPack_EncodeString(this->m_pos, this->m_end - this->m_pos, key);
+  else
+    v6 = NULL;
+  v7 = MsgPack_EncodeFloat64(v6, this->m_end - v6, value);
+  this->m_pos = v7;
   return v7 != NULL;
 }
 
@@ -1948,82 +1958,24 @@ bool __fastcall MsgPackSerializer::Float32(MsgPackSerializer *this, __int64 key,
 MsgPackSerializer::Float64
 ==============
 */
-
-bool __fastcall MsgPackSerializer::Float64(MsgPackSerializer *this, double value)
+bool MsgPackSerializer::Float64(MsgPackSerializer *this, __int64 key, long double value)
 {
   __int64 m_parentCount; 
-  unsigned __int8 *v4; 
-  __int64 v5; 
+  MsgPackSerializer *v4; 
+  int v5; 
+  unsigned __int8 *v6; 
+  unsigned __int8 *v7; 
+  __int64 v8; 
 
   m_parentCount = this->m_parentCount;
-  if ( (int)m_parentCount > 0 )
-    ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
-  __asm { vmovaps xmm2, xmm1; value }
-  v4 = MsgPack_EncodeFloat64(this->m_pos, this->m_end - this->m_pos, *(long double *)&_XMM2);
-  *(_QWORD *)(v5 + 16) = v4;
-  return v4 != NULL;
-}
-
-/*
-==============
-MsgPackSerializer::Float64
-==============
-*/
-
-bool __fastcall MsgPackSerializer::Float64(MsgPackSerializer *this, const char *key, double value)
-{
-  __int64 m_parentCount; 
-  __int64 v7; 
-  unsigned __int8 *v8; 
-  unsigned __int8 *v10; 
-
-  m_parentCount = this->m_parentCount;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( (int)m_parentCount > 0 )
-    ++*((_QWORD *)&this->m_pos + 3 * m_parentCount);
-  if ( key && (v7 = this->m_parentCount, (int)v7 > 0) && *((_DWORD *)&this->m_buffer + 6 * v7) == 2 )
-    v8 = MsgPack_EncodeString(this->m_pos, this->m_end - this->m_pos, key);
+  v4 = this;
+  if ( (int)m_parentCount > 0 && (++*((_QWORD *)&this->m_pos + 3 * m_parentCount), v5 = this->m_parentCount, v5 > 0) && *((_DWORD *)&this->m_buffer + 6 * v5) == 2 )
+    v6 = MsgPack_EncodeUInt(this->m_pos, this->m_end - this->m_pos, key);
   else
-    v8 = NULL;
-  __asm { vmovaps xmm2, xmm6; value }
-  v10 = MsgPack_EncodeFloat64(v8, this->m_end - v8, *(long double *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  this->m_pos = v10;
-  return v10 != NULL;
-}
-
-/*
-==============
-MsgPackSerializer::Float64
-==============
-*/
-
-bool __fastcall MsgPackSerializer::Float64(MsgPackSerializer *this, __int64 key, double value)
-{
-  __int64 m_parentCount; 
-  MsgPackSerializer *v5; 
-  int v7; 
-  unsigned __int8 *v8; 
-  unsigned __int8 *v10; 
-  __int64 v12; 
-
-  m_parentCount = this->m_parentCount;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  v5 = this;
-  __asm { vmovaps xmm6, xmm2 }
-  if ( (int)m_parentCount > 0 && (++*((_QWORD *)&this->m_pos + 3 * m_parentCount), v7 = this->m_parentCount, v7 > 0) && *((_DWORD *)&this->m_buffer + 6 * v7) == 2 )
-    v8 = MsgPack_EncodeUInt(this->m_pos, this->m_end - this->m_pos, key);
-  else
-    v8 = NULL;
-  __asm { vmovaps xmm2, xmm6; value }
-  v10 = MsgPack_EncodeFloat64(v8, v5->m_end - v8, *(long double *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  *(_QWORD *)(v12 + 16) = v10;
-  return v10 != NULL;
+    v6 = NULL;
+  v7 = MsgPack_EncodeFloat64(v6, v4->m_end - v6, value);
+  *(_QWORD *)(v8 + 16) = v7;
+  return v7 != NULL;
 }
 
 /*
@@ -2038,13 +1990,7 @@ char MsgPack::GetArray(MsgPack *this, MsgPack *value)
   m_value = this->m_value;
   if ( !m_value || typemap[*m_value] != MSGPACK_ARRAY )
     return 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovsd  xmm1, qword ptr [rcx+10h]
-    vmovsd  qword ptr [rdx+10h], xmm1
-  }
+  *value = *this;
   return 1;
 }
 
@@ -2127,11 +2073,11 @@ char MsgPack::GetChild(MsgPack *this, const char *key, MsgPack *child)
   const unsigned __int8 *m_key; 
   const unsigned __int8 *v9; 
   const unsigned __int8 *v10; 
+  const unsigned __int8 *v11; 
   MsgPack result; 
   char value[128]; 
 
   m_value = this->m_value;
-  _R14 = child;
   if ( m_value && typemap[*m_value] == MSGPACK_MAP )
   {
     MsgPack::begin(this, &result);
@@ -2143,23 +2089,16 @@ LABEL_4:
     {
       if ( MsgPack_DecodeString(m_key, value, 0x80ui64) && !strcmp(value, key) )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+0E8h+result.m_count]
-          vmovsd  xmm1, [rsp+0E8h+result.m_value]
-          vmovups xmmword ptr [r14], xmm0
-          vmovsd  qword ptr [r14+10h], xmm1
-        }
+        v11 = result.m_value;
+        *(_OWORD *)&child->m_count = *(_OWORD *)&result.m_count;
+        child->m_value = v11;
         return 1;
       }
       result.m_count = --m_count;
       if ( !m_count )
       {
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+0E8h+result.m_key], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&result.m_key = _XMM0;
         goto LABEL_4;
       }
       v10 = MsgPack_Skip(v9);
@@ -2189,11 +2128,11 @@ char MsgPack::GetChild(MsgPack *this, __int64 key, MsgPack *child)
   const unsigned __int8 *v9; 
   const unsigned __int8 *v10; 
   const unsigned __int8 *v11; 
+  const unsigned __int8 *v12; 
   MsgPack result; 
   __int64 value; 
 
   m_value = this->m_value;
-  _RSI = child;
   if ( m_value && typemap[*m_value] == MSGPACK_MAP )
   {
     MsgPack::begin(this, &result);
@@ -2205,23 +2144,16 @@ LABEL_4:
     {
       if ( MsgPack_DecodeInt(m_key, &value) && value == key )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+48h+result.m_count]
-          vmovsd  xmm1, [rsp+48h+result.m_value]
-          vmovups xmmword ptr [rsi], xmm0
-          vmovsd  qword ptr [rsi+10h], xmm1
-        }
+        v12 = result.m_value;
+        *(_OWORD *)&child->m_count = *(_OWORD *)&result.m_count;
+        child->m_value = v12;
         return 1;
       }
       result.m_count = --m_count;
       if ( !m_count )
       {
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+48h+result.m_key], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&result.m_key = _XMM0;
         goto LABEL_4;
       }
       v11 = MsgPack_Skip(v10);
@@ -2245,48 +2177,39 @@ MsgPack::GetFloat
 bool MsgPack::GetFloat(MsgPack *this, long double *value)
 {
   const unsigned __int8 *m_value; 
-  long double *v3; 
   bool result; 
+  unsigned __int64 v5; 
+  unsigned __int64 v6; 
   unsigned __int64 v7; 
   unsigned __int64 v8; 
   unsigned __int64 v9; 
   unsigned __int64 v10; 
   unsigned __int64 v11; 
-  unsigned __int64 v12; 
-  unsigned __int64 v13; 
-  int v14; 
 
   m_value = this->m_value;
-  v3 = value;
   if ( *m_value == 0xCA )
   {
     result = 1;
-    v14 = m_value[4] | ((m_value[3] | ((m_value[2] | (m_value[1] << 8)) << 8)) << 8);
-    __asm
-    {
-      vmovss  xmm0, [rsp+arg_0]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  qword ptr [rdx], xmm0
-    }
+    *value = COERCE_FLOAT(m_value[4] | ((m_value[3] | ((m_value[2] | (m_value[1] << 8)) << 8)) << 8));
   }
   else if ( *m_value == 0xCB )
   {
     *value = 0.0;
-    v7 = (unsigned __int64)m_value[1] << 56;
+    v5 = (unsigned __int64)m_value[1] << 56;
+    *(_QWORD *)value = v5;
+    v6 = v5 | ((unsigned __int64)m_value[2] << 48);
+    *(_QWORD *)value = v6;
+    v7 = v6 | ((unsigned __int64)m_value[3] << 40);
     *(_QWORD *)value = v7;
-    v8 = v7 | ((unsigned __int64)m_value[2] << 48);
+    v8 = v7 | ((unsigned __int64)m_value[4] << 32);
     *(_QWORD *)value = v8;
-    v9 = v8 | ((unsigned __int64)m_value[3] << 40);
+    v9 = v8 | ((unsigned __int64)m_value[5] << 24);
     *(_QWORD *)value = v9;
-    v10 = v9 | ((unsigned __int64)m_value[4] << 32);
+    v10 = v9 | ((unsigned __int64)m_value[6] << 16);
     *(_QWORD *)value = v10;
-    v11 = v10 | ((unsigned __int64)m_value[5] << 24);
+    v11 = v10 | ((unsigned __int64)m_value[7] << 8);
     *(_QWORD *)value = v11;
-    v12 = v11 | ((unsigned __int64)m_value[6] << 16);
-    *(_QWORD *)v3 = v12;
-    v13 = v12 | ((unsigned __int64)m_value[7] << 8);
-    *(_QWORD *)v3 = v13;
-    *(_QWORD *)v3 = v13 | m_value[8];
+    *(_QWORD *)value = v11 | m_value[8];
     return 1;
   }
   else
@@ -2338,13 +2261,7 @@ char MsgPack::GetMap(MsgPack *this, MsgPack *value)
   m_value = this->m_value;
   if ( !m_value || typemap[*m_value] != MSGPACK_MAP )
     return 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovsd  xmm1, qword ptr [rcx+10h]
-    vmovsd  qword ptr [rdx+10h], xmm1
-  }
+  *value = *this;
   return 1;
 }
 
@@ -2744,16 +2661,13 @@ LABEL_18:
 MsgPack_EncodeFloat64
 ==============
 */
-
-unsigned __int8 *__fastcall MsgPack_EncodeFloat64(unsigned __int8 *dest, unsigned __int64 destSize, double value)
+unsigned __int8 *MsgPack_EncodeFloat64(unsigned __int8 *dest, unsigned __int64 destSize, long double value)
 {
   unsigned __int8 *v3; 
   unsigned __int8 *v4; 
   unsigned __int8 *result; 
-  __int64 v6; 
 
   v3 = &dest[destSize];
-  __asm { vmovsd  [rsp+arg_10], xmm2 }
   if ( !dest )
     return 0i64;
   if ( !destSize )
@@ -2762,15 +2676,15 @@ unsigned __int8 *__fastcall MsgPack_EncodeFloat64(unsigned __int8 *dest, unsigne
   v4 = dest + 1;
   if ( !v4 || (unsigned __int64)(v3 - v4) < 8 )
     return 0i64;
-  *v4 = HIBYTE(v6);
-  v4[1] = BYTE6(v6);
-  v4[2] = BYTE5(v6);
-  v4[3] = BYTE4(v6);
-  v4[4] = BYTE3(v6);
-  v4[5] = BYTE2(v6);
-  v4[6] = BYTE1(v6);
+  *v4 = HIBYTE(value);
+  v4[1] = BYTE6(value);
+  v4[2] = BYTE5(value);
+  v4[3] = BYTE4(value);
+  v4[4] = BYTE3(value);
+  v4[5] = BYTE2(value);
+  v4[6] = BYTE1(value);
   result = v4 + 8;
-  v4[7] = v6;
+  v4[7] = LOBYTE(value);
   return result;
 }
 
@@ -3445,17 +3359,14 @@ MsgPack::ToArray
 MsgPack *MsgPack::ToArray(MsgPack *this, MsgPack *result)
 {
   const unsigned __int8 *m_value; 
+  const unsigned __int8 *v3; 
 
   m_value = this->m_value;
   if ( m_value && typemap[*m_value] == MSGPACK_ARRAY )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovsd  xmm1, qword ptr [rcx+10h]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovsd  qword ptr [rdx+10h], xmm1
-    }
+    v3 = this->m_value;
+    *(_OWORD *)&result->m_count = *(_OWORD *)&this->m_count;
+    result->m_value = v3;
     return result;
   }
   else
@@ -3491,33 +3402,18 @@ bool MsgPack::ToBool(MsgPack *this, bool defaultValue)
 MsgPack::ToFloat
 ==============
 */
-
-long double __fastcall MsgPack::ToFloat(MsgPack *this, double defaultValue)
+long double MsgPack::ToFloat(MsgPack *this, long double defaultValue)
 {
   const unsigned __int8 *m_value; 
-  int v6; 
-  unsigned __int64 v7; 
+  long double result; 
 
   m_value = this->m_value;
   if ( *m_value == 0xCA )
-  {
-    v6 = m_value[4] | ((m_value[3] | ((m_value[2] | (m_value[1] << 8)) << 8)) << 8);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+arg_0]
-      vcvtss2sd xmm0, xmm0, xmm0
-    }
-  }
-  else if ( *m_value == 0xCB )
-  {
-    v7 = m_value[8] | ((m_value[7] | ((m_value[6] | ((m_value[5] | ((m_value[4] | ((m_value[3] | ((m_value[2] | ((unsigned __int64)m_value[1] << 8)) << 8)) << 8)) << 8)) << 8)) << 8)) << 8);
-    __asm { vmovsd  xmm0, [rsp+arg_0] }
-  }
-  else
-  {
-    __asm { vmovaps xmm0, xmm1 }
-  }
-  return *(double *)&_XMM0;
+    return COERCE_FLOAT(m_value[4] | ((m_value[3] | ((m_value[2] | (m_value[1] << 8)) << 8)) << 8));
+  if ( *m_value != 0xCB )
+    return defaultValue;
+  *(_QWORD *)&result = m_value[8] | ((m_value[7] | ((m_value[6] | ((m_value[5] | ((m_value[4] | ((m_value[3] | ((m_value[2] | ((unsigned __int64)m_value[1] << 8)) << 8)) << 8)) << 8)) << 8)) << 8)) << 8);
+  return result;
 }
 
 /*
@@ -3550,17 +3446,14 @@ MsgPack::ToMap
 MsgPack *MsgPack::ToMap(MsgPack *this, MsgPack *result)
 {
   const unsigned __int8 *m_value; 
+  const unsigned __int8 *v3; 
 
   m_value = this->m_value;
   if ( m_value && typemap[*m_value] == MSGPACK_MAP )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovsd  xmm1, qword ptr [rcx+10h]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovsd  qword ptr [rdx+10h], xmm1
-    }
+    v3 = this->m_value;
+    *(_OWORD *)&result->m_count = *(_OWORD *)&this->m_count;
+    result->m_value = v3;
     return result;
   }
   else

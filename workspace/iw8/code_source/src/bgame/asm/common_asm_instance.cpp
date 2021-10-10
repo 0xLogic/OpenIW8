@@ -348,9 +348,7 @@ void ASM_HistoryEvent::ASM_HistoryEvent(ASM_HistoryEvent *this, const ASM_Histor
 {
   int m_fromState; 
 
-  _R9 = &pOther->m_transitionList;
   this->m_transitionList.m_transitionListCount = 0;
-  _R8 = this;
   this->m_transitionList.m_transitionList[0] = NULL;
   this->m_transitionList.m_transitionList[1] = NULL;
   this->m_transitionList.m_transitionList[2] = NULL;
@@ -358,24 +356,12 @@ void ASM_HistoryEvent::ASM_HistoryEvent(ASM_HistoryEvent *this, const ASM_Histor
   this->m_transitionList.m_transitionList[4] = NULL;
   this->m_transitionList.m_transitionList[5] = NULL;
   m_fromState = pOther->m_fromState;
-  _R8->m_time = pOther->m_time;
-  _R8->m_fromState = m_fromState;
+  this->m_time = pOther->m_time;
+  this->m_fromState = m_fromState;
   if ( pOther == (const ASM_HistoryEvent *)-8i64 )
-  {
-    _R8->m_transitionList.m_transitionListCount = 0;
-  }
+    this->m_transitionList.m_transitionListCount = 0;
   else
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups ymmword ptr [r8+8], ymm0
-      vmovups xmm1, xmmword ptr [r9+20h]
-      vmovups xmmword ptr [r8+28h], xmm1
-      vmovsd  xmm0, qword ptr [r9+30h]
-      vmovsd  qword ptr [r8+38h], xmm0
-    }
-  }
+    this->m_transitionList = pOther->m_transitionList;
 }
 
 /*
@@ -725,28 +711,17 @@ ASM_History::AddEvent
 void ASM_History::AddEvent(ASM_History *this, int time, int fromState, const ASM_TransitionList *pTransitionList)
 {
   __int64 v4; 
+  __int64 v5; 
 
   v4 = ((unsigned __int8)this->m_frontIndex + 1) & 7;
   this->m_frontIndex = v4;
-  _R10 = v4 << 6;
-  *(int *)((char *)&this->m_events[0].m_time + _R10) = time;
-  *(int *)((char *)&this->m_events[0].m_fromState + _R10) = fromState;
+  v5 = v4 << 6;
+  *(int *)((char *)&this->m_events[0].m_time + v5) = time;
+  *(int *)((char *)&this->m_events[0].m_fromState + v5) = fromState;
   if ( pTransitionList )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups ymmword ptr [r10+rcx+10h], ymm0
-      vmovups xmm1, xmmword ptr [r9+20h]
-      vmovups xmmword ptr [r10+rcx+30h], xmm1
-      vmovsd  xmm0, qword ptr [r9+30h]
-      vmovsd  qword ptr [r10+rcx+40h], xmm0
-    }
-  }
+    *(ASM_TransitionList *)((char *)&this->m_events[0].m_transitionList + v5) = *pTransitionList;
   else
-  {
-    *(unsigned int *)((char *)&this->m_events[0].m_transitionList.m_transitionListCount + _R10) = 0;
-  }
+    *(unsigned int *)((char *)&this->m_events[0].m_transitionList.m_transitionListCount + v5) = 0;
 }
 
 /*
@@ -903,19 +878,11 @@ ASM_History::GetColor
 */
 vec4_t *ASM_History::GetColor(vec4_t *result, const unsigned int index)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-    vmovups xmm1, xmmword ptr cs:?colorCyan@@3Tvec4_t@@B; vec4_t const colorCyan
-  }
-  _RAX = 2i64 * (index & 1);
-  __asm
-  {
-    vmovups [rsp+38h+var_38], xmm0
-    vmovups [rsp+38h+var_28], xmm1
-    vmovups xmm0, [rsp+rax*8+38h+var_38]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  __int128 v3[2]; 
+
+  v3[0] = (__int128)colorGreen;
+  v3[1] = (__int128)colorCyan;
+  *result = (vec4_t)v3[index & 1];
   return result;
 }
 
@@ -1147,21 +1114,9 @@ void ASM_HistoryEvent::Set(ASM_HistoryEvent *this, int time, int fromState, cons
   this->m_time = time;
   this->m_fromState = fromState;
   if ( pTransitionList )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups ymmword ptr [rcx+8], ymm0
-      vmovups xmm1, xmmword ptr [r9+20h]
-      vmovups xmmword ptr [rcx+28h], xmm1
-      vmovsd  xmm0, qword ptr [r9+30h]
-      vmovsd  qword ptr [rcx+38h], xmm0
-    }
-  }
+    this->m_transitionList = *pTransitionList;
   else
-  {
     this->m_transitionList.m_transitionListCount = 0;
-  }
 }
 
 /*

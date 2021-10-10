@@ -101,6 +101,7 @@ ULONG McGenEventWriteUM(_MCGEN_TRACE_CONTEXT *Context, const _EVENT_DESCRIPTOR *
   _EVENT_DATA_DESCRIPTOR *v5; 
   bool v6; 
   char v7; 
+  _EVENT_DESCRIPTOR v8; 
   _EVENT_DESCRIPTOR EventDescriptor; 
 
   Logger = (unsigned __int16 *)Context->Logger;
@@ -122,9 +123,9 @@ ULONG McGenEventWriteUM(_MCGEN_TRACE_CONTEXT *Context, const _EVENT_DESCRIPTOR *
   }
   if ( Descriptor->Channel == v7 )
   {
-    __asm { vmovups xmm0, xmmword ptr [rdx] }
+    v8 = *Descriptor;
     Descriptor = &EventDescriptor;
-    __asm { vmovups xmmword ptr [rsp+38h+EventDescriptor.Id], xmm0 }
+    EventDescriptor = v8;
     EventDescriptor.Channel = Logger != NULL ? 0xC : 0;
   }
   return EventWrite(Context->RegistrationHandle, Descriptor, EventDataCount, EventData);

@@ -105,8 +105,7 @@ float s_LUI_DataBinding_Get_ObjectivePingAlpha(LocalClientNum_t localClientNum, 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   v5 = CG_GetLocalClientGlobals(localClientNum);
   CG_CompassGetObjectivePingAlpha(&LocalClientGlobals->predictedPlayerState.objectives[v2], v5->time, &pingAlpha);
-  __asm { vmovss  xmm0, [rsp+28h+pingAlpha] }
-  return *(float *)&_XMM0;
+  return pingAlpha;
 }
 
 /*
@@ -116,17 +115,10 @@ s_LUI_DataBinding_Get_SubtitleAlpha
 */
 float s_LUI_DataBinding_Get_SubtitleAlpha(LocalClientNum_t localClientNum)
 {
-  __asm { vmovss  xmm2, cs:__real@3f800000 }
-  _EAX = CL_Pause_IsGamePaused();
-  _ECX = 0;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vblendvps xmm0, xmm1, xmm2, xmm3
-  }
+  _XMM0 = CL_Pause_IsGamePaused();
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = 0i64;
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   return *(float *)&_XMM0;
 }
 

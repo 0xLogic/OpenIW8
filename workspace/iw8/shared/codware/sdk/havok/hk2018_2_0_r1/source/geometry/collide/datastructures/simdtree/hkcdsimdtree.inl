@@ -33,414 +33,303 @@ hkcdSimdTreeUtils::ProcessSimdTreeRayCastLeaves<StaticModels_HavokShapeEx::RayCa
 */
 float hkcdSimdTreeUtils::ProcessSimdTreeRayCastLeaves<StaticModels_HavokShapeEx::RayCast<1>,0>::process(hkcdSimdTreeUtils::ProcessSimdTreeRayCastLeaves<StaticModels_HavokShapeEx::RayCast<1>,0> *this, const unsigned int *leaves, int numLeaves, const hkcdRay *ray)
 {
-  const unsigned int *v16; 
-  __int64 v17; 
-  __int64 v18; 
-  __int64 v20; 
+  __m128 v4; 
+  StaticModels_HavokShapeEx::RayCast<1> *m_query; 
+  const unsigned int *v6; 
+  __int64 v7; 
+  __int64 v8; 
+  float v9; 
+  __int64 v10; 
   const StaticModels_HavokShapeInternalsSimdTreeKeyMask *m_simdTreeMask; 
   const StaticModels_HavokShape *m_targetShape; 
-  __int64 v24; 
+  __int64 v13; 
   StaticModels_HavokShapeInstance *m_data; 
+  hkSimdFloat32 v15; 
   __int16 m_modelIdxAndFlags; 
-  char v28; 
-  bool v29; 
   const hknpShapeQueryInfo *m_targetShapeInfo; 
   int m_numShapeKeyBits; 
-  int v34; 
-  int v35; 
+  int v20; 
+  int v21; 
   const void *CollisionTileModelShape; 
-  bool v37; 
+  bool v23; 
   __int64 m_shapeTagCodec; 
-  const StaticModels_HavokShape *v39; 
-  void (__fastcall *v40)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __int128 *); 
-  const hknpShapeQueryInfo *v41; 
+  const StaticModels_HavokShape *v25; 
+  void (__fastcall *v26)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __m128 *); 
+  const hknpShapeQueryInfo *v27; 
   const hknpShape *m_rootShape; 
   const hknpBody *m_body; 
   unsigned __int16 CollisionTileModelShapeTag; 
-  _BOOL8 v45; 
-  const hknpRayCastQuery *m_query; 
+  _BOOL8 v31; 
+  const hknpRayCastQuery *v32; 
   const hknpCollisionFilter *m_filter; 
-  __int64 *v48; 
+  __int64 *v34; 
+  __m128 v37; 
+  const hknpShapeQueryInfo *v41; 
+  const hkTransformf *m_shapeToWorld; 
+  __m128 m_quad; 
+  const hknpRayCastQuery *v46; 
   hknpCollisionQueryCollector *m_collector; 
-  const StaticModels_HavokShapeInternalsSimdTreeKeyMask *v144; 
-  __int64 v145; 
-  bool v148; 
-  int v163; 
+  __int128 v50; 
+  const StaticModels_HavokShapeInternalsSimdTreeKeyMask *v64; 
+  __int64 v65; 
+  bool v68; 
+  hkSimdFloat32 v69; 
+  int v71; 
   hknpShapeKeyPath m_shapeKeyPath; 
-  __int64 v165; 
-  StaticModels_HavokShapeInstance *v166; 
-  __int64 v167; 
-  __int64 v168; 
-  __int128 v169; 
-  __int64 v170; 
-  const unsigned int *v171; 
+  __int64 v73; 
+  StaticModels_HavokShapeInstance *v74; 
+  __int64 v75; 
+  __int64 v76; 
+  __m128 v77; 
+  __int64 v78; 
+  const unsigned int *v79; 
   unsigned __int16 m_value; 
   unsigned int m_collisionFilterInfo; 
   unsigned __int64 m_userData; 
-  __int64 v176; 
-  int v177; 
-  __int64 v178; 
-  __int16 v179; 
-  int v180; 
-  __int64 v181; 
-  __int64 v182; 
-  __int64 v183; 
-  const StaticModels_HavokShape *v184; 
-  int v185; 
-  __int64 v186; 
-  __int64 v187[2]; 
+  __m128 v83; 
+  __int64 v84; 
+  int v85; 
+  __int64 v86; 
+  __int16 v87; 
+  int v88; 
+  __int64 v89; 
+  __int64 v90; 
+  __int64 v91; 
+  const StaticModels_HavokShape *v92; 
+  int v93; 
+  __int64 v94; 
+  __int64 v95[2]; 
   const StaticModels_HavokShape *m_parentShape; 
-  int v189; 
+  int v97; 
   int m_size; 
-  const hkTransformf *m_shapeToWorld; 
-  __int64 v192; 
+  const hkTransformf *v99; 
+  __int64 v100; 
   bool m_isScaled; 
   unsigned int m_mode; 
+  float m_convexRadius; 
+  hkVector4f v104; 
+  hkVector4f v105; 
   vec3_t origin; 
-  char v199[64]; 
+  char v107[64]; 
   vec4_t orientationAsQuat; 
   hkQuaternionf qi; 
-  __int128 v202[3]; 
-  __m256i v204; 
+  __int128 v110[3]; 
+  __m128 v111; 
+  __m256i v112; 
+  __int64 v113; 
+  __m128 v114; 
+  __m128 v115; 
+  __int128 m_invDirection; 
   unsigned int m_storage; 
-  _BYTE v210[64]; 
-  void *retaddr; 
+  _BYTE v118[64]; 
+  __m128 v119; 
 
-  _R11 = &retaddr;
-  _R12 = this->m_query;
-  v16 = leaves;
-  v17 = numLeaves;
-  v168 = numLeaves;
-  v171 = leaves;
+  m_query = this->m_query;
+  v6 = leaves;
+  v7 = numLeaves;
+  v76 = numLeaves;
+  v79 = leaves;
   if ( numLeaves > 0 )
   {
-    v18 = 0i64;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovss  xmm6, cs:__real@3d000000
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovaps xmmword ptr [r11-68h], xmm9
-      vmovaps xmmword ptr [r11-78h], xmm10
-      vmovaps xmmword ptr [r11-88h], xmm11
-      vmovaps xmmword ptr [r11-98h], xmm12
-      vmovaps xmmword ptr [r11-0A8h], xmm13
-      vmovaps xmmword ptr [r11-0B8h], xmm14
-      vmovaps xmmword ptr [r11-0C8h], xmm15
-    }
-    v167 = 0i64;
+    v8 = 0i64;
+    v9 = FLOAT_0_03125;
+    v119 = v4;
+    v75 = 0i64;
     do
     {
-      v20 = (int)v16[v18];
-      m_simdTreeMask = _R12->m_simdTreeMask;
-      if ( !m_simdTreeMask || ((m_simdTreeMask->m_enableInstances.m_storage.m_words.m_data[v20 >> 5] >> (v20 & 0x1F)) & 1) != 0 )
+      v10 = (int)v6[v8];
+      m_simdTreeMask = m_query->m_simdTreeMask;
+      if ( !m_simdTreeMask || ((m_simdTreeMask->m_enableInstances.m_storage.m_words.m_data[v10 >> 5] >> (v10 & 0x1F)) & 1) != 0 )
       {
-        m_targetShape = _R12->m_targetShape;
-        _RAX = _R12->m_collector;
-        v24 = (unsigned __int16)v20;
-        m_data = _R12->m_targetShape->m_instances.m_data;
-        __asm { vmovups xmm13, xmmword ptr [rax+10h] }
-        v166 = m_data;
-        m_modelIdxAndFlags = m_data[(unsigned __int16)v20].m_modelIdxAndFlags;
-        v28 = 0;
-        v29 = m_modelIdxAndFlags == 0;
+        m_targetShape = m_query->m_targetShape;
+        v13 = (unsigned __int16)v10;
+        m_data = m_query->m_targetShape->m_instances.m_data;
+        v15.m_real = (__m128)m_query->m_collector->m_earlyOutThreshold;
+        v74 = m_data;
+        m_modelIdxAndFlags = m_data[(unsigned __int16)v10].m_modelIdxAndFlags;
         if ( m_modelIdxAndFlags < 0 )
         {
-          _RAX = _R12->m_targetShapeFilterData;
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          m_targetShapeInfo = _R12->m_targetShapeInfo;
-          __asm { vmovups [rsp+3A8h+var_328], xmm0 }
+          _XMM0 = *(__m128 *)m_query->m_targetShapeFilterData;
+          m_targetShapeInfo = m_query->m_targetShapeInfo;
+          v77 = _XMM0;
           m_numShapeKeyBits = m_targetShape->m_numShapeKeyBits;
           m_shapeKeyPath = m_targetShapeInfo->m_shapeKeyPath;
-          v34 = m_numShapeKeyBits + m_shapeKeyPath.m_size;
-          v163 = m_numShapeKeyBits + m_shapeKeyPath.m_size;
-          v35 = m_shapeKeyPath.m_key.m_value & hknpShapeKeyPath_usedBitsMaskTable[m_shapeKeyPath.m_size] | ((((_DWORD)v20 + 1) << (32 - (LOBYTE(m_shapeKeyPath.m_size) + m_numShapeKeyBits))) - 1);
+          v20 = m_numShapeKeyBits + m_shapeKeyPath.m_size;
+          v71 = m_numShapeKeyBits + m_shapeKeyPath.m_size;
+          v21 = m_shapeKeyPath.m_key.m_value & hknpShapeKeyPath_usedBitsMaskTable[m_shapeKeyPath.m_size] | ((((_DWORD)v10 + 1) << (32 - (LOBYTE(m_shapeKeyPath.m_size) + m_numShapeKeyBits))) - 1);
           CollisionTileModelShape = StaticModels_GetCollisionTileModelShape((m_modelIdxAndFlags & 0x4000) != 0, m_targetShape->m_tileIdx, m_modelIdxAndFlags & 0x3FFF);
-          v165 = (__int64)CollisionTileModelShape;
-          v37 = 1;
-          m_shapeTagCodec = (__int64)_R12->m_query->m_shapeTagCodec;
-          v170 = m_shapeTagCodec;
+          v73 = (__int64)CollisionTileModelShape;
+          v23 = 1;
+          m_shapeTagCodec = (__int64)m_query->m_query->m_shapeTagCodec;
+          v78 = m_shapeTagCodec;
           if ( m_shapeTagCodec )
           {
-            v39 = _R12->m_targetShape;
-            v40 = *(void (__fastcall **)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __int128 *))(*(_QWORD *)m_shapeTagCodec + 32i64);
-            v41 = _R12->m_targetShapeInfo;
-            m_rootShape = v41->m_rootShape;
-            m_body = v41->m_body;
-            CollisionTileModelShapeTag = StaticModels_GetCollisionTileModelShapeTag((v166[(unsigned __int16)v20].m_modelIdxAndFlags & 0x4000) != 0, _R12->m_targetShape->m_tileIdx, v166[(unsigned __int16)v20].m_modelIdxAndFlags & 0x3FFF);
-            v40(v170, CollisionTileModelShapeTag, 1i64, m_body, m_rootShape, v39, v35, v165, &v169);
-            m_query = _R12->m_query;
-            m_filter = m_query->m_filter;
+            v25 = m_query->m_targetShape;
+            v26 = *(void (__fastcall **)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __m128 *))(*(_QWORD *)m_shapeTagCodec + 32i64);
+            v27 = m_query->m_targetShapeInfo;
+            m_rootShape = v27->m_rootShape;
+            m_body = v27->m_body;
+            CollisionTileModelShapeTag = StaticModels_GetCollisionTileModelShapeTag((v74[(unsigned __int16)v10].m_modelIdxAndFlags & 0x4000) != 0, m_query->m_targetShape->m_tileIdx, v74[(unsigned __int16)v10].m_modelIdxAndFlags & 0x3FFF);
+            v26(v78, CollisionTileModelShapeTag, 1i64, m_body, m_rootShape, v25, v21, v73, &v77);
+            v32 = m_query->m_query;
+            m_filter = v32->m_filter;
             if ( m_filter )
             {
-              v48 = (__int64 *)_R12->m_targetShapeInfo;
-              CollisionTileModelShape = (const void *)v165;
+              v34 = (__int64 *)m_query->m_targetShapeInfo;
+              CollisionTileModelShape = (const void *)v73;
               m_collisionFilterInfo = 0;
               m_value = -1;
-              LOBYTE(v45) = 1;
+              LOBYTE(v31) = 1;
               m_userData = 0i64;
-              m_value = m_query->m_filterData.m_materialId.m_value;
-              m_collisionFilterInfo = m_query->m_filterData.m_collisionFilterInfo;
-              m_userData = m_query->m_filterData.m_userData;
-              v179 = v169;
-              v180 = DWORD1(v169);
-              v181 = *((_QWORD *)&v169 + 1);
-              v176 = 0i64;
-              v177 = -1;
-              v178 = 0i64;
-              __asm
-              {
-                vpxor   xmm0, xmm0, xmm0
-                vmovdqu [rsp+3A8h+var_2F8], xmm0
-              }
-              v182 = *v48;
-              v183 = v48[1];
-              v184 = _R12->m_targetShape;
-              v185 = v35;
-              v186 = v165;
-              v37 = m_filter->isCollisionEnabled((hknpCollisionFilter *)m_filter, RAY_CAST, v45, (const hknpCollisionFilter::FilterInput *)&m_value, (const hknpCollisionFilter::FilterInput *)&v179);
+              m_value = v32->m_filterData.m_materialId.m_value;
+              m_collisionFilterInfo = v32->m_filterData.m_collisionFilterInfo;
+              m_userData = v32->m_filterData.m_userData;
+              v87 = v77.m128_i16[0];
+              v88 = v77.m128_i32[1];
+              v89 = v77.m128_i64[1];
+              v84 = 0i64;
+              v85 = -1;
+              v86 = 0i64;
+              __asm { vpxor   xmm0, xmm0, xmm0 }
+              v83 = _XMM0;
+              v90 = *v34;
+              v91 = v34[1];
+              v92 = m_query->m_targetShape;
+              v93 = v21;
+              v94 = v73;
+              v23 = m_filter->isCollisionEnabled((hknpCollisionFilter *)m_filter, RAY_CAST, v31, (const hknpCollisionFilter::FilterInput *)&m_value, (const hknpCollisionFilter::FilterInput *)&v87);
             }
             else
             {
-              v37 = 1;
-              CollisionTileModelShape = (const void *)v165;
+              v23 = 1;
+              CollisionTileModelShape = (const void *)v73;
             }
-            v34 = v163;
-            m_data = v166;
-            v24 = (unsigned __int16)v20;
+            v20 = v71;
+            m_data = v74;
+            v13 = (unsigned __int16)v10;
           }
-          v28 = 0;
-          v29 = !v37;
-          if ( v37 )
+          if ( v23 )
           {
-            *(double *)&_XMM0 = StaticModels_GetCollisionTileModelInstanceScale(_R12->m_targetShape->m_tileIdx, m_data[v24].m_modelIdxAndFlags & 0x3FFF, m_data[v24].m_instanceIdx);
+            *(double *)_XMM0.m128_u64 = StaticModels_GetCollisionTileModelInstanceScale(m_query->m_targetShape->m_tileIdx, m_data[v13].m_modelIdxAndFlags & 0x3FFF, m_data[v13].m_instanceIdx);
+            _XMM14 = _mm_shuffle_ps(_XMM0, _XMM0, 0);
+            __asm { vrcpps  xmm3, xmm14 }
+            v37 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM14, _XMM3)), _XMM3);
+            StaticModels_GetCollisionTileModelInstanceTransform(m_query->m_targetShape->m_tileIdx, m_data[v13].m_modelIdxAndFlags & 0x3FFF, m_data[v13].m_instanceIdx, &origin, &orientationAsQuat);
+            *(__m256i *)v107 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+            *(__m256i *)&v107[32] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+            qi.m_vec.m_quad = (__m128)orientationAsQuat;
+            hkRotationImpl<float>::set((hkRotationImpl<float> *)v107, &qi);
+            _XMM12 = *(__m128 *)&v107[32];
+            _XMM11 = *(__m128 *)&v107[16];
+            _XMM9 = *(__m128 *)v107;
+            v41 = m_query->m_targetShapeInfo;
+            *(float *)&v107[52] = v9 * origin.v[1];
+            *(float *)&v107[48] = v9 * origin.v[0];
+            *(float *)&v107[56] = v9 * origin.v[2];
+            *(float *)&v107[60] = 0.0;
+            m_shapeToWorld = v41->m_shapeToWorld;
+            _YMM7 = *(__m256i *)m_shapeToWorld->m_rotation.m_col0.m_quad.m128_f32;
+            m_quad = m_shapeToWorld->m_rotation.m_col2.m_quad;
+            __asm { vextractf128 xmm6, ymm7, 1 }
+            v110[2] = (__int128)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM12, _XMM12, 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(_XMM12, _XMM12, 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(_XMM12, _XMM12, 170), m_quad));
+            v110[1] = (__int128)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 170), m_quad));
+            v111 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&v107[48], *(__m128 *)&v107[48], 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&v107[48], *(__m128 *)&v107[48], 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&v107[48], *(__m128 *)&v107[48], 170), m_quad));
+            v46 = m_query->m_query;
+            m_collector = m_query->m_collector;
+            v110[0] = (__int128)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 170), m_quad));
+            v111 = _mm128_add_ps(v111, m_shapeToWorld->m_translation.m_quad);
+            v112 = *(__m256i *)&v46->m_shapeTagCodec;
+            v113 = *(_QWORD *)v46->m_levelOfDetail;
+            v114 = v46->m_ray.m_origin.m_quad;
+            v115 = v46->m_ray.m_direction.m_quad;
+            m_invDirection = (__int128)v46->m_ray.m_invDirection;
+            m_storage = v46->m_flags.m_storage;
+            _mm128_sub_ps(v46->m_ray.m_origin.m_quad, *(__m128 *)&v107[48]);
             __asm
             {
-              vmovups xmm1, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-              vmovaps xmm14, xmm0
-              vshufps xmm14, xmm14, xmm14, 0
-              vrcpps  xmm3, xmm14
-              vmulps  xmm2, xmm14, xmm3
-              vsubps  xmm2, xmm1, xmm2
-              vmulps  xmm15, xmm2, xmm3
-            }
-            StaticModels_GetCollisionTileModelInstanceTransform(_R12->m_targetShape->m_tileIdx, m_data[v24].m_modelIdxAndFlags & 0x3FFF, m_data[v24].m_instanceIdx, &origin, &orientationAsQuat);
-            __asm
-            {
-              vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-              vmovups xmm0, xmmword ptr [rsp+3A8h+var_1E8]
-              vmovups ymmword ptr [rsp+3A8h+var_228], ymm1
-              vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-              vmovups ymmword ptr [rsp+3A8h+var_228+20h], ymm1
-              vmovups xmmword ptr [rsp+3A8h+qi.m_vec.m_quad], xmm0
-            }
-            hkRotationImpl<float>::set((hkRotationImpl<float> *)v199, &qi);
-            __asm
-            {
-              vmulss  xmm0, xmm6, dword ptr [rsp+3A8h+origin+4]
-              vmulss  xmm1, xmm6, dword ptr [rsp+3A8h+origin]
-              vmulss  xmm2, xmm6, dword ptr [rsp+3A8h+origin+8]
-              vmovups xmm12, xmmword ptr [rsp+3A8h+var_228+20h]
-              vmovups xmm11, xmmword ptr [rsp+3A8h+var_228+10h]
-              vmovups xmm9, xmmword ptr [rsp+3A8h+var_228]
-            }
-            _RDX = _R12->m_targetShapeInfo;
-            __asm
-            {
-              vmovss  dword ptr [rsp+3A8h+var_228+34h], xmm0
-              vmovss  dword ptr [rsp+3A8h+var_228+30h], xmm1
-              vmovss  dword ptr [rsp+3A8h+var_228+38h], xmm2
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  dword ptr [rsp+3A8h+var_228+3Ch], xmm0
-            }
-            _RAX = _RDX->m_shapeToWorld;
-            __asm
-            {
-              vmovups xmm10, xmmword ptr [rsp+3A8h+var_228+30h]
-              vshufps xmm0, xmm10, xmm10, 55h ; 'U'
-              vshufps xmm1, xmm10, xmm10, 0
-              vmovups ymm7, ymmword ptr [rax]
-              vmovups xmm8, xmmword ptr [rax+20h]
-              vextractf128 xmm6, ymm7, 1
-              vmulps  xmm2, xmm0, xmm6
-              vmulps  xmm0, xmm1, xmm7
-              vaddps  xmm3, xmm2, xmm0
-              vshufps xmm1, xmm10, xmm10, 0AAh ; 'ª'
-              vmulps  xmm2, xmm1, xmm8
-              vaddps  xmm5, xmm3, xmm2
-              vshufps xmm0, xmm12, xmm12, 55h ; 'U'
-              vmulps  xmm3, xmm0, xmm6
-              vshufps xmm1, xmm12, xmm12, 0
-              vmulps  xmm2, xmm1, xmm7
-              vaddps  xmm4, xmm3, xmm2
-              vshufps xmm0, xmm12, xmm12, 0AAh ; 'ª'
-              vmulps  xmm1, xmm0, xmm8
-              vaddps  xmm2, xmm4, xmm1
-              vmovups [rsp+3A8h+var_1A8], xmm2
-              vshufps xmm0, xmm11, xmm11, 55h ; 'U'
-              vmulps  xmm3, xmm0, xmm6
-              vshufps xmm1, xmm11, xmm11, 0
-              vmulps  xmm2, xmm1, xmm7
-              vaddps  xmm4, xmm3, xmm2
-              vshufps xmm0, xmm11, xmm11, 0AAh ; 'ª'
-              vmulps  xmm1, xmm0, xmm8
-              vaddps  xmm2, xmm4, xmm1
-              vshufps xmm0, xmm9, xmm9, 55h ; 'U'
-              vmulps  xmm3, xmm0, xmm6
-              vshufps xmm1, xmm9, xmm9, 0
-              vmovups [rsp+3A8h+var_1B8], xmm2
-              vmulps  xmm2, xmm1, xmm7
-              vaddps  xmm4, xmm3, xmm2
-              vmovups [rsp+3A8h+var_198], xmm5
-              vshufps xmm0, xmm9, xmm9, 0AAh ; 'ª'
-            }
-            _RCX = _R12->m_query;
-            m_collector = _R12->m_collector;
-            __asm
-            {
-              vmulps  xmm1, xmm0, xmm8
-              vaddps  xmm2, xmm4, xmm1
-              vmovups xmm4, cs:__xmm@7f7fffee7f7fffee7f7fffee7f7fffee
-              vmovups [rsp+3A8h+var_1C8], xmm2
-              vaddps  xmm0, xmm5, xmmword ptr [rax+30h]
-              vmovups [rsp+3A8h+var_198], xmm0
-              vmovups ymm0, ymmword ptr [rcx]
-              vmovups [rsp+3A8h+var_188], ymm0
-              vmovsd  xmm1, qword ptr [rcx+20h]
-              vmovsd  [rsp+3A8h+var_168], xmm1
-              vmovups xmm0, xmmword ptr [rcx+30h]
-              vmovups [rsp+3A8h+var_158], xmm0
-              vmovups xmm1, xmmword ptr [rcx+40h]
-              vmovups [rsp+3A8h+var_148], xmm1
-              vmovups xmm0, xmmword ptr [rcx+50h]
-              vmovups [rsp+3A8h+var_138], xmm0
-            }
-            m_storage = _RCX->m_flags.m_storage;
-            __asm
-            {
-              vmovups xmm3, xmmword ptr [rcx+40h]
-              vmovups xmm0, xmmword ptr [rcx+30h]
-              vsubps  xmm5, xmm0, xmm10
               vdpps   xmm0, xmm9, xmm3, 71h ; 'q'
               vdpps   xmm1, xmm11, xmm3, 72h ; 'r'
-              vorps   xmm2, xmm1, xmm0
-              vdpps   xmm1, xmm12, xmm3, 74h ; 't'
-              vorps   xmm2, xmm2, xmm1
-              vmulps  xmm0, xmm2, xmm15
-              vblendps xmm3, xmm0, xmmword ptr [r8+10h], 8
             }
-            v189 = -1;
+            v50 = _XMM1 | _XMM0;
+            __asm { vdpps   xmm1, xmm12, xmm3, 74h ; 't' }
+            _XMM0 = _mm128_mul_ps((__m128)(v50 | _XMM1), v37);
+            __asm { vblendps xmm3, xmm0, xmmword ptr [r8+10h], 8 }
+            v97 = -1;
             m_size = 0;
+            _XMM2 = 0i64;
             __asm
             {
-              vxorps  xmm2, xmm2, xmm2
               vcmpeqps xmm0, xmm2, xmm3
               vandnps xmm1, xmm0, xmm3
-              vmovups [rsp+3A8h+var_148], xmm1
+            }
+            v115 = _XMM1;
+            __asm
+            {
               vcmpeqps xmm0, xmm2, xmm1
               vrcpps  xmm3, xmm1
-              vmulps  xmm2, xmm3, xmm1
-              vmovups xmm1, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-              vsubps  xmm2, xmm1, xmm2
-              vmulps  xmm3, xmm2, xmm3
-              vblendvps xmm1, xmm3, xmm4, xmm0
-              vmovups [rsp+3A8h+var_138], xmm1
+            }
+            _XMM3 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM3, _XMM1)), _XMM3);
+            __asm { vblendvps xmm1, xmm3, xmm4, xmm0 }
+            m_invDirection = _XMM1;
+            __asm
+            {
               vdpps   xmm0, xmm9, xmm5, 71h ; 'q'
               vdpps   xmm2, xmm11, xmm5, 72h ; 'r'
-              vorps   xmm3, xmm2, xmm0
               vdpps   xmm1, xmm12, xmm5, 74h ; 't'
-              vorps   xmm2, xmm3, xmm1
-              vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-              vmovups [rsp+3A8h+var_118], ymm1
-              vmulps  xmm0, xmm2, xmm15
-              vmovups [rsp+3A8h+var_158], xmm0
-              vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-              vmovups [rsp+3A8h+var_F8], ymm0
             }
-            v187[0] = (__int64)_RDX->m_body;
-            v187[1] = (__int64)_RDX->m_rootShape;
-            m_parentShape = (const StaticModels_HavokShape *)_RDX->m_parentShape;
-            v189 = _RDX->m_shapeKeyPath.m_key.m_value;
-            m_size = _RDX->m_shapeKeyPath.m_size;
-            m_shapeToWorld = _RDX->m_shapeToWorld;
-            v192 = 0i64;
-            m_isScaled = _RDX->m_scalingInternals.m_isScaled;
-            m_mode = _RDX->m_scalingInternals.m_mode;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rdx+40h]
-              vmovups [rsp+3A8h+var_258], xmm0
-              vmovups xmm1, xmmword ptr [rdx+50h]
-              vmovups [rsp+3A8h+var_248], xmm1
-              vmovss  xmm0, dword ptr [rdx+38h]
-              vmovss  [rsp+3A8h+var_260], xmm0
-            }
-            m_shapeToWorld = (const hkTransformf *)v210;
-            m_parentShape = _R12->m_targetShape;
-            v144 = _R12->m_simdTreeMask;
-            v189 = v35;
-            m_size = v34;
-            if ( v144 )
-              v145 = (__int64)v144->m_instanceMasks.m_data[v20];
+            *(__m256i *)v118 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+            v114 = _mm128_mul_ps((__m128)(_XMM2 | _XMM0 | _XMM1), v37);
+            *(__m256i *)&v118[32] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+            v95[0] = (__int64)v41->m_body;
+            v95[1] = (__int64)v41->m_rootShape;
+            m_parentShape = (const StaticModels_HavokShape *)v41->m_parentShape;
+            v97 = v41->m_shapeKeyPath.m_key.m_value;
+            m_size = v41->m_shapeKeyPath.m_size;
+            v99 = v41->m_shapeToWorld;
+            v100 = 0i64;
+            m_isScaled = v41->m_scalingInternals.m_isScaled;
+            m_mode = v41->m_scalingInternals.m_mode;
+            v104.m_quad = (__m128)v41->m_scalingInternals.m_scale;
+            v105.m_quad = (__m128)v41->m_scalingInternals.m_offset;
+            m_convexRadius = v41->m_scalingInternals.m_convexRadius;
+            v99 = (const hkTransformf *)v118;
+            m_parentShape = m_query->m_targetShape;
+            v64 = m_query->m_simdTreeMask;
+            v97 = v21;
+            m_size = v20;
+            if ( v64 )
+              v65 = (__int64)v64->m_instanceMasks.m_data[v10];
             else
-              v145 = 0i64;
-            v192 = v145;
-            _R12->m_scaleAndTransformCollector.m_transform = (const hkTransformf *)v202;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r12+50h]
-              vmovups xmmword ptr [r12+70h], xmm14
-              vmovups xmmword ptr [r12+80h], xmm15
-            }
-            _R12->m_scaleAndTransformCollector.m_childCollector = m_collector;
-            _R12->m_scaleAndTransformCollector.m_hints.m_storage = m_collector->m_hints.m_storage;
-            __asm
-            {
-              vminps  xmm1, xmm0, xmmword ptr [r8+10h]
-              vmovups xmmword ptr [r12+50h], xmm1
-            }
-            v148 = _R12->m_scaleAndTransformCollector.m_earlyOut.m_bool || m_collector->m_earlyOut.m_bool;
-            _R12->m_scaleAndTransformCollector.m_earlyOut.m_bool = v148;
-            _R12->m_scaleAndTransformCollector.m_numHits = m_collector->m_numHits;
-            (*(void (__fastcall **)(const void *, hknpCollisionQueryContext *, __m256i *, __int128 *, __int64 *, StaticModels_HavokShapeEx::ScaleAndTransformCollector *))(*(_QWORD *)CollisionTileModelShape + 184i64))(CollisionTileModelShape, _R12->m_queryContext, &v204, &v169, v187, &_R12->m_scaleAndTransformCollector);
-            __asm { vmovss  xmm6, cs:__real@3d000000 }
+              v65 = 0i64;
+            v100 = v65;
+            m_query->m_scaleAndTransformCollector.m_transform = (const hkTransformf *)v110;
+            _XMM0.m_real = (__m128)m_query->m_scaleAndTransformCollector.m_earlyOutThreshold;
+            m_query->m_scaleAndTransformCollector.m_scale.m_quad = _XMM14;
+            m_query->m_scaleAndTransformCollector.m_invScale.m_quad = v37;
+            m_query->m_scaleAndTransformCollector.m_childCollector = m_collector;
+            m_query->m_scaleAndTransformCollector.m_hints.m_storage = m_collector->m_hints.m_storage;
+            __asm { vminps  xmm1, xmm0, xmmword ptr [r8+10h] }
+            m_query->m_scaleAndTransformCollector.m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
+            v68 = m_query->m_scaleAndTransformCollector.m_earlyOut.m_bool || m_collector->m_earlyOut.m_bool;
+            m_query->m_scaleAndTransformCollector.m_earlyOut.m_bool = v68;
+            m_query->m_scaleAndTransformCollector.m_numHits = m_collector->m_numHits;
+            (*(void (__fastcall **)(const void *, hknpCollisionQueryContext *, __m256i *, __m128 *, __int64 *, StaticModels_HavokShapeEx::ScaleAndTransformCollector *))(*(_QWORD *)CollisionTileModelShape + 184i64))(CollisionTileModelShape, m_query->m_queryContext, &v112, &v77, v95, &m_query->m_scaleAndTransformCollector);
+            v9 = FLOAT_0_03125;
           }
-          v17 = v168;
-          v18 = v167;
+          v7 = v76;
+          v8 = v75;
         }
-        _RAX = _R12->m_collector;
-        __asm { vucomiss xmm13, dword ptr [rax+10h] }
-        _R12->m_hasHit |= !(v28 | v29);
+        m_query->m_hasHit |= v15.m_real.m128_f32[0] > m_query->m_collector->m_earlyOutThreshold.m_real.m128_f32[0];
       }
-      v16 = v171;
-      v167 = ++v18;
+      v6 = v79;
+      v75 = ++v8;
     }
-    while ( v18 < v17 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+3A8h+var_C8]
-      vmovaps xmm14, [rsp+3A8h+var_B8]
-      vmovaps xmm13, [rsp+3A8h+var_A8]
-      vmovaps xmm12, [rsp+3A8h+var_98]
-      vmovaps xmm11, [rsp+3A8h+var_88]
-      vmovaps xmm10, [rsp+3A8h+var_78]
-      vmovaps xmm9, [rsp+3A8h+var_68]
-      vmovaps xmm8, [rsp+3A8h+var_58]
-      vmovaps xmm7, [rsp+3A8h+var_48]
-      vmovaps xmm6, [rsp+3A8h+var_38]
-    }
+    while ( v8 < v7 );
   }
-  if ( _R12->m_earlyExit && _R12->m_hasHit )
-  {
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-  }
-  else
-  {
-    _RAX = _R12->m_collector;
-    __asm { vmovups xmm0, xmmword ptr [rax+10h] }
-  }
-  return *(float *)&_XMM0;
+  if ( m_query->m_earlyExit && m_query->m_hasHit )
+    return FLOAT_N1_0;
+  v69.m_real = (__m128)m_query->m_collector->m_earlyOutThreshold;
+  return v69.m_real.m128_f32[0];
 }
 
 /*
@@ -450,398 +339,290 @@ hkcdSimdTreeUtils::ProcessSimdTreeRayCastLeaves<StaticModels_HavokShapeEx::RayCa
 */
 float hkcdSimdTreeUtils::ProcessSimdTreeRayCastLeaves<StaticModels_HavokShapeEx::RayCast<0>,0>::process(hkcdSimdTreeUtils::ProcessSimdTreeRayCastLeaves<StaticModels_HavokShapeEx::RayCast<0>,0> *this, const unsigned int *leaves, int numLeaves, const hkcdRay *ray)
 {
-  const unsigned int *v16; 
-  __int64 v18; 
+  __m128 v4; 
+  StaticModels_HavokShapeEx::RayCast<0> *m_query; 
+  const unsigned int *v6; 
+  hknpCollisionQueryCollector *m_collector; 
+  __int64 v8; 
+  float v9; 
   const StaticModels_HavokShape *m_targetShape; 
-  unsigned int v21; 
-  __int64 v23; 
+  unsigned int v11; 
+  hkSimdFloat32 v12; 
+  __int64 v13; 
   StaticModels_HavokShapeInstance *m_data; 
   __int16 m_modelIdxAndFlags; 
-  char v26; 
-  bool v27; 
   const hknpShapeQueryInfo *m_targetShapeInfo; 
   int m_numShapeKeyBits; 
-  int v32; 
+  int v19; 
   const void *CollisionTileModelShape; 
-  bool v34; 
+  bool v21; 
   __int64 m_shapeTagCodec; 
-  const StaticModels_HavokShape *v36; 
-  void (__fastcall *v37)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __int128 *); 
-  const hknpShapeQueryInfo *v38; 
+  const StaticModels_HavokShape *v23; 
+  void (__fastcall *v24)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __m128 *); 
+  const hknpShapeQueryInfo *v25; 
   const hknpShape *m_rootShape; 
   const hknpBody *m_body; 
   unsigned __int16 CollisionTileModelShapeTag; 
-  const hknpRayCastQuery *m_query; 
+  const hknpRayCastQuery *v29; 
   const hknpCollisionFilter *m_filter; 
-  __int64 *v44; 
-  hknpCollisionQueryCollector *m_collector; 
-  bool v142; 
+  __int64 *v31; 
+  __m128 v34; 
+  const hknpShapeQueryInfo *v38; 
+  const hkTransformf *m_shapeToWorld; 
+  __m128 m_quad; 
+  const hknpRayCastQuery *v43; 
+  hknpCollisionQueryCollector *v44; 
+  __int128 v47; 
+  bool v63; 
   bool m_hasHit; 
+  hkSimdFloat32 v65; 
   hknpShapeKeyPath m_shapeKeyPath; 
-  __int64 v158; 
-  int v159; 
-  __int64 v160; 
-  StaticModels_HavokShapeInstance *v161; 
-  __int64 v162; 
-  __int128 v164; 
-  __int64 v165; 
-  __int64 v166; 
+  __int64 v68; 
+  int v69; 
+  __int64 v70; 
+  StaticModels_HavokShapeInstance *v71; 
+  __int64 v72; 
+  __m128 v74; 
+  __int64 v75; 
+  __int64 v76; 
   unsigned __int16 m_value; 
   unsigned int m_collisionFilterInfo; 
   unsigned __int64 m_userData; 
-  __int64 v171; 
-  int v172; 
-  __int64 v173; 
-  __int16 v174; 
-  int v175; 
-  __int64 v176; 
-  __int64 v177; 
-  __int64 v178; 
-  const StaticModels_HavokShape *v179; 
-  int v180; 
-  __int64 v181; 
-  __int64 v182[2]; 
+  __m128 v80; 
+  __int64 v81; 
+  int v82; 
+  __int64 v83; 
+  __int16 v84; 
+  int v85; 
+  __int64 v86; 
+  __int64 v87; 
+  __int64 v88; 
+  const StaticModels_HavokShape *v89; 
+  int v90; 
+  __int64 v91; 
+  __int64 v92[2]; 
   const StaticModels_HavokShape *m_parentShape; 
-  int v184; 
+  int v94; 
   int m_size; 
-  const hkTransformf *m_shapeToWorld; 
-  __int64 v187; 
+  const hkTransformf *v96; 
+  __int64 v97; 
   bool m_isScaled; 
   unsigned int m_mode; 
+  float m_convexRadius; 
+  hkVector4f v101; 
+  hkVector4f v102; 
   vec3_t origin; 
-  char v194[64]; 
+  char v104[64]; 
   vec4_t orientationAsQuat; 
   hkQuaternionf qi; 
-  __int128 v197[3]; 
-  __m256i v199; 
+  __int128 v107[3]; 
+  __m128 v108; 
+  __m256i v109; 
+  __int64 v110; 
+  __m128 v111; 
+  __m128 v112; 
+  __int128 m_invDirection; 
   unsigned int m_storage; 
-  _BYTE v205[64]; 
-  void *retaddr; 
+  _BYTE v115[64]; 
+  __m128 v116; 
 
-  _R11 = &retaddr;
-  _R12 = this->m_query;
-  v16 = leaves;
-  v166 = numLeaves;
+  m_query = this->m_query;
+  v6 = leaves;
+  v76 = numLeaves;
   if ( numLeaves <= 0 )
   {
-    m_hasHit = _R12->m_hasHit;
+    m_hasHit = m_query->m_hasHit;
   }
   else
   {
-    _RDX = _R12->m_collector;
-    v18 = 0i64;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovss  xmm6, cs:__real@3d000000
-      vmovaps xmmword ptr [r11-0C8h], xmm15
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovaps xmmword ptr [r11-68h], xmm9
-      vmovaps xmmword ptr [r11-78h], xmm10
-      vmovaps xmmword ptr [r11-88h], xmm11
-      vmovaps xmmword ptr [r11-98h], xmm12
-      vmovaps xmmword ptr [r11-0A8h], xmm13
-      vmovaps xmmword ptr [r11-0B8h], xmm14
-    }
-    v162 = 0i64;
+    m_collector = m_query->m_collector;
+    v8 = 0i64;
+    v9 = FLOAT_0_03125;
+    v116 = v4;
+    v72 = 0i64;
     do
     {
-      m_targetShape = _R12->m_targetShape;
-      v21 = v16[v18];
-      __asm { vmovups xmm15, xmmword ptr [rdx+10h] }
-      v23 = (unsigned __int16)v21;
-      m_data = _R12->m_targetShape->m_instances.m_data;
-      v160 = (unsigned __int16)v21;
-      v161 = m_data;
-      m_modelIdxAndFlags = m_data[(unsigned __int16)v21].m_modelIdxAndFlags;
-      v26 = 0;
-      v27 = m_modelIdxAndFlags == 0;
+      m_targetShape = m_query->m_targetShape;
+      v11 = v6[v8];
+      v12.m_real = (__m128)m_collector->m_earlyOutThreshold;
+      v13 = (unsigned __int16)v11;
+      m_data = m_query->m_targetShape->m_instances.m_data;
+      v70 = (unsigned __int16)v11;
+      v71 = m_data;
+      m_modelIdxAndFlags = m_data[(unsigned __int16)v11].m_modelIdxAndFlags;
       if ( m_modelIdxAndFlags < 0 )
       {
-        _RAX = _R12->m_targetShapeFilterData;
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        m_targetShapeInfo = _R12->m_targetShapeInfo;
-        __asm { vmovups [rsp+3A8h+var_328], xmm0 }
+        _XMM0 = *(__m128 *)m_query->m_targetShapeFilterData;
+        m_targetShapeInfo = m_query->m_targetShapeInfo;
+        v74 = _XMM0;
         m_numShapeKeyBits = m_targetShape->m_numShapeKeyBits;
         m_shapeKeyPath = m_targetShapeInfo->m_shapeKeyPath;
-        v32 = m_shapeKeyPath.m_key.m_value & hknpShapeKeyPath_usedBitsMaskTable[m_shapeKeyPath.m_size] | (((v21 + 1) << (32 - (LOBYTE(m_shapeKeyPath.m_size) + m_numShapeKeyBits))) - 1);
-        v159 = m_numShapeKeyBits + m_shapeKeyPath.m_size;
+        v19 = m_shapeKeyPath.m_key.m_value & hknpShapeKeyPath_usedBitsMaskTable[m_shapeKeyPath.m_size] | (((v11 + 1) << (32 - (LOBYTE(m_shapeKeyPath.m_size) + m_numShapeKeyBits))) - 1);
+        v69 = m_numShapeKeyBits + m_shapeKeyPath.m_size;
         CollisionTileModelShape = StaticModels_GetCollisionTileModelShape((m_modelIdxAndFlags & 0x4000) != 0, m_targetShape->m_tileIdx, m_modelIdxAndFlags & 0x3FFF);
-        v158 = (__int64)CollisionTileModelShape;
-        v34 = 1;
-        m_shapeTagCodec = (__int64)_R12->m_query->m_shapeTagCodec;
-        v165 = m_shapeTagCodec;
+        v68 = (__int64)CollisionTileModelShape;
+        v21 = 1;
+        m_shapeTagCodec = (__int64)m_query->m_query->m_shapeTagCodec;
+        v75 = m_shapeTagCodec;
         if ( m_shapeTagCodec )
         {
-          v36 = _R12->m_targetShape;
-          v37 = *(void (__fastcall **)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __int128 *))(*(_QWORD *)m_shapeTagCodec + 32i64);
-          v38 = _R12->m_targetShapeInfo;
-          m_rootShape = v38->m_rootShape;
-          m_body = v38->m_body;
-          CollisionTileModelShapeTag = StaticModels_GetCollisionTileModelShapeTag((v161[v160].m_modelIdxAndFlags & 0x4000) != 0, _R12->m_targetShape->m_tileIdx, v161[v160].m_modelIdxAndFlags & 0x3FFF);
-          v37(v165, CollisionTileModelShapeTag, 1i64, m_body, m_rootShape, v36, v32, v158, &v164);
-          m_query = _R12->m_query;
-          m_filter = m_query->m_filter;
+          v23 = m_query->m_targetShape;
+          v24 = *(void (__fastcall **)(__int64, _QWORD, __int64, const hknpBody *, const hknpShape *, const StaticModels_HavokShape *, int, __int64, __m128 *))(*(_QWORD *)m_shapeTagCodec + 32i64);
+          v25 = m_query->m_targetShapeInfo;
+          m_rootShape = v25->m_rootShape;
+          m_body = v25->m_body;
+          CollisionTileModelShapeTag = StaticModels_GetCollisionTileModelShapeTag((v71[v70].m_modelIdxAndFlags & 0x4000) != 0, m_query->m_targetShape->m_tileIdx, v71[v70].m_modelIdxAndFlags & 0x3FFF);
+          v24(v75, CollisionTileModelShapeTag, 1i64, m_body, m_rootShape, v23, v19, v68, &v74);
+          v29 = m_query->m_query;
+          m_filter = v29->m_filter;
           if ( m_filter )
           {
-            v44 = (__int64 *)_R12->m_targetShapeInfo;
-            CollisionTileModelShape = (const void *)v158;
+            v31 = (__int64 *)m_query->m_targetShapeInfo;
+            CollisionTileModelShape = (const void *)v68;
             m_collisionFilterInfo = 0;
             m_value = -1;
             m_userData = 0i64;
-            m_value = m_query->m_filterData.m_materialId.m_value;
-            m_collisionFilterInfo = m_query->m_filterData.m_collisionFilterInfo;
-            m_userData = m_query->m_filterData.m_userData;
-            v174 = v164;
-            v175 = DWORD1(v164);
-            v176 = *((_QWORD *)&v164 + 1);
-            v171 = 0i64;
-            v172 = -1;
-            v173 = 0i64;
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu [rsp+3A8h+var_2F8], xmm0
-            }
-            v177 = *v44;
-            v178 = v44[1];
-            v179 = _R12->m_targetShape;
-            v180 = v32;
-            v181 = v158;
-            v34 = m_filter->isCollisionEnabled((hknpCollisionFilter *)m_filter, RAY_CAST, 1, (const hknpCollisionFilter::FilterInput *)&m_value, (const hknpCollisionFilter::FilterInput *)&v174);
+            m_value = v29->m_filterData.m_materialId.m_value;
+            m_collisionFilterInfo = v29->m_filterData.m_collisionFilterInfo;
+            m_userData = v29->m_filterData.m_userData;
+            v84 = v74.m128_i16[0];
+            v85 = v74.m128_i32[1];
+            v86 = v74.m128_i64[1];
+            v81 = 0i64;
+            v82 = -1;
+            v83 = 0i64;
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            v80 = _XMM0;
+            v87 = *v31;
+            v88 = v31[1];
+            v89 = m_query->m_targetShape;
+            v90 = v19;
+            v91 = v68;
+            v21 = m_filter->isCollisionEnabled((hknpCollisionFilter *)m_filter, RAY_CAST, 1, (const hknpCollisionFilter::FilterInput *)&m_value, (const hknpCollisionFilter::FilterInput *)&v84);
           }
           else
           {
-            CollisionTileModelShape = (const void *)v158;
+            CollisionTileModelShape = (const void *)v68;
           }
-          m_data = v161;
-          v23 = v160;
-          v18 = v162;
+          m_data = v71;
+          v13 = v70;
+          v8 = v72;
         }
-        v26 = 0;
-        v27 = !v34;
-        if ( v34 )
+        if ( v21 )
         {
-          *(double *)&_XMM0 = StaticModels_GetCollisionTileModelInstanceScale(_R12->m_targetShape->m_tileIdx, m_data[v23].m_modelIdxAndFlags & 0x3FFF, m_data[v23].m_instanceIdx);
+          *(double *)_XMM0.m128_u64 = StaticModels_GetCollisionTileModelInstanceScale(m_query->m_targetShape->m_tileIdx, m_data[v13].m_modelIdxAndFlags & 0x3FFF, m_data[v13].m_instanceIdx);
+          _XMM14 = _mm_shuffle_ps(_XMM0, _XMM0, 0);
+          __asm { vrcpps  xmm3, xmm14 }
+          v34 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM14, _XMM3)), _XMM3);
+          StaticModels_GetCollisionTileModelInstanceTransform(m_query->m_targetShape->m_tileIdx, m_data[v13].m_modelIdxAndFlags & 0x3FFF, m_data[v13].m_instanceIdx, &origin, &orientationAsQuat);
+          *(__m256i *)v104 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+          *(__m256i *)&v104[32] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+          qi.m_vec.m_quad = (__m128)orientationAsQuat;
+          hkRotationImpl<float>::set((hkRotationImpl<float> *)v104, &qi);
+          _XMM12 = *(__m128 *)&v104[32];
+          _XMM11 = *(__m128 *)&v104[16];
+          _XMM9 = *(__m128 *)v104;
+          v38 = m_query->m_targetShapeInfo;
+          *(float *)&v104[52] = v9 * origin.v[1];
+          *(float *)&v104[48] = v9 * origin.v[0];
+          *(float *)&v104[56] = v9 * origin.v[2];
+          *(float *)&v104[60] = 0.0;
+          m_shapeToWorld = v38->m_shapeToWorld;
+          _YMM7 = *(__m256i *)m_shapeToWorld->m_rotation.m_col0.m_quad.m128_f32;
+          m_quad = m_shapeToWorld->m_rotation.m_col2.m_quad;
+          __asm { vextractf128 xmm6, ymm7, 1 }
+          v107[2] = (__int128)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM12, _XMM12, 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(_XMM12, _XMM12, 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(_XMM12, _XMM12, 170), m_quad));
+          v107[1] = (__int128)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 170), m_quad));
+          v108 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&v104[48], *(__m128 *)&v104[48], 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&v104[48], *(__m128 *)&v104[48], 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&v104[48], *(__m128 *)&v104[48], 170), m_quad));
+          v43 = m_query->m_query;
+          v44 = m_query->m_collector;
+          v107[0] = (__int128)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 85), _XMM6), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 0), v4)), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 170), m_quad));
+          v108 = _mm128_add_ps(v108, m_shapeToWorld->m_translation.m_quad);
+          v109 = *(__m256i *)&v43->m_shapeTagCodec;
+          v110 = *(_QWORD *)v43->m_levelOfDetail;
+          v111 = v43->m_ray.m_origin.m_quad;
+          v112 = v43->m_ray.m_direction.m_quad;
+          m_invDirection = (__int128)v43->m_ray.m_invDirection;
+          m_storage = v43->m_flags.m_storage;
+          _mm128_sub_ps(v43->m_ray.m_origin.m_quad, *(__m128 *)&v104[48]);
           __asm
           {
-            vmovups xmm1, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-            vmovaps xmm14, xmm0
-            vshufps xmm14, xmm14, xmm14, 0
-            vrcpps  xmm3, xmm14
-            vmulps  xmm2, xmm14, xmm3
-            vsubps  xmm2, xmm1, xmm2
-            vmulps  xmm13, xmm2, xmm3
-          }
-          StaticModels_GetCollisionTileModelInstanceTransform(_R12->m_targetShape->m_tileIdx, m_data[v23].m_modelIdxAndFlags & 0x3FFF, m_data[v23].m_instanceIdx, &origin, &orientationAsQuat);
-          __asm
-          {
-            vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-            vmovups xmm0, xmmword ptr [rsp+3A8h+var_1E8]
-            vmovups ymmword ptr [rsp+3A8h+var_228], ymm1
-            vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-            vmovups ymmword ptr [rsp+3A8h+var_228+20h], ymm1
-            vmovups xmmword ptr [rsp+3A8h+qi.m_vec.m_quad], xmm0
-          }
-          hkRotationImpl<float>::set((hkRotationImpl<float> *)v194, &qi);
-          __asm
-          {
-            vmulss  xmm0, xmm6, dword ptr [rsp+3A8h+origin+4]
-            vmulss  xmm1, xmm6, dword ptr [rsp+3A8h+origin]
-            vmulss  xmm2, xmm6, dword ptr [rsp+3A8h+origin+8]
-            vmovups xmm12, xmmword ptr [rsp+3A8h+var_228+20h]
-            vmovups xmm11, xmmword ptr [rsp+3A8h+var_228+10h]
-            vmovups xmm9, xmmword ptr [rsp+3A8h+var_228]
-          }
-          _RDX = _R12->m_targetShapeInfo;
-          __asm
-          {
-            vmovss  dword ptr [rsp+3A8h+var_228+34h], xmm0
-            vmovss  dword ptr [rsp+3A8h+var_228+30h], xmm1
-            vmovss  dword ptr [rsp+3A8h+var_228+38h], xmm2
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rsp+3A8h+var_228+3Ch], xmm0
-          }
-          _RAX = _RDX->m_shapeToWorld;
-          __asm
-          {
-            vmovups xmm10, xmmword ptr [rsp+3A8h+var_228+30h]
-            vshufps xmm0, xmm10, xmm10, 55h ; 'U'
-            vshufps xmm1, xmm10, xmm10, 0
-            vmovups ymm7, ymmword ptr [rax]
-            vmovups xmm8, xmmword ptr [rax+20h]
-            vextractf128 xmm6, ymm7, 1
-            vmulps  xmm2, xmm0, xmm6
-            vmulps  xmm0, xmm1, xmm7
-            vaddps  xmm3, xmm2, xmm0
-            vshufps xmm1, xmm10, xmm10, 0AAh ; 'ª'
-            vmulps  xmm2, xmm1, xmm8
-            vaddps  xmm5, xmm3, xmm2
-            vshufps xmm0, xmm12, xmm12, 55h ; 'U'
-            vmulps  xmm3, xmm0, xmm6
-            vshufps xmm1, xmm12, xmm12, 0
-            vmulps  xmm2, xmm1, xmm7
-            vaddps  xmm4, xmm3, xmm2
-            vshufps xmm0, xmm12, xmm12, 0AAh ; 'ª'
-            vmulps  xmm1, xmm0, xmm8
-            vaddps  xmm2, xmm4, xmm1
-            vmovups [rsp+3A8h+var_1A8], xmm2
-            vshufps xmm0, xmm11, xmm11, 55h ; 'U'
-            vmulps  xmm3, xmm0, xmm6
-            vshufps xmm1, xmm11, xmm11, 0
-            vmulps  xmm2, xmm1, xmm7
-            vaddps  xmm4, xmm3, xmm2
-            vshufps xmm0, xmm11, xmm11, 0AAh ; 'ª'
-            vmulps  xmm1, xmm0, xmm8
-            vaddps  xmm2, xmm4, xmm1
-            vshufps xmm0, xmm9, xmm9, 55h ; 'U'
-            vmulps  xmm3, xmm0, xmm6
-            vshufps xmm1, xmm9, xmm9, 0
-            vmovups [rsp+3A8h+var_1B8], xmm2
-            vmulps  xmm2, xmm1, xmm7
-            vaddps  xmm4, xmm3, xmm2
-            vmovups [rsp+3A8h+var_198], xmm5
-            vshufps xmm0, xmm9, xmm9, 0AAh ; 'ª'
-          }
-          _RCX = _R12->m_query;
-          m_collector = _R12->m_collector;
-          __asm
-          {
-            vmulps  xmm1, xmm0, xmm8
-            vaddps  xmm2, xmm4, xmm1
-            vmovups xmm4, cs:__xmm@7f7fffee7f7fffee7f7fffee7f7fffee
-            vmovups [rsp+3A8h+var_1C8], xmm2
-            vaddps  xmm0, xmm5, xmmword ptr [rax+30h]
-            vmovups [rsp+3A8h+var_198], xmm0
-            vmovups ymm0, ymmword ptr [rcx]
-            vmovups [rsp+3A8h+var_188], ymm0
-            vmovsd  xmm1, qword ptr [rcx+20h]
-            vmovsd  [rsp+3A8h+var_168], xmm1
-            vmovups xmm0, xmmword ptr [rcx+30h]
-            vmovups [rsp+3A8h+var_158], xmm0
-            vmovups xmm1, xmmword ptr [rcx+40h]
-            vmovups [rsp+3A8h+var_148], xmm1
-            vmovups xmm0, xmmword ptr [rcx+50h]
-            vmovups [rsp+3A8h+var_138], xmm0
-          }
-          m_storage = _RCX->m_flags.m_storage;
-          __asm
-          {
-            vmovups xmm3, xmmword ptr [rcx+40h]
-            vmovups xmm0, xmmword ptr [rcx+30h]
-            vsubps  xmm5, xmm0, xmm10
             vdpps   xmm0, xmm9, xmm3, 71h ; 'q'
             vdpps   xmm1, xmm11, xmm3, 72h ; 'r'
-            vorps   xmm2, xmm1, xmm0
-            vdpps   xmm1, xmm12, xmm3, 74h ; 't'
-            vorps   xmm2, xmm2, xmm1
-            vmulps  xmm0, xmm2, xmm13
-            vblendps xmm3, xmm0, xmmword ptr [r8+10h], 8
           }
-          v184 = -1;
+          v47 = _XMM1 | _XMM0;
+          __asm { vdpps   xmm1, xmm12, xmm3, 74h ; 't' }
+          _XMM0 = _mm128_mul_ps((__m128)(v47 | _XMM1), v34);
+          __asm { vblendps xmm3, xmm0, xmmword ptr [r8+10h], 8 }
+          v94 = -1;
           m_size = 0;
+          _XMM2 = 0i64;
           __asm
           {
-            vxorps  xmm2, xmm2, xmm2
             vcmpeqps xmm0, xmm2, xmm3
             vandnps xmm1, xmm0, xmm3
-            vmovups [rsp+3A8h+var_148], xmm1
+          }
+          v112 = _XMM1;
+          __asm
+          {
             vcmpeqps xmm0, xmm2, xmm1
             vrcpps  xmm3, xmm1
-            vmulps  xmm2, xmm3, xmm1
-            vmovups xmm1, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-            vsubps  xmm2, xmm1, xmm2
-            vmulps  xmm3, xmm2, xmm3
-            vblendvps xmm1, xmm3, xmm4, xmm0
-            vmovups [rsp+3A8h+var_138], xmm1
+          }
+          _XMM3 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM3, _XMM1)), _XMM3);
+          __asm { vblendvps xmm1, xmm3, xmm4, xmm0 }
+          m_invDirection = _XMM1;
+          __asm
+          {
             vdpps   xmm0, xmm9, xmm5, 71h ; 'q'
             vdpps   xmm2, xmm11, xmm5, 72h ; 'r'
-            vorps   xmm3, xmm2, xmm0
             vdpps   xmm1, xmm12, xmm5, 74h ; 't'
-            vorps   xmm2, xmm3, xmm1
-            vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-            vmovups [rsp+3A8h+var_118], ymm1
-            vmulps  xmm0, xmm2, xmm13
-            vmovups [rsp+3A8h+var_158], xmm0
-            vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-            vmovups [rsp+3A8h+var_F8], ymm0
           }
-          v182[0] = (__int64)_RDX->m_body;
-          v182[1] = (__int64)_RDX->m_rootShape;
-          m_parentShape = (const StaticModels_HavokShape *)_RDX->m_parentShape;
-          v184 = _RDX->m_shapeKeyPath.m_key.m_value;
-          m_size = _RDX->m_shapeKeyPath.m_size;
-          m_shapeToWorld = _RDX->m_shapeToWorld;
-          v187 = 0i64;
-          m_isScaled = _RDX->m_scalingInternals.m_isScaled;
-          m_mode = _RDX->m_scalingInternals.m_mode;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx+40h]
-            vmovups [rsp+3A8h+var_258], xmm0
-            vmovups xmm1, xmmword ptr [rdx+50h]
-            vmovups [rsp+3A8h+var_248], xmm1
-            vmovss  xmm0, dword ptr [rdx+38h]
-            vmovss  [rsp+3A8h+var_260], xmm0
-          }
-          m_shapeToWorld = (const hkTransformf *)v205;
-          __asm { vmovups xmm0, xmmword ptr [r12+50h] }
-          m_parentShape = _R12->m_targetShape;
-          m_size = v159;
-          _R12->m_scaleAndTransformCollector.m_transform = (const hkTransformf *)v197;
-          v184 = v32;
-          __asm
-          {
-            vmovups xmmword ptr [r12+70h], xmm14
-            vmovups xmmword ptr [r12+80h], xmm13
-          }
-          _R12->m_scaleAndTransformCollector.m_childCollector = m_collector;
-          _R12->m_scaleAndTransformCollector.m_hints.m_storage = m_collector->m_hints.m_storage;
-          __asm
-          {
-            vminps  xmm1, xmm0, xmmword ptr [r8+10h]
-            vmovups xmmword ptr [r12+50h], xmm1
-          }
-          v142 = _R12->m_scaleAndTransformCollector.m_earlyOut.m_bool || m_collector->m_earlyOut.m_bool;
-          _R12->m_scaleAndTransformCollector.m_earlyOut.m_bool = v142;
-          _R12->m_scaleAndTransformCollector.m_numHits = m_collector->m_numHits;
-          (*(void (__fastcall **)(const void *, hknpCollisionQueryContext *, __m256i *, __int128 *, __int64 *, StaticModels_HavokShapeEx::ScaleAndTransformCollector *))(*(_QWORD *)CollisionTileModelShape + 184i64))(CollisionTileModelShape, _R12->m_queryContext, &v199, &v164, v182, &_R12->m_scaleAndTransformCollector);
-          __asm { vmovss  xmm6, cs:__real@3d000000 }
+          *(__m256i *)v115 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+          v111 = _mm128_mul_ps((__m128)(_XMM2 | _XMM0 | _XMM1), v34);
+          *(__m256i *)&v115[32] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+          v92[0] = (__int64)v38->m_body;
+          v92[1] = (__int64)v38->m_rootShape;
+          m_parentShape = (const StaticModels_HavokShape *)v38->m_parentShape;
+          v94 = v38->m_shapeKeyPath.m_key.m_value;
+          m_size = v38->m_shapeKeyPath.m_size;
+          v96 = v38->m_shapeToWorld;
+          v97 = 0i64;
+          m_isScaled = v38->m_scalingInternals.m_isScaled;
+          m_mode = v38->m_scalingInternals.m_mode;
+          v101.m_quad = (__m128)v38->m_scalingInternals.m_scale;
+          v102.m_quad = (__m128)v38->m_scalingInternals.m_offset;
+          m_convexRadius = v38->m_scalingInternals.m_convexRadius;
+          v96 = (const hkTransformf *)v115;
+          _XMM0.m_real = (__m128)m_query->m_scaleAndTransformCollector.m_earlyOutThreshold;
+          m_parentShape = m_query->m_targetShape;
+          m_size = v69;
+          m_query->m_scaleAndTransformCollector.m_transform = (const hkTransformf *)v107;
+          v94 = v19;
+          m_query->m_scaleAndTransformCollector.m_scale.m_quad = _XMM14;
+          m_query->m_scaleAndTransformCollector.m_invScale.m_quad = v34;
+          m_query->m_scaleAndTransformCollector.m_childCollector = v44;
+          m_query->m_scaleAndTransformCollector.m_hints.m_storage = v44->m_hints.m_storage;
+          __asm { vminps  xmm1, xmm0, xmmword ptr [r8+10h] }
+          m_query->m_scaleAndTransformCollector.m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
+          v63 = m_query->m_scaleAndTransformCollector.m_earlyOut.m_bool || v44->m_earlyOut.m_bool;
+          m_query->m_scaleAndTransformCollector.m_earlyOut.m_bool = v63;
+          m_query->m_scaleAndTransformCollector.m_numHits = v44->m_numHits;
+          (*(void (__fastcall **)(const void *, hknpCollisionQueryContext *, __m256i *, __m128 *, __int64 *, StaticModels_HavokShapeEx::ScaleAndTransformCollector *))(*(_QWORD *)CollisionTileModelShape + 184i64))(CollisionTileModelShape, m_query->m_queryContext, &v109, &v74, v92, &m_query->m_scaleAndTransformCollector);
+          v9 = FLOAT_0_03125;
         }
-        v16 = leaves;
+        v6 = leaves;
       }
-      _RDX = _R12->m_collector;
-      __asm { vucomiss xmm15, dword ptr [rdx+10h] }
-      ++v18;
-      m_hasHit = _R12->m_hasHit || !(v26 | v27);
-      _R12->m_hasHit = m_hasHit;
-      v162 = v18;
+      m_collector = m_query->m_collector;
+      ++v8;
+      m_hasHit = m_query->m_hasHit || v12.m_real.m128_f32[0] > m_collector->m_earlyOutThreshold.m_real.m128_f32[0];
+      m_query->m_hasHit = m_hasHit;
+      v72 = v8;
     }
-    while ( v18 < v166 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+3A8h+var_C8]
-      vmovaps xmm14, [rsp+3A8h+var_B8]
-      vmovaps xmm13, [rsp+3A8h+var_A8]
-      vmovaps xmm12, [rsp+3A8h+var_98]
-      vmovaps xmm11, [rsp+3A8h+var_88]
-      vmovaps xmm10, [rsp+3A8h+var_78]
-      vmovaps xmm9, [rsp+3A8h+var_68]
-      vmovaps xmm8, [rsp+3A8h+var_58]
-      vmovaps xmm7, [rsp+3A8h+var_48]
-      vmovaps xmm6, [rsp+3A8h+var_38]
-    }
+    while ( v8 < v76 );
   }
-  if ( m_hasHit && _R12->m_earlyExit )
-  {
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-  }
-  else
-  {
-    _RAX = _R12->m_collector;
-    __asm { vmovups xmm0, xmmword ptr [rax+10h] }
-  }
-  return *(float *)&_XMM0;
+  if ( m_hasHit && m_query->m_earlyExit )
+    return FLOAT_N1_0;
+  v65.m_real = (__m128)m_query->m_collector->m_earlyOutThreshold;
+  return v65.m_real.m128_f32[0];
 }
 

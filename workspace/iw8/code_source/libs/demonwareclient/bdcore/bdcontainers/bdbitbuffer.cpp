@@ -465,144 +465,64 @@ __int64 bdBitBuffer::readDataType(bdBitBuffer *this)
 bdBitBuffer::readRangedFloat32
 ==============
 */
-
-bool __fastcall bdBitBuffer::readRangedFloat32(bdBitBuffer *this, float *f, double begin, double end, const float precision)
+bool bdBitBuffer::readRangedFloat32(bdBitBuffer *this, float *f, const float begin, const float end, const float precision)
 {
+  float v8; 
   bool result; 
-  char v26; 
-  bool v27; 
+  float v10; 
+  float v11; 
   bool Float32; 
-  unsigned int v33; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  double v49; 
-  char v50; 
-  void *retaddr; 
-  int v52; 
-  int bits; 
+  unsigned int v13; 
+  float v14; 
+  bool v15; 
+  float v17; 
+  float bits; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RDI = f;
-  __asm
-  {
-    vcomiss xmm3, xmm2
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  bdHandleAssert(1, "end >= begin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x172u, "bdBitBuffer::writeRangedFloat32, end of range is less then the begining.");
-  __asm
-  {
-    vmovss  xmm8, [rsp+0A8h+precision]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm8, xmm0
-  }
-  bdHandleAssert(!(v26 | v27), "precision > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x173u, "bdBitBuffer::writeRangedFloat32, precision must be positive.");
+  *(float *)&_XMM6 = end;
+  bdHandleAssert(end >= begin, "end >= begin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x172u, "bdBitBuffer::writeRangedFloat32, end of range is less then the begining.");
+  v8 = precision;
+  bdHandleAssert(precision > 0.0, "precision > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x173u, "bdBitBuffer::writeRangedFloat32, precision must be positive.");
   result = bdBitBuffer::readDataType(this, BD_BB_RANGED_FLOAT32_TYPE);
   if ( this->m_typeChecked )
   {
-    if ( result && bdBitBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) && bdBitBuffer::readBits(this, &bits, 0x20u) && bdBitBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) && bdBitBuffer::readBits(this, (void *)&precision, 0x20u) && bdBitBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) && bdBitBuffer::readBits(this, &v52, 0x20u) )
-    {
-      __asm
-      {
-        vmovss  xmm2, [rsp+0A8h+bits]
-        vucomiss xmm7, xmm2
-        vmovss  xmm1, [rsp+0A8h+precision]
-        vmovss  xmm0, [rsp+0A8h+arg_10]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0A8h+var_48], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0A8h+var_50], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+0A8h+var_58], xmm2
-        vcvtss2sd xmm3, xmm8, xmm8
-        vmovsd  [rsp+0A8h+var_60], xmm3
-        vcvtss2sd xmm4, xmm6, xmm6
-        vmovsd  [rsp+0A8h+var_68], xmm4
-        vcvtss2sd xmm5, xmm7, xmm7
-        vmovsd  [rsp+0A8h+var_70], xmm5
-      }
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdCore/bitBuffer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x183u, "Range error. Expected: (%f,%f,%f), read: (%f,%f,%f)", v44, v45, v46, v47, v48, v49);
-      goto LABEL_12;
-    }
-    result = 0;
+    if ( !result || !bdBitBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) || !bdBitBuffer::readBits(this, &bits, 0x20u) || !bdBitBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) || !bdBitBuffer::readBits(this, (void *)&precision, 0x20u) || !bdBitBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) || !bdBitBuffer::readBits(this, &v17, 0x20u) )
+      return 0;
+    if ( begin != bits || end != precision || v8 != v17 )
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdCore/bitBuffer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x183u, "Range error. Expected: (%f,%f,%f), read: (%f,%f,%f)", begin, end, v8, bits, precision, v17);
+  }
+  else if ( !result )
+  {
+    return result;
+  }
+  LODWORD(v10) = LODWORD(v8) & _xmm;
+  v11 = (float)(end - begin) / v10;
+  if ( v11 <= 4294967300.0 )
+  {
+    v13 = 0;
+    if ( (int)v11 )
+      v13 = bdBitOperations::highBitNumber((int)v11) + 1;
+    precision = 0.0;
+    Float32 = bdBitBuffer::readBits(this, (void *)&precision, v13);
+    if ( !Float32 )
+      return Float32;
+    v14 = (float)LODWORD(precision);
+    *f = (float)(v14 * v10) + begin;
   }
   else
   {
-    v26 = 0;
-    v27 = !result;
-    if ( result )
-    {
-LABEL_12:
-      __asm
-      {
-        vandps  xmm8, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vsubss  xmm0, xmm6, xmm7
-        vdivss  xmm1, xmm0, xmm8
-        vcomiss xmm1, cs:__real@4f800000
-      }
-      if ( v26 | v27 )
-      {
-        __asm { vcvttss2si rcx, xmm1; v }
-        v33 = 0;
-        if ( (_DWORD)_RCX )
-          v33 = bdBitOperations::highBitNumber(_RCX) + 1;
-        precision = 0.0;
-        Float32 = bdBitBuffer::readBits(this, (void *)&precision, v33);
-        if ( !Float32 )
-          goto LABEL_22;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm8
-          vaddss  xmm2, xmm1, xmm7
-          vmovss  dword ptr [rdi], xmm2
-        }
-      }
-      else
-      {
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdCore/bitBuffer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x18Eu, "The numerical space defined by range/precision combination is too large. No compression performed.");
-        Float32 = bdBitBuffer::readFloat32(this, _RDI);
-      }
-      if ( Float32 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vcomiss xmm0, xmm7
-          vcomiss xmm0, xmm6
-        }
-        bdHandleAssert(0, "f >= begin && f <= end", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x1A7u, "bdBitBuffer::readRangedFloat32, read error f is out of range.");
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vcomiss xmm0, xmm6
-        }
-        if ( v26 | v27 )
-          __asm { vmaxss  xmm6, xmm0, xmm7 }
-        __asm { vmovss  dword ptr [rdi], xmm6 }
-      }
-LABEL_22:
-      result = Float32;
-    }
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdCore/bitBuffer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x18Eu, "The numerical space defined by range/precision combination is too large. No compression performed.");
+    Float32 = bdBitBuffer::readFloat32(this, f);
   }
-  _R11 = &v50;
-  __asm
+  if ( Float32 )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    v15 = *f >= begin && *f <= end;
+    bdHandleAssert(v15, "f >= begin && f <= end", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::readRangedFloat32", 0x1A7u, "bdBitBuffer::readRangedFloat32, read error f is out of range.");
+    _XMM0 = *(unsigned int *)f;
+    if ( *(float *)&_XMM0 <= end )
+      __asm { vmaxss  xmm6, xmm0, xmm7 }
+    *f = *(float *)&_XMM6;
   }
-  return result;
+  return Float32;
 }
 
 /*
@@ -880,107 +800,53 @@ bdBitBuffer::writeRangedFloat32
 ==============
 */
 
-void __fastcall bdBitBuffer::writeRangedFloat32(bdBitBuffer *this, double f, double begin, double end, const float precision)
+void __fastcall bdBitBuffer::writeRangedFloat32(bdBitBuffer *this, double f, const float begin, double end, const float precision)
 {
-  bool m_typeChecked; 
-  char v19; 
-  bool v20; 
-  unsigned int v21; 
-  bool v22; 
-  unsigned int v33; 
-  char v34; 
-  bool v35; 
-  char v48; 
-  void *retaddr; 
+  float v8; 
+  unsigned int v9; 
+  float v10; 
+  float v11; 
+  unsigned int v12; 
+  __int128 v13; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vcomiss xmm3, xmm2
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm9, xmm1
-  }
-  bdHandleAssert(1, "end >= begin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::writeRangedFloat32", 0x95u, "bdBitBuffer::writeRangedFloat32, end of range is less then the begining.");
-  __asm
-  {
-    vmovss  xmm8, [rsp+98h+precision]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm8, xmm0
-  }
-  bdHandleAssert(!(v19 | v20), "precision > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::writeRangedFloat32", 0x96u, "bdBitBuffer::writeRangedFloat32, precision must be positive.");
-  m_typeChecked = this->m_typeChecked;
-  v19 = 0;
-  v20 = !m_typeChecked;
-  if ( m_typeChecked )
+  _XMM6 = *(_OWORD *)&end;
+  _XMM9 = *(_OWORD *)&f;
+  bdHandleAssert(*(float *)&end >= begin, "end >= begin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::writeRangedFloat32", 0x95u, "bdBitBuffer::writeRangedFloat32, end of range is less then the begining.");
+  v8 = precision;
+  bdHandleAssert(precision > 0.0, "precision > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::writeRangedFloat32", 0x96u, "bdBitBuffer::writeRangedFloat32, precision must be positive.");
+  if ( this->m_typeChecked )
   {
     bdHandleAssert(1, "end >= begin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::writeRangedUInt32", 0x52u, "bdBitBuffer::writeRangedUInt, end of range is less than the begining");
-    v21 = bdBitOperations::highBitNumber(0x1Fu);
+    v9 = bdBitOperations::highBitNumber(0x1Fu);
     LODWORD(precision) = 15;
-    bdBitBuffer::writeBits(this, &precision, v21 + 1);
-    v22 = this->m_typeChecked;
-    v19 = 0;
-    v20 = !v22;
-    if ( v22 )
+    bdBitBuffer::writeBits(this, &precision, v9 + 1);
+    if ( this->m_typeChecked )
     {
-      __asm { vmovaps xmm1, xmm7; f }
-      bdBitBuffer::writeFloat32(this, *(const float *)&_XMM1);
-      __asm { vmovaps xmm1, xmm6; f }
-      bdBitBuffer::writeFloat32(this, *(const float *)&_XMM1);
-      __asm { vmovaps xmm1, xmm8; f }
-      bdBitBuffer::writeFloat32(this, *(const float *)&_XMM1);
+      bdBitBuffer::writeFloat32(this, begin);
+      bdBitBuffer::writeFloat32(this, *(const float *)&end);
+      bdBitBuffer::writeFloat32(this, v8);
     }
   }
-  __asm
+  v10 = 1.0 / COERCE_FLOAT(LODWORD(v8) & _xmm);
+  v11 = (float)(*(float *)&end - begin) * v10;
+  if ( v11 <= 4294967300.0 )
   {
-    vandps  xmm8, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm10, xmm0, xmm8
-    vsubss  xmm1, xmm6, xmm7
-    vmulss  xmm8, xmm1, xmm10
-    vcomiss xmm8, cs:__real@4f800000
-  }
-  if ( v19 | v20 )
-  {
-    __asm { vcvttss2si rax, xmm8 }
-    v33 = 0;
-    v34 = 0;
-    v35 = (_DWORD)_RAX == 0;
-    if ( (_DWORD)_RAX )
-      v33 = bdBitOperations::highBitNumber(_RAX) + 1;
-    __asm { vcomiss xmm9, xmm6 }
-    if ( v34 | v35 )
+    v12 = 0;
+    if ( (int)v11 )
+      v12 = bdBitOperations::highBitNumber((int)v11) + 1;
+    if ( *(float *)&f <= *(float *)&end )
       __asm { vmaxss  xmm6, xmm9, xmm7 }
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm7
-      vmulss  xmm1, xmm0, xmm10
-      vaddss  xmm2, xmm1, cs:__real@3f000000
-      vminss  xmm3, xmm2, xmm8
-      vcvttss2si rax, xmm3
-    }
-    precision = *(float *)&_RAX;
-    bdBitBuffer::writeBits(this, &precision, v33);
+    v13 = _XMM6;
+    *(float *)&v13 = (float)((float)(*(float *)&_XMM6 - begin) * v10) + 0.5;
+    _XMM2 = v13;
+    __asm { vminss  xmm3, xmm2, xmm8 }
+    LODWORD(precision) = (int)*(float *)&_XMM3;
+    bdBitBuffer::writeBits(this, &precision, v12);
   }
   else
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdCore/bitBuffer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbitbuffer.cpp", "bdBitBuffer::writeRangedFloat32", 0xA7u, "The numerical space defined by range/precision combination is too large. No compression performed.");
-    __asm { vmovaps xmm1, xmm9; f }
-    bdBitBuffer::writeFloat32(this, *(const float *)&_XMM1);
-  }
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    bdBitBuffer::writeFloat32(this, *(const float *)&f);
   }
 }
 

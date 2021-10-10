@@ -410,12 +410,12 @@ BG_Turret_LoadAnimCallback
 void BG_Turret_LoadAnimCallback(int animUser, const char *turretName, void *(*alloc)(unsigned __int64))
 {
   __int64 v3; 
-  const WeaponDef *v9; 
-  __int64 v10; 
-  int v11; 
-  turretAnims_t *v12; 
-  bool v13; 
-  void *(__fastcall *v14)(unsigned __int64); 
+  const WeaponDef *v5; 
+  __int64 v6; 
+  int v7; 
+  turretAnims_t *v8; 
+  bool v9; 
+  void *(__fastcall *v10)(unsigned __int64); 
   XAnim_s *AnimsWithParameters; 
   XAnimParts *turretRaiseAnim; 
   XAnimParts *turretIdleAnim; 
@@ -431,71 +431,61 @@ void BG_Turret_LoadAnimCallback(int animUser, const char *turretName, void *(*al
     __debugbreak();
   if ( !*turretName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turretanims.cpp", 184, ASSERT_TYPE_ASSERT, "(turretName[0])", (const char *)&queryFormat, "turretName[0]") )
     __debugbreak();
-  _RAX = BG_FindBaseWeaponForName(&result, turretName);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0F8h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  v9 = BG_WeaponDef(&r_weapon, 0);
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turretanims.cpp", 189, ASSERT_TYPE_ASSERT, "(turretDef)", (const char *)&queryFormat, "turretDef") )
+  r_weapon = *BG_FindBaseWeaponForName(&result, turretName);
+  v5 = BG_WeaponDef(&r_weapon, 0);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turretanims.cpp", 189, ASSERT_TYPE_ASSERT, "(turretDef)", (const char *)&queryFormat, "turretDef") )
     __debugbreak();
   if ( BG_GetWeaponClass(&r_weapon, 0) == WEAPCLASS_TURRET )
   {
-    v10 = turretAnimsCount[v3];
-    v11 = v10;
-    if ( (unsigned int)v10 >= 0x30 )
+    v6 = turretAnimsCount[v3];
+    v7 = v6;
+    if ( (unsigned int)v6 >= 0x30 )
     {
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CD29D0, 662i64, 48i64);
-      v11 = turretAnimsCount[v3];
+      v7 = turretAnimsCount[v3];
     }
-    v12 = &s_turretAnims[v3][v10];
-    turretAnimsCount[v3] = v11 + 1;
-    v12->weapDef = v9;
+    v8 = &s_turretAnims[v3][v6];
+    turretAnimsCount[v3] = v7 + 1;
+    v8->weapDef = v5;
     XAnimAcquireMemoryLocks();
     if ( (_DWORD)v3 )
     {
-      v14 = G_Main_HunkAllocXAnimServer;
+      v10 = G_Main_HunkAllocXAnimServer;
     }
     else
     {
-      v13 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80);
-      v14 = CG_MainSP_AllocXAnimClient;
-      if ( v13 )
-        v14 = CG_MainMP_AllocXAnimClient;
+      v9 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80);
+      v10 = CG_MainSP_AllocXAnimClient;
+      if ( v9 )
+        v10 = CG_MainMP_AllocXAnimClient;
     }
-    AnimsWithParameters = XAnimCreateAnimsWithParameters("turret_root", XANIM_SUBTREE_DEFAULT, 5, 8, 8, 0, v14);
+    AnimsWithParameters = XAnimCreateAnimsWithParameters("turret_root", XANIM_SUBTREE_DEFAULT, 5, 8, 8, 0, v10);
     if ( !AnimsWithParameters && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turretanims.cpp", 107, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
       __debugbreak();
     LOBYTE(Alloc) = 4;
     XAnimBlend(AnimsWithParameters, 0, "root", 1u, 4u, 0x840u, Alloc, 1);
-    turretRaiseAnim = v9->turretRaiseAnim;
+    turretRaiseAnim = v5->turretRaiseAnim;
     if ( turretRaiseAnim )
       BG_CreateXAnimFromParts(AnimsWithParameters, 1u, turretRaiseAnim, 1);
     else
       BG_CreateXAnim(AnimsWithParameters, 1u, "void", 1);
-    turretIdleAnim = v9->turretIdleAnim;
+    turretIdleAnim = v5->turretIdleAnim;
     if ( turretIdleAnim )
       BG_CreateXAnimFromParts(AnimsWithParameters, 2u, turretIdleAnim, 1);
     else
       BG_CreateXAnim(AnimsWithParameters, 2u, "void", 1);
-    turretFireAnim = v9->turretFireAnim;
+    turretFireAnim = v5->turretFireAnim;
     if ( turretFireAnim )
       BG_CreateXAnimFromParts(AnimsWithParameters, 3u, turretFireAnim, 1);
     else
       BG_CreateXAnim(AnimsWithParameters, 3u, "void", 1);
-    if ( v9->autoAdjust )
+    if ( v5->autoAdjust )
     {
       XAnimTurret_CreateNode(AnimsWithParameters, 4u);
       XAnimSetupBindingIndexes(AnimsWithParameters);
     }
     XanimReleaseMemoryLocks();
-    v12->anims = AnimsWithParameters;
+    v8->anims = AnimsWithParameters;
   }
 }
 

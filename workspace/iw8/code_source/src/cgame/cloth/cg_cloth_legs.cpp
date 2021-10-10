@@ -261,46 +261,44 @@ CG_Cloth_Legs_SetupModel
 */
 void CG_Cloth_Legs_SetupModel(const LocalClientNum_t localClientNum, const cpose_t *pose, DObj *dObj)
 {
-  __int64 v7; 
-  unsigned int v8; 
-  const XModel *v9; 
+  __int64 v5; 
+  unsigned int v6; 
+  const XModel *v7; 
   unsigned __int64 numClothAssets; 
   const XModel **models; 
   const char *name; 
-  const char *v13; 
-  unsigned __int8 v14; 
-  unsigned __int8 v15; 
-  CG_Cloth_Legs_RuntimeData *v16; 
-  unsigned __int64 v17; 
+  const char *v11; 
+  unsigned __int8 v12; 
+  unsigned __int8 v13; 
+  CG_Cloth_Legs_RuntimeData *v14; 
+  unsigned __int64 v15; 
+  unsigned __int64 v16; 
+  unsigned int *v17; 
   unsigned __int64 v18; 
-  unsigned int *v19; 
-  unsigned __int64 v20; 
-  DObj *v21; 
-  const cpose_t *v22; 
-  unsigned __int64 v23; 
-  const ClothAsset **v25; 
-  const ClothAsset *v26; 
+  DObj *v19; 
+  const cpose_t *v20; 
+  unsigned __int64 v21; 
+  const ClothAsset **v22; 
+  const ClothAsset *v23; 
   unsigned int Ref; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  unsigned int v41; 
+  __int128 v29; 
+  unsigned int v39; 
   vec3_t posea; 
   unsigned int globalWorldId; 
   const ClothAsset **clothAssets; 
-  DObj *v46; 
-  __int64 v47; 
+  DObj *v43; 
+  __int64 v44; 
   vec4_t quat; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v47 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v46 = dObj;
+  v44 = -2i64;
+  v43 = dObj;
   *(_QWORD *)posea.v = pose;
-  v7 = localClientNum;
+  v5 = localClientNum;
   globalWorldId = localClientNum;
   if ( (unsigned int)localClientNum > LOCAL_CLIENT_1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 102, ASSERT_TYPE_ASSERT, "(localClientNum >= LOCAL_CLIENT_0 && localClientNum <= LOCAL_CLIENT_LAST)", (const char *)&queryFormat, "localClientNum >= LOCAL_CLIENT_0 && localClientNum <= LOCAL_CLIENT_LAST") )
     __debugbreak();
-  v8 = 0;
+  v6 = 0;
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 103, ASSERT_TYPE_ASSERT, "( pose ) != ( nullptr )", "%s != %s\n\t%p, %p", "pose", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !dObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 104, ASSERT_TYPE_ASSERT, "( dObj ) != ( nullptr )", "%s != %s\n\t%p, %p", "dObj", "nullptr", NULL, NULL) )
@@ -308,124 +306,125 @@ void CG_Cloth_Legs_SetupModel(const LocalClientNum_t localClientNum, const cpose
   AnglesToQuat(&pose->angles, &quat);
   if ( !dObj->numModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 111, ASSERT_TYPE_ASSERT, "(dObj->numModels > 0)", (const char *)&queryFormat, "dObj->numModels > 0") )
     __debugbreak();
-  v9 = *dObj->models;
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 113, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+  v7 = *dObj->models;
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 113, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
-  numClothAssets = v9->numClothAssets;
-  if ( !v9->numClothAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", numClothAssets + 115, ASSERT_TYPE_ASSERT, "(numClothAssets > 0)", (const char *)&queryFormat, "numClothAssets > 0") )
+  numClothAssets = v7->numClothAssets;
+  if ( !v7->numClothAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", numClothAssets + 115, ASSERT_TYPE_ASSERT, "(numClothAssets > 0)", (const char *)&queryFormat, "numClothAssets > 0") )
     __debugbreak();
-  clothAssets = (const ClothAsset **)v9->clothAssets;
+  clothAssets = (const ClothAsset **)v7->clothAssets;
   if ( !clothAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 117, ASSERT_TYPE_ASSERT, "(clothAssets)", (const char *)&queryFormat, "clothAssets") )
     __debugbreak();
   if ( dObj->numModels && (models = dObj->models, *models) )
     name = (*models)->name;
   else
     name = "Unknown";
-  v13 = j_va("Player Legs %s", name);
-  Cloth_AnimTreeNode_EnableClothNode(v13, dObj, 0);
-  v14 = truncate_cast<unsigned char,enum LocalClientNum_t>((LocalClientNum_t)v7);
-  if ( !XAnimSetByteGameParameterByName(dObj, scr_const.xanimClothLCN, v14) )
+  v11 = j_va("Player Legs %s", name);
+  Cloth_AnimTreeNode_EnableClothNode(v11, dObj, 0);
+  v12 = truncate_cast<unsigned char,enum LocalClientNum_t>((LocalClientNum_t)v5);
+  if ( !XAnimSetByteGameParameterByName(dObj, scr_const.xanimClothLCN, v12) )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CF7B60, 6052i64, dObj->tree->anims->debugName);
   XAnimSetBoolGameParameterByName(dObj, scr_const.xanimClothHide, 1);
-  v15 = truncate_cast<unsigned char,enum LocalClientNum_t>((LocalClientNum_t)v7);
-  if ( !XAnimSetByteGameParameterByName(dObj, scr_const.xanimClothLCN, v15) )
+  v13 = truncate_cast<unsigned char,enum LocalClientNum_t>((LocalClientNum_t)v5);
+  if ( !XAnimSetByteGameParameterByName(dObj, scr_const.xanimClothLCN, v13) )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CF7940, 6050i64, dObj->tree->anims->debugName);
-  v16 = s_CG_Cloth_Legs_RuntimeData[v7];
-  if ( v16->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 135, ASSERT_TYPE_ASSERT, "(runtimeData->clothInstances.size() == 0)", (const char *)&queryFormat, "runtimeData->clothInstances.size() == 0") )
+  v14 = s_CG_Cloth_Legs_RuntimeData[v5];
+  if ( v14->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 135, ASSERT_TYPE_ASSERT, "(runtimeData->clothInstances.size() == 0)", (const char *)&queryFormat, "runtimeData->clothInstances.size() == 0") )
     __debugbreak();
-  v17 = numClothAssets;
-  if ( v16->clothInstances.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 82, ASSERT_TYPE_ASSERT, "( ( m_data.begin() == 0 ) || ( memory_block_type::is_fixed_memory_block::value ) )", "Reallocation is not supported") )
+  v15 = numClothAssets;
+  if ( v14->clothInstances.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 82, ASSERT_TYPE_ASSERT, "( ( m_data.begin() == 0 ) || ( memory_block_type::is_fixed_memory_block::value ) )", "Reallocation is not supported") )
     __debugbreak();
   if ( !ntl::static_shared_allocator<CG_Cloth_Legs_InstanceAllocator,ntl::fixed_heap_allocator<56,0>>::mp_allocator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\shared_allocator.h", 137, ASSERT_TYPE_ASSERT, "( mp_allocator )", "Shared allocator is not set") )
     __debugbreak();
-  v16->clothInstances.m_data.m_buffer = (unsigned int *)ntl::nxheap::allocate(&ntl::static_shared_allocator<CG_Cloth_Legs_InstanceAllocator,ntl::fixed_heap_allocator<56,0>>::mp_allocator->m_heap, 4 * numClothAssets, 4ui64, 1);
-  v16->clothInstances.m_data.m_size = numClothAssets;
-  v18 = 0i64;
+  v14->clothInstances.m_data.m_buffer = (unsigned int *)ntl::nxheap::allocate(&ntl::static_shared_allocator<CG_Cloth_Legs_InstanceAllocator,ntl::fixed_heap_allocator<56,0>>::mp_allocator->m_heap, 4 * numClothAssets, 4ui64, 1);
+  v14->clothInstances.m_data.m_size = numClothAssets;
+  v16 = 0i64;
   if ( (_DWORD)numClothAssets )
   {
     do
     {
-      if ( v18 >= v16->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
+      if ( v16 >= v14->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
         __debugbreak();
-      v19 = &v16->clothInstances.m_data.m_buffer[v18];
-      if ( v19 )
-        *v19 = 0;
-      ++v18;
+      v17 = &v14->clothInstances.m_data.m_buffer[v16];
+      if ( v17 )
+        *v17 = 0;
+      ++v16;
     }
-    while ( v18 < numClothAssets );
-    v20 = 0i64;
+    while ( v16 < numClothAssets );
+    v18 = 0i64;
     do
     {
-      if ( v20 >= v16->clothInstances.m_data.m_size )
+      if ( v18 >= v14->clothInstances.m_data.m_size )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 169, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
-        if ( v20 >= v16->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
+        if ( v18 >= v14->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
           __debugbreak();
       }
-      v16->clothInstances.m_data.m_buffer[v20++] = -1;
-      --v17;
+      v14->clothInstances.m_data.m_buffer[v18++] = -1;
+      --v15;
     }
-    while ( v17 );
-    v21 = v46;
-    v22 = *(const cpose_t **)posea.v;
-    v23 = 0i64;
-    __asm { vmovsd  xmm6, cs:__real@3f30000000000000 }
-    v25 = clothAssets;
+    while ( v15 );
+    v19 = v43;
+    v20 = *(const cpose_t **)posea.v;
+    v21 = 0i64;
+    v22 = clothAssets;
     do
     {
-      v26 = *v25;
-      if ( !*v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 149, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+      v23 = *v22;
+      if ( !*v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 149, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
         __debugbreak();
-      if ( v8 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v8, "unsigned", v23) )
+      if ( v6 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v6, "unsigned", v21) )
         __debugbreak();
-      Ref = CG_Cloth_MakeRef(CG_CLOTH_REF_SYSTEM_PLAYER_LEGS, 0x842u, v8);
-      if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+      Ref = CG_Cloth_MakeRef(CG_CLOTH_REF_SYSTEM_PLAYER_LEGS, 0x842u, v6);
+      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
         __debugbreak();
-      if ( !v22->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+      if ( !v20->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
         __debugbreak();
-      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v22->origin.Get_origin, v22);
-      FunctionPointer_origin(&v22->origin.origin.origin, &posea);
-      if ( v22->isPosePrecise )
+      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v20->origin.Get_origin, v20);
+      FunctionPointer_origin(&v20->origin.origin.origin, &posea);
+      if ( v20->isPosePrecise )
       {
-        __asm
-        {
-          vmovd   xmm0, dword ptr [rsp+0E8h+pose]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm6
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  dword ptr [rsp+0E8h+pose], xmm2
-          vmovd   xmm0, dword ptr [rsp+0E8h+pose+4]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm6
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  dword ptr [rsp+0E8h+pose+4], xmm2
-          vmovd   xmm0, [rsp+0E8h+var_90]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm6
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  [rsp+0E8h+var_90], xmm2
-        }
+        _XMM0 = LODWORD(posea.v[0]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v29;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        posea.v[0] = *(float *)&_XMM2;
+        _XMM0 = LODWORD(posea.v[1]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v29;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        posea.v[1] = *(float *)&_XMM2;
+        _XMM0 = LODWORD(posea.v[2]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v29;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        posea.v[2] = *(float *)&_XMM2;
       }
-      v41 = Cloth_InstantiateAsset(globalWorldId, v26, Ref, Cloth_OwnerType_Character, &posea, &quat, v21, 0);
-      if ( v41 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 160, ASSERT_TYPE_ASSERT, "(clothInstanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "clothInstanceId != CLOTH_INSTANCEID_INVALID") )
+      v39 = Cloth_InstantiateAsset(globalWorldId, v23, Ref, Cloth_OwnerType_Character, &posea, &quat, v19, 0);
+      if ( v39 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cloth\\cg_cloth_legs.cpp", 160, ASSERT_TYPE_ASSERT, "(clothInstanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "clothInstanceId != CLOTH_INSTANCEID_INVALID") )
         __debugbreak();
-      if ( v23 >= v16->clothInstances.m_data.m_size )
+      if ( v21 >= v14->clothInstances.m_data.m_size )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\array.h", 169, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
-        if ( v23 >= v16->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
+        if ( v21 >= v14->clothInstances.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\buffer_memory_block.h", 121, ASSERT_TYPE_ASSERT, "( index < m_size )", (const char *)&queryFormat, "index < m_size") )
           __debugbreak();
       }
-      v16->clothInstances.m_data.m_buffer[v23] = v41;
+      v14->clothInstances.m_data.m_buffer[v21] = v39;
       memset(&posea, 0, sizeof(posea));
-      ++v8;
-      ++v23;
-      v25 = ++clothAssets;
+      ++v6;
+      ++v21;
+      v22 = ++clothAssets;
     }
-    while ( v8 < (unsigned int)numClothAssets );
+    while ( v6 < (unsigned int)numClothAssets );
   }
-  __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
 }
 
 /*

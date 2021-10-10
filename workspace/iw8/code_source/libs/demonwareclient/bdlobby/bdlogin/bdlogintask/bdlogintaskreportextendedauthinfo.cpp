@@ -190,7 +190,7 @@ bdLoginTaskReportExtendedAuthInfo::pump
 void bdLoginTaskReportExtendedAuthInfo::pump(bdLoginTaskReportExtendedAuthInfo *this)
 {
   bdLoginTaskReportExtendedAuthInfo::ReportInfoState m_reportInfoState; 
-  double v5; 
+  double ElapsedTimeInSeconds; 
 
   m_reportInfoState = this->m_reportInfoState;
   if ( m_reportInfoState )
@@ -204,13 +204,8 @@ void bdLoginTaskReportExtendedAuthInfo::pump(bdLoginTaskReportExtendedAuthInfo *
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x7Au, "Must provide valid message to update ReportInfoState!");
       this->m_reportInfoState = CONNECTING;
       bdStrlcpy(this->m_reportStatusMessage, "Pumping report extended authInfo in unexpected state", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+48h+var_10], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", v5);
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::pump", 0x37u, "Pumping report extended authInfo in unexpected state");
     }
   }
@@ -228,16 +223,16 @@ bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo
 */
 char bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo(bdLoginTaskReportExtendedAuthInfo *this)
 {
-  bdTask::bdStatus v3; 
+  bdTask::bdStatus v2; 
   bdLobbyErrorCode ErrorCode; 
-  const char *v6; 
-  double v10; 
-  double v11; 
-  double v12; 
-  bdLobbyErrorCode v13; 
+  double v4; 
+  const char *v5; 
+  double v7; 
+  double ElapsedTimeInSeconds; 
+  bdLobbyErrorCode v9; 
 
-  v3 = this->m_reportExtendedAuthInfoTask.m_ptr->getStatus(this->m_reportExtendedAuthInfoTask.m_ptr);
-  if ( v3 == BD_PENDING )
+  v2 = this->m_reportExtendedAuthInfoTask.m_ptr->getStatus(this->m_reportExtendedAuthInfoTask.m_ptr);
+  if ( v2 == BD_PENDING )
   {
     bdLobbyService::pump(this->m_lobbyService);
     if ( bdLobbyService::getErrorCode(this->m_lobbyService) )
@@ -245,30 +240,20 @@ char bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo(bdLoginTaskRe
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x7Au, "Must provide valid message to update ReportInfoState!");
       this->m_reportInfoState = CONNECTING;
       bdStrlcpy(this->m_reportStatusMessage, "Lobby connection errored out", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+58h+var_20], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", v12);
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo", 0x5Du, "Lobby connection errored out");
     }
     return 0;
   }
-  else if ( v3 == BD_DONE )
+  else if ( v2 == BD_DONE )
   {
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo", 0x61u, "Setting state to COMPLETED");
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x7Au, "Must provide valid message to update ReportInfoState!");
     this->m_reportInfoState = WAITING_FOR_REPORT_CONSOLE_DETAILS;
     bdStrlcpy(this->m_reportStatusMessage, "Successfully reported ExtendedAuthInfo", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+58h+var_20], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", v11);
+    v7 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", *(float *)&v7);
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo", 0x63u, "Successfully reported ExtendedAuthInfo");
     return 1;
   }
@@ -278,16 +263,11 @@ char bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo(bdLoginTaskRe
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x7Au, "Must provide valid message to update ReportInfoState!");
     this->m_reportInfoState = CONNECTING;
     bdStrlcpy(this->m_reportStatusMessage, "Error encountered while reporting extended auth info", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+58h+var_20], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", v10);
-    v6 = bdLobbyErrorCodeToString(ErrorCode);
-    v13 = ErrorCode;
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo", 0x69u, "reportExtendedAuthInfo error: %s (%u)", v6, v13);
+    v4 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", *(float *)&v4);
+    v5 = bdLobbyErrorCodeToString(ErrorCode);
+    v9 = ErrorCode;
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::pumpReportExtendedAuthInfo", 0x69u, "reportExtendedAuthInfo error: %s (%u)", v5, v9);
     return 0;
   }
 }
@@ -332,12 +312,12 @@ void bdLoginTaskReportExtendedAuthInfo::startReportExtendedAuthInfo(bdLoginTaskR
   const bdMACAddr *MacAddr; 
   unsigned int TitleVersion; 
   unsigned int GameMode; 
-  bdLoginTaskReportExtendedAuthInfo *v9; 
+  bdLoginTaskReportExtendedAuthInfo *v8; 
   bdReference<bdRemoteTask> *p_m_reportExtendedAuthInfoTask; 
-  bdRemoteTask **v11; 
-  bdRemoteTask *v12; 
-  double externalAddr; 
-  bdReference<bdRemoteTask> v15; 
+  bdRemoteTask **v10; 
+  bdRemoteTask *v11; 
+  double ElapsedTimeInSeconds; 
+  bdReference<bdRemoteTask> v13; 
   bdMACAddr result; 
 
   this->m_lobbyService = bdLoginResult::getLobbyService(this->m_loginResult);
@@ -351,32 +331,27 @@ void bdLoginTaskReportExtendedAuthInfo::startReportExtendedAuthInfo(bdLoginTaskR
   MacAddr = bdLoginConfig::getMacAddr((bdLoginConfig *)this->m_loginConfig, &result);
   TitleVersion = bdLoginConfig::getTitleVersion((bdLoginConfig *)this->m_loginConfig);
   GameMode = bdLoginConfig::getGameMode((bdLoginConfig *)this->m_loginConfig);
-  v9 = (bdLoginTaskReportExtendedAuthInfo *)bdAntiCheat::reportExtendedAuthInfo(AntiCheat, &v15, GameMode, TitleVersion, 0i64, MacAddr, InternalAddr, 0i64, extendedAuthInfo);
+  v8 = (bdLoginTaskReportExtendedAuthInfo *)bdAntiCheat::reportExtendedAuthInfo(AntiCheat, &v13, GameMode, TitleVersion, 0i64, MacAddr, InternalAddr, 0i64, extendedAuthInfo);
   p_m_reportExtendedAuthInfoTask = &this->m_reportExtendedAuthInfoTask;
-  v11 = (bdRemoteTask **)v9;
-  if ( v9 != (bdLoginTaskReportExtendedAuthInfo *)&this->m_reportExtendedAuthInfoTask )
+  v10 = (bdRemoteTask **)v8;
+  if ( v8 != (bdLoginTaskReportExtendedAuthInfo *)&this->m_reportExtendedAuthInfoTask )
   {
     if ( p_m_reportExtendedAuthInfoTask->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&p_m_reportExtendedAuthInfoTask->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && p_m_reportExtendedAuthInfoTask->m_ptr )
       ((void (__fastcall *)(bdRemoteTask *, __int64))p_m_reportExtendedAuthInfoTask->m_ptr->~bdReferencable)(p_m_reportExtendedAuthInfoTask->m_ptr, 1i64);
-    v12 = *v11;
-    p_m_reportExtendedAuthInfoTask->m_ptr = *v11;
-    if ( v12 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
+    v11 = *v10;
+    p_m_reportExtendedAuthInfoTask->m_ptr = *v10;
+    if ( v11 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
   }
-  if ( v15.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v15.m_ptr )
-    ((void (__fastcall *)(bdRemoteTask *, __int64))v15.m_ptr->~bdReferencable)(v15.m_ptr, 1i64);
+  if ( v13.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v13.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v13.m_ptr )
+    ((void (__fastcall *)(bdRemoteTask *, __int64))v13.m_ptr->~bdReferencable)(v13.m_ptr, 1i64);
   if ( !p_m_reportExtendedAuthInfoTask->m_ptr )
   {
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x7Au, "Must provide valid message to update ReportInfoState!");
     this->m_reportInfoState = CONNECTING;
     bdStrlcpy(this->m_reportStatusMessage, "Failed to start task bdAntiCheat::reportExtendedAuthInfo()", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+98h+externalAddr], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", externalAddr);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::startReportExtendedAuthInfo", 0x4Eu, "Failed to start task bdAntiCheat::reportExtendedAuthInfo()");
   }
 }
@@ -388,20 +363,15 @@ bdLoginTaskReportExtendedAuthInfo::updateReportStatus
 */
 void bdLoginTaskReportExtendedAuthInfo::updateReportStatus(bdLoginTaskReportExtendedAuthInfo *this, const char *messageInfo, const bdLoginTaskReportExtendedAuthInfo::ReportInfoState *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x7Au, "Must provide valid message to update ReportInfoState!");
   this->m_reportInfoState = *code;
   bdStrlcpy(this->m_reportStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(*code - 2) <= 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskreportextendedauthinfo.cpp", "bdLoginTaskReportExtendedAuthInfo::updateReportStatus", 0x82u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

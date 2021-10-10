@@ -38,75 +38,39 @@ LinearFromPQ
 */
 vec3_t *LinearFromPQ(vec3_t *result, vec3_t *pqValues)
 {
-  vec3_t *v35; 
+  __int128 v2; 
+  __int128 v6; 
+  __int128 v8; 
+  __int128 v10; 
+  __int128 v12; 
+  __int128 v14; 
+  vec3_t *v16; 
 
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3c4fcdac; Y
-    vmovss  xmm0, dword ptr [rdx]; X
-    vmovaps [rsp+48h+var_18], xmm9
-  }
-  _RBX = pqValues;
-  __asm { vmovaps [rsp+48h+var_28], xmm11 }
-  _RDI = result;
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@3f560000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vmovss  xmm9, cs:__real@4196d000
-    vsubss  xmm0, xmm9, xmm0
-    vxorps  xmm11, xmm11, xmm11
-    vmaxss  xmm2, xmm1, xmm11
-    vmovss  xmm1, cs:__real@40c8e06b; Y
-    vdivss  xmm0, xmm2, xmm0; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@461c4000
-    vmovss  xmm1, cs:__real@3c4fcdac; Y
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm2, xmm0, cs:__real@3f560000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vmovss  xmm1, cs:__real@40c8e06b; Y
-    vsubss  xmm0, xmm9, xmm0
-    vmaxss  xmm3, xmm2, xmm11
-    vdivss  xmm0, xmm3, xmm0; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@461c4000
-    vmovss  xmm0, dword ptr [rbx+8]; X
-    vmovss  xmm1, cs:__real@3c4fcdac; Y
-    vmovss  dword ptr [rdi+4], xmm2
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm2, xmm0, cs:__real@3f560000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vmovss  xmm1, cs:__real@40c8e06b; Y
-    vsubss  xmm0, xmm9, xmm0
-    vmaxss  xmm3, xmm2, xmm11
-    vdivss  xmm0, xmm3, xmm0; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vmulss  xmm1, xmm0, cs:__real@461c4000 }
-  v35 = _RDI;
-  __asm
-  {
-    vmovaps xmm9, [rsp+48h+var_18]
-    vmovaps xmm11, [rsp+48h+var_28]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
-  return v35;
+  v2 = LODWORD(pqValues->v[0]);
+  *(float *)&v2 = powf_0(*(float *)&v2, 0.012683313);
+  v6 = v2;
+  *(float *)&v6 = *(float *)&v2 - 0.8359375;
+  _XMM1 = v6;
+  __asm { vmaxss  xmm2, xmm1, xmm11 }
+  result->v[0] = powf_0(*(float *)&_XMM2 / (float)(18.851562 - (float)(*(float *)&v2 * 18.6875)), 6.2773948) * 10000.0;
+  v8 = LODWORD(pqValues->v[1]);
+  *(float *)&v8 = powf_0(*(float *)&v8, 0.012683313);
+  v10 = v8;
+  *(float *)&v10 = *(float *)&v8 - 0.8359375;
+  _XMM2 = v10;
+  __asm { vmaxss  xmm3, xmm2, xmm11 }
+  *(float *)&v10 = powf_0(*(float *)&_XMM3 / (float)(18.851562 - (float)(*(float *)&v8 * 18.6875)), 6.2773948) * 10000.0;
+  v12 = LODWORD(pqValues->v[2]);
+  result->v[1] = *(float *)&v10;
+  *(float *)&v12 = powf_0(*(float *)&v12, 0.012683313);
+  v14 = v12;
+  *(float *)&v14 = *(float *)&v12 - 0.8359375;
+  _XMM2 = v14;
+  __asm { vmaxss  xmm3, xmm2, xmm11 }
+  *(float *)&v12 = powf_0(*(float *)&_XMM3 / (float)(18.851562 - (float)(*(float *)&v12 * 18.6875)), 6.2773948);
+  v16 = result;
+  result->v[2] = *(float *)&v12 * 10000.0;
+  return v16;
 }
 
 /*
@@ -116,66 +80,29 @@ PQFromLinear
 */
 vec3_t *PQFromLinear(vec3_t *result, vec3_t *linearValues)
 {
-  vec3_t *v31; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  vec3_t *v12; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm0, cs:__real@38d1b717; X
-    vmovss  xmm1, cs:__real@3e232000; Y
-  }
-  _RBX = linearValues;
-  _RDI = result;
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@4196d000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vaddss  xmm2, xmm1, cs:__real@3f560000
-    vaddss  xmm0, xmm0, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@429db000; Y
-    vdivss  xmm0, xmm2, xmm0; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm0, xmm1, cs:__real@38d1b717; X
-    vmovss  xmm1, cs:__real@3e232000; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@4196d000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vaddss  xmm3, xmm0, cs:__real@3f800000
-    vaddss  xmm4, xmm2, cs:__real@3f560000
-    vmovss  xmm1, cs:__real@429db000; Y
-    vdivss  xmm0, xmm4, xmm3; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+8]
-    vmovss  xmm1, cs:__real@3e232000; Y
-    vmovss  dword ptr [rdi+4], xmm0
-    vmulss  xmm0, xmm2, cs:__real@38d1b717; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@4196d000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vaddss  xmm3, xmm0, cs:__real@3f800000
-    vaddss  xmm4, xmm2, cs:__real@3f560000
-    vmovss  xmm1, cs:__real@429db000; Y
-    vdivss  xmm0, xmm4, xmm3; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  v31 = _RDI;
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
-  return v31;
+  v4 = powf_0(linearValues->v[0] * 0.000099999997, 0.15930176);
+  v5 = powf_0((float)((float)(v4 * 18.851562) + 0.8359375) / (float)((float)(v4 * 18.6875) + 1.0), 78.84375);
+  v6 = linearValues->v[1];
+  result->v[0] = v5;
+  v7 = powf_0(v6 * 0.000099999997, 0.15930176);
+  v8 = powf_0((float)((float)(v7 * 18.851562) + 0.8359375) / (float)((float)(v7 * 18.6875) + 1.0), 78.84375);
+  v9 = linearValues->v[2];
+  result->v[1] = v8;
+  v10 = powf_0(v9 * 0.000099999997, 0.15930176);
+  v11 = powf_0((float)((float)(v10 * 18.851562) + 0.8359375) / (float)((float)(v10 * 18.6875) + 1.0), 78.84375);
+  v12 = result;
+  result->v[2] = v11;
+  return v12;
 }
 
 /*
@@ -185,11 +112,12 @@ Primaries_BT2020FromBT709
 */
 vec3_t *Primaries_BT2020FromBT709(vec3_t *result, vec3_t *linearBT709)
 {
+  double v2; 
   vec3_t vec; 
 
-  __asm { vmovsd  xmm0, qword ptr [rdx] }
+  v2 = *(double *)linearBT709->v;
   vec.v[2] = linearBT709->v[2];
-  __asm { vmovsd  qword ptr [rsp+48h+vec], xmm0 }
+  *(double *)vec.v = v2;
   AxisTransformVec3(&BT2020_FROM_BT709_MAT, &vec, result);
   return result;
 }

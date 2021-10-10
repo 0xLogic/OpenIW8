@@ -216,43 +216,32 @@ SV_ClientAntiCheatMP_GatherPlayerKillOrLastStandData
 */
 void SV_ClientAntiCheatMP_GatherPlayerKillOrLastStandData(const bool isLastStand, const gentity_s *attacker, const gentity_s *const victim, const SvClientAntiCheatData *const attackerData, const Weapon *attackerWeapon, const bool attackerWeaponIsAlternate, const int deathMod, const hitLocation_t hitloc, const int timeOffset, const int attackerIndex, const int victimLastStandIndex, SvAntiCheatMP_PlayerKillLogData *r_data)
 {
+  int v17; 
   int v18; 
-  int v22; 
-  const dvar_t *v23; 
+  const dvar_t *v19; 
   int integer; 
   __int64 clientNum; 
   int lastTime; 
-  int v27; 
-  int v28; 
+  int v23; 
+  int v24; 
   SvClient *CommonClient; 
   ClientPlatform *outClientPlatform; 
-  __int64 v31; 
+  __int64 v27; 
   msg_t buf; 
   unsigned __int8 data[1024]; 
 
-  _RSI = r_data;
-  _RDI = attackerWeapon;
   DebugWipe(r_data, 0x340ui64);
-  DLog_Util_GetPlayerHeaderFieldsFromEntity(attacker, &_RSI->attacker.unoId, &_RSI->attacker.firstPartyUserId, &_RSI->attacker.firstPartyAccountType, &_RSI->attacker.userSessionId, (ClientPlatform *)_RSI->attacker.platform);
-  DLog_Util_GetPlayerHeaderFieldsFromEntity(victim, &_RSI->victim.unoId, &_RSI->victim.firstPartyUserId, &_RSI->victim.firstPartyAccountType, &_RSI->victim.userSessionId, (ClientPlatform *)_RSI->victim.platform);
+  DLog_Util_GetPlayerHeaderFieldsFromEntity(attacker, &r_data->attacker.unoId, &r_data->attacker.firstPartyUserId, &r_data->attacker.firstPartyAccountType, &r_data->attacker.userSessionId, (ClientPlatform *)r_data->attacker.platform);
+  DLog_Util_GetPlayerHeaderFieldsFromEntity(victim, &r_data->victim.unoId, &r_data->victim.firstPartyUserId, &r_data->victim.firstPartyAccountType, &r_data->victim.userSessionId, (ClientPlatform *)r_data->victim.platform);
   r_data->isLastStand = isLastStand;
-  v18 = deathMod;
+  v17 = deathMod;
   r_data->serverTime = level.time;
   r_data->attackerClientNum = attacker->s.clientNum;
   r_data->attackerEventIndex = attackerIndex;
   r_data->attackerOrigin = attacker->r.currentOrigin;
   r_data->attackerPitch = attacker->client->ps.viewangles.v[0];
   r_data->attackerYaw = attacker->client->ps.viewangles.v[1];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsi+60h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsi+80h], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsi+90h], xmm0
-  }
-  *(_DWORD *)&r_data->attackerWeapon.weaponCamo = *(_DWORD *)&attackerWeapon->weaponCamo;
+  r_data->attackerWeapon = *attackerWeapon;
   r_data->attackerWeaponIsAlternate = attackerWeaponIsAlternate;
   if ( (unsigned int)deathMod >= 0x19 )
   {
@@ -262,43 +251,43 @@ void SV_ClientAntiCheatMP_GatherPlayerKillOrLastStandData(const bool isLastStand
   }
   if ( (unsigned int)deathMod <= 0x14 )
   {
-    v22 = 1049102;
-    if ( _bittest(&v22, deathMod) )
+    v18 = 1049102;
+    if ( _bittest(&v18, deathMod) )
     {
       if ( (unsigned int)(hitloc - 1) <= 1 )
-        v18 = 9;
+        v17 = 9;
     }
   }
-  r_data->mod = v18;
+  r_data->mod = v17;
   SV_ClientAntiCheatMP_LogPlayerKill_RecordAngularSpeed(attackerData, r_data);
-  v23 = DVARINT_sv_anticheat_playerRecentlySighted_resetTime;
+  v19 = DVARINT_sv_anticheat_playerRecentlySighted_resetTime;
   if ( !DVARINT_sv_anticheat_playerRecentlySighted_resetTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_anticheat_playerRecentlySighted_resetTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  integer = v23->current.integer;
+  Dvar_CheckFrontendServerThread(v19);
+  integer = v19->current.integer;
   if ( victim->s.clientNum >= 0xC8u )
   {
-    LODWORD(v31) = 200;
+    LODWORD(v27) = 200;
     LODWORD(outClientPlatform) = victim->s.clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 288, ASSERT_TYPE_ASSERT, "(unsigned)( victim->s.clientNum ) < (unsigned)( ( sizeof( *array_counter( attackerData->recentlySightedClients ) ) + 0 ) )", "victim->s.clientNum doesn't index ARRAY_COUNT( attackerData->recentlySightedClients )\n\t%i not in [0, %i)", outClientPlatform, v31) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 288, ASSERT_TYPE_ASSERT, "(unsigned)( victim->s.clientNum ) < (unsigned)( ( sizeof( *array_counter( attackerData->recentlySightedClients ) ) + 0 ) )", "victim->s.clientNum doesn't index ARRAY_COUNT( attackerData->recentlySightedClients )\n\t%i not in [0, %i)", outClientPlatform, v27) )
       __debugbreak();
   }
   clientNum = victim->s.clientNum;
   lastTime = attackerData->recentlySightedClients[clientNum].lastTime;
   if ( lastTime < 0 || level.time - lastTime > integer )
-    v27 = -1;
+    v23 = -1;
   else
-    v27 = level.time - attackerData->recentlySightedClients[clientNum].firstTime;
-  r_data->attacker_sighted_victim_time = v27;
+    v23 = level.time - attackerData->recentlySightedClients[clientNum].firstTime;
+  r_data->attacker_sighted_victim_time = v23;
   r_data->victimLastStandIndex = victimLastStandIndex;
   r_data->victimOrigin = victim->r.currentOrigin;
   r_data->inUse = 1;
   MSG_Init(&buf, data, 1020);
   MSG_WriteByte(&buf, 38i64);
-  v28 = victim->s.clientNum;
-  if ( (unsigned int)(v28 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v28, "signed", victim->s.clientNum) )
+  v24 = victim->s.clientNum;
+  if ( (unsigned int)(v24 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v24, "signed", victim->s.clientNum) )
     __debugbreak();
-  MSG_WriteShort(&buf, (__int16)v28);
+  MSG_WriteShort(&buf, (__int16)v24);
   MSG_WriteLong(&buf, attackerIndex);
   MSG_WriteLong(&buf, level.time - timeOffset);
   CommonClient = SvClient::GetCommonClient(attacker->s.clientNum);
@@ -419,15 +408,23 @@ void SV_ClientAntiCheatMP_LogPlayerAngles(const gentity_s *const player, const i
 {
   int clientNum; 
   __int64 DataForPlayer; 
-  int v17; 
-  __int64 v47; 
-  int v50; 
-  __int64 v51; 
-  int v83; 
-  __int64 v89; 
-  double v90; 
-  __int64 v91; 
-  double v92; 
+  gclient_s *client; 
+  __int64 v7; 
+  int v8; 
+  unsigned int v9; 
+  float v12; 
+  float v13; 
+  float v15; 
+  __int64 v18; 
+  int v19; 
+  unsigned __int8 v20; 
+  int v21; 
+  int v22; 
+  __int128 v24; 
+  float v25; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
 
   if ( (unsigned __int8)SV_AntiCheatMP_CollectionEnabled() )
   {
@@ -437,15 +434,15 @@ void SV_ClientAntiCheatMP_LogPlayerAngles(const gentity_s *const player, const i
       __debugbreak();
     if ( player->s.clientNum != player->s.number )
     {
-      LODWORD(v89) = player->s.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 603, ASSERT_TYPE_ASSERT, "( player->s.clientNum ) == ( player->s.number )", "player->s.clientNum == player->s.number\n\t%i, %i", v89, player->s.number) )
+      LODWORD(v28) = player->s.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 603, ASSERT_TYPE_ASSERT, "( player->s.clientNum ) == ( player->s.number )", "player->s.clientNum == player->s.number\n\t%i, %i", v28, player->s.number) )
         __debugbreak();
     }
     if ( player->client->ps.clientNum != player->s.clientNum )
     {
-      LODWORD(v91) = player->s.clientNum;
-      LODWORD(v89) = player->client->ps.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 604, ASSERT_TYPE_ASSERT, "( player->client->ps.clientNum ) == ( player->s.clientNum )", "player->client->ps.clientNum == player->s.clientNum\n\t%i, %i", v89, v91) )
+      LODWORD(v29) = player->s.clientNum;
+      LODWORD(v28) = player->client->ps.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 604, ASSERT_TYPE_ASSERT, "( player->client->ps.clientNum ) == ( player->s.clientNum )", "player->client->ps.clientNum == player->s.clientNum\n\t%i, %i", v28, v29) )
         __debugbreak();
     }
     if ( !player->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 570, ASSERT_TYPE_ASSERT, "( player->client )", (const char *)&queryFormat, "player->client") )
@@ -464,148 +461,58 @@ void SV_ClientAntiCheatMP_LogPlayerAngles(const gentity_s *const player, const i
     }
     else
     {
-      _RSI = player->client;
-      _RBX = SV_ClientAntiCheatMP_GetDataForPlayer(player->s.clientNum);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 616, ASSERT_TYPE_ASSERT, "( anticheatData )", (const char *)&queryFormat, "anticheatData") )
+      client = player->client;
+      v7 = SV_ClientAntiCheatMP_GetDataForPlayer(player->s.clientNum);
+      if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 616, ASSERT_TYPE_ASSERT, "( anticheatData )", (const char *)&queryFormat, "anticheatData") )
         __debugbreak();
-      v17 = *(_DWORD *)(_RBX + 1616);
-      _EDI = time - v17;
-      if ( v17 < 0 || (unsigned int)(_EDI - 1) > 0xC7 )
+      v8 = *(_DWORD *)(v7 + 1616);
+      v9 = time - v8;
+      if ( v8 < 0 || v9 - 1 > 0xC7 )
       {
-        v83 = 0;
+        v27 = 0;
       }
       else
       {
-        __asm
+        _XMM7 = 0i64;
+        __asm { vroundss xmm2, xmm7, xmm1, 1 }
+        v12 = 1.0 / _mm_cvtepi32_ps((__m128i)v9).m128_f32[0];
+        v13 = (float)((float)((float)((float)(client->ps.viewangles.v[1] - *(float *)(v7 + 1612)) * 0.0027777778) - *(float *)&_XMM2) * 360000.0) * v12;
+        __asm { vroundss xmm2, xmm7, xmm3, 1 }
+        v15 = (float)((float)((float)((float)(client->ps.viewangles.v[0] - *(float *)(v7 + 1608)) * 0.0027777778) - *(float *)&_XMM2) * 360000.0) * v12;
+        _XMM6 = v9;
+        __asm { vcvtdq2pd xmm6, xmm6 }
+        DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(v7 + 6280), v13, *(long double *)&_XMM6);
+        DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(v7 + 1624), v15, *(long double *)&_XMM6);
+        v18 = *(unsigned __int8 *)(v7 + 20248);
+        *(float *)(v7 + 4 * (3 * v18 + 5064)) = v15;
+        *(float *)(v7 + 12 * v18 + 20260) = v13;
+        *(_DWORD *)(v7 + 12 * v18 + 20252) = v9;
+        v19 = *(_DWORD *)(v7 + 20248);
+        if ( v19 > 0 )
         {
-          vmovss  xmm0, dword ptr [rsi+1DCh]
-          vsubss  xmm1, xmm0, dword ptr [rbx+64Ch]
-          vmulss  xmm3, xmm1, cs:__real@3b360b61
-          vmovaps [rsp+0D8h+var_18], xmm6
-          vmovaps [rsp+0D8h+var_28], xmm7
-          vmovaps [rsp+0D8h+var_38], xmm8
-          vmovss  xmm8, cs:__real@3f000000
-          vaddss  xmm1, xmm3, xmm8
-          vmovaps [rsp+0D8h+var_78], xmm12
-          vmovaps [rsp+0D8h+var_88], xmm13
-          vmovd   xmm0, edi
-          vcvtdq2ps xmm0, xmm0
-          vxorps  xmm7, xmm7, xmm7
-          vroundss xmm2, xmm7, xmm1, 1
-          vmovss  xmm1, dword ptr [rsi+1D8h]
-          vmovaps [rsp+0D8h+var_98], xmm14
-          vmovss  xmm14, cs:__real@3f800000
-          vdivss  xmm6, xmm14, xmm0
-          vsubss  xmm0, xmm3, xmm2
-          vsubss  xmm2, xmm1, dword ptr [rbx+648h]
-          vmulss  xmm4, xmm2, cs:__real@3b360b61
-          vmulss  xmm0, xmm0, cs:__real@48afc800
-          vmulss  xmm12, xmm0, xmm6
-          vaddss  xmm3, xmm4, xmm8
-          vroundss xmm2, xmm7, xmm3, 1
-          vsubss  xmm0, xmm4, xmm2
-          vmulss  xmm1, xmm0, cs:__real@48afc800
-          vmulss  xmm13, xmm1, xmm6
-          vmovd   xmm6, edi
-          vcvtdq2pd xmm6, xmm6
-          vmovaps xmm2, xmm6; weight
-          vcvtss2sd xmm1, xmm12, xmm12; value
-        }
-        DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(_RBX + 6280), *(long double *)&_XMM1, *(long double *)&_XMM2);
-        __asm
-        {
-          vcvtss2sd xmm1, xmm13, xmm13; value
-          vmovaps xmm2, xmm6; weight
-        }
-        DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(_RBX + 1624), *(long double *)&_XMM1, *(long double *)&_XMM2);
-        v47 = *(unsigned __int8 *)(_RBX + 20248);
-        _RAX = 3 * v47 + 5064;
-        __asm { vmovss  dword ptr [rbx+rax*4], xmm13 }
-        _RAX = 3 * v47;
-        __asm { vmovss  dword ptr [rbx+rax*4+4F24h], xmm12 }
-        *(_DWORD *)(_RBX + 12 * v47 + 20252) = _EDI;
-        v50 = *(_DWORD *)(_RBX + 20248);
-        if ( v50 > 0 )
-        {
-          __asm { vmovaps [rsp+0D8h+var_48], xmm9 }
-          v51 = (unsigned __int8)(v50 - 1);
-          __asm
+          v20 = v19 - 1;
+          v21 = *(_DWORD *)(v7 + 4 * (3i64 * v20 + 5064));
+          v22 = *(_DWORD *)(v7 + 12i64 * v20 + 20260);
+          v24 = 0i64;
+          *(float *)&v24 = (float)(int)(v9 + *(_DWORD *)(v7 + 12i64 * v20 + 20252));
+          _XMM0 = v24;
+          v25 = *(float *)&v24 * 0.5;
+          if ( v25 <= 0.0 )
           {
-            vmovaps [rsp+0D8h+var_58], xmm10
-            vmovaps [rsp+0D8h+var_68], xmm11
-            vxorps  xmm0, xmm0, xmm0
-          }
-          _RAX = 3 * v51 + 5064;
-          __asm { vmovss  xmm11, dword ptr [rbx+rax*4] }
-          _RDX = 3 * v51;
-          __asm
-          {
-            vmovss  xmm10, dword ptr [rbx+rdx*4+4F24h]
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm6, xmm0, xmm8
-            vxorps  xmm1, xmm1, xmm1
-            vcomiss xmm6, xmm1
-          }
-          if ( __CFADD__(_EDI, *(_DWORD *)(_RBX + 12 * v51 + 20252)) || _EDI + *(_DWORD *)(_RBX + 12 * v51 + 20252) == 0 )
-          {
-            __asm
-            {
-              vxorpd  xmm0, xmm0, xmm0
-              vmovsd  [rsp+0D8h+var_A8], xmm0
-              vcvtss2sd xmm1, xmm6, xmm6
-              vmovsd  [rsp+0D8h+var_B0], xmm1
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 158, ASSERT_TYPE_ASSERT, "( dtOut ) > ( 0.0f )", "dtOut > 0.0f\n\t%g, %g", v90, v92) )
+            __asm { vxorpd  xmm0, xmm0, xmm0 }
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 158, ASSERT_TYPE_ASSERT, "( dtOut ) > ( 0.0f )", "dtOut > 0.0f\n\t%g, %g", v25, *(double *)&_XMM0) )
               __debugbreak();
           }
-          __asm
-          {
-            vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vandps  xmm13, xmm13, xmm7
-            vandps  xmm11, xmm11, xmm7
-            vsubss  xmm0, xmm13, xmm11
-            vmulss  xmm0, xmm0, cs:__real@447a0000
-            vdivss  xmm8, xmm14, xmm6
-            vmulss  xmm1, xmm0, xmm8
-            vcvtss2sd xmm9, xmm6, xmm6
-            vcvtss2sd xmm1, xmm1, xmm1; value
-            vmovaps xmm2, xmm9; weight
-          }
-          DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(_RBX + 10936), *(long double *)&_XMM1, *(long double *)&_XMM2);
-          __asm
-          {
-            vandps  xmm12, xmm12, xmm7
-            vandps  xmm10, xmm10, xmm7
-            vsubss  xmm0, xmm12, xmm10
-            vmulss  xmm1, xmm0, cs:__real@447a0000
-            vmulss  xmm3, xmm1, xmm8
-            vcvtss2sd xmm1, xmm3, xmm3; value
-            vmovaps xmm2, xmm9; weight
-          }
-          DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(_RBX + 15592), *(long double *)&_XMM1, *(long double *)&_XMM2);
-          v50 = *(_DWORD *)(_RBX + 20248);
-          __asm
-          {
-            vmovaps xmm11, [rsp+0D8h+var_68]
-            vmovaps xmm10, [rsp+0D8h+var_58]
-            vmovaps xmm9, [rsp+0D8h+var_48]
-          }
+          DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(v7 + 10936), (float)((float)((float)(COERCE_FLOAT(LODWORD(v15) & _xmm) - COERCE_FLOAT(v21 & _xmm)) * 1000.0) * (float)(1.0 / v25)), v25);
+          DLogTDigest<32,8>::Add((DLogTDigest<32,8> *)(v7 + 15592), (float)((float)((float)(COERCE_FLOAT(LODWORD(v13) & _xmm) - COERCE_FLOAT(v22 & _xmm)) * 1000.0) * (float)(1.0 / v25)), v25);
+          v19 = *(_DWORD *)(v7 + 20248);
         }
-        __asm { vmovaps xmm14, [rsp+0D8h+var_98] }
-        v83 = v50 + 1;
-        __asm
-        {
-          vmovaps xmm13, [rsp+0D8h+var_88]
-          vmovaps xmm12, [rsp+0D8h+var_78]
-          vmovaps xmm8, [rsp+0D8h+var_38]
-          vmovaps xmm7, [rsp+0D8h+var_28]
-          vmovaps xmm6, [rsp+0D8h+var_18]
-        }
+        v27 = v19 + 1;
       }
-      *(_DWORD *)(_RBX + 20248) = v83;
-      *(float *)(_RBX + 1612) = _RSI->ps.viewangles.v[1];
-      *(float *)(_RBX + 1608) = _RSI->ps.viewangles.v[0];
-      *(_DWORD *)(_RBX + 1616) = time;
+      *(_DWORD *)(v7 + 20248) = v27;
+      *(float *)(v7 + 1612) = client->ps.viewangles.v[1];
+      *(float *)(v7 + 1608) = client->ps.viewangles.v[0];
+      *(_DWORD *)(v7 + 1616) = time;
     }
   }
 }
@@ -743,106 +650,61 @@ SV_ClientAntiCheatMP_LogPlayerKillData
 void SV_ClientAntiCheatMP_LogPlayerKillData(const SvAntiCheatMP_PlayerKillLogData *r_data)
 {
   unsigned __int64 unoId; 
-  unsigned __int64 firstPartyUserId; 
-  unsigned __int64 v6; 
-  DLogFirstPartyAccountType firstPartyAccountType; 
+  float v3; 
+  float v4; 
+  float attackerYaw; 
   const char *WeaponBaseName; 
   __int64 mod; 
-  const char *v18; 
-  bool v24; 
-  unsigned __int64 userSessionId; 
+  const char *v8; 
+  float v9; 
+  float v10; 
   ClientPlatform clientPlatform; 
   ClientPlatform clientPlatforma; 
   DLogContext context; 
   char buffer[4096]; 
 
-  _RBX = r_data;
   if ( !r_data->inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 371, ASSERT_TYPE_ASSERT, "( r_data.inUse )", (const char *)&queryFormat, "r_data.inUse") )
     __debugbreak();
-  unoId = _RBX->attacker.unoId;
-  if ( !_RBX->attacker.unoId )
-    unoId = _RBX->attacker.firstPartyUserId;
+  unoId = r_data->attacker.unoId;
+  if ( !r_data->attacker.unoId )
+    unoId = r_data->attacker.firstPartyUserId;
   if ( DLog_CreateContext(&context, unoId, buffer, 4096) && DLog_BeginEvent(&context, "dlog_event_sv_anticheat_player_killed") )
   {
-    firstPartyUserId = _RBX->attacker.firstPartyUserId;
-    v6 = _RBX->attacker.unoId;
-    LOBYTE(clientPlatform) = _RBX->attacker.platform[0];
-    userSessionId = _RBX->attacker.userSessionId;
-    firstPartyAccountType = _RBX->attacker.firstPartyAccountType;
-    __asm
-    {
-      vmovaps [rsp+11D0h+var_10], xmm6
-      vmovaps [rsp+11D0h+var_20], xmm7
-    }
-    DLog_Util_FillPlayerHeader(&context, rowName, v6, firstPartyUserId, firstPartyAccountType, userSessionId, clientPlatform);
-    LOBYTE(clientPlatforma) = _RBX->victim.platform[0];
-    DLog_Util_FillPlayerHeader(&context, "victim", _RBX->victim.unoId, _RBX->victim.firstPartyUserId, _RBX->victim.firstPartyAccountType, _RBX->victim.userSessionId, clientPlatforma);
-    DLog_Bool(&context, "is_last_stand", _RBX->isLastStand);
-    DLog_Int32(&context, "server_time", _RBX->serverTime);
-    DLog_Int32(&context, "attacker_clientnum", _RBX->attackerClientNum);
-    DLog_Int32(&context, "attacker_event_index", _RBX->attackerEventIndex);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+4Ch]; value
-      vmovss  xmm6, dword ptr [rbx+54h]
-      vmovss  xmm7, dword ptr [rbx+50h]
-    }
-    if ( DLog_Float32(&context, "attacker_x", *(float *)&_XMM2) )
-    {
-      __asm { vmovaps xmm2, xmm7; value }
-      if ( DLog_Float32(&context, "attacker_y", *(float *)&_XMM2) )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        DLog_Float32(&context, "attacker_z", *(float *)&_XMM2);
-      }
-    }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+58h]; value
-      vmovss  xmm6, dword ptr [rbx+5Ch]
-    }
-    if ( DLog_Float32(&context, "attacker_pitch", *(float *)&_XMM2) )
-    {
-      __asm { vmovaps xmm2, xmm6; value }
-      DLog_Float32(&context, "attacker_yaw", *(float *)&_XMM2);
-    }
-    WeaponBaseName = BG_GetWeaponBaseName(&_RBX->attackerWeapon, _RBX->attackerWeaponIsAlternate);
+    LOBYTE(clientPlatform) = r_data->attacker.platform[0];
+    DLog_Util_FillPlayerHeader(&context, rowName, r_data->attacker.unoId, r_data->attacker.firstPartyUserId, r_data->attacker.firstPartyAccountType, r_data->attacker.userSessionId, clientPlatform);
+    LOBYTE(clientPlatforma) = r_data->victim.platform[0];
+    DLog_Util_FillPlayerHeader(&context, "victim", r_data->victim.unoId, r_data->victim.firstPartyUserId, r_data->victim.firstPartyAccountType, r_data->victim.userSessionId, clientPlatforma);
+    DLog_Bool(&context, "is_last_stand", r_data->isLastStand);
+    DLog_Int32(&context, "server_time", r_data->serverTime);
+    DLog_Int32(&context, "attacker_clientnum", r_data->attackerClientNum);
+    DLog_Int32(&context, "attacker_event_index", r_data->attackerEventIndex);
+    v3 = r_data->attackerOrigin.v[2];
+    v4 = r_data->attackerOrigin.v[1];
+    if ( DLog_Float32(&context, "attacker_x", r_data->attackerOrigin.v[0]) && DLog_Float32(&context, "attacker_y", v4) )
+      DLog_Float32(&context, "attacker_z", v3);
+    attackerYaw = r_data->attackerYaw;
+    if ( DLog_Float32(&context, "attacker_pitch", r_data->attackerPitch) )
+      DLog_Float32(&context, "attacker_yaw", attackerYaw);
+    WeaponBaseName = BG_GetWeaponBaseName(&r_data->attackerWeapon, r_data->attackerWeaponIsAlternate);
     DLog_String(&context, "attacker_weapon", WeaponBaseName, 0);
-    mod = _RBX->mod;
+    mod = r_data->mod;
     if ( (unsigned int)mod > 0x18 )
-      v18 = "badMOD";
+      v8 = "badMOD";
     else
-      v18 = SL_ConvertToString(*g_combat_modNames[mod]);
-    DLog_String(&context, "death_mod", v18, 0);
-    DLog_Int32(&context, "attacker_recent_angular_velocity_window", _RBX->recentAngularVelocityWindow);
-    DLog_UInt8Array(&context, "attacker_recent_pitch_velocity_tdigest", _RBX->serializedRecentPitchVel, _RBX->serializedRecentPitchVelSize);
-    DLog_UInt8Array(&context, "attacker_recent_yaw_velocity_tdigest", _RBX->serializedRecentYawVel, _RBX->serializedRecentYawVelSize);
-    DLog_UInt8Array(&context, "attacker_recent_pitch_accel_tdigest", _RBX->serializedRecentPitchAccel, _RBX->serializedRecentPitchAccelSize);
-    DLog_UInt8Array(&context, "attacker_recent_yaw_accel_tdigest", _RBX->serializedRecentYawAccel, _RBX->serializedRecentYawAccelSize);
-    DLog_Int32(&context, "attacker_sighted_victim_time", _RBX->attacker_sighted_victim_time);
-    DLog_Int32(&context, "victim_last_stand_index", _RBX->victimLastStandIndex);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+330h]; value
-      vmovss  xmm6, dword ptr [rbx+338h]
-      vmovss  xmm7, dword ptr [rbx+334h]
-    }
-    if ( DLog_Float32(&context, "victim_x", *(float *)&_XMM2) )
-    {
-      __asm { vmovaps xmm2, xmm7; value }
-      if ( DLog_Float32(&context, "victim_y", *(float *)&_XMM2) )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        DLog_Float32(&context, "victim_z", *(float *)&_XMM2);
-      }
-    }
-    v24 = DLog_EndEvent(&context);
-    __asm
-    {
-      vmovaps xmm7, [rsp+11D0h+var_20]
-      vmovaps xmm6, [rsp+11D0h+var_10]
-    }
-    if ( v24 )
+      v8 = SL_ConvertToString(*g_combat_modNames[mod]);
+    DLog_String(&context, "death_mod", v8, 0);
+    DLog_Int32(&context, "attacker_recent_angular_velocity_window", r_data->recentAngularVelocityWindow);
+    DLog_UInt8Array(&context, "attacker_recent_pitch_velocity_tdigest", r_data->serializedRecentPitchVel, r_data->serializedRecentPitchVelSize);
+    DLog_UInt8Array(&context, "attacker_recent_yaw_velocity_tdigest", r_data->serializedRecentYawVel, r_data->serializedRecentYawVelSize);
+    DLog_UInt8Array(&context, "attacker_recent_pitch_accel_tdigest", r_data->serializedRecentPitchAccel, r_data->serializedRecentPitchAccelSize);
+    DLog_UInt8Array(&context, "attacker_recent_yaw_accel_tdigest", r_data->serializedRecentYawAccel, r_data->serializedRecentYawAccelSize);
+    DLog_Int32(&context, "attacker_sighted_victim_time", r_data->attacker_sighted_victim_time);
+    DLog_Int32(&context, "victim_last_stand_index", r_data->victimLastStandIndex);
+    v9 = r_data->victimOrigin.v[2];
+    v10 = r_data->victimOrigin.v[1];
+    if ( DLog_Float32(&context, "victim_x", r_data->victimOrigin.v[0]) && DLog_Float32(&context, "victim_y", v10) )
+      DLog_Float32(&context, "victim_z", v9);
+    if ( DLog_EndEvent(&context) )
       DLog_RecordContext(&context);
   }
 }
@@ -855,427 +717,335 @@ SV_ClientAntiCheatMP_LogPlayerKill_RecordAngularSpeed
 void SV_ClientAntiCheatMP_LogPlayerKill_RecordAngularSpeed(const SvClientAntiCheatData *const anticheatData, SvAntiCheatMP_PlayerKillLogData *inOutData)
 {
   signed __int64 v2; 
-  void *v13; 
-  SvAntiCheatMP_PlayerKillLogData *v14; 
-  const dvar_t *v16; 
-  int v18; 
-  __int64 v20; 
+  void *v4; 
+  SvAntiCheatMP_PlayerKillLogData *v5; 
+  const dvar_t *v7; 
+  int v9; 
+  __int64 v11; 
   DLogTDigestCentroid *m_processedCentroids; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v13; 
+  __int64 v14; 
   DLogTDigestCentroid *m_unprocessedCentroidBuffer; 
-  __int64 v25; 
-  DLogTDigestCentroid *v27; 
-  __int64 v28; 
+  __int64 v16; 
+  DLogTDigestCentroid *v18; 
+  __int64 v19; 
+  DLogTDigestCentroid *v20; 
+  __int64 v21; 
+  DLogTDigestCentroid *v23; 
+  __int64 v24; 
+  DLogTDigestCentroid *v25; 
+  __int64 v26; 
+  DLogTDigestCentroid *v28; 
   DLogTDigestCentroid *v29; 
-  __int64 v30; 
-  DLogTDigestCentroid *v32; 
-  __int64 v33; 
-  DLogTDigestCentroid *v34; 
-  __int64 v35; 
-  DLogTDigestCentroid *v37; 
-  DLogTDigestCentroid *v38; 
-  unsigned int v43; 
-  int v44; 
-  unsigned __int8 v45; 
+  unsigned int v34; 
+  int v35; 
+  int v36; 
+  __int64 v38; 
+  __int64 v43; 
+  __int64 m_unprocessedCentroidBufferIndex; 
   int weight; 
-  int v106; 
-  int v107; 
-  int v108; 
-  int v109; 
-  double v112; 
-  double v113; 
+  float yawVelocity; 
+  __int128 v52; 
+  float v53; 
+  float pitchVelocity; 
+  float v55; 
+  float v56; 
+  float v57; 
+  double v58; 
+  __int128 v60; 
+  __int64 v63; 
+  __int64 v66; 
+  int v69; 
+  int v70; 
+  int v71; 
+  int v72; 
   int integer; 
-  DLogTDigest<16,8> v116; 
-  DLogTDigest<16,8> v117; 
-  DLogTDigest<16,8> v118; 
-  DLogTDigest<16,8> v119; 
-  char v130; 
+  DLogTDigest<16,8> v75; 
+  DLogTDigest<16,8> v76; 
+  DLogTDigest<16,8> v77; 
+  DLogTDigest<16,8> v78; 
+  __int128 v79; 
 
-  v13 = alloca(v2);
-  __asm { vmovaps [rsp+25F0h+var_90], xmm11 }
-  v14 = inOutData;
-  _R13 = anticheatData;
+  v4 = alloca(v2);
+  v79 = _XMM11;
+  v5 = inOutData;
   if ( !anticheatData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 166, ASSERT_TYPE_ASSERT, "( anticheatData )", (const char *)&queryFormat, "anticheatData") )
     __debugbreak();
-  v16 = DVARINT_sv_anticheat_playerKilled_angle_speed_window;
+  v7 = DVARINT_sv_anticheat_playerKilled_angle_speed_window;
   if ( !DVARINT_sv_anticheat_playerKilled_angle_speed_window && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_anticheat_playerKilled_angle_speed_window") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  integer = v16->current.integer;
+  Dvar_CheckFrontendServerThread(v7);
+  integer = v7->current.integer;
   Sys_ProfBeginNamedEvent(0xFF008080, "SV_ClientAntiCheatMP_LogPlayerKill_RecordAngularSpeed-accum");
   __asm { vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff }
-  v18 = 0;
-  v116.m_serializedHeaderByteSize = 22;
+  v9 = 0;
+  v75.m_serializedHeaderByteSize = 22;
   __asm { vxorpd  xmm11, xmm11, xmm11 }
-  v20 = 16i64;
-  *(_QWORD *)&v116.m_unprocessedCentroidBufferIndex = 0i64;
+  v11 = 16i64;
+  *(_QWORD *)&v75.m_unprocessedCentroidBufferIndex = 0i64;
   __asm { vmovupd xmmword ptr [rsp+25F0h+var_25A0.m_min], xmm0 }
-  v116.m_disableAutoMerge = 0;
-  m_processedCentroids = v116.m_processedCentroids;
-  __asm { vmovups xmmword ptr [rsp+25F0h+var_25A0.m_processedWeightTotal], xmm11 }
-  v22 = 16i64;
+  v75.m_disableAutoMerge = 0;
+  m_processedCentroids = v75.m_processedCentroids;
+  *(_OWORD *)&v75.m_processedWeightTotal = _XMM11;
+  v13 = 16i64;
   do
   {
     DLogTDigestCentroid::DLogTDigestCentroid(m_processedCentroids++);
-    --v22;
+    --v13;
   }
-  while ( v22 );
-  v23 = 128i64;
-  m_unprocessedCentroidBuffer = v116.m_unprocessedCentroidBuffer;
-  v25 = 128i64;
+  while ( v13 );
+  v14 = 128i64;
+  m_unprocessedCentroidBuffer = v75.m_unprocessedCentroidBuffer;
+  v16 = 128i64;
   do
   {
     DLogTDigestCentroid::DLogTDigestCentroid(m_unprocessedCentroidBuffer++);
-    --v25;
+    --v16;
   }
-  while ( v25 );
+  while ( v16 );
   __asm
   {
     vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff
     vmovupd xmmword ptr [rbp+24F0h+var_1C70.m_min], xmm0
   }
-  v117.m_serializedHeaderByteSize = 22;
-  v27 = v117.m_processedCentroids;
-  v117.m_disableAutoMerge = 0;
-  v28 = 16i64;
-  __asm { vmovups xmmword ptr [rbp+24F0h+var_1C70.m_processedWeightTotal], xmm11 }
-  *(_QWORD *)&v117.m_unprocessedCentroidBufferIndex = 0i64;
+  v76.m_serializedHeaderByteSize = 22;
+  v18 = v76.m_processedCentroids;
+  v76.m_disableAutoMerge = 0;
+  v19 = 16i64;
+  *(_OWORD *)&v76.m_processedWeightTotal = _XMM11;
+  *(_QWORD *)&v76.m_unprocessedCentroidBufferIndex = 0i64;
   do
   {
-    DLogTDigestCentroid::DLogTDigestCentroid(v27++);
-    --v28;
+    DLogTDigestCentroid::DLogTDigestCentroid(v18++);
+    --v19;
   }
-  while ( v28 );
-  v29 = v117.m_unprocessedCentroidBuffer;
-  v30 = 128i64;
+  while ( v19 );
+  v20 = v76.m_unprocessedCentroidBuffer;
+  v21 = 128i64;
+  do
+  {
+    DLogTDigestCentroid::DLogTDigestCentroid(v20++);
+    --v21;
+  }
+  while ( v21 );
+  __asm
+  {
+    vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff
+    vmovupd xmmword ptr [rbp+24F0h+var_1340.m_min], xmm0
+  }
+  v77.m_serializedHeaderByteSize = 22;
+  v23 = v77.m_processedCentroids;
+  v77.m_disableAutoMerge = 0;
+  v24 = 16i64;
+  *(_OWORD *)&v77.m_processedWeightTotal = _XMM11;
+  *(_QWORD *)&v77.m_unprocessedCentroidBufferIndex = 0i64;
+  do
+  {
+    DLogTDigestCentroid::DLogTDigestCentroid(v23++);
+    --v24;
+  }
+  while ( v24 );
+  v25 = v77.m_unprocessedCentroidBuffer;
+  v26 = 128i64;
+  do
+  {
+    DLogTDigestCentroid::DLogTDigestCentroid(v25++);
+    --v26;
+  }
+  while ( v26 );
+  __asm
+  {
+    vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff
+    vmovupd xmmword ptr [rbp+24F0h+var_A10.m_min], xmm0
+  }
+  v78.m_serializedHeaderByteSize = 22;
+  v28 = v78.m_processedCentroids;
+  v78.m_disableAutoMerge = 0;
+  *(_OWORD *)&v78.m_processedWeightTotal = _XMM11;
+  *(_QWORD *)&v78.m_unprocessedCentroidBufferIndex = 0i64;
+  do
+  {
+    DLogTDigestCentroid::DLogTDigestCentroid(v28++);
+    --v11;
+  }
+  while ( v11 );
+  v29 = v78.m_unprocessedCentroidBuffer;
   do
   {
     DLogTDigestCentroid::DLogTDigestCentroid(v29++);
-    --v30;
+    --v14;
   }
-  while ( v30 );
-  __asm
-  {
-    vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff
-    vmovupd xmmword ptr [rbp+24F0h+var_1340.m_min], xmm0
-  }
-  v118.m_serializedHeaderByteSize = 22;
-  v32 = v118.m_processedCentroids;
-  v118.m_disableAutoMerge = 0;
-  v33 = 16i64;
-  __asm { vmovups xmmword ptr [rbp+24F0h+var_1340.m_processedWeightTotal], xmm11 }
-  *(_QWORD *)&v118.m_unprocessedCentroidBufferIndex = 0i64;
-  do
-  {
-    DLogTDigestCentroid::DLogTDigestCentroid(v32++);
-    --v33;
-  }
-  while ( v33 );
-  v34 = v118.m_unprocessedCentroidBuffer;
-  v35 = 128i64;
-  do
-  {
-    DLogTDigestCentroid::DLogTDigestCentroid(v34++);
-    --v35;
-  }
-  while ( v35 );
-  __asm
-  {
-    vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff
-    vmovupd xmmword ptr [rbp+24F0h+var_A10.m_min], xmm0
-  }
-  v119.m_serializedHeaderByteSize = 22;
-  v37 = v119.m_processedCentroids;
-  v119.m_disableAutoMerge = 0;
-  __asm { vmovups xmmword ptr [rbp+24F0h+var_A10.m_processedWeightTotal], xmm11 }
-  *(_QWORD *)&v119.m_unprocessedCentroidBufferIndex = 0i64;
-  do
-  {
-    DLogTDigestCentroid::DLogTDigestCentroid(v37++);
-    --v20;
-  }
-  while ( v20 );
-  v38 = v119.m_unprocessedCentroidBuffer;
-  do
-  {
-    DLogTDigestCentroid::DLogTDigestCentroid(v38++);
-    --v23;
-  }
-  while ( v23 );
+  while ( v14 );
   __asm { vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff }
-  *(_QWORD *)&v116.m_unprocessedCentroidBufferIndex = 0i64;
-  __asm
-  {
-    vmovupd xmmword ptr [rsp+25F0h+var_25A0.m_min], xmm0
-    vmovups xmmword ptr [rsp+25F0h+var_25A0.m_processedWeightTotal], xmm11
-  }
-  memset_0(v116.m_processedCentroids, 0, 0x900ui64);
+  *(_QWORD *)&v75.m_unprocessedCentroidBufferIndex = 0i64;
+  __asm { vmovupd xmmword ptr [rsp+25F0h+var_25A0.m_min], xmm0 }
+  *(_OWORD *)&v75.m_processedWeightTotal = _XMM11;
+  memset_0(v75.m_processedCentroids, 0, 0x900ui64);
   __asm { vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff }
-  *(_QWORD *)&v117.m_unprocessedCentroidBufferIndex = 0i64;
-  __asm
-  {
-    vmovupd xmmword ptr [rbp+24F0h+var_1C70.m_min], xmm0
-    vmovups xmmword ptr [rbp+24F0h+var_1C70.m_processedWeightTotal], xmm11
-  }
-  memset_0(v117.m_processedCentroids, 0, 0x900ui64);
+  *(_QWORD *)&v76.m_unprocessedCentroidBufferIndex = 0i64;
+  __asm { vmovupd xmmword ptr [rbp+24F0h+var_1C70.m_min], xmm0 }
+  *(_OWORD *)&v76.m_processedWeightTotal = _XMM11;
+  memset_0(v76.m_processedCentroids, 0, 0x900ui64);
   __asm { vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff }
-  *(_QWORD *)&v118.m_unprocessedCentroidBufferIndex = 0i64;
-  __asm
-  {
-    vmovupd xmmword ptr [rbp+24F0h+var_1340.m_min], xmm0
-    vmovups xmmword ptr [rbp+24F0h+var_1340.m_processedWeightTotal], xmm11
-  }
-  memset_0(v118.m_processedCentroids, 0, 0x900ui64);
+  *(_QWORD *)&v77.m_unprocessedCentroidBufferIndex = 0i64;
+  __asm { vmovupd xmmword ptr [rbp+24F0h+var_1340.m_min], xmm0 }
+  *(_OWORD *)&v77.m_processedWeightTotal = _XMM11;
+  memset_0(v77.m_processedCentroids, 0, 0x900ui64);
   __asm { vmovupd xmm0, cs:__xmm@00100000000000007fefffffffffffff }
-  *(_QWORD *)&v119.m_unprocessedCentroidBufferIndex = 0i64;
-  __asm
+  *(_QWORD *)&v78.m_unprocessedCentroidBufferIndex = 0i64;
+  __asm { vmovupd xmmword ptr [rbp+24F0h+var_A10.m_min], xmm0 }
+  *(_OWORD *)&v78.m_processedWeightTotal = _XMM11;
+  memset_0(v78.m_processedCentroids, 0, 0x900ui64);
+  v34 = 0;
+  v35 = anticheatData->speedIndex - 1;
+  if ( v35 >= 0 )
   {
-    vmovupd xmmword ptr [rbp+24F0h+var_A10.m_min], xmm0
-    vmovups xmmword ptr [rbp+24F0h+var_A10.m_processedWeightTotal], xmm11
-  }
-  memset_0(v119.m_processedCentroids, 0, 0x900ui64);
-  v43 = 0;
-  v44 = _R13->speedIndex - 1;
-  if ( v44 >= 0 )
-  {
-    __asm { vmovaps [rsp+25F0h+var_A0], xmm12 }
-    v45 = v44 - 1;
-    __asm
-    {
-      vmovss  xmm12, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+25F0h+var_B0], xmm13
-      vmovss  xmm13, cs:__real@3f000000
-      vmovaps [rsp+25F0h+var_C0], xmm14
-      vmovaps [rsp+25F0h+var_D0], xmm15
-      vmovss  xmm15, cs:__real@447a0000
-      vmovaps [rsp+25F0h+var_40], xmm6
-      vmovaps [rsp+25F0h+var_50], xmm7
-      vmovaps [rsp+25F0h+var_60], xmm8
-      vmovaps [rsp+25F0h+var_70], xmm9
-      vmovaps [rsp+25F0h+var_80], xmm10
-      vxorps  xmm14, xmm14, xmm14
-    }
+    v36 = anticheatData->speedIndex - 2;
     while ( 1 )
     {
-      if ( v43 >= 0x100 )
+      if ( v34 >= 0x100 )
       {
 LABEL_48:
-        v14 = inOutData;
-        __asm
-        {
-          vmovaps xmm15, [rsp+25F0h+var_D0]
-          vmovaps xmm14, [rsp+25F0h+var_C0]
-          vmovaps xmm13, [rsp+25F0h+var_B0]
-          vmovaps xmm12, [rsp+25F0h+var_A0]
-          vmovaps xmm10, [rsp+25F0h+var_80]
-          vmovaps xmm9, [rsp+25F0h+var_70]
-          vmovaps xmm8, [rsp+25F0h+var_60]
-          vmovaps xmm7, [rsp+25F0h+var_50]
-          vmovaps xmm6, [rsp+25F0h+var_40]
-        }
+        v5 = inOutData;
         goto LABEL_49;
       }
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-      _RSI = 3i64 * (unsigned __int8)v44 + 5064;
-      _RBX = 3i64 * (unsigned __int8)v44;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [r13+rsi*4+0]
-        vcvtsi2sd xmm7, xmm7, dword ptr [r13+rbx*4+4F1Ch]
-        vcvtss2sd xmm6, xmm6, xmm6
-      }
-      if ( (unsigned __int64)v116.m_unprocessedCentroidBufferIndex < 0x70 )
+      _XMM7 = 0i64;
+      v38 = 3i64 * (unsigned __int8)v35 + 5064;
+      __asm { vcvtsi2sd xmm7, xmm7, dword ptr [r13+rbx*4+4F1Ch] }
+      _XMM6 = COERCE_UNSIGNED_INT64(*((float *)&anticheatData->playerKnockAndKillsCount + v38));
+      if ( (unsigned __int64)v75.m_unprocessedCentroidBufferIndex < 0x70 )
         goto LABEL_29;
-      if ( !v116.m_disableAutoMerge )
+      if ( !v75.m_disableAutoMerge )
         break;
       DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
 LABEL_30:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [r13+rbx*4+4F24h]
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2sd xmm7, xmm7, dword ptr [r13+rbx*4+4F1Ch]
-        vcvtss2sd xmm6, xmm6, xmm6
-      }
-      if ( (unsigned __int64)v117.m_unprocessedCentroidBufferIndex < 0x70 )
+      _XMM7 = 0i64;
+      __asm { vcvtsi2sd xmm7, xmm7, dword ptr [r13+rbx*4+4F1Ch] }
+      _XMM6 = COERCE_UNSIGNED_INT64(anticheatData->angularVelocityHistory[(unsigned __int8)v35].yawVelocity);
+      if ( (unsigned __int64)v76.m_unprocessedCentroidBufferIndex < 0x70 )
         goto LABEL_33;
-      if ( !v117.m_disableAutoMerge )
+      if ( !v76.m_disableAutoMerge )
       {
-        DLogTDigest<16,8>::ProcessBufferedCentroids(&v117);
+        DLogTDigest<16,8>::ProcessBufferedCentroids(&v76);
 LABEL_33:
         __asm
         {
           vmaxsd  xmm1, xmm6, [rbp+24F0h+var_1C70.m_max]
           vminsd  xmm0, xmm6, [rbp+24F0h+var_1C70.m_min]
         }
-        _RAX = 2i64 * v117.m_unprocessedCentroidBufferIndex;
-        __asm
-        {
-          vmovsd  [rbp+24F0h+var_1C70.m_max], xmm1
-          vmovsd  [rbp+24F0h+var_1C70.m_min], xmm0
-          vmovsd  [rbp+rax*8+24F0h+var_1C70.m_unprocessedCentroidBuffer.m_mean], xmm6
-          vmovsd  [rbp+rax*8+24F0h+var_1C70.m_unprocessedCentroidBuffer.m_weight], xmm7
-          vaddsd  xmm1, xmm7, [rbp+24F0h+var_1C70.m_unprocessedWeightTotal]
-        }
-        ++v117.m_unprocessedCentroidBufferIndex;
-        __asm { vmovsd  [rbp+24F0h+var_1C70.m_unprocessedWeightTotal], xmm1 }
+        m_unprocessedCentroidBufferIndex = v76.m_unprocessedCentroidBufferIndex;
+        v76.m_max = *(double *)&_XMM1;
+        v76.m_min = *(double *)&_XMM0;
+        v76.m_unprocessedCentroidBuffer[m_unprocessedCentroidBufferIndex].m_mean = *(double *)&_XMM6;
+        v76.m_unprocessedCentroidBuffer[m_unprocessedCentroidBufferIndex].m_weight = *(double *)&_XMM7;
+        ++v76.m_unprocessedCentroidBufferIndex;
+        v76.m_unprocessedWeightTotal = *(double *)&_XMM7 + v76.m_unprocessedWeightTotal;
         goto LABEL_34;
       }
       DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
 LABEL_34:
-      weight = _R13->angularVelocityHistory[(unsigned __int8)v44].weight;
-      v18 += weight;
-      if ( v44 <= 0 )
+      weight = anticheatData->angularVelocityHistory[(unsigned __int8)v35].weight;
+      v9 += weight;
+      if ( v35 <= 0 )
         goto LABEL_46;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [r13+rbx*4+4F24h]
-        vmovss  xmm9, dword ptr [r13+rsi*4+0]
-        vxorps  xmm0, xmm0, xmm0
-      }
-      _RCX = 3i64 * v45;
-      __asm { vmovss  xmm8, dword ptr [r13+rcx*4+4F24h] }
-      _RAX = _RCX + 5064;
-      __asm { vmovss  xmm10, dword ptr [r13+rax*4+0] }
-      LODWORD(_RAX) = _R13->angularVelocityHistory[v45].weight;
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm6, xmm0, xmm13
-        vcomiss xmm6, xmm14
-      }
-      if ( __CFADD__(weight, (_DWORD)_RAX) || weight + (_DWORD)_RAX == 0 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+25F0h+var_25C0], xmm11
-          vmovsd  [rsp+25F0h+var_25C8], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 158, ASSERT_TYPE_ASSERT, "( dtOut ) > ( 0.0f )", "dtOut > 0.0f\n\t%g, %g", v112, v113) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm2, xmm0, xmm6
-        vandps  xmm7, xmm7, xmm12
-        vandps  xmm8, xmm8, xmm12
-        vsubss  xmm0, xmm7, xmm8
-        vmulss  xmm1, xmm0, xmm15
-        vmulss  xmm8, xmm1, xmm2
-        vandps  xmm9, xmm9, xmm12
-        vandps  xmm10, xmm10, xmm12
-        vsubss  xmm0, xmm9, xmm10
-        vmulss  xmm1, xmm0, xmm15
-        vmulss  xmm2, xmm1, xmm2
-        vcvtss2sd xmm7, xmm6, xmm6
-        vcvtss2sd xmm6, xmm2, xmm2
-      }
-      if ( (unsigned __int64)v118.m_unprocessedCentroidBufferIndex < 0x70 )
+      yawVelocity = anticheatData->angularVelocityHistory[(unsigned __int8)v35].yawVelocity;
+      v52 = *(&anticheatData->playerKnockAndKillsCount + v38);
+      v53 = anticheatData->angularVelocityHistory[(unsigned __int8)v36].yawVelocity;
+      pitchVelocity = anticheatData->angularVelocityHistory[(unsigned __int8)v36].pitchVelocity;
+      v56 = (float)(weight + anticheatData->angularVelocityHistory[(unsigned __int8)v36].weight) * 0.5;
+      v55 = v56;
+      if ( v56 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_anticheat_mp.cpp", 158, ASSERT_TYPE_ASSERT, "( dtOut ) > ( 0.0f )", "dtOut > 0.0f\n\t%g, %g", v56, *(double *)&_XMM11) )
+        __debugbreak();
+      v57 = (float)((float)(COERCE_FLOAT(LODWORD(yawVelocity) & _xmm) - COERCE_FLOAT(LODWORD(v53) & _xmm)) * 1000.0) * (float)(1.0 / v56);
+      v60 = v52 & (unsigned int)_xmm;
+      v58 = v55;
+      *(double *)&v60 = (float)((float)((float)(*(float *)&v60 - COERCE_FLOAT(LODWORD(pitchVelocity) & _xmm)) * 1000.0) * (float)(1.0 / v55));
+      _XMM6 = v60;
+      if ( (unsigned __int64)v77.m_unprocessedCentroidBufferIndex < 0x70 )
         goto LABEL_41;
-      if ( !v118.m_disableAutoMerge )
+      if ( !v77.m_disableAutoMerge )
       {
-        DLogTDigest<16,8>::ProcessBufferedCentroids(&v118);
+        DLogTDigest<16,8>::ProcessBufferedCentroids(&v77);
 LABEL_41:
         __asm
         {
           vmaxsd  xmm1, xmm6, [rbp+24F0h+var_1340.m_max]
           vminsd  xmm0, xmm6, [rbp+24F0h+var_1340.m_min]
         }
-        _RAX = 2i64 * v118.m_unprocessedCentroidBufferIndex;
-        __asm
-        {
-          vmovsd  [rbp+24F0h+var_1340.m_max], xmm1
-          vmovsd  [rbp+24F0h+var_1340.m_min], xmm0
-          vmovsd  [rbp+rax*8+24F0h+var_1340.m_unprocessedCentroidBuffer.m_mean], xmm6
-          vmovsd  [rbp+rax*8+24F0h+var_1340.m_unprocessedCentroidBuffer.m_weight], xmm7
-          vaddsd  xmm1, xmm7, [rbp+24F0h+var_1340.m_unprocessedWeightTotal]
-        }
-        ++v118.m_unprocessedCentroidBufferIndex;
-        __asm { vmovsd  [rbp+24F0h+var_1340.m_unprocessedWeightTotal], xmm1 }
+        v63 = v77.m_unprocessedCentroidBufferIndex;
+        v77.m_max = *(double *)&_XMM1;
+        v77.m_min = *(double *)&_XMM0;
+        v77.m_unprocessedCentroidBuffer[v63].m_mean = *(double *)&v60;
+        v77.m_unprocessedCentroidBuffer[v63].m_weight = v58;
+        ++v77.m_unprocessedCentroidBufferIndex;
+        v77.m_unprocessedWeightTotal = v58 + v77.m_unprocessedWeightTotal;
         goto LABEL_42;
       }
       DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
 LABEL_42:
-      __asm { vcvtss2sd xmm6, xmm8, xmm8 }
-      if ( (unsigned __int64)v119.m_unprocessedCentroidBufferIndex < 0x70 )
+      if ( (unsigned __int64)v78.m_unprocessedCentroidBufferIndex < 0x70 )
         goto LABEL_45;
-      if ( !v119.m_disableAutoMerge )
+      if ( !v78.m_disableAutoMerge )
       {
-        DLogTDigest<16,8>::ProcessBufferedCentroids(&v119);
+        DLogTDigest<16,8>::ProcessBufferedCentroids(&v78);
 LABEL_45:
-        __asm
-        {
-          vmovsd  xmm0, [rbp+24F0h+var_A10.m_min]
-          vmovsd  xmm2, [rbp+24F0h+var_A10.m_max]
-        }
-        _RAX = 2i64 * v119.m_unprocessedCentroidBufferIndex;
-        __asm
-        {
-          vminsd  xmm1, xmm0, xmm6
-          vmovsd  [rbp+24F0h+var_A10.m_min], xmm1
-          vmaxsd  xmm0, xmm2, xmm6
-          vmovsd  [rbp+24F0h+var_A10.m_max], xmm0
-          vmovsd  [rbp+rax*8+24F0h+var_A10.m_unprocessedCentroidBuffer.m_mean], xmm6
-          vmovsd  [rbp+rax*8+24F0h+var_A10.m_unprocessedCentroidBuffer.m_weight], xmm7
-          vaddsd  xmm1, xmm7, [rbp+24F0h+var_A10.m_unprocessedWeightTotal]
-        }
-        ++v119.m_unprocessedCentroidBufferIndex;
-        __asm { vmovsd  [rbp+24F0h+var_A10.m_unprocessedWeightTotal], xmm1 }
+        _XMM0 = *(unsigned __int64 *)&v78.m_min;
+        _XMM2 = *(unsigned __int64 *)&v78.m_max;
+        v66 = v78.m_unprocessedCentroidBufferIndex;
+        __asm { vminsd  xmm1, xmm0, xmm6 }
+        v78.m_min = *(double *)&_XMM1;
+        __asm { vmaxsd  xmm0, xmm2, xmm6 }
+        v78.m_max = *(double *)&_XMM0;
+        v78.m_unprocessedCentroidBuffer[v66].m_mean = v57;
+        v78.m_unprocessedCentroidBuffer[v66].m_weight = v58;
+        ++v78.m_unprocessedCentroidBufferIndex;
+        v78.m_unprocessedWeightTotal = v58 + v78.m_unprocessedWeightTotal;
         goto LABEL_46;
       }
       DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
 LABEL_46:
-      if ( v18 < integer )
+      if ( v9 < integer )
       {
-        --v45;
-        ++v43;
-        if ( --v44 >= 0 )
+        LOBYTE(v36) = v36 - 1;
+        ++v34;
+        if ( --v35 >= 0 )
           continue;
       }
       goto LABEL_48;
     }
-    DLogTDigest<16,8>::ProcessBufferedCentroids(&v116);
+    DLogTDigest<16,8>::ProcessBufferedCentroids(&v75);
 LABEL_29:
     __asm
     {
       vmaxsd  xmm1, xmm6, [rsp+25F0h+var_25A0.m_max]
       vminsd  xmm0, xmm6, [rsp+25F0h+var_25A0.m_min]
     }
-    _RAX = 2i64 * v116.m_unprocessedCentroidBufferIndex;
-    __asm
-    {
-      vmovsd  [rsp+25F0h+var_25A0.m_max], xmm1
-      vmovsd  [rsp+25F0h+var_25A0.m_min], xmm0
-      vmovsd  [rbp+rax*8+24F0h+var_25A0.m_unprocessedCentroidBuffer.m_mean], xmm6
-      vmovsd  [rbp+rax*8+24F0h+var_25A0.m_unprocessedCentroidBuffer.m_weight], xmm7
-      vaddsd  xmm1, xmm7, [rsp+25F0h+var_25A0.m_unprocessedWeightTotal]
-    }
-    ++v116.m_unprocessedCentroidBufferIndex;
-    __asm { vmovsd  [rsp+25F0h+var_25A0.m_unprocessedWeightTotal], xmm1 }
+    v43 = v75.m_unprocessedCentroidBufferIndex;
+    v75.m_max = *(double *)&_XMM1;
+    v75.m_min = *(double *)&_XMM0;
+    v75.m_unprocessedCentroidBuffer[v43].m_mean = *(double *)&_XMM6;
+    v75.m_unprocessedCentroidBuffer[v43].m_weight = *(double *)&_XMM7;
+    ++v75.m_unprocessedCentroidBufferIndex;
+    v75.m_unprocessedWeightTotal = *(double *)&_XMM7 + v75.m_unprocessedWeightTotal;
     goto LABEL_30;
   }
 LABEL_49:
   Sys_ProfEndNamedEvent();
   Sys_ProfBeginNamedEvent(0xFF008080, "SV_ClientAntiCheatMP_LogPlayerKill_RecordAngularSpeed-ser");
-  v14->recentAngularVelocityWindow = v18;
-  DLogTDigest<16,8>::ProcessBufferedCentroids(&v116);
-  v106 = DLogTDigest<16,8>::SerializeToProtobuf(&v116, v14->serializedRecentPitchVel, 0x9Eui64);
-  v14->serializedRecentPitchVelSize = truncate_cast<unsigned short,int>(v106);
-  DLogTDigest<16,8>::ProcessBufferedCentroids(&v117);
-  v107 = DLogTDigest<16,8>::SerializeToProtobuf(&v117, v14->serializedRecentYawVel, 0x9Eui64);
-  v14->serializedRecentYawVelSize = truncate_cast<unsigned short,int>(v107);
-  DLogTDigest<16,8>::ProcessBufferedCentroids(&v118);
-  v108 = DLogTDigest<16,8>::SerializeToProtobuf(&v118, v14->serializedRecentPitchAccel, 0x9Eui64);
-  v14->serializedRecentPitchAccelSize = truncate_cast<unsigned short,int>(v108);
-  DLogTDigest<16,8>::ProcessBufferedCentroids(&v119);
-  v109 = DLogTDigest<16,8>::SerializeToProtobuf(&v119, v14->serializedRecentYawAccel, 0x9Eui64);
-  v14->serializedRecentYawAccelSize = truncate_cast<unsigned short,int>(v109);
+  v5->recentAngularVelocityWindow = v9;
+  DLogTDigest<16,8>::ProcessBufferedCentroids(&v75);
+  v69 = DLogTDigest<16,8>::SerializeToProtobuf(&v75, v5->serializedRecentPitchVel, 0x9Eui64);
+  v5->serializedRecentPitchVelSize = truncate_cast<unsigned short,int>(v69);
+  DLogTDigest<16,8>::ProcessBufferedCentroids(&v76);
+  v70 = DLogTDigest<16,8>::SerializeToProtobuf(&v76, v5->serializedRecentYawVel, 0x9Eui64);
+  v5->serializedRecentYawVelSize = truncate_cast<unsigned short,int>(v70);
+  DLogTDigest<16,8>::ProcessBufferedCentroids(&v77);
+  v71 = DLogTDigest<16,8>::SerializeToProtobuf(&v77, v5->serializedRecentPitchAccel, 0x9Eui64);
+  v5->serializedRecentPitchAccelSize = truncate_cast<unsigned short,int>(v71);
+  DLogTDigest<16,8>::ProcessBufferedCentroids(&v78);
+  v72 = DLogTDigest<16,8>::SerializeToProtobuf(&v78, v5->serializedRecentYawAccel, 0x9Eui64);
+  v5->serializedRecentYawAccelSize = truncate_cast<unsigned short,int>(v72);
   Sys_ProfEndNamedEvent();
-  _R11 = &v130;
-  __asm { vmovaps xmm11, xmmword ptr [r11-60h] }
 }
 
 /*

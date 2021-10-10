@@ -5,268 +5,280 @@ Create_textures
 */
 BINKTEXTURES *Create_textures(BINKSHADERS *pshaders, BINK *bink, void *user_ptr)
 {
-  char *v9; 
+  char *v6; 
+  char *v7; 
+  int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
   int v11; 
-  unsigned int v12; 
-  unsigned int v13; 
-  int v14; 
   unsigned int slice_count; 
-  int v16; 
+  unsigned int v13; 
   unsigned int OpenFlags; 
-  BINKTEXTURES *(__fastcall *v18)(BINKSHADERS *, BINK *, void *); 
-  unsigned int v19; 
-  bool v20; 
+  BINKTEXTURES *(__fastcall *v15)(BINKSHADERS *, BINK *, void *); 
+  unsigned int v16; 
+  bool v17; 
+  int v18; 
+  int v19; 
+  int v20; 
   int v21; 
   int v22; 
   int v23; 
   int v24; 
   int v25; 
   int v26; 
-  unsigned int v27; 
+  unsigned __int64 v27; 
   int v28; 
-  int v30; 
-  int v31; 
-  int v33; 
-  __int64 v34; 
-  __m256i *v35; 
-  __int64 v36; 
-  __int16 v37; 
-  __int64 v39; 
+  __int64 v29; 
+  __m256i *v30; 
+  __int64 v31; 
+  __int16 v32; 
+  __int64 v33; 
+  _BYTE *v34; 
+  __int64 v35; 
   unsigned int frameSet; 
-  unsigned int v52; 
-  unsigned int v53; 
-  int v54; 
-  __int64 v55; 
-  int v56; 
+  unsigned int v49; 
+  unsigned int v50; 
+  int v51; 
+  __int64 v52; 
+  int v53; 
+  unsigned int v54; 
+  unsigned int v55; 
+  unsigned int v56; 
   unsigned int v57; 
-  unsigned int v58; 
-  unsigned int v59; 
-  unsigned int v60; 
-  __int64 v61; 
-  __int64 v62; 
+  __int64 v58; 
+  __int64 v59; 
+  int v60; 
+  unsigned int v61; 
+  unsigned int v62; 
   int v63; 
-  unsigned int v64; 
-  unsigned int v65; 
+  __int64 v64; 
+  int v65; 
   int v66; 
   __int64 v67; 
-  int v68; 
+  unsigned int v68; 
   int v69; 
   __int64 v70; 
-  unsigned int v71; 
-  int v72; 
+  int v71; 
+  __int64 v72; 
   __int64 v73; 
-  int v74; 
-  __int64 v75; 
-  __int64 v76; 
-  __int64 v77; 
-  D3D12_GPU_DESCRIPTOR_HANDLE v78; 
+  __int64 v74; 
+  D3D12_GPU_DESCRIPTOR_HANDLE v75; 
+  unsigned int v76; 
+  unsigned int v77; 
+  unsigned int v78; 
   unsigned int v79; 
-  unsigned int v80; 
-  unsigned int v81; 
-  unsigned int v82; 
-  __int64 v83; 
+  __int64 v80; 
   unsigned int i; 
-  __int64 v85; 
-  unsigned __int64 v91; 
-  __int64 v92; 
+  __int64 v82; 
+  __m256i *v83; 
+  __m256i v84; 
+  __m256i v85; 
+  __m256i v86; 
+  unsigned __int64 v87; 
+  __int64 v88; 
+  int v89; 
+  int v90; 
+  int v91; 
+  unsigned __int8 v92; 
   int v93; 
-  int v94; 
-  int v95; 
-  unsigned __int8 v96; 
-  int v97; 
-  BINK *v98; 
+  BINK *v94; 
+  float Width; 
+  float v96; 
+  float Height; 
+  float v98; 
+  float v99; 
+  float v100; 
+  float v101; 
+  float v102; 
   int desc_index; 
-  int v121; 
-  unsigned int v122; 
+  int v105; 
+  unsigned int v106; 
   unsigned int dc_size; 
   BINK *binka; 
   D3D12_RESOURCE_DESC desc; 
-  __m256i v126; 
-  _BYTE v127[64]; 
-  __m256i v128; 
+  __m256i v110; 
+  _BYTE v111[64]; 
+  __m256i v112; 
 
   binka = bink;
-  v121 = 0;
+  v105 = 0;
   if ( !pshaders )
     return 0i64;
-  v9 = (char *)j_BinkUtilMalloc(0x8E8ui64);
-  _RSI = v9;
-  if ( !v9 )
+  v6 = (char *)j_BinkUtilMalloc(0x8E8ui64);
+  v7 = v6;
+  if ( !v6 )
     return 0i64;
-  memset_0(v9, 0, 0x2C8ui64);
-  memset_0(_RSI + 716, 0, 0x61Cui64);
-  *((_DWORD *)_RSI + 178) = -1;
-  if ( !j_BinkGetGPUDataBuffersInfo(bink, (BINKGPUDATABUFFERS *)(_RSI + 168)) )
+  memset_0(v6, 0, 0x2C8ui64);
+  memset_0(v7 + 716, 0, 0x61Cui64);
+  *((_DWORD *)v7 + 178) = -1;
+  if ( !j_BinkGetGPUDataBuffersInfo(bink, (BINKGPUDATABUFFERS *)(v7 + 168)) )
     return 0i64;
-  v11 = *((_DWORD *)_RSI + 138);
-  *((_QWORD *)_RSI + 11) = user_ptr;
-  *((_QWORD *)_RSI + 51) = pshaders;
-  *((_QWORD *)_RSI + 52) = bink;
-  v12 = (bink->Width + 31) >> 5;
-  *((_DWORD *)_RSI + 106) = v12;
-  v13 = (bink->Height + 31) >> 5;
-  *((_DWORD *)_RSI + 107) = v13;
-  v14 = v12 * v13;
-  *((_DWORD *)_RSI + 108) = v14;
+  v8 = *((_DWORD *)v7 + 138);
+  *((_QWORD *)v7 + 11) = user_ptr;
+  *((_QWORD *)v7 + 51) = pshaders;
+  *((_QWORD *)v7 + 52) = bink;
+  v9 = (bink->Width + 31) >> 5;
+  *((_DWORD *)v7 + 106) = v9;
+  v10 = (bink->Height + 31) >> 5;
+  *((_DWORD *)v7 + 107) = v10;
+  v11 = v9 * v10;
+  *((_DWORD *)v7 + 108) = v11;
   slice_count = bink->slices.slice_count;
   if ( !slice_count )
     slice_count = 1;
-  v16 = 8 * v14;
-  *((_DWORD *)_RSI + 109) = slice_count;
-  *((_DWORD *)_RSI + 110) = (bink->OpenFlags >> 20) & 1;
+  v13 = 8 * v11;
+  *((_DWORD *)v7 + 109) = slice_count;
+  *((_DWORD *)v7 + 110) = (bink->OpenFlags >> 20) & 1;
   OpenFlags = bink->OpenFlags;
-  *((_QWORD *)_RSI + 84) = 2i64;
-  dc_size = 32 * v14;
-  *((_DWORD *)_RSI + 111) = (OpenFlags >> 2) & 1;
-  v18 = pshaders[1].Create_textures;
-  *((_DWORD *)_RSI + 134) = v11;
-  *((_DWORD *)_RSI + 138) = (v11 + 1407) & 0xFFFFFF00;
-  *((_DWORD *)_RSI + 124) = 40 * v14;
-  v19 = (48 * v14 + 31) & 0xFFFFFFE0;
-  *((_DWORD *)_RSI + 122) = 0;
-  *((_DWORD *)_RSI + 125) = v19;
-  *((_DWORD *)_RSI + 123) = 32 * v14;
-  v20 = *((_DWORD *)_RSI + 110) == 0;
-  v122 = 8 * v14;
-  if ( !v20 )
-    v19 += 32 * v14;
-  *((_DWORD *)_RSI + 126) = v19;
-  if ( *((_DWORD *)_RSI + 111) )
-    v19 += 32 * v14;
-  *((_DWORD *)_RSI + 127) = v19;
-  v21 = *((_DWORD *)_RSI + 138);
-  *((_DWORD *)_RSI + 135) = v21;
-  *((_DWORD *)_RSI + 138) = (v21 + v19 + 255) & 0xFFFFFF00;
-  v22 = *((_DWORD *)_RSI + 82);
-  v23 = *((_DWORD *)_RSI + 84);
-  *((_DWORD *)_RSI + 129) = v22;
-  v24 = *((_DWORD *)_RSI + 83) + v22;
-  v25 = v24 + v23;
-  *((_DWORD *)_RSI + 128) = 0;
-  *((_DWORD *)_RSI + 131) = v25;
-  *((_DWORD *)_RSI + 130) = v24;
-  if ( *((_DWORD *)_RSI + 110) )
-    v25 += *((_DWORD *)_RSI + 85);
-  *((_DWORD *)_RSI + 132) = v25;
-  v26 = v25;
-  if ( *((_DWORD *)_RSI + 111) )
-    v26 = *((_DWORD *)_RSI + 86) + v25;
-  *((_DWORD *)_RSI + 133) = v26;
-  v27 = v16;
-  v28 = *((_DWORD *)_RSI + 138);
-  _ER8 = 3;
-  *((_DWORD *)_RSI + 120) = v27 >> 1;
-  *((_DWORD *)_RSI + 121) = *((_DWORD *)_RSI + 83) >> 2;
-  v30 = *((_DWORD *)_RSI + 133);
-  *((_DWORD *)_RSI + 136) = v28;
-  v31 = v28 + v30 + 255;
-  _RCX = *((_QWORD *)_RSI + 21);
-  v31 &= 0xFFFFFF00;
-  v33 = 16 * *((_DWORD *)_RSI + 108);
-  *((_DWORD *)_RSI + 139) = v33;
-  *((_DWORD *)_RSI + 137) = v31;
-  *((_DWORD *)_RSI + 138) = (v31 + v33 + 255) & 0xFFFFFF00;
-  if ( (unsigned __int64)&v126 > _RCX + 63 || (unsigned __int64)&v128.m256i_u64[3] + 6 < _RCX )
+  *((_QWORD *)v7 + 84) = 2i64;
+  dc_size = 32 * v11;
+  *((_DWORD *)v7 + 111) = (OpenFlags >> 2) & 1;
+  v15 = pshaders[1].Create_textures;
+  *((_DWORD *)v7 + 134) = v8;
+  *((_DWORD *)v7 + 138) = (v8 + 1407) & 0xFFFFFF00;
+  *((_DWORD *)v7 + 124) = 40 * v11;
+  v16 = (48 * v11 + 31) & 0xFFFFFFE0;
+  *((_DWORD *)v7 + 122) = 0;
+  *((_DWORD *)v7 + 125) = v16;
+  *((_DWORD *)v7 + 123) = 32 * v11;
+  v17 = *((_DWORD *)v7 + 110) == 0;
+  v106 = 8 * v11;
+  if ( !v17 )
+    v16 += 32 * v11;
+  *((_DWORD *)v7 + 126) = v16;
+  if ( *((_DWORD *)v7 + 111) )
+    v16 += 32 * v11;
+  *((_DWORD *)v7 + 127) = v16;
+  v18 = *((_DWORD *)v7 + 138);
+  *((_DWORD *)v7 + 135) = v18;
+  *((_DWORD *)v7 + 138) = (v18 + v16 + 255) & 0xFFFFFF00;
+  v19 = *((_DWORD *)v7 + 82);
+  v20 = *((_DWORD *)v7 + 84);
+  *((_DWORD *)v7 + 129) = v19;
+  v21 = *((_DWORD *)v7 + 83) + v19;
+  v22 = v21 + v20;
+  *((_DWORD *)v7 + 128) = 0;
+  *((_DWORD *)v7 + 131) = v22;
+  *((_DWORD *)v7 + 130) = v21;
+  if ( *((_DWORD *)v7 + 110) )
+    v22 += *((_DWORD *)v7 + 85);
+  *((_DWORD *)v7 + 132) = v22;
+  v23 = v22;
+  if ( *((_DWORD *)v7 + 111) )
+    v23 = *((_DWORD *)v7 + 86) + v22;
+  *((_DWORD *)v7 + 133) = v23;
+  v24 = *((_DWORD *)v7 + 138);
+  *((_DWORD *)v7 + 120) = v13 >> 1;
+  *((_DWORD *)v7 + 121) = *((_DWORD *)v7 + 83) >> 2;
+  v25 = *((_DWORD *)v7 + 133);
+  *((_DWORD *)v7 + 136) = v24;
+  v26 = v24 + v25 + 255;
+  v27 = *((_QWORD *)v7 + 21);
+  v26 &= 0xFFFFFF00;
+  v28 = 16 * *((_DWORD *)v7 + 108);
+  *((_DWORD *)v7 + 139) = v28;
+  *((_DWORD *)v7 + 137) = v26;
+  *((_DWORD *)v7 + 138) = (v26 + v28 + 255) & 0xFFFFFF00;
+  if ( (unsigned __int64)&v110 > v27 + 63 || (unsigned __int64)&v112.m256i_u64[3] + 6 < v27 )
   {
-    __asm { vmovd   xmm3, r8d }
-    v39 = 2i64;
-    _RAX = v127;
-    _RDX = 16i64;
+    v33 = 2i64;
+    v34 = v111;
+    v35 = 16i64;
     do
     {
-      _RAX += 64;
-      __asm { vmovq   xmm0, qword ptr [rdx+rcx-10h] }
-      _RDX += 32i64;
+      v34 += 64;
+      _XMM0 = *(unsigned __int64 *)(v35 + v27 - 16);
+      v35 += 32i64;
+      __asm { vpmovzxbw xmm1, xmm0 }
+      _XMM0 = *(unsigned __int64 *)(v35 + v27 - 40);
+      __asm { vpsllw  xmm2, xmm1, xmm3 }
+      *((_OWORD *)v34 - 6) = _XMM2;
+      __asm { vpmovzxbw xmm1, xmm0 }
+      _XMM0 = *(unsigned __int64 *)(v27 + v35 - 32);
+      __asm { vpsllw  xmm2, xmm1, xmm3 }
+      *((_OWORD *)v34 - 5) = _XMM2;
+      __asm { vpmovzxbw xmm1, xmm0 }
+      _XMM0 = *(unsigned __int64 *)(v35 + v27 - 24);
+      __asm { vpsllw  xmm2, xmm1, xmm3 }
+      *((_OWORD *)v34 - 4) = _XMM2;
       __asm
       {
         vpmovzxbw xmm1, xmm0
-        vmovq   xmm0, qword ptr [rdx+rcx-28h]
         vpsllw  xmm2, xmm1, xmm3
-        vmovdqu xmmword ptr [rax-60h], xmm2
-        vpmovzxbw xmm1, xmm0
-        vmovq   xmm0, qword ptr [rcx+rdx-20h]
-        vpsllw  xmm2, xmm1, xmm3
-        vmovdqu xmmword ptr [rax-50h], xmm2
-        vpmovzxbw xmm1, xmm0
-        vmovq   xmm0, qword ptr [rdx+rcx-18h]
-        vpsllw  xmm2, xmm1, xmm3
-        vmovdqu xmmword ptr [rax-40h], xmm2
-        vpmovzxbw xmm1, xmm0
-        vpsllw  xmm2, xmm1, xmm3
-        vmovdqu xmmword ptr [rax-30h], xmm2
       }
-      --v39;
+      *((_OWORD *)v34 - 3) = _XMM2;
+      --v33;
     }
-    while ( v39 );
+    while ( v33 );
   }
   else
   {
-    v34 = 0i64;
-    v35 = &v126;
-    v36 = 64i64;
+    v29 = 0i64;
+    v30 = &v110;
+    v31 = 64i64;
     do
     {
-      v35 = (__m256i *)((char *)v35 + 2);
-      v37 = 8 * *(unsigned __int8 *)(v34 + _RCX);
-      ++v34;
-      v35[-1].m256i_i16[15] = v37;
-      --v36;
+      v30 = (__m256i *)((char *)v30 + 2);
+      v32 = 8 * *(unsigned __int8 *)(v29 + v27);
+      ++v29;
+      v30[-1].m256i_i16[15] = v32;
+      --v31;
     }
-    while ( v36 );
+    while ( v31 );
   }
   frameSet = 0;
   do
   {
-    v52 = *((_DWORD *)_RSI + 88);
-    v53 = *((_DWORD *)_RSI + 87);
-    v54 = *((_DWORD *)_RSI + 110);
-    desc_index = *((_DWORD *)_RSI + 111);
-    v55 = 32i64 * frameSet;
-    *(_QWORD *)&_RSI[v55 + 968] = j_BinkGPU_CreateTexture((ID3D12Device *)v18, D3D12_HEAP_TYPE_DEFAULT, v53, v52, 1u, DXGI_FORMAT_R8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 0);
-    *(_QWORD *)&_RSI[v55 + 976] = j_BinkGPU_CreateTexture((ID3D12Device *)v18, D3D12_HEAP_TYPE_DEFAULT, v53 >> 1, v52 >> 1, 1u, DXGI_FORMAT_R8G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 1u);
-    if ( v54 )
-      *(_QWORD *)&_RSI[v55 + 984] = j_BinkGPU_CreateTexture((ID3D12Device *)v18, D3D12_HEAP_TYPE_DEFAULT, v53, v52, 1u, DXGI_FORMAT_R8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 2u);
+    v49 = *((_DWORD *)v7 + 88);
+    v50 = *((_DWORD *)v7 + 87);
+    v51 = *((_DWORD *)v7 + 110);
+    desc_index = *((_DWORD *)v7 + 111);
+    v52 = 32i64 * frameSet;
+    *(_QWORD *)&v7[v52 + 968] = j_BinkGPU_CreateTexture((ID3D12Device *)v15, D3D12_HEAP_TYPE_DEFAULT, v50, v49, 1u, DXGI_FORMAT_R8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 0);
+    *(_QWORD *)&v7[v52 + 976] = j_BinkGPU_CreateTexture((ID3D12Device *)v15, D3D12_HEAP_TYPE_DEFAULT, v50 >> 1, v49 >> 1, 1u, DXGI_FORMAT_R8G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 1u);
+    if ( v51 )
+      *(_QWORD *)&v7[v52 + 984] = j_BinkGPU_CreateTexture((ID3D12Device *)v15, D3D12_HEAP_TYPE_DEFAULT, v50, v49, 1u, DXGI_FORMAT_R8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 2u);
     if ( desc_index )
-      *(_QWORD *)&_RSI[v55 + 992] = j_BinkGPU_CreateTexture((ID3D12Device *)v18, D3D12_HEAP_TYPE_DEFAULT, v53, v52, 1u, DXGI_FORMAT_R8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 3u);
+      *(_QWORD *)&v7[v52 + 992] = j_BinkGPU_CreateTexture((ID3D12Device *)v15, D3D12_HEAP_TYPE_DEFAULT, v50, v49, 1u, DXGI_FORMAT_R8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, frameSet, 3u);
     ++frameSet;
   }
-  while ( frameSet < *((_DWORD *)_RSI + 168) );
-  v56 = v121;
-  v57 = 0;
-  v58 = dc_size;
-  v59 = binka->OpenFlags & 8;
-  *((_DWORD *)_RSI + 149) = 0;
-  *((_DWORD *)_RSI + 148) = (v59 | 0x10) >> 3;
+  while ( frameSet < *((_DWORD *)v7 + 168) );
+  v53 = v105;
+  v54 = 0;
+  v55 = dc_size;
+  v56 = binka->OpenFlags & 8;
+  *((_DWORD *)v7 + 149) = 0;
+  *((_DWORD *)v7 + 148) = (v56 | 0x10) >> 3;
   do
   {
-    if ( v56 >= 0 )
-      v56 = (*(__int64 (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), _QWORD, GUID *, char *))(*(_QWORD *)v18 + 72i64))(v18, 0i64, &GUID_6102dee4_af59_4b09_b999_b44d73f09b24, &_RSI[8 * v57 + 608]);
-    v60 = *((_DWORD *)_RSI + 148);
-    ++v57;
+    if ( v53 >= 0 )
+      v53 = (*(__int64 (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), _QWORD, GUID *, char *))(*(_QWORD *)v15 + 72i64))(v15, 0i64, &GUID_6102dee4_af59_4b09_b999_b44d73f09b24, &v7[8 * v54 + 608]);
+    v57 = *((_DWORD *)v7 + 148);
+    ++v54;
   }
-  while ( v57 < v60 );
-  v121 = v56;
-  if ( v56 >= 0 )
+  while ( v54 < v57 );
+  v105 = v53;
+  if ( v53 >= 0 )
   {
-    v61 = *(_QWORD *)v18;
-    v62 = *((_QWORD *)_RSI + 76);
+    v58 = *(_QWORD *)v15;
+    v59 = *((_QWORD *)v7 + 76);
     *(_QWORD *)&desc.Dimension = 0i64;
     desc.Alignment = 0i64;
-    v63 = (*(__int64 (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), D3D12_RESOURCE_DESC *, __int64, _QWORD, GUID *, char *))(v61 + 584))(v18, &desc, v62, 0i64, &GUID_5b160d0f_ac1b_4185_8ba8_b3ae42a5a455, _RSI + 600);
-    v60 = *((_DWORD *)_RSI + 148);
-    v56 = v63;
-    v121 = v63;
+    v60 = (*(__int64 (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), D3D12_RESOURCE_DESC *, __int64, _QWORD, GUID *, char *))(v58 + 584))(v15, &desc, v59, 0i64, &GUID_5b160d0f_ac1b_4185_8ba8_b3ae42a5a455, v7 + 600);
+    v57 = *((_DWORD *)v7 + 148);
+    v53 = v60;
+    v105 = v60;
   }
-  v64 = *((_DWORD *)_RSI + 138) * v60;
+  v61 = *((_DWORD *)v7 + 138) * v57;
   desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
   desc.Alignment = 0i64;
   desc.Height = 1;
   *(_QWORD *)&desc.DepthOrArraySize = 65537i64;
-  desc.Width = v64;
+  desc.Width = v61;
   desc.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
   *(_QWORD *)&desc.Layout = 1i64;
-  *((_QWORD *)_RSI + 133) = j_BinkGPU_CreateBuffer(&desc, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ);
-  desc.Width = *((unsigned int *)_RSI + 127);
+  *((_QWORD *)v7 + 133) = j_BinkGPU_CreateBuffer(&desc, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ);
+  desc.Width = *((unsigned int *)v7 + 127);
   desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
   desc.Alignment = 0i64;
   desc.Height = 1;
@@ -274,7 +286,7 @@ BINKTEXTURES *Create_textures(BINKSHADERS *pshaders, BINK *bink, void *user_ptr)
   desc.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
   desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
   desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-  *((_QWORD *)_RSI + 134) = j_BinkGPU_CreateBuffer(&desc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+  *((_QWORD *)v7 + 134) = j_BinkGPU_CreateBuffer(&desc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
   desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
   desc.Alignment = 0i64;
   desc.Width = 128i64;
@@ -282,198 +294,179 @@ BINKTEXTURES *Create_textures(BINKSHADERS *pshaders, BINK *bink, void *user_ptr)
   *(_QWORD *)&desc.DepthOrArraySize = 65537i64;
   desc.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
   *(_QWORD *)&desc.Layout = 1i64;
-  *((_QWORD *)_RSI + 135) = j_BinkGPU_CreateBuffer(&desc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
-  if ( v56 >= 0 )
+  *((_QWORD *)v7 + 135) = j_BinkGPU_CreateBuffer(&desc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
+  if ( v53 >= 0 )
   {
-    v56 = (*(__int64 (__fastcall **)(_QWORD, _QWORD, _QWORD, char *))(**((_QWORD **)_RSI + 133) + 64i64))(*((_QWORD *)_RSI + 133), 0i64, 0i64, _RSI + 1088);
-    v121 = v56;
+    v53 = (*(__int64 (__fastcall **)(_QWORD, _QWORD, _QWORD, char *))(**((_QWORD **)v7 + 133) + 64i64))(*((_QWORD *)v7 + 133), 0i64, 0i64, v7 + 1088);
+    v105 = v53;
   }
-  v65 = 4 * (*((_DWORD *)_RSI + 168) + *((_DWORD *)_RSI + 148) + 1) * (*((_DWORD *)_RSI + 111) + *((_DWORD *)_RSI + 110) + 2);
-  *((_DWORD *)_RSI + 179) = v65;
-  if ( v56 >= 0 )
+  v62 = 4 * (*((_DWORD *)v7 + 168) + *((_DWORD *)v7 + 148) + 1) * (*((_DWORD *)v7 + 111) + *((_DWORD *)v7 + 110) + 2);
+  *((_DWORD *)v7 + 179) = v62;
+  if ( v53 >= 0 )
   {
-    if ( v65 <= 0x60 )
+    if ( v62 <= 0x60 )
     {
-      *((_DWORD *)_RSI + 178) = j_BinkGPU_AllocateBinkSRVDescriptors(*((void **)_RSI + 11), v65, (ID3D12DescriptorHeap **)_RSI + 88);
+      *((_DWORD *)v7 + 178) = j_BinkGPU_AllocateBinkSRVDescriptors(*((void **)v7 + 11), v62, (ID3D12DescriptorHeap **)v7 + 88);
     }
     else
     {
-      v56 = -2147467259;
-      v121 = -2147467259;
+      v53 = -2147467259;
+      v105 = -2147467259;
     }
   }
-  if ( *((int *)_RSI + 178) < 0 )
+  if ( *((int *)v7 + 178) < 0 )
     goto LABEL_67;
-  (*(void (__fastcall **)(_QWORD))(**((_QWORD **)_RSI + 88) + 8i64))(*((_QWORD *)_RSI + 88));
-  v66 = (*(__int64 (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), _QWORD))(*(_QWORD *)v18 + 120i64))(v18, 0i64);
-  v67 = *((_QWORD *)_RSI + 88);
-  v68 = v66;
-  v69 = *((_DWORD *)_RSI + 178);
-  *((_DWORD *)_RSI + 180) = v66;
-  v70 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v67 + 72i64))(v67);
-  v71 = v68 * v69;
-  v72 = *((_DWORD *)_RSI + 180);
-  v73 = v71;
-  v74 = *((_DWORD *)_RSI + 178);
-  v75 = v73 + v70;
-  v76 = *((_QWORD *)_RSI + 88);
-  *((_QWORD *)_RSI + 91) = v75;
-  v77 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v76 + 80i64))(v76);
+  (*(void (__fastcall **)(_QWORD))(**((_QWORD **)v7 + 88) + 8i64))(*((_QWORD *)v7 + 88));
+  v63 = (*(__int64 (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), _QWORD))(*(_QWORD *)v15 + 120i64))(v15, 0i64);
+  v64 = *((_QWORD *)v7 + 88);
+  v65 = v63;
+  v66 = *((_DWORD *)v7 + 178);
+  *((_DWORD *)v7 + 180) = v63;
+  v67 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v64 + 72i64))(v64);
+  v68 = v65 * v66;
+  v69 = *((_DWORD *)v7 + 180);
+  v70 = v68;
+  v71 = *((_DWORD *)v7 + 178);
+  v72 = v70 + v67;
+  v73 = *((_QWORD *)v7 + 88);
+  *((_QWORD *)v7 + 91) = v72;
+  v74 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v73 + 80i64))(v73);
   desc_index = 0;
-  *((_QWORD *)_RSI + 92) = (unsigned int)(v74 * v72) + v77;
-  v78.ptr = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *((_DWORD *)_RSI + 122), v58).ptr;
-  v79 = *((_DWORD *)_RSI + 123);
-  *((D3D12_GPU_DESCRIPTOR_HANDLE *)_RSI + 93) = v78;
-  v122 *= 2;
-  *((D3D12_GPU_DESCRIPTOR_HANDLE *)_RSI + 94) = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, v79, v122);
-  if ( *((_DWORD *)_RSI + 110) )
-    *((D3D12_GPU_DESCRIPTOR_HANDLE *)_RSI + 95) = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *((_DWORD *)_RSI + 125), v58);
-  if ( *((_DWORD *)_RSI + 111) )
-    *((D3D12_GPU_DESCRIPTOR_HANDLE *)_RSI + 96) = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *((_DWORD *)_RSI + 126), v58);
-  v80 = 0;
-  if ( *((_DWORD *)_RSI + 148) )
+  *((_QWORD *)v7 + 92) = (unsigned int)(v71 * v69) + v74;
+  v75.ptr = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *((_DWORD *)v7 + 122), v55).ptr;
+  v76 = *((_DWORD *)v7 + 123);
+  *((D3D12_GPU_DESCRIPTOR_HANDLE *)v7 + 93) = v75;
+  v106 *= 2;
+  *((D3D12_GPU_DESCRIPTOR_HANDLE *)v7 + 94) = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, v76, v106);
+  if ( *((_DWORD *)v7 + 110) )
+    *((D3D12_GPU_DESCRIPTOR_HANDLE *)v7 + 95) = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *((_DWORD *)v7 + 125), v55);
+  if ( *((_DWORD *)v7 + 111) )
+    *((D3D12_GPU_DESCRIPTOR_HANDLE *)v7 + 96) = init_ppgc_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *((_DWORD *)v7 + 126), v55);
+  v77 = 0;
+  if ( *((_DWORD *)v7 + 148) )
   {
-    v81 = v122;
+    v78 = v106;
     do
     {
-      v82 = *((_DWORD *)_RSI + 138) * v80;
-      v83 = 32i64 * v80;
-      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[v83 + 776] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, v82, *((_DWORD *)_RSI + 128), *((_DWORD *)_RSI + 82), *((_DWORD *)_RSI + 122), v58);
-      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[v83 + 784] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, v82, *((_DWORD *)_RSI + 129), *((_DWORD *)_RSI + 83) + *((_DWORD *)_RSI + 84), *((_DWORD *)_RSI + 123), v81);
-      if ( *((_DWORD *)_RSI + 110) )
-        *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[v83 + 792] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, v82, *((_DWORD *)_RSI + 131), *((_DWORD *)_RSI + 85), *((_DWORD *)_RSI + 125), v58);
-      if ( *((_DWORD *)_RSI + 111) )
-        *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[32 * v80 + 800] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, v82, *((_DWORD *)_RSI + 132), *((_DWORD *)_RSI + 86), *((_DWORD *)_RSI + 126), v58);
-      ++v80;
+      v79 = *((_DWORD *)v7 + 138) * v77;
+      v80 = 32i64 * v77;
+      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[v80 + 776] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, v79, *((_DWORD *)v7 + 128), *((_DWORD *)v7 + 82), *((_DWORD *)v7 + 122), v55);
+      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[v80 + 784] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, v79, *((_DWORD *)v7 + 129), *((_DWORD *)v7 + 83) + *((_DWORD *)v7 + 84), *((_DWORD *)v7 + 123), v78);
+      if ( *((_DWORD *)v7 + 110) )
+        *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[v80 + 792] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, v79, *((_DWORD *)v7 + 131), *((_DWORD *)v7 + 85), *((_DWORD *)v7 + 125), v55);
+      if ( *((_DWORD *)v7 + 111) )
+        *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[32 * v77 + 800] = init_ppaus_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, v79, *((_DWORD *)v7 + 132), *((_DWORD *)v7 + 86), *((_DWORD *)v7 + 126), v55);
+      ++v77;
     }
-    while ( v80 < *((_DWORD *)_RSI + 148) );
-    v56 = v121;
+    while ( v77 < *((_DWORD *)v7 + 148) );
+    v53 = v105;
   }
-  for ( i = 0; i < *((_DWORD *)_RSI + 168); ++i )
+  for ( i = 0; i < *((_DWORD *)v7 + 168); ++i )
   {
-    v85 = 32i64 * i;
-    *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[v85 + 872] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *(ID3D12Resource **)&_RSI[v85 + 968], DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT);
-    *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[v85 + 880] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *(ID3D12Resource **)&_RSI[v85 + 976], DXGI_FORMAT_R8G8_UINT, DXGI_FORMAT_R8G8_UNORM, DXGI_FORMAT_R8G8_UINT);
-    if ( *((_DWORD *)_RSI + 110) )
-      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[v85 + 888] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *(ID3D12Resource **)&_RSI[v85 + 984], DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT);
-    if ( *((_DWORD *)_RSI + 111) )
-      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&_RSI[32 * i + 896] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)_RSI, &desc_index, *(ID3D12Resource **)&_RSI[32 * i + 992], DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT);
+    v82 = 32i64 * i;
+    *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[v82 + 872] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *(ID3D12Resource **)&v7[v82 + 968], DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT);
+    *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[v82 + 880] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *(ID3D12Resource **)&v7[v82 + 976], DXGI_FORMAT_R8G8_UINT, DXGI_FORMAT_R8G8_UNORM, DXGI_FORMAT_R8G8_UINT);
+    if ( *((_DWORD *)v7 + 110) )
+      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[v82 + 888] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *(ID3D12Resource **)&v7[v82 + 984], DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT);
+    if ( *((_DWORD *)v7 + 111) )
+      *(D3D12_GPU_DESCRIPTOR_HANDLE *)&v7[32 * i + 896] = init_ppaps_desc_table((BINKTEXTURESD3D12GPU *)v7, &desc_index, *(ID3D12Resource **)&v7[32 * i + 992], DXGI_FORMAT_R8_UINT, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT);
   }
-  if ( desc_index != *((_DWORD *)_RSI + 179) )
+  if ( desc_index != *((_DWORD *)v7 + 179) )
     DebugBreak();
-  if ( v56 < 0 )
+  if ( v53 < 0 )
     goto LABEL_67;
-  if ( *((_DWORD *)_RSI + 138) < 0x80u )
+  if ( *((_DWORD *)v7 + 138) < 0x80u )
     goto LABEL_67;
-  _RAX = *((_QWORD *)_RSI + 136);
-  __asm
-  {
-    vmovups ymm0, [rsp+158h+var_B8]
-    vmovups ymm1, [rsp+158h+var_98]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, [rsp+158h+var_78]
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups ymm1, ymmword ptr [rsp+100h]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovups ymmword ptr [rax+60h], ymm1
-  }
-  (*(void (__fastcall **)(_QWORD, _QWORD, _QWORD, _QWORD, _QWORD, __int64))(**((_QWORD **)_RSI + 75) + 120i64))(*((_QWORD *)_RSI + 75), *((_QWORD *)_RSI + 135), 0i64, *((_QWORD *)_RSI + 133), 0i64, 128i64);
-  v91 = *((_QWORD *)_RSI + 135);
-  v92 = *((_QWORD *)_RSI + 75);
+  v83 = (__m256i *)*((_QWORD *)v7 + 136);
+  v84 = *(__m256i *)v111;
+  *v83 = v110;
+  v85 = *(__m256i *)&v111[32];
+  v83[1] = v84;
+  v86 = v112;
+  v83[2] = v85;
+  v83[3] = v86;
+  (*(void (__fastcall **)(_QWORD, _QWORD, _QWORD, _QWORD, _QWORD, __int64))(**((_QWORD **)v7 + 75) + 120i64))(*((_QWORD *)v7 + 75), *((_QWORD *)v7 + 135), 0i64, *((_QWORD *)v7 + 133), 0i64, 128i64);
+  v87 = *((_QWORD *)v7 + 135);
+  v88 = *((_QWORD *)v7 + 75);
   *(_QWORD *)&desc.Dimension = 0i64;
-  desc.Alignment = v91;
+  desc.Alignment = v87;
   desc.Width = 0x400FFFFFFFFi64;
   desc.Height = 64;
-  (*(void (__fastcall **)(__int64, __int64, D3D12_RESOURCE_DESC *))(*(_QWORD *)v92 + 208i64))(v92, 1i64, &desc);
-  if ( submit_command_list((BINKTEXTURESD3D12GPU *)_RSI) < 0 )
+  (*(void (__fastcall **)(__int64, __int64, D3D12_RESOURCE_DESC *))(*(_QWORD *)v88 + 208i64))(v88, 1i64, &desc);
+  if ( submit_command_list((BINKTEXTURESD3D12GPU *)v7) < 0 )
   {
 LABEL_67:
-    Free_textures((BINKTEXTURES *)_RSI);
+    Free_textures((BINKTEXTURES *)v7);
     return 0i64;
   }
   else
   {
-    v93 = *((_DWORD *)_RSI + 106);
-    *((_DWORD *)_RSI + 112) = 16 * v93 - 11;
-    *((_DWORD *)_RSI + 114) = 4 * v93 - 3;
-    v94 = v93 * (16 * *((_DWORD *)_RSI + 107) - 16);
-    v95 = v93 * (4 * *((_DWORD *)_RSI + 107) - 4);
-    v96 = (_RSI[352] - 1) & 0x1F;
-    *((_DWORD *)_RSI + 113) = v94;
-    *((_DWORD *)_RSI + 115) = v95;
-    if ( v96 >= 0x10u )
+    v89 = *((_DWORD *)v7 + 106);
+    *((_DWORD *)v7 + 112) = 16 * v89 - 11;
+    *((_DWORD *)v7 + 114) = 4 * v89 - 3;
+    v90 = v89 * (16 * *((_DWORD *)v7 + 107) - 16);
+    v91 = v89 * (4 * *((_DWORD *)v7 + 107) - 4);
+    v92 = (v7[352] - 1) & 0x1F;
+    *((_DWORD *)v7 + 113) = v90;
+    *((_DWORD *)v7 + 115) = v91;
+    if ( v92 >= 0x10u )
     {
-      v97 = 10;
-      *((_DWORD *)_RSI + 115) = v95 | 2;
+      v93 = 10;
+      *((_DWORD *)v7 + 115) = v91 | 2;
     }
     else
     {
-      v97 = 2;
+      v93 = 2;
     }
-    v98 = binka;
-    *((_DWORD *)_RSI + 113) = v94 | v97;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsi+1D0h], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rsi+1D4h], xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsi+1D8h], xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsi+1DCh], xmm1
-    }
-    *((_DWORD *)_RSI + 140) = -1;
-    *(_QWORD *)(_RSI + 564) = 0i64;
-    *(_QWORD *)(_RSI + 572) = 0i64;
-    *((_DWORD *)_RSI + 145) = -1;
-    *((_DWORD *)_RSI + 146) = 16 * *((_DWORD *)_RSI + 106) - 16;
-    *((_DWORD *)_RSI + 147) = 4 * *((_DWORD *)_RSI + 106) - 4;
-    *((_QWORD *)_RSI + 32) = _RSI + 1120;
-    *((_QWORD *)_RSI + 33) = _RSI + 1224;
-    *((_QWORD *)_RSI + 34) = _RSI + 1328;
-    *((_QWORD *)_RSI + 35) = _RSI + 1432;
-    *((_QWORD *)_RSI + 36) = _RSI + 1536;
-    *((_QWORD *)_RSI + 38) = _RSI + 1640;
-    *((_QWORD *)_RSI + 39) = _RSI + 1704;
-    *((_QWORD *)_RSI + 40) = _RSI + 1960;
-    j_BinkRegisterGPUDataBuffers(v98, (BINKGPUDATABUFFERS *)(_RSI + 168));
-    *((_QWORD *)_RSI + 277) = 0i64;
-    *((_QWORD *)_RSI + 278) = 1065353216i64;
-    *((_DWORD *)_RSI + 558) = 0;
-    *((_DWORD *)_RSI + 559) = 1065353216;
-    *((_QWORD *)_RSI + 281) = 0i64;
-    *((_DWORD *)_RSI + 564) = 1065353216;
-    *(_QWORD *)(_RSI + 2260) = 1065353216i64;
-    *((_QWORD *)_RSI + 280) = 1065353216i64;
-    *((_DWORD *)_RSI + 567) = 1065353216;
-    *((_DWORD *)_RSI + 568) = 1065353216;
-    *((_QWORD *)_RSI + 10) = Free_textures;
-    *(_QWORD *)_RSI = Start_texture_update;
-    *((_QWORD *)_RSI + 1) = Finish_texture_update;
-    *((_QWORD *)_RSI + 2) = Draw_textures;
-    *((_QWORD *)_RSI + 3) = Set_draw_position;
-    *((_QWORD *)_RSI + 4) = Set_draw_corners;
-    *((_QWORD *)_RSI + 5) = Set_source_rect;
-    *((_QWORD *)_RSI + 6) = Set_alpha_settings;
-    *((_QWORD *)_RSI + 7) = Set_hdr_settings;
-    return (BINKTEXTURES *)_RSI;
+    v94 = binka;
+    *((_DWORD *)v7 + 113) = v90 | v93;
+    Width = (float)v94->Width;
+    v96 = (float)*((unsigned int *)v7 + 87);
+    *((float *)v7 + 116) = Width / v96;
+    Height = (float)v94->Height;
+    v98 = (float)*((unsigned int *)v7 + 88);
+    *((float *)v7 + 117) = Height / v98;
+    v99 = (float)(v94->Width >> 1);
+    v100 = (float)(*((_DWORD *)v7 + 87) >> 1);
+    *((float *)v7 + 118) = v99 / v100;
+    v101 = (float)(v94->Height >> 1);
+    v102 = (float)(*((_DWORD *)v7 + 88) >> 1);
+    *((float *)v7 + 119) = v101 / v102;
+    *((_DWORD *)v7 + 140) = -1;
+    *(_QWORD *)(v7 + 564) = 0i64;
+    *(_QWORD *)(v7 + 572) = 0i64;
+    *((_DWORD *)v7 + 145) = -1;
+    *((_DWORD *)v7 + 146) = 16 * *((_DWORD *)v7 + 106) - 16;
+    *((_DWORD *)v7 + 147) = 4 * *((_DWORD *)v7 + 106) - 4;
+    *((_QWORD *)v7 + 32) = v7 + 1120;
+    *((_QWORD *)v7 + 33) = v7 + 1224;
+    *((_QWORD *)v7 + 34) = v7 + 1328;
+    *((_QWORD *)v7 + 35) = v7 + 1432;
+    *((_QWORD *)v7 + 36) = v7 + 1536;
+    *((_QWORD *)v7 + 38) = v7 + 1640;
+    *((_QWORD *)v7 + 39) = v7 + 1704;
+    *((_QWORD *)v7 + 40) = v7 + 1960;
+    j_BinkRegisterGPUDataBuffers(v94, (BINKGPUDATABUFFERS *)(v7 + 168));
+    *((_QWORD *)v7 + 277) = 0i64;
+    *((_QWORD *)v7 + 278) = 1065353216i64;
+    *((_DWORD *)v7 + 558) = 0;
+    *((_DWORD *)v7 + 559) = 1065353216;
+    *((_QWORD *)v7 + 281) = 0i64;
+    *((_DWORD *)v7 + 564) = 1065353216;
+    *(_QWORD *)(v7 + 2260) = 1065353216i64;
+    *((_QWORD *)v7 + 280) = 1065353216i64;
+    *((_DWORD *)v7 + 567) = 1065353216;
+    *((_DWORD *)v7 + 568) = 1065353216;
+    *((_QWORD *)v7 + 10) = Free_textures;
+    *(_QWORD *)v7 = Start_texture_update;
+    *((_QWORD *)v7 + 1) = Finish_texture_update;
+    *((_QWORD *)v7 + 2) = Draw_textures;
+    *((_QWORD *)v7 + 3) = Set_draw_position;
+    *((_QWORD *)v7 + 4) = Set_draw_corners;
+    *((_QWORD *)v7 + 5) = Set_source_rect;
+    *((_QWORD *)v7 + 6) = Set_alpha_settings;
+    *((_QWORD *)v7 + 7) = Set_hdr_settings;
+    return (BINKTEXTURES *)v7;
   }
 }
 
@@ -495,52 +488,61 @@ Finish_texture_update
 void Finish_texture_update(BINKTEXTURES *ptextures)
 {
   int (__fastcall *After_Reset_textures)(BINKTEXTURES *); 
-  __int64 v4; 
+  __int64 v3; 
   int Set_draw_position; 
+  char *v5; 
   int Draw_textures_high; 
-  unsigned int v8; 
+  unsigned int v7; 
+  float Finish_texture_update_high; 
+  __int64 Draw_textures_low; 
+  float v10; 
+  float v11; 
   int user_ptr_high; 
-  __int64 v19; 
-  unsigned int v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
   unsigned int Start_texture_update_high; 
   int cRtexture; 
-  int v26; 
-  void (__fastcall *v27)(BINKTEXTURES *, void *, _QWORD, _QWORD); 
+  int v20; 
+  void (__fastcall *v21)(BINKTEXTURES *, void *, _QWORD, _QWORD); 
   void (__fastcall *Before_Reset_textures)(BINKTEXTURES *); 
   void *Ytexture; 
-  void (__fastcall *v30)(BINKTEXTURES *); 
-  void *v31; 
-  _QWORD *v32; 
-  _DWORD *v36; 
-  int (__fastcall *v37)(BINKTEXTURES *); 
-  _DWORD *v38; 
-  __int64 v39; 
+  void (__fastcall *v24)(BINKTEXTURES *); 
+  void *v25; 
+  _QWORD *v26; 
+  __int64 v27; 
+  unsigned __int64 v28; 
+  _DWORD *v29; 
+  int (__fastcall *v30)(BINKTEXTURES *); 
+  _DWORD *v31; 
+  __int64 v32; 
+  _DWORD *v33; 
+  unsigned int v34; 
+  void (__fastcall *v35)(BINKTEXTURES *); 
+  void *v36; 
+  _QWORD *v37; 
+  __int64 v38; 
+  unsigned __int64 v39; 
   _DWORD *v40; 
-  unsigned int v41; 
-  void (__fastcall *v42)(BINKTEXTURES *); 
-  void *v43; 
-  _QWORD *v44; 
-  _DWORD *v48; 
-  __int64 v49; 
-  _DWORD *v50; 
-  __int64 v51; 
-  _DWORD *v52; 
-  __int64 v53; 
-  __int64 v54; 
+  __int64 v41; 
+  _DWORD *v42; 
+  __int64 v43; 
+  _DWORD *v44; 
+  __int64 v45; 
+  __int64 v46; 
+  int v47; 
+  void (__fastcall *v48)(BINKTEXTURES *, void *, __int64, _QWORD); 
+  __int64 v49[2]; 
+  int v50; 
+  int v51; 
+  int v52; 
+  __int64 v53[2]; 
+  int v54; 
   int v55; 
-  void (__fastcall *v56)(BINKTEXTURES *, void *, __int64, _QWORD); 
-  __int64 v57[2]; 
-  int v58; 
-  int v59; 
-  int v60; 
-  __int64 v61[2]; 
-  int v62; 
-  int v63; 
-  int v64; 
-  __int64 v65[4]; 
+  int v56; 
+  __int64 v57[4]; 
 
   After_Reset_textures = ptextures[2].After_Reset_textures;
   ptextures[1].Finish_texture_update = NULL;
@@ -556,109 +558,101 @@ void Finish_texture_update(BINKTEXTURES *ptextures)
   ptextures[1].Htexture = NULL;
   if ( LODWORD(ptextures[2].Before_Reset_textures) )
   {
-    v4 = (unsigned int)(HIDWORD(ptextures[3].user_ptr) * LODWORD(ptextures[3].Set_alpha_settings));
+    v3 = (unsigned int)(HIDWORD(ptextures[3].user_ptr) * LODWORD(ptextures[3].Set_alpha_settings));
     Set_draw_position = (int)ptextures[2].Set_draw_position;
     LODWORD(ptextures[2].Before_Reset_textures) = 0;
-    _R8 = (char *)ptextures[6].Free_textures + v4;
-    *(_DWORD *)_R8 = Set_draw_position;
-    *((_DWORD *)_R8 + 1) = HIDWORD(ptextures[2].Set_draw_position);
-    *((_QWORD *)_R8 + 1) = ptextures[2].user_ptr;
-    *((_DWORD *)_R8 + 4) = LODWORD(ptextures[2].user_data[2]) >> 5;
-    *((_DWORD *)_R8 + 5) = HIDWORD(ptextures[2].user_data[2]) >> 3;
-    *((_DWORD *)_R8 + 6) = LODWORD(ptextures[2].user_data[3]) >> 3;
-    *((_DWORD *)_R8 + 7) = HIDWORD(ptextures[2].user_data[3]) >> 5;
-    *((_DWORD *)_R8 + 8) = LODWORD(ptextures[3].Start_texture_update) >> 5;
-    *((_QWORD *)_R8 + 6) = 0i64;
+    v5 = (char *)ptextures[6].Free_textures + v3;
+    *(_DWORD *)v5 = Set_draw_position;
+    *((_DWORD *)v5 + 1) = HIDWORD(ptextures[2].Set_draw_position);
+    *((_QWORD *)v5 + 1) = ptextures[2].user_ptr;
+    *((_DWORD *)v5 + 4) = LODWORD(ptextures[2].user_data[2]) >> 5;
+    *((_DWORD *)v5 + 5) = HIDWORD(ptextures[2].user_data[2]) >> 3;
+    *((_DWORD *)v5 + 6) = LODWORD(ptextures[2].user_data[3]) >> 3;
+    *((_DWORD *)v5 + 7) = HIDWORD(ptextures[2].user_data[3]) >> 5;
+    *((_DWORD *)v5 + 8) = LODWORD(ptextures[3].Start_texture_update) >> 5;
+    *((_QWORD *)v5 + 6) = 0i64;
     Draw_textures_high = HIDWORD(ptextures[2].Draw_textures);
     if ( Draw_textures_high )
     {
-      *((_DWORD *)_R8 + 12) = Draw_textures_high - 1;
-      *((_DWORD *)_R8 + 13) = 2 * HIDWORD(ptextures[2].Draw_textures) - 1;
+      *((_DWORD *)v5 + 12) = Draw_textures_high - 1;
+      *((_DWORD *)v5 + 13) = 2 * HIDWORD(ptextures[2].Draw_textures) - 1;
     }
-    v8 = 0;
-    __asm { vmovss  xmm1, cs:__real@3f800000 }
-    *((_DWORD *)_R8 + 14) = HIDWORD(ptextures[2].user_data[1]);
-    *((_DWORD *)_R8 + 15) = ptextures[2].user_data[1];
-    *((_QWORD *)_R8 + 8) = ptextures[2].cBtexture;
-    *((_QWORD *)_R8 + 9) = ptextures[2].Atexture;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm3, xmm1, xmm0
-      vmovss  dword ptr [r8+50h], xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm2, cs:__real@3f400000
-      vmulss  xmm0, xmm3, cs:__real@3f400000
-      vmovss  dword ptr [r8+5Ch], xmm1
-      vmovss  dword ptr [r8+54h], xmm2
-      vmovss  dword ptr [r8+58h], xmm0
-    }
-    *((_DWORD *)_R8 + 24) = ptextures[2].Set_draw_corners;
-    *((_DWORD *)_R8 + 28) = ptextures[2].Set_alpha_settings;
-    *((_DWORD *)_R8 + 25) = HIDWORD(ptextures[2].Set_draw_corners);
-    *((_DWORD *)_R8 + 29) = HIDWORD(ptextures[2].Set_alpha_settings);
-    *((_DWORD *)_R8 + 26) = ptextures[2].Set_source_rect;
-    *((_DWORD *)_R8 + 30) = ptextures[2].Set_hdr_settings;
-    *((_DWORD *)_R8 + 27) = HIDWORD(ptextures[2].Set_source_rect);
-    *((_DWORD *)_R8 + 31) = HIDWORD(ptextures[2].Set_hdr_settings);
+    v7 = 0;
+    *((_DWORD *)v5 + 14) = HIDWORD(ptextures[2].user_data[1]);
+    *((_DWORD *)v5 + 15) = ptextures[2].user_data[1];
+    *((_QWORD *)v5 + 8) = ptextures[2].cBtexture;
+    *((_QWORD *)v5 + 9) = ptextures[2].Atexture;
+    Finish_texture_update_high = (float)HIDWORD(ptextures[2].Finish_texture_update);
+    Draw_textures_low = LODWORD(ptextures[2].Draw_textures);
+    v10 = 1.0 / Finish_texture_update_high;
+    *((float *)v5 + 20) = 1.0 / Finish_texture_update_high;
+    v11 = (float)Draw_textures_low;
+    *((float *)v5 + 23) = (float)(1.0 / v11) * 0.75;
+    *((float *)v5 + 21) = 1.0 / v11;
+    *((float *)v5 + 22) = v10 * 0.75;
+    *((_DWORD *)v5 + 24) = ptextures[2].Set_draw_corners;
+    *((_DWORD *)v5 + 28) = ptextures[2].Set_alpha_settings;
+    *((_DWORD *)v5 + 25) = HIDWORD(ptextures[2].Set_draw_corners);
+    *((_DWORD *)v5 + 29) = HIDWORD(ptextures[2].Set_alpha_settings);
+    *((_DWORD *)v5 + 26) = ptextures[2].Set_source_rect;
+    *((_DWORD *)v5 + 30) = ptextures[2].Set_hdr_settings;
+    *((_DWORD *)v5 + 27) = HIDWORD(ptextures[2].Set_source_rect);
+    *((_DWORD *)v5 + 31) = HIDWORD(ptextures[2].Set_hdr_settings);
     user_ptr_high = HIDWORD(ptextures[2].user_ptr);
     if ( ((user_ptr_high + 31) & 0xFFFFFFE0) != 0 )
     {
       do
       {
-        v19 = 4 * v8++;
-        *(_DWORD *)&_R8[4 * (unsigned int)v19 + 128] = *(_DWORD *)((char *)&ptextures[9].Htexture + v19);
+        v13 = 4 * v7++;
+        *(_DWORD *)&v5[4 * (unsigned int)v13 + 128] = *(_DWORD *)((char *)&ptextures[9].Htexture + v13);
         user_ptr_high = HIDWORD(ptextures[2].user_ptr);
       }
-      while ( v8 < (unsigned int)(user_ptr_high + 31) >> 5 );
+      while ( v7 < (unsigned int)(user_ptr_high + 31) >> 5 );
     }
-    v20 = 0;
+    v14 = 0;
     if ( ((4 * LODWORD(ptextures[2].user_ptr) + 31) & 0xFFFFFFE0) != 0 )
     {
       do
       {
-        v21 = 4 * v20++;
-        *(_DWORD *)&_R8[4 * (unsigned int)(v21 + 1) + 128] = *(_DWORD *)((char *)&ptextures[10].Set_draw_position + v21);
+        v15 = 4 * v14++;
+        *(_DWORD *)&v5[4 * (unsigned int)(v15 + 1) + 128] = *(_DWORD *)((char *)&ptextures[10].Set_draw_position + v15);
       }
-      while ( v20 < (unsigned int)(4 * LODWORD(ptextures[2].user_ptr) + 31) >> 5 );
+      while ( v14 < (unsigned int)(4 * LODWORD(ptextures[2].user_ptr) + 31) >> 5 );
       user_ptr_high = HIDWORD(ptextures[2].user_ptr);
     }
-    v22 = 0i64;
+    v16 = 0i64;
     if ( ((4 * user_ptr_high + 31) & 0xFFFFFFE0) != 0 )
     {
       do
       {
-        v23 = (unsigned int)(4 * v22);
-        v22 = (unsigned int)(v22 + 1);
-        *(_DWORD *)&_R8[4 * (unsigned int)(v23 + 2) + 128] = *(_DWORD *)((char *)&ptextures[11].cBtexture + v23);
+        v17 = (unsigned int)(4 * v16);
+        v16 = (unsigned int)(v16 + 1);
+        *(_DWORD *)&v5[4 * (unsigned int)(v17 + 2) + 128] = *(_DWORD *)((char *)&ptextures[11].cBtexture + v17);
       }
-      while ( (unsigned int)v22 < (unsigned int)(4 * HIDWORD(ptextures[2].user_ptr) + 31) >> 5 );
+      while ( (unsigned int)v16 < (unsigned int)(4 * HIDWORD(ptextures[2].user_ptr) + 31) >> 5 );
     }
     Start_texture_update_high = HIDWORD(ptextures[4].Start_texture_update);
     cRtexture = (int)ptextures[2].cRtexture;
-    v26 = (int)ptextures[2].Set_draw_position;
+    v20 = (int)ptextures[2].Set_draw_position;
     HIDWORD(ptextures[4].Start_texture_update) = (Start_texture_update_high + 1) % LODWORD(ptextures[4].Start_texture_update);
-    if ( (v26 & 0x10) != 0 )
+    if ( (v20 & 0x10) != 0 )
     {
       if ( !cRtexture )
-        LODWORD(ptextures[2].Set_draw_position) = v26 & 0xFFFFFFEF;
+        LODWORD(ptextures[2].Set_draw_position) = v20 & 0xFFFFFFEF;
       cRtexture = 0;
     }
-    v27 = (void (__fastcall *)(BINKTEXTURES *, void *, _QWORD, _QWORD))*((_QWORD *)After_Reset_textures + 22);
-    if ( v27 )
-      v27(ptextures, ptextures[3].Ytexture, 0i64, *((_QWORD *)After_Reset_textures + 23));
-    (*(void (__fastcall **)(void *, __int64, void (__fastcall **)(BINKTEXTURES *, float, float, float, float, float, float), __int64))(*(_QWORD *)ptextures[3].Ytexture + 256i64))(ptextures[3].Ytexture, 1i64, &ptextures[4].Set_draw_corners, v22);
+    v21 = (void (__fastcall *)(BINKTEXTURES *, void *, _QWORD, _QWORD))*((_QWORD *)After_Reset_textures + 22);
+    if ( v21 )
+      v21(ptextures, ptextures[3].Ytexture, 0i64, *((_QWORD *)After_Reset_textures + 23));
+    (*(void (__fastcall **)(void *, __int64, void (__fastcall **)(BINKTEXTURES *, float, float, float, float, float, float), __int64))(*(_QWORD *)ptextures[3].Ytexture + 256i64))(ptextures[3].Ytexture, 1i64, &ptextures[4].Set_draw_corners, v16);
     Before_Reset_textures = ptextures[6].Before_Reset_textures;
     Ytexture = ptextures[3].Ytexture;
-    v57[0] = 0i64;
-    v57[1] = (__int64)Before_Reset_textures;
-    v58 = -1;
-    v59 = 64;
-    v60 = 8;
-    (*(void (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)Ytexture + 208i64))(Ytexture, 1i64, v57);
+    v49[0] = 0i64;
+    v49[1] = (__int64)Before_Reset_textures;
+    v50 = -1;
+    v51 = 64;
+    v52 = 8;
+    (*(void (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)Ytexture + 208i64))(Ytexture, 1i64, v49);
     plane_set_transition((BINKTEXTURESD3D12GPU *)ptextures, (BINKGPU_D3D12_PLANESET *)&ptextures[5].Htexture + HIDWORD(ptextures[4].Start_texture_update), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     (*(void (__fastcall **)(void *, _QWORD))(*(_QWORD *)ptextures[3].Ytexture + 264i64))(ptextures[3].Ytexture, *((_QWORD *)After_Reset_textures + 9));
     mdct_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 15), 0, Start_texture_update_high, ptextures[2].user_data[2]);
@@ -667,78 +661,74 @@ void Finish_texture_update(BINKTEXTURES *ptextures)
       mdct_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 15), 2u, Start_texture_update_high, HIDWORD(ptextures[2].user_data[3]));
     if ( HIDWORD(ptextures[2].cRtexture) )
       mdct_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 15), 3u, Start_texture_update_high, (unsigned int)ptextures[3].Start_texture_update);
-    v30 = ptextures[6].Before_Reset_textures;
-    v31 = ptextures[3].Ytexture;
-    v65[0] = 2i64;
-    v65[1] = (__int64)v30;
-    (*(void (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)v31 + 208i64))(v31, 1i64, v65);
+    v24 = ptextures[6].Before_Reset_textures;
+    v25 = ptextures[3].Ytexture;
+    v57[0] = 2i64;
+    v57[1] = (__int64)v24;
+    (*(void (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)v25 + 208i64))(v25, 1i64, v57);
     (*(void (__fastcall **)(void *, _QWORD))(*(_QWORD *)ptextures[3].Ytexture + 264i64))(ptextures[3].Ytexture, *((_QWORD *)After_Reset_textures + 10));
-    v32 = ptextures[3].Ytexture;
-    _RCX = *((_QWORD *)After_Reset_textures + 18);
-    _RDX = v32[7];
-    if ( _RDX >= v32[10] )
+    v26 = ptextures[3].Ytexture;
+    v27 = *((_QWORD *)After_Reset_textures + 18);
+    v28 = v26[7];
+    if ( v28 >= v26[10] )
     {
-      (*(void (__fastcall **)(void *, _QWORD))(*v32 + 200i64))(ptextures[3].Ytexture, *((_QWORD *)After_Reset_textures + 18));
-      v36 = (_DWORD *)v32[7];
+      (*(void (__fastcall **)(void *, _QWORD))(*v26 + 200i64))(ptextures[3].Ytexture, *((_QWORD *)After_Reset_textures + 18));
+      v29 = (_DWORD *)v26[7];
     }
     else
     {
-      __asm
-      {
-        vmovdqu xmm0, xmmword ptr [rcx+10h]
-        vmovdqu xmmword ptr [rdx], xmm0
-      }
-      *(_QWORD *)(_RDX + 16) = *(_QWORD *)(_RCX + 32);
-      v36 = (_DWORD *)(_RDX + 24);
-      v32[7] = v36;
+      *(_OWORD *)v28 = *(_OWORD *)(v27 + 16);
+      *(_QWORD *)(v28 + 16) = *(_QWORD *)(v27 + 32);
+      v29 = (_DWORD *)(v28 + 24);
+      v26[7] = v29;
     }
-    v37 = ptextures[4].After_Reset_textures;
-    if ( (unsigned __int64)v36 >= v32[10] )
+    v30 = ptextures[4].After_Reset_textures;
+    if ( (unsigned __int64)v29 >= v26[10] )
     {
-      (*(void (__fastcall **)(_QWORD *, _QWORD, int (__fastcall *)(BINKTEXTURES *)))(*v32 + 280i64))(v32, 0i64, v37);
-      v38 = (_DWORD *)v32[7];
+      (*(void (__fastcall **)(_QWORD *, _QWORD, int (__fastcall *)(BINKTEXTURES *)))(*v26 + 280i64))(v26, 0i64, v30);
+      v31 = (_DWORD *)v26[7];
     }
     else
     {
-      *v36 = *((_DWORD *)v32 + 152);
-      v36[1] = (_DWORD)v37;
-      v38 = v36 + 2;
-      v32[7] = v38;
+      *v29 = *((_DWORD *)v26 + 152);
+      v29[1] = (_DWORD)v30;
+      v31 = v29 + 2;
+      v26[7] = v31;
     }
-    v39 = *((_QWORD *)&ptextures[4].cRtexture + 4 * HIDWORD(ptextures[3].user_ptr));
-    if ( (unsigned __int64)v38 >= v32[10] )
+    v32 = *((_QWORD *)&ptextures[4].cRtexture + 4 * HIDWORD(ptextures[3].user_ptr));
+    if ( (unsigned __int64)v31 >= v26[10] )
     {
-      (*(void (__fastcall **)(_QWORD *, __int64, __int64))(*v32 + 280i64))(v32, 1i64, v39);
-      v40 = (_DWORD *)v32[7];
+      (*(void (__fastcall **)(_QWORD *, __int64, __int64))(*v26 + 280i64))(v26, 1i64, v32);
+      v33 = (_DWORD *)v26[7];
     }
     else
     {
-      *v38 = *((_DWORD *)v32 + 153);
-      v38[1] = v39;
-      v40 = v38 + 2;
-      v32[7] = v40;
+      *v31 = *((_DWORD *)v26 + 153);
+      v31[1] = v32;
+      v33 = v31 + 2;
+      v26[7] = v33;
     }
-    v41 = LODWORD(ptextures[2].cRtexture) + HIDWORD(ptextures[2].cRtexture) + 3;
-    if ( (unsigned __int64)v40 >= v32[9] )
+    v34 = LODWORD(ptextures[2].cRtexture) + HIDWORD(ptextures[2].cRtexture) + 3;
+    if ( (unsigned __int64)v33 >= v26[9] )
     {
-      (*(void (__fastcall **)(_QWORD *, _QWORD, __int64))(*v32 + 112i64))(v32, v41, 1i64);
+      (*(void (__fastcall **)(_QWORD *, _QWORD, __int64))(*v26 + 112i64))(v26, v34, 1i64);
     }
     else
     {
-      *v40 = 1073923072;
-      v40[1] = v41;
-      v40[2] = 1;
-      v40[3] = 1;
-      v32[7] = v40 + 4;
+      *v33 = 1073923072;
+      v33[1] = v34;
+      v33[2] = 1;
+      v33[3] = 1;
+      v26[7] = v33 + 4;
     }
-    v42 = ptextures[6].Before_Reset_textures;
-    v43 = ptextures[3].Ytexture;
-    v61[0] = 0i64;
-    v61[1] = (__int64)v42;
-    v62 = -1;
-    v63 = 8;
-    v64 = 64;
-    (*(void (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)v43 + 208i64))(v43, 1i64, v61);
+    v35 = ptextures[6].Before_Reset_textures;
+    v36 = ptextures[3].Ytexture;
+    v53[0] = 0i64;
+    v53[1] = (__int64)v35;
+    v54 = -1;
+    v55 = 8;
+    v56 = 64;
+    (*(void (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)v36 + 208i64))(v36, 1i64, v53);
     (*(void (__fastcall **)(void *, _QWORD))(*(_QWORD *)ptextures[3].Ytexture + 264i64))(ptextures[3].Ytexture, *((_QWORD *)After_Reset_textures + 8));
     dct_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 14), 0);
     dct_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 16), 1u);
@@ -748,83 +738,79 @@ void Finish_texture_update(BINKTEXTURES *ptextures)
       dct_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 14), 3u);
     if ( ((__int64)ptextures[2].Set_draw_position & 0x10) != 0 )
     {
-      v44 = ptextures[3].Ytexture;
-      _RBP = *((_QWORD *)After_Reset_textures + 21);
-      (*(void (__fastcall **)(_QWORD *, _QWORD))(*v44 + 264i64))(v44, *((_QWORD *)ptextures[2].After_Reset_textures + 12));
-      _RCX = v44[7];
-      if ( _RCX >= v44[10] )
+      v37 = ptextures[3].Ytexture;
+      v38 = *((_QWORD *)After_Reset_textures + 21);
+      (*(void (__fastcall **)(_QWORD *, _QWORD))(*v37 + 264i64))(v37, *((_QWORD *)ptextures[2].After_Reset_textures + 12));
+      v39 = v37[7];
+      if ( v39 >= v37[10] )
       {
-        (*(void (__fastcall **)(_QWORD *, __int64))(*v44 + 200i64))(v44, _RBP);
-        v48 = (_DWORD *)v44[7];
+        (*(void (__fastcall **)(_QWORD *, __int64))(*v37 + 200i64))(v37, v38);
+        v40 = (_DWORD *)v37[7];
       }
       else
       {
-        __asm
-        {
-          vmovdqu xmm0, xmmword ptr [rbp+10h]
-          vmovdqu xmmword ptr [rcx], xmm0
-        }
-        *(_QWORD *)(_RCX + 16) = *(_QWORD *)(_RBP + 32);
-        v48 = (_DWORD *)(_RCX + 24);
-        v44[7] = v48;
+        *(_OWORD *)v39 = *(_OWORD *)(v38 + 16);
+        *(_QWORD *)(v39 + 16) = *(_QWORD *)(v38 + 32);
+        v40 = (_DWORD *)(v39 + 24);
+        v37[7] = v40;
       }
-      v49 = *((_QWORD *)&ptextures[4].Atexture + 4 * HIDWORD(ptextures[3].user_ptr));
-      if ( (unsigned __int64)v48 >= v44[10] )
+      v41 = *((_QWORD *)&ptextures[4].Atexture + 4 * HIDWORD(ptextures[3].user_ptr));
+      if ( (unsigned __int64)v40 >= v37[10] )
       {
-        (*(void (__fastcall **)(_QWORD *, _QWORD, __int64))(*v44 + 280i64))(v44, 0i64, v49);
-        v50 = (_DWORD *)v44[7];
+        (*(void (__fastcall **)(_QWORD *, _QWORD, __int64))(*v37 + 280i64))(v37, 0i64, v41);
+        v42 = (_DWORD *)v37[7];
       }
       else
       {
-        *v48 = *((_DWORD *)v44 + 152);
-        v48[1] = v49;
-        v50 = v48 + 2;
-        v44[7] = v50;
+        *v40 = *((_DWORD *)v37 + 152);
+        v40[1] = v41;
+        v42 = v40 + 2;
+        v37[7] = v42;
       }
-      v51 = *((_QWORD *)&ptextures[5].Set_alpha_settings + 4 * HIDWORD(ptextures[4].Start_texture_update));
-      if ( (unsigned __int64)v50 >= v44[10] )
+      v43 = *((_QWORD *)&ptextures[5].Set_alpha_settings + 4 * HIDWORD(ptextures[4].Start_texture_update));
+      if ( (unsigned __int64)v42 >= v37[10] )
       {
-        (*(void (__fastcall **)(_QWORD *, __int64, __int64))(*v44 + 280i64))(v44, 1i64, v51);
-        v52 = (_DWORD *)v44[7];
-      }
-      else
-      {
-        *v50 = *((_DWORD *)v44 + 153);
-        v52 = v50 + 2;
-        v50[1] = v51;
-        v44[7] = v50 + 2;
-      }
-      v53 = (unsigned int)(4 * HIDWORD(ptextures[2].user_ptr));
-      v54 = (unsigned int)(4 * LODWORD(ptextures[2].user_ptr));
-      if ( (unsigned __int64)v52 >= v44[9] )
-      {
-        (*(void (__fastcall **)(_QWORD *, __int64, __int64, __int64))(*v44 + 112i64))(v44, v54, v53, 1i64);
+        (*(void (__fastcall **)(_QWORD *, __int64, __int64))(*v37 + 280i64))(v37, 1i64, v43);
+        v44 = (_DWORD *)v37[7];
       }
       else
       {
-        *v52 = 1073923072;
-        v52[1] = v54;
-        v52[2] = v53;
-        v52[3] = 1;
-        v44[7] = v52 + 4;
+        *v42 = *((_DWORD *)v37 + 153);
+        v44 = v42 + 2;
+        v42[1] = v43;
+        v37[7] = v42 + 2;
+      }
+      v45 = (unsigned int)(4 * HIDWORD(ptextures[2].user_ptr));
+      v46 = (unsigned int)(4 * LODWORD(ptextures[2].user_ptr));
+      if ( (unsigned __int64)v44 >= v37[9] )
+      {
+        (*(void (__fastcall **)(_QWORD *, __int64, __int64, __int64))(*v37 + 112i64))(v37, v46, v45, 1i64);
+      }
+      else
+      {
+        *v44 = 1073923072;
+        v44[1] = v46;
+        v44[2] = v45;
+        v44[3] = 1;
+        v37[7] = v44 + 4;
       }
     }
-    v55 = (int)ptextures[2].Set_draw_position;
-    if ( (v55 & 1) != 0 )
+    v47 = (int)ptextures[2].Set_draw_position;
+    if ( (v47 & 1) != 0 )
     {
       deblock_inplace_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 19), *((ID3D12Resource **)&ptextures[5].Htexture + 4 * HIDWORD(ptextures[4].Start_texture_update)), 0, DEBLOCK_DIR_UD);
       deblock_inplace_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 20), (ID3D12Resource *)ptextures[5].user_data[4 * HIDWORD(ptextures[4].Start_texture_update)], 1u, DEBLOCK_DIR_UD);
-      v55 = (int)ptextures[2].Set_draw_position;
+      v47 = (int)ptextures[2].Set_draw_position;
     }
-    if ( (v55 & 2) != 0 )
+    if ( (v47 & 2) != 0 )
     {
       deblock_inplace_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 19), *((ID3D12Resource **)&ptextures[5].Htexture + 4 * HIDWORD(ptextures[4].Start_texture_update)), 0, DEBLOCK_DIR_LR);
       deblock_inplace_pass((BINKTEXTURESD3D12GPU *)ptextures, *((ID3D12PipelineState **)After_Reset_textures + 20), (ID3D12Resource *)ptextures[5].user_data[4 * HIDWORD(ptextures[4].Start_texture_update)], 1u, DEBLOCK_DIR_LR);
     }
     plane_set_transition((BINKTEXTURESD3D12GPU *)ptextures, (BINKGPU_D3D12_PLANESET *)&ptextures[5].Htexture + HIDWORD(ptextures[4].Start_texture_update), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
-    v56 = (void (__fastcall *)(BINKTEXTURES *, void *, __int64, _QWORD))*((_QWORD *)After_Reset_textures + 22);
-    if ( v56 )
-      v56(ptextures, ptextures[3].Ytexture, 1i64, *((_QWORD *)After_Reset_textures + 23));
+    v48 = (void (__fastcall *)(BINKTEXTURES *, void *, __int64, _QWORD))*((_QWORD *)After_Reset_textures + 22);
+    if ( v48 )
+      v48(ptextures, ptextures[3].Ytexture, 1i64, *((_QWORD *)After_Reset_textures + 23));
     submit_command_list((BINKTEXTURESD3D12GPU *)ptextures);
   }
 }
@@ -1031,10 +1017,9 @@ void Free_textures(BINKTEXTURES *ptextures)
 Set_alpha_settings
 ==============
 */
-
-void __fastcall Set_alpha_settings(BINKTEXTURES *ptextures, double alpha_value, int draw_type)
+void Set_alpha_settings(BINKTEXTURES *ptextures, float alpha_value, int draw_type)
 {
-  __asm { vmovss  dword ptr [rcx+8C0h], xmm1 }
+  *(float *)&ptextures[13].Set_hdr_settings = alpha_value;
   HIDWORD(ptextures[13].Set_hdr_settings) = draw_type;
 }
 
@@ -1043,21 +1028,14 @@ void __fastcall Set_alpha_settings(BINKTEXTURES *ptextures, double alpha_value, 
 Set_draw_corners
 ==============
 */
-
-void __fastcall Set_draw_corners(BINKTEXTURES *ptextures, double Ax, double Ay, double Bx, float By, float Cx, float Cy)
+void Set_draw_corners(BINKTEXTURES *ptextures, float Ax, float Ay, float Bx, float By, float Cx, float Cy)
 {
-  __asm
-  {
-    vmovss  xmm0, [rsp+By]
-    vmovss  dword ptr [rcx+8B4h], xmm0
-    vmovss  xmm0, [rsp+Cy]
-    vmovss  dword ptr [rcx+8A8h], xmm1
-    vmovss  xmm1, [rsp+arg_28]
-    vmovss  dword ptr [rcx+8BCh], xmm0
-    vmovss  dword ptr [rcx+8ACh], xmm2
-    vmovss  dword ptr [rcx+8B0h], xmm3
-    vmovss  dword ptr [rcx+8B8h], xmm1
-  }
+  *((float *)&ptextures[13].Set_source_rect + 1) = By;
+  *(float *)&ptextures[13].Set_draw_corners = Ax;
+  *((float *)&ptextures[13].Set_alpha_settings + 1) = Cy;
+  *((float *)&ptextures[13].Set_draw_corners + 1) = Ay;
+  *(float *)&ptextures[13].Set_source_rect = Bx;
+  *(float *)&ptextures[13].Set_alpha_settings = Cx;
 }
 
 /*
@@ -1065,19 +1043,14 @@ void __fastcall Set_draw_corners(BINKTEXTURES *ptextures, double Ax, double Ay, 
 Set_draw_position
 ==============
 */
-
-void __fastcall Set_draw_position(BINKTEXTURES *ptextures, double x0, double y0, double x1, float y1)
+void Set_draw_position(BINKTEXTURES *ptextures, float x0, float y0, float x1, float y1)
 {
-  __asm
-  {
-    vmovss  xmm0, [rsp+y1]
-    vmovss  dword ptr [rcx+8BCh], xmm0
-    vmovss  dword ptr [rcx+8A8h], xmm1
-    vmovss  dword ptr [rcx+8ACh], xmm2
-    vmovss  dword ptr [rcx+8B0h], xmm3
-    vmovss  dword ptr [rcx+8B4h], xmm2
-    vmovss  dword ptr [rcx+8B8h], xmm1
-  }
+  *((float *)&ptextures[13].Set_alpha_settings + 1) = y1;
+  *(float *)&ptextures[13].Set_draw_corners = x0;
+  *((float *)&ptextures[13].Set_draw_corners + 1) = y0;
+  *(float *)&ptextures[13].Set_source_rect = x1;
+  *((float *)&ptextures[13].Set_source_rect + 1) = y0;
+  *(float *)&ptextures[13].Set_alpha_settings = x0;
 }
 
 /*
@@ -1085,17 +1058,10 @@ void __fastcall Set_draw_position(BINKTEXTURES *ptextures, double x0, double y0,
 Set_hdr_settings
 ==============
 */
-
-void __fastcall Set_hdr_settings(BINKTEXTURES *ptextures, int tonemap, double exposure, int out_nits)
+void Set_hdr_settings(BINKTEXTURES *ptextures, int tonemap, float exposure, int out_nits)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vmulss  xmm1, xmm0, cs:__real@3c4ccccd
-    vmovss  dword ptr [rcx+8E0h], xmm1
-    vmovss  dword ptr [rcx+8DCh], xmm2
-  }
+  *(float *)&ptextures[13].user_ptr = (float)out_nits * 0.0125;
+  *((float *)&ptextures[13].Free_textures + 1) = exposure;
   LODWORD(ptextures[13].Free_textures) = tonemap;
 }
 
@@ -1104,17 +1070,12 @@ void __fastcall Set_hdr_settings(BINKTEXTURES *ptextures, int tonemap, double ex
 Set_source_rect
 ==============
 */
-
-void __fastcall Set_source_rect(BINKTEXTURES *ptextures, double u0, double v0, double u1, float v1)
+void Set_source_rect(BINKTEXTURES *ptextures, float u0, float v0, float u1, float v1)
 {
-  __asm
-  {
-    vmovss  xmm0, [rsp+v1]
-    vmovss  dword ptr [rcx+8D4h], xmm0
-    vmovss  dword ptr [rcx+8C8h], xmm1
-    vmovss  dword ptr [rcx+8CCh], xmm2
-    vmovss  dword ptr [rcx+8D0h], xmm3
-  }
+  *((float *)&ptextures[13].After_Reset_textures + 1) = v1;
+  *(float *)&ptextures[13].Before_Reset_textures = u0;
+  *((float *)&ptextures[13].Before_Reset_textures + 1) = v0;
+  *(float *)&ptextures[13].After_Reset_textures = u1;
 }
 
 /*
@@ -1227,86 +1188,83 @@ void dct_pass(BINKTEXTURESD3D12GPU *ctx, ID3D12PipelineState *state, unsigned in
   ID3D12GraphicsCommandList *decode_cl; 
   __int64 v5; 
   unsigned int *m_pCurrent; 
+  unsigned int *v7; 
   unsigned __int64 ptr; 
-  unsigned int *v10; 
-  unsigned __int64 v11; 
-  unsigned int *v12; 
-  unsigned __int64 v13; 
-  unsigned int *v14; 
+  unsigned int *v9; 
+  unsigned __int64 v10; 
+  unsigned int *v11; 
+  unsigned __int64 v12; 
+  unsigned int *v13; 
   __int64 h_blocks; 
   __int64 w_blocks; 
 
   decode_cl = ctx->decode_cl;
   v5 = plane_grp;
-  _RCX = decode_cl->m_Putter.m_pCurrent;
-  if ( _RCX >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12PipelineState *))decode_cl->m_pFunction[8].AddRef)(decode_cl, state);
-    m_pCurrent = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    __asm
-    {
-      vmovdqu xmm0, xmmword ptr [rdx+10h]
-      vmovdqu xmmword ptr [rcx], xmm0
-    }
-    *((_QWORD *)_RCX + 2) = state->m_Packet.Oword[1].m128i_i64[0];
-    m_pCurrent = _RCX + 6;
-    decode_cl->m_Putter.m_pCurrent = m_pCurrent;
-  }
-  ptr = ctx->desc_ppgc[v5].ptr;
+  m_pCurrent = decode_cl->m_Putter.m_pCurrent;
   if ( m_pCurrent >= decode_cl->m_Putter.m_pLimit_Api )
   {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12PipelineState *))decode_cl->m_pFunction[8].AddRef)(decode_cl, state);
+    v7 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *(_OWORD *)m_pCurrent = *(_OWORD *)state->m_Packet.Descriptor.Data;
+    *((_QWORD *)m_pCurrent + 2) = state->m_Packet.Oword[1].m128i_i64[0];
+    v7 = m_pCurrent + 6;
+    decode_cl->m_Putter.m_pCurrent = v7;
+  }
+  ptr = ctx->desc_ppgc[v5].ptr;
+  if ( v7 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
     ((void (__fastcall *)(ID3D12GraphicsCommandList *, _QWORD, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 0i64, ptr);
-    v10 = decode_cl->m_Putter.m_pCurrent;
+    v9 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *m_pCurrent = decode_cl->m_ComputeRootPacketHeader[0];
-    m_pCurrent[1] = ptr;
-    v10 = m_pCurrent + 2;
-    decode_cl->m_Putter.m_pCurrent = v10;
+    *v7 = decode_cl->m_ComputeRootPacketHeader[0];
+    v7[1] = ptr;
+    v9 = v7 + 2;
+    decode_cl->m_Putter.m_pCurrent = v9;
   }
-  v11 = ctx->desc_ppaus[ctx->cur_decode_buf][v5].ptr;
-  if ( v10 >= decode_cl->m_Putter.m_pLimit_Api )
+  v10 = ctx->desc_ppaus[ctx->cur_decode_buf][v5].ptr;
+  if ( v9 >= decode_cl->m_Putter.m_pLimit_Api )
   {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 1i64, v11);
-    v12 = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    *v10 = decode_cl->m_ComputeRootPacketHeader[1];
-    v10[1] = v11;
-    v12 = v10 + 2;
-    decode_cl->m_Putter.m_pCurrent = v12;
-  }
-  v13 = ctx->desc_ppaps[ctx->cur_frame][v5].ptr;
-  if ( v12 >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 2i64, v13);
-    v14 = decode_cl->m_Putter.m_pCurrent;
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 1i64, v10);
+    v11 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *v12 = decode_cl->m_ComputeRootPacketHeader[2];
-    v14 = v12 + 2;
-    v12[1] = v13;
-    decode_cl->m_Putter.m_pCurrent = v12 + 2;
+    *v9 = decode_cl->m_ComputeRootPacketHeader[1];
+    v9[1] = v10;
+    v11 = v9 + 2;
+    decode_cl->m_Putter.m_pCurrent = v11;
+  }
+  v12 = ctx->desc_ppaps[ctx->cur_frame][v5].ptr;
+  if ( v11 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 2i64, v12);
+    v13 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *v11 = decode_cl->m_ComputeRootPacketHeader[2];
+    v13 = v11 + 2;
+    v11[1] = v12;
+    decode_cl->m_Putter.m_pCurrent = v11 + 2;
   }
   h_blocks = ctx->h_blocks;
   w_blocks = ctx->w_blocks;
-  if ( v14 >= decode_cl->m_Putter.m_pLimit_Draw )
+  if ( v13 >= decode_cl->m_Putter.m_pLimit_Draw )
   {
     ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64, __int64))decode_cl->m_pFunction[4].Release)(decode_cl, w_blocks, h_blocks, 1i64);
   }
   else
   {
-    *v14 = 1073923072;
-    v14[1] = w_blocks;
-    v14[2] = h_blocks;
-    v14[3] = 1;
-    decode_cl->m_Putter.m_pCurrent = v14 + 4;
+    *v13 = 1073923072;
+    v13[1] = w_blocks;
+    v13[2] = h_blocks;
+    v13[3] = 1;
+    decode_cl->m_Putter.m_pCurrent = v13 + 4;
   }
 }
 
@@ -1320,117 +1278,113 @@ void deblock_inplace_pass(BINKTEXTURESD3D12GPU *ctx, ID3D12PipelineState *state_
   ID3D12GraphicsCommandList *decode_cl; 
   __int64 v8; 
   unsigned int *m_pCurrent; 
+  unsigned int *v10; 
   unsigned __int64 ptr; 
-  unsigned int *v13; 
-  unsigned __int64 v14; 
-  unsigned int *v15; 
-  unsigned __int64 v16; 
-  unsigned int *v17; 
-  int v18; 
-  DEBLOCK_CONSTS_BUF *v19; 
-  unsigned int *v20; 
-  signed __int64 v21; 
+  unsigned int *v12; 
+  unsigned __int64 v13; 
+  unsigned int *v14; 
+  unsigned __int64 v15; 
+  unsigned int *v16; 
+  int v17; 
+  DEBLOCK_CONSTS_BUF *v18; 
+  unsigned int *v19; 
+  signed __int64 v20; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
-  __int64 v24[5]; 
+  __int64 v23[5]; 
 
   decode_cl = ctx->decode_cl;
-  _RSI = state_deblock;
-  v24[1] = (__int64)res;
-  v24[0] = 2i64;
+  v23[1] = (__int64)res;
+  v23[0] = 2i64;
   v8 = plane_grp;
-  ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64 *))decode_cl->m_pFunction[8].Release)(decode_cl, 1i64, v24);
+  ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64 *))decode_cl->m_pFunction[8].Release)(decode_cl, 1i64, v23);
   ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12RootSignature *))decode_cl->m_pFunction[11].QueryInterface)(decode_cl, ctx->shaders->root_sig[3]);
-  _RCX = decode_cl->m_Putter.m_pCurrent;
-  if ( _RCX >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12PipelineState *))decode_cl->m_pFunction[8].AddRef)(decode_cl, _RSI);
-    m_pCurrent = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    __asm
-    {
-      vmovdqu xmm0, xmmword ptr [rsi+10h]
-      vmovdqu xmmword ptr [rcx], xmm0
-    }
-    *((_QWORD *)_RCX + 2) = _RSI->m_Packet.Oword[1].m128i_i64[0];
-    m_pCurrent = _RCX + 6;
-    decode_cl->m_Putter.m_pCurrent = m_pCurrent;
-  }
-  ptr = ctx->desc_ppgc[v8].ptr;
+  m_pCurrent = decode_cl->m_Putter.m_pCurrent;
   if ( m_pCurrent >= decode_cl->m_Putter.m_pLimit_Api )
   {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12PipelineState *))decode_cl->m_pFunction[8].AddRef)(decode_cl, state_deblock);
+    v10 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *(_OWORD *)m_pCurrent = *(_OWORD *)state_deblock->m_Packet.Descriptor.Data;
+    *((_QWORD *)m_pCurrent + 2) = state_deblock->m_Packet.Oword[1].m128i_i64[0];
+    v10 = m_pCurrent + 6;
+    decode_cl->m_Putter.m_pCurrent = v10;
+  }
+  ptr = ctx->desc_ppgc[v8].ptr;
+  if ( v10 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
     ((void (__fastcall *)(ID3D12GraphicsCommandList *, _QWORD, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 0i64, ptr);
-    v13 = decode_cl->m_Putter.m_pCurrent;
+    v12 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *m_pCurrent = decode_cl->m_ComputeRootPacketHeader[0];
-    m_pCurrent[1] = ptr;
-    v13 = m_pCurrent + 2;
-    decode_cl->m_Putter.m_pCurrent = v13;
+    *v10 = decode_cl->m_ComputeRootPacketHeader[0];
+    v10[1] = ptr;
+    v12 = v10 + 2;
+    decode_cl->m_Putter.m_pCurrent = v12;
   }
-  v14 = ctx->desc_ppaus[ctx->cur_decode_buf][v8].ptr;
-  if ( v13 >= decode_cl->m_Putter.m_pLimit_Api )
+  v13 = ctx->desc_ppaus[ctx->cur_decode_buf][v8].ptr;
+  if ( v12 >= decode_cl->m_Putter.m_pLimit_Api )
   {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 1i64, v14);
-    v15 = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    *v13 = decode_cl->m_ComputeRootPacketHeader[1];
-    v13[1] = v14;
-    v15 = v13 + 2;
-    decode_cl->m_Putter.m_pCurrent = v15;
-  }
-  v16 = ctx->desc_ppaps[ctx->cur_frame][v8].ptr;
-  if ( v15 >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 2i64, v16);
-    v17 = decode_cl->m_Putter.m_pCurrent;
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 1i64, v13);
+    v14 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *v15 = decode_cl->m_ComputeRootPacketHeader[2];
-    v15[1] = v16;
-    v17 = v15 + 2;
-    decode_cl->m_Putter.m_pCurrent = v17;
+    *v12 = decode_cl->m_ComputeRootPacketHeader[1];
+    v12[1] = v13;
+    v14 = v12 + 2;
+    decode_cl->m_Putter.m_pCurrent = v14;
   }
-  v18 = 4;
-  v19 = &ctx->deblock_consts[dir];
-  if ( v17 >= decode_cl->m_Putter.m_pLimit_Api )
+  v15 = ctx->desc_ppaps[ctx->cur_frame][v8].ptr;
+  if ( v14 >= decode_cl->m_Putter.m_pLimit_Api )
   {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64, DEBLOCK_CONSTS_BUF *, _DWORD))decode_cl->m_pFunction[13].QueryInterface)(decode_cl, 3i64, 4i64, v19, 0);
-    v20 = decode_cl->m_Putter.m_pCurrent;
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 2i64, v15);
+    v16 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *v17 = decode_cl->m_ComputeRootPacketHeader[3] + 196608;
-    v20 = v17 + 1;
-    v21 = (char *)v19 - (char *)v20;
+    *v14 = decode_cl->m_ComputeRootPacketHeader[2];
+    v14[1] = v15;
+    v16 = v14 + 2;
+    decode_cl->m_Putter.m_pCurrent = v16;
+  }
+  v17 = 4;
+  v18 = &ctx->deblock_consts[dir];
+  if ( v16 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64, DEBLOCK_CONSTS_BUF *, _DWORD))decode_cl->m_pFunction[13].QueryInterface)(decode_cl, 3i64, 4i64, v18, 0);
+    v19 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *v16 = decode_cl->m_ComputeRootPacketHeader[3] + 196608;
+    v19 = v16 + 1;
+    v20 = (char *)v18 - (char *)v19;
     do
     {
-      *v20 = *(unsigned int *)((char *)v20 + v21);
-      ++v20;
-      --v18;
+      *v19 = *(unsigned int *)((char *)v19 + v20);
+      ++v19;
+      --v17;
     }
-    while ( v18 );
-    decode_cl->m_Putter.m_pCurrent = v20;
+    while ( v17 );
+    decode_cl->m_Putter.m_pCurrent = v19;
   }
-  v22 = (ctx->h_blocks + 1) >> 1;
-  v23 = (ctx->w_blocks + 1) >> 1;
-  if ( v20 >= decode_cl->m_Putter.m_pLimit_Draw )
+  v21 = (ctx->h_blocks + 1) >> 1;
+  v22 = (ctx->w_blocks + 1) >> 1;
+  if ( v19 >= decode_cl->m_Putter.m_pLimit_Draw )
   {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64, __int64))decode_cl->m_pFunction[4].Release)(decode_cl, v23, v22, 1i64);
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64, __int64))decode_cl->m_pFunction[4].Release)(decode_cl, v22, v21, 1i64);
   }
   else
   {
-    *v20 = 1073923072;
-    v20[1] = v23;
-    v20[2] = v22;
-    v20[3] = 1;
-    decode_cl->m_Putter.m_pCurrent = v20 + 4;
+    *v19 = 1073923072;
+    v19[1] = v22;
+    v19[2] = v21;
+    v19[3] = 1;
+    decode_cl->m_Putter.m_pCurrent = v19 + 4;
   }
 }
 
@@ -1441,6 +1395,7 @@ init_ppaps_desc_table
 */
 D3D12_GPU_DESCRIPTOR_HANDLE init_ppaps_desc_table(BINKTEXTURESD3D12GPU *ctx, int *desc_index, ID3D12Resource *plane_tex, DXGI_FORMAT uint_fmt, DXGI_FORMAT unorm_fmt, DXGI_FORMAT mdct_fmt)
 {
+  __m256i v7; 
   unsigned int desc_increment; 
   int v10; 
   __int64 v15; 
@@ -1460,11 +1415,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE init_ppaps_desc_table(BINKTEXTURESD3D12GPU *ctx, int
   v10 = *desc_index;
   v28 = uint_fmt;
   v29 = 4;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu ymmword ptr [rbp+var_28], ymm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v30 = v7;
   *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Device *, ID3D12Resource *, _QWORD, DXGI_FORMAT *, unsigned __int64))ctx->shaders->device->m_pFunction[6].AddRef)(ctx->shaders->device, plane_tex, 0i64, &v28, ctx->srv_cpu_base.ptr + v10 * desc_increment);
   v15 = ctx->desc_increment * (v10 + 1);
   v28 = mdct_fmt;
@@ -1474,11 +1426,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE init_ppaps_desc_table(BINKTEXTURESD3D12GPU *ctx, int
   v17 = ctx->srv_cpu_base.ptr + v15;
   v29 = 4;
   v30.m256i_i32[3] = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+var_28+10h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v30.m256i_u64[2] = _XMM0;
   *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Device *, ID3D12Resource *, DXGI_FORMAT *, __int64))shaders->device->m_pFunction[6].QueryInterface)(shaders->device, plane_tex, &v28, v17);
   v19 = ctx->desc_increment * (v10 + 2);
   v28 = unorm_fmt;
@@ -1488,11 +1437,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE init_ppaps_desc_table(BINKTEXTURESD3D12GPU *ctx, int
   v21 = ctx->srv_cpu_base.ptr + v19;
   v29 = 4;
   v30.m256i_i32[3] = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+var_28+10h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v30.m256i_u64[2] = _XMM0;
   *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Device *, ID3D12Resource *, DXGI_FORMAT *, __int64))v20->device->m_pFunction[6].QueryInterface)(v20->device, plane_tex, &v28, v21);
   v23 = ctx->shaders;
   v24 = ctx->desc_increment * (v10 + 3);
@@ -1502,11 +1448,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE init_ppaps_desc_table(BINKTEXTURESD3D12GPU *ctx, int
   v29 = 4;
   v25 = ctx->srv_cpu_base.ptr + v24;
   v30.m256i_i32[3] = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+var_28+10h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v30.m256i_u64[2] = _XMM0;
   ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, DXGI_FORMAT *, __int64))v23->device->m_pFunction[6].QueryInterface)(v23->device, plane_tex, &v28, v25);
   *desc_index += 4;
   return (D3D12_GPU_DESCRIPTOR_HANDLE)(ctx->srv_gpu_base.ptr + v10 * ctx->desc_increment);
@@ -1714,117 +1657,114 @@ void mdct_pass(BINKTEXTURESD3D12GPU *ctx, ID3D12PipelineState *state, unsigned i
   __int64 v7; 
   __int64 v8; 
   unsigned int *m_pCurrent; 
+  unsigned int *v10; 
   unsigned __int64 ptr; 
-  unsigned int *v13; 
-  unsigned __int64 v14; 
-  unsigned int *v15; 
-  unsigned __int64 v16; 
-  unsigned int *v17; 
-  unsigned __int64 v18; 
-  unsigned int *v19; 
-  __int64 v20; 
-  unsigned int *v21; 
+  unsigned int *v12; 
+  unsigned __int64 v13; 
+  unsigned int *v14; 
+  unsigned __int64 v15; 
+  unsigned int *v16; 
+  unsigned __int64 v17; 
+  unsigned int *v18; 
+  __int64 v19; 
+  unsigned int *v20; 
   __int64 h_blocks; 
   __int64 w_blocks; 
 
   decode_cl = ctx->decode_cl;
   v7 = prev_frame;
   v8 = plane_grp;
-  _RCX = decode_cl->m_Putter.m_pCurrent;
-  if ( _RCX >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12PipelineState *))decode_cl->m_pFunction[8].AddRef)(decode_cl, state);
-    m_pCurrent = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    __asm
-    {
-      vmovdqu xmm0, xmmword ptr [rdx+10h]
-      vmovdqu xmmword ptr [rcx], xmm0
-    }
-    *((_QWORD *)_RCX + 2) = state->m_Packet.Oword[1].m128i_i64[0];
-    m_pCurrent = _RCX + 6;
-    decode_cl->m_Putter.m_pCurrent = m_pCurrent;
-  }
-  ptr = ctx->desc_ppgc[v8].ptr;
+  m_pCurrent = decode_cl->m_Putter.m_pCurrent;
   if ( m_pCurrent >= decode_cl->m_Putter.m_pLimit_Api )
   {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, ID3D12PipelineState *))decode_cl->m_pFunction[8].AddRef)(decode_cl, state);
+    v10 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *(_OWORD *)m_pCurrent = *(_OWORD *)state->m_Packet.Descriptor.Data;
+    *((_QWORD *)m_pCurrent + 2) = state->m_Packet.Oword[1].m128i_i64[0];
+    v10 = m_pCurrent + 6;
+    decode_cl->m_Putter.m_pCurrent = v10;
+  }
+  ptr = ctx->desc_ppgc[v8].ptr;
+  if ( v10 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
     ((void (__fastcall *)(ID3D12GraphicsCommandList *, _QWORD, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 0i64, ptr);
-    v13 = decode_cl->m_Putter.m_pCurrent;
+    v12 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *m_pCurrent = decode_cl->m_ComputeRootPacketHeader[0];
-    m_pCurrent[1] = ptr;
-    v13 = m_pCurrent + 2;
-    decode_cl->m_Putter.m_pCurrent = v13;
+    *v10 = decode_cl->m_ComputeRootPacketHeader[0];
+    v10[1] = ptr;
+    v12 = v10 + 2;
+    decode_cl->m_Putter.m_pCurrent = v12;
   }
-  v14 = ctx->desc_ppaus[ctx->cur_decode_buf][v8].ptr;
-  if ( v13 >= decode_cl->m_Putter.m_pLimit_Api )
+  v13 = ctx->desc_ppaus[ctx->cur_decode_buf][v8].ptr;
+  if ( v12 >= decode_cl->m_Putter.m_pLimit_Api )
   {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 1i64, v14);
-    v15 = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    *v13 = decode_cl->m_ComputeRootPacketHeader[1];
-    v13[1] = v14;
-    v15 = v13 + 2;
-    decode_cl->m_Putter.m_pCurrent = v15;
-  }
-  v16 = ctx->desc_ppaps[ctx->cur_frame][v8].ptr;
-  if ( v15 >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 2i64, v16);
-    v17 = decode_cl->m_Putter.m_pCurrent;
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 1i64, v13);
+    v14 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *v15 = decode_cl->m_ComputeRootPacketHeader[2];
-    v15[1] = v16;
-    v17 = v15 + 2;
-    decode_cl->m_Putter.m_pCurrent = v17;
+    *v12 = decode_cl->m_ComputeRootPacketHeader[1];
+    v12[1] = v13;
+    v14 = v12 + 2;
+    decode_cl->m_Putter.m_pCurrent = v14;
   }
-  v18 = ctx->desc_ppaps[v7][v8].ptr;
-  if ( v17 >= decode_cl->m_Putter.m_pLimit_Api )
+  v15 = ctx->desc_ppaps[ctx->cur_frame][v8].ptr;
+  if ( v14 >= decode_cl->m_Putter.m_pLimit_Api )
   {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 3i64, v18);
-    v19 = decode_cl->m_Putter.m_pCurrent;
-  }
-  else
-  {
-    *v17 = decode_cl->m_ComputeRootPacketHeader[3];
-    v17[1] = v18;
-    v19 = v17 + 2;
-    decode_cl->m_Putter.m_pCurrent = v19;
-  }
-  v20 = plane_offs >> 1;
-  if ( v19 >= decode_cl->m_Putter.m_pLimit_Api )
-  {
-    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64))decode_cl->m_pFunction[12].AddRef)(decode_cl, 4i64, v20);
-    v21 = decode_cl->m_Putter.m_pCurrent;
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 2i64, v15);
+    v16 = decode_cl->m_Putter.m_pCurrent;
   }
   else
   {
-    *v19 = decode_cl->m_ComputeRootPacketHeader[4];
-    v21 = v19 + 2;
-    v19[1] = v20;
-    decode_cl->m_Putter.m_pCurrent = v19 + 2;
+    *v14 = decode_cl->m_ComputeRootPacketHeader[2];
+    v14[1] = v15;
+    v16 = v14 + 2;
+    decode_cl->m_Putter.m_pCurrent = v16;
+  }
+  v17 = ctx->desc_ppaps[v7][v8].ptr;
+  if ( v16 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, unsigned __int64))decode_cl->m_pFunction[11].Release)(decode_cl, 3i64, v17);
+    v18 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *v16 = decode_cl->m_ComputeRootPacketHeader[3];
+    v16[1] = v17;
+    v18 = v16 + 2;
+    decode_cl->m_Putter.m_pCurrent = v18;
+  }
+  v19 = plane_offs >> 1;
+  if ( v18 >= decode_cl->m_Putter.m_pLimit_Api )
+  {
+    ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64))decode_cl->m_pFunction[12].AddRef)(decode_cl, 4i64, v19);
+    v20 = decode_cl->m_Putter.m_pCurrent;
+  }
+  else
+  {
+    *v18 = decode_cl->m_ComputeRootPacketHeader[4];
+    v20 = v18 + 2;
+    v18[1] = v19;
+    decode_cl->m_Putter.m_pCurrent = v18 + 2;
   }
   h_blocks = ctx->h_blocks;
   w_blocks = ctx->w_blocks;
-  if ( v21 >= decode_cl->m_Putter.m_pLimit_Draw )
+  if ( v20 >= decode_cl->m_Putter.m_pLimit_Draw )
   {
     ((void (__fastcall *)(ID3D12GraphicsCommandList *, __int64, __int64, __int64))decode_cl->m_pFunction[4].Release)(decode_cl, w_blocks, h_blocks, 1i64);
   }
   else
   {
-    *v21 = 1073923072;
-    v21[1] = w_blocks;
-    v21[2] = h_blocks;
-    v21[3] = 1;
-    decode_cl->m_Putter.m_pCurrent = v21 + 4;
+    *v20 = 1073923072;
+    v20[1] = w_blocks;
+    v20[2] = h_blocks;
+    v20[3] = 1;
+    decode_cl->m_Putter.m_pCurrent = v20 + 4;
   }
 }
 
@@ -1973,16 +1913,29 @@ BINKSHADERS *Create_Bink_shaders(void *pcreate)
   void (__fastcall *v6)(BINKSHADERS *); 
   void (__fastcall *Event)(BINKSHADERS *); 
   HRESULT v8; 
-  ID3D12RootSignature *v12; 
-  ID3D12RootSignature *v20; 
-  ID3D12RootSignature *v29; 
-  HRESULT v30; 
-  const Create_Bink_shaders::__l28::CreateInfo *v31; 
+  __m256i v9; 
+  __m256i v10; 
+  ID3D12RootSignature *v11; 
+  __m256i v12; 
+  __m256i v13; 
+  __m256i v14; 
+  __m256i v15; 
+  ID3D12RootSignature *v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
+  __m256i v20; 
+  ID3D12RootSignature *v21; 
+  HRESULT v22; 
+  const Create_Bink_shaders::__l28::CreateInfo *v23; 
   unsigned int i; 
   const CompiledShader *shader; 
   HRESULT hr; 
-  __m256i v37; 
+  __m256i v28; 
   _BYTE para[64]; 
+  __m256i v30; 
+  __m256i v31; 
+  __m256i v32; 
 
   if ( !pcreate || !*(_QWORD *)pcreate || !*((_QWORD *)pcreate + 1) )
     return 0i64;
@@ -2020,177 +1973,141 @@ BINKSHADERS *Create_Bink_shaders(void *pcreate)
   else
     v8 = -2147467259;
   hr = v8;
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i64[2] = (__int64)range_dct_tab_ppgc;
-  v37.m256i_i32[2] = 2;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_dct_tab_ppaus;
-  __asm { vmovups ymmword ptr [rsp+140h+para.ParameterType], ymm0 }
-  v37.m256i_i32[2] = 2;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_dct_tab_ppaps_out;
-  v37.m256i_i32[0] = 0;
-  __asm { vmovups [rbp+40h+var_B0], ymm0 }
-  v37.m256i_i32[2] = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_90], ymm0
-  }
-  v12 = create_root_sig(v3, 3u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
-  v37.m256i_i32[2] = 2;
-  v5[1].user_data[0] = (unsigned __int64)v12;
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i64[2] = (__int64)range_mdct_tab_ppgc;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_mdct_tab_ppaus;
-  v37.m256i_i32[2] = 4;
-  __asm { vmovups ymmword ptr [rsp+140h+para.ParameterType], ymm0 }
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_mdct_tab_ppaps_out;
-  v37.m256i_i32[2] = 1;
-  __asm { vmovups [rbp+40h+var_B0], ymm0 }
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_mdct_tab_ppaps_in;
-  __asm { vmovups [rbp+40h+var_90], ymm0 }
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i32[2] = 1;
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_70], ymm0
-  }
-  v37.m256i_i32[0] = 1;
-  v37.m256i_i64[1] = 1i64;
-  v37.m256i_i32[4] = 1;
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_50], ymm0
-  }
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i64[2] = (__int64)range_dct_tab_ppgc;
+  v28.m256i_i32[2] = 2;
+  v28.m256i_i32[6] = 0;
+  v9 = v28;
+  v28.m256i_i64[2] = (__int64)range_dct_tab_ppaus;
+  *(__m256i *)para = v9;
+  v28.m256i_i32[2] = 2;
+  v28.m256i_i32[6] = 0;
+  v10 = v28;
+  v28.m256i_i64[2] = (__int64)range_dct_tab_ppaps_out;
+  v28.m256i_i32[0] = 0;
+  *(__m256i *)&para[32] = v10;
+  v28.m256i_i32[2] = 1;
+  v30 = v28;
+  v11 = create_root_sig(v3, 3u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
+  v28.m256i_i32[2] = 2;
+  v5[1].user_data[0] = (unsigned __int64)v11;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i64[2] = (__int64)range_mdct_tab_ppgc;
+  v28.m256i_i32[6] = 0;
+  v12 = v28;
+  v28.m256i_i64[2] = (__int64)range_mdct_tab_ppaus;
+  v28.m256i_i32[2] = 4;
+  *(__m256i *)para = v12;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i32[6] = 0;
+  v13 = v28;
+  v28.m256i_i64[2] = (__int64)range_mdct_tab_ppaps_out;
+  v28.m256i_i32[2] = 1;
+  *(__m256i *)&para[32] = v13;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i32[6] = 0;
+  v14 = v28;
+  v28.m256i_i64[2] = (__int64)range_mdct_tab_ppaps_in;
+  v30 = v14;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i32[2] = 1;
+  v28.m256i_i32[6] = 0;
+  v31 = v28;
+  v28.m256i_i32[0] = 1;
+  v28.m256i_i64[1] = 1i64;
+  v28.m256i_i32[4] = 1;
+  v28.m256i_i32[6] = 0;
+  v32 = v28;
   v5[1].user_data[1] = (unsigned __int64)create_root_sig(v3, 5u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i32[2] = 1;
-  v37.m256i_i32[6] = 0;
-  v37.m256i_i64[2] = (__int64)range_dc_predict_tab_ppgc;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i64[2] = (__int64)range_dc_predict_tab_ppaus;
-  v37.m256i_i32[2] = 1;
-  __asm { vmovups ymmword ptr [rsp+140h+para.ParameterType], ymm0 }
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_B0], ymm0
-  }
-  v20 = create_root_sig(v3, 2u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
-  v37.m256i_i32[2] = 1;
-  v5[1].user_data[2] = (unsigned __int64)v20;
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i64[2] = (__int64)range_deblock_tab_ppgc;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_deblock_tab_ppaus;
-  v37.m256i_i32[2] = 2;
-  __asm { vmovups ymmword ptr [rsp+140h+para.ParameterType], ymm0 }
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_deblock_tab_ppaps_out;
-  __asm { vmovups [rbp+40h+var_B0], ymm0 }
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i32[2] = 1;
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_90], ymm0
-  }
-  v37.m256i_i32[0] = 1;
-  v37.m256i_i64[1] = 1i64;
-  v37.m256i_i32[4] = 4;
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_70], ymm0
-  }
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i32[2] = 1;
+  v28.m256i_i32[6] = 0;
+  v28.m256i_i64[2] = (__int64)range_dc_predict_tab_ppgc;
+  v15 = v28;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i64[2] = (__int64)range_dc_predict_tab_ppaus;
+  v28.m256i_i32[2] = 1;
+  *(__m256i *)para = v15;
+  v28.m256i_i32[6] = 0;
+  *(__m256i *)&para[32] = v28;
+  v16 = create_root_sig(v3, 2u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
+  v28.m256i_i32[2] = 1;
+  v5[1].user_data[2] = (unsigned __int64)v16;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i64[2] = (__int64)range_deblock_tab_ppgc;
+  v28.m256i_i32[6] = 0;
+  v17 = v28;
+  v28.m256i_i64[2] = (__int64)range_deblock_tab_ppaus;
+  v28.m256i_i32[2] = 2;
+  *(__m256i *)para = v17;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i32[6] = 0;
+  v18 = v28;
+  v28.m256i_i64[2] = (__int64)range_deblock_tab_ppaps_out;
+  *(__m256i *)&para[32] = v18;
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i32[2] = 1;
+  v28.m256i_i32[6] = 0;
+  v30 = v28;
+  v28.m256i_i32[0] = 1;
+  v28.m256i_i64[1] = 1i64;
+  v28.m256i_i32[4] = 4;
+  v28.m256i_i32[6] = 0;
+  v31 = v28;
   v5[1].user_data[3] = (unsigned __int64)create_root_sig(v3, 4u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
-  v37.m256i_i32[0] = 0;
-  v37.m256i_i64[2] = (__int64)range_fill_alpha_tab_ppaus;
-  v37.m256i_i32[2] = 1;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_fill_alpha_tab_ppaps_out;
-  v37.m256i_i32[0] = 0;
-  __asm { vmovups ymmword ptr [rsp+140h+para.ParameterType], ymm0 }
-  v37.m256i_i32[2] = 1;
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_B0], ymm0
-  }
+  v28.m256i_i32[0] = 0;
+  v28.m256i_i64[2] = (__int64)range_fill_alpha_tab_ppaus;
+  v28.m256i_i32[2] = 1;
+  v28.m256i_i32[6] = 0;
+  v19 = v28;
+  v28.m256i_i64[2] = (__int64)range_fill_alpha_tab_ppaps_out;
+  v28.m256i_i32[0] = 0;
+  *(__m256i *)para = v19;
+  v28.m256i_i32[2] = 1;
+  v28.m256i_i32[6] = 0;
+  *(__m256i *)&para[32] = v28;
   v5[2].Create_textures = (BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *))create_root_sig(v3, 2u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
-  v37.m256i_i32[0] = 2;
-  v37.m256i_i64[1] = 0i64;
-  v37.m256i_i32[6] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rsp+140h+var_F8] }
-  v37.m256i_i64[2] = (__int64)range_draw_pps;
-  v37.m256i_i32[0] = 0;
-  __asm { vmovups ymmword ptr [rsp+140h+para.ParameterType], ymm0 }
-  v37.m256i_i32[2] = 1;
-  v37.m256i_i32[6] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+140h+var_F8]
-    vmovups [rbp+40h+var_B0], ymm0
-  }
-  v29 = create_root_sig(v3, 2u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
-  v30 = hr;
-  v31 = prog_info;
-  v5[2].Free_shaders = (void (__fastcall *)(BINKSHADERS *))v29;
+  v28.m256i_i32[0] = 2;
+  v28.m256i_i64[1] = 0i64;
+  v28.m256i_i32[6] = 0;
+  v20 = v28;
+  v28.m256i_i64[2] = (__int64)range_draw_pps;
+  v28.m256i_i32[0] = 0;
+  *(__m256i *)para = v20;
+  v28.m256i_i32[2] = 1;
+  v28.m256i_i32[6] = 0;
+  *(__m256i *)&para[32] = v28;
+  v21 = create_root_sig(v3, 2u, (const D3D12_ROOT_PARAMETER *)para, 1u, static_smps, D3D12_ROOT_SIGNATURE_FLAG_NONE, &hr);
+  v22 = hr;
+  v23 = prog_info;
+  v5[2].Free_shaders = (void (__fastcall *)(BINKSHADERS *))v21;
   for ( i = 0; i < 8; ++i )
   {
     memset(para, 0, 56);
-    *(_QWORD *)para = v5[1].user_data[v31->root_sig_id];
-    shader = v31->shader;
-    *(_OWORD *)v37.m256i_i8 = 0ui64;
+    *(_QWORD *)para = v5[1].user_data[v23->root_sig_id];
+    shader = v23->shader;
+    *(_OWORD *)v28.m256i_i8 = 0ui64;
     if ( shader )
     {
-      v37.m256i_i64[0] = (__int64)shader->bytecode;
-      v37.m256i_i64[1] = shader->size;
+      v28.m256i_i64[0] = (__int64)shader->bytecode;
+      v28.m256i_i64[1] = shader->size;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+140h+var_F8]
-      vmovups xmmword ptr [rsp+140h+para.___u1], xmm0
-    }
-    if ( v30 >= 0 )
-      v30 = ((__int64 (__fastcall *)(ID3D12Device *, _BYTE *, _QWORD, _QWORD, GUID *, unsigned __int64 *))v3->m_pFunction[20].Release)(v3, para, 0i64, 0i64, &GUID_765a30f3_f624_4c6f_a828_ace948622445, &v5[2].user_data[i]);
-    ++v31;
+    *(_OWORD *)&para[8] = *(_OWORD *)v28.m256i_i8;
+    if ( v22 >= 0 )
+      v22 = ((__int64 (__fastcall *)(ID3D12Device *, _BYTE *, _QWORD, _QWORD, GUID *, unsigned __int64 *))v3->m_pFunction[20].Release)(v3, para, 0i64, 0i64, &GUID_765a30f3_f624_4c6f_a828_ace948622445, &v5[2].user_data[i]);
+    ++v23;
   }
   *(_DWORD *)para = 1;
   *(_DWORD *)&para[24] = 1;
   *(_QWORD *)&para[36] = 1i64;
   *(_QWORD *)&para[44] = 1i64;
-  v37.m256i_i32[0] = 2;
-  *(__int64 *)((char *)v37.m256i_i64 + 4) = 0i64;
-  *(__int64 *)((char *)&v37.m256i_i64[1] + 4) = 0i64;
+  v28.m256i_i32[0] = 2;
+  *(__int64 *)((char *)v28.m256i_i64 + 4) = 0i64;
+  *(__int64 *)((char *)&v28.m256i_i64[1] + 4) = 0i64;
   *(_QWORD *)&para[8] = 0i64;
   *(_QWORD *)&para[16] = 0x10000i64;
   *(_QWORD *)&para[28] = 65537i64;
-  if ( v30 < 0 || ((int (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, _BYTE *, int, _QWORD, GUID *, BINKSHADERS *))v3->m_pFunction[9].QueryInterface)(v3, &v37, 0i64, para, 2243, 0i64, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &v5[4]) < 0 || (*(int (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), _QWORD, _QWORD, unsigned __int64 *))(*(_QWORD *)v5[4].Create_textures + 64i64))(v5[4].Create_textures, 0i64, 0i64, &v5[46].user_data[3]) < 0 )
+  if ( v22 < 0 || ((int (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, _BYTE *, int, _QWORD, GUID *, BINKSHADERS *))v3->m_pFunction[9].QueryInterface)(v3, &v28, 0i64, para, 2243, 0i64, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &v5[4]) < 0 || (*(int (__fastcall **)(BINKTEXTURES *(__fastcall *)(BINKSHADERS *, BINK *, void *), _QWORD, _QWORD, unsigned __int64 *))(*(_QWORD *)v5[4].Create_textures + 64i64))(v5[4].Create_textures, 0i64, 0i64, &v5[46].user_data[3]) < 0 )
   {
     Free_shaders(v5);
     return 0i64;

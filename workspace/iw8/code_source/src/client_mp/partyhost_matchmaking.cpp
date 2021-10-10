@@ -385,17 +385,17 @@ PartyMatchmaking_Frame
 */
 void PartyMatchmaking_Frame(PartyData *party, const int localControllerIndex)
 {
+  const dvar_t *v6; 
   const dvar_t *v7; 
-  const dvar_t *v8; 
   int VersionNumber; 
-  const dvar_t *v10; 
+  const dvar_t *v9; 
   MatchmakingGameType integer; 
-  const dvar_t *v12; 
+  const dvar_t *v11; 
   LocalClientNum_t ClientFromController; 
   const PartyData *PartyData; 
-  PartyData *v15; 
+  PartyData *v14; 
   OmniscientMatchmakingParams outParams; 
-  PrivateMatchId v17; 
+  PrivateMatchId v16; 
 
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost_matchmaking.cpp", 326, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
@@ -409,13 +409,9 @@ void PartyMatchmaking_Frame(PartyData *party, const int localControllerIndex)
   {
     if ( OnlineMatchmakerOmniscient::IsReadyToInitMatchmaking(&OnlineMatchmakerOmniscient::ms_instance) )
     {
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@000000000000000000000000ffffffff
-        vpxor   xmm1, xmm1, xmm1
-        vmovdqu xmmword ptr [rsp+0A8h+outParams.m_localControllerIndex], xmm0
-        vmovdqu xmmword ptr [rsp+0A8h+outParams.m_netcodeVersion], xmm1
-      }
+      __asm { vpxor   xmm1, xmm1, xmm1 }
+      *(_OWORD *)&outParams.m_localControllerIndex = _xmm;
+      *(_OWORD *)&outParams.m_netcodeVersion = _XMM1;
       outParams.m_inviteLocalJoiningControllerIndex = -1;
       XUID::NullXUID(&outParams.m_inviteClientAttemptingToJoinUID);
       outParams.m_gameType = eGAME_TYPE_MULTIPLAYER;
@@ -425,40 +421,40 @@ void PartyMatchmaking_Frame(PartyData *party, const int localControllerIndex)
       if ( Party_HasPrivateMatchId(party) )
       {
         *(_QWORD *)&outParams.m_playlistId = 0i64;
-        outParams.m_privateMatchId = (PrivateMatchId)Party_GetPrivateMatchId(&v17, party)->m_id;
+        outParams.m_privateMatchId = (PrivateMatchId)Party_GetPrivateMatchId(&v16, party)->m_id;
         OnlineMatchmakerOmniscient::AddPlayers(&OnlineMatchmakerOmniscient::ms_instance);
         Dvar_SetInt_Internal(DVARINT_playlist, 0);
         PartyHost_CachePrivateGameSettingsForDedi(party);
       }
       else
       {
-        v7 = DVARINT_playlist;
+        v6 = DVARINT_playlist;
         if ( !DVARINT_playlist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playlist") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v7);
-        Live_SetPlaylistNum(localControllerIndex, v7->current.integer);
-        v8 = DVARINT_playlistCategory;
+        Dvar_CheckFrontendServerThread(v6);
+        Live_SetPlaylistNum(localControllerIndex, v6->current.integer);
+        v7 = DVARINT_playlistCategory;
         if ( !DVARINT_playlistCategory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playlistCategory") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v8);
-        outParams.m_playlistCategory = v8->current.integer;
+        Dvar_CheckFrontendServerThread(v7);
+        outParams.m_playlistCategory = v7->current.integer;
         outParams.m_playlistId = Playlist_GetPlaylistIdForNum(selectedPlaylist);
       }
       outParams.m_netcodeVersion = GetProtocolVersion();
       VersionNumber = Playlist_GetVersionNumber();
-      v10 = DVARINT_matchmaking_game_type;
+      v9 = DVARINT_matchmaking_game_type;
       outParams.m_playlistVersion = VersionNumber;
       if ( !DVARINT_matchmaking_game_type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "matchmaking_game_type") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v10);
-      integer = v10->current.integer;
-      v12 = DVARINT_party_maxplayers;
+      Dvar_CheckFrontendServerThread(v9);
+      integer = v9->current.integer;
+      v11 = DVARINT_party_maxplayers;
       outParams.m_gameType = integer;
       outParams.m_minPlayerNeeded = 1;
       if ( !DVARINT_party_maxplayers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v12);
-      outParams.m_maxPlayers = v12->current.integer;
+      Dvar_CheckFrontendServerThread(v11);
+      outParams.m_maxPlayers = v11->current.integer;
       if ( OnlineTournament_RequestedMatchmakingBracket() )
         OnlineTournament_SetupMatchmakingParams(&outParams);
       if ( Live_IsInGameBattlesGame() )
@@ -479,8 +475,8 @@ void PartyMatchmaking_Frame(PartyData *party, const int localControllerIndex)
             PartyData = Lobby_GetPartyData();
             if ( Party_AreWeHost(PartyData) )
             {
-              v15 = Lobby_GetPartyData();
-              PartyHost_GamestateChanged(v15);
+              v14 = Lobby_GetPartyData();
+              PartyHost_GamestateChanged(v14);
             }
           }
         }

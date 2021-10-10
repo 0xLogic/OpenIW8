@@ -327,18 +327,13 @@ Online_AAR::OutputCurrentState
 void Online_AAR::OutputCurrentState(Online_AAR *this, const int controllerIndex)
 {
   OnlineAARData *v3; 
-  __int64 v6; 
+  __int64 v4; 
   unsigned int i; 
   unsigned int j; 
 
   v3 = &this->m_onlineAARData[controllerIndex];
   Com_Printf(25, "Online_AAR DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@4009000000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_3_125);
   Com_Printf(25, "Start XP %lu - Current XP %lu\n", v3->start_xp, v3->current_xp);
   Com_Printf(25, "Start Season XP %lu - Current Season XP %lu\n", v3->start_season_xp, v3->current_season_xp);
   Com_Printf(25, "Start Battlepass XP %lu - Current Battlepass XP %lu\n", v3->start_battlepass_xp, v3->current_battlepass_xp);
@@ -349,7 +344,7 @@ void Online_AAR::OutputCurrentState(Online_AAR *this, const int controllerIndex)
   Com_Printf(25, "Mission XP %d\n", (unsigned int)v3->mission_xp);
   Com_Printf(25, "Plunder XP %d\n", (unsigned int)v3->plunder_xp);
   Com_Printf(25, "Challenge XP %d\n", (unsigned int)v3->challenge_xp);
-  v6 = 0i64;
+  v4 = 0i64;
   for ( i = 0; i < v3->challenges_complete_amount; ++i )
     Com_Printf(25, "Challenge Kind %d ID %d completed\n", (unsigned int)v3->challenges_complete[i].kind, (unsigned int)v3->challenges_complete[i].id);
   for ( j = 0; j < v3->unlocks_amount; ++j )
@@ -358,10 +353,10 @@ void Online_AAR::OutputCurrentState(Online_AAR *this, const int controllerIndex)
   {
     do
     {
-      Com_Printf(25, "Loot ID %d unlocked via factions\n", (unsigned int)v3->faction_unlocks[v6]);
-      v6 = (unsigned int)(v6 + 1);
+      Com_Printf(25, "Loot ID %d unlocked via factions\n", (unsigned int)v3->faction_unlocks[v4]);
+      v4 = (unsigned int)(v4 + 1);
     }
-    while ( (unsigned int)v6 < v3->faction_unlocks_amount );
+    while ( (unsigned int)v4 < v3->faction_unlocks_amount );
   }
   Com_Printf(25, "Online_AAR DUMP END\n");
 }

@@ -606,14 +606,8 @@ void OnlineTimeSeriesLog::AddFieldValue(OnlineTimeSeriesLog *this, const unsigne
 OnlineTimeSeriesLog::AddFieldValue
 ==============
 */
-
-void __fastcall OnlineTimeSeriesLog::AddFieldValue(OnlineTimeSeriesLog *this, const unsigned __int64 measurementHandle, const char *fieldName, double value)
+void OnlineTimeSeriesLog::AddFieldValue(OnlineTimeSeriesLog *this, const unsigned __int64 measurementHandle, const char *fieldName, const float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !measurementHandle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_logging_timeseries.cpp", 720, ASSERT_TYPE_ASSERT, "(measurement)", (const char *)&queryFormat, "measurement") )
     __debugbreak();
   if ( !*(_BYTE *)measurementHandle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_logging_timeseries.cpp", 721, ASSERT_TYPE_ASSERT, "(measurement->m_inUse)", (const char *)&queryFormat, "measurement->m_inUse") )
@@ -624,10 +618,8 @@ void __fastcall OnlineTimeSeriesLog::AddFieldValue(OnlineTimeSeriesLog *this, co
       Com_PrintWarning(25, "Failed to write Influx break before Field %s to DLog context\n", fieldName);
     *(_BYTE *)(measurementHandle + 8560) = 1;
   }
-  __asm { vmovaps xmm2, xmm6; value }
-  if ( !DLog_Float32((DLogContext *)(measurementHandle + 8), fieldName, *(float *)&_XMM2) )
+  if ( !DLog_Float32((DLogContext *)(measurementHandle + 8), fieldName, value) )
     Com_PrintWarning(25, "Failed to write Field %s to DLog context\n", fieldName);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1000,17 +992,18 @@ void OnlineTimeSeriesLog::Frame(OnlineTimeSeriesLog *this)
 {
   DWServicesAccess *Instance; 
   DWGameMetrics *GameMetrics; 
-  const dvar_t *v5; 
-  __int64 v6; 
+  const dvar_t *v4; 
+  __int64 v5; 
+  float v6; 
   unsigned int m_readyToSendOffset; 
-  __int64 v11; 
-  unsigned int v12; 
-  bool *v13; 
+  __int64 v8; 
+  unsigned int v9; 
+  bool *v10; 
   bdHTTP *m_httpInterface; 
-  bdHTTP::bdStatus v15; 
-  bdHTTP::bdStatus v16; 
-  int v17; 
-  unsigned int v18; 
+  bdHTTP::bdStatus v12; 
+  bdHTTP::bdStatus v13; 
+  int v14; 
+  unsigned int v15; 
   const char *StatusCodeString; 
   char *fmt; 
 
@@ -1018,57 +1011,54 @@ void OnlineTimeSeriesLog::Frame(OnlineTimeSeriesLog *this)
   GameMetrics = DWServicesAccess::GetGameMetrics(Instance);
   if ( GameMetrics->isReady(GameMetrics) )
   {
-    v5 = DVARBOOL_online_matchmaking_using_metrics;
+    v4 = DVARBOOL_online_matchmaking_using_metrics;
     if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v5);
-    if ( v5->current.enabled )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.enabled )
     {
       OnlineTimeSeriesLog::CollectMetrics_Client(this);
       if ( this->m_httpInterface )
       {
         OnlineTimeSeriesLog::CheckForWriteBuffer(this);
-        v6 = -1i64;
+        v5 = -1i64;
         do
-          ++v6;
-        while ( this->m_outgoingBuffer1[v6] );
-        if ( (_DWORD)v6 )
+          ++v5;
+        while ( this->m_outgoingBuffer1[v5] );
+        if ( (_DWORD)v5 )
         {
-          __asm
+          v6 = (float)(unsigned int)v5;
+          if ( (float)(v6 * 0.000015258789) > 0.80000001 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, cs:__real@37800000
-            vcomiss xmm1, cs:__real@3f4ccccd
-          }
-          Sys_EnterCriticalSection(CRITSECT_INFLUXDB);
-          m_readyToSendOffset = this->m_readyToSendOffset;
-          v11 = m_readyToSendOffset & 1;
-          v12 = m_readyToSendOffset + 2;
-          if ( m_readyToSendOffset < m_readyToSendOffset + 2 )
-          {
-            while ( this->m_readyToSend[m_readyToSendOffset & 1] )
+            Sys_EnterCriticalSection(CRITSECT_INFLUXDB);
+            m_readyToSendOffset = this->m_readyToSendOffset;
+            v8 = m_readyToSendOffset & 1;
+            v9 = m_readyToSendOffset + 2;
+            if ( m_readyToSendOffset < m_readyToSendOffset + 2 )
             {
-              if ( ++m_readyToSendOffset >= v12 )
-                goto LABEL_16;
+              while ( this->m_readyToSend[m_readyToSendOffset & 1] )
+              {
+                if ( ++m_readyToSendOffset >= v9 )
+                  goto LABEL_16;
+              }
+              v8 = m_readyToSendOffset & 1;
             }
-            v11 = m_readyToSendOffset & 1;
-          }
 LABEL_16:
-          v13 = &this->m_readyToSend[v11];
-          if ( *v13 )
-          {
-            LODWORD(fmt) = this->m_isInFlight;
-            Com_Printf(25, "WriteBuffer - Something has gone wrong! [%u,%u] is in flight = %u\n", this->m_readyToSend[0], this->m_readyToSend[1], fmt);
+            v10 = &this->m_readyToSend[v8];
+            if ( *v10 )
+            {
+              LODWORD(fmt) = this->m_isInFlight;
+              Com_Printf(25, "WriteBuffer - Something has gone wrong! [%u,%u] is in flight = %u\n", this->m_readyToSend[0], this->m_readyToSend[1], fmt);
+            }
+            else
+            {
+              Core_strcpy(this->m_inflightBuffer[(unsigned __int64)(unsigned int)v8], 0x10000ui64, this->m_outgoingBuffer1);
+              *v10 = 1;
+              ++this->m_readyToSendOffset;
+              memset_0(this->m_outgoingBuffer1, 0, sizeof(this->m_outgoingBuffer1));
+            }
+            Sys_LeaveCriticalSection(CRITSECT_INFLUXDB);
           }
-          else
-          {
-            Core_strcpy(this->m_inflightBuffer[(unsigned __int64)(unsigned int)v11], 0x10000ui64, this->m_outgoingBuffer1);
-            *v13 = 1;
-            ++this->m_readyToSendOffset;
-            memset_0(this->m_outgoingBuffer1, 0, sizeof(this->m_outgoingBuffer1));
-          }
-          Sys_LeaveCriticalSection(CRITSECT_INFLUXDB);
         }
         if ( this->m_isInFlight )
         {
@@ -1079,17 +1069,17 @@ LABEL_16:
             m_httpInterface = this->m_httpInterface;
             if ( m_httpInterface )
             {
-              v15 = ((unsigned int (*)(void))m_httpInterface->getStatus)();
-              v16 = v15;
-              if ( ((v15 - 1) & 0xFFFFFFFD) != 0 )
+              v12 = ((unsigned int (*)(void))m_httpInterface->getStatus)();
+              v13 = v12;
+              if ( ((v12 - 1) & 0xFFFFFFFD) != 0 )
               {
-                if ( v15 != BD_CANCELLED )
+                if ( v12 != BD_CANCELLED )
                 {
-                  v17 = this->m_httpInterface->getInternalError(this->m_httpInterface);
-                  v18 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
-                  StatusCodeString = bdAuthHTTPUtility::getStatusCodeString(v16);
-                  LODWORD(fmt) = v17;
-                  Com_Printf(25, "OnlineTimeSeriesLog::PumpInflightBuffer : Failed to write HTTP buffer [%s] HTTP Code [%d] DW Error [%d]\n", StatusCodeString, v18, fmt);
+                  v14 = this->m_httpInterface->getInternalError(this->m_httpInterface);
+                  v15 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
+                  StatusCodeString = bdAuthHTTPUtility::getStatusCodeString(v13);
+                  LODWORD(fmt) = v14;
+                  Com_Printf(25, "OnlineTimeSeriesLog::PumpInflightBuffer : Failed to write HTTP buffer [%s] HTTP Code [%d] DW Error [%d]\n", StatusCodeString, v15, fmt);
                 }
                 this->m_isInFlight = 0;
               }
@@ -1316,19 +1306,18 @@ LABEL_6:
 OnlineTimeSeriesLog::WriteEventCounter
 ==============
 */
-
-void __fastcall OnlineTimeSeriesLog::WriteEventCounter(OnlineTimeSeriesLog *this, const char *eventName, const unsigned int value, double _XMM3_8)
+void OnlineTimeSeriesLog::WriteEventCounter(OnlineTimeSeriesLog *this, const char *eventName, const unsigned int value)
 {
   DWServicesAccess *Instance; 
   DWGameMetrics *GameMetrics; 
-  const dvar_t *v7; 
-  DWServicesAccess *v8; 
+  const dvar_t *v6; 
+  DWServicesAccess *v7; 
   const char *EnvironmentString; 
-  DWServicesAccess *v10; 
+  DWServicesAccess *v9; 
   unsigned int TitleID; 
   unsigned __int64 EpochTimeFromAuth_s; 
-  DWServicesAccess *v13; 
-  DWGameMetrics *v14; 
+  DWServicesAccess *v12; 
+  DWGameMetrics *v13; 
   char dest[208]; 
 
   if ( !eventName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_logging_timeseries.cpp", 347, ASSERT_TYPE_ASSERT, "(eventName)", (const char *)&queryFormat, "eventName") )
@@ -1337,16 +1326,16 @@ void __fastcall OnlineTimeSeriesLog::WriteEventCounter(OnlineTimeSeriesLog *this
   GameMetrics = DWServicesAccess::GetGameMetrics(Instance);
   if ( GameMetrics->isReady(GameMetrics) )
   {
-    v7 = DVARBOOL_online_matchmaking_using_metrics;
+    v6 = DVARBOOL_online_matchmaking_using_metrics;
     if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( v7->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( v6->current.enabled )
     {
-      v8 = DWServicesAccess::GetInstance();
-      EnvironmentString = DWServicesAccess::GetEnvironmentString(v8);
-      v10 = DWServicesAccess::GetInstance();
-      TitleID = DWServicesAccess::GetTitleID(v10);
+      v7 = DWServicesAccess::GetInstance();
+      EnvironmentString = DWServicesAccess::GetEnvironmentString(v7);
+      v9 = DWServicesAccess::GetInstance();
+      TitleID = DWServicesAccess::GetTitleID(v9);
       if ( Com_sprintf_truncate(dest, 0xC8ui64, "iw8.%d.%s.%s.%s", TitleID, EnvironmentString, "gc", eventName) < 0 )
       {
         Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to inadequate preamble buffer size.\n", eventName);
@@ -1354,14 +1343,11 @@ void __fastcall OnlineTimeSeriesLog::WriteEventCounter(OnlineTimeSeriesLog *this
       else
       {
         EpochTimeFromAuth_s = Online_GetEpochTimeFromAuth_s();
-        v13 = DWServicesAccess::GetInstance();
-        v14 = DWServicesAccess::GetGameMetrics(v13);
-        __asm
-        {
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2sd xmm3, xmm3, rsi; value
-        }
-        if ( !DWGameMetrics::counter(v14, EpochTimeFromAuth_s, dest, *(long double *)&_XMM3) )
+        v12 = DWServicesAccess::GetInstance();
+        v13 = DWServicesAccess::GetGameMetrics(v12);
+        _XMM3 = 0i64;
+        __asm { vcvtsi2sd xmm3, xmm3, rsi; value }
+        if ( !DWGameMetrics::counter(v13, EpochTimeFromAuth_s, dest, *(long double *)&_XMM3) )
           Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to failure in game metrics.\n", eventName);
       }
     }
@@ -1373,11 +1359,9 @@ void __fastcall OnlineTimeSeriesLog::WriteEventCounter(OnlineTimeSeriesLog *this
 OnlineTimeSeriesLog::WriteEventFloat
 ==============
 */
-
-void __fastcall OnlineTimeSeriesLog::WriteEventFloat(OnlineTimeSeriesLog *this, const char *eventName, double value)
+void OnlineTimeSeriesLog::WriteEventFloat(OnlineTimeSeriesLog *this, const char *eventName, const float value)
 {
-  __asm { vcvttss2si r8, xmm2; value }
-  OnlineTimeSeriesLog::WriteEventCounter(this, eventName, _R8);
+  OnlineTimeSeriesLog::WriteEventCounter(this, eventName, (int)value);
 }
 
 /*
@@ -1385,19 +1369,18 @@ void __fastcall OnlineTimeSeriesLog::WriteEventFloat(OnlineTimeSeriesLog *this, 
 OnlineTimeSeriesLog::WriteEventGauge
 ==============
 */
-
-void __fastcall OnlineTimeSeriesLog::WriteEventGauge(OnlineTimeSeriesLog *this, const char *eventName, const unsigned int value, double _XMM3_8)
+void OnlineTimeSeriesLog::WriteEventGauge(OnlineTimeSeriesLog *this, const char *eventName, const unsigned int value)
 {
   DWServicesAccess *Instance; 
   DWGameMetrics *GameMetrics; 
-  const dvar_t *v7; 
-  DWServicesAccess *v8; 
+  const dvar_t *v6; 
+  DWServicesAccess *v7; 
   const char *EnvironmentString; 
-  DWServicesAccess *v10; 
+  DWServicesAccess *v9; 
   unsigned int TitleID; 
   unsigned __int64 EpochTimeFromAuth_s; 
-  DWServicesAccess *v13; 
-  DWGameMetrics *v14; 
+  DWServicesAccess *v12; 
+  DWGameMetrics *v13; 
   char dest[208]; 
 
   if ( !eventName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_logging_timeseries.cpp", 391, ASSERT_TYPE_ASSERT, "(eventName)", (const char *)&queryFormat, "eventName") )
@@ -1406,16 +1389,16 @@ void __fastcall OnlineTimeSeriesLog::WriteEventGauge(OnlineTimeSeriesLog *this, 
   GameMetrics = DWServicesAccess::GetGameMetrics(Instance);
   if ( GameMetrics->isReady(GameMetrics) )
   {
-    v7 = DVARBOOL_online_matchmaking_using_metrics;
+    v6 = DVARBOOL_online_matchmaking_using_metrics;
     if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( v7->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( v6->current.enabled )
     {
-      v8 = DWServicesAccess::GetInstance();
-      EnvironmentString = DWServicesAccess::GetEnvironmentString(v8);
-      v10 = DWServicesAccess::GetInstance();
-      TitleID = DWServicesAccess::GetTitleID(v10);
+      v7 = DWServicesAccess::GetInstance();
+      EnvironmentString = DWServicesAccess::GetEnvironmentString(v7);
+      v9 = DWServicesAccess::GetInstance();
+      TitleID = DWServicesAccess::GetTitleID(v9);
       if ( Com_sprintf_truncate(dest, 0xC8ui64, "iw8.%d.%s.%s.%s", TitleID, EnvironmentString, "gc", eventName) < 0 )
       {
         Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to inadequate preamble buffer size.\n", eventName);
@@ -1423,14 +1406,11 @@ void __fastcall OnlineTimeSeriesLog::WriteEventGauge(OnlineTimeSeriesLog *this, 
       else
       {
         EpochTimeFromAuth_s = Online_GetEpochTimeFromAuth_s();
-        v13 = DWServicesAccess::GetInstance();
-        v14 = DWServicesAccess::GetGameMetrics(v13);
-        __asm
-        {
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2sd xmm3, xmm3, rsi; value
-        }
-        if ( !DWGameMetrics::gauge(v14, EpochTimeFromAuth_s, dest, *(long double *)&_XMM3) )
+        v12 = DWServicesAccess::GetInstance();
+        v13 = DWServicesAccess::GetGameMetrics(v12);
+        _XMM3 = 0i64;
+        __asm { vcvtsi2sd xmm3, xmm3, rsi; value }
+        if ( !DWGameMetrics::gauge(v13, EpochTimeFromAuth_s, dest, *(long double *)&_XMM3) )
           Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to failure in game metrics.\n", eventName);
       }
     }
@@ -1453,42 +1433,36 @@ void __fastcall OnlineTimeSeriesLog::WriteEventInt(OnlineTimeSeriesLog *this, co
 OnlineTimeSeriesLog::WriteEventSet
 ==============
 */
-
-void __fastcall OnlineTimeSeriesLog::WriteEventSet(OnlineTimeSeriesLog *this, const char *eventName, double value)
+void OnlineTimeSeriesLog::WriteEventSet(OnlineTimeSeriesLog *this, const char *eventName, const float value)
 {
   DWServicesAccess *Instance; 
   DWGameMetrics *GameMetrics; 
-  const dvar_t *v8; 
-  DWServicesAccess *v9; 
+  const dvar_t *v6; 
+  DWServicesAccess *v7; 
   const char *EnvironmentString; 
-  DWServicesAccess *v11; 
+  DWServicesAccess *v9; 
   unsigned int TitleID; 
   unsigned __int64 EpochTimeFromAuth_s; 
-  DWServicesAccess *v14; 
-  DWGameMetrics *v15; 
+  DWServicesAccess *v12; 
+  DWGameMetrics *v13; 
   char dest[208]; 
 
-  __asm
-  {
-    vmovaps [rsp+138h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !eventName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_logging_timeseries.cpp", 479, ASSERT_TYPE_ASSERT, "(eventName)", (const char *)&queryFormat, "eventName") )
     __debugbreak();
   Instance = DWServicesAccess::GetInstance();
   GameMetrics = DWServicesAccess::GetGameMetrics(Instance);
   if ( GameMetrics->isReady(GameMetrics) )
   {
-    v8 = DVARBOOL_online_matchmaking_using_metrics;
+    v6 = DVARBOOL_online_matchmaking_using_metrics;
     if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( v8->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( v6->current.enabled )
     {
+      v7 = DWServicesAccess::GetInstance();
+      EnvironmentString = DWServicesAccess::GetEnvironmentString(v7);
       v9 = DWServicesAccess::GetInstance();
-      EnvironmentString = DWServicesAccess::GetEnvironmentString(v9);
-      v11 = DWServicesAccess::GetInstance();
-      TitleID = DWServicesAccess::GetTitleID(v11);
+      TitleID = DWServicesAccess::GetTitleID(v9);
       if ( Com_sprintf_truncate(dest, 0xC8ui64, "iw8.%d.%s.%s.%s", TitleID, EnvironmentString, "gc", eventName) < 0 )
       {
         Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to inadequate preamble buffer size.\n", eventName);
@@ -1496,15 +1470,13 @@ void __fastcall OnlineTimeSeriesLog::WriteEventSet(OnlineTimeSeriesLog *this, co
       else
       {
         EpochTimeFromAuth_s = Online_GetEpochTimeFromAuth_s();
-        v14 = DWServicesAccess::GetInstance();
-        v15 = DWServicesAccess::GetGameMetrics(v14);
-        __asm { vcvtss2sd xmm3, xmm6, xmm6; value }
-        if ( !DWGameMetrics::set(v15, EpochTimeFromAuth_s, dest, *(long double *)&_XMM3) )
+        v12 = DWServicesAccess::GetInstance();
+        v13 = DWServicesAccess::GetGameMetrics(v12);
+        if ( !DWGameMetrics::set(v13, EpochTimeFromAuth_s, dest, value) )
           Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to failure in game metrics.\n", eventName);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+138h+var_18] }
 }
 
 /*
@@ -1512,42 +1484,36 @@ void __fastcall OnlineTimeSeriesLog::WriteEventSet(OnlineTimeSeriesLog *this, co
 OnlineTimeSeriesLog::WriteEventTiming
 ==============
 */
-
-void __fastcall OnlineTimeSeriesLog::WriteEventTiming(OnlineTimeSeriesLog *this, const char *eventName, double timingValue)
+void OnlineTimeSeriesLog::WriteEventTiming(OnlineTimeSeriesLog *this, const char *eventName, const float timingValue)
 {
   DWServicesAccess *Instance; 
   DWGameMetrics *GameMetrics; 
-  const dvar_t *v8; 
-  DWServicesAccess *v9; 
+  const dvar_t *v6; 
+  DWServicesAccess *v7; 
   const char *EnvironmentString; 
-  DWServicesAccess *v11; 
+  DWServicesAccess *v9; 
   unsigned int TitleID; 
   unsigned __int64 EpochTimeFromAuth_s; 
-  DWServicesAccess *v14; 
-  DWGameMetrics *v15; 
+  DWServicesAccess *v12; 
+  DWGameMetrics *v13; 
   char dest[208]; 
 
-  __asm
-  {
-    vmovaps [rsp+138h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !eventName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_logging_timeseries.cpp", 435, ASSERT_TYPE_ASSERT, "(eventName)", (const char *)&queryFormat, "eventName") )
     __debugbreak();
   Instance = DWServicesAccess::GetInstance();
   GameMetrics = DWServicesAccess::GetGameMetrics(Instance);
   if ( GameMetrics->isReady(GameMetrics) )
   {
-    v8 = DVARBOOL_online_matchmaking_using_metrics;
+    v6 = DVARBOOL_online_matchmaking_using_metrics;
     if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( v8->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( v6->current.enabled )
     {
+      v7 = DWServicesAccess::GetInstance();
+      EnvironmentString = DWServicesAccess::GetEnvironmentString(v7);
       v9 = DWServicesAccess::GetInstance();
-      EnvironmentString = DWServicesAccess::GetEnvironmentString(v9);
-      v11 = DWServicesAccess::GetInstance();
-      TitleID = DWServicesAccess::GetTitleID(v11);
+      TitleID = DWServicesAccess::GetTitleID(v9);
       if ( Com_sprintf_truncate(dest, 0xC8ui64, "iw8.%d.%s.%s.%s", TitleID, EnvironmentString, "gc", eventName) < 0 )
       {
         Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to inadequate preamble buffer size.\n", eventName);
@@ -1555,15 +1521,13 @@ void __fastcall OnlineTimeSeriesLog::WriteEventTiming(OnlineTimeSeriesLog *this,
       else
       {
         EpochTimeFromAuth_s = Online_GetEpochTimeFromAuth_s();
-        v14 = DWServicesAccess::GetInstance();
-        v15 = DWServicesAccess::GetGameMetrics(v14);
-        __asm { vcvtss2sd xmm3, xmm6, xmm6; value }
-        if ( !DWGameMetrics::timing(v15, EpochTimeFromAuth_s, dest, *(long double *)&_XMM3) )
+        v12 = DWServicesAccess::GetInstance();
+        v13 = DWServicesAccess::GetGameMetrics(v12);
+        if ( !DWGameMetrics::timing(v13, EpochTimeFromAuth_s, dest, timingValue) )
           Com_Printf(25, "OnlineTimeSeriesLog::WriteEventUInt - failed to write %s due to failure in game metrics.\n", eventName);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+138h+var_18] }
 }
 
 /*

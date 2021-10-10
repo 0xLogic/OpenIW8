@@ -106,17 +106,16 @@ __int64 Profile_EndInternal(long double *duration)
 {
   ThreadContext CurrentThreadContext; 
   _QWORD *Value; 
-  int v5; 
-  char *v6; 
-  __int64 v7; 
+  int v4; 
+  char *v5; 
+  __int64 v6; 
+  unsigned int v7; 
   unsigned int v8; 
   unsigned int v9; 
-  unsigned int v10; 
-  __int64 v11; 
-  unsigned int v12; 
-  __int64 v17; 
+  __int64 v10; 
+  unsigned int v11; 
+  __int64 v15; 
 
-  _R15 = duration;
   if ( Sys_TLSInitialized() )
   {
     if ( Sys_HasValidCurrentThreadContext() )
@@ -126,48 +125,44 @@ __int64 Profile_EndInternal(long double *duration)
     CPUTimelineProfiler::EndSample(&g_cpuProfiler, CurrentThreadContext);
   }
   Value = Sys_GetValue(0);
-  v5 = __rdtsc();
+  v4 = __rdtsc();
   if ( Value[261] <= (unsigned __int64)(Value + 5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 132, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v6 = *(char **)Value[261];
-  if ( *(_DWORD *)v6 >= 3u )
+  v5 = *(char **)Value[261];
+  if ( *(_DWORD *)v5 >= 3u )
   {
-    LODWORD(v17) = *(_DWORD *)v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 134, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v17, 3) )
+    LODWORD(v15) = *(_DWORD *)v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 134, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v15, 3) )
       __debugbreak();
   }
-  v7 = *(int *)v6;
-  v8 = 0;
-  v9 = v5 - *(_DWORD *)&v6[4 * v7 + 8] - *((_DWORD *)Value + 8784);
-  v10 = v9;
-  if ( v9 > 0xFFFF0000 )
+  v6 = *(int *)v5;
+  v7 = 0;
+  v8 = v4 - *(_DWORD *)&v5[4 * v6 + 8] - *((_DWORD *)Value + 8784);
+  v9 = v8;
+  if ( v8 > 0xFFFF0000 )
   {
+    v8 = 0;
     v9 = 0;
-    v10 = 0;
   }
-  *(_DWORD *)v6 = v7 - 1;
-  *((_DWORD *)v6 + 5) += v10;
-  ++*((_DWORD *)v6 + 1);
+  *(_DWORD *)v5 = v6 - 1;
+  *((_DWORD *)v5 + 5) += v9;
+  ++*((_DWORD *)v5 + 1);
   Value[261] -= 8i64;
-  v11 = *(_QWORD *)Value[261];
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 154, ASSERT_TYPE_ASSERT, "( parent )", (const char *)&queryFormat, "parent") )
+  v10 = *(_QWORD *)Value[261];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 154, ASSERT_TYPE_ASSERT, "( parent )", (const char *)&queryFormat, "parent") )
     __debugbreak();
-  *(_DWORD *)(v11 + 24) += v9;
-  v12 = *((_DWORD *)Value + 8785);
-  if ( *(_DWORD *)(v11 + 20) >= v12 )
-    v8 = *(_DWORD *)(v11 + 20) - v12;
-  *(_DWORD *)(v11 + 20) = v8;
-  if ( _R15 )
+  *(_DWORD *)(v10 + 24) += v8;
+  v11 = *((_DWORD *)Value + 8785);
+  if ( *(_DWORD *)(v10 + 20) >= v11 )
+    v7 = *(_DWORD *)(v10 + 20) - v11;
+  *(_DWORD *)(v10 + 20) = v7;
+  if ( duration )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovsd  qword ptr [r15], xmm1
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    *duration = *(double *)&_XMM0 * msecPerRawTimerTick;
   }
-  return (v6 - (char *)Value - 2096) / 40;
+  return (v5 - (char *)Value - 2096) / 40;
 }
 
 /*
@@ -285,36 +280,23 @@ ProfileScopedDev::~ProfileScopedDev
 */
 void ProfileScopedDev::~ProfileScopedDev(ProfileScopedDev *this)
 {
-  unsigned __int64 v2; 
-  bool v3; 
-  __int64 v4; 
+  __int128 v3; 
+  __int128 v5; 
 
-  v2 = __rdtsc();
-  v3 = v2 < this->m_startTime;
-  v4 = v2 - this->m_startTime;
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - this->m_startTime) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v3 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v3 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v3;
   }
-  if ( v4 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm2, dword ptr [rcx+10h]
-  }
-  if ( !v3 && v4 != 0 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(12, "[PROFILE] %s took %.3fms\n", this->m_funcName, *(double *)&_XMM3);
-  }
+  *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v5 = *(double *)&_XMM0 * usecPerRawTimerTick;
+  _XMM0 = v5;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  if ( (float)(*(float *)&_XMM1 * 0.001) > this->m_warnThreshold )
+    Com_Printf(12, "[PROFILE] %s took %.3fms\n", this->m_funcName, (float)(*(float *)&_XMM1 * 0.001));
 }
 
 /*

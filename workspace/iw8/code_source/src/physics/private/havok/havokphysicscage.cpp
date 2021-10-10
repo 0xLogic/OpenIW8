@@ -104,39 +104,48 @@ HavokPhysicsCage_ClipPlanes
 */
 void HavokPhysicsCage_ClipPlanes(unsigned int cageId, const hkVector4f *planesWs, unsigned int planeCount)
 {
+  unsigned int v3; 
+  const hkVector4f *v4; 
+  __int64 v5; 
+  __int64 v6; 
+  __int64 v7; 
+  HavokPhysicsCage *v8; 
   unsigned int v9; 
   const hkVector4f *v10; 
-  __int64 v11; 
-  __int64 v12; 
-  __int64 v13; 
-  HavokPhysicsCage *v14; 
-  unsigned int v15; 
-  HavokPhysicsMidphaseClippedPlane *v17; 
-  unsigned int v19; 
-  unsigned int v20; 
-  __int64 v22; 
-  hknpShape *v23; 
-  __int64 v27; 
+  HavokPhysicsMidphaseClippedPlane *v11; 
+  unsigned int v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  hknpShape *v16; 
+  hkTransformf *v17; 
+  hkVector4f *v18; 
+  __int64 v19; 
+  hkTransformf *v25; 
+  __m128 v32; 
+  __m128 v36; 
+  __m128 v37; 
   int m_value; 
   hknpShape *Shape; 
-  unsigned int v64; 
-  __int64 v65; 
+  unsigned int v40; 
+  __int64 v41; 
+  HavokPhysicsMidphaseClippedPlane *v42; 
   __int64 pointCount; 
-  __int64 v89; 
-  __int64 v90; 
-  unsigned __int64 *v91; 
+  __int64 v44; 
+  __int64 v45; 
+  float *v46; 
+  __int64 v47; 
   hkVector4f *edgesOut; 
-  __int64 v107; 
-  unsigned __int16 v108; 
-  unsigned int v109; 
-  unsigned int v110; 
-  int v111; 
-  __int64 v112; 
-  __int64 v113; 
-  __int64 v114; 
-  const hkVector4f *v115; 
-  HavokPhysicsCage *v116; 
-  __int64 v117; 
+  __int64 v49; 
+  unsigned __int16 v50; 
+  unsigned int v51; 
+  unsigned int i; 
+  int v53; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  const hkVector4f *v57; 
+  HavokPhysicsCage *v58; 
+  __int64 v59; 
   vec3_t vec; 
   vec3_t forward; 
   vec3_t out; 
@@ -145,324 +154,231 @@ void HavokPhysicsCage_ClipPlanes(unsigned int cageId, const hkVector4f *planesWs
   hkVector4f a[2]; 
   hkVector4f c; 
   tmat33_t<vec3_t> outAxis; 
-  _BYTE v126[64]; 
-  __int64 v127; 
-  int v128; 
-  __int64 v129; 
-  __int64 v131; 
-  void (__fastcall *const *v132)(); 
-  __int64 v133; 
-  char *v134; 
-  int v135; 
-  char v136; 
-  __int16 v139; 
+  _BYTE v68[64]; 
+  __int64 v69; 
+  int v70; 
+  __int64 v71; 
+  __m128 v72; 
+  __int64 v73; 
+  void (__fastcall *const *v74)(); 
+  __int64 v75; 
+  char *v76; 
+  int v77; 
+  char v78; 
+  __m256i v79; 
+  __m128 v80; 
+  __int16 v81; 
   hkVector4f plane[2]; 
-  hkVector4f v141; 
-  char v143; 
-  void *retaddr; 
+  hkVector4f v83; 
+  __m128 v84; 
 
-  _RAX = &retaddr;
-  v117 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  v9 = planeCount;
-  LODWORD(v112) = planeCount;
-  v10 = planesWs;
-  v115 = planesWs;
-  v11 = (int)cageId;
+  v59 = -2i64;
+  v3 = planeCount;
+  LODWORD(v54) = planeCount;
+  v4 = planesWs;
+  v57 = planesWs;
+  v5 = (int)cageId;
   if ( cageId - 1 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 245, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
-  if ( v9 - 1 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 246, ASSERT_TYPE_ASSERT, "(planeCount > 0 && planeCount <= MAX_MIDCAGE_CLIPPLANES)", "%s\n\tHavokPhysicsCage_ClipPlanes: Max number of allowed planes to clip is %d", "planeCount > 0 && planeCount <= MAX_MIDCAGE_CLIPPLANES", 2) )
+  if ( v3 - 1 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 246, ASSERT_TYPE_ASSERT, "(planeCount > 0 && planeCount <= MAX_MIDCAGE_CLIPPLANES)", "%s\n\tHavokPhysicsCage_ClipPlanes: Max number of allowed planes to clip is %d", "planeCount > 0 && planeCount <= MAX_MIDCAGE_CLIPPLANES", 2) )
     __debugbreak();
-  v12 = v11 - 1;
-  v113 = v11 - 1;
-  v13 = v11 - 1;
-  if ( !s_cages[v13].inUse )
+  v6 = v5 - 1;
+  v55 = v5 - 1;
+  v7 = v5 - 1;
+  if ( !s_cages[v7].inUse )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 249, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
       __debugbreak();
-    v12 = v113;
+    v6 = v55;
   }
-  v14 = &s_cages[v13];
-  v116 = &s_cages[v13];
-  if ( s_cages[v13].updateCount )
+  v8 = &s_cages[v7];
+  v58 = &s_cages[v7];
+  if ( s_cages[v7].updateCount )
   {
-    v15 = 0;
-    if ( v9 )
+    v9 = 0;
+    if ( v3 )
     {
-      _RSI = v10;
-      v17 = s_midphaseCageClippedPlanes[v12];
+      v10 = v4;
+      v11 = s_midphaseCageClippedPlanes[v6];
       do
       {
-        v17->index = v15;
+        v11->index = v9;
+        _XMM0 = v10->m_quad;
         __asm
         {
-          vmovups xmm0, xmmword ptr [rsi]
           vmovlps qword ptr [rbp+0DB0h+forward], xmm0
           vextractps dword ptr [rbp+0DB0h+forward+8], xmm0, 2
         }
         BG_AxisFromForward(&forward, &identityMatrix33.m[2], &outAxis);
-        MatrixTranspose(&outAxis, &v17->worldToPlane);
-        v17->pointCount = 0;
-        ++v15;
-        ++v17;
-        ++_RSI;
+        MatrixTranspose(&outAxis, &v11->worldToPlane);
+        v11->pointCount = 0;
+        ++v9;
+        ++v11;
+        ++v10;
       }
-      while ( v15 < v9 );
+      while ( v9 < v3 );
     }
-    v19 = 0;
-    v109 = 0;
-    v20 = 0;
-    v110 = 0;
-    if ( v14->shapeCount )
+    v13 = 0;
+    v51 = 0;
+    v14 = 0;
+    for ( i = 0; v14 < v8->shapeCount; i = v14 )
     {
-      __asm { vmovss  xmm6, cs:__real@42000000 }
-      do
+      if ( v14 >= 4 )
       {
-        if ( v20 >= 4 )
-        {
-          LODWORD(v107) = 4;
-          LODWORD(edgesOut) = v20;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_CAGE_SHAPES )", "index doesn't index MAX_CAGE_SHAPES\n\t%i not in [0, %i)", edgesOut, v107) )
-            __debugbreak();
-        }
-        v22 = v20;
-        v114 = v20;
-        if ( (v14->bodyIds[v20].m_serialAndIndex & 0xFFFFFF) != 0xFFFFFF && HavokPhysics_IsRigidBodyValid(v14->worldId, v14->bodyIds[v20]) && (v23 = HavokPhysics_GetShape(v14->worldId, v14->bodyIds[v20])) != NULL && v23->m_type.m_storage == 9 )
-        {
-          if ( v9 )
-          {
-            _RDI = &v14->worldToShape[v20].m_rotation;
-            _RBX = plane;
-            _R14 = (char *)v10 - (char *)plane;
-            v27 = v9;
-            do
-            {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [r14+rbx]
-                vmovups xmmword ptr [rbp+0DB0h+b.m_quad], xmm0
-              }
-              hkVector4f::setRotatedDir(_RBX, _RDI, &b);
-              __asm
-              {
-                vbroadcastss xmm2, dword ptr [rbp+0DB0h+b.m_quad+0Ch]
-                vmovups xmm3, xmmword ptr [rbx]
-                vmovups xmm0, xmmword ptr [rdi+30h]
-                vdpps   xmm1, xmm0, xmm3, 7Fh
-                vsubps  xmm2, xmm2, xmm1
-                vblendps xmm0, xmm3, xmm2, 8
-                vmovups xmmword ptr [rbx], xmm0
-              }
-              ++_RBX;
-              --v27;
-            }
-            while ( v27 );
-            v19 = v109;
-            v22 = v114;
-            v20 = v110;
-          }
-          _RAX = &v14->worldToShape[v22];
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax]
-            vmovups xmm0, xmmword ptr [rax+10h]
-            vmovups xmm3, xmmword ptr [rax+20h]
-            vunpcklps xmm2, xmm1, xmm0
-            vunpckhps xmm0, xmm1, xmm0
-            vblendps xmm8, xmm0, xmm3, 0Ch
-            vmovlhps xmm7, xmm2, xmm3
-            vmovhlps xmm0, xmm7, xmm2
-            vshufps xmm9, xmm0, xmm3, 0D4h ; 'Ô'
-            vpxor   xmm0, xmm0, xmm0
-            vpinsrw xmm0, xmm0, ecx, 1
-            vpshufd xmm1, xmm0, 0
-            vxorps  xmm2, xmm1, xmmword ptr [rax+30h]
-            vshufps xmm0, xmm2, xmm2, 0
-            vshufps xmm1, xmm2, xmm2, 55h ; 'U'
-            vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-            vmulps  xmm3, xmm0, xmm7
-            vmulps  xmm0, xmm1, xmm9
-            vmulps  xmm1, xmm2, xmm8
-            vaddps  xmm0, xmm0, xmm3
-            vaddps  xmm10, xmm0, xmm1
-          }
-          v108 = 0;
-          if ( v14->subshapeCount[v22] )
-          {
-            do
-            {
-              if ( v19 >= v14->subshapeTotalCount )
-                break;
-              m_value = v14->shapeKeys[v19].m_value;
-              if ( v20 >= 4 )
-              {
-                LODWORD(v107) = 4;
-                LODWORD(edgesOut) = v20;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_CAGE_SHAPES )", "index doesn't index MAX_CAGE_SHAPES\n\t%i not in [0, %i)", edgesOut, v107) )
-                  __debugbreak();
-              }
-              if ( (v14->bodyIds[v22].m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF || !HavokPhysics_IsRigidBodyValid(v14->worldId, v14->bodyIds[v22]) )
-                Shape = NULL;
-              else
-                Shape = HavokPhysics_GetShape(v14->worldId, v14->bodyIds[v22]);
-              v111 = m_value;
-              if ( Shape )
-              {
-                v133 = 0i64;
-                v134 = &v136;
-                v135 = 2048;
-                v132 = hknpInplaceShapeBuffer<2048>::`vftable';
-                v131 = 0i64;
-                v127 = 0i64;
-                v128 = 0;
-                v129 = 13i64;
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-                  vmovups [rbp+0DB0h+var_D60], ymm0
-                  vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-                  vmovups [rbp+0DB0h+var_D40], ymm0
-                  vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-                  vmovups [rbp+0DB0h+var_C00], xmm0
-                }
-                v139 = -1;
-                Shape->getLeafShapes(Shape, (const hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> *)&v111, 1, (hknpShapeCollector *)v126);
-                if ( (v129 & 0x10) != 0 )
-                {
-                  __asm
-                  {
-                    vmovups ymm0, [rbp+0DB0h+var_3C0]
-                    vmovups ymmword ptr [rbp+0DB0h+a.m_quad], ymm0
-                    vmovups xmm0, [rbp+0DB0h+var_3A0]
-                    vmovups xmmword ptr [rbp+0DB0h+c.m_quad], xmm0
-                  }
-                  v132 = hknpShapeBuffer::`vftable';
-                  if ( v133 )
-                    (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v133 + 8i64))(v133, 0i64);
-                  v64 = 0;
-                  v65 = v113;
-                  while ( v64 < v9 )
-                  {
-                    _RDI = &s_midphaseCageClippedPlanes[v65][v64];
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+260h; __m128 const near * const g_vectorfConstants
-                      vmovups xmmword ptr [rbp+0DB0h+tolerance.m_real], xmm0
-                    }
-                    if ( hkcdTriangleUtil::clipWithPlane(a, &a[1], &c, &plane[v64], &tolerance, &v141) )
-                    {
-                      pointCount = _RDI->pointCount;
-                      if ( (unsigned int)pointCount < 0x13F )
-                      {
-                        __asm
-                        {
-                          vmovups xmm5, xmmword ptr [rbp+0DB0h+var_F0.m_quad]
-                          vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-                          vmulps  xmm3, xmm0, xmm9
-                          vshufps xmm1, xmm5, xmm5, 0
-                          vmulps  xmm2, xmm1, xmm7
-                          vaddps  xmm4, xmm3, xmm2
-                          vshufps xmm0, xmm5, xmm5, 0AAh ; 'ª'
-                          vmulps  xmm1, xmm0, xmm8
-                          vaddps  xmm2, xmm4, xmm1
-                          vaddps  xmm3, xmm2, xmm10
-                          vmovups xmmword ptr [rbp+0DB0h+var_F0.m_quad], xmm3
-                          vmovups xmm5, [rbp+0DB0h+var_E0]
-                          vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-                          vmulps  xmm3, xmm0, xmm9
-                          vshufps xmm1, xmm5, xmm5, 0
-                          vmulps  xmm2, xmm1, xmm7
-                          vaddps  xmm4, xmm3, xmm2
-                          vshufps xmm0, xmm5, xmm5, 0AAh ; 'ª'
-                          vmulps  xmm1, xmm0, xmm8
-                          vaddps  xmm2, xmm4, xmm1
-                          vaddps  xmm3, xmm2, xmm10
-                          vmovups [rbp+0DB0h+var_E0], xmm3
-                        }
-                        v89 = pointCount;
-                        v90 = 0i64;
-                        v91 = &v141.m_quad.m128_u64[1];
-                        do
-                        {
-                          __asm
-                          {
-                            vmulss  xmm1, xmm6, dword ptr [r14-8]
-                            vmovss  dword ptr [rbp+0DB0h+vec], xmm1
-                            vmulss  xmm0, xmm6, dword ptr [r14-4]
-                            vmovss  dword ptr [rbp+0DB0h+vec+4], xmm0
-                            vmulss  xmm2, xmm6, dword ptr [r14]
-                            vmovss  dword ptr [rbp+0DB0h+vec+8], xmm2
-                          }
-                          _RBX = v90 + v89;
-                          AxisTransformVec3(&s_midphaseCageClippedPlanes[v65][v64].worldToPlane, &vec, &out);
-                          __asm
-                          {
-                            vmovss  xmm0, dword ptr [rbp+0DB0h+out+4]
-                            vmovss  dword ptr [rdi+rbx*8+24h], xmm0
-                            vmovss  xmm1, dword ptr [rbp+0DB0h+out+8]
-                            vmovss  dword ptr [rdi+rbx*8+28h], xmm1
-                          }
-                          _RDX = _RDI->pointCount + v90 + 217;
-                          __asm
-                          {
-                            vmovsd  xmm0, qword ptr [rbp+0DB0h+vec]
-                            vmovsd  qword ptr [rdi+rdx*4], xmm0
-                          }
-                          _RDI->worldToPlane.m[_RDX].v[2] = vec.v[2];
-                          ++v90;
-                          v91 += 2;
-                        }
-                        while ( v90 < 2 );
-                        _RDI->pointCount += 2;
-                        v9 = v112;
-                      }
-                    }
-                    ++v64;
-                  }
-                  v14 = v116;
-                  v19 = v109;
-                  v22 = v114;
-                  v20 = v110;
-                }
-                else
-                {
-                  v132 = hknpShapeBuffer::`vftable';
-                  if ( v133 )
-                    (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v133 + 8i64))(v133, 0i64);
-                }
-              }
-              ++v108;
-              v109 = ++v19;
-            }
-            while ( v108 < v14->subshapeCount[v22] );
-            v10 = v115;
-          }
-        }
-        else
-        {
-          v19 += v14->subshapeCount[v20];
-          v109 = v19;
-        }
-        v110 = ++v20;
+        LODWORD(v49) = 4;
+        LODWORD(edgesOut) = v14;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_CAGE_SHAPES )", "index doesn't index MAX_CAGE_SHAPES\n\t%i not in [0, %i)", edgesOut, v49) )
+          __debugbreak();
       }
-      while ( v20 < v14->shapeCount );
+      v15 = v14;
+      v56 = v14;
+      if ( (v8->bodyIds[v14].m_serialAndIndex & 0xFFFFFF) != 0xFFFFFF && HavokPhysics_IsRigidBodyValid(v8->worldId, v8->bodyIds[v14]) && (v16 = HavokPhysics_GetShape(v8->worldId, v8->bodyIds[v14])) != NULL && v16->m_type.m_storage == 9 )
+      {
+        if ( v3 )
+        {
+          v17 = &v8->worldToShape[v14];
+          v18 = plane;
+          v19 = v3;
+          do
+          {
+            b.m_quad = *(__m128 *)((char *)v18 + (char *)v4 - (char *)plane);
+            hkVector4f::setRotatedDir(v18, &v17->m_rotation, &b);
+            __asm { vbroadcastss xmm2, dword ptr [rbp+0DB0h+b.m_quad+0Ch] }
+            _XMM3.m_quad = v18->m_quad;
+            _XMM0.m_quad = (__m128)v17->m_translation;
+            __asm { vdpps   xmm1, xmm0, xmm3, 7Fh }
+            _mm128_sub_ps(_XMM2, _XMM1);
+            __asm { vblendps xmm0, xmm3, xmm2, 8 }
+            *v18++ = (hkVector4f)_XMM0.m_quad;
+            --v19;
+          }
+          while ( v19 );
+          v13 = v51;
+          v15 = v56;
+          v14 = i;
+        }
+        v25 = &v8->worldToShape[v15];
+        _XMM1.m_quad = (__m128)v25->m_rotation.m_col0;
+        __asm
+        {
+          vunpcklps xmm2, xmm1, xmm0
+          vunpckhps xmm0, xmm1, xmm0
+          vblendps xmm8, xmm0, xmm3, 0Ch
+          vmovlhps xmm7, xmm2, xmm3
+          vmovhlps xmm0, xmm7, xmm2
+        }
+        v32 = _mm_shuffle_ps(_XMM0, v25->m_rotation.m_col2.m_quad, 212);
+        __asm
+        {
+          vpxor   xmm0, xmm0, xmm0
+          vpinsrw xmm0, xmm0, ecx, 1
+          vpshufd xmm1, xmm0, 0
+        }
+        v36 = (__m128)(_XMM1 ^ *(_OWORD *)&v25->m_translation);
+        v37 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v36, v36, 85), v32), _mm128_mul_ps(_mm_shuffle_ps(v36, v36, 0), _XMM7)), _mm128_mul_ps(_mm_shuffle_ps(v36, v36, 170), _XMM8));
+        v50 = 0;
+        if ( v8->subshapeCount[v15] )
+        {
+          do
+          {
+            if ( v13 >= v8->subshapeTotalCount )
+              break;
+            m_value = v8->shapeKeys[v13].m_value;
+            if ( v14 >= 4 )
+            {
+              LODWORD(v49) = 4;
+              LODWORD(edgesOut) = v14;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_CAGE_SHAPES )", "index doesn't index MAX_CAGE_SHAPES\n\t%i not in [0, %i)", edgesOut, v49) )
+                __debugbreak();
+            }
+            if ( (v8->bodyIds[v15].m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF || !HavokPhysics_IsRigidBodyValid(v8->worldId, v8->bodyIds[v15]) )
+              Shape = NULL;
+            else
+              Shape = HavokPhysics_GetShape(v8->worldId, v8->bodyIds[v15]);
+            v53 = m_value;
+            if ( Shape )
+            {
+              v75 = 0i64;
+              v76 = &v78;
+              v77 = 2048;
+              v74 = hknpInplaceShapeBuffer<2048>::`vftable';
+              v73 = 0i64;
+              v69 = 0i64;
+              v70 = 0;
+              v71 = 13i64;
+              *(__m256i *)v68 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+              *(__m256i *)&v68[32] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+              v72 = g_vectorfConstants[6];
+              v81 = -1;
+              Shape->getLeafShapes(Shape, (const hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> *)&v53, 1, (hknpShapeCollector *)v68);
+              if ( (v71 & 0x10) != 0 )
+              {
+                *(__m256i *)a[0].m_quad.m128_f32 = v79;
+                c.m_quad = v80;
+                v74 = hknpShapeBuffer::`vftable';
+                if ( v75 )
+                  (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v75 + 8i64))(v75, 0i64);
+                v40 = 0;
+                v41 = v55;
+                while ( v40 < v3 )
+                {
+                  v42 = &s_midphaseCageClippedPlanes[v41][v40];
+                  tolerance.m_real = g_vectorfConstants[38];
+                  if ( hkcdTriangleUtil::clipWithPlane(a, &a[1], &c, &plane[v40], &tolerance, &v83) )
+                  {
+                    pointCount = v42->pointCount;
+                    if ( (unsigned int)pointCount < 0x13F )
+                    {
+                      v83.m_quad = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v83.m_quad, v83.m_quad, 85), v32), _mm128_mul_ps(_mm_shuffle_ps(v83.m_quad, v83.m_quad, 0), _XMM7)), _mm128_mul_ps(_mm_shuffle_ps(v83.m_quad, v83.m_quad, 170), _XMM8)), v37);
+                      v84 = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v84, v84, 85), v32), _mm128_mul_ps(_mm_shuffle_ps(v84, v84, 0), _XMM7)), _mm128_mul_ps(_mm_shuffle_ps(v84, v84, 170), _XMM8)), v37);
+                      v44 = pointCount;
+                      v45 = 0i64;
+                      v46 = &v83.m_quad.m128_f32[2];
+                      do
+                      {
+                        vec.v[0] = 32.0 * *(v46 - 2);
+                        vec.v[1] = 32.0 * *(v46 - 1);
+                        vec.v[2] = 32.0 * *v46;
+                        v47 = v45 + v44;
+                        AxisTransformVec3(&s_midphaseCageClippedPlanes[v41][v40].worldToPlane, &vec, &out);
+                        v42->points2D[v47].v[0] = out.v[1];
+                        v42->points2D[v47].v[1] = out.v[2];
+                        v42->debugPoints[v42->pointCount + v45++] = vec;
+                        v46 += 4;
+                      }
+                      while ( v45 < 2 );
+                      v42->pointCount += 2;
+                      v3 = v54;
+                    }
+                  }
+                  ++v40;
+                }
+                v8 = v58;
+                v13 = v51;
+                v15 = v56;
+                v14 = i;
+              }
+              else
+              {
+                v74 = hknpShapeBuffer::`vftable';
+                if ( v75 )
+                  (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v75 + 8i64))(v75, 0i64);
+              }
+            }
+            ++v50;
+            v51 = ++v13;
+          }
+          while ( v50 < v8->subshapeCount[v15] );
+          v4 = v57;
+        }
+      }
+      else
+      {
+        v13 += v8->subshapeCount[v14];
+        v51 = v13;
+      }
+      ++v14;
     }
-  }
-  _R11 = &v143;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
   }
 }
 
@@ -475,8 +391,10 @@ __int64 HavokPhysicsCage_Create(Physics_WorldId worldId, PhysicsCage_Type cageTy
 {
   bool *p_inUse; 
   unsigned int v6; 
-  __int64 v8; 
-  unsigned int v9; 
+  __int64 v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  hkVector4f v10; 
   __int64 result; 
 
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 86, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysicsCage_Create: Invalid world index: %d", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", worldId) )
@@ -496,31 +414,29 @@ __int64 HavokPhysicsCage_Create(Physics_WorldId worldId, PhysicsCage_Type cageTy
       break;
     }
   }
-  _RBP = s_cages;
-  v8 = (int)v6;
-  s_cages[v8].worldId = worldId;
-  v9 = v6 + 1;
-  s_cages[v8].cageType = cageType;
-  s_cages[v8].inUse = 1;
+  v7 = (int)v6;
+  s_cages[v7].worldId = worldId;
+  v8 = v6 + 1;
+  s_cages[v7].cageType = cageType;
+  s_cages[v7].inUse = 1;
   if ( v6 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 128, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
-  _RBX = (int)v6;
-  if ( !s_cages[_RBX].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 131, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
+  v9 = (int)v6;
+  if ( !s_cages[v9].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 131, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
     __debugbreak();
-  __asm { vmovups xmm2, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+240h; __m128 const near * const g_vectorfConstants }
-  s_cages[_RBX].updateCount = 0;
+  v10.m_quad = g_vectorfConstants[36];
+  s_cages[v9].updateCount = 0;
+  s_cages[v9].aabb.m_min = (hkVector4f)v10.m_quad;
   __asm
   {
-    vmovups xmmword ptr [rbx+rbp+620h], xmm2
     vpxor   xmm0, xmm0, xmm0
     vpinsrw xmm0, xmm0, eax, 1
     vpshufd xmm1, xmm0, 0
-    vxorps  xmm0, xmm2, xmm1
-    vmovups xmmword ptr [rbx+rbp+630h], xmm0
   }
-  *(_QWORD *)&s_cages[_RBX].shapeCount = 0i64;
-  result = v9;
-  *(_QWORD *)s_cages[_RBX].subshapeCount = 0i64;
+  s_cages[v9].aabb.m_max = (hkVector4f)(*(_OWORD *)&v10.m_quad ^ _XMM1);
+  *(_QWORD *)&s_cages[v9].shapeCount = 0i64;
+  result = v8;
+  *(_QWORD *)s_cages[v9].subshapeCount = 0i64;
   return result;
 }
 
@@ -546,259 +462,189 @@ HavokPhysicsCage_DrawDebug
 */
 void HavokPhysicsCage_DrawDebug(unsigned int cageId, unsigned int planesCount)
 {
+  __int64 v2; 
+  __int64 v3; 
+  __int64 v4; 
+  __int64 v5; 
+  HavokPhysicsCage *v6; 
+  __int64 v7; 
+  __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
-  HavokPhysicsCage *v13; 
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v17; 
   hknpShape *Shape; 
-  hknpShape *v19; 
-  unsigned __int16 v20; 
-  char v24; 
-  __int64 v68; 
+  hknpShape *v11; 
+  unsigned __int16 v12; 
+  char v13; 
+  __int64 v14; 
   vec3_t *debugPoints; 
-  int v70; 
-  __int64 v71; 
-  __int64 v79; 
-  __int64 v80; 
-  int v81; 
-  __int64 v83; 
-  __int64 v84; 
-  HavokPhysicsCage *v85; 
-  __int64 v86; 
-  __m256i v90; 
-  __int64 v92; 
-  int v93; 
-  __int64 v94; 
-  __int64 v96; 
-  void (__fastcall *const *v97)(); 
-  __int64 v98; 
-  char *v99; 
-  int v100; 
-  char v101; 
-  __int16 v105; 
+  int v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  int v20; 
+  __int64 v22; 
+  __int64 v23; 
+  HavokPhysicsCage *v24; 
+  __int64 v25; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  __m256i v29; 
+  __m256i v30; 
+  __int64 v31; 
+  int v32; 
+  __int64 v33; 
+  __m128 v34; 
+  __int64 v35; 
+  void (__fastcall *const *v36)(); 
+  __int64 v37; 
+  char *v38; 
+  int v39; 
+  char v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __int16 v44; 
   vec3_t start; 
   vec3_t end; 
-  vec3_t v108; 
-  char v109; 
-  void *retaddr; 
+  vec3_t v47; 
 
-  _RAX = &retaddr;
-  v86 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  v9 = planesCount;
-  v10 = (int)cageId;
+  v25 = -2i64;
+  v2 = planesCount;
+  v3 = (int)cageId;
   if ( cageId - 1 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 444, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
-  v11 = v10 - 1;
-  v84 = v10 - 1;
-  v12 = v10 - 1;
-  if ( !s_cages[v12].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 447, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
+  v4 = v3 - 1;
+  v23 = v3 - 1;
+  v5 = v3 - 1;
+  if ( !s_cages[v5].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 447, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
     __debugbreak();
-  v13 = &s_cages[v12];
-  v85 = &s_cages[v12];
-  if ( s_cages[v12].updateCount )
+  v6 = &s_cages[v5];
+  v24 = &s_cages[v5];
+  if ( s_cages[v5].updateCount )
   {
-    v14 = 0i64;
-    v81 = 0;
-    if ( v13->shapeCount )
+    v7 = 0i64;
+    v20 = 0;
+    if ( v6->shapeCount )
     {
-      v15 = 0i64;
-      v83 = 0i64;
-      __asm { vmovss  xmm11, cs:__real@42000000 }
+      v8 = 0i64;
+      v22 = 0i64;
       do
       {
-        if ( (unsigned int)v14 >= 4 )
+        if ( (unsigned int)v7 >= 4 )
         {
-          LODWORD(v80) = 4;
-          LODWORD(v79) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_CAGE_SHAPES )", "index doesn't index MAX_CAGE_SHAPES\n\t%i not in [0, %i)", v79, v80) )
+          LODWORD(v19) = 4;
+          LODWORD(v18) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_CAGE_SHAPES )", "index doesn't index MAX_CAGE_SHAPES\n\t%i not in [0, %i)", v18, v19) )
             __debugbreak();
         }
-        v17 = (unsigned int)v14;
-        if ( (v13->bodyIds[v14].m_serialAndIndex & 0xFFFFFF) != 0xFFFFFF && HavokPhysics_IsRigidBodyValid(v13->worldId, v13->bodyIds[v14]) )
+        v9 = (unsigned int)v7;
+        if ( (v6->bodyIds[v7].m_serialAndIndex & 0xFFFFFF) != 0xFFFFFF && HavokPhysics_IsRigidBodyValid(v6->worldId, v6->bodyIds[v7]) )
         {
-          Shape = HavokPhysics_GetShape(v13->worldId, v13->bodyIds[v14]);
-          v19 = Shape;
+          Shape = HavokPhysics_GetShape(v6->worldId, v6->bodyIds[v7]);
+          v11 = Shape;
           if ( Shape )
           {
             if ( Shape->m_type.m_storage == 9 )
             {
               if ( drawTris )
               {
-                v20 = 0;
-                if ( v13->subshapeCount[v17] )
+                v12 = 0;
+                if ( v6->subshapeCount[v9] )
                 {
                   do
                   {
-                    LODWORD(v83) = v13->shapeKeys[v15].m_value;
-                    v98 = 0i64;
-                    v99 = &v101;
-                    v100 = 2048;
-                    v97 = hknpInplaceShapeBuffer<2048>::`vftable';
-                    v96 = 0i64;
-                    v92 = 0i64;
-                    v93 = 0;
-                    v94 = 13i64;
-                    __asm
+                    LODWORD(v22) = v6->shapeKeys[v8].m_value;
+                    v37 = 0i64;
+                    v38 = &v40;
+                    v39 = 2048;
+                    v36 = hknpInplaceShapeBuffer<2048>::`vftable';
+                    v35 = 0i64;
+                    v31 = 0i64;
+                    v32 = 0;
+                    v33 = 13i64;
+                    v29 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+                    v30 = *(__m256i *)g_vectorfConstants[34].m128_f32;
+                    v34 = g_vectorfConstants[6];
+                    v44 = -1;
+                    v11->getLeafShapes(v11, (const hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> *)&v22, 1, (hknpShapeCollector *)&v29);
+                    if ( (v33 & 0x10) != 0 )
                     {
-                      vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-                      vmovups [rbp+0CC0h+var_D00], ymm0
-                      vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-                      vmovups [rbp+0CC0h+var_CE0], ymm0
-                      vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-                      vmovups [rbp+0CC0h+var_BA0], xmm0
-                    }
-                    v105 = -1;
-                    v19->getLeafShapes(v19, (const hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> *)&v83, 1, (hknpShapeCollector *)&v90);
-                    if ( (v94 & 0x10) != 0 )
-                    {
-                      __asm
-                      {
-                        vmovups xmm4, [rbp+0CC0h+var_360]
-                        vshufps xmm0, xmm4, xmm4, 55h ; 'U'
-                        vmovups xmm9, xmmword ptr [rbp+0CC0h+var_D00+10h]
-                        vmulps  xmm2, xmm0, xmm9
-                        vshufps xmm1, xmm4, xmm4, 0
-                        vmovups xmm6, xmmword ptr [rbp+0CC0h+var_D00]
-                        vmulps  xmm0, xmm1, xmm6
-                        vaddps  xmm3, xmm2, xmm0
-                        vshufps xmm2, xmm4, xmm4, 0AAh ; 'ª'
-                        vmovups xmm7, xmmword ptr [rbp+0CC0h+var_CE0]
-                        vmulps  xmm0, xmm2, xmm7
-                        vaddps  xmm1, xmm3, xmm0
-                        vmovups xmm8, xmmword ptr [rbp+0CC0h+var_CE0+10h]
-                        vaddps  xmm10, xmm1, xmm8
-                        vmovups [rbp+0CC0h+var_D40], xmm10
-                        vmovups xmm5, [rbp+0CC0h+var_350]
-                        vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-                        vmulps  xmm3, xmm0, xmm9
-                        vshufps xmm1, xmm5, xmm5, 0
-                        vmulps  xmm2, xmm1, xmm6
-                        vaddps  xmm4, xmm3, xmm2
-                        vshufps xmm0, xmm5, xmm5, 0AAh ; 'ª'
-                        vmulps  xmm1, xmm0, xmm7
-                        vaddps  xmm2, xmm4, xmm1
-                        vaddps  xmm5, xmm2, xmm8
-                        vmovups [rbp+0CC0h+var_D30], xmm5
-                        vmovups xmm0, [rbp+0CC0h+var_340]
-                        vshufps xmm1, xmm0, xmm0, 0
-                        vshufps xmm2, xmm0, xmm0, 55h ; 'U'
-                        vshufps xmm3, xmm0, xmm0, 0AAh ; 'ª'
-                        vmulps  xmm4, xmm6, xmm1
-                        vmulps  xmm0, xmm9, xmm2
-                        vmulps  xmm1, xmm7, xmm3
-                        vaddps  xmm0, xmm0, xmm4
-                        vaddps  xmm1, xmm1, xmm0
-                        vaddps  xmm2, xmm8, xmm1
-                        vmovups [rbp+0CC0h+var_D20], xmm2
-                      }
-                      v97 = hknpShapeBuffer::`vftable';
-                      if ( v98 )
-                        (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v98 + 8i64))(v98, 0i64);
-                      v24 = 1;
+                      v26 = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v41, v41, 85), *(__m128 *)&v29.m256i_u64[2]), _mm128_mul_ps(_mm_shuffle_ps(v41, v41, 0), *(__m128 *)v29.m256i_i8)), _mm128_mul_ps(_mm_shuffle_ps(v41, v41, 170), *(__m128 *)v30.m256i_i8)), *(__m128 *)&v30.m256i_u64[2]);
+                      v27 = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v42, v42, 85), *(__m128 *)&v29.m256i_u64[2]), _mm128_mul_ps(_mm_shuffle_ps(v42, v42, 0), *(__m128 *)v29.m256i_i8)), _mm128_mul_ps(_mm_shuffle_ps(v42, v42, 170), *(__m128 *)v30.m256i_i8)), *(__m128 *)&v30.m256i_u64[2]);
+                      v28 = _mm128_add_ps(*(__m128 *)&v30.m256i_u64[2], _mm128_add_ps(_mm128_mul_ps(*(__m128 *)v30.m256i_i8, _mm_shuffle_ps(v43, v43, 170)), _mm128_add_ps(_mm128_mul_ps(*(__m128 *)&v29.m256i_u64[2], _mm_shuffle_ps(v43, v43, 85)), _mm128_mul_ps(*(__m128 *)v29.m256i_i8, _mm_shuffle_ps(v43, v43, 0)))));
+                      v36 = hknpShapeBuffer::`vftable';
+                      if ( v37 )
+                        (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v37 + 8i64))(v37, 0i64);
+                      v13 = 1;
                     }
                     else
                     {
-                      v97 = hknpShapeBuffer::`vftable';
-                      if ( v98 )
-                        (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v98 + 8i64))(v98, 0i64);
-                      v24 = 0;
+                      v36 = hknpShapeBuffer::`vftable';
+                      if ( v37 )
+                        (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v37 + 8i64))(v37, 0i64);
+                      v13 = 0;
                     }
-                    if ( v24 )
+                    if ( v13 )
                     {
-                      __asm
-                      {
-                        vmulss  xmm1, xmm11, dword ptr [rbp+0CC0h+var_D40]
-                        vmovss  dword ptr [rbp+0CC0h+start], xmm1
-                        vmulss  xmm0, xmm11, dword ptr [rbp+0CC0h+var_D40+4]
-                        vmovss  dword ptr [rbp+0CC0h+start+4], xmm0
-                        vmulss  xmm2, xmm11, dword ptr [rbp+0CC0h+var_D40+8]
-                        vmovss  dword ptr [rbp+0CC0h+start+8], xmm2
-                        vmulss  xmm1, xmm11, dword ptr [rbp+0CC0h+var_D30]
-                        vmovss  dword ptr [rbp+0CC0h+end], xmm1
-                        vmulss  xmm0, xmm11, dword ptr [rbp+0CC0h+var_D30+4]
-                        vmovss  dword ptr [rbp+0CC0h+end+4], xmm0
-                        vmulss  xmm2, xmm11, dword ptr [rbp+0CC0h+var_D30+8]
-                        vmovss  dword ptr [rbp+0CC0h+end+8], xmm2
-                        vmulss  xmm1, xmm11, dword ptr [rbp+0CC0h+var_D20]
-                        vmovss  dword ptr [rbp+0CC0h+var_98], xmm1
-                        vmulss  xmm0, xmm11, dword ptr [rbp+0CC0h+var_D20+4]
-                        vmovss  dword ptr [rbp+0CC0h+var_98+4], xmm0
-                        vmulss  xmm2, xmm11, dword ptr [rbp+0CC0h+var_D20+8]
-                        vmovss  dword ptr [rbp+0CC0h+var_98+8], xmm2
-                      }
+                      start.v[0] = 32.0 * v26.m128_f32[0];
+                      start.v[1] = 32.0 * v26.m128_f32[1];
+                      start.v[2] = 32.0 * v26.m128_f32[2];
+                      end.v[0] = 32.0 * v27.m128_f32[0];
+                      end.v[1] = 32.0 * v27.m128_f32[1];
+                      end.v[2] = 32.0 * v27.m128_f32[2];
+                      v47.v[0] = 32.0 * v28.m128_f32[0];
+                      v47.v[1] = 32.0 * v28.m128_f32[1];
+                      v47.v[2] = 32.0 * v28.m128_f32[2];
                       CG_DebugLine(&start, &end, &colorCyan, 0, 0);
-                      CG_DebugLine(&start, &v108, &colorCyan, 0, 0);
-                      CG_DebugLine(&end, &v108, &colorCyan, 0, 0);
+                      CG_DebugLine(&start, &v47, &colorCyan, 0, 0);
+                      CG_DebugLine(&end, &v47, &colorCyan, 0, 0);
                     }
-                    ++v20;
-                    ++v15;
+                    ++v12;
+                    ++v8;
                   }
-                  while ( v20 < v13->subshapeCount[v17] );
-                  v83 = v15;
-                  v9 = planesCount;
-                  v11 = v84;
+                  while ( v12 < v6->subshapeCount[v9] );
+                  v22 = v8;
+                  v2 = planesCount;
+                  v4 = v23;
                 }
-                LODWORD(v14) = v81;
+                LODWORD(v7) = v20;
               }
-              if ( drawEdges && (_DWORD)v9 )
+              if ( drawEdges && (_DWORD)v2 )
               {
-                v68 = 2 * v11;
+                v14 = 2 * v4;
                 do
                 {
-                  debugPoints = s_midphaseCageClippedPlanes[0][v68].debugPoints;
-                  v70 = s_midphaseCageClippedPlanes[0][v68].pointCount / 2;
-                  if ( v70 > 0 )
+                  debugPoints = s_midphaseCageClippedPlanes[0][v14].debugPoints;
+                  v16 = s_midphaseCageClippedPlanes[0][v14].pointCount / 2;
+                  if ( v16 > 0 )
                   {
-                    v71 = (unsigned int)v70;
+                    v17 = (unsigned int)v16;
                     do
                     {
                       CG_DebugLine(debugPoints, debugPoints + 1, &colorRed, 0, 0);
                       debugPoints += 2;
-                      --v71;
+                      --v17;
                     }
-                    while ( v71 );
+                    while ( v17 );
                   }
-                  ++v68;
-                  --v9;
+                  ++v14;
+                  --v2;
                 }
-                while ( v9 );
-                v13 = v85;
-                v15 = v83;
-                LODWORD(v14) = v81;
-                v9 = planesCount;
-                v11 = v84;
+                while ( v2 );
+                v6 = v24;
+                v8 = v22;
+                LODWORD(v7) = v20;
+                v2 = planesCount;
+                v4 = v23;
               }
             }
           }
         }
-        v14 = (unsigned int)(v14 + 1);
-        v81 = v14;
+        v7 = (unsigned int)(v7 + 1);
+        v20 = v7;
       }
-      while ( (unsigned int)v14 < v13->shapeCount );
+      while ( (unsigned int)v7 < v6->shapeCount );
     }
-  }
-  _R11 = &v109;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
   }
 }
 
@@ -810,27 +656,27 @@ HavokPhysicsCage_Invalidate
 void HavokPhysicsCage_Invalidate(unsigned int cageId)
 {
   __int64 v2; 
+  __int64 v3; 
+  hkVector4f v4; 
 
   v2 = (int)cageId;
   if ( cageId - 1 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 128, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
-  _RBX = v2;
-  _RDI = s_cages;
-  if ( !s_cages[_RBX - 1].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 131, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
+  v3 = v2;
+  if ( !s_cages[v3 - 1].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 131, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
     __debugbreak();
-  __asm { vmovups xmm2, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+240h; __m128 const near * const g_vectorfConstants }
-  s_cages[_RBX - 1].updateCount = 0;
+  v4.m_quad = g_vectorfConstants[36];
+  s_cages[v3 - 1].updateCount = 0;
+  s_cages[v3 - 1].aabb.m_min = (hkVector4f)v4.m_quad;
   __asm
   {
-    vmovups xmmword ptr [rbx+rdi-30h], xmm2
     vpxor   xmm0, xmm0, xmm0
     vpinsrw xmm0, xmm0, eax, 1
     vpshufd xmm1, xmm0, 0
-    vxorps  xmm0, xmm1, xmm2
-    vmovups xmmword ptr [rbx+rdi-20h], xmm0
   }
-  *(_QWORD *)&s_cages[_RBX - 1].shapeCount = 0i64;
-  *(_QWORD *)s_cages[_RBX - 1].subshapeCount = 0i64;
+  s_cages[v3 - 1].aabb.m_max = (hkVector4f)(_XMM1 ^ *(_OWORD *)&v4.m_quad);
+  *(_QWORD *)&s_cages[v3 - 1].shapeCount = 0i64;
+  *(_QWORD *)s_cages[v3 - 1].subshapeCount = 0i64;
 }
 
 /*
@@ -841,22 +687,18 @@ HavokPhysicsCage_Point3DWorldSpaceToPoint2DInPlane
 void HavokPhysicsCage_Point3DWorldSpaceToPoint2DInPlane(unsigned int cageId, unsigned int planeIndex, const vec3_t *pointWs, vec2_t *outPoint)
 {
   __int64 v4; 
+  float v8; 
   vec3_t out; 
 
   v4 = planeIndex;
-  _RSI = outPoint;
   if ( cageId - 1 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 352, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
   if ( (unsigned int)v4 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 353, ASSERT_TYPE_ASSERT, "(planeIndex < MAX_MIDCAGE_CLIPPLANES)", (const char *)&queryFormat, "planeIndex < MAX_MIDCAGE_CLIPPLANES") )
     __debugbreak();
   AxisTransformVec3(&s_midphaseCageClippedPlanes[cageId - 1][v4].worldToPlane, pointWs, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+78h+out+4]
-    vmovss  xmm1, dword ptr [rsp+78h+out+8]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rsi+4], xmm1
-  }
+  v8 = out.v[2];
+  outPoint->v[0] = out.v[1];
+  outPoint->v[1] = v8;
 }
 
 /*
@@ -875,98 +717,79 @@ void HavokPhysicsCage_ResetAll(void)
 HavokPhysicsCage_SegmentCastInPlane
 ==============
 */
-bool HavokPhysicsCage_SegmentCastInPlane(unsigned int cageId, const vec3_t *startWs, const vec3_t *endWs, unsigned int planeIndex, float *outFrac)
+char HavokPhysicsCage_SegmentCastInPlane(unsigned int cageId, const vec3_t *startWs, const vec3_t *endWs, unsigned int planeIndex, float *outFrac)
 {
-  __int64 v7; 
-  __int64 v9; 
+  __int128 v5; 
+  __int64 v6; 
+  __int64 v8; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  char *v13; 
-  int v20; 
-  const vec2_t *v21; 
-  int v22; 
-  __int64 v23; 
-  const dvar_t *v28; 
-  float v30; 
+  char *v12; 
+  char v14; 
+  float v15; 
+  int v16; 
+  const vec2_t *v17; 
+  int v18; 
+  __int64 v19; 
+  const dvar_t *v22; 
+  float v23; 
   vec3_t out; 
   vec2_t p2; 
   vec2_t p1; 
+  __int128 v27; 
 
-  _R14 = outFrac;
-  v7 = (int)cageId;
-  v9 = planeIndex;
+  v6 = (int)cageId;
+  v8 = planeIndex;
   if ( cageId - 1 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 367, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
-  if ( (unsigned int)v9 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 368, ASSERT_TYPE_ASSERT, "(planeIndex < MAX_MIDCAGE_CLIPPLANES)", (const char *)&queryFormat, "planeIndex < MAX_MIDCAGE_CLIPPLANES") )
+  if ( (unsigned int)v8 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 368, ASSERT_TYPE_ASSERT, "(planeIndex < MAX_MIDCAGE_CLIPPLANES)", (const char *)&queryFormat, "planeIndex < MAX_MIDCAGE_CLIPPLANES") )
     __debugbreak();
-  v11 = v7 - 1;
-  if ( !s_cages[v11].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 371, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
+  v10 = v6 - 1;
+  if ( !s_cages[v10].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 371, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
     __debugbreak();
-  v12 = v9 + 2 * v11;
+  v11 = v8 + 2 * v10;
   *outFrac = 1.0;
-  v13 = (char *)s_midphaseCageClippedPlanes + 6444 * v12;
-  if ( *((int *)v13 + 649) <= 0 )
+  v12 = (char *)s_midphaseCageClippedPlanes + 6444 * v11;
+  if ( *((int *)v12 + 649) <= 0 )
     return 0;
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-  AxisTransformVec3(&s_midphaseCageClippedPlanes[0][v12].worldToPlane, startWs, &out);
-  __asm
+  v27 = v5;
+  AxisTransformVec3(&s_midphaseCageClippedPlanes[0][v11].worldToPlane, startWs, &out);
+  p1 = *(vec2_t *)&out.y;
+  AxisTransformVec3((const tmat33_t<vec3_t> *)v12, endWs, &out);
+  v14 = 0;
+  v15 = FLOAT_3_4028235e38;
+  v16 = *((_DWORD *)v12 + 649);
+  v17 = (const vec2_t *)(v12 + 36);
+  v18 = v16 / 2;
+  p2 = *(vec2_t *)&out.y;
+  if ( v18 > 0 )
   {
-    vmovss  xmm0, dword ptr [rsp+0B8h+out+4]
-    vmovss  xmm1, dword ptr [rsp+0B8h+out+8]
-    vmovss  dword ptr [rsp+0B8h+p1], xmm0
-    vmovss  dword ptr [rsp+0B8h+p1+4], xmm1
-  }
-  AxisTransformVec3((const tmat33_t<vec3_t> *)v13, endWs, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0B8h+out+4]
-    vmovss  xmm1, dword ptr [rsp+0B8h+out+8]
-    vmovss  xmm6, cs:__real@7f7fffff
-  }
-  v20 = *((_DWORD *)v13 + 649);
-  v21 = (const vec2_t *)(v13 + 36);
-  v22 = v20 / 2;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+p2], xmm0
-    vmovss  dword ptr [rsp+0B8h+p2+4], xmm1
-  }
-  if ( v22 > 0 )
-  {
-    v23 = (unsigned int)v22;
+    v19 = (unsigned int)v18;
     do
     {
-      if ( SegmentsIntersection(&p1, &p2, v21, v21 + 1, &v30) )
+      if ( SegmentsIntersection(&p1, &p2, v17, v17 + 1, &v23) && v23 < v15 )
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+0B8h+var_78]
-          vcomiss xmm0, xmm6
-        }
+        v15 = v23;
+        v14 = 1;
       }
-      v21 += 2;
-      --v23;
+      v17 += 2;
+      --v19;
     }
-    while ( v23 );
+    while ( v19 );
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vminss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovss  dword ptr [r14], xmm1
-  }
-  v28 = DCONST_DVARBOOL_bg_vehicleDebugTreads;
+  _XMM0 = *(unsigned int *)outFrac;
+  __asm { vminss  xmm1, xmm0, xmm6 }
+  *outFrac = *(float *)&_XMM1;
+  v22 = DCONST_DVARBOOL_bg_vehicleDebugTreads;
   if ( !DCONST_DVARBOOL_bg_vehicleDebugTreads && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicleDebugTreads") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v28);
-  if ( v28->current.enabled )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
   {
-    __asm { vmovss  xmm1, cs:__real@3e4ccccd; radius }
-    CG_DebugSphere(startWs, *(float *)&_XMM1, &colorBlue, 0, 0);
+    CG_DebugSphere(startWs, 0.2, &colorBlue, 0, 0);
     CG_DebugLine(startWs, endWs, &colorGreen, 0, 0);
   }
-  return 0;
+  return v14;
 }
 
 /*
@@ -976,52 +799,46 @@ HavokPhysicsCage_Update
 */
 void HavokPhysicsCage_Update(unsigned int cageId, HavokPhysics_IgnoreBodies *ignoreBodies, const hkAabb *newAabb)
 {
-  __int64 v9; 
-  __int64 v10; 
+  __int64 v6; 
+  __int64 v7; 
+  char *v8; 
   HavokPhysics_CollisionQueryResult *AllResult; 
   unsigned int i; 
-  hknpBodyId v36; 
+  hknpBodyId v28; 
   hknpShape *Shape; 
-  __int64 v38; 
+  __int64 v30; 
   hknpWorld *world; 
+  __int64 v32; 
+  __m128 *v33; 
+  __m128 v40; 
+  __m128 v43; 
   unsigned int j; 
   unsigned int AABBQueryHitShapeKey; 
-  hkMemoryAllocator *v65; 
-  __int64 v70; 
-  HavokPhysics_BroadphaseCollisionQueryResult v71; 
-  Physics_AABBQueryExtendedData v72; 
-  Physics_AABBBroadphaseQueryExtendedData v73; 
-  __int64 v74; 
-  hkAabb v75[2]; 
-  char v76; 
-  void *retaddr; 
+  hkMemoryAllocator *v46; 
+  __int64 v47; 
+  HavokPhysics_BroadphaseCollisionQueryResult v48; 
+  Physics_AABBQueryExtendedData v49; 
+  Physics_AABBBroadphaseQueryExtendedData v50; 
+  __int64 v51; 
+  hkAabb v52[2]; 
 
-  _RAX = &retaddr;
-  v74 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBX = newAabb;
-  v9 = (int)cageId;
+  v51 = -2i64;
+  v6 = (int)cageId;
   if ( cageId - 1 > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 148, ASSERT_TYPE_ASSERT, "(cageId > 0 && cageId <= MAX_CAGE_COUNT)", (const char *)&queryFormat, "cageId > 0 && cageId <= MAX_CAGE_COUNT") )
     __debugbreak();
-  v10 = 1616 * v9;
-  if ( !VFX_RAY_CAST_REST_VELOCITY_SQ_FLOAT4_961.v.m128_i8[v10 + 15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 151, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
+  v7 = 1616 * v6;
+  if ( !VFX_RAY_CAST_REST_VELOCITY_SQ_FLOAT4_961.v.m128_i8[v7 + 15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 151, ASSERT_TYPE_ASSERT, "(s_cages[midCageIndex].inUse)", (const char *)&queryFormat, "s_cages[midCageIndex].inUse") )
     __debugbreak();
-  _RDI = (char *)&unk_150D5F430 + v10;
+  v8 = (char *)&unk_150D5F430 + v7;
+  _XMM4 = *((_OWORD *)v8 + 98);
+  _XMM5.m_quad = (__m128)newAabb->m_min;
+  __asm { vcmpeqps xmm1, xmm5, xmm4 }
+  _XMM7.m_quad = (__m128)newAabb->m_max;
+  __asm { vcmpeqps xmm0, xmm7, xmm6 }
+  _XMM2 = _XMM1 & _XMM0;
+  _XMM1 = 0i64;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rdi+620h]
-    vmovups xmm5, xmmword ptr [rbx]
-    vcmpeqps xmm1, xmm5, xmm4
-    vmovups xmm6, xmmword ptr [rdi+630h]
-    vmovups xmm7, xmmword ptr [rbx+10h]
-    vcmpeqps xmm0, xmm7, xmm6
-    vandps  xmm2, xmm1, xmm0
-    vxorps  xmm1, xmm1, xmm1
     vpxor   xmm8, xmm8, xmm8
     vpcmpeqd xmm0, xmm8, xmm8
     vblendps xmm3, xmm1, xmm0, 7
@@ -1034,151 +851,123 @@ void HavokPhysicsCage_Update(unsigned int cageId, HavokPhysics_IgnoreBodies *ign
     {
       vcmpleps xmm1, xmm4, xmm5
       vcmpleps xmm0, xmm7, xmm6
-      vandps  xmm1, xmm1, xmm0
+    }
+    _XMM1 = _XMM1 & _XMM0;
+    __asm
+    {
       vpand   xmm0, xmm1, xmm3
       vptest  xmm0, xmm3
     }
     if ( !_CF )
     {
       Sys_ProfBeginNamedEvent(0xFFFF6347, "HavokPhysicsCage_Update: BP");
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rdi+620h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+10h]
-        vmovups xmmword ptr [rdi+630h], xmm1
-      }
-      *((_QWORD *)_RDI + 200) = 0i64;
-      *((_QWORD *)_RDI + 194) = 0i64;
-      ++*((_WORD *)_RDI + 806);
-      v73.phaseSelection = All;
-      v73.ignoreBodies = ignoreBodies;
-      v71.m_propertyBag.m_bag = NULL;
-      *(_DWORD *)&v71.m_memSizeAndFlags = 0x1FFFF;
-      v71.__vftable = (HavokPhysics_BroadphaseCollisionQueryResult_vtbl *)&HavokPhysics_BroadphaseCollisionQueryResult::`vftable';
-      v71.m_hits.m_data = NULL;
-      v71.m_hits.m_size = 0;
-      v71.m_hits.m_capacityAndFlags = 0x80000000;
-      v73.contents = 41943825;
-      v71.m_worldId = *((_DWORD *)_RDI + 402);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+620h]
-        vmovups [rsp+118h+var_68], ymm0
-      }
-      HavokPhysics_AABBBroadphaseQuery(v71.m_worldId, v75, &v73, &v71);
-      v72.contents = -1;
-      v72.simplify = 0;
-      v72.ignoreBodies = NULL;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+118h+var_98], xmm0
-      }
-      v72.phaseSelection = All;
-      AllResult = PhysicsQuery_GetAllResult((Physics_WorldId)*((_DWORD *)_RDI + 402));
+      *((_OWORD *)v8 + 98) = newAabb->m_min;
+      *((_OWORD *)v8 + 99) = newAabb->m_max;
+      *((_QWORD *)v8 + 200) = 0i64;
+      *((_QWORD *)v8 + 194) = 0i64;
+      ++*((_WORD *)v8 + 806);
+      v50.phaseSelection = All;
+      v50.ignoreBodies = ignoreBodies;
+      v48.m_propertyBag.m_bag = NULL;
+      *(_DWORD *)&v48.m_memSizeAndFlags = 0x1FFFF;
+      v48.__vftable = (HavokPhysics_BroadphaseCollisionQueryResult_vtbl *)&HavokPhysics_BroadphaseCollisionQueryResult::`vftable';
+      v48.m_hits.m_data = NULL;
+      v48.m_hits.m_size = 0;
+      v48.m_hits.m_capacityAndFlags = 0x80000000;
+      v50.contents = 41943825;
+      v48.m_worldId = *((_DWORD *)v8 + 402);
+      v52[0] = *((hkAabb *)v8 + 49);
+      HavokPhysics_AABBBroadphaseQuery(v48.m_worldId, v52, &v50, &v48);
+      v49.contents = -1;
+      v49.simplify = 0;
+      v49.ignoreBodies = NULL;
+      v49.collisionBuffer = 0.0;
+      v49.phaseSelection = All;
+      AllResult = PhysicsQuery_GetAllResult((Physics_WorldId)*((_DWORD *)v8 + 402));
       Sys_ProfEndNamedEvent();
       Sys_ProfBeginNamedEvent(0xFFFF6347, "HavokPhysicsCage_Update: MP");
-      for ( i = 0; i < HavokPhysics_BroadphaseCollisionQueryResult::GetNumHits(&v71); ++i )
+      for ( i = 0; i < HavokPhysics_BroadphaseCollisionQueryResult::GetNumHits(&v48); ++i )
       {
-        v36.m_serialAndIndex = HavokPhysics_BroadphaseCollisionQueryResult::GetHitBodyId(&v71, i);
-        if ( (v36.m_serialAndIndex & 0xFFFFFF) != 0xFFFFFF )
+        v28.m_serialAndIndex = HavokPhysics_BroadphaseCollisionQueryResult::GetHitBodyId(&v48, i);
+        if ( (v28.m_serialAndIndex & 0xFFFFFF) != 0xFFFFFF )
         {
-          Shape = HavokPhysics_GetShape((Physics_WorldId)*((_DWORD *)_RDI + 402), v36);
+          Shape = HavokPhysics_GetShape((Physics_WorldId)*((_DWORD *)v8 + 402), v28);
           if ( !Shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicscage.cpp", 189, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
             __debugbreak();
           if ( Shape->m_type.m_storage == 9 )
           {
-            v38 = *((int *)_RDI + 402);
-            if ( (unsigned int)v38 > 7 )
+            v30 = *((int *)v8 + 402);
+            if ( (unsigned int)v30 > 7 )
             {
-              LODWORD(v70) = *((_DWORD *)_RDI + 402);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 850, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v70) )
+              LODWORD(v47) = *((_DWORD *)v8 + 402);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 850, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v47) )
                 __debugbreak();
-              if ( (unsigned int)v38 > 7 )
+              if ( (unsigned int)v30 > 7 )
               {
-                LODWORD(v70) = v38;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 56, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavokPhysics: Trying to access invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v70) )
+                LODWORD(v47) = v30;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 56, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavokPhysics: Trying to access invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v47) )
                   __debugbreak();
               }
             }
-            world = g_havokPhysicsWorlds[v38].world;
+            world = g_havokPhysicsWorlds[v30].world;
             if ( !world )
             {
-              LODWORD(v70) = v38;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 855, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v70) )
+              LODWORD(v47) = v30;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 855, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v47) )
                 __debugbreak();
             }
-            _RAX = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, v36.m_serialAndIndex);
-            _RCX = &_RDI[64 * *((unsigned int *)_RDI + 400) + 1280];
+            v32 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, v28.m_serialAndIndex);
+            v33 = (__m128 *)&v8[64 * *((unsigned int *)v8 + 400) + 1280];
+            _XMM1 = *(_OWORD *)v32;
             __asm
             {
-              vmovups xmm1, xmmword ptr [rax]
-              vmovups xmm0, xmmword ptr [rax+10h]
-              vmovups xmm3, xmmword ptr [rax+20h]
               vunpcklps xmm2, xmm1, xmm0
               vunpckhps xmm0, xmm1, xmm0
               vblendps xmm6, xmm0, xmm3, 0Ch
               vmovlhps xmm5, xmm2, xmm3
               vmovhlps xmm0, xmm5, xmm2
-              vshufps xmm4, xmm0, xmm3, 0D4h ; 'Ô'
-              vmovups xmmword ptr [rcx], xmm5
-              vmovups xmmword ptr [rcx+10h], xmm4
-              vmovups xmmword ptr [rcx+20h], xmm6
-              vpinsrw xmm0, xmm8, edx, 1
-              vpshufd xmm1, xmm0, 0
-              vxorps  xmm2, xmm1, xmmword ptr [rax+30h]
-              vshufps xmm0, xmm2, xmm2, 0
-              vshufps xmm1, xmm2, xmm2, 55h ; 'U'
-              vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-              vmulps  xmm3, xmm5, xmm0
-              vmulps  xmm0, xmm4, xmm1
-              vmulps  xmm1, xmm2, xmm6
-              vaddps  xmm0, xmm0, xmm3
-              vaddps  xmm0, xmm1, xmm0
-              vmovups xmmword ptr [rcx+30h], xmm0
             }
-            *(hknpBodyId *)&_RDI[4 * *((unsigned int *)_RDI + 400) + 1536] = v36;
-            HavokPhysics_CollisionQueryResult::Reset(AllResult, 1);
+            v40 = _mm_shuffle_ps(_XMM0, *(__m128 *)(v32 + 32), 212);
+            *v33 = _XMM5;
+            v33[1] = v40;
+            v33[2] = _XMM6;
             __asm
             {
-              vmovups ymm0, ymmword ptr [rdi+620h]
-              vmovups [rsp+118h+var_68], ymm0
+              vpinsrw xmm0, xmm8, edx, 1
+              vpshufd xmm1, xmm0, 0
             }
-            HavokPhysics_AABBQuery(*((Physics_WorldId *)_RDI + 402), v36, v75, &v72, AllResult);
-            *(_WORD *)&_RDI[2 * *((unsigned int *)_RDI + 400) + 1552] = 0;
+            v43 = (__m128)(_XMM1 ^ *(_OWORD *)(v32 + 48));
+            v33[3] = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v43, v43, 170), _XMM6), _mm128_add_ps(_mm128_mul_ps(v40, _mm_shuffle_ps(v43, v43, 85)), _mm128_mul_ps(_XMM5, _mm_shuffle_ps(v43, v43, 0))));
+            *(hknpBodyId *)&v8[4 * *((unsigned int *)v8 + 400) + 1536] = v28;
+            HavokPhysics_CollisionQueryResult::Reset(AllResult, 1);
+            v52[0] = *((hkAabb *)v8 + 49);
+            HavokPhysics_AABBQuery(*((Physics_WorldId *)v8 + 402), v28, v52, &v49, AllResult);
+            *(_WORD *)&v8[2 * *((unsigned int *)v8 + 400) + 1552] = 0;
             for ( j = 0; j < HavokPhysics_CollisionQueryResult::GetNumHits(AllResult); ++j )
             {
               AABBQueryHitShapeKey = HavokPhysics_CollisionQueryResult::GetAABBQueryHitShapeKey(AllResult, j);
               if ( AABBQueryHitShapeKey != -1 )
               {
-                *(_DWORD *)&_RDI[4 * *((unsigned int *)_RDI + 401)] = AABBQueryHitShapeKey;
-                ++*(_WORD *)&_RDI[2 * *((unsigned int *)_RDI + 400) + 1552];
-                if ( ++*((_DWORD *)_RDI + 401) >= 0x140u )
+                *(_DWORD *)&v8[4 * *((unsigned int *)v8 + 401)] = AABBQueryHitShapeKey;
+                ++*(_WORD *)&v8[2 * *((unsigned int *)v8 + 400) + 1552];
+                if ( ++*((_DWORD *)v8 + 401) >= 0x140u )
                   break;
               }
             }
-            if ( ++*((_DWORD *)_RDI + 400) >= 4u || *((_DWORD *)_RDI + 401) >= 0x140u )
+            if ( ++*((_DWORD *)v8 + 400) >= 4u || *((_DWORD *)v8 + 401) >= 0x140u )
               break;
           }
         }
       }
       Sys_ProfEndNamedEvent();
-      v65 = hkMemHeapAllocator();
-      v71.m_hits.m_size = 0;
-      if ( v71.m_hits.m_capacityAndFlags >= 0 )
-        hkMemoryAllocator::bufFree2(v65, v71.m_hits.m_data, 4, v71.m_hits.m_capacityAndFlags & 0x3FFFFFFF);
-      v71.m_hits.m_data = NULL;
-      v71.m_hits.m_capacityAndFlags = 0x80000000;
-      hkReferencedObject::~hkReferencedObject(&v71);
+      v46 = hkMemHeapAllocator();
+      v48.m_hits.m_size = 0;
+      if ( v48.m_hits.m_capacityAndFlags >= 0 )
+        hkMemoryAllocator::bufFree2(v46, v48.m_hits.m_data, 4, v48.m_hits.m_capacityAndFlags & 0x3FFFFFFF);
+      v48.m_hits.m_data = NULL;
+      v48.m_hits.m_capacityAndFlags = 0x80000000;
+      hkReferencedObject::~hkReferencedObject(&v48);
     }
-  }
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 

@@ -651,17 +651,19 @@ __int64 G_WeaponStreaming_CollectClientRequestWeapons(Weapon *const outWeapons, 
   __int64 v15; 
   AssetStreamingRequestItem **v16; 
   AssetStreamingRequestItem *v17; 
-  unsigned int v19; 
-  AssetStreamingRequestItem **v20; 
-  unsigned int v22; 
-  int v23; 
+  unsigned int v18; 
+  AssetStreamingRequestItem **v19; 
+  AssetStreamingRequestItem *v20; 
+  unsigned int v21; 
+  int v22; 
+  __int64 v23; 
   __int64 v24; 
-  __int64 v29; 
+  __int64 v25; 
+  __int64 v26; 
+  int v27; 
   __int64 v30; 
-  int v31; 
-  __int64 v34; 
-  __int64 v35; 
-  WorldWeaponRequestList *v36; 
+  __int64 v31; 
+  WorldWeaponRequestList *v32; 
   AssetStreamingRequestItem *_First[6000]; 
 
   v4 = inOutWeaponCount;
@@ -671,8 +673,8 @@ __int64 G_WeaponStreaming_CollectClientRequestWeapons(Weapon *const outWeapons, 
     __debugbreak();
   if ( *v4 > maxWeaponCount )
   {
-    LODWORD(v29) = *v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 719, ASSERT_TYPE_ASSERT, "( inOutWeaponCount ) <= ( maxWeaponCount )", "inOutWeaponCount not in [0, maxWeaponCount]\n\t%u not in [0, %u]", v29, maxWeaponCount) )
+    LODWORD(v25) = *v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 719, ASSERT_TYPE_ASSERT, "( inOutWeaponCount ) <= ( maxWeaponCount )", "inOutWeaponCount not in [0, maxWeaponCount]\n\t%u not in [0, %u]", v25, maxWeaponCount) )
       __debugbreak();
   }
   result = *v4;
@@ -680,22 +682,22 @@ __int64 G_WeaponStreaming_CollectClientRequestWeapons(Weapon *const outWeapons, 
   {
     v8 = 0i64;
     v9 = 0;
-    v31 = 0;
+    v27 = 0;
     if ( level.maxclients > 0 )
     {
       v10 = 0i64;
       v11 = s_worldWeaponRequestList;
       v12 = 0i64;
-      v34 = 0i64;
-      v35 = 0i64;
-      v36 = s_worldWeaponRequestList;
+      v30 = 0i64;
+      v31 = 0i64;
+      v32 = s_worldWeaponRequestList;
       do
       {
         if ( (unsigned int)v9 >= 0x800 )
         {
-          LODWORD(v30) = 2048;
-          LODWORD(v29) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v29, v30) )
+          LODWORD(v26) = 2048;
+          LODWORD(v25) = v9;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, v26) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -733,9 +735,9 @@ __int64 G_WeaponStreaming_CollectClientRequestWeapons(Weapon *const outWeapons, 
 LABEL_36:
                 if ( (unsigned int)v8 >= 0x1770 )
                 {
-                  LODWORD(v30) = 6000;
-                  LODWORD(v29) = v8;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 767, ASSERT_TYPE_ASSERT, "(unsigned)( clientRequestCount ) < (unsigned)( ( sizeof( *array_counter( clientRequests ) ) + 0 ) )", "clientRequestCount doesn't index ARRAY_COUNT( clientRequests )\n\t%i not in [0, %i)", v29, v30) )
+                  LODWORD(v26) = 6000;
+                  LODWORD(v25) = v8;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 767, ASSERT_TYPE_ASSERT, "(unsigned)( clientRequestCount ) < (unsigned)( ( sizeof( *array_counter( clientRequests ) ) + 0 ) )", "clientRequestCount doesn't index ARRAY_COUNT( clientRequests )\n\t%i not in [0, %i)", v25, v26) )
                     __debugbreak();
                 }
                 _First[v8] = v13;
@@ -746,45 +748,44 @@ LABEL_36:
             --v14;
           }
           while ( v14 );
-          v9 = v31;
-          v10 = v34;
-          v11 = v36;
-          v12 = v35;
+          v9 = v27;
+          v10 = v30;
+          v11 = v32;
+          v12 = v31;
         }
         ++v9;
         ++v10;
-        v31 = v9;
+        v27 = v9;
         v12 += 1456i64;
-        v34 = v10;
+        v30 = v10;
         ++v11;
-        v35 = v12;
-        v36 = v11;
+        v31 = v12;
+        v32 = v11;
       }
       while ( v9 < level.maxclients );
       v4 = inOutWeaponCount;
     }
     std::_Sort_unchecked<AssetStreamingRequestItem const * *,bool (*)(AssetStreamingRequestItem const *,AssetStreamingRequestItem const *)>((const AssetStreamingRequestItem **)_First, (const AssetStreamingRequestItem **)&_First[v8], (unsigned int)v8, (bool (__fastcall *)(const AssetStreamingRequestItem *, const AssetStreamingRequestItem *))G_WeaponStreaming_CompareClientRequest);
-    _R13 = outWeapons;
-    v19 = 0;
+    v18 = 0;
     if ( (_DWORD)v8 )
     {
-      v20 = _First;
+      v19 = _First;
       do
       {
-        _R14 = *v20;
-        if ( (*v20)->assetIndex != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 782, ASSERT_TYPE_ASSERT, "( BG_AssetStreaming_IsWeaponAssetRequest( *requestItem ) )", (const char *)&queryFormat, "BG_AssetStreaming_IsWeaponAssetRequest( *requestItem )") )
+        v20 = *v19;
+        if ( (*v19)->assetIndex != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 782, ASSERT_TYPE_ASSERT, "( BG_AssetStreaming_IsWeaponAssetRequest( *requestItem ) )", (const char *)&queryFormat, "BG_AssetStreaming_IsWeaponAssetRequest( *requestItem )") )
           __debugbreak();
-        if ( !BG_WeaponHasStreamedModels(&_R14->weapon) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 785, ASSERT_TYPE_ASSERT, "( BG_WeaponHasStreamedModels( weapon ) )", (const char *)&queryFormat, "BG_WeaponHasStreamedModels( weapon )") )
+        if ( !BG_WeaponHasStreamedModels(&v20->weapon) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 785, ASSERT_TYPE_ASSERT, "( BG_WeaponHasStreamedModels( weapon ) )", (const char *)&queryFormat, "BG_WeaponHasStreamedModels( weapon )") )
           __debugbreak();
-        v22 = *v4;
+        v21 = *v4;
         if ( !outWeapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1164, ASSERT_TYPE_ASSERT, "(checkWeapons)", (const char *)&queryFormat, "checkWeapons") )
           __debugbreak();
-        v23 = 0;
-        if ( v22 )
+        v22 = 0;
+        if ( v21 )
         {
-          while ( memcmp_0(&outWeapons[v23], &_R14->weapon, 0x3Cui64) )
+          while ( memcmp_0(&outWeapons[v22], &v20->weapon, 0x3Cui64) )
           {
-            if ( ++v23 >= v22 )
+            if ( ++v22 >= v21 )
               goto LABEL_58;
           }
           v4 = inOutWeaponCount;
@@ -793,26 +794,20 @@ LABEL_36:
         {
 LABEL_58:
           v4 = inOutWeaponCount;
-          v24 = *inOutWeaponCount;
-          if ( (_DWORD)v24 == maxWeaponCount )
+          v23 = *inOutWeaponCount;
+          if ( (_DWORD)v23 == maxWeaponCount )
             break;
-          __asm { vmovups ymm0, ymmword ptr [r14+0Ch] }
-          _RDX = v24;
-          __asm
-          {
-            vmovups ymmword ptr [rdx+r13], ymm0
-            vmovups xmm1, xmmword ptr [r14+2Ch]
-            vmovups xmmword ptr [rdx+r13+20h], xmm1
-            vmovsd  xmm0, qword ptr [r14+3Ch]
-            vmovsd  qword ptr [rdx+r13+30h], xmm0
-          }
-          *(_DWORD *)&outWeapons[_RDX].weaponCamo = *(_DWORD *)&_R14->weapon.weaponCamo;
-          outWeaponPriorities[(*inOutWeaponCount)++] = BG_AssetStreaming_GetRequestSource(_R14);
+          v24 = v23;
+          *(__m256i *)&outWeapons[v24].weaponIdx = *(__m256i *)&v20->weapon.weaponIdx;
+          *(_OWORD *)&outWeapons[v24].attachmentVariationIndices[5] = *(_OWORD *)&v20->weapon.attachmentVariationIndices[5];
+          *(double *)&outWeapons[v24].attachmentVariationIndices[21] = *(double *)&v20->weapon.attachmentVariationIndices[21];
+          *(_DWORD *)&outWeapons[v24].weaponCamo = *(_DWORD *)&v20->weapon.weaponCamo;
+          outWeaponPriorities[(*inOutWeaponCount)++] = BG_AssetStreaming_GetRequestSource(v20);
         }
+        ++v18;
         ++v19;
-        ++v20;
       }
-      while ( v19 < (unsigned int)v8 );
+      while ( v18 < (unsigned int)v8 );
     }
     G_WeaponStreaming_CheckClientRequests((const AssetStreamingRequestItem **)_First, v8, outWeapons, outWeaponPriorities, *v4);
     return *v4;
@@ -828,40 +823,41 @@ G_WeaponStreaming_CollectGameRequestWeapons
 __int64 G_WeaponStreaming_CollectGameRequestWeapons(Weapon *const outWeapons, unsigned int *const outWeaponPriorities, unsigned int *inOutWeaponCount, const unsigned int maxWeaponCount)
 {
   __int64 result; 
+  GameWeaponRequestList *v9; 
   unsigned int v10; 
   unsigned int v11; 
   int v12; 
   __int64 v13; 
-  __int64 v18; 
+  __int64 v14; 
+  __int64 v15; 
   char output[512]; 
 
-  _RBP = outWeapons;
   if ( !outWeapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 645, ASSERT_TYPE_ASSERT, "( outWeapons )", (const char *)&queryFormat, "outWeapons") )
     __debugbreak();
   if ( !outWeaponPriorities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 646, ASSERT_TYPE_ASSERT, "( outWeaponPriorities )", (const char *)&queryFormat, "outWeaponPriorities") )
     __debugbreak();
   if ( *inOutWeaponCount > maxWeaponCount )
   {
-    LODWORD(v18) = *inOutWeaponCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 647, ASSERT_TYPE_ASSERT, "( inOutWeaponCount ) <= ( maxWeaponCount )", "inOutWeaponCount not in [0, maxWeaponCount]\n\t%u not in [0, %u]", v18, maxWeaponCount) )
+    LODWORD(v15) = *inOutWeaponCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 647, ASSERT_TYPE_ASSERT, "( inOutWeaponCount ) <= ( maxWeaponCount )", "inOutWeaponCount not in [0, maxWeaponCount]\n\t%u not in [0, %u]", v15, maxWeaponCount) )
       __debugbreak();
   }
   result = *inOutWeaponCount;
   if ( (_DWORD)result != maxWeaponCount )
   {
-    _RDI = &s_gameWeaponRequestList;
+    v9 = &s_gameWeaponRequestList;
     v10 = 0;
-    while ( _RDI->weapons[0].weaponIdx )
+    while ( v9->weapons[0].weaponIdx )
     {
-      if ( !BG_WeaponHasStreamedModels(_RDI->weapons) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 664, ASSERT_TYPE_ASSERT, "( BG_WeaponHasStreamedModels( weapon ) )", (const char *)&queryFormat, "BG_WeaponHasStreamedModels( weapon )") )
+      if ( !BG_WeaponHasStreamedModels(v9->weapons) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 664, ASSERT_TYPE_ASSERT, "( BG_WeaponHasStreamedModels( weapon ) )", (const char *)&queryFormat, "BG_WeaponHasStreamedModels( weapon )") )
         __debugbreak();
       v11 = *inOutWeaponCount;
-      if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1164, ASSERT_TYPE_ASSERT, "(checkWeapons)", (const char *)&queryFormat, "checkWeapons") )
+      if ( !outWeapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1164, ASSERT_TYPE_ASSERT, "(checkWeapons)", (const char *)&queryFormat, "checkWeapons") )
         __debugbreak();
       v12 = 0;
       if ( v11 )
       {
-        while ( memcmp_0(&_RBP[v12], _RDI, 0x3Cui64) )
+        while ( memcmp_0(&outWeapons[v12], v9, 0x3Cui64) )
         {
           if ( ++v12 >= v11 )
             goto LABEL_22;
@@ -873,7 +869,7 @@ LABEL_22:
         v13 = *inOutWeaponCount;
         if ( (_DWORD)v13 == maxWeaponCount )
         {
-          BG_GetWeaponName(_RDI->weapons, output, 0x200u);
+          BG_GetWeaponName(v9->weapons, output, 0x200u);
           if ( s_nextPrintTime_0 < Sys_Milliseconds() )
           {
             Com_Printf(15, "G_WeaponStreaming_CollectGameRequestWeapons: Unable to satisfy world weapon streaming request for weapon %s.\n", output);
@@ -881,21 +877,15 @@ LABEL_22:
           }
           return *inOutWeaponCount;
         }
-        __asm { vmovups ymm0, ymmword ptr [rdi] }
-        _RCX = v13;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+rbp], ymm0
-          vmovups xmm1, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rcx+rbp+20h], xmm1
-          vmovsd  xmm0, qword ptr [rdi+30h]
-          vmovsd  qword ptr [rcx+rbp+30h], xmm0
-        }
-        *(_DWORD *)&_RBP[_RCX].weaponCamo = *(_DWORD *)&_RDI->weapons[0].weaponCamo;
+        v14 = v13;
+        *(__m256i *)&outWeapons[v14].weaponIdx = *(__m256i *)&v9->weapons[0].weaponIdx;
+        *(_OWORD *)&outWeapons[v14].attachmentVariationIndices[5] = *(_OWORD *)&v9->weapons[0].attachmentVariationIndices[5];
+        *(double *)&outWeapons[v14].attachmentVariationIndices[21] = *(double *)&v9->weapons[0].attachmentVariationIndices[21];
+        *(_DWORD *)&outWeapons[v14].weaponCamo = *(_DWORD *)&v9->weapons[0].weaponCamo;
         outWeaponPriorities[(*inOutWeaponCount)++] = 1;
       }
       ++v10;
-      _RDI = (GameWeaponRequestList *)((char *)_RDI + 60);
+      v9 = (GameWeaponRequestList *)((char *)v9 + 60);
       if ( v10 >= 0x20 )
         return *inOutWeaponCount;
     }
@@ -916,18 +906,19 @@ __int64 G_WeaponStreaming_CollectWorldRequestWeapons(Weapon *const weapons, unsi
   unsigned __int16 v10; 
   unsigned __int16 i; 
   unsigned __int16 v12; 
+  Weapon *p_weapon; 
   __int64 v14; 
-  __int64 v19; 
+  __int64 v15; 
+  __int64 v16; 
 
-  _R12 = weapons;
   if ( !weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 582, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
     __debugbreak();
   if ( !weaponSources && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 583, ASSERT_TYPE_ASSERT, "( weaponSources )", (const char *)&queryFormat, "weaponSources") )
     __debugbreak();
   if ( *inOutWeaponCount > maxWeaponCount )
   {
-    LODWORD(v19) = *inOutWeaponCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 584, ASSERT_TYPE_ASSERT, "( inOutWeaponCount ) <= ( maxWeaponCount )", "inOutWeaponCount not in [0, maxWeaponCount]\n\t%u not in [0, %u]", v19, maxWeaponCount) )
+    LODWORD(v16) = *inOutWeaponCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 584, ASSERT_TYPE_ASSERT, "( inOutWeaponCount ) <= ( maxWeaponCount )", "inOutWeaponCount not in [0, maxWeaponCount]\n\t%u not in [0, %u]", v16, maxWeaponCount) )
       __debugbreak();
   }
   result = *inOutWeaponCount;
@@ -948,8 +939,8 @@ __int64 G_WeaponStreaming_CollectWorldRequestWeapons(Weapon *const weapons, unsi
         __debugbreak();
       if ( Instance->m_entries[v12].index == v12 )
       {
-        _RBX = &BgWeaponMap::GetWeaponEntry(Instance, i)->weapon;
-        if ( BG_WeaponHasStreamedModels(_RBX) && !BG_IsWeaponInList(_RBX, _R12, *inOutWeaponCount) )
+        p_weapon = &BgWeaponMap::GetWeaponEntry(Instance, i)->weapon;
+        if ( BG_WeaponHasStreamedModels(p_weapon) && !BG_IsWeaponInList(p_weapon, weapons, *inOutWeaponCount) )
         {
           v14 = *inOutWeaponCount;
           if ( (_DWORD)v14 == maxWeaponCount )
@@ -961,17 +952,11 @@ __int64 G_WeaponStreaming_CollectWorldRequestWeapons(Weapon *const weapons, unsi
             }
             return *inOutWeaponCount;
           }
-          __asm { vmovups ymm0, ymmword ptr [rbx] }
-          _RCX = v14;
-          __asm
-          {
-            vmovups ymmword ptr [rcx+r12], ymm0
-            vmovups xmm1, xmmword ptr [rbx+20h]
-            vmovups xmmword ptr [rcx+r12+20h], xmm1
-            vmovsd  xmm0, qword ptr [rbx+30h]
-            vmovsd  qword ptr [rcx+r12+30h], xmm0
-          }
-          *(_DWORD *)&_R12[_RCX].weaponCamo = *(_DWORD *)&_RBX->weaponCamo;
+          v15 = v14;
+          *(__m256i *)&weapons[v15].weaponIdx = *(__m256i *)&p_weapon->weaponIdx;
+          *(_OWORD *)&weapons[v15].attachmentVariationIndices[5] = *(_OWORD *)&p_weapon->attachmentVariationIndices[5];
+          *(double *)&weapons[v15].attachmentVariationIndices[21] = *(double *)&p_weapon->attachmentVariationIndices[21];
+          *(_DWORD *)&weapons[v15].weaponCamo = *(_DWORD *)&p_weapon->weaponCamo;
           weaponSources[(*inOutWeaponCount)++] = 4;
         }
       }
@@ -1011,23 +996,29 @@ int G_WeaponStreaming_DevFillWithRandomWeapons()
   __int64 v6; 
   Weapon *v7; 
   __int64 v8; 
-  int v15; 
+  Weapon *p_weapons; 
+  __int128 v10; 
+  int v11; 
+  double v12; 
   unsigned int MaxViewRequestCount; 
-  __int64 v18; 
-  unsigned int *v19; 
-  __int64 v20; 
-  int v27; 
-  __int64 v29; 
-  __int64 v30; 
-  unsigned int v31; 
-  __int64 v32; 
+  __int64 v14; 
+  unsigned int *v15; 
+  __int64 v16; 
+  Weapon *v17; 
+  __int128 v18; 
+  int v19; 
+  double v20; 
+  __int64 v21; 
+  __int64 v22; 
+  unsigned int v23; 
+  __int64 v24; 
   Weapon weapon; 
-  unsigned int v34[24]; 
+  unsigned int v26[24]; 
   Weapon weaponSources[24]; 
   Weapon weapons; 
 
   result = Sys_Milliseconds();
-  v31 = result;
+  v23 = result;
   if ( result - s_timeSinceLastFill >= 0x7D0 )
   {
     v1 = 0;
@@ -1035,14 +1026,14 @@ int G_WeaponStreaming_DevFillWithRandomWeapons()
     {
       v2 = 0i64;
       v3 = 0i64;
-      v32 = 0i64;
+      v24 = 0i64;
       do
       {
         if ( (unsigned int)v1 >= 0x800 )
         {
-          LODWORD(v30) = 2048;
-          LODWORD(v29) = v1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v29, v30) )
+          LODWORD(v22) = 2048;
+          LODWORD(v21) = v1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, v22) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1057,45 +1048,31 @@ int G_WeaponStreaming_DevFillWithRandomWeapons()
           v6 = MaxWorldEntryCount;
           if ( MaxWorldEntryCount > 0x40 )
           {
-            LODWORD(v30) = 64;
-            LODWORD(v29) = MaxWorldEntryCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 915, ASSERT_TYPE_ASSERT, "( weaponCount ) <= ( MAX_REQUEST_COUNT_STATIC )", "weaponCount not in [0, MAX_REQUEST_COUNT_STATIC]\n\t%u not in [0, %u]", v29, v30) )
+            LODWORD(v22) = 64;
+            LODWORD(v21) = MaxWorldEntryCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 915, ASSERT_TYPE_ASSERT, "( weaponCount ) <= ( MAX_REQUEST_COUNT_STATIC )", "weaponCount not in [0, MAX_REQUEST_COUNT_STATIC]\n\t%u not in [0, %u]", v21, v22) )
               __debugbreak();
           }
           if ( (_DWORD)v6 )
           {
             v7 = weaponSources;
             v8 = v6;
-            _RBX = &weapons;
+            p_weapons = &weapons;
             do
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-                vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-                vmovups ymmword ptr [rsp+15C0h+weapon.weaponIdx], ymm0
-                vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-                vmovsd  qword ptr [rbp+14C0h+weapon.attachmentVariationIndices+15h], xmm0
-                vmovups xmmword ptr [rsp+15C0h+weapon.attachmentVariationIndices+5], xmm1
-              }
+              memset(&weapon, 0, 48);
+              *(double *)&weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
               *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
               while ( !BG_WeaponHasStreamedModels(&weapon) )
                 BG_WeaponsUtil_RandomizeWeapon(&weapon, &dword_14792D2F0);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rsp+15C0h+weapon.weaponIdx]
-                vmovups xmm1, xmmword ptr [rsp+15C0h+weapon.attachmentVariationIndices+5]
-              }
-              v15 = *(_DWORD *)&weapon.weaponCamo;
-              __asm
-              {
-                vmovups ymmword ptr [rbx], ymm0
-                vmovsd  xmm0, qword ptr [rbp+14C0h+weapon.attachmentVariationIndices+15h]
-                vmovups xmmword ptr [rbx+20h], xmm1
-                vmovsd  qword ptr [rbx+30h], xmm0
-              }
-              *(_DWORD *)&_RBX->weaponCamo = v15;
-              ++_RBX;
+              v10 = *(_OWORD *)&weapon.attachmentVariationIndices[5];
+              v11 = *(_DWORD *)&weapon.weaponCamo;
+              *(__m256i *)&p_weapons->weaponIdx = *(__m256i *)&weapon.weaponIdx;
+              v12 = *(double *)&weapon.attachmentVariationIndices[21];
+              *(_OWORD *)&p_weapons->attachmentVariationIndices[5] = v10;
+              *(double *)&p_weapons->attachmentVariationIndices[21] = v12;
+              *(_DWORD *)&p_weapons->weaponCamo = v11;
+              ++p_weapons;
               *(_DWORD *)&v7->weaponIdx = v4;
               v7 = (Weapon *)((char *)v7 + 4);
               --v8;
@@ -1104,66 +1081,52 @@ int G_WeaponStreaming_DevFillWithRandomWeapons()
           }
           SV_StreamSync_AddWorldWeaponLoad(&weapons, (const unsigned int *)&weaponSources[0].weaponIdx, v6);
           MaxViewRequestCount = G_WeaponStreaming_GetMaxViewRequestCount(v1);
-          v18 = MaxViewRequestCount;
+          v14 = MaxViewRequestCount;
           if ( MaxViewRequestCount > 0x18 )
           {
-            LODWORD(v30) = 24;
-            LODWORD(v29) = MaxViewRequestCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 915, ASSERT_TYPE_ASSERT, "( weaponCount ) <= ( MAX_REQUEST_COUNT_STATIC )", "weaponCount not in [0, MAX_REQUEST_COUNT_STATIC]\n\t%u not in [0, %u]", v29, v30) )
+            LODWORD(v22) = 24;
+            LODWORD(v21) = MaxViewRequestCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 915, ASSERT_TYPE_ASSERT, "( weaponCount ) <= ( MAX_REQUEST_COUNT_STATIC )", "weaponCount not in [0, MAX_REQUEST_COUNT_STATIC]\n\t%u not in [0, %u]", v21, v22) )
               __debugbreak();
           }
-          if ( (_DWORD)v18 )
+          if ( (_DWORD)v14 )
           {
-            v19 = v34;
-            v20 = v18;
-            _RBX = weaponSources;
+            v15 = v26;
+            v16 = v14;
+            v17 = weaponSources;
             do
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-                vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-                vmovups ymmword ptr [rsp+15C0h+weapon.weaponIdx], ymm0
-                vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-                vmovsd  qword ptr [rbp+14C0h+weapon.attachmentVariationIndices+15h], xmm0
-                vmovups xmmword ptr [rsp+15C0h+weapon.attachmentVariationIndices+5], xmm1
-              }
+              memset(&weapon, 0, 48);
+              *(double *)&weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
               *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
               while ( !BG_WeaponHasStreamedModels(&weapon) )
                 BG_WeaponsUtil_RandomizeWeapon(&weapon, &dword_14792D2F4);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rsp+15C0h+weapon.weaponIdx]
-                vmovups xmm1, xmmword ptr [rsp+15C0h+weapon.attachmentVariationIndices+5]
-              }
-              v27 = *(_DWORD *)&weapon.weaponCamo;
-              __asm
-              {
-                vmovups ymmword ptr [rbx], ymm0
-                vmovsd  xmm0, qword ptr [rbp+14C0h+weapon.attachmentVariationIndices+15h]
-                vmovups xmmword ptr [rbx+20h], xmm1
-                vmovsd  qword ptr [rbx+30h], xmm0
-              }
-              *(_DWORD *)&_RBX->weaponCamo = v27;
-              ++_RBX;
-              *v19++ = v4;
-              --v20;
+              v18 = *(_OWORD *)&weapon.attachmentVariationIndices[5];
+              v19 = *(_DWORD *)&weapon.weaponCamo;
+              *(__m256i *)&v17->weaponIdx = *(__m256i *)&weapon.weaponIdx;
+              v20 = *(double *)&weapon.attachmentVariationIndices[21];
+              *(_OWORD *)&v17->attachmentVariationIndices[5] = v18;
+              *(double *)&v17->attachmentVariationIndices[21] = v20;
+              *(_DWORD *)&v17->weaponCamo = v19;
+              ++v17;
+              *v15++ = v4;
+              --v16;
             }
-            while ( v20 );
+            while ( v16 );
           }
-          SV_StreamSync_ClientAddViewWeaponLoad(v1, weaponSources, v34, v18);
-          v2 = v32;
+          SV_StreamSync_ClientAddViewWeaponLoad(v1, weaponSources, v26, v14);
+          v2 = v24;
         }
         v2 += 1456i64;
         ++v1;
-        v32 = v2;
+        v24 = v2;
         ++v3;
       }
       while ( v1 < level.maxclients );
     }
     s_sourceIndex = ((_BYTE)s_sourceIndex + 1) & 3;
-    result = v31;
-    s_timeSinceLastFill = v31;
+    result = v23;
+    s_timeSinceLastFill = v23;
   }
   return result;
 }
@@ -1177,22 +1140,21 @@ bool G_WeaponStreaming_FilterStreamedWeaponList(Weapon *const outList, const uns
 {
   unsigned int v9; 
   unsigned int i; 
+  __int64 v11; 
   bool result; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v13; 
+  __int64 v14; 
 
-  _RDI = weapons;
-  _R12 = outList;
   if ( !outList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 61, ASSERT_TYPE_ASSERT, "( outList )", (const char *)&queryFormat, "outList") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 62, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
+  if ( !weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 62, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
     __debugbreak();
   if ( !outCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 63, ASSERT_TYPE_ASSERT, "( outCount )", (const char *)&queryFormat, "outCount") )
     __debugbreak();
   v9 = 0;
-  for ( i = 0; i < weaponCount; ++_RDI )
+  for ( i = 0; i < weaponCount; ++weapons )
   {
-    if ( BG_WeaponHasStreamedModels(_RDI) )
+    if ( BG_WeaponHasStreamedModels(weapons) )
     {
       if ( v9 == outListSize )
       {
@@ -1201,22 +1163,16 @@ bool G_WeaponStreaming_FilterStreamedWeaponList(Weapon *const outList, const uns
       }
       if ( v9 >= outListSize )
       {
-        LODWORD(v17) = outListSize;
-        LODWORD(v16) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 82, ASSERT_TYPE_ASSERT, "(unsigned)( requestCount ) < (unsigned)( outListSize )", "requestCount doesn't index outListSize\n\t%i not in [0, %i)", v16, v17) )
+        LODWORD(v14) = outListSize;
+        LODWORD(v13) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 82, ASSERT_TYPE_ASSERT, "(unsigned)( requestCount ) < (unsigned)( outListSize )", "requestCount doesn't index outListSize\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rdi] }
-      _RCX = v9++;
-      __asm
-      {
-        vmovups ymmword ptr [rcx+r12], ymm0
-        vmovups xmm1, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rcx+r12+20h], xmm1
-        vmovsd  xmm0, qword ptr [rdi+30h]
-        vmovsd  qword ptr [rcx+r12+30h], xmm0
-      }
-      *(_DWORD *)&_R12[_RCX].weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+      v11 = v9++;
+      *(__m256i *)&outList[v11].weaponIdx = *(__m256i *)&weapons->weaponIdx;
+      *(_OWORD *)&outList[v11].attachmentVariationIndices[5] = *(_OWORD *)&weapons->attachmentVariationIndices[5];
+      *(double *)&outList[v11].attachmentVariationIndices[21] = *(double *)&weapons->attachmentVariationIndices[21];
+      *(_DWORD *)&outList[v11].weaponCamo = *(_DWORD *)&weapons->weaponCamo;
     }
     ++i;
   }
@@ -1291,55 +1247,50 @@ bool G_WeaponStreaming_HasViewWeaponsLoaded(const unsigned int clientNum, const 
   unsigned int v6; 
   unsigned int MaxViewRequestCount; 
   unsigned int v8; 
-  int v12; 
+  __int128 v9; 
+  __int64 v10; 
+  int v11; 
+  double v12; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
   Weapon weaponsa[24]; 
 
-  _RDI = weapons;
   if ( clientNum >= level.maxclients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 354, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( level.maxclients )", "clientNum doesn't index level.maxclients\n\t%i not in [0, %i)", clientNum, level.maxclients) )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 355, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
+  if ( !weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 355, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
     __debugbreak();
   v6 = 0;
   MaxViewRequestCount = G_WeaponStreaming_GetMaxViewRequestCount(clientNum);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 62, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
+  if ( !weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 62, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
     __debugbreak();
   v8 = 0;
   if ( !weaponCount )
     return 1;
   do
   {
-    if ( BG_WeaponHasStreamedModels(_RDI) )
+    if ( BG_WeaponHasStreamedModels(weapons) )
     {
       if ( v6 == 24 )
         return 0;
       if ( v6 >= 0x18 )
       {
-        LODWORD(v16) = 24;
-        LODWORD(v15) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 82, ASSERT_TYPE_ASSERT, "(unsigned)( requestCount ) < (unsigned)( outListSize )", "requestCount doesn't index outListSize\n\t%i not in [0, %i)", v15, v16) )
+        LODWORD(v15) = 24;
+        LODWORD(v14) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 82, ASSERT_TYPE_ASSERT, "(unsigned)( requestCount ) < (unsigned)( outListSize )", "requestCount doesn't index outListSize\n\t%i not in [0, %i)", v14, v15) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups xmm1, xmmword ptr [rdi+20h]
-      }
-      _RCX = v6;
-      v12 = *(_DWORD *)&_RDI->weaponCamo;
+      v9 = *(_OWORD *)&weapons->attachmentVariationIndices[5];
+      v10 = v6;
+      v11 = *(_DWORD *)&weapons->weaponCamo;
       ++v6;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+rcx+628h+weapons.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr [rdi+30h]
-        vmovups xmmword ptr [rsp+rcx+628h+weapons.attachmentVariationIndices+5], xmm1
-        vmovsd  qword ptr [rsp+rcx+628h+weapons.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weaponsa[_RCX].weaponCamo = v12;
+      *(__m256i *)&weaponsa[v10].weaponIdx = *(__m256i *)&weapons->weaponIdx;
+      v12 = *(double *)&weapons->attachmentVariationIndices[21];
+      *(_OWORD *)&weaponsa[v10].attachmentVariationIndices[5] = v9;
+      *(double *)&weaponsa[v10].attachmentVariationIndices[21] = v12;
+      *(_DWORD *)&weaponsa[v10].weaponCamo = v11;
     }
     ++v8;
-    ++_RDI;
+    ++weapons;
   }
   while ( v8 < weaponCount );
   if ( v6 > MaxViewRequestCount )
@@ -1359,8 +1310,10 @@ bool G_WeaponStreaming_HasViewWeaponsLoadedForPlayer(const unsigned int clientNu
   int v5; 
   BgWeaponHandle *weaponsEquipped; 
   GWeaponMap *Instance; 
-  __int64 v14; 
-  __int64 v15; 
+  const WeaponMapEntry *WeaponEntry; 
+  __int64 v9; 
+  __int64 v11; 
+  __int64 v12; 
   Weapon weapons[15]; 
 
   if ( clientNum >= level.maxclients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 419, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( level.maxclients )", "clientNum doesn't index level.maxclients\n\t%i not in [0, %i)", clientNum, level.maxclients) )
@@ -1380,32 +1333,26 @@ bool G_WeaponStreaming_HasViewWeaponsLoadedForPlayer(const unsigned int clientNu
       __debugbreak();
     if ( (unsigned int)v5 >= 0xF )
     {
-      LODWORD(v15) = 15;
-      LODWORD(v14) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v14, v15) )
+      LODWORD(v12) = 15;
+      LODWORD(v11) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    _RBX = BgWeaponMap::GetWeaponEntry(Instance, weaponsEquipped->m_mapEntryId);
-    if ( _RBX->weapon.weaponIdx && *p_slot != WEAPON_SLOT_EXECUTION )
+    WeaponEntry = BgWeaponMap::GetWeaponEntry(Instance, weaponsEquipped->m_mapEntryId);
+    if ( WeaponEntry->weapon.weaponIdx && *p_slot != WEAPON_SLOT_EXECUTION )
     {
       if ( v3 >= 0xF )
       {
-        LODWORD(v15) = 15;
-        LODWORD(v14) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 190, ASSERT_TYPE_ASSERT, "(unsigned)( weaponCount ) < (unsigned)( outListSize )", "weaponCount doesn't index outListSize\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v12) = 15;
+        LODWORD(v11) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 190, ASSERT_TYPE_ASSERT, "(unsigned)( weaponCount ) < (unsigned)( outListSize )", "weaponCount doesn't index outListSize\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx+2] }
-      _RCX = v3++;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+rcx+428h+weapons.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rbx+22h]
-        vmovups xmmword ptr [rsp+rcx+428h+weapons.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rbx+32h]
-        vmovsd  qword ptr [rsp+rcx+428h+weapons.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weapons[_RCX].weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
+      v9 = v3++;
+      *(__m256i *)&weapons[v9].weaponIdx = *(__m256i *)&WeaponEntry->weapon.weaponIdx;
+      *(_OWORD *)&weapons[v9].attachmentVariationIndices[5] = *(_OWORD *)&WeaponEntry->weapon.attachmentVariationIndices[5];
+      *(double *)&weapons[v9].attachmentVariationIndices[21] = *(double *)&WeaponEntry->weapon.attachmentVariationIndices[21];
+      *(_DWORD *)&weapons[v9].weaponCamo = *(_DWORD *)&WeaponEntry->weapon.weaponCamo;
     }
     ++v5;
     ++weaponsEquipped;
@@ -1429,15 +1376,17 @@ bool G_WeaponStreaming_HasWorldWeaponsLoaded(const unsigned int clientNum, const
   unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  int v16; 
+  __int128 v13; 
+  __int64 v14; 
+  int v15; 
+  double v16; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
   Weapon weaponsa[64]; 
 
-  _RDI = weapons;
   if ( clientNum >= level.maxclients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 386, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( level.maxclients )", "clientNum doesn't index level.maxclients\n\t%i not in [0, %i)", clientNum, level.maxclients) )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 387, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
+  if ( !weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 387, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
     __debugbreak();
   v6 = SvClient::ms_clientCount;
   MaxWorldEntryCount = Com_StreamSync_GetMaxWorldEntryCount(STREAM_SYNC_WORLD_TYPE_WEAPON, SvClient::ms_clientCount);
@@ -1448,49 +1397,42 @@ bool G_WeaponStreaming_HasWorldWeaponsLoaded(const unsigned int clientNum, const
   v10 = 2 * v8 + 24;
   if ( MaxWorldEntryCount > v10 )
   {
-    LODWORD(v20) = v10;
-    LODWORD(v19) = MaxWorldEntryCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 391, ASSERT_TYPE_ASSERT, "( maxWorldWeaponsCount ) <= ( ( ((2) * (maxClientCount <= (20) ? maxClientCount : (20)) + 16 + (8)) ) )", "maxWorldWeaponsCount not in [0, MAX_WORLD_WEAPONS_STREAMED_DYNAMIC( maxClientCount )]\n\t%u not in [0, %u]", v19, v20) )
+    LODWORD(v19) = v10;
+    LODWORD(v18) = MaxWorldEntryCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 391, ASSERT_TYPE_ASSERT, "( maxWorldWeaponsCount ) <= ( ( ((2) * (maxClientCount <= (20) ? maxClientCount : (20)) + 16 + (8)) ) )", "maxWorldWeaponsCount not in [0, MAX_WORLD_WEAPONS_STREAMED_DYNAMIC( maxClientCount )]\n\t%u not in [0, %u]", v18, v19) )
       __debugbreak();
   }
   v11 = 0;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 62, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
+  if ( !weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 62, ASSERT_TYPE_ASSERT, "( weapons )", (const char *)&queryFormat, "weapons") )
     __debugbreak();
   v12 = 0;
   if ( !weaponCount )
     return 1;
   do
   {
-    if ( BG_WeaponHasStreamedModels(_RDI) )
+    if ( BG_WeaponHasStreamedModels(weapons) )
     {
       if ( v11 == 64 )
         return 0;
       if ( v11 >= 0x40 )
       {
-        LODWORD(v20) = 64;
-        LODWORD(v19) = v11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 82, ASSERT_TYPE_ASSERT, "(unsigned)( requestCount ) < (unsigned)( outListSize )", "requestCount doesn't index outListSize\n\t%i not in [0, %i)", v19, v20) )
+        LODWORD(v19) = 64;
+        LODWORD(v18) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 82, ASSERT_TYPE_ASSERT, "(unsigned)( requestCount ) < (unsigned)( outListSize )", "requestCount doesn't index outListSize\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups xmm1, xmmword ptr [rdi+20h]
-      }
-      _RCX = v11;
-      v16 = *(_DWORD *)&_RDI->weaponCamo;
+      v13 = *(_OWORD *)&weapons->attachmentVariationIndices[5];
+      v14 = v11;
+      v15 = *(_DWORD *)&weapons->weaponCamo;
       ++v11;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+rcx+0F88h+weapons.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr [rdi+30h]
-        vmovups xmmword ptr [rsp+rcx+0F88h+weapons.attachmentVariationIndices+5], xmm1
-        vmovsd  qword ptr [rsp+rcx+0F88h+weapons.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weaponsa[_RCX].weaponCamo = v16;
+      *(__m256i *)&weaponsa[v14].weaponIdx = *(__m256i *)&weapons->weaponIdx;
+      v16 = *(double *)&weapons->attachmentVariationIndices[21];
+      *(_OWORD *)&weaponsa[v14].attachmentVariationIndices[5] = v13;
+      *(double *)&weaponsa[v14].attachmentVariationIndices[21] = v16;
+      *(_DWORD *)&weaponsa[v14].weaponCamo = v15;
     }
     ++v12;
-    ++_RDI;
+    ++weapons;
   }
   while ( v12 < weaponCount );
   if ( v11 > v9 )
@@ -1509,8 +1451,10 @@ bool G_WeaponStreaming_HasWorldWeaponsLoadedForPlayer(const unsigned int clientN
   BgWeaponHandle *weaponsEquipped; 
   GWeaponMap *Instance; 
   int i; 
-  __int64 v13; 
-  __int64 v14; 
+  const WeaponMapEntry *WeaponEntry; 
+  __int64 v8; 
+  __int64 v10; 
+  __int64 v11; 
   Weapon weapons[15]; 
 
   if ( clientNum >= level.maxclients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 459, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( level.maxclients )", "clientNum doesn't index level.maxclients\n\t%i not in [0, %i)", clientNum, level.maxclients) )
@@ -1528,32 +1472,26 @@ bool G_WeaponStreaming_HasWorldWeaponsLoadedForPlayer(const unsigned int clientN
       __debugbreak();
     if ( (unsigned int)i >= 0xF )
     {
-      LODWORD(v14) = 15;
-      LODWORD(v13) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v11) = 15;
+      LODWORD(v10) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    _RBX = BgWeaponMap::GetWeaponEntry(Instance, weaponsEquipped->m_mapEntryId);
-    if ( BG_WeaponHasStreamedModels(&_RBX->weapon) )
+    WeaponEntry = BgWeaponMap::GetWeaponEntry(Instance, weaponsEquipped->m_mapEntryId);
+    if ( BG_WeaponHasStreamedModels(&WeaponEntry->weapon) )
     {
       if ( v3 >= 0xF )
       {
-        LODWORD(v14) = 15;
-        LODWORD(v13) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 217, ASSERT_TYPE_ASSERT, "(unsigned)( weaponCount ) < (unsigned)( outListSize )", "weaponCount doesn't index outListSize\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v11) = 15;
+        LODWORD(v10) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 217, ASSERT_TYPE_ASSERT, "(unsigned)( weaponCount ) < (unsigned)( outListSize )", "weaponCount doesn't index outListSize\n\t%i not in [0, %i)", v10, v11) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx+2] }
-      _RCX = v3++;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+rcx+428h+weapons.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rbx+22h]
-        vmovups xmmword ptr [rsp+rcx+428h+weapons.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rbx+32h]
-        vmovsd  qword ptr [rsp+rcx+428h+weapons.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weapons[_RCX].weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
+      v8 = v3++;
+      *(__m256i *)&weapons[v8].weaponIdx = *(__m256i *)&WeaponEntry->weapon.weaponIdx;
+      *(_OWORD *)&weapons[v8].attachmentVariationIndices[5] = *(_OWORD *)&WeaponEntry->weapon.attachmentVariationIndices[5];
+      *(double *)&weapons[v8].attachmentVariationIndices[21] = *(double *)&WeaponEntry->weapon.attachmentVariationIndices[21];
+      *(_DWORD *)&weapons[v8].weaponCamo = *(_DWORD *)&WeaponEntry->weapon.weaponCamo;
     }
     ++weaponsEquipped;
   }
@@ -1573,33 +1511,37 @@ void G_WeaponStreaming_LoadViewWeapons()
   __int64 v3; 
   unsigned int MaxViewRequestCount; 
   __int64 v5; 
+  AssetStreamingRequestItem *v6; 
   __int64 v7; 
-  int v11; 
+  __int128 v8; 
+  Weapon *v9; 
+  int v10; 
+  double v11; 
   AssetStreamingRequestSource RequestSource; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
-  int v16; 
+  int v15; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
   unsigned int weaponSources[24]; 
   Weapon weapons[24]; 
 
   v0 = 0;
-  v16 = 0;
+  v15 = 0;
   if ( level.maxclients > 0 )
   {
     v1 = &s_viewWeaponRequestList;
     v2 = 0i64;
     v3 = 0i64;
+    v16 = 0i64;
     v17 = 0i64;
-    v18 = 0i64;
     do
     {
       if ( (unsigned int)v0 >= 0x800 )
       {
-        LODWORD(v15) = 2048;
-        LODWORD(v14) = v0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v14) = 2048;
+        LODWORD(v13) = v0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1612,64 +1554,57 @@ void G_WeaponStreaming_LoadViewWeapons()
         v5 = 0i64;
         if ( MaxViewRequestCount )
         {
-          _RDI = v1;
+          v6 = v1;
           v7 = MaxViewRequestCount;
           do
           {
-            if ( _RDI->assetIndex )
+            if ( v6->assetIndex )
             {
-              if ( _RDI->assetIndex != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 888, ASSERT_TYPE_ASSERT, "( BG_AssetStreaming_IsWeaponAssetRequest( *requestItem ) )", (const char *)&queryFormat, "BG_AssetStreaming_IsWeaponAssetRequest( *requestItem )") )
+              if ( v6->assetIndex != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 888, ASSERT_TYPE_ASSERT, "( BG_AssetStreaming_IsWeaponAssetRequest( *requestItem ) )", (const char *)&queryFormat, "BG_AssetStreaming_IsWeaponAssetRequest( *requestItem )") )
                 __debugbreak();
               if ( (unsigned int)v5 >= 0x18 )
               {
-                LODWORD(v15) = 24;
-                LODWORD(v14) = v5;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 889, ASSERT_TYPE_ASSERT, "(unsigned)( weaponCount ) < (unsigned)( ( sizeof( *array_counter( weapons ) ) + 0 ) )", "weaponCount doesn't index ARRAY_COUNT( weapons )\n\t%i not in [0, %i)", v14, v15) )
+                LODWORD(v14) = 24;
+                LODWORD(v13) = v5;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 889, ASSERT_TYPE_ASSERT, "(unsigned)( weaponCount ) < (unsigned)( ( sizeof( *array_counter( weapons ) ) + 0 ) )", "weaponCount doesn't index ARRAY_COUNT( weapons )\n\t%i not in [0, %i)", v13, v14) )
                   __debugbreak();
               }
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rdi+0Ch]
-                vmovups xmm1, xmmword ptr [rdi+2Ch]
-              }
-              _RCX = &weapons[(unsigned int)v5];
-              v11 = *(_DWORD *)&_RDI->weapon.weaponCamo;
-              __asm
-              {
-                vmovups ymmword ptr [rcx], ymm0
-                vmovsd  xmm0, qword ptr [rdi+3Ch]
-                vmovups xmmword ptr [rcx+20h], xmm1
-                vmovsd  qword ptr [rcx+30h], xmm0
-              }
-              *(_DWORD *)&_RCX->weaponCamo = v11;
-              RequestSource = BG_AssetStreaming_GetRequestSource(_RDI);
+              v8 = *(_OWORD *)&v6->weapon.attachmentVariationIndices[5];
+              v9 = &weapons[(unsigned int)v5];
+              v10 = *(_DWORD *)&v6->weapon.weaponCamo;
+              *(__m256i *)&v9->weaponIdx = *(__m256i *)&v6->weapon.weaponIdx;
+              v11 = *(double *)&v6->weapon.attachmentVariationIndices[21];
+              *(_OWORD *)&v9->attachmentVariationIndices[5] = v8;
+              *(double *)&v9->attachmentVariationIndices[21] = v11;
+              *(_DWORD *)&v9->weaponCamo = v10;
+              RequestSource = BG_AssetStreaming_GetRequestSource(v6);
               weaponSources[v5] = RequestSource;
               if ( (unsigned int)RequestSource > ASSET_STREAMING_REQUEST_EQUIPPED_VIEW )
               {
-                LODWORD(v15) = 7;
-                LODWORD(v14) = RequestSource;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 893, ASSERT_TYPE_ASSERT, "( weaponSources[weaponCount] ) <= ( ((1 << (3)) - 1) )", "weaponSources[weaponCount] not in [0, STREAM_SYNC_MAX_SOURCE]\n\t%u not in [0, %u]", v14, v15) )
+                LODWORD(v14) = 7;
+                LODWORD(v13) = RequestSource;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_streaming_mp.cpp", 893, ASSERT_TYPE_ASSERT, "( weaponSources[weaponCount] ) <= ( ((1 << (3)) - 1) )", "weaponSources[weaponCount] not in [0, STREAM_SYNC_MAX_SOURCE]\n\t%u not in [0, %u]", v13, v14) )
                   __debugbreak();
               }
               v5 = (unsigned int)(v5 + 1);
             }
-            ++_RDI;
+            ++v6;
             --v7;
           }
           while ( v7 );
-          v0 = v16;
-          v2 = v17;
-          v3 = v18;
+          v0 = v15;
+          v2 = v16;
+          v3 = v17;
         }
         SV_StreamSync_ClientAddViewWeaponLoad(v0, weapons, weaponSources, v5);
       }
       ++v0;
       ++v2;
-      v16 = v0;
+      v15 = v0;
       v3 += 1456i64;
-      v17 = v2;
+      v16 = v2;
       v1 += 24;
-      v18 = v3;
+      v17 = v3;
     }
     while ( v0 < level.maxclients );
   }

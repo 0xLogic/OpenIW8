@@ -198,45 +198,8 @@ void bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocal
 {
   this->m_hasValue = o->m_hasValue;
   this->m_value.__vftable = (bdLocalizationToken_vtbl *)&bdLocalizationToken::`vftable';
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+10h]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+30h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovsd  xmm0, qword ptr [rdx+50h]
-    vmovsd  qword ptr [rcx+50h], xmm0
-  }
-  *(_DWORD *)&this->m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&o->m_value.m_stringSetIdentifier.m_buffer[72];
-  *(_WORD *)&this->m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&o->m_value.m_stringSetIdentifier.m_buffer[76];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+5Eh]
-    vmovups xmmword ptr [rcx+5Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+6Eh]
-    vmovups xmmword ptr [rcx+6Eh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+7Eh]
-    vmovups xmmword ptr [rcx+7Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+8Eh]
-    vmovups xmmword ptr [rcx+8Eh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+9Eh]
-    vmovups xmmword ptr [rcx+9Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0AEh]
-    vmovups xmmword ptr [rcx+0AEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0BEh]
-    vmovups xmmword ptr [rcx+0BEh], xmm0
-    vmovups xmm0, xmmword ptr [rdx+0CEh]
-    vmovups xmmword ptr [rcx+0CEh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0DEh]
-    vmovups xmmword ptr [rcx+0DEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0EEh]
-    vmovups xmmword ptr [rcx+0EEh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0FEh]
-    vmovups xmmword ptr [rcx+0FEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+10Eh]
-    vmovups xmmword ptr [rcx+10Eh], xmm0
-  }
-  *(_DWORD *)&this->m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&o->m_value.m_localizationToken.m_buffer[192];
+  this->m_value.m_stringSetIdentifier = o->m_value.m_stringSetIdentifier;
+  this->m_value.m_localizationToken = o->m_value.m_localizationToken;
   this->m_value.m_apiVersion = o->m_value.m_apiVersion;
 }
 
@@ -260,45 +223,8 @@ bdStructOptionalObject<bdLocalizationToken> *bdStructOptionalObject<bdLocalizati
   if ( this != o )
   {
     this->m_hasValue = o->m_hasValue;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx+10h]
-      vmovups ymmword ptr [rcx+10h], ymm0
-      vmovups ymm1, ymmword ptr [rdx+30h]
-      vmovups ymmword ptr [rcx+30h], ymm1
-      vmovsd  xmm0, qword ptr [rdx+50h]
-      vmovsd  qword ptr [rcx+50h], xmm0
-    }
-    *(_DWORD *)&this->m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&o->m_value.m_stringSetIdentifier.m_buffer[72];
-    *(_WORD *)&this->m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&o->m_value.m_stringSetIdentifier.m_buffer[76];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx+5Eh]
-      vmovups xmmword ptr [rcx+5Eh], xmm0
-      vmovups xmm1, xmmword ptr [rdx+6Eh]
-      vmovups xmmword ptr [rcx+6Eh], xmm1
-      vmovups xmm0, xmmword ptr [rdx+7Eh]
-      vmovups xmmword ptr [rcx+7Eh], xmm0
-      vmovups xmm1, xmmword ptr [rdx+8Eh]
-      vmovups xmmword ptr [rcx+8Eh], xmm1
-      vmovups xmm0, xmmword ptr [rdx+9Eh]
-      vmovups xmmword ptr [rcx+9Eh], xmm0
-      vmovups xmm1, xmmword ptr [rdx+0AEh]
-      vmovups xmmword ptr [rcx+0AEh], xmm1
-      vmovups xmm0, xmmword ptr [rdx+0BEh]
-      vmovups xmmword ptr [rcx+0BEh], xmm0
-      vmovups xmm0, xmmword ptr [rdx+0CEh]
-      vmovups xmmword ptr [rcx+0CEh], xmm0
-      vmovups xmm1, xmmword ptr [rdx+0DEh]
-      vmovups xmmword ptr [rcx+0DEh], xmm1
-      vmovups xmm0, xmmword ptr [rdx+0EEh]
-      vmovups xmmword ptr [rcx+0EEh], xmm0
-      vmovups xmm1, xmmword ptr [rdx+0FEh]
-      vmovups xmmword ptr [rcx+0FEh], xmm1
-      vmovups xmm0, xmmword ptr [rdx+10Eh]
-      vmovups xmmword ptr [rcx+10Eh], xmm0
-    }
-    *(_DWORD *)&this->m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&o->m_value.m_localizationToken.m_buffer[192];
+    this->m_value.m_stringSetIdentifier = o->m_value.m_stringSetIdentifier;
+    this->m_value.m_localizationToken = o->m_value.m_localizationToken;
     this->m_value.m_apiVersion = o->m_value.m_apiVersion;
   }
   return this;
@@ -398,45 +324,8 @@ void bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocal
 {
   this->m_hasValue = 1;
   this->m_value.__vftable = (bdLocalizationToken_vtbl *)&bdLocalizationToken::`vftable';
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+8]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+28h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovsd  xmm0, qword ptr [rdx+48h]
-    vmovsd  qword ptr [rcx+50h], xmm0
-  }
-  *(_DWORD *)&this->m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&v->m_stringSetIdentifier.m_buffer[72];
-  *(_WORD *)&this->m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&v->m_stringSetIdentifier.m_buffer[76];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+56h]
-    vmovups xmmword ptr [rcx+5Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+66h]
-    vmovups xmmword ptr [rcx+6Eh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+76h]
-    vmovups xmmword ptr [rcx+7Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+86h]
-    vmovups xmmword ptr [rcx+8Eh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+96h]
-    vmovups xmmword ptr [rcx+9Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0A6h]
-    vmovups xmmword ptr [rcx+0AEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0B6h]
-    vmovups xmmword ptr [rcx+0BEh], xmm0
-    vmovups xmm0, xmmword ptr [rdx+0C6h]
-    vmovups xmmword ptr [rcx+0CEh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0D6h]
-    vmovups xmmword ptr [rcx+0DEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0E6h]
-    vmovups xmmword ptr [rcx+0EEh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0F6h]
-    vmovups xmmword ptr [rcx+0FEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+106h]
-    vmovups xmmword ptr [rcx+10Eh], xmm0
-  }
-  *(_DWORD *)&this->m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&v->m_localizationToken.m_buffer[192];
+  this->m_value.m_stringSetIdentifier = v->m_stringSetIdentifier;
+  this->m_value.m_localizationToken = v->m_localizationToken;
   this->m_value.m_apiVersion = v->m_apiVersion;
 }
 

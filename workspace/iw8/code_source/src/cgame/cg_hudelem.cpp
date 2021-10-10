@@ -72,26 +72,14 @@ void __fastcall CG_TranslateHudElemMessage(LocalClientNum_t localClientNum, cons
 AlignHudElemY
 ==============
 */
-
-float __fastcall AlignHudElemY(int alignOrg, double y, double height)
+float AlignHudElemY(int alignOrg, float y, float height)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-  }
-  if ( (alignOrg & 3u) >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 388, ASSERT_TYPE_ASSERT, "( ( alignY == 0 || alignY == 1 || alignY == 2 ) )", "( alignOrg ) = %i", alignOrg) )
+  __int64 v3; 
+
+  v3 = alignOrg & 3;
+  if ( (unsigned int)v3 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 388, ASSERT_TYPE_ASSERT, "( ( alignY == 0 || alignY == 1 || alignY == 2 ) )", "( alignOrg ) = %i", alignOrg) )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rcx+rbx*4]
-    vmovaps xmm6, [rsp+58h+var_18]
-    vsubss  xmm0, xmm7, xmm0
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return y - (float)(height * s_alignScale[v3]);
 }
 
 /*
@@ -241,730 +229,422 @@ CG_DrawWaypoint
 */
 void CG_DrawWaypoint(LocalClientNum_t localClientNum, WaypointDrawArgs *args)
 {
-  __int64 v13; 
-  const dvar_t *v31; 
-  const dvar_t *v50; 
-  const dvar_t *v57; 
-  const dvar_t *v60; 
-  const dvar_t *v63; 
-  const dvar_t *v66; 
-  const dvar_t *v69; 
-  char v72; 
-  char v73; 
-  bool v77; 
-  bool v81; 
-  char v82; 
-  char v83; 
-  const dvar_t *v104; 
-  char v106; 
-  char v136; 
-  char v137; 
-  bool v145; 
-  bool v146; 
+  __int64 v2; 
+  const ScreenPlacement *ActivePlacement; 
+  const dvar_t *v6; 
+  const ScreenPlacement *v7; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  const dvar_t *v11; 
+  float v12; 
+  float arrowWidth; 
+  const dvar_t *v14; 
+  float v15; 
+  float arrowHeight; 
+  __int128 v18; 
+  const dvar_t *v19; 
+  float v21; 
+  float value; 
+  const dvar_t *v23; 
+  float v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  const dvar_t *v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  const dvar_t *v34; 
+  float v35; 
+  const dvar_t *v36; 
+  float v37; 
+  const dvar_t *v38; 
+  float v39; 
+  const dvar_t *v40; 
+  float v41; 
+  const dvar_t *v42; 
+  char v43; 
+  char v44; 
+  float Alpha; 
+  bool v47; 
+  float v48; 
+  bool v49; 
+  char v50; 
+  char v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  unsigned __int8 v57; 
+  float v59; 
+  float v60; 
+  float v64; 
+  const dvar_t *v65; 
+  float v66; 
+  double Float_Internal_DebugName; 
+  bool v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float scale; 
+  float v73; 
+  char v74; 
+  char v75; 
+  vec4_t v76; 
+  float ScaleForDistance; 
+  float ScreenCenterFadeScaler; 
   CgGlobalsMP *LocalClientGlobals; 
-  CgCompassSystemMP *v148; 
-  char v149; 
+  CgCompassSystemMP *v80; 
+  __int128 v82; 
+  const dvar_t *v85; 
+  float v86; 
+  const dvar_t *v87; 
+  float v88; 
   GfxFont *FontHandle; 
+  float v90; 
   const char *label; 
-  GfxFont *v195; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
+  float v92; 
+  float v93; 
+  GfxFont *v94; 
+  int v95; 
   __int64 padBottom; 
-  float padBottoma; 
-  float padBottomb; 
-  float padBottomc; 
-  float padBottomd; 
-  float padBottome; 
   vec2_t *outNormal; 
-  float outNormala; 
-  float outNormalb; 
-  float outNormalc; 
-  float outNormald; 
   float *outDist; 
-  float outDista; 
-  float outDistb; 
-  float outDistc; 
   __int64 angle; 
   float anglea; 
-  float angleb; 
-  float anglec; 
-  float v238; 
-  float v239; 
+  float v101; 
+  float v102; 
   float h; 
   float w; 
+  float v105; 
+  float rotation; 
   vec2_t screenPos; 
-  vec4_t v245; 
+  vec4_t color4; 
   vec4_t color; 
   vec4_t x; 
   vec2_t outScreenPos; 
-  char v249; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  v13 = localClientNum;
-  _RDI = args;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  [rsp+190h+var_120], xmm7
-  }
+  v2 = localClientNum;
+  _XMM7 = LODWORD(FLOAT_1_0);
+  v105 = FLOAT_1_0;
   if ( !args && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1424, ASSERT_TYPE_ASSERT, "(args)", (const char *)&queryFormat, "args") )
     __debugbreak();
-  if ( !_RDI->arrowMaterial && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1425, ASSERT_TYPE_ASSERT, "(args->arrowMaterial)", (const char *)&queryFormat, "args->arrowMaterial") )
+  if ( !args->arrowMaterial && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1425, ASSERT_TYPE_ASSERT, "(args->arrowMaterial)", (const char *)&queryFormat, "args->arrowMaterial") )
     __debugbreak();
-  _RAX = ScrPlace_GetActivePlacement((const LocalClientNum_t)v13);
-  _RBX = DVARFLT_waypointIconWidth;
-  _RSI = _RAX;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rax+4]
-    vaddss  xmm1, xmm0, dword ptr [rax]
-    vmulss  xmm14, xmm1, xmm6
-  }
+  ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v2);
+  v6 = DVARFLT_waypointIconWidth;
+  v7 = ActivePlacement;
+  v8 = LODWORD(ActivePlacement->scaleVirtualToReal.v[1]);
+  *(float *)&v8 = (float)(ActivePlacement->scaleVirtualToReal.v[1] + ActivePlacement->scaleVirtualToReal.v[0]) * 0.5;
+  v9 = v8;
   if ( !DVARFLT_waypointIconWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointIconWidth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, dword ptr [rdi+60h]
-  }
-  _RBX = DVARFLT_waypointIconHeight;
-  __asm
-  {
-    vmulss  xmm2, xmm1, dword ptr [rsi]
-    vmovss  [rsp+190h+var_12C], xmm2
-  }
+  Dvar_CheckFrontendServerThread(v6);
+  v10 = v6->current.value * args->scale;
+  v11 = DVARFLT_waypointIconHeight;
+  v102 = v10 * v7->scaleVirtualToReal.v[0];
   if ( !DVARFLT_waypointIconHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointIconHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, dword ptr [rdi+60h]
-    vmulss  xmm2, xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rdi+48h]
-  }
-  v31 = DVARFLT_waypointOffscreenDistanceThresholdAlpha;
-  __asm
-  {
-    vmulss  xmm11, xmm14, dword ptr [rdi+50h]
-    vmovss  [rsp+190h+var_130], xmm2
-    vmulss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  xmm2, dword ptr [rdi+4Ch]
-    vmovss  [rsp+190h+w], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rsi+4]
-    vmovss  [rsp+190h+h], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = (float)(v11->current.value * args->scale) * v7->scaleVirtualToReal.v[1];
+  arrowWidth = args->arrowWidth;
+  v14 = DVARFLT_waypointOffscreenDistanceThresholdAlpha;
+  v15 = *(float *)&v9 * args->arrowFadeDistance;
+  v101 = v12;
+  arrowHeight = args->arrowHeight;
+  w = arrowWidth * v7->scaleVirtualToReal.v[0];
+  h = arrowHeight * v7->scaleVirtualToReal.v[1];
   if ( !DVARFLT_waypointOffscreenDistanceThresholdAlpha && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenDistanceThresholdAlpha") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v31);
-  __asm { vmulss  xmm0, xmm14, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_waypointOffscreenPadLeft;
-  __asm
-  {
-    vmulss  xmm2, xmm6, [rsp+190h+h]
-    vmaxss  xmm15, xmm0, cs:__real@3dcccccd
-    vaddss  xmm6, xmm2, xmm11
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  v18 = v9;
+  *(float *)&v18 = *(float *)&v9 * v14->current.value;
+  _XMM0 = v18;
+  v19 = DVARFLT_waypointOffscreenPadLeft;
+  __asm { vmaxss  xmm15, xmm0, cs:__real@3dcccccd }
+  v21 = (float)(0.5 * h) + v15;
   if ( !DVARFLT_waypointOffscreenPadLeft && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenPadLeft") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_waypointOffscreenPadRight;
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rsi]
-    vaddss  xmm13, xmm1, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v19);
+  value = v19->current.value;
+  v23 = DVARFLT_waypointOffscreenPadRight;
+  v24 = (float)(value * v7->scaleVirtualToReal.v[0]) + v21;
   if ( !DVARFLT_waypointOffscreenPadRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenPadRight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_waypointOffscreenPadTop;
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rsi]
-    vaddss  xmm12, xmm1, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v23);
+  v25 = v23->current.value;
+  v26 = DVARFLT_waypointOffscreenPadTop;
+  v27 = (float)(v25 * v7->scaleVirtualToReal.v[0]) + v21;
   if ( !DVARFLT_waypointOffscreenPadTop && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenPadTop") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  v50 = DVARFLT_waypointOffscreenPadBottom;
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rsi+4]
-    vaddss  xmm10, xmm1, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v26);
+  v28 = v26->current.value;
+  v29 = DVARFLT_waypointOffscreenPadBottom;
+  v30 = (float)(v28 * v7->scaleVirtualToReal.v[1]) + v21;
   if ( !DVARFLT_waypointOffscreenPadBottom && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenPadBottom") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v50);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmulss  xmm0, xmm1, dword ptr [rbx+28h]
-    vaddss  xmm9, xmm0, xmm6
-    vmulss  xmm6, xmm1, dword ptr [rdi+38h]
-  }
+  Dvar_CheckFrontendServerThread(v29);
+  v31 = v7->scaleVirtualToReal.v[1];
+  v32 = (float)(v31 * v29->current.value) + v21;
+  v33 = v31 * args->offsetY;
   if ( CL_IsRenderingSplitScreen() )
   {
-    v57 = DVARFLT_waypointSplitscreenScale;
+    v34 = DVARFLT_waypointSplitscreenScale;
     if ( !DVARFLT_waypointSplitscreenScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointSplitscreenScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v57);
-    __asm
-    {
-      vmovss  xmm0, [rsp+190h+var_12C]
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    }
-    v60 = DVARFLT_waypointSplitscreenScale;
-    __asm { vmovss  [rsp+190h+var_12C], xmm1 }
+    Dvar_CheckFrontendServerThread(v34);
+    v35 = v102 * v34->current.value;
+    v36 = DVARFLT_waypointSplitscreenScale;
+    v102 = v35;
     if ( !DVARFLT_waypointSplitscreenScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointSplitscreenScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v60);
-    __asm
-    {
-      vmovss  xmm0, [rsp+190h+var_130]
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    }
-    v63 = DVARFLT_waypointSplitscreenScale;
-    __asm { vmovss  [rsp+190h+var_130], xmm1 }
+    Dvar_CheckFrontendServerThread(v36);
+    v37 = v101 * v36->current.value;
+    v38 = DVARFLT_waypointSplitscreenScale;
+    v101 = v37;
     if ( !DVARFLT_waypointSplitscreenScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointSplitscreenScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v63);
-    __asm
-    {
-      vmovss  xmm0, [rsp+190h+w]
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    }
-    v66 = DVARFLT_waypointSplitscreenScale;
-    __asm { vmovss  [rsp+190h+w], xmm1 }
+    Dvar_CheckFrontendServerThread(v38);
+    v39 = w * v38->current.value;
+    v40 = DVARFLT_waypointSplitscreenScale;
+    w = v39;
     if ( !DVARFLT_waypointSplitscreenScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointSplitscreenScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v66);
-    __asm
-    {
-      vmovss  xmm0, [rsp+190h+h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    }
-    v69 = DVARFLT_waypointSplitscreenScale;
-    __asm { vmovss  [rsp+190h+h], xmm1 }
+    Dvar_CheckFrontendServerThread(v40);
+    v41 = h * v40->current.value;
+    v42 = DVARFLT_waypointSplitscreenScale;
+    h = v41;
     if ( !DVARFLT_waypointSplitscreenScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointSplitscreenScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v69);
-    __asm { vmulss  xmm11, xmm11, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v42);
+    v15 = v15 * v42->current.value;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbp+90h+var_110], xmm0
-  }
-  CG_WorldPosToScreenPosReal((LocalClientNum_t)v13, _RSI, &_RDI->worldPos, &outScreenPos);
-  v72 = *((_BYTE *)_RDI + 104);
-  v73 = v72;
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rbp+90h+outScreenPos+4]
-    vmovss  dword ptr [rbp+90h+outScreenPos+4], xmm1
-  }
+  color4 = args->color4;
+  CG_WorldPosToScreenPosReal((LocalClientNum_t)v2, v7, &args->worldPos, &outScreenPos);
+  v43 = *((_BYTE *)args + 104);
+  v44 = v43;
+  outScreenPos.v[1] = v33 + outScreenPos.v[1];
   screenPos = outScreenPos;
-  if ( (v72 & 2) != 0 )
+  if ( (v43 & 2) != 0 )
   {
-    *(float *)&_XMM0 = UpdateFadeAndGetAlpha((LocalClientNum_t)v13, _RDI, _RSI, &screenPos);
-    v72 = *((_BYTE *)_RDI + 104);
-    v73 = v72;
-    __asm { vmovss  [rsp+190h+var_120], xmm0 }
+    Alpha = UpdateFadeAndGetAlpha((LocalClientNum_t)v2, args, v7, &screenPos);
+    v43 = *((_BYTE *)args + 104);
+    v44 = v43;
+    v105 = Alpha;
   }
-  __asm
+  rotation = args->rotation;
+  _XMM8 = 0i64;
+  if ( v43 < 0 || (*((_BYTE *)args + 105) & 2) != 0 )
   {
-    vmovss  xmm0, dword ptr [rdi+64h]
-    vmovss  [rsp+190h+var_11C], xmm0
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( v72 < 0 || (*((_BYTE *)_RDI + 105) & 2) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+190h+padBottom], xmm9
-      vmovaps xmm3, xmm12; padRight
-      vmovaps xmm2, xmm13; padLeft
-      vmovss  dword ptr [rsp+190h+fmt], xmm10
-    }
-    v81 = ClampScreenPosToEdges((LocalClientNum_t)v13, &screenPos, *(float *)&_XMM2, *(float *)&_XMM3, fmt, padBottoma, (vec2_t *)&color, x.v);
-    v72 = *((_BYTE *)_RDI + 104);
-    v77 = v81;
-    __asm { vmovss  xmm6, [rbp+90h+x] }
-    v73 = v72;
+    v49 = ClampScreenPosToEdges((LocalClientNum_t)v2, &screenPos, v24, v27, v30, v32, (vec2_t *)&color, x.v);
+    v43 = *((_BYTE *)args + 104);
+    v47 = v49;
+    v48 = x.v[0];
+    v44 = v43;
   }
   else
   {
-    v77 = 0;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v47 = 0;
+    v48 = 0.0;
   }
-  v82 = v72;
-  v83 = v73;
-  __asm
+  v50 = v43;
+  v51 = v44;
+  v52 = color.v[1];
+  v53 = color.v[0];
+  if ( !v47 || v48 <= 0.0 )
   {
-    vmovss  xmm9, dword ptr [rbp+90h+var_100+4]
-    vmovss  xmm10, dword ptr [rbp+90h+var_100]
+    v54 = rotation;
+    goto LABEL_70;
   }
-  if ( !v77 )
+  if ( (v43 & 8) != 0 )
   {
-    __asm { vmovss  xmm6, [rsp+190h+var_11C] }
-    goto LABEL_67;
+    v54 = (float)(atan2f_0(color.v[0], COERCE_FLOAT(LODWORD(color.v[1]) ^ _xmm)) * 57.295776) + 180.0;
+    v50 = v43;
+    v51 = v44;
+LABEL_70:
+    v64 = v105;
+    v73 = FLOAT_0_5;
+    goto LABEL_71;
   }
-  __asm { vcomiss xmm6, xmm8 }
-  if ( (v72 & 8) != 0 )
+  _XMM0 = v43 & 1;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  v57 = v43 & 0x10;
+  __asm { vblendvps xmm0, xmm7, xmm3, xmm2 }
+  color.v[3] = *(float *)&_XMM0;
+  color.v[0] = FLOAT_1_0;
+  color.v[1] = FLOAT_1_0;
+  color.v[2] = FLOAT_1_0;
+  if ( v48 >= *(float *)&_XMM15 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm9, cs:__xmm@80000000800000008000000080000000; X
-      vmovaps xmm0, xmm10; Y
-    }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vaddss  xmm6, xmm1, cs:__real@43340000
-    }
-    v82 = v72;
-    v83 = v73;
-LABEL_67:
-    __asm
-    {
-      vmovss  xmm12, [rsp+190h+var_120]
-      vmovss  xmm13, cs:__real@3f000000
-    }
-    goto LABEL_68;
+    _XMM0 = v57;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    v59 = color.v[3];
+    __asm { vblendvps xmm0, xmm8, xmm3, xmm2 }
+    color4.v[3] = *(float *)&_XMM0;
   }
-  __asm { vmovss  xmm3, dword ptr [rbp+90h+var_110+0Ch] }
-  _ECX = 0;
-  _EAX = v72 & 1;
-  __asm
+  else
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ecx
-    vpcmpeqd xmm2, xmm0, xmm1
-    vcomiss xmm6, xmm15
-    vblendvps xmm0, xmm7, xmm3, xmm2
-    vmovss  [rbp+90h+var_F4], xmm0
-    vmovss  dword ptr [rbp+90h+var_100], xmm7
-    vmovss  dword ptr [rbp+90h+var_100+4], xmm7
-    vmovss  [rbp+90h+var_F8], xmm7
-    vmovd   xmm1, ecx
+    v60 = (float)(v48 / *(float *)&_XMM15) * color.v[3];
+    v59 = v60;
+    color.v[3] = v60;
+    if ( v57 )
+      color4.v[3] = 1.0 - v60;
   }
-  _EAX = v72 & 0x10;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, [rbp+90h+var_F4]
-    vblendvps xmm0, xmm8, xmm3, xmm2
-    vmovss  dword ptr [rbp+90h+var_110+0Ch], xmm0
-    vmovss  xmm12, [rsp+190h+var_120]
-  }
-  if ( (v72 & 2) != 0 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm1, xmm12
-      vmovss  [rbp+90h+var_F4], xmm0
-    }
-  }
-  v104 = DVARFLT_waypointOffscreenScaleLength;
+  v64 = v105;
+  if ( (v43 & 2) != 0 )
+    color.v[3] = v59 * v105;
+  v65 = DVARFLT_waypointOffscreenScaleLength;
   if ( !DVARFLT_waypointOffscreenScaleLength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenScaleLength") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v104);
-  __asm
+  Dvar_CheckFrontendServerThread(v65);
+  v66 = *(float *)&v9 * v65->current.value;
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenScaleSmallest, "waypointOffscreenScaleSmallest");
+  if ( v48 < v66 )
+    *(float *)&Float_Internal_DebugName = (float)(*(float *)&Float_Internal_DebugName * (float)(v48 / v66)) + (float)(1.0 - (float)(v48 / v66));
+  v68 = (*((_BYTE *)args + 105) & 2) == 0;
+  v69 = *(float *)&Float_Internal_DebugName * v102;
+  v70 = *(float *)&Float_Internal_DebugName * v101;
+  v102 = *(float *)&Float_Internal_DebugName * v102;
+  v101 = *(float *)&Float_Internal_DebugName * v101;
+  v71 = 0.0;
+  if ( !v68 )
   {
-    vmulss  xmm0, xmm14, dword ptr [rbx+28h]
-    vcomiss xmm6, xmm0
+    scale = args->scale;
+    h = scale * h;
+    w = scale * w;
+    v71 = fsqrt((float)((float)(v69 * v69) + (float)(v70 * v70)) * 0.25);
   }
-  if ( v106 )
-  {
-    __asm { vdivss  xmm6, xmm6, xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenScaleSmallest, "waypointOffscreenScaleSmallest");
-    __asm
-    {
-      vmulss  xmm2, xmm0, xmm6
-      vsubss  xmm1, xmm7, xmm6
-      vaddss  xmm0, xmm2, xmm1
-    }
-  }
-  else
-  {
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenScaleSmallest, "waypointOffscreenScaleSmallest");
-  }
-  v146 = (*((_BYTE *)_RDI + 105) & 2) == 0;
-  __asm
-  {
-    vmulss  xmm4, xmm0, [rsp+190h+var_12C]
-    vmulss  xmm5, xmm0, [rsp+190h+var_130]
-    vmovss  [rsp+190h+var_12C], xmm4
-    vmovss  [rsp+190h+var_130], xmm5
-    vxorps  xmm0, xmm0, xmm0
-  }
-  if ( !v146 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+60h]
-      vmulss  xmm1, xmm3, [rsp+190h+w]
-      vmulss  xmm0, xmm3, [rsp+190h+h]
-      vmovss  [rsp+190h+h], xmm0
-      vmovss  [rsp+190h+w], xmm1
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm3, xmm4, xmm4
-      vaddss  xmm0, xmm3, xmm1
-      vmulss  xmm2, xmm0, cs:__real@3e800000
-      vsqrtss xmm0, xmm2, xmm2
-    }
-  }
-  __asm
-  {
-    vaddss  xmm2, xmm0, xmm11
-    vmulss  xmm0, xmm10, xmm2
-    vaddss  xmm1, xmm0, dword ptr [rsp+190h+screenPos]
-    vmulss  xmm2, xmm9, xmm2
-    vaddss  xmm0, xmm2, dword ptr [rsp+190h+screenPos+4]
-    vmovss  [rbp+90h+y], xmm0
-    vmovss  [rbp+90h+x], xmm1
-  }
+  x.v[1] = (float)(v52 * (float)(v71 + v15)) + screenPos.v[1];
+  x.v[0] = (float)(v53 * (float)(v71 + v15)) + screenPos.v[0];
   ScrPlace_HiResApplyRect(x.v, &x.v[1], &w, &h);
-  __asm
+  v73 = FLOAT_0_5;
+  anglea = atan2f_0(v53, COERCE_FLOAT(LODWORD(v52) ^ _xmm)) * 57.295776;
+  CL_DrawStretchPicPhysicalRotateXY(x.v[0] - (float)(0.5 * w), x.v[1] - (float)(0.5 * h), w, h, 0.0, 0.0, 1.0, 1.0, anglea, 0, &color, args->arrowMaterial);
+  v50 = *((_BYTE *)args + 104);
+  v54 = rotation;
+  v51 = v50;
+LABEL_71:
+  v74 = v51;
+  if ( (v50 & 0x40) != 0 || v47 || (v50 & 0x20) == 0 || (*((_BYTE *)args + 105) & 2) != 0 )
   {
-    vxorps  xmm1, xmm9, cs:__xmm@80000000800000008000000080000000; X
-    vmovaps xmm0, xmm10; Y
-  }
-  *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm4, xmm0, cs:__real@42652ee0
-    vmovss  xmm0, [rbp+90h+y]
-    vmovss  xmm3, [rsp+190h+h]; h
-    vmovss  xmm13, cs:__real@3f000000
-    vmulss  xmm2, xmm13, [rsp+190h+w]
-    vmovss  [rsp+190h+angle], xmm4
-    vmovss  dword ptr [rsp+190h+outDist], xmm7
-    vmulss  xmm1, xmm13, xmm3
-    vsubss  xmm1, xmm0, xmm1; y
-    vmovss  xmm0, [rbp+90h+x]
-    vmovss  dword ptr [rsp+190h+outNormal], xmm7
-    vsubss  xmm0, xmm0, xmm2; x
-    vmovss  xmm2, [rsp+190h+w]; w
-    vmovss  [rsp+190h+padBottom], xmm8
-    vmovss  dword ptr [rsp+190h+fmt], xmm8
-  }
-  CL_DrawStretchPicPhysicalRotateXY(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, padBottomb, outNormala, outDista, anglea, 0, &color, _RDI->arrowMaterial);
-  v82 = *((_BYTE *)_RDI + 104);
-  __asm { vmovss  xmm6, [rsp+190h+var_11C] }
-  v83 = v82;
-LABEL_68:
-  v136 = v83;
-  if ( (v82 & 0x40) != 0 || v77 || (v82 & 0x20) == 0 || (*((_BYTE *)_RDI + 105) & 2) != 0 )
-  {
-    v137 = *((_BYTE *)_RDI + 105);
-    if ( (v137 & 2) != 0 && v77 )
+    v75 = *((_BYTE *)args + 105);
+    if ( (v75 & 2) != 0 && v47 )
     {
-      __asm
-      {
-        vmulss  xmm1, xmm10, xmm11
-        vaddss  xmm1, xmm1, dword ptr [rsp+190h+screenPos]
-        vmulss  xmm2, xmm9, xmm11
-        vmovss  dword ptr [rsp+190h+screenPos], xmm1
-        vaddss  xmm1, xmm2, dword ptr [rsp+190h+screenPos+4]
-        vmovss  dword ptr [rsp+190h+screenPos+4], xmm1
-      }
+      screenPos.v[0] = (float)(v53 * v15) + screenPos.v[0];
+      screenPos.v[1] = (float)(v52 * v15) + screenPos.v[1];
     }
-    else if ( (v82 & 0x40) != 0 )
+    else if ( (v50 & 0x40) != 0 )
     {
-      v82 = v136;
-      __asm { vmovups xmm0, xmmword ptr [rdi+20h] }
+      v50 = v74;
+      v76 = args->color4;
       screenPos = outScreenPos;
-      __asm { vmovups xmmword ptr [rbp+90h+var_110], xmm0 }
+      color4 = v76;
     }
-    if ( (v82 & 2) != 0 )
+    if ( (v50 & 2) != 0 )
     {
-      if ( (v82 & 4) != 0 )
-      {
-        __asm { vmovss  dword ptr [rbp+90h+var_110+0Ch], xmm12 }
-      }
+      if ( (v50 & 4) != 0 )
+        color4.v[3] = v64;
       else
+        color4.v[3] = v64 * color4.v[3];
+    }
+    if ( (v75 & 1) == 0 )
+    {
+      ScaleForDistance = GetScaleForDistance((LocalClientNum_t)v2, &args->worldPos);
+      v101 = ScaleForDistance * v101;
+      v102 = ScaleForDistance * v102;
+    }
+    ScreenCenterFadeScaler = CG_GetScreenCenterFadeScaler((LocalClientNum_t)v2, v7, &screenPos);
+    v68 = args->iconMaterial == NULL;
+    color4.v[3] = ScreenCenterFadeScaler * color4.v[3];
+    if ( !v68 )
+    {
+      ScrPlace_HiResApplyRect((float *)&screenPos, (float *)&screenPos + 1, &v102, &v101);
+      if ( args->backgroundIconMaterial )
       {
-        __asm
+        if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|WEAPON_FIRING|0x80) )
         {
-          vmulss  xmm1, xmm12, dword ptr [rbp+90h+var_110+0Ch]
-          vmovss  dword ptr [rbp+90h+var_110+0Ch], xmm1
-        }
-      }
-    }
-    if ( (v137 & 1) == 0 )
-    {
-      *(float *)&_XMM0 = GetScaleForDistance((LocalClientNum_t)v13, &_RDI->worldPos);
-      __asm
-      {
-        vmulss  xmm2, xmm0, [rsp+190h+var_12C]
-        vmulss  xmm0, xmm0, [rsp+190h+var_130]
-        vmovss  [rsp+190h+var_130], xmm0
-        vmovss  [rsp+190h+var_12C], xmm2
-      }
-    }
-    *(float *)&_XMM0 = CG_GetScreenCenterFadeScaler((LocalClientNum_t)v13, _RSI, &screenPos);
-    v146 = _RDI->iconMaterial == NULL;
-    __asm
-    {
-      vmulss  xmm0, xmm0, dword ptr [rbp+90h+var_110+0Ch]
-      vmovss  dword ptr [rbp+90h+var_110+0Ch], xmm0
-    }
-    if ( !v146 )
-    {
-      ScrPlace_HiResApplyRect((float *)&screenPos, (float *)&screenPos + 1, &v239, &v238);
-      if ( _RDI->backgroundIconMaterial )
-      {
-        v145 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|WEAPON_FIRING|0x80);
-        v146 = !v145;
-        if ( v145 )
-        {
-          LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v13);
-          v146 = !LocalClientGlobals->m_isMLGSpectator;
+          LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v2);
           if ( LocalClientGlobals->m_isMLGSpectator )
           {
             if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF )
             {
               LODWORD(angle) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
               LODWORD(outDist) = 2;
-              LODWORD(outNormal) = v13;
+              LODWORD(outNormal) = v2;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", outNormal, outDist, angle) )
                 __debugbreak();
             }
-            if ( (unsigned int)v13 >= CgCompassSystem::ms_allocatedCount )
+            if ( (unsigned int)v2 >= CgCompassSystem::ms_allocatedCount )
             {
               LODWORD(outNormal) = CgCompassSystem::ms_allocatedCount;
-              LODWORD(padBottom) = v13;
+              LODWORD(padBottom) = v2;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", padBottom, outNormal) )
                 __debugbreak();
             }
-            if ( !CgCompassSystem::ms_compassSystemArray[v13] )
+            if ( !CgCompassSystem::ms_compassSystemArray[v2] )
             {
-              LODWORD(outNormal) = v13;
+              LODWORD(outNormal) = v2;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", outNormal) )
                 __debugbreak();
             }
-            v148 = (CgCompassSystemMP *)CgCompassSystem::ms_compassSystemArray[v13];
-            CgCompassSystemMP::GetDefaultFriendlyCompassColor(v148, &color);
-            __asm
+            v80 = (CgCompassSystemMP *)CgCompassSystem::ms_compassSystemArray[v2];
+            CgCompassSystemMP::GetDefaultFriendlyCompassColor(v80, &color);
+            color.v[3] = color4.v[3];
+            if ( color.v[0] == color4.v[0] && color.v[1] == color4.v[1] && color.v[2] == color4.v[2] )
             {
-              vmovss  xmm1, dword ptr [rbp+90h+var_100]
-              vucomiss xmm1, dword ptr [rbp+90h+var_110]
-              vmovss  xmm0, dword ptr [rbp+90h+var_110+0Ch]
-              vmovss  [rbp+90h+var_F4], xmm0
-            }
-            if ( !v149 )
-              goto LABEL_100;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+90h+var_100+4]
-              vucomiss xmm0, dword ptr [rbp+90h+var_110+4]
-            }
-            if ( !v149 )
-              goto LABEL_100;
-            __asm
-            {
-              vmovss  xmm0, [rbp+90h+var_F8]
-              vucomiss xmm0, dword ptr [rbp+90h+var_110+8]
-            }
-            if ( v149 )
-            {
-              CgCompassSystemMP::GetFriendlyCompassColor(v148, &v245, LocalClientGlobals);
+              CgCompassSystemMP::GetFriendlyCompassColor(v80, &color4, LocalClientGlobals);
             }
             else
             {
-LABEL_100:
-              CgCompassSystemMP::GetDefaultEnemyCompassColor(v148, &x);
-              __asm
-              {
-                vmovss  xmm1, [rbp+90h+x]
-                vucomiss xmm1, dword ptr [rbp+90h+var_110]
-                vmovss  xmm0, dword ptr [rbp+90h+var_110+0Ch]
-                vmovss  [rbp+90h+var_E4], xmm0
-              }
-              if ( v146 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, [rbp+90h+y]
-                  vucomiss xmm0, dword ptr [rbp+90h+var_110+4]
-                }
-                if ( v146 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, [rbp+90h+var_E8]
-                    vucomiss xmm0, dword ptr [rbp+90h+var_110+8]
-                  }
-                  if ( v146 )
-                    CgCompassSystemMP::GetEnemyCompassColor(v148, &v245, LocalClientGlobals);
-                }
-              }
+              CgCompassSystemMP::GetDefaultEnemyCompassColor(v80, &x);
+              x.v[3] = color4.v[3];
+              if ( x.v[0] == color4.v[0] && x.v[1] == color4.v[1] && x.v[2] == color4.v[2] )
+                CgCompassSystemMP::GetEnemyCompassColor(v80, &color4, LocalClientGlobals);
             }
           }
         }
+        if ( color4.v[0] == 1.0 && color4.v[1] == 1.0 && color4.v[2] == 1.0 )
+          color4.v[3] = color4.v[3] * 0.69999999;
+        CL_DrawStretchPicPhysicalRotateXY(screenPos.v[0] - (float)(v73 * v102), screenPos.v[1] - (float)(v73 * v101), v102, v101, 0.0, 0.0, 1.0, 1.0, v54, 0, &color4, args->backgroundIconMaterial);
+        v82 = LODWORD(color4.v[3]);
+        *(float *)&v82 = color4.v[3] * 2.0;
+        _XMM1 = v82;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbp+90h+var_110]
-          vucomiss xmm0, xmm7
-        }
-        if ( v146 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+90h+var_110+4]
-            vucomiss xmm0, xmm7
-          }
-          if ( v146 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+90h+var_110+8]
-              vucomiss xmm0, xmm7
-            }
-            if ( v146 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+90h+var_110+0Ch]
-                vmulss  xmm1, xmm0, cs:__real@3f333333
-                vmovss  dword ptr [rbp+90h+var_110+0Ch], xmm1
-              }
-            }
-          }
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+190h+screenPos+4]
-          vmulss  xmm2, xmm13, [rsp+190h+var_12C]
-          vmovss  xmm3, [rsp+190h+var_130]; h
-          vmovss  [rsp+190h+angle], xmm6
-          vmovss  dword ptr [rsp+190h+outDist], xmm7
-          vmulss  xmm1, xmm13, xmm3
-          vsubss  xmm1, xmm0, xmm1; y
-          vmovss  xmm0, dword ptr [rsp+190h+screenPos]
-          vmovss  dword ptr [rsp+190h+outNormal], xmm7
-          vsubss  xmm0, xmm0, xmm2; x
-          vmovss  xmm2, [rsp+190h+var_12C]; w
-          vmovss  [rsp+190h+padBottom], xmm8
-          vmovss  dword ptr [rsp+190h+fmt], xmm8
-        }
-        CL_DrawStretchPicPhysicalRotateXY(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, padBottomc, outNormalb, outDistb, angleb, 0, &v245, _RDI->backgroundIconMaterial);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+90h+var_110+0Ch]
-          vmulss  xmm1, xmm0, cs:__real@40000000
           vcmpltss xmm0, xmm7, xmm1
           vblendvps xmm0, xmm1, xmm7, xmm0
-          vmovss  dword ptr [rbp+90h+var_110+0Ch], xmm0
-          vmovss  dword ptr [rbp+90h+var_110+8], xmm7
-          vmovss  dword ptr [rbp+90h+var_110+4], xmm7
-          vmovss  dword ptr [rbp+90h+var_110], xmm7
         }
+        color4.v[3] = *(float *)&_XMM0;
+        color4.v[2] = FLOAT_1_0;
+        color4.v[1] = FLOAT_1_0;
+        color4.v[0] = FLOAT_1_0;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+190h+screenPos+4]
-        vmulss  xmm2, xmm13, [rsp+190h+var_12C]
-        vmovss  xmm3, [rsp+190h+var_130]; h
-        vmovss  [rsp+190h+angle], xmm6
-        vmovss  dword ptr [rsp+190h+outDist], xmm7
-        vmulss  xmm1, xmm13, xmm3
-        vsubss  xmm1, xmm0, xmm1; y
-        vmovss  xmm0, dword ptr [rsp+190h+screenPos]
-        vmovss  dword ptr [rsp+190h+outNormal], xmm7
-        vsubss  xmm0, xmm0, xmm2; x
-        vmovss  xmm2, [rsp+190h+var_12C]; w
-        vmovss  [rsp+190h+padBottom], xmm8
-        vmovss  dword ptr [rsp+190h+fmt], xmm8
-      }
-      CL_DrawStretchPicPhysicalRotateXY(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, padBottomd, outNormalc, outDistc, anglec, 0, &v245, _RDI->iconMaterial);
+      CL_DrawStretchPicPhysicalRotateXY(screenPos.v[0] - (float)(v73 * v102), screenPos.v[1] - (float)(v73 * v101), v102, v101, 0.0, 0.0, 1.0, 1.0, v54, 0, &color4, args->iconMaterial);
     }
-    if ( _RDI->label )
+    if ( args->label )
     {
-      _RBX = DVARFLT_objectiveFontSize;
+      v85 = DVARFLT_objectiveFontSize;
       if ( !DVARFLT_objectiveFontSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFontSize") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      _RBX = DVARFLT_objectiveTextOffsetY;
+      Dvar_CheckFrontendServerThread(v85);
+      v86 = v85->current.value;
+      v87 = DVARFLT_objectiveTextOffsetY;
       if ( !DVARFLT_objectiveTextOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveTextOffsetY") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm6, xmm0, dword ptr [rsi+4]
-        vmovaps xmm2, xmm7; scale
-      }
-      FontHandle = UI_GetFontHandle(_RSI, 2, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rsp+190h+screenPos+4]
-        vmulss  xmm0, xmm7, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-      }
-      label = _RDI->label;
-      __asm
-      {
-        vmovss  dword ptr [rsp+190h+screenPos+4], xmm1
-        vmulss  xmm7, xmm0, dword ptr [rsi]
-        vmulss  xmm6, xmm0, dword ptr [rsi+4]
-      }
-      v195 = FontHandle;
-      R_TextWidth(label, 0x7FFFFFFF, FontHandle);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsp+190h+screenPos]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm7
-        vmovss  xmm0, dword ptr [rsp+190h+screenPos+4]
-        vmulss  xmm3, xmm1, xmm13
-        vmovss  dword ptr [rsp+190h+outNormal], xmm6
-        vsubss  xmm3, xmm2, xmm3; x
-        vmovss  [rsp+190h+padBottom], xmm7
-        vmovss  dword ptr [rsp+190h+fmt], xmm0
-      }
-      CL_DrawTextPhysical(_RDI->label, 0x7FFFFFFF, v195, *(float *)&_XMM3, fmtd, padBottome, outNormald, &v245, 3);
+      Dvar_CheckFrontendServerThread(v87);
+      v88 = v87->current.value * v7->scaleVirtualToReal.v[1];
+      FontHandle = UI_GetFontHandle(v7, 2, v86);
+      v90 = v86 * cg_hudSplitscreenScale;
+      label = args->label;
+      screenPos.v[1] = v88 + screenPos.v[1];
+      v92 = (float)(v86 * cg_hudSplitscreenScale) * v7->scaleVirtualToReal.v[0];
+      v93 = v90 * v7->scaleVirtualToReal.v[1];
+      v94 = FontHandle;
+      v95 = R_TextWidth(label, 0x7FFFFFFF, FontHandle);
+      CL_DrawTextPhysical(args->label, 0x7FFFFFFF, v94, screenPos.v[0] - (float)((float)((float)v95 * v92) * v73), screenPos.v[1], v92, v93, &color4, 3);
     }
-  }
-  _R11 = &v249;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -975,100 +655,61 @@ CG_GetScreenCenterFadeScaler
 */
 float CG_GetScreenCenterFadeScaler(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const vec2_t *screenPos)
 {
-  char v11; 
+  const dvar_t *v5; 
+  const ScreenPlacement *ActivePlacement; 
+  float v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v34; 
+  const dvar_t *v12; 
+  cg_t *v13; 
+  float fWeaponPosFrac; 
+  const dvar_t *v15; 
+  float value; 
+  const dvar_t *v17; 
+  __int128 v18; 
 
-  _RSI = screenPos;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1373, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  _RBX = DVARFLT_waypointScreenCenterFadeRadius;
+  v5 = DVARFLT_waypointScreenCenterFadeRadius;
   if ( !DVARFLT_waypointScreenCenterFadeRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeRadius") )
     __debugbreak();
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( !v11 )
-    goto LABEL_25;
-  if ( !ScrPlace_GetActivePlacement(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1379, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.value <= 0.0 )
+    return FLOAT_1_0;
+  ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+  if ( !ActivePlacement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1379, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f000000
-    vmulss  xmm1, xmm2, dword ptr [rbx+20h]
-    vmovss  xmm0, dword ptr [rsi]
-    vmulss  xmm2, xmm2, dword ptr [rbx+24h]
-  }
-  _RBX = DVARFLT_waypointScreenCenterFadeRadius;
-  __asm
-  {
-    vsubss  xmm4, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm2, xmm0, xmm2
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm6, xmm3, xmm1
-  }
+  v7 = 0.5 * ActivePlacement->realViewportSize.v[0];
+  v8 = 0.5 * ActivePlacement->realViewportSize.v[1];
+  v9 = DVARFLT_waypointScreenCenterFadeRadius;
+  v10 = (float)((float)(screenPos->v[1] - v8) * (float)(screenPos->v[1] - v8)) + (float)((float)(screenPos->v[0] - v7) * (float)(screenPos->v[0] - v7));
   if ( !DVARFLT_waypointScreenCenterFadeRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vcomiss xmm6, xmm1
-  }
-  if ( v11 )
-  {
-    __asm
-    {
-      vmovaps [rsp+98h+var_48], xmm7
-      vmovaps [rsp+98h+var_58], xmm8
-    }
-    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    _RDI = DVARFLT_waypointScreenCenterFadeRadius;
-    _RBX = LocalClientGlobals;
-    if ( !DVARFLT_waypointScreenCenterFadeRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeRadius") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vdivss  xmm8, xmm6, xmm1
-      vmovss  xmm6, dword ptr [rbx+738h]
-    }
-    _RBX = DVARFLT_waypointScreenCenterFadeAdsMin;
-    if ( !DVARFLT_waypointScreenCenterFadeAdsMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeAdsMin") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    v34 = DVARFLT_waypointScreenCenterFadeHipMin;
-    if ( !DVARFLT_waypointScreenCenterFadeHipMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeHipMin") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm6
-      vmulss  xmm3, xmm1, dword ptr [rbx+28h]
-      vmulss  xmm2, xmm6, xmm7
-      vmovaps xmm7, [rsp+98h+var_48]
-      vaddss  xmm0, xmm3, xmm2
-      vmaxss  xmm0, xmm0, xmm8
-      vmovaps xmm8, [rsp+98h+var_58]
-    }
-  }
-  else
-  {
-LABEL_25:
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v10 >= (float)(v9->current.value * v9->current.value) )
+    return FLOAT_1_0;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v12 = DVARFLT_waypointScreenCenterFadeRadius;
+  v13 = LocalClientGlobals;
+  if ( !DVARFLT_waypointScreenCenterFadeRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeRadius") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v12);
+  fWeaponPosFrac = v13->predictedPlayerState.weapCommon.fWeaponPosFrac;
+  v15 = DVARFLT_waypointScreenCenterFadeAdsMin;
+  if ( !DVARFLT_waypointScreenCenterFadeAdsMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeAdsMin") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v15);
+  value = v15->current.value;
+  v17 = DVARFLT_waypointScreenCenterFadeHipMin;
+  if ( !DVARFLT_waypointScreenCenterFadeHipMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointScreenCenterFadeHipMin") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = LODWORD(FLOAT_1_0);
+  *(float *)&v18 = (float)((float)(1.0 - fWeaponPosFrac) * v17->current.value) + (float)(fWeaponPosFrac * value);
+  _XMM0 = v18;
+  __asm { vmaxss  xmm0, xmm0, xmm8 }
   return *(float *)&_XMM0;
 }
 
@@ -1079,6 +720,8 @@ CG_GetWaypointOffsetForStance
 */
 float CG_GetWaypointOffsetForStance(LocalClientNum_t localClientNum, centity_t *cent)
 {
+  const dvar_t *v4; 
+  double Float_Internal_DebugName; 
   entityType_s eType; 
   float result; 
 
@@ -1093,42 +736,38 @@ float CG_GetWaypointOffsetForStance(LocalClientNum_t localClientNum, centity_t *
     eType = cent->nextState.eType;
     if ( ((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM )
     {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      LODWORD(Float_Internal_DebugName) = 0;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+58h+result], xmm0
-      }
+      result = 0.0;
       if ( GetStanceHeightFromDObj(localClientNum, cent, &result) )
       {
-        __asm { vmovss  xmm0, [rsp+58h+result] }
+        *(float *)&Float_Internal_DebugName = result;
       }
       else if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->prevState.eFlags, ACTIVE, 4u) )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointPlayerOffsetProne, "waypointPlayerOffsetProne");
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointPlayerOffsetProne, "waypointPlayerOffsetProne");
       }
       else if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->prevState.eFlags, ACTIVE, 3u) )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointPlayerOffsetCrouch, "waypointPlayerOffsetCrouch");
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointPlayerOffsetCrouch, "waypointPlayerOffsetCrouch");
       }
       else
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointPlayerOffsetStand, "waypointPlayerOffsetStand");
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointPlayerOffsetStand, "waypointPlayerOffsetStand");
       }
     }
   }
   else
   {
-    _RBX = DVARFLT_waypointPlayerOffsetCrouch;
+    v4 = DVARFLT_waypointPlayerOffsetCrouch;
     if ( !DVARFLT_waypointPlayerOffsetCrouch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointPlayerOffsetCrouch") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v4);
+    LODWORD(Float_Internal_DebugName) = v4->current.integer;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&Float_Internal_DebugName;
 }
 
 /*
@@ -1139,18 +778,18 @@ CG_HudElem_AddDrawSurfForHudElemWaypoint
 void CG_HudElem_AddDrawSurfForHudElemWaypoint(LocalClientNum_t localClientNum, const hudelem_t *elem)
 {
   cg_t *LocalClientGlobals; 
-  Material *v11; 
-  bool v12; 
-  bool v13; 
-  int v17; 
+  Material *v5; 
+  float height; 
+  int v7; 
   int scaleTime; 
-  bool v29; 
-  int v32; 
-  char v33; 
+  float fromHeight; 
+  __int128 v11; 
+  float v12; 
+  int v14; 
+  double Float_Internal_DebugName; 
   const ScreenPlacement *ActivePlacement; 
-  double v52; 
-  double v53; 
-  double v54; 
+  float ScreenCenterFadeScaler; 
+  int v18; 
   hudelem_color_t toColor; 
   FxSprite sprite; 
   vec2_t outScreenPos; 
@@ -1161,133 +800,66 @@ void CG_HudElem_AddDrawSurfForHudElemWaypoint(LocalClientNum_t localClientNum, c
   {
     if ( (elem->flags & 0x400) != 0 )
     {
-      v11 = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
-      if ( v11 )
+      v5 = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
+      if ( v5 )
       {
-        v12 = elem->scaleTime == 0;
-        v13 = elem->scaleTime <= 0;
-        __asm
+        height = (float)elem->height;
+        if ( elem->scaleTime > 0 )
         {
-          vmovaps [rsp+0E8h+var_28], xmm6
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, dword ptr [rbx+58h]
-          vmovaps [rsp+0E8h+var_58], xmm9
-          vxorps  xmm9, xmm9, xmm9
-        }
-        if ( !v13 )
-        {
-          v17 = CG_GetLocalClientGlobals(localClientNum)->time - elem->scaleStartTime;
+          v7 = CG_GetLocalClientGlobals(localClientNum)->time - elem->scaleStartTime;
           scaleTime = elem->scaleTime;
-          v12 = v17 == scaleTime;
-          if ( v17 < scaleTime )
+          if ( v7 < scaleTime )
           {
-            __asm
+            fromHeight = (float)elem->fromHeight;
+            if ( v7 > 0 )
             {
-              vmovaps [rsp+0E8h+var_48], xmm8
-              vxorps  xmm8, xmm8, xmm8
-              vcvtsi2ss xmm8, xmm8, dword ptr [rbx+64h]
-            }
-            v12 = v17 == 0;
-            if ( v17 > 0 )
-            {
-              __asm
+              v11 = 0i64;
+              *(float *)&v11 = (float)v7;
+              _XMM1 = v11;
+              v12 = *(float *)&v11 / (float)scaleTime;
+              if ( (float)(*(float *)&_XMM1 / (float)scaleTime) < 0.0 || v12 > 1.0 )
               {
-                vxorps  xmm1, xmm1, xmm1
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm1, xmm1, ecx
-                vcvtsi2ss xmm0, xmm0, eax
-                vmovaps [rsp+0E8h+var_38], xmm7
-                vdivss  xmm7, xmm1, xmm0
-                vcomiss xmm7, xmm9
-                vcomiss xmm7, cs:__real@3f800000
-                vmovsd  xmm0, cs:__real@3ff0000000000000
-                vmovsd  [rsp+0E8h+var_B0], xmm0
-                vxorpd  xmm1, xmm1, xmm1
-                vmovsd  [rsp+0E8h+var_B8], xmm1
-                vcvtss2sd xmm2, xmm7, xmm7
-                vmovsd  [rsp+0E8h+var_C0], xmm2
+                __asm { vxorpd  xmm1, xmm1, xmm1 }
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 937, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v12, *(double *)&_XMM1, DOUBLE_1_0) )
+                  __debugbreak();
               }
-              v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 937, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v52, v53, v54);
-              v12 = !v29;
-              if ( v29 )
-                __debugbreak();
-              __asm
-              {
-                vsubss  xmm0, xmm6, xmm8
-                vmulss  xmm1, xmm0, xmm7
-                vmovaps xmm7, [rsp+0E8h+var_38]
-                vaddss  xmm6, xmm1, xmm8
-              }
+              height = (float)((float)(height - fromHeight) * v12) + fromHeight;
             }
             else
             {
-              __asm { vmovaps xmm6, xmm8 }
+              height = (float)elem->fromHeight;
             }
-            __asm { vmovaps xmm8, [rsp+0E8h+var_48] }
           }
         }
-        __asm { vucomiss xmm6, xmm9 }
-        if ( !v12 )
+        if ( height != 0.0 )
         {
           if ( (elem->flags & 0x200) != 0 )
-            __asm { vmulss  xmm6, xmm6, cs:__real@3b8ce704 }
-          v32 = (elem->flags & 0x200) != 0 ? 3 : 0;
+            height = height * 0.0043000001;
+          v14 = (elem->flags & 0x200) != 0 ? 3 : 0;
           if ( GetWaypointEntPos(localClientNum, elem, &sprite.pos) )
           {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointScreenCenterFadeRadius, "waypointScreenCenterFadeRadius");
-            __asm { vcomiss xmm0, xmm9 }
-            if ( v33 | v12 )
-              goto LABEL_21;
-            ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-            if ( !CG_WorldPosToScreenPosReal(localClientNum, ActivePlacement, &sprite.pos, &outScreenPos) )
-              goto LABEL_21;
-            *(float *)&_XMM0 = CG_GetScreenCenterFadeScaler(localClientNum, ActivePlacement, &outScreenPos);
-            __asm { vucomiss xmm0, cs:__real@3f800000 }
-            if ( v12 )
-              goto LABEL_21;
-            __asm
+            Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointScreenCenterFadeRadius, "waypointScreenCenterFadeRadius");
+            if ( *(float *)&Float_Internal_DebugName <= 0.0 || (ActivePlacement = ScrPlace_GetActivePlacement(localClientNum), !CG_WorldPosToScreenPosReal(localClientNum, ActivePlacement, &sprite.pos, &outScreenPos)) || (ScreenCenterFadeScaler = CG_GetScreenCenterFadeScaler(localClientNum, ActivePlacement, &outScreenPos), ScreenCenterFadeScaler == 1.0) )
             {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, eax
-              vmulss  xmm0, xmm1, xmm0
-              vcvttss2si ecx, xmm0
+              LOBYTE(v18) = toColor.a;
             }
-            toColor.a = _ECX;
-            if ( (_BYTE)_ECX )
+            else
             {
-LABEL_21:
-              __asm
-              {
-                vmovss  xmm2, cs:__real@3b808081
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2ss xmm1, xmm1, eax
-                vmulss  xmm0, xmm0, xmm2
-                vmovss  dword ptr [rsp+0E8h+sprite.rgbaColor], xmm0
-                vmulss  xmm0, xmm1, xmm2
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2ss xmm1, xmm1, eax
-                vmovss  dword ptr [rsp+0E8h+sprite.rgbaColor+4], xmm0
-                vmulss  xmm0, xmm1, xmm2
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2ss xmm1, xmm1, eax
-                vmovss  dword ptr [rsp+0E8h+sprite.rgbaColor+8], xmm0
-                vmulss  xmm0, xmm1, xmm2
-                vmovss  dword ptr [rsp+0E8h+sprite.rgbaColor+0Ch], xmm0
-                vmovss  [rsp+0E8h+sprite.radius], xmm6
-                vmovss  [rsp+0E8h+sprite.minScreenRadius], xmm9
-              }
-              sprite.flags = v32;
-              sprite.material = v11;
-              FX_SpriteAdd(&sprite);
+              v18 = (int)(float)((float)toColor.a * ScreenCenterFadeScaler);
+              toColor.a = v18;
+              if ( !(_BYTE)v18 )
+                return;
             }
+            sprite.rgbaColor.v[0] = (float)toColor.r * 0.0039215689;
+            sprite.rgbaColor.v[1] = (float)toColor.g * 0.0039215689;
+            sprite.rgbaColor.v[2] = (float)toColor.b * 0.0039215689;
+            sprite.rgbaColor.v[3] = (float)(unsigned __int8)v18 * 0.0039215689;
+            sprite.radius = height;
+            sprite.minScreenRadius = 0.0;
+            sprite.flags = v14;
+            sprite.material = v5;
+            FX_SpriteAdd(&sprite);
           }
-        }
-        __asm
-        {
-          vmovaps xmm6, [rsp+0E8h+var_28]
-          vmovaps xmm9, [rsp+0E8h+var_58]
         }
       }
     }
@@ -1334,12 +906,7 @@ void CG_HudElem_DrawSingleHudElem2d(LocalClientNum_t localClientNum, const hudel
       if ( cghe.hudElemLabel[0] )
       {
         DrawHudElemString(localClientNum, cghe.hudElemLabel, elem, &cghe);
-        __asm
-        {
-          vmovss  xmm0, [rsp+0CC8h+cghe.x]
-          vaddss  xmm1, xmm0, [rsp+0CC8h+cghe.labelWidth]
-          vmovss  [rsp+0CC8h+cghe.x], xmm1
-        }
+        cghe.x = cghe.x + cghe.labelWidth;
       }
       switch ( elem->type )
       {
@@ -1427,212 +994,210 @@ void CG_TranslateHudElemMessage(LocalClientNum_t localClientNum, const char *mes
 ClampScreenPosToEdges
 ==============
 */
-
-bool __fastcall ClampScreenPosToEdges(LocalClientNum_t localClientNum, vec2_t *inOutPoint, double padLeft, double padRight, float padTop)
+bool ClampScreenPosToEdges(LocalClientNum_t localClientNum, vec2_t *inOutPoint, float padLeft, float padRight, float padTop, float padBottom, vec2_t *outNormal, float *outDist)
 {
-  const dvar_t *v40; 
-  const dvar_t *v42; 
-  const dvar_t *v46; 
+  const ScreenPlacement *ActivePlacement; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  char v21; 
+  const ScreenPlacement *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  __int128 v28; 
+  const dvar_t *v29; 
+  __int128 v30; 
+  bool v31; 
+  bool v32; 
+  __int128 v39; 
+  float v42; 
+  float v43; 
+  __int128 v44; 
+  float v48; 
+  float v49; 
   char v50; 
   char v51; 
-  bool v52; 
-  bool result; 
-  float fmt; 
-  float fmta; 
-  float t1; 
-  float t1a; 
-  float s2; 
-  float s2a; 
-  float v114; 
-  float v115; 
-  char v122; 
-  void *retaddr; 
+  float v52; 
+  float v53; 
+  float v54; 
+  __int128 v55; 
+  float v56; 
+  float v61; 
+  float v62; 
+  float v63; 
 
-  _RAX = &retaddr;
-  _RBX = inOutPoint;
-  __asm
+  ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+  v11 = inOutPoint->v[0];
+  v12 = inOutPoint->v[1];
+  v13 = 0.5 * ActivePlacement->realViewportSize.v[0];
+  v14 = 0.5 * ActivePlacement->realViewportSize.v[1];
+  v15 = inOutPoint->v[0] - v13;
+  inOutPoint->v[0] = v15;
+  v17 = v12 - v14;
+  v16 = v12 - v14;
+  inOutPoint->v[1] = v12 - v14;
+  v62 = v11;
+  v18 = (float)(padLeft + ActivePlacement->realAdjustableMin.v[0]) - v13;
+  v63 = v12;
+  v19 = (float)(padTop + ActivePlacement->realAdjustableMin.v[1]) - v14;
+  v20 = v13 - (float)((float)(ActivePlacement->realViewportSize.v[0] - ActivePlacement->realAdjustableMax.v[0]) + padRight);
+  v21 = 0;
+  v22 = ActivePlacement;
+  v23 = v14 - (float)((float)(ActivePlacement->realViewportSize.v[1] - ActivePlacement->realAdjustableMax.v[1]) + padBottom);
+  if ( (float)(v11 - v13) >= v18 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps [rsp+128h+var_B8], xmm14
-    vmovaps [rsp+128h+var_C8], xmm15
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
+    if ( v15 <= v20 )
+      goto LABEL_6;
+    v24 = v20 / v15;
   }
-  _RAX = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  xmm9, cs:__real@3f000000
-    vmulss  xmm14, xmm9, dword ptr [rax+20h]
-    vmulss  xmm15, xmm9, dword ptr [rax+24h]
-    vsubss  xmm4, xmm0, xmm14
-    vmovss  dword ptr [rbx], xmm4
-    vsubss  xmm3, xmm1, xmm15
-    vmovss  dword ptr [rbx+4], xmm3
-    vmovss  [rsp+128h+var_D0], xmm0
-    vaddss  xmm0, xmm6, dword ptr [rax+58h]
-    vsubss  xmm12, xmm0, xmm14
-    vmovss  [rsp+128h+var_CC], xmm1
-    vmovss  xmm1, dword ptr [rax+20h]
-    vsubss  xmm0, xmm1, dword ptr [rax+60h]
-    vaddss  xmm2, xmm0, xmm7
-    vmovss  xmm0, [rsp+128h+padTop]
-    vaddss  xmm1, xmm0, dword ptr [rax+5Ch]
-    vmovss  xmm0, dword ptr [rax+24h]
-    vsubss  xmm10, xmm1, xmm15
-    vsubss  xmm1, xmm0, dword ptr [rax+64h]
-    vsubss  xmm11, xmm14, xmm2
-    vaddss  xmm2, xmm1, [rsp+128h+padBottom]
+    v24 = v18 / v15;
   }
-  _RBP = _RAX;
-  __asm
+  v16 = v17 * v24;
+  v15 = v15 * v24;
+  inOutPoint->v[1] = v17 * v24;
+  inOutPoint->v[0] = v15;
+  v21 = 1;
+LABEL_6:
+  if ( v16 < v19 )
   {
-    vcomiss xmm4, xmm12
-    vsubss  xmm6, xmm15, xmm2
-    vcomiss xmm4, xmm11
-    vcomiss xmm3, xmm10
-    vcomiss xmm3, xmm6
+    v25 = v19 / v16;
+LABEL_10:
+    inOutPoint->v[1] = v16 * v25;
+    inOutPoint->v[0] = v15 * v25;
+    v21 = 1;
+    goto LABEL_11;
   }
-  v40 = DVARBOOL_waypointOffscreenRoundedCorners;
+  if ( v16 > v23 )
+  {
+    v25 = v23 / v16;
+    goto LABEL_10;
+  }
+LABEL_11:
+  v26 = DVARBOOL_waypointOffscreenRoundedCorners;
   if ( !DVARBOOL_waypointOffscreenRoundedCorners && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenRoundedCorners") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v40);
-  __asm { vmovss  xmm8, cs:__real@3f800000 }
-  if ( v40->current.enabled )
+  Dvar_CheckFrontendServerThread(v26);
+  if ( v26->current.enabled )
   {
-    v42 = DVARFLT_waypointOffscreenCornerRadius;
+    v27 = DVARFLT_waypointOffscreenCornerRadius;
     if ( !DVARFLT_waypointOffscreenCornerRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointOffscreenCornerRadius") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v42);
+    Dvar_CheckFrontendServerThread(v27);
+    v28 = LODWORD(v22->scaleVirtualToReal.v[1]);
+    *(float *)&v28 = (float)(v22->scaleVirtualToReal.v[1] + v22->scaleVirtualToReal.v[0]) * v27->current.value;
+    v29 = DVARBOOL_waypointDebugDraw;
+    *(float *)&v28 = *(float *)&v28 * 0.5;
+    v30 = v28;
+    v31 = inOutPoint->v[0] < 0.0;
+    v32 = inOutPoint->v[1] < 0.0;
+    _XMM0 = v31;
+    __asm { vpcmpeqd xmm1, xmm0, xmm1 }
+    *(float *)&v28 = *(float *)&v28 + v18;
+    _XMM2 = v28;
+    __asm { vblendvps xmm2, xmm2, xmm3, xmm1 }
+    v61 = *(float *)&_XMM2;
+    _XMM0 = v32;
+    v39 = v30;
+    *(float *)&v39 = *(float *)&v30 + v19;
+    _XMM2 = v39;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+4]
-      vaddss  xmm1, xmm0, dword ptr [rbp+0]
-      vmulss  xmm2, xmm1, dword ptr [rsi+28h]
-    }
-    v46 = DVARBOOL_waypointDebugDraw;
-    __asm
-    {
-      vmulss  xmm9, xmm2, xmm9
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm7, dword ptr [rbx]
-      vsubss  xmm3, xmm11, xmm9
-    }
-    v52 = !(v50 | v51);
-    __asm { vcomiss xmm7, dword ptr [rbx+4] }
-    _EAX = v52;
-    _ECX = 0;
-    __asm { vmovd   xmm0, eax }
-    _EAX = v52;
-    __asm
-    {
-      vmovd   xmm1, ecx
       vpcmpeqd xmm1, xmm0, xmm1
-      vaddss  xmm2, xmm9, xmm12
       vblendvps xmm2, xmm2, xmm3, xmm1
-      vmovss  [rsp+128h+var_D8], xmm2
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-      vaddss  xmm2, xmm9, xmm10
-      vpcmpeqd xmm1, xmm0, xmm1
-      vsubss  xmm3, xmm6, xmm9
-      vblendvps xmm2, xmm2, xmm3, xmm1
-      vmovss  [rsp+128h+var_D4], xmm2
     }
     if ( !DVARBOOL_waypointDebugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDebugDraw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v46);
+    Dvar_CheckFrontendServerThread(v29);
+    if ( v29->current.enabled )
+    {
+      CL_DrawStretchPicPhysical((float)(v61 + v13) - 1.0, (float)(*(float *)&_XMM2 + v14) - 1.0, 3.0, 3.0, 0.0, 0.0, 1.0, 1.0, &colorYellow, cgMedia.whiteMaterial);
+      CL_DrawStretchPicPhysical((float)(v13 + inOutPoint->v[0]) - 1.0, (float)(v14 + inOutPoint->v[1]) - 1.0, 3.0, 3.0, 0.0, 0.0, 1.0, 1.0, &colorGreen, cgMedia.whiteMaterial);
+    }
+    v42 = inOutPoint->v[0] - v61;
+    v44 = LODWORD(inOutPoint->v[1]);
+    v43 = inOutPoint->v[1] - *(float *)&_XMM2;
+    *(float *)&v44 = fsqrt((float)(v43 * v43) + (float)(v42 * v42));
+    _XMM6 = v44;
     __asm
     {
-      vmovss  xmm10, [rsp+128h+var_D8]
-      vmovss  xmm11, [rsp+128h+var_D4]
-    }
-    if ( v46->current.enabled )
-    {
-      __asm
-      {
-        vmovss  xmm6, cs:__real@40400000
-        vaddss  xmm0, xmm11, xmm15
-        vaddss  xmm2, xmm10, xmm14
-        vmovss  [rsp+128h+var_F0], xmm8
-        vsubss  xmm1, xmm0, xmm8; y
-        vmovss  [rsp+128h+s2], xmm8
-        vsubss  xmm0, xmm2, xmm8; x
-        vmovss  [rsp+128h+t1], xmm7
-        vmovaps xmm3, xmm6; h
-        vmovaps xmm2, xmm6; w
-        vmovss  dword ptr [rsp+128h+fmt], xmm7
-      }
-      CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, t1, s2, v114, &colorYellow, cgMedia.whiteMaterial);
-      __asm
-      {
-        vaddss  xmm0, xmm15, dword ptr [rbx+4]
-        vaddss  xmm3, xmm14, dword ptr [rbx]
-        vmovss  [rsp+128h+var_F0], xmm8
-        vsubss  xmm1, xmm0, xmm8; y
-        vmovss  [rsp+128h+s2], xmm8
-        vsubss  xmm0, xmm3, xmm8; x
-        vmovss  [rsp+128h+t1], xmm7
-        vmovaps xmm3, xmm6; h
-        vmovaps xmm2, xmm6; w
-        vmovss  dword ptr [rsp+128h+fmt], xmm7
-      }
-      CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, t1a, s2a, v115, &colorGreen, cgMedia.whiteMaterial);
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vsubss  xmm4, xmm0, xmm10
-      vsubss  xmm3, xmm1, xmm11
-      vmulss  xmm2, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm6, xmm1, xmm1
       vcmpless xmm0, xmm6, cs:__real@80000000
       vblendvps xmm0, xmm6, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm5, xmm4, xmm1
-      vmulss  xmm2, xmm3, xmm1
     }
-    if ( v52 )
-      __asm { vcomiss xmm5, xmm7 }
-    else
-      __asm { vcomiss xmm5, xmm7 }
-    if ( v52 )
-      __asm { vcomiss xmm2, xmm7 }
-    else
-      __asm { vcomiss xmm2, xmm7 }
+    v48 = v42 * (float)(1.0 / *(float *)&_XMM0);
+    v49 = v43 * (float)(1.0 / *(float *)&_XMM0);
+    if ( v31 )
+    {
+      if ( v48 >= 0.0 )
+      {
+LABEL_25:
+        v50 = 0;
+        goto LABEL_26;
+      }
+    }
+    else if ( v48 <= 0.0 )
+    {
+      goto LABEL_25;
+    }
+    v50 = 1;
+LABEL_26:
+    if ( v32 )
+    {
+      if ( v49 >= 0.0 )
+      {
+LABEL_28:
+        v51 = 0;
+LABEL_29:
+        if ( v50 && v51 && *(float *)&_XMM6 > *(float *)&v30 )
+        {
+          inOutPoint->v[1] = (float)(v49 * *(float *)&v30) + *(float *)&_XMM2;
+          inOutPoint->v[0] = (float)(v48 * *(float *)&v30) + v61;
+          v21 = 1;
+        }
+        goto LABEL_33;
+      }
+    }
+    else if ( v49 <= 0.0 )
+    {
+      goto LABEL_28;
+    }
+    v51 = 1;
+    goto LABEL_29;
   }
-  __asm
+LABEL_33:
+  v52 = v13 + inOutPoint->v[0];
+  inOutPoint->v[0] = v52;
+  v53 = v14 + inOutPoint->v[1];
+  inOutPoint->v[1] = v53;
+  if ( v21 )
   {
-    vaddss  xmm0, xmm14, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-    vaddss  xmm2, xmm15, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovaps xmm15, [rsp+128h+var_C8]
+    *outDist = fsqrt((float)((float)(v63 - v53) * (float)(v63 - v53)) + (float)((float)(v62 - v52) * (float)(v62 - v52)));
+    v55 = LODWORD(v62);
+    v54 = v62 - inOutPoint->v[0];
+    outNormal->v[0] = v54;
+    v56 = v63 - inOutPoint->v[1];
+    *(float *)&v55 = fsqrt((float)(v54 * v54) + (float)(v56 * v56));
+    _XMM2 = v55;
+    __asm
+    {
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm8, xmm0
+    }
+    outNormal->v[0] = (float)(1.0 / *(float *)&_XMM0) * v54;
+    outNormal->v[1] = (float)(1.0 / *(float *)&_XMM0) * v56;
   }
-  _R11 = &v122;
-  result = 0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-  }
-  return result;
+  return v21 != 0;
 }
 
 /*
@@ -1670,114 +1235,47 @@ DrawHudElemClock
 */
 void DrawHudElemClock(LocalClientNum_t localClientNum, const hudelem_t *elem, const cg_hudelem_t *cghe)
 {
-  Material *v13; 
-  Material *v14; 
-  const char *Name; 
-  Material *v16; 
-  const ScreenPlacement *ActivePlacement; 
-  __int64 v44; 
-  char *fmt; 
-  float t1[2]; 
-  vec4_t *v47; 
-  Material *v48; 
-  vec4_t *color; 
+  Material *v6; 
   Material *material; 
+  const char *Name; 
+  Material *v9; 
+  int HudElemTime; 
+  int duration; 
+  float v12; 
+  double v13; 
+  float v14; 
+  const ScreenPlacement *ActivePlacement; 
+  float v16; 
+  float v17; 
   char dest[64]; 
 
-  __asm
-  {
-    vmovaps [rsp+118h+var_78], xmm10
-    vxorps  xmm10, xmm10, xmm10
-    vucomiss xmm10, dword ptr [r8+83Ch]
-  }
-  _RSI = cghe;
-  if ( (unsigned __int64)&v44 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 811, ASSERT_TYPE_ASSERT, "(cghe->color[3])", (const char *)&queryFormat, "cghe->color[3]") )
+  if ( cghe->color.v[3] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 811, ASSERT_TYPE_ASSERT, "(cghe->color[3])", (const char *)&queryFormat, "cghe->color[3]") )
     __debugbreak();
-  v13 = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
-  v14 = v13;
-  if ( v13 )
+  v6 = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
+  material = v6;
+  if ( v6 )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_38], xmm6
-      vmovaps [rsp+118h+var_48], xmm7
-      vmovaps [rsp+118h+var_58], xmm8
-      vmovaps [rsp+118h+var_68], xmm9
-    }
-    Name = Material_GetName(v13);
+    Name = Material_GetName(v6);
     if ( !Name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 818, ASSERT_TYPE_ASSERT, "(faceMaterialName)", (const char *)&queryFormat, "faceMaterialName") )
       __debugbreak();
     Core_strcpy(dest, 0x40ui64, Name);
     I_strcat(dest, 0x40ui64, "needle");
-    v16 = Material_RegisterHandle(dest, IMAGE_TRACK_HUD);
-    GetHudElemTime(elem, _RSI->timeNow);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    if ( elem->duration )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vdivss  xmm0, xmm1, xmm0
-      }
-    }
+    v9 = Material_RegisterHandle(dest, IMAGE_TRACK_HUD);
+    HudElemTime = GetHudElemTime(elem, cghe->timeNow);
+    duration = elem->duration;
+    if ( duration )
+      v12 = (float)((float)HudElemTime * 360.0) / (float)duration;
     else
-    {
-      __asm { vmulss  xmm0, xmm0, cs:__real@3bc49ba6; angle }
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm { vmovaps xmm9, xmm0 }
+      v12 = (float)HudElemTime * 0.0060000001;
+    v13 = AngleNormalize360(v12);
+    v14 = *(float *)&v13;
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    *(float *)&_XMM0 = HudElemMaterialWidth(ActivePlacement, elem, _RSI);
-    __asm { vmovaps xmm8, xmm0 }
-    *(float *)&_XMM0 = HudElemMaterialHeight(ActivePlacement, elem, _RSI);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+10h]
-      vsubss  xmm2, xmm1, xmm0
-      vxorps  xmm2, xmm2, cs:__xmm@80000000800000008000000080000000; offsetY
-      vmovaps xmm7, xmm0
-    }
-    *(float *)&_XMM0 = OffsetHudElemY(elem, _RSI, *(float *)&_XMM2);
-    __asm { vmovss  xmm1, cs:__real@3f800000 }
-    material = v14;
-    color = &_RSI->color;
-    __asm
-    {
-      vmovss  dword ptr [rsp+118h+var_E0], xmm1
-      vmovss  dword ptr [rsp+118h+var_E8], xmm1
-      vmovaps xmm1, xmm0; y
-      vmovaps xmm6, xmm0
-      vmovss  xmm0, dword ptr [rsi]; x
-      vmovss  [rsp+118h+t1], xmm10
-      vmovaps xmm3, xmm7; h
-      vmovaps xmm2, xmm8; w
-      vmovss  dword ptr [rsp+118h+fmt], xmm10
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&fmt, t1[0], *(float *)&v47, *(float *)&v48, &_RSI->color, v14);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi]; x
-      vmovss  [rsp+118h+t1], xmm9
-      vmovaps xmm3, xmm8; width
-      vmovaps xmm2, xmm6; y
-      vmovss  dword ptr [rsp+118h+fmt], xmm7
-    }
-    CG_DrawRotatedPicPhysical(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&fmt, t1[0], &_RSI->color, v16);
-    __asm
-    {
-      vmovaps xmm9, [rsp+118h+var_68]
-      vmovaps xmm8, [rsp+118h+var_58]
-      vmovaps xmm7, [rsp+118h+var_48]
-      vmovaps xmm6, [rsp+118h+var_38]
-    }
+    v16 = HudElemMaterialWidth(ActivePlacement, elem, cghe);
+    v17 = HudElemMaterialHeight(ActivePlacement, elem, cghe);
+    *(float *)&v13 = OffsetHudElemY(elem, cghe, COERCE_FLOAT(COERCE_UNSIGNED_INT(cghe->height - v17) ^ _xmm));
+    CL_DrawStretchPicPhysical(cghe->x, *(float *)&v13, v16, v17, 0.0, 0.0, 1.0, 1.0, &cghe->color, material);
+    CG_DrawRotatedPicPhysical(ActivePlacement, cghe->x, *(float *)&v13, v16, v17, v14, &cghe->color, v9);
   }
-  __asm { vmovaps xmm10, [rsp+118h+var_78] }
 }
 
 /*
@@ -1787,94 +1285,71 @@ DrawHudElemMaterial
 */
 void DrawHudElemMaterial(LocalClientNum_t localClientNum, const hudelem_t *elem, cg_hudelem_t *cghe)
 {
-  Material *v12; 
-  const dvar_t *v13; 
-  const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v16; 
-  const cg_t *LocalClientGlobals; 
-  __int64 v32; 
-  char *fmt; 
-  vec4_t *color; 
   Material *material; 
-  float v36; 
+  const dvar_t *v7; 
+  const ScreenPlacement *ActivePlacement; 
+  float v9; 
+  const ScreenPlacement *v10; 
+  float v11; 
+  float v12; 
+  const cg_t *LocalClientGlobals; 
+  float v14; 
+  const ScreenPlacement *v15; 
+  vec2_t verts; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  int v21; 
+  float v22; 
 
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_38], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [r8+83Ch]
-  }
-  _RBX = cghe;
-  if ( (unsigned __int64)&v32 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 848, ASSERT_TYPE_ASSERT, "(cghe->color[3])", (const char *)&queryFormat, "cghe->color[3]") )
+  if ( cghe->color.v[3] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 848, ASSERT_TYPE_ASSERT, "(cghe->color[3])", (const char *)&queryFormat, "cghe->color[3]") )
     __debugbreak();
-  v12 = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
-  if ( v12 )
+  material = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
+  if ( material )
   {
-    v13 = DCONST_DVARBOOL_lui_footage_capture_enabled;
+    v7 = DCONST_DVARBOOL_lui_footage_capture_enabled;
     if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( !v13->current.enabled && (!CG_Draw_IsMPRealismMode(localClientNum) || (elem->flags & 0x20000) != 0) )
+    Dvar_CheckFrontendServerThread(v7);
+    if ( !v7->current.enabled && (!CG_Draw_IsMPRealismMode(localClientNum) || (elem->flags & 0x20000) != 0) )
     {
-      __asm
-      {
-        vmovaps [rsp+0E8h+var_48], xmm7
-        vmovaps [rsp+0E8h+var_58], xmm8
-        vmovaps [rsp+0E8h+var_68], xmm9
-      }
       ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-      *(float *)&_XMM0 = HudElemMaterialWidth(ActivePlacement, elem, _RBX);
-      __asm { vmovaps xmm7, xmm0 }
-      v16 = ScrPlace_GetActivePlacement(localClientNum);
-      *(float *)&_XMM0 = HudElemMaterialHeight(v16, elem, _RBX);
-      __asm
-      {
-        vmovaps xmm8, xmm0
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vsubss  xmm1, xmm0, xmm8
-        vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000; offsetY
-      }
-      *(float *)&_XMM0 = OffsetHudElemY(elem, _RBX, *(float *)&_XMM2);
-      __asm { vmovaps xmm9, xmm0 }
+      v9 = HudElemMaterialWidth(ActivePlacement, elem, cghe);
+      v10 = ScrPlace_GetActivePlacement(localClientNum);
+      v11 = HudElemMaterialHeight(v10, elem, cghe);
+      v12 = OffsetHudElemY(elem, cghe, COERCE_FLOAT(COERCE_UNSIGNED_INT(cghe->height - v11) ^ _xmm));
       if ( (elem->flags & 0x4000) != 0 )
       {
         if ( !g_CG_HudLighting_Public.enable )
-        {
-LABEL_16:
-          __asm
-          {
-            vmovaps xmm8, [rsp+0E8h+var_58]
-            vmovaps xmm7, [rsp+0E8h+var_48]
-            vmovaps xmm9, [rsp+0E8h+var_68]
-          }
-          goto LABEL_17;
-        }
+          return;
         CG_HudLighting_DrawRequest();
       }
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
       CG_Draw_UpdateScramblerState(LocalClientGlobals, localClientNum);
       if ( !CG_Draw_IsScramblingActive(localClientNum) )
       {
-        __asm
+        if ( cghe->rotation == 0.0 )
         {
-          vucomiss xmm6, dword ptr [rbx+8]
-          vmovss  xmm1, cs:__real@3f800000
-          vmovss  xmm0, dword ptr [rbx]; x
-          vmovss  [rsp+0E8h+var_B0], xmm1
-          vmovss  dword ptr [rsp+0E8h+material], xmm1
-          vmovss  dword ptr [rsp+0E8h+color], xmm6
-          vmovaps xmm1, xmm9; y
-          vmovaps xmm3, xmm8; h
-          vmovaps xmm2, xmm7; w
-          vmovss  dword ptr [rsp+0E8h+fmt], xmm6
+          CL_DrawStretchPicPhysical(cghe->x, v12, v9, v11, 0.0, 0.0, 1.0, 1.0, &cghe->color, material);
         }
-        CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&fmt, *(float *)&color, *(float *)&material, v36, &_RBX->color, v12);
+        else
+        {
+          v14 = v9 * 0.5;
+          LODWORD(verts.v[0]) = LODWORD(v14) ^ _xmm;
+          LODWORD(verts.v[1]) = COERCE_UNSIGNED_INT(v11 * 0.5) ^ _xmm;
+          v18 = verts.v[1];
+          v21 = LODWORD(v14) ^ _xmm;
+          v17 = v14;
+          v19 = v14;
+          v20 = v11 * 0.5;
+          v22 = v11 * 0.5;
+          v15 = ScrPlace_GetActivePlacement(localClientNum);
+          CG_DrawRotatedQuadPic(v15, v14 + cghe->x, (float)(v11 * 0.5) + v12, &verts, cghe->rotation, &cghe->color, material);
+        }
       }
-      goto LABEL_16;
     }
   }
-LABEL_17:
-  __asm { vmovaps xmm6, [rsp+0E8h+var_38] }
 }
 
 /*
@@ -1884,107 +1359,51 @@ DrawHudElemString
 */
 void DrawHudElemString(LocalClientNum_t localClientNum, const char *text, const hudelem_t *elem, cg_hudelem_t *cghe)
 {
-  bool v13; 
-  bool v14; 
-  const dvar_t *v16; 
+  const dvar_t *v8; 
+  const ScreenPlacement *ActivePlacement; 
+  float v10; 
+  double v11; 
+  float v12; 
   int fxBirthTime; 
+  float fontHeight; 
   const cg_t *LocalClientGlobals; 
-  int v29; 
-  float fmt; 
-  int fxDecayStartTime; 
-  float soundTimeKeeper; 
+  int v16; 
   vec4_t resultColor; 
 
-  _RDI = cghe;
   if ( !text && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 750, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
     __debugbreak();
   if ( !*text && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 751, ASSERT_TYPE_ASSERT, "(text[0])", (const char *)&queryFormat, "text[0]") )
     __debugbreak();
   if ( !elem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 752, ASSERT_TYPE_ASSERT, "(elem)", (const char *)&queryFormat, "elem") )
     __debugbreak();
-  v13 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 753, ASSERT_TYPE_ASSERT, "(cghe)", (const char *)&queryFormat, "cghe");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rdi+83Ch]
-  }
-  if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 755, ASSERT_TYPE_ASSERT, "(cghe->color[3])", (const char *)&queryFormat, "cghe->color[3]") )
+  if ( !cghe && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 753, ASSERT_TYPE_ASSERT, "(cghe)", (const char *)&queryFormat, "cghe") )
     __debugbreak();
-  v16 = DCONST_DVARBOOL_lui_footage_capture_enabled;
+  if ( cghe->color.v[3] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 755, ASSERT_TYPE_ASSERT, "(cghe->color[3])", (const char *)&queryFormat, "cghe->color[3]") )
+    __debugbreak();
+  v8 = DCONST_DVARBOOL_lui_footage_capture_enabled;
   if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( !v16->current.enabled && (!CG_Draw_IsMPRealismMode(localClientNum) || (elem->flags & 0x20000) != 0) )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled && (!CG_Draw_IsMPRealismMode(localClientNum) || (elem->flags & 0x20000) != 0) )
   {
-    __asm
-    {
-      vmovaps [rsp+108h+var_48], xmm6
-      vmovaps [rsp+108h+var_58], xmm7
-      vmovaps [rsp+108h+var_68], xmm8
-      vmovaps [rsp+108h+var_78], xmm9
-    }
-    ScrPlace_GetActivePlacement(localClientNum);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+82Ch]
-      vsubss  xmm2, xmm0, dword ptr [rdi+10h]; offsetY
-    }
-    *(float *)&_XMM0 = OffsetHudElemY(elem, _RDI, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+828h]; scale
-      vmovaps xmm7, xmm0
-    }
-    *(double *)&_XMM0 = R_NormalizedTextScale(_RDI->font, *(float *)&_XMM1);
-    __asm
-    {
-      vdivss  xmm1, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-      vmulss  xmm2, xmm1, dword ptr [rbx+14h]
-      vmulss  xmm3, xmm2, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-      vmulss  xmm8, xmm3, dword ptr [rbx]
-    }
+    ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+    v10 = OffsetHudElemY(elem, cghe, cghe->fontHeight - cghe->height);
+    v11 = R_NormalizedTextScale(cghe->font, cghe->fontScale);
+    v12 = (float)((float)((float)(*(float *)&v11 / cg_hudSplitscreenScale) * ActivePlacement->scaleRealToVirtual.v[1]) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0];
     fxBirthTime = elem->fxBirthTime;
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rdi+82Ch]
-      vmovaps xmm6, xmm0
-    }
-    if ( fxBirthTime && fxBirthTime > _RDI->timeNow )
-      fxBirthTime = _RDI->timeNow;
+    fontHeight = cghe->fontHeight;
+    if ( fxBirthTime && fxBirthTime > cghe->timeNow )
+      fxBirthTime = cghe->timeNow;
     HudElemColorToVec4(localClientNum, &elem->glowColor, &resultColor);
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( fxBirthTime )
     {
-      v29 = SEH_PrintStrlen(text);
-      CL_PlayTextFXPulseSounds(localClientNum, _RDI->timeNow, v29, fxBirthTime, elem->fxLetterTime, elem->fxDecayStartTime, &LocalClientGlobals->hudElemSound[elem->soundID].lastPlayedTime);
+      v16 = SEH_PrintStrlen(text);
+      CL_PlayTextFXPulseSounds(localClientNum, cghe->timeNow, v16, fxBirthTime, elem->fxLetterTime, elem->fxDecayStartTime, &LocalClientGlobals->hudElemSound[elem->soundID].lastPlayedTime);
     }
     CG_Draw_UpdateScramblerState(LocalClientGlobals, localClientNum);
     if ( !CG_Draw_IsScramblingActive(localClientNum) )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi]; x
-        vmovss  dword ptr [rsp+108h+soundTimeKeeper], xmm6
-        vaddss  xmm0, xmm9, xmm7
-        vmovss  [rsp+108h+fxDecayStartTime], xmm8
-        vmovss  dword ptr [rsp+108h+fmt], xmm0
-      }
-      CL_DrawTextPhysicalWithEffects(text, 0x7FFFFFFF, _RDI->font, *(float *)&_XMM3, fmt, *(float *)&fxDecayStartTime, soundTimeKeeper, &_RDI->color, 3, &resultColor, NULL, NULL, fxBirthTime, elem->fxLetterTime);
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+108h+var_68]
-      vmovaps xmm7, [rsp+108h+var_58]
-      vmovaps xmm6, [rsp+108h+var_48]
-      vmovaps xmm9, [rsp+108h+var_78]
-    }
+      CL_DrawTextPhysicalWithEffects(text, 0x7FFFFFFF, cghe->font, cghe->x, fontHeight + v10, v12, *(float *)&v11, &cghe->color, 3, &resultColor, NULL, NULL, fxBirthTime, elem->fxLetterTime);
   }
 }
 
@@ -1995,343 +1414,298 @@ DrawSingleHudElem2d_GetHudElemInfo
 */
 void DrawSingleHudElem2d_GetHudElemInfo(LocalClientNum_t localClientNum, const hudelem_t *elem, cg_hudelem_t *cghe, char *hudElemString)
 {
-  __int64 v8; 
+  __int64 v4; 
   const ScreenPlacement *ActivePlacement; 
   int font; 
-  const ScreenPlacement *v14; 
-  int v16; 
+  const ScreenPlacement *v10; 
+  float v11; 
+  int v12; 
+  float v13; 
   GfxFont *FontHandle; 
+  float fontScale; 
+  __int128 v17; 
   int label; 
+  int v20; 
   cg_t *LocalClientGlobals; 
   const characterInfo_t *CharacterInfo; 
-  char *v31; 
+  char *v23; 
   const char *PlayerName; 
-  char v33; 
-  int v34; 
-  int v35; 
+  char v25; 
+  int v26; 
+  int v27; 
   __int64 i; 
-  char v37; 
+  char v29; 
   int waypointBackgroundType; 
   CgDrawSystem *DrawSystem; 
   int HudElemTime; 
+  unsigned int v33; 
+  int v34; 
+  __int64 v35; 
+  __int64 v36; 
+  const char *v37; 
+  __int64 v38; 
+  __int64 v39; 
+  int v40; 
   unsigned int v41; 
   int v42; 
-  __int64 v43; 
-  __int64 v44; 
-  const char *v45; 
+  unsigned int v43; 
+  unsigned int v44; 
+  __int64 v45; 
   __int64 v46; 
-  __int64 v47; 
-  int v48; 
-  unsigned int v49; 
-  int v50; 
-  unsigned int v51; 
-  unsigned int v52; 
-  __int64 v53; 
-  __int64 v57; 
   char *hudElemText; 
-  __int64 v59; 
-  char *v60; 
-  __int64 v61; 
-  __int64 v62; 
+  __int64 v48; 
+  char *v49; 
+  __int64 v50; 
+  __int64 v51; 
+  char *v52; 
+  __int128 v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float width; 
+  __int128 v61; 
   int rotationTime; 
-  bool v86; 
-  int v87; 
+  int v63; 
+  float rotation; 
   char *fmt; 
-  __int64 v98; 
-  __int64 v99; 
+  __int64 v66; 
+  __int64 v67; 
   float toScale; 
-  const ScreenPlacement *v101; 
+  const ScreenPlacement *v69; 
   char out_playerName[48]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  v8 = localClientNum;
-  _RBX = hudElemString;
-  _RDI = cghe;
-  _RSI = elem;
+  v4 = localClientNum;
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  font = _RSI->font;
-  v101 = ActivePlacement;
-  v14 = ActivePlacement;
+  font = elem->font;
+  v69 = ActivePlacement;
+  v10 = ActivePlacement;
   switch ( font )
   {
     case 0:
       goto $LN5_121;
     case 1:
-      __asm { vmovss  xmm6, cs:__real@3f155555; jumptable 0000000141CCE70F case 1 }
-      v16 = 4;
+      v11 = FLOAT_0_58333331;
+      v12 = 4;
       goto LABEL_13;
     case 2:
-      __asm { vmovss  xmm6, cs:__real@3ec00000; jumptable 0000000141CCE70F case 2 }
-      v16 = 5;
+      v11 = FLOAT_0_375;
+      v12 = 5;
       goto LABEL_13;
     case 3:
-      v16 = 6;
+      v12 = 6;
       goto LABEL_12;
     case 4:
-      v16 = 2;
+      v12 = 2;
       goto LABEL_12;
     case 5:
-      v16 = 3;
+      v12 = 3;
       goto LABEL_12;
     case 6:
-      __asm { vmovss  xmm6, cs:__real@3f155555; jumptable 0000000141CCE70F case 6 }
-      v16 = 9;
+      v11 = FLOAT_0_58333331;
+      v12 = 9;
       goto LABEL_13;
     case 7:
-      __asm { vmovss  xmm6, cs:__real@3ec00000; jumptable 0000000141CCE70F case 7 }
-      v16 = 10;
+      v11 = FLOAT_0_375;
+      v12 = 10;
       goto LABEL_13;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 584, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid case") )
         __debugbreak();
 $LN5_121:
-      v16 = 0;
+      v12 = 0;
 LABEL_12:
-      __asm { vmovss  xmm6, cs:__real@3e800000 }
+      v11 = FLOAT_0_25;
 LABEL_13:
-      BG_LerpFontScale(_RSI, _RDI->timeNow, &toScale);
-      __asm
-      {
-        vmulss  xmm1, xmm6, [rsp+0F8h+toScale]
-        vmulss  xmm2, xmm1, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-        vmulss  xmm2, xmm2, dword ptr [r12+4]; scale
-        vmovss  dword ptr [rdi+828h], xmm2
-      }
-      FontHandle = UI_GetFontHandle(v14, v16, *(float *)&_XMM2);
-      __asm { vmovss  xmm1, dword ptr [rdi+828h]; scale }
-      _RDI->font = FontHandle;
-      UI_TextHeight(FontHandle, *(float *)&_XMM1);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  dword ptr [rdi+82Ch], xmm0
-      }
-      _RDI->hudElemLabel[0] = 0;
-      label = _RSI->label;
+      BG_LerpFontScale(elem, cghe->timeNow, &toScale);
+      v13 = (float)((float)(v11 * toScale) * cg_hudSplitscreenScale) * v10->scaleVirtualToReal.v[1];
+      cghe->fontScale = v13;
+      FontHandle = UI_GetFontHandle(v10, v12, v13);
+      fontScale = cghe->fontScale;
+      cghe->font = FontHandle;
+      v17 = 0i64;
+      *(float *)&v17 = (float)UI_TextHeight(FontHandle, fontScale);
+      _XMM0 = v17;
+      cghe->fontHeight = *(float *)&v17;
+      cghe->hudElemLabel[0] = 0;
+      label = elem->label;
       if ( label )
-        SafeTranslateHudElemString((LocalClientNum_t)v8, label, _RDI->hudElemLabel, 1024);
+        SafeTranslateHudElemString((LocalClientNum_t)v4, label, cghe->hudElemLabel, 1024);
       break;
   }
-  _RDI->hudElemText[0] = 0;
-  switch ( _RSI->type )
+  cghe->hudElemText[0] = 0;
+  switch ( elem->type )
   {
     case HE_TYPE_TEXT:
-      waypointBackgroundType = _RSI->waypointBackgroundType;
+      waypointBackgroundType = elem->waypointBackgroundType;
       if ( waypointBackgroundType )
-        SafeTranslateHudElemString((LocalClientNum_t)v8, waypointBackgroundType, _RDI->hudElemText, 1024);
+        SafeTranslateHudElemString((LocalClientNum_t)v4, waypointBackgroundType, cghe->hudElemText, 1024);
       goto LABEL_46;
     case HE_TYPE_VALUE:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+90h]; jumptable 0000000141CCE836 case 2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(_RDI->hudElemText, 0x400ui64, "%g", *(double *)&_XMM3);
+      Com_sprintf(cghe->hudElemText, 0x400ui64, "%g", elem->value);
       goto LABEL_46;
     case HE_TYPE_PLAYERNAME:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+90h]; jumptable 0000000141CCE836 case 3
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si ebp, xmm4
-      }
-      if ( _EBP < 0 || _EBP >= cls.maxClients )
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      v20 = (int)*(float *)&_XMM4;
+      if ( (int)*(float *)&_XMM4 < 0 || v20 >= cls.maxClients )
         goto LABEL_46;
-      if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v8) )
+      if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v4) )
         __debugbreak();
-      if ( (unsigned int)v8 >= LODWORD(CgStatic::ms_allocatedCount) )
+      if ( (unsigned int)v4 >= LODWORD(CgStatic::ms_allocatedCount) )
       {
-        *(float *)&v99 = CgStatic::ms_allocatedCount;
-        LODWORD(v98) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v98, v99) )
+        *(float *)&v67 = CgStatic::ms_allocatedCount;
+        LODWORD(v66) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v66, v67) )
           __debugbreak();
       }
-      if ( !CgStatic::ms_cgameStaticsArray[v8] )
+      if ( !CgStatic::ms_cgameStaticsArray[v4] )
       {
-        LODWORD(v99) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v99) )
+        LODWORD(v67) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v67) )
           __debugbreak();
       }
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)CgStatic::ms_cgameStaticsArray[v8]->m_localClientNum);
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)CgStatic::ms_cgameStaticsArray[v4]->m_localClientNum);
       if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
       if ( LocalClientGlobals->IsMP(LocalClientGlobals) )
       {
-        if ( _EBP >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+        if ( v20 >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
         {
-          LODWORD(v99) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-          LODWORD(v98) = _EBP;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v98, v99) )
+          LODWORD(v67) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+          LODWORD(v66) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v66, v67) )
             __debugbreak();
         }
-        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792i64 * _EBP);
+        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792i64 * v20);
       }
       else
       {
-        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)LocalClientGlobals, _EBP);
+        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)LocalClientGlobals, v20);
       }
       if ( !CharacterInfo )
       {
-        PlayerName = CL_Main_GetPlayerName((LocalClientNum_t)_EBP);
+        PlayerName = CL_Main_GetPlayerName((LocalClientNum_t)v20);
         goto LABEL_44;
       }
       if ( !CharacterInfo->infoValid )
       {
         PlayerName = UI_SafeTranslateString("MP/UNKNOWN_PLAYER");
 LABEL_44:
-        v31 = (char *)PlayerName;
+        v23 = (char *)PlayerName;
         goto LABEL_45;
       }
-      CG_Players_GetPlayerGamertag((const LocalClientNum_t)v8, _EBP, 0x2Fui64, out_playerName);
+      CG_Players_GetPlayerGamertag((const LocalClientNum_t)v4, v20, 0x2Fui64, out_playerName);
       if ( !out_playerName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 644, ASSERT_TYPE_ASSERT, "(name[0] != '\\0')", (const char *)&queryFormat, "name[0] != '\\0'") )
         __debugbreak();
-      v31 = out_playerName;
+      v23 = out_playerName;
 LABEL_45:
-      Core_strcpy(_RDI->hudElemText, 0x400ui64, v31);
-      v14 = v101;
+      Core_strcpy(cghe->hudElemText, 0x400ui64, v23);
+      v10 = v69;
 LABEL_46:
-      v33 = _RDI->hudElemLabel[0];
-      if ( v33 && _RDI->hudElemText[0] )
+      v25 = cghe->hudElemLabel[0];
+      if ( v25 && cghe->hudElemText[0] )
       {
-        v34 = 0;
-        v35 = 0;
+        v26 = 0;
+        v27 = 0;
         for ( i = 0i64; i < 1023; ++i )
         {
-          v37 = _RDI->hudElemLabel[i];
-          if ( !v37 )
+          v29 = cghe->hudElemLabel[i];
+          if ( !v29 )
             break;
-          if ( v37 == 38 && _RDI->hudElemLabel[i + 1] == 38 && _RDI->hudElemLabel[i + 2] == 49 )
+          if ( v29 == 38 && cghe->hudElemLabel[i + 1] == 38 && cghe->hudElemLabel[i + 2] == 49 )
           {
-            v35 += 3;
+            v27 += 3;
             break;
           }
-          ++v34;
-          _RBX[i] = v37;
-          ++v35;
+          ++v26;
+          hudElemString[i] = v29;
+          ++v27;
         }
-        v57 = v34;
-        if ( v34 < 1023i64 )
+        v46 = v26;
+        if ( v26 < 1023i64 )
         {
-          hudElemText = _RDI->hudElemText;
+          hudElemText = cghe->hudElemText;
           do
           {
             if ( !*hudElemText )
               break;
-            _RBX[v57] = *hudElemText;
-            ++v34;
-            ++v57;
+            hudElemString[v46] = *hudElemText;
+            ++v26;
+            ++v46;
             ++hudElemText;
           }
-          while ( v57 < 1023 );
+          while ( v46 < 1023 );
         }
-        v59 = v34;
-        if ( v34 < 1023i64 )
+        v48 = v26;
+        if ( v26 < 1023i64 )
         {
-          v60 = &_RDI->hudElemLabel[v35];
+          v49 = &cghe->hudElemLabel[v27];
           do
           {
-            if ( !*v60 )
+            if ( !*v49 )
               break;
-            _RBX[v59] = *v60;
-            ++v34;
-            ++v59;
-            ++v60;
+            hudElemString[v48] = *v49;
+            ++v26;
+            ++v48;
+            ++v49;
           }
-          while ( v59 < 1023 );
+          while ( v48 < 1023 );
         }
-        v61 = v34;
-        v62 = 8i64;
-        _RBX[v61] = 0;
-        _RAX = _RDI->hudElemText;
+        v50 = v26;
+        v51 = 8i64;
+        hudElemString[v50] = 0;
+        v52 = cghe->hudElemText;
         do
         {
-          _RAX += 128;
-          __asm { vmovups xmm0, xmmword ptr [rbx] }
-          _RBX += 128;
-          __asm
-          {
-            vmovups xmmword ptr [rax-80h], xmm0
-            vmovups xmm1, xmmword ptr [rbx-70h]
-            vmovups xmmword ptr [rax-70h], xmm1
-            vmovups xmm0, xmmword ptr [rbx-60h]
-            vmovups xmmword ptr [rax-60h], xmm0
-            vmovups xmm1, xmmword ptr [rbx-50h]
-            vmovups xmmword ptr [rax-50h], xmm1
-            vmovups xmm0, xmmword ptr [rbx-40h]
-            vmovups xmmword ptr [rax-40h], xmm0
-            vmovups xmm1, xmmword ptr [rbx-30h]
-            vmovups xmmword ptr [rax-30h], xmm1
-            vmovups xmm0, xmmword ptr [rbx-20h]
-            vmovups xmmword ptr [rax-20h], xmm0
-            vmovups xmm1, xmmword ptr [rbx-10h]
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          --v62;
+          v52 += 128;
+          v53 = *(_OWORD *)hudElemString;
+          hudElemString += 128;
+          *((_OWORD *)v52 - 8) = v53;
+          *((_OWORD *)v52 - 7) = *((_OWORD *)hudElemString - 7);
+          *((_OWORD *)v52 - 6) = *((_OWORD *)hudElemString - 6);
+          *((_OWORD *)v52 - 5) = *((_OWORD *)hudElemString - 5);
+          *((_OWORD *)v52 - 4) = *((_OWORD *)hudElemString - 4);
+          *((_OWORD *)v52 - 3) = *((_OWORD *)hudElemString - 3);
+          _XMM0 = *((_OWORD *)hudElemString - 2);
+          *((_OWORD *)v52 - 2) = _XMM0;
+          *((_OWORD *)v52 - 1) = *((_OWORD *)hudElemString - 1);
+          --v51;
         }
-        while ( v62 );
-        __asm { vmovss  xmm3, dword ptr [rdi+828h]; scale }
-        UI_TextWidth(_RDI->hudElemText, 0, _RDI->font, *(float *)&_XMM3);
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
+        while ( v51 );
+        v54 = (float)UI_TextWidth(cghe->hudElemText, 0, cghe->font, cghe->fontScale);
         *(double *)&_XMM0 = CL_GetScreenAspectRatioDisplayPixel();
-        __asm
-        {
-          vdivss  xmm1, xmm6, xmm0
-          vmovss  dword ptr [rdi+818h], xmm1
-        }
-        _RDI->hudElemLabel[0] = 0;
-        _RDI->labelWidth = 0.0;
-        v33 = _RDI->hudElemLabel[0];
+        cghe->textWidth = v54 / *(float *)&_XMM0;
+        cghe->hudElemLabel[0] = 0;
+        cghe->labelWidth = 0.0;
+        v25 = cghe->hudElemLabel[0];
       }
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-      if ( v33 )
+      v55 = 0.0;
+      if ( v25 )
       {
-        __asm { vmovss  xmm3, dword ptr [rdi+828h]; scale }
-        UI_TextWidth(_RDI->hudElemLabel, 0, _RDI->font, *(float *)&_XMM3);
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
+        v56 = (float)UI_TextWidth(cghe->hudElemLabel, 0, cghe->font, cghe->fontScale);
         *(double *)&_XMM0 = CL_GetScreenAspectRatioDisplayPixel();
-        __asm { vdivss  xmm1, xmm6, xmm0 }
+        v57 = v56 / *(float *)&_XMM0;
       }
       else
       {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+        v57 = 0.0;
       }
-      __asm { vmovss  dword ptr [rdi+414h], xmm1 }
-      if ( _RDI->hudElemText[0] )
+      cghe->labelWidth = v57;
+      if ( cghe->hudElemText[0] )
       {
-        __asm { vmovss  xmm3, dword ptr [rdi+828h]; scale }
-        UI_TextWidth(_RDI->hudElemText, 0, _RDI->font, *(float *)&_XMM3);
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
+        v58 = (float)UI_TextWidth(cghe->hudElemText, 0, cghe->font, cghe->fontScale);
         *(double *)&_XMM0 = CL_GetScreenAspectRatioDisplayPixel();
-        __asm { vdivss  xmm1, xmm6, xmm0 }
+        v59 = v58 / *(float *)&_XMM0;
       }
       else
       {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+        v59 = 0.0;
       }
-      __asm { vmovss  dword ptr [rdi+818h], xmm1 }
-      switch ( _RSI->type )
+      cghe->textWidth = v59;
+      switch ( elem->type )
       {
         case HE_TYPE_TEXT:
         case HE_TYPE_VALUE:
@@ -2343,29 +1717,24 @@ LABEL_46:
         case HE_TYPE_TENTHS_TIMER_UP:
         case HE_TYPE_TENTHS_TIMER_STATIC:
         case HE_TYPE_TEXT_DEV:
-          __asm { vaddss  xmm1, xmm1, dword ptr [rdi+414h]; jumptable 0000000141CCEED5 cases 1-3,5-10,14 }
+          width = v59 + cghe->labelWidth;
           break;
         case HE_TYPE_MATERIAL:
         case HE_TYPE_CLOCK_DOWN:
         case HE_TYPE_CLOCK_UP:
-          *(float *)&_XMM0 = HudElemMaterialWidth(v14, _RSI, _RDI);
-          __asm { vaddss  xmm1, xmm0, dword ptr [rdi+414h] }
+          width = HudElemMaterialWidth(v10, elem, cghe) + cghe->labelWidth;
           break;
         case HE_TYPE_WAYPOINT:
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1; jumptable 0000000141CCEED5 case 13
-            vcvtsi2ss xmm1, xmm1, dword ptr [rsi+54h]
-          }
+          width = (float)elem->width;
           break;
         default:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 312, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid case") )
             __debugbreak();
-          __asm { vxorps  xmm1, xmm1, xmm1 }
+          width = 0.0;
           break;
       }
-      __asm { vmovss  dword ptr [rdi+0Ch], xmm1 }
-      switch ( _RSI->type )
+      cghe->width = width;
+      switch ( elem->type )
       {
         case HE_TYPE_TEXT:
         case HE_TYPE_VALUE:
@@ -2377,124 +1746,88 @@ LABEL_46:
         case HE_TYPE_TENTHS_TIMER_UP:
         case HE_TYPE_TENTHS_TIMER_STATIC:
         case HE_TYPE_TEXT_DEV:
-          __asm { vmovss  xmm0, dword ptr [rdi+82Ch]; jumptable 0000000141CCEF63 cases 1-3,5-10,14 }
+          _XMM0 = LODWORD(cghe->fontHeight);
           goto LABEL_95;
         case HE_TYPE_MATERIAL:
         case HE_TYPE_CLOCK_DOWN:
         case HE_TYPE_CLOCK_UP:
-          *(float *)&_XMM0 = HudElemMaterialHeight(v14, _RSI, _RDI);
+          *(float *)&_XMM0 = HudElemMaterialHeight(v10, elem, cghe);
           goto LABEL_95;
         case HE_TYPE_WAYPOINT:
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0; jumptable 0000000141CCEF63 case 13
-            vcvtsi2ss xmm0, xmm0, dword ptr [rsi+58h]
-          }
+          v61 = 0i64;
+          *(float *)&v61 = (float)elem->height;
+          _XMM0 = v61;
 LABEL_95:
-          if ( _RDI->hudElemLabel[0] )
+          if ( cghe->hudElemLabel[0] )
             __asm { vmaxss  xmm0, xmm0, dword ptr [rdi+82Ch] }
           break;
         default:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 349, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid case") )
             __debugbreak();
-          __asm { vxorps  xmm0, xmm0, xmm0 }
+          LODWORD(_XMM0) = 0;
           break;
       }
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000
-        vmovss  dword ptr [rdi+10h], xmm0
-      }
-      rotationTime = _RSI->rotationTime;
-      v86 = rotationTime == 0;
+      cghe->height = *(float *)&_XMM0;
+      rotationTime = elem->rotationTime;
       if ( rotationTime > 0 )
       {
-        v87 = _RDI->timeNow - _RSI->rotationStartTime;
-        v86 = _RDI->timeNow == _RSI->rotationStartTime;
-        if ( v87 > 0 )
+        v63 = cghe->timeNow - elem->rotationStartTime;
+        if ( v63 > 0 )
         {
-          v86 = v87 == rotationTime;
-          if ( v87 < rotationTime )
-          {
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm1, xmm1, eax
-              vcvtsi2ss xmm0, xmm0, ecx
-              vdivss  xmm7, xmm1, xmm0
-            }
-          }
+          if ( v63 < rotationTime )
+            v55 = (float)v63 / (float)rotationTime;
           else
-          {
-            __asm { vmovaps xmm7, xmm2 }
-          }
+            v55 = FLOAT_1_0;
         }
       }
       else
       {
-        __asm { vmovaps xmm7, xmm2 }
+        v55 = FLOAT_1_0;
       }
-      __asm
-      {
-        vucomiss xmm7, xmm2
-        vmovss  xmm0, dword ptr [rsi+14h]
-      }
-      if ( !v86 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm0, dword ptr [rsi+18h]
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm0, xmm1, dword ptr [rsi+18h]
-        }
-      }
-      __asm { vmovss  dword ptr [rdi+8], xmm0 }
-      SetHudElemPos(v14, _RSI, _RDI);
-      __asm
-      {
-        vmovaps xmm6, [rsp+0F8h+var_58]
-        vmovaps xmm7, [rsp+0F8h+var_68]
-      }
+      rotation = elem->rotation;
+      if ( v55 != 1.0 )
+        rotation = (float)((float)(rotation - elem->fromRotation) * v55) + elem->fromRotation;
+      cghe->rotation = rotation;
+      SetHudElemPos(v10, elem, cghe);
       return;
     case HE_TYPE_TIMER_DOWN:
     case HE_TYPE_TIMER_UP:
     case HE_TYPE_TIMER_STATIC:
-      HudElemTime = GetHudElemTime(_RSI, _RDI->timeNow);
-      v41 = HudElemTime / 1000 / 3600;
-      v42 = HudElemTime / 1000 % 3600;
-      v43 = (unsigned int)(v42 / 60);
-      v44 = (unsigned int)(v42 % 60);
-      if ( v41 )
-        v45 = j_va("%i:%02i:%02i", v41, (unsigned int)v43, (unsigned int)v44);
+      HudElemTime = GetHudElemTime(elem, cghe->timeNow);
+      v33 = HudElemTime / 1000 / 3600;
+      v34 = HudElemTime / 1000 % 3600;
+      v35 = (unsigned int)(v34 / 60);
+      v36 = (unsigned int)(v34 % 60);
+      if ( v33 )
+        v37 = j_va("%i:%02i:%02i", v33, (unsigned int)v35, (unsigned int)v36);
       else
-        v45 = j_va("%i:%02i", v43, v44);
+        v37 = j_va("%i:%02i", v35, v36);
       goto LABEL_60;
     case HE_TYPE_TENTHS_TIMER_DOWN:
     case HE_TYPE_TENTHS_TIMER_UP:
     case HE_TYPE_TENTHS_TIMER_STATIC:
-      v48 = GetHudElemTime(_RSI, _RDI->timeNow);
-      v49 = v48 / 100 / 36000;
-      v50 = v48 / 100 % 36000;
-      v51 = v50 / 600;
-      v50 %= 600;
-      v52 = v50 / 10;
-      v53 = (unsigned int)(v50 % 10);
-      if ( v49 )
+      v40 = GetHudElemTime(elem, cghe->timeNow);
+      v41 = v40 / 100 / 36000;
+      v42 = v40 / 100 % 36000;
+      v43 = v42 / 600;
+      v42 %= 600;
+      v44 = v42 / 10;
+      v45 = (unsigned int)(v42 % 10);
+      if ( v41 )
       {
-        LODWORD(fmt) = v53;
-        v45 = j_va("%i:%02i:%02i.%i", v49, v51, v52, fmt);
+        LODWORD(fmt) = v45;
+        v37 = j_va("%i:%02i:%02i.%i", v41, v43, v44, fmt);
       }
       else
       {
-        v45 = j_va("%i:%02i.%i", v51, v52, v53);
+        v37 = j_va("%i:%02i.%i", v43, v44, v45);
       }
 LABEL_60:
-      CopyStringToHudElemString(v45, _RDI->hudElemText, v46, v47, (__int64)fmt, v98);
+      CopyStringToHudElemString(v37, cghe->hudElemText, v38, v39, (__int64)fmt, v66);
       goto LABEL_46;
     case HE_TYPE_TEXT_DEV:
-      DrawSystem = CgDrawSystem::GetDrawSystem((const LocalClientNum_t)v8);
-      DrawSystem->SetHudElemDevString(DrawSystem, _RSI->waypointBackgroundType, _RDI->hudElemText, 1024);
+      DrawSystem = CgDrawSystem::GetDrawSystem((const LocalClientNum_t)v4);
+      DrawSystem->SetHudElemDevString(DrawSystem, elem->waypointBackgroundType, cghe->hudElemText, 1024);
       goto LABEL_46;
     default:
       goto LABEL_46;
@@ -2511,31 +1844,35 @@ void DrawViewableWaypoint(LocalClientNum_t localClientNum, const hudelem_t *elem
   cg_t *LocalClientGlobals; 
   unsigned int text; 
   Material *objectiveBackgroundDiamond; 
+  double Float_Internal_DebugName; 
   unsigned int flags; 
+  double v9; 
+  double v10; 
+  double v11; 
+  float rotation; 
   hudelem_color_t toColor; 
   WaypointDrawArgs args; 
   vec3_t outPos; 
   vec4_t resultColor; 
 
-  _RBX = elem;
   if ( !elem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1667, ASSERT_TYPE_ASSERT, "(elem)", (const char *)&queryFormat, "elem") )
     __debugbreak();
-  if ( _RBX->type != HE_TYPE_WAYPOINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1668, ASSERT_TYPE_ASSERT, "(elem->type == HE_TYPE_WAYPOINT)", (const char *)&queryFormat, "elem->type == HE_TYPE_WAYPOINT") )
+  if ( elem->type != HE_TYPE_WAYPOINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1668, ASSERT_TYPE_ASSERT, "(elem->type == HE_TYPE_WAYPOINT)", (const char *)&queryFormat, "elem->type == HE_TYPE_WAYPOINT") )
     __debugbreak();
-  if ( (_RBX->flags & 0x400) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1671, ASSERT_TYPE_ASSERT, "(!(elem->flags & HUDELEMFLAG_DRAW_3D))", (const char *)&queryFormat, "!(elem->flags & HUDELEMFLAG_DRAW_3D)") )
+  if ( (elem->flags & 0x400) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1671, ASSERT_TYPE_ASSERT, "(!(elem->flags & HUDELEMFLAG_DRAW_3D))", (const char *)&queryFormat, "!(elem->flags & HUDELEMFLAG_DRAW_3D)") )
     __debugbreak();
   memset_0(&args, 0, sizeof(args));
   if ( !CG_GetFlashbangedRemainingTime(localClientNum) )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    BG_LerpHudColors(_RBX, LocalClientGlobals->time, &toColor);
+    BG_LerpHudColors(elem, LocalClientGlobals->time, &toColor);
     if ( toColor.a )
     {
       HudElemColorToVec4(localClientNum, &toColor, &resultColor);
-      args.iconMaterial = CG_Draw_MaterialHandleForIndex(localClientNum, _RBX->materialIndex);
+      args.iconMaterial = CG_Draw_MaterialHandleForIndex(localClientNum, elem->materialIndex);
       if ( args.iconMaterial )
       {
-        text = _RBX->text;
+        text = elem->text;
         if ( text == 2 )
         {
           objectiveBackgroundDiamond = cgMedia.objectiveBackgroundDiamond;
@@ -2551,42 +1888,29 @@ void DrawViewableWaypoint(LocalClientNum_t localClientNum, const hudelem_t *elem
             objectiveBackgroundDiamond = cgMedia.objectiveBackgroundPentagon;
         }
         args.backgroundIconMaterial = objectiveBackgroundDiamond;
-        if ( GetWaypointEntPos(localClientNum, _RBX, &outPos) )
+        if ( GetWaypointEntPos(localClientNum, elem, &outPos) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+57h+outPos]
-            vmovss  xmm1, dword ptr [rbp+57h+outPos+4]
-            vmovss  dword ptr [rbp+57h+args.worldPos], xmm0
-            vmovss  xmm0, dword ptr [rbp+57h+outPos+8]
-            vmovss  dword ptr [rbp+57h+args.worldPos+4], xmm1
-            vmovups xmm1, xmmword ptr [rbp+57h+resultColor]
-            vmovss  dword ptr [rbp+57h+args.worldPos+8], xmm0
-            vmovaps xmmword ptr [rbp+57h+args.color4], xmm1
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointTweakY, "waypointTweakY");
-          flags = _RBX->flags;
+          args.worldPos = outPos;
+          args.color4 = resultColor;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointTweakY, "waypointTweakY");
+          flags = elem->flags;
           args.label = NULL;
           *((_BYTE *)&args + 105) = *((_BYTE *)&args + 105) & 0xFC | ((flags & 0x200) != 0) | (2 * ((flags & 0x80) != 0));
           *((_BYTE *)&args + 104) = (8 * (((flags & 0x20) != 0) | (2 * ((flags & 0x10) != 0)))) | *((_BYTE *)&args + 104) & 7 | (32 * ((4 * (flags >> 3)) | ((flags & 0x40) != 0))) & 0xBF;
-          __asm { vmovss  [rbp+57h+args.offsetY], xmm0 }
+          args.offsetY = *(float *)&Float_Internal_DebugName;
           args.arrowMaterial = cgMedia.offscreenObjectivePointer;
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenPointerWidth, "waypointOffscreenPointerWidth");
-          __asm { vmovss  [rbp+57h+args.arrowWidth], xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenPointerHeight, "waypointOffscreenPointerHeight");
+          v9 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenPointerWidth, "waypointOffscreenPointerWidth");
+          args.arrowWidth = *(float *)&v9;
+          v10 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenPointerHeight, "waypointOffscreenPointerHeight");
           *((_BYTE *)&args + 104) &= ~1u;
-          __asm { vmovss  [rbp+57h+args.arrowHeight], xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenPointerDistance, "waypointOffscreenPointerDistance");
-          __asm { vmovss  xmm1, dword ptr [rbx+14h] }
+          args.arrowHeight = *(float *)&v10;
+          v11 = Dvar_GetFloat_Internal_DebugName(DVARFLT_waypointOffscreenPointerDistance, "waypointOffscreenPointerDistance");
+          rotation = elem->rotation;
           *((_BYTE *)&args + 104) &= ~2u;
           *((_BYTE *)&args + 105) |= 4u;
-          __asm
-          {
-            vmovss  [rbp+57h+args.arrowFadeDistance], xmm0
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  [rbp+57h+args.scale], xmm0
-            vmovss  [rbp+57h+args.rotation], xmm1
-          }
+          args.arrowFadeDistance = *(float *)&v11;
+          args.scale = FLOAT_1_0;
+          args.rotation = rotation;
           CG_DrawWaypoint(localClientNum, &args);
         }
       }
@@ -2599,51 +1923,26 @@ void DrawViewableWaypoint(LocalClientNum_t localClientNum, const hudelem_t *elem
 GetHudElemOrg
 ==============
 */
-
-void __fastcall GetHudElemOrg(const ScreenPlacement *scrPlace, int alignOrg, int alignScreen, double xVirtual, float yVirtual, float width, float height, float *orgX, float *orgY)
+void GetHudElemOrg(const ScreenPlacement *scrPlace, int alignOrg, int alignScreen, float xVirtual, float yVirtual, float width, float height, float *orgX, float *orgY)
 {
-  __int64 v26; 
+  double v12; 
+  double v13; 
+  __int64 v14; 
 
-  _R14 = orgX;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !orgX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 401, ASSERT_TYPE_ASSERT, "(orgX)", (const char *)&queryFormat, "orgX") )
     __debugbreak();
-  _RSI = orgY;
   if ( !orgY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 402, ASSERT_TYPE_ASSERT, "(orgY)", (const char *)&queryFormat, "orgY") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm6; x }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, (alignScreen >> 4) & 0xF);
-  __asm { vmovaps xmm6, xmm0 }
+  v12 = ScrPlace_ApplyX(scrPlace, xVirtual, (alignScreen >> 4) & 0xF);
   if ( ((alignOrg >> 2) & 3) == 3 )
   {
-    LODWORD(v26) = alignOrg;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 377, ASSERT_TYPE_ASSERT, "( ( alignX == 0 || alignX == 1 || alignX == 2 ) )", "( alignOrg ) = %i", v26) )
+    LODWORD(v14) = alignOrg;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 377, ASSERT_TYPE_ASSERT, "( ( alignX == 0 || alignX == 1 || alignX == 2 ) )", "( alignOrg ) = %i", v14) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+width]
-    vmulss  xmm1, xmm0, dword ptr [rcx+rbx*4]
-    vsubss  xmm2, xmm6, xmm1
-    vmovss  xmm1, [rsp+58h+yVirtual]; y
-    vmovss  dword ptr [r14], xmm2
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, alignScreen & 0xF);
-  __asm
-  {
-    vmovss  xmm2, [rsp+58h+height]; height
-    vmovaps xmm1, xmm0; y
-  }
-  *(float *)&_XMM0 = AlignHudElemY(alignOrg, *(double *)&_XMM1, *(double *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_28]
-    vmovss  dword ptr [rsi], xmm0
-  }
+  *orgX = *(float *)&v12 - (float)(width * s_alignScale[(alignOrg >> 2) & 3]);
+  v13 = ScrPlace_ApplyY(scrPlace, yVirtual, alignScreen & 0xF);
+  *orgY = AlignHudElemY(alignOrg, *(float *)&v13, height);
 }
 
 /*
@@ -2715,23 +2014,23 @@ float GetScaleForDistance(LocalClientNum_t localClientNum, const vec3_t *worldPo
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  char v23; 
-  char v24; 
-  const dvar_t *v30; 
-  const dvar_t *v36; 
-  const dvar_t *v39; 
-  int v46[3]; 
-  __int64 v47; 
-  void *retaddr; 
+  float v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float result; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  __int128 unsignedInt; 
+  const dvar_t *v15; 
+  __int128 v17; 
+  const dvar_t *v20; 
+  float v21; 
+  const dvar_t *v22; 
+  int v23[3]; 
+  __int64 v24; 
 
-  _RAX = &retaddr;
-  v47 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RSI = worldPos;
+  v24 = -2i64;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   p_view = &LocalClientGlobals->refdef.view;
   if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
@@ -2740,96 +2039,66 @@ float GetScaleForDistance(LocalClientNum_t localClientNum, const vec3_t *worldPo
   v = (_DWORD *)p_view->org.org.v;
   if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
     __debugbreak();
-  v46[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-  v46[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-  v46[2] = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm3, xmm0, [rsp+98h+var_50]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vsubss  xmm2, xmm1, [rsp+98h+var_4C]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm4, xmm0, [rsp+98h+var_48]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-  }
-  _RDI = DVARFLT_waypointDistScaleRangeMin;
+  v23[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+  v23[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+  v23[2] = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
+  v8 = fsqrt((float)((float)((float)(worldPos->v[1] - *(float *)&v23[1]) * (float)(worldPos->v[1] - *(float *)&v23[1])) + (float)((float)(worldPos->v[0] - *(float *)v23) * (float)(worldPos->v[0] - *(float *)v23))) + (float)((float)(worldPos->v[2] - *(float *)&v23[2]) * (float)(worldPos->v[2] - *(float *)&v23[2])));
+  v7 = v8;
+  v9 = DVARFLT_waypointDistScaleRangeMin;
   if ( !DVARFLT_waypointDistScaleRangeMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleRangeMin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-  if ( v23 | v24 )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v8 > v9->current.value )
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  else
-  {
-    _RDI = DVARFLT_waypointDistScaleRangeMax;
+    v11 = DVARFLT_waypointDistScaleRangeMax;
     if ( !DVARFLT_waypointDistScaleRangeMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleRangeMax") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-    if ( v23 )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v8 < v11->current.value )
     {
-      _RDI = DVARFLT_waypointDistScaleRangeMax;
+      v13 = DVARFLT_waypointDistScaleRangeMax;
       if ( !DVARFLT_waypointDistScaleRangeMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleRangeMax") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-      v30 = DVARFLT_waypointDistScaleRangeMin;
+      Dvar_CheckFrontendServerThread(v13);
+      unsignedInt = v13->current.unsignedInt;
+      v15 = DVARFLT_waypointDistScaleRangeMin;
       if ( !DVARFLT_waypointDistScaleRangeMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleRangeMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v30);
+      Dvar_CheckFrontendServerThread(v15);
+      v17 = unsignedInt;
+      *(float *)&v17 = *(float *)&unsignedInt - v15->current.value;
+      _XMM2 = v17;
       __asm
       {
-        vsubss  xmm2, xmm7, dword ptr [rdi+28h]
-        vxorps  xmm0, xmm0, xmm0
         vcmpless xmm1, xmm2, xmm0
-        vmovss  xmm7, cs:__real@3f800000
         vblendvps xmm0, xmm2, xmm7, xmm1
-        vmovss  [rsp+98h+var_58], xmm0
       }
-      v36 = DVARFLT_waypointDistScaleRangeMin;
+      v20 = DVARFLT_waypointDistScaleRangeMin;
       if ( !DVARFLT_waypointDistScaleRangeMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleRangeMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v36);
-      __asm
-      {
-        vsubss  xmm0, xmm6, dword ptr [rdi+28h]
-        vdivss  xmm6, xmm0, [rsp+98h+var_58]
-      }
-      v39 = DVARFLT_waypointDistScaleSmallest;
+      Dvar_CheckFrontendServerThread(v20);
+      v21 = (float)(v7 - v20->current.value) / *(float *)&_XMM0;
+      v22 = DVARFLT_waypointDistScaleSmallest;
       if ( !DVARFLT_waypointDistScaleSmallest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleSmallest") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v39);
-      __asm
-      {
-        vmulss  xmm2, xmm6, dword ptr [rdi+28h]
-        vsubss  xmm1, xmm7, xmm6
-        vaddss  xmm0, xmm2, xmm1
-      }
+      Dvar_CheckFrontendServerThread(v22);
+      result = (float)(v21 * v22->current.value) + (float)(1.0 - v21);
     }
     else
     {
-      _RDI = DVARFLT_waypointDistScaleSmallest;
+      v12 = DVARFLT_waypointDistScaleSmallest;
       if ( !DVARFLT_waypointDistScaleSmallest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "waypointDistScaleSmallest") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm0, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v12);
+      result = v12->current.value;
     }
   }
-  memset(v46, 0, sizeof(v46));
-  __asm
+  else
   {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
+    result = FLOAT_1_0;
   }
-  return *(float *)&_XMM0;
+  memset(v23, 0, sizeof(v23));
+  return result;
 }
 
 /*
@@ -2841,24 +2110,24 @@ bool GetStanceHeightFromDObj(LocalClientNum_t localClientNum, const centity_t *c
 {
   scr_string_t aim_highest_bone; 
   unsigned int number; 
+  unsigned int v8; 
   unsigned int v9; 
-  unsigned int v10; 
-  const DObj *v11; 
-  bool v17; 
-  const char *v18; 
-  __int64 v20; 
-  __int64 v21; 
+  const DObj *v10; 
+  DObjAnimMat *LocalBoneMatrix; 
+  float v12; 
+  bool v13; 
+  const char *v14; 
+  __int64 v15; 
+  __int64 v16; 
   unsigned __int8 inOutIndex[4]; 
   int modelIndex; 
   vec3_t outOrigin; 
-  __int64 v25; 
+  __int64 v20; 
 
-  v25 = -2i64;
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-  _RBX = result;
+  v20 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1073, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1074, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1074, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   aim_highest_bone = scr_const.aim_highest_bone;
   number = cent->nextState.number;
@@ -2866,59 +2135,53 @@ bool GetStanceHeightFromDObj(LocalClientNum_t localClientNum, const centity_t *c
     __debugbreak();
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v21) = 2;
-    LODWORD(v20) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v16) = 2;
+    LODWORD(v15) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
-  v9 = 2533 * localClientNum + number;
-  if ( v9 >= 0x13CA )
+  v8 = 2533 * localClientNum + number;
+  if ( v8 >= 0x13CA )
   {
-    LODWORD(v21) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v21) )
+    LODWORD(v16) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v16) )
       __debugbreak();
   }
-  v10 = clientObjMap[v9];
-  if ( !v10 )
-    goto LABEL_28;
-  if ( v10 >= (unsigned int)s_objCount )
+  v9 = clientObjMap[v8];
+  if ( v9 )
   {
-    LODWORD(v21) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v21) )
-      __debugbreak();
+    if ( v9 >= (unsigned int)s_objCount )
+    {
+      LODWORD(v16) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v16) )
+        __debugbreak();
+    }
+    v10 = (const DObj *)s_objBuf[v9];
+    if ( v10 )
+    {
+      if ( !g_activeRefDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ents_inline.h", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef)", (const char *)&queryFormat, "g_activeRefDef") )
+        __debugbreak();
+      inOutIndex[0] = -2;
+      if ( DObjGetBoneIndexInternal_50(v10, aim_highest_bone, inOutIndex, &modelIndex) )
+      {
+        LocalBoneMatrix = CG_DObjGetLocalBoneMatrix(&cent->pose, v10, inOutIndex[0]);
+        if ( LocalBoneMatrix )
+        {
+          v12 = LocalBoneMatrix->trans.v[2] + g_activeRefDef->viewOffset.v[2];
+          CG_GetPoseOrigin(&cent->pose, &outOrigin);
+          *result = (float)(v12 - outOrigin.v[2]) + MY_BUMP;
+          v13 = 1;
+          memset(&outOrigin, 0, sizeof(outOrigin));
+          return v13;
+        }
+      }
+      v14 = SL_ConvertToString(aim_highest_bone);
+      Com_PrintWarning(14, "Cannot find tag [%s] on entity for objective marker.\n", v14);
+    }
   }
-  v11 = (const DObj *)s_objBuf[v10];
-  if ( !v11 )
-    goto LABEL_28;
-  if ( !g_activeRefDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ents_inline.h", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef)", (const char *)&queryFormat, "g_activeRefDef") )
-    __debugbreak();
-  inOutIndex[0] = -2;
-  if ( !DObjGetBoneIndexInternal_50(v11, aim_highest_bone, inOutIndex, &modelIndex) || (_RAX = CG_DObjGetLocalBoneMatrix(&cent->pose, v11, inOutIndex[0])) == NULL )
-  {
-    v18 = SL_ConvertToString(aim_highest_bone);
-    Com_PrintWarning(14, "Cannot find tag [%s] on entity for objective marker.\n", v18);
-LABEL_28:
-    v17 = 0;
-    *_RBX = 0.0;
-    goto LABEL_29;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+18h]
-    vaddss  xmm6, xmm0, dword ptr [rdx+84h]
-  }
-  CG_GetPoseOrigin(&cent->pose, &outOrigin);
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [rsp+0A8h+outOrigin+8]
-    vaddss  xmm1, xmm0, cs:MY_BUMP
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v17 = 1;
-  memset(&outOrigin, 0, sizeof(outOrigin));
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
-  return v17;
+  v13 = 0;
+  *result = 0.0;
+  return v13;
 }
 
 /*
@@ -2926,155 +2189,97 @@ LABEL_29:
 GetWaypointEntPos
 ==============
 */
-bool GetWaypointEntPos(LocalClientNum_t localClientNum, const hudelem_t *elem, vec3_t *outPos)
+char GetWaypointEntPos(LocalClientNum_t localClientNum, const hudelem_t *elem, vec3_t *outPos)
 {
-  __int64 v10; 
+  __int64 v5; 
+  float z; 
+  float y; 
   cg_t *LocalClientGlobals; 
   __int64 targetEntNum; 
-  bool result; 
-  CgEntitySystem *v16; 
+  CgEntitySystem *v11; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  float x; 
+  double WaypointOffsetForStance; 
   __int64 v17; 
-  __int64 v47; 
-  __int64 v48; 
+  __int64 v18; 
   vec3_t outOrigin; 
-  __int64 v50; 
+  __int64 v20; 
   tmat33_t<vec3_t> axis; 
-  char v52; 
-  char v53; 
-  void *retaddr; 
+  char v22; 
 
-  _RAX = &retaddr;
-  v50 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RBX = (char *)outPos;
-  _RDI = elem;
-  v10 = localClientNum;
+  v20 = -2i64;
+  v5 = localClientNum;
   if ( !elem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1131, ASSERT_TYPE_ASSERT, "(elem)", (const char *)&queryFormat, "elem") )
     __debugbreak();
-  if ( _RDI->type != HE_TYPE_WAYPOINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1132, ASSERT_TYPE_ASSERT, "(elem->type == HE_TYPE_WAYPOINT)", (const char *)&queryFormat, "elem->type == HE_TYPE_WAYPOINT") )
+  if ( elem->type != HE_TYPE_WAYPOINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1132, ASSERT_TYPE_ASSERT, "(elem->type == HE_TYPE_WAYPOINT)", (const char *)&queryFormat, "elem->type == HE_TYPE_WAYPOINT") )
     __debugbreak();
-  if ( _RDI->targetEntNum == 2047 )
+  if ( elem->targetEntNum == 2047 )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+0Ch]
-      vmovss  xmm0, dword ptr [rdi+8]
-    }
-    *(float *)_RBX = _RDI->x;
-    __asm
-    {
-      vmovss  dword ptr [rbx+4], xmm0
-      vmovss  dword ptr [rbx+8], xmm1
-    }
-LABEL_30:
-    result = 1;
-    goto LABEL_31;
+    z = elem->z;
+    y = elem->y;
+    outPos->v[0] = elem->x;
+    outPos->v[1] = y;
+    outPos->v[2] = z;
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v10);
-  targetEntNum = _RDI->targetEntNum;
-  if ( (_DWORD)targetEntNum != LocalClientGlobals->predictedPlayerEntity->nextState.number )
+  else
   {
-    if ( !(_BYTE)CgEntitySystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v10) )
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
+    targetEntNum = elem->targetEntNum;
+    if ( (_DWORD)targetEntNum == LocalClientGlobals->predictedPlayerEntity->nextState.number )
+      return 0;
+    if ( !(_BYTE)CgEntitySystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v5) )
       __debugbreak();
-    if ( (unsigned int)v10 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v5 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v48) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(v47) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v47, v48) )
+      LODWORD(v18) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(v17) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v10] )
+    if ( !CgEntitySystem::ms_entitySystemArray[v5] )
     {
-      LODWORD(v48) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v48) )
+      LODWORD(v18) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v18) )
         __debugbreak();
     }
-    v16 = CgEntitySystem::ms_entitySystemArray[v10];
+    v11 = CgEntitySystem::ms_entitySystemArray[v5];
     if ( (unsigned int)targetEntNum >= 0x800 )
     {
-      LODWORD(v48) = 2048;
-      LODWORD(v47) = targetEntNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v47, v48) )
+      LODWORD(v18) = 2048;
+      LODWORD(v17) = targetEntNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
-    v17 = (__int64)&v16->m_entities[targetEntNum];
-    if ( (*(_BYTE *)(v17 + 648) & 1) != 0 )
+    v12 = (__int64)&v11->m_entities[targetEntNum];
+    if ( (*(_BYTE *)(v12 + 648) & 1) == 0 )
+      return 0;
+    if ( (elem->flags & 0x2000) != 0 )
     {
-      if ( (_RDI->flags & 0x2000) != 0 )
-      {
-        AnglesToAxis((const vec3_t *)(v17 + 72), &axis);
-        __asm
-        {
-          vmovss  xmm8, dword ptr [rdi+0Ch]
-          vmovss  xmm7, dword ptr [rdi+8]
-          vmovss  xmm6, dword ptr [rdi+4]
-        }
-        if ( &v52 == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
-          __debugbreak();
-        __asm
-        {
-          vmulss  xmm3, xmm7, dword ptr [rsp+108h+axis+0Ch]
-          vmulss  xmm2, xmm6, dword ptr [rsp+108h+axis]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm1, xmm8, dword ptr [rsp+108h+axis+18h]
-          vaddss  xmm2, xmm4, xmm1
-          vmovss  dword ptr [rbx], xmm2
-          vmulss  xmm3, xmm7, dword ptr [rsp+108h+axis+10h]
-          vmulss  xmm2, xmm6, dword ptr [rsp+108h+axis+4]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm1, xmm8, dword ptr [rsp+108h+axis+1Ch]
-          vaddss  xmm2, xmm4, xmm1
-          vmovss  dword ptr [rbx+4], xmm2
-          vmulss  xmm3, xmm7, dword ptr [rsp+108h+axis+14h]
-          vmulss  xmm2, xmm6, dword ptr [rsp+108h+axis+8]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm1, xmm8, dword ptr [rsp+108h+axis+20h]
-          vaddss  xmm2, xmm4, xmm1
-          vmovss  dword ptr [rbx+8], xmm2
-        }
-        CG_GetPoseOrigin((const cpose_t *)v17, &outOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+108h+outOrigin]
-          vaddss  xmm1, xmm0, dword ptr [rbx]
-          vmovss  dword ptr [rbx], xmm1
-          vmovss  xmm2, dword ptr [rsp+108h+outOrigin+4]
-          vaddss  xmm0, xmm2, dword ptr [rbx+4]
-          vmovss  dword ptr [rbx+4], xmm0
-          vmovss  xmm1, dword ptr [rsp+108h+outOrigin+8]
-          vaddss  xmm2, xmm1, dword ptr [rbx+8]
-          vmovss  dword ptr [rbx+8], xmm2
-        }
-        memset(&outOrigin, 0, sizeof(outOrigin));
-      }
-      else
-      {
-        CG_GetPoseOrigin((const cpose_t *)v17, (vec3_t *)_RBX);
-        *(double *)&_XMM0 = CG_GetWaypointOffsetForStance((LocalClientNum_t)v10, (centity_t *)v17);
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rbx+8], xmm0
-        }
-      }
-      goto LABEL_30;
+      AnglesToAxis((const vec3_t *)(v12 + 72), &axis);
+      v13 = elem->z;
+      v14 = elem->y;
+      x = elem->x;
+      if ( &v22 == (char *)outPos && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+        __debugbreak();
+      outPos->v[0] = (float)((float)(v14 * axis.m[1].v[0]) + (float)(x * axis.m[0].v[0])) + (float)(v13 * axis.m[2].v[0]);
+      outPos->v[1] = (float)((float)(v14 * axis.m[1].v[1]) + (float)(x * axis.m[0].v[1])) + (float)(v13 * axis.m[2].v[1]);
+      outPos->v[2] = (float)((float)(v14 * axis.m[1].v[2]) + (float)(x * axis.m[0].v[2])) + (float)(v13 * axis.m[2].v[2]);
+      CG_GetPoseOrigin((const cpose_t *)v12, &outOrigin);
+      outPos->v[0] = outOrigin.v[0] + outPos->v[0];
+      outPos->v[1] = outOrigin.v[1] + outPos->v[1];
+      outPos->v[2] = outOrigin.v[2] + outPos->v[2];
+      memset(&outOrigin, 0, sizeof(outOrigin));
+    }
+    else
+    {
+      CG_GetPoseOrigin((const cpose_t *)v12, outPos);
+      WaypointOffsetForStance = CG_GetWaypointOffsetForStance((LocalClientNum_t)v5, (centity_t *)v12);
+      outPos->v[2] = *(float *)&WaypointOffsetForStance + outPos->v[2];
     }
   }
-  result = 0;
-LABEL_31:
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -3084,173 +2289,47 @@ HudElemColorToVec4
 */
 void HudElemColorToVec4(LocalClientNum_t localClientNum, const hudelem_color_t *hudElemColor, vec4_t *resultColor)
 {
-  bool IsGamePaused; 
-  char v24; 
-  bool v25; 
-  bool v36; 
-  bool v39; 
-  bool v42; 
-  double v49; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
-  double v54; 
-  double v55; 
-  double v56; 
-  double v57; 
-  double v58; 
-  double v59; 
-  double v60; 
-  void *retaddr; 
+  const dvar_t *v5; 
+  float value; 
+  float v7; 
+  float v8; 
+  float v10; 
+  float v11; 
+  float v12; 
 
-  _RAX = &retaddr;
-  __asm
+  resultColor->v[0] = (float)hudElemColor->r * 0.0039215689;
+  resultColor->v[1] = (float)hudElemColor->g * 0.0039215689;
+  resultColor->v[2] = (float)hudElemColor->b * 0.0039215689;
+  resultColor->v[3] = (float)hudElemColor->a * 0.0039215689;
+  if ( CL_Pause_IsGamePaused() )
   {
-    vmovss  xmm2, cs:__real@3b808081
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RBX = resultColor;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [r8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [r8+4], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [r8+8], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [r8+0Ch], xmm1
-  }
-  IsGamePaused = CL_Pause_IsGamePaused();
-  v24 = 0;
-  v25 = !IsGamePaused;
-  if ( IsGamePaused )
-  {
-    _RDI = DVARFLT_hudElemPausedBrightness;
+    v5 = DVARFLT_hudElemPausedBrightness;
     if ( !DVARFLT_hudElemPausedBrightness && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "hudElemPausedBrightness") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+28h]
-      vmulss  xmm2, xmm1, dword ptr [rbx]
-      vmulss  xmm0, xmm1, dword ptr [rbx+4]
-      vmulss  xmm1, xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  dword ptr [rbx], xmm2
-      vmovss  dword ptr [rbx+4], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v5);
+    value = v5->current.value;
+    v7 = value * resultColor->v[0];
+    v8 = value * resultColor->v[1];
+    resultColor->v[2] = value * resultColor->v[2];
+    resultColor->v[0] = v7;
+    resultColor->v[1] = v8;
   }
   else
   {
-    __asm { vmovss  xmm2, dword ptr [rbx] }
+    v7 = resultColor->v[0];
   }
-  __asm
-  {
-    vmovsd  xmm8, cs:__real@3ff0000100000000
-    vmovss  xmm6, cs:__real@3f800008
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm2, xmm7
-    vxorpd  xmm9, xmm9, xmm9
-  }
-  if ( v24 )
-    goto LABEL_26;
-  __asm { vcomiss xmm2, xmm6 }
-  if ( !(v24 | v25) )
-  {
-LABEL_26:
-    __asm
-    {
-      vmovsd  [rsp+88h+var_50], xmm8
-      vcvtss2sd xmm0, xmm2, xmm2
-      vmovsd  [rsp+88h+var_58], xmm9
-      vmovsd  [rsp+88h+var_60], xmm0
-    }
-    v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 732, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[0] ) && ( resultColor[0] ) <= ( 1.000001f )", "resultColor[0] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v49, v53, v57);
-    v24 = 0;
-    v25 = !v36;
-    if ( v36 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( !(v24 | v25) )
-  {
-    __asm
-    {
-      vmovsd  [rsp+88h+var_50], xmm8
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+88h+var_58], xmm9
-      vmovsd  [rsp+88h+var_60], xmm0
-    }
-    v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 733, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[1] ) && ( resultColor[1] ) <= ( 1.000001f )", "resultColor[1] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v50, v54, v58);
-    v24 = 0;
-    v25 = !v39;
-    if ( v39 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( !(v24 | v25) )
-  {
-    __asm
-    {
-      vmovsd  [rsp+88h+var_50], xmm8
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+88h+var_58], xmm9
-      vmovsd  [rsp+88h+var_60], xmm0
-    }
-    v42 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 734, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[2] ) && ( resultColor[2] ) <= ( 1.000001f )", "resultColor[2] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v51, v55, v59);
-    v24 = 0;
-    v25 = !v42;
-    if ( v42 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vcomiss xmm0, xmm7
-    vmovaps xmm7, [rsp+88h+var_28]
-    vcomiss xmm0, xmm6
-  }
-  if ( !(v24 | v25) )
-  {
-    __asm
-    {
-      vmovsd  [rsp+88h+var_50], xmm8
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+88h+var_58], xmm9
-      vmovsd  [rsp+88h+var_60], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 735, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[3] ) && ( resultColor[3] ) <= ( 1.000001f )", "resultColor[3] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v52, v56, v60) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-  }
+  __asm { vxorpd  xmm9, xmm9, xmm9 }
+  if ( (v7 < 0.0 || v7 > 1.000001) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 732, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[0] ) && ( resultColor[0] ) <= ( 1.000001f )", "resultColor[0] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v7, *(double *)&_XMM9, DOUBLE_1_000000953674316) )
+    __debugbreak();
+  v10 = resultColor->v[1];
+  if ( (v10 < 0.0 || v10 > 1.000001) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 733, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[1] ) && ( resultColor[1] ) <= ( 1.000001f )", "resultColor[1] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v10, *(double *)&_XMM9, DOUBLE_1_000000953674316) )
+    __debugbreak();
+  v11 = resultColor->v[2];
+  if ( (v11 < 0.0 || v11 > 1.000001) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 734, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[2] ) && ( resultColor[2] ) <= ( 1.000001f )", "resultColor[2] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v11, *(double *)&_XMM9, DOUBLE_1_000000953674316) )
+    __debugbreak();
+  v12 = resultColor->v[3];
+  if ( (v12 < 0.0 || v12 > 1.000001) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 735, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( resultColor[3] ) && ( resultColor[3] ) <= ( 1.000001f )", "resultColor[3] not in [0.0f, 1.000001f]\n\t%g not in [%g, %g]", v12, *(double *)&_XMM9, DOUBLE_1_000000953674316) )
+    __debugbreak();
 }
 
 /*
@@ -3260,119 +2339,54 @@ HudElemMaterialHeight
 */
 float HudElemMaterialHeight(const ScreenPlacement *scrPlace, const hudelem_t *elem, const cg_hudelem_t *cghe)
 {
+  int height; 
+  float fontHeight; 
+  float v6; 
   int scaleTime; 
-  int v11; 
-  double v32; 
-  double v33; 
-  double v34; 
+  int v8; 
+  int fromHeight; 
+  float v10; 
+  float v11; 
+  float v13; 
 
-  __asm
+  height = elem->height;
+  if ( height )
   {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovss  xmm1, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-  }
-  if ( elem->height )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
+    v6 = (float)height;
     if ( (elem->alignScreen & 0xF) == 4 )
-    {
-      __asm { vmulss  xmm7, xmm0, dword ptr [rcx+0Ch] }
-    }
+      fontHeight = v6 * scrPlace->scaleVirtualToFull.v[1];
     else
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm1
-        vmulss  xmm7, xmm0, dword ptr [rcx+4]
-      }
-    }
+      fontHeight = (float)(v6 * cg_hudSplitscreenScale) * scrPlace->scaleVirtualToReal.v[1];
   }
   else
   {
-    __asm { vmovss  xmm7, dword ptr [r8+82Ch] }
+    fontHeight = cghe->fontHeight;
   }
   scaleTime = elem->scaleTime;
-  if ( scaleTime <= 0 || (v11 = cghe->timeNow - elem->scaleStartTime, v11 >= scaleTime) )
+  if ( scaleTime <= 0 )
+    return fontHeight;
+  v8 = cghe->timeNow - elem->scaleStartTime;
+  if ( v8 >= scaleTime )
+    return fontHeight;
+  fromHeight = elem->fromHeight;
+  if ( fromHeight )
   {
-    __asm
-    {
-      vmovaps xmm0, xmm7
-      vmovaps xmm7, [rsp+78h+var_28]
-    }
+    v11 = (float)fromHeight;
+    if ( (elem->fromAlignScreen & 0xF) == 4 )
+      v10 = v11 * scrPlace->scaleVirtualToFull.v[1];
+    else
+      v10 = (float)(v11 * cg_hudSplitscreenScale) * scrPlace->scaleVirtualToReal.v[1];
   }
   else
   {
-    __asm { vmovaps [rsp+78h+var_18], xmm6 }
-    if ( elem->fromHeight )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-      }
-      if ( (elem->fromAlignScreen & 0xF) == 4 )
-      {
-        __asm { vmulss  xmm6, xmm0, dword ptr [r9+0Ch] }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm1
-          vmulss  xmm6, xmm0, dword ptr [r9+4]
-        }
-      }
-    }
-    else
-    {
-      __asm { vmovss  xmm6, dword ptr [r8+82Ch] }
-    }
-    if ( v11 > 0 )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r10d
-        vmovaps [rsp+78h+var_38], xmm8
-        vdivss  xmm8, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm8, xmm1
-        vcomiss xmm8, cs:__real@3f800000
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vmovsd  [rsp+78h+var_40], xmm0
-        vmovsd  [rsp+78h+var_48], xmm1
-        vcvtss2sd xmm2, xmm8, xmm8
-        vmovsd  [rsp+78h+var_50], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 281, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v32, v33, v34) )
-        __debugbreak();
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm1, xmm0, xmm8
-        vmovaps xmm8, [rsp+78h+var_38]
-        vaddss  xmm0, xmm1, xmm6
-        vmovaps xmm6, [rsp+78h+var_18]
-        vmovaps xmm7, [rsp+78h+var_28]
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovaps xmm0, xmm6
-        vmovaps xmm6, [rsp+78h+var_18]
-        vmovaps xmm7, [rsp+78h+var_28]
-      }
-    }
+    v10 = cghe->fontHeight;
   }
-  return *(float *)&_XMM0;
+  if ( v8 <= 0 )
+    return v10;
+  v13 = (float)v8 / (float)scaleTime;
+  if ( (v13 < 0.0 || v13 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 281, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v13, 0.0, DOUBLE_1_0) )
+    __debugbreak();
+  return (float)((float)(fontHeight - v10) * v13) + v10;
 }
 
 /*
@@ -3382,119 +2396,54 @@ HudElemMaterialWidth
 */
 float HudElemMaterialWidth(const ScreenPlacement *scrPlace, const hudelem_t *elem, const cg_hudelem_t *cghe)
 {
+  int width; 
+  float fontHeight; 
+  float v6; 
   int scaleTime; 
-  int v11; 
-  double v32; 
-  double v33; 
-  double v34; 
+  int v8; 
+  int fromWidth; 
+  float v10; 
+  float v11; 
+  float v13; 
 
-  __asm
+  width = elem->width;
+  if ( width )
   {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovss  xmm1, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-  }
-  if ( elem->width )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
+    v6 = (float)width;
     if ( (elem->alignScreen & 0xF0) == 64 )
-    {
-      __asm { vmulss  xmm7, xmm0, dword ptr [rcx+8] }
-    }
+      fontHeight = v6 * scrPlace->scaleVirtualToFull.v[0];
     else
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm1
-        vmulss  xmm7, xmm0, dword ptr [rcx]
-      }
-    }
+      fontHeight = (float)(v6 * cg_hudSplitscreenScale) * scrPlace->scaleVirtualToReal.v[0];
   }
   else
   {
-    __asm { vmovss  xmm7, dword ptr [r8+82Ch] }
+    fontHeight = cghe->fontHeight;
   }
   scaleTime = elem->scaleTime;
-  if ( scaleTime <= 0 || (v11 = cghe->timeNow - elem->scaleStartTime, v11 >= scaleTime) )
+  if ( scaleTime <= 0 )
+    return fontHeight;
+  v8 = cghe->timeNow - elem->scaleStartTime;
+  if ( v8 >= scaleTime )
+    return fontHeight;
+  fromWidth = elem->fromWidth;
+  if ( fromWidth )
   {
-    __asm
-    {
-      vmovaps xmm0, xmm7
-      vmovaps xmm7, [rsp+78h+var_28]
-    }
+    v11 = (float)fromWidth;
+    if ( (elem->fromAlignScreen & 0xF0) == 64 )
+      v10 = v11 * scrPlace->scaleVirtualToFull.v[0];
+    else
+      v10 = (float)(v11 * cg_hudSplitscreenScale) * scrPlace->scaleVirtualToReal.v[0];
   }
   else
   {
-    __asm { vmovaps [rsp+78h+var_18], xmm6 }
-    if ( elem->fromWidth )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-      }
-      if ( (elem->fromAlignScreen & 0xF0) == 64 )
-      {
-        __asm { vmulss  xmm6, xmm0, dword ptr [r9+8] }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm1
-          vmulss  xmm6, xmm0, dword ptr [r9]
-        }
-      }
-    }
-    else
-    {
-      __asm { vmovss  xmm6, dword ptr [r8+82Ch] }
-    }
-    if ( v11 > 0 )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r10d
-        vmovaps [rsp+78h+var_38], xmm8
-        vdivss  xmm8, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm8, xmm1
-        vcomiss xmm8, cs:__real@3f800000
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vmovsd  [rsp+78h+var_40], xmm0
-        vmovsd  [rsp+78h+var_48], xmm1
-        vcvtss2sd xmm2, xmm8, xmm8
-        vmovsd  [rsp+78h+var_50], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 256, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v32, v33, v34) )
-        __debugbreak();
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm1, xmm0, xmm8
-        vmovaps xmm8, [rsp+78h+var_38]
-        vaddss  xmm0, xmm1, xmm6
-        vmovaps xmm6, [rsp+78h+var_18]
-        vmovaps xmm7, [rsp+78h+var_28]
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovaps xmm0, xmm6
-        vmovaps xmm6, [rsp+78h+var_18]
-        vmovaps xmm7, [rsp+78h+var_28]
-      }
-    }
+    v10 = cghe->fontHeight;
   }
-  return *(float *)&_XMM0;
+  if ( v8 <= 0 )
+    return v10;
+  v13 = (float)v8 / (float)scaleTime;
+  if ( (v13 < 0.0 || v13 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 256, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v13, 0.0, DOUBLE_1_0) )
+    __debugbreak();
+  return (float)((float)(fontHeight - v10) * v13) + v10;
 }
 
 /*
@@ -3502,92 +2451,39 @@ float HudElemMaterialWidth(const ScreenPlacement *scrPlace, const hudelem_t *ele
 OffsetHudElemY
 ==============
 */
-
-float __fastcall OffsetHudElemY(const hudelem_t *elem, const cg_hudelem_t *cghe, double offsetY)
+float OffsetHudElemY(const hudelem_t *elem, const cg_hudelem_t *cghe, float offsetY)
 {
   int moveTime; 
-  bool v13; 
-  int v15; 
+  float v6; 
+  int v7; 
+  float y; 
+  float v10; 
 
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   moveTime = elem->moveTime;
-  _RDI = cghe;
-  __asm
-  {
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovaps xmm8, xmm2
-  }
-  v13 = moveTime == 0;
   if ( moveTime > 0 )
   {
-    v15 = cghe->timeNow - elem->moveStartTime;
-    v13 = cghe->timeNow == elem->moveStartTime;
-    if ( v15 > 0 )
+    v7 = cghe->timeNow - elem->moveStartTime;
+    if ( v7 > 0 )
     {
-      v13 = v15 == moveTime;
-      if ( v15 < moveTime )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm7, xmm1, xmm0
-        }
-      }
+      if ( v7 < moveTime )
+        v6 = (float)v7 / (float)moveTime;
       else
-      {
-        __asm { vmovaps xmm7, xmm3 }
-      }
+        v6 = FLOAT_1_0;
     }
     else
     {
-      __asm { vxorps  xmm7, xmm7, xmm7 }
+      v6 = 0.0;
     }
   }
   else
   {
-    __asm { vmovaps xmm7, xmm3 }
+    v6 = FLOAT_1_0;
   }
-  __asm
-  {
-    vucomiss xmm7, xmm3
-    vmovss  xmm1, dword ptr [rdx+4]; y
-  }
-  if ( v13 )
-  {
-    *(float *)&_XMM0 = AlignHudElemY(elem->alignOrg, *(double *)&_XMM1, offsetY);
-  }
-  else
-  {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    *(float *)&_XMM0 = AlignHudElemY(elem->fromAlignOrg, *(double *)&_XMM1, offsetY);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+4]; y
-      vmovaps xmm2, xmm8; height
-      vmovaps xmm6, xmm0
-    }
-    AlignHudElemY(elem->alignOrg, *(double *)&_XMM1, *(double *)&_XMM2);
-    __asm
-    {
-      vsubss  xmm1, xmm6, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm0, xmm2, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
-  }
-  return *(float *)&_XMM0;
+  y = cghe->y;
+  if ( v6 == 1.0 )
+    return AlignHudElemY(elem->alignOrg, y, offsetY);
+  v10 = AlignHudElemY(elem->fromAlignOrg, y, offsetY);
+  return (float)((float)(v10 - AlignHudElemY(elem->alignOrg, cghe->y, offsetY)) * v6) + v10;
 }
 
 /*
@@ -3640,27 +2536,19 @@ ScreenPosIsWorthFadingFor
 */
 bool ScreenPosIsWorthFadingFor(const ScreenPlacement *scrPlace, const vec2_t *screenPos, const WaypointDrawArgs *args)
 {
-  _RDI = screenPos;
-  _RBX = scrPlace;
+  float v6; 
+  bool result; 
+
   if ( !args && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1172, ASSERT_TYPE_ASSERT, "(args)", (const char *)&queryFormat, "args") )
     __debugbreak();
-  if ( (*((_BYTE *)args + 104) & 4) == 0 )
-    return 0;
-  __asm
+  result = 0;
+  if ( (*((_BYTE *)args + 104) & 4) != 0 && screenPos->v[0] >= scrPlace->realAdjustableMin.v[0] && screenPos->v[0] <= scrPlace->realAdjustableMax.v[0] )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vcomiss xmm0, dword ptr [rbx+58h]
-    vcomiss xmm0, dword ptr [rbx+60h]
+    v6 = screenPos->v[1];
+    if ( v6 >= scrPlace->realAdjustableMin.v[1] && v6 <= scrPlace->realAdjustableMax.v[1] )
+      return 1;
   }
-  if ( (*((_BYTE *)args + 104) & 4) != 0 )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vcomiss xmm0, dword ptr [rbx+5Ch]
-    vcomiss xmm0, dword ptr [rbx+64h]
-  }
-  return (*((_BYTE *)args + 104) & 4) == 0;
+  return result;
 }
 
 /*
@@ -3670,144 +2558,65 @@ SetHudElemPos
 */
 void SetHudElemPos(const ScreenPlacement *scrPlace, const hudelem_t *elem, cg_hudelem_t *cghe)
 {
-  cg_hudelem_t *orgX; 
   int moveTime; 
-  bool v11; 
-  int v13; 
-  int fontScaleTime; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  float v7; 
+  int v8; 
+  float height; 
   float width; 
-  float widtha; 
-  float widthb; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
+  int fontScaleTime; 
+  float v15; 
+  float v16; 
   float orgY; 
-  float v63; 
-  float v64; 
+  float v18; 
+  float v19; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  orgX = cghe;
-  _RDI = elem;
   if ( !elem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 468, ASSERT_TYPE_ASSERT, "(elem)", (const char *)&queryFormat, "elem") )
     __debugbreak();
-  if ( !orgX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 469, ASSERT_TYPE_ASSERT, "(cghe)", (const char *)&queryFormat, "cghe") )
+  if ( !cghe && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 469, ASSERT_TYPE_ASSERT, "(cghe)", (const char *)&queryFormat, "cghe") )
     __debugbreak();
-  moveTime = _RDI->moveTime;
-  __asm { vmovss  xmm2, cs:__real@3f800000 }
-  v11 = moveTime == 0;
+  moveTime = elem->moveTime;
   if ( moveTime > 0 )
   {
-    v13 = orgX->timeNow - _RDI->moveStartTime;
-    v11 = orgX->timeNow == _RDI->moveStartTime;
-    if ( v13 > 0 )
+    v8 = cghe->timeNow - elem->moveStartTime;
+    if ( v8 > 0 )
     {
-      v11 = v13 == moveTime;
-      if ( v13 < moveTime )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm6, xmm1, xmm0
-        }
-      }
+      if ( v8 < moveTime )
+        v7 = (float)v8 / (float)moveTime;
       else
-      {
-        __asm { vmovaps xmm6, xmm2 }
-      }
+        v7 = FLOAT_1_0;
     }
     else
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+      v7 = 0.0;
     }
   }
   else
   {
-    __asm { vmovaps xmm6, xmm2 }
+    v7 = FLOAT_1_0;
   }
-  __asm
+  height = cghe->height;
+  width = cghe->width;
+  if ( v7 == 1.0 )
   {
-    vucomiss xmm6, xmm2
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-  }
-  _RSI = &orgX->y;
-  if ( v11 )
-  {
-    __asm
+    GetHudElemOrg(scrPlace, elem->alignOrg, elem->alignScreen, elem->x, elem->y, width, height, &cghe->x, &cghe->y);
+    fontScaleTime = elem->fontScaleTime;
+    if ( fontScaleTime <= 0 || cghe->timeNow - elem->fontScaleStartTime >= fontScaleTime )
     {
-      vmovss  xmm3, dword ptr [rdi+4]; xVirtual
-      vmovss  [rsp+98h+var_68], xmm0
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  [rsp+98h+width], xmm1
-      vmovss  dword ptr [rsp+98h+fmt], xmm0
-    }
-    GetHudElemOrg(scrPlace, _RDI->alignOrg, _RDI->alignScreen, *(double *)&_XMM3, fmt, width, v58, &orgX->x, &orgX->y);
-    fontScaleTime = _RDI->fontScaleTime;
-    if ( fontScaleTime <= 0 || orgX->timeNow - _RDI->fontScaleStartTime >= fontScaleTime )
-    {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f000000
-        vaddss  xmm1, xmm3, dword ptr [rbx]
-        vxorps  xmm4, xmm4, xmm4
-        vroundss xmm2, xmm4, xmm1, 1
-        vcvttss2si eax, xmm2
-        vaddss  xmm2, xmm3, dword ptr [rbx+4]
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmovss  dword ptr [rbx], xmm0
-        vroundss xmm1, xmm4, xmm2, 1
-        vcvttss2si eax, xmm1
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmovss  dword ptr [rbx+4], xmm0
-      }
+      _XMM4 = 0i64;
+      __asm { vroundss xmm2, xmm4, xmm1, 1 }
+      cghe->x = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM2).m128_f32[0];
+      __asm { vroundss xmm1, xmm4, xmm2, 1 }
+      cghe->y = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM1).m128_f32[0];
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+70h]; xVirtual
-      vmovss  [rsp+98h+var_68], xmm0
-      vmovss  xmm0, dword ptr [rdi+74h]
-      vmovss  [rsp+98h+width], xmm1
-      vmovss  dword ptr [rsp+98h+fmt], xmm0
-    }
-    GetHudElemOrg(scrPlace, _RDI->fromAlignOrg, _RDI->fromAlignScreen, *(double *)&_XMM3, fmta, widtha, v59, &v61, &orgY);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+10h]
-      vmovss  xmm1, dword ptr [rbx+0Ch]
-      vmovss  xmm3, dword ptr [rdi+4]; xVirtual
-      vmovss  [rsp+98h+var_68], xmm0
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  [rsp+98h+width], xmm1
-      vmovss  dword ptr [rsp+98h+fmt], xmm0
-    }
-    GetHudElemOrg(scrPlace, _RDI->alignOrg, _RDI->alignScreen, *(double *)&_XMM3, fmtb, widthb, v60, &v63, &v64);
-    __asm
-    {
-      vmovss  xmm0, [rsp+98h+var_40]
-      vsubss  xmm1, xmm0, [rsp+98h+var_48]
-      vmovss  xmm0, [rsp+98h+var_3C]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, [rsp+98h+var_48]
-      vsubss  xmm1, xmm0, [rsp+98h+var_44]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rbx], xmm3
-      vaddss  xmm3, xmm2, [rsp+98h+var_44]
-      vmovss  dword ptr [rsi], xmm3
-    }
+    GetHudElemOrg(scrPlace, elem->fromAlignOrg, elem->fromAlignScreen, elem->fromX, elem->fromY, width, height, &v16, &orgY);
+    GetHudElemOrg(scrPlace, elem->alignOrg, elem->alignScreen, elem->x, elem->y, cghe->width, cghe->height, &v18, &v19);
+    v15 = (float)(v19 - orgY) * v7;
+    cghe->x = (float)((float)(v18 - v16) * v7) + v16;
+    cghe->y = v15 + orgY;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -3818,85 +2627,88 @@ UpdateFadeAndGetAlpha
 float UpdateFadeAndGetAlpha(LocalClientNum_t localClientNum, WaypointDrawArgs *args, const ScreenPlacement *scrPlace, const vec2_t *screenPos)
 {
   cg_t *LocalClientGlobals; 
-  const dvar_t *v11; 
-  cg_t *v13; 
+  const dvar_t *v9; 
+  objectiveFadeState inout_fadeState; 
+  cg_t *v11; 
   int inout_fadeCounter; 
   int integer; 
-  objectiveFadeState inout_fadeState; 
+  objectiveFadeState v14; 
+  const dvar_t *v15; 
+  int v16; 
   const dvar_t *v17; 
-  int v18; 
+  float v18; 
   const dvar_t *v19; 
-  const char *v24; 
-  char v27; 
+  const char *v20; 
+  const dvar_t *v21; 
+  int v22; 
+  const dvar_t *v23; 
+  int v24; 
+  bool v25; 
+  const dvar_t *v26; 
+  objectiveFadeState v27; 
   int v28; 
-  const dvar_t *v29; 
-  bool v31; 
-  const dvar_t *v32; 
-  int v33; 
-  char v38; 
-  const dvar_t *v39; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  __int128 unsignedInt; 
+  __int128 v36; 
+  __int128 v39; 
+  __int128 v40; 
 
-  _RBP = args;
   if ( !args && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1240, ASSERT_TYPE_ASSERT, "(args)", (const char *)&queryFormat, "args") )
     __debugbreak();
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1241, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v11 = DVARINT_objectiveGlobalFadeState;
-  _EDI = _RBP->inout_fadeState;
-  v13 = LocalClientGlobals;
-  inout_fadeCounter = _RBP->inout_fadeCounter;
+  v9 = DVARINT_objectiveGlobalFadeState;
+  inout_fadeState = args->inout_fadeState;
+  v11 = LocalClientGlobals;
+  inout_fadeCounter = args->inout_fadeCounter;
   if ( !DVARINT_objectiveGlobalFadeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveGlobalFadeState") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  integer = v11->current.integer;
-  if ( integer <= -1 || (*((_BYTE *)_RBP + 105) & 4) != 0 )
+  Dvar_CheckFrontendServerThread(v9);
+  integer = v9->current.integer;
+  if ( integer <= -1 || (*((_BYTE *)args + 105) & 4) != 0 )
   {
-    v17 = DVARBOOL_objectiveHide;
+    v15 = DVARBOOL_objectiveHide;
     if ( !DVARBOOL_objectiveHide && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveHide") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    if ( v17->current.enabled )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.enabled )
     {
-      if ( _EDI == 1 )
+      if ( inout_fadeState == OBJFS_FULL_OFF )
       {
-        _EDI = 2;
-        inout_fadeCounter = -v13->frametime;
+        inout_fadeState = OBJFS_FADING_ON;
+        inout_fadeCounter = -v11->frametime;
       }
-      else if ( _EDI == 2 )
+      else if ( inout_fadeState == OBJFS_FADING_ON )
       {
         if ( inout_fadeCounter <= 0 )
-          inout_fadeCounter = -v13->frametime;
+          inout_fadeCounter = -v11->frametime;
       }
-      else if ( _EDI != 3 )
+      else if ( inout_fadeState != OBJFS_FADING_OFF )
       {
-        if ( _EDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1291, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
+        if ( inout_fadeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1291, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
           __debugbreak();
-        _EDI = 3;
+        inout_fadeState = OBJFS_FADING_OFF;
         inout_fadeCounter = 0;
       }
     }
     else
     {
-      _RSI = DVARFLT_objectiveFadeTooFar;
+      v21 = DVARFLT_objectiveFadeTooFar;
       if ( !DVARFLT_objectiveFadeTooFar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFadeTooFar") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm
+      Dvar_CheckFrontendServerThread(v21);
+      if ( v21->current.value < args->fadeDistance )
       {
-        vmovss  xmm0, dword ptr [rsi+28h]
-        vcomiss xmm0, dword ptr [rbp+54h]
-      }
-      if ( v27 )
-      {
-        if ( _EDI == 1 )
+        if ( inout_fadeState == OBJFS_FULL_OFF )
         {
-          _EDI = 2;
+          inout_fadeState = OBJFS_FADING_ON;
           inout_fadeCounter = 0;
         }
-        else if ( (unsigned int)(_EDI - 2) > 1 )
+        else if ( (unsigned int)(inout_fadeState - 2) > 1 )
         {
-          if ( _EDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1309, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
+          if ( inout_fadeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1309, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
             __debugbreak();
           inout_fadeCounter = 0;
         }
@@ -3905,187 +2717,154 @@ float UpdateFadeAndGetAlpha(LocalClientNum_t localClientNum, WaypointDrawArgs *a
   }
   else
   {
-    inout_fadeState = _RBP->inout_fadeState;
-    _EDI = v11->current.integer;
-    if ( inout_fadeState != integer )
+    v14 = args->inout_fadeState;
+    inout_fadeState = v9->current.integer;
+    if ( v14 != integer )
     {
       inout_fadeCounter = 0;
       if ( integer == 2 )
       {
-        if ( inout_fadeState == OBJFS_FULL_ON )
-          _EDI = 0;
+        if ( v14 == OBJFS_FULL_ON )
+          inout_fadeState = OBJFS_FULL_ON;
       }
-      else if ( integer == 3 && inout_fadeState == OBJFS_FULL_OFF )
+      else if ( integer == 3 && v14 == OBJFS_FULL_OFF )
       {
-        _EDI = 1;
+        inout_fadeState = OBJFS_FULL_OFF;
       }
     }
   }
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  switch ( _EDI )
+  switch ( inout_fadeState )
   {
-    case 1:
-      if ( integer > -1 && (*((_BYTE *)_RBP + 105) & 4) == 0 )
+    case OBJFS_FULL_OFF:
+      if ( integer > -1 && (*((_BYTE *)args + 105) & 4) == 0 )
         goto LABEL_90;
-      _RSI = DVARFLT_objectiveFadeTooClose;
+      v30 = DVARFLT_objectiveFadeTooClose;
       if ( !DVARFLT_objectiveFadeTooClose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFadeTooClose") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+28h]
-        vcomiss xmm0, dword ptr [rbp+54h]
-      }
-      if ( !(v27 | v38) || ScreenPosIsWorthFadingFor(scrPlace, screenPos, _RBP) )
+      Dvar_CheckFrontendServerThread(v30);
+      if ( v30->current.value > args->fadeDistance || ScreenPosIsWorthFadingFor(scrPlace, screenPos, args) )
 LABEL_90:
         inout_fadeCounter = 0;
-      v18 = v13->frametime + inout_fadeCounter;
-      v39 = DVARFLT_objectiveFadeTimeWaitOff;
+      v16 = v11->frametime + inout_fadeCounter;
+      v31 = DVARFLT_objectiveFadeTimeWaitOff;
       if ( !DVARFLT_objectiveFadeTimeWaitOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFadeTimeWaitOff") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v39);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@447a0000
-        vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-        vcvttss2si eax, xmm0
-      }
-      if ( v18 < _EAX )
+      Dvar_CheckFrontendServerThread(v31);
+      v18 = FLOAT_1000_0;
+      if ( v16 < (int)(float)(1000.0 * v31->current.value) )
         goto LABEL_104;
-      _EDI = 2;
-      v18 = 0;
+      inout_fadeState = OBJFS_FADING_ON;
+      v16 = 0;
 LABEL_96:
-      _RSI = DVARFLT_objectiveFadeTimeGoingOn;
+      v19 = DVARFLT_objectiveFadeTimeGoingOn;
       if ( !DVARFLT_objectiveFadeTimeGoingOn )
       {
-        v24 = "objectiveFadeTimeGoingOn";
+        v20 = "objectiveFadeTimeGoingOn";
 LABEL_98:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v24) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v20) )
           __debugbreak();
       }
 LABEL_100:
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+28h]
-        vmovaps [rsp+88h+var_48], xmm7
-        vmulss  xmm7, xmm0, xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vcomiss xmm7, xmm6
-      }
-      if ( v27 | v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1211, ASSERT_TYPE_ASSERT, "(period > 0)", (const char *)&queryFormat, "period > 0") )
+      Dvar_CheckFrontendServerThread(v19);
+      unsignedInt = v19->current.unsignedInt;
+      *(float *)&unsignedInt = v19->current.value * v18;
+      _XMM7 = unsignedInt;
+      if ( *(float *)&unsignedInt <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1211, ASSERT_TYPE_ASSERT, "(period > 0)", (const char *)&queryFormat, "period > 0") )
         __debugbreak();
       __asm
       {
         vcmpless xmm0, xmm7, xmm6
-        vmovss  xmm6, cs:__real@3f800000
         vblendvps xmm1, xmm7, xmm6, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vdivss  xmm0, xmm0, xmm1
-        vminss  xmm1, xmm0, xmm6
-        vmulss  xmm0, xmm1, cs:__real@3fc90fdb; X
       }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm { vmovaps xmm7, [rsp+88h+var_48] }
-      _EAX = 3;
+      v36 = 0i64;
+      *(float *)&v36 = (float)v16 / *(float *)&_XMM1;
+      _XMM0 = v36;
+      __asm { vminss  xmm1, xmm0, xmm6 }
+      v40 = _XMM1;
+      *(float *)&v40 = *(float *)&_XMM1 * 1.5707964;
+      v39 = v40;
+      *(float *)&v39 = sinf_0(*(float *)&_XMM1 * 1.5707964);
+      _XMM4 = v39;
+      _XMM0 = (unsigned int)inout_fadeState;
       __asm
       {
-        vmovaps xmm4, xmm0
-        vsubss  xmm3, xmm6, xmm0
-        vmovd   xmm0, edi
-        vmovd   xmm1, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm4, xmm3, xmm2
       }
       goto LABEL_105;
-    case 2:
-      v28 = inout_fadeCounter + v13->frametime;
-      v32 = DVARFLT_objectiveFadeTimeGoingOn;
+    case OBJFS_FADING_ON:
+      v22 = inout_fadeCounter + v11->frametime;
+      v26 = DVARFLT_objectiveFadeTimeGoingOn;
       if ( !DVARFLT_objectiveFadeTimeGoingOn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFadeTimeGoingOn") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v32);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@447a0000
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      }
-      v33 = 0;
-      __asm { vcvttss2si ecx, xmm0 }
-      if ( v28 < _ECX )
-        v33 = _EDI;
-      v18 = 0;
-      v31 = v28 < _ECX;
-      _EDI = v33;
+      Dvar_CheckFrontendServerThread(v26);
+      v18 = FLOAT_1000_0;
+      v27 = OBJFS_FULL_ON;
+      v28 = (int)(float)(1000.0 * v26->current.value);
+      if ( v22 < v28 )
+        v27 = inout_fadeState;
+      v16 = 0;
+      v25 = v22 < v28;
+      inout_fadeState = v27;
       goto LABEL_74;
-    case 3:
-      v28 = inout_fadeCounter + v13->frametime;
-      v29 = DVARFLT_objectiveFadeTimeGoingOff;
+    case OBJFS_FADING_OFF:
+      v22 = inout_fadeCounter + v11->frametime;
+      v23 = DVARFLT_objectiveFadeTimeGoingOff;
       if ( !DVARFLT_objectiveFadeTimeGoingOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFadeTimeGoingOff") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v29);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@447a0000
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-        vcvttss2si eax, xmm0
-      }
-      if ( v28 >= _EAX )
-        _EDI = 1;
-      v18 = 0;
-      v31 = v28 < _EAX;
+      Dvar_CheckFrontendServerThread(v23);
+      v18 = FLOAT_1000_0;
+      v24 = (int)(float)(1000.0 * v23->current.value);
+      if ( v22 >= v24 )
+        inout_fadeState = OBJFS_FULL_OFF;
+      v16 = 0;
+      v25 = v22 < v24;
 LABEL_74:
-      if ( v31 )
-        v18 = v28;
+      if ( v25 )
+        v16 = v22;
       goto LABEL_76;
   }
-  if ( _EDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1344, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
+  if ( inout_fadeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1344, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
     __debugbreak();
-  if ( integer > -1 && (*((_BYTE *)_RBP + 105) & 4) == 0 || !ScreenPosIsWorthFadingFor(scrPlace, screenPos, _RBP) )
+  if ( integer > -1 && (*((_BYTE *)args + 105) & 4) == 0 || !ScreenPosIsWorthFadingFor(scrPlace, screenPos, args) )
     inout_fadeCounter = 0;
-  v18 = v13->frametime + inout_fadeCounter;
-  v19 = DVARFLT_objectiveFadeTimeWaitOn;
+  v16 = v11->frametime + inout_fadeCounter;
+  v17 = DVARFLT_objectiveFadeTimeWaitOn;
   if ( !DVARFLT_objectiveFadeTimeWaitOn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "objectiveFadeTimeWaitOn") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  __asm
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = FLOAT_1000_0;
+  if ( v16 >= (int)(float)(1000.0 * v17->current.value) )
   {
-    vmovss  xmm6, cs:__real@447a0000
-    vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-    vcvttss2si eax, xmm0
-  }
-  if ( v18 >= _EAX )
-  {
-    _EDI = 3;
-    v18 = 0;
+    inout_fadeState = OBJFS_FADING_OFF;
+    v16 = 0;
     goto LABEL_48;
   }
 LABEL_76:
-  switch ( _EDI )
+  switch ( inout_fadeState )
   {
-    case 2:
+    case OBJFS_FADING_ON:
       goto LABEL_96;
-    case 3:
+    case OBJFS_FADING_OFF:
 LABEL_48:
-      _RSI = DVARFLT_objectiveFadeTimeGoingOff;
+      v19 = DVARFLT_objectiveFadeTimeGoingOff;
       if ( !DVARFLT_objectiveFadeTimeGoingOff )
       {
-        v24 = "objectiveFadeTimeGoingOff";
+        v20 = "objectiveFadeTimeGoingOff";
         goto LABEL_98;
       }
       goto LABEL_100;
-    case 1:
+    case OBJFS_FULL_OFF:
 LABEL_104:
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      LODWORD(_XMM0) = 0;
       goto LABEL_105;
   }
-  if ( _EDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1227, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
+  if ( inout_fadeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hudelem.cpp", 1227, ASSERT_TYPE_ASSERT, "(state == OBJFS_FULL_ON)", (const char *)&queryFormat, "state == OBJFS_FULL_ON") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
+  *(float *)&_XMM0 = FLOAT_1_0;
 LABEL_105:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  _RBP->inout_fadeCounter = v18;
-  _RBP->inout_fadeState = _EDI;
+  args->inout_fadeCounter = v16;
+  args->inout_fadeState = inout_fadeState;
   return *(float *)&_XMM0;
 }
 
@@ -4094,22 +2873,14 @@ LABEL_105:
 compare_hudelems
 ==============
 */
-
-__int64 __fastcall compare_hudelems(const void *pe0, const void *pe1, double _XMM2_8)
+__int64 compare_hudelems(const void *pe0, const void *pe1)
 {
-  char v3; 
+  float v2; 
 
-  _RAX = *(_QWORD *)pe0;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm0, dword ptr [rax+98h]
-    vsubss  xmm1, xmm0, dword ptr [rcx+98h]
-    vcomiss xmm1, xmm2
-  }
-  if ( v3 )
+  v2 = *(float *)(*(_QWORD *)pe0 + 152i64) - *(float *)(*(_QWORD *)pe1 + 152i64);
+  if ( v2 >= 0.0 )
+    return v2 > 0.0;
+  else
     return 0xFFFFFFFFi64;
-  __asm { vcomiss xmm1, xmm2 }
-  return 0i64;
 }
 

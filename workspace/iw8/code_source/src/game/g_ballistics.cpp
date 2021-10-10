@@ -264,102 +264,64 @@ GBallistics::SimulateSingleStep
 */
 bool GBallistics::SimulateSingleStep(GBallistics *this, const bool isFirstSimulation, gentity_s *attacker, const playerState_s *attackerPs, const bitarray<64> *attackerPerks, const bool antiLagMainWorld, const int serverTime, GBallisticInstance *ballisticInstance)
 {
-  bool v14; 
-  GAntiLag *v15; 
+  bool v11; 
+  GAntiLag *v12; 
   bool isAlternate; 
   GWeaponMap *Instance; 
-  bool updated; 
-  bool v21; 
-  const BallisticInfo *BallisticInfo; 
-  const BallisticInfo *v23; 
-  bool v24; 
-  bool v25; 
-  BallisticInfoCalculated *calculated; 
-  bool v32; 
-  bool v33; 
-  bool result; 
-  BOOL fmt; 
-  float fmta; 
-  BOOL rangeScale; 
-  float rangeScalea; 
+  double BulletTerminationRange; 
   float bulletRange; 
-  float initialSimStep; 
+  bool updated; 
+  bool v18; 
+  const BallisticInfo *BallisticInfo; 
+  const BallisticInfo *v20; 
+  bool v21; 
+  bool v22; 
+  BOOL fmt; 
+  BOOL rangeScale; 
   unsigned int randSeed; 
   playerState_s *ps; 
   BulletTraceResults br; 
 
-  __asm { vmovaps [rsp+148h+var_48], xmm6 }
-  _RDI = ballisticInstance;
   ps = (playerState_s *)attackerPs;
-  v14 = !isFirstSimulation && ballisticInstance->lastSimulationTime < serverTime;
+  v11 = !isFirstSimulation && ballisticInstance->lastSimulationTime < serverTime;
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.h", 209, ASSERT_TYPE_ASSERT, "( ms_gAntiLagData )", (const char *)&queryFormat, "ms_gAntiLagData") )
     __debugbreak();
-  v15 = GAntiLag::ms_gAntiLagData;
+  v12 = GAntiLag::ms_gAntiLagData;
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ballistics.cpp", (_DWORD)GAntiLag::ms_gAntiLagData + 46, ASSERT_TYPE_ASSERT, "( antiLag )", (const char *)&queryFormat, "antiLag") )
     __debugbreak();
-  if ( v14 )
+  if ( v11 )
   {
     LOBYTE(rangeScale) = 0;
     LOBYTE(fmt) = 1;
-    v15->RewindPositions(v15, ballisticInstance->lastSimulationTime, attacker, antiLagMainWorld, fmt, rangeScale, "Ballistics");
+    v12->RewindPositions(v12, ballisticInstance->lastSimulationTime, attacker, antiLagMainWorld, fmt, rangeScale, "Ballistics");
   }
   isAlternate = ballisticInstance->isAlternate;
   Instance = GWeaponMap::GetInstance();
-  *(double *)&_XMM0 = BG_GetBulletTerminationRange(Instance, ps, &ballisticInstance->weapon, isAlternate);
-  __asm
-  {
-    vmovaps xmm2, xmm0; terminationRange
-    vmovaps xmm6, xmm0
-  }
-  updated = BgBallistics<GBallisticInstance>::UpdateBallisticPosition(this, ballisticInstance, *(const float *)&_XMM2);
-  v21 = ballisticInstance->isAlternate;
+  BulletTerminationRange = BG_GetBulletTerminationRange(Instance, ps, &ballisticInstance->weapon, isAlternate);
+  bulletRange = *(float *)&BulletTerminationRange;
+  updated = BgBallistics<GBallisticInstance>::UpdateBallisticPosition(this, ballisticInstance, *(const float *)&BulletTerminationRange);
+  v18 = ballisticInstance->isAlternate;
   randSeed = ballisticInstance->randSeed;
   br.hitClientNum = -1;
-  BallisticInfo = BG_GetBallisticInfo(&ballisticInstance->weapon, v21);
-  v23 = BallisticInfo;
-  if ( !BallisticInfo || (v24 = !BallisticInfo->enableBallisticTrajectory) )
-  {
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ballistics.cpp", 62, ASSERT_TYPE_ASSERT, "( ballisticInfo && ballisticInfo->enableBallisticTrajectory )", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->enableBallisticTrajectory");
-    v24 = !v25;
-    if ( v25 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v24 )
-  {
-    calculated = v23->calculated;
-    _RCX = calculated->numDistanceEntries;
-    _RAX = calculated->distances;
-    __asm { vmovss  xmm6, dword ptr [rax+rcx*4-4] }
-  }
+  BallisticInfo = BG_GetBallisticInfo(&ballisticInstance->weapon, v18);
+  v20 = BallisticInfo;
+  if ( (!BallisticInfo || !BallisticInfo->enableBallisticTrajectory) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ballistics.cpp", 62, ASSERT_TYPE_ASSERT, "( ballisticInfo && ballisticInfo->enableBallisticTrajectory )", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->enableBallisticTrajectory") )
+    __debugbreak();
+  if ( *(float *)&BulletTerminationRange <= 0.0 )
+    bulletRange = v20->calculated->distances[v20->calculated->numDistanceEntries - 1];
   if ( BG_WeaponBulletFire_ShouldPenetrate(*attackerPerks, &ballisticInstance->weapon, ballisticInstance->isAlternate) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+90h]
-      vmovss  xmm1, dword ptr [rdi+0D4h]
-      vmovss  [rsp+148h+bulletRange], xmm6
-      vmovss  [rsp+148h+rangeScale], xmm0
-      vmovss  dword ptr [rsp+148h+fmt], xmm1
-    }
-    G_Debug_BulletDamage(&ballisticInstance->weapon, ballisticInstance->isAlternate, &ballisticInstance->fireParams.start, &ballisticInstance->fireParams.end, fmta, rangeScalea, bulletRange);
-    v32 = G_Bullet_FirePenetrate(&randSeed, &ballisticInstance->fireParams, &br, &ballisticInstance->weapon, (const PlayerHandIndex)ballisticInstance->hand, ballisticInstance->isAlternate, attacker, ballisticInstance->lastSimulationTime, isFirstSimulation);
+    G_Debug_BulletDamage(&ballisticInstance->weapon, ballisticInstance->isAlternate, &ballisticInstance->fireParams.start, &ballisticInstance->fireParams.end, ballisticInstance->fireParams.travelDistance, ballisticInstance->fireParams.rangeScale, bulletRange);
+    v21 = G_Bullet_FirePenetrate(&randSeed, &ballisticInstance->fireParams, &br, &ballisticInstance->weapon, (const PlayerHandIndex)ballisticInstance->hand, ballisticInstance->isAlternate, attacker, ballisticInstance->lastSimulationTime, isFirstSimulation);
   }
   else
   {
-    __asm { vmovss  dword ptr [rsp+148h+initialSimStep], xmm6 }
-    v32 = G_Bullet_FireExtended(&randSeed, &ballisticInstance->fireParams, &br, &ballisticInstance->weapon, (const PlayerHandIndex)ballisticInstance->hand, ballisticInstance->isAlternate, attacker, attackerPerks, initialSimStep, ballisticInstance->lastSimulationTime, isFirstSimulation);
+    v21 = G_Bullet_FireExtended(&randSeed, &ballisticInstance->fireParams, &br, &ballisticInstance->weapon, (const PlayerHandIndex)ballisticInstance->hand, ballisticInstance->isAlternate, attacker, attackerPerks, bulletRange, ballisticInstance->lastSimulationTime, isFirstSimulation);
   }
-  v33 = v32;
-  if ( v14 )
-    v15->RestorePositions(v15, attacker, "Ballistics");
-  result = v33 && !updated;
-  __asm { vmovaps xmm6, [rsp+148h+var_48] }
-  return result;
+  v22 = v21;
+  if ( v11 )
+    v12->RestorePositions(v12, attacker, "Ballistics");
+  return v22 && !updated;
 }
 
 /*
@@ -369,49 +331,108 @@ GBallistics::UpdateBallistics
 */
 void GBallistics::UpdateBallistics(GBallistics *this, const int serverTime)
 {
-  const dvar_t *v4; 
-  int v7; 
+  const dvar_t *v2; 
+  int v5; 
+  int m_numTouchedSlots; 
   GBallisticInstance *m_ballisticInstances; 
+  GBallisticInstance *v8; 
+  GBallisticInstance *v9; 
+  GBallisticInstance *v10; 
+  GBallisticInstance *v11; 
+  GBallisticInstance *v12; 
+  __int64 v13; 
+  __int128 v14; 
+  GBallisticInstance *v15; 
   __int64 attackerEntNum; 
   GBallisticInstance *m_firstFree; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  v4 = DCONST_DVARBOOL_bg_ballisticsCompactArrays;
+  v2 = DCONST_DVARBOOL_bg_ballisticsCompactArrays;
   if ( !DCONST_DVARBOOL_bg_ballisticsCompactArrays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ballisticsCompactArrays") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  v7 = 0;
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  v5 = 0;
+  if ( v2->current.enabled )
   {
     if ( this->m_numTouchedSlots < this->m_numSlotsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 283, ASSERT_TYPE_ASSERT, "(m_numTouchedSlots >= m_numSlotsActive)", (const char *)&queryFormat, "m_numTouchedSlots >= m_numSlotsActive") )
       __debugbreak();
-    if ( this->m_numTouchedSlots )
+    m_numTouchedSlots = this->m_numTouchedSlots;
+    if ( m_numTouchedSlots )
     {
-      __asm
+      if ( (float)((float)this->m_numSlotsActive / (float)m_numTouchedSlots) < `BgBallistics<GBallisticInstance>::CompactStorage'::`2'::IDEAL_MIN_FILL_RATE )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rsi+29058h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm1, xmm0
-        vcomiss xmm1, cs:?IDEAL_MIN_FILL_RATE@?1??CompactStorage@?$BgBallistics@UGBallisticInstance@@@@IEAAXXZ@4MA; float `BgBallistics<GBallisticInstance>::CompactStorage(void)'::`2'::IDEAL_MIN_FILL_RATE
+        m_ballisticInstances = this->m_ballisticInstances;
+        v8 = &this->m_ballisticInstances[m_numTouchedSlots - 1];
+        if ( v8 > this->m_ballisticInstances )
+        {
+          do
+          {
+            v9 = m_ballisticInstances;
+            if ( m_ballisticInstances >= v8 )
+              break;
+            while ( v9->isInUse )
+            {
+              if ( ++v9 >= v8 )
+                goto LABEL_22;
+            }
+            v10 = v8;
+            while ( 1 )
+            {
+              v8 = v10 - 1;
+              if ( v10->isInUse )
+                break;
+              --v10;
+              if ( v8 <= m_ballisticInstances )
+                goto LABEL_22;
+            }
+            v11 = v9;
+            v12 = v10;
+            v13 = 2i64;
+            do
+            {
+              v11 = (GBallisticInstance *)((char *)v11 + 128);
+              v14 = *(_OWORD *)&v12->weapon.weaponIdx;
+              v12 = (GBallisticInstance *)((char *)v12 + 128);
+              *(_OWORD *)&v11[-1].fireParams.penetrationMultiplier = v14;
+              *(_OWORD *)&v11[-1].fireParams.initialPos.y = *(_OWORD *)&v12[-1].fireParams.initialPos.y;
+              *(_OWORD *)&v11[-1].fireParams.start.z = *(_OWORD *)&v12[-1].fireParams.start.z;
+              *(_OWORD *)v11[-1].fireParams.dir.v = *(_OWORD *)v12[-1].fireParams.dir.v;
+              *(_OWORD *)&v11[-1].fireParams.shotCount = *(_OWORD *)&v12[-1].fireParams.shotCount;
+              *(_OWORD *)v11[-1].shootingPos.v = *(_OWORD *)v12[-1].shootingPos.v;
+              *(_OWORD *)&v11[-1].originalShootingdir.y = *(_OWORD *)&v12[-1].originalShootingdir.y;
+              *(_OWORD *)&v11[-1].shootingTime = *(_OWORD *)&v12[-1].shootingTime;
+              --v13;
+            }
+            while ( v13 );
+            *(_OWORD *)&v11->weapon.weaponIdx = *(_OWORD *)&v12->weapon.weaponIdx;
+            *(_QWORD *)&v11->weapon.weaponAttachments[2] = *(_QWORD *)&v12->weapon.weaponAttachments[2];
+            memset_0(v10, 0, sizeof(GBallisticInstance));
+            this->OnCompactOperation(this, v9);
+            m_ballisticInstances = v9 + 1;
+          }
+          while ( v8 > &v9[1] );
+        }
+LABEL_22:
+        this->m_numTouchedSlots = this->m_numSlotsActive;
+        this->m_firstFree = NULL;
+        this->m_lastFree = NULL;
       }
     }
   }
   if ( this->m_numTouchedSlots > 0 )
   {
-    m_ballisticInstances = this->m_ballisticInstances;
+    v15 = this->m_ballisticInstances;
     do
     {
-      if ( m_ballisticInstances->isInUse )
+      if ( v15->isInUse )
       {
-        attackerEntNum = m_ballisticInstances->attackerEntNum;
+        attackerEntNum = v15->attackerEntNum;
         if ( (unsigned int)attackerEntNum >= 0x800 )
         {
-          LODWORD(v17) = 2048;
-          LODWORD(v16) = m_ballisticInstances->attackerEntNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v16, v17) )
+          LODWORD(v19) = 2048;
+          LODWORD(v18) = v15->attackerEntNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, v19) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -420,33 +441,33 @@ void GBallistics::UpdateBallistics(GBallistics *this, const int serverTime)
           __debugbreak();
         if ( g_entityIsInUse[attackerEntNum] )
         {
-          GBallistics::Simulate(this, m_ballisticInstances, 0, serverTime);
+          GBallistics::Simulate(this, v15, 0, serverTime);
         }
         else
         {
-          if ( !m_ballisticInstances->isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 257, ASSERT_TYPE_ASSERT, "(ballisticInstance->isInUse)", (const char *)&queryFormat, "ballisticInstance->isInUse") )
+          if ( !v15->isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 257, ASSERT_TYPE_ASSERT, "(ballisticInstance->isInUse)", (const char *)&queryFormat, "ballisticInstance->isInUse") )
             __debugbreak();
-          if ( m_ballisticInstances->nextFree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 258, ASSERT_TYPE_ASSERT, "(!ballisticInstance->nextFree)", (const char *)&queryFormat, "!ballisticInstance->nextFree") )
+          if ( v15->nextFree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 258, ASSERT_TYPE_ASSERT, "(!ballisticInstance->nextFree)", (const char *)&queryFormat, "!ballisticInstance->nextFree") )
             __debugbreak();
-          memset_0(m_ballisticInstances, 0, sizeof(GBallisticInstance));
+          memset_0(v15, 0, sizeof(GBallisticInstance));
           m_firstFree = this->m_firstFree;
-          this->m_firstFree = m_ballisticInstances;
+          this->m_firstFree = v15;
           if ( m_firstFree )
           {
-            m_ballisticInstances->nextFree = m_firstFree;
+            v15->nextFree = m_firstFree;
             --this->m_numSlotsActive;
           }
           else
           {
             --this->m_numSlotsActive;
-            this->m_lastFree = m_ballisticInstances;
+            this->m_lastFree = v15;
           }
         }
       }
-      ++v7;
-      ++m_ballisticInstances;
+      ++v5;
+      ++v15;
     }
-    while ( v7 < this->m_numTouchedSlots );
+    while ( v5 < this->m_numTouchedSlots );
   }
 }
 

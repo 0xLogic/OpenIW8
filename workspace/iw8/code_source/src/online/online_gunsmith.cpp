@@ -891,12 +891,7 @@ Online_GunSmith::OutputCurrentState
 void Online_GunSmith::OutputCurrentState(Online_GunSmith *this, const int controllerIndex)
 {
   Com_Printf(25, "Online_GunSmith DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@40609f8000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_132_984375);
   Com_Printf(25, "Online_GunSmith DUMP END\n");
 }
 
@@ -918,80 +913,82 @@ void Online_GunSmith::AddProgression(Online_GunSmith *this, const int controller
   unsigned __int64 *p_id; 
   const char *v15; 
   unsigned int i; 
+  const bdAchievementProgress *MultiProgress; 
   unsigned __int64 AchievementCurrentProgress; 
   const char *TargetName; 
   const char *Name; 
-  const char *v22; 
-  __int64 v23; 
-  const char *v24; 
-  signed __int64 v25; 
+  const char *v21; 
+  __int64 v22; 
+  const char *v23; 
+  signed __int64 v24; 
+  int v25; 
   int v26; 
-  int v27; 
+  int v28; 
   int v29; 
-  int v30; 
-  _BYTE *v31; 
-  unsigned __int64 v32; 
-  unsigned int v33; 
-  bdAchievementState *v34; 
-  unsigned __int64 v37; 
+  _BYTE *v30; 
+  unsigned __int64 v31; 
+  unsigned int v32; 
+  bdAchievementState *v33; 
+  const bdAchievementProgress *v34; 
+  unsigned __int64 v35; 
+  const char *v36; 
+  const char *v37; 
   const char *v38; 
-  const char *v39; 
+  __int64 v39; 
   const char *v40; 
-  __int64 v41; 
-  const char *v42; 
-  signed __int64 v43; 
-  int v44; 
+  signed __int64 v41; 
+  int v42; 
+  int v43; 
   int v45; 
-  int v47; 
-  int v48; 
-  _BYTE *v49; 
-  unsigned __int64 v50; 
+  int v46; 
+  _BYTE *v47; 
+  unsigned __int64 v48; 
+  const char *v49; 
+  __int64 v50; 
   const char *v51; 
-  __int64 v52; 
-  const char *v53; 
-  signed __int64 v54; 
-  int v55; 
+  signed __int64 v52; 
+  int v53; 
+  int v54; 
   int v56; 
-  int v58; 
-  int v59; 
-  const dvar_t *v60; 
+  int v57; 
+  const dvar_t *v58; 
+  const char *v59; 
+  __int64 v60; 
   const char *v61; 
-  __int64 v62; 
-  const char *v63; 
-  signed __int64 v64; 
-  int v65; 
+  signed __int64 v62; 
+  int v63; 
+  int v64; 
   int v66; 
-  int v68; 
-  int v69; 
-  const dvar_t *v70; 
-  AttachmentProgression *v71; 
-  const char *v72; 
-  unsigned int v73; 
-  AttachmentProgression *v74; 
-  const char *v75; 
+  int v67; 
+  const dvar_t *v68; 
+  AttachmentProgression *v69; 
+  const char *v70; 
+  unsigned int v71; 
+  AttachmentProgression *v72; 
+  const char *v73; 
   unsigned int Progress; 
-  AttachmentProgression *v77; 
-  const char *v78; 
-  unsigned int v79; 
-  AttachmentProgression *v80; 
-  const char *v81; 
-  unsigned int v82; 
+  AttachmentProgression *v75; 
+  const char *v76; 
+  unsigned int v77; 
+  AttachmentProgression *v78; 
+  const char *v79; 
+  unsigned int v80; 
   StringTable *tablePtr; 
-  unsigned int v84; 
-  int v85; 
-  int v86; 
+  unsigned int v82; 
+  int v83; 
+  int v84; 
   int controllerIndexa; 
-  Online_GunSmith *v88; 
-  __int64 v89; 
+  Online_GunSmith *v86; 
+  __int64 v87; 
   bdAchievementProgress Buf; 
 
-  v89 = -2i64;
+  v87 = -2i64;
   v4 = state;
   tablePtr = (StringTable *)state;
   controllerIndexa = controllerIndex;
-  v88 = this;
+  v86 = this;
   v7 = 0i64;
-  v86 = 0;
+  v84 = 0;
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
   v9 = &this->m_weapons[ClientFromController];
   Id = bdAchievementState::getId(v4);
@@ -1000,7 +997,7 @@ void Online_GunSmith::AddProgression(Online_GunSmith *this, const int controller
     if ( kind == 5 )
     {
       v11 = 0;
-      v85 = 0;
+      v83 = 0;
       total_weapons = v9->total_weapons;
       if ( total_weapons <= 0 )
       {
@@ -1017,100 +1014,96 @@ LABEL_8:
           v9->weapons[v9->total_weapons].ref = StringTable_Lookup(tablePtr, 0, v15, 1);
           for ( i = 0; i < bdAchievementState::getNumMultiProgresses(v4); ++i )
           {
-            _RBX = bdAchievementState::getMultiProgress(v4, i);
+            MultiProgress = bdAchievementState::getMultiProgress(v4, i);
             *((_QWORD *)&Buf.__vftable + 1) = &bdAchievementProgress::`vbtable';
-            bdReferencable::bdReferencable((bdReferencable *)Buf.gap48, (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
+            bdReferencable::bdReferencable((bdReferencable *)Buf.gap48, (const bdReferencable *)((char *)&MultiProgress->__vftable + *(int *)(*((_QWORD *)&MultiProgress->__vftable + 1) + 4i64) + 8));
             LODWORD(v7) = v7 | 2;
-            v86 = v7;
-            bdStructBufferSerializable::bdStructBufferSerializable(&Buf, _RBX);
+            v84 = v7;
+            bdStructBufferSerializable::bdStructBufferSerializable(&Buf, MultiProgress);
             Buf.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
             *(_QWORD *)&Buf.m_targetName[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbx+10h]
-              vmovups ymmword ptr [rbp+57h+Buf+10h], ymm0
-            }
-            Buf.m_targetName[16] = _RBX->m_targetName[16];
-            Buf.m_currentProgress = _RBX->m_currentProgress;
-            Buf.m_targetProgress = _RBX->m_targetProgress;
+            *(bdStructBufferSerializable *)((char *)&Buf.bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&MultiProgress->bdStructBufferSerializable + 16);
+            Buf.m_targetName[16] = MultiProgress->m_targetName[16];
+            Buf.m_currentProgress = MultiProgress->m_currentProgress;
+            Buf.m_targetProgress = MultiProgress->m_targetProgress;
             AchievementCurrentProgress = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
             TargetName = bdAchievementProgress::getTargetName(&Buf);
             Name = bdAchievementState::getName(v4);
             Com_Printf(25, "Added (%s) %s = %ld\n", Name, TargetName, AchievementCurrentProgress);
-            v22 = bdAchievementProgress::getTargetName(&Buf);
-            v23 = 0x7FFFFFFFi64;
-            v24 = "xp";
-            if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v21 = bdAchievementProgress::getTargetName(&Buf);
+            v22 = 0x7FFFFFFFi64;
+            v23 = "xp";
+            if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v25 = v22 - "xp";
+            v24 = v21 - "xp";
             while ( 1 )
             {
-              v26 = (unsigned __int8)v24[v25];
-              v27 = *(unsigned __int8 *)v24++;
-              if ( !v23-- )
+              v25 = (unsigned __int8)v23[v24];
+              v26 = *(unsigned __int8 *)v23++;
+              if ( !v22-- )
               {
 LABEL_28:
                 v9->weapons[v9->total_weapons].xp = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
                 goto LABEL_29;
               }
-              if ( v26 != v27 )
+              if ( v25 != v26 )
               {
+                v28 = v25 + 32;
+                if ( (unsigned int)(v25 - 65) > 0x19 )
+                  v28 = v25;
+                v25 = v28;
                 v29 = v26 + 32;
                 if ( (unsigned int)(v26 - 65) > 0x19 )
                   v29 = v26;
-                v26 = v29;
-                v30 = v27 + 32;
-                if ( (unsigned int)(v27 - 65) > 0x19 )
-                  v30 = v27;
-                if ( v26 != v30 )
+                if ( v25 != v29 )
                   break;
               }
-              if ( !v26 )
+              if ( !v25 )
                 goto LABEL_28;
             }
-            v61 = bdAchievementProgress::getTargetName(&Buf);
-            v62 = 0x7FFFFFFFi64;
-            v63 = "rank";
-            if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v59 = bdAchievementProgress::getTargetName(&Buf);
+            v60 = 0x7FFFFFFFi64;
+            v61 = "rank";
+            if ( !v59 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v64 = v61 - "rank";
+            v62 = v59 - "rank";
             do
             {
-              v65 = (unsigned __int8)v63[v64];
-              v66 = *(unsigned __int8 *)v63++;
-              if ( !v62-- )
+              v63 = (unsigned __int8)v61[v62];
+              v64 = *(unsigned __int8 *)v61++;
+              if ( !v60-- )
                 break;
-              if ( v65 != v66 )
+              if ( v63 != v64 )
               {
-                v68 = v65 + 32;
-                if ( (unsigned int)(v65 - 65) > 0x19 )
-                  v68 = v65;
-                v65 = v68;
-                v69 = v66 + 32;
-                if ( (unsigned int)(v66 - 65) > 0x19 )
-                  v69 = v66;
-                if ( v65 != v69 )
+                v66 = v63 + 32;
+                if ( (unsigned int)(v63 - 65) > 0x19 )
+                  v66 = v63;
+                v63 = v66;
+                v67 = v64 + 32;
+                if ( (unsigned int)(v64 - 65) > 0x19 )
+                  v67 = v64;
+                if ( v63 != v67 )
                   goto LABEL_29;
               }
             }
-            while ( v65 );
+            while ( v63 );
             v9->weapons[v9->total_weapons].rank = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
 LABEL_29:
-            v31 = memchr_0(&Buf.__vftable + 2, 0, 0x21ui64);
-            if ( v31 )
-              v32 = v31 - (_BYTE *)(&Buf.__vftable + 2);
+            v30 = memchr_0(&Buf.__vftable + 2, 0, 0x21ui64);
+            if ( v30 )
+              v31 = v30 - (_BYTE *)(&Buf.__vftable + 2);
             else
-              v32 = 33i64;
-            bdHandleAssert(v32 < 0x21, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<32>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+              v31 = 33i64;
+            bdHandleAssert(v31 < 0x21, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<32>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
             bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
             bdReferencable::~bdReferencable((bdReferencable *)Buf.gap48);
           }
-          v70 = DVARBOOL_online_challenge_update_player_data_once_when_done;
+          v68 = DVARBOOL_online_challenge_update_player_data_once_when_done;
           if ( !DVARBOOL_online_challenge_update_player_data_once_when_done && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_update_player_data_once_when_done") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v70);
-          if ( !v70->current.enabled )
-            Online_GunSmith::UpdateWeaponStats(v88, controllerIndexa, v9->total_weapons);
+          Dvar_CheckFrontendServerThread(v68);
+          if ( !v68->current.enabled )
+            Online_GunSmith::UpdateWeaponStats(v86, controllerIndexa, v9->total_weapons);
           ++v9->total_weapons;
         }
       }
@@ -1120,7 +1113,7 @@ LABEL_29:
         p_id = &v9->weapons[0].id;
         while ( *p_id != Id )
         {
-          v85 = ++v11;
+          v83 = ++v11;
           ++v13;
           p_id += 4;
           if ( v11 >= total_weapons )
@@ -1129,111 +1122,107 @@ LABEL_29:
             goto LABEL_8;
           }
         }
-        v33 = 0;
-        v84 = 0;
+        v32 = 0;
+        v82 = 0;
         if ( bdAchievementState::getNumMultiProgresses((bdAchievementState *)tablePtr) )
         {
-          v34 = (bdAchievementState *)tablePtr;
+          v33 = (bdAchievementState *)tablePtr;
           do
           {
-            _RBX = bdAchievementState::getMultiProgress(v34, v33);
+            v34 = bdAchievementState::getMultiProgress(v33, v32);
             *((_QWORD *)&Buf.__vftable + 1) = &bdAchievementProgress::`vbtable';
-            bdReferencable::bdReferencable((bdReferencable *)Buf.gap48, (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
+            bdReferencable::bdReferencable((bdReferencable *)Buf.gap48, (const bdReferencable *)((char *)&v34->__vftable + *(int *)(*((_QWORD *)&v34->__vftable + 1) + 4i64) + 8));
             LODWORD(v7) = v7 | 1;
-            v86 = v7;
-            bdStructBufferSerializable::bdStructBufferSerializable(&Buf, _RBX);
+            v84 = v7;
+            bdStructBufferSerializable::bdStructBufferSerializable(&Buf, v34);
             Buf.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
             *(_QWORD *)&Buf.m_targetName[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbx+10h]
-              vmovups ymmword ptr [rbp+57h+Buf+10h], ymm0
-            }
-            Buf.m_targetName[16] = _RBX->m_targetName[16];
-            Buf.m_currentProgress = _RBX->m_currentProgress;
-            Buf.m_targetProgress = _RBX->m_targetProgress;
-            v37 = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
+            *(bdStructBufferSerializable *)((char *)&Buf.bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&v34->bdStructBufferSerializable + 16);
+            Buf.m_targetName[16] = v34->m_targetName[16];
+            Buf.m_currentProgress = v34->m_currentProgress;
+            Buf.m_targetProgress = v34->m_targetProgress;
+            v35 = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
+            v36 = bdAchievementProgress::getTargetName(&Buf);
+            v37 = bdAchievementState::getName(v33);
+            Com_Printf(25, "Updated (%s) %s = %ld\n", v37, v36, v35);
             v38 = bdAchievementProgress::getTargetName(&Buf);
-            v39 = bdAchievementState::getName(v34);
-            Com_Printf(25, "Updated (%s) %s = %ld\n", v39, v38, v37);
-            v40 = bdAchievementProgress::getTargetName(&Buf);
-            v41 = 0x7FFFFFFFi64;
-            v42 = "xp";
-            if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v39 = 0x7FFFFFFFi64;
+            v40 = "xp";
+            if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v43 = v40 - "xp";
+            v41 = v38 - "xp";
             while ( 1 )
             {
-              v44 = (unsigned __int8)v42[v43];
-              v45 = *(unsigned __int8 *)v42++;
-              if ( !v41-- )
+              v42 = (unsigned __int8)v40[v41];
+              v43 = *(unsigned __int8 *)v40++;
+              if ( !v39-- )
               {
 LABEL_45:
                 v9->weapons[v13].xp = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
                 goto LABEL_46;
               }
-              if ( v44 != v45 )
+              if ( v42 != v43 )
               {
-                v47 = v44 + 32;
-                if ( (unsigned int)(v44 - 65) > 0x19 )
-                  v47 = v44;
-                v44 = v47;
-                v48 = v45 + 32;
-                if ( (unsigned int)(v45 - 65) > 0x19 )
-                  v48 = v45;
-                if ( v44 != v48 )
+                v45 = v42 + 32;
+                if ( (unsigned int)(v42 - 65) > 0x19 )
+                  v45 = v42;
+                v42 = v45;
+                v46 = v43 + 32;
+                if ( (unsigned int)(v43 - 65) > 0x19 )
+                  v46 = v43;
+                if ( v42 != v46 )
                   break;
               }
-              if ( !v44 )
+              if ( !v42 )
                 goto LABEL_45;
             }
-            v51 = bdAchievementProgress::getTargetName(&Buf);
-            v52 = 0x7FFFFFFFi64;
-            v53 = "rank";
-            if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v49 = bdAchievementProgress::getTargetName(&Buf);
+            v50 = 0x7FFFFFFFi64;
+            v51 = "rank";
+            if ( !v49 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v54 = v51 - "rank";
+            v52 = v49 - "rank";
             do
             {
-              v55 = (unsigned __int8)v53[v54];
-              v56 = *(unsigned __int8 *)v53++;
-              if ( !v52-- )
+              v53 = (unsigned __int8)v51[v52];
+              v54 = *(unsigned __int8 *)v51++;
+              if ( !v50-- )
                 break;
-              if ( v55 != v56 )
+              if ( v53 != v54 )
               {
-                v58 = v55 + 32;
-                if ( (unsigned int)(v55 - 65) > 0x19 )
-                  v58 = v55;
-                v55 = v58;
-                v59 = v56 + 32;
-                if ( (unsigned int)(v56 - 65) > 0x19 )
-                  v59 = v56;
-                if ( v55 != v59 )
+                v56 = v53 + 32;
+                if ( (unsigned int)(v53 - 65) > 0x19 )
+                  v56 = v53;
+                v53 = v56;
+                v57 = v54 + 32;
+                if ( (unsigned int)(v54 - 65) > 0x19 )
+                  v57 = v54;
+                if ( v53 != v57 )
                   goto LABEL_46;
               }
             }
-            while ( v55 );
+            while ( v53 );
             v9->weapons[v13].rank = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
 LABEL_46:
-            v49 = memchr_0(&Buf.__vftable + 2, 0, 0x21ui64);
-            if ( v49 )
-              v50 = v49 - (_BYTE *)(&Buf.__vftable + 2);
+            v47 = memchr_0(&Buf.__vftable + 2, 0, 0x21ui64);
+            if ( v47 )
+              v48 = v47 - (_BYTE *)(&Buf.__vftable + 2);
             else
-              v50 = 33i64;
-            bdHandleAssert(v50 < 0x21, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<32>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+              v48 = 33i64;
+            bdHandleAssert(v48 < 0x21, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<32>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
             bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
             bdReferencable::~bdReferencable((bdReferencable *)Buf.gap48);
-            v33 = ++v84;
+            v32 = ++v82;
           }
-          while ( v84 < bdAchievementState::getNumMultiProgresses(v34) );
-          v11 = v85;
+          while ( v82 < bdAchievementState::getNumMultiProgresses(v33) );
+          v11 = v83;
         }
-        v60 = DVARBOOL_online_challenge_update_player_data_once_when_done;
+        v58 = DVARBOOL_online_challenge_update_player_data_once_when_done;
         if ( !DVARBOOL_online_challenge_update_player_data_once_when_done && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_update_player_data_once_when_done") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v60);
-        if ( !v60->current.enabled )
-          Online_GunSmith::UpdateWeaponStats(v88, controllerIndexa, v11);
+        Dvar_CheckFrontendServerThread(v58);
+        if ( !v58->current.enabled )
+          Online_GunSmith::UpdateWeaponStats(v86, controllerIndexa, v11);
       }
       return;
     }
@@ -1245,76 +1234,76 @@ LABEL_100:
     switch ( kind )
     {
       case 16:
-        v74 = this->m_reticles[ClientFromController];
+        v72 = this->m_reticles[ClientFromController];
         do
         {
-          if ( Id == v74->id )
+          if ( Id == v72->id )
           {
-            v74->progress = bdAchievementState::getProgress(v4);
+            v72->progress = bdAchievementState::getProgress(v4);
             Progress = bdAchievementState::getProgress(v4);
             Com_Printf(25, "Updated Reticle Challenge %lu with progress %d\n", Id, Progress);
             return;
           }
           ++v7;
-          ++v74;
+          ++v72;
         }
         while ( v7 < 1792 );
         if ( this->m_totalReticles[ClientFromController] >= 0x700 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_gunsmith.cpp", 934, ASSERT_TYPE_ASSERT, "(unsigned)( m_totalReticles[localClientNum] ) < (unsigned)( 64 * 28 )", "m_totalReticles[localClientNum] doesn't index MAX_PROGRESSION_ATTACHMENTS\n\t%i not in [0, %i)", this->m_totalReticles[ClientFromController], 1792) )
           __debugbreak();
         if ( this->m_totalReticles[ClientFromController] < 0x700 )
         {
-          v75 = bdAchievementState::getName(v4);
-          Com_Printf(25, "GUNSMITH RETICLE: %lu (%s) has been found and added.\n", Id, v75);
+          v73 = bdAchievementState::getName(v4);
+          Com_Printf(25, "GUNSMITH RETICLE: %lu (%s) has been found and added.\n", Id, v73);
           this->m_reticles[ClientFromController][this->m_totalReticles[ClientFromController]].id = Id;
           this->m_reticles[ClientFromController][this->m_totalReticles[ClientFromController]++].progress = bdAchievementState::getProgress(v4);
         }
         break;
       case 25:
-        v77 = this->m_gunUnlocks[ClientFromController];
+        v75 = this->m_gunUnlocks[ClientFromController];
         do
         {
-          if ( Id == v77->id )
+          if ( Id == v75->id )
           {
-            v77->progress = bdAchievementState::getProgress(v4);
-            v79 = bdAchievementState::getProgress(v4);
-            Com_Printf(25, "Updated Gun Unlock Challenge %lu with progress %d\n", Id, v79);
+            v75->progress = bdAchievementState::getProgress(v4);
+            v77 = bdAchievementState::getProgress(v4);
+            Com_Printf(25, "Updated Gun Unlock Challenge %lu with progress %d\n", Id, v77);
             return;
           }
           ++v7;
-          ++v77;
+          ++v75;
         }
         while ( v7 < 40 );
         if ( this->m_totalGunUnlocks[ClientFromController] >= 0x28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_gunsmith.cpp", 962, ASSERT_TYPE_ASSERT, "(unsigned)( m_totalGunUnlocks[localClientNum] ) < (unsigned)( 40 )", "m_totalGunUnlocks[localClientNum] doesn't index MAX_GUN_UNLOCKS\n\t%i not in [0, %i)", this->m_totalGunUnlocks[ClientFromController], 40) )
           __debugbreak();
         if ( this->m_totalGunUnlocks[ClientFromController] < 0x28 )
         {
-          v78 = bdAchievementState::getName(v4);
-          Com_Printf(25, "GUNSMITH GUN UNLOCK: %lu (%s) has been found and added.\n", Id, v78);
+          v76 = bdAchievementState::getName(v4);
+          Com_Printf(25, "GUNSMITH GUN UNLOCK: %lu (%s) has been found and added.\n", Id, v76);
           this->m_gunUnlocks[ClientFromController][this->m_totalGunUnlocks[ClientFromController]].id = Id;
           this->m_gunUnlocks[ClientFromController][this->m_totalGunUnlocks[ClientFromController]++].progress = bdAchievementState::getProgress(v4);
         }
         break;
       case 31:
-        v80 = this->m_weaponMastery[ClientFromController];
+        v78 = this->m_weaponMastery[ClientFromController];
         do
         {
-          if ( Id == v80->id )
+          if ( Id == v78->id )
           {
-            v80->progress = bdAchievementState::getProgress(v4);
-            v82 = bdAchievementState::getProgress(v4);
-            Com_Printf(25, "Updated Weapon Mastery Challenge %lu with progress %d\n", Id, v82);
+            v78->progress = bdAchievementState::getProgress(v4);
+            v80 = bdAchievementState::getProgress(v4);
+            Com_Printf(25, "Updated Weapon Mastery Challenge %lu with progress %d\n", Id, v80);
             return;
           }
           ++v7;
-          ++v80;
+          ++v78;
         }
         while ( v7 < 500 );
         if ( this->m_totalWeaponMastery[ClientFromController] >= 0x1F4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_gunsmith.cpp", 990, ASSERT_TYPE_ASSERT, "(unsigned)( m_totalWeaponMastery[localClientNum] ) < (unsigned)( 500 )", "m_totalWeaponMastery[localClientNum] doesn't index MAX_MASTERY_CHALLENGES\n\t%i not in [0, %i)", this->m_totalWeaponMastery[ClientFromController], 500) )
           __debugbreak();
         if ( this->m_totalWeaponMastery[ClientFromController] < 0x1F4 )
         {
-          v81 = bdAchievementState::getName(v4);
-          Com_Printf(25, "GUNSMITH WEAPON MASTERY: %lu (%s) has been found and added.\n", Id, v81);
+          v79 = bdAchievementState::getName(v4);
+          Com_Printf(25, "GUNSMITH WEAPON MASTERY: %lu (%s) has been found and added.\n", Id, v79);
           this->m_weaponMastery[ClientFromController][this->m_totalWeaponMastery[ClientFromController]].id = Id;
           this->m_weaponMastery[ClientFromController][this->m_totalWeaponMastery[ClientFromController]++].progress = bdAchievementState::getProgress(v4);
         }
@@ -1322,26 +1311,26 @@ LABEL_100:
     }
     return;
   }
-  v71 = this->m_attachments[ClientFromController];
+  v69 = this->m_attachments[ClientFromController];
   do
   {
-    if ( Id == v71->id )
+    if ( Id == v69->id )
     {
-      v71->progress = bdAchievementState::getProgress(v4);
-      v73 = bdAchievementState::getProgress(v4);
-      Com_Printf(25, "Updated Camo/Attachment Challenge %lu with progress %d\n", Id, v73);
+      v69->progress = bdAchievementState::getProgress(v4);
+      v71 = bdAchievementState::getProgress(v4);
+      Com_Printf(25, "Updated Camo/Attachment Challenge %lu with progress %d\n", Id, v71);
       return;
     }
     ++v7;
-    ++v71;
+    ++v69;
   }
   while ( v7 < 1792 );
   if ( this->m_totalAttachments[ClientFromController] >= 0x700 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_gunsmith.cpp", 906, ASSERT_TYPE_ASSERT, "(unsigned)( m_totalAttachments[localClientNum] ) < (unsigned)( 64 * 28 )", "m_totalAttachments[localClientNum] doesn't index MAX_PROGRESSION_ATTACHMENTS\n\t%i not in [0, %i)", this->m_totalAttachments[ClientFromController], 1792) )
     __debugbreak();
   if ( this->m_totalAttachments[ClientFromController] < 0x700 )
   {
-    v72 = bdAchievementState::getName(v4);
-    Com_Printf(25, "GUNSMITH: %lu (%s) has been found and added.\n", Id, v72);
+    v70 = bdAchievementState::getName(v4);
+    Com_Printf(25, "GUNSMITH: %lu (%s) has been found and added.\n", Id, v70);
     this->m_attachments[ClientFromController][this->m_totalAttachments[ClientFromController]].id = Id;
     this->m_attachments[ClientFromController][this->m_totalAttachments[ClientFromController]++].progress = bdAchievementState::getProgress(v4);
   }
@@ -1810,16 +1799,16 @@ bool Online_GunSmith::HasBlueprints(Online_GunSmith *this, const int controllerI
 LUI_CoD_LuaCall_GetBlueprintData_impl
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetBlueprintData_impl(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetBlueprintData_impl(lua_State *const luaVM)
 {
-  int v4; 
-  __int64 v5; 
-  const char *v6; 
+  int v3; 
+  __int64 v4; 
+  const char *v5; 
   const DDLDef *Asset; 
   DDLType Type; 
   const char *Enum; 
   const char *String; 
+  double Float; 
   DDLState state; 
   DDLState result; 
   DDLContext ddlContext; 
@@ -1830,36 +1819,31 @@ __int64 __fastcall LUI_CoD_LuaCall_GetBlueprintData_impl(lua_State *const luaVM,
     j_luaL_error(luaVM, "USAGE: Gunsmith.GetBlueprintData( <controllerIndex>, <path> )\n");
   if ( !j_lua_isstring(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: Gunsmith.GetBlueprintData( <controllerIndex>, <path> )\n");
-  v4 = lui_tointeger32(luaVM, 1);
-  v5 = v4;
-  if ( (unsigned int)v4 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_gunsmith.cpp", 1332, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v4, 8) )
+  v3 = lui_tointeger32(luaVM, 1);
+  v4 = v3;
+  if ( (unsigned int)v3 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_gunsmith.cpp", 1332, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v3, 8) )
     __debugbreak();
-  v6 = j_lua_tolstring(luaVM, 2, NULL);
-  if ( !XUID::IsValid(&s_blueprintData[v5].xuid) )
+  v5 = j_lua_tolstring(luaVM, 2, NULL);
+  if ( !XUID::IsValid(&s_blueprintData[v4].xuid) )
   {
-    Com_PrintWarning(13, "Blueprint data is not available for controller %d right now.\n", (unsigned int)v5);
+    Com_PrintWarning(13, "Blueprint data is not available for controller %d right now.\n", (unsigned int)v4);
     return 0i64;
   }
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0C8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   Asset = Com_DDL_LoadAsset("ddl/mp/blueprints.ddl");
-  if ( !Com_DDL_CreateContext(&s_blueprintData[v5], 51200, Asset, &ddlContext, NULL, NULL) )
+  if ( !Com_DDL_CreateContext(&s_blueprintData[v4], 51200, Asset, &ddlContext, NULL, NULL) )
   {
-    Com_PrintWarning(13, "DDL: Unable to create ddl context for controller %d. This really shouldn't happen.\n", (unsigned int)v5);
+    Com_PrintWarning(13, "DDL: Unable to create ddl context for controller %d. This really shouldn't happen.\n", (unsigned int)v4);
     return 0i64;
   }
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
+  state = *DDL_GetRootState(&result, Asset);
+  if ( !NavigateBlueprintDDL(&state, v5) )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+state.isValid], ymm0
-  }
-  if ( !NavigateBlueprintDDL(&state, v6) )
-  {
-    Com_PrintWarning(13, "DDL: Unable to navigate to blueprint field for controller %d. Double check that %s exists.\n", (unsigned int)v5, v6);
+    Com_PrintWarning(13, "DDL: Unable to navigate to blueprint field for controller %d. Double check that %s exists.\n", (unsigned int)v4, v5);
     return 0i64;
   }
   Type = DDL_GetType(&state);
@@ -1870,9 +1854,8 @@ __int64 __fastcall LUI_CoD_LuaCall_GetBlueprintData_impl(lua_State *const luaVM,
         __debugbreak();
       break;
     case DDL_FLOAT_TYPE:
-      *(double *)&_XMM0 = DDL_GetFloat(&state, &ddlContext);
-      __asm { vcvtss2sd xmm1, xmm0, xmm0; n }
-      j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+      Float = DDL_GetFloat(&state, &ddlContext);
+      j_lua_pushnumber(luaVM, *(float *)&Float);
       return 1i64;
     case DDL_STRING_TYPE:
       String = DDL_GetString(&state, &ddlContext);
@@ -1884,11 +1867,8 @@ __int64 __fastcall LUI_CoD_LuaCall_GetBlueprintData_impl(lua_State *const luaVM,
       return 1i64;
   }
   DDL_GetInt(&state, &ddlContext);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, eax; n
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, eax; n }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   return 1i64;
 }
@@ -2002,10 +1982,11 @@ __int64 LUI_CoD_LuaCall_SetBlueprintData_impl(lua_State *const luaVM)
   const char *v4; 
   const DDLDef *Asset; 
   DDLType Type; 
+  const char *v8; 
+  int v9; 
   const char *v10; 
-  int v11; 
-  const char *v12; 
-  int v14; 
+  double v11; 
+  int v12; 
   DDLState state; 
   DDLState result; 
   DDLContext ddlContext; 
@@ -2025,7 +2006,7 @@ __int64 LUI_CoD_LuaCall_SetBlueprintData_impl(lua_State *const luaVM)
   }
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0B8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   Asset = Com_DDL_LoadAsset("ddl/mp/blueprints.ddl");
@@ -2034,17 +2015,12 @@ __int64 LUI_CoD_LuaCall_SetBlueprintData_impl(lua_State *const luaVM)
     Com_PrintWarning(13, "DDL: Unable to create ddl context for controller %d. This really shouldn't happen.\n", (unsigned int)v3);
     goto LABEL_23;
   }
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+state.isValid], ymm0
-  }
+  state = *DDL_GetRootState(&result, Asset);
   if ( !NavigateBlueprintDDL(&state, v4) )
   {
     Com_PrintWarning(13, "DDL: Unable to navigate to blueprint field for controller %d. Double check that %s exists.\n", (unsigned int)v3, v4);
 LABEL_23:
-    v11 = 0;
+    v9 = 0;
     goto LABEL_24;
   }
   Type = DDL_GetType(&state);
@@ -2055,26 +2031,25 @@ LABEL_23:
         __debugbreak();
       goto LABEL_19;
     case DDL_FLOAT_TYPE:
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-      __asm { vmovaps xmm2, xmm0; val }
-      v11 = DDL_SetFloat(&state, &ddlContext, *(float *)&_XMM2);
+      v11 = lui_tonumber32(luaVM, 3);
+      v9 = DDL_SetFloat(&state, &ddlContext, *(float *)&v11);
       goto LABEL_24;
     case DDL_STRING_TYPE:
-      v12 = j_lua_tolstring(luaVM, 3, NULL);
-      v11 = DDL_SetString(&state, &ddlContext, v12);
+      v10 = j_lua_tolstring(luaVM, 3, NULL);
+      v9 = DDL_SetString(&state, &ddlContext, v10);
       goto LABEL_24;
   }
   if ( Type != DDL_ENUM_TYPE )
   {
 LABEL_19:
-    v14 = lui_tointeger32(luaVM, 3);
-    v11 = DDL_SetInt(&state, &ddlContext, v14);
+    v12 = lui_tointeger32(luaVM, 3);
+    v9 = DDL_SetInt(&state, &ddlContext, v12);
     goto LABEL_24;
   }
-  v10 = j_lua_tolstring(luaVM, 3, NULL);
-  v11 = DDL_SetEnum(&state, &ddlContext, v10);
+  v8 = j_lua_tolstring(luaVM, 3, NULL);
+  v9 = DDL_SetEnum(&state, &ddlContext, v8);
 LABEL_24:
-  j_lua_pushboolean(luaVM, v11);
+  j_lua_pushboolean(luaVM, v9);
   return 1i64;
 }
 
@@ -2699,7 +2674,7 @@ void Online_GunSmith::UpdateWeaponStats(Online_GunSmith *this, const int control
   v5 = weaponIndex;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+148h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
@@ -2708,12 +2683,7 @@ void Online_GunSmith::UpdateWeaponStats(Online_GunSmith *this, const int control
   {
     v10 = j_va("squadMembers.weapon_xp.%s", this->m_weapons[ClientFromController].weapons[v5].ref);
     Com_ParseNavStrings(v10, (const char **)navStrings, 16, &navStringCount);
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+148h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, context.def);
     if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) && DDL_GetType(&fromState) == DDL_INT_TYPE )
       DDL_SetInt(&fromState, &context, this->m_weapons[ClientFromController].weapons[v5].xp);
   }

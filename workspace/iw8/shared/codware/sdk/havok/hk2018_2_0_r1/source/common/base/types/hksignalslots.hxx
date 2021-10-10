@@ -164,46 +164,41 @@ void hkSignal1<hknpShape const *>::fire(hkSignal1<hknpShape const *> *this, cons
 hkSignal2<hclWorld *,float>::fire
 ==============
 */
-
-void __fastcall hkSignal2<hclWorld *,float>::fire(hkSignal2<hclWorld *,float> *this, hclWorld *p0, double p1)
+void hkSignal2<hclWorld *,float>::fire(hkSignal2<hclWorld *,float> *this, hclWorld *p0, float p1)
 {
   unsigned __int64 m_ptrAndInt; 
-  hkSignal2<hclWorld *,float> *v6; 
-  unsigned __int64 v9; 
-  hkSignal2<hclWorld *,float> *v10; 
-  void (__fastcall **v11)(unsigned __int64, __int64); 
-  unsigned __int64 v12; 
+  hkSignal2<hclWorld *,float> *v5; 
+  unsigned __int64 v7; 
+  hkSignal2<hclWorld *,float> *v8; 
+  void (__fastcall **v9)(unsigned __int64, __int64); 
+  unsigned __int64 v10; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   m_ptrAndInt = (unsigned __int64)this->m_slots.m_ptrAndInt & 0xFFFFFFFFFFFFFFFCui64 | 1;
-  v6 = this;
+  v5 = this;
   this->m_slots.m_ptrAndInt = (hkSlot *)m_ptrAndInt;
-  __asm { vmovaps xmm6, xmm2 }
-  v9 = m_ptrAndInt & 0xFFFFFFFFFFFFFFFCui64;
+  v7 = m_ptrAndInt & 0xFFFFFFFFFFFFFFFCui64;
   if ( (m_ptrAndInt & 0xFFFFFFFFFFFFFFFCui64) != 0 )
   {
     do
     {
-      v10 = (hkSignal2<hclWorld *,float> *)(v9 + 8);
-      v11 = *(void (__fastcall ***)(unsigned __int64, __int64))v9;
-      v12 = *(_QWORD *)(v9 + 8) & 0xFFFFFFFFFFFFFFFCui64;
-      if ( (*(_QWORD *)(v9 + 8) & 3) != 0 )
+      v8 = (hkSignal2<hclWorld *,float> *)(v7 + 8);
+      v9 = *(void (__fastcall ***)(unsigned __int64, __int64))v7;
+      v10 = *(_QWORD *)(v7 + 8) & 0xFFFFFFFFFFFFFFFCui64;
+      if ( (*(_QWORD *)(v7 + 8) & 3) != 0 )
       {
-        (*v11)(v9, 1i64);
-        v6->m_slots.m_ptrAndInt = (hkSlot *)(v12 | (__int64)v6->m_slots.m_ptrAndInt & 3);
+        (*v9)(v7, 1i64);
+        v5->m_slots.m_ptrAndInt = (hkSlot *)(v10 | (__int64)v5->m_slots.m_ptrAndInt & 3);
       }
       else
       {
-        __asm { vmovaps xmm2, xmm6 }
-        v11[2](v9, (__int64)p0);
-        v6 = v10;
+        v9[2](v7, (__int64)p0);
+        v5 = v8;
       }
-      v9 = v12;
+      v7 = v10;
     }
-    while ( v12 );
+    while ( v10 );
     m_ptrAndInt = (unsigned __int64)this->m_slots.m_ptrAndInt;
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
   this->m_slots.m_ptrAndInt = (hkSlot *)(m_ptrAndInt & 0xFFFFFFFFFFFFFFFCui64);
 }
 

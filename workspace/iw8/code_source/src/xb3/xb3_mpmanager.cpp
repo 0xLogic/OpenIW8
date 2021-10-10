@@ -824,20 +824,23 @@ void Xb3MultiplayerManager::UserRemoved(xbox::services::multiplayer::manager::mu
   std::_Ref_count_base *v12; 
   xbox::services::multiplayer::manager::multiplayer_event_args *v13; 
   sessionTaskParameters *v14; 
-  __int128 *v17; 
-  int v20; 
+  __int128 *v15; 
+  int v16; 
   unsigned __int64 PlatformUserId; 
-  std::_Ref_count_base *v22; 
+  std::_Ref_count_base *v18; 
   signed int Uses; 
-  const std::error_code *v24; 
+  const std::error_code *v20; 
   Online_ErrorReporting *InstancePtr; 
-  _BYTE v26[24]; 
+  _BYTE v22[24]; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> v28; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v29; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> v24; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v25; 
+  __int128 v26; 
+  __int64 v27; 
+  __int128 v28; 
+  __int64 v29; 
   __int128 v30; 
-  __int128 v32; 
-  __int128 v34; 
+  __int64 v31; 
   char dest[256]; 
 
   v2 = (xbox::services::multiplayer::manager::user_removed_event_args **)xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &result);
@@ -866,37 +869,29 @@ void Xb3MultiplayerManager::UserRemoved(xbox::services::multiplayer::manager::mu
   }
   if ( s_currentSessionTaskParams_0 )
   {
-    *(_DWORD *)v26 = -1;
-    *(_OWORD *)&v26[4] = 0ui64;
-    if ( s_currentSessionTaskParams_0->m_controllerIndex > 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 445, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v26) )
+    *(_DWORD *)v22 = -1;
+    *(_OWORD *)&v22[4] = 0ui64;
+    if ( s_currentSessionTaskParams_0->m_controllerIndex > 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 445, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v22) )
       __debugbreak();
     xboxLiveUser = s_currentSessionTaskParams_0->xboxLiveUser;
     v10 = xboxLiveUser && Plat_IsUserInGraveyard(xboxLiveUser);
-    v26[20] = 1;
-    *(_DWORD *)v26 = s_currentSessionTaskParams_0->m_controllerIndex;
+    v22[20] = 1;
+    *(_DWORD *)v22 = s_currentSessionTaskParams_0->m_controllerIndex;
     if ( xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+200h+var_1D0]
-        vmovsd  xmm1, qword ptr [rsp+40h]
-      }
       v14 = s_currentSessionTaskParams_0;
-      v17 = &v34;
-      __asm
-      {
-        vmovups [rbp+100h+var_140], xmm0
-        vmovsd  [rbp+100h+var_130], xmm1
-      }
+      v15 = &v30;
+      v30 = *(_OWORD *)v22;
+      v31 = *(__int64 *)&v22[16];
     }
     else
     {
-      v11 = xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &v28);
-      v12 = v28._Rep;
+      v11 = xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &v24);
+      v12 = v24._Rep;
       v13 = v11->_Ptr;
-      if ( v28._Rep )
+      if ( v24._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v28._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v24._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v12->_Destroy(v12);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
@@ -904,58 +899,47 @@ void Xb3MultiplayerManager::UserRemoved(xbox::services::multiplayer::manager::mu
         }
       }
       v14 = s_currentSessionTaskParams_0;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+200h+var_1D0]
-        vmovsd  xmm1, qword ptr [rsp+40h]
-      }
       if ( v13 )
       {
-        __asm
-        {
-          vmovups [rbp+100h+var_180], xmm0
-          vmovsd  [rbp+100h+var_170], xmm1
-        }
-        ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v30);
+        v26 = *(_OWORD *)v22;
+        v27 = *(__int64 *)&v22[16];
+        ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v26);
 LABEL_37:
         s_currentSessionTaskParams_0 = NULL;
         return;
       }
-      __asm
-      {
-        vmovups [rbp+100h+var_160], xmm0
-        vmovsd  [rbp+100h+var_150], xmm1
-      }
-      v17 = &v32;
+      v28 = *(_OWORD *)v22;
+      v29 = *(__int64 *)&v22[16];
+      v15 = &v28;
     }
-    ((void (__fastcall *)(__int128 *))v14->m_failedCallback)(v17);
-    v20 = 0;
+    ((void (__fastcall *)(__int128 *))v14->m_failedCallback)(v15);
+    v16 = 0;
     while ( 1 )
     {
-      PlatformUserId = Live_GetPlatformUserId(v20);
-      Xb3MultiplayerManager::GetSessionMemberByPlatformId(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &v29, PlatformUserId, UNKNOWN);
-      v22 = v29._Rep;
-      if ( v29._Rep )
+      PlatformUserId = Live_GetPlatformUserId(v16);
+      Xb3MultiplayerManager::GetSessionMemberByPlatformId(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &v25, PlatformUserId, UNKNOWN);
+      v18 = v25._Rep;
+      if ( v25._Rep )
       {
-        Uses = v29._Rep->_Uses;
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        Uses = v25._Rep->_Uses;
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
-          v22->_Destroy(v22);
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v22->_Weaks, 0xFFFFFFFF) == 1 )
-            v22->_Delete_this(v22);
+          v18->_Destroy(v18);
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v18->_Weaks, 0xFFFFFFFF) == 1 )
+            v18->_Delete_this(v18);
         }
         if ( Uses > 0 )
           break;
       }
-      if ( ++v20 >= 8 )
+      if ( ++v16 >= 8 )
       {
         if ( !v10 )
           goto LABEL_37;
         break;
       }
     }
-    v24 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
-    Com_sprintf(dest, 0x100ui64, "%d", (unsigned int)v24->_Myval);
+    v20 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
+    Com_sprintf(dest, 0x100ui64, "%d", (unsigned int)v20->_Myval);
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
     Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_SESSIONS_t)16, dest);
     Com_Printf(25, "Xb3MultiplayerManager::UserRemoved We are going to wipe out the mpmanager because it is not clearing on failures\n");
@@ -983,12 +967,15 @@ void Xb3MultiplayerManager::UserAdded(xbox::services::multiplayer::manager::mult
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> *v10; 
   std::_Ref_count_base *v11; 
   xbox::services::multiplayer::manager::multiplayer_event_args *v12; 
-  _BYTE v17[24]; 
+  _BYTE v13[24]; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> v19; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> v15; 
+  __int128 v16; 
+  __int64 v17; 
+  __int128 v18; 
+  __int64 v19; 
   __int128 v20; 
-  __int128 v22; 
-  __int128 v24; 
+  __int64 v21; 
 
   v2 = (xbox::services::multiplayer::manager::user_added_event_args **)xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &result);
   Rep = result._Rep;
@@ -1017,64 +1004,48 @@ void Xb3MultiplayerManager::UserAdded(xbox::services::multiplayer::manager::mult
   v9 = s_currentSessionTaskParams_0;
   if ( s_currentSessionTaskParams_0 )
   {
-    *(_DWORD *)v17 = -1;
-    *(_OWORD *)&v17[4] = 0ui64;
+    *(_DWORD *)v13 = -1;
+    *(_OWORD *)&v13[4] = 0ui64;
     if ( s_currentSessionTaskParams_0->m_controllerIndex > 7u )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 518, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v17) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 518, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v13) )
         __debugbreak();
       v9 = s_currentSessionTaskParams_0;
     }
-    *(_DWORD *)v17 = v9->m_controllerIndex;
-    v17[20] = 1;
+    *(_DWORD *)v13 = v9->m_controllerIndex;
+    v13[20] = 1;
     if ( xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+57h+var_B0]
-        vmovsd  xmm1, qword ptr [rbp-49h]
-        vmovups [rbp+57h+var_30], xmm0
-        vmovsd  [rbp+57h+var_20], xmm1
-      }
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v24);
+      v20 = *(_OWORD *)v13;
+      v21 = *(__int64 *)&v13[16];
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v20);
       s_currentSessionTaskParams_0 = NULL;
     }
     else
     {
-      v10 = xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &v19);
-      v11 = v19._Rep;
+      v10 = xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &v15);
+      v11 = v15._Rep;
       v12 = v10->_Ptr;
-      if ( v19._Rep )
+      if ( v15._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v19._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v11->_Destroy(v11);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v11->_Weaks, 0xFFFFFFFF) == 1 )
             v11->_Delete_this(v11);
         }
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+57h+var_B0]
-        vmovsd  xmm1, qword ptr [rbp-49h]
-      }
       if ( v12 )
       {
-        __asm
-        {
-          vmovups [rbp+57h+var_70], xmm0
-          vmovsd  [rbp+57h+var_60], xmm1
-        }
-        ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v20);
+        v16 = *(_OWORD *)v13;
+        v17 = *(__int64 *)&v13[16];
+        ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v16);
       }
       else
       {
-        __asm
-        {
-          vmovups [rbp+57h+var_50], xmm0
-          vmovsd  [rbp+57h+var_40], xmm1
-        }
-        ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v22);
+        v18 = *(_OWORD *)v13;
+        v19 = *(__int64 *)&v13[16];
+        ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v18);
       }
       s_currentSessionTaskParams_0 = NULL;
     }
@@ -1212,16 +1183,16 @@ void Xb3MultiplayerManager::MemberPropertyChanged(xbox::services::multiplayer::m
   unsigned __int64 v9; 
   wchar_t *v10; 
   web::json::value result; 
-  __int64 v13; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> v14; 
-  std::wstring v15; 
+  __int64 v12; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_event_args> v13; 
+  std::wstring v14; 
 
-  v13 = -2i64;
-  Ptr = (xbox::services::multiplayer::manager::member_property_changed_event_args *)xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &v14)->_Ptr;
-  Rep = v14._Rep;
-  if ( v14._Rep )
+  v12 = -2i64;
+  Ptr = (xbox::services::multiplayer::manager::member_property_changed_event_args *)xbox::services::multiplayer::manager::multiplayer_event::event_args(event, &v13)->_Ptr;
+  Rep = v13._Rep;
+  if ( v13._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       Rep->_Destroy(Rep);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
@@ -1236,29 +1207,25 @@ void Xb3MultiplayerManager::MemberPropertyChanged(xbox::services::multiplayer::m
       v5 = v4->_Mypair._Myval2._Bx._Ptr;
     Myval = xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval;
     v7 = xbox::services::multiplayer::manager::member_property_changed_event_args::properties(Ptr, &result);
-    v8 = web::json::value::to_string(v7, &v15);
+    v8 = web::json::value::to_string(v7, &v14);
     if ( v8->_Mypair._Myval2._Myres >= 8 )
       v8 = (std::wstring *)v8->_Mypair._Myval2._Bx._Ptr;
     Com_Printf(25, "Xb3MultiplayerManager::MemberPropertyChanged (%S) - err (%d - %s)\n", v8->_Mypair._Myval2._Bx._Buf, Myval, v5);
-    if ( v15._Mypair._Myval2._Myres >= 8 )
+    if ( v14._Mypair._Myval2._Myres >= 8 )
     {
-      v9 = 2 * v15._Mypair._Myval2._Myres + 2;
-      v10 = v15._Mypair._Myval2._Bx._Ptr;
+      v9 = 2 * v14._Mypair._Myval2._Myres + 2;
+      v10 = v14._Mypair._Myval2._Bx._Ptr;
       if ( v9 >= 0x1000 )
       {
-        v9 = 2 * v15._Mypair._Myval2._Myres + 41;
-        v10 = (wchar_t *)*((_QWORD *)v15._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)v15._Mypair._Myval2._Bx._Ptr - (char *)v10 - 8) > 0x1F )
+        v9 = 2 * v14._Mypair._Myval2._Myres + 41;
+        v10 = (wchar_t *)*((_QWORD *)v14._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)v14._Mypair._Myval2._Bx._Ptr - (char *)v10 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v10, v9);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rsp+60h], xmm0
-    }
-    v15._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v14._Mypair._Myval2._Mysize = _xmm;
+    v14._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( result.m_value._Mypair._Myval2 )
       ((void (__fastcall *)(web::json::details::_Value *, __int64))result.m_value._Mypair._Myval2->~_Value)(result.m_value._Mypair._Myval2, 1i64);
   }
@@ -1365,9 +1332,10 @@ void Xb3MultiplayerManager::JoinGameCompleted(xbox::services::multiplayer::manag
   unsigned int Myval; 
   unsigned int v5; 
   sessionTaskParameters *v6; 
-  bool v9; 
-  _BYTE v10[24]; 
-  __int128 v11; 
+  bool v7; 
+  _BYTE v8[24]; 
+  __int128 v9; 
+  __int64 v10; 
 
   v2 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
   Ptr = (const char *)v2;
@@ -1379,31 +1347,23 @@ void Xb3MultiplayerManager::JoinGameCompleted(xbox::services::multiplayer::manag
   v6 = s_currentSessionTaskParams_0;
   if ( s_currentSessionTaskParams_0 )
   {
-    *(_DWORD *)v10 = -1;
-    *(_OWORD *)&v10[4] = 0ui64;
+    *(_DWORD *)v8 = -1;
+    *(_OWORD *)&v8[4] = 0ui64;
     if ( s_currentSessionTaskParams_0->m_controllerIndex > 7u )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 644, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v10) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 644, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v8) )
         __debugbreak();
       v6 = s_currentSessionTaskParams_0;
     }
-    *(_DWORD *)v10 = v6->m_controllerIndex;
-    v10[20] = 1;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+78h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+40h]
-    }
-    v9 = xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval == 0;
-    __asm
-    {
-      vmovups [rsp+78h+var_28], xmm0
-      vmovsd  [rsp+78h+var_18], xmm1
-    }
-    if ( v9 )
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v11);
+    *(_DWORD *)v8 = v6->m_controllerIndex;
+    v8[20] = 1;
+    v7 = xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval == 0;
+    v9 = *(_OWORD *)v8;
+    v10 = *(__int64 *)&v8[16];
+    if ( v7 )
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v9);
     else
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v11);
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v9);
     s_currentSessionTaskParams_0 = NULL;
   }
   else
@@ -1424,9 +1384,10 @@ void Xb3MultiplayerManager::JoinLobbyCompleted(xbox::services::multiplayer::mana
   unsigned int Myval; 
   unsigned int v5; 
   sessionTaskParameters *v6; 
-  bool v9; 
-  _BYTE v10[24]; 
-  __int128 v11; 
+  bool v7; 
+  _BYTE v8[24]; 
+  __int128 v9; 
+  __int64 v10; 
 
   v2 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
   Ptr = (const char *)v2;
@@ -1438,31 +1399,23 @@ void Xb3MultiplayerManager::JoinLobbyCompleted(xbox::services::multiplayer::mana
   v6 = s_currentSessionTaskParams_0;
   if ( s_currentSessionTaskParams_0 )
   {
-    *(_DWORD *)v10 = -1;
-    *(_OWORD *)&v10[4] = 0ui64;
+    *(_DWORD *)v8 = -1;
+    *(_OWORD *)&v8[4] = 0ui64;
     if ( s_currentSessionTaskParams_0->m_controllerIndex > 7u )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 681, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v10) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 681, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams->IsInUse())", (const char *)&queryFormat, "s_currentSessionTaskParams->IsInUse()", *(_QWORD *)v8) )
         __debugbreak();
       v6 = s_currentSessionTaskParams_0;
     }
-    *(_DWORD *)v10 = v6->m_controllerIndex;
-    v10[20] = 1;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+78h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+40h]
-    }
-    v9 = xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval == 0;
-    __asm
-    {
-      vmovups [rsp+78h+var_28], xmm0
-      vmovsd  [rsp+78h+var_18], xmm1
-    }
-    if ( v9 )
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v11);
+    *(_DWORD *)v8 = v6->m_controllerIndex;
+    v8[20] = 1;
+    v7 = xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval == 0;
+    v9 = *(_OWORD *)v8;
+    v10 = *(__int64 *)&v8[16];
+    if ( v7 )
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v9);
     else
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v11);
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v9);
     s_currentSessionTaskParams_0 = NULL;
   }
   else
@@ -1502,24 +1455,18 @@ Xb3MultiplayerManager::ClientDisconnectedFromMultiplayerService
 */
 void Xb3MultiplayerManager::ClientDisconnectedFromMultiplayerService(xbox::services::multiplayer::manager::multiplayer_event *event)
 {
-  _BYTE v3[24]; 
-  __int128 v4; 
+  __int64 v1; 
+  __int128 m_controllerIndex; 
+  __int64 v3; 
 
   Com_PrintWarning(25, "Xb3MultiplayerManager::ClientDisconnectedFromMultiplayerService: Connection to LIVE multiplayer service lost. This means we're tearing down the MP manager entirely.\n");
   if ( s_currentSessionTaskParams_0 )
   {
-    v3[20] = 1;
-    *(_QWORD *)&v3[12] = 0i64;
-    __asm { vmovsd  xmm1, qword ptr [rsp+30h] }
-    *(_DWORD *)&v3[8] = 0;
-    *(_QWORD *)v3 = (unsigned int)s_currentSessionTaskParams_0->m_controllerIndex;
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_48]
-      vmovups [rsp+68h+var_28], xmm0
-      vmovsd  [rsp+68h+var_18], xmm1
-    }
-    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v4);
+    BYTE4(v1) = 1;
+    LODWORD(v1) = 0;
+    m_controllerIndex = (unsigned int)s_currentSessionTaskParams_0->m_controllerIndex;
+    v3 = v1;
+    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&m_controllerIndex);
     s_currentSessionTaskParams_0 = NULL;
     Xb3MultiplayerManager::Init(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, 1);
   }
@@ -1537,42 +1484,33 @@ Xb3MultiplayerManager::SessionPropertyWriteCompleted
 */
 void Xb3MultiplayerManager::SessionPropertyWriteCompleted(xbox::services::multiplayer::manager::multiplayer_event *event)
 {
-  const std::string *v4; 
+  const std::string *v2; 
   const char *Ptr; 
-  const std::error_code *v6; 
-  _BYTE v9[24]; 
-  __int128 v10; 
+  const std::error_code *v4; 
+  _BYTE v5[24]; 
+  __int128 v6; 
+  __int64 v7; 
 
-  v9[20] = 1;
-  *(_OWORD *)&v9[4] = 0ui64;
-  *(_DWORD *)v9 = s_currentSessionTaskParams_0->m_controllerIndex;
+  v5[20] = 1;
+  *(_OWORD *)&v5[4] = 0ui64;
+  *(_DWORD *)v5 = s_currentSessionTaskParams_0->m_controllerIndex;
   if ( xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval )
   {
-    v4 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
-    Ptr = (const char *)v4;
-    if ( v4->_Mypair._Myval2._Myres >= 0x10 )
-      Ptr = v4->_Mypair._Myval2._Bx._Ptr;
-    v6 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
-    Com_Printf(25, "The write failed due to %d and %s\n", (unsigned int)v6->_Myval, Ptr);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+30h]
-      vmovups [rsp+68h+var_28], xmm0
-      vmovsd  [rsp+68h+var_18], xmm1
-    }
-    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v10);
+    v2 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
+    Ptr = (const char *)v2;
+    if ( v2->_Mypair._Myval2._Myres >= 0x10 )
+      Ptr = v2->_Mypair._Myval2._Bx._Ptr;
+    v4 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
+    Com_Printf(25, "The write failed due to %d and %s\n", (unsigned int)v4->_Myval, Ptr);
+    v6 = *(_OWORD *)v5;
+    v7 = *(__int64 *)&v5[16];
+    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v6);
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+30h]
-      vmovups [rsp+68h+var_28], xmm0
-      vmovsd  [rsp+68h+var_18], xmm1
-    }
-    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v10);
+    v6 = *(_OWORD *)v5;
+    v7 = *(__int64 *)&v5[16];
+    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v6);
   }
 }
 
@@ -1583,45 +1521,36 @@ Xb3MultiplayerManager::LeaveGameCompleted
 */
 void Xb3MultiplayerManager::LeaveGameCompleted(xbox::services::multiplayer::manager::multiplayer_event *event)
 {
-  const std::string *v4; 
+  const std::string *v2; 
   const char *Ptr; 
-  const std::error_code *v6; 
-  _BYTE v9[24]; 
-  __int128 v10; 
+  const std::error_code *v4; 
+  _BYTE v5[24]; 
+  __int128 v6; 
+  __int64 v7; 
 
-  *(_OWORD *)&v9[4] = 0ui64;
+  *(_OWORD *)&v5[4] = 0ui64;
   if ( s_currentSessionTaskParams_0 )
   {
-    *(_DWORD *)v9 = s_currentSessionTaskParams_0->m_controllerIndex;
-    v9[20] = 1;
+    *(_DWORD *)v5 = s_currentSessionTaskParams_0->m_controllerIndex;
+    v5[20] = 1;
     if ( xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval )
     {
-      v4 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
-      Ptr = (const char *)v4;
-      if ( v4->_Mypair._Myval2._Myres >= 0x10 )
-        Ptr = v4->_Mypair._Myval2._Bx._Ptr;
-      v6 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
-      Com_Printf(25, "Xb3MultiplayerManager::LeaveGameCompleted failed due to %d and %s\n", (unsigned int)v6->_Myval, Ptr);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+68h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+30h]
-        vmovups [rsp+68h+var_28], xmm0
-        vmovsd  [rsp+68h+var_18], xmm1
-      }
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v10);
+      v2 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
+      Ptr = (const char *)v2;
+      if ( v2->_Mypair._Myval2._Myres >= 0x10 )
+        Ptr = v2->_Mypair._Myval2._Bx._Ptr;
+      v4 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
+      Com_Printf(25, "Xb3MultiplayerManager::LeaveGameCompleted failed due to %d and %s\n", (unsigned int)v4->_Myval, Ptr);
+      v6 = *(_OWORD *)v5;
+      v7 = *(__int64 *)&v5[16];
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v6);
       s_currentSessionTaskParams_0 = NULL;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+68h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+30h]
-        vmovups [rsp+68h+var_28], xmm0
-        vmovsd  [rsp+68h+var_18], xmm1
-      }
-      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v10);
+      v6 = *(_OWORD *)v5;
+      v7 = *(__int64 *)&v5[16];
+      ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_successCallback)(&v6);
       s_currentSessionTaskParams_0 = NULL;
     }
   }
@@ -1669,21 +1598,21 @@ char Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession(Xb3Multiplay
   std::string *v18; 
   unsigned __int64 v19; 
   char *v20; 
-  unsigned __int64 v23; 
-  char *v24; 
+  unsigned __int64 v22; 
+  char *v23; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v25; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v26; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v27; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v28; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v29; 
-  __int64 v30; 
-  Windows::Xbox::System::User *v31; 
+  __int64 v28; 
+  Windows::Xbox::System::User *v29; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v30; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v31; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v32; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v33; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v34; 
-  xbox::services::xbox_live_result<void> v35; 
+  xbox::services::xbox_live_result<void> v33; 
   char _Buffer[256]; 
 
-  v30 = -2i64;
+  v28 = -2i64;
   m_controllerIndex = taskParams->m_controllerIndex;
   if ( taskParams->m_controllerIndex >= 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1550, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", taskParams->m_controllerIndex, 8) )
     __debugbreak();
@@ -1701,22 +1630,22 @@ char Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession(Xb3Multiplay
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1552, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v27);
-  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v27._Ptr, &v32)->_Ptr;
-  v8 = v32._Rep;
-  if ( v32._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v25);
+  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v25._Ptr, &v30)->_Ptr;
+  v8 = v30._Rep;
+  if ( v30._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v32._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v30._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
         v8->_Delete_this(v8);
     }
   }
-  v9 = v27._Rep;
-  if ( v27._Rep )
+  v9 = v25._Rep;
+  if ( v25._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v27._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v9->_Destroy(v9);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -1725,22 +1654,22 @@ char Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession(Xb3Multiplay
   }
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1553, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v28);
-  v10 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v28._Ptr, &v33)->_Ptr;
-  v11 = v33._Rep;
-  if ( v33._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v26);
+  v10 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v26._Ptr, &v31)->_Ptr;
+  v11 = v31._Rep;
+  if ( v31._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v33._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v11->_Destroy(v11);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v11->_Weaks, 0xFFFFFFFF) == 1 )
         v11->_Delete_this(v11);
     }
   }
-  v12 = v28._Rep;
-  if ( v28._Rep )
+  v12 = v26._Rep;
+  if ( v26._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v28._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v12->_Destroy(v12);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
@@ -1757,66 +1686,62 @@ char Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession(Xb3Multiplay
     __debugbreak();
   Com_Printf(25, "Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession called\n");
   CachedXboxUser = Live_GetCachedXboxUser(m_controllerIndex);
-  v31 = CachedXboxUser;
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v29);
-  v14 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v29._Ptr, &v34)->_Ptr;
+  v29 = CachedXboxUser;
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v27);
+  v14 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v27._Ptr, &v32)->_Ptr;
   if ( CachedXboxUser )
     CachedXboxUser->__abi_AddRef(CachedXboxUser);
-  xbox::services::multiplayer::manager::multiplayer_lobby_session::add_local_user(v14, &v35, CachedXboxUser);
+  xbox::services::multiplayer::manager::multiplayer_lobby_session::add_local_user(v14, &v33, CachedXboxUser);
   if ( CachedXboxUser )
     CachedXboxUser->__abi_Release(CachedXboxUser);
-  v15 = v34._Rep;
-  if ( v34._Rep )
+  v15 = v32._Rep;
+  if ( v32._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v34._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v32._Rep->_Uses) )
     {
       v15->_Destroy(v15);
       if ( !_InterlockedDecrement((volatile signed __int32 *)&v15->_Weaks) )
         v15->_Delete_this(v15);
     }
   }
-  v16 = v29._Rep;
-  if ( v29._Rep )
+  v16 = v27._Rep;
+  if ( v27._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v29._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v27._Rep->_Uses) )
     {
       v16->_Destroy(v16);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->_Weaks, 0xFFFFFFFF) == 1 )
         v16->_Delete_this(v16);
     }
   }
-  if ( v35.m_errorCode._Myval )
+  if ( v33.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v35.m_errorMessage;
-    if ( v35.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v35.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    p_m_errorMessage = &v33.m_errorMessage;
+    if ( v33.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v33.m_errorMessage._Mypair._Myval2._Bx._Ptr;
     j_sprintf_s(_Buffer, 0x100ui64, "%d %s", m_controllerIndex, p_m_errorMessage->_Mypair._Myval2._Bx._Buf);
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, _Buffer);
-    if ( v35.m_errorCode._Myval == 1006 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1573, ASSERT_TYPE_ASSERT, "(result.err().value() != USER_ALREADY_ADDED)", (const char *)&queryFormat, "result.err().value() != USER_ALREADY_ADDED") )
+    if ( v33.m_errorCode._Myval == 1006 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1573, ASSERT_TYPE_ASSERT, "(result.err().value() != USER_ALREADY_ADDED)", (const char *)&queryFormat, "result.err().value() != USER_ALREADY_ADDED") )
       __debugbreak();
-    v18 = &v35.m_errorMessage;
-    if ( v35.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      v18 = (std::string *)v35.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession : add_local_user failed - %s [%x].\n", v18->_Mypair._Myval2._Bx._Buf, (unsigned int)v35.m_errorCode._Myval);
-    if ( v35.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    v18 = &v33.m_errorMessage;
+    if ( v33.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      v18 = (std::string *)v33.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession : add_local_user failed - %s [%x].\n", v18->_Mypair._Myval2._Bx._Buf, (unsigned int)v33.m_errorCode._Myval);
+    if ( v33.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v19 = v35.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v20 = v35.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v35.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v19 = v33.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v20 = v33.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v33.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v19 = v35.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v20 = (char *)*((_QWORD *)v35.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v35.m_errorMessage._Mypair._Myval2._Bx._Ptr - v20 - 8) > 0x1F )
+        v19 = v33.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v20 = (char *)*((_QWORD *)v33.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v33.m_errorMessage._Mypair._Myval2._Bx._Ptr - v20 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v20, v19);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp-18h], xmm0
-    }
-    v35.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v33.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v33.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 0;
@@ -1824,25 +1749,21 @@ char Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession(Xb3Multiplay
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    if ( v35.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v33.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v23 = v35.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v24 = v35.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v35.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v22 = v33.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v23 = v33.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v33.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v23 = v35.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v24 = (char *)*((_QWORD *)v35.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v35.m_errorMessage._Mypair._Myval2._Bx._Ptr - v24 - 8) > 0x1F )
+        v22 = v33.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v23 = (char *)*((_QWORD *)v33.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v33.m_errorMessage._Mypair._Myval2._Bx._Ptr - v23 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v24, v23);
+      operator delete(v23, v22);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp-18h], xmm0
-    }
-    v35.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v33.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v33.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 1;
@@ -2087,6 +2008,7 @@ void Xb3MultiplayerManager::ClearMpManagerEventQueue(Xb3MultiplayerManager *this
 {
   std::vector<xbox::services::multiplayer::manager::multiplayer_event> *v1; 
   xbox::services::multiplayer::manager::multiplayer_event *Myfirst; 
+  std::_Ref_count_base **p_Rep; 
   std::_Ref_count_base *v6; 
   unsigned int v7; 
   const MultiplayerEventHandler *v8; 
@@ -2106,30 +2028,24 @@ void Xb3MultiplayerManager::ClearMpManagerEventQueue(Xb3MultiplayerManager *this
     Myfirst = g_mpManagerEventQueue->_Mypair._Myval2._Myfirst;
     if ( g_mpManagerEventQueue->_Mypair._Myval2._Myfirst != g_mpManagerEventQueue->_Mypair._Myval2._Mylast )
     {
-      _R14 = &Myfirst->m_eventArgs._Rep;
+      p_Rep = &Myfirst->m_eventArgs._Rep;
       do
       {
         v16.m_pContext = Myfirst->m_pContext;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14-40h]
-          vmovups xmmword ptr [rsp+0B8h+var_78.m_errorCode._Myval], xmm0
-        }
-        std::string::string(&v16.m_errorMessage, (const std::string *)(_R14 - 6));
-        v16.m_eventType = *((_DWORD *)_R14 - 4);
-        v16.m_sessionType = *((_DWORD *)_R14 - 3);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+0B8h+var_78.m_eventArgs.baseclass_0._Ptr], xmm0
-        }
-        v6 = *_R14;
-        if ( *_R14 )
+        _XMM0 = (std::error_code)*((_OWORD *)p_Rep - 4);
+        v16.m_errorCode = _XMM0;
+        std::string::string(&v16.m_errorMessage, (const std::string *)(p_Rep - 6));
+        v16.m_eventType = *((_DWORD *)p_Rep - 4);
+        v16.m_sessionType = *((_DWORD *)p_Rep - 3);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        v16.m_eventArgs = _XMM0;
+        v6 = *p_Rep;
+        if ( *p_Rep )
         {
           _InterlockedIncrement((volatile signed __int32 *)&v6->_Uses);
-          v6 = *_R14;
+          v6 = *p_Rep;
         }
-        v16.m_eventArgs._Ptr = (xbox::services::multiplayer::manager::multiplayer_event_args *)*(_R14 - 1);
+        v16.m_eventArgs._Ptr = (xbox::services::multiplayer::manager::multiplayer_event_args *)*(p_Rep - 1);
         v16.m_eventArgs._Rep = v6;
         v7 = 0;
         v8 = MultiplayerEventHandlers;
@@ -2163,7 +2079,7 @@ void Xb3MultiplayerManager::ClearMpManagerEventQueue(Xb3MultiplayerManager *this
         }
 LABEL_17:
         ++Myfirst;
-        _R14 += 10;
+        p_Rep += 10;
         Rep = v16.m_eventArgs._Rep;
         if ( v16.m_eventArgs._Rep )
         {
@@ -2404,78 +2320,74 @@ __int64 Xb3MultiplayerManager::CompareSessionProperties(Xb3MultiplayerManager *t
 {
   xbox::services::multiplayer::manager::multiplayer_manager *Ptr; 
   std::_Ref_count_base *Rep; 
-  xbox::services::multiplayer::manager::multiplayer_lobby_session *v10; 
+  xbox::services::multiplayer::manager::multiplayer_lobby_session *v9; 
+  std::_Ref_count_base *v10; 
   std::_Ref_count_base *v11; 
-  std::_Ref_count_base *v12; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v13; 
-  const web::json::value *v14; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v12; 
+  const web::json::value *v13; 
+  std::_Ref_count_base *v14; 
   std::_Ref_count_base *v15; 
-  std::_Ref_count_base *v16; 
-  xbox::services::multiplayer::manager::multiplayer_lobby_session *v17; 
+  xbox::services::multiplayer::manager::multiplayer_lobby_session *v16; 
+  std::_Ref_count_base *v17; 
   std::_Ref_count_base *v18; 
-  std::_Ref_count_base *v19; 
-  xbox::services::multiplayer::manager::multiplayer_game_session *v20; 
+  xbox::services::multiplayer::manager::multiplayer_game_session *v19; 
+  std::_Ref_count_base *v20; 
   std::_Ref_count_base *v21; 
-  std::_Ref_count_base *v22; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v23; 
-  const web::json::value *v24; 
-  std::_Ref_count_base *v25; 
-  char v26; 
-  web::json::value *v27; 
-  const std::wstring *v28; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v22; 
+  const web::json::value *v23; 
+  std::_Ref_count_base *v24; 
+  char v25; 
+  web::json::value *v26; 
+  const std::wstring *v27; 
   unsigned __int64 Mysize; 
-  unsigned __int64 v30; 
-  wchar_t *v31; 
+  unsigned __int64 v29; 
+  wchar_t *v30; 
+  std::wstring *v31; 
   std::wstring *v32; 
   std::wstring *v33; 
-  std::wstring *v34; 
-  __int64 v35; 
-  unsigned __int64 v36; 
-  char v37; 
-  unsigned __int64 v38; 
-  std::string *v39; 
-  unsigned int v40; 
-  std::string *v41; 
-  unsigned int v42; 
-  unsigned __int64 v43; 
-  char *v44; 
-  unsigned __int8 v45; 
-  unsigned __int64 v46; 
-  char *v47; 
-  unsigned __int64 v48; 
-  wchar_t *v49; 
-  web::json::value v52; 
-  __int64 v53[2]; 
+  __int64 v34; 
+  unsigned __int64 v35; 
+  char v36; 
+  unsigned __int64 v37; 
+  std::string *v38; 
+  unsigned int v39; 
+  std::string *v40; 
+  unsigned int v41; 
+  unsigned __int64 v42; 
+  char *v43; 
+  unsigned __int8 v44; 
+  unsigned __int64 v45; 
+  char *v46; 
+  unsigned __int64 v47; 
+  wchar_t *v48; 
+  web::json::value v50; 
+  __int64 v51[2]; 
   XSECURITY_INFO *p_m_security; 
   std::wstring key; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v55; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v56; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v57; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v58; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v59; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v60; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v61; 
-  std::wstring v62; 
-  std::wstring v63; 
-  __int64 v64; 
+  std::wstring v60; 
+  std::wstring v61; 
+  __int64 v62; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v63; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v64; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v65; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v66; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v67; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v68; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v69; 
-  std::string v70; 
-  std::wstring v71; 
-  OnlineJoinInfo v72; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v66; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v67; 
+  std::string v68; 
+  std::wstring v69; 
+  OnlineJoinInfo v70; 
   char dest[256]; 
 
-  v64 = -2i64;
-  web::json::value::value(&v52);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+290h+var_1E8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v71._Mypair._Myval2._Bx._Buf[0] = 0;
-  v53[0] = 0i64;
+  v62 = -2i64;
+  web::json::value::value(&v50);
+  *(_OWORD *)&v69._Mypair._Myval2._Mysize = _xmm;
+  v69._Mypair._Myval2._Bx._Buf[0] = 0;
+  v51[0] = 0i64;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
   Rep = result._Rep;
@@ -2492,287 +2404,283 @@ __int64 Xb3MultiplayerManager::CompareSessionProperties(Xb3MultiplayerManager *t
     __debugbreak();
   if ( sessionType == PRIVATE_PARTY_SESSION )
   {
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v57);
-    v10 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v57._Ptr, &v65)->_Ptr;
-    v11 = v65._Rep;
-    if ( v65._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v55);
+    v9 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v55._Ptr, &v63)->_Ptr;
+    v10 = v63._Rep;
+    if ( v63._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v65._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v63._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      {
+        v10->_Destroy(v10);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v10->_Weaks, 0xFFFFFFFF) == 1 )
+          v10->_Delete_this(v10);
+      }
+    }
+    v11 = v55._Rep;
+    if ( v55._Rep )
+    {
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v55._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v11->_Destroy(v11);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v11->_Weaks, 0xFFFFFFFF) == 1 )
           v11->_Delete_this(v11);
       }
     }
-    v12 = v57._Rep;
-    if ( v57._Rep )
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1794, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
+      __debugbreak();
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v56);
+    v12 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v56._Ptr, &v64);
+    v13 = xbox::services::multiplayer::manager::multiplayer_lobby_session::properties(v12->_Ptr);
+    web::json::value::operator=(&v50, v13);
+    v14 = v64._Rep;
+    if ( v64._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v57._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v64._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v12->_Destroy(v12);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
-          v12->_Delete_this(v12);
+        v14->_Destroy(v14);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14->_Weaks, 0xFFFFFFFF) == 1 )
+          v14->_Delete_this(v14);
       }
     }
-    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1794, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
-      __debugbreak();
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v58);
-    v13 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v58._Ptr, &v66);
-    v14 = xbox::services::multiplayer::manager::multiplayer_lobby_session::properties(v13->_Ptr);
-    web::json::value::operator=(&v52, v14);
-    v15 = v66._Rep;
-    if ( v66._Rep )
+    v15 = v56._Rep;
+LABEL_53:
+    if ( v15 )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v66._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15->_Uses, 0xFFFFFFFF) == 1 )
       {
         v15->_Destroy(v15);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15->_Weaks, 0xFFFFFFFF) == 1 )
           v15->_Delete_this(v15);
       }
     }
-    v16 = v58._Rep;
-LABEL_53:
-    if ( v16 )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->_Uses, 0xFFFFFFFF) == 1 )
-      {
-        v16->_Destroy(v16);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->_Weaks, 0xFFFFFFFF) == 1 )
-          v16->_Delete_this(v16);
-      }
-    }
     goto LABEL_59;
   }
   if ( sessionType == GAME_LOBBY_SESSION )
   {
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v59);
-    v17 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v59._Ptr, &v67)->_Ptr;
-    v18 = v67._Rep;
-    if ( v67._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v57);
+    v16 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v57._Ptr, &v65)->_Ptr;
+    v17 = v65._Rep;
+    if ( v65._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v67._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v65._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      {
+        v17->_Destroy(v17);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v17->_Weaks, 0xFFFFFFFF) == 1 )
+          v17->_Delete_this(v17);
+      }
+    }
+    v18 = v57._Rep;
+    if ( v57._Rep )
+    {
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v57._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v18->_Destroy(v18);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v18->_Weaks, 0xFFFFFFFF) == 1 )
           v18->_Delete_this(v18);
       }
     }
-    v19 = v59._Rep;
-    if ( v59._Rep )
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1799, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
+      __debugbreak();
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v58);
+    v19 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v58._Ptr, &v66)->_Ptr;
+    v20 = v66._Rep;
+    if ( v66._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v59._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v66._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v19->_Destroy(v19);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v19->_Weaks, 0xFFFFFFFF) == 1 )
-          v19->_Delete_this(v19);
+        v20->_Destroy(v20);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v20->_Weaks, 0xFFFFFFFF) == 1 )
+          v20->_Delete_this(v20);
       }
     }
-    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1799, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
-      __debugbreak();
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v60);
-    v20 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v60._Ptr, &v68)->_Ptr;
-    v21 = v68._Rep;
-    if ( v68._Rep )
+    v21 = v58._Rep;
+    if ( v58._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v68._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v58._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v21->_Destroy(v21);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v21->_Weaks, 0xFFFFFFFF) == 1 )
           v21->_Delete_this(v21);
       }
     }
-    v22 = v60._Rep;
-    if ( v60._Rep )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v60._Rep->_Uses, 0xFFFFFFFF) == 1 )
-      {
-        v22->_Destroy(v22);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v22->_Weaks, 0xFFFFFFFF) == 1 )
-          v22->_Delete_this(v22);
-      }
-    }
-    if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1800, ASSERT_TYPE_ASSERT, "(mpManager()->game_session())", (const char *)&queryFormat, "mpManager()->game_session()") )
+    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1800, ASSERT_TYPE_ASSERT, "(mpManager()->game_session())", (const char *)&queryFormat, "mpManager()->game_session()") )
       __debugbreak();
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v61);
-    v23 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v61._Ptr, &v69);
-    v24 = xbox::services::multiplayer::manager::multiplayer_game_session::properties(v23->_Ptr);
-    web::json::value::operator=(&v52, v24);
-    v25 = v69._Rep;
-    if ( v69._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v59);
+    v22 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v59._Ptr, &v67);
+    v23 = xbox::services::multiplayer::manager::multiplayer_game_session::properties(v22->_Ptr);
+    web::json::value::operator=(&v50, v23);
+    v24 = v67._Rep;
+    if ( v67._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v69._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v67._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v25->_Destroy(v25);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25->_Weaks, 0xFFFFFFFF) == 1 )
-          v25->_Delete_this(v25);
+        v24->_Destroy(v24);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v24->_Weaks, 0xFFFFFFFF) == 1 )
+          v24->_Delete_this(v24);
       }
     }
-    v16 = v61._Rep;
+    v15 = v59._Rep;
     goto LABEL_53;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1805, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Invalid platform session type in CompareSessionProperties") )
     __debugbreak();
 LABEL_59:
-  v62._Mypair._Myval2._Mysize = 0i64;
-  v62._Mypair._Myval2._Myres = 7i64;
-  v62._Mypair._Myval2._Bx._Buf[0] = 0;
-  std::wstring::assign(&v62, L"max_players", 0xBui64);
-  if ( !GetIntPropertyValueFromSessionProperties(&v62, &v52, (int *)v53) )
+  v60._Mypair._Myval2._Mysize = 0i64;
+  v60._Mypair._Myval2._Myres = 7i64;
+  v60._Mypair._Myval2._Bx._Buf[0] = 0;
+  std::wstring::assign(&v60, L"max_players", 0xBui64);
+  if ( !GetIntPropertyValueFromSessionProperties(&v60, &v50, (int *)v51) )
     goto LABEL_108;
-  v63._Mypair._Myval2._Mysize = 0i64;
-  v63._Mypair._Myval2._Myres = 7i64;
-  v63._Mypair._Myval2._Bx._Buf[0] = 0;
-  std::wstring::assign(&v63, L"public_slots", 0xCui64);
-  if ( !GetIntPropertyValueFromSessionProperties(&v63, &v52, (int *)v53 + 1) )
+  v61._Mypair._Myval2._Mysize = 0i64;
+  v61._Mypair._Myval2._Myres = 7i64;
+  v61._Mypair._Myval2._Bx._Buf[0] = 0;
+  std::wstring::assign(&v61, L"public_slots", 0xCui64);
+  if ( !GetIntPropertyValueFromSessionProperties(&v61, &v50, (int *)v51 + 1) )
     goto LABEL_108;
   key._Mypair._Myval2._Mysize = 0i64;
   key._Mypair._Myval2._Myres = 7i64;
   key._Mypair._Myval2._Bx._Buf[0] = 0;
   std::wstring::assign(&key, L"join_info", 9ui64);
-  v53[1] = (__int64)&key;
-  v26 = 0;
-  if ( v52.m_value._Mypair._Myval2->has_field(v52.m_value._Mypair._Myval2, &key) )
+  v51[1] = (__int64)&key;
+  v25 = 0;
+  if ( v50.m_value._Mypair._Myval2->has_field(v50.m_value._Mypair._Myval2, &key) )
   {
-    v27 = web::json::value::at(&v52, &key);
-    v28 = web::json::value::as_string(v27);
-    if ( &v71 != v28 )
+    v26 = web::json::value::at(&v50, &key);
+    v27 = web::json::value::as_string(v26);
+    if ( &v69 != v27 )
     {
-      Mysize = v28->_Mypair._Myval2._Mysize;
-      if ( v28->_Mypair._Myval2._Myres >= 8 )
-        v28 = (const std::wstring *)v28->_Mypair._Myval2._Bx._Ptr;
-      std::wstring::assign(&v71, v28->_Mypair._Myval2._Bx._Buf, Mysize);
+      Mysize = v27->_Mypair._Myval2._Mysize;
+      if ( v27->_Mypair._Myval2._Myres >= 8 )
+        v27 = (const std::wstring *)v27->_Mypair._Myval2._Bx._Ptr;
+      std::wstring::assign(&v69, v27->_Mypair._Myval2._Bx._Buf, Mysize);
     }
-    v26 = 1;
+    v25 = 1;
   }
   if ( key._Mypair._Myval2._Myres >= 8 )
   {
-    v30 = 2 * key._Mypair._Myval2._Myres + 2;
-    v31 = key._Mypair._Myval2._Bx._Ptr;
-    if ( v30 >= 0x1000 )
+    v29 = 2 * key._Mypair._Myval2._Myres + 2;
+    v30 = key._Mypair._Myval2._Bx._Ptr;
+    if ( v29 >= 0x1000 )
     {
-      v30 = 2 * key._Mypair._Myval2._Myres + 41;
-      v31 = (wchar_t *)*((_QWORD *)key._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)key._Mypair._Myval2._Bx._Ptr - (char *)v31 - 8) > 0x1F )
+      v29 = 2 * key._Mypair._Myval2._Myres + 41;
+      v30 = (wchar_t *)*((_QWORD *)key._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)key._Mypair._Myval2._Bx._Ptr - (char *)v30 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v31, v30);
+    operator delete(v30, v29);
   }
   key._Mypair._Myval2._Myres = 7i64;
-  if ( !v26 )
+  if ( !v25 )
     goto LABEL_108;
-  v32 = &v71;
-  if ( v71._Mypair._Myval2._Myres >= 8 )
-    v32 = (std::wstring *)v71._Mypair._Myval2._Bx._Ptr;
-  v33 = (std::wstring *)((char *)v32 + 2 * v71._Mypair._Myval2._Mysize);
-  v34 = &v71;
-  if ( v71._Mypair._Myval2._Myres >= 8 )
-    v34 = (std::wstring *)v71._Mypair._Myval2._Bx._Ptr;
-  p_m_security = (XSECURITY_INFO *)v34;
-  v70._Mypair._Myval2._Mysize = 0i64;
-  v70._Mypair._Myval2._Myres = 15i64;
-  v70._Mypair._Myval2._Bx._Buf[0] = 0;
-  std::string::reserve(&v70, ((char *)v33 - (char *)v34) >> 1);
-  v35 = 0i64;
-  v36 = (unsigned __int64)((char *)v33 - (char *)v34 + 1) >> 1;
-  if ( v34 > v33 )
-    v36 = 0i64;
-  if ( v36 )
+  v31 = &v69;
+  if ( v69._Mypair._Myval2._Myres >= 8 )
+    v31 = (std::wstring *)v69._Mypair._Myval2._Bx._Ptr;
+  v32 = (std::wstring *)((char *)v31 + 2 * v69._Mypair._Myval2._Mysize);
+  v33 = &v69;
+  if ( v69._Mypair._Myval2._Myres >= 8 )
+    v33 = (std::wstring *)v69._Mypair._Myval2._Bx._Ptr;
+  p_m_security = (XSECURITY_INFO *)v33;
+  v68._Mypair._Myval2._Mysize = 0i64;
+  v68._Mypair._Myval2._Myres = 15i64;
+  v68._Mypair._Myval2._Bx._Buf[0] = 0;
+  std::string::reserve(&v68, ((char *)v32 - (char *)v33) >> 1);
+  v34 = 0i64;
+  v35 = (unsigned __int64)((char *)v32 - (char *)v33 + 1) >> 1;
+  if ( v33 > v32 )
+    v35 = 0i64;
+  if ( v35 )
   {
     do
     {
-      v37 = v34->_Mypair._Myval2._Bx._Alias[0];
-      v38 = v70._Mypair._Myval2._Mysize;
-      if ( v70._Mypair._Myval2._Mysize >= v70._Mypair._Myval2._Myres )
+      v36 = v33->_Mypair._Myval2._Bx._Alias[0];
+      v37 = v68._Mypair._Myval2._Mysize;
+      if ( v68._Mypair._Myval2._Mysize >= v68._Mypair._Myval2._Myres )
       {
-        std::string::_Reallocate_grow_by<_lambda_319d5e083f45f90dcdce5dce53cbb275_,char>(&v70, 1ui64, 0, v37);
+        std::string::_Reallocate_grow_by<_lambda_319d5e083f45f90dcdce5dce53cbb275_,char>(&v68, 1ui64, 0, v36);
       }
       else
       {
-        ++v70._Mypair._Myval2._Mysize;
-        v39 = &v70;
-        if ( v70._Mypair._Myval2._Myres >= 0x10 )
-          v39 = (std::string *)v70._Mypair._Myval2._Bx._Ptr;
-        v39->_Mypair._Myval2._Bx._Buf[v38] = v37;
-        v39->_Mypair._Myval2._Bx._Buf[v38 + 1] = 0;
+        ++v68._Mypair._Myval2._Mysize;
+        v38 = &v68;
+        if ( v68._Mypair._Myval2._Myres >= 0x10 )
+          v38 = (std::string *)v68._Mypair._Myval2._Bx._Ptr;
+        v38->_Mypair._Myval2._Bx._Buf[v37] = v36;
+        v38->_Mypair._Myval2._Bx._Buf[v37 + 1] = 0;
       }
-      v34 = (std::wstring *)((char *)v34 + 2);
-      ++v35;
+      v33 = (std::wstring *)((char *)v33 + 2);
+      ++v34;
     }
-    while ( v35 != v36 );
+    while ( v34 != v35 );
   }
-  p_m_security = &v72.communicationInfo.session.m_security;
-  bdSecurityID::bdSecurityID(&v72.communicationInfo.session.m_security.m_id);
-  bdSecurityKey::bdSecurityKey(&v72.communicationInfo.session.m_security.m_key);
-  v40 = v70._Mypair._Myval2._Mysize;
-  if ( v70._Mypair._Myval2._Mysize > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", LODWORD(v70._Mypair._Myval2._Mysize), "unsigned", v70._Mypair._Myval2._Mysize) )
+  p_m_security = &v70.communicationInfo.session.m_security;
+  bdSecurityID::bdSecurityID(&v70.communicationInfo.session.m_security.m_id);
+  bdSecurityKey::bdSecurityKey(&v70.communicationInfo.session.m_security.m_key);
+  v39 = v68._Mypair._Myval2._Mysize;
+  if ( v68._Mypair._Myval2._Mysize > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", LODWORD(v68._Mypair._Myval2._Mysize), "unsigned", v68._Mypair._Myval2._Mysize) )
     __debugbreak();
-  v41 = &v70;
-  if ( v70._Mypair._Myval2._Myres >= 0x10 )
-    v41 = (std::string *)v70._Mypair._Myval2._Bx._Ptr;
-  v42 = bdBase64::decode(v41->_Mypair._Myval2._Bx._Buf, v40, dest, 0x100u);
-  if ( v42 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1830, ASSERT_TYPE_ASSERT, "(len < 256)", (const char *)&queryFormat, "len < DECODED_XSESSION_INFO_MAX_SIZE") )
+  v40 = &v68;
+  if ( v68._Mypair._Myval2._Myres >= 0x10 )
+    v40 = (std::string *)v68._Mypair._Myval2._Bx._Ptr;
+  v41 = bdBase64::decode(v40->_Mypair._Myval2._Bx._Buf, v39, dest, 0x100u);
+  if ( v41 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1830, ASSERT_TYPE_ASSERT, "(len < 256)", (const char *)&queryFormat, "len < DECODED_XSESSION_INFO_MAX_SIZE") )
     __debugbreak();
-  OnlineJoinInfo::Deserialize(&v72, (const unsigned __int8 *)dest, v42);
-  if ( LODWORD(v53[0]) != maxPlayers || HIDWORD(v53[0]) != maxPlayers || !XSESSION_INFO::operator==(&joinInfo->communicationInfo.session, &v72.communicationInfo.session) )
+  OnlineJoinInfo::Deserialize(&v70, (const unsigned __int8 *)dest, v41);
+  if ( LODWORD(v51[0]) != maxPlayers || HIDWORD(v51[0]) != maxPlayers || !XSESSION_INFO::operator==(&joinInfo->communicationInfo.session, &v70.communicationInfo.session) )
   {
-    bdSecurityKey::~bdSecurityKey(&v72.communicationInfo.session.m_security.m_key);
-    bdSecurityID::~bdSecurityID(&v72.communicationInfo.session.m_security.m_id);
-    if ( v70._Mypair._Myval2._Myres >= 0x10 )
+    bdSecurityKey::~bdSecurityKey(&v70.communicationInfo.session.m_security.m_key);
+    bdSecurityID::~bdSecurityID(&v70.communicationInfo.session.m_security.m_id);
+    if ( v68._Mypair._Myval2._Myres >= 0x10 )
     {
-      v46 = v70._Mypair._Myval2._Myres + 1;
-      v47 = v70._Mypair._Myval2._Bx._Ptr;
-      if ( v70._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v45 = v68._Mypair._Myval2._Myres + 1;
+      v46 = v68._Mypair._Myval2._Bx._Ptr;
+      if ( v68._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v46 = v70._Mypair._Myval2._Myres + 40;
-        v47 = (char *)*((_QWORD *)v70._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v70._Mypair._Myval2._Bx._Ptr - v47 - 8) > 0x1F )
+        v45 = v68._Mypair._Myval2._Myres + 40;
+        v46 = (char *)*((_QWORD *)v68._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v68._Mypair._Myval2._Bx._Ptr - v46 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v47, v46);
+      operator delete(v46, v45);
     }
 LABEL_108:
-    v45 = 0;
+    v44 = 0;
     goto LABEL_109;
   }
-  bdSecurityKey::~bdSecurityKey(&v72.communicationInfo.session.m_security.m_key);
-  bdSecurityID::~bdSecurityID(&v72.communicationInfo.session.m_security.m_id);
-  if ( v70._Mypair._Myval2._Myres >= 0x10 )
+  bdSecurityKey::~bdSecurityKey(&v70.communicationInfo.session.m_security.m_key);
+  bdSecurityID::~bdSecurityID(&v70.communicationInfo.session.m_security.m_id);
+  if ( v68._Mypair._Myval2._Myres >= 0x10 )
   {
-    v43 = v70._Mypair._Myval2._Myres + 1;
-    v44 = v70._Mypair._Myval2._Bx._Ptr;
-    if ( v70._Mypair._Myval2._Myres + 1 >= 0x1000 )
+    v42 = v68._Mypair._Myval2._Myres + 1;
+    v43 = v68._Mypair._Myval2._Bx._Ptr;
+    if ( v68._Mypair._Myval2._Myres + 1 >= 0x1000 )
     {
-      v43 = v70._Mypair._Myval2._Myres + 40;
-      v44 = (char *)*((_QWORD *)v70._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)(v70._Mypair._Myval2._Bx._Ptr - v44 - 8) > 0x1F )
+      v42 = v68._Mypair._Myval2._Myres + 40;
+      v43 = (char *)*((_QWORD *)v68._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)(v68._Mypair._Myval2._Bx._Ptr - v43 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v44, v43);
+    operator delete(v43, v42);
   }
-  v45 = 1;
+  v44 = 1;
 LABEL_109:
-  if ( v71._Mypair._Myval2._Myres >= 8 )
+  if ( v69._Mypair._Myval2._Myres >= 8 )
   {
-    v48 = 2 * v71._Mypair._Myval2._Myres + 2;
-    v49 = v71._Mypair._Myval2._Bx._Ptr;
-    if ( v48 >= 0x1000 )
+    v47 = 2 * v69._Mypair._Myval2._Myres + 2;
+    v48 = v69._Mypair._Myval2._Bx._Ptr;
+    if ( v47 >= 0x1000 )
     {
-      v48 = 2 * v71._Mypair._Myval2._Myres + 41;
-      v49 = (wchar_t *)*((_QWORD *)v71._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)v71._Mypair._Myval2._Bx._Ptr - (char *)v49 - 8) > 0x1F )
+      v47 = 2 * v69._Mypair._Myval2._Myres + 41;
+      v48 = (wchar_t *)*((_QWORD *)v69._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)v69._Mypair._Myval2._Bx._Ptr - (char *)v48 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v49, v48);
+    operator delete(v48, v47);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+290h+var_1E8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v71._Mypair._Myval2._Bx._Buf[0] = 0;
-  if ( v52.m_value._Mypair._Myval2 )
-    ((void (__fastcall *)(web::json::details::_Value *, __int64))v52.m_value._Mypair._Myval2->~_Value)(v52.m_value._Mypair._Myval2, 1i64);
-  return v45;
+  *(_OWORD *)&v69._Mypair._Myval2._Mysize = _xmm;
+  v69._Mypair._Myval2._Bx._Buf[0] = 0;
+  if ( v50.m_value._Mypair._Myval2 )
+    ((void (__fastcall *)(web::json::details::_Value *, __int64))v50.m_value._Mypair._Myval2->~_Value)(v50.m_value._Mypair._Myval2, 1i64);
+  return v44;
 }
 
 /*
@@ -2793,19 +2701,19 @@ void Xb3MultiplayerManager::CopyGameLobbySessionMPSDID(Xb3MultiplayerManager *th
   std::_Ref_count_base *v9; 
   const std::wstring *v10; 
   PartyData *PartyData; 
-  const std::wstring *v14; 
-  const std::wstring *v15; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v16; 
+  const std::wstring *v12; 
+  const std::wstring *v13; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v14; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v18; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v19; 
-  __int64 v20; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v21; 
-  _GUID v22; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v16; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v17; 
+  __int64 v18; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v19; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v20; 
   _GUID iid; 
   wchar_t _Buffer[256]; 
 
-  v20 = -2i64;
+  v18 = -2i64;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
   Rep = result._Rep;
@@ -2820,22 +2728,22 @@ void Xb3MultiplayerManager::CopyGameLobbySessionMPSDID(Xb3MultiplayerManager *th
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1960, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v18);
-  v3 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v18._Ptr, &v16)->_Ptr;
-  v4 = v16._Rep;
-  if ( v16._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v16);
+  v3 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v16._Ptr, &v14)->_Ptr;
+  v4 = v14._Rep;
+  if ( v14._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v4->_Destroy(v4);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v4->_Weaks, 0xFFFFFFFF) == 1 )
         v4->_Delete_this(v4);
     }
   }
-  v5 = v18._Rep;
-  if ( v18._Rep )
+  v5 = v16._Rep;
+  if ( v16._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v18._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v5->_Destroy(v5);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v5->_Weaks, 0xFFFFFFFF) == 1 )
@@ -2844,23 +2752,23 @@ void Xb3MultiplayerManager::CopyGameLobbySessionMPSDID(Xb3MultiplayerManager *th
   }
   if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1961, ASSERT_TYPE_ASSERT, "(mpManager()->game_session())", (const char *)&queryFormat, "mpManager()->game_session()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v19);
-  v6 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v19._Ptr, &v21);
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v17);
+  v6 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v17._Ptr, &v19);
   v7 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_game_session::session_reference(v6->_Ptr);
-  v8 = v21._Rep;
-  if ( v21._Rep )
+  v8 = v19._Rep;
+  if ( v19._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v21._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v19._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
         v8->_Delete_this(v8);
     }
   }
-  v9 = v19._Rep;
-  if ( v19._Rep )
+  v9 = v17._Rep;
+  if ( v17._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v19._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v17._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v9->_Destroy(v9);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -2877,29 +2785,21 @@ void Xb3MultiplayerManager::CopyGameLobbySessionMPSDID(Xb3MultiplayerManager *th
   if ( swprintf(_Buffer, L"{%s}", v10) )
   {
     IIDFromString(_Buffer, &iid);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+2C8h+iid.Data1]
-      vmovups xmmword ptr [rsp+2C8h+var_298.baseclass_0._Ptr], xmm0
-    }
+    v14 = (std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>)iid;
     PartyData = Lobby_GetPartyData();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+2C8h+var_298.baseclass_0._Ptr]
-      vmovups [rsp+2C8h+var_238], xmm0
-    }
-    PartyHost_SetXb3SessionId(PartyData, &v22);
-    v14 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
-    if ( v14->_Mypair._Myval2._Myres >= 8 )
-      v14 = (const std::wstring *)v14->_Mypair._Myval2._Bx._Ptr;
-    Com_Printf(25, "Xb3MultiplayerManager::CopyGameLobbySessionMPSDID: Session MPSDID is: %S\n", v14->_Mypair._Myval2._Bx._Buf);
+    v20 = v14;
+    PartyHost_SetXb3SessionId(PartyData, (const _GUID *)&v20);
+    v12 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
+    if ( v12->_Mypair._Myval2._Myres >= 8 )
+      v12 = (const std::wstring *)v12->_Mypair._Myval2._Bx._Ptr;
+    Com_Printf(25, "Xb3MultiplayerManager::CopyGameLobbySessionMPSDID: Session MPSDID is: %S\n", v12->_Mypair._Myval2._Bx._Buf);
   }
   else
   {
-    v15 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
-    if ( v15->_Mypair._Myval2._Myres >= 8 )
-      v15 = (const std::wstring *)v15->_Mypair._Myval2._Bx._Ptr;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1979, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::CopyGameLobbySessionMPSDID, swprintf failed to write %S!", v15->_Mypair._Myval2._Bx._Buf) )
+    v13 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
+    if ( v13->_Mypair._Myval2._Myres >= 8 )
+      v13 = (const std::wstring *)v13->_Mypair._Myval2._Bx._Ptr;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1979, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::CopyGameLobbySessionMPSDID, swprintf failed to write %S!", v13->_Mypair._Myval2._Bx._Buf) )
       __debugbreak();
   }
 }
@@ -2921,19 +2821,19 @@ void Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID(Xb3MultiplayerManager 
   std::_Ref_count_base *v8; 
   std::_Ref_count_base *v9; 
   const std::wstring *v10; 
+  const std::wstring *v11; 
   const std::wstring *v12; 
-  const std::wstring *v13; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v14; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v15; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v16; 
-  __int64 v17; 
+  __int64 v16; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v17; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v18; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v19; 
-  _GUID v20; 
+  _GUID v19; 
   _GUID iid; 
   wchar_t _Buffer[256]; 
 
-  v17 = -2i64;
+  v16 = -2i64;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
   Rep = result._Rep;
@@ -2948,22 +2848,22 @@ void Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID(Xb3MultiplayerManager 
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1930, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v15);
-  v3 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v15._Ptr, &v18)->_Ptr;
-  v4 = v18._Rep;
-  if ( v18._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v14);
+  v3 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v14._Ptr, &v17)->_Ptr;
+  v4 = v17._Rep;
+  if ( v17._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v18._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v17._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v4->_Destroy(v4);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v4->_Weaks, 0xFFFFFFFF) == 1 )
         v4->_Delete_this(v4);
     }
   }
-  v5 = v15._Rep;
-  if ( v15._Rep )
+  v5 = v14._Rep;
+  if ( v14._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v5->_Destroy(v5);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v5->_Weaks, 0xFFFFFFFF) == 1 )
@@ -2972,23 +2872,23 @@ void Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID(Xb3MultiplayerManager 
   }
   if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1931, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v16);
-  v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v16._Ptr, &v19);
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v15);
+  v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v15._Ptr, &v18);
   v7 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_lobby_session::session_reference(v6->_Ptr);
-  v8 = v19._Rep;
-  if ( v19._Rep )
+  v8 = v18._Rep;
+  if ( v18._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v19._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v18._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
         v8->_Delete_this(v8);
     }
   }
-  v9 = v16._Rep;
-  if ( v16._Rep )
+  v9 = v15._Rep;
+  if ( v15._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v9->_Destroy(v9);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3005,23 +2905,19 @@ void Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID(Xb3MultiplayerManager 
   if ( swprintf(_Buffer, L"{%s}", v10) )
   {
     IIDFromString(_Buffer, &iid);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+2C8h+iid.Data1]
-      vmovdqa [rsp+2C8h+var_238], xmm0
-    }
-    PartyHost_SetXb3SessionId(&g_partyData, &v20);
-    v12 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
-    if ( v12->_Mypair._Myval2._Myres >= 8 )
-      v12 = (const std::wstring *)v12->_Mypair._Myval2._Bx._Ptr;
-    Com_Printf(25, "Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID: Session MPSDID is: %S\n", v12->_Mypair._Myval2._Bx._Buf);
+    v19 = iid;
+    PartyHost_SetXb3SessionId(&g_partyData, &v19);
+    v11 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
+    if ( v11->_Mypair._Myval2._Myres >= 8 )
+      v11 = (const std::wstring *)v11->_Mypair._Myval2._Bx._Ptr;
+    Com_Printf(25, "Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID: Session MPSDID is: %S\n", v11->_Mypair._Myval2._Bx._Buf);
   }
   else
   {
-    v13 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
-    if ( v13->_Mypair._Myval2._Myres >= 8 )
-      v13 = (const std::wstring *)v13->_Mypair._Myval2._Bx._Ptr;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1949, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID, swprintf failed to write %S!", v13->_Mypair._Myval2._Bx._Buf) )
+    v12 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
+    if ( v12->_Mypair._Myval2._Myres >= 8 )
+      v12 = (const std::wstring *)v12->_Mypair._Myval2._Bx._Ptr;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1949, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::CopyPrivatePartySessionMPSDID, swprintf failed to write %S!", v12->_Mypair._Myval2._Bx._Buf) )
       __debugbreak();
   }
 }
@@ -3033,6 +2929,7 @@ Xb3MultiplayerManager::CopySessionMPSDID
 */
 void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manager::multiplayer_event *event, const bool fromJoin)
 {
+  PartyData *PartyData; 
   int v5; 
   xbox::services::multiplayer::multiplayer_session_reference *v6; 
   bool v7; 
@@ -3081,22 +2978,23 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v50; 
   const std::wstring *v51; 
   int GameFlags; 
-  const std::wstring *v54; 
-  const wchar_t *v55; 
+  const std::wstring *v53; 
+  const wchar_t *v54; 
   bool IsValidSessionId; 
-  const std::string *v57; 
-  const char *v58; 
-  const std::error_code *v59; 
-  int v60; 
-  unsigned int v61; 
+  const std::string *v56; 
+  const char *v57; 
+  const std::error_code *v58; 
+  int v59; 
+  unsigned int v60; 
+  int v61; 
   int v62; 
-  int v63; 
-  unsigned int v64; 
-  int v65; 
+  unsigned int v63; 
+  int v64; 
+  std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>> v65; 
   std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>> v66; 
-  std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>> v67; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v68; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v67; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v69; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v70; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v71; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v72; 
@@ -3105,62 +3003,61 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v75; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v76; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v77; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v78; 
+  __int64 v78; 
   __int64 v79; 
   __int64 v80; 
   __int64 v81; 
   __int64 v82; 
   __int64 v83; 
   __int64 v84; 
-  __int64 v85; 
-  char v86; 
-  int v87; 
-  __int64 v88; 
+  char v85; 
+  int v86; 
+  __int64 v87; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v88; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v89; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v90; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v91; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v92; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v92; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v93; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v94; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v95; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v96; 
   _GUID iid; 
   char str[40]; 
   wchar_t _Buffer[256]; 
 
-  v88 = -2i64;
-  _RSI = NULL;
+  v87 = -2i64;
+  PartyData = NULL;
   if ( !xbox::services::multiplayer::manager::multiplayer_event::err(event)->_Myval )
   {
-    v82 = 0i64;
-    v79 = -1i64;
-    v83 = 0i64;
-    v80 = 0i64;
     v81 = 0i64;
+    v78 = -1i64;
+    v82 = 0i64;
+    v79 = 0i64;
+    v80 = 0i64;
+    v83 = 0i64;
     v84 = 0i64;
-    v85 = 0i64;
-    v86 = 1;
-    v87 = 0;
+    v85 = 1;
+    v86 = 0;
     v5 = 2;
     if ( xbox::services::multiplayer::manager::multiplayer_event::session_type(event) == pending_subscribe )
     {
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v74);
-      v63 = 65;
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v73);
+      v62 = 65;
       v29 = 0;
-      if ( v74._Ptr )
+      if ( v73._Ptr )
       {
-        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v73);
-        v63 = 199;
-        if ( xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v73._Ptr, &v93)->_Ptr )
+        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v72);
+        v62 = 199;
+        if ( xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v72._Ptr, &v92)->_Ptr )
           v29 = 1;
       }
-      if ( (v63 & 4) != 0 )
+      if ( (v62 & 4) != 0 )
       {
-        v63 &= ~4u;
-        Rep = v93._Rep;
-        if ( v93._Rep )
+        v62 &= ~4u;
+        Rep = v92._Rep;
+        if ( v92._Rep )
         {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v93._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v92._Rep->_Uses, 0xFFFFFFFF) == 1 )
           {
             Rep->_Destroy(Rep);
             if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3168,13 +3065,13 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           }
         }
       }
-      if ( (v63 & 2) != 0 )
+      if ( (v62 & 2) != 0 )
       {
-        v63 &= ~2u;
-        v31 = v73._Rep;
-        if ( v73._Rep )
+        v62 &= ~2u;
+        v31 = v72._Rep;
+        if ( v72._Rep )
         {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v73._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v72._Rep->_Uses, 0xFFFFFFFF) == 1 )
           {
             v31->_Destroy(v31);
             if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3182,11 +3079,11 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           }
         }
       }
-      v64 = v63 & 0xFFFFFFFE;
-      v32 = v74._Rep;
-      if ( v74._Rep )
+      v63 = v62 & 0xFFFFFFFE;
+      v32 = v73._Rep;
+      if ( v73._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v74._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v73._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v32->_Destroy(v32);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v32->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3196,77 +3093,77 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
       v6 = NULL;
       if ( !v29 )
         goto LABEL_133;
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v75);
-      v33 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v75._Ptr, &v94);
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v74);
+      v33 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v74._Ptr, &v93);
       v6 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_lobby_session::session_reference(v33->_Ptr);
-      v34 = v94._Rep;
-      if ( v94._Rep )
+      v34 = v93._Rep;
+      if ( v93._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v94._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v93._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v34->_Destroy(v34);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v34->_Weaks, 0xFFFFFFFF) == 1 )
             v34->_Delete_this(v34);
         }
       }
-      v35 = v75._Rep;
-      if ( v75._Rep )
+      v35 = v74._Rep;
+      if ( v74._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v75._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v74._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v35->_Destroy(v35);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v35->_Weaks, 0xFFFFFFFF) == 1 )
             v35->_Delete_this(v35);
         }
       }
-      _RSI = &g_partyData;
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v76);
-      v36 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v76._Ptr, &v95);
+      PartyData = &g_partyData;
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v75);
+      v36 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v75._Ptr, &v94);
       v37 = xbox::services::multiplayer::manager::multiplayer_lobby_session::members(v36->_Ptr);
-      std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>(&v66, v37);
-      v38 = v95._Rep;
-      if ( v95._Rep )
+      std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>(&v65, v37);
+      v38 = v94._Rep;
+      if ( v94._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v95._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v94._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v38->_Destroy(v38);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v38->_Weaks, 0xFFFFFFFF) == 1 )
             v38->_Delete_this(v38);
         }
       }
-      v39 = v76._Rep;
-      if ( v76._Rep )
+      v39 = v75._Rep;
+      if ( v75._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v76._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v75._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v39->_Destroy(v39);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v39->_Weaks, 0xFFFFFFFF) == 1 )
             v39->_Delete_this(v39);
         }
       }
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v77);
-      v65 = v64 | 0x700;
-      v40 = xbox::services::multiplayer::manager::multiplayer_manager::joinability(v77._Ptr);
-      Myfirst = v66._Mypair._Myval2._Myfirst;
-      Com_Printf(25, "Xb3MultiplayerManager::CopySessionMPSDID - lobby (private party) session - there are %d members. Joinability = %d\n", v66._Mypair._Myval2._Mylast - v66._Mypair._Myval2._Myfirst, (unsigned int)v40);
-      v41 = v77._Rep;
-      if ( v77._Rep )
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v76);
+      v64 = v63 | 0x700;
+      v40 = xbox::services::multiplayer::manager::multiplayer_manager::joinability(v76._Ptr);
+      Myfirst = v65._Mypair._Myval2._Myfirst;
+      Com_Printf(25, "Xb3MultiplayerManager::CopySessionMPSDID - lobby (private party) session - there are %d members. Joinability = %d\n", v65._Mypair._Myval2._Mylast - v65._Mypair._Myval2._Myfirst, (unsigned int)v40);
+      v41 = v76._Rep;
+      if ( v76._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v77._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v76._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v41->_Destroy(v41);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v41->_Weaks, 0xFFFFFFFF) == 1 )
             v41->_Delete_this(v41);
         }
-        Myfirst = v66._Mypair._Myval2._Myfirst;
+        Myfirst = v65._Mypair._Myval2._Myfirst;
       }
-      if ( Myfirst != v66._Mypair._Myval2._Mylast )
+      if ( Myfirst != v65._Mypair._Myval2._Mylast )
       {
         do
         {
-          xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v78);
-          v65 |= 0x800u;
-          Ptr = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v78._Ptr, &v96)->_Ptr;
+          xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v77);
+          v64 |= 0x800u;
+          Ptr = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v77._Ptr, &v95)->_Ptr;
           v43 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(Myfirst->_Ptr);
           v44 = "NOT HOST";
           if ( xbox::services::multiplayer::manager::multiplayer_lobby_session::is_host(Ptr, v43) )
@@ -3279,20 +3176,20 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           if ( v47->_Mypair._Myval2._Myres >= 8 )
             v47 = (const std::wstring *)v47->_Mypair._Myval2._Bx._Ptr;
           Com_Printf(25, "\t--%S - %S (%s)\n", v47->_Mypair._Myval2._Bx._Buf, v46, v44);
-          v48 = v96._Rep;
-          if ( v96._Rep )
+          v48 = v95._Rep;
+          if ( v95._Rep )
           {
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v96._Rep->_Uses, 0xFFFFFFFF) == 1 )
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v95._Rep->_Uses, 0xFFFFFFFF) == 1 )
             {
               v48->_Destroy(v48);
               if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v48->_Weaks, 0xFFFFFFFF) == 1 )
                 v48->_Delete_this(v48);
             }
           }
-          v49 = v78._Rep;
-          if ( v78._Rep )
+          v49 = v77._Rep;
+          if ( v77._Rep )
           {
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v78._Rep->_Uses, 0xFFFFFFFF) == 1 )
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v77._Rep->_Uses, 0xFFFFFFFF) == 1 )
             {
               v49->_Destroy(v49);
               if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v49->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3301,13 +3198,13 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           }
           ++Myfirst;
         }
-        while ( Myfirst != v66._Mypair._Myval2._Mylast );
-        Myfirst = v66._Mypair._Myval2._Myfirst;
+        while ( Myfirst != v65._Mypair._Myval2._Mylast );
+        Myfirst = v65._Mypair._Myval2._Myfirst;
       }
       if ( !Myfirst )
         goto LABEL_124;
-      std::_Destroy_range<std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>>(Myfirst, v66._Mypair._Myval2._Mylast, (std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> > *)&v66);
-      v27 = ((char *)v66._Mypair._Myval2._Myend - (char *)Myfirst) & 0xFFFFFFFFFFFFFFF0ui64;
+      std::_Destroy_range<std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>>(Myfirst, v65._Mypair._Myval2._Mylast, (std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> > *)&v65);
+      v27 = ((char *)v65._Mypair._Myval2._Myend - (char *)Myfirst) & 0xFFFFFFFFFFFFFFF0ui64;
       v50 = Myfirst;
       if ( v27 >= 0x1000 )
       {
@@ -3325,22 +3222,22 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
       if ( v5 != 1 )
         goto LABEL_133;
       xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
-      v60 = 4104;
+      v59 = 4104;
       v7 = 0;
       if ( result._Ptr )
       {
-        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v68);
-        v60 = 12344;
-        if ( xbox::services::multiplayer::manager::multiplayer_manager::game_session(v68._Ptr, &v89)->_Ptr )
+        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v67);
+        v59 = 12344;
+        if ( xbox::services::multiplayer::manager::multiplayer_manager::game_session(v67._Ptr, &v88)->_Ptr )
           v7 = 1;
       }
-      if ( (v60 & 0x20) != 0 )
+      if ( (v59 & 0x20) != 0 )
       {
-        v60 &= ~0x20u;
-        v8 = v89._Rep;
-        if ( v89._Rep )
+        v59 &= ~0x20u;
+        v8 = v88._Rep;
+        if ( v88._Rep )
         {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v89._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v88._Rep->_Uses, 0xFFFFFFFF) == 1 )
           {
             v8->_Destroy(v8);
             if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3348,13 +3245,13 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           }
         }
       }
-      if ( (v60 & 0x10) != 0 )
+      if ( (v59 & 0x10) != 0 )
       {
-        v60 &= ~0x10u;
-        v9 = v68._Rep;
-        if ( v68._Rep )
+        v59 &= ~0x10u;
+        v9 = v67._Rep;
+        if ( v67._Rep )
         {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v68._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v67._Rep->_Uses, 0xFFFFFFFF) == 1 )
           {
             v9->_Destroy(v9);
             if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3362,7 +3259,7 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           }
         }
       }
-      v61 = v60 & 0xFFFFFFF7;
+      v60 = v59 & 0xFFFFFFF7;
       v10 = result._Rep;
       if ( result._Rep )
       {
@@ -3375,64 +3272,64 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
       }
       if ( !v7 )
         goto LABEL_133;
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v70);
-      v11 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v70._Ptr, &v90);
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v69);
+      v11 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v69._Ptr, &v89);
       v6 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_game_session::session_reference(v11->_Ptr);
-      v12 = v90._Rep;
-      if ( v90._Rep )
+      v12 = v89._Rep;
+      if ( v89._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v90._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v89._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v12->_Destroy(v12);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
             v12->_Delete_this(v12);
         }
       }
-      v13 = v70._Rep;
-      if ( v70._Rep )
+      v13 = v69._Rep;
+      if ( v69._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v70._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v69._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v13->_Destroy(v13);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13->_Weaks, 0xFFFFFFFF) == 1 )
             v13->_Delete_this(v13);
         }
       }
-      _RSI = Lobby_GetPartyData();
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v71);
-      v62 = v61 | 0xC000;
-      v14 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v71._Ptr, &v91);
+      PartyData = Lobby_GetPartyData();
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v70);
+      v61 = v60 | 0xC000;
+      v14 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v70._Ptr, &v90);
       v15 = xbox::services::multiplayer::manager::multiplayer_game_session::members(v14->_Ptr);
-      std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>(&v67, v15);
-      v16 = v91._Rep;
-      if ( v91._Rep )
+      std::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>::vector<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>(&v66, v15);
+      v16 = v90._Rep;
+      if ( v90._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v91._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v90._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v16->_Destroy(v16);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->_Weaks, 0xFFFFFFFF) == 1 )
             v16->_Delete_this(v16);
         }
       }
-      v17 = v71._Rep;
-      if ( v71._Rep )
+      v17 = v70._Rep;
+      if ( v70._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v71._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v70._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v17->_Destroy(v17);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v17->_Weaks, 0xFFFFFFFF) == 1 )
             v17->_Delete_this(v17);
         }
       }
-      Myfirst = v67._Mypair._Myval2._Myfirst;
-      Com_Printf(25, "Xb3MultiplayerManager::CopySessionMPSDID - game session - there are %d members.\n", v67._Mypair._Myval2._Mylast - v67._Mypair._Myval2._Myfirst);
-      if ( Myfirst != v67._Mypair._Myval2._Mylast )
+      Myfirst = v66._Mypair._Myval2._Myfirst;
+      Com_Printf(25, "Xb3MultiplayerManager::CopySessionMPSDID - game session - there are %d members.\n", v66._Mypair._Myval2._Mylast - v66._Mypair._Myval2._Myfirst);
+      if ( Myfirst != v66._Mypair._Myval2._Mylast )
       {
         do
         {
-          xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v72);
-          v62 |= 0x10000u;
-          v19 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v72._Ptr, &v92)->_Ptr;
+          xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v71);
+          v61 |= 0x10000u;
+          v19 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v71._Ptr, &v91)->_Ptr;
           v20 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(Myfirst->_Ptr);
           v21 = "NOT HOST";
           if ( xbox::services::multiplayer::manager::multiplayer_game_session::is_host(v19, v20) )
@@ -3445,20 +3342,20 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           if ( v24->_Mypair._Myval2._Myres >= 8 )
             v24 = (const std::wstring *)v24->_Mypair._Myval2._Bx._Ptr;
           Com_Printf(25, "\t--%S - %S (%s)\n", v24->_Mypair._Myval2._Bx._Buf, v23, v21);
-          v25 = v92._Rep;
-          if ( v92._Rep )
+          v25 = v91._Rep;
+          if ( v91._Rep )
           {
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v92._Rep->_Uses, 0xFFFFFFFF) == 1 )
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v91._Rep->_Uses, 0xFFFFFFFF) == 1 )
             {
               v25->_Destroy(v25);
               if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25->_Weaks, 0xFFFFFFFF) == 1 )
                 v25->_Delete_this(v25);
             }
           }
-          v26 = v72._Rep;
-          if ( v72._Rep )
+          v26 = v71._Rep;
+          if ( v71._Rep )
           {
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v72._Rep->_Uses, 0xFFFFFFFF) == 1 )
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v71._Rep->_Uses, 0xFFFFFFFF) == 1 )
             {
               v26->_Destroy(v26);
               if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3467,44 +3364,40 @@ void Xb3MultiplayerManager::CopySessionMPSDID(xbox::services::multiplayer::manag
           }
           ++Myfirst;
         }
-        while ( Myfirst != v67._Mypair._Myval2._Mylast );
-        Myfirst = v67._Mypair._Myval2._Myfirst;
+        while ( Myfirst != v66._Mypair._Myval2._Mylast );
+        Myfirst = v66._Mypair._Myval2._Myfirst;
       }
       if ( !Myfirst )
       {
 LABEL_124:
-        if ( v6 && _RSI )
+        if ( v6 && PartyData )
         {
           v51 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v6);
           if ( v51->_Mypair._Myval2._Myres >= 8 )
             v51 = (const std::wstring *)v51->_Mypair._Myval2._Bx._Ptr;
           swprintf(_Buffer, L"{%s}", v51);
           IIDFromString(_Buffer, &iid);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+350h+iid.Data1]
-            vmovups xmmword ptr [rsi+56C68h], xmm0
-          }
+          PartyData->mpsdSessionID = iid;
           if ( !fromJoin )
           {
-            GameFlags = Party_GetGameFlags(_RSI);
-            Party_SetGameFlags(_RSI, GameFlags | 0x1000);
+            GameFlags = Party_GetGameFlags(PartyData);
+            Party_SetGameFlags(PartyData, GameFlags | 0x1000);
           }
           MPSDIDToString(&iid, str);
-          v54 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v6);
-          v55 = (const wchar_t *)v54;
-          if ( v54->_Mypair._Myval2._Myres >= 8 )
-            v55 = v54->_Mypair._Myval2._Bx._Ptr;
-          IsValidSessionId = XSESSION_INFO::IsValidSessionId(&_RSI->session->dyn.sessionInfo);
-          Com_Printf(16, "Xb3MultiplayerManager::CopySessionMPSDID: %s(%d) Session MPSDID is: %S - %s\n", _RSI->partyName, IsValidSessionId, v55, str);
+          v53 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v6);
+          v54 = (const wchar_t *)v53;
+          if ( v53->_Mypair._Myval2._Myres >= 8 )
+            v54 = v53->_Mypair._Myval2._Bx._Ptr;
+          IsValidSessionId = XSESSION_INFO::IsValidSessionId(&PartyData->session->dyn.sessionInfo);
+          Com_Printf(16, "Xb3MultiplayerManager::CopySessionMPSDID: %s(%d) Session MPSDID is: %S - %s\n", PartyData->partyName, IsValidSessionId, v54, str);
           return;
         }
 LABEL_133:
-        Com_Printf(16, "Xb3MultiplayerManager::CopySessionMPSDID: sessionReference = %p party = %p\n", v6, _RSI);
+        Com_Printf(16, "Xb3MultiplayerManager::CopySessionMPSDID: sessionReference = %p party = %p\n", v6, PartyData);
         return;
       }
-      std::_Destroy_range<std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>>(Myfirst, v67._Mypair._Myval2._Mylast, (std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> > *)&v67);
-      v27 = ((char *)v67._Mypair._Myval2._Myend - (char *)Myfirst) & 0xFFFFFFFFFFFFFFF0ui64;
+      std::_Destroy_range<std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>>>(Myfirst, v66._Mypair._Myval2._Mylast, (std::allocator<std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> > *)&v66);
+      v27 = ((char *)v66._Mypair._Myval2._Myend - (char *)Myfirst) & 0xFFFFFFFFFFFFFFF0ui64;
       v28 = Myfirst;
       if ( v27 >= 0x1000 )
       {
@@ -3517,12 +3410,12 @@ LABEL_133:
     operator delete(Myfirst, v27);
     goto LABEL_124;
   }
-  v57 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
-  v58 = (const char *)v57;
-  if ( v57->_Mypair._Myval2._Myres >= 0x10 )
-    v58 = v57->_Mypair._Myval2._Bx._Ptr;
-  v59 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
-  Com_Printf(25, "Xb3MultiplayerManager::CopySessionMPSDID - err (%d - %s)\n", (unsigned int)v59->_Myval, v58);
+  v56 = xbox::services::multiplayer::manager::multiplayer_event::err_message(event);
+  v57 = (const char *)v56;
+  if ( v56->_Mypair._Myval2._Myres >= 0x10 )
+    v57 = v56->_Mypair._Myval2._Bx._Ptr;
+  v58 = xbox::services::multiplayer::manager::multiplayer_event::err(event);
+  Com_Printf(25, "Xb3MultiplayerManager::CopySessionMPSDID - err (%d - %s)\n", (unsigned int)v58->_Myval, v57);
 }
 
 /*
@@ -3538,25 +3431,25 @@ __int64 Xb3MultiplayerManager::CreateGameLobbySession(Xb3MultiplayerManager *thi
   std::_Ref_count_base *v7; 
   std::_Ref_count_base *v8; 
   xbox::services::multiplayer::manager::multiplayer_manager *v9; 
-  unsigned __int64 v11; 
-  wchar_t *v12; 
-  std::_Ref_count_base *v14; 
+  unsigned __int64 v10; 
+  wchar_t *v11; 
+  std::_Ref_count_base *v12; 
   int Myval; 
   std::string *p_m_errorMessage; 
-  unsigned int v17; 
-  unsigned __int8 v18; 
-  unsigned __int64 v19; 
-  char *v20; 
+  unsigned int v15; 
+  unsigned __int8 v16; 
+  unsigned __int64 v17; 
+  char *v18; 
   char *fmt; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v24; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v25; 
-  __int64 v26; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v27; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v22; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v23; 
+  __int64 v24; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v25; 
   std::wstring sessionTemplateName; 
-  xbox::services::xbox_live_result<void> v29; 
+  xbox::services::xbox_live_result<void> v27; 
 
-  v26 = -2i64;
+  v24 = -2i64;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
   Rep = result._Rep;
@@ -3571,22 +3464,22 @@ __int64 Xb3MultiplayerManager::CreateGameLobbySession(Xb3MultiplayerManager *thi
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1292, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v24);
-  v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v24._Ptr, &v27)->_Ptr;
-  v7 = v27._Rep;
-  if ( v27._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v22);
+  v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v22._Ptr, &v25)->_Ptr;
+  v7 = v25._Rep;
+  if ( v25._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v27._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v7->_Destroy(v7);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v7->_Weaks, 0xFFFFFFFF) == 1 )
         v7->_Delete_this(v7);
     }
   }
-  v8 = v24._Rep;
-  if ( v24._Rep )
+  v8 = v22._Rep;
+  if ( v22._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v24._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v22._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3599,75 +3492,67 @@ __int64 Xb3MultiplayerManager::CreateGameLobbySession(Xb3MultiplayerManager *thi
     __debugbreak();
   if ( s_currentSessionTaskParams_0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1297, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams == nullptr)", (const char *)&queryFormat, "s_currentSessionTaskParams == nullptr") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v25);
-  v9 = v25._Ptr;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+57h+sessionTemplateName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v23);
+  v9 = v23._Ptr;
+  *(_OWORD *)&sessionTemplateName._Mypair._Myval2._Mysize = _xmm;
   sessionTemplateName._Mypair._Myval2._Bx._Buf[0] = 0;
   std::wstring::assign(&sessionTemplateName, L"GameSession", 0xBui64);
-  xbox::services::multiplayer::manager::multiplayer_manager::join_game_from_lobby(v9, &v29, &sessionTemplateName);
+  xbox::services::multiplayer::manager::multiplayer_manager::join_game_from_lobby(v9, &v27, &sessionTemplateName);
   if ( sessionTemplateName._Mypair._Myval2._Myres >= 8 )
   {
-    v11 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 2;
-    v12 = sessionTemplateName._Mypair._Myval2._Bx._Ptr;
-    if ( v11 >= 0x1000 )
+    v10 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 2;
+    v11 = sessionTemplateName._Mypair._Myval2._Bx._Ptr;
+    if ( v10 >= 0x1000 )
     {
-      v11 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 41;
-      v12 = (wchar_t *)*((_QWORD *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - (char *)v12 - 8) > 0x1F )
+      v10 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 41;
+      v11 = (wchar_t *)*((_QWORD *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - (char *)v11 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v12, v11);
+    operator delete(v11, v10);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+57h+sessionTemplateName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&sessionTemplateName._Mypair._Myval2._Mysize = _xmm;
   sessionTemplateName._Mypair._Myval2._Bx._Buf[0] = 0;
-  v14 = v25._Rep;
-  if ( v25._Rep )
+  v12 = v23._Rep;
+  if ( v23._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v23._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
-      v14->_Destroy(v14);
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14->_Weaks, 0xFFFFFFFF) == 1 )
-        v14->_Delete_this(v14);
+      v12->_Destroy(v12);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
+        v12->_Delete_this(v12);
     }
   }
-  Myval = v29.m_errorCode._Myval;
-  if ( v29.m_errorCode._Myval )
+  Myval = v27.m_errorCode._Myval;
+  if ( v27.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v29.m_errorMessage;
-    if ( v29.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v29.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    v17 = Sys_Milliseconds();
+    p_m_errorMessage = &v27.m_errorMessage;
+    if ( v27.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v27.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    v15 = Sys_Milliseconds();
     LODWORD(fmt) = Myval;
-    Com_PrintError(25, "%i Xb3MultiplayerManager::CreateGameLobbySession - join_game_from_lobby failed - %s [%x].", v17, p_m_errorMessage->_Mypair._Myval2._Bx._Buf, fmt);
-    v18 = 0;
+    Com_PrintError(25, "%i Xb3MultiplayerManager::CreateGameLobbySession - join_game_from_lobby failed - %s [%x].", v15, p_m_errorMessage->_Mypair._Myval2._Bx._Buf, fmt);
+    v16 = 0;
   }
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    v18 = 1;
+    v16 = 1;
   }
-  if ( v29.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+  if ( v27.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
   {
-    v19 = v29.m_errorMessage._Mypair._Myval2._Myres + 1;
-    v20 = v29.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    if ( v29.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+    v17 = v27.m_errorMessage._Mypair._Myval2._Myres + 1;
+    v18 = v27.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    if ( v27.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
     {
-      v19 = v29.m_errorMessage._Mypair._Myval2._Myres + 40;
-      v20 = (char *)*((_QWORD *)v29.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)(v29.m_errorMessage._Mypair._Myval2._Bx._Ptr - v20 - 8) > 0x1F )
+      v17 = v27.m_errorMessage._Mypair._Myval2._Myres + 40;
+      v18 = (char *)*((_QWORD *)v27.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)(v27.m_errorMessage._Mypair._Myval2._Bx._Ptr - v18 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v20, v19);
+    operator delete(v18, v17);
   }
-  return v18;
+  return v16;
 }
 
 /*
@@ -3695,29 +3580,29 @@ char Xb3MultiplayerManager::CreatePrivatePartySession(Xb3MultiplayerManager *thi
   unsigned int v19; 
   unsigned __int64 v20; 
   char *v21; 
-  unsigned __int64 v24; 
-  char *v25; 
+  unsigned __int64 v23; 
+  char *v24; 
   char *fmt; 
-  __int64 v28; 
+  __int64 v26; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v28; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v29; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v30; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v31; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v32; 
-  __int64 v33; 
-  Windows::Xbox::System::User *v34; 
+  __int64 v31; 
+  Windows::Xbox::System::User *v32; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v33; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v34; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v35; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v36; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v37; 
-  xbox::services::xbox_live_result<void> v38; 
+  xbox::services::xbox_live_result<void> v36; 
 
-  v33 = -2i64;
+  v31 = -2i64;
   m_controllerIndex = taskParams->m_controllerIndex;
   if ( s_currentSessionTaskParams_0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1224, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams == nullptr)", (const char *)&queryFormat, "s_currentSessionTaskParams == nullptr") )
     __debugbreak();
   if ( m_controllerIndex >= 8 )
   {
-    LODWORD(v28) = m_controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1225, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v28, 8) )
+    LODWORD(v26) = m_controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1225, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v26, 8) )
       __debugbreak();
   }
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
@@ -3734,22 +3619,22 @@ char Xb3MultiplayerManager::CreatePrivatePartySession(Xb3MultiplayerManager *thi
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1227, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v30);
-  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v30._Ptr, &v35)->_Ptr;
-  v8 = v35._Rep;
-  if ( v35._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v28);
+  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v28._Ptr, &v33)->_Ptr;
+  v8 = v33._Rep;
+  if ( v33._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v35._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v33._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
         v8->_Delete_this(v8);
     }
   }
-  v9 = v30._Rep;
-  if ( v30._Rep )
+  v9 = v28._Rep;
+  if ( v28._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v30._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v28._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v9->_Destroy(v9);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3758,22 +3643,22 @@ char Xb3MultiplayerManager::CreatePrivatePartySession(Xb3MultiplayerManager *thi
   }
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1228, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v31);
-  v10 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v31._Ptr, &v36)->_Ptr;
-  v11 = v36._Rep;
-  if ( v36._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v29);
+  v10 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v29._Ptr, &v34)->_Ptr;
+  v11 = v34._Rep;
+  if ( v34._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v36._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v34._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v11->_Destroy(v11);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v11->_Weaks, 0xFFFFFFFF) == 1 )
         v11->_Delete_this(v11);
     }
   }
-  v12 = v31._Rep;
-  if ( v31._Rep )
+  v12 = v29._Rep;
+  if ( v29._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v12->_Destroy(v12);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
@@ -3787,62 +3672,58 @@ char Xb3MultiplayerManager::CreatePrivatePartySession(Xb3MultiplayerManager *thi
   if ( Xb3MultiplayerManager::CheckIfAnyActiveClientsAreInGameLobbySession(this) )
     Com_Printf(25, "Xb3MultiplayerManager: CreatePrivatePartySession, found users in the game session\n");
   CachedXboxUser = Live_GetCachedXboxUser(m_controllerIndex);
-  v34 = CachedXboxUser;
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v32);
-  v14 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v32._Ptr, &v37)->_Ptr;
+  v32 = CachedXboxUser;
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v30);
+  v14 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v30._Ptr, &v35)->_Ptr;
   if ( CachedXboxUser )
     CachedXboxUser->__abi_AddRef(CachedXboxUser);
-  xbox::services::multiplayer::manager::multiplayer_lobby_session::add_local_user(v14, &v38, CachedXboxUser);
+  xbox::services::multiplayer::manager::multiplayer_lobby_session::add_local_user(v14, &v36, CachedXboxUser);
   if ( CachedXboxUser )
     CachedXboxUser->__abi_Release(CachedXboxUser);
-  v15 = v37._Rep;
-  if ( v37._Rep )
+  v15 = v35._Rep;
+  if ( v35._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v37._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v35._Rep->_Uses) )
     {
       v15->_Destroy(v15);
       if ( !_InterlockedDecrement((volatile signed __int32 *)&v15->_Weaks) )
         v15->_Delete_this(v15);
     }
   }
-  v16 = v32._Rep;
-  if ( v32._Rep )
+  v16 = v30._Rep;
+  if ( v30._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v32._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v30._Rep->_Uses) )
     {
       v16->_Destroy(v16);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->_Weaks, 0xFFFFFFFF) == 1 )
         v16->_Delete_this(v16);
     }
   }
-  Myval = v38.m_errorCode._Myval;
-  if ( v38.m_errorCode._Myval )
+  Myval = v36.m_errorCode._Myval;
+  if ( v36.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v38.m_errorMessage;
-    if ( v38.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v38.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    p_m_errorMessage = &v36.m_errorMessage;
+    if ( v36.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v36.m_errorMessage._Mypair._Myval2._Bx._Ptr;
     v19 = Sys_Milliseconds();
     LODWORD(fmt) = Myval;
     Com_PrintError(25, "%i Xb3MultiplayerManager::CreatePrivatePartySession : add_local_user failed - %s [%x].\n", v19, p_m_errorMessage->_Mypair._Myval2._Bx._Buf, fmt);
-    if ( v38.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v36.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v20 = v38.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v21 = v38.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v38.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v20 = v36.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v21 = v36.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v36.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v20 = v38.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v21 = (char *)*((_QWORD *)v38.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v38.m_errorMessage._Mypair._Myval2._Bx._Ptr - v21 - 8) > 0x1F )
+        v20 = v36.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v21 = (char *)*((_QWORD *)v36.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v36.m_errorMessage._Mypair._Myval2._Bx._Ptr - v21 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v21, v20);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+1Fh], xmm0
-    }
-    v38.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v36.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v36.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 0;
@@ -3850,25 +3731,21 @@ char Xb3MultiplayerManager::CreatePrivatePartySession(Xb3MultiplayerManager *thi
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    if ( v38.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v36.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v24 = v38.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v25 = v38.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v38.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v23 = v36.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v24 = v36.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v36.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v24 = v38.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v25 = (char *)*((_QWORD *)v38.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v38.m_errorMessage._Mypair._Myval2._Bx._Ptr - v25 - 8) > 0x1F )
+        v23 = v36.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v24 = (char *)*((_QWORD *)v36.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v36.m_errorMessage._Mypair._Myval2._Bx._Ptr - v24 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v25, v24);
+      operator delete(v24, v23);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+1Fh], xmm0
-    }
-    v38.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v36.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v36.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 1;
@@ -4242,58 +4119,54 @@ void GetActivitySessionsDetailComplete(GenericTask *pTask, eTaskManagerTaskState
   wchar_t *v32; 
   __int64 v33; 
   char *fmt; 
-  __int64 v37; 
+  __int64 v35; 
   HSTRING string; 
   HSTRING newString; 
-  unsigned int v40; 
-  unsigned int v41; 
-  __int64 v42; 
+  unsigned int v38; 
+  unsigned int v39; 
+  __int64 v40; 
+  HSTRING v41; 
+  _BYTE v42[24]; 
   HSTRING v43; 
-  _BYTE v44[24]; 
-  HSTRING v45; 
-  __int64 v46; 
+  __int64 v44; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  HSTRING v48; 
-  __int64 v49; 
-  __int64 v50; 
-  Windows::Xbox::System::User *v51; 
+  HSTRING v46; 
+  __int64 v47; 
+  __int64 v48; 
+  Windows::Xbox::System::User *v49; 
+  HSTRING v50; 
+  HSTRING v51; 
   HSTRING v52; 
   HSTRING v53; 
   HSTRING v54; 
-  HSTRING v55; 
-  HSTRING v56; 
+  __int64 v55; 
+  __int128 v56; 
   __int64 v57; 
-  __int128 v58; 
   std::wstring handleId; 
-  xbox::services::xbox_live_result<void> v61; 
+  xbox::services::xbox_live_result<void> v59; 
   char _Buffer[256]; 
   char contextString[256]; 
 
-  v50 = -2i64;
+  v48 = -2i64;
   v3 = NULL;
   m_controllerIndex = pTask->m_controllerIndex;
-  v41 = m_controllerIndex;
+  v39 = m_controllerIndex;
   v5 = 0;
   if ( taskState )
   {
     j_sprintf_s(contextString, 0x100ui64, "%d %d", m_controllerIndex, taskState);
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, contextString);
 LABEL_77:
-    *(_DWORD *)v44 = -1;
-    memset(&v44[4], 0, 17);
+    *(_DWORD *)v42 = -1;
+    memset(&v42[4], 0, 17);
     if ( !s_currentSessionTaskParams_0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1411, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams != nullptr)", (const char *)&queryFormat, "s_currentSessionTaskParams != nullptr") )
       __debugbreak();
-    *(_DWORD *)v44 = s_currentSessionTaskParams_0->m_controllerIndex;
-    v44[20] = 1;
+    *(_DWORD *)v42 = s_currentSessionTaskParams_0->m_controllerIndex;
+    v42[20] = 1;
     Com_Printf(25, "The join attempt failed because the GetActivitySessionsDetailComplete failed");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+3A0h+var_338]
-      vmovups [rbp+2A0h+var_2B0], xmm0
-      vmovsd  xmm1, qword ptr [rsp+78h]
-      vmovsd  [rbp+2A0h+var_2A0], xmm1
-    }
-    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v58);
+    v56 = *(_OWORD *)v42;
+    v57 = *(__int64 *)&v42[16];
+    ((void (__fastcall *)(__int128 *))s_currentSessionTaskParams_0->m_failedCallback)(&v56);
     s_currentSessionTaskParams_0 = NULL;
     return;
   }
@@ -4302,76 +4175,76 @@ LABEL_77:
   newString = CachedXboxUser;
   if ( CachedXboxUser )
     (*(void (__fastcall **)(HSTRING))(*(_QWORD *)CachedXboxUser + 8i64))(CachedXboxUser);
-  v51 = v7;
+  v49 = v7;
   if ( v7 )
     v7->__abi_Release(v7);
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1373, ASSERT_TYPE_ASSERT, "(user != nullptr)", (const char *)&queryFormat, "user != nullptr", 0) )
     __debugbreak();
   m_asyncInfo = pTask->m_asyncInfo;
   v9 = NULL;
-  v43 = NULL;
+  v41 = NULL;
   if ( m_asyncInfo )
   {
-    v10 = m_asyncInfo->__abi_QueryInterface(m_asyncInfo, &_uuidof__AU__IAsyncOperation_PE_AAU__IVectorView_PE_AAVMultiplayerActivityDetails_Multiplayer_Services_Xbox_Microsoft___Collections_Foundation_Windows___Foundation_Windows__, (void **)&v43);
+    v10 = m_asyncInfo->__abi_QueryInterface(m_asyncInfo, &_uuidof__AU__IAsyncOperation_PE_AAU__IVectorView_PE_AAVMultiplayerActivityDetails_Multiplayer_Services_Xbox_Microsoft___Collections_Foundation_Windows___Foundation_Windows__, (void **)&v41);
     if ( v10 < 0 )
       __abi_WinRTraiseException(v10);
-    v9 = v43;
+    v9 = v41;
   }
   newString = v9;
   if ( v9 )
     (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v9 + 8i64))(v9);
-  v52 = v9;
+  v50 = v9;
   if ( v9 )
     (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v9 + 16i64))(v9);
-  v42 = 0i64;
-  v11 = (*(__int64 (__fastcall **)(HSTRING, __int64 *))(*(_QWORD *)v9 + 64i64))(v9, &v42);
+  v40 = 0i64;
+  v11 = (*(__int64 (__fastcall **)(HSTRING, __int64 *))(*(_QWORD *)v9 + 64i64))(v9, &v40);
   if ( v11 < 0 )
     __abi_WinRTraiseException(v11);
-  v12 = v42;
-  v13 = (HSTRING)v42;
-  if ( v42 )
+  v12 = v40;
+  v13 = (HSTRING)v40;
+  if ( v40 )
   {
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v42 + 8i64))(v42);
-    v12 = v42;
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v40 + 8i64))(v40);
+    v12 = v40;
   }
   if ( v12 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v12 + 16i64))(v12);
   newString = v13;
   if ( v13 )
     (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 8i64))(v13);
-  v53 = v13;
+  v51 = v13;
   if ( v13 )
     (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 16i64))(v13);
   if ( v13 )
     (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 8i64))(v13);
-  v56 = v13;
-  v57 = 0i64;
-  v14 = (*(__int64 (__fastcall **)(HSTRING, unsigned int *))(*(_QWORD *)v13 + 56i64))(v13, &v40);
+  v54 = v13;
+  v55 = 0i64;
+  v14 = (*(__int64 (__fastcall **)(HSTRING, unsigned int *))(*(_QWORD *)v13 + 56i64))(v13, &v38);
   if ( v14 < 0 )
     __abi_WinRTraiseException(v14);
-  v15 = v40;
+  v15 = v38;
   (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 8i64))(v13);
-  v48 = v13;
-  v49 = v15;
+  v46 = v13;
+  v47 = v15;
   (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 16i64))(v13);
   (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 8i64))(v13);
-  v45 = v13;
-  v46 = 0i64;
+  v43 = v13;
+  v44 = 0i64;
   v16 = 7;
   if ( v15 )
   {
-    v37 = 0i64;
+    v35 = 0i64;
     for ( i = 0i64; ; i = (unsigned int)v33 )
     {
-      v18 = (*(__int64 (__fastcall **)(HSTRING, __int64, __int64 *))(*(_QWORD *)v13 + 48i64))(v13, i, &v37);
+      v18 = (*(__int64 (__fastcall **)(HSTRING, __int64, __int64 *))(*(_QWORD *)v13 + 48i64))(v13, i, &v35);
       if ( v18 < 0 )
         __abi_WinRTraiseException(v18);
-      v19 = v37;
-      v20 = (HSTRING)v37;
-      if ( v37 )
+      v19 = v35;
+      v20 = (HSTRING)v35;
+      if ( v35 )
       {
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v37 + 8i64))(v37);
-        v19 = v37;
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v35 + 8i64))(v35);
+        v19 = v35;
       }
       if ( v19 )
         (*(void (__fastcall **)(__int64))(*(_QWORD *)v19 + 16i64))(v19);
@@ -4383,7 +4256,7 @@ LABEL_77:
       string = v20;
       if ( v20 )
         (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v20 + 8i64))(v20);
-      v54 = v20;
+      v52 = v20;
       if ( v20 )
         (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v20 + 16i64))(v20);
       string = NULL;
@@ -4400,7 +4273,7 @@ LABEL_77:
         v22 = string;
       }
       WindowsDeleteString_0(v22);
-      v55 = v3;
+      v53 = v3;
       StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v3, NULL);
       handleId._Mypair._Myval2._Mysize = 0i64;
       handleId._Mypair._Myval2._Myres = 7i64;
@@ -4417,7 +4290,7 @@ LABEL_77:
       Com_Printf(25, "GetActivitySessionsDetailComplete: Joining on handle id %s\n", (const char *)p_handleId);
       xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
       v16 |= 8u;
-      xbox::services::multiplayer::manager::multiplayer_manager::join_lobby(result._Ptr, &v61, &handleId, v7);
+      xbox::services::multiplayer::manager::multiplayer_manager::join_lobby(result._Ptr, &v59, &handleId, v7);
       Rep = result._Rep;
       if ( result._Rep )
       {
@@ -4428,37 +4301,37 @@ LABEL_77:
             Rep->_Delete_this(Rep);
         }
       }
-      if ( v61.m_errorCode._Myval )
+      if ( v59.m_errorCode._Myval )
       {
-        LODWORD(fmt) = v61.m_errorCode._Myval;
-        j_sprintf_s(_Buffer, 0x100ui64, "%d %x", v41, fmt);
+        LODWORD(fmt) = v59.m_errorCode._Myval;
+        j_sprintf_s(_Buffer, 0x100ui64, "%d %x", v39, fmt);
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, _Buffer);
-        p_m_errorMessage = &v61.m_errorMessage;
-        if ( v61.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-          p_m_errorMessage = (std::string *)v61.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-        Com_PrintError(25, "Xb3MultiplayerManager::JoinPrivatePartySession failed - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v61.m_errorCode._Myval);
+        p_m_errorMessage = &v59.m_errorMessage;
+        if ( v59.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+          p_m_errorMessage = (std::string *)v59.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+        Com_PrintError(25, "Xb3MultiplayerManager::JoinPrivatePartySession failed - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v59.m_errorCode._Myval);
       }
       else
       {
         v5 = 1;
       }
-      if ( v61.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      if ( v59.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
       {
-        v29 = v61.m_errorMessage._Mypair._Myval2._Myres + 1;
-        Ptr = v61.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-        if ( v61.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+        v29 = v59.m_errorMessage._Mypair._Myval2._Myres + 1;
+        Ptr = v59.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+        if ( v59.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
         {
-          v29 = v61.m_errorMessage._Mypair._Myval2._Myres + 40;
-          Ptr = (char *)*((_QWORD *)v61.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-          if ( (unsigned __int64)(v61.m_errorMessage._Mypair._Myval2._Bx._Ptr - Ptr - 8) > 0x1F )
+          v29 = v59.m_errorMessage._Mypair._Myval2._Myres + 40;
+          Ptr = (char *)*((_QWORD *)v59.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+          if ( (unsigned __int64)(v59.m_errorMessage._Mypair._Myval2._Bx._Ptr - Ptr - 8) > 0x1F )
             _invalid_parameter_noinfo_noreturn();
         }
         operator delete(Ptr, v29);
       }
       v3 = NULL;
-      v61.m_errorMessage._Mypair._Myval2._Mysize = 0i64;
-      v61.m_errorMessage._Mypair._Myval2._Myres = 15i64;
-      v61.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+      v59.m_errorMessage._Mypair._Myval2._Mysize = 0i64;
+      v59.m_errorMessage._Mypair._Myval2._Myres = 15i64;
+      v59.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
       if ( handleId._Mypair._Myval2._Myres >= 8 )
       {
         v31 = 2 * handleId._Mypair._Myval2._Myres + 2;
@@ -4476,11 +4349,11 @@ LABEL_77:
       handleId._Mypair._Myval2._Myres = 7i64;
       handleId._Mypair._Myval2._Bx._Buf[0] = 0;
       (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v20 + 16i64))(v20);
-      v33 = v46 + 1;
-      v46 = v33;
-      if ( v33 == v49 )
+      v33 = v44 + 1;
+      v44 = v33;
+      if ( v33 == v47 )
         break;
-      v37 = 0i64;
+      v35 = 0i64;
     }
   }
   (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v13 + 16i64))(v13);
@@ -5627,59 +5500,59 @@ std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *Xb3Mu
   std::_Ref_count_base *v17; 
   wchar_t *v18; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *Myfirst; 
-  const std::wstring *v22; 
-  __int64 v23; 
-  std::wstring *v24; 
-  std::wstring *v25; 
+  const std::wstring *v20; 
+  __int64 v21; 
+  std::wstring *v22; 
+  std::wstring *v23; 
   unsigned __int64 Mysize; 
+  unsigned __int16 v25; 
+  bool v26; 
   unsigned __int16 v27; 
-  bool v28; 
-  unsigned __int16 v29; 
-  std::_Ref_count_base *v30; 
-  std::_Ref_count_base *v31; 
-  unsigned __int64 v32; 
-  wchar_t *v33; 
-  int v35; 
-  int v36; 
+  std::_Ref_count_base *v28; 
+  std::_Ref_count_base *v29; 
+  unsigned __int64 v30; 
+  wchar_t *v31; 
+  int v33; 
+  int v34; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> resulta; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v36; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v37; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v38; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v39; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v40; 
-  __int64 v41; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v42; 
+  __int64 v39; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v40; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *Mylast; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v44; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v45; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v46; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v47; 
-  std::wstring v48; 
-  std::wstring v49; 
-  char v50[6]; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v42; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v43; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v44; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v45; 
+  std::wstring v46; 
+  std::wstring v47; 
+  char v48[6]; 
 
-  v41 = -2i64;
-  v42 = result;
+  v39 = -2i64;
+  v40 = result;
   result->_Ptr = NULL;
   result->_Rep = NULL;
   if ( sessionType )
   {
     if ( sessionType != 1 )
       return result;
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v39);
-    Ptr = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v39._Ptr, &v46)->_Ptr;
-    Rep = v46._Rep;
-    if ( v46._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v37);
+    Ptr = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v37._Ptr, &v44)->_Ptr;
+    Rep = v44._Rep;
+    if ( v44._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v46._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v44._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         Rep->_Destroy(Rep);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
           Rep->_Delete_this(Rep);
       }
     }
-    v15 = v39._Rep;
-    if ( v39._Rep )
+    v15 = v37._Rep;
+    if ( v37._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v39._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v37._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v15->_Destroy(v15);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15->_Weaks, 0xFFFFFFFF) == 1 )
@@ -5688,30 +5561,30 @@ std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *Xb3Mu
     }
     if ( !Ptr )
       return result;
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v40);
-    v35 = 25;
-    v16 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v40._Ptr, &v47);
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v38);
+    v33 = 25;
+    v16 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v38._Ptr, &v45);
     v10 = xbox::services::multiplayer::manager::multiplayer_game_session::members(v16->_Ptr);
-    v17 = v47._Rep;
-    if ( v47._Rep )
+    v17 = v45._Rep;
+    if ( v45._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v47._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v45._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v17->_Destroy(v17);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v17->_Weaks, 0xFFFFFFFF) == 1 )
           v17->_Delete_this(v17);
       }
     }
-    v12 = v40._Rep;
+    v12 = v38._Rep;
   }
   else
   {
     xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&resulta);
-    v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(resulta._Ptr, &v44)->_Ptr;
-    v7 = v44._Rep;
-    if ( v44._Rep )
+    v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(resulta._Ptr, &v42)->_Ptr;
+    v7 = v42._Rep;
+    if ( v42._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v44._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v42._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v7->_Destroy(v7);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v7->_Weaks, 0xFFFFFFFF) == 1 )
@@ -5730,21 +5603,21 @@ std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *Xb3Mu
     }
     if ( !v6 )
       return result;
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v38);
-    v35 = 7;
-    v9 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v38._Ptr, &v45);
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v36);
+    v33 = 7;
+    v9 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v36._Ptr, &v43);
     v10 = xbox::services::multiplayer::manager::multiplayer_lobby_session::members(v9->_Ptr);
-    v11 = v45._Rep;
-    if ( v45._Rep )
+    v11 = v43._Rep;
+    if ( v43._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v45._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v43._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v11->_Destroy(v11);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v11->_Weaks, 0xFFFFFFFF) == 1 )
           v11->_Delete_this(v11);
       }
     }
-    v12 = v38._Rep;
+    v12 = v36._Rep;
   }
   if ( v12 )
   {
@@ -5757,88 +5630,80 @@ std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *Xb3Mu
   }
   if ( v10 )
   {
-    v49._Mypair._Myval2._Mysize = 0i64;
-    v49._Mypair._Myval2._Myres = 7i64;
-    v49._Mypair._Myval2._Bx._Buf[0] = 0;
-    v18 = (wchar_t *)v50;
+    v47._Mypair._Myval2._Mysize = 0i64;
+    v47._Mypair._Myval2._Myres = 7i64;
+    v47._Mypair._Myval2._Bx._Buf[0] = 0;
+    v18 = (wchar_t *)v48;
     do
     {
       *--v18 = platformId % 0xA + 48;
       platformId /= 0xAui64;
     }
     while ( platformId );
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+50h+var_90.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
-    v48._Mypair._Myval2._Bx._Buf[0] = 0;
-    if ( v18 != (wchar_t *)v50 )
-      std::wstring::assign(&v48, v18, (v50 - (char *)v18) >> 1);
-    v36 = v35 | 0x60;
-    std::wstring::_Tidy_deallocate(&v49);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+50h+var_90.baseclass_0._Mypair._Myval2._Bx]
-      vmovups ymmword ptr [rbp+50h+var_70.baseclass_0._Mypair._Myval2._Bx], ymm0
-    }
+    *(_OWORD *)&v46._Mypair._Myval2._Mysize = _xmm;
+    v46._Mypair._Myval2._Bx._Buf[0] = 0;
+    if ( v18 != (wchar_t *)v48 )
+      std::wstring::assign(&v46, v18, (v48 - (char *)v18) >> 1);
+    v34 = v33 | 0x60;
+    std::wstring::_Tidy_deallocate(&v47);
+    v47 = v46;
     Myfirst = v10->_Mypair._Myval2._Myfirst;
     if ( v10->_Mypair._Myval2._Myfirst != v10->_Mypair._Myval2._Mylast )
     {
       do
       {
-        v22 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(Myfirst->_Ptr);
-        v24 = (std::wstring *)v22;
-        v25 = &v49;
-        if ( v48._Mypair._Myval2._Myres >= 8 )
-          v25 = (std::wstring *)v48._Mypair._Myval2._Bx._Ptr;
-        Mysize = v22->_Mypair._Myval2._Mysize;
-        if ( v22->_Mypair._Myval2._Myres >= 8 )
-          v24 = (std::wstring *)v22->_Mypair._Myval2._Bx._Ptr;
-        if ( Mysize == v48._Mypair._Myval2._Mysize )
+        v20 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(Myfirst->_Ptr);
+        v22 = (std::wstring *)v20;
+        v23 = &v47;
+        if ( v46._Mypair._Myval2._Myres >= 8 )
+          v23 = (std::wstring *)v46._Mypair._Myval2._Bx._Ptr;
+        Mysize = v20->_Mypair._Myval2._Mysize;
+        if ( v20->_Mypair._Myval2._Myres >= 8 )
+          v22 = (std::wstring *)v20->_Mypair._Myval2._Bx._Ptr;
+        if ( Mysize == v46._Mypair._Myval2._Mysize )
         {
           if ( Mysize )
           {
-            v27 = v24->_Mypair._Myval2._Bx._Buf[0];
-            v23 = v25->_Mypair._Myval2._Bx._Buf[0];
-            if ( v24->_Mypair._Myval2._Bx._Buf[0] >= (unsigned __int16)v23 )
+            v25 = v22->_Mypair._Myval2._Bx._Buf[0];
+            v21 = v23->_Mypair._Myval2._Bx._Buf[0];
+            if ( v22->_Mypair._Myval2._Bx._Buf[0] >= (unsigned __int16)v21 )
             {
-              v24 = (std::wstring *)((char *)v24 - (__int64)v25);
-              v28 = v27 <= (unsigned __int16)v23;
+              v22 = (std::wstring *)((char *)v22 - (__int64)v23);
+              v26 = v25 <= (unsigned __int16)v21;
               do
               {
-                if ( !v28 )
+                if ( !v26 )
                   break;
                 if ( Mysize == 1 )
                   goto LABEL_53;
                 --Mysize;
-                v25 = (std::wstring *)((char *)v25 + 2);
-                v29 = *(wchar_t *)((char *)v24->_Mypair._Myval2._Bx._Buf + (_QWORD)v25);
-                v23 = v25->_Mypair._Myval2._Bx._Buf[0];
-                v28 = v29 <= (unsigned __int16)v23;
+                v23 = (std::wstring *)((char *)v23 + 2);
+                v27 = *(wchar_t *)((char *)v22->_Mypair._Myval2._Bx._Buf + (_QWORD)v23);
+                v21 = v23->_Mypair._Myval2._Bx._Buf[0];
+                v26 = v27 <= (unsigned __int16)v21;
               }
-              while ( v29 >= (unsigned __int16)v23 );
+              while ( v27 >= (unsigned __int16)v21 );
             }
           }
           else
           {
 LABEL_53:
-            v30 = Myfirst->_Rep;
-            if ( v30 )
+            v28 = Myfirst->_Rep;
+            if ( v28 )
             {
-              _InterlockedIncrement((volatile signed __int32 *)&v30->_Uses);
-              v30 = Myfirst->_Rep;
+              _InterlockedIncrement((volatile signed __int32 *)&v28->_Uses);
+              v28 = Myfirst->_Rep;
             }
             result->_Ptr = Myfirst->_Ptr;
-            v31 = result->_Rep;
-            result->_Rep = v30;
-            if ( v31 )
+            v29 = result->_Rep;
+            result->_Rep = v28;
+            if ( v29 )
             {
-              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31->_Uses, 0xFFFFFFFF) == 1 )
+              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29->_Uses, 0xFFFFFFFF) == 1 )
               {
-                ((void (__fastcall *)(std::_Ref_count_base *, unsigned __int64, __int64, std::wstring *, int))v31->_Destroy)(v31, Mysize, v23, v24, v36);
-                if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31->_Weaks, 0xFFFFFFFF) == 1 )
-                  v31->_Delete_this(v31);
+                ((void (__fastcall *)(std::_Ref_count_base *, unsigned __int64, __int64, std::wstring *, int))v29->_Destroy)(v29, Mysize, v21, v22, v34);
+                if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29->_Weaks, 0xFFFFFFFF) == 1 )
+                  v29->_Delete_this(v29);
               }
             }
           }
@@ -5848,18 +5713,18 @@ LABEL_53:
       }
       while ( Myfirst != Mylast );
     }
-    if ( v48._Mypair._Myval2._Myres >= 8 )
+    if ( v46._Mypair._Myval2._Myres >= 8 )
     {
-      v32 = 2 * v48._Mypair._Myval2._Myres + 2;
-      v33 = v48._Mypair._Myval2._Bx._Ptr;
-      if ( v32 >= 0x1000 )
+      v30 = 2 * v46._Mypair._Myval2._Myres + 2;
+      v31 = v46._Mypair._Myval2._Bx._Ptr;
+      if ( v30 >= 0x1000 )
       {
-        v32 = 2 * v48._Mypair._Myval2._Myres + 41;
-        v33 = (wchar_t *)*((_QWORD *)v48._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)v48._Mypair._Myval2._Bx._Ptr - (char *)v33 - 8) > 0x1F )
+        v30 = 2 * v46._Mypair._Myval2._Myres + 41;
+        v31 = (wchar_t *)*((_QWORD *)v46._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)v46._Mypair._Myval2._Bx._Ptr - (char *)v31 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v33, v32);
+      operator delete(v31, v30);
     }
   }
   return result;
@@ -5959,277 +5824,254 @@ char Xb3MultiplayerManager::InviteUsers(Xb3MultiplayerManager *this, const int l
   __int64 v7; 
   HSTRING v8; 
   const wchar_t *StringRawBuffer_0; 
-  unsigned __int64 v11; 
-  xbox::services::multiplayer::manager::multiplayer_lobby_session *v13; 
+  unsigned __int64 v10; 
+  xbox::services::multiplayer::manager::multiplayer_lobby_session *v11; 
   std::_Ref_count_base *Rep; 
-  std::_Ref_count_base *v15; 
-  std::_Ref_count_base *v16; 
-  xbox::services::multiplayer::multiplayer_session_reference *v17; 
-  const std::wstring *v18; 
+  std::_Ref_count_base *v13; 
+  std::_Ref_count_base *v14; 
+  xbox::services::multiplayer::multiplayer_session_reference *v15; 
+  const std::wstring *v16; 
+  const std::wstring *v17; 
   unsigned __int64 Mysize; 
-  __int64 v22; 
-  void **v23; 
-  const std::wstring *v24; 
-  unsigned __int64 v25; 
-  void *v26; 
+  __int64 v19; 
+  void **v20; 
+  const std::wstring *v21; 
+  unsigned __int64 v22; 
+  void *v23; 
   std::string *p_m_errorMessage; 
-  std::_Ref_count_base *v28; 
-  std::_Ref_count_base *v29; 
+  std::_Ref_count_base *v25; 
+  std::_Ref_count_base *v26; 
+  unsigned __int64 v27; 
+  char *v28; 
+  const std::wstring *v29; 
   unsigned __int64 v30; 
-  char *v31; 
-  const std::wstring *v32; 
-  unsigned __int64 v34; 
-  wchar_t *v35; 
+  wchar_t *v31; 
+  unsigned __int64 v32; 
+  wchar_t *v33; 
+  std::_Ref_count_base *v35; 
+  std::_Ref_count_base *v36; 
   unsigned __int64 v37; 
-  wchar_t *v38; 
-  std::_Ref_count_base *v41; 
-  std::_Ref_count_base *v42; 
-  unsigned __int64 v43; 
-  char *v44; 
-  unsigned __int64 v46; 
-  wchar_t *v47; 
-  unsigned __int64 v49; 
-  wchar_t *v50; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v52; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v53; 
+  char *v38; 
+  unsigned __int64 v39; 
+  wchar_t *v40; 
+  unsigned __int64 v41; 
+  wchar_t *v42; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v43; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v44; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v55; 
-  __int64 v56; 
-  Windows::Xbox::System::User *v57; 
-  Microsoft::Xbox::Services::XboxLiveContext *v58; 
-  __int64 v59; 
-  __int64 v60; 
-  __int64 v61; 
-  __int64 v62; 
-  unsigned __int64 v63; 
-  wchar_t *v64; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v65; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v46; 
+  __int64 v47; 
+  Windows::Xbox::System::User *v48; 
+  Microsoft::Xbox::Services::XboxLiveContext *v49; 
+  __int64 v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
+  unsigned __int64 v54; 
+  wchar_t *v55; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v56; 
   void *ptr[2]; 
-  unsigned __int64 v67; 
-  unsigned __int64 v68; 
+  unsigned __int64 v58; 
+  unsigned __int64 v59; 
   std::wstring customActivationContext; 
   std::wstring contextStringId; 
-  xbox::services::xbox_live_result<void> v71; 
+  xbox::services::xbox_live_result<void> v62; 
 
-  v56 = -2i64;
+  v47 = -2i64;
   UserFromControllerIndex = GetUserFromControllerIndex(localControllerIndex);
-  v57 = UserFromControllerIndex;
+  v48 = UserFromControllerIndex;
   if ( !UserFromControllerIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1159, ASSERT_TYPE_ASSERT, "(currentUser != nullptr)", (const char *)&queryFormat, "currentUser != nullptr", 0i64) )
     __debugbreak();
   UsersXboxLiveContext = Live_GetUsersXboxLiveContext(localControllerIndex);
-  v58 = UsersXboxLiveContext;
+  v49 = UsersXboxLiveContext;
   LOBYTE(v7) = 1;
   v8 = (HSTRING)__abi_details::__abi_ObjectToString(UsersXboxLiveContext, v7);
   WindowsDeleteString_0(NULL);
   StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v8, NULL);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+0A0h+var_B0.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&customActivationContext._Mypair._Myval2._Mysize = _xmm;
   customActivationContext._Mypair._Myval2._Bx._Buf[0] = 0;
-  v11 = -1i64;
+  v10 = -1i64;
   do
-    ++v11;
-  while ( StringRawBuffer_0[v11] );
-  std::wstring::assign(&customActivationContext, StringRawBuffer_0, v11);
+    ++v10;
+  while ( StringRawBuffer_0[v10] );
+  std::wstring::assign(&customActivationContext, StringRawBuffer_0, v10);
   WindowsDeleteString_0(v8);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+0A0h+contextStringId.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&contextStringId._Mypair._Myval2._Mysize = _xmm;
   contextStringId._Mypair._Myval2._Bx._Buf[0] = 0;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
-  v13 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(result._Ptr, &v65)->_Ptr;
+  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(result._Ptr, &v56)->_Ptr;
   if ( UserFromControllerIndex )
     UserFromControllerIndex->__abi_AddRef(UserFromControllerIndex);
-  xbox::services::multiplayer::manager::multiplayer_lobby_session::invite_users(v13, &v71, UserFromControllerIndex, usersToInvite, &contextStringId, &customActivationContext);
+  xbox::services::multiplayer::manager::multiplayer_lobby_session::invite_users(v11, &v62, UserFromControllerIndex, usersToInvite, &contextStringId, &customActivationContext);
   if ( UserFromControllerIndex )
     UserFromControllerIndex->__abi_Release(UserFromControllerIndex);
-  Rep = v65._Rep;
-  if ( v65._Rep )
+  Rep = v56._Rep;
+  if ( v56._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v65._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v56._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       Rep->_Destroy(Rep);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
         Rep->_Delete_this(Rep);
     }
   }
-  v15 = result._Rep;
+  v13 = result._Rep;
   if ( result._Rep )
   {
     if ( _InterlockedExchangeAdd((volatile signed __int32 *)&result._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
-      v15->_Destroy(v15);
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15->_Weaks, 0xFFFFFFFF) == 1 )
-        v15->_Delete_this(v15);
+      v13->_Destroy(v13);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13->_Weaks, 0xFFFFFFFF) == 1 )
+        v13->_Delete_this(v13);
     }
   }
   Com_Printf(25, "Xb3MultiplayerManager::InviteUsers - inviting some people...\n");
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v55);
-  xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v55._Ptr, &v52);
-  v16 = v55._Rep;
-  if ( v55._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v46);
+  xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v46._Ptr, &v43);
+  v14 = v46._Rep;
+  if ( v46._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v55._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v46._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
-      v16->_Destroy(v16);
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->_Weaks, 0xFFFFFFFF) == 1 )
-        v16->_Delete_this(v16);
+      v14->_Destroy(v14);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14->_Weaks, 0xFFFFFFFF) == 1 )
+        v14->_Delete_this(v14);
     }
   }
-  if ( !v52._Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1172, ASSERT_TYPE_ASSERT, "(lobbySession)", (const char *)&queryFormat, "lobbySession", UserFromControllerIndex) )
+  if ( !v43._Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1172, ASSERT_TYPE_ASSERT, "(lobbySession)", (const char *)&queryFormat, "lobbySession", UserFromControllerIndex) )
     __debugbreak();
-  v17 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_lobby_session::session_reference(v52._Ptr);
-  xbox::services::multiplayer::manager::multiplayer_lobby_session::host(v52._Ptr, &v53);
-  if ( v53._Ptr )
+  v15 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_lobby_session::session_reference(v43._Ptr);
+  xbox::services::multiplayer::manager::multiplayer_lobby_session::host(v43._Ptr, &v44);
+  if ( v44._Ptr )
   {
-    v18 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(v53._Ptr);
-    _R14 = v18;
-    v67 = 0i64;
-    v68 = 0i64;
-    Mysize = v18->_Mypair._Myval2._Mysize;
-    if ( v18->_Mypair._Myval2._Myres >= 8 )
-      _R14 = (const std::wstring *)v18->_Mypair._Myval2._Bx._Ptr;
+    v16 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(v44._Ptr);
+    v17 = v16;
+    v58 = 0i64;
+    v59 = 0i64;
+    Mysize = v16->_Mypair._Myval2._Mysize;
+    if ( v16->_Mypair._Myval2._Myres >= 8 )
+      v17 = (const std::wstring *)v16->_Mypair._Myval2._Bx._Ptr;
     if ( Mysize >= 8 )
     {
-      v59 = 8i64;
-      v60 = 0x7FFFFFFFFFFFFFFEi64;
-      v61 = 0x7FFFFFFFFFFFFFFFi64;
-      v62 = 0x7FFFFFFFFFFFFFFEi64;
-      v22 = Mysize | 7;
-      v63 = Mysize | 7;
+      v50 = 8i64;
+      v51 = 0x7FFFFFFFFFFFFFFEi64;
+      v52 = 0x7FFFFFFFFFFFFFFFi64;
+      v53 = 0x7FFFFFFFFFFFFFFEi64;
+      v19 = Mysize | 7;
+      v54 = Mysize | 7;
       if ( (Mysize | 7) > 0x7FFFFFFFFFFFFFFEi64 )
-        v22 = 0x7FFFFFFFFFFFFFFEi64;
-      v64 = std::allocator<wchar_t>::allocate((std::allocator<wchar_t> *)ptr, v22 + 1);
-      ptr[0] = v64;
-      memcpy_0(v64, _R14, 2 * Mysize + 2);
-      v68 = v22;
+        v19 = 0x7FFFFFFFFFFFFFFEi64;
+      v55 = std::allocator<wchar_t>::allocate((std::allocator<wchar_t> *)ptr, v19 + 1);
+      ptr[0] = v55;
+      memcpy_0(v55, v17, 2 * Mysize + 2);
+      v59 = v19;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+0A0h+ptr], xmm0
-      }
-      v68 = 7i64;
+      *(std::_String_val<std::_Simple_types<wchar_t> >::_Bxty *)ptr = v17->_Mypair._Myval2._Bx;
+      v59 = 7i64;
     }
-    v67 = Mysize;
+    v58 = Mysize;
     if ( !Mysize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1180, ASSERT_TYPE_ASSERT, "(hostXUID.length())", (const char *)&queryFormat, "hostXUID.length()") )
       __debugbreak();
-    v23 = ptr;
-    if ( v68 >= 8 )
-      v23 = (void **)ptr[0];
-    v24 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v17);
-    if ( v24->_Mypair._Myval2._Myres >= 8 )
-      v24 = (const std::wstring *)v24->_Mypair._Myval2._Bx._Ptr;
-    Com_Printf(25, "\t\tsession_name = %S\n\t\thandleid = %S\n", v24->_Mypair._Myval2._Bx._Buf, (const wchar_t *)v23);
-    if ( v68 >= 8 )
+    v20 = ptr;
+    if ( v59 >= 8 )
+      v20 = (void **)ptr[0];
+    v21 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v15);
+    if ( v21->_Mypair._Myval2._Myres >= 8 )
+      v21 = (const std::wstring *)v21->_Mypair._Myval2._Bx._Ptr;
+    Com_Printf(25, "\t\tsession_name = %S\n\t\thandleid = %S\n", v21->_Mypair._Myval2._Bx._Buf, (const wchar_t *)v20);
+    if ( v59 >= 8 )
     {
-      v25 = 2 * v68 + 2;
-      v26 = ptr[0];
-      if ( v25 >= 0x1000 )
+      v22 = 2 * v59 + 2;
+      v23 = ptr[0];
+      if ( v22 >= 0x1000 )
       {
-        v25 = 2 * v68 + 41;
-        v26 = (void *)*((_QWORD *)ptr[0] - 1);
-        if ( (unsigned __int64)(ptr[0] - v26 - 8) > 0x1F )
+        v22 = 2 * v59 + 41;
+        v23 = (void *)*((_QWORD *)ptr[0] - 1);
+        if ( (unsigned __int64)(ptr[0] - v23 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v26, v25);
+      operator delete(v23, v22);
     }
   }
   else
   {
-    v32 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v17);
-    if ( v32->_Mypair._Myval2._Myres >= 8 )
-      v32 = (const std::wstring *)v32->_Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "\t\tsession_name = %S\n\t\thandleid = NO HOST!\n", v32->_Mypair._Myval2._Bx._Buf);
+    v29 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v15);
+    if ( v29->_Mypair._Myval2._Myres >= 8 )
+      v29 = (const std::wstring *)v29->_Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "\t\tsession_name = %S\n\t\thandleid = NO HOST!\n", v29->_Mypair._Myval2._Bx._Buf);
   }
-  if ( v71.m_errorCode._Myval )
+  if ( v62.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v71.m_errorMessage;
-    if ( v71.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v71.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::InviteUsers - InviteUsers failed - %s [%x].", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v71.m_errorCode._Myval);
-    v28 = v53._Rep;
-    if ( v53._Rep )
+    p_m_errorMessage = &v62.m_errorMessage;
+    if ( v62.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v62.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::InviteUsers - InviteUsers failed - %s [%x].", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v62.m_errorCode._Myval);
+    v25 = v44._Rep;
+    if ( v44._Rep )
     {
-      if ( !_InterlockedDecrement((volatile signed __int32 *)&v53._Rep->_Uses) )
+      if ( !_InterlockedDecrement((volatile signed __int32 *)&v44._Rep->_Uses) )
       {
-        v28->_Destroy(v28);
-        if ( !_InterlockedDecrement((volatile signed __int32 *)&v28->_Weaks) )
-          v28->_Delete_this(v28);
+        v25->_Destroy(v25);
+        if ( !_InterlockedDecrement((volatile signed __int32 *)&v25->_Weaks) )
+          v25->_Delete_this(v25);
       }
     }
-    v29 = v52._Rep;
-    if ( v52._Rep )
+    v26 = v43._Rep;
+    if ( v43._Rep )
     {
-      if ( !_InterlockedDecrement((volatile signed __int32 *)&v52._Rep->_Uses) )
+      if ( !_InterlockedDecrement((volatile signed __int32 *)&v43._Rep->_Uses) )
       {
-        v29->_Destroy(v29);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29->_Weaks, 0xFFFFFFFF) == 1 )
-          v29->_Delete_this(v29);
+        v26->_Destroy(v26);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26->_Weaks, 0xFFFFFFFF) == 1 )
+          v26->_Delete_this(v26);
       }
     }
-    if ( v71.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v62.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v30 = v71.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v31 = v71.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v71.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v27 = v62.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v28 = v62.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v62.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v30 = v71.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v31 = (char *)*((_QWORD *)v71.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v71.m_errorMessage._Mypair._Myval2._Bx._Ptr - v31 - 8) > 0x1F )
+        v27 = v62.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v28 = (char *)*((_QWORD *)v62.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v62.m_errorMessage._Mypair._Myval2._Bx._Ptr - v28 - 8) > 0x1F )
+          _invalid_parameter_noinfo_noreturn();
+      }
+      operator delete(v28, v27);
+    }
+    *(_OWORD *)&v62.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v62.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    if ( contextStringId._Mypair._Myval2._Myres >= 8 )
+    {
+      v30 = 2 * contextStringId._Mypair._Myval2._Myres + 2;
+      v31 = contextStringId._Mypair._Myval2._Bx._Ptr;
+      if ( v30 >= 0x1000 )
+      {
+        v30 = 2 * contextStringId._Mypair._Myval2._Myres + 41;
+        v31 = (wchar_t *)*((_QWORD *)contextStringId._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)contextStringId._Mypair._Myval2._Bx._Ptr - (char *)v31 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v31, v30);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+50h], xmm0
-    }
-    v71.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
-    if ( contextStringId._Mypair._Myval2._Myres >= 8 )
-    {
-      v34 = 2 * contextStringId._Mypair._Myval2._Myres + 2;
-      v35 = contextStringId._Mypair._Myval2._Bx._Ptr;
-      if ( v34 >= 0x1000 )
-      {
-        v34 = 2 * contextStringId._Mypair._Myval2._Myres + 41;
-        v35 = (wchar_t *)*((_QWORD *)contextStringId._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)contextStringId._Mypair._Myval2._Bx._Ptr - (char *)v35 - 8) > 0x1F )
-          _invalid_parameter_noinfo_noreturn();
-      }
-      operator delete(v35, v34);
-    }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+0A0h+contextStringId.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
+    *(_OWORD *)&contextStringId._Mypair._Myval2._Mysize = _xmm;
     contextStringId._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( customActivationContext._Mypair._Myval2._Myres >= 8 )
     {
-      v37 = 2 * customActivationContext._Mypair._Myval2._Myres + 2;
-      v38 = customActivationContext._Mypair._Myval2._Bx._Ptr;
-      if ( v37 >= 0x1000 )
+      v32 = 2 * customActivationContext._Mypair._Myval2._Myres + 2;
+      v33 = customActivationContext._Mypair._Myval2._Bx._Ptr;
+      if ( v32 >= 0x1000 )
       {
-        v37 = 2 * customActivationContext._Mypair._Myval2._Myres + 41;
-        v38 = (wchar_t *)*((_QWORD *)customActivationContext._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)customActivationContext._Mypair._Myval2._Bx._Ptr - (char *)v38 - 8) > 0x1F )
+        v32 = 2 * customActivationContext._Mypair._Myval2._Myres + 41;
+        v33 = (wchar_t *)*((_QWORD *)customActivationContext._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)customActivationContext._Mypair._Myval2._Bx._Ptr - (char *)v33 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v38, v37);
+      operator delete(v33, v32);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+0A0h+var_B0.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
+    *(_OWORD *)&customActivationContext._Mypair._Myval2._Mysize = _xmm;
     customActivationContext._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( UsersXboxLiveContext )
       UsersXboxLiveContext->__abi_Release(UsersXboxLiveContext);
@@ -6239,82 +6081,70 @@ char Xb3MultiplayerManager::InviteUsers(Xb3MultiplayerManager *this, const int l
   }
   else
   {
-    v41 = v53._Rep;
-    if ( v53._Rep )
+    v35 = v44._Rep;
+    if ( v44._Rep )
     {
-      if ( !_InterlockedDecrement((volatile signed __int32 *)&v53._Rep->_Uses) )
+      if ( !_InterlockedDecrement((volatile signed __int32 *)&v44._Rep->_Uses) )
       {
-        v41->_Destroy(v41);
-        if ( !_InterlockedDecrement((volatile signed __int32 *)&v41->_Weaks) )
-          v41->_Delete_this(v41);
+        v35->_Destroy(v35);
+        if ( !_InterlockedDecrement((volatile signed __int32 *)&v35->_Weaks) )
+          v35->_Delete_this(v35);
       }
     }
-    v42 = v52._Rep;
-    if ( v52._Rep )
+    v36 = v43._Rep;
+    if ( v43._Rep )
     {
-      if ( !_InterlockedDecrement((volatile signed __int32 *)&v52._Rep->_Uses) )
+      if ( !_InterlockedDecrement((volatile signed __int32 *)&v43._Rep->_Uses) )
       {
-        v42->_Destroy(v42);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v42->_Weaks, 0xFFFFFFFF) == 1 )
-          v42->_Delete_this(v42);
+        v36->_Destroy(v36);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v36->_Weaks, 0xFFFFFFFF) == 1 )
+          v36->_Delete_this(v36);
       }
     }
-    if ( v71.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v62.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v43 = v71.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v44 = v71.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v71.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v37 = v62.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v38 = v62.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v62.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v43 = v71.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v44 = (char *)*((_QWORD *)v71.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v71.m_errorMessage._Mypair._Myval2._Bx._Ptr - v44 - 8) > 0x1F )
+        v37 = v62.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v38 = (char *)*((_QWORD *)v62.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v62.m_errorMessage._Mypair._Myval2._Bx._Ptr - v38 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v44, v43);
+      operator delete(v38, v37);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+50h], xmm0
-    }
-    v71.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v62.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v62.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( contextStringId._Mypair._Myval2._Myres >= 8 )
     {
-      v46 = 2 * contextStringId._Mypair._Myval2._Myres + 2;
-      v47 = contextStringId._Mypair._Myval2._Bx._Ptr;
-      if ( v46 >= 0x1000 )
+      v39 = 2 * contextStringId._Mypair._Myval2._Myres + 2;
+      v40 = contextStringId._Mypair._Myval2._Bx._Ptr;
+      if ( v39 >= 0x1000 )
       {
-        v46 = 2 * contextStringId._Mypair._Myval2._Myres + 41;
-        v47 = (wchar_t *)*((_QWORD *)contextStringId._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)contextStringId._Mypair._Myval2._Bx._Ptr - (char *)v47 - 8) > 0x1F )
+        v39 = 2 * contextStringId._Mypair._Myval2._Myres + 41;
+        v40 = (wchar_t *)*((_QWORD *)contextStringId._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)contextStringId._Mypair._Myval2._Bx._Ptr - (char *)v40 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v47, v46);
+      operator delete(v40, v39);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+0A0h+contextStringId.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
+    *(_OWORD *)&contextStringId._Mypair._Myval2._Mysize = _xmm;
     contextStringId._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( customActivationContext._Mypair._Myval2._Myres >= 8 )
     {
-      v49 = 2 * customActivationContext._Mypair._Myval2._Myres + 2;
-      v50 = customActivationContext._Mypair._Myval2._Bx._Ptr;
-      if ( v49 >= 0x1000 )
+      v41 = 2 * customActivationContext._Mypair._Myval2._Myres + 2;
+      v42 = customActivationContext._Mypair._Myval2._Bx._Ptr;
+      if ( v41 >= 0x1000 )
       {
-        v49 = 2 * customActivationContext._Mypair._Myval2._Myres + 41;
-        v50 = (wchar_t *)*((_QWORD *)customActivationContext._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)customActivationContext._Mypair._Myval2._Bx._Ptr - (char *)v50 - 8) > 0x1F )
+        v41 = 2 * customActivationContext._Mypair._Myval2._Myres + 41;
+        v42 = (wchar_t *)*((_QWORD *)customActivationContext._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)customActivationContext._Mypair._Myval2._Bx._Ptr - (char *)v42 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v50, v49);
+      operator delete(v42, v41);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+0A0h+var_B0.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
+    *(_OWORD *)&customActivationContext._Mypair._Myval2._Mysize = _xmm;
     customActivationContext._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( UsersXboxLiveContext )
       UsersXboxLiveContext->__abi_Release(UsersXboxLiveContext);
@@ -6607,19 +6437,19 @@ __int64 Xb3MultiplayerManager::JoinGameLobbyFromPrivatePartySession(Xb3Multiplay
 {
   unsigned __int8 v4; 
   xbox::services::multiplayer::manager::multiplayer_manager *Ptr; 
-  unsigned __int64 v7; 
-  wchar_t *v8; 
+  unsigned __int64 v6; 
+  wchar_t *v7; 
   std::_Ref_count_base *Rep; 
   std::string *p_m_errorMessage; 
-  unsigned int v12; 
-  unsigned __int64 v13; 
-  char *v14; 
+  unsigned int v10; 
+  unsigned __int64 v11; 
+  char *v12; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  __int64 v17; 
+  __int64 v15; 
   std::wstring sessionTemplateName; 
-  xbox::services::xbox_live_result<void> v19; 
+  xbox::services::xbox_live_result<void> v17; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   v4 = 0;
   if ( !Xb3MultiplayerManager::CheckIfAllActiveClientsAreInPrivatePartySession(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1525, ASSERT_TYPE_ASSERT, "(CheckIfAllActiveClientsAreInPrivatePartySession())", (const char *)&queryFormat, "CheckIfAllActiveClientsAreInPrivatePartySession()") )
     __debugbreak();
@@ -6629,32 +6459,24 @@ __int64 Xb3MultiplayerManager::JoinGameLobbyFromPrivatePartySession(Xb3Multiplay
     __debugbreak();
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rsp+0A8h+sessionTemplateName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&sessionTemplateName._Mypair._Myval2._Mysize = _xmm;
   sessionTemplateName._Mypair._Myval2._Bx._Buf[0] = 0;
   std::wstring::assign(&sessionTemplateName, L"GameSession", 0xBui64);
-  xbox::services::multiplayer::manager::multiplayer_manager::join_game_from_lobby(Ptr, &v19, &sessionTemplateName);
+  xbox::services::multiplayer::manager::multiplayer_manager::join_game_from_lobby(Ptr, &v17, &sessionTemplateName);
   if ( sessionTemplateName._Mypair._Myval2._Myres >= 8 )
   {
-    v7 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 2;
-    v8 = sessionTemplateName._Mypair._Myval2._Bx._Ptr;
-    if ( v7 >= 0x1000 )
+    v6 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 2;
+    v7 = sessionTemplateName._Mypair._Myval2._Bx._Ptr;
+    if ( v6 >= 0x1000 )
     {
-      v7 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 41;
-      v8 = (wchar_t *)*((_QWORD *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - (char *)v8 - 8) > 0x1F )
+      v6 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 41;
+      v7 = (wchar_t *)*((_QWORD *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - (char *)v7 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v8, v7);
+    operator delete(v7, v6);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rsp+0A8h+sessionTemplateName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&sessionTemplateName._Mypair._Myval2._Mysize = _xmm;
   sessionTemplateName._Mypair._Myval2._Bx._Buf[0] = 0;
   Rep = result._Rep;
   if ( result._Rep )
@@ -6666,32 +6488,32 @@ __int64 Xb3MultiplayerManager::JoinGameLobbyFromPrivatePartySession(Xb3Multiplay
         Rep->_Delete_this(Rep);
     }
   }
-  if ( v19.m_errorCode._Myval )
+  if ( v17.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v19.m_errorMessage;
-    if ( v19.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v19.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::JoinGameLobbySession - join_game failed - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v19.m_errorCode._Myval);
+    p_m_errorMessage = &v17.m_errorMessage;
+    if ( v17.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v17.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::JoinGameLobbySession - join_game failed - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v17.m_errorCode._Myval);
   }
   else
   {
-    v12 = Sys_Milliseconds();
-    Com_Printf(25, "Xb3MultiplayerManager::JoinGameLobbySession : joining lobby at time %d\n", v12);
+    v10 = Sys_Milliseconds();
+    Com_Printf(25, "Xb3MultiplayerManager::JoinGameLobbySession : joining lobby at time %d\n", v10);
     s_currentSessionTaskParams_0 = taskParams;
     v4 = 1;
   }
-  if ( v19.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+  if ( v17.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
   {
-    v13 = v19.m_errorMessage._Mypair._Myval2._Myres + 1;
-    v14 = v19.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    if ( v19.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+    v11 = v17.m_errorMessage._Mypair._Myval2._Myres + 1;
+    v12 = v17.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    if ( v17.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
     {
-      v13 = v19.m_errorMessage._Mypair._Myval2._Myres + 40;
-      v14 = (char *)*((_QWORD *)v19.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)(v19.m_errorMessage._Mypair._Myval2._Bx._Ptr - v14 - 8) > 0x1F )
+      v11 = v17.m_errorMessage._Mypair._Myval2._Myres + 40;
+      v12 = (char *)*((_QWORD *)v17.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)(v17.m_errorMessage._Mypair._Myval2._Bx._Ptr - v12 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v14, v13);
+    operator delete(v12, v11);
   }
   return v4;
 }
@@ -6708,36 +6530,38 @@ char Xb3MultiplayerManager::JoinGameLobbySession(Xb3MultiplayerManager *this, se
   xbox::services::multiplayer::manager::multiplayer_lobby_session *v6; 
   std::_Ref_count_base *v7; 
   std::_Ref_count_base *v8; 
-  HSTRING v11; 
-  xbox::services::multiplayer::manager::multiplayer_manager *v12; 
+  HSTRING v10; 
+  xbox::services::multiplayer::manager::multiplayer_manager *v11; 
   const wchar_t *StringRawBuffer_0; 
+  unsigned __int64 v14; 
+  xbox::services::xbox_live_result<void> *v15; 
+  std::string *p_m_errorMessage; 
   unsigned __int64 v17; 
-  unsigned __int64 v22; 
-  char *v23; 
+  char *v18; 
+  unsigned __int64 v19; 
+  wchar_t *v20; 
+  unsigned __int64 v21; 
+  wchar_t *v22; 
+  std::_Ref_count_base *v23; 
+  std::string *v24; 
   unsigned __int64 v25; 
-  wchar_t *v26; 
+  char *v26; 
   unsigned __int64 v28; 
-  wchar_t *v29; 
-  std::_Ref_count_base *v31; 
-  std::string *v32; 
-  unsigned __int64 v33; 
-  char *v34; 
-  unsigned __int64 v36; 
-  char *v37; 
-  __int128 v38; 
+  char *v29; 
+  __int128 v30; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v40; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v41; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v32; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v33; 
   std::vector<std::wstring> xboxUserIds; 
-  __int64 v43; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v44; 
-  __int128 v45; 
-  std::string v46; 
+  __int64 v35; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v36; 
+  __int128 m_errorCode; 
+  std::string v38; 
   std::wstring sessionName; 
   std::wstring sessionTemplateName; 
-  xbox::services::xbox_live_result<void> v49; 
+  xbox::services::xbox_live_result<void> v41; 
 
-  v43 = -2i64;
+  v35 = -2i64;
   if ( s_currentSessionTaskParams_0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1498, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams == nullptr)", (const char *)&queryFormat, "s_currentSessionTaskParams == nullptr") )
     __debugbreak();
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
@@ -6754,22 +6578,22 @@ char Xb3MultiplayerManager::JoinGameLobbySession(Xb3MultiplayerManager *this, se
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1500, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v40);
-  v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v40._Ptr, &v44)->_Ptr;
-  v7 = v44._Rep;
-  if ( v44._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v32);
+  v6 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v32._Ptr, &v36)->_Ptr;
+  v7 = v36._Rep;
+  if ( v36._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v44._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v36._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v7->_Destroy(v7);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v7->_Weaks, 0xFFFFFFFF) == 1 )
         v7->_Delete_this(v7);
     }
   }
-  v8 = v40._Rep;
-  if ( v40._Rep )
+  v8 = v32._Rep;
+  if ( v32._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v40._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v32._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
@@ -6780,179 +6604,141 @@ char Xb3MultiplayerManager::JoinGameLobbySession(Xb3MultiplayerManager *this, se
     __debugbreak();
   if ( !Xb3MultiplayerManager::CheckIfAllActiveClientsAreInPrivatePartySession(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1503, ASSERT_TYPE_ASSERT, "(CheckIfAllActiveClientsAreInPrivatePartySession())", (const char *)&queryFormat, "CheckIfAllActiveClientsAreInPrivatePartySession()") )
     __debugbreak();
-  LODWORD(v45) = 0;
+  LODWORD(m_errorCode) = 0;
   std::_Execute_once(&`std::_Immortalize<std::_System_error_category>'::`2'::_Flag, (int (__stdcall *)(void *, void *, void **))std::_Immortalize_impl<std::_System_error_category>, &`std::_Immortalize<std::_System_error_category>'::`2'::_Storage);
-  *((_QWORD *)&v45 + 1) = &`std::_Immortalize<std::_System_error_category>'::`2'::_Storage;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-    vmovdqu xmmword ptr [rbp+70h+var_B8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v46._Mypair._Myval2._Bx._Buf[0] = 0;
-  LODWORD(v38) = 0;
-  *((_QWORD *)&v38 + 1) = xbox::services::xbox_services_error_code_category();
-  __asm
-  {
-    vmovups xmm0, [rsp+170h+var_140+8]
-    vmovups [rbp+70h+var_C8], xmm0
-  }
-  v11 = (HSTRING)MPSDIDToPlatformString(&taskParams->m_sessionParams->xb3SessionId);
+  *((_QWORD *)&m_errorCode + 1) = &`std::_Immortalize<std::_System_error_category>'::`2'::_Storage;
+  *(_OWORD *)&v38._Mypair._Myval2._Mysize = _xmm;
+  v38._Mypair._Myval2._Bx._Buf[0] = 0;
+  LODWORD(v30) = 0;
+  *((_QWORD *)&v30 + 1) = xbox::services::xbox_services_error_code_category();
+  _XMM0 = v30;
+  m_errorCode = v30;
+  v10 = (HSTRING)MPSDIDToPlatformString(&taskParams->m_sessionParams->xb3SessionId);
   WindowsDeleteString_0(NULL);
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v41);
-  v12 = v41._Ptr;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+170h+xboxUserIds.baseclass_0._Mypair._Myval2._Myfirst], xmm0
-  }
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v33);
+  v11 = v33._Ptr;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&xboxUserIds._Mypair._Myval2._Myfirst = _XMM0;
   xboxUserIds._Mypair._Myval2._Myend = NULL;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+70h+sessionTemplateName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&sessionTemplateName._Mypair._Myval2._Mysize = _xmm;
   sessionTemplateName._Mypair._Myval2._Bx._Buf[0] = 0;
   std::wstring::assign(&sessionTemplateName, L"GameSession", 0xBui64);
-  StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v11, NULL);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+70h+sessionName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v10, NULL);
+  *(_OWORD *)&sessionName._Mypair._Myval2._Mysize = _xmm;
   sessionName._Mypair._Myval2._Bx._Buf[0] = 0;
-  v17 = -1i64;
+  v14 = -1i64;
   do
-    ++v17;
-  while ( StringRawBuffer_0[v17] );
-  std::wstring::assign(&sessionName, StringRawBuffer_0, v17);
-  _RAX = xbox::services::multiplayer::manager::multiplayer_manager::join_game(v12, &v49, &sessionName, &sessionTemplateName, &xboxUserIds);
-  if ( &v45 != (__int128 *)_RAX )
+    ++v14;
+  while ( StringRawBuffer_0[v14] );
+  std::wstring::assign(&sessionName, StringRawBuffer_0, v14);
+  v15 = xbox::services::multiplayer::manager::multiplayer_manager::join_game(v11, &v41, &sessionName, &sessionTemplateName, &xboxUserIds);
+  if ( &m_errorCode != (__int128 *)v15 )
   {
-    __asm
+    m_errorCode = (__int128)v15->m_errorCode;
+    p_m_errorMessage = &v15->m_errorMessage;
+    if ( &v38 != &v15->m_errorMessage )
     {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rbp+70h+var_C8], xmm0
-    }
-    _RDI = &_RAX->m_errorMessage;
-    if ( &v46 != &_RAX->m_errorMessage )
-    {
-      std::string::_Tidy_deallocate(&v46);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymmword ptr [rbp+70h+var_B8.baseclass_0._Mypair._Myval2._Bx], ymm0
-      }
-      _RDI->_Mypair._Myval2._Mysize = 0i64;
-      _RDI->_Mypair._Myval2._Myres = 15i64;
-      _RDI->_Mypair._Myval2._Bx._Buf[0] = 0;
+      std::string::_Tidy_deallocate(&v38);
+      v38 = *p_m_errorMessage;
+      p_m_errorMessage->_Mypair._Myval2._Mysize = 0i64;
+      p_m_errorMessage->_Mypair._Myval2._Myres = 15i64;
+      p_m_errorMessage->_Mypair._Myval2._Bx._Buf[0] = 0;
     }
   }
-  if ( v49.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+  if ( v41.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
   {
-    v22 = v49.m_errorMessage._Mypair._Myval2._Myres + 1;
-    v23 = v49.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    if ( v49.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+    v17 = v41.m_errorMessage._Mypair._Myval2._Myres + 1;
+    v18 = v41.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    if ( v41.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
     {
-      v22 = v49.m_errorMessage._Mypair._Myval2._Myres + 40;
-      v23 = (char *)*((_QWORD *)v49.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)(v49.m_errorMessage._Mypair._Myval2._Bx._Ptr - v23 - 8) > 0x1F )
+      v17 = v41.m_errorMessage._Mypair._Myval2._Myres + 40;
+      v18 = (char *)*((_QWORD *)v41.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)(v41.m_errorMessage._Mypair._Myval2._Bx._Ptr - v18 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v23, v22);
+    operator delete(v18, v17);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-    vmovdqu xmmword ptr [rbp+38h], xmm0
-  }
-  v49.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+  *(_OWORD *)&v41.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+  v41.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
   if ( sessionName._Mypair._Myval2._Myres >= 8 )
   {
-    v25 = 2 * sessionName._Mypair._Myval2._Myres + 2;
-    v26 = sessionName._Mypair._Myval2._Bx._Ptr;
-    if ( v25 >= 0x1000 )
+    v19 = 2 * sessionName._Mypair._Myval2._Myres + 2;
+    v20 = sessionName._Mypair._Myval2._Bx._Ptr;
+    if ( v19 >= 0x1000 )
     {
-      v25 = 2 * sessionName._Mypair._Myval2._Myres + 41;
-      v26 = (wchar_t *)*((_QWORD *)sessionName._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)sessionName._Mypair._Myval2._Bx._Ptr - (char *)v26 - 8) > 0x1F )
+      v19 = 2 * sessionName._Mypair._Myval2._Myres + 41;
+      v20 = (wchar_t *)*((_QWORD *)sessionName._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)sessionName._Mypair._Myval2._Bx._Ptr - (char *)v20 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v26, v25);
+    operator delete(v20, v19);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+70h+sessionName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&sessionName._Mypair._Myval2._Mysize = _xmm;
   sessionName._Mypair._Myval2._Bx._Buf[0] = 0;
   if ( sessionTemplateName._Mypair._Myval2._Myres >= 8 )
   {
-    v28 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 2;
-    v29 = sessionTemplateName._Mypair._Myval2._Bx._Ptr;
-    if ( v28 >= 0x1000 )
+    v21 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 2;
+    v22 = sessionTemplateName._Mypair._Myval2._Bx._Ptr;
+    if ( v21 >= 0x1000 )
     {
-      v28 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 41;
-      v29 = (wchar_t *)*((_QWORD *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - (char *)v29 - 8) > 0x1F )
+      v21 = 2 * sessionTemplateName._Mypair._Myval2._Myres + 41;
+      v22 = (wchar_t *)*((_QWORD *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)sessionTemplateName._Mypair._Myval2._Bx._Ptr - (char *)v22 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v29, v28);
+    operator delete(v22, v21);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+70h+sessionTemplateName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&sessionTemplateName._Mypair._Myval2._Mysize = _xmm;
   sessionTemplateName._Mypair._Myval2._Bx._Buf[0] = 0;
   std::vector<std::wstring>::~vector<std::wstring>(&xboxUserIds);
-  v31 = v41._Rep;
-  if ( v41._Rep )
+  v23 = v33._Rep;
+  if ( v33._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v41._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v33._Rep->_Uses) )
     {
-      v31->_Destroy(v31);
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31->_Weaks, 0xFFFFFFFF) == 1 )
-        v31->_Delete_this(v31);
+      v23->_Destroy(v23);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v23->_Weaks, 0xFFFFFFFF) == 1 )
+        v23->_Delete_this(v23);
     }
   }
-  if ( (_DWORD)v45 )
+  if ( (_DWORD)m_errorCode )
   {
-    v32 = &v46;
-    if ( v46._Mypair._Myval2._Myres >= 0x10 )
-      v32 = (std::string *)v46._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::JoinGameLobbySession - join_game failed - %s [%x].\n", v32->_Mypair._Myval2._Bx._Buf, (unsigned int)v45);
-    WindowsDeleteString_0(v11);
-    if ( v46._Mypair._Myval2._Myres >= 0x10 )
+    v24 = &v38;
+    if ( v38._Mypair._Myval2._Myres >= 0x10 )
+      v24 = (std::string *)v38._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::JoinGameLobbySession - join_game failed - %s [%x].\n", v24->_Mypair._Myval2._Bx._Buf, (unsigned int)m_errorCode);
+    WindowsDeleteString_0(v10);
+    if ( v38._Mypair._Myval2._Myres >= 0x10 )
     {
-      v33 = v46._Mypair._Myval2._Myres + 1;
-      v34 = v46._Mypair._Myval2._Bx._Ptr;
-      if ( v46._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v25 = v38._Mypair._Myval2._Myres + 1;
+      v26 = v38._Mypair._Myval2._Bx._Ptr;
+      if ( v38._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v33 = v46._Mypair._Myval2._Myres + 40;
-        v34 = (char *)*((_QWORD *)v46._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v46._Mypair._Myval2._Bx._Ptr - v34 - 8) > 0x1F )
+        v25 = v38._Mypair._Myval2._Myres + 40;
+        v26 = (char *)*((_QWORD *)v38._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v38._Mypair._Myval2._Bx._Ptr - v26 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v34, v33);
+      operator delete(v26, v25);
     }
     return 0;
   }
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    WindowsDeleteString_0(v11);
-    if ( v46._Mypair._Myval2._Myres >= 0x10 )
+    WindowsDeleteString_0(v10);
+    if ( v38._Mypair._Myval2._Myres >= 0x10 )
     {
-      v36 = v46._Mypair._Myval2._Myres + 1;
-      v37 = v46._Mypair._Myval2._Bx._Ptr;
-      if ( v46._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v28 = v38._Mypair._Myval2._Myres + 1;
+      v29 = v38._Mypair._Myval2._Bx._Ptr;
+      if ( v38._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v36 = v46._Mypair._Myval2._Myres + 40;
-        v37 = (char *)*((_QWORD *)v46._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v46._Mypair._Myval2._Bx._Ptr - v37 - 8) > 0x1F )
+        v28 = v38._Mypair._Myval2._Myres + 40;
+        v29 = (char *)*((_QWORD *)v38._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v38._Mypair._Myval2._Bx._Ptr - v29 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v37, v36);
+      operator delete(v29, v28);
     }
     return 1;
   }
@@ -7076,26 +6862,26 @@ char Xb3MultiplayerManager::JoinPrivatePartySessionUsingInviteHandle(Xb3Multipla
   std::string *p_m_errorMessage; 
   unsigned __int64 v9; 
   char *Ptr; 
-  unsigned __int64 v13; 
-  char *v14; 
+  unsigned __int64 v12; 
+  char *v13; 
   char *fmt; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  __int64 v18; 
-  Windows::Xbox::System::User *v19; 
-  xbox::services::xbox_live_result<void> v20; 
+  __int64 v16; 
+  Windows::Xbox::System::User *v17; 
+  xbox::services::xbox_live_result<void> v18; 
   char _Buffer[256]; 
 
-  v18 = -2i64;
+  v16 = -2i64;
   m_controllerIndex = taskParams->m_controllerIndex;
   if ( s_currentSessionTaskParams_0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1342, ASSERT_TYPE_ASSERT, "(s_currentSessionTaskParams == nullptr)", (const char *)&queryFormat, "s_currentSessionTaskParams == nullptr") )
     __debugbreak();
   CachedXboxUser = Live_GetCachedXboxUser(m_controllerIndex);
-  v19 = CachedXboxUser;
+  v17 = CachedXboxUser;
   result._Ptr = NULL;
   if ( !CachedXboxUser && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1345, ASSERT_TYPE_ASSERT, "(user != nullptr)", (const char *)&queryFormat, "user != nullptr", result._Ptr) )
     __debugbreak();
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
-  xbox::services::multiplayer::manager::multiplayer_manager::join_lobby(result._Ptr, &v20, args, CachedXboxUser);
+  xbox::services::multiplayer::manager::multiplayer_manager::join_lobby(result._Ptr, &v18, args, CachedXboxUser);
   Rep = result._Rep;
   if ( result._Rep )
   {
@@ -7106,34 +6892,30 @@ char Xb3MultiplayerManager::JoinPrivatePartySessionUsingInviteHandle(Xb3Multipla
         Rep->_Delete_this(Rep);
     }
   }
-  if ( v20.m_errorCode._Myval )
+  if ( v18.m_errorCode._Myval )
   {
-    LODWORD(fmt) = v20.m_errorCode._Myval;
+    LODWORD(fmt) = v18.m_errorCode._Myval;
     j_sprintf_s(_Buffer, 0x100ui64, "%d %x", m_controllerIndex, fmt);
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, _Buffer);
-    p_m_errorMessage = &v20.m_errorMessage;
-    if ( v20.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v20.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::JoinPrivatePartySessionUsingInviteHandle failed - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v20.m_errorCode._Myval);
-    if ( v20.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    p_m_errorMessage = &v18.m_errorMessage;
+    if ( v18.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v18.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::JoinPrivatePartySessionUsingInviteHandle failed - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v18.m_errorCode._Myval);
+    if ( v18.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v9 = v20.m_errorMessage._Mypair._Myval2._Myres + 1;
-      Ptr = v20.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v20.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v9 = v18.m_errorMessage._Mypair._Myval2._Myres + 1;
+      Ptr = v18.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v18.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v9 = v20.m_errorMessage._Mypair._Myval2._Myres + 40;
-        Ptr = (char *)*((_QWORD *)v20.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v20.m_errorMessage._Mypair._Myval2._Bx._Ptr - Ptr - 8) > 0x1F )
+        v9 = v18.m_errorMessage._Mypair._Myval2._Myres + 40;
+        Ptr = (char *)*((_QWORD *)v18.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v18.m_errorMessage._Mypair._Myval2._Bx._Ptr - Ptr - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(Ptr, v9);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rsp+70h], xmm0
-    }
-    v20.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v18.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v18.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 0;
@@ -7141,25 +6923,21 @@ char Xb3MultiplayerManager::JoinPrivatePartySessionUsingInviteHandle(Xb3Multipla
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    if ( v20.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v18.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v13 = v20.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v14 = v20.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v20.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v12 = v18.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v13 = v18.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v18.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v13 = v20.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v14 = (char *)*((_QWORD *)v20.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v20.m_errorMessage._Mypair._Myval2._Bx._Ptr - v14 - 8) > 0x1F )
+        v12 = v18.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v13 = (char *)*((_QWORD *)v18.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v18.m_errorMessage._Mypair._Myval2._Bx._Ptr - v13 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v14, v13);
+      operator delete(v13, v12);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rsp+70h], xmm0
-    }
-    v20.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v18.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v18.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 1;
@@ -7357,18 +7135,18 @@ char Xb3MultiplayerManager::LeavePrivatePartySession(Xb3MultiplayerManager *this
   std::string *p_m_errorMessage; 
   unsigned __int64 v15; 
   char *v16; 
-  unsigned __int64 v19; 
-  char *v20; 
+  unsigned __int64 v18; 
+  char *v19; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v23; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v24; 
-  __int64 v25; 
-  Windows::Xbox::System::User *v26; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v27; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v28; 
-  xbox::services::xbox_live_result<void> v29; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v21; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v22; 
+  __int64 v23; 
+  Windows::Xbox::System::User *v24; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v25; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v26; 
+  xbox::services::xbox_live_result<void> v27; 
 
-  v25 = -2i64;
+  v23 = -2i64;
   m_controllerIndex = taskParams->m_controllerIndex;
   if ( taskParams->m_controllerIndex >= 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1264, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", taskParams->m_controllerIndex, 8) )
     __debugbreak();
@@ -7386,22 +7164,22 @@ char Xb3MultiplayerManager::LeavePrivatePartySession(Xb3MultiplayerManager *this
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1266, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v23);
-  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v23._Ptr, &v27)->_Ptr;
-  v8 = v27._Rep;
-  if ( v27._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v21);
+  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v21._Ptr, &v25)->_Ptr;
+  v8 = v25._Rep;
+  if ( v25._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v27._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
         v8->_Delete_this(v8);
     }
   }
-  v9 = v23._Rep;
-  if ( v23._Rep )
+  v9 = v21._Rep;
+  if ( v21._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v23._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v21._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v9->_Destroy(v9);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -7416,59 +7194,55 @@ char Xb3MultiplayerManager::LeavePrivatePartySession(Xb3MultiplayerManager *this
     __debugbreak();
   Com_Printf(25, "Xb3MultiplayerManager::LeavePrivatePartySession called\n");
   CachedXboxUser = Live_GetCachedXboxUser(m_controllerIndex);
-  v26 = CachedXboxUser;
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v24);
-  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v24._Ptr, &v28)->_Ptr;
+  v24 = CachedXboxUser;
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v22);
+  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v22._Ptr, &v26)->_Ptr;
   if ( CachedXboxUser )
     CachedXboxUser->__abi_AddRef(CachedXboxUser);
-  xbox::services::multiplayer::manager::multiplayer_lobby_session::remove_local_user(v11, &v29, CachedXboxUser);
+  xbox::services::multiplayer::manager::multiplayer_lobby_session::remove_local_user(v11, &v27, CachedXboxUser);
   if ( CachedXboxUser )
     CachedXboxUser->__abi_Release(CachedXboxUser);
-  v12 = v28._Rep;
-  if ( v28._Rep )
+  v12 = v26._Rep;
+  if ( v26._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v28._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v26._Rep->_Uses) )
     {
       v12->_Destroy(v12);
       if ( !_InterlockedDecrement((volatile signed __int32 *)&v12->_Weaks) )
         v12->_Delete_this(v12);
     }
   }
-  v13 = v24._Rep;
-  if ( v24._Rep )
+  v13 = v22._Rep;
+  if ( v22._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v24._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v22._Rep->_Uses) )
     {
       v13->_Destroy(v13);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13->_Weaks, 0xFFFFFFFF) == 1 )
         v13->_Delete_this(v13);
     }
   }
-  if ( v29.m_errorCode._Myval )
+  if ( v27.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v29.m_errorMessage;
-    if ( v29.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v29.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::LeavePrivatePartySession - failed to remove local user from lobby - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v29.m_errorCode._Myval);
-    if ( v29.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    p_m_errorMessage = &v27.m_errorMessage;
+    if ( v27.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v27.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::LeavePrivatePartySession - failed to remove local user from lobby - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v27.m_errorCode._Myval);
+    if ( v27.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v15 = v29.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v16 = v29.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v29.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v15 = v27.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v16 = v27.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v27.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v15 = v29.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v16 = (char *)*((_QWORD *)v29.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v29.m_errorMessage._Mypair._Myval2._Bx._Ptr - v16 - 8) > 0x1F )
+        v15 = v27.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v16 = (char *)*((_QWORD *)v27.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v27.m_errorMessage._Mypair._Myval2._Bx._Ptr - v16 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v16, v15);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+1Fh], xmm0
-    }
-    v29.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v27.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v27.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 0;
@@ -7476,25 +7250,21 @@ char Xb3MultiplayerManager::LeavePrivatePartySession(Xb3MultiplayerManager *this
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    if ( v29.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v27.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v19 = v29.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v20 = v29.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v29.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v18 = v27.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v19 = v27.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v27.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v19 = v29.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v20 = (char *)*((_QWORD *)v29.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v29.m_errorMessage._Mypair._Myval2._Bx._Ptr - v20 - 8) > 0x1F )
+        v18 = v27.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v19 = (char *)*((_QWORD *)v27.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v27.m_errorMessage._Mypair._Myval2._Bx._Ptr - v19 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v20, v19);
+      operator delete(v19, v18);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+1Fh], xmm0
-    }
-    v29.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v27.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v27.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 1;
@@ -7618,19 +7388,19 @@ char Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession(Xb3Mult
   std::string *v15; 
   unsigned __int64 v16; 
   char *v17; 
-  unsigned __int64 v20; 
-  char *v21; 
+  unsigned __int64 v19; 
+  char *v20; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v24; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v25; 
-  __int64 v26; 
-  Windows::Xbox::System::User *v27; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v28; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v29; 
-  xbox::services::xbox_live_result<void> v30; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v22; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v23; 
+  __int64 v24; 
+  Windows::Xbox::System::User *v25; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v26; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v27; 
+  xbox::services::xbox_live_result<void> v28; 
   char _Buffer[256]; 
 
-  v26 = -2i64;
+  v24 = -2i64;
   m_controllerIndex = taskParams->m_controllerIndex;
   if ( taskParams->m_controllerIndex >= 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1588, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", taskParams->m_controllerIndex, 8) )
     __debugbreak();
@@ -7648,22 +7418,22 @@ char Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession(Xb3Mult
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1590, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v24);
-  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v24._Ptr, &v28)->_Ptr;
-  v8 = v28._Rep;
-  if ( v28._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v22);
+  v7 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v22._Ptr, &v26)->_Ptr;
+  v8 = v26._Rep;
+  if ( v26._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v28._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v8->_Destroy(v8);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->_Weaks, 0xFFFFFFFF) == 1 )
         v8->_Delete_this(v8);
     }
   }
-  v9 = v24._Rep;
-  if ( v24._Rep )
+  v9 = v22._Rep;
+  if ( v22._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v24._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v22._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v9->_Destroy(v9);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v9->_Weaks, 0xFFFFFFFF) == 1 )
@@ -7678,64 +7448,60 @@ char Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession(Xb3Mult
     __debugbreak();
   Com_Printf(25, "Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession called\n");
   CachedXboxUser = Live_GetCachedXboxUser(m_controllerIndex);
-  v27 = CachedXboxUser;
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v25);
-  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v25._Ptr, &v29)->_Ptr;
+  v25 = CachedXboxUser;
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v23);
+  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v23._Ptr, &v27)->_Ptr;
   if ( CachedXboxUser )
     CachedXboxUser->__abi_AddRef(CachedXboxUser);
-  xbox::services::multiplayer::manager::multiplayer_lobby_session::remove_local_user(v11, &v30, CachedXboxUser);
+  xbox::services::multiplayer::manager::multiplayer_lobby_session::remove_local_user(v11, &v28, CachedXboxUser);
   if ( CachedXboxUser )
     CachedXboxUser->__abi_Release(CachedXboxUser);
-  v12 = v29._Rep;
-  if ( v29._Rep )
+  v12 = v27._Rep;
+  if ( v27._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v29._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v27._Rep->_Uses) )
     {
       v12->_Destroy(v12);
       if ( !_InterlockedDecrement((volatile signed __int32 *)&v12->_Weaks) )
         v12->_Delete_this(v12);
     }
   }
-  v13 = v25._Rep;
-  if ( v25._Rep )
+  v13 = v23._Rep;
+  if ( v23._Rep )
   {
-    if ( !_InterlockedDecrement((volatile signed __int32 *)&v25._Rep->_Uses) )
+    if ( !_InterlockedDecrement((volatile signed __int32 *)&v23._Rep->_Uses) )
     {
       v13->_Destroy(v13);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13->_Weaks, 0xFFFFFFFF) == 1 )
         v13->_Delete_this(v13);
     }
   }
-  if ( v30.m_errorCode._Myval )
+  if ( v28.m_errorCode._Myval )
   {
-    p_m_errorMessage = &v30.m_errorMessage;
-    if ( v30.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      p_m_errorMessage = (std::string *)v30.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    p_m_errorMessage = &v28.m_errorMessage;
+    if ( v28.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      p_m_errorMessage = (std::string *)v28.m_errorMessage._Mypair._Myval2._Bx._Ptr;
     j_sprintf_s(_Buffer, 0x100ui64, "%d %s", m_controllerIndex, p_m_errorMessage->_Mypair._Myval2._Bx._Buf);
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, _Buffer);
-    v15 = &v30.m_errorMessage;
-    if ( v30.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-      v15 = (std::string *)v30.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-    Com_PrintError(25, "Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession - failed to remove local user from lobby - %s [%x].\n", v15->_Mypair._Myval2._Bx._Buf, (unsigned int)v30.m_errorCode._Myval);
-    if ( v30.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    v15 = &v28.m_errorMessage;
+    if ( v28.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+      v15 = (std::string *)v28.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+    Com_PrintError(25, "Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession - failed to remove local user from lobby - %s [%x].\n", v15->_Mypair._Myval2._Bx._Buf, (unsigned int)v28.m_errorCode._Myval);
+    if ( v28.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v16 = v30.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v17 = v30.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v30.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v16 = v28.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v17 = v28.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v28.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v16 = v30.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v17 = (char *)*((_QWORD *)v30.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v30.m_errorMessage._Mypair._Myval2._Bx._Ptr - v17 - 8) > 0x1F )
+        v16 = v28.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v17 = (char *)*((_QWORD *)v28.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v28.m_errorMessage._Mypair._Myval2._Bx._Ptr - v17 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v17, v16);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp-38h], xmm0
-    }
-    v30.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v28.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v28.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 0;
@@ -7743,25 +7509,21 @@ char Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession(Xb3Mult
   else
   {
     s_currentSessionTaskParams_0 = taskParams;
-    if ( v30.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+    if ( v28.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v20 = v30.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v21 = v30.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v30.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+      v19 = v28.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v20 = v28.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v28.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v20 = v30.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v21 = (char *)*((_QWORD *)v30.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v30.m_errorMessage._Mypair._Myval2._Bx._Ptr - v21 - 8) > 0x1F )
+        v19 = v28.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v20 = (char *)*((_QWORD *)v28.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v28.m_errorMessage._Mypair._Myval2._Bx._Ptr - v20 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v21, v20);
+      operator delete(v20, v19);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp-38h], xmm0
-    }
-    v30.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v28.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v28.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
     if ( CachedXboxUser )
       CachedXboxUser->__abi_Release(CachedXboxUser);
     return 1;
@@ -7961,86 +7723,92 @@ void Xb3MultiplayerManager::Update(Xb3MultiplayerManager *this, bool bUpdateFrom
   xbox::services::multiplayer::manager::multiplayer_event *Myfirst; 
   xbox::services::multiplayer::manager::multiplayer_event *j; 
   std::vector<xbox::services::multiplayer::manager::multiplayer_event> *v15; 
+  xbox::services::multiplayer::manager::multiplayer_event *v16; 
   std::_Ref_count_base *v19; 
   std::vector<xbox::services::multiplayer::manager::multiplayer_event> *v20; 
   xbox::services::multiplayer::manager::multiplayer_event *v21; 
-  unsigned __int64 v27; 
-  _QWORD *v28; 
-  unsigned __int64 v29; 
-  __int64 v31; 
-  __int64 v32; 
-  volatile signed __int32 *v33; 
-  unsigned int v34; 
-  const MultiplayerEventHandler *v35; 
-  const MultiplayerEventHandler *v36; 
-  __int64 v37; 
-  xbox::services::multiplayer::manager::multiplayer_session_type v38; 
-  std::_Ref_count_base *v39; 
-  unsigned __int64 v40; 
+  std::_Ref_count_base **p_Rep; 
+  unsigned __int64 *p_Myres; 
+  void **v24; 
+  __m256i *v25; 
+  unsigned __int64 v26; 
+  _QWORD *v27; 
+  unsigned __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  volatile signed __int32 *v31; 
+  unsigned int v32; 
+  const MultiplayerEventHandler *v33; 
+  const MultiplayerEventHandler *v34; 
+  __int64 v35; 
+  xbox::services::multiplayer::manager::multiplayer_session_type v36; 
+  std::_Ref_count_base *v37; 
+  unsigned __int64 v38; 
   char *Ptr; 
-  std::_Ref_count_base *v42; 
-  __int64 v43; 
+  std::_Ref_count_base *v40; 
+  __int64 v41; 
   void (__fastcall *callback)(bool, const std::shared_ptr<xbox::services::multiplayer::multiplayer_session> *, const std::wstring); 
   unsigned __int64 Mysize; 
-  unsigned __int64 v48; 
-  const dvar_t *v49; 
-  char v50; 
-  char v51; 
+  std::wstring *p_handleId; 
+  unsigned __int64 v45; 
+  const dvar_t *v46; 
+  char v47; 
+  char v48; 
+  std::_Ref_count_base *v49; 
+  bool v50; 
+  std::_Ref_count_base *v51; 
   std::_Ref_count_base *v52; 
-  bool v53; 
-  std::_Ref_count_base *v54; 
-  std::_Ref_count_base *v55; 
   const PartyData *ActiveParty; 
-  PartyData *v57; 
-  const PartyData *v58; 
-  const PartyData *v59; 
-  bool v60; 
-  std::_Ref_count_base *v61; 
-  std::_Ref_count_base *v62; 
+  PartyData *v54; 
+  const PartyData *v55; 
+  const PartyData *v56; 
+  bool v57; 
+  std::_Ref_count_base *v58; 
+  std::_Ref_count_base *v59; 
   std::string *p_m_errorMessage; 
-  unsigned __int64 v64; 
-  char *v65; 
+  unsigned __int64 v61; 
+  char *v62; 
   char *fmt; 
-  __int64 v67; 
-  int v69; 
-  xbox::services::multiplayer::manager::multiplayer_event *v70; 
-  std::vector<xbox::services::multiplayer::manager::multiplayer_event> v71; 
-  _QWORD v72[3]; 
-  unsigned __int64 v73; 
-  unsigned __int64 v74; 
+  __int64 v64; 
+  int v66; 
+  xbox::services::multiplayer::manager::multiplayer_event *v67; 
+  std::vector<xbox::services::multiplayer::manager::multiplayer_event> v68; 
+  _QWORD v69[3]; 
+  unsigned __int64 v70; 
+  unsigned __int64 v71; 
+  xbox::services::multiplayer::manager::multiplayer_event *v72; 
+  xbox::services::multiplayer::manager::multiplayer_event *v73; 
+  std::vector<xbox::services::multiplayer::manager::multiplayer_event> *v74; 
   xbox::services::multiplayer::manager::multiplayer_event *v75; 
-  xbox::services::multiplayer::manager::multiplayer_event *v76; 
-  std::vector<xbox::services::multiplayer::manager::multiplayer_event> *v77; 
-  xbox::services::multiplayer::manager::multiplayer_event *v78; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v77; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v78; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v79; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v80; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v81; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v82; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v83; 
-  __int64 v84; 
+  __int64 v81; 
+  __int64 v82; 
+  __int64 v83; 
+  xbox::services::multiplayer::manager::multiplayer_event *v84; 
   __int64 v85; 
   __int64 v86; 
-  xbox::services::multiplayer::manager::multiplayer_event *v87; 
+  __int64 v87; 
   __int64 v88; 
   __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  __int64 v92; 
-  unsigned __int64 v93; 
-  wchar_t *v94; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v95; 
-  tXb3MultiplayerCallback v96; 
+  unsigned __int64 v90; 
+  wchar_t *v91; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v92; 
+  tXb3MultiplayerCallback v93; 
   xbox::services::multiplayer::manager::multiplayer_event event; 
-  xbox::services::xbox_live_result<void> v98; 
+  xbox::services::xbox_live_result<void> v95; 
 
-  v84 = -2i64;
+  v81 = -2i64;
   v2 = bUpdateFromSessionFrame;
   v3 = this;
-  v72[0] = this;
+  v69[0] = this;
   v4 = none;
   if ( g_mpManagerEventQueue )
   {
-    v69 = Sys_Milliseconds();
+    v66 = Sys_Milliseconds();
     v5 = 0;
     v6 = (const void **)s_tasks[0];
     do
@@ -8060,7 +7828,7 @@ void Xb3MultiplayerManager::Update(Xb3MultiplayerManager *this, bool bUpdateFrom
     }
     while ( v5 < 2 );
     xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
-    xbox::services::multiplayer::manager::multiplayer_manager::do_work(result._Ptr, &v71);
+    xbox::services::multiplayer::manager::multiplayer_manager::do_work(result._Ptr, &v68);
     Rep = result._Rep;
     if ( result._Rep )
     {
@@ -8071,23 +7839,23 @@ void Xb3MultiplayerManager::Update(Xb3MultiplayerManager *this, bool bUpdateFrom
           Rep->_Delete_this(Rep);
       }
     }
-    Mylast = v71._Mypair._Myval2._Mylast;
-    if ( v71._Mypair._Myval2._Mylast - v71._Mypair._Myval2._Myfirst )
+    Mylast = v68._Mypair._Myval2._Mylast;
+    if ( v68._Mypair._Myval2._Mylast - v68._Mypair._Myval2._Myfirst )
     {
-      Com_Printf(25, "Xb3MultiplayerManager::Update : returned eventQueue with %u events.\n", v71._Mypair._Myval2._Mylast - v71._Mypair._Myval2._Myfirst);
-      Mylast = v71._Mypair._Myval2._Mylast;
+      Com_Printf(25, "Xb3MultiplayerManager::Update : returned eventQueue with %u events.\n", v68._Mypair._Myval2._Mylast - v68._Mypair._Myval2._Myfirst);
+      Mylast = v68._Mypair._Myval2._Mylast;
     }
     v11 = g_mpManagerEventQueue;
     v12 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast - g_mpManagerEventQueue->_Mypair._Myval2._Myfirst;
     if ( v12 )
     {
       Com_Printf(25, "Xb3MultiplayerManager::Update : still has eventQueue with %u events to process from previous frame.\n", v12);
-      Mylast = v71._Mypair._Myval2._Mylast;
+      Mylast = v68._Mypair._Myval2._Mylast;
       v11 = g_mpManagerEventQueue;
     }
-    Myfirst = v71._Mypair._Myval2._Myfirst;
-    v75 = Mylast;
-    if ( v71._Mypair._Myval2._Myfirst != Mylast )
+    Myfirst = v68._Mypair._Myval2._Myfirst;
+    v72 = Mylast;
+    if ( v68._Mypair._Myval2._Myfirst != Mylast )
     {
       while ( 1 )
       {
@@ -8101,181 +7869,167 @@ void Xb3MultiplayerManager::Update(Xb3MultiplayerManager *this, bool bUpdateFrom
           ++v11->_Mypair._Myval2._Mylast;
         }
         ++Myfirst;
-        Mylast = v71._Mypair._Myval2._Mylast;
-        v75 = v71._Mypair._Myval2._Mylast;
-        if ( Myfirst == v71._Mypair._Myval2._Mylast )
+        Mylast = v68._Mypair._Myval2._Mylast;
+        v72 = v68._Mypair._Myval2._Mylast;
+        if ( Myfirst == v68._Mypair._Myval2._Mylast )
           break;
         v11 = g_mpManagerEventQueue;
       }
     }
-    for ( j = v71._Mypair._Myval2._Myfirst; j != Mylast; ++j )
+    for ( j = v68._Mypair._Myval2._Myfirst; j != Mylast; ++j )
       xbox::services::multiplayer::manager::multiplayer_event::~multiplayer_event(j);
-    v71._Mypair._Myval2._Mylast = v71._Mypair._Myval2._Myfirst;
-    std::vector<xbox::services::multiplayer::manager::multiplayer_event>::~vector<xbox::services::multiplayer::manager::multiplayer_event>(&v71);
+    v68._Mypair._Myval2._Mylast = v68._Mypair._Myval2._Myfirst;
+    std::vector<xbox::services::multiplayer::manager::multiplayer_event>::~vector<xbox::services::multiplayer::manager::multiplayer_event>(&v68);
     v15 = g_mpManagerEventQueue;
-    _RSI = g_mpManagerEventQueue->_Mypair._Myval2._Myfirst;
-    v70 = _RSI;
-    v78 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast;
-    if ( _RSI != v78 )
+    v16 = g_mpManagerEventQueue->_Mypair._Myval2._Myfirst;
+    v67 = v16;
+    v75 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast;
+    if ( v16 != v75 )
     {
       while ( 1 )
       {
-        event.m_pContext = _RSI->m_pContext;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi+8]
-          vmovups xmmword ptr [rbp+160h+event.m_errorCode._Myval], xmm0
-        }
-        std::string::string(&event.m_errorMessage, &_RSI->m_errorMessage);
-        event.m_eventType = _RSI->m_eventType;
-        event.m_sessionType = _RSI->m_sessionType;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+160h+event.m_eventArgs.baseclass_0._Ptr], xmm0
-        }
-        v19 = _RSI->m_eventArgs._Rep;
+        event.m_pContext = v16->m_pContext;
+        _XMM0 = v16->m_errorCode;
+        event.m_errorCode = _XMM0;
+        std::string::string(&event.m_errorMessage, &v16->m_errorMessage);
+        event.m_eventType = v16->m_eventType;
+        event.m_sessionType = v16->m_sessionType;
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        event.m_eventArgs = _XMM0;
+        v19 = v16->m_eventArgs._Rep;
         if ( v19 )
           _InterlockedIncrement((volatile signed __int32 *)&v19->_Uses);
-        event.m_eventArgs = _RSI->m_eventArgs;
+        event.m_eventArgs = v16->m_eventArgs;
         v20 = g_mpManagerEventQueue;
-        v77 = g_mpManagerEventQueue;
-        v76 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast;
-        v21 = _RSI;
-        if ( &_RSI[1] != v76 )
+        v74 = g_mpManagerEventQueue;
+        v73 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast;
+        v21 = v16;
+        if ( &v16[1] != v73 )
         {
-          _RDI = &_RSI[1].m_eventArgs._Rep;
-          _RSI = &_RSI->m_errorMessage._Mypair._Myval2._Myres;
+          p_Rep = &v16[1].m_eventArgs._Rep;
+          p_Myres = &v16->m_errorMessage._Mypair._Myval2._Myres;
           do
           {
-            v21->m_pContext = *(_RDI - 9);
-            __asm
+            v21->m_pContext = *(p_Rep - 9);
+            *(_OWORD *)(p_Myres - 5) = *((_OWORD *)p_Rep - 4);
+            v24 = (void **)(p_Myres - 3);
+            v25 = (__m256i *)(p_Rep - 6);
+            if ( p_Myres - 3 != (unsigned __int64 *)(p_Rep - 6) )
             {
-              vmovups xmm0, xmmword ptr [rdi-40h]
-              vmovups xmmword ptr [rsi-28h], xmm0
-            }
-            _RBX = (void **)(_RSI - 3);
-            _R15 = _RDI - 6;
-            if ( _RSI - 3 != (unsigned __int64 *)(_RDI - 6) )
-            {
-              v27 = *_RSI;
-              if ( *_RSI >= 0x10 )
+              v26 = *p_Myres;
+              if ( *p_Myres >= 0x10 )
               {
-                v28 = *_RBX;
-                v29 = v27 + 1;
-                if ( v27 + 1 >= 0x1000 )
+                v27 = *v24;
+                v28 = v26 + 1;
+                if ( v26 + 1 >= 0x1000 )
                 {
-                  v29 = v27 + 40;
-                  if ( (unsigned __int64)v28 - *(v28 - 1) - 8 > 0x1F )
+                  v28 = v26 + 40;
+                  if ( (unsigned __int64)v27 - *(v27 - 1) - 8 > 0x1F )
                     _invalid_parameter_noinfo_noreturn();
-                  v28 = (_QWORD *)*(v28 - 1);
+                  v27 = (_QWORD *)*(v27 - 1);
                 }
-                operator delete(v28, v29);
+                operator delete(v27, v28);
               }
-              *(_RSI - 1) = 0i64;
-              *_RSI = 15i64;
-              *(_BYTE *)_RBX = 0;
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [r15]
-                vmovups ymmword ptr [rbx], ymm0
-              }
-              *(_RDI - 4) = NULL;
-              *(_RDI - 3) = (std::_Ref_count_base *)15;
-              *(_BYTE *)_R15 = 0;
+              *(p_Myres - 1) = 0i64;
+              *p_Myres = 15i64;
+              *(_BYTE *)v24 = 0;
+              *(__m256i *)v24 = *v25;
+              *(p_Rep - 4) = NULL;
+              *(p_Rep - 3) = (std::_Ref_count_base *)15;
+              v25->m256i_i8[0] = 0;
             }
-            *((_DWORD *)_RSI + 2) = *((_DWORD *)_RDI - 4);
-            *((_DWORD *)_RSI + 3) = *((_DWORD *)_RDI - 3);
-            v31 = (__int64)*(_RDI - 1);
-            v32 = (__int64)*_RDI;
-            *(_RDI - 1) = NULL;
-            *_RDI = NULL;
-            v85 = v31;
-            _RSI[2] = v31;
-            v86 = v32;
-            v33 = (volatile signed __int32 *)_RSI[3];
-            _RSI[3] = v32;
-            if ( v33 )
+            *((_DWORD *)p_Myres + 2) = *((_DWORD *)p_Rep - 4);
+            *((_DWORD *)p_Myres + 3) = *((_DWORD *)p_Rep - 3);
+            v29 = (__int64)*(p_Rep - 1);
+            v30 = (__int64)*p_Rep;
+            *(p_Rep - 1) = NULL;
+            *p_Rep = NULL;
+            v82 = v29;
+            p_Myres[2] = v29;
+            v83 = v30;
+            v31 = (volatile signed __int32 *)p_Myres[3];
+            p_Myres[3] = v30;
+            if ( v31 )
             {
-              if ( _InterlockedExchangeAdd(v33 + 2, 0xFFFFFFFF) == 1 )
+              if ( _InterlockedExchangeAdd(v31 + 2, 0xFFFFFFFF) == 1 )
               {
-                (**(void (__fastcall ***)(volatile signed __int32 *))v33)(v33);
-                if ( _InterlockedExchangeAdd(v33 + 3, 0xFFFFFFFF) == 1 )
-                  (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v33 + 8i64))(v33);
+                (**(void (__fastcall ***)(volatile signed __int32 *))v31)(v31);
+                if ( _InterlockedExchangeAdd(v31 + 3, 0xFFFFFFFF) == 1 )
+                  (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v31 + 8i64))(v31);
               }
             }
             ++v21;
-            _RSI += 10;
-            _RDI += 10;
+            p_Myres += 10;
+            p_Rep += 10;
           }
-          while ( _RDI - 9 != (std::_Ref_count_base **)v76 );
-          v20 = v77;
-          _RSI = v70;
-          v3 = (Xb3MultiplayerManager *)v72[0];
+          while ( p_Rep - 9 != (std::_Ref_count_base **)v73 );
+          v20 = v74;
+          v16 = v67;
+          v3 = (Xb3MultiplayerManager *)v69[0];
         }
         xbox::services::multiplayer::manager::multiplayer_event::~multiplayer_event(v20->_Mypair._Myval2._Mylast - 1);
         --v20->_Mypair._Myval2._Mylast;
-        v87 = _RSI;
-        v34 = 0;
-        v35 = MultiplayerEventHandlers;
-        while ( xbox::services::multiplayer::manager::multiplayer_event::event_type(&event) != v35->eventType )
+        v84 = v16;
+        v32 = 0;
+        v33 = MultiplayerEventHandlers;
+        while ( xbox::services::multiplayer::manager::multiplayer_event::event_type(&event) != v33->eventType )
         {
-          ++v34;
-          ++v35;
-          if ( v34 >= 0x12 )
+          ++v32;
+          ++v33;
+          if ( v32 >= 0x12 )
           {
-            LODWORD(v67) = xbox::services::multiplayer::manager::multiplayer_event::event_type(&event);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 769, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::GetMultiplayerEventHandler: Unknown multiplayer manager event of type: %u.\n", v67) )
+            LODWORD(v64) = xbox::services::multiplayer::manager::multiplayer_event::event_type(&event);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 769, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::GetMultiplayerEventHandler: Unknown multiplayer manager event of type: %u.\n", v64) )
               __debugbreak();
             goto LABEL_54;
           }
         }
-        v36 = &MultiplayerEventHandlers[v34];
-        if ( v36 )
+        v34 = &MultiplayerEventHandlers[v32];
+        if ( v34 )
         {
           if ( xbox::services::multiplayer::manager::multiplayer_event::session_type(&event) == pending_subscribe )
           {
-            v37 = 0i64;
+            v35 = 0i64;
           }
           else
           {
-            v38 = xbox::services::multiplayer::manager::multiplayer_event::session_type(&event);
-            v37 = 2i64;
-            if ( v38 == subscribed )
-              v37 = 1i64;
+            v36 = xbox::services::multiplayer::manager::multiplayer_event::session_type(&event);
+            v35 = 2i64;
+            if ( v36 == subscribed )
+              v35 = 1i64;
           }
-          Com_Printf(25, "Xb3MultiplayerManager::Update : Processing event of type: %s, for sessionType: %i\n", v36->eventString, v37);
+          Com_Printf(25, "Xb3MultiplayerManager::Update : Processing event of type: %s, for sessionType: %i\n", v34->eventString, v35);
         }
 LABEL_54:
         Xb3MultiplayerManager::ProcessMultiplayerEvent(v3, &event);
         if ( g_eventDumpRemainingEvents )
           break;
-        v39 = event.m_eventArgs._Rep;
+        v37 = event.m_eventArgs._Rep;
         if ( event.m_eventArgs._Rep )
         {
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&event.m_eventArgs._Rep->_Uses, 0xFFFFFFFF) == 1 )
           {
-            v39->_Destroy(v39);
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v39->_Weaks, 0xFFFFFFFF) == 1 )
-              v39->_Delete_this(v39);
+            v37->_Destroy(v37);
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v37->_Weaks, 0xFFFFFFFF) == 1 )
+              v37->_Delete_this(v37);
           }
         }
         if ( event.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
         {
-          v40 = event.m_errorMessage._Mypair._Myval2._Myres + 1;
+          v38 = event.m_errorMessage._Mypair._Myval2._Myres + 1;
           Ptr = event.m_errorMessage._Mypair._Myval2._Bx._Ptr;
           if ( event.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
           {
-            v40 = event.m_errorMessage._Mypair._Myval2._Myres + 40;
+            v38 = event.m_errorMessage._Mypair._Myval2._Myres + 40;
             Ptr = (char *)*((_QWORD *)event.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
             if ( (unsigned __int64)(event.m_errorMessage._Mypair._Myval2._Bx._Ptr - Ptr - 8) > 0x1F )
               _invalid_parameter_noinfo_noreturn();
           }
-          operator delete(Ptr, v40);
+          operator delete(Ptr, v38);
         }
         v15 = g_mpManagerEventQueue;
-        v78 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast;
-        if ( _RSI == v78 )
+        v75 = g_mpManagerEventQueue->_Mypair._Myval2._Mylast;
+        if ( v16 == v75 )
           goto LABEL_68;
       }
       xbox::services::multiplayer::manager::multiplayer_event::~multiplayer_event(&event);
@@ -8294,123 +8048,119 @@ LABEL_68:
       Com_Printf(25, "Xb3MultiplayerManager::Update callback ready to roll. callback = %p\n", v3->m_callbackInfo.callback);
       if ( v3->m_callbackInfo.callback )
       {
-        v96.callback = v3->m_callbackInfo.callback;
-        v96.mp_session._Ptr = NULL;
-        v96.mp_session._Rep = NULL;
-        v42 = v3->m_callbackInfo.mp_session._Rep;
-        if ( v42 )
+        v93.callback = v3->m_callbackInfo.callback;
+        v93.mp_session._Ptr = NULL;
+        v93.mp_session._Rep = NULL;
+        v40 = v3->m_callbackInfo.mp_session._Rep;
+        if ( v40 )
         {
-          _InterlockedIncrement((volatile signed __int32 *)&v42->_Uses);
-          v42 = v3->m_callbackInfo.mp_session._Rep;
+          _InterlockedIncrement((volatile signed __int32 *)&v40->_Uses);
+          v40 = v3->m_callbackInfo.mp_session._Rep;
         }
-        v96.mp_session._Ptr = v3->m_callbackInfo.mp_session._Ptr;
-        v96.mp_session._Rep = v42;
-        std::wstring::wstring(&v96.handleId, &v3->m_callbackInfo.handleId);
-        v96.state = v3->m_callbackInfo.state;
+        v93.mp_session._Ptr = v3->m_callbackInfo.mp_session._Ptr;
+        v93.mp_session._Rep = v40;
+        std::wstring::wstring(&v93.handleId, &v3->m_callbackInfo.handleId);
+        v93.state = v3->m_callbackInfo.state;
         v3->m_callbackInfo.callback = NULL;
         v3->m_callbackInfo.state = eIDLE;
-        callback = v96.callback;
-        v73 = 0i64;
-        v74 = 0i64;
-        Mysize = v96.handleId._Mypair._Myval2._Mysize;
-        _RSI = &v96.handleId;
-        if ( v96.handleId._Mypair._Myval2._Myres >= 8 )
-          _RSI = (std::wstring *)v96.handleId._Mypair._Myval2._Bx._Ptr;
-        if ( v96.handleId._Mypair._Myval2._Mysize >= 8 )
+        callback = v93.callback;
+        v70 = 0i64;
+        v71 = 0i64;
+        Mysize = v93.handleId._Mypair._Myval2._Mysize;
+        p_handleId = &v93.handleId;
+        if ( v93.handleId._Mypair._Myval2._Myres >= 8 )
+          p_handleId = (std::wstring *)v93.handleId._Mypair._Myval2._Bx._Ptr;
+        if ( v93.handleId._Mypair._Myval2._Mysize >= 8 )
         {
+          v85 = 0x7FFFFFFFFFFFFFFFi64;
+          v86 = 8i64;
+          v87 = 0x7FFFFFFFFFFFFFFEi64;
           v88 = 0x7FFFFFFFFFFFFFFFi64;
-          v89 = 8i64;
-          v90 = 0x7FFFFFFFFFFFFFFEi64;
-          v91 = 0x7FFFFFFFFFFFFFFFi64;
-          v92 = 0x7FFFFFFFFFFFFFFEi64;
-          v48 = v96.handleId._Mypair._Myval2._Mysize | 7;
-          v93 = v96.handleId._Mypair._Myval2._Mysize | 7;
-          if ( (v96.handleId._Mypair._Myval2._Mysize | 7) > 0x7FFFFFFFFFFFFFFEi64 )
-            v48 = 0x7FFFFFFFFFFFFFFEi64;
-          v94 = std::allocator<wchar_t>::allocate((std::allocator<wchar_t> *)&v72[1], v48 + 1);
-          v72[1] = v94;
-          memcpy_0(v94, _RSI, 2 * Mysize + 2);
-          v74 = v48;
+          v89 = 0x7FFFFFFFFFFFFFFEi64;
+          v45 = v93.handleId._Mypair._Myval2._Mysize | 7;
+          v90 = v93.handleId._Mypair._Myval2._Mysize | 7;
+          if ( (v93.handleId._Mypair._Myval2._Mysize | 7) > 0x7FFFFFFFFFFFFFFEi64 )
+            v45 = 0x7FFFFFFFFFFFFFFEi64;
+          v91 = std::allocator<wchar_t>::allocate((std::allocator<wchar_t> *)&v69[1], v45 + 1);
+          v69[1] = v91;
+          memcpy_0(v91, p_handleId, 2 * Mysize + 2);
+          v71 = v45;
         }
         else
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups xmmword ptr [rsp+260h+var_1F0+8], xmm0
-          }
-          v74 = 7i64;
+          *(std::_String_val<std::_Simple_types<wchar_t> >::_Bxty *)&v69[1] = p_handleId->_Mypair._Myval2._Bx;
+          v71 = 7i64;
         }
-        v73 = Mysize;
-        LOBYTE(v43) = v96.state == eADDING_LOCAL_PLAYER_TO_DW;
-        ((void (__fastcall *)(__int64, std::shared_ptr<xbox::services::multiplayer::multiplayer_session> *, _QWORD *))callback)(v43, &v96.mp_session, &v72[1]);
-        tXb3MultiplayerCallback::~tXb3MultiplayerCallback(&v96);
-        v3 = (Xb3MultiplayerManager *)v72[0];
+        v70 = Mysize;
+        LOBYTE(v41) = v93.state == eADDING_LOCAL_PLAYER_TO_DW;
+        ((void (__fastcall *)(__int64, std::shared_ptr<xbox::services::multiplayer::multiplayer_session> *, _QWORD *))callback)(v41, &v93.mp_session, &v69[1]);
+        tXb3MultiplayerCallback::~tXb3MultiplayerCallback(&v93);
+        v3 = (Xb3MultiplayerManager *)v69[0];
       }
     }
     if ( v2 )
     {
-      if ( s_nextJoinabilityCalltime >= v69 )
+      if ( s_nextJoinabilityCalltime >= v66 )
         goto LABEL_92;
-      v49 = DVARBOOL_onlinegame;
+      v46 = DVARBOOL_onlinegame;
       if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v49);
-      if ( v49->current.enabled )
+      Dvar_CheckFrontendServerThread(v46);
+      if ( v46->current.enabled )
       {
-        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v80);
-        v50 = 25;
-        if ( v80._Ptr )
+        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v77);
+        v47 = 25;
+        if ( v77._Ptr )
         {
-          v51 = 1;
+          v48 = 1;
           goto LABEL_94;
         }
       }
       else
       {
 LABEL_92:
-        v50 = 8;
+        v47 = 8;
       }
-      v51 = 0;
+      v48 = 0;
 LABEL_94:
-      if ( (v50 & 1) != 0 )
+      if ( (v47 & 1) != 0 )
       {
-        v52 = v80._Rep;
-        if ( v80._Rep )
+        v49 = v77._Rep;
+        if ( v77._Rep )
         {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v80._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v77._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          {
+            v49->_Destroy(v49);
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v49->_Weaks, 0xFFFFFFFF) == 1 )
+              v49->_Delete_this(v49);
+          }
+        }
+      }
+      if ( v48 )
+      {
+        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v78);
+        v50 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v78._Ptr, &v92)->_Ptr && g_partyData.inParty && Party_AreWePlatformSessionHost(&g_partyData) && Xb3MultiplayerManager::CheckIfAnyActiveClientsAreInPrivatePartySession(v3);
+        v51 = v92._Rep;
+        if ( v92._Rep )
+        {
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v92._Rep->_Uses, 0xFFFFFFFF) == 1 )
+          {
+            v51->_Destroy(v51);
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v51->_Weaks, 0xFFFFFFFF) == 1 )
+              v51->_Delete_this(v51);
+          }
+        }
+        v52 = v78._Rep;
+        if ( v78._Rep )
+        {
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v78._Rep->_Uses, 0xFFFFFFFF) == 1 )
           {
             v52->_Destroy(v52);
             if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v52->_Weaks, 0xFFFFFFFF) == 1 )
               v52->_Delete_this(v52);
           }
         }
-      }
-      if ( v51 )
-      {
-        xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v81);
-        v53 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v81._Ptr, &v95)->_Ptr && g_partyData.inParty && Party_AreWePlatformSessionHost(&g_partyData) && Xb3MultiplayerManager::CheckIfAnyActiveClientsAreInPrivatePartySession(v3);
-        v54 = v95._Rep;
-        if ( v95._Rep )
-        {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v95._Rep->_Uses, 0xFFFFFFFF) == 1 )
-          {
-            v54->_Destroy(v54);
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v54->_Weaks, 0xFFFFFFFF) == 1 )
-              v54->_Delete_this(v54);
-          }
-        }
-        v55 = v81._Rep;
-        if ( v81._Rep )
-        {
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v81._Rep->_Uses, 0xFFFFFFFF) == 1 )
-          {
-            v55->_Destroy(v55);
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v55->_Weaks, 0xFFFFFFFF) == 1 )
-              v55->_Delete_this(v55);
-          }
-        }
-        if ( v53 )
+        if ( v50 )
         {
           ActiveParty = Party_GetActiveParty();
           if ( Party_ShouldCurrentSessionBeClosed(ActiveParty) )
@@ -8419,69 +8169,69 @@ LABEL_94:
           }
           else
           {
-            v57 = Party_GetActiveParty();
-            if ( Live_ShouldPlatformSessionBeInviteOnly(v57) || (v58 = Party_GetActiveParty(), Party_IsInviteOnly(v58)) )
+            v54 = Party_GetActiveParty();
+            if ( Live_ShouldPlatformSessionBeInviteOnly(v54) || (v55 = Party_GetActiveParty(), Party_IsInviteOnly(v55)) )
             {
               v4 = server;
             }
             else
             {
-              v59 = Party_GetActiveParty();
-              if ( Party_GetPrivacySetting(v59) == PRIVATE )
+              v56 = Party_GetActiveParty();
+              if ( Party_GetPrivacySetting(v56) == PRIVATE )
                 v4 = arbitration;
             }
           }
-          xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v82);
-          v60 = v4 != xbox::services::multiplayer::manager::multiplayer_manager::joinability(v82._Ptr);
-          v61 = v82._Rep;
-          if ( v82._Rep )
+          xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v79);
+          v57 = v4 != xbox::services::multiplayer::manager::multiplayer_manager::joinability(v79._Ptr);
+          v58 = v79._Rep;
+          if ( v79._Rep )
           {
-            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v82._Rep->_Uses, 0xFFFFFFFF) == 1 )
+            if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v79._Rep->_Uses, 0xFFFFFFFF) == 1 )
             {
-              v61->_Destroy(v61);
-              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v61->_Weaks, 0xFFFFFFFF) == 1 )
-                v61->_Delete_this(v61);
+              v58->_Destroy(v58);
+              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v58->_Weaks, 0xFFFFFFFF) == 1 )
+                v58->_Delete_this(v58);
             }
           }
-          if ( v60 )
+          if ( v57 )
           {
-            Com_Printf(25, "Xb3MultiplayerManager::Update calling set_joinability at time %d\n", (unsigned int)v69);
-            xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v83);
-            xbox::services::multiplayer::manager::multiplayer_manager::set_joinability(v83._Ptr, &v98, v4, NULL);
-            v62 = v83._Rep;
-            if ( v83._Rep )
+            Com_Printf(25, "Xb3MultiplayerManager::Update calling set_joinability at time %d\n", (unsigned int)v66);
+            xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v80);
+            xbox::services::multiplayer::manager::multiplayer_manager::set_joinability(v80._Ptr, &v95, v4, NULL);
+            v59 = v80._Rep;
+            if ( v80._Rep )
             {
-              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v83._Rep->_Uses, 0xFFFFFFFF) == 1 )
+              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v80._Rep->_Uses, 0xFFFFFFFF) == 1 )
               {
-                v62->_Destroy(v62);
-                if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v62->_Weaks, 0xFFFFFFFF) == 1 )
-                  v62->_Delete_this(v62);
+                v59->_Destroy(v59);
+                if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v59->_Weaks, 0xFFFFFFFF) == 1 )
+                  v59->_Delete_this(v59);
               }
             }
-            if ( v98.m_errorCode._Myval )
+            if ( v95.m_errorCode._Myval )
             {
               s_nextJoinabilityCalltime = xb3_mp_joinability_failure_backoff->current.integer + Sys_Milliseconds();
-              p_m_errorMessage = &v98.m_errorMessage;
-              if ( v98.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-                p_m_errorMessage = (std::string *)v98.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-              Com_PrintError(25, "Xb3MultiplayerManager::Update - failed to set_joinability - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v98.m_errorCode._Myval);
+              p_m_errorMessage = &v95.m_errorMessage;
+              if ( v95.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+                p_m_errorMessage = (std::string *)v95.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+              Com_PrintError(25, "Xb3MultiplayerManager::Update - failed to set_joinability - %s [%x].\n", p_m_errorMessage->_Mypair._Myval2._Bx._Buf, (unsigned int)v95.m_errorCode._Myval);
             }
             else
             {
               s_nextJoinabilityCalltime = xb3_mp_joinability_success_backoff->current.integer + Sys_Milliseconds();
             }
-            if ( v98.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
+            if ( v95.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
             {
-              v64 = v98.m_errorMessage._Mypair._Myval2._Myres + 1;
-              v65 = v98.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-              if ( v98.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
+              v61 = v95.m_errorMessage._Mypair._Myval2._Myres + 1;
+              v62 = v95.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+              if ( v95.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
               {
-                v64 = v98.m_errorMessage._Mypair._Myval2._Myres + 40;
-                v65 = (char *)*((_QWORD *)v98.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-                if ( (unsigned __int64)(v98.m_errorMessage._Mypair._Myval2._Bx._Ptr - v65 - 8) > 0x1F )
+                v61 = v95.m_errorMessage._Mypair._Myval2._Myres + 40;
+                v62 = (char *)*((_QWORD *)v95.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+                if ( (unsigned __int64)(v95.m_errorMessage._Mypair._Myval2._Bx._Ptr - v62 - 8) > 0x1F )
                   _invalid_parameter_noinfo_noreturn();
               }
-              operator delete(v65, v64);
+              operator delete(v62, v61);
             }
           }
         }
@@ -8665,47 +8415,47 @@ _BOOL8 Xb3MultiplayerManager::UpdateSession(Xb3MultiplayerManager *this, Platfor
   std::_Ref_count_base *v12; 
   std::_Ref_count_base *v13; 
   unsigned int v14; 
-  bool v17; 
-  unsigned __int64 v18; 
-  wchar_t *v19; 
-  bool v20; 
-  bool v22; 
-  unsigned __int64 v23; 
-  wchar_t *v24; 
+  bool v15; 
+  unsigned __int64 v16; 
+  wchar_t *v17; 
+  bool v18; 
+  bool v19; 
+  unsigned __int64 v20; 
+  wchar_t *v21; 
   unsigned int ProtocolVersion; 
+  wchar_t *v23; 
+  bool v24; 
+  unsigned __int64 v25; 
   wchar_t *v26; 
-  bool v29; 
+  bool v27; 
+  unsigned __int64 v28; 
+  wchar_t *v29; 
   unsigned __int64 v30; 
   wchar_t *v31; 
-  bool v33; 
+  unsigned __int64 v32; 
+  wchar_t *v33; 
   unsigned __int64 v34; 
   wchar_t *v35; 
   unsigned __int64 v36; 
   wchar_t *v37; 
-  unsigned __int64 v39; 
-  wchar_t *v40; 
-  unsigned __int64 v42; 
-  wchar_t *v43; 
-  unsigned __int64 v45; 
-  wchar_t *v46; 
-  std::input_iterator_tag v48; 
+  std::input_iterator_tag v39; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v50; 
-  __int64 v51; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v52; 
-  std::wstring v53; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v41; 
+  __int64 v42; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v43; 
+  std::wstring v44; 
   std::wstring value; 
   std::wstring propertyName; 
-  std::wstring v56; 
-  std::wstring v57; 
-  std::wstring v58; 
-  std::wstring v59; 
-  std::wstring v60; 
-  char v61[6]; 
+  std::wstring v47; 
+  std::wstring v48; 
+  std::wstring v49; 
+  std::wstring v50; 
+  std::wstring v51; 
+  char v52[6]; 
   char dest[1376]; 
   unsigned __int8 buffer[1024]; 
 
-  v51 = -2i64;
+  v42 = -2i64;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
   v9 = -1i64;
@@ -8721,22 +8471,22 @@ _BOOL8 Xb3MultiplayerManager::UpdateSession(Xb3MultiplayerManager *this, Platfor
   }
   if ( !Ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1691, ASSERT_TYPE_ASSERT, "(mpManager())", (const char *)&queryFormat, "mpManager()") )
     __debugbreak();
-  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v50);
-  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v50._Ptr, &v52)->_Ptr;
-  v12 = v52._Rep;
-  if ( v52._Rep )
+  xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v41);
+  v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v41._Ptr, &v43)->_Ptr;
+  v12 = v43._Rep;
+  if ( v43._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v52._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v43._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v12->_Destroy(v12);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
         v12->_Delete_this(v12);
     }
   }
-  v13 = v50._Rep;
-  if ( v50._Rep )
+  v13 = v41._Rep;
+  if ( v41._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v50._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v41._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v13->_Destroy(v13);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13->_Weaks, 0xFFFFFFFF) == 1 )
@@ -8754,209 +8504,173 @@ _BOOL8 Xb3MultiplayerManager::UpdateSession(Xb3MultiplayerManager *this, Platfor
   do
     ++v9;
   while ( dest[v9] );
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+0A30h+value.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&value._Mypair._Myval2._Mysize = _xmm;
   value._Mypair._Myval2._Bx._Buf[0] = 0;
   std::wstring::reserve(&value, v9);
-  std::wstring::_Construct<char *>(&value, dest, &dest[v9], v48);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+0A30h+propertyName.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  std::wstring::_Construct<char *>(&value, dest, &dest[v9], v39);
+  *(_OWORD *)&propertyName._Mypair._Myval2._Mysize = _xmm;
   propertyName._Mypair._Myval2._Bx._Buf[0] = 0;
   std::wstring::assign(&propertyName, L"join_info", 9ui64);
-  v17 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &propertyName, &value);
+  v15 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &propertyName, &value);
   if ( propertyName._Mypair._Myval2._Myres >= 8 )
   {
-    v18 = 2 * propertyName._Mypair._Myval2._Myres + 2;
-    v19 = propertyName._Mypair._Myval2._Bx._Ptr;
-    if ( v18 >= 0x1000 )
+    v16 = 2 * propertyName._Mypair._Myval2._Myres + 2;
+    v17 = propertyName._Mypair._Myval2._Bx._Ptr;
+    if ( v16 >= 0x1000 )
     {
-      v18 = 2 * propertyName._Mypair._Myval2._Myres + 41;
-      v19 = (wchar_t *)*((_QWORD *)propertyName._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)propertyName._Mypair._Myval2._Bx._Ptr - (char *)v19 - 8) > 0x1F )
+      v16 = 2 * propertyName._Mypair._Myval2._Myres + 41;
+      v17 = (wchar_t *)*((_QWORD *)propertyName._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)propertyName._Mypair._Myval2._Bx._Ptr - (char *)v17 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v19, v18);
+    operator delete(v17, v16);
   }
-  if ( v17 )
+  if ( v15 )
   {
-    v20 = 0;
+    v18 = 0;
   }
   else
   {
-    std::to_wstring(&v60, maxSlots);
-    __asm
+    std::to_wstring(&v51, maxSlots);
+    *(_OWORD *)&v47._Mypair._Myval2._Mysize = _xmm;
+    v47._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::wstring::assign(&v47, L"max_players", 0xBui64);
+    v19 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &v47, &v51);
+    if ( v47._Mypair._Myval2._Myres >= 8 )
     {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+0A30h+var_A60.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
-    v56._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::wstring::assign(&v56, L"max_players", 0xBui64);
-    v22 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &v56, &v60);
-    if ( v56._Mypair._Myval2._Myres >= 8 )
-    {
-      v23 = 2 * v56._Mypair._Myval2._Myres + 2;
-      v24 = v56._Mypair._Myval2._Bx._Ptr;
-      if ( v23 >= 0x1000 )
+      v20 = 2 * v47._Mypair._Myval2._Myres + 2;
+      v21 = v47._Mypair._Myval2._Bx._Ptr;
+      if ( v20 >= 0x1000 )
       {
-        v23 = 2 * v56._Mypair._Myval2._Myres + 41;
-        v24 = (wchar_t *)*((_QWORD *)v56._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)v56._Mypair._Myval2._Bx._Ptr - (char *)v24 - 8) > 0x1F )
+        v20 = 2 * v47._Mypair._Myval2._Myres + 41;
+        v21 = (wchar_t *)*((_QWORD *)v47._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)v47._Mypair._Myval2._Bx._Ptr - (char *)v21 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v24, v23);
+      operator delete(v21, v20);
     }
-    if ( v22 )
+    if ( v19 )
     {
-      v20 = 0;
+      v18 = 0;
     }
     else
     {
       ProtocolVersion = GetProtocolVersion();
-      v26 = (wchar_t *)v61;
+      v23 = (wchar_t *)v52;
       do
       {
-        *--v26 = ProtocolVersion % 0xA + 48;
+        *--v23 = ProtocolVersion % 0xA + 48;
         ProtocolVersion /= 0xAu;
       }
       while ( ProtocolVersion );
-      __asm
+      *(_OWORD *)&v44._Mypair._Myval2._Mysize = _xmm;
+      v44._Mypair._Myval2._Bx._Buf[0] = 0;
+      if ( v23 != (wchar_t *)v52 )
+        std::wstring::assign(&v44, v23, (v52 - (char *)v23) >> 1);
+      *(_OWORD *)&v48._Mypair._Myval2._Mysize = _xmm;
+      v48._Mypair._Myval2._Bx._Buf[0] = 0;
+      std::wstring::assign(&v48, L"netcode_version", 0xFui64);
+      v24 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &v48, &v44);
+      if ( v48._Mypair._Myval2._Myres >= 8 )
       {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+0A30h+var_AC0.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v53._Mypair._Myval2._Bx._Buf[0] = 0;
-      if ( v26 != (wchar_t *)v61 )
-        std::wstring::assign(&v53, v26, (v61 - (char *)v26) >> 1);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+0A30h+var_A40.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v57._Mypair._Myval2._Bx._Buf[0] = 0;
-      std::wstring::assign(&v57, L"netcode_version", 0xFui64);
-      v29 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &v57, &v53);
-      if ( v57._Mypair._Myval2._Myres >= 8 )
-      {
-        v30 = 2 * v57._Mypair._Myval2._Myres + 2;
-        v31 = v57._Mypair._Myval2._Bx._Ptr;
-        if ( v30 >= 0x1000 )
+        v25 = 2 * v48._Mypair._Myval2._Myres + 2;
+        v26 = v48._Mypair._Myval2._Bx._Ptr;
+        if ( v25 >= 0x1000 )
         {
-          v30 = 2 * v57._Mypair._Myval2._Myres + 41;
-          v31 = (wchar_t *)*((_QWORD *)v57._Mypair._Myval2._Bx._Ptr - 1);
-          if ( (unsigned __int64)((char *)v57._Mypair._Myval2._Bx._Ptr - (char *)v31 - 8) > 0x1F )
+          v25 = 2 * v48._Mypair._Myval2._Myres + 41;
+          v26 = (wchar_t *)*((_QWORD *)v48._Mypair._Myval2._Bx._Ptr - 1);
+          if ( (unsigned __int64)((char *)v48._Mypair._Myval2._Bx._Ptr - (char *)v26 - 8) > 0x1F )
             _invalid_parameter_noinfo_noreturn();
         }
-        operator delete(v31, v30);
+        operator delete(v26, v25);
       }
-      if ( v29 )
+      if ( v24 )
       {
-        v20 = 0;
+        v18 = 0;
       }
       else
       {
-        std::to_wstring(&v59, maxSlots);
-        __asm
+        std::to_wstring(&v50, maxSlots);
+        *(_OWORD *)&v49._Mypair._Myval2._Mysize = _xmm;
+        v49._Mypair._Myval2._Bx._Buf[0] = 0;
+        std::wstring::assign(&v49, L"public_slots", 0xCui64);
+        v27 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &v49, &v50);
+        if ( v49._Mypair._Myval2._Myres >= 8 )
         {
-          vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-          vmovdqu xmmword ptr [rbp+0A30h+var_A20.baseclass_0._Mypair._Myval2._Mysize], xmm0
-        }
-        v58._Mypair._Myval2._Bx._Buf[0] = 0;
-        std::wstring::assign(&v58, L"public_slots", 0xCui64);
-        v33 = !Xb3MultiplayerManager::WriteCustomSessionProperty(this, sessionType, &v58, &v59);
-        if ( v58._Mypair._Myval2._Myres >= 8 )
-        {
-          v34 = 2 * v58._Mypair._Myval2._Myres + 2;
-          v35 = v58._Mypair._Myval2._Bx._Ptr;
-          if ( v34 >= 0x1000 )
+          v28 = 2 * v49._Mypair._Myval2._Myres + 2;
+          v29 = v49._Mypair._Myval2._Bx._Ptr;
+          if ( v28 >= 0x1000 )
           {
-            v34 = 2 * v58._Mypair._Myval2._Myres + 41;
-            v35 = (wchar_t *)*((_QWORD *)v58._Mypair._Myval2._Bx._Ptr - 1);
-            if ( (unsigned __int64)((char *)v58._Mypair._Myval2._Bx._Ptr - (char *)v35 - 8) > 0x1F )
+            v28 = 2 * v49._Mypair._Myval2._Myres + 41;
+            v29 = (wchar_t *)*((_QWORD *)v49._Mypair._Myval2._Bx._Ptr - 1);
+            if ( (unsigned __int64)((char *)v49._Mypair._Myval2._Bx._Ptr - (char *)v29 - 8) > 0x1F )
               _invalid_parameter_noinfo_noreturn();
           }
-          operator delete(v35, v34);
+          operator delete(v29, v28);
         }
-        v20 = !v33;
-        if ( v59._Mypair._Myval2._Myres >= 8 )
+        v18 = !v27;
+        if ( v50._Mypair._Myval2._Myres >= 8 )
         {
-          v36 = 2 * v59._Mypair._Myval2._Myres + 2;
-          v37 = v59._Mypair._Myval2._Bx._Ptr;
-          if ( v36 >= 0x1000 )
+          v30 = 2 * v50._Mypair._Myval2._Myres + 2;
+          v31 = v50._Mypair._Myval2._Bx._Ptr;
+          if ( v30 >= 0x1000 )
           {
-            v36 = 2 * v59._Mypair._Myval2._Myres + 41;
-            v37 = (wchar_t *)*((_QWORD *)v59._Mypair._Myval2._Bx._Ptr - 1);
-            if ( (unsigned __int64)((char *)v59._Mypair._Myval2._Bx._Ptr - (char *)v37 - 8) > 0x1F )
+            v30 = 2 * v50._Mypair._Myval2._Myres + 41;
+            v31 = (wchar_t *)*((_QWORD *)v50._Mypair._Myval2._Bx._Ptr - 1);
+            if ( (unsigned __int64)((char *)v50._Mypair._Myval2._Bx._Ptr - (char *)v31 - 8) > 0x1F )
               _invalid_parameter_noinfo_noreturn();
           }
-          operator delete(v37, v36);
+          operator delete(v31, v30);
         }
-        __asm
-        {
-          vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-          vmovdqu xmmword ptr [rbp+40h], xmm0
-        }
-        v59._Mypair._Myval2._Bx._Buf[0] = 0;
+        *(_OWORD *)&v50._Mypair._Myval2._Mysize = _xmm;
+        v50._Mypair._Myval2._Bx._Buf[0] = 0;
       }
-      if ( v53._Mypair._Myval2._Myres >= 8 )
+      if ( v44._Mypair._Myval2._Myres >= 8 )
       {
-        v39 = 2 * v53._Mypair._Myval2._Myres + 2;
-        v40 = v53._Mypair._Myval2._Bx._Ptr;
-        if ( v39 >= 0x1000 )
+        v32 = 2 * v44._Mypair._Myval2._Myres + 2;
+        v33 = v44._Mypair._Myval2._Bx._Ptr;
+        if ( v32 >= 0x1000 )
         {
-          v39 = 2 * v53._Mypair._Myval2._Myres + 41;
-          v40 = (wchar_t *)*((_QWORD *)v53._Mypair._Myval2._Bx._Ptr - 1);
-          if ( (unsigned __int64)((char *)v53._Mypair._Myval2._Bx._Ptr - (char *)v40 - 8) > 0x1F )
+          v32 = 2 * v44._Mypair._Myval2._Myres + 41;
+          v33 = (wchar_t *)*((_QWORD *)v44._Mypair._Myval2._Bx._Ptr - 1);
+          if ( (unsigned __int64)((char *)v44._Mypair._Myval2._Bx._Ptr - (char *)v33 - 8) > 0x1F )
             _invalid_parameter_noinfo_noreturn();
         }
-        operator delete(v40, v39);
+        operator delete(v33, v32);
       }
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+0A30h+var_AC0.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v53._Mypair._Myval2._Bx._Buf[0] = 0;
+      *(_OWORD *)&v44._Mypair._Myval2._Mysize = _xmm;
+      v44._Mypair._Myval2._Bx._Buf[0] = 0;
     }
-    if ( v60._Mypair._Myval2._Myres >= 8 )
+    if ( v51._Mypair._Myval2._Myres >= 8 )
     {
-      v42 = 2 * v60._Mypair._Myval2._Myres + 2;
-      v43 = v60._Mypair._Myval2._Bx._Ptr;
-      if ( v42 >= 0x1000 )
+      v34 = 2 * v51._Mypair._Myval2._Myres + 2;
+      v35 = v51._Mypair._Myval2._Bx._Ptr;
+      if ( v34 >= 0x1000 )
       {
-        v42 = 2 * v60._Mypair._Myval2._Myres + 41;
-        v43 = (wchar_t *)*((_QWORD *)v60._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)((char *)v60._Mypair._Myval2._Bx._Ptr - (char *)v43 - 8) > 0x1F )
+        v34 = 2 * v51._Mypair._Myval2._Myres + 41;
+        v35 = (wchar_t *)*((_QWORD *)v51._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)((char *)v51._Mypair._Myval2._Bx._Ptr - (char *)v35 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v43, v42);
+      operator delete(v35, v34);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+60h], xmm0
-    }
-    v60._Mypair._Myval2._Bx._Buf[0] = 0;
+    *(_OWORD *)&v51._Mypair._Myval2._Mysize = _xmm;
+    v51._Mypair._Myval2._Bx._Buf[0] = 0;
   }
   if ( value._Mypair._Myval2._Myres >= 8 )
   {
-    v45 = 2 * value._Mypair._Myval2._Myres + 2;
-    v46 = value._Mypair._Myval2._Bx._Ptr;
-    if ( v45 >= 0x1000 )
+    v36 = 2 * value._Mypair._Myval2._Myres + 2;
+    v37 = value._Mypair._Myval2._Bx._Ptr;
+    if ( v36 >= 0x1000 )
     {
-      v45 = 2 * value._Mypair._Myval2._Myres + 41;
-      v46 = (wchar_t *)*((_QWORD *)value._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)value._Mypair._Myval2._Bx._Ptr - (char *)v46 - 8) > 0x1F )
+      v36 = 2 * value._Mypair._Myval2._Myres + 41;
+      v37 = (wchar_t *)*((_QWORD *)value._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)value._Mypair._Myval2._Bx._Ptr - (char *)v37 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v46, v45);
+    operator delete(v37, v36);
   }
-  return v20;
+  return v18;
 }
 
 /*
@@ -8968,125 +8682,121 @@ __int64 Xb3MultiplayerManager::WriteCustomSessionProperty(Xb3MultiplayerManager 
 {
   const std::wstring *v4; 
   std::wstring *v7; 
-  std::_Ref_count_base *v9; 
+  std::_Ref_count_base *v8; 
   xbox::services::multiplayer::manager::multiplayer_manager *Ptr; 
   std::_Ref_count_base *Rep; 
-  xbox::services::multiplayer::manager::multiplayer_lobby_session *v13; 
-  std::_Ref_count_base *v14; 
-  std::_Ref_count_base *v15; 
-  char v16; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v17; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v18; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v19; 
-  const std::wstring *v20; 
-  const wchar_t *v21; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v22; 
-  xbox::services::multiplayer::multiplayer_session_reference *v23; 
-  const std::wstring *v24; 
-  const std::wstring *v25; 
+  xbox::services::multiplayer::manager::multiplayer_lobby_session *v11; 
+  std::_Ref_count_base *v12; 
+  std::_Ref_count_base *v13; 
+  char v14; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v15; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v16; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v17; 
+  const std::wstring *v18; 
+  const wchar_t *v19; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v20; 
+  xbox::services::multiplayer::multiplayer_session_reference *v21; 
+  const std::wstring *v22; 
+  const std::wstring *v23; 
+  std::_Ref_count_base *v24; 
+  std::_Ref_count_base *v25; 
   std::_Ref_count_base *v26; 
   std::_Ref_count_base *v27; 
   std::_Ref_count_base *v28; 
   std::_Ref_count_base *v29; 
   std::_Ref_count_base *v30; 
   std::_Ref_count_base *v31; 
-  std::_Ref_count_base *v32; 
-  std::_Ref_count_base *v33; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v34; 
-  unsigned __int64 v39; 
-  char *v40; 
-  std::_Ref_count_base *v42; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *v32; 
+  xbox::services::xbox_live_result<void> *v33; 
+  std::string *p_m_errorMessage; 
+  unsigned __int64 v35; 
+  char *v36; 
+  std::_Ref_count_base *v37; 
+  std::_Ref_count_base *v38; 
+  xbox::services::multiplayer::manager::multiplayer_lobby_session *v39; 
+  std::_Ref_count_base *v40; 
+  std::_Ref_count_base *v41; 
+  xbox::services::multiplayer::manager::multiplayer_game_session *v42; 
   std::_Ref_count_base *v43; 
-  xbox::services::multiplayer::manager::multiplayer_lobby_session *v44; 
-  std::_Ref_count_base *v45; 
-  std::_Ref_count_base *v46; 
-  xbox::services::multiplayer::manager::multiplayer_game_session *v47; 
-  std::_Ref_count_base *v48; 
-  std::_Ref_count_base *v49; 
-  char v50; 
+  std::_Ref_count_base *v44; 
+  char v45; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v46; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v47; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v48; 
+  const std::wstring *v49; 
+  const wchar_t *v50; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v51; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v52; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *v53; 
+  xbox::services::multiplayer::multiplayer_session_reference *v52; 
+  const std::wstring *v53; 
   const std::wstring *v54; 
-  const wchar_t *v55; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v56; 
-  xbox::services::multiplayer::multiplayer_session_reference *v57; 
-  const std::wstring *v58; 
-  const std::wstring *v59; 
+  std::_Ref_count_base *v55; 
+  std::_Ref_count_base *v56; 
+  std::_Ref_count_base *v57; 
+  std::_Ref_count_base *v58; 
+  std::_Ref_count_base *v59; 
   std::_Ref_count_base *v60; 
   std::_Ref_count_base *v61; 
   std::_Ref_count_base *v62; 
-  std::_Ref_count_base *v63; 
-  std::_Ref_count_base *v64; 
-  std::_Ref_count_base *v65; 
-  std::_Ref_count_base *v66; 
-  std::_Ref_count_base *v67; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v68; 
-  unsigned __int64 v73; 
-  char *v74; 
-  std::_Ref_count_base *v76; 
-  std::string *v77; 
-  unsigned __int8 v78; 
-  unsigned __int64 v79; 
-  char *v80; 
-  char v83; 
-  char v84; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *v63; 
+  xbox::services::xbox_live_result<void> *v64; 
+  std::string *v65; 
+  unsigned __int64 v66; 
+  char *v67; 
+  std::_Ref_count_base *v68; 
+  std::string *v69; 
+  unsigned __int8 v70; 
+  unsigned __int64 v71; 
+  char *v72; 
+  char v74; 
+  char v75; 
   web::json::value valueJson; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> result; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v78; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v79; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v80; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v81; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v82; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v83; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v84; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v85; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v86; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v87; 
   std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v88; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v89; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v90; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v91; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v92; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v93; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v94; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v95; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v96; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> v97; 
-  __int64 v98; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v99; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v100; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v101; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v102; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v103; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v104; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v105; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v106; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v107; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v108; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v109; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v110; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v111; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v112; 
-  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v113; 
-  std::wstring v114; 
-  __int128 v115; 
-  std::string v116; 
-  xbox::services::xbox_live_result<void> v117; 
-  xbox::services::xbox_live_result<void> v118; 
+  __int64 v89; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v90; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v91; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v92; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v93; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v94; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v95; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v96; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> v97; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v98; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v99; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v100; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v101; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> v102; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v103; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> v104; 
+  std::wstring v105; 
+  std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> m_errorCode; 
+  std::string v107; 
+  xbox::services::xbox_live_result<void> v108; 
+  xbox::services::xbox_live_result<void> v109; 
 
-  v98 = -2i64;
+  v89 = -2i64;
   v4 = value;
-  std::wstring::wstring(&v114, value);
+  std::wstring::wstring(&v105, value);
   web::json::value::value(&valueJson, v7);
-  LODWORD(v115) = 0;
+  LODWORD(m_errorCode._Ptr) = 0;
   std::_Execute_once(&`std::_Immortalize<std::_System_error_category>'::`2'::_Flag, (int (__stdcall *)(void *, void *, void **))std::_Immortalize_impl<std::_System_error_category>, &`std::_Immortalize<std::_System_error_category>'::`2'::_Storage);
-  *((_QWORD *)&v115 + 1) = &`std::_Immortalize<std::_System_error_category>'::`2'::_Storage;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-    vmovdqu xmmword ptr [rbp+1E0h+var_B8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v116._Mypair._Myval2._Bx._Buf[0] = 0;
-  v9 = (std::_Ref_count_base *)xbox::services::xbox_services_error_code_category();
+  m_errorCode._Rep = (std::_Ref_count_base *)&`std::_Immortalize<std::_System_error_category>'::`2'::_Storage;
+  *(_OWORD *)&v107._Mypair._Myval2._Mysize = _xmm;
+  v107._Mypair._Myval2._Bx._Buf[0] = 0;
+  v8 = (std::_Ref_count_base *)xbox::services::xbox_services_error_code_category();
   LODWORD(result._Ptr) = 0;
-  result._Rep = v9;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+2E0h+result.baseclass_0._Ptr]
-    vmovups [rbp+1E0h+var_C8], xmm0
-  }
+  result._Rep = v8;
+  m_errorCode = result;
   xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&result);
   Ptr = result._Ptr;
   Rep = result._Rep;
@@ -9103,88 +8813,115 @@ __int64 Xb3MultiplayerManager::WriteCustomSessionProperty(Xb3MultiplayerManager 
     __debugbreak();
   if ( sessionType == PRIVATE_PARTY_SESSION )
   {
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v88);
-    v13 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v88._Ptr, &v99)->_Ptr;
-    v14 = v99._Rep;
-    if ( v99._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v79);
+    v11 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v79._Ptr, &v90)->_Ptr;
+    v12 = v90._Rep;
+    if ( v90._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v99._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v90._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v14->_Destroy(v14);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14->_Weaks, 0xFFFFFFFF) == 1 )
-          v14->_Delete_this(v14);
+        v12->_Destroy(v12);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12->_Weaks, 0xFFFFFFFF) == 1 )
+          v12->_Delete_this(v12);
       }
     }
-    v15 = v88._Rep;
-    if ( v88._Rep )
+    v13 = v79._Rep;
+    if ( v79._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v88._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v79._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v15->_Destroy(v15);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15->_Weaks, 0xFFFFFFFF) == 1 )
-          v15->_Delete_this(v15);
+        v13->_Destroy(v13);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v13->_Weaks, 0xFFFFFFFF) == 1 )
+          v13->_Delete_this(v13);
       }
     }
-    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1741, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1741, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
       __debugbreak();
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v91);
-    v16 = -64;
-    v17 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v91._Ptr, &v104);
-    if ( xbox::services::multiplayer::manager::multiplayer_lobby_session::host(v17->_Ptr, &v103)->_Ptr )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v82);
+    v14 = -64;
+    v15 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v82._Ptr, &v95);
+    if ( xbox::services::multiplayer::manager::multiplayer_lobby_session::host(v15->_Ptr, &v94)->_Ptr )
     {
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v90);
-      v18 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v90._Ptr, &v102);
-      v19 = xbox::services::multiplayer::manager::multiplayer_lobby_session::host(v18->_Ptr, &v101);
-      v16 = -57;
-      v20 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(v19->_Ptr);
-      v21 = (const wchar_t *)v20;
-      if ( v20->_Mypair._Myval2._Myres >= 8 )
-        v21 = v20->_Mypair._Myval2._Bx._Ptr;
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v81);
+      v16 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v81._Ptr, &v93);
+      v17 = xbox::services::multiplayer::manager::multiplayer_lobby_session::host(v16->_Ptr, &v92);
+      v14 = -57;
+      v18 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(v17->_Ptr);
+      v19 = (const wchar_t *)v18;
+      if ( v18->_Mypair._Myval2._Myres >= 8 )
+        v19 = v18->_Mypair._Myval2._Bx._Ptr;
     }
     else
     {
-      v21 = L"NO HOST";
+      v19 = L"NO HOST";
     }
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v89);
-    v83 = v16;
-    v22 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v89._Ptr, &v100);
-    v23 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_lobby_session::session_reference(v22->_Ptr);
-    v24 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v23);
-    if ( v24->_Mypair._Myval2._Myres >= 8 )
-      v24 = (const std::wstring *)v24->_Mypair._Myval2._Bx._Ptr;
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v80);
+    v74 = v14;
+    v20 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v80._Ptr, &v91);
+    v21 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_lobby_session::session_reference(v20->_Ptr);
+    v22 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v21);
+    if ( v22->_Mypair._Myval2._Myres >= 8 )
+      v22 = (const std::wstring *)v22->_Mypair._Myval2._Bx._Ptr;
     if ( v4->_Mypair._Myval2._Myres >= 8 )
       v4 = (const std::wstring *)v4->_Mypair._Myval2._Bx._Ptr;
-    v25 = propertyName;
+    v23 = propertyName;
     if ( propertyName->_Mypair._Myval2._Myres >= 8 )
-      v25 = (const std::wstring *)propertyName->_Mypair._Myval2._Bx._Ptr;
-    Com_Printf(25, "Xb3MultiplayerManager::WriteCustomSessionProperty - writing %S with value = %S (session_name = %S host = %S)\n", v25->_Mypair._Myval2._Bx._Buf, v4->_Mypair._Myval2._Bx._Buf, v24->_Mypair._Myval2._Bx._Buf, v21);
-    v26 = v100._Rep;
-    if ( v100._Rep )
+      v23 = (const std::wstring *)propertyName->_Mypair._Myval2._Bx._Ptr;
+    Com_Printf(25, "Xb3MultiplayerManager::WriteCustomSessionProperty - writing %S with value = %S (session_name = %S host = %S)\n", v23->_Mypair._Myval2._Bx._Buf, v4->_Mypair._Myval2._Bx._Buf, v22->_Mypair._Myval2._Bx._Buf, v19);
+    v24 = v91._Rep;
+    if ( v91._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v100._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v91._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v26->_Destroy(v26);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26->_Weaks, 0xFFFFFFFF) == 1 )
-          v26->_Delete_this(v26);
+        v24->_Destroy(v24);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v24->_Weaks, 0xFFFFFFFF) == 1 )
+          v24->_Delete_this(v24);
       }
     }
-    v27 = v89._Rep;
-    if ( v89._Rep )
+    v25 = v80._Rep;
+    if ( v80._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v89._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v80._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v27->_Destroy(v27);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v27->_Weaks, 0xFFFFFFFF) == 1 )
-          v27->_Delete_this(v27);
+        v25->_Destroy(v25);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v25->_Weaks, 0xFFFFFFFF) == 1 )
+          v25->_Delete_this(v25);
       }
     }
-    if ( (v16 & 4) != 0 )
+    if ( (v14 & 4) != 0 )
     {
-      v83 = v16 & 0xFB;
-      v28 = v101._Rep;
-      if ( v101._Rep )
+      v74 = v14 & 0xFB;
+      v26 = v92._Rep;
+      if ( v92._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v101._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v92._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        {
+          v26->_Destroy(v26);
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26->_Weaks, 0xFFFFFFFF) == 1 )
+            v26->_Delete_this(v26);
+        }
+      }
+    }
+    if ( (v74 & 2) != 0 )
+    {
+      v74 &= ~2u;
+      v27 = v93._Rep;
+      if ( v93._Rep )
+      {
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v93._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        {
+          v27->_Destroy(v27);
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v27->_Weaks, 0xFFFFFFFF) == 1 )
+            v27->_Delete_this(v27);
+        }
+      }
+    }
+    if ( (v74 & 1) != 0 )
+    {
+      v28 = v81._Rep;
+      if ( v81._Rep )
+      {
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v81._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           v28->_Destroy(v28);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v28->_Weaks, 0xFFFFFFFF) == 1 )
@@ -9192,394 +8929,339 @@ __int64 Xb3MultiplayerManager::WriteCustomSessionProperty(Xb3MultiplayerManager 
         }
       }
     }
-    if ( (v83 & 2) != 0 )
+    v29 = v94._Rep;
+    if ( v94._Rep )
     {
-      v83 &= ~2u;
-      v29 = v102._Rep;
-      if ( v102._Rep )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v94._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v102._Rep->_Uses, 0xFFFFFFFF) == 1 )
-        {
-          v29->_Destroy(v29);
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29->_Weaks, 0xFFFFFFFF) == 1 )
-            v29->_Delete_this(v29);
-        }
+        v29->_Destroy(v29);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29->_Weaks, 0xFFFFFFFF) == 1 )
+          v29->_Delete_this(v29);
       }
     }
-    if ( (v83 & 1) != 0 )
+    v30 = v95._Rep;
+    if ( v95._Rep )
     {
-      v30 = v90._Rep;
-      if ( v90._Rep )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v95._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v90._Rep->_Uses, 0xFFFFFFFF) == 1 )
-        {
-          v30->_Destroy(v30);
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v30->_Weaks, 0xFFFFFFFF) == 1 )
-            v30->_Delete_this(v30);
-        }
+        v30->_Destroy(v30);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v30->_Weaks, 0xFFFFFFFF) == 1 )
+          v30->_Delete_this(v30);
       }
     }
-    v31 = v103._Rep;
-    if ( v103._Rep )
+    v31 = v82._Rep;
+    if ( v82._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v103._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v82._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v31->_Destroy(v31);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31->_Weaks, 0xFFFFFFFF) == 1 )
           v31->_Delete_this(v31);
       }
     }
-    v32 = v104._Rep;
-    if ( v104._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v83);
+    v32 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v83._Ptr, &v96);
+    v33 = xbox::services::multiplayer::manager::multiplayer_lobby_session::set_properties(v32->_Ptr, &v108, propertyName, &valueJson, NULL);
+    if ( &m_errorCode != (std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> *)v33 )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v104._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      m_errorCode = (std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>)v33->m_errorCode;
+      p_m_errorMessage = &v33->m_errorMessage;
+      if ( &v107 != &v33->m_errorMessage )
       {
-        v32->_Destroy(v32);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v32->_Weaks, 0xFFFFFFFF) == 1 )
-          v32->_Delete_this(v32);
+        std::string::_Tidy_deallocate(&v107);
+        v107 = *p_m_errorMessage;
+        p_m_errorMessage->_Mypair._Myval2._Mysize = 0i64;
+        p_m_errorMessage->_Mypair._Myval2._Myres = 15i64;
+        p_m_errorMessage->_Mypair._Myval2._Bx._Buf[0] = 0;
       }
     }
-    v33 = v91._Rep;
-    if ( v91._Rep )
+    if ( v108.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v91._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      v35 = v108.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v36 = v108.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v108.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        v33->_Destroy(v33);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v33->_Weaks, 0xFFFFFFFF) == 1 )
-          v33->_Delete_this(v33);
-      }
-    }
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v92);
-    v34 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v92._Ptr, &v105);
-    _RAX = xbox::services::multiplayer::manager::multiplayer_lobby_session::set_properties(v34->_Ptr, &v117, propertyName, &valueJson, NULL);
-    if ( &v115 != (__int128 *)_RAX )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups [rbp+1E0h+var_C8], xmm0
-      }
-      _RDI = &_RAX->m_errorMessage;
-      if ( &v116 != &_RAX->m_errorMessage )
-      {
-        std::string::_Tidy_deallocate(&v116);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [rbp+1E0h+var_B8.baseclass_0._Mypair._Myval2._Bx], ymm0
-        }
-        _RDI->_Mypair._Myval2._Mysize = 0i64;
-        _RDI->_Mypair._Myval2._Myres = 15i64;
-        _RDI->_Mypair._Myval2._Bx._Buf[0] = 0;
-      }
-    }
-    if ( v117.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-    {
-      v39 = v117.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v40 = v117.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v117.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
-      {
-        v39 = v117.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v40 = (char *)*((_QWORD *)v117.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v117.m_errorMessage._Mypair._Myval2._Bx._Ptr - v40 - 8) > 0x1F )
+        v35 = v108.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v36 = (char *)*((_QWORD *)v108.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v108.m_errorMessage._Mypair._Myval2._Bx._Ptr - v36 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v40, v39);
+      operator delete(v36, v35);
     }
-    __asm
+    *(_OWORD *)&v108.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v108.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    v37 = v96._Rep;
+    if ( v96._Rep )
     {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+168h], xmm0
-    }
-    v117.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
-    v42 = v105._Rep;
-    if ( v105._Rep )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v105._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v96._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v42->_Destroy(v42);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v42->_Weaks, 0xFFFFFFFF) == 1 )
-          v42->_Delete_this(v42);
+        v37->_Destroy(v37);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v37->_Weaks, 0xFFFFFFFF) == 1 )
+          v37->_Delete_this(v37);
       }
     }
-    v43 = v92._Rep;
+    v38 = v83._Rep;
 LABEL_159:
-    if ( v43 )
+    if ( v38 )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v43->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v38->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v43->_Destroy(v43);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v43->_Weaks, 0xFFFFFFFF) == 1 )
-          v43->_Delete_this(v43);
+        v38->_Destroy(v38);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v38->_Weaks, 0xFFFFFFFF) == 1 )
+          v38->_Delete_this(v38);
       }
     }
     goto LABEL_165;
   }
   if ( sessionType == GAME_LOBBY_SESSION )
   {
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v93);
-    v44 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v93._Ptr, &v106)->_Ptr;
-    v45 = v106._Rep;
-    if ( v106._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v84);
+    v39 = xbox::services::multiplayer::manager::multiplayer_manager::lobby_session(v84._Ptr, &v97)->_Ptr;
+    v40 = v97._Rep;
+    if ( v97._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v106._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v97._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v45->_Destroy(v45);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v45->_Weaks, 0xFFFFFFFF) == 1 )
-          v45->_Delete_this(v45);
+        v40->_Destroy(v40);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v40->_Weaks, 0xFFFFFFFF) == 1 )
+          v40->_Delete_this(v40);
       }
     }
-    v46 = v93._Rep;
-    if ( v93._Rep )
+    v41 = v84._Rep;
+    if ( v84._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v93._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v84._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v46->_Destroy(v46);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v46->_Weaks, 0xFFFFFFFF) == 1 )
-          v46->_Delete_this(v46);
+        v41->_Destroy(v41);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v41->_Weaks, 0xFFFFFFFF) == 1 )
+          v41->_Delete_this(v41);
       }
     }
-    if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1751, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
+    if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1751, ASSERT_TYPE_ASSERT, "(mpManager()->lobby_session())", (const char *)&queryFormat, "mpManager()->lobby_session()") )
       __debugbreak();
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v94);
-    v47 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v94._Ptr, &v107)->_Ptr;
-    v48 = v107._Rep;
-    if ( v107._Rep )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v85);
+    v42 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v85._Ptr, &v98)->_Ptr;
+    v43 = v98._Rep;
+    if ( v98._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v107._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v98._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v48->_Destroy(v48);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v48->_Weaks, 0xFFFFFFFF) == 1 )
-          v48->_Delete_this(v48);
+        v43->_Destroy(v43);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v43->_Weaks, 0xFFFFFFFF) == 1 )
+          v43->_Delete_this(v43);
       }
     }
-    v49 = v94._Rep;
-    if ( v94._Rep )
+    v44 = v85._Rep;
+    if ( v85._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v94._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v85._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v49->_Destroy(v49);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v49->_Weaks, 0xFFFFFFFF) == 1 )
-          v49->_Delete_this(v49);
+        v44->_Destroy(v44);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v44->_Weaks, 0xFFFFFFFF) == 1 )
+          v44->_Delete_this(v44);
       }
     }
-    if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1752, ASSERT_TYPE_ASSERT, "(mpManager()->game_session())", (const char *)&queryFormat, "mpManager()->game_session()") )
+    if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1752, ASSERT_TYPE_ASSERT, "(mpManager()->game_session())", (const char *)&queryFormat, "mpManager()->game_session()") )
       __debugbreak();
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v97);
-    v50 = 64;
-    v51 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v97._Ptr, &v112);
-    if ( xbox::services::multiplayer::manager::multiplayer_game_session::host(v51->_Ptr, &v111)->_Ptr )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v88);
+    v45 = 64;
+    v46 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v88._Ptr, &v103);
+    if ( xbox::services::multiplayer::manager::multiplayer_game_session::host(v46->_Ptr, &v102)->_Ptr )
     {
-      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v96);
-      v52 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v96._Ptr, &v110);
-      v53 = xbox::services::multiplayer::manager::multiplayer_game_session::host(v52->_Ptr, &v109);
-      v50 = 120;
-      v54 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(v53->_Ptr);
-      v55 = (const wchar_t *)v54;
-      if ( v54->_Mypair._Myval2._Myres >= 8 )
-        v55 = v54->_Mypair._Myval2._Bx._Ptr;
+      xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v87);
+      v47 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v87._Ptr, &v101);
+      v48 = xbox::services::multiplayer::manager::multiplayer_game_session::host(v47->_Ptr, &v100);
+      v45 = 120;
+      v49 = xbox::services::multiplayer::manager::multiplayer_member::xbox_user_id(v48->_Ptr);
+      v50 = (const wchar_t *)v49;
+      if ( v49->_Mypair._Myval2._Myres >= 8 )
+        v50 = v49->_Mypair._Myval2._Bx._Ptr;
     }
     else
     {
-      v55 = L"NO HOST";
+      v50 = L"NO HOST";
     }
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v95);
-    v84 = v50;
-    v56 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v95._Ptr, &v108);
-    v57 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_game_session::session_reference(v56->_Ptr);
-    v58 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v57);
-    if ( v58->_Mypair._Myval2._Myres >= 8 )
-      v58 = (const std::wstring *)v58->_Mypair._Myval2._Bx._Ptr;
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v86);
+    v75 = v45;
+    v51 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v86._Ptr, &v99);
+    v52 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::manager::multiplayer_game_session::session_reference(v51->_Ptr);
+    v53 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v52);
+    if ( v53->_Mypair._Myval2._Myres >= 8 )
+      v53 = (const std::wstring *)v53->_Mypair._Myval2._Bx._Ptr;
     if ( v4->_Mypair._Myval2._Myres >= 8 )
       v4 = (const std::wstring *)v4->_Mypair._Myval2._Bx._Ptr;
-    v59 = propertyName;
+    v54 = propertyName;
     if ( propertyName->_Mypair._Myval2._Myres >= 8 )
-      v59 = (const std::wstring *)propertyName->_Mypair._Myval2._Bx._Ptr;
-    Com_Printf(25, "Xb3MultiplayerManager::WriteCustomSessionProperty - writing %S with value = %S (session_name = %S host = %S)\n", v59->_Mypair._Myval2._Bx._Buf, v4->_Mypair._Myval2._Bx._Buf, v58->_Mypair._Myval2._Bx._Buf, v55);
-    v60 = v108._Rep;
-    if ( v108._Rep )
+      v54 = (const std::wstring *)propertyName->_Mypair._Myval2._Bx._Ptr;
+    Com_Printf(25, "Xb3MultiplayerManager::WriteCustomSessionProperty - writing %S with value = %S (session_name = %S host = %S)\n", v54->_Mypair._Myval2._Bx._Buf, v4->_Mypair._Myval2._Bx._Buf, v53->_Mypair._Myval2._Bx._Buf, v50);
+    v55 = v99._Rep;
+    if ( v99._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v108._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v99._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      {
+        v55->_Destroy(v55);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v55->_Weaks, 0xFFFFFFFF) == 1 )
+          v55->_Delete_this(v55);
+      }
+    }
+    v56 = v86._Rep;
+    if ( v86._Rep )
+    {
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v86._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      {
+        v56->_Destroy(v56);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v56->_Weaks, 0xFFFFFFFF) == 1 )
+          v56->_Delete_this(v56);
+      }
+    }
+    if ( (v45 & 0x20) != 0 )
+    {
+      v75 = v45 & 0xDF;
+      v57 = v100._Rep;
+      if ( v100._Rep )
+      {
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v100._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        {
+          v57->_Destroy(v57);
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v57->_Weaks, 0xFFFFFFFF) == 1 )
+            v57->_Delete_this(v57);
+        }
+      }
+    }
+    if ( (v75 & 0x10) != 0 )
+    {
+      v75 &= ~0x10u;
+      v58 = v101._Rep;
+      if ( v101._Rep )
+      {
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v101._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        {
+          v58->_Destroy(v58);
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v58->_Weaks, 0xFFFFFFFF) == 1 )
+            v58->_Delete_this(v58);
+        }
+      }
+    }
+    if ( (v75 & 8) != 0 )
+    {
+      v59 = v87._Rep;
+      if ( v87._Rep )
+      {
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v87._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        {
+          v59->_Destroy(v59);
+          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v59->_Weaks, 0xFFFFFFFF) == 1 )
+            v59->_Delete_this(v59);
+        }
+      }
+    }
+    v60 = v102._Rep;
+    if ( v102._Rep )
+    {
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v102._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v60->_Destroy(v60);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v60->_Weaks, 0xFFFFFFFF) == 1 )
           v60->_Delete_this(v60);
       }
     }
-    v61 = v95._Rep;
-    if ( v95._Rep )
+    v61 = v103._Rep;
+    if ( v103._Rep )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v95._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v103._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
         v61->_Destroy(v61);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v61->_Weaks, 0xFFFFFFFF) == 1 )
           v61->_Delete_this(v61);
       }
     }
-    if ( (v50 & 0x20) != 0 )
+    v62 = v88._Rep;
+    if ( v88._Rep )
     {
-      v84 = v50 & 0xDF;
-      v62 = v109._Rep;
-      if ( v109._Rep )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v88._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v109._Rep->_Uses, 0xFFFFFFFF) == 1 )
-        {
-          v62->_Destroy(v62);
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v62->_Weaks, 0xFFFFFFFF) == 1 )
-            v62->_Delete_this(v62);
-        }
+        v62->_Destroy(v62);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v62->_Weaks, 0xFFFFFFFF) == 1 )
+          v62->_Delete_this(v62);
       }
     }
-    if ( (v84 & 0x10) != 0 )
+    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v78);
+    v63 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v78._Ptr, &v104);
+    v64 = xbox::services::multiplayer::manager::multiplayer_game_session::set_properties(v63->_Ptr, &v109, propertyName, &valueJson, NULL);
+    if ( &m_errorCode != (std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> *)v64 )
     {
-      v84 &= ~0x10u;
-      v63 = v110._Rep;
-      if ( v110._Rep )
+      m_errorCode = (std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>)v64->m_errorCode;
+      v65 = &v64->m_errorMessage;
+      if ( &v107 != &v64->m_errorMessage )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v110._Rep->_Uses, 0xFFFFFFFF) == 1 )
-        {
-          v63->_Destroy(v63);
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v63->_Weaks, 0xFFFFFFFF) == 1 )
-            v63->_Delete_this(v63);
-        }
+        std::string::_Tidy_deallocate(&v107);
+        v107 = *v65;
+        v65->_Mypair._Myval2._Mysize = 0i64;
+        v65->_Mypair._Myval2._Myres = 15i64;
+        v65->_Mypair._Myval2._Bx._Buf[0] = 0;
       }
     }
-    if ( (v84 & 8) != 0 )
+    if ( v109.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
     {
-      v64 = v96._Rep;
-      if ( v96._Rep )
+      v66 = v109.m_errorMessage._Mypair._Myval2._Myres + 1;
+      v67 = v109.m_errorMessage._Mypair._Myval2._Bx._Ptr;
+      if ( v109.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v96._Rep->_Uses, 0xFFFFFFFF) == 1 )
-        {
-          v64->_Destroy(v64);
-          if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v64->_Weaks, 0xFFFFFFFF) == 1 )
-            v64->_Delete_this(v64);
-        }
-      }
-    }
-    v65 = v111._Rep;
-    if ( v111._Rep )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v111._Rep->_Uses, 0xFFFFFFFF) == 1 )
-      {
-        v65->_Destroy(v65);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v65->_Weaks, 0xFFFFFFFF) == 1 )
-          v65->_Delete_this(v65);
-      }
-    }
-    v66 = v112._Rep;
-    if ( v112._Rep )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v112._Rep->_Uses, 0xFFFFFFFF) == 1 )
-      {
-        v66->_Destroy(v66);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v66->_Weaks, 0xFFFFFFFF) == 1 )
-          v66->_Delete_this(v66);
-      }
-    }
-    v67 = v97._Rep;
-    if ( v97._Rep )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v97._Rep->_Uses, 0xFFFFFFFF) == 1 )
-      {
-        v67->_Destroy(v67);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v67->_Weaks, 0xFFFFFFFF) == 1 )
-          v67->_Delete_this(v67);
-      }
-    }
-    xbox::services::multiplayer::manager::multiplayer_manager::get_singleton_instance(&v87);
-    v68 = xbox::services::multiplayer::manager::multiplayer_manager::game_session(v87._Ptr, &v113);
-    _RAX = xbox::services::multiplayer::manager::multiplayer_game_session::set_properties(v68->_Ptr, &v118, propertyName, &valueJson, NULL);
-    if ( &v115 != (__int128 *)_RAX )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups [rbp+1E0h+var_C8], xmm0
-      }
-      _RDI = &_RAX->m_errorMessage;
-      if ( &v116 != &_RAX->m_errorMessage )
-      {
-        std::string::_Tidy_deallocate(&v116);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [rbp+1E0h+var_B8.baseclass_0._Mypair._Myval2._Bx], ymm0
-        }
-        _RDI->_Mypair._Myval2._Mysize = 0i64;
-        _RDI->_Mypair._Myval2._Myres = 15i64;
-        _RDI->_Mypair._Myval2._Bx._Buf[0] = 0;
-      }
-    }
-    if ( v118.m_errorMessage._Mypair._Myval2._Myres >= 0x10 )
-    {
-      v73 = v118.m_errorMessage._Mypair._Myval2._Myres + 1;
-      v74 = v118.m_errorMessage._Mypair._Myval2._Bx._Ptr;
-      if ( v118.m_errorMessage._Mypair._Myval2._Myres + 1 >= 0x1000 )
-      {
-        v73 = v118.m_errorMessage._Mypair._Myval2._Myres + 40;
-        v74 = (char *)*((_QWORD *)v118.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
-        if ( (unsigned __int64)(v118.m_errorMessage._Mypair._Myval2._Bx._Ptr - v74 - 8) > 0x1F )
+        v66 = v109.m_errorMessage._Mypair._Myval2._Myres + 40;
+        v67 = (char *)*((_QWORD *)v109.m_errorMessage._Mypair._Myval2._Bx._Ptr - 1);
+        if ( (unsigned __int64)(v109.m_errorMessage._Mypair._Myval2._Bx._Ptr - v67 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
-      operator delete(v74, v73);
+      operator delete(v67, v66);
     }
-    __asm
+    *(_OWORD *)&v109.m_errorMessage._Mypair._Myval2._Mysize = _xmm;
+    v109.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
+    v68 = v104._Rep;
+    if ( v104._Rep )
     {
-      vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-      vmovdqu xmmword ptr [rbp+198h], xmm0
-    }
-    v118.m_errorMessage._Mypair._Myval2._Bx._Buf[0] = 0;
-    v76 = v113._Rep;
-    if ( v113._Rep )
-    {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v113._Rep->_Uses, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v104._Rep->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v76->_Destroy(v76);
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v76->_Weaks, 0xFFFFFFFF) == 1 )
-          v76->_Delete_this(v76);
+        v68->_Destroy(v68);
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v68->_Weaks, 0xFFFFFFFF) == 1 )
+          v68->_Delete_this(v68);
       }
     }
-    v43 = v87._Rep;
+    v38 = v78._Rep;
     goto LABEL_159;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mpmanager.cpp", 1762, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Xb3MultiplayerManager::WriteCustomSessionProperty, unknown session type") )
     __debugbreak();
 LABEL_165:
-  if ( (_DWORD)v115 )
+  if ( LODWORD(m_errorCode._Ptr) )
   {
-    v77 = &v116;
-    if ( v116._Mypair._Myval2._Myres >= 0x10 )
-      v77 = (std::string *)v116._Mypair._Myval2._Bx._Ptr;
-    Com_Printf(25, "Xb3MultiplayerManager::WriteCustomSessionProperty - failed with err \"%s\" (%x)\n", v77->_Mypair._Myval2._Bx._Buf, (unsigned int)v115);
-    v78 = 0;
+    v69 = &v107;
+    if ( v107._Mypair._Myval2._Myres >= 0x10 )
+      v69 = (std::string *)v107._Mypair._Myval2._Bx._Ptr;
+    Com_Printf(25, "Xb3MultiplayerManager::WriteCustomSessionProperty - failed with err \"%s\" (%x)\n", v69->_Mypair._Myval2._Bx._Buf, LODWORD(m_errorCode._Ptr));
+    v70 = 0;
   }
   else
   {
-    v78 = 1;
+    v70 = 1;
   }
-  if ( v116._Mypair._Myval2._Myres >= 0x10 )
+  if ( v107._Mypair._Myval2._Myres >= 0x10 )
   {
-    v79 = v116._Mypair._Myval2._Myres + 1;
-    v80 = v116._Mypair._Myval2._Bx._Ptr;
-    if ( v116._Mypair._Myval2._Myres + 1 >= 0x1000 )
+    v71 = v107._Mypair._Myval2._Myres + 1;
+    v72 = v107._Mypair._Myval2._Bx._Ptr;
+    if ( v107._Mypair._Myval2._Myres + 1 >= 0x1000 )
     {
-      v79 = v116._Mypair._Myval2._Myres + 40;
-      v80 = (char *)*((_QWORD *)v116._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)(v116._Mypair._Myval2._Bx._Ptr - v80 - 8) > 0x1F )
+      v71 = v107._Mypair._Myval2._Myres + 40;
+      v72 = (char *)*((_QWORD *)v107._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)(v107._Mypair._Myval2._Bx._Ptr - v72 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v80, v79);
+    operator delete(v72, v71);
   }
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@000000000000000f0000000000000000
-    vmovdqu xmmword ptr [rbp+1E0h+var_B8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v116._Mypair._Myval2._Bx._Buf[0] = 0;
+  *(_OWORD *)&v107._Mypair._Myval2._Mysize = _xmm;
+  v107._Mypair._Myval2._Bx._Buf[0] = 0;
   if ( valueJson.m_value._Mypair._Myval2 )
     ((void (__fastcall *)(web::json::details::_Value *, __int64))valueJson.m_value._Mypair._Myval2->~_Value)(valueJson.m_value._Mypair._Myval2, 1i64);
-  return v78;
+  return v70;
 }
 
 /*

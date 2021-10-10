@@ -233,8 +233,11 @@ void BG_GameStateInfo_CopySettings(const unsigned int fromGameStateType, const u
   __int64 v2; 
   __int64 v3; 
   __int64 v4; 
-  __int64 v19; 
-  __int64 v20; 
+  LobbyMapRotation *v5; 
+  LobbyMapRotation *v6; 
+  __int128 v7; 
+  __int64 v8; 
+  __int64 v9; 
 
   v2 = toGameStateType;
   v3 = fromGameStateType;
@@ -242,9 +245,9 @@ void BG_GameStateInfo_CopySettings(const unsigned int fromGameStateType, const u
     __debugbreak();
   if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v20) = 2;
-    LODWORD(v19) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gamestateinfo.cpp", 88, ASSERT_TYPE_ASSERT, "(unsigned)( toGameStateType ) < (unsigned)( GAMESTATEINFO_COUNT )", "toGameStateType doesn't index GAMESTATEINFO_COUNT\n\t%i not in [0, %i)", v19, v20) )
+    LODWORD(v9) = 2;
+    LODWORD(v8) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gamestateinfo.cpp", 88, ASSERT_TYPE_ASSERT, "(unsigned)( toGameStateType ) < (unsigned)( GAMESTATEINFO_COUNT )", "toGameStateType doesn't index GAMESTATEINFO_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
   if ( (_DWORD)v3 == (_DWORD)v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gamestateinfo.cpp", 89, ASSERT_TYPE_ASSERT, "( fromGameStateType ) != ( toGameStateType )", "%s != %s\n\t%i, %i", "fromGameStateType", "toGameStateType", v3, v2) )
@@ -253,47 +256,30 @@ void BG_GameStateInfo_CopySettings(const unsigned int fromGameStateType, const u
   BG_GameStateInfo_SetupPointers(v2);
   memcpy_0(&s_gameStateInfo_matchRules[v2], &s_gameStateInfo_matchRules[v3], sizeof(MatchRules));
   v4 = 3i64;
-  _RDX = &s_gameStateInfo_mapRotation[v2];
-  _RAX = &s_gameStateInfo_mapRotation[v3];
+  v5 = &s_gameStateInfo_mapRotation[v2];
+  v6 = &s_gameStateInfo_mapRotation[v3];
   do
   {
-    _RDX = (LobbyMapRotation *)((char *)_RDX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (LobbyMapRotation *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rdx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rdx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rdx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rdx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rdx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rdx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v5 = (LobbyMapRotation *)((char *)v5 + 128);
+    v7 = *(_OWORD *)&v6->entryCount;
+    v6 = (LobbyMapRotation *)((char *)v6 + 128);
+    *(_OWORD *)&v5[-1].entry[11].name[20] = v7;
+    *(_OWORD *)&v5[-1].entry[12].name[8] = *(_OWORD *)&v6[-1].entry[12].name[8];
+    *(_OWORD *)&v5[-1].entry[12].weight = *(_OWORD *)&v6[-1].entry[12].weight;
+    *(_OWORD *)&v5[-1].entry[13].name[12] = *(_OWORD *)&v6[-1].entry[13].name[12];
+    *(_OWORD *)v5[-1].entry[14].name = *(_OWORD *)v6[-1].entry[14].name;
+    *(_OWORD *)&v5[-1].entry[14].name[16] = *(_OWORD *)&v6[-1].entry[14].name[16];
+    *(_OWORD *)&v5[-1].entry[15].name[4] = *(_OWORD *)&v6[-1].entry[15].name[4];
+    *(_OWORD *)&v5[-1].entry[15].name[20] = *(_OWORD *)&v6[-1].entry[15].name[20];
     --v4;
   }
   while ( v4 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rdx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rdx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rdx+30h], xmm1
-  }
-  *(_QWORD *)&_RDX->entry[2].name[4] = *(_QWORD *)&_RAX->entry[2].name[4];
-  *(_DWORD *)&_RDX->entry[2].name[12] = *(_DWORD *)&_RAX->entry[2].name[12];
+  *(_OWORD *)&v5->entryCount = *(_OWORD *)&v6->entryCount;
+  *(_OWORD *)&v5->entry[0].name[12] = *(_OWORD *)&v6->entry[0].name[12];
+  *(_OWORD *)v5->entry[1].name = *(_OWORD *)v6->entry[1].name;
+  *(_OWORD *)&v5->entry[1].name[16] = *(_OWORD *)&v6->entry[1].name[16];
+  *(_QWORD *)&v5->entry[2].name[4] = *(_QWORD *)&v6->entry[2].name[4];
+  *(_DWORD *)&v5->entry[2].name[12] = *(_DWORD *)&v6->entry[2].name[12];
 }
 
 /*
@@ -731,29 +717,22 @@ void SV_SendGameStateInfoMessage(netadr_t *from, msg_t *fromMsg)
   unsigned __int8 *m_ptr; 
   int Byte; 
   unsigned int AgentCount; 
-  const char *v8; 
-  __int64 v9; 
-  unsigned int v10; 
-  netadr_t v11; 
-  __int64 v12; 
+  const char *v7; 
+  __int64 v8; 
+  netadr_t v9; 
+  __int64 v10; 
   Mem_LargeLocal data; 
   msg_t buf; 
 
-  v12 = -2i64;
-  _RDI = from;
+  v10 = -2i64;
   Mem_LargeLocal::Mem_LargeLocal(&data, 0x243D8ui64, "msg_buf_t msgBuf");
   m_ptr = (unsigned __int8 *)data.m_ptr;
   Byte = MSG_ReadByte(fromMsg);
   if ( fromMsg->overflowed || fromMsg->readcount != fromMsg->cursize + fromMsg->splitSize )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rsp+0D8h+var_98], xmm0
-    }
-    v11.addrHandleIndex = _RDI->addrHandleIndex;
-    v8 = NET_AdrToString(&v11);
-    Com_PrintError(15, "Received invalid 'mrules' message payload from %s. Ignoring.\n", v8);
+    v9 = *from;
+    v7 = NET_AdrToString(&v9);
+    Com_PrintError(15, "Received invalid 'mrules' message payload from %s. Ignoring.\n", v7);
   }
   else
   {
@@ -766,13 +745,12 @@ void SV_SendGameStateInfoMessage(netadr_t *from, msg_t *fromMsg)
       AgentCount = SV_GameMP_GetAgentCount();
       if ( Com_FrontEnd_IsInFrontEnd() && !Com_GameStart_CanStartGame() && Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gamestateinfo.cpp", 58, ASSERT_TYPE_ASSERT, "(!Sys_IsServerThread())", "%s\n\tCan't access from the server while the front end is going", "!Sys_IsServerThread()") )
         __debugbreak();
-      v10 = AgentCount;
-      LODWORD(v9) = s_gameStateInfo[0].agentMaxCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gamestateinfo.cpp", 284, ASSERT_TYPE_ASSERT, "( GameStateInfo_Get()->agentMaxCount ) == ( SV_GameMP_GetAgentCount() )", "GameStateInfo_Get()->agentMaxCount == SV_GameMP_GetAgentCount()\n\t%i, %i", v9, v10) )
+      LODWORD(v8) = s_gameStateInfo[0].agentMaxCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gamestateinfo.cpp", 284, ASSERT_TYPE_ASSERT, "( GameStateInfo_Get()->agentMaxCount ) == ( SV_GameMP_GetAgentCount() )", "GameStateInfo_Get()->agentMaxCount == SV_GameMP_GetAgentCount()\n\t%i, %i", v8, AgentCount) )
         __debugbreak();
     }
     BG_CreateGameStateInfoMessage(&buf, Byte);
-    NET_OutOfBandData(NS_MAXCLIENTS, _RDI, buf.data, buf.cursize);
+    NET_OutOfBandData(NS_MAXCLIENTS, from, buf.data, buf.cursize);
   }
   Mem_LargeLocal::~Mem_LargeLocal(&data);
 }

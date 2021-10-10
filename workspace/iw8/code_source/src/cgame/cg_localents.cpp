@@ -170,265 +170,195 @@ CG_AddBallisticTracer
 */
 void CG_AddBallisticTracer(const cg_t *cgameGlob, localEntity_s *const le, void (*drawTracerCb)(const vec3_t *, const vec3_t *, const vec3_t *, const float, const TracerDrawFlags, TracerInfo *const, void *), void *data)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
   int endTime; 
-  int v19; 
+  bool v13; 
+  int time; 
+  int simStartTime; 
+  int v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
   int startTime; 
-  const dvar_t *v67; 
-  const char *v68; 
-  unsigned int time; 
-  bool v79; 
+  const dvar_t *v34; 
+  const char *v35; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v37; 
+  float length; 
+  __m128 v40; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
   ParticleSystemHandle particleSystem; 
   float v0; 
-  int v129; 
-  int v132; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
   float v1[4]; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
 
-  __asm { vmovaps [rsp+130h+var_50], xmm7 }
-  _RBX = le;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 526, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 527, ASSERT_TYPE_ASSERT, "(le)", (const char *)&queryFormat, "le") )
+  if ( !le && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 527, ASSERT_TYPE_ASSERT, "(le)", (const char *)&queryFormat, "le") )
     __debugbreak();
-  if ( _RBX->leType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 528, ASSERT_TYPE_ASSERT, "(le->leType == LE_MOVING_TRACER)", (const char *)&queryFormat, "le->leType == LE_MOVING_TRACER") )
+  if ( le->leType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 528, ASSERT_TYPE_ASSERT, "(le->leType == LE_MOVING_TRACER)", (const char *)&queryFormat, "le->leType == LE_MOVING_TRACER") )
     __debugbreak();
   if ( !drawTracerCb && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 529, ASSERT_TYPE_ASSERT, "(drawTracerCb)", (const char *)&queryFormat, "drawTracerCb") )
     __debugbreak();
-  endTime = _RBX->endTime;
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  if ( endTime != 0x7FFFFFFF )
-    __asm { vucomiss xmm7, dword ptr [rbx+98h] }
-  if ( cgameGlob->time >= endTime )
+  endTime = le->endTime;
+  v13 = endTime != 0x7FFFFFFF && 1.0 == le->u.tracer.ballistics.lastInterpRate;
+  time = cgameGlob->time;
+  if ( time >= endTime || v13 )
   {
-    particleSystem = _RBX->u.tracer.particleSystem;
+    particleSystem = le->u.tracer.particleSystem;
     if ( particleSystem )
     {
       ParticleManager::StopSystem((ParticleManager *)data, particleSystem);
-      _RBX->u.tracer.particleSystem = PARTICLE_SYSTEM_INVALID_HANDLE;
+      le->u.tracer.particleSystem = PARTICLE_SYSTEM_INVALID_HANDLE;
     }
   }
   else
   {
-    v19 = _RBX->u.tracer.ballistics.simFinishTime - _RBX->u.tracer.ballistics.simStartTime;
-    __asm
+    simStartTime = le->u.tracer.ballistics.simStartTime;
+    v16 = le->u.tracer.ballistics.simFinishTime - simStartTime;
+    v62 = v4;
+    v61 = v5;
+    v60 = v6;
+    v59 = v7;
+    if ( v16 <= 0 )
     {
-      vmovaps [rsp+130h+var_40], xmm6
-      vmovaps [rsp+130h+var_60], xmm8
-      vmovaps [rsp+130h+var_70], xmm9
-      vmovaps [rsp+130h+var_80], xmm10
-      vmovaps [rsp+130h+var_90], xmm11
-      vmovaps [rsp+130h+var_A0], xmm12
-      vxorps  xmm9, xmm9, xmm9
-    }
-    if ( v19 <= 0 )
-    {
-      __asm { vmovaps xmm8, xmm7 }
+      v18 = FLOAT_1_0;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, ecx
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm0, xmm1, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm7; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm8, xmm0 }
+      v17 = (float)(time - simStartTime) / (float)v16;
+      I_fclamp(v17, 0.0, 1.0);
+      v18 = v17;
     }
     if ( endTime != 0x7FFFFFFF )
-      __asm { vmovss  dword ptr [rbx+98h], xmm8 }
-    __asm
+      le->u.tracer.ballistics.lastInterpRate = v18;
+    v19 = le->u.tracer.ballistics.tracerStartPos.v[0] - le->u.tracer.ballistics.startPos.v[0];
+    v20 = le->u.tracer.ballistics.tracerStartPos.v[2] - le->u.tracer.ballistics.startPos.v[2];
+    v21 = le->u.tracer.ballistics.simFinishPos.v[0] - le->u.tracer.ballistics.simStartPos.v[0];
+    v22 = le->u.tracer.ballistics.tracerStartPos.v[1] - le->u.tracer.ballistics.startPos.v[1];
+    v23 = le->u.tracer.ballistics.simFinishPos.v[1] - le->u.tracer.ballistics.simStartPos.v[1];
+    v24 = le->u.tracer.ballistics.simFinishPos.v[2] - le->u.tracer.ballistics.simStartPos.v[2];
+    v52 = (float)(v21 * v18) + le->u.tracer.ballistics.simStartPos.v[0];
+    v53 = (float)(v23 * v18) + le->u.tracer.ballistics.simStartPos.v[1];
+    v54 = (float)(v24 * v18) + le->u.tracer.ballistics.simStartPos.v[2];
+    v0 = v21;
+    v50 = v23;
+    v51 = v24;
+    v1[0] = 0.0;
+    v1[1] = 0.0;
+    v1[2] = 0.0;
+    if ( VecNCompareCustomEpsilon(&v0, v1, 0.001, 3) )
     {
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vsubss  xmm10, xmm0, dword ptr [rbx+5Ch]
-      vmovss  xmm0, dword ptr [rbx+58h]
-      vsubss  xmm12, xmm0, dword ptr [rbx+64h]
-      vmovss  xmm0, dword ptr [rbx+74h]
-      vsubss  xmm6, xmm0, dword ptr [rbx+68h]
-      vmovss  xmm1, dword ptr [rbx+54h]
-      vsubss  xmm11, xmm1, dword ptr [rbx+60h]
-      vmovss  xmm0, dword ptr [rbx+78h]
-      vsubss  xmm5, xmm0, dword ptr [rbx+6Ch]
-      vmovss  xmm0, dword ptr [rbx+7Ch]
-      vsubss  xmm4, xmm0, dword ptr [rbx+70h]
-      vmulss  xmm1, xmm6, xmm8
-      vaddss  xmm2, xmm1, dword ptr [rbx+68h]
-      vmovss  [rsp+130h+var_E0], xmm2
-      vmulss  xmm1, xmm5, xmm8
-      vaddss  xmm2, xmm1, dword ptr [rbx+6Ch]
-      vmovss  [rsp+130h+var_DC], xmm2
-      vmulss  xmm1, xmm4, xmm8
-      vaddss  xmm2, xmm1, dword ptr [rbx+70h]
-      vmovss  [rsp+130h+var_D8], xmm2
-      vmovss  xmm2, cs:__real@3a83126f; epsilon
-      vmovss  [rsp+130h+v0], xmm6
-      vmovss  [rsp+130h+var_EC], xmm5
-      vmovss  [rsp+130h+var_E8], xmm4
-      vmovss  [rbp+57h+v1], xmm9
-      vmovss  [rbp+57h+var_BC], xmm9
-      vmovss  [rbp+57h+var_B8], xmm9
-    }
-    if ( VecNCompareCustomEpsilon(&v0, v1, *(float *)&_XMM2, 3) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+80h]
-        vmovss  xmm1, dword ptr [rbx+84h]
-        vmovss  [rsp+130h+v0], xmm0
-        vmovss  xmm0, dword ptr [rbx+88h]
-      }
+      v25 = le->u.tracer.ballistics.lastDir.v[1];
+      v0 = le->u.tracer.ballistics.lastDir.v[0];
+      v26 = le->u.tracer.ballistics.lastDir.v[2];
     }
     else
     {
-      __asm
+      v27 = LODWORD(v50);
+      v28 = v0;
+      v29 = v51;
+      v30 = v27;
+      *(float *)&v30 = (float)((float)(*(float *)&v27 * *(float *)&v27) + (float)(v28 * v28)) + (float)(v29 * v29);
+      if ( *(float *)&v30 <= 0.0 )
       {
-        vmovss  xmm4, [rsp+130h+var_EC]
-        vmovss  xmm5, [rsp+130h+v0]
-        vmovss  xmm6, [rsp+130h+var_E8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm8, xmm2, xmm1
-        vcomiss xmm8, xmm9
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+          __debugbreak();
+        v28 = v0;
+        *(float *)&v27 = v50;
+        v29 = v51;
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
-        __debugbreak();
-      __asm
-      {
-        vmovss  xmm5, [rsp+130h+v0]
-        vmovss  xmm4, [rsp+130h+var_EC]
-        vmovss  xmm6, [rsp+130h+var_E8]
-        vmovaps xmm1, xmm8
-        vrsqrtss xmm3, xmm1, xmm1
-        vmulss  xmm2, xmm5, xmm3
-        vmulss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm6, xmm3
-        vmovss  [rsp+130h+v0], xmm2
-        vmovss  dword ptr [rbx+80h], xmm2
-        vmovss  dword ptr [rbx+84h], xmm1
-        vmovss  dword ptr [rbx+88h], xmm0
-      }
+      _XMM1 = v30;
+      __asm { vrsqrtss xmm3, xmm1, xmm1 }
+      v25 = *(float *)&v27 * *(float *)&_XMM3;
+      v26 = v29 * *(float *)&_XMM3;
+      v0 = v28 * *(float *)&_XMM3;
+      le->u.tracer.ballistics.lastDir.v[0] = v28 * *(float *)&_XMM3;
+      le->u.tracer.ballistics.lastDir.v[1] = *(float *)&v27 * *(float *)&_XMM3;
+      le->u.tracer.ballistics.lastDir.v[2] = v29 * *(float *)&_XMM3;
     }
-    startTime = _RBX->u.tracer.ballistics.startTime;
-    __asm
-    {
-      vmovaps xmm9, [rsp+130h+var_70]
-      vmovss  [rsp+130h+var_E8], xmm0
-      vmovss  [rsp+130h+var_EC], xmm1
-    }
+    startTime = le->u.tracer.ballistics.startTime;
+    v51 = v26;
+    v50 = v25;
     if ( cgameGlob->time == startTime )
     {
-      if ( _RBX->u.tracer.ballistics.isPlayerView )
+      if ( le->u.tracer.ballistics.isPlayerView )
       {
-        v67 = DCONST_DVARFLT_tracer_muzzleOffsetViewmodel;
-        v68 = "tracer_muzzleOffsetViewmodel";
+        v34 = DCONST_DVARFLT_tracer_muzzleOffsetViewmodel;
+        v35 = "tracer_muzzleOffsetViewmodel";
       }
       else
       {
-        v67 = DCONST_DVARFLT_tracer_muzzleOffsetWorldmodel;
-        v68 = "tracer_muzzleOffsetWorldmodel";
+        v34 = DCONST_DVARFLT_tracer_muzzleOffsetWorldmodel;
+        v35 = "tracer_muzzleOffsetWorldmodel";
       }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v67, v68);
-      __asm
-      {
-        vmulss  xmm1, xmm0, [rsp+130h+v0]
-        vaddss  xmm2, xmm1, dword ptr [rbx+68h]
-        vmulss  xmm1, xmm0, [rsp+130h+var_EC]
-        vmovss  [rsp+130h+var_E0], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbx+6Ch]
-        vmulss  xmm1, xmm0, [rsp+130h+var_E8]
-        vmovss  [rsp+130h+var_DC], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbx+70h]
-        vmovss  [rsp+130h+var_D8], xmm2
-        vmovaps xmm3, xmm0
-      }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v34, v35);
+      v52 = (float)(*(float *)&Float_Internal_DebugName * v0) + le->u.tracer.ballistics.simStartPos.v[0];
+      v53 = (float)(*(float *)&Float_Internal_DebugName * v50) + le->u.tracer.ballistics.simStartPos.v[1];
+      v54 = (float)(*(float *)&Float_Internal_DebugName * v51) + le->u.tracer.ballistics.simStartPos.v[2];
     }
-    _RDI = DCONST_DVARINT_bg_ballisticsMuzzleOffsetBlendMs;
+    v37 = DCONST_DVARINT_bg_ballisticsMuzzleOffsetBlendMs;
     if ( !DCONST_DVARINT_bg_ballisticsMuzzleOffsetBlendMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ballisticsMuzzleOffsetBlendMs") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovd   xmm0, dword ptr [rdi+28h] }
-    time = cgameGlob->time;
-    v79 = time < _RBX->u.tracer.ballistics.startTime;
-    _EAX = time - _RBX->u.tracer.ballistics.startTime;
-    __asm
+    Dvar_CheckFrontendServerThread(v37);
+    length = le->u.tracer.length;
+    v40 = _mm_cvtepi32_ps((__m128i)(unsigned int)(cgameGlob->time - le->u.tracer.ballistics.startTime));
+    v40.m128_f32[0] = v40.m128_f32[0] / _mm_cvtepi32_ps((__m128i)v37->current.unsignedInt).m128_f32[0];
+    _XMM1 = v40;
+    __asm { vminss  xmm2, xmm1, xmm7 }
+    v42 = (float)(v19 * (float)(1.0 - *(float *)&_XMM2)) + v52;
+    v43 = (float)(v22 * (float)(1.0 - *(float *)&_XMM2)) + v53;
+    v44 = (float)(v20 * (float)(1.0 - *(float *)&_XMM2)) + v54;
+    v45 = (float)((float)((float)(v43 - le->u.tracer.ballistics.tracerStartPos.v[1]) * (float)(v43 - le->u.tracer.ballistics.tracerStartPos.v[1])) + (float)((float)(v42 - le->u.tracer.ballistics.tracerStartPos.v[0]) * (float)(v42 - le->u.tracer.ballistics.tracerStartPos.v[0]))) + (float)((float)(v44 - le->u.tracer.ballistics.tracerStartPos.v[2]) * (float)(v44 - le->u.tracer.ballistics.tracerStartPos.v[2]));
+    v52 = v42;
+    v53 = v43;
+    v54 = v44;
+    if ( v45 >= (float)(length * length) )
     {
-      vmovss  xmm4, dword ptr [rbx+0B8h]
-      vcvtdq2ps xmm0, xmm0
-      vmovd   xmm1, eax
-      vcvtdq2ps xmm1, xmm1
-      vdivss  xmm1, xmm1, xmm0
-      vminss  xmm2, xmm1, xmm7
-      vsubss  xmm3, xmm7, xmm2
-      vmulss  xmm0, xmm10, xmm3
-      vaddss  xmm5, xmm0, [rsp+130h+var_E0]
-      vsubss  xmm2, xmm5, dword ptr [rbx+50h]
-      vmovaps xmm10, [rsp+130h+var_80]
-      vmulss  xmm0, xmm11, xmm3
-      vaddss  xmm6, xmm0, [rsp+130h+var_DC]
-      vmovaps xmm11, [rsp+130h+var_90]
-      vmulss  xmm0, xmm12, xmm3
-      vaddss  xmm8, xmm0, [rsp+130h+var_D8]
-      vsubss  xmm0, xmm6, dword ptr [rbx+54h]
-      vsubss  xmm3, xmm8, dword ptr [rbx+58h]
-      vmovaps xmm12, [rsp+130h+var_A0]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vcomiss xmm3, xmm0
-      vmovss  [rsp+130h+var_E0], xmm5
-      vmovss  [rsp+130h+var_DC], xmm6
-      vmovss  [rsp+130h+var_D8], xmm8
-    }
-    if ( v79 )
-    {
-      __asm
-      {
-        vsqrtss xmm0, xmm3, xmm3
-        vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm1, xmm3, [rsp+130h+v0]
-        vmulss  xmm0, xmm3, [rsp+130h+var_EC]
-        vaddss  xmm2, xmm1, xmm5
-        vaddss  xmm1, xmm0, xmm6
-        vmovss  [rbp+57h+var_D0], xmm2
-        vmulss  xmm2, xmm3, [rsp+130h+var_E8]
-        vaddss  xmm0, xmm2, xmm8
-        vmovss  [rbp+57h+var_C8], xmm0
-        vmovss  [rbp+57h+var_CC], xmm1
-      }
+      LODWORD(v47) = LODWORD(length) ^ _xmm;
+      v55 = (float)(v47 * v0) + v42;
+      v57 = (float)(v47 * v51) + v44;
+      v56 = (float)(v47 * v50) + v43;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm4, xmm4, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm0, xmm4, [rsp+130h+v0]
-        vmulss  xmm2, xmm4, [rsp+130h+var_EC]
-        vaddss  xmm1, xmm0, xmm5
-        vaddss  xmm0, xmm2, xmm6
-        vmovss  [rbp+57h+var_D0], xmm1
-        vmulss  xmm1, xmm4, [rsp+130h+var_E8]
-        vaddss  xmm2, xmm1, xmm8
-        vmovss  [rbp+57h+var_C8], xmm2
-        vmovss  [rbp+57h+var_CC], xmm0
-      }
+      LODWORD(v46) = COERCE_UNSIGNED_INT(fsqrt(v45)) ^ _xmm;
+      v55 = (float)(v46 * v0) + v42;
+      v57 = (float)(v46 * v51) + v44;
+      v56 = (float)(v46 * v50) + v43;
     }
-    __asm { vmovaps xmm3, xmm7 }
-    ((void (__fastcall *)(int *, int *, float *))drawTracerCb)(&v132, &v129, &v0);
-    __asm
-    {
-      vmovaps xmm8, [rsp+130h+var_60]
-      vmovaps xmm6, [rsp+130h+var_40]
-    }
+    ((void (__fastcall *)(float *, float *, float *))drawTracerCb)(&v55, &v52, &v0);
   }
-  __asm { vmovaps xmm7, [rsp+130h+var_50] }
 }
 
 /*
@@ -610,242 +540,137 @@ CG_AddMovingTracer
 */
 void CG_AddMovingTracer(const cg_t *cgameGlob, localEntity_s *const le, void (*drawTracerCb)(const vec3_t *, const vec3_t *, const vec3_t *, const float, const TracerDrawFlags, TracerInfo *const, void *), void *data)
 {
-  int trTime; 
-  bool v14; 
-  bool v33; 
-  bool v34; 
-  bool v35; 
-  bool v74; 
-  double v105; 
-  double v106; 
-  double v107; 
-  double v108; 
-  int v109; 
-  int v110; 
-  int v111; 
-  int v112[4]; 
+  __int128 v4; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v22; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v27; 
+  float v28; 
+  __int128 v29; 
+  float length; 
+  __int128 length_low; 
+  bool v40; 
+  float v41; 
+  int v42; 
+  float v43; 
+  float v44; 
+  float v45; 
   vec3_t result; 
-  int v114[4]; 
-  int v115[4]; 
+  int v47[4]; 
+  int v48[4]; 
+  __int128 v49; 
 
-  _RBX = le;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 446, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 447, ASSERT_TYPE_ASSERT, "(le)", (const char *)&queryFormat, "le") )
+  if ( !le && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 447, ASSERT_TYPE_ASSERT, "(le)", (const char *)&queryFormat, "le") )
     __debugbreak();
-  if ( _RBX->leType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 448, ASSERT_TYPE_ASSERT, "(le->leType == LE_MOVING_TRACER)", (const char *)&queryFormat, "le->leType == LE_MOVING_TRACER") )
+  if ( le->leType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 448, ASSERT_TYPE_ASSERT, "(le->leType == LE_MOVING_TRACER)", (const char *)&queryFormat, "le->leType == LE_MOVING_TRACER") )
     __debugbreak();
   if ( !drawTracerCb && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 449, ASSERT_TYPE_ASSERT, "(drawTracerCb)", (const char *)&queryFormat, "drawTracerCb") )
     __debugbreak();
-  trTime = _RBX->pos.trTime;
-  v14 = cgameGlob->time <= (unsigned int)trTime;
-  if ( cgameGlob->time >= trTime )
+  if ( cgameGlob->time >= le->pos.trTime )
   {
+    v8 = le->pos.trDelta.v[0];
+    v9 = le->pos.trDelta.v[2];
+    if ( (float)((float)((float)(v8 * v8) + (float)(le->pos.trDelta.v[1] * le->pos.trDelta.v[1])) + (float)(v9 * v9)) <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 459, ASSERT_TYPE_ASSERT, "(Vec3LengthSq( le->pos.trDelta ) > 1.0E-6)", "%s\n\tZero length tracer encountered.  trDelta (%0.2f, %0.2f, %0.2f)", "Vec3LengthSq( le->pos.trDelta ) > ZERO_EPSILON", v8, le->pos.trDelta.v[1], v9) )
+      __debugbreak();
+    BgTrajectory::LegacyEvaluateTrajectory(&le->pos, cgameGlob->time, &result);
+    if ( ((LODWORD(le->pos.trDelta.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(le->pos.trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(le->pos.trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 465, ASSERT_TYPE_SANITY, "( !IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] )") )
+      __debugbreak();
+    v10 = le->pos.trDelta.v[1];
+    v11 = LODWORD(le->pos.trDelta.v[0]);
+    v12 = le->pos.trDelta.v[2];
+    v13 = v11;
+    *(float *)&v13 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(v10 * v10)) + (float)(v12 * v12));
+    _XMM3 = v13;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  xmm4, dword ptr [rbx+2Ch]
-      vmovss  xmm3, dword ptr [rbx+34h]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm1, xmm0
-      vmovaps [rsp+128h+var_38], xmm6
-      vmovaps [rsp+128h+var_48], xmm7
-      vmovsd  xmm7, cs:__real@3eb0c6f7a0b5ed8d
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcvtss2sd xmm0, xmm2, xmm2
-      vcomisd xmm0, xmm7
-      vmovaps [rsp+128h+var_88], xmm11
-    }
-    if ( v14 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+30h]
-        vmovaps xmm0, xmm3
-        vcvtss2sd xmm0, xmm3, xmm3
-        vmovsd  [rsp+128h+var_E8], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+128h+var_F0], xmm1
-        vcvtss2sd xmm2, xmm4, xmm4
-        vmovsd  [rsp+128h+var_F8], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 459, ASSERT_TYPE_ASSERT, "(Vec3LengthSq( le->pos.trDelta ) > 1.0E-6)", "%s\n\tZero length tracer encountered.  trDelta (%0.2f, %0.2f, %0.2f)", "Vec3LengthSq( le->pos.trDelta ) > ZERO_EPSILON", v106, v107, v108) )
-        __debugbreak();
-    }
-    BgTrajectory::LegacyEvaluateTrajectory(&_RBX->pos, cgameGlob->time, &result);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmovss  [rsp+128h+var_D8], xmm0
-    }
-    if ( (v109 & 0x7F800000) == 2139095040 )
-      goto LABEL_36;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  [rsp+128h+var_D8], xmm0
-    }
-    if ( (v110 & 0x7F800000) == 2139095040 )
-      goto LABEL_36;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vmovss  [rsp+128h+var_D8], xmm0
-    }
-    v33 = (v111 & 0x7F800000u) < 0x7F800000;
-    v34 = (v111 & 0x7F800000u) <= 0x7F800000;
-    if ( (v111 & 0x7F800000) == 2139095040 )
-    {
-LABEL_36:
-      v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 465, ASSERT_TYPE_SANITY, "( !IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] )");
-      v33 = 0;
-      v34 = !v35;
-      if ( v35 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbx+30h]
-      vmovss  xmm4, dword ptr [rbx+2Ch]
-      vmovss  xmm6, dword ptr [rbx+34h]
-      vmovss  xmm11, cs:__real@3f800000
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm11, xmm0
-      vdivss  xmm1, xmm11, xmm0
-      vmulss  xmm2, xmm5, xmm1
-      vcvtss2sd xmm0, xmm3, xmm3
-      vcomisd xmm0, xmm7
-      vmulss  xmm5, xmm6, xmm1
-      vmulss  xmm4, xmm4, xmm1
-      vmovss  [rsp+128h+var_C8], xmm5
-      vmovss  [rsp+128h+var_D0], xmm4
-      vmovss  [rsp+128h+var_CC], xmm2
     }
-    if ( !v34 || (v33 = 0, _RBX->u.tracer.isInstantaneousBeam) )
+    v17 = v10 * (float)(1.0 / *(float *)&_XMM0);
+    v18 = v12 * (float)(1.0 / *(float *)&_XMM0);
+    v19 = *(float *)&v11 * (float)(1.0 / *(float *)&_XMM0);
+    v45 = v18;
+    v43 = v19;
+    v44 = v17;
+    if ( *(float *)&v13 > 0.000001 || le->u.tracer.isInstantaneousBeam )
     {
-      __asm
+      v20 = LODWORD(result.v[1]);
+      *(float *)&v20 = (float)(result.v[1] - le->pos.trBase.v[1]) * v17;
+      v21 = v20;
+      v23 = LODWORD(result.v[2]);
+      *(float *)&v23 = result.v[2] - le->pos.trBase.v[2];
+      v22 = v23;
+      v25 = v21;
+      *(float *)&v25 = *(float *)&v21 + (float)((float)(result.v[0] - le->pos.trBase.v[0]) * v19);
+      v24 = v25;
+      v27 = v22;
+      *(float *)&v27 = *(float *)&v22 * v18;
+      _XMM1 = v27;
+      v49 = v4;
+      v29 = v24;
+      *(float *)&v29 = *(float *)&v24 + *(float *)&_XMM1;
+      v28 = *(float *)&v24 + *(float *)&_XMM1;
+      if ( (float)(*(float *)&v24 + *(float *)&_XMM1) < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 478, ASSERT_TYPE_SANITY, "( ( lengthBaseToStart >= 0.0f ) )", "( lengthBaseToStart ) = %g", *(float *)&v29) )
+        __debugbreak();
+      _XMM6 = LODWORD(le->u.tracer.clipDist);
+      length = le->u.tracer.length;
+      if ( le->u.tracer.isInstantaneousBeam )
       {
-        vmovss  xmm0, dword ptr [rsp+128h+result+4]
-        vsubss  xmm1, xmm0, dword ptr [rbx+24h]
-        vmulss  xmm3, xmm1, xmm2
-        vmovss  xmm2, dword ptr [rsp+128h+result]
-        vsubss  xmm0, xmm2, dword ptr [rbx+20h]
-        vmovss  xmm2, dword ptr [rsp+128h+result+8]
-        vmulss  xmm1, xmm0, xmm4
-        vsubss  xmm0, xmm2, dword ptr [rbx+28h]
-        vaddss  xmm4, xmm3, xmm1
-        vmovaps [rsp+128h+var_58], xmm8
-        vmulss  xmm1, xmm0, xmm5
-        vmovaps [rsp+128h+var_68], xmm9
-        vmovaps [rsp+128h+var_78], xmm10
-        vaddss  xmm7, xmm4, xmm1
-        vxorps  xmm10, xmm10, xmm10
-        vcomiss xmm7, xmm10
-      }
-      if ( v33 )
-      {
+        length_low = LODWORD(le->u.tracer.length);
+        *(float *)&length_low = length + v28;
+        _XMM0 = length_low;
         __asm
         {
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+128h+var_100], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 478, ASSERT_TYPE_SANITY, "( ( lengthBaseToStart >= 0.0f ) )", "( lengthBaseToStart ) = %g", v105) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+0B4h]
-        vmovss  xmm0, dword ptr [rbx+0B8h]
-      }
-      if ( _RBX->u.tracer.isInstantaneousBeam )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm7
           vminss  xmm8, xmm0, xmm6
           vminss  xmm9, xmm6, xmm7
         }
       }
       else
       {
+        *(float *)&v29 = *(float *)&v29 - length;
+        _XMM8 = v29;
+        if ( *(float *)&_XMM6 < 0.0 )
+        {
+          __asm { vxorpd  xmm1, xmm1, xmm1 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM1, *(float *)&_XMM6) )
+            __debugbreak();
+        }
+        _XMM1 = LODWORD(le->u.tracer.clipDist);
         __asm
         {
-          vcomiss xmm6, xmm10
-          vsubss  xmm8, xmm7, xmm0
-          vmovss  xmm1, dword ptr [rbx+0B4h]
           vmaxss  xmm0, xmm8, xmm10
           vminss  xmm9, xmm0, xmm6
           vminss  xmm8, xmm1, xmm7
         }
       }
-      __asm { vcomiss xmm8, xmm9 }
-      v74 = _RBX->u.tracer.isInstantaneousBeam == 0;
-      __asm
-      {
-        vmulss  xmm2, xmm9, [rsp+128h+var_D0]
-        vmulss  xmm0, xmm8, [rsp+128h+var_D0]
-        vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-        vmulss  xmm0, xmm8, [rsp+128h+var_CC]
-        vmovss  [rsp+128h+var_B0], xmm1
-        vaddss  xmm1, xmm0, dword ptr [rbx+24h]
-        vmulss  xmm0, xmm8, [rsp+128h+var_C8]
-        vmovss  [rsp+128h+var_AC], xmm1
-        vaddss  xmm1, xmm0, dword ptr [rbx+28h]
-        vaddss  xmm0, xmm2, dword ptr [rbx+20h]
-        vmovss  [rsp+128h+var_A8], xmm1
-        vmulss  xmm1, xmm9, [rsp+128h+var_CC]
-        vaddss  xmm2, xmm1, dword ptr [rbx+24h]
-        vmovss  [rsp+128h+var_A0], xmm0
-        vmulss  xmm0, xmm9, [rsp+128h+var_C8]
-        vaddss  xmm1, xmm0, dword ptr [rbx+28h]
-        vmovaps xmm9, [rsp+128h+var_68]
-        vmovss  [rsp+128h+var_98], xmm1
-        vmovss  [rsp+128h+var_9C], xmm2
-      }
-      if ( !v74 )
-      {
-        __asm
-        {
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, dword ptr [rbx+3Ch]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+18h]
-          vsubss  xmm2, xmm2, xmm0
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2ss xmm3, xmm3, eax
-          vdivss  xmm3, xmm3, xmm2
-          vsubss  xmm0, xmm11, xmm3; val
-          vmovaps xmm2, xmm11; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm11, xmm0 }
-      }
-      __asm
-      {
-        vcomiss xmm8, dword ptr [rbx+0B4h]
-        vmovaps xmm3, xmm11
-      }
-      ((void (__fastcall *)(int *, int *, int *))drawTracerCb)(v115, v114, v112);
-      __asm
-      {
-        vmovaps xmm10, [rsp+128h+var_78]
-        vmovaps xmm8, [rsp+128h+var_58]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+128h+var_48]
-      vmovaps xmm6, [rsp+128h+var_38]
-      vmovaps xmm11, [rsp+128h+var_88]
+      if ( *(float *)&_XMM8 < *(float *)&_XMM9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 496, ASSERT_TYPE_ASSERT, "(headDist >= tailDist)", (const char *)&queryFormat, "headDist >= tailDist") )
+        __debugbreak();
+      v40 = le->u.tracer.isInstantaneousBeam == 0;
+      *(float *)v47 = (float)(*(float *)&_XMM8 * v43) + le->pos.trBase.v[0];
+      *(float *)&v47[1] = (float)(*(float *)&_XMM8 * v44) + le->pos.trBase.v[1];
+      v41 = (float)(*(float *)&_XMM9 * v43) + le->pos.trBase.v[0];
+      *(float *)&v47[2] = (float)(*(float *)&_XMM8 * v45) + le->pos.trBase.v[2];
+      *(float *)&v42 = (float)(*(float *)&_XMM9 * v44) + le->pos.trBase.v[1];
+      *(float *)v48 = v41;
+      *(float *)&v48[2] = (float)(*(float *)&_XMM9 * v45) + le->pos.trBase.v[2];
+      v48[1] = v42;
+      if ( !v40 )
+        I_fclamp(1.0 - (float)((float)(cgameGlob->time - le->pos.trTime) / (float)((float)le->endTime - (float)le->pos.trTime)), 0.0, 1.0);
+      ((void (__fastcall *)(int *, int *, float *))drawTracerCb)(v48, v47, &v43);
     }
   }
 }
@@ -999,15 +824,18 @@ void CG_FreeLocalEntityAndCompact(const LocalClientNum_t localClientNum, localEn
   localEntity_s *v14; 
   __int64 v15; 
   unsigned __int64 v16; 
+  localEntity_s *v17; 
   localEntity_s *v18; 
+  localEntity_s *v19; 
+  __int128 v20; 
   CgBallisticInstance *ballisticInstance; 
-  localEntity_s *v33; 
-  localEntity_s *v34; 
-  const char *v35; 
-  int v36; 
-  const char *v37; 
-  __int64 v38; 
-  __int64 v39; 
+  localEntity_s *v22; 
+  localEntity_s *v23; 
+  const char *v24; 
+  int v25; 
+  const char *v26; 
+  __int64 v27; 
+  __int64 v28; 
 
   v3 = localClientNum;
   if ( localClientNum >= (unsigned int)cg_maxLocalClients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 92, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_maxLocalClients )", "localClientNum doesn't index cg_maxLocalClients\n\t%i not in [0, %i)", localClientNum, cg_maxLocalClients) )
@@ -1027,9 +855,9 @@ void CG_FreeLocalEntityAndCompact(const LocalClientNum_t localClientNum, localEn
   v6 = 2i64;
   if ( (unsigned int)v3 >= 2 )
   {
-    LODWORD(v39) = 2;
-    LODWORD(v38) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v38, v39) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
   v7 = &g_particleManager[v3];
@@ -1099,9 +927,9 @@ void CG_FreeLocalEntityAndCompact(const LocalClientNum_t localClientNum, localEn
     __debugbreak();
   if ( (unsigned int)v15 >= LODWORD(cg_localEntityCount[v4]) )
   {
-    LODWORD(v39) = cg_localEntityCount[v4];
-    LODWORD(v38) = le - v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 159, ASSERT_TYPE_ASSERT, "(unsigned)( freeIndex ) < (unsigned)( cg_localEntityCount[localClientNum] )", "freeIndex doesn't index cg_localEntityCount[localClientNum]\n\t%i not in [0, %i)", v38, v39) )
+    LODWORD(v28) = cg_localEntityCount[v4];
+    LODWORD(v27) = le - v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 159, ASSERT_TYPE_ASSERT, "(unsigned)( freeIndex ) < (unsigned)( cg_localEntityCount[localClientNum] )", "freeIndex doesn't index cg_localEntityCount[localClientNum]\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
   v16 = cg_localEntityCount[v4];
@@ -1109,46 +937,29 @@ void CG_FreeLocalEntityAndCompact(const LocalClientNum_t localClientNum, localEn
   {
     if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 163, ASSERT_TYPE_ASSERT, "(cg_localEntityCount[localClientNum] != 0)", (const char *)&queryFormat, "cg_localEntityCount[localClientNum] != 0") )
       __debugbreak();
-    _RAX = le;
+    v17 = le;
     v18 = &v5[cg_localEntityCount[v4] - 1];
-    _RCX = v18;
+    v19 = v18;
     do
     {
-      _RAX = (localEntity_s *)((char *)_RAX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rcx] }
-      _RCX = (localEntity_s *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rax-80h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-70h]
-        vmovups xmmword ptr [rax-70h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-60h]
-        vmovups xmmword ptr [rax-60h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-50h]
-        vmovups xmmword ptr [rax-50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-40h]
-        vmovups xmmword ptr [rax-40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-30h]
-        vmovups xmmword ptr [rax-30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-20h]
-        vmovups xmmword ptr [rax-20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-10h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
+      v17 = (localEntity_s *)((char *)v17 + 128);
+      v20 = *(_OWORD *)&v19->next;
+      v19 = (localEntity_s *)((char *)v19 + 128);
+      *(_OWORD *)&v17[-1].u.laser.cache.lastCurve.p3.z = v20;
+      *(_OWORD *)&v17[-1].u.laser.cache.lastYaw = *(_OWORD *)&v19[-1].u.laser.cache.lastYaw;
+      *(_OWORD *)&v17[-1].u.laser.trackedTagOffset.z = *(_OWORD *)&v19[-1].u.laser.trackedTagOffset.z;
+      *(_OWORD *)&v17[-1].u.laser.attachedTag = *(_OWORD *)&v19[-1].u.laser.attachedTag;
+      *(_OWORD *)&v17[-1].u.laser.weapon.weaponIdx = *(_OWORD *)&v19[-1].u.laser.weapon.weaponIdx;
+      *(_OWORD *)&v17[-1].u.laser.weapon.weaponAttachments[2] = *(_OWORD *)&v19[-1].u.laser.weapon.weaponAttachments[2];
+      *(_OWORD *)&v17[-1].u.laser.weapon.attachmentVariationIndices[5] = *(_OWORD *)&v19[-1].u.laser.weapon.attachmentVariationIndices[5];
+      *(_OWORD *)&v17[-1].u.laser.weapon.attachmentVariationIndices[21] = *(_OWORD *)&v19[-1].u.laser.weapon.attachmentVariationIndices[21];
       --v6;
     }
     while ( v6 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rax+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rax+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rax+30h], xmm1
-    }
+    *(_OWORD *)&v17->next = *(_OWORD *)&v19->next;
+    *(_OWORD *)&v17->leType = *(_OWORD *)&v19->leType;
+    *(_OWORD *)v17->pos.trBase.v = *(_OWORD *)v19->pos.trBase.v;
+    *(_OWORD *)&v17->pos.trDelta.y = *(_OWORD *)&v19->pos.trDelta.y;
     v18->next = NULL;
     v18->prev = NULL;
     ballisticInstance = le->u.tracer.ballistics.ballisticInstance;
@@ -1160,9 +971,9 @@ void CG_FreeLocalEntityAndCompact(const LocalClientNum_t localClientNum, localEn
       cg_localEntityOldest[v4] = le;
     if ( le->next )
       le->next->prev = le;
-    v33 = le->prev;
-    if ( v33 )
-      v33->next = le;
+    v22 = le->prev;
+    if ( v22 )
+      v22->next = le;
     if ( le == le->next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 194, ASSERT_TYPE_ASSERT, "(le != le->next)", (const char *)&queryFormat, "le != le->next") )
       __debugbreak();
     if ( le == le->prev && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 195, ASSERT_TYPE_ASSERT, "(le != le->prev)", (const char *)&queryFormat, "le != le->prev") )
@@ -1176,30 +987,30 @@ void CG_FreeLocalEntityAndCompact(const LocalClientNum_t localClientNum, localEn
     __debugbreak();
   if ( _InterlockedIncrement(&g_localEntReadOnlyThread) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 202, ASSERT_TYPE_ASSERT, "(Sys_InterlockedIncrement( &g_localEntReadOnlyThread ) == 0)", (const char *)&queryFormat, "Sys_InterlockedIncrement( &g_localEntReadOnlyThread ) == 0") )
     __debugbreak();
-  v34 = cg_localEntityNewest[v4];
+  v23 = cg_localEntityNewest[v4];
   if ( cg_localEntityCount[v4] )
   {
-    if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 211, ASSERT_TYPE_ASSERT, "(cg_localEntityNewest[localClientNum] != nullptr)", (const char *)&queryFormat, "cg_localEntityNewest[localClientNum] != nullptr") )
+    if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 211, ASSERT_TYPE_ASSERT, "(cg_localEntityNewest[localClientNum] != nullptr)", (const char *)&queryFormat, "cg_localEntityNewest[localClientNum] != nullptr") )
       __debugbreak();
     if ( !cg_localEntityOldest[v4] )
     {
-      v35 = "cg_localEntityOldest[localClientNum] != nullptr";
-      v36 = 212;
-      v37 = "(cg_localEntityOldest[localClientNum] != nullptr)";
+      v24 = "cg_localEntityOldest[localClientNum] != nullptr";
+      v25 = 212;
+      v26 = "(cg_localEntityOldest[localClientNum] != nullptr)";
 LABEL_107:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", v36, ASSERT_TYPE_ASSERT, v37, (const char *)&queryFormat, v35) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", v25, ASSERT_TYPE_ASSERT, v26, (const char *)&queryFormat, v24) )
         __debugbreak();
     }
   }
   else
   {
-    if ( v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 206, ASSERT_TYPE_ASSERT, "(cg_localEntityNewest[localClientNum] == nullptr)", (const char *)&queryFormat, "cg_localEntityNewest[localClientNum] == nullptr") )
+    if ( v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_localents.cpp", 206, ASSERT_TYPE_ASSERT, "(cg_localEntityNewest[localClientNum] == nullptr)", (const char *)&queryFormat, "cg_localEntityNewest[localClientNum] == nullptr") )
       __debugbreak();
     if ( cg_localEntityOldest[v4] )
     {
-      v35 = "cg_localEntityOldest[localClientNum] == nullptr";
-      v36 = 207;
-      v37 = "(cg_localEntityOldest[localClientNum] == nullptr)";
+      v24 = "cg_localEntityOldest[localClientNum] == nullptr";
+      v25 = 207;
+      v26 = "(cg_localEntityOldest[localClientNum] == nullptr)";
       goto LABEL_107;
     }
   }

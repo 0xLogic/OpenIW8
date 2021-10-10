@@ -1301,17 +1301,19 @@ Scr_AddSourceBuffer
 */
 char *Scr_AddSourceBuffer(scrContext_t *scrContext, const char *extFilename, const char *codePos, bool archive, const ScrThreadMode threadMode, int prevIndex)
 {
-  SourceBufferInfo *v11; 
+  SourceBufferInfo *v10; 
   char *sourceBuf; 
   int len; 
   SaveSourceBufferInfo *saveSourceBufferLookup; 
-  char *v16; 
-  signed int v18; 
+  char *v15; 
+  int v17; 
+  char *v18; 
   char *v19; 
-  __int64 v22; 
-  signed __int64 v48; 
-  __int64 v49; 
-  char v50; 
+  _OWORD *v20; 
+  __int64 v21; 
+  signed __int64 v43; 
+  __int64 v44; 
+  char v45; 
 
   if ( !archive || !scrContext->m_parserGlob.saveSourceBufferLookup )
     return Scr_ReadFile(scrContext, extFilename, codePos, archive, threadMode, prevIndex);
@@ -1328,89 +1330,91 @@ char *Scr_AddSourceBuffer(scrContext_t *scrContext, const char *extFilename, con
   {
     if ( prevIndex >= scrContext->m_parserPub.sourceBufferLookupLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 1692, ASSERT_TYPE_ASSERT, "(unsigned)( prevIndex ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "prevIndex doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", prevIndex, scrContext->m_parserPub.sourceBufferLookupLen) )
       __debugbreak();
-    v11 = &scrContext->m_parserPub.sourceBufferLookup[prevIndex];
-    sourceBuf = (char *)v11->sourceBuf;
-    len = v11->len;
+    v10 = &scrContext->m_parserPub.sourceBufferLookup[prevIndex];
+    sourceBuf = (char *)v10->sourceBuf;
+    len = v10->len;
   }
   if ( len < -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 1707, ASSERT_TYPE_ASSERT, "( len >= -1 )", (const char *)&queryFormat, "len >= -1") )
     __debugbreak();
   if ( len >= 0 )
   {
-    v16 = (char *)Scr_Mem_TempAlloc(scrContext, len + 1, "Scr_AddSourceBuffer1");
-    v18 = 0;
-    v19 = v16;
-    _R10 = sourceBuf;
-    _RCX = v16;
+    v15 = (char *)Scr_Mem_TempAlloc(scrContext, len + 1, "Scr_AddSourceBuffer1");
+    v17 = 0;
+    v18 = v15;
+    v19 = sourceBuf;
+    v20 = v15;
     if ( len > 0 )
     {
       if ( (unsigned int)len >= 0x40 )
       {
-        v22 = len - 1;
-        if ( v16 > &sourceBuf[v22] || &v16[v22] < sourceBuf )
+        v21 = len - 1;
+        if ( v15 > &sourceBuf[v21] || &v15[v21] < sourceBuf )
         {
-          __asm
-          {
-            vmovaps [rsp+88h+var_38], xmm6
-            vmovdqu xmm5, cs:__xmm@0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a
-            vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff
-            vpxor   xmm4, xmm4, xmm4
-          }
+          __asm { vpxor   xmm4, xmm4, xmm4 }
           do
           {
             __asm
             {
               vpcmpeqb xmm0, xmm4, xmmword ptr [r10]
-              vmovdqu xmm3, xmmword ptr [r10+30h]
               vpandn  xmm2, xmm0, xmm6
               vpand   xmm0, xmm2, xmmword ptr [r10]
               vpandn  xmm1, xmm2, xmm5
               vpor    xmm2, xmm1, xmm0
               vpcmpeqb xmm0, xmm4, xmmword ptr [r10+10h]
-              vmovdqu xmmword ptr [rcx], xmm2
+            }
+            *v20 = _XMM2;
+            __asm
+            {
               vpandn  xmm2, xmm0, xmm6
               vpand   xmm0, xmm2, xmmword ptr [r10+10h]
               vpandn  xmm1, xmm2, xmm5
               vpor    xmm2, xmm1, xmm0
               vpcmpeqb xmm0, xmm4, xmmword ptr [r10+20h]
-              vmovdqu xmmword ptr [rcx+10h], xmm2
+            }
+            v20[1] = _XMM2;
+            __asm
+            {
               vpandn  xmm2, xmm0, xmm6
               vpand   xmm0, xmm2, xmmword ptr [r10+20h]
               vpandn  xmm1, xmm2, xmm5
               vpor    xmm2, xmm1, xmm0
-              vmovdqu xmmword ptr [rcx+20h], xmm2
+            }
+            v20[2] = _XMM2;
+            __asm
+            {
               vpcmpeqb xmm0, xmm4, xmm3
               vpandn  xmm2, xmm0, xmm6
               vpandn  xmm1, xmm2, xmm5
               vpand   xmm0, xmm2, xmm3
               vpor    xmm2, xmm1, xmm0
-              vmovdqu xmmword ptr [rcx+30h], xmm2
             }
-            _RCX += 64;
-            _R10 += 64;
-            v18 += 64;
+            v20[3] = _XMM2;
+            v20 += 4;
+            v19 += 64;
+            v17 += 64;
           }
-          while ( v18 < (int)(len - (len & 0x8000003F)) );
-          __asm { vmovaps xmm6, [rsp+88h+var_38] }
+          while ( v17 < len - (len & 0x3F) );
         }
       }
-      if ( v18 < len )
+      if ( v17 < len )
       {
-        v48 = _R10 - _RCX;
-        v49 = (unsigned int)(len - v18);
+        v43 = v19 - (char *)v20;
+        v44 = (unsigned int)(len - v17);
         do
         {
-          v50 = 10;
-          if ( _RCX[v48] )
-            v50 = _RCX[v48];
-          *_RCX++ = v50;
-          --v49;
+          v45 = 10;
+          if ( *((_BYTE *)v20 + v43) )
+            v45 = *((_BYTE *)v20 + v43);
+          *(_BYTE *)v20 = v45;
+          v20 = (_OWORD *)((char *)v20 + 1);
+          --v44;
         }
-        while ( v49 );
+        while ( v44 );
       }
     }
-    *_RCX = 0;
+    *(_BYTE *)v20 = 0;
     Scr_AddSourceBufferInternal(scrContext, extFilename, codePos, sourceBuf, len, 0, archive, 0, prevIndex);
-    return v19;
+    return v18;
   }
   else
   {
@@ -1655,87 +1659,79 @@ Scr_CalcScriptFileProfile
 */
 void Scr_CalcScriptFileProfile(scrContext_t *scrContext)
 {
+  unsigned int v2; 
+  ProfileScript *Profile; 
   unsigned __int64 srcTotal; 
-  unsigned __int64 v6; 
+  __int64 v5; 
   OpcodeLookup *opcodeLookup; 
-  unsigned __int64 v8; 
-  unsigned __int64 v9; 
-  int v10; 
+  unsigned __int64 v7; 
+  int v8; 
+  __int64 v9; 
   __int64 codePosI; 
-  __int64 v12; 
-  char *v13; 
+  __int64 v11; 
+  char *v12; 
   const char *programBuffer; 
-  bool v15; 
+  bool v14; 
+  SourceBufferInfo *v15; 
   int avgTime; 
   __int64 sourceBufferLookupLen; 
-  int *v44; 
+  unsigned int v18; 
+  __int64 v28; 
+  int *v32; 
   int i; 
   int _First[8]; 
+  __m256i v35; 
+  __m256i v36; 
+  __m256i v37; 
 
   if ( scrContext->m_varPub.developer )
   {
-    _EDI = 0;
-    _R13 = ScriptContext_GetProfile(scrContext);
+    v2 = 0;
+    Profile = ScriptContext_GetProfile(scrContext);
     srcTotal = 0i64;
-    _R13->srcTotal = 0i64;
-    v6 = 0i64;
-    for ( i = 0; (unsigned int)v6 < scrContext->m_parserGlob.opcodeLookupLen; i = v6 )
+    Profile->srcTotal = 0i64;
+    v5 = 0i64;
+    for ( i = 0; (unsigned int)v5 < scrContext->m_parserGlob.opcodeLookupLen; i = v5 )
     {
       opcodeLookup = scrContext->m_parserGlob.opcodeLookup;
-      v8 = v6;
-      v9 = (unsigned __int64)opcodeLookup[v6];
-      v10 = (16 * v9) & 0x7FFFFFF0;
-      if ( v9 >> 54 )
+      v7 = (unsigned __int64)opcodeLookup[v5];
+      v8 = (16 * v7) & 0x7FFFFFF0;
+      if ( v7 >> 54 )
       {
-        *(_QWORD *)&opcodeLookup[v8] = 0i64;
-        codePosI = scrContext->m_parserGlob.opcodeLookup[v8].codePosI;
+        *(_QWORD *)&opcodeLookup[v5] = 0i64;
+        v9 = (v7 >> 23) & 0x7FFFFFF0;
+        codePosI = scrContext->m_parserGlob.opcodeLookup[v5].codePosI;
         if ( (_DWORD)codePosI )
-          v12 = scrContext->m_parserBasePointer + codePosI;
+          v11 = scrContext->m_parserBasePointer + codePosI;
         else
-          v12 = 0i64;
-        v13 = (char *)(v12 + 1);
-        if ( (v12 == -1 || v13 == &g_EndPos) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2662, ASSERT_TYPE_ASSERT, "( codePos && codePos != &g_EndPos )", (const char *)&queryFormat, "codePos && codePos != &g_EndPos") )
+          v11 = 0i64;
+        v12 = (char *)(v11 + 1);
+        if ( (v11 == -1 || v12 == &g_EndPos) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2662, ASSERT_TYPE_ASSERT, "( codePos && codePos != &g_EndPos )", (const char *)&queryFormat, "codePos && codePos != &g_EndPos") )
           __debugbreak();
         programBuffer = scrContext->m_varPub.programBuffer;
-        v15 = Scr_IsInOpcodeMemory(scrContext, v13) != 0;
-        if ( (!programBuffer || !v15) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2663, ASSERT_TYPE_ASSERT, "( Scr_HasSourceBuffer( scrContext, codePos ) )", (const char *)&queryFormat, "Scr_HasSourceBuffer( scrContext, codePos )") )
+        v14 = Scr_IsInOpcodeMemory(scrContext, v12) != 0;
+        if ( (!programBuffer || !v14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2663, ASSERT_TYPE_ASSERT, "( Scr_HasSourceBuffer( scrContext, codePos ) )", (const char *)&queryFormat, "Scr_HasSourceBuffer( scrContext, codePos )") )
           __debugbreak();
-        _RBX = &scrContext->m_parserPub.sourceBufferLookup[Scr_GetSourceBuffer(scrContext, v13 - 1)];
-        avgTime = _RBX->avgTime;
-        _RBX->time = v10;
-        _RBX->avgTime = (v10 + 4 * avgTime) / 5;
-        if ( v10 > _RBX->maxTime )
-          _RBX->maxTime = v10;
-        Sys_GetValue(0);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14d
-          vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-          vaddss  xmm1, xmm0, dword ptr [rbx+6Ch]
-          vmovss  dword ptr [rbx+6Ch], xmm1
-        }
-        Sys_GetValue(0);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r12d
-          vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-          vaddss  xmm1, xmm0, dword ptr [rbx+70h]
-          vmovss  dword ptr [rbx+70h], xmm1
-        }
-        _R13->srcTotal += (unsigned int)v10;
+        v15 = &scrContext->m_parserPub.sourceBufferLookup[Scr_GetSourceBuffer(scrContext, v12 - 1)];
+        avgTime = v15->avgTime;
+        v15->time = v8;
+        v15->avgTime = (v8 + 4 * avgTime) / 5;
+        if ( v8 > v15->maxTime )
+          v15->maxTime = v8;
+        v15->totalTime = (float)((float)v8 * *((float *)Sys_GetValue(0) + 8915)) + v15->totalTime;
+        v15->totalBuiltIn = (float)((float)(int)v9 * *((float *)Sys_GetValue(0) + 8915)) + v15->totalBuiltIn;
+        Profile->srcTotal += (unsigned int)v8;
       }
-      else if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2653, ASSERT_TYPE_ASSERT, "( !pScrParserGlob->opcodeLookup[i].GetProfileTime() )", (const char *)&queryFormat, "!pScrParserGlob->opcodeLookup[i].GetProfileTime()") )
+      else if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2653, ASSERT_TYPE_ASSERT, "( !pScrParserGlob->opcodeLookup[i].GetProfileTime() )", (const char *)&queryFormat, "!pScrParserGlob->opcodeLookup[i].GetProfileTime()") )
       {
         __debugbreak();
       }
-      srcTotal = _R13->srcTotal;
-      v6 = (unsigned int)(i + 1);
+      srcTotal = Profile->srcTotal;
+      v5 = (unsigned int)(i + 1);
     }
-    _R13->srcAvgTime = (srcTotal + 4 * _R13->srcAvgTime) / 5;
-    if ( srcTotal > _R13->srcMaxTime )
-      _R13->srcMaxTime = srcTotal;
+    Profile->srcAvgTime = (srcTotal + 4 * Profile->srcAvgTime) / 5;
+    if ( srcTotal > Profile->srcMaxTime )
+      Profile->srcMaxTime = srcTotal;
     if ( scrContext->m_parserPub.sourceBufferLookupLen >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2683, ASSERT_TYPE_ASSERT, "(pScrParserPub->sourceBufferLookupLen < MAX_SCRIPT_FILES)", (const char *)&queryFormat, "pScrParserPub->sourceBufferLookupLen < MAX_SCRIPT_FILES") )
       __debugbreak();
     sourceBufferLookupLen = scrContext->m_parserPub.sourceBufferLookupLen;
@@ -1743,54 +1739,49 @@ void Scr_CalcScriptFileProfile(scrContext_t *scrContext)
     {
       if ( (unsigned int)sourceBufferLookupLen >= 0x10 )
       {
-        __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-        _EDX = 8;
+        v18 = 8;
         do
         {
-          _RAX = _EDI;
+          _XMM0 = v2;
           __asm
           {
-            vmovd   xmm0, edi
-            vpshufd xmm0, xmm0, 0
-            vpaddd  xmm1, xmm0, xmm2
-            vmovdqu xmmword ptr [rsp+rax*4+1078h+_First], xmm1
-          }
-          LODWORD(_RAX) = _EDX - 4;
-          _EDI += 16;
-          __asm
-          {
-            vmovd   xmm0, eax
             vpshufd xmm0, xmm0, 0
             vpaddd  xmm1, xmm0, xmm2
           }
-          _RAX = _EDX - 4;
-          __asm { vmovdqu xmmword ptr [rsp+rax*4+1078h+_First], xmm1 }
-          _RAX = _EDX;
+          *(_OWORD *)&_First[v2] = _XMM1;
+          v2 += 16;
+          _XMM0 = v18 - 4;
           __asm
           {
-            vmovd   xmm0, edx
             vpshufd xmm0, xmm0, 0
             vpaddd  xmm1, xmm0, xmm2
-            vmovdqu xmmword ptr [rsp+rax*4+1078h+_First], xmm1
           }
-          _RAX = _EDX + 4;
-          _EDX += 16;
+          *(_OWORD *)&_First[v18 - 4] = _XMM1;
+          _XMM0 = v18;
           __asm
           {
-            vmovd   xmm0, eax
             vpshufd xmm0, xmm0, 0
             vpaddd  xmm1, xmm0, xmm2
-            vmovdqu xmmword ptr [rsp+rax*4+1078h+_First], xmm1
           }
+          *(_OWORD *)&_First[v18] = _XMM1;
+          v28 = v18 + 4;
+          v18 += 16;
+          _XMM0 = (unsigned int)v28;
+          __asm
+          {
+            vpshufd xmm0, xmm0, 0
+            vpaddd  xmm1, xmm0, xmm2
+          }
+          *(_OWORD *)&_First[v28] = _XMM1;
         }
-        while ( _EDI < ((unsigned int)sourceBufferLookupLen & 0xFFFFFFF0) );
+        while ( v2 < ((unsigned int)sourceBufferLookupLen & 0xFFFFFFF0) );
       }
-      if ( _EDI < (unsigned int)sourceBufferLookupLen )
+      if ( v2 < (unsigned int)sourceBufferLookupLen )
       {
-        v44 = &_First[_EDI];
+        v32 = &_First[v2];
         do
-          *v44++ = _EDI++;
-        while ( _EDI < (unsigned int)sourceBufferLookupLen );
+          *v32++ = v2++;
+        while ( v2 < (unsigned int)sourceBufferLookupLen );
       }
     }
     if ( scrContext->m_Instance )
@@ -1802,17 +1793,10 @@ void Scr_CalcScriptFileProfile(scrContext_t *scrContext)
     {
       std::_Sort_unchecked<int *,bool (*)(int,int)>(_First, &_First[sourceBufferLookupLen], sourceBufferLookupLen, Scr_CompareScriptSourceProfileTimes_Server);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+1078h+_First]
-      vmovups ymmword ptr [r13+9B04h], ymm0
-      vmovups ymm1, [rsp+1078h+var_1018]
-      vmovups ymmword ptr [r13+9B24h], ymm1
-      vmovups ymm0, [rsp+1078h+var_FF8]
-      vmovups ymmword ptr [r13+9B44h], ymm0
-      vmovups ymm1, [rsp+1078h+var_FD8]
-      vmovups ymmword ptr [r13+9B64h], ymm1
-    }
+    *(__m256i *)Profile->scriptSrcBufferIndex = *(__m256i *)_First;
+    *(__m256i *)&Profile->scriptSrcBufferIndex[8] = v35;
+    *(__m256i *)&Profile->scriptSrcBufferIndex[16] = v36;
+    *(__m256i *)&Profile->scriptSrcBufferIndex[24] = v37;
   }
 }
 
@@ -1954,39 +1938,33 @@ bool Scr_CompareScriptProfileCurrentTimeFunc_Server(const int *index1, const int
 Scr_CompareScriptProfileExceedSummaryEntryFunc
 ==============
 */
-
-bool __fastcall Scr_CompareScriptProfileExceedSummaryEntryFunc(const PrfofileScrExceedSummaryFunc *func1, const PrfofileScrExceedSummaryFunc *func2, double _XMM2_8, double _XMM3_8)
+bool Scr_CompareScriptProfileExceedSummaryEntryFunc(const PrfofileScrExceedSummaryFunc *func1, const PrfofileScrExceedSummaryFunc *func2)
 {
-  unsigned int funcCount; 
+  __int64 funcCount; 
+  float v3; 
+  float v4; 
+  float v5; 
+  __int64 v6; 
+  float v7; 
 
-  __asm { vxorps  xmm2, xmm2, xmm2 }
-  if ( func1->funcCount )
+  funcCount = func1->funcCount;
+  v3 = 0.0;
+  if ( (_DWORD)funcCount )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+100h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm3, xmm0, xmm1
-    }
+    v4 = (float)funcCount;
+    v5 = func1->funcTime / v4;
   }
   else
   {
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    v5 = 0.0;
   }
-  funcCount = func2->funcCount;
-  if ( funcCount )
+  v6 = func2->funcCount;
+  if ( (_DWORD)v6 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+100h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm2, xmm0, xmm1
-    }
+    v7 = (float)v6;
+    v3 = func2->funcTime / v7;
   }
-  __asm { vcomiss xmm3, xmm2 }
-  return funcCount != 0;
+  return v5 > v3;
 }
 
 /*
@@ -1996,14 +1974,7 @@ Scr_CompareScriptProfileExceedSummaryEntryFuncBuiltIn
 */
 bool Scr_CompareScriptProfileExceedSummaryEntryFuncBuiltIn(const PrfofileScrExceedSummaryBuilInFunc *builtInFunc1, const PrfofileScrExceedSummaryBuilInFunc *builtInFunc2)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vcomiss xmm0, dword ptr [rcx]
-  }
-  return v2;
+  return builtInFunc2->builtInTime < builtInFunc1->builtInTime;
 }
 
 /*
@@ -2011,39 +1982,33 @@ bool Scr_CompareScriptProfileExceedSummaryEntryFuncBuiltIn(const PrfofileScrExce
 Scr_CompareScriptProfileExceedTimeFunc
 ==============
 */
-
-bool __fastcall Scr_CompareScriptProfileExceedTimeFunc(const ProfileScrExceedSummaryFile *entry1, const ProfileScrExceedSummaryFile *entry2, double _XMM2_8, double _XMM3_8)
+bool Scr_CompareScriptProfileExceedTimeFunc(const ProfileScrExceedSummaryFile *entry1, const ProfileScrExceedSummaryFile *entry2)
 {
-  unsigned int funcCount; 
+  __int64 funcCount; 
+  float v3; 
+  float v4; 
+  float v5; 
+  __int64 v6; 
+  float v7; 
 
-  __asm { vxorps  xmm2, xmm2, xmm2 }
-  if ( entry1->funcSummary[0].funcCount )
+  funcCount = entry1->funcSummary[0].funcCount;
+  v3 = 0.0;
+  if ( (_DWORD)funcCount )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+100h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm3, xmm0, xmm1
-    }
+    v4 = (float)funcCount;
+    v5 = entry1->funcSummary[0].funcTime / v4;
   }
   else
   {
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    v5 = 0.0;
   }
-  funcCount = entry2->funcSummary[0].funcCount;
-  if ( funcCount )
+  v6 = entry2->funcSummary[0].funcCount;
+  if ( (_DWORD)v6 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+100h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm2, xmm0, xmm1
-    }
+    v7 = (float)v6;
+    v3 = entry2->funcSummary[0].funcTime / v7;
   }
-  __asm { vcomiss xmm3, xmm2 }
-  return funcCount != 0;
+  return v5 > v3;
 }
 
 /*
@@ -2060,15 +2025,7 @@ bool Scr_CompareScriptSourceProfileTimes_Server(int index1, int index2)
   v2 = index2;
   v3 = index1;
   v4 = ScriptContext_Server();
-  _RCX = 120 * v2;
-  _R8 = 120 * v3;
-  _R9 = v4->m_parserPub.sourceBufferLookup;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+r9+6Ch]
-    vcomiss xmm0, dword ptr [r8+r9+6Ch]
-  }
-  return (unsigned __int128)(120 * (__int128)v3) >> 64 != 0;
+  return v4->m_parserPub.sourceBufferLookup[v2].totalTime < v4->m_parserPub.sourceBufferLookup[v3].totalTime;
 }
 
 /*
@@ -2095,36 +2052,31 @@ Scr_CopyFormattedLine
 */
 void Scr_CopyFormattedLine(char *line, const char *rawLine)
 {
-  __int64 v5; 
-  int v6; 
-  __int64 v7; 
-  __int64 v33; 
-  signed __int64 v34; 
-  char *v35; 
-  __int64 v36; 
-  char v37; 
-  char v38; 
+  __int64 v4; 
+  int v5; 
+  __int64 v6; 
+  char *v8; 
+  __int64 v29; 
+  signed __int64 v30; 
+  char *v31; 
+  __int64 v32; 
+  char v33; 
+  char v34; 
 
-  v5 = -1i64;
+  v4 = -1i64;
   do
-    ++v5;
-  while ( rawLine[v5] );
-  if ( (int)v5 >= 1024 )
-    LODWORD(v5) = 1023;
-  v6 = 0;
-  if ( (int)v5 > 0 && (unsigned int)v5 >= 0x40 )
+    ++v4;
+  while ( rawLine[v4] );
+  if ( (int)v4 >= 1024 )
+    LODWORD(v4) = 1023;
+  v5 = 0;
+  if ( (int)v4 > 0 && (unsigned int)v4 >= 0x40 )
   {
-    v7 = (int)v5 - 1;
-    if ( line > &rawLine[v7] || &line[v7] < rawLine )
+    v6 = (int)v4 - 1;
+    if ( line > &rawLine[v6] || &line[v6] < rawLine )
     {
-      __asm
-      {
-        vmovaps [rsp+18h+var_18], xmm6
-        vmovdqu xmm4, cs:__xmm@09090909090909090909090909090909
-        vmovdqu xmm5, cs:__xmm@20202020202020202020202020202020
-        vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff
-      }
-      _R10 = line;
+      _XMM4 = _xmm;
+      v8 = line;
       do
       {
         __asm
@@ -2135,54 +2087,62 @@ void Scr_CopyFormattedLine(char *line, const char *rawLine)
           vpandn  xmm1, xmm2, xmm5
           vpor    xmm2, xmm1, xmm0
           vpcmpeqb xmm0, xmm4, xmmword ptr [rdx+r10+10h]
-          vmovdqu xmmword ptr [r10], xmm2
+        }
+        *(_OWORD *)v8 = _XMM2;
+        __asm
+        {
           vpandn  xmm2, xmm0, xmm6
           vpand   xmm0, xmm2, xmmword ptr [rdx+r10+10h]
           vpandn  xmm1, xmm2, xmm5
           vpor    xmm2, xmm1, xmm0
           vpcmpeqb xmm0, xmm4, xmmword ptr [rdx+r10+20h]
-          vmovdqu xmmword ptr [r10+10h], xmm2
+        }
+        *((_OWORD *)v8 + 1) = _XMM2;
+        __asm
+        {
           vpandn  xmm2, xmm0, xmm6
           vpand   xmm0, xmm2, xmmword ptr [rdx+r10+20h]
           vpandn  xmm1, xmm2, xmm5
           vpor    xmm2, xmm1, xmm0
           vpcmpeqb xmm0, xmm4, xmmword ptr [rdx+r10+30h]
-          vmovdqu xmmword ptr [r10+20h], xmm2
+        }
+        *((_OWORD *)v8 + 2) = _XMM2;
+        __asm
+        {
           vpandn  xmm2, xmm0, xmm6
           vpand   xmm0, xmm2, xmmword ptr [rdx+r10+30h]
           vpandn  xmm1, xmm2, xmm5
           vpor    xmm2, xmm1, xmm0
-          vmovdqu xmmword ptr [r10+30h], xmm2
         }
-        _R10 += 64;
-        v6 += 64;
+        *((_OWORD *)v8 + 3) = _XMM2;
+        v8 += 64;
+        v5 += 64;
       }
-      while ( _R10 - line < (int)(v5 - (v5 & 0x8000003F)) );
-      __asm { vmovaps xmm6, [rsp+18h+var_18] }
+      while ( v8 - line < (int)(v4 - (v4 & 0x3F)) );
     }
   }
-  v33 = v6;
-  if ( v6 < (__int64)(int)v5 )
+  v29 = v5;
+  if ( v5 < (__int64)(int)v4 )
   {
-    v34 = rawLine - line;
-    v35 = &line[v6];
-    v36 = (int)v5 - v33;
+    v30 = rawLine - line;
+    v31 = &line[v5];
+    v32 = (int)v4 - v29;
     do
     {
-      v37 = v35[v34];
-      ++v35;
-      v38 = 32;
-      if ( v37 != 9 )
-        v38 = v37;
-      *(v35 - 1) = v38;
-      --v36;
+      v33 = v31[v30];
+      ++v31;
+      v34 = 32;
+      if ( v33 != 9 )
+        v34 = v33;
+      *(v31 - 1) = v34;
+      --v32;
     }
-    while ( v36 );
+    while ( v32 );
   }
-  if ( line[(int)v5 - 1] == 13 )
-    *(_WORD *)&line[(int)v5 - 1] = 0;
+  if ( line[(int)v4 - 1] == 13 )
+    *(_WORD *)&line[(int)v4 - 1] = 0;
   else
-    line[(int)v5] = 0;
+    line[(int)v4] = 0;
 }
 
 /*
@@ -4315,228 +4275,303 @@ LABEL_28:
 Scr_PrintProfileTimes
 ==============
 */
-
-bool __fastcall Scr_PrintProfileTimes(const scrContext_t *scrContext, double minTime)
+char Scr_PrintProfileTimes(const scrContext_t *scrContext, float minTime)
 {
-  int v5; 
-  unsigned int v8; 
-  int i; 
-  __int64 v10; 
-  signed __int64 m_scriptPos; 
-  OpcodeLookup *v12; 
-  __int64 v13; 
-  OpcodeLookup *v14; 
-  const ProfileScript *ProfileConst; 
-  __int64 v20; 
-  unsigned int v21; 
-  __int64 v22; 
-  const char *v23; 
-  char (*profileScriptNames)[20]; 
-  __int64 v25; 
-  unsigned int *p_totalTime; 
-  OpcodeLookup *v30; 
-  unsigned __int64 v31; 
-  __int64 codePosI; 
+  int v4; 
+  unsigned int opcodeLookupLen; 
+  __int64 v8; 
+  unsigned int v9; 
+  OpcodeLookup *opcodeLookup; 
+  unsigned int v13; 
+  __int64 v14; 
+  __int64 v32; 
+  __int64 v33; 
+  OpcodeLookup *v34; 
+  __int64 v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  __int64 v38; 
+  float *Value; 
+  float v40; 
+  float v41; 
+  unsigned int j; 
   __int64 v43; 
+  unsigned int v45; 
+  int i; 
+  __int64 v47; 
+  signed __int64 m_scriptPos; 
+  OpcodeLookup *v49; 
+  __int64 v50; 
+  OpcodeLookup *v51; 
+  OpcodeLookup *v52; 
+  OpcodeLookup *v53; 
+  const ProfileScript *ProfileConst; 
+  __int64 v55; 
+  unsigned int v56; 
+  __int64 v57; 
+  const char *v58; 
+  char (*profileScriptNames)[20]; 
+  __int64 v60; 
+  unsigned int *p_totalTime; 
+  float *v62; 
+  float v63; 
+  OpcodeLookup *v64; 
+  unsigned __int64 v65; 
+  double v66; 
+  float v67; 
+  double v68; 
+  __int64 codePosI; 
+  __int64 v70; 
   bool developer; 
-  const char *v45; 
+  const char *v72; 
   const char *programBuffer; 
-  bool v47; 
+  bool v74; 
   unsigned int SourceBuffer; 
   SourceLookup *sourcePosLookup; 
-  const char *v50; 
-  __int64 v51; 
+  const char *v77; 
+  __int64 v78; 
   unsigned int offset; 
   OpcodeLookup *PrevSourcePosOpcodeLookup; 
-  const char *v54; 
-  bool result; 
+  const char *v81; 
   char *fmt; 
-  char *fmta; 
-  ScriptCodePos v60; 
+  ScriptCodePos v83; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v5 = 0;
-  __asm
+  v4 = 0;
+  if ( minTime <= 0.0 )
+    goto LABEL_19;
+  opcodeLookupLen = scrContext->m_parserGlob.opcodeLookupLen;
+  v8 = 0i64;
+  v9 = 0;
+  if ( opcodeLookupLen >= 4 )
   {
-    vmovaps [rsp+98h+var_38], xmm6
-    vcomiss xmm1, xmm0
-    vmovaps xmm6, xmm1
-  }
-  v8 = 0;
-  for ( i = 0; v8 < scrContext->m_parserGlob.opcodeLookupLen; ++v8 )
-  {
-    if ( *(_QWORD *)&scrContext->m_parserGlob.opcodeLookup[v8] >> 54 )
+    opcodeLookup = scrContext->m_parserGlob.opcodeLookup;
+    __asm
     {
-      ++i;
+      vpxor   xmm4, xmm4, xmm4
+      vpxor   xmm5, xmm5, xmm5
     }
-    else if ( ((16 * *(_DWORD *)&scrContext->m_parserGlob.opcodeLookup[v8]) & 0x7FFFFFF0) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4107, ASSERT_TYPE_ASSERT, "( !pScrParserGlob->opcodeLookup[i].GetProfileTime() )", (const char *)&queryFormat, "!pScrParserGlob->opcodeLookup[i].GetProfileTime()") )
-    {
-      __debugbreak();
-    }
-  }
-  v10 = i;
-  m_scriptPos = 24i64 * i;
-  v60.m_scriptPos = (const char *)m_scriptPos;
-  v12 = (OpcodeLookup *)Mem_Virtual_Alloc(m_scriptPos, "Scr_PrintProfileTimes", TRACK_DEBUG);
-  v13 = 0i64;
-  v14 = v12;
-  if ( scrContext->m_parserGlob.opcodeLookupLen )
-  {
-    _RDI = v12;
+    v13 = 2;
     do
     {
-      _R8 = scrContext->m_parserGlob.opcodeLookup;
-      _RDX = 3 * v13;
-      if ( *(_QWORD *)&_R8[v13] >> 54 )
+      v14 = v9;
+      v9 += 4;
+      _XMM0 = (__int128)opcodeLookup[v14];
+      __asm
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r8+rdx*8]
-          vmovups xmmword ptr [rdi], xmm0
-          vmovsd  xmm1, qword ptr [r8+rdx*8+10h]
-          vmovsd  qword ptr [rdi+10h], xmm1
-        }
-        ++v5;
-        ++_RDI;
-        *(_QWORD *)&scrContext->m_parserGlob.opcodeLookup[v13] = 0i64;
+        vmovhpd xmm0, xmm0, qword ptr [r10+rax*8]
+        vpsllq  xmm1, xmm0, xmm7
+        vpshufb xmm1, xmm1, cs:__xmm@0b0a0908030201000b0a090803020100
+        vpmovsxdq xmm2, xmm1
       }
-      else if ( ((16 * *(_DWORD *)&_R8[v13]) & 0x7FFFFFF0) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4120, ASSERT_TYPE_ASSERT, "( !pScrParserGlob->opcodeLookup[i].GetProfileTime() )", (const char *)&queryFormat, "!pScrParserGlob->opcodeLookup[i].GetProfileTime()") )
+      _XMM0 = (__int128)opcodeLookup[v13];
+      __asm { vpand   xmm3, xmm2, xmm8 }
+      v13 += 4;
+      __asm
+      {
+        vmovhpd xmm0, xmm0, qword ptr [r10+rax*8]
+        vpsllq  xmm1, xmm0, xmm7
+        vpshufb xmm1, xmm1, cs:__xmm@0b0a0908030201000b0a090803020100
+        vpmovsxdq xmm2, xmm1
+        vpaddq  xmm4, xmm3, xmm4
+        vpand   xmm3, xmm2, xmm8
+        vpaddq  xmm5, xmm3, xmm5
+      }
+    }
+    while ( v9 < (opcodeLookupLen & 0xFFFFFFFC) );
+    __asm
+    {
+      vpaddq  xmm1, xmm5, xmm4
+      vpsrldq xmm0, xmm1, 8
+      vpaddq  xmm1, xmm1, xmm0
+    }
+    v8 = _XMM1;
+  }
+  v32 = 0i64;
+  v33 = 0i64;
+  if ( v9 < opcodeLookupLen )
+  {
+    if ( opcodeLookupLen - v9 >= 2 )
+    {
+      v34 = scrContext->m_parserGlob.opcodeLookup;
+      v35 = v9;
+      v36 = ((opcodeLookupLen - v9 - 2) >> 1) + 1;
+      v37 = v36;
+      v9 += 2 * v36;
+      do
+      {
+        v38 = (__int64)v34[v35];
+        v35 += 2i64;
+        v32 += (16 * (_DWORD)v38) & 0x7FFFFFF0;
+        v33 += (16 * (unsigned int)*(_QWORD *)&v34[v35 - 1]) & 0x7FFFFFF0;
+        --v37;
+      }
+      while ( v37 );
+    }
+    if ( v9 < opcodeLookupLen )
+      v8 += (16 * (unsigned int)*(_QWORD *)&scrContext->m_parserGlob.opcodeLookup[v9]) & 0x7FFFFFF0;
+    v8 += v33 + v32;
+  }
+  Value = (float *)Sys_GetValue(0);
+  v40 = (float)v8;
+  if ( v8 < 0 )
+  {
+    v41 = (float)v8;
+    v40 = v41 + 1.8446744e19;
+  }
+  if ( (float)(v40 * Value[8915]) >= minTime )
+  {
+LABEL_19:
+    v45 = 0;
+    for ( i = 0; v45 < scrContext->m_parserGlob.opcodeLookupLen; ++v45 )
+    {
+      if ( *(_QWORD *)&scrContext->m_parserGlob.opcodeLookup[v45] >> 54 )
+      {
+        ++i;
+      }
+      else if ( ((16 * *(_DWORD *)&scrContext->m_parserGlob.opcodeLookup[v45]) & 0x7FFFFFF0) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4107, ASSERT_TYPE_ASSERT, "( !pScrParserGlob->opcodeLookup[i].GetProfileTime() )", (const char *)&queryFormat, "!pScrParserGlob->opcodeLookup[i].GetProfileTime()") )
       {
         __debugbreak();
       }
-      v13 = (unsigned int)(v13 + 1);
     }
-    while ( (unsigned int)v13 < scrContext->m_parserGlob.opcodeLookupLen );
-    m_scriptPos = (signed __int64)v60.m_scriptPos;
-    v10 = i;
-  }
-  if ( v5 != i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4128, ASSERT_TYPE_ASSERT, "( profileIndex == profileCount )", (const char *)&queryFormat, "profileIndex == profileCount") )
-    __debugbreak();
-  std::_Sort_unchecked<OpcodeLookup *,bool (*)(OpcodeLookup const &,OpcodeLookup const &)>(v14, (OpcodeLookup *)((char *)v14 + m_scriptPos), m_scriptPos / 24, Scr_CompareProfileTimes);
-  Com_Printf(23, "\n");
-  ProfileConst = ScriptContext_GetProfileConst(scrContext);
-  v20 = 128i64;
-  v21 = 0;
-  v22 = 128i64;
-  v23 = ProfileConst->profileScriptNames[0];
-  profileScriptNames = ProfileConst->profileScriptNames;
-  do
-  {
-    v25 = -1i64;
-    do
-      ++v25;
-    while ( (*profileScriptNames)[v25] );
-    if ( (unsigned int)v25 <= v21 )
-      LODWORD(v25) = v21;
-    ++profileScriptNames;
-    v21 = v25;
-    --v22;
-  }
-  while ( v22 );
-  p_totalTime = &ProfileConst->write[0].totalTime;
-  do
-  {
-    if ( *v23 )
+    v47 = i;
+    m_scriptPos = 24i64 * i;
+    v83.m_scriptPos = (const char *)m_scriptPos;
+    v49 = (OpcodeLookup *)Mem_Virtual_Alloc(m_scriptPos, "Scr_PrintProfileTimes", TRACK_DEBUG);
+    v50 = 0i64;
+    v51 = v49;
+    if ( scrContext->m_parserGlob.opcodeLookupLen )
     {
-      Sys_GetValue(0);
-      __asm
+      v52 = v49;
+      do
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-        vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+98h+fmt], xmm1
-      }
-      Com_Printf(23, "%-*s %6.2f\n", v21, v23, *(double *)&fmta);
-    }
-    v23 += 20;
-    p_totalTime += 4;
-    --v20;
-  }
-  while ( v20 );
-  Com_Printf(23, "\n");
-  if ( v10 > 0 )
-  {
-    v30 = v14;
-    do
-    {
-      v31 = *(_QWORD *)v30;
-      Sys_GetValue(0);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-        vcvtss2sd xmm6, xmm1, xmm1
-      }
-      Sys_GetValue(0);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovaps xmm3, xmm6
-        vcvtsi2ss xmm0, xmm0, ebx
-        vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   r9, xmm3
-      }
-      LODWORD(fmt) = v31 >> 54;
-      Com_Printf(23, "time: %f, builtin: %f, usage: %d\n", *(double *)&_XMM2, *(double *)&_XMM3, fmt);
-      codePosI = v30->codePosI;
-      if ( (_DWORD)codePosI )
-        v43 = scrContext->m_parserBasePointer + codePosI;
-      else
-        v43 = 0i64;
-      v60.m_scriptPos = ScriptCodePos::CreateScriptPos((const char *)(v43 + 1)).m_scriptPos;
-      if ( v60.m_scriptPos )
-      {
-        if ( ScriptCodePos::IsEndPos(&v60) || (developer = scrContext->m_varPub.developer, !ScriptCodePos::IsScriptPos(&v60)) )
+        v53 = scrContext->m_parserGlob.opcodeLookup;
+        if ( *(_QWORD *)&v53[v50] >> 54 )
         {
-          Com_PrintError(23, "<removed thread>\n");
+          *(_OWORD *)v52 = v53[v50];
+          *(double *)&v52->sourcePosIndex = *(double *)&v53[v50].sourcePosIndex;
+          ++v4;
+          ++v52;
+          *(_QWORD *)&scrContext->m_parserGlob.opcodeLookup[v50] = 0i64;
         }
-        else if ( developer )
+        else if ( ((16 * *(_DWORD *)&v53[v50]) & 0x7FFFFFF0) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4120, ASSERT_TYPE_ASSERT, "( !pScrParserGlob->opcodeLookup[i].GetProfileTime() )", (const char *)&queryFormat, "!pScrParserGlob->opcodeLookup[i].GetProfileTime()") )
         {
-          v45 = v60.m_scriptPos;
-          programBuffer = scrContext->m_varPub.programBuffer;
-          v47 = Scr_IsInOpcodeMemory(scrContext, v60.m_scriptPos) != 0;
-          if ( programBuffer && v47 )
+          __debugbreak();
+        }
+        v50 = (unsigned int)(v50 + 1);
+      }
+      while ( (unsigned int)v50 < scrContext->m_parserGlob.opcodeLookupLen );
+      m_scriptPos = (signed __int64)v83.m_scriptPos;
+      v47 = i;
+    }
+    if ( v4 != i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4128, ASSERT_TYPE_ASSERT, "( profileIndex == profileCount )", (const char *)&queryFormat, "profileIndex == profileCount") )
+      __debugbreak();
+    std::_Sort_unchecked<OpcodeLookup *,bool (*)(OpcodeLookup const &,OpcodeLookup const &)>(v51, (OpcodeLookup *)((char *)v51 + m_scriptPos), m_scriptPos / 24, Scr_CompareProfileTimes);
+    Com_Printf(23, "\n");
+    ProfileConst = ScriptContext_GetProfileConst(scrContext);
+    v55 = 128i64;
+    v56 = 0;
+    v57 = 128i64;
+    v58 = ProfileConst->profileScriptNames[0];
+    profileScriptNames = ProfileConst->profileScriptNames;
+    do
+    {
+      v60 = -1i64;
+      do
+        ++v60;
+      while ( (*profileScriptNames)[v60] );
+      if ( (unsigned int)v60 <= v56 )
+        LODWORD(v60) = v56;
+      ++profileScriptNames;
+      v56 = v60;
+      --v57;
+    }
+    while ( v57 );
+    p_totalTime = &ProfileConst->write[0].totalTime;
+    do
+    {
+      if ( *v58 )
+      {
+        v62 = (float *)Sys_GetValue(0);
+        v63 = (float)*p_totalTime;
+        Com_Printf(23, "%-*s %6.2f\n", v56, v58, (float)(v63 * v62[8915]));
+      }
+      v58 += 20;
+      p_totalTime += 4;
+      --v55;
+    }
+    while ( v55 );
+    Com_Printf(23, "\n");
+    if ( v47 > 0 )
+    {
+      v64 = v51;
+      do
+      {
+        v65 = *(_QWORD *)v64;
+        v66 = (float)((float)((*(_QWORD *)v64 >> 23) & 0x7FFFFFF0) * *((float *)Sys_GetValue(0) + 8915));
+        v67 = (float)((16 * *(_QWORD *)v64) & 0x7FFFFFF0);
+        v68 = (float)(v67 * *((float *)Sys_GetValue(0) + 8915));
+        LODWORD(fmt) = v65 >> 54;
+        Com_Printf(23, "time: %f, builtin: %f, usage: %d\n", v68, v66, fmt);
+        codePosI = v64->codePosI;
+        if ( (_DWORD)codePosI )
+          v70 = scrContext->m_parserBasePointer + codePosI;
+        else
+          v70 = 0i64;
+        v83.m_scriptPos = ScriptCodePos::CreateScriptPos((const char *)(v70 + 1)).m_scriptPos;
+        if ( v83.m_scriptPos )
+        {
+          if ( ScriptCodePos::IsEndPos(&v83) || (developer = scrContext->m_varPub.developer, !ScriptCodePos::IsScriptPos(&v83)) )
           {
-            SourceBuffer = Scr_GetSourceBuffer(scrContext, v45 - 1);
-            sourcePosLookup = scrContext->m_parserGlob.sourcePosLookup;
-            v50 = v45 - 1;
-            v51 = SourceBuffer;
-            offset = (_DWORD)v45 - LODWORD(scrContext->m_parserPub.sourceBufferLookup[v51].codePos);
-            PrevSourcePosOpcodeLookup = Scr_GetPrevSourcePosOpcodeLookup(scrContext, v50);
-            Scr_PrintSourcePos(scrContext, 23, scrContext->m_parserPub.sourceBufferLookup[v51].buf, scrContext->m_parserPub.sourceBufferLookup[v51].sourceBuf, *(_DWORD *)&sourcePosLookup[PrevSourcePosOpcodeLookup->sourcePosIndex + 1] & 0xFFFFFF, offset, 1);
+            Com_PrintError(23, "<removed thread>\n");
+          }
+          else if ( developer )
+          {
+            v72 = v83.m_scriptPos;
+            programBuffer = scrContext->m_varPub.programBuffer;
+            v74 = Scr_IsInOpcodeMemory(scrContext, v83.m_scriptPos) != 0;
+            if ( programBuffer && v74 )
+            {
+              SourceBuffer = Scr_GetSourceBuffer(scrContext, v72 - 1);
+              sourcePosLookup = scrContext->m_parserGlob.sourcePosLookup;
+              v77 = v72 - 1;
+              v78 = SourceBuffer;
+              offset = (_DWORD)v72 - LODWORD(scrContext->m_parserPub.sourceBufferLookup[v78].codePos);
+              PrevSourcePosOpcodeLookup = Scr_GetPrevSourcePosOpcodeLookup(scrContext, v77);
+              Scr_PrintSourcePos(scrContext, 23, scrContext->m_parserPub.sourceBufferLookup[v78].buf, scrContext->m_parserPub.sourceBufferLookup[v78].sourceBuf, *(_DWORD *)&sourcePosLookup[PrevSourcePosOpcodeLookup->sourcePosIndex + 1] & 0xFFFFFF, offset, 1);
+            }
+            else
+            {
+              Com_PrintError(23, "%p\n\n", v72);
+            }
           }
           else
           {
-            Com_PrintError(23, "%p\n\n", v45);
+            v81 = v83.m_scriptPos;
+            if ( Scr_IsInOpcodeMemory(scrContext, v83.m_scriptPos - 1) )
+              Com_PrintError(23, "@ %lld\n", v81 - scrContext->m_varPub.programBuffer);
+            else
+              Com_PrintError(23, "%p\n\n", v81);
           }
         }
         else
         {
-          v54 = v60.m_scriptPos;
-          if ( Scr_IsInOpcodeMemory(scrContext, v60.m_scriptPos - 1) )
-            Com_PrintError(23, "@ %lld\n", v54 - scrContext->m_varPub.programBuffer);
-          else
-            Com_PrintError(23, "%p\n\n", v54);
+          Com_PrintError(23, "<frozen thread>\n");
         }
+        ++v64;
+        --v47;
       }
-      else
-      {
-        Com_PrintError(23, "<frozen thread>\n");
-      }
-      ++v30;
-      --v10;
+      while ( v47 );
     }
-    while ( v10 );
+    Com_Printf(23, "\n");
+    Mem_Virtual_Free(v51);
+    return 1;
   }
-  Com_Printf(23, "\n");
-  Mem_Virtual_Free(v14);
-  result = 1;
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  return result;
+  else
+  {
+    for ( j = 0; j < scrContext->m_parserGlob.opcodeLookupLen; *(_QWORD *)&scrContext->m_parserGlob.opcodeLookup[v43] = 0i64 )
+      v43 = j++;
+    return 0;
+  }
 }
 
 /*
@@ -4586,87 +4621,26 @@ Scr_PrintScriptProfileTimesForScriptFile
 */
 void Scr_PrintScriptProfileTimesForScriptFile(const scrContext_t *scrContext)
 {
-  unsigned int v8; 
-  __int64 v10; 
-  bool v11; 
-  double v36; 
-  double v37; 
-  double v38; 
-  double v39; 
-  double v40; 
+  unsigned int i; 
+  SourceBufferInfo *v3; 
+  float totalTime; 
+  float totalBuiltIn; 
+  double v6; 
+  double v7; 
+  float v8; 
 
   Com_Printf(23, "name:           time,   avg,    max,   total,   builtin,  total - builtin\n");
-  v8 = 0;
-  if ( scrContext->m_parserPub.sourceBufferLookupLen )
+  for ( i = 0; i < scrContext->m_parserPub.sourceBufferLookupLen; ++i )
   {
-    __asm
+    v3 = &scrContext->m_parserPub.sourceBufferLookup[i];
+    totalTime = v3->totalTime;
+    if ( totalTime != 0.0 )
     {
-      vmovaps [rsp+0A8h+var_48], xmm9
-      vmovaps [rsp+0A8h+var_58], xmm10
-      vmovaps [rsp+0A8h+var_18], xmm6
-      vmovaps [rsp+0A8h+var_28], xmm7
-      vmovaps [rsp+0A8h+var_38], xmm8
-      vxorps  xmm10, xmm10, xmm10
-    }
-    do
-    {
-      v10 = v8;
-      v11 = &scrContext->m_parserPub.sourceBufferLookup[v10] == NULL;
-      _RDI = &scrContext->m_parserPub.sourceBufferLookup[v10];
-      __asm
-      {
-        vmovss  xmm9, dword ptr [rdi+6Ch]
-        vucomiss xmm9, xmm10
-      }
-      if ( !v11 )
-      {
-        __asm { vmovss  xmm7, dword ptr [rdi+70h] }
-        Sys_GetValue(0);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+68h]
-          vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-          vcvtss2sd xmm8, xmm1, xmm1
-        }
-        Sys_GetValue(0);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+64h]
-          vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-          vcvtss2sd xmm6, xmm1, xmm1
-        }
-        Sys_GetValue(0);
-        __asm
-        {
-          vsubss  xmm0, xmm9, xmm7
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovsd  [rsp+0A8h+var_68], xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+60h]
-          vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-          vcvtss2sd xmm4, xmm7, xmm7
-          vmovsd  [rsp+0A8h+var_70], xmm4
-          vcvtss2sd xmm5, xmm9, xmm9
-          vmovsd  [rsp+0A8h+var_78], xmm5
-          vcvtss2sd xmm3, xmm1, xmm1
-          vmovq   r9, xmm3
-          vmovsd  [rsp+0A8h+var_80], xmm8
-          vmovsd  [rsp+0A8h+var_88], xmm6
-        }
-        Com_Printf(23, "%s: %0.3f, %0.3f, %0.3f, %0.3f, %0.3f, %0.3f\n", _RDI->buf, *(double *)&_XMM3, v36, v37, v38, v39, v40);
-      }
-      ++v8;
-    }
-    while ( v8 < scrContext->m_parserPub.sourceBufferLookupLen );
-    __asm
-    {
-      vmovaps xmm10, [rsp+0A8h+var_58]
-      vmovaps xmm9, [rsp+0A8h+var_48]
-      vmovaps xmm8, [rsp+0A8h+var_38]
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vmovaps xmm6, [rsp+0A8h+var_18]
+      totalBuiltIn = v3->totalBuiltIn;
+      v6 = (float)((float)v3->maxTime * *((float *)Sys_GetValue(0) + 8915));
+      v7 = (float)((float)v3->avgTime * *((float *)Sys_GetValue(0) + 8915));
+      v8 = (float)v3->time * *((float *)Sys_GetValue(0) + 8915);
+      Com_Printf(23, "%s: %0.3f, %0.3f, %0.3f, %0.3f, %0.3f, %0.3f\n", v3->buf, v8, v7, v6, totalTime, totalBuiltIn, (float)(totalTime - totalBuiltIn));
     }
   }
 }
@@ -4876,421 +4850,266 @@ char *Scr_ReadFile_FastFile(scrContext_t *scrContext, const char *extFilename, c
 Scr_ScriptProfilePrintUsageReportToBlackBox
 ==============
 */
-
-void __fastcall Scr_ScriptProfilePrintUsageReportToBlackBox(scrContext_t *scrContext, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void Scr_ScriptProfilePrintUsageReportToBlackBox(scrContext_t *scrContext)
 {
-  scrContext_t *v11; 
+  scrContext_t *v1; 
+  const ServerTiming *Current; 
+  float serverTimeTarget; 
+  SvGameGlobals *SvGameGlobalsCommon; 
   ProfileScript *Profile; 
   SourceBufferInfo *SourceBufferLookup; 
   int serverTimeExceedCount; 
-  SourceBufferInfo *v18; 
-  unsigned int serverTimeCount; 
-  unsigned int v26; 
-  unsigned int v34; 
-  SourceBufferInfo *v54; 
-  unsigned int v55; 
-  __int64 v56; 
+  SourceBufferInfo *v8; 
+  __int64 serverTimeCount; 
+  float v10; 
+  float v11; 
+  float v12; 
+  unsigned int v13; 
+  int v14; 
+  float v15; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v26; 
+  int clientMsgCount; 
+  __int128 v29; 
+  __int128 v33; 
+  __int128 v35; 
+  float v37; 
+  float *p_fileTimeBuiltIn; 
+  float *v39; 
+  SourceBufferInfo *v40; 
+  unsigned int v41; 
+  __int64 v42; 
+  unsigned int *v43; 
   unsigned int i; 
-  unsigned int v60; 
+  __int64 v45; 
+  float v46; 
+  float v47; 
+  float v48; 
   const char *BuiltInName; 
-  unsigned int v67; 
-  const char *v68; 
-  int v77; 
-  float v89; 
-  __int64 v90; 
-  char *v91; 
-  float v92; 
-  float v93; 
-  float v94; 
-  float v95; 
-  float v96; 
-  float v97; 
-  float v98; 
-  float v99; 
-  float v100; 
-  float v101; 
-  float v102; 
-  float v103; 
-  float v104; 
-  float v105; 
-  float v106; 
-  float v107; 
-  float v108; 
-  float v109; 
-  float v110; 
-  float v111; 
-  float v112; 
-  unsigned int v113; 
-  unsigned int v121; 
-  SourceBufferInfo *v122; 
-  SourceBufferInfo *v123; 
+  __int64 v50; 
+  const char *v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  __int64 v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  __int64 v61; 
+  char *v62; 
+  unsigned int v63; 
+  unsigned int v65; 
+  SourceBufferInfo *v66; 
+  SourceBufferInfo *v67; 
 
-  v11 = scrContext;
+  v1 = scrContext;
   if ( scrContext->m_varPub.developer )
   {
     if ( Com_IsAnyLocalServerRunning() )
     {
-      __asm
-      {
-        vmovaps [rsp+318h+var_58], xmm6
-        vmovaps [rsp+318h+var_68], xmm7
-        vmovaps [rsp+318h+var_78], xmm8
-      }
-      _RBX = SV_Timing_GetCurrent();
-      __asm { vmovss  xmm6, dword ptr [rax] }
-      _RDI = SvGameGlobals::GetSvGameGlobalsCommon();
-      Profile = ScriptContext_GetProfile(v11);
-      SourceBufferLookup = Scr_GetSourceBufferLookup(v11);
-      serverTimeExceedCount = _RBX->serverTimeExceedCount;
-      v18 = SourceBufferLookup;
-      serverTimeCount = _RBX->serverTimeCount;
-      v123 = SourceBufferLookup;
+      Current = SV_Timing_GetCurrent();
+      serverTimeTarget = Current->serverTimeTarget;
+      SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
+      Profile = ScriptContext_GetProfile(v1);
+      SourceBufferLookup = Scr_GetSourceBufferLookup(v1);
+      serverTimeExceedCount = Current->serverTimeExceedCount;
+      v8 = SourceBufferLookup;
+      serverTimeCount = Current->serverTimeCount;
+      v67 = SourceBufferLookup;
       if ( serverTimeExceedCount <= 0 )
+        v10 = 0.0;
+      else
+        v10 = (float)(Current->serverTimeTotalExceed / (float)serverTimeExceedCount) - serverTimeTarget;
+      if ( (_DWORD)serverTimeCount )
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v11 = (float)serverTimeCount;
+        v12 = Current->serverTimeTotal / v11;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, edx
-          vdivss  xmm1, xmm0, xmm1
-          vsubss  xmm2, xmm1, xmm6
-        }
+        v12 = 0.0;
       }
-      __asm { vmovss  xmm4, dword ptr [rbx+0Ch] }
-      if ( serverTimeCount )
+      v13 = 0;
+      DLog_RecordEvent<4096,char const *,float,char const *,float,char const *,int,char const *,float,char const *,float,char const *,unsigned int,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(0i64, "scr_usage", "servertimeavg", v12, "serverttimemax", Current->serverTimeMax, "servertimeexceededcount", serverTimeExceedCount, "servertimeexceededavg", v10, "servertimethreshold", serverTimeTarget, "matchframecount", serverTimeCount, "scrtimeavg", 0, "scrtimemax", 0, "scrttimeexceededavg", 0, "msgtimeavg", 0, "msgtimemax", 0, "proftimeavg", 0, "proftimemax", 0, "proftimemaxatframe", 0, "usagecallcountavg", 0, "usagecallcountmax", 0, "usagethreadcountavg", 0, "usagethreadcountmax", 0, "filenum", 0, "filename", 0, "fileavgtime", 0, "fileavgscrtime", 0, "fileavgbuiltin", 0, "filemaxops", 0, "funcnum", 0, "funcname", 0, "funcavgtime", 0, "funcmaxtime", 0, "functimeatspike", 0, "funcavgscrtime", 0, "funcavgbuiltin", 0, "funccalls", 0, "funcmaxops", 0, "builtinnum", 0, "builtinname", 0, "builtinavgtime", 0, "builtinmaxtime", 0, "builtincalls", 0);
+      v14 = Current->serverTimeExceedCount;
+      if ( v14 <= 0 )
+        v15 = 0.0;
+      else
+        v15 = SvGameGlobalsCommon->timeStats.serverScriptTimeExceedTotal / (float)v14;
+      v16 = Current->serverTimeCount;
+      if ( (_DWORD)v16 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rcx
-          vdivss  xmm3, xmm0, xmm1
-        }
+        v17 = (float)v16;
+        v18 = SvGameGlobalsCommon->timeStats.serverScriptTimeTotal / v17;
       }
       else
       {
-        __asm { vxorps  xmm3, xmm3, xmm3; <args_1> }
+        v18 = 0.0;
       }
-      v26 = 0;
-      __asm
+      DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(0i64, "scr_usage", "servertimeavg", 0, "serverttimemax", 0, "servertimeexceededcount", 0, "servertimeexceededavg", 0, "servertimethreshold", 0, "matchframecount", 0, "scrtimeavg", v18, "scrtimemax", SvGameGlobalsCommon->timeStats.serverScriptTimeMax, "scrttimeexceededavg", v15, "msgtimeavg", 0, "msgtimemax", 0, "proftimeavg", 0, "proftimemax", 0, "proftimemaxatframe", 0, "usagecallcountavg", 0, "usagecallcountmax", 0, "usagethreadcountavg", 0, "usagethreadcountmax", 0, "filenum", 0, "filename", 0, "fileavgtime", 0, "fileavgscrtime", 0, "fileavgbuiltin", 0, "filemaxops", 0, "funcnum", 0, "funcname", 0, "funcavgtime", 0, "funcmaxtime", 0, "functimeatspike", 0, "funcavgscrtime", 0, "funcavgbuiltin");
+      v19 = Current->serverTimeCount;
+      v20 = 0.0;
+      if ( (_DWORD)v19 )
+        v20 = (float)(SvGameGlobalsCommon->timeStats.serverScriptUsageThreadResumeTotal / (unsigned int)v19);
+      v21 = 0.0;
+      if ( (_DWORD)v19 )
+        v21 = (float)(SvGameGlobalsCommon->timeStats.serverScriptUsageOpTotal / (unsigned int)v19);
+      if ( (_DWORD)v19 )
       {
-        vmovss  dword ptr [rsp+318h+var_2C0], xmm6
-        vmovss  dword ptr [rsp+318h+var_2D0], xmm2
-        vmovss  dword ptr [rsp+318h+var_2F0], xmm4
-      }
-      DLog_RecordEvent<4096,char const *,float,char const *,float,char const *,int,char const *,float,char const *,float,char const *,unsigned int,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(0i64, "scr_usage", "servertimeavg", *(float *)&_XMM3, "serverttimemax", v89, "servertimeexceededcount", serverTimeExceedCount, "servertimeexceededavg", v92, "servertimethreshold", v93, "matchframecount", serverTimeCount, "scrtimeavg", 0, "scrtimemax", 0, "scrttimeexceededavg", 0, "msgtimeavg", 0, "msgtimemax", 0, "proftimeavg", 0, "proftimemax", 0, "proftimemaxatframe", 0, "usagecallcountavg", 0, "usagecallcountmax", 0, "usagethreadcountavg", 0, "usagethreadcountmax", 0, "filenum", 0, "filename", 0, "fileavgtime", 0, "fileavgscrtime", 0, "fileavgbuiltin", 0, "filemaxops", 0, "funcnum", 0, "funcname", 0, "funcavgtime", 0, "funcmaxtime", 0, "functimeatspike", 0, "funcavgscrtime", 0, "funcavgbuiltin", 0, "funccalls", 0, "funcmaxops", 0, "builtinnum", 0, "builtinname", 0, "builtinavgtime", 0, "builtinmaxtime", 0, "builtincalls", 0);
-      if ( _RBX->serverTimeExceedCount <= 0 )
-      {
-        __asm { vxorps  xmm3, xmm3, xmm3 }
+        v22 = (float)v19;
+        v23 = SvGameGlobalsCommon->timeStats.serverScriptProfileCalcTimeTotal / v22;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+84h]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vdivss  xmm3, xmm0, xmm1
-        }
+        v23 = 0.0;
       }
-      __asm { vmovss  xmm4, dword ptr [rdi+94h] }
-      if ( _RBX->serverTimeCount )
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (Current->clientMsgTicksMax & 0x8000000000000000ui64) != 0i64 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+80h]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vdivss  xmm2, xmm0, xmm1
-        }
+        *((_QWORD *)&v26 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v26 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v26;
+      }
+      clientMsgCount = Current->clientMsgCount;
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v29 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v29;
+      __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
+      if ( clientMsgCount <= 0 )
+      {
+        v37 = 0.0;
       }
       else
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
-      }
-      __asm
-      {
-        vmovss  [rsp+318h+var_280], xmm3
-        vmovss  [rsp+318h+var_290], xmm4
-        vmovss  [rsp+318h+var_2A0], xmm2
-      }
-      DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(0i64, "scr_usage", "servertimeavg", 0, "serverttimemax", 0, "servertimeexceededcount", 0, "servertimeexceededavg", 0, "servertimethreshold", 0, "matchframecount", 0, "scrtimeavg", v94, "scrtimemax", v95, "scrttimeexceededavg", v96, "msgtimeavg", 0, "msgtimemax", 0, "proftimeavg", 0, "proftimemax", 0, "proftimemaxatframe", 0, "usagecallcountavg", 0, "usagecallcountmax", 0, "usagethreadcountavg", 0, "usagethreadcountmax", 0, "filenum", 0, "filename", 0, "fileavgtime", 0, "fileavgscrtime", 0, "fileavgbuiltin", 0, "filemaxops", 0, "funcnum", 0, "funcname", 0, "funcavgtime", 0, "funcmaxtime", 0, "functimeatspike", 0, "funcavgscrtime", 0, "funcavgbuiltin");
-      v34 = _RBX->serverTimeCount;
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      if ( v34 )
-        __asm { vcvtsi2ss xmm6, xmm6, rcx }
-      __asm { vxorps  xmm5, xmm5, xmm5 }
-      if ( v34 )
-        __asm { vcvtsi2ss xmm5, xmm5, rcx }
-      __asm { vmovss  xmm8, dword ptr [rdi+8Ch] }
-      if ( v34 )
-      {
-        __asm
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
+        if ( (Current->clientMsgTicksTotal & 0x8000000000000000ui64) != 0i64 )
         {
-          vmovss  xmm0, dword ptr [rdi+88h]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r8
-          vdivss  xmm4, xmm0, xmm1
+          *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v33 = *(double *)&_XMM0 + 1.844674407370955e19;
+          _XMM0 = v33;
         }
+        *((_QWORD *)&v35 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v35 = *(double *)&_XMM0 * msecPerRawTimerTick;
+        _XMM0 = v35;
+        __asm { vcvtsd2ss xmm2, xmm0, xmm0 }
+        v37 = *(float *)&_XMM2 / (float)clientMsgCount;
       }
-      else
-      {
-        __asm { vxorps  xmm4, xmm4, xmm4 }
-      }
-      __asm
-      {
-        vmovsd  xmm1, cs:__real@43f0000000000000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( (_RBX->clientMsgTicksMax & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddsd  xmm0, xmm0, xmm1 }
-      __asm
-      {
-        vmovsd  xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vmulsd  xmm0, xmm0, xmm2
-        vcvtsd2ss xmm7, xmm0, xmm0
-      }
-      if ( _RBX->clientMsgCount <= 0 )
-      {
-        __asm { vxorps  xmm3, xmm3, xmm3 }
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rax
-        }
-        if ( (_RBX->clientMsgTicksTotal & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddsd  xmm0, xmm0, xmm1 }
-        __asm
-        {
-          vmulsd  xmm0, xmm0, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsd2ss xmm2, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, ecx
-          vdivss  xmm3, xmm2, xmm1
-        }
-      }
-      __asm
-      {
-        vmovss  [rsp+318h+var_200], xmm6
-        vmovss  [rsp+318h+var_220], xmm5
-        vmovss  [rsp+318h+var_240], xmm8
-        vmovss  [rsp+318h+var_250], xmm4
-        vmovss  [rsp+318h+var_260], xmm7
-        vmovss  [rsp+318h+var_270], xmm3
-      }
-      DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,float,char const *,unsigned int,char const *,float,char const *,unsigned int,char const *,float,char const *,unsigned int,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(0i64, "scr_usage", "servertimeavg", 0, "serverttimemax", 0, "servertimeexceededcount", 0, "servertimeexceededavg", 0, "servertimethreshold", 0, "matchframecount", 0, "scrtimeavg", 0, "scrtimemax", 0, "scrttimeexceededavg", 0, "msgtimeavg", v97, "msgtimemax", v98, "proftimeavg", v99, "proftimemax", v100, "proftimemaxatframe", _RDI->timeStats.serverScriptProfileCalcTimeMaxAtFrame, "usagecallcountavg", v101, "usagecallcountmax", _RDI->timeStats.serverScriptUsageOpCountMax, "usagethreadcountavg", v102, "usagethreadcountmax", _RDI->timeStats.serverScriptUsageThreadResumeMax, "filenum", 0, "filename", 0, "fileavgtime", 0, "fileavgscrtime", 0, "fileavgbuiltin", 0, "filemaxops", 0, "funcnum", 0, "funcname", 0, "funcavgtime", 0, "funcmaxtime", 0, "functimeatspike", 0, "funcavgscrtime", 0, "funcavgbuiltin", 0, "funccalls", 0, "funcmaxops", 0, "builtinnum", 0, "builtinname", 0, "builtinavgtime", 0, "builtinmaxtime", 0, "builtincalls", 0);
+      DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,float,char const *,unsigned int,char const *,float,char const *,unsigned int,char const *,float,char const *,unsigned int,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(0i64, "scr_usage", "servertimeavg", 0, "serverttimemax", 0, "servertimeexceededcount", 0, "servertimeexceededavg", 0, "servertimethreshold", 0, "matchframecount", 0, "scrtimeavg", 0, "scrtimemax", 0, "scrttimeexceededavg", 0, "msgtimeavg", v37, "msgtimemax", *(float *)&_XMM7, "proftimeavg", v23, "proftimemax", SvGameGlobalsCommon->timeStats.serverScriptProfileCalcTimeMax, "proftimemaxatframe", SvGameGlobalsCommon->timeStats.serverScriptProfileCalcTimeMaxAtFrame, "usagecallcountavg", v21, "usagecallcountmax", SvGameGlobalsCommon->timeStats.serverScriptUsageOpCountMax, "usagethreadcountavg", v20, "usagethreadcountmax", SvGameGlobalsCommon->timeStats.serverScriptUsageThreadResumeMax, "filenum", 0, "filename", 0, "fileavgtime", 0, "fileavgscrtime", 0, "fileavgbuiltin", 0, "filemaxops", 0, "funcnum", 0, "funcname", 0, "funcavgtime", 0, "funcmaxtime", 0, "functimeatspike", 0, "funcavgscrtime", 0, "funcavgbuiltin", 0, "funccalls", 0, "funcmaxops", 0, "builtinnum", 0, "builtinname", 0, "builtinavgtime", 0, "builtinmaxtime", 0, "builtincalls", 0);
       if ( script_usage_tracking && script_usage_tracking->current.integer )
       {
-        __asm
-        {
-          vmovaps [rsp+318h+var_88], xmm9
-          vmovaps [rsp+318h+var_98], xmm10
-          vmovaps [rsp+318h+var_A8], xmm11
-        }
-        Scr_SortTrackedProfileData(v11);
-        v121 = 0;
-        _R15 = &Profile->scrFileTimeTracking[0].fileTimeBuiltIn;
+        Scr_SortTrackedProfileData(v1);
+        v65 = 0;
+        p_fileTimeBuiltIn = &Profile->scrFileTimeTracking[0].fileTimeBuiltIn;
         do
         {
-          if ( *((_DWORD *)_R15 + 1) )
+          if ( *((_DWORD *)p_fileTimeBuiltIn + 1) )
           {
-            if ( *((unsigned __int16 *)_R15 + 10) >= v11->m_parserPub.sourceBufferLookupLen )
+            if ( *((unsigned __int16 *)p_fileTimeBuiltIn + 10) >= v1->m_parserPub.sourceBufferLookupLen )
             {
-              LODWORD(v91) = v11->m_parserPub.sourceBufferLookupLen;
-              LODWORD(v90) = *((unsigned __int16 *)_R15 + 10);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3741, ASSERT_TYPE_ASSERT, "(unsigned)( fileSummary->srcBufferIdx ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "fileSummary->srcBufferIdx doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v90, v91) )
+              LODWORD(v62) = v1->m_parserPub.sourceBufferLookupLen;
+              LODWORD(v61) = *((unsigned __int16 *)p_fileTimeBuiltIn + 10);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3741, ASSERT_TYPE_ASSERT, "(unsigned)( fileSummary->srcBufferIdx ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "fileSummary->srcBufferIdx doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v61, v62) )
                 __debugbreak();
             }
-            _RBX = _R15 - 2206;
-            v54 = &v18[*((unsigned __int16 *)_R15 + 10)];
-            v55 = 0;
-            v122 = v54;
+            v39 = p_fileTimeBuiltIn - 2206;
+            v40 = &v8[*((unsigned __int16 *)p_fileTimeBuiltIn + 10)];
+            v41 = 0;
+            v66 = v40;
             do
             {
-              if ( _RBX == (float *)268 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3749, ASSERT_TYPE_ASSERT, "( funcSummary )", (const char *)&queryFormat, "funcSummary") )
+              if ( v39 == (float *)268 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3749, ASSERT_TYPE_ASSERT, "( funcSummary )", (const char *)&queryFormat, "funcSummary") )
                 __debugbreak();
-              if ( *((unsigned __int16 *)_RBX + 6) >= v54->functionLookupLen )
+              if ( *((unsigned __int16 *)v39 + 6) >= v40->functionLookupLen )
               {
-                LODWORD(v91) = v54->functionLookupLen;
-                LODWORD(v90) = *((unsigned __int16 *)_RBX + 6);
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3750, ASSERT_TYPE_ASSERT, "(unsigned)( funcSummary->funcIndex ) < (unsigned)( srcBuffer->functionLookupLen )", "funcSummary->funcIndex doesn't index srcBuffer->functionLookupLen\n\t%i not in [0, %i)", v90, v91) )
+                LODWORD(v62) = v40->functionLookupLen;
+                LODWORD(v61) = *((unsigned __int16 *)v39 + 6);
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3750, ASSERT_TYPE_ASSERT, "(unsigned)( funcSummary->funcIndex ) < (unsigned)( srcBuffer->functionLookupLen )", "funcSummary->funcIndex doesn't index srcBuffer->functionLookupLen\n\t%i not in [0, %i)", v61, v62) )
                   __debugbreak();
               }
-              v56 = (__int64)&v54->functionLookupStatic[*((unsigned __int16 *)_RBX + 6)];
-              if ( *((_BYTE *)_RBX + 14) )
+              v42 = (__int64)&v40->functionLookupStatic[*((unsigned __int16 *)v39 + 6)];
+              if ( *((_BYTE *)v39 + 14) )
               {
-                _RDI = _RBX - 65;
+                v43 = (unsigned int *)(v39 - 65);
                 for ( i = 0; i < 0x10; ++i )
                 {
-                  _RSI = _RDI - 2;
-                  if ( _RDI == (float *)8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3761, ASSERT_TYPE_ASSERT, "( builtInFuncSummary )", (const char *)&queryFormat, "builtInFuncSummary") )
+                  if ( v43 == (unsigned int *)8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3761, ASSERT_TYPE_ASSERT, "( builtInFuncSummary )", (const char *)&queryFormat, "builtInFuncSummary") )
                     __debugbreak();
-                  if ( *((_BYTE *)_RDI + 6) )
+                  if ( *((_BYTE *)v43 + 6) )
                   {
-                    if ( !*((_WORD *)_RDI + 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3766, ASSERT_TYPE_ASSERT, "( builtInFuncSummary->builtInIndex )", (const char *)&queryFormat, "builtInFuncSummary->builtInIndex") )
+                    if ( !*((_WORD *)v43 + 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3766, ASSERT_TYPE_ASSERT, "( builtInFuncSummary->builtInIndex )", (const char *)&queryFormat, "builtInFuncSummary->builtInIndex") )
                       __debugbreak();
-                    v60 = *(_DWORD *)_RDI;
-                    __asm { vmovss  xmm11, dword ptr [rdi-4] }
-                    if ( *(_DWORD *)_RDI )
+                    v45 = *v43;
+                    v46 = *((float *)v43 - 1);
+                    if ( (_DWORD)v45 )
                     {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rsi]
-                        vxorps  xmm1, xmm1, xmm1
-                        vcvtsi2ss xmm1, xmm1, r14
-                        vdivss  xmm10, xmm0, xmm1
-                      }
+                      v47 = (float)v45;
+                      v48 = *((float *)v43 - 2) / v47;
                     }
                     else
                     {
-                      __asm { vxorps  xmm10, xmm10, xmm10 }
+                      v48 = 0.0;
                     }
-                    BuiltInName = GetBuiltInName(scrContext, *((unsigned __int16 *)_RDI + 2));
-                    v67 = *((_DWORD *)_RBX + 1);
-                    v68 = BuiltInName;
-                    __asm
-                    {
-                      vxorps  xmm2, xmm2, xmm2
-                      vcvtsi2ss xmm2, xmm2, rdx
-                    }
-                    if ( v67 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rbx]
-                        vdivss  xmm7, xmm0, xmm2
-                      }
-                    }
+                    BuiltInName = GetBuiltInName(scrContext, *((unsigned __int16 *)v43 + 2));
+                    v50 = *((unsigned int *)v39 + 1);
+                    v51 = BuiltInName;
+                    v52 = (float)v50;
+                    if ( (_DWORD)v50 )
+                      v53 = *v39 / v52;
                     else
-                    {
-                      __asm { vxorps  xmm7, xmm7, xmm7 }
-                    }
-                    if ( v67 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rbx-0Ch]
-                        vsubss  xmm1, xmm0, dword ptr [rbx]
-                        vdivss  xmm6, xmm1, xmm2
-                      }
-                    }
+                      v53 = 0.0;
+                    if ( (_DWORD)v50 )
+                      v54 = (float)(*(v39 - 3) - *v39) / v52;
                     else
-                    {
-                      __asm { vxorps  xmm6, xmm6, xmm6 }
-                    }
-                    __asm
-                    {
-                      vmovss  xmm8, dword ptr [rbx-4]
-                      vmovss  xmm9, dword ptr [rbx-8]
-                    }
-                    if ( v67 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rbx-0Ch]
-                        vdivss  xmm5, xmm0, xmm2
-                      }
-                    }
+                      v54 = 0.0;
+                    if ( (_DWORD)v50 )
+                      v55 = *(v39 - 3) / v52;
                     else
-                    {
-                      __asm { vxorps  xmm5, xmm5, xmm5 }
-                    }
-                    v77 = *((_DWORD *)_R15 + 1);
-                    __asm
-                    {
-                      vxorps  xmm2, xmm2, xmm2
-                      vcvtsi2ss xmm2, xmm2, rax
-                    }
-                    if ( v77 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [r15]
-                        vdivss  xmm4, xmm0, xmm2
-                      }
-                    }
+                      v55 = 0.0;
+                    v56 = *((unsigned int *)p_fileTimeBuiltIn + 1);
+                    v57 = (float)v56;
+                    if ( (_DWORD)v56 )
+                      v58 = *p_fileTimeBuiltIn / v57;
                     else
-                    {
-                      __asm { vxorps  xmm4, xmm4, xmm4 }
-                    }
-                    if ( v77 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [r15-4]
-                        vsubss  xmm1, xmm0, dword ptr [r15]
-                        vdivss  xmm3, xmm1, xmm2
-                      }
-                    }
+                      v58 = 0.0;
+                    if ( (_DWORD)v56 )
+                      v59 = (float)(*(p_fileTimeBuiltIn - 1) - *p_fileTimeBuiltIn) / v57;
                     else
-                    {
-                      __asm { vxorps  xmm3, xmm3, xmm3 }
-                    }
-                    if ( v77 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [r15-4]
-                        vdivss  xmm1, xmm0, xmm2
-                      }
-                    }
+                      v59 = 0.0;
+                    if ( (_DWORD)v56 )
+                      v60 = *(p_fileTimeBuiltIn - 1) / v57;
                     else
-                    {
-                      __asm { vxorps  xmm1, xmm1, xmm1 }
-                    }
-                    v113 = v60;
-                    __asm { vmovss  [rsp+318h+var_C0], xmm11 }
-                    v26 = v121;
-                    __asm
-                    {
-                      vmovss  [rsp+318h+var_D0], xmm10
-                      vmovss  [rsp+318h+var_120], xmm7
-                      vmovss  [rsp+318h+var_130], xmm6
-                      vmovss  [rsp+318h+var_140], xmm8
-                      vmovss  [rsp+318h+var_150], xmm9
-                      vmovss  [rsp+318h+var_160], xmm5
-                      vmovss  [rsp+318h+var_1A0], xmm4
-                      vmovss  [rsp+318h+var_1B0], xmm3
-                      vmovss  [rsp+318h+var_1C0], xmm1
-                    }
-                    DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,unsigned int,char const *,char *,char const *,float,char const *,float,char const *,float,char const *,unsigned __int64,char const *,unsigned int,char const *,char *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,unsigned int,char const *,unsigned int,char const *,unsigned int,char const *,char const *,char const *,float,char const *,float,char const *,unsigned int>(0i64, "scr_usage", "servertimeavg", 0, "serverttimemax", 0, "servertimeexceededcount", 0, "servertimeexceededavg", 0, "servertimethreshold", 0, "matchframecount", 0, "scrtimeavg", 0, "scrtimemax", 0, "scrttimeexceededavg", 0, "msgtimeavg", 0, "msgtimemax", 0, "proftimeavg", 0, "proftimemax", 0, "proftimemaxatframe", 0, "usagecallcountavg", 0, "usagecallcountmax", 0, "usagethreadcountavg", 0, "usagethreadcountmax", 0, "filenum", v121, "filename", v122->buf, "fileavgtime", v103, "fileavgscrtime", v104, "fileavgbuiltin", v105, "filemaxops", *(_QWORD *)(_R15 + 3), "funcnum", v55, "funcname", (char *)(v56 + 16), "funcavgtime", v106, "funcmaxtime", v107, "functimeatspike", v108, "funcavgscrtime", v109, "funcavgbuiltin", v110, "funccalls", v67, "funcmaxops", *((_DWORD *)_RBX + 2), "builtinnum", i, "builtinname", v68, "builtinavgtime", v111, "builtinmaxtime", v112, "builtincalls", v113);
+                      v60 = 0.0;
+                    v63 = v45;
+                    v13 = v65;
+                    DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,unsigned int,char const *,char *,char const *,float,char const *,float,char const *,float,char const *,unsigned __int64,char const *,unsigned int,char const *,char *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,unsigned int,char const *,unsigned int,char const *,unsigned int,char const *,char const *,char const *,float,char const *,float,char const *,unsigned int>(0i64, "scr_usage", "servertimeavg", 0, "serverttimemax", 0, "servertimeexceededcount", 0, "servertimeexceededavg", 0, "servertimethreshold", 0, "matchframecount", 0, "scrtimeavg", 0, "scrtimemax", 0, "scrttimeexceededavg", 0, "msgtimeavg", 0, "msgtimemax", 0, "proftimeavg", 0, "proftimemax", 0, "proftimemaxatframe", 0, "usagecallcountavg", 0, "usagecallcountmax", 0, "usagethreadcountavg", 0, "usagethreadcountmax", 0, "filenum", v65, "filename", v66->buf, "fileavgtime", v60, "fileavgscrtime", v59, "fileavgbuiltin", v58, "filemaxops", *(_QWORD *)(p_fileTimeBuiltIn + 3), "funcnum", v41, "funcname", (char *)(v42 + 16), "funcavgtime", v55, "funcmaxtime", *(v39 - 2), "functimeatspike", *(v39 - 1), "funcavgscrtime", v54, "funcavgbuiltin", v53, "funccalls", v50, "funcmaxops", *((_DWORD *)v39 + 2), "builtinnum", i, "builtinname", v51, "builtinavgtime", v48, "builtinmaxtime", v46, "builtincalls", v63);
                   }
-                  _RDI += 4;
+                  v43 += 4;
                 }
-                v54 = v122;
+                v40 = v66;
               }
-              ++v55;
-              _RBX += 71;
+              ++v41;
+              v39 += 71;
             }
-            while ( v55 < 0x20 );
-            v11 = scrContext;
-            v18 = v123;
+            while ( v41 < 0x20 );
+            v1 = scrContext;
+            v8 = v67;
           }
-          ++v26;
-          _R15 += 2280;
-          v121 = v26;
+          ++v13;
+          p_fileTimeBuiltIn += 2280;
+          v65 = v13;
         }
-        while ( v26 < 0x40 );
-        __asm
-        {
-          vmovaps xmm11, [rsp+318h+var_A8]
-          vmovaps xmm10, [rsp+318h+var_98]
-          vmovaps xmm9, [rsp+318h+var_88]
-        }
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+318h+var_68]
-        vmovaps xmm6, [rsp+318h+var_58]
-        vmovaps xmm8, [rsp+318h+var_78]
+        while ( v13 < 0x40 );
       }
     }
     else
@@ -5305,650 +5124,600 @@ void __fastcall Scr_ScriptProfilePrintUsageReportToBlackBox(scrContext_t *scrCon
 Scr_ScriptProfilePrintUsageReportToLog
 ==============
 */
-
-void __fastcall Scr_ScriptProfilePrintUsageReportToLog(scrContext_t *scrContext, double _XMM1_8)
+void Scr_ScriptProfilePrintUsageReportToLog(scrContext_t *scrContext)
 {
   ProfileScript *Profile; 
   SourceBufferInfo *SourceBufferLookup; 
   float *p_funcTimeSpike; 
-  __int64 v14; 
-  const ServerTiming *v19; 
-  unsigned int serverTimeCount; 
+  __int64 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v22; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
+  __int128 v38; 
+  scriptTimeStats_t *p_timeStats; 
+  const ServerTiming *Current; 
+  const ServerTiming *v41; 
   int serverTimeExceedCount; 
-  unsigned int v91; 
-  SourceBufferInfo *v92; 
-  __int64 v93; 
-  int v99; 
-  unsigned int v112; 
-  int v119; 
-  unsigned int v128; 
-  const char *BuiltInName; 
-  char *fmta; 
-  char *fmt; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  double v147; 
-  __int64 v148; 
-  double v149; 
-  double v150; 
-  double v151; 
-  __int64 v152; 
-  double v153; 
-  double v154; 
-  double v155; 
-  __int64 v156; 
-  double v157; 
-  double v158; 
-  __int64 v159; 
-  double v160; 
-  __int64 v161; 
-  double v162; 
-  SourceBufferInfo *v163; 
-  scriptTimeStats_t *v164; 
-  SourceBufferInfo *v165; 
-  unsigned int v173; 
-  unsigned int v174; 
-  unsigned __int64 *v175; 
+  float v43; 
+  __int64 serverTimeCount; 
+  double v45; 
+  float v46; 
+  float v47; 
+  __int64 serverScriptUsageThreadCreateTimeCount; 
+  float v49; 
+  float v50; 
+  __int64 v51; 
+  double v52; 
+  float v53; 
+  float serverScriptUsageThreadResumeTotal; 
+  float v55; 
+  double v56; 
+  float serverScriptUsageOpTotal; 
+  float v58; 
+  int v59; 
+  double v60; 
+  float v61; 
+  float serverScriptTimeMax; 
+  double v63; 
+  float v64; 
+  double v65; 
+  double v66; 
+  float v67; 
+  __int128 v70; 
+  int clientMsgCount; 
+  __int128 v73; 
+  __int128 v77; 
+  __int128 v79; 
+  float v81; 
+  __int64 v82; 
+  float v83; 
+  float v84; 
   unsigned __int64 *p_opCountMax; 
+  unsigned int v86; 
+  SourceBufferInfo *v87; 
+  __int64 serverScriptUsageOpCountMax; 
+  __int64 v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  __int64 v95; 
+  double v96; 
+  float v97; 
+  float v98; 
+  double v99; 
+  float v100; 
+  double v101; 
+  float v102; 
+  unsigned int v103; 
+  float *v104; 
+  __int64 v105; 
+  float v106; 
+  float v107; 
+  double v108; 
+  float v109; 
+  float v110; 
+  unsigned int v111; 
+  unsigned __int16 *v112; 
+  const char *BuiltInName; 
+  __int64 v114; 
+  float v115; 
+  float v116; 
+  char *fmt; 
+  __int64 v118; 
+  __int64 v119; 
+  __int64 v120; 
+  __int64 v121; 
+  __int64 v122; 
+  SourceBufferInfo *v123; 
+  scriptTimeStats_t *v124; 
+  SourceBufferInfo *v125; 
+  unsigned int v126; 
+  unsigned int v127; 
+  float *v128; 
+  unsigned __int64 *v129; 
 
   if ( scrContext->m_varPub.developer )
   {
     if ( Com_IsAnyLocalServerRunning() )
     {
-      __asm
-      {
-        vmovaps [rsp+148h+var_58], xmm6
-        vmovaps [rsp+148h+var_68], xmm7
-        vmovaps [rsp+148h+var_78], xmm8
-        vmovaps [rsp+148h+var_88], xmm9
-        vmovaps [rsp+148h+var_98], xmm10
-        vmovaps [rsp+148h+var_A8], xmm11
-        vmovaps [rsp+148h+var_B8], xmm12
-      }
       Profile = ScriptContext_GetProfile(scrContext);
       SourceBufferLookup = Scr_GetSourceBufferLookup(scrContext);
-      v165 = SourceBufferLookup;
+      v125 = SourceBufferLookup;
       p_funcTimeSpike = &Profile->scrFileTimeTracking[0].funcSummary[1].funcTimeSpike;
-      v14 = 64i64;
-      __asm
-      {
-        vxorps  xmm11, xmm11, xmm11
-        vxorps  xmm6, xmm6, xmm6
-      }
+      v5 = 64i64;
+      v6 = 0i64;
       do
       {
         if ( *((_DWORD *)p_funcTimeSpike + 2137) )
         {
           if ( *((_BYTE *)p_funcTimeSpike - 266) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx-11Ch] }
+          {
+            v7 = v6;
+            *(float *)&v7 = *(float *)&v6 + *(p_funcTimeSpike - 71);
+            v6 = v7;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 18) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx] }
+          {
+            v8 = v6;
+            *(float *)&v8 = *(float *)&v6 + *p_funcTimeSpike;
+            v6 = v8;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 302) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+11Ch] }
+          {
+            v9 = v6;
+            *(float *)&v9 = *(float *)&v6 + p_funcTimeSpike[71];
+            v6 = v9;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 586) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+238h] }
+          {
+            v10 = v6;
+            *(float *)&v10 = *(float *)&v6 + p_funcTimeSpike[142];
+            v6 = v10;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 870) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+354h] }
+          {
+            v11 = v6;
+            *(float *)&v11 = *(float *)&v6 + p_funcTimeSpike[213];
+            v6 = v11;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 1154) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+470h] }
+          {
+            v12 = v6;
+            *(float *)&v12 = *(float *)&v6 + p_funcTimeSpike[284];
+            v6 = v12;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 1438) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+58Ch] }
+          {
+            v13 = v6;
+            *(float *)&v13 = *(float *)&v6 + p_funcTimeSpike[355];
+            v6 = v13;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 1722) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+6A8h] }
+          {
+            v14 = v6;
+            *(float *)&v14 = *(float *)&v6 + p_funcTimeSpike[426];
+            v6 = v14;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 2006) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+7C4h] }
+          {
+            v15 = v6;
+            *(float *)&v15 = *(float *)&v6 + p_funcTimeSpike[497];
+            v6 = v15;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 2290) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+8E0h] }
+          {
+            v16 = v6;
+            *(float *)&v16 = *(float *)&v6 + p_funcTimeSpike[568];
+            v6 = v16;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 2574) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+9FCh] }
+          {
+            v17 = v6;
+            *(float *)&v17 = *(float *)&v6 + p_funcTimeSpike[639];
+            v6 = v17;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 2858) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+0B18h] }
+          {
+            v18 = v6;
+            *(float *)&v18 = *(float *)&v6 + p_funcTimeSpike[710];
+            v6 = v18;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 3142) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+0C34h] }
+          {
+            v19 = v6;
+            *(float *)&v19 = *(float *)&v6 + p_funcTimeSpike[781];
+            v6 = v19;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 3426) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+0D50h] }
+          {
+            v20 = v6;
+            *(float *)&v20 = *(float *)&v6 + p_funcTimeSpike[852];
+            v6 = v20;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 3710) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+0E6Ch] }
+          {
+            v21 = v6;
+            *(float *)&v21 = *(float *)&v6 + p_funcTimeSpike[923];
+            v6 = v21;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 3994) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+0F88h] }
+          {
+            v22 = v6;
+            *(float *)&v22 = *(float *)&v6 + p_funcTimeSpike[994];
+            v6 = v22;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 4278) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+10A4h] }
+          {
+            v23 = v6;
+            *(float *)&v23 = *(float *)&v6 + p_funcTimeSpike[1065];
+            v6 = v23;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 4562) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+11C0h] }
+          {
+            v24 = v6;
+            *(float *)&v24 = *(float *)&v6 + p_funcTimeSpike[1136];
+            v6 = v24;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 4846) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+12DCh] }
+          {
+            v25 = v6;
+            *(float *)&v25 = *(float *)&v6 + p_funcTimeSpike[1207];
+            v6 = v25;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 5130) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+13F8h] }
+          {
+            v26 = v6;
+            *(float *)&v26 = *(float *)&v6 + p_funcTimeSpike[1278];
+            v6 = v26;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 5414) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1514h] }
+          {
+            v27 = v6;
+            *(float *)&v27 = *(float *)&v6 + p_funcTimeSpike[1349];
+            v6 = v27;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 5698) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1630h] }
+          {
+            v28 = v6;
+            *(float *)&v28 = *(float *)&v6 + p_funcTimeSpike[1420];
+            v6 = v28;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 5982) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+174Ch] }
+          {
+            v29 = v6;
+            *(float *)&v29 = *(float *)&v6 + p_funcTimeSpike[1491];
+            v6 = v29;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 6266) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1868h] }
+          {
+            v30 = v6;
+            *(float *)&v30 = *(float *)&v6 + p_funcTimeSpike[1562];
+            v6 = v30;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 6550) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1984h] }
+          {
+            v31 = v6;
+            *(float *)&v31 = *(float *)&v6 + p_funcTimeSpike[1633];
+            v6 = v31;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 6834) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1AA0h] }
+          {
+            v32 = v6;
+            *(float *)&v32 = *(float *)&v6 + p_funcTimeSpike[1704];
+            v6 = v32;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 7118) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1BBCh] }
+          {
+            v33 = v6;
+            *(float *)&v33 = *(float *)&v6 + p_funcTimeSpike[1775];
+            v6 = v33;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 7402) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1CD8h] }
+          {
+            v34 = v6;
+            *(float *)&v34 = *(float *)&v6 + p_funcTimeSpike[1846];
+            v6 = v34;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 7686) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1DF4h] }
+          {
+            v35 = v6;
+            *(float *)&v35 = *(float *)&v6 + p_funcTimeSpike[1917];
+            v6 = v35;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 7970) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+1F10h] }
+          {
+            v36 = v6;
+            *(float *)&v36 = *(float *)&v6 + p_funcTimeSpike[1988];
+            v6 = v36;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 8254) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+202Ch] }
+          {
+            v37 = v6;
+            *(float *)&v37 = *(float *)&v6 + p_funcTimeSpike[2059];
+            v6 = v37;
+          }
           if ( *((_BYTE *)p_funcTimeSpike + 8538) )
-            __asm { vaddss  xmm6, xmm6, dword ptr [rcx+2148h] }
+          {
+            v38 = v6;
+            *(float *)&v38 = *(float *)&v6 + p_funcTimeSpike[2130];
+            v6 = v38;
+          }
         }
         p_funcTimeSpike += 2280;
-        --v14;
+        --v5;
       }
-      while ( v14 );
+      while ( v5 );
       Com_Printf(23, "\n===== Script Usage Summary (time in ms)=====\n\n");
-      _RSI = &SvGameGlobals::GetSvGameGlobalsCommon()->timeStats;
-      v164 = _RSI;
-      _RAX = SV_Timing_GetCurrent();
-      v19 = _RAX;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rax]
-        vcvtss2sd xmm5, xmm2, xmm2
-      }
-      if ( _RAX->serverTimeExceedCount <= 0 )
-      {
-        __asm { vmovaps xmm2, xmm11 }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+8]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, edx
-          vdivss  xmm1, xmm0, xmm1
-          vsubss  xmm2, xmm1, xmm2
-        }
-      }
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rax+0Ch]
-        vcvtss2sd xmm3, xmm2, xmm2
-        vcvtss2sd xmm4, xmm4, xmm4
-      }
-      if ( _RAX->serverTimeCount )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+4]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rcx
-          vdivss  xmm2, xmm0, xmm1
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm2, xmm11 }
-      }
-      __asm
-      {
-        vmovsd  [rsp+148h+var_110], xmm5
-        vmovsd  [rsp+148h+var_118], xmm3
-        vmovaps xmm3, xmm4
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      Com_Printf(23, "Server Time:\t\t Avg:%0.2f\t Max:%0.2f\t Exceed Frames:%d\t Frames:%u\t Exceed Avg:%0.2f above %0.1f\n", *(double *)&_XMM2, *(double *)&_XMM3, _RAX->serverTimeExceedCount, _RAX->serverTimeCount, v150, v155);
-      __asm
-      {
-        vmovss  xmm10, dword ptr [rsi+30h]
-        vcvtss2sd xmm10, xmm10, xmm10
-      }
-      if ( _RSI->serverScriptUsageThreadCreateTimeCount )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+28h]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdx
-          vdivss  xmm2, xmm0, xmm1
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm2, xmm11 }
-      }
-      serverTimeCount = v19->serverTimeCount;
-      __asm
-      {
-        vcvtss2sd xmm9, xmm2, xmm2
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, rcx
-      }
-      if ( serverTimeCount )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm1, xmm0, xmm2
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm1, xmm11 }
-      }
-      __asm { vcvtss2sd xmm8, xmm1, xmm1 }
-      if ( serverTimeCount )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm1, xmm0, xmm2
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm1, xmm11 }
-      }
-      serverTimeExceedCount = v19->serverTimeExceedCount;
-      __asm { vcvtss2sd xmm7, xmm1, xmm1 }
+      p_timeStats = &SvGameGlobals::GetSvGameGlobalsCommon()->timeStats;
+      v124 = p_timeStats;
+      Current = SV_Timing_GetCurrent();
+      v41 = Current;
+      serverTimeExceedCount = Current->serverTimeExceedCount;
       if ( serverTimeExceedCount <= 0 )
+        v43 = 0.0;
+      else
+        v43 = (float)(Current->serverTimeTotalExceed / (float)serverTimeExceedCount) - Current->serverTimeTarget;
+      serverTimeCount = Current->serverTimeCount;
+      v45 = v43;
+      if ( (_DWORD)serverTimeCount )
       {
-        __asm { vmovaps xmm3, xmm11 }
+        v46 = (float)serverTimeCount;
+        v47 = Current->serverTimeTotal / v46;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+4]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vdivss  xmm3, xmm0, xmm1
-        }
+        v47 = 0.0;
       }
-      __asm
+      Com_Printf(23, "Server Time:\t\t Avg:%0.2f\t Max:%0.2f\t Exceed Frames:%d\t Frames:%u\t Exceed Avg:%0.2f above %0.1f\n", v47, Current->serverTimeMax, Current->serverTimeExceedCount, serverTimeCount, v45, Current->serverTimeTarget);
+      serverScriptUsageThreadCreateTimeCount = p_timeStats->serverScriptUsageThreadCreateTimeCount;
+      if ( (_DWORD)serverScriptUsageThreadCreateTimeCount )
       {
-        vmovss  xmm1, dword ptr [rsi+14h]
-        vcomiss xmm1, xmm11
-        vmovss  xmm12, cs:__real@42c80000
-        vcvtss2sd xmm5, xmm3, xmm3
-      }
-      if ( serverTimeExceedCount )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm12
-          vdivss  xmm3, xmm0, xmm1
-        }
+        v49 = (float)serverScriptUsageThreadCreateTimeCount;
+        v50 = p_timeStats->serverScriptUsageThreadCreateTimeTotal / v49;
       }
       else
       {
-        __asm { vmovaps xmm3, xmm11 }
+        v50 = 0.0;
       }
-      __asm
+      v51 = v41->serverTimeCount;
+      v52 = v50;
+      v53 = (float)v51;
+      if ( (_DWORD)v51 )
       {
-        vcvtss2sd xmm4, xmm3, xmm3
-        vcvtss2sd xmm3, xmm1, xmm1
-      }
-      if ( serverTimeCount )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi]
-          vdivss  xmm1, xmm0, xmm2
-        }
+        serverScriptUsageThreadResumeTotal = (float)p_timeStats->serverScriptUsageThreadResumeTotal;
+        v55 = serverScriptUsageThreadResumeTotal / v53;
       }
       else
       {
-        __asm { vmovaps xmm1, xmm11 }
+        v55 = 0.0;
       }
-      __asm
+      v56 = v55;
+      if ( (_DWORD)v51 )
       {
-        vmovsd  [rsp+148h+var_F0], xmm10
-        vmovsd  [rsp+148h+var_F8], xmm9
-        vmovsd  [rsp+148h+var_108], xmm8
-      }
-      LODWORD(v156) = _RSI->serverScriptUsageOpCountMax;
-      __asm
-      {
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovsd  [rsp+148h+var_118], xmm7
-        vmovsd  [rsp+148h+var_120], xmm5
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+148h+fmt], xmm4
-      }
-      Com_Printf(23, "Script Time:\t\t Avg:%0.2f\t Max:%0.2f (Coverage:%0.1f%%)\t Exceed Avg:%0.2f\t OpCount:(Avg:%0.2f Max:%d)\t ThreadCount:(Avg:%0.2f Max:%d)\t ThreadCreateTime:(Avg:%0.2f Max:%0.2f Count:%d)\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta, v147, v151, v156, v158, _RSI->serverScriptUsageThreadResumeMax, v160, v162, _RSI->serverScriptUsageThreadCreateTimeCount);
-      __asm
-      {
-        vmovaps xmm10, [rsp+148h+var_98]
-        vmovaps xmm9, [rsp+148h+var_88]
-        vmovsd  xmm3, cs:__real@43f0000000000000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( (v19->clientMsgTicksMax & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddsd  xmm0, xmm0, xmm3 }
-      __asm
-      {
-        vmovsd  xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vmulsd  xmm0, xmm0, xmm2
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vcvtss2sd xmm4, xmm1, xmm1
-      }
-      if ( v19->clientMsgCount <= 0 )
-      {
-        __asm { vmovaps xmm3, xmm11 }
+        serverScriptUsageOpTotal = (float)p_timeStats->serverScriptUsageOpTotal;
+        v58 = serverScriptUsageOpTotal / v53;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rax
-        }
-        if ( (v19->clientMsgTicksTotal & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddsd  xmm0, xmm0, xmm3 }
-        __asm
-        {
-          vmulsd  xmm0, xmm0, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsd2ss xmm2, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, ecx
-          vdivss  xmm3, xmm2, xmm1
-        }
+        v58 = 0.0;
       }
-      __asm
+      v59 = v41->serverTimeExceedCount;
+      v60 = v58;
+      if ( v59 <= 0 )
+        v61 = 0.0;
+      else
+        v61 = p_timeStats->serverScriptTimeExceedTotal / (float)v59;
+      serverScriptTimeMax = p_timeStats->serverScriptTimeMax;
+      v63 = v61;
+      if ( serverScriptTimeMax <= 0.0 )
+        v64 = 0.0;
+      else
+        v64 = (float)(*(float *)&v6 * 100.0) / serverScriptTimeMax;
+      v65 = v64;
+      v66 = serverScriptTimeMax;
+      if ( (_DWORD)v51 )
+        v67 = p_timeStats->serverScriptTimeTotal / v53;
+      else
+        v67 = 0.0;
+      LODWORD(v120) = p_timeStats->serverScriptUsageOpCountMax;
+      Com_Printf(23, "Script Time:\t\t Avg:%0.2f\t Max:%0.2f (Coverage:%0.1f%%)\t Exceed Avg:%0.2f\t OpCount:(Avg:%0.2f Max:%d)\t ThreadCount:(Avg:%0.2f Max:%d)\t ThreadCreateTime:(Avg:%0.2f Max:%0.2f Count:%d)\n", v67, v66, v65, v63, v60, v120, v56, p_timeStats->serverScriptUsageThreadResumeMax, v52, p_timeStats->serverScriptUsageThreadCreateTimeMax, serverScriptUsageThreadCreateTimeCount);
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (v41->clientMsgTicksMax & 0x8000000000000000ui64) != 0i64 )
       {
-        vcvtss2sd xmm2, xmm3, xmm3
-        vmovaps xmm3, xmm4
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
+        *((_QWORD *)&v70 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v70 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v70;
       }
-      Com_Printf(23, "Msg Time:\t\t Avg= %0.2f\t Max= %0.2f\n", *(double *)&_XMM2, *(double *)&_XMM3);
-      __asm
+      clientMsgCount = v41->clientMsgCount;
+      *((_QWORD *)&v73 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v73 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v73;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      if ( clientMsgCount <= 0 )
       {
-        vmovss  xmm3, dword ptr [rsi+0Ch]
-        vcvtss2sd xmm3, xmm3, xmm3
-      }
-      if ( v19->serverTimeCount )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+8]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vdivss  xmm2, xmm0, xmm1
-        }
+        v81 = 0.0;
       }
       else
       {
-        __asm { vmovaps xmm2, xmm11 }
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
+        if ( (v41->clientMsgTicksTotal & 0x8000000000000000ui64) != 0i64 )
+        {
+          *((_QWORD *)&v77 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v77 = *(double *)&_XMM0 + 1.844674407370955e19;
+          _XMM0 = v77;
+        }
+        *((_QWORD *)&v79 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v79 = *(double *)&_XMM0 * msecPerRawTimerTick;
+        _XMM0 = v79;
+        __asm { vcvtsd2ss xmm2, xmm0, xmm0 }
+        v81 = *(float *)&_XMM2 / (float)clientMsgCount;
       }
-      __asm { vcvtss2sd xmm2, xmm2, xmm2 }
-      LODWORD(fmt) = _RSI->serverScriptProfileCalcTimeMaxAtFrame;
-      __asm
+      Com_Printf(23, "Msg Time:\t\t Avg= %0.2f\t Max= %0.2f\n", v81, *(float *)&_XMM1);
+      v82 = v41->serverTimeCount;
+      if ( (_DWORD)v82 )
       {
-        vmovq   r8, xmm2
-        vmovq   r9, xmm3
+        v83 = (float)v82;
+        v84 = p_timeStats->serverScriptProfileCalcTimeTotal / v83;
       }
-      Com_Printf(23, "Profile Cost:\t\t Avg= %0.2f\t Max= %0.2f @ Frame# %d\t\n", *(double *)&_XMM2, *(double *)&_XMM3, fmt);
+      else
+      {
+        v84 = 0.0;
+      }
+      LODWORD(fmt) = p_timeStats->serverScriptProfileCalcTimeMaxAtFrame;
+      Com_Printf(23, "Profile Cost:\t\t Avg= %0.2f\t Max= %0.2f @ Frame# %d\t\n", v84, p_timeStats->serverScriptProfileCalcTimeMax, fmt);
       if ( script_usage_tracking && script_usage_tracking->current.integer )
       {
         Scr_SortTrackedProfileData(scrContext);
         Com_Printf(23, "Script time breakdown: \n");
-        __asm { vmovss  xmm8, cs:__real@5f800000 }
-        _R12 = &Profile->scrFileTimeTracking[0].opCountMax;
-        v91 = 0;
-        v174 = 0;
         p_opCountMax = &Profile->scrFileTimeTracking[0].opCountMax;
+        v86 = 0;
+        v127 = 0;
+        v129 = &Profile->scrFileTimeTracking[0].opCountMax;
         do
         {
-          if ( *((_DWORD *)_R12 - 2) )
+          if ( *((_DWORD *)p_opCountMax - 2) )
           {
-            if ( *((unsigned __int16 *)_R12 + 4) >= scrContext->m_parserPub.sourceBufferLookupLen )
+            if ( *((unsigned __int16 *)p_opCountMax + 4) >= scrContext->m_parserPub.sourceBufferLookupLen )
             {
-              LODWORD(v152) = scrContext->m_parserPub.sourceBufferLookupLen;
-              LODWORD(v148) = *((unsigned __int16 *)_R12 + 4);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3921, ASSERT_TYPE_ASSERT, "(unsigned)( fileSummary->srcBufferIdx ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "fileSummary->srcBufferIdx doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v148, v152) )
+              LODWORD(v119) = scrContext->m_parserPub.sourceBufferLookupLen;
+              LODWORD(v118) = *((unsigned __int16 *)p_opCountMax + 4);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3921, ASSERT_TYPE_ASSERT, "(unsigned)( fileSummary->srcBufferIdx ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "fileSummary->srcBufferIdx doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v118, v119) )
                 __debugbreak();
             }
-            v92 = &SourceBufferLookup[*((unsigned __int16 *)_R12 + 4)];
-            v163 = v92;
-            Com_Printf(23, "{%d} %s: ", v91, v92->buf);
-            v93 = *_R12;
-            if ( _RSI->serverScriptUsageOpCountMax )
+            v87 = &SourceBufferLookup[*((unsigned __int16 *)p_opCountMax + 4)];
+            v123 = v87;
+            Com_Printf(23, "{%d} %s: ", v86, v87->buf);
+            serverScriptUsageOpCountMax = p_timeStats->serverScriptUsageOpCountMax;
+            v89 = *p_opCountMax;
+            if ( (_DWORD)serverScriptUsageOpCountMax )
             {
-              __asm
+              v90 = (float)v89;
+              if ( v89 < 0 )
               {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, rcx
+                v91 = (float)v89;
+                v90 = v91 + 1.8446744e19;
               }
-              if ( v93 < 0 )
-                __asm { vaddss  xmm0, xmm0, xmm8 }
-              __asm
-              {
-                vmulss  xmm1, xmm0, xmm12
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, rax
-                vdivss  xmm2, xmm1, xmm0
-              }
+              v92 = v90 * 100.0;
+              v93 = (float)serverScriptUsageOpCountMax;
+              v94 = v92 / v93;
             }
             else
             {
-              __asm { vmovaps xmm2, xmm11 }
+              v94 = 0.0;
             }
-            v99 = *((_DWORD *)_R12 - 2);
-            __asm
-            {
-              vcvtss2sd xmm5, xmm2, xmm2
-              vxorps  xmm2, xmm2, xmm2
-              vcvtsi2ss xmm2, xmm2, rax
-            }
-            if ( v99 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r12-0Ch]
-                vdivss  xmm1, xmm0, xmm2
-              }
-            }
+            v95 = *((unsigned int *)p_opCountMax - 2);
+            v96 = v94;
+            v97 = (float)v95;
+            if ( (_DWORD)v95 )
+              v98 = *((float *)p_opCountMax - 3) / v97;
             else
-            {
-              __asm { vmovaps xmm1, xmm11 }
-            }
-            __asm { vcvtss2sd xmm4, xmm1, xmm1 }
-            if ( v99 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r12-10h]
-                vsubss  xmm1, xmm0, dword ptr [r12-0Ch]
-                vdivss  xmm3, xmm1, xmm2
-              }
-            }
+              v98 = 0.0;
+            v99 = v98;
+            if ( (_DWORD)v95 )
+              v100 = (float)(*((float *)p_opCountMax - 4) - *((float *)p_opCountMax - 3)) / v97;
             else
-            {
-              __asm { vmovaps xmm3, xmm11 }
-            }
-            __asm { vcvtss2sd xmm3, xmm3, xmm3 }
-            if ( v99 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r12-10h]
-                vdivss  xmm1, xmm0, xmm2
-              }
-            }
+              v100 = 0.0;
+            v101 = v100;
+            if ( (_DWORD)v95 )
+              v102 = *((float *)p_opCountMax - 4) / v97;
             else
-            {
-              __asm { vmovaps xmm1, xmm11 }
-            }
-            __asm
-            {
-              vmovsd  [rsp+148h+var_118], xmm5
-              vcvtss2sd xmm2, xmm1, xmm1
-              vmovq   r8, xmm2
-              vmovq   r9, xmm3
-              vmovsd  [rsp+148h+fmt], xmm4
-            }
-            Com_Printf(23, "\tAvg:%1.3f (Script:%1.3f Built-In:%1.3f)\t OpCountMax:%llu [%1.1f%%]\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtb, v93, v153);
-            v112 = 0;
-            _RBP = _R12 - 1103;
-            v173 = 0;
-            v175 = _R12 - 1103;
+              v102 = 0.0;
+            Com_Printf(23, "\tAvg:%1.3f (Script:%1.3f Built-In:%1.3f)\t OpCountMax:%llu [%1.1f%%]\n", v102, v101, v99, v89, v96);
+            v103 = 0;
+            v104 = (float *)(p_opCountMax - 1103);
+            v126 = 0;
+            v128 = (float *)(p_opCountMax - 1103);
             do
             {
-              if ( *((_BYTE *)_RBP + 2) )
+              if ( *((_BYTE *)v104 + 2) )
               {
-                if ( *(unsigned __int16 *)_RBP >= v92->functionLookupLen )
+                if ( *(unsigned __int16 *)v104 >= v87->functionLookupLen )
                 {
-                  LODWORD(v152) = v92->functionLookupLen;
-                  LODWORD(v148) = *(unsigned __int16 *)_RBP;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3942, ASSERT_TYPE_ASSERT, "(unsigned)( funcSummary->funcIndex ) < (unsigned)( srcBuffer->functionLookupLen )", "funcSummary->funcIndex doesn't index srcBuffer->functionLookupLen\n\t%i not in [0, %i)", v148, v152) )
+                  LODWORD(v119) = v87->functionLookupLen;
+                  LODWORD(v118) = *(unsigned __int16 *)v104;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3942, ASSERT_TYPE_ASSERT, "(unsigned)( funcSummary->funcIndex ) < (unsigned)( srcBuffer->functionLookupLen )", "funcSummary->funcIndex doesn't index srcBuffer->functionLookupLen\n\t%i not in [0, %i)", v118, v119) )
                     __debugbreak();
                 }
-                __asm
-                {
-                  vmovss  xmm6, dword ptr [rbp-10h]
-                  vmovss  xmm7, dword ptr [rbp-14h]
-                  vxorps  xmm2, xmm2, xmm2
-                  vcvtss2sd xmm6, xmm6, xmm6
-                  vcvtss2sd xmm7, xmm7, xmm7
-                }
-                v119 = *((_DWORD *)_RBP - 2);
-                __asm { vcvtsi2ss xmm2, xmm2, rax }
-                if ( v119 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp-0Ch]
-                    vdivss  xmm1, xmm0, xmm2
-                  }
-                }
+                v105 = *((unsigned int *)v104 - 2);
+                v106 = (float)v105;
+                if ( (_DWORD)v105 )
+                  v107 = *(v104 - 3) / v106;
                 else
-                {
-                  __asm { vmovaps xmm1, xmm11 }
-                }
-                __asm { vcvtss2sd xmm5, xmm1, xmm1 }
-                if ( v119 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp-18h]
-                    vsubss  xmm1, xmm0, dword ptr [rbp-0Ch]
-                    vdivss  xmm3, xmm1, xmm2
-                  }
-                }
+                  v107 = 0.0;
+                v108 = v107;
+                if ( (_DWORD)v105 )
+                  v109 = (float)(*(v104 - 6) - *(v104 - 3)) / v106;
                 else
-                {
-                  __asm { vmovaps xmm3, xmm11 }
-                }
-                __asm { vcvtss2sd xmm4, xmm3, xmm3 }
-                if ( v119 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp-18h]
-                    vdivss  xmm1, xmm0, xmm2
-                  }
-                }
+                  v109 = 0.0;
+                if ( (_DWORD)v105 )
+                  v110 = *(v104 - 6) / v106;
                 else
-                {
-                  __asm { vmovaps xmm1, xmm11 }
-                }
-                LODWORD(v161) = *((_DWORD *)_RBP - 2);
-                LODWORD(v159) = *((_DWORD *)_RBP - 1);
-                __asm
-                {
-                  vmovsd  [rsp+148h+var_110], xmm6
-                  vcvtss2sd xmm3, xmm1, xmm1
-                  vmovsd  [rsp+148h+var_118], xmm7
-                  vmovsd  [rsp+148h+var_120], xmm5
-                  vmovq   r9, xmm3
-                  vmovsd  [rsp+148h+fmt], xmm4
-                }
-                Com_Printf(23, "\t\t (%d)\t Avg:%1.3f\t (Scr:%1.3f Blt-in:%1.3f)\t Max:%1.3f\t TimeAtSpike:%1.3f\t SpikeOps:%*d\t Calls:%d\t '%s'\n", v112, *(double *)&_XMM3, *(double *)&fmtc, v149, v154, v157, 6, v159, v161, v92->functionLookupStatic[*(unsigned __int16 *)_RBP].funcName);
-                v128 = 0;
-                _RBX = (unsigned __int16 *)_RBP - 134;
+                  v110 = 0.0;
+                *(float *)&v122 = *(v104 - 2);
+                *(float *)&v121 = *(v104 - 1);
+                Com_Printf(23, "\t\t (%d)\t Avg:%1.3f\t (Scr:%1.3f Blt-in:%1.3f)\t Max:%1.3f\t TimeAtSpike:%1.3f\t SpikeOps:%*d\t Calls:%d\t '%s'\n", v103, v110, v109, v108, *(v104 - 5), *(v104 - 4), 6, v121, v122, v87->functionLookupStatic[*(unsigned __int16 *)v104].funcName);
+                v111 = 0;
+                v112 = (unsigned __int16 *)(v104 - 67);
                 do
                 {
-                  _RSI = _RBX - 6;
-                  if ( _RBX == (unsigned __int16 *)12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3961, ASSERT_TYPE_ASSERT, "( builtInFuncSummary )", (const char *)&queryFormat, "builtInFuncSummary") )
+                  if ( v112 == (unsigned __int16 *)12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3961, ASSERT_TYPE_ASSERT, "( builtInFuncSummary )", (const char *)&queryFormat, "builtInFuncSummary") )
                     __debugbreak();
-                  if ( *((_BYTE *)_RBX + 2) )
+                  if ( *((_BYTE *)v112 + 2) )
                   {
-                    if ( !*_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3966, ASSERT_TYPE_ASSERT, "( builtInFuncSummary->builtInIndex )", (const char *)&queryFormat, "builtInFuncSummary->builtInIndex") )
+                    if ( !*v112 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3966, ASSERT_TYPE_ASSERT, "( builtInFuncSummary->builtInIndex )", (const char *)&queryFormat, "builtInFuncSummary->builtInIndex") )
                       __debugbreak();
-                    BuiltInName = GetBuiltInName(scrContext, *_RBX);
-                    __asm
+                    BuiltInName = GetBuiltInName(scrContext, *v112);
+                    v114 = *((unsigned int *)v112 - 1);
+                    if ( (_DWORD)v114 )
                     {
-                      vmovss  xmm4, dword ptr [rbx-8]
-                      vcvtss2sd xmm4, xmm4, xmm4
-                    }
-                    if ( *((_DWORD *)_RBX - 1) )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rsi]
-                        vxorps  xmm1, xmm1, xmm1
-                        vcvtsi2ss xmm1, xmm1, rdx
-                        vdivss  xmm2, xmm0, xmm1
-                      }
+                      v115 = (float)v114;
+                      v116 = *((float *)v112 - 3) / v115;
                     }
                     else
                     {
-                      __asm { vmovaps xmm2, xmm11 }
+                      v116 = 0.0;
                     }
-                    LODWORD(v148) = *((_DWORD *)_RBX - 1);
-                    __asm
-                    {
-                      vcvtss2sd xmm3, xmm2, xmm2
-                      vmovq   r9, xmm3
-                      vmovsd  [rsp+148h+fmt], xmm4
-                    }
-                    Com_Printf(23, "\t\t\t\t\t [%d]\t Avg:%1.3f\t Max:%1.3f\t Calls:%d\t '%s'\n", v128, *(double *)&_XMM3, *(double *)&fmtd, v148, BuiltInName);
+                    LODWORD(v118) = *((_DWORD *)v112 - 1);
+                    Com_Printf(23, "\t\t\t\t\t [%d]\t Avg:%1.3f\t Max:%1.3f\t Calls:%d\t '%s'\n", v111, v116, *((float *)v112 - 2), v118, BuiltInName);
                   }
-                  ++v128;
-                  _RBX += 8;
+                  ++v111;
+                  v112 += 8;
                 }
-                while ( v128 < 0x10 );
-                _RBP = v175;
-                v112 = v173;
-                v92 = v163;
+                while ( v111 < 0x10 );
+                v104 = v128;
+                v103 = v126;
+                v87 = v123;
               }
-              ++v112;
-              _RBP = (unsigned __int64 *)((char *)_RBP + 284);
-              v173 = v112;
-              v175 = _RBP;
+              ++v103;
+              v104 += 71;
+              v126 = v103;
+              v128 = v104;
             }
-            while ( v112 < 0x20 );
-            _R12 = p_opCountMax;
-            _RSI = v164;
-            v91 = v174;
-            SourceBufferLookup = v165;
+            while ( v103 < 0x20 );
+            p_opCountMax = v129;
+            p_timeStats = v124;
+            v86 = v127;
+            SourceBufferLookup = v125;
           }
-          ++v91;
-          _R12 += 1140;
-          v174 = v91;
-          p_opCountMax = _R12;
+          ++v86;
+          p_opCountMax += 1140;
+          v127 = v86;
+          v129 = p_opCountMax;
         }
-        while ( v91 < 0x40 );
-      }
-      __asm
-      {
-        vmovaps xmm11, [rsp+148h+var_A8]
-        vmovaps xmm8, [rsp+148h+var_78]
-        vmovaps xmm7, [rsp+148h+var_68]
-        vmovaps xmm6, [rsp+148h+var_58]
-        vmovaps xmm12, [rsp+148h+var_B8]
+        while ( v86 < 0x40 );
       }
     }
     else
@@ -6052,10 +5821,10 @@ void Scr_SendSourceFile(scrContext_t *scrContext, const _ScrRequestScript *reque
   __int64 v10; 
   char v11; 
   int v12; 
-  const char *sourceBuf; 
-  __int128 v15; 
+  unsigned __int8 *sourceBuf; 
+  ProtobufCBinaryData v14; 
   _DebugMessage message; 
-  _ScrReadFile v17; 
+  _ScrReadFile v16; 
 
   filename = request->filename;
   v3 = 0;
@@ -6101,23 +5870,19 @@ LABEL_14:
         return;
     }
     _DebugMessage::_DebugMessage(&message);
-    _ScrReadFile::_ScrReadFile(&v17);
-    sourceBuf = v5->sourceBuf;
-    message.scrreadfile = &v17;
-    v17.filename = v5->buf;
+    _ScrReadFile::_ScrReadFile(&v16);
+    sourceBuf = (unsigned __int8 *)v5->sourceBuf;
+    message.scrreadfile = &v16;
+    v16.filename = v5->buf;
     message.debug_message_case = DEBUG_MESSAGE__DEBUG_MESSAGE_SCR_READ_FILE;
     if ( sourceBuf )
     {
       if ( v5->len > 0 )
       {
-        *(_QWORD *)&v15 = v5->len;
-        *((_QWORD *)&v15 + 1) = sourceBuf;
-        __asm
-        {
-          vmovups xmm0, [rsp+0C8h+var_98]
-          vmovups xmmword ptr [rsp+0C8h+var_60.sourcebuf.len], xmm0
-        }
-        v17.has_sourcebuf = 1;
+        v14.len = v5->len;
+        v14.data = sourceBuf;
+        v16.sourcebuf = v14;
+        v16.has_sourcebuf = 1;
       }
     }
     Sys_WriteDebugSocketMessage(scrContext, &message);
@@ -6320,7 +6085,7 @@ void Scr_SortTrackedProfileData(scrContext_t *scrContext)
   funcSummary = Profile->scrFileTimeTracking[0].funcSummary;
   do
   {
-    std::_Sort_unchecked<PrfofileScrExceedSummaryFunc *,bool (*)(PrfofileScrExceedSummaryFunc const &,PrfofileScrExceedSummaryFunc const &)>(funcSummary, funcSummary + 31, 31i64, (bool (__fastcall *)(const PrfofileScrExceedSummaryFunc *, const PrfofileScrExceedSummaryFunc *))Scr_CompareScriptProfileExceedSummaryEntryFunc);
+    std::_Sort_unchecked<PrfofileScrExceedSummaryFunc *,bool (*)(PrfofileScrExceedSummaryFunc const &,PrfofileScrExceedSummaryFunc const &)>(funcSummary, funcSummary + 31, 31i64, Scr_CompareScriptProfileExceedSummaryEntryFunc);
     v4 = (PrfofileScrExceedSummaryBuilInFunc *)funcSummary;
     v5 = 32i64;
     do
@@ -6334,7 +6099,7 @@ void Scr_SortTrackedProfileData(scrContext_t *scrContext)
     --v2;
   }
   while ( v2 );
-  std::_Sort_unchecked<ProfileScrExceedSummaryFile *,bool (*)(ProfileScrExceedSummaryFile const &,ProfileScrExceedSummaryFile const &)>(Profile->scrFileTimeTracking, &Profile->scrFileTimeTracking[63], 63i64, (bool (__fastcall *)(const ProfileScrExceedSummaryFile *, const ProfileScrExceedSummaryFile *))Scr_CompareScriptProfileExceedTimeFunc);
+  std::_Sort_unchecked<ProfileScrExceedSummaryFile *,bool (*)(ProfileScrExceedSummaryFile const &,ProfileScrExceedSummaryFile const &)>(Profile->scrFileTimeTracking, &Profile->scrFileTimeTracking[63], 63i64, Scr_CompareScriptProfileExceedTimeFunc);
 }
 
 /*
@@ -6344,85 +6109,109 @@ Scr_TrackServerTimeAccumScriptTime
 */
 void Scr_TrackServerTimeAccumScriptTime(scrContext_t *scrContext, bool newScriptMax)
 {
-  scrContext_t *v7; 
+  scrContext_t *v3; 
   ProfileScript *Profile; 
-  unsigned __int16 v9; 
-  ProfileScript *v10; 
+  unsigned __int16 v5; 
+  ProfileScript *v6; 
   float *p_funcTimeSpike; 
-  __int64 v12; 
+  __int64 v8; 
   SourceBufferInfo *sourceBufferLookup; 
-  __int64 v15; 
-  unsigned int v16; 
-  SourceBufferInfo *v17; 
+  __int64 v10; 
+  unsigned int v11; 
+  SourceBufferInfo *v12; 
+  float *Value; 
   __int64 allOpTotal; 
+  float v15; 
+  float v16; 
+  float v17; 
   unsigned int *p_fileCount; 
-  unsigned int v23; 
-  unsigned int *v24; 
+  unsigned int v19; 
+  unsigned int *v20; 
   unsigned __int16 *p_srcBufferIdx; 
-  bool v26; 
-  const dvar_t *v27; 
+  bool v22; 
+  const dvar_t *v23; 
+  __int64 v24; 
+  float v25; 
+  float *v26; 
+  __int64 allOpTotalBuiltIn; 
+  float v28; 
+  float v29; 
   unsigned int functionLookupLen; 
-  unsigned int v36; 
+  unsigned int v31; 
   unsigned __int16 j; 
-  bool v38; 
-  unsigned int v39; 
-  unsigned int v40; 
-  __int64 v41; 
-  __int64 v42; 
-  _BYTE *v46; 
-  unsigned int v47; 
-  _BYTE *v48; 
-  _WORD *v49; 
-  bool v50; 
-  const dvar_t *v51; 
-  int v56; 
-  unsigned int v57; 
-  bool v58; 
-  int *v66; 
+  bool v33; 
+  unsigned int v34; 
+  unsigned int v35; 
+  __int64 v36; 
+  __int64 v37; 
+  float *v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  _BYTE *v43; 
+  unsigned int v44; 
+  _BYTE *v45; 
+  _WORD *v46; 
+  bool v47; 
+  const dvar_t *v48; 
+  __int64 v49; 
+  float v50; 
+  int v51; 
+  unsigned int v52; 
+  float *v53; 
+  __int64 v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  int *v62; 
+  __int64 v63; 
+  __int64 v64; 
+  __int64 v65; 
+  float *v66; 
   __int64 v67; 
-  __int64 v68; 
-  __int64 v69; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  __int64 v72; 
   __int64 v73; 
-  __int64 v74; 
-  bool v75; 
-  _BYTE *v76; 
-  const dvar_t *v77; 
+  bool v74; 
+  _BYTE *v75; 
+  const dvar_t *v76; 
   const char *BuiltInName; 
-  int v83; 
-  unsigned __int64 v84; 
-  __int64 v87; 
-  __int64 v88; 
-  __int16 v90; 
+  __int64 v78; 
+  float v79; 
+  bool v80; 
+  unsigned __int64 v81; 
+  __int64 v82; 
+  __int64 v83; 
+  __int16 v85; 
   unsigned int i; 
-  SourceBufferInfo *v92; 
-  __int64 v94; 
-  __int64 v95; 
-  SourceBufferInfo *v96; 
-  ProfileScript *v97; 
-  int v98; 
-  int v99[4]; 
+  SourceBufferInfo *v87; 
+  __int64 v89; 
+  __int64 v90; 
+  SourceBufferInfo *v91; 
+  ProfileScript *v92; 
+  int v93; 
+  int v94[4]; 
+  __int128 v95; 
+  __int128 v96; 
   int _Last[4]; 
   unsigned __int16 _First[1024]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v7 = scrContext;
+  v3 = scrContext;
   if ( scrContext->m_varPub.developer )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-    }
-    v98 = __rdtsc();
+    v93 = __rdtsc();
     Profile = ScriptContext_GetProfile(scrContext);
-    v9 = 0;
-    v97 = Profile;
-    v10 = Profile;
+    v5 = 0;
+    v92 = Profile;
+    v6 = Profile;
     if ( newScriptMax )
     {
       p_funcTimeSpike = &Profile->scrFileTimeTracking[0].funcSummary[1].funcTimeSpike;
-      v12 = 64i64;
+      v8 = 64i64;
       do
       {
         if ( *((_DWORD *)p_funcTimeSpike + 2137) )
@@ -6493,465 +6282,423 @@ void Scr_TrackServerTimeAccumScriptTime(scrContext_t *scrContext, bool newScript
             p_funcTimeSpike[2130] = 0.0;
         }
         p_funcTimeSpike += 2280;
-        --v12;
+        --v8;
       }
-      while ( v12 );
+      while ( v8 );
     }
-    if ( !v7->m_parserPub.sourceBufferLookup && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4415, ASSERT_TYPE_ASSERT, "(scrContext.m_parserPub.sourceBufferLookup)", (const char *)&queryFormat, "scrContext.m_parserPub.sourceBufferLookup") )
+    if ( !v3->m_parserPub.sourceBufferLookup && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 4415, ASSERT_TYPE_ASSERT, "(scrContext.m_parserPub.sourceBufferLookup)", (const char *)&queryFormat, "scrContext.m_parserPub.sourceBufferLookup") )
       __debugbreak();
-    sourceBufferLookup = v7->m_parserPub.sourceBufferLookup;
-    __asm { vmovss  xmm7, cs:__real@5f800000 }
-    v15 = 0i64;
-    v92 = sourceBufferLookup;
-    v94 = 0i64;
+    sourceBufferLookup = v3->m_parserPub.sourceBufferLookup;
+    v10 = 0i64;
+    v87 = sourceBufferLookup;
+    v89 = 0i64;
     for ( i = 0; i < 0x10; ++i )
     {
-      v16 = LOWORD(v10->scriptSrcBufferIndex[v15]);
-      if ( v16 >= v7->m_parserPub.sourceBufferLookupLen )
+      v11 = LOWORD(v6->scriptSrcBufferIndex[v10]);
+      if ( v11 >= v3->m_parserPub.sourceBufferLookupLen )
       {
-        LODWORD(v88) = v7->m_parserPub.sourceBufferLookupLen;
-        LODWORD(v87) = LOWORD(v10->scriptSrcBufferIndex[v15]);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2846, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndex ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "srcBufferIndex doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v87, v88) )
+        LODWORD(v83) = v3->m_parserPub.sourceBufferLookupLen;
+        LODWORD(v82) = LOWORD(v6->scriptSrcBufferIndex[v10]);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2846, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndex ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "srcBufferIndex doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v82, v83) )
           __debugbreak();
       }
-      v17 = &sourceBufferLookup[(unsigned __int16)v16];
-      v96 = v17;
-      Sys_GetValue(0);
-      allOpTotal = v17->allOpTotal;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-      }
+      v12 = &sourceBufferLookup[(unsigned __int16)v11];
+      v91 = v12;
+      Value = (float *)Sys_GetValue(0);
+      allOpTotal = v12->allOpTotal;
+      v15 = (float)allOpTotal;
       if ( allOpTotal < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm7 }
-      __asm { vmulss  xmm6, xmm0, dword ptr [rax+8B4Ch] }
-      _RAX = script_usage_track_src_min_time;
-      __asm { vcomiss xmm6, dword ptr [rax+28h] }
-      if ( allOpTotal )
       {
-        p_fileCount = &v10->scrFileTimeTracking[0].fileCount;
-        v23 = 0;
-        v24 = &v10->scrFileTimeTracking[0].fileCount;
-        p_srcBufferIdx = &v10->scrFileTimeTracking[0].srcBufferIdx;
-        while ( !*v24 || *p_srcBufferIdx != (_WORD)v16 )
+        v16 = (float)allOpTotal;
+        v15 = v16 + 1.8446744e19;
+      }
+      v17 = v15 * Value[8915];
+      if ( v17 > script_usage_track_src_min_time->current.value )
+      {
+        p_fileCount = &v6->scrFileTimeTracking[0].fileCount;
+        v19 = 0;
+        v20 = &v6->scrFileTimeTracking[0].fileCount;
+        p_srcBufferIdx = &v6->scrFileTimeTracking[0].srcBufferIdx;
+        while ( !*v20 || *p_srcBufferIdx != (_WORD)v11 )
         {
-          if ( v24[2280] && p_srcBufferIdx[4560] == (_WORD)v16 )
+          if ( v20[2280] && p_srcBufferIdx[4560] == (_WORD)v11 )
           {
-            ++v23;
+            ++v19;
             break;
           }
-          if ( v24[4560] && p_srcBufferIdx[9120] == (_WORD)v16 )
+          if ( v20[4560] && p_srcBufferIdx[9120] == (_WORD)v11 )
           {
-            v23 += 2;
+            v19 += 2;
             break;
           }
-          if ( v24[6840] && p_srcBufferIdx[13680] == (_WORD)v16 )
+          if ( v20[6840] && p_srcBufferIdx[13680] == (_WORD)v11 )
           {
-            v23 += 3;
+            v19 += 3;
             break;
           }
-          v24 += 9120;
+          v20 += 9120;
           p_srcBufferIdx += 18240;
-          v23 += 4;
-          if ( v23 >= 0x40 )
+          v19 += 4;
+          if ( v19 >= 0x40 )
             break;
         }
-        v26 = v23 < 0x40;
-        if ( v23 != 64 )
-          goto LABEL_233;
-        v23 = 0;
+        v22 = v19 < 0x40;
+        if ( v19 != 64 )
+          goto LABEL_235;
+        v19 = 0;
         while ( *p_fileCount )
         {
           if ( !p_fileCount[2280] )
           {
-            ++v23;
+            ++v19;
             break;
           }
           if ( !p_fileCount[4560] )
           {
-            v23 += 2;
+            v19 += 2;
             break;
           }
           if ( !p_fileCount[6840] )
           {
-            v23 += 3;
+            v19 += 3;
             break;
           }
           p_fileCount += 9120;
-          v23 += 4;
-          if ( v23 >= 0x40 )
+          v19 += 4;
+          if ( v19 >= 0x40 )
             break;
         }
-        v26 = v23 < 0x40;
-        if ( v23 == 64 )
+        v22 = v19 < 0x40;
+        if ( v19 == 64 )
         {
-          v27 = DVARBOOL_sv_debugTrackServerTime;
+          v23 = DVARBOOL_sv_debugTrackServerTime;
           if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v27);
-          if ( v27->current.enabled )
-          {
-            __asm
-            {
-              vcvtss2sd xmm3, xmm6, xmm6
-              vmovq   r9, xmm3
-            }
-            Com_Printf(23, "Scr_TrackServerTimeAccumScriptTime: Ran out of room to track script file. File '%s' with total OpTime of %f will not be tracked.\n", v17->buf, *(double *)&_XMM3);
-          }
+          Dvar_CheckFrontendServerThread(v23);
+          if ( v23->current.enabled )
+            Com_Printf(23, "Scr_TrackServerTimeAccumScriptTime: Ran out of room to track script file. File '%s' with total OpTime of %f will not be tracked.\n", v12->buf, v17);
         }
         else
         {
-LABEL_233:
-          if ( !v26 )
+LABEL_235:
+          if ( !v22 )
           {
-            LODWORD(v88) = 64;
-            LODWORD(v87) = v23;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2884, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndexTrack ) < (unsigned)( 64 )", "srcBufferIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FILE\n\t%i not in [0, %i)", v87, v88) )
+            LODWORD(v83) = 64;
+            LODWORD(v82) = v19;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2884, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndexTrack ) < (unsigned)( 64 )", "srcBufferIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FILE\n\t%i not in [0, %i)", v82, v83) )
               __debugbreak();
           }
-          _R13 = (__int64)&v10->scrFileTimeTracking[v23];
-          v95 = _R13;
-          if ( v10->scrFileTimeTracking[v23].srcBufferIdx != (_WORD)v16 && v10->scrFileTimeTracking[v23].fileCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2887, ASSERT_TYPE_ASSERT, "( fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0 )", (const char *)&queryFormat, "fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0") )
+          v24 = (__int64)&v6->scrFileTimeTracking[v19];
+          v90 = v24;
+          if ( v6->scrFileTimeTracking[v19].srcBufferIdx != (_WORD)v11 && v6->scrFileTimeTracking[v19].fileCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2887, ASSERT_TYPE_ASSERT, "( fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0 )", (const char *)&queryFormat, "fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0") )
             __debugbreak();
-          __asm { vaddss  xmm0, xmm6, dword ptr [r13+2380h] }
-          ++v10->scrFileTimeTracking[v23].fileCount;
-          __asm { vmovss  dword ptr [r13+2380h], xmm0 }
-          v10->scrFileTimeTracking[v23].srcBufferIdx = v16;
-          Sys_GetValue(0);
-          __asm
+          v25 = v17 + v6->scrFileTimeTracking[v19].fileTime;
+          ++v6->scrFileTimeTracking[v19].fileCount;
+          v6->scrFileTimeTracking[v19].fileTime = v25;
+          v6->scrFileTimeTracking[v19].srcBufferIdx = v11;
+          v26 = (float *)Sys_GetValue(0);
+          allOpTotalBuiltIn = v12->allOpTotalBuiltIn;
+          v28 = (float)allOpTotalBuiltIn;
+          if ( allOpTotalBuiltIn < 0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rcx
+            v29 = (float)allOpTotalBuiltIn;
+            v28 = v29 + 1.8446744e19;
           }
-          if ( (v17->allOpTotalBuiltIn & 0x8000000000000000ui64) != 0i64 )
-            __asm { vaddss  xmm0, xmm0, xmm7 }
-          __asm
-          {
-            vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-            vaddss  xmm1, xmm0, dword ptr [r13+2384h]
-            vmovss  dword ptr [r13+2384h], xmm1
-          }
-          functionLookupLen = v17->functionLookupLen;
+          v6->scrFileTimeTracking[v19].fileTimeBuiltIn = (float)(v28 * v26[8915]) + v6->scrFileTimeTracking[v19].fileTimeBuiltIn;
+          functionLookupLen = v12->functionLookupLen;
           if ( functionLookupLen )
           {
             if ( functionLookupLen > 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2897, ASSERT_TYPE_ASSERT, "( srcBuffer->functionLookupLen <= 1024 )", (const char *)&queryFormat, "srcBuffer->functionLookupLen <= SCR_DEBUG_FUNCTION_COUNT_PER_FILE") )
               __debugbreak();
-            v36 = v17->functionLookupLen;
-            for ( j = 0; j < v36; v36 = v17->functionLookupLen )
+            v31 = v12->functionLookupLen;
+            for ( j = 0; j < v31; v31 = v12->functionLookupLen )
             {
               _First[j] = j;
               ++j;
             }
-            v38 = v7->m_Instance == SCRIPTINSTANCE_SERVER;
-            currentSrcFileIndexForFuncSorting = v16;
-            if ( v38 )
+            v33 = v3->m_Instance == SCRIPTINSTANCE_SERVER;
+            currentSrcFileIndexForFuncSorting = v11;
+            if ( v33 )
             {
-              std::_Sort_unchecked<unsigned short *,bool (*)(int const &,int const &)>(_First, &_First[v36 - 1], v36 - 1, Scr_CompareScriptProfileCurrentTimeFunc_Server);
+              std::_Sort_unchecked<unsigned short *,bool (*)(int const &,int const &)>(_First, &_First[v31 - 1], v31 - 1, Scr_CompareScriptProfileCurrentTimeFunc_Server);
             }
             else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2919, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scr_TrackServerTimeAccumScriptTime: Invalid script instance.") )
             {
               __debugbreak();
             }
-            v39 = v17->functionLookupLen;
-            v90 = 0;
-            if ( v39 )
+            v34 = v12->functionLookupLen;
+            v85 = 0;
+            if ( v34 )
             {
               do
               {
-                v40 = _First[v9];
-                if ( v40 >= v39 )
+                v35 = _First[v5];
+                if ( v35 >= v34 )
                 {
-                  LODWORD(v88) = v39;
-                  LODWORD(v87) = _First[v9];
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2925, ASSERT_TYPE_ASSERT, "(unsigned)( currentFuncInfoIndex ) < (unsigned)( srcBuffer->functionLookupLen )", "currentFuncInfoIndex doesn't index srcBuffer->functionLookupLen\n\t%i not in [0, %i)", v87, v88) )
+                  LODWORD(v83) = v34;
+                  LODWORD(v82) = _First[v5];
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2925, ASSERT_TYPE_ASSERT, "(unsigned)( currentFuncInfoIndex ) < (unsigned)( srcBuffer->functionLookupLen )", "currentFuncInfoIndex doesn't index srcBuffer->functionLookupLen\n\t%i not in [0, %i)", v82, v83) )
                     __debugbreak();
                 }
-                v41 = (__int64)&v17->functionLookupDynamic[(unsigned __int16)v40];
-                v42 = (__int64)&v17->functionLookupStatic[(unsigned __int16)v40];
-                Sys_GetValue(0);
-                __asm
+                v36 = (__int64)&v12->functionLookupDynamic[(unsigned __int16)v35];
+                v37 = (__int64)&v12->functionLookupStatic[(unsigned __int16)v35];
+                v38 = (float *)Sys_GetValue(0);
+                v39 = (float)*(__int64 *)v36;
+                if ( *(__int64 *)v36 < 0 )
                 {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, rcx
+                  v40 = (float)*(__int64 *)v36;
+                  v39 = v40 + 1.8446744e19;
                 }
-                if ( *(__int64 *)v41 < 0 )
-                  __asm { vaddss  xmm0, xmm0, xmm7 }
-                __asm { vmulss  xmm6, xmm0, dword ptr [rax+8B4Ch] }
-                _RAX = script_usage_track_func_min_time;
-                __asm { vcomiss xmm6, dword ptr [rax+28h] }
-                v46 = (_BYTE *)(_R13 + 282);
-                v47 = 0;
-                v48 = (_BYTE *)(_R13 + 282);
-                v49 = (_WORD *)(_R13 + 280);
-                while ( !*v48 || *v49 != (_WORD)v40 )
+                v42 = v39 * v38[8915];
+                v41 = v42;
+                if ( v42 >= script_usage_track_func_min_time->current.value )
                 {
-                  if ( v48[284] && v49[142] == (_WORD)v40 )
+                  v43 = (_BYTE *)(v24 + 282);
+                  v44 = 0;
+                  v45 = (_BYTE *)(v24 + 282);
+                  v46 = (_WORD *)(v24 + 280);
+                  while ( !*v45 || *v46 != (_WORD)v35 )
                   {
-                    ++v47;
-                    break;
-                  }
-                  if ( v48[568] && v49[284] == (_WORD)v40 )
-                  {
-                    v47 += 2;
-                    break;
-                  }
-                  if ( v48[852] && v49[426] == (_WORD)v40 )
-                  {
-                    v47 += 3;
-                    break;
-                  }
-                  v48 += 1136;
-                  v49 += 568;
-                  v47 += 4;
-                  if ( v47 >= 0x20 )
-                    break;
-                }
-                v50 = v47 < 0x20;
-                if ( v47 != 32 )
-                  goto LABEL_234;
-                v47 = 0;
-                while ( *v46 )
-                {
-                  if ( !v46[284] )
-                  {
-                    ++v47;
-                    break;
-                  }
-                  if ( !v46[568] )
-                  {
-                    v47 += 2;
-                    break;
-                  }
-                  if ( !v46[852] )
-                  {
-                    v47 += 3;
-                    break;
-                  }
-                  v46 += 1136;
-                  v47 += 4;
-                  if ( v47 >= 0x20 )
-                    break;
-                }
-                v50 = v47 < 0x20;
-                if ( v47 == 32 )
-                {
-                  v51 = DVARBOOL_sv_debugTrackServerTime;
-                  if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v51);
-                  if ( v51->current.enabled )
-                  {
-                    __asm
+                    if ( v45[284] && v46[142] == (_WORD)v35 )
                     {
-                      vcvtss2sd xmm3, xmm6, xmm6
-                      vmovq   r9, xmm3
+                      ++v44;
+                      break;
                     }
-                    Com_Printf(23, "Scr_TrackServerTimeAccumScriptTime: Ran out of room to track function. Func '%s' with total OpTime of %f will not be tracked.\n", (const char *)(v42 + 16), *(double *)&_XMM3);
-                  }
-                }
-                else
-                {
-LABEL_234:
-                  if ( !v50 )
-                  {
-                    LODWORD(v88) = 32;
-                    LODWORD(v87) = v47;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2962, ASSERT_TYPE_ASSERT, "(unsigned)( funcIndexTrack ) < (unsigned)( 32 )", "funcIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FUNC\n\t%i not in [0, %i)", v87, v88) )
-                      __debugbreak();
-                  }
-                  _RSI = _R13 + 284i64 * v47;
-                  if ( *(_WORD *)(_RSI + 280) != (_WORD)v40 && *(_BYTE *)(_RSI + 282) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2965, ASSERT_TYPE_ASSERT, "( funcSummary->funcIndex == currentFuncInfoIndex || !funcSummary->inUse )", (const char *)&queryFormat, "funcSummary->funcIndex == currentFuncInfoIndex || !funcSummary->inUse") )
-                    __debugbreak();
-                  __asm { vaddss  xmm0, xmm6, dword ptr [rsi+100h] }
-                  v56 = 1;
-                  *(_BYTE *)(_RSI + 282) = 1;
-                  *(_WORD *)(_RSI + 280) = v40;
-                  v57 = *(unsigned __int16 *)(v41 + 20);
-                  __asm { vmovss  dword ptr [rsi+100h], xmm0 }
-                  if ( v57 > 1 )
-                    v56 = v57;
-                  v58 = __CFADD__(v56, *(_DWORD *)(_RSI + 272)) || v56 + *(_DWORD *)(_RSI + 272) == 0;
-                  *(_DWORD *)(_RSI + 272) += v56;
-                  __asm { vcomiss xmm6, dword ptr [rsi+104h] }
-                  if ( !v58 )
-                    __asm { vmovss  dword ptr [rsi+104h], xmm6 }
-                  if ( newScriptMax )
-                    __asm { vmovss  dword ptr [rsi+108h], xmm6 }
-                  Sys_GetValue(0);
-                  __asm
-                  {
-                    vxorps  xmm0, xmm0, xmm0
-                    vcvtsi2ss xmm0, xmm0, rcx
-                  }
-                  if ( *(__int64 *)(v41 + 8) < 0 )
-                    __asm { vaddss  xmm0, xmm0, xmm7 }
-                  __asm
-                  {
-                    vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-                    vaddss  xmm1, xmm0, dword ptr [rsi+10Ch]
-                    vmovdqu xmm3, cs:__xmm@00000003000000020000000100000000
-                    vpaddd  xmm0, xmm3, cs:__xmm@00000004000000040000000400000004
-                    vpaddd  xmm2, xmm3, cs:__xmm@00000008000000080000000800000008
-                    vmovss  dword ptr [rsi+10Ch], xmm1
-                  }
-                  v38 = scrContext->m_Instance == SCRIPTINSTANCE_SERVER;
-                  __asm
-                  {
-                    vpaddd  xmm1, xmm3, cs:__xmm@0000000c0000000c0000000c0000000c
-                    vmovdqu xmmword ptr [rsp+918h+_Last], xmm1
-                    vmovdqu xmmword ptr [rsp+918h+var_898], xmm3
-                    vmovdqu [rsp+918h+var_888], xmm0
-                    vmovdqu [rsp+918h+var_878], xmm2
-                  }
-                  currentFuncInfoIndexForFuncSorting = v40;
-                  if ( v38 )
-                  {
-                    std::_Sort_unchecked<int *,bool (*)(int const &,int const &)>(v99, &_Last[3], 15i64, Scr_CompareScriptProfileCurrentTimeFuncBuiltIn_Server);
-                  }
-                  else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3004, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scr_TrackServerTimeAccumScriptTime: Invalid script instance.") )
-                  {
-                    __debugbreak();
-                  }
-                  v66 = v99;
-                  v67 = 16i64;
-                  do
-                  {
-                    v68 = (unsigned int)*v66;
-                    if ( (unsigned int)v68 >= 0x10 )
+                    if ( v45[568] && v46[284] == (_WORD)v35 )
                     {
-                      LODWORD(v88) = 16;
-                      LODWORD(v87) = *v66;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3011, ASSERT_TYPE_ASSERT, "(unsigned)( currentBuiltInInfoIndex ) < (unsigned)( 16 )", "currentBuiltInInfoIndex doesn't index SCR_DEBUG_FUNCTION_BUILT_IN_PER_FUNCTION\n\t%i not in [0, %i)", v87, v88) )
+                      v44 += 2;
+                      break;
+                    }
+                    if ( v45[852] && v46[426] == (_WORD)v35 )
+                    {
+                      v44 += 3;
+                      break;
+                    }
+                    v45 += 1136;
+                    v46 += 568;
+                    v44 += 4;
+                    if ( v44 >= 0x20 )
+                      break;
+                  }
+                  v47 = v44 < 0x20;
+                  if ( v44 != 32 )
+                    goto LABEL_236;
+                  v44 = 0;
+                  while ( *v43 )
+                  {
+                    if ( !v43[284] )
+                    {
+                      ++v44;
+                      break;
+                    }
+                    if ( !v43[568] )
+                    {
+                      v44 += 2;
+                      break;
+                    }
+                    if ( !v43[852] )
+                    {
+                      v44 += 3;
+                      break;
+                    }
+                    v43 += 1136;
+                    v44 += 4;
+                    if ( v44 >= 0x20 )
+                      break;
+                  }
+                  v47 = v44 < 0x20;
+                  if ( v44 == 32 )
+                  {
+                    v48 = DVARBOOL_sv_debugTrackServerTime;
+                    if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
+                      __debugbreak();
+                    Dvar_CheckFrontendServerThread(v48);
+                    if ( v48->current.enabled )
+                      Com_Printf(23, "Scr_TrackServerTimeAccumScriptTime: Ran out of room to track function. Func '%s' with total OpTime of %f will not be tracked.\n", (const char *)(v37 + 16), v42);
+                  }
+                  else
+                  {
+LABEL_236:
+                    if ( !v47 )
+                    {
+                      LODWORD(v83) = 32;
+                      LODWORD(v82) = v44;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2962, ASSERT_TYPE_ASSERT, "(unsigned)( funcIndexTrack ) < (unsigned)( 32 )", "funcIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FUNC\n\t%i not in [0, %i)", v82, v83) )
                         __debugbreak();
                     }
-                    v69 = 16 * v68;
-                    if ( *(_WORD *)(16 * v68 + v41 + 34) )
+                    v49 = v24 + 284i64 * v44;
+                    if ( *(_WORD *)(v49 + 280) != (_WORD)v35 && *(_BYTE *)(v49 + 282) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 2965, ASSERT_TYPE_ASSERT, "( funcSummary->funcIndex == currentFuncInfoIndex || !funcSummary->inUse )", (const char *)&queryFormat, "funcSummary->funcIndex == currentFuncInfoIndex || !funcSummary->inUse") )
+                      __debugbreak();
+                    v50 = v42 + *(float *)(v49 + 256);
+                    v51 = 1;
+                    *(_BYTE *)(v49 + 282) = 1;
+                    *(_WORD *)(v49 + 280) = v35;
+                    v52 = *(unsigned __int16 *)(v36 + 20);
+                    *(float *)(v49 + 256) = v50;
+                    if ( v52 > 1 )
+                      v51 = v52;
+                    *(_DWORD *)(v49 + 272) += v51;
+                    if ( v41 > *(float *)(v49 + 260) )
+                      *(float *)(v49 + 260) = v41;
+                    if ( newScriptMax )
+                      *(float *)(v49 + 264) = v41;
+                    v53 = (float *)Sys_GetValue(0);
+                    v54 = *(_QWORD *)(v36 + 8);
+                    v55 = (float)v54;
+                    if ( v54 < 0 )
                     {
-                      Sys_GetValue(0);
-                      __asm
-                      {
-                        vxorps  xmm0, xmm0, xmm0
-                        vcvtsi2ss xmm0, xmm0, rcx
-                      }
-                      if ( *(__int64 *)(v69 + v41 + 24) < 0 )
-                        __asm { vaddss  xmm0, xmm0, xmm7 }
-                      __asm { vmulss  xmm6, xmm0, dword ptr [rax+8B4Ch] }
-                      _RAX = script_usage_track_func_min_time_built_in;
-                      __asm { vcomiss xmm6, dword ptr [rax+28h] }
-                      v73 = 0i64;
-                      v74 = _RSI + 12;
-                      do
-                      {
-                        if ( *(_BYTE *)(v74 + 2) && *(_WORD *)v74 == *(_WORD *)(v69 + v41 + 34) )
-                          break;
-                        v73 = (unsigned int)(v73 + 1);
-                        v74 += 16i64;
-                      }
-                      while ( (unsigned int)v73 < 0x10 );
-                      v75 = (unsigned int)v73 < 0x10;
-                      if ( (_DWORD)v73 != 16 )
-                        goto LABEL_235;
-                      v73 = 0i64;
-                      v76 = (_BYTE *)(_RSI + 14);
-                      while ( *v76 )
-                      {
-                        if ( !v76[16] )
-                        {
-                          v73 = (unsigned int)(v73 + 1);
-                          break;
-                        }
-                        if ( !v76[32] )
-                        {
-                          v73 = (unsigned int)(v73 + 2);
-                          break;
-                        }
-                        if ( !v76[48] )
-                        {
-                          v73 = (unsigned int)(v73 + 3);
-                          break;
-                        }
-                        v76 += 64;
-                        v73 = (unsigned int)(v73 + 4);
-                        if ( (unsigned int)v73 >= 0x10 )
-                          break;
-                      }
-                      v75 = (unsigned int)v73 < 0x10;
-                      if ( (_DWORD)v73 == 16 )
-                      {
-                        v77 = DVARBOOL_sv_debugTrackServerTime;
-                        if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
-                          __debugbreak();
-                        Dvar_CheckFrontendServerThread(v77);
-                        if ( v77->current.enabled )
-                        {
-                          __asm { vcvtss2sd xmm6, xmm6, xmm6 }
-                          BuiltInName = GetBuiltInName(scrContext, *(unsigned __int16 *)(v69 + v41 + 34));
-                          __asm
-                          {
-                            vmovaps xmm3, xmm6
-                            vmovq   r9, xmm3
-                          }
-                          Com_Printf(23, "Scr_TrackServerTimeAccumScriptTime: Ran out of room to track built in function. Func '%s' with total OpTime of %f will not be tracked.\n", BuiltInName, *(double *)&_XMM3);
-                        }
-                      }
-                      else
-                      {
-LABEL_235:
-                        if ( !v75 )
-                        {
-                          LODWORD(v88) = 16;
-                          LODWORD(v87) = v73;
-                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3054, ASSERT_TYPE_ASSERT, "(unsigned)( funcIndexTrackBuiltIn ) < (unsigned)( 16 )", "funcIndexTrackBuiltIn doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_BUILTIN_FUNC\n\t%i not in [0, %i)", v87, v88) )
-                            __debugbreak();
-                        }
-                        _RBX = _RSI + 16 * v73;
-                        if ( *(_WORD *)(_RBX + 12) != *(_WORD *)(v69 + v41 + 34) && *(_BYTE *)(_RBX + 14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3057, ASSERT_TYPE_ASSERT, "( funcSummaryBuiltIn->builtInIndex == funcBuiltInInfo->builtInIndex || !funcSummaryBuiltIn->inUse )", (const char *)&queryFormat, "funcSummaryBuiltIn->builtInIndex == funcBuiltInInfo->builtInIndex || !funcSummaryBuiltIn->inUse") )
-                          __debugbreak();
-                        __asm { vaddss  xmm0, xmm6, dword ptr [rbx] }
-                        *(_BYTE *)(_RBX + 14) = 1;
-                        *(_WORD *)(_RBX + 12) = *(_WORD *)(v69 + v41 + 34);
-                        v83 = *(unsigned __int16 *)(v69 + v41 + 32);
-                        v58 = __CFADD__(v83, *(_DWORD *)(_RBX + 8)) || v83 + *(_DWORD *)(_RBX + 8) == 0;
-                        *(_DWORD *)(_RBX + 8) += v83;
-                        __asm
-                        {
-                          vcomiss xmm6, dword ptr [rbx+4]
-                          vmovss  dword ptr [rbx], xmm0
-                        }
-                        if ( !v58 )
-                          __asm { vmovss  dword ptr [rbx+4], xmm6 }
-                      }
+                      v56 = (float)v54;
+                      v55 = v56 + 1.8446744e19;
                     }
-                    ++v66;
-                    --v67;
+                    v57 = (float)(v55 * v53[8915]) + *(float *)(v49 + 268);
+                    _XMM3 = _xmm;
+                    __asm
+                    {
+                      vpaddd  xmm0, xmm3, cs:__xmm@00000004000000040000000400000004
+                      vpaddd  xmm2, xmm3, cs:__xmm@00000008000000080000000800000008
+                    }
+                    *(float *)(v49 + 268) = v57;
+                    v33 = scrContext->m_Instance == SCRIPTINSTANCE_SERVER;
+                    __asm { vpaddd  xmm1, xmm3, cs:__xmm@0000000c0000000c0000000c0000000c }
+                    *(_OWORD *)_Last = _XMM1;
+                    *(_OWORD *)v94 = _xmm;
+                    v95 = _XMM0;
+                    v96 = _XMM2;
+                    currentFuncInfoIndexForFuncSorting = v35;
+                    if ( v33 )
+                    {
+                      std::_Sort_unchecked<int *,bool (*)(int const &,int const &)>(v94, &_Last[3], 15i64, Scr_CompareScriptProfileCurrentTimeFuncBuiltIn_Server);
+                    }
+                    else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3004, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scr_TrackServerTimeAccumScriptTime: Invalid script instance.") )
+                    {
+                      __debugbreak();
+                    }
+                    v62 = v94;
+                    v63 = 16i64;
+                    do
+                    {
+                      v64 = (unsigned int)*v62;
+                      if ( (unsigned int)v64 >= 0x10 )
+                      {
+                        LODWORD(v83) = 16;
+                        LODWORD(v82) = *v62;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3011, ASSERT_TYPE_ASSERT, "(unsigned)( currentBuiltInInfoIndex ) < (unsigned)( 16 )", "currentBuiltInInfoIndex doesn't index SCR_DEBUG_FUNCTION_BUILT_IN_PER_FUNCTION\n\t%i not in [0, %i)", v82, v83) )
+                          __debugbreak();
+                      }
+                      v65 = 16 * v64;
+                      if ( *(_WORD *)(16 * v64 + v36 + 34) )
+                      {
+                        v66 = (float *)Sys_GetValue(0);
+                        v67 = *(_QWORD *)(v65 + v36 + 24);
+                        v68 = (float)v67;
+                        if ( v67 < 0 )
+                        {
+                          v69 = (float)v67;
+                          v68 = v69 + 1.8446744e19;
+                        }
+                        v71 = v68 * v66[8915];
+                        v70 = v71;
+                        if ( v71 >= script_usage_track_func_min_time_built_in->current.value )
+                        {
+                          v72 = 0i64;
+                          v73 = v49 + 12;
+                          do
+                          {
+                            if ( *(_BYTE *)(v73 + 2) && *(_WORD *)v73 == *(_WORD *)(v65 + v36 + 34) )
+                              break;
+                            v72 = (unsigned int)(v72 + 1);
+                            v73 += 16i64;
+                          }
+                          while ( (unsigned int)v72 < 0x10 );
+                          v74 = (unsigned int)v72 < 0x10;
+                          if ( (_DWORD)v72 != 16 )
+                            goto LABEL_237;
+                          v72 = 0i64;
+                          v75 = (_BYTE *)(v49 + 14);
+                          while ( *v75 )
+                          {
+                            if ( !v75[16] )
+                            {
+                              v72 = (unsigned int)(v72 + 1);
+                              break;
+                            }
+                            if ( !v75[32] )
+                            {
+                              v72 = (unsigned int)(v72 + 2);
+                              break;
+                            }
+                            if ( !v75[48] )
+                            {
+                              v72 = (unsigned int)(v72 + 3);
+                              break;
+                            }
+                            v75 += 64;
+                            v72 = (unsigned int)(v72 + 4);
+                            if ( (unsigned int)v72 >= 0x10 )
+                              break;
+                          }
+                          v74 = (unsigned int)v72 < 0x10;
+                          if ( (_DWORD)v72 == 16 )
+                          {
+                            v76 = DVARBOOL_sv_debugTrackServerTime;
+                            if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
+                              __debugbreak();
+                            Dvar_CheckFrontendServerThread(v76);
+                            if ( v76->current.enabled )
+                            {
+                              BuiltInName = GetBuiltInName(scrContext, *(unsigned __int16 *)(v65 + v36 + 34));
+                              Com_Printf(23, "Scr_TrackServerTimeAccumScriptTime: Ran out of room to track built in function. Func '%s' with total OpTime of %f will not be tracked.\n", BuiltInName, v71);
+                            }
+                          }
+                          else
+                          {
+LABEL_237:
+                            if ( !v74 )
+                            {
+                              LODWORD(v83) = 16;
+                              LODWORD(v82) = v72;
+                              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3054, ASSERT_TYPE_ASSERT, "(unsigned)( funcIndexTrackBuiltIn ) < (unsigned)( 16 )", "funcIndexTrackBuiltIn doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_BUILTIN_FUNC\n\t%i not in [0, %i)", v82, v83) )
+                                __debugbreak();
+                            }
+                            v78 = v49 + 16 * v72;
+                            if ( *(_WORD *)(v78 + 12) != *(_WORD *)(v65 + v36 + 34) && *(_BYTE *)(v78 + 14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3057, ASSERT_TYPE_ASSERT, "( funcSummaryBuiltIn->builtInIndex == funcBuiltInInfo->builtInIndex || !funcSummaryBuiltIn->inUse )", (const char *)&queryFormat, "funcSummaryBuiltIn->builtInIndex == funcBuiltInInfo->builtInIndex || !funcSummaryBuiltIn->inUse") )
+                              __debugbreak();
+                            v79 = v71 + *(float *)v78;
+                            *(_BYTE *)(v78 + 14) = 1;
+                            *(_WORD *)(v78 + 12) = *(_WORD *)(v65 + v36 + 34);
+                            *(_DWORD *)(v78 + 8) += *(unsigned __int16 *)(v65 + v36 + 32);
+                            v80 = v70 <= *(float *)(v78 + 4);
+                            *(float *)v78 = v79;
+                            if ( !v80 )
+                              *(float *)(v78 + 4) = v70;
+                          }
+                        }
+                      }
+                      ++v62;
+                      --v63;
+                    }
+                    while ( v63 );
+                    v5 = v85;
+                    v24 = v90;
+                    v12 = v91;
                   }
-                  while ( v67 );
-                  v9 = v90;
-                  _R13 = v95;
-                  v17 = v96;
                 }
-                v39 = v17->functionLookupLen;
-                v90 = ++v9;
+                v34 = v12->functionLookupLen;
+                v85 = ++v5;
               }
-              while ( v9 < v39 );
-              v7 = scrContext;
-              v10 = v97;
+              while ( v5 < v34 );
+              v3 = scrContext;
+              v6 = v92;
             }
-            v9 = 0;
+            v5 = 0;
           }
         }
-        sourceBufferLookup = v92;
+        sourceBufferLookup = v87;
       }
-      v15 = ++v94;
+      v10 = ++v89;
     }
-    v84 = __rdtsc();
-    __asm
-    {
-      vmovaps xmm7, [rsp+918h+var_48]
-      vmovaps xmm6, [rsp+918h+var_38]
-    }
-    v10->scrProfileCalcTimeTotal += (int)v84 - v98;
+    v81 = __rdtsc();
+    v6->scrProfileCalcTimeTotal += (int)v81 - v93;
   }
 }
 
@@ -6963,53 +6710,60 @@ Scr_TrackServerTimeSetMaxScriptOps
 void Scr_TrackServerTimeSetMaxScriptOps(scrContext_t *scrContext)
 {
   scrContext_t *v1; 
+  ProfileScript *v2; 
   SourceBufferInfo *SourceBufferLookup; 
   unsigned int *p_funcOpCountMax; 
   __int64 v5; 
   __int64 sourceBufferLookupLen; 
-  int *v26; 
-  unsigned int v31; 
-  __int64 v32; 
-  unsigned int v33; 
-  SourceBufferInfo *v34; 
+  unsigned int v7; 
+  unsigned int v8; 
+  __int64 v18; 
+  int *v22; 
+  unsigned int v23; 
+  __int64 v24; 
+  unsigned int v25; 
+  SourceBufferInfo *v26; 
   unsigned int *p_fileCount; 
-  unsigned int v36; 
-  unsigned int *v37; 
+  unsigned int v28; 
+  unsigned int *v29; 
   unsigned __int16 *p_srcBufferIdx; 
-  bool v39; 
-  const dvar_t *v40; 
-  __int64 v41; 
-  bool v42; 
+  bool v31; 
+  const dvar_t *v32; 
+  __int64 v33; 
+  bool v34; 
   unsigned int functionLookupLen; 
-  unsigned __int16 v44; 
-  __int64 v45; 
+  unsigned __int16 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  _BYTE *v39; 
+  unsigned int v40; 
+  _BYTE *v41; 
+  _WORD *v42; 
+  bool v43; 
+  __int64 v44; 
+  const dvar_t *v45; 
   __int64 v46; 
-  _BYTE *v47; 
-  unsigned int v48; 
-  _BYTE *v49; 
-  _WORD *v50; 
-  bool v51; 
-  __int64 v52; 
-  const dvar_t *v53; 
-  __int64 v54; 
-  unsigned __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
-  unsigned int v58; 
-  SourceBufferInfo *v60; 
-  __int64 v61; 
+  unsigned __int64 v47; 
+  __int64 v48; 
+  __int64 v49; 
+  unsigned int v50; 
+  SourceBufferInfo *v52; 
+  __int64 v53; 
   ProfileScript *Profile; 
-  int v63; 
+  int v55; 
   int _First[8]; 
+  __m256i v57; 
+  __m256i v58; 
+  __m256i v59; 
 
   v1 = scrContext;
   if ( scrContext->m_varPub.developer )
   {
-    v63 = __rdtsc();
+    v55 = __rdtsc();
     Profile = ScriptContext_GetProfile(scrContext);
-    _RSI = Profile;
+    v2 = Profile;
     SourceBufferLookup = Scr_GetSourceBufferLookup(v1);
-    v60 = SourceBufferLookup;
+    v52 = SourceBufferLookup;
     p_funcOpCountMax = &Profile->scrFileTimeTracking[0].funcSummary[1].funcOpCountMax;
     v5 = 64i64;
     do
@@ -7089,59 +6843,54 @@ void Scr_TrackServerTimeSetMaxScriptOps(scrContext_t *scrContext)
     if ( v1->m_parserPub.sourceBufferLookupLen >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3159, ASSERT_TYPE_ASSERT, "(scrContext.m_parserPub.sourceBufferLookupLen < MAX_SCRIPT_FILES)", (const char *)&queryFormat, "scrContext.m_parserPub.sourceBufferLookupLen < MAX_SCRIPT_FILES") )
       __debugbreak();
     sourceBufferLookupLen = v1->m_parserPub.sourceBufferLookupLen;
-    _EDX = 0;
+    v7 = 0;
     if ( (_DWORD)sourceBufferLookupLen )
     {
       if ( (unsigned int)sourceBufferLookupLen >= 0x10 )
       {
-        __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-        _ER8 = 8;
+        v8 = 8;
         do
         {
-          _RAX = _EDX;
+          _XMM0 = v7;
           __asm
           {
-            vmovd   xmm0, edx
-            vpshufd xmm0, xmm0, 0
-            vpaddd  xmm1, xmm0, xmm2
-            vmovdqu xmmword ptr [rsp+rax*4+10A8h+_First], xmm1
-          }
-          LODWORD(_RAX) = _ER8 - 4;
-          _EDX += 16;
-          __asm
-          {
-            vmovd   xmm0, eax
             vpshufd xmm0, xmm0, 0
             vpaddd  xmm1, xmm0, xmm2
           }
-          _RAX = _ER8 - 4;
-          __asm { vmovdqu xmmword ptr [rsp+rax*4+10A8h+_First], xmm1 }
-          _RAX = _ER8;
+          *(_OWORD *)&_First[v7] = _XMM1;
+          v7 += 16;
+          _XMM0 = v8 - 4;
           __asm
           {
-            vmovd   xmm0, r8d
             vpshufd xmm0, xmm0, 0
             vpaddd  xmm1, xmm0, xmm2
-            vmovdqu xmmword ptr [rsp+rax*4+10A8h+_First], xmm1
           }
-          _RAX = _ER8 + 4;
-          _ER8 += 16;
+          *(_OWORD *)&_First[v8 - 4] = _XMM1;
+          _XMM0 = v8;
           __asm
           {
-            vmovd   xmm0, eax
             vpshufd xmm0, xmm0, 0
             vpaddd  xmm1, xmm0, xmm2
-            vmovdqu xmmword ptr [rsp+rax*4+10A8h+_First], xmm1
           }
+          *(_OWORD *)&_First[v8] = _XMM1;
+          v18 = v8 + 4;
+          v8 += 16;
+          _XMM0 = (unsigned int)v18;
+          __asm
+          {
+            vpshufd xmm0, xmm0, 0
+            vpaddd  xmm1, xmm0, xmm2
+          }
+          *(_OWORD *)&_First[v18] = _XMM1;
         }
-        while ( _EDX < ((unsigned int)sourceBufferLookupLen & 0xFFFFFFF0) );
+        while ( v7 < ((unsigned int)sourceBufferLookupLen & 0xFFFFFFF0) );
       }
-      if ( _EDX < (unsigned int)sourceBufferLookupLen )
+      if ( v7 < (unsigned int)sourceBufferLookupLen )
       {
-        v26 = &_First[_EDX];
+        v22 = &_First[v7];
         do
-          *v26++ = _EDX++;
-        while ( _EDX < (unsigned int)sourceBufferLookupLen );
+          *v22++ = v7++;
+        while ( v7 < (unsigned int)sourceBufferLookupLen );
       }
     }
     if ( v1->m_Instance )
@@ -7153,245 +6902,238 @@ void Scr_TrackServerTimeSetMaxScriptOps(scrContext_t *scrContext)
     {
       std::_Sort_unchecked<int *,bool (*)(int,int)>(_First, &_First[sourceBufferLookupLen], sourceBufferLookupLen, Scr_CompareScriptSourceUsageOps_Server);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+10A8h+_First]
-      vmovups ymmword ptr [rsi+9B04h], ymm0
-      vmovups ymm1, [rsp+10A8h+var_1018]
-      vmovups ymmword ptr [rsi+9B24h], ymm1
-      vmovups ymm0, [rsp+10A8h+var_FF8]
-      vmovups ymmword ptr [rsi+9B44h], ymm0
-      vmovups ymm1, [rsp+10A8h+var_FD8]
-    }
-    v31 = 0;
-    v61 = 0i64;
-    __asm { vmovups ymmword ptr [rsi+9B64h], ymm1 }
-    v58 = 0;
-    v32 = 0i64;
+    *(__m256i *)Profile->scriptSrcBufferIndex = *(__m256i *)_First;
+    *(__m256i *)&Profile->scriptSrcBufferIndex[8] = v57;
+    *(__m256i *)&Profile->scriptSrcBufferIndex[16] = v58;
+    v23 = 0;
+    v53 = 0i64;
+    *(__m256i *)&Profile->scriptSrcBufferIndex[24] = v59;
+    v50 = 0;
+    v24 = 0i64;
     do
     {
-      v33 = LOWORD(_RSI->scriptSrcBufferIndex[v32]);
-      if ( v33 >= v1->m_parserPub.sourceBufferLookupLen )
+      v25 = LOWORD(v2->scriptSrcBufferIndex[v24]);
+      if ( v25 >= v1->m_parserPub.sourceBufferLookupLen )
       {
-        LODWORD(v57) = v1->m_parserPub.sourceBufferLookupLen;
-        LODWORD(v56) = LOWORD(_RSI->scriptSrcBufferIndex[v32]);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3185, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndex ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "srcBufferIndex doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v56, v57) )
+        LODWORD(v49) = v1->m_parserPub.sourceBufferLookupLen;
+        LODWORD(v48) = LOWORD(v2->scriptSrcBufferIndex[v24]);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3185, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndex ) < (unsigned)( scrContext.m_parserPub.sourceBufferLookupLen )", "srcBufferIndex doesn't index scrContext.m_parserPub.sourceBufferLookupLen\n\t%i not in [0, %i)", v48, v49) )
           __debugbreak();
-        v31 = v58;
+        v23 = v50;
       }
-      v34 = &SourceBufferLookup[(unsigned __int16)v33];
-      if ( v34->totalOps >= 0x3E8 )
+      v26 = &SourceBufferLookup[(unsigned __int16)v25];
+      if ( v26->totalOps >= 0x3E8 )
       {
-        p_fileCount = &_RSI->scrFileTimeTracking[0].fileCount;
-        v36 = 0;
-        v37 = &_RSI->scrFileTimeTracking[0].fileCount;
-        p_srcBufferIdx = &_RSI->scrFileTimeTracking[0].srcBufferIdx;
-        while ( !*v37 || *p_srcBufferIdx != (_WORD)v33 )
+        p_fileCount = &v2->scrFileTimeTracking[0].fileCount;
+        v28 = 0;
+        v29 = &v2->scrFileTimeTracking[0].fileCount;
+        p_srcBufferIdx = &v2->scrFileTimeTracking[0].srcBufferIdx;
+        while ( !*v29 || *p_srcBufferIdx != (_WORD)v25 )
         {
-          if ( v37[2280] && p_srcBufferIdx[4560] == (_WORD)v33 )
+          if ( v29[2280] && p_srcBufferIdx[4560] == (_WORD)v25 )
           {
-            ++v36;
+            ++v28;
             break;
           }
-          if ( v37[4560] && p_srcBufferIdx[9120] == (_WORD)v33 )
+          if ( v29[4560] && p_srcBufferIdx[9120] == (_WORD)v25 )
           {
-            v36 += 2;
+            v28 += 2;
             break;
           }
-          if ( v37[6840] && p_srcBufferIdx[13680] == (_WORD)v33 )
+          if ( v29[6840] && p_srcBufferIdx[13680] == (_WORD)v25 )
           {
-            v36 += 3;
+            v28 += 3;
             break;
           }
-          v37 += 9120;
+          v29 += 9120;
           p_srcBufferIdx += 18240;
-          v36 += 4;
-          if ( v36 >= 0x40 )
+          v28 += 4;
+          if ( v28 >= 0x40 )
             break;
         }
-        v39 = v36 < 0x40;
-        if ( v36 != 64 )
+        v31 = v28 < 0x40;
+        if ( v28 != 64 )
           goto LABEL_189;
-        v36 = 0;
+        v28 = 0;
         while ( *p_fileCount )
         {
           if ( !p_fileCount[2280] )
           {
-            ++v36;
+            ++v28;
             break;
           }
           if ( !p_fileCount[4560] )
           {
-            v36 += 2;
+            v28 += 2;
             break;
           }
           if ( !p_fileCount[6840] )
           {
-            v36 += 3;
+            v28 += 3;
             break;
           }
           p_fileCount += 9120;
-          v36 += 4;
-          if ( v36 >= 0x40 )
+          v28 += 4;
+          if ( v28 >= 0x40 )
             break;
         }
-        v39 = v36 < 0x40;
-        if ( v36 == 64 )
+        v31 = v28 < 0x40;
+        if ( v28 == 64 )
         {
-          v40 = DVARBOOL_sv_debugTrackServerTime;
+          v32 = DVARBOOL_sv_debugTrackServerTime;
           if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v40);
-          if ( v40->current.enabled )
-            Com_Printf(23, "Scr_TrackServerTimeSetMaxScriptOps: Ran out of room to track script file. File '%s' will not be tracked.\n", v34->buf);
+          Dvar_CheckFrontendServerThread(v32);
+          if ( v32->current.enabled )
+            Com_Printf(23, "Scr_TrackServerTimeSetMaxScriptOps: Ran out of room to track script file. File '%s' will not be tracked.\n", v26->buf);
         }
         else
         {
 LABEL_189:
-          if ( !v39 )
+          if ( !v31 )
           {
-            LODWORD(v57) = 64;
-            LODWORD(v56) = v36;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3221, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndexTrack ) < (unsigned)( 64 )", "srcBufferIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FILE\n\t%i not in [0, %i)", v56, v57) )
+            LODWORD(v49) = 64;
+            LODWORD(v48) = v28;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3221, ASSERT_TYPE_ASSERT, "(unsigned)( srcBufferIndexTrack ) < (unsigned)( 64 )", "srcBufferIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FILE\n\t%i not in [0, %i)", v48, v49) )
               __debugbreak();
           }
-          v41 = (__int64)&_RSI->scrFileTimeTracking[v36];
-          if ( _RSI->scrFileTimeTracking[v36].srcBufferIdx != (_WORD)v33 && _RSI->scrFileTimeTracking[v36].fileCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3224, ASSERT_TYPE_ASSERT, "( fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0 )", (const char *)&queryFormat, "fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0") )
+          v33 = (__int64)&v2->scrFileTimeTracking[v28];
+          if ( v2->scrFileTimeTracking[v28].srcBufferIdx != (_WORD)v25 && v2->scrFileTimeTracking[v28].fileCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3224, ASSERT_TYPE_ASSERT, "( fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0 )", (const char *)&queryFormat, "fileSummary->srcBufferIdx == srcBufferIndex || fileSummary->fileCount == 0") )
             __debugbreak();
-          v42 = _RSI->scrFileTimeTracking[v36].fileCount == 0;
-          _RSI->scrFileTimeTracking[v36].srcBufferIdx = v33;
-          if ( v42 )
-            _RSI->scrFileTimeTracking[v36].fileCount = 1;
-          _RSI->scrFileTimeTracking[v36].opCountMax = v34->totalOps;
-          functionLookupLen = v34->functionLookupLen;
+          v34 = v2->scrFileTimeTracking[v28].fileCount == 0;
+          v2->scrFileTimeTracking[v28].srcBufferIdx = v25;
+          if ( v34 )
+            v2->scrFileTimeTracking[v28].fileCount = 1;
+          v2->scrFileTimeTracking[v28].opCountMax = v26->totalOps;
+          functionLookupLen = v26->functionLookupLen;
           if ( functionLookupLen )
           {
             if ( functionLookupLen > 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3236, ASSERT_TYPE_ASSERT, "( srcBuffer->functionLookupLen <= 1024 )", (const char *)&queryFormat, "srcBuffer->functionLookupLen <= SCR_DEBUG_FUNCTION_COUNT_PER_FILE") )
               __debugbreak();
-            v44 = 0;
-            if ( v34->functionLookupLen )
+            v36 = 0;
+            if ( v26->functionLookupLen )
             {
               do
               {
-                v45 = (__int64)&v34->functionLookupDynamic[v44];
-                v46 = (__int64)&v34->functionLookupStatic[v44];
-                if ( *(_DWORD *)(v45 + 16) >= 0x3E8u )
+                v37 = (__int64)&v26->functionLookupDynamic[v36];
+                v38 = (__int64)&v26->functionLookupStatic[v36];
+                if ( *(_DWORD *)(v37 + 16) >= 0x3E8u )
                 {
-                  v47 = (_BYTE *)(v41 + 282);
-                  v48 = 0;
-                  v49 = (_BYTE *)(v41 + 282);
-                  v50 = (_WORD *)(v41 + 280);
-                  while ( !*v49 || *v50 != v44 )
+                  v39 = (_BYTE *)(v33 + 282);
+                  v40 = 0;
+                  v41 = (_BYTE *)(v33 + 282);
+                  v42 = (_WORD *)(v33 + 280);
+                  while ( !*v41 || *v42 != v36 )
                   {
-                    if ( v49[284] && v50[142] == v44 )
+                    if ( v41[284] && v42[142] == v36 )
                     {
-                      ++v48;
+                      ++v40;
                       break;
                     }
-                    if ( v49[568] && v50[284] == v44 )
+                    if ( v41[568] && v42[284] == v36 )
                     {
-                      v48 += 2;
+                      v40 += 2;
                       break;
                     }
-                    if ( v49[852] && v50[426] == v44 )
+                    if ( v41[852] && v42[426] == v36 )
                     {
-                      v48 += 3;
+                      v40 += 3;
                       break;
                     }
-                    v49 += 1136;
-                    v50 += 568;
-                    v48 += 4;
-                    if ( v48 >= 0x20 )
+                    v41 += 1136;
+                    v42 += 568;
+                    v40 += 4;
+                    if ( v40 >= 0x20 )
                       break;
                   }
-                  v51 = v48 < 0x20;
-                  if ( v48 != 32 )
+                  v43 = v40 < 0x20;
+                  if ( v40 != 32 )
                     goto LABEL_190;
-                  v48 = 0;
-                  v52 = v41 + 272;
-                  while ( !*(_BYTE *)(v52 + 10) || *(_DWORD *)v52 )
+                  v40 = 0;
+                  v44 = v33 + 272;
+                  while ( !*(_BYTE *)(v44 + 10) || *(_DWORD *)v44 )
                   {
-                    ++v48;
-                    v52 += 284i64;
-                    if ( v48 >= 0x20 )
+                    ++v40;
+                    v44 += 284i64;
+                    if ( v40 >= 0x20 )
                       goto LABEL_156;
                   }
-                  *(_BYTE *)(284i64 * v48 + v41 + 282) = 0;
-                  v51 = v48 < 0x20;
-                  if ( v48 != 32 )
+                  *(_BYTE *)(284i64 * v40 + v33 + 282) = 0;
+                  v43 = v40 < 0x20;
+                  if ( v40 != 32 )
                     goto LABEL_190;
 LABEL_156:
-                  v48 = 0;
-                  while ( *v47 )
+                  v40 = 0;
+                  while ( *v39 )
                   {
-                    if ( !v47[284] )
+                    if ( !v39[284] )
                     {
-                      ++v48;
+                      ++v40;
                       break;
                     }
-                    if ( !v47[568] )
+                    if ( !v39[568] )
                     {
-                      v48 += 2;
+                      v40 += 2;
                       break;
                     }
-                    if ( !v47[852] )
+                    if ( !v39[852] )
                     {
-                      v48 += 3;
+                      v40 += 3;
                       break;
                     }
-                    v47 += 1136;
-                    v48 += 4;
-                    if ( v48 >= 0x20 )
+                    v39 += 1136;
+                    v40 += 4;
+                    if ( v40 >= 0x20 )
                       break;
                   }
-                  v51 = v48 < 0x20;
-                  if ( v48 == 32 )
+                  v43 = v40 < 0x20;
+                  if ( v40 == 32 )
                   {
-                    v53 = DVARBOOL_sv_debugTrackServerTime;
+                    v45 = DVARBOOL_sv_debugTrackServerTime;
                     if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
                       __debugbreak();
-                    Dvar_CheckFrontendServerThread(v53);
-                    if ( v53->current.enabled )
-                      Com_Printf(23, "Scr_TrackServerTimeSetMaxScriptOps: Ran out of room to track function. Func '%s' with total Op count %d will not be tracked.\n", (const char *)(v46 + 16), *(unsigned int *)(v45 + 16));
+                    Dvar_CheckFrontendServerThread(v45);
+                    if ( v45->current.enabled )
+                      Com_Printf(23, "Scr_TrackServerTimeSetMaxScriptOps: Ran out of room to track function. Func '%s' with total Op count %d will not be tracked.\n", (const char *)(v38 + 16), *(unsigned int *)(v37 + 16));
                   }
                   else
                   {
 LABEL_190:
-                    if ( !v51 )
+                    if ( !v43 )
                     {
-                      LODWORD(v57) = 32;
-                      LODWORD(v56) = v48;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3291, ASSERT_TYPE_ASSERT, "(unsigned)( funcIndexTrack ) < (unsigned)( 32 )", "funcIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FUNC\n\t%i not in [0, %i)", v56, v57) )
+                      LODWORD(v49) = 32;
+                      LODWORD(v48) = v40;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3291, ASSERT_TYPE_ASSERT, "(unsigned)( funcIndexTrack ) < (unsigned)( 32 )", "funcIndexTrack doesn't index PROF_SCRIPT_SOURCE_TRACK_COUNT_FUNC\n\t%i not in [0, %i)", v48, v49) )
                         __debugbreak();
                     }
-                    v54 = v41 + 284i64 * v48;
-                    if ( *(_WORD *)(v54 + 280) != v44 && *(_BYTE *)(v54 + 282) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3294, ASSERT_TYPE_ASSERT, "( funcSummary->funcIndex == funcIndex || !funcSummary->inUse )", (const char *)&queryFormat, "funcSummary->funcIndex == funcIndex || !funcSummary->inUse") )
+                    v46 = v33 + 284i64 * v40;
+                    if ( *(_WORD *)(v46 + 280) != v36 && *(_BYTE *)(v46 + 282) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_parser.cpp", 3294, ASSERT_TYPE_ASSERT, "( funcSummary->funcIndex == funcIndex || !funcSummary->inUse )", (const char *)&queryFormat, "funcSummary->funcIndex == funcIndex || !funcSummary->inUse") )
                       __debugbreak();
-                    *(_BYTE *)(v54 + 282) = 1;
-                    *(_WORD *)(v54 + 280) = v44;
-                    *(_DWORD *)(v54 + 276) = *(_DWORD *)(v45 + 16);
+                    *(_BYTE *)(v46 + 282) = 1;
+                    *(_WORD *)(v46 + 280) = v36;
+                    *(_DWORD *)(v46 + 276) = *(_DWORD *)(v37 + 16);
                   }
                 }
-                ++v44;
+                ++v36;
               }
-              while ( v44 < v34->functionLookupLen );
-              v32 = v61;
-              _RSI = Profile;
+              while ( v36 < v26->functionLookupLen );
+              v24 = v53;
+              v2 = Profile;
             }
           }
-          SourceBufferLookup = v60;
+          SourceBufferLookup = v52;
         }
-        v31 = v58;
+        v23 = v50;
         v1 = scrContext;
       }
-      ++v31;
-      ++v32;
-      v58 = v31;
-      v61 = v32;
+      ++v23;
+      ++v24;
+      v50 = v23;
+      v53 = v24;
     }
-    while ( v31 < 0x20 );
-    v55 = __rdtsc();
-    _RSI->scrProfileCalcTimeTotal += (int)v55 - v63;
+    while ( v23 < 0x20 );
+    v47 = __rdtsc();
+    v2->scrProfileCalcTimeTotal += (int)v47 - v55;
   }
 }
 

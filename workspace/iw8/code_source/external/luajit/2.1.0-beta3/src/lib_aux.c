@@ -393,8 +393,9 @@ luaL_fileresult
 __int64 luaL_fileresult(lua_State *L, int stat, const char *fname)
 {
   __int64 result; 
-  int v7; 
-  char *v8; 
+  int v6; 
+  char *v7; 
+  TValue *top; 
 
   if ( stat )
   {
@@ -404,23 +405,20 @@ __int64 luaL_fileresult(lua_State *L, int stat, const char *fname)
   }
   else
   {
-    v7 = *_errno();
+    v6 = *_errno();
     L->top->u64 = -1i64;
     ++L->top;
-    v8 = strerror(v7);
+    v7 = strerror(v6);
     if ( fname )
-      j_lua_pushfstring(L, "%s: %s", fname, v8);
+      j_lua_pushfstring(L, "%s: %s", fname, v7);
     else
-      j_lua_pushfstring(L, (const char *)&queryFormat, v8);
-    _RCX = L->top;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, edi
-    }
-    L->top = _RCX + 1;
+      j_lua_pushfstring(L, (const char *)&queryFormat, v7);
+    top = L->top;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, edi }
+    L->top = top + 1;
     result = 3i64;
-    __asm { vmovsd  qword ptr [rcx], xmm0 }
+    top->u64 = *(unsigned __int64 *)&_XMM0;
   }
   return result;
 }
@@ -433,17 +431,18 @@ luaL_execresult
 __int64 luaL_execresult(lua_State *L, int stat)
 {
   TValue *top; 
-  int v5; 
-  char *v6; 
+  int v4; 
+  char *v5; 
+  TValue *v6; 
   __int64 result; 
 
   if ( stat == -1 )
   {
-    v5 = *_errno();
+    v4 = *_errno();
     L->top->u64 = -1i64;
     ++L->top;
-    v6 = strerror(v5);
-    j_lua_pushfstring(L, (const char *)&queryFormat, v6);
+    v5 = strerror(v4);
+    j_lua_pushfstring(L, (const char *)&queryFormat, v5);
   }
   else
   {
@@ -455,15 +454,12 @@ __int64 luaL_execresult(lua_State *L, int stat)
     ++L->top;
     j_lua_pushlstring(L, "exit", 4ui64);
   }
-  _RCX = L->top;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, ebx
-  }
-  L->top = _RCX + 1;
+  v6 = L->top;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, ebx }
+  L->top = v6 + 1;
   result = 3i64;
-  __asm { vmovsd  qword ptr [rcx], xmm0 }
+  v6->u64 = *(unsigned __int64 *)&_XMM0;
   return result;
 }
 

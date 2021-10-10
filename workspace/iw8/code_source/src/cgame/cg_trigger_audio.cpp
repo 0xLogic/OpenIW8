@@ -676,20 +676,24 @@ CG_AddFullOcclusionDebugLine
 */
 void CG_AddFullOcclusionDebugLine(const vec3_t *start, const vec3_t *end, const vec3_t *intersect, bool occluded, const SndAlias *alias)
 {
+  __int128 v5; 
   const dvar_t *v6; 
   const dvar_t *v11; 
   const char *string; 
   char v13; 
   char *v14; 
-  int v26; 
-  int v30; 
-  __int64 v35; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float value; 
+  int v19; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  __m256i v21; 
+  double v22; 
   char dest[128]; 
+  __int128 v24; 
 
   v6 = DCONST_DVARINT_snd_fullOcclusionDebug;
-  _RBP = intersect;
-  _R14 = end;
-  _R15 = start;
   if ( !DCONST_DVARINT_snd_fullOcclusionDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_fullOcclusionDebug") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v6);
@@ -723,45 +727,24 @@ void CG_AddFullOcclusionDebugLine(const vec3_t *start, const vec3_t *end, const 
 LABEL_16:
     if ( !dest[0] || v13 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15]
-        vmovss  xmm1, dword ptr [r15+4]
-      }
-      _RBX = DCONST_DVARFLT_snd_occlusionDebugTime;
-      __asm { vmovaps [rsp+138h+var_38], xmm6 }
-      BYTE4(v35) = occluded;
-      __asm
-      {
-        vmovss  dword ptr [rsp+138h+var_F8], xmm0
-        vmovss  xmm0, dword ptr [r15+8]
-        vmovss  dword ptr [rsp+138h+var_F8+8], xmm0
-        vmovss  xmm0, dword ptr [r14+4]
-        vmovss  dword ptr [rsp+138h+var_F8+4], xmm1
-        vmovss  xmm1, dword ptr [r14]
-        vmovss  dword ptr [rsp+138h+var_F8+10h], xmm0
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  dword ptr [rsp+138h+var_F8+0Ch], xmm1
-        vmovss  xmm1, dword ptr [r14+8]
-        vmovss  dword ptr [rsp+138h+var_F8+18h], xmm0
-        vmovss  xmm0, dword ptr [rbp+8]
-        vmovss  dword ptr [rsp+138h+var_F8+14h], xmm1
-        vmovss  xmm1, dword ptr [rbp+4]
-        vmovss  dword ptr [rsp+138h+var_D8], xmm0
-        vmovss  dword ptr [rsp+138h+var_F8+1Ch], xmm1
-      }
+      v15 = start->v[0];
+      v16 = start->v[1];
+      v17 = DCONST_DVARFLT_snd_occlusionDebugTime;
+      v24 = v5;
+      BYTE4(v22) = occluded;
+      *(float *)v21.m256i_i32 = v15;
+      v21.m256i_i32[2] = LODWORD(start->v[2]);
+      *(float *)&v21.m256i_i32[1] = v16;
+      *(__int64 *)((char *)&v21.m256i_i64[1] + 4) = *(_QWORD *)end->v;
+      v21.m256i_i32[6] = LODWORD(intersect->v[0]);
+      v21.m256i_i32[5] = LODWORD(end->v[2]);
+      *(float *)&v22 = intersect->v[2];
+      v21.m256i_i32[7] = LODWORD(intersect->v[1]);
       if ( !DCONST_DVARFLT_snd_occlusionDebugTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_occlusionDebugTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      v26 = Sys_Milliseconds();
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@c47a0000
-        vmovaps xmm6, [rsp+138h+var_38]
-        vcvttss2si ecx, xmm0
-      }
-      v30 = v26 - _ECX;
+      Dvar_CheckFrontendServerThread(v17);
+      value = v17->current.value;
+      v19 = Sys_Milliseconds() - (int)(float)(value * -1000.0);
       if ( !s_fullOcclusionLines.m_freelist.m_head.mp_next )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
@@ -771,22 +754,14 @@ LABEL_16:
       }
       if ( (ntl::internal::pool_allocator_freelist<64> *)s_fullOcclusionLines.m_freelist.m_head.mp_next == &s_fullOcclusionLines.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x40ui64, 0x63ui64) )
         __debugbreak();
-      _R8 = (ntl::internal::list_node<FullOcclusionLine> *)s_fullOcclusionLines.m_freelist.m_head.mp_next;
-      __asm
-      {
-        vmovups ymm0, [rsp+138h+var_F8]
-        vmovsd  xmm1, [rsp+138h+var_D8]
-      }
+      mp_next = s_fullOcclusionLines.m_freelist.m_head.mp_next;
       s_fullOcclusionLines.m_freelist.m_head.mp_next = s_fullOcclusionLines.m_freelist.m_head.mp_next->mp_next;
-      __asm
-      {
-        vmovups ymmword ptr [r8+10h], ymm0
-        vmovsd  qword ptr [r8+30h], xmm1
-      }
-      _R8->mp_prev = NULL;
-      _R8->mp_next = NULL;
-      _R8->m_data.time = v30;
-      ntl::internal::list_head_base<ntl::internal::list_node<FullOcclusionLine>>::insert_before(&s_fullOcclusionLines.m_listHead, (ntl::internal::list_node<FullOcclusionLine> *)&s_fullOcclusionLines.m_listHead, _R8);
+      *(__m256i *)&mp_next[2].mp_next = v21;
+      *(double *)&mp_next[6].mp_next = v22;
+      mp_next->mp_next = NULL;
+      mp_next[1].mp_next = NULL;
+      LODWORD(mp_next[7].mp_next) = v19;
+      ntl::internal::list_head_base<ntl::internal::list_node<FullOcclusionLine>>::insert_before(&s_fullOcclusionLines.m_listHead, (ntl::internal::list_node<FullOcclusionLine> *)&s_fullOcclusionLines.m_listHead, (ntl::internal::list_node<FullOcclusionLine> *)mp_next);
     }
   }
 }
@@ -829,360 +804,311 @@ bool CG_AreAudioZonesOverriden(LocalClientNum_t localClientNum)
 CG_ChangeAudio
 ==============
 */
-
-void __fastcall CG_ChangeAudio(LocalClientNum_t localClientNum, __int64 a2, __int64 a3, double _XMM3_8)
+void CG_ChangeAudio(LocalClientNum_t localClientNum)
 {
-  const SoundTable *v6; 
-  __int64 v8; 
+  const SoundTable *v1; 
+  __int64 v3; 
   __int64 reverbIndex; 
   __int64 ctOcclusionZoneA; 
-  int v11; 
+  int v6; 
   ZoneDef *zones; 
+  int v8; 
+  unsigned int v9; 
+  OccludeDef *v10; 
+  __int64 ctOcclusionZoneB; 
+  ZoneDef *v12; 
   int v13; 
   unsigned int v14; 
   OccludeDef *v15; 
-  __int64 ctOcclusionZoneB; 
+  __int64 ctFilterZoneA; 
   ZoneDef *v17; 
   int v18; 
-  unsigned int v19; 
-  OccludeDef *v20; 
-  __int64 ctFilterZoneA; 
+  signed int v19; 
+  FilterDef *filters; 
+  __int64 ctFilterZoneB; 
   ZoneDef *v22; 
   int v23; 
   signed int v24; 
-  __int64 ctFilterZoneB; 
-  ZoneDef *v30; 
-  int v31; 
-  signed int v32; 
+  FilterDef *v25; 
   signed int VolModCount; 
   signed int i; 
+  double VolModDefaultValue; 
   __int64 ctMixZoneA; 
-  ZoneDef *v42; 
-  int v43; 
-  signed int v45; 
+  ZoneDef *v30; 
+  int v31; 
+  unsigned int v32; 
   __int64 ctAmbientZoneA; 
   const char *ambientStream; 
   __int64 ctAmbientEventZoneA; 
-  const SoundTable *v56; 
+  const SoundTable *v36; 
   __int16 ambientDefIndex; 
-  const AmbientDef *v59; 
+  float v38; 
+  const AmbientDef *v39; 
   __int64 ctFullOcclusionZoneA; 
-  const SoundTable *v61; 
-  ZoneDef *v62; 
-  unsigned int v63; 
-  float fmt; 
-  float fmta; 
+  const SoundTable *v41; 
+  ZoneDef *v42; 
+  unsigned int v43; 
   __int64 freq; 
-  float freqa; 
-  float freqb; 
   __int64 q; 
-  float qa; 
-  float qb; 
 
-  v6 = s_soundTablePtr;
-  v8 = localClientNum;
-  if ( s_audioZoneStates[v8].ctReverbZoneA >= s_soundTablePtr->zoneCount )
+  v1 = s_soundTablePtr;
+  v3 = localClientNum;
+  if ( s_audioZoneStates[v3].ctReverbZoneA >= s_soundTablePtr->zoneCount )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 436, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctReverbZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctReverbZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", s_audioZoneStates[v8].ctReverbZoneA, s_soundTablePtr->zoneCount) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 436, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctReverbZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctReverbZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", s_audioZoneStates[v3].ctReverbZoneA, s_soundTablePtr->zoneCount) )
       __debugbreak();
-    v6 = s_soundTablePtr;
+    v1 = s_soundTablePtr;
   }
-  reverbIndex = v6->zones[s_audioZoneStates[v8].ctReverbZoneA].reverbIndex;
+  reverbIndex = v1->zones[s_audioZoneStates[v3].ctReverbZoneA].reverbIndex;
   if ( (_DWORD)reverbIndex == -1 )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000; fadetime }
-    SND_ClearMainReverb(*(const float *)&_XMM0);
-  }
+    SND_ClearMainReverb(1.0);
   else
-  {
-    SND_SetMainReverb(&v6->reverbs[reverbIndex]);
-  }
+    SND_SetMainReverb(&v1->reverbs[reverbIndex]);
   SND_DeactivateAllEq(0);
   SND_DeactivateAllEq(1);
   SND_ClearAllOcclusionSettings();
-  if ( s_audioZoneStates[v8].ctOcclusionZoneA >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctOcclusionZoneA >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctOcclusionZoneA;
+    LODWORD(freq) = s_audioZoneStates[v3].ctOcclusionZoneA;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 452, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctOcclusionZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctOcclusionZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  if ( s_audioZoneStates[v8].ctOcclusionZoneB >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctOcclusionZoneB >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctOcclusionZoneB;
+    LODWORD(freq) = s_audioZoneStates[v3].ctOcclusionZoneB;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 453, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctOcclusionZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctOcclusionZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  ctOcclusionZoneA = s_audioZoneStates[v8].ctOcclusionZoneA;
-  v11 = 0;
+  ctOcclusionZoneA = s_audioZoneStates[v3].ctOcclusionZoneA;
+  v6 = 0;
   zones = s_soundTablePtr->zones;
   if ( zones[ctOcclusionZoneA].startOcclusionIndex != -1 )
   {
-    v13 = 0;
+    v8 = 0;
     if ( zones[ctOcclusionZoneA].numOcclusion > 0 )
     {
       do
       {
-        v14 = v13 + zones[(unsigned int)ctOcclusionZoneA].startOcclusionIndex;
-        if ( v14 >= s_soundTablePtr->occlusionFilterCount )
+        v9 = v8 + zones[(unsigned int)ctOcclusionZoneA].startOcclusionIndex;
+        if ( v9 >= s_soundTablePtr->occlusionFilterCount )
         {
           LODWORD(q) = s_soundTablePtr->occlusionFilterCount;
-          LODWORD(freq) = v13 + zones[(unsigned int)ctOcclusionZoneA].startOcclusionIndex;
+          LODWORD(freq) = v8 + zones[(unsigned int)ctOcclusionZoneA].startOcclusionIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 460, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->occlusionFilterCount )", "idx doesn't index s_soundTablePtr->occlusionFilterCount\n\t%i not in [0, %i)", freq, q) )
             __debugbreak();
         }
-        v15 = &s_soundTablePtr->occlusionFilters[v14];
-        SND_SetOcclusionFilterSingleIndex(v15->entChannelIdx, 0, v15);
-        ++v13;
-        LODWORD(ctOcclusionZoneA) = s_audioZoneStates[v8].ctOcclusionZoneA;
+        v10 = &s_soundTablePtr->occlusionFilters[v9];
+        SND_SetOcclusionFilterSingleIndex(v10->entChannelIdx, 0, v10);
+        ++v8;
+        LODWORD(ctOcclusionZoneA) = s_audioZoneStates[v3].ctOcclusionZoneA;
         zones = s_soundTablePtr->zones;
       }
-      while ( v13 < zones[(unsigned int)ctOcclusionZoneA].numOcclusion );
+      while ( v8 < zones[(unsigned int)ctOcclusionZoneA].numOcclusion );
     }
   }
-  ctOcclusionZoneB = s_audioZoneStates[v8].ctOcclusionZoneB;
-  v17 = s_soundTablePtr->zones;
-  if ( v17[ctOcclusionZoneB].startOcclusionIndex != -1 )
+  ctOcclusionZoneB = s_audioZoneStates[v3].ctOcclusionZoneB;
+  v12 = s_soundTablePtr->zones;
+  if ( v12[ctOcclusionZoneB].startOcclusionIndex != -1 )
   {
-    v18 = 0;
-    if ( v17[ctOcclusionZoneB].numOcclusion > 0 )
+    v13 = 0;
+    if ( v12[ctOcclusionZoneB].numOcclusion > 0 )
     {
       do
       {
-        v19 = v18 + v17[(unsigned int)ctOcclusionZoneB].startOcclusionIndex;
-        if ( v19 >= s_soundTablePtr->occlusionFilterCount )
+        v14 = v13 + v12[(unsigned int)ctOcclusionZoneB].startOcclusionIndex;
+        if ( v14 >= s_soundTablePtr->occlusionFilterCount )
         {
           LODWORD(q) = s_soundTablePtr->occlusionFilterCount;
-          LODWORD(freq) = v18 + v17[(unsigned int)ctOcclusionZoneB].startOcclusionIndex;
+          LODWORD(freq) = v13 + v12[(unsigned int)ctOcclusionZoneB].startOcclusionIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 470, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->occlusionFilterCount )", "idx doesn't index s_soundTablePtr->occlusionFilterCount\n\t%i not in [0, %i)", freq, q) )
             __debugbreak();
         }
-        v20 = &s_soundTablePtr->occlusionFilters[v19];
-        SND_SetOcclusionFilterSingleIndex(v20->entChannelIdx, 1, v20);
-        ++v18;
-        LODWORD(ctOcclusionZoneB) = s_audioZoneStates[v8].ctOcclusionZoneB;
-        v17 = s_soundTablePtr->zones;
+        v15 = &s_soundTablePtr->occlusionFilters[v14];
+        SND_SetOcclusionFilterSingleIndex(v15->entChannelIdx, 1, v15);
+        ++v13;
+        LODWORD(ctOcclusionZoneB) = s_audioZoneStates[v3].ctOcclusionZoneB;
+        v12 = s_soundTablePtr->zones;
       }
-      while ( v18 < v17[(unsigned int)ctOcclusionZoneB].numOcclusion );
+      while ( v13 < v12[(unsigned int)ctOcclusionZoneB].numOcclusion );
     }
   }
-  if ( s_audioZoneStates[v8].ctFilterZoneA >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctFilterZoneA >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctFilterZoneA;
+    LODWORD(freq) = s_audioZoneStates[v3].ctFilterZoneA;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 475, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctFilterZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctFilterZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  if ( s_audioZoneStates[v8].ctFilterZoneB >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctFilterZoneB >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctFilterZoneB;
+    LODWORD(freq) = s_audioZoneStates[v3].ctFilterZoneB;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 476, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctFilterZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctFilterZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  ctFilterZoneA = s_audioZoneStates[v8].ctFilterZoneA;
-  v22 = s_soundTablePtr->zones;
-  if ( v22[ctFilterZoneA].startFilterIndex != -1 )
+  ctFilterZoneA = s_audioZoneStates[v3].ctFilterZoneA;
+  v17 = s_soundTablePtr->zones;
+  if ( v17[ctFilterZoneA].startFilterIndex != -1 )
   {
-    v23 = 0;
-    if ( v22[ctFilterZoneA].numFilter > 0 )
+    v18 = 0;
+    if ( v17[ctFilterZoneA].numFilter > 0 )
     {
       do
       {
-        v24 = v23 + v22[(unsigned int)ctFilterZoneA].startFilterIndex;
-        if ( v24 >= s_soundTablePtr->filterCount )
+        v19 = v18 + v17[(unsigned int)ctFilterZoneA].startFilterIndex;
+        if ( v19 >= s_soundTablePtr->filterCount )
         {
           LODWORD(q) = s_soundTablePtr->filterCount;
-          LODWORD(freq) = v23 + v22[(unsigned int)ctFilterZoneA].startFilterIndex;
+          LODWORD(freq) = v18 + v17[(unsigned int)ctFilterZoneA].startFilterIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 483, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->filterCount )", "idx doesn't index s_soundTablePtr->filterCount\n\t%i not in [0, %i)", freq, q) )
             __debugbreak();
         }
-        _R9 = 3i64 * v24;
-        _RDX = s_soundTablePtr->filters;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx+r9*8+14h]
-          vmovss  xmm1, dword ptr [rdx+r9*8+0Ch]
-          vmovss  [rsp+68h+q], xmm0
-          vmovss  xmm0, dword ptr [rdx+r9*8+10h]
-          vmovss  [rsp+68h+freq], xmm1
-          vmovss  dword ptr [rsp+68h+fmt], xmm0
-        }
-        SND_SetEqEntChannel(_RDX[v24].entChannelIdx, 0, _RDX[v24].band, _RDX[v24].type, fmt, freqa, qa);
-        ++v23;
-        LODWORD(ctFilterZoneA) = s_audioZoneStates[v8].ctFilterZoneA;
-        v22 = s_soundTablePtr->zones;
+        filters = s_soundTablePtr->filters;
+        SND_SetEqEntChannel(filters[v19].entChannelIdx, 0, filters[v19].band, filters[v19].type, filters[v19].gain, filters[v19].freq, filters[v19].q);
+        ++v18;
+        LODWORD(ctFilterZoneA) = s_audioZoneStates[v3].ctFilterZoneA;
+        v17 = s_soundTablePtr->zones;
       }
-      while ( v23 < v22[(unsigned int)ctFilterZoneA].numFilter );
+      while ( v18 < v17[(unsigned int)ctFilterZoneA].numFilter );
     }
   }
-  ctFilterZoneB = s_audioZoneStates[v8].ctFilterZoneB;
-  v30 = s_soundTablePtr->zones;
-  if ( v30[ctFilterZoneB].startFilterIndex != -1 )
+  ctFilterZoneB = s_audioZoneStates[v3].ctFilterZoneB;
+  v22 = s_soundTablePtr->zones;
+  if ( v22[ctFilterZoneB].startFilterIndex != -1 )
   {
-    v31 = 0;
-    if ( v30[ctFilterZoneB].numFilter > 0 )
+    v23 = 0;
+    if ( v22[ctFilterZoneB].numFilter > 0 )
     {
       do
       {
-        v32 = v31 + v30[(unsigned int)ctFilterZoneB].startFilterIndex;
-        if ( v32 >= s_soundTablePtr->filterCount )
+        v24 = v23 + v22[(unsigned int)ctFilterZoneB].startFilterIndex;
+        if ( v24 >= s_soundTablePtr->filterCount )
         {
           LODWORD(q) = s_soundTablePtr->filterCount;
-          LODWORD(freq) = v31 + v30[(unsigned int)ctFilterZoneB].startFilterIndex;
+          LODWORD(freq) = v23 + v22[(unsigned int)ctFilterZoneB].startFilterIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 493, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->filterCount )", "idx doesn't index s_soundTablePtr->filterCount\n\t%i not in [0, %i)", freq, q) )
             __debugbreak();
         }
-        _R9 = 3i64 * v32;
-        _RDX = s_soundTablePtr->filters;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx+r9*8+14h]
-          vmovss  xmm1, dword ptr [rdx+r9*8+0Ch]
-          vmovss  [rsp+68h+q], xmm0
-          vmovss  xmm0, dword ptr [rdx+r9*8+10h]
-          vmovss  [rsp+68h+freq], xmm1
-          vmovss  dword ptr [rsp+68h+fmt], xmm0
-        }
-        SND_SetEqEntChannel(_RDX[v32].entChannelIdx, 1, _RDX[v32].band, _RDX[v32].type, fmta, freqb, qb);
-        ++v31;
-        LODWORD(ctFilterZoneB) = s_audioZoneStates[v8].ctFilterZoneB;
-        v30 = s_soundTablePtr->zones;
+        v25 = s_soundTablePtr->filters;
+        SND_SetEqEntChannel(v25[v24].entChannelIdx, 1, v25[v24].band, v25[v24].type, v25[v24].gain, v25[v24].freq, v25[v24].q);
+        ++v23;
+        LODWORD(ctFilterZoneB) = s_audioZoneStates[v3].ctFilterZoneB;
+        v22 = s_soundTablePtr->zones;
       }
-      while ( v31 < v30[(unsigned int)ctFilterZoneB].numFilter );
+      while ( v23 < v22[(unsigned int)ctFilterZoneB].numFilter );
     }
   }
   VolModCount = SND_GetVolModCount();
   for ( i = 0; i < VolModCount; ++i )
   {
-    *(double *)&_XMM0 = SND_GetVolModDefaultValue(i);
-    __asm { vmovaps xmm1, xmm0; value }
-    SND_SetVolModValue(i, *(float *)&_XMM1, 0);
+    VolModDefaultValue = SND_GetVolModDefaultValue(i);
+    SND_SetVolModValue(i, *(float *)&VolModDefaultValue, 0);
   }
-  __asm { vmovss  xmm2, cs:__real@bf800000; lerp }
-  SND_SubmixSetSlotsFromZones(s_soundTablePtr->zones[s_audioZoneStates[v8].ctMixZoneA].duck, s_soundTablePtr->zones[s_audioZoneStates[v8].ctMixZoneB].duck, *(const float *)&_XMM2);
-  if ( s_audioZoneStates[v8].ctMixZoneA >= s_soundTablePtr->zoneCount )
+  SND_SubmixSetSlotsFromZones(s_soundTablePtr->zones[s_audioZoneStates[v3].ctMixZoneA].duck, s_soundTablePtr->zones[s_audioZoneStates[v3].ctMixZoneB].duck, -1.0);
+  if ( s_audioZoneStates[v3].ctMixZoneA >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctMixZoneA;
+    LODWORD(freq) = s_audioZoneStates[v3].ctMixZoneA;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 510, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctMixZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctMixZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  ctMixZoneA = s_audioZoneStates[v8].ctMixZoneA;
-  v42 = s_soundTablePtr->zones;
-  if ( v42[ctMixZoneA].startMixIndex != -1 )
+  ctMixZoneA = s_audioZoneStates[v3].ctMixZoneA;
+  v30 = s_soundTablePtr->zones;
+  if ( v30[ctMixZoneA].startMixIndex != -1 )
   {
-    v43 = 0;
-    if ( v42[ctMixZoneA].numMix > 0 )
+    v31 = 0;
+    if ( v30[ctMixZoneA].numMix > 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+68h+var_28], xmm6
-        vmovss  xmm6, cs:__real@3a83126f
-      }
       do
       {
-        v45 = v43 + v42[(unsigned int)ctMixZoneA].startMixIndex;
-        if ( v45 >= s_soundTablePtr->mixCount )
+        v32 = v31 + v30[(unsigned int)ctMixZoneA].startMixIndex;
+        if ( v32 >= s_soundTablePtr->mixCount )
         {
           LODWORD(q) = s_soundTablePtr->mixCount;
-          LODWORD(freq) = v43 + v42[(unsigned int)ctMixZoneA].startMixIndex;
+          LODWORD(freq) = v31 + v30[(unsigned int)ctMixZoneA].startMixIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 517, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->mixCount )", "idx doesn't index s_soundTablePtr->mixCount\n\t%i not in [0, %i)", freq, q) )
             __debugbreak();
         }
-        _R9 = 2i64 * v45;
-        _RDX = s_soundTablePtr->mixes;
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rdx+r9*8+0Ch]
-          vcvttss2si r8d, xmm1; msec
-          vmovss  xmm1, dword ptr [rdx+r9*8+8]; value
-        }
-        SND_SetVolModValue(_RDX[v45].volModIndex, *(float *)&_XMM1, _ER8);
-        ++v43;
-        LODWORD(ctMixZoneA) = s_audioZoneStates[v8].ctMixZoneA;
-        v42 = s_soundTablePtr->zones;
+        SND_SetVolModValue(s_soundTablePtr->mixes[v32].volModIndex, s_soundTablePtr->mixes[v32].volume, (int)(float)(0.001 * s_soundTablePtr->mixes[v32].fade));
+        ++v31;
+        LODWORD(ctMixZoneA) = s_audioZoneStates[v3].ctMixZoneA;
+        v30 = s_soundTablePtr->zones;
       }
-      while ( v43 < v42[(unsigned int)ctMixZoneA].numMix );
-      __asm { vmovaps xmm6, [rsp+68h+var_28] }
+      while ( v31 < v30[(unsigned int)ctMixZoneA].numMix );
     }
   }
-  if ( s_audioZoneStates[v8].ctAmbientZoneA >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctAmbientZoneA >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctAmbientZoneA;
+    LODWORD(freq) = s_audioZoneStates[v3].ctAmbientZoneA;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 523, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  ctAmbientZoneA = s_audioZoneStates[v8].ctAmbientZoneA;
-  if ( (_DWORD)ctAmbientZoneA == s_audioZoneStates[v8].ctAmbientZoneB )
+  ctAmbientZoneA = s_audioZoneStates[v3].ctAmbientZoneA;
+  if ( (_DWORD)ctAmbientZoneA == s_audioZoneStates[v3].ctAmbientZoneB )
   {
     ambientStream = s_soundTablePtr->zones[ctAmbientZoneA].ambientStream;
     if ( ambientStream && *ambientStream )
-    {
-      __asm { vmovss  xmm2, cs:__real@3f800000; volumeScale }
-      SND_PlayAmbientAlias(localClientNum, ambientStream, *(float *)&_XMM2, 0, 1, SASYS_CGAME);
-    }
+      SND_PlayAmbientAlias(localClientNum, ambientStream, 1.0, 0, 1, SASYS_CGAME);
     else
-    {
       SND_StopAmbient(0);
-    }
   }
-  if ( s_audioZoneStates[v8].ctAmbientEventZoneA >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctAmbientEventZoneA >= s_soundTablePtr->zoneCount )
   {
     LODWORD(q) = s_soundTablePtr->zoneCount;
-    LODWORD(freq) = s_audioZoneStates[v8].ctAmbientEventZoneA;
+    LODWORD(freq) = s_audioZoneStates[v3].ctAmbientEventZoneA;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 538, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientEventZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientEventZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", freq, q) )
       __debugbreak();
   }
-  ctAmbientEventZoneA = s_audioZoneStates[v8].ctAmbientEventZoneA;
-  if ( (_DWORD)ctAmbientEventZoneA == s_audioZoneStates[v8].ctAmbientEventZoneB )
+  ctAmbientEventZoneA = s_audioZoneStates[v3].ctAmbientEventZoneA;
+  if ( (_DWORD)ctAmbientEventZoneA == s_audioZoneStates[v3].ctAmbientEventZoneB )
   {
-    v56 = s_soundTablePtr;
+    v36 = s_soundTablePtr;
     ambientDefIndex = s_soundTablePtr->zones[ctAmbientEventZoneA].ambientDefIndex;
     if ( ambientDefIndex == -1 )
     {
-      v59 = NULL;
-      v56 = NULL;
-      __asm { vxorps  xmm3, xmm3, xmm3; strength }
+      v39 = NULL;
+      v36 = NULL;
+      v38 = 0.0;
     }
     else
     {
-      __asm { vmovss  xmm3, cs:__real@3f800000 }
-      v59 = &s_soundTablePtr->ambientDefs[ambientDefIndex];
+      v38 = FLOAT_1_0;
+      v39 = &s_soundTablePtr->ambientDefs[ambientDefIndex];
     }
-    SND_SetAmbientEvents(localClientNum, v56, v59, *(float *)&_XMM3);
+    SND_SetAmbientEvents(localClientNum, v36, v39, v38);
   }
   SND_InitFullOcclusionFlags();
-  ctFullOcclusionZoneA = s_audioZoneStates[v8].ctFullOcclusionZoneA;
-  v61 = s_soundTablePtr;
-  v62 = s_soundTablePtr->zones;
-  if ( v62[ctFullOcclusionZoneA].startFullOccIndex != -1 && v62[ctFullOcclusionZoneA].numDisableFullOcc > 0 )
+  ctFullOcclusionZoneA = s_audioZoneStates[v3].ctFullOcclusionZoneA;
+  v41 = s_soundTablePtr;
+  v42 = s_soundTablePtr->zones;
+  if ( v42[ctFullOcclusionZoneA].startFullOccIndex != -1 && v42[ctFullOcclusionZoneA].numDisableFullOcc > 0 )
   {
     do
     {
-      v63 = v11 + v62[(unsigned int)ctFullOcclusionZoneA].startFullOccIndex;
-      if ( v63 >= v61->fullOcclusionDefCount )
+      v43 = v6 + v42[(unsigned int)ctFullOcclusionZoneA].startFullOccIndex;
+      if ( v43 >= v41->fullOcclusionDefCount )
       {
-        LODWORD(q) = v61->fullOcclusionDefCount;
-        LODWORD(freq) = v11 + v62[(unsigned int)ctFullOcclusionZoneA].startFullOccIndex;
+        LODWORD(q) = v41->fullOcclusionDefCount;
+        LODWORD(freq) = v6 + v42[(unsigned int)ctFullOcclusionZoneA].startFullOccIndex;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 561, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->fullOcclusionDefCount )", "idx doesn't index s_soundTablePtr->fullOcclusionDefCount\n\t%i not in [0, %i)", freq, q) )
           __debugbreak();
-        v61 = s_soundTablePtr;
+        v41 = s_soundTablePtr;
       }
-      SND_DisableFullOcclusionForEntChannel(v61->fullOcclusionDefs[v63].entChannelIdx);
-      ++v11;
-      v61 = s_soundTablePtr;
-      LODWORD(ctFullOcclusionZoneA) = s_audioZoneStates[v8].ctFullOcclusionZoneA;
-      v62 = s_soundTablePtr->zones;
+      SND_DisableFullOcclusionForEntChannel(v41->fullOcclusionDefs[v43].entChannelIdx);
+      ++v6;
+      v41 = s_soundTablePtr;
+      LODWORD(ctFullOcclusionZoneA) = s_audioZoneStates[v3].ctFullOcclusionZoneA;
+      v42 = s_soundTablePtr->zones;
     }
-    while ( v11 < v62[(unsigned int)ctFullOcclusionZoneA].numDisableFullOcc );
+    while ( v6 < v42[(unsigned int)ctFullOcclusionZoneA].numDisableFullOcc );
   }
-  g_audTrigWeapReflZoneA = s_audioZoneStates[v8].ctWeapReflZoneA;
-  g_audTrigWeapReflZoneB = s_audioZoneStates[v8].ctWeapReflZoneB;
-  g_audTrigPlayerBreathZoneA = s_audioZoneStates[v8].ctPlayerBreathZoneA;
-  g_audTrigPlayerBreathZoneB = s_audioZoneStates[v8].ctPlayerBreathZoneB;
+  g_audTrigWeapReflZoneA = s_audioZoneStates[v3].ctWeapReflZoneA;
+  g_audTrigWeapReflZoneB = s_audioZoneStates[v3].ctWeapReflZoneB;
+  g_audTrigPlayerBreathZoneA = s_audioZoneStates[v3].ctPlayerBreathZoneA;
+  g_audTrigPlayerBreathZoneB = s_audioZoneStates[v3].ctPlayerBreathZoneB;
 }
 
 /*
@@ -1274,38 +1200,46 @@ CG_ChooseWeapReflDistantZones
 */
 void CG_ChooseWeapReflDistantZones(const LocalClientNum_t localClientNum, const vec3_t *viewPosition, const vec3_t *viewDirection, const ZoneDef **outZoneFront, const ZoneDef **outZoneRear)
 {
-  __int64 v12; 
-  __int64 v13; 
-  __int16 *blendLookup; 
-  unsigned int v15; 
-  unsigned int numClientTriggerBlendNodes; 
-  __int64 v17; 
-  ClientTriggerBlendNode *v18; 
+  __int64 v7; 
+  __int64 v8; 
+  unsigned int v9; 
+  __int64 v10; 
+  ClientTriggerBlendNode *v11; 
   unsigned int triggerA; 
   unsigned int triggerB; 
-  __int64 v43; 
-  char v44; 
-  char v45; 
-  int v46; 
-  __int64 v49; 
-  const SoundTable *v50; 
-  const ZoneDef *v51; 
-  const SoundTable *v52; 
-  const SoundTable *v65; 
-  __int64 v76; 
-  int v82; 
-  const ZoneDef *v83; 
-  __int64 v84; 
-  __int64 v85; 
-  __int64 v86; 
-  __int64 v87; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int64 v26; 
+  int v27; 
+  __int64 v28; 
+  const SoundTable *v29; 
+  const ZoneDef *v30; 
+  const SoundTable *v31; 
+  const SoundTable *v32; 
+  __int64 v33; 
+  int v34; 
+  const ZoneDef *v35; 
+  __int64 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
   vec3_t outOffset; 
-  vec3_t v89; 
+  vec3_t v41; 
   vec3_t outOrigin; 
 
   *outZoneFront = NULL;
   *(_QWORD *)outOrigin.v = viewPosition;
-  v12 = localClientNum;
+  v7 = localClientNum;
   *outZoneRear = NULL;
   if ( cm.mapEnts )
   {
@@ -1313,161 +1247,86 @@ void CG_ChooseWeapReflDistantZones(const LocalClientNum_t localClientNum, const 
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3525, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_playerCurrentAudioTrigger ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( g_playerCurrentAudioTrigger )\n\t%i not in [0, %i)", localClientNum, 2) )
         __debugbreak();
-      LODWORD(v87) = 2;
-      LODWORD(v85) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3616, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_playerCurrentAudioBlendTrigger ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( g_playerCurrentAudioBlendTrigger )\n\t%i not in [0, %i)", v85, v87) )
+      LODWORD(v39) = 2;
+      LODWORD(v37) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3616, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_playerCurrentAudioBlendTrigger ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( g_playerCurrentAudioBlendTrigger )\n\t%i not in [0, %i)", v37, v39) )
         __debugbreak();
     }
-    v13 = (unsigned int)g_playerCurrentAudioBlendTrigger[v12];
-    if ( (_DWORD)v13 == 0x4000 )
+    v8 = (unsigned int)g_playerCurrentAudioBlendTrigger[v7];
+    if ( (_DWORD)v8 == 0x4000 )
     {
-      v82 = SND_LookupZoneIndex(g_playerCurrentAudioTrigger[v12]);
-      if ( v82 != 0x7FFFFFFF )
+      v34 = SND_LookupZoneIndex(g_playerCurrentAudioTrigger[v7]);
+      if ( v34 != 0x7FFFFFFF )
       {
-        v83 = &s_soundTablePtr->zones[v82];
-        *outZoneFront = v83;
-        *outZoneRear = v83;
+        v35 = &s_soundTablePtr->zones[v34];
+        *outZoneFront = v35;
+        *outZoneRear = v35;
       }
     }
     else
     {
-      blendLookup = cm.mapEnts->clientTrigger.blendLookup;
-      __asm
+      v9 = cm.mapEnts->clientTrigger.blendLookup[v8];
+      if ( v9 >= cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )
       {
-        vmovaps [rsp+110h+var_40], xmm6
-        vmovaps [rsp+110h+var_50], xmm7
-        vmovaps [rsp+110h+var_60], xmm8
-      }
-      v15 = blendLookup[v13];
-      numClientTriggerBlendNodes = cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes;
-      __asm
-      {
-        vmovaps [rsp+110h+var_70], xmm9
-        vmovaps [rsp+110h+var_80], xmm10
-        vmovaps [rsp+110h+var_90], xmm11
-      }
-      if ( v15 >= numClientTriggerBlendNodes )
-      {
-        LODWORD(v86) = numClientTriggerBlendNodes;
-        LODWORD(v84) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3533, ASSERT_TYPE_ASSERT, "(unsigned)( blendIndex ) < (unsigned)( cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )", "blendIndex doesn't index cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes\n\t%i not in [0, %i)", v84, v86) )
+        LODWORD(v38) = cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes;
+        LODWORD(v36) = cm.mapEnts->clientTrigger.blendLookup[v8];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3533, ASSERT_TYPE_ASSERT, "(unsigned)( blendIndex ) < (unsigned)( cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )", "blendIndex doesn't index cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes\n\t%i not in [0, %i)", v36, v38) )
           __debugbreak();
       }
-      v17 = v15;
-      v18 = &cm.mapEnts->clientTriggerBlend.blendNodes[v17];
-      triggerA = v18->triggerA;
-      triggerB = v18->triggerB;
-      CG_TriggerTransformPointOnMovingPlatform((const LocalClientNum_t)v12, triggerA, &v18->pointA, &outOffset, NULL);
-      CG_TriggerTransformPointOnMovingPlatform((const LocalClientNum_t)v12, triggerB, &cm.mapEnts->clientTriggerBlend.blendNodes[v17].pointB, &v89, NULL);
-      __asm
+      v10 = v9;
+      v11 = &cm.mapEnts->clientTriggerBlend.blendNodes[v10];
+      triggerA = v11->triggerA;
+      triggerB = v11->triggerB;
+      CG_TriggerTransformPointOnMovingPlatform((const LocalClientNum_t)v7, triggerA, &v11->pointA, &outOffset, NULL);
+      CG_TriggerTransformPointOnMovingPlatform((const LocalClientNum_t)v7, triggerB, &cm.mapEnts->clientTriggerBlend.blendNodes[v10].pointB, &v41, NULL);
+      v14 = outOffset.v[0] - **(float **)outOrigin.v;
+      v15 = outOffset.v[1] - *(float *)(*(_QWORD *)outOrigin.v + 4i64);
+      v16 = v41.v[0] - **(float **)outOrigin.v;
+      v17 = v41.v[1] - *(float *)(*(_QWORD *)outOrigin.v + 4i64);
+      v18 = v41.v[2] - *(float *)(*(_QWORD *)outOrigin.v + 8i64);
+      v19 = v16 * viewDirection->v[0];
+      v20 = (float)(v14 * viewDirection->v[0]) + (float)(v15 * viewDirection->v[1]);
+      v21 = (float)(outOffset.v[2] - *(float *)(*(_QWORD *)outOrigin.v + 8i64)) * viewDirection->v[2];
+      v22 = v17 * viewDirection->v[1];
+      outOffset.v[2] = outOffset.v[2] - *(float *)(*(_QWORD *)outOrigin.v + 8i64);
+      v23 = v20 + v21;
+      v24 = v18 * viewDirection->v[2];
+      v41.v[2] = v18;
+      v25 = (float)(v19 + v22) + v24;
+      outOffset.v[0] = v14;
+      outOffset.v[1] = v15;
+      v41.v[0] = v16;
+      v41.v[1] = v17;
+      v26 = SND_LookupZoneIndex(triggerA);
+      v27 = SND_LookupZoneIndex(triggerB);
+      v28 = v27;
+      if ( v23 < 0.0 || v23 <= v25 )
       {
-        vmovss  xmm0, dword ptr [rsp+110h+outOffset]
-        vsubss  xmm11, xmm0, dword ptr [rax]
-        vmovss  xmm0, dword ptr [rbp+4Fh+outOffset+4]
-        vsubss  xmm10, xmm0, dword ptr [rax+4]
-        vmovss  xmm0, dword ptr [rbp+4Fh+outOffset+8]
-        vsubss  xmm9, xmm0, dword ptr [rax+8]
-        vmovss  xmm0, dword ptr [rbp+4Fh+var_C0]
-        vsubss  xmm8, xmm0, dword ptr [rax]
-        vmovss  xmm0, dword ptr [rbp+4Fh+var_C0+4]
-        vsubss  xmm7, xmm0, dword ptr [rax+4]
-        vmovss  xmm0, dword ptr [rbp+4Fh+var_C0+8]
-        vsubss  xmm6, xmm0, dword ptr [rax+8]
-        vmulss  xmm0, xmm10, dword ptr [r13+4]
-        vmulss  xmm1, xmm11, dword ptr [r13+0]
-        vmulss  xmm3, xmm8, dword ptr [r13+0]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, dword ptr [r13+8]
-        vmulss  xmm0, xmm7, dword ptr [r13+4]
-        vmovss  dword ptr [rbp+4Fh+outOffset+8], xmm9
-        vaddss  xmm9, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [r13+8]
-        vaddss  xmm2, xmm3, xmm0
-        vmovss  dword ptr [rbp+4Fh+var_C0+8], xmm6
-        vaddss  xmm6, xmm2, xmm1
-        vmovss  dword ptr [rsp+110h+outOffset], xmm11
-        vmovss  dword ptr [rbp+4Fh+outOffset+4], xmm10
-        vmovss  dword ptr [rbp+4Fh+var_C0], xmm8
-        vmovss  dword ptr [rbp+4Fh+var_C0+4], xmm7
-      }
-      v43 = SND_LookupZoneIndex(triggerA);
-      v46 = SND_LookupZoneIndex(triggerB);
-      __asm
-      {
-        vmovaps xmm11, [rsp+110h+var_90]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm9, xmm0
-      }
-      v49 = v46;
-      if ( v44 )
-        goto LABEL_14;
-      __asm { vcomiss xmm9, xmm6 }
-      if ( v44 | v45 )
-      {
-LABEL_14:
-        __asm { vcomiss xmm6, xmm0 }
-        if ( v44 )
+        if ( v25 < 0.0 )
         {
-          SND_GetListenerOrigin((const LocalClientNum_t)v12, &outOrigin);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+110h+outOffset]
-            vsubss  xmm10, xmm0, dword ptr [rbp+4Fh+outOrigin]
-            vmovss  xmm1, dword ptr [rbp+4Fh+outOffset+4]
-            vsubss  xmm7, xmm1, dword ptr [rbp+4Fh+outOrigin+4]
-            vmovss  xmm0, dword ptr [rbp+4Fh+outOffset+8]
-            vsubss  xmm8, xmm0, dword ptr [rbp+4Fh+outOrigin+8]
-            vmovss  xmm1, dword ptr [rbp+4Fh+var_C0]
-            vsubss  xmm9, xmm1, dword ptr [rbp+4Fh+outOrigin]
-            vmovss  xmm0, dword ptr [rbp+4Fh+var_C0+4]
-            vsubss  xmm5, xmm0, dword ptr [rbp+4Fh+outOrigin+4]
-            vmovss  xmm1, dword ptr [rbp+4Fh+var_C0+8]
-            vsubss  xmm6, xmm1, dword ptr [rbp+4Fh+outOrigin+8]
-          }
-          v65 = s_soundTablePtr;
-          __asm
-          {
-            vmulss  xmm0, xmm10, xmm10
-            vmulss  xmm2, xmm7, xmm7
-            vaddss  xmm3, xmm2, xmm0
-            vmulss  xmm1, xmm8, xmm8
-            vaddss  xmm4, xmm3, xmm1
-            vmulss  xmm2, xmm5, xmm5
-            vmulss  xmm0, xmm9, xmm9
-            vaddss  xmm3, xmm2, xmm0
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm2, xmm3, xmm1
-            vcomiss xmm4, xmm2
-          }
-          if ( v44 )
-            v76 = v43;
+          SND_GetListenerOrigin((const LocalClientNum_t)v7, &outOrigin);
+          v32 = s_soundTablePtr;
+          if ( (float)((float)((float)((float)(outOffset.v[1] - outOrigin.v[1]) * (float)(outOffset.v[1] - outOrigin.v[1])) + (float)((float)(outOffset.v[0] - outOrigin.v[0]) * (float)(outOffset.v[0] - outOrigin.v[0]))) + (float)((float)(outOffset.v[2] - outOrigin.v[2]) * (float)(outOffset.v[2] - outOrigin.v[2]))) >= (float)((float)((float)((float)(v41.v[1] - outOrigin.v[1]) * (float)(v41.v[1] - outOrigin.v[1])) + (float)((float)(v41.v[0] - outOrigin.v[0]) * (float)(v41.v[0] - outOrigin.v[0]))) + (float)((float)(v41.v[2] - outOrigin.v[2]) * (float)(v41.v[2] - outOrigin.v[2]))) )
+            v33 = v28;
           else
-            v76 = v49;
-          *outZoneFront = &s_soundTablePtr->zones[v76];
-          v51 = &v65->zones[v76];
+            v33 = v26;
+          *outZoneFront = &s_soundTablePtr->zones[v33];
+          v30 = &v32->zones[v33];
         }
         else
         {
-          v52 = s_soundTablePtr;
-          *outZoneFront = &s_soundTablePtr->zones[v46];
-          v51 = &v52->zones[v43];
+          v31 = s_soundTablePtr;
+          *outZoneFront = &s_soundTablePtr->zones[v27];
+          v30 = &v31->zones[v26];
         }
       }
       else
       {
-        v50 = s_soundTablePtr;
-        *outZoneFront = &s_soundTablePtr->zones[v43];
-        v51 = &v50->zones[v46];
+        v29 = s_soundTablePtr;
+        *outZoneFront = &s_soundTablePtr->zones[v26];
+        v30 = &v29->zones[v27];
       }
-      *outZoneRear = v51;
-      __asm
-      {
-        vmovaps xmm10, [rsp+110h+var_80]
-        vmovaps xmm9, [rsp+110h+var_70]
-        vmovaps xmm8, [rsp+110h+var_60]
-        vmovaps xmm7, [rsp+110h+var_50]
-        vmovaps xmm6, [rsp+110h+var_40]
-      }
+      *outZoneRear = v30;
     }
   }
 }
@@ -1477,61 +1336,55 @@ LABEL_14:
 CG_ClearAudioOverride
 ==============
 */
-
-void __fastcall CG_ClearAudioOverride(LocalClientNum_t localClientNum, CTAudOverrideType overrideType, double fadeTime)
+void CG_ClearAudioOverride(LocalClientNum_t localClientNum, CTAudOverrideType overrideType, float fadeTime)
 {
-  __int64 v4; 
-  CTAudState *v5; 
+  __int64 v3; 
+  CTAudState *v4; 
   cg_t *LocalClientGlobals; 
-  int v8; 
+  int v6; 
+  CTAudOverride *v7; 
+  __int64 v8; 
   CTAudOverride *v9; 
-  __int64 v10; 
-  CTAudOverride *v11; 
-  CTAudOverride *v12; 
-  int v16; 
-  int v17; 
+  CTAudOverride *v10; 
+  int v11; 
+  int v12; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v4 = overrideType;
-  v5 = &s_audioZoneStates[localClientNum];
-  __asm { vmovaps xmm6, xmm2 }
+  v3 = overrideType;
+  v4 = &s_audioZoneStates[localClientNum];
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  if ( (unsigned int)v4 >= 7 )
+  if ( (unsigned int)v3 >= 7 )
   {
-    v17 = 7;
-    v16 = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1124, ASSERT_TYPE_ASSERT, "(unsigned)( overrideType ) < (unsigned)( ( sizeof( *array_counter( ctAudState->ctOverrideStack ) ) + 0 ) )", "overrideType doesn't index ARRAY_COUNT( ctAudState->ctOverrideStack )\n\t%i not in [0, %i)", v16, v17) )
+    v12 = 7;
+    v11 = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1124, ASSERT_TYPE_ASSERT, "(unsigned)( overrideType ) < (unsigned)( ( sizeof( *array_counter( ctAudState->ctOverrideStack ) ) + 0 ) )", "overrideType doesn't index ARRAY_COUNT( ctAudState->ctOverrideStack )\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
-  v8 = 6;
-  v9 = &v5->ctOverrideStack[v4];
-  v10 = 6i64;
-  v11 = &v5->ctOverrideStack[6];
-  while ( !v11->active )
+  v6 = 6;
+  v7 = &v4->ctOverrideStack[v3];
+  v8 = 6i64;
+  v9 = &v4->ctOverrideStack[6];
+  while ( !v9->active )
   {
-    --v8;
-    --v11;
-    if ( --v10 < 0 )
+    --v6;
+    --v9;
+    if ( --v8 < 0 )
     {
-      v12 = NULL;
+      v10 = NULL;
       goto LABEL_9;
     }
   }
-  v12 = &v5->ctOverrideStack[v8];
+  v10 = &v4->ctOverrideStack[v6];
 LABEL_9:
-  if ( v12 == v9 )
+  if ( v10 == v7 )
   {
-    __asm { vmulss  xmm0, xmm6, cs:__real@c47a0000 }
-    v5->scriptAudioZoneFadeStartTime = LocalClientGlobals->time;
-    __asm { vcvttss2si eax, xmm0 }
-    v5->scriptAudioZoneFadeTargetTime = LocalClientGlobals->time - _EAX;
-    v5->scriptPrevAudioZoneOverride = v9->scriptAudioZoneOverride;
+    v4->scriptAudioZoneFadeStartTime = LocalClientGlobals->time;
+    v4->scriptAudioZoneFadeTargetTime = LocalClientGlobals->time - (int)(float)(fadeTime * -1000.0);
+    v4->scriptPrevAudioZoneOverride = v7->scriptAudioZoneOverride;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  v9->scriptAudioZoneOverrideFlags = 2047;
-  v9->scriptAudioZoneOverrideB = 0x7FFFFFFF;
-  v9->scriptAudioZoneOverride = 0x7FFFFFFF;
-  v9->active = 0;
+  v7->scriptAudioZoneOverrideFlags = 2047;
+  v7->scriptAudioZoneOverrideB = 0x7FFFFFFF;
+  v7->scriptAudioZoneOverride = 0x7FFFFFFF;
+  v7->active = 0;
 }
 
 /*
@@ -1583,189 +1436,266 @@ __int64 CG_ClientTriggerAudioInUse()
 CG_DoesLineSegmentIntersectTrigger
 ==============
 */
-bool CG_DoesLineSegmentIntersectTrigger(const LocalClientNum_t localClientNum, const clientTriggerType_t typeMask, const vec3_t *start, const vec3_t *end, unsigned int *outTriggerIndex, vec3_t *outIntersectPos)
+char CG_DoesLineSegmentIntersectTrigger(const LocalClientNum_t localClientNum, const clientTriggerType_t typeMask, const vec3_t *start, const vec3_t *end, unsigned int *outTriggerIndex, vec3_t *outIntersectPos)
 {
   signed __int64 v6; 
-  void *v17; 
-  int v19; 
-  LocalClientNum_t v20; 
+  void *v7; 
+  unsigned __int64 v8; 
+  int v9; 
+  LocalClientNum_t v10; 
   MapEnts *mapEnts; 
-  const vec3_t *v22; 
-  const vec3_t *v23; 
+  const vec3_t *v12; 
+  const vec3_t *v13; 
   const SpatialPartition_Tree *spatialTree; 
-  unsigned int v25; 
-  unsigned int v26; 
-  unsigned int v27; 
-  MapEnts *v28; 
-  MapEnts *v35; 
+  unsigned int v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  MapEnts *v18; 
+  vec3_t *origins; 
+  __int64 v20; 
+  float v21; 
+  MapEnts *v22; 
+  unsigned int v23; 
   ClientTriggerModel *models; 
-  unsigned int v39; 
-  const vec3_t *v41; 
-  __int64 v42; 
-  bool result; 
-  __int64 v68; 
+  int v25; 
+  float v26; 
+  const vec3_t *v27; 
+  __int64 v28; 
+  const ClientTriggerHull *v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  const TriggerSlab *slabs; 
+  __int64 v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  const TriggerSlab *v59; 
+  float v60; 
+  float *v61; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float *v66; 
+  __int64 v67; 
   char *fmt; 
+  __int64 v69; 
   __int64 v70; 
-  __int64 v71; 
-  char v72[4496]; 
-  char v83; 
+  char v71[4496]; 
 
-  v17 = alloca(v6);
-  __asm
-  {
-    vmovaps [rsp+12C8h+var_48], xmm6
-    vmovaps [rsp+12C8h+var_58], xmm7
-    vmovaps [rsp+12C8h+var_68], xmm8
-    vmovaps [rsp+12C8h+var_78], xmm9
-    vmovaps [rsp+12C8h+var_88], xmm10
-    vmovaps [rsp+12C8h+var_98], xmm11
-    vmovaps [rsp+12C8h+var_A8], xmm12
-    vmovaps [rsp+12C8h+var_B8], xmm13
-    vmovaps [rsp+12C8h+var_C8], xmm14
-    vmovaps [rsp+12C8h+var_D8], xmm15
-  }
-  _RBP = (unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4480) = (unsigned __int64)&v68 ^ _security_cookie;
-  LOWORD(v19) = typeMask;
-  *(_DWORD *)(_RBP + 12) = typeMask;
-  v20 = localClientNum;
+  v7 = alloca(v6);
+  v8 = (unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v8 + 4480) = (unsigned __int64)&v67 ^ _security_cookie;
+  LOWORD(v9) = typeMask;
+  *(_DWORD *)(v8 + 12) = typeMask;
+  v10 = localClientNum;
   mapEnts = cm.mapEnts;
-  v22 = end;
-  *(_DWORD *)(_RBP + 8) = localClientNum;
-  v23 = start;
-  *(_QWORD *)(_RBP + 16) = outTriggerIndex;
-  *(_QWORD *)(_RBP + 352) = 0i64;
-  *(_DWORD *)(_RBP + 360) = 0;
-  *(_QWORD *)(_RBP + 368) = 0i64;
-  *(_QWORD *)(_RBP + 376) = 0i64;
+  v12 = end;
+  *(_DWORD *)(v8 + 8) = localClientNum;
+  v13 = start;
+  *(_QWORD *)(v8 + 16) = outTriggerIndex;
+  *(_QWORD *)(v8 + 352) = 0i64;
+  *(_DWORD *)(v8 + 360) = 0;
+  *(_QWORD *)(v8 + 368) = 0i64;
+  *(_QWORD *)(v8 + 376) = 0i64;
   spatialTree = mapEnts->clientTrigger.spatialTree;
-  *(_QWORD *)(_RBP + 40) = end;
-  *(_QWORD *)(_RBP + 32) = start;
-  *(_QWORD *)(_RBP + 24) = outIntersectPos;
-  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 160), spatialTree, start, end);
-  while ( SpatialPartition_Tree_SegmentIterator::Advance((SpatialPartition_Tree_SegmentIterator *)(_RBP + 160)) )
+  *(_QWORD *)(v8 + 40) = end;
+  *(_QWORD *)(v8 + 32) = start;
+  *(_QWORD *)(v8 + 24) = outIntersectPos;
+  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 160), spatialTree, start, end);
+  while ( 1 )
   {
-    if ( !*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
-      __debugbreak();
-    v25 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) + 20i64);
-    v26 = *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x168);
-    if ( v26 == v25 )
+    do
     {
-      if ( !*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+      if ( !SpatialPartition_Tree_SegmentIterator::Advance((SpatialPartition_Tree_SegmentIterator *)(v8 + 160)) )
+        return 0;
+      if ( !*(_QWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
         __debugbreak();
-      if ( (**(_BYTE **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
-        __debugbreak();
-      if ( *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x160) >= **(unsigned __int8 **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
-        __debugbreak();
-      v27 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) + 4i64 * *(unsigned int *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x160) + 4);
-    }
-    else
-    {
-      if ( v26 >= v25 )
+      v15 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) + 20i64);
+      v16 = *(_DWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x168);
+      if ( v16 == v15 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
+        if ( !*(_QWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
           __debugbreak();
-        v26 = *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x168);
+        if ( (**(_BYTE **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+          __debugbreak();
+        if ( *(_DWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x160) >= **(unsigned __int8 **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+          __debugbreak();
+        v17 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) + 4i64 * *(unsigned int *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x160) + 4);
       }
-      v27 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) + 8i64) + 4i64 * v26);
-    }
-    v28 = cm.mapEnts;
-    *(_DWORD *)_RBP = v27;
-    if ( v27 >= v28->clientTrigger.trigger.count )
-    {
-      LODWORD(v71) = v28->clientTrigger.trigger.count;
-      LODWORD(v70) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3420, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v70, v71) )
-        __debugbreak();
-      v28 = cm.mapEnts;
-    }
-    _R14 = v28->clientTrigger.origins;
-    _RSI = 3i64 * v27;
-    if ( (v28->clientTrigger.triggerType[v27] & (unsigned __int16)v19) != 0 && !g_audioTriggerDisabled[v27] )
-    {
-      CG_TriggerCalcMovingPlatformPos(v20, v23, v27, (vec3_t *)(_RBP + 64));
-      CG_TriggerCalcMovingPlatformPos(v20, v22, v27, (vec3_t *)(_RBP + 96));
-      __asm
+      else
       {
-        vmovss  xmm0, dword ptr [rbp+60h]
-        vsubss  xmm1, xmm0, dword ptr [rbp+40h]
-        vmovss  xmm2, dword ptr [rbp+64h]
-        vsubss  xmm0, xmm2, dword ptr [rbp+44h]
-      }
-      v35 = cm.mapEnts;
-      __asm
-      {
-        vmovss  dword ptr [rbp+30h], xmm1
-        vmovss  xmm1, dword ptr [rbp+68h]
-        vsubss  xmm2, xmm1, dword ptr [rbp+48h]
-        vmovss  dword ptr [rbp+38h], xmm2
-        vmovss  dword ptr [rbp+34h], xmm0
-      }
-      models = v35->clientTrigger.trigger.models;
-      v39 = 0;
-      if ( models[v27].hullCount )
-      {
-        do
+        if ( v16 >= v15 )
         {
-          __asm { vmovss  xmm0, dword ptr [r14+rsi*4] }
-          v41 = *(const vec3_t **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
-          v42 = v39 + models[v27].firstHull;
-          fmt = (char *)(_RBP + 4);
-          _RDI = (__int64)&v35->clientTrigger.trigger.hulls[v42];
-          __asm
-          {
-            vaddss  xmm5, xmm0, dword ptr [rdi]
-            vmovss  xmm1, dword ptr [rdi+4]
-            vaddss  xmm6, xmm1, dword ptr [r14+rsi*4+4]
-            vmovss  xmm0, dword ptr [rdi+8]
-            vaddss  xmm7, xmm0, dword ptr [r14+rsi*4+8]
-            vsubss  xmm0, xmm5, dword ptr [rdi+0Ch]
-            vsubss  xmm1, xmm6, dword ptr [rdi+10h]
-            vmovss  dword ptr [rbp+80h], xmm0
-            vsubss  xmm0, xmm7, dword ptr [rdi+14h]
-            vmovss  dword ptr [rbp+84h], xmm1
-            vaddss  xmm1, xmm5, dword ptr [rdi+0Ch]
-            vmovss  dword ptr [rbp+88h], xmm0
-            vaddss  xmm0, xmm6, dword ptr [rdi+10h]
-            vmovss  dword ptr [rbp+70h], xmm1
-            vaddss  xmm1, xmm7, dword ptr [rdi+14h]
-            vmovss  dword ptr [rbp+74h], xmm0
-            vmovss  dword ptr [rbp+78h], xmm1
-          }
-          if ( IntersectRayAABB(v41, (const vec3_t *)(_RBP + 48), (const vec3_t *)(_RBP + 128), (const vec3_t *)(_RBP + 112), (float *)fmt) )
-          {
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rbp+4]
-              vcomiss xmm3, cs:__real@3f800000
-            }
-          }
-          ++v39;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
+            __debugbreak();
+          v16 = *(_DWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x168);
         }
-        while ( v39 < models[v27].hullCount );
-        v23 = *(const vec3_t **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+        v17 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) + 8i64) + 4i64 * v16);
       }
-      v19 = *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-      v22 = *(const vec3_t **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28);
-      v20 = *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+      v18 = cm.mapEnts;
+      *(_DWORD *)v8 = v17;
+      if ( v17 >= v18->clientTrigger.trigger.count )
+      {
+        LODWORD(v70) = v18->clientTrigger.trigger.count;
+        LODWORD(v69) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3420, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v69, v70) )
+          __debugbreak();
+        v18 = cm.mapEnts;
+      }
+      origins = v18->clientTrigger.origins;
+      v20 = v17;
+    }
+    while ( (v18->clientTrigger.triggerType[v17] & (unsigned __int16)v9) == 0 || g_audioTriggerDisabled[v17] );
+    CG_TriggerCalcMovingPlatformPos(v10, v13, v17, (vec3_t *)(v8 + 64));
+    CG_TriggerCalcMovingPlatformPos(v10, v12, v17, (vec3_t *)(v8 + 96));
+    v21 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x64) - *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x44);
+    v22 = cm.mapEnts;
+    v23 = 0;
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) - *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38) = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x68) - *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34) = v21;
+    models = v22->clientTrigger.trigger.models;
+    v25 = 0;
+    if ( models[v20].hullCount )
+      break;
+LABEL_44:
+    v9 = *(_DWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+    v12 = *(const vec3_t **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28);
+    v10 = *(_DWORD *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+  }
+  while ( 1 )
+  {
+    v26 = origins[v20].v[0];
+    v27 = *(const vec3_t **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+    v28 = v25 + models[v20].firstHull;
+    fmt = (char *)(v8 + 4);
+    v29 = &v22->clientTrigger.trigger.hulls[v28];
+    v30 = v26 + v29->triggerSpaceBounds.midPoint.v[0];
+    v31 = v29->triggerSpaceBounds.midPoint.v[1] + origins[v20].v[1];
+    v32 = v29->triggerSpaceBounds.midPoint.v[2] + origins[v20].v[2];
+    v33 = v31 - v29->triggerSpaceBounds.halfSize.v[1];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x80) = v30 - v29->triggerSpaceBounds.halfSize.v[0];
+    v34 = v32 - v29->triggerSpaceBounds.halfSize.v[2];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x84) = v33;
+    v35 = v30 + v29->triggerSpaceBounds.halfSize.v[0];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x88) = v34;
+    v36 = v31 + v29->triggerSpaceBounds.halfSize.v[1];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70) = v35;
+    v37 = v32 + v29->triggerSpaceBounds.halfSize.v[2];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x74) = v36;
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x78) = v37;
+    if ( IntersectRayAABB(v27, (const vec3_t *)(v8 + 48), (const vec3_t *)(v8 + 128), (const vec3_t *)(v8 + 112), (float *)fmt) )
+    {
+      v38 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+      if ( v38 <= 1.0 )
+        break;
+    }
+LABEL_42:
+    if ( ++v25 >= (unsigned int)models[v20].hullCount )
+    {
+      v13 = *(const vec3_t **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+      goto LABEL_44;
     }
   }
-  result = 0;
-  _R11 = &v83;
-  __asm
+  if ( v29->slabCount )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    v39 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+    v40 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x44);
+    v41 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+    v42 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
+    v43 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34);
+    v44 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
+    do
+    {
+      slabs = v22->clientTrigger.trigger.slabs;
+      v46 = v23 + v29->firstSlab;
+      v47 = slabs[v46].dir.v[1];
+      v48 = slabs[v46].dir.v[0];
+      v49 = slabs[v46].dir.v[2];
+      v50 = (float)((float)(v48 * v44) + (float)(v47 * v43)) + (float)(v49 * v42);
+      if ( COERCE_FLOAT(LODWORD(v50) & _xmm) >= 0.001 )
+      {
+        v51 = slabs[v46].halfSize - slabs[v46].midPoint;
+        v52 = origins[v20].v[0];
+        v53 = (float)((float)((float)((float)((float)((float)(v47 * v51) + origins[v20].v[1]) - v40) * v47) + (float)((float)((float)((float)(v48 * v51) + v52) - v41) * v48)) + (float)((float)((float)((float)(v49 * v51) + origins[v20].v[2]) - v39) * v49)) / v50;
+        if ( v53 >= 0.0 && v53 <= 1.0 )
+        {
+          v54 = (float)(v44 * v53) + v41;
+          v55 = (float)(v43 * v53) + v40;
+          v56 = (float)(v42 * v53) + v39;
+          v57 = v55 - origins[v20].v[1];
+          *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50) = v54 - v52;
+          *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x58) = v56 - origins[v20].v[2];
+          *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x54) = v57;
+          if ( CG_IsPointInsideHull(v29, slabs, (const vec3_t *)(v8 + 80)) )
+            goto LABEL_45;
+          v39 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+          v40 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x44);
+          v41 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+          v42 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
+          v43 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34);
+          v44 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
+        }
+      }
+      ++v23;
+    }
+    while ( v23 < v29->slabCount );
+    v58 = *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+    v59 = v22->clientTrigger.trigger.slabs;
+    v54 = (float)(v44 * v58) + v41;
+    v55 = (float)(v43 * v58) + v40;
+    v56 = (float)(v42 * v58) + v39;
+    v60 = v55 - origins[v20].v[1];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50) = v54 - origins[v20].v[0];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x58) = v56 - origins[v20].v[2];
+    *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x54) = v60;
+    if ( !CG_IsPointInsideHull(v29, v59, (const vec3_t *)(v8 + 80)) )
+    {
+      v23 = 0;
+      goto LABEL_42;
+    }
+LABEL_45:
+    **(_DWORD **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = *(_DWORD *)v8;
+    v61 = *(float **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+    *v61 = v54;
+    v61[1] = v55;
+    v61[2] = v56;
+    return 1;
   }
-  return result;
+  else
+  {
+    v63 = v38 * *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
+    v64 = v38 * *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34);
+    v65 = v38 * *(float *)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
+    **(_DWORD **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = *(_DWORD *)v8;
+    v66 = *(float **)(((unsigned __int64)v71 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+    *v66 = v63;
+    v66[1] = v64;
+    v66[2] = v65;
+    return 1;
+  }
 }
 
 /*
@@ -1775,147 +1705,124 @@ CG_DrawFullOcclusionDebug
 */
 void CG_DrawFullOcclusionDebug(LocalClientNum_t localClientNum)
 {
-  LocalClientNum_t v2; 
-  int v3; 
+  LocalClientNum_t v1; 
+  int v2; 
   ntl::internal::list_node_base *mp_next; 
-  int v5; 
-  ntl::internal::list_node_base *v6; 
-  const dvar_t *v7; 
-  ntl::internal::list_node<FullOcclusionLine> *v8; 
-  const vec3_t *v9; 
+  int v4; 
+  ntl::internal::list_node_base *v5; 
+  const dvar_t *v6; 
+  ntl::internal::list_node<FullOcclusionLine> *v7; 
+  const vec3_t *v8; 
   MapEnts *mapEnts; 
-  unsigned int v11; 
+  unsigned int i; 
+  float *v; 
   ClientTriggerModel *models; 
   __int64 firstHull; 
   unsigned __int16 hullCount; 
   unsigned int count; 
   CTAudRvbPanInfo *audioRvbPanInfo; 
   const vec3_t *p_position; 
-  __int64 v20; 
+  __int64 v18; 
+  __int64 v19; 
+  ClientTriggerHull *hulls; 
+  float v21; 
   vec3_t origin; 
   vec3_t mins; 
   vec3_t outOffset; 
-  vec3_t v41; 
+  vec3_t v26; 
   tmat33_t<vec3_t> axis; 
 
-  v2 = localClientNum;
-  v3 = Sys_Milliseconds();
+  v1 = localClientNum;
+  v2 = Sys_Milliseconds();
   mp_next = s_fullOcclusionLines.m_listHead.m_sentinel.mp_next;
-  v5 = v3;
+  v4 = v2;
   if ( (ntl::internal::list_head_base<ntl::internal::list_node<FullOcclusionLine> > *)s_fullOcclusionLines.m_listHead.m_sentinel.mp_next != &s_fullOcclusionLines.m_listHead )
   {
     do
     {
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      v6 = mp_next + 1;
-      if ( SLODWORD(mp_next[3].mp_next) >= v5 )
-        goto LABEL_37;
-      v7 = DCONST_DVARINT_snd_fullOcclusionDebug;
+      v5 = mp_next + 1;
+      if ( SLODWORD(mp_next[3].mp_next) >= v4 )
+        goto LABEL_35;
+      v6 = DCONST_DVARINT_snd_fullOcclusionDebug;
       if ( !DCONST_DVARINT_snd_fullOcclusionDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_fullOcclusionDebug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      if ( v7->current.integer >= 2 )
+      Dvar_CheckFrontendServerThread(v6);
+      if ( v6->current.integer >= 2 )
       {
-LABEL_37:
+LABEL_35:
         if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
         mp_next = mp_next->mp_next;
-        v9 = (const vec3_t *)((char *)&v6->mp_next + 4);
-        if ( BYTE4(v6[2].mp_prev) )
+        v8 = (const vec3_t *)((char *)&v5->mp_next + 4);
+        if ( BYTE4(v5[2].mp_prev) )
         {
-          CL_AddDebugLine((const vec3_t *)v6, v9, &colorRed, 0, 1, 0);
-          CL_AddDebugStar((const vec3_t *)&v6[1].mp_next, &colorYellow, 0, 1, 0);
+          CL_AddDebugLine((const vec3_t *)v5, v8, &colorRed, 0, 1, 0);
+          CL_AddDebugStar((const vec3_t *)&v5[1].mp_next, &colorYellow, 0, 1, 0);
         }
         else
         {
-          CL_AddDebugLine((const vec3_t *)v6, v9, &colorGreen, 0, 1, 0);
+          CL_AddDebugLine((const vec3_t *)v5, v8, &colorGreen, 0, 1, 0);
         }
       }
       else
       {
-        v8 = (ntl::internal::list_node<FullOcclusionLine> *)mp_next;
+        v7 = (ntl::internal::list_node<FullOcclusionLine> *)mp_next;
         if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 439, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
           __debugbreak();
         mp_next = mp_next->mp_next;
-        ntl::internal::list_head_base<ntl::internal::list_node<FullOcclusionLine>>::remove(&s_fullOcclusionLines.m_listHead, v8);
-        v8->mp_prev = (ntl::internal::list_node_base *)s_fullOcclusionLines.m_freelist.m_head.mp_next;
-        s_fullOcclusionLines.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v8;
+        ntl::internal::list_head_base<ntl::internal::list_node<FullOcclusionLine>>::remove(&s_fullOcclusionLines.m_listHead, v7);
+        v7->mp_prev = (ntl::internal::list_node_base *)s_fullOcclusionLines.m_freelist.m_head.mp_next;
+        s_fullOcclusionLines.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v7;
       }
     }
     while ( mp_next != (ntl::internal::list_node_base *)&s_fullOcclusionLines.m_listHead );
-    v2 = localClientNum;
+    v1 = localClientNum;
   }
   mapEnts = cm.mapEnts;
-  v11 = 0;
-  if ( cm.mapEnts->clientTrigger.trigger.count )
+  for ( i = 0; i < mapEnts->clientTrigger.trigger.count; ++i )
   {
-    __asm
+    v = mapEnts->clientTrigger.origins[i].v;
+    if ( (mapEnts->clientTrigger.triggerType[i] & 0x20) != 0 )
     {
-      vmovaps [rsp+0F8h+var_38], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    do
-    {
-      _R15 = (__int64)&mapEnts->clientTrigger.origins[v11];
-      if ( (mapEnts->clientTrigger.triggerType[v11] & 0x20) != 0 )
+      models = mapEnts->clientTrigger.trigger.models;
+      firstHull = (int)models[i].firstHull;
+      hullCount = models[i].hullCount;
+      count = mapEnts->clientTrigger.trigger.count;
+      if ( count && i < count )
       {
-        models = mapEnts->clientTrigger.trigger.models;
-        firstHull = (int)models[v11].firstHull;
-        hullCount = models[v11].hullCount;
-        count = mapEnts->clientTrigger.trigger.count;
-        if ( count && v11 < count )
-        {
-          audioRvbPanInfo = mapEnts->clientTrigger.audioRvbPanInfo;
-          p_position = &audioRvbPanInfo[v11].position;
-          if ( !audioRvbPanInfo[v11].hasCustomPosition )
-            p_position = &mapEnts->clientTrigger.origins[v11];
-          CG_TriggerTransformPointOnMovingPlatform(v2, v11, p_position, &outOffset, NULL);
-          mapEnts = cm.mapEnts;
-        }
-        v20 = hullCount;
-        if ( hullCount )
-        {
-          _RBP = firstHull;
-          do
-          {
-            _RBX = mapEnts->clientTrigger.trigger.hulls;
-            AxisClear(&axis);
-            _RDI = &_RBX[_RBP].triggerSpaceBounds.halfSize;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi]
-              vxorps  xmm1, xmm0, xmm6
-              vmovss  dword ptr [rsp+0F8h+mins], xmm1
-              vmovss  xmm2, dword ptr [rdi+4]
-              vxorps  xmm0, xmm2, xmm6
-              vmovss  dword ptr [rsp+0F8h+mins+4], xmm0
-              vmovss  xmm1, dword ptr [rdi+8]
-              vmovss  xmm0, dword ptr [r15]
-              vxorps  xmm2, xmm1, xmm6
-              vmovss  dword ptr [rsp+0F8h+mins+8], xmm2
-              vaddss  xmm1, xmm0, dword ptr [rbx+rbp]
-              vmovss  dword ptr [rsp+0F8h+origin], xmm1
-              vmovss  xmm2, dword ptr [rbx+rbp+4]
-              vaddss  xmm0, xmm2, dword ptr [r15+4]
-              vmovss  dword ptr [rsp+0F8h+origin+4], xmm0
-              vmovss  xmm1, dword ptr [rbx+rbp+8]
-              vaddss  xmm2, xmm1, dword ptr [r15+8]
-              vmovss  dword ptr [rsp+0F8h+origin+8], xmm2
-            }
-            CG_TriggerTransformPointOnMovingPlatform(v2, v11, &origin, &v41, &axis);
-            CL_AddDebugBox(&axis, &v41, &mins, _RDI, &colorYellowHeat, 0, 1, 0);
-            mapEnts = cm.mapEnts;
-            ++_RBP;
-            --v20;
-          }
-          while ( v20 );
-        }
+        audioRvbPanInfo = mapEnts->clientTrigger.audioRvbPanInfo;
+        p_position = &audioRvbPanInfo[i].position;
+        if ( !audioRvbPanInfo[i].hasCustomPosition )
+          p_position = &mapEnts->clientTrigger.origins[i];
+        CG_TriggerTransformPointOnMovingPlatform(v1, i, p_position, &outOffset, NULL);
+        mapEnts = cm.mapEnts;
       }
-      ++v11;
+      v18 = hullCount;
+      if ( hullCount )
+      {
+        v19 = firstHull;
+        do
+        {
+          hulls = mapEnts->clientTrigger.trigger.hulls;
+          AxisClear(&axis);
+          LODWORD(mins.v[0]) = LODWORD(hulls[v19].triggerSpaceBounds.halfSize.v[0]) ^ _xmm;
+          LODWORD(mins.v[1]) = LODWORD(hulls[v19].triggerSpaceBounds.halfSize.v[1]) ^ _xmm;
+          v21 = *v;
+          LODWORD(mins.v[2]) = LODWORD(hulls[v19].triggerSpaceBounds.halfSize.v[2]) ^ _xmm;
+          origin.v[0] = v21 + hulls[v19].triggerSpaceBounds.midPoint.v[0];
+          origin.v[1] = hulls[v19].triggerSpaceBounds.midPoint.v[1] + v[1];
+          origin.v[2] = hulls[v19].triggerSpaceBounds.midPoint.v[2] + v[2];
+          CG_TriggerTransformPointOnMovingPlatform(v1, i, &origin, &v26, &axis);
+          CL_AddDebugBox(&axis, &v26, &mins, &hulls[v19].triggerSpaceBounds.halfSize, &colorYellowHeat, 0, 1, 0);
+          mapEnts = cm.mapEnts;
+          ++v19;
+          --v18;
+        }
+        while ( v18 );
+      }
     }
-    while ( v11 < mapEnts->clientTrigger.trigger.count );
-    __asm { vmovaps xmm6, [rsp+0F8h+var_38] }
   }
 }
 
@@ -1926,276 +1833,337 @@ CG_DrawTriggerAudioState
 */
 void CG_DrawTriggerAudioState(const LocalClientNum_t localClientNum)
 {
-  __int64 v12; 
-  __int64 v13; 
-  __int64 v14; 
-  bool v16; 
-  __int64 v20; 
-  __int64 v21; 
+  __int64 v1; 
+  __int64 v2; 
+  __int64 v3; 
+  float v4; 
+  bool v5; 
+  ScreenPlacement *v6; 
+  float v7; 
+  float v8; 
+  __int64 v9; 
+  __int64 v10; 
+  cg_t *LocalClientGlobals; 
+  float v12; 
+  float v13; 
   GfxFont *smallDevFont; 
-  const char *v32; 
-  __int64 v37; 
-  int v38; 
-  GfxFont *v39; 
-  const char *v40; 
+  const char *v15; 
+  __int64 v16; 
+  int v17; 
+  GfxFont *v18; 
+  const char *v19; 
   ZoneDef *zones; 
   const char *stateName; 
   const char *zoneName; 
-  const char *v44; 
-  GfxFont *v48; 
-  const char *v52; 
-  __int64 v56; 
-  int v57; 
-  GfxFont *v62; 
-  GfxFont *v64; 
+  const char *v23; 
+  int v24; 
+  GfxFont *v25; 
+  float v26; 
+  const char *v27; 
+  int v28; 
+  __int64 v29; 
+  int v30; 
+  float v31; 
+  vec4_t v32; 
+  GfxFont *v33; 
+  GfxFont *v34; 
   const char *ambientStream; 
-  const char *v66; 
-  const char *v67; 
-  GfxFont *v71; 
-  const char *v75; 
-  const char *v76; 
-  const char *v77; 
-  const char *v78; 
-  const char *v79; 
-  GfxFont *v87; 
-  const char *v91; 
-  __int64 v95; 
-  __int64 v96; 
-  __int64 v99; 
-  __int64 v102; 
-  GfxFont *v103; 
-  ZoneDef *v104; 
-  bool v105; 
+  const char *v36; 
+  const char *v37; 
+  int v38; 
+  GfxFont *v39; 
+  float v40; 
+  const char *v41; 
+  const char *v42; 
+  const char *v43; 
+  const char *v44; 
+  const char *v45; 
+  int v46; 
+  int v47; 
+  GfxFont *v48; 
+  float v49; 
+  const char *v50; 
+  int v51; 
+  __int64 v52; 
+  __int64 v53; 
+  float v54; 
+  __int64 v55; 
+  float v56; 
+  vec4_t v57; 
+  __int64 v58; 
+  GfxFont *v59; 
+  ZoneDef *v60; 
+  bool v61; 
   __int16 reverbIndex; 
-  __int64 v110; 
-  const char *v118; 
-  GfxFont *v122; 
-  ZoneDef *v125; 
-  __int64 v126; 
-  __int16 v128; 
-  const char *v138; 
-  const char *reverbName; 
-  const char *v155; 
-  GfxFont *v159; 
-  const char *v163; 
+  ReverbDef *v63; 
+  __int64 v64; 
+  const char *v65; 
+  int v66; 
+  GfxFont *v67; 
+  ZoneDef *v68; 
+  __int64 v69; 
+  float v70; 
+  __int16 v71; 
+  ReverbDef *v72; 
+  __int64 v73; 
+  const char *v74; 
+  float v75; 
+  ReverbDef *reverbs; 
+  __int64 v77; 
+  const char *v78; 
+  int v79; 
+  GfxFont *v80; 
+  float v81; 
+  const char *v82; 
   const char *NameForSubmixHUD; 
-  __int64 v170; 
-  ZoneDef *v171; 
-  const char *v172; 
-  __int64 v173; 
-  ZoneDef *v174; 
-  const char *v175; 
-  int v176; 
-  int v177; 
+  __int64 v84; 
+  ZoneDef *v85; 
+  const char *v86; 
+  __int64 v87; 
+  ZoneDef *v88; 
+  const char *v89; 
+  int v90; 
+  int v91; 
+  vec4_t v92; 
+  GfxFont *v93; 
+  const char *v94; 
+  int v95; 
+  GfxFont *v96; 
+  float v97; 
+  const char *v98; 
+  int v99; 
+  const char *v100; 
+  GfxFont *v101; 
+  float v102; 
+  const char *v103; 
+  int v104; 
+  GfxFont *v105; 
+  float v106; 
+  float v107; 
+  const char *v108; 
+  int v109; 
+  __int64 v110; 
+  float v111; 
+  int v112; 
+  float v113; 
+  vec4_t v114; 
+  GfxFont *v115; 
+  __int64 v116; 
+  ZoneDef *v117; 
+  const char *v118; 
+  int v119; 
+  GfxFont *v120; 
+  __int64 v121; 
+  float v122; 
+  ZoneDef *v123; 
+  const char *v124; 
+  float v125; 
+  const char *v126; 
+  int v127; 
+  GfxFont *v128; 
+  float v129; 
+  const char *v130; 
+  GfxFont *v131; 
+  const char *v132; 
+  int v133; 
+  int v134; 
+  float v135; 
+  __int64 v136; 
+  float v137; 
+  float v138; 
+  vec4_t v139; 
+  GfxFont *v140; 
+  __int64 v141; 
+  __int64 v142; 
+  ZoneDef *v143; 
+  const char *v144; 
+  int v145; 
+  GfxFont *v146; 
+  __int64 v147; 
+  float v148; 
+  ZoneDef *v149; 
+  const char *v150; 
+  const char *v151; 
+  int v152; 
+  int v153; 
+  GfxFont *v154; 
+  float v155; 
+  const char *v156; 
+  int v157; 
+  __int64 v158; 
+  int v159; 
+  float v160; 
+  __int64 v161; 
+  float v162; 
+  vec4_t v163; 
+  GfxFont *v164; 
+  __int64 v165; 
+  __int64 v166; 
+  ZoneDef *v167; 
+  const char *v168; 
+  int v169; 
+  GfxFont *v170; 
+  __int64 v171; 
+  float v172; 
+  ZoneDef *v173; 
+  const char *v174; 
+  float v175; 
+  ZoneDef *v176; 
+  const char *v177; 
+  int v178; 
   GfxFont *v179; 
-  const char *v180; 
-  GfxFont *v186; 
-  const char *v193; 
-  const char *v197; 
-  GfxFont *v198; 
-  const char *v202; 
-  GfxFont *v206; 
-  const char *v210; 
-  __int64 v215; 
-  int v217; 
-  GfxFont *v220; 
-  __int64 v221; 
-  ZoneDef *v222; 
-  const char *v223; 
-  GfxFont *v227; 
-  __int64 v230; 
-  ZoneDef *v232; 
-  const char *v233; 
-  const char *v240; 
-  GfxFont *v244; 
-  const char *v248; 
-  GfxFont *v253; 
-  const char *v254; 
-  int v258; 
-  __int64 v261; 
-  GfxFont *v264; 
-  __int64 v265; 
-  __int64 v266; 
-  ZoneDef *v267; 
-  const char *v268; 
-  GfxFont *v272; 
-  __int64 v275; 
-  ZoneDef *v277; 
-  const char *v278; 
-  const char *v279; 
-  GfxFont *v287; 
-  const char *v291; 
-  __int64 v295; 
-  int v296; 
-  __int64 v299; 
-  GfxFont *v302; 
-  __int64 v303; 
-  __int64 v304; 
-  ZoneDef *v305; 
-  const char *v306; 
-  GfxFont *v310; 
-  __int64 v313; 
-  ZoneDef *v315; 
-  const char *v316; 
-  ZoneDef *v323; 
-  const char *v324; 
-  GfxFont *v328; 
-  const char *v332; 
-  GfxFont *v337; 
-  const char *v338; 
-  __int64 v344; 
+  float v180; 
+  const char *v181; 
+  GfxFont *v182; 
+  const char *v183; 
+  float v184; 
+  __int64 v185; 
+  float v186; 
+  vec4_t v187; 
   int PlayerADSRSettingIndex; 
-  GfxFont *v348; 
-  const char *v349; 
-  GfxFont *v353; 
-  const char *v357; 
-  GfxFont *v361; 
-  const char *v365; 
-  unsigned int v369; 
-  unsigned int v370; 
-  GfxFont *v376; 
+  GfxFont *v189; 
+  const char *v190; 
+  int v191; 
+  GfxFont *v192; 
+  float v193; 
+  const char *v194; 
+  int v195; 
+  GfxFont *v196; 
+  const char *v197; 
+  int v198; 
+  int v199; 
+  int v200; 
+  __int128 v201; 
+  vec4_t v202; 
+  GfxFont *v203; 
   __int16 ambientDefIndex; 
   AmbientDef *ambientDefs; 
-  __int64 v379; 
-  const char *v380; 
-  int v387; 
-  __int64 v388; 
-  const SoundTable *v389; 
+  __int64 v206; 
+  const char *v207; 
+  __int128 v208; 
+  int v209; 
+  __int64 v210; 
+  const SoundTable *v211; 
   AmbientEvent *ambientEvents; 
   unsigned int ambientElementsCount; 
+  __int64 v214; 
   __int64 ambientElementIndex; 
-  GfxFont *v395; 
-  const char *v401; 
-  GfxFont *v409; 
-  const char *v420; 
-  GfxFont *v425; 
-  const char *v426; 
-  GfxFont *v430; 
-  const char *v434; 
-  const char *v442; 
-  int v447; 
+  AmbientElement *ambientElements; 
+  GfxFont *v217; 
+  __int64 v218; 
+  const char *v219; 
+  int v220; 
+  GfxFont *v221; 
+  __int128 v222; 
+  const char *v223; 
+  int v224; 
+  GfxFont *v225; 
+  const char *v226; 
+  int v227; 
+  GfxFont *v228; 
+  float v229; 
+  const char *v230; 
+  float v231; 
+  vec4_t v232; 
+  const char *v233; 
+  int v234; 
   unsigned int weapReflId; 
   const WeaponReflectionDef *WeapReflDefWithClass; 
-  GfxFont *v450; 
-  int v451; 
-  const char *v452; 
-  GfxFont *v456; 
-  const char *v460; 
-  GfxFont *v464; 
-  const char *v468; 
-  BOOL v473; 
-  int v477; 
-  GfxFont *v480; 
-  const char *v482; 
-  const char *v490; 
-  GfxFont *v494; 
-  const char *v498; 
-  GfxFont *v502; 
-  const char *v506; 
-  int v513; 
-  GfxFont *v514; 
-  const char *v515; 
-  GfxFont *v519; 
-  const char *v523; 
-  GfxFont *v527; 
-  const char *v531; 
-  int v538; 
-  GfxFont *v539; 
-  const char *v540; 
+  GfxFont *v237; 
+  int v238; 
+  const char *v239; 
+  int v240; 
+  GfxFont *v241; 
+  float v242; 
+  const char *v243; 
+  int v244; 
+  GfxFont *v245; 
+  float v246; 
+  const char *v247; 
+  int v248; 
+  BOOL v249; 
+  float v250; 
+  float v251; 
+  vec4_t v252; 
+  int v253; 
+  float v254; 
+  GfxFont *v255; 
+  float v256; 
+  float v257; 
+  const char *v258; 
+  float v259; 
+  float v260; 
+  float v261; 
+  const char *v262; 
+  int v263; 
+  GfxFont *v264; 
+  float v265; 
+  const char *v266; 
+  int v267; 
+  GfxFont *v268; 
+  float v269; 
+  const char *v270; 
+  float v271; 
+  int v272; 
+  GfxFont *v273; 
+  const char *v274; 
+  int v275; 
+  GfxFont *v276; 
+  float v277; 
+  const char *v278; 
+  int v279; 
+  GfxFont *v280; 
+  float v281; 
+  const char *v282; 
+  float v283; 
+  int v284; 
+  GfxFont *v285; 
+  const char *v286; 
   MapEnts *mapEnts; 
-  unsigned int v545; 
-  __int64 v551; 
-  unsigned __int16 v552; 
+  unsigned int v288; 
+  __int64 v289; 
+  unsigned __int16 v290; 
   ClientTriggerModel *models; 
   __int64 firstHull; 
   unsigned __int16 hullCount; 
-  char v568; 
-  vec4_t *v571; 
-  int v573; 
-  int v574; 
-  int v575; 
-  int v576; 
-  int v577; 
-  vec4_t *v578; 
-  const vec4_t *v579; 
-  vec4_t *v580; 
-  const char *v581; 
-  vec4_t *v583; 
-  vec4_t *v584; 
-  __int64 v585; 
-  const dvar_t *v586; 
-  const char *v587; 
-  __int64 v591; 
-  const dvar_t *v592; 
-  const char *v593; 
-  const char *v594; 
-  const dvar_t *v598; 
-  const dvar_t *v602; 
-  MapEnts *v605; 
+  float v294; 
+  float v295; 
+  float v296; 
+  double Float_Internal_DebugName; 
+  vec4_t *v298; 
+  __int64 v299; 
+  int v300; 
+  int v301; 
+  int v302; 
+  int v303; 
+  int v304; 
+  vec4_t *v305; 
+  const vec4_t *v306; 
+  vec4_t *v307; 
+  const char *v308; 
+  ClientTriggerHull *hulls; 
+  vec4_t *v310; 
+  vec4_t *v311; 
+  __int64 v312; 
+  const dvar_t *v313; 
+  const char *v314; 
+  __int64 v315; 
+  const dvar_t *v316; 
+  const char *v317; 
+  const char *v318; 
+  const dvar_t *v319; 
+  const dvar_t *v320; 
+  MapEnts *v321; 
   const vec3_t *p_pointA; 
-  SndBankTransient *v608; 
-  const dvar_t *v609; 
-  const char *v610; 
-  const dvar_t *v614; 
-  const dvar_t *v618; 
-  const dvar_t *v637; 
-  GfxFont *v649; 
-  const char *v650; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  char *fmtg; 
-  float fmth; 
-  char *fmti; 
-  float fmtj; 
-  char *fmtk; 
-  float fmtl; 
-  float fmtm; 
-  float fmtn; 
-  char *fmto; 
-  float fmtp; 
-  float fmtq; 
-  float fmtr; 
-  float fmts; 
-  float fmtt; 
-  float fmtu; 
-  float fmtv; 
-  float fmtw; 
-  float fmtx; 
-  float fmty; 
-  float fmtz; 
-  float fmtba; 
-  float fmtbb; 
-  float fmtbc; 
-  float fmtbd; 
-  float fmtbe; 
-  float fmtbf; 
-  float fmtbg; 
-  float fmtbh; 
-  float fmtbi; 
-  float fmtbj; 
-  float fmtbk; 
-  char *fmtbl; 
-  float fmtbm; 
-  float fmtbn; 
-  float fmtbo; 
-  float fmtbp; 
-  float fmtbq; 
-  float fmtbr; 
-  float fmtbs; 
-  float fmtbt; 
-  float fmtbu; 
-  float fmtbv; 
-  float fmtbw; 
-  float fmtbx; 
-  float fmtby; 
-  float fmtbz; 
-  float fmtca; 
-  float fmtcb; 
+  SndBankTransient *v323; 
+  const dvar_t *v324; 
+  const char *v325; 
+  const dvar_t *v326; 
+  const dvar_t *v327; 
+  float v328; 
+  const dvar_t *v329; 
+  GfxFont *v330; 
+  const char *v331; 
   char *s; 
   char *sa; 
   char *sb; 
@@ -2204,11 +2172,12 @@ void CG_DrawTriggerAudioState(const LocalClientNum_t localClientNum)
   GfxFont *font; 
   unsigned int zoneB; 
   LocalClientNum_t localClientNuma; 
-  int v717; 
-  int v718; 
+  int v340; 
+  int v341; 
   unsigned int zoneA[2]; 
-  vec4_t *v720; 
-  float lerpB[4]; 
+  vec4_t *v343; 
+  __int64 lerpB; 
+  float v345; 
   __int64 origins; 
   vec4_t overriddenColor; 
   vec3_t outCenter; 
@@ -2216,1639 +2185,786 @@ void CG_DrawTriggerAudioState(const LocalClientNum_t localClientNum)
   vec3_t origin; 
   vec3_t outOffset; 
   vec3_t point; 
-  vec3_t v729; 
+  vec3_t v353; 
   tmat33_t<vec3_t> axis; 
   Weapon weapon; 
-  char v736; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  v12 = g_lastAudioZoneIndexA;
-  v13 = g_lastAudioZoneIndexB;
-  v14 = localClientNum;
+  v1 = g_lastAudioZoneIndexA;
+  v2 = g_lastAudioZoneIndexB;
+  v3 = localClientNum;
   localClientNuma = localClientNum;
-  v718 = g_lastAudioZoneIndexA;
-  v717 = g_lastAudioZoneIndexB;
-  __asm { vmovss  xmm10, cs:g_lastAudioLerpVal }
+  v341 = g_lastAudioZoneIndexA;
+  v340 = g_lastAudioZoneIndexB;
+  v4 = g_lastAudioLerpVal;
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      _R14 = &scrPlaceViewDisplay[localClientNum];
+      v6 = &scrPlaceViewDisplay[localClientNum];
       goto LABEL_8;
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v16 )
+      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v5 )
       __debugbreak();
   }
-  _R14 = &scrPlaceFull;
+  v6 = &scrPlaceFull;
 LABEL_8:
-  __asm
-  {
-    vmovss  xmm8, dword ptr [r14+28h]
-    vmovss  xmm6, dword ptr [r14+2Ch]
-  }
-  v20 = 236 * v14;
-  v21 = v14;
-  origins = 236 * v14;
-  _RBX = CG_GetLocalClientGlobals((const LocalClientNum_t)v14);
-  if ( !CgWeaponMap::ms_instance[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v7 = v6->virtualViewableMin.v[0];
+  v8 = v6->virtualViewableMin.v[1];
+  v9 = 236 * v3;
+  v10 = v3;
+  origins = 236 * v3;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
+  if ( !CgWeaponMap::ms_instance[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  _RAX = BG_GetCurrentWeaponForPlayer(CgWeaponMap::ms_instance[v21], &_RBX->predictedPlayerState);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f0ccccd
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+130h+weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbp+130h+weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rbp+130h+weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+69A4h]
-    vmovss  xmm14, dword ptr [rbx+699Ch]
-    vmovss  xmm15, dword ptr [rbx+69A0h]
-    vmovss  [rsp+230h+var_1B8], xmm0
-  }
+  weapon = *BG_GetCurrentWeaponForPlayer(CgWeaponMap::ms_instance[v10], &LocalClientGlobals->predictedPlayerState);
+  v12 = LocalClientGlobals->refdef.viewOffset.v[0];
+  v13 = LocalClientGlobals->refdef.viewOffset.v[1];
+  v345 = LocalClientGlobals->refdef.viewOffset.v[2];
   if ( !g_audioTriggersFound )
   {
     smallDevFont = cls.smallDevFont;
-    v32 = j_va("No audio client triggers in level.");
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v32, &colorGreen, 5, smallDevFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+    v15 = j_va("No audio client triggers in level.");
+    v8 = v8 + (float)CG_DrawDevString(v6, v7, v8, 0.55000001, 0.55000001, v15, &colorGreen, 5, smallDevFont);
   }
-  if ( (_DWORD)v12 == 0x7FFFFFFF )
+  if ( (_DWORD)v1 == 0x7FFFFFFF )
   {
-    if ( (_DWORD)v13 == 0x7FFFFFFF )
+    if ( (_DWORD)v2 == 0x7FFFFFFF )
     {
-      v717 = SND_LookupZoneIndex(0x4000);
-      LODWORD(v13) = v717;
-      v718 = v717;
-      LODWORD(v12) = v717;
-      if ( v717 != 0x7FFFFFFF )
+      v340 = SND_LookupZoneIndex(0x4000);
+      LODWORD(v2) = v340;
+      v341 = v340;
+      LODWORD(v1) = v340;
+      if ( v340 != 0x7FFFFFFF )
         goto LABEL_16;
     }
-LABEL_264:
-    v649 = cls.smallDevFont;
-    v650 = j_va("Error loading audio zones");
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtcb, v650, &colorGreen, 5, v649);
-    goto LABEL_263;
+LABEL_263:
+    v330 = cls.smallDevFont;
+    v331 = j_va("Error loading audio zones");
+    CG_DrawDevString(v6, v7, v8, 0.55000001, 0.55000001, v331, &colorGreen, 5, v330);
+    return;
   }
-  if ( (_DWORD)v13 == 0x7FFFFFFF )
-    goto LABEL_264;
-  if ( (_DWORD)v12 == (_DWORD)v13 )
+  if ( (_DWORD)v2 == 0x7FFFFFFF )
+    goto LABEL_263;
+  if ( (_DWORD)v1 == (_DWORD)v2 )
   {
 LABEL_16:
-    v37 = (int)v12;
-    v38 = SND_LookupZoneIndex(0x4000);
-    v39 = cls.smallDevFont;
-    v40 = "Zone: %s (Default) State: %s";
+    v16 = (int)v1;
+    v17 = SND_LookupZoneIndex(0x4000);
+    v18 = cls.smallDevFont;
+    v19 = "Zone: %s (Default) State: %s";
     zones = s_soundTablePtr->zones;
-    stateName = zones[v37].stateName;
-    zoneName = zones[v37].zoneName;
-    if ( (_DWORD)v12 != v38 )
-      v40 = "Zone: %s State: %s";
-    v44 = j_va(v40, zoneName, stateName);
-    font = v39;
+    stateName = zones[v16].stateName;
+    zoneName = zones[v16].zoneName;
+    if ( (_DWORD)v1 != v17 )
+      v19 = "Zone: %s State: %s";
+    v23 = j_va(v19, zoneName, stateName);
+    font = v18;
     goto LABEL_19;
   }
-  __asm { vmulss  xmm0, xmm10, cs:__real@42c80000 }
-  v62 = cls.smallDevFont;
-  __asm { vcvttss2si eax, xmm0 }
-  LODWORD(s) = _EAX;
-  v44 = j_va("Zone: %s State: %s => Zone: %s State: %s %d%%", s_soundTablePtr->zones[v12].zoneName, s_soundTablePtr->zones[v12].stateName, s_soundTablePtr->zones[v13].zoneName, s_soundTablePtr->zones[v13].stateName, s);
-  font = v62;
+  v33 = cls.smallDevFont;
+  LODWORD(s) = (int)(float)(v4 * 100.0);
+  v23 = j_va("Zone: %s State: %s => Zone: %s State: %s %d%%", s_soundTablePtr->zones[v1].zoneName, s_soundTablePtr->zones[v1].stateName, s_soundTablePtr->zones[v2].zoneName, s_soundTablePtr->zones[v2].stateName, s);
+  font = v33;
 LABEL_19:
-  __asm
+  v24 = CG_DrawDevString(v6, v7, v8, 0.55000001, 0.55000001, v23, &colorGreen, 5, font);
+  v25 = cls.smallDevFont;
+  v26 = (float)v24 + v8;
+  v27 = j_va("  Ambient Track:");
+  v28 = CG_DrawDevString(v6, v7, v26, 0.55000001, 0.55000001, v27, &colorLtBlue, 5, v25);
+  v29 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneA + v9);
+  v30 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneB + v9);
+  v31 = (float)v28 + v26;
+  if ( (_DWORD)v1 == (_DWORD)v29 && (_DWORD)v2 == v30 )
+    v32 = colorMdCyan;
+  else
+    v32 = colorMdYellow;
+  v34 = cls.smallDevFont;
+  overriddenColor = v32;
+  ambientStream = s_soundTablePtr->zones[v29].ambientStream;
+  if ( (_DWORD)v29 == v30 )
   {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
+    if ( ambientStream )
+    {
+      v44 = "Default";
+      if ( *ambientStream )
+        v44 = s_soundTablePtr->zones[v29].ambientStream;
+      v45 = j_va("    %s", v44);
+    }
+    else
+    {
+      v45 = j_va("    <None>");
+    }
+    v46 = CG_DrawDevString(v6, v7, v31, 0.55000001, 0.55000001, v45, &overriddenColor, 5, v34);
+    v39 = cls.smallDevFont;
+    v40 = (float)v46 + v31;
+    v43 = j_va((const char *)&queryFormat.fmt + 3);
   }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v44, &colorGreen, 5, font);
+  else
+  {
+    if ( ambientStream )
+    {
+      v36 = "Default =>";
+      if ( *ambientStream )
+        v36 = s_soundTablePtr->zones[v29].ambientStream;
+      v37 = j_va("    %s =>", v36);
+    }
+    else
+    {
+      v37 = j_va("    <None> =>");
+    }
+    v38 = CG_DrawDevString(v6, v7, v31, 0.55000001, 0.55000001, v37, &overriddenColor, 5, v34);
+    v39 = cls.smallDevFont;
+    v40 = (float)v38 + v31;
+    v41 = s_soundTablePtr->zones[*(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneB + v9)].ambientStream;
+    if ( v41 )
+    {
+      v42 = "Default";
+      if ( *v41 )
+        v42 = s_soundTablePtr->zones[*(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneB + v9)].ambientStream;
+      v43 = j_va("    %s", v42);
+    }
+    else
+    {
+      v43 = j_va("    <None>");
+    }
+  }
+  v47 = CG_DrawDevString(v6, v7, v40, 0.55000001, 0.55000001, v43, &overriddenColor, 5, v39);
   v48 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-    vmovaps xmmword ptr [rsp+230h+var_68+8], xmm9
-  }
-  v52 = j_va("  Ambient Track:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v52, &colorLtBlue, 5, v48);
-  v56 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneA + v20);
-  v57 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneB + v20);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  if ( (_DWORD)v12 == (_DWORD)v56 && (_DWORD)v13 == v57 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v49 = (float)v47 + v40;
+  v50 = j_va("  Reverb:");
+  v51 = CG_DrawDevString(v6, v7, v49, 0.55000001, 0.55000001, v50, &colorLtBlue, 5, v48);
+  v53 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneB + v9);
+  v54 = (float)v51;
+  v55 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneA + v9);
+  v56 = v49 + v54;
+  if ( (_DWORD)v1 == (_DWORD)v55 && (_DWORD)v2 == (_DWORD)v53 )
+    v57 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v64 = cls.smallDevFont;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  ambientStream = s_soundTablePtr->zones[v56].ambientStream;
-  if ( (_DWORD)v56 == v57 )
-  {
-    if ( ambientStream )
-    {
-      v78 = "Default";
-      if ( *ambientStream )
-        v78 = s_soundTablePtr->zones[v56].ambientStream;
-      v79 = j_va("    %s", v78);
-    }
-    else
-    {
-      v79 = j_va("    <None>");
-    }
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v79, &overriddenColor, 5, v64);
-    v71 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
-    v77 = j_va((const char *)&queryFormat.fmt + 3);
-  }
-  else
-  {
-    if ( ambientStream )
-    {
-      v66 = "Default =>";
-      if ( *ambientStream )
-        v66 = s_soundTablePtr->zones[v56].ambientStream;
-      v67 = j_va("    %s =>", v66);
-    }
-    else
-    {
-      v67 = j_va("    <None> =>");
-    }
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v67, &overriddenColor, 5, v64);
-    v71 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
-    v75 = s_soundTablePtr->zones[*(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneB + v20)].ambientStream;
-    if ( v75 )
-    {
-      v76 = "Default";
-      if ( *v75 )
-        v76 = s_soundTablePtr->zones[*(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientZoneB + v20)].ambientStream;
-      v77 = j_va("    %s", v76);
-    }
-    else
-    {
-      v77 = j_va("    <None>");
-    }
-  }
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v77, &overriddenColor, 5, v71);
-  v87 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  v91 = j_va("  Reverb:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, v91, &colorLtBlue, 5, v87);
-  v96 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneB + v20);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  v99 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneA + v20);
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == (_DWORD)v99 && (_DWORD)v13 == (_DWORD)v96 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
-  else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v102 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneA + v20);
-  v103 = cls.smallDevFont;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  v104 = s_soundTablePtr->zones;
-  v105 = (_DWORD)v99 == (_DWORD)v96;
-  reverbIndex = v104[v99].reverbIndex;
-  if ( v105 )
+    v57 = colorMdYellow;
+  v58 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneA + v9);
+  v59 = cls.smallDevFont;
+  overriddenColor = v57;
+  v60 = s_soundTablePtr->zones;
+  v61 = (_DWORD)v55 == (_DWORD)v53;
+  reverbIndex = v60[v55].reverbIndex;
+  if ( v61 )
   {
     if ( reverbIndex == -1 )
     {
-      v155 = j_va("    <None - engine default>", v96, v95, v102);
+      v78 = j_va("    <None - engine default>", v53, v52, v58);
     }
     else
     {
-      _RCX = s_soundTablePtr->reverbs;
-      _R8 = reverbIndex;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8+rcx+50h]
-        vmovss  xmm3, dword ptr [r8+rcx+48h]
-        vmovss  xmm2, dword ptr [r8+rcx+4Ch]
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si eax, xmm1
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-      }
-      LODWORD(sa) = _EAX;
-      reverbName = v104[v102].reverbName;
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovsd  [rsp+230h+fmt], xmm2
-      }
-      v155 = j_va("    %s: (RoomType: %s, Dry: %f, Wet: %f, Fade: %d)", reverbName, _RCX[_R8].roomType, _R9, fmtk, sa);
+      reverbs = s_soundTablePtr->reverbs;
+      v77 = reverbIndex;
+      LODWORD(sa) = (int)(float)(reverbs[v77].fadeTime * 1000.0);
+      v78 = j_va("    %s: (RoomType: %s, Dry: %f, Wet: %f, Fade: %d)", v60[v58].reverbName, reverbs[v77].roomType, reverbs[v77].dryLevel, reverbs[v77].wetLevel, sa);
     }
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtl, v155, &overriddenColor, 5, v103);
-    v159 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
-    v163 = j_va((const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtm, v163, &overriddenColor, 5, v159);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
+    v79 = CG_DrawDevString(v6, v7, v56, 0.55000001, 0.55000001, v78, &overriddenColor, 5, v59);
+    v80 = cls.smallDevFont;
+    v81 = (float)v79 + v56;
+    v82 = j_va((const char *)&queryFormat.fmt + 3);
+    v75 = (float)CG_DrawDevString(v6, v7, v81, 0.55000001, 0.55000001, v82, &overriddenColor, 5, v80) + v81;
   }
   else
   {
-    __asm { vmovss  xmm9, cs:__real@447a0000 }
     if ( reverbIndex == -1 )
     {
-      v118 = j_va("    <None - engine default> =>", v96, v95, v102);
+      v65 = j_va("    <None - engine default> =>", v53, v52, v58);
     }
     else
     {
-      _RCX = s_soundTablePtr->reverbs;
-      _R8 = reverbIndex;
-      v110 = v102;
-      __asm
-      {
-        vmulss  xmm1, xmm9, dword ptr [r8+rcx+50h]
-        vmovss  xmm3, dword ptr [r8+rcx+48h]
-        vmovss  xmm2, dword ptr [r8+rcx+4Ch]
-        vcvttss2si eax, xmm1
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-      }
-      LODWORD(sa) = _EAX;
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovsd  [rsp+230h+fmt], xmm2
-      }
-      v118 = j_va("    %s: (RoomType: %s, Dry: %f, Wet: %f, Fade: %d) =>", v104[v110].reverbName, _RCX[_R8].roomType, _R9, fmtg, sa);
+      v63 = s_soundTablePtr->reverbs;
+      v64 = reverbIndex;
+      LODWORD(sa) = (int)(float)(1000.0 * v63[v64].fadeTime);
+      v65 = j_va("    %s: (RoomType: %s, Dry: %f, Wet: %f, Fade: %d) =>", v60[v58].reverbName, v63[v64].roomType, v63[v64].dryLevel, v63[v64].wetLevel, sa);
     }
-    __asm
+    v66 = CG_DrawDevString(v6, v7, v56, 0.55000001, 0.55000001, v65, &overriddenColor, 5, v59);
+    v67 = cls.smallDevFont;
+    v68 = s_soundTablePtr->zones;
+    v69 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneB + v9);
+    v70 = (float)v66 + v56;
+    v71 = v68[v69].reverbIndex;
+    if ( v71 == -1 )
     {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmth, v118, &overriddenColor, 5, v103);
-    v122 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    v125 = s_soundTablePtr->zones;
-    v126 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctReverbZoneB + v20);
-    __asm { vaddss  xmm6, xmm0, xmm6 }
-    v128 = v125[v126].reverbIndex;
-    if ( v128 == -1 )
-    {
-      v138 = j_va("    <None - engine default>");
+      v74 = j_va("    <None - engine default>");
     }
     else
     {
-      _RCX = s_soundTablePtr->reverbs;
-      _RDX = v128;
-      __asm
-      {
-        vmulss  xmm1, xmm9, dword ptr [rdx+rcx+50h]
-        vmovss  xmm3, dword ptr [rdx+rcx+48h]
-        vmovss  xmm2, dword ptr [rdx+rcx+4Ch]
-        vcvttss2si eax, xmm1
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-      }
-      LODWORD(sb) = _EAX;
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovsd  [rsp+230h+fmt], xmm2
-      }
-      v138 = j_va("    %s: (RoomType: %s, Dry: %f, Wet: %f, Fade: %d)", v125[v126].reverbName, _RCX[_RDX].roomType, _R9, fmti, sb);
+      v72 = s_soundTablePtr->reverbs;
+      v73 = v71;
+      LODWORD(sb) = (int)(float)(1000.0 * v72[v73].fadeTime);
+      v74 = j_va("    %s: (RoomType: %s, Dry: %f, Wet: %f, Fade: %d)", v68[v69].reverbName, v72[v73].roomType, v72[v73].dryLevel, v72[v73].wetLevel, sb);
     }
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtj, v138, &overriddenColor, 5, v122);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+    v75 = v70 + (float)CG_DrawDevString(v6, v7, v70, 0.55000001, 0.55000001, v74, &overriddenColor, 5, v67);
   }
-  SND_SubmixDebugGetZones(&zoneA[1], (float *)zoneA, &zoneB, lerpB);
+  SND_SubmixDebugGetZones(&zoneA[1], (float *)zoneA, &zoneB, (float *)&lerpB);
   *(_QWORD *)origin.v = SND_DebugGetNameForSubmixHUD(zoneA[1], 0);
   NameForSubmixHUD = SND_DebugGetNameForSubmixHUD(zoneB, 0);
-  v170 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneA + v20);
-  v171 = s_soundTablePtr->zones;
+  v84 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneA + v9);
+  v85 = s_soundTablePtr->zones;
   *(_QWORD *)mins.v = NameForSubmixHUD;
-  v172 = SND_DebugGetNameForSubmixHUD(v171[v170].duck, 0);
-  v173 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v20);
-  v174 = s_soundTablePtr->zones;
-  v720 = (vec4_t *)v172;
-  v175 = SND_DebugGetNameForSubmixHUD(v174[v173].duck, 0);
-  v176 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v20);
-  v177 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneA + v20);
-  *(_QWORD *)outCenter.v = v175;
-  if ( (_DWORD)v12 == v177 && (_DWORD)v13 == v176 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v86 = SND_DebugGetNameForSubmixHUD(v85[v84].duck, 0);
+  v87 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v9);
+  v88 = s_soundTablePtr->zones;
+  v343 = (vec4_t *)v86;
+  v89 = SND_DebugGetNameForSubmixHUD(v88[v87].duck, 0);
+  v90 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v9);
+  v91 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneA + v9);
+  *(_QWORD *)outCenter.v = v89;
+  if ( (_DWORD)v1 == v91 && (_DWORD)v2 == v90 )
+    v92 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v179 = cls.smallDevFont;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  v180 = j_va("  Submix:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtn, v180, &colorLtBlue, 5, v179);
-  __asm
-  {
-    vmovss  xmm2, [rsp+230h+zoneA]
-    vmovss  xmm1, [rsp+230h+lerpB]
-  }
-  v186 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtsi2ss xmm0, xmm0, eax
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   r8, xmm2
-    vmovsd  [rsp+230h+fmt], xmm1
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v193 = j_va("    Have: %s (%.2f) <=> %s (%.2f)", *(_QWORD *)origin.v, _R8, *(_QWORD *)mins.v, fmto);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtp, v193, &overriddenColor, 5, v186);
-  v197 = (char *)&queryFormat.fmt + 3;
-  v198 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  if ( v177 != v176 )
-    v197 = "(blending)";
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  v202 = j_va("     Zone: %s <=> %s %s", v720, *(_QWORD *)outCenter.v, v197);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtq, v202, &overriddenColor, 5, v198);
-  v206 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v210 = j_va("  Mix:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtr, v210, &colorLtBlue, 5, v206);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v215 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneA + v20);
-  __asm { vcvtsi2ss xmm0, xmm0, eax }
-  v217 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v20);
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == (_DWORD)v215 && (_DWORD)v13 == v217 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+    v92 = colorMdYellow;
+  v93 = cls.smallDevFont;
+  overriddenColor = v92;
+  v94 = j_va("  Submix:");
+  v95 = CG_DrawDevString(v6, v7, v75, 0.55000001, 0.55000001, v94, &colorLtBlue, 5, v93);
+  v96 = cls.smallDevFont;
+  v97 = v75 + (float)v95;
+  v98 = j_va("    Have: %s (%.2f) <=> %s (%.2f)", *(_QWORD *)origin.v, zoneA[0], *(_QWORD *)mins.v, *(float *)&lerpB);
+  v99 = CG_DrawDevString(v6, v7, v97, 0.55000001, 0.55000001, v98, &overriddenColor, 5, v96);
+  v100 = (char *)&queryFormat.fmt + 3;
+  v101 = cls.smallDevFont;
+  if ( v91 != v90 )
+    v100 = "(blending)";
+  v102 = v97 + (float)v99;
+  v103 = j_va("     Zone: %s <=> %s %s", v343, *(_QWORD *)outCenter.v, v100);
+  v104 = CG_DrawDevString(v6, v7, v102, 0.55000001, 0.55000001, v103, &overriddenColor, 5, v101);
+  v105 = cls.smallDevFont;
+  v106 = (float)v104;
+  v107 = v102 + (float)v104;
+  v108 = j_va("  Mix:");
+  v109 = CG_DrawDevString(v6, v7, v102 + v106, 0.55000001, 0.55000001, v108, &colorLtBlue, 5, v105);
+  v110 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneA + v9);
+  v111 = (float)v109;
+  v112 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v9);
+  v113 = v107 + v111;
+  if ( (_DWORD)v1 == (_DWORD)v110 && (_DWORD)v2 == v112 )
+    v114 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v220 = cls.smallDevFont;
-  v221 = v215;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  v222 = s_soundTablePtr->zones;
-  if ( (_DWORD)v215 == v217 )
+    v114 = colorMdYellow;
+  v115 = cls.smallDevFont;
+  v116 = v110;
+  overriddenColor = v114;
+  v117 = s_soundTablePtr->zones;
+  if ( (_DWORD)v110 == v112 )
   {
-    if ( v222[v221].startMixIndex == -1 )
-      v240 = j_va("    <None - Defaults in .SVMOD>");
+    if ( v117[v116].startMixIndex == -1 )
+      v126 = j_va("    <None - Defaults in .SVMOD>");
     else
-      v240 = j_va("    %s", v222[v215].mixName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtu, v240, &overriddenColor, 5, v220);
-    v244 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
-    v248 = j_va((const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtv, v248, &overriddenColor, 5, v244);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
+      v126 = j_va("    %s", v117[v110].mixName);
+    v127 = CG_DrawDevString(v6, v7, v113, 0.55000001, 0.55000001, v126, &overriddenColor, 5, v115);
+    v128 = cls.smallDevFont;
+    v129 = (float)v127 + v113;
+    v130 = j_va((const char *)&queryFormat.fmt + 3);
+    v125 = (float)CG_DrawDevString(v6, v7, v129, 0.55000001, 0.55000001, v130, &overriddenColor, 5, v128) + v129;
   }
   else
   {
-    if ( v222[v221].startMixIndex == -1 )
-      v223 = j_va("    <None - Defaults in .SVMOD> =>");
+    if ( v117[v116].startMixIndex == -1 )
+      v118 = j_va("    <None - Defaults in .SVMOD> =>");
     else
-      v223 = j_va("    %s =>", v222[v215].mixName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmts, v223, &overriddenColor, 5, v220);
-    v227 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    v230 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v20);
-    __asm { vaddss  xmm6, xmm0, xmm6 }
-    v232 = s_soundTablePtr->zones;
-    if ( v232[v230].startMixIndex == -1 )
-      v233 = j_va("    <None - Defaults in .SVMOD>");
+      v118 = j_va("    %s =>", v117[v110].mixName);
+    v119 = CG_DrawDevString(v6, v7, v113, 0.55000001, 0.55000001, v118, &overriddenColor, 5, v115);
+    v120 = cls.smallDevFont;
+    v121 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctMixZoneB + v9);
+    v122 = (float)v119 + v113;
+    v123 = s_soundTablePtr->zones;
+    if ( v123[v121].startMixIndex == -1 )
+      v124 = j_va("    <None - Defaults in .SVMOD>");
     else
-      v233 = j_va("    %s", v232[v230].mixName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtt, v233, &overriddenColor, 5, v227);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+      v124 = j_va("    %s", v123[v121].mixName);
+    v125 = v122 + (float)CG_DrawDevString(v6, v7, v122, 0.55000001, 0.55000001, v124, &overriddenColor, 5, v120);
   }
-  v253 = cls.smallDevFont;
-  v254 = j_va("  Filter:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtw, v254, &colorLtBlue, 5, v253);
-  v258 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneB + v20);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  v261 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneA + v20);
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == (_DWORD)v261 && (_DWORD)v13 == v258 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v131 = cls.smallDevFont;
+  v132 = j_va("  Filter:");
+  v133 = CG_DrawDevString(v6, v7, v125, 0.55000001, 0.55000001, v132, &colorLtBlue, 5, v131);
+  v134 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneB + v9);
+  v135 = (float)v133;
+  v136 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneA + v9);
+  v138 = v125 + v135;
+  v137 = v125 + v135;
+  if ( (_DWORD)v1 == (_DWORD)v136 && (_DWORD)v2 == v134 )
+    v139 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v264 = cls.smallDevFont;
-  v265 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneA + v20);
-  v266 = v261;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  v267 = s_soundTablePtr->zones;
-  if ( (_DWORD)v261 == v258 )
+    v139 = colorMdYellow;
+  v140 = cls.smallDevFont;
+  v141 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneA + v9);
+  v142 = v136;
+  overriddenColor = v139;
+  v143 = s_soundTablePtr->zones;
+  if ( (_DWORD)v136 == v134 )
   {
-    if ( v267[v266].startFilterIndex == -1 )
-      v279 = j_va("    <None>");
+    if ( v143[v142].startFilterIndex == -1 )
+      v151 = j_va("    <None>");
     else
-      v279 = j_va("    %s", v267[v265].filterName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmty, v279, &overriddenColor, 5, v264);
-    v272 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
-    v278 = j_va((const char *)&queryFormat.fmt + 3);
+      v151 = j_va("    %s", v143[v141].filterName);
+    v152 = CG_DrawDevString(v6, v7, v138, 0.55000001, 0.55000001, v151, &overriddenColor, 5, v140);
+    v146 = cls.smallDevFont;
+    v148 = (float)v152 + v137;
+    v150 = j_va((const char *)&queryFormat.fmt + 3);
   }
   else
   {
-    if ( v267[v266].startFilterIndex == -1 )
-      v268 = j_va("    <None> =>");
+    if ( v143[v142].startFilterIndex == -1 )
+      v144 = j_va("    <None> =>");
     else
-      v268 = j_va("    %s =>", v267[v265].filterName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtx, v268, &overriddenColor, 5, v264);
-    v272 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    v275 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneB + v20);
-    __asm { vaddss  xmm6, xmm0, xmm6 }
-    v277 = s_soundTablePtr->zones;
-    if ( v277[v275].startFilterIndex == -1 )
-      v278 = j_va("    <None>");
+      v144 = j_va("    %s =>", v143[v141].filterName);
+    v145 = CG_DrawDevString(v6, v7, v138, 0.55000001, 0.55000001, v144, &overriddenColor, 5, v140);
+    v146 = cls.smallDevFont;
+    v147 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFilterZoneB + v9);
+    v148 = (float)v145 + v137;
+    v149 = s_soundTablePtr->zones;
+    if ( v149[v147].startFilterIndex == -1 )
+      v150 = j_va("    <None>");
     else
-      v278 = j_va("    %s", v277[v275].filterName);
+      v150 = j_va("    %s", v149[v147].filterName);
   }
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtz, v278, &overriddenColor, 5, v272);
-  v287 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  v291 = j_va("  Occlusion:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtba, v291, &colorLtBlue, 5, v287);
-  v296 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneB + v20);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  v299 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneA + v20);
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == (_DWORD)v299 && (_DWORD)v13 == v296 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v153 = CG_DrawDevString(v6, v7, v148, 0.55000001, 0.55000001, v150, &overriddenColor, 5, v146);
+  v154 = cls.smallDevFont;
+  v155 = (float)v153 + v148;
+  v156 = j_va("  Occlusion:");
+  v157 = CG_DrawDevString(v6, v7, v155, 0.55000001, 0.55000001, v156, &colorLtBlue, 5, v154);
+  v159 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneB + v9);
+  v160 = (float)v157;
+  v161 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneA + v9);
+  v162 = v155 + v160;
+  if ( (_DWORD)v1 == (_DWORD)v161 && (_DWORD)v2 == v159 )
+    v163 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v302 = cls.smallDevFont;
-  v303 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneA + v20);
-  v304 = v299;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  if ( (_DWORD)v299 == v296 )
+    v163 = colorMdYellow;
+  v164 = cls.smallDevFont;
+  v165 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneA + v9);
+  v166 = v161;
+  overriddenColor = v163;
+  if ( (_DWORD)v161 == v159 )
   {
-    v323 = s_soundTablePtr->zones;
-    if ( v323[v304].startOcclusionIndex == -1 )
-      v324 = j_va("    <None>", v295, v303);
+    v176 = s_soundTablePtr->zones;
+    if ( v176[v166].startOcclusionIndex == -1 )
+      v177 = j_va("    <None>", v158, v165);
     else
-      v324 = j_va("    %s", v323[v303].occlusionName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbd, v324, &overriddenColor, 5, v302);
-    v328 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
-    v332 = j_va((const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbe, v332, &overriddenColor, 5, v328);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm0, xmm6
-    }
+      v177 = j_va("    %s", v176[v165].occlusionName);
+    v178 = CG_DrawDevString(v6, v7, v162, 0.55000001, 0.55000001, v177, &overriddenColor, 5, v164);
+    v179 = cls.smallDevFont;
+    v180 = (float)v178 + v162;
+    v181 = j_va((const char *)&queryFormat.fmt + 3);
+    v175 = (float)CG_DrawDevString(v6, v7, v180, 0.55000001, 0.55000001, v181, &overriddenColor, 5, v179) + v180;
   }
   else
   {
-    v305 = s_soundTablePtr->zones;
-    if ( v305[v304].startOcclusionIndex == -1 )
-      v306 = j_va("    <None> =>", v295, v303);
+    v167 = s_soundTablePtr->zones;
+    if ( v167[v166].startOcclusionIndex == -1 )
+      v168 = j_va("    <None> =>", v158, v165);
     else
-      v306 = j_va("    %s =>", v305[v303].occlusionName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbb, v306, &overriddenColor, 5, v302);
-    v310 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    v313 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneB + v20);
-    __asm { vaddss  xmm6, xmm0, xmm6 }
-    v315 = s_soundTablePtr->zones;
-    if ( v315[v313].startOcclusionIndex == -1 )
-      v316 = j_va("    <None>");
+      v168 = j_va("    %s =>", v167[v165].occlusionName);
+    v169 = CG_DrawDevString(v6, v7, v162, 0.55000001, 0.55000001, v168, &overriddenColor, 5, v164);
+    v170 = cls.smallDevFont;
+    v171 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctOcclusionZoneB + v9);
+    v172 = (float)v169 + v162;
+    v173 = s_soundTablePtr->zones;
+    if ( v173[v171].startOcclusionIndex == -1 )
+      v174 = j_va("    <None>");
     else
-      v316 = j_va("    %s", v315[v313].occlusionName);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbc, v316, &overriddenColor, 5, v310);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+      v174 = j_va("    %s", v173[v171].occlusionName);
+    v175 = v172 + (float)CG_DrawDevString(v6, v7, v172, 0.55000001, 0.55000001, v174, &overriddenColor, 5, v170);
   }
-  v337 = cls.smallDevFont;
-  v338 = j_va("  ADSR:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbf, v338, &colorLtBlue, 5, v337);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  v344 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerAdsrZone + v20);
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == (_DWORD)v344 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v182 = cls.smallDevFont;
+  v183 = j_va("  ADSR:");
+  v184 = (float)CG_DrawDevString(v6, v7, v175, 0.55000001, 0.55000001, v183, &colorLtBlue, 5, v182);
+  v185 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerAdsrZone + v9);
+  v186 = v175 + v184;
+  if ( (_DWORD)v1 == (_DWORD)v185 )
+    v187 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  if ( s_soundTablePtr->zones[v344].startAdsrZoneIndex == -1 )
+    v187 = colorMdYellow;
+  overriddenColor = v187;
+  if ( s_soundTablePtr->zones[v185].startAdsrZoneIndex == -1 )
   {
-    v348 = cls.smallDevFont;
-    v349 = j_va("    <None>");
+    v189 = cls.smallDevFont;
+    v190 = j_va("    <None>");
   }
   else
   {
     PlayerADSRSettingIndex = CG_GetPlayerADSRSettingIndex(localClientNuma, &weapon);
-    v348 = cls.smallDevFont;
+    v189 = cls.smallDevFont;
     if ( PlayerADSRSettingIndex == -1 )
-      v349 = j_va("    %s", "<None>");
+      v190 = j_va("    %s", "<None>");
     else
-      v349 = j_va("    %s", s_soundTablePtr->adsrSettings[PlayerADSRSettingIndex].name);
+      v190 = j_va("    %s", s_soundTablePtr->adsrSettings[PlayerADSRSettingIndex].name);
   }
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbg, v349, &overriddenColor, 5, v348);
-  v353 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  v357 = j_va((const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbh, v357, &overriddenColor, 5, v353);
-  v361 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  v365 = j_va("  Ambient Events:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbi, v365, &colorLtBlue, 5, v361);
-  v369 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientEventZoneA + v20);
-  v370 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientEventZoneB + v20);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  zoneB = v369 != v370;
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == v369 && (_DWORD)v13 == v370 )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v191 = CG_DrawDevString(v6, v7, v186, 0.55000001, 0.55000001, v190, &overriddenColor, 5, v189);
+  v192 = cls.smallDevFont;
+  v193 = (float)v191 + v186;
+  v194 = j_va((const char *)&queryFormat.fmt + 3);
+  v195 = CG_DrawDevString(v6, v7, v193, 0.55000001, 0.55000001, v194, &overriddenColor, 5, v192);
+  v196 = cls.smallDevFont;
+  v201 = 0i64;
+  *(float *)&v201 = (float)v195 + v193;
+  v197 = j_va("  Ambient Events:");
+  v198 = CG_DrawDevString(v6, v7, *(float *)&v201, 0.55000001, 0.55000001, v197, &colorLtBlue, 5, v196);
+  v199 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientEventZoneA + v9);
+  v200 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctAmbientEventZoneB + v9);
+  zoneB = v199 != v200;
+  *(float *)&v201 = *(float *)&v201 + (float)v198;
+  if ( (_DWORD)v1 == v199 && (_DWORD)v2 == v200 )
+    v202 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f000000
-    vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0
-  }
-  if ( v369 != v370 )
-  {
-    __asm { vcomiss xmm10, xmm9 }
-    if ( v369 > v370 )
-      v369 = v370;
-  }
-  v376 = cls.smallDevFont;
-  ambientDefIndex = s_soundTablePtr->zones[v369].ambientDefIndex;
+    v202 = colorMdYellow;
+  overriddenColor = v202;
+  if ( v199 != v200 && v4 > 0.5 )
+    v199 = v200;
+  v203 = cls.smallDevFont;
+  ambientDefIndex = s_soundTablePtr->zones[v199].ambientDefIndex;
   if ( ambientDefIndex == -1 )
   {
-    v442 = j_va((const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbp, v442, &overriddenColor, 5, v376);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+    v233 = j_va((const char *)&queryFormat.fmt + 3);
+    *(float *)&v208 = *(float *)&v201 + (float)CG_DrawDevString(v6, v7, *(float *)&v201, 0.55000001, 0.55000001, v233, &overriddenColor, 5, v203);
   }
   else
   {
     ambientDefs = s_soundTablePtr->ambientDefs;
     *(_QWORD *)outCenter.v = ambientDefs;
-    v379 = ambientDefIndex;
-    v380 = j_va("    %s (Count: %d):", ambientDefs[ambientDefIndex].name, ambientDefs[ambientDefIndex].numEvents);
-    __asm
+    v206 = ambientDefIndex;
+    v207 = j_va("    %s (Count: %d):", ambientDefs[ambientDefIndex].name, ambientDefs[ambientDefIndex].numEvents);
+    *(float *)&v201 = *(float *)&v201 + (float)CG_DrawDevString(v6, v7, *(float *)&v201, 0.55000001, 0.55000001, v207, &overriddenColor, 5, v203);
+    v208 = v201;
+    if ( ambientDefs[v206].numEvents )
     {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbj, v380, &overriddenColor, 5, v376);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    if ( ambientDefs[v379].numEvents )
-    {
-      v387 = 0;
-      v388 = v379 * 3;
+      v209 = 0;
+      v210 = v206 * 3;
       do
       {
-        v389 = s_soundTablePtr;
+        v211 = s_soundTablePtr;
         ambientEvents = s_soundTablePtr->ambientEvents;
         ambientElementsCount = s_soundTablePtr->ambientElementsCount;
-        _R13 = v387 + *(&ambientDefs->ambientEventIndex + 4 * v388);
-        v720 = (vec4_t *)ambientEvents;
-        if ( ambientEvents[_R13].ambientElementIndex >= ambientElementsCount )
+        v214 = v209 + *(&ambientDefs->ambientEventIndex + 4 * v210);
+        v343 = (vec4_t *)ambientEvents;
+        if ( ambientEvents[v214].ambientElementIndex >= ambientElementsCount )
         {
           LODWORD(color) = ambientElementsCount;
-          LODWORD(sc) = ambientEvents[_R13].ambientElementIndex;
+          LODWORD(sc) = ambientEvents[v214].ambientElementIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1711, ASSERT_TYPE_ASSERT, "(unsigned)( event->ambientElementIndex ) < (unsigned)( s_soundTablePtr->ambientElementsCount )", "event->ambientElementIndex doesn't index s_soundTablePtr->ambientElementsCount\n\t%i not in [0, %i)", sc, color) )
             __debugbreak();
-          v389 = s_soundTablePtr;
+          v211 = s_soundTablePtr;
         }
-        ambientElementIndex = ambientEvents[_R13].ambientElementIndex;
-        _RDI = v389->ambientElements;
-        v395 = cls.smallDevFont;
-        _RSI = ambientElementIndex;
-        _RAX = (__int64)v720;
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rax+r13*4+8]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovq   r8, xmm2
-        }
-        v401 = j_va("      %s (Weight: %.2f):", _RDI[_RSI].aliasName, _R8);
-        __asm
-        {
-          vmovaps xmm3, xmm7; xScale
-          vmovaps xmm2, xmm6; y
-          vmovaps xmm1, xmm8; x
-          vmovss  dword ptr [rsp+230h+fmt], xmm7
-        }
-        CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbk, v401, &colorLtCyan, 5, v395);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rdi+rsi*8+18h]
-          vmovss  xmm2, dword ptr [rdi+rsi*8+24h]
-          vmovss  xmm1, dword ptr [rdi+rsi*8+20h]
-          vmovss  xmm4, dword ptr [rdi+rsi*8+1Ch]
-        }
-        v409 = cls.smallDevFont;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtsi2ss xmm0, xmm0, eax
-          vcvtss2sd xmm4, xmm4, xmm4
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-          vmovsd  [rsp+230h+fmt], xmm4
-          vaddss  xmm6, xmm6, xmm0
-        }
-        v420 = j_va("        (ConeMin: %.1f, ConeMax: %.1f, RangeMin: %.1f, RangeMax: %.1f)", _RDX, _R8, _R9, fmtbl);
-        __asm
-        {
-          vmovaps xmm3, xmm7; xScale
-          vmovaps xmm2, xmm6; y
-          vmovaps xmm1, xmm8; x
-          vmovss  dword ptr [rsp+230h+fmt], xmm7
-        }
-        CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbm, v420, &colorLtCyan, 5, v409);
+        ambientElementIndex = ambientEvents[v214].ambientElementIndex;
+        ambientElements = v211->ambientElements;
+        v217 = cls.smallDevFont;
+        v218 = ambientElementIndex;
+        v219 = j_va("      %s (Weight: %.2f):", ambientElements[ambientElementIndex].aliasName, v343->v[v214 * 3 + 2]);
+        v220 = CG_DrawDevString(v6, v7, *(float *)&v208, 0.55000001, 0.55000001, v219, &colorLtCyan, 5, v217);
+        v221 = cls.smallDevFont;
+        v222 = v208;
+        *(float *)&v222 = *(float *)&v208 + (float)v220;
+        v223 = j_va("        (ConeMin: %.1f, ConeMax: %.1f, RangeMin: %.1f, RangeMax: %.1f)", ambientElements[v218].coneMin, ambientElements[v218].coneMax, ambientElements[v218].rangeMin, ambientElements[v218].rangeMax);
+        v224 = CG_DrawDevString(v6, v7, *(float *)&v222, 0.55000001, 0.55000001, v223, &colorLtCyan, 5, v221);
         ambientDefs = *(AmbientDef **)outCenter.v;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-        }
-        ++v387;
-        __asm { vaddss  xmm6, xmm6, xmm0 }
+        ++v209;
+        *(float *)&v222 = *(float *)&v222 + (float)v224;
+        v208 = v222;
       }
-      while ( v387 < *(unsigned __int16 *)(*(_QWORD *)outCenter.v + 8 * v388 + 14) );
-      v20 = origins;
-      LODWORD(v13) = v717;
-      LODWORD(v12) = v718;
+      while ( v209 < *(unsigned __int16 *)(*(_QWORD *)outCenter.v + 8 * v210 + 14) );
+      v9 = origins;
+      LODWORD(v2) = v340;
+      LODWORD(v1) = v341;
     }
   }
-  v425 = cls.smallDevFont;
-  v426 = j_va((const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbn, v426, &overriddenColor, 5, v425);
-  v430 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v434 = j_va("  Weapon Refl:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbo, v434, &colorLtBlue, 5, v430);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  if ( (_DWORD)v12 == *(unsigned int *)((char *)&s_audioZoneStates[0].ctWeapReflZoneA + v20) && (_DWORD)v13 == *(unsigned int *)((char *)&s_audioZoneStates[0].ctWeapReflZoneB + v20) )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v225 = cls.smallDevFont;
+  v226 = j_va((const char *)&queryFormat.fmt + 3);
+  v227 = CG_DrawDevString(v6, v7, *(float *)&v208, 0.55000001, 0.55000001, v226, &overriddenColor, 5, v225);
+  v228 = cls.smallDevFont;
+  v229 = *(float *)&v208 + (float)v227;
+  v230 = j_va("  Weapon Refl:");
+  v231 = v229 + (float)CG_DrawDevString(v6, v7, v229, 0.55000001, 0.55000001, v230, &colorLtBlue, 5, v228);
+  if ( (_DWORD)v1 == *(unsigned int *)((char *)&s_audioZoneStates[0].ctWeapReflZoneA + v9) && (_DWORD)v2 == *(unsigned int *)((char *)&s_audioZoneStates[0].ctWeapReflZoneB + v9) )
+    v232 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v447 = g_audTrigWeapReflZoneA;
-  __asm { vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0 }
-  if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:g_lastAudioLerpVal
-      vcomiss xmm0, xmm9
-    }
-    if ( g_audTrigWeapReflZoneA > (unsigned int)g_audTrigWeapReflZoneB )
-      v447 = g_audTrigWeapReflZoneB;
-  }
-  if ( !s_soundTablePtr || v447 == 0x7FFFFFFF )
+    v232 = colorMdYellow;
+  v234 = g_audTrigWeapReflZoneA;
+  overriddenColor = v232;
+  if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB && g_lastAudioLerpVal > 0.5 )
+    v234 = g_audTrigWeapReflZoneB;
+  if ( !s_soundTablePtr || v234 == 0x7FFFFFFF )
     weapReflId = 0;
   else
-    weapReflId = s_soundTablePtr->zones[v447].weapReflId;
+    weapReflId = s_soundTablePtr->zones[v234].weapReflId;
   WeapReflDefWithClass = SND_FindWeapReflDefWithClass(weapReflId, 0);
-  v450 = cls.smallDevFont;
+  v237 = cls.smallDevFont;
   if ( WeapReflDefWithClass )
   {
-    v451 = g_audTrigWeapReflZoneA;
-    if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:g_lastAudioLerpVal
-        vcomiss xmm0, xmm9
-      }
-      if ( g_audTrigWeapReflZoneA > (unsigned int)g_audTrigWeapReflZoneB )
-        v451 = g_audTrigWeapReflZoneB;
-    }
-    if ( !s_soundTablePtr || v451 == 0x7FFFFFFF )
-      v452 = j_va("    %s", (const char *)&queryFormat.fmt + 3);
+    v238 = g_audTrigWeapReflZoneA;
+    if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB && g_lastAudioLerpVal > 0.5 )
+      v238 = g_audTrigWeapReflZoneB;
+    if ( !s_soundTablePtr || v238 == 0x7FFFFFFF )
+      v239 = j_va("    %s", (const char *)&queryFormat.fmt + 3);
     else
-      v452 = j_va("    %s", s_soundTablePtr->zones[v451].weapReflName);
+      v239 = j_va("    %s", s_soundTablePtr->zones[v238].weapReflName);
   }
   else
   {
-    v452 = j_va("    <None>");
+    v239 = j_va("    <None>");
   }
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbq, v452, &overriddenColor, 5, v450);
-  v456 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  v460 = j_va((const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbr, v460, &overriddenColor, 5, v456);
-  v464 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm0, xmm6
-  }
-  v468 = j_va("  Contexts:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbs, v468, &colorLtBlue, 5, v464);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v473 = g_lastAudioZoneIndexA != g_lastAudioZoneIndexB;
-  __asm { vcvtsi2ss xmm0, xmm0, eax }
-  zoneB = v473;
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  if ( (_DWORD)v12 == g_lastAudioZoneIndexA && (_DWORD)v13 == g_lastAudioZoneIndexB )
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
+  v240 = CG_DrawDevString(v6, v7, v231, 0.55000001, 0.55000001, v239, &overriddenColor, 5, v237);
+  v241 = cls.smallDevFont;
+  v242 = (float)v240 + v231;
+  v243 = j_va((const char *)&queryFormat.fmt + 3);
+  v244 = CG_DrawDevString(v6, v7, v242, 0.55000001, 0.55000001, v243, &overriddenColor, 5, v241);
+  v245 = cls.smallDevFont;
+  v246 = (float)v244 + v242;
+  v247 = j_va("  Contexts:");
+  v248 = CG_DrawDevString(v6, v7, v246, 0.55000001, 0.55000001, v247, &colorLtBlue, 5, v245);
+  v249 = g_lastAudioZoneIndexA != g_lastAudioZoneIndexB;
+  zoneB = v249;
+  v251 = v246 + (float)v248;
+  v250 = v251;
+  if ( (_DWORD)v1 == g_lastAudioZoneIndexA && (_DWORD)v2 == g_lastAudioZoneIndexB )
+    v252 = colorMdCyan;
   else
-    __asm { vmovups xmm0, xmmword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-  v477 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctContextsZoneA + v20);
-  __asm
+    v252 = colorMdYellow;
+  v253 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctContextsZoneA + v9);
+  overriddenColor = v252;
+  v254 = DrawContexts(v253, v7, v251, &overriddenColor, v6);
+  v61 = !v249;
+  v255 = cls.smallDevFont;
+  v257 = v254 + v251;
+  v256 = v254 + v250;
+  if ( !v61 )
   {
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovups xmmword ptr [rbp+130h+overriddenColor], xmm0
+    v258 = j_va("    =>");
+    v259 = (float)CG_DrawDevString(v6, v7, v257, 0.55000001, 0.55000001, v258, &overriddenColor, 5, v255);
+    v260 = v257 + v259;
+    v261 = DrawContexts(*(unsigned int *)((char *)&s_audioZoneStates[0].ctContextsZoneB + v9), v7, v256 + v259, &overriddenColor, v6);
+    v255 = cls.smallDevFont;
+    v256 = v260 + v261;
   }
-  *(float *)&_XMM0 = DrawContexts(v477, *(float *)&_XMM1, *(float *)&_XMM2, &overriddenColor, _R14);
-  v105 = !v473;
-  v480 = cls.smallDevFont;
-  __asm { vaddss  xmm6, xmm0, xmm6 }
-  if ( !v105 )
-  {
-    v482 = j_va("    =>");
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+230h+fmt], xmm7
-    }
-    CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbt, v482, &overriddenColor, 5, v480);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-    }
-    *(float *)&_XMM0 = DrawContexts(*(unsigned int *)((char *)&s_audioZoneStates[0].ctContextsZoneB + v20), *(float *)&_XMM1, *(float *)&_XMM2, &overriddenColor, _R14);
-    v480 = cls.smallDevFont;
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-  }
-  v490 = j_va((const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbu, v490, &overriddenColor, 5, v480);
-  v494 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v498 = j_va((const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbv, v498, &overriddenColor, 5, v494);
-  v502 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v506 = j_va("  Disable Full Occlusion:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbw, v506, &colorLtBlue, 5, v502);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  GetAudioZoneDebugProps(v12, v13, *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneA + v20), *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneB + v20), &overriddenColor, (int *)&zoneB);
-  if ( zoneB )
-  {
-    __asm { vcomiss xmm10, xmm9 }
-    v513 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneB + v20);
-  }
+  v262 = j_va((const char *)&queryFormat.fmt + 3);
+  v263 = CG_DrawDevString(v6, v7, v256, 0.55000001, 0.55000001, v262, &overriddenColor, 5, v255);
+  v264 = cls.smallDevFont;
+  v265 = v256 + (float)v263;
+  v266 = j_va((const char *)&queryFormat.fmt + 3);
+  v267 = CG_DrawDevString(v6, v7, v265, 0.55000001, 0.55000001, v266, &overriddenColor, 5, v264);
+  v268 = cls.smallDevFont;
+  v269 = v265 + (float)v267;
+  v270 = j_va("  Disable Full Occlusion:");
+  v271 = v269 + (float)CG_DrawDevString(v6, v7, v269, 0.55000001, 0.55000001, v270, &colorLtBlue, 5, v268);
+  GetAudioZoneDebugProps(v1, v2, *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneA + v9), *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneB + v9), &overriddenColor, (int *)&zoneB);
+  if ( zoneB && v4 > 0.5 )
+    v272 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneB + v9);
   else
-  {
-    v513 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneA + v20);
-  }
-  v514 = cls.smallDevFont;
-  v515 = j_va("    %s", s_soundTablePtr->zones[v513].fullOccName);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbx, v515, &overriddenColor, 5, v514);
-  v519 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v523 = j_va((const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtby, v523, &overriddenColor, 5, v519);
-  v527 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  v531 = j_va("  Player Breath:");
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtbz, v531, &colorLtBlue, 5, v527);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
-  GetAudioZoneDebugProps(v12, v13, *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneA + v20), *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneB + v20), &overriddenColor, (int *)&zoneB);
-  if ( zoneB )
-  {
-    __asm { vcomiss xmm10, xmm9 }
-    v538 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneB + v20);
-  }
+    v272 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctFullOcclusionZoneA + v9);
+  v273 = cls.smallDevFont;
+  v274 = j_va("    %s", s_soundTablePtr->zones[v272].fullOccName);
+  v275 = CG_DrawDevString(v6, v7, v271, 0.55000001, 0.55000001, v274, &overriddenColor, 5, v273);
+  v276 = cls.smallDevFont;
+  v277 = v271 + (float)v275;
+  v278 = j_va((const char *)&queryFormat.fmt + 3);
+  v279 = CG_DrawDevString(v6, v7, v277, 0.55000001, 0.55000001, v278, &overriddenColor, 5, v276);
+  v280 = cls.smallDevFont;
+  v281 = v277 + (float)v279;
+  v282 = j_va("  Player Breath:");
+  v283 = v281 + (float)CG_DrawDevString(v6, v7, v281, 0.55000001, 0.55000001, v282, &colorLtBlue, 5, v280);
+  GetAudioZoneDebugProps(v1, v2, *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneA + v9), *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneB + v9), &overriddenColor, (int *)&zoneB);
+  if ( zoneB && v4 > 0.5 )
+    v284 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneB + v9);
   else
-  {
-    v538 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneA + v20);
-  }
-  v539 = cls.smallDevFont;
-  v540 = j_va("    %s", s_soundTablePtr->zones[v538].playerBreathStateName);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+230h+fmt], xmm7
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtca, v540, &overriddenColor, 5, v539);
+    v284 = *(unsigned int *)((char *)&s_audioZoneStates[0].ctPlayerBreathZoneA + v9);
+  v285 = cls.smallDevFont;
+  v286 = j_va("    %s", s_soundTablePtr->zones[v284].playerBreathStateName);
+  CG_DrawDevString(v6, v7, v283, 0.55000001, 0.55000001, v286, &overriddenColor, 5, v285);
   if ( Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cg_drawDebugAudioClientTriggers, "cg_drawDebugAudioClientTriggers") > 1 )
   {
     mapEnts = cm.mapEnts;
-    v545 = 0;
-    zoneB = 0;
-    if ( cm.mapEnts->clientTrigger.trigger.count )
+    v288 = 0;
+    for ( zoneB = 0; v288 < mapEnts->clientTrigger.trigger.count; zoneB = ++v288 )
     {
-      __asm
+      v289 = v288;
+      v290 = mapEnts->clientTrigger.triggerType[v288];
+      origins = (__int64)mapEnts->clientTrigger.origins;
+      if ( (v290 & 0x206A) != 0 )
       {
-        vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm10, cs:__real@3d4ccccd
-        vmovaps xmmword ptr [rsp+230h+var_88+8], xmm11
-        vmovss  xmm11, cs:__real@3ae56042
-        vmovaps [rsp+230h+var_98+8], xmm12
-        vmovss  xmm12, cs:__real@41400000
-        vmovaps [rsp+230h+var_A8+8], xmm13
-        vmovss  xmm13, cs:__real@41200000
-      }
-      do
-      {
-        v551 = v545;
-        v552 = mapEnts->clientTrigger.triggerType[v545];
-        origins = (__int64)mapEnts->clientTrigger.origins;
-        if ( (v552 & 0x206A) != 0 )
+        models = mapEnts->clientTrigger.trigger.models;
+        firstHull = (int)models[v288].firstHull;
+        hullCount = models[v288].hullCount;
+        CG_GetTriggerCenter(localClientNuma, v288, &outCenter);
+        v294 = fsqrt((float)((float)((float)(outCenter.v[1] - v13) * (float)(outCenter.v[1] - v13)) + (float)((float)(outCenter.v[0] - v12) * (float)(outCenter.v[0] - v12))) + (float)((float)(outCenter.v[2] - v345) * (float)(outCenter.v[2] - v345)));
+        if ( v294 >= 10.0 )
+          v295 = v294 * 0.0017500001;
+        else
+          v295 = FLOAT_0_050000001;
+        v296 = v295 * 12.0;
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_dbgClientTriggerDist, "cg_dbgClientTriggerDist");
+        if ( v294 <= *(float *)&Float_Internal_DebugName )
         {
-          models = mapEnts->clientTrigger.trigger.models;
-          firstHull = (int)models[v545].firstHull;
-          hullCount = models[v545].hullCount;
-          CG_GetTriggerCenter(localClientNuma, v545, &outCenter);
-          __asm
+          lerpB = hullCount;
+          if ( hullCount )
           {
-            vmovss  xmm0, dword ptr [rbp+130h+outCenter]
-            vmovss  xmm1, dword ptr [rbp+130h+outCenter+4]
-            vsubss  xmm3, xmm0, xmm14
-            vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-            vsubss  xmm4, xmm0, [rsp+230h+var_1B8]
-            vsubss  xmm2, xmm1, xmm15
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm6, xmm2, xmm2
-            vcomiss xmm6, xmm13
-          }
-          if ( v568 )
-            __asm { vmovaps xmm7, xmm10 }
-          else
-            __asm { vmulss  xmm7, xmm6, xmm11 }
-          __asm { vmulss  xmm8, xmm7, xmm12 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_dbgClientTriggerDist, "cg_dbgClientTriggerDist");
-          __asm { vcomiss xmm6, xmm0 }
-          if ( v568 | v105 )
-          {
-            *(_QWORD *)lerpB = hullCount;
-            if ( hullCount )
+            v298 = &colorGreen;
+            if ( (v290 & 2) == 0 )
+              v298 = &colorWhite;
+            v299 = firstHull;
+            v343 = v298;
+            v300 = v290 & 0x40;
+            v301 = v290 & 0x20;
+            v302 = v290 & 8;
+            zoneA[0] = v300;
+            v303 = v290 & 0x2000;
+            v341 = v301;
+            v304 = v290 & 1;
+            v340 = v302;
+            zoneA[1] = v303;
+            do
             {
-              v571 = &colorGreen;
-              if ( (v552 & 2) == 0 )
-                v571 = &colorWhite;
-              _R15 = firstHull;
-              v720 = v571;
-              v573 = v552 & 0x40;
-              v574 = v552 & 0x20;
-              v575 = v552 & 8;
-              zoneA[0] = v573;
-              v576 = v552 & 0x2000;
-              v718 = v574;
-              v577 = v552 & 1;
-              v717 = v575;
-              zoneA[1] = v576;
-              do
+              v305 = &colorYellow;
+              v61 = v302 == 0;
+              v306 = &colorRed;
+              v307 = &colorMagenta;
+              v308 = NULL;
+              if ( v61 )
+                v305 = v298;
+              hulls = cm.mapEnts->clientTrigger.trigger.hulls;
+              if ( !v300 )
+                v307 = v305;
+              v310 = &colorLtBlue;
+              if ( !v301 )
+                v310 = v307;
+              v311 = &colorBlue;
+              if ( !v303 )
+                v311 = v310;
+              if ( !v304 )
+                v306 = v311;
+              v312 = cm.mapEnts->clientTrigger.audioTriggers[v289];
+              if ( (int)v312 > -1 )
+                v308 = &cm.mapEnts->clientTrigger.triggerString[v312];
+              CL_AddDebugStar(&outCenter, v306, 0, 1, 0);
+              v313 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+              if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v313);
+              if ( v313->current.integer > 2 && v308 )
               {
-                v578 = &colorYellow;
-                v105 = v575 == 0;
-                v579 = &colorRed;
-                v580 = &colorMagenta;
-                v581 = NULL;
-                if ( v105 )
-                  v578 = v571;
-                _R12 = cm.mapEnts->clientTrigger.trigger.hulls;
-                if ( !v573 )
-                  v580 = v578;
-                v583 = &colorLtBlue;
-                if ( !v574 )
-                  v583 = v580;
-                v584 = &colorBlue;
-                if ( !v576 )
-                  v584 = v583;
-                if ( !v577 )
-                  v579 = v584;
-                v585 = cm.mapEnts->clientTrigger.audioTriggers[v551];
-                if ( (int)v585 > -1 )
-                  v581 = &cm.mapEnts->clientTrigger.triggerString[v585];
-                CL_AddDebugStar(&outCenter, v579, 0, 1, 0);
-                v586 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                v314 = j_va("Zone: %s", v308);
+                CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, v314, 0, 1);
+              }
+              outCenter.v[2] = outCenter.v[2] - v296;
+              v315 = cm.mapEnts->clientTrigger.audioStateIds[v289];
+              if ( (_DWORD)v315 != -1 )
+              {
+                v316 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                v317 = &cm.mapEnts->clientTrigger.triggerString[v315];
                 if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v586);
-                if ( v586->current.integer > 2 && v581 )
+                Dvar_CheckFrontendServerThread(v316);
+                if ( v316->current.integer > 2 && v317 )
                 {
-                  v587 = j_va("Zone: %s", v581);
-                  __asm { vmovaps xmm2, xmm7; scale }
-                  CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, v587, 0, 1);
+                  v318 = j_va("State Id: %s: %x", v317, s_triggerStateTo[v289]);
+                  CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, v318, 0, 1);
                 }
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-                  vsubss  xmm1, xmm0, xmm8
-                  vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                }
-                v591 = cm.mapEnts->clientTrigger.audioStateIds[v551];
-                if ( (_DWORD)v591 != -1 )
-                {
-                  v592 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
-                  v593 = &cm.mapEnts->clientTrigger.triggerString[v591];
-                  if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v592);
-                  if ( v592->current.integer > 2 && v593 )
-                  {
-                    v594 = j_va("State Id: %s: %x", v593, s_triggerStateTo[v551]);
-                    __asm { vmovaps xmm2, xmm7; scale }
-                    CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, v594, 0, 1);
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-                    vsubss  xmm1, xmm0, xmm8
-                    vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                  }
-                }
-                if ( v718 )
-                {
-                  v598 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
-                  if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v598);
-                  if ( v598->current.integer > 2 )
-                  {
-                    __asm { vmovaps xmm2, xmm7; scale }
-                    CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, "Occluder", 0, 1);
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-                    vsubss  xmm1, xmm0, xmm8
-                    vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                  }
-                }
-                if ( v717 )
-                {
-                  v602 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
-                  if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v602);
-                  if ( v602->current.integer > 2 )
-                  {
-                    __asm { vmovaps xmm2, xmm7; scale }
-                    CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, "Blend", 0, 1);
-                  }
-                  __asm { vmovss  xmm0, dword ptr [rbp+130h+outCenter+8] }
-                  v605 = cm.mapEnts;
-                  __asm
-                  {
-                    vsubss  xmm1, xmm0, xmm8
-                    vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                  }
-                  if ( cm.mapEnts->clientTrigger.blendLookup[v551] == -1 )
-                  {
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1893, ASSERT_TYPE_ASSERT, "(cm.mapEnts->clientTrigger.blendLookup[trigIndex] != -1)", (const char *)&queryFormat, "cm.mapEnts->clientTrigger.blendLookup[trigIndex] != -1") )
-                      __debugbreak();
-                    v605 = cm.mapEnts;
-                  }
-                  p_pointA = &v605->clientTriggerBlend.blendNodes[v605->clientTrigger.blendLookup[v551]].pointA;
-                  if ( !p_pointA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1896, ASSERT_TYPE_ASSERT, "(blend)", (const char *)&queryFormat, "blend") )
-                    __debugbreak();
-                  CG_TriggerTransformPointOnMovingPlatform(localClientNuma, zoneB, p_pointA, &outOffset, NULL);
-                  CG_TriggerTransformPointOnMovingPlatform(localClientNuma, zoneB, p_pointA + 1, &point, NULL);
-                  CL_AddDebugStar(&outOffset, v579, 0, 1, 0);
-                  CL_AddDebugStar(&point, v579, 0, 1, 0);
-                }
-                if ( zoneA[1] )
-                {
-                  v608 = cm.mapEnts->clientTrigger.detailSoundBank[v551];
-                  if ( !v608 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1908, ASSERT_TYPE_ASSERT, "(detailSoundBank)", (const char *)&queryFormat, "detailSoundBank") )
-                    __debugbreak();
-                  v609 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
-                  if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v609);
-                  if ( v609->current.integer > 2 )
-                  {
-                    v610 = j_va("SoundBank: %s", v608->bank.name);
-                    __asm { vmovaps xmm2, xmm7; scale }
-                    CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, v610, 0, 1);
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-                    vsubss  xmm1, xmm0, xmm8
-                    vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                  }
-                }
-                if ( v577 )
-                {
-                  v614 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
-                  if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v614);
-                  if ( v614->current.integer > 2 )
-                  {
-                    __asm { vmovaps xmm2, xmm7; scale }
-                    CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, "Trigger shared with visionset", 0, 1);
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-                    vsubss  xmm1, xmm0, xmm8
-                    vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                  }
-                }
-                if ( g_audioTriggerDisabled[v551] )
-                {
-                  v618 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
-                  if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
-                    __debugbreak();
-                  Dvar_CheckFrontendServerThread(v618);
-                  if ( v618->current.integer > 2 )
-                  {
-                    __asm { vmovaps xmm2, xmm7; scale }
-                    CL_AddDebugString(&outCenter, &colorWhiteFaded, *(float *)&_XMM2, "Disabled", 0, 1);
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+130h+outCenter+8]
-                    vsubss  xmm1, xmm0, xmm8
-                    vmovss  dword ptr [rbp+130h+outCenter+8], xmm1
-                  }
-                }
-                AxisClear(&axis);
-                _RCX = origins;
-                _RAX = 3 * v551;
-                _RBX = (__int64)&_R12[_R15].triggerSpaceBounds.halfSize;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx]
-                  vxorps  xmm1, xmm0, xmm9
-                  vmovss  dword ptr [rbp+130h+mins], xmm1
-                  vmovss  xmm2, dword ptr [rbx+4]
-                  vxorps  xmm0, xmm2, xmm9
-                  vmovss  dword ptr [rbp+130h+mins+4], xmm0
-                  vmovss  xmm1, dword ptr [rbx+8]
-                  vmovss  xmm0, dword ptr [rcx+rax*4]
-                  vxorps  xmm2, xmm1, xmm9
-                  vmovss  dword ptr [rbp+130h+mins+8], xmm2
-                  vaddss  xmm1, xmm0, dword ptr [r15+r12]
-                  vmovss  dword ptr [rbp+130h+origin], xmm1
-                  vmovss  xmm2, dword ptr [r15+r12+4]
-                  vaddss  xmm0, xmm2, dword ptr [rcx+rax*4+4]
-                  vmovss  dword ptr [rbp+130h+origin+4], xmm0
-                  vmovss  xmm1, dword ptr [r15+r12+8]
-                  vaddss  xmm2, xmm1, dword ptr [rcx+rax*4+8]
-                  vmovss  dword ptr [rbp+130h+origin+8], xmm2
-                }
-                CG_TriggerTransformPointOnMovingPlatform(localClientNuma, zoneB, &origin, &v729, &axis);
-                v637 = DCONST_DVARBOOL_cg_dbgClientTriggerCull;
-                if ( !DCONST_DVARBOOL_cg_dbgClientTriggerCull && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dbgClientTriggerCull") )
-                  __debugbreak();
-                Dvar_CheckFrontendServerThread(v637);
-                CL_AddDebugBox(&axis, &v729, &mins, &_R12[_R15].triggerSpaceBounds.halfSize, v579, v637->current.color[0], 1, 0);
-                v574 = v718;
-                ++_R15;
-                v105 = (*(_QWORD *)lerpB)-- == 1i64;
-                v575 = v717;
-                v576 = zoneA[1];
-                v573 = zoneA[0];
-                v571 = v720;
+                outCenter.v[2] = outCenter.v[2] - v296;
               }
-              while ( !v105 );
-              v545 = zoneB;
+              if ( v341 )
+              {
+                v319 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
+                  __debugbreak();
+                Dvar_CheckFrontendServerThread(v319);
+                if ( v319->current.integer > 2 )
+                  CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, "Occluder", 0, 1);
+                outCenter.v[2] = outCenter.v[2] - v296;
+              }
+              if ( v340 )
+              {
+                v320 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
+                  __debugbreak();
+                Dvar_CheckFrontendServerThread(v320);
+                if ( v320->current.integer > 2 )
+                  CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, "Blend", 0, 1);
+                v321 = cm.mapEnts;
+                outCenter.v[2] = outCenter.v[2] - v296;
+                if ( cm.mapEnts->clientTrigger.blendLookup[v289] == -1 )
+                {
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1893, ASSERT_TYPE_ASSERT, "(cm.mapEnts->clientTrigger.blendLookup[trigIndex] != -1)", (const char *)&queryFormat, "cm.mapEnts->clientTrigger.blendLookup[trigIndex] != -1") )
+                    __debugbreak();
+                  v321 = cm.mapEnts;
+                }
+                p_pointA = &v321->clientTriggerBlend.blendNodes[v321->clientTrigger.blendLookup[v289]].pointA;
+                if ( !p_pointA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1896, ASSERT_TYPE_ASSERT, "(blend)", (const char *)&queryFormat, "blend") )
+                  __debugbreak();
+                CG_TriggerTransformPointOnMovingPlatform(localClientNuma, zoneB, p_pointA, &outOffset, NULL);
+                CG_TriggerTransformPointOnMovingPlatform(localClientNuma, zoneB, p_pointA + 1, &point, NULL);
+                CL_AddDebugStar(&outOffset, v306, 0, 1, 0);
+                CL_AddDebugStar(&point, v306, 0, 1, 0);
+              }
+              if ( zoneA[1] )
+              {
+                v323 = cm.mapEnts->clientTrigger.detailSoundBank[v289];
+                if ( !v323 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1908, ASSERT_TYPE_ASSERT, "(detailSoundBank)", (const char *)&queryFormat, "detailSoundBank") )
+                  __debugbreak();
+                v324 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
+                  __debugbreak();
+                Dvar_CheckFrontendServerThread(v324);
+                if ( v324->current.integer > 2 )
+                {
+                  v325 = j_va("SoundBank: %s", v323->bank.name);
+                  CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, v325, 0, 1);
+                }
+                outCenter.v[2] = outCenter.v[2] - v296;
+              }
+              if ( v304 )
+              {
+                v326 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
+                  __debugbreak();
+                Dvar_CheckFrontendServerThread(v326);
+                if ( v326->current.integer > 2 )
+                  CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, "Trigger shared with visionset", 0, 1);
+                outCenter.v[2] = outCenter.v[2] - v296;
+              }
+              if ( g_audioTriggerDisabled[v289] )
+              {
+                v327 = DCONST_DVARINT_cg_drawDebugAudioClientTriggers;
+                if ( !DCONST_DVARINT_cg_drawDebugAudioClientTriggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDebugAudioClientTriggers") )
+                  __debugbreak();
+                Dvar_CheckFrontendServerThread(v327);
+                if ( v327->current.integer > 2 )
+                  CL_AddDebugString(&outCenter, &colorWhiteFaded, v295, "Disabled", 0, 1);
+                outCenter.v[2] = outCenter.v[2] - v296;
+              }
+              AxisClear(&axis);
+              LODWORD(mins.v[0]) = LODWORD(hulls[v299].triggerSpaceBounds.halfSize.v[0]) ^ _xmm;
+              LODWORD(mins.v[1]) = LODWORD(hulls[v299].triggerSpaceBounds.halfSize.v[1]) ^ _xmm;
+              v328 = *(float *)(origins + 12 * v289);
+              LODWORD(mins.v[2]) = LODWORD(hulls[v299].triggerSpaceBounds.halfSize.v[2]) ^ _xmm;
+              origin.v[0] = v328 + hulls[v299].triggerSpaceBounds.midPoint.v[0];
+              origin.v[1] = hulls[v299].triggerSpaceBounds.midPoint.v[1] + *(float *)(origins + 12 * v289 + 4);
+              origin.v[2] = hulls[v299].triggerSpaceBounds.midPoint.v[2] + *(float *)(origins + 12 * v289 + 8);
+              CG_TriggerTransformPointOnMovingPlatform(localClientNuma, zoneB, &origin, &v353, &axis);
+              v329 = DCONST_DVARBOOL_cg_dbgClientTriggerCull;
+              if ( !DCONST_DVARBOOL_cg_dbgClientTriggerCull && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dbgClientTriggerCull") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v329);
+              CL_AddDebugBox(&axis, &v353, &mins, &hulls[v299].triggerSpaceBounds.halfSize, v306, v329->current.color[0], 1, 0);
+              v301 = v341;
+              ++v299;
+              v61 = lerpB-- == 1;
+              v302 = v340;
+              v303 = zoneA[1];
+              v300 = zoneA[0];
+              v298 = v343;
             }
+            while ( !v61 );
+            v288 = zoneB;
           }
-          mapEnts = cm.mapEnts;
         }
-        zoneB = ++v545;
-      }
-      while ( v545 < mapEnts->clientTrigger.trigger.count );
-      __asm
-      {
-        vmovaps xmm13, [rsp+230h+var_A8+8]
-        vmovaps xmm12, [rsp+230h+var_98+8]
-        vmovaps xmm11, xmmword ptr [rsp+230h+var_88+8]
+        mapEnts = cm.mapEnts;
       }
     }
-  }
-  __asm { vmovaps xmm9, xmmword ptr [rsp+230h+var_68+8] }
-LABEL_263:
-  _R11 = &v736;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -3939,40 +3055,32 @@ CG_FindAudioPropagationPortalAtPoint
 */
 char CG_FindAudioPropagationPortalAtPoint(LocalClientNum_t localClientNum, const vec3_t *point, unsigned int *outTrigger)
 {
+  unsigned __int64 v3; 
   MapEnts *mapEnts; 
-  float v9; 
+  float v8; 
+  unsigned int v9; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
-  unsigned int v13; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v13; 
+  __int64 v14; 
   Bounds bounds; 
 
-  _RBP = (unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64;
-  _RDI = point;
+  v3 = (unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64;
   mapEnts = cm.mapEnts;
   if ( !cm.mapEnts )
     return 0;
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  v9 = _RDI->v[2];
-  __asm
-  {
-    vmovsd  qword ptr [rbp+1160h+bounds.midPoint], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-  }
-  *(float *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v9;
-  __asm
-  {
-    vmovss  dword ptr [rbp+1160h+bounds.halfSize], xmm0
-    vmovss  dword ptr [rbp+1160h+bounds.halfSize+4], xmm0
-    vmovss  dword ptr [rbp+1160h+bounds.halfSize+8], xmm0
-  }
+  v8 = point->v[2];
+  *(double *)v3 = *(double *)point->v;
+  *(float *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v8;
+  *(const float *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = FLOAT_1_0;
   *(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
   *(_DWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
   *(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
   *(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 64), mapEnts->clientTrigger.spatialTree, (const Bounds *)((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64));
-  if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 64)) )
+  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(v3 + 64), mapEnts->clientTrigger.spatialTree, (const Bounds *)((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64));
+  if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v3 + 64)) )
   {
 LABEL_28:
     *outTrigger = 0x4000;
@@ -3982,9 +3090,9 @@ LABEL_28:
   {
     if ( !*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
       __debugbreak();
-    v11 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 20i64);
-    v12 = *(_DWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
-    if ( v12 == v11 )
+    v9 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 20i64);
+    v10 = *(_DWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
+    if ( v10 == v9 )
     {
       if ( !*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
         __debugbreak();
@@ -3992,35 +3100,35 @@ LABEL_28:
         __debugbreak();
       if ( *(_DWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) >= **(unsigned __int8 **)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
         __debugbreak();
-      v13 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) + 4i64 * *(unsigned int *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) + 4);
+      v11 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) + 4i64 * *(unsigned int *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) + 4);
     }
     else
     {
-      if ( v12 >= v11 )
+      if ( v10 >= v9 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
           __debugbreak();
-        v12 = *(_DWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
+        v10 = *(_DWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
       }
-      v13 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 8i64) + 4i64 * v12);
+      v11 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)&bounds & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 8i64) + 4i64 * v10);
     }
-    if ( v13 >= cm.mapEnts->clientTrigger.trigger.count )
+    if ( v11 >= cm.mapEnts->clientTrigger.trigger.count )
     {
-      LODWORD(v16) = cm.mapEnts->clientTrigger.trigger.count;
-      LODWORD(v15) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2688, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v15, v16) )
+      LODWORD(v14) = cm.mapEnts->clientTrigger.trigger.count;
+      LODWORD(v13) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2688, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v13, v14) )
         __debugbreak();
     }
-    if ( SLOBYTE(cm.mapEnts->clientTrigger.triggerType[v13]) < 0 )
+    if ( SLOBYTE(cm.mapEnts->clientTrigger.triggerType[v11]) < 0 )
     {
-      CG_TriggerCalcMovingPlatformPos(localClientNum, _RDI, v13, (vec3_t *)(_RBP + 24));
-      if ( CG_TestTriggerTouch_Point(v13, (const vec3_t *)(_RBP + 24)) )
+      CG_TriggerCalcMovingPlatformPos(localClientNum, point, v11, (vec3_t *)(v3 + 24));
+      if ( CG_TestTriggerTouch_Point(v11, (const vec3_t *)(v3 + 24)) )
         break;
     }
-    if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 64)) )
+    if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v3 + 64)) )
       goto LABEL_28;
   }
-  *outTrigger = v13;
+  *outTrigger = v11;
   return 1;
 }
 
@@ -4032,164 +3140,131 @@ CG_FindAudioTriggerAtPoint
 bool CG_FindAudioTriggerAtPoint(LocalClientNum_t localClientNum, const vec3_t *point, unsigned int triggerMask, unsigned int *outTrigger)
 {
   signed __int64 v4; 
-  void *v15; 
+  void *v5; 
+  unsigned __int64 v6; 
+  float v7; 
   MapEnts *mapEnts; 
-  int v22; 
-  bool result; 
-  float v25; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
-  int v33; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  char v52[4432]; 
-  char v63; 
+  unsigned int v12; 
+  float v14; 
+  unsigned int v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  int v18; 
+  MapEnts *v19; 
+  float *priority; 
+  float v21; 
+  ClientTriggerModel *models; 
+  ClientTriggerHull *hulls; 
+  float *v; 
+  vec3_t *origins; 
+  float *v26; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  char v30[4432]; 
 
-  v15 = alloca(v4);
-  __asm
-  {
-    vmovaps [rsp+1288h+var_48], xmm6
-    vmovaps [rsp+1288h+var_58], xmm7
-    vmovaps [rsp+1288h+var_68], xmm8
-    vmovaps [rsp+1288h+var_78], xmm9
-    vmovaps [rsp+1288h+var_88], xmm10
-    vmovaps [rsp+1288h+var_98], xmm11
-    vmovaps [rsp+1288h+var_A8], xmm12
-    vmovaps [rsp+1288h+var_B8], xmm13
-    vmovaps [rsp+1288h+var_C8], xmm14
-    vmovaps [rsp+1288h+var_D8], xmm15
-  }
-  _RBP = (unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4416) = (unsigned __int64)&v49 ^ _security_cookie;
-  __asm { vmovss  xmm13, cs:__real@bf800000 }
-  _R15 = point;
-  *(_QWORD *)_RBP = outTrigger;
+  v5 = alloca(v4);
+  v6 = (unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v6 + 4416) = (unsigned __int64)&v27 ^ _security_cookie;
+  v7 = FLOAT_N1_0;
+  *(_QWORD *)v6 = outTrigger;
   mapEnts = cm.mapEnts;
-  v22 = 0x4000;
-  if ( cm.mapEnts )
+  v12 = 0x4000;
+  if ( !cm.mapEnts )
+    return 0;
+  v14 = point->v[2];
+  *(double *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) = *(double *)point->v;
+  *(float *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28) = v14;
+  *(const float *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34) = FLOAT_1_0;
+  *(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128) = 0;
+  *(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) = 0i64;
+  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(v6 + 96), mapEnts->clientTrigger.spatialTree, (const Bounds *)(v6 + 32));
+  if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v6 + 96)) )
   {
-    __asm { vmovsd  xmm0, qword ptr [r15] }
-    v25 = _R15->v[2];
-    __asm
+LABEL_42:
+    **(_DWORD **)v6 = v12;
+    return v12 != 0x4000;
+  }
+  while ( 1 )
+  {
+    if ( !*(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+      __debugbreak();
+    v15 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 20i64);
+    v16 = *(_DWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
+    if ( v16 == v15 )
     {
-      vmovsd  qword ptr [rbp+20h], xmm0
-      vmovss  xmm0, cs:__real@3f800000
+      if ( !*(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+        __debugbreak();
+      if ( (**(_BYTE **)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+        __debugbreak();
+      if ( *(_DWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) >= **(unsigned __int8 **)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+        __debugbreak();
+      v17 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) + 4i64 * *(unsigned int *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) + 4);
     }
-    *(float *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28) = v25;
-    __asm
+    else
     {
-      vmovss  dword ptr [rbp+2Ch], xmm0
-      vmovss  dword ptr [rbp+30h], xmm0
-      vmovss  dword ptr [rbp+34h], xmm0
-    }
-    *(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) = 0i64;
-    *(_DWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128) = 0;
-    *(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) = 0i64;
-    *(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) = 0i64;
-    SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 96), mapEnts->clientTrigger.spatialTree, (const Bounds *)(_RBP + 32));
-    if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 96)) )
-    {
-      __asm
+      if ( v16 >= v15 )
       {
-        vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm15, cs:__real@3a83126f
-      }
-      do
-      {
-        if ( !*(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
           __debugbreak();
-        v29 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 20i64);
-        v30 = *(_DWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
-        if ( v30 == v29 )
-        {
-          if ( !*(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
-            __debugbreak();
-          if ( (**(_BYTE **)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
-            __debugbreak();
-          if ( *(_DWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) >= **(unsigned __int8 **)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
-            __debugbreak();
-          v31 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) + 4i64 * *(unsigned int *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) + 4);
-        }
-        else
-        {
-          if ( v30 >= v29 )
-          {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
-              __debugbreak();
-            v30 = *(_DWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
-          }
-          v31 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v52 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 8i64) + 4i64 * v30);
-        }
-        if ( v31 >= cm.mapEnts->clientTrigger.trigger.count )
-        {
-          LODWORD(v51) = cm.mapEnts->clientTrigger.trigger.count;
-          LODWORD(v50) = v31;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2610, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v50, v51) )
-            __debugbreak();
-        }
-        _R14 = v31;
-        v33 = cm.mapEnts->clientTrigger.triggerType[v31];
-        if ( (v33 & triggerMask) != 0 && !g_audioTriggerDisabled[v31] )
-        {
-          CG_TriggerCalcMovingPlatformPos(localClientNum, _R15, v31, (vec3_t *)(_RBP + 56));
-          if ( CG_TestTriggerTouch_Point(v31, (const vec3_t *)(_RBP + 56)) )
-          {
-            if ( (v33 & 8) != 0 )
-            {
-              **(_DWORD **)_RBP = v31;
-              result = 1;
-              goto LABEL_36;
-            }
-            _RAX = cm.mapEnts->clientTrigger.priority;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+r14*4]
-              vcomiss xmm0, xmm13
-            }
-            if ( (v33 & 8) != 0 )
-            {
-              __asm { vmovaps xmm13, xmm0 }
-              v22 = v31;
-            }
-            else
-            {
-              __asm
-              {
-                vsubss  xmm0, xmm0, xmm13
-                vandps  xmm0, xmm0, xmm14
-                vcomiss xmm0, xmm15
-              }
-            }
-          }
-        }
+        v16 = *(_DWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
       }
-      while ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 96)) );
+      v17 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v30 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 8i64) + 4i64 * v16);
     }
-    **(_DWORD **)_RBP = v22;
-    result = v22 != 0x4000;
+    if ( v17 >= cm.mapEnts->clientTrigger.trigger.count )
+    {
+      LODWORD(v29) = cm.mapEnts->clientTrigger.trigger.count;
+      LODWORD(v28) = v17;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2610, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v28, v29) )
+        __debugbreak();
+    }
+    v18 = cm.mapEnts->clientTrigger.triggerType[v17];
+    if ( (v18 & triggerMask) == 0 )
+      goto LABEL_41;
+    if ( g_audioTriggerDisabled[v17] )
+      goto LABEL_41;
+    CG_TriggerCalcMovingPlatformPos(localClientNum, point, v17, (vec3_t *)(v6 + 56));
+    if ( !CG_TestTriggerTouch_Point(v17, (const vec3_t *)(v6 + 56)) )
+      goto LABEL_41;
+    if ( (v18 & 8) != 0 )
+      break;
+    v19 = cm.mapEnts;
+    priority = cm.mapEnts->clientTrigger.priority;
+    v21 = priority[v17];
+    if ( v21 <= v7 )
+    {
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v21 - v7) & _xmm) < 0.001 )
+      {
+        if ( v12 == 0x4000 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2635, ASSERT_TYPE_ASSERT, "(foundTrigger != (16*1024))", (const char *)&queryFormat, "foundTrigger != MAX_CLIENT_TRIGGERS") )
+            __debugbreak();
+          v19 = cm.mapEnts;
+        }
+        models = v19->clientTrigger.trigger.models;
+        hulls = v19->clientTrigger.trigger.hulls;
+        v = hulls[models[v17].firstHull].triggerSpaceBounds.midPoint.v;
+        origins = v19->clientTrigger.origins;
+        v26 = hulls[models[v12].firstHull].triggerSpaceBounds.midPoint.v;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(origins[v12].v[0] + *v26) - (float)(*v + origins[v17].v[0])) & _xmm) <= (float)(v26[3] - v[3]) && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(origins[v12].v[1] + v26[1]) - (float)(origins[v17].v[1] + v[1])) & _xmm) <= (float)(v26[4] - v[4]) && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(origins[v12].v[2] + v26[2]) - (float)(origins[v17].v[2] + v[2])) & _xmm) <= (float)(v26[5] - v[5]) )
+          v12 = v17;
+      }
+    }
+    else
+    {
+      v7 = priority[v17];
+      v12 = v17;
+    }
+LABEL_41:
+    if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v6 + 96)) )
+      goto LABEL_42;
   }
-  else
-  {
-    result = 0;
-  }
-LABEL_36:
-  _R11 = &v63;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  **(_DWORD **)v6 = v17;
+  return 1;
 }
 
 /*
@@ -4200,70 +3275,55 @@ CG_FindAudioZoneAtPoint
 char CG_FindAudioZoneAtPoint(LocalClientNum_t localClientNum, const vec3_t *point, const ZoneDef **outZoneA, const ZoneDef **outZoneB, float *outLerp)
 {
   bool IsMainThread; 
-  int v14; 
+  float v10; 
+  int v11; 
   unsigned int zoneCount; 
-  int v17; 
-  const ZoneDef *v18; 
-  unsigned __int16 v20; 
-  __int64 v21; 
-  int v22; 
-  const SoundTable *v23; 
-  int v25; 
-  char v26; 
-  unsigned int v29; 
+  int v13; 
+  const ZoneDef *v14; 
+  unsigned __int16 v16; 
+  __int64 v17; 
+  int v18; 
+  const SoundTable *v19; 
+  float v20; 
+  int v21; 
+  char v22; 
+  __int64 v23; 
+  unsigned int v24; 
   unsigned int outTrigger; 
   unsigned int trigB; 
   float lerpAmount; 
-  __int128 v33; 
+  AudioZoneCacheKey v28; 
 
-  _R15 = outLerp;
-  _RBX = point;
   Sys_ProfBeginNamedEvent(0xFFD8BFD8, "CG_FindAudioZoneAtPoint");
-  LODWORD(v33) = localClientNum;
-  _R12 = s_audioZoneCache;
+  v28.localClientNum = localClientNum;
   IsMainThread = Sys_IsMainThread();
-  if ( !IsMainThread )
-    goto LABEL_6;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
-  v14 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0A8h+var_68+4], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0A8h+var_68+0Ch], xmm0
-    vmovss  dword ptr [rsp+0A8h+var_68+8], xmm1
-  }
-  if ( !s_numAudioZoneCache )
+  if ( !IsMainThread || (v10 = point->v[1], v11 = 0, v28.point.v[0] = point->v[0], v28.point.v[2] = point->v[2], v28.point.v[1] = v10, !s_numAudioZoneCache) )
   {
 LABEL_6:
-    if ( !CG_FindAudioTriggerAtPoint(localClientNum, _RBX, 0xAu, &outTrigger) )
+    if ( !CG_FindAudioTriggerAtPoint(localClientNum, point, 0xAu, &outTrigger) )
     {
       if ( s_soundTablePtr && s_audioZoneLookup[0x4000] != 0x7FFFFFFF )
       {
         zoneCount = s_soundTablePtr->zoneCount;
-        v17 = s_audioZoneLookup[0x4000];
+        v13 = s_audioZoneLookup[0x4000];
         if ( s_audioZoneLookup[0x4000] >= zoneCount )
         {
 LABEL_12:
-          v17 = s_audioZoneLookup[0x4000];
+          v13 = s_audioZoneLookup[0x4000];
         }
         else
         {
-          while ( s_soundTablePtr->zones[v17].stateId != s_triggerStateTo[0x4000] )
+          while ( s_soundTablePtr->zones[v13].stateId != s_triggerStateTo[0x4000] )
           {
-            if ( ++v17 >= zoneCount )
+            if ( ++v13 >= zoneCount )
               goto LABEL_12;
           }
         }
-        if ( v17 != 0x7FFFFFFF )
+        if ( v13 != 0x7FFFFFFF )
         {
-          v18 = &s_soundTablePtr->zones[v17];
+          v14 = &s_soundTablePtr->zones[v13];
 LABEL_23:
-          *outZoneA = v18;
+          *outZoneA = v14;
           *outZoneB = NULL;
           *outLerp = 0.0;
           goto LABEL_24;
@@ -4271,36 +3331,36 @@ LABEL_23:
       }
       goto LABEL_21;
     }
-    v20 = cm.mapEnts->clientTrigger.triggerType[outTrigger];
-    if ( (v20 & 8) != 0 )
+    v16 = cm.mapEnts->clientTrigger.triggerType[outTrigger];
+    if ( (v16 & 8) != 0 )
     {
-      CG_TriggerLerpTriggers(localClientNum, outTrigger, _RBX, &outTrigger, &trigB, &lerpAmount);
-      v21 = SND_LookupZoneIndex(outTrigger);
-      v22 = SND_LookupZoneIndex(trigB);
-      if ( (_DWORD)v21 == 0x7FFFFFFF || v22 == 0x7FFFFFFF )
+      CG_TriggerLerpTriggers(localClientNum, outTrigger, point, &outTrigger, &trigB, &lerpAmount);
+      v17 = SND_LookupZoneIndex(outTrigger);
+      v18 = SND_LookupZoneIndex(trigB);
+      if ( (_DWORD)v17 == 0x7FFFFFFF || v18 == 0x7FFFFFFF )
         goto LABEL_21;
-      v23 = s_soundTablePtr;
-      __asm { vmovss  xmm0, [rsp+0A8h+var_70] }
-      *outZoneA = &s_soundTablePtr->zones[v21];
-      __asm { vmovss  dword ptr [r15], xmm0 }
-      *outZoneB = &v23->zones[v22];
+      v19 = s_soundTablePtr;
+      v20 = lerpAmount;
+      *outZoneA = &s_soundTablePtr->zones[v17];
+      *outLerp = v20;
+      *outZoneB = &v19->zones[v18];
     }
-    else if ( (v20 & 2) != 0 )
+    else if ( (v16 & 2) != 0 )
     {
-      v25 = SND_LookupZoneIndex(outTrigger);
-      if ( v25 != 0x7FFFFFFF )
+      v21 = SND_LookupZoneIndex(outTrigger);
+      if ( v21 != 0x7FFFFFFF )
       {
-        v18 = &s_soundTablePtr->zones[v25];
+        v14 = &s_soundTablePtr->zones[v21];
         goto LABEL_23;
       }
 LABEL_21:
-      v26 = 0;
+      v22 = 0;
       goto LABEL_25;
     }
 LABEL_24:
-    v26 = 1;
+    v22 = 1;
 LABEL_25:
-    if ( IsMainThread && v26 )
+    if ( IsMainThread && v22 )
     {
       if ( s_numAudioZoneCache >= 0x40 )
       {
@@ -4308,29 +3368,28 @@ LABEL_25:
       }
       else
       {
-        __asm { vmovups xmm0, [rsp+0A8h+var_68] }
-        _RCX = s_numAudioZoneCache;
-        v29 = s_numAudioZoneCache + 1;
-        __asm { vmovups xmmword ptr [r12+rcx*8], xmm0 }
-        s_audioZoneCache[_RCX].zoneA = *outZoneA;
-        s_audioZoneCache[_RCX].zoneB = *outZoneB;
-        s_audioZoneCache[_RCX].lerp = *outLerp;
-        s_numAudioZoneCache = v29;
+        v23 = s_numAudioZoneCache;
+        v24 = s_numAudioZoneCache + 1;
+        s_audioZoneCache[v23].key = v28;
+        s_audioZoneCache[v23].zoneA = *outZoneA;
+        s_audioZoneCache[v23].zoneB = *outZoneB;
+        s_audioZoneCache[v23].lerp = *outLerp;
+        s_numAudioZoneCache = v24;
       }
       ++s_audioZoneCacheMisses;
     }
     Sys_ProfEndNamedEvent();
-    return v26;
+    return v22;
   }
-  while ( *(_OWORD *)&s_audioZoneCache[v14].key != v33 )
+  while ( *(_OWORD *)&s_audioZoneCache[v11].key != *(_OWORD *)&v28 )
   {
-    if ( ++v14 >= s_numAudioZoneCache )
+    if ( ++v11 >= s_numAudioZoneCache )
       goto LABEL_6;
   }
   ++s_audioZoneCacheHits;
-  *outZoneA = s_audioZoneCache[v14].zoneA;
-  *outZoneB = s_audioZoneCache[v14].zoneB;
-  *outLerp = s_audioZoneCache[v14].lerp;
+  *outZoneA = s_audioZoneCache[v11].zoneA;
+  *outZoneB = s_audioZoneCache[v11].zoneB;
+  *outLerp = s_audioZoneCache[v11].lerp;
   Sys_ProfEndNamedEvent();
   return 1;
 }
@@ -4360,12 +3419,7 @@ char CG_FindNPCAudioZoneAtPoint(LocalClientNum_t localClientNum, const vec3_t *p
       v6 = SND_LookupNPCZoneIndex(trigB);
       if ( (_DWORD)v10 != 0x7FFFFFFF && v6 != 0x7FFFFFFF )
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+48h+var_14]
-          vcomiss xmm0, cs:__real@3f000000
-        }
-        if ( (unsigned int)v6 <= 0x7FFFFFFF )
+        if ( lerpAmount[0] <= 0.5 )
         {
           v7 = v10;
           goto LABEL_4;
@@ -4544,25 +3598,21 @@ CG_GetCurrentAudioZone
 */
 bool CG_GetCurrentAudioZone(const ZoneDef **outZoneA, const ZoneDef **outZoneB, float *outLerp)
 {
-  const SoundTable *v4; 
-  __int64 v5; 
+  const SoundTable *v3; 
+  __int64 v4; 
+  float v5; 
   bool result; 
-  bool v9; 
 
-  v4 = s_soundTablePtr;
+  v3 = s_soundTablePtr;
   if ( !s_soundTablePtr )
     return 0;
   if ( g_lastAudioZoneIndexA == 0x7FFFFFFF )
     return 0;
-  v5 = g_lastAudioZoneIndexB;
+  v4 = g_lastAudioZoneIndexB;
   if ( g_lastAudioZoneIndexB == 0x7FFFFFFF )
     return 0;
-  __asm
-  {
-    vmovss  xmm1, cs:g_lastAudioLerpVal
-    vucomiss xmm1, cs:__real@3f800000
-  }
-  if ( g_lastAudioZoneIndexB == 0x7FFFFFFF )
+  v5 = g_lastAudioLerpVal;
+  if ( g_lastAudioLerpVal == 1.0 )
   {
     *outZoneA = &s_soundTablePtr->zones[g_lastAudioZoneIndexB];
 LABEL_6:
@@ -4571,14 +3621,11 @@ LABEL_6:
     *outZoneB = NULL;
     return result;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v9 = &s_soundTablePtr->zones[g_lastAudioZoneIndexA] == NULL;
-  __asm { vucomiss xmm1, xmm0 }
   *outZoneA = &s_soundTablePtr->zones[g_lastAudioZoneIndexA];
-  if ( v9 )
+  if ( v5 == 0.0 )
     goto LABEL_6;
-  __asm { vmovss  dword ptr [r8], xmm1 }
-  *outZoneB = &v4->zones[v5];
+  *outLerp = v5;
+  *outZoneB = &v3->zones[v4];
   return 1;
 }
 
@@ -4616,16 +3663,8 @@ __int64 CG_GetCurrentWeapReflDefId()
   int v0; 
 
   v0 = g_audTrigWeapReflZoneA;
-  if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:g_lastAudioLerpVal
-      vcomiss xmm0, cs:__real@3f000000
-    }
-    if ( g_audTrigWeapReflZoneA > (unsigned int)g_audTrigWeapReflZoneB )
-      v0 = g_audTrigWeapReflZoneB;
-  }
+  if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB && g_lastAudioLerpVal > 0.5 )
+    v0 = g_audTrigWeapReflZoneB;
   if ( !s_soundTablePtr || v0 == 0x7FFFFFFF )
     return 0i64;
   else
@@ -4642,16 +3681,8 @@ const char *CG_GetCurrentWeapReflDefName()
   int v0; 
 
   v0 = g_audTrigWeapReflZoneA;
-  if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:g_lastAudioLerpVal
-      vcomiss xmm0, cs:__real@3f000000
-    }
-    if ( g_audTrigWeapReflZoneA > (unsigned int)g_audTrigWeapReflZoneB )
-      v0 = g_audTrigWeapReflZoneB;
-  }
+  if ( g_audTrigWeapReflZoneA != g_audTrigWeapReflZoneB && g_lastAudioLerpVal > 0.5 )
+    v0 = g_audTrigWeapReflZoneB;
   if ( !s_soundTablePtr || v0 == 0x7FFFFFFF )
     return (char *)&queryFormat.fmt + 3;
   else
@@ -4665,276 +3696,145 @@ CG_GetDistanceFromTriggerWall
 */
 bool CG_GetDistanceFromTriggerWall(LocalClientNum_t localClientNum, unsigned int triggerIdx, vec3_t *inOutPoint, float *outDistance)
 {
+  float *v4; 
   bool result; 
   ClientTriggerModel *models; 
-  __int64 v14; 
+  __int64 v8; 
   MapEnts *mapEnts; 
-  int v17; 
+  int v10; 
+  vec3_t *origins; 
+  float v13; 
+  float v14; 
+  float v15; 
   __int64 firstHull; 
-  ClientTriggerHull *hulls; 
-  bool v28; 
-  bool v30; 
-  unsigned int slabCount; 
-  int v40; 
-  __int64 v45; 
-  bool v46; 
-  unsigned int v47; 
-  __int64 v48; 
-  bool v93; 
-  bool v94; 
+  ClientTriggerHull *v17; 
+  float v18; 
+  float v19; 
+  signed int slabCount; 
+  int v21; 
+  __int128 v23; 
+  TriggerSlab *slabs; 
+  __int64 v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  __int128 halfSize_low; 
+  __int128 v32; 
+  __int128 v34; 
+  __int128 v36; 
+  unsigned int firstSlab; 
+  TriggerSlab *v38; 
+  __int128 v40; 
 
-  _R12 = outDistance;
-  _RBX = inOutPoint;
+  v4 = outDistance;
   if ( triggerIdx >= cm.mapEnts->clientTrigger.trigger.count )
     return 0;
   models = cm.mapEnts->clientTrigger.trigger.models;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_78], xmm8
-    vmovaps [rsp+0E8h+var_88], xmm9
-    vmovaps [rsp+0E8h+var_98], xmm10
-    vmovaps [rsp+0E8h+var_A8], xmm11
-  }
-  v14 = triggerIdx;
+  v8 = triggerIdx;
   CG_TriggerCalcMovingPlatformPos(localClientNum, inOutPoint, triggerIdx, inOutPoint);
-  __asm { vmovss  xmm0, dword ptr [rbx] }
   mapEnts = cm.mapEnts;
-  v17 = 0;
-  __asm
+  v10 = 0;
+  *(float *)&_XMM11 = FLOAT_N1_0;
+  origins = cm.mapEnts->clientTrigger.origins;
+  v13 = inOutPoint->v[0] - origins[v8].v[0];
+  v14 = inOutPoint->v[2] - origins[v8].v[2];
+  v15 = inOutPoint->v[1] - origins[v8].v[1];
+  if ( models[v8].hullCount )
   {
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  xmm11, cs:__real@bf800000
-    vsubss  xmm8, xmm0, dword ptr [rax+r14*4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm10, xmm0, dword ptr [rax+r14*4+8]
-    vsubss  xmm9, xmm1, dword ptr [rax+r14*4+4]
-  }
-  if ( models[v14].hullCount )
-  {
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_58], xmm6
-      vmovaps [rsp+0E8h+var_68], xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    firstHull = (int)models[v14].firstHull;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    firstHull = (int)models[v8].firstHull;
     do
     {
-      hulls = mapEnts->clientTrigger.trigger.hulls;
-      v28 = __CFADD__(firstHull * 32, hulls) || &hulls[firstHull] == NULL;
-      _RBX = &hulls[firstHull];
-      if ( !_RBX )
+      v17 = &mapEnts->clientTrigger.trigger.hulls[firstHull];
+      if ( !v17 )
       {
-        v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 522, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds");
-        v28 = !v30;
-        if ( v30 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 522, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
           __debugbreak();
         mapEnts = cm.mapEnts;
       }
-      __asm
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v13 - v17->triggerSpaceBounds.midPoint.v[0]) & _xmm) <= v17->triggerSpaceBounds.halfSize.v[0] )
       {
-        vsubss  xmm2, xmm8, dword ptr [rbx]
-        vmovss  xmm3, dword ptr [rbx+0Ch]
-        vandps  xmm2, xmm2, xmm7
-        vcomiss xmm2, xmm3
-      }
-      if ( v28 )
-      {
-        __asm
+        v18 = v17->triggerSpaceBounds.halfSize.v[1];
+        LODWORD(v19) = COERCE_UNSIGNED_INT(v15 - v17->triggerSpaceBounds.midPoint.v[1]) & _xmm;
+        if ( v19 <= v18 && COERCE_FLOAT(COERCE_UNSIGNED_INT(v14 - v17->triggerSpaceBounds.midPoint.v[2]) & _xmm) <= v17->triggerSpaceBounds.halfSize.v[2] )
         {
-          vsubss  xmm1, xmm9, dword ptr [rbx+4]
-          vmovss  xmm4, dword ptr [rbx+10h]
-          vandps  xmm1, xmm1, xmm7
-          vcomiss xmm1, xmm4
-        }
-        if ( v28 )
-        {
-          __asm
+          slabCount = v17->slabCount;
+          v21 = 0;
+          v23 = LODWORD(v17->triggerSpaceBounds.halfSize.v[1]);
+          *(float *)&v23 = v18 - v19;
+          _XMM1 = v23;
+          __asm { vminss  xmm4, xmm1, xmm0 }
+          if ( (unsigned int)slabCount >= 4 )
           {
-            vsubss  xmm0, xmm10, dword ptr [rbx+8]
-            vandps  xmm0, xmm0, xmm7
-            vcomiss xmm0, dword ptr [rbx+14h]
+            slabs = mapEnts->clientTrigger.trigger.slabs;
+            v26 = v17->firstSlab + 1;
+            v27 = ((unsigned int)(slabCount - 4) >> 2) + 1;
+            v28 = v27;
+            v21 = 4 * v27;
+            do
+            {
+              if ( slabs[(unsigned int)(v26 - 1)].dir.v[2] == 0.0 )
+              {
+                halfSize_low = LODWORD(slabs[(unsigned int)(v26 - 1)].halfSize);
+                *(float *)&halfSize_low = slabs[(unsigned int)(v26 - 1)].halfSize - COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v15 * slabs[(unsigned int)(v26 - 1)].dir.v[1]) + (float)(v13 * slabs[(unsigned int)(v26 - 1)].dir.v[0])) + (float)(0.0 * v14)) - slabs[(unsigned int)(v26 - 1)].midPoint) & _xmm);
+                _XMM1 = halfSize_low;
+                __asm { vminss  xmm4, xmm1, xmm4 }
+              }
+              if ( slabs[v26].dir.v[2] == 0.0 )
+              {
+                v32 = LODWORD(slabs[v26].halfSize);
+                *(float *)&v32 = slabs[v26].halfSize - COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v15 * slabs[v26].dir.v[1]) + (float)(v13 * slabs[v26].dir.v[0])) + (float)(0.0 * v14)) - slabs[v26].midPoint) & _xmm);
+                _XMM1 = v32;
+                __asm { vminss  xmm4, xmm1, xmm4 }
+              }
+              if ( slabs[(unsigned int)(v26 + 1)].dir.v[2] == 0.0 )
+              {
+                v34 = LODWORD(slabs[(unsigned int)(v26 + 1)].halfSize);
+                *(float *)&v34 = slabs[(unsigned int)(v26 + 1)].halfSize - COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v15 * slabs[(unsigned int)(v26 + 1)].dir.v[1]) + (float)(v13 * slabs[(unsigned int)(v26 + 1)].dir.v[0])) + (float)(0.0 * v14)) - slabs[(unsigned int)(v26 + 1)].midPoint) & _xmm);
+                _XMM1 = v34;
+                __asm { vminss  xmm4, xmm1, xmm4 }
+              }
+              if ( slabs[(unsigned int)(v26 + 2)].dir.v[2] == 0.0 )
+              {
+                v36 = LODWORD(slabs[(unsigned int)(v26 + 2)].halfSize);
+                *(float *)&v36 = slabs[(unsigned int)(v26 + 2)].halfSize - COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v15 * slabs[(unsigned int)(v26 + 2)].dir.v[1]) + (float)(v13 * slabs[(unsigned int)(v26 + 2)].dir.v[0])) + (float)(0.0 * v14)) - slabs[(unsigned int)(v26 + 2)].midPoint) & _xmm);
+                _XMM1 = v36;
+                __asm { vminss  xmm4, xmm1, xmm4 }
+              }
+              v26 = (unsigned int)(v26 + 4);
+              --v28;
+            }
+            while ( v28 );
           }
-          if ( v28 )
+          if ( v21 < slabCount )
           {
-            slabCount = _RBX->slabCount;
-            v40 = 0;
-            __asm
+            firstSlab = v17->firstSlab;
+            v38 = mapEnts->clientTrigger.trigger.slabs;
+            do
             {
-              vsubss  xmm1, xmm4, xmm1
-              vsubss  xmm0, xmm3, xmm2
-              vminss  xmm4, xmm1, xmm0
-            }
-            if ( slabCount >= 4 )
-            {
-              _RDX = mapEnts->clientTrigger.trigger.slabs;
-              v45 = _RBX->firstSlab + 1;
-              v47 = ((slabCount - 4) >> 2) + 1;
-              v46 = v47 == 0;
-              v48 = v47;
-              v40 = 4 * v47;
-              do
+              if ( v38[firstSlab + v21].dir.v[2] == 0.0 )
               {
-                _RAX = 5i64 * (unsigned int)(v45 - 1);
-                __asm
-                {
-                  vmovss  xmm3, dword ptr [rdx+rax*4+8]
-                  vucomiss xmm3, xmm6
-                }
-                if ( v46 )
-                {
-                  __asm
-                  {
-                    vmulss  xmm1, xmm9, dword ptr [rdx+rax*4+4]
-                    vmulss  xmm0, xmm8, dword ptr [rdx+rax*4]
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  xmm0, dword ptr [rdx+rax*4+10h]
-                    vmulss  xmm1, xmm3, xmm10
-                    vaddss  xmm2, xmm2, xmm1
-                    vsubss  xmm3, xmm2, dword ptr [rdx+rax*4+0Ch]
-                    vandps  xmm3, xmm3, xmm7
-                    vsubss  xmm1, xmm0, xmm3
-                    vminss  xmm4, xmm1, xmm4
-                  }
-                }
-                _RCX = 5 * v45;
-                __asm
-                {
-                  vmovss  xmm3, dword ptr [rdx+rcx*4+8]
-                  vucomiss xmm3, xmm6
-                }
-                if ( v46 )
-                {
-                  __asm
-                  {
-                    vmulss  xmm1, xmm9, dword ptr [rdx+rcx*4+4]
-                    vmulss  xmm0, xmm8, dword ptr [rdx+rcx*4]
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  xmm0, dword ptr [rdx+rcx*4+10h]
-                    vmulss  xmm1, xmm3, xmm10
-                    vaddss  xmm2, xmm2, xmm1
-                    vsubss  xmm3, xmm2, dword ptr [rdx+rcx*4+0Ch]
-                    vandps  xmm3, xmm3, xmm7
-                    vsubss  xmm1, xmm0, xmm3
-                    vminss  xmm4, xmm1, xmm4
-                  }
-                }
-                _RAX = 5i64 * (unsigned int)(v45 + 1);
-                __asm
-                {
-                  vmovss  xmm3, dword ptr [rdx+rax*4+8]
-                  vucomiss xmm3, xmm6
-                }
-                if ( v46 )
-                {
-                  __asm
-                  {
-                    vmulss  xmm1, xmm9, dword ptr [rdx+rax*4+4]
-                    vmulss  xmm0, xmm8, dword ptr [rdx+rax*4]
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  xmm0, dword ptr [rdx+rax*4+10h]
-                    vmulss  xmm1, xmm3, xmm10
-                    vaddss  xmm2, xmm2, xmm1
-                    vsubss  xmm3, xmm2, dword ptr [rdx+rax*4+0Ch]
-                    vandps  xmm3, xmm3, xmm7
-                    vsubss  xmm1, xmm0, xmm3
-                    vminss  xmm4, xmm1, xmm4
-                  }
-                }
-                _RAX = 5i64 * (unsigned int)(v45 + 2);
-                __asm
-                {
-                  vmovss  xmm3, dword ptr [rdx+rax*4+8]
-                  vucomiss xmm3, xmm6
-                }
-                if ( v46 )
-                {
-                  __asm
-                  {
-                    vmulss  xmm1, xmm9, dword ptr [rdx+rax*4+4]
-                    vmulss  xmm0, xmm8, dword ptr [rdx+rax*4]
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  xmm0, dword ptr [rdx+rax*4+10h]
-                    vmulss  xmm1, xmm3, xmm10
-                    vaddss  xmm2, xmm2, xmm1
-                    vsubss  xmm3, xmm2, dword ptr [rdx+rax*4+0Ch]
-                    vandps  xmm3, xmm3, xmm7
-                    vsubss  xmm1, xmm0, xmm3
-                    vminss  xmm4, xmm1, xmm4
-                  }
-                }
-                v45 = (unsigned int)(v45 + 4);
-                v46 = --v48 == 0;
+                v40 = LODWORD(v38[firstSlab + v21].halfSize);
+                *(float *)&v40 = v38[firstSlab + v21].halfSize - COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v15 * v38[firstSlab + v21].dir.v[1]) + (float)(v13 * v38[firstSlab + v21].dir.v[0])) + (float)(0.0 * v14)) - v38[firstSlab + v21].midPoint) & _xmm);
+                _XMM1 = v40;
+                __asm { vminss  xmm4, xmm1, xmm4 }
               }
-              while ( v48 );
+              ++v21;
             }
-            v93 = v40 < slabCount;
-            v94 = v40 == slabCount;
-            if ( v40 < (int)slabCount )
-            {
-              _RDX = mapEnts->clientTrigger.trigger.slabs;
-              do
-              {
-                _RAX = 5i64 * (_RBX->firstSlab + v40);
-                __asm
-                {
-                  vmovss  xmm3, dword ptr [rdx+rax*4+8]
-                  vucomiss xmm3, xmm6
-                }
-                if ( v94 )
-                {
-                  __asm
-                  {
-                    vmulss  xmm1, xmm9, dword ptr [rdx+rax*4+4]
-                    vmulss  xmm0, xmm8, dword ptr [rdx+rax*4]
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  xmm0, dword ptr [rdx+rax*4+10h]
-                    vmulss  xmm1, xmm3, xmm10
-                    vaddss  xmm2, xmm2, xmm1
-                    vsubss  xmm3, xmm2, dword ptr [rdx+rax*4+0Ch]
-                    vandps  xmm3, xmm3, xmm7
-                    vsubss  xmm1, xmm0, xmm3
-                    vminss  xmm4, xmm1, xmm4
-                  }
-                }
-                v93 = ++v40 < slabCount;
-                v94 = v40 == slabCount;
-              }
-              while ( v40 < (int)slabCount );
-            }
-            __asm { vcomiss xmm4, xmm6 }
-            if ( v93 )
-              goto LABEL_31;
-            __asm { vcomiss xmm11, xmm6 }
-            if ( !v93 )
-LABEL_31:
-              __asm { vminss  xmm11, xmm4, xmm11 }
-            else
-              __asm { vmovaps xmm11, xmm4 }
+            while ( v21 < slabCount );
           }
+          if ( *(float *)&_XMM4 < 0.0 || *(float *)&_XMM11 >= 0.0 )
+            __asm { vminss  xmm11, xmm4, xmm11 }
+          else
+            LODWORD(_XMM11) = _XMM4;
         }
       }
-      ++v17;
+      ++v10;
       ++firstHull;
     }
-    while ( v17 < models[v14].hullCount );
-    _R12 = outDistance;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0E8h+var_68]
-      vmovaps xmm6, [rsp+0E8h+var_58]
-    }
+    while ( v10 < models[v8].hullCount );
+    v4 = outDistance;
   }
-  __asm { vmovaps xmm10, [rsp+0E8h+var_98] }
   result = 1;
-  __asm
-  {
-    vmovaps xmm9, [rsp+0E8h+var_88]
-    vmovaps xmm8, [rsp+0E8h+var_78]
-    vmovss  dword ptr [r12], xmm11
-    vmovaps xmm11, [rsp+0E8h+var_A8]
-  }
+  *v4 = *(float *)&_XMM11;
   return result;
 }
 
@@ -4951,16 +3851,16 @@ __int64 CG_GetNPCADSRSettingIndex(LocalClientNum_t localClientNum, const vec3_t 
   ZoneDef *v9; 
   unsigned __int16 v10; 
   __int64 v11; 
-  unsigned int v12; 
+  int v12; 
   int numNPCAdsrZone; 
+  int v14; 
   int v15; 
-  int v16; 
-  AdsrZoneEntry *v17; 
-  int v18; 
+  AdsrZoneEntry *v16; 
+  int v17; 
   __int64 weaponIdx; 
   AdsrZoneEntry *npcADSRZones; 
   int startNPCAdsrZoneIndex; 
-  const dvar_t *v22; 
+  const dvar_t *v21; 
   const char *WeaponName; 
   unsigned int outTrigger; 
   unsigned int trigB; 
@@ -4978,13 +3878,8 @@ __int64 CG_GetNPCADSRSettingIndex(LocalClientNum_t localClientNum, const vec3_t 
       v12 = SND_LookupNPCZoneIndex(trigB);
       if ( (_DWORD)v11 == 0x7FFFFFFF || v12 == 0x7FFFFFFF )
         return 0xFFFFFFFFi64;
-      __asm
-      {
-        vmovss  xmm0, [rsp+478h+var_430]
-        vcomiss xmm0, cs:__real@3f000000
-      }
       v8 = s_soundTablePtr;
-      if ( v12 <= 0x7FFFFFFF )
+      if ( lerpAmount[0] <= 0.5 )
         v9 = &s_soundTablePtr->zones[v11];
       else
         v9 = &s_soundTablePtr->zones[v12];
@@ -5008,8 +3903,8 @@ __int64 CG_GetNPCADSRSettingIndex(LocalClientNum_t localClientNum, const vec3_t 
   v9 = &s_soundTablePtr->zones[v7];
 LABEL_13:
   numNPCAdsrZone = v9->numNPCAdsrZone;
+  v14 = 0;
   v15 = 0;
-  v16 = 0;
   if ( numNPCAdsrZone <= 0 )
   {
 LABEL_17:
@@ -5018,33 +3913,33 @@ LABEL_17:
     {
       npcADSRZones = v8->npcADSRZones;
       startNPCAdsrZoneIndex = v9->startNPCAdsrZoneIndex;
-      while ( npcADSRZones[startNPCAdsrZoneIndex + v15].weaponIdx != g_adsrBaseWeaponIdxLookup[weaponIdx] )
+      while ( npcADSRZones[startNPCAdsrZoneIndex + v14].weaponIdx != g_adsrBaseWeaponIdxLookup[weaponIdx] )
       {
-        if ( ++v15 >= numNPCAdsrZone )
+        if ( ++v14 >= numNPCAdsrZone )
           goto LABEL_22;
       }
-      return (unsigned int)npcADSRZones[startNPCAdsrZoneIndex + v15].adsrIdx;
+      return (unsigned int)npcADSRZones[startNPCAdsrZoneIndex + v14].adsrIdx;
     }
 LABEL_22:
-    v22 = DCONST_DVARBOOL_snd_debugWeaponADSR;
+    v21 = DCONST_DVARBOOL_snd_debugWeaponADSR;
     if ( !DCONST_DVARBOOL_snd_debugWeaponADSR && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugWeaponADSR") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v21);
+    if ( v21->current.enabled )
     {
       WeaponName = BG_GetWeaponName(weapon, output, 0x400u);
       Com_Printf(9, "No ADSR for NPC weapon: %s\n", WeaponName);
     }
     return 0xFFFFFFFFi64;
   }
-  v17 = v8->npcADSRZones;
-  v18 = v9->startNPCAdsrZoneIndex;
-  while ( v17[v18 + v16].weaponIdx != weapon->weaponIdx )
+  v16 = v8->npcADSRZones;
+  v17 = v9->startNPCAdsrZoneIndex;
+  while ( v16[v17 + v15].weaponIdx != weapon->weaponIdx )
   {
-    if ( ++v16 >= numNPCAdsrZone )
+    if ( ++v15 >= numNPCAdsrZone )
       goto LABEL_17;
   }
-  return (unsigned int)v17[v18 + v16].adsrIdx;
+  return (unsigned int)v16[v17 + v15].adsrIdx;
 }
 
 /*
@@ -5054,158 +3949,106 @@ CG_GetNearestTwoPropagationTriggers
 */
 void CG_GetNearestTwoPropagationTriggers(LocalClientNum_t localClientNum, const vec3_t *origin, unsigned int *triggerList, unsigned int numTriggers, unsigned int *outTrigger1, unsigned int *outTrigger2)
 {
-  __int64 v10; 
-  unsigned int *v12; 
-  unsigned int v13; 
-  unsigned int *v14; 
-  __int64 v16; 
-  int v18; 
+  float v6; 
+  __int64 v7; 
+  unsigned int *v9; 
+  unsigned int v10; 
+  unsigned int *v11; 
+  __int64 v13; 
+  float v14; 
+  int v15; 
   MapEnts *mapEnts; 
-  unsigned int *v20; 
-  __int64 v21; 
-  __int64 v22; 
+  unsigned int *v17; 
+  __int64 v18; 
+  __int64 v19; 
   unsigned int count; 
   CTAudRvbPanInfo *audioRvbPanInfo; 
-  const vec3_t *v25; 
-  char v37; 
-  __int64 v38; 
-  __int64 v39; 
-  unsigned int v40; 
-  CTAudRvbPanInfo *v41; 
-  const vec3_t *v42; 
-  unsigned int v54; 
-  int v57; 
+  const vec3_t *v22; 
+  float v23; 
+  float v24; 
+  __int64 v25; 
+  __int64 v26; 
+  unsigned int v27; 
+  CTAudRvbPanInfo *v28; 
+  const vec3_t *p_position; 
+  float v30; 
+  float v31; 
+  unsigned int v32; 
+  int v33; 
   LocalClientNum_t localClientNuma; 
-  __int64 v59; 
+  __int64 v35; 
   vec3_t outOffset; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v6 = FLOAT_3_4028235e38;
+  v7 = localClientNum;
+  v9 = outTrigger1;
+  v10 = 0x4000;
+  v11 = outTrigger2;
+  v13 = numTriggers;
+  localClientNuma = (int)v7;
+  v33 = 0x4000;
+  v14 = FLOAT_3_4028235e38;
+  if ( (unsigned int)v7 >= 2 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovss  xmm6, cs:__real@7f7fffff
-  }
-  v10 = localClientNum;
-  _R13 = origin;
-  v12 = outTrigger1;
-  v13 = 0x4000;
-  v14 = outTrigger2;
-  v16 = numTriggers;
-  localClientNuma = (int)v10;
-  v57 = 0x4000;
-  __asm { vmovaps xmm7, xmm6 }
-  if ( (unsigned int)v10 >= 2 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3172, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_playerCurrentPropagationTrigger ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( g_playerCurrentPropagationTrigger )\n\t%i not in [0, %i)", v10, 2) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3172, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_playerCurrentPropagationTrigger ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( g_playerCurrentPropagationTrigger )\n\t%i not in [0, %i)", v7, 2) )
       __debugbreak();
-    v14 = outTrigger2;
-    v12 = outTrigger1;
+    v11 = outTrigger2;
+    v9 = outTrigger1;
   }
-  v18 = g_playerCurrentPropagationTrigger[v10];
-  if ( (_DWORD)v16 )
+  v15 = g_playerCurrentPropagationTrigger[v7];
+  if ( (_DWORD)v13 )
   {
     mapEnts = cm.mapEnts;
-    v20 = triggerList;
-    v21 = v16;
-    v59 = v16;
+    v17 = triggerList;
+    v18 = v13;
+    v35 = v13;
     do
     {
-      v22 = *v20;
+      v19 = *v17;
       count = mapEnts->clientTrigger.trigger.count;
-      if ( (unsigned int)v22 < count && (_DWORD)v22 != v18 && !g_audioTriggerDisabled[v22] && (mapEnts->clientTrigger.triggerType[v22] & 0x40) != 0 && count )
+      if ( (unsigned int)v19 < count && (_DWORD)v19 != v15 && !g_audioTriggerDisabled[v19] && (mapEnts->clientTrigger.triggerType[v19] & 0x40) != 0 && count )
       {
         audioRvbPanInfo = mapEnts->clientTrigger.audioRvbPanInfo;
-        v25 = audioRvbPanInfo[v22].hasCustomPosition ? &audioRvbPanInfo[v22].position : &mapEnts->clientTrigger.origins[v22];
-        CG_TriggerTransformPointOnMovingPlatform(localClientNuma, v22, v25, &outOffset, NULL);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r13+0]
-          vsubss  xmm3, xmm0, dword ptr [rsp+0D8h+outOffset]
-          vmovss  xmm1, dword ptr [r13+4]
-          vmovss  xmm0, dword ptr [r13+8]
-          vsubss  xmm2, xmm1, dword ptr [rsp+0D8h+outOffset+4]
-          vsubss  xmm4, xmm0, dword ptr [rsp+0D8h+outOffset+8]
-        }
+        v22 = audioRvbPanInfo[v19].hasCustomPosition ? &audioRvbPanInfo[v19].position : &mapEnts->clientTrigger.origins[v19];
+        CG_TriggerTransformPointOnMovingPlatform(localClientNuma, v19, v22, &outOffset, NULL);
         mapEnts = cm.mapEnts;
-        __asm
+        v23 = (float)(origin->v[1] - outOffset.v[1]) * (float)(origin->v[1] - outOffset.v[1]);
+        v24 = (float)(origin->v[2] - outOffset.v[2]) * (float)(origin->v[2] - outOffset.v[2]);
+        if ( (float)((float)(v23 + (float)((float)(origin->v[0] - outOffset.v[0]) * (float)(origin->v[0] - outOffset.v[0]))) + v24) < v6 )
         {
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm5, xmm3, xmm0
-          vcomiss xmm5, xmm6
-        }
-        if ( v37 )
-        {
-          __asm { vmovaps xmm6, xmm5 }
-          v13 = v22;
+          v6 = (float)(v23 + (float)((float)(origin->v[0] - outOffset.v[0]) * (float)(origin->v[0] - outOffset.v[0]))) + v24;
+          v10 = v19;
         }
       }
-      ++v20;
-      --v21;
+      ++v17;
+      --v18;
     }
-    while ( v21 );
-    v38 = v59;
+    while ( v18 );
+    v25 = v35;
     do
     {
-      v39 = *triggerList;
-      if ( (_DWORD)v39 == v13 )
-        goto LABEL_30;
-      v40 = mapEnts->clientTrigger.trigger.count;
-      if ( (unsigned int)v39 >= v40 || (_DWORD)v39 == v18 || g_audioTriggerDisabled[v39] || (mapEnts->clientTrigger.triggerType[v39] & 0x40) == 0 || !v40 )
-        goto LABEL_30;
-      v41 = mapEnts->clientTrigger.audioRvbPanInfo;
-      v42 = v41[v39].hasCustomPosition ? &v41[v39].position : &mapEnts->clientTrigger.origins[v39];
-      CG_TriggerTransformPointOnMovingPlatform(localClientNuma, v39, v42, &outOffset, NULL);
-      __asm
+      v26 = *triggerList;
+      if ( (_DWORD)v26 == v10 || (v27 = mapEnts->clientTrigger.trigger.count, (unsigned int)v26 >= v27) || (_DWORD)v26 == v15 || g_audioTriggerDisabled[v26] || (mapEnts->clientTrigger.triggerType[v26] & 0x40) == 0 || !v27 || ((v28 = mapEnts->clientTrigger.audioRvbPanInfo, !v28[v26].hasCustomPosition) ? (p_position = &mapEnts->clientTrigger.origins[v26]) : (p_position = &v28[v26].position), CG_TriggerTransformPointOnMovingPlatform(localClientNuma, v26, p_position, &outOffset, NULL), mapEnts = cm.mapEnts, v30 = (float)(origin->v[1] - outOffset.v[1]) * (float)(origin->v[1] - outOffset.v[1]), v31 = (float)(origin->v[2] - outOffset.v[2]) * (float)(origin->v[2] - outOffset.v[2]), (float)((float)(v30 + (float)((float)(origin->v[0] - outOffset.v[0]) * (float)(origin->v[0] - outOffset.v[0]))) + v31) >= v14) )
       {
-        vmovss  xmm0, dword ptr [r13+0]
-        vsubss  xmm3, xmm0, dword ptr [rsp+0D8h+outOffset]
-        vmovss  xmm1, dword ptr [r13+4]
-        vmovss  xmm0, dword ptr [r13+8]
-        vsubss  xmm2, xmm1, dword ptr [rsp+0D8h+outOffset+4]
-        vsubss  xmm4, xmm0, dword ptr [rsp+0D8h+outOffset+8]
-      }
-      mapEnts = cm.mapEnts;
-      __asm
-      {
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm5, xmm3, xmm0
-        vcomiss xmm5, xmm7
-      }
-      if ( !v37 )
-      {
-LABEL_30:
-        v54 = v57;
+        v32 = v33;
       }
       else
       {
-        __asm { vmovaps xmm7, xmm5 }
-        v54 = v39;
-        v57 = v39;
+        v14 = (float)(v30 + (float)((float)(origin->v[0] - outOffset.v[0]) * (float)(origin->v[0] - outOffset.v[0]))) + v31;
+        v32 = v26;
+        v33 = v26;
       }
       ++triggerList;
-      --v38;
+      --v25;
     }
-    while ( v38 );
-    *outTrigger1 = v13;
-    *outTrigger2 = v54;
+    while ( v25 );
+    *outTrigger1 = v10;
+    *outTrigger2 = v32;
   }
   else
   {
-    *v12 = 0x4000;
-    *v14 = 0x4000;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_58]
+    *v9 = 0x4000;
+    *v11 = 0x4000;
   }
 }
 
@@ -5407,11 +4250,11 @@ CG_GetPlayerBreathState
 PlayerBreathStateDef *CG_GetPlayerBreathState(unsigned int state)
 {
   int v1; 
-  const SoundTable *v4; 
+  const SoundTable *v3; 
   unsigned int zoneCount; 
-  __int64 v6; 
+  __int64 v5; 
   __int64 startPlayerBreathStateIndex; 
-  int v8; 
+  int v7; 
   PlayerBreathStateDef *plrBreathStateDefs; 
   PlayerBreathStateDef *i; 
   PlayerBreathStateDef *result; 
@@ -5421,17 +4264,11 @@ PlayerBreathStateDef *CG_GetPlayerBreathState(unsigned int state)
   {
     v1 = g_audTrigPlayerBreathZoneB;
   }
-  else
+  else if ( g_lastAudioLerpVal > 0.5 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:g_lastAudioLerpVal
-      vcomiss xmm0, cs:__real@3f000000
-    }
-    if ( g_audTrigPlayerBreathZoneA > (unsigned int)g_audTrigPlayerBreathZoneB )
-      v1 = g_audTrigPlayerBreathZoneB;
+    v1 = g_audTrigPlayerBreathZoneB;
   }
-  v4 = s_soundTablePtr;
+  v3 = s_soundTablePtr;
   if ( !s_soundTablePtr )
     return 0i64;
   zoneCount = s_soundTablePtr->zoneCount;
@@ -5441,27 +4278,27 @@ PlayerBreathStateDef *CG_GetPlayerBreathState(unsigned int state)
     return 0i64;
   if ( v1 >= zoneCount )
     return 0i64;
-  v6 = v1;
-  startPlayerBreathStateIndex = s_soundTablePtr->zones[v6].startPlayerBreathStateIndex;
+  v5 = v1;
+  startPlayerBreathStateIndex = s_soundTablePtr->zones[v5].startPlayerBreathStateIndex;
   if ( (_DWORD)startPlayerBreathStateIndex == -1 )
     return 0i64;
   if ( (unsigned int)startPlayerBreathStateIndex >= s_soundTablePtr->plrBreathStateDefCount )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3686, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->plrBreathStateDefCount )", "idx doesn't index s_soundTablePtr->plrBreathStateDefCount\n\t%i not in [0, %i)", s_soundTablePtr->zones[v6].startPlayerBreathStateIndex, s_soundTablePtr->plrBreathStateDefCount) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 3686, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->plrBreathStateDefCount )", "idx doesn't index s_soundTablePtr->plrBreathStateDefCount\n\t%i not in [0, %i)", s_soundTablePtr->zones[v5].startPlayerBreathStateIndex, s_soundTablePtr->plrBreathStateDefCount) )
       __debugbreak();
-    v4 = s_soundTablePtr;
+    v3 = s_soundTablePtr;
   }
-  v8 = startPlayerBreathStateIndex + v4->zones[v6].numPlayerBreathStates;
-  if ( (int)startPlayerBreathStateIndex >= v8 )
+  v7 = startPlayerBreathStateIndex + v3->zones[v5].numPlayerBreathStates;
+  if ( (int)startPlayerBreathStateIndex >= v7 )
     return 0i64;
-  plrBreathStateDefs = v4->plrBreathStateDefs;
+  plrBreathStateDefs = v3->plrBreathStateDefs;
   for ( i = &plrBreathStateDefs[startPlayerBreathStateIndex]; ; ++i )
   {
     result = &plrBreathStateDefs[(int)startPlayerBreathStateIndex];
     if ( i->stateType == state )
       break;
     LODWORD(startPlayerBreathStateIndex) = startPlayerBreathStateIndex + 1;
-    if ( (int)startPlayerBreathStateIndex >= v8 )
+    if ( (int)startPlayerBreathStateIndex >= v7 )
       return 0i64;
   }
   return result;
@@ -5499,16 +4336,17 @@ bool CG_GetReverbDefForTrigger(LocalClientNum_t localClientNum, unsigned int tri
   unsigned __int16 v7; 
   __int64 v8; 
   int v9; 
+  __int64 v10; 
   __int64 v11; 
-  bool v12; 
-  __int64 v17; 
+  __int64 v12; 
   ZoneDef *zones; 
-  char v19; 
-  char v20; 
-  float v21; 
+  char v14; 
+  float v15; 
+  char v16; 
+  float v17; 
   unsigned int zoneCount; 
-  __int64 v23; 
-  __int64 v24; 
+  __int64 v19; 
+  __int64 v20; 
   unsigned int stateId; 
   __int16 reverbIndex; 
   bool result; 
@@ -5526,14 +4364,9 @@ bool CG_GetReverbDefForTrigger(LocalClientNum_t localClientNum, unsigned int tri
     v7 = cm.mapEnts->clientTrigger.triggerType[triggerIndex];
   if ( (v7 & 8) == 0 )
   {
-    v12 = (v7 & 0x42) == 0;
     if ( (v7 & 0x42) == 0 )
       return 0;
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    _RAX = triggerIndex;
-    _RSI = 0x140000000ui64;
-    __asm { vcomiss xmm0, dword ptr rva s_triggerStateLerp.current[rsi+rax*8] }
-    if ( !v12 )
+    if ( s_triggerStateLerp[triggerIndex].current < 1.0 )
     {
       if ( triggerIndex >= 0x4001 )
       {
@@ -5541,71 +4374,70 @@ bool CG_GetReverbDefForTrigger(LocalClientNum_t localClientNum, unsigned int tri
           __debugbreak();
         v4 = s_soundTablePtr;
       }
-      _R15 = (int)triggerIndex;
-      v17 = s_audioZoneLookup[triggerIndex];
-      if ( (_DWORD)v17 == 0x7FFFFFFF )
+      v11 = (int)triggerIndex;
+      v12 = s_audioZoneLookup[triggerIndex];
+      if ( (_DWORD)v12 == 0x7FFFFFFF )
         return 0;
       zones = v4->zones;
-      v19 = 0;
-      v20 = 0;
-      v21 = lerpAmount[0];
+      v14 = 0;
+      v15 = lerpAmount[0];
+      v16 = 0;
+      v17 = lerpAmount[0];
       zoneCount = v4->zoneCount;
-      if ( (unsigned int)v17 < zoneCount )
+      if ( (unsigned int)v12 < zoneCount )
       {
-        v23 = v17;
+        v19 = v12;
         do
         {
-          if ( v19 && v20 )
+          if ( v14 && v16 )
             break;
-          v24 = (unsigned int)v17;
-          stateId = zones[v24].stateId;
-          if ( stateId == s_triggerStateFrom[_R15] && zones[v24].id == zones[v23].id )
-            v19 = 1;
-          if ( stateId == s_triggerStateTo[_R15] && zones[v24].id == zones[v23].id )
+          v20 = (unsigned int)v12;
+          stateId = zones[v20].stateId;
+          if ( stateId == s_triggerStateFrom[v11] && zones[v20].id == zones[v19].id )
           {
-            v21 = *(float *)&v17;
-            v20 = 1;
+            v15 = *(float *)&v12;
+            v14 = 1;
           }
-          LODWORD(v17) = v17 + 1;
+          if ( stateId == s_triggerStateTo[v11] && zones[v20].id == zones[v19].id )
+          {
+            v17 = *(float *)&v12;
+            v16 = 1;
+          }
+          LODWORD(v12) = v12 + 1;
         }
-        while ( (unsigned int)v17 < zoneCount );
+        while ( (unsigned int)v12 < zoneCount );
         v5 = outReverbDef;
       }
-      _RAX = 0x140000000ui64;
-      __asm { vmovss  xmm0, dword ptr rva s_triggerStateLerp.current[rax+r15*8] }
-      if ( !v19 || !v20 )
+      if ( !v14 || !v16 )
         return 0;
-      __asm { vcomiss xmm0, cs:__real@3f000000 }
-      reverbIndex = zones[SLODWORD(v21)].reverbIndex;
-      goto LABEL_37;
+      if ( s_triggerStateLerp[v11].current >= 0.5 )
+        reverbIndex = zones[SLODWORD(v17)].reverbIndex;
+      else
+        reverbIndex = zones[SLODWORD(v15)].reverbIndex;
+      goto LABEL_39;
     }
     v9 = SND_LookupZoneIndex(triggerIndex);
     if ( v9 == 0x7FFFFFFF )
       return 0;
     v4 = s_soundTablePtr;
-    goto LABEL_35;
+    goto LABEL_37;
   }
   CG_TriggerLerpTriggers(localClientNum, triggerIndex, point, &trigA, &trigB, lerpAmount);
   v8 = SND_LookupZoneIndex(trigA);
   v9 = SND_LookupZoneIndex(trigB);
   if ( (_DWORD)v8 == 0x7FFFFFFF || v9 == 0x7FFFFFFF )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+var_30]
-    vcomiss xmm0, cs:__real@3f000000
-  }
   v4 = s_soundTablePtr;
-  if ( (unsigned int)v9 >= 0x7FFFFFFF )
+  if ( lerpAmount[0] >= 0.5 )
   {
-LABEL_35:
-    v11 = v9;
-    goto LABEL_36;
-  }
-  v11 = v8;
-LABEL_36:
-  reverbIndex = v4->zones[v11].reverbIndex;
 LABEL_37:
+    v10 = v9;
+    goto LABEL_38;
+  }
+  v10 = v8;
+LABEL_38:
+  reverbIndex = v4->zones[v10].reverbIndex;
+LABEL_39:
   if ( reverbIndex != -1 )
   {
     result = 1;
@@ -5643,36 +4475,19 @@ CG_GetTriggerMinReverbVolumeAndMaxWallDistance
 */
 bool CG_GetTriggerMinReverbVolumeAndMaxWallDistance(unsigned int triggerIdx, float *outMinVolume, float *outWallDistance)
 {
+  __int64 v5; 
+  double v6; 
   bool result; 
 
-  _RDI = outWallDistance;
-  _RSI = outMinVolume;
   if ( !cm.mapEnts->clientTrigger.trigger.count || triggerIdx >= 0x4000 )
     return 0;
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovaps [rsp+38h+var_18], xmm6
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  _RBX = 3i64 * triggerIdx;
-  _RAX = cm.mapEnts->clientTrigger.audioRvbPanInfo;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  xmm0, dword ptr [rax+rbx*8+14h]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rsi], xmm0 }
-  _RCX = cm.mapEnts->clientTrigger.audioRvbPanInfo;
+  v5 = triggerIdx;
+  v6 = I_fclamp(cm.mapEnts->clientTrigger.audioRvbPanInfo[triggerIdx].minReverbVolume, 0.0, 1.0);
+  *outMinVolume = *(float *)&v6;
   result = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+rbx*8+10h]
-    vmaxss  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovss  dword ptr [rdi], xmm0
-  }
+  _XMM0 = LODWORD(cm.mapEnts->clientTrigger.audioRvbPanInfo[v5].maxWallDistance);
+  __asm { vmaxss  xmm0, xmm0, xmm6 }
+  *outWallDistance = *(float *)&_XMM0;
   return result;
 }
 
@@ -5681,61 +4496,35 @@ bool CG_GetTriggerMinReverbVolumeAndMaxWallDistance(unsigned int triggerIdx, flo
 CG_GetWallProximityVolume
 ==============
 */
-bool CG_GetWallProximityVolume(LocalClientNum_t localClientNum, unsigned int triggerIdx, vec3_t *inOutPoint, float *outMinVolume)
+char CG_GetWallProximityVolume(LocalClientNum_t localClientNum, unsigned int triggerIdx, vec3_t *inOutPoint, float *outMinVolume)
 {
-  __int64 v8; 
-  char v20; 
-  bool result; 
+  __int64 v5; 
+  __int64 v6; 
+  __int128 v11; 
   float outDistance[4]; 
 
-  _RDI = outMinVolume;
-  v8 = triggerIdx;
+  v5 = triggerIdx;
   if ( !CG_GetDistanceFromTriggerWall(localClientNum, triggerIdx, inOutPoint, outDistance) )
     return 0;
-  _RBX = 3 * v8;
-  __asm
+  v6 = v5;
+  *(float *)&_XMM6 = FLOAT_1_0;
+  I_fclamp(cm.mapEnts->clientTrigger.audioRvbPanInfo[v6].minReverbVolume, 0.0, 1.0);
+  _XMM1 = LODWORD(cm.mapEnts->clientTrigger.audioRvbPanInfo[v6].maxWallDistance);
+  __asm { vmaxss  xmm2, xmm1, xmm7 }
+  if ( *(float *)&_XMM2 != 0.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RCX = cm.mapEnts->clientTrigger.audioRvbPanInfo;
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  xmm0, dword ptr [rcx+rbx*8+14h]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm3, xmm0 }
-  _RCX = cm.mapEnts->clientTrigger.audioRvbPanInfo;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rcx+rbx*8+10h]
-    vmaxss  xmm2, xmm1, xmm7
-    vucomiss xmm2, xmm7
-  }
-  if ( !v20 )
-  {
+    v11 = LODWORD(FLOAT_1_0);
+    *(float *)&v11 = 1.0 - (float)((float)(*(float *)&_XMM2 - outDistance[0]) / *(float *)&_XMM2);
+    _XMM2 = v11;
     __asm
     {
-      vsubss  xmm0, xmm2, [rsp+58h+outDistance]
-      vdivss  xmm1, xmm0, xmm2
-      vsubss  xmm2, xmm6, xmm1
       vmaxss  xmm0, xmm2, xmm7
       vminss  xmm1, xmm0, xmm6
       vmaxss  xmm6, xmm1, xmm3
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm6
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  result = 1;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  *outMinVolume = *(float *)&_XMM6;
+  return 1;
 }
 
 /*
@@ -5823,88 +4612,69 @@ CG_IsPlayerAndPointInSameInteriorZone
 */
 bool CG_IsPlayerAndPointInSameInteriorZone(const LocalClientNum_t localClientNum, const vec3_t *point)
 {
-  ZoneDef *v7; 
-  bool v8; 
-  ZoneDef *v9; 
-  unsigned __int64 v10; 
+  float v4; 
+  ZoneDef *v5; 
+  ZoneDef *v6; 
+  __int64 v7; 
   ZoneDef *zones; 
-  const dvar_t *v12; 
+  const dvar_t *v9; 
   const char *zoneName; 
-  bool AudioZoneAtPoint; 
-  bool v15; 
-  ZoneDef *v17; 
+  ZoneDef *v11; 
   ZoneDef *outZoneB; 
   float outLerp; 
   ZoneDef *outZoneA; 
 
   if ( !s_soundTablePtr || g_lastAudioZoneIndexA == 0x7FFFFFFF || g_lastAudioZoneIndexB == 0x7FFFFFFF )
     return 0;
-  __asm
+  v4 = 0.0;
+  if ( g_lastAudioLerpVal == 1.0 )
   {
-    vmovss  xmm1, cs:g_lastAudioLerpVal
-    vucomiss xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-  }
-  if ( g_lastAudioZoneIndexB == 0x7FFFFFFF )
-  {
-    v7 = NULL;
-    v8 = __CFADD__(s_soundTablePtr->zones, 200i64 * g_lastAudioZoneIndexB) || &s_soundTablePtr->zones[g_lastAudioZoneIndexB] == NULL;
-    v9 = &s_soundTablePtr->zones[g_lastAudioZoneIndexB];
-    __asm { vmovss  [rsp+68h+outLerp], xmm0 }
+    v5 = NULL;
+    v6 = &s_soundTablePtr->zones[g_lastAudioZoneIndexB];
+    outLerp = 0.0;
   }
   else
   {
-    v10 = g_lastAudioZoneIndexA;
-    __asm { vucomiss xmm1, xmm0 }
-    if ( v15 )
+    v7 = g_lastAudioZoneIndexA;
+    if ( g_lastAudioLerpVal == 0.0 )
     {
-      v7 = NULL;
-      v8 = __CFADD__(s_soundTablePtr->zones, v10 * 200) || &s_soundTablePtr->zones[v10] == NULL;
-      v9 = &s_soundTablePtr->zones[v10];
-      __asm { vmovss  [rsp+68h+outLerp], xmm0 }
+      v5 = NULL;
+      v6 = &s_soundTablePtr->zones[v7];
+      outLerp = 0.0;
     }
     else
     {
       zones = s_soundTablePtr->zones;
-      __asm { vmovss  [rsp+68h+outLerp], xmm1 }
-      v7 = &zones[g_lastAudioZoneIndexB];
-      v8 = __CFADD__(zones, v10 * 200) || &zones[v10] == NULL;
-      v9 = &zones[v10];
-      __asm { vmovaps xmm0, xmm1 }
+      outLerp = g_lastAudioLerpVal;
+      v5 = &zones[g_lastAudioZoneIndexB];
+      v6 = &zones[v7];
+      v4 = g_lastAudioLerpVal;
     }
   }
-  __asm { vcomiss xmm0, cs:__real@3f000000 }
-  outZoneA = v9;
-  if ( !v8 )
-    v9 = v7;
-  outZoneB = v7;
-  if ( !v9 || v9->exterior )
+  outZoneA = v6;
+  if ( v4 > 0.5 )
+    v6 = v5;
+  outZoneB = v5;
+  if ( !v6 || v6->exterior )
     return 0;
-  v12 = DCONST_DVARBOOL_cg_default_zone_is_exterior;
+  v9 = DCONST_DVARBOOL_cg_default_zone_is_exterior;
   if ( !DCONST_DVARBOOL_cg_default_zone_is_exterior && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_default_zone_is_exterior") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
   {
-    zoneName = v9->zoneName;
+    zoneName = v6->zoneName;
     if ( !cls.m_activeGameMapName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 295, ASSERT_TYPE_ASSERT, "(m_activeGameMapName[0])", "%s\n\tRequested mapname before it was set", "m_activeGameMapName[0]") )
       __debugbreak();
     if ( !I_strcmp(cls.m_activeGameMapName, zoneName) )
       return 0;
   }
-  AudioZoneAtPoint = CG_FindAudioZoneAtPoint(localClientNum, point, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, &outLerp);
-  v15 = !AudioZoneAtPoint;
-  if ( !AudioZoneAtPoint )
+  if ( !CG_FindAudioZoneAtPoint(localClientNum, point, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, &outLerp) )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+outLerp]
-    vcomiss xmm0, cs:__real@3f000000
-  }
-  v17 = outZoneA;
-  if ( !v15 )
-    v17 = outZoneB;
-  return v17 == v9;
+  v11 = outZoneA;
+  if ( outLerp > 0.5 )
+    v11 = outZoneB;
+  return v11 == v6;
 }
 
 /*
@@ -5912,84 +4682,42 @@ bool CG_IsPlayerAndPointInSameInteriorZone(const LocalClientNum_t localClientNum
 CG_IsPointInsideHull
 ==============
 */
-__int64 CG_IsPointInsideHull(const ClientTriggerHull *thull, const TriggerSlab *slabs, const vec3_t *triggerSpacePoint)
+_BOOL8 CG_IsPointInsideHull(const ClientTriggerHull *thull, const TriggerSlab *slabs, const vec3_t *triggerSpacePoint)
 {
   unsigned int slabCount; 
-  int v5; 
-  unsigned __int8 v6; 
+  int v4; 
+  bool v7; 
+  __int64 v8; 
   unsigned int v9; 
-  unsigned int v10; 
-  __int64 v11; 
-  __int64 result; 
+  __int64 v10; 
+  bool v11; 
+  bool v12; 
+  bool v13; 
+  unsigned int firstSlab; 
 
   slabCount = thull->slabCount;
-  v5 = 0;
-  __asm { vmovaps [rsp+18h+var_18], xmm6 }
-  v6 = 1;
-  __asm
-  {
-    vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  v4 = 0;
+  v7 = 1;
   if ( slabCount >= 4 )
   {
-    v9 = thull->firstSlab + 1;
-    v10 = ((slabCount - 4) >> 2) + 1;
-    v11 = v10;
-    v5 = 4 * v10;
+    v8 = thull->firstSlab + 1;
+    v9 = ((slabCount - 4) >> 2) + 1;
+    v10 = v9;
+    v4 = 4 * v9;
     do
     {
-      _RAX = 5i64 * (v9 - 1);
-      if ( v6 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx+rax*4+4]
-          vmulss  xmm3, xmm0, dword ptr [r10+4]
-          vmovss  xmm1, dword ptr [rdx+rax*4]
-          vmulss  xmm2, xmm1, dword ptr [r10]
-          vmovss  xmm0, dword ptr [rdx+rax*4+8]
-          vmulss  xmm1, xmm0, dword ptr [r10+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vsubss  xmm3, xmm2, dword ptr [rdx+rax*4+0Ch]
-          vaddss  xmm1, xmm6, dword ptr [rdx+rax*4+10h]
-          vandps  xmm3, xmm3, xmm5
-          vcomiss xmm3, xmm1
-        }
-      }
-      v6 = 0;
-      v9 += 4;
-      --v11;
+      v11 = v7 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(slabs[(unsigned int)(v8 - 1)].dir.v[1] * triggerSpacePoint->v[1]) + (float)(slabs[(unsigned int)(v8 - 1)].dir.v[0] * triggerSpacePoint->v[0])) + (float)(slabs[(unsigned int)(v8 - 1)].dir.v[2] * triggerSpacePoint->v[2])) - slabs[(unsigned int)(v8 - 1)].midPoint) & _xmm) < (float)(slabs[(unsigned int)(v8 - 1)].halfSize + 1.0);
+      v12 = v11 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(slabs[v8].dir.v[1] * triggerSpacePoint->v[1]) + (float)(slabs[v8].dir.v[0] * triggerSpacePoint->v[0])) + (float)(slabs[v8].dir.v[2] * triggerSpacePoint->v[2])) - slabs[v8].midPoint) & _xmm) < (float)(slabs[v8].halfSize + 1.0);
+      v13 = v12 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(slabs[(unsigned int)(v8 + 1)].dir.v[1] * triggerSpacePoint->v[1]) + (float)(slabs[(unsigned int)(v8 + 1)].dir.v[0] * triggerSpacePoint->v[0])) + (float)(slabs[(unsigned int)(v8 + 1)].dir.v[2] * triggerSpacePoint->v[2])) - slabs[(unsigned int)(v8 + 1)].midPoint) & _xmm) < (float)(slabs[(unsigned int)(v8 + 1)].halfSize + 1.0);
+      v7 = v13 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(slabs[(unsigned int)(v8 + 2)].dir.v[1] * triggerSpacePoint->v[1]) + (float)(slabs[(unsigned int)(v8 + 2)].dir.v[0] * triggerSpacePoint->v[0])) + (float)(slabs[(unsigned int)(v8 + 2)].dir.v[2] * triggerSpacePoint->v[2])) - slabs[(unsigned int)(v8 + 2)].midPoint) & _xmm) < (float)(slabs[(unsigned int)(v8 + 2)].halfSize + 1.0);
+      v8 = (unsigned int)(v8 + 4);
+      --v10;
     }
-    while ( v11 );
+    while ( v10 );
   }
-  for ( ; v5 < (int)slabCount; ++v5 )
-  {
-    _RAX = 5i64 * (thull->firstSlab + v5);
-    if ( v6 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+rax*4+4]
-        vmulss  xmm3, xmm0, dword ptr [r10+4]
-        vmovss  xmm1, dword ptr [rdx+rax*4]
-        vmulss  xmm2, xmm1, dword ptr [r10]
-        vmovss  xmm0, dword ptr [rdx+rax*4+8]
-        vmulss  xmm1, xmm0, dword ptr [r10+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vsubss  xmm3, xmm2, dword ptr [rdx+rax*4+0Ch]
-        vaddss  xmm1, xmm6, dword ptr [rdx+rax*4+10h]
-        vandps  xmm3, xmm3, xmm5
-        vcomiss xmm3, xmm1
-      }
-    }
-    v6 = 0;
-  }
-  result = v6;
-  __asm { vmovaps xmm6, [rsp+18h+var_18] }
-  return result;
+  for ( ; v4 < (int)slabCount; ++v4 )
+    v7 = v7 && (firstSlab = thull->firstSlab, COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(slabs[firstSlab + v4].dir.v[1] * triggerSpacePoint->v[1]) + (float)(slabs[firstSlab + v4].dir.v[0] * triggerSpacePoint->v[0])) + (float)(slabs[firstSlab + v4].dir.v[2] * triggerSpacePoint->v[2])) - slabs[firstSlab + v4].midPoint) & _xmm) < (float)(slabs[firstSlab + v4].halfSize + 1.0));
+  return v7;
 }
 
 /*
@@ -5997,316 +4725,283 @@ __int64 CG_IsPointInsideHull(const ClientTriggerHull *thull, const TriggerSlab *
 CG_LerpAudio
 ==============
 */
-
-void __fastcall CG_LerpAudio(LocalClientNum_t localClientNum, double lerp)
+void CG_LerpAudio(LocalClientNum_t localClientNum, float lerp)
 {
-  LocalClientNum_t v5; 
-  __int64 v7; 
+  LocalClientNum_t v2; 
+  __int64 v3; 
   ZoneDef *zones; 
   __int64 reverbIndex; 
-  __int64 v11; 
-  int v13; 
-  unsigned int v14; 
+  __int64 v6; 
+  int v7; 
+  unsigned int v8; 
   int VolModCount; 
-  __int64 v16; 
-  int *v17; 
-  __int64 v18; 
-  const SoundTable *v20; 
+  __int64 v10; 
+  int *v11; 
+  __int64 v12; 
+  __int64 v13; 
+  double VolModDefaultValue; 
+  double v15; 
+  const SoundTable *v16; 
   __int64 ctMixZoneA; 
-  ZoneDef *v22; 
-  int v23; 
-  signed int v24; 
+  ZoneDef *v18; 
+  int v19; 
+  signed int v20; 
   MixDef *mixes; 
   __int64 volModIndex; 
-  __int64 v27; 
+  __int64 v23; 
   __int64 ctMixZoneB; 
-  ZoneDef *v29; 
+  ZoneDef *v25; 
+  __int64 v26; 
+  int v27; 
+  signed int v28; 
+  MixDef *v29; 
   __int64 v30; 
-  int v31; 
-  signed int v32; 
-  MixDef *v33; 
-  __int64 v34; 
-  unsigned int v35; 
+  unsigned int v31; 
   __int64 i; 
-  const SoundTable *v43; 
-  ZoneDef *v44; 
+  double v33; 
+  const SoundTable *v34; 
+  ZoneDef *v35; 
   const char *ambientStream; 
-  ZoneDef *v47; 
+  ZoneDef *v37; 
   __int16 ambientDefIndex; 
-  __int16 v50; 
-  bool v51; 
+  float v39; 
+  const AmbientDef *v40; 
+  __int16 v41; 
   unsigned int ctFullOcclusionZoneB; 
-  const SoundTable *v53; 
-  __int64 v54; 
-  ZoneDef *v55; 
-  unsigned int v56; 
+  const SoundTable *v43; 
+  __int64 v44; 
+  ZoneDef *v45; 
+  unsigned int v46; 
   __int64 system; 
-  __int64 v61; 
-  int v63[384]; 
-  char v64; 
-  void *retaddr; 
+  __int64 v48; 
+  int v50[384]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  v5 = localClientNum;
-  __asm { vmovaps xmm0, xmm1; lerp }
-  v7 = localClientNum;
-  __asm { vmovaps xmm7, xmm1 }
-  SND_SetEqLerp(*(float *)&_XMM0);
-  if ( s_audioZoneStates[v7].ctReverbZoneA >= s_soundTablePtr->zoneCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 591, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctReverbZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctReverbZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", s_audioZoneStates[v7].ctReverbZoneA, s_soundTablePtr->zoneCount) )
+  v2 = localClientNum;
+  v3 = localClientNum;
+  SND_SetEqLerp(lerp);
+  if ( s_audioZoneStates[v3].ctReverbZoneA >= s_soundTablePtr->zoneCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 591, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctReverbZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctReverbZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", s_audioZoneStates[v3].ctReverbZoneA, s_soundTablePtr->zoneCount) )
     __debugbreak();
-  if ( s_audioZoneStates[v7].ctReverbZoneB >= s_soundTablePtr->zoneCount )
+  if ( s_audioZoneStates[v3].ctReverbZoneB >= s_soundTablePtr->zoneCount )
   {
-    LODWORD(v61) = s_soundTablePtr->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctReverbZoneB;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 592, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctReverbZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctReverbZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = s_soundTablePtr->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctReverbZoneB;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 592, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctReverbZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctReverbZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
   }
   zones = s_soundTablePtr->zones;
-  reverbIndex = zones[s_audioZoneStates[v7].ctReverbZoneA].reverbIndex;
-  v11 = zones[s_audioZoneStates[v7].ctReverbZoneB].reverbIndex;
-  if ( (_DWORD)reverbIndex != -1 && (_DWORD)v11 != -1 )
-  {
-    __asm { vmovaps xmm2, xmm7; lerp }
-    SND_SetMainReverbBlended(&s_soundTablePtr->reverbs[reverbIndex], &s_soundTablePtr->reverbs[v11], *(float *)&_XMM2);
-  }
-  v13 = 0;
-  v14 = 0;
+  reverbIndex = zones[s_audioZoneStates[v3].ctReverbZoneA].reverbIndex;
+  v6 = zones[s_audioZoneStates[v3].ctReverbZoneB].reverbIndex;
+  if ( (_DWORD)reverbIndex != -1 && (_DWORD)v6 != -1 )
+    SND_SetMainReverbBlended(&s_soundTablePtr->reverbs[reverbIndex], &s_soundTablePtr->reverbs[v6], lerp);
+  v7 = 0;
+  v8 = 0;
   VolModCount = SND_GetVolModCount();
-  v16 = VolModCount;
+  v10 = VolModCount;
   if ( VolModCount > 0 )
   {
-    v17 = v63;
-    v18 = VolModCount;
-    _RBX = 0i64;
-    while ( v18 )
+    v11 = v50;
+    v12 = VolModCount;
+    v13 = 0i64;
+    while ( v12 )
     {
-      *v17++ = 0;
-      --v18;
+      *v11++ = 0;
+      --v12;
     }
     do
     {
-      *(double *)&_XMM0 = SND_GetVolModDefaultValue(v14);
-      __asm { vmovss  [rsp+rbx*4+6B8h+var_468], xmm0 }
-      *(double *)&_XMM0 = SND_GetVolModDefaultValue(v14);
-      __asm { vmovss  [rsp+rbx*4+6B8h+var_268], xmm0 }
-      ++_RBX;
-      ++v14;
+      VolModDefaultValue = SND_GetVolModDefaultValue(v8);
+      v50[v13 + 128] = SLODWORD(VolModDefaultValue);
+      v15 = SND_GetVolModDefaultValue(v8);
+      v50[v13++ + 256] = SLODWORD(v15);
+      ++v8;
     }
-    while ( _RBX < v16 );
+    while ( v13 < v10 );
   }
-  v20 = s_soundTablePtr;
-  if ( s_audioZoneStates[v7].ctMixZoneA >= s_soundTablePtr->zoneCount )
+  v16 = s_soundTablePtr;
+  if ( s_audioZoneStates[v3].ctMixZoneA >= s_soundTablePtr->zoneCount )
   {
-    LODWORD(v61) = s_soundTablePtr->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctMixZoneA;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 612, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctMixZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctMixZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = s_soundTablePtr->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctMixZoneA;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 612, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctMixZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctMixZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
-    v20 = s_soundTablePtr;
+    v16 = s_soundTablePtr;
   }
-  if ( s_audioZoneStates[v7].ctMixZoneB >= v20->zoneCount )
+  if ( s_audioZoneStates[v3].ctMixZoneB >= v16->zoneCount )
   {
-    LODWORD(v61) = v20->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctMixZoneB;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 613, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctMixZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctMixZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = v16->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctMixZoneB;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 613, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctMixZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctMixZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
-    v20 = s_soundTablePtr;
+    v16 = s_soundTablePtr;
   }
-  ctMixZoneA = s_audioZoneStates[v7].ctMixZoneA;
-  v22 = v20->zones;
-  if ( v22[ctMixZoneA].startMixIndex != -1 )
+  ctMixZoneA = s_audioZoneStates[v3].ctMixZoneA;
+  v18 = v16->zones;
+  if ( v18[ctMixZoneA].startMixIndex != -1 )
   {
-    v23 = 0;
-    if ( v22[ctMixZoneA].numMix > 0 )
+    v19 = 0;
+    if ( v18[ctMixZoneA].numMix > 0 )
     {
       do
       {
-        v24 = v23 + v22[(unsigned int)ctMixZoneA].startMixIndex;
-        if ( v24 >= v20->mixCount )
+        v20 = v19 + v18[(unsigned int)ctMixZoneA].startMixIndex;
+        if ( v20 >= v16->mixCount )
         {
-          LODWORD(v61) = v20->mixCount;
-          LODWORD(system) = v23 + v22[(unsigned int)ctMixZoneA].startMixIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 620, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->mixCount )", "idx doesn't index s_soundTablePtr->mixCount\n\t%i not in [0, %i)", system, v61) )
+          LODWORD(v48) = v16->mixCount;
+          LODWORD(system) = v19 + v18[(unsigned int)ctMixZoneA].startMixIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 620, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->mixCount )", "idx doesn't index s_soundTablePtr->mixCount\n\t%i not in [0, %i)", system, v48) )
             __debugbreak();
-          v20 = s_soundTablePtr;
+          v16 = s_soundTablePtr;
         }
-        mixes = v20->mixes;
-        ++v23;
-        volModIndex = mixes[v24].volModIndex;
-        v22 = v20->zones;
-        v63[volModIndex + 128] = LODWORD(mixes[v24].volume);
-        v27 = s_audioZoneStates[v7].ctMixZoneA;
-        LODWORD(ctMixZoneA) = s_audioZoneStates[v7].ctMixZoneA;
-        v63[volModIndex] = 1;
+        mixes = v16->mixes;
+        ++v19;
+        volModIndex = mixes[v20].volModIndex;
+        v18 = v16->zones;
+        v50[volModIndex + 128] = LODWORD(mixes[v20].volume);
+        v23 = s_audioZoneStates[v3].ctMixZoneA;
+        LODWORD(ctMixZoneA) = s_audioZoneStates[v3].ctMixZoneA;
+        v50[volModIndex] = 1;
       }
-      while ( v23 < v22[v27].numMix );
-      v5 = localClientNum;
+      while ( v19 < v18[v23].numMix );
+      v2 = localClientNum;
     }
   }
-  ctMixZoneB = s_audioZoneStates[v7].ctMixZoneB;
-  v29 = v20->zones;
-  LODWORD(v30) = s_audioZoneStates[v7].ctMixZoneB;
-  if ( v29[ctMixZoneB].startMixIndex != -1 )
+  ctMixZoneB = s_audioZoneStates[v3].ctMixZoneB;
+  v25 = v16->zones;
+  LODWORD(v26) = s_audioZoneStates[v3].ctMixZoneB;
+  if ( v25[ctMixZoneB].startMixIndex != -1 )
   {
-    v31 = 0;
-    if ( v29[ctMixZoneB].numMix > 0 )
+    v27 = 0;
+    if ( v25[ctMixZoneB].numMix > 0 )
     {
       do
       {
-        v32 = v31 + v29[(unsigned int)ctMixZoneB].startMixIndex;
-        if ( v32 >= v20->mixCount )
+        v28 = v27 + v25[(unsigned int)ctMixZoneB].startMixIndex;
+        if ( v28 >= v16->mixCount )
         {
-          LODWORD(v61) = v20->mixCount;
-          LODWORD(system) = v31 + v29[(unsigned int)ctMixZoneB].startMixIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 631, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->mixCount )", "idx doesn't index s_soundTablePtr->mixCount\n\t%i not in [0, %i)", system, v61) )
+          LODWORD(v48) = v16->mixCount;
+          LODWORD(system) = v27 + v25[(unsigned int)ctMixZoneB].startMixIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 631, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->mixCount )", "idx doesn't index s_soundTablePtr->mixCount\n\t%i not in [0, %i)", system, v48) )
             __debugbreak();
-          v20 = s_soundTablePtr;
+          v16 = s_soundTablePtr;
         }
-        v33 = v20->mixes;
-        ++v31;
-        v30 = s_audioZoneStates[v7].ctMixZoneB;
-        LODWORD(ctMixZoneB) = s_audioZoneStates[v7].ctMixZoneB;
-        v34 = v33[v32].volModIndex;
-        v29 = v20->zones;
-        v63[v34 + 256] = LODWORD(v33[v32].volume);
-        v63[v34] = 1;
+        v29 = v16->mixes;
+        ++v27;
+        v26 = s_audioZoneStates[v3].ctMixZoneB;
+        LODWORD(ctMixZoneB) = s_audioZoneStates[v3].ctMixZoneB;
+        v30 = v29[v28].volModIndex;
+        v25 = v16->zones;
+        v50[v30 + 256] = LODWORD(v29[v28].volume);
+        v50[v30] = 1;
       }
-      while ( v31 < v29[v30].numMix );
-      v5 = localClientNum;
+      while ( v27 < v25[v26].numMix );
+      v2 = localClientNum;
     }
   }
-  v35 = 0;
-  __asm { vmovss  xmm8, cs:__real@3f800000 }
-  if ( v16 > 0 )
+  v31 = 0;
+  if ( v10 > 0 )
   {
-    for ( i = 0i64; i < v16; ++i )
+    for ( i = 0i64; i < v10; ++i )
     {
-      if ( v63[i] )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm8, xmm7
-          vmulss  xmm1, xmm0, [rsp+rdi*4+6B8h+var_468]
-          vmulss  xmm0, xmm7, [rsp+rdi*4+6B8h+var_268]
-          vaddss  xmm0, xmm1, xmm0
-        }
-      }
+      if ( v50[i] )
+        *(float *)&v33 = (float)((float)(1.0 - lerp) * *(float *)&v50[i + 128]) + (float)(lerp * *(float *)&v50[i + 256]);
       else
-      {
-        *(double *)&_XMM0 = SND_GetVolModDefaultValue(v35);
-      }
-      __asm { vmovaps xmm1, xmm0; value }
-      SND_SetVolModValue(v35++, *(float *)&_XMM1, 0);
+        v33 = SND_GetVolModDefaultValue(v31);
+      SND_SetVolModValue(v31++, *(float *)&v33, 0);
     }
-    LODWORD(v30) = s_audioZoneStates[v7].ctMixZoneB;
-    v20 = s_soundTablePtr;
+    LODWORD(v26) = s_audioZoneStates[v3].ctMixZoneB;
+    v16 = s_soundTablePtr;
   }
-  __asm { vmovaps xmm2, xmm7; lerp }
-  SND_SubmixSetSlotsFromZones(v20->zones[s_audioZoneStates[v7].ctMixZoneA].duck, v20->zones[(unsigned int)v30].duck, *(const float *)&_XMM2);
-  v43 = s_soundTablePtr;
-  if ( s_audioZoneStates[v7].ctAmbientZoneA >= s_soundTablePtr->zoneCount )
+  SND_SubmixSetSlotsFromZones(v16->zones[s_audioZoneStates[v3].ctMixZoneA].duck, v16->zones[(unsigned int)v26].duck, lerp);
+  v34 = s_soundTablePtr;
+  if ( s_audioZoneStates[v3].ctAmbientZoneA >= s_soundTablePtr->zoneCount )
   {
-    LODWORD(v61) = s_soundTablePtr->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctAmbientZoneA;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 671, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = s_soundTablePtr->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctAmbientZoneA;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 671, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
-    v43 = s_soundTablePtr;
+    v34 = s_soundTablePtr;
   }
-  if ( s_audioZoneStates[v7].ctAmbientZoneB >= v43->zoneCount )
+  if ( s_audioZoneStates[v3].ctAmbientZoneB >= v34->zoneCount )
   {
-    LODWORD(v61) = v43->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctAmbientZoneB;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 672, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = v34->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctAmbientZoneB;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 672, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
-    v43 = s_soundTablePtr;
+    v34 = s_soundTablePtr;
   }
-  v44 = v43->zones;
-  ambientStream = v44[s_audioZoneStates[v7].ctAmbientZoneA].ambientStream;
-  if ( ambientStream || v44[s_audioZoneStates[v7].ctAmbientZoneB].ambientStream )
+  v35 = v34->zones;
+  ambientStream = v35[s_audioZoneStates[v3].ctAmbientZoneA].ambientStream;
+  if ( ambientStream || v35[s_audioZoneStates[v3].ctAmbientZoneB].ambientStream )
   {
-    __asm { vmovaps xmm3, xmm7; lerp }
-    SND_PlayAmbientAliasBlended(v5, ambientStream, v44[s_audioZoneStates[v7].ctAmbientZoneB].ambientStream, *(float *)&_XMM3, 0, SASYS_CGAME);
-    v43 = s_soundTablePtr;
+    SND_PlayAmbientAliasBlended(v2, ambientStream, v35[s_audioZoneStates[v3].ctAmbientZoneB].ambientStream, lerp, 0, SASYS_CGAME);
+    v34 = s_soundTablePtr;
   }
-  if ( s_audioZoneStates[v7].ctAmbientEventZoneA >= v43->zoneCount )
+  if ( s_audioZoneStates[v3].ctAmbientEventZoneA >= v34->zoneCount )
   {
-    LODWORD(v61) = v43->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctAmbientEventZoneA;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 684, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientEventZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientEventZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = v34->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctAmbientEventZoneA;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 684, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientEventZoneA ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientEventZoneA doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
-    v43 = s_soundTablePtr;
+    v34 = s_soundTablePtr;
   }
-  if ( s_audioZoneStates[v7].ctAmbientEventZoneB >= v43->zoneCount )
+  if ( s_audioZoneStates[v3].ctAmbientEventZoneB >= v34->zoneCount )
   {
-    LODWORD(v61) = v43->zoneCount;
-    LODWORD(system) = s_audioZoneStates[v7].ctAmbientEventZoneB;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 685, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientEventZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientEventZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v61) )
+    LODWORD(v48) = v34->zoneCount;
+    LODWORD(system) = s_audioZoneStates[v3].ctAmbientEventZoneB;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 685, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->ctAmbientEventZoneB ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->ctAmbientEventZoneB doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", system, v48) )
       __debugbreak();
-    v43 = s_soundTablePtr;
+    v34 = s_soundTablePtr;
   }
-  v47 = v43->zones;
-  ambientDefIndex = v47[s_audioZoneStates[v7].ctAmbientEventZoneA].ambientDefIndex;
-  if ( ambientDefIndex == -1 )
+  v37 = v34->zones;
+  ambientDefIndex = v37[s_audioZoneStates[v3].ctAmbientEventZoneA].ambientDefIndex;
+  if ( ambientDefIndex == -1 || lerp >= 0.5 )
   {
-    v50 = v47[s_audioZoneStates[v7].ctAmbientEventZoneB].ambientDefIndex;
-    v51 = v50 != -1;
-    if ( v50 != -1 )
-    {
-      __asm { vcomiss xmm7, cs:__real@3f000000 }
-      goto LABEL_70;
-    }
+    v41 = v37[s_audioZoneStates[v3].ctAmbientEventZoneB].ambientDefIndex;
+    if ( v41 == -1 )
+      goto LABEL_72;
+    if ( lerp < 0.5 )
+      goto LABEL_73;
+    v39 = lerp;
+    v40 = &v34->ambientDefs[v41];
   }
   else
   {
-    __asm
-    {
-      vcomiss xmm7, cs:__real@3f000000
-      vsubss  xmm3, xmm8, xmm7
-    }
-    SND_SetAmbientEvents(v5, v43, &v43->ambientDefs[ambientDefIndex], *(float *)&_XMM3);
+    v39 = 1.0 - lerp;
+    v40 = &v34->ambientDefs[ambientDefIndex];
   }
-  __asm { vcomiss xmm7, cs:__real@3f000000 }
-  if ( !v51 )
-  {
-    ctFullOcclusionZoneB = s_audioZoneStates[v7].ctFullOcclusionZoneB;
-    goto LABEL_72;
-  }
-LABEL_70:
-  ctFullOcclusionZoneB = s_audioZoneStates[v7].ctFullOcclusionZoneA;
+  SND_SetAmbientEvents(v2, v34, v40, v39);
 LABEL_72:
+  if ( lerp >= 0.5 )
+  {
+    ctFullOcclusionZoneB = s_audioZoneStates[v3].ctFullOcclusionZoneB;
+    goto LABEL_75;
+  }
+LABEL_73:
+  ctFullOcclusionZoneB = s_audioZoneStates[v3].ctFullOcclusionZoneA;
+LABEL_75:
   SND_InitFullOcclusionFlags();
-  v53 = s_soundTablePtr;
-  v54 = ctFullOcclusionZoneB;
-  v55 = s_soundTablePtr->zones;
-  if ( v55[v54].startFullOccIndex != -1 && v55[v54].numDisableFullOcc > 0 )
+  v43 = s_soundTablePtr;
+  v44 = ctFullOcclusionZoneB;
+  v45 = s_soundTablePtr->zones;
+  if ( v45[v44].startFullOccIndex != -1 && v45[v44].numDisableFullOcc > 0 )
   {
     do
     {
-      v56 = v13 + v55[v54].startFullOccIndex;
-      if ( v56 >= v53->fullOcclusionDefCount )
+      v46 = v7 + v45[v44].startFullOccIndex;
+      if ( v46 >= v43->fullOcclusionDefCount )
       {
-        LODWORD(v61) = v53->fullOcclusionDefCount;
-        LODWORD(system) = v13 + v55[v54].startFullOccIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 717, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->fullOcclusionDefCount )", "idx doesn't index s_soundTablePtr->fullOcclusionDefCount\n\t%i not in [0, %i)", system, v61) )
+        LODWORD(v48) = v43->fullOcclusionDefCount;
+        LODWORD(system) = v7 + v45[v44].startFullOccIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 717, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_soundTablePtr->fullOcclusionDefCount )", "idx doesn't index s_soundTablePtr->fullOcclusionDefCount\n\t%i not in [0, %i)", system, v48) )
           __debugbreak();
-        v53 = s_soundTablePtr;
+        v43 = s_soundTablePtr;
       }
-      SND_DisableFullOcclusionForEntChannel(v53->fullOcclusionDefs[v56].entChannelIdx);
-      v53 = s_soundTablePtr;
-      ++v13;
-      v55 = s_soundTablePtr->zones;
+      SND_DisableFullOcclusionForEntChannel(v43->fullOcclusionDefs[v46].entChannelIdx);
+      v43 = s_soundTablePtr;
+      ++v7;
+      v45 = s_soundTablePtr->zones;
     }
-    while ( v13 < v55[v54].numDisableFullOcc );
-  }
-  _R11 = &v64;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
+    while ( v7 < v45[v44].numDisableFullOcc );
   }
 }
 
@@ -6317,10 +5012,10 @@ CG_OcclusionSettingsMatch
 */
 bool CG_OcclusionSettingsMatch(const LocalClientNum_t localClientNum, const vec3_t *emitterPos)
 {
+  float v3; 
+  ZoneDef *v4; 
   ZoneDef *v5; 
-  ZoneDef *v6; 
-  char v8; 
-  __int64 v9; 
+  __int64 v6; 
   ZoneDef *zones; 
   ZoneDef *outZoneB; 
   float outLerp; 
@@ -6328,51 +5023,45 @@ bool CG_OcclusionSettingsMatch(const LocalClientNum_t localClientNum, const vec3
 
   if ( !s_soundTablePtr || g_lastAudioZoneIndexA == 0x7FFFFFFF || g_lastAudioZoneIndexB == 0x7FFFFFFF )
     return 0;
-  __asm
+  v3 = g_lastAudioLerpVal;
+  if ( g_lastAudioLerpVal == 1.0 )
   {
-    vmovss  xmm0, cs:g_lastAudioLerpVal
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  if ( g_lastAudioZoneIndexB == 0x7FFFFFFF )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    v5 = &s_soundTablePtr->zones[g_lastAudioZoneIndexB];
-    v6 = NULL;
+    v3 = 0.0;
+    v4 = &s_soundTablePtr->zones[g_lastAudioZoneIndexB];
+    v5 = NULL;
   }
   else
   {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    v9 = g_lastAudioZoneIndexA;
-    __asm { vucomiss xmm0, xmm1 }
-    if ( v8 )
+    v6 = g_lastAudioZoneIndexA;
+    if ( g_lastAudioLerpVal == 0.0 )
     {
-      v5 = &s_soundTablePtr->zones[v9];
-      v6 = NULL;
-      __asm { vmovss  [rsp+48h+arg_10], xmm1 }
+      v4 = &s_soundTablePtr->zones[v6];
+      v5 = NULL;
+      outLerp = 0.0;
       goto LABEL_10;
     }
     zones = s_soundTablePtr->zones;
-    v5 = &zones[v9];
-    v6 = &zones[g_lastAudioZoneIndexB];
+    v4 = &zones[v6];
+    v5 = &zones[g_lastAudioZoneIndexB];
   }
-  __asm { vmovss  [rsp+48h+arg_10], xmm0 }
+  outLerp = v3;
 LABEL_10:
   if ( !CG_FindAudioZoneAtPoint(localClientNum, emitterPos, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, &outLerp) )
     return 0;
-  if ( v5 )
+  if ( v4 )
   {
-    if ( !outZoneA || v5->startOcclusionIndex != outZoneA->startOcclusionIndex )
+    if ( !outZoneA || v4->startOcclusionIndex != outZoneA->startOcclusionIndex )
       return 0;
   }
   else if ( outZoneA )
   {
     return 0;
   }
-  if ( !v6 )
+  if ( !v5 )
     return !outZoneB;
   if ( !outZoneB )
     return 0;
-  return v6->startOcclusionIndex == outZoneB->startOcclusionIndex;
+  return v5->startOcclusionIndex == outZoneB->startOcclusionIndex;
 }
 
 /*
@@ -6413,54 +5102,48 @@ CG_RestoreAudioTriggerStates
 */
 void CG_RestoreAudioTriggerStates(MemoryFile *memFile)
 {
-  int v4; 
-  unsigned int v6; 
-  char v7[4]; 
-  char v8[8]; 
-  char v9[72]; 
-  __int16 p; 
-  __int16 v11; 
-  unsigned int v12; 
+  unsigned __int16 v2; 
+  int i; 
+  double Float; 
+  unsigned int v5; 
+  char v6[4]; 
+  char v7[8]; 
+  char v8[72]; 
+  unsigned __int16 p; 
+  unsigned __int16 v10; 
+  unsigned int v11; 
 
   memset_0(s_triggerStateTo, 0, sizeof(s_triggerStateTo));
   memset_0(s_triggerStateFrom, 0, sizeof(s_triggerStateFrom));
   memset_0(s_triggerStateLerp, 0, sizeof(s_triggerStateLerp));
   memset_0(s_triggerStateFadeTime, 0, sizeof(s_triggerStateFadeTime));
   MemFile_ReadData(memFile, 2ui64, &p);
-  LOWORD(_RBX) = p;
-  v4 = 0;
-  if ( p != -1 )
+  v2 = p;
+  for ( i = 0; v2 != 0xFFFF; ++i )
   {
-    do
+    if ( i >= 16385 )
+      break;
+    if ( v2 >= 0x4001u )
     {
-      if ( v4 >= 16385 )
-        break;
-      if ( (unsigned __int16)_RBX >= 0x4001u )
-      {
-        MemFile_ReadData(memFile, 4ui64, v7);
-        MemFile_ReadData(memFile, 4ui64, v8);
-        MemFile_ReadData(memFile, 8ui64, v9);
-        MemFile_ReadFloat(memFile);
-        MemFile_ReadData(memFile, 2ui64, &v11);
-        LOWORD(_RBX) = v11;
-      }
-      else
-      {
-        MemFile_ReadData(memFile, 4ui64, &v12);
-        _RBX = (unsigned __int16)_RBX;
-        s_triggerStateTo[(unsigned __int16)_RBX] = v12;
-        MemFile_ReadData(memFile, 4ui64, &v6);
-        s_triggerStateFrom[(unsigned __int16)_RBX] = v6;
-        MemFile_ReadData(memFile, 8ui64, &s_triggerStateLerp[(unsigned __int16)_RBX]);
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        _RAX = s_triggerStateFadeTime;
-        __asm { vmovss  dword ptr [rax+rbx*4], xmm0 }
-        MemFile_ReadData(memFile, 2ui64, &p);
-        LOWORD(_RBX) = p;
-      }
-      ++v4;
+      MemFile_ReadData(memFile, 4ui64, v6);
+      MemFile_ReadData(memFile, 4ui64, v7);
+      MemFile_ReadData(memFile, 8ui64, v8);
+      MemFile_ReadFloat(memFile);
+      MemFile_ReadData(memFile, 2ui64, &v10);
+      v2 = v10;
     }
-    while ( (_WORD)_RBX != 0xFFFF );
+    else
+    {
+      MemFile_ReadData(memFile, 4ui64, &v11);
+      s_triggerStateTo[v2] = v11;
+      MemFile_ReadData(memFile, 4ui64, &v5);
+      s_triggerStateFrom[v2] = v5;
+      MemFile_ReadData(memFile, 8ui64, &s_triggerStateLerp[v2]);
+      Float = MemFile_ReadFloat(memFile);
+      s_triggerStateFadeTime[v2] = *(float *)&Float;
+      MemFile_ReadData(memFile, 2ui64, &p);
+      v2 = p;
+    }
   }
   MemFile_ReadData(memFile, 0x1D8ui64, s_audioZoneStates);
   MemFile_ReadData(memFile, 0x4000ui64, g_audioTriggerDisabled);
@@ -6476,18 +5159,10 @@ void CG_SaveAudioTriggerStates(MemoryFile *memFile)
   unsigned int i; 
   unsigned int p; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _R14 = 0x140000000ui64;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
   for ( i = 0; i < 0x4001; ++i )
   {
-    _RSI = (int)i;
-    if ( s_triggerStateTo[i] )
-      goto LABEL_4;
-    __asm { vcomiss xmm6, dword ptr rva s_triggerStateLerp.current[r14+rsi*8] }
-    if ( s_triggerStateTo[i] )
+    if ( s_triggerStateTo[i] || s_triggerStateLerp[i].current < 1.0 )
     {
-LABEL_4:
       LOWORD(p) = i;
       MemFile_WriteData(memFile, 2ui64, &p);
       p = s_triggerStateTo[i];
@@ -6495,14 +5170,12 @@ LABEL_4:
       p = s_triggerStateFrom[i];
       MemFile_WriteData(memFile, 4ui64, &p);
       MemFile_WriteData(memFile, 8ui64, &s_triggerStateLerp[i]);
-      __asm { vmovss  xmm1, rva s_triggerStateFadeTime[r14+rsi*4]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+      MemFile_WriteFloat(memFile, s_triggerStateFadeTime[i]);
     }
   }
   LOWORD(p) = -1;
   MemFile_WriteData(memFile, 2ui64, &p);
   MemFile_WriteData(memFile, 0x1D8ui64, s_audioZoneStates);
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
   MemFile_WriteData(memFile, 0x4000ui64, g_audioTriggerDisabled);
 }
 
@@ -6513,192 +5186,188 @@ CG_SetAudioLerpOverride
 */
 void CG_SetAudioLerpOverride(LocalClientNum_t localClientNum, const char *p_zoneNameA, const char *p_zoneNameB, CTAudOverrideType overrideType, float lerp, int overRideFlags)
 {
-  int v7; 
-  __int64 v8; 
-  CTAudState *v9; 
-  int v12; 
+  int v6; 
+  __int64 v7; 
+  CTAudState *v8; 
+  int v11; 
   cg_t *LocalClientGlobals; 
-  int v14; 
-  cg_t *v15; 
-  __int64 v16; 
-  CTAudOverride *v17; 
-  unsigned int v18; 
-  __int64 v20; 
-  const char *v21; 
+  int v13; 
+  cg_t *v14; 
+  __int64 v15; 
+  CTAudOverride *v16; 
+  unsigned int v17; 
+  CTAudOverride *v18; 
+  __int64 v19; 
+  const char *v20; 
   const char *zoneName; 
-  signed __int64 v23; 
-  int v24; 
-  __int64 v25; 
+  signed __int64 v22; 
+  int v23; 
+  __int64 v24; 
+  int v25; 
   int v26; 
   int v27; 
-  int v28; 
-  __int64 v29; 
+  __int64 v28; 
+  const char *v29; 
   const char *v30; 
-  const char *v31; 
-  signed __int64 v32; 
-  int v33; 
-  __int64 v34; 
+  signed __int64 v31; 
+  int v32; 
+  __int64 v33; 
+  int v34; 
   int v35; 
   int v36; 
-  int v37; 
-  const char *v38; 
-  CTAudOverride *v42; 
-  CTAudState *v43; 
-  CTAudOverride *v44; 
-  cg_t *v45; 
+  const char *v37; 
+  double v38; 
+  CTAudOverride *v39; 
+  CTAudState *v40; 
+  CTAudOverride *v41; 
+  cg_t *v42; 
 
-  v7 = 0x7FFFFFFF;
-  v8 = overrideType;
-  v9 = &s_audioZoneStates[localClientNum];
-  v43 = v9;
-  v12 = 0x7FFFFFFF;
+  v6 = 0x7FFFFFFF;
+  v7 = overrideType;
+  v8 = &s_audioZoneStates[localClientNum];
+  v40 = v8;
+  v11 = 0x7FFFFFFF;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v14 = 6;
-  v45 = LocalClientGlobals;
-  v15 = LocalClientGlobals;
-  v16 = 6i64;
-  v17 = &v9->ctOverrideStack[6];
+  v13 = 6;
+  v42 = LocalClientGlobals;
+  v14 = LocalClientGlobals;
+  v15 = 6i64;
+  v16 = &v8->ctOverrideStack[6];
   while ( 1 )
   {
-    v18 = 0;
-    if ( v17->active )
+    v17 = 0;
+    if ( v16->active )
       break;
-    --v14;
-    --v17;
-    if ( --v16 < 0 )
+    --v13;
+    --v16;
+    if ( --v15 < 0 )
     {
-      v42 = NULL;
+      v39 = NULL;
       goto LABEL_6;
     }
   }
-  v42 = &v9->ctOverrideStack[v14];
+  v39 = &v8->ctOverrideStack[v13];
 LABEL_6:
-  if ( (unsigned int)v8 >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1124, ASSERT_TYPE_ASSERT, "(unsigned)( overrideType ) < (unsigned)( ( sizeof( *array_counter( ctAudState->ctOverrideStack ) ) + 0 ) )", "overrideType doesn't index ARRAY_COUNT( ctAudState->ctOverrideStack )\n\t%i not in [0, %i)", v8, 7) )
+  if ( (unsigned int)v7 >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1124, ASSERT_TYPE_ASSERT, "(unsigned)( overrideType ) < (unsigned)( ( sizeof( *array_counter( ctAudState->ctOverrideStack ) ) + 0 ) )", "overrideType doesn't index ARRAY_COUNT( ctAudState->ctOverrideStack )\n\t%i not in [0, %i)", v7, 7) )
     __debugbreak();
-  _RBX = &v9->ctOverrideStack[v8];
-  v44 = _RBX;
+  v18 = &v8->ctOverrideStack[v7];
+  v41 = v18;
   if ( !I_stricmp(p_zoneNameA, "<current>") )
   {
-    v7 = g_lastAudioZoneIndexA;
+    v6 = g_lastAudioZoneIndexA;
     if ( g_lastAudioZoneIndexA == 0x7FFFFFFF )
-      v7 = SND_LookupZoneIndex(0x4000);
+      v6 = SND_LookupZoneIndex(0x4000);
   }
   if ( !I_stricmp(p_zoneNameB, "<current>") )
   {
-    v12 = g_lastAudioZoneIndexB;
+    v11 = g_lastAudioZoneIndexB;
     if ( g_lastAudioZoneIndexB == 0x7FFFFFFF )
-      v12 = SND_LookupZoneIndex(0x4000);
+      v11 = SND_LookupZoneIndex(0x4000);
   }
   if ( s_soundTablePtr->zoneCount )
   {
     do
     {
-      if ( v7 == 0x7FFFFFFF )
+      if ( v6 == 0x7FFFFFFF )
       {
-        v20 = 0x7FFFFFFFi64;
-        v21 = p_zoneNameA;
-        zoneName = s_soundTablePtr->zones[v18].zoneName;
+        v19 = 0x7FFFFFFFi64;
+        v20 = p_zoneNameA;
+        zoneName = s_soundTablePtr->zones[v17].zoneName;
         if ( !zoneName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
         if ( !p_zoneNameA && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v23 = zoneName - p_zoneNameA;
+        v22 = zoneName - p_zoneNameA;
         do
         {
-          v24 = (unsigned __int8)v21[v23];
-          v25 = v20;
-          v26 = *(unsigned __int8 *)v21++;
-          --v20;
-          if ( !v25 )
+          v23 = (unsigned __int8)v20[v22];
+          v24 = v19;
+          v25 = *(unsigned __int8 *)v20++;
+          --v19;
+          if ( !v24 )
             break;
-          if ( v24 != v26 )
+          if ( v23 != v25 )
           {
-            v27 = v24 + 32;
-            if ( (unsigned int)(v24 - 65) > 0x19 )
-              v27 = v24;
-            v24 = v27;
-            v28 = v26 + 32;
-            if ( (unsigned int)(v26 - 65) > 0x19 )
-              v28 = v26;
-            if ( v24 != v28 )
+            v26 = v23 + 32;
+            if ( (unsigned int)(v23 - 65) > 0x19 )
+              v26 = v23;
+            v23 = v26;
+            v27 = v25 + 32;
+            if ( (unsigned int)(v25 - 65) > 0x19 )
+              v27 = v25;
+            if ( v23 != v27 )
               goto LABEL_33;
           }
         }
-        while ( v24 );
-        v7 = v18;
+        while ( v23 );
+        v6 = v17;
       }
 LABEL_33:
-      if ( v12 == 0x7FFFFFFF )
+      if ( v11 == 0x7FFFFFFF )
       {
-        v29 = 0x7FFFFFFFi64;
-        v30 = p_zoneNameB;
-        v31 = s_soundTablePtr->zones[v18].zoneName;
-        if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        v28 = 0x7FFFFFFFi64;
+        v29 = p_zoneNameB;
+        v30 = s_soundTablePtr->zones[v17].zoneName;
+        if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
         if ( !p_zoneNameB && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v32 = v31 - p_zoneNameB;
+        v31 = v30 - p_zoneNameB;
         do
         {
-          v33 = (unsigned __int8)v30[v32];
-          v34 = v29;
-          v35 = *(unsigned __int8 *)v30++;
-          --v29;
-          if ( !v34 )
+          v32 = (unsigned __int8)v29[v31];
+          v33 = v28;
+          v34 = *(unsigned __int8 *)v29++;
+          --v28;
+          if ( !v33 )
             break;
-          if ( v33 != v35 )
+          if ( v32 != v34 )
           {
-            v36 = v33 + 32;
-            if ( (unsigned int)(v33 - 65) > 0x19 )
-              v36 = v33;
-            v33 = v36;
-            v37 = v35 + 32;
-            if ( (unsigned int)(v35 - 65) > 0x19 )
-              v37 = v35;
-            if ( v33 != v37 )
+            v35 = v32 + 32;
+            if ( (unsigned int)(v32 - 65) > 0x19 )
+              v35 = v32;
+            v32 = v35;
+            v36 = v34 + 32;
+            if ( (unsigned int)(v34 - 65) > 0x19 )
+              v36 = v34;
+            if ( v32 != v36 )
               goto LABEL_50;
           }
         }
-        while ( v33 );
-        v12 = v18;
+        while ( v32 );
+        v11 = v17;
       }
 LABEL_50:
-      ++v18;
+      ++v17;
     }
-    while ( v18 < s_soundTablePtr->zoneCount );
-    v9 = v43;
-    _RBX = v44;
-    v15 = v45;
+    while ( v17 < s_soundTablePtr->zoneCount );
+    v8 = v40;
+    v18 = v41;
+    v14 = v42;
   }
-  if ( v7 == 0x7FFFFFFF )
+  if ( v6 == 0x7FFFFFFF )
   {
-    v38 = p_zoneNameA;
+    v37 = p_zoneNameA;
 LABEL_54:
-    Com_PrintError(9, "CG_SetAudioLerpOverride: Audio zone not found: %s\n", v38);
+    Com_PrintError(9, "CG_SetAudioLerpOverride: Audio zone not found: %s\n", v37);
     return;
   }
-  if ( v12 == 0x7FFFFFFF )
+  if ( v11 == 0x7FFFFFFF )
   {
-    v38 = p_zoneNameB;
+    v37 = p_zoneNameB;
     goto LABEL_54;
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm0, [rsp+88h+lerp]; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  _RBX->scriptAudioZoneOverride = v7;
-  _RBX->scriptAudioZoneOverrideB = v12;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RBX->scriptAudioZoneOverrideFlags = overRideFlags;
-  _RBX->active = 1;
-  __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
-  v9->scriptPrevAudioZoneOverride = v42->scriptAudioZoneOverride;
-  v9->scriptAudioZoneFadeStartTime = v15->time;
-  v9->scriptAudioZoneFadeTargetTime = v15->time;
-  if ( v42 == _RBX )
-    v9->scriptPrevAudioZoneOverride = 0x7FFFFFFF;
+  v18->scriptAudioZoneOverride = v6;
+  v18->scriptAudioZoneOverrideB = v11;
+  v38 = I_fclamp(lerp, 0.0, 1.0);
+  v18->scriptAudioZoneOverrideFlags = overRideFlags;
+  v18->active = 1;
+  v18->scriptAudioZoneOverrideLerp = *(float *)&v38;
+  v8->scriptPrevAudioZoneOverride = v39->scriptAudioZoneOverride;
+  v8->scriptAudioZoneFadeStartTime = v14->time;
+  v8->scriptAudioZoneFadeTargetTime = v14->time;
+  if ( v39 == v18 )
+    v8->scriptPrevAudioZoneOverride = 0x7FFFFFFF;
 }
 
 /*
@@ -6706,92 +5375,86 @@ LABEL_54:
 CG_SetAudioOverride
 ==============
 */
-
-void __fastcall CG_SetAudioOverride(LocalClientNum_t localClientNum, const char *p_name, CTAudOverrideType overrideType, double fadeTime, int overRideFlags)
+void CG_SetAudioOverride(LocalClientNum_t localClientNum, const char *p_name, CTAudOverrideType overrideType, float fadeTime, int overRideFlags)
 {
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  const SoundTable *v10; 
-  CTAudOverride *v11; 
-  int v12; 
-  CTAudState *v14; 
-  __int64 v15; 
+  const SoundTable *v8; 
+  CTAudOverride *v9; 
+  int v10; 
+  CTAudState *v11; 
+  __int64 v12; 
   cg_t *LocalClientGlobals; 
-  int v17; 
-  CTAudOverride *v18; 
-  __int64 v19; 
-  cg_t *v20; 
+  int v14; 
+  CTAudOverride *v15; 
+  __int64 v16; 
+  cg_t *v17; 
+  __int64 v18; 
+  int v19; 
+  unsigned int v20; 
   __int64 v21; 
-  int v22; 
-  unsigned int v23; 
-  __int64 v26; 
-  __int64 v27; 
+  __int64 v22; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  v7 = overrideType;
-  v8 = localClientNum;
-  __asm { vmovaps xmm6, xmm3 }
-  if ( p_name && *p_name && (v10 = s_soundTablePtr) != NULL && (v11 = NULL, v12 = 0, s_soundTablePtr->zoneCount) )
+  v6 = overrideType;
+  v7 = localClientNum;
+  if ( p_name && *p_name && (v8 = s_soundTablePtr) != NULL && (v9 = NULL, v10 = 0, s_soundTablePtr->zoneCount) )
   {
-    while ( I_stricmp(v10->zones[v12].zoneName, p_name) )
+    while ( I_stricmp(v8->zones[v10].zoneName, p_name) )
     {
-      v10 = s_soundTablePtr;
-      if ( ++v12 >= s_soundTablePtr->zoneCount )
+      v8 = s_soundTablePtr;
+      if ( ++v10 >= s_soundTablePtr->zoneCount )
         goto LABEL_7;
     }
-    v14 = &s_audioZoneStates[v8];
-    v15 = v8;
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
-    v17 = 6;
-    v18 = &v14->ctOverrideStack[6];
-    v19 = 6i64;
-    v20 = LocalClientGlobals;
-    while ( !v18->active )
+    v11 = &s_audioZoneStates[v7];
+    v12 = v7;
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    v14 = 6;
+    v15 = &v11->ctOverrideStack[6];
+    v16 = 6i64;
+    v17 = LocalClientGlobals;
+    while ( !v15->active )
     {
-      --v17;
-      --v18;
-      if ( --v19 < 0 )
+      --v14;
+      --v15;
+      if ( --v16 < 0 )
         goto LABEL_14;
     }
-    v11 = &v14->ctOverrideStack[v17];
+    v9 = &v11->ctOverrideStack[v14];
 LABEL_14:
-    if ( (unsigned int)v7 >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1124, ASSERT_TYPE_ASSERT, "(unsigned)( overrideType ) < (unsigned)( ( sizeof( *array_counter( ctAudState->ctOverrideStack ) ) + 0 ) )", "overrideType doesn't index ARRAY_COUNT( ctAudState->ctOverrideStack )\n\t%i not in [0, %i)", v7, 7) )
+    if ( (unsigned int)v6 >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1124, ASSERT_TYPE_ASSERT, "(unsigned)( overrideType ) < (unsigned)( ( sizeof( *array_counter( ctAudState->ctOverrideStack ) ) + 0 ) )", "overrideType doesn't index ARRAY_COUNT( ctAudState->ctOverrideStack )\n\t%i not in [0, %i)", v6, 7) )
       __debugbreak();
-    v21 = v7;
-    if ( v11 )
+    v18 = v6;
+    if ( v9 )
     {
-      v14->scriptPrevAudioZoneOverride = v11->scriptAudioZoneOverride;
+      v11->scriptPrevAudioZoneOverride = v9->scriptAudioZoneOverride;
     }
     else
     {
-      v22 = 0x4000;
-      if ( g_playerCurrentAudioTrigger[v15] != 0x4000 )
-        v22 = g_playerCurrentAudioTrigger[v15];
-      v23 = SND_LookupZoneIndex(v22);
-      v14->scriptPrevAudioZoneOverride = v23;
-      if ( v23 >= s_soundTablePtr->zoneCount )
+      v19 = 0x4000;
+      if ( g_playerCurrentAudioTrigger[v12] != 0x4000 )
+        v19 = g_playerCurrentAudioTrigger[v12];
+      v20 = SND_LookupZoneIndex(v19);
+      v11->scriptPrevAudioZoneOverride = v20;
+      if ( v20 >= s_soundTablePtr->zoneCount )
       {
-        LODWORD(v27) = s_soundTablePtr->zoneCount;
-        LODWORD(v26) = v23;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2129, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->scriptPrevAudioZoneOverride ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->scriptPrevAudioZoneOverride doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", v26, v27) )
+        LODWORD(v22) = s_soundTablePtr->zoneCount;
+        LODWORD(v21) = v20;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 2129, ASSERT_TYPE_ASSERT, "(unsigned)( ctAudState->scriptPrevAudioZoneOverride ) < (unsigned)( s_soundTablePtr->zoneCount )", "ctAudState->scriptPrevAudioZoneOverride doesn't index s_soundTablePtr->zoneCount\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
     }
-    __asm { vmulss  xmm0, xmm6, cs:__real@c47a0000 }
-    v14->scriptAudioZoneFadeStartTime = v20->time;
-    __asm { vcvttss2si eax, xmm0 }
-    v14->scriptAudioZoneFadeTargetTime = v20->time - _EAX;
-    v14->ctOverrideStack[v21].scriptAudioZoneOverride = v12;
-    v14->ctOverrideStack[v21].scriptAudioZoneOverrideFlags = overRideFlags;
-    v14->ctOverrideStack[v21].scriptAudioZoneOverrideB = 0x7FFFFFFF;
-    v14->ctOverrideStack[v21].active = 1;
+    v11->scriptAudioZoneFadeStartTime = v17->time;
+    v11->scriptAudioZoneFadeTargetTime = v17->time - (int)(float)(fadeTime * -1000.0);
+    v11->ctOverrideStack[v18].scriptAudioZoneOverride = v10;
+    v11->ctOverrideStack[v18].scriptAudioZoneOverrideFlags = overRideFlags;
+    v11->ctOverrideStack[v18].scriptAudioZoneOverrideB = 0x7FFFFFFF;
+    v11->ctOverrideStack[v18].active = 1;
   }
   else
   {
 LABEL_7:
     Com_PrintError(9, "CG_SetAudioOverride: Audio zone not found: %s\n", p_name);
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -6799,75 +5462,60 @@ LABEL_7:
 CG_SetAudioTriggerState
 ==============
 */
-
-void __fastcall CG_SetAudioTriggerState(const unsigned int stateId, const unsigned int state, double fadeTime)
+void CG_SetAudioTriggerState(const unsigned int stateId, const unsigned int state, const float fadeTime)
 {
   MapEnts *mapEnts; 
-  __int64 v11; 
-  char *v12; 
-  char v13; 
-  int v14; 
-  char v15; 
+  __int64 i; 
+  __int64 v7; 
+  char *v8; 
+  char v9; 
+  int v10; 
+  char v11; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( stateId == SND_GetDefaultHash() )
   {
-    __asm { vmovaps xmm1, xmm6; time }
     s_triggerStateFrom[0x4000] = s_triggerStateTo[0x4000];
     s_triggerStateTo[0x4000] = state;
-    SND_SetTimeLerp(&s_triggerStateLerp[0x4000], *(float *)&_XMM1);
-    __asm { vmovss  cs:s_triggerStateFadeTime+10000h, xmm6 }
+    SND_SetTimeLerp(&s_triggerStateLerp[0x4000], fadeTime);
+    s_triggerStateFadeTime[0x4000] = fadeTime;
   }
   mapEnts = cm.mapEnts;
-  _RBX = 0i64;
-  if ( cm.mapEnts->clientTrigger.trigger.count )
+  for ( i = 0i64; (unsigned int)i < mapEnts->clientTrigger.trigger.count; i = (unsigned int)(i + 1) )
   {
-    _R14 = 0x140000000ui64;
-    do
+    v7 = mapEnts->clientTrigger.audioStateIds[i];
+    if ( (_DWORD)v7 != -1 )
     {
-      v11 = mapEnts->clientTrigger.audioStateIds[_RBX];
-      if ( (_DWORD)v11 != -1 )
+      v8 = &mapEnts->clientTrigger.triggerString[v7];
+      if ( v8 && (v9 = *v8) != 0 )
       {
-        v12 = &mapEnts->clientTrigger.triggerString[v11];
-        if ( v12 && (v13 = *v12) != 0 )
+        v10 = 5381;
+        do
         {
-          v14 = 5381;
-          do
-          {
-            ++v12;
-            v15 = v13 | 0x20;
-            if ( (unsigned int)(v13 - 65) >= 0x1A )
-              v15 = v13;
-            v14 = 65599 * v14 + v15;
-            v13 = *v12;
-          }
-          while ( *v12 );
-          if ( !v14 )
-            v14 = 1;
+          ++v8;
+          v11 = v9 | 0x20;
+          if ( (unsigned int)(v9 - 65) >= 0x1A )
+            v11 = v9;
+          v10 = 65599 * v10 + v11;
+          v9 = *v8;
         }
-        else
-        {
-          v14 = 0;
-        }
-        if ( v14 == stateId )
-        {
-          __asm { vmovaps xmm1, xmm6; time }
-          s_triggerStateFrom[_RBX] = s_triggerStateTo[_RBX];
-          s_triggerStateTo[_RBX] = state;
-          SND_SetTimeLerp(&s_triggerStateLerp[_RBX], *(float *)&_XMM1);
-          mapEnts = cm.mapEnts;
-          __asm { vmovss  rva s_triggerStateFadeTime[r14+rbx*4], xmm6 }
-        }
+        while ( *v8 );
+        if ( !v10 )
+          v10 = 1;
       }
-      _RBX = (unsigned int)(_RBX + 1);
+      else
+      {
+        v10 = 0;
+      }
+      if ( v10 == stateId )
+      {
+        s_triggerStateFrom[i] = s_triggerStateTo[i];
+        s_triggerStateTo[i] = state;
+        SND_SetTimeLerp(&s_triggerStateLerp[i], fadeTime);
+        mapEnts = cm.mapEnts;
+        s_triggerStateFadeTime[i] = fadeTime;
+      }
     }
-    while ( (unsigned int)_RBX < mapEnts->clientTrigger.trigger.count );
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_28] }
 }
 
 /*
@@ -6881,6 +5529,8 @@ char CG_SetTimeScaleByPreset(const char *presetName)
   char v2; 
   unsigned int v4; 
   unsigned int i; 
+  TimescaleEntry *timeScaleSettings; 
+  __int64 v7; 
 
   v1 = s_soundTablePtr;
   v2 = 0;
@@ -6889,12 +5539,11 @@ char CG_SetTimeScaleByPreset(const char *presetName)
   v4 = 0;
   for ( i = SND_HashName(presetName); v4 < v1->timeScaleSettingCount; ++v4 )
   {
-    _RCX = v1->timeScaleSettings;
-    _RAX = v4;
-    if ( _RCX[_RAX].presetName == i )
+    timeScaleSettings = v1->timeScaleSettings;
+    v7 = v4;
+    if ( timeScaleSettings[v7].presetName == i )
     {
-      __asm { vmovss  xmm1, dword ptr [rax+rcx+0Ch]; lerp }
-      SND_SetTimeScaleLerp(_RCX[_RAX].entChannelIdx, *(const float *)&_XMM1);
+      SND_SetTimeScaleLerp(timeScaleSettings[v7].entChannelIdx, timeScaleSettings[v7].scale);
       v1 = s_soundTablePtr;
       v2 = 1;
     }
@@ -6955,31 +5604,29 @@ bool CG_ShouldAddOcclusionDebugLines(const SndAlias *alias)
 CG_ShutdownClientSideTriggersAudio
 ==============
 */
-
-void __fastcall CG_ShutdownClientSideTriggersAudio(double _XMM0_8, __int64 a2, double _XMM2_8)
+void CG_ShutdownClientSideTriggersAudio(void)
 {
-  signed int v3; 
+  signed int v0; 
   int VolModCount; 
+  double VolModDefaultValue; 
 
-  v3 = 0;
+  v0 = 0;
   g_lastAudioZoneIndexA = 0x7FFFFFFF;
   s_soundTablePtr = NULL;
   g_lastOverRideFlags = 0;
   g_lastAudioZoneIndexB = 0x7FFFFFFF;
   if ( SND_Active() )
   {
-    __asm { vxorps  xmm2, xmm2, xmm2; lerp }
-    SND_SubmixSetSlotsFromZones(0, 0, *(const float *)&_XMM2);
+    SND_SubmixSetSlotsFromZones(0, 0, 0.0);
     VolModCount = SND_GetVolModCount();
     if ( VolModCount > 0 )
     {
       do
       {
-        _XMM0_8 = SND_GetVolModDefaultValue(v3);
-        __asm { vmovaps xmm1, xmm0; value }
-        SND_SetVolModValue(v3++, *(float *)&_XMM1, 0);
+        VolModDefaultValue = SND_GetVolModDefaultValue(v0);
+        SND_SetVolModValue(v0++, *(float *)&VolModDefaultValue, 0);
       }
-      while ( v3 < VolModCount );
+      while ( v0 < VolModCount );
     }
   }
 }
@@ -6989,105 +5636,103 @@ void __fastcall CG_ShutdownClientSideTriggersAudio(double _XMM0_8, __int64 a2, d
 CG_StartClientSideTriggersAudio
 ==============
 */
-
-void __fastcall CG_StartClientSideTriggersAudio(LocalClientNum_t localClientNum, const char *mapname, __int64 a3, double _XMM3_8)
+void CG_StartClientSideTriggersAudio(LocalClientNum_t localClientNum, const char *mapname)
 {
-  TimeLerp *v6; 
-  __int64 v7; 
-  unsigned int v8; 
-  __int64 v9; 
+  TimeLerp *v3; 
+  __int64 v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v8; 
+  unsigned __int64 v9; 
+  const char **v10; 
   __int64 v11; 
-  unsigned __int64 v12; 
-  const char **v13; 
-  __int64 v14; 
-  const char *v15; 
-  char v16; 
-  unsigned int v17; 
-  char v18; 
+  const char *v12; 
+  char v13; 
+  unsigned int v14; 
+  char v15; 
   unsigned int zoneCount; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  unsigned int v25; 
+  int v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  unsigned int v21; 
   int *p_scriptAudioZoneOverrideB; 
-  unsigned int v28; 
+  unsigned int v23; 
 
-  v6 = s_triggerStateLerp;
-  v7 = localClientNum;
+  v3 = s_triggerStateLerp;
+  v4 = localClientNum;
   g_audioTriggersFound = 0;
-  v8 = 0;
+  v5 = 0;
+  v6 = 0i64;
+  do
+  {
+    ++v5;
+    *v3 = (TimeLerp)1065353216i64;
+    s_triggerStateFadeTime[v6] = 0.0;
+    ++v3;
+    s_triggerStateFrom[v6] = 0;
+    s_triggerStateTo[v6] = 0;
+    s_audioZoneLookup[v6] = 0x7FFFFFFF;
+    s_audioNPCZoneLookup[v6++] = 0x7FFFFFFF;
+  }
+  while ( v5 < 0x4001 );
+  v8 = 0i64;
   v9 = 0i64;
   do
   {
-    ++v8;
-    *v6 = (TimeLerp)1065353216i64;
-    s_triggerStateFadeTime[v9] = 0.0;
-    ++v6;
-    s_triggerStateFrom[v9] = 0;
-    s_triggerStateTo[v9] = 0;
-    s_audioZoneLookup[v9] = 0x7FFFFFFF;
-    s_audioNPCZoneLookup[v9++] = 0x7FFFFFFF;
-  }
-  while ( v8 < 0x4001 );
-  v11 = 0i64;
-  v12 = 0i64;
-  do
-  {
-    if ( v12 >= 678 )
+    if ( v9 >= 678 )
     {
-      j___report_rangecheckfailure(v11);
+      j___report_rangecheckfailure(v8);
       JUMPOUT(0x141D61C9Ei64);
     }
-    g_adsrBaseWeaponIdxLookup[v12] = 0;
-    v11 = (unsigned int)(v11 + 1);
-    ++v12;
+    g_adsrBaseWeaponIdxLookup[v9] = 0;
+    v8 = (unsigned int)(v8 + 1);
+    ++v9;
   }
-  while ( (unsigned int)v11 < 0x2A6 );
-  v13 = g_missingAdsrWeaponNameLookup;
-  v14 = 16i64;
+  while ( (unsigned int)v8 < 0x2A6 );
+  v10 = g_missingAdsrWeaponNameLookup;
+  v11 = 16i64;
   do
   {
-    *v13 = NULL;
-    v13[1] = NULL;
-    v13[2] = NULL;
-    v13 += 8;
-    *(v13 - 5) = NULL;
-    *(v13 - 4) = NULL;
-    *(v13 - 3) = NULL;
-    *(v13 - 2) = NULL;
-    *(v13 - 1) = NULL;
-    --v14;
+    *v10 = NULL;
+    v10[1] = NULL;
+    v10[2] = NULL;
+    v10 += 8;
+    *(v10 - 5) = NULL;
+    *(v10 - 4) = NULL;
+    *(v10 - 3) = NULL;
+    *(v10 - 2) = NULL;
+    *(v10 - 1) = NULL;
+    --v11;
   }
-  while ( v14 );
+  while ( v11 );
   g_freeMissingWeaponIndex = 0;
-  v15 = mapname;
-  if ( mapname && (v16 = *mapname) != 0 )
+  v12 = mapname;
+  if ( mapname && (v13 = *mapname) != 0 )
   {
-    v17 = 5381;
+    v14 = 5381;
     do
     {
-      ++v15;
-      v18 = v16 | 0x20;
-      if ( (unsigned int)(v16 - 65) >= 0x1A )
-        v18 = v16;
-      v17 = 65599 * v17 + v18;
-      v16 = *v15;
+      ++v12;
+      v15 = v13 | 0x20;
+      if ( (unsigned int)(v13 - 65) >= 0x1A )
+        v15 = v13;
+      v14 = 65599 * v14 + v15;
+      v13 = *v12;
     }
-    while ( *v15 );
-    if ( !v17 )
-      v17 = 1;
+    while ( *v12 );
+    if ( !v14 )
+      v14 = 1;
   }
   else
   {
-    v17 = 0;
+    v14 = 0;
   }
-  s_soundTablePtr = SND_GetSoundTableById(v17);
+  s_soundTablePtr = SND_GetSoundTableById(v14);
   SND_DeactivateAllEq(0);
   SND_DeactivateAllEq(1);
   SND_ClearAllOcclusionSettings();
-  __asm { vxorps  xmm0, xmm0, xmm0; lerp }
-  SND_SetEqLerp(*(float *)&_XMM0);
+  SND_SetEqLerp(0.0);
   g_lastAudioZoneIndexA = 0x7FFFFFFF;
   g_lastAudioZoneIndexB = 0x7FFFFFFF;
   s_audioZoneLookup[0x4000] = 0x7FFFFFFF;
@@ -7101,34 +5746,34 @@ LABEL_30:
     goto LABEL_31;
   }
   zoneCount = s_soundTablePtr->zoneCount;
-  v21 = 0;
+  v17 = 0;
   if ( !zoneCount )
     goto LABEL_24;
-  while ( s_soundTablePtr->zones[v21].id != v17 )
+  while ( s_soundTablePtr->zones[v17].id != v14 )
   {
-    if ( ++v21 >= zoneCount )
+    if ( ++v17 >= zoneCount )
       goto LABEL_24;
   }
-  s_audioZoneLookup[0x4000] = v21;
-  s_audioNPCZoneLookup[0x4000] = v21;
-  if ( v21 == 0x7FFFFFFF )
+  s_audioZoneLookup[0x4000] = v17;
+  s_audioNPCZoneLookup[0x4000] = v17;
+  if ( v17 == 0x7FFFFFFF )
   {
 LABEL_24:
-    v22 = 0;
+    v18 = 0;
     if ( !zoneCount )
       goto LABEL_30;
-    while ( s_soundTablePtr->zones[v22].id != SND_GetDefaultHash() )
+    while ( s_soundTablePtr->zones[v18].id != SND_GetDefaultHash() )
     {
-      if ( ++v22 >= s_soundTablePtr->zoneCount )
+      if ( ++v18 >= s_soundTablePtr->zoneCount )
       {
-        v22 = s_audioZoneLookup[0x4000];
+        v18 = s_audioZoneLookup[0x4000];
         goto LABEL_29;
       }
     }
-    s_audioZoneLookup[0x4000] = v22;
-    s_audioNPCZoneLookup[0x4000] = v22;
+    s_audioZoneLookup[0x4000] = v18;
+    s_audioNPCZoneLookup[0x4000] = v18;
 LABEL_29:
-    if ( v22 == 0x7FFFFFFF )
+    if ( v18 == 0x7FFFFFFF )
       goto LABEL_30;
   }
 LABEL_31:
@@ -7138,37 +5783,37 @@ LABEL_31:
     {
       if ( s_audioZoneLookup[0x4000] == 0x7FFFFFFF )
       {
-        v23 = s_audioZoneLookup[0x4000];
-        v24 = s_audioZoneLookup[0x4000];
+        v19 = s_audioZoneLookup[0x4000];
+        v20 = s_audioZoneLookup[0x4000];
       }
       else
       {
-        v25 = s_soundTablePtr->zoneCount;
-        v24 = s_audioZoneLookup[0x4000];
-        if ( s_audioZoneLookup[0x4000] >= v25 )
+        v21 = s_soundTablePtr->zoneCount;
+        v20 = s_audioZoneLookup[0x4000];
+        if ( s_audioZoneLookup[0x4000] >= v21 )
         {
 LABEL_39:
-          v24 = s_audioZoneLookup[0x4000];
+          v20 = s_audioZoneLookup[0x4000];
         }
         else
         {
-          while ( s_soundTablePtr->zones[v24].stateId != s_triggerStateTo[0x4000] )
+          while ( s_soundTablePtr->zones[v20].stateId != s_triggerStateTo[0x4000] )
           {
-            if ( ++v24 >= v25 )
+            if ( ++v20 >= v21 )
               goto LABEL_39;
           }
         }
-        v23 = s_audioZoneLookup[0x4000];
-        if ( s_audioZoneLookup[0x4000] >= v25 )
+        v19 = s_audioZoneLookup[0x4000];
+        if ( s_audioZoneLookup[0x4000] >= v21 )
         {
 LABEL_43:
-          v23 = s_audioZoneLookup[0x4000];
+          v19 = s_audioZoneLookup[0x4000];
         }
         else
         {
-          while ( s_soundTablePtr->zones[v23].stateId != s_triggerStateTo[0x4000] )
+          while ( s_soundTablePtr->zones[v19].stateId != s_triggerStateTo[0x4000] )
           {
-            if ( ++v23 >= v25 )
+            if ( ++v19 >= v21 )
               goto LABEL_43;
           }
         }
@@ -7176,17 +5821,16 @@ LABEL_43:
     }
     else
     {
-      v23 = 0x7FFFFFFF;
-      v24 = 0x7FFFFFFF;
+      v19 = 0x7FFFFFFF;
+      v20 = 0x7FFFFFFF;
     }
-    __asm { vxorps  xmm3, xmm3, xmm3; lerp }
-    CG_TriggerAudio(localClientNum, v23, v24, *(float *)&_XMM3, 2047);
+    CG_TriggerAudio(localClientNum, v19, v20, 0.0, 2047);
   }
-  p_scriptAudioZoneOverrideB = &s_audioZoneStates[v7].ctOverrideStack[0].scriptAudioZoneOverrideB;
-  v28 = 0;
+  p_scriptAudioZoneOverrideB = &s_audioZoneStates[v4].ctOverrideStack[0].scriptAudioZoneOverrideB;
+  v23 = 0;
   do
   {
-    v28 += 7;
+    v23 += 7;
     *((_BYTE *)p_scriptAudioZoneOverrideB - 8) = 0;
     *(p_scriptAudioZoneOverrideB - 1) = 0x7FFFFFFF;
     *(_QWORD *)p_scriptAudioZoneOverrideB = 0x7FFFFFFFi64;
@@ -7217,9 +5861,9 @@ LABEL_43:
     p_scriptAudioZoneOverrideB[32] = 0;
     p_scriptAudioZoneOverrideB += 35;
   }
-  while ( v28 < 7 );
-  *(_QWORD *)&s_audioZoneStates[v7].scriptPrevAudioZoneOverride = 0x7FFFFFFFi64;
-  s_audioZoneStates[v7].scriptAudioZoneFadeStartTime = 0;
+  while ( v23 < 7 );
+  *(_QWORD *)&s_audioZoneStates[v4].scriptPrevAudioZoneOverride = 0x7FFFFFFFi64;
+  s_audioZoneStates[v4].scriptAudioZoneFadeStartTime = 0;
   g_playerCurrentAudioTrigger[0] = 0x4000;
   g_playerCurrentAudioBlendTrigger[0] = 0x4000;
   g_playerCurrentPropagationTrigger[0] = 0x4000;
@@ -7400,19 +6044,10 @@ LABEL_16:
 CG_TriggerAudio
 ==============
 */
-
-void __fastcall CG_TriggerAudio(LocalClientNum_t localClientNum, int zoneA, int zoneB, double lerp, int overRideFlags)
+void CG_TriggerAudio(LocalClientNum_t localClientNum, int zoneA, int zoneB, float lerp, int overRideFlags)
 {
-  __int64 v10; 
-  __int64 v11; 
-  __int64 v13; 
-  __int64 v14; 
+  int v8; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( s_soundTablePtr && zoneA != 0x7FFFFFFF && zoneB != 0x7FFFFFFF )
   {
     if ( zoneA == zoneB )
@@ -7423,22 +6058,20 @@ void __fastcall CG_TriggerAudio(LocalClientNum_t localClientNum, int zoneA, int 
         g_lastAudioZoneIndexB = zoneB;
         g_lastOverRideFlags = overRideFlags;
         CG_UpdateAudioZone(localClientNum, zoneA, zoneB, overRideFlags);
-        CG_ChangeAudio(localClientNum, v13, v14, lerp);
+        CG_ChangeAudio(localClientNum);
       }
     }
     else
     {
       CG_UpdateAudioZone(localClientNum, zoneA, zoneB, overRideFlags);
-      if ( (_DWORD)v10 != g_lastAudioZoneIndexA || zoneB != g_lastAudioZoneIndexB || g_lastOverRideFlags != overRideFlags )
-        CG_ChangeAudio(localClientNum, v10, v11, lerp);
-      __asm { vmovaps xmm1, xmm6; lerp }
-      CG_LerpAudio(localClientNum, *(double *)&_XMM1);
+      if ( v8 != g_lastAudioZoneIndexA || zoneB != g_lastAudioZoneIndexB || g_lastOverRideFlags != overRideFlags )
+        CG_ChangeAudio(localClientNum);
+      CG_LerpAudio(localClientNum, lerp);
       g_lastOverRideFlags = overRideFlags;
       g_lastAudioZoneIndexA = zoneA;
       g_lastAudioZoneIndexB = zoneB;
     }
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -7446,144 +6079,117 @@ void __fastcall CG_TriggerAudio(LocalClientNum_t localClientNum, int zoneA, int 
 CG_TriggerAudioFade
 ==============
 */
-
-void __fastcall CG_TriggerAudioFade(LocalClientNum_t localClientNum, int zone, double fadeTime, int overRideFlags)
+void CG_TriggerAudioFade(LocalClientNum_t localClientNum, int zone, float fadeTime, int overRideFlags)
 {
-  int v13; 
-  int v14; 
-  bool v15; 
-  bool v16; 
-  bool v17; 
+  cg_t *LocalClientGlobals; 
+  int v8; 
+  cg_t *v9; 
+  int v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  double v17; 
 
-  __asm
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v8 = g_audTrigFadeZoneA;
+  v9 = LocalClientGlobals;
+  v10 = g_audTrigFadeZoneB;
+  if ( zone == g_audTrigFadeZoneA || zone == g_audTrigFadeZoneB )
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm2
-  }
-  CG_GetLocalClientGlobals(localClientNum);
-  v13 = g_audTrigFadeZoneA;
-  v14 = g_audTrigFadeZoneB;
-  v15 = zone < (unsigned int)g_audTrigFadeZoneA;
-  v16 = zone == g_audTrigFadeZoneA;
-  v17 = zone <= (unsigned int)g_audTrigFadeZoneA;
-  if ( zone == g_audTrigFadeZoneA || (v15 = zone < (unsigned int)g_audTrigFadeZoneB, v16 = zone == g_audTrigFadeZoneB, v17 = zone <= (unsigned int)g_audTrigFadeZoneB, zone == g_audTrigFadeZoneB) )
-  {
-    __asm
+    v11 = g_audTrigFadeCurLerp;
+    v12 = FLOAT_1_0;
+    if ( g_audTrigFadeCurLerp <= 0.0 || g_audTrigFadeCurLerp >= 1.0 )
     {
-      vmovss  xmm3, cs:g_audTrigFadeCurLerp; lerp
-      vmovss  xmm7, cs:__real@3f800000
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm3, xmm6
-    }
-    if ( v17 )
-      goto LABEL_18;
-    __asm { vcomiss xmm3, xmm7 }
-    if ( !v15 )
-    {
-LABEL_18:
-      __asm { vucomiss xmm3, xmm6 }
-      if ( v16 )
+      if ( g_audTrigFadeCurLerp == 0.0 )
       {
-        v14 = g_audTrigFadeZoneA;
+        v10 = g_audTrigFadeZoneA;
         g_audTrigFadeZoneB = g_audTrigFadeZoneA;
       }
-      else
+      else if ( g_audTrigFadeCurLerp == 1.0 )
       {
-        __asm { vucomiss xmm3, xmm7 }
-        if ( v16 )
-        {
-          v13 = g_audTrigFadeZoneB;
-          g_audTrigFadeZoneA = g_audTrigFadeZoneB;
-        }
+        v8 = g_audTrigFadeZoneB;
+        g_audTrigFadeZoneA = g_audTrigFadeZoneB;
       }
     }
     else
     {
-      __asm
+      v15 = g_audTrigFadeRate;
+      if ( zone == g_audTrigFadeZoneB && g_audTrigFadeRate < 0.0 )
       {
-        vmovss  xmm1, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm0, cs:g_audTrigFadeRate
+        LODWORD(v15) = LODWORD(g_audTrigFadeRate) ^ _xmm;
+        LODWORD(g_audTrigFadeRate) ^= _xmm;
       }
-      if ( zone == g_audTrigFadeZoneB )
-      {
-        __asm { vcomiss xmm0, xmm6 }
-        if ( zone < (unsigned int)g_audTrigFadeZoneB )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm1
-            vmovss  cs:g_audTrigFadeRate, xmm0
-          }
-        }
-      }
-      if ( zone == g_audTrigFadeZoneA )
-      {
-        __asm { vcomiss xmm0, xmm6 }
-        if ( zone > (unsigned int)g_audTrigFadeZoneA )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm1
-            vmovss  cs:g_audTrigFadeRate, xmm0
-          }
-        }
-      }
+      if ( zone == g_audTrigFadeZoneA && v15 > 0.0 )
+        LODWORD(g_audTrigFadeRate) = LODWORD(v15) ^ _xmm;
     }
   }
   else
   {
-    __asm
+    v11 = g_audTrigFadeCurLerp;
+    if ( g_audTrigFadeZoneA == 0x7FFFFFFF || g_audTrigFadeCurLerp != 0.0 )
     {
-      vmovss  xmm3, cs:g_audTrigFadeCurLerp
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( g_audTrigFadeZoneA != 0x7FFFFFFF )
-      __asm { vucomiss xmm3, xmm6 }
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
-    if ( g_audTrigFadeZoneB != 0x7FFFFFFF )
-      __asm { vucomiss xmm3, xmm7 }
-    __asm { vucomiss xmm3, xmm6 }
-    if ( g_audTrigFadeZoneB == 0x7FFFFFFF )
-    {
-      __asm
+      v12 = FLOAT_1_0;
+      if ( g_audTrigFadeZoneB == 0x7FFFFFFF || g_audTrigFadeCurLerp != 1.0 )
       {
-        vxorps  xmm3, xmm3, xmm3
-        vmovss  cs:g_audTrigFadeCurLerp, xmm3
-        vmovss  cs:g_audTrigFadeRate, xmm6
+        if ( g_audTrigFadeCurLerp == 0.0 || g_audTrigFadeCurLerp == 1.0 )
+        {
+          v11 = 0.0;
+          g_audTrigFadeCurLerp = 0.0;
+          g_audTrigFadeRate = 0.0;
+          v8 = zone;
+          g_audTrigFadeZoneA = zone;
+          v10 = zone;
+          g_audTrigFadeZoneB = zone;
+        }
       }
-      v13 = zone;
-      g_audTrigFadeZoneA = zone;
-      v14 = zone;
-      g_audTrigFadeZoneB = zone;
+      else
+      {
+        if ( fadeTime <= 0.0 )
+        {
+          v11 = 0.0;
+          g_audTrigFadeCurLerp = 0.0;
+          v10 = zone;
+          g_audTrigFadeZoneB = zone;
+          v14 = 0.0;
+        }
+        else
+        {
+          v14 = -0.001 / fadeTime;
+        }
+        g_audTrigFadeRate = v14;
+        v8 = zone;
+        g_audTrigFadeZoneA = zone;
+      }
     }
     else
     {
-      __asm { vucomiss xmm3, xmm7 }
+      v12 = FLOAT_1_0;
+      if ( fadeTime <= 0.0 )
+      {
+        g_audTrigFadeCurLerp = FLOAT_1_0;
+        v11 = FLOAT_1_0;
+        v8 = zone;
+        g_audTrigFadeZoneA = zone;
+        v13 = 0.0;
+      }
+      else
+      {
+        v13 = 0.001 / fadeTime;
+      }
+      g_audTrigFadeRate = v13;
+      v10 = zone;
+      g_audTrigFadeZoneB = zone;
     }
   }
-  CG_TriggerAudio(localClientNum, v13, v14, *(double *)&_XMM3, overRideFlags);
-  __asm
-  {
-    vmovss  xmm4, cs:g_audTrigFadeCurLerp
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbp+65E4h]
-    vmulss  xmm3, xmm0, cs:g_audTrigFadeRate
-    vaddss  xmm0, xmm4, xmm3; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovss  cs:g_audTrigFadeCurLerp, xmm0
-    vmovss  cs:g_lastAudioLerpVal, xmm4
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovss  cs:g_audTrigFadeCurLerp, xmm0
-  }
+  CG_TriggerAudio(localClientNum, v8, v10, v11, overRideFlags);
+  v16 = g_audTrigFadeCurLerp;
+  g_audTrigFadeCurLerp = g_audTrigFadeCurLerp + (float)((float)v9->frametime * g_audTrigFadeRate);
+  g_lastAudioLerpVal = v16;
+  v17 = I_fclamp(g_audTrigFadeCurLerp, 0.0, v12);
+  g_audTrigFadeCurLerp = *(float *)&v17;
 }
 
 /*
@@ -7803,269 +6409,189 @@ CG_TriggerUpdateAudio
 */
 void CG_TriggerUpdateAudio(LocalClientNum_t localClientNum, unsigned int audioBlendTrigger, unsigned int audioTrigger, unsigned int propagationTrigger, unsigned int soundBankTrigger, const vec3_t *viewPos)
 {
-  __int64 v15; 
-  CTAudState *v16; 
-  __int64 v17; 
+  __int64 v8; 
+  CTAudState *v9; 
+  __int64 v10; 
   cg_t *LocalClientGlobals; 
-  int v19; 
-  __int64 v20; 
-  CTAudOverride *v21; 
-  int v26; 
+  int v12; 
+  __int64 v13; 
+  CTAudOverride *v14; 
+  TimeLerp *v15; 
+  CTAudOverride *v16; 
+  int scriptAudioZoneOverrideB; 
   int scriptPrevAudioZoneOverride; 
+  int v19; 
+  int v20; 
+  double v21; 
+  int time; 
+  int scriptAudioZoneFadeTargetTime; 
+  double v24; 
   int TriggerAudioZoneForOverrideBlending; 
-  int v48; 
-  int v49; 
-  unsigned int count; 
-  bool v52; 
-  bool v53; 
-  int v57; 
-  int v62; 
-  unsigned int v65; 
-  unsigned int v66; 
+  float v26; 
+  int v27; 
+  int v28; 
+  float v29; 
+  int v30; 
+  float v31; 
+  int v32; 
+  unsigned int v33; 
+  unsigned int v34; 
+  double v35; 
   float *lerpAmount; 
-  __int64 v75; 
-  void *retaddr; 
-  float v80; 
+  __int64 v37; 
+  float v38; 
   unsigned int trigB; 
   unsigned int trigA; 
-  unsigned int v83; 
+  unsigned int v41; 
 
-  _R11 = &retaddr;
-  v83 = propagationTrigger;
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_68], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm8
-  }
-  v15 = localClientNum;
+  v41 = propagationTrigger;
+  v8 = localClientNum;
   trigA = 0x4000;
-  v16 = &s_audioZoneStates[localClientNum];
+  v9 = &s_audioZoneStates[localClientNum];
   trigB = 0x4000;
-  v17 = localClientNum;
+  v10 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( CL_IsRenderingSplitScreen() )
   {
     audioTrigger = 0x4000;
     audioBlendTrigger = 0x4000;
   }
-  v19 = 6;
-  __asm { vmovaps [rsp+0C8h+var_58], xmm6 }
-  v20 = 6i64;
-  v21 = &v16->ctOverrideStack[6];
+  v12 = 6;
+  v13 = 6i64;
+  v14 = &v9->ctOverrideStack[6];
   while ( 1 )
   {
-    _RDI = s_triggerStateLerp;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vxorps  xmm7, xmm7, xmm7
-    }
-    _RBP = 0x140000000ui64;
-    if ( v21->active )
+    v15 = s_triggerStateLerp;
+    if ( v14->active )
       break;
-    --v19;
-    --v21;
-    if ( --v20 < 0 )
-      goto LABEL_17;
+    --v12;
+    --v14;
+    if ( --v13 < 0 )
+      goto LABEL_16;
   }
-  _RBP = (int *)&v16->ctOverrideStack[v19].active;
-  if ( !_RBP )
+  v16 = &v9->ctOverrideStack[v12];
+  if ( !v16 )
   {
-    _RBP = 0x140000000ui64;
-LABEL_17:
-    if ( LocalClientGlobals->time >= v16->scriptAudioZoneFadeTargetTime || v16->scriptPrevAudioZoneOverride == 0x7FFFFFFF )
+LABEL_16:
+    time = LocalClientGlobals->time;
+    scriptAudioZoneFadeTargetTime = v9->scriptAudioZoneFadeTargetTime;
+    if ( time >= scriptAudioZoneFadeTargetTime || v9->scriptPrevAudioZoneOverride == 0x7FFFFFFF )
     {
       if ( audioBlendTrigger == 0x4000 )
       {
         if ( audioTrigger == 0x4000 )
         {
-          __asm
+          if ( s_triggerStateLerp[0x4000].current >= 1.0 )
           {
-            vmovss  xmm0, cs:s_triggerStateLerp.current+20000h
-            vcomiss xmm0, xmm8
-          }
-          if ( g_audTrigPrevFadeTrigger >= 0x4000 )
-          {
-            __asm { vxorps  xmm6, xmm6, xmm6 }
+            if ( g_audTrigPrevFadeTrigger >= 0x4000 )
+              v31 = 0.0;
+            else
+              v31 = cm.mapEnts->clientTrigger.scriptDelay[g_audTrigPrevFadeTrigger];
           }
           else
           {
-            _RDX = g_audTrigPrevFadeTrigger;
-            _RCX = cm.mapEnts->clientTrigger.scriptDelay;
-            __asm { vmovss  xmm6, dword ptr [rcx+rdx*4] }
+            v31 = s_triggerStateFadeTime[0x4000];
           }
-          v62 = SND_LookupZoneIndex(0x4000);
-          __asm { vmovaps xmm2, xmm6; fadeTime }
-          CG_TriggerAudioFade((LocalClientNum_t)v15, v62, *(double *)&_XMM2, 2047);
+          v32 = SND_LookupZoneIndex(0x4000);
+          CG_TriggerAudioFade((LocalClientNum_t)v8, v32, v31, 2047);
         }
         else
         {
           if ( audioTrigger >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1239, ASSERT_TYPE_ASSERT, "(unsigned)( audioTrigger ) < (unsigned)( (16*1024) )", "audioTrigger doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", audioTrigger, 0x4000) )
             __debugbreak();
-          count = cm.mapEnts->clientTrigger.trigger.count;
-          v52 = audioTrigger <= count;
-          if ( audioTrigger >= count )
+          if ( audioTrigger >= cm.mapEnts->clientTrigger.trigger.count )
           {
-            LODWORD(v75) = cm.mapEnts->clientTrigger.trigger.count;
+            LODWORD(v37) = cm.mapEnts->clientTrigger.trigger.count;
             LODWORD(lerpAmount) = audioTrigger;
-            v53 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1240, ASSERT_TYPE_ASSERT, "(unsigned)( audioTrigger ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "audioTrigger doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", lerpAmount, v75);
-            v52 = !v53;
-            if ( v53 )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger_audio.cpp", 1240, ASSERT_TYPE_ASSERT, "(unsigned)( audioTrigger ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "audioTrigger doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", lerpAmount, v37) )
               __debugbreak();
           }
-          _RDX = audioTrigger;
-          __asm { vcomiss xmm8, dword ptr [rdi+rdx*8] }
-          if ( v52 )
-          {
-            _RCX = cm.mapEnts->clientTrigger.scriptDelay;
-            __asm { vmovss  xmm6, dword ptr [rcx+rdx*4] }
-          }
+          if ( s_triggerStateLerp[audioTrigger].current >= 1.0 )
+            v29 = cm.mapEnts->clientTrigger.scriptDelay[audioTrigger];
           else
-          {
-            __asm { vmovss  xmm6, ss:rva s_triggerStateFadeTime[rbp+rdx*4] }
-          }
-          v57 = SND_LookupZoneIndex(audioTrigger);
-          __asm { vmovaps xmm2, xmm6; fadeTime }
-          CG_TriggerAudioFade((LocalClientNum_t)v15, v57, *(double *)&_XMM2, 2047);
+            v29 = s_triggerStateFadeTime[audioTrigger];
+          v30 = SND_LookupZoneIndex(audioTrigger);
+          CG_TriggerAudioFade((LocalClientNum_t)v8, v30, v29, 2047);
           g_audTrigPrevFadeTrigger = audioTrigger;
         }
       }
       else
       {
-        __asm { vmovss  [rsp+0C8h+arg_0], xmm7 }
-        CG_TriggerLerpTriggers((LocalClientNum_t)v15, audioBlendTrigger, viewPos, &trigA, &trigB, &v80);
-        __asm
-        {
-          vmovss  xmm6, [rsp+0C8h+arg_0]
-          vmovss  cs:g_lastAudioLerpVal, xmm6
-        }
-        v48 = SND_LookupZoneIndex(trigB);
-        v49 = SND_LookupZoneIndex(trigA);
-        __asm { vmovaps xmm3, xmm6; lerp }
-        CG_TriggerAudio((LocalClientNum_t)v15, v49, v48, *(double *)&_XMM3, 2047);
-        __asm
-        {
-          vmovss  cs:g_audTrigFadeCurLerp, xmm7
-          vmovss  cs:g_audTrigFadeRate, xmm7
-        }
+        v38 = 0.0;
+        CG_TriggerLerpTriggers((LocalClientNum_t)v8, audioBlendTrigger, viewPos, &trigA, &trigB, &v38);
+        v26 = v38;
+        g_lastAudioLerpVal = v38;
+        v27 = SND_LookupZoneIndex(trigB);
+        v28 = SND_LookupZoneIndex(trigA);
+        CG_TriggerAudio((LocalClientNum_t)v8, v28, v27, v26, 2047);
+        g_audTrigFadeCurLerp = 0.0;
+        g_audTrigFadeRate = 0.0;
         g_audTrigFadeZoneA = 0x7FFFFFFF;
         g_audTrigFadeZoneB = 0x7FFFFFFF;
       }
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, ecx
-        vcvtsi2ss xmm0, xmm0, edx
-        vdivss  xmm0, xmm1, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm8; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-      TriggerAudioZoneForOverrideBlending = GetTriggerAudioZoneForOverrideBlending((LocalClientNum_t)v15, audioTrigger, audioBlendTrigger, viewPos);
-      __asm { vmovaps xmm3, xmm6; lerp }
-      CG_TriggerAudio((LocalClientNum_t)v15, v16->scriptPrevAudioZoneOverride, TriggerAudioZoneForOverrideBlending, *(double *)&_XMM3, 2047);
-      __asm
-      {
-        vmovss  cs:g_lastAudioLerpVal, xmm6
-        vmovss  cs:g_audTrigFadeCurLerp, xmm7
-        vmovss  cs:g_audTrigFadeRate, xmm7
-      }
+      v24 = I_fclamp((float)(time - v9->scriptAudioZoneFadeStartTime) / (float)(scriptAudioZoneFadeTargetTime - v9->scriptAudioZoneFadeStartTime), 0.0, 1.0);
+      TriggerAudioZoneForOverrideBlending = GetTriggerAudioZoneForOverrideBlending((LocalClientNum_t)v8, audioTrigger, audioBlendTrigger, viewPos);
+      CG_TriggerAudio((LocalClientNum_t)v8, v9->scriptPrevAudioZoneOverride, TriggerAudioZoneForOverrideBlending, *(float *)&v24, 2047);
+      g_lastAudioLerpVal = *(float *)&v24;
+      g_audTrigFadeCurLerp = 0.0;
+      g_audTrigFadeRate = 0.0;
       g_audTrigFadeZoneA = 0x7FFFFFFF;
       g_audTrigFadeZoneB = 0x7FFFFFFF;
     }
-    goto LABEL_37;
+    goto LABEL_38;
   }
-  v26 = _RBP[2];
-  if ( v26 == 0x7FFFFFFF )
+  scriptAudioZoneOverrideB = v16->scriptAudioZoneOverrideB;
+  if ( scriptAudioZoneOverrideB == 0x7FFFFFFF )
   {
-    scriptPrevAudioZoneOverride = v16->scriptPrevAudioZoneOverride;
+    scriptPrevAudioZoneOverride = v9->scriptPrevAudioZoneOverride;
     if ( scriptPrevAudioZoneOverride == 0x7FFFFFFF )
-      scriptPrevAudioZoneOverride = GetTriggerAudioZoneForOverrideBlending((LocalClientNum_t)v15, audioTrigger, audioBlendTrigger, viewPos);
-    if ( LocalClientGlobals->time >= v16->scriptAudioZoneFadeTargetTime )
+      scriptPrevAudioZoneOverride = GetTriggerAudioZoneForOverrideBlending((LocalClientNum_t)v8, audioTrigger, audioBlendTrigger, viewPos);
+    v19 = LocalClientGlobals->time;
+    v20 = v9->scriptAudioZoneFadeTargetTime;
+    if ( v19 >= v20 )
     {
-      __asm { vxorps  xmm3, xmm3, xmm3; lerp }
-      CG_TriggerAudio((LocalClientNum_t)v15, _RBP[1], _RBP[1], *(double *)&_XMM3, _RBP[4]);
-      v16->scriptPrevAudioZoneOverride = _RBP[1];
+      CG_TriggerAudio((LocalClientNum_t)v8, v16->scriptAudioZoneOverride, v16->scriptAudioZoneOverride, 0.0, v16->scriptAudioZoneOverrideFlags);
+      v9->scriptPrevAudioZoneOverride = v16->scriptAudioZoneOverride;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, ecx
-        vcvtsi2ss xmm0, xmm0, edx
-        vdivss  xmm0, xmm1, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm8; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm3, xmm0; lerp
-        vmovaps xmm6, xmm0
-      }
-      CG_TriggerAudio((LocalClientNum_t)v15, scriptPrevAudioZoneOverride, _RBP[1], *(double *)&_XMM3, _RBP[4]);
-      __asm { vmovss  cs:g_lastAudioLerpVal, xmm6 }
+      v21 = I_fclamp((float)(v19 - v9->scriptAudioZoneFadeStartTime) / (float)(v20 - v9->scriptAudioZoneFadeStartTime), 0.0, 1.0);
+      CG_TriggerAudio((LocalClientNum_t)v8, scriptPrevAudioZoneOverride, v16->scriptAudioZoneOverride, *(float *)&v21, v16->scriptAudioZoneOverrideFlags);
+      g_lastAudioLerpVal = *(float *)&v21;
     }
-    __asm
-    {
-      vmovss  cs:g_audTrigFadeCurLerp, xmm7
-      vmovss  cs:g_audTrigFadeRate, xmm7
-    }
+    g_audTrigFadeCurLerp = 0.0;
+    g_audTrigFadeRate = 0.0;
     g_audTrigFadeZoneA = 0x7FFFFFFF;
-    v17 = v15;
+    v10 = v8;
     g_audTrigFadeZoneB = 0x7FFFFFFF;
   }
   else
   {
-    __asm { vmovss  xmm3, dword ptr [rbp+0Ch]; lerp }
-    CG_TriggerAudio((LocalClientNum_t)v15, _RBP[1], v26, *(double *)&_XMM3, _RBP[4]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0Ch]
-      vmovss  cs:g_lastAudioLerpVal, xmm0
-      vmovss  cs:g_audTrigFadeCurLerp, xmm7
-      vmovss  cs:g_audTrigFadeRate, xmm7
-    }
+    CG_TriggerAudio((LocalClientNum_t)v8, v16->scriptAudioZoneOverride, scriptAudioZoneOverrideB, v16->scriptAudioZoneOverrideLerp, v16->scriptAudioZoneOverrideFlags);
+    g_lastAudioLerpVal = v16->scriptAudioZoneOverrideLerp;
+    g_audTrigFadeCurLerp = 0.0;
+    g_audTrigFadeRate = 0.0;
     g_audTrigFadeZoneA = 0x7FFFFFFF;
     g_audTrigFadeZoneB = 0x7FFFFFFF;
   }
-LABEL_37:
-  __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
-  v65 = 0;
-  g_playerCurrentPropagationTrigger[v17] = v83;
-  v66 = soundBankTrigger;
-  g_playerCurrentAudioTrigger[v17] = audioTrigger;
-  g_playerCurrentAudioBlendTrigger[v17] = audioBlendTrigger;
-  g_playerCurrentSoundBankTrigger[v17] = v66;
+LABEL_38:
+  v33 = 0;
+  g_playerCurrentPropagationTrigger[v10] = v41;
+  v34 = soundBankTrigger;
+  g_playerCurrentAudioTrigger[v10] = audioTrigger;
+  g_playerCurrentAudioBlendTrigger[v10] = audioBlendTrigger;
+  g_playerCurrentSoundBankTrigger[v10] = v34;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r15+65E4h]
-      vmulss  xmm0, xmm0, dword ptr [rdi+4]
-      vaddss  xmm0, xmm0, dword ptr [rdi]; val
-      vmovaps xmm2, xmm8; max
-      vmovaps xmm1, xmm7; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    ++v65;
-    __asm { vmovss  dword ptr [rdi], xmm0 }
-    ++_RDI;
+    v35 = I_fclamp((float)((float)LocalClientGlobals->frametime * v15->rateMS) + v15->current, 0.0, 1.0);
+    ++v33;
+    v15->current = *(float *)&v35;
+    ++v15;
   }
-  while ( v65 < 0x4001 );
-  __asm
-  {
-    vmovaps xmm7, [rsp+0C8h+var_68]
-    vmovaps xmm8, [rsp+0C8h+var_78]
-  }
+  while ( v33 < 0x4001 );
 }
 
 /*
@@ -8158,99 +6684,66 @@ void CG_UpdateAudioZone(LocalClientNum_t localClientNum, int zoneA, int zoneB, i
 DrawContexts
 ==============
 */
-
-float __fastcall DrawContexts(int zoneIdx, double x, double y, const vec4_t *color, const ScreenPlacement *scrPlace)
+float DrawContexts(int zoneIdx, float x, float y, const vec4_t *color, const ScreenPlacement *scrPlace)
 {
-  ZoneDef *v16; 
-  unsigned int v17; 
-  __int64 v18; 
-  unsigned int v19; 
+  __int128 v6; 
+  ZoneDef *v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  unsigned int v10; 
   SndContext *Context; 
   int startIndex; 
-  int v22; 
+  int v13; 
   GfxFont *font; 
   SndContextValue *ContextValue; 
   const char *s; 
-  float v37; 
+  __int128 v17; 
   unsigned int type[4]; 
-  int v39[4]; 
-  char v40; 
-  void *retaddr; 
+  int v20[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovss  xmm7, cs:__real@3f0ccccd
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm1
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v16 = &s_soundTablePtr->zones[zoneIdx];
-  v17 = 0;
-  v18 = 0i64;
-  type[0] = v16->contextType1;
-  type[1] = v16->contextType2;
-  type[2] = v16->contextType3;
-  type[3] = v16->contextType4;
-  v39[0] = v16->contextValue1;
-  v39[1] = v16->contextValue2;
-  v39[2] = v16->contextValue3;
-  v39[3] = v16->contextValue4;
+  v6 = 0i64;
+  v7 = &s_soundTablePtr->zones[zoneIdx];
+  v8 = 0;
+  v9 = 0i64;
+  type[0] = v7->contextType1;
+  type[1] = v7->contextType2;
+  type[2] = v7->contextType3;
+  type[3] = v7->contextType4;
+  v20[0] = v7->contextValue1;
+  v20[1] = v7->contextValue2;
+  v20[2] = v7->contextValue3;
+  v20[3] = v7->contextValue4;
   do
   {
-    v19 = type[v18];
-    if ( v19 )
+    v10 = type[v9];
+    if ( v10 )
     {
-      Context = SND_GetContext(v19);
+      Context = SND_GetContext(v10);
       startIndex = Context->startIndex;
       if ( startIndex < startIndex + Context->numValues )
       {
-        v22 = v39[v18];
+        v13 = v20[v9];
         do
         {
-          if ( v22 == SND_GetContextValue(startIndex)->valueId )
+          if ( v13 == SND_GetContextValue(startIndex)->valueId )
           {
             font = cls.smallDevFont;
             ContextValue = SND_GetContextValue(startIndex);
             s = j_va("    %s: %s", Context->type, ContextValue->value);
-            __asm
-            {
-              vmovaps xmm3, xmm7; xScale
-              vmovaps xmm2, xmm9; y
-              vmovaps xmm1, xmm8; x
-              vmovss  [rsp+108h+var_E8], xmm7
-            }
-            CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v37, s, color, 5, font);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vaddss  xmm6, xmm6, xmm0
-            }
+            v17 = v6;
+            *(float *)&v17 = *(float *)&v6 + (float)CG_DrawDevString(scrPlace, x, y, 0.55000001, 0.55000001, s, color, 5, font);
+            v6 = v17;
           }
           ++startIndex;
         }
         while ( startIndex < Context->numValues + Context->startIndex );
       }
     }
-    ++v17;
-    ++v18;
+    ++v8;
+    ++v9;
   }
-  while ( v17 < 4 );
-  __asm { vmovaps xmm0, xmm6 }
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
-  return *(float *)&_XMM0;
+  while ( v8 < 4 );
+  return *(float *)&v6;
 }
 
 /*
@@ -8262,35 +6755,9 @@ void GetAudioZoneDebugProps(unsigned int realZoneA, unsigned int realZoneB, unsi
 {
   *blending = curZoneA != curZoneB;
   if ( realZoneA == curZoneA && realZoneB == curZoneB )
-  {
-    __asm { vmovss  xmm0, dword ptr cs:?colorMdCyan@@3Tvec4_t@@B; vec4_t const colorMdCyan }
-    _RAX = overriddenColor;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vmovss  xmm1, dword ptr cs:?colorMdCyan@@3Tvec4_t@@B+4; vec4_t const colorMdCyan
-      vmovss  dword ptr [rax+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorMdCyan@@3Tvec4_t@@B+8; vec4_t const colorMdCyan
-      vmovss  dword ptr [rax+8], xmm0
-      vmovss  xmm1, dword ptr cs:?colorMdCyan@@3Tvec4_t@@B+0Ch; vec4_t const colorMdCyan
-      vmovss  dword ptr [rax+0Ch], xmm1
-    }
-  }
+    *overriddenColor = colorMdCyan;
   else
-  {
-    __asm { vmovss  xmm0, dword ptr cs:?colorMdYellow@@3Tvec4_t@@B; vec4_t const colorMdYellow }
-    _RAX = overriddenColor;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vmovss  xmm1, dword ptr cs:?colorMdYellow@@3Tvec4_t@@B+4; vec4_t const colorMdYellow
-      vmovss  dword ptr [rax+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorMdYellow@@3Tvec4_t@@B+8; vec4_t const colorMdYellow
-      vmovss  dword ptr [rax+8], xmm0
-      vmovss  xmm1, dword ptr cs:?colorMdYellow@@3Tvec4_t@@B+0Ch; vec4_t const colorMdYellow
-      vmovss  dword ptr [rax+0Ch], xmm1
-    }
-  }
+    *overriddenColor = colorMdYellow;
 }
 
 /*
@@ -8300,7 +6767,6 @@ GetTriggerAudioZoneForOverrideBlending
 */
 int GetTriggerAudioZoneForOverrideBlending(LocalClientNum_t localClientNum, int audioTrigger, int audioBlendTrigger, const vec3_t *viewPos)
 {
-  char v5; 
   float lerpAmount; 
   unsigned int trigB[5]; 
   unsigned int trigA; 
@@ -8308,13 +6774,8 @@ int GetTriggerAudioZoneForOverrideBlending(LocalClientNum_t localClientNum, int 
   if ( audioBlendTrigger != 0x4000 )
   {
     CG_TriggerLerpTriggers(localClientNum, audioBlendTrigger, viewPos, &trigA, trigB, &lerpAmount);
-    __asm
-    {
-      vmovss  xmm0, [rsp+48h+var_18]
-      vcomiss xmm0, cs:__real@3f000000
-    }
     audioTrigger = trigA;
-    if ( !v5 )
+    if ( lerpAmount >= 0.5 )
       audioTrigger = trigB[0];
   }
   if ( audioTrigger == 0x4000 )

@@ -145,52 +145,56 @@ NetPing::Update
 */
 void NetPing::Update(NetPing *this, int sendTime, const NetPingInfo *sendInfo, int recvTime, const NetPingInfo *recvInfo)
 {
-  int v6; 
-  int v13; 
+  int v5; 
+  __int128 v10; 
+  __int128 v12; 
   int v14; 
+  int v15; 
+  __int128 v18; 
+  __int128 v20; 
   int m_gamePing; 
 
-  v6 = recvTime - sendTime;
-  this->m_gamePing = v6;
-  if ( v6 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_ping.cpp", 16, ASSERT_TYPE_ASSERT, "(m_gamePing >= 0)", (const char *)&queryFormat, "m_gamePing >= 0") )
+  v5 = recvTime - sendTime;
+  this->m_gamePing = v5;
+  if ( v5 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_ping.cpp", 16, ASSERT_TYPE_ASSERT, "(m_gamePing >= 0)", (const char *)&queryFormat, "m_gamePing >= 0") )
     __debugbreak();
   if ( sendInfo->initialized && recvInfo->initialized )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__int64)(recvInfo->netTicks - sendInfo->netTicks) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
     {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvttsd2si rax, xmm0
+      *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v10 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v10;
     }
-    v13 = 0x7FFFFFFF;
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v12;
+    __asm { vcvttsd2si rax, xmm0 }
     v14 = 0x7FFFFFFF;
+    v15 = 0x7FFFFFFF;
+    if ( _RAX < 0x7FFFFFFF )
+      v15 = _RAX;
+    this->m_netPing = v15;
+    if ( v15 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_ping.cpp", 22, ASSERT_TYPE_ASSERT, "(m_netPing >= 0)", (const char *)&queryFormat, "m_netPing >= 0") )
+      __debugbreak();
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(recvInfo->sockTicks - sendInfo->sockTicks) < 0 )
+    {
+      *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v18 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v18;
+    }
+    *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v20 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v20;
+    __asm { vcvttsd2si rax, xmm0 }
     if ( _RAX < 0x7FFFFFFF )
       v14 = _RAX;
-    this->m_netPing = v14;
-    if ( v14 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_ping.cpp", 22, ASSERT_TYPE_ASSERT, "(m_netPing >= 0)", (const char *)&queryFormat, "m_netPing >= 0") )
-      __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
-    if ( (__int64)(recvInfo->sockTicks - sendInfo->sockTicks) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvttsd2si rax, xmm0
-    }
-    if ( _RAX < 0x7FFFFFFF )
-      v13 = _RAX;
-    this->m_sockPing = v13;
-    if ( v13 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_ping.cpp", 26, ASSERT_TYPE_ASSERT, "(m_sockPing >= 0)", (const char *)&queryFormat, "m_sockPing >= 0") )
+    this->m_sockPing = v14;
+    if ( v14 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_ping.cpp", 26, ASSERT_TYPE_ASSERT, "(m_sockPing >= 0)", (const char *)&queryFormat, "m_sockPing >= 0") )
       __debugbreak();
   }
   else

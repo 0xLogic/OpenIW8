@@ -1016,7 +1016,9 @@ OnlineChat::RemoveMemberFromChat
 void OnlineChat::RemoveMemberFromChat(OnlineChat *this, const unsigned __int64 memberId)
 {
   __int64 m_memberCount; 
+  OnlineChatMemberInfo *v5; 
   OnlineChatMemberInfo *m_memberCache; 
+  char *v7; 
   int v8; 
   unsigned __int64 m_id; 
 
@@ -1029,9 +1031,9 @@ void OnlineChat::RemoveMemberFromChat(OnlineChat *this, const unsigned __int64 m
   m_memberCount = this->m_memberCount;
   if ( (int)m_memberCount > 0 )
   {
-    _R8 = NULL;
+    v5 = NULL;
     m_memberCache = this->m_memberCache;
-    _R9 = (char *)this + 56 * m_memberCount - 16;
+    v7 = (char *)this + 56 * m_memberCount - 16;
     v8 = 0;
     while ( m_memberCache->id != memberId )
     {
@@ -1040,19 +1042,13 @@ void OnlineChat::RemoveMemberFromChat(OnlineChat *this, const unsigned __int64 m
       if ( v8 >= (int)m_memberCount )
         goto LABEL_17;
     }
-    _R8 = m_memberCache;
+    v5 = m_memberCache;
 LABEL_17:
-    if ( _R8 )
+    if ( v5 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r9]
-        vmovups ymmword ptr [r8], ymm0
-        vmovups xmm1, xmmword ptr [r9+20h]
-        vmovups xmmword ptr [r8+20h], xmm1
-        vmovsd  xmm0, qword ptr [r9+30h]
-        vmovsd  qword ptr [r8+30h], xmm0
-      }
+      *(__m256i *)&v5->id = *(__m256i *)v7;
+      *(_OWORD *)&v5->gamerTag[24] = *((_OWORD *)v7 + 2);
+      *(double *)&v5->isHost = *((double *)v7 + 6);
       m_id = this->m_chatId.m_id;
       --this->m_memberCount;
       Com_Printf(14, "[Chat] %s: Successfully removed member %zu from chat %zu\n", "OnlineChat::RemoveMemberFromChat", memberId, m_id);

@@ -44,10 +44,9 @@ SD_DSP::ConstSequentialBufferRefType<SD_DSP::AtmosFrame,256> *SD_GetConstSequent
   unsigned int v6; 
   float **v7; 
   float *v8; 
-  _BYTE v14[128]; 
+  _BYTE v10[128]; 
 
   v2 = b;
-  _RBP = result;
   if ( b >= 0x11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd.h", 586, ASSERT_TYPE_ASSERT, "(b < SND_BUS_COUNT)", (const char *)&queryFormat, "b < SND_BUS_COUNT", -2i64) )
     __debugbreak();
   if ( SndBusIsInterleaved_0[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd.h", 587, ASSERT_TYPE_ASSERT, "(!SndBusIsInterleaved[b])", (const char *)&queryFormat, "!SndBusIsInterleaved[b]") )
@@ -59,7 +58,7 @@ SD_DSP::ConstSequentialBufferRefType<SD_DSP::AtmosFrame,256> *SD_GetConstSequent
   if ( (((unsigned __int8)0x40000000u + 4 * (_BYTE)v4 - 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 84, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", &g_sd.voiceBusBuffers[v4 - 69632]) )
     __debugbreak();
   v6 = 0;
-  v7 = (float **)v14;
+  v7 = (float **)v10;
   do
   {
     v8 = &v5[256 * v6];
@@ -72,18 +71,11 @@ SD_DSP::ConstSequentialBufferRefType<SD_DSP::AtmosFrame,256> *SD_GetConstSequent
     ++v7;
   }
   while ( v6 < 0x10 );
-  __asm
-  {
-    vmovups ymm0, [rsp+0E8h+var_A8]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, [rsp+0E8h+var_88]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups ymm0, [rsp+0E8h+var_68]
-    vmovups ymmword ptr [rbp+40h], ymm0
-    vmovups ymm1, [rsp+0E8h+var_48]
-    vmovups ymmword ptr [rbp+60h], ymm1
-  }
-  return _RBP;
+  *(__m256i *)result->data._Elems = *(__m256i *)v10;
+  *(__m256i *)&result->data._Elems[4] = *(__m256i *)&v10[32];
+  *(__m256i *)&result->data._Elems[8] = *(__m256i *)&v10[64];
+  *(__m256i *)&result->data._Elems[12] = *(__m256i *)&v10[96];
+  return result;
 }
 
 /*

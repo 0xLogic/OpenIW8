@@ -227,53 +227,49 @@ void GAntiLagSP::ArchiveSaveGame(GAntiLagSP *this, MemoryFile *memFile)
   __int64 v11; 
   __int64 v12; 
   BgAntiLagEntityHistory *v13; 
-  __int64 v17; 
+  __int64 v14; 
+  BgAntiLagEntityHistory *v15; 
   unsigned int *p_m_antiLagHistorySize; 
   __int64 i; 
-  __int64 v24; 
-  GAntiLagFrameHistorySP *v25; 
+  __int64 v18; 
+  GAntiLagFrameHistorySP *v19; 
   unsigned int m_maxSize; 
   BgAntiLagEntityHistory *m_entDataList; 
+  __int64 v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  __int64 v25; 
+  __int64 v26; 
+  int *v27; 
   __int64 v28; 
-  __int64 v29; 
+  BgAntiLagEntityHistory *v29; 
   unsigned int v30; 
-  __int64 v31; 
-  __int64 v32; 
+  unsigned int v31; 
+  BgAntiLagEntityHistory *v32; 
+  int v33; 
+  char v34[8]; 
+  __int64 v35; 
+  char v36[8]; 
   __int64 v37; 
-  BgAntiLagEntityHistory *v38; 
-  unsigned int v42; 
-  unsigned int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  char v49[8]; 
-  __int64 v50; 
-  char v51[8]; 
-  __int64 v52; 
-  int v53[3]; 
-  bool v54; 
+  int v38[3]; 
+  bool v39; 
   int j; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  volatile unsigned int v63; 
+  int v42; 
+  int v43; 
+  int v44; 
+  volatile unsigned int v45; 
 
-  v52 = -2i64;
+  v37 = -2i64;
   v2 = memFile;
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_antilag_sp.cpp", 150, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   IsWriting = MemFile_IsWriting(v2);
   v5 = !IsWriting;
-  v54 = !IsWriting;
+  v39 = !IsWriting;
   if ( IsWriting )
   {
     v6 = 0i64;
-    v62 = 0;
+    v44 = 0;
     if ( this->m_antiLagHistorySize )
     {
       do
@@ -281,7 +277,7 @@ void GAntiLagSP::ArchiveSaveGame(GAntiLagSP *this, MemoryFile *memFile)
         if ( (unsigned int)v6 >= 0x14 )
           break;
         v7 = (unsigned int)v6;
-        v50 = (unsigned int)v6;
+        v35 = (unsigned int)v6;
         m_usedSize = this->m_antiLagHistory[v6]->entityDataStandard.m_usedSize;
         v9 = 0;
         if ( m_usedSize )
@@ -294,67 +290,49 @@ void GAntiLagSP::ArchiveSaveGame(GAntiLagSP *this, MemoryFile *memFile)
             v11 = 1132 * v7;
             v12 = 1132 * v7 + v9;
             v13 = &this->m_antiLagHistoryFrames[0].m_entDataList[v12];
-            v44 = (int)v13;
+            v32 = v13;
             if ( (GAntiLagSP *)((char *)this + v12 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 810, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity", v13) )
               __debugbreak();
-            LOWORD(v58) = *(_WORD *)((char *)&v44 + 1);
-            BYTE2(v58) = HIBYTE(v44);
-            HIBYTE(v58) = (_BYTE)v13;
-            v53[1] = LODWORD(v13->origin.origin.v[2]) ^ LODWORD(v13->origin.origin.v[0]) ^ v58 ^ s_antilag_aab_Y;
-            v53[2] = LODWORD(v13->origin.origin.v[1]) ^ LODWORD(v13->origin.origin.v[2]) ^ v58 ^ s_antilag_aab_Z;
-            v53[0] = LODWORD(v13->origin.origin.v[1]) ^ v58 ^ ~s_antilag_aab_X;
-            memset(v49, 0, sizeof(v49));
-            __asm
+            LOWORD(v43) = *(_WORD *)((char *)&v32 + 1);
+            BYTE2(v43) = BYTE3(v32);
+            HIBYTE(v43) = (_BYTE)v13;
+            v38[1] = LODWORD(v13->origin.origin.v[2]) ^ LODWORD(v13->origin.origin.v[0]) ^ v43 ^ s_antilag_aab_Y;
+            v38[2] = LODWORD(v13->origin.origin.v[1]) ^ LODWORD(v13->origin.origin.v[2]) ^ v43 ^ s_antilag_aab_Z;
+            v38[0] = LODWORD(v13->origin.origin.v[1]) ^ v43 ^ ~s_antilag_aab_X;
+            memset(v34, 0, sizeof(v34));
+            *(float *)&v32 = *(float *)v38;
+            if ( (v38[0] & 0x7F800000) != 2139095040 )
             {
-              vmovss  xmm0, [rbp+var_20]
-              vmovss  dword ptr [rbp+var_48], xmm0
+              *(float *)&v32 = *(float *)&v38[1];
+              if ( (v38[1] & 0x7F800000) != 2139095040 )
+              {
+                *(float *)&v32 = *(float *)&v38[2];
+                if ( (v38[2] & 0x7F800000) != 2139095040 )
+                  continue;
+              }
             }
-            if ( (v45 & 0x7F800000) == 2139095040 )
-              goto LABEL_59;
-            __asm
-            {
-              vmovss  xmm0, [rbp+var_1C]
-              vmovss  dword ptr [rbp+var_48], xmm0
-            }
-            if ( (v46 & 0x7F800000) == 2139095040 )
-              goto LABEL_59;
-            __asm
-            {
-              vmovss  xmm0, [rbp+var_18]
-              vmovss  dword ptr [rbp+var_48], xmm0
-            }
-            if ( (v47 & 0x7F800000) == 2139095040 )
-            {
-LABEL_59:
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-                __debugbreak();
-            }
-            v17 = v10 + v11;
-            _RDI = &this->m_antiLagHistoryFrames[0].m_entDataList[v17];
-            if ( (GAntiLagSP *)((char *)this + v17 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 861, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )", v32) )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, [rbp+var_20]
-              vmovss  dword ptr [rdi], xmm0
-              vmovss  xmm1, [rbp+var_1C]
-              vmovss  dword ptr [rdi+4], xmm1
-              vmovss  xmm0, [rbp+var_18]
-              vmovss  dword ptr [rdi+8], xmm0
-            }
+            v14 = v10 + v11;
+            v15 = &this->m_antiLagHistoryFrames[0].m_entDataList[v14];
+            if ( (GAntiLagSP *)((char *)this + v14 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 861, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
+              __debugbreak();
+            v15->origin.origin.v[0] = *(float *)v38;
+            v15->origin.origin.v[1] = *(float *)&v38[1];
+            v15->origin.origin.v[2] = *(float *)&v38[2];
             ++v9;
             ++v10;
-            v7 = v50;
+            v7 = v35;
           }
           while ( v9 < m_usedSize );
-          LODWORD(v6) = v62;
+          LODWORD(v6) = v44;
         }
         v6 = (unsigned int)(v6 + 1);
-        v62 = v6;
+        v44 = v6;
       }
       while ( (unsigned int)v6 < this->m_antiLagHistorySize );
       v2 = memFile;
-      v5 = v54;
+      v5 = v39;
     }
   }
   MemFile_ArchiveData(v2, 1358400, this->m_antiLagHistoryFrames);
@@ -365,10 +343,10 @@ LABEL_59:
   {
     for ( i = 0i64; (unsigned int)i < *p_m_antiLagHistorySize; i = (unsigned int)(i + 1) )
     {
-      v24 = (unsigned int)i;
-      v25 = &this->m_antiLagHistoryFrames[v24];
-      this->m_antiLagHistory[i] = v25;
-      m_maxSize = this->m_antiLagHistoryFrames[v24].entityDataStandard.m_maxSize;
+      v18 = (unsigned int)i;
+      v19 = &this->m_antiLagHistoryFrames[v18];
+      this->m_antiLagHistory[i] = v19;
+      m_maxSize = this->m_antiLagHistoryFrames[v18].entityDataStandard.m_maxSize;
       if ( m_maxSize )
       {
         if ( m_maxSize > 0x258 )
@@ -382,93 +360,64 @@ LABEL_59:
       {
         m_maxSize = 600;
       }
-      m_entDataList = v25->m_entDataList;
-      v28 = m_maxSize;
+      m_entDataList = v19->m_entDataList;
+      v22 = m_maxSize;
       do
       {
-        v25->entityDataStandard.m_data[0] = m_entDataList++;
-        v25 = (GAntiLagFrameHistorySP *)((char *)v25 + 8);
-        --v28;
+        v19->entityDataStandard.m_data[0] = m_entDataList++;
+        v19 = (GAntiLagFrameHistorySP *)((char *)v19 + 8);
+        --v22;
       }
-      while ( v28 );
+      while ( v22 );
     }
   }
-  v29 = 0i64;
-  for ( j = 0; (unsigned int)v29 < *p_m_antiLagHistorySize; j = v29 )
+  v23 = 0i64;
+  for ( j = 0; (unsigned int)v23 < *p_m_antiLagHistorySize; j = v23 )
   {
-    if ( (unsigned int)v29 >= 0x14 )
+    if ( (unsigned int)v23 >= 0x14 )
       break;
-    v63 = this->m_antiLagHistory[v29]->entityDataStandard.m_usedSize;
-    v30 = 0;
-    if ( v63 )
+    v45 = this->m_antiLagHistory[v23]->entityDataStandard.m_usedSize;
+    v24 = 0;
+    if ( v45 )
     {
-      v31 = 0i64;
+      v25 = 0i64;
       do
       {
-        if ( v30 >= 0x258 )
+        if ( v24 >= 0x258 )
           break;
-        v32 = v31 + 1132i64 * (unsigned int)v29;
-        _RDI = &this->m_antiLagHistoryFrames[0].m_entDataList[v32];
-        if ( (GAntiLagSP *)((char *)this + v32 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 850, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
+        v26 = v25 + 1132i64 * (unsigned int)v23;
+        v27 = (int *)&this->m_antiLagHistoryFrames[0].m_entDataList[v26];
+        if ( (GAntiLagSP *)((char *)this + v26 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 850, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovss  [rbp+var_20], xmm0
-          vmovss  xmm1, dword ptr [rdi+4]
-          vmovss  [rbp+var_1C], xmm1
-          vmovss  xmm0, dword ptr [rdi+8]
-          vmovss  [rbp+var_18], xmm0
-        }
-        v37 = 1132i64 * (unsigned int)v29 + v30;
-        v38 = &this->m_antiLagHistoryFrames[0].m_entDataList[v37];
-        v48 = (int)v38;
-        if ( (GAntiLagSP *)((char *)this + v37 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 830, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity", v38) )
+        v38[0] = *v27;
+        v38[1] = v27[1];
+        v38[2] = v27[2];
+        v28 = 1132i64 * (unsigned int)v23 + v24;
+        v29 = &this->m_antiLagHistoryFrames[0].m_entDataList[v28];
+        v33 = (int)v29;
+        if ( (GAntiLagSP *)((char *)this + v28 * 60) == (GAntiLagSP *)-226912i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 830, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity", v29) )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, [rbp+var_20]
-          vmovss  [rbp+arg_10], xmm0
-        }
-        if ( (v59 & 0x7F800000) == 2139095040 )
-          goto LABEL_60;
-        __asm
-        {
-          vmovss  xmm0, [rbp+var_1C]
-          vmovss  [rbp+arg_10], xmm0
-        }
-        if ( (v60 & 0x7F800000) == 2139095040 )
-          goto LABEL_60;
-        __asm
-        {
-          vmovss  xmm0, [rbp+var_18]
-          vmovss  [rbp+arg_10], xmm0
-        }
-        if ( (v61 & 0x7F800000) == 2139095040 )
-        {
-LABEL_60:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 753, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
-            __debugbreak();
-        }
-        LOWORD(v57) = *(_WORD *)((char *)&v48 + 1);
-        BYTE2(v57) = HIBYTE(v48);
-        HIBYTE(v57) = (_BYTE)v38;
-        v42 = v57 ^ v53[0] ^ ~s_antilag_aab_X;
-        v43 = s_antilag_aab_Z ^ v57 ^ v42 ^ v53[2];
-        LODWORD(v38->origin.origin.v[0]) = s_antilag_aab_Y ^ v57 ^ v43 ^ v53[1];
-        LODWORD(v38->origin.origin.v[1]) = v42;
-        LODWORD(v38->origin.origin.v[2]) = v43;
-        memset(v51, 0, sizeof(v51));
-        ++v30;
-        ++v31;
+        if ( ((v38[0] & 0x7F800000) == 2139095040 || (v38[1] & 0x7F800000) == 2139095040 || (v38[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 753, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
+          __debugbreak();
+        LOWORD(v42) = *(_WORD *)((char *)&v33 + 1);
+        BYTE2(v42) = HIBYTE(v33);
+        HIBYTE(v42) = (_BYTE)v29;
+        v30 = v42 ^ v38[0] ^ ~s_antilag_aab_X;
+        v31 = s_antilag_aab_Z ^ v42 ^ v30 ^ v38[2];
+        LODWORD(v29->origin.origin.v[0]) = s_antilag_aab_Y ^ v42 ^ v31 ^ v38[1];
+        LODWORD(v29->origin.origin.v[1]) = v30;
+        LODWORD(v29->origin.origin.v[2]) = v31;
+        memset(v36, 0, sizeof(v36));
+        ++v24;
+        ++v25;
       }
-      while ( v30 < v63 );
-      LODWORD(v29) = j;
+      while ( v24 < v45 );
+      LODWORD(v23) = j;
       p_m_antiLagHistorySize = &this->m_antiLagHistorySize;
     }
-    v29 = (unsigned int)(v29 + 1);
+    v23 = (unsigned int)(v23 + 1);
   }
-  memset(v53, 0, sizeof(v53));
+  memset(v38, 0, sizeof(v38));
 }
 
 /*

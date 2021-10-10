@@ -94,127 +94,84 @@ void CL_Screen_ClearFrontendCinematic(void)
 CL_Screen_DrawBlankScreenSpinnerAtlas
 ==============
 */
-
-void __fastcall CL_Screen_DrawBlankScreenSpinnerAtlas(GfxImage *spinnerMaterial, double _XMM1_8)
+void CL_Screen_DrawBlankScreenSpinnerAtlas(GfxImage *spinnerMaterial)
 {
-  const dvar_t *v7; 
-  const dvar_t *v17; 
-  const dvar_t *v18; 
-  const dvar_t *v21; 
-  float fmt; 
+  const dvar_t *v2; 
+  float displayWidth; 
+  float v4; 
+  float v5; 
+  float displayHeight; 
+  float v7; 
+  float v8; 
+  int integer; 
+  const dvar_t *v10; 
+  int v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  int width; 
+  int v18; 
+  int height; 
+  int v21; 
+  float v22; 
+  float v23; 
   vec2_t verts; 
-  char v75; 
-  void *retaddr; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   R_AddCmdProjectionSet2D();
-  v7 = DCONST_DVARINT_lui_loading_spinner_width;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm6, xmm1, cs:__real@3d088889
-    vmulss  xmm0, xmm6, cs:__real@3f400000
-    vaddss  xmm2, xmm0, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vsubss  xmm8, xmm0, xmm2
-    vsubss  xmm7, xmm1, xmm2
-  }
+  v2 = DCONST_DVARINT_lui_loading_spinner_width;
+  displayWidth = (float)vidConfig.displayWidth;
+  v4 = displayWidth * 0.033333335;
+  v5 = (float)(v4 * 0.75) + v4;
+  displayHeight = (float)vidConfig.displayHeight;
+  v7 = displayHeight - v5;
+  v8 = displayWidth - v5;
   if ( !DCONST_DVARINT_lui_loading_spinner_width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_loading_spinner_width") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  v17 = DCONST_DVARINT_lui_loading_spinner_height;
+  Dvar_CheckFrontendServerThread(v2);
+  integer = v2->current.integer;
+  v10 = DCONST_DVARINT_lui_loading_spinner_height;
   if ( !DCONST_DVARINT_lui_loading_spinner_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_loading_spinner_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  v18 = DCONST_DVARINT_lui_loading_spinner_frame_count;
-  __asm
-  {
-    vaddss  xmm0, xmm7, xmm6
-    vaddss  xmm1, xmm8, xmm6
-    vmovss  dword ptr [rsp+0C8h+verts], xmm7
-    vmovss  dword ptr [rsp+0C8h+verts+4], xmm8
-    vmovss  [rsp+0C8h+var_80], xmm0
-    vmovss  [rsp+0C8h+var_7C], xmm8
-    vmovss  [rsp+0C8h+var_78], xmm0
-    vmovss  [rsp+0C8h+var_74], xmm1
-    vmovss  [rsp+0C8h+var_70], xmm7
-    vmovss  [rsp+0C8h+var_6C], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.integer;
+  v12 = DCONST_DVARINT_lui_loading_spinner_frame_count;
+  verts.v[0] = displayWidth - v5;
+  verts.v[1] = v7;
+  v25 = v8 + v4;
+  v26 = v7;
+  v27 = v8 + v4;
+  v28 = v7 + v4;
+  v29 = displayWidth - v5;
+  v30 = v7 + v4;
   if ( !DCONST_DVARINT_lui_loading_spinner_frame_count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_loading_spinner_frame_count") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  v21 = DCONST_DVARFLT_lui_loading_spinner_frame_rate;
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = DCONST_DVARFLT_lui_loading_spinner_frame_rate;
   if ( !DCONST_DVARFLT_lui_loading_spinner_frame_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_loading_spinner_frame_rate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, edi
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]
-    vroundss xmm1, xmm1, xmm0, 2
-    vmulss  xmm0, xmm1, cs:__real@447a0000
-    vcvttss2si ebx, xmm0
-  }
+  Dvar_CheckFrontendServerThread(v13);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 2 }
   Sys_Milliseconds();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vmulss  xmm2, xmm0, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ebx
-    vdivss  xmm3, xmm2, xmm1
-    vroundss xmm0, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edx
-    vdivss  xmm7, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vdivss  xmm6, xmm2, xmm0
-  }
+  width = spinnerMaterial->width;
+  _XMM0 = 0i64;
+  v18 = width / integer;
+  height = spinnerMaterial->height;
+  if ( width / integer < 1 )
+    v18 = 1;
+  __asm { vroundss xmm0, xmm0, xmm3, 1 }
+  v21 = height / v11;
+  v22 = (float)((int)*(float *)&_XMM0 % v18) / (float)v18;
+  if ( height / v11 < 1 )
+    v21 = 1;
+  v23 = (float)((int)*(float *)&_XMM0 / v18) / (float)v21;
   R_AddCmdSetCodeTexture(4u, spinnerMaterial);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm3, xmm3, esi
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm3, xmm3, xmm0
-    vaddss  xmm5, xmm3, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm0, xmm0, edi
-    vcvtsi2ss xmm4, xmm4, ebp
-    vdivss  xmm3, xmm4, xmm0
-    vaddss  xmm3, xmm3, xmm7; s1
-    vmovaps xmm2, xmm6; t0
-    vmovaps xmm1, xmm7; s0
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm5
-  }
-  R_AddCmdDrawQuadPicST(&verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, &colorWhite, rgp.texturedSimple);
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  R_AddCmdDrawQuadPicST(&verts, v22, v23, (float)((float)integer / (float)width) + v22, (float)((float)v11 / (float)height) + v23, &colorWhite, rgp.texturedSimple);
 }
 
 /*
@@ -222,101 +179,55 @@ void __fastcall CL_Screen_DrawBlankScreenSpinnerAtlas(GfxImage *spinnerMaterial,
 CL_Screen_DrawFrontEndUI_HandleRemoteScreenUpdateBlankScreen
 ==============
 */
-
-void __fastcall CL_Screen_DrawFrontEndUI_HandleRemoteScreenUpdateBlankScreen(LocalClientNum_t localClientNum, double a2, double _XMM2_8)
+void CL_Screen_DrawFrontEndUI_HandleRemoteScreenUpdateBlankScreen(LocalClientNum_t localClientNum)
 {
   int ControllerFromClient; 
-  int v11; 
-  const dvar_t *v12; 
-  const dvar_t *v13; 
+  int v3; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
   Online_Commerce *Instance; 
-  Online_Commerce *v15; 
-  char v16; 
-  Online_Commerce *v17; 
+  Online_Commerce *v7; 
+  char v8; 
+  Online_Commerce *v9; 
   bool HavePaidEntitlement; 
   GfxImage *animatedLoadImagePremium; 
-  float fmt; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
-  float v55; 
+  float v12; 
+  float displayWidth; 
+  float displayHeight; 
+  float v15; 
+  float v16; 
 
   if ( r_glob.isRenderingRemoteUpdate && (!cls.uiStarted || r_glob.rsuPlayAnimatedTexture) && !R_Cinematic_IsStarted() )
   {
     ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-    v11 = ControllerFromClient;
+    v3 = ControllerFromClient;
     if ( ControllerFromClient == -1 )
     {
-      __asm
-      {
-        vmovaps [rsp+0C8h+var_18], xmm6
-        vmovaps [rsp+0C8h+var_28], xmm7
-        vmovaps [rsp+0C8h+var_38], xmm8
-        vmovaps [rsp+0C8h+var_48], xmm9
-        vmovaps [rsp+0C8h+var_58], xmm10
-      }
       R_AddCmdProjectionSet2D();
-      Sys_Milliseconds();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3a83126f; X
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm8, xmm8, xmm8
-        vcvtsi2ss xmm8, xmm8, rax
-        vmulss  xmm10, xmm8, cs:__real@3d088889
-        vmulss  xmm1, xmm10, cs:__real@3f400000
-        vaddss  xmm7, xmm1, xmm10
-        vcvtsi2ss xmm2, xmm2, rax
-        vsubss  xmm9, xmm2, xmm7
-      }
-      *(float *)&_XMM0 = modff(*(float *)&_XMM0, &v55);
-      __asm { vmovaps xmm6, xmm0 }
+      v12 = (float)Sys_Milliseconds() * 0.001;
+      displayWidth = (float)vidConfig.displayWidth;
+      displayHeight = (float)vidConfig.displayHeight;
+      v15 = modff(v12, &v16);
       R_AddCmdSetCodeTexture(4u, rgp.animatedLoadImageDefault);
-      __asm
-      {
-        vmulss  xmm3, xmm6, cs:__real@43b40000
-        vmovss  [rsp+0C8h+var_88], xmm3
-        vmovss  xmm3, cs:__real@3f800000
-        vmovss  [rsp+0C8h+var_90], xmm3
-        vmovss  dword ptr [rsp+0C8h+var_98], xmm3
-        vxorps  xmm4, xmm4, xmm4
-        vmovss  dword ptr [rsp+0C8h+var_A0], xmm4
-        vmovaps xmm3, xmm10; h
-        vsubss  xmm0, xmm8, xmm7; x
-        vmovaps xmm2, xmm10; w
-        vmovaps xmm1, xmm9; y
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm4
-      }
-      R_AddCmdDrawStretchPicRotateXY(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v46, v47, v48, v49, 0, 1, &colorWhite, rgp.texturedSimple);
-      __asm
-      {
-        vmovaps xmm10, [rsp+0C8h+var_58]
-        vmovaps xmm9, [rsp+0C8h+var_48]
-        vmovaps xmm8, [rsp+0C8h+var_38]
-        vmovaps xmm7, [rsp+0C8h+var_28]
-        vmovaps xmm6, [rsp+0C8h+var_18]
-      }
+      R_AddCmdDrawStretchPicRotateXY(displayWidth - (float)((float)((float)(displayWidth * 0.033333335) * 0.75) + (float)(displayWidth * 0.033333335)), displayHeight - (float)((float)((float)(displayWidth * 0.033333335) * 0.75) + (float)(displayWidth * 0.033333335)), displayWidth * 0.033333335, displayWidth * 0.033333335, 0.0, 0.0, 1.0, 1.0, v15 * 360.0, 0, 1, &colorWhite, rgp.texturedSimple);
     }
     else if ( LiveStorage_IsPaidUserReady(ControllerFromClient) )
     {
-      v12 = DVARBOOL_com_force_free_to_play;
+      v4 = DVARBOOL_com_force_free_to_play;
       if ( !DVARBOOL_com_force_free_to_play && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_free_to_play") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v12);
-      if ( v12->current.enabled )
+      Dvar_CheckFrontendServerThread(v4);
+      if ( v4->current.enabled )
         goto LABEL_27;
-      v13 = DVARBOOL_com_force_premium;
+      v5 = DVARBOOL_com_force_premium;
       if ( !DVARBOOL_com_force_premium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_premium") )
         __debugbreak();
-      if ( (Dvar_CheckFrontendServerThread(v13), v13->current.enabled) || Content_IsEnumerationDone() && Content_DoWeHavePaidContentPackEntitlement() || ((Instance = Online_Commerce::GetInstance(), Online_Commerce::GetPaidEntitlementTaskState(Instance, v11) == ENTITLEMENT_STATE_COMPLETE) || (v15 = Online_Commerce::GetInstance(), Online_Commerce::GetPaidEntitlementTaskState(v15, v11) == ENTITLEMENT_STATE_ERROR) ? (v16 = 1) : (v16 = 0), (v17 = Online_Commerce::GetInstance(), HavePaidEntitlement = Online_Commerce::HavePaidEntitlement(v17, v11), Live_IsUserSignedInToLive(v11)) && v16 && HavePaidEntitlement) )
+      if ( (Dvar_CheckFrontendServerThread(v5), v5->current.enabled) || Content_IsEnumerationDone() && Content_DoWeHavePaidContentPackEntitlement() || ((Instance = Online_Commerce::GetInstance(), Online_Commerce::GetPaidEntitlementTaskState(Instance, v3) == ENTITLEMENT_STATE_COMPLETE) || (v7 = Online_Commerce::GetInstance(), Online_Commerce::GetPaidEntitlementTaskState(v7, v3) == ENTITLEMENT_STATE_ERROR) ? (v8 = 1) : (v8 = 0), (v9 = Online_Commerce::GetInstance(), HavePaidEntitlement = Online_Commerce::HavePaidEntitlement(v9, v3), Live_IsUserSignedInToLive(v3)) && v8 && HavePaidEntitlement) )
         animatedLoadImagePremium = rgp.animatedLoadImagePremium;
       else
 LABEL_27:
         animatedLoadImagePremium = rgp.animatedLoadImageF2P;
-      CL_Screen_DrawBlankScreenSpinnerAtlas(animatedLoadImagePremium, a2);
+      CL_Screen_DrawBlankScreenSpinnerAtlas(animatedLoadImagePremium);
     }
   }
 }
@@ -326,30 +237,30 @@ LABEL_27:
 CL_Screen_DrawFrontendUI
 ==============
 */
-void CL_Screen_DrawFrontendUI(LocalClientNum_t localClientNum, double a2, double a3)
+void CL_Screen_DrawFrontendUI(LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
   int i; 
   ClGameModeApplication *ActiveClientApplication; 
-  _BOOL8 v6; 
-  ClGameModeApplication *v7; 
-  int v8; 
-  int v9; 
+  _BOOL8 v4; 
+  ClGameModeApplication *v5; 
+  int v6; 
+  int v7; 
   LocalClientNum_t outLocalClientNum; 
 
-  v3 = localClientNum;
+  v1 = localClientNum;
   CL_UIStreaming_UpdateImages();
   Stream_UpdateForFrontendUI();
   if ( Sys_IsMainThread() )
   {
-    if ( (unsigned int)v3 >= 2 )
+    if ( (unsigned int)v1 >= 2 )
     {
-      v9 = 2;
-      v8 = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v8, v9) )
+      v7 = 2;
+      v6 = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v7) )
         __debugbreak();
     }
-    if ( (clientUIActives[v3].keyCatchers & 0x40) != 0 )
+    if ( (clientUIActives[v1].keyCatchers & 0x40) != 0 )
     {
       for ( i = 0; i < 8; ++i )
       {
@@ -365,7 +276,7 @@ void CL_Screen_DrawFrontendUI(LocalClientNum_t localClientNum, double a2, double
     SND_BankStreamUpdate();
   else
     CL_Main_UpdateSound(0);
-  R_ToggleSmpFrame((LocalClientNum_t)v3);
+  R_ToggleSmpFrame((LocalClientNum_t)v1);
   R_IssueRenderCommandsBegin(3u);
   ScrPlace_BeginFullScreen();
   R_BeginSharedCmdList();
@@ -376,38 +287,38 @@ void CL_Screen_DrawFrontendUI(LocalClientNum_t localClientNum, double a2, double
     if ( !ClGameModeApplication::HasActiveApplicationGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_scrn.cpp", 466, ASSERT_TYPE_ASSERT, "(ClGameModeApplication::HasActiveApplicationGameMode())", (const char *)&queryFormat, "ClGameModeApplication::HasActiveApplicationGameMode()") )
       __debugbreak();
     ActiveClientApplication = ClGameModeApplication::GetActiveClientApplication();
-    v6 = 0i64;
+    v4 = 0i64;
 LABEL_21:
-    v7 = ActiveClientApplication;
-    ActiveClientApplication->DrawUIScene(ActiveClientApplication, (LocalClientNum_t)v3, v6);
-    v7->DrawOverlay(v7, (LocalClientNum_t)v3);
+    v5 = ActiveClientApplication;
+    ActiveClientApplication->DrawUIScene(ActiveClientApplication, (LocalClientNum_t)v1, v4);
+    v5->DrawOverlay(v5, (LocalClientNum_t)v1);
     goto LABEL_23;
   }
   if ( cls.uiStarted )
   {
     if ( !(unsigned __int8)ClGameModeApplication::GetActiveApplicationGameMode() )
     {
-      UI_UpdateTime((LocalClientNum_t)v3, cls.realtime);
+      UI_UpdateTime((LocalClientNum_t)v1, cls.realtime);
       R_AddCmdClearScreen(15, 0);
-      LUI_CoD_RunNoClientFrame((const LocalClientNum_t)v3);
+      LUI_CoD_RunNoClientFrame((const LocalClientNum_t)v1);
       CL_SetFullScreenViewport();
       R_AddCmdProjectionSet2D();
-      Con_DrawConsole((LocalClientNum_t)v3);
-      DevGui_Draw((LocalClientNum_t)v3);
+      Con_DrawConsole((LocalClientNum_t)v1);
+      DevGui_Draw((LocalClientNum_t)v1);
       Profile_Begin(479);
-      CG_DrawDebugSP_DrawNoGameModeOverlays((const LocalClientNum_t)v3);
-      CG_DrawDebugMP_DrawNoGameModeOverlays((const LocalClientNum_t)v3);
+      CG_DrawDebugSP_DrawNoGameModeOverlays((const LocalClientNum_t)v1);
+      CG_DrawDebugMP_DrawNoGameModeOverlays((const LocalClientNum_t)v1);
       GamerProfile_DebugDrawFullscreenInfo();
       Profile_EndInternal(NULL);
       goto LABEL_23;
     }
     ActiveClientApplication = ClGameModeApplication::GetActiveClientApplication();
-    LOBYTE(v6) = 1;
+    LOBYTE(v4) = 1;
     goto LABEL_21;
   }
 LABEL_23:
   Com_DoMaxFPSWait();
-  CL_Screen_DrawFrontEndUI_HandleRemoteScreenUpdateBlankScreen((LocalClientNum_t)v3, a2, a3);
+  CL_Screen_DrawFrontEndUI_HandleRemoteScreenUpdateBlankScreen((LocalClientNum_t)v1);
 }
 
 /*
@@ -419,8 +330,8 @@ double CL_Screen_GetMenuBlurRadius(LocalClientNum_t localClientNum)
 {
   if ( cls.uiStarted )
     return LUI_CoD_GetWorldBlurForLocalClient(localClientNum);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(double *)&_XMM0;
+  else
+    return 0.0;
 }
 
 /*
@@ -494,21 +405,21 @@ void CL_Screen_Update(void)
 CL_Screen_UpdateFrame
 ==============
 */
-void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
+void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state)
 {
-  int v4; 
-  int v5; 
+  int v2; 
+  int v3; 
   bool CanDrawGameScene; 
   ClGameModeApplication *ActiveClientApplication; 
-  unsigned int v8; 
-  unsigned __int8 v9; 
-  int v10; 
-  ClGameModeApplication *v11; 
+  unsigned int v6; 
+  unsigned __int8 v7; 
+  int v8; 
+  ClGameModeApplication *v9; 
   CinematicState *p_cinematicState; 
-  char v13; 
-  ClGameModeApplication *v14; 
+  char v11; 
+  ClGameModeApplication *v12; 
   int i; 
-  char v16[16]; 
+  char v14[16]; 
   CinematicState cinematicState; 
   CinematicState frontendSceneRequest; 
 
@@ -519,8 +430,8 @@ void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
   R_BeginFrame();
   Stream_BeginScreenUpdateFrame();
   R_Screenshot_UpdatePending();
-  v4 = 0;
-  v5 = -1;
+  v2 = 0;
+  v3 = -1;
   if ( Sys_IsMainThread() && (!Com_FrontEndScene_IsActive() ? (CanDrawGameScene = !CL_AllLocalClientsDisconnected()) : (CanDrawGameScene = Com_FrontEndScene_CanDrawGameScene()), CanDrawGameScene) )
   {
     if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_scrn.cpp", 642, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", "%s\n\tShould not be drawing the game world from other threads", "Sys_IsMainThread()") )
@@ -529,28 +440,28 @@ void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
       __debugbreak();
     ActiveClientApplication = ClGameModeApplication::GetActiveClientApplication();
     Physics_WaitForAllCommandsToFinish();
-    v16[0] = 0;
-    if ( ActiveClientApplication->DrawGameScene(ActiveClientApplication, state, (bool *)v16) )
+    v14[0] = 0;
+    if ( ActiveClientApplication->DrawGameScene(ActiveClientApplication, state, (bool *)v14) )
     {
       if ( Com_FrontEndScene_IsActive() )
       {
-        v8 = 0;
-        v9 = 0;
+        v6 = 0;
+        v7 = 0;
       }
       else
       {
-        v10 = 0;
-        v8 = -1;
+        v8 = 0;
+        v6 = -1;
         do
         {
-          if ( CL_IsLocalClientActive((LocalClientNum_t)v10) )
-            v8 = v10;
-          ++v10;
+          if ( CL_IsLocalClientActive((LocalClientNum_t)v8) )
+            v6 = v8;
+          ++v8;
         }
-        while ( v10 < 2 );
-        if ( v8 == -1 )
-          v8 = 0;
-        v9 = 0;
+        while ( v8 < 2 );
+        if ( v6 == -1 )
+          v6 = 0;
+        v7 = 0;
       }
     }
     else
@@ -561,23 +472,23 @@ void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
         SND_BankStreamUpdate();
       else
         CL_Main_UpdateSound(0);
-      if ( !v16[0] )
+      if ( !v14[0] )
       {
         R_ToggleSmpFrame(LOCAL_CLIENT_0);
         R_IssueRenderCommandsBegin(3u);
       }
       Com_DoMaxFPSWait();
-      v8 = 0;
-      v9 = 1;
+      v6 = 0;
+      v7 = 1;
     }
     ScrPlace_BeginFullScreen();
     R_BeginSharedCmdList();
     R_AddCmdProjectionSet2D();
     if ( cls.uiStarted )
     {
-      v11 = ClGameModeApplication::GetActiveClientApplication();
-      v11->DrawUIScene(v11, (LocalClientNum_t)v8, v9);
-      v11->DrawOverlay(v11, (LocalClientNum_t)v8);
+      v9 = ClGameModeApplication::GetActiveClientApplication();
+      v9->DrawUIScene(v9, (LocalClientNum_t)v6, v7);
+      v9->DrawOverlay(v9, (LocalClientNum_t)v6);
     }
     else
     {
@@ -586,7 +497,7 @@ void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
   }
   else
   {
-    CL_Screen_DrawFrontendUI(LOCAL_CLIENT_0, a2, a3);
+    CL_Screen_DrawFrontendUI(LOCAL_CLIENT_0);
     g_lastInputTimeForAnyLocalPlayer = com_frameTime;
   }
   if ( Com_FrontEnd_IsInFrontEnd() && !UI_AutoNavigation_UseBypasses() )
@@ -599,11 +510,11 @@ void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
     if ( I_stricmp(p_cinematicState->name, s_frontendCinematicState.name) || p_cinematicState->playbackFlags != s_frontendCinematicState.playbackFlags || p_cinematicState->startOffsetMSec != s_frontendCinematicState.startOffsetMSec )
     {
       Core_strcpy(s_frontendCinematicState.name, 0x40ui64, p_cinematicState->name);
-      v13 = p_cinematicState->name[0];
+      v11 = p_cinematicState->name[0];
       s_frontendCinematicState.playbackFlags = p_cinematicState->playbackFlags;
       s_frontendCinematicState.startOffsetMSec = p_cinematicState->startOffsetMSec;
       R_Cinematic_StopPlayback(0);
-      if ( v13 )
+      if ( v11 )
         R_Cinematic_StartPlayback(p_cinematicState->name, p_cinematicState->playbackFlags, p_cinematicState->startOffsetMSec);
     }
   }
@@ -614,19 +525,19 @@ void CL_Screen_UpdateFrame(Scr_UpdateFrame_State state, double a2, double a3)
   R_IssueRenderCommandsEnd();
   if ( (unsigned __int8)ClGameModeApplication::GetActiveApplicationGameMode() )
   {
-    v14 = ClGameModeApplication::GetActiveClientApplication();
+    v12 = ClGameModeApplication::GetActiveClientApplication();
     if ( !Com_FrontEndScene_IsActive() )
     {
       for ( i = 0; i < 2; ++i )
       {
         if ( CL_IsLocalClientActive((LocalClientNum_t)i) )
-          v5 = i;
+          v3 = i;
       }
-      if ( v5 == -1 )
-        v5 = 0;
-      v4 = v5;
+      if ( v3 == -1 )
+        v3 = 0;
+      v2 = v3;
     }
-    v14->UpdateSkinningCache(v14, (LocalClientNum_t)v4);
+    v12->UpdateSkinningCache(v12, (LocalClientNum_t)v2);
   }
   if ( Sys_IsMainThread() )
     Profile_EndCSV(1);

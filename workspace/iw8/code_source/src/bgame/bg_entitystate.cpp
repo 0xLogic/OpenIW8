@@ -578,27 +578,26 @@ LerpEntityStateAgentCorpse::GetImpactVector
 */
 void LerpEntityStateAgentCorpse::GetImpactVector(LerpEntityStateAgentCorpse *this, vec3_t *impactVector)
 {
-  _RDI = impactVector;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_scrAgent_ragdollMaxImpulse, "scrAgent_ragdollMaxImpulse");
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_scrAgent_ragdollImpulseZ, "scrAgent_ragdollImpulseZ");
-  __asm
-  {
-    vmovaps xmm3, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, cs:__real@3c010204
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3c010204
-    vmulss  xmm2, xmm1, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovss  dword ptr [rdi+4], xmm2
-    vmovss  dword ptr [rdi+8], xmm3
-  }
+  double Float_Internal_DebugName; 
+  float v5; 
+  double v6; 
+  int v7; 
+  char corpseInfo_high; 
+  int v9; 
+
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_scrAgent_ragdollMaxImpulse, "scrAgent_ragdollMaxImpulse");
+  v5 = *(float *)&Float_Internal_DebugName;
+  v6 = Dvar_GetFloat_Internal_DebugName(DVARFLT_scrAgent_ragdollImpulseZ, "scrAgent_ragdollImpulseZ");
+  v7 = -(HIWORD(this->corpseInfo) & 0x7F);
+  if ( (HIWORD(this->corpseInfo) & 0x80u) == 0 )
+    v7 = HIWORD(this->corpseInfo) & 0x7F;
+  impactVector->v[0] = (float)((float)v7 * 0.0078740157) * v5;
+  corpseInfo_high = HIBYTE(this->corpseInfo);
+  v9 = -(corpseInfo_high & 0x7F);
+  if ( (corpseInfo_high & 0x80) == 0 )
+    v9 = corpseInfo_high & 0x7F;
+  impactVector->v[1] = (float)((float)v9 * 0.0078740157) * v5;
+  impactVector->v[2] = *(float *)&v6;
 }
 
 /*
@@ -608,12 +607,14 @@ LerpEntityStateAgentCorpse::GetImpactX
 */
 float LerpEntityStateAgentCorpse::GetImpactX(LerpEntityStateAgentCorpse *this)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  return *(float *)&_XMM0;
+  __int16 corpseInfo_high; 
+  int v2; 
+
+  corpseInfo_high = HIWORD(this->corpseInfo);
+  v2 = -(corpseInfo_high & 0x7F);
+  if ( (corpseInfo_high & 0x80) == 0 )
+    return (float)(corpseInfo_high & 0x7F);
+  return (float)v2;
 }
 
 /*
@@ -623,12 +624,14 @@ LerpEntityStateAgentCorpse::GetImpactY
 */
 float LerpEntityStateAgentCorpse::GetImpactY(LerpEntityStateAgentCorpse *this)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  return *(float *)&_XMM0;
+  char corpseInfo_high; 
+  int v2; 
+
+  corpseInfo_high = HIBYTE(this->corpseInfo);
+  v2 = -(corpseInfo_high & 0x7F);
+  if ( (corpseInfo_high & 0x80) == 0 )
+    return (float)(corpseInfo_high & 0x7F);
+  return (float)v2;
 }
 
 /*
@@ -819,92 +822,54 @@ LerpEntityStateAgentCorpse::SetImpactVector
 */
 void LerpEntityStateAgentCorpse::SetImpactVector(LerpEntityStateAgentCorpse *this, const vec3_t *impactVector)
 {
-  char v7; 
-  char v8; 
-  int v27; 
-  int v37; 
+  double Float_Internal_DebugName; 
+  float v5; 
+  float v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
 
-  _RBX = impactVector;
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_scrAgent_ragdollMaxImpulse, "scrAgent_ragdollMaxImpulse");
-  __asm
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_scrAgent_ragdollMaxImpulse, "scrAgent_ragdollMaxImpulse");
+  if ( *(float *)&Float_Internal_DebugName != 0.0 )
   {
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm0, xmm4
-    vmovaps xmm2, xmm0
-  }
-  if ( !v8 )
-  {
-    __asm
+    v5 = impactVector->v[0];
+    v6 = impactVector->v[1];
+    if ( COERCE_FLOAT(LODWORD(impactVector->v[0]) & _xmm) > *(float *)&Float_Internal_DebugName )
     {
-      vmovss  xmm3, dword ptr [rbx]
-      vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rbx+4]
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm1, xmm3, xmm7
-      vcomiss xmm1, xmm0
-    }
-    if ( !(v7 | v8) )
-    {
-      __asm { vcomiss xmm3, xmm4 }
-      if ( v7 | v8 )
-        __asm { vxorps  xmm3, xmm2, xmm5 }
+      if ( v5 <= 0.0 )
+        LODWORD(v5) = LODWORD(Float_Internal_DebugName) ^ _xmm;
       else
-        __asm { vmovaps xmm3, xmm0 }
+        v5 = *(float *)&Float_Internal_DebugName;
     }
-    __asm
+    if ( COERCE_FLOAT(LODWORD(v6) & _xmm) > *(float *)&Float_Internal_DebugName )
     {
-      vandps  xmm0, xmm6, xmm7
-      vcomiss xmm0, xmm2
-    }
-    if ( !(v7 | v8) )
-    {
-      __asm { vcomiss xmm6, xmm4 }
-      if ( v7 | v8 )
-        __asm { vxorps  xmm6, xmm2, xmm5 }
+      if ( v6 <= 0.0 )
+        LODWORD(v6) = LODWORD(Float_Internal_DebugName) ^ _xmm;
       else
-        __asm { vmovaps xmm6, xmm2 }
+        v6 = *(float *)&Float_Internal_DebugName;
     }
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm7, xmm0, xmm2
-      vmulss  xmm1, xmm7, xmm3
-      vmulss  xmm0, xmm1, cs:__real@42fe0000
-      vcvttss2si r9d, xmm0
-    }
-    v27 = this->corpseInfo | (_ER9 >> 15) & 0x800000 | ((abs32(_ER9) & 0x7F) << 16);
-    this->corpseInfo = v27;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, r9d
-      vucomiss xmm1, xmm0
-    }
-    if ( (v27 & 0x800000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 237, ASSERT_TYPE_ASSERT, "(GetImpactX() == impactX)", (const char *)&queryFormat, "GetImpactX() == impactX") )
+    v7 = (int)(float)((float)((float)(1.0 / *(float *)&Float_Internal_DebugName) * v5) * 127.0);
+    v8 = this->corpseInfo | (v7 >> 15) & 0x800000 | ((abs32(v7) & 0x7F) << 16);
+    this->corpseInfo = v8;
+    v9 = v8 >> 16;
+    v10 = -(v9 & 0x7F);
+    if ( (v9 & 0x80) == 0 )
+      v10 = v9 & 0x7F;
+    if ( (float)v10 != (float)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 237, ASSERT_TYPE_ASSERT, "(GetImpactX() == impactX)", (const char *)&queryFormat, "GetImpactX() == impactX") )
       __debugbreak();
-    __asm
-    {
-      vmulss  xmm0, xmm7, xmm6
-      vmulss  xmm1, xmm0, cs:__real@42fe0000
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm6, [rsp+58h+var_18]
-      vcvttss2si r9d, xmm1
-    }
-    v37 = this->corpseInfo | (_ER9 >> 7) & 0x80000000 | ((abs32(_ER9) & 0x7F) << 24);
-    this->corpseInfo = v37;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, r9d
-      vucomiss xmm1, xmm0
-    }
-    if ( (v37 & 0x80000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 262, ASSERT_TYPE_ASSERT, "(GetImpactY() == impactY)", (const char *)&queryFormat, "GetImpactY() == impactY") )
+    v11 = (int)(float)((float)((float)(1.0 / *(float *)&Float_Internal_DebugName) * v6) * 127.0);
+    v12 = this->corpseInfo | (v11 >> 7) & 0x80000000 | ((abs32(v11) & 0x7F) << 24);
+    this->corpseInfo = v12;
+    v13 = v12 >> 24;
+    v14 = -(v13 & 0x7F);
+    if ( (v13 & 0x80) == 0 )
+      v14 = v13 & 0x7F;
+    if ( (float)v14 != (float)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 262, ASSERT_TYPE_ASSERT, "(GetImpactY() == impactY)", (const char *)&queryFormat, "GetImpactY() == impactY") )
       __debugbreak();
   }
 }
@@ -916,19 +881,17 @@ LerpEntityStateAgentCorpse::SetImpactX
 */
 void LerpEntityStateAgentCorpse::SetImpactX(LerpEntityStateAgentCorpse *this, int impactX)
 {
+  int v2; 
+  int v3; 
   int v4; 
 
-  v4 = this->corpseInfo | (impactX >> 15) & 0x800000 | ((abs32(impactX) & 0x7F) << 16);
-  this->corpseInfo = v4;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, eax
-    vcvtsi2ss xmm0, xmm0, r10d
-    vucomiss xmm1, xmm0
-  }
-  if ( (v4 & 0x800000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 237, ASSERT_TYPE_ASSERT, "(GetImpactX() == impactX)", (const char *)&queryFormat, "GetImpactX() == impactX") )
+  v2 = this->corpseInfo | (impactX >> 15) & 0x800000 | ((abs32(impactX) & 0x7F) << 16);
+  this->corpseInfo = v2;
+  v3 = v2 >> 16;
+  v4 = -(v3 & 0x7F);
+  if ( (v3 & 0x80) == 0 )
+    v4 = v3 & 0x7F;
+  if ( (float)v4 != (float)impactX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 237, ASSERT_TYPE_ASSERT, "(GetImpactX() == impactX)", (const char *)&queryFormat, "GetImpactX() == impactX") )
     __debugbreak();
 }
 
@@ -939,19 +902,17 @@ LerpEntityStateAgentCorpse::SetImpactY
 */
 void LerpEntityStateAgentCorpse::SetImpactY(LerpEntityStateAgentCorpse *this, int impactY)
 {
+  int v2; 
+  int v3; 
   int v4; 
 
-  v4 = this->corpseInfo | (impactY >> 7) & 0x80000000 | ((abs32(impactY) & 0x7F) << 24);
-  this->corpseInfo = v4;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, eax
-    vcvtsi2ss xmm0, xmm0, r10d
-    vucomiss xmm1, xmm0
-  }
-  if ( (v4 & 0x80000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 262, ASSERT_TYPE_ASSERT, "(GetImpactY() == impactY)", (const char *)&queryFormat, "GetImpactY() == impactY") )
+  v2 = this->corpseInfo | (impactY >> 7) & 0x80000000 | ((abs32(impactY) & 0x7F) << 24);
+  this->corpseInfo = v2;
+  v3 = v2 >> 24;
+  v4 = -(v3 & 0x7F);
+  if ( (v3 & 0x80) == 0 )
+    v4 = v3 & 0x7F;
+  if ( (float)v4 != (float)impactY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_entitystate.cpp", 262, ASSERT_TYPE_ASSERT, "(GetImpactY() == impactY)", (const char *)&queryFormat, "GetImpactY() == impactY") )
     __debugbreak();
 }
 

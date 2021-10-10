@@ -108,95 +108,77 @@ void IN_Frame_Mouse(void)
 IN_GamepadsMove
 ==============
 */
-
-void __fastcall IN_GamepadsMove(double _XMM0_8)
+void IN_GamepadsMove()
 {
-  int v3; 
+  int v0; 
   int i; 
+  double Stick; 
+  int v3; 
+  double v4; 
+  int v5; 
+  double v6; 
+  int v7; 
+  double v8; 
+  int v9; 
+  double Button; 
+  int v11; 
+  double v12; 
   int *p_code; 
-  __int64 v18; 
+  __int64 v14; 
   bool IsButtonPressed; 
-  int v20; 
-  int v21; 
+  int v16; 
+  int v17; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
   GPad_UpdateAll();
-  __asm { vmovss  xmm6, cs:__real@477fff00 }
-  v3 = Sys_Milliseconds();
+  v0 = Sys_Milliseconds();
   for ( i = 0; i < 8; ++i )
   {
     if ( GPad_IsActive(i) )
     {
-      _XMM0_8 = GPad_GetStick(i, GPAD_LX);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si r15d, xmm1
-      }
-      _XMM0_8 = GPad_GetStick(i, GPAD_LY);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si r14d, xmm1
-      }
-      _XMM0_8 = GPad_GetStick(i, GPAD_RX);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si edi, xmm1
-      }
-      _XMM0_8 = GPad_GetStick(i, GPAD_RY);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si ebx, xmm1
-      }
-      _XMM0_8 = GPad_GetButton(i, GPAD_L_TRIG);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si ebp, xmm1
-      }
-      _XMM0_8 = GPad_GetButton(i, GPAD_R_TRIG);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si esi, xmm1
-      }
-      CL_GamepadEvent(i, 0, _EDI, v3);
-      CL_GamepadEvent(i, 1, _EBX, v3);
-      CL_GamepadEvent(i, 2, _ER15, v3);
-      CL_GamepadEvent(i, 3, _ER14, v3);
-      CL_GamepadEvent(i, 5, _EBP, v3);
-      CL_GamepadEvent(i, 4, _ESI, v3);
+      Stick = GPad_GetStick(i, GPAD_LX);
+      v3 = (int)(float)(*(float *)&Stick * 65535.0);
+      v4 = GPad_GetStick(i, GPAD_LY);
+      v5 = (int)(float)(*(float *)&v4 * 65535.0);
+      v6 = GPad_GetStick(i, GPAD_RX);
+      v7 = (int)(float)(*(float *)&v6 * 65535.0);
+      v8 = GPad_GetStick(i, GPAD_RY);
+      v9 = (int)(float)(*(float *)&v8 * 65535.0);
+      Button = GPad_GetButton(i, GPAD_L_TRIG);
+      v11 = (int)(float)(*(float *)&Button * 65535.0);
+      v12 = GPad_GetButton(i, GPAD_R_TRIG);
+      CL_GamepadEvent(i, 0, v7, v0);
+      CL_GamepadEvent(i, 1, v9, v0);
+      CL_GamepadEvent(i, 2, v3, v0);
+      CL_GamepadEvent(i, 3, v5, v0);
+      CL_GamepadEvent(i, 5, v11, v0);
+      CL_GamepadEvent(i, 4, (int)(float)(*(float *)&v12 * 65535.0), v0);
       p_code = &buttonList[0].code;
-      v18 = 16i64;
+      v14 = 16i64;
       while ( 1 )
       {
         IsButtonPressed = GPad_IsButtonPressed(i, (GamePadButton)*(p_code - 1));
-        v20 = i;
+        v16 = i;
         if ( IsButtonPressed )
           break;
         if ( GPad_IsButtonReleased(i, (GamePadButton)*(p_code - 1)) )
         {
-          v21 = 0;
-          v20 = i;
+          v17 = 0;
+          v16 = i;
           goto LABEL_8;
         }
 LABEL_9:
         p_code += 2;
-        if ( !--v18 )
+        if ( !--v14 )
           goto LABEL_10;
       }
-      v21 = 1;
+      v17 = 1;
 LABEL_8:
-      CL_GamepadButtonEventForPort(v20, *p_code, v21, v3, 0);
+      CL_GamepadButtonEventForPort(v16, *p_code, v17, v0, 0);
       goto LABEL_9;
     }
 LABEL_10:
     ;
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
 }
 
 /*

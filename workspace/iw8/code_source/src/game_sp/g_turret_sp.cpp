@@ -343,14 +343,12 @@ GTurretSP::FireLead_GetSpread
 */
 float GTurretSP::FireLead_GetSpread(GTurretSP *this, const gentity_s *activator)
 {
-  _RBX = this;
   if ( !activator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 879, ASSERT_TYPE_ASSERT, "( activator )", (const char *)&queryFormat, "activator") )
     __debugbreak();
   if ( activator->client )
-    __asm { vmovss  xmm0, dword ptr [rbx+48h] }
+    return this->m_data.playerSpread;
   else
-    __asm { vmovss  xmm0, dword ptr [rbx+108h] }
-  return *(float *)&_XMM0;
+    return this->m_dataSP.aiSpread;
 }
 
 /*
@@ -360,170 +358,117 @@ GTurretSP::FireLead_UpdateAccuracy
 */
 void GTurretSP::FireLead_UpdateAccuracy(GTurretSP *this, gentity_s *ent, BgWeaponParms *wp)
 {
+  float v5; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
+  float v10; 
   int flags; 
-  int v18; 
-  unsigned int v19; 
-  const gentity_s *v36; 
-  const gentity_s *v43; 
-  gentity_s *v44; 
-  bool v46; 
-  bool v47; 
-  char v48; 
-  char v49; 
-  const dvar_t *v58; 
-  const vec4_t *v59; 
+  int v12; 
+  unsigned int v13; 
+  const gentity_s *v17; 
+  float v18; 
+  const gentity_s *v19; 
+  gentity_s *v20; 
+  double ClientVisibility; 
+  float v22; 
+  double FxVisibility; 
+  bool v24; 
+  float v25; 
+  float v26; 
+  const dvar_t *v27; 
+  const vec4_t *v28; 
   vec3_t outResultOffset; 
   vec3_t outForward; 
   vec3_t end; 
-  char v66; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBX = wp;
-  _RDI = this;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 818, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 819, ASSERT_TYPE_ASSERT, "( wp )", (const char *)&queryFormat, "wp") )
+  if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 819, ASSERT_TYPE_ASSERT, "( wp )", (const char *)&queryFormat, "wp") )
     __debugbreak();
+  v5 = this->m_data.targetPos.v[0];
+  v6 = v5 - wp->muzzleTrace.v[0];
+  v7 = this->m_data.targetPos.v[1] - wp->muzzleTrace.v[1];
+  v9 = this->m_data.targetPos.v[2];
+  v10 = v9 - wp->muzzleTrace.v[2];
+  flags = this->m_data.flags;
+  end.v[1] = this->m_data.targetPos.v[1];
+  v8 = LODWORD(end.v[1]);
+  end.v[2] = v9;
+  end.v[0] = v5;
+  v12 = flags | 0x80000;
+  v13 = flags & 0xFFF7FFFF;
+  *(float *)&v8 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v10 * v10));
+  _XMM3 = v8;
   __asm
   {
-    vmovss  xmm2, dword ptr [rdi+90h]
-    vsubss  xmm6, xmm2, dword ptr [rbx+24h]
-    vmovss  xmm1, dword ptr [rdi+94h]
-    vsubss  xmm4, xmm1, dword ptr [rbx+28h]
-    vmovss  xmm0, dword ptr [rdi+98h]
-    vsubss  xmm7, xmm0, dword ptr [rbx+2Ch]
-  }
-  flags = _RDI->m_data.flags;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm1
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+end], xmm2
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-  }
-  v18 = flags | 0x80000;
-  v46 = (flags & 0x80000) != 0;
-  v19 = flags & 0xFFF7FFFF;
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm6, xmm5
-    vmulss  xmm2, xmm1, dword ptr [rbx]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm2, dword ptr [rdi+0CCh]
-    vmulss  xmm0, xmm7, xmm5
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm3, xmm4, xmm1
-    vcomiss xmm2, xmm3
   }
-  if ( v46 )
-    v18 = v19;
-  _RDI->m_data.flags = v18;
-  if ( EntHandle::isDefined(&_RDI->m_data.target) )
+  if ( this->m_data.forwardAngleDot < (float)((float)((float)((float)(v7 * (float)(1.0 / *(float *)&_XMM0)) * wp->forward.v[1]) + (float)((float)(v6 * (float)(1.0 / *(float *)&_XMM0)) * wp->forward.v[0])) + (float)((float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * wp->forward.v[2])) )
+    v12 = v13;
+  this->m_data.flags = v12;
+  if ( EntHandle::isDefined(&this->m_data.target) )
   {
-    v36 = EntHandle::ent(&_RDI->m_data.target);
-    GTurret::GetEnemyHeightOffset(_RDI, v36, &outResultOffset);
-    __asm
+    v17 = EntHandle::ent(&this->m_data.target);
+    GTurret::GetEnemyHeightOffset(this, v17, &outResultOffset);
+    v18 = outResultOffset.v[1] + this->m_data.targetOffset.v[1];
+    outResultOffset.v[0] = outResultOffset.v[0] + this->m_data.targetOffset.v[0];
+    outResultOffset.v[2] = outResultOffset.v[2] + this->m_data.targetOffset.v[2];
+    outResultOffset.v[1] = v18;
+    v19 = EntHandle::ent(&this->m_data.target);
+    if ( G_TurretSP_FireLead_MayHitTarget(wp, v19, &outResultOffset, &wp->forward) )
     {
-      vmovss  xmm0, dword ptr [rsp+0B8h+outResultOffset]
-      vaddss  xmm1, xmm0, dword ptr [rdi+50h]
-      vmovss  xmm2, dword ptr [rsp+0B8h+outResultOffset+4]
-      vaddss  xmm0, xmm2, dword ptr [rdi+54h]
-      vmovss  dword ptr [rsp+0B8h+outResultOffset], xmm1
-      vmovss  xmm1, dword ptr [rsp+0B8h+outResultOffset+8]
-      vaddss  xmm2, xmm1, dword ptr [rdi+58h]
-      vmovss  dword ptr [rsp+0B8h+outResultOffset+8], xmm2
-      vmovss  dword ptr [rsp+0B8h+outResultOffset+4], xmm0
-    }
-    v43 = EntHandle::ent(&_RDI->m_data.target);
-    if ( G_TurretSP_FireLead_MayHitTarget(_RBX, v43, &outResultOffset, &_RBX->forward) )
-    {
-      if ( GTurret::GetRemainingConvergenceTime(_RDI, 1) <= 0 && (v44 = EntHandle::ent(&_RDI->m_data.target), G_TurretSP_FireLead_ShouldHitTarget(v44)) )
+      if ( GTurret::GetRemainingConvergenceTime(this, 1) <= 0 && (v20 = EntHandle::ent(&this->m_data.target), G_TurretSP_FireLead_ShouldHitTarget(v20)) )
       {
         if ( SV_IsDemoPlaying() )
         {
-          *(double *)&_XMM0 = SV_DemoSP_GetFxVisibility();
-          __asm { vmovaps xmm6, xmm0 }
+          FxVisibility = SV_DemoSP_GetFxVisibility();
+          v22 = *(float *)&FxVisibility;
         }
         else
         {
           if ( !Com_GameMode_SupportsFeature(WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api_inline.h", 118, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY )") )
             __debugbreak();
-          *(double *)&_XMM0 = FX_GetClientVisibility(fx_serverVisClient, &_RBX->muzzleTrace, &end);
-          __asm { vmovaps xmm6, xmm0 }
-          SV_DemoSP_RecordFxVisibility(*(float *)&_XMM0);
+          ClientVisibility = FX_GetClientVisibility(fx_serverVisClient, &wp->muzzleTrace, &end);
+          v22 = *(float *)&ClientVisibility;
+          SV_DemoSP_RecordFxVisibility(*(float *)&ClientVisibility);
         }
-        __asm { vcomiss xmm6, cs:__real@3e4ccccd }
-        v47 = !v46;
-        if ( !v46 )
+        v24 = v22 >= 0.2;
+        if ( v22 >= 0.2 )
         {
-          AIScriptedInterface::HitTarget(_RBX, &end, &outForward);
+          AIScriptedInterface::HitTarget(wp, &end, &outForward);
 LABEL_23:
-          __asm
+          v25 = outForward.v[1];
+          v26 = outForward.v[2];
+          if ( (float)((float)((float)(outForward.v[0] * wp->forward.v[0]) + (float)(outForward.v[1] * wp->forward.v[1])) + (float)(outForward.v[2] * wp->forward.v[2])) > 0.94999999 )
           {
-            vmovss  xmm4, dword ptr [rsp+0B8h+outForward+4]
-            vmulss  xmm0, xmm4, dword ptr [rbx+4]
-            vmovss  xmm3, dword ptr [rsp+0B8h+outForward]
-            vmulss  xmm1, xmm3, dword ptr [rbx]
-            vmovss  xmm5, dword ptr [rsp+0B8h+outForward+8]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm5, dword ptr [rbx+8]
-            vaddss  xmm0, xmm2, xmm1
-            vcomiss xmm0, cs:__real@3f733333
+            wp->forward.v[0] = outForward.v[0];
+            wp->forward.v[2] = v26;
+            wp->forward.v[1] = v25;
           }
-          if ( !(v48 | v49) )
-          {
-            __asm
-            {
-              vmovss  dword ptr [rbx], xmm3
-              vmovss  dword ptr [rbx+8], xmm5
-              vmovss  dword ptr [rbx+4], xmm4
-            }
-          }
-          v58 = DVARBOOL_turretConvergenceHeightDebug;
+          v27 = DVARBOOL_turretConvergenceHeightDebug;
           if ( !DVARBOOL_turretConvergenceHeightDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretConvergenceHeightDebug") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v58);
-          if ( v58->current.enabled )
+          Dvar_CheckFrontendServerThread(v27);
+          if ( v27->current.enabled )
           {
-            v59 = &colorRed;
-            if ( v47 )
-              v59 = &colorLtGreen;
-            G_DebugStar(&end, v59);
+            v28 = &colorRed;
+            if ( v24 )
+              v28 = &colorLtGreen;
+            G_DebugStar(&end, v28);
           }
-          goto LABEL_32;
+          return;
         }
       }
       else
       {
-        v47 = 0;
+        v24 = 0;
       }
-      AIScriptedInterface::MissTarget(_RBX, &end, &outForward);
+      AIScriptedInterface::MissTarget(wp, &end, &outForward);
       goto LABEL_23;
     }
-  }
-LABEL_32:
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -539,8 +484,12 @@ bool G_TurretSP_ActorCanUse(actor_s *actor, gentity_s *turretEnt)
   int flags; 
   AIScriptedInterface *v8; 
   sentient_s *TargetSentient; 
-  AIWrapper v22; 
-  AIWrapper v23; 
+  float *v; 
+  float v11; 
+  float v12; 
+  float v13; 
+  AIWrapper v14; 
+  AIWrapper v15; 
 
   if ( !turretEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1111, ASSERT_TYPE_ASSERT, "( turretEnt )", (const char *)&queryFormat, "turretEnt") )
     __debugbreak();
@@ -548,9 +497,9 @@ bool G_TurretSP_ActorCanUse(actor_s *actor, gentity_s *turretEnt)
     __debugbreak();
   if ( turretEnt->active )
     return 0;
-  AIWrapper::AIWrapper(&v22, actor);
-  m_pAI = v22.m_pAI;
-  if ( !v22.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1118, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v14, actor);
+  m_pAI = v14.m_pAI;
+  if ( !v14.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1118, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   if ( (_BYTE)GTurret::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.h", 76, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
@@ -564,30 +513,18 @@ bool G_TurretSP_ActorCanUse(actor_s *actor, gentity_s *turretEnt)
   {
     if ( !actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1095, ASSERT_TYPE_ASSERT, "( actor )", (const char *)&queryFormat, "actor") )
       __debugbreak();
-    AIWrapper::AIWrapper(&v23, actor);
-    v8 = v23.m_pAI;
-    if ( !v23.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1096, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+    AIWrapper::AIWrapper(&v15, actor);
+    v8 = v15.m_pAI;
+    if ( !v15.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1096, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
       __debugbreak();
     TargetSentient = AICommonInterface::GetTargetSentient(v8);
     if ( !TargetSentient )
       return 1;
-    _RCX = actor->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+130h]
-      vmovss  xmm1, dword ptr [rcx+134h]
-      vsubss  xmm3, xmm0, dword ptr [rax]
-      vsubss  xmm2, xmm1, dword ptr [rax+4]
-      vmovss  xmm0, dword ptr [rcx+138h]
-      vsubss  xmm4, xmm0, dword ptr [rax+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@47800000
-    }
-    if ( TargetSentient->ent < (gentity_s *)0xFFFFFFFFFFFFFED0i64 )
+    v = TargetSentient->ent->r.currentOrigin.v;
+    v11 = actor->ent->r.currentOrigin.v[0] - *v;
+    v12 = actor->ent->r.currentOrigin.v[1] - v[1];
+    v13 = actor->ent->r.currentOrigin.v[2] - v[2];
+    if ( (float)((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v13 * v13)) >= 65536.0 )
       return 1;
   }
   return G_TurretSP_CanUse_auto(Turret, turretEnt, actor);
@@ -601,212 +538,114 @@ G_TurretSP_CanUse_auto
 bool G_TurretSP_CanUse_auto(GTurretSP *turret, gentity_s *turretEnt, actor_s *actor)
 {
   AIScriptedInterface *m_pAI; 
-  bool v20; 
+  float v7; 
+  float v8; 
+  float v9; 
   sentient_s *TargetSentient; 
   const gentity_s **p_ent; 
-  sentient_info_t *v33; 
-  bool result; 
-  GTurretSP_vtbl *v79; 
-  AIWrapper v93; 
+  sentient_info_t *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  __int128 v21; 
+  GTurretSP_vtbl *v22; 
+  AIWrapper v26; 
   vec3_t out_sourcePosition; 
   vec3_t outPos; 
   vec3_t forward; 
   vec3_t outLastKnownPos; 
   vec3_t end; 
   vec2_t out_localAngles; 
-  vec3_t v100; 
+  char v33[16]; 
   vec3_t out_targetPosition; 
 
-  _RDI = turretEnt;
-  _R15 = turret;
   if ( !turret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1023, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1024, ASSERT_TYPE_ASSERT, "( turretEnt )", (const char *)&queryFormat, "turretEnt") )
+  if ( !turretEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1024, ASSERT_TYPE_ASSERT, "( turretEnt )", (const char *)&queryFormat, "turretEnt") )
     __debugbreak();
   if ( !actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1025, ASSERT_TYPE_ASSERT, "( actor )", (const char *)&queryFormat, "actor") )
     __debugbreak();
   if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1026, ASSERT_TYPE_ASSERT, "( actor->sentientInfo )", (const char *)&queryFormat, "actor->sentientInfo") )
     __debugbreak();
-  AIWrapper::AIWrapper(&v93, actor);
-  m_pAI = v93.m_pAI;
-  if ( !v93.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1028, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v26, actor);
+  m_pAI = v26.m_pAI;
+  if ( !v26.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 1028, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  __asm
+  if ( AICommonInterface::IsUsingTurret(m_pAI) && AICommonInterface::GetTurretUsed(m_pAI) != turretEnt )
   {
-    vmovaps [rsp+180h+var_40], xmm6
-    vmovaps [rsp+180h+var_50], xmm7
-    vmovaps [rsp+180h+var_60], xmm8
-    vmovaps [rsp+180h+var_70], xmm9
-    vmovaps [rsp+180h+var_80], xmm10
-  }
-  if ( AICommonInterface::IsUsingTurret(m_pAI) && AICommonInterface::GetTurretUsed(m_pAI) != _RDI )
-  {
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 995, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
+    if ( !turretEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 995, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
       __debugbreak();
     if ( !actor->turret.pTurret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 997, ASSERT_TYPE_ASSERT, "( actor->turret.pTurret )", (const char *)&queryFormat, "actor->turret.pTurret") )
       __debugbreak();
-    if ( actor->turret.pTurret == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 998, ASSERT_TYPE_ASSERT, "( actor->turret.pTurret != turret )", (const char *)&queryFormat, "actor->turret.pTurret != turret") )
+    if ( actor->turret.pTurret == turretEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 998, ASSERT_TYPE_ASSERT, "( actor->turret.pTurret != turret )", (const char *)&queryFormat, "actor->turret.pTurret != turret") )
       __debugbreak();
-    _RAX = actor->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+130h]
-      vmovss  xmm1, dword ptr [rdi+134h]
-      vmovss  xmm3, dword ptr [rax+130h]
-      vmovss  xmm2, dword ptr [rax+134h]
-    }
-    _RAX = actor->turret.pTurret;
-    __asm
-    {
-      vsubss  xmm7, xmm0, xmm3
-      vsubss  xmm6, xmm1, xmm2
-    }
-    v20 = __CFADD__(_RAX, 304i64);
-    _RAX = (gentity_s *)((char *)_RAX + 304);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rax+4]
-      vsubss  xmm4, xmm0, xmm3
-      vsubss  xmm2, xmm1, xmm2
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm5, xmm3, xmm0
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm0, xmm2, xmm1
-      vcomiss xmm5, xmm0
-    }
-    if ( !v20 )
-      goto LABEL_40;
+    v7 = actor->ent->r.currentOrigin.v[0];
+    v8 = actor->ent->r.currentOrigin.v[1];
+    v9 = actor->turret.pTurret->r.currentOrigin.v[1] - v8;
+    if ( (float)((float)(v9 * v9) + (float)((float)(actor->turret.pTurret->r.currentOrigin.v[0] - v7) * (float)(actor->turret.pTurret->r.currentOrigin.v[0] - v7))) >= (float)((float)((float)(turretEnt->r.currentOrigin.v[1] - v8) * (float)(turretEnt->r.currentOrigin.v[1] - v8)) + (float)((float)(turretEnt->r.currentOrigin.v[0] - v7) * (float)(turretEnt->r.currentOrigin.v[0] - v7))) )
+      return 0;
   }
   TargetSentient = AICommonInterface::GetTargetSentient(m_pAI);
   p_ent = (const gentity_s **)&TargetSentient->ent;
   if ( !TargetSentient )
-    goto LABEL_34;
-  v33 = &actor->sentientInfo[TargetSentient - level.sentients];
-  if ( level.time - v33->lastKnownPosTime >= _R15->m_dataSP.suppressTime )
-    goto LABEL_34;
-  _RAX = (__int64)&TargetSentient->ent->r.currentOrigin;
-  __asm
+    return 1;
+  v12 = &actor->sentientInfo[TargetSentient - level.sentients];
+  if ( level.time - v12->lastKnownPosTime >= turret->m_dataSP.suppressTime )
+    return 1;
+  v13 = TargetSentient->ent->r.currentOrigin.v[0] - turretEnt->r.currentOrigin.v[0];
+  v16 = LODWORD(TargetSentient->ent->r.currentOrigin.v[1]);
+  v14 = TargetSentient->ent->r.currentOrigin.v[1] - turretEnt->r.currentOrigin.v[1];
+  v15 = TargetSentient->ent->r.currentOrigin.v[2] - turretEnt->r.currentOrigin.v[2];
+  *(float *)&v16 = (float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v15 * v15);
+  if ( *(float *)&v16 >= turret->m_data.maxRangeSquared )
+    return 1;
+  SentientInfo_GetLastKnownPos(v12, &outLastKnownPos);
+  if ( (float)((float)((float)(outLastKnownPos.v[1] - (*p_ent)->r.currentOrigin.v[1]) * (float)(outLastKnownPos.v[1] - (*p_ent)->r.currentOrigin.v[1])) + (float)((float)(outLastKnownPos.v[0] - (*p_ent)->r.currentOrigin.v[0]) * (float)(outLastKnownPos.v[0] - (*p_ent)->r.currentOrigin.v[0]))) >= 4096.0 )
+    return 1;
+  if ( !v12->VisCache.bVisible )
   {
-    vmovss  xmm0, dword ptr [rax]
-    vsubss  xmm6, xmm0, dword ptr [rdi+130h]
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  xmm0, dword ptr [rax+8]
-    vsubss  xmm7, xmm1, dword ptr [rdi+134h]
-    vsubss  xmm8, xmm0, dword ptr [rdi+138h]
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm10, xmm2, xmm1
-    vcomiss xmm10, dword ptr [r15+78h]
-  }
-  if ( (unsigned __int64)*p_ent < 0xFFFFFFFFFFFFFED0ui64 )
-    goto LABEL_34;
-  SentientInfo_GetLastKnownPos(v33, &outLastKnownPos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+outLastKnownPos]
-    vmovss  xmm1, dword ptr [rbp+80h+outLastKnownPos+4]
-    vsubss  xmm2, xmm1, dword ptr [rdx+134h]
-    vsubss  xmm4, xmm0, dword ptr [rdx+130h]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vcomiss xmm1, cs:__real@45800000
-  }
-  if ( !v20 )
-    goto LABEL_34;
-  __asm { vmovss  xmm9, cs:__real@3f800000 }
-  if ( !v33->VisCache.bVisible )
-  {
-    AngleVectors(&_RDI->r.currentAngles, &forward, NULL, NULL);
+    AngleVectors(&turretEnt->r.currentAngles, &forward, NULL, NULL);
+    *(float *)&v16 = fsqrt(*(float *)&v16);
+    _XMM1 = v16;
     __asm
     {
-      vsqrtss xmm1, xmm10, xmm10
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm9, xmm0
-      vdivss  xmm5, xmm9, xmm0
-      vmulss  xmm0, xmm7, xmm5
-      vmulss  xmm3, xmm0, dword ptr [rbp+80h+forward+4]
-      vmulss  xmm1, xmm5, xmm6
-      vmulss  xmm2, xmm1, dword ptr [rbp+80h+forward]
-      vmulss  xmm0, xmm5, xmm8
-      vmulss  xmm1, xmm0, dword ptr [rbp+80h+forward+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vcomiss xmm2, dword ptr [r15+0CCh]
     }
-    if ( !v20 )
-      goto LABEL_34;
+    if ( (float)((float)((float)((float)(v14 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[1]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v13) * forward.v[0])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v15) * forward.v[2])) >= turret->m_data.forwardAngleDot )
+      return 1;
     goto LABEL_37;
   }
-  _R15->GetTargetEyePosition(_R15, *p_ent, &v100);
-  if ( !G_Turret_CanTargetSentient(_RDI, *p_ent, &vec3_origin, &out_targetPosition, &out_sourcePosition, &out_localAngles) )
+  turret->GetTargetEyePosition(turret, *p_ent, (vec3_t *)v33);
+  if ( !G_Turret_CanTargetSentient(turretEnt, *p_ent, &vec3_origin, &out_targetPosition, &out_sourcePosition, &out_localAngles) )
   {
 LABEL_37:
-    if ( G_Utils_DObjGetWorldTagPos(_RDI, scr_const.tag_weapon, &outPos) )
+    if ( G_Utils_DObjGetWorldTagPos(turretEnt, scr_const.tag_weapon, &outPos) )
     {
-      __asm
+      out_sourcePosition.v[0] = outPos.v[0];
+      out_sourcePosition.v[1] = outPos.v[1];
+      if ( G_Utils_DObjGetWorldTagPos(turretEnt, scr_const.tag_aim, &outPos) )
       {
-        vmovss  xmm0, dword ptr [rbp+80h+outPos]
-        vmovss  xmm1, dword ptr [rbp+80h+outPos+4]
-        vmovss  dword ptr [rbp+80h+out_sourcePosition], xmm0
-        vmovss  dword ptr [rbp+80h+out_sourcePosition+4], xmm1
-      }
-      if ( G_Utils_DObjGetWorldTagPos(_RDI, scr_const.tag_aim, &outPos) )
-      {
+        v21 = LODWORD(out_sourcePosition.v[1]);
+        v22 = turret->__vftable;
+        out_sourcePosition.v[2] = outPos.v[2];
+        *(float *)&v21 = fsqrt((float)((float)(out_sourcePosition.v[1] - outPos.v[1]) * (float)(out_sourcePosition.v[1] - outPos.v[1])) + (float)((float)(out_sourcePosition.v[0] - outPos.v[0]) * (float)(out_sourcePosition.v[0] - outPos.v[0])));
+        _XMM2 = v21;
         __asm
         {
-          vmovss  xmm6, dword ptr [rbp+80h+out_sourcePosition]
-          vmovss  xmm7, dword ptr [rbp+80h+out_sourcePosition+4]
-          vmovss  xmm0, dword ptr [rbp+80h+outPos+8]
-          vsubss  xmm3, xmm6, dword ptr [rbp+80h+outPos]
-          vsubss  xmm5, xmm7, dword ptr [rbp+80h+outPos+4]
-        }
-        v79 = _R15->__vftable;
-        __asm
-        {
-          vmovss  dword ptr [rbp+80h+out_sourcePosition+8], xmm0
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
           vcmpless xmm0, xmm2, cs:__real@80000000
           vblendvps xmm0, xmm2, xmm9, xmm0
-          vdivss  xmm4, xmm9, xmm0
-          vmulss  xmm1, xmm3, xmm4
-          vmulss  xmm0, xmm1, cs:__real@41f00000
-          vaddss  xmm1, xmm6, xmm0
-          vmovss  dword ptr [rbp+80h+out_sourcePosition], xmm1
-          vmulss  xmm2, xmm5, xmm4
-          vmulss  xmm0, xmm2, cs:__real@41f00000
-          vaddss  xmm1, xmm7, xmm0
-          vmovss  dword ptr [rbp+80h+out_sourcePosition+4], xmm1
         }
-        v79->GetTargetEyePosition(_R15, *p_ent, &end);
-        result = !G_Turret_SightTrace(&out_sourcePosition, &end, actor->ent->s.number, (*p_ent)->s.number);
-        goto LABEL_35;
+        out_sourcePosition.v[0] = out_sourcePosition.v[0] + (float)((float)((float)(out_sourcePosition.v[0] - outPos.v[0]) * (float)(1.0 / *(float *)&_XMM0)) * 30.0);
+        out_sourcePosition.v[1] = out_sourcePosition.v[1] + (float)((float)((float)(out_sourcePosition.v[1] - outPos.v[1]) * (float)(1.0 / *(float *)&_XMM0)) * 30.0);
+        v22->GetTargetEyePosition(turret, *p_ent, &end);
+        return !G_Turret_SightTrace(&out_sourcePosition, &end, actor->ent->s.number, (*p_ent)->s.number);
       }
     }
-LABEL_40:
-    result = 0;
-    goto LABEL_35;
+    return 0;
   }
-LABEL_34:
-  result = 1;
-LABEL_35:
-  __asm
-  {
-    vmovaps xmm10, [rsp+180h+var_80]
-    vmovaps xmm9, [rsp+180h+var_70]
-    vmovaps xmm8, [rsp+180h+var_60]
-    vmovaps xmm7, [rsp+180h+var_50]
-    vmovaps xmm6, [rsp+180h+var_40]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -816,91 +655,57 @@ G_TurretSP_FireLead_MayHitTarget
 */
 bool G_TurretSP_FireLead_MayHitTarget(const BgWeaponParms *wp, const gentity_s *target, const vec3_t *targetOffset, const vec3_t *forward)
 {
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   entityType_s eType; 
   actor_s *actor; 
   unsigned int physicsInstanceId; 
-  bool result; 
   vec3_t end; 
   vec3_t start; 
-  char v44; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBX = target;
-  _RDI = wp;
   if ( !target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 778, ASSERT_TYPE_ASSERT, "( target )", (const char *)&queryFormat, "target") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 779, ASSERT_TYPE_ASSERT, "( wp )", (const char *)&queryFormat, "wp") )
+  if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 779, ASSERT_TYPE_ASSERT, "( wp )", (const char *)&queryFormat, "wp") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+24h]
-    vmovss  xmm7, dword ptr [rdi+28h]
-    vmovss  xmm8, dword ptr [rdi+2Ch]
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmovss  xmm2, dword ptr [rbx+134h]
-    vaddss  xmm0, xmm2, dword ptr [rbp+4]
-    vsubss  xmm5, xmm1, xmm6
-    vmovss  xmm1, dword ptr [rbx+138h]
-    vaddss  xmm2, xmm1, dword ptr [rbp+8]
-    vsubss  xmm3, xmm0, xmm7
-    vsubss  xmm4, xmm2, xmm8
-    vmulss  xmm3, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm3, dword ptr [rsi]
-    vaddss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+0B8h+end], xmm1
-    vaddss  xmm1, xmm0, xmm7
-    vmulss  xmm0, xmm3, dword ptr [rsi+8]
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm1
-    vaddss  xmm1, xmm0, xmm8
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm1
-    vmovss  dword ptr [rsp+0B8h+start], xmm6
-    vmovss  dword ptr [rsp+0B8h+start+4], xmm7
-    vmovss  dword ptr [rsp+0B8h+start+8], xmm8
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  v8 = wp->muzzleTrace.v[0];
+  v9 = wp->muzzleTrace.v[1];
+  v10 = wp->muzzleTrace.v[2];
+  v11 = (float)(target->r.currentOrigin.v[0] + targetOffset->v[0]) - v8;
+  v12 = (float)(target->r.currentOrigin.v[1] + targetOffset->v[1]) - v9;
+  v13 = (float)(target->r.currentOrigin.v[2] + targetOffset->v[2]) - v10;
+  v14 = fsqrt((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v13 * v13));
+  v15 = v14 * forward->v[1];
+  end.v[0] = (float)(v14 * forward->v[0]) + v8;
+  v16 = v14 * forward->v[2];
+  end.v[1] = v15 + v9;
+  end.v[2] = v16 + v10;
+  start.v[0] = v8;
+  start.v[1] = v9;
+  start.v[2] = v10;
+  if ( !target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = _RBX->s.eType;
+  eType = target->s.eType;
   if ( ((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM )
   {
-    physicsInstanceId = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, _RBX->s.number);
+    physicsInstanceId = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, target->s.number);
   }
   else
   {
-    actor = _RBX->actor;
-    if ( (!actor || !actor->Physics.bIsAlive) && _RBX->health <= 0 )
-      goto LABEL_18;
-    physicsInstanceId = G_PhysicsCharacterProxy_GetCollisionPhysicsInstanceId(_RBX);
+    actor = target->actor;
+    if ( (!actor || !actor->Physics.bIsAlive) && target->health <= 0 )
+      return 0;
+    physicsInstanceId = G_PhysicsCharacterProxy_GetCollisionPhysicsInstanceId(target);
   }
-  if ( physicsInstanceId != -1 )
-  {
-    result = PhysicsQuery_LegacyEntitySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &end, &bounds_origin, -1, physicsInstanceId, _RBX->s.number) != 0;
-    goto LABEL_20;
-  }
-LABEL_18:
-  result = 0;
-LABEL_20:
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  if ( physicsInstanceId == -1 )
+    return 0;
+  return PhysicsQuery_LegacyEntitySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &end, &bounds_origin, -1, physicsInstanceId, target->s.number) != 0;
 }
 
 /*
@@ -1025,106 +830,77 @@ G_TurretSP_GetLastCanShootWorldPos
 */
 void G_TurretSP_GetLastCanShootWorldPos(GTurretDataSP *const turretDataSP, vec3_t *outLastKnownPos)
 {
+  __int128 v2; 
   __int16 lastCanShootGroundEntNum; 
+  vec3_t *p_lastCanShootLocalPos; 
   __int64 v7; 
-  int v38; 
-  int v39; 
-  int v40; 
+  gentity_s *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
   tmat33_t<vec3_t> axis; 
+  __int128 v21; 
 
-  _RBX = outLastKnownPos;
-  _RDI = turretDataSP;
   if ( !turretDataSP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 330, ASSERT_TYPE_ASSERT, "( turretDataSP )", (const char *)&queryFormat, "turretDataSP") )
     __debugbreak();
-  lastCanShootGroundEntNum = _RDI->lastCanShootGroundEntNum;
+  lastCanShootGroundEntNum = turretDataSP->lastCanShootGroundEntNum;
   if ( (unsigned __int16)(lastCanShootGroundEntNum - 2046) <= 1u )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+2Ch]
-      vmovss  dword ptr [rbx], xmm1
-    }
-    _RBX->v[1] = _RDI->lastCanShootLocalPos.v[1];
-    __asm { vmovss  xmm0, dword ptr [rdi+34h] }
+    v17 = turretDataSP->lastCanShootLocalPos.v[0];
+    outLastKnownPos->v[0] = v17;
+    outLastKnownPos->v[1] = turretDataSP->lastCanShootLocalPos.v[1];
+    v18 = turretDataSP->lastCanShootLocalPos.v[2];
   }
   else
   {
-    _RSI = &_RDI->lastCanShootLocalPos;
+    p_lastCanShootLocalPos = &turretDataSP->lastCanShootLocalPos;
     if ( G_IsEntityInUse(lastCanShootGroundEntNum) )
     {
-      v7 = _RDI->lastCanShootGroundEntNum;
-      __asm { vmovaps [rsp+98h+var_28], xmm6 }
-      AnglesToAxis(&g_entities[v7].r.currentAngles, &axis);
-      if ( _RSI == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+      v7 = turretDataSP->lastCanShootGroundEntNum;
+      v21 = v2;
+      v8 = &g_entities[v7];
+      AnglesToAxis(&v8->r.currentAngles, &axis);
+      if ( p_lastCanShootLocalPos == outLastKnownPos && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+98h+axis]
-        vmulss  xmm3, xmm0, dword ptr [rsi]
-        vmovss  xmm1, dword ptr [rsp+98h+axis+0Ch]
-        vmulss  xmm2, xmm1, dword ptr [rsi+4]
-        vmovss  xmm0, dword ptr [rsp+98h+axis+18h]
-        vmulss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  xmm0, dword ptr [rsp+98h+axis+4]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm6, xmm4, xmm1
-        vmovss  xmm1, dword ptr [rsp+98h+axis+10h]
-        vmovss  dword ptr [rbx], xmm6
-        vmulss  xmm3, xmm0, dword ptr [rsi]
-        vmulss  xmm2, xmm1, dword ptr [rsi+4]
-        vmovss  xmm0, dword ptr [rsp+98h+axis+1Ch]
-        vmulss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  xmm0, dword ptr [rsp+98h+axis+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm5, xmm4, xmm1
-        vmovss  xmm1, dword ptr [rsp+98h+axis+14h]
-        vmovss  dword ptr [rbx+4], xmm5
-        vmulss  xmm3, xmm0, dword ptr [rsi]
-        vmulss  xmm2, xmm1, dword ptr [rsi+4]
-        vmovss  xmm0, dword ptr [rsp+98h+axis+20h]
-        vmulss  xmm1, xmm0, dword ptr [rsi+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vmovss  dword ptr [rbx+8], xmm2
-        vaddss  xmm1, xmm6, dword ptr [rdi+130h]
-        vmovaps xmm6, [rsp+98h+var_28]
-        vmovss  dword ptr [rbx], xmm1
-        vaddss  xmm0, xmm5, dword ptr [rdi+134h]
-        vmovss  dword ptr [rbx+4], xmm0
-        vaddss  xmm0, xmm2, dword ptr [rdi+138h]
-      }
+      v9 = axis.m[0].v[1];
+      v10 = (float)((float)(axis.m[0].v[0] * p_lastCanShootLocalPos->v[0]) + (float)(axis.m[1].v[0] * p_lastCanShootLocalPos->v[1])) + (float)(axis.m[2].v[0] * p_lastCanShootLocalPos->v[2]);
+      v11 = axis.m[1].v[1];
+      outLastKnownPos->v[0] = v10;
+      v12 = v9 * p_lastCanShootLocalPos->v[0];
+      v13 = axis.m[0].v[2];
+      v14 = (float)(v12 + (float)(v11 * p_lastCanShootLocalPos->v[1])) + (float)(axis.m[2].v[1] * p_lastCanShootLocalPos->v[2]);
+      v15 = axis.m[1].v[2];
+      outLastKnownPos->v[1] = v14;
+      v16 = (float)((float)(v13 * p_lastCanShootLocalPos->v[0]) + (float)(v15 * p_lastCanShootLocalPos->v[1])) + (float)(axis.m[2].v[2] * p_lastCanShootLocalPos->v[2]);
+      outLastKnownPos->v[2] = v16;
+      v17 = v10 + v8->r.currentOrigin.v[0];
+      outLastKnownPos->v[0] = v17;
+      outLastKnownPos->v[1] = v14 + v8->r.currentOrigin.v[1];
+      v18 = v16 + v8->r.currentOrigin.v[2];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  dword ptr [rbx], xmm1
-      }
-      _RBX->v[1] = _RDI->lastCanShootLocalPos.v[1];
-      __asm { vmovss  xmm0, dword ptr [rsi+8] }
+      v17 = p_lastCanShootLocalPos->v[0];
+      outLastKnownPos->v[0] = p_lastCanShootLocalPos->v[0];
+      outLastKnownPos->v[1] = turretDataSP->lastCanShootLocalPos.v[1];
+      v18 = turretDataSP->lastCanShootLocalPos.v[2];
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  [rsp+98h+var_68], xmm1
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 353, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[0] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[0] )") )
+  outLastKnownPos->v[2] = v18;
+  if ( (LODWORD(v17) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 353, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[0] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[0] )", v17) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+98h+var_68], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 354, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[1] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[1] )") )
+  if ( (LODWORD(outLastKnownPos->v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 354, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[1] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[1] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+98h+var_68], xmm0
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 355, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[2] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[2] )") )
+  *(float *)&v19 = outLastKnownPos->v[2];
+  if ( (v19 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 355, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[2] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[2] )", v19) )
     __debugbreak();
 }
 
@@ -1188,131 +964,137 @@ LABEL_27:
 G_TurretSP_Think_Auto
 ==============
 */
-char G_TurretSP_Think_Auto(GTurretSP *turret, gentity_s *self, actor_s *actor)
+bool G_TurretSP_Think_Auto(GTurretSP *turret, gentity_s *self, actor_s *actor)
 {
   AIScriptedInterface *m_pAI; 
-  const sentient_s *v11; 
+  const sentient_s *v7; 
   sentient_s *TargetSentient; 
   int flags; 
-  AIScriptedInterface *v45; 
-  AIWrapper v46; 
+  gentity_s *v10; 
+  sentient_info_t *v11; 
+  sentient_info_t *SentientInfo; 
+  float v13; 
+  float v14; 
+  float v15; 
+  const gentity_s *ent; 
+  float v18; 
+  float v19; 
+  float v20; 
+  const sentient_s *sentient; 
+  bool v22; 
+  bool returnVal; 
+  SentientHandle *p_detachSentient; 
+  AIScriptedInterface *v25; 
+  AIWrapper v26; 
 
-  _R14 = self;
-  _RBX = turret;
   if ( !turret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 491, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
     __debugbreak();
-  _RBP = &_RBX->m_dataSP;
-  AIWrapper::AIWrapper(&v46, actor);
-  m_pAI = v46.m_pAI;
-  v45 = v46.m_pAI;
-  if ( !v46.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 496, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v26, actor);
+  m_pAI = v26.m_pAI;
+  v25 = v26.m_pAI;
+  if ( !v26.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 496, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  if ( (_RBX->m_data.flags & 0x40000) == 0 )
-    goto LABEL_46;
-  __asm
+  if ( (turret->m_data.flags & 0x40000) == 0 || turret->m_dataSP.originError.v[0] != 0.0 || turret->m_dataSP.originError.v[1] != 0.0 || turret->m_dataSP.originError.v[2] != 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbp+0Ch]
-  }
-  if ( (_RBX->m_data.flags & 0x40000) != 0 )
-    goto LABEL_46;
-  __asm { vucomiss xmm0, dword ptr [rbp+10h] }
-  if ( (_RBX->m_data.flags & 0x40000) != 0 )
-    goto LABEL_46;
-  __asm { vucomiss xmm0, dword ptr [rbp+14h] }
-  if ( (_RBX->m_data.flags & 0x40000) != 0 )
-  {
-LABEL_46:
-    GTurret::ReturnToDefaultPos(_RBX, _R14, 0);
+    GTurret::ReturnToDefaultPos(turret, self, 0);
     return 1;
+  }
+  p_detachSentient = &turret->m_dataSP.detachSentient;
+  if ( SentientHandle::isDefined(&turret->m_dataSP.detachSentient) )
+    v7 = SentientHandle::sentient(&turret->m_dataSP.detachSentient);
+  else
+    v7 = NULL;
+  TargetSentient = AICommonInterface::GetTargetSentient(m_pAI);
+  flags = turret->m_data.flags;
+  if ( (flags & 0x20000) != 0 && v7 )
+  {
+    if ( (flags & 0x1000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 509, ASSERT_TYPE_ASSERT, "( !(turretData->flags & TURRET_DONT_DETACH_AI) )", (const char *)&queryFormat, "!(turretData->flags & TURRET_DONT_DETACH_AI)") )
+      __debugbreak();
+    TargetSentient = (sentient_s *)v7;
+  }
+  if ( EntHandle::isDefined(&turret->m_data.manualTarget) )
+    v10 = EntHandle::ent(&turret->m_data.manualTarget);
+  else
+    v10 = NULL;
+  if ( TargetSentient )
+  {
+    SentientInfo = Sentient_GetSentientInfo(actor->sentient, TargetSentient);
+    v11 = SentientInfo;
+    SentientInfo->attackTime = level.time + 2000;
+    if ( TargetSentient->bIgnoreMe || (v13 = self->r.currentOrigin.v[0] - TargetSentient->ent->r.currentOrigin.v[0], v14 = self->r.currentOrigin.v[1] - TargetSentient->ent->r.currentOrigin.v[1], v15 = self->r.currentOrigin.v[2] - TargetSentient->ent->r.currentOrigin.v[2], (float)((float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v15 * v15)) >= turret->m_data.maxRangeSquared) )
+    {
+      v11 = NULL;
+    }
+    else
+    {
+      if ( SentientInfo->VisCache.bVisible && GTurret::AimAtSentient(turret, self, TargetSentient->ent, &vec3_origin, 1, turret->m_data.convergenceTime[1]) )
+      {
+        ent = TargetSentient->ent;
+        if ( turret == (GTurretSP *)-256i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 317, ASSERT_TYPE_ASSERT, "( turretDataSP )", (const char *)&queryFormat, "turretDataSP") )
+          __debugbreak();
+        if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 318, ASSERT_TYPE_ASSERT, "( enemy )", (const char *)&queryFormat, "enemy") )
+          __debugbreak();
+        EntHandle::setEnt(&turret->m_dataSP.lastCanShootTarget, ent);
+        turret->m_dataSP.lastCanShootTime = v11->lastKnownPosTime;
+        *(double *)turret->m_dataSP.lastCanShootLocalPos.v = *(double *)v11->vLastKnownLocalPos.v;
+        turret->m_dataSP.lastCanShootLocalPos.v[2] = v11->vLastKnownLocalPos.v[2];
+        turret->m_dataSP.lastCanShootGroundEntNum = v11->lastKnownGroundEntNum;
+        turret->m_data.flags &= ~0x20000u;
+        v11->attackTime = 0;
+        return 1;
+      }
+      if ( level.time - actor->iStateTime >= 1000 && (turret->m_data.flags & 0x1000000) == 0 )
+      {
+        returnVal = 0;
+        if ( G_TurretSP_Think_Auto_TryDetach(turret, self, actor, TargetSentient, &returnVal) )
+          return returnVal;
+      }
+    }
+    if ( v10 == TargetSentient->ent )
+      v10 = NULL;
   }
   else
   {
-    if ( SentientHandle::isDefined(&_RBX->m_dataSP.detachSentient) )
-      v11 = SentientHandle::sentient(&_RBX->m_dataSP.detachSentient);
-    else
-      v11 = NULL;
-    TargetSentient = AICommonInterface::GetTargetSentient(m_pAI);
-    flags = _RBX->m_data.flags;
-    if ( (flags & 0x20000) != 0 && v11 )
-    {
-      if ( (flags & 0x1000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 509, ASSERT_TYPE_ASSERT, "( !(turretData->flags & TURRET_DONT_DETACH_AI) )", (const char *)&queryFormat, "!(turretData->flags & TURRET_DONT_DETACH_AI)") )
-        __debugbreak();
-      TargetSentient = (sentient_s *)v11;
-    }
-    if ( EntHandle::isDefined(&_RBX->m_data.manualTarget) )
-      _RDI = EntHandle::ent(&_RBX->m_data.manualTarget);
-    else
-      _RDI = NULL;
-    if ( TargetSentient )
-    {
-      Sentient_GetSentientInfo(actor->sentient, TargetSentient)->attackTime = level.time + 2000;
-      if ( !TargetSentient->bIgnoreMe )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+130h]
-          vmovss  xmm1, dword ptr [r14+134h]
-          vsubss  xmm3, xmm0, dword ptr [r8+130h]
-          vsubss  xmm2, xmm1, dword ptr [r8+134h]
-          vmovss  xmm0, dword ptr [r14+138h]
-          vsubss  xmm4, xmm0, dword ptr [r8+138h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, dword ptr [rbx+78h]
-        }
-      }
-      if ( _RDI == TargetSentient->ent )
-        _RDI = NULL;
-    }
-    else
-    {
-      if ( v11 && Sentient_GetSentientInfo(actor->sentient, v11)->attackTime <= level.time )
-        SentientHandle::setSentient(&_RBX->m_dataSP.detachSentient, NULL);
-      AIScriptedInterface::CanAttackAll(v45);
-    }
-    if ( !G_TurretSP_Think_Auto_Suppression(_RBX, _R14, actor) )
-    {
-      if ( _RDI )
-      {
-        __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
-        if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 454, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
-          __debugbreak();
-        if ( !actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 455, ASSERT_TYPE_ASSERT, "( actor )", (const char *)&queryFormat, "actor") )
-          __debugbreak();
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 456, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+130h]
-          vaddss  xmm2, xmm0, dword ptr [rbx+60h]
-          vmovss  xmm1, dword ptr [r14+130h]
-          vmovss  xmm0, dword ptr [rbx+64h]
-          vaddss  xmm3, xmm0, dword ptr [rdi+134h]
-          vmovss  xmm0, dword ptr [rbx+68h]
-          vsubss  xmm6, xmm1, xmm2
-          vaddss  xmm2, xmm0, dword ptr [rdi+138h]
-          vmovss  xmm1, dword ptr [r14+134h]
-          vsubss  xmm5, xmm1, xmm3
-          vmovss  xmm1, dword ptr [r14+138h]
-          vsubss  xmm4, xmm1, xmm2
-          vmulss  xmm0, xmm6, xmm6
-          vmovaps xmm6, [rsp+0E8h+var_48]
-          vmulss  xmm3, xmm5, xmm5
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm2, dword ptr [rbx+78h]
-        }
-      }
-      G_Turret_ClearTargetEnt(_R14);
-      GTurret::ReturnToDefaultPos(_RBX, _R14, 1);
-    }
-    return 1;
+    v11 = NULL;
+    if ( v7 && Sentient_GetSentientInfo(actor->sentient, v7)->attackTime <= level.time )
+      SentientHandle::setSentient(p_detachSentient, NULL);
+    AIScriptedInterface::CanAttackAll(v25);
   }
+  if ( !G_TurretSP_Think_Auto_Suppression(turret, self, actor) )
+  {
+    if ( !v10 )
+      goto LABEL_65;
+    if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 454, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
+      __debugbreak();
+    if ( !actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 455, ASSERT_TYPE_ASSERT, "( actor )", (const char *)&queryFormat, "actor") )
+      __debugbreak();
+    if ( !turret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 456, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
+      __debugbreak();
+    v18 = self->r.currentOrigin.v[0] - (float)(v10->r.currentOrigin.v[0] + turret->m_data.manualTargetOffset.v[0]);
+    v19 = self->r.currentOrigin.v[1] - (float)(turret->m_data.manualTargetOffset.v[1] + v10->r.currentOrigin.v[1]);
+    v20 = self->r.currentOrigin.v[2] - (float)(turret->m_data.manualTargetOffset.v[2] + v10->r.currentOrigin.v[2]);
+    if ( (float)((float)((float)(v19 * v19) + (float)(v18 * v18)) + (float)(v20 * v20)) >= turret->m_data.maxRangeSquared )
+      goto LABEL_65;
+    sentient = v10->sentient;
+    if ( sentient )
+    {
+      if ( !Sentient_GetSentientInfo(actor->sentient, sentient)->VisCache.bVisible )
+        goto LABEL_65;
+      v22 = GTurret::AimAtSentient(turret, self, v10, &turret->m_data.manualTargetOffset, 1, turret->m_data.convergenceTime[1]);
+    }
+    else
+    {
+      v22 = GTurret::AimAtEntity(turret, self, v10, &turret->m_data.manualTargetOffset, 1);
+    }
+    if ( !v22 )
+    {
+LABEL_65:
+      if ( !v11 || !v11->VisCache.bVisible )
+        G_Turret_ClearTargetEnt(self);
+      GTurret::ReturnToDefaultPos(turret, self, 1);
+    }
+  }
+  return 1;
 }
 
 /*
@@ -1325,20 +1107,7 @@ bool G_TurretSP_Think_Auto_ShouldCheck(GTurretDataSP *turret, sentient_s *enemy,
   vec3_t outLastKnownPos; 
 
   SentientInfo_GetLastKnownPos(pInfo, &outLastKnownPos);
-  if ( level.time - pInfo->lastKnownPosTime >= turret->suppressTime )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+outLastKnownPos]
-    vmovss  xmm1, dword ptr [rsp+48h+outLastKnownPos+4]
-    vsubss  xmm2, xmm1, dword ptr [rax+4]
-    vsubss  xmm4, xmm0, dword ptr [rax]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vcomiss xmm1, cs:__real@45800000
-  }
-  return enemy->ent >= (gentity_s *)0xFFFFFFFFFFFFFED0i64;
+  return level.time - pInfo->lastKnownPosTime < turret->suppressTime && (float)((float)((float)(outLastKnownPos.v[1] - enemy->ent->r.currentOrigin.v[1]) * (float)(outLastKnownPos.v[1] - enemy->ent->r.currentOrigin.v[1])) + (float)((float)(outLastKnownPos.v[0] - enemy->ent->r.currentOrigin.v[0]) * (float)(outLastKnownPos.v[0] - enemy->ent->r.currentOrigin.v[0]))) < 4096.0;
 }
 
 /*
@@ -1353,99 +1122,78 @@ char G_TurretSP_Think_Auto_Suppression(GTurretSP *turret, gentity_s *self, actor
   gentity_s *v8; 
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
-  bool v14; 
+  bool v11; 
   sentient_s *sentient; 
   sentient_info_t *SentientInfo; 
-  sentient_info_t *v18; 
+  sentient_info_t *v15; 
+  float v16; 
+  float v17; 
   SentientHandle *p_detachSentient; 
   vec3_t outLastKnownPos; 
   vec2_t out_localTargetAngles; 
   vec3_t origin; 
 
-  _RBX = turret;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 362, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 363, ASSERT_TYPE_ASSERT, "( actor )", (const char *)&queryFormat, "actor") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 364, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
+  if ( !turret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 364, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
     __debugbreak();
-  p_m_dataSP = &_RBX->m_dataSP;
-  if ( !EntHandle::isDefined(&_RBX->m_data.target) )
+  p_m_dataSP = &turret->m_dataSP;
+  if ( !EntHandle::isDefined(&turret->m_data.target) )
     return 0;
-  v7 = EntHandle::ent(&_RBX->m_data.target);
+  v7 = EntHandle::ent(&turret->m_data.target);
   v8 = v7;
-  if ( v7->maxHealth > 0 && v7->health <= 0 && EntHandle::isDefined(&_RBX->m_dataSP.lastCanShootTarget) && EntHandle::ent(&_RBX->m_dataSP.lastCanShootTarget) == v8 )
+  if ( v7->maxHealth > 0 && v7->health <= 0 && EntHandle::isDefined(&turret->m_dataSP.lastCanShootTarget) && EntHandle::ent(&turret->m_dataSP.lastCanShootTarget) == v8 )
   {
     Instance = GWeaponMap::GetInstance();
     WeaponForEntity = BG_GetWeaponForEntity(Instance, &self->s);
-    _RAX = BG_WeaponDef(WeaponForEntity, 0);
-    __asm
+    if ( level.time - turret->m_dataSP.lastCanShootTime < (int)(float)(BG_WeaponDef(WeaponForEntity, 0)->suppressTimeTargetKilled * 1000.0) )
     {
-      vmovss  xmm0, dword ptr [rax+0C8Ch]
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si eax, xmm1
-    }
-    if ( level.time - _RBX->m_dataSP.lastCanShootTime < (int)_RAX )
-    {
-      G_TurretSP_GetLastCanShootWorldPos(&_RBX->m_dataSP, &outLastKnownPos);
-      v14 = GTurret::AimAtVector(_RBX, self, &outLastKnownPos, 1, &out_localTargetAngles);
+      G_TurretSP_GetLastCanShootWorldPos(&turret->m_dataSP, &outLastKnownPos);
+      v11 = GTurret::AimAtVector(turret, self, &outLastKnownPos, 1, &out_localTargetAngles);
       goto LABEL_17;
     }
     return 0;
   }
-  if ( !EntHandle::ent(&_RBX->m_data.target)->sentient )
+  if ( !EntHandle::ent(&turret->m_data.target)->sentient )
     return 0;
-  sentient = EntHandle::ent(&_RBX->m_data.target)->sentient;
+  sentient = EntHandle::ent(&turret->m_data.target)->sentient;
   SentientInfo = Sentient_GetSentientInfo(actor->sentient, sentient);
-  v18 = SentientInfo;
+  v15 = SentientInfo;
   if ( sentient->bIgnoreMe || level.time - SentientInfo->lastKnownPosTime >= p_m_dataSP->suppressTime )
   {
     SentientInfo->lastKnownPosTime = 0;
     return 0;
   }
   SentientInfo_GetLastKnownPos(SentientInfo, &outLastKnownPos);
-  if ( (_RBX->m_data.flags & 0x20) != 0 )
-  {
-    __asm { vmovss  xmm3, dword ptr [rbx+98h] }
-  }
+  if ( (turret->m_data.flags & 0x20) != 0 )
+    v16 = turret->m_data.targetPos.v[2];
   else
+    v16 = outLastKnownPos.v[2] + 32.0;
+  v17 = outLastKnownPos.v[1] + turret->m_data.targetOffset.v[1];
+  outLastKnownPos.v[0] = outLastKnownPos.v[0] + turret->m_data.targetOffset.v[0];
+  outLastKnownPos.v[2] = v16 + turret->m_data.targetOffset.v[2];
+  outLastKnownPos.v[1] = v17;
+  if ( !GTurret::AimAtVector(turret, self, &outLastKnownPos, 1, &out_localTargetAngles) )
   {
-    __asm
+    if ( level.time - turret->m_dataSP.lastCanShootTime < p_m_dataSP->suppressTime )
     {
-      vmovss  xmm0, dword ptr [rsp+98h+outLastKnownPos+8]
-      vaddss  xmm3, xmm0, cs:__real@42000000
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+outLastKnownPos]
-    vaddss  xmm1, xmm0, dword ptr [rbx+50h]
-    vmovss  xmm2, dword ptr [rsp+98h+outLastKnownPos+4]
-    vaddss  xmm0, xmm2, dword ptr [rbx+54h]
-    vmovss  dword ptr [rsp+98h+outLastKnownPos], xmm1
-    vaddss  xmm1, xmm3, dword ptr [rbx+58h]
-    vmovss  dword ptr [rsp+98h+outLastKnownPos+8], xmm1
-    vmovss  dword ptr [rsp+98h+outLastKnownPos+4], xmm0
-  }
-  if ( !GTurret::AimAtVector(_RBX, self, &outLastKnownPos, 1, &out_localTargetAngles) )
-  {
-    if ( level.time - _RBX->m_dataSP.lastCanShootTime < p_m_dataSP->suppressTime )
-    {
-      G_TurretSP_GetLastCanShootWorldPos(&_RBX->m_dataSP, &origin);
-      v14 = GTurret::AimAtVectorClamped(_RBX, self, &origin, 1, &out_localTargetAngles);
+      G_TurretSP_GetLastCanShootWorldPos(&turret->m_dataSP, &origin);
+      v11 = GTurret::AimAtVectorClamped(turret, self, &origin, 1, &out_localTargetAngles);
 LABEL_17:
-      if ( v14 )
+      if ( v11 )
       {
-        GTurret::UpdateTargetAngles(_RBX, self, &out_localTargetAngles, 1);
+        GTurret::UpdateTargetAngles(turret, self, &out_localTargetAngles, 1);
         return 1;
       }
     }
     return 0;
   }
-  GTurret::UpdateTargetAngles(_RBX, self, &out_localTargetAngles, 1);
-  p_detachSentient = &_RBX->m_dataSP.detachSentient;
-  v18->attackTime = 0;
-  if ( SentientHandle::isDefined(&_RBX->m_dataSP.detachSentient) )
+  GTurret::UpdateTargetAngles(turret, self, &out_localTargetAngles, 1);
+  p_detachSentient = &turret->m_dataSP.detachSentient;
+  v15->attackTime = 0;
+  if ( SentientHandle::isDefined(&turret->m_dataSP.detachSentient) )
   {
     if ( SentientHandle::sentient(p_detachSentient) == sentient )
       SentientHandle::setSentient(p_detachSentient, NULL);
@@ -1460,119 +1208,82 @@ G_TurretSP_Think_Auto_TryDetach
 */
 bool G_TurretSP_Think_Auto_TryDetach(GTurretSP *turret, gentity_s *self, actor_s *actor, sentient_s *enemy, bool *returnVal)
 {
-  int isDefined; 
-  sentient_s *v43; 
-  sentient_s *v44; 
-  sentient_info_t *v45; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  float v16; 
+  sentient_s *v17; 
+  sentient_s *v18; 
+  sentient_info_t *v19; 
   bool result; 
   sentient_info_t *SentientInfo; 
-  sentient_info_t *v48; 
-  char v49; 
+  sentient_info_t *v22; 
+  BOOL v23; 
   vec3_t forward; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_88], xmm9
-    vmovaps xmmword ptr [r11-58h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm8
-  }
-  _RDI = turret;
   if ( !turret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 245, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
     __debugbreak();
-  if ( (_RDI->m_data.flags & 0x1000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 249, ASSERT_TYPE_ASSERT, "( !(turretData->flags & TURRET_DONT_DETACH_AI) )", (const char *)&queryFormat, "!(turretData->flags & TURRET_DONT_DETACH_AI)") )
+  if ( (turret->m_data.flags & 0x1000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 249, ASSERT_TYPE_ASSERT, "( !(turretData->flags & TURRET_DONT_DETACH_AI) )", (const char *)&queryFormat, "!(turretData->flags & TURRET_DONT_DETACH_AI)") )
     __debugbreak();
-  _RAX = enemy->ent;
+  v9 = enemy->ent->r.currentOrigin.v[0] - self->r.currentOrigin.v[0];
+  v11 = LODWORD(enemy->ent->r.currentOrigin.v[1]);
+  v10 = enemy->ent->r.currentOrigin.v[1] - self->r.currentOrigin.v[1];
+  v12 = enemy->ent->r.currentOrigin.v[2] - self->r.currentOrigin.v[2];
+  *(float *)&v11 = fsqrt((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v12 * v12));
+  _XMM9 = v11;
   __asm
   {
-    vmovss  xmm0, dword ptr [rax+130h]
-    vsubss  xmm6, xmm0, dword ptr [rbx+130h]
-    vmovss  xmm1, dword ptr [rax+134h]
-    vsubss  xmm5, xmm1, dword ptr [rbx+134h]
-    vmovss  xmm0, dword ptr [rax+138h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+138h]
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm2, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm9, xmm2, xmm2
     vcmpless xmm0, xmm9, cs:__real@80000000
     vblendvps xmm0, xmm9, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm7, xmm5, xmm1
-    vmulss  xmm8, xmm4, xmm1
   }
+  v16 = v10 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&v11 = v12 * (float)(1.0 / *(float *)&_XMM0);
   AngleVectors(&self->r.currentAngles, &forward, NULL, NULL);
-  __asm
+  v23 = (float)((float)((float)((float)(v9 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[0]) + (float)(v16 * forward.v[1])) + (float)(*(float *)&v11 * forward.v[2])) >= turret->m_data.forwardAngleDot;
+  if ( !SentientHandle::isDefined(&turret->m_dataSP.detachSentient) )
   {
-    vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+forward+4]
-    vmulss  xmm3, xmm6, dword ptr [rsp+0E8h+forward]
-    vmulss  xmm1, xmm8, dword ptr [rsp+0E8h+forward+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vcomiss xmm2, dword ptr [rdi+0CCh]
-  }
-  isDefined = SentientHandle::isDefined(&_RDI->m_dataSP.detachSentient);
-  __asm
-  {
-    vmovaps xmm8, [rsp+0E8h+var_78]
-    vmovaps xmm7, [rsp+0E8h+var_68]
-    vmovaps xmm6, [rsp+0E8h+var_58]
-  }
-  if ( !isDefined )
-  {
-    v44 = NULL;
-    goto LABEL_19;
-  }
-  v43 = SentientHandle::sentient(&_RDI->m_dataSP.detachSentient);
-  v44 = v43;
-  if ( !v43 || v43 != enemy && Sentient_GetSentientInfo(actor->sentient, v43)->attackTime <= level.time )
-  {
-LABEL_19:
+    v18 = NULL;
+LABEL_22:
     SentientInfo = Sentient_GetSentientInfo(actor->sentient, enemy);
-    v48 = SentientInfo;
-    if ( SentientInfo->VisCache.bVisible && G_TurretSP_Think_Auto_ShouldCheck(&_RDI->m_dataSP, enemy, SentientInfo) && !G_TurretSP_Think_Auto_TurretAICanSeeEnemy(_RDI, actor, enemy) )
+    v22 = SentientInfo;
+    if ( (SentientInfo->VisCache.bVisible || !v23) && G_TurretSP_Think_Auto_ShouldCheck(&turret->m_dataSP, enemy, SentientInfo) && !G_TurretSP_Think_Auto_TurretAICanSeeEnemy(turret, actor, enemy) )
     {
-      SentientHandle::setSentient(&_RDI->m_dataSP.detachSentient, enemy);
-      __asm { vcomiss xmm9, cs:__real@43800000 }
-      if ( v49 )
-        v48->attackTime = 0;
-      goto LABEL_26;
+      SentientHandle::setSentient(&turret->m_dataSP.detachSentient, enemy);
+      if ( *(float *)&_XMM9 < 256.0 )
+        v22->attackTime = 0;
+      return 0;
     }
+    goto LABEL_11;
   }
-  if ( !v44 )
-    goto LABEL_26;
-  v45 = Sentient_GetSentientInfo(actor->sentient, v44);
-  if ( !G_TurretSP_Think_Auto_ShouldCheck(&_RDI->m_dataSP, v44, v45) || G_TurretSP_Think_Auto_TurretAICanSeeEnemy(_RDI, actor, v44) )
+  v17 = SentientHandle::sentient(&turret->m_dataSP.detachSentient);
+  v18 = v17;
+  if ( !v17 || v17 != enemy && Sentient_GetSentientInfo(actor->sentient, v17)->attackTime <= level.time )
+    goto LABEL_22;
+LABEL_11:
+  if ( !v18 )
+    return 0;
+  v19 = Sentient_GetSentientInfo(actor->sentient, v18);
+  if ( !G_TurretSP_Think_Auto_ShouldCheck(&turret->m_dataSP, v18, v19) || G_TurretSP_Think_Auto_TurretAICanSeeEnemy(turret, actor, v18) )
   {
-    SentientHandle::setSentient(&_RDI->m_dataSP.detachSentient, NULL);
-    goto LABEL_26;
+    SentientHandle::setSentient(&turret->m_dataSP.detachSentient, NULL);
+    return 0;
   }
-  if ( v44 != enemy )
+  if ( v18 != enemy )
+    return 0;
+  if ( (turret->m_data.flags & 0x20000) != 0 || !v23 || GTurret::ReturnToDefaultPos(turret, self, 1) )
   {
-LABEL_26:
-    result = 0;
-    goto LABEL_27;
-  }
-  if ( (_RDI->m_data.flags & 0x20000) != 0 || GTurret::ReturnToDefaultPos(_RDI, self, 1) )
-  {
-    v45->attackTime = 0;
+    v19->attackTime = 0;
     result = 1;
     *returnVal = 0;
   }
   else
   {
-    __asm { vcomiss xmm9, cs:__real@43800000 }
+    if ( *(float *)&_XMM9 < 256.0 )
+      v19->attackTime = 0;
     *returnVal = 1;
-    result = 1;
+    return 1;
   }
-LABEL_27:
-  __asm { vmovaps xmm9, [rsp+0E8h+var_88] }
   return result;
 }
 
@@ -1602,86 +1313,71 @@ bool G_TurretSP_Think_Auto_TurretAICanSeeEnemy(GTurretSP *turret, actor_s *turre
 G_TurretSP_Think_Manual
 ==============
 */
-char G_TurretSP_Think_Manual(GTurretSP *turret, gentity_s *self, actor_s *actor)
+bool G_TurretSP_Think_Manual(GTurretSP *turret, gentity_s *self, actor_s *actor)
 {
   AIScriptedInterface *m_pAI; 
   sentient_s *TargetSentient; 
-  bool v24; 
+  gentity_s *ent; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  bool v15; 
   gentity_s *outTargetEnt; 
-  AIWrapper v26; 
+  AIWrapper v17; 
 
-  _RDI = self;
-  _RBX = turret;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 578, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 579, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
+  if ( !turret && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 579, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
     __debugbreak();
   if ( actor )
   {
-    AIWrapper::AIWrapper(&v26, actor);
-    m_pAI = v26.m_pAI;
-    if ( !v26.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 586, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+    AIWrapper::AIWrapper(&v17, actor);
+    m_pAI = v17.m_pAI;
+    if ( !v17.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 586, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
       __debugbreak();
     if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 588, ASSERT_TYPE_ASSERT, "( actor->sentientInfo )", (const char *)&queryFormat, "actor->sentientInfo") )
       __debugbreak();
-    if ( (_RBX->m_data.flags & 0x40000) == 0 )
-      goto LABEL_30;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+10Ch]
-    }
-    if ( (_RBX->m_data.flags & 0x40000) != 0 )
-      goto LABEL_30;
-    __asm { vucomiss xmm0, dword ptr [rbx+110h] }
-    if ( (_RBX->m_data.flags & 0x40000) != 0 )
-      goto LABEL_30;
-    __asm { vucomiss xmm0, dword ptr [rbx+114h] }
-    if ( (_RBX->m_data.flags & 0x40000) != 0 )
-      goto LABEL_30;
-    if ( SentientHandle::isDefined(&_RBX->m_dataSP.detachSentient) )
-      return G_TurretSP_Think_Auto(_RBX, _RDI, actor);
+    if ( (turret->m_data.flags & 0x40000) == 0 || turret->m_dataSP.originError.v[0] != 0.0 || turret->m_dataSP.originError.v[1] != 0.0 || turret->m_dataSP.originError.v[2] != 0.0 )
+      goto LABEL_31;
+    if ( SentientHandle::isDefined(&turret->m_dataSP.detachSentient) )
+      return G_TurretSP_Think_Auto(turret, self, actor);
     TargetSentient = AICommonInterface::GetTargetSentient(m_pAI);
     if ( TargetSentient )
     {
-      _RCX = TargetSentient->ent;
-      __asm
+      ent = TargetSentient->ent;
+      v10 = self->r.currentOrigin.v[1] - TargetSentient->ent->r.currentOrigin.v[1];
+      v11 = TargetSentient->ent->r.currentOrigin.v[0];
+      v12 = self->r.currentOrigin.v[2] - TargetSentient->ent->r.currentOrigin.v[2];
+      if ( (float)((float)((float)(v10 * v10) + (float)((float)(self->r.currentOrigin.v[0] - v11) * (float)(self->r.currentOrigin.v[0] - v11))) + (float)(v12 * v12)) < turret->m_data.maxRangeSquared )
       {
-        vmovss  xmm0, dword ptr [rdi+130h]
-        vmovss  xmm1, dword ptr [rdi+134h]
-        vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-        vmovss  xmm5, dword ptr [rcx+130h]
-        vsubss  xmm3, xmm0, xmm5
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vsubss  xmm4, xmm0, dword ptr [rcx+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, dword ptr [rbx+78h]
+        v13 = actor->ent->r.currentOrigin.v[1] - ent->r.currentOrigin.v[1];
+        v14 = actor->ent->r.currentOrigin.v[2] - ent->r.currentOrigin.v[2];
+        if ( (float)((float)((float)(v13 * v13) + (float)((float)(actor->ent->r.currentOrigin.v[0] - v11) * (float)(actor->ent->r.currentOrigin.v[0] - v11))) + (float)(v14 * v14)) < 65536.0 )
+          return G_TurretSP_Think_Auto(turret, self, actor);
       }
     }
-    _RBX->m_data.flags &= ~0x20000u;
+    turret->m_data.flags &= ~0x20000u;
     if ( TargetSentient )
       actor->sentientInfo[TargetSentient - level.sentients].attackTime = level.time + 2000;
     else
       AIScriptedInterface::CanAttackAll(m_pAI);
   }
   outTargetEnt = NULL;
-  if ( !GTurret::Think_ManualInternal(_RBX, _RDI, &outTargetEnt) )
+  if ( !GTurret::Think_ManualInternal(turret, self, &outTargetEnt) )
   {
     if ( actor && outTargetEnt )
     {
-      v24 = 1;
-LABEL_31:
-      GTurret::ReturnToDefaultPos(_RBX, _RDI, v24);
+      v15 = 1;
+LABEL_32:
+      GTurret::ReturnToDefaultPos(turret, self, v15);
       return 1;
     }
-    G_Turret_ClearTargetEnt(_RDI);
-LABEL_30:
-    v24 = 0;
-    goto LABEL_31;
+    G_Turret_ClearTargetEnt(self);
+LABEL_31:
+    v15 = 0;
+    goto LABEL_32;
   }
   return 1;
 }
@@ -1707,15 +1403,23 @@ GTurretSP::IsTargetTooCloseToPlayer
 */
 bool GTurretSP::IsTargetTooCloseToPlayer(GTurretSP *this, const vec3_t *sourceOrigin, const gentity_s *target, const vec3_t *targetOffset)
 {
-  team_t eTeam; 
-  sentient_s *sentient; 
-  const dvar_t *v70; 
-  char v75; 
-  char v76; 
-  bool result; 
+  gentity_s *gentities; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float v29; 
 
-  _RBP = target;
-  _RDI = sourceOrigin;
   if ( level.maxclients != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 918, ASSERT_TYPE_ASSERT, "( level.maxclients == 1 )", (const char *)&queryFormat, "level.maxclients == MAX_CLIENTS_SP") )
     __debugbreak();
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1724,119 +1428,46 @@ bool GTurretSP::IsTargetTooCloseToPlayer(GTurretSP *this, const vec3_t *sourceOr
     __debugbreak();
   if ( !*g_entityIsInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 919, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( 0 ) )", (const char *)&queryFormat, "G_IsEntityInUse( 0 )") )
     __debugbreak();
-  _RBX = level.gentities;
+  gentities = level.gentities;
   if ( !level.gentities->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 922, ASSERT_TYPE_ASSERT, "( player->sentient )", (const char *)&queryFormat, "player->sentient") )
     __debugbreak();
-  eTeam = this->m_data.eTeam;
-  sentient = _RBX->sentient;
+  if ( gentities->sentient->eTeam != this->m_data.eTeam )
+    return 0;
+  v9 = (float)(gentities->r.box.midPoint.v[0] + gentities->r.currentOrigin.v[0]) - sourceOrigin->v[0];
+  v10 = LODWORD(gentities->r.box.midPoint.v[1]);
+  v11 = (float)(gentities->r.box.midPoint.v[1] + gentities->r.currentOrigin.v[1]) - sourceOrigin->v[1];
+  v12 = (float)(gentities->r.box.midPoint.v[2] + gentities->r.currentOrigin.v[2]) - sourceOrigin->v[2];
+  *(float *)&v10 = fsqrt((float)((float)(v11 * v11) + (float)(v9 * v9)) + (float)(v12 * v12));
+  _XMM8 = v10;
   __asm
   {
-    vmovaps [rsp+0C8h+var_28], xmm6
-    vmovaps [rsp+0C8h+var_38], xmm7
-    vmovaps [rsp+0C8h+var_48], xmm8
-    vmovaps [rsp+0C8h+var_58], xmm9
-    vmovaps [rsp+0C8h+var_68], xmm13
-    vmovaps [rsp+0C8h+var_78], xmm14
-    vmovaps [rsp+0C8h+var_88], xmm15
-  }
-  if ( sentient->eTeam != eTeam )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+100h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-    vmovss  xmm0, dword ptr [rbx+104h]
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm7, dword ptr [rdi]
-    vsubss  xmm6, xmm1, xmm7
-    vaddss  xmm1, xmm0, dword ptr [rbx+134h]
-    vsubss  xmm5, xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rbx+108h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+138h]
-    vsubss  xmm4, xmm1, dword ptr [rdi+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm8, xmm2, xmm2
-    vcomiss xmm8, cs:__real@3a83126f
     vcmpless xmm0, xmm8, cs:__real@80000000
     vblendvps xmm0, xmm8, xmm9, xmm0
-    vdivss  xmm1, xmm9, xmm0
-    vmulss  xmm13, xmm6, xmm1
-    vmulss  xmm14, xmm5, xmm1
-    vmulss  xmm15, xmm4, xmm1
   }
-  if ( sentient->eTeam < (unsigned int)eTeam )
-    goto LABEL_22;
+  v16 = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v17 = v11 * (float)(1.0 / *(float *)&_XMM0);
+  v18 = v12 * (float)(1.0 / *(float *)&_XMM0);
+  if ( *(float *)&v10 < 0.001 )
+    return 1;
+  v19 = LODWORD(target->r.box.midPoint.v[1]);
+  v20 = (float)((float)(target->r.currentOrigin.v[0] + target->r.box.midPoint.v[0]) + targetOffset->v[0]) - sourceOrigin->v[0];
+  v21 = (float)((float)(target->r.box.midPoint.v[1] + target->r.currentOrigin.v[1]) + targetOffset->v[1]) - sourceOrigin->v[1];
+  v22 = (float)((float)(target->r.box.midPoint.v[2] + target->r.currentOrigin.v[2]) + targetOffset->v[2]) - sourceOrigin->v[2];
+  *(float *)&v19 = fsqrt((float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v22 * v22));
+  _XMM3 = v19;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbp+130h]
-    vaddss  xmm1, xmm0, dword ptr [rbp+100h]
-    vaddss  xmm2, xmm1, dword ptr [r14]
-    vmovss  xmm0, dword ptr [rbp+104h]
-    vaddss  xmm1, xmm0, dword ptr [rbp+134h]
-    vmovss  xmm0, dword ptr [rbp+108h]
-    vsubss  xmm7, xmm2, xmm7
-    vaddss  xmm2, xmm1, dword ptr [r14+4]
-    vaddss  xmm1, xmm0, dword ptr [rbp+138h]
-    vsubss  xmm4, xmm2, dword ptr [rdi+4]
-    vaddss  xmm2, xmm1, dword ptr [r14+8]
-    vsubss  xmm6, xmm2, dword ptr [rdi+8]
-    vmulss  xmm3, xmm4, xmm4
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm5, xmm9, xmm0
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm3, xmm0, xmm14
-    vmulss  xmm1, xmm7, xmm5
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm2, xmm1, xmm13
-    vmulss  xmm1, xmm0, xmm15
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm0, xmm4, xmm1; X
   }
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm { vmovss  xmm1, dword ptr [rbx+114h] }
-  v70 = DVARFLT_turretPlayerAvoidScale;
-  __asm
-  {
-    vaddss  xmm7, xmm1, dword ptr [rbp+114h]
-    vmovaps xmm6, xmm0
-  }
+  v26 = acosf_0((float)((float)((float)(v21 * (float)(1.0 / *(float *)&_XMM0)) * v17) + (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * v16)) + (float)((float)(v22 * (float)(1.0 / *(float *)&_XMM0)) * v18));
+  v27 = gentities->r.box.halfSize.v[2];
+  v28 = DVARFLT_turretPlayerAvoidScale;
+  v29 = v27 + target->r.box.halfSize.v[2];
   if ( !DVARFLT_turretPlayerAvoidScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretPlayerAvoidScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v70);
-  __asm
-  {
-    vmulss  xmm0, xmm7, dword ptr [rbx+28h]
-    vdivss  xmm0, xmm0, xmm8; X
-  }
-  *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-  __asm { vcomiss xmm6, xmm0 }
-  if ( v75 | v76 )
-LABEL_22:
-    result = 1;
-  else
-LABEL_23:
-    result = 0;
-  __asm
-  {
-    vmovaps xmm15, [rsp+0C8h+var_88]
-    vmovaps xmm14, [rsp+0C8h+var_78]
-    vmovaps xmm13, [rsp+0C8h+var_68]
-    vmovaps xmm9, [rsp+0C8h+var_58]
-    vmovaps xmm8, [rsp+0C8h+var_48]
-    vmovaps xmm7, [rsp+0C8h+var_38]
-    vmovaps xmm6, [rsp+0C8h+var_28]
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v28);
+  return v26 <= atanf_0((float)(v29 * v28->current.value) / *(float *)&_XMM8);
 }
 
 /*
@@ -2053,17 +1684,12 @@ void GTurretSP::SetCanAIDetach(GTurretSP *this, int canDetach)
 GTurretSP::SetDefaultDropPitchVirtual
 ==============
 */
-
-void __fastcall GTurretSP::SetDefaultDropPitchVirtual(GTurretSP *this, gentity_s *self, double pitch)
+void GTurretSP::SetDefaultDropPitchVirtual(GTurretSP *this, gentity_s *self, float pitch)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = self;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 716, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( (this->m_data.flags & 0x40000) == 0 )
-    __asm { vmovss  dword ptr [rbx+58h], xmm6 }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    self->s.lerp.u.turret.gunAngles.v[0] = pitch;
 }
 
 /*
@@ -2092,87 +1718,78 @@ void GTurretSP::SpawnVirtual(GTurretSP *this, gentity_s *self)
 {
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
+  const WeaponDef *v6; 
   const char *szScript; 
   char *WeaponName; 
   WeaponSFXPackage *sfxPackage; 
-  GConfigStrings *v11; 
-  float out[4]; 
+  GConfigStrings *v10; 
+  float aiSpread; 
+  unsigned int out[4]; 
   char output[512]; 
-  char v25; 
 
-  __asm { vmovaps [rsp+278h+var_28], xmm6 }
-  _RBX = this;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_turret_sp.cpp", 121, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
   WeaponForEntity = BG_GetWeaponForEntity(Instance, &self->s);
-  _RSI = BG_WeaponDef(WeaponForEntity, 0);
+  v6 = BG_WeaponDef(WeaponForEntity, 0);
   if ( (_BYTE)GameScriptData::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_scr_data_sp.h", 97, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
   if ( !GameScriptData::ms_gScriptData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_data.h", 78, ASSERT_TYPE_ASSERT, "(ms_gScriptData)", "%s\n\tAttempting to access game data outside of an active game context", "ms_gScriptData") )
     __debugbreak();
   if ( !(_BYTE)GameScriptData::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_data.h", 79, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access game data outside of an active game context", "ms_allocatedType != GameModeType::NONE") )
     __debugbreak();
-  szScript = _RSI->szScript;
+  szScript = v6->szScript;
   if ( *szScript && !*(&GameScriptData::ms_gScriptData[1].ai_asm_getgenerichandler + 3 * WeaponForEntity->weaponIdx) )
   {
     WeaponName = BG_GetWeaponName(WeaponForEntity, output, 0x200u);
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144361880, 527i64, WeaponName, szScript);
   }
-  *(_QWORD *)&_RBX->m_dataSP.suppressTime = 0i64;
-  *(_QWORD *)&_RBX->m_dataSP.aiSpread = 0i64;
-  *(_QWORD *)&_RBX->m_dataSP.originError.y = 0i64;
-  *(_QWORD *)_RBX->m_dataSP.anglesError.v = 0i64;
-  *(_QWORD *)&_RBX->m_dataSP.anglesError.z = 0i64;
-  *(_QWORD *)&_RBX->m_dataSP.lastCanShootTime = 0i64;
-  *(_QWORD *)&_RBX->m_dataSP.lastCanShootLocalPos.y = 0i64;
-  *(_DWORD *)&_RBX->m_dataSP.lastCanShootGroundEntNum = 0;
-  _RBX->m_data.flags = 32772;
-  _RBX->m_data.eTeam = TEAM_FOUR;
+  *(_QWORD *)&this->m_dataSP.suppressTime = 0i64;
+  *(_QWORD *)&this->m_dataSP.aiSpread = 0i64;
+  *(_QWORD *)&this->m_dataSP.originError.y = 0i64;
+  *(_QWORD *)this->m_dataSP.anglesError.v = 0i64;
+  *(_QWORD *)&this->m_dataSP.anglesError.z = 0i64;
+  *(_QWORD *)&this->m_dataSP.lastCanShootTime = 0i64;
+  *(_QWORD *)&this->m_dataSP.lastCanShootLocalPos.y = 0i64;
+  *(_DWORD *)&this->m_dataSP.lastCanShootGroundEntNum = 0;
+  this->m_data.flags = 32772;
+  this->m_data.eTeam = TEAM_FOUR;
   if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
     __debugbreak();
-  sfxPackage = _RSI->sfxPackage;
-  v11 = GConfigStrings::ms_gConfigStrings;
+  sfxPackage = v6->sfxPackage;
+  v10 = GConfigStrings::ms_gConfigStrings;
   if ( sfxPackage )
   {
     if ( sfxPackage->sounds->fireLoopSoundPlayer.name )
     {
-      _RBX->m_data.fireLoopSndPlayer = ((__int64 (__fastcall *)(GConfigStrings *))GConfigStrings::ms_gConfigStrings->GetSoundAliasIndex)(GConfigStrings::ms_gConfigStrings);
-      sfxPackage = _RSI->sfxPackage;
+      this->m_data.fireLoopSndPlayer = ((__int64 (__fastcall *)(GConfigStrings *))GConfigStrings::ms_gConfigStrings->GetSoundAliasIndex)(GConfigStrings::ms_gConfigStrings);
+      sfxPackage = v6->sfxPackage;
     }
     if ( sfxPackage && sfxPackage->sounds->fireStopSoundPlayer.name )
-      _RBX->m_data.stopSndPlayer = ((__int64 (__fastcall *)(GConfigStrings *))v11->GetSoundAliasIndex)(v11);
+      this->m_data.stopSndPlayer = ((__int64 (__fastcall *)(GConfigStrings *))v10->GetSoundAliasIndex)(v10);
   }
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x3CCu, (const char *)&queryFormat.fmt + 3, out) )
-    __asm { vmovss  xmm1, [rsp+278h+out] }
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x3CCu, (const char *)&queryFormat.fmt + 3, (float *)out) )
+    _XMM1 = out[0];
   else
-    __asm { vmovss  xmm1, dword ptr [rsi+0C88h] }
+    _XMM1 = LODWORD(v6->suppressTime);
   __asm
   {
-    vxorps  xmm6, xmm6, xmm6
     vcmpltss xmm0, xmm1, xmm6
     vblendvps xmm1, xmm1, xmm6, xmm0
-    vmulss  xmm0, xmm1, cs:__real@447a0000
-    vmovss  [rsp+278h+out], xmm1
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si eax, xmm1
   }
-  _RBX->m_dataSP.suppressTime = _EAX;
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x2Cu, "1", &_RBX->m_dataSP.aiSpread) )
+  out[0] = _XMM1;
+  this->m_dataSP.suppressTime = (int)(float)((float)(*(float *)&_XMM1 * 1000.0) + 0.5);
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x2Cu, "1", &this->m_dataSP.aiSpread) )
   {
-    __asm { vmovss  xmm0, dword ptr [rbx+108h] }
+    aiSpread = this->m_dataSP.aiSpread;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0C68h]
-      vmovss  dword ptr [rbx+108h], xmm0
-    }
+    aiSpread = v6->aiSpread;
+    this->m_dataSP.aiSpread = aiSpread;
   }
-  __asm { vcomiss xmm0, xmm6 }
-  _R11 = &v25;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  if ( aiSpread < 0.0 )
+    this->m_dataSP.aiSpread = 0.0;
 }
 
 /*

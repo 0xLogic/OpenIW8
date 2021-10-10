@@ -52,7 +52,6 @@ char bdBytePacker::appendBasicType<unsigned __int64>(void *buffer, const unsigne
   __int64 v5; 
   unsigned int v8; 
   bool v9; 
-  unsigned __int64 v13; 
 
   v5 = offset;
   v8 = offset + 8;
@@ -68,13 +67,7 @@ LABEL_8:
   }
   if ( v8 <= bufferSize )
   {
-    _RAX = (char *)buffer + v5;
-    v13 = *var;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+48h+arg_0]
-      vmovsd  qword ptr [rax], xmm0
-    }
+    *(double *)((char *)buffer + v5) = *(double *)var;
     goto LABEL_8;
   }
   return !buffer;
@@ -88,30 +81,17 @@ bdBytePacker::removeBasicType<unsigned __int64>
 bool bdBytePacker::removeBasicType<unsigned __int64>(const void *buffer, const unsigned int bufferSize, const unsigned int offset, unsigned int *newOffset, unsigned __int64 *var)
 {
   unsigned int v5; 
-  const void *v7; 
-  unsigned __int64 v11; 
 
   v5 = offset + 8;
   *newOffset = offset + 8;
-  v7 = buffer;
   if ( buffer )
   {
     if ( v5 > bufferSize )
-    {
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 8i64);
-    }
     else
-    {
-      _RAX = offset;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+rcx]
-        vmovsd  [rsp+48h+arg_0], xmm0
-      }
-      *var = v11;
-    }
+      *var = *(_QWORD *)((char *)buffer + offset);
   }
-  return v5 <= bufferSize || !v7;
+  return v5 <= bufferSize || !buffer;
 }
 
 /*

@@ -2063,46 +2063,34 @@ Com_DDL_GetByteVec2
 */
 void Com_DDL_GetByteVec2(const DDLState *state, DDLContext *context, vec2_t *vec)
 {
-  int v6; 
-  __int64 v13; 
-  __int64 v14; 
+  int v4; 
+  float Byte; 
+  __int64 v10; 
+  __int64 v11; 
   DDLState toState; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v6 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vpxor   xmm0, xmm0, xmm0
-  }
+  v4 = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-28h], xmm0 }
-  _RDI = vec;
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.arrayIndex = -1;
   do
   {
-    DDL_MoveToIndex(state, &toState, v6);
-    DDL_GetByte(&toState, context);
-    __asm
+    DDL_MoveToIndex(state, &toState, v4);
+    Byte = (float)DDL_GetByte(&toState, context);
+    if ( (unsigned int)v4 >= 2 )
     {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, eax
-    }
-    if ( (unsigned int)v6 >= 2 )
-    {
-      LODWORD(v14) = 2;
-      LODWORD(v13) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v11) = 2;
+      LODWORD(v10) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI = (vec2_t *)((char *)_RDI + 4);
-    ++v6;
+    vec->v[0] = Byte;
+    vec = (vec2_t *)((char *)vec + 4);
+    ++v4;
   }
-  while ( v6 < 2 );
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  while ( v4 < 2 );
 }
 
 /*
@@ -2115,13 +2103,11 @@ int Com_DDL_GetInt(const unsigned int *navHashes, int navHashCount, const DDLCon
   const DDLDef *DefForStatsGroup; 
   DDLType Type; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-18h], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   DefForStatsGroup = Com_PlayerData_GetDefForStatsGroup(statsGroup);
   LiveStorage_InitializeDDLStateForStatsGroup(DefForStatsGroup, &state, statsGroup);
@@ -2134,7 +2120,7 @@ int Com_DDL_GetInt(const unsigned int *navHashes, int navHashCount, const DDLCon
   if ( (unsigned int)Type <= DDL_INT_TYPE )
     return DDL_GetInt(&state, buffer);
   Com_DDL_GetPrintStrings(navHashes, navHashCount);
-  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144003560, 397i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex);
+  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144003560, 397i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef);
   return 0;
 }
 
@@ -2205,46 +2191,34 @@ Com_DDL_GetShortVec3
 */
 void Com_DDL_GetShortVec3(const DDLState *state, DDLContext *context, vec3_t *vec)
 {
-  int v6; 
-  __int64 v13; 
-  __int64 v14; 
+  int v4; 
+  float Short; 
+  __int64 v10; 
+  __int64 v11; 
   DDLState toState; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v6 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vpxor   xmm0, xmm0, xmm0
-  }
+  v4 = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-28h], xmm0 }
-  _RDI = vec;
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.arrayIndex = -1;
   do
   {
-    DDL_MoveToIndex(state, &toState, v6);
-    DDL_GetShort(&toState, context);
-    __asm
+    DDL_MoveToIndex(state, &toState, v4);
+    Short = (float)(__int16)DDL_GetShort(&toState, context);
+    if ( (unsigned int)v4 >= 3 )
     {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, ecx
-    }
-    if ( (unsigned int)v6 >= 3 )
-    {
-      LODWORD(v14) = 3;
-      LODWORD(v13) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v11) = 3;
+      LODWORD(v10) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-    ++v6;
+    vec->v[0] = Short;
+    vec = (vec3_t *)((char *)vec + 4);
+    ++v4;
   }
-  while ( v6 < 3 );
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  while ( v4 < 3 );
 }
 
 /*
@@ -2257,13 +2231,11 @@ const char *Com_DDL_GetString(const unsigned int *navHashes, int navHashCount, c
   const DDLDef *DefForStatsGroup; 
   DDLType Type; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-18h], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   DefForStatsGroup = Com_PlayerData_GetDefForStatsGroup(statsGroup);
   LiveStorage_InitializeDDLStateForStatsGroup(DefForStatsGroup, &state, statsGroup);
@@ -2278,7 +2250,7 @@ const char *Com_DDL_GetString(const unsigned int *navHashes, int navHashCount, c
   if ( Type == DDL_ENUM_TYPE )
     return DDL_GetEnum(&state, buffer);
   Com_DDL_GetPrintStrings(navHashes, navHashCount);
-  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144003460, 395i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex);
+  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144003460, 395i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef);
   return (char *)&queryFormat.fmt + 3;
 }
 
@@ -2313,14 +2285,13 @@ bool Com_DDL_NavigateFromCmd(const DDLDef *def, int (*argc)(), const char *(*arg
   char v14; 
   unsigned int v15; 
   int v16; 
-  int v19; 
+  int v17; 
   DDLState result; 
   unsigned int path[16]; 
 
-  _R14 = state;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 4430, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 4431, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+  if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 4431, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
   if ( (int)(((__int64 (*)(void))argc)() - 1) <= 16 )
   {
@@ -2358,14 +2329,9 @@ bool Com_DDL_NavigateFromCmd(const DDLDef *def, int (*argc)(), const char *(*arg
       }
       while ( v10 < argc() );
     }
-    _RAX = DDL_GetRootState(&result, def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [r14], ymm0
-    }
-    v19 = argc();
-    return DDL_MoveToPathByHash(_R14, _R14, v19 - ignoreArgs - 1, path);
+    *state = *DDL_GetRootState(&result, def);
+    v17 = argc();
+    return DDL_MoveToPathByHash(state, state, v17 - ignoreArgs - 1, path);
   }
   else
   {
@@ -2384,6 +2350,7 @@ void Com_DDL_PrintState(const DDLState *state, const DDLContext *buffer)
   DDLType Type; 
   unsigned int Int; 
   unsigned __int64 UInt64; 
+  double Float; 
   const char *String; 
   const char *Enum; 
 
@@ -2410,17 +2377,12 @@ void Com_DDL_PrintState(const DDLState *state, const DDLContext *buffer)
         Com_Printf(16, "%zu\n", UInt64);
         break;
       case DDL_FLOAT_TYPE:
-        *(double *)&_XMM0 = DDL_GetFloat(state, buffer);
+        Float = DDL_GetFloat(state, buffer);
         goto LABEL_16;
       case DDL_FIXEDPOINT_TYPE:
-        *(double *)&_XMM0 = DDL_GetFixedPoint(state, buffer);
+        Float = DDL_GetFixedPoint(state, buffer);
 LABEL_16:
-        __asm
-        {
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovq   r8, xmm2
-        }
-        Com_Printf(16, "%f\n", *(double *)&_XMM2);
+        Com_Printf(16, "%f\n", *(float *)&Float);
         break;
       case DDL_STRING_TYPE:
         String = DDL_GetString(state, buffer);
@@ -2480,17 +2442,17 @@ char Com_DDL_ReadFromText(DDLContext *buffer, char *text, const int length)
   char v13; 
   char v14; 
   DDLState fromState; 
-  __int64 v19; 
-  Mem_LargeLocal v20; 
+  __int64 v17; 
+  Mem_LargeLocal v18; 
   DDLState result; 
   char *path[16]; 
   char val[64]; 
-  char v24; 
+  char v22; 
 
-  v19 = -2i64;
-  Mem_LargeLocal::Mem_LargeLocal(&v20, 0x22180ui64, "MaxArrayTextBuf arrayText");
-  m_ptr = (const char *)v20.m_ptr;
-  OnlyFromText = Com_DDL_ReadOnlyFromText((char (*)[1091])v20.m_ptr, text, length);
+  v17 = -2i64;
+  Mem_LargeLocal::Mem_LargeLocal(&v18, 0x22180ui64, "MaxArrayTextBuf arrayText");
+  m_ptr = (const char *)v18.m_ptr;
+  OnlyFromText = Com_DDL_ReadOnlyFromText((char (*)[1091])v18.m_ptr, text, length);
   if ( OnlyFromText <= 0 )
     goto LABEL_25;
   v9 = (unsigned int)OnlyFromText;
@@ -2499,18 +2461,15 @@ char Com_DDL_ReadFromText(DDLContext *buffer, char *text, const int length)
     fromState.isValid = 0;
     fromState.offset = 0;
     fromState.arrayIndex = -1;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+578h+fromState.member], xmm0
-    }
-    if ( j_sscanf(m_ptr, "%s = %s", &v24, val) < 2 )
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&fromState.member = _XMM0;
+    if ( j_sscanf(m_ptr, "%s = %s", &v22, val) < 2 )
     {
       Com_PrintWarning(28, "SetDDLFromString: in %s bad string '%s'.\n", buffer->def->name, m_ptr);
       goto LABEL_24;
     }
     v10 = 0;
-    v11 = &v24;
+    v11 = &v22;
     v12 = NULL;
     v13 = 0;
     while ( 1 )
@@ -2552,12 +2511,7 @@ LABEL_13:
     }
     Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144005078, 402i64);
 LABEL_21:
-    _RAX = DDL_GetRootState(&result, buffer->def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+578h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, buffer->def);
     if ( DDL_MoveToPath(&fromState, &fromState, v10, (const char **)path) )
       DDL_SetValueStr(&fromState, buffer, val);
     else
@@ -2568,7 +2522,7 @@ LABEL_24:
   }
   while ( v9 );
 LABEL_25:
-  Mem_LargeLocal::~Mem_LargeLocal(&v20);
+  Mem_LargeLocal::~Mem_LargeLocal(&v18);
   return 1;
 }
 
@@ -2645,52 +2599,34 @@ Com_DDL_SetByteVec2
 */
 void Com_DDL_SetByteVec2(const DDLState *state, DDLContext *context, const vec2_t *vec)
 {
-  int v7; 
-  __int64 v19; 
-  __int64 v20; 
+  int v4; 
+  __int64 v11; 
+  __int64 v12; 
   DDLState toState; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v7 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@3f000000
-    vpxor   xmm0, xmm0, xmm0
-  }
+  v4 = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-38h], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.arrayIndex = -1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  _XMM6 = 0i64;
   do
   {
-    DDL_MoveToIndex(state, &toState, v7);
-    if ( (unsigned int)v7 >= 2 )
+    DDL_MoveToIndex(state, &toState, v4);
+    if ( (unsigned int)v4 >= 2 )
     {
-      LODWORD(v20) = 2;
-      LODWORD(v19) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v12) = 2;
+      LODWORD(v11) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    __asm
-    {
-      vaddss  xmm2, xmm7, dword ptr [rdi]
-      vroundss xmm0, xmm6, xmm2, 1
-      vcvttss2si r8d, xmm0; val
-    }
-    DDL_SetByte(&toState, context, _ER8);
-    ++v7;
+    __asm { vroundss xmm0, xmm6, xmm2, 1 }
+    DDL_SetByte(&toState, context, (int)*(float *)&_XMM0);
+    ++v4;
     vec = (const vec2_t *)((char *)vec + 4);
   }
-  while ( v7 < 2 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
+  while ( v4 < 2 );
 }
 
 /*
@@ -2752,15 +2688,10 @@ _BOOL8 Com_DDL_SetInt(const unsigned int *navHashes, int navHashCount, int value
   const DDLDef *DefForStatsGroup; 
   DDLType Type; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-18h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   DefForStatsGroup = Com_PlayerData_GetDefForStatsGroup(statsGroup);
@@ -2775,7 +2706,7 @@ _BOOL8 Com_DDL_SetInt(const unsigned int *navHashes, int navHashCount, int value
   if ( (unsigned int)Type <= DDL_INT_TYPE )
     return DDL_SetInt(&state, buffer, value);
   Com_DDL_GetPrintStrings(navHashes, navHashCount);
-  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440034E0, 398i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex);
+  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440034E0, 398i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef);
   return 0i64;
 }
 
@@ -2786,52 +2717,34 @@ Com_DDL_SetShortVec3
 */
 void Com_DDL_SetShortVec3(const DDLState *state, DDLContext *context, const vec3_t *vec)
 {
-  int v7; 
-  __int64 v19; 
-  __int64 v20; 
+  int v4; 
+  __int64 v11; 
+  __int64 v12; 
   DDLState toState; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v7 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@3f000000
-    vpxor   xmm0, xmm0, xmm0
-  }
+  v4 = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-38h], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.arrayIndex = -1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  _XMM6 = 0i64;
   do
   {
-    DDL_MoveToIndex(state, &toState, v7);
-    if ( (unsigned int)v7 >= 3 )
+    DDL_MoveToIndex(state, &toState, v4);
+    if ( (unsigned int)v4 >= 3 )
     {
-      LODWORD(v20) = 3;
-      LODWORD(v19) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v12) = 3;
+      LODWORD(v11) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    __asm
-    {
-      vaddss  xmm2, xmm7, dword ptr [rdi]
-      vroundss xmm0, xmm6, xmm2, 1
-      vcvttss2si r8d, xmm0; val
-    }
-    DDL_SetShort(&toState, context, _ER8);
-    ++v7;
+    __asm { vroundss xmm0, xmm6, xmm2, 1 }
+    DDL_SetShort(&toState, context, (int)*(float *)&_XMM0);
+    ++v4;
     vec = (const vec3_t *)((char *)vec + 4);
   }
-  while ( v7 < 3 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
+  while ( v4 < 3 );
 }
 
 /*
@@ -2844,15 +2757,10 @@ _BOOL8 Com_DDL_SetString(const unsigned int *navHashes, int navHashCount, const 
   const DDLDef *DefForStatsGroup; 
   DDLType Type; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-18h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   DefForStatsGroup = Com_PlayerData_GetDefForStatsGroup(statsGroup);
@@ -2869,7 +2777,7 @@ _BOOL8 Com_DDL_SetString(const unsigned int *navHashes, int navHashCount, const 
   if ( Type == DDL_ENUM_TYPE )
     return DDL_SetEnum(&state, buffer, value);
   Com_DDL_GetPrintStrings(navHashes, navHashCount);
-  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440034E0, 396i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex);
+  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440034E0, 396i64, (unsigned int)Type, *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef);
   return 0i64;
 }
 
@@ -3764,23 +3672,23 @@ void LiveStorage_CheckPeriodicChallengeUpdate(const int controllerIndex)
       p_generateChallenges = &controllerStorageData[v2].generateChallenges;
       state.arrayIndex = -1;
       state.offset = 0;
-      __asm { vmovdqu xmmword ptr [rsp+150h+state.member], xmm0 }
+      *(_OWORD *)&state.member = _XMM0;
       fromState.isValid = 0;
       fromState.offset = 0;
       fromState.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rbp+50h+fromState.member], xmm0 }
+      *(_OWORD *)&fromState.member = _XMM0;
       toState.isValid = 0;
       toState.offset = 0;
       toState.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rbp+50h+toState.member], xmm0 }
+      *(_OWORD *)&toState.member = _XMM0;
       v30.isValid = 0;
       v30.offset = 0;
       v30.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rbp+50h+var_98.member], xmm0 }
+      *(_OWORD *)&v30.member = _XMM0;
       v25.isValid = 0;
       v25.offset = 0;
       v25.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rsp+150h+var_120.member], xmm0 }
+      *(_OWORD *)&v25.member = _XMM0;
       if ( !*p_generateChallenges && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1853, ASSERT_TYPE_ASSERT, "(controllerStorageData[controllerIndex].generateChallenges)", (const char *)&queryFormat, "controllerStorageData[controllerIndex].generateChallenges", *(_QWORD *)&v25.isValid, *(_QWORD *)&v25.arrayIndex, v25.member, v25.ddlDef) )
         __debugbreak();
       if ( DB_IsXAssetDefault(ASSET_TYPE_STRINGTABLE, "mp/dailyChallengesTable.csv") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1854, ASSERT_TYPE_ASSERT, "(!DB_IsXAssetDefault( ASSET_TYPE_STRINGTABLE, \"mp/dailyChallengesTable.csv\" ))", "%s\n\tUnable to find daily challenges", "!DB_IsXAssetDefault( ASSET_TYPE_STRINGTABLE, DAILY_CHALLENGE_TABLE )") )
@@ -4288,15 +4196,16 @@ bool LiveStorage_DoWeHaveStatsForSource(const int controllerIndex, StatsSource s
 LiveStorage_EndGame
 ==============
 */
-
-void __fastcall LiveStorage_EndGame(const LocalClientNum_t localClientNum, double _XMM1_8)
+void LiveStorage_EndGame(const LocalClientNum_t localClientNum)
 {
   int ControllerFromClient; 
-  int v5; 
+  int v3; 
   StatsSource ActiveStatsSource; 
   unsigned int TimeAsSeconds; 
   unsigned int RawHash; 
   int PrestigeMP; 
+  int v8; 
+  float MaxRankMP; 
   DDLContext context; 
 
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
@@ -4315,9 +4224,9 @@ void __fastcall LiveStorage_EndGame(const LocalClientNum_t localClientNum, doubl
       }
       else
       {
-        v5 = CL_Mgr_GetControllerFromClient(localClientNum);
-        ActiveStatsSource = LiveStorage_GetActiveStatsSource(v5);
-        if ( !CL_PlayerData_GetDDLBuffer(&context, v5, ActiveStatsSource, STATSGROUP_COMMON) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 2374, ASSERT_TYPE_ASSERT, "(CL_PlayerData_GetDDLBuffer( &buffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_COMMON ))", (const char *)&queryFormat, "CL_PlayerData_GetDDLBuffer( &buffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_COMMON )") )
+        v3 = CL_Mgr_GetControllerFromClient(localClientNum);
+        ActiveStatsSource = LiveStorage_GetActiveStatsSource(v3);
+        if ( !CL_PlayerData_GetDDLBuffer(&context, v3, ActiveStatsSource, STATSGROUP_COMMON) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 2374, ASSERT_TYPE_ASSERT, "(CL_PlayerData_GetDDLBuffer( &buffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_COMMON ))", (const char *)&queryFormat, "CL_PlayerData_GetDDLBuffer( &buffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_COMMON )") )
           __debugbreak();
         TimeAsSeconds = Sys_GetTimeAsSeconds();
         RawHash = j_SL_GetRawHash(scr_const.lastPlayedTime);
@@ -4327,19 +4236,9 @@ void __fastcall LiveStorage_EndGame(const LocalClientNum_t localClientNum, doubl
       if ( LiveStorage_GetActiveStatsSource(ControllerFromClient) == STATS_ONLINE )
       {
         PrestigeMP = CL_PlayerData_GetPrestigeMP(ControllerFromClient);
-        CL_PlayerData_GetRankMP(ControllerFromClient);
-        Com_GetMaxRankMP();
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, ebx
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, cs:__real@c2c80000
-          vcvttss2si ecx, xmm2
-        }
-        GamerProfile_SetPercentCompleteMP(ControllerFromClient, 100 * PrestigeMP - _ECX);
+        v8 = CL_PlayerData_GetRankMP(ControllerFromClient) + 1;
+        MaxRankMP = (float)Com_GetMaxRankMP();
+        GamerProfile_SetPercentCompleteMP(ControllerFromClient, 100 * PrestigeMP - (int)(float)((float)((float)v8 / MaxRankMP) * -100.0));
       }
     }
     else
@@ -4798,7 +4697,7 @@ __int64 LiveStorage_GetAndResetLastPlayTime(DDLContext *buffer)
   def = buffer->def;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+48h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   LiveStorage_InitializeDDLStateForStatsGroup(def, &state, STATSGROUP_COMMON);
   RawHash = j_SL_GetRawHash(scr_const.lastPlayedTime);
@@ -4816,23 +4715,18 @@ LiveStorage_GetDailyChallengeId
 int LiveStorage_GetDailyChallengeId(const DDLContext *buffer, const int dailyChallengeIndex)
 {
   unsigned int RawHash; 
-  int v10; 
+  int v9; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-18h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( (unsigned int)dailyChallengeIndex >= 3 )
   {
-    v10 = 3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1733, ASSERT_TYPE_ASSERT, "(unsigned)( dailyChallengeIndex ) < (unsigned)( 3 )", "dailyChallengeIndex doesn't index DAILY_CHALLENGE_COUNT\n\t%i not in [0, %i)", dailyChallengeIndex, v10) )
+    v9 = 3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1733, ASSERT_TYPE_ASSERT, "(unsigned)( dailyChallengeIndex ) < (unsigned)( 3 )", "dailyChallengeIndex doesn't index DAILY_CHALLENGE_COUNT\n\t%i not in [0, %i)", dailyChallengeIndex, v9) )
       __debugbreak();
   }
   LiveStorage_InitializeDDLStateForStatsGroup(buffer->def, &state, STATSGROUP_RANKED);
@@ -5245,23 +5139,18 @@ LiveStorage_GetWeeklyChallengeId
 int LiveStorage_GetWeeklyChallengeId(const DDLContext *buffer, const int weeklyChallengeIndex)
 {
   unsigned int RawHash; 
-  int v10; 
+  int v9; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-18h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( (unsigned int)weeklyChallengeIndex >= 3 )
   {
-    v10 = 3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1750, ASSERT_TYPE_ASSERT, "(unsigned)( weeklyChallengeIndex ) < (unsigned)( 3 )", "weeklyChallengeIndex doesn't index WEEKLY_CHALLENGE_COUNT\n\t%i not in [0, %i)", weeklyChallengeIndex, v10) )
+    v9 = 3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1750, ASSERT_TYPE_ASSERT, "(unsigned)( weeklyChallengeIndex ) < (unsigned)( 3 )", "weeklyChallengeIndex doesn't index WEEKLY_CHALLENGE_COUNT\n\t%i not in [0, %i)", weeklyChallengeIndex, v9) )
       __debugbreak();
   }
   LiveStorage_InitializeDDLStateForStatsGroup(buffer->def, &state, STATSGROUP_RANKED);
@@ -5442,11 +5331,11 @@ void LiveStorage_InitPeriodicChallenges(const int controllerIndex)
     v12.isValid = 0;
     v12.offset = 0;
     state.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+57h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     toState.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0 }
+    *(_OWORD *)&toState.member = _XMM0;
     v12.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+57h+var_70.member], xmm0 }
+    *(_OWORD *)&v12.member = _XMM0;
     ActiveStatsSource = LiveStorage_GetActiveStatsSource(v2);
     if ( CL_PlayerData_GetDDLBuffer(&context, v2, ActiveStatsSource, STATSGROUP_RANKED) )
     {
@@ -6481,34 +6370,34 @@ void LiveStorage_ReadStats_Common(const int controllerIndex, unsigned __int8 *fi
   __int64 v7; 
   unsigned __int8 *m_ptr; 
   unsigned int v9; 
-  unsigned int v11; 
-  int v12; 
-  __int64 v13; 
-  StatsGroup v14; 
+  unsigned int v10; 
+  int v11; 
+  __int64 v12; 
+  StatsGroup v13; 
   unsigned __int8 *PlayerDataBufferForSource; 
+  int v15; 
   int v16; 
-  int v17; 
-  char *v18; 
+  char *v17; 
   DDLDef *Def; 
-  __int64 v23; 
+  __int64 v21; 
   void (__fastcall *accessCB)(const DDLContext *, unsigned int, unsigned int, DDLAccessOp); 
   void *userData; 
-  unsigned int v26; 
-  char *v28; 
+  unsigned int v24; 
+  char *v26; 
   DDLDef *ddlDef; 
-  Mem_LargeLocal v30; 
+  Mem_LargeLocal v28; 
   DDLHeader result; 
   DDLContext ddlContext; 
   StatsGroup statsGroup[4]; 
-  int v34; 
-  int v35; 
+  int v32; 
+  int v33; 
 
   v4 = statsSource;
   v5 = bytesRead;
   v7 = controllerIndex;
-  Mem_LargeLocal::Mem_LargeLocal(&v30, 0x10474ui64, "decompressBufferSize decompressBuffer");
-  m_ptr = (unsigned __int8 *)v30.m_ptr;
-  v28 = (char *)v30.m_ptr;
+  Mem_LargeLocal::Mem_LargeLocal(&v28, 0x10474ui64, "decompressBufferSize decompressBuffer");
+  m_ptr = (unsigned __int8 *)v28.m_ptr;
+  v26 = (char *)v28.m_ptr;
   if ( v5 >= 4 )
   {
     v9 = *(_DWORD *)fileContents;
@@ -6520,7 +6409,7 @@ void LiveStorage_ReadStats_Common(const int controllerIndex, unsigned __int8 *fi
       if ( !(_DWORD)v5 )
       {
         Com_Printf(16, "Offline stats file could not be zlib decompressed for controller %i\n", (unsigned int)v7);
-        v23 = v4;
+        v21 = v4;
         goto LABEL_27;
       }
     }
@@ -6529,51 +6418,42 @@ void LiveStorage_ReadStats_Common(const int controllerIndex, unsigned __int8 *fi
       Com_Printf(16, "Offline stats file version of %i does not require zlib decompression for controller %i\n", v9, (unsigned int)v7);
       memcpy_0(m_ptr, fileContents, v5);
     }
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000004000000030000000000000002
-      vmovdqu xmmword ptr [rsp+128h+statsGroup], xmm0
-    }
-    v34 = 1;
-    v35 = 5;
-    v11 = 0;
-    v26 = 0;
-    v12 = 4;
+    *(_OWORD *)statsGroup = _xmm;
+    v32 = 1;
+    v33 = 5;
+    v10 = 0;
+    v24 = 0;
+    v11 = 4;
     Com_Printf(16, "LiveStorage_ReadStats_Platform - searching for ddl blobs in the save file.  you will see a lot of ddl errors.  no need to be alarmed!\n");
     if ( (int)v5 <= 4 )
       goto LABEL_26;
-    v13 = 0i64;
+    v12 = 0i64;
     while ( 1 )
     {
-      v14 = statsGroup[v13];
-      ddlDef = (DDLDef *)Com_PlayerData_GetDefForStatsGroup(v14);
-      PlayerDataBufferForSource = LiveStorage_GetPlayerDataBufferForSource(v7, v14, (StatsSource)v4);
-      v16 = Com_PlayerData_GetStatsGroupSize(v14) - 4;
-      v17 = v16;
-      if ( (int)v5 - (v12 + 4) < v16 )
-        v17 = v5 - (v12 + 4);
-      v18 = &v28[v12 + 4];
-      memcpy_0(PlayerDataBufferForSource, v18, v17);
-      if ( DDL_CreateContext(PlayerDataBufferForSource, v16, ddlDef, &ddlContext, NULL, NULL) )
+      v13 = statsGroup[v12];
+      ddlDef = (DDLDef *)Com_PlayerData_GetDefForStatsGroup(v13);
+      PlayerDataBufferForSource = LiveStorage_GetPlayerDataBufferForSource(v7, v13, (StatsSource)v4);
+      v15 = Com_PlayerData_GetStatsGroupSize(v13) - 4;
+      v16 = v15;
+      if ( (int)v5 - (v11 + 4) < v15 )
+        v16 = v5 - (v11 + 4);
+      v17 = &v26[v11 + 4];
+      memcpy_0(PlayerDataBufferForSource, v17, v16);
+      if ( DDL_CreateContext(PlayerDataBufferForSource, v15, ddlDef, &ddlContext, NULL, NULL) )
       {
-        Com_Printf(16, "LiveStorage_ReadStats_Platform - found valid stat buffer for stat group %d\n", (unsigned int)statsGroup[v13]);
-        _RAX = DDL_GetHeader(&result, v18, 0);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vextractf128 xmm0, ymm0, 1
-          vmovd   eax, xmm0
-        }
-        Def = DDL_GetDef(ddlDef->name, (unsigned __int16)_RAX);
+        Com_Printf(16, "LiveStorage_ReadStats_Platform - found valid stat buffer for stat group %d\n", (unsigned int)statsGroup[v12]);
+        _YMM0 = *(__m256i *)DDL_GetHeader(&result, v17, 0);
+        __asm { vextractf128 xmm0, ymm0, 1 }
+        Def = DDL_GetDef(ddlDef->name, (unsigned __int16)_XMM0);
         if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage.cpp", 1382, ASSERT_TYPE_ASSERT, "(oldDef)", (const char *)&queryFormat, "oldDef") )
           __debugbreak();
-        v12 += 1224 * ((Def->byteSize + 3) / 1224);
-        v11 = ++v26;
-        if ( ++v13 >= 6 )
+        v11 += 1224 * ((Def->byteSize + 3) / 1224);
+        v10 = ++v24;
+        if ( ++v12 >= 6 )
         {
           Com_Printf(16, "LiveStorage_ReadStats_Platform - finished reading all stats groups\n");
 LABEL_15:
-          if ( v11 == 6 )
+          if ( v10 == 6 )
           {
             LODWORD(accessCB) = v7;
             Com_Printf(16, "Read %i bytes of stats data from file \"%s\" for controller %i.\n", (unsigned int)v5, "mpdata", accessCB);
@@ -6583,20 +6463,20 @@ LABEL_15:
           LODWORD(v4) = statsSource;
 LABEL_26:
           LODWORD(userData) = v7;
-          Com_PrintWarning(16, "only read %d/%d stats blobs in file \"%s\" for controller %i; clearing stats\n", v11, 6i64, "mpdata", userData);
-          v23 = (int)v4;
+          Com_PrintWarning(16, "only read %d/%d stats blobs in file \"%s\" for controller %i; clearing stats\n", v10, 6i64, "mpdata", userData);
+          v21 = (int)v4;
 LABEL_27:
-          controllerStatData[v7].playerStats[v23].resetStatus = RESET_STATS_REASON_CORRUPT;
+          controllerStatData[v7].playerStats[v21].resetStatus = RESET_STATS_REASON_CORRUPT;
           goto LABEL_28;
         }
       }
       else
       {
         Com_PrintWarning(16, "Attempting to load old offline stats file, but found a wasted stat packet in the file.  Continuing.\n");
-        v11 = v26;
+        v10 = v24;
       }
-      v12 += 1224;
-      if ( v12 >= (int)v5 )
+      v11 += 1224;
+      if ( v11 >= (int)v5 )
         goto LABEL_15;
       LODWORD(v4) = statsSource;
     }
@@ -6604,7 +6484,7 @@ LABEL_27:
   Com_Printf(16, "Offline stats file not large enough to process for controller %i\n", (unsigned int)v7);
   controllerStatData[v7].playerStats[v4].resetStatus = RESET_STATS_REASON_BAD_FILE_VERSION;
 LABEL_28:
-  Mem_LargeLocal::~Mem_LargeLocal(&v30);
+  Mem_LargeLocal::~Mem_LargeLocal(&v28);
 }
 
 /*
@@ -7271,12 +7151,9 @@ void LiveStorage_StatsInit(const int controllerIndex, bool clear, bool freshStar
     {
       __asm { vpxor   xmm0, xmm0, xmm0 }
       LOBYTE(v47.buff) = 0;
-      __asm
-      {
-        vmovdqu xmmword ptr [rbp+0C0h+var_E8.def], xmm0
-        vmovdqu xmmword ptr [rbp+0C0h+var_148.def], xmm0
-        vmovdqu xmmword ptr [rbp+0C0h+var_118.def], xmm0
-      }
+      *(_OWORD *)&v47.def = _XMM0;
+      *(_OWORD *)&v45.def = _XMM0;
+      *(_OWORD *)&v46.def = _XMM0;
       HIDWORD(v47.buff) = 0;
       v47.len = -1;
       LOBYTE(v45.buff) = 0;
@@ -8002,20 +7879,20 @@ char SetDDLFromString(DDLContext *buffer, const char *str)
   DDLState result; 
   char *path[16]; 
   char val[64]; 
-  char v18; 
+  char v16; 
 
   fromState.isValid = 0;
   fromState.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+538h+fromState.member], xmm0 }
-  if ( j_sscanf(str, "%s = %s", &v18, val) < 2 )
+  *(_OWORD *)&fromState.member = _XMM0;
+  if ( j_sscanf(str, "%s = %s", &v16, val) < 2 )
   {
     Com_PrintWarning(28, "SetDDLFromString: in %s bad string '%s'.\n", buffer->def->name, str);
     return 0;
   }
   v7 = 0;
-  v8 = &v18;
+  v8 = &v16;
   v9 = NULL;
   v10 = 0;
   while ( 1 )
@@ -8057,12 +7934,7 @@ LABEL_11:
   }
   Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144005078, 402i64);
 LABEL_19:
-  _RAX = DDL_GetRootState(&result, buffer->def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+538h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, buffer->def);
   if ( DDL_MoveToPath(&fromState, &fromState, v7, (const char **)path) )
     DDL_SetValueStr(&fromState, buffer, val);
   else

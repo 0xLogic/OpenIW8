@@ -311,79 +311,63 @@ SD_DecoderAcpMessageProcess
 */
 void SD_DecoderAcpMessageProcess(void)
 {
-  unsigned int v6; 
-  sd_decoder_instance v7; 
-  signed __int32 v8[8]; 
-  __int64 v9; 
-  __int64 v10; 
+  unsigned int v0; 
+  sd_decoder_instance v1; 
+  signed __int32 v2[8]; 
+  __int64 v3; 
+  __int64 v4; 
 
   if ( g_sd.acpXmaHal->PopMessage(g_sd.acpXmaHal, &g_sd.acpMessage) )
   {
     while ( 1 )
     {
-      if ( g_sd.acpMessage.type == 1 )
+      switch ( g_sd.acpMessage.type )
       {
-        g_sd.acpXmaFrameNumber = g_sd.acpMessage.audioFrameStart.audioFrame;
-        goto LABEL_27;
-      }
-      if ( g_sd.acpMessage.type == 16 )
-      {
-        if ( (g_sd.acpMessage.shapeCommandBlocked.flowgraph & 0xFF000000) == 0x1000000i64 )
-        {
-          v6 = g_sd.acpMessage.commandCompleted.commandId & 0x1FF;
-          if ( v6 >= 0x71 )
-          {
-            LODWORD(v10) = 113;
-            LODWORD(v9) = g_sd.acpMessage.commandCompleted.commandId & 0x1FF;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 838, ASSERT_TYPE_ASSERT, "(unsigned)( i ) < (unsigned)( ( sizeof( *array_counter( g_sd.acpXmaPool ) ) + 0 ) )", "i doesn't index ARRAY_COUNT( g_sd.acpXmaPool )\n\t%i not in [0, %i)", v9, v10) )
-              __debugbreak();
-          }
-          v7.x360_xma = (struct sd_decoder_360_xma *)g_sd.acpXmaPool[v6].instance;
-          if ( !*(_BYTE *)v7.x360_xma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 840, ASSERT_TYPE_ASSERT, "(xma->inUse)", (const char *)&queryFormat, "xma->inUse") )
-            __debugbreak();
-          *((_DWORD *)v7.x360_xma + 27) = 0;
-          _InterlockedOr(v8, 0);
-          *(_BYTE *)v7.x360_xma = 0;
-          if ( ((unsigned __int8)&g_sd.pendingCommands & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_sd.pendingCommands) )
-            __debugbreak();
-          _InterlockedDecrement(&g_sd.pendingCommands);
-        }
-        goto LABEL_27;
-      }
-      if ( g_sd.acpMessage.type == 32 )
-        break;
-      if ( g_sd.acpMessage.type == 64 )
-      {
-        SD_PrintAcpMessage(&g_sd.acpMessage);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 867, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "SD_DecoderAcpMessageProcess error") )
-        {
-          __debugbreak();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:?g_sd@@3Usd_globals@@A.acpMessage.type; sd_globals g_sd
-            vmovsd  xmm1, qword ptr cs:?g_sd@@3Usd_globals@@A.acpMessage.___u3+4; sd_globals g_sd
-            vmovups xmmword ptr cs:?g_sd@@3Usd_globals@@A.acpErrorMessage.type, xmm0; sd_globals g_sd
-            vmovsd  qword ptr cs:?g_sd@@3Usd_globals@@A.acpErrorMessage.___u3+4, xmm1; sd_globals g_sd
-          }
-          g_sd.acpErrorMessage.commandCompleted.audioFrame = g_sd.acpMessage.commandCompleted.audioFrame;
+        case 1u:
+          g_sd.acpXmaFrameNumber = g_sd.acpMessage.audioFrameStart.audioFrame;
           goto LABEL_27;
-        }
-        goto LABEL_10;
+        case 0x10u:
+          if ( (g_sd.acpMessage.shapeCommandBlocked.flowgraph & 0xFF000000) == 0x1000000i64 )
+          {
+            v0 = g_sd.acpMessage.commandCompleted.commandId & 0x1FF;
+            if ( v0 >= 0x71 )
+            {
+              LODWORD(v4) = 113;
+              LODWORD(v3) = g_sd.acpMessage.commandCompleted.commandId & 0x1FF;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 838, ASSERT_TYPE_ASSERT, "(unsigned)( i ) < (unsigned)( ( sizeof( *array_counter( g_sd.acpXmaPool ) ) + 0 ) )", "i doesn't index ARRAY_COUNT( g_sd.acpXmaPool )\n\t%i not in [0, %i)", v3, v4) )
+                __debugbreak();
+            }
+            v1.x360_xma = (struct sd_decoder_360_xma *)g_sd.acpXmaPool[v0].instance;
+            if ( !*(_BYTE *)v1.x360_xma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 840, ASSERT_TYPE_ASSERT, "(xma->inUse)", (const char *)&queryFormat, "xma->inUse") )
+              __debugbreak();
+            *((_DWORD *)v1.x360_xma + 27) = 0;
+            _InterlockedOr(v2, 0);
+            *(_BYTE *)v1.x360_xma = 0;
+            if ( ((unsigned __int8)&g_sd.pendingCommands & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_sd.pendingCommands) )
+              __debugbreak();
+            _InterlockedDecrement(&g_sd.pendingCommands);
+          }
+          goto LABEL_27;
+        case 0x20u:
+          SD_PrintAcpMessage(&g_sd.acpMessage);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 861, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "SD_DecoderAcpMessageProcess error") )
+          {
+LABEL_12:
+            __debugbreak();
+            g_sd.acpErrorMessage = g_sd.acpMessage;
+            goto LABEL_27;
+          }
+          goto LABEL_10;
       }
+      if ( g_sd.acpMessage.type == 64 )
+        break;
       if ( g_sd.acpMessage.type == 128 )
       {
         SD_PrintAcpMessage(&g_sd.acpMessage);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 855, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "SD_DecoderAcpMessageProcess error") )
           __debugbreak();
 LABEL_10:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?g_sd@@3Usd_globals@@A.acpMessage.type; sd_globals g_sd
-          vmovsd  xmm1, qword ptr cs:?g_sd@@3Usd_globals@@A.acpMessage.___u3+4; sd_globals g_sd
-          vmovups xmmword ptr cs:?g_sd@@3Usd_globals@@A.acpErrorMessage.type, xmm0; sd_globals g_sd
-          vmovsd  qword ptr cs:?g_sd@@3Usd_globals@@A.acpErrorMessage.___u3+4, xmm1; sd_globals g_sd
-        }
-        g_sd.acpErrorMessage.commandCompleted.audioFrame = g_sd.acpMessage.commandCompleted.audioFrame;
+        g_sd.acpErrorMessage = g_sd.acpMessage;
         goto LABEL_27;
       }
       SD_PrintAcpMessage(&g_sd.acpMessage);
@@ -392,19 +376,8 @@ LABEL_27:
         return;
     }
     SD_PrintAcpMessage(&g_sd.acpMessage);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 861, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "SD_DecoderAcpMessageProcess error") )
-    {
-      __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_sd@@3Usd_globals@@A.acpMessage.type; sd_globals g_sd
-        vmovsd  xmm1, qword ptr cs:?g_sd@@3Usd_globals@@A.acpMessage.___u3+4; sd_globals g_sd
-        vmovups xmmword ptr cs:?g_sd@@3Usd_globals@@A.acpErrorMessage.type, xmm0; sd_globals g_sd
-        vmovsd  qword ptr cs:?g_sd@@3Usd_globals@@A.acpErrorMessage.___u3+4, xmm1; sd_globals g_sd
-      }
-      g_sd.acpErrorMessage.commandCompleted.audioFrame = g_sd.acpMessage.commandCompleted.audioFrame;
-      goto LABEL_27;
-    }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_acp_xma.cpp", 867, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "SD_DecoderAcpMessageProcess error") )
+      goto LABEL_12;
     goto LABEL_10;
   }
 }

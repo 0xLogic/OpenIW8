@@ -142,41 +142,34 @@ bdClansGetGroupFileResponse::setFile
 void bdClansGetGroupFileResponse::setFile(bdClansGetGroupFileResponse *this, const bdClansGroupFile *file)
 {
   bdClansGetGroupFileResponse_vtbl **v2; 
+  bdClansGetGroupFileResponse_vtbl **v4; 
   __int64 v5; 
+  bdStructFixedSizeString<255> *p_m_fileName; 
+  __int128 v7; 
 
   v2 = &this->__vftable + 2;
   bdReferencable::operator=((bdReferencable *)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 3) + 4i64) + 24), (const bdReferencable *)((char *)&file->__vftable + *(int *)(*((_QWORD *)&file->__vftable + 1) + 4i64) + 8));
   bdReferencable::operator=((bdReferencable *)((char *)v2 + SHIDWORD(v2[3]->serialize) + 24), (const bdReferencable *)((char *)&file->__vftable + *(int *)(*((_QWORD *)&file->__vftable + 3) + 4i64) + 24));
-  _RCX = v2 + 10;
+  v4 = v2 + 10;
   *((_WORD *)v2 + 16) = *(_WORD *)file->m_group;
   v5 = 2i64;
   v2[5] = *(bdClansGetGroupFileResponse_vtbl **)&file->m_group[8];
   *((_WORD *)v2 + 24) = *(_WORD *)&file->m_group[16];
   v2[7] = *(bdClansGetGroupFileResponse_vtbl **)&file->m_group[24];
-  _RAX = &file->m_fileName;
+  p_m_fileName = &file->m_fileName;
   do
   {
-    _RCX += 16;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (bdStructFixedSizeString<255> *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v4 += 16;
+    v7 = *(_OWORD *)p_m_fileName->m_buffer;
+    p_m_fileName = (bdStructFixedSizeString<255> *)((char *)p_m_fileName + 128);
+    *((_OWORD *)v4 - 8) = v7;
+    *((_OWORD *)v4 - 7) = *(_OWORD *)&p_m_fileName[-1].m_buffer[144];
+    *((_OWORD *)v4 - 6) = *(_OWORD *)&p_m_fileName[-1].m_buffer[160];
+    *((_OWORD *)v4 - 5) = *(_OWORD *)&p_m_fileName[-1].m_buffer[176];
+    *((_OWORD *)v4 - 4) = *(_OWORD *)&p_m_fileName[-1].m_buffer[192];
+    *((_OWORD *)v4 - 3) = *(_OWORD *)&p_m_fileName[-1].m_buffer[208];
+    *((_OWORD *)v4 - 2) = *(_OWORD *)&p_m_fileName[-1].m_buffer[224];
+    *((_OWORD *)v4 - 1) = *(_OWORD *)&p_m_fileName[-1].m_buffer[240];
     --v5;
   }
   while ( v5 );

@@ -212,34 +212,20 @@ Vec3AngleNormalize180
 */
 void Vec3AngleNormalize180(vec3_t *angles)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmulss  xmm3, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-    vmovss  xmm5, cs:__real@43b40000
-    vmovaps [rsp+18h+var_18], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vroundss xmm2, xmm8, xmm1, 1
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmulss  xmm4, xmm1, cs:__real@3b360b61
-    vsubss  xmm0, xmm3, xmm2
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vmulss  xmm0, xmm0, xmm5
-    vroundss xmm3, xmm8, xmm2, 1
-    vmovss  dword ptr [rcx], xmm0
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vroundss xmm3, xmm8, xmm2, 1
-    vmovaps xmm8, [rsp+18h+var_18]
-    vmovss  dword ptr [rcx+4], xmm1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, xmm5
-    vmovss  dword ptr [rcx+8], xmm0
-  }
+  float v3; 
+  float v5; 
+  float v6; 
+
+  _XMM8 = 0i64;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  v3 = angles->v[1] * 0.0027777778;
+  __asm { vroundss xmm3, xmm8, xmm2, 1 }
+  angles->v[0] = (float)((float)(angles->v[0] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+  v5 = (float)(v3 - *(float *)&_XMM3) * 360.0;
+  v6 = angles->v[2] * 0.0027777778;
+  __asm { vroundss xmm3, xmm8, xmm2, 1 }
+  angles->v[1] = v5;
+  angles->v[2] = (float)(v6 - *(float *)&_XMM3) * 360.0;
 }
 
 /*
@@ -247,26 +233,13 @@ void Vec3AngleNormalize180(vec3_t *angles)
 I_snap
 ==============
 */
-
-float __fastcall I_snap(double f, double step, double _XMM2_8)
+float I_snap(float f, float step)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vucomiss xmm1, xmm2
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm6, xmm1
-    vmovaps xmm7, xmm0
-    vdivss  xmm0, xmm7, xmm6
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vmovaps xmm7, [rsp+58h+var_28]
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vmulss  xmm0, xmm2, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  if ( step == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 425, ASSERT_TYPE_ASSERT, "(step != 0.0f)", (const char *)&queryFormat, "step != 0.0f") )
+    __debugbreak();
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  return *(float *)&_XMM2 * step;
 }
 
 /*
@@ -316,22 +289,27 @@ unsigned __int64 AlignUp<unsigned __int64>(unsigned __int64 value, unsigned __in
 ModuloLerp<int>
 ==============
 */
-__int64 ModuloLerp<int>(int startVal, int endVal, int divisor, bool isDecreasing)
+__int64 ModuloLerp<int>(int startVal, int endVal, int divisor, bool isDecreasing, float fraction)
 {
+  int v9; 
+
   if ( startVal >= divisor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 580, ASSERT_TYPE_ASSERT, "(startVal < divisor)", (const char *)&queryFormat, "startVal < divisor") )
     __debugbreak();
   if ( endVal >= divisor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 581, ASSERT_TYPE_ASSERT, "(endVal < divisor)", (const char *)&queryFormat, "endVal < divisor") )
     __debugbreak();
-  __asm
+  if ( isDecreasing )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm1, xmm0, [rsp+38h+fraction]
-    vcvttss2si ebx, xmm1
+    if ( endVal > startVal )
+      endVal -= divisor;
   }
+  else if ( endVal < startVal )
+  {
+    endVal += divisor;
+  }
+  v9 = (int)(float)((float)(endVal - startVal) * fraction);
   if ( divisor <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 572, ASSERT_TYPE_ASSERT, "(divisor > 0)", (const char *)&queryFormat, "divisor > 0") )
     __debugbreak();
-  return (unsigned int)((divisor + (_EBX + startVal) % divisor) % divisor);
+  return (unsigned int)((divisor + (v9 + startVal) % divisor) % divisor);
 }
 
 /*
@@ -364,39 +342,20 @@ QuantizeRange01ToByte
 ==============
 */
 
-__int64 __fastcall QuantizeRange01ToByte(double value, double _XMM1_8, double _XMM2_8)
+__int64 __fastcall QuantizeRange01ToByte(const float value, __int64 a2, double _XMM2_8)
 {
   __int64 result; 
-  double v15; 
-  double v16; 
-  double v17; 
 
-  __asm
+  if ( value < 0.0 || value > 1.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@3f800000
-    vmovsd  xmm1, cs:__real@3ff0000000000000
-    vmovsd  [rsp+58h+var_20], xmm1
-    vxorpd  xmm2, xmm2, xmm2
-    vmovsd  [rsp+58h+var_28], xmm2
-    vcvtss2sd xmm3, xmm6, xmm6
-    vmovsd  [rsp+58h+var_30], xmm3
+    __asm { vxorpd  xmm2, xmm2, xmm2 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", value, *(double *)&_XMM2, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", v15, v16, v17) )
-    __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@43800000
-    vmovaps xmm6, [rsp+58h+var_18]
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 1
-    vcvttss2si ecx, xmm1
-  }
-  result = (unsigned __int8)_ECX;
-  if ( _ECX > 255 )
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1 }
+  result = (unsigned __int8)(int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
     return 255i64;
   return result;
 }
@@ -406,28 +365,11 @@ __int64 __fastcall QuantizeRange01ToByte(double value, double _XMM1_8, double _X
 FastSinBetweenMinusPiAndPi
 ==============
 */
-
-float __fastcall FastSinBetweenMinusPiAndPi(double radians)
+float FastSinBetweenMinusPiAndPi(float radians)
 {
-  __asm
-  {
-    vcomiss xmm0, cs:__real@c0490fdb
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@40490fdb
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 789, ASSERT_TYPE_ASSERT, "(radians >= -M_PI_F && radians <= M_PI_F)", (const char *)&queryFormat, "radians >= -M_PI_F && radians <= M_PI_F") )
+  if ( (radians < -3.1415927 || radians > 3.1415927) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 789, ASSERT_TYPE_ASSERT, "(radians >= -M_PI_F && radians <= M_PI_F)", (const char *)&queryFormat, "radians >= -M_PI_F && radians <= M_PI_F") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3ecf817a
-    vandps  xmm1, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm2, xmm6, cs:__real@3fa2f983
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmulss  xmm1, xmm1, xmm0
-    vsubss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  return (float)(radians * 1.2732395) - (float)(COERCE_FLOAT(LODWORD(radians) & _xmm) * (float)(radians * 0.4052847));
 }
 
 /*
@@ -435,35 +377,12 @@ float __fastcall FastSinBetweenMinusPiAndPi(double radians)
 ExponentialMovingAverage
 ==============
 */
-
-float __fastcall ExponentialMovingAverage(double average, double newSample, double sampleCount)
+float ExponentialMovingAverage(float average, float newSample, float sampleCount)
 {
-  char v3; 
-  char v4; 
-
-  __asm
-  {
-    vmovaps xmm3, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vcomiss xmm2, xmm1
-    vmovaps xmm4, xmm0
-  }
-  if ( v3 | v4 )
-  {
-    __asm { vmovaps xmm0, xmm3 }
-  }
+  if ( sampleCount > 1.0 )
+    return (float)(average - (float)((float)(1.0 / sampleCount) * average)) + (float)((float)(1.0 / sampleCount) * newSample);
   else
-  {
-    __asm
-    {
-      vdivss  xmm1, xmm1, xmm2
-      vmulss  xmm0, xmm1, xmm4
-      vsubss  xmm2, xmm4, xmm0
-      vmulss  xmm1, xmm1, xmm3
-      vaddss  xmm0, xmm2, xmm1
-    }
-  }
-  return *(float *)&_XMM0;
+    return newSample;
 }
 
 /*
@@ -473,41 +392,11 @@ MatrixTransposeTransformVector
 */
 void MatrixTransposeTransformVector(const vec3_t *in1, const tmat33_t<vec3_t> *in2, vec3_t *out)
 {
-  _RDI = out;
-  _RSI = in2;
-  _RBX = in1;
   if ( in1 == out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmovss  xmm1, dword ptr [rbx]
-    vmulss  xmm2, xmm1, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rdi], xmm2
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmulss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rsi+10h]
-    vmulss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rsi+14h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rdi+4], xmm2
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovss  xmm1, dword ptr [rsi+1Ch]
-    vmulss  xmm2, xmm1, dword ptr [rbx+4]
-    vmulss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rdi+8], xmm2
-  }
+  out->v[0] = (float)((float)(in2->m[0].v[1] * in1->v[1]) + (float)(in1->v[0] * in2->m[0].v[0])) + (float)(in2->m[0].v[2] * in1->v[2]);
+  out->v[1] = (float)((float)(in2->m[1].v[0] * in1->v[0]) + (float)(in2->m[1].v[1] * in1->v[1])) + (float)(in2->m[1].v[2] * in1->v[2]);
+  out->v[2] = (float)((float)(in2->m[2].v[0] * in1->v[0]) + (float)(in2->m[2].v[1] * in1->v[1])) + (float)(in2->m[2].v[2] * in1->v[2]);
 }
 
 /*
@@ -539,44 +428,11 @@ MatrixTransformPosition44
 */
 void MatrixTransformPosition44(const vec3_t *in1, const tmat44_t<vec4_t> *in2, vec3_t *out)
 {
-  _RSI = out;
-  _RDI = in2;
-  _RBX = in1;
   if ( in1 == out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1093, ASSERT_TYPE_ASSERT, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx]
-    vmulss  xmm2, xmm1, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rdi+10h]
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rdi+20h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vaddss  xmm3, xmm2, dword ptr [rdi+30h]
-    vmovss  dword ptr [rsi], xmm3
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmulss  xmm4, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rdi+14h]
-    vmulss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rdi+24h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm3, xmm4, xmm2
-    vaddss  xmm2, xmm3, xmm1
-    vaddss  xmm3, xmm2, dword ptr [rdi+34h]
-    vmovss  dword ptr [rsi+4], xmm3
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmulss  xmm4, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rdi+18h]
-    vmulss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm3, xmm4, xmm2
-    vaddss  xmm2, xmm3, xmm1
-    vaddss  xmm3, xmm2, dword ptr [rdi+38h]
-    vmovss  dword ptr [rsi+8], xmm3
-  }
+  out->v[0] = (float)((float)((float)(in2->m[1].v[0] * in1->v[1]) + (float)(in1->v[0] * in2->m[0].v[0])) + (float)(in2->m[2].v[0] * in1->v[2])) + in2->m[3].v[0];
+  out->v[1] = (float)((float)((float)(in2->m[0].v[1] * in1->v[0]) + (float)(in2->m[1].v[1] * in1->v[1])) + (float)(in2->m[2].v[1] * in1->v[2])) + in2->m[3].v[1];
+  out->v[2] = (float)((float)((float)(in2->m[0].v[2] * in1->v[0]) + (float)(in2->m[1].v[2] * in1->v[1])) + (float)(in2->m[2].v[2] * in1->v[2])) + in2->m[3].v[2];
 }
 
 /*
@@ -586,13 +442,9 @@ CopyVec3ToPreciseVec3
 */
 void CopyVec3ToPreciseVec3(const vec3_t *src, base_vec3_t<int> *dst, const unsigned __int8 fractionalBitCount)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx]; f }
-  _RBX = src;
-  dst->v[0] = PreciseCoordFromFloat(*(const float *)&_XMM0, fractionalBitCount);
-  __asm { vmovss  xmm0, dword ptr [rbx+4]; f }
-  dst->v[1] = PreciseCoordFromFloat(*(const float *)&_XMM0, fractionalBitCount);
-  __asm { vmovss  xmm0, dword ptr [rbx+8]; f }
-  dst->v[2] = PreciseCoordFromFloat(*(const float *)&_XMM0, fractionalBitCount);
+  dst->v[0] = PreciseCoordFromFloat(src->v[0], fractionalBitCount);
+  dst->v[1] = PreciseCoordFromFloat(src->v[1], fractionalBitCount);
+  dst->v[2] = PreciseCoordFromFloat(src->v[2], fractionalBitCount);
 }
 
 /*
@@ -600,27 +452,19 @@ void CopyVec3ToPreciseVec3(const vec3_t *src, base_vec3_t<int> *dst, const unsig
 PreciseCoordFromFloat
 ==============
 */
-
-int __fastcall PreciseCoordFromFloat(double f, const unsigned __int8 fractionalBitCount)
+int PreciseCoordFromFloat(const float f, const unsigned __int8 fractionalBitCount)
 {
+  __int128 v5; 
   int result; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( fractionalBitCount >= 0x20u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1430, ASSERT_TYPE_ASSERT, "(fractionalBitCount < 32)", (const char *)&queryFormat, "fractionalBitCount < 32") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvtsi2sd xmm1, xmm1, eax
-    vmulsd  xmm1, xmm1, xmm0
-    vcvttsd2si eax, xmm1
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, eax }
+  *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v5 = *(double *)&_XMM1 * f;
+  _XMM1 = v5;
+  __asm { vcvttsd2si eax, xmm1 }
   return result;
 }
 

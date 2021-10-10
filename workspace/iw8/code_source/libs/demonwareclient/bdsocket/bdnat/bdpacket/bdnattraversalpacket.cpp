@@ -411,15 +411,9 @@ bdNATTraversalPacket::setHMAC
 */
 void bdNATTraversalPacket::setHMAC(bdNATTraversalPacket *this, const unsigned __int8 *hmac, const unsigned int size)
 {
-  _RDI = this;
-  _RBX = hmac;
   bdHandleAssert(size == 10, "size == BD_NAT_TRAV_HMAC_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdpacket\\bdnattraversalpacket.cpp", "bdNATTraversalPacket::setHMAC", 0x87u, "Trying to set HMAC of invalid length.");
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovsd  qword ptr [rdi+4], xmm0
-  }
-  *(_WORD *)&_RDI->m_hmac[8] = *((_WORD *)_RBX + 4);
+  *(double *)this->m_hmac = *(double *)hmac;
+  *(_WORD *)&this->m_hmac[8] = *((_WORD *)hmac + 4);
 }
 
 /*

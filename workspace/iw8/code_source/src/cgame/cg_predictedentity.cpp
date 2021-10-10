@@ -394,6 +394,8 @@ CgPredictedEntitySystem::CopyEntityOrientation
 void CgPredictedEntitySystem::CopyEntityOrientation(CgPredictedEntitySystem *this, const int predictedEntIdx, vec3_t *outPos, tmat33_t<vec3_t> *outAxis)
 {
   __int64 v4; 
+  cpose_t *p_pose; 
+  float v9; 
   vec3_t angles; 
 
   v4 = predictedEntIdx;
@@ -401,19 +403,14 @@ void CgPredictedEntitySystem::CopyEntityOrientation(CgPredictedEntitySystem *thi
     __debugbreak();
   if ( this->m_entities[v4].isInUse )
   {
-    _RBX = &this->m_entities[v4].pose;
-    CG_GetPoseOrigin(_RBX, outPos);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+    p_pose = &this->m_entities[v4].pose;
+    CG_GetPoseOrigin(p_pose, outPos);
+    if ( !p_pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+48h]
-      vmovss  xmm1, dword ptr [rbx+4Ch]
-      vmovss  dword ptr [rsp+88h+angles], xmm0
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vmovss  dword ptr [rsp+88h+angles+8], xmm0
-      vmovss  dword ptr [rsp+88h+angles+4], xmm1
-    }
+    v9 = p_pose->angles.v[1];
+    angles.v[0] = p_pose->angles.v[0];
+    angles.v[2] = p_pose->angles.v[2];
+    angles.v[1] = v9;
     AnglesToAxis(&angles, outAxis);
   }
   else
@@ -886,40 +883,29 @@ bool CgPredictedEntityTrajectory::GetTargetPos(CgPredictedEntityTrajectory *this
   unsigned int m_mapEntryId; 
   const cpose_t *PoseExtended; 
   bool result; 
-  __int64 v11; 
-  int v12; 
+  __int64 v8; 
   vec3_t outOrigin; 
 
-  _RDI = outPos;
   if ( !this->m_ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 71, ASSERT_TYPE_ASSERT, "(m_ent)", (const char *)&queryFormat, "m_ent") )
     __debugbreak();
   m_ent = this->m_ent;
   if ( m_ent->s.eType != ET_MISSILE || (m_mapEntryId = m_ent->s.lerp.u.player.executionWeaponHandle.m_mapEntryId, m_mapEntryId == 2047) )
   {
     result = 0;
-    *(_QWORD *)_RDI->v = 0i64;
-    _RDI->v[2] = 0.0;
+    *(_QWORD *)outPos->v = 0i64;
+    outPos->v[2] = 0.0;
   }
   else
   {
     if ( m_mapEntryId >= 0x800 )
     {
-      v12 = 2048;
-      LODWORD(v11) = m_mapEntryId;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 78, ASSERT_TYPE_ASSERT, "(unsigned)( m_ent->s.lerp.u.missile.targetEnt ) < (unsigned)( ( 2048 ) )", "m_ent->s.lerp.u.missile.targetEnt doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v8) = m_mapEntryId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 78, ASSERT_TYPE_ASSERT, "(unsigned)( m_ent->s.lerp.u.missile.targetEnt ) < (unsigned)( ( 2048 ) )", "m_ent->s.lerp.u.missile.targetEnt doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v8, 2048) )
         __debugbreak();
     }
     PoseExtended = CG_GetPoseExtended((LocalClientNum_t)this->m_localClientNum, this->m_ent->s.lerp.u.anonymous.data[5], 0);
     CG_GetPoseOrigin(PoseExtended, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+outOrigin]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [rsp+68h+outOrigin+4]
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr [rsp+68h+outOrigin+8]
-      vmovss  dword ptr [rdi+8], xmm0
-    }
+    *outPos = outOrigin;
     result = 1;
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
@@ -956,71 +942,60 @@ CgPredictedEntitySystem::InitClientTrajectoryEntity
 void CgPredictedEntitySystem::InitClientTrajectoryEntity(CgPredictedEntitySystem *this, CgPredictedEntity *parentEntity, CgPredictedEntity *clientTrajectoryEntity)
 {
   int predictedEntNum; 
+  cpose_t *p_pose; 
   void (__fastcall *v7)(const vec3_t *, vec4_t *); 
+  cpose_t *v8; 
+  cpose_t *v9; 
   __int64 v10; 
   __int64 v11; 
-  __int64 v24; 
-  __int64 v33; 
-  __int16 v49; 
-  __int64 v50; 
+  char *v12; 
+  cpose_t *v13; 
+  __int64 v14; 
+  CgPredictedEntity *v15; 
+  CgPredictedEntity *v16; 
+  __int64 v17; 
+  char *v18; 
+  __int16 v19; 
+  __int64 v20; 
   vec3_t outOrigin; 
-  __int64 v52; 
-  char v53[344]; 
+  __int64 v22; 
+  char v23[344]; 
   void (__fastcall *functionPointer)(const vec4_t *, vec3_t *); 
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
   void (__fastcall *FunctionPointer_prevOrigin)(const vec4_t *, vec3_t *); 
 
-  v52 = -2i64;
+  v22 = -2i64;
   if ( !parentEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 565, ASSERT_TYPE_ASSERT, "(parentEntity)", (const char *)&queryFormat, "parentEntity") )
     __debugbreak();
   if ( !clientTrajectoryEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 566, ASSERT_TYPE_ASSERT, "(clientTrajectoryEntity)", (const char *)&queryFormat, "clientTrajectoryEntity") )
     __debugbreak();
   predictedEntNum = clientTrajectoryEntity->predictedEntNum;
-  _RBX = &clientTrajectoryEntity->pose;
+  p_pose = &clientTrajectoryEntity->pose;
   v7 = ObfuscateSetFunctionPointer_origin(clientTrajectoryEntity->pose.origin.Set_origin, &clientTrajectoryEntity->pose);
   functionPointer = ObfuscateGetFunctionPointer_origin(clientTrajectoryEntity->pose.origin.Get_origin, &clientTrajectoryEntity->pose);
   Origin = ObfuscateSetFunctionPointer_prevOrigin(clientTrajectoryEntity->pose.prevOrigin.Set_prevOrigin, &clientTrajectoryEntity->pose);
   FunctionPointer_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(clientTrajectoryEntity->pose.prevOrigin.Get_prevOrigin, &clientTrajectoryEntity->pose);
-  _RCX = &clientTrajectoryEntity->pose;
-  _RDX = &parentEntity->pose;
+  v8 = &clientTrajectoryEntity->pose;
+  v9 = &parentEntity->pose;
   v10 = 2i64;
   v11 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rdx+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (cpose_t *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rdx+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RDX = (cpose_t *)((char *)_RDX + 128);
+    *(_OWORD *)&v8->eType = *(_OWORD *)&v9->eType;
+    *(_OWORD *)&v8->ragdollHandle = *(_OWORD *)&v9->ragdollHandle;
+    *(_OWORD *)&v8->actualOrigin.y = *(_OWORD *)&v9->actualOrigin.y;
+    *(_OWORD *)&v8->origin.Get_origin = *(_OWORD *)&v9->origin.Get_origin;
+    *(SecureOrigin::secureUnion *)((char *)&v8->origin.origin + 8) = *(SecureOrigin::secureUnion *)((char *)&v9->origin.origin + 8);
+    *(_OWORD *)&v8->angles.z = *(_OWORD *)&v9->angles.z;
+    *(_OWORD *)&v8->prevOrigin.Get_prevOrigin = *(_OWORD *)&v9->prevOrigin.Get_prevOrigin;
+    v8 = (cpose_t *)((char *)v8 + 128);
+    *((_OWORD *)&v8[-1].moverFx + 7) = *(vec4_t *)((char *)&v9->prevOrigin.prevOrigin + 8);
+    v9 = (cpose_t *)((char *)v9 + 128);
     --v11;
   }
   while ( v11 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-  }
+  *(_OWORD *)&v8->eType = *(_OWORD *)&v9->eType;
+  *(_OWORD *)&v8->ragdollHandle = *(_OWORD *)&v9->ragdollHandle;
   clientTrajectoryEntity->pose.origin.Set_origin = NULL;
   clientTrajectoryEntity->pose.origin.Get_origin = NULL;
   clientTrajectoryEntity->pose.prevOrigin.Set_prevOrigin = NULL;
@@ -1034,107 +1009,63 @@ void CgPredictedEntitySystem::InitClientTrajectoryEntity(CgPredictedEntitySystem
   CG_GetPrevPoseOrigin(&parentEntity->pose, &outOrigin);
   CG_SetPrevPoseOrigin(&clientTrajectoryEntity->pose, &outOrigin);
   memset(&outOrigin, 0, sizeof(outOrigin));
-  _RAX = v53;
-  _RCX = &clientTrajectoryEntity->pose;
-  v24 = 2i64;
+  v12 = v23;
+  v13 = &clientTrajectoryEntity->pose;
+  v14 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX = (cpose_t *)((char *)_RCX + 128);
-    --v24;
+    *(__m256i *)v12 = *(__m256i *)&v13->eType;
+    *((__m256i *)v12 + 1) = *(__m256i *)&v13->actualOrigin.y;
+    *((__m256i *)v12 + 2) = *(__m256i *)&v13->origin.origin.secureOrigin.xyz.z;
+    *((_OWORD *)v12 + 6) = *(_OWORD *)&v13->prevOrigin.Get_prevOrigin;
+    v12 += 128;
+    *((_OWORD *)v12 - 1) = *(vec4_t *)((char *)&v13->prevOrigin.prevOrigin + 8);
+    v13 = (cpose_t *)((char *)v13 + 128);
+    --v14;
   }
-  while ( v24 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr [rax], ymm0
-  }
-  _RCX = clientTrajectoryEntity;
-  _RAX = parentEntity;
-  v33 = 7i64;
+  while ( v14 );
+  *(__m256i *)v12 = *(__m256i *)&v13->eType;
+  v15 = clientTrajectoryEntity;
+  v16 = parentEntity;
+  v17 = 7i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (CgPredictedEntity *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (CgPredictedEntity *)((char *)_RAX + 128);
-    --v33;
+    *(_OWORD *)&v15->s.number = *(_OWORD *)&v16->s.number;
+    *(_OWORD *)&v15->s.lerp.pos.trType = *(_OWORD *)&v16->s.lerp.pos.trType;
+    *(_OWORD *)&v15->s.lerp.pos.trBase.y = *(_OWORD *)&v16->s.lerp.pos.trBase.y;
+    *(_OWORD *)&v15->s.lerp.pos.trDelta.z = *(_OWORD *)&v16->s.lerp.pos.trDelta.z;
+    *(_OWORD *)v15->s.lerp.apos.trBase.v = *(_OWORD *)v16->s.lerp.apos.trBase.v;
+    *(_OWORD *)&v15->s.lerp.apos.trDelta.y = *(_OWORD *)&v16->s.lerp.apos.trDelta.y;
+    *(_OWORD *)&v15->s.lerp.u.vehicle.bodyPitch = *(_OWORD *)&v16->s.lerp.u.vehicle.bodyPitch;
+    v15 = (CgPredictedEntity *)((char *)v15 + 128);
+    *(LerpEntityStateInfoVolumeGrapple *)&v15[-1].ownerEntNum = *(LerpEntityStateInfoVolumeGrapple *)((char *)&v16->s.lerp.u.infoVolumeGrapple + 24);
+    v16 = (CgPredictedEntity *)((char *)v16 + 128);
+    --v17;
   }
-  while ( v33 );
-  *(_QWORD *)&_RCX->s.number = *(_QWORD *)&_RAX->s.number;
-  _RAX = v53;
+  while ( v17 );
+  *(_QWORD *)&v15->s.number = *(_QWORD *)&v16->s.number;
+  v18 = v23;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rbx+60h], xmm0
-    }
-    _RBX = (cpose_t *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
-    _RAX += 128;
+    *(__m256i *)&p_pose->eType = *(__m256i *)v18;
+    *(__m256i *)&p_pose->actualOrigin.y = *((__m256i *)v18 + 1);
+    *(__m256i *)&p_pose->origin.origin.secureOrigin.xyz.z = *((__m256i *)v18 + 2);
+    *(_OWORD *)&p_pose->prevOrigin.Get_prevOrigin = *((_OWORD *)v18 + 6);
+    p_pose = (cpose_t *)((char *)p_pose + 128);
+    *((_OWORD *)&p_pose[-1].moverFx + 7) = *((_OWORD *)v18 + 7);
+    v18 += 128;
     --v10;
   }
   while ( v10 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx], ymm0
-  }
+  *(__m256i *)&p_pose->eType = *(__m256i *)v18;
   clientTrajectoryEntity->predictionState = CLIENT_TRAJECTORY_ENTITY;
   clientTrajectoryEntity->predictedEntNum = predictedEntNum;
-  v49 = truncate_cast<short,unsigned int>(predictedEntNum + 2501);
-  clientTrajectoryEntity->s.number = v49;
-  if ( (unsigned int)(v49 - 2501) > 0x1F )
+  v19 = truncate_cast<short,unsigned int>(predictedEntNum + 2501);
+  clientTrajectoryEntity->s.number = v19;
+  if ( (unsigned int)(v19 - 2501) > 0x1F )
   {
-    LODWORD(v50) = v49;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 578, ASSERT_TYPE_ASSERT, "( ENTITYNUM_PREDICTED_ENT_START ) <= ( clientTrajectoryEntity->s.number ) && ( clientTrajectoryEntity->s.number ) <= ( ENTITYNUM_PREDICTED_ENT_END - 1 )", "clientTrajectoryEntity->s.number not in [ENTITYNUM_PREDICTED_ENT_START, ENTITYNUM_PREDICTED_ENT_END - 1]\n\t%i not in [%i, %i]", v50, 2501, 2532) )
+    LODWORD(v20) = v19;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 578, ASSERT_TYPE_ASSERT, "( ENTITYNUM_PREDICTED_ENT_START ) <= ( clientTrajectoryEntity->s.number ) && ( clientTrajectoryEntity->s.number ) <= ( ENTITYNUM_PREDICTED_ENT_END - 1 )", "clientTrajectoryEntity->s.number not in [ENTITYNUM_PREDICTED_ENT_START, ENTITYNUM_PREDICTED_ENT_END - 1]\n\t%i not in [%i, %i]", v20, 2501, 2532) )
       __debugbreak();
   }
   parentEntity->clientTrajectoryEntity = clientTrajectoryEntity;
@@ -1194,10 +1125,11 @@ void CgPredictedEntitySystem::PostSnapshotInit(CgPredictedEntitySystem *this)
   __int64 m_localClientNum; 
   CgWeaponMap *v3; 
   int v4; 
-  __int64 v7; 
-  char v16; 
-  BgWeaponHandle handle; 
-  __int64 v18; 
+  int *p_serverEntNum; 
+  __int64 v6; 
+  _BYTE v7[96]; 
+  __int128 v8; 
+  __int64 v9; 
 
   m_localClientNum = this->m_localClientNum;
   if ( !CgWeaponMap::ms_instance[m_localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
@@ -1238,39 +1170,23 @@ void CgPredictedEntitySystem::PostSnapshotInit(CgPredictedEntitySystem *this)
   *(_QWORD *)&this->m_centPredictedEntityLookup.array[62] = 0i64;
   if ( this->m_numEntities > 0 )
   {
-    _RSI = &this->m_entities[0].serverEntNum;
+    p_serverEntNum = &this->m_entities[0].serverEntNum;
     do
     {
-      if ( *((_BYTE *)_RSI + 36) )
+      if ( *((_BYTE *)p_serverEntNum + 36) )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsi-360h] }
-        v7 = *((_QWORD *)_RSI - 78);
-        _RCX = &v16;
-        __asm
-        {
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm0, ymmword ptr [rsi-340h]
-          vmovups ymmword ptr [rcx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rsi-320h]
-          vmovups ymmword ptr [rcx+40h], ymm0
-          vmovups ymm0, ymmword ptr [rsi-300h]
-          vmovups ymmword ptr [rcx+60h], ymm0
-          vmovups ymm0, ymmword ptr [rsi-2E0h]
-          vmovups ymmword ptr [rcx+80h], ymm0
-          vmovups ymm0, ymmword ptr [rsi-2C0h]
-          vmovups ymmword ptr [rcx+0A0h], ymm0
-          vmovups ymm0, ymmword ptr [rsi-2A0h]
-          vmovups ymmword ptr [rcx+0C0h], ymm0
-          vmovups xmm0, xmmword ptr [rsi-280h]
-          vmovups xmmword ptr [rcx+0E0h], xmm0
-        }
-        v18 = v7;
-        *_RSI = 2047;
-        if ( !CgWeaponMap::FixUpWeaponHandle(v3, &handle, (const Weapon *)(_RSI - 24)) )
-          CgPredictedEntitySystem::FreePredictedEntity(this, (CgPredictedEntity *)(_RSI - 216));
+        v6 = *((_QWORD *)p_serverEntNum - 78);
+        *(__m256i *)v7 = *((__m256i *)p_serverEntNum - 23);
+        *(__m256i *)&v7[32] = *((__m256i *)p_serverEntNum - 22);
+        *(__m256i *)&v7[64] = *((__m256i *)p_serverEntNum - 21);
+        v8 = *((_OWORD *)p_serverEntNum - 40);
+        v9 = v6;
+        *p_serverEntNum = 2047;
+        if ( !CgWeaponMap::FixUpWeaponHandle(v3, (BgWeaponHandle *)&v7[4], (const Weapon *)(p_serverEntNum - 24)) )
+          CgPredictedEntitySystem::FreePredictedEntity(this, (CgPredictedEntity *)(p_serverEntNum - 216));
       }
       ++v4;
-      _RSI += 226;
+      p_serverEntNum += 226;
     }
     while ( v4 < this->m_numEntities );
   }
@@ -1353,55 +1269,45 @@ void CgPredictedEntitySystem::ResetEntity(CgPredictedEntitySystem *this, CgPredi
   unsigned int v5; 
   unsigned int EntityIndex; 
   __int16 v7; 
-  __int64 v11; 
-  __int64 v12; 
-  bdRandom v13; 
+  __int64 v8; 
+  __int64 v9; 
+  bdRandom v10; 
 
-  _RSI = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 192, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  memset_0(_RSI, 0, sizeof(CgPredictedEntity));
-  bdRandom::bdRandom(&v13);
-  v4 = bdRandom::nextUInt(&v13) % 0x22;
-  bdRandom::~bdRandom(&v13);
-  bdRandom::bdRandom(&v13);
-  v5 = bdRandom::nextUInt(&v13) % 0x22;
-  bdRandom::~bdRandom(&v13);
-  CG_ResetPoseZero(&_RSI->pose, v5, v4);
-  EntityIndex = CgPredictedEntitySystem::GetEntityIndex(this, _RSI);
-  _RSI->predictedEntNum = EntityIndex;
+  memset_0(ent, 0, sizeof(CgPredictedEntity));
+  bdRandom::bdRandom(&v10);
+  v4 = bdRandom::nextUInt(&v10) % 0x22;
+  bdRandom::~bdRandom(&v10);
+  bdRandom::bdRandom(&v10);
+  v5 = bdRandom::nextUInt(&v10) % 0x22;
+  bdRandom::~bdRandom(&v10);
+  CG_ResetPoseZero(&ent->pose, v5, v4);
+  EntityIndex = CgPredictedEntitySystem::GetEntityIndex(this, ent);
+  ent->predictedEntNum = EntityIndex;
   if ( EntityIndex >= 0x20 )
   {
-    LODWORD(v11) = EntityIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 206, ASSERT_TYPE_ASSERT, "(unsigned)( ent->predictedEntNum ) < (unsigned)( ( 32 ) )", "ent->predictedEntNum doesn't index MAX_PREDICTED_ENTS\n\t%i not in [0, %i)", v11, 32) )
+    LODWORD(v8) = EntityIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 206, ASSERT_TYPE_ASSERT, "(unsigned)( ent->predictedEntNum ) < (unsigned)( ( 32 ) )", "ent->predictedEntNum doesn't index MAX_PREDICTED_ENTS\n\t%i not in [0, %i)", v8, 32) )
       __debugbreak();
   }
-  v7 = truncate_cast<short,unsigned int>(_RSI->predictedEntNum + 2501);
-  _RSI->s.number = v7;
+  v7 = truncate_cast<short,unsigned int>(ent->predictedEntNum + 2501);
+  ent->s.number = v7;
   if ( (unsigned int)(v7 - 2501) > 0x1F )
   {
-    LODWORD(v12) = 2501;
-    LODWORD(v11) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 209, ASSERT_TYPE_ASSERT, "( ENTITYNUM_PREDICTED_ENT_START ) <= ( ent->s.number ) && ( ent->s.number ) <= ( ENTITYNUM_PREDICTED_ENT_END - 1 )", "ent->s.number not in [ENTITYNUM_PREDICTED_ENT_START, ENTITYNUM_PREDICTED_ENT_END - 1]\n\t%i not in [%i, %i]", v11, v12, 2532) )
+    LODWORD(v9) = 2501;
+    LODWORD(v8) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 209, ASSERT_TYPE_ASSERT, "( ENTITYNUM_PREDICTED_ENT_START ) <= ( ent->s.number ) && ( ent->s.number ) <= ( ENTITYNUM_PREDICTED_ENT_END - 1 )", "ent->s.number not in [ENTITYNUM_PREDICTED_ENT_START, ENTITYNUM_PREDICTED_ENT_END - 1]\n\t%i not in [%i, %i]", v8, v9, 2532) )
       __debugbreak();
   }
-  _RSI->serverEntNum = 2047;
-  _RSI->parentEntNum = 2047;
-  _RSI->ownerEntNum = 2047;
-  _RSI->missileTargetEnt = 2047;
-  _RSI->predictionState = WAITING_TO_SPAWN;
-  _RSI->initialSpawnType = ET_FIRST;
-  _RSI->linkInfo = (CgPredictedEntityLinkInfo)2047i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rsi+300h], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rsi+320h], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsi+330h], xmm0
-  }
-  *(_DWORD *)&_RSI->entityWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+  ent->serverEntNum = 2047;
+  ent->parentEntNum = 2047;
+  ent->ownerEntNum = 2047;
+  ent->missileTargetEnt = 2047;
+  ent->predictionState = WAITING_TO_SPAWN;
+  ent->initialSpawnType = ET_FIRST;
+  ent->linkInfo = (CgPredictedEntityLinkInfo)2047i64;
+  ent->entityWeapon = NULL_WEAPON;
 }
 
 /*
@@ -1654,12 +1560,10 @@ CgPredictedEntitySystem::UpdatePose
 */
 void CgPredictedEntitySystem::UpdatePose(CgPredictedEntitySystem *this, CgPredictedEntity *ent, vec3_t *newOrigin, vec3_t *newAngles)
 {
-  __int64 v8; 
-  __int64 v13; 
+  signed __int64 v8; 
+  __int64 v9; 
   vec3_t outOrigin; 
 
-  _RSI = newAngles;
-  _RBX = ent;
   if ( !ent )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 533, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
@@ -1667,35 +1571,25 @@ void CgPredictedEntitySystem::UpdatePose(CgPredictedEntitySystem *this, CgPredic
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 225, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
       __debugbreak();
   }
-  v8 = ((char *)_RBX - (char *)this - 24) / 904;
+  v8 = ((char *)ent - (char *)this - 24) / 904;
   if ( (unsigned int)v8 >= 0x20 )
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 225, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+    if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 225, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
       __debugbreak();
-    LODWORD(v13) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 534, ASSERT_TYPE_ASSERT, "(unsigned)( GetEntityIndex( ent ) ) < (unsigned)( ( 32 ) )", "GetEntityIndex( ent ) doesn't index MAX_PREDICTED_ENTS\n\t%i not in [0, %i)", v13, 32) )
+    LODWORD(v9) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.cpp", 534, ASSERT_TYPE_ASSERT, "(unsigned)( GetEntityIndex( ent ) ) < (unsigned)( ( 32 ) )", "GetEntityIndex( ent ) doesn't index MAX_PREDICTED_ENTS\n\t%i not in [0, %i)", v9, 32) )
       __debugbreak();
   }
-  _RBX->pose.eType = _RBX->s.eType;
-  _RBX->pose.prevAngles.v[0] = _RBX->pose.angles.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1F4h]
-    vmovss  dword ptr [rbx+224h], xmm0
-    vmovss  xmm1, dword ptr [rbx+1F8h]
-    vmovss  dword ptr [rbx+228h], xmm1
-  }
-  CG_GetPrevPoseOrigin(&_RBX->pose, &outOrigin);
-  CG_SetPrevPoseOrigin(&_RBX->pose, &outOrigin);
-  CG_SetPoseOrigin(&_RBX->pose, newOrigin);
-  _RBX->pose.angles.v[0] = _RSI->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rbx+1F4h], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+1F8h], xmm1
-  }
+  ent->pose.eType = ent->s.eType;
+  ent->pose.prevAngles.v[0] = ent->pose.angles.v[0];
+  ent->pose.prevAngles.v[1] = ent->pose.angles.v[1];
+  ent->pose.prevAngles.v[2] = ent->pose.angles.v[2];
+  CG_GetPrevPoseOrigin(&ent->pose, &outOrigin);
+  CG_SetPrevPoseOrigin(&ent->pose, &outOrigin);
+  CG_SetPoseOrigin(&ent->pose, newOrigin);
+  ent->pose.angles.v[0] = newAngles->v[0];
+  ent->pose.angles.v[1] = newAngles->v[1];
+  ent->pose.angles.v[2] = newAngles->v[2];
   memset(&outOrigin, 0, sizeof(outOrigin));
 }
 

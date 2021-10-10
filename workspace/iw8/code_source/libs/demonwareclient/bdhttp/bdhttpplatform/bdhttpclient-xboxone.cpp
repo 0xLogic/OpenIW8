@@ -417,22 +417,22 @@ bdHTTPClient::performOperation
 void bdHTTPClient::performOperation(bdHTTPClient *this)
 {
   bdGetHostByName::bdStatus i; 
-  const bdAddr *v5; 
-  float v6; 
+  const bdAddr *v3; 
+  float v4; 
   bool isWritable; 
-  int v8; 
-  __int64 v9; 
-  bdGetHostByNameConfig v10; 
+  int v6; 
+  __int64 v7; 
+  bdGetHostByNameConfig v8; 
   bdStreamSocket sock; 
   unsigned int bytesDownloaded[2]; 
-  __int64 v13; 
+  __int64 v11; 
   bdSockAddr address; 
   bdAddr result; 
   bdAddr other; 
-  bdGetHostByName v17; 
+  bdGetHostByName v15; 
   bdStopwatch str[2]; 
 
-  v13 = -2i64;
+  v11 = -2i64;
   bdLogMessage(BD_LOG_INFO, "info/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::performOperation", 0x3Fu, "Starting HTTP operation");
   if ( this->m_abort )
   {
@@ -448,31 +448,26 @@ void bdHTTPClient::performOperation(bdHTTPClient *this)
   bdSockAddr::set(&address, this->m_serverName);
   if ( !bdSockAddr::isValid(&address) || bdSockAddr::toUInt32(&address) == -1 )
   {
-    bdGetHostByName::bdGetHostByName(&v17, 0);
-    bdGetHostByNameConfig::bdGetHostByNameConfig(&v10);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@40a00000
-      vmovss  [rsp+4B0h+var_460.m_timeout], xmm0
-      vmovd   r8d, xmm0; config
-    }
-    bdGetHostByName::start(&v17, this->m_serverName, _ER8);
-    bdGetHostByName::pump(&v17);
-    for ( i = bdGetHostByName::getStatus(&v17); i == BD_LOOKUP_PENDING; i = bdGetHostByName::getStatus(&v17) )
+    bdGetHostByName::bdGetHostByName(&v15, 0);
+    bdGetHostByNameConfig::bdGetHostByNameConfig(&v8);
+    v8.m_timeout = FLOAT_5_0;
+    bdGetHostByName::start(&v15, this->m_serverName, LODWORD(FLOAT_5_0));
+    bdGetHostByName::pump(&v15);
+    for ( i = bdGetHostByName::getStatus(&v15); i == BD_LOOKUP_PENDING; i = bdGetHostByName::getStatus(&v15) )
     {
       bdPlatformTiming::sleep(0x32u);
-      bdGetHostByName::pump(&v17);
+      bdGetHostByName::pump(&v15);
     }
-    if ( i == BD_LOOKUP_SUCCEEDED && bdGetHostByName::getNumAddresses(&v17) )
+    if ( i == BD_LOOKUP_SUCCEEDED && bdGetHostByName::getNumAddresses(&v15) )
     {
-      bdGetHostByName::getAddressAt(&v17, &result.m_address, 0);
+      bdGetHostByName::getAddressAt(&v15, &result.m_address, 0);
       bdSockAddr::set(&address, &result.m_address);
     }
     else
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::resolveHostIP", 0x173u, "DNS failed to resolve for '%s' with resolve error %d", this->m_serverName, i);
     }
-    bdGetHostByName::~bdGetHostByName(&v17);
+    bdGetHostByName::~bdGetHostByName(&v15);
   }
   if ( !bdSockAddr::isValid(&address) || bdSockAddr::toUInt32(&address) == -1 || (bdSockAddr::toString(&address, (char *const)str, 0x10ui64), bdLogMessage(BD_LOG_INFO, "info/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::resolveHostIP", 0x17Au, "Resolved HTTP server to IP %s", (const char *)str), bdAddr::set(&other, &address, this->m_port), this->m_abort) || !bdStreamSocket::create(&sock, 0) )
   {
@@ -480,11 +475,11 @@ void bdHTTPClient::performOperation(bdHTTPClient *this)
     goto LABEL_34;
   }
   bdAddr::bdAddr(&result, &other);
-  v6 = COERCE_FLOAT(bdStreamSocket::connect(&sock, v5));
-  v10.m_timeout = v6;
-  if ( LODWORD(v6) != 1 && v6 != NAN )
+  v4 = COERCE_FLOAT(bdStreamSocket::connect(&sock, v3));
+  v8.m_timeout = v4;
+  if ( LODWORD(v4) != 1 && v4 != NAN )
     goto LABEL_31;
-  isWritable = bdStreamSocket::isWritable(&sock, (bdSocketStatusCode *)&v10);
+  isWritable = bdStreamSocket::isWritable(&sock, (bdSocketStatusCode *)&v8);
   if ( this->m_abort )
   {
 LABEL_22:
@@ -492,7 +487,7 @@ LABEL_22:
     {
 LABEL_31:
       bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::performOperation", 0x6Eu, "Failed to connect to host");
-      this->m_socketErrorCode = (int)v10.m_timeout;
+      this->m_socketErrorCode = (int)v8.m_timeout;
       goto LABEL_32;
     }
   }
@@ -500,22 +495,22 @@ LABEL_31:
   {
     while ( !isWritable )
     {
-      if ( LODWORD(v10.m_timeout) != 1 )
+      if ( LODWORD(v8.m_timeout) != 1 )
         goto LABEL_31;
       bdPlatformTiming::sleep(0x32u);
-      isWritable = bdStreamSocket::isWritable(&sock, (bdSocketStatusCode *)&v10);
+      isWritable = bdStreamSocket::isWritable(&sock, (bdSocketStatusCode *)&v8);
       if ( this->m_abort )
         goto LABEL_22;
     }
   }
-  if ( LODWORD(v10.m_timeout) != 1 )
+  if ( LODWORD(v8.m_timeout) != 1 )
     goto LABEL_31;
   bdStopwatch::bdStopwatch(str);
   bdStopwatch::start(str);
   this->m_dataRate = 0.0;
   this->m_bytesTransfered = 0i64;
-  v8 = bdStreamSocket::send(&sock, this->m_buffer.m_httpCommonBuffer, this->m_buffer.m_httpCommonBufferSize);
-  if ( v8 >= 0 )
+  v6 = bdStreamSocket::send(&sock, this->m_buffer.m_httpCommonBuffer, this->m_buffer.m_httpCommonBufferSize);
+  if ( v6 >= 0 )
   {
     if ( (!this->m_buffer.m_contentSendBufferSize && !this->m_uploadHandler || bdHTTPClient::sendPayload(this, &sock, str)) && bdHTTPClient::recvResponseHeader(this, &sock, bytesDownloaded) )
     {
@@ -528,8 +523,8 @@ LABEL_32:
     bdStreamSocket::close(&sock);
     goto LABEL_34;
   }
-  LODWORD(v9) = v8;
-  bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::performOperation", 0x8Fu, "Failed to send HTTP request with status code %d", v9);
+  LODWORD(v7) = v6;
+  bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::performOperation", 0x8Fu, "Failed to send HTTP request with status code %d", v7);
   bdStreamSocket::close(&sock);
 LABEL_34:
   if ( this->m_status != BD_HTTP_STATUS_DONE )
@@ -702,43 +697,38 @@ bdHTTPClient::resolveHostIP
 char bdHTTPClient::resolveHostIP(bdHTTPClient *this, bdAddr *addr)
 {
   bdGetHostByName::bdStatus i; 
-  bdGetHostByNameConfig v8[2]; 
-  __int64 v9; 
+  bdGetHostByNameConfig v6[2]; 
+  __int64 v7; 
   bdSockAddr address; 
   bdSockAddr result; 
-  bdGetHostByName v12; 
+  bdGetHostByName v10; 
   char str[16]; 
 
-  v9 = -2i64;
+  v7 = -2i64;
   bdSockAddr::bdSockAddr(&address);
   bdSockAddr::set(&address, this->m_serverName);
   if ( !bdSockAddr::isValid(&address) || bdSockAddr::toUInt32(&address) == -1 )
   {
-    bdGetHostByName::bdGetHostByName(&v12, 0);
-    bdGetHostByNameConfig::bdGetHostByNameConfig(v8);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@40a00000
-      vmovss  [rsp+3D0h+var_380.m_timeout], xmm0
-      vmovd   r8d, xmm0; config
-    }
-    bdGetHostByName::start(&v12, this->m_serverName, _ER8);
-    bdGetHostByName::pump(&v12);
-    for ( i = bdGetHostByName::getStatus(&v12); i == BD_LOOKUP_PENDING; i = bdGetHostByName::getStatus(&v12) )
+    bdGetHostByName::bdGetHostByName(&v10, 0);
+    bdGetHostByNameConfig::bdGetHostByNameConfig(v6);
+    v6[0].m_timeout = FLOAT_5_0;
+    bdGetHostByName::start(&v10, this->m_serverName, LODWORD(FLOAT_5_0));
+    bdGetHostByName::pump(&v10);
+    for ( i = bdGetHostByName::getStatus(&v10); i == BD_LOOKUP_PENDING; i = bdGetHostByName::getStatus(&v10) )
     {
       bdPlatformTiming::sleep(0x32u);
-      bdGetHostByName::pump(&v12);
+      bdGetHostByName::pump(&v10);
     }
-    if ( i == BD_LOOKUP_SUCCEEDED && bdGetHostByName::getNumAddresses(&v12) )
+    if ( i == BD_LOOKUP_SUCCEEDED && bdGetHostByName::getNumAddresses(&v10) )
     {
-      bdGetHostByName::getAddressAt(&v12, &result, 0);
+      bdGetHostByName::getAddressAt(&v10, &result, 0);
       bdSockAddr::set(&address, &result);
     }
     else
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::resolveHostIP", 0x173u, "DNS failed to resolve for '%s' with resolve error %d", this->m_serverName, i);
     }
-    bdGetHostByName::~bdGetHostByName(&v12);
+    bdGetHostByName::~bdGetHostByName(&v10);
   }
   if ( !bdSockAddr::isValid(&address) || bdSockAddr::toUInt32(&address) == -1 )
     return 0;
@@ -755,92 +745,77 @@ bdHTTPClient::sendPayload
 */
 char bdHTTPClient::sendPayload(bdHTTPClient *this, bdStreamSocket *sock, bdStopwatch *httpTime)
 {
-  int v9; 
-  char v10; 
-  unsigned int v12; 
-  char v13; 
-  bool v14; 
-  int v17; 
-  int v18; 
+  int v6; 
+  char v7; 
+  __int64 v8; 
+  double ElapsedTimeInSeconds; 
+  bool v10; 
+  float v11; 
+  int v12; 
+  int v13; 
   unsigned int m_responseStatusBufferSize; 
-  __int64 v22; 
-  double v23; 
+  __int64 v16; 
   unsigned int totalSent; 
 
-  _RBX = this;
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
   bdLogMessage(BD_LOG_INFO, "info/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x185u, "sending payload");
-  v9 = 0;
+  v6 = 0;
   totalSent = 0;
-  v10 = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  while ( !_RBX->m_abort )
+  v7 = 1;
+  while ( !this->m_abort )
   {
-    v9 = bdHTTPClient::writePayloadData(_RBX, sock, &totalSent);
-    if ( v9 > 0 )
+    v6 = bdHTTPClient::writePayloadData(this, sock, &totalSent);
+    if ( v6 > 0 )
     {
-      v12 = totalSent;
-      _RBX->m_bytesTransfered = totalSent;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(httpTime);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( !(v13 | v14) )
+      v8 = totalSent;
+      this->m_bytesTransfered = totalSent;
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(httpTime);
+      if ( *(float *)&ElapsedTimeInSeconds > 0.0 )
       {
-        v14 = !_RBX->m_progressMeter;
-        __asm
+        v10 = !this->m_progressMeter;
+        v11 = (float)v8;
+        this->m_dataRate = v11 / *(float *)&ElapsedTimeInSeconds;
+        if ( !v10 )
         {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdi
-          vdivss  xmm2, xmm1, xmm0
-          vmovss  dword ptr [rbx+550h], xmm2
-        }
-        if ( !v14 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm2, xmm2
-            vmovsd  [rsp+88h+var_48], xmm0
-          }
-          LODWORD(v22) = v12;
-          bdLogMessage(BD_LOG_INFO, "info/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x1A3u, "Bytes sent %d @ %.2f bytes/sec", v22, v23);
+          LODWORD(v16) = v8;
+          bdLogMessage(BD_LOG_INFO, "info/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x1A3u, "Bytes sent %d @ %.2f bytes/sec", v16, (float)(v11 / *(float *)&ElapsedTimeInSeconds));
         }
       }
     }
-    if ( !_RBX->m_httpResponseCode )
+    if ( !this->m_httpResponseCode )
     {
-      v17 = bdStreamSocket::recv(sock, &_RBX->m_buffer.m_responseStatusBuffer[_RBX->m_buffer.m_responseStatusBufferSize], 128 - _RBX->m_buffer.m_responseStatusBufferSize);
-      v18 = v17;
-      if ( v17 <= 0 )
+      v12 = bdStreamSocket::recv(sock, &this->m_buffer.m_responseStatusBuffer[this->m_buffer.m_responseStatusBufferSize], 128 - this->m_buffer.m_responseStatusBufferSize);
+      v13 = v12;
+      if ( v12 <= 0 )
       {
-        if ( v17 != -2 )
+        if ( v12 != -2 )
         {
-          LODWORD(v22) = v17;
-          bdLogMessage(BD_LOG_WARNING, "warn/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x1BEu, "Socket error reading HTTP status line (%d)", v22);
-          v9 = v18;
+          LODWORD(v16) = v12;
+          bdLogMessage(BD_LOG_WARNING, "warn/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x1BEu, "Socket error reading HTTP status line (%d)", v16);
+          v6 = v13;
         }
       }
       else
       {
-        _RBX->m_buffer.m_responseStatusBufferSize += v17;
-        m_responseStatusBufferSize = _RBX->m_buffer.m_responseStatusBufferSize;
+        this->m_buffer.m_responseStatusBufferSize += v12;
+        m_responseStatusBufferSize = this->m_buffer.m_responseStatusBufferSize;
         if ( m_responseStatusBufferSize >= 0xC )
         {
-          if ( !bdHTTPClient::parseStatusLine(_RBX, _RBX->m_buffer.m_responseStatusBuffer, m_responseStatusBufferSize) )
+          if ( !bdHTTPClient::parseStatusLine(this, this->m_buffer.m_responseStatusBuffer, m_responseStatusBufferSize) )
             goto LABEL_17;
-          bdHandleAssert(_RBX->m_httpResponseCode != 0, "m_httpResponseCode > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x1B9u, "Error reading HTTP status line");
+          bdHandleAssert(this->m_httpResponseCode != 0, "m_httpResponseCode > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x1B9u, "Error reading HTTP status line");
         }
       }
     }
-    if ( v9 <= 0 )
+    if ( v6 <= 0 )
       goto LABEL_18;
   }
   bdLogMessage(BD_LOG_WARNING, "warn/", "http", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdhttp\\bdhttpplatform\\bdhttpclient-xboxone.cpp", "bdHTTPClient::sendPayload", 0x191u, "Aborting HTTP operation with incomplete payload sent");
 LABEL_17:
-  v10 = 0;
+  v7 = 0;
 LABEL_18:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  if ( v9 >= 0 )
-    return v10;
-  _RBX->m_socketErrorCode = v9;
+  if ( v6 >= 0 )
+    return v7;
+  this->m_socketErrorCode = v6;
   return 0;
 }
 

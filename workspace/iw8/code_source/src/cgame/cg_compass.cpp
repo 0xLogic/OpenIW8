@@ -722,44 +722,26 @@ CG_ApplySplitScreenCompassScale
 */
 void CG_ApplySplitScreenCompassScale(CompassType compassType, float *x, float *y, float *w, float *h)
 {
-  _R14 = w;
-  _RSI = y;
-  _RBP = x;
+  const dvar_t *v9; 
+  float value; 
+
   if ( !w && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 82, ASSERT_TYPE_ASSERT, "(w)", (const char *)&queryFormat, "w") )
     __debugbreak();
-  _RDI = h;
   if ( !h && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 83, ASSERT_TYPE_ASSERT, "(h)", (const char *)&queryFormat, "h") )
     __debugbreak();
   if ( compassType == COMPASS_TYPE_PARTIAL && CL_IsRenderingSplitScreen() )
   {
-    _RBX = DVARFLT_cg_hudSplitscreenCompassScale;
+    v9 = DVARFLT_cg_hudSplitscreenCompassScale;
     if ( !DVARFLT_cg_hudSplitscreenCompassScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h] }
-    if ( _RBP )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm1, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm0
-      }
-    }
-    if ( _RSI )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm1, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm0
-      }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm1, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm0
-      vmulss  xmm1, xmm1, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v9);
+    value = v9->current.value;
+    if ( x )
+      *x = value * *x;
+    if ( y )
+      *y = value * *y;
+    *w = value * *w;
+    *h = value * *h;
   }
 }
 
@@ -771,42 +753,38 @@ CG_BuildCompassDistanceString
 
 void __fastcall CG_BuildCompassDistanceString(double distance, char *result, int resultSize)
 {
-  unsigned __int64 v5; 
-  char v10; 
-  const char *v18; 
+  unsigned __int64 v4; 
+  float v6; 
+  const dvar_t *v7; 
+  __int128 v8; 
+  __int128 v9; 
+  const char *v12; 
   ConversionArguments arguments; 
   char _Buffer[8]; 
 
-  __asm { vmovaps [rsp+0C8h+var_28], xmm6 }
-  v5 = resultSize;
-  __asm { vmovaps xmm6, xmm0 }
+  v4 = resultSize;
+  v6 = *(float *)&distance;
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2450, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  if ( (int)v5 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2451, ASSERT_TYPE_ASSERT, "(resultSize > 0)", (const char *)&queryFormat, "resultSize > 0") )
+  if ( (int)v4 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2451, ASSERT_TYPE_ASSERT, "(resultSize > 0)", (const char *)&queryFormat, "resultSize > 0") )
     __debugbreak();
-  _RBX = DVARFLT_compassObjectiveDetailDist;
+  v7 = DVARFLT_compassObjectiveDetailDist;
   if ( !DVARFLT_compassObjectiveDetailDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveDetailDist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-  if ( v10 )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( *(float *)&distance >= v7->current.value )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@41200000
-      vcvttss2si eax, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm2, xmm1, cs:__real@3dcccccd
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    j_sprintf(_Buffer, "%.1f", *(double *)&_XMM2);
+    j_sprintf(_Buffer, "%i", (unsigned int)(int)*(float *)&distance);
   }
   else
   {
-    __asm { vcvttss2si r8d, xmm6 }
-    j_sprintf(_Buffer, "%i", _R8);
+    v8 = *(_OWORD *)&distance;
+    *(float *)&v8 = *(float *)&distance * 10.0;
+    *(_OWORD *)&distance = v8;
+    v9 = 0i64;
+    *(float *)&v9 = (float)(int)(float)(v6 * 10.0);
+    _XMM1 = v9;
+    j_sprintf(_Buffer, "%.1f", (float)(*(float *)&v9 * 0.1));
   }
   __asm
   {
@@ -815,16 +793,12 @@ void __fastcall CG_BuildCompassDistanceString(double distance, char *result, int
   }
   *(_QWORD *)&arguments.argCount = 1i64;
   arguments.args[0] = _Buffer;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+0C8h+arguments.args+8], xmm0
-    vmovdqu xmmword ptr [rsp+0C8h+arguments.args+18h], xmm1
-    vmovdqu xmmword ptr [rsp+0C8h+arguments.args+28h], xmm0
-    vmovdqu xmmword ptr [rsp+0C8h+arguments.args+38h], xmm1
-  }
-  v18 = UI_SafeTranslateString("HUD/OBJECTIVE_DISTANCE");
-  UI_ReplaceConversions(v18, &arguments, result, v5);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_28] }
+  *(_OWORD *)&arguments.args[1] = _XMM0;
+  *(_OWORD *)&arguments.args[3] = _XMM1;
+  *(_OWORD *)&arguments.args[5] = _XMM0;
+  *(_OWORD *)&arguments.args[7] = _XMM1;
+  v12 = UI_SafeTranslateString("HUD/OBJECTIVE_DISTANCE");
+  UI_ReplaceConversions(v12, &arguments, result, v4);
 }
 
 /*
@@ -832,76 +806,36 @@ void __fastcall CG_BuildCompassDistanceString(double distance, char *result, int
 CG_CalcCircularCompassPos
 ==============
 */
-
-bool __fastcall CG_CalcCircularCompassPos(const rectDef_s *mapRect, double boundsRadius, vec2_t *outClippedXY, bool *outClipped)
+char CG_CalcCircularCompassPos(const rectDef_s *mapRect, const float boundsRadius, vec2_t *outClippedXY, bool *outClipped)
 {
-  bool v12; 
-  bool v13; 
-  bool result; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RBX = outClippedXY;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm1, xmm7
-    vmovaps xmm6, xmm1
-  }
-  _RDI = mapRect;
-  __asm { vmovaps [rsp+68h+var_38], xmm8 }
+  if ( boundsRadius <= 0.0 )
+    return 0;
   if ( !mapRect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 111, ASSERT_TYPE_ASSERT, "(mapRect)", (const char *)&queryFormat, "mapRect") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 112, ASSERT_TYPE_ASSERT, "(outClippedXY)", (const char *)&queryFormat, "outClippedXY") )
+  if ( !outClippedXY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 112, ASSERT_TYPE_ASSERT, "(outClippedXY)", (const char *)&queryFormat, "outClippedXY") )
     __debugbreak();
-  v12 = outClipped == NULL;
-  if ( !outClipped )
+  if ( !outClipped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 113, ASSERT_TYPE_ASSERT, "(outClipped)", (const char *)&queryFormat, "outClipped") )
+    __debugbreak();
+  _XMM0 = LODWORD(mapRect->h);
+  __asm { vminss  xmm1, xmm0, dword ptr [rdi+8] }
+  v11 = (float)(*(float *)&_XMM1 * 0.5) * boundsRadius;
+  v13 = fsqrt((float)(outClippedXY->v[1] * outClippedXY->v[1]) + (float)(outClippedXY->v[0] * outClippedXY->v[0]));
+  v12 = v13;
+  if ( v13 > v11 )
   {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 113, ASSERT_TYPE_ASSERT, "(outClipped)", (const char *)&queryFormat, "outClipped");
-    v12 = !v13;
-    if ( v13 )
+    if ( v13 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 119, ASSERT_TYPE_ASSERT, "(xyLen > 0.0f)", (const char *)&queryFormat, "xyLen > 0.0f") )
       __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vminss  xmm1, xmm0, dword ptr [rdi+8]
-    vmulss  xmm2, xmm1, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  xmm1, dword ptr [rbx]
-    vmulss  xmm8, xmm2, xmm6
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm0, xmm1, xmm1
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm6, xmm1, xmm1
-    vcomiss xmm6, xmm8
-  }
-  if ( !v12 )
-  {
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 119, ASSERT_TYPE_ASSERT, "(xyLen > 0.0f)", (const char *)&queryFormat, "xyLen > 0.0f") )
-      __debugbreak();
-    __asm
-    {
-      vdivss  xmm1, xmm8, xmm6
-      vmulss  xmm0, xmm1, dword ptr [rbx]
-      vmulss  xmm1, xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  dword ptr [rbx], xmm0
-    }
+    v14 = (float)(v11 / v13) * outClippedXY->v[0];
+    outClippedXY->v[1] = (float)(v11 / v12) * outClippedXY->v[1];
+    outClippedXY->v[0] = v14;
     *outClipped = 1;
   }
-  __asm { vmovaps xmm8, [rsp+68h+var_38] }
-  result = 1;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -1025,199 +959,103 @@ CG_CompassCalcDimensions
 */
 void CG_CompassCalcDimensions(CompassType compassType, const cg_t *cgameGlob, const rectDef_s *parentRect, const rectDef_s *rect, const vec2_t *compassMapWorldSize, float *x, float *y, float *w, float *h)
 {
-  const dvar_t *v18; 
-  char v24; 
-  char v28; 
-  bool v29; 
-  bool v31; 
-  bool v32; 
-  bool v34; 
-  bool v35; 
-  const dvar_t *v58; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  const dvar_t *v22; 
+  __int128 v24; 
 
-  _RBX = rect;
-  _R14 = parentRect;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 529, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 530, ASSERT_TYPE_ASSERT, "(parentRect)", (const char *)&queryFormat, "parentRect") )
+  if ( !parentRect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 530, ASSERT_TYPE_ASSERT, "(parentRect)", (const char *)&queryFormat, "parentRect") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 531, ASSERT_TYPE_ASSERT, "(rect)", (const char *)&queryFormat, "rect") )
+  if ( !rect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 531, ASSERT_TYPE_ASSERT, "(rect)", (const char *)&queryFormat, "rect") )
     __debugbreak();
-  _R13 = x;
   if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 532, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  _R12 = y;
   if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 533, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  _RSI = w;
   if ( !w && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 534, ASSERT_TYPE_ASSERT, "(w)", (const char *)&queryFormat, "w") )
     __debugbreak();
-  _RDI = h;
   if ( !h && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 535, ASSERT_TYPE_ASSERT, "(h)", (const char *)&queryFormat, "h") )
     __debugbreak();
   if ( compassType )
   {
-    __asm
+    v14 = rect->w;
+    if ( v14 <= 0.0 || rect->h <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovaps [rsp+88h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm0, xmm6
-      vmovaps [rsp+88h+var_48], xmm7
-      vcomiss xmm6, dword ptr [rbx+0Ch]
+      Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_14427E200, 951i64);
+      v14 = rect->w;
     }
-    Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_14427E200, 951i64);
-    __asm
+    if ( v14 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 566, ASSERT_TYPE_ASSERT, "(rect->w)", (const char *)&queryFormat, "rect->w") )
+      __debugbreak();
+    if ( rect->h == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 567, ASSERT_TYPE_ASSERT, "(rect->h)", (const char *)&queryFormat, "rect->h") )
+      __debugbreak();
+    if ( compassMapWorldSize->v[0] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 568, ASSERT_TYPE_ASSERT, "(compassMapWorldSize[0])", (const char *)&queryFormat, "compassMapWorldSize[0]") )
+      __debugbreak();
+    if ( compassMapWorldSize->v[1] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 569, ASSERT_TYPE_ASSERT, "(compassMapWorldSize[1])", (const char *)&queryFormat, "compassMapWorldSize[1]") )
+      __debugbreak();
+    v15 = compassMapWorldSize->v[0] / compassMapWorldSize->v[1];
+    v16 = rect->h;
+    v17 = rect->w;
+    v18 = parentRect->y + rect->y;
+    v19 = parentRect->x + rect->x;
+    if ( v15 <= (float)(v17 / v16) )
     {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vucomiss xmm0, xmm6
-    }
-    if ( v29 )
-    {
-      v31 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 566, ASSERT_TYPE_ASSERT, "(rect->w)", (const char *)&queryFormat, "rect->w");
-      v28 = 0;
-      v29 = !v31;
-      if ( v31 )
-        __debugbreak();
-    }
-    __asm { vucomiss xmm6, dword ptr [rbx+0Ch] }
-    if ( v29 )
-    {
-      v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 567, ASSERT_TYPE_ASSERT, "(rect->h)", (const char *)&queryFormat, "rect->h");
-      v28 = 0;
-      v29 = !v32;
-      if ( v32 )
-        __debugbreak();
-    }
-    _RBP = compassMapWorldSize;
-    __asm { vucomiss xmm6, dword ptr [rbp+0] }
-    if ( v29 )
-    {
-      v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 568, ASSERT_TYPE_ASSERT, "(compassMapWorldSize[0])", (const char *)&queryFormat, "compassMapWorldSize[0]");
-      v28 = 0;
-      v29 = !v34;
-      if ( v34 )
-        __debugbreak();
-    }
-    __asm { vucomiss xmm6, dword ptr [rbp+4] }
-    if ( v29 )
-    {
-      v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 569, ASSERT_TYPE_ASSERT, "(compassMapWorldSize[1])", (const char *)&queryFormat, "compassMapWorldSize[1]");
-      v28 = 0;
-      v29 = !v35;
-      if ( v35 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vdivss  xmm4, xmm0, dword ptr [rbp+4]
-      vmovss  xmm5, dword ptr [rbx+0Ch]
-      vmovss  xmm2, dword ptr [rbx+8]
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  xmm1, dword ptr [r14]
-      vaddss  xmm7, xmm0, dword ptr [rbx+4]
-      vaddss  xmm6, xmm1, dword ptr [rbx]
-      vdivss  xmm3, xmm2, xmm5
-      vcomiss xmm4, xmm3
-    }
-    if ( v28 | v29 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm2, cs:__real@3f000000
-        vdivss  xmm0, xmm4, xmm3
-        vmulss  xmm4, xmm0, xmm2
-        vmulss  xmm0, xmm4, cs:__real@3f000000
-        vaddss  xmm2, xmm1, xmm6
-        vsubss  xmm2, xmm2, xmm0
-        vmovss  dword ptr [r13+0], xmm2
-        vmovss  dword ptr [r12], xmm7
-        vmovss  dword ptr [rsi], xmm4
-        vmovss  xmm3, dword ptr [rbx+0Ch]
-      }
+      v21 = (float)(v15 / (float)(v17 / v16)) * v17;
+      *x = (float)((float)(v17 * 0.5) + v19) - (float)(v21 * 0.5);
+      *y = v18;
+      *w = v21;
+      v20 = rect->h;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [r13+0], xmm6
-        vdivss  xmm0, xmm3, xmm4
-        vmulss  xmm3, xmm0, xmm5
-        vmulss  xmm0, xmm5, cs:__real@3f000000
-        vmulss  xmm1, xmm3, cs:__real@3f000000
-        vaddss  xmm2, xmm0, xmm7
-        vsubss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [r12], xmm2
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr [rsi], xmm0
-      }
+      *x = v19;
+      v20 = (float)((float)(v17 / v16) / v15) * v16;
+      *y = (float)((float)(v16 * 0.5) + v18) - (float)(v20 * 0.5);
+      *w = rect->w;
     }
-    __asm { vmovss  dword ptr [rdi], xmm3 }
-    v58 = DVARFLT_cg_hudMapBorderWidth;
-    __asm
-    {
-      vmovaps xmm7, [rsp+88h+var_48]
-      vmovaps xmm6, [rsp+88h+var_38]
-    }
+    *h = v20;
+    v22 = DVARFLT_cg_hudMapBorderWidth;
     if ( !DVARFLT_cg_hudMapBorderWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudMapBorderWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v58);
+    Dvar_CheckFrontendServerThread(v22);
+    v24 = LODWORD(FLOAT_0_25);
+    *(float *)&v24 = 0.25 * *w;
+    _XMM0 = v24;
     __asm
     {
-      vmovss  xmm2, cs:__real@3e800000
-      vmulss  xmm0, xmm2, dword ptr [rsi]
       vminss  xmm3, xmm0, dword ptr [rbx+28h]
-      vmulss  xmm2, xmm2, dword ptr [rdi]
       vminss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, dword ptr [r13+0]
-      vmulss  xmm3, xmm4, cs:__real@40000000
-      vmovss  dword ptr [r13+0], xmm0
-      vaddss  xmm1, xmm4, dword ptr [r12]
-      vmovss  dword ptr [r12], xmm1
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm2, dword ptr [rdi]
-      vsubss  xmm0, xmm2, xmm3
-      vmovss  dword ptr [rdi], xmm0
     }
+    *x = *(float *)&_XMM4 + *x;
+    *y = *(float *)&_XMM4 + *y;
+    *w = *w - (float)(*(float *)&_XMM4 * 2.0);
+    *h = *h - (float)(*(float *)&_XMM4 * 2.0);
   }
   else
   {
-    *x = _RBX->x;
-    *y = _RBX->y;
-    v18 = DVARFLT_compassSize;
+    *x = rect->x;
+    *y = rect->y;
+    v12 = DVARFLT_compassSize;
     if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v18);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmulss  xmm0, xmm0, dword ptr [rbp+28h]
-      vmovss  dword ptr [rsi], xmm0
-    }
-    _RBP = DVARFLT_compassSize;
+    Dvar_CheckFrontendServerThread(v12);
+    *w = rect->w * v12->current.value;
+    v13 = DVARFLT_compassSize;
     if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+28h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+0Ch]
-      vmovss  dword ptr [rdi], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v13);
+    *h = v13->current.value * rect->h;
     CG_ApplySplitScreenCompassScale(COMPASS_TYPE_PARTIAL, x, y, w, h);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rsi]
-    }
-    if ( !v24 )
-      goto LABEL_31;
-    __asm { vcomiss xmm0, dword ptr [rdi] }
-    if ( !v24 )
-LABEL_31:
+    if ( *w <= 0.0 || *h <= 0.0 )
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_14427E200, 950i64);
   }
 }
@@ -1239,10 +1077,12 @@ CG_CompassCalcLocationSelectorQuads
 */
 void CG_CompassCalcLocationSelectorQuads(LocalClientNum_t localClientNum, const rectDef_s *scaledRect, int horzAlign, int vertAlign, const vec2_t *posScreen, vec2_t *outTexMin, vec2_t *outTexMax, float *x, float *y, float *w, float *h, float quadRad)
 {
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   const ScreenPlacement *ActivePlacement; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _R15 = scaledRect;
   if ( !scaledRect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1475, ASSERT_TYPE_ASSERT, "(scaledRect)", (const char *)&queryFormat, "scaledRect") )
     __debugbreak();
   if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1476, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
@@ -1253,57 +1093,41 @@ void CG_CompassCalcLocationSelectorQuads(LocalClientNum_t localClientNum, const 
     __debugbreak();
   if ( !h && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1479, ASSERT_TYPE_ASSERT, "(h)", (const char *)&queryFormat, "h") )
     __debugbreak();
-  __asm
+  outTexMin->v[0] = (float)((float)(scaledRect->x - posScreen->v[0]) * (float)(1.0 / quadRad)) + 0.5;
+  outTexMin->v[1] = (float)((float)(scaledRect->y - posScreen->v[1]) * (float)(1.0 / quadRad)) + 0.5;
+  outTexMax->v[0] = (float)((float)((float)(scaledRect->w + scaledRect->x) - posScreen->v[0]) * (float)(1.0 / quadRad)) + 0.5;
+  outTexMax->v[1] = (float)((float)((float)(scaledRect->y + scaledRect->h) - posScreen->v[1]) * (float)(1.0 / quadRad)) + 0.5;
+  *x = scaledRect->x;
+  *y = scaledRect->y;
+  *w = scaledRect->w;
+  *h = scaledRect->h;
+  if ( outTexMin->v[0] < 0.0 )
   {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  xmm4, cs:__real@3f000000
+    v16 = (float)(outTexMin->v[0] * *w) / (float)(outTexMin->v[0] - outTexMax->v[0]);
+    *x = v16 + *x;
+    *w = *w - v16;
+    outTexMin->v[0] = 0.0;
   }
-  _RDX = outTexMin;
-  _RCX = outTexMax;
-  __asm
+  v17 = outTexMin->v[1];
+  if ( v17 < 0.0 )
   {
-    vsubss  xmm0, xmm0, dword ptr [rax]
-    vmovss  xmm6, cs:__real@3f800000
-    vdivss  xmm5, xmm6, [rsp+78h+quadRad]
-    vmulss  xmm1, xmm0, xmm5
-    vaddss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [rdx], xmm2
-    vmovss  xmm0, dword ptr [r15+4]
-    vsubss  xmm1, xmm0, dword ptr [rax+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rdx+4], xmm3
-    vmovss  xmm0, dword ptr [r15+8]
-    vaddss  xmm1, xmm0, dword ptr [r15]
-    vsubss  xmm2, xmm1, dword ptr [rax]
-    vmulss  xmm3, xmm2, xmm5
-    vaddss  xmm0, xmm3, xmm4
-    vmovss  dword ptr [rcx], xmm0
-    vmovss  xmm0, dword ptr [r15+4]
-    vaddss  xmm1, xmm0, dword ptr [r15+0Ch]
-    vsubss  xmm2, xmm1, dword ptr [rax+4]
-    vmulss  xmm3, xmm2, xmm5
-    vaddss  xmm0, xmm3, xmm4
-    vmovss  dword ptr [rcx+4], xmm0
+    v18 = (float)(v17 * *h) / (float)(v17 - outTexMax->v[1]);
+    *y = v18 + *y;
+    *h = *h - v18;
+    outTexMin->v[1] = 0.0;
   }
-  *x = _R15->x;
-  *y = _R15->y;
-  *w = _R15->w;
-  *h = _R15->h;
-  __asm
+  if ( outTexMax->v[0] > 1.0 )
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vxorps  xmm3, xmm3, xmm3
-    vcomiss xmm0, xmm3
-    vmovss  xmm0, dword ptr [rdx+4]
-    vcomiss xmm0, xmm3
-    vmovss  xmm2, dword ptr [rcx]
-    vcomiss xmm2, xmm6
-    vmovss  xmm2, dword ptr [rcx+4]
-    vcomiss xmm2, xmm6
+    *w = (float)((float)(1.0 - outTexMin->v[0]) / (float)(outTexMax->v[0] - outTexMin->v[0])) * *w;
+    outTexMax->v[0] = 1.0;
+  }
+  v19 = outTexMax->v[1];
+  if ( v19 > 1.0 )
+  {
+    *h = (float)((float)(1.0 - outTexMin->v[1]) / (float)(v19 - outTexMin->v[1])) * *h;
+    outTexMax->v[1] = 1.0;
   }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
   ScrPlace_ApplyRect(ActivePlacement, x, y, w, h, horzAlign, vertAlign);
 }
 
@@ -1314,28 +1138,15 @@ CG_CompassFullToWorld
 */
 void CG_CompassFullToWorld(const cg_t *cgameGlob, const vec2_t *compassPosition, vec2_t *outWorldPosition)
 {
-  _RSI = outWorldPosition;
-  _RBX = cgameGlob;
+  float v6; 
+  float v7; 
+
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 619, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4A020h]
-    vmulss  xmm3, xmm0, dword ptr [rdi]
-    vmulss  xmm0, xmm3, dword ptr [rbx+4A004h]
-    vaddss  xmm2, xmm0, dword ptr [rbx+4A018h]
-    vmovss  xmm1, dword ptr [rbx+4A024h]
-    vmulss  xmm4, xmm1, dword ptr [rdi+4]
-    vmulss  xmm1, xmm4, dword ptr [rbx+4A000h]
-    vsubss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [rsi], xmm2
-    vmovss  xmm0, dword ptr [rbx+4A01Ch]
-    vmulss  xmm3, xmm3, dword ptr [rbx+4A000h]
-    vmulss  xmm1, xmm4, dword ptr [rbx+4A004h]
-    vsubss  xmm2, xmm0, xmm3
-    vsubss  xmm0, xmm2, xmm1
-    vmovss  dword ptr [rsi+4], xmm0
-  }
+  v6 = cgameGlob->compassMapWorldSize.v[0] * compassPosition->v[0];
+  v7 = cgameGlob->compassMapWorldSize.v[1] * compassPosition->v[1];
+  outWorldPosition->v[0] = (float)((float)(v6 * cgameGlob->compassNorth.v[1]) + cgameGlob->compassMapUpperLeft.v[0]) - (float)(v7 * cgameGlob->compassNorth.v[0]);
+  outWorldPosition->v[1] = (float)(cgameGlob->compassMapUpperLeft.v[1] - (float)(v6 * cgameGlob->compassNorth.v[0])) - (float)(v7 * cgameGlob->compassNorth.v[1]);
 }
 
 /*
@@ -1345,49 +1156,32 @@ CG_CompassGetObjectivePingAlpha
 */
 void CG_CompassGetObjectivePingAlpha(const ObjectiveView *obj, const int currentTime, float *pingAlpha)
 {
-  const dvar_t *v8; 
-  char v12; 
-  char v13; 
+  const dvar_t *v6; 
+  float integer; 
+  float v8; 
+  double v9; 
 
-  _RDI = pingAlpha;
   if ( obj->pingTime )
   {
-    v8 = DVARINT_bg_objectivePingDuration;
+    v6 = DVARINT_bg_objectivePingDuration;
     if ( !DVARINT_bg_objectivePingDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_objectivePingDuration") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    __asm
+    Dvar_CheckFrontendServerThread(v6);
+    integer = (float)v6->current.integer;
+    if ( integer <= 0.0 )
     {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [rbx+28h]
-      vxorps  xmm1, xmm1, xmm1; min
-      vcomiss xmm2, xmm1
-    }
-    if ( v12 | v13 )
-    {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
+      *(float *)&v9 = FLOAT_1_0;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm3, xmm0, xmm2
-        vmovss  xmm2, cs:__real@3f800000; max
-        vsubss  xmm0, xmm2, xmm3; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      v8 = (float)(currentTime - obj->pingTime);
+      v9 = I_fclamp(1.0 - (float)(v8 / integer), 0.0, 1.0);
     }
-    __asm { vmovss  dword ptr [rdi], xmm0 }
+    *pingAlpha = *(float *)&v9;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  dword ptr [r8], xmm0
-    }
+    *pingAlpha = FLOAT_1_0;
   }
 }
 
@@ -1396,69 +1190,31 @@ void CG_CompassGetObjectivePingAlpha(const ObjectiveView *obj, const int current
 CG_CompassPartialToWorld
 ==============
 */
-
-void __fastcall CG_CompassPartialToWorld(const cg_t *cgameGlob, double compassMapRange, const vec2_t *compassPosition, const vec2_t *yawVector, vec2_t *outWorldPosition, vec2_t *outWorldScale)
+void CG_CompassPartialToWorld(const cg_t *cgameGlob, const float compassMapRange, const vec2_t *compassPosition, const vec2_t *yawVector, vec2_t *outWorldPosition, vec2_t *outWorldScale)
 {
-  __int64 v43; 
-  char v46; 
-  void *retaddr; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RBP = outWorldPosition;
-  _R14 = outWorldScale;
-  _RBX = cgameGlob;
-  __asm { vmovaps xmm6, xmm1 }
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 630, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm8, xmm6, dword ptr [rsi]
-    vmulss  xmm9, xmm6, dword ptr [rsi+4]
-    vmulss  xmm2, xmm8, dword ptr [rdi+4]
-    vmulss  xmm0, xmm6, cs:__real@3f000000
-    vmulss  xmm7, xmm0, dword ptr [rdi+4]
-    vmulss  xmm6, xmm0, dword ptr [rdi]
-  }
-  v43 = *(_QWORD *)_RBX->predictedPlayerState.origin.v;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+var_58]
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm0, xmm9, dword ptr [rdi]
-    vaddss  xmm3, xmm1, xmm6
-    vaddss  xmm1, xmm6, dword ptr [rsp+88h+var_58+4]
-    vaddss  xmm4, xmm3, xmm2
-    vsubss  xmm5, xmm4, xmm0
-    vmovss  dword ptr [rbp+0], xmm5
-    vmulss  xmm0, xmm8, dword ptr [rdi]
-    vaddss  xmm2, xmm1, xmm7
-    vmulss  xmm1, xmm9, dword ptr [rdi+4]
-    vsubss  xmm3, xmm2, xmm0
-    vsubss  xmm4, xmm3, xmm1
-    vmovss  dword ptr [rbp+4], xmm4
-    vsubss  xmm0, xmm5, dword ptr [rbx+4A018h]
-    vmovss  xmm2, dword ptr [rbx+4A01Ch]
-    vdivss  xmm1, xmm0, dword ptr [rbx+4A020h]
-    vsubss  xmm2, xmm2, xmm4
-    vmovss  dword ptr [r14], xmm1
-    vdivss  xmm0, xmm2, dword ptr [rbx+4A024h]
-    vmovss  dword ptr [r14+4], xmm0
-  }
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  v9 = compassMapRange * compassPosition->v[0];
+  v10 = compassMapRange * compassPosition->v[1];
+  v11 = (float)(compassMapRange * 0.5) * yawVector->v[1];
+  v12 = (float)(compassMapRange * 0.5) * yawVector->v[0];
+  v16 = *(_QWORD *)cgameGlob->predictedPlayerState.origin.v;
+  v13 = (float)((float)((float)(*(float *)&v16 - v11) + v12) + (float)(v9 * yawVector->v[1])) - (float)(v10 * yawVector->v[0]);
+  outWorldPosition->v[0] = v13;
+  v14 = (float)((float)((float)(v12 + *((float *)&v16 + 1)) + v11) - (float)(v9 * yawVector->v[0])) - (float)(v10 * yawVector->v[1]);
+  outWorldPosition->v[1] = v14;
+  v15 = cgameGlob->compassMapUpperLeft.v[1] - v14;
+  outWorldScale->v[0] = (float)(v13 - cgameGlob->compassMapUpperLeft.v[0]) / cgameGlob->compassMapWorldSize.v[0];
+  outWorldScale->v[1] = v15 / cgameGlob->compassMapWorldSize.v[1];
 }
 
 /*
@@ -1491,41 +1247,18 @@ CG_Compass_CalcElevation_Internal
 */
 CompassEnemyElevation CG_Compass_CalcElevation_Internal(const vec3_t *localPlayerPosition, const vec3_t *worldPosition)
 {
-  char v6; 
-  char v7; 
-  CompassEnemyElevation result; 
+  const dvar_t *v2; 
+  float v3; 
 
-  _RBX = DCONST_DVARFLT_compassEnemyHeightDelta;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm6, xmm0, dword ptr [rcx+8]
-  }
+  v2 = DCONST_DVARFLT_compassEnemyHeightDelta;
+  v3 = worldPosition->v[2] - localPlayerPosition->v[2];
   if ( !DCONST_DVARFLT_compassEnemyHeightDelta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassEnemyHeightDelta") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( v6 )
-  {
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  Dvar_CheckFrontendServerThread(v2);
+  if ( COERCE_FLOAT(LODWORD(v3) & _xmm) < v2->current.value )
     return 0;
-  }
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    result = (v6 | v7) + 1;
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  }
-  return result;
+    return (v3 <= 0.0) + 1;
 }
 
 /*
@@ -1535,14 +1268,14 @@ CalcCompassClippedDistanceScale
 */
 double CalcCompassClippedDistanceScale(const vec2_t *v0, const vec2_t *v1, bool forceCompute)
 {
+  const dvar_t *v3; 
   double result; 
 
-  _RBX = DVARFLT_compassClippedScale;
+  v3 = DVARFLT_compassClippedScale;
   if ( !DVARFLT_compassClippedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassClippedScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm3, dword ptr [rbx+28h] }
-  *(float *)&result = CalcCompassClippedDistanceScaleInternal(v0, v1, forceCompute, *(float *)&_XMM3);
+  Dvar_CheckFrontendServerThread(v3);
+  *(float *)&result = CalcCompassClippedDistanceScaleInternal(v0, v1, forceCompute, v3->current.value);
   return result;
 }
 
@@ -1551,66 +1284,31 @@ double CalcCompassClippedDistanceScale(const vec2_t *v0, const vec2_t *v1, bool 
 CalcCompassClippedDistanceScaleInternal
 ==============
 */
-
-float __fastcall CalcCompassClippedDistanceScaleInternal(const vec2_t *v0, const vec2_t *v1, bool forceCompute, double clippedScaleValue)
+float CalcCompassClippedDistanceScaleInternal(const vec2_t *v0, const vec2_t *v1, bool forceCompute, float clippedScaleValue)
 {
-  const dvar_t *v8; 
-  const dvar_t *v14; 
+  const dvar_t *v6; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
+  double v11; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  _RDI = v1;
-  __asm { vmovaps xmm7, xmm3 }
-  if ( forceCompute )
-    goto LABEL_7;
-  v8 = DVARBOOL_compassEnableClippedScale;
-  if ( !DVARBOOL_compassEnableClippedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassEnableClippedScale") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  if ( !forceCompute )
   {
-LABEL_7:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vsubss  xmm2, xmm1, dword ptr [rsi+4]
-      vsubss  xmm4, xmm0, dword ptr [rsi]
-    }
-    v14 = DVARFLT_compassClippedScaleMaxDistance;
-    __asm
-    {
-      vmovaps [rsp+68h+var_18], xmm6
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vsqrtss xmm6, xmm1, xmm1
-    }
-    if ( !DVARFLT_compassClippedScaleMaxDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassClippedScaleMaxDistance") )
+    v6 = DVARBOOL_compassEnableClippedScale;
+    if ( !DVARBOOL_compassEnableClippedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassEnableClippedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    __asm
-    {
-      vdivss  xmm0, xmm6, dword ptr [rbx+28h]
-      vmovss  xmm6, cs:__real@3f800000
-      vsubss  xmm0, xmm6, xmm0; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vsubss  xmm1, xmm6, xmm0
-      vmovaps xmm6, [rsp+68h+var_18]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm0, xmm2, xmm0
-    }
+    Dvar_CheckFrontendServerThread(v6);
+    if ( !v6->current.enabled )
+      return FLOAT_1_0;
   }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  __asm { vmovaps xmm7, [rsp+68h+var_28] }
-  return *(float *)&_XMM0;
+  v8 = v1->v[1] - v0->v[1];
+  v9 = DVARFLT_compassClippedScaleMaxDistance;
+  v10 = fsqrt((float)(v8 * v8) + (float)((float)(v1->v[0] - v0->v[0]) * (float)(v1->v[0] - v0->v[0])));
+  if ( !DVARFLT_compassClippedScaleMaxDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassClippedScaleMaxDistance") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v9);
+  v11 = I_fclamp(1.0 - (float)(v10 / v9->current.value), 0.0, 1.0);
+  return (float)((float)(1.0 - *(float *)&v11) * clippedScaleValue) + *(float *)&v11;
 }
 
 /*
@@ -1620,85 +1318,72 @@ CalcCompassFriendlySize
 */
 void CalcCompassFriendlySize(CompassType compassType, float *w, float *h)
 {
+  const dvar_t *v6; 
+  float v7; 
+  const dvar_t *v8; 
   const dvar_t *v9; 
+  float v10; 
+  const dvar_t *v11; 
+  float value; 
   const dvar_t *v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
   const dvar_t *v16; 
 
-  _RBP = h;
-  _R14 = w;
   if ( !w && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2471, ASSERT_TYPE_ASSERT, "(w)", (const char *)&queryFormat, "w") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2472, ASSERT_TYPE_ASSERT, "(h)", (const char *)&queryFormat, "h") )
+  if ( !h && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2472, ASSERT_TYPE_ASSERT, "(h)", (const char *)&queryFormat, "h") )
     __debugbreak();
   if ( compassType )
   {
-    v16 = DVARFLT_cg_hudMapFriendlyWidth;
+    v13 = DVARFLT_cg_hudMapFriendlyWidth;
     if ( !DVARFLT_cg_hudMapFriendlyWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudMapFriendlyWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    *_R14 = v16->current.value;
-    _RBX = DVARFLT_cg_hudMapFriendlyHeight;
+    Dvar_CheckFrontendServerThread(v13);
+    *w = v13->current.value;
+    v14 = DVARFLT_cg_hudMapFriendlyHeight;
     if ( !DVARFLT_cg_hudMapFriendlyHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudMapFriendlyHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v14);
+    value = v14->current.value;
   }
   else
   {
-    _RBX = DVARFLT_compassFriendlyWidth;
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
+    v6 = DVARFLT_compassFriendlyWidth;
     if ( !DVARFLT_compassFriendlyWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassFriendlyWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v9 = DVARFLT_compassSize;
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = v6->current.value;
+    v8 = DVARFLT_compassSize;
     if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      vmovss  dword ptr [r14], xmm0
-    }
-    _RBX = DVARFLT_compassFriendlyHeight;
+    Dvar_CheckFrontendServerThread(v8);
+    *w = v7 * v8->current.value;
+    v9 = DVARFLT_compassFriendlyHeight;
     if ( !DVARFLT_compassFriendlyHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassFriendlyHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v13 = DVARFLT_compassSize;
+    Dvar_CheckFrontendServerThread(v9);
+    v10 = v9->current.value;
+    v11 = DVARFLT_compassSize;
     if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      vmovaps xmm6, [rsp+68h+var_28]
-    }
+    Dvar_CheckFrontendServerThread(v11);
+    value = v10 * v11->current.value;
   }
-  __asm { vmovss  dword ptr [rbp+0], xmm0 }
+  *h = value;
   if ( CL_IsRenderingSplitScreen() && compassType == COMPASS_TYPE_PARTIAL )
   {
-    _RBX = DVARFLT_cg_hudSplitscreenCompassElementScale;
+    v15 = DVARFLT_cg_hudSplitscreenCompassElementScale;
     if ( !DVARFLT_cg_hudSplitscreenCompassElementScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassElementScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm1
-    }
-    _RBX = DVARFLT_cg_hudSplitscreenCompassElementScale;
+    Dvar_CheckFrontendServerThread(v15);
+    *w = v15->current.value * *w;
+    v16 = DVARFLT_cg_hudSplitscreenCompassElementScale;
     if ( !DVARFLT_cg_hudSplitscreenCompassElementScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassElementScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-    }
-    CG_ApplySplitScreenCompassScale(COMPASS_TYPE_PARTIAL, NULL, NULL, _R14, _RBP);
+    Dvar_CheckFrontendServerThread(v16);
+    *h = v16->current.value * *h;
+    CG_ApplySplitScreenCompassScale(COMPASS_TYPE_PARTIAL, NULL, NULL, w, h);
   }
 }
 
@@ -1709,19 +1394,41 @@ CgCompassSystem::CalcCompassPointerSize
 */
 void CgCompassSystem::CalcCompassPointerSize(CgCompassSystem *this, CompassType compassType, ObjectiveIconSize iconSize, float *w, float *h)
 {
-  const dvar_t *v12; 
-  const dvar_t *v17; 
-  const dvar_t *v20; 
-  const dvar_t *v25; 
-  const dvar_t *v29; 
-  const char *v30; 
-  const dvar_t *v37; 
-  const dvar_t *v39; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  double v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  float v17; 
+  const dvar_t *v18; 
+  double v19; 
+  float v20; 
+  double v21; 
+  const dvar_t *v22; 
+  const char *v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  double v27; 
+  float v28; 
+  double v29; 
+  double v30; 
+  float v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  const dvar_t *v34; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v36; 
+  const char *v37; 
+  double v38; 
+  double v39; 
+  const dvar_t *v40; 
   const dvar_t *v41; 
-  const char *v42; 
 
-  _RBP = h;
-  _RDI = w;
   if ( !w && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2373, ASSERT_TYPE_ASSERT, "(w)", (const char *)&queryFormat, "w") )
     __debugbreak();
   if ( !h && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2374, ASSERT_TYPE_ASSERT, "(h)", (const char *)&queryFormat, "h") )
@@ -1730,196 +1437,145 @@ void CgCompassSystem::CalcCompassPointerSize(CgCompassSystem *this, CompassType 
   {
     if ( iconSize == OBJ_ICON_SIZE_LARGE )
     {
-      v37 = DVARFLT_compassObjectiveIconWidthLarge;
+      v32 = DVARFLT_compassObjectiveIconWidthLarge;
       if ( !DVARFLT_compassObjectiveIconWidthLarge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveIconWidthLarge") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v37);
-      *_RDI = v37->current.value;
-      _RBX = DVARFLT_compassObjectiveIconHeightLarge;
+      Dvar_CheckFrontendServerThread(v32);
+      *w = v32->current.value;
+      v33 = DVARFLT_compassObjectiveIconHeightLarge;
       if ( !DVARFLT_compassObjectiveIconHeightLarge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveIconHeightLarge") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
     }
-    else if ( iconSize == OBJ_ICON_SIZE_MEDIUM )
+    else
     {
-      v39 = DVARFLT_compassObjectiveIconWidthMedium;
+      if ( iconSize != OBJ_ICON_SIZE_MEDIUM )
+      {
+        if ( iconSize == OBJ_ICON_SIZE_SMALL )
+        {
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_compassObjectiveIconWidthSmall, "compassObjectiveIconWidthSmall");
+          *w = *(float *)&Float_Internal_DebugName;
+          v36 = DCONST_DVARFLT_compassObjectiveIconHeightSmall;
+          v37 = "compassObjectiveIconHeightSmall";
+        }
+        else if ( iconSize == OBJ_ICON_SIZE_HEADICON )
+        {
+          v38 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveIconWidthHeadIcon, "compassObjectiveIconWidthHeadIcon");
+          *w = *(float *)&v38;
+          v36 = DVARFLT_compassObjectiveIconHeightHeadIcon;
+          v37 = "compassObjectiveIconHeightHeadIcon";
+        }
+        else
+        {
+          v39 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveIconWidth, "compassObjectiveIconWidth");
+          *w = *(float *)&v39;
+          v36 = DVARFLT_compassObjectiveIconHeight;
+          v37 = "compassObjectiveIconHeight";
+        }
+        v14 = Dvar_GetFloat_Internal_DebugName(v36, v37);
+        goto LABEL_64;
+      }
+      v34 = DVARFLT_compassObjectiveIconWidthMedium;
       if ( !DVARFLT_compassObjectiveIconWidthMedium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveIconWidthMedium") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v39);
-      *_RDI = v39->current.value;
-      _RBX = DVARFLT_compassObjectiveIconHeightMedium;
+      Dvar_CheckFrontendServerThread(v34);
+      *w = v34->current.value;
+      v33 = DVARFLT_compassObjectiveIconHeightMedium;
       if ( !DVARFLT_compassObjectiveIconHeightMedium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveIconHeightMedium") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
     }
-    else
-    {
-      if ( iconSize == OBJ_ICON_SIZE_SMALL )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_compassObjectiveIconWidthSmall, "compassObjectiveIconWidthSmall");
-        __asm { vmovss  dword ptr [rdi], xmm0 }
-        v41 = DCONST_DVARFLT_compassObjectiveIconHeightSmall;
-        v42 = "compassObjectiveIconHeightSmall";
-      }
-      else if ( iconSize == OBJ_ICON_SIZE_HEADICON )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveIconWidthHeadIcon, "compassObjectiveIconWidthHeadIcon");
-        __asm { vmovss  dword ptr [rdi], xmm0 }
-        v41 = DVARFLT_compassObjectiveIconHeightHeadIcon;
-        v42 = "compassObjectiveIconHeightHeadIcon";
-      }
-      else
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveIconWidth, "compassObjectiveIconWidth");
-        __asm { vmovss  dword ptr [rdi], xmm0 }
-        v41 = DVARFLT_compassObjectiveIconHeight;
-        v42 = "compassObjectiveIconHeight";
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v41, v42);
-    }
+    Dvar_CheckFrontendServerThread(v33);
+    LODWORD(v14) = v33->current.integer;
+    goto LABEL_64;
   }
-  else
+  switch ( iconSize )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    if ( iconSize == OBJ_ICON_SIZE_LARGE )
-    {
-      _RBX = DVARFLT_compassObjectiveWidthLarge;
+    case OBJ_ICON_SIZE_LARGE:
+      v8 = DVARFLT_compassObjectiveWidthLarge;
       if ( !DVARFLT_compassObjectiveWidthLarge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveWidthLarge") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      v12 = DVARFLT_compassSize;
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v8);
+      v9 = DVARFLT_compassSize;
+      value = v8->current.value;
       if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v12);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-        vmovss  dword ptr [rdi], xmm0
-      }
-      _RSI = DVARFLT_compassObjectiveHeightLarge;
+      Dvar_CheckFrontendServerThread(v9);
+      *w = value * v9->current.value;
+      v11 = DVARFLT_compassObjectiveHeightLarge;
       if ( !DVARFLT_compassObjectiveHeightLarge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveHeightLarge") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-      v17 = DVARFLT_compassSize;
+      Dvar_CheckFrontendServerThread(v11);
+      v12 = v11->current.value;
+      v13 = DVARFLT_compassSize;
       if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v17);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-        vmovaps xmm6, [rsp+68h+var_28]
-      }
-    }
-    else if ( iconSize == OBJ_ICON_SIZE_MEDIUM )
-    {
-      _RBX = DVARFLT_compassObjectiveWidthMedium;
+LABEL_21:
+      Dvar_CheckFrontendServerThread(v13);
+      *(float *)&v14 = v12 * v13->current.value;
+      goto LABEL_64;
+    case OBJ_ICON_SIZE_MEDIUM:
+      v15 = DVARFLT_compassObjectiveWidthMedium;
       if ( !DVARFLT_compassObjectiveWidthMedium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveWidthMedium") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      v20 = DVARFLT_compassSize;
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v15);
+      v16 = DVARFLT_compassSize;
+      v17 = v15->current.value;
       if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-        vmovss  dword ptr [rdi], xmm0
-      }
-      _RSI = DVARFLT_compassObjectiveHeightMedium;
+      Dvar_CheckFrontendServerThread(v16);
+      *w = v17 * v16->current.value;
+      v18 = DVARFLT_compassObjectiveHeightMedium;
       if ( !DVARFLT_compassObjectiveHeightMedium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectiveHeightMedium") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-      v25 = DVARFLT_compassSize;
+      Dvar_CheckFrontendServerThread(v18);
+      v12 = v18->current.value;
+      v13 = DVARFLT_compassSize;
       if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-        vmovaps xmm6, [rsp+68h+var_28]
-      }
-    }
-    else
-    {
-      if ( iconSize == OBJ_ICON_SIZE_SMALL )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_compassObjectiveWidthSmall, "compassObjectiveWidthSmall");
-        __asm { vmovaps xmm6, xmm0 }
-        Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm0
-          vmovss  dword ptr [rdi], xmm1
-        }
-        v29 = DCONST_DVARFLT_compassObjectiveHeightSmall;
-        v30 = "compassObjectiveHeightSmall";
-      }
-      else if ( iconSize == OBJ_ICON_SIZE_HEADICON )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveWidthHeadIcon, "compassObjectiveWidthHeadIcon");
-        __asm { vmovaps xmm6, xmm0 }
-        Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm0
-          vmovss  dword ptr [rdi], xmm1
-        }
-        v29 = DVARFLT_compassObjectiveHeightHeadIcon;
-        v30 = "compassObjectiveHeightHeadIcon";
-      }
-      else
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveWidth, "compassObjectiveWidth");
-        __asm { vmovaps xmm6, xmm0 }
-        Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm0
-          vmovss  dword ptr [rdi], xmm1
-        }
-        v29 = DVARFLT_compassObjectiveHeight;
-        v30 = "compassObjectiveHeight";
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v29, v30);
-      __asm { vmovaps xmm6, xmm0 }
-      Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm0
-        vmovaps xmm6, [rsp+68h+var_28]
-      }
-    }
+      goto LABEL_21;
+    case OBJ_ICON_SIZE_SMALL:
+      v19 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_compassObjectiveWidthSmall, "compassObjectiveWidthSmall");
+      v20 = *(float *)&v19;
+      v21 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
+      *w = v20 * *(float *)&v21;
+      v22 = DCONST_DVARFLT_compassObjectiveHeightSmall;
+      v23 = "compassObjectiveHeightSmall";
+      break;
+    case OBJ_ICON_SIZE_HEADICON:
+      v24 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveWidthHeadIcon, "compassObjectiveWidthHeadIcon");
+      v25 = *(float *)&v24;
+      v26 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
+      *w = v25 * *(float *)&v26;
+      v22 = DVARFLT_compassObjectiveHeightHeadIcon;
+      v23 = "compassObjectiveHeightHeadIcon";
+      break;
+    default:
+      v27 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassObjectiveWidth, "compassObjectiveWidth");
+      v28 = *(float *)&v27;
+      v29 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
+      *w = v28 * *(float *)&v29;
+      v22 = DVARFLT_compassObjectiveHeight;
+      v23 = "compassObjectiveHeight";
+      break;
   }
-  __asm { vmovss  dword ptr [rbp+0], xmm0 }
+  v30 = Dvar_GetFloat_Internal_DebugName(v22, v23);
+  v31 = *(float *)&v30;
+  v14 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSize, "compassSize");
+  *(float *)&v14 = v31 * *(float *)&v14;
+LABEL_64:
+  *h = *(float *)&v14;
   if ( CL_IsRenderingSplitScreen() && compassType == COMPASS_TYPE_PARTIAL )
   {
-    _RBX = DVARFLT_cg_hudSplitscreenCompassElementScale;
+    v40 = DVARFLT_cg_hudSplitscreenCompassElementScale;
     if ( !DVARFLT_cg_hudSplitscreenCompassElementScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassElementScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    _RBX = DVARFLT_cg_hudSplitscreenCompassElementScale;
+    Dvar_CheckFrontendServerThread(v40);
+    *w = v40->current.value * *w;
+    v41 = DVARFLT_cg_hudSplitscreenCompassElementScale;
     if ( !DVARFLT_cg_hudSplitscreenCompassElementScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassElementScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-    }
-    CG_ApplySplitScreenCompassScale(COMPASS_TYPE_PARTIAL, NULL, NULL, _RDI, h);
+    Dvar_CheckFrontendServerThread(v41);
+    *h = v41->current.value * *h;
+    CG_ApplySplitScreenCompassScale(COMPASS_TYPE_PARTIAL, NULL, NULL, w, h);
   }
 }
 
@@ -1930,19 +1586,20 @@ CalcCompassVehicleClippedDistanceScale
 */
 double CalcCompassVehicleClippedDistanceScale(const vec2_t *v0, const vec2_t *v1, bool forceCompute)
 {
+  const dvar_t *v6; 
   const char *v7; 
   double result; 
 
   if ( CG_GameInterface_PlayingGroundWar() )
   {
-    _RBX = DVARFLT_compassBigMapClippedVehicleScale;
+    v6 = DVARFLT_compassBigMapClippedVehicleScale;
     if ( DVARFLT_compassBigMapClippedVehicleScale )
       goto LABEL_8;
     v7 = "compassBigMapClippedVehicleScale";
   }
   else
   {
-    _RBX = DVARFLT_compassClippedScale;
+    v6 = DVARFLT_compassClippedScale;
     if ( DVARFLT_compassClippedScale )
       goto LABEL_8;
     v7 = "compassClippedScale";
@@ -1950,9 +1607,8 @@ double CalcCompassVehicleClippedDistanceScale(const vec2_t *v0, const vec2_t *v1
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v7) )
     __debugbreak();
 LABEL_8:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm3, dword ptr [rbx+28h] }
-  *(float *)&result = CalcCompassClippedDistanceScaleInternal(v0, v1, forceCompute, *(double *)&_XMM3);
+  Dvar_CheckFrontendServerThread(v6);
+  *(float *)&result = CalcCompassClippedDistanceScaleInternal(v0, v1, forceCompute, v6->current.value);
   return result;
 }
 
@@ -1963,17 +1619,7 @@ CgCompassSystem::ComputeFriendlyCompassColor
 */
 void CgCompassSystem::ComputeFriendlyCompassColor(CgCompassSystem *this, const clientInfo_t *myClientInfo, const clientInfo_t *clientInfo, vec4_t *color)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:playerColor
-    vmovss  dword ptr [r9], xmm0
-    vmovss  xmm1, dword ptr cs:playerColor+4
-    vmovss  dword ptr [r9+4], xmm1
-    vmovss  xmm0, dword ptr cs:playerColor+8
-    vmovss  dword ptr [r9+8], xmm0
-    vmovss  xmm1, dword ptr cs:playerColor+0Ch
-    vmovss  dword ptr [r9+0Ch], xmm1
-  }
+  *color = playerColor;
 }
 
 /*
@@ -1985,171 +1631,88 @@ void CgCompassSystem::DrawPlayer(CgCompassSystem *this, CompassType compassType,
 {
   cg_t *LocalClientGlobals; 
   __int64 m_localClientNum; 
-  CgGlobalsMP *v31; 
+  CgGlobalsMP *v20; 
   CgHandler *Handler; 
-  bool IsGameTypeQuick_BR; 
-  bool v34; 
-  clientInfo_t *v47; 
-  CompassType v50; 
-  bool v56; 
-  cg_t *v57; 
+  float v22; 
+  float v23; 
+  double JammingLevel; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  clientInfo_t *v30; 
+  float v31; 
+  double v32; 
+  CompassType v33; 
+  float v34; 
+  float v35; 
+  bool v36; 
+  cg_t *v37; 
+  float v38; 
+  float v39; 
   int vertAlign; 
   int horzAlign; 
   const ScreenPlacement *ActivePlacement; 
   __int64 clientNum; 
-  cg_t *v68; 
+  cg_t *v44; 
   characterInfo_t *CharacterInfo; 
+  double v46; 
+  float v47; 
+  LocalClientNum_t v48; 
   const GfxImage *material; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
+  double v50; 
+  float v51; 
+  float v52; 
+  double Float_Internal_DebugName; 
+  float v54; 
+  double v55; 
+  float v56; 
+  float v57; 
+  double v58; 
+  float v59; 
+  double v60; 
+  float v61; 
+  double v62; 
+  float displayHeight; 
+  float v64; 
+  float v65; 
   float *x; 
   float *xa; 
-  float xb; 
-  float xc; 
-  float xd; 
-  float xe; 
-  float xf; 
-  float xg; 
-  float xh; 
-  float xi; 
-  float xj; 
   float *y; 
   float *ya; 
-  float yb; 
-  float yc; 
-  float yd; 
-  float ye; 
-  float yf; 
-  float yg; 
-  float yh; 
-  float yi; 
-  float yj; 
-  float w; 
-  float wa; 
-  float wb; 
-  float wc; 
-  float wd; 
-  float we; 
-  float wf; 
-  float wg; 
-  float wh; 
-  float h; 
-  float ha; 
-  float hb; 
-  float hc; 
-  float hd; 
-  float he; 
-  float hf; 
-  float hg; 
-  float hh; 
-  float playerWorldPos; 
-  float playerWorldPosa; 
-  float playerWorldPosb; 
-  float playerWorldPosc; 
-  float playerWorldPosd; 
-  float playerWorldPose; 
-  float playerWorldPosf; 
-  float playerWorldPosg; 
-  float playerWorldPosh; 
-  float in; 
-  float ina; 
-  float inb; 
-  float inc; 
-  float ind; 
-  float ine; 
-  float inf; 
-  float ing; 
-  float inh; 
-  float v252; 
-  float v253; 
-  float v254; 
-  float v255; 
-  float v256; 
-  float v257; 
-  float v258; 
-  float v259; 
-  float v260; 
-  float outClipped; 
-  float outClippeda; 
-  float outClippedb; 
-  float outClippedc; 
-  float outClippedd; 
-  float outClippede; 
-  float outClippedf; 
-  float outClippedg; 
-  float outClippedh; 
-  float v270; 
-  float v271; 
-  float v272; 
-  float v273; 
-  float v274; 
-  float v275; 
-  float v276; 
-  float v277; 
-  float v278; 
-  float v279; 
-  float v280; 
-  float v281; 
-  float v282; 
-  float v283; 
-  float v284; 
-  float v285; 
-  float v286; 
-  float v287; 
-  float v289; 
-  float v290; 
+  float v71; 
+  float v72; 
   float outHeight; 
   float outWidth; 
-  bool v293; 
+  bool v75; 
   CompassType compassTypea; 
   float s; 
   float c; 
-  CgStatic *v300; 
+  float v79; 
+  float v80; 
+  float v81; 
+  CgStatic *v82; 
   rectDef_s mapRect; 
-  rectDef_s *v302; 
+  rectDef_s *v84; 
   SecureVec3 out; 
-  const vec4_t *v304; 
-  GfxImage *v305; 
-  const vec4_t *v306; 
-  vec4_t v307; 
-  GfxImage *v308[2]; 
-  vec4_t v309; 
-  vec2_t v310; 
+  const vec4_t *v86; 
+  GfxImage *v87; 
+  const vec4_t *v88; 
+  vec4_t v89; 
+  GfxImage *v90[2]; 
+  vec4_t v91; 
+  vec2_t outClipped; 
   vec2_t outVector; 
-  char v312; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v308[1] = (GfxImage *)-2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  v293 = cropPartialMap;
+  v90[1] = (GfxImage *)-2i64;
+  v75 = cropPartialMap;
   compassTypea = compassType;
-  v305 = (GfxImage *)objectiveIcon;
-  v302 = (rectDef_s *)rect;
-  v304 = objectiveColor;
-  v306 = objectiveSecondaryColor;
-  *(_QWORD *)v307.v = playerNumberColor;
+  v87 = (GfxImage *)objectiveIcon;
+  v84 = (rectDef_s *)rect;
+  v86 = objectiveColor;
+  v88 = objectiveSecondaryColor;
+  *(_QWORD *)v89.v = playerNumberColor;
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   m_localClientNum = this->m_localClientNum;
   if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", this->m_localClientNum) )
@@ -2167,447 +1730,164 @@ void CgCompassSystem::DrawPlayer(CgCompassSystem *this, CompassType compassType,
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", y) )
       __debugbreak();
   }
-  v300 = CgStatic::ms_cgameStaticsArray[m_localClientNum];
+  v82 = CgStatic::ms_cgameStaticsArray[m_localClientNum];
   if ( cg_t::ms_allocatedType == GLOB_TYPE_MP )
-    v31 = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+    v20 = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   else
-    v31 = NULL;
+    v20 = NULL;
   Handler = CgHandler::getHandler(this->m_localClientNum);
-  IsGameTypeQuick_BR = BG_IsGameTypeQuick_BR(Handler);
-  v34 = !IsGameTypeQuick_BR;
-  if ( IsGameTypeQuick_BR )
+  if ( BG_IsGameTypeQuick_BR(Handler) )
   {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vmovaps xmm0, xmm8
-    }
+    v22 = FLOAT_1_0;
+    v23 = FLOAT_1_0;
   }
   else
   {
-    CG_Radar_GetJammingLevel((const LocalClientNum_t)this->m_localClientNum);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vsubss  xmm0, xmm8, xmm0
-    }
+    JammingLevel = CG_Radar_GetJammingLevel((const LocalClientNum_t)this->m_localClientNum);
+    v22 = FLOAT_1_0;
+    v23 = 1.0 - *(float *)&JammingLevel;
   }
-  _RDI = color;
-  __asm
+  v26 = v23 * color->v[3];
+  v25 = v26;
+  if ( v26 != 0.0 && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, ACTIVE, 0xCu) )
   {
-    vmulss  xmm10, xmm0, dword ptr [rdi+0Ch]
-    vxorps  xmm9, xmm9, xmm9
-    vucomiss xmm10, xmm9
-  }
-  if ( !v34 && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, ACTIVE, 0xCu) )
-  {
-    __asm
+    v27 = color->v[0];
+    v81 = color->v[0];
+    v28 = color->v[1];
+    v80 = v28;
+    v29 = color->v[2];
+    v79 = v29;
+    *(_QWORD *)v91.v = *(_QWORD *)secondaryColor->v;
+    v91.v[2] = secondaryColor->v[2];
+    if ( !v20 || !v20->m_isMLGSpectator )
     {
-      vmovss  xmm12, dword ptr [rdi]
-      vmovss  [rbp+120h+var_174], xmm12
-      vmovss  xmm14, dword ptr [rdi+4]
-      vmovss  [rbp+120h+var_178], xmm14
-      vmovss  xmm15, dword ptr [rdi+8]
-      vmovss  [rbp+120h+var_17C], xmm15
-    }
-    _RAX = secondaryColor;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  dword ptr [rbp+120h+var_100], xmm0
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  dword ptr [rbp+120h+var_100+4], xmm1
-      vmovss  xmm0, dword ptr [rax+8]
-      vmovss  dword ptr [rbp+120h+var_100+8], xmm0
-    }
-    if ( !v31 || !v31->m_isMLGSpectator )
-    {
-      this->GetPlayerCompassColor(this, &v309, LocalClientGlobals);
+      this->GetPlayerCompassColor(this, &v91, LocalClientGlobals);
       if ( CG_GameInterface_PlayingArena() )
       {
-        v47 = v300->GetClientInfo(v300, (unsigned int)LocalClientGlobals->predictedPlayerState.clientNum);
-        if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2130, ASSERT_TYPE_ASSERT, "(localClientInfo)", (const char *)&queryFormat, "localClientInfo") )
+        v30 = v82->GetClientInfo(v82, (unsigned int)LocalClientGlobals->predictedPlayerState.clientNum);
+        if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2130, ASSERT_TYPE_ASSERT, "(localClientInfo)", (const char *)&queryFormat, "localClientInfo") )
           __debugbreak();
-        if ( (v47->game_extrainfo & 7) != 0 )
-          LUI_CoD_GameMP_GetBrColorForClientNum(v47->clientNum, &v309);
+        if ( (v30->game_extrainfo & 7) != 0 )
+          LUI_CoD_GameMP_GetBrColorForClientNum(v30->clientNum, &v91);
       }
     }
-    __asm
+    v31 = v22;
+    v91.v[3] = v26;
+    if ( (!v20 || !v20->m_isMLGSpectator) && GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, GameModeFlagValues::ms_mpValue, 0x1Au) )
     {
-      vmovaps xmm13, xmm8
-      vmovss  dword ptr [rbp+120h+var_100+0Ch], xmm10
+      v32 = ((double (__fastcall *)(CgCompassSystem *))this->GetGhostAlphaScale)(this);
+      v31 = *(float *)&v32;
+      v91.v[3] = *(float *)&v32 * v91.v[3];
     }
-    if ( (!v31 || !v31->m_isMLGSpectator) && GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, GameModeFlagValues::ms_mpValue, 0x1Au) )
-    {
-      *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))this->GetGhostAlphaScale)(this);
-      __asm
-      {
-        vmovaps xmm13, xmm0
-        vmulss  xmm2, xmm0, dword ptr [rbp+120h+var_100+0Ch]
-        vmovss  dword ptr [rbp+120h+var_100+0Ch], xmm2
-      }
-    }
-    v50 = compassTypea;
-    CG_CompassCalcDimensions(compassTypea, LocalClientGlobals, parentRect, v302, &LocalClientGlobals->compassMapWorldSize, &mapRect.x, &mapRect.y, &mapRect.w, &mapRect.h);
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3f000000
-      vmulss  xmm1, xmm3, [rbp+120h+mapRect.w]
-      vaddss  xmm6, xmm1, [rbp+120h+mapRect.x]
-      vmulss  xmm0, xmm3, [rbp+120h+mapRect.h]
-      vaddss  xmm7, xmm0, [rbp+120h+mapRect.y]
-      vmovss  dword ptr [rbp+120h+var_F0], xmm9
-      vmovss  dword ptr [rbp+120h+var_F0+4], xmm9
-    }
-    v56 = v293;
-    CgCompassSystem::GetCompassYaw(this, compassTypea, v293, LocalClientGlobals, (float *)&compassTypea, &outVector);
+    v33 = compassTypea;
+    CG_CompassCalcDimensions(compassTypea, LocalClientGlobals, parentRect, v84, &LocalClientGlobals->compassMapWorldSize, &mapRect.x, &mapRect.y, &mapRect.w, &mapRect.h);
+    v34 = (float)(0.5 * mapRect.w) + mapRect.x;
+    v35 = (float)(0.5 * mapRect.h) + mapRect.y;
+    outClipped.v[0] = 0.0;
+    outClipped.v[1] = 0.0;
+    v36 = v75;
+    CgCompassSystem::GetCompassYaw(this, compassTypea, v75, LocalClientGlobals, (float *)&compassTypea, &outVector);
     CG_CalcPlayerPos(&out, this->m_localClientNum);
-    v57 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-    __asm
-    {
-      vmovss  xmm0, [rbp+120h+boundsRadius]
-      vmovss  dword ptr [rsp+230h+fmt], xmm0
-    }
-    CgCompassSystem::WorldPosToCompass(this, v50, v293, &mapRect, fmt, &v57->compassMapWorldSize, &v57->compassMapUpperLeft, &v57->compassNorth, &outVector, (const vec2_t *)&out, (const vec2_t *)&out, NULL, &v310);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+120h+var_F0]
-      vmovss  [rbp+120h+var_198], xmm0
-      vmovss  xmm1, dword ptr [rbp+120h+var_F0+4]
-      vmovss  [rbp+120h+var_19C], xmm1
-    }
-    CgCompassSystem::GetPlayerDrawSize(this, v50, largeMap, &outHeight, &outWidth);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rbp+120h+var_198]
-      vmovss  [rbp+120h+var_198], xmm1
-      vaddss  xmm0, xmm7, [rbp+120h+var_19C]
-      vmovss  [rbp+120h+var_19C], xmm0
-    }
-    *(double *)&_XMM0 = CgCompassSystem::GetPlayerAngle(this, LocalClientGlobals, v31, v50, v56);
-    __asm { vmovaps xmm7, xmm0 }
-    vertAlign = v302->vertAlign;
-    horzAlign = v302->horzAlign;
+    v37 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+    CgCompassSystem::WorldPosToCompass(this, v33, v75, &mapRect, boundsRadius, &v37->compassMapWorldSize, &v37->compassMapUpperLeft, &v37->compassNorth, &outVector, (const vec2_t *)&out, (const vec2_t *)&out, NULL, &outClipped);
+    v72 = outClipped.v[0];
+    v71 = outClipped.v[1];
+    CgCompassSystem::GetPlayerDrawSize(this, v33, largeMap, &outHeight, &outWidth);
+    v72 = v34 + v72;
+    v71 = v35 + v71;
+    v38 = v71;
+    CgCompassSystem::GetPlayerAngle(this, LocalClientGlobals, v20, v33, v36);
+    v39 = v71;
+    vertAlign = v84->vertAlign;
+    horzAlign = v84->horzAlign;
     ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
-    ScrPlace_ApplyRect(ActivePlacement, &v290, &v289, &outWidth, &outHeight, horzAlign, vertAlign);
+    ScrPlace_ApplyRect(ActivePlacement, &v72, &v71, &outWidth, &outHeight, horzAlign, vertAlign);
     clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-    v68 = CG_GetLocalClientGlobals((const LocalClientNum_t)v300->m_localClientNum);
-    if ( !v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 25, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    v44 = CG_GetLocalClientGlobals((const LocalClientNum_t)v82->m_localClientNum);
+    if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 25, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
-    if ( v68->IsMP(v68) )
+    if ( v44->IsMP(v44) )
     {
-      if ( (unsigned int)clientNum >= v68[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+      if ( (unsigned int)clientNum >= v44[1].predictedPlayerState.rxvOmnvars[64].timeModified )
       {
-        LODWORD(ya) = v68[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+        LODWORD(ya) = v44[1].predictedPlayerState.rxvOmnvars[64].timeModified;
         LODWORD(xa) = clientNum;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", xa, ya) )
           __debugbreak();
       }
-      CharacterInfo = (characterInfo_t *)(*(_QWORD *)&v68[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
+      CharacterInfo = (characterInfo_t *)(*(_QWORD *)&v44[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
     }
     else
     {
-      CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v68, clientNum);
+      CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v44, clientNum);
     }
     if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2179, ASSERT_TYPE_ASSERT, "(localCharacterInfo)", (const char *)&queryFormat, "localCharacterInfo") )
       __debugbreak();
-    if ( v31 && v31->m_isMLGSpectator )
+    if ( v20 && v20->m_isMLGSpectator )
     {
-      if ( v31->clientNum != LocalClientGlobals->predictedPlayerState.clientNum )
+      if ( v20->clientNum != LocalClientGlobals->predictedPlayerState.clientNum )
       {
-        __asm
-        {
-          vmovss  xmm5, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-          vmovss  xmm4, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-          vmovss  xmm3, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-          vmovss  xmm2, cs:__real@40000000
-          vmulss  xmm6, xmm2, [rbp+120h+outHeight]
-          vmulss  xmm0, xmm2, [rbp+120h+outWidth]
-          vmovss  dword ptr [rsp+230h+var_1C0], xmm10
-          vmovss  [rsp+230h+var_1C8], xmm3
-          vmovss  dword ptr [rsp+230h+outClipped], xmm4
-          vmovss  dword ptr [rsp+230h+var_1D8], xmm5
-          vmovss  dword ptr [rsp+230h+in], xmm7
-          vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-          vmovss  dword ptr [rsp+230h+h], xmm8
-          vmovss  dword ptr [rsp+230h+w], xmm9
-          vmovss  dword ptr [rsp+230h+y], xmm9
-          vmovss  dword ptr [rsp+230h+x], xmm6
-          vmovss  dword ptr [rsp+230h+fmt], xmm0
-          vmovss  xmm3, [rbp+120h+var_19C]; centerY
-          vmovss  xmm2, [rbp+120h+var_198]; centerX
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmta, xb, yb, w, h, playerWorldPos, in, v252, outClipped, v270, v279, cgMedia.compass.codcaster_fov_cone, luaVM);
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, 2.0 * outWidth, 2.0 * outHeight, 0.0, 0.0, v22, v22, v38, 1.0, 1.0, 1.0, v25, cgMedia.compass.codcaster_fov_cone, luaVM);
         if ( hasBomb )
         {
-          __asm
-          {
-            vmovss  xmm14, [rbp+120h+var_198]
-            vmovss  xmm15, [rbp+120h+var_19C]
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassPlayerObjectiveHolderOverallSize, "compassPlayerObjectiveHolderOverallSize");
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSpectatedPlayerObjectiveArrowRadius, "compassSpectatedPlayerObjectiveArrowRadius");
-          __asm { vmulss  xmm11, xmm0, xmm6 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassPlayerObjectiveHolderCicleSize, "compassPlayerObjectiveHolderCicleSize");
-          __asm { vmovaps xmm10, xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassPlayerObjectiveHolderArrowSize, "compassPlayerObjectiveHolderArrowSize");
-          __asm { vmovaps xmm12, xmm0 }
+          v51 = v72;
+          v52 = v71;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassPlayerObjectiveHolderOverallSize, "compassPlayerObjectiveHolderOverallSize");
+          v54 = *(float *)&Float_Internal_DebugName;
+          v55 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassSpectatedPlayerObjectiveArrowRadius, "compassSpectatedPlayerObjectiveArrowRadius");
+          v57 = *(float *)&v55 * v54;
+          v56 = *(float *)&v55 * v54;
+          v58 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassPlayerObjectiveHolderCicleSize, "compassPlayerObjectiveHolderCicleSize");
+          v59 = *(float *)&v58;
+          v60 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassPlayerObjectiveHolderArrowSize, "compassPlayerObjectiveHolderArrowSize");
+          v61 = *(float *)&v60;
           if ( largeMap )
           {
-            Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
-            __asm { vmulss  xmm11, xmm11, xmm0 }
+            v62 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
+            v56 = v57 * *(float *)&v62;
           }
-          __asm { vmulss  xmm0, xmm7, cs:__real@3c8efa35; radians }
-          FastSinCos(*(const float *)&_XMM0, &s, &c);
-          __asm
-          {
-            vxorps  xmm4, xmm4, xmm4
-            vcvtsi2ss xmm4, xmm4, rax
-            vmulss  xmm1, xmm11, [rbp+120h+s]
-            vmulss  xmm2, xmm1, xmm4
-            vmulss  xmm3, xmm2, cs:__real@3a72b9d6
-            vaddss  xmm14, xmm3, xmm14
-            vmulss  xmm1, xmm11, [rbp+120h+c]
-            vmulss  xmm2, xmm1, xmm4
-            vmulss  xmm3, xmm2, cs:__real@ba72b9d6
-            vaddss  xmm11, xmm3, xmm15
-          }
-          _RAX = v304;
-          __asm
-          {
-            vmovss  xmm4, dword ptr [rax+8]
-            vmovss  xmm2, dword ptr [rax+4]
-            vmovss  xmm3, dword ptr [rax]
-            vmulss  xmm0, xmm6, [rbp+120h+outHeight]
-            vmulss  xmm0, xmm0, xmm10
-            vmulss  xmm1, xmm6, [rbp+120h+outWidth]
-            vmulss  xmm5, xmm1, xmm10
-            vmovss  dword ptr [rsp+230h+var_1C0], xmm13
-            vmovss  [rsp+230h+var_1C8], xmm4
-            vmovss  dword ptr [rsp+230h+outClipped], xmm2
-            vmovss  dword ptr [rsp+230h+var_1D8], xmm3
-            vmovss  dword ptr [rsp+230h+in], xmm9
-            vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-            vmovss  dword ptr [rsp+230h+h], xmm8
-            vmovss  dword ptr [rsp+230h+w], xmm9
-            vmovss  dword ptr [rsp+230h+y], xmm9
-            vmovss  dword ptr [rsp+230h+x], xmm0
-            vmovss  dword ptr [rsp+230h+fmt], xmm5
-            vmovss  xmm3, [rbp+120h+var_19C]; centerY
-            vmovss  xmm2, [rbp+120h+var_198]; centerX
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, xe, ye, wc, hc, playerWorldPosc, inc, v255, outClippedc, v273, v282, cgMedia.compass.minimap_codcaster_objective_circle_bg, luaVM);
-          __asm
-          {
-            vmulss  xmm0, xmm6, [rbp+120h+outHeight]
-            vmulss  xmm3, xmm0, xmm10
-            vmulss  xmm1, xmm6, [rbp+120h+outWidth]
-            vmulss  xmm2, xmm1, xmm10
-            vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-            vmovss  dword ptr [rsp+230h+var_1C0], xmm0
-            vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-            vmovss  [rsp+230h+var_1C8], xmm1
-            vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-            vmovss  dword ptr [rsp+230h+outClipped], xmm0
-            vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-            vmovss  dword ptr [rsp+230h+var_1D8], xmm1
-            vmovss  dword ptr [rsp+230h+in], xmm9
-            vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-            vmovss  dword ptr [rsp+230h+h], xmm8
-            vmovss  dword ptr [rsp+230h+w], xmm9
-            vmovss  dword ptr [rsp+230h+y], xmm9
-            vmovss  dword ptr [rsp+230h+x], xmm3
-            vmovss  dword ptr [rsp+230h+fmt], xmm2
-            vmovss  xmm3, [rbp+120h+var_19C]; centerY
-            vmovss  xmm2, [rbp+120h+var_198]; centerX
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmte, xf, yf, wd, hd, playerWorldPosd, ind, v256, outClippedd, v274, v283, cgMedia.compass.minimap_codcaster_objective_circle_outline, luaVM);
-          if ( v305 )
-          {
-            _RAX = v306;
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rax+8]
-              vmovss  xmm3, dword ptr [rax+4]
-              vmovss  xmm4, dword ptr [rax]
-              vmulss  xmm0, xmm6, [rbp+120h+outHeight]
-              vmulss  xmm0, xmm0, xmm10
-              vmulss  xmm1, xmm6, [rbp+120h+outWidth]
-              vmulss  xmm5, xmm1, xmm10
-              vmovss  dword ptr [rsp+230h+var_1C0], xmm8
-              vmovss  [rsp+230h+var_1C8], xmm2
-              vmovss  dword ptr [rsp+230h+outClipped], xmm3
-              vmovss  dword ptr [rsp+230h+var_1D8], xmm4
-              vmovss  dword ptr [rsp+230h+in], xmm9
-              vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-              vmovss  dword ptr [rsp+230h+h], xmm8
-              vmovss  dword ptr [rsp+230h+w], xmm9
-              vmovss  dword ptr [rsp+230h+y], xmm9
-              vmovss  dword ptr [rsp+230h+x], xmm0
-              vmovss  dword ptr [rsp+230h+fmt], xmm5
-              vmovss  xmm3, [rbp+120h+var_19C]; centerY
-              vmovss  xmm2, [rbp+120h+var_198]; centerX
-            }
-            LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, xg, yg, we, he, playerWorldPose, ine, v257, outClippede, v275, v284, v305, luaVM);
-          }
-          __asm
-          {
-            vmulss  xmm0, xmm6, [rbp+120h+outHeight]
-            vmulss  xmm3, xmm0, xmm12
-            vmulss  xmm1, xmm6, [rbp+120h+outWidth]
-            vmulss  xmm2, xmm1, xmm12
-            vmovss  dword ptr [rsp+230h+var_1C0], xmm13
-            vmovss  xmm0, [rbp+120h+var_17C]
-            vmovss  [rsp+230h+var_1C8], xmm0
-            vmovss  xmm0, [rbp+120h+var_178]
-            vmovss  dword ptr [rsp+230h+outClipped], xmm0
-            vmovss  xmm0, [rbp+120h+var_174]
-            vmovss  dword ptr [rsp+230h+var_1D8], xmm0
-            vmovss  dword ptr [rsp+230h+in], xmm7
-            vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-            vmovss  dword ptr [rsp+230h+h], xmm8
-            vmovss  dword ptr [rsp+230h+w], xmm9
-            vmovss  dword ptr [rsp+230h+y], xmm9
-            vmovss  dword ptr [rsp+230h+x], xmm3
-            vmovss  dword ptr [rsp+230h+fmt], xmm2
-            vmovaps xmm3, xmm11; centerY
-            vmovaps xmm2, xmm14; centerX
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, xh, yh, wf, hf, playerWorldPosf, inf, v258, outClippedf, v276, v285, cgMedia.compass.minimap_codcaster_objective_arrow_bg, luaVM);
-          __asm
-          {
-            vmulss  xmm0, xmm6, [rbp+120h+outHeight]
-            vmulss  xmm5, xmm0, xmm12
-            vmulss  xmm1, xmm6, [rbp+120h+outWidth]
-            vmulss  xmm4, xmm1, xmm12
-            vmovss  xmm0, dword ptr [rbp+120h+var_100+0Ch]
-            vmovss  dword ptr [rsp+230h+var_1C0], xmm0
-            vmovss  xmm1, dword ptr [rbp+120h+var_100+8]
-            vmovss  [rsp+230h+var_1C8], xmm1
-            vmovss  xmm0, dword ptr [rbp+120h+var_100+4]
-            vmovss  dword ptr [rsp+230h+outClipped], xmm0
-            vmovss  xmm1, dword ptr [rbp+120h+var_100]
-            vmovss  dword ptr [rsp+230h+var_1D8], xmm1
-            vmovss  dword ptr [rsp+230h+in], xmm7
-            vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-            vmovss  dword ptr [rsp+230h+h], xmm8
-            vmovss  dword ptr [rsp+230h+w], xmm9
-            vmovss  dword ptr [rsp+230h+y], xmm9
-            vmovss  dword ptr [rsp+230h+x], xmm5
-            vmovss  dword ptr [rsp+230h+fmt], xmm4
-            vmovaps xmm3, xmm11; centerY
-            vmovaps xmm2, xmm14; centerX
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmth, xi, yi, wg, hg, playerWorldPosg, ing, v259, outClippedg, v277, v286, cgMedia.compass.minimap_codcaster_objective_arrow_outline, luaVM);
-          __asm { vxorps  xmm7, xmm7, xmm7 }
+          FastSinCos(v39 * 0.017453292, &s, &c);
+          displayHeight = (float)vidConfig.displayHeight;
+          v64 = (float)((float)((float)(v56 * s) * displayHeight) * 0.00092592591) + v51;
+          v65 = (float)((float)((float)(v56 * c) * displayHeight) * -0.00092592591) + v52;
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, (float)(v54 * outWidth) * v59, (float)(v54 * outHeight) * v59, 0.0, 0.0, v22, v22, 0.0, v86->v[0], v86->v[1], v86->v[2], v31, cgMedia.compass.minimap_codcaster_objective_circle_bg, luaVM);
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, (float)(v54 * outWidth) * v59, (float)(v54 * outHeight) * v59, 0.0, 0.0, v22, v22, 0.0, 1.0, 1.0, 1.0, 1.0, cgMedia.compass.minimap_codcaster_objective_circle_outline, luaVM);
+          if ( v87 )
+            LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, (float)(v54 * outWidth) * v59, (float)(v54 * outHeight) * v59, 0.0, 0.0, v22, v22, 0.0, v88->v[0], v88->v[1], v88->v[2], v22, v87, luaVM);
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v64, v65, (float)(v54 * outWidth) * v61, (float)(v54 * outHeight) * v61, 0.0, 0.0, v22, v22, v39, v81, v80, v79, v31, cgMedia.compass.minimap_codcaster_objective_arrow_bg, luaVM);
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v64, v65, (float)(v54 * outWidth) * v61, (float)(v54 * outHeight) * v61, 0.0, 0.0, v22, v22, v39, v91.v[0], v91.v[1], v91.v[2], v91.v[3], cgMedia.compass.minimap_codcaster_objective_arrow_outline, luaVM);
+          v39 = 0.0;
         }
         else
         {
-          __asm
+          if ( fadeTime > 0.0 )
           {
-            vmovss  xmm6, cs:__real@3f4ccccd
-            vmovss  xmm11, [rbp+120h+fadeTime]
-            vcomiss xmm11, xmm9
-            vmovss  dword ptr [rbp+120h+var_100+0Ch], xmm10
-            vmulss  xmm3, xmm6, [rbp+120h+outHeight]
-            vmulss  xmm2, xmm6, [rbp+120h+outWidth]
-            vmovss  dword ptr [rsp+230h+var_1C0], xmm10
-            vmovss  xmm0, dword ptr [rbp+120h+var_100+8]
-            vmovss  [rsp+230h+var_1C8], xmm0
-            vmovss  xmm1, dword ptr [rbp+120h+var_100+4]
-            vmovss  dword ptr [rsp+230h+outClipped], xmm1
-            vmovss  xmm0, dword ptr [rbp+120h+var_100]
-            vmovss  dword ptr [rsp+230h+var_1D8], xmm0
-            vmovss  dword ptr [rsp+230h+in], xmm7
-            vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-            vmovss  dword ptr [rsp+230h+h], xmm8
-            vmovss  dword ptr [rsp+230h+w], xmm9
-            vmovss  dword ptr [rsp+230h+y], xmm9
-            vmovss  dword ptr [rsp+230h+x], xmm3
-            vmovss  dword ptr [rsp+230h+fmt], xmm2
-            vmovss  xmm3, [rbp+120h+var_19C]; centerY
-            vmovss  xmm2, [rbp+120h+var_198]; centerX
+            v46 = CG_Radar_GetJammingLevel((const LocalClientNum_t)this->m_localClientNum);
+            v47 = (float)((float)(v22 - *(float *)&v46) * color->v[3]) * fadeTime;
+            v91.v[3] = v47;
+            v48 = this->m_localClientNum;
+            if ( largeMap )
+              LUI_Render_DrawQuadRotated(v48, element, v72, v71, 0.80000001 * outWidth, 0.80000001 * outHeight, 0.0, 0.0, v22, v22, v39, v91.v[0], v91.v[1], v91.v[2], v47, cgMedia.compass.minimap_codcaster_player_arrow_fullmap_border_shooting, luaVM);
+            else
+              LUI_Render_DrawQuadRotated(v48, element, v72, v71, outWidth, outHeight, 0.0, 0.0, v22, v22, v39, v91.v[0], v91.v[1], v91.v[2], v47, cgMedia.compass.friendly_firing, luaVM);
           }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, xc, yc, wa, ha, playerWorldPosa, ina, v253, outClippeda, v271, v280, cgMedia.compass.minimap_codcaster_player_arrow_fullmap_border, luaVM);
+          v91.v[3] = v25;
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, 0.80000001 * outWidth, 0.80000001 * outHeight, 0.0, 0.0, v22, v22, v39, v91.v[0], v91.v[1], v91.v[2], v25, cgMedia.compass.minimap_codcaster_player_arrow_fullmap_border, luaVM);
           material = cgMedia.compass.minimap_codcaster_player_arrow_fullmap_bg;
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassMLGLargeMapInnerArrowOpacity, "compassMLGLargeMapInnerArrowOpacity");
-          __asm
-          {
-            vmulss  xmm2, xmm0, xmm13
-            vmulss  xmm4, xmm6, [rbp+120h+outHeight]
-            vmulss  xmm3, xmm6, [rbp+120h+outWidth]
-            vmovss  dword ptr [rsp+230h+var_1C0], xmm2
-            vmovss  [rsp+230h+var_1C8], xmm15
-            vmovss  dword ptr [rsp+230h+outClipped], xmm14
-            vmovss  dword ptr [rsp+230h+var_1D8], xmm12
-            vmovss  dword ptr [rsp+230h+in], xmm7
-            vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-            vmovss  dword ptr [rsp+230h+h], xmm8
-            vmovss  dword ptr [rsp+230h+w], xmm9
-            vmovss  dword ptr [rsp+230h+y], xmm9
-            vmovss  dword ptr [rsp+230h+x], xmm4
-            vmovss  dword ptr [rsp+230h+fmt], xmm3
-            vmovss  xmm3, [rbp+120h+var_19C]; centerY
-            vmovss  xmm2, [rbp+120h+var_198]; centerX
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, xd, yd, wb, hb, playerWorldPosb, inb, v254, outClippedb, v272, v281, material, luaVM);
+          v50 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassMLGLargeMapInnerArrowOpacity, "compassMLGLargeMapInnerArrowOpacity");
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, 0.80000001 * outWidth, 0.80000001 * outHeight, 0.0, 0.0, v22, v22, v39, v27, v28, v29, *(float *)&v50 * v31, material, luaVM);
         }
-        _RAX = *(_QWORD *)v307.v;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups [rbp+120h+var_120], xmm0
-          vmovss  dword ptr [rsp+230h+fmt], xmm7
-          vmovss  xmm3, [rbp+120h+var_19C]
-          vmovss  xmm2, [rbp+120h+var_198]
-        }
-        CgCompassSystem::DrawPlayerNumber(this, LocalClientGlobals->predictedPlayerState.clientNum, *(float *)&_XMM2, *(float *)&_XMM3, fmti, CharacterInfo->team, hasBomb, largeMap, &v307, v300, element, luaVM);
+        v89 = **(vec4_t **)v89.v;
+        CgCompassSystem::DrawPlayerNumber(this, LocalClientGlobals->predictedPlayerState.clientNum, v72, v71, v39, CharacterInfo->team, hasBomb, largeMap, &v89, v82, element, luaVM);
       }
     }
     else
     {
-      this->GetPlayerCompassMaterial(this, LocalClientGlobals, (const GfxImage **)v308);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+120h+var_100+0Ch]
-        vmovss  dword ptr [rsp+230h+var_1C0], xmm0
-        vmovss  xmm1, dword ptr [rbp+120h+var_100+8]
-        vmovss  [rsp+230h+var_1C8], xmm1
-        vmovss  xmm0, dword ptr [rbp+120h+var_100+4]
-        vmovss  dword ptr [rsp+230h+outClipped], xmm0
-        vmovss  xmm1, dword ptr [rbp+120h+var_100]
-        vmovss  dword ptr [rsp+230h+var_1D8], xmm1
-        vmovss  dword ptr [rsp+230h+in], xmm7
-        vmovss  dword ptr [rsp+230h+playerWorldPos], xmm8
-        vmovss  dword ptr [rsp+230h+h], xmm8
-        vmovss  dword ptr [rsp+230h+w], xmm9
-        vmovss  dword ptr [rsp+230h+y], xmm9
-        vmovss  xmm0, [rbp+120h+outHeight]
-        vmovss  dword ptr [rsp+230h+x], xmm0
-        vmovss  xmm1, [rbp+120h+outWidth]
-        vmovss  dword ptr [rsp+230h+fmt], xmm1
-        vmovss  xmm3, [rbp+120h+var_19C]; centerY
-        vmovss  xmm2, [rbp+120h+var_198]; centerX
-      }
-      LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtj, xj, yj, wh, hh, playerWorldPosh, inh, v260, outClippedh, v278, v287, v308[0], luaVM);
+      this->GetPlayerCompassMaterial(this, LocalClientGlobals, (const GfxImage **)v90);
+      LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v72, v71, outWidth, outHeight, 0.0, 0.0, v22, v22, v38, v91.v[0], v91.v[1], v91.v[2], v91.v[3], v90[0], luaVM);
     }
   }
   memset(&out, 0, sizeof(out));
-  _R11 = &v312;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -2617,1626 +1897,926 @@ CgCompassSystem::DrawPlayerMap
 */
 void CgCompassSystem::DrawPlayerMap(CgCompassSystem *this, CompassType compassType, bool cropPartialMap, const rectDef_s *parentRect, const rectDef_s *rect, Material *material, const vec4_t *color, GfxImage *mapMask, GfxImage *mapOverlay, GfxImage *mapRotOverlay, LUIElement *element, lua_State *luaVM)
 {
-  lua_State *v28; 
-  Material *compassMapMaterial; 
-  bool v31; 
-  bool v32; 
-  bool v39; 
-  CgGlobalsMP *LocalClientGlobals; 
-  CgCompassSystem *CompassSystem; 
-  const dvar_t *v59; 
+  LUIElement *v14; 
+  lua_State *v15; 
+  cg_t *LocalClientGlobals; 
+  float v17; 
+  float *p_compassMapWorldSize; 
+  CgGlobalsMP *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  double v27; 
+  float v28; 
+  CgCompassSystem *v29; 
+  const dvar_t *v31; 
+  double v32; 
+  float v33; 
+  double v34; 
+  float v35; 
+  float v36; 
   __int64 m_localClientNum; 
-  LocalClientNum_t v65; 
-  int v100; 
-  int v101; 
-  const ScreenPlacement *v102; 
-  const dvar_t *v103; 
-  GfxImage *v108; 
-  const dvar_t *v114; 
+  LocalClientNum_t v38; 
+  double v39; 
+  float v40; 
+  double v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  double v49; 
+  float v50; 
+  float v51; 
+  int v52; 
+  int v53; 
+  const ScreenPlacement *v54; 
+  const dvar_t *v55; 
+  float v56; 
+  float v57; 
+  GfxImage *image; 
+  const dvar_t *v59; 
   char enabled; 
-  unsigned int v116; 
-  unsigned int v153; 
-  MouseCursorPos v154; 
-  int v169; 
-  __int64 v170; 
+  __int64 v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v80; 
+  float v81; 
+  char v82; 
+  char v83; 
+  int v84; 
+  MouseCursorPos v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
+  int v91; 
+  __int64 v92; 
   float *p_y; 
-  float v172; 
-  float v173; 
-  int v174; 
-  int v175; 
-  int v176; 
-  const char *v177; 
-  bool v190; 
-  int v191; 
-  const GfxImage *v207; 
-  const dvar_t *v208; 
-  int v244; 
-  int v245; 
-  const ScreenPlacement *v246; 
+  float v94; 
+  float v95; 
+  int v96; 
+  int v97; 
+  int v98; 
+  const char *v99; 
+  float v100; 
+  float v101; 
+  bool v102; 
+  int v103; 
+  float v104; 
+  const GfxImage *v105; 
+  const dvar_t *v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  double PlayerAngle; 
+  int v116; 
+  int v117; 
+  const ScreenPlacement *v118; 
+  CgCompassSystem *CompassSystem; 
+  const dvar_t *v120; 
+  float v125; 
+  float v126; 
+  float m_currentZoomLevel; 
   int ControllerFromClient; 
-  int v262; 
-  int v263; 
+  unsigned int v129; 
+  int v130; 
   bool IsPlayerUsingButtonLayoutBumperPing; 
-  unsigned __int8 v266; 
-  unsigned __int8 v267; 
+  double v132; 
+  float v133; 
+  unsigned __int8 v134; 
+  unsigned __int8 v135; 
   bool m_PreventZoom; 
-  int v332; 
-  char v333; 
-  char v334; 
-  int v385; 
-  int v391; 
-  CgGlobalsMP *v392; 
-  float v393; 
-  __int64 v394; 
-  int compassMapTiles; 
-  __int64 v398; 
-  const char *v419; 
-  bool v420; 
-  __int64 v421; 
+  float v138; 
+  float v142; 
+  float v147; 
+  __int128 left_low; 
+  double Float_Internal_DebugName; 
+  double v154; 
+  float v155; 
+  float v156; 
+  float v157; 
+  float v158; 
+  float v159; 
+  float v160; 
+  float v161; 
+  int v162; 
+  float v163; 
+  float v164; 
+  float v165; 
+  float v166; 
+  float v167; 
+  float v168; 
+  double v169; 
+  float v170; 
+  double v171; 
+  __int64 compassMapTiles; 
+  float v181; 
+  int v182; 
+  int v183; 
+  float v184; 
+  float v185; 
+  unsigned int v186; 
+  CgGlobalsMP *v187; 
+  float v188; 
+  __int64 v189; 
+  int v190; 
+  int v191; 
+  __int64 v192; 
+  __int64 v193; 
+  float v194; 
+  float v195; 
+  float v196; 
+  float v197; 
+  float v198; 
+  const char *v199; 
+  bool v200; 
+  __int64 v201; 
   const GfxImage *tile; 
-  __int64 v423; 
+  __int64 v203; 
   int framesDelayed; 
-  lua_State *v435; 
-  bool v436; 
-  bool v437; 
+  float v205; 
+  lua_State *v206; 
+  bool v207; 
+  int i; 
+  float v209; 
+  float v210; 
+  float v211; 
+  float v212; 
   int vertAlign; 
   int horzAlign; 
   const ScreenPlacement *ActivePlacement; 
+  float v216; 
   CgWeaponMap *Instance; 
-  bool v479; 
-  bool v480; 
-  char v484; 
-  bool v485; 
-  bool v490; 
-  char v491; 
-  bool v492; 
-  bool v497; 
-  float fmta; 
-  float fmtb; 
+  bool v218; 
+  bool v219; 
+  double v220; 
+  float v221; 
+  float v222; 
+  float v223; 
+  float v224; 
+  float v225; 
+  float v226; 
+  float v227; 
+  float v228; 
+  float v229; 
+  float v230; 
+  float v231; 
+  float v232; 
   float fmt; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  float fmtl; 
-  float fmtm; 
-  float fmtn; 
-  float fmto; 
   vec2_t *outVector; 
-  float outVectorb; 
   float outVectora; 
-  float outVectorc; 
-  float outVectord; 
-  float outVectore; 
-  float outVectorf; 
-  float outVectorg; 
-  float outVectorh; 
-  float outVectori; 
-  float outVectorj; 
-  float outVectork; 
-  float outVectorl; 
-  float outVectorm; 
-  float outVectorn; 
   float *y; 
-  float yb; 
   float ya; 
-  float yc; 
-  float yd; 
-  float ye; 
-  float yf; 
-  float yg; 
-  float yh; 
-  float yi; 
-  float yj; 
-  float yk; 
-  float yl; 
-  float ym; 
-  float yn; 
-  float wa; 
   float w; 
-  float wb; 
-  float wc; 
-  float wd; 
-  float we; 
-  float wf; 
-  float wg; 
-  float wh; 
-  float wi; 
-  float wj; 
-  float wk; 
-  float wl; 
-  float wm; 
-  float h; 
-  float ha; 
-  float hb; 
-  float hc; 
-  float hd; 
-  float he; 
-  float v613; 
-  const GfxImage *v614; 
-  float v615; 
-  float v616; 
-  float v617; 
-  float v618; 
-  float v619; 
-  float v620; 
-  float v621; 
-  float v622; 
-  float v623; 
-  float v624; 
-  float v625; 
-  float viewportSize; 
-  float viewportSizea; 
-  float image; 
-  float imagea; 
-  float v630; 
-  float v631; 
-  char v633; 
+  const GfxImage *v239; 
+  char v241; 
   float outAngle; 
   float vMax; 
-  float v636; 
+  float h; 
   float alphaOffset; 
   float x; 
   float uvAngle; 
-  char v640; 
-  float v641; 
-  int IsGamepadEnabled; 
-  lua_State *v643; 
-  char v644; 
-  GfxImage *v645; 
+  char v248; 
+  float v249; 
+  unsigned int IsGamepadEnabled; 
+  lua_State *v251; 
+  char v252; 
+  GfxImage *v253; 
   SecureVec3 out; 
-  const vec4_t *v647; 
-  __int64 v648; 
+  const vec4_t *v255; 
+  __int64 v256; 
   rectDef_s *parentRecta; 
   MouseCursorPos curPos; 
   CgGlobalsMP *cgameGlobMP; 
   vec2_t outWorldPosition; 
-  MouseCursorPos v653; 
-  vec4_t v654; 
-  vec4_t v655; 
-  int v656; 
-  vec4_t v657; 
-  _DWORD v658[8]; 
-  int v659; 
-  vec4_t v660[4]; 
+  MouseCursorPos v261; 
+  vec4_t v262; 
+  vec4_t v263; 
+  int v264; 
+  vec4_t v265; 
+  __m256i v266; 
+  int v267; 
+  vec4_t v268[4]; 
   vec4_t verts[4]; 
   vec4_t quadVerts[4]; 
-  char v663; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v648 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
+  v256 = -2i64;
   parentRecta = (rectDef_s *)parentRect;
-  _R15 = this;
-  _RBX = rect;
-  _R12 = color;
-  v647 = color;
-  v653 = (MouseCursorPos)mapMask;
-  *(_QWORD *)v655.v = mapOverlay;
-  *(_QWORD *)v657.v = mapRotOverlay;
-  _RSI = element;
+  v255 = color;
+  v261 = (MouseCursorPos)mapMask;
+  *(_QWORD *)v263.v = mapOverlay;
+  *(_QWORD *)v265.v = mapRotOverlay;
+  v14 = element;
   outWorldPosition = (vec2_t)element;
-  v28 = luaVM;
-  v643 = luaVM;
-  _R13 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  if ( !_R13->compassMapMaterial && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 691, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapMaterial)", (const char *)&queryFormat, "cgameGlob->compassMapMaterial") )
+  v15 = luaVM;
+  v251 = luaVM;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  if ( !LocalClientGlobals->compassMapMaterial && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 691, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapMaterial)", (const char *)&queryFormat, "cgameGlob->compassMapMaterial") )
     __debugbreak();
-  compassMapMaterial = _R13->compassMapMaterial;
-  v31 = compassMapMaterial->textureCount == 0;
-  if ( !compassMapMaterial->textureCount )
-  {
-    v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 692, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapMaterial->textureCount > 0)", (const char *)&queryFormat, "cgameGlob->compassMapMaterial->textureCount > 0");
-    v31 = !v32;
-    if ( v32 )
-      __debugbreak();
-  }
-  v645 = _R13->compassMapMaterial->textureTable->image;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r12+0Ch]
-    vxorps  xmm10, xmm10, xmm10
-    vucomiss xmm2, xmm10
-  }
-  if ( v31 )
-    goto LABEL_212;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  dword ptr [rbp+210h+var_208], xmm0
-    vmovss  xmm1, dword ptr [r12+4]
-    vmovss  dword ptr [rbp+210h+var_208+4], xmm1
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  dword ptr [rbp+210h+var_208+8], xmm0
-    vmovss  dword ptr [rbp+210h+var_208+0Ch], xmm2
-  }
-  _R12 = &_R13->compassMapWorldSize;
-  __asm { vucomiss xmm10, dword ptr [r12] }
-  if ( v31 )
-  {
-    v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 703, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[0] != 0)", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[0] != 0");
-    v31 = !v39;
-    if ( v39 )
-      __debugbreak();
-  }
-  __asm { vucomiss xmm10, dword ptr [r12+4] }
-  if ( v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 704, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[1] != 0)", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[1] != 0") )
+  if ( !LocalClientGlobals->compassMapMaterial->textureCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 692, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapMaterial->textureCount > 0)", (const char *)&queryFormat, "cgameGlob->compassMapMaterial->textureCount > 0") )
     __debugbreak();
-  LocalClientGlobals = NULL;
+  v253 = LocalClientGlobals->compassMapMaterial->textureTable->image;
+  v17 = color->v[3];
+  if ( v17 == 0.0 )
+    goto LABEL_220;
+  *(_QWORD *)v262.v = *(_QWORD *)color->v;
+  v262.v[2] = color->v[2];
+  v262.v[3] = v17;
+  p_compassMapWorldSize = (float *)&LocalClientGlobals->compassMapWorldSize;
+  if ( LocalClientGlobals->compassMapWorldSize.v[0] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 703, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[0] != 0)", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[0] != 0") )
+    __debugbreak();
+  if ( LocalClientGlobals->compassMapWorldSize.v[1] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 704, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[1] != 0)", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[1] != 0") )
+    __debugbreak();
+  v19 = NULL;
   if ( cg_t::ms_allocatedType == GLOB_TYPE_MP )
-    LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)_R15->m_localClientNum);
-  cgameGlobMP = LocalClientGlobals;
+    v19 = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  cgameGlobMP = v19;
   if ( compassType )
   {
     if ( compassType != COMPASS_TYPE_TACMAP )
     {
       if ( compassType != COMPASS_TYPE_FULL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1378, ASSERT_TYPE_ASSERT, "(compassType == CompassType::COMPASS_TYPE_FULL)", (const char *)&queryFormat, "compassType == CompassType::COMPASS_TYPE_FULL") )
         __debugbreak();
-      CG_CompassCalcDimensions(compassType, _R13, parentRecta, rect, &_R13->compassMapWorldSize, &v641, &vMax, &outAngle, &uvAngle);
+      CG_CompassCalcDimensions(compassType, LocalClientGlobals, parentRecta, rect, &LocalClientGlobals->compassMapWorldSize, &v249, &vMax, &outAngle, &uvAngle);
       vertAlign = rect->vertAlign;
       horzAlign = rect->horzAlign;
-      ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)_R15->m_localClientNum);
-      ScrPlace_ApplyRect(ActivePlacement, &v641, &vMax, &outAngle, &uvAngle, horzAlign, vertAlign);
-      __asm
+      ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
+      ScrPlace_ApplyRect(ActivePlacement, &v249, &vMax, &outAngle, &uvAngle, horzAlign, vertAlign);
+      LUI_CoD_GenerateQuadVerts(v249, vMax, v249 + outAngle, vMax + uvAngle, (vec4_t (*)[4])verts);
+      if ( cgameGlobMP && cgameGlobMP->m_isMLGSpectator && this->MapShouldRotate(this) )
       {
-        vmovss  xmm1, [rbp+210h+vMax]; top
-        vaddss  xmm3, xmm1, [rbp+210h+uvAngle]; bottom
-        vmovss  xmm0, [rbp+210h+var_270]; left
-        vaddss  xmm2, xmm0, [rbp+210h+outAngle]; right
-      }
-      LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3f800000
-        vmovss  xmm9, cs:__real@3f000000
-      }
-      if ( cgameGlobMP && cgameGlobMP->m_isMLGSpectator && _R15->MapShouldRotate(_R15) )
-      {
-        *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))_R15->MapRotationFactor)(_R15);
-        __asm
-        {
-          vmovss  dword ptr [rsp+330h+h], xmm0
-          vmovss  dword ptr [rsp+330h+w], xmm9
-          vmovss  dword ptr [rsp+330h+y], xmm9
-          vmovss  dword ptr [rsp+330h+outVector], xmm9
-          vmovss  dword ptr [rsp+330h+fmt], xmm9
-        }
-        LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)_R15->m_localClientNum, element, luaVM, (const vec4_t (*)[4])verts, fmtm, outVectorl, yl, wk, hd, &v654, v645);
+        v216 = this->MapRotationFactor(this);
+        LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)this->m_localClientNum, element, luaVM, (const vec4_t (*)[4])verts, 0.5, 0.5, 0.5, 0.5, v216, &v262, v253);
       }
       else
       {
-        __asm
-        {
-          vmovss  dword ptr [rsp+330h+w], xmm8
-          vmovss  dword ptr [rsp+330h+y], xmm8
-          vmovss  dword ptr [rsp+330h+outVector], xmm10
-          vmovss  dword ptr [rsp+330h+fmt], xmm10
-        }
-        LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, element, luaVM, (const vec4_t (*)[4])verts, fmtn, outVectorm, ym, wl, &v654, v645);
+        LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, element, luaVM, (const vec4_t (*)[4])verts, 0.0, 0.0, 1.0, 1.0, &v262, v253);
       }
-      Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)_R15->m_localClientNum);
-      v479 = TopDownMapData_HasData() && _R13->compassMapTDMDMaterial;
-      v480 = BG_IsLocationSelectorActive(Instance, &_R13->predictedPlayerState) && !CL_Keys_IsCatcherActive(_R15->m_localClientNum, 16);
-      if ( v479 && v480 && (_R13->predictedPlayerState.locationSelectionInfo & 2) != 0 )
+      Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+      v218 = TopDownMapData_HasData() && LocalClientGlobals->compassMapTDMDMaterial;
+      v219 = BG_IsLocationSelectorActive(Instance, &LocalClientGlobals->predictedPlayerState) && !CL_Keys_IsCatcherActive(this->m_localClientNum, 16);
+      if ( v218 && v219 && (LocalClientGlobals->predictedPlayerState.locationSelectionInfo & 2) != 0 )
       {
-        __asm
-        {
-          vmovss  [rbp+210h+var_210.x], xmm10
-          vmovss  [rbp+210h+var_210.y], xmm8
-        }
-        vectoyaw((const vec2_t *)&v653);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r13+49FFCh]
-          vsubss  xmm11, xmm1, xmm0
-          vmulss  xmm1, xmm11, cs:__real@bc8efa35; radians
-        }
-        Vec2Rotate(&_R13->compassMapWorldSize, *(float *)&_XMM1, (vec2_t *)&parentRecta);
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rbp+210h+parentRect]
-          vandps  xmm7, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmovss  xmm6, dword ptr [rbp+210h+parentRect+4]
-          vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcomiss xmm7, xmm10
-        }
-        if ( v484 | v485 )
-        {
-          v490 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1415, ASSERT_TYPE_ASSERT, "(mapSizeW[0] > 0.f)", (const char *)&queryFormat, "mapSizeW[0] > 0.f");
-          v484 = 0;
-          v485 = !v490;
-          if ( v490 )
-            __debugbreak();
-        }
-        __asm { vcomiss xmm6, xmm10 }
-        if ( v484 | v485 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1416, ASSERT_TYPE_ASSERT, "(mapSizeW[1] > 0.f)", (const char *)&queryFormat, "mapSizeW[1] > 0.f") )
+        *(float *)&v261.x = 0.0;
+        *(float *)&v261.y = FLOAT_1_0;
+        v220 = vectoyaw((const vec2_t *)&v261);
+        v221 = LocalClientGlobals->compassNorthYaw - *(float *)&v220;
+        Vec2Rotate(&LocalClientGlobals->compassMapWorldSize, v221 * -0.017453292, (vec2_t *)&parentRecta);
+        LODWORD(v222) = (unsigned int)parentRecta & _xmm;
+        LODWORD(v223) = HIDWORD(parentRecta) & _xmm;
+        if ( COERCE_FLOAT((unsigned int)parentRecta & _xmm) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1415, ASSERT_TYPE_ASSERT, "(mapSizeW[0] > 0.f)", (const char *)&queryFormat, "mapSizeW[0] > 0.f") )
+          __debugbreak();
+        if ( v223 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1416, ASSERT_TYPE_ASSERT, "(mapSizeW[1] > 0.f)", (const char *)&queryFormat, "mapSizeW[1] > 0.f") )
           __debugbreak();
         TopDownMapData_GetCorners((vec2_t *)&cgameGlobMP, (vec2_t *)&curPos);
-        __asm
-        {
-          vmovss  xmm0, [rbp+210h+curPos.x]
-          vsubss  xmm13, xmm0, dword ptr [rbp+210h+cgameGlobMP]
-          vmovss  xmm0, [rbp+210h+curPos.y]
-          vsubss  xmm12, xmm0, dword ptr [rbp+210h+cgameGlobMP+4]
-          vcomiss xmm13, xmm10
-        }
-        if ( v491 | v492 )
-        {
-          v497 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1423, ASSERT_TYPE_ASSERT, "(tdmdSizeW[0] > 0.f)", (const char *)&queryFormat, "tdmdSizeW[0] > 0.f");
-          v491 = 0;
-          v492 = !v497;
-          if ( v497 )
-            __debugbreak();
-        }
-        __asm { vcomiss xmm12, xmm10 }
-        if ( v491 | v492 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1424, ASSERT_TYPE_ASSERT, "(tdmdSizeW[1] > 0.f)", (const char *)&queryFormat, "tdmdSizeW[1] > 0.f") )
+        v224 = *(float *)&curPos.x - *(float *)&cgameGlobMP;
+        v225 = *(float *)&curPos.y - *((float *)&cgameGlobMP + 1);
+        if ( (float)(*(float *)&curPos.x - *(float *)&cgameGlobMP) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1423, ASSERT_TYPE_ASSERT, "(tdmdSizeW[0] > 0.f)", (const char *)&queryFormat, "tdmdSizeW[0] > 0.f") )
           __debugbreak();
-        __asm
-        {
-          vmulss  xmm1, xmm13, [rbp+210h+outAngle]
-          vdivss  xmm14, xmm1, xmm7
-          vmulss  xmm1, xmm12, [rbp+210h+uvAngle]
-          vdivss  xmm15, xmm1, xmm6
-          vmovss  dword ptr [rbp+210h+parentRect], xmm9
-          vmovss  dword ptr [rbp+210h+parentRect+4], xmm9
-        }
-        CG_CompassFullToWorld(_R13, (const vec2_t *)&parentRecta, &outWorldPosition);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+210h+cgameGlobMP]
-          vaddss  xmm3, xmm0, [rbp+210h+curPos.x]
-          vmovss  xmm1, dword ptr [rbp+210h+cgameGlobMP+4]
-          vaddss  xmm2, xmm1, [rbp+210h+curPos.y]
-          vmulss  xmm0, xmm3, xmm9
-          vmulss  xmm5, xmm2, xmm9
-          vsubss  xmm4, xmm0, dword ptr [rbp+210h+outWorldPosition]
-          vdivss  xmm1, xmm14, xmm13
-          vmulss  xmm0, xmm1, xmm4
-          vmovss  dword ptr [rbp+210h+parentRect], xmm0
-          vsubss  xmm2, xmm5, dword ptr [rbp+210h+outWorldPosition+4]
-          vdivss  xmm1, xmm15, xmm12
-          vmulss  xmm0, xmm2, xmm1
-          vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-          vmovss  dword ptr [rbp+210h+parentRect+4], xmm2
-          vmulss  xmm1, xmm11, cs:__real@3c8efa35; radians
-        }
-        Vec2Rotate((const vec2_t *)&parentRecta, *(float *)&_XMM1, &outWorldPosition);
-        __asm
-        {
-          vmulss  xmm1, xmm9, [rbp+210h+outAngle]
-          vaddss  xmm3, xmm1, [rbp+210h+var_270]
-          vmulss  xmm0, xmm9, [rbp+210h+uvAngle]
-          vaddss  xmm4, xmm0, [rbp+210h+vMax]
-          vmulss  xmm7, xmm14, xmm9
-          vaddss  xmm0, xmm3, dword ptr [rbp+210h+outWorldPosition]
-          vsubss  xmm5, xmm0, xmm7
-          vmulss  xmm6, xmm15, xmm9
-          vaddss  xmm0, xmm4, dword ptr [rbp+210h+outWorldPosition+4]
-          vsubss  xmm3, xmm0, xmm6
-          vmulss  xmm12, xmm9, dword ptr [rbp+210h+var_208]
-          vmovss  xmm13, dword ptr [rbp+210h+var_208+4]
-          vmovss  xmm0, dword ptr [rbp+210h+var_208+8]
-          vmulss  xmm1, xmm0, cs:__real@3e4ccccd
-          vmovss  [rbp+210h+var_26C], xmm1
-          vmulss  xmm9, xmm9, dword ptr [rbp+210h+var_208+0Ch]
-          vaddss  xmm7, xmm7, xmm5
-          vaddss  xmm6, xmm6, xmm3
-        }
-        if ( !_R13->compassMapTDMDMaterial->textureCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1462, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapTDMDMaterial->textureCount > 0)", (const char *)&queryFormat, "cgameGlob->compassMapTDMDMaterial->textureCount > 0") )
+        if ( v225 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1424, ASSERT_TYPE_ASSERT, "(tdmdSizeW[1] > 0.f)", (const char *)&queryFormat, "tdmdSizeW[1] > 0.f") )
           __debugbreak();
-        __asm
-        {
-          vmovss  dword ptr [rsp+330h+image], xmm9
-          vmovss  xmm0, [rbp+210h+var_26C]
-          vmovss  dword ptr [rsp+330h+viewportSize], xmm0
-          vmovss  dword ptr [rsp+330h+var_2D0], xmm13
-          vmovss  [rsp+330h+var_2D8], xmm12
-          vmovss  dword ptr [rsp+330h+var_2E0], xmm11
-          vmovss  dword ptr [rsp+330h+var_2E8], xmm8
-          vmovss  dword ptr [rsp+330h+h], xmm8
-          vmovss  dword ptr [rsp+330h+w], xmm10
-          vmovss  dword ptr [rsp+330h+y], xmm10
-          vmovss  dword ptr [rsp+330h+outVector], xmm15
-          vmovss  dword ptr [rsp+330h+fmt], xmm14
-          vmovaps xmm3, xmm6; centerY
-          vmovaps xmm2, xmm7; centerX
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)_R15->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmto, outVectorn, yn, wm, he, v616, v619, v622, v625, viewportSizea, imagea, _R13->compassMapTDMDMaterial->textureTable->image, luaVM);
+        v226 = (float)(v224 * outAngle) / v222;
+        v227 = (float)(v225 * uvAngle) / v223;
+        *(float *)&parentRecta = FLOAT_0_5;
+        *((float *)&parentRecta + 1) = FLOAT_0_5;
+        CG_CompassFullToWorld(LocalClientGlobals, (const vec2_t *)&parentRecta, &outWorldPosition);
+        *(float *)&parentRecta = (float)(v226 / v224) * (float)((float)((float)(*(float *)&cgameGlobMP + *(float *)&curPos.x) * 0.5) - outWorldPosition.v[0]);
+        HIDWORD(parentRecta) = COERCE_UNSIGNED_INT((float)((float)((float)(*((float *)&cgameGlobMP + 1) + *(float *)&curPos.y) * 0.5) - outWorldPosition.v[1]) * (float)(v227 / v225)) ^ _xmm;
+        Vec2Rotate((const vec2_t *)&parentRecta, v221 * 0.017453292, &outWorldPosition);
+        v228 = 0.5 * v262.v[0];
+        v229 = v262.v[1];
+        *(float *)&IsGamepadEnabled = v262.v[2] * 0.2;
+        v230 = 0.5 * v262.v[3];
+        v231 = (float)(v226 * 0.5) + (float)((float)((float)((float)(0.5 * outAngle) + v249) + outWorldPosition.v[0]) - (float)(v226 * 0.5));
+        v232 = (float)(v227 * 0.5) + (float)((float)((float)((float)(0.5 * uvAngle) + vMax) + outWorldPosition.v[1]) - (float)(v227 * 0.5));
+        if ( !LocalClientGlobals->compassMapTDMDMaterial->textureCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1462, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapTDMDMaterial->textureCount > 0)", (const char *)&queryFormat, "cgameGlob->compassMapTDMDMaterial->textureCount > 0") )
+          __debugbreak();
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, element, v231, v232, v226, v227, 0.0, 0.0, 1.0, 1.0, v221, v228, v229, *(float *)&IsGamepadEnabled, v230, LocalClientGlobals->compassMapTDMDMaterial->textureTable->image, luaVM);
       }
-      goto LABEL_212;
+      goto LABEL_220;
     }
-    IsGamepadEnabled = CL_Input_IsGamepadEnabled(_R15->m_localClientNum);
-    CG_CompassCalcDimensions(COMPASS_TYPE_TACMAP, _R13, parentRecta, rect, &_R13->compassMapWorldSize, &v636, &alphaOffset, &vMax, &x);
-    v244 = rect->vertAlign;
-    v245 = rect->horzAlign;
-    v246 = ScrPlace_GetActivePlacement((const LocalClientNum_t)_R15->m_localClientNum);
-    ScrPlace_ApplyRect(v246, &v636, &alphaOffset, &vMax, &x, v245, v244);
-    _RBX = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)_R15->m_localClientNum);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1096, ASSERT_TYPE_ASSERT, "(compassSystem)", (const char *)&queryFormat, "compassSystem") )
+    IsGamepadEnabled = CL_Input_IsGamepadEnabled(this->m_localClientNum);
+    CG_CompassCalcDimensions(COMPASS_TYPE_TACMAP, LocalClientGlobals, parentRecta, rect, &LocalClientGlobals->compassMapWorldSize, &h, &alphaOffset, &vMax, &x);
+    v116 = rect->vertAlign;
+    v117 = rect->horzAlign;
+    v118 = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
+    ScrPlace_ApplyRect(v118, &h, &alphaOffset, &vMax, &x, v117, v116);
+    CompassSystem = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)this->m_localClientNum);
+    if ( !CompassSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1096, ASSERT_TYPE_ASSERT, "(compassSystem)", (const char *)&queryFormat, "compassSystem") )
       __debugbreak();
-    if ( CL_Keys_IsCatcherActive(_R15->m_localClientNum, 16) && _R15->m_PreventZoom )
-      _RBX->m_PreventZoom = 0;
-    _RDI = DVARFLT_compassTacMapZoomMaxLevel;
+    if ( CL_Keys_IsCatcherActive(this->m_localClientNum, 16) && this->m_PreventZoom )
+      CompassSystem->m_PreventZoom = 0;
+    v120 = DVARFLT_compassTacMapZoomMaxLevel;
     if ( !DVARFLT_compassTacMapZoomMaxLevel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassTacMapZoomMaxLevel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm3, dword ptr [rdi+28h] }
-    _EDX = 1;
-    __asm
-    {
-      vmovd   xmm1, edx
-      vmovd   xmm0, dword ptr [r13+4A02Ch]
-      vpcmpgtq xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3f19999a
-      vblendvps xmm0, xmm1, xmm3, xmm2
-      vmovss  [rbp+210h+outAngle], xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [r13+65E4h]
-      vmulss  xmm11, xmm2, cs:__real@3a83126f
-      vmovss  xmm12, dword ptr [r15+20h]
-    }
-    ControllerFromClient = CL_Mgr_GetControllerFromClient(_R15->m_localClientNum);
+    Dvar_CheckFrontendServerThread(v120);
+    _XMM0 = LocalClientGlobals->compassMapTiles;
+    __asm { vpcmpgtq xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_0_60000002);
+    __asm { vblendvps xmm0, xmm1, xmm3, xmm2 }
+    outAngle = *(float *)&_XMM0;
+    v126 = (float)LocalClientGlobals->frametime * 0.001;
+    v125 = v126;
+    m_currentZoomLevel = this->m_currentZoomLevel;
+    ControllerFromClient = CL_Mgr_GetControllerFromClient(this->m_localClientNum);
     IN_GetCursorPos(ControllerFromClient, &curPos);
-    __asm { vmovss  xmm13, cs:__real@3f000000 }
-    v262 = IsGamepadEnabled;
-    if ( !IsGamepadEnabled || Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_CP_TacOpsMap_interactions, "killswitch_CP_TacOpsMap_interactions") && (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG )
+    v129 = IsGamepadEnabled;
+    if ( *(float *)&IsGamepadEnabled == 0.0 || Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_CP_TacOpsMap_interactions, "killswitch_CP_TacOpsMap_interactions") && (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG )
     {
+      left_low = LODWORD(element->left);
+      *(float *)&left_low = element->left - (float)((float)((float)(element->right - element->left) * 0.5) * element->currentAnimationState.scale);
+      _XMM8 = left_low;
+      *(float *)&_XMM9 = FLOAT_1_0;
       __asm
       {
-        vmovss  xmm2, dword ptr [rsi+0CCh]
-        vmovss  xmm0, dword ptr [rsi+0D4h]
-        vsubss  xmm7, xmm0, xmm2
-        vmovss  xmm4, dword ptr [rsi+0D0h]
-        vmovss  xmm1, dword ptr [rsi+0D8h]
-        vsubss  xmm6, xmm1, xmm4
-        vmovss  xmm3, dword ptr [rsi+34h]
-        vmulss  xmm0, xmm7, xmm13
-        vmulss  xmm1, xmm0, xmm3
-        vsubss  xmm8, xmm2, xmm1
-        vmulss  xmm2, xmm6, xmm13
-        vmulss  xmm0, xmm2, xmm3
-        vsubss  xmm5, xmm4, xmm0
-        vmovss  xmm9, cs:__real@3f800000
-        vaddss  xmm1, xmm3, xmm9
-        vmulss  xmm0, xmm1, xmm7
-        vmulss  xmm2, xmm1, xmm6
         vinsertps xmm8, xmm8, xmm5, 10h
         vinsertps xmm8, xmm8, xmm0, 20h ; ' '
         vinsertps xmm8, xmm8, xmm2, 30h ; '0'
-        vmovups xmmword ptr [rbx+0C8h], xmm8
       }
-      *(_DWORD *)&_RBX->m_tacmapRectangle.horzAlign = v656;
-      Dvar_GetFloat_Internal_DebugName(DVARFLT_compassTacMapMouseZoomSpeedFactor, "compassTacMapMouseZoomSpeedFactor");
-      __asm
+      *(_OWORD *)&CompassSystem->m_tacmapRectangle.x = _XMM8;
+      *(_DWORD *)&CompassSystem->m_tacmapRectangle.horzAlign = v264;
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassTacMapMouseZoomSpeedFactor, "compassTacMapMouseZoomSpeedFactor");
+      *(float *)&left_low = (float)((float)(v125 * element->currentAnimationState.userData) * *(float *)&Float_Internal_DebugName) + m_currentZoomLevel;
+      v154 = I_fclamp(*(float *)&left_low, outAngle, 1.0);
+      v147 = *(float *)&left_low;
+      if ( element->currentAnimationState.userData != 0.0 )
       {
-        vmulss  xmm1, xmm11, dword ptr [rsi+48h]
-        vmulss  xmm0, xmm1, xmm0
-        vaddss  xmm0, xmm0, xmm12; val
-        vmovaps xmm2, xmm9; max
-        vmovss  xmm1, [rbp+210h+outAngle]; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm8, xmm0
-        vucomiss xmm10, dword ptr [rsi+48h]
-      }
-      if ( !v31 )
-      {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbx+0D0h]
-          vmovss  xmm7, dword ptr [rbx+0D4h]
-          vmovd   xmm5, [rbp+210h+curPos.y]
-          vcvtdq2ps xmm5, xmm5
-          vmovss  xmm6, dword ptr [r13+4A088h]
-          vmulss  xmm0, xmm3, xmm13
-          vaddss  xmm2, xmm0, dword ptr [rbx+0C8h]
-          vmovd   xmm1, [rbp+210h+curPos.x]
-          vcvtdq2ps xmm1, xmm1
-          vsubss  xmm2, xmm2, xmm1
-          vmulss  xmm0, xmm2, xmm8
-          vdivss  xmm3, xmm0, xmm3
-          vaddss  xmm1, xmm3, dword ptr [r13+4A084h]
-          vmovss  dword ptr [rbx+5F4h], xmm1
-          vmulss  xmm0, xmm7, xmm13
-          vaddss  xmm2, xmm0, dword ptr [rbx+0CCh]
-          vsubss  xmm1, xmm2, xmm5
-          vmulss  xmm3, xmm1, xmm8
-          vdivss  xmm0, xmm3, xmm7
-          vaddss  xmm2, xmm0, xmm6
-          vmovss  dword ptr [rbx+5F8h], xmm2
-        }
+        v155 = CompassSystem->m_tacmapRectangle.h;
+        v156 = _mm_cvtepi32_ps((__m128i)(unsigned int)curPos.y).m128_f32[0];
+        v157 = LocalClientGlobals->locationSelectorCursor.v[1];
+        CompassSystem->m_tacmapMapCenter.v[0] = (float)((float)((float)((float)((float)(CompassSystem->m_tacmapRectangle.w * 0.5) + CompassSystem->m_tacmapRectangle.x) - _mm_cvtepi32_ps((__m128i)(unsigned int)curPos.x).m128_f32[0]) * *(float *)&v154) / CompassSystem->m_tacmapRectangle.w) + LocalClientGlobals->locationSelectorCursor.v[0];
+        CompassSystem->m_tacmapMapCenter.v[1] = (float)((float)((float)((float)((float)(v155 * 0.5) + CompassSystem->m_tacmapRectangle.y) - v156) * *(float *)&v154) / v155) + v157;
       }
     }
     else
     {
-      v263 = CL_Mgr_GetControllerFromClient(_R13->localClientNum);
-      IsPlayerUsingButtonLayoutBumperPing = CG_IsPlayerUsingButtonLayoutBumperPing(v263);
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassTacMapZoomSpeedFactor, "compassTacMapZoomSpeedFactor");
-      __asm { vmovaps xmm7, xmm0 }
-      v266 = 5;
+      v130 = CL_Mgr_GetControllerFromClient(LocalClientGlobals->localClientNum);
+      IsPlayerUsingButtonLayoutBumperPing = CG_IsPlayerUsingButtonLayoutBumperPing(v130);
+      v132 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassTacMapZoomSpeedFactor, "compassTacMapZoomSpeedFactor");
+      v133 = *(float *)&v132;
+      v134 = 5;
       if ( IsPlayerUsingButtonLayoutBumperPing )
-        v266 = 2;
-      v267 = 6;
+        v134 = 2;
+      v135 = 6;
       if ( IsPlayerUsingButtonLayoutBumperPing )
-        v267 = 4;
-      m_PreventZoom = _R15->m_PreventZoom;
-      __asm { vmovss  xmm9, cs:__real@3f800000 }
+        v135 = 4;
+      m_PreventZoom = this->m_PreventZoom;
+      _XMM9 = LODWORD(FLOAT_1_0);
       if ( m_PreventZoom )
       {
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v138 = 0.0;
       }
       else
       {
-        _EAX = CL_Keys_IsKeyDown(_R15->m_localClientNum, v266);
-        _EDI = 0;
+        _XMM0 = (unsigned int)CL_Keys_IsKeyDown(this->m_localClientNum, v134);
         __asm
         {
-          vmovd   xmm1, edi
-          vmovd   xmm0, eax
           vpcmpeqd xmm2, xmm0, xmm1
           vblendvps xmm0, xmm9, xmm10, xmm2
         }
-        m_PreventZoom = _R15->m_PreventZoom;
-        __asm
-        {
-          vmovaps xmm6, xmm0
-          vmovss  [rbp+210h+var_26C], xmm0
-        }
+        m_PreventZoom = this->m_PreventZoom;
+        v138 = *(float *)&_XMM0;
+        IsGamepadEnabled = _XMM0;
       }
       if ( m_PreventZoom )
       {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+        v142 = 0.0;
       }
       else
       {
-        _EAX = CL_Keys_IsKeyDown(_R15->m_localClientNum, v267);
-        __asm
-        {
-          vmovd   xmm1, edi
-          vmovd   xmm0, eax
-          vpcmpeqd xmm3, xmm0, xmm1
-          vmovss  xmm2, cs:__real@80000000
-          vmovss  xmm1, cs:__real@bf800000
-          vblendvps xmm0, xmm1, xmm2, xmm3
-          vmovaps xmm1, xmm0
-          vmovss  [rbp+210h+var_26C], xmm0
-        }
+        _XMM0 = (unsigned int)CL_Keys_IsKeyDown(this->m_localClientNum, v135);
+        __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+        _XMM1 = LODWORD(FLOAT_N1_0);
+        __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+        v142 = *(float *)&_XMM0;
+        IsGamepadEnabled = _XMM0;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm1, xmm6
-        vmulss  xmm1, xmm0, xmm11
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm0, xmm2, xmm12; val
-        vmovaps xmm2, xmm9; max
-        vmovss  xmm1, [rbp+210h+outAngle]; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm8, xmm0 }
+      I_fclamp((float)((float)((float)(v142 + v138) * v126) * v133) + m_currentZoomLevel, outAngle, 1.0);
+      v147 = (float)((float)((float)(v142 + v138) * v126) * v133) + m_currentZoomLevel;
     }
-    __asm { vmovss  dword ptr [rbx+20h], xmm8 }
+    CompassSystem->m_currentZoomLevel = v147;
     element->currentAnimationState.userDataInt = 0;
-    __asm
+    v158 = 0.5 * this->m_currentZoomLevel;
+    v159 = *(float *)&_XMM9 / this->m_currentZoomLevel;
+    if ( v129 )
     {
-      vmulss  xmm8, xmm13, dword ptr [r15+20h]
-      vdivss  xmm14, xmm9, dword ptr [r15+20h]
+      v160 = LocalClientGlobals->locationSelectorCursor.v[0];
+      v161 = LocalClientGlobals->locationSelectorCursor.v[1];
     }
-    if ( v262 )
+    else if ( CL_Keys_IsKeyDown(this->m_localClientNum, 187) && CompassSystem->m_currentCompassType == COMPASS_TYPE_TACMAP && (v162 = CL_Mgr_GetControllerFromClient(CompassSystem->m_localClientNum), IN_GetCursorPos(v162, &v261), v163 = CompassSystem->m_tacmapRectangle.x, v163 < (float)v261.x) && (v164 = CompassSystem->m_tacmapRectangle.w, (float)(v163 + v164) > (float)v261.x) && (v165 = CompassSystem->m_tacmapRectangle.y, v165 < (float)v261.y) && (v166 = CompassSystem->m_tacmapRectangle.h, (float)(v165 + v166) > (float)v261.y) )
     {
-      __asm
+      v167 = (float)curPos.x;
+      v168 = (float)curPos.y;
+      if ( CompassSystem->m_tacmapIsFirstDragInput )
       {
-        vmovss  xmm4, dword ptr [r13+4A084h]
-        vmovss  xmm11, dword ptr [r13+4A088h]
+        CompassSystem->m_initialDragPosition.v[0] = v167;
+        CompassSystem->m_initialDragPosition.v[1] = v168;
+        CompassSystem->m_tacmapLastCursorPosition.v[0] = v167;
+        CompassSystem->m_tacmapLastCursorPosition.v[1] = v168;
+        CompassSystem->m_tacmapIsFirstDragInput = 0;
       }
+      v160 = (float)((float)((float)(CompassSystem->m_tacmapLastCursorPosition.v[0] - v167) * CompassSystem->m_currentZoomLevel) / v164) + CompassSystem->m_tacmapMapCenter.v[0];
+      v161 = (float)((float)((float)(CompassSystem->m_tacmapLastCursorPosition.v[1] - v168) * CompassSystem->m_currentZoomLevel) / v166) + CompassSystem->m_tacmapMapCenter.v[1];
+      CompassSystem->m_tacmapLastCursorPosition.v[0] = v167;
+      CompassSystem->m_tacmapLastCursorPosition.v[1] = v168;
+      if ( !CompassSystem->m_exceededMinDragDistance )
+        CompassSystem->m_exceededMinDragDistance = (float)((float)((float)(v168 - CompassSystem->m_initialDragPosition.v[1]) * (float)(v168 - CompassSystem->m_initialDragPosition.v[1])) + (float)((float)(v167 - CompassSystem->m_initialDragPosition.v[0]) * (float)(v167 - CompassSystem->m_initialDragPosition.v[0]))) > 25.0;
     }
     else
     {
-      if ( !CL_Keys_IsKeyDown(_R15->m_localClientNum, 187) )
-        goto LABEL_215;
-      if ( _RBX->m_currentCompassType != COMPASS_TYPE_TACMAP )
-        goto LABEL_215;
-      v332 = CL_Mgr_GetControllerFromClient(_RBX->m_localClientNum);
-      IN_GetCursorPos(v332, &v653);
-      __asm
+      if ( !CompassSystem->m_tacmapIsFirstDragInput )
+        *(_WORD *)&CompassSystem->m_exceededMinDragDistance = 256;
+      v160 = CompassSystem->m_tacmapMapCenter.v[0];
+      v161 = CompassSystem->m_tacmapMapCenter.v[1];
+    }
+    v169 = I_fclamp(v160, v158, *(float *)&_XMM9 - v158);
+    v170 = *(float *)&v169;
+    v171 = I_fclamp(v161, v158, *(float *)&_XMM9 - v158);
+    v249 = *(float *)&v171;
+    CompassSystem->m_tacmapMapCenter.v[0] = v170;
+    CompassSystem->m_tacmapMapCenter.v[1] = *(float *)&v171;
+    if ( this->m_currentZoomLevel >= 0.5 )
+    {
+      LUI_CoD_GenerateQuadVerts(h, alphaOffset, h + vMax, alphaOffset + x, (vec4_t (*)[4])v268);
+      v206 = v251;
+      LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)this->m_localClientNum, element, v251, (const vec4_t (*)[4])v268, v170, v161, v158, v158, 0.0, &v262, v253);
+LABEL_176:
+      v265.v[0] = colorWhite.v[0];
+      v265.v[1] = colorWhite.v[1];
+      v265.v[2] = colorWhite.v[2];
+      v265.v[3] = FLOAT_0_40000001;
+      for ( i = 1; i <= 9; ++i )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, [rbp+210h+var_210.x]
-        vmovss  xmm0, dword ptr [rbx+0C8h]
-        vcomiss xmm0, xmm1
-      }
-      if ( !v333 )
-        goto LABEL_215;
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbx+0D0h]
-        vaddss  xmm0, xmm0, xmm5
-        vcomiss xmm0, xmm1
-      }
-      if ( v333 | v334 )
-        goto LABEL_215;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, [rbp+210h+var_210.y]
-        vmovss  xmm0, dword ptr [rbx+0CCh]
-        vcomiss xmm0, xmm1
-      }
-      if ( !v333 )
-        goto LABEL_215;
-      __asm
-      {
-        vmovss  xmm11, dword ptr [rbx+0D4h]
-        vaddss  xmm0, xmm0, xmm11
-        vcomiss xmm0, xmm1
-      }
-      if ( !(v333 | v334) )
-      {
-        __asm
+        v209 = _mm_cvtepi32_ps((__m128i)(unsigned int)i).m128_f32[0];
+        v210 = (float)(v209 * 0.1) - v249;
+        v211 = (float)(v159 * (float)((float)(v209 * 0.1) - v170)) + 0.5;
+        v212 = (float)(v159 * v210) + 0.5;
+        if ( v211 >= 0.0 && v211 <= *(float *)&_XMM9 )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, [rbp+210h+curPos.x]
-          vxorps  xmm7, xmm7, xmm7
-          vcvtsi2ss xmm7, xmm7, [rbp+210h+curPos.y]
+          LUI_CoD_GenerateQuadVerts((float)(v211 * vMax) + h, alphaOffset, (float)((float)(v211 * vMax) + h) + 2.0, alphaOffset + x, (vec4_t (*)[4])v268);
+          LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, v14, v206, (const vec4_t (*)[4])v268, 0.0, 0.0, *(float *)&_XMM9, *(float *)&_XMM9, &v265, rgp.blackImage);
         }
-        if ( _RBX->m_tacmapIsFirstDragInput )
+        if ( (float)(v159 * v210) >= -0.5 && v212 <= *(float *)&_XMM9 )
         {
-          __asm
-          {
-            vmovss  dword ptr [rbx+604h], xmm6
-            vmovss  dword ptr [rbx+608h], xmm7
-            vmovss  dword ptr [rbx+5FCh], xmm6
-            vmovss  dword ptr [rbx+600h], xmm7
-          }
-          _RBX->m_tacmapIsFirstDragInput = 0;
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+5FCh]
-          vsubss  xmm3, xmm0, xmm6
-          vmovss  xmm1, dword ptr [rbx+600h]
-          vsubss  xmm4, xmm1, xmm7
-          vmulss  xmm0, xmm3, dword ptr [rbx+20h]
-          vdivss  xmm5, xmm0, xmm5
-          vmulss  xmm1, xmm4, dword ptr [rbx+20h]
-          vdivss  xmm3, xmm1, xmm11
-          vaddss  xmm4, xmm5, dword ptr [rbx+5F4h]
-          vaddss  xmm11, xmm3, dword ptr [rbx+5F8h]
-          vmovss  dword ptr [rbx+5FCh], xmm6
-          vmovss  dword ptr [rbx+600h], xmm7
-        }
-        if ( !_RBX->m_exceededMinDragDistance )
-        {
-          __asm
-          {
-            vsubss  xmm1, xmm6, dword ptr [rbx+604h]
-            vsubss  xmm0, xmm7, dword ptr [rbx+608h]
-            vmulss  xmm2, xmm0, xmm0
-            vmulss  xmm1, xmm1, xmm1
-            vaddss  xmm2, xmm2, xmm1
-            vcomiss xmm2, cs:__real@41c80000
-          }
-          _RBX->m_exceededMinDragDistance = _RBX->m_exceededMinDragDistance;
+          LUI_CoD_GenerateQuadVerts(h, (float)(v212 * x) + alphaOffset, h + vMax, (float)((float)(v212 * x) + alphaOffset) + 2.0, (vec4_t (*)[4])v268);
+          LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, v14, v206, (const vec4_t (*)[4])v268, 0.0, 0.0, *(float *)&_XMM9, *(float *)&_XMM9, &v265, rgp.blackImage);
         }
       }
-      else
-      {
-LABEL_215:
-        if ( !_RBX->m_tacmapIsFirstDragInput )
-          *(_WORD *)&_RBX->m_exceededMinDragDistance = 256;
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rbx+5F4h]
-          vmovss  xmm11, dword ptr [rbx+5F8h]
-        }
-      }
+      goto LABEL_220;
     }
-    __asm
+    _XMM1 = LODWORD(element->bottom);
+    __asm { vmaxss  xmm4, xmm1, xmm10 }
+    _XMM2 = LODWORD(element->right);
+    __asm { vmaxss  xmm3, xmm2, xmm10; right }
+    _XMM0 = LODWORD(element->top);
+    __asm { vmaxss  xmm2, xmm0, xmm10; top }
+    _XMM1 = LODWORD(element->left);
+    __asm { vmaxss  xmm1, xmm1, xmm10; left }
+    LUI_Render_PushStencilRectangle((const LocalClientNum_t)this->m_localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&_XMM4);
+    compassMapTiles = LocalClientGlobals->compassMapTiles;
+    v181 = (float)compassMapTiles;
+    v182 = (int)(float)(v170 * v181);
+    v183 = v182 + compassMapTiles * (int)(float)(v181 * v161);
+    v184 = (float)((float)(*(float *)&_XMM9 / v181) * vMax) * v159;
+    v185 = (float)((float)(*(float *)&_XMM9 / v181) * x) * v159;
+    v241 = 0;
+    if ( v183 != CompassSystem->m_tacmapCenterTile )
     {
-      vsubss  xmm6, xmm9, xmm8
-      vmovaps xmm2, xmm6; max
-      vmovaps xmm1, xmm8; min
-      vmovaps xmm0, xmm4; val
+      CompassSystem->m_tacmapCenterTile = v183;
+      v241 = 1;
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm15, xmm0
-      vmovaps xmm2, xmm6; max
-      vmovaps xmm1, xmm8; min
-      vmovaps xmm0, xmm11; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm11, xmm0
-      vmovss  [rbp+210h+var_270], xmm0
-      vmovss  dword ptr [rbx+5F4h], xmm15
-      vmovss  dword ptr [rbx+5F8h], xmm0
-      vcomiss xmm13, dword ptr [r15+20h]
-    }
-    if ( v333 | v31 )
-    {
-      __asm
-      {
-        vmovss  xmm1, [rbp+210h+alphaOffset]; top
-        vaddss  xmm3, xmm1, [rbp+210h+x]; bottom
-        vmovss  xmm0, [rbp+210h+var_284]; left
-        vaddss  xmm2, xmm0, [rbp+210h+vMax]; right
-      }
-      LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])v660);
-      __asm
-      {
-        vmovss  dword ptr [rsp+330h+h], xmm10
-        vmovss  dword ptr [rsp+330h+w], xmm8
-        vmovss  dword ptr [rsp+330h+y], xmm8
-        vmovss  dword ptr [rsp+330h+outVector], xmm11
-        vmovss  dword ptr [rsp+330h+fmt], xmm15
-      }
-      v435 = v643;
-      LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)_R15->m_localClientNum, element, v643, (const vec4_t (*)[4])v660, fmtj, outVectori, yi, wh, hc, &v654, v645);
-LABEL_168:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-        vmovss  dword ptr [rbp+210h+var_1E0], xmm0
-        vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-        vmovss  dword ptr [rbp+210h+var_1E0+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-        vmovss  dword ptr [rbp+210h+var_1E0+8], xmm0
-        vmovss  xmm1, cs:__real@3ecccccd
-        vmovss  dword ptr [rbp+210h+var_1E0+0Ch], xmm1
-        vmovss  xmm12, cs:__real@3dcccccd
-        vmovss  xmm8, cs:__real@40000000
-        vmovss  xmm11, cs:__real@bf000000
-      }
-      for ( _EBX = 1; _EBX <= 9; v437 = _EBX == 9 )
-      {
-        __asm
-        {
-          vmovd   xmm0, ebx
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm1, xmm0, xmm12
-          vsubss  xmm2, xmm1, xmm15
-          vsubss  xmm3, xmm1, [rbp+210h+var_270]
-          vmulss  xmm0, xmm14, xmm2
-          vmulss  xmm6, xmm14, xmm3
-          vaddss  xmm2, xmm0, xmm13
-          vaddss  xmm7, xmm6, xmm13
-          vcomiss xmm2, xmm10
-        }
-        if ( !v436 )
-        {
-          __asm { vcomiss xmm2, xmm9 }
-          if ( v436 || v437 )
-          {
-            __asm
-            {
-              vmovss  xmm1, [rbp+210h+alphaOffset]; top
-              vaddss  xmm3, xmm1, [rbp+210h+x]; bottom
-              vmulss  xmm2, xmm2, [rbp+210h+vMax]
-              vaddss  xmm0, xmm2, [rbp+210h+var_284]; left
-              vaddss  xmm2, xmm0, xmm8; right
-            }
-            LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])v660);
-            __asm
-            {
-              vmovss  dword ptr [rsp+330h+w], xmm9
-              vmovss  dword ptr [rsp+330h+y], xmm9
-              vmovss  dword ptr [rsp+330h+outVector], xmm10
-              vmovss  dword ptr [rsp+330h+fmt], xmm10
-            }
-            LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, _RSI, v435, (const vec4_t (*)[4])v660, fmtk, outVectorj, yj, wi, &v657, rgp.blackImage);
-          }
-        }
-        __asm { vcomiss xmm6, xmm11 }
-        if ( !v436 )
-        {
-          __asm { vcomiss xmm7, xmm9 }
-          if ( v436 || v437 )
-          {
-            __asm
-            {
-              vmulss  xmm1, xmm7, [rbp+210h+x]
-              vaddss  xmm1, xmm1, [rbp+210h+alphaOffset]; top
-              vaddss  xmm3, xmm1, xmm8; bottom
-              vmovss  xmm0, [rbp+210h+var_284]; left
-              vaddss  xmm2, xmm0, [rbp+210h+vMax]; right
-            }
-            LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])v660);
-            __asm
-            {
-              vmovss  dword ptr [rsp+330h+w], xmm9
-              vmovss  dword ptr [rsp+330h+y], xmm9
-              vmovss  dword ptr [rsp+330h+outVector], xmm10
-              vmovss  dword ptr [rsp+330h+fmt], xmm10
-            }
-            LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, _RSI, v435, (const vec4_t (*)[4])v660, fmtl, outVectork, yk, wj, &v657, rgp.blackImage);
-          }
-        }
-        v436 = (unsigned int)++_EBX < 9;
-      }
-      goto LABEL_212;
-    }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+0D8h]
-      vmaxss  xmm4, xmm1, xmm10
-      vmovss  xmm2, dword ptr [rsi+0D4h]
-      vmaxss  xmm3, xmm2, xmm10; right
-      vmovss  xmm0, dword ptr [rsi+0D0h]
-      vmaxss  xmm2, xmm0, xmm10; top
-      vmovss  xmm1, dword ptr [rsi+0CCh]
-      vmaxss  xmm1, xmm1, xmm10; left
-      vmovss  dword ptr [rsp+330h+fmt], xmm4
-    }
-    LUI_Render_PushStencilRectangle((const LocalClientNum_t)_R15->m_localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtg);
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vmulss  xmm0, xmm15, xmm2
-      vcvttss2si edx, xmm0
-      vmulss  xmm1, xmm2, xmm11
-      vcvttss2si r14d, xmm1
-    }
-    v385 = _EDX + _R13->compassMapTiles * _ER14;
-    __asm
-    {
-      vdivss  xmm1, xmm9, xmm2
-      vmulss  xmm0, xmm1, [rbp+210h+vMax]
-      vmulss  xmm8, xmm0, xmm14
-      vmulss  xmm1, xmm1, [rbp+210h+x]
-      vmulss  xmm12, xmm1, xmm14
-    }
-    v633 = 0;
-    if ( v385 != _RBX->m_tacmapCenterTile )
-    {
-      _RBX->m_tacmapCenterTile = v385;
-      v633 = 1;
-    }
-    v391 = _EDX - 4;
-    IsGamepadEnabled = _EDX - 4;
-    v392 = NULL;
+    v186 = v182 - 4;
+    IsGamepadEnabled = v182 - 4;
+    v187 = NULL;
     cgameGlobMP = NULL;
-    LODWORD(v393) = _ER14 - 3;
-    outAngle = v393;
-    v653 = (MouseCursorPos)9i64;
-LABEL_149:
-    v394 = 0i64;
-    LODWORD(_ECX) = LODWORD(v393) - 1;
-    LODWORD(uvAngle) = LODWORD(v393) - 1;
-    _ESI = v391;
+    LODWORD(v188) = (int)(float)(v181 * v161) - 3;
+    outAngle = v188;
+    v261 = (MouseCursorPos)9i64;
+LABEL_157:
+    v189 = 0i64;
+    v190 = LODWORD(v188) - 1;
+    LODWORD(uvAngle) = LODWORD(v188) - 1;
+    v191 = v186;
     while ( 1 )
     {
-      if ( _ESI < 0 || (compassMapTiles = _R13->compassMapTiles, _ESI >= compassMapTiles) || _ECX < 0.0 || SLODWORD(_ECX) >= compassMapTiles )
+      if ( v191 < 0 || (v192 = LocalClientGlobals->compassMapTiles, v191 >= (int)v192) || v190 < 0 || v190 >= (int)v192 )
       {
-        v435 = v643;
-        goto LABEL_164;
+        v206 = v251;
+        goto LABEL_172;
       }
-      v398 = (__int64)v392 + v394;
-      __asm
+      v193 = (__int64)v187 + v189;
+      v194 = _mm_cvtepi32_ps((__m128i)(unsigned int)v191).m128_f32[0];
+      v195 = (float)v192;
+      v196 = _mm_cvtepi32_ps((__m128i)(unsigned int)v190).m128_f32[0];
+      v197 = (float)((float)((float)(v159 * (float)((float)((float)(*(float *)&_XMM9 / v195) * v196) - v161)) + 0.5) * vMax) + alphaOffset;
+      v198 = (float)((float)((float)(v159 * (float)((float)((float)(*(float *)&_XMM9 / v195) * v194) - v170)) + 0.5) * vMax) + h;
+      LUI_CoD_GenerateQuadVerts(v198, v197, v184 + v198, v185 + v197, (vec4_t (*)[4])v268);
+      if ( v241 )
       {
-        vmovd   xmm6, esi
-        vcvtdq2ps xmm6, xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm1, xmm9, xmm0
-        vmulss  xmm2, xmm1, xmm6
-        vmovd   xmm7, ecx
-        vcvtdq2ps xmm7, xmm7
-        vmulss  xmm0, xmm1, xmm7
-        vsubss  xmm1, xmm2, xmm15
-        vsubss  xmm2, xmm0, xmm11
-        vmulss  xmm3, xmm14, xmm1
-        vmulss  xmm4, xmm14, xmm2
-        vaddss  xmm5, xmm3, xmm13
-        vaddss  xmm1, xmm4, xmm13
-        vmulss  xmm4, xmm5, [rbp+210h+vMax]
-        vmulss  xmm1, xmm1, [rbp+210h+vMax]
-        vaddss  xmm1, xmm1, [rbp+210h+alphaOffset]; top
-        vaddss  xmm3, xmm12, xmm1; bottom
-        vaddss  xmm0, xmm4, [rbp+210h+var_284]; left
-        vaddss  xmm2, xmm8, xmm0; right
+        v199 = j_va("%s_%02d_%02d", LocalClientGlobals->compassMapMaterial->name, v188, (unsigned int)(v191 + 1));
+        CompassSystem->m_tacpmapTileImages[v193].tile = Image_Register(v199, IMAGE_TRACK_HUD);
       }
-      LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])v660);
-      if ( v633 )
+      v200 = 0;
+      v201 = 2 * (v193 + 14);
+      tile = CompassSystem->m_tacpmapTileImages[v193].tile;
+      if ( tile && (v200 = Stream_TouchImageAndCheck(tile)) )
       {
-        v419 = j_va("%s_%02d_%02d", _R13->compassMapMaterial->name, v393, (unsigned int)(_ESI + 1));
-        _RBX->m_tacpmapTileImages[v398].tile = Image_Register(v419, IMAGE_TRACK_HUD);
-      }
-      v420 = 0;
-      v421 = 2 * (v398 + 14);
-      tile = _RBX->m_tacpmapTileImages[v398].tile;
-      if ( tile && (v420 = Stream_TouchImageAndCheck(tile)) )
-      {
-        v423 = v398;
-        framesDelayed = _RBX->m_tacpmapTileImages[v423].framesDelayed;
+        v203 = v193;
+        framesDelayed = CompassSystem->m_tacpmapTileImages[v203].framesDelayed;
         if ( framesDelayed >= 5 )
-          goto LABEL_162;
-        _RBX->m_tacpmapTileImages[v423].framesDelayed = framesDelayed + 1;
+          goto LABEL_170;
+        CompassSystem->m_tacpmapTileImages[v203].framesDelayed = framesDelayed + 1;
       }
       else
       {
-        _RBX->m_tacpmapTileImages[v398].framesDelayed = 0;
-        if ( v420 )
+        CompassSystem->m_tacpmapTileImages[v193].framesDelayed = 0;
+        if ( v200 )
         {
-LABEL_162:
-          __asm
-          {
-            vmovss  dword ptr [rsp+330h+w], xmm9
-            vmovss  dword ptr [rsp+330h+y], xmm9
-            vmovss  dword ptr [rsp+330h+outVector], xmm10
-            vmovss  dword ptr [rsp+330h+fmt], xmm10
-          }
-          v435 = v643;
-          LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, *(LUIElement **)&outWorldPosition, v643, (const vec4_t (*)[4])v660, fmti, outVectorh, yh, wg, &v654, *((const GfxImage **)&_RBX->__vftable + v421));
-          _ECX = uvAngle;
-          v393 = outAngle;
-          v392 = cgameGlobMP;
-          goto LABEL_164;
+LABEL_170:
+          v206 = v251;
+          LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, *(LUIElement **)&outWorldPosition, v251, (const vec4_t (*)[4])v268, 0.0, 0.0, *(float *)&_XMM9, *(float *)&_XMM9, &v262, *((const GfxImage **)&CompassSystem->__vftable + v201));
+          v190 = LODWORD(uvAngle);
+          v188 = outAngle;
+          v187 = cgameGlobMP;
+          goto LABEL_172;
         }
       }
-      __asm
+      v205 = (float)LocalClientGlobals->compassMapTiles;
+      v188 = outAngle;
+      v206 = v251;
+      LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, *(LUIElement **)&outWorldPosition, v251, (const vec4_t (*)[4])v268, (float)(*(float *)&_XMM9 / v205) * v194, (float)(*(float *)&_XMM9 / v205) * v196, (float)(v191 + 1) * (float)(*(float *)&_XMM9 / v205), (float)SLODWORD(outAngle) * (float)(*(float *)&_XMM9 / v205), &v262, v253);
+      v190 = LODWORD(uvAngle);
+      v187 = cgameGlobMP;
+LABEL_172:
+      ++v191;
+      if ( ++v189 >= 9 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm2, xmm9, xmm0
-        vmulss  xmm5, xmm2, xmm6
-        vmulss  xmm4, xmm2, xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm3, xmm0, xmm2
-      }
-      v393 = outAngle;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r14d
-        vmulss  xmm2, xmm1, xmm2
-        vmovss  dword ptr [rsp+330h+w], xmm2
-        vmovss  dword ptr [rsp+330h+y], xmm3
-        vmovss  dword ptr [rsp+330h+outVector], xmm4
-        vmovss  dword ptr [rsp+330h+fmt], xmm5
-      }
-      v435 = v643;
-      LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, *(LUIElement **)&outWorldPosition, v643, (const vec4_t (*)[4])v660, fmth, outVectorg, yg, wf, &v654, v645);
-      _ECX = uvAngle;
-      v392 = cgameGlobMP;
-LABEL_164:
-      ++_ESI;
-      if ( ++v394 >= 9 )
-      {
-        ++LODWORD(v393);
-        outAngle = v393;
-        v392 = (CgGlobalsMP *)((char *)v392 + 9);
-        cgameGlobMP = v392;
-        v31 = (*(_QWORD *)&v653)-- == 1i64;
-        v391 = IsGamepadEnabled;
-        if ( v31 )
+        ++LODWORD(v188);
+        outAngle = v188;
+        v187 = (CgGlobalsMP *)((char *)v187 + 9);
+        cgameGlobMP = v187;
+        v207 = (*(_QWORD *)&v261)-- == 1i64;
+        v186 = IsGamepadEnabled;
+        if ( v207 )
         {
-          LUI_Render_PopStencilRectangle((const LocalClientNum_t)_R15->m_localClientNum);
-          _RSI = (LUIElement *)outWorldPosition;
-          goto LABEL_168;
+          LUI_Render_PopStencilRectangle((const LocalClientNum_t)this->m_localClientNum);
+          v14 = (LUIElement *)outWorldPosition;
+          goto LABEL_176;
         }
-        goto LABEL_149;
+        goto LABEL_157;
       }
     }
   }
-  __asm
+  v20 = LocalClientGlobals->compassNorth.v[1];
+  LODWORD(v21) = LODWORD(LocalClientGlobals->compassNorth.v[0]) ^ _xmm;
+  CG_CalcPlayerPos(&out, this->m_localClientNum);
+  v22 = out.x - LocalClientGlobals->compassMapUpperLeft.v[0];
+  v23 = out.y - LocalClientGlobals->compassMapUpperLeft.v[1];
+  v24 = (float)(v23 * v21) + (float)(v22 * v20);
+  uvAngle = (float)(v22 * v21) - (float)(v23 * v20);
+  v25 = v24 / *p_compassMapWorldSize;
+  v26 = uvAngle / LocalClientGlobals->compassMapWorldSize.v[1];
+  v27 = ((double (__fastcall *)(CgCompassSystem *))this->GetRange)(this);
+  v28 = *(float *)&v27;
+  v29 = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)this->m_localClientNum);
+  curPos = (MouseCursorPos)v29;
+  _XMM11 = LODWORD(FLOAT_1_0);
+  if ( (v29->m_currentDisplayType & 2) != 0 )
   {
-    vmovss  xmm7, dword ptr [r13+4A004h]
-    vmovss  xmm0, dword ptr [r13+4A000h]
-    vxorps  xmm6, xmm0, cs:__xmm@80000000800000008000000080000000
-  }
-  CG_CalcPlayerPos(&out, _R15->m_localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+210h+out.___u0]
-    vsubss  xmm4, xmm0, dword ptr [r13+4A018h]
-    vmovss  xmm1, dword ptr [rbp+210h+out.___u0+4]
-    vsubss  xmm3, xmm1, dword ptr [r13+4A01Ch]
-    vmulss  xmm2, xmm3, xmm6
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm15, xmm2, xmm0
-    vmulss  xmm1, xmm4, xmm6
-    vmulss  xmm0, xmm3, xmm7
-    vsubss  xmm0, xmm1, xmm0
-    vmovss  [rbp+210h+uvAngle], xmm0
-    vdivss  xmm12, xmm15, dword ptr [r12]
-    vdivss  xmm13, xmm0, dword ptr [r13+4A024h]
-  }
-  *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))_R15->GetRange)(_R15);
-  __asm { vmovaps xmm14, xmm0 }
-  CompassSystem = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)_R15->m_localClientNum);
-  curPos = (MouseCursorPos)CompassSystem;
-  __asm { vmovss  xmm11, cs:__real@3f800000 }
-  if ( (CompassSystem->m_currentDisplayType & 2) != 0 )
-  {
-    v59 = DVARBOOL_compassZoomEnabled;
+    v31 = DVARBOOL_compassZoomEnabled;
     if ( !DVARBOOL_compassZoomEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassZoomEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v59);
-    if ( v59->current.enabled )
+    Dvar_CheckFrontendServerThread(v31);
+    if ( v31->current.enabled )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassZoomMaxLevel, "compassZoomMaxLevel");
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassZoomSpeedFactor, "compassZoomSpeedFactor");
-      __asm
-      {
-        vmovaps xmm9, xmm0
-        vsubss  xmm7, xmm11, xmm6
-        vmovss  xmm8, dword ptr [r15+20h]
-      }
-      m_localClientNum = _R15->m_localClientNum;
+      v32 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassZoomMaxLevel, "compassZoomMaxLevel");
+      v33 = *(float *)&v32;
+      v34 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassZoomSpeedFactor, "compassZoomSpeedFactor");
+      v35 = *(float *)&v34;
+      v36 = this->m_currentZoomLevel;
+      m_localClientNum = this->m_localClientNum;
       if ( (unsigned int)m_localClientNum >= 2 )
       {
         LODWORD(y) = 2;
-        LODWORD(outVector) = _R15->m_localClientNum;
+        LODWORD(outVector) = this->m_localClientNum;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outVector, y) )
           __debugbreak();
-        v28 = v643;
+        v15 = v251;
       }
-      v65 = _R15->m_localClientNum;
+      v38 = this->m_localClientNum;
       if ( clientUIActives[m_localClientNum].lastInputType )
       {
-        _EAX = CL_Keys_IsKeyDown(v65, 187);
-        _ECX = 0;
+        _XMM0 = (unsigned int)CL_Keys_IsKeyDown(v38, 187);
         __asm
         {
-          vmovd   xmm1, ecx
-          vmovd   xmm0, eax
           vpcmpeqd xmm2, xmm0, xmm1
           vblendvps xmm0, xmm11, xmm10, xmm2
-          vmovaps xmm1, xmm0
-          vmovss  [rbp+210h+var_26C], xmm0
         }
+        v40 = *(float *)&_XMM0;
+        IsGamepadEnabled = _XMM0;
       }
       else
       {
-        *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(v65, GPAD_PHYSAXIS_LTRIGGER);
-        __asm { vmovaps xmm1, xmm0 }
+        v39 = CL_GamepadPhysicalAxisValue(v38, GPAD_PHYSAXIS_LTRIGGER);
+        v40 = *(float *)&v39;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm7
-        vaddss  xmm1, xmm0, xmm6
-        vsubss  xmm2, xmm1, xmm8
-        vdivss  xmm3, xmm2, xmm7
-        vmulss  xmm0, xmm3, xmm9
-        vaddss  xmm0, xmm0, xmm8; val
-        vmovaps xmm2, xmm11; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _RAX = curPos;
-      __asm { vmovss  dword ptr [rax+20h], xmm0 }
+      v44 = I_fclamp((float)((float)((float)((float)((float)(v40 * (float)(1.0 - v33)) + v33) - v36) / (float)(1.0 - v33)) * v35) + v36, v33, 1.0);
+      *(float *)(*(_QWORD *)&curPos + 32i64) = *(float *)&v44;
       goto LABEL_32;
     }
-    CompassSystem = (CgCompassSystem *)curPos;
+    v29 = (CgCompassSystem *)curPos;
   }
-  CompassSystem->m_currentZoomLevel = 1.0;
+  v29->m_currentZoomLevel = 1.0;
 LABEL_32:
-  __asm
-  {
-    vmulss  xmm0, xmm14, dword ptr [r15+20h]
-    vmovss  xmm9, cs:__real@3f000000
-    vmulss  xmm2, xmm0, xmm9
-    vdivss  xmm6, xmm2, dword ptr [r12+4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vdivss  xmm1, xmm0, dword ptr [rbx+0Ch]
-    vmulss  xmm2, xmm1, xmm2
-    vdivss  xmm7, xmm2, dword ptr [r12]
-  }
-  CgCompassSystem::GetCompassYaw(_R15, COMPASS_TYPE_PARTIAL, cropPartialMap, _R13, &outAngle, &outWorldPosition);
-  __asm
-  {
-    vmovss  xmm0, [rbp+210h+outAngle]
-    vsubss  xmm1, xmm0, dword ptr [r13+49FFCh]
-    vxorps  xmm8, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmovss  [rbp+210h+outAngle], xmm8
-  }
+  v45 = (float)(v28 * this->m_currentZoomLevel) * 0.5;
+  v46 = v45 / LocalClientGlobals->compassMapWorldSize.v[1];
+  v47 = (float)((float)(rect->w / rect->h) * v45) / *p_compassMapWorldSize;
+  CgCompassSystem::GetCompassYaw(this, COMPASS_TYPE_PARTIAL, cropPartialMap, LocalClientGlobals, &outAngle, &outWorldPosition);
+  LODWORD(v48) = COERCE_UNSIGNED_INT(outAngle - LocalClientGlobals->compassNorthYaw) ^ _xmm;
+  outAngle = v48;
   if ( cropPartialMap )
   {
-    ((void (__fastcall *)(CgCompassSystem *, vec2_t *))_R15->MapOffset)(_R15, &outWorldPosition);
-    __asm
-    {
-      vmovss  xmm12, dword ptr [rbp+210h+outWorldPosition]
-      vmovss  xmm13, dword ptr [rbp+210h+outWorldPosition+4]
-    }
-    *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))_R15->GetCroppedMapZoom)(_R15);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r13+4A024h]
-      vmulss  xmm0, xmm0, xmm1
-      vmulss  xmm2, xmm0, xmm9
-      vdivss  xmm6, xmm2, xmm1
-      vmovss  xmm0, dword ptr [rbx+8]
-      vdivss  xmm1, xmm0, dword ptr [rbx+0Ch]
-      vmulss  xmm2, xmm1, xmm2
-      vdivss  xmm7, xmm2, dword ptr [r12]
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  [rbp+210h+outAngle], xmm8
-    }
+    ((void (__fastcall *)(CgCompassSystem *, vec2_t *))this->MapOffset)(this, &outWorldPosition);
+    v25 = outWorldPosition.v[0];
+    v26 = outWorldPosition.v[1];
+    v49 = ((double (__fastcall *)(CgCompassSystem *))this->GetCroppedMapZoom)(this);
+    v50 = LocalClientGlobals->compassMapWorldSize.v[1];
+    v51 = (float)(*(float *)&v49 * v50) * 0.5;
+    v46 = v51 / v50;
+    v47 = (float)((float)(rect->w / rect->h) * v51) / *p_compassMapWorldSize;
+    v48 = 0.0;
+    outAngle = 0.0;
   }
-  if ( cgameGlobMP && cgameGlobMP->m_isMLGSpectator && _R15->MapShouldRotate(_R15) )
-  {
-    _R15->MapRotationFactor(_R15);
-    __asm
-    {
-      vaddss  xmm8, xmm8, xmm0
-      vmovss  [rbp+210h+outAngle], xmm8
-    }
-  }
-  CG_CompassCalcDimensions(COMPASS_TYPE_PARTIAL, _R13, parentRecta, rect, &_R13->compassMapWorldSize, &x, &vMax, &alphaOffset, &v636);
-  v100 = rect->vertAlign;
-  v101 = rect->horzAlign;
-  v102 = ScrPlace_GetActivePlacement((const LocalClientNum_t)_R15->m_localClientNum);
-  ScrPlace_ApplyRect(v102, &x, &vMax, &alphaOffset, &v636, v101, v100);
-  if ( !_R15->m_compassMirrorLeftRight )
+  if ( cgameGlobMP && cgameGlobMP->m_isMLGSpectator && this->MapShouldRotate(this) )
+    outAngle = v48 + this->MapRotationFactor(this);
+  CG_CompassCalcDimensions(COMPASS_TYPE_PARTIAL, LocalClientGlobals, parentRecta, rect, &LocalClientGlobals->compassMapWorldSize, &x, &vMax, &alphaOffset, &h);
+  v52 = rect->vertAlign;
+  v53 = rect->horzAlign;
+  v54 = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
+  ScrPlace_ApplyRect(v54, &x, &vMax, &alphaOffset, &h, v53, v52);
+  if ( !this->m_compassMirrorLeftRight )
     goto LABEL_44;
-  v103 = DVARBOOL_compassRotation;
+  v55 = DVARBOOL_compassRotation;
   if ( !DVARBOOL_compassRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassRotation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v103);
-  if ( v103->current.enabled )
+  Dvar_CheckFrontendServerThread(v55);
+  if ( v55->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm2, [rbp+210h+x]
-      vaddss  xmm0, xmm2, [rbp+210h+alphaOffset]
-    }
+    v56 = x;
+    v57 = x + alphaOffset;
   }
   else
   {
 LABEL_44:
-    __asm
-    {
-      vmovss  xmm0, [rbp+210h+x]; left
-      vaddss  xmm2, xmm0, [rbp+210h+alphaOffset]; right
-    }
+    v57 = x;
+    v56 = x + alphaOffset;
   }
-  __asm
+  LUI_CoD_GenerateQuadVerts(v57, vMax, v56, vMax + h, (vec4_t (*)[4])quadVerts);
+  image = (GfxImage *)v261;
+  if ( v261 )
   {
-    vmovss  xmm1, [rbp+210h+vMax]; top
-    vaddss  xmm3, xmm1, [rbp+210h+var_284]; bottom
+    LUI_Render_GetViewportSize(this->m_localClientNum, (vec2_t *)&parentRecta);
+    LUI_Render_PushMask((const LocalClientNum_t)this->m_localClientNum, (float)(0.5 * alphaOffset) + x, (float)(0.5 * h) + vMax, alphaOffset, h, 0.0, 1.0, 0.0, 0, 0.0, 0.0, 1.0, 1.0, (const vec2_t *)&parentRecta, image);
   }
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-  v108 = (GfxImage *)v653;
-  if ( v653 )
-  {
-    LUI_Render_GetViewportSize(_R15->m_localClientNum, (vec2_t *)&parentRecta);
-    __asm
-    {
-      vmovss  xmm4, [rbp+210h+var_284]
-      vmulss  xmm0, xmm9, xmm4
-      vaddss  xmm2, xmm0, [rbp+210h+vMax]; maskCenterY
-      vmovss  xmm3, [rbp+210h+alphaOffset]; maskWidth
-      vmulss  xmm1, xmm9, xmm3
-      vaddss  xmm1, xmm1, [rbp+210h+x]; maskCenterX
-      vmovss  dword ptr [rsp+330h+var_2D0], xmm11
-      vmovss  [rsp+330h+var_2D8], xmm11
-      vmovss  dword ptr [rsp+330h+var_2E0], xmm10
-      vmovss  dword ptr [rsp+330h+var_2E8], xmm10
-      vmovss  dword ptr [rsp+330h+w], xmm10
-      vmovss  dword ptr [rsp+330h+y], xmm11
-      vmovss  dword ptr [rsp+330h+outVector], xmm10
-      vmovss  dword ptr [rsp+330h+fmt], xmm4
-    }
-    LUI_Render_PushMask((const LocalClientNum_t)_R15->m_localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, outVectorb, yb, wa, 0, v613, v617, v620, v623, (const vec2_t *)&parentRecta, v108);
-  }
-  v114 = DVARBOOL_compassRenderAdditionalHighResTiles;
+  v59 = DVARBOOL_compassRenderAdditionalHighResTiles;
   if ( !DVARBOOL_compassRenderAdditionalHighResTiles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassRenderAdditionalHighResTiles") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v114);
-  enabled = v114->current.enabled;
-  v644 = enabled;
-  v116 = _R13->compassMapTiles;
-  __asm
+  Dvar_CheckFrontendServerThread(v59);
+  enabled = v59->current.enabled;
+  v252 = enabled;
+  v61 = LocalClientGlobals->compassMapTiles;
+  v62 = LocalClientGlobals->compassMapWorldSize.v[1];
+  v63 = (float)v61;
+  v64 = v62 / (float)((float)(v28 * this->m_currentZoomLevel) * v63);
+  if ( (unsigned int)v61 <= 1 || (float)(v62 / (float)((float)(v28 * this->m_currentZoomLevel) * v63)) < 1.0 && !enabled )
   {
-    vmovss  xmm2, dword ptr [r13+4A024h]
-    vmulss  xmm1, xmm14, dword ptr [r15+20h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm1, xmm0
-    vdivss  xmm8, xmm2, xmm1
+    v88 = outAngle;
+    LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)this->m_localClientNum, element, v15, (const vec4_t (*)[4])quadVerts, v25, v26, v47, v46, outAngle, &v262, v253);
+    goto LABEL_95;
   }
-  if ( v116 <= 1 )
+  if ( this->m_currentMinimapStyle == MINIMAP_STYLE_SQUARE )
   {
-    __asm
+    _XMM0 = LODWORD(element->bottom);
+    __asm { vmaxss  xmm4, xmm0, xmm10 }
+    _XMM1 = LODWORD(element->right);
+    __asm { vmaxss  xmm3, xmm1, xmm10; right }
+    _XMM0 = LODWORD(element->top);
+    __asm { vmaxss  xmm2, xmm0, xmm10; top }
+    _XMM1 = LODWORD(element->left);
+    __asm { vmaxss  xmm1, xmm1, xmm10; left }
+    LUI_Render_PushStencilRectangle((const LocalClientNum_t)this->m_localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&_XMM4);
+    LODWORD(v61) = LocalClientGlobals->compassMapTiles;
+    v62 = LocalClientGlobals->compassMapWorldSize.v[1];
+  }
+  v73 = (float)(unsigned int)v61;
+  v74 = (float)(v24 / *p_compassMapWorldSize) * v73;
+  v75 = (float)(uvAngle / v62) * v73;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm4, 1 }
+  LODWORD(v249) = (int)*(float *)&_XMM1;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, xmm3, 1 }
+  LODWORD(uvAngle) = (int)*(float *)&_XMM0;
+  v80 = v75 - (float)(int)*(float *)&_XMM0;
+  v266 = _ymm_ffffffff00000001ffffffff000000000000000000000001ffffffff00000000;
+  v267 = 1;
+  *(__m256i *)v268[0].v = _ymm;
+  v268[2].v[0] = NAN;
+  v81 = v74 - (float)(int)*(float *)&_XMM1;
+  if ( !enabled )
+  {
+    memset(&v266, 0, sizeof(v266));
+    v267 = 0;
+    memset(v268, 0, 36);
+  }
+  if ( v81 >= 0.5 )
+  {
+    v82 = 8;
+    if ( !enabled )
     {
-      vmovss  xmm14, [rbp+210h+outAngle]
-      vmovss  dword ptr [rsp+330h+h], xmm14
-      vmovss  dword ptr [rsp+330h+w], xmm6
-      vmovss  dword ptr [rsp+330h+y], xmm7
-      vmovss  dword ptr [rsp+330h+outVector], xmm13
-      vmovss  dword ptr [rsp+330h+fmt], xmm12
+      v266.m256i_i32[3] = 1;
+      v266.m256i_i32[1] = 1;
     }
-    LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)_R15->m_localClientNum, element, v28, (const vec4_t (*)[4])quadVerts, fmtc, outVectorc, yc, wb, h, &v654, v645);
-    goto LABEL_87;
   }
-  __asm { vcomiss xmm8, xmm11 }
-  if ( _R15->m_currentMinimapStyle == MINIMAP_STYLE_SQUARE )
+  else
   {
-    __asm
+    v82 = 4;
+    if ( !enabled )
     {
-      vmovss  xmm0, dword ptr [rsi+0D8h]
-      vmaxss  xmm4, xmm0, xmm10
-      vmovss  xmm1, dword ptr [rsi+0D4h]
-      vmaxss  xmm3, xmm1, xmm10; right
-      vmovss  xmm0, dword ptr [rsi+0D0h]
-      vmaxss  xmm2, xmm0, xmm10; top
-      vmovss  xmm1, dword ptr [rsi+0CCh]
-      vmaxss  xmm1, xmm1, xmm10; left
-      vmovss  dword ptr [rsp+330h+fmt], xmm4
+      v266.m256i_i32[3] = -1;
+      v266.m256i_i32[1] = -1;
     }
-    LUI_Render_PushStencilRectangle((const LocalClientNum_t)_R15->m_localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb);
-    v116 = _R13->compassMapTiles;
-    __asm { vmovss  xmm2, dword ptr [r13+4A024h] }
   }
-  __asm
+  if ( v80 >= 0.5 )
   {
-    vdivss  xmm1, xmm15, dword ptr [r12]
-    vmovss  xmm0, [rbp+210h+uvAngle]
-    vdivss  xmm2, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm4, xmm1, xmm0
-    vmulss  xmm3, xmm2, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm4, 1
-    vcvttss2si r8d, xmm1
+    v83 = v82 | 2;
+    if ( !enabled )
+      *(_QWORD *)&v268[0].xyz.z = 0x100000001i64;
   }
-  v641 = _ER8;
-  __asm
+  else
   {
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, xmm3, 1
-    vcvttss2si r9d, xmm0
+    v83 = v82 | 1;
+    if ( !enabled )
+      *(_QWORD *)&v268[0].xyz.z = -1i64;
   }
-  uvAngle = _ER9;
-  __asm
+  v248 = 0;
+  v84 = (int)*(float *)&_XMM1 + (int)*(float *)&_XMM0 * v61;
+  if ( v84 != this->m_minimapCenterTile || v83 != this->m_minimapTileFlags )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vsubss  xmm6, xmm3, xmm0
-    vmovdqu ymm0, cs:__ymm@ffffffff00000001ffffffff000000000000000000000001ffffffff00000000
-    vmovdqu [rbp+210h+var_1D0], ymm0
+    v85 = curPos;
+    *(_DWORD *)(*(_QWORD *)&curPos + 192i64) = v84;
+    *(_BYTE *)(*(_QWORD *)&v85 + 196i64) = v83;
+    v248 = 1;
   }
-  v659 = 1;
-  __asm
-  {
-    vmovdqu ymm0, cs:__ymm@0000000100000001ffffffffffffffff00000001000000000000000000000000
-    vmovdqu ymmword ptr [rbp+210h+var_1A0], ymm0
-  }
-  v660[2].v[0] = NAN;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r8d
-    vsubss  xmm7, xmm4, xmm0
-  }
-  if ( !enabled )
-  {
-    memset(v658, 0, sizeof(v658));
-    v659 = 0;
-    memset(v660, 0, 36);
-  }
-  __asm { vcomiss xmm7, xmm9 }
-  if ( !enabled )
-  {
-    v658[3] = 1;
-    v658[1] = 1;
-  }
-  __asm { vcomiss xmm6, xmm9 }
-  if ( !enabled )
-    *(_QWORD *)&v660[0].xyz.z = 0x100000001i64;
-  v640 = 0;
-  v153 = LODWORD(_ER8) + LODWORD(_ER9) * v116;
-  if ( v153 != _R15->m_minimapCenterTile || _R15->m_minimapTileFlags != 10 )
-  {
-    v154 = curPos;
-    *(_DWORD *)(*(_QWORD *)&curPos + 192i64) = v153;
-    *(_BYTE *)(*(_QWORD *)&v154 + 196i64) = 10;
-    v640 = 1;
-  }
-  __asm
-  {
-    vmulss  xmm2, xmm9, [rbp+210h+alphaOffset]
-    vaddss  xmm12, xmm2, [rbp+210h+x]
-    vmulss  xmm2, xmm9, [rbp+210h+var_284]
-    vaddss  xmm13, xmm2, [rbp+210h+vMax]
-    vmovaps xmm3, xmm13; centerY
-    vmovaps xmm2, xmm12; centerX
-    vmovaps xmm1, xmm8; scaleY
-    vmovaps xmm0, xmm8; scaleX
-  }
-  LUI_PushScaleMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v28);
-  __asm
-  {
-    vmovss  xmm14, [rbp+210h+outAngle]
-    vxorps  xmm0, xmm14, cs:__xmm@80000000800000008000000080000000; degrees
-    vmovaps xmm2, xmm13; centerY
-    vmovaps xmm1, xmm12; centerX
-  }
-  LUI_PushZRotationMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, v28);
-  __asm
-  {
-    vmulss  xmm7, xmm7, [rbp+210h+alphaOffset]
-    vmulss  xmm6, xmm6, [rbp+210h+var_284]
-  }
-  v169 = 0;
-  v170 = *(_QWORD *)&curPos + 48i64;
+  v86 = (float)(0.5 * alphaOffset) + x;
+  v87 = (float)(0.5 * h) + vMax;
+  LUI_PushScaleMatrix(v64, v64, v86, v87, v15);
+  v88 = outAngle;
+  LUI_PushZRotationMatrix(COERCE_FLOAT(LODWORD(outAngle) ^ _xmm), v86, v87, v15);
+  v89 = v81 * alphaOffset;
+  v90 = v80 * h;
+  v91 = 0;
+  v92 = *(_QWORD *)&curPos + 48i64;
   p_y = NULL;
   parentRecta = NULL;
-  v172 = v641;
-  v173 = uvAngle;
+  v94 = v249;
+  v95 = uvAngle;
   do
   {
-    outAngle = *(float *)((char *)v658 + (_QWORD)p_y);
-    v174 = LODWORD(outAngle) + LODWORD(v172);
-    IsGamepadEnabled = *(_DWORD *)((char *)v660[0].v + (_QWORD)p_y);
-    v175 = IsGamepadEnabled + LODWORD(v173);
-    if ( LODWORD(outAngle) + LODWORD(v172) < 0 || (v176 = _R13->compassMapTiles, v174 >= v176) || v175 < 0 || v175 >= v176 || !v644 && v169 >= 4 )
+    outAngle = *(float *)((char *)v266.m256i_i32 + (_QWORD)p_y);
+    v96 = LODWORD(outAngle) + LODWORD(v94);
+    IsGamepadEnabled = *(unsigned int *)((char *)v268[0].v + (_QWORD)p_y);
+    v97 = IsGamepadEnabled + LODWORD(v95);
+    if ( LODWORD(outAngle) + LODWORD(v94) < 0 || (v98 = LocalClientGlobals->compassMapTiles, v96 >= v98) || v97 < 0 || v97 >= v98 || !v252 && v91 >= 4 )
     {
-      v28 = v643;
-      goto LABEL_83;
+      v15 = v251;
+      goto LABEL_91;
     }
-    if ( v640 )
+    if ( v248 )
     {
-      v177 = j_va("%s_%02d_%02d", _R13->compassMapMaterial->name, (unsigned int)(v175 + 1), (unsigned int)(v174 + 1));
-      *(_QWORD *)v170 = Image_Register(v177, IMAGE_TRACK_HUD);
+      v99 = j_va("%s_%02d_%02d", LocalClientGlobals->compassMapMaterial->name, (unsigned int)(v97 + 1), (unsigned int)(v96 + 1));
+      *(_QWORD *)v92 = Image_Register(v99, IMAGE_TRACK_HUD);
     }
-    __asm
+    v100 = (float)((float)(_mm_cvtepi32_ps((__m128i)LODWORD(outAngle)).m128_f32[0] * alphaOffset) + v86) - v89;
+    v101 = (float)((float)(_mm_cvtepi32_ps((__m128i)IsGamepadEnabled).m128_f32[0] * h) + v87) - v90;
+    LUI_CoD_GenerateQuadVerts(v100, v101, v100 + alphaOffset, v101 + h, (vec4_t (*)[4])verts);
+    v102 = 0;
+    if ( *(_QWORD *)v92 && (v102 = Stream_TouchImageAndCheck(*(const GfxImage **)v92)) )
     {
-      vmovd   xmm0, [rbp+210h+outAngle]
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm0, xmm0, [rbp+210h+alphaOffset]
-      vaddss  xmm1, xmm0, xmm12
-      vsubss  xmm0, xmm1, xmm7; left
-      vmovd   xmm2, [rbp+210h+var_26C]
-      vcvtdq2ps xmm2, xmm2
-      vmulss  xmm1, xmm2, [rbp+210h+var_284]
-      vaddss  xmm2, xmm1, xmm13
-      vsubss  xmm1, xmm2, xmm6; top
-      vaddss  xmm3, xmm1, [rbp+210h+var_284]; bottom
-      vaddss  xmm2, xmm0, [rbp+210h+alphaOffset]; right
-    }
-    LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
-    v190 = 0;
-    if ( *(_QWORD *)v170 && (v190 = Stream_TouchImageAndCheck(*(const GfxImage **)v170)) )
-    {
-      v191 = *(_DWORD *)(v170 + 8);
-      if ( v191 >= 5 )
-        goto LABEL_78;
-      *(_DWORD *)(v170 + 8) = v191 + 1;
+      v103 = *(_DWORD *)(v92 + 8);
+      if ( v103 >= 5 )
+        goto LABEL_86;
+      *(_DWORD *)(v92 + 8) = v103 + 1;
     }
     else
     {
-      *(_DWORD *)(v170 + 8) = 0;
-      if ( v190 )
+      *(_DWORD *)(v92 + 8) = 0;
+      if ( v102 )
       {
-LABEL_78:
-        v614 = *(const GfxImage **)v170;
-        __asm
-        {
-          vmovss  dword ptr [rsp+330h+w], xmm11
-          vmovss  dword ptr [rsp+330h+y], xmm11
-          vmovss  dword ptr [rsp+330h+outVector], xmm10
-          vmovss  dword ptr [rsp+330h+fmt], xmm10
-        }
-        goto LABEL_79;
+LABEL_86:
+        v239 = *(const GfxImage **)v92;
+        w = FLOAT_1_0;
+        ya = FLOAT_1_0;
+        outVectora = 0.0;
+        fmt = 0.0;
+        goto LABEL_87;
       }
     }
-    if ( !*(_QWORD *)v170 )
+    if ( !*(_QWORD *)v92 )
     {
-      v28 = v643;
-      goto LABEL_82;
+      v15 = v251;
+      goto LABEL_90;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm3, xmm11, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r14d
-      vmulss  xmm5, xmm0, xmm3
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebx
-      vmulss  xmm4, xmm1, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm3
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm1, xmm3
-    }
-    v614 = v645;
-    __asm
-    {
-      vmovss  dword ptr [rsp+330h+w], xmm0
-      vmovss  dword ptr [rsp+330h+y], xmm2
-      vmovss  dword ptr [rsp+330h+outVector], xmm4
-      vmovss  dword ptr [rsp+330h+fmt], xmm5
-    }
-LABEL_79:
-    v28 = v643;
-    LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, element, v643, (const vec4_t (*)[4])verts, fmt, outVectora, ya, w, &v654, v614);
-LABEL_82:
-    v172 = v641;
-    v173 = uvAngle;
-LABEL_83:
-    ++v169;
+    v104 = (float)LocalClientGlobals->compassMapTiles;
+    v239 = v253;
+    w = (float)(v97 + 1) * (float)(1.0 / v104);
+    ya = (float)(v96 + 1) * (float)(1.0 / v104);
+    outVectora = (float)v97 * (float)(1.0 / v104);
+    fmt = (float)v96 * (float)(1.0 / v104);
+LABEL_87:
+    v15 = v251;
+    LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, element, v251, (const vec4_t (*)[4])verts, fmt, outVectora, ya, w, &v262, v239);
+LABEL_90:
+    v94 = v249;
+    v95 = uvAngle;
+LABEL_91:
+    ++v91;
     p_y = &parentRecta->y;
     parentRecta = (rectDef_s *)((char *)parentRecta + 4);
-    v170 += 16i64;
+    v92 += 16i64;
   }
-  while ( v169 < 9 );
+  while ( v91 < 9 );
   LUI_Matrix_Pop();
   LUI_Matrix_Pop();
-  if ( _R15->m_currentMinimapStyle == MINIMAP_STYLE_SQUARE )
-    LUI_Render_PopStencilRectangle((const LocalClientNum_t)_R15->m_localClientNum);
-LABEL_87:
-  v207 = *(const GfxImage **)v655.v;
-  if ( *(_QWORD *)v655.v )
+  if ( this->m_currentMinimapStyle == MINIMAP_STYLE_SQUARE )
+    LUI_Render_PopStencilRectangle((const LocalClientNum_t)this->m_localClientNum);
+LABEL_95:
+  v105 = *(const GfxImage **)v263.v;
+  if ( *(_QWORD *)v263.v )
   {
-    v208 = DVARBOOL_compassEnableFOVScaledCone;
+    v106 = DVARBOOL_compassEnableFOVScaledCone;
     if ( !DVARBOOL_compassEnableFOVScaledCone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassEnableFOVScaledCone") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v208);
-    if ( v208->current.enabled )
+    Dvar_CheckFrontendServerThread(v106);
+    if ( v106->current.enabled )
     {
-      if ( _R13->nextSnap )
+      if ( LocalClientGlobals->nextSnap )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r13+17FF8h]
-          vmulss  xmm1, xmm0, cs:__real@3c7c0fc1
-          vmulss  xmm4, xmm1, [rbp+210h+alphaOffset]
-          vmulss  xmm0, xmm9, [rbp+210h+alphaOffset]
-          vaddss  xmm3, xmm0, [rbp+210h+x]
-          vmulss  xmm1, xmm4, xmm9
-          vsubss  xmm5, xmm3, xmm1
-          vaddss  xmm2, xmm4, xmm5
-          vmulss  xmm1, xmm9, [rbp+210h+var_284]
-          vmovss  xmm4, [rbp+210h+vMax]
-          vaddss  xmm3, xmm1, xmm4
-        }
-        goto LABEL_95;
+        v107 = (float)(LocalClientGlobals->lastViewFov * 0.015384615) * alphaOffset;
+        v108 = (float)((float)(0.5 * alphaOffset) + x) - (float)(v107 * 0.5);
+        v109 = v107 + v108;
+        v110 = vMax;
+        v111 = (float)(0.5 * h) + vMax;
+        goto LABEL_103;
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm5, [rbp+210h+x]
-        vaddss  xmm2, xmm5, [rbp+210h+alphaOffset]; right
-        vmulss  xmm3, xmm9, [rbp+210h+var_284]
-        vmovss  xmm4, [rbp+210h+vMax]
-        vaddss  xmm3, xmm3, xmm4; bottom
-      }
-LABEL_95:
-      __asm
-      {
-        vmovaps xmm1, xmm4; top
-        vmovaps xmm0, xmm5; left
-      }
-      LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
-      _RAX = v647;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  dword ptr [rbp+210h+var_1F8], xmm0
-        vmovss  xmm1, dword ptr [rax+4]
-        vmovss  dword ptr [rbp+210h+var_1F8+4], xmm1
-        vmovss  xmm0, dword ptr [rax+8]
-        vmovss  dword ptr [rbp+210h+var_1F8+8], xmm0
-        vmovss  xmm1, dword ptr [rax+0Ch]
-        vmulss  xmm2, xmm1, cs:__real@3e4ccccd
-        vmovss  dword ptr [rbp+210h+var_1F8+0Ch], xmm2
-      }
+      v108 = x;
+      v109 = x + alphaOffset;
+      v110 = vMax;
+      v111 = (float)(0.5 * h) + vMax;
+LABEL_103:
+      LUI_CoD_GenerateQuadVerts(v108, v110, v109, v111, (vec4_t (*)[4])verts);
+      *(_QWORD *)v263.v = *(_QWORD *)v255->v;
+      v263.v[2] = v255->v[2];
+      v263.v[3] = v255->v[3] * 0.2;
       LUI_Render_PushBlendMode(LUI_BLEND_MODE_ADD);
-      if ( _R15->m_isMinimapRotationEnabled )
+      if ( this->m_isMinimapRotationEnabled )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsp+330h+w], xmm11
-          vmovss  dword ptr [rsp+330h+y], xmm11
-          vmovss  dword ptr [rsp+330h+outVector], xmm10
-          vmovss  dword ptr [rsp+330h+fmt], xmm10
-        }
-        LUI_Render_DrawImage((const LocalClientNum_t)_R15->m_localClientNum, element, v28, (const vec4_t (*)[4])verts, fmte, outVectore, ye, wd, &v655, v207);
+        LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, element, v15, (const vec4_t (*)[4])verts, 0.0, 0.0, 1.0, 1.0, &v263, v105);
       }
       else
       {
-        __asm
-        {
-          vmulss  xmm1, xmm9, [rbp+210h+alphaOffset]
-          vaddss  xmm8, xmm1, [rbp+210h+x]
-          vmovss  xmm2, [rbp+210h+var_284]
-          vmulss  xmm0, xmm9, xmm2
-          vaddss  xmm7, xmm0, [rbp+210h+vMax]
-          vmulss  xmm0, xmm2, cs:__real@3e800000
-          vaddss  xmm6, xmm0, [rbp+210h+vMax]
-        }
-        *(double *)&_XMM0 = CgCompassSystem::GetPlayerAngle(_R15, _R13, cgameGlobMP, COMPASS_TYPE_PARTIAL, cropPartialMap);
-        __asm
-        {
-          vmulss  xmm4, xmm9, [rbp+210h+var_284]
-          vmovss  xmm1, dword ptr [rbp+210h+var_1F8+0Ch]
-          vmovss  dword ptr [rsp+330h+var_2B0], xmm1
-          vmovss  xmm2, dword ptr [rbp+210h+var_1F8+8]
-          vmovss  dword ptr [rsp+330h+var_2B8], xmm2
-          vmovss  xmm1, dword ptr [rbp+210h+var_1F8+4]
-          vmovss  dword ptr [rsp+330h+image], xmm1
-          vmovss  xmm2, dword ptr [rbp+210h+var_1F8]
-          vmovss  dword ptr [rsp+330h+viewportSize], xmm2
-          vmovss  dword ptr [rsp+330h+var_2D0], xmm0
-          vmovss  [rsp+330h+var_2D8], xmm11
-          vmovss  dword ptr [rsp+330h+var_2E0], xmm11
-          vmovss  dword ptr [rsp+330h+var_2E8], xmm10
-          vmovss  dword ptr [rsp+330h+h], xmm10
-          vmovss  dword ptr [rsp+330h+w], xmm4
-          vmovss  xmm0, [rbp+210h+alphaOffset]
-          vmovss  dword ptr [rsp+330h+y], xmm0
-          vmovss  dword ptr [rsp+330h+outVector], xmm6
-          vmovss  dword ptr [rsp+330h+fmt], xmm8
-          vmovaps xmm3, xmm7; rotationCenterY
-          vmovaps xmm2, xmm8; rotationCenterX
-        }
-        LUI_Render_DrawQuadRotatedRelativeToPoint((const LocalClientNum_t)_R15->m_localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, outVectord, yd, wc, ha, v615, v618, v621, v624, viewportSize, image, v630, v631, v207, v28);
+        v112 = (float)(0.5 * alphaOffset) + x;
+        v113 = (float)(0.5 * h) + vMax;
+        v114 = (float)(h * 0.25) + vMax;
+        PlayerAngle = CgCompassSystem::GetPlayerAngle(this, LocalClientGlobals, cgameGlobMP, COMPASS_TYPE_PARTIAL, cropPartialMap);
+        LUI_Render_DrawQuadRotatedRelativeToPoint((const LocalClientNum_t)this->m_localClientNum, element, v112, v113, v112, v114, alphaOffset, 0.5 * h, 0.0, 0.0, 1.0, 1.0, *(float *)&PlayerAngle, v263.v[0], v263.v[1], v263.v[2], v263.v[3], v105, v15);
       }
       LUI_Render_PopBlendMode();
     }
   }
-  if ( v653 )
-    LUI_Render_PopMask((const LocalClientNum_t)_R15->m_localClientNum);
-  if ( *(_QWORD *)v657.v && _R15->m_isMinimapRotationEnabled )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rsp+330h+h], xmm14
-      vmovss  dword ptr [rsp+330h+w], xmm9
-      vmovss  dword ptr [rsp+330h+y], xmm9
-      vmovss  dword ptr [rsp+330h+outVector], xmm9
-      vmovss  dword ptr [rsp+330h+fmt], xmm9
-    }
-    LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)_R15->m_localClientNum, element, v28, (const vec4_t (*)[4])quadVerts, fmtf, outVectorf, yf, we, hb, &v654, *(const GfxImage **)v657.v);
-  }
-LABEL_212:
+  if ( v261 )
+    LUI_Render_PopMask((const LocalClientNum_t)this->m_localClientNum);
+  if ( *(_QWORD *)v265.v && this->m_isMinimapRotationEnabled )
+    LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)this->m_localClientNum, element, v15, (const vec4_t (*)[4])quadVerts, 0.5, 0.5, 0.5, 0.5, v88, &v262, *(const GfxImage **)v265.v);
+LABEL_220:
   memset(&out, 0, sizeof(out));
-  _R11 = &v663;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -4246,618 +2826,306 @@ CgCompassSystem::DrawPlayerMapLocationSelector
 */
 void CgCompassSystem::DrawPlayerMapLocationSelector(CgCompassSystem *this, CompassType compassType, const rectDef_s *parentRect, const rectDef_s *rect, Material *material, const vec4_t *color, LUIElement *element, lua_State *luaVM)
 {
-  bool v25; 
-  bool v27; 
-  bool v28; 
-  CgGlobalsMP *LocalClientGlobals; 
+  float v8; 
+  const vec4_t *v10; 
+  cg_t *LocalClientGlobals; 
+  bool v15; 
+  CgGlobalsMP *v16; 
   CgWeaponMap *Instance; 
-  unsigned int locationSelectionInfo; 
-  int vertAlign; 
-  unsigned int v37; 
+  unsigned int vertAlign; 
+  float v19; 
+  float v20; 
+  unsigned int v22; 
+  bool v23; 
   GfxImage *mapLocationSelectorArrow; 
-  int v39; 
-  float *v44; 
+  int v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float *v29; 
+  int *locationSelectorInputTimes; 
   LocalClientNum_t m_localClientNum; 
-  int v49; 
+  int v32; 
   const ScreenPlacement *ActivePlacement; 
-  unsigned int time; 
-  bool v71; 
-  bool v72; 
-  int v83; 
-  int v84; 
-  const ScreenPlacement *v122; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v37; 
+  float v38; 
+  int v39; 
+  int v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  const ScreenPlacement *v54; 
   CgMLGSpectator *MLGSpectator; 
-  int v133; 
-  CgMLGSpectator *v134; 
-  bool HasData; 
-  bool v141; 
-  bool CanUseKillstreakAtPosition; 
-  char v165; 
-  const GfxImage *locationSelectorCursor; 
-  LocalClientNum_t v175; 
-  int v181; 
-  int v182; 
-  const ScreenPlacement *v192; 
+  int v56; 
+  CgMLGSpectator *v57; 
+  vec2_t LocationSelectorCursor; 
+  float v59; 
+  float v60; 
+  double LocationSelectorAngle; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  char v68; 
+  const GfxImage *v69; 
+  float v73; 
+  LocalClientNum_t v74; 
+  int v79; 
+  int v80; 
+  const ScreenPlacement *v81; 
   const GfxImage *mapLocationSelectorArrowSingle; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float x; 
-  float xa; 
-  float xb; 
-  float xc; 
-  float xd; 
-  float y; 
-  float ya; 
-  float yb; 
-  float yc; 
-  float yd; 
-  float w; 
-  float wa; 
-  float wb; 
-  float wc; 
-  float wd; 
-  float h; 
-  float ha; 
-  float hb; 
-  float v243; 
-  float v244; 
-  float v245; 
-  float v246; 
-  float v247; 
-  float v248; 
-  float v249; 
-  float v250; 
-  float v251; 
-  float v252; 
-  float v253; 
-  float v254; 
-  float v255; 
-  float v256; 
-  float v257; 
-  float v258; 
   float width; 
-  float v260; 
-  float v261; 
-  float v262; 
-  float v264; 
-  float v265; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float x; 
+  float y; 
   float vMin; 
   float uMax[3]; 
-  int v268; 
-  lua_State *v269; 
-  LUIElement *v270; 
+  unsigned int v92; 
+  lua_State *v93; 
+  LUIElement *v94; 
   int horzAlign; 
-  unsigned int v273; 
-  const rectDef_s *v274; 
-  GfxImage *v275; 
+  float v96; 
+  unsigned int v97; 
+  const rectDef_s *v98; 
+  GfxImage *v99; 
   GfxImage *locationSelectorCursorMark1; 
   GfxImage *locationSelectorCursorMark2; 
-  vec4_t v278; 
+  vec4_t v102; 
   vec2_t position; 
   _QWORD clientNum[2]; 
   vec4_t quadVerts[4]; 
-  char v292; 
 
-  __asm { vmovaps [rsp+250h+var_60], xmm8 }
-  _R12 = color;
-  v270 = element;
-  v269 = luaVM;
-  v274 = rect;
+  v10 = color;
+  v94 = element;
+  v93 = luaVM;
+  v98 = rect;
   clientNum[0] = color;
   if ( !parentRect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1523, ASSERT_TYPE_ASSERT, "(parentRect)", (const char *)&queryFormat, "parentRect") )
     __debugbreak();
   if ( !rect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1524, ASSERT_TYPE_ASSERT, "(rect)", (const char *)&queryFormat, "rect") )
     __debugbreak();
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  _RSI = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  __asm { vucomiss xmm8, dword ptr [rax+4A020h] }
-  if ( v25 )
-  {
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1527, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[0])", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[0]");
-    v25 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm { vucomiss xmm8, dword ptr [rsi+4A024h] }
-  if ( v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1528, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[1])", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[1]") )
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  if ( LocalClientGlobals->compassMapWorldSize.v[0] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1527, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[0])", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[0]") )
     __debugbreak();
-  v28 = _RSI->predictedPlayerState.pm_type == 5 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u);
-  LocalClientGlobals = NULL;
+  if ( LocalClientGlobals->compassMapWorldSize.v[1] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 1528, ASSERT_TYPE_ASSERT, "(cgameGlob->compassMapWorldSize[1])", (const char *)&queryFormat, "cgameGlob->compassMapWorldSize[1]") )
+    __debugbreak();
+  v15 = LocalClientGlobals->predictedPlayerState.pm_type == 5 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u);
+  v16 = NULL;
   if ( cg_t::ms_allocatedType == GLOB_TYPE_MP )
-    LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  position = (vec2_t)LocalClientGlobals;
-  if ( !v28 || LocalClientGlobals && LocalClientGlobals->m_isMLGSpectator )
+    v16 = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  position = (vec2_t)v16;
+  if ( !v15 || v16 && v16->m_isMLGSpectator )
   {
     Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-    if ( BG_IsLocationSelectorActive(Instance, &_RSI->predictedPlayerState) && !CL_Keys_IsCatcherActive(this->m_localClientNum, 16) )
+    if ( BG_IsLocationSelectorActive(Instance, &LocalClientGlobals->predictedPlayerState) && !CL_Keys_IsCatcherActive(this->m_localClientNum, 16) )
     {
-      locationSelectionInfo = _RSI->predictedPlayerState.locationSelectionInfo;
-      __asm
-      {
-        vmovaps [rsp+250h+var_40], xmm6
-        vmovaps [rsp+250h+var_50], xmm7
-        vmovaps [rsp+250h+var_70], xmm9
-        vmovaps [rsp+250h+var_80], xmm10
-        vmovaps [rsp+250h+var_90], xmm11
-        vmovaps [rsp+250h+var_A0], xmm12
-      }
-      vertAlign = locationSelectionInfo >> 2;
-      __asm { vmovaps [rsp+250h+var_B0], xmm13 }
-      LOBYTE(vertAlign) = vertAlign & 1;
-      __asm
-      {
-        vmovaps [rsp+250h+var_C0], xmm14
-        vmovaps [rsp+250h+var_D0], xmm15
-      }
-      v268 = vertAlign;
-      CG_CompassCalcDimensions(compassType, _RSI, parentRect, rect, &_RSI->compassMapWorldSize, &v264, &v265, &vMin, uMax);
-      this->GetDrawnItemScaler(this, compassType, (LocationSelectorType)((unsigned __int8)_RSI->predictedPlayerState.locationSelectionInfo >> 5), vertAlign);
-      __asm
-      {
-        vmovss  xmm14, [rbp+140h+uMax]
-        vmovss  xmm15, [rbp+140h+vMin]
-        vmovss  xmm9, cs:__real@3f000000
-        vmovss  xmm7, cs:__real@3f800000
-      }
-      v37 = (unsigned int)_RSI->predictedPlayerState.locationSelectionInfo >> 4;
-      LOBYTE(v37) = (_RSI->predictedPlayerState.locationSelectionInfo & 0x10) != 0;
-      v25 = (_RSI->predictedPlayerState.locationSelectionInfo & 0x10) == 0;
-      v273 = v37;
+      vertAlign = (unsigned int)LocalClientGlobals->predictedPlayerState.locationSelectionInfo >> 2;
+      LOBYTE(vertAlign) = (LocalClientGlobals->predictedPlayerState.locationSelectionInfo & 4) != 0;
+      v92 = vertAlign;
+      CG_CompassCalcDimensions(compassType, LocalClientGlobals, parentRect, rect, &LocalClientGlobals->compassMapWorldSize, &x, &y, &vMin, uMax);
+      this->GetDrawnItemScaler(this, compassType, (LocationSelectorType)((unsigned __int8)LocalClientGlobals->predictedPlayerState.locationSelectionInfo >> 5), vertAlign);
+      v19 = uMax[0];
+      v20 = vMin;
+      _XMM9 = LODWORD(FLOAT_0_5);
+      v22 = (unsigned int)LocalClientGlobals->predictedPlayerState.locationSelectionInfo >> 4;
+      LOBYTE(v22) = (LocalClientGlobals->predictedPlayerState.locationSelectionInfo & 0x10) != 0;
+      v23 = (LocalClientGlobals->predictedPlayerState.locationSelectionInfo & 0x10) == 0;
+      v97 = v22;
       locationSelectorCursorMark1 = (GfxImage *)cgMedia.compass.locationSelectorCursorMark1;
       locationSelectorCursorMark2 = (GfxImage *)cgMedia.compass.locationSelectorCursorMark2;
       mapLocationSelectorArrow = (GfxImage *)cgMedia.mapLocationSelectorArrow;
-      if ( !v25 )
+      if ( !v23 )
         mapLocationSelectorArrow = (GfxImage *)cgMedia.mapLocationSelectorArrowSingle;
-      v39 = 0;
-      __asm
+      v25 = 0;
+      v26 = v8 * uMax[0];
+      v96 = v8 * uMax[0];
+      v87 = v8 * uMax[0];
+      v99 = mapLocationSelectorArrow;
+      if ( LocalClientGlobals->locationSelectorNumInputs > 0 )
       {
-        vmulss  xmm13, xmm0, xmm14
-        vmovaps xmm6, xmm13
-        vmovss  [rbp+140h+var_174], xmm13
-        vmovss  [rbp+140h+var_1B0], xmm6
-      }
-      v275 = mapLocationSelectorArrow;
-      if ( _RSI->locationSelectorNumInputs > 0 )
-      {
-        __asm
-        {
-          vmovss  xmm10, [rbp+140h+var_1A4]
-          vmovss  xmm11, [rbp+140h+var_1A8]
-        }
-        v44 = (float *)_RSI->locationSelectorInputs + 1;
-        _R15 = _RSI->locationSelectorInputTimes;
+        v27 = y;
+        v28 = x;
+        v29 = (float *)LocalClientGlobals->locationSelectorInputs + 1;
+        locationSelectorInputTimes = LocalClientGlobals->locationSelectorInputTimes;
         do
         {
           if ( (_BYTE)vertAlign )
           {
-            __asm { vmulss  xmm4, xmm13, cs:__real@40600000 }
             m_localClientNum = this->m_localClientNum;
-            __asm
-            {
-              vmulss  xmm1, xmm13, xmm9
-              vmovss  [rbp+140h+var_1BC], xmm1
-            }
-            vertAlign = v274->vertAlign;
-            v49 = v274->horzAlign;
-            __asm
-            {
-              vmovss  [rbp+140h+width], xmm4
-              vmulss  xmm0, xmm15, dword ptr [r12-4]
-              vaddss  xmm2, xmm0, xmm11
-              vmulss  xmm1, xmm1, xmm9
-              vsubss  xmm2, xmm2, xmm1
-              vmovss  [rbp+140h+var_1B4], xmm2
-              vmulss  xmm0, xmm14, dword ptr [r12]
-              vaddss  xmm3, xmm0, xmm10
-              vmulss  xmm1, xmm4, xmm9
-              vsubss  xmm2, xmm3, xmm1
-              vmovss  [rbp+140h+var_1B8], xmm2
-            }
+            v84 = v26 * 0.5;
+            vertAlign = v98->vertAlign;
+            v32 = v98->horzAlign;
+            width = v26 * 3.5;
+            v86 = (float)((float)(v20 * *(v29 - 1)) + v28) - (float)((float)(v26 * 0.5) * 0.5);
+            v85 = (float)((float)(v19 * *v29) + v27) - (float)((float)(v26 * 3.5) * 0.5);
             ActivePlacement = ScrPlace_GetActivePlacement(m_localClientNum);
-            ScrPlace_ApplyRect(ActivePlacement, &v262, &v261, &v260, &width, v49, vertAlign);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r15-10h]
-              vxorps  xmm4, xmm0, cs:__xmm@80000000800000008000000080000000
-              vmovss  xmm5, [rbp+140h+var_1BC]
-              vmovss  xmm6, [rbp+140h+width]
-              vmulss  xmm0, xmm9, xmm5
-              vaddss  xmm2, xmm0, [rbp+140h+var_1B4]; centerX
-              vmovss  xmm0, dword ptr cs:markerColor+0Ch
-              vmovss  dword ptr [rsp+250h+var_1E0], xmm0
-              vmovss  xmm0, dword ptr cs:markerColor+4
-              vmulss  xmm1, xmm9, xmm6
-              vaddss  xmm3, xmm1, [rbp+140h+var_1B8]; centerY
-              vmovss  xmm1, dword ptr cs:markerColor+8
-              vmovss  dword ptr [rsp+250h+var_1E8], xmm1
-              vmovss  xmm1, dword ptr cs:markerColor
-              vmovss  [rsp+250h+var_1F0], xmm0
-              vmovss  [rsp+250h+var_1F8], xmm1
-              vmovss  [rsp+250h+var_200], xmm4
-              vmovss  dword ptr [rsp+250h+var_208], xmm7
-              vmovss  dword ptr [rsp+250h+h], xmm7
-              vmovss  dword ptr [rsp+250h+w], xmm8
-              vmovss  dword ptr [rsp+250h+y], xmm8
-              vmovss  dword ptr [rsp+250h+x], xmm6
-              vmovss  dword ptr [rsp+250h+fmt], xmm5
-            }
-            LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, v270, *(float *)&_XMM2, *(float *)&_XMM3, fmt, x, y, w, h, v243, v246, v249, v252, v255, v257, v275, v269);
-            LOBYTE(vertAlign) = v268;
+            ScrPlace_ApplyRect(ActivePlacement, &v86, &v85, &v84, &width, v32, vertAlign);
+            LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, v94, (float)(0.5 * v84) + v86, (float)(0.5 * width) + v85, v84, width, 0.0, 0.0, 1.0, 1.0, COERCE_FLOAT(*(locationSelectorInputTimes - 4) ^ _xmm), markerColor.v[0], markerColor.v[1], markerColor.v[2], markerColor.v[3], v99, v93);
+            LOBYTE(vertAlign) = v92;
           }
           else
           {
-            time = _RSI->time;
-            v71 = time < *_R15;
-            v72 = time == *_R15;
-            __asm
+            v34 = 0i64;
+            *(float *)&v34 = (float)(LocalClientGlobals->time - *locationSelectorInputTimes);
+            v35 = LODWORD(FLOAT_1_0);
+            if ( *(float *)&v34 < 200.0 )
             {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vcomiss xmm0, cs:__real@43480000
-              vmovaps xmm1, xmm7
+              *(float *)&v34 = (float)(cosf_0(*(float *)&v34 * 0.031415928) * 0.074999988) + 0.92500001;
+              v35 = v34;
             }
-            if ( time < *_R15 )
+            v37 = v35;
+            *(float *)&v37 = *(float *)&v35 * v26;
+            _XMM2 = v37;
+            v38 = (float)(v20 * *(v29 - 1)) + x;
+            v39 = v98->vertAlign;
+            v40 = v98->horzAlign;
+            v41 = (float)(v19 * *v29) + v27;
+            v42 = 1.0 / (float)(*(float *)&v35 * v26);
+            v43 = (float)((float)(x - v38) * v42) + 0.5;
+            __asm { vminss  xmm6, xmm2, xmm6 }
+            v87 = *(float *)&_XMM6;
+            v45 = (float)((float)(y - v41) * v42) + 0.5;
+            v46 = (float)((float)(v20 + x) - v38) * v42;
+            v47 = (float)((float)(y + v19) - v41) * v42;
+            v48 = v20;
+            v49 = v19;
+            v84 = v20;
+            v86 = x;
+            v85 = y;
+            width = v19;
+            horzAlign = v40;
+            v50 = v46 + 0.5;
+            v51 = v47 + 0.5;
+            if ( v43 < 0.0 )
             {
-              __asm { vmulss  xmm0, xmm0, cs:__real@3d00adfd; X }
-              *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-              __asm
-              {
-                vmulss  xmm1, xmm0, cs:__real@3d999998
-                vaddss  xmm1, xmm1, cs:__real@3f6ccccd
-              }
+              v52 = (float)(v20 * v43) / (float)(v43 - v50);
+              v48 = v20 - v52;
+              v86 = v52 + x;
+              v84 = v20 - v52;
+              v43 = 0.0;
             }
-            __asm
+            if ( v45 < 0.0 )
             {
-              vmulss  xmm0, xmm15, dword ptr [r12-4]
-              vmovss  xmm11, [rbp+140h+var_1A8]
-              vmulss  xmm2, xmm1, xmm13
-              vmulss  xmm1, xmm14, dword ptr [r12]
-              vaddss  xmm4, xmm0, xmm11
+              v53 = (float)(v45 * v19) / (float)(v45 - v51);
+              v49 = v19 - v53;
+              v85 = v53 + y;
+              width = v19 - v53;
+              v45 = 0.0;
             }
-            v83 = v274->vertAlign;
-            v84 = v274->horzAlign;
-            __asm
+            if ( v46 > 0.5 )
             {
-              vaddss  xmm5, xmm1, xmm10
-              vdivss  xmm3, xmm7, xmm2
-              vsubss  xmm0, xmm11, xmm4
-              vmulss  xmm1, xmm0, xmm3
-              vaddss  xmm10, xmm1, xmm9
-              vcomiss xmm10, xmm8
-              vminss  xmm6, xmm2, xmm6
-              vmovss  xmm2, [rbp+140h+var_1A4]
-              vsubss  xmm0, xmm2, xmm5
-              vmulss  xmm1, xmm0, xmm3
-              vaddss  xmm0, xmm15, xmm11
-              vmovss  [rbp+140h+var_1B0], xmm6
-              vaddss  xmm6, xmm1, xmm9
-              vsubss  xmm1, xmm0, xmm4
-              vmulss  xmm13, xmm1, xmm3
-              vaddss  xmm0, xmm2, xmm14
-              vsubss  xmm1, xmm0, xmm5
-              vmovss  xmm0, [rbp+140h+var_1A8]
-              vmulss  xmm5, xmm1, xmm3
-              vmovaps xmm3, xmm15
-              vmovaps xmm4, xmm14
-              vmovss  [rbp+140h+var_1BC], xmm3
-              vmovss  [rbp+140h+var_1B4], xmm0
-              vmovss  [rbp+140h+var_1B8], xmm2
-              vmovss  [rbp+140h+width], xmm4
+              v84 = v48 * (float)((float)(1.0 - v43) / (float)(v50 - v43));
+              v50 = FLOAT_1_0;
             }
-            horzAlign = v84;
-            __asm
+            if ( v47 > 0.5 )
             {
-              vaddss  xmm12, xmm13, xmm9
-              vaddss  xmm11, xmm5, xmm9
+              width = v49 * (float)((float)(1.0 - v45) / (float)(v51 - v45));
+              v51 = FLOAT_1_0;
             }
-            if ( v71 )
-            {
-              __asm
-              {
-                vmulss  xmm1, xmm15, xmm10
-                vsubss  xmm0, xmm10, xmm12
-                vdivss  xmm2, xmm1, xmm0
-                vaddss  xmm1, xmm2, [rbp+140h+var_1A8]
-                vsubss  xmm3, xmm15, xmm2
-                vmovss  [rbp+140h+var_1B4], xmm1
-                vmovss  [rbp+140h+var_1BC], xmm3
-                vmovaps xmm10, xmm8
-              }
-            }
-            __asm { vcomiss xmm6, xmm8 }
-            if ( v71 )
-            {
-              __asm
-              {
-                vmulss  xmm1, xmm6, xmm14
-                vsubss  xmm0, xmm6, xmm11
-                vdivss  xmm2, xmm1, xmm0
-                vaddss  xmm1, xmm2, [rbp+140h+var_1A4]
-                vsubss  xmm4, xmm14, xmm2
-                vmovss  [rbp+140h+var_1B8], xmm1
-                vmovss  [rbp+140h+width], xmm4
-                vmovaps xmm6, xmm8
-              }
-            }
-            __asm { vcomiss xmm13, xmm9 }
-            if ( !v71 && !v72 )
-            {
-              __asm
-              {
-                vsubss  xmm0, xmm12, xmm10
-                vsubss  xmm1, xmm7, xmm10
-                vdivss  xmm1, xmm1, xmm0
-                vmulss  xmm2, xmm3, xmm1
-                vmovss  [rbp+140h+var_1BC], xmm2
-                vmovaps xmm12, xmm7
-              }
-            }
-            __asm { vcomiss xmm5, xmm9 }
-            if ( !v71 && !v72 )
-            {
-              __asm
-              {
-                vsubss  xmm0, xmm11, xmm6
-                vsubss  xmm1, xmm7, xmm6
-                vdivss  xmm1, xmm1, xmm0
-                vmulss  xmm2, xmm4, xmm1
-                vmovss  [rbp+140h+width], xmm2
-                vmovaps xmm11, xmm7
-              }
-            }
-            v122 = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
-            ScrPlace_ApplyRect(v122, &v262, &v261, &v260, &width, horzAlign, v83);
-            __asm
-            {
-              vmovss  xmm1, [rbp+140h+var_1B8]; top
-              vmovss  xmm0, [rbp+140h+var_1B4]; left
-              vaddss  xmm3, xmm1, [rbp+140h+width]; bottom
-              vaddss  xmm2, xmm0, [rbp+140h+var_1BC]; right
-            }
-            LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-            __asm
-            {
-              vmovss  dword ptr [rsp+250h+w], xmm11
-              vmovss  dword ptr [rsp+250h+y], xmm12
-              vmovss  dword ptr [rsp+250h+x], xmm6
-              vmovss  dword ptr [rsp+250h+fmt], xmm10
-            }
-            LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, v270, v269, (const vec4_t (*)[4])quadVerts, fmta, xa, ya, wa, &markerColor, locationSelectorCursorMark1);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rsi+65ECh]
-              vmulss  xmm1, xmm0, cs:__real@3c75c28f
-              vmovss  [rsp+250h+var_1F0], xmm1
-              vmovss  [rsp+250h+var_1F8], xmm11
-              vmovss  [rsp+250h+var_200], xmm12
-              vmovss  dword ptr [rsp+250h+var_208], xmm6
-              vmovss  dword ptr [rsp+250h+h], xmm10
-              vmovss  dword ptr [rsp+250h+w], xmm9
-              vmovss  dword ptr [rsp+250h+y], xmm9
-              vmovss  dword ptr [rsp+250h+x], xmm9
-              vmovss  dword ptr [rsp+250h+fmt], xmm9
-            }
-            LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)this->m_localClientNum, v270, v269, (const vec4_t (*)[4])quadVerts, fmtb, xb, yb, wb, ha, v244, v247, v250, v253, &markerColor, locationSelectorCursorMark2);
-            __asm
-            {
-              vmovss  xmm10, [rbp+140h+var_1A4]
-              vmovss  xmm11, [rbp+140h+var_1A8]
-              vmovss  xmm13, [rbp+140h+var_174]
-            }
+            v54 = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
+            ScrPlace_ApplyRect(v54, &v86, &v85, &v84, &width, horzAlign, v39);
+            LUI_CoD_GenerateQuadVerts(v86, v85, v86 + v84, v85 + width, (vec4_t (*)[4])quadVerts);
+            LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, v94, v93, (const vec4_t (*)[4])quadVerts, v43, v45, v50, v51, &markerColor, locationSelectorCursorMark1);
+            LUI_Render_DrawImageRotatedUV((const LocalClientNum_t)this->m_localClientNum, v94, v93, (const vec4_t (*)[4])quadVerts, 0.5, 0.5, 0.5, 0.5, v43, v45, v50, v51, (float)LocalClientGlobals->time * 0.015, &markerColor, locationSelectorCursorMark2);
+            v27 = y;
+            v28 = x;
+            v26 = v96;
           }
-          __asm { vmovss  xmm6, [rbp+140h+var_1B0] }
-          ++v39;
-          ++_R15;
-          v44 += 2;
+          ++v25;
+          ++locationSelectorInputTimes;
+          v29 += 2;
         }
-        while ( v39 < _RSI->locationSelectorNumInputs );
-        _R12 = (const vec4_t *)clientNum[0];
+        while ( v25 < LocalClientGlobals->locationSelectorNumInputs );
+        v10 = (const vec4_t *)clientNum[0];
       }
       if ( *(_QWORD *)&position && *(_BYTE *)(*(_QWORD *)&position + 742183i64) )
       {
         MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)this->m_localClientNum);
-        v133 = _RSI->predictedPlayerState.clientNum;
-        v134 = MLGSpectator;
-        _RAX = CgMLGSpectator::GetLocationSelectorCursor(MLGSpectator, (int)clientNum);
-        __asm
-        {
-          vmovss  xmm10, dword ptr [rax]
-          vmovss  xmm11, dword ptr [rax+4]
-        }
-        *(double *)&_XMM0 = CgMLGSpectator::GetLocationSelectorAngle(v134, v133);
-        __asm { vmovaps xmm12, xmm0 }
+        v56 = LocalClientGlobals->predictedPlayerState.clientNum;
+        v57 = MLGSpectator;
+        LocationSelectorCursor = CgMLGSpectator::GetLocationSelectorCursor(MLGSpectator, (int)clientNum);
+        v59 = **(float **)LocationSelectorCursor.v;
+        v60 = *(float *)(*(_QWORD *)&LocationSelectorCursor + 4i64);
+        LocationSelectorAngle = CgMLGSpectator::GetLocationSelectorAngle(v57, v56);
+        v62 = *(float *)&LocationSelectorAngle;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm10, dword ptr [rsi+4A084h]
-          vmovss  xmm11, dword ptr [rsi+4A088h]
-          vmovss  xmm12, dword ptr [rsi+4A08Ch]
-        }
+        v59 = LocalClientGlobals->locationSelectorCursor.v[0];
+        v60 = LocalClientGlobals->locationSelectorCursor.v[1];
+        v62 = LocalClientGlobals->locationSelectorAngle;
       }
+      v102 = *v10;
+      if ( TopDownMapData_HasData() && (LocalClientGlobals->predictedPlayerState.locationSelectionInfo & 2) != 0 )
+      {
+        v63 = v59 * LocalClientGlobals->compassMapWorldSize.v[0];
+        v64 = LocalClientGlobals->compassNorth.v[1];
+        v65 = v60 * LocalClientGlobals->compassMapWorldSize.v[1];
+        v66 = LocalClientGlobals->compassNorth.v[0];
+        v67 = LocalClientGlobals->compassMapUpperLeft.v[1];
+        position.v[0] = (float)((float)(v64 * v63) + LocalClientGlobals->compassMapUpperLeft.v[0]) - (float)(v66 * v65);
+        position.v[1] = (float)(v67 - (float)(v66 * v63)) - (float)(v64 * v65);
+        if ( !TopDownMapData_CanUseKillstreakAtPosition(&position) )
+          v102.v[3] = v102.v[3] * 0.40000001;
+      }
+      if ( v87 != v26 )
+      {
+        v102.v[0] = v102.v[0] * markerColor.v[0];
+        v102.v[2] = v102.v[2] * markerColor.v[2];
+        v102.v[1] = v102.v[1] * markerColor.v[1];
+      }
+      v68 = v92;
+      v69 = cgMedia.compass.locationSelectorCursor;
+      _XMM0 = (unsigned __int8)v92;
       __asm
       {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovups xmmword ptr [rbp+140h+var_148], xmm0
-      }
-      HasData = TopDownMapData_HasData();
-      v141 = !HasData;
-      if ( HasData )
-      {
-        v141 = (_RSI->predictedPlayerState.locationSelectionInfo & 2) == 0;
-        if ( (_RSI->predictedPlayerState.locationSelectionInfo & 2) != 0 )
-        {
-          __asm
-          {
-            vmulss  xmm4, xmm10, dword ptr [rsi+4A020h]
-            vmovss  xmm5, dword ptr [rsi+4A004h]
-            vmulss  xmm6, xmm11, dword ptr [rsi+4A024h]
-            vmovss  xmm3, dword ptr [rsi+4A000h]
-            vmulss  xmm1, xmm3, xmm6
-            vmulss  xmm0, xmm5, xmm4
-            vaddss  xmm2, xmm0, dword ptr [rsi+4A018h]
-            vmovss  xmm0, dword ptr [rsi+4A01Ch]
-            vsubss  xmm2, xmm2, xmm1
-            vmovss  dword ptr [rbp+140h+position], xmm2
-            vmulss  xmm3, xmm3, xmm4
-            vsubss  xmm2, xmm0, xmm3
-            vmulss  xmm1, xmm5, xmm6
-            vsubss  xmm2, xmm2, xmm1
-            vmovss  dword ptr [rbp+140h+position+4], xmm2
-          }
-          CanUseKillstreakAtPosition = TopDownMapData_CanUseKillstreakAtPosition(&position);
-          v141 = !CanUseKillstreakAtPosition;
-          if ( !CanUseKillstreakAtPosition )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+140h+var_148+0Ch]
-              vmulss  xmm1, xmm0, cs:__real@3ecccccd
-              vmovss  dword ptr [rbp+140h+var_148+0Ch], xmm1
-            }
-          }
-        }
-      }
-      __asm
-      {
-        vmovss  xmm0, [rbp+140h+var_1B0]
-        vucomiss xmm0, xmm13
-      }
-      if ( !v141 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+140h+var_148]
-          vmulss  xmm1, xmm0, dword ptr cs:markerColor
-          vmovss  xmm2, dword ptr [rbp+140h+var_148+4]
-          vmulss  xmm0, xmm2, dword ptr cs:markerColor+4
-          vmovss  dword ptr [rbp+140h+var_148], xmm1
-          vmovss  xmm1, dword ptr [rbp+140h+var_148+8]
-          vmulss  xmm2, xmm1, dword ptr cs:markerColor+8
-          vmovss  dword ptr [rbp+140h+var_148+8], xmm2
-          vmovss  dword ptr [rbp+140h+var_148+4], xmm0
-        }
-      }
-      v165 = v268;
-      _ECX = 0;
-      locationSelectorCursor = cgMedia.compass.locationSelectorCursor;
-      __asm { vmovd   xmm1, ecx }
-      _EAX = (unsigned __int8)v268;
-      __asm
-      {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm9, xmm7, xmm2
-        vmulss  xmm3, xmm0, xmm13
-        vmovd   xmm1, ecx
       }
-      v175 = this->m_localClientNum;
-      _EAX = (unsigned __int8)v268;
-      __asm
+      v73 = *(float *)&_XMM0 * v26;
+      v74 = this->m_localClientNum;
+      _XMM0 = (unsigned __int8)v92;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM0 = LODWORD(FLOAT_3_5);
+      __asm { vblendvps xmm0, xmm0, xmm7, xmm2 }
+      v79 = v98->vertAlign;
+      v80 = v98->horzAlign;
+      v84 = v73;
+      v86 = (float)((float)(v20 * v59) + x) - (float)(v73 * 0.5);
+      v85 = (float)((float)(v60 * v19) + y) - (float)((float)(*(float *)&_XMM0 * v26) * 0.5);
+      width = *(float *)&_XMM0 * v26;
+      v81 = ScrPlace_GetActivePlacement(v74);
+      ScrPlace_ApplyRect(v81, &v86, &v85, &v84, &width, v80, v79);
+      if ( v68 )
       {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm0, cs:__real@40600000
-        vblendvps xmm0, xmm0, xmm7, xmm2
-      }
-      v181 = v274->vertAlign;
-      v182 = v274->horzAlign;
-      __asm
-      {
-        vmulss  xmm4, xmm0, xmm13
-        vmulss  xmm0, xmm3, xmm9
-        vmulss  xmm1, xmm15, xmm10
-        vaddss  xmm2, xmm1, [rbp+140h+var_1A8]
-        vsubss  xmm2, xmm2, xmm0
-        vmulss  xmm1, xmm11, xmm14
-        vmovss  [rbp+140h+var_1BC], xmm3
-        vaddss  xmm3, xmm1, [rbp+140h+var_1A4]
-        vmulss  xmm0, xmm4, xmm9
-        vmovss  [rbp+140h+var_1B4], xmm2
-        vsubss  xmm2, xmm3, xmm0
-        vmovss  [rbp+140h+var_1B8], xmm2
-        vmovss  [rbp+140h+width], xmm4
-      }
-      v192 = ScrPlace_GetActivePlacement(v175);
-      ScrPlace_ApplyRect(v192, &v262, &v261, &v260, &width, v182, v181);
-      __asm
-      {
-        vmovaps xmm15, [rsp+250h+var_D0]
-        vmovaps xmm14, [rsp+250h+var_C0]
-        vmovaps xmm13, [rsp+250h+var_B0]
-        vmovaps xmm11, [rsp+250h+var_90]
-        vmovaps xmm10, [rsp+250h+var_80]
-      }
-      if ( v165 )
-      {
-        __asm
-        {
-          vmovss  xmm6, [rbp+140h+width]
-          vmovss  xmm5, [rbp+140h+var_1BC]
-        }
         mapLocationSelectorArrowSingle = cgMedia.mapLocationSelectorArrow;
-        if ( (_BYTE)v273 )
+        if ( (_BYTE)v97 )
           mapLocationSelectorArrowSingle = cgMedia.mapLocationSelectorArrowSingle;
-        __asm
-        {
-          vxorps  xmm4, xmm12, cs:__xmm@80000000800000008000000080000000
-          vmulss  xmm0, xmm9, xmm6
-          vaddss  xmm3, xmm0, [rbp+140h+var_1B8]; centerY
-          vmovss  xmm0, dword ptr [r12+0Ch]
-          vmovss  dword ptr [rsp+250h+var_1E0], xmm0
-          vmovss  xmm0, dword ptr [r12+4]
-          vmulss  xmm1, xmm9, xmm5
-          vaddss  xmm2, xmm1, [rbp+140h+var_1B4]; centerX
-          vmovss  xmm1, dword ptr [r12+8]
-          vmovss  dword ptr [rsp+250h+var_1E8], xmm1
-          vmovss  xmm1, dword ptr [r12]
-          vmovss  [rsp+250h+var_1F0], xmm0
-          vmovss  [rsp+250h+var_1F8], xmm1
-          vmovss  [rsp+250h+var_200], xmm4
-          vmovss  dword ptr [rsp+250h+var_208], xmm7
-          vmovss  dword ptr [rsp+250h+h], xmm7
-          vmovss  dword ptr [rsp+250h+w], xmm8
-          vmovss  dword ptr [rsp+250h+y], xmm8
-          vmovss  dword ptr [rsp+250h+x], xmm6
-          vmovss  dword ptr [rsp+250h+fmt], xmm5
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, v270, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, xc, yc, wc, hb, v245, v248, v251, v254, v256, v258, mapLocationSelectorArrowSingle, v269);
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)this->m_localClientNum, v94, (float)(0.5 * v84) + v86, (float)(0.5 * width) + v85, v84, width, 0.0, 0.0, 1.0, 1.0, COERCE_FLOAT(LODWORD(v62) ^ _xmm), v10->v[0], v10->v[1], v10->v[2], v10->v[3], mapLocationSelectorArrowSingle, v93);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm1, [rbp+140h+var_1B8]; top
-          vmovss  xmm0, [rbp+140h+var_1B4]; left
-          vaddss  xmm3, xmm1, [rbp+140h+width]; bottom
-          vaddss  xmm2, xmm0, [rbp+140h+var_1BC]; right
-        }
-        LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-        __asm
-        {
-          vmovss  dword ptr [rsp+250h+w], xmm7
-          vmovss  dword ptr [rsp+250h+y], xmm7
-          vmovss  dword ptr [rsp+250h+x], xmm8
-          vmovss  dword ptr [rsp+250h+fmt], xmm8
-        }
-        LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, v270, v269, (const vec4_t (*)[4])quadVerts, fmtd, xd, yd, wd, &v278, locationSelectorCursor);
-      }
-      __asm
-      {
-        vmovaps xmm9, [rsp+250h+var_70]
-        vmovaps xmm7, [rsp+250h+var_50]
-        vmovaps xmm6, [rsp+250h+var_40]
-        vmovaps xmm12, [rsp+250h+var_A0]
+        LUI_CoD_GenerateQuadVerts(v86, v85, v86 + v84, v85 + width, (vec4_t (*)[4])quadVerts);
+        LUI_Render_DrawImage((const LocalClientNum_t)this->m_localClientNum, v94, v93, (const vec4_t (*)[4])quadVerts, 0.0, 0.0, 1.0, 1.0, &v102, v69);
       }
     }
   }
-  _R11 = &v292;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
 }
 
 /*
@@ -4865,167 +3133,94 @@ void CgCompassSystem::DrawPlayerMapLocationSelector(CgCompassSystem *this, Compa
 CgCompassSystem::DrawPlayerName
 ==============
 */
-
-void __fastcall CgCompassSystem::DrawPlayerName(CgCompassSystem *this, int clientNum, double centerX, double centerY, int team, LUIElement *element, lua_State *luaVM)
+void CgCompassSystem::DrawPlayerName(CgCompassSystem *this, int clientNum, float centerX, float centerY, int team, LUIElement *element, lua_State *luaVM)
 {
   CgGlobalsMP *LocalClientGlobals; 
+  CgGlobalsMP *v10; 
   __int64 numScores; 
-  __int64 v20; 
-  int *p_client; 
-  int v22; 
-  LocalClientNum_t m_localClientNum; 
-  __int64 v24; 
+  __int64 v12; 
+  const int *i; 
+  __int64 v14; 
+  float displayWidth; 
+  float v16; 
+  float displayHeight; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
   CgMLGSpectator *MLGSpectator; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *font; 
-  float v59; 
   vec4_t color; 
   vec4_t verts[4]; 
   char out_playerName[48]; 
-  char v69; 
 
-  __asm
-  {
-    vmovaps [rsp+198h+var_68], xmm8
-    vmovaps [rsp+198h+var_88], xmm10
-  }
-  _EBX = clientNum;
-  __asm
-  {
-    vmovaps xmm10, xmm3
-    vmovaps xmm8, xmm2
-  }
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  _RDI = LocalClientGlobals;
+  v10 = LocalClientGlobals;
   numScores = LocalClientGlobals->numScores;
   if ( numScores > 0 )
   {
-    v20 = 0i64;
-    p_client = &LocalClientGlobals->scores[0].client;
-    while ( 1 )
+    v12 = 0i64;
+    for ( i = &LocalClientGlobals->scores[0].client; *i != clientNum; i += 28 )
     {
-      v22 = *p_client;
-      if ( *p_client == _EBX )
-        break;
-      ++v20;
-      p_client += 28;
-      if ( v20 >= numScores )
-        goto LABEL_20;
+      if ( ++v12 >= numScores )
+        return;
     }
-    m_localClientNum = this->m_localClientNum;
-    __asm
-    {
-      vmovaps [rsp+198h+var_48], xmm6
-      vmovaps [rsp+198h+var_58], xmm7
-      vmovaps [rsp+198h+var_78], xmm9
-      vmovaps [rsp+198h+var_98], xmm11
-    }
-    Game_GetPlayerName(m_localClientNum, v22, 0x30ui64, out_playerName);
-    v24 = tls_index;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, rax
-      vmulss  xmm9, xmm6, cs:__real@3bd55555
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, rax
-      vmulss  xmm11, xmm7, cs:__real@3c00f2ba
-    }
+    Game_GetPlayerName((const LocalClientNum_t)this->m_localClientNum, *i, 0x30ui64, out_playerName);
+    v14 = tls_index;
+    displayWidth = (float)vidConfig.displayWidth;
+    v16 = displayWidth * 0.0065104165;
+    displayHeight = (float)vidConfig.displayHeight;
+    v18 = displayHeight * 0.0078703705;
     if ( dword_150ECED00 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
     {
       j__Init_thread_header(&dword_150ECED00);
       if ( dword_150ECED00 == -1 )
       {
-        __asm
-        {
-          vmulss  xmm0, xmm6, cs:__real@3c555555
-          vmovss  cs:COMPASS_PLAYER_NAME_TEXT_X_OFFSET, xmm0
-        }
+        COMPASS_PLAYER_NAME_TEXT_X_OFFSET = displayWidth * 0.013020833;
         j__Init_thread_footer(&dword_150ECED00);
       }
     }
-    if ( dword_150ECED08 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v24) + 1772i64) )
+    if ( dword_150ECED08 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v14) + 1772i64) )
     {
       j__Init_thread_header(&dword_150ECED08);
       if ( dword_150ECED08 == -1 )
       {
-        __asm
-        {
-          vmulss  xmm0, xmm7, cs:__real@3c6b2408
-          vmovss  cs:COMPASS_PLAYER_NAME_TEXT_Y_OFFSET, xmm0
-        }
+        COMPASS_PLAYER_NAME_TEXT_Y_OFFSET = displayHeight * 0.014351852;
         j__Init_thread_footer(&dword_150ECED08);
       }
     }
-    if ( dword_150ECED10 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v24) + 1772i64) )
+    if ( dword_150ECED10 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v14) + 1772i64) )
     {
       j__Init_thread_header(&dword_150ECED10);
       if ( dword_150ECED10 == -1 )
       {
-        __asm
-        {
-          vmulss  xmm0, xmm6, cs:__real@3aaaaaab
-          vmovss  cs:COMPASS_PLAYER_NAME_TEXT_WITH_PLAYER_NUMBER_OFFSET, xmm0
-        }
+        COMPASS_PLAYER_NAME_TEXT_WITH_PLAYER_NUMBER_OFFSET = displayWidth * 0.0013020834;
         j__Init_thread_footer(&dword_150ECED10);
       }
     }
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-      vaddss  xmm6, xmm8, cs:COMPASS_PLAYER_NAME_TEXT_X_OFFSET
-      vaddss  xmm8, xmm10, cs:COMPASS_PLAYER_NAME_TEXT_Y_OFFSET
-      vmovups xmmword ptr [rsp+198h+color], xmm0
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( _RDI->m_isMLGSpectator )
+    v20 = centerX + COMPASS_PLAYER_NAME_TEXT_X_OFFSET;
+    v19 = centerX + COMPASS_PLAYER_NAME_TEXT_X_OFFSET;
+    v21 = centerY + COMPASS_PLAYER_NAME_TEXT_Y_OFFSET;
+    color = (vec4_t)_xmm;
+    _XMM7 = 0i64;
+    if ( v10->m_isMLGSpectator )
     {
       MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)this->m_localClientNum);
       if ( CgMLGSpectator::GetPlayerNumbersEnabled(MLGSpectator) )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm9, cs:COMPASS_PLAYER_NAME_TEXT_WITH_PLAYER_NUMBER_OFFSET
-          vaddss  xmm6, xmm6, xmm0
-        }
-      }
+        v19 = v20 + (float)(v16 + COMPASS_PLAYER_NAME_TEXT_WITH_PLAYER_NUMBER_OFFSET);
+      _XMM0 = (unsigned int)clientNum;
       __asm
       {
-        vmovd   xmm1, dword ptr [rdi+1D4h]
-        vmovd   xmm0, ebx
         vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, dword ptr [rsp+198h+color+8]
         vblendvps xmm0, xmm7, xmm1, xmm2
-        vmovss  dword ptr [rsp+198h+color+8], xmm0
       }
+      color.v[2] = *(float *)&_XMM0;
     }
-    __asm
-    {
-      vsubss  xmm3, xmm8, xmm11; bottom
-      vaddss  xmm2, xmm9, xmm6; right
-      vaddss  xmm1, xmm11, xmm8; top
-      vsubss  xmm0, xmm6, xmm9; left
-    }
-    LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
+    LUI_CoD_GenerateQuadVerts(v19 - v16, v18 + v21, v16 + v19, v21 - v18, (vec4_t (*)[4])verts);
     ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
-    __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-    font = UI_GetFontHandle(ActivePlacement, 1, *(float *)&_XMM2);
-    __asm { vmovss  [rsp+198h+var_150], xmm7 }
-    LUI_Render_DrawText((const LocalClientNum_t)this->m_localClientNum, luaVM, element, (const vec4_t (*)[4])verts, &color, font, out_playerName, 0, 0, v59, 20, NULL, NULL);
-    __asm
-    {
-      vmovaps xmm11, [rsp+198h+var_98]
-      vmovaps xmm9, [rsp+198h+var_78]
-      vmovaps xmm7, [rsp+198h+var_58]
-      vmovaps xmm6, [rsp+198h+var_48]
-    }
-  }
-LABEL_20:
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
+    font = UI_GetFontHandle(ActivePlacement, 1, 1.0);
+    LUI_Render_DrawText((const LocalClientNum_t)this->m_localClientNum, luaVM, element, (const vec4_t (*)[4])verts, &color, font, out_playerName, 0, 0, 0.0, 20, NULL, NULL);
   }
 }
 
@@ -5034,73 +3229,75 @@ LABEL_20:
 CgCompassSystem::DrawPlayerNumber
 ==============
 */
-
-void __fastcall CgCompassSystem::DrawPlayerNumber(CgCompassSystem *this, int clientNum, double centerX, double centerY, float angle, int team, bool hasObjective, bool largeMap, vec4_t *fontColor, const CgStatic *cgStatic, LUIElement *element, lua_State *luaVM)
+void CgCompassSystem::DrawPlayerNumber(CgCompassSystem *this, int clientNum, float centerX, float centerY, float angle, int team, bool hasObjective, bool largeMap, vec4_t *fontColor, const CgStatic *cgStatic, LUIElement *element, lua_State *luaVM)
 {
   LocalClientNum_t m_localClientNum; 
-  int v26; 
+  int v15; 
   CgGlobalsMP *LocalClientGlobals; 
   CgMLGSpectator *MLGSpectator; 
-  __int64 v31; 
+  __int64 v18; 
   __int64 numScores; 
-  __int64 v33; 
+  __int64 v20; 
   score_t *scores; 
+  const dvar_t *v22; 
+  float displayHeight; 
+  float v24; 
+  const dvar_t *v25; 
+  const char *v26; 
+  float value; 
+  const dvar_t *v28; 
+  float v29; 
+  const dvar_t *v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
   const dvar_t *v35; 
-  const char *v41; 
+  float v36; 
+  const dvar_t *v37; 
+  const char *v38; 
+  const dvar_t *v39; 
+  float v40; 
+  const dvar_t *v41; 
+  const dvar_t *v42; 
   const dvar_t *v43; 
+  const dvar_t *v44; 
   const dvar_t *v45; 
-  const char *v56; 
-  const dvar_t *v59; 
-  const dvar_t *v61; 
-  const dvar_t *v63; 
-  const dvar_t *v65; 
-  const dvar_t *v67; 
-  const dvar_t *v68; 
+  const dvar_t *v46; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *font; 
-  float v93; 
   char dest[2]; 
-  char v95; 
+  char v50; 
   float s; 
   float c; 
   vec4_t quadVerts[4]; 
 
-  __asm
-  {
-    vmovaps [rsp+1A8h+var_C8], xmm14
-    vmovaps [rsp+1A8h+var_D8], xmm15
-  }
   m_localClientNum = this->m_localClientNum;
-  v26 = 10;
+  v15 = 10;
   *(_WORD *)dest = 0;
-  v95 = 0;
-  __asm
-  {
-    vmovaps xmm15, xmm3
-    vmovaps xmm14, xmm2
-  }
+  v50 = 0;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(m_localClientNum);
   if ( LocalClientGlobals->m_isMLGSpectator )
   {
     MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)this->m_localClientNum);
     if ( !CgMLGSpectator::GetPlayerNumbersEnabled(MLGSpectator) )
-      goto LABEL_72;
+      return;
   }
-  v31 = 1i64;
+  v18 = 1i64;
   if ( (team & 0xFFFFFFFD) != 0 )
-    v31 = 6i64;
+    v18 = 6i64;
   if ( team == 2 )
   {
-    v26 = 5;
+    v15 = 5;
   }
   else if ( team == 1 )
   {
-    v26 = 10;
+    v15 = 10;
   }
   numScores = LocalClientGlobals->numScores;
   if ( numScores > 0 )
   {
-    v33 = 0i64;
+    v20 = 0i64;
     scores = LocalClientGlobals->scores;
     do
     {
@@ -5108,190 +3305,129 @@ void __fastcall CgCompassSystem::DrawPlayerNumber(CgCompassSystem *this, int cli
       {
         if ( scores->client == clientNum )
           break;
-        v31 = (unsigned int)(v31 + 1);
+        v18 = (unsigned int)(v18 + 1);
       }
-      ++v33;
+      ++v20;
       ++scores;
     }
-    while ( v33 < numScores );
+    while ( v20 < numScores );
   }
   if ( LocalClientGlobals->m_isMLGSpectator )
   {
-    if ( (int)v31 > v26 )
-      goto LABEL_72;
-    if ( (_DWORD)v31 == 10 )
-      v31 = 0i64;
+    if ( (int)v18 > v15 )
+      return;
+    if ( (_DWORD)v18 == 10 )
+      v18 = 0i64;
   }
-  __asm
-  {
-    vmovaps [rsp+1A8h+var_48], xmm6
-    vmovaps [rsp+1A8h+var_58], xmm7
-    vmovaps [rsp+1A8h+var_68], xmm8
-    vmovaps [rsp+1A8h+var_78], xmm9
-    vmovaps [rsp+1A8h+var_88], xmm10
-    vmovaps [rsp+1A8h+var_98], xmm11
-    vmovaps [rsp+1A8h+var_A8], xmm12
-    vmovaps [rsp+1A8h+var_B8], xmm13
-  }
-  Com_sprintf(dest, 3ui64, "%d", v31);
+  Com_sprintf(dest, 3ui64, "%d", v18);
   if ( LocalClientGlobals->m_isMLGSpectator && clientNum == LocalClientGlobals->predictedPlayerState.clientNum )
   {
-    v35 = DVARFLT_compassIconMLGSpectatorScale;
+    v22 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v35);
+    Dvar_CheckFrontendServerThread(v22);
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm12, xmm0, cs:__real@3a088889
-    vmulss  xmm13, xmm0, cs:__real@3a72b9d6
-  }
+  displayHeight = (float)vidConfig.displayHeight;
+  v24 = displayHeight * 0.00052083336;
   if ( hasObjective )
   {
-    _RBX = DVARFLT_compassPlayerNumberObjectiveCircleRadius;
+    v25 = DVARFLT_compassPlayerNumberObjectiveCircleRadius;
     if ( DVARFLT_compassPlayerNumberObjectiveCircleRadius )
       goto LABEL_32;
-    v41 = "compassPlayerNumberObjectiveCircleRadius";
+    v26 = "compassPlayerNumberObjectiveCircleRadius";
   }
   else
   {
-    _RBX = DVARFLT_compassPlayerNumberCircleRadius;
+    v25 = DVARFLT_compassPlayerNumberCircleRadius;
     if ( DVARFLT_compassPlayerNumberCircleRadius )
       goto LABEL_32;
-    v41 = "compassPlayerNumberCircleRadius";
+    v26 = "compassPlayerNumberCircleRadius";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v41) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v26) )
     __debugbreak();
 LABEL_32:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v43 = DVARFLT_compassMLGPlayerNumberTextWidth;
+  Dvar_CheckFrontendServerThread(v25);
+  value = v25->current.value;
+  v28 = DVARFLT_compassMLGPlayerNumberTextWidth;
   if ( !DVARFLT_compassMLGPlayerNumberTextWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassMLGPlayerNumberTextWidth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v43);
-  __asm { vmulss  xmm9, xmm12, dword ptr [rbx+28h] }
-  v45 = DVARFLT_compassMLGPlayerNumberFontHeight;
+  Dvar_CheckFrontendServerThread(v28);
+  v29 = v24 * v28->current.value;
+  v30 = DVARFLT_compassMLGPlayerNumberFontHeight;
   if ( !DVARFLT_compassMLGPlayerNumberFontHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassMLGPlayerNumberFontHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  __asm
-  {
-    vmovss  xmm0, [rsp+1A8h+arg_20]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-    vmulss  xmm8, xmm13, dword ptr [rbx+28h]
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmulss  xmm1, xmm6, [rsp+1A8h+s]
-    vmovss  xmm2, [rsp+1A8h+c]
-    vxorps  xmm10, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm11, xmm2, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v30);
+  v31 = (float)(displayHeight * 0.00092592591) * v30->current.value;
+  FastSinCos(angle * 0.017453292, &s, &c);
+  LODWORD(v32) = COERCE_UNSIGNED_INT(value * s) ^ _xmm;
+  v34 = c * value;
+  v33 = c * value;
   if ( hasObjective )
   {
-    _RBX = DVARFLT_compassObjectivePlayerNumberTextXOffset;
+    v35 = DVARFLT_compassObjectivePlayerNumberTextXOffset;
     if ( !DVARFLT_compassObjectivePlayerNumberTextXOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassObjectivePlayerNumberTextXOffset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_compassObjectivePlayerNumberTextYOffset;
+    Dvar_CheckFrontendServerThread(v35);
+    v36 = v35->current.value;
+    v37 = DVARFLT_compassObjectivePlayerNumberTextYOffset;
     if ( DVARFLT_compassObjectivePlayerNumberTextYOffset )
       goto LABEL_51;
-    v56 = "compassObjectivePlayerNumberTextYOffset";
+    v38 = "compassObjectivePlayerNumberTextYOffset";
   }
   else
   {
-    _RBX = DVARFLT_compassPlayerNumberTextXOffset;
+    v39 = DVARFLT_compassPlayerNumberTextXOffset;
     if ( !DVARFLT_compassPlayerNumberTextXOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassPlayerNumberTextXOffset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_compassPlayerNumberTextYOffset;
+    Dvar_CheckFrontendServerThread(v39);
+    v36 = v39->current.value;
+    v37 = DVARFLT_compassPlayerNumberTextYOffset;
     if ( DVARFLT_compassPlayerNumberTextYOffset )
       goto LABEL_51;
-    v56 = "compassPlayerNumberTextYOffset";
+    v38 = "compassPlayerNumberTextYOffset";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v56) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v38) )
     __debugbreak();
 LABEL_51:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v37);
+  v40 = v37->current.value;
   if ( largeMap )
   {
-    v59 = DVARFLT_compassIconMLGSpectatorScale;
+    v41 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v59);
-    __asm { vmulss  xmm10, xmm10, dword ptr [rbx+28h] }
-    v61 = DVARFLT_compassIconMLGSpectatorScale;
+    Dvar_CheckFrontendServerThread(v41);
+    v32 = v32 * v41->current.value;
+    v42 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v61);
-    __asm { vmulss  xmm11, xmm11, dword ptr [rbx+28h] }
-    v63 = DVARFLT_compassIconMLGSpectatorScale;
+    Dvar_CheckFrontendServerThread(v42);
+    v33 = v34 * v42->current.value;
+    v43 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v63);
-    __asm { vmulss  xmm9, xmm9, dword ptr [rbx+28h] }
-    v65 = DVARFLT_compassIconMLGSpectatorScale;
+    Dvar_CheckFrontendServerThread(v43);
+    v29 = v29 * v43->current.value;
+    v44 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v65);
-    __asm { vmulss  xmm8, xmm8, dword ptr [rbx+28h] }
-    v67 = DVARFLT_compassIconMLGSpectatorScale;
+    Dvar_CheckFrontendServerThread(v44);
+    v31 = v31 * v44->current.value;
+    v45 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v67);
-    __asm { vmulss  xmm7, xmm7, dword ptr [rbx+28h] }
-    v68 = DVARFLT_compassIconMLGSpectatorScale;
+    Dvar_CheckFrontendServerThread(v45);
+    v36 = v36 * v45->current.value;
+    v46 = DVARFLT_compassIconMLGSpectatorScale;
     if ( !DVARFLT_compassIconMLGSpectatorScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassIconMLGSpectatorScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v68);
-    __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v46);
+    v40 = v40 * v46->current.value;
   }
-  __asm
-  {
-    vaddss  xmm0, xmm7, xmm10
-    vmulss  xmm1, xmm0, xmm12
-    vaddss  xmm4, xmm14, xmm1
-    vaddss  xmm2, xmm6, xmm11
-    vmulss  xmm0, xmm2, xmm13
-    vaddss  xmm1, xmm15, xmm0
-    vsubss  xmm3, xmm1, xmm8; bottom
-    vaddss  xmm1, xmm1, xmm8; top
-    vaddss  xmm2, xmm4, xmm9; right
-    vsubss  xmm0, xmm4, xmm9; left
-  }
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
+  LUI_CoD_GenerateQuadVerts((float)(centerX + (float)((float)(v36 + v32) * v24)) - v29, (float)(centerY + (float)((float)(v40 + v33) * (float)(displayHeight * 0.00092592591))) + v31, (float)(centerX + (float)((float)(v36 + v32) * v24)) + v29, (float)(centerY + (float)((float)(v40 + v33) * (float)(displayHeight * 0.00092592591))) - v31, (vec4_t (*)[4])quadVerts);
   ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)this->m_localClientNum);
-  __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-  font = UI_GetFontHandle(ActivePlacement, 4, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+1A8h+var_160], xmm0
-  }
-  LUI_Render_DrawText((const LocalClientNum_t)this->m_localClientNum, luaVM, element, (const vec4_t (*)[4])quadVerts, fontColor, font, dest, 0, 0, v93, 120, NULL, NULL);
-  __asm
-  {
-    vmovaps xmm13, [rsp+1A8h+var_B8]
-    vmovaps xmm12, [rsp+1A8h+var_A8]
-    vmovaps xmm11, [rsp+1A8h+var_98]
-    vmovaps xmm10, [rsp+1A8h+var_88]
-    vmovaps xmm9, [rsp+1A8h+var_78]
-    vmovaps xmm8, [rsp+1A8h+var_68]
-    vmovaps xmm7, [rsp+1A8h+var_58]
-    vmovaps xmm6, [rsp+1A8h+var_48]
-  }
-LABEL_72:
-  __asm
-  {
-    vmovaps xmm14, [rsp+1A8h+var_C8]
-    vmovaps xmm15, [rsp+1A8h+var_D8]
-  }
+  font = UI_GetFontHandle(ActivePlacement, 4, 1.0);
+  LUI_Render_DrawText((const LocalClientNum_t)this->m_localClientNum, luaVM, element, (const vec4_t (*)[4])quadVerts, fontColor, font, dest, 0, 0, 0.0, 120, NULL, NULL);
 }
 
 /*
@@ -5331,8 +3467,7 @@ CgCompassSystem::GetCroppedMapZoom
 */
 float CgCompassSystem::GetCroppedMapZoom(CgCompassSystem *this)
 {
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -5362,8 +3497,7 @@ CgCompassSystem::GetCurrentCompassZoomLevel
 */
 float CgCompassSystem::GetCurrentCompassZoomLevel(CgCompassSystem *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+20h] }
-  return *(float *)&_XMM0;
+  return this->m_currentZoomLevel;
 }
 
 /*
@@ -5373,13 +3507,10 @@ CgCompassSystem::GetIconFadeAlpha
 */
 float CgCompassSystem::GetIconFadeAlpha(CgCompassSystem *this, const LocalClientNum_t localClientNum, CompassType compassType)
 {
-  CG_Radar_GetJammingLevel(localClientNum);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm0, xmm1, xmm0
-  }
-  return *(float *)&_XMM0;
+  double JammingLevel; 
+
+  JammingLevel = CG_Radar_GetJammingLevel(localClientNum);
+  return 1.0 - *(float *)&JammingLevel;
 }
 
 /*
@@ -5447,52 +3578,50 @@ CgCompassSystem::GetObjectiveFade
 ==============
 */
 
-float __fastcall CgCompassSystem::GetObjectiveFade(CgCompassSystem *this, const rectDef_s *clipRect, double x, double y)
+float __fastcall CgCompassSystem::GetObjectiveFade(CgCompassSystem *this, const rectDef_s *clipRect, double x, double y, float width, float height)
 {
-  void *retaddr; 
+  __int128 y_low; 
+  __int128 x_low; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v13; 
+  __int128 v15; 
+  __int128 v17; 
+  __int128 v19; 
+  __int128 v21; 
 
-  _RAX = &retaddr;
+  y_low = LODWORD(clipRect->y);
+  x_low = LODWORD(clipRect->x);
+  v9 = x_low;
+  *(float *)&v9 = *(float *)&x_low - *(float *)&x;
+  v8 = v9;
+  v11 = *(_OWORD *)&x;
+  *(float *)&v11 = *(float *)&x + width;
+  v10 = v11;
+  v13 = v8;
+  *(float *)&v13 = *(float *)&v8 * (float)(1.0 / width);
+  _XMM4 = v13;
+  __asm { vmaxss  xmm5, xmm4, xmm1 }
+  v15 = y_low;
+  *(float *)&v15 = (float)(*(float *)&y_low - *(float *)&y) * (float)(1.0 / height);
+  _XMM1 = v15;
+  v17 = *(_OWORD *)&y;
+  __asm { vmaxss  xmm3, xmm1, xmm5 }
+  v19 = v10;
+  *(float *)&v19 = (float)(*(float *)&v10 - (float)(*(float *)&x_low + clipRect->w)) * (float)(1.0 / width);
+  _XMM2 = v19;
+  v21 = v17;
+  __asm { vmaxss  xmm4, xmm2, xmm3 }
+  *(float *)&v21 = (float)((float)(*(float *)&v17 + height) - (float)(*(float *)&y_low + clipRect->h)) * (float)(1.0 / height);
+  _XMM2 = v21;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm8
-    vmovaps xmmword ptr [rax-28h], xmm9
-    vmovaps xmmword ptr [rax-38h], xmm10
-    vmovss  xmm10, dword ptr [rdx+4]
-    vmovaps xmmword ptr [rax-48h], xmm11
-    vmovss  xmm11, dword ptr [rdx]
-    vmovaps xmmword ptr [rax-58h], xmm12
-    vmovaps [rsp+68h+var_68], xmm13
-    vmovss  xmm13, cs:__real@3f800000
-    vdivss  xmm9, xmm13, [rsp+68h+width]
-    vdivss  xmm8, xmm13, [rsp+68h+height]
-    vsubss  xmm0, xmm11, xmm2
-    vaddss  xmm2, xmm2, [rsp+68h+width]
-    vmulss  xmm4, xmm0, xmm9
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm5, xmm4, xmm1
-    vsubss  xmm0, xmm10, xmm3
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm0, xmm11, dword ptr [rdx+8]
-    vmovaps xmm11, xmmword ptr [rax-48h]
-    vmovaps xmm12, xmm3
-    vmaxss  xmm3, xmm1, xmm5
-    vsubss  xmm1, xmm2, xmm0
-    vaddss  xmm0, xmm10, dword ptr [rdx+0Ch]
-    vmovaps xmm10, xmmword ptr [rax-38h]
-    vmulss  xmm2, xmm1, xmm9
-    vaddss  xmm1, xmm12, [rsp+68h+height]
-    vmovaps xmm9, xmmword ptr [rax-28h]
-    vmovaps xmm12, xmmword ptr [rax-58h]
-    vsubss  xmm1, xmm1, xmm0
-    vmaxss  xmm4, xmm2, xmm3
-    vmulss  xmm2, xmm1, xmm8
-    vmovaps xmm8, xmmword ptr [rax-18h]
     vmaxss  xmm3, xmm2, xmm4
     vminss  xmm0, xmm3, xmm13
-    vsubss  xmm0, xmm13, xmm0
-    vmovaps xmm13, [rsp+68h+var_68]
   }
-  return *(float *)&_XMM0;
+  return 1.0 - *(float *)&_XMM0;
 }
 
 /*
@@ -5502,115 +3631,72 @@ CgCompassSystem::GetPlayerAngle
 */
 float CgCompassSystem::GetPlayerAngle(CgCompassSystem *this, const cg_t *const cgameGlob, const CgGlobalsMP *const cgameGlobMP, const CompassType compassType, const bool cropPartialMap)
 {
-  const dvar_t *v15; 
-  const dvar_t *v33; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
+  float v14; 
+  float compassNorthYaw; 
+  float v16; 
+  float v17; 
+  float v20; 
+  const dvar_t *v21; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _RDI = cgameGlob;
-  _RBX = this;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2725, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( !cgameGlobMP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2726, ASSERT_TYPE_ASSERT, "(cgameGlobMP)", (const char *)&queryFormat, "cgameGlobMP") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovaps [rsp+0A8h+var_68], xmm9
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v9 = 0.0;
   if ( compassType )
     goto LABEL_17;
-  v15 = DVARBOOL_compassRotation;
+  v10 = DVARBOOL_compassRotation;
   if ( !DVARBOOL_compassRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassRotation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( !v15->current.enabled || cropPartialMap || !_RBX->m_isMinimapRotationEnabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled || cropPartialMap || !this->m_isMinimapRotationEnabled )
   {
 LABEL_17:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+49FFCh]
-      vmovss  xmm8, cs:__real@3b360b61
-      vmovss  xmm9, cs:__real@3f000000
-    }
-    if ( _RDI->predictedPlayerState.vehicleState.entity == 2047 )
-      __asm { vsubss  xmm1, xmm0, dword ptr [rbx+0Ch] }
+    compassNorthYaw = cgameGlob->compassNorthYaw;
+    v11 = FLOAT_0_0027777778;
+    if ( cgameGlob->predictedPlayerState.vehicleState.entity == 2047 )
+      v16 = compassNorthYaw - this->m_compassPlayerYaw;
     else
-      __asm { vsubss  xmm1, xmm0, dword ptr [rax+4Ch] }
-    __asm
+      v16 = compassNorthYaw - cgameGlob->predictedPlayerEntity->pose.angles.v[1];
+    v17 = v16 * 0.0027777778;
+    _XMM1 = 0i64;
+    __asm { vroundss xmm4, xmm1, xmm2, 1 }
+    v20 = (float)(v17 - *(float *)&_XMM4) * 360.0;
+    v9 = v20;
+    v14 = v20;
+    if ( cgameGlobMP && cgameGlobMP->m_isMLGSpectator && this->MapShouldRotate(this) )
     {
-      vmulss  xmm5, xmm1, xmm8
-      vaddss  xmm2, xmm5, xmm9
-      vxorps  xmm1, xmm1, xmm1
-      vroundss xmm4, xmm1, xmm2, 1
-      vsubss  xmm0, xmm5, xmm4
-      vmulss  xmm6, xmm0, cs:__real@43b40000
-      vmovaps xmm7, xmm6
-    }
-    if ( cgameGlobMP && cgameGlobMP->m_isMLGSpectator && _RBX->MapShouldRotate(_RBX) )
-    {
-      _RBX->MapRotationFactor(_RBX);
-      __asm
-      {
-        vsubss  xmm6, xmm6, xmm0
-        vmovaps xmm7, xmm6
-      }
+      v9 = v20 - this->MapRotationFactor(this);
+      v14 = v9;
     }
     if ( compassType )
-      goto LABEL_31;
+      return v9;
   }
   else
   {
-    __asm
+    v11 = FLOAT_0_0027777778;
+    if ( cgameGlob->predictedPlayerState.vehicleState.entity != 2047 )
     {
-      vmovss  xmm8, cs:__real@3b360b61
-      vmovss  xmm9, cs:__real@3f000000
+      _XMM1 = 0i64;
+      __asm { vroundss xmm4, xmm1, xmm2, 1 }
+      v9 = (float)((float)((float)(this->m_compassPlayerYaw - cgameGlob->predictedPlayerEntity->pose.angles.v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0;
     }
-    if ( _RDI->predictedPlayerState.vehicleState.entity != 2047 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0Ch]
-        vsubss  xmm1, xmm0, dword ptr [rax+4Ch]
-        vmulss  xmm5, xmm1, xmm8
-        vaddss  xmm2, xmm5, xmm9
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm4, xmm1, xmm2, 1
-        vsubss  xmm0, xmm5, xmm4
-        vmulss  xmm6, xmm0, cs:__real@43b40000
-      }
-    }
-    __asm { vmovaps xmm7, xmm6 }
+    v14 = v9;
   }
-  v33 = DVARBOOL_compassRotation;
+  v21 = DVARBOOL_compassRotation;
   if ( !DVARBOOL_compassRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassRotation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v33);
-  if ( !v33->current.enabled || !_RBX->m_compassMirrorLeftRight )
+  Dvar_CheckFrontendServerThread(v21);
+  if ( v21->current.enabled && this->m_compassMirrorLeftRight )
   {
-LABEL_31:
-    __asm { vmovaps xmm0, xmm6 }
-    goto LABEL_32;
+    _XMM1 = 0i64;
+    __asm { vroundss xmm3, xmm1, xmm2, 1 }
+    return (float)((float)(v14 * v11) - *(float *)&_XMM3) * -360.0;
   }
-  __asm
-  {
-    vmulss  xmm4, xmm7, xmm8
-    vaddss  xmm2, xmm4, xmm9
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm0, xmm0, cs:__real@c3b40000
-  }
-LABEL_32:
-  __asm
-  {
-    vmovaps xmm9, [rsp+0A8h+var_68]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm6, [rsp+0A8h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return v9;
 }
 
 /*
@@ -5620,17 +3706,7 @@ CgCompassSystem::GetPlayerCompassColor
 */
 void CgCompassSystem::GetPlayerCompassColor(CgCompassSystem *this, vec4_t *color, const cg_t *cgameGlob)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:playerColor
-    vmovss  dword ptr [rdx], xmm0
-    vmovss  xmm1, dword ptr cs:playerColor+4
-    vmovss  dword ptr [rdx+4], xmm1
-    vmovss  xmm0, dword ptr cs:playerColor+8
-    vmovss  dword ptr [rdx+8], xmm0
-    vmovss  xmm1, dword ptr cs:playerColor+0Ch
-    vmovss  dword ptr [rdx+0Ch], xmm1
-  }
+  *color = playerColor;
 }
 
 /*
@@ -5641,116 +3717,90 @@ CgCompassSystem::GetPlayerDrawSize
 void CgCompassSystem::GetPlayerDrawSize(CgCompassSystem *this, CompassType compassType, bool largeMap, float *outHeight, float *outWidth)
 {
   CgGlobalsMP *LocalClientGlobals; 
-  const dvar_t *v13; 
+  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  double v15; 
+  double v16; 
+  const dvar_t *v17; 
   const dvar_t *v18; 
-  const dvar_t *v29; 
-  const dvar_t *v31; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  double Float_Internal_DebugName; 
+  double v22; 
 
-  _RBX = outHeight;
   if ( cg_t::ms_allocatedType == GLOB_TYPE_MP )
     LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   else
     LocalClientGlobals = NULL;
   if ( (unsigned int)(compassType - 1) <= 1 )
   {
-    v29 = DVARFLT_cg_hudMapPlayerWidth;
+    v19 = DVARFLT_cg_hudMapPlayerWidth;
     if ( !DVARFLT_cg_hudMapPlayerWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudMapPlayerWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v29);
-    _R12 = outWidth;
-    *outWidth = v29->current.value;
-    v31 = DVARFLT_cg_hudMapPlayerHeight;
+    Dvar_CheckFrontendServerThread(v19);
+    *outWidth = v19->current.value;
+    v20 = DVARFLT_cg_hudMapPlayerHeight;
     if ( !DVARFLT_cg_hudMapPlayerHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudMapPlayerHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v31);
-    *_RBX = v31->current.value;
+    Dvar_CheckFrontendServerThread(v20);
+    *outHeight = v20->current.value;
     if ( largeMap && compassType == COMPASS_TYPE_FULL && LocalClientGlobals && LocalClientGlobals->m_isMLGSpectator )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [r12]
-        vmovss  dword ptr [r12], xmm0
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm0
-      }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
+      *outWidth = *(float *)&Float_Internal_DebugName * *outWidth;
+      v22 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
+      *outHeight = *(float *)&v22 * *outHeight;
     }
   }
   else
   {
-    __asm { vmovaps [rsp+78h+var_38], xmm6 }
     if ( compassType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2033, ASSERT_TYPE_ASSERT, "(compassType == CompassType::COMPASS_TYPE_PARTIAL)", (const char *)&queryFormat, "compassType == CompassType::COMPASS_TYPE_PARTIAL") )
       __debugbreak();
-    _RSI = DVARFLT_compassPlayerWidth;
+    v9 = DVARFLT_compassPlayerWidth;
     if ( !DVARFLT_compassPlayerWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassPlayerWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-    v13 = DVARFLT_compassSize;
+    Dvar_CheckFrontendServerThread(v9);
+    value = v9->current.value;
+    v11 = DVARFLT_compassSize;
     if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    __asm { vmulss  xmm0, xmm6, dword ptr [rsi+28h] }
-    _RSI = outWidth;
-    __asm { vmovss  dword ptr [rsi], xmm0 }
-    _R12 = DVARFLT_compassPlayerHeight;
+    Dvar_CheckFrontendServerThread(v11);
+    *outWidth = value * v11->current.value;
+    v12 = DVARFLT_compassPlayerHeight;
     if ( !DVARFLT_compassPlayerHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassPlayerHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R12);
-    __asm { vmovss  xmm6, dword ptr [r12+28h] }
-    v18 = DVARFLT_compassSize;
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = v12->current.value;
+    v14 = DVARFLT_compassSize;
     if ( !DVARFLT_compassSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v18);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [r12+28h]
-      vmovaps xmm6, [rsp+78h+var_38]
-      vmovss  dword ptr [rbx], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    *outHeight = v13 * v14->current.value;
     if ( largeMap && LocalClientGlobals && LocalClientGlobals->m_isMLGSpectator )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm0
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm0
-      }
+      v15 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
+      *outWidth = *(float *)&v15 * *outWidth;
+      v16 = Dvar_GetFloat_Internal_DebugName(DVARFLT_compassIconMLGSpectatorScale, "compassIconMLGSpectatorScale");
+      *outHeight = *(float *)&v16 * *outHeight;
     }
     if ( CL_IsRenderingSplitScreen() )
     {
-      _RDI = DVARFLT_cg_hudSplitscreenCompassElementScale;
+      v17 = DVARFLT_cg_hudSplitscreenCompassElementScale;
       if ( !DVARFLT_cg_hudSplitscreenCompassElementScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassElementScale") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmulss  xmm1, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm1
-      }
-      _RDI = DVARFLT_cg_hudSplitscreenCompassElementScale;
+      Dvar_CheckFrontendServerThread(v17);
+      *outWidth = v17->current.value * *outWidth;
+      v18 = DVARFLT_cg_hudSplitscreenCompassElementScale;
       if ( !DVARFLT_cg_hudSplitscreenCompassElementScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudSplitscreenCompassElementScale") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmulss  xmm1, xmm0, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      Dvar_CheckFrontendServerThread(v18);
+      *outHeight = v18->current.value * *outHeight;
     }
-    CG_ApplySplitScreenCompassScale(compassType, NULL, NULL, outWidth, _RBX);
+    CG_ApplySplitScreenCompassScale(compassType, NULL, NULL, outWidth, outHeight);
   }
 }
 
@@ -5759,55 +3809,39 @@ void CgCompassSystem::GetPlayerDrawSize(CgCompassSystem *this, CompassType compa
 CgCompassSystem::GetPredictiveLocationInfo
 ==============
 */
-
-void __fastcall CgCompassSystem::GetPredictiveLocationInfo(CgCompassSystem *this, double objDist, double avgMapDimension, const vec2_t *mapPosCurrent, const vec2_t *mapPosPrevious, const vec2_t *outClipped, vec2_t *forwardPoint, vec2_t *positioningDelta)
+void CgCompassSystem::GetPredictiveLocationInfo(CgCompassSystem *this, const float objDist, const float avgMapDimension, const vec2_t *mapPosCurrent, const vec2_t *mapPosPrevious, const vec2_t *outClipped, vec2_t *forwardPoint, vec2_t *positioningDelta)
 {
-  __asm
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  float v13; 
+
+  v9 = LODWORD(mapPosCurrent->v[0]);
+  *(float *)&v9 = mapPosCurrent->v[0] - mapPosPrevious->v[0];
+  v8 = *(float *)&v9;
+  positioningDelta->v[0] = *(float *)&v9;
+  v10 = mapPosCurrent->v[1] - mapPosPrevious->v[1];
+  positioningDelta->v[1] = v10;
+  if ( objDist <= avgMapDimension )
   {
-    vcomiss xmm1, xmm2
-    vmovss  xmm0, dword ptr [r9]
+    *forwardPoint = *mapPosPrevious;
   }
-  _RDX = positioningDelta;
-  __asm
+  else
   {
-    vmovaps [rsp+28h+var_18], xmm6
-    vmovaps [rsp+28h+var_28], xmm7
-    vsubss  xmm5, xmm0, dword ptr [r8]
-    vmovss  dword ptr [rdx], xmm5
-    vmovss  xmm3, dword ptr [r9+4]
-    vsubss  xmm4, xmm3, dword ptr [r8+4]
-    vmovss  dword ptr [rdx+4], xmm4
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm2, xmm1
-    vmovaps xmm3, xmm5
-    vmovaps xmm1, xmm2
-    vrsqrtss xmm2, xmm1, xmm2
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rdx], xmm0
-    vsubss  xmm0, xmm7, xmm6
-    vmulss  xmm1, xmm4, xmm2
-    vmovss  dword ptr [rdx+4], xmm1
-    vmulss  xmm3, xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm0, dword ptr [rdx+4]
-    vmovss  dword ptr [rdx+4], xmm0
-    vmovss  dword ptr [rdx], xmm3
-  }
-  _RAX = outClipped;
-  _RCX = forwardPoint;
-  __asm
-  {
-    vaddss  xmm0, xmm3, dword ptr [rax]
-    vmovss  dword ptr [rcx], xmm0
-    vmovss  xmm0, dword ptr [rax+4]
-    vaddss  xmm1, xmm0, dword ptr [rdx+4]
-    vmovss  dword ptr [rcx+4], xmm1
-    vmovaps xmm6, [rsp+28h+var_18]
-    vmovaps xmm7, [rsp+28h+var_28]
+    *(float *)&v9 = (float)(*(float *)&v9 * *(float *)&v9) + (float)(v10 * v10);
+    v13 = v8;
+    if ( *(float *)&v9 > 0.0 )
+    {
+      _XMM1 = v9;
+      __asm { vrsqrtss xmm2, xmm1, xmm2 }
+      positioningDelta->v[0] = v8 * *(float *)&_XMM2;
+      positioningDelta->v[1] = v10 * *(float *)&_XMM2;
+      v13 = (float)(objDist - avgMapDimension) * positioningDelta->v[0];
+      positioningDelta->v[1] = (float)(objDist - avgMapDimension) * positioningDelta->v[1];
+      positioningDelta->v[0] = v13;
+    }
+    forwardPoint->v[0] = v13 + outClipped->v[0];
+    forwardPoint->v[1] = outClipped->v[1] + positioningDelta->v[1];
   }
 }
 
@@ -5827,50 +3861,28 @@ vec2_t CgCompassSystem::GetTacmapMapCenter(CgCompassSystem *this, vec2_t *a2)
 CgCompassSystem::IsCursorInTacMap
 ==============
 */
-
-bool __fastcall CgCompassSystem::IsCursorInTacMap(CgCompassSystem *this, double _XMM1_8)
+bool CgCompassSystem::IsCursorInTacMap(CgCompassSystem *this)
 {
   int ControllerFromClient; 
-  char v4; 
-  char v5; 
+  float x; 
+  float y; 
+  bool result; 
   MouseCursorPos curPos; 
 
-  _RBX = this;
-  if ( this->m_currentCompassType != COMPASS_TYPE_TACMAP )
-    return 0;
-  ControllerFromClient = CL_Mgr_GetControllerFromClient(this->m_localClientNum);
-  IN_GetCursorPos(ControllerFromClient, &curPos);
-  __asm
+  result = 0;
+  if ( this->m_currentCompassType == COMPASS_TYPE_TACMAP )
   {
-    vmovss  xmm0, dword ptr [rbx+0C8h]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, [rsp+28h+curPos.x]
-    vcomiss xmm0, xmm1
+    ControllerFromClient = CL_Mgr_GetControllerFromClient(this->m_localClientNum);
+    IN_GetCursorPos(ControllerFromClient, &curPos);
+    x = this->m_tacmapRectangle.x;
+    if ( x < (float)curPos.x && (float)(x + this->m_tacmapRectangle.w) > (float)curPos.x )
+    {
+      y = this->m_tacmapRectangle.y;
+      if ( y < (float)curPos.y && (float)(y + this->m_tacmapRectangle.h) > (float)curPos.y )
+        return 1;
+    }
   }
-  if ( !v4 )
-    return 0;
-  __asm
-  {
-    vaddss  xmm0, xmm0, dword ptr [rbx+0D0h]
-    vcomiss xmm0, xmm1
-  }
-  if ( v4 | v5 )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0CCh]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, [rsp+28h+curPos.y]
-    vcomiss xmm0, xmm1
-  }
-  if ( !v4 )
-    return 0;
-  __asm
-  {
-    vaddss  xmm0, xmm0, dword ptr [rbx+0D4h]
-    vcomiss xmm0, xmm1
-  }
-  return !(v4 | v5);
+  return result;
 }
 
 /*
@@ -5880,15 +3892,11 @@ CgCompassSystem::MapOffset
 */
 vec2_t CgCompassSystem::MapOffset(CgCompassSystem *this, _QWORD *a2)
 {
-  __int64 v4; 
+  __int64 v3; 
 
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f000000
-    vmovss  dword ptr [rsp+arg_8], xmm0
-    vmovss  dword ptr [rsp+arg_8+4], xmm0
-  }
-  *a2 = v4;
+  *(float *)&v3 = FLOAT_0_5;
+  *((float *)&v3 + 1) = FLOAT_0_5;
+  *a2 = v3;
   return (vec2_t)a2;
 }
 
@@ -5899,8 +3907,7 @@ CgCompassSystem::MapRotationFactor
 */
 float CgCompassSystem::MapRotationFactor(CgCompassSystem *this)
 {
-  __asm { vmovss  xmm0, cs:__real@42b40000 }
-  return *(float *)&_XMM0;
+  return FLOAT_90_0;
 }
 
 /*
@@ -5920,96 +3927,74 @@ CgCompassSystem::ResetCompassActorObfuscation
 */
 void CgCompassSystem::ResetCompassActorObfuscation(CgCompassSystem *const compassSystem)
 {
-  CgCompassSystem *v2; 
+  CgCompassSystem *v1; 
+  int v2; 
   int v3; 
-  int v4; 
-  __int64 v5; 
+  __int64 v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  bdRandom v19; 
-  bdRandom v20; 
-  bdRandom v21; 
-  bdRandom v22; 
-  CgCompassSystem *v23; 
-  __int64 v24; 
-  int v25; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  bdRandom v13; 
+  bdRandom v14; 
+  bdRandom v15; 
+  bdRandom v16; 
+  CgCompassSystem *v17; 
+  __int64 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
 
-  v24 = -2i64;
-  v2 = compassSystem;
-  v23 = compassSystem;
-  v3 = 0;
-  v4 = compassSystem->GetCompassActorCount(compassSystem);
-  if ( v4 > 0 )
+  v18 = -2i64;
+  v1 = compassSystem;
+  v17 = compassSystem;
+  v2 = 0;
+  v3 = compassSystem->GetCompassActorCount(compassSystem);
+  if ( v3 > 0 )
   {
     do
     {
-      v5 = v2->GetCompassActor(v2, v3);
-      bdRandom::bdRandom(&v21);
-      v6 = bdRandom::nextUInt(&v21) % 0x22;
-      bdRandom::~bdRandom(&v21);
-      SetObfuscatedFunction(v6, v5 + 24, v5 + 16, (void (__fastcall **)(const vec3_t *, vec4_t *))(v5 + 16), (void (__fastcall **)(const vec4_t *, vec3_t *))(v5 + 24), s_aab_set_pointer_lastpos, s_aab_get_pointer_lastpos);
-      bdRandom::bdRandom(&v22);
-      v7 = bdRandom::nextUInt(&v22) % 0x22;
-      bdRandom::~bdRandom(&v22);
-      SetObfuscatedFunction(v7, v5 + 56, v5 + 48, (void (__fastcall **)(const vec3_t *, vec4_t *))(v5 + 48), (void (__fastcall **)(const vec4_t *, vec3_t *))(v5 + 56), s_aab_set_pointer_lastenemypos, s_aab_get_pointer_lastenemypos);
-      bdRandom::bdRandom(&v19);
-      bdRandom::nextUInt(&v19);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  [rbp+var_20], xmm0
-      }
-      bdRandom::nextUInt(&v19);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  [rbp+var_1C], xmm0
-      }
-      bdRandom::nextUInt(&v19);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  [rbp+var_18], xmm0
-      }
-      bdRandom::~bdRandom(&v19);
-      if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 197, ASSERT_TYPE_ASSERT, "(actor)", (const char *)&queryFormat, "actor") )
+      v4 = v1->GetCompassActor(v1, v2);
+      bdRandom::bdRandom(&v15);
+      v5 = bdRandom::nextUInt(&v15) % 0x22;
+      bdRandom::~bdRandom(&v15);
+      SetObfuscatedFunction(v5, v4 + 24, v4 + 16, (void (__fastcall **)(const vec3_t *, vec4_t *))(v4 + 16), (void (__fastcall **)(const vec4_t *, vec3_t *))(v4 + 24), s_aab_set_pointer_lastpos, s_aab_get_pointer_lastpos);
+      bdRandom::bdRandom(&v16);
+      v6 = bdRandom::nextUInt(&v16) % 0x22;
+      bdRandom::~bdRandom(&v16);
+      SetObfuscatedFunction(v6, v4 + 56, v4 + 48, (void (__fastcall **)(const vec3_t *, vec4_t *))(v4 + 48), (void (__fastcall **)(const vec4_t *, vec3_t *))(v4 + 56), s_aab_set_pointer_lastenemypos, s_aab_get_pointer_lastenemypos);
+      bdRandom::bdRandom(&v13);
+      v7 = (float)bdRandom::nextUInt(&v13);
+      v19 = v7;
+      v8 = (float)bdRandom::nextUInt(&v13);
+      v20 = v8;
+      v9 = (float)bdRandom::nextUInt(&v13);
+      v21 = v9;
+      bdRandom::~bdRandom(&v13);
+      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 197, ASSERT_TYPE_ASSERT, "(actor)", (const char *)&queryFormat, "actor") )
         __debugbreak();
-      if ( !*(_QWORD *)(v5 + 16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 205, ASSERT_TYPE_ASSERT, "(actor->lastPos.Set_lastPos)", (const char *)&queryFormat, "actor->lastPos.Set_lastPos") )
+      if ( !*(_QWORD *)(v4 + 16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 205, ASSERT_TYPE_ASSERT, "(actor->lastPos.Set_lastPos)", (const char *)&queryFormat, "actor->lastPos.Set_lastPos") )
         __debugbreak();
-      ((void (__fastcall *)(int *, __int64))(*(_QWORD *)(v5 + 16) ^ (v5 + 24) ^ s_aab_set_pointer_lastpos))(&v25, v5 + 32);
-      bdRandom::bdRandom(&v20);
-      bdRandom::nextUInt(&v20);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  [rbp+var_20], xmm0
-      }
-      bdRandom::nextUInt(&v20);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  [rbp+var_1C], xmm0
-      }
-      bdRandom::nextUInt(&v20);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  [rbp+var_18], xmm0
-      }
-      bdRandom::~bdRandom(&v20);
-      if ( !*(_QWORD *)(v5 + 48) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 261, ASSERT_TYPE_ASSERT, "(actor->lastEnemyPos.Set_lastEnemyPos)", (const char *)&queryFormat, "actor->lastEnemyPos.Set_lastEnemyPos") )
+      ((void (__fastcall *)(float *, __int64))(*(_QWORD *)(v4 + 16) ^ (v4 + 24) ^ s_aab_set_pointer_lastpos))(&v19, v4 + 32);
+      bdRandom::bdRandom(&v14);
+      v10 = (float)bdRandom::nextUInt(&v14);
+      v19 = v10;
+      v11 = (float)bdRandom::nextUInt(&v14);
+      v20 = v11;
+      v12 = (float)bdRandom::nextUInt(&v14);
+      v21 = v12;
+      bdRandom::~bdRandom(&v14);
+      if ( !*(_QWORD *)(v4 + 48) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 261, ASSERT_TYPE_ASSERT, "(actor->lastEnemyPos.Set_lastEnemyPos)", (const char *)&queryFormat, "actor->lastEnemyPos.Set_lastEnemyPos") )
         __debugbreak();
-      ((void (__fastcall *)(int *, __int64))(*(_QWORD *)(v5 + 48) ^ (v5 + 56) ^ s_aab_set_pointer_lastenemypos))(&v25, v5 + 64);
-      ++v3;
-      v2 = v23;
+      ((void (__fastcall *)(float *, __int64))(*(_QWORD *)(v4 + 48) ^ (v4 + 56) ^ s_aab_set_pointer_lastenemypos))(&v19, v4 + 64);
+      ++v2;
+      v1 = v17;
     }
-    while ( v3 < v4 );
+    while ( v2 < v3 );
   }
 }
 
@@ -6043,10 +4028,9 @@ void CgCompassSystem::SetCurrentCompassType(CgCompassSystem *this, CompassType c
 CgCompassSystem::SetCurrentCompassZoomLevel
 ==============
 */
-
-void __fastcall CgCompassSystem::SetCurrentCompassZoomLevel(CgCompassSystem *this, double zoomLevel)
+void CgCompassSystem::SetCurrentCompassZoomLevel(CgCompassSystem *this, const float zoomLevel)
 {
-  __asm { vmovss  dword ptr [rcx+20h], xmm1 }
+  this->m_currentZoomLevel = zoomLevel;
 }
 
 /*
@@ -6113,105 +4097,82 @@ void CgCompassSystem::UpdatePlayerOrientation(CgCompassSystem *this, const playe
   LocalClientNum_t m_localClientNum; 
   cg_t *LocalClientGlobals; 
   CgWeaponMap *Instance; 
+  float v9; 
   CgHandler *Handler; 
-  char v19; 
+  __int128 v11; 
+  float v12; 
+  float v13; 
+  float v17; 
+  double v18; 
+  double v19; 
+  bool v20; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
-  WorldUpReferenceFrame v31; 
+  WorldUpReferenceFrame v23; 
 
-  _RBX = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2535, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBX->m_compassMirrorLeftRight = 0;
+  this->m_compassMirrorLeftRight = 0;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2671, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   pm_type = ps->pm_type;
   v5 = pm_type == 1 || pm_type == 8 || (ps->linkFlags.m_flags[0] & 4) != 0 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 1u);
-  m_localClientNum = _RBX->m_localClientNum;
+  m_localClientNum = this->m_localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(m_localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2609, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  _RDI = &LocalClientGlobals->predictedPlayerState;
   if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2612, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( LocalClientGlobals->renderingThirdPerson || (Instance = CgWeaponMap::GetInstance(m_localClientNum), BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState)) )
   {
     AxisToAngles(&LocalClientGlobals->refdef.view.axis, &angles);
-    __asm { vmovss  xmm1, dword ptr [rsp+0D8h+angles+4] }
+    v9 = angles.v[1];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+1D8h]
-      vmovss  dword ptr [rsp+0D8h+angles], xmm0
-      vmovss  xmm1, dword ptr [rdi+1DCh]
-      vmovss  dword ptr [rsp+0D8h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+1E0h]
-      vmovss  dword ptr [rsp+0D8h+angles+8], xmm0
-    }
+    angles.v[0] = LocalClientGlobals->predictedPlayerState.viewangles.v[0];
+    v9 = LocalClientGlobals->predictedPlayerState.viewangles.v[1];
+    *(_QWORD *)&angles.y = *(_QWORD *)&LocalClientGlobals->predictedPlayerState.viewangles.y;
   }
   if ( v5 )
   {
-    __asm
-    {
-      vmovaps xmm0, xmm1; yaw
-      vmovss  dword ptr [rbx+0Ch], xmm1
-    }
-    YawVectors2D(*(float *)&_XMM0, &_RBX->m_compassPlayerForward, NULL);
+    this->m_compassPlayerYaw = v9;
+    YawVectors2D(v9, &this->m_compassPlayerForward, NULL);
   }
   else
   {
     AnglesToAxis(&angles, &axis);
-    Handler = CgHandler::getHandler(_RBX->m_localClientNum);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v31, ps, Handler);
-    WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v31, &axis);
-    __asm
+    Handler = CgHandler::getHandler(this->m_localClientNum);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v23, ps, Handler);
+    WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v23, &axis);
+    v11 = LODWORD(axis.m[0].v[0]);
+    *(float *)&v11 = (float)(axis.m[0].v[0] * axis.m[0].v[0]) + (float)(axis.m[0].v[1] * axis.m[0].v[1]);
+    if ( *(float *)&v11 >= 0.001 )
     {
-      vmovss  xmm3, dword ptr [rsp+0D8h+axis]
-      vmovss  xmm4, dword ptr [rsp+0D8h+axis+4]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vcomiss xmm2, cs:__real@3a83126f
-    }
-    if ( v19 )
-    {
+      *(float *)&v11 = fsqrt(*(float *)&v11);
+      _XMM2 = v11;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsp+0D8h+axis+10h]
-        vmovss  xmm1, dword ptr [rsp+0D8h+axis+0Ch]
+        vcmpless xmm0, xmm2, cs:__real@80000000
+        vblendvps xmm0, xmm2, xmm1, xmm0
       }
+      v17 = 1.0 / *(float *)&_XMM0;
+      v12 = axis.m[0].v[1] * (float)(1.0 / *(float *)&_XMM0);
+      v13 = axis.m[0].v[0] * v17;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm2, xmm2, xmm2
-        vcmpless xmm0, xmm2, cs:__real@80000000
-        vblendvps xmm0, xmm2, xmm1, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm4, xmm1
-        vmulss  xmm1, xmm3, xmm1
-      }
+      v12 = axis.m[1].v[1];
+      v13 = axis.m[1].v[0];
     }
-    __asm
-    {
-      vmovss  dword ptr [rbx+10h], xmm1
-      vmovss  dword ptr [rbx+14h], xmm0
-    }
-    *(double *)&_XMM0 = vectoyaw(&_RBX->m_compassPlayerForward);
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+0D8h+var_70.m_axis+20h]
-      vxorps  xmm2, xmm2, xmm2
-      vcomiss xmm1, xmm2
-      vmovss  dword ptr [rbx+0Ch], xmm0
-    }
-    if ( v19 )
-      _RBX->m_compassMirrorLeftRight = 1;
+    this->m_compassPlayerForward.v[0] = v13;
+    this->m_compassPlayerForward.v[1] = v12;
+    v18 = vectoyaw(&this->m_compassPlayerForward);
+    v19 = AngleNormalize360(*(const float *)&v18);
+    v20 = v23.m_axis.m[2].v[2] < 0.0;
+    this->m_compassPlayerYaw = *(float *)&v19;
+    if ( v20 )
+      this->m_compassMirrorLeftRight = 1;
   }
 }
 
@@ -6222,32 +4183,29 @@ CgCompassSystem::UpdateTurretInfoCommon
 */
 void CgCompassSystem::UpdateTurretInfoCommon(CgCompassSystem *this, CompassTurret *turretInfo, LocalClientNum_t localClientNum, const centity_t *cent)
 {
-  _RBX = cent;
-  _RDI = turretInfo;
+  float roll; 
+  double v8; 
+
   if ( !turretInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2654, ASSERT_TYPE_ASSERT, "(turretInfo)", (const char *)&queryFormat, "turretInfo") )
     __debugbreak();
-  _RDI->lastUpdateTime = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->time;
-  CG_GetPoseOrigin(&_RBX->pose, &_RDI->positionCurrent);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_local.h", 141, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
+  turretInfo->lastUpdateTime = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->time;
+  CG_GetPoseOrigin(&cent->pose, &turretInfo->positionCurrent);
+  if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_local.h", 141, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  if ( (_RBX->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_local.h", 142, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
+  if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_local.h", 142, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  if ( _RBX->pose.eType == 11 && _RBX->pose.turret.remoteTurret )
+  if ( cent->pose.eType == 11 && cent->pose.turret.remoteTurret )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 2661, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL )") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+0A4h] }
+    roll = cent->pose.actor.roll;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A4h]
-      vaddss  xmm0, xmm0, dword ptr [rbx+4Ch]; angle
-    }
+    roll = cent->pose.actor.roll + cent->pose.angles.v[1];
   }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm { vmovss  dword ptr [rdi+28h], xmm0 }
+  v8 = AngleNormalize360(roll);
+  turretInfo->yawCurrent = *(float *)&v8;
 }
 
 /*
@@ -6257,265 +4215,192 @@ CgCompassSystem::WorldPosToCompass
 */
 __int64 CgCompassSystem::WorldPosToCompass(CgCompassSystem *this, CompassType compassType, bool cropPartialMap, const rectDef_s *mapRect, const float boundsRadius, const vec2_t *compassMapWorldSize, const vec2_t *compassMapUpperLeft, const vec2_t *compassNorth, const vec2_t *north, const vec2_t *playerWorldPos, const vec2_t *in, vec2_t *out, vec2_t *outClipped)
 {
-  CgCompassSystem_vtbl *v28; 
-  bool v67; 
+  double v17; 
+  double v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  float v28; 
+  bool v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
   CgCompassSystem *CompassSystem; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  double v46; 
+  unsigned __int8 v47; 
+  char v48; 
+  float v49; 
+  float v50; 
+  float w; 
+  float v52; 
+  float v53; 
+  float h; 
+  float v55; 
+  float v56; 
   __int64 result; 
   float c[2]; 
   float s[2]; 
   vec2_t m_tacmapMapCenter; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-  _R14 = out;
-  _RSI = mapRect;
-  __asm
-  {
-    vmovaps [rsp+0F0h+var_98+8], xmm12
-    vmovaps [rsp+0F0h+var_A8+8], xmm13
-  }
   if ( !mapRect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 136, ASSERT_TYPE_ASSERT, "(mapRect)", (const char *)&queryFormat, "mapRect") )
     __debugbreak();
-  v28 = this->__vftable;
-  __asm
-  {
-    vmovaps [rsp+0F0h+var_48+8], xmm7
-    vmovaps [rsp+0F0h+var_58+8], xmm8
-    vmovaps [rsp+0F0h+var_68+8], xmm9
-    vmovaps [rsp+0F0h+var_78+8], xmm10
-    vmovaps [rsp+0F0h+var_88+8], xmm11
-  }
-  *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))v28->GetRange)(this);
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f000000
-    vmovaps xmm6, xmm0
-    vxorps  xmm12, xmm12, xmm12
-  }
+  v17 = ((double (__fastcall *)(CgCompassSystem *))this->GetRange)(this);
   if ( compassType )
   {
     if ( compassType == COMPASS_TYPE_TACMAP )
     {
-      _RCX = in;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx]
-        vsubss  xmm11, xmm0, dword ptr [rax]
-        vmovss  xmm0, dword ptr [rcx+4]
-        vsubss  xmm10, xmm0, dword ptr [rax+4]
-      }
-      _RAX = compassNorth;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rax+4]
-        vmovss  xmm9, dword ptr [rax]
-      }
-      _RAX = compassMapWorldSize;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rax]
-        vmovss  xmm8, dword ptr [rax+4]
-      }
+      v33 = in->v[0] - compassMapUpperLeft->v[0];
+      v34 = in->v[1] - compassMapUpperLeft->v[1];
+      v35 = compassNorth->v[1];
+      v36 = compassNorth->v[0];
+      v37 = compassMapWorldSize->v[0];
+      v38 = compassMapWorldSize->v[1];
       CompassSystem = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)this->m_localClientNum);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm4, xmm0, dword ptr [rdi+20h]
-        vmulss  xmm2, xmm11, xmm7
-        vmulss  xmm1, xmm10, xmm9
-        vsubss  xmm0, xmm2, xmm1
-        vdivss  xmm2, xmm0, xmm6
-        vmulss  xmm0, xmm10, xmm7
-      }
+      v40 = 1.0 / this->m_currentZoomLevel;
       m_tacmapMapCenter = CompassSystem->m_tacmapMapCenter;
-      __asm
-      {
-        vsubss  xmm3, xmm2, dword ptr [rsp+0F0h+var_B0]
-        vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm1, xmm3, xmm4
-        vmulss  xmm6, xmm1, dword ptr [rsi+8]
-        vmulss  xmm1, xmm11, xmm9
-        vsubss  xmm2, xmm2, xmm1
-        vdivss  xmm0, xmm2, xmm8
-        vsubss  xmm3, xmm0, dword ptr [rsp+0F0h+var_B0+4]
-        vmulss  xmm1, xmm3, xmm4
-        vmulss  xmm7, xmm1, dword ptr [rsi+0Ch]
-      }
+      v27 = (float)((float)((float)((float)((float)(v33 * v35) - (float)(v34 * v36)) / v37) - m_tacmapMapCenter.v[0]) * v40) * mapRect->w;
+      v28 = (float)((float)((float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v34 * v35) ^ _xmm) - (float)(v33 * v36)) / v38) - m_tacmapMapCenter.v[1]) * v40) * mapRect->h;
     }
     else
     {
       if ( compassType != COMPASS_TYPE_FULL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 215, ASSERT_TYPE_ASSERT, "(compassType == CompassType::COMPASS_TYPE_FULL)", (const char *)&queryFormat, "compassType == CompassType::COMPASS_TYPE_FULL") )
         __debugbreak();
-      _RCX = in;
-      __asm
-      {
-        vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm0, dword ptr [rcx]
-        vsubss  xmm6, xmm0, dword ptr [rax]
-        vmovss  xmm0, dword ptr [rcx+4]
-        vsubss  xmm4, xmm0, dword ptr [rax+4]
-      }
-      _RAX = compassNorth;
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rax+4]
-        vmovss  xmm5, dword ptr [rax]
-        vmulss  xmm1, xmm6, xmm3
-        vmulss  xmm0, xmm4, xmm5
-        vsubss  xmm2, xmm1, xmm0
-        vdivss  xmm1, xmm2, dword ptr [rax]
-        vsubss  xmm7, xmm1, xmm13
-        vmulss  xmm0, xmm4, xmm3
-        vxorps  xmm1, xmm0, xmm9
-        vmulss  xmm0, xmm6, xmm5
-        vsubss  xmm1, xmm1, xmm0
-        vdivss  xmm2, xmm1, dword ptr [rax+4]
-        vsubss  xmm8, xmm2, xmm13
-        vmovss  [rsp+0F0h+s+4], xmm8
-        vmovss  [rsp+0F0h+s], xmm7
-      }
+      v41 = in->v[0] - compassMapUpperLeft->v[0];
+      v42 = in->v[1] - compassMapUpperLeft->v[1];
+      v43 = compassNorth->v[1];
+      v44 = (float)((float)((float)(v41 * v43) - (float)(v42 * compassNorth->v[0])) / compassMapWorldSize->v[0]) - 0.5;
+      v45 = (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v42 * v43) ^ _xmm) - (float)(v41 * compassNorth->v[0])) / compassMapWorldSize->v[1]) - 0.5;
+      s[1] = v45;
+      s[0] = v44;
       if ( cg_t::ms_allocatedType == GLOB_TYPE_MP && CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->m_isMLGSpectator && this->MapShouldRotate(this) )
       {
         m_tacmapMapCenter = *(vec2_t *)s;
-        *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))this->MapRotationFactor)(this);
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3c8efa35
-          vxorps  xmm1, xmm1, xmm9; radians
-        }
-        Vec2Rotate(&m_tacmapMapCenter, *(float *)&_XMM1, (vec2_t *)s);
-        __asm
-        {
-          vmovss  xmm8, [rsp+0F0h+s+4]
-          vmovss  xmm7, [rsp+0F0h+s]
-        }
+        v46 = ((double (__fastcall *)(CgCompassSystem *))this->MapRotationFactor)(this);
+        Vec2Rotate(&m_tacmapMapCenter, COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v46 * 0.017453292) ^ _xmm), (vec2_t *)s);
+        v45 = s[1];
+        v44 = s[0];
       }
-      __asm
-      {
-        vmulss  xmm6, xmm7, dword ptr [rsi+8]
-        vmulss  xmm7, xmm8, dword ptr [rsi+0Ch]
-      }
+      v27 = v44 * mapRect->w;
+      v28 = v45 * mapRect->h;
     }
-    goto LABEL_21;
+    goto LABEL_24;
   }
-  __asm { vcomiss xmm0, xmm12 }
+  if ( *(float *)&v17 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 141, ASSERT_TYPE_ASSERT, "( ( range >= 0.0f ) )", "( range ) = %g", *(float *)&v17) )
+    __debugbreak();
   if ( cropPartialMap )
   {
-    *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))this->GetCroppedMapZoom)(this);
-    _RBX = compassMapWorldSize;
-    __asm
-    {
-      vmovaps xmm7, xmm0
-      vmovss  xmm6, dword ptr [rbx+4]
-    }
+    v18 = ((double (__fastcall *)(CgCompassSystem *))this->GetCroppedMapZoom)(this);
+    v19 = compassMapWorldSize->v[1];
     ((void (__fastcall *)(CgCompassSystem *, vec2_t *))this->MapOffset)(this, &m_tacmapMapCenter);
-    _RCX = in;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0Ch]
-      vmulss  xmm1, xmm7, xmm6
-      vmovss  xmm2, dword ptr [rcx]
-      vdivss  xmm10, xmm0, xmm1
-      vsubss  xmm9, xmm2, dword ptr [rax]
-      vmovss  xmm0, dword ptr [rcx+4]
-      vsubss  xmm6, xmm0, dword ptr [rax+4]
-      vmulss  xmm0, xmm6, dword ptr [rax]
-      vmulss  xmm1, xmm9, dword ptr [rax+4]
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm6, dword ptr [rax+4]
-      vdivss  xmm2, xmm1, dword ptr [rbx]
-      vsubss  xmm3, xmm2, dword ptr [rsp+0F0h+var_B0]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm9, dword ptr [rax]
-      vmulss  xmm11, xmm3, dword ptr [rbx]
-      vsubss  xmm1, xmm1, xmm0
-      vdivss  xmm2, xmm1, dword ptr [rbx+4]
-      vsubss  xmm3, xmm2, dword ptr [rsp+0F0h+var_B0+4]
-      vmulss  xmm7, xmm3, dword ptr [rbx+4]
-      vmovaps xmm6, xmm11
-    }
+    v20 = mapRect->h / (float)(*(float *)&v18 * v19);
+    v21 = in->v[0] - compassMapUpperLeft->v[0];
+    v22 = in->v[1] - compassMapUpperLeft->v[1];
+    v23 = (float)((float)((float)((float)(v21 * compassNorth->v[1]) - (float)(v22 * compassNorth->v[0])) / compassMapWorldSize->v[0]) - m_tacmapMapCenter.v[0]) * compassMapWorldSize->v[0];
+    v24 = (float)((float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v22 * compassNorth->v[1]) ^ _xmm) - (float)(v21 * compassNorth->v[0])) / compassMapWorldSize->v[1]) - m_tacmapMapCenter.v[1]) * compassMapWorldSize->v[1];
+    v25 = v23;
     if ( this->MapShouldRotate(this) )
     {
-      *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))this->MapRotationFactor)(this);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3c8efa35
-        vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, s, &c[1]);
-      __asm
-      {
-        vmulss  xmm1, xmm11, [rsp+0F0h+c+4]
-        vmulss  xmm0, xmm7, [rsp+0F0h+s]
-        vmulss  xmm2, xmm11, [rsp+0F0h+s]
-        vsubss  xmm6, xmm1, xmm0
-        vmulss  xmm1, xmm7, [rsp+0F0h+c+4]
-        vaddss  xmm7, xmm2, xmm1
-      }
+      v26 = ((double (__fastcall *)(CgCompassSystem *))this->MapRotationFactor)(this);
+      FastSinCos(COERCE_CONST_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v26 * 0.017453292) ^ _xmm), s, &c[1]);
+      v25 = (float)(v23 * c[1]) - (float)(v24 * s[0]);
+      v24 = (float)(v23 * s[0]) + (float)(v24 * c[1]);
     }
-    __asm
+    v27 = v20 * v25;
+    v28 = v20 * v24;
+LABEL_24:
+    s[1] = v28;
+    goto LABEL_25;
+  }
+  v29 = !this->m_compassMirrorLeftRight;
+  v30 = mapRect->h / *(float *)&v17;
+  v31 = (float)(in->v[0] - playerWorldPos->v[0]) * v30;
+  v32 = (float)(in->v[1] - playerWorldPos->v[1]) * v30;
+  v27 = (float)(v31 * north->v[1]) - (float)(v32 * north->v[0]);
+  v28 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v32 * north->v[1]) ^ _xmm) - (float)(v31 * north->v[0]);
+  s[1] = v28;
+  s[0] = v27;
+  if ( !v29 )
+  {
+    LODWORD(v27) ^= _xmm;
+LABEL_25:
+    s[0] = v27;
+  }
+  v47 = 0;
+  LOBYTE(c[0]) = 0;
+  if ( !outClipped || mapRect->w < 0.0 || mapRect->h < 0.0 )
+    goto LABEL_43;
+  if ( this->m_currentMinimapStyle || (v48 = CG_CalcCircularCompassPos(mapRect, boundsRadius, (vec2_t *)s, (bool *)c), v47 = LOBYTE(c[0]), !v48) )
+  {
+    w = mapRect->w;
+    v50 = s[0];
+    v52 = w * 0.5;
+    if ( s[0] <= (float)(w * 0.5) )
     {
-      vmulss  xmm6, xmm10, xmm6
-      vmulss  xmm7, xmm10, xmm7
+      if ( s[0] >= (float)(w * -0.5) )
+      {
+        v49 = s[1];
+      }
+      else
+      {
+        v53 = (float)(-1.0 / s[0]) * (float)(w * 0.5);
+        v50 = s[0] * v53;
+        v49 = s[1] * v53;
+        v47 = 1;
+      }
     }
-LABEL_21:
-    __asm { vmovss  [rsp+0F0h+s+4], xmm7 }
-    goto LABEL_22;
+    else
+    {
+      v50 = s[0] * (float)(v52 / s[0]);
+      v49 = s[1] * (float)(v52 / s[0]);
+      v47 = 1;
+    }
+    h = mapRect->h;
+    if ( v49 <= (float)(h * 0.5) )
+    {
+      if ( v49 >= (float)(h * -0.5) )
+        goto LABEL_42;
+      v56 = (float)(-1.0 / v49) * (float)(h * 0.5);
+      v50 = v50 * v56;
+      v49 = v49 * v56;
+    }
+    else
+    {
+      v55 = (float)(h * 0.5) / v49;
+      v50 = v50 * v55;
+      v49 = v49 * v55;
+    }
+    v47 = 1;
+    goto LABEL_42;
   }
-  v67 = !this->m_compassMirrorLeftRight;
-  _RCX = in;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vdivss  xmm3, xmm0, xmm6
-    vmovss  xmm1, dword ptr [rcx]
-    vsubss  xmm0, xmm1, dword ptr [rax]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm2, xmm1, dword ptr [rax+4]
-    vmulss  xmm5, xmm0, xmm3
-    vmulss  xmm4, xmm2, xmm3
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm1, xmm5, dword ptr [rax+4]
-    vmulss  xmm0, xmm4, dword ptr [rax]
-    vsubss  xmm6, xmm1, xmm0
-    vmulss  xmm0, xmm4, dword ptr [rax+4]
-    vxorps  xmm1, xmm0, xmm3
-    vmulss  xmm0, xmm5, dword ptr [rax]
-    vsubss  xmm7, xmm1, xmm0
-    vmovss  [rsp+0F0h+s+4], xmm7
-    vmovss  [rsp+0F0h+s], xmm6
-  }
-  if ( v67 )
-    goto LABEL_23;
-  __asm { vxorps  xmm6, xmm6, xmm3 }
-LABEL_22:
-  __asm { vmovss  [rsp+0F0h+s], xmm6 }
-LABEL_23:
-  __asm
-  {
-    vmovaps xmm11, [rsp+0F0h+var_88+8]
-    vmovaps xmm10, [rsp+0F0h+var_78+8]
-    vmovaps xmm9, [rsp+0F0h+var_68+8]
-    vmovaps xmm8, [rsp+0F0h+var_58+8]
-  }
-  if ( outClipped )
-    __asm { vcomiss xmm12, dword ptr [rsi+8] }
-  __asm { vmovaps xmm13, [rsp+0F0h+var_A8+8] }
-  result = 0i64;
-  __asm { vmovaps xmm12, [rsp+0F0h+var_98+8] }
+  v49 = s[1];
+  v50 = s[0];
+LABEL_42:
+  outClipped->v[0] = v50;
+  outClipped->v[1] = v49;
+LABEL_43:
+  result = v47;
   if ( out )
   {
-    __asm
-    {
-      vmovss  dword ptr [r14], xmm6
-      vmovss  dword ptr [r14+4], xmm7
-    }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+0F0h+var_48+8]
-    vmovaps xmm6, [rsp+0F0h+var_38+8]
+    out->v[0] = v27;
+    out->v[1] = v28;
   }
   return result;
 }
@@ -6528,15 +4413,9 @@ CgCompassSystem::WorldPosToCompass
 bool CgCompassSystem::WorldPosToCompass(CgCompassSystem *this, CompassType compassType, bool cropPartialMap, const rectDef_s *mapRect, const float boundsRadius, const vec2_t *north, const vec2_t *playerWorldPos, const vec2_t *in, vec2_t *out, vec2_t *outClipped)
 {
   cg_t *LocalClientGlobals; 
-  float v17; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+boundsRadius]
-    vmovss  [rsp+78h+var_58], xmm0
-  }
-  return CgCompassSystem::WorldPosToCompass(this, compassType, cropPartialMap, mapRect, v17, &LocalClientGlobals->compassMapWorldSize, &LocalClientGlobals->compassMapUpperLeft, &LocalClientGlobals->compassNorth, north, playerWorldPos, in, out, outClipped);
+  return CgCompassSystem::WorldPosToCompass(this, compassType, cropPartialMap, mapRect, boundsRadius, &LocalClientGlobals->compassMapWorldSize, &LocalClientGlobals->compassMapUpperLeft, &LocalClientGlobals->compassNorth, north, playerWorldPos, in, out, outClipped);
 }
 
 /*
@@ -6544,306 +4423,314 @@ bool CgCompassSystem::WorldPosToCompass(CgCompassSystem *this, CompassType compa
 CgCompassSystem::WorldPosToCompassPredict
 ==============
 */
-
-bool __fastcall CgCompassSystem::WorldPosToCompassPredict(CgCompassSystem *this, CompassType compassType, const rectDef_s *mapRect, double boundsRadius, const vec2_t *north, const vec2_t *playerWorldPos, const vec2_t *in, const vec2_t *prev, vec2_t *out, vec2_t *outClipped)
+bool CgCompassSystem::WorldPosToCompassPredict(CgCompassSystem *this, CompassType compassType, const rectDef_s *mapRect, const float boundsRadius, const vec2_t *north, const vec2_t *playerWorldPos, const vec2_t *in, const vec2_t *prev, vec2_t *out, vec2_t *outClipped)
 {
-  LocalClientNum_t m_localClientNum; 
-  char v31; 
+  cg_t *LocalClientGlobals; 
+  float v14; 
+  float v15; 
+  bool v16; 
+  int v17; 
+  float h; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
   bool result; 
-  bool v114; 
-  bool v116; 
-  double v137; 
-  bool v138[4]; 
+  float w; 
+  float v41; 
+  float v42; 
+  float v43; 
+  __int128 v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  __int128 v48; 
+  __int128 v49; 
+  float v50; 
+  float v51; 
+  __int128 v53; 
+  float v54; 
+  float v56; 
+  __int128 v57; 
+  __int128 v58; 
+  float v59; 
+  float v62; 
+  float v63; 
+  char v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  bool v72[4]; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
   vec2_t outClippedXY; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _R15 = out;
-  _RDI = mapRect;
-  _R12 = outClipped;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-0A8h], xmm13
-    vmovss  [rsp+120h+var_E0], xmm3
-  }
+  v76 = boundsRadius;
   if ( !mapRect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 311, ASSERT_TYPE_ASSERT, "(mapRect)", (const char *)&queryFormat, "mapRect") )
     __debugbreak();
-  m_localClientNum = this->m_localClientNum;
-  __asm
-  {
-    vmovaps [rsp+120h+var_38+8], xmm6
-    vmovaps [rsp+120h+var_48+8], xmm7
-    vmovaps [rsp+120h+var_68+8], xmm9
-    vmovaps [rsp+120h+var_78+8], xmm10
-    vmovaps [rsp+120h+var_88+8], xmm11
-    vmovaps [rsp+120h+var_98+8], xmm12
-    vmovaps [rsp+120h+var_B8+8], xmm14
-    vmovaps [rsp+120h+var_C8+8], xmm15
-  }
-  _RSI = CG_GetLocalClientGlobals(m_localClientNum);
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f000000
-    vxorps  xmm8, xmm8, xmm8
-  }
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( compassType )
   {
     if ( (unsigned int)(compassType - 1) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 344, ASSERT_TYPE_ASSERT, "(compassType == CompassType::COMPASS_TYPE_FULL || compassType == CompassType::COMPASS_TYPE_TACMAP)", (const char *)&queryFormat, "compassType == CompassType::COMPASS_TYPE_FULL || compassType == CompassType::COMPASS_TYPE_TACMAP") )
       __debugbreak();
-    _RAX = in;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsi+4A004h]
-      vmovss  xmm5, dword ptr [rsi+4A000h]
-      vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm15, xmm0, dword ptr [rsi+4A018h]
-      vmovss  xmm1, dword ptr [rax+4]
-      vsubss  xmm6, xmm1, dword ptr [rsi+4A01Ch]
-      vmovss  xmm11, dword ptr [rdi+0Ch]
-      vmovss  xmm14, [rsp+120h+var_E0]
-      vmovss  xmm7, [rsp+120h+var_E0]
-      vmovss  xmm12, [rsp+120h+var_E0]
-      vmulss  xmm1, xmm4, xmm15
-      vmulss  xmm0, xmm5, xmm6
-      vsubss  xmm1, xmm1, xmm0
-      vdivss  xmm2, xmm1, dword ptr [rsi+4A020h]
-      vsubss  xmm3, xmm2, xmm13
-      vmulss  xmm9, xmm3, dword ptr [rdi+8]
-      vmulss  xmm0, xmm4, xmm6
-      vxorps  xmm1, xmm0, xmm10
-      vmulss  xmm0, xmm5, xmm15
-      vsubss  xmm1, xmm1, xmm0
-      vdivss  xmm2, xmm1, dword ptr [rsi+4A024h]
-      vmovss  xmm1, [rsp+120h+var_E0]
-      vsubss  xmm3, xmm2, xmm13
-      vmulss  xmm0, xmm3, xmm11
-      vmovss  [rsp+120h+var_E8], xmm0
-      vmovss  [rsp+120h+var_EC], xmm1
-    }
+    v37 = LocalClientGlobals->compassNorth.v[1];
+    v38 = LocalClientGlobals->compassNorth.v[0];
+    v17 = _xmm;
+    v22 = in->v[0] - LocalClientGlobals->compassMapUpperLeft.v[0];
+    v35 = in->v[1] - LocalClientGlobals->compassMapUpperLeft.v[1];
+    h = mapRect->h;
+    v34 = v76;
+    v33 = v76;
+    v28 = v76;
+    v26 = (float)((float)((float)((float)(v37 * v22) - (float)(v38 * v35)) / LocalClientGlobals->compassMapWorldSize.v[0]) - 0.5) * mapRect->w;
+    v36 = (float)((float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v37 * v35) ^ _xmm) - (float)(v38 * v22)) / LocalClientGlobals->compassMapWorldSize.v[1]) - 0.5) * h;
+    v74 = v36;
+    v73 = v76;
   }
   else
   {
-    *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))this->GetRange)(this);
-    __asm { vcomiss xmm0, xmm8 }
-    if ( v31 )
+    if ( this->GetRange(this) < 0.0 )
     {
-      *(double *)&_XMM0 = ((double (__fastcall *)(CgCompassSystem *))this->GetRange)(this);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  qword ptr [rsp+120h+var_F8], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 317, ASSERT_TYPE_ASSERT, "( ( GetRange() >= 0.0f ) )", "( GetRange() ) = %g", v137) )
+      v14 = ((__m128 (__fastcall *)(CgCompassSystem *))this->GetRange)(this).m128_f32[0];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 317, ASSERT_TYPE_ASSERT, "( ( GetRange() >= 0.0f ) )", "( GetRange() ) = %g", v14) )
         __debugbreak();
     }
-    this->GetRange(this);
-    v114 = !this->m_compassMirrorLeftRight;
-    _RAX = in;
-    __asm
+    v15 = this->GetRange(this);
+    v16 = !this->m_compassMirrorLeftRight;
+    v17 = _xmm;
+    h = mapRect->h;
+    v19 = in->v[0];
+    v20 = in->v[1];
+    v21 = h * (float)(1.0 / v15);
+    v22 = (float)(in->v[0] - playerWorldPos->v[0]) * v21;
+    v77 = (float)(v20 - playerWorldPos->v[1]) * v21;
+    v23 = north->v[1];
+    v24 = north->v[0];
+    v25 = v19 * v21;
+    v27 = (float)(v23 * v22) - (float)(north->v[0] * v77);
+    v26 = v27;
+    v74 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v23 * v77) ^ _xmm) - (float)(north->v[0] * v22);
+    v28 = (float)(v23 * v25) - (float)(v24 * (float)(v20 * v21));
+    v29 = v24 * v25;
+    v30 = v21 * prev->v[0];
+    v31 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v23 * (float)(v20 * v21)) ^ _xmm) - v29;
+    v32 = v21 * prev->v[1];
+    v33 = (float)(v30 * v23) - (float)(v32 * v24);
+    v34 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v32 * v23) ^ _xmm) - (float)(v30 * v24);
+    v73 = v31;
+    if ( !v16 )
     {
-      vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  xmm11, dword ptr [rdi+0Ch]
-      vmovss  xmm3, dword ptr [rax]
-      vmovss  xmm4, dword ptr [rax+4]
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm7, xmm11, xmm2
-      vsubss  xmm0, xmm3, dword ptr [rax]
-      vsubss  xmm1, xmm4, dword ptr [rax+4]
+      LODWORD(v26) = LODWORD(v27) ^ _xmm;
+      LODWORD(v28) ^= _xmm;
+      LODWORD(v33) ^= _xmm;
     }
-    _RAX = north;
-    __asm
-    {
-      vmulss  xmm2, xmm1, xmm7
-      vmulss  xmm15, xmm0, xmm7
-      vmovss  [rsp+120h+var_DC], xmm2
-      vmovss  xmm5, dword ptr [rax+4]
-      vmovss  xmm6, dword ptr [rax]
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm2, xmm5, xmm2
-      vmulss  xmm3, xmm3, xmm7
-      vmulss  xmm1, xmm5, xmm15
-      vsubss  xmm9, xmm1, xmm0
-      vxorps  xmm1, xmm2, xmm10
-      vmulss  xmm2, xmm4, xmm7
-      vmulss  xmm0, xmm6, xmm15
-      vsubss  xmm0, xmm1, xmm0
-      vmovss  [rsp+120h+var_E8], xmm0
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm1, xmm5, xmm3
-      vsubss  xmm12, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm2
-      vxorps  xmm2, xmm1, xmm10
-      vmulss  xmm0, xmm6, xmm3
-      vmulss  xmm3, xmm7, dword ptr [rax]
-      vsubss  xmm4, xmm2, xmm0
-      vmulss  xmm2, xmm7, dword ptr [rax+4]
-      vmulss  xmm0, xmm2, xmm6
-      vmulss  xmm1, xmm3, xmm5
-      vsubss  xmm7, xmm1, xmm0
-      vmulss  xmm1, xmm2, xmm5
-      vxorps  xmm2, xmm1, xmm10
-      vmulss  xmm0, xmm3, xmm6
-      vsubss  xmm14, xmm2, xmm0
-      vmovss  [rsp+120h+var_EC], xmm4
-    }
-    if ( !v114 )
-    {
-      __asm
-      {
-        vxorps  xmm9, xmm9, xmm10
-        vxorps  xmm12, xmm12, xmm10
-        vxorps  xmm7, xmm7, xmm10
-      }
-    }
-    __asm
-    {
-      vmovss  xmm6, [rsp+120h+var_DC]
-      vmovss  xmm0, [rsp+120h+var_E8]
-    }
+    v35 = v77;
+    v36 = v74;
   }
   result = 0;
-  v138[0] = 0;
+  v72[0] = 0;
   if ( outClipped )
   {
-    __asm
+    w = mapRect->w;
+    if ( w >= 0.0 && h >= 0.0 && compassType == COMPASS_TYPE_PARTIAL )
     {
-      vmovss  xmm3, dword ptr [rdi+8]
-      vcomiss xmm3, xmm8
-      vcomiss xmm11, xmm8
-    }
-    if ( compassType == COMPASS_TYPE_PARTIAL )
-    {
-      __asm
+      outClippedXY.v[1] = v36;
+      v41 = v36;
+      v42 = fsqrt((float)(v35 * v35) + (float)(v22 * v22));
+      v43 = h * 0.5;
+      v49 = LODWORD(v73);
+      *(float *)&v49 = v73 - v34;
+      v44 = v49;
+      v45 = v28 - v33;
+      v46 = w * 0.5;
+      v47 = v26;
+      v77 = v43;
+      *(float *)&v49 = *(float *)&v49 * *(float *)&v49;
+      v48 = v49;
+      outClippedXY.v[0] = v26;
+      v75 = v42;
+      v50 = v45 * v45;
+      v51 = v28 - v33;
+      if ( v42 <= (float)(w * 0.5) )
       {
-        vmulss  xmm1, xmm6, xmm6
-        vmovss  dword ptr [rsp+120h+outClippedXY+4], xmm0
-        vmovaps xmm4, xmm0
-        vmulss  xmm0, xmm15, xmm15
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vmovss  xmm1, [rsp+120h+var_EC]
-        vmulss  xmm0, xmm11, xmm13
-        vsubss  xmm6, xmm1, xmm14
-        vsubss  xmm11, xmm12, xmm7
-        vmulss  xmm15, xmm3, xmm13
-        vcomiss xmm2, xmm15
-        vmovaps xmm5, xmm9
-        vmovss  [rsp+120h+var_DC], xmm0
-        vmulss  xmm0, xmm6, xmm6
-        vmovss  dword ptr [rsp+120h+outClippedXY], xmm5
-        vmovss  [rsp+120h+var_E4], xmm2
-        vmulss  xmm1, xmm11, xmm11
-        vmovaps xmm12, xmm11
-        vmovss  [rsp+120h+var_E4], xmm7
-        vmovss  [rsp+120h+var_EC], xmm14
-        vcomiss xmm2, [rsp+120h+var_DC]
-        vcomiss xmm9, xmm15
-        vmovss  xmm11, cs:__real@bf000000
-        vmulss  xmm0, xmm11, dword ptr [rdi+8]
-        vcomiss xmm9, xmm0
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmulss  xmm1, xmm0, xmm13
-        vcomiss xmm4, xmm1
-        vmulss  xmm0, xmm0, xmm11
-        vcomiss xmm4, xmm0
+        v75 = v33;
+        v73 = v34;
       }
-      v114 = this->m_currentMinimapStyle == MINIMAP_STYLE_CIRCLE;
-      if ( this->m_currentMinimapStyle )
-        goto LABEL_19;
-      __asm { vmovss  xmm1, [rsp+120h+var_E0]; boundsRadius }
-      v116 = CG_CalcCircularCompassPos(_RDI, *(double *)&_XMM1, &outClippedXY, v138);
-      __asm
+      else
       {
-        vmovss  xmm4, dword ptr [rsp+120h+outClippedXY+4]
-        vmovss  xmm5, dword ptr [rsp+120h+outClippedXY]
-      }
-      v114 = !v116;
-      result = v138[0];
-      if ( v114 )
-      {
-LABEL_19:
-        __asm
+        v73 = *(float *)&v44;
+        if ( (float)(v50 + *(float *)&v49) > 0.0 )
         {
-          vmovss  xmm0, dword ptr [rdi+8]
-          vmovss  xmm2, cs:__real@bf800000
-          vmulss  xmm1, xmm0, xmm13
-          vcomiss xmm5, xmm1
+          v53 = 0i64;
+          *(float *)&v53 = (float)(v45 * v45) + *(float *)&v48;
+          _XMM3 = v53;
+          v54 = v42 - v46;
+          __asm { vrsqrtss xmm3, xmm3, xmm3 }
+          v51 = (float)(v45 * *(float *)&_XMM3) * v54;
+          v56 = (float)(*(float *)&v44 * *(float *)&_XMM3) * v54;
+          v42 = v75;
+          v73 = v56;
+          v57 = v44;
+          *(float *)&v57 = *(float *)&v44 * *(float *)&v44;
+          v48 = v57;
+          v50 = v45 * v45;
         }
-        if ( v114 )
+        v75 = v26 + v51;
+        v17 = _xmm;
+        v73 = v74 + v73;
+      }
+      if ( v42 > v77 )
+      {
+        v58 = v48;
+        if ( (float)(*(float *)&v48 + v50) > 0.0 )
         {
-          __asm
+          v59 = v42 - v77;
+          *(float *)&v58 = *(float *)&v48 + v50;
+          _XMM1 = v58;
+          __asm { vrsqrtss xmm3, xmm1, xmm3 }
+          v45 = (float)(v45 * *(float *)&_XMM3) * v59;
+          *(float *)&v44 = (float)(*(float *)&v44 * *(float *)&_XMM3) * v59;
+        }
+        v34 = v74 + *(float *)&v44;
+        v33 = v26 + v45;
+      }
+      if ( v26 <= v46 )
+      {
+        if ( v26 >= (float)(-0.5 * mapRect->w) )
+          goto LABEL_37;
+        if ( v51 > 0.0 )
+        {
+          v41 = v73;
+          v47 = v75;
+          outClippedXY.v[1] = v73;
+        }
+        LODWORD(v47) = COERCE_UNSIGNED_INT((float)(v46 / v47) * v47) ^ v17;
+      }
+      else
+      {
+        v62 = v26;
+        if ( COERCE_FLOAT(LODWORD(v51) ^ v17) > 0.0 )
+        {
+          v41 = v73;
+          v62 = v75;
+          outClippedXY.v[1] = v73;
+        }
+        v47 = (float)(v46 / v62) * v62;
+      }
+      result = 1;
+      v72[0] = 1;
+      outClippedXY.v[0] = v47;
+LABEL_37:
+      v63 = mapRect->h;
+      if ( v41 <= (float)(v63 * 0.5) )
+      {
+        if ( v41 >= (float)(v63 * -0.5) )
+        {
+LABEL_46:
+          if ( this->m_currentMinimapStyle == MINIMAP_STYLE_CIRCLE )
           {
-            vmulss  xmm0, xmm0, xmm11
-            vcomiss xmm5, xmm0
+            v64 = CG_CalcCircularCompassPos(mapRect, v76, &outClippedXY, v72);
+            v41 = outClippedXY.v[1];
+            v47 = outClippedXY.v[0];
+            v16 = v64 == 0;
+            result = v72[0];
+            if ( !v16 )
+              goto LABEL_58;
           }
-        }
-        else
-        {
-          __asm
+          v65 = mapRect->w;
+          v66 = v65 * 0.5;
+          if ( v47 <= (float)(v65 * 0.5) )
           {
-            vdivss  xmm0, xmm1, xmm5
-            vmulss  xmm5, xmm5, xmm0
-            vmulss  xmm4, xmm4, xmm0
+            if ( v47 >= (float)(v65 * -0.5) )
+              goto LABEL_53;
+            v68 = (float)(-1.0 / v47) * (float)(v65 * 0.5);
+            v47 = v47 * v68;
+            v41 = v41 * v68;
+          }
+          else
+          {
+            v67 = v66 / v47;
+            v47 = v47 * (float)(v66 / v47);
+            v41 = v41 * v67;
           }
           result = 1;
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+0Ch]
-          vmulss  xmm1, xmm0, xmm13
-          vcomiss xmm4, xmm1
-        }
-        if ( v114 )
-        {
-          __asm
+LABEL_53:
+          v69 = mapRect->h;
+          if ( v41 <= (float)(v69 * 0.5) )
           {
-            vmulss  xmm0, xmm0, xmm11
-            vcomiss xmm4, xmm0
+            if ( v41 >= (float)(v69 * -0.5) )
+            {
+LABEL_58:
+              outClipped->v[0] = v47;
+              outClipped->v[1] = v41;
+              goto LABEL_59;
+            }
+            v71 = (float)(-1.0 / v41) * (float)(v69 * 0.5);
+            v47 = v47 * v71;
+            v41 = v41 * v71;
           }
-        }
-        else
-        {
-          __asm
+          else
           {
-            vdivss  xmm0, xmm1, xmm4
-            vmulss  xmm5, xmm5, xmm0
-            vmulss  xmm4, xmm4, xmm0
+            v70 = (float)(v69 * 0.5) / v41;
+            v47 = v47 * v70;
+            v41 = v41 * v70;
           }
           result = 1;
+          goto LABEL_58;
         }
+        if ( *(float *)&v44 > 0.0 )
+        {
+          outClippedXY.v[0] = v33;
+          v47 = v33;
+          v41 = v34;
+        }
+        v41 = v41 * COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v63 * 0.5) / v41) ^ v17);
       }
-      __asm
+      else
       {
-        vmovss  dword ptr [r12], xmm5
-        vmovss  dword ptr [r12+4], xmm4
+        if ( COERCE_FLOAT(v44 ^ v17) > 0.0 )
+        {
+          outClippedXY.v[0] = v33;
+          v47 = v33;
+          v41 = v34;
+        }
+        v41 = v41 * (float)((float)(v63 * 0.5) / v41);
       }
+      result = 1;
+      v72[0] = 1;
+      outClippedXY.v[1] = v41;
+      goto LABEL_46;
     }
   }
-  __asm
-  {
-    vmovaps xmm15, [rsp+120h+var_C8+8]
-    vmovaps xmm14, [rsp+120h+var_B8+8]
-    vmovaps xmm13, [rsp+120h+var_A8+8]
-    vmovaps xmm12, [rsp+120h+var_98+8]
-    vmovaps xmm11, [rsp+120h+var_88+8]
-    vmovaps xmm10, [rsp+120h+var_78+8]
-    vmovaps xmm8, [rsp+120h+var_58+8]
-    vmovaps xmm7, [rsp+120h+var_48+8]
-    vmovaps xmm6, [rsp+120h+var_38+8]
-  }
+LABEL_59:
   if ( out )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+120h+var_E8]
-      vmovss  dword ptr [r15+4], xmm0
-      vmovss  dword ptr [r15], xmm9
-    }
+    out->v[1] = v74;
+    out->v[0] = v26;
   }
-  __asm { vmovaps xmm9, [rsp+120h+var_68+8] }
   return result;
 }
 
@@ -6852,43 +4739,28 @@ LABEL_19:
 CgCompassSystem::WorldYawToCompass
 ==============
 */
-
-void __fastcall CgCompassSystem::WorldYawToCompass(CgCompassSystem *this, CompassType compassType, const cg_t *const cgameGlob, double in, float *out)
+void CgCompassSystem::WorldYawToCompass(CgCompassSystem *this, CompassType compassType, const cg_t *const cgameGlob, const float in, float *out)
 {
-  const dvar_t *v11; 
+  const dvar_t *v7; 
+  float v8; 
 
-  _RDI = out;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.cpp", 501, ASSERT_TYPE_ASSERT, "(out)", (const char *)&queryFormat, "out") )
     __debugbreak();
-  __asm { vmovss  dword ptr [rdi], xmm6 }
+  *out = in;
   if ( compassType == COMPASS_TYPE_PARTIAL )
   {
-    v11 = DVARBOOL_compassRotation;
+    v7 = DVARBOOL_compassRotation;
     if ( !DVARBOOL_compassRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassRotation") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v11->current.enabled && this->m_compassMirrorLeftRight )
+    Dvar_CheckFrontendServerThread(v7);
+    if ( v7->current.enabled && this->m_compassMirrorLeftRight )
     {
-      __asm
-      {
-        vmulss  xmm4, xmm6, cs:__real@3b360b61
-        vaddss  xmm1, xmm4, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm2, xmm0, xmm1
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@c3b40000
-        vmovss  dword ptr [rdi], xmm1
-      }
+      v8 = in * 0.0027777778;
+      _XMM1 = 0i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 1 }
+      *out = (float)(v8 - *(float *)&_XMM3) * -360.0;
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -6901,11 +4773,7 @@ rectDef_s *CgCompassSystem::getTacmapMapRectangle(CgCompassSystem *this, rectDef
   int v2; 
 
   v2 = *(_DWORD *)&this->m_tacmapRectangle.horzAlign;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+0C8h]
-    vmovups xmmword ptr [rdx], xmm0
-  }
+  *(_OWORD *)&result->x = *(_OWORD *)&this->m_tacmapRectangle.x;
   *(_DWORD *)&result->horzAlign = v2;
   return result;
 }
@@ -6917,11 +4785,10 @@ CgCompassSystem::setTacmapMapRectangle
 */
 void CgCompassSystem::setTacmapMapRectangle(CgCompassSystem *this, rectDef_s *rect)
 {
-  int v3; 
+  int v2; 
 
-  __asm { vmovups xmm0, xmmword ptr [rdx] }
-  v3 = *(_DWORD *)&rect->horzAlign;
-  __asm { vmovups xmmword ptr [rcx+0C8h], xmm0 }
-  *(_DWORD *)&this->m_tacmapRectangle.horzAlign = v3;
+  v2 = *(_DWORD *)&rect->horzAlign;
+  *(_OWORD *)&this->m_tacmapRectangle.x = *(_OWORD *)&rect->x;
+  *(_DWORD *)&this->m_tacmapRectangle.horzAlign = v2;
 }
 

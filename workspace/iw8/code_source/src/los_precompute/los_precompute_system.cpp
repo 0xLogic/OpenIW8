@@ -157,121 +157,94 @@ LOSPrecomputeSystem::CacheSpawnNodeList
 */
 void LOSPrecomputeSystem::CacheSpawnNodeList(LOSPrecomputeSystem *this, unsigned __int16 *pathNodeIndexList, unsigned int pathNodeListCount)
 {
-  __int64 v4; 
+  __int64 v3; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  int v9; 
-  __int64 v10; 
-  int v11; 
-  char *v13; 
-  char *v14; 
-  char v15; 
-  unsigned __int16 v16; 
-  double parentname; 
-  double calledFromScript; 
-  double v26; 
+  int v8; 
+  __int64 v9; 
+  int v10; 
+  char *v11; 
+  char *v12; 
+  char v13; 
+  unsigned __int16 v14; 
   vec3_t origin; 
   vec3_t angles; 
   char _Buffer[32]; 
 
-  v4 = pathNodeListCount;
+  v3 = pathNodeListCount;
   if ( pathNodeListCount > 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\los_precompute\\los_precompute_system.cpp", 704, ASSERT_TYPE_ASSERT, "(pathNodeListCount <= 2048)", (const char *)&queryFormat, "pathNodeListCount <= MAX_SPAWN_PATHNODE_LIST") )
     __debugbreak();
-  v7 = 0i64;
-  if ( (_DWORD)v4 )
+  v6 = 0i64;
+  if ( (_DWORD)v3 )
   {
-    v8 = v4;
+    v7 = v3;
     do
     {
-      v9 = 0;
-      if ( (_DWORD)v7 )
+      v8 = 0;
+      if ( (_DWORD)v6 )
       {
-        while ( *pathNodeIndexList != this->m_timingData.m_spawnPathNodeIndexList[v9] )
+        while ( *pathNodeIndexList != this->m_timingData.m_spawnPathNodeIndexList[v8] )
         {
-          if ( ++v9 >= (unsigned int)v7 )
+          if ( ++v8 >= (unsigned int)v6 )
             goto LABEL_9;
         }
       }
       else
       {
 LABEL_9:
-        v10 = (unsigned int)v7;
-        v7 = (unsigned int)(v7 + 1);
-        this->m_timingData.m_spawnPathNodeIndexList[v10] = *pathNodeIndexList;
+        v9 = (unsigned int)v6;
+        v6 = (unsigned int)(v6 + 1);
+        this->m_timingData.m_spawnPathNodeIndexList[v9] = *pathNodeIndexList;
       }
       ++pathNodeIndexList;
-      --v8;
+      --v7;
     }
-    while ( v8 );
+    while ( v7 );
   }
-  this->m_timingData.m_spawnPathNodeListCount = v7;
-  Com_Printf(16, "CacheSpawnNodeList - caching off %d nodes of data for spawn points from script.\n", v7);
+  this->m_timingData.m_spawnPathNodeListCount = v6;
+  Com_Printf(16, "CacheSpawnNodeList - caching off %d nodes of data for spawn points from script.\n", v6);
   memset_0(this->m_timingData.m_dynamicPathNodeIndexList, 0xFFFF, sizeof(this->m_timingData.m_dynamicPathNodeIndexList));
-  v11 = 0;
+  v10 = 0;
   this->m_timingData.m_dynamicPathNodesSpawnedCount = 0;
   if ( this->m_timingData.m_dynamicNodeCountFromFile )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     do
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+origin], xmm6
-        vmovss  dword ptr [rsp+0B8h+origin+4], xmm6
-        vmovss  dword ptr [rsp+0B8h+origin+8], xmm6
-      }
-      v13 = this->m_timingData.m_dynamicPathNodeLocations[v11];
-      v14 = (char *)(_Buffer - v13);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+angles], xmm6
-        vmovss  dword ptr [rsp+0B8h+angles+4], xmm6
-        vmovss  dword ptr [rsp+0B8h+angles+8], xmm6
-      }
+      origin.v[0] = 0.0;
+      origin.v[1] = 0.0;
+      origin.v[2] = 0.0;
+      v11 = this->m_timingData.m_dynamicPathNodeLocations[v10];
+      v12 = (char *)(_Buffer - v11);
+      angles.v[0] = 0.0;
+      angles.v[1] = 0.0;
+      angles.v[2] = 0.0;
       do
       {
-        v15 = *v13;
-        v14[(_QWORD)v13] = *v13;
-        ++v13;
+        v13 = *v11;
+        v12[(_QWORD)v11] = *v11;
+        ++v11;
       }
-      while ( v15 );
+      while ( v13 );
       if ( j_sscanf(_Buffer, "(%f, %f, %f)", &origin, &origin.y, &origin.z) == 3 || j_sscanf(_Buffer, "%f, %f, %f", &origin, &origin.y, &origin.z) == 3 )
       {
-        v16 = G_SpawnCoverNode(&origin, &angles, 20, 0, (scr_string_t)0, (scr_string_t)0, 0);
-        if ( v16 == 0xFFFF )
+        v14 = G_SpawnCoverNode(&origin, &angles, 20, 0, (scr_string_t)0, (scr_string_t)0, 0);
+        if ( v14 == 0xFFFF )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0B8h+origin+8]
-            vmovss  xmm1, dword ptr [rsp+0B8h+origin+4]
-            vmovss  xmm2, dword ptr [rsp+0B8h+origin]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+0B8h+var_80], xmm0
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  qword ptr [rsp+0B8h+calledFromScript], xmm1
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovsd  qword ptr [rsp+0B8h+parentname], xmm2
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\los_precompute\\los_precompute_system.cpp", 689, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ERROR: coordinate (%f, %f, %f) could not be used to spawn a dynamic pathnode, likely due to being inside a solid!\n", parentname, calledFromScript, v26) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\los_precompute\\los_precompute_system.cpp", 689, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ERROR: coordinate (%f, %f, %f) could not be used to spawn a dynamic pathnode, likely due to being inside a solid!\n", origin.v[0], origin.v[1], origin.v[2]) )
             __debugbreak();
         }
         else
         {
-          this->m_timingData.m_dynamicPathNodeIndexList[this->m_timingData.m_dynamicPathNodesSpawnedCount++] = v16;
+          this->m_timingData.m_dynamicPathNodeIndexList[this->m_timingData.m_dynamicPathNodesSpawnedCount++] = v14;
         }
       }
       else
       {
         Com_PrintWarning(16, "Can't convert node position %s to a vector!\n", _Buffer);
       }
-      ++v11;
+      ++v10;
     }
-    while ( v11 < this->m_timingData.m_dynamicNodeCountFromFile );
-    __asm { vmovaps xmm6, [rsp+0B8h+var_28] }
+    while ( v10 < this->m_timingData.m_dynamicNodeCountFromFile );
   }
 }
 
@@ -584,84 +557,57 @@ LOSPrecomputeSystem::SpawnDynamicNodes
 */
 void LOSPrecomputeSystem::SpawnDynamicNodes(LOSPrecomputeSystem *this)
 {
-  int v3; 
-  char *v5; 
-  char *v6; 
-  char v7; 
-  unsigned __int16 v8; 
-  double parentname; 
-  double calledFromScript; 
-  double v18; 
+  int v2; 
+  char *v3; 
+  char *v4; 
+  char v5; 
+  unsigned __int16 v6; 
   vec3_t origin; 
   vec3_t angles; 
   char _Buffer[32]; 
 
   memset_0(this->m_timingData.m_dynamicPathNodeIndexList, 0xFFFF, sizeof(this->m_timingData.m_dynamicPathNodeIndexList));
-  v3 = 0;
+  v2 = 0;
   this->m_timingData.m_dynamicPathNodesSpawnedCount = 0;
   if ( this->m_timingData.m_dynamicNodeCountFromFile )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     do
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+origin], xmm6
-        vmovss  dword ptr [rsp+0B8h+origin+4], xmm6
-        vmovss  dword ptr [rsp+0B8h+origin+8], xmm6
-      }
-      v5 = this->m_timingData.m_dynamicPathNodeLocations[v3];
-      v6 = (char *)(_Buffer - v5);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+angles], xmm6
-        vmovss  dword ptr [rsp+0B8h+angles+4], xmm6
-        vmovss  dword ptr [rsp+0B8h+angles+8], xmm6
-      }
+      origin.v[0] = 0.0;
+      origin.v[1] = 0.0;
+      origin.v[2] = 0.0;
+      v3 = this->m_timingData.m_dynamicPathNodeLocations[v2];
+      v4 = (char *)(_Buffer - v3);
+      angles.v[0] = 0.0;
+      angles.v[1] = 0.0;
+      angles.v[2] = 0.0;
       do
       {
-        v7 = *v5;
-        v5[(_QWORD)v6] = *v5;
-        ++v5;
+        v5 = *v3;
+        v3[(_QWORD)v4] = *v3;
+        ++v3;
       }
-      while ( v7 );
+      while ( v5 );
       if ( j_sscanf(_Buffer, "(%f, %f, %f)", &origin, &origin.y, &origin.z) == 3 || j_sscanf(_Buffer, "%f, %f, %f", &origin, &origin.y, &origin.z) == 3 )
       {
-        v8 = G_SpawnCoverNode(&origin, &angles, 20, 0, (scr_string_t)0, (scr_string_t)0, 0);
-        if ( v8 == 0xFFFF )
+        v6 = G_SpawnCoverNode(&origin, &angles, 20, 0, (scr_string_t)0, (scr_string_t)0, 0);
+        if ( v6 == 0xFFFF )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0B8h+origin+8]
-            vmovss  xmm1, dword ptr [rsp+0B8h+origin+4]
-            vmovss  xmm2, dword ptr [rsp+0B8h+origin]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+0B8h+var_80], xmm0
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  qword ptr [rsp+0B8h+calledFromScript], xmm1
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovsd  qword ptr [rsp+0B8h+parentname], xmm2
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\los_precompute\\los_precompute_system.cpp", 689, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ERROR: coordinate (%f, %f, %f) could not be used to spawn a dynamic pathnode, likely due to being inside a solid!\n", parentname, calledFromScript, v18) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\los_precompute\\los_precompute_system.cpp", 689, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ERROR: coordinate (%f, %f, %f) could not be used to spawn a dynamic pathnode, likely due to being inside a solid!\n", origin.v[0], origin.v[1], origin.v[2]) )
             __debugbreak();
         }
         else
         {
-          this->m_timingData.m_dynamicPathNodeIndexList[this->m_timingData.m_dynamicPathNodesSpawnedCount++] = v8;
+          this->m_timingData.m_dynamicPathNodeIndexList[this->m_timingData.m_dynamicPathNodesSpawnedCount++] = v6;
         }
       }
       else
       {
         Com_PrintWarning(16, "Can't convert node position %s to a vector!\n", _Buffer);
       }
-      ++v3;
+      ++v2;
     }
-    while ( v3 < this->m_timingData.m_dynamicNodeCountFromFile );
-    __asm { vmovaps xmm6, [rsp+0B8h+var_28] }
+    while ( v2 < this->m_timingData.m_dynamicNodeCountFromFile );
   }
 }
 

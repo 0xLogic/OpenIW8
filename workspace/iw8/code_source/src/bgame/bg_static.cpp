@@ -427,13 +427,14 @@ void BgStatic::FixUpHidePartBits(BgStatic *this, const int entNum, const DObjMod
   const XModel *model; 
   const char **v28; 
   scr_string_t *outBoneName; 
-  __int64 v31; 
+  __int64 v30; 
   unsigned __int8 index[4]; 
   int inOutModelIndex; 
   scr_string_t name; 
-  int v35; 
+  int v34; 
   int inOutboneCountSoFar; 
-  unsigned int v37; 
+  unsigned int v36; 
+  __int128 v37; 
 
   v11 = hidePartBits;
   v12 = refDobjModels;
@@ -443,14 +444,14 @@ void BgStatic::FixUpHidePartBits(BgStatic *this, const int entNum, const DObjMod
   if ( !outFixedUpHidePartBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_static.cpp", 76, ASSERT_TYPE_ASSERT, "(outFixedUpHidePartBits)", (const char *)&queryFormat, "outFixedUpHidePartBits") )
     __debugbreak();
   v14 = 0;
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
+  v37 = _XMM6;
   if ( numRefModels > 0 )
   {
     v17 = 0;
     __asm { vpxor   xmm6, xmm6, xmm6 }
     do
     {
-      __asm { vmovdqu xmmword ptr [rsi], xmm6 }
+      *(_OWORD *)_RSI->array = _XMM6;
       _RSI = (DObjPartBits *)((char *)_RSI + 16);
       ++v17;
     }
@@ -460,7 +461,7 @@ void BgStatic::FixUpHidePartBits(BgStatic *this, const int entNum, const DObjMod
     inOutModelIndex = 0;
     LODWORD(v20) = 0;
     name = 0;
-    v35 = 0;
+    v34 = 0;
     while ( v19 )
     {
 LABEL_19:
@@ -468,23 +469,23 @@ LABEL_19:
       v22 = v21 + 32 * v20;
       if ( v21 >= 0x20 )
       {
-        LODWORD(v31) = 32;
+        LODWORD(v30) = 32;
         LODWORD(outBoneName) = v21;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", outBoneName, v31) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", outBoneName, v30) )
           __debugbreak();
       }
       if ( (v19 & (0x80000000 >> v21)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
       v19 &= ~(0x80000000 >> v21);
-      v37 = v19;
+      v36 = v19;
       if ( BgStatic::GetBoneNameFromModelList(v12, numRefModels, v22, &inOutboneCountSoFar, &inOutModelIndex, &name) )
       {
         v23 = (*refModelTypes)[inOutModelIndex];
         if ( (unsigned int)v23 >= CHAR_MODEL_COUNT )
         {
-          LODWORD(v31) = 21;
+          LODWORD(v30) = 21;
           LODWORD(outBoneName) = (*refModelTypes)[inOutModelIndex];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_static.cpp", 100, ASSERT_TYPE_ASSERT, "(unsigned)( foundModelType ) < (unsigned)( CHAR_MODEL_COUNT )", "foundModelType doesn't index CHAR_MODEL_COUNT\n\t%i not in [0, %i)", outBoneName, v31) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_static.cpp", 100, ASSERT_TYPE_ASSERT, "(unsigned)( foundModelType ) < (unsigned)( CHAR_MODEL_COUNT )", "foundModelType doesn't index CHAR_MODEL_COUNT\n\t%i not in [0, %i)", outBoneName, v30) )
             __debugbreak();
         }
         if ( v23 == CHAR_MODEL_BODY || (unsigned int)(v23 - 18) <= 1 || (unsigned int)(v23 - 2) <= 8 )
@@ -512,8 +513,8 @@ LABEL_19:
               v26 = (const DObjModel (*)[32])((char *)v26 + 80);
             }
             while ( v25 < numActualModels );
-            LODWORD(v20) = v35;
-            v19 = v37;
+            LODWORD(v20) = v34;
+            v19 = v36;
           }
           v11 = hidePartBits;
         }
@@ -530,7 +531,7 @@ LABEL_19:
     while ( 1 )
     {
       v20 = (unsigned int)(v20 + 1);
-      v35 = v20;
+      v34 = v20;
       if ( (unsigned int)v20 >= 8 )
         break;
       v19 = v11->array[v20];
@@ -543,17 +544,13 @@ LABEL_19:
     _R14 = (char *)hidePartBits - (char *)outFixedUpHidePartBits;
     do
     {
-      __asm
-      {
-        vlddqu  xmm6, xmmword ptr [r14+rsi]
-        vmovdqu xmmword ptr [rsi], xmm6
-      }
+      __asm { vlddqu  xmm6, xmmword ptr [r14+rsi] }
+      *(_OWORD *)_RSI->array = _XMM6;
       _RSI = (DObjPartBits *)((char *)_RSI + 16);
       ++v14;
     }
     while ( v14 < 2 );
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
 }
 
 /*

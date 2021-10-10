@@ -305,12 +305,7 @@ Online_LootCrate::OutputCurrentState
 void Online_LootCrate::OutputCurrentState(Online_LootCrate *this, const int controllerIndex)
 {
   Com_Printf(25, "Online_LootCrate DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@40369a0000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_22_6015625);
   Com_Printf(25, "Online_LootCrate DUMP END\n");
 }
 
@@ -694,13 +689,12 @@ Online_LootCrate *Online_LootCrate::GetInstancePtr()
 LUI_CoD_LuaCall_GetLootCrateRewards_impl
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetLootCrateRewards_impl(lua_State *const luaVM, long double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetLootCrateRewards_impl(lua_State *const luaVM)
 {
-  RewardPack *v5; 
+  RewardPack *v4; 
+  int v5; 
   int v6; 
   int v7; 
-  int v8; 
   const int *packs; 
   Online_Loot *Instance; 
   int v14; 
@@ -708,9 +702,9 @@ __int64 __fastcall LUI_CoD_LuaCall_GetLootCrateRewards_impl(lua_State *const lua
   __int64 v16; 
   const int *v17; 
   Online_Loot *v18; 
-  int v20; 
+  int v21; 
   int *pack_salvage; 
-  Online_Loot *v22; 
+  Online_Loot *v23; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: LootCrates.GetLootCrateRewards( <controller> )\n");
@@ -718,60 +712,51 @@ __int64 __fastcall LUI_CoD_LuaCall_GetLootCrateRewards_impl(lua_State *const lua
     j_luaL_error(luaVM, "USAGE: LootCrates.GetLootCrateRewards( <controller> )\n");
   *(double *)&_XMM0 = j_lua_tonumber(luaVM, 1);
   __asm { vcvttsd2si eax, xmm0 }
-  v5 = &Online_LootCrate::s_instance.m_LootCrateRewards[_EAX];
+  v4 = &Online_LootCrate::s_instance.m_LootCrateRewards[_EAX];
   j_lua_createtable(luaVM, 0, 0);
   LUI_BeginTable("items", LUI_luaVM);
+  v5 = 0;
   v6 = 0;
-  v7 = 0;
-  v8 = 1;
-  if ( v5->num_packs > 0 )
+  v7 = 1;
+  if ( v4->num_packs > 0 )
   {
-    packs = v5->packs;
+    packs = v4->packs;
     do
     {
       Instance = Online_Loot::GetInstance();
       if ( !Online_Loot::IsHidden(Instance, *packs) )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, r14d; n
-        }
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, r14d; n }
         j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, dword ptr [rdi]; n
-        }
-        j_lua_pushnumber(LUI_luaVM, _XMM1_8);
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rdi]; n }
+        j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
         j_lua_settable(LUI_luaVM, -3);
-        ++v8;
+        ++v7;
       }
-      ++v7;
+      ++v6;
       ++packs;
     }
-    while ( v7 < v5->num_packs );
+    while ( v6 < v4->num_packs );
   }
   LUI_EndTable(LUI_luaVM);
   LUI_BeginTable("dupes", LUI_luaVM);
   v14 = 1;
   v15 = 0;
-  if ( v5->num_packs > 0 )
+  if ( v4->num_packs > 0 )
   {
     v16 = 0i64;
-    v17 = v5->packs;
+    v17 = v4->packs;
     do
     {
       v18 = Online_Loot::GetInstance();
       if ( !Online_Loot::IsHidden(v18, *v17) )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, r15d; n
-        }
-        j_lua_pushnumber(LUI_luaVM, _XMM1_8);
-        j_lua_pushboolean(LUI_luaVM, v5->pack_is_dupe[v16]);
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, r15d; n }
+        j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
+        j_lua_pushboolean(LUI_luaVM, v4->pack_is_dupe[v16]);
         j_lua_settable(LUI_luaVM, -3);
         ++v14;
       }
@@ -779,39 +764,36 @@ __int64 __fastcall LUI_CoD_LuaCall_GetLootCrateRewards_impl(lua_State *const lua
       ++v16;
       ++v17;
     }
-    while ( v15 < v5->num_packs );
+    while ( v15 < v4->num_packs );
   }
   LUI_EndTable(LUI_luaVM);
   LUI_BeginTable("salvage", LUI_luaVM);
-  v20 = 1;
-  if ( v5->num_packs > 0 )
+  v21 = 1;
+  if ( v4->num_packs > 0 )
   {
-    pack_salvage = v5->pack_salvage;
+    pack_salvage = v4->pack_salvage;
     do
     {
-      v22 = Online_Loot::GetInstance();
-      if ( !Online_Loot::IsHidden(v22, *(pack_salvage - 63)) )
+      v23 = Online_Loot::GetInstance();
+      if ( !Online_Loot::IsHidden(v23, *(pack_salvage - 63)) )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, esi; n
-        }
-        j_lua_pushnumber(LUI_luaVM, _XMM1_8);
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, esi; n }
+        j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
         j_lua_pushboolean(LUI_luaVM, *pack_salvage);
         j_lua_settable(LUI_luaVM, -3);
-        ++v20;
+        ++v21;
       }
-      ++v6;
+      ++v5;
       ++pack_salvage;
     }
-    while ( v6 < v5->num_packs );
+    while ( v5 < v4->num_packs );
   }
   LUI_EndTable(LUI_luaVM);
   LUI_BeginTable("currencies", LUI_luaVM);
-  LUI_SetTableInt("Salvage", v5->salvage, luaVM);
-  LUI_SetTableInt("Keys", v5->keys, luaVM);
-  LUI_SetTableInt("CODPoints", v5->cod_points, luaVM);
+  LUI_SetTableInt("Salvage", v4->salvage, luaVM);
+  LUI_SetTableInt("Keys", v4->keys, luaVM);
+  LUI_SetTableInt("CODPoints", v4->cod_points, luaVM);
   LUI_EndTable(LUI_luaVM);
   return 1i64;
 }

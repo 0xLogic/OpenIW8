@@ -584,22 +584,15 @@ Scr_Objective_Position
 void Scr_Objective_Position(scrContext_t *scrContext)
 {
   int Int; 
+  objective_t *v3; 
   vec3_t vectorValue; 
 
   Int = Scr_GetInt(scrContext, 0);
-  _RDI = G_Objectives_Get(Int);
+  v3 = G_Objectives_Get(Int);
   Scr_GetVector(scrContext, 1u, &vectorValue);
-  _RDI->entNum[0] = 2047;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue+8]
-    vmovss  dword ptr [rdi+8], xmm0
-  }
-  _RDI->validLocations |= 1u;
+  v3->entNum[0] = 2047;
+  v3->origin[0] = vectorValue;
+  v3->validLocations |= 1u;
 }
 
 /*
@@ -628,17 +621,21 @@ Scr_Objective_SetLocation
 void Scr_Objective_SetLocation(scrContext_t *scrContext)
 {
   int Int; 
+  objective_t *v3; 
   unsigned int v4; 
   __int64 v5; 
   const char *v6; 
   const char *v7; 
+  float v8; 
+  float v9; 
+  __int64 v10; 
   const gentity_s *Entity; 
+  int v12; 
   int v13; 
-  int v14; 
   vec3_t vectorValue; 
 
   Int = Scr_GetInt(scrContext, 0);
-  _RSI = G_Objectives_Get(Int);
+  v3 = G_Objectives_Get(Int);
   v4 = Scr_GetInt(scrContext, 1u);
   v5 = (int)v4;
   if ( v4 > 7 )
@@ -656,31 +653,24 @@ void Scr_Objective_SetLocation(scrContext_t *scrContext)
     Scr_GetVector(scrContext, 2u, &vectorValue);
     if ( (unsigned int)v5 >= 8 )
     {
-      v14 = 8;
-      v13 = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 907, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 8 )", "index doesn't index MAX_OBJECTIVE_LOCATIONS\n\t%i not in [0, %i)", v13, v14) )
+      v13 = 8;
+      v12 = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 907, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 8 )", "index doesn't index MAX_OBJECTIVE_LOCATIONS\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+vectorValue]
-      vmovss  xmm1, dword ptr [rsp+68h+vectorValue+4]
-    }
-    _RCX = 3 * v5;
-    _RSI->entNum[v5] = 2047;
-    __asm
-    {
-      vmovss  dword ptr [rsi+rcx*4], xmm0
-      vmovss  xmm0, dword ptr [rsp+68h+vectorValue+8]
-      vmovss  dword ptr [rsi+rcx*4+8], xmm0
-      vmovss  dword ptr [rsi+rcx*4+4], xmm1
-    }
-    _RSI->validLocations |= 1 << v5;
+    v8 = vectorValue.v[0];
+    v9 = vectorValue.v[1];
+    v10 = v5;
+    v3->entNum[v5] = 2047;
+    v3->origin[v10].v[0] = v8;
+    v3->origin[v10].v[2] = vectorValue.v[2];
+    v3->origin[v10].v[1] = v9;
+    v3->validLocations |= 1 << v5;
   }
   else
   {
     Entity = GScr_GetEntity(2u);
-    Objective_SetEntity(_RSI, v5, Entity);
+    Objective_SetEntity(v3, v5, Entity);
   }
 }
 
@@ -731,11 +721,13 @@ Scr_Objective_SetZOffset
 void Scr_Objective_SetZOffset(scrContext_t *scrContext)
 {
   int Int; 
+  objective_t *v3; 
+  double Float; 
 
   Int = Scr_GetInt(scrContext, 0);
-  _RBX = G_Objectives_Get(Int);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovss  dword ptr [rbx+84h], xmm0 }
+  v3 = G_Objectives_Get(Int);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v3->zOffset = *(float *)&Float;
 }
 
 /*
@@ -1315,29 +1307,19 @@ void Scr_Objective_HideProgressForTeam(scrContext_t *scrContext)
 Scr_Objective_SetProgress
 ==============
 */
-
-void __fastcall Scr_Objective_SetProgress(scrContext_t *scrContext, double _XMM1_8)
+void Scr_Objective_SetProgress(scrContext_t *scrContext)
 {
   int Int; 
-  char v6; 
-  char v7; 
+  objective_t *v3; 
+  double Float; 
 
   Int = Scr_GetInt(scrContext, 0);
-  _RDI = G_Objectives_Get(Int);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  if ( v6 )
-    goto LABEL_4;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v6 | v7) )
-LABEL_4:
+  v3 = G_Objectives_Get(Int);
+  Float = Scr_GetFloat(scrContext, 1u);
+  if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
     Scr_Error(COM_ERR_2873, scrContext, "Objective_SetProgress must be called with a progress value within [0.f, 1.f]");
   else
-    __asm { vmovss  dword ptr [rdi+9Ch], xmm0 }
+    v3->progress = *(float *)&Float;
 }
 
 /*
@@ -1756,64 +1738,62 @@ void G_Objectives_CopyObjectiveToObjectiveView(gentity_s *player, const objectiv
   team_t ownerTeam; 
   unsigned int neutralLabel; 
   __int64 spectatorClient; 
-  GUtils *v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  bool v25; 
-  char v26; 
-  __int64 v27; 
-  team_t v28; 
-  GUtils *v29; 
-  unsigned int v30; 
-  __int64 v31; 
-  bool v32; 
+  GUtils *v17; 
+  unsigned int v18; 
+  __int64 v19; 
+  bool v20; 
+  ObjectiveSide v21; 
+  __int64 v22; 
+  team_t v23; 
+  GUtils *v24; 
+  unsigned int v25; 
+  __int64 v26; 
+  bool v27; 
   __int64 progressClient; 
-  bool v34; 
+  bool v29; 
   team_t progressTeam; 
-  ObjectiveSide v36; 
+  ObjectiveSide v31; 
 
-  _RDI = objectiveView;
-  _RBX = objective;
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 351, ASSERT_TYPE_ASSERT, "(player)", (const char *)&queryFormat, rowName) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 352, ASSERT_TYPE_ASSERT, "(objective)", (const char *)&queryFormat, "objective") )
+  if ( !objective && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 352, ASSERT_TYPE_ASSERT, "(objective)", (const char *)&queryFormat, "objective") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 353, ASSERT_TYPE_ASSERT, "(objectiveView)", (const char *)&queryFormat, "objectiveView") )
+  if ( !objectiveView && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 353, ASSERT_TYPE_ASSERT, "(objectiveView)", (const char *)&queryFormat, "objectiveView") )
     __debugbreak();
   EntityPlayerState = G_GetEntityPlayerState(player);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 356, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI->state = _RBX->state;
-  _RDI->icon = _RBX->icon;
-  _RDI->mlgIcon = _RBX->mlgObjectiveData.mlgIcon;
-  _RDI->mlgBackground = _RBX->mlgObjectiveData.mlgBackground;
-  *(_WORD *)_RDI->flags = *(_WORD *)_RBX->flags;
-  if ( G_PlayerMask_IsPlayerInMask(&_RBX->pinned, EntityPlayerState, NULL) )
-    *(_WORD *)_RDI->flags |= 8u;
-  if ( G_PlayerMask_IsPlayerInMask(&_RBX->progressVisibility, EntityPlayerState, NULL) )
-    *(_WORD *)_RDI->flags |= 0x80u;
-  if ( G_PlayerMask_IsPlayerInMask(&_RBX->pings, EntityPlayerState, NULL) )
-    _RDI->pingTime = _RBX->pingTime;
-  _RDI->background = _RBX->background;
+  objectiveView->state = objective->state;
+  objectiveView->icon = objective->icon;
+  objectiveView->mlgIcon = objective->mlgObjectiveData.mlgIcon;
+  objectiveView->mlgBackground = objective->mlgObjectiveData.mlgBackground;
+  *(_WORD *)objectiveView->flags = *(_WORD *)objective->flags;
+  if ( G_PlayerMask_IsPlayerInMask(&objective->pinned, EntityPlayerState, NULL) )
+    *(_WORD *)objectiveView->flags |= 8u;
+  if ( G_PlayerMask_IsPlayerInMask(&objective->progressVisibility, EntityPlayerState, NULL) )
+    *(_WORD *)objectiveView->flags |= 0x80u;
+  if ( G_PlayerMask_IsPlayerInMask(&objective->pings, EntityPlayerState, NULL) )
+    objectiveView->pingTime = objective->pingTime;
+  objectiveView->background = objective->background;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
   v7 = GUtils::ms_gUtils;
   v8 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, player);
   v9 = (unsigned int)v8;
   v10 = (unsigned int)(v8 - 201) <= 1 && player->client->sess.cs.isMLGSpectator;
-  ownerClient = _RBX->ownerClient;
+  ownerClient = objective->ownerClient;
   if ( ownerClient == -1 )
   {
-    ownerTeam = _RBX->ownerTeam;
+    ownerTeam = objective->ownerTeam;
     if ( (unsigned int)(ownerTeam - 1) > 1 )
     {
-      neutralLabel = _RBX->neutralLabel;
+      neutralLabel = objective->neutralLabel;
       goto LABEL_40;
     }
     if ( !v10 || (spectatorClient = player->client->spectatorClient, (_DWORD)spectatorClient == -1) )
       v13 = v8 == ownerTeam;
     else
-      v13 = _RBX->ownerTeam == ((unsigned int (__fastcall *)(GUtils *, gentity_s *, _QWORD))v7->GetEntityTeam)(v7, &g_entities[spectatorClient], (unsigned int)v8);
+      v13 = objective->ownerTeam == ((unsigned int (__fastcall *)(GUtils *, gentity_s *, _QWORD))v7->GetEntityTeam)(v7, &g_entities[spectatorClient], (unsigned int)v8);
   }
   else if ( !v10 || (v12 = player->client->spectatorClient, v12 == -1) )
   {
@@ -1824,97 +1804,89 @@ void G_Objectives_CopyObjectiveToObjectiveView(gentity_s *player, const objectiv
     v13 = ownerClient == v12;
   }
   if ( v13 )
-    neutralLabel = _RBX->friendlyLabel;
+    neutralLabel = objective->friendlyLabel;
   else
-    neutralLabel = _RBX->enemyLabel;
+    neutralLabel = objective->enemyLabel;
 LABEL_40:
-  _RDI->label = neutralLabel;
-  _RDI->description = _RBX->description;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi+20h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+40h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+60h], ymm0
-  }
-  _RDI->validLocations = _RBX->validLocations;
-  __asm { vcvttss2si eax, dword ptr [rbx+84h] }
-  _RDI->zOffset = _EAX;
-  _RDI->progress = _RBX->progress;
-  _RDI->size = _RBX->size;
+  objectiveView->label = neutralLabel;
+  objectiveView->description = objective->description;
+  *(__m256i *)objectiveView->entNum = *(__m256i *)objective->entNum;
+  *(__m256i *)objectiveView->origin[0].v = *(__m256i *)objective->origin[0].v;
+  *(__m256i *)&objectiveView->origin[2].z = *(__m256i *)&objective->origin[2].z;
+  *(__m256i *)&objectiveView->origin[5].y = *(__m256i *)&objective->origin[5].y;
+  objectiveView->validLocations = objective->validLocations;
+  objectiveView->zOffset = (int)objective->zOffset;
+  objectiveView->progress = objective->progress;
+  objectiveView->size = objective->size;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v22 = GUtils::ms_gUtils;
-  v23 = ((__int64 (__fastcall *)(GUtils *, gentity_s *, __int64))GUtils::ms_gUtils->GetEntityTeam)(GUtils::ms_gUtils, player, v9);
-  v24 = v23;
-  v25 = v23 - 201 <= 1 && player->client->sess.cs.isMLGSpectator;
-  if ( (_RBX->flags[0] & 0x40) != 0 )
+  v17 = GUtils::ms_gUtils;
+  v18 = ((__int64 (__fastcall *)(GUtils *, gentity_s *, __int64))GUtils::ms_gUtils->GetEntityTeam)(GUtils::ms_gUtils, player, v9);
+  v19 = v18;
+  v20 = v18 - 201 <= 1 && player->client->sess.cs.isMLGSpectator;
+  if ( (objective->flags[0] & 0x40) != 0 )
   {
-    v26 = 3;
+    v21 = IN_FLUX;
   }
   else
   {
-    v27 = _RBX->ownerClient;
-    if ( (_DWORD)v27 == -1 )
+    v22 = objective->ownerClient;
+    if ( (_DWORD)v22 == -1 )
     {
-      v28 = _RBX->ownerTeam;
-      if ( (unsigned int)(v28 - 1) > 0xC7 )
+      v23 = objective->ownerTeam;
+      if ( (unsigned int)(v23 - 1) > 0xC7 )
       {
-        v26 = 0;
+        v21 = NEUTRAL;
       }
-      else if ( v25 )
+      else if ( v20 )
       {
-        v26 = (v28 != TEAM_TWO) + 1;
+        v21 = (v23 != TEAM_TWO) + 1;
       }
       else
       {
-        v26 = ((_DWORD)v24 != v28) + 1;
+        v21 = ((_DWORD)v19 != v23) + 1;
       }
     }
-    else if ( v25 )
+    else if ( v20 )
     {
-      v26 = (((unsigned int (__fastcall *)(GUtils *, gentity_s *, __int64))v22->GetEntityTeam)(v22, &g_entities[v27], v24) != 2) + 1;
+      v21 = (((unsigned int (__fastcall *)(GUtils *, gentity_s *, __int64))v17->GetEntityTeam)(v17, &g_entities[v22], v19) != 2) + 1;
     }
     else
     {
-      v26 = ((_DWORD)v27 != player->s.clientNum) + 1;
+      v21 = ((_DWORD)v22 != player->s.clientNum) + 1;
     }
   }
-  _RDI->side = v26;
+  objectiveView->side = v21;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v29 = GUtils::ms_gUtils;
-  v30 = ((__int64 (__fastcall *)(GUtils *, gentity_s *, __int64))GUtils::ms_gUtils->GetEntityTeam)(GUtils::ms_gUtils, player, v24);
-  v31 = v30;
-  v32 = v30 - 201 <= 1 && player->client->sess.cs.isMLGSpectator;
-  progressClient = _RBX->progressClient;
+  v24 = GUtils::ms_gUtils;
+  v25 = ((__int64 (__fastcall *)(GUtils *, gentity_s *, __int64))GUtils::ms_gUtils->GetEntityTeam)(GUtils::ms_gUtils, player, v19);
+  v26 = v25;
+  v27 = v25 - 201 <= 1 && player->client->sess.cs.isMLGSpectator;
+  progressClient = objective->progressClient;
   if ( (_DWORD)progressClient != -1 )
   {
-    if ( v32 )
-      v34 = ((unsigned int (__fastcall *)(GUtils *, gentity_s *, __int64))v29->GetEntityTeam)(v29, &g_entities[progressClient], v31) == 2;
+    if ( v27 )
+      v29 = ((unsigned int (__fastcall *)(GUtils *, gentity_s *, __int64))v24->GetEntityTeam)(v24, &g_entities[progressClient], v26) == 2;
     else
-      v34 = (_DWORD)progressClient == player->s.clientNum;
+      v29 = (_DWORD)progressClient == player->s.clientNum;
 LABEL_74:
-    v36 = !v34 + 1;
+    v31 = !v29 + 1;
     goto LABEL_75;
   }
-  progressTeam = _RBX->progressTeam;
+  progressTeam = objective->progressTeam;
   if ( (unsigned int)(progressTeam - 1) <= 1 )
   {
-    if ( v32 )
-      v34 = progressTeam == TEAM_TWO;
+    if ( v27 )
+      v29 = progressTeam == TEAM_TWO;
     else
-      v34 = (_DWORD)v31 == progressTeam;
+      v29 = (_DWORD)v26 == progressTeam;
     goto LABEL_74;
   }
-  v36 = NEUTRAL;
+  v31 = NEUTRAL;
 LABEL_75:
-  _RDI->progressSide = v36;
-  G_GameInterface_ObjectivesUpdate(EntityPlayerState, _RDI, _RBX);
+  objectiveView->progressSide = v31;
+  G_GameInterface_ObjectivesUpdate(EntityPlayerState, objectiveView, objective);
 }
 
 /*
@@ -2180,25 +2152,25 @@ void G_Objectives_Update(gentity_s *player)
   gclient_s *client; 
   __int64 spectatorClient; 
   __int64 v22; 
-  int v24; 
-  char v25; 
-  unsigned __int8 v26; 
+  int v23; 
+  char v24; 
+  unsigned __int8 v25; 
+  int v26; 
   int v27; 
-  int v28; 
-  unsigned __int8 v29; 
+  unsigned __int8 v28; 
+  __int64 v29; 
   __int64 v30; 
-  __int64 v31; 
-  bool v32; 
+  bool v31; 
+  __int64 v32; 
   __int64 v33; 
-  __int64 v34; 
-  char v35; 
-  int v36; 
+  char v34; 
+  int v35; 
   playerState_s *ps; 
-  int *v38; 
-  __int64 v39; 
-  __m256i v40; 
-  int v41; 
-  int v42[130]; 
+  int *v37; 
+  __int64 v38; 
+  __m256i v39; 
+  int v40; 
+  int v41[130]; 
 
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_objectives.cpp", 436, ASSERT_TYPE_ASSERT, "( player )", (const char *)&queryFormat, rowName) )
     __debugbreak();
@@ -2206,17 +2178,17 @@ void G_Objectives_Update(gentity_s *player)
   v3 = (unsigned int *)(Value + 15736);
   if ( (unsigned int)(*((_DWORD *)Value + 3934) + 1) >= 3 )
   {
-    LODWORD(v33) = *((_DWORD *)Value + 3934) + 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v33, 3) )
+    LODWORD(v32) = *((_DWORD *)Value + 3934) + 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v32, 3) )
       __debugbreak();
   }
   v4 = *v3 + 1;
   *v3 = v4;
   if ( v4 >= 3 )
   {
-    LODWORD(v34) = 3;
-    LODWORD(v33) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v33, v34) )
+    LODWORD(v33) = 3;
+    LODWORD(v32) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v32, v33) )
       __debugbreak();
   }
   v5 = Value + 2088;
@@ -2240,18 +2212,18 @@ void G_Objectives_Update(gentity_s *player)
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 341, NULL, 0);
   EntityPlayerState = G_GetEntityPlayerState(player);
   memset_0(EntityPlayerState->objectives, 0, sizeof(EntityPlayerState->objectives));
-  if ( !Com_GameMode_SupportsFeature((Com_GameMode_Feature)258) || (v35 = 1, !G_GameInterface_PlayingBR()) )
-    v35 = 0;
-  v36 = 0;
+  if ( !Com_GameMode_SupportsFeature((Com_GameMode_Feature)258) || (v34 = 1, !G_GameInterface_PlayingBR()) )
+    v34 = 0;
+  v35 = 0;
   v12 = Com_GameMode_SupportsFeature((Com_GameMode_Feature)258) && G_GameInterface_PlayingBR();
   v13 = 0;
   v14 = 0i64;
-  v38 = v42;
+  v37 = v41;
   p_visibility = &level.objectives[0].visibility;
   v16 = 128i64;
   if ( !v12 )
     v16 = 32i64;
-  v39 = v16;
+  v38 = v16;
   do
   {
     v17 = HIBYTE(p_visibility[3].mask.array[5]);
@@ -2290,83 +2262,79 @@ LABEL_36:
       goto LABEL_62;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 186, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER )") )
       __debugbreak();
-    __asm
-    {
-      vmovdqu ymm0, cs:__ymm@0000000000000001000000010000000100000001000000010000000200000000
-      vmovdqu [rsp+2C8h+var_260], ymm0
-    }
-    v41 = 0;
+    v39 = _ymm;
+    v40 = 0;
     if ( (unsigned int)v22 < 9 )
     {
       if ( (unsigned int)v22 > 0xCA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 205, ASSERT_TYPE_ASSERT, "(eTeam >= 0 && eTeam < TEAM_MP_NUM_TEAMS)", (const char *)&queryFormat, "eTeam >= 0 && eTeam < TEAM_MP_NUM_TEAMS") )
         __debugbreak();
-      v24 = v40.m256i_i32[v22];
+      v23 = v39.m256i_i32[v22];
     }
     else
     {
-      v24 = 0;
+      v23 = 0;
     }
-    if ( ((*p_mlgSpectatingTeam = v24, G_PlayerMask_IsPlayerInMask(p_visibility, ps, p_mlgSpectatingTeam)) || SLOWORD(p_visibility[3].mask.array[5]) < 0) && (p_visibility[3].mask.array[5] & 0x4000) == 0 )
+    if ( ((*p_mlgSpectatingTeam = v23, G_PlayerMask_IsPlayerInMask(p_visibility, ps, p_mlgSpectatingTeam)) || SLOWORD(p_visibility[3].mask.array[5]) < 0) && (p_visibility[3].mask.array[5] & 0x4000) == 0 )
     {
 LABEL_56:
-      v25 = v35;
-      if ( v35 )
+      v24 = v34;
+      if ( v34 )
       {
-        v26 = expandedObjectiveMapping[v14][player->s.number];
-        if ( !v26 )
+        v25 = expandedObjectiveMapping[v14][player->s.number];
+        if ( !v25 )
         {
-          *v38 = v13;
-          v28 = ++v36;
-          ++v38;
+          *v37 = v13;
+          v27 = ++v35;
+          ++v37;
           goto LABEL_64;
         }
-        v27 = v26 - 1;
+        v26 = v25 - 1;
       }
       else
       {
-        v27 = v13;
+        v26 = v13;
       }
-      G_Objectives_CopyObjectiveToPlayerState(player, v13, v27);
+      G_Objectives_CopyObjectiveToPlayerState(player, v13, v26);
     }
     else
     {
 LABEL_62:
       expandedObjectiveMapping[v14][player->s.number] = 0;
     }
-    v28 = v36;
-    v25 = v35;
+    v27 = v35;
+    v24 = v34;
 LABEL_64:
     ++v13;
     p_visibility = (PlayerMask *)((char *)p_visibility + 340);
     ++v14;
-    --v39;
+    --v38;
   }
-  while ( v39 );
-  if ( v25 )
+  while ( v38 );
+  if ( v24 )
   {
-    v29 = 0;
-    v30 = v28;
-    if ( v28 > 0 )
+    v28 = 0;
+    v29 = v27;
+    if ( v27 > 0 )
     {
       while ( 1 )
       {
-        v31 = v42[v10];
-        v32 = v29 == 32;
-        if ( v29 < 0x20u )
+        v30 = v41[v10];
+        v31 = v28 == 32;
+        if ( v28 < 0x20u )
         {
-          while ( EntityPlayerState->objectives[v29].state )
+          while ( EntityPlayerState->objectives[v28].state )
           {
-            if ( ++v29 >= 0x20u )
+            if ( ++v28 >= 0x20u )
               goto LABEL_72;
           }
-          expandedObjectiveMapping[v31][player->s.number] = v29 + 1;
-          G_Objectives_CopyObjectiveToPlayerState(player, v31, v29);
+          expandedObjectiveMapping[v30][player->s.number] = v28 + 1;
+          G_Objectives_CopyObjectiveToPlayerState(player, v30, v28);
 LABEL_72:
-          v32 = v29 == 32;
+          v31 = v28 == 32;
         }
-        if ( v32 )
+        if ( v31 )
           break;
-        if ( ++v10 >= v30 )
+        if ( ++v10 >= v29 )
           goto LABEL_77;
       }
       Com_PrintWarning(34, "Player(%d) can see more than max(%d) objectives.\n", (unsigned int)player->s.number, 32i64);

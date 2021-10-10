@@ -505,27 +505,16 @@ LB_HandleNumber
 */
 char *LB_HandleNumber(LbColumnDef *lbColDef, int value)
 {
+  int precision; 
+  double v5; 
+
   if ( !lbColDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard.cpp", 394, ASSERT_TYPE_ASSERT, "(lbColDef)", (const char *)&queryFormat, "lbColDef") )
     __debugbreak();
-  if ( lbColDef->precision )
+  precision = lbColDef->precision;
+  if ( precision )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; Y
-      vmovss  xmm0, cs:__real@41200000; X
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edi
-      vmulss  xmm0, xmm0, xmm1
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(lbGlob.feederText, 0x24ui64, "%.2f", *(double *)&_XMM3);
+    v5 = (float)(powf_0(10.0, COERCE_FLOAT(COERCE_UNSIGNED_INT((float)precision) ^ _xmm)) * (float)value);
+    Com_sprintf(lbGlob.feederText, 0x24ui64, "%.2f", v5);
   }
   else
   {
@@ -541,6 +530,9 @@ LB_HandlePercent
 */
 char *LB_HandlePercent(LbColumnDef *lbColDef, int value)
 {
+  int precision; 
+  double v5; 
+
   if ( !lbColDef )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard.cpp", 540, ASSERT_TYPE_ASSERT, "(lbColDef)", (const char *)&queryFormat, "lbColDef") )
@@ -548,25 +540,11 @@ char *LB_HandlePercent(LbColumnDef *lbColDef, int value)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard.cpp", 394, ASSERT_TYPE_ASSERT, "(lbColDef)", (const char *)&queryFormat, "lbColDef") )
       __debugbreak();
   }
-  if ( lbColDef->precision )
+  precision = lbColDef->precision;
+  if ( precision )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; Y
-      vmovss  xmm0, cs:__real@41200000; X
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edi
-      vmulss  xmm0, xmm0, xmm1
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(lbGlob.feederText, 0x24ui64, "%.2f", *(double *)&_XMM3);
+    v5 = (float)(powf_0(10.0, COERCE_FLOAT(COERCE_UNSIGNED_INT((float)precision) ^ _xmm)) * (float)value);
+    Com_sprintf(lbGlob.feederText, 0x24ui64, "%.2f", v5);
   }
   else
   {
@@ -583,104 +561,63 @@ LB_HandleTime
 */
 char *LB_HandleTime(LbColumnDef *lbColDef, int value)
 {
-  const char *v20; 
-  const char *v21; 
-  const char *v22; 
-  const char *v23; 
-  const char *v24; 
-  __int64 v25; 
-  const char *v26; 
-  const char *v27; 
-  char v28; 
-  const char *v31; 
-  char *result; 
+  float v4; 
+  int v7; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
+  const char *v11; 
+  const char *v12; 
+  __int64 v13; 
+  const char *v14; 
+  const char *v15; 
+  const char *v16; 
   char *fmt; 
-  __int64 v44; 
-  const char *v45; 
+  __int64 v20; 
+  const char *v21; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _EDI = value;
-  __asm { vmovaps [rsp+78h+var_28], xmm7 }
-  _RBX = lbColDef;
   if ( !lbColDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard.cpp", 411, ASSERT_TYPE_ASSERT, "(lbColDef)", (const char *)&queryFormat, "lbColDef") )
     __debugbreak();
-  __asm
+  LODWORD(v4) = COERCE_UNSIGNED_INT(powf_0(10.0, COERCE_FLOAT(_mm_cvtepi32_ps((__m128i)(unsigned int)lbColDef->precision).m128_u32[0] ^ _xmm)) * _mm_cvtepi32_ps((__m128i)(unsigned int)value).m128_f32[0]) & _xmm;
+  _XMM7 = 0i64;
+  __asm { vroundss xmm2, xmm7, xmm1, 1 }
+  v7 = (int)*(float *)&_XMM2;
+  if ( (int)*(float *)&_XMM2 < 1440 )
   {
-    vmovd   xmm0, dword ptr [rbx+24h]
-    vcvtdq2ps xmm0, xmm0
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; Y
-    vmovss  xmm0, cs:__real@41200000; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovd   xmm1, edi
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm6, xmm0, xmm1
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm1, xmm6, cs:__real@3c888889
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm1
-    vxorps  xmm7, xmm7, xmm7
-    vroundss xmm2, xmm7, xmm1, 1
-    vcvttss2si esi, xmm2
-  }
-  if ( _ESI < 1440 )
-  {
-    if ( _ESI < 60 )
+    if ( v7 < 60 )
     {
-      v26 = UI_SafeTranslateString("MENU/SECONDS_ABBREVIATION");
-      __asm { vcomiss xmm6, cs:__real@42700000 }
-      v27 = v26;
-      if ( v28 )
+      v14 = UI_SafeTranslateString("MENU/SECONDS_ABBREVIATION");
+      v15 = v14;
+      if ( v4 < 60.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm3, xmm6, xmm6
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(lbGlob.feederText, 0x24ui64, "%.2f%s", *(double *)&_XMM3, v26);
-        goto LABEL_12;
+        Com_sprintf(lbGlob.feederText, 0x24ui64, "%.2f%s", v4, v14);
+        return lbGlob.feederText;
       }
-      v31 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
-      v25 = (unsigned int)_ESI;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      v45 = v27;
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm0, xmm0, ecx
-        vsubss  xmm1, xmm6, xmm0
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vmovss  xmm0, xmm2, xmm3
-        vroundss xmm1, xmm7, xmm0, 1
-        vcvttss2si ecx, xmm1
-      }
-      LODWORD(v44) = _ECX;
-      fmt = (char *)v31;
+      v16 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
+      v13 = (unsigned int)v7;
+      v21 = v15;
+      __asm { vroundss xmm1, xmm7, xmm0, 1 }
+      LODWORD(v20) = (int)*(float *)&_XMM1;
+      fmt = (char *)v16;
     }
     else
     {
-      v23 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
-      v24 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
-      v45 = v23;
-      v25 = (unsigned int)(_ESI / 60);
-      LODWORD(v44) = _ESI % 60;
-      fmt = (char *)v24;
+      v11 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
+      v12 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
+      v21 = v11;
+      v13 = (unsigned int)(v7 / 60);
+      LODWORD(v20) = v7 % 60;
+      fmt = (char *)v12;
     }
-    Com_sprintf(lbGlob.feederText, 0x24ui64, "%02i%s %02i%s", v25, fmt, v44, v45);
-    goto LABEL_12;
+    Com_sprintf(lbGlob.feederText, 0x24ui64, "%02i%s %02i%s", v13, fmt, v20, v21);
+    return lbGlob.feederText;
   }
-  v20 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
-  v21 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
-  v22 = UI_SafeTranslateString("MENU/DAYS_ABBREVIATION");
-  LODWORD(v44) = _ESI % 1440 / 60;
-  Com_sprintf(lbGlob.feederText, 0x24ui64, "%i%s %02i%s %02i%s", (unsigned int)(_ESI / 1440), v22, v44, v21, _ESI % 60, v20);
-LABEL_12:
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  result = lbGlob.feederText;
-  __asm { vmovaps xmm7, [rsp+78h+var_28] }
-  return result;
+  v8 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
+  v9 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
+  v10 = UI_SafeTranslateString("MENU/DAYS_ABBREVIATION");
+  LODWORD(v20) = v7 % 1440 / 60;
+  Com_sprintf(lbGlob.feederText, 0x24ui64, "%i%s %02i%s %02i%s", (unsigned int)(v7 / 1440), v10, v20, v9, v7 % 60, v8);
+  return lbGlob.feederText;
 }
 
 /*
@@ -690,96 +627,58 @@ LB_HandleTimeFull
 */
 char *LB_HandleTimeFull(LbColumnDef *lbColDef, int value)
 {
-  const char *v24; 
-  const char *v25; 
-  const char *v26; 
-  const char *v27; 
-  const char *v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  const char *v32; 
-  __int64 v37; 
-  double v38; 
-  double v39; 
-  double v40; 
+  int v6; 
+  double v7; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
+  const char *v11; 
+  const char *v12; 
+  const char *v13; 
+  const char *v14; 
+  const char *v15; 
+  const char *v16; 
+  __int64 v18; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _EDI = value;
-  _RBX = lbColDef;
   if ( !lbColDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard.cpp", 443, ASSERT_TYPE_ASSERT, "(lbColDef)", (const char *)&queryFormat, "lbColDef") )
     __debugbreak();
-  __asm
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  v6 = (int)*(float *)&_XMM3;
+  v7 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(powf_0(10.0, COERCE_FLOAT(_mm_cvtepi32_ps((__m128i)(unsigned int)lbColDef->precision).m128_u32[0] ^ _xmm)) * _mm_cvtepi32_ps((__m128i)(unsigned int)value).m128_f32[0]) & _xmm) - _mm_cvtepi32_ps((__m128i)(unsigned int)(60 * (int)*(float *)&_XMM3)).m128_f32[0]);
+  if ( (int)*(float *)&_XMM3 < 1440 )
   {
-    vmovd   xmm0, dword ptr [rbx+24h]
-    vcvtdq2ps xmm0, xmm0
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; Y
-    vmovss  xmm0, cs:__real@41200000; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovd   xmm1, edi
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm4, xmm0, xmm1
-    vandps  xmm4, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm1, xmm4, cs:__real@3c888889
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vcvttss2si ebp, xmm3
-  }
-  _EAX = 60 * _EBP;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vsubss  xmm1, xmm4, xmm0
-    vcvtss2sd xmm6, xmm1, xmm1
-  }
-  if ( _EBP < 1440 )
-  {
-    v28 = UI_SafeTranslateString("MENU/SECONDS_ABBREVIATION");
-    v29 = v28;
-    if ( _EBP < 60 )
+    v12 = UI_SafeTranslateString("MENU/SECONDS_ABBREVIATION");
+    v13 = v12;
+    if ( v6 < 60 )
     {
-      if ( _EBP < 1 )
+      if ( v6 < 1 )
       {
-        __asm
-        {
-          vmovaps xmm3, xmm6
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(lbGlob.feederText, 0x24ui64, "%04.1f%s", *(double *)&_XMM3, v28);
+        Com_sprintf(lbGlob.feederText, 0x24ui64, "%04.1f%s", v7, v12);
       }
       else
       {
-        v32 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
-        __asm { vmovsd  [rsp+78h+var_50], xmm6 }
-        Com_sprintf(lbGlob.feederText, 0x24ui64, "%02i%s %04.1f%s", (unsigned int)(_EBP % 60), v32, v38, v29);
+        v16 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
+        Com_sprintf(lbGlob.feederText, 0x24ui64, "%02i%s %04.1f%s", (unsigned int)(v6 % 60), v16, v7, v13);
       }
     }
     else
     {
-      v30 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
-      v31 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
-      __asm { vmovsd  [rsp+78h+var_40], xmm6 }
-      LODWORD(v37) = _EBP % 60;
-      Com_sprintf(lbGlob.feederText, 0x24ui64, "%02i%s %02i%s %04.1f%s", (unsigned int)(_EBP / 60), v31, v37, v30, v39, v29);
+      v14 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
+      v15 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
+      LODWORD(v18) = v6 % 60;
+      Com_sprintf(lbGlob.feederText, 0x24ui64, "%02i%s %02i%s %04.1f%s", (unsigned int)(v6 / 60), v15, v18, v14, v7, v13);
     }
   }
   else
   {
-    v24 = UI_SafeTranslateString("MENU/SECONDS_ABBREVIATION");
-    v25 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
-    v26 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
-    v27 = UI_SafeTranslateString("MENU/DAYS_ABBREVIATION");
-    __asm { vmovsd  [rsp+78h+var_30], xmm6 }
-    LODWORD(v37) = _EBP % 1440 / 60;
-    Com_sprintf(lbGlob.feederText, 0x24ui64, "%i%s %02i%s %02i%s %04.1f%s", (unsigned int)(_EBP / 1440), v27, v37, v26, _EBP % 60, v25, v40, v24);
+    v8 = UI_SafeTranslateString("MENU/SECONDS_ABBREVIATION");
+    v9 = UI_SafeTranslateString("MENU/MINUTES_ABBREVIATION");
+    v10 = UI_SafeTranslateString("MENU/HOURS_ABBREVIATION");
+    v11 = UI_SafeTranslateString("MENU/DAYS_ABBREVIATION");
+    LODWORD(v18) = v6 % 1440 / 60;
+    Com_sprintf(lbGlob.feederText, 0x24ui64, "%i%s %02i%s %02i%s %04.1f%s", (unsigned int)(v6 / 1440), v11, v18, v10, v6 % 60, v9, v7, v8);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
   return lbGlob.feederText;
 }
 
@@ -827,77 +726,74 @@ LB_OpenLeaderboardExt
 */
 void LB_OpenLeaderboardExt(const char *name, const char *leaderboardFilter, bool isVirtual)
 {
-  unsigned int v7; 
-  TrackType *v8; 
+  LeaderboardDef *Def; 
+  unsigned int v6; 
+  TrackType *v7; 
+  double v8; 
   const char *trackType; 
-  __int64 v12; 
-  const char *v13; 
+  __int64 v10; 
+  const char *v11; 
+  int v12; 
+  __int64 v13; 
   int v14; 
-  __int64 v15; 
+  int v15; 
   int v16; 
-  int v17; 
-  int v18; 
   int trackTypes; 
 
-  _RAX = LB_LoadDef(name, isVirtual);
-  lbGlob.leaderboard.lbDef = _RAX;
-  if ( _RAX || (Com_PrintError(22, "Unable to open leaderboard named %s.\n", name), (_RAX = lbGlob.leaderboard.lbDef) != NULL) )
+  Def = LB_LoadDef(name, isVirtual);
+  lbGlob.leaderboard.lbDef = Def;
+  if ( Def || (Com_PrintError(22, "Unable to open leaderboard named %s.\n", name), (Def = lbGlob.leaderboard.lbDef) != NULL) )
   {
     if ( leaderboardFilter )
     {
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v7 = 0;
-      v8 = lbTrackTypes;
-      __asm
-      {
-        vmovups ymmword ptr cs:s_lbDef.name, ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr cs:s_lbDef.columns, xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-      }
+      v6 = 0;
+      v7 = lbTrackTypes;
+      *(__m256i *)&s_lbDef.name = *(__m256i *)&Def->name;
+      *(_OWORD *)&s_lbDef.columns = *(_OWORD *)&Def->columns;
+      v8 = *(double *)&Def->rankColIdX;
       lbGlob.leaderboard.lbDef = &s_lbDef;
-      __asm { vmovsd  qword ptr cs:s_lbDef.rankColIdX, xmm0 }
+      *(double *)&s_lbDef.rankColIdX = v8;
       while ( 2 )
       {
-        trackType = v8->trackType;
-        v12 = 0x7FFFFFFFi64;
-        if ( !v8->trackType && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+        trackType = v7->trackType;
+        v10 = 0x7FFFFFFFi64;
+        if ( !v7->trackType && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v13 = (const char *)(leaderboardFilter - trackType);
+        v11 = (const char *)(leaderboardFilter - trackType);
         while ( 1 )
         {
-          v14 = (unsigned __int8)trackType[(_QWORD)v13];
-          v15 = v12;
-          v16 = *(unsigned __int8 *)trackType++;
-          --v12;
-          if ( !v15 )
+          v12 = (unsigned __int8)trackType[(_QWORD)v11];
+          v13 = v10;
+          v14 = *(unsigned __int8 *)trackType++;
+          --v10;
+          if ( !v13 )
           {
 LABEL_17:
             trackTypes = lbGlob.leaderboard.lbDef->trackTypes;
-            if ( _bittest(&trackTypes, v7) )
+            if ( _bittest(&trackTypes, v6) )
             {
-              lbGlob.leaderboard.lbDef->id += 100 * v7;
-              lbGlob.leaderboard.lbDef->sourceLbId += 100 * v7;
+              lbGlob.leaderboard.lbDef->id += 100 * v6;
+              lbGlob.leaderboard.lbDef->sourceLbId += 100 * v6;
             }
             return;
           }
-          if ( v14 != v16 )
+          if ( v12 != v14 )
           {
-            v17 = v14 + 32;
+            v15 = v12 + 32;
+            if ( (unsigned int)(v12 - 65) > 0x19 )
+              v15 = v12;
+            v12 = v15;
+            v16 = v14 + 32;
             if ( (unsigned int)(v14 - 65) > 0x19 )
-              v17 = v14;
-            v14 = v17;
-            v18 = v16 + 32;
-            if ( (unsigned int)(v16 - 65) > 0x19 )
-              v18 = v16;
-            if ( v14 != v18 )
+              v16 = v14;
+            if ( v12 != v16 )
               break;
           }
-          if ( !v14 )
+          if ( !v12 )
             goto LABEL_17;
         }
-        ++v7;
-        if ( (__int64)++v8 < (__int64)&unk_1482E05D0 )
+        ++v6;
+        if ( (__int64)++v7 < (__int64)&unk_1482E05D0 )
           continue;
         break;
       }

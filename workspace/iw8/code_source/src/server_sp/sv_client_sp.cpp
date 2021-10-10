@@ -241,44 +241,35 @@ SV_ClientSP_Think
 */
 void SV_ClientSP_Think(int clientNum, usercmd_s *cmd, bool initialCall)
 {
+  usercmd_s *p_lastUsercmd; 
   __int64 v7; 
+  __int128 v8; 
 
-  _RBX = cmd;
   if ( !SV_Loaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.cpp", 130, ASSERT_TYPE_ASSERT, "(SV_Loaded())", (const char *)&queryFormat, "SV_Loaded()") )
     __debugbreak();
   if ( SvClient::GetCommonClient(clientNum)->state != CS_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.cpp", 131, ASSERT_TYPE_ASSERT, "(SvClient::GetConnectionState( clientNum ) == SvClientConnectionState::CS_ACTIVE)", (const char *)&queryFormat, "SvClient::GetConnectionState( clientNum ) == SvClientConnectionState::CS_ACTIVE") )
     __debugbreak();
   if ( (_BYTE)SvClient::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.h", 83, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
-  _RCX = &SvClient::GetCommonClient(clientNum)->lastUsercmd;
+  p_lastUsercmd = &SvClient::GetCommonClient(clientNum)->lastUsercmd;
   v7 = 2i64;
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (usercmd_s *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+    v8 = *(_OWORD *)&cmd->buttons;
+    cmd = (usercmd_s *)((char *)cmd + 128);
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.attachmentVariationIndices[13] = v8;
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo = *(_OWORD *)&cmd[-1].offHand.weaponCamo;
+    *(_OWORD *)p_lastUsercmd[-1].remoteControlMove = *(_OWORD *)cmd[-1].remoteControlMove;
+    *(_OWORD *)p_lastUsercmd[-1].vehAngles = *(_OWORD *)cmd[-1].vehAngles;
+    *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ = *(_OWORD *)&cmd[-1].vehOrgZ;
+    *(_OWORD *)&p_lastUsercmd[-1].gunYOfs = *(_OWORD *)&cmd[-1].gunYOfs;
+    *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data = *(_OWORD *)cmd[-1].sightedClientsMask.data;
+    *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&cmd[-1].sightedClientsMask.data[4];
     --v7;
   }
   while ( v7 );
-  _RCX->buttons = _RBX->buttons;
+  p_lastUsercmd->buttons = cmd->buttons;
   G_ActiveSP_ClientThink(clientNum, initialCall);
 }
 

@@ -49,11 +49,7 @@ bdSecurityKey::bdSecurityKey
 */
 void bdSecurityKey::bdSecurityKey(bdSecurityKey *this, const bdSecurityKey *other)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *this = *other;
 }
 
 /*

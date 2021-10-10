@@ -299,41 +299,35 @@ bdAuth::bdAuth
 */
 void bdAuth::bdAuth(bdAuth *this, const unsigned int *titleID, const bdEnvironmentString *authAddresses, const unsigned __int16 authPort)
 {
-  _RSI = titleID;
-  _R14 = this;
   this->__vftable = (bdAuth_vtbl *)&bdAuth::`vftable';
   *(_QWORD *)&this->m_authInfo.m_titleID = 0i64;
   this->m_authInfo.m_userID = 0i64;
   this->m_authInfo.m_authSessionKeyKDF = 0;
   memset_0(this->m_authInfo.m_data, 0, 0x98ui64);
-  *(_QWORD *)_R14->m_authInfo.m_accountType = 0i64;
-  *(_WORD *)&_R14->m_authInfo.m_accountType[8] = 0;
-  *(_QWORD *)_R14->m_authInfo.m_clientID = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[8] = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[16] = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[24] = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[32] = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[40] = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[48] = 0i64;
-  *(_QWORD *)&_R14->m_authInfo.m_clientID[56] = 0i64;
-  bdAuthTicket::bdAuthTicket(&_R14->m_authTicket);
-  _R14->m_httpAuthRequest = NULL;
-  _R14->m_httpAuthRequestLength = 0;
-  _R14->m_errorCode = BD_NO_ERROR;
-  bdEnvironmentString::bdEnvironmentString(&_R14->m_authAddresses, authAddresses);
-  _R14->m_authPort = authPort;
-  _R14->m_ivSeed = 0;
-  bdExtendedAuthInfo::bdExtendedAuthInfo(&_R14->m_extendedAuthInfo);
-  _R14->m_httpInterface = bdHTTPUtility::newHTTP(0, 0);
-  _R14->m_status = BD_READY;
-  _R14->m_task = BD_AUTH_INVALID_REQUEST;
-  _R14->m_responseTask = BD_AUTH_INVALID_REQUEST;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi]
-    vmovsd  qword ptr [r14+10h], xmm0
-  }
-  _R14->m_titleID[2] = _RSI[2];
+  *(_QWORD *)this->m_authInfo.m_accountType = 0i64;
+  *(_WORD *)&this->m_authInfo.m_accountType[8] = 0;
+  *(_QWORD *)this->m_authInfo.m_clientID = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[8] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[16] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[24] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[32] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[40] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[48] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[56] = 0i64;
+  bdAuthTicket::bdAuthTicket(&this->m_authTicket);
+  this->m_httpAuthRequest = NULL;
+  this->m_httpAuthRequestLength = 0;
+  this->m_errorCode = BD_NO_ERROR;
+  bdEnvironmentString::bdEnvironmentString(&this->m_authAddresses, authAddresses);
+  this->m_authPort = authPort;
+  this->m_ivSeed = 0;
+  bdExtendedAuthInfo::bdExtendedAuthInfo(&this->m_extendedAuthInfo);
+  this->m_httpInterface = bdHTTPUtility::newHTTP(0, 0);
+  this->m_status = BD_READY;
+  this->m_task = BD_AUTH_INVALID_REQUEST;
+  this->m_responseTask = BD_AUTH_INVALID_REQUEST;
+  *(double *)this->m_titleID = *(double *)titleID;
+  this->m_titleID[2] = titleID[2];
 }
 
 /*
@@ -558,73 +552,72 @@ __int64 bdAuth::handleAuthReply(bdAuth *this, unsigned int expectedTaskID, unsig
   unsigned int v16; 
   __int64 v17; 
   unsigned int v18; 
-  char v19; 
-  unsigned __int64 v22; 
-  size_t v23; 
-  size_t v24; 
-  const char *v26; 
-  __int64 v27; 
+  bool v19; 
+  unsigned __int64 v20; 
+  size_t v21; 
+  size_t v22; 
+  const char *v24; 
+  __int64 v25; 
   unsigned __int64 value; 
-  unsigned __int64 v29; 
+  unsigned __int64 v27; 
   bdLobbyErrorCode code[2]; 
-  bdJSONDeserializer v31; 
-  __int64 v32; 
-  bdRSAKey v33; 
+  bdJSONDeserializer v29; 
+  __int64 v30; 
+  bdRSAKey v31; 
   char Src[8]; 
-  __int16 v35; 
-  char v36[8]; 
+  __int16 v33; 
+  char v34[8]; 
+  __int64 v35; 
+  __int64 v36; 
   __int64 v37; 
   __int64 v38; 
   __int64 v39; 
   __int64 v40; 
   __int64 v41; 
-  __int64 v42; 
-  __int64 v43; 
   char buffer[4]; 
-  char v45[208]; 
-  char v46[208]; 
+  char v43[208]; 
+  char v44[208]; 
   char dest[256]; 
   char src[352]; 
 
-  v32 = -2i64;
-  _RSI = this;
+  v30 = -2i64;
   bdLogMessage(BD_LOG_INFO, "info/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x135u, "Received reply from DemonWare Auth server");
   v6 = BD_AUTH_NO_ERROR;
-  v7 = _RSI->m_httpInterface->getLastHTTPStatus(_RSI->m_httpInterface);
+  v7 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
   if ( v7 != 200 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1EBu, "Auth task failed with HTTP code [%u]", v7);
-    return (unsigned int)bdAuthHTTPUtility::mapHTTPErrorCode(_RSI->m_httpInterface);
+    return (unsigned int)bdAuthHTTPUtility::mapHTTPErrorCode(this->m_httpInterface);
   }
   v8 = 0;
-  v29 = 0i64;
+  v27 = 0i64;
   value = 0i64;
   *(_QWORD *)code = 0i64;
-  *(_QWORD *)v36 = 0i64;
+  *(_QWORD *)v34 = 0i64;
+  v35 = 0i64;
+  v36 = 0i64;
   v37 = 0i64;
   v38 = 0i64;
   v39 = 0i64;
   v40 = 0i64;
   v41 = 0i64;
-  v42 = 0i64;
-  v43 = 0i64;
   *(_QWORD *)Src = 0i64;
-  v35 = 0;
+  v33 = 0;
   memset_0(buffer, 0, 0xCCui64);
-  bdJSONDeserializer::bdJSONDeserializer(&v31);
-  if ( !bdJSONDeserializer::parse(&v31, _RSI->m_httpAuthReply) || !bdJSONDeserializer::isObject(&v31) )
+  bdJSONDeserializer::bdJSONDeserializer(&v29);
+  if ( !bdJSONDeserializer::parse(&v29, this->m_httpAuthReply) || !bdJSONDeserializer::isObject(&v29) )
   {
     v6 = BD_AUTH_JSON_FORMAT_ERROR;
     goto LABEL_69;
   }
-  if ( !bdJSONDeserializer::getUInt64(&v31, "auth_task", &value) || !_RSI->isValidResponse(_RSI, expectedTaskID, value) )
+  if ( !bdJSONDeserializer::getUInt64(&v29, "auth_task", &value) || !this->isValidResponse(this, expectedTaskID, value) )
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x152u, "Invalid or No Task ID [%llu] in Auth reply", value);
     v6 = BD_AUTH_REPLY_CONTENT_ERROR;
     goto LABEL_69;
   }
-  _RSI->m_responseTask = value;
-  if ( !bdJSONDeserializer::getUInt64(&v31, "code", (unsigned __int64 *)code) )
+  this->m_responseTask = value;
+  if ( !bdJSONDeserializer::getUInt64(&v29, "code", (unsigned __int64 *)code) )
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1E3u, "Auth task returned without error code");
     v6 = BD_AUTH_REPLY_CONTENT_ERROR;
@@ -633,13 +626,13 @@ __int64 bdAuth::handleAuthReply(bdAuth *this, unsigned int expectedTaskID, unsig
   if ( *(_QWORD *)code != 700i64 )
   {
     v6 = code[0];
-    v26 = bdLobbyErrorCodeToString(code[0]);
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1DEu, "Auth task returned with error code [%llu][%s]", *(_QWORD *)code, v26);
+    v24 = bdLobbyErrorCodeToString(code[0]);
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1DEu, "Auth task returned with error code [%llu][%s]", *(_QWORD *)code, v24);
     goto LABEL_69;
   }
   memset_0(src, 0, 0x159ui64);
   memset_0(dest, 0, sizeof(dest));
-  if ( !_RSI->m_httpInterface->getHeader(_RSI->m_httpInterface, "X-Signature", src, 345u) )
+  if ( !this->m_httpInterface->getHeader(this->m_httpInterface, "X-Signature", src, 345u) )
     goto LABEL_64;
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   v9 = -1i64;
@@ -648,62 +641,62 @@ __int64 bdAuth::handleAuthReply(bdAuth *this, unsigned int expectedTaskID, unsig
     ++v10;
   while ( src[v10] );
   bdBase64::decode(src, v10, dest, 0x100u);
-  bdRSAKey::bdRSAKey(&v33);
+  bdRSAKey::bdRSAKey(&v31);
   v12 = 0;
-  if ( bdRSAKey::importKey(&v33, BD_AUTH_TRAFFIC_SIGNING_KEY, 0x126u) )
+  if ( bdRSAKey::importKey(&v31, BD_AUTH_TRAFFIC_SIGNING_KEY, 0x126u) )
   {
-    v11 = bdStrlen(_RSI->m_httpAuthReply);
-    if ( bdRSAKey::verifySignatureSHA256(&v33, (const unsigned __int8 *)dest, _RSI->m_httpAuthReply, v11, BD_RSA_PKCS_1_PSS) )
+    v11 = bdStrlen(this->m_httpAuthReply);
+    if ( bdRSAKey::verifySignatureSHA256(&v31, (const unsigned __int8 *)dest, this->m_httpAuthReply, v11, BD_RSA_PKCS_1_PSS) )
       v12 = 1;
   }
-  bdRSAKey::~bdRSAKey(&v33);
+  bdRSAKey::~bdRSAKey(&v31);
   if ( !v12 )
   {
 LABEL_64:
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x166u, "Auth traffic verification failed");
-    bdJSONDeserializer::~bdJSONDeserializer(&v31);
+    bdJSONDeserializer::~bdJSONDeserializer(&v29);
     return 749i64;
   }
   bdLogMessage(BD_LOG_INFO, "info/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::validateResponseSignature", 0x222u, "Auth traffic verified");
-  UInt64 = bdJSONDeserializer::getUInt64(&v31, "iv_seed", &v29);
-  if ( bdJSONDeserializer::hasKey(&v31, "client_id") )
-    UInt64 = UInt64 && bdJSONDeserializer::getString(&v31, "client_id", v36, 0x40u);
-  if ( bdJSONDeserializer::hasKey(&v31, "account_type") )
-    UInt64 = UInt64 && bdJSONDeserializer::getString(&v31, "account_type", Src, 0xAu);
-  memset_0(v45, 0, 0xCDui64);
-  if ( !UInt64 || !bdJSONDeserializer::getString(&v31, "client_ticket", v45, 0xCDu) )
+  UInt64 = bdJSONDeserializer::getUInt64(&v29, "iv_seed", &v27);
+  if ( bdJSONDeserializer::hasKey(&v29, "client_id") )
+    UInt64 = UInt64 && bdJSONDeserializer::getString(&v29, "client_id", v34, 0x40u);
+  if ( bdJSONDeserializer::hasKey(&v29, "account_type") )
+    UInt64 = UInt64 && bdJSONDeserializer::getString(&v29, "account_type", Src, 0xAu);
+  memset_0(v43, 0, 0xCDui64);
+  if ( !UInt64 || !bdJSONDeserializer::getString(&v29, "client_ticket", v43, 0xCDu) )
     goto LABEL_32;
   v14 = 1;
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   v15 = -1i64;
   do
     ++v15;
-  while ( v45[v15] );
-  v16 = bdBase64::decode(v45, v15, buffer, expectedTicketSize);
+  while ( v43[v15] );
+  v16 = bdBase64::decode(v43, v15, buffer, expectedTicketSize);
   if ( v16 != expectedTicketSize )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x18Au, "Decoded client ticket of unexpected size [%u]", v16);
 LABEL_32:
     v14 = 0;
   }
-  memset_0(v46, 0, 0xCDui64);
-  if ( !v14 || !bdJSONDeserializer::getString(&v31, "server_ticket", v46, 0xCDu) )
+  memset_0(v44, 0, 0xCDui64);
+  if ( !v14 || !bdJSONDeserializer::getString(&v29, "server_ticket", v44, 0xCDu) )
     goto LABEL_39;
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   v17 = -1i64;
   do
     ++v17;
-  while ( v46[v17] );
-  v18 = bdBase64::decode(v46, v17, _RSI->m_authInfo.m_data, 0x80u);
+  while ( v44[v17] );
+  v18 = bdBase64::decode(v44, v17, this->m_authInfo.m_data, 0x80u);
   if ( v18 != 128 )
   {
-    LODWORD(v27) = v18;
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x19Bu, "Decoded server ticket of unexpected size [%u]", v27);
+    LODWORD(v25) = v18;
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x19Bu, "Decoded server ticket of unexpected size [%u]", v25);
 LABEL_39:
     v19 = 0;
     goto LABEL_40;
   }
-  if ( !_RSI->processPlatformData(_RSI, &v31) )
+  if ( !this->processPlatformData(this, &v29) )
     goto LABEL_39;
   v8 = *(_DWORD *)buffer;
   v19 = 1;
@@ -712,50 +705,45 @@ LABEL_40:
     goto LABEL_43;
   if ( v19 )
   {
-    v19 = _RSI->processPlatformClientTicket(_RSI, v29, buffer, expectedTicketSize);
+    v19 = this->processPlatformClientTicket(this, v27, buffer, expectedTicketSize);
 LABEL_43:
     if ( v19 )
     {
-      bdAuthTicket::deserialize(&_RSI->m_authTicket, buffer);
-      if ( _RSI->m_authTicket.m_magicNumber == BD_MAGIC_NUMBER )
+      bdAuthTicket::deserialize(&this->m_authTicket, buffer);
+      if ( this->m_authTicket.m_magicNumber == BD_MAGIC_NUMBER )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi+190h]
-          vmovups xmmword ptr [rsi+0B8h], xmm0
-          vmovsd  xmm1, qword ptr [rsi+1A0h]
-          vmovsd  qword ptr [rsi+0C8h], xmm1
-        }
-        _RSI->m_authInfo.m_titleID = _RSI->m_authTicket.m_titleID;
-        _RSI->m_authInfo.m_IVSeed = v29;
-        _RSI->m_authInfo.m_userID = _RSI->m_authTicket.m_userID;
+        *(_OWORD *)this->m_authInfo.m_sessionKey = *(_OWORD *)this->m_authTicket.m_sessionKey;
+        *(double *)&this->m_authInfo.m_sessionKey[16] = *(double *)&this->m_authTicket.m_sessionKey[16];
+        this->m_authInfo.m_titleID = this->m_authTicket.m_titleID;
+        this->m_authInfo.m_IVSeed = v27;
+        this->m_authInfo.m_userID = this->m_authTicket.m_userID;
         bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-        v22 = -1i64;
+        v20 = -1i64;
         do
-          ++v22;
-        while ( Src[v22] );
-        if ( _RSI != (bdAuth *)-216i64 )
+          ++v20;
+        while ( Src[v20] );
+        if ( this != (bdAuth *)-216i64 )
         {
-          v23 = 9i64;
-          if ( v22 < 9 )
-            v23 = v22;
-          memcpy_0(_RSI->m_authInfo.m_accountType, Src, v23);
-          _RSI->m_authInfo.m_accountType[v23] = 0;
+          v21 = 9i64;
+          if ( v20 < 9 )
+            v21 = v20;
+          memcpy_0(this->m_authInfo.m_accountType, Src, v21);
+          this->m_authInfo.m_accountType[v21] = 0;
         }
         bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
         do
           ++v9;
-        while ( v36[v9] );
-        if ( _RSI != (bdAuth *)-226i64 )
+        while ( v34[v9] );
+        if ( this != (bdAuth *)-226i64 )
         {
-          v24 = 63i64;
+          v22 = 63i64;
           if ( v9 < 0x3F )
-            v24 = v9;
-          memcpy_0(_RSI->m_authInfo.m_clientID, v36, v24);
-          _RSI->m_authInfo.m_clientID[v24] = 0;
+            v22 = v9;
+          memcpy_0(this->m_authInfo.m_clientID, v34, v22);
+          this->m_authInfo.m_clientID[v22] = 0;
         }
-        _RSI->m_authInfo.m_authSessionKeyKDF = bdJSONDeserializer::hasKey(&v31, "identity");
-        bdLogMessage(BD_LOG_INFO, "info/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1C4u, "Cross Authentication completed [%I64u]", _RSI->m_authInfo.m_userID);
+        this->m_authInfo.m_authSessionKeyKDF = bdJSONDeserializer::hasKey(&v29, "identity");
+        bdLogMessage(BD_LOG_INFO, "info/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1C4u, "Cross Authentication completed [%I64u]", this->m_authInfo.m_userID);
       }
       else
       {
@@ -770,7 +758,7 @@ LABEL_43:
   bdLogMessage(BD_LOG_WARNING, "warn/", "bdAuth", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauth.cpp", "bdAuth::handleAuthReply", 0x1D6u, "Auth task reply contains invalid data / format");
   v6 = BD_AUTH_REPLY_CONTENT_ERROR;
 LABEL_69:
-  bdJSONDeserializer::~bdJSONDeserializer(&v31);
+  bdJSONDeserializer::~bdJSONDeserializer(&v29);
   return (unsigned int)v6;
 }
 

@@ -303,20 +303,20 @@ void PlayerCmd_setSpawnWeapon(scrContext_t *scrContext, scr_entref_t entref)
   int EquippedWeaponIndex; 
   __int64 v11; 
   bool *p_usedBefore; 
-  char v17; 
+  char v13; 
   Weapon *p_outWeapon; 
   GHandler *Handler; 
-  Weapon *v20; 
+  Weapon *v16; 
   unsigned __int16 weaponIdx; 
-  WeaponDef **v22; 
-  int v23; 
-  __int64 v24; 
+  WeaponDef **v18; 
+  int v19; 
+  __int64 v20; 
   GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
-  GHandler *v26; 
-  __int64 v27; 
-  __int64 v28; 
+  GHandler *v22; 
+  __int64 v23; 
+  __int64 v24; 
   bool outIsAlternate; 
-  bool v30; 
+  bool v26; 
   Weapon outWeapon; 
 
   v2 = 0;
@@ -350,12 +350,12 @@ LABEL_11:
   GScr_Main_GetWeaponParam(scrContext, 0, &outWeapon, &outIsAlternate);
   if ( Scr_GetNumParam(scrContext) <= 1 )
   {
-    v30 = 0;
+    v26 = 0;
   }
   else
   {
     Int = Scr_GetInt(scrContext, 1u);
-    v30 = Int != 0;
+    v26 = Int != 0;
     if ( Int && v5->agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 319, ASSERT_TYPE_ASSERT, "(( !forceFirstRaiseAnim || !pSelf->agent ))", "%s\n\tYou cannot use the forceFirstRaise argument for agents", "( !forceFirstRaiseAnim || !pSelf->agent )") )
       __debugbreak();
   }
@@ -376,50 +376,40 @@ LABEL_11:
       __debugbreak();
     if ( (unsigned int)v11 >= 0xF )
     {
-      LODWORD(v27) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v27, 15) )
+      LODWORD(v23) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v23, 15) )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon(Instance, p_ps->weaponsEquipped[v11]);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0C8h+outWeapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0C8h+outWeapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+0C8h+outWeapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&outWeapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    outWeapon = *BgWeaponMap::GetWeapon(Instance, p_ps->weaponsEquipped[v11]);
     if ( outIsAlternate && !BG_ActiveUnderbarrel(&outWeapon) )
     {
       GScr_Main_WeaponParamError(COM_ERR_6152, scrContext, 0, &outWeapon, "invalid SetSpawnWeapon, does not support alt mode: %s");
       outIsAlternate = 0;
     }
-    v17 = v30;
+    v13 = v26;
     p_outWeapon = &outWeapon;
-    if ( !v30 )
+    if ( !v26 )
       p_outWeapon = &NULL_WEAPON;
     BG_SetSpawnWeaponForPlayer(Instance, p_ps, p_outWeapon);
     Handler = GHandler::getHandler();
-    v20 = &outWeapon;
-    if ( v17 )
-      v20 = &NULL_WEAPON;
-    BG_SetCurrentWeaponForPlayer(Instance, p_ps, v20, Handler);
+    v16 = &outWeapon;
+    if ( v13 )
+      v16 = &NULL_WEAPON;
+    BG_SetCurrentWeaponForPlayer(Instance, p_ps, v16, Handler);
     p_ps->weapState[0].weaponState = 0;
     p_ps->weapState[1].weaponState = 0;
     weaponIdx = outWeapon.weaponIdx;
     if ( outWeapon.weaponIdx > bg_lastParsedWeaponIndex )
     {
-      LODWORD(v28) = bg_lastParsedWeaponIndex;
-      LODWORD(v27) = outWeapon.weaponIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v27, v28) )
+      LODWORD(v24) = bg_lastParsedWeaponIndex;
+      LODWORD(v23) = outWeapon.weaponIdx;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v23, v24) )
         __debugbreak();
     }
-    v22 = &bg_weaponDefs[weaponIdx];
-    if ( !*v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+    v18 = &bg_weaponDefs[weaponIdx];
+    if ( !*v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
       __debugbreak();
-    if ( (*v22)->inventoryType != WEAPINVENTORY_OFFHAND )
+    if ( (*v18)->inventoryType != WEAPINVENTORY_OFFHAND )
       GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&p_ps->weapCommon.weapFlags, ACTIVE, 1u);
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1135, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
@@ -429,11 +419,11 @@ LABEL_11:
         __debugbreak();
       if ( outWeapon.weaponIdx )
       {
-        v23 = BG_GetEquippedWeaponIndex(Instance, p_ps, &outWeapon);
-        if ( v23 >= 0 )
+        v19 = BG_GetEquippedWeaponIndex(Instance, p_ps, &outWeapon);
+        if ( v19 >= 0 )
         {
-          v24 = v23;
-          if ( (playerState_s *)((char *)p_ps + 4 * v24) != (playerState_s *)-1540i64 && p_ps->weapEquippedData[v24].dualWielding )
+          v20 = v19;
+          if ( (playerState_s *)((char *)p_ps + 4 * v20) != (playerState_s *)-1540i64 && p_ps->weapEquippedData[v20].dualWielding )
             goto LABEL_58;
         }
       }
@@ -449,8 +439,8 @@ LABEL_58:
     else
       GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(p_weapFlags, ACTIVE, 0x11u);
     *p_usedBefore = !p_usedBefore[2];
-    v26 = GHandler::getHandler();
-    PM_BuildWeaponAnimArrays(Instance, p_ps, v26);
+    v22 = GHandler::getHandler();
+    PM_BuildWeaponAnimArrays(Instance, p_ps, v22);
     if ( !v5->agent )
       G_Weapon_SelectWeapon(entnum, &outWeapon);
   }
@@ -614,68 +604,76 @@ void PlayerCmd_finishPlayerDamage(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   unsigned int entnum; 
-  gentity_s *v9; 
-  const char *v10; 
+  gentity_s *v5; 
+  const char *v6; 
   gclient_s *client; 
   int Int; 
-  meansOfDeath_t v13; 
+  meansOfDeath_t v9; 
+  vec3_t *p_hitDir; 
   scr_string_t ConstString; 
   hitLocation_t hitLoc; 
-  char v17; 
-  bool v18; 
-  const char *v24; 
-  unsigned int v39; 
+  double Float; 
+  float v14; 
+  const char *v15; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  __int128 v19; 
+  unsigned int v23; 
   unsigned __int16 number; 
-  __int64 v41; 
-  unsigned int v42; 
-  __int64 v43; 
-  unsigned __int16 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  char v47; 
-  char v48; 
-  int v53; 
+  __int64 v25; 
+  unsigned int v26; 
+  __int64 v27; 
+  unsigned __int16 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  char v31; 
+  char v32; 
+  float v33; 
+  int v34; 
   int dflags; 
-  int v59; 
-  vec3_t *v60; 
-  unsigned int v61; 
+  gclient_s *v36; 
+  int v37; 
+  vec3_t *v38; 
+  unsigned int v39; 
   scr_string_t tagName; 
   int iDamageParts; 
-  DamageParts *v64; 
+  DamageParts *v42; 
   const GEntityHandlerList *EntHandlerList; 
-  gclient_s *v66; 
+  gclient_s *v44; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v68; 
-  unsigned __int64 v69; 
-  char v70; 
-  int v71; 
-  gentity_s *v72; 
-  bool v73; 
-  vec3_t *v74; 
-  __int16 v75; 
+  unsigned __int64 v46; 
+  unsigned __int64 v47; 
+  char v48; 
+  int v49; 
+  bool v50; 
+  gentity_s *v51; 
+  bool v52; 
+  vec3_t *v53; 
+  __int16 v54; 
   void (__fastcall *pain)(gentity_s *, gentity_s *, int, const vec3_t *, const int, const vec3_t *, const hitLocation_t, const Weapon *, bool); 
-  vec3_t *v77; 
+  vec3_t *v56; 
   __int16 EntityIndex; 
   __int64 partName; 
   __int64 partNamea; 
   vec3_t *point; 
   meansOfDeath_t mod; 
   bool outIsAlternate; 
-  bool v87; 
-  bool v88; 
+  bool v63; 
+  bool v64; 
   unsigned int damageFlags; 
-  scr_string_t v90; 
+  scr_string_t v66; 
   int psTimeOffset; 
   gentity_s *pAttacker; 
   int modelIndex; 
   vec3_t *hitOrigin; 
-  vec3_t *p_hitDir; 
+  vec3_t *v71; 
   vec3_t direction; 
   vec3_t hitDir; 
   vec3_t vectorValue; 
   Weapon outWeapon; 
 
-  p_hitDir = NULL;
+  v71 = NULL;
   hitOrigin = NULL;
   Entity = g_entities + 2046;
   pAttacker = g_entities + 2046;
@@ -683,20 +681,20 @@ void PlayerCmd_finishPlayerDamage(scrContext_t *scrContext, scr_entref_t entref)
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v9 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 668, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v9 = &g_entities[entnum];
-    if ( !v9->client )
+    v5 = &g_entities[entnum];
+    if ( !v5->client )
     {
-      v10 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v10);
+      v6 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
     }
   }
-  client = v9->client;
+  client = v5->client;
   if ( !client->lastStand || client->lastStandTime <= level.time )
   {
     Int = Scr_GetInt(scrContext, 2u);
@@ -705,7 +703,7 @@ void PlayerCmd_finishPlayerDamage(scrContext_t *scrContext, scr_entref_t entref)
     if ( Scr_GetType(scrContext, 1u) && Scr_GetPointerType(scrContext, 1u) == VAR_ENTITY )
       pAttacker = GScr_GetEntity(1u);
     damageFlags = Scr_GetInt(scrContext, 3u);
-    v13 = G_Combat_MeansOfDeathFromScriptParam(scrContext, 4);
+    v9 = G_Combat_MeansOfDeathFromScriptParam(scrContext, 4);
     GScr_Main_GetWeaponParam(scrContext, 5u, &outWeapon, &outIsAlternate);
     if ( Scr_GetType(scrContext, 6u) )
     {
@@ -715,338 +713,286 @@ void PlayerCmd_finishPlayerDamage(scrContext_t *scrContext, scr_entref_t entref)
     if ( Scr_GetType(scrContext, 7u) )
     {
       Scr_GetVector(scrContext, 7u, &hitDir);
-      _RBX = &hitDir;
       p_hitDir = &hitDir;
+      v71 = &hitDir;
     }
     else
     {
-      _RBX = p_hitDir;
+      p_hitDir = v71;
     }
     ConstString = Scr_GetConstString(scrContext, 8u);
     hitLoc = G_Combat_GetHitLocationIndexFromString(ConstString);
     if ( hitLoc != HITLOC_SHIELD )
     {
-      __asm
-      {
-        vmovaps [rsp+180h+var_40], xmm6
-        vmovaps [rsp+180h+var_50], xmm7
-        vmovaps [rsp+180h+var_60], xmm8
-      }
       psTimeOffset = Scr_GetInt(scrContext, 9u);
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0xAu);
-      __asm
+      Float = Scr_GetFloat(scrContext, 0xAu);
+      v14 = *(float *)&Float;
+      if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
       {
-        vmovss  xmm7, cs:__real@3f800000
-        vxorps  xmm6, xmm6, xmm6
-        vcomiss xmm0, xmm6
-        vmovaps xmm8, xmm0
-      }
-      if ( v17 )
-        goto LABEL_24;
-      __asm { vcomiss xmm0, xmm7 }
-      if ( !(v17 | v18) )
-      {
-LABEL_24:
-        __asm
-        {
-          vcvtss2sd xmm1, xmm8, xmm8
-          vmovq   rdx, xmm1
-        }
-        v24 = j_va("Given stun fraction (%.2f) is outside the allowed range (0,1).", _RDX);
-        Scr_Error(COM_ERR_1363, scrContext, v24);
+        v15 = j_va("Given stun fraction (%.2f) is outside the allowed range (0,1).", *(float *)&Float);
+        Scr_Error(COM_ERR_1363, scrContext, v15);
       }
       if ( Scr_GetType(scrContext, 0xBu) )
         modelIndex = Scr_GetInt(scrContext, 0xBu);
       else
         modelIndex = 0;
       if ( Scr_GetType(scrContext, 0xCu) )
-        v90 = Scr_GetConstString(scrContext, 0xCu);
+        v66 = Scr_GetConstString(scrContext, 0xCu);
       else
-        v90 = 0;
-      v87 = Scr_GetNumParam(scrContext) > 0xD && Scr_GetInt(scrContext, 0xDu) != 0;
-      v88 = 1;
+        v66 = 0;
+      v63 = Scr_GetNumParam(scrContext) > 0xD && Scr_GetInt(scrContext, 0xDu) != 0;
+      v64 = 1;
       if ( Scr_GetNumParam(scrContext) > 0xE )
-        v88 = Scr_GetInt(scrContext, 0xEu) != 0;
-      if ( v9->client->ps.pm_type == 7 )
+        v64 = Scr_GetInt(scrContext, 0xEu) != 0;
+      if ( v5->client->ps.pm_type == 7 )
       {
         Scr_Error(COM_ERR_1364, scrContext, "Trying to do damage to a client that is already dead");
-LABEL_143:
-        __asm
-        {
-          vmovaps xmm7, [rsp+180h+var_50]
-          vmovaps xmm6, [rsp+180h+var_40]
-          vmovaps xmm8, [rsp+180h+var_60]
-        }
         return;
       }
-      if ( _RBX )
+      if ( p_hitDir )
       {
+        v16 = p_hitDir->v[1];
+        v17 = LODWORD(p_hitDir->v[0]);
+        v18 = p_hitDir->v[2];
+        v19 = v17;
+        *(float *)&v19 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(v16 * v16)) + (float)(v18 * v18));
+        _XMM3 = v19;
         __asm
         {
-          vmovss  xmm5, dword ptr [rbx+4]
-          vmovss  xmm4, dword ptr [rbx]
-          vmovss  xmm6, dword ptr [rbx+8]
-          vmulss  xmm0, xmm5, xmm5
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm7, xmm0
-          vdivss  xmm2, xmm7, xmm0
-          vmulss  xmm0, xmm4, xmm2
-          vmovss  dword ptr [rbp+80h+direction], xmm0
-          vmulss  xmm0, xmm6, xmm2
-          vmulss  xmm1, xmm5, xmm2
-          vmovss  dword ptr [rbp+80h+direction+8], xmm0
-          vmovss  dword ptr [rbp+80h+direction+4], xmm1
         }
+        direction.v[0] = *(float *)&v17 * (float)(1.0 / *(float *)&_XMM0);
+        direction.v[2] = v18 * (float)(1.0 / *(float *)&_XMM0);
+        direction.v[1] = v16 * (float)(1.0 / *(float *)&_XMM0);
       }
       else
       {
-        __asm
-        {
-          vmovss  dword ptr [rbp+80h+direction], xmm6
-          vmovss  dword ptr [rbp+80h+direction+4], xmm6
-          vmovss  dword ptr [rbp+80h+direction+8], xmm6
-        }
+        direction.v[0] = 0.0;
+        direction.v[1] = 0.0;
+        direction.v[2] = 0.0;
       }
-      v39 = v9->flags.m_flags[0];
-      if ( (v39 & 8) == 0 && (damageFlags & 4) == 0 )
+      v23 = v5->flags.m_flags[0];
+      if ( (v23 & 8) == 0 && (damageFlags & 4) == 0 )
       {
-        G_CombatMP_DamageKnockback(v9, Int, &direction, &v9->client->ps);
-        LOBYTE(v39) = v9->flags.m_flags[0];
+        G_CombatMP_DamageKnockback(v5, Int, &direction, &v5->client->ps);
+        LOBYTE(v23) = v5->flags.m_flags[0];
       }
-      if ( (v39 & 1) != 0 )
-        goto LABEL_143;
-      number = v9->r.ownerNum.number;
-      if ( number )
+      if ( (v23 & 1) == 0 )
       {
-        v41 = number;
-        v42 = number - 1;
-        if ( v42 >= 0x800 )
+        number = v5->r.ownerNum.number;
+        if ( !number )
+          goto LABEL_75;
+        v25 = number;
+        v26 = number - 1;
+        if ( v26 >= 0x800 )
         {
-          LODWORD(partName) = v42;
+          LODWORD(partName) = v26;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", partName, 2048) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v43 = v41 - 1;
-        if ( g_entities[v43].r.isInUse != g_entityIsInUse[v43] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v27 = v25 - 1;
+        if ( g_entities[v27].r.isInUse != g_entityIsInUse[v27] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v43] )
+        if ( !g_entityIsInUse[v27] )
         {
-          LODWORD(point) = v9->r.ownerNum.number - 1;
+          LODWORD(point) = v5->r.ownerNum.number - 1;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", point) )
             __debugbreak();
         }
-        v44 = v9->r.ownerNum.number;
-        if ( v44 )
+        v28 = v5->r.ownerNum.number;
+        if ( !v28 )
+          goto LABEL_75;
+        if ( (unsigned int)v28 - 1 >= 0x7FF )
         {
-          if ( (unsigned int)v44 - 1 >= 0x7FF )
-          {
-            LODWORD(point) = 2047;
-            LODWORD(partName) = v44 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", partName, point) )
-              __debugbreak();
-          }
-          v45 = v9->r.ownerNum.number;
-          if ( (unsigned int)(v45 - 1) >= 0x800 )
-          {
-            LODWORD(point) = 2048;
-            LODWORD(partName) = v45 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", partName, point) )
-              __debugbreak();
-          }
-          if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+          LODWORD(point) = 2047;
+          LODWORD(partName) = v28 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", partName, point) )
             __debugbreak();
-          v46 = v45 - 1;
-          if ( g_entities[v46].r.isInUse != g_entityIsInUse[v46] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        }
+        v29 = v5->r.ownerNum.number;
+        if ( (unsigned int)(v29 - 1) >= 0x800 )
+        {
+          LODWORD(point) = 2048;
+          LODWORD(partName) = v29 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", partName, point) )
             __debugbreak();
-          if ( !g_entityIsInUse[v46] )
+        }
+        if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+          __debugbreak();
+        v30 = v29 - 1;
+        if ( g_entities[v30].r.isInUse != g_entityIsInUse[v30] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          __debugbreak();
+        if ( !g_entityIsInUse[v30] )
+        {
+          LODWORD(point) = v5->r.ownerNum.number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", point) )
+            __debugbreak();
+        }
+        if ( (g_entities[v5->r.ownerNum.number - 1].flags.m_flags[0] & 1) == 0 )
+        {
+LABEL_75:
+          v31 = v63;
+          if ( !Int && (v63 || (damageFlags & 0x600) != 0) )
           {
-            LODWORD(point) = v9->r.ownerNum.number - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", point) )
+            v32 = 1;
+            Int = 1;
+          }
+          else
+          {
+            v32 = 0;
+            if ( Int <= 0 )
+              return;
+          }
+          v33 = (float)Int * v14;
+          v5->client->damage_stun += (int)v33;
+          v34 = Int - (int)v33;
+          v5->client->damage_blood += v34;
+          if ( (unsigned int)v9 >= MOD_NUM )
+          {
+            LODWORD(point) = 25;
+            LODWORD(partName) = v9;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 807, ASSERT_TYPE_ASSERT, "(unsigned)( mod ) < (unsigned)( MOD_NUM )", "mod doesn't index MOD_NUM\n\t%i not in [0, %i)", partName, point) )
               __debugbreak();
           }
-          if ( (g_entities[v9->r.ownerNum.number - 1].flags.m_flags[0] & 1) != 0 )
-            goto LABEL_143;
-        }
-      }
-      v47 = v87;
-      if ( !Int && (v87 || (damageFlags & 0x600) != 0) )
-      {
-        v48 = 1;
-        Int = 1;
-      }
-      else
-      {
-        v48 = 0;
-        if ( Int <= 0 )
-          goto LABEL_143;
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r14d
-        vmulss  xmm1, xmm0, xmm8
-        vcvttss2si ecx, xmm1
-      }
-      v9->client->damage_stun += _ECX;
-      v53 = Int - _ECX;
-      v9->client->damage_blood += v53;
-      if ( (unsigned int)v13 >= MOD_NUM )
-      {
-        LODWORD(point) = 25;
-        LODWORD(partName) = v13;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 807, ASSERT_TYPE_ASSERT, "(unsigned)( mod ) < (unsigned)( MOD_NUM )", "mod doesn't index MOD_NUM\n\t%i not in [0, %i)", partName, point) )
-          __debugbreak();
-      }
-      v9->client->damage_mod_flags |= 1 << v13;
-      dflags = damageFlags;
-      if ( (damageFlags & 0x100) != 0 )
-        v9->client->damage_ricochet += v53;
-      if ( v47 )
-        v9->client->damage_armor += v53;
-      _RCX = v9->client;
-      if ( p_hitDir )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+80h+direction]
-          vmovss  dword ptr [rcx+5E88h], xmm0
-          vmovss  xmm1, dword ptr [rbp+80h+direction+4]
-          vmovss  dword ptr [rcx+5E8Ch], xmm1
-          vmovss  xmm0, dword ptr [rbp+80h+direction+8]
-          vmovss  dword ptr [rcx+5E90h], xmm0
-        }
-        v9->client->damage_fromWorld = 0;
-      }
-      else
-      {
-        _RCX->damage_from.v[0] = v9->r.currentOrigin.v[0];
-        _RCX->damage_from.v[1] = v9->r.currentOrigin.v[1];
-        _RCX->damage_from.v[2] = v9->r.currentOrigin.v[2];
-        v9->client->damage_fromWorld = 1;
-      }
-      v59 = v53 - 1;
-      if ( !v48 )
-        v59 = v53;
-      v9->client->damage_vehicle = 0;
-      if ( v59 <= 0 )
-      {
-        if ( v48 )
-        {
-          v60 = hitOrigin;
-          G_CombatMP_SendPlayerHitEvent(v9, v9, Entity, &outWeapon, outIsAlternate, v90, hitOrigin, &direction, v13, hitLoc, dflags, 0);
-          G_Combat_SendMeleeCharacterImpactEvent(v9, v9, Entity, &outWeapon, outIsAlternate, v60, v13);
-        }
-        goto LABEL_143;
-      }
-      v61 = v59;
-      if ( (v9->flags.m_flags[0] & 2) != 0 && v9->health - v59 <= 0 )
-        v61 = v9->health - 1;
-      tagName = v90;
-      iDamageParts = v9->sentient->iDamageParts;
-      if ( iDamageParts != -1 && v90 )
-      {
-        v64 = DamageParts_Get(iDamageParts);
-        if ( !v64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 858, ASSERT_TYPE_ASSERT, "(pParts)", (const char *)&queryFormat, "pParts") )
-          __debugbreak();
-        v61 = DamageParts::ApplyDamage(v64, Entity, pAttacker, &hitDir, &vectorValue, v61, damageFlags, v13, &outWeapon, outIsAlternate, hitLoc, modelIndex, tagName);
-      }
-      if ( v88 )
-        BG_SetPlayerDamageFlinch(&v9->client->ps, v61);
-      G_CombatMP_SetAnimDamageTypeCondition(v9->client->ps.clientNum, v9, Entity, v13, &outWeapon, outIsAlternate);
-      G_CombatMP_SetAnimHitLocationCondition(v9->client->ps.clientNum, v9, hitLoc);
-      G_CombatMP_SetAnimHitDirectionCondition(v9->client->ps.clientNum, v9, &hitDir, &v9->client->ps, v13);
-      G_CombatMP_SetAnimMoveDirectionCondition(v9->client->ps.clientNum, v9, &v9->client->ps);
-      if ( v13 == MOD_MELEE )
-        G_CombatMP_SetMeleeReactionConditions(v9->client->ps.clientNum, Entity);
-      if ( v61 )
-      {
-        v9->health -= v61;
-        G_Combat_DamageNotifyNoWeapon(scr_const.damage, v9, pAttacker, Entity, NULL, NULL, v61, 0);
-      }
-      EntHandlerList = G_Main_GetEntHandlerList(v9);
-      if ( !EntHandlerList->die )
-        Com_Printf(1, "No die handler for player entity handler type %i", v9->handler);
-      if ( v9->health <= 0 )
-      {
-        v66 = v9->client;
-        if ( v66->lastStand || (PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x1Eu), v68 = (unsigned int)PerkNetworkPriorityIndex, PerkNetworkPriorityIndex < 0) )
-        {
-          v71 = psTimeOffset;
-          v72 = pAttacker;
-        }
-        else
-        {
-          if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
+          v5->client->damage_mod_flags |= 1 << v9;
+          dflags = damageFlags;
+          if ( (damageFlags & 0x100) != 0 )
+            v5->client->damage_ricochet += v34;
+          if ( v31 )
+            v5->client->damage_armor += v34;
+          v36 = v5->client;
+          if ( v71 )
           {
-            LODWORD(point) = 64;
-            LODWORD(partNamea) = PerkNetworkPriorityIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", partNamea, point) )
-              __debugbreak();
+            v36->damage_from = direction;
+            v5->client->damage_fromWorld = 0;
           }
-          v69 = v68;
-          v70 = v68;
-          v71 = psTimeOffset;
-          v18 = ((0x80000000 >> (v70 & 0x1F)) & v66->ps.perks.array[v69 >> 5]) == 0;
-          v72 = pAttacker;
-          if ( !v18 && Scr_PlayerLastStand(v9, Entity, pAttacker, v61, v13, &outWeapon, outIsAlternate, &direction, hitLoc, psTimeOffset) )
+          else
           {
-            v9->client->lastStand = 1;
-            v9->client->lastStandTime = level.time + 500;
-            v9->client->ps.lastStandTime = level.time;
-            v9->client->ps.lastStandStartViewHeight = v9->client->ps.viewHeightCurrent;
-            BG_PlayerSecondaryCollision_ResetBlendIn(&v9->client->ps);
-            SV_BotEntityStartedLastStand(v9);
-            if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_laststand_grenade_drop_fix_enabled, "killswitch_laststand_grenade_drop_fix_enabled") && Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80) )
-              v73 = v9->client->ps.grenadeTimeLeft != 0;
-            else
-              v73 = v9->client->ps.grenadeTimeLeft > 0;
-            if ( v73 )
+            v36->damage_from.v[0] = v5->r.currentOrigin.v[0];
+            v36->damage_from.v[1] = v5->r.currentOrigin.v[1];
+            v36->damage_from.v[2] = v5->r.currentOrigin.v[2];
+            v5->client->damage_fromWorld = 1;
+          }
+          v37 = v34 - 1;
+          if ( !v32 )
+            v37 = v34;
+          v5->client->damage_vehicle = 0;
+          if ( v37 <= 0 )
+          {
+            if ( v32 )
             {
-              if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_laststand_grenade_drop_fix_enabled, "killswitch_laststand_grenade_drop_fix_enabled") && Dvar_GetBool_Internal_DebugName(DVARBOOL_g_lastStandDropGrenades, "g_lastStandDropGrenades") )
-                G_CombatMP_GrenadeDrop(v9, v13, 0);
-              if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_g_lastStandCancelGrenades, "g_lastStandCancelGrenades") )
-              {
-                v9->client->ps.grenadeTimeLeft = -1;
-                GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&v9->client->ps.weapCommon.weapFlags, ACTIVE, 1u);
-              }
+              v38 = hitOrigin;
+              G_CombatMP_SendPlayerHitEvent(v5, v5, Entity, &outWeapon, outIsAlternate, v66, hitOrigin, &direction, v9, hitLoc, dflags, 0);
+              G_Combat_SendMeleeCharacterImpactEvent(v5, v5, Entity, &outWeapon, outIsAlternate, v38, v9);
             }
-            v74 = hitOrigin;
-            G_CombatMP_SendPlayerHitEvent(v9, v9, Entity, &outWeapon, outIsAlternate, v90, hitOrigin, &direction, v13, hitLoc, damageFlags, 0);
-            G_Combat_SendMeleeCharacterImpactEvent(v9, v9, Entity, &outWeapon, outIsAlternate, v74, v13);
-            SV_ClientAntiCheatMP_LogPlayerLastStand(v72, v9, &outWeapon, outIsAlternate, v13, hitLoc, psTimeOffset);
-LABEL_139:
-            EntityIndex = G_GetEntityIndex(v9);
-            if ( !G_IsEntityInUse(EntityIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 958, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( G_GetEntityIndex( pSelf ) ))", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( pSelf ) )") )
-              __debugbreak();
-            v9->client->ps.stats[0] = v9->health;
-            goto LABEL_143;
+            return;
           }
+          v39 = v37;
+          if ( (v5->flags.m_flags[0] & 2) != 0 && v5->health - v37 <= 0 )
+            v39 = v5->health - 1;
+          tagName = v66;
+          iDamageParts = v5->sentient->iDamageParts;
+          if ( iDamageParts != -1 && v66 )
+          {
+            v42 = DamageParts_Get(iDamageParts);
+            if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 858, ASSERT_TYPE_ASSERT, "(pParts)", (const char *)&queryFormat, "pParts") )
+              __debugbreak();
+            v39 = DamageParts::ApplyDamage(v42, Entity, pAttacker, &hitDir, &vectorValue, v39, damageFlags, v9, &outWeapon, outIsAlternate, hitLoc, modelIndex, tagName);
+          }
+          if ( v64 )
+            BG_SetPlayerDamageFlinch(&v5->client->ps, v39);
+          G_CombatMP_SetAnimDamageTypeCondition(v5->client->ps.clientNum, v5, Entity, v9, &outWeapon, outIsAlternate);
+          G_CombatMP_SetAnimHitLocationCondition(v5->client->ps.clientNum, v5, hitLoc);
+          G_CombatMP_SetAnimHitDirectionCondition(v5->client->ps.clientNum, v5, &hitDir, &v5->client->ps, v9);
+          G_CombatMP_SetAnimMoveDirectionCondition(v5->client->ps.clientNum, v5, &v5->client->ps);
+          if ( v9 == MOD_MELEE )
+            G_CombatMP_SetMeleeReactionConditions(v5->client->ps.clientNum, Entity);
+          if ( v39 )
+          {
+            v5->health -= v39;
+            G_Combat_DamageNotifyNoWeapon(scr_const.damage, v5, pAttacker, Entity, NULL, NULL, v39, 0);
+          }
+          EntHandlerList = G_Main_GetEntHandlerList(v5);
+          if ( !EntHandlerList->die )
+            Com_Printf(1, "No die handler for player entity handler type %i", v5->handler);
+          if ( v5->health > 0 )
+          {
+            pain = EntHandlerList->pain;
+            v56 = hitOrigin;
+            if ( pain )
+            {
+              LOBYTE(mod) = outIsAlternate;
+              pain(v5, pAttacker, v39, hitOrigin, v9, &direction, hitLoc, &outWeapon, mod);
+            }
+            G_CombatMP_SendPlayerHitEvent(v5, v5, Entity, &outWeapon, outIsAlternate, tagName, v56, &direction, v9, hitLoc, damageFlags, 0);
+            G_Combat_SendMeleeCharacterImpactEvent(v5, v5, Entity, &outWeapon, outIsAlternate, v56, v9);
+            goto LABEL_139;
+          }
+          v44 = v5->client;
+          if ( v44->lastStand || (PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x1Eu), v46 = (unsigned int)PerkNetworkPriorityIndex, PerkNetworkPriorityIndex < 0) )
+          {
+            v49 = psTimeOffset;
+            v51 = pAttacker;
+          }
+          else
+          {
+            if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
+            {
+              LODWORD(point) = 64;
+              LODWORD(partNamea) = PerkNetworkPriorityIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", partNamea, point) )
+                __debugbreak();
+            }
+            v47 = v46;
+            v48 = v46;
+            v49 = psTimeOffset;
+            v50 = ((0x80000000 >> (v48 & 0x1F)) & v44->ps.perks.array[v47 >> 5]) == 0;
+            v51 = pAttacker;
+            if ( !v50 && Scr_PlayerLastStand(v5, Entity, pAttacker, v39, v9, &outWeapon, outIsAlternate, &direction, hitLoc, psTimeOffset) )
+            {
+              v5->client->lastStand = 1;
+              v5->client->lastStandTime = level.time + 500;
+              v5->client->ps.lastStandTime = level.time;
+              v5->client->ps.lastStandStartViewHeight = v5->client->ps.viewHeightCurrent;
+              BG_PlayerSecondaryCollision_ResetBlendIn(&v5->client->ps);
+              SV_BotEntityStartedLastStand(v5);
+              if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_laststand_grenade_drop_fix_enabled, "killswitch_laststand_grenade_drop_fix_enabled") && Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80) )
+                v52 = v5->client->ps.grenadeTimeLeft != 0;
+              else
+                v52 = v5->client->ps.grenadeTimeLeft > 0;
+              if ( v52 )
+              {
+                if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_laststand_grenade_drop_fix_enabled, "killswitch_laststand_grenade_drop_fix_enabled") && Dvar_GetBool_Internal_DebugName(DVARBOOL_g_lastStandDropGrenades, "g_lastStandDropGrenades") )
+                  G_CombatMP_GrenadeDrop(v5, v9, 0);
+                if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_g_lastStandCancelGrenades, "g_lastStandCancelGrenades") )
+                {
+                  v5->client->ps.grenadeTimeLeft = -1;
+                  GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&v5->client->ps.weapCommon.weapFlags, ACTIVE, 1u);
+                }
+              }
+              v53 = hitOrigin;
+              G_CombatMP_SendPlayerHitEvent(v5, v5, Entity, &outWeapon, outIsAlternate, v66, hitOrigin, &direction, v9, hitLoc, damageFlags, 0);
+              G_Combat_SendMeleeCharacterImpactEvent(v5, v5, Entity, &outWeapon, outIsAlternate, v53, v9);
+              SV_ClientAntiCheatMP_LogPlayerLastStand(v51, v5, &outWeapon, outIsAlternate, v9, hitLoc, psTimeOffset);
+LABEL_139:
+              EntityIndex = G_GetEntityIndex(v5);
+              if ( !G_IsEntityInUse(EntityIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 958, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( G_GetEntityIndex( pSelf ) ))", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( pSelf ) )") )
+                __debugbreak();
+              v5->client->ps.stats[0] = v5->health;
+              return;
+            }
+          }
+          if ( (unsigned int)(v5->health + 999) > 0x3E6 )
+            v5->health = -999;
+          G_CombatMP_HandlePlayerDeath(v5, Entity, v51, v39, damageFlags, v9, &outWeapon, outIsAlternate, &direction, hitOrigin, hitLoc, v49, modelIndex, v66);
+          v54 = G_GetEntityIndex(v5);
+          if ( G_IsEntityInUse(v54) )
+            goto LABEL_139;
         }
-        if ( (unsigned int)(v9->health + 999) > 0x3E6 )
-          v9->health = -999;
-        G_CombatMP_HandlePlayerDeath(v9, Entity, v72, v61, damageFlags, v13, &outWeapon, outIsAlternate, &direction, hitOrigin, hitLoc, v71, modelIndex, v90);
-        v75 = G_GetEntityIndex(v9);
-        if ( !G_IsEntityInUse(v75) )
-          goto LABEL_143;
-        goto LABEL_139;
       }
-      pain = EntHandlerList->pain;
-      v77 = hitOrigin;
-      if ( pain )
-      {
-        LOBYTE(mod) = outIsAlternate;
-        pain(v9, pAttacker, v61, hitOrigin, v13, &direction, hitLoc, &outWeapon, mod);
-      }
-      G_CombatMP_SendPlayerHitEvent(v9, v9, Entity, &outWeapon, outIsAlternate, tagName, v77, &direction, v13, hitLoc, damageFlags, 0);
-      G_Combat_SendMeleeCharacterImpactEvent(v9, v9, Entity, &outWeapon, outIsAlternate, v77, v13);
-      goto LABEL_139;
     }
   }
 }
@@ -1059,18 +1005,18 @@ PlayerCmd_Suicide
 void PlayerCmd_Suicide(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
+  gentity_s *v4; 
   _DWORD *p_commandTime; 
-  const char *v7; 
+  const char *v6; 
   gagent_s *agent; 
-  const char *v11; 
+  const char *v8; 
   vec3_t vDir; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3682, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
 LABEL_9:
     p_commandTime = NULL;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 982, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
@@ -1079,48 +1025,43 @@ LABEL_9:
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 980, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  p_commandTime = &v5->client->ps.commandTime;
+  v4 = &g_entities[entnum];
+  p_commandTime = &v4->client->ps.commandTime;
   if ( !p_commandTime )
   {
-    p_commandTime = &v5->agent->playerState.commandTime;
+    p_commandTime = &v4->agent->playerState.commandTime;
     if ( !p_commandTime )
     {
-      v7 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3679, scrContext, v7);
+      v6 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3679, scrContext, v6);
       goto LABEL_9;
     }
   }
 LABEL_11:
-  v5->flags.m_flags[0] &= 0xFFFFFFFC;
-  v5->health = 0;
+  v4->flags.m_flags[0] &= 0xFFFFFFFC;
+  v4->health = 0;
   p_commandTime[150] = 0;
-  agent = v5->agent;
+  agent = v4->agent;
   if ( agent )
   {
     if ( (unsigned int)(agent->playerState.pm_type - 7) <= 1 )
     {
-      v11 = j_va("Agent(%d) is already dead when suicide command called!", (unsigned int)v5->s.number);
-      Scr_Error(COM_ERR_1365, scrContext, v11);
+      v8 = j_va("Agent(%d) is already dead when suicide command called!", (unsigned int)v4->s.number);
+      Scr_Error(COM_ERR_1365, scrContext, v8);
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+0A8h+var_48], xmm0
-        vmovss  dword ptr [rsp+0A8h+var_48+4], xmm0
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  dword ptr [rsp+0A8h+var_48+8], xmm0
-      }
-      G_CombatMP_AgentDie(v5, v5, v5, 100000, 0, 14, &NULL_WEAPON, 0, &vDir, HITLOC_NONE, 0);
+      vDir.v[0] = 0.0;
+      vDir.v[1] = 0.0;
+      vDir.v[2] = FLOAT_1_0;
+      G_CombatMP_AgentDie(v4, v4, v4, 100000, 0, 14, &NULL_WEAPON, 0, &vDir, HITLOC_NONE, 0);
     }
   }
   else
   {
-    if ( !v5->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1001, ASSERT_TYPE_ASSERT, "( pSelf->client )", (const char *)&queryFormat, "pSelf->client") )
+    if ( !v4->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1001, ASSERT_TYPE_ASSERT, "( pSelf->client )", (const char *)&queryFormat, "pSelf->client") )
       __debugbreak();
-    G_CombatMP_PlayerDie(v5, v5, v5, 100000, 0, 14, &NULL_WEAPON, 0, NULL, HITLOC_NONE, 0);
+    G_CombatMP_PlayerDie(v4, v4, v4, 100000, 0, 14, &NULL_WEAPON, 0, NULL, HITLOC_NONE, 0);
   }
 }
 
@@ -1231,26 +1172,31 @@ void PlayerCmd_ClonePlayer(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   EntityClass entclass; 
+  gentity_s *v5; 
   const char *v6; 
   const dvar_t *v7; 
   __int16 number; 
+  gclient_s *client; 
   __int64 v10; 
+  gentity_s *v11; 
   unsigned int v12; 
   LerpEntityState *p_lerp; 
+  float v14; 
   const DObj *ServerDObjForEntnum; 
-  GameScriptData *v19; 
+  GameScriptData *v16; 
   int EntCorpseIndex; 
-  __int64 v21; 
-  __int64 v22; 
-  __int16 v23; 
+  __int64 v18; 
+  __int64 v19; 
+  __int16 v20; 
   bool IsPlayerPositionQuantized; 
-  _DWORD *v25; 
-  __int64 v26; 
-  const XAnimTree *v30; 
+  _DWORD *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  const XAnimTree *v25; 
   XAnim_s *Anims; 
-  const XAnimTree *v32; 
-  XAnimTree *v33; 
-  bool v34; 
+  const XAnimTree *v27; 
+  XAnimTree *v28; 
+  bool v29; 
   GWeaponMap *Instance; 
   DObj *ServerDObjForEnt; 
   playerState_s *EntityPlayerState; 
@@ -1258,14 +1204,16 @@ void PlayerCmd_ClonePlayer(scrContext_t *scrContext, scr_entref_t entref)
   ScriptableDef *scriptableDef; 
   const ScriptableDef *nextScriptableDef; 
   unsigned int runtimeInstanceCount; 
+  float v37; 
   int hitId; 
-  gentity_s *v52; 
+  gentity_s *v39; 
+  float v40; 
   __int64 attachIgnoreCollision; 
-  __int64 v57; 
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> v58[2]; 
+  __int64 v42; 
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> v43[2]; 
   int Int; 
   vec3_t ci; 
-  tmat43_t<vec3_t> v61; 
+  tmat43_t<vec3_t> v46; 
   tmat43_t<vec3_t> result; 
   trace_t trace; 
   tmat43_t<vec3_t> out; 
@@ -1276,14 +1224,14 @@ void PlayerCmd_ClonePlayer(scrContext_t *scrContext, scr_entref_t entref)
   if ( entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    _R15 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1199, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _R15 = &g_entities[entnum];
-    if ( !_R15->client )
+    v5 = &g_entities[entnum];
+    if ( !v5->client )
     {
       v6 = j_va("entity %i is not a player", entnum);
       Scr_ObjectError(COM_ERR_3680, scrContext, v6);
@@ -1302,188 +1250,154 @@ void PlayerCmd_ClonePlayer(scrContext_t *scrContext, scr_entref_t entref)
   number = 2046;
   if ( Scr_GetNumParam(scrContext) >= 2 && Scr_GetType(scrContext, 1u) == VAR_POINTER && Scr_GetPointerType(scrContext, 1u) == VAR_ENTITY )
     number = GScr_GetEntity(1u)->s.number;
-  _R14 = _R15->client;
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1220, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
+  client = v5->client;
+  if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1220, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
     __debugbreak();
-  if ( _R14->sess.connected == CON_DISCONNECTED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1221, ASSERT_TYPE_ASSERT, "(client->sess.connected != CON_DISCONNECTED)", (const char *)&queryFormat, "client->sess.connected != CON_DISCONNECTED") )
+  if ( client->sess.connected == CON_DISCONNECTED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1221, ASSERT_TYPE_ASSERT, "(client->sess.connected != CON_DISCONNECTED)", (const char *)&queryFormat, "client->sess.connected != CON_DISCONNECTED") )
     __debugbreak();
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
   v10 = *(_QWORD *)&GStatic::ms_gameStatics;
-  _RDI = G_UtilsMP_SpawnPlayerClone();
-  _RDI->s.clientNum = _R14->ps.clientNum;
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&_R14->ps.otherFlags, FOG_SCALE|0x20) && _R14->ps.groundEntityNum == 2047 && G_PlayerCorpseMP_RequiresFixedDeathCamera(_R15) )
-    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagStrict(&_R14->ps.otherFlags, FOG_SCALE|0x20);
-  v12 = _R14->ps.eFlags.m_flags[0];
-  p_lerp = &_RDI->s.lerp;
-  if ( _RDI == (gentity_s *)-12i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 280, ASSERT_TYPE_ASSERT, "(sourceFlags)", (const char *)&queryFormat, "sourceFlags") )
+  v11 = G_UtilsMP_SpawnPlayerClone();
+  v11->s.clientNum = client->ps.clientNum;
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&client->ps.otherFlags, FOG_SCALE|0x20) && client->ps.groundEntityNum == 2047 && G_PlayerCorpseMP_RequiresFixedDeathCamera(v5) )
+    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagStrict(&client->ps.otherFlags, FOG_SCALE|0x20);
+  v12 = client->ps.eFlags.m_flags[0];
+  p_lerp = &v11->s.lerp;
+  if ( v11 == (gentity_s *)-12i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 280, ASSERT_TYPE_ASSERT, "(sourceFlags)", (const char *)&queryFormat, "sourceFlags") )
     __debugbreak();
-  v58[0].m_flags[0] = ((unsigned __int8)v12 ^ (unsigned __int8)p_lerp->eFlags.m_flags[0]) & 4 ^ v12;
+  v43[0].m_flags[0] = ((unsigned __int8)v12 ^ (unsigned __int8)p_lerp->eFlags.m_flags[0]) & 4 ^ v12;
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 201, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
     __debugbreak();
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v58, ACTIVE, 0x1Bu);
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v58, ACTIVE, 0x11u);
-  p_lerp->eFlags = v58[0];
-  _RDI->s.attackerEntityNum = number;
-  BGMovingPlatforms::SetEntityOnMovingPlatform(&_R14->ps, &_RDI->s);
-  G_SetOriginAndAnglesForClone(&_R14->ps, &_R14->ps.origin, &_R15->r.currentAngles, _RDI);
-  _RDI->s.lerp.pos.trType = TR_GRAVITY;
-  _RDI->s.lerp.pos.trTime = level.time;
-  __asm
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v43, ACTIVE, 0x1Bu);
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v43, ACTIVE, 0x11u);
+  p_lerp->eFlags = v43[0];
+  v11->s.attackerEntityNum = number;
+  BGMovingPlatforms::SetEntityOnMovingPlatform(&client->ps, &v11->s);
+  G_SetOriginAndAnglesForClone(&client->ps, &client->ps.origin, &v5->r.currentAngles, v11);
+  v11->s.lerp.pos.trType = TR_GRAVITY;
+  v11->s.lerp.pos.trTime = level.time;
+  v14 = client->ps.velocity.v[0];
+  v11->s.lerp.pos.trDelta.v[0] = v14;
+  v11->s.lerp.pos.trDelta.v[1] = client->ps.velocity.v[1];
+  v11->s.lerp.pos.trDelta.v[2] = client->ps.velocity.v[2];
+  *(float *)v43[0].m_flags = v14;
+  if ( (LODWORD(v14) & 0x7F800000) == 2139095040 || (v43[0] = LODWORD(v11->s.lerp.pos.trDelta.y), (v43[0].m_flags[0] & 0x7F800000) == 2139095040) || (v43[0] = LODWORD(v11->s.lerp.pos.trDelta.z), (v43[0].m_flags[0] & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r14+3Ch]
-    vmovss  dword ptr [rdi+28h], xmm0
-  }
-  _RDI->s.lerp.pos.trDelta.v[1] = _R14->ps.velocity.v[1];
-  _RDI->s.lerp.pos.trDelta.v[2] = _R14->ps.velocity.v[2];
-  __asm { vmovss  [rsp+1A0h+var_150.m_flags], xmm0 }
-  if ( (v58[0].m_flags[0] & 0x7F800000) == 2139095040 )
-    goto LABEL_108;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+2Ch]
-    vmovss  [rsp+1A0h+var_150.m_flags], xmm0
-  }
-  if ( (v58[0].m_flags[0] & 0x7F800000) == 2139095040 )
-    goto LABEL_108;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+30h]
-    vmovss  [rsp+1A0h+var_150.m_flags], xmm0
-  }
-  if ( (v58[0].m_flags[0] & 0x7F800000) == 2139095040 )
-  {
-LABEL_108:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1259, ASSERT_TYPE_SANITY, "( !IS_NAN( ( body->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( body->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( body->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( body->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( body->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( body->s.lerp.pos.trDelta )[2] )") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+34h]
-    vmovups ymmword ptr [rdi+34h], ymm0
-  }
-  _RDI->s.lerp.apos.trDelta.v[2] = _R15->s.lerp.apos.trDelta.v[2];
-  _RDI->s.eType = ET_PLAYER_CORPSE;
-  _RDI->s.eventParm2 = LOBYTE(_RDI->useCount);
-  _RDI->physicsObject = 1;
-  ServerDObjForEntnum = Com_GetServerDObjForEntnum(_R14->ps.clientNum);
-  *(_QWORD *)v58[0].m_flags = DObjGetTree(ServerDObjForEntnum);
+  *(__m256i *)&v11->s.lerp.apos.trType = *(__m256i *)&v5->s.lerp.apos.trType;
+  v11->s.lerp.apos.trDelta.v[2] = v5->s.lerp.apos.trDelta.v[2];
+  v11->s.eType = ET_PLAYER_CORPSE;
+  v11->s.eventParm2 = LOBYTE(v11->useCount);
+  v11->physicsObject = 1;
+  ServerDObjForEntnum = Com_GetServerDObjForEntnum(client->ps.clientNum);
+  *(_QWORD *)v43[0].m_flags = DObjGetTree(ServerDObjForEntnum);
   if ( (_BYTE)GameScriptData::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_data_mp.h", 82, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
   if ( !GameScriptData::ms_gScriptData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_data.h", 78, ASSERT_TYPE_ASSERT, "(ms_gScriptData)", "%s\n\tAttempting to access game data outside of an active game context", "ms_gScriptData") )
     __debugbreak();
   if ( !(_BYTE)GameScriptData::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_data.h", 79, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access game data outside of an active game context", "ms_allocatedType != GameModeType::NONE") )
     __debugbreak();
-  v19 = GameScriptData::ms_gScriptData;
-  _RDI->c.item[0].clipAmmoCount[0] = level.time;
-  _RDI->c.item[0].ammoCount = 2047;
-  EntCorpseIndex = G_PlayerCorpseMP_GetEntCorpseIndex(_RDI);
-  v21 = EntCorpseIndex;
+  v16 = GameScriptData::ms_gScriptData;
+  v11->c.item[0].clipAmmoCount[0] = level.time;
+  v11->c.item[0].ammoCount = 2047;
+  EntCorpseIndex = G_PlayerCorpseMP_GetEntCorpseIndex(v11);
+  v18 = EntCorpseIndex;
   if ( (unsigned int)EntCorpseIndex >= 8 )
   {
-    LODWORD(v57) = 8;
+    LODWORD(v42) = 8;
     LODWORD(attachIgnoreCollision) = EntCorpseIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1280, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ( sizeof( *array_counter( gScrData->playerCorpseInfo ) ) + 0 ) )", "corpseIndex doesn't index ARRAY_COUNT( gScrData->playerCorpseInfo )\n\t%i not in [0, %i)", attachIgnoreCollision, v57) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1280, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ( sizeof( *array_counter( gScrData->playerCorpseInfo ) ) + 0 ) )", "corpseIndex doesn't index ARRAY_COUNT( gScrData->playerCorpseInfo )\n\t%i not in [0, %i)", attachIgnoreCollision, v42) )
       __debugbreak();
   }
-  v22 = 14848 * v21;
-  v23 = *((_WORD *)&v19[220].riotshield_damaged + 7424 * v21);
-  if ( v23 != -1 )
+  v19 = 14848 * v18;
+  v20 = *((_WORD *)&v16[220].riotshield_damaged + 7424 * v18);
+  if ( v20 != -1 )
   {
-    LODWORD(v57) = -1;
-    LODWORD(attachIgnoreCollision) = v23;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1282, ASSERT_TYPE_ASSERT, "( corpseInfo->entnum ) == ( G_PLAYER_CORPSE_INVALID_ENTNUM )", "corpseInfo->entnum == G_PLAYER_CORPSE_INVALID_ENTNUM\n\t%i, %i", attachIgnoreCollision, v57) )
+    LODWORD(v42) = -1;
+    LODWORD(attachIgnoreCollision) = v20;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1282, ASSERT_TYPE_ASSERT, "( corpseInfo->entnum ) == ( G_PLAYER_CORPSE_INVALID_ENTNUM )", "corpseInfo->entnum == G_PLAYER_CORPSE_INVALID_ENTNUM\n\t%i, %i", attachIgnoreCollision, v42) )
       __debugbreak();
   }
-  *(_WORD *)((char *)&v19[220].riotshield_damaged + v22) = _RDI->s.number;
-  *(int *)((char *)&v19[2].ai_asm_getgenerichandler + v22) = level.time;
-  *(_WORD *)((char *)&v19[220].riotshield_damaged + v22 + 2) = 1;
-  IsPlayerPositionQuantized = BG_IsPlayerPositionQuantized(&_R14->ps);
-  *(int *)((char *)&v19[220].scriptable_notify_callback + v22) = 0;
-  *((_BYTE *)&v19[220].projectile_speed + v22) = 0;
-  *((_BYTE *)&v19[220].scriptable_touched + v22 + 1) = !IsPlayerPositionQuantized;
-  v25 = (_DWORD *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v10 + 224i64))(v10, (unsigned int)_R14->ps.clientNum);
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1292, ASSERT_TYPE_ASSERT, "(characterInfo)", (const char *)&queryFormat, "characterInfo") )
+  *(_WORD *)((char *)&v16[220].riotshield_damaged + v19) = v11->s.number;
+  *(int *)((char *)&v16[2].ai_asm_getgenerichandler + v19) = level.time;
+  *(_WORD *)((char *)&v16[220].riotshield_damaged + v19 + 2) = 1;
+  IsPlayerPositionQuantized = BG_IsPlayerPositionQuantized(&client->ps);
+  *(int *)((char *)&v16[220].scriptable_notify_callback + v19) = 0;
+  *((_BYTE *)&v16[220].projectile_speed + v19) = 0;
+  *((_BYTE *)&v16[220].scriptable_touched + v19 + 1) = !IsPlayerPositionQuantized;
+  v22 = (_DWORD *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v10 + 224i64))(v10, (unsigned int)client->ps.clientNum);
+  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1292, ASSERT_TYPE_ASSERT, "(characterInfo)", (const char *)&queryFormat, "characterInfo") )
     __debugbreak();
-  *(_QWORD *)ci.v = (char *)v19 + v22 + 200;
-  memcpy_0(*(void **)ci.v, v25, 0x39C8ui64);
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1163, ASSERT_TYPE_ASSERT, "( playerCI )", (const char *)&queryFormat, "playerCI") )
+  *(_QWORD *)ci.v = (char *)v16 + v19 + 200;
+  memcpy_0(*(void **)ci.v, v22, 0x39C8ui64);
+  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1163, ASSERT_TYPE_ASSERT, "( playerCI )", (const char *)&queryFormat, "playerCI") )
     __debugbreak();
-  v26 = (__int64)&v19[2].lui_callback + v22;
-  if ( (GameScriptData *)((char *)v19 + v22) == (GameScriptData *)-200i64 )
+  v23 = (__int64)&v16[2].lui_callback + v19;
+  if ( (GameScriptData *)((char *)v16 + v19) == (GameScriptData *)-200i64 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1164, ASSERT_TYPE_ASSERT, "( outCorpseCi )", (const char *)&queryFormat, "outCorpseCi") )
       __debugbreak();
-    v26 = (__int64)&v19[2].lui_callback + v22;
+    v23 = (__int64)&v16[2].lui_callback + v19;
   }
-  *(_BYTE *)(v26 + 14681) = 0;
-  _RDX = (const ClientCustomizationInfo *)((char *)&v19[220].ai_asm_getfunction + v22);
-  __asm
+  *(_BYTE *)(v23 + 14681) = 0;
+  v24 = (__int64)&v16[220].ai_asm_getfunction + v19;
+  *(_OWORD *)v24 = *(_OWORD *)client->sess.cs.customization.modelIndex;
+  *(double *)(v24 + 16) = *(double *)&client->sess.cs.customization.modelIndexMLG[1];
+  G_CharacterStreaming_SetCorpseCustomization(v18, (const ClientCustomizationInfo *)v24);
+  if ( v22[642] || !PlayerASM_IsEnabled() )
   {
-    vmovups xmm0, xmmword ptr [r14+5718h]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovsd  xmm1, qword ptr [r14+5728h]
-    vmovsd  qword ptr [rdx+10h], xmm1
-  }
-  G_CharacterStreaming_SetCorpseCustomization(v21, _RDX);
-  if ( v25[642] || !PlayerASM_IsEnabled() )
-  {
-    v32 = *(const XAnimTree **)v58[0].m_flags;
+    v27 = *(const XAnimTree **)v43[0].m_flags;
   }
   else
   {
-    v30 = *(const XAnimTree **)((char *)&v19[2].ai_asm_getfunction + v22);
-    if ( v30 )
+    v25 = *(const XAnimTree **)((char *)&v16[2].ai_asm_getfunction + v19);
+    if ( v25 )
     {
-      Anims = XAnimGetAnims(v30);
-      v32 = *(const XAnimTree **)v58[0].m_flags;
-      if ( Anims == **(XAnim_s ***)v58[0].m_flags )
+      Anims = XAnimGetAnims(v25);
+      v27 = *(const XAnimTree **)v43[0].m_flags;
+      if ( Anims == **(XAnim_s ***)v43[0].m_flags )
         goto LABEL_75;
-      v33 = *(XAnimTree **)((char *)&v19[2].ai_asm_getfunction + v22);
-      if ( v33 )
-        XAnimFreeTree(v33, NULL);
+      v28 = *(XAnimTree **)((char *)&v16[2].ai_asm_getfunction + v19);
+      if ( v28 )
+        XAnimFreeTree(v28, NULL);
     }
     else
     {
-      v32 = *(const XAnimTree **)v58[0].m_flags;
+      v27 = *(const XAnimTree **)v43[0].m_flags;
     }
-    *(_QWORD *)((char *)&v19[2].ai_asm_getfunction + v22) = XAnimCreateTree(v32->anims, G_Main_HunkAllocXAnimServer, MOVEMENT);
+    *(_QWORD *)((char *)&v16[2].ai_asm_getfunction + v19) = XAnimCreateTree(v27->anims, G_Main_HunkAllocXAnimServer, MOVEMENT);
   }
 LABEL_75:
-  *(_QWORD *)((char *)&v19[32].lui_callback + v22) = *(_QWORD *)((char *)&v19[2].ai_asm_getfunction + v22);
-  if ( ((int)v21 < 0 || (unsigned int)v21 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v21, "signed", v21) )
+  *(_QWORD *)((char *)&v16[32].lui_callback + v19) = *(_QWORD *)((char *)&v16[2].ai_asm_getfunction + v19);
+  if ( ((int)v18 < 0 || (unsigned int)v18 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v18, "signed", v18) )
     __debugbreak();
-  _R14->ps.corpseIndex = v21;
-  XAnimCloneAnimTree(v32, *(XAnimTree **)((char *)&v19[2].ai_asm_getfunction + v22));
-  v34 = _RDI->r.svFlags == 0;
-  _RDI->s.groundEntityNum = 2047;
-  _RDI->s.surfType = _R15->s.surfType;
-  if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1322, ASSERT_TYPE_ASSERT, "(!body->r.svFlags)", (const char *)&queryFormat, "!body->r.svFlags") )
+  client->ps.corpseIndex = v18;
+  XAnimCloneAnimTree(v27, *(XAnimTree **)((char *)&v16[2].ai_asm_getfunction + v19));
+  v29 = v11->r.svFlags == 0;
+  v11->s.groundEntityNum = 2047;
+  v11->s.surfType = v5->s.surfType;
+  if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1322, ASSERT_TYPE_ASSERT, "(!body->r.svFlags)", (const char *)&queryFormat, "!body->r.svFlags") )
     __debugbreak();
-  _RDI->r.svFlags = 2;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15+100h]
-    vmovups xmmword ptr [rdi+100h], xmm0
-    vmovsd  xmm1, qword ptr [r15+110h]
-    vmovsd  qword ptr [rdi+110h], xmm1
-    vmovups xmm0, xmmword ptr [r15+118h]
-    vmovups xmmword ptr [rdi+118h], xmm0
-    vmovsd  xmm1, qword ptr [r15+128h]
-    vmovsd  qword ptr [rdi+128h], xmm1
-  }
-  BG_AnimationMP_PlayerToEntityAnimation(&_R14->ps, &_RDI->s);
-  _RDI->s.un.vehicleXModel = _R14->ps.suitIndex;
-  _RDI->clipmask = 65537;
-  SV_LinkEntity(_RDI);
-  _RDI->nextthink = level.time + Int;
-  _RDI->handler = 17;
+  v11->r.svFlags = 2;
+  *(_OWORD *)v11->r.box.midPoint.v = *(_OWORD *)v5->r.box.midPoint.v;
+  *(double *)&v11->r.box.halfSize.y = *(double *)&v5->r.box.halfSize.y;
+  *(_OWORD *)v11->r.absBox.midPoint.v = *(_OWORD *)v5->r.absBox.midPoint.v;
+  *(double *)&v11->r.absBox.halfSize.y = *(double *)&v5->r.absBox.halfSize.y;
+  BG_AnimationMP_PlayerToEntityAnimation(&client->ps, &v11->s);
+  v11->s.un.vehicleXModel = client->ps.suitIndex;
+  v11->clipmask = 65537;
+  SV_LinkEntity(v11);
+  v11->nextthink = level.time + Int;
+  v11->handler = 17;
   Instance = GWeaponMap::GetInstance();
-  ServerDObjForEnt = Com_GetServerDObjForEnt(_RDI);
-  BG_AnimationMP_UpdatePlayerDObj(LOCAL_CLIENT_INVALID, ServerDObjForEnt, Instance, &_RDI->s, *(characterInfo_t **)ci.v, 0);
-  G_TransferLinkedEntities(_R15, _RDI);
-  G_PlayerCorpseMP_TransferNonWeaponPartBits(_RDI, _R15);
-  EntityPlayerState = G_GetEntityPlayerState(_R15);
+  ServerDObjForEnt = Com_GetServerDObjForEnt(v11);
+  BG_AnimationMP_UpdatePlayerDObj(LOCAL_CLIENT_INVALID, ServerDObjForEnt, Instance, &v11->s, *(characterInfo_t **)ci.v, 0);
+  G_TransferLinkedEntities(v5, v11);
+  G_PlayerCorpseMP_TransferNonWeaponPartBits(v11, v5);
+  EntityPlayerState = G_GetEntityPlayerState(v5);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1352, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   SuitDef = BG_GetSuitDef(EntityPlayerState->suitIndex);
@@ -1505,60 +1419,41 @@ LABEL_75:
 LABEL_91:
   if ( nextScriptableDef )
   {
-    ScriptableSv_LinkReservedScriptableEntity(_RDI, nextScriptableDef, 0xFFFFFFFF);
+    ScriptableSv_LinkReservedScriptableEntity(v11, nextScriptableDef, 0xFFFFFFFF);
   }
   else
   {
     ScriptableCommon_AssertCountsInitialized();
     runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
-    if ( ScriptableSv_GetScriptableIndexForEntity(_RDI) < runtimeInstanceCount )
-      ScriptableSv_UnlinkReservedScriptableEntity(_RDI);
+    if ( ScriptableSv_GetScriptableIndexForEntity(v11) < runtimeInstanceCount )
+      ScriptableSv_UnlinkReservedScriptableEntity(v11);
   }
-  if ( BG_IsPlayerInExecution(EntityPlayerState) && EntityPlayerState->activeExecutionIsVictim && !G_Execution_InitializeCorpse(_R15, _RDI) )
-    G_Execution_Cancel(_R15);
-  GScr_AddEntityAllowUndefined(_RDI);
-  if ( BGMovingPlatforms::IsOnMovingPlatform(&_R14->ps) )
+  if ( BG_IsPlayerInExecution(EntityPlayerState) && EntityPlayerState->activeExecutionIsVictim && !G_Execution_InitializeCorpse(v5, v11) )
+    G_Execution_Cancel(v5);
+  GScr_AddEntityAllowUndefined(v11);
+  if ( BGMovingPlatforms::IsOnMovingPlatform(&client->ps) && G_ClientScrMP_CorpseToMovingPlatformTrace(v11, &trace, 25.0, &ci) && trace.normal.v[2] > 0.69999999 )
   {
-    __asm { vmovss  xmm2, cs:__real@41c80000; traceLength }
-    if ( G_ClientScrMP_CorpseToMovingPlatformTrace(_RDI, &trace, *(float *)&_XMM2, &ci) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0A0h+trace.normal+8]
-        vcomiss xmm0, cs:__real@3f333333
-        vmovss  xmm0, dword ptr [rsp+1A0h+ci]
-        vmovss  xmm1, dword ptr [rsp+1A0h+ci+4]
-      }
-      hitId = trace.hitId;
-      __asm
-      {
-        vmovss  dword ptr [rdi+130h], xmm0
-        vmovss  xmm0, [rsp+1A0h+var_138]
-        vmovss  dword ptr [rdi+138h], xmm0
-        vmovss  dword ptr [rdi+134h], xmm1
-      }
-      _RDI->flags.m_flags[0] |= 0x200u;
-      if ( !BGMovingPlatforms::IsMovingPlatform(hitId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1126, ASSERT_TYPE_ASSERT, "(BGMovingPlatforms::IsMovingPlatform( trace->hitId ))", (const char *)&queryFormat, "BGMovingPlatforms::IsMovingPlatform( trace->hitId )") )
-        __debugbreak();
-      v52 = &g_entities[trace.hitId];
-      G_EntLinkTo(_RDI, v52, (scr_string_t)0, 0, NULL);
-      AnglesAndOriginToMatrix43(&v52->r.currentAngles, &v52->r.currentOrigin, &result);
-      MatrixInverseOrthogonal43(&result, &out);
-      AnglesAndOriginToMatrix43(&_RDI->r.currentAngles, &_RDI->r.currentOrigin, &result);
-      MatrixMultiply43(&result, &out, &v61);
-      AxisToAngles((const tmat33_t<vec3_t> *)&v61, &_RDI->s.lerp.apos.trDelta);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0A0h+var_130+24h]
-        vmovss  xmm1, dword ptr [rbp+0A0h+var_130+28h]
-        vmovss  dword ptr [rdi+28h], xmm0
-        vmovss  xmm0, dword ptr [rbp+0A0h+var_130+2Ch]
-        vmovss  dword ptr [rdi+30h], xmm0
-        vmovss  dword ptr [rdi+2Ch], xmm1
-      }
-    }
+    v37 = ci.v[1];
+    hitId = trace.hitId;
+    v11->r.currentOrigin.v[0] = ci.v[0];
+    v11->r.currentOrigin.v[2] = ci.v[2];
+    v11->r.currentOrigin.v[1] = v37;
+    v11->flags.m_flags[0] |= 0x200u;
+    if ( !BGMovingPlatforms::IsMovingPlatform(hitId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1126, ASSERT_TYPE_ASSERT, "(BGMovingPlatforms::IsMovingPlatform( trace->hitId ))", (const char *)&queryFormat, "BGMovingPlatforms::IsMovingPlatform( trace->hitId )") )
+      __debugbreak();
+    v39 = &g_entities[trace.hitId];
+    G_EntLinkTo(v11, v39, (scr_string_t)0, 0, NULL);
+    AnglesAndOriginToMatrix43(&v39->r.currentAngles, &v39->r.currentOrigin, &result);
+    MatrixInverseOrthogonal43(&result, &out);
+    AnglesAndOriginToMatrix43(&v11->r.currentAngles, &v11->r.currentOrigin, &result);
+    MatrixMultiply43(&result, &out, &v46);
+    AxisToAngles((const tmat33_t<vec3_t> *)&v46, &v11->s.lerp.apos.trDelta);
+    v40 = v46.m[3].v[1];
+    v11->s.lerp.pos.trDelta.v[0] = v46.m[3].v[0];
+    v11->s.lerp.pos.trDelta.v[2] = v46.m[3].v[2];
+    v11->s.lerp.pos.trDelta.v[1] = v40;
   }
-  G_PlayerCorpseMP_SnapOrigin(_RDI);
+  G_PlayerCorpseMP_SnapOrigin(v11);
   Sys_ProfEndNamedEvent();
 }
 
@@ -3176,40 +3071,40 @@ PlayerCmd_GetThirdPersonCrosshairOffset
 void PlayerCmd_GetThirdPersonCrosshairOffset(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
-  const dvar_t *v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  const dvar_t *v6; 
   const playerState_s *p_ps; 
   GWeaponMap *Instance; 
+  double ThirdPersonCrosshairOffset; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 2501, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client )
+    v4 = &g_entities[entnum];
+    if ( !v4->client )
     {
-      v6 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
+      v5 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
-  v7 = DVARBOOL_camera_thirdPerson;
+  v6 = DVARBOOL_camera_thirdPerson;
   if ( !DVARBOOL_camera_thirdPerson && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_thirdPerson") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
   {
-    p_ps = &v5->client->ps;
+    p_ps = &v4->client->ps;
     Instance = GWeaponMap::GetInstance();
-    *(double *)&_XMM0 = BG_GetThirdPersonCrosshairOffset(Instance, p_ps);
-    __asm { vmovaps xmm1, xmm0; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    ThirdPersonCrosshairOffset = BG_GetThirdPersonCrosshairOffset(Instance, p_ps);
+    Scr_AddFloat(scrContext, *(float *)&ThirdPersonCrosshairOffset);
   }
   else
   {
@@ -5951,7 +5846,7 @@ void PlayerCmd_UpdateMLGAmmoInfo(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *Entity; 
   GWeaponMap *Instance; 
   Weapon r_weapon; 
-  Weapon v19; 
+  Weapon v11; 
 
   if ( entref.entclass )
   {
@@ -5981,32 +5876,12 @@ LABEL_9:
   if ( !Entity->client )
     Scr_Error(COM_ERR_6357, scrContext, "UpdateMLGAmmoInfo: entity must be a player entity");
   Instance = GWeaponMap::GetInstance();
-  _RAX = BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[0]);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  r_weapon = *BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[0]);
   Entity->client->mlgSpectatorClientInfo.inClipAmmo[0] = BG_GetAmmoInClipBothHandsForWeapon(p_ps, &r_weapon, 0);
   Entity->client->mlgSpectatorClientInfo.outClipAmmo[0] = BG_GetAmmoNotInClip(p_ps, &r_weapon, 0);
-  _RAX = BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[1]);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+var_68.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0D8h+var_68.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0D8h+var_68.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&v19.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  Entity->client->mlgSpectatorClientInfo.inClipAmmo[1] = BG_GetAmmoInClipBothHandsForWeapon(p_ps, &v19, 0);
-  Entity->client->mlgSpectatorClientInfo.outClipAmmo[1] = BG_GetAmmoNotInClip(p_ps, &v19, 0);
+  v11 = *BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[1]);
+  Entity->client->mlgSpectatorClientInfo.inClipAmmo[1] = BG_GetAmmoInClipBothHandsForWeapon(p_ps, &v11, 0);
+  Entity->client->mlgSpectatorClientInfo.outClipAmmo[1] = BG_GetAmmoNotInClip(p_ps, &v11, 0);
 }
 
 /*
@@ -6023,10 +5898,10 @@ void PlayerCmd_UpdateCurrentWeapon(scrContext_t *scrContext, scr_entref_t entref
   ComErrorCode v8; 
   gentity_s *Entity; 
   GWeaponMap *Instance; 
-  gclient_s *v16; 
-  __m256i v18; 
-  __m256i v19; 
-  __m256i v20; 
+  const Weapon *Weapon; 
+  gclient_s *v12; 
+  __m256i v13; 
+  __m256i v14; 
 
   v2 = 0;
   if ( entref.entclass )
@@ -6057,34 +5932,19 @@ LABEL_9:
   if ( !Entity->client )
     Scr_Error(COM_ERR_6395, scrContext, "UpdateCurrentWeapon: entity must be a player entity");
   Instance = GWeaponMap::GetInstance();
-  _RAX = BgWeaponMap::GetWeapon(Instance, client[455]);
-  __asm
+  v13 = *(__m256i *)&BgWeaponMap::GetWeapon(Instance, client[455])->weaponIdx;
+  v14 = *(__m256i *)&BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[0])->weaponIdx;
+  Weapon = BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[1]);
+  v12 = Entity->client;
+  if ( v13.m256i_i16[0] == v14.m256i_i16[0] )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+0B8h+var_88], ymm0
-  }
-  _RAX = BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[0]);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+0B8h+var_68], ymm0
-  }
-  _RAX = BgWeaponMap::GetWeapon(Instance, Entity->client->mlgSpectatorClientInfo.weaponHandles[1]);
-  v16 = Entity->client;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+0B8h+var_48], ymm0
-  }
-  if ( v18.m256i_i16[0] == v19.m256i_i16[0] )
-  {
-    v16->mlgSpectatorClientInfo.currentWeaponUsed = 1;
+    v12->mlgSpectatorClientInfo.currentWeaponUsed = 1;
   }
   else
   {
-    if ( v18.m256i_i16[0] == v20.m256i_i16[0] )
+    if ( v13.m256i_i16[0] == (unsigned __int16)*(_BYTE (*)[32])&Weapon->weaponIdx )
       v2 = 2;
-    v16->mlgSpectatorClientInfo.currentWeaponUsed = v2;
+    v12->mlgSpectatorClientInfo.currentWeaponUsed = v2;
   }
 }
 
@@ -6097,8 +5957,10 @@ void PlayerCmd_SetPowerProgress(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   const char *String; 
+  double Float; 
+  int v7; 
+  const char *v8; 
   const char *v9; 
-  const char *v10; 
 
   if ( SvPersistentGlobalsMP::IsFrontEndServer() )
     Scr_Error(COM_ERR_6279, scrContext, "SetPowerProgress: not allowed on front end server");
@@ -6106,34 +5968,30 @@ void PlayerCmd_SetPowerProgress(scrContext_t *scrContext, scr_entref_t entref)
   if ( !Entity->client )
     Scr_Error(COM_ERR_6280, scrContext, "SetPowerProgress: entity must be a player entity");
   String = Scr_GetString(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42c80000
-    vcvttss2si ebx, xmm1
-  }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v7 = (int)(float)(*(float *)&Float * 100.0);
   if ( !String || !*String )
     Scr_ParamError(COM_ERR_6281, scrContext, 0, "SetPowerProgress: power slot input is empty");
-  if ( _EBX < 0 )
+  if ( v7 < 0 )
   {
-    v9 = j_va("SetPowerProgress: progress value %i cannot be negative", (unsigned int)_EBX);
-    Scr_Error(COM_ERR_6282, scrContext, v9);
+    v8 = j_va("SetPowerProgress: progress value %i cannot be negative", (unsigned int)v7);
+    Scr_Error(COM_ERR_6282, scrContext, v8);
   }
-  if ( _EBX > 100 )
+  if ( v7 > 100 )
   {
-    v10 = j_va("SetPowerProgress: progress value %i cannot be higher than %i", (unsigned int)_EBX, 100i64);
-    Scr_Error(COM_ERR_6283, scrContext, v10);
+    v9 = j_va("SetPowerProgress: progress value %i cannot be higher than %i", (unsigned int)v7, 100i64);
+    Scr_Error(COM_ERR_6283, scrContext, v9);
   }
   if ( I_strcmp(String, "primary") )
   {
     if ( I_strcmp(String, "secondary") )
       Scr_Error(COM_ERR_6284, scrContext, "SetPowerProgress: power slot input is invalid");
     else
-      Entity->client->mlgSpectatorClientInfo.powerSecondaryProgress = _EBX;
+      Entity->client->mlgSpectatorClientInfo.powerSecondaryProgress = v7;
   }
   else
   {
-    Entity->client->mlgSpectatorClientInfo.powerPrimaryProgress = _EBX;
+    Entity->client->mlgSpectatorClientInfo.powerPrimaryProgress = v7;
   }
 }
 
@@ -6191,27 +6049,25 @@ PlayerCmd_SetPlayerSuperMeterProgress
 void PlayerCmd_SetPlayerSuperMeterProgress(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  int v8; 
-  const char *v9; 
+  double Float; 
+  int v6; 
+  int v7; 
+  const char *v8; 
 
   if ( SvPersistentGlobalsMP::IsFrontEndServer() )
     Scr_Error(COM_ERR_1477, scrContext, "SetPlayerSuperMeterProgress: not allowed on front end server");
   Entity = GetEntity(entref);
   if ( !Entity->client )
     Scr_Error(COM_ERR_1478, scrContext, "SetPlayerSuperMeterProgress: entity must be a player entity");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  v6 = (int)(float)(*(float *)&Float * 100.0);
+  v7 = (unsigned __int16)v6;
+  if ( (unsigned __int16)v6 > 0x100u )
   {
-    vmulss  xmm1, xmm0, cs:__real@42c80000
-    vcvttss2si eax, xmm1
+    v8 = j_va("SetPlayerSuperMeterProgress: super meter value %hu is greater than max value %i", (unsigned __int16)v6, 256i64);
+    Scr_Error(COM_ERR_1479, scrContext, v8);
   }
-  v8 = (unsigned __int16)_EAX;
-  if ( (unsigned __int16)_EAX > 0x100u )
-  {
-    v9 = j_va("SetPlayerSuperMeterProgress: super meter value %hu is greater than max value %i", (unsigned __int16)_EAX, 256i64);
-    Scr_Error(COM_ERR_1479, scrContext, v9);
-  }
-  Entity->client->mlgSpectatorClientInfo.superMeterProgress = v8;
+  Entity->client->mlgSpectatorClientInfo.superMeterProgress = v7;
 }
 
 /*
@@ -6342,6 +6198,7 @@ void PlayerCmdMP_SetBlurForPlayer(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   gentity_s *v4; 
+  float *p_commandTime; 
   const char *v6; 
   ComErrorCode v7; 
   EntityClass entclass; 
@@ -6360,25 +6217,21 @@ void PlayerCmdMP_SetBlurForPlayer(scrContext_t *scrContext, scr_entref_t entref)
   if ( entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 5354, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
   v4 = &g_entities[entnum];
-  _RDX = &v4->client->ps.commandTime;
-  if ( !_RDX )
+  p_commandTime = (float *)&v4->client->ps.commandTime;
+  if ( !p_commandTime )
   {
-    _RDX = &v4->agent->playerState.commandTime;
-    if ( !_RDX )
+    p_commandTime = (float *)&v4->agent->playerState.commandTime;
+    if ( !p_commandTime )
     {
       v6 = j_va("entity %i is not a player or agent", entnum);
       v7 = COM_ERR_3679;
 LABEL_9:
       Scr_ObjectError(v7, scrContext, v6);
-      _RDX = NULL;
+      p_commandTime = NULL;
     }
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+outBlurFinalValue]
-    vmovss  dword ptr [rdx+354h], xmm0
-  }
-  _RDX[214] = level.time + outBlurTimeMs;
+  p_commandTime[213] = outBlurFinalValue;
+  *((_DWORD *)p_commandTime + 214) = level.time + outBlurTimeMs;
 }
 
 /*
@@ -7221,177 +7074,150 @@ PlayerCmd_GetClosestEnemy
 */
 void PlayerCmd_GetClosestEnemy(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v7; 
-  scrContext_t *v8; 
+  __int128 v2; 
+  gentity_s *v3; 
+  scrContext_t *v4; 
   unsigned int entnum; 
-  GUtils *v10; 
-  const char *v12; 
-  GUtils_vtbl *v13; 
-  team_t v15; 
-  unsigned int v29; 
-  const char *v31; 
-  team_t v32; 
-  __int64 v33; 
-  __int64 v34; 
-  bool v36; 
+  GUtils *v6; 
+  gentity_s *v7; 
+  const char *v8; 
+  float v9; 
+  team_t v10; 
+  double Float; 
+  float v12; 
+  double v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  unsigned int v17; 
+  const char *v18; 
+  team_t v19; 
+  __int64 v20; 
+  __int64 v21; 
+  gentity_s *v22; 
   const playerState_s *EntityPlayerStateConst; 
-  int v45; 
+  float v24; 
+  float v25; 
+  float v26; 
+  int v27; 
   int *ignoreEnts; 
   PhysicsQuery_Collected<unsigned short> *collectedEnts; 
-  int v51; 
+  int v30; 
   EntityClass entclass; 
-  PhysicsQuery_Collected<unsigned short> v53; 
-  GUtils *v54; 
+  PhysicsQuery_Collected<unsigned short> v32; 
+  GUtils *v33; 
   scrContext_t *scrContexta; 
   vec3_t aabbMax; 
   vec3_t aabbMin; 
-  char v58; 
+  char v37; 
+  __int128 v38; 
 
-  __asm { vmovaps [rsp+2D0h+var_60], xmm8 }
-  v7 = NULL;
+  v3 = NULL;
   scrContexta = scrContext;
-  v8 = scrContext;
+  v4 = scrContext;
   entclass = entref.entclass;
   entnum = entref.entnum;
-  v53.ids = (unsigned __int16 *)&v58;
-  v53.count = 0;
-  v53.countMax = 200;
+  v32.ids = (unsigned __int16 *)&v37;
+  v32.count = 0;
+  v32.countMax = 200;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v10 = GUtils::ms_gUtils;
-  v54 = GUtils::ms_gUtils;
+  v6 = GUtils::ms_gUtils;
+  v33 = GUtils::ms_gUtils;
   if ( entclass )
   {
-    Scr_ObjectError(COM_ERR_3681, v8, "not an entity");
-    _R12 = NULL;
+    Scr_ObjectError(COM_ERR_3681, v4, "not an entity");
+    v7 = NULL;
   }
   else
   {
     if ( entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 5941, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _R12 = &g_entities[entnum];
-    if ( !_R12->client )
+    v7 = &g_entities[entnum];
+    if ( !v7->client )
     {
-      v12 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, v8, v12);
+      v8 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, v4, v8);
     }
   }
-  v13 = v10->__vftable;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@7f7fffff
-    vmovaps [rsp+2D0h+var_40], xmm6
-    vmovaps [rsp+2D0h+var_70], xmm9
-  }
-  v15 = v13->GetEntityTeam(v10, _R12);
-  if ( v15 == (Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? 4 : 0) )
+  v9 = FLOAT_3_4028235e38;
+  v10 = v6->GetEntityTeam(v6, v7);
+  if ( v10 == (Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? 4 : 0) )
     goto LABEL_48;
-  __asm { vmovaps [rsp+2D0h+var_50], xmm7 }
-  *(double *)&_XMM0 = Scr_GetFloat(v8, 0);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(v8, 1u);
-  __asm { vmovaps xmm7, xmm0 }
-  v51 = Scr_GetNumParam(v8) <= 2 ? 0 : Scr_GetInt(v8, 2u);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [r12+130h]
-    vmovss  xmm5, dword ptr [r12+134h]
-    vmulss  xmm3, xmm7, cs:__real@3f000000
-    vaddss  xmm2, xmm3, dword ptr [r12+138h]
-    vsubss  xmm0, xmm4, xmm6
-    vsubss  xmm1, xmm5, xmm6
-    vmovss  dword ptr [rbp+1D0h+aabbMin], xmm0
-    vmovss  dword ptr [rbp+1D0h+aabbMin+4], xmm1
-    vsubss  xmm0, xmm2, xmm3
-    vaddss  xmm1, xmm4, xmm6
-    vmovss  dword ptr [rbp+1D0h+aabbMin+8], xmm0
-    vmovss  dword ptr [rbp+1D0h+aabbMax], xmm1
-    vaddss  xmm0, xmm5, xmm6
-    vaddss  xmm1, xmm2, xmm3
-    vmovss  dword ptr [rbp+1D0h+aabbMax+4], xmm0
-    vmovss  dword ptr [rbp+1D0h+aabbMax+8], xmm1
-    vmulss  xmm9, xmm6, xmm6
-  }
-  PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 33570816, 0, NULL, &v53, NULL, 1);
-  v29 = 0;
-  __asm { vmovaps xmm7, [rsp+2D0h+var_50] }
-  if ( !v53.count )
+  v38 = v2;
+  Float = Scr_GetFloat(v4, 0);
+  v12 = *(float *)&Float;
+  v13 = Scr_GetFloat(v4, 1u);
+  v30 = Scr_GetNumParam(v4) <= 2 ? 0 : Scr_GetInt(v4, 2u);
+  v14 = v7->r.currentOrigin.v[0];
+  v15 = v7->r.currentOrigin.v[1];
+  v16 = (float)(*(float *)&v13 * 0.5) + v7->r.currentOrigin.v[2];
+  aabbMin.v[0] = v14 - v12;
+  aabbMin.v[1] = v15 - v12;
+  aabbMin.v[2] = v16 - (float)(*(float *)&v13 * 0.5);
+  aabbMax.v[0] = v14 + v12;
+  aabbMax.v[1] = v15 + v12;
+  aabbMax.v[2] = v16 + (float)(*(float *)&v13 * 0.5);
+  PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 33570816, 0, NULL, &v32, NULL, 1);
+  v17 = 0;
+  if ( !v32.count )
     goto LABEL_48;
-  v31 = "g_entities != nullptr";
-  v32 = v15;
+  v18 = "g_entities != nullptr";
+  v19 = v10;
   do
   {
-    v33 = v53.ids[v29];
-    if ( (unsigned int)v33 >= 0x800 )
+    v20 = v32.ids[v17];
+    if ( (unsigned int)v20 >= 0x800 )
     {
       LODWORD(collectedEnts) = 2048;
-      LODWORD(ignoreEnts) = v53.ids[v29];
+      LODWORD(ignoreEnts) = v32.ids[v17];
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", ignoreEnts, collectedEnts) )
         __debugbreak();
-      v31 = "g_entities != nullptr";
+      v18 = "g_entities != nullptr";
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v34 = v33;
-    if ( g_entities[v33].r.isInUse != g_entityIsInUse[v33] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    v21 = v20;
+    if ( g_entities[v20].r.isInUse != g_entityIsInUse[v20] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( g_entityIsInUse[v33] )
+    if ( g_entityIsInUse[v20] )
     {
-      if ( (unsigned int)v33 >= 0x800 )
+      if ( (unsigned int)v20 >= 0x800 )
       {
         LODWORD(collectedEnts) = 2048;
-        LODWORD(ignoreEnts) = v33;
+        LODWORD(ignoreEnts) = v20;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", ignoreEnts, collectedEnts) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      _RBX = &g_entities[v34];
-      v36 = v51 == 0;
-      if ( !v51 || _RBX->health && (EntityPlayerStateConst = G_GetEntityPlayerStateConst(&g_entities[v34])) != NULL && (v36 = EntityPlayerStateConst->pm_type <= 1u) )
+      v22 = &g_entities[v21];
+      if ( !v30 || v22->health && (EntityPlayerStateConst = G_GetEntityPlayerStateConst(&g_entities[v21])) != NULL && EntityPlayerStateConst->pm_type <= 1u )
       {
-        __asm
+        v24 = v22->r.currentOrigin.v[0] - v7->r.currentOrigin.v[0];
+        v25 = v22->r.currentOrigin.v[1] - v7->r.currentOrigin.v[1];
+        v26 = (float)(v25 * v25) + (float)(v24 * v24);
+        if ( v26 <= (float)(v12 * v12) && v26 <= v9 )
         {
-          vmovss  xmm0, dword ptr [rbx+130h]
-          vmovss  xmm1, dword ptr [rbx+134h]
-          vsubss  xmm4, xmm0, dword ptr [r12+130h]
-          vsubss  xmm2, xmm1, dword ptr [r12+134h]
-          vmulss  xmm3, xmm2, xmm2
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm6, xmm3, xmm0
-          vcomiss xmm6, xmm9
-        }
-        if ( v36 )
-        {
-          __asm { vcomiss xmm6, xmm8 }
-          if ( v36 )
+          v27 = ((__int64 (__fastcall *)(GUtils *, gentity_s *, const char *))v33->GetEntityTeam)(v33, v22, v18);
+          if ( (v19 == TEAM_ZERO || v19 != v27) && (unsigned int)(v27 - 201) > 1 && v27 != (Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? 4 : 0) )
           {
-            v45 = ((__int64 (__fastcall *)(GUtils *, gentity_s *, const char *))v54->GetEntityTeam)(v54, _RBX, v31);
-            if ( (v32 == TEAM_ZERO || v32 != v45) && (unsigned int)(v45 - 201) > 1 && v45 != (Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? 4 : 0) )
-            {
-              v7 = _RBX;
-              __asm { vmovaps xmm8, xmm6 }
-            }
+            v3 = v22;
+            v9 = v26;
           }
         }
       }
     }
-    ++v29;
-    v31 = "g_entities != nullptr";
+    ++v17;
+    v18 = "g_entities != nullptr";
   }
-  while ( v29 < v53.count );
-  v8 = scrContexta;
-  if ( v7 )
-    Scr_AddEntityNum(scrContexta, v7->s.number, ENTITY_CLASS_GENTITY);
+  while ( v17 < v32.count );
+  v4 = scrContexta;
+  if ( v3 )
+    Scr_AddEntityNum(scrContexta, v3->s.number, ENTITY_CLASS_GENTITY);
   else
 LABEL_48:
-    Scr_AddUndefined(v8);
-  __asm
-  {
-    vmovaps xmm9, [rsp+2D0h+var_70]
-    vmovaps xmm6, [rsp+2D0h+var_40]
-    vmovaps xmm8, [rsp+2D0h+var_60]
-  }
+    Scr_AddUndefined(v4);
 }
 
 /*
@@ -7541,145 +7367,100 @@ void G_ClientScrMP_BodyEnd(gentity_s *ent)
 G_ClientScrMP_CorpseToMovingPlatformTrace
 ==============
 */
-
-__int64 __fastcall G_ClientScrMP_CorpseToMovingPlatformTrace(const gentity_s *corpse, trace_t *trace, double traceLength, vec3_t *outEndPos)
+__int64 G_ClientScrMP_CorpseToMovingPlatformTrace(const gentity_s *corpse, trace_t *trace, float traceLength, vec3_t *outEndPos)
 {
-  const dvar_t *v11; 
+  const dvar_t *v8; 
   __int64 clientNum; 
-  gentity_s *v13; 
+  gentity_s *v10; 
   const playerState_s *p_ps; 
   GMovingPlatformClient *ClientFromGEntity; 
-  bool v37; 
-  int v38; 
-  int v39; 
-  __int64 result; 
+  const dvar_t *v13; 
+  float value; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  bool v19; 
+  int v20; 
+  float fraction; 
+  float v22; 
+  float v23; 
   unsigned __int8 *priorityMap; 
-  __int64 v57; 
+  __int64 v26; 
   vec3_t start; 
   vec3_t end; 
   vec3_t outUp; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  _R15 = outEndPos;
-  _RBX = corpse;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm9 }
-  _RSI = trace;
-  __asm { vmovaps xmm9, xmm2 }
   if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) )
     goto LABEL_29;
-  v11 = DVARBOOL_killswitch_corpse_moving_platform_link_fix_enabled;
+  v8 = DVARBOOL_killswitch_corpse_moving_platform_link_fix_enabled;
   if ( !DVARBOOL_killswitch_corpse_moving_platform_link_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_corpse_moving_platform_link_fix_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled && _RBX->s.eType == ET_PLAYER_CORPSE )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled && corpse->s.eType == ET_PLAYER_CORPSE )
   {
-    clientNum = _RBX->s.clientNum;
+    clientNum = corpse->s.clientNum;
     if ( (_DWORD)clientNum == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1072, ASSERT_TYPE_ASSERT, "( corpse->s.clientNum ) != ( ENTITYNUM_NONE )", "%s != %s\n\t%i, %i", "corpse->s.clientNum", "ENTITYNUM_NONE", 2047, 2047) )
       __debugbreak();
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( _RBX->s.clientNum >= ComCharacterLimits::ms_gameData.m_clientCount )
+    if ( corpse->s.clientNum >= ComCharacterLimits::ms_gameData.m_clientCount )
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v57) = ComCharacterLimits::ms_gameData.m_clientCount;
-      LODWORD(priorityMap) = _RBX->s.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1073, ASSERT_TYPE_ASSERT, "(unsigned)( corpse->s.clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "corpse->s.clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", priorityMap, v57) )
+      LODWORD(v26) = ComCharacterLimits::ms_gameData.m_clientCount;
+      LODWORD(priorityMap) = corpse->s.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1073, ASSERT_TYPE_ASSERT, "(unsigned)( corpse->s.clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "corpse->s.clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", priorityMap, v26) )
         __debugbreak();
     }
-    v13 = &g_entities[clientNum];
-    if ( !v13->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1076, ASSERT_TYPE_ASSERT, "(clientEnt->client)", (const char *)&queryFormat, "clientEnt->client") )
+    v10 = &g_entities[clientNum];
+    if ( !v10->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1076, ASSERT_TYPE_ASSERT, "(clientEnt->client)", (const char *)&queryFormat, "clientEnt->client") )
       __debugbreak();
-    p_ps = &v13->client->ps;
-    ClientFromGEntity = GMovingPlatforms::GetClientFromGEntity(v13);
+    p_ps = &v10->client->ps;
+    ClientFromGEntity = GMovingPlatforms::GetClientFromGEntity(v10);
     if ( !ClientFromGEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1080, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
       __debugbreak();
     BGMovingPlatformClient::ResolvePlatformUp(ClientFromGEntity, p_ps, &outUp);
-    _RDI = DVARFLT_corpse_moving_platform_link_fix_start_offset;
+    v13 = DVARFLT_corpse_moving_platform_link_fix_start_offset;
     if ( !DVARFLT_corpse_moving_platform_link_fix_start_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "corpse_moving_platform_link_fix_start_offset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+28h]
-      vmulss  xmm0, xmm3, dword ptr [rbp+57h+outUp]
-      vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-      vmulss  xmm0, xmm3, dword ptr [rbp+57h+outUp+4]
-      vmovss  xmm5, dword ptr [rbx+138h]
-      vmovss  dword ptr [rbp+57h+start], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+134h]
-      vmulss  xmm0, xmm3, dword ptr [rbp+57h+outUp+8]
-      vxorps  xmm3, xmm9, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm2, xmm3, dword ptr [rbp+57h+outUp+4]
-      vmovss  dword ptr [rbp+57h+start+4], xmm1
-      vaddss  xmm1, xmm0, xmm5
-      vmulss  xmm0, xmm3, dword ptr [rbp+57h+outUp]
-      vmovss  dword ptr [rbp+57h+start+8], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-      vaddss  xmm0, xmm2, dword ptr [rbx+134h]
-      vmovss  dword ptr [rbp+57h+end], xmm1
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+outUp+8]
-      vaddss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rbp+57h+end+8], xmm2
-      vmovss  dword ptr [rbp+57h+end+4], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v13);
+    value = v13->current.value;
+    v15 = corpse->r.currentOrigin.v[2];
+    start.v[0] = (float)(value * outUp.v[0]) + corpse->r.currentOrigin.v[0];
+    start.v[1] = (float)(value * outUp.v[1]) + corpse->r.currentOrigin.v[1];
+    start.v[2] = (float)(value * outUp.v[2]) + v15;
+    v16 = (float)(COERCE_FLOAT(LODWORD(traceLength) ^ _xmm) * outUp.v[1]) + corpse->r.currentOrigin.v[1];
+    end.v[0] = (float)(COERCE_FLOAT(LODWORD(traceLength) ^ _xmm) * outUp.v[0]) + corpse->r.currentOrigin.v[0];
+    end.v[2] = (float)(COERCE_FLOAT(LODWORD(traceLength) ^ _xmm) * outUp.v[2]) + v15;
+    end.v[1] = v16;
   }
   else
   {
 LABEL_29:
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+130h]
-      vmovss  xmm0, dword ptr [rbx+134h]
-      vmovss  xmm2, dword ptr [rbx+138h]
-      vmovss  dword ptr [rbp+57h+start], xmm1
-      vmovss  dword ptr [rbp+57h+start+4], xmm0
-      vmovss  dword ptr [rbp+57h+end], xmm1
-      vmovss  dword ptr [rbp+57h+end+4], xmm0
-      vaddss  xmm0, xmm2, cs:__real@3e000000
-      vsubss  xmm1, xmm2, xmm9
-      vmovss  dword ptr [rbp+57h+start+8], xmm0
-      vmovss  dword ptr [rbp+57h+end+8], xmm1
-    }
+    v17 = corpse->r.currentOrigin.v[1];
+    v18 = corpse->r.currentOrigin.v[2];
+    start.v[0] = corpse->r.currentOrigin.v[0];
+    start.v[1] = v17;
+    end.v[0] = start.v[0];
+    end.v[1] = v17;
+    start.v[2] = v18 + 0.125;
+    end.v[2] = v18 - traceLength;
   }
-  v37 = Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100);
-  v38 = 8193;
-  if ( v37 )
-    v38 = 41969041;
-  G_Main_LocationalTrace(_RSI, &start, &end, _RBX->s.number, v38, NULL);
-  v39 = GMovingPlatforms::TraceHitMovingPlatform(_RSI);
-  __asm { vmovaps xmm9, [rsp+0E0h+var_58+8] }
-  if ( !v39 || _RSI->allsolid || _RSI->startsolid )
-  {
-    result = 0i64;
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsi]
-      vmovss  xmm0, dword ptr [rbp+57h+end]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start]
-      vmovss  xmm0, dword ptr [rbp+57h+end+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start+4]
-      vmovss  xmm0, dword ptr [rbp+57h+end+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start+8]
-      vmovss  dword ptr [r15], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+4]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [r15+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+8]
-      vmovss  dword ptr [r15+8], xmm3
-    }
-    result = 1i64;
-  }
-  __asm { vmovaps xmm6, [rsp+0E0h+var_48+8] }
-  return result;
+  v19 = Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100);
+  v20 = 8193;
+  if ( v19 )
+    v20 = 41969041;
+  G_Main_LocationalTrace(trace, &start, &end, corpse->s.number, v20, NULL);
+  if ( !GMovingPlatforms::TraceHitMovingPlatform(trace) || trace->allsolid || trace->startsolid )
+    return 0i64;
+  fraction = trace->fraction;
+  v22 = (float)(end.v[1] - start.v[1]) * trace->fraction;
+  v23 = end.v[2] - start.v[2];
+  outEndPos->v[0] = (float)((float)(end.v[0] - start.v[0]) * trace->fraction) + start.v[0];
+  outEndPos->v[1] = v22 + start.v[1];
+  outEndPos->v[2] = (float)(v23 * fraction) + start.v[2];
+  return 1i64;
 }
 
 /*
@@ -7690,31 +7471,26 @@ G_ClientScrMP_LinkCorpseToMovingPlatform
 void G_ClientScrMP_LinkCorpseToMovingPlatform(gentity_s *corpse, const trace_t *trace, const vec3_t *endPos)
 {
   gentity_s *v5; 
-  tmat43_t<vec3_t> v9; 
+  float v6; 
+  tmat43_t<vec3_t> v7; 
   tmat43_t<vec3_t> result; 
   tmat43_t<vec3_t> out; 
 
-  _RDI = corpse;
   corpse->r.currentOrigin = *endPos;
   corpse->flags.m_flags[0] |= 0x200u;
   if ( !BGMovingPlatforms::IsMovingPlatform(trace->hitId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1126, ASSERT_TYPE_ASSERT, "(BGMovingPlatforms::IsMovingPlatform( trace->hitId ))", (const char *)&queryFormat, "BGMovingPlatforms::IsMovingPlatform( trace->hitId )") )
     __debugbreak();
   v5 = &g_entities[trace->hitId];
-  G_EntLinkTo(_RDI, v5, (scr_string_t)0, 0, NULL);
+  G_EntLinkTo(corpse, v5, (scr_string_t)0, 0, NULL);
   AnglesAndOriginToMatrix43(&v5->r.currentAngles, &v5->r.currentOrigin, &result);
   MatrixInverseOrthogonal43(&result, &out);
-  AnglesAndOriginToMatrix43(&_RDI->r.currentAngles, &_RDI->r.currentOrigin, &result);
-  MatrixMultiply43(&result, &out, &v9);
-  AxisToAngles((const tmat33_t<vec3_t> *)&v9, &_RDI->s.lerp.apos.trDelta);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_A8+24h]
-    vmovss  xmm1, dword ptr [rsp+0D8h+var_A8+28h]
-    vmovss  dword ptr [rdi+28h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_A8+2Ch]
-    vmovss  dword ptr [rdi+30h], xmm0
-    vmovss  dword ptr [rdi+2Ch], xmm1
-  }
+  AnglesAndOriginToMatrix43(&corpse->r.currentAngles, &corpse->r.currentOrigin, &result);
+  MatrixMultiply43(&result, &out, &v7);
+  AxisToAngles((const tmat33_t<vec3_t> *)&v7, &corpse->s.lerp.apos.trDelta);
+  v6 = v7.m[3].v[1];
+  corpse->s.lerp.pos.trDelta.v[0] = v7.m[3].v[0];
+  corpse->s.lerp.pos.trDelta.v[2] = v7.m[3].v[2];
+  corpse->s.lerp.pos.trDelta.v[1] = v6;
 }
 
 /*
@@ -7724,58 +7500,40 @@ G_ClientScrMP_TryToLinkCorpseToMovingPlatform
 */
 __int64 G_ClientScrMP_TryToLinkCorpseToMovingPlatform(gentity_s *corpse)
 {
+  float v2; 
   int hitId; 
-  gentity_s *v8; 
-  __int64 v11; 
+  gentity_s *v4; 
+  float v5; 
+  __int64 v6; 
   vec3_t outEndPos; 
-  tmat43_t<vec3_t> v14; 
+  tmat43_t<vec3_t> v8; 
   tmat43_t<vec3_t> result; 
   trace_t trace; 
   tmat43_t<vec3_t> out; 
 
-  __asm { vmovss  xmm2, cs:__real@41c80000; traceLength }
-  _RDI = corpse;
-  if ( !G_ClientScrMP_CorpseToMovingPlatformTrace(corpse, &trace, *(float *)&_XMM2, &outEndPos) )
+  if ( !G_ClientScrMP_CorpseToMovingPlatformTrace(corpse, &trace, 25.0, &outEndPos) || trace.normal.v[2] <= 0.69999999 )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+148h+trace.normal+8]
-    vcomiss xmm0, cs:__real@3f333333
-    vmovss  xmm0, dword ptr [rsp+148h+outEndPos]
-    vmovss  xmm1, dword ptr [rsp+148h+outEndPos+4]
-  }
+  v2 = outEndPos.v[1];
   hitId = trace.hitId;
-  __asm
-  {
-    vmovss  dword ptr [rdi+130h], xmm0
-    vmovss  xmm0, dword ptr [rsp+148h+outEndPos+8]
-    vmovss  dword ptr [rdi+138h], xmm0
-    vmovss  dword ptr [rdi+134h], xmm1
-  }
-  _RDI->flags.m_flags[0] |= 0x200u;
+  corpse->r.currentOrigin.v[0] = outEndPos.v[0];
+  corpse->r.currentOrigin.v[2] = outEndPos.v[2];
+  corpse->r.currentOrigin.v[1] = v2;
+  corpse->flags.m_flags[0] |= 0x200u;
   if ( !BGMovingPlatforms::IsMovingPlatform(hitId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 1126, ASSERT_TYPE_ASSERT, "(BGMovingPlatforms::IsMovingPlatform( trace->hitId ))", (const char *)&queryFormat, "BGMovingPlatforms::IsMovingPlatform( trace->hitId )") )
     __debugbreak();
-  v8 = &g_entities[trace.hitId];
-  G_EntLinkTo(_RDI, v8, (scr_string_t)0, 0, NULL);
-  AnglesAndOriginToMatrix43(&v8->r.currentAngles, &v8->r.currentOrigin, &result);
+  v4 = &g_entities[trace.hitId];
+  G_EntLinkTo(corpse, v4, (scr_string_t)0, 0, NULL);
+  AnglesAndOriginToMatrix43(&v4->r.currentAngles, &v4->r.currentOrigin, &result);
   MatrixInverseOrthogonal43(&result, &out);
-  AnglesAndOriginToMatrix43(&_RDI->r.currentAngles, &_RDI->r.currentOrigin, &result);
-  MatrixMultiply43(&result, &out, &v14);
-  AxisToAngles((const tmat33_t<vec3_t> *)&v14, &_RDI->s.lerp.apos.trDelta);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+148h+var_108+24h]
-    vmovss  xmm1, dword ptr [rsp+148h+var_108+28h]
-  }
-  v11 = 1i64;
-  __asm
-  {
-    vmovss  dword ptr [rdi+28h], xmm0
-    vmovss  xmm0, dword ptr [rsp+148h+var_108+2Ch]
-    vmovss  dword ptr [rdi+30h], xmm0
-    vmovss  dword ptr [rdi+2Ch], xmm1
-  }
-  return v11;
+  AnglesAndOriginToMatrix43(&corpse->r.currentAngles, &corpse->r.currentOrigin, &result);
+  MatrixMultiply43(&result, &out, &v8);
+  AxisToAngles((const tmat33_t<vec3_t> *)&v8, &corpse->s.lerp.apos.trDelta);
+  v5 = v8.m[3].v[1];
+  v6 = 1i64;
+  corpse->s.lerp.pos.trDelta.v[0] = v8.m[3].v[0];
+  corpse->s.lerp.pos.trDelta.v[2] = v8.m[3].v[2];
+  corpse->s.lerp.pos.trDelta.v[1] = v5;
+  return v6;
 }
 
 /*
@@ -7785,129 +7543,98 @@ PlayerCmd_DropItemEntity
 */
 gentity_s *PlayerCmd_DropItemEntity(gentity_s *pSelf, const Weapon *r_weapon, const scr_string_t dropTag, bool doPhysicsOnInit, gentity_s *(*dropMethod)(gentity_s *, const Weapon *, const bool, const bool, const tmat43_t<vec3_t> *))
 {
-  GItems *v9; 
-  const dvar_t *v10; 
+  GItems *v8; 
+  const dvar_t *v9; 
+  const playerState_s *EntityPlayerStateConst; 
   GHandler *Handler; 
-  gentity_s *v34; 
-  gentity_s *v35; 
+  gentity_s *v17; 
+  gentity_s *v18; 
   vec3_t vec; 
   vec3_t angles; 
   vec3_t origin; 
   tmat43_t<vec3_t> axis; 
-  WorldUpReferenceFrame v41; 
+  WorldUpReferenceFrame v24; 
 
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
-  v9 = GItems::ms_gItemsSystem;
+  v8 = GItems::ms_gItemsSystem;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 433, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !dropMethod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 434, ASSERT_TYPE_ASSERT, "( dropMethod )", (const char *)&queryFormat, "dropMethod") )
     __debugbreak();
-  v10 = DVARBOOL_entityLeakDisableItemsCorpses;
+  v9 = DVARBOOL_entityLeakDisableItemsCorpses;
   if ( !DVARBOOL_entityLeakDisableItemsCorpses && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "entityLeakDisableItemsCorpses") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
     return 0i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "PlayerCmd_DropItemEntity");
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 391, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  _RBX = G_GetEntityPlayerStateConst(pSelf);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 394, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+  EntityPlayerStateConst = G_GetEntityPlayerStateConst(pSelf);
+  if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 394, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
+  angles.v[0] = 0.0;
+  angles.v[1] = EntityPlayerStateConst->viewangles.v[1];
+  angles.v[2] = 0.0;
+  axis.m[3] = EntityPlayerStateConst->origin;
+  vec.v[0] = 0.0;
+  vec.v[1] = 0.0;
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerStateConst->pm_flags, ACTIVE, 0) )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+130h+angles], xmm2
-    vmovss  xmm0, dword ptr [rbx+1DCh]
-    vmovss  dword ptr [rbp+4Fh+angles+4], xmm0
-    vmovss  dword ptr [rbp+4Fh+angles+8], xmm2
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  [rbp+4Fh+var_8C], xmm0
-    vmovss  xmm1, dword ptr [rbx+34h]
-    vmovss  [rbp+4Fh+var_88], xmm1
-    vmovss  xmm0, dword ptr [rbx+38h]
-    vmovss  [rbp+4Fh+var_84], xmm0
-    vmovss  dword ptr [rsp+130h+vec], xmm2
-    vmovss  dword ptr [rsp+130h+vec+4], xmm2
-  }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0) )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41f00000
-      vmovss  dword ptr [rsp+130h+vec+8], xmm0
-    }
+    vec.v[2] = FLOAT_30_0;
   }
   else
   {
-    _EAX = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 1u);
-    _ECX = 0;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm2, cs:__real@42520000
-      vmovss  xmm1, cs:__real@42160000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  dword ptr [rsp+130h+vec+8], xmm0
-    }
+    _XMM0 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerStateConst->pm_flags, ACTIVE, 1u);
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_37_5);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    vec.v[2] = *(float *)&_XMM0;
   }
   Handler = GHandler::getHandler();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v41, _RBX, Handler);
-  WorldUpReferenceFrame::ApplyReferenceFrameToVector(&v41, &vec);
-  __asm
-  {
-    vmovss  xmm0, [rbp+4Fh+var_8C]
-    vaddss  xmm3, xmm0, dword ptr [rsp+130h+vec]
-    vmovss  [rbp+4Fh+var_8C], xmm3
-    vmovss  xmm0, [rbp+4Fh+var_88]
-    vaddss  xmm2, xmm0, dword ptr [rsp+130h+vec+4]
-    vmovss  [rbp+4Fh+var_88], xmm2
-    vmovss  xmm0, [rbp+4Fh+var_84]
-    vaddss  xmm1, xmm0, dword ptr [rsp+130h+vec+8]
-    vmovss  [rbp+4Fh+var_84], xmm1
-    vmovss  dword ptr [rbp+4Fh+origin], xmm3
-    vmovss  dword ptr [rbp+4Fh+origin+4], xmm2
-    vmovss  dword ptr [rbp+4Fh+origin+8], xmm1
-  }
-  if ( v9->CanDeferItemDrop(v9) )
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v24, EntityPlayerStateConst, Handler);
+  WorldUpReferenceFrame::ApplyReferenceFrameToVector(&v24, &vec);
+  axis.m[3].v[0] = axis.m[3].v[0] + vec.v[0];
+  axis.m[3].v[1] = axis.m[3].v[1] + vec.v[1];
+  axis.m[3].v[2] = axis.m[3].v[2] + vec.v[2];
+  origin = axis.m[3];
+  if ( v8->CanDeferItemDrop(v8) )
   {
     AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-    v34 = dropMethod(pSelf, r_weapon, doPhysicsOnInit, 0, &axis);
-    v35 = v34;
-    if ( v34 )
+    v17 = dropMethod(pSelf, r_weapon, doPhysicsOnInit, 0, &axis);
+    v18 = v17;
+    if ( v17 )
     {
-      G_SetOriginAndAngle(v34, &origin, &angles, 1, 1);
-      v35->s.lerp.pos.trType = TR_GRAVITY;
-      v35->s.lerp.pos.trTime = level.time;
-      G_Items_SetItemPhysics(pSelf, v35);
-      v9->DeferItemDrop(v9, pSelf->s.number, v35->s.number, dropTag);
+      G_SetOriginAndAngle(v17, &origin, &angles, 1, 1);
+      v18->s.lerp.pos.trType = TR_GRAVITY;
+      v18->s.lerp.pos.trTime = level.time;
+      G_Items_SetItemPhysics(pSelf, v18);
+      v8->DeferItemDrop(v8, pSelf->s.number, v18->s.number, dropTag);
     }
   }
   else
   {
     G_Items_GetStateFromTag(pSelf, dropTag, NULL, &axis, 1);
-    v35 = dropMethod(pSelf, r_weapon, doPhysicsOnInit, 0, &axis);
-    if ( v35 )
+    v18 = dropMethod(pSelf, r_weapon, doPhysicsOnInit, 0, &axis);
+    if ( v18 )
     {
       if ( G_Items_CheckPenetration(r_weapon, &axis) && (dropTag = scr_const.tag_weapon_chest, G_Items_GetStateFromTag(pSelf, scr_const.tag_weapon_chest, NULL, &axis, 1), G_Items_CheckPenetration(r_weapon, &axis)) )
       {
-        G_SetOriginAndAngle(v35, &origin, &angles, 1, 1);
-        v35->s.lerp.pos.trType = TR_GRAVITY;
-        v35->s.lerp.pos.trTime = level.time;
+        G_SetOriginAndAngle(v18, &origin, &angles, 1, 1);
+        v18->s.lerp.pos.trType = TR_GRAVITY;
+        v18->s.lerp.pos.trTime = level.time;
       }
       else
       {
-        G_Items_SetStateFromTag(pSelf, dropTag, v35, 1);
-        G_Items_SetDefaultVelocity(pSelf, v35);
+        G_Items_SetStateFromTag(pSelf, dropTag, v18, 1);
+        G_Items_SetDefaultVelocity(pSelf, v18);
       }
-      G_Items_SetItemPhysics(pSelf, v35);
+      G_Items_SetItemPhysics(pSelf, v18);
     }
   }
   Sys_ProfEndNamedEvent();
-  return v35;
+  return v18;
 }
 
 /*
@@ -7950,53 +7677,53 @@ PlayerCmd_SetStreamLoadDist_Internal
 */
 void PlayerCmd_SetStreamLoadDist_Internal(scrContext_t *scrContext, const scr_entref_t entref, const BgWorldStreamingViewType viewType, const char *methodName)
 {
-  unsigned __int8 v6; 
+  unsigned __int8 v5; 
   unsigned int entnum; 
-  gentity_s *v9; 
-  const char *v10; 
+  gentity_s *v8; 
+  const char *v9; 
   int number; 
+  const char *v11; 
   const char *v12; 
-  const char *v13; 
+  double Float; 
   int outControllingClientNum; 
 
-  v6 = viewType;
+  v5 = viewType;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v9 = NULL;
+    v8 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_script_cmd_mp.cpp", 2194, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v9 = &g_entities[entnum];
-    if ( !v9->client && !v9->agent )
+    v8 = &g_entities[entnum];
+    if ( !v8->client && !v8->agent )
     {
-      v10 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v10);
+      v9 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v9);
     }
   }
-  number = v9->s.number;
+  number = v8->s.number;
   outControllingClientNum = number;
   if ( !SV_IsAgent(number) || SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
     if ( Scr_GetNumParam(scrContext) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovaps xmm2, xmm0; loadDist }
-      G_WorldStreaming_SetStreamLoadDist(outControllingClientNum, (const BgWorldStreamingViewType)v6, *(const float *)&_XMM2);
+      Float = Scr_GetFloat(scrContext, 0);
+      G_WorldStreaming_SetStreamLoadDist(outControllingClientNum, (const BgWorldStreamingViewType)v5, *(const float *)&Float);
     }
     else
     {
-      v13 = j_va("missing argument for %s", methodName);
-      Scr_ObjectError(COM_ERR_6553, scrContext, v13);
+      v12 = j_va("missing argument for %s", methodName);
+      Scr_ObjectError(COM_ERR_6553, scrContext, v12);
     }
   }
   else
   {
-    v12 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_6552, scrContext, v12);
+    v11 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_6552, scrContext, v11);
   }
 }
 

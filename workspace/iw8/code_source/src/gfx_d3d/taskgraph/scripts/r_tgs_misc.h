@@ -1911,7 +1911,6 @@ void R_TG_GetScriptViewFeatures(const GfxViewportFeatures *features, const R_TG_
   R_TG_ViewOptions options; 
 
   v3 = DVARBOOL_r_sceneResSquareRatio;
-  _R12 = outScriptOptions;
   if ( !DVARBOOL_r_sceneResSquareRatio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResSquareRatio") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v3);
@@ -2062,11 +2061,7 @@ LABEL_36:
     v33 = 0x200000000000i64;
   *((_QWORD *)&options + 1) = v73 & 0xFFF90CFFFFFFFFFFui64 | (v74 | ((r_magnifierEnable->current.enabled | (unsigned __int64)(sm_showOverlay->current.integer != 0 ? 8 : 0)) << 41)) & 0xFFF90FFFFFFFFFFFui64 | v33 | v79 | 0x80000000000i64;
   R_TG_ResolveOptionsDependencies(&options);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+78h+options._bf_0]
-    vmovups xmmword ptr [r12], xmm0
-  }
+  *(R_TG_ViewOptions *)outScriptOptions = options;
 }
 
 /*
@@ -2248,11 +2243,7 @@ void R_TG_RunScriptView(R_TG_Script *pScript, const R_TG_ScriptOptions *scriptOp
 {
   R_TG_ViewOptions options; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rsp+38h+options._bf_0], xmm0
-  }
+  options = (R_TG_ViewOptions)*scriptOptions;
   R_TG_RunScriptViewCommon(pScript, &options);
 }
 
@@ -2263,54 +2254,56 @@ R_TG_RunScriptViewCommon
 */
 void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *options)
 {
-  const R_TG_ViewOptions *v4; 
+  const R_TG_ViewOptions *v2; 
   TG_GP_PerPassBuffers *p_perPassBuffers; 
-  __int64 v7; 
+  __int64 v5; 
   unsigned int index; 
-  unsigned __int8 v9; 
-  __int64 v10; 
+  unsigned __int8 v7; 
+  __int64 v8; 
   R_TG_Handle *p_sunshadowCascades; 
-  __int64 v12; 
+  __int64 v10; 
   R_TG_Handle *p_sunshadowMins; 
-  __int64 v14; 
+  __int64 v12; 
   R_TG_Handle *p_compressedCascades; 
+  __int64 v14; 
+  bool v15; 
   __int64 v16; 
-  bool v17; 
-  __int64 v18; 
   unsigned int m_index; 
   __int64 handleArgCount; 
-  __int64 v21; 
+  __int64 v19; 
   unsigned int MaxBaseWidth; 
   unsigned int MaxBaseHeight; 
+  unsigned int v22; 
+  unsigned int v23; 
   unsigned int v24; 
   unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
-  unsigned int v28; 
+  __int64 v28; 
   unsigned int v29; 
-  __int64 v30; 
+  unsigned int v30; 
   unsigned int v31; 
   unsigned int v32; 
   unsigned int v33; 
-  unsigned int v34; 
-  unsigned int v35; 
+  __int64 v34; 
+  __int64 v35; 
   __int64 v36; 
   __int64 v37; 
   __int64 v38; 
   __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  unsigned int v42; 
-  unsigned int v43; 
+  unsigned int v40; 
+  unsigned int v41; 
+  __int64 v42; 
+  __int64 v43; 
   __int64 v44; 
   __int64 v45; 
   __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  unsigned int v49; 
+  unsigned int v47; 
+  unsigned int v48; 
+  __int64 v49; 
   unsigned int v50; 
   __int64 v51; 
-  unsigned int v52; 
+  __int64 v52; 
   __int64 v53; 
   __int64 v54; 
   __int64 v55; 
@@ -2322,73 +2315,73 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   __int64 v61; 
   __int64 v62; 
   __int64 v63; 
-  __int64 v64; 
+  unsigned int v64; 
   __int64 v65; 
   unsigned int v66; 
-  __int64 v67; 
-  unsigned int v68; 
+  unsigned int v67; 
+  R_TG_AddTaskStack *v68; 
   unsigned int v69; 
-  R_TG_AddTaskStack *v70; 
-  unsigned int v71; 
-  unsigned int v72; 
+  unsigned int v70; 
   unsigned int MipCount; 
-  unsigned int v74; 
+  unsigned int v72; 
+  __int64 v73; 
+  unsigned __int64 v74; 
   __int64 v75; 
-  unsigned __int64 v76; 
-  __int64 v77; 
-  __int64 v78; 
-  bool v79; 
-  unsigned __int64 v80; 
-  R_TG_Handle *p_floatZ; 
+  __int64 v76; 
+  bool v77; 
+  unsigned __int64 v78; 
+  R_TG_Handle *occlusionDepthTexture; 
   R_TG_Handle *p_sceneVisBuffer; 
-  unsigned int v83; 
+  unsigned int v81; 
+  __int64 v82; 
+  __int64 v83; 
   __int64 v84; 
   __int64 v85; 
   __int64 v86; 
   __int64 v87; 
   __int64 v88; 
   __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  unsigned int v92; 
-  unsigned int v93; 
-  __int64 v94; 
-  bool v95; 
-  unsigned int v96; 
+  unsigned int v90; 
+  unsigned int v91; 
+  __int64 v92; 
+  bool v93; 
+  unsigned int v94; 
+  __int64 v95; 
+  __int64 v96; 
   __int64 v97; 
   __int64 v98; 
-  __int64 v99; 
+  unsigned int v99; 
   __int64 v100; 
-  unsigned int v101; 
+  __int64 v101; 
   __int64 v102; 
   __int64 v103; 
   __int64 v104; 
   __int64 v105; 
   __int64 v106; 
   __int64 v107; 
-  __int64 v108; 
+  unsigned int v108; 
   __int64 v109; 
-  unsigned int v110; 
-  __int64 v111; 
+  __int64 v110; 
+  unsigned int v111; 
   __int64 v112; 
-  unsigned int v113; 
+  __int64 v113; 
   __int64 v114; 
   __int64 v115; 
   __int64 v116; 
   __int64 v117; 
   __int64 v118; 
   __int64 v119; 
-  __int64 v120; 
+  unsigned int v120; 
   __int64 v121; 
-  unsigned int v122; 
+  __int64 v122; 
   __int64 v123; 
   __int64 v124; 
   __int64 v125; 
   __int64 v126; 
   __int64 v127; 
-  __int64 v128; 
+  unsigned int v128; 
   __int64 v129; 
-  unsigned int v130; 
+  __int64 v130; 
   __int64 v131; 
   __int64 v132; 
   __int64 v133; 
@@ -2398,128 +2391,128 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   __int64 v137; 
   __int64 v138; 
   __int64 v139; 
-  __int64 v140; 
+  unsigned int v140; 
   __int64 v141; 
   unsigned int v142; 
-  __int64 v143; 
-  unsigned int v144; 
-  unsigned __int64 v145; 
-  int v146; 
-  int v147; 
-  unsigned int v148; 
+  unsigned __int64 v143; 
+  int v144; 
+  int v145; 
+  unsigned int v146; 
+  __int64 v147; 
+  __int64 v148; 
   __int64 v149; 
   __int64 v150; 
   __int64 v151; 
   __int64 v152; 
   __int64 v153; 
-  __int64 v154; 
+  unsigned int v154; 
   __int64 v155; 
-  unsigned int v156; 
+  __int64 v156; 
   __int64 v157; 
   __int64 v158; 
-  __int64 v159; 
+  unsigned int v159; 
   __int64 v160; 
   unsigned int v161; 
   __int64 v162; 
-  unsigned int v163; 
+  __int64 v163; 
   __int64 v164; 
   __int64 v165; 
   __int64 v166; 
   __int64 v167; 
-  __int64 v168; 
+  int v168; 
   __int64 v169; 
-  int v170; 
-  __int64 v171; 
+  unsigned int v170; 
+  unsigned int v171; 
   unsigned int v172; 
-  unsigned int v173; 
-  unsigned int v174; 
-  __int64 v175; 
+  __int64 v173; 
+  __int64 v174; 
+  unsigned int v175; 
   __int64 v176; 
-  unsigned int v177; 
-  __int64 v178; 
-  int v179; 
-  unsigned int v180; 
+  int v177; 
+  unsigned int v178; 
+  __int64 v179; 
+  int v180; 
   __int64 v181; 
-  int v182; 
+  __int64 v182; 
   __int64 v183; 
-  __int64 v184; 
+  unsigned int v184; 
   __int64 v185; 
   unsigned int v186; 
   __int64 v187; 
-  unsigned int v188; 
+  __int64 v188; 
   __int64 v189; 
-  __int64 v190; 
-  __int64 v191; 
-  unsigned int v192; 
-  unsigned int v193; 
+  unsigned int v190; 
+  unsigned int v191; 
+  __int64 v192; 
+  __int64 v193; 
   __int64 v194; 
   __int64 v195; 
   __int64 v196; 
   __int64 v197; 
   __int64 v198; 
-  __int64 v199; 
+  unsigned __int64 v199; 
   __int64 v200; 
-  unsigned __int64 v201; 
+  __int64 v201; 
   __int64 v202; 
-  __int64 v203; 
+  unsigned int v203; 
   __int64 v204; 
-  unsigned int v205; 
+  __int64 v205; 
   __int64 v206; 
   __int64 v207; 
-  __int64 v208; 
+  unsigned int v208; 
   __int64 v209; 
   unsigned int v210; 
   __int64 v211; 
-  unsigned int v212; 
+  __int64 v212; 
   __int64 v213; 
   __int64 v214; 
-  __int64 v215; 
-  __int64 v216; 
-  R_TG_Script *v217; 
+  R_TG_Script *v215; 
   R_TG_Handle *p_sceneColor; 
+  __int64 v217; 
+  __int64 v218; 
   __int64 v219; 
-  __int64 v220; 
-  __int64 v221; 
-  unsigned int v222; 
-  __int64 v228; 
-  unsigned int v229; 
+  unsigned int v220; 
+  unsigned int v221; 
+  float v222; 
+  float v223; 
+  __int64 v224; 
+  unsigned int v225; 
   unsigned int SceneDownsampleVeilMip; 
-  unsigned int v231; 
+  unsigned int v227; 
   unsigned int SceneDownsampleTotalMipCount; 
-  unsigned int v233; 
-  __int64 v234; 
+  unsigned int v229; 
+  __int64 v230; 
+  unsigned int v231; 
+  unsigned int v232; 
+  R_TG_Handle *v233; 
+  R_TG_Handle *v234; 
   unsigned int v235; 
-  unsigned int v236; 
-  R_TG_Handle *v237; 
-  R_TG_Handle *v238; 
-  unsigned int v239; 
-  GFX_GP_PASS v240; 
-  unsigned int v241; 
-  GfxDrawListType v242; 
+  GFX_GP_PASS v236; 
+  unsigned int v237; 
+  GfxDrawListType v238; 
   bool *p_isPrepass; 
-  bool *v244; 
+  bool *v240; 
+  __int64 v241; 
+  unsigned int v242; 
+  __int64 v243; 
+  unsigned __int64 v244; 
   __int64 v245; 
-  unsigned int v246; 
-  __int64 v247; 
-  unsigned __int64 v248; 
-  __int64 v249; 
-  __int64 v250; 
-  unsigned int v251; 
+  __int64 v246; 
+  unsigned int v247; 
+  unsigned int v248; 
+  unsigned __int64 v249; 
+  char v250; 
+  __int64 v251; 
   unsigned int v252; 
-  unsigned __int64 v253; 
-  char v254; 
+  GFX_GP_PASS v253; 
+  __int64 v254; 
   __int64 v255; 
-  unsigned int v256; 
-  GFX_GP_PASS v257; 
-  __int64 v258; 
-  __int64 v259; 
-  __int64 v260; 
-  unsigned int v261; 
-  float occlusionDepthTexture; 
+  __int64 v256; 
+  unsigned int v257; 
   R_TG_Handle floatZ; 
   R_TG_Handle triIDTexture; 
   R_TG_Handle sceneColor; 
-  GFX_GP_PASS v266; 
+  GFX_GP_PASS v261; 
   R_TG_Handle sceneDepth; 
   R_TG_Handle scope; 
   R_TG_Handle color; 
@@ -2527,13 +2520,13 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   R_TG_Handle scenePerSurfData; 
   R_TG_Handle sceneIndices; 
   R_TG_Handle value; 
-  R_TG_Handle v274; 
-  R_TG_Handle v275; 
+  R_TG_Handle v269; 
+  R_TG_Handle v270; 
   R_TG_Handle result; 
-  GfxRenderTargetFormat v277[4]; 
-  R_TG_Handle v278; 
+  GfxRenderTargetFormat v272[4]; 
+  R_TG_Handle v273; 
   R_TG_Handle transSunShadowMask; 
-  R_TG_Handle v280; 
+  R_TG_Handle v275; 
   R_TG_Handle transSunShadow; 
   R_TG_Handle volVisibility; 
   R_TG_Handle velocity; 
@@ -2541,76 +2534,81 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   R_TG_Handle reflectionGrid; 
   R_TG_Handle volExtinction; 
   R_TG_Handle volScattering; 
-  R_TG_Handle v288; 
-  R_TG_Handle v289; 
+  R_TG_Handle v283; 
+  R_TG_Handle v284; 
   R_TG_Handle outDecalDrawData; 
   unsigned int srcTask; 
-  R_TG_Handle v292; 
+  R_TG_Handle v287; 
   R_TG_Handle upsampledRt; 
-  R_TG_Handle v294; 
+  R_TG_Handle v289; 
   R_TG_Handle sceneEntityIDVelocity; 
   R_TG_Handle outDecalIndices; 
-  R_TG_Handle v297; 
+  R_TG_Handle v292; 
   R_TG_Handle beginToken; 
   R_TG_Handle lightGridVolHighBands; 
-  R_TG_Handle v300; 
+  R_TG_Handle v295; 
   R_TG_Handle lightGridVol; 
   R_TG_Handle lightsCluster; 
   R_TG_Handle vrsSWMask; 
   R_TG_Handle inoutFullresAlpha; 
   R_TG_Handle outCreateRt; 
-  R_TG_Handle v306; 
+  R_TG_Handle v301; 
   R_TG_Handle staleCache; 
-  R_TG_Handle v308; 
-  R_TG_Handle v309; 
-  R_TG_Handle v310; 
+  R_TG_Handle v303; 
+  R_TG_Handle v304; 
+  R_TG_Handle v305; 
   R_TG_Handle sunshadowCascade0ForViewmodel; 
   R_TG_Handle outColor; 
-  R_TG_Handle v313; 
+  R_TG_Handle v308; 
   R_TG_Handle outFog; 
   R_TG_Handle prepassViewModelToken; 
   R_TG_Handle vrsHWMask; 
   GfxEmissivePass SceneDownsampleMipForExposureCalculation; 
-  GfxDrawListType v318; 
-  R_TG_Handle v319; 
-  R_TG_Handle v320; 
-  GfxRenderTargetFormat v321[4]; 
+  GfxDrawListType v313; 
+  R_TG_Handle v314; 
+  R_TG_Handle v315; 
+  GfxRenderTargetFormat v316[4]; 
   R_TG_Handle nullRwBuffer; 
-  R_TG_Handle v323; 
+  R_TG_Handle v318; 
   R_TG_Handle halfresAlpha; 
   R_TG_Handle halfresColor; 
+  R_TG_Handle v321; 
+  R_TG_Handle v322; 
+  R_TG_Handle outSH; 
+  R_TG_Handle v324; 
+  R_TG_Handle v325; 
   R_TG_Handle v326; 
   R_TG_Handle v327; 
-  R_TG_Handle outSH; 
+  R_TG_Handle v328; 
   R_TG_Handle v329; 
   R_TG_Handle v330; 
   R_TG_Handle v331; 
-  R_TG_Handle v332; 
-  R_TG_Handle v333; 
-  R_TG_Handle v334; 
-  R_TG_Handle v335; 
-  R_TG_Handle v336; 
   R_TG_Handle ssrMask; 
-  R_TG_Handle v338; 
+  R_TG_Handle v333; 
   R_TG_Handle outDecalIndirectArgs; 
   R_TG_Handle outDecalDebugData; 
-  R_TG_Handle v341; 
+  R_TG_Handle v336; 
   R_TG_Handle sunshadowMin0ForViewmodel; 
+  R_TG_Handle v338; 
+  R_TG_Handle v339; 
+  R_TG_Handle sceneVisBuffer; 
+  R_TG_Handle v341; 
+  R_TG_Handle umbraOcclusionTexture; 
   R_TG_Handle v343; 
   R_TG_Handle v344; 
-  R_TG_Handle sceneVisBuffer; 
+  R_TG_Handle v345; 
   R_TG_Handle v346; 
-  R_TG_Handle umbraOcclusionTexture; 
-  R_TG_Handle v348; 
+  R_TG_Handle v347; 
+  GfxEmissivePass SceneDownsampleVeilMipCount; 
   R_TG_Handle v349; 
   R_TG_Handle v350; 
   R_TG_Handle v351; 
-  R_TG_Handle v352; 
-  GfxEmissivePass SceneDownsampleVeilMipCount; 
+  R_TG_Handle shadowAsyncToken; 
+  R_TG_Handle v353; 
   R_TG_Handle v354; 
   R_TG_Handle v355; 
   R_TG_Handle v356; 
-  R_TG_Handle shadowAsyncToken; 
+  R_TG_Handle v357; 
   R_TG_Handle v358; 
   R_TG_Handle v359; 
   R_TG_Handle v360; 
@@ -2618,87 +2616,87 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   R_TG_Handle v362; 
   R_TG_Handle v363; 
   R_TG_Handle v364; 
-  R_TG_Handle v365; 
-  R_TG_Handle v366; 
+  unsigned int v365; 
+  unsigned int v366; 
   R_TG_Handle v367; 
   R_TG_Handle v368; 
-  R_TG_Handle v369; 
-  unsigned int v370; 
-  unsigned int v371; 
-  R_TG_Handle v372; 
-  R_TG_Handle v373; 
   R_TG_Handle outputRt; 
-  unsigned int v375; 
+  unsigned int v370; 
   R_TG_Handle sceneVelocityHalf; 
   R_TG_Handle dofTile0Handle; 
-  R_TG_Handle v378; 
+  R_TG_Handle v373; 
+  R_TG_Handle v374; 
+  R_TG_Handle v375; 
+  R_TG_Handle sunshadowCache; 
+  R_TG_Handle v377; 
+  R_TG_Handle token; 
   R_TG_Handle v379; 
   R_TG_Handle v380; 
-  R_TG_Handle sunshadowCache; 
+  R_TG_Handle v381; 
   R_TG_Handle v382; 
-  R_TG_Handle token; 
+  GfxDrawListType v383; 
   R_TG_Handle v384; 
-  R_TG_Handle v385; 
-  R_TG_Handle v386; 
-  R_TG_Handle v387; 
-  GfxDrawListType v388; 
-  R_TG_Handle v389; 
-  unsigned int v390; 
+  unsigned int v385; 
   R_TG_Handle shadowIndicesToken; 
   R_TG_Handle nullDepthTarget; 
-  unsigned int v393; 
-  GfxGPConfig v394; 
+  unsigned int v388; 
+  GfxGPConfig v389; 
+  R_TG_Handle v390; 
+  R_TG_Handle v391; 
+  R_TG_Handle v392; 
+  R_TG_Handle v393; 
+  unsigned int v394; 
   R_TG_Handle v395; 
   R_TG_Handle v396; 
   R_TG_Handle v397; 
   R_TG_Handle v398; 
-  unsigned int v399; 
+  R_TG_Handle v399; 
   R_TG_Handle v400; 
-  R_TG_Handle v401; 
-  R_TG_Handle v402; 
-  R_TG_Handle v403; 
-  R_TG_Handle v404; 
-  R_TG_Handle v405; 
   R_TG_Handle sunshadowCacheBackface; 
   R_TG_Handle prepassWorldToken; 
-  R_TG_Handle v408; 
+  R_TG_Handle v403; 
   R_TG_Handle syncToken; 
-  R_TG_Handle v410; 
-  R_TG_Handle v411; 
-  R_TG_Handle v412; 
-  R_TG_Handle v413; 
-  unsigned int v414; 
+  R_TG_Handle v405; 
+  R_TG_Handle v406; 
+  R_TG_Handle v407; 
+  R_TG_Handle v408; 
+  unsigned int v409; 
   unsigned int i; 
-  R_TG_Handle v416; 
-  unsigned int v417; 
-  R_TG_Handle v418; 
-  int v419; 
-  int v420; 
+  R_TG_Handle v411; 
+  unsigned int v412; 
+  R_TG_Handle v413; 
+  int v414; 
+  int v415; 
   GfxGPConfig gpConfig; 
-  GfxGPConfig v422; 
-  GFX_GP_PASS v423; 
-  unsigned int v424; 
+  GfxGPConfig v417; 
+  GFX_GP_PASS v418; 
+  unsigned int v419; 
+  unsigned int v420; 
+  unsigned int v421; 
+  unsigned int v422; 
+  unsigned int v423; 
+  int v424; 
   unsigned int v425; 
   unsigned int v426; 
-  unsigned int v427; 
-  unsigned int v428; 
-  int v429; 
-  unsigned int v430; 
-  unsigned int v431; 
-  GfxDrawListType v432; 
+  GfxDrawListType v427; 
   R_TG_Handle shadowDrawToken; 
-  int v434; 
-  int v435; 
+  int v429; 
+  int v430; 
   R_TG_Handle indiciesToken; 
-  unsigned int v437; 
-  R_TG_Handle v438; 
+  unsigned int v432; 
+  R_TG_Handle v433; 
   unsigned int height; 
   unsigned int width; 
-  unsigned int v441; 
-  unsigned int v442; 
-  const R_TG_ViewOptions *v443; 
+  unsigned int v436; 
+  unsigned int v437; 
+  const R_TG_ViewOptions *v438; 
   TG_GP_PerPassBuffers perPassBuffers; 
-  TG_GP_PerPassBuffers v445; 
+  TG_GP_PerPassBuffers v440; 
+  R_TG_AddTaskStack v441; 
+  R_TG_AddTaskStack v442; 
+  R_TG_AddTaskStack v443; 
+  R_TG_AddTaskStack v444; 
+  R_TG_AddTaskStack v445; 
   R_TG_AddTaskStack v446; 
   R_TG_AddTaskStack v447; 
   R_TG_AddTaskStack v448; 
@@ -2712,23 +2710,23 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   R_TG_AddTaskStack v456; 
   R_TG_AddTaskStack v457; 
   R_TG_AddTaskStack v458; 
-  R_TG_AddTaskStack v459; 
+  R_TG_AddTaskStack arguments; 
   R_TG_AddTaskStack v460; 
   R_TG_AddTaskStack v461; 
   R_TG_AddTaskStack v462; 
   R_TG_AddTaskStack v463; 
-  R_TG_AddTaskStack arguments; 
+  R_TG_AddTaskStack v464; 
   R_TG_AddTaskStack v465; 
   R_TG_AddTaskStack v466; 
   R_TG_AddTaskStack v467; 
   R_TG_AddTaskStack v468; 
   R_TG_AddTaskStack v469; 
-  R_TG_AddTaskStack v470; 
+  R_TG_AddTaskStack stack; 
   R_TG_AddTaskStack v471; 
   R_TG_AddTaskStack v472; 
   R_TG_AddTaskStack v473; 
   R_TG_AddTaskStack v474; 
-  R_TG_AddTaskStack stack; 
+  R_TG_AddTaskStack v475; 
   R_TG_AddTaskStack v476; 
   R_TG_AddTaskStack v477; 
   R_TG_AddTaskStack v478; 
@@ -2760,72 +2758,67 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   R_TG_AddTaskStack v504; 
   R_TG_AddTaskStack v505; 
   R_TG_AddTaskStack v506; 
-  R_TG_AddTaskStack v507; 
-  R_TG_AddTaskStack v508; 
-  R_TG_AddTaskStack v509; 
-  R_TG_AddTaskStack v510; 
-  R_TG_AddTaskStack v511; 
   R_TG_Handle sunshadowCascades; 
   R_TG_Handle sunShadow1; 
-  R_TG_Handle v514; 
+  R_TG_Handle v509; 
   R_TG_Handle compressedCascades; 
-  R_TG_Handle v516; 
-  R_TG_Handle v517; 
+  R_TG_Handle v511; 
+  R_TG_Handle v512; 
   R_TG_Handle sunshadowMins; 
-  unsigned int v519; 
-  unsigned int v520; 
-  GfxGPConfig v521; 
+  unsigned int v514; 
+  unsigned int v515; 
+  GfxGPConfig v516; 
   R_TG_Handle __t; 
-  R_TG_Handle v523; 
+  R_TG_Handle v518; 
 
-  v4 = options;
-  v443 = options;
+  v2 = options;
+  v438 = options;
   cDisplayResource(&result, pScript);
   cNullResource(&triIDTexture, pScript, "null_texture", eResourceType_Texture);
-  cNullResource(&v346, pScript, "null_rw_texture", eResourceType_Texture);
+  cNullResource(&v341, pScript, "null_rw_texture", eResourceType_Texture);
   cNullResource(&nullBuffer, pScript, "null_buffer", eResourceType_Buffer);
   cNullResource(&nullRwBuffer, pScript, "null_rw_buffer", eResourceType_Buffer);
   cNullResource(&nullDepthTarget, pScript, "null_depth_target", eResourceType_DepthTarget);
   sceneIndices.index = -1;
   p_perPassBuffers = &perPassBuffers;
   sceneIndirectArgs.index = -1;
-  v7 = 2i64;
+  v5 = 2i64;
   scenePerSurfData.index = -1;
   do
   {
     TG_GP_PerPassBuffers::TG_GP_PerPassBuffers(p_perPassBuffers++);
-    --v7;
+    --v5;
   }
-  while ( v7 );
-  v335.index = -1;
-  v411.index = -1;
-  if ( (*((_QWORD *)v4 + 1) & 0x4000000000000i64) != 0 )
+  while ( v5 );
+  v330.index = -1;
+  v406.index = -1;
+  if ( (*((_QWORD *)v2 + 1) & 0x4000000000000i64) != 0 )
   {
     memset_0(&stack, 0, sizeof(stack));
     ++stack.handleArgCount;
-    stack.handleArgs[0] = (unsigned int *)&v411;
+    stack.handleArgs[0] = (unsigned int *)&v406;
     R_TG_AddTask(pScript, g_R_TG_Def_Util_DebugUav_Clear.m_index, &stack);
   }
   beginToken.index = -1;
-  memset_0(&v474, 0, sizeof(v474));
-  ++v474.handleArgCount;
-  v474.handleArgs[0] = (unsigned int *)&beginToken;
-  R_TG_AddTask(pScript, g_R_TG_Def_RBT_Begin3D.m_index, &v474);
+  memset_0(&v469, 0, sizeof(v469));
+  ++v469.handleArgCount;
+  v469.handleArgs[0] = (unsigned int *)&beginToken;
+  R_TG_AddTask(pScript, g_R_TG_Def_RBT_Begin3D.m_index, &v469);
   vrsHWMask.index = triIDTexture.index;
   umbraOcclusionTexture.index = -1;
-  memset_0(&v473, 0, sizeof(v473));
-  ++v473.handleArgCount;
-  v473.handleArgs[0] = (unsigned int *)&umbraOcclusionTexture;
-  R_TG_AddTask(pScript, g_R_TG_Def_RBT_Umbra_ResolveOcclusion.m_index, &v473);
+  memset_0(&v468, 0, sizeof(v468));
+  ++v468.handleArgCount;
+  v468.handleArgs[0] = (unsigned int *)&umbraOcclusionTexture;
+  R_TG_AddTask(pScript, g_R_TG_Def_RBT_Umbra_ResolveOcclusion.m_index, &v468);
   index = -1;
-  v9 = (*(_QWORD *)v4 >> 44) & 3;
-  v274.index = -1;
+  v7 = (*(_QWORD *)v2 >> 44) & 3;
+  v269.index = -1;
   sceneVisBuffer.index = -1;
   sceneEntityIDVelocity.index = -1;
-  if ( v9 <= 1u )
-    index = v346.index;
+  if ( v7 <= 1u )
+    index = v341.index;
   ssrMask.index = index;
-  v10 = *((_QWORD *)v4 + 1);
+  v8 = *((_QWORD *)v2 + 1);
   sceneDepth.index = -1;
   prepassWorldToken.index = -1;
   prepassViewModelToken.index = -1;
@@ -2835,36 +2828,36 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   shadowDrawToken.index = -1;
   indiciesToken.index = -1;
   srcTask = -1;
-  if ( (v10 & 0x200) == 0 )
+  if ( (v8 & 0x200) == 0 )
   {
     gpConfig.passIndex = GFX_GP_PASS_CAMERA;
-    gpConfig.readBackPass = (v10 & 0x2000000000000i64) != 0;
+    gpConfig.readBackPass = (v8 & 0x2000000000000i64) != 0;
     *(_DWORD *)&gpConfig.isPrepass = 1;
     *(_WORD *)&gpConfig.useVisBufferPrepass = 0;
     R_TGS_GP_ProcessSurfs(pScript, &gpConfig, beginToken, &triIDTexture, &triIDTexture, &umbraOcclusionTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &perPassBuffers, &nullBuffer, &nullRwBuffer, &token);
-    srcTask = R_TGS_DrawPrepass(pScript, v4, sceneIndices, perPassBuffers.clusterWorkgroupArgsBuffer, sceneIndirectArgs, scenePerSurfData, vrsHWMask, beginToken, &sceneVisBuffer, &sceneEntityIDVelocity, &sceneDepth, &ssrMask, &prepassViewModelToken, &prepassWorldToken);
+    srcTask = R_TGS_DrawPrepass(pScript, v2, sceneIndices, perPassBuffers.clusterWorkgroupArgsBuffer, sceneIndirectArgs, scenePerSurfData, vrsHWMask, beginToken, &sceneVisBuffer, &sceneEntityIDVelocity, &sceneDepth, &ssrMask, &prepassViewModelToken, &prepassWorldToken);
   }
   p_sunshadowCascades = &sunshadowCascades;
-  v12 = 3i64;
+  v10 = 3i64;
   do
   {
     R_TG_Handle::R_TG_Handle(p_sunshadowCascades++);
-    --v12;
+    --v10;
   }
-  while ( v12 );
+  while ( v10 );
   sunshadowCascade0ForViewmodel.index = -1;
   p_sunshadowMins = &sunshadowMins;
-  v14 = 3i64;
+  v12 = 3i64;
   do
   {
     R_TG_Handle::R_TG_Handle(p_sunshadowMins++);
-    --v14;
+    --v12;
   }
-  while ( v14 );
+  while ( v12 );
   sunshadowMin0ForViewmodel.index = -1;
   p_compressedCascades = &compressedCascades;
   transSunShadow.index = -1;
-  v16 = 3i64;
+  v14 = 3i64;
   transSunShadowMask.index = -1;
   sunshadowCache.index = -1;
   sunshadowCacheBackface.index = -1;
@@ -2872,249 +2865,249 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   do
   {
     R_TG_Handle::R_TG_Handle(p_compressedCascades++);
-    --v16;
+    --v14;
   }
-  while ( v16 );
-  if ( (*(_DWORD *)v4 & 0x402000) != 0 )
+  while ( v14 );
+  if ( (*(_DWORD *)v2 & 0x402000) != 0 )
   {
-    v17 = (*((_QWORD *)v4 + 1) & 0x2000000000000i64) != 0;
-    *(_QWORD *)&v422.passIndex = 1i64;
-    v422.readBackPass = v17;
-    *(_WORD *)&v422.useVisBufferPrepass = 0;
-    R_TGS_GP_ProcessSurfs(pScript, &v422, beginToken, &triIDTexture, &triIDTexture, &triIDTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v445, &nullBuffer, &nullRwBuffer, &shadowIndicesToken);
-    v18 = *((_QWORD *)v4 + 1);
-    if ( (v18 & 0x20000000) != 0 )
+    v15 = (*((_QWORD *)v2 + 1) & 0x2000000000000i64) != 0;
+    *(_QWORD *)&v417.passIndex = 1i64;
+    v417.readBackPass = v15;
+    *(_WORD *)&v417.useVisBufferPrepass = 0;
+    R_TGS_GP_ProcessSurfs(pScript, &v417, beginToken, &triIDTexture, &triIDTexture, &triIDTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v440, &nullBuffer, &nullRwBuffer, &shadowIndicesToken);
+    v16 = *((_QWORD *)v2 + 1);
+    if ( (v16 & 0x20000000) != 0 )
     {
-      v405.index = -1;
-      memset_0(&v461, 0, sizeof(v461));
+      v400.index = -1;
+      memset_0(&v456, 0, sizeof(v456));
       m_index = g_R_TG_Def_Util_CreateSceneColorDepthAndClear.m_index;
-      v461.handleArgs[0] = (unsigned int *)&v335;
-      handleArgCount = v461.handleArgCount + 1;
-      v461.handleArgCount = handleArgCount;
+      v456.handleArgs[0] = (unsigned int *)&v330;
+      handleArgCount = v456.handleArgCount + 1;
+      v456.handleArgCount = handleArgCount;
       if ( (unsigned int)handleArgCount >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        handleArgCount = v461.handleArgCount;
+        handleArgCount = v456.handleArgCount;
       }
-      v461.handleArgs[handleArgCount] = (unsigned int *)&v405;
-      if ( ++v461.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 131, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+      v456.handleArgs[handleArgCount] = (unsigned int *)&v400;
+      if ( ++v456.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 131, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v461.paramArgs[v461.paramArgCount++] = 1;
-      R_TG_AddTask(pScript, m_index, &v461);
-      v423 = GFX_GP_PASS_SHADOWS;
-      cRBTD_ShowTris<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,enum GFX_GP_PASS>(pScript, &v335, &v405, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v423);
-      v18 = *((_QWORD *)v4 + 1);
+      v456.paramArgs[v456.paramArgCount++] = 1;
+      R_TG_AddTask(pScript, m_index, &v456);
+      v418 = GFX_GP_PASS_SHADOWS;
+      cRBTD_ShowTris<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,enum GFX_GP_PASS>(pScript, &v330, &v400, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v418);
+      v16 = *((_QWORD *)v2 + 1);
     }
-    if ( (v18 & 0x400) != 0 )
-      R_TGS_SpotShadows(pScript, v4, sceneIndices, sceneIndirectArgs, scenePerSurfData, nullDepthTarget, triIDTexture, beginToken, &staleCache);
-    R_TGS_SunShadows(pScript, v4, sceneIndices, sceneIndirectArgs, scenePerSurfData, nullDepthTarget, triIDTexture, nullBuffer, beginToken, shadowIndicesToken, &shadowAsyncToken, &shadowDrawToken, &sunshadowCascades, &sunshadowCascade0ForViewmodel, &sunshadowMins, &sunshadowMin0ForViewmodel, &sunshadowCache, &sunshadowCacheBackface, &transSunShadow, &compressedCascades, &transSunShadowMask);
-    if ( (*((_DWORD *)v4 + 2) & 0x400i64) == 0 )
-      R_TGS_SpotShadows(pScript, v4, sceneIndices, sceneIndirectArgs, scenePerSurfData, nullDepthTarget, triIDTexture, beginToken, &staleCache);
+    if ( (v16 & 0x400) != 0 )
+      R_TGS_SpotShadows(pScript, v2, sceneIndices, sceneIndirectArgs, scenePerSurfData, nullDepthTarget, triIDTexture, beginToken, &staleCache);
+    R_TGS_SunShadows(pScript, v2, sceneIndices, sceneIndirectArgs, scenePerSurfData, nullDepthTarget, triIDTexture, nullBuffer, beginToken, shadowIndicesToken, &shadowAsyncToken, &shadowDrawToken, &sunshadowCascades, &sunshadowCascade0ForViewmodel, &sunshadowMins, &sunshadowMin0ForViewmodel, &sunshadowCache, &sunshadowCacheBackface, &transSunShadow, &compressedCascades, &transSunShadowMask);
+    if ( (*((_DWORD *)v2 + 2) & 0x400i64) == 0 )
+      R_TGS_SpotShadows(pScript, v2, sceneIndices, sceneIndirectArgs, scenePerSurfData, nullDepthTarget, triIDTexture, beginToken, &staleCache);
   }
   else
   {
     transSunShadowMask.index = triIDTexture.index;
     transSunShadow.index = triIDTexture.index;
     sunshadowCascade0ForViewmodel.index = triIDTexture.index;
-    v514.index = triIDTexture.index;
+    v509.index = triIDTexture.index;
     sunShadow1.index = triIDTexture.index;
     sunshadowCascades.index = triIDTexture.index;
     sunshadowMin0ForViewmodel.index = triIDTexture.index;
-    v520 = triIDTexture.index;
-    v519 = triIDTexture.index;
+    v515 = triIDTexture.index;
+    v514 = triIDTexture.index;
     sunshadowMins.index = triIDTexture.index;
     staleCache.index = triIDTexture.index;
     sunshadowCacheBackface.index = triIDTexture.index;
     sunshadowCache.index = triIDTexture.index;
-    v517.index = nullBuffer.index;
-    v516.index = nullBuffer.index;
+    v512.index = nullBuffer.index;
+    v511.index = nullBuffer.index;
     compressedCascades.index = nullBuffer.index;
     shadowIndicesToken.index = beginToken.index;
     shadowAsyncToken.index = beginToken.index;
   }
-  v21 = *((_QWORD *)v4 + 1);
-  if ( (v21 & 0x80u) != 0i64 && (v21 & 0x200) == 0 )
-    cRBT_ReflectionProbeRelighting_Process<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &staleCache);
+  v19 = *((_QWORD *)v2 + 1);
+  if ( (v19 & 0x80u) != 0i64 && (v19 & 0x200) == 0 )
+    cRBT_ReflectionProbeRelighting_Process<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &staleCache);
   MaxBaseWidth = R_VOL_GetMaxBaseWidth();
   MaxBaseHeight = R_VOL_GetMaxBaseHeight();
-  v24 = pScript->sceneSize.v[0];
-  v25 = MaxBaseHeight;
-  v26 = pScript->sceneSize.v[1];
-  v27 = MaxBaseWidth;
-  if ( MaxBaseWidth > v24 )
-    v27 = pScript->sceneSize.v[0];
-  v28 = v27 + 11;
-  v29 = MaxBaseHeight;
-  v313.index = v28 / 0xC;
-  v371 = v28 / 0xC;
-  if ( MaxBaseHeight > v26 )
-    v29 = v26;
-  v292.index = (v29 + 11) / 0xC;
-  v370 = v292.index;
-  v30 = *((_QWORD *)v4 + 1);
-  if ( (v30 & 0x200) != 0 )
+  v22 = pScript->sceneSize.v[0];
+  v23 = MaxBaseHeight;
+  v24 = pScript->sceneSize.v[1];
+  v25 = MaxBaseWidth;
+  if ( MaxBaseWidth > v22 )
+    v25 = pScript->sceneSize.v[0];
+  v26 = v25 + 11;
+  v27 = MaxBaseHeight;
+  v308.index = v26 / 0xC;
+  v366 = v26 / 0xC;
+  if ( MaxBaseHeight > v24 )
+    v27 = v24;
+  v287.index = (v27 + 11) / 0xC;
+  v365 = v287.index;
+  v28 = *((_QWORD *)v2 + 1);
+  if ( (v28 & 0x200) != 0 )
   {
-    v521.passIndex = GFX_GP_PASS_CAMERA;
-    v521.readBackPass = (v30 & 0x2000000000000i64) != 0;
-    *(_DWORD *)&v521.isPrepass = 1;
-    *(_WORD *)&v521.useVisBufferPrepass = 0;
-    R_TGS_GP_ProcessSurfs(pScript, &v521, beginToken, &triIDTexture, &triIDTexture, &umbraOcclusionTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &perPassBuffers, &nullBuffer, &nullRwBuffer, &token);
-    if ( *((char *)v4 + 8) < 0 )
-      cRBT_ReflectionProbeRelighting_Process<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &staleCache);
-    R_TGS_SunShadows_Downsample(pScript, v4, token, &sunshadowCascades, sunshadowCascade0ForViewmodel, &sunshadowMins, &sunshadowMin0ForViewmodel, triIDTexture);
-    v31 = R_TGS_DrawPrepass(pScript, v4, sceneIndices, perPassBuffers.clusterWorkgroupArgsBuffer, sceneIndirectArgs, scenePerSurfData, vrsHWMask, beginToken, &sceneVisBuffer, &sceneEntityIDVelocity, &sceneDepth, &ssrMask, &prepassViewModelToken, &prepassWorldToken);
-    v24 = pScript->sceneSize.v[0];
-    v26 = pScript->sceneSize.v[1];
-    srcTask = v31;
+    v516.passIndex = GFX_GP_PASS_CAMERA;
+    v516.readBackPass = (v28 & 0x2000000000000i64) != 0;
+    *(_DWORD *)&v516.isPrepass = 1;
+    *(_WORD *)&v516.useVisBufferPrepass = 0;
+    R_TGS_GP_ProcessSurfs(pScript, &v516, beginToken, &triIDTexture, &triIDTexture, &umbraOcclusionTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &perPassBuffers, &nullBuffer, &nullRwBuffer, &token);
+    if ( *((char *)v2 + 8) < 0 )
+      cRBT_ReflectionProbeRelighting_Process<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &staleCache);
+    R_TGS_SunShadows_Downsample(pScript, v2, token, &sunshadowCascades, sunshadowCascade0ForViewmodel, &sunshadowMins, &sunshadowMin0ForViewmodel, triIDTexture);
+    v29 = R_TGS_DrawPrepass(pScript, v2, sceneIndices, perPassBuffers.clusterWorkgroupArgsBuffer, sceneIndirectArgs, scenePerSurfData, vrsHWMask, beginToken, &sceneVisBuffer, &sceneEntityIDVelocity, &sceneDepth, &ssrMask, &prepassViewModelToken, &prepassWorldToken);
+    v22 = pScript->sceneSize.v[0];
+    v24 = pScript->sceneSize.v[1];
+    srcTask = v29;
   }
-  v274.index = sceneVisBuffer.index;
+  v269.index = sceneVisBuffer.index;
   reflectionGrid.index = -1;
-  if ( MaxBaseWidth > v24 )
-    MaxBaseWidth = v24;
-  v32 = (MaxBaseWidth + 47) / 0x30;
-  v288.index = v32;
-  v393 = v32;
-  if ( v25 > v26 )
-    v25 = v26;
-  v33 = (v25 + 47) / 0x30;
-  v308.index = v33;
-  v390 = v33;
-  memset_0(&v462, 0, sizeof(v462));
-  v34 = g_R_TG_Def_RBT_RP_ProcessView.m_index;
-  v462.handleArgs[0] = (unsigned int *)&reflectionGrid;
-  if ( ++v462.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 131, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+  if ( MaxBaseWidth > v22 )
+    MaxBaseWidth = v22;
+  v30 = (MaxBaseWidth + 47) / 0x30;
+  v283.index = v30;
+  v388 = v30;
+  if ( v23 > v24 )
+    v23 = v24;
+  v31 = (v23 + 47) / 0x30;
+  v303.index = v31;
+  v385 = v31;
+  memset_0(&v457, 0, sizeof(v457));
+  v32 = g_R_TG_Def_RBT_RP_ProcessView.m_index;
+  v457.handleArgs[0] = (unsigned int *)&reflectionGrid;
+  if ( ++v457.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 131, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
     __debugbreak();
-  v462.paramArgs[v462.paramArgCount++] = 96 * v32 * v33;
-  if ( v462.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+  v457.paramArgs[v457.paramArgCount++] = 96 * v30 * v31;
+  if ( v457.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
     __debugbreak();
-  v462.handleArgs[v462.handleArgCount++] = (unsigned int *)&shadowAsyncToken;
-  R_TG_AddTask(pScript, v34, &v462);
-  if ( (*((_BYTE *)v4 + 8) & 0x40) != 0 )
+  v457.handleArgs[v457.handleArgCount++] = (unsigned int *)&shadowAsyncToken;
+  R_TG_AddTask(pScript, v32, &v457);
+  if ( (*((_BYTE *)v2 + 8) & 0x40) != 0 )
   {
-    memset_0(&v454, 0, sizeof(v454));
-    v35 = g_R_TG_Def_RBT_LightSensor_Process.m_index;
-    v454.handleArgs[0] = (unsigned int *)&sunshadowCascades;
-    v36 = v454.handleArgCount + 1;
-    v454.handleArgCount = v36;
+    memset_0(&v449, 0, sizeof(v449));
+    v33 = g_R_TG_Def_RBT_LightSensor_Process.m_index;
+    v449.handleArgs[0] = (unsigned int *)&sunshadowCascades;
+    v34 = v449.handleArgCount + 1;
+    v449.handleArgCount = v34;
+    if ( (unsigned int)v34 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v34 = v449.handleArgCount;
+    }
+    v449.handleArgs[v34] = (unsigned int *)&sunShadow1;
+    v35 = v449.handleArgCount + 1;
+    v449.handleArgCount = v35;
+    if ( (unsigned int)v35 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v35 = v449.handleArgCount;
+    }
+    v449.handleArgs[v35] = (unsigned int *)&transSunShadow;
+    v36 = v449.handleArgCount + 1;
+    v449.handleArgCount = v36;
     if ( (unsigned int)v36 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v36 = v454.handleArgCount;
+      v36 = v449.handleArgCount;
     }
-    v454.handleArgs[v36] = (unsigned int *)&sunShadow1;
-    v37 = v454.handleArgCount + 1;
-    v454.handleArgCount = v37;
+    v449.handleArgs[v36] = (unsigned int *)&transSunShadowMask;
+    v37 = v449.handleArgCount + 1;
+    v449.handleArgCount = v37;
     if ( (unsigned int)v37 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v37 = v454.handleArgCount;
+      v37 = v449.handleArgCount;
     }
-    v454.handleArgs[v37] = (unsigned int *)&transSunShadow;
-    v38 = v454.handleArgCount + 1;
-    v454.handleArgCount = v38;
+    v449.handleArgs[v37] = (unsigned int *)&staleCache;
+    v38 = v449.handleArgCount + 1;
+    v449.handleArgCount = v38;
     if ( (unsigned int)v38 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v38 = v454.handleArgCount;
+      v38 = v449.handleArgCount;
     }
-    v454.handleArgs[v38] = (unsigned int *)&transSunShadowMask;
-    v39 = v454.handleArgCount + 1;
-    v454.handleArgCount = v39;
-    if ( (unsigned int)v39 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v39 = v454.handleArgCount;
-    }
-    v454.handleArgs[v39] = (unsigned int *)&staleCache;
-    v40 = v454.handleArgCount + 1;
-    v454.handleArgCount = v40;
-    if ( (unsigned int)v40 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v40 = v454.handleArgCount;
-    }
-    v454.handleArgs[v40] = (unsigned int *)&prepassViewModelToken;
-    ++v454.handleArgCount;
-    R_TG_AddTask(pScript, v35, &v454);
+    v449.handleArgs[v38] = (unsigned int *)&prepassViewModelToken;
+    ++v449.handleArgCount;
+    R_TG_AddTask(pScript, v33, &v449);
   }
-  v41 = *(_QWORD *)v4;
+  v39 = *(_QWORD *)v2;
   lightGridVol.index = -1;
   lightGridVolHighBands.index = -1;
-  if ( (v41 & 2) != 0 )
+  if ( (v39 & 2) != 0 )
   {
-    if ( (v41 & 4) != 0 )
+    if ( (v39 & 4) != 0 )
     {
       RBT_LGV_SampleLightingMultiGrid(pScript, &lightGridVol, &lightGridVolHighBands, &reflectionGrid, &prepassViewModelToken);
-      v41 = *(_QWORD *)v4;
-      v42 = triIDTexture.index;
+      v39 = *(_QWORD *)v2;
+      v40 = triIDTexture.index;
     }
     else
     {
-      v434 = -1;
-      v435 = -1;
-      memset_0(&v455, 0, sizeof(v455));
-      v43 = g_R_TG_Def_RBT_LGV_SampleLighting.m_index;
-      v455.handleArgs[0] = (unsigned int *)&lightGridVol;
-      v44 = v455.handleArgCount + 1;
-      v455.handleArgCount = v44;
+      v429 = -1;
+      v430 = -1;
+      memset_0(&v450, 0, sizeof(v450));
+      v41 = g_R_TG_Def_RBT_LGV_SampleLighting.m_index;
+      v450.handleArgs[0] = (unsigned int *)&lightGridVol;
+      v42 = v450.handleArgCount + 1;
+      v450.handleArgCount = v42;
+      if ( (unsigned int)v42 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v42 = v450.handleArgCount;
+      }
+      v450.handleArgs[v42] = (unsigned int *)&lightGridVolHighBands;
+      v43 = v450.handleArgCount + 1;
+      v450.handleArgCount = v43;
+      if ( (unsigned int)v43 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v43 = v450.handleArgCount;
+      }
+      v450.handleArgs[v43] = (unsigned int *)&reflectionGrid;
+      v44 = v450.handleArgCount + 1;
+      v450.handleArgCount = v44;
       if ( (unsigned int)v44 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v44 = v455.handleArgCount;
+        v44 = v450.handleArgCount;
       }
-      v455.handleArgs[v44] = (unsigned int *)&lightGridVolHighBands;
-      v45 = v455.handleArgCount + 1;
-      v455.handleArgCount = v45;
+      v450.handleArgs[v44] = (unsigned int *)&v429;
+      v45 = v450.handleArgCount + 1;
+      v450.handleArgCount = v45;
       if ( (unsigned int)v45 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v45 = v455.handleArgCount;
+        v45 = v450.handleArgCount;
       }
-      v455.handleArgs[v45] = (unsigned int *)&reflectionGrid;
-      v46 = v455.handleArgCount + 1;
-      v455.handleArgCount = v46;
+      v450.handleArgs[v45] = (unsigned int *)&v430;
+      v46 = v450.handleArgCount + 1;
+      v450.handleArgCount = v46;
       if ( (unsigned int)v46 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v46 = v455.handleArgCount;
+        v46 = v450.handleArgCount;
       }
-      v455.handleArgs[v46] = (unsigned int *)&v434;
-      v47 = v455.handleArgCount + 1;
-      v455.handleArgCount = v47;
-      if ( (unsigned int)v47 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v47 = v455.handleArgCount;
-      }
-      v455.handleArgs[v47] = (unsigned int *)&v435;
-      v48 = v455.handleArgCount + 1;
-      v455.handleArgCount = v48;
-      if ( (unsigned int)v48 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v48 = v455.handleArgCount;
-      }
-      v455.handleArgs[v48] = (unsigned int *)&prepassViewModelToken;
-      ++v455.handleArgCount;
-      R_TG_AddTask(pScript, v43, &v455);
-      v41 = *(_QWORD *)v4;
-      v42 = triIDTexture.index;
+      v450.handleArgs[v46] = (unsigned int *)&prepassViewModelToken;
+      ++v450.handleArgCount;
+      R_TG_AddTask(pScript, v41, &v450);
+      v39 = *(_QWORD *)v2;
+      v40 = triIDTexture.index;
     }
   }
   else
   {
-    v42 = triIDTexture.index;
+    v40 = triIDTexture.index;
     lightGridVolHighBands.index = triIDTexture.index;
     lightGridVol.index = triIDTexture.index;
   }
@@ -3122,1603 +3115,1603 @@ void R_TG_RunScriptViewCommon(R_TG_Script *pScript, const R_TG_ViewOptions *opti
   outDecalDrawData.index = -1;
   outDecalDebugData.index = -1;
   outDecalIndirectArgs.index = -1;
-  if ( (v41 & 0x10) != 0 )
+  if ( (v39 & 0x10) != 0 )
     goto LABEL_101;
-  if ( (v41 & 8) != 0 )
+  if ( (v39 & 8) != 0 )
   {
     cOrderHintBegin(pScript, -100000);
-    R_TGS_DV_FillCluster(pScript, (*((_QWORD *)v4 + 1) & 0x100000i64) != 0, (*(_QWORD *)v4 & 0x40) != 0, (*(_QWORD *)v4 & 0x10) != 0, (*(_QWORD *)v4 & 0x20) != 0, (*((_QWORD *)v4 + 1) & 0x400000000i64) != 0, nullBuffer, nullRwBuffer, triIDTexture, triIDTexture, &outDecalIndices, &outDecalDrawData, &outDecalDebugData, &outDecalIndirectArgs, prepassViewModelToken);
+    R_TGS_DV_FillCluster(pScript, (*((_QWORD *)v2 + 1) & 0x100000i64) != 0, (*(_QWORD *)v2 & 0x40) != 0, (*(_QWORD *)v2 & 0x10) != 0, (*(_QWORD *)v2 & 0x20) != 0, (*((_QWORD *)v2 + 1) & 0x400000000i64) != 0, nullBuffer, nullRwBuffer, triIDTexture, triIDTexture, &outDecalIndices, &outDecalDrawData, &outDecalDebugData, &outDecalIndirectArgs, prepassViewModelToken);
     cOrderHintEnd(pScript);
-    v41 = *(_QWORD *)v4;
-    v42 = triIDTexture.index;
+    v39 = *(_QWORD *)v2;
+    v40 = triIDTexture.index;
 LABEL_101:
-    v49 = nullBuffer.index;
+    v47 = nullBuffer.index;
     goto LABEL_102;
   }
-  v49 = nullBuffer.index;
+  v47 = nullBuffer.index;
   outDecalIndirectArgs.index = nullBuffer.index;
   outDecalDebugData.index = nullBuffer.index;
   outDecalDrawData.index = nullBuffer.index;
   outDecalIndices.index = nullBuffer.index;
 LABEL_102:
   floatZ.index = -1;
-  v50 = -1;
-  v309.index = -1;
-  v343.index = -1;
-  v275.index = -1;
-  v289.index = -1;
+  v48 = -1;
+  v304.index = -1;
+  v338.index = -1;
+  v270.index = -1;
+  v284.index = -1;
   velocity.index = -1;
   sceneVelocityHalf.index = -1;
-  v375 = -1;
-  if ( (v41 & 0x80u) == 0i64 )
+  v370 = -1;
+  if ( (v39 & 0x80u) == 0i64 )
   {
-    v275.index = v42;
-    floatZ.index = v42;
-    v289.index = v49;
-    v375 = v42;
+    v270.index = v40;
+    floatZ.index = v40;
+    v284.index = v47;
+    v370 = v40;
   }
   else
   {
-    memset_0(&v472, 0, sizeof(v472));
-    ++v472.handleArgCount;
-    v472.handleArgs[0] = (unsigned int *)&v289;
-    R_TG_AddTask(pScript, g_R_TG_Def_RBT_Resolve_StencilMaskCreateClear.m_index, &v472);
-    v51 = *((_QWORD *)v4 + 1);
-    if ( (v51 & 2) != 0 )
+    memset_0(&v467, 0, sizeof(v467));
+    ++v467.handleArgCount;
+    v467.handleArgs[0] = (unsigned int *)&v284;
+    R_TG_AddTask(pScript, g_R_TG_Def_RBT_Resolve_StencilMaskCreateClear.m_index, &v467);
+    v49 = *((_QWORD *)v2 + 1);
+    if ( (v49 & 2) != 0 )
     {
-      memset_0(&v447, 0, sizeof(v447));
-      v52 = g_R_TG_Def_RBT_ResolveFloatZ_Full_MSAA.m_index;
-      v447.handleArgs[0] = (unsigned int *)&sceneDepth;
-      v53 = v447.handleArgCount + 1;
-      v447.handleArgCount = v53;
+      memset_0(&v442, 0, sizeof(v442));
+      v50 = g_R_TG_Def_RBT_ResolveFloatZ_Full_MSAA.m_index;
+      v442.handleArgs[0] = (unsigned int *)&sceneDepth;
+      v51 = v442.handleArgCount + 1;
+      v442.handleArgCount = v51;
+      if ( (unsigned int)v51 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v51 = v442.handleArgCount;
+      }
+      v442.handleArgs[v51] = (unsigned int *)&v338;
+      v52 = v442.handleArgCount + 1;
+      v442.handleArgCount = v52;
+      if ( (unsigned int)v52 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v52 = v442.handleArgCount;
+      }
+      v442.handleArgs[v52] = (unsigned int *)&v304;
+      v53 = v442.handleArgCount + 1;
+      v442.handleArgCount = v53;
       if ( (unsigned int)v53 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v53 = v447.handleArgCount;
+        v53 = v442.handleArgCount;
       }
-      v447.handleArgs[v53] = (unsigned int *)&v343;
-      v54 = v447.handleArgCount + 1;
-      v447.handleArgCount = v54;
+      v442.handleArgs[v53] = (unsigned int *)&v270;
+      v54 = v442.handleArgCount + 1;
+      v442.handleArgCount = v54;
       if ( (unsigned int)v54 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v54 = v447.handleArgCount;
+        v54 = v442.handleArgCount;
       }
-      v447.handleArgs[v54] = (unsigned int *)&v309;
-      v55 = v447.handleArgCount + 1;
-      v447.handleArgCount = v55;
+      v442.handleArgs[v54] = (unsigned int *)&v284;
+      v55 = v442.handleArgCount + 1;
+      v442.handleArgCount = v55;
       if ( (unsigned int)v55 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v55 = v447.handleArgCount;
+        v55 = v442.handleArgCount;
       }
-      v447.handleArgs[v55] = (unsigned int *)&v275;
-      v56 = v447.handleArgCount + 1;
-      v447.handleArgCount = v56;
+      v442.handleArgs[v55] = &v370;
+    }
+    else if ( (v49 & 1) != 0 )
+    {
+      memset_0(&v442, 0, sizeof(v442));
+      v50 = g_R_TG_Def_RBT_ResolveFloatZ_Full_VRS.m_index;
+      v442.handleArgs[0] = (unsigned int *)&sceneDepth;
+      v56 = v442.handleArgCount + 1;
+      v442.handleArgCount = v56;
       if ( (unsigned int)v56 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v56 = v447.handleArgCount;
+        v56 = v442.handleArgCount;
       }
-      v447.handleArgs[v56] = (unsigned int *)&v289;
-      v57 = v447.handleArgCount + 1;
-      v447.handleArgCount = v57;
+      v442.handleArgs[v56] = (unsigned int *)&v338;
+      v57 = v442.handleArgCount + 1;
+      v442.handleArgCount = v57;
       if ( (unsigned int)v57 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v57 = v447.handleArgCount;
+        v57 = v442.handleArgCount;
       }
-      v447.handleArgs[v57] = &v375;
-    }
-    else if ( (v51 & 1) != 0 )
-    {
-      memset_0(&v447, 0, sizeof(v447));
-      v52 = g_R_TG_Def_RBT_ResolveFloatZ_Full_VRS.m_index;
-      v447.handleArgs[0] = (unsigned int *)&sceneDepth;
-      v58 = v447.handleArgCount + 1;
-      v447.handleArgCount = v58;
+      v442.handleArgs[v57] = (unsigned int *)&v304;
+      v58 = v442.handleArgCount + 1;
+      v442.handleArgCount = v58;
       if ( (unsigned int)v58 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v58 = v447.handleArgCount;
+        v58 = v442.handleArgCount;
       }
-      v447.handleArgs[v58] = (unsigned int *)&v343;
-      v59 = v447.handleArgCount + 1;
-      v447.handleArgCount = v59;
+      v442.handleArgs[v58] = (unsigned int *)&v270;
+      v59 = v442.handleArgCount + 1;
+      v442.handleArgCount = v59;
       if ( (unsigned int)v59 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v59 = v447.handleArgCount;
+        v59 = v442.handleArgCount;
       }
-      v447.handleArgs[v59] = (unsigned int *)&v309;
-      v60 = v447.handleArgCount + 1;
-      v447.handleArgCount = v60;
+      v442.handleArgs[v59] = (unsigned int *)&v284;
+    }
+    else
+    {
+      memset_0(&v442, 0, sizeof(v442));
+      v50 = g_R_TG_Def_RBT_ResolveFloatZ_Full.m_index;
+      v442.handleArgs[0] = (unsigned int *)&sceneDepth;
+      v60 = v442.handleArgCount + 1;
+      v442.handleArgCount = v60;
       if ( (unsigned int)v60 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v60 = v447.handleArgCount;
+        v60 = v442.handleArgCount;
       }
-      v447.handleArgs[v60] = (unsigned int *)&v275;
-      v61 = v447.handleArgCount + 1;
-      v447.handleArgCount = v61;
+      v442.handleArgs[v60] = (unsigned int *)&v338;
+      v61 = v442.handleArgCount + 1;
+      v442.handleArgCount = v61;
       if ( (unsigned int)v61 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v61 = v447.handleArgCount;
+        v61 = v442.handleArgCount;
       }
-      v447.handleArgs[v61] = (unsigned int *)&v289;
-    }
-    else
-    {
-      memset_0(&v447, 0, sizeof(v447));
-      v52 = g_R_TG_Def_RBT_ResolveFloatZ_Full.m_index;
-      v447.handleArgs[0] = (unsigned int *)&sceneDepth;
-      v62 = v447.handleArgCount + 1;
-      v447.handleArgCount = v62;
+      v442.handleArgs[v61] = (unsigned int *)&v304;
+      v62 = v442.handleArgCount + 1;
+      v442.handleArgCount = v62;
       if ( (unsigned int)v62 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v62 = v447.handleArgCount;
+        v62 = v442.handleArgCount;
       }
-      v447.handleArgs[v62] = (unsigned int *)&v343;
-      v63 = v447.handleArgCount + 1;
-      v447.handleArgCount = v63;
+      v442.handleArgs[v62] = (unsigned int *)&v270;
+      v63 = v442.handleArgCount + 1;
+      v442.handleArgCount = v63;
       if ( (unsigned int)v63 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v63 = v447.handleArgCount;
+        v63 = v442.handleArgCount;
       }
-      v447.handleArgs[v63] = (unsigned int *)&v309;
-      v64 = v447.handleArgCount + 1;
-      v447.handleArgCount = v64;
-      if ( (unsigned int)v64 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v64 = v447.handleArgCount;
-      }
-      v447.handleArgs[v64] = (unsigned int *)&v275;
-      v65 = v447.handleArgCount + 1;
-      v447.handleArgCount = v65;
-      if ( (unsigned int)v65 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v65 = v447.handleArgCount;
-      }
-      v447.handleArgs[v65] = (unsigned int *)&v289;
+      v442.handleArgs[v63] = (unsigned int *)&v284;
     }
-    ++v447.handleArgCount;
-    v66 = R_TG_AddTask(pScript, v52, &v447);
-    v67 = *((_QWORD *)v4 + 1);
-    v68 = v66;
-    floatZ.index = v343.index;
-    if ( (v67 & 0x100) != 0 )
+    ++v442.handleArgCount;
+    v64 = R_TG_AddTask(pScript, v50, &v442);
+    v65 = *((_QWORD *)v2 + 1);
+    v66 = v64;
+    floatZ.index = v338.index;
+    if ( (v65 & 0x100) != 0 )
     {
-      cAddDependencyInNextTask(pScript, v66);
-      if ( (v67 & 1) != 0 )
+      cAddDependencyInNextTask(pScript, v64);
+      if ( (v65 & 1) != 0 )
       {
-        memset_0(&v466, 0, sizeof(v466));
-        ++v466.handleArgCount;
-        v466.handleArgs[0] = (unsigned int *)&v274;
-        R_TG_AddTask(pScript, g_R_TG_Def_RBT_DecompressOrFlushTextureMetadata.m_index, &v466);
-        cAddDependencyInNextTask(pScript, v68);
-        memset_0(&v467, 0, sizeof(v467));
-        ++v467.handleArgCount;
-        v69 = g_R_TG_Def_RBT_DecompressOrFlushTextureMetadata.m_index;
-        v70 = &v467;
-        v467.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
+        memset_0(&v461, 0, sizeof(v461));
+        ++v461.handleArgCount;
+        v461.handleArgs[0] = (unsigned int *)&v269;
+        R_TG_AddTask(pScript, g_R_TG_Def_RBT_DecompressOrFlushTextureMetadata.m_index, &v461);
+        cAddDependencyInNextTask(pScript, v66);
+        memset_0(&v462, 0, sizeof(v462));
+        ++v462.handleArgCount;
+        v67 = g_R_TG_Def_RBT_DecompressOrFlushTextureMetadata.m_index;
+        v68 = &v462;
+        v462.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
       }
       else
       {
-        memset_0(&v467, 0, sizeof(v467));
-        ++v467.handleArgCount;
-        v467.handleArgs[0] = (unsigned int *)&v274;
-        R_TG_AddTask(pScript, g_R_TG_Def_RBT_DecompressOrFlushTexture.m_index, &v467);
-        cAddDependencyInNextTask(pScript, v68);
-        memset_0(&v466, 0, sizeof(v466));
-        ++v466.handleArgCount;
-        v69 = g_R_TG_Def_RBT_DecompressOrFlushTexture.m_index;
-        v70 = &v466;
-        v466.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
+        memset_0(&v462, 0, sizeof(v462));
+        ++v462.handleArgCount;
+        v462.handleArgs[0] = (unsigned int *)&v269;
+        R_TG_AddTask(pScript, g_R_TG_Def_RBT_DecompressOrFlushTexture.m_index, &v462);
+        cAddDependencyInNextTask(pScript, v66);
+        memset_0(&v461, 0, sizeof(v461));
+        ++v461.handleArgCount;
+        v67 = g_R_TG_Def_RBT_DecompressOrFlushTexture.m_index;
+        v68 = &v461;
+        v461.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
       }
-      R_TG_AddTask(pScript, v69, v70);
+      R_TG_AddTask(pScript, v67, v68);
     }
     memset_0(&arguments, 0, sizeof(arguments));
-    v71 = g_R_TG_Def_RBT_ResolveFloatZ_DownsampleMipCS.m_index;
+    v69 = g_R_TG_Def_RBT_ResolveFloatZ_DownsampleMipCS.m_index;
     arguments.paramArgs[arguments.paramArgCount++] = 0;
     if ( arguments.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 140, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
       __debugbreak();
     arguments.paramArgs[arguments.paramArgCount++] = 0;
-    v50 = R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v71, &arguments, 1, &floatZ, &v309);
-    v72 = 4;
+    v48 = R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v69, &arguments, 1, &floatZ, &v304);
+    v70 = 4;
     MipCount = R_RT_GetMipCount(pScript->sceneSize.v[0], pScript->sceneSize.v[1], 0x10u);
     if ( MipCount > 4 )
     {
       do
       {
-        memset_0(&v469, 0, sizeof(v469));
-        ++v469.paramArgCount;
-        v74 = g_R_TG_Def_RBT_ResolveFloatZ_DownsampleMipCS.m_index;
-        v469.paramArgs[0] = v72 - 1;
-        if ( v469.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 140, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        memset_0(&v464, 0, sizeof(v464));
+        ++v464.paramArgCount;
+        v72 = g_R_TG_Def_RBT_ResolveFloatZ_DownsampleMipCS.m_index;
+        v464.paramArgs[0] = v70 - 1;
+        if ( v464.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 140, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v469.paramArgs[v469.paramArgCount++] = 0;
-        v72 += 4;
-        v50 = R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v74, &v469, 0, &floatZ, &v309);
+        v464.paramArgs[v464.paramArgCount++] = 0;
+        v70 += 4;
+        v48 = R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v72, &v464, 0, &floatZ, &v304);
       }
-      while ( v72 < MipCount );
-      v4 = v443;
-      v33 = v308.index;
+      while ( v70 < MipCount );
+      v2 = v438;
+      v31 = v303.index;
     }
-    v75 = *((_QWORD *)v4 + 1);
-    if ( (v75 & 0x400000) != 0 )
+    v73 = *((_QWORD *)v2 + 1);
+    if ( (v73 & 0x400000) != 0 )
     {
       cRBT_DecompressOrFlushTexture<R_TG_Handle>(pScript, &floatZ);
-      v75 = *((_QWORD *)v4 + 1);
+      v73 = *((_QWORD *)v2 + 1);
     }
-    v76 = *(_QWORD *)v4;
-    v77 = *(_QWORD *)v4 >> 8;
-    v78 = BYTE1(*(_QWORD *)v4) & 1;
-    if ( (*(_QWORD *)v4 & 0x100i64) != 0 || (v75 & 0x200) == 0 )
+    v74 = *(_QWORD *)v2;
+    v75 = *(_QWORD *)v2 >> 8;
+    v76 = BYTE1(*(_QWORD *)v2) & 1;
+    if ( (*(_QWORD *)v2 & 0x100i64) != 0 || (v73 & 0x200) == 0 )
     {
-      v394.passIndex = GFX_GP_PASS_CAMERA;
-      v394.isPrepass = 0;
-      v394.occlusionPass = v77 & 1;
-      v394.skipPerSurfData = (v75 & 0x200) != 0;
-      v79 = (v76 & 0x200) != 0;
-      v80 = v76 >> 10;
-      v394.reusePrepassVisData = v79;
-      v394.useVisBufferPrepass = v80 & 1;
-      if ( (v80 & 1) == 0 || (v394.useMSAAVisBufferPrepass = 1, (v75 & 1) == 0) )
-        v394.useMSAAVisBufferPrepass = 0;
-      p_floatZ = &floatZ;
-      v394.readBackPass = (v75 & 0x2000000000000i64) != 0;
-      if ( !v78 )
-        p_floatZ = &triIDTexture;
+      v389.passIndex = GFX_GP_PASS_CAMERA;
+      v389.isPrepass = 0;
+      v389.occlusionPass = v75 & 1;
+      v389.skipPerSurfData = (v73 & 0x200) != 0;
+      v77 = (v74 & 0x200) != 0;
+      v78 = v74 >> 10;
+      v389.reusePrepassVisData = v77;
+      v389.useVisBufferPrepass = v78 & 1;
+      if ( (v78 & 1) == 0 || (v389.useMSAAVisBufferPrepass = 1, (v73 & 1) == 0) )
+        v389.useMSAAVisBufferPrepass = 0;
+      occlusionDepthTexture = &floatZ;
+      v389.readBackPass = (v73 & 0x2000000000000i64) != 0;
+      if ( !v76 )
+        occlusionDepthTexture = &triIDTexture;
       p_sceneVisBuffer = &sceneVisBuffer;
-      if ( (v80 & 1) == 0 )
+      if ( (v78 & 1) == 0 )
         p_sceneVisBuffer = &triIDTexture;
-      R_TGS_GP_ProcessSurfs(pScript, &v394, beginToken, p_sceneVisBuffer, p_floatZ, &umbraOcclusionTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &perPassBuffers, &nullBuffer, &nullRwBuffer, &indiciesToken);
-      v75 = *((_QWORD *)v4 + 1);
+      R_TGS_GP_ProcessSurfs(pScript, &v389, beginToken, p_sceneVisBuffer, occlusionDepthTexture, &umbraOcclusionTexture, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &perPassBuffers, &nullBuffer, &nullRwBuffer, &indiciesToken);
+      v73 = *((_QWORD *)v2 + 1);
     }
-    if ( (v75 & 1) != 0 )
+    if ( (v73 & 1) != 0 )
     {
-      memset_0(&v449, 0, sizeof(v449));
-      v83 = g_R_TG_Def_RBT_CompositeStaticVelocityInlineResolve.m_index;
-      v449.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
-      v84 = v449.handleArgCount + 1;
-      v449.handleArgCount = v84;
+      memset_0(&v444, 0, sizeof(v444));
+      v81 = g_R_TG_Def_RBT_CompositeStaticVelocityInlineResolve.m_index;
+      v444.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
+      v82 = v444.handleArgCount + 1;
+      v444.handleArgCount = v82;
+      if ( (unsigned int)v82 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v82 = v444.handleArgCount;
+      }
+      v444.handleArgs[v82] = (unsigned int *)&floatZ;
+      v83 = v444.handleArgCount + 1;
+      v444.handleArgCount = v83;
+      if ( (unsigned int)v83 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v83 = v444.handleArgCount;
+      }
+      v444.handleArgs[v83] = (unsigned int *)&v270;
+      v84 = v444.handleArgCount + 1;
+      v444.handleArgCount = v84;
       if ( (unsigned int)v84 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v84 = v449.handleArgCount;
+        v84 = v444.handleArgCount;
       }
-      v449.handleArgs[v84] = (unsigned int *)&floatZ;
-      v85 = v449.handleArgCount + 1;
-      v449.handleArgCount = v85;
+      v444.handleArgs[v84] = (unsigned int *)&velocity;
+      v85 = v444.handleArgCount + 1;
+      v444.handleArgCount = v85;
       if ( (unsigned int)v85 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v85 = v449.handleArgCount;
+        v85 = v444.handleArgCount;
       }
-      v449.handleArgs[v85] = (unsigned int *)&v275;
-      v86 = v449.handleArgCount + 1;
-      v449.handleArgCount = v86;
+      v444.handleArgs[v85] = (unsigned int *)&sceneVelocityHalf;
+    }
+    else
+    {
+      memset_0(&v444, 0, sizeof(v444));
+      v81 = g_R_TG_Def_RBT_CompositeStaticVelocity.m_index;
+      v444.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
+      v86 = v444.handleArgCount + 1;
+      v444.handleArgCount = v86;
       if ( (unsigned int)v86 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v86 = v449.handleArgCount;
+        v86 = v444.handleArgCount;
       }
-      v449.handleArgs[v86] = (unsigned int *)&velocity;
-      v87 = v449.handleArgCount + 1;
-      v449.handleArgCount = v87;
+      v444.handleArgs[v86] = (unsigned int *)&floatZ;
+      v87 = v444.handleArgCount + 1;
+      v444.handleArgCount = v87;
       if ( (unsigned int)v87 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v87 = v449.handleArgCount;
+        v87 = v444.handleArgCount;
       }
-      v449.handleArgs[v87] = (unsigned int *)&sceneVelocityHalf;
-    }
-    else
-    {
-      memset_0(&v449, 0, sizeof(v449));
-      v83 = g_R_TG_Def_RBT_CompositeStaticVelocity.m_index;
-      v449.handleArgs[0] = (unsigned int *)&sceneEntityIDVelocity;
-      v88 = v449.handleArgCount + 1;
-      v449.handleArgCount = v88;
+      v444.handleArgs[v87] = (unsigned int *)&v270;
+      v88 = v444.handleArgCount + 1;
+      v444.handleArgCount = v88;
       if ( (unsigned int)v88 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v88 = v449.handleArgCount;
+        v88 = v444.handleArgCount;
       }
-      v449.handleArgs[v88] = (unsigned int *)&floatZ;
-      v89 = v449.handleArgCount + 1;
-      v449.handleArgCount = v89;
+      v444.handleArgs[v88] = (unsigned int *)&velocity;
+      v89 = v444.handleArgCount + 1;
+      v444.handleArgCount = v89;
       if ( (unsigned int)v89 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v89 = v449.handleArgCount;
+        v89 = v444.handleArgCount;
       }
-      v449.handleArgs[v89] = (unsigned int *)&v275;
-      v90 = v449.handleArgCount + 1;
-      v449.handleArgCount = v90;
-      if ( (unsigned int)v90 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v90 = v449.handleArgCount;
-      }
-      v449.handleArgs[v90] = (unsigned int *)&velocity;
-      v91 = v449.handleArgCount + 1;
-      v449.handleArgCount = v91;
-      if ( (unsigned int)v91 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v91 = v449.handleArgCount;
-      }
-      v449.handleArgs[v91] = (unsigned int *)&sceneVelocityHalf;
+      v444.handleArgs[v89] = (unsigned int *)&sceneVelocityHalf;
     }
-    ++v449.handleArgCount;
-    R_TG_AddTask(pScript, v83, &v449);
-    v41 = *(_QWORD *)v4;
-    v49 = nullBuffer.index;
-    v32 = v288.index;
+    ++v444.handleArgCount;
+    R_TG_AddTask(pScript, v81, &v444);
+    v39 = *(_QWORD *)v2;
+    v47 = nullBuffer.index;
+    v30 = v283.index;
   }
-  if ( (v41 & 0x10) != 0 )
+  if ( (v39 & 0x10) != 0 )
   {
-    if ( (v41 & 8) != 0 )
+    if ( (v39 & 8) != 0 )
     {
       cOrderHintBegin(pScript, -100000);
-      R_TGS_DV_FillCluster(pScript, (*((_QWORD *)v4 + 1) & 0x100000i64) != 0, (*(_QWORD *)v4 & 0x40) != 0, (*(_QWORD *)v4 & 0x10) != 0, (*(_QWORD *)v4 & 0x20) != 0, (*((_QWORD *)v4 + 1) & 0x400000000i64) != 0, nullBuffer, nullRwBuffer, triIDTexture, floatZ, &outDecalIndices, &outDecalDrawData, &outDecalDebugData, &outDecalIndirectArgs, prepassViewModelToken);
+      R_TGS_DV_FillCluster(pScript, (*((_QWORD *)v2 + 1) & 0x100000i64) != 0, (*(_QWORD *)v2 & 0x40) != 0, (*(_QWORD *)v2 & 0x10) != 0, (*(_QWORD *)v2 & 0x20) != 0, (*((_QWORD *)v2 + 1) & 0x400000000i64) != 0, nullBuffer, nullRwBuffer, triIDTexture, floatZ, &outDecalIndices, &outDecalDrawData, &outDecalDebugData, &outDecalIndirectArgs, prepassViewModelToken);
       cOrderHintEnd(pScript);
-      v41 = *(_QWORD *)v4;
+      v39 = *(_QWORD *)v2;
     }
     else
     {
-      outDecalIndirectArgs.index = v49;
-      outDecalDebugData.index = v49;
-      outDecalDrawData.index = v49;
-      outDecalIndices.index = v49;
+      outDecalIndirectArgs.index = v47;
+      outDecalDebugData.index = v47;
+      outDecalDrawData.index = v47;
+      outDecalIndices.index = v47;
     }
   }
-  v310.index = -1;
-  if ( (v41 & 1) != 0 )
+  v305.index = -1;
+  if ( (v39 & 1) != 0 )
   {
-    cAddDependencyInNextTask(pScript, v50);
-    v92 = ((pScript->sceneSize.v[1] + 7) >> 3) * ((pScript->sceneSize.v[0] + 7) & 0xFFFFFFF8);
-    memset_0(&v476, 0, sizeof(v476));
-    ++v476.handleArgCount;
-    v476.handleArgs[0] = (unsigned int *)&v310;
-    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_FL_TileCreateClear.m_index, &v476, v92);
-    memset_0(&v470, 0, sizeof(v470));
-    v93 = g_R_TG_Def_RBT_FL_TileWrite.m_index;
-    v470.handleArgs[0] = (unsigned int *)&sceneDepth;
-    v94 = v470.handleArgCount + 1;
-    v470.handleArgCount = v94;
-    if ( (unsigned int)v94 >= 0x1E )
+    cAddDependencyInNextTask(pScript, v48);
+    v90 = ((pScript->sceneSize.v[1] + 7) >> 3) * ((pScript->sceneSize.v[0] + 7) & 0xFFFFFFF8);
+    memset_0(&v471, 0, sizeof(v471));
+    ++v471.handleArgCount;
+    v471.handleArgs[0] = (unsigned int *)&v305;
+    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_FL_TileCreateClear.m_index, &v471, v90);
+    memset_0(&v465, 0, sizeof(v465));
+    v91 = g_R_TG_Def_RBT_FL_TileWrite.m_index;
+    v465.handleArgs[0] = (unsigned int *)&sceneDepth;
+    v92 = v465.handleArgCount + 1;
+    v465.handleArgCount = v92;
+    if ( (unsigned int)v92 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v94 = v470.handleArgCount;
+      v92 = v465.handleArgCount;
     }
-    v470.handleArgs[v94] = (unsigned int *)&v310;
-    ++v470.handleArgCount;
-    R_TG_AddTask(pScript, v93, &v470);
+    v465.handleArgs[v92] = (unsigned int *)&v305;
+    ++v465.handleArgCount;
+    R_TG_AddTask(pScript, v91, &v465);
   }
   else
   {
-    v310.index = cExternalResource(&v438, pScript, "default_buffer", eResourceType_Buffer, 0x100000u, 1u, 1u, 0x200u)->index;
+    v305.index = cExternalResource(&v433, pScript, "default_buffer", eResourceType_Buffer, 0x100000u, 1u, 1u, 0x200u)->index;
   }
-  v95 = (*((_BYTE *)v4 + 8) & 1) == 0;
+  v93 = (*((_BYTE *)v2 + 8) & 1) == 0;
   vrsSWMask.index = -1;
-  v352.index = -1;
-  v364.index = -1;
-  v360.index = -1;
-  if ( v95 )
+  v347.index = -1;
+  v359.index = -1;
+  v355.index = -1;
+  if ( v93 )
   {
-    v110 = triIDTexture.index;
+    v108 = triIDTexture.index;
     vrsSWMask.index = triIDTexture.index;
-    v352.index = triIDTexture.index;
-    v364.index = triIDTexture.index;
-    v360.index = triIDTexture.index;
+    v347.index = triIDTexture.index;
+    v359.index = triIDTexture.index;
+    v355.index = triIDTexture.index;
   }
   else
   {
-    memset_0(&v457, 0, sizeof(v457));
-    v96 = g_R_TG_Def_RBT_VRS_CreateResources.m_index;
-    v457.handleArgs[0] = (unsigned int *)&vrsSWMask;
-    v97 = v457.handleArgCount + 1;
-    v457.handleArgCount = v97;
+    memset_0(&v452, 0, sizeof(v452));
+    v94 = g_R_TG_Def_RBT_VRS_CreateResources.m_index;
+    v452.handleArgs[0] = (unsigned int *)&vrsSWMask;
+    v95 = v452.handleArgCount + 1;
+    v452.handleArgCount = v95;
+    if ( (unsigned int)v95 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v95 = v452.handleArgCount;
+    }
+    v452.handleArgs[v95] = (unsigned int *)&v347;
+    v96 = v452.handleArgCount + 1;
+    v452.handleArgCount = v96;
+    if ( (unsigned int)v96 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v96 = v452.handleArgCount;
+    }
+    v452.handleArgs[v96] = (unsigned int *)&v359;
+    v97 = v452.handleArgCount + 1;
+    v452.handleArgCount = v97;
     if ( (unsigned int)v97 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v97 = v457.handleArgCount;
+      v97 = v452.handleArgCount;
     }
-    v457.handleArgs[v97] = (unsigned int *)&v352;
-    v98 = v457.handleArgCount + 1;
-    v457.handleArgCount = v98;
+    v452.handleArgs[v97] = (unsigned int *)&v355;
+    v98 = v452.handleArgCount + 1;
+    v452.handleArgCount = v98;
     if ( (unsigned int)v98 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v98 = v457.handleArgCount;
+      v98 = v452.handleArgCount;
     }
-    v457.handleArgs[v98] = (unsigned int *)&v364;
-    v99 = v457.handleArgCount + 1;
-    v457.handleArgCount = v99;
-    if ( (unsigned int)v99 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v99 = v457.handleArgCount;
-    }
-    v457.handleArgs[v99] = (unsigned int *)&v360;
-    v100 = v457.handleArgCount + 1;
-    v457.handleArgCount = v100;
+    v452.handleArgs[v98] = (unsigned int *)&v269;
+    ++v452.handleArgCount;
+    R_TG_AddTask(pScript, v94, &v452);
+    memset_0(&v447, 0, sizeof(v447));
+    v99 = g_R_TG_Def_RBT_VRS_ResolveMask.m_index;
+    v447.handleArgs[0] = (unsigned int *)&vrsSWMask;
+    v100 = v447.handleArgCount + 1;
+    v447.handleArgCount = v100;
     if ( (unsigned int)v100 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v100 = v457.handleArgCount;
+      v100 = v447.handleArgCount;
     }
-    v457.handleArgs[v100] = (unsigned int *)&v274;
-    ++v457.handleArgCount;
-    R_TG_AddTask(pScript, v96, &v457);
-    memset_0(&v452, 0, sizeof(v452));
-    v101 = g_R_TG_Def_RBT_VRS_ResolveMask.m_index;
-    v452.handleArgs[0] = (unsigned int *)&vrsSWMask;
-    v102 = v452.handleArgCount + 1;
-    v452.handleArgCount = v102;
+    v447.handleArgs[v100] = (unsigned int *)&v347;
+    v101 = v447.handleArgCount + 1;
+    v447.handleArgCount = v101;
+    if ( (unsigned int)v101 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v101 = v447.handleArgCount;
+    }
+    v447.handleArgs[v101] = (unsigned int *)&v347;
+    v102 = v447.handleArgCount + 1;
+    v447.handleArgCount = v102;
     if ( (unsigned int)v102 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v102 = v452.handleArgCount;
+      v102 = v447.handleArgCount;
     }
-    v452.handleArgs[v102] = (unsigned int *)&v352;
-    v103 = v452.handleArgCount + 1;
-    v452.handleArgCount = v103;
+    v447.handleArgs[v102] = (unsigned int *)&v359;
+    v103 = v447.handleArgCount + 1;
+    v447.handleArgCount = v103;
     if ( (unsigned int)v103 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v103 = v452.handleArgCount;
+      v103 = v447.handleArgCount;
     }
-    v452.handleArgs[v103] = (unsigned int *)&v352;
-    v104 = v452.handleArgCount + 1;
-    v452.handleArgCount = v104;
+    v447.handleArgs[v103] = (unsigned int *)&v355;
+    v104 = v447.handleArgCount + 1;
+    v447.handleArgCount = v104;
     if ( (unsigned int)v104 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v104 = v452.handleArgCount;
+      v104 = v447.handleArgCount;
     }
-    v452.handleArgs[v104] = (unsigned int *)&v364;
-    v105 = v452.handleArgCount + 1;
-    v452.handleArgCount = v105;
+    v447.handleArgs[v104] = (unsigned int *)&velocity;
+    v105 = v447.handleArgCount + 1;
+    v447.handleArgCount = v105;
     if ( (unsigned int)v105 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v105 = v452.handleArgCount;
+      v105 = v447.handleArgCount;
     }
-    v452.handleArgs[v105] = (unsigned int *)&v360;
-    v106 = v452.handleArgCount + 1;
-    v452.handleArgCount = v106;
+    v447.handleArgs[v105] = (unsigned int *)&velocity;
+    v106 = v447.handleArgCount + 1;
+    v447.handleArgCount = v106;
     if ( (unsigned int)v106 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v106 = v452.handleArgCount;
+      v106 = v447.handleArgCount;
     }
-    v452.handleArgs[v106] = (unsigned int *)&velocity;
-    v107 = v452.handleArgCount + 1;
-    v452.handleArgCount = v107;
+    v447.handleArgs[v106] = (unsigned int *)&sceneVisBuffer;
+    v107 = v447.handleArgCount + 1;
+    v447.handleArgCount = v107;
     if ( (unsigned int)v107 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v107 = v452.handleArgCount;
+      v107 = v447.handleArgCount;
     }
-    v452.handleArgs[v107] = (unsigned int *)&velocity;
-    v108 = v452.handleArgCount + 1;
-    v452.handleArgCount = v108;
-    if ( (unsigned int)v108 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v108 = v452.handleArgCount;
-    }
-    v452.handleArgs[v108] = (unsigned int *)&sceneVisBuffer;
-    v109 = v452.handleArgCount + 1;
-    v452.handleArgCount = v109;
-    if ( (unsigned int)v109 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v109 = v452.handleArgCount;
-    }
-    v452.handleArgs[v109] = (unsigned int *)&sceneDepth;
-    ++v452.handleArgCount;
-    R_TG_AddTask(pScript, v101, &v452);
-    v110 = triIDTexture.index;
+    v447.handleArgs[v107] = (unsigned int *)&sceneDepth;
+    ++v447.handleArgCount;
+    R_TG_AddTask(pScript, v99, &v447);
+    v108 = triIDTexture.index;
   }
-  v111 = *(_QWORD *)v4;
-  v331.index = -1;
-  v297.index = -1;
-  if ( (v111 & 0x2000) != 0 )
+  v109 = *(_QWORD *)v2;
+  v326.index = -1;
+  v292.index = -1;
+  if ( (v109 & 0x2000) != 0 )
   {
     upsampledRt.index = -1;
     value.index = -1;
-    if ( (v111 & 0x800) != 0 )
+    if ( (v109 & 0x800) != 0 )
     {
-      if ( (v111 & 0x1000) != 0 )
+      if ( (v109 & 0x1000) != 0 )
       {
-        memset_0(&v477, 0, sizeof(v477));
-        ++v477.handleArgCount;
-        v477.handleArgs[0] = (unsigned int *)&upsampledRt;
-        R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_SunShadow_CreateVisibilityIndirectBuffers.m_index, &v477, &value);
+        memset_0(&v472, 0, sizeof(v472));
+        ++v472.handleArgCount;
+        v472.handleArgs[0] = (unsigned int *)&upsampledRt;
+        R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_SunShadow_CreateVisibilityIndirectBuffers.m_index, &v472, &value);
       }
       else
       {
         upsampledRt.index = nullBuffer.index;
         value.index = nullBuffer.index;
       }
-      memset_0(&v446, 0, sizeof(v446));
-      v446.handleArgs[0] = (unsigned int *)&floatZ;
-      v112 = v446.handleArgCount + 1;
-      v95 = (*((_BYTE *)v4 + 8) & 1) == 0;
-      ++v446.handleArgCount;
-      if ( v95 )
+      memset_0(&v441, 0, sizeof(v441));
+      v441.handleArgs[0] = (unsigned int *)&floatZ;
+      v110 = v441.handleArgCount + 1;
+      v93 = (*((_BYTE *)v2 + 8) & 1) == 0;
+      ++v441.handleArgCount;
+      if ( v93 )
       {
-        v122 = g_R_TG_Def_RBT_SunShadow_GenerateVisibilityPrepass.m_index;
-        if ( (unsigned int)v112 >= 0x1E )
+        v120 = g_R_TG_Def_RBT_SunShadow_GenerateVisibilityPrepass.m_index;
+        if ( (unsigned int)v110 >= 0x1E )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
             __debugbreak();
-          v112 = v446.handleArgCount;
+          v110 = v441.handleArgCount;
         }
-        v446.handleArgs[v112] = (unsigned int *)&v309;
-        v123 = v446.handleArgCount + 1;
-        v446.handleArgCount = v123;
-        if ( (unsigned int)v123 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v123 = v446.handleArgCount;
-        }
-        v446.handleArgs[v123] = (unsigned int *)&sunshadowMin0ForViewmodel;
-        v124 = v446.handleArgCount + 1;
-        v446.handleArgCount = v124;
-        if ( (unsigned int)v124 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v124 = v446.handleArgCount;
-        }
-        v446.handleArgs[v124] = (unsigned int *)&sunshadowMins;
-        v125 = v446.handleArgCount + 1;
-        v446.handleArgCount = v125;
-        if ( (unsigned int)v125 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v125 = v446.handleArgCount;
-        }
-        v446.handleArgs[v125] = &v519;
-        v126 = v446.handleArgCount + 1;
-        v446.handleArgCount = v126;
-        if ( (unsigned int)v126 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v126 = v446.handleArgCount;
-        }
-        v446.handleArgs[v126] = &v520;
-        v127 = v446.handleArgCount + 1;
-        v446.handleArgCount = v127;
-        if ( (unsigned int)v127 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v127 = v446.handleArgCount;
-        }
-        v446.handleArgs[v127] = (unsigned int *)&v289;
-        v128 = v446.handleArgCount + 1;
-        v446.handleArgCount = v128;
-        if ( (unsigned int)v128 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v128 = v446.handleArgCount;
-        }
-        v446.handleArgs[v128] = (unsigned int *)&v297;
-        v129 = v446.handleArgCount + 1;
-        v446.handleArgCount = v129;
-        if ( (unsigned int)v129 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v129 = v446.handleArgCount;
-        }
-        v446.handleArgs[v129] = (unsigned int *)&upsampledRt;
-        ++v446.handleArgCount;
-        R_TG_AddTask<>(pScript, v122, &v446, &value);
-      }
-      else
-      {
-        v113 = g_R_TG_Def_RBT_SunShadow_GenerateVisibilityPrepassVRS.m_index;
-        if ( (unsigned int)v112 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v112 = v446.handleArgCount;
-        }
-        v446.handleArgs[v112] = (unsigned int *)&v309;
-        v114 = v446.handleArgCount + 1;
-        v446.handleArgCount = v114;
-        if ( (unsigned int)v114 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v114 = v446.handleArgCount;
-        }
-        v446.handleArgs[v114] = (unsigned int *)&sunshadowMin0ForViewmodel;
-        v115 = v446.handleArgCount + 1;
-        v446.handleArgCount = v115;
-        if ( (unsigned int)v115 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v115 = v446.handleArgCount;
-        }
-        v446.handleArgs[v115] = (unsigned int *)&sunshadowMins;
-        v116 = v446.handleArgCount + 1;
-        v446.handleArgCount = v116;
-        if ( (unsigned int)v116 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v116 = v446.handleArgCount;
-        }
-        v446.handleArgs[v116] = &v519;
-        v117 = v446.handleArgCount + 1;
-        v446.handleArgCount = v117;
-        if ( (unsigned int)v117 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v117 = v446.handleArgCount;
-        }
-        v446.handleArgs[v117] = &v520;
-        v118 = v446.handleArgCount + 1;
-        v446.handleArgCount = v118;
-        if ( (unsigned int)v118 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v118 = v446.handleArgCount;
-        }
-        v446.handleArgs[v118] = (unsigned int *)&v289;
-        v119 = v446.handleArgCount + 1;
-        v446.handleArgCount = v119;
-        if ( (unsigned int)v119 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v119 = v446.handleArgCount;
-        }
-        v446.handleArgs[v119] = (unsigned int *)&v297;
-        v120 = v446.handleArgCount + 1;
-        v446.handleArgCount = v120;
-        if ( (unsigned int)v120 >= 0x1E )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-            __debugbreak();
-          v120 = v446.handleArgCount;
-        }
-        v446.handleArgs[v120] = (unsigned int *)&upsampledRt;
-        v121 = v446.handleArgCount + 1;
-        v446.handleArgCount = v121;
+        v441.handleArgs[v110] = (unsigned int *)&v304;
+        v121 = v441.handleArgCount + 1;
+        v441.handleArgCount = v121;
         if ( (unsigned int)v121 >= 0x1E )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
             __debugbreak();
-          v121 = v446.handleArgCount;
+          v121 = v441.handleArgCount;
         }
-        v446.handleArgs[v121] = (unsigned int *)&value;
-        ++v446.handleArgCount;
-        R_TG_AddTask<>(pScript, v113, &v446, &v364);
+        v441.handleArgs[v121] = (unsigned int *)&sunshadowMin0ForViewmodel;
+        v122 = v441.handleArgCount + 1;
+        v441.handleArgCount = v122;
+        if ( (unsigned int)v122 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v122 = v441.handleArgCount;
+        }
+        v441.handleArgs[v122] = (unsigned int *)&sunshadowMins;
+        v123 = v441.handleArgCount + 1;
+        v441.handleArgCount = v123;
+        if ( (unsigned int)v123 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v123 = v441.handleArgCount;
+        }
+        v441.handleArgs[v123] = &v514;
+        v124 = v441.handleArgCount + 1;
+        v441.handleArgCount = v124;
+        if ( (unsigned int)v124 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v124 = v441.handleArgCount;
+        }
+        v441.handleArgs[v124] = &v515;
+        v125 = v441.handleArgCount + 1;
+        v441.handleArgCount = v125;
+        if ( (unsigned int)v125 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v125 = v441.handleArgCount;
+        }
+        v441.handleArgs[v125] = (unsigned int *)&v284;
+        v126 = v441.handleArgCount + 1;
+        v441.handleArgCount = v126;
+        if ( (unsigned int)v126 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v126 = v441.handleArgCount;
+        }
+        v441.handleArgs[v126] = (unsigned int *)&v292;
+        v127 = v441.handleArgCount + 1;
+        v441.handleArgCount = v127;
+        if ( (unsigned int)v127 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v127 = v441.handleArgCount;
+        }
+        v441.handleArgs[v127] = (unsigned int *)&upsampledRt;
+        ++v441.handleArgCount;
+        R_TG_AddTask<>(pScript, v120, &v441, &value);
+      }
+      else
+      {
+        v111 = g_R_TG_Def_RBT_SunShadow_GenerateVisibilityPrepassVRS.m_index;
+        if ( (unsigned int)v110 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v110 = v441.handleArgCount;
+        }
+        v441.handleArgs[v110] = (unsigned int *)&v304;
+        v112 = v441.handleArgCount + 1;
+        v441.handleArgCount = v112;
+        if ( (unsigned int)v112 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v112 = v441.handleArgCount;
+        }
+        v441.handleArgs[v112] = (unsigned int *)&sunshadowMin0ForViewmodel;
+        v113 = v441.handleArgCount + 1;
+        v441.handleArgCount = v113;
+        if ( (unsigned int)v113 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v113 = v441.handleArgCount;
+        }
+        v441.handleArgs[v113] = (unsigned int *)&sunshadowMins;
+        v114 = v441.handleArgCount + 1;
+        v441.handleArgCount = v114;
+        if ( (unsigned int)v114 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v114 = v441.handleArgCount;
+        }
+        v441.handleArgs[v114] = &v514;
+        v115 = v441.handleArgCount + 1;
+        v441.handleArgCount = v115;
+        if ( (unsigned int)v115 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v115 = v441.handleArgCount;
+        }
+        v441.handleArgs[v115] = &v515;
+        v116 = v441.handleArgCount + 1;
+        v441.handleArgCount = v116;
+        if ( (unsigned int)v116 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v116 = v441.handleArgCount;
+        }
+        v441.handleArgs[v116] = (unsigned int *)&v284;
+        v117 = v441.handleArgCount + 1;
+        v441.handleArgCount = v117;
+        if ( (unsigned int)v117 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v117 = v441.handleArgCount;
+        }
+        v441.handleArgs[v117] = (unsigned int *)&v292;
+        v118 = v441.handleArgCount + 1;
+        v441.handleArgCount = v118;
+        if ( (unsigned int)v118 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v118 = v441.handleArgCount;
+        }
+        v441.handleArgs[v118] = (unsigned int *)&upsampledRt;
+        v119 = v441.handleArgCount + 1;
+        v441.handleArgCount = v119;
+        if ( (unsigned int)v119 >= 0x1E )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+            __debugbreak();
+          v119 = v441.handleArgCount;
+        }
+        v441.handleArgs[v119] = (unsigned int *)&value;
+        ++v441.handleArgCount;
+        R_TG_AddTask<>(pScript, v111, &v441, &v359);
       }
     }
     else
     {
-      v297.index = nullBuffer.index;
+      v292.index = nullBuffer.index;
       upsampledRt.index = nullBuffer.index;
       value.index = nullBuffer.index;
     }
-    memset_0(&v448, 0, sizeof(v448));
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
+    memset_0(&v443, 0, sizeof(v443));
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
     {
-      v130 = g_R_TG_Def_RBT_SunShadow_GenerateVisibilityInlineResolve.m_index;
-      v448.handleArgs[0] = (unsigned int *)&sunshadowCascades;
-      v131 = v448.handleArgCount + 1;
-      v448.handleArgCount = v131;
+      v128 = g_R_TG_Def_RBT_SunShadow_GenerateVisibilityInlineResolve.m_index;
+      v443.handleArgs[0] = (unsigned int *)&sunshadowCascades;
+      v129 = v443.handleArgCount + 1;
+      v443.handleArgCount = v129;
+      if ( (unsigned int)v129 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v129 = v443.handleArgCount;
+      }
+      v443.handleArgs[v129] = (unsigned int *)&sunShadow1;
+      v130 = v443.handleArgCount + 1;
+      v443.handleArgCount = v130;
+      if ( (unsigned int)v130 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v130 = v443.handleArgCount;
+      }
+      v443.handleArgs[v130] = (unsigned int *)&v509;
+      v131 = v443.handleArgCount + 1;
+      v443.handleArgCount = v131;
       if ( (unsigned int)v131 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v131 = v448.handleArgCount;
+        v131 = v443.handleArgCount;
       }
-      v448.handleArgs[v131] = (unsigned int *)&sunShadow1;
-      v132 = v448.handleArgCount + 1;
-      v448.handleArgCount = v132;
+      v443.handleArgs[v131] = (unsigned int *)&sunshadowCascade0ForViewmodel;
+      v132 = v443.handleArgCount + 1;
+      v443.handleArgCount = v132;
       if ( (unsigned int)v132 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v132 = v448.handleArgCount;
+        v132 = v443.handleArgCount;
       }
-      v448.handleArgs[v132] = (unsigned int *)&v514;
-      v133 = v448.handleArgCount + 1;
-      v448.handleArgCount = v133;
+      v443.handleArgs[v132] = (unsigned int *)&transSunShadow;
+      v133 = v443.handleArgCount + 1;
+      v443.handleArgCount = v133;
       if ( (unsigned int)v133 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v133 = v448.handleArgCount;
+        v133 = v443.handleArgCount;
       }
-      v448.handleArgs[v133] = (unsigned int *)&sunshadowCascade0ForViewmodel;
-      v134 = v448.handleArgCount + 1;
-      v448.handleArgCount = v134;
+      v443.handleArgs[v133] = (unsigned int *)&transSunShadowMask;
+      v134 = v443.handleArgCount + 1;
+      v443.handleArgCount = v134;
       if ( (unsigned int)v134 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v134 = v448.handleArgCount;
+        v134 = v443.handleArgCount;
       }
-      v448.handleArgs[v134] = (unsigned int *)&transSunShadow;
-      v135 = v448.handleArgCount + 1;
-      v448.handleArgCount = v135;
+      v443.handleArgs[v134] = (unsigned int *)&floatZ;
+      v135 = v443.handleArgCount + 1;
+      v443.handleArgCount = v135;
       if ( (unsigned int)v135 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v135 = v448.handleArgCount;
+        v135 = v443.handleArgCount;
       }
-      v448.handleArgs[v135] = (unsigned int *)&transSunShadowMask;
-      v136 = v448.handleArgCount + 1;
-      v448.handleArgCount = v136;
+      v443.handleArgs[v135] = (unsigned int *)&v269;
+      v136 = v443.handleArgCount + 1;
+      v443.handleArgCount = v136;
       if ( (unsigned int)v136 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v136 = v448.handleArgCount;
+        v136 = v443.handleArgCount;
       }
-      v448.handleArgs[v136] = (unsigned int *)&floatZ;
-      v137 = v448.handleArgCount + 1;
-      v448.handleArgCount = v137;
+      v443.handleArgs[v136] = (unsigned int *)&v326;
+      v137 = v443.handleArgCount + 1;
+      v443.handleArgCount = v137;
       if ( (unsigned int)v137 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v137 = v448.handleArgCount;
+        v137 = v443.handleArgCount;
       }
-      v448.handleArgs[v137] = (unsigned int *)&v274;
-      v138 = v448.handleArgCount + 1;
-      v448.handleArgCount = v138;
+      v443.handleArgs[v137] = (unsigned int *)&v292;
+      v138 = v443.handleArgCount + 1;
+      v443.handleArgCount = v138;
       if ( (unsigned int)v138 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v138 = v448.handleArgCount;
+        v138 = v443.handleArgCount;
       }
-      v448.handleArgs[v138] = (unsigned int *)&v331;
-      v139 = v448.handleArgCount + 1;
-      v448.handleArgCount = v139;
-      if ( (unsigned int)v139 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v139 = v448.handleArgCount;
-      }
-      v448.handleArgs[v139] = (unsigned int *)&v297;
-      v140 = v448.handleArgCount + 1;
-      v448.handleArgCount = v140;
-      if ( (unsigned int)v140 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v140 = v448.handleArgCount;
-      }
-      v448.handleArgs[v140] = (unsigned int *)&upsampledRt;
-      ++v448.handleArgCount;
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, v130, &v448, &value, &compressedCascades, &v516, &v517, &v360);
-      v110 = triIDTexture.index;
+      v443.handleArgs[v138] = (unsigned int *)&upsampledRt;
+      ++v443.handleArgCount;
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, v128, &v443, &value, &compressedCascades, &v511, &v512, &v355);
+      v108 = triIDTexture.index;
     }
     else
     {
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_SunShadow_GenerateVisibility.m_index, &v448, &sunshadowCascades, &sunShadow1, &v514, &sunshadowCascade0ForViewmodel, &transSunShadow, &transSunShadowMask, &floatZ, &v274, &v331, &v297, &upsampledRt, &value, &compressedCascades, &v516, &v517);
-      v110 = triIDTexture.index;
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_SunShadow_GenerateVisibility.m_index, &v443, &sunshadowCascades, &sunShadow1, &v509, &sunshadowCascade0ForViewmodel, &transSunShadow, &transSunShadowMask, &floatZ, &v269, &v326, &v292, &upsampledRt, &value, &compressedCascades, &v511, &v512);
+      v108 = triIDTexture.index;
     }
   }
   else
   {
-    v297.index = nullBuffer.index;
-    v331.index = v110;
+    v292.index = nullBuffer.index;
+    v326.index = v108;
   }
-  v141 = *(_QWORD *)v4;
-  v344.index = -1;
-  if ( (v141 & 0x8000000) != 0 )
+  v139 = *(_QWORD *)v2;
+  v339.index = -1;
+  if ( (v139 & 0x8000000) != 0 )
   {
-    v410.index = -1;
-    memset_0(&v508, 0, sizeof(v508));
-    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_DXR_Add.m_index, &v508, &v410);
+    v405.index = -1;
+    memset_0(&v503, 0, sizeof(v503));
+    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_DXR_Add.m_index, &v503, &v405);
+    v408.index = -1;
+    memset_0(&v504, 0, sizeof(v504));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_DXR_BuildBlas.m_index, &v504, &v405, &v408);
     v413.index = -1;
-    memset_0(&v509, 0, sizeof(v509));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_DXR_BuildBlas.m_index, &v509, &v410, &v413);
-    v418.index = -1;
-    memset_0(&v487, 0, sizeof(v487));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_DXR_BuildTlas.m_index, &v487, &v413, &v418);
-    v385.index = -1;
-    v414 = -1;
-    memset_0(&v471, 0, sizeof(v471));
-    v142 = g_R_TG_Def_RBT_DXR_SpotshadowsIndices.m_index;
-    v471.handleArgs[0] = (unsigned int *)&v385;
-    v143 = v471.handleArgCount + 1;
-    v471.handleArgCount = v143;
-    if ( (unsigned int)v143 >= 0x1E )
+    memset_0(&v482, 0, sizeof(v482));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_DXR_BuildTlas.m_index, &v482, &v408, &v413);
+    v380.index = -1;
+    v409 = -1;
+    memset_0(&v466, 0, sizeof(v466));
+    v140 = g_R_TG_Def_RBT_DXR_SpotshadowsIndices.m_index;
+    v466.handleArgs[0] = (unsigned int *)&v380;
+    v141 = v466.handleArgCount + 1;
+    v466.handleArgCount = v141;
+    if ( (unsigned int)v141 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v143 = v471.handleArgCount;
+      v141 = v466.handleArgCount;
     }
-    v471.handleArgs[v143] = &v414;
-    ++v471.handleArgCount;
-    R_TG_AddTask<R_TG_Handle>(pScript, v142, &v471, &v310, &sceneDepth);
-    v144 = 0;
-    LODWORD(v145) = (pScript->sceneSize.v[1] >> 4) * (pScript->sceneSize.v[0] >> 4);
-    v384.index = v414;
-    v417 = 0;
-    for ( i = v145; (unsigned int)v145 > 1; v417 = v144 )
+    v466.handleArgs[v141] = &v409;
+    ++v466.handleArgCount;
+    R_TG_AddTask<R_TG_Handle>(pScript, v140, &v466, &v305, &sceneDepth);
+    v142 = 0;
+    LODWORD(v143) = (pScript->sceneSize.v[1] >> 4) * (pScript->sceneSize.v[0] >> 4);
+    v379.index = v409;
+    v412 = 0;
+    for ( i = v143; (unsigned int)v143 > 1; v412 = v142 )
     {
-      v416.index = -1;
-      v145 = ((unsigned __int64)(unsigned int)v145 + 511) >> 9;
-      i = v145;
-      cRBT_DXR_SpotshadowsSumLightCount<R_TG_Handle,unsigned int,R_TG_Handle,R_TG_Handle,unsigned int>(pScript, &v416, &i, &v384, &sceneDepth, &v417);
-      ++v144;
-      v384.index = v416.index;
+      v411.index = -1;
+      v143 = ((unsigned __int64)(unsigned int)v143 + 511) >> 9;
+      i = v143;
+      cRBT_DXR_SpotshadowsSumLightCount<R_TG_Handle,unsigned int,R_TG_Handle,R_TG_Handle,unsigned int>(pScript, &v411, &i, &v379, &sceneDepth, &v412);
+      ++v142;
+      v379.index = v411.index;
     }
-    v146 = *(_DWORD *)v4;
-    v419 = -1;
-    v420 = -1;
-    v147 = ((v146 & 0x10000000) != 0i64) + 1;
-    memset_0(&v451, 0, sizeof(v451));
-    v148 = g_R_TG_Def_RBT_DXR_SpotshadowsVisibility.m_index;
-    v451.handleArgs[0] = (unsigned int *)&v419;
-    if ( ++v451.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 140, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+    v144 = *(_DWORD *)v2;
+    v414 = -1;
+    v415 = -1;
+    v145 = ((v144 & 0x10000000) != 0i64) + 1;
+    memset_0(&v446, 0, sizeof(v446));
+    v146 = g_R_TG_Def_RBT_DXR_SpotshadowsVisibility.m_index;
+    v446.handleArgs[0] = (unsigned int *)&v414;
+    if ( ++v446.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 140, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
       __debugbreak();
-    v451.paramArgs[v451.paramArgCount++] = v147;
-    if ( v451.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+    v446.paramArgs[v446.paramArgCount++] = v145;
+    if ( v446.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
       __debugbreak();
-    v451.handleArgs[v451.handleArgCount] = (unsigned int *)&v420;
-    v149 = v451.handleArgCount + 1;
-    v451.handleArgCount = v149;
+    v446.handleArgs[v446.handleArgCount] = (unsigned int *)&v415;
+    v147 = v446.handleArgCount + 1;
+    v446.handleArgCount = v147;
+    if ( (unsigned int)v147 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v147 = v446.handleArgCount;
+    }
+    v446.handleArgs[v147] = (unsigned int *)&sceneDepth;
+    v148 = v446.handleArgCount + 1;
+    v446.handleArgCount = v148;
+    if ( (unsigned int)v148 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v148 = v446.handleArgCount;
+    }
+    v446.handleArgs[v148] = (unsigned int *)&v269;
+    v149 = v446.handleArgCount + 1;
+    v446.handleArgCount = v149;
     if ( (unsigned int)v149 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v149 = v451.handleArgCount;
+      v149 = v446.handleArgCount;
     }
-    v451.handleArgs[v149] = (unsigned int *)&sceneDepth;
-    v150 = v451.handleArgCount + 1;
-    v451.handleArgCount = v150;
+    v446.handleArgs[v149] = (unsigned int *)&velocity;
+    v150 = v446.handleArgCount + 1;
+    v446.handleArgCount = v150;
     if ( (unsigned int)v150 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v150 = v451.handleArgCount;
+      v150 = v446.handleArgCount;
     }
-    v451.handleArgs[v150] = (unsigned int *)&v274;
-    v151 = v451.handleArgCount + 1;
-    v451.handleArgCount = v151;
+    v446.handleArgs[v150] = (unsigned int *)&velocity;
+    v151 = v446.handleArgCount + 1;
+    v446.handleArgCount = v151;
     if ( (unsigned int)v151 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v151 = v451.handleArgCount;
+      v151 = v446.handleArgCount;
     }
-    v451.handleArgs[v151] = (unsigned int *)&velocity;
-    v152 = v451.handleArgCount + 1;
-    v451.handleArgCount = v152;
+    v446.handleArgs[v151] = (unsigned int *)&v270;
+    v152 = v446.handleArgCount + 1;
+    v446.handleArgCount = v152;
     if ( (unsigned int)v152 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v152 = v451.handleArgCount;
+      v152 = v446.handleArgCount;
     }
-    v451.handleArgs[v152] = (unsigned int *)&velocity;
-    v153 = v451.handleArgCount + 1;
-    v451.handleArgCount = v153;
+    v446.handleArgs[v152] = (unsigned int *)&v305;
+    v153 = v446.handleArgCount + 1;
+    v446.handleArgCount = v153;
     if ( (unsigned int)v153 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v153 = v451.handleArgCount;
+      v153 = v446.handleArgCount;
     }
-    v451.handleArgs[v153] = (unsigned int *)&v275;
-    v154 = v451.handleArgCount + 1;
-    v451.handleArgCount = v154;
-    if ( (unsigned int)v154 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v154 = v451.handleArgCount;
-    }
-    v451.handleArgs[v154] = (unsigned int *)&v310;
-    v155 = v451.handleArgCount + 1;
-    v451.handleArgCount = v155;
+    v446.handleArgs[v153] = (unsigned int *)&v380;
+    ++v446.handleArgCount;
+    R_TG_AddTask<R_TG_Handle>(pScript, v146, &v446, &v379, &v413);
+    v391.index = -1;
+    v390.index = -1;
+    memset_0(&v453, 0, sizeof(v453));
+    v154 = g_R_TG_Def_RBT_DXR_SpotshadowsTemporalDenoiser.m_index;
+    v453.handleArgs[0] = (unsigned int *)&v391;
+    v155 = v453.handleArgCount + 1;
+    v453.handleArgCount = v155;
     if ( (unsigned int)v155 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v155 = v451.handleArgCount;
+      v155 = v453.handleArgCount;
     }
-    v451.handleArgs[v155] = (unsigned int *)&v385;
-    ++v451.handleArgCount;
-    R_TG_AddTask<R_TG_Handle>(pScript, v148, &v451, &v384, &v418);
-    v396.index = -1;
-    v395.index = -1;
-    memset_0(&v458, 0, sizeof(v458));
-    v156 = g_R_TG_Def_RBT_DXR_SpotshadowsTemporalDenoiser.m_index;
-    v458.handleArgs[0] = (unsigned int *)&v396;
-    v157 = v458.handleArgCount + 1;
-    v458.handleArgCount = v157;
+    v453.handleArgs[v155] = (unsigned int *)&v390;
+    v156 = v453.handleArgCount + 1;
+    v453.handleArgCount = v156;
+    if ( (unsigned int)v156 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v156 = v453.handleArgCount;
+    }
+    v453.handleArgs[v156] = (unsigned int *)&v414;
+    v157 = v453.handleArgCount + 1;
+    v453.handleArgCount = v157;
     if ( (unsigned int)v157 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v157 = v458.handleArgCount;
+      v157 = v453.handleArgCount;
     }
-    v458.handleArgs[v157] = (unsigned int *)&v395;
-    v158 = v458.handleArgCount + 1;
-    v458.handleArgCount = v158;
+    v453.handleArgs[v157] = (unsigned int *)&v415;
+    v158 = v453.handleArgCount + 1;
+    v453.handleArgCount = v158;
     if ( (unsigned int)v158 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v158 = v458.handleArgCount;
+      v158 = v453.handleArgCount;
     }
-    v458.handleArgs[v158] = (unsigned int *)&v419;
-    v159 = v458.handleArgCount + 1;
-    v458.handleArgCount = v159;
-    if ( (unsigned int)v159 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v159 = v458.handleArgCount;
-    }
-    v458.handleArgs[v159] = (unsigned int *)&v420;
-    v160 = v458.handleArgCount + 1;
-    v458.handleArgCount = v160;
-    if ( (unsigned int)v160 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v160 = v458.handleArgCount;
-    }
-    v458.handleArgs[v160] = (unsigned int *)&sceneDepth;
-    ++v458.handleArgCount;
-    R_TG_AddTask<R_TG_Handle>(pScript, v156, &v458, &velocity, &velocity);
-    cRBT_DXR_SpotshadowsSpatialDenoiser<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v344, &v396, &v395, &v385, &floatZ, &v274);
-    v141 = *(_QWORD *)v4;
-    v110 = triIDTexture.index;
+    v453.handleArgs[v158] = (unsigned int *)&sceneDepth;
+    ++v453.handleArgCount;
+    R_TG_AddTask<R_TG_Handle>(pScript, v154, &v453, &velocity, &velocity);
+    cRBT_DXR_SpotshadowsSpatialDenoiser<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v339, &v391, &v390, &v380, &floatZ, &v269);
+    v139 = *(_QWORD *)v2;
+    v108 = triIDTexture.index;
   }
   else
   {
-    v344.index = v110;
+    v339.index = v108;
   }
-  v306.index = -1;
-  if ( (v141 & 0x60000000) == 0 )
+  v301.index = -1;
+  if ( (v139 & 0x60000000) == 0 )
     goto LABEL_512;
-  v280.index = -1;
-  if ( (v141 & 0x40000000) != 0 )
+  v275.index = -1;
+  if ( (v139 & 0x40000000) != 0 )
   {
-    memset_0(&v468, 0, sizeof(v468));
-    ++v468.handleArgCount;
-    v95 = (*((_BYTE *)v4 + 8) & 1) == 0;
-    v161 = g_R_TG_Def_RBT_MDAO_DrawVolumeOccludersInlineResolve.m_index;
-    v468.handleArgs[0] = (unsigned int *)&floatZ;
-    if ( v95 )
-      v161 = g_R_TG_Def_RBT_MDAO_DrawVolumeOccluders.m_index;
-    R_TG_AddTask<R_TG_Handle>(pScript, v161, &v468, &v274, &v280);
-    v356.index = -1;
-    v386.index = -1;
-    memset_0(&v488, 0, sizeof(v488));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_MDAO_ComputeTileBoundingBoxes.m_index, &v488, &floatZ, &v356);
-    memset_0(&v489, 0, sizeof(v489));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_MDAO_CullOccluders.m_index, &v489, &v356, &v386);
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
-      cRBT_MDAO_ComputeOcclusionInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v356, &v386, &floatZ, &v274, &v280);
+    memset_0(&v463, 0, sizeof(v463));
+    ++v463.handleArgCount;
+    v93 = (*((_BYTE *)v2 + 8) & 1) == 0;
+    v159 = g_R_TG_Def_RBT_MDAO_DrawVolumeOccludersInlineResolve.m_index;
+    v463.handleArgs[0] = (unsigned int *)&floatZ;
+    if ( v93 )
+      v159 = g_R_TG_Def_RBT_MDAO_DrawVolumeOccluders.m_index;
+    R_TG_AddTask<R_TG_Handle>(pScript, v159, &v463, &v269, &v275);
+    v351.index = -1;
+    v381.index = -1;
+    memset_0(&v483, 0, sizeof(v483));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_MDAO_ComputeTileBoundingBoxes.m_index, &v483, &floatZ, &v351);
+    memset_0(&v484, 0, sizeof(v484));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_MDAO_CullOccluders.m_index, &v484, &v351, &v381);
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
+      cRBT_MDAO_ComputeOcclusionInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v351, &v381, &floatZ, &v269, &v275);
     else
-      cRBT_MDAO_ComputeOcclusion<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v356, &v386, &floatZ, &v274, &v280);
-    v141 = *(_QWORD *)v4;
-    v110 = v280.index;
+      cRBT_MDAO_ComputeOcclusion<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v351, &v381, &floatZ, &v269, &v275);
+    v139 = *(_QWORD *)v2;
+    v108 = v275.index;
   }
   else
   {
-    v280.index = v110;
+    v275.index = v108;
   }
-  if ( (v141 & 0x20000000) != 0 )
+  if ( (v139 & 0x20000000) != 0 )
   {
     cAsyncBegin(pScript);
-    v389.index = -1;
-    v397.index = -1;
-    v398.index = -1;
-    memset_0(&v478, 0, sizeof(v478));
-    ++v478.handleArgCount;
-    v478.handleArgs[0] = (unsigned int *)&v397;
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSAO_GenerateAOPrepass.m_index, &v478, &v309, &v343);
-    memset_0(&v490, 0, sizeof(v490));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSAO_FilterAOPrepassHorizontal.m_index, &v490, &v398, &v397);
-    memset_0(&v491, 0, sizeof(v491));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSAO_FilterAOPrepassVertical.m_index, &v491, &v389, &v398);
-    memset_0(&v450, 0, sizeof(v450));
-    v450.handleArgs[0] = (unsigned int *)&v306;
-    v162 = v450.handleArgCount + 1;
-    v95 = (*((_BYTE *)v4 + 8) & 1) == 0;
-    ++v450.handleArgCount;
-    if ( v95 )
+    v384.index = -1;
+    v392.index = -1;
+    v393.index = -1;
+    memset_0(&v473, 0, sizeof(v473));
+    ++v473.handleArgCount;
+    v473.handleArgs[0] = (unsigned int *)&v392;
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSAO_GenerateAOPrepass.m_index, &v473, &v304, &v338);
+    memset_0(&v485, 0, sizeof(v485));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSAO_FilterAOPrepassHorizontal.m_index, &v485, &v393, &v392);
+    memset_0(&v486, 0, sizeof(v486));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSAO_FilterAOPrepassVertical.m_index, &v486, &v384, &v393);
+    memset_0(&v445, 0, sizeof(v445));
+    v445.handleArgs[0] = (unsigned int *)&v301;
+    v160 = v445.handleArgCount + 1;
+    v93 = (*((_BYTE *)v2 + 8) & 1) == 0;
+    ++v445.handleArgCount;
+    if ( v93 )
     {
-      v163 = g_R_TG_Def_RBT_SSAO_GenerateAO.m_index;
-      if ( (unsigned int)v162 >= 0x1E )
+      v161 = g_R_TG_Def_RBT_SSAO_GenerateAO.m_index;
+      if ( (unsigned int)v160 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v162 = v450.handleArgCount;
+        v160 = v445.handleArgCount;
       }
-      v450.handleArgs[v162] = (unsigned int *)&floatZ;
-      v167 = v450.handleArgCount + 1;
-      v450.handleArgCount = v167;
-      if ( (unsigned int)v167 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v167 = v450.handleArgCount;
-      }
-      v450.handleArgs[v167] = (unsigned int *)&velocity;
-      v168 = v450.handleArgCount + 1;
-      v450.handleArgCount = v168;
-      if ( (unsigned int)v168 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v168 = v450.handleArgCount;
-      }
-      v450.handleArgs[v168] = (unsigned int *)&velocity;
-      v169 = v450.handleArgCount + 1;
-      v450.handleArgCount = v169;
-      if ( (unsigned int)v169 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v169 = v450.handleArgCount;
-      }
-      v450.handleArgs[v169] = (unsigned int *)&v274;
-    }
-    else
-    {
-      v163 = g_R_TG_Def_RBT_SSAO_GenerateAOInlineResolve.m_index;
-      if ( (unsigned int)v162 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v162 = v450.handleArgCount;
-      }
-      v450.handleArgs[v162] = (unsigned int *)&floatZ;
-      v164 = v450.handleArgCount + 1;
-      v450.handleArgCount = v164;
-      if ( (unsigned int)v164 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v164 = v450.handleArgCount;
-      }
-      v450.handleArgs[v164] = (unsigned int *)&velocity;
-      v165 = v450.handleArgCount + 1;
-      v450.handleArgCount = v165;
+      v445.handleArgs[v160] = (unsigned int *)&floatZ;
+      v165 = v445.handleArgCount + 1;
+      v445.handleArgCount = v165;
       if ( (unsigned int)v165 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v165 = v450.handleArgCount;
+        v165 = v445.handleArgCount;
       }
-      v450.handleArgs[v165] = (unsigned int *)&velocity;
-      v166 = v450.handleArgCount + 1;
-      v450.handleArgCount = v166;
+      v445.handleArgs[v165] = (unsigned int *)&velocity;
+      v166 = v445.handleArgCount + 1;
+      v445.handleArgCount = v166;
       if ( (unsigned int)v166 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v166 = v450.handleArgCount;
+        v166 = v445.handleArgCount;
       }
-      v450.handleArgs[v166] = (unsigned int *)&v274;
+      v445.handleArgs[v166] = (unsigned int *)&velocity;
+      v167 = v445.handleArgCount + 1;
+      v445.handleArgCount = v167;
+      if ( (unsigned int)v167 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v167 = v445.handleArgCount;
+      }
+      v445.handleArgs[v167] = (unsigned int *)&v269;
     }
-    ++v450.handleArgCount;
-    R_TG_AddTask<R_TG_Handle>(pScript, v163, &v450, &v280, &v389);
+    else
+    {
+      v161 = g_R_TG_Def_RBT_SSAO_GenerateAOInlineResolve.m_index;
+      if ( (unsigned int)v160 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v160 = v445.handleArgCount;
+      }
+      v445.handleArgs[v160] = (unsigned int *)&floatZ;
+      v162 = v445.handleArgCount + 1;
+      v445.handleArgCount = v162;
+      if ( (unsigned int)v162 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v162 = v445.handleArgCount;
+      }
+      v445.handleArgs[v162] = (unsigned int *)&velocity;
+      v163 = v445.handleArgCount + 1;
+      v445.handleArgCount = v163;
+      if ( (unsigned int)v163 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v163 = v445.handleArgCount;
+      }
+      v445.handleArgs[v163] = (unsigned int *)&velocity;
+      v164 = v445.handleArgCount + 1;
+      v445.handleArgCount = v164;
+      if ( (unsigned int)v164 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v164 = v445.handleArgCount;
+      }
+      v445.handleArgs[v164] = (unsigned int *)&v269;
+    }
+    ++v445.handleArgCount;
+    R_TG_AddTask<R_TG_Handle>(pScript, v161, &v445, &v275, &v384);
     cAsyncEnd(pScript);
   }
   else
   {
 LABEL_512:
-    v306.index = v110;
+    v301.index = v108;
   }
   lightsCluster.index = -1;
-  cAddDependencyInNextTask(pScript, v50);
-  v170 = v32 * v33;
-  v437 = (v32 * v33) << 8;
-  memset_0(&v492, 0, sizeof(v492));
-  R_TG_AddTask<unsigned int>(pScript, g_R_TG_Def_RBT_FL_ClusterCreateClear.m_index, &v492, &lightsCluster, &v437);
-  memset_0(&v493, 0, sizeof(v493));
-  R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_FL_ClusterWrite.m_index, &v493, &lightsCluster);
-  v171 = *(_QWORD *)v4;
+  cAddDependencyInNextTask(pScript, v48);
+  v168 = v30 * v31;
+  v432 = (v30 * v31) << 8;
+  memset_0(&v487, 0, sizeof(v487));
+  R_TG_AddTask<unsigned int>(pScript, g_R_TG_Def_RBT_FL_ClusterCreateClear.m_index, &v487, &lightsCluster, &v432);
+  memset_0(&v488, 0, sizeof(v488));
+  R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_FL_ClusterWrite.m_index, &v488, &lightsCluster);
+  v169 = *(_QWORD *)v2;
   outCreateRt.index = -1;
-  if ( (v171 & 0x4200000000i64) != 0 || (v171 & 0x300000000000i64) != 0 )
-    R_TGS_DistortionCreateRt(pScript, *((_BYTE *)v4 + 8) & 1, sceneDepth, &outCreateRt, 1);
+  if ( (v169 & 0x4200000000i64) != 0 || (v169 & 0x300000000000i64) != 0 )
+    R_TGS_DistortionCreateRt(pScript, *((_BYTE *)v2 + 8) & 1, sceneDepth, &outCreateRt, 1);
   else
     outCreateRt.index = triIDTexture.index;
-  v400.index = -1;
-  memset_0(&v494, 0, sizeof(v494));
-  R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_MayhemSelfVis_UpdateAnimBuffer.m_index, &v494, &v400);
-  v172 = 258;
+  v395.index = -1;
+  memset_0(&v489, 0, sizeof(v489));
+  R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_MayhemSelfVis_UpdateAnimBuffer.m_index, &v489, &v395);
+  v170 = 258;
   sceneColor.index = -1;
-  v399 = 258;
-  memset_0(&v484, 0, sizeof(v484));
-  v173 = g_R_TG_Def_Util_CreateSceneColorVRS.m_index;
-  if ( (*((_BYTE *)v4 + 8) & 1) == 0 )
-    v173 = g_R_TG_Def_Util_CreateSceneColor.m_index;
-  R_TG_AddTask<unsigned int>(pScript, v173, &v484, &sceneColor, &v399);
+  v394 = 258;
+  memset_0(&v479, 0, sizeof(v479));
+  v171 = g_R_TG_Def_Util_CreateSceneColorVRS.m_index;
+  if ( (*((_BYTE *)v2 + 8) & 1) == 0 )
+    v171 = g_R_TG_Def_Util_CreateSceneColor.m_index;
+  R_TG_AddTask<unsigned int>(pScript, v171, &v479, &sceneColor, &v394);
   scope.index = -1;
-  if ( (*(_QWORD *)v4 & 0x2000000000000i64) != 0 )
+  if ( (*(_QWORD *)v2 & 0x2000000000000i64) != 0 )
   {
     R_Lens_GetScopeRtSize(pScript->sceneSize.v[0], pScript->sceneSize.v[1], &width, &height);
     cAddDependencyInNextTask(pScript, srcTask);
-    memset_0(&v495, 0, sizeof(v495));
-    R_TG_AddTask<unsigned int,unsigned int>(pScript, g_R_TG_Def_RBT_Lens_ScopeDistortion.m_index, &v495, &scope, &width, &height);
-    memset_0(&v496, 0, sizeof(v496));
-    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_Lens_ForceReadBuffer.m_index, &v496, &scope);
-    v174 = triIDTexture.index;
+    memset_0(&v490, 0, sizeof(v490));
+    R_TG_AddTask<unsigned int,unsigned int>(pScript, g_R_TG_Def_RBT_Lens_ScopeDistortion.m_index, &v490, &scope, &width, &height);
+    memset_0(&v491, 0, sizeof(v491));
+    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_Lens_ForceReadBuffer.m_index, &v491, &scope);
+    v172 = triIDTexture.index;
   }
   else
   {
-    v174 = triIDTexture.index;
+    v172 = triIDTexture.index;
     scope.index = triIDTexture.index;
   }
-  v175 = (*(_QWORD *)v4 >> 44) & 3i64;
-  v330.index = -1;
-  if ( v175 == 2 )
+  v173 = (*(_QWORD *)v2 >> 44) & 3i64;
+  v325.index = -1;
+  if ( v173 == 2 )
   {
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
-      cRBT_SSR_DeferredTraceLQInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v330, &floatZ, &v274, &ssrMask, &scope);
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
+      cRBT_SSR_DeferredTraceLQInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v325, &floatZ, &v269, &ssrMask, &scope);
     else
-      cRBT_SSR_DeferredTraceLQ<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v330, &floatZ, &v274, &ssrMask, &scope);
+      cRBT_SSR_DeferredTraceLQ<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v325, &floatZ, &v269, &ssrMask, &scope);
   }
-  else if ( v175 == 3 )
+  else if ( v173 == 3 )
   {
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
-      cRBT_SSR_DeferredTraceHQInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v330, &floatZ, &v274, &ssrMask, &scope);
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
+      cRBT_SSR_DeferredTraceHQInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v325, &floatZ, &v269, &ssrMask, &scope);
     else
-      cRBT_SSR_DeferredTraceHQ<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v330, &floatZ, &v274, &ssrMask, &scope);
+      cRBT_SSR_DeferredTraceHQ<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v325, &floatZ, &v269, &ssrMask, &scope);
   }
   else
   {
-    v330.index = v174;
+    v325.index = v172;
   }
-  v327.index = nullRwBuffer.index;
-  v401.index = -1;
-  memset_0(&v497, 0, sizeof(v497));
-  R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_Util_KickoffToken.m_index, &v497, &sceneColor, &v401);
+  v322.index = nullRwBuffer.index;
+  v396.index = -1;
+  memset_0(&v492, 0, sizeof(v492));
+  R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_Util_KickoffToken.m_index, &v492, &sceneColor, &v396);
   syncToken.index = -1;
-  cRBT_DrawOpaque<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &v310, &lightsCluster, &reflectionGrid, &lightGridVol, &lightGridVolHighBands, &floatZ, &v306, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &outDecalIndices, &outDecalDrawData, &v331, &staleCache, &v344, &outCreateRt, &v330, &vrsHWMask, &v327, &scope, &v400, &syncToken, &v289, &v297);
+  cRBT_DrawOpaque<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &v305, &lightsCluster, &reflectionGrid, &lightGridVol, &lightGridVolHighBands, &floatZ, &v301, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &outDecalIndices, &outDecalDrawData, &v326, &staleCache, &v339, &outCreateRt, &v325, &vrsHWMask, &v322, &scope, &v395, &syncToken, &v284, &v292);
   volScattering.index = -1;
   volExtinction.index = -1;
-  v354.index = -1;
-  v361.index = -1;
+  v349.index = -1;
+  v356.index = -1;
   volVisibility.index = -1;
-  v323.index = -1;
-  v351.index = -1;
-  if ( (*(_QWORD *)v4 & 0x20000000000i64) != 0 )
+  v318.index = -1;
+  v346.index = -1;
+  if ( (*(_QWORD *)v2 & 0x20000000000i64) != 0 )
   {
     cAsyncBegin(pScript);
-    v320.index = -1;
-    v404.index = -1;
-    cRBT_VOL_MaxFloatZ<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,unsigned int,unsigned int,R_TG_Handle>(pScript, &volVisibility, &v323, &v320, &v404, &floatZ, &v371, &v370, &v393, &v390, &v401);
-    v176 = *(_QWORD *)v4;
-    v358.index = -1;
-    if ( (v176 & 0x40000000000i64) != 0 )
+    v315.index = -1;
+    v399.index = -1;
+    cRBT_VOL_MaxFloatZ<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,unsigned int,unsigned int,R_TG_Handle>(pScript, &volVisibility, &v318, &v315, &v399, &floatZ, &v366, &v365, &v388, &v385, &v396);
+    v174 = *(_QWORD *)v2;
+    v353.index = -1;
+    if ( (v174 & 0x40000000000i64) != 0 )
     {
-      v387.index = -1;
-      if ( (v176 & 0x80000000004i64) == 0x80000000004i64 )
+      v382.index = -1;
+      if ( (v174 & 0x80000000004i64) == 0x80000000004i64 )
       {
-        v403.index = -1;
-        v402.index = -1;
-        v442 = 165 * v170;
-        v441 = 5 * ((unsigned int)(v170 << 7) >> 2);
-        memset_0(&v463, 0, sizeof(v463));
-        R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,R_TG_Handle>(pScript, g_R_TG_Def_RBT_VOL_SampleAmbientMultiLightGrid.m_index, &v463, &v323, &floatZ, &v403, &v402, &v387, &v442, &v441, &prepassViewModelToken);
-        memset_0(&v498, 0, sizeof(v498));
-        R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int>(pScript, g_R_TG_Def_RBT_VOL_CombineAmbientMultiLightGrid.m_index, &v498, &v358, &v323, &v323, &floatZ, &v351, &v403, &v402, &v393, &v390);
+        v398.index = -1;
+        v397.index = -1;
+        v437 = 165 * v168;
+        v436 = 5 * ((unsigned int)(v168 << 7) >> 2);
+        memset_0(&v458, 0, sizeof(v458));
+        R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,R_TG_Handle>(pScript, g_R_TG_Def_RBT_VOL_SampleAmbientMultiLightGrid.m_index, &v458, &v318, &floatZ, &v398, &v397, &v382, &v437, &v436, &prepassViewModelToken);
+        memset_0(&v493, 0, sizeof(v493));
+        R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int>(pScript, g_R_TG_Def_RBT_VOL_CombineAmbientMultiLightGrid.m_index, &v493, &v353, &v318, &v318, &floatZ, &v346, &v398, &v397, &v388, &v385);
       }
       else
       {
-        memset_0(&v463, 0, sizeof(v463));
-        v177 = g_R_TG_Def_RBT_VOL_SampleAmbient.m_index;
-        v463.handleArgs[0] = (unsigned int *)&v358;
-        v178 = v463.handleArgCount + 1;
-        v463.handleArgCount = v178;
-        if ( (unsigned int)v178 >= 0x1E )
+        memset_0(&v458, 0, sizeof(v458));
+        v175 = g_R_TG_Def_RBT_VOL_SampleAmbient.m_index;
+        v458.handleArgs[0] = (unsigned int *)&v353;
+        v176 = v458.handleArgCount + 1;
+        v458.handleArgCount = v176;
+        if ( (unsigned int)v176 >= 0x1E )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
             __debugbreak();
-          v178 = v463.handleArgCount;
+          v176 = v458.handleArgCount;
         }
-        v463.handleArgs[v178] = (unsigned int *)&v387;
-        ++v463.handleArgCount;
-        R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,R_TG_Handle>(pScript, v177, &v463, &v404, &floatZ, &v323, &v323, &v351, &v393, &v390, &prepassViewModelToken);
+        v458.handleArgs[v176] = (unsigned int *)&v382;
+        ++v458.handleArgCount;
+        R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,R_TG_Handle>(pScript, v175, &v458, &v399, &floatZ, &v318, &v318, &v346, &v388, &v385, &prepassViewModelToken);
       }
     }
     else
     {
-      v358.index = triIDTexture.index;
-      v351.index = triIDTexture.index;
+      v353.index = triIDTexture.index;
+      v346.index = triIDTexture.index;
     }
-    v179 = v32 * v33;
-    v425 = v179 << 8;
-    v424 = 32 * v179;
-    memset_0(&v499, 0, sizeof(v499));
-    R_TG_AddTask<R_TG_Handle,unsigned int,unsigned int,R_TG_Handle>(pScript, g_R_TG_Def_RBT_VOL_WriteClusterBuffer.m_index, &v499, &v354, &v361, &v425, &v424, &shadowAsyncToken);
-    v426 = v179 << 7;
-    v429 = -1;
-    v359.index = -1;
-    v369.index = -1;
-    v348.index = -1;
-    memset_0(&v500, 0, sizeof(v500));
-    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_VOL_ClearIndirectScattering.m_index, &v500, &v369);
-    memset_0(&v465, 0, sizeof(v465));
-    v180 = g_R_TG_Def_RBT_VOL_FillIndirectScattering.m_index;
-    v465.handleArgs[0] = (unsigned int *)&v323;
-    v181 = v465.handleArgCount + 1;
-    v465.handleArgCount = v181;
-    if ( (unsigned int)v181 >= 0x1E )
+    v177 = v30 * v31;
+    v420 = v177 << 8;
+    v419 = 32 * v177;
+    memset_0(&v494, 0, sizeof(v494));
+    R_TG_AddTask<R_TG_Handle,unsigned int,unsigned int,R_TG_Handle>(pScript, g_R_TG_Def_RBT_VOL_WriteClusterBuffer.m_index, &v494, &v349, &v356, &v420, &v419, &shadowAsyncToken);
+    v421 = v177 << 7;
+    v424 = -1;
+    v354.index = -1;
+    v364.index = -1;
+    v343.index = -1;
+    memset_0(&v495, 0, sizeof(v495));
+    R_TG_AddTask<>(pScript, g_R_TG_Def_RBT_VOL_ClearIndirectScattering.m_index, &v495, &v364);
+    memset_0(&v460, 0, sizeof(v460));
+    v178 = g_R_TG_Def_RBT_VOL_FillIndirectScattering.m_index;
+    v460.handleArgs[0] = (unsigned int *)&v318;
+    v179 = v460.handleArgCount + 1;
+    v460.handleArgCount = v179;
+    if ( (unsigned int)v179 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v181 = v465.handleArgCount;
+      v179 = v460.handleArgCount;
     }
-    v465.handleArgs[v181] = (unsigned int *)&v354;
-    ++v465.handleArgCount;
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int>(pScript, v180, &v465, &v361, &lightsCluster, &v369, &v348, &v426);
-    v427 = v292.index >> 1;
-    v428 = v313.index >> 1;
-    v373.index = -1;
-    v372.index = -1;
-    cRBT_VOL_CreateResourcesScattering<R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,unsigned int,unsigned int>(pScript, &v373, &v372, &v359, &v371, &v370, &v428, &v427);
-    v182 = 0;
-    v288.index = 0;
+    v460.handleArgs[v179] = (unsigned int *)&v349;
+    ++v460.handleArgCount;
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int>(pScript, v178, &v460, &v356, &lightsCluster, &v364, &v343, &v421);
+    v422 = v287.index >> 1;
+    v423 = v308.index >> 1;
+    v368.index = -1;
+    v367.index = -1;
+    cRBT_VOL_CreateResourcesScattering<R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int,unsigned int,unsigned int>(pScript, &v368, &v367, &v354, &v366, &v365, &v423, &v422);
+    v180 = 0;
+    v283.index = 0;
     do
     {
-      cRBT_VOL_Scattering<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,int>(pScript, &v320, &v358, &v354, &v361, &lightsCluster, &v373, &v372, &v359, &v359, &sunshadowCascades, &sunShadow1, &transSunShadow, &transSunShadowMask, &staleCache, &v369, &v348, &volVisibility, (const int *)&v288);
-      v288.index = ++v182;
+      cRBT_VOL_Scattering<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,int>(pScript, &v315, &v353, &v349, &v356, &lightsCluster, &v368, &v367, &v354, &v354, &sunshadowCascades, &sunShadow1, &transSunShadow, &transSunShadowMask, &staleCache, &v364, &v343, &volVisibility, (const int *)&v283);
+      v283.index = ++v180;
     }
-    while ( v182 < 4 );
-    memset_0(&v479, 0, sizeof(v479));
-    ++v479.handleArgCount;
-    v479.handleArgs[0] = (unsigned int *)&v429;
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int>(pScript, g_R_TG_Def_RBT_VOL_Accumulate.m_index, &v479, &v359, &volVisibility, &volVisibility, &volScattering, &volExtinction, &v373, &v372, &v371, &v370);
+    while ( v180 < 4 );
+    memset_0(&v474, 0, sizeof(v474));
+    ++v474.handleArgCount;
+    v474.handleArgs[0] = (unsigned int *)&v424;
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int>(pScript, g_R_TG_Def_RBT_VOL_Accumulate.m_index, &v474, &v354, &volVisibility, &volVisibility, &volScattering, &volExtinction, &v368, &v367, &v366, &v365);
     cAsyncEnd(pScript);
   }
   else
   {
     volVisibility.index = triIDTexture.index;
-    v351.index = triIDTexture.index;
-    v361.index = triIDTexture.index;
-    v354.index = triIDTexture.index;
+    v346.index = triIDTexture.index;
+    v356.index = triIDTexture.index;
+    v349.index = triIDTexture.index;
     volExtinction.index = triIDTexture.index;
     volScattering.index = triIDTexture.index;
   }
-  v183 = *(_QWORD *)v4;
-  v294.index = -1;
-  if ( (v183 & 0x80000000) != 0 )
+  v181 = *(_QWORD *)v2;
+  v289.index = -1;
+  if ( (v181 & 0x80000000) != 0 )
   {
-    memset_0(&v501, 0, sizeof(v501));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_WaveWaterFloatZ_CreateClear.m_index, &v501, &v294, &floatZ);
+    memset_0(&v496, 0, sizeof(v496));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_WaveWaterFloatZ_CreateClear.m_index, &v496, &v289, &floatZ);
   }
   else
   {
-    v294.index = v346.index;
+    v289.index = v341.index;
   }
-  memset_0(&v502, 0, sizeof(v502));
-  R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawDecal.m_index, &v502, &sceneColor, &sceneDepth, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &vrsHWMask, &v327, &scope, &v294);
-  v184 = *(_QWORD *)v4;
-  if ( (*(_QWORD *)v4 & 0x800000000000i64) != 0 )
+  memset_0(&v497, 0, sizeof(v497));
+  R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawDecal.m_index, &v497, &sceneColor, &sceneDepth, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &vrsHWMask, &v322, &scope, &v289);
+  v182 = *(_QWORD *)v2;
+  if ( (*(_QWORD *)v2 & 0x800000000000i64) != 0 )
   {
-    v185 = *((_QWORD *)v4 + 1);
-    v362.index = -1;
-    if ( (v185 & 0x200000) == 0 || (v95 = (v185 & 1) == 0, v186 = 2304, !v95) )
-      v186 = 256;
-    v430 = v186;
-    memset_0(&v503, 0, sizeof(v503));
-    R_TG_AddTask<unsigned int>(pScript, g_R_TG_Def_Util_CreateSSSColor.m_index, &v503, &v362, &v430);
-    v187 = *((_QWORD *)v4 + 1);
-    v278.index = -1;
-    v300.index = -1;
-    if ( (v187 & 0x200000) != 0 && (v187 & 1) == 0 )
-      v172 = 2306;
-    v431 = v172;
-    memset_0(&v504, 0, sizeof(v504));
-    R_TG_AddTask<R_TG_Handle,unsigned int>(pScript, g_R_TG_Def_Util_CreateSceneLightingSSS.m_index, &v504, &v278, &v300, &v431);
-    if ( (v172 & 0x800) == 0 )
+    v183 = *((_QWORD *)v2 + 1);
+    v357.index = -1;
+    if ( (v183 & 0x200000) == 0 || (v93 = (v183 & 1) == 0, v184 = 2304, !v93) )
+      v184 = 256;
+    v425 = v184;
+    memset_0(&v498, 0, sizeof(v498));
+    R_TG_AddTask<unsigned int>(pScript, g_R_TG_Def_Util_CreateSSSColor.m_index, &v498, &v357, &v425);
+    v185 = *((_QWORD *)v2 + 1);
+    v273.index = -1;
+    v295.index = -1;
+    if ( (v185 & 0x200000) != 0 && (v185 & 1) == 0 )
+      v170 = 2306;
+    v426 = v170;
+    memset_0(&v499, 0, sizeof(v499));
+    R_TG_AddTask<R_TG_Handle,unsigned int>(pScript, g_R_TG_Def_Util_CreateSceneLightingSSS.m_index, &v499, &v273, &v295, &v426);
+    if ( (v170 & 0x800) == 0 )
     {
-      cRBT_SSS_AsyncClear<R_TG_Handle>(pScript, &v278);
-      cRBT_SSS_AsyncClear<R_TG_Handle>(pScript, &v300);
+      cRBT_SSS_AsyncClear<R_TG_Handle>(pScript, &v273);
+      cRBT_SSS_AsyncClear<R_TG_Handle>(pScript, &v295);
     }
-    memset_0(&v483, 0, sizeof(v483));
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
+    memset_0(&v478, 0, sizeof(v478));
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
     {
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawOpaqueSSS_VRS.m_index, &v483, &sceneColor, &sceneDepth, &v310, &reflectionGrid, &lightGridVol, &floatZ, &v306, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v331, &v344, &outDecalDrawData, &lightGridVolHighBands, &vrsHWMask, &v327, &scope, &v297, &v362, &v278, &outCreateRt);
-      cRBT_SSS_BlurX_VRS<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneDepth, &v278, &floatZ, &v300);
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawOpaqueSSS_VRS.m_index, &v478, &sceneColor, &sceneDepth, &v305, &reflectionGrid, &lightGridVol, &floatZ, &v301, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v326, &v339, &outDecalDrawData, &lightGridVolHighBands, &vrsHWMask, &v322, &scope, &v292, &v357, &v273, &outCreateRt);
+      cRBT_SSS_BlurX_VRS<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneDepth, &v273, &floatZ, &v295);
     }
     else
     {
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawOpaqueSSS.m_index, &v483, &sceneColor, &v362, &v278, &sceneDepth, &v310, &reflectionGrid, &lightGridVol, &floatZ, &v306, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v331, &v344, &outDecalDrawData, &lightGridVolHighBands, &vrsHWMask, &v327, &scope, &v297, &outCreateRt);
-      cRBT_SSS_BlurX<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v300, &sceneDepth, &v278, &floatZ);
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawOpaqueSSS.m_index, &v478, &sceneColor, &v357, &v273, &sceneDepth, &v305, &reflectionGrid, &lightGridVol, &floatZ, &v301, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v326, &v339, &outDecalDrawData, &lightGridVolHighBands, &vrsHWMask, &v322, &scope, &v292, &outCreateRt);
+      cRBT_SSS_BlurX<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v295, &sceneDepth, &v273, &floatZ);
     }
-    memset_0(&v460, 0, sizeof(v460));
-    v188 = g_R_TG_Def_RBT_SSS_BlurY.m_index;
-    v460.handleArgs[0] = (unsigned int *)&sceneColor;
-    v189 = v460.handleArgCount + 1;
-    v460.handleArgCount = v189;
+    memset_0(&v455, 0, sizeof(v455));
+    v186 = g_R_TG_Def_RBT_SSS_BlurY.m_index;
+    v455.handleArgs[0] = (unsigned int *)&sceneColor;
+    v187 = v455.handleArgCount + 1;
+    v455.handleArgCount = v187;
+    if ( (unsigned int)v187 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v187 = v455.handleArgCount;
+    }
+    v455.handleArgs[v187] = (unsigned int *)&sceneDepth;
+    v188 = v455.handleArgCount + 1;
+    v455.handleArgCount = v188;
+    if ( (unsigned int)v188 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v188 = v455.handleArgCount;
+    }
+    v455.handleArgs[v188] = (unsigned int *)&v357;
+    v189 = v455.handleArgCount + 1;
+    v455.handleArgCount = v189;
     if ( (unsigned int)v189 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v189 = v460.handleArgCount;
+      v189 = v455.handleArgCount;
     }
-    v460.handleArgs[v189] = (unsigned int *)&sceneDepth;
-    v190 = v460.handleArgCount + 1;
-    v460.handleArgCount = v190;
-    if ( (unsigned int)v190 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v190 = v460.handleArgCount;
-    }
-    v460.handleArgs[v190] = (unsigned int *)&v362;
-    v191 = v460.handleArgCount + 1;
-    v460.handleArgCount = v191;
-    if ( (unsigned int)v191 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v191 = v460.handleArgCount;
-    }
-    v460.handleArgs[v191] = (unsigned int *)&v278;
-    ++v460.handleArgCount;
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v188, &v460, &v300, &floatZ, &scope);
-    v184 = *(_QWORD *)v4;
+    v455.handleArgs[v189] = (unsigned int *)&v273;
+    ++v455.handleArgCount;
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v186, &v455, &v295, &floatZ, &scope);
+    v182 = *(_QWORD *)v2;
   }
-  v408.index = -1;
-  v332.index = -1;
-  if ( (v184 & 0x1000000000000000i64) != 0 )
+  v403.index = -1;
+  v327.index = -1;
+  if ( (v182 & 0x1000000000000000i64) != 0 )
   {
-    memset_0(&v482, 0, sizeof(v482));
-    v192 = g_R_TG_Def_Util_CreatePostOpaqueLumaVRS.m_index;
-    if ( (*((_BYTE *)v4 + 8) & 1) == 0 )
-      v192 = g_R_TG_Def_Util_CreatePostOpaqueLuma.m_index;
-    R_TG_AddTask<R_TG_Handle>(pScript, v192, &v482, &v332, &sceneColor);
-    memset_0(&v453, 0, sizeof(v453));
-    v193 = g_R_TG_Def_RBT_PostOpaqueProcessesLuma.m_index;
-    v453.handleArgs[0] = (unsigned int *)&sceneColor;
-    v194 = v453.handleArgCount + 1;
-    v453.handleArgCount = v194;
+    memset_0(&v477, 0, sizeof(v477));
+    v190 = g_R_TG_Def_Util_CreatePostOpaqueLumaVRS.m_index;
+    if ( (*((_BYTE *)v2 + 8) & 1) == 0 )
+      v190 = g_R_TG_Def_Util_CreatePostOpaqueLuma.m_index;
+    R_TG_AddTask<R_TG_Handle>(pScript, v190, &v477, &v327, &sceneColor);
+    memset_0(&v448, 0, sizeof(v448));
+    v191 = g_R_TG_Def_RBT_PostOpaqueProcessesLuma.m_index;
+    v448.handleArgs[0] = (unsigned int *)&sceneColor;
+    v192 = v448.handleArgCount + 1;
+    v448.handleArgCount = v192;
+    if ( (unsigned int)v192 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v192 = v448.handleArgCount;
+    }
+    v448.handleArgs[v192] = (unsigned int *)&vrsSWMask;
+    v193 = v448.handleArgCount + 1;
+    v448.handleArgCount = v193;
+    if ( (unsigned int)v193 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v193 = v448.handleArgCount;
+    }
+    v448.handleArgs[v193] = (unsigned int *)&v327;
+    v194 = v448.handleArgCount + 1;
+    v448.handleArgCount = v194;
     if ( (unsigned int)v194 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v194 = v453.handleArgCount;
+      v194 = v448.handleArgCount;
     }
-    v453.handleArgs[v194] = (unsigned int *)&vrsSWMask;
-    v195 = v453.handleArgCount + 1;
-    v453.handleArgCount = v195;
+    v448.handleArgs[v194] = (unsigned int *)&floatZ;
+    v195 = v448.handleArgCount + 1;
+    v448.handleArgCount = v195;
     if ( (unsigned int)v195 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v195 = v453.handleArgCount;
+      v195 = v448.handleArgCount;
     }
-    v453.handleArgs[v195] = (unsigned int *)&v332;
-    v196 = v453.handleArgCount + 1;
-    v453.handleArgCount = v196;
-    if ( (unsigned int)v196 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v196 = v453.handleArgCount;
-    }
-    v453.handleArgs[v196] = (unsigned int *)&floatZ;
-    v197 = v453.handleArgCount + 1;
-    v453.handleArgCount = v197;
-    if ( (unsigned int)v197 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v197 = v453.handleArgCount;
-    }
-    v453.handleArgs[v197] = (unsigned int *)&volScattering;
+    v448.handleArgs[v195] = (unsigned int *)&volScattering;
 LABEL_611:
-    ++v453.handleArgCount;
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v193, &v453, &volExtinction, &scope, &v408);
+    ++v448.handleArgCount;
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v191, &v448, &volExtinction, &scope, &v403);
     goto LABEL_612;
   }
   if ( floatZ.index != triIDTexture.index )
   {
-    v332.index = v346.index;
-    memset_0(&v453, 0, sizeof(v453));
-    v193 = g_R_TG_Def_RBT_PostOpaqueProcesses.m_index;
-    v453.handleArgs[0] = (unsigned int *)&sceneColor;
-    v198 = v453.handleArgCount + 1;
-    v453.handleArgCount = v198;
+    v327.index = v341.index;
+    memset_0(&v448, 0, sizeof(v448));
+    v191 = g_R_TG_Def_RBT_PostOpaqueProcesses.m_index;
+    v448.handleArgs[0] = (unsigned int *)&sceneColor;
+    v196 = v448.handleArgCount + 1;
+    v448.handleArgCount = v196;
+    if ( (unsigned int)v196 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v196 = v448.handleArgCount;
+    }
+    v448.handleArgs[v196] = (unsigned int *)&vrsSWMask;
+    v197 = v448.handleArgCount + 1;
+    v448.handleArgCount = v197;
+    if ( (unsigned int)v197 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v197 = v448.handleArgCount;
+    }
+    v448.handleArgs[v197] = (unsigned int *)&floatZ;
+    v198 = v448.handleArgCount + 1;
+    v448.handleArgCount = v198;
     if ( (unsigned int)v198 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v198 = v453.handleArgCount;
+      v198 = v448.handleArgCount;
     }
-    v453.handleArgs[v198] = (unsigned int *)&vrsSWMask;
-    v199 = v453.handleArgCount + 1;
-    v453.handleArgCount = v199;
-    if ( (unsigned int)v199 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v199 = v453.handleArgCount;
-    }
-    v453.handleArgs[v199] = (unsigned int *)&floatZ;
-    v200 = v453.handleArgCount + 1;
-    v453.handleArgCount = v200;
-    if ( (unsigned int)v200 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v200 = v453.handleArgCount;
-    }
-    v453.handleArgs[v200] = (unsigned int *)&volScattering;
+    v448.handleArgs[v198] = (unsigned int *)&volScattering;
     goto LABEL_611;
   }
 LABEL_612:
-  v201 = *(_QWORD *)v4;
-  v326.index = -1;
-  if ( (v201 & 0x400000000000i64) == 0 )
+  v199 = *(_QWORD *)v2;
+  v321.index = -1;
+  if ( (v199 & 0x400000000000i64) == 0 )
     goto LABEL_617;
-  v202 = (v201 >> 44) & 3;
-  if ( v202 == 2 )
+  v200 = (v199 >> 44) & 3;
+  if ( v200 == 2 )
   {
-    memset_0(&v481, 0, sizeof(v481));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSR_DeferredWaterTrace_CreateRT_LQ.m_index, &v481, &v326, &floatZ);
+    memset_0(&v476, 0, sizeof(v476));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSR_DeferredWaterTrace_CreateRT_LQ.m_index, &v476, &v321, &floatZ);
     goto LABEL_618;
   }
-  if ( v202 == 3 )
+  if ( v200 == 3 )
   {
-    memset_0(&v481, 0, sizeof(v481));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSR_DeferredWaterTrace_CreateRT_HQ.m_index, &v481, &v326, &floatZ);
+    memset_0(&v476, 0, sizeof(v476));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_SSR_DeferredWaterTrace_CreateRT_HQ.m_index, &v476, &v321, &floatZ);
   }
   else
   {
 LABEL_617:
-    v326.index = v346.index;
+    v321.index = v341.index;
   }
 LABEL_618:
-  if ( (*(_QWORD *)v4 & 0x100000000i64) != 0 )
+  if ( (*(_QWORD *)v2 & 0x100000000i64) != 0 )
   {
-    v432 = DRAWLIST_LIT_TRANS;
-    cRBT_DrawTrans<enum GfxDrawListType,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v432, &sceneColor, &sceneDepth, &v294, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &triIDTexture, &sunshadowCascade0ForViewmodel, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &v326, &vrsHWMask, &v327, &scope);
+    v427 = DRAWLIST_LIT_TRANS;
+    cRBT_DrawTrans<enum GfxDrawListType,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v427, &sceneColor, &sceneDepth, &v289, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &triIDTexture, &sunshadowCascade0ForViewmodel, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &v321, &vrsHWMask, &v322, &scope);
     outputRt.index = outCreateRt.index;
-    if ( (*(_QWORD *)v4 & 0x200000000i64) != 0 )
-      R_TGS_DistortSceneColor(pScript, &outputRt, sceneColor, vrsSWMask, R_PostLitResolve0_Active, 0x51u, *((_BYTE *)v4 + 8) & 1);
+    if ( (*(_QWORD *)v2 & 0x200000000i64) != 0 )
+      R_TGS_DistortSceneColor(pScript, &outputRt, sceneColor, vrsSWMask, R_PostLitResolve0_Active, 0x51u, *((_BYTE *)v2 + 8) & 1);
     else
       outputRt.index = triIDTexture.index;
-    v388 = DRAWLIST_LIT_TRANS1;
-    cRBT_DrawTrans<enum GfxDrawListType,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v388, &sceneColor, &sceneDepth, &v294, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &outputRt, &sunshadowCascade0ForViewmodel, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &v326, &vrsHWMask, &v327, &scope);
+    v383 = DRAWLIST_LIT_TRANS1;
+    cRBT_DrawTrans<enum GfxDrawListType,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v383, &sceneColor, &sceneDepth, &v289, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &outputRt, &sunshadowCascade0ForViewmodel, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &v321, &vrsHWMask, &v322, &scope);
   }
-  if ( (*(_QWORD *)v4 & 0x400000000000i64) != 0 && ((*(_QWORD *)v4 >> 44) & 3ui64) - 2 <= 1 )
-    cRBT_SSR_DeferredWaterTrace<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v326, &floatZ, &v294, &scope);
+  if ( (*(_QWORD *)v2 & 0x400000000000i64) != 0 && ((*(_QWORD *)v2 >> 44) & 3ui64) - 2 <= 1 )
+    cRBT_SSR_DeferredWaterTrace<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v321, &floatZ, &v289, &scope);
   else
-    v326.index = triIDTexture.index;
-  v349.index = -1;
-  memset_0(&v505, 0, sizeof(v505));
-  R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawOcclusionQueries.m_index, &v505, &sceneDepth, &v349);
-  v203 = *(_QWORD *)v4;
-  if ( (*(_QWORD *)v4 & 0x8000000000i64) != 0 )
+    v321.index = triIDTexture.index;
+  v344.index = -1;
+  memset_0(&v500, 0, sizeof(v500));
+  R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawOcclusionQueries.m_index, &v500, &sceneDepth, &v344);
+  v201 = *(_QWORD *)v2;
+  if ( (*(_QWORD *)v2 & 0x8000000000i64) != 0 )
   {
-    memset_0(&v506, 0, sizeof(v506));
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawSun.m_index, &v506, &sceneColor, &sceneDepth, &v349);
-    memset_0(&v507, 0, sizeof(v507));
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawSunPost.m_index, &v507, &sceneColor, &sceneDepth, &v349);
-    v203 = *(_QWORD *)v4;
+    memset_0(&v501, 0, sizeof(v501));
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawSun.m_index, &v501, &sceneColor, &sceneDepth, &v344);
+    memset_0(&v502, 0, sizeof(v502));
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_DrawSunPost.m_index, &v502, &sceneColor, &sceneDepth, &v344);
+    v201 = *(_QWORD *)v2;
   }
-  v204 = *((_QWORD *)v4 + 1);
+  v202 = *((_QWORD *)v2 + 1);
   outColor.index = -1;
   outSH.index = -1;
   outFog.index = -1;
   inoutFullresAlpha.index = -1;
-  v379.index = -1;
-  if ( (v204 & 0x4000000000i64) != 0 )
+  v374.index = -1;
+  if ( (v202 & 0x4000000000i64) != 0 )
   {
-    v277[0] = GFX_RENDERTARGET_FORMAT_OVERDRAW_OVERLAY;
-    cUtil_CreateRelativeAndClear<R_TG_Handle,R_TG_Handle,enum GfxRenderTargetFormat>(pScript, &v379, &sceneDepth, v277);
-    memset_0(&v456, 0, sizeof(v456));
-    v205 = g_R_TG_Def_RBTD_DrawEmissiveOverdraw.m_index;
-    v456.paramArgs[v456.paramArgCount++] = 3;
-    if ( v456.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+    v272[0] = GFX_RENDERTARGET_FORMAT_OVERDRAW_OVERLAY;
+    cUtil_CreateRelativeAndClear<R_TG_Handle,R_TG_Handle,enum GfxRenderTargetFormat>(pScript, &v374, &sceneDepth, v272);
+    memset_0(&v451, 0, sizeof(v451));
+    v203 = g_R_TG_Def_RBTD_DrawEmissiveOverdraw.m_index;
+    v451.paramArgs[v451.paramArgCount++] = 3;
+    if ( v451.handleArgCount >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
       __debugbreak();
-    v456.handleArgs[v456.handleArgCount] = (unsigned int *)&v379;
-    v206 = v456.handleArgCount + 1;
-    v456.handleArgCount = v206;
+    v451.handleArgs[v451.handleArgCount] = (unsigned int *)&v374;
+    v204 = v451.handleArgCount + 1;
+    v451.handleArgCount = v204;
+    if ( (unsigned int)v204 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v204 = v451.handleArgCount;
+    }
+    v451.handleArgs[v204] = (unsigned int *)&sceneDepth;
+    v205 = v451.handleArgCount + 1;
+    v451.handleArgCount = v205;
+    if ( (unsigned int)v205 >= 0x1E )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+        __debugbreak();
+      v205 = v451.handleArgCount;
+    }
+    v451.handleArgs[v205] = (unsigned int *)&v289;
+    v206 = v451.handleArgCount + 1;
+    v451.handleArgCount = v206;
     if ( (unsigned int)v206 >= 0x1E )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
         __debugbreak();
-      v206 = v456.handleArgCount;
+      v206 = v451.handleArgCount;
     }
-    v456.handleArgs[v206] = (unsigned int *)&sceneDepth;
-    v207 = v456.handleArgCount + 1;
-    v456.handleArgCount = v207;
-    if ( (unsigned int)v207 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v207 = v456.handleArgCount;
-    }
-    v456.handleArgs[v207] = (unsigned int *)&v294;
-    v208 = v456.handleArgCount + 1;
-    v456.handleArgCount = v208;
-    if ( (unsigned int)v208 >= 0x1E )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-        __debugbreak();
-      v208 = v456.handleArgCount;
-    }
-    v456.handleArgs[v208] = (unsigned int *)&sceneIndices;
-    ++v456.handleArgCount;
-    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v205, &v456, &sceneIndirectArgs, &scenePerSurfData, &floatZ);
+    v451.handleArgs[v206] = (unsigned int *)&sceneIndices;
+    ++v451.handleArgCount;
+    R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v203, &v451, &sceneIndirectArgs, &scenePerSurfData, &floatZ);
     inoutFullresAlpha.index = triIDTexture.index;
   }
-  else if ( (v203 & 0x1000000000i64) != 0 )
+  else if ( (v201 & 0x1000000000i64) != 0 )
   {
-    if ( (v203 & 0x400000000i64) != 0 )
+    if ( (v201 & 0x400000000i64) != 0 )
     {
-      R_TGS_EffectLighting(pScript, (v203 & 2) != 0, (v203 & 0x800000004i64) == 0x800000004i64, lightsCluster, sunshadowCascades, sunShadow1, transSunShadow, transSunShadowMask, triIDTexture, nullBuffer, reflectionGrid, staleCache, volScattering, volExtinction, volVisibility, &outColor, &outSH, &outFog, syncToken);
-      v204 = *((_QWORD *)v4 + 1);
+      R_TGS_EffectLighting(pScript, (v201 & 2) != 0, (v201 & 0x800000004i64) == 0x800000004i64, lightsCluster, sunshadowCascades, sunShadow1, transSunShadow, transSunShadowMask, triIDTexture, nullBuffer, reflectionGrid, staleCache, volScattering, volExtinction, volVisibility, &outColor, &outSH, &outFog, syncToken);
+      v202 = *((_QWORD *)v2 + 1);
     }
     else
     {
@@ -4726,667 +4719,663 @@ LABEL_618:
       outSH.index = triIDTexture.index;
       outColor.index = triIDTexture.index;
     }
-    v277[0] = GFX_RENDERTARGET_FORMAT_SCENEBUFFER_ALPHA;
-    if ( (v204 & 1) != 0 )
+    v272[0] = GFX_RENDERTARGET_FORMAT_SCENEBUFFER_ALPHA;
+    if ( (v202 & 1) != 0 )
     {
-      memset_0(&v456, 0, sizeof(v456));
-      R_TG_AddTask<R_TG_Handle,enum GfxRenderTargetFormat>(pScript, g_R_TG_Def_Util_CreateRelativeAndClearVRS.m_index, &v456, &inoutFullresAlpha, &sceneDepth, v277);
+      memset_0(&v451, 0, sizeof(v451));
+      R_TG_AddTask<R_TG_Handle,enum GfxRenderTargetFormat>(pScript, g_R_TG_Def_Util_CreateRelativeAndClearVRS.m_index, &v451, &inoutFullresAlpha, &sceneDepth, v272);
     }
     else
     {
-      cUtil_CreateRelativeAndClear<R_TG_Handle,R_TG_Handle,enum GfxRenderTargetFormat>(pScript, &inoutFullresAlpha, &sceneDepth, v277);
+      cUtil_CreateRelativeAndClear<R_TG_Handle,R_TG_Handle,enum GfxRenderTargetFormat>(pScript, &inoutFullresAlpha, &sceneDepth, v272);
     }
-    if ( (*((_BYTE *)v4 + 8) & 2) != 0 )
+    if ( (*((_BYTE *)v2 + 8) & 2) != 0 )
     {
       halfresColor.index = -1;
       halfresAlpha.index = -1;
-      v336.index = -1;
-      memset_0(&v480, 0, sizeof(v480));
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_Util_CreateRelativeColorAlpha4xMS.m_index, &v480, &halfresColor, &halfresAlpha, &sceneDepth);
+      v331.index = -1;
+      memset_0(&v475, 0, sizeof(v475));
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_Util_CreateRelativeColorAlpha4xMS.m_index, &v475, &halfresColor, &halfresAlpha, &sceneDepth);
       cClearColorTargetsInNextTask(pScript);
-      v336.index = v375;
+      v331.index = v370;
       SceneDownsampleMipForExposureCalculation = EMISSIVE_PASS_EMISSIVE;
-      cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleMipForExposureCalculation, &halfresColor, &halfresAlpha, &v336, &v294, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v275, &reflectionGrid);
+      cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleMipForExposureCalculation, &halfresColor, &halfresAlpha, &v331, &v289, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v270, &reflectionGrid);
       R_TG_Resolve_Upsample4xMS(pScript, &sceneColor, &inoutFullresAlpha, halfresColor, halfresAlpha, 0x57u);
     }
-    else if ( (*(_QWORD *)v4 & 0x2000000000i64) != 0 )
+    else if ( (*(_QWORD *)v2 & 0x2000000000i64) != 0 )
     {
       halfresColor.index = -1;
-      v336.index = -1;
+      v331.index = -1;
       halfresAlpha.index = -1;
+      memset_0(&v475, 0, sizeof(v475));
+      R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_HalfRes_DownsampleDepth.m_index, &v475, &halfresColor, &sceneDepth);
       memset_0(&v480, 0, sizeof(v480));
-      R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_HalfRes_DownsampleDepth.m_index, &v480, &halfresColor, &sceneDepth);
-      memset_0(&v485, 0, sizeof(v485));
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_Util_CreateHalfRelativeColorAlpha.m_index, &v485, &v336, &halfresAlpha, &sceneColor);
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_Util_CreateHalfRelativeColorAlpha.m_index, &v480, &v331, &halfresAlpha, &sceneColor);
       SceneDownsampleMipForExposureCalculation = EMISSIVE_PASS_EMISSIVE;
-      cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleMipForExposureCalculation, &v336, &halfresAlpha, &halfresColor, &v294, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v275, &reflectionGrid);
-      cRBT_HalfRes_Upsample<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &inoutFullresAlpha, &v336, &halfresAlpha, &halfresColor, &sceneDepth);
+      cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleMipForExposureCalculation, &v331, &halfresAlpha, &halfresColor, &v289, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v270, &reflectionGrid);
+      cRBT_HalfRes_Upsample<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &inoutFullresAlpha, &v331, &halfresAlpha, &halfresColor, &sceneDepth);
     }
     else
     {
       SceneDownsampleMipForExposureCalculation = EMISSIVE_PASS_EMISSIVE;
-      cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleMipForExposureCalculation, &sceneColor, &inoutFullresAlpha, &sceneDepth, &v294, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v275, &reflectionGrid);
+      cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleMipForExposureCalculation, &sceneColor, &inoutFullresAlpha, &sceneDepth, &v289, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v270, &reflectionGrid);
     }
-    v313.index = outCreateRt.index;
-    if ( (*(_QWORD *)v4 & 0x4000000000i64) != 0 )
-      R_TGS_DistortSceneColor(pScript, &v313, sceneColor, vrsSWMask, R_PostLitResolve1_Active, 0x59u, *((_BYTE *)v4 + 8) & 1);
+    v308.index = outCreateRt.index;
+    if ( (*(_QWORD *)v2 & 0x4000000000i64) != 0 )
+      R_TGS_DistortSceneColor(pScript, &v308, sceneColor, vrsSWMask, R_PostLitResolve1_Active, 0x59u, *((_BYTE *)v2 + 8) & 1);
     else
-      v313.index = triIDTexture.index;
+      v308.index = triIDTexture.index;
     SceneDownsampleVeilMipCount = EMISSIVE_PASS_DISTORT_EMISSIVE;
-    cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleVeilMipCount, &sceneColor, &inoutFullresAlpha, &sceneDepth, &v294, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &v313, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v275, &reflectionGrid);
+    cRBT_DrawEmissive<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &SceneDownsampleVeilMipCount, &sceneColor, &inoutFullresAlpha, &sceneDepth, &v289, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &v308, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v270, &reflectionGrid);
   }
   else
   {
     inoutFullresAlpha.index = triIDTexture.index;
-    if ( (v203 & 0x300000000000i64) != 0 )
-      R_TGS_DistortSceneColor(pScript, &outCreateRt, sceneColor, vrsSWMask, R_PostLitResolve1_Active, 0x59u, v204 & 1);
+    if ( (v201 & 0x300000000000i64) != 0 )
+      R_TGS_DistortSceneColor(pScript, &outCreateRt, sceneColor, vrsSWMask, R_PostLitResolve1_Active, 0x59u, v202 & 1);
   }
-  if ( (*(_QWORD *)v4 & 0x100000000i64) != 0 )
+  if ( (*(_QWORD *)v2 & 0x100000000i64) != 0 )
   {
-    v318 = DRAWLIST_DEPTH_HACK_TRANS;
-    cRBT_DrawTrans<enum GfxDrawListType,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v318, &sceneColor, &sceneDepth, &v346, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &outCreateRt, &sunshadowCascade0ForViewmodel, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &triIDTexture, &vrsHWMask, &v327, &scope);
+    v313 = DRAWLIST_DEPTH_HACK_TRANS;
+    cRBT_DrawTrans<enum GfxDrawListType,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v313, &sceneColor, &sceneDepth, &v341, &lightsCluster, &reflectionGrid, &lightGridVol, &floatZ, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &volScattering, &volExtinction, &volVisibility, &outDecalIndices, &outCreateRt, &sunshadowCascade0ForViewmodel, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &outDecalDrawData, &lightGridVolHighBands, &triIDTexture, &vrsHWMask, &v322, &scope);
   }
-  v209 = *((_QWORD *)v4 + 1);
-  if ( (v209 & 0x800000) != 0 )
+  v207 = *((_QWORD *)v2 + 1);
+  if ( (v207 & 0x800000) != 0 )
   {
     cRBT_End3D<R_TG_Handle>(pScript, &sceneColor);
-    memset_0(&v485, 0, sizeof(v485));
-    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBTD_ReflectionProbeGenerate_CaptureScene.m_index, &v485, &sceneColor, &sceneDepth);
+    memset_0(&v480, 0, sizeof(v480));
+    R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBTD_ReflectionProbeGenerate_CaptureScene.m_index, &v480, &sceneColor, &sceneDepth);
     return;
   }
-  v380.index = -1;
-  if ( (v209 & 0x4000000) != 0 )
+  v375.index = -1;
+  if ( (v207 & 0x4000000) != 0 )
   {
-    if ( (v209 & 1) != 0 )
+    if ( (v207 & 1) != 0 )
     {
-      memset_0(&v486, 0, sizeof(v486));
-      v210 = g_R_TG_Def_RBTD_DrawPrimitives_Offscreen_VRS.m_index;
+      memset_0(&v481, 0, sizeof(v481));
+      v208 = g_R_TG_Def_RBTD_DrawPrimitives_Offscreen_VRS.m_index;
     }
     else
     {
-      memset_0(&v486, 0, sizeof(v486));
-      v210 = g_R_TG_Def_RBTD_DrawPrimitives_Offscreen.m_index;
+      memset_0(&v481, 0, sizeof(v481));
+      v208 = g_R_TG_Def_RBTD_DrawPrimitives_Offscreen.m_index;
     }
-    R_TG_AddTask<R_TG_Handle>(pScript, v210, &v486, &v380, &sceneDepth);
+    R_TG_AddTask<R_TG_Handle>(pScript, v208, &v481, &v375, &sceneDepth);
   }
-  if ( (*((_QWORD *)v4 + 1) & 0x40000000000i64) != 0 )
+  if ( (*((_QWORD *)v2 + 1) & 0x40000000000i64) != 0 )
     cRBTD_DrawDebug3D<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &lightGridVol, &lightGridVolHighBands, &umbraOcclusionTexture);
-  v319.index = -1;
-  v365.index = -1;
-  memset_0(&v510, 0, sizeof(v510));
-  R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_UniversalClut.m_index, &v510, &v319, &v365);
-  v211 = *(_QWORD *)v4;
-  v308.index = -1;
-  if ( (v211 & 0x2000000000000000i64) != 0 )
+  v314.index = -1;
+  v360.index = -1;
+  memset_0(&v505, 0, sizeof(v505));
+  R_TG_AddTask<R_TG_Handle>(pScript, g_R_TG_Def_RBT_UniversalClut.m_index, &v505, &v314, &v360);
+  v209 = *(_QWORD *)v2;
+  v303.index = -1;
+  if ( (v209 & 0x2000000000000000i64) != 0 )
   {
-    memset_0(&v511, 0, sizeof(v511));
-    v308.index = R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_Draw2D_BeforePostFX.m_index, &v511, &sceneColor, &sceneDepth, &v319);
-    v211 = *(_QWORD *)v4;
+    memset_0(&v506, 0, sizeof(v506));
+    v303.index = R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, g_R_TG_Def_RBT_Draw2D_BeforePostFX.m_index, &v506, &sceneColor, &sceneDepth, &v314);
+    v209 = *(_QWORD *)v2;
   }
-  if ( (v211 & 0x10000000000i64) != 0 )
+  if ( (v209 & 0x10000000000i64) != 0 )
   {
-    v95 = (*((_BYTE *)v4 + 8) & 1) == 0;
-    v363.index = -1;
-    if ( v95 )
+    v93 = (*((_BYTE *)v2 + 8) & 1) == 0;
+    v358.index = -1;
+    if ( v93 )
     {
-      cRBT_Flare_CalculateOcclusion<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &inoutFullresAlpha, &volScattering, &volExtinction, &volVisibility, &scope, &v363, &v349);
+      cRBT_Flare_CalculateOcclusion<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &inoutFullresAlpha, &volScattering, &volExtinction, &volVisibility, &scope, &v358, &v344);
     }
     else
     {
-      memset_0(&v459, 0, sizeof(v459));
-      v212 = g_R_TG_Def_RBT_Flare_CalculateOcclusionInlineResolve.m_index;
-      v459.handleArgs[0] = (unsigned int *)&inoutFullresAlpha;
-      v213 = v459.handleArgCount + 1;
-      v459.handleArgCount = v213;
+      memset_0(&v454, 0, sizeof(v454));
+      v210 = g_R_TG_Def_RBT_Flare_CalculateOcclusionInlineResolve.m_index;
+      v454.handleArgs[0] = (unsigned int *)&inoutFullresAlpha;
+      v211 = v454.handleArgCount + 1;
+      v454.handleArgCount = v211;
+      if ( (unsigned int)v211 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v211 = v454.handleArgCount;
+      }
+      v454.handleArgs[v211] = (unsigned int *)&volScattering;
+      v212 = v454.handleArgCount + 1;
+      v454.handleArgCount = v212;
+      if ( (unsigned int)v212 >= 0x1E )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
+          __debugbreak();
+        v212 = v454.handleArgCount;
+      }
+      v454.handleArgs[v212] = (unsigned int *)&volExtinction;
+      v213 = v454.handleArgCount + 1;
+      v454.handleArgCount = v213;
       if ( (unsigned int)v213 >= 0x1E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
           __debugbreak();
-        v213 = v459.handleArgCount;
+        v213 = v454.handleArgCount;
       }
-      v459.handleArgs[v213] = (unsigned int *)&volScattering;
-      v214 = v459.handleArgCount + 1;
-      v459.handleArgCount = v214;
-      if ( (unsigned int)v214 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v214 = v459.handleArgCount;
-      }
-      v459.handleArgs[v214] = (unsigned int *)&volExtinction;
-      v215 = v459.handleArgCount + 1;
-      v459.handleArgCount = v215;
-      if ( (unsigned int)v215 >= 0x1E )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.h", 122, ASSERT_TYPE_ASSERT, "(arguments->handleArgCount < arguments->handleArgLimit)", (const char *)&queryFormat, "arguments->handleArgCount < arguments->handleArgLimit") )
-          __debugbreak();
-        v215 = v459.handleArgCount;
-      }
-      v459.handleArgs[v215] = (unsigned int *)&volVisibility;
-      ++v459.handleArgCount;
-      R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v212, &v459, &scope, &v363, &v349);
+      v454.handleArgs[v213] = (unsigned int *)&volVisibility;
+      ++v454.handleArgCount;
+      R_TG_AddTask<R_TG_Handle,R_TG_Handle>(pScript, v210, &v454, &scope, &v358, &v344);
     }
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
-      cRBT_Flare_Draw_VRS<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &v363);
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
+      cRBT_Flare_Draw_VRS<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &v358);
     else
-      cRBT_Flare_Draw<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &v363);
+      cRBT_Flare_Draw<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneDepth, &v358);
   }
-  v216 = *((_QWORD *)v4 + 1);
-  if ( (v216 & 0x10000000) != 0 )
+  v214 = *((_QWORD *)v2 + 1);
+  if ( (v214 & 0x10000000) != 0 )
   {
-    v217 = pScript;
-    if ( (v216 & 0x40000000) != 0 )
+    v215 = pScript;
+    if ( (v214 & 0x40000000) != 0 )
     {
-      v321[0] = GFX_RENDERTARGET_FORMAT_SCENEBUFFER;
-      cUtil_CreateRelativeAndClear<R_TG_Handle,R_TG_Handle,enum GfxRenderTargetFormat>(pScript, &v335, &sceneColor, v321);
-      p_sceneColor = &v335;
-      v217 = pScript;
+      v316[0] = GFX_RENDERTARGET_FORMAT_SCENEBUFFER;
+      cUtil_CreateRelativeAndClear<R_TG_Handle,R_TG_Handle,enum GfxRenderTargetFormat>(pScript, &v330, &sceneColor, v316);
+      p_sceneColor = &v330;
+      v215 = pScript;
     }
     else
     {
       p_sceneColor = &sceneColor;
     }
-    v266 = GFX_GP_PASS_CAMERA;
-    cRBTD_ShowTris<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,enum GFX_GP_PASS>(v217, p_sceneColor, &sceneDepth, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v266);
+    v261 = GFX_GP_PASS_CAMERA;
+    cRBTD_ShowTris<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,enum GFX_GP_PASS>(v215, p_sceneColor, &sceneDepth, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &v261);
   }
-  v219 = *(_QWORD *)v4;
-  v333.index = -1;
-  v350.index = -1;
-  if ( v219 >= 0 )
+  v217 = *(_QWORD *)v2;
+  v328.index = -1;
+  v345.index = -1;
+  if ( v217 >= 0 )
   {
-    v333.index = triIDTexture.index;
-    v350.index = triIDTexture.index;
+    v328.index = triIDTexture.index;
+    v345.index = triIDTexture.index;
   }
   else
   {
     srcTask = -1;
-    cRBT_HudOutlineGenWorkgroups<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, (const R_TG_Handle *)&srcTask, &sceneColor, &v289, &floatZ, &v309);
-    v292.index = -1;
-    cRBT_HudOutlineWorkgroupsArgs<R_TG_Handle,R_TG_Handle>(pScript, &v292, (const R_TG_Handle *)&srcTask);
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
-      cRBT_ApplyHudOutlineCSVrsInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v333, &v350, &sceneEntityIDVelocity, &v275, &v274, (const R_TG_Handle *)&srcTask, &v292, &floatZ);
+    cRBT_HudOutlineGenWorkgroups<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, (const R_TG_Handle *)&srcTask, &sceneColor, &v284, &floatZ, &v304);
+    v287.index = -1;
+    cRBT_HudOutlineWorkgroupsArgs<R_TG_Handle,R_TG_Handle>(pScript, &v287, (const R_TG_Handle *)&srcTask);
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
+      cRBT_ApplyHudOutlineCSVrsInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v328, &v345, &sceneEntityIDVelocity, &v270, &v269, (const R_TG_Handle *)&srcTask, &v287, &floatZ);
     else
-      cRBT_ApplyHudOutlineCS<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v333, &v350, &sceneEntityIDVelocity, &v275, &v274, (const R_TG_Handle *)&srcTask, &v292, &floatZ);
-    v219 = *(_QWORD *)v4;
+      cRBT_ApplyHudOutlineCS<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v328, &v345, &sceneEntityIDVelocity, &v270, &v269, (const R_TG_Handle *)&srcTask, &v287, &floatZ);
+    v217 = *(_QWORD *)v2;
   }
-  v220 = ((unsigned __int64)v219 >> 60) & 1;
-  v329.index = -1;
-  if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
+  v218 = ((unsigned __int64)v217 >> 60) & 1;
+  v324.index = -1;
+  if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
   {
-    v292.index = -1;
-    if ( v220 )
-      cRBT_PostTransResolve_Mask_Vrs<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v329, &v292, &sceneColor, &v332, &v289, &v350, &vrsSWMask);
+    v287.index = -1;
+    if ( v218 )
+      cRBT_PostTransResolve_Mask_Vrs<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v324, &v287, &sceneColor, &v327, &v284, &v345, &vrsSWMask);
     else
-      cRBT_PostTransResolve_Vrs<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v292, &sceneColor, &vrsSWMask);
-    sceneColor.index = v292.index;
+      cRBT_PostTransResolve_Vrs<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v287, &sceneColor, &vrsSWMask);
+    sceneColor.index = v287.index;
   }
-  else if ( v220 )
+  else if ( v218 )
   {
-    cRBT_PostTransResolve_Mask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v329, &sceneColor, &v332, &v289, &v350);
+    cRBT_PostTransResolve_Mask<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v324, &sceneColor, &v327, &v284, &v345);
   }
-  v221 = *(_QWORD *)v4;
-  v222 = v329.index;
-  if ( (*(_QWORD *)v4 & 0x1000000000000000i64) == 0 )
-    v222 = triIDTexture.index;
-  v329.index = v222;
-  if ( (v221 & 0x10000000000000i64) != 0 )
+  v219 = *(_QWORD *)v2;
+  v220 = v324.index;
+  if ( (*(_QWORD *)v2 & 0x1000000000000000i64) == 0 )
+    v220 = triIDTexture.index;
+  v324.index = v220;
+  if ( (v219 & 0x10000000000000i64) != 0 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsp+4F40h+occlusionDepthTexture], xmm1
-    }
-    sceneColor.index = R_TG_MBlur_Apply(&v438, pScript, sceneColor, sceneVelocityHalf, occlusionDepthTexture)->index;
-    v221 = *(_QWORD *)v4;
+    v221 = pScript->displaySize.v[1] >> 1;
+    if ( (*((_DWORD *)v2 + 2) & 0x80000) == 0 )
+      v221 = pScript->displaySize.v[1];
+    v223 = (float)v221;
+    v222 = (float)pScript->displaySize.v[0];
+    sceneColor.index = R_TG_MBlur_Apply(&v433, pScript, sceneColor, sceneVelocityHalf, v222 / v223)->index;
+    v219 = *(_QWORD *)v2;
   }
-  if ( (v221 & 0x1000000000i64) != 0 && (*((_QWORD *)v4 + 1) & 0x4000000000i64) == 0 )
+  if ( (v219 & 0x1000000000i64) != 0 && (*((_QWORD *)v2 + 1) & 0x4000000000i64) == 0 )
   {
-    v266 = GFX_GP_PASS_COUNT;
-    cRBT_DrawEmissivePostBlur<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, (const GfxEmissivePass *)&v266, &sceneColor, &v294, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v514, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v275, &reflectionGrid);
+    v261 = GFX_GP_PASS_COUNT;
+    cRBT_DrawEmissivePostBlur<enum GfxEmissivePass,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, (const GfxEmissivePass *)&v261, &sceneColor, &v289, &sceneIndices, &sceneIndirectArgs, &scenePerSurfData, &floatZ, &triIDTexture, &outColor, &outSH, &outFog, &sunshadowCascades, &sunShadow1, &v509, &transSunShadow, &transSunShadowMask, &volScattering, &volExtinction, &volVisibility, &scope, &v270, &reflectionGrid);
   }
   cRBT_GP_ResetClutterFrame<R_TG_Handle>(pScript, &sceneColor);
-  v228 = *(_QWORD *)v4;
+  v224 = *(_QWORD *)v2;
   dofTile0Handle.index = -1;
-  if ( (v228 & 0x4000000000000i64) != 0 )
+  if ( (v224 & 0x4000000000000i64) != 0 )
   {
-    if ( (v228 & 0x8000000000000i64) != 0 )
+    if ( (v224 & 0x8000000000000i64) != 0 )
       R_TGS_DOF_Fullres_Apply(pScript, &sceneColor, floatZ, scope, &dofTile0Handle);
     else
       R_TGS_DOF_Apply(pScript, &sceneColor, floatZ, velocity, scope, &dofTile0Handle);
-    v228 = *(_QWORD *)v4;
+    v224 = *(_QWORD *)v2;
   }
   else
   {
     dofTile0Handle.index = triIDTexture.index;
   }
-  if ( (v228 & 0x1000000000000i64) != 0 )
+  if ( (v224 & 0x1000000000000i64) != 0 )
   {
     cRBT_Lens_Convolution<R_TG_Handle,R_TG_Handle>(pScript, &sceneColor, &sceneColor);
-    v228 = *(_QWORD *)v4;
+    v224 = *(_QWORD *)v2;
   }
   color.index = -1;
-  v366.index = -1;
-  v334.index = -1;
-  v382.index = -1;
-  if ( (v228 & 0x80000000000000i64) != 0 )
+  v361.index = -1;
+  v329.index = -1;
+  v377.index = -1;
+  if ( (v224 & 0x80000000000000i64) != 0 )
   {
     R_Perceptual_UpdateVeilWeights(0);
     SceneDownsampleMipForExposureCalculation = R_Tonemap_GetSceneDownsampleMipForExposureCalculation(pScript->sceneSize.v[0], pScript->sceneSize.v[1]);
-    v229 = SceneDownsampleMipForExposureCalculation;
+    v225 = SceneDownsampleMipForExposureCalculation;
     SceneDownsampleVeilMip = R_Perceptual_GetSceneDownsampleVeilMip(SceneDownsampleMipForExposureCalculation);
     SceneDownsampleVeilMipCount = R_Perceptual_GetSceneDownsampleVeilMipCount(pScript->sceneSize.v[0], pScript->sceneSize.v[1], SceneDownsampleVeilMip);
-    v231 = SceneDownsampleVeilMipCount;
-    SceneDownsampleTotalMipCount = R_Perceptual_GetSceneDownsampleTotalMipCount(v229, SceneDownsampleVeilMip, SceneDownsampleVeilMipCount);
-    v233 = SceneDownsampleTotalMipCount;
-    if ( (!v229 || v231 <= 1 || SceneDownsampleTotalMipCount <= 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\scripts\\r_tgs_misc.h", 1623, ASSERT_TYPE_ASSERT, "(exposureMip > 0 && veilMipCount > 1 && downsampleMipCount > 1)", (const char *)&queryFormat, "exposureMip > 0 && veilMipCount > 1 && downsampleMipCount > 1") )
+    v227 = SceneDownsampleVeilMipCount;
+    SceneDownsampleTotalMipCount = R_Perceptual_GetSceneDownsampleTotalMipCount(v225, SceneDownsampleVeilMip, SceneDownsampleVeilMipCount);
+    v229 = SceneDownsampleTotalMipCount;
+    if ( (!v225 || v227 <= 1 || SceneDownsampleTotalMipCount <= 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\scripts\\r_tgs_misc.h", 1623, ASSERT_TYPE_ASSERT, "(exposureMip > 0 && veilMipCount > 1 && downsampleMipCount > 1)", (const char *)&queryFormat, "exposureMip > 0 && veilMipCount > 1 && downsampleMipCount > 1") )
       __debugbreak();
-    v234 = (*(_QWORD *)v4 >> 54) & 1i64;
-    v300.index = sceneColor.index;
+    v230 = (*(_QWORD *)v2 >> 54) & 1i64;
+    v295.index = sceneColor.index;
     `vector constructor iterator'(&__t, 4ui64, 0x10ui64, (void *(__fastcall *)(void *))R_TG_Handle::R_TG_Handle);
-    if ( v233 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\scripts\\r_tgs_misc.h", 1629, ASSERT_TYPE_ASSERT, "(downsampleMipCount <= ( sizeof( *array_counter( sceneDownsampleMipRts ) ) + 0 ))", (const char *)&queryFormat, "downsampleMipCount <= ARRAY_COUNT( sceneDownsampleMipRts )") )
+    if ( v229 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\scripts\\r_tgs_misc.h", 1629, ASSERT_TYPE_ASSERT, "(downsampleMipCount <= ( sizeof( *array_counter( sceneDownsampleMipRts ) ) + 0 ))", (const char *)&queryFormat, "downsampleMipCount <= ARRAY_COUNT( sceneDownsampleMipRts )") )
       __debugbreak();
     cGpuTimerBegin(pScript, 0x72u);
-    v235 = v233 + 1;
-    v236 = 1;
-    if ( v233 + 1 > 1 )
+    v231 = v229 + 1;
+    v232 = 1;
+    if ( v229 + 1 > 1 )
     {
-      v318 = DRAWLIST_FIRST;
-      v237 = &v523;
-      v238 = &v523;
-      v239 = v235;
+      v313 = DRAWLIST_FIRST;
+      v233 = &v518;
+      v234 = &v518;
+      v235 = v231;
       do
       {
-        v240 = GFX_GP_PASS_CAMERA;
-        if ( v236 < SceneDownsampleVeilMip )
-          v240 = (int)v234;
-        v266 = v240;
-        cRBT_Perceptual_Downsample_NoDynResCS<R_TG_Handle,R_TG_Handle,int,enum VeilTonemapMode>(pScript, v238, &v300, (const int *)&v318, (const VeilTonemapMode *)&v266);
-        v241 = v237->index;
-        ++v237;
-        ++v236;
-        v300.index = v241;
-        ++v238;
+        v236 = GFX_GP_PASS_CAMERA;
+        if ( v232 < SceneDownsampleVeilMip )
+          v236 = (int)v230;
+        v261 = v236;
+        cRBT_Perceptual_Downsample_NoDynResCS<R_TG_Handle,R_TG_Handle,int,enum VeilTonemapMode>(pScript, v234, &v295, (const int *)&v313, (const VeilTonemapMode *)&v261);
+        v237 = v233->index;
+        ++v233;
+        ++v232;
+        v295.index = v237;
+        ++v234;
       }
-      while ( v236 < v239 );
-      v4 = v443;
-      v231 = SceneDownsampleVeilMipCount;
+      while ( v232 < v235 );
+      v2 = v438;
+      v227 = SceneDownsampleVeilMipCount;
     }
     cGpuTimerEnd(pScript);
-    v278.index = -1;
-    v242 = *(&__t.index + (unsigned int)SceneDownsampleMipForExposureCalculation);
-    v382.index = v523.index;
-    v388 = v242;
-    cRBT_Tonemap_CalculateExposure<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v334, &v278, (const R_TG_Handle *)&v388, &floatZ, &scope, &v351);
+    v273.index = -1;
+    v238 = *(&__t.index + (unsigned int)SceneDownsampleMipForExposureCalculation);
+    v377.index = v518.index;
+    v383 = v238;
+    cRBT_Tonemap_CalculateExposure<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v329, &v273, (const R_TG_Handle *)&v383, &floatZ, &scope, &v346);
     upsampledRt.index = -1;
-    if ( (*(_QWORD *)v4 & 0x20000000000000i64) != 0 )
-      R_TG_Perceptual_UpsampleChain(pScript, &__t, &upsampledRt, SceneDownsampleVeilMip, v231, s_veilWeights);
+    if ( (*(_QWORD *)v2 & 0x20000000000000i64) != 0 )
+      R_TG_Perceptual_UpsampleChain(pScript, &__t, &upsampledRt, SceneDownsampleVeilMip, v227, s_veilWeights);
     else
       upsampledRt.index = triIDTexture.index;
     R_Perceptual_UpdateLocalTonemapWeights();
-    v300.index = v278.index;
-    `vector constructor iterator'(&v521, 4ui64, 4ui64, (void *(__fastcall *)(void *))R_TG_Handle::R_TG_Handle);
-    v521.passIndex = v278.index;
+    v295.index = v273.index;
+    `vector constructor iterator'(&v516, 4ui64, 4ui64, (void *(__fastcall *)(void *))R_TG_Handle::R_TG_Handle);
+    v516.passIndex = v273.index;
     cGpuTimerBegin(pScript, 0x72u);
-    p_isPrepass = &v521.isPrepass;
-    v266 = GFX_GP_PASS_CAMERA;
-    v244 = &v521.isPrepass;
-    v318 = DRAWLIST_FIRST;
-    v245 = 3i64;
+    p_isPrepass = &v516.isPrepass;
+    v261 = GFX_GP_PASS_CAMERA;
+    v240 = &v516.isPrepass;
+    v313 = DRAWLIST_FIRST;
+    v241 = 3i64;
     do
     {
-      cRBT_Perceptual_DownsampleCS<R_TG_Handle,R_TG_Handle,int,enum VeilTonemapMode>(pScript, (const R_TG_Handle *)v244, &v300, (const int *)&v318, (const VeilTonemapMode *)&v266);
-      v246 = *(_DWORD *)p_isPrepass;
+      cRBT_Perceptual_DownsampleCS<R_TG_Handle,R_TG_Handle,int,enum VeilTonemapMode>(pScript, (const R_TG_Handle *)v240, &v295, (const int *)&v313, (const VeilTonemapMode *)&v261);
+      v242 = *(_DWORD *)p_isPrepass;
       p_isPrepass += 4;
-      v244 += 4;
-      v300.index = v246;
-      --v245;
+      v240 += 4;
+      v295.index = v242;
+      --v241;
     }
-    while ( v245 );
+    while ( v241 );
     cGpuTimerEnd(pScript);
-    R_TG_Perceptual_UpsampleChain(pScript, (R_TG_Handle *)&v521, &v278, 0, 4u, s_localTonemapWeights);
-    v247 = *((_QWORD *)v4 + 1);
-    if ( (v247 & 0x80000000) != 0 )
+    R_TG_Perceptual_UpsampleChain(pScript, (R_TG_Handle *)&v516, &v273, 0, 4u, s_localTonemapWeights);
+    v243 = *((_QWORD *)v2 + 1);
+    if ( (v243 & 0x80000000) != 0 )
     {
-      v266 = GFX_GP_PASS_INVALID|GFX_GP_PASS_SHADOWS;
-      cRBTD_HDR_ScopesProcess<R_TG_Handle,enum HDRScopesStage>(pScript, &sceneColor, (const HDRScopesStage *)&v266);
-      v247 = *((_QWORD *)v4 + 1);
+      v261 = GFX_GP_PASS_INVALID|GFX_GP_PASS_SHADOWS;
+      cRBTD_HDR_ScopesProcess<R_TG_Handle,enum HDRScopesStage>(pScript, &sceneColor, (const HDRScopesStage *)&v261);
+      v243 = *((_QWORD *)v2 + 1);
     }
-    if ( (v247 & 0x2000000000i64) != 0 )
+    if ( (v243 & 0x2000000000i64) != 0 )
     {
-      v266 = GFX_GP_PASS_CAMERA;
-      cRBTD_HDR_SpotMeterProcess<R_TG_Handle,enum SpotMeterId>(pScript, &sceneColor, (const SpotMeterId *)&v266);
-      v247 = *((_QWORD *)v4 + 1);
+      v261 = GFX_GP_PASS_CAMERA;
+      cRBTD_HDR_SpotMeterProcess<R_TG_Handle,enum SpotMeterId>(pScript, &sceneColor, (const SpotMeterId *)&v261);
+      v243 = *((_QWORD *)v2 + 1);
     }
-    if ( (v247 & 0x8000000000i64) != 0 )
+    if ( (v243 & 0x8000000000i64) != 0 )
     {
-      v266 = GFX_GP_PASS_SHADOWS;
-      cRBTD_RefImageOverlay<R_TG_Handle,enum RefImageDrawMode>(pScript, &sceneColor, (const RefImageDrawMode *)&v266);
-      v247 = *((_QWORD *)v4 + 1);
+      v261 = GFX_GP_PASS_SHADOWS;
+      cRBTD_RefImageOverlay<R_TG_Handle,enum RefImageDrawMode>(pScript, &sceneColor, (const RefImageDrawMode *)&v261);
+      v243 = *((_QWORD *)v2 + 1);
     }
-    if ( (v247 & 0x80000000000i64) != 0 )
+    if ( (v243 & 0x80000000000i64) != 0 )
     {
-      v266 = GFX_GP_PASS_INVALID|GFX_GP_PASS_SHADOWS;
-      cRBTD_Screenshot_CapturePipelineStage<R_TG_Handle,enum GfxScreenshotPipelineStage>(pScript, &sceneColor, (const GfxScreenshotPipelineStage *)&v266);
+      v261 = GFX_GP_PASS_INVALID|GFX_GP_PASS_SHADOWS;
+      cRBTD_Screenshot_CapturePipelineStage<R_TG_Handle,enum GfxScreenshotPipelineStage>(pScript, &sceneColor, (const GfxScreenshotPipelineStage *)&v261);
     }
-    v248 = (*(_QWORD *)v4 >> 58) & 3i64;
-    if ( ((*(_QWORD *)v4 >> 58) & 3) != 0 )
+    v244 = (*(_QWORD *)v2 >> 58) & 3i64;
+    if ( ((*(_QWORD *)v2 >> 58) & 3) != 0 )
     {
-      v280.index = -1;
+      v275.index = -1;
       value.index = -1;
-      if ( v248 < 2 )
-        cRBT_Tonemap_Filter_SMAA<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v280, &value, &sceneColor, &v319, &v365, &upsampledRt, &v278, &v334, &scope, &floatZ, &v333, &v289);
+      if ( v244 < 2 )
+        cRBT_Tonemap_Filter_SMAA<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v275, &value, &sceneColor, &v314, &v360, &upsampledRt, &v273, &v329, &scope, &floatZ, &v328, &v284);
       else
-        cRBT_Tonemap_Filter_TemporalSMAA<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v280, &value, &sceneColor, &v319, &v365, &upsampledRt, &v278, &v334, &scope, &floatZ, &v333, &v289);
-      if ( (*((_QWORD *)v4 + 1) & 0x2000000000i64) != 0 )
+        cRBT_Tonemap_Filter_TemporalSMAA<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v275, &value, &sceneColor, &v314, &v360, &upsampledRt, &v273, &v329, &scope, &floatZ, &v328, &v284);
+      if ( (*((_QWORD *)v2 + 1) & 0x2000000000i64) != 0 )
       {
-        v266 = GFX_GP_PASS_SHADOWS;
-        cRBTD_HDR_SpotMeterProcess<R_TG_Handle,enum SpotMeterId>(pScript, &v280, (const SpotMeterId *)&v266);
+        v261 = GFX_GP_PASS_SHADOWS;
+        cRBTD_HDR_SpotMeterProcess<R_TG_Handle,enum SpotMeterId>(pScript, &v275, (const SpotMeterId *)&v261);
       }
-      v313.index = -1;
-      v292.index = -1;
-      cRBT_SMAA_EdgeDetection<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v280, &value, &v366, &v352, &v313, &v292);
-      v288.index = -1;
-      cRBT_SMAA_ResolveIndirect<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v288, &v313, &v292);
-      cRBT_SMAA_MorphologicalAntialiasing<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v280, &value, &v366, &v288, &v313, &v292);
-      color.index = v280.index;
-      if ( ((unsigned __int8)(*(_QWORD *)v4 >> 58) & 3u) < 2 )
+      v308.index = -1;
+      v287.index = -1;
+      cRBT_SMAA_EdgeDetection<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v275, &value, &v361, &v347, &v308, &v287);
+      v283.index = -1;
+      cRBT_SMAA_ResolveIndirect<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v283, &v308, &v287);
+      cRBT_SMAA_MorphologicalAntialiasing<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v275, &value, &v361, &v283, &v308, &v287);
+      color.index = v275.index;
+      if ( ((unsigned __int8)(*(_QWORD *)v2 >> 58) & 3u) < 2 )
       {
         cUtil_ForceRtState<R_TG_Handle>(pScript, &color);
       }
       else
       {
         srcTask = -1;
-        v320.index = -1;
-        v348.index = -1;
-        cRBT_SMAA_TemporalSupersampling<unsigned int,unsigned int,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, (const unsigned int *)&pScript->sceneFullSize, (const unsigned int *)&pScript->sceneFullSize + 1, &v348, (const R_TG_Handle *)&srcTask, &v320, &v280, &v280, &value, &value, &value, &value, &velocity, &velocity, &v329);
-        if ( ((*(_QWORD *)v4 >> 58) & 3) == 3 )
-          cRBT_SMAA_FilmicFiltering<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v348, (const R_TG_Handle *)&srcTask, (const R_TG_Handle *)&srcTask, &v320, &velocity, &velocity, &v280, &v329);
+        v315.index = -1;
+        v343.index = -1;
+        cRBT_SMAA_TemporalSupersampling<unsigned int,unsigned int,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, (const unsigned int *)&pScript->sceneFullSize, (const unsigned int *)&pScript->sceneFullSize + 1, &v343, (const R_TG_Handle *)&srcTask, &v315, &v275, &v275, &value, &value, &value, &value, &velocity, &velocity, &v324);
+        if ( ((*(_QWORD *)v2 >> 58) & 3) == 3 )
+          cRBT_SMAA_FilmicFiltering<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v343, (const R_TG_Handle *)&srcTask, (const R_TG_Handle *)&srcTask, &v315, &velocity, &velocity, &v275, &v324);
         color.index = srcTask;
       }
     }
     else
     {
-      cRBT_Tonemap_Filter<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &sceneColor, &v319, &v365, &upsampledRt, &v278, &v334, &scope, &floatZ, &v333, &v289);
-      if ( (*((_QWORD *)v4 + 1) & 0x2000000000i64) != 0 )
+      cRBT_Tonemap_Filter<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &sceneColor, &v314, &v360, &upsampledRt, &v273, &v329, &scope, &floatZ, &v328, &v284);
+      if ( (*((_QWORD *)v2 + 1) & 0x2000000000i64) != 0 )
       {
-        v266 = GFX_GP_PASS_SHADOWS;
-        cRBTD_HDR_SpotMeterProcess<R_TG_Handle,enum SpotMeterId>(pScript, &color, (const SpotMeterId *)&v266);
+        v261 = GFX_GP_PASS_SHADOWS;
+        cRBTD_HDR_SpotMeterProcess<R_TG_Handle,enum SpotMeterId>(pScript, &color, (const SpotMeterId *)&v261);
       }
     }
-    v249 = *((_QWORD *)v4 + 1);
-    if ( (v249 & 0x10000000000i64) != 0 )
+    v245 = *((_QWORD *)v2 + 1);
+    if ( (v245 & 0x10000000000i64) != 0 )
     {
-      cRBTD_RefShaderOverlay<R_TG_Handle,R_TG_Handle>(pScript, &color, &v319);
-      v249 = *((_QWORD *)v4 + 1);
+      cRBTD_RefShaderOverlay<R_TG_Handle,R_TG_Handle>(pScript, &color, &v314);
+      v245 = *((_QWORD *)v2 + 1);
     }
-    if ( (v249 & 0x8000000000i64) != 0 )
+    if ( (v245 & 0x8000000000i64) != 0 )
     {
-      v266 = GFX_GP_PASS_COUNT;
-      cRBTD_RefImageOverlay<R_TG_Handle,enum RefImageDrawMode>(pScript, &color, (const RefImageDrawMode *)&v266);
+      v261 = GFX_GP_PASS_COUNT;
+      cRBTD_RefImageOverlay<R_TG_Handle,enum RefImageDrawMode>(pScript, &color, (const RefImageDrawMode *)&v261);
     }
   }
   else
   {
     color.index = sceneColor.index;
-    v334.index = nullBuffer.index;
-    v382.index = outCreateRt.index;
+    v329.index = nullBuffer.index;
+    v377.index = outCreateRt.index;
   }
-  v250 = *((_QWORD *)v4 + 1);
-  if ( (v250 & 8) != 0 )
+  v246 = *((_QWORD *)v2 + 1);
+  if ( (v246 & 8) != 0 )
   {
-    v288.index = -1;
-    cRBT_DroneCamera_DownsampleBayerDebayer<R_TG_Handle,R_TG_Handle>(pScript, &v288, &color);
-    v320.index = -1;
-    cRBT_DroneCamera_ChromaSubsampling<R_TG_Handle,R_TG_Handle>(pScript, &v320, &v288);
-    cRBT_DroneCamera_Upsampling<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v320, &v275);
-    v250 = *((_QWORD *)v4 + 1);
+    v283.index = -1;
+    cRBT_DroneCamera_DownsampleBayerDebayer<R_TG_Handle,R_TG_Handle>(pScript, &v283, &color);
+    v315.index = -1;
+    cRBT_DroneCamera_ChromaSubsampling<R_TG_Handle,R_TG_Handle>(pScript, &v315, &v283);
+    cRBT_DroneCamera_Upsampling<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v315, &v270);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  if ( (v250 & 0x10) != 0 )
+  if ( (v246 & 0x10) != 0 )
   {
     cConditionLightBegin(pScript, R_Distortion_Enabled);
-    v288.index = -1;
-    cRBT_Distortion<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v288, &color, &v275);
-    cRBT_CopyDistortion<R_TG_Handle,R_TG_Handle>(pScript, &color, &v288);
+    v283.index = -1;
+    cRBT_Distortion<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v283, &color, &v270);
+    cRBT_CopyDistortion<R_TG_Handle,R_TG_Handle>(pScript, &color, &v283);
     cConditionEnd(pScript);
-    v250 = *((_QWORD *)v4 + 1);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  if ( (v250 & 0x100000000i64) != 0 )
+  if ( (v246 & 0x100000000i64) != 0 )
   {
-    cRBTD_FL_DV_Overlay<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v310, &lightsCluster, &v354, &reflectionGrid, &outDecalIndices, &outDecalDrawData);
-    v250 = *((_QWORD *)v4 + 1);
+    cRBTD_FL_DV_Overlay<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v305, &lightsCluster, &v349, &reflectionGrid, &outDecalIndices, &outDecalDrawData);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  v338.index = -1;
-  v355.index = -1;
-  if ( (v250 & 0x600000000i64) == 0 )
+  v333.index = -1;
+  v350.index = -1;
+  if ( (v246 & 0x600000000i64) == 0 )
   {
-    v251 = triIDTexture.index;
-    v338.index = triIDTexture.index;
-LABEL_787:
-    v355.index = v251;
-    goto LABEL_788;
+    v247 = triIDTexture.index;
+    v333.index = triIDTexture.index;
+LABEL_789:
+    v350.index = v247;
+    goto LABEL_790;
   }
-  if ( (v250 & 1) == 0 )
+  if ( (v246 & 1) == 0 )
   {
-    v338.index = sceneEntityIDVelocity.index;
-    v251 = v274.index;
-    goto LABEL_787;
+    v333.index = sceneEntityIDVelocity.index;
+    v247 = v269.index;
+    goto LABEL_789;
   }
-  cRBT_Resolve_MSAAVelocity4xToFull<R_TG_Handle,R_TG_Handle>(pScript, &v338, &sceneEntityIDVelocity);
-  cRBT_Resolve_MSAATangentFrame4xToFull<R_TG_Handle,R_TG_Handle>(pScript, &v355, &v274);
-  v250 = *((_QWORD *)v4 + 1);
-LABEL_788:
-  if ( (v250 & 0x200000000i64) != 0 )
+  cRBT_Resolve_MSAAVelocity4xToFull<R_TG_Handle,R_TG_Handle>(pScript, &v333, &sceneEntityIDVelocity);
+  cRBT_Resolve_MSAATangentFrame4xToFull<R_TG_Handle,R_TG_Handle>(pScript, &v350, &v269);
+  v246 = *((_QWORD *)v2 + 1);
+LABEL_790:
+  if ( (v246 & 0x200000000i64) != 0 )
   {
-    v252 = triIDTexture.index;
-    if ( (v250 & 1) != 0 )
-      v252 = vrsSWMask.index;
-    v266 = v252;
-    cRBTD_DebugTextureOverlay<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &floatZ, &v338, &v355, &v275, &v289, &v306, &v330, &v329, (const R_TG_Handle *)&v266, &v297, &scope);
-    v250 = *((_QWORD *)v4 + 1);
+    v248 = triIDTexture.index;
+    if ( (v246 & 1) != 0 )
+      v248 = vrsSWMask.index;
+    v261 = v248;
+    cRBTD_DebugTextureOverlay<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &floatZ, &v333, &v350, &v270, &v284, &v301, &v325, &v324, (const R_TG_Handle *)&v261, &v292, &scope);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  if ( (v250 & 0x400000000i64) != 0 )
+  if ( (v246 & 0x400000000i64) != 0 )
   {
-    cRBTD_DV_Show3DDebug<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &sceneDepth, &outDecalDebugData, &outDecalIndirectArgs, &floatZ, &v338, &v355, &v275, &outDecalIndices, &outDecalDrawData);
-    v250 = *((_QWORD *)v4 + 1);
+    cRBTD_DV_Show3DDebug<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &sceneDepth, &outDecalDebugData, &outDecalIndirectArgs, &floatZ, &v333, &v350, &v270, &outDecalIndices, &outDecalDrawData);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  if ( (v250 & 0x400000000000i64) != 0 )
+  if ( (v246 & 0x400000000000i64) != 0 )
   {
     cRBTD_VOL_ShowVolumetricDebug<R_TG_Handle,R_TG_Handle>(pScript, &color, &volVisibility);
-    v250 = *((_QWORD *)v4 + 1);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  if ( (v250 & 0x80000000000i64) != 0 )
+  if ( (v246 & 0x80000000000i64) != 0 )
   {
-    v266 = GFX_GP_PASS_SHADOWS;
-    cRBTD_Screenshot_CapturePipelineStage<R_TG_Handle,enum GfxScreenshotPipelineStage>(pScript, &color, (const GfxScreenshotPipelineStage *)&v266);
-    v250 = *((_QWORD *)v4 + 1);
+    v261 = GFX_GP_PASS_SHADOWS;
+    cRBTD_Screenshot_CapturePipelineStage<R_TG_Handle,enum GfxScreenshotPipelineStage>(pScript, &color, (const GfxScreenshotPipelineStage *)&v261);
+    v246 = *((_QWORD *)v2 + 1);
   }
-  v341.index = -1;
-  if ( (v250 & 0x8000) != 0 && (*(_QWORD *)v4 & 0x2000000000000000i64) != 0 )
+  v336.index = -1;
+  if ( (v246 & 0x8000) != 0 && (*(_QWORD *)v2 & 0x2000000000000000i64) != 0 )
   {
-    cRBT_CreateReticleBuffer<R_TG_Handle,R_TG_Handle>(pScript, &v341, &color);
-    cRBT_Draw2D_ReceivePostFXComposite<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v341, &v275, &scope);
-    v250 = *((_QWORD *)v4 + 1);
-  }
-  else
-  {
-    v341.index = triIDTexture.index;
-  }
-  if ( (v250 & 0x10000) != 0 )
-  {
-    v288.index = -1;
-    cRBT_Fidelity_FX_Sharpening<R_TG_Handle,R_TG_Handle>(pScript, &color, &v288);
-    v250 = *((_QWORD *)v4 + 1);
-    color.index = v288.index;
-  }
-  v253 = *(_QWORD *)v4;
-  v412.index = -1;
-  if ( (v253 & 0x2000000000000000i64) == 0 || ((v253 >> 58) & 3) < 2 || (v250 & 0x10000) != 0 )
-  {
-    v254 = 0;
+    cRBT_CreateReticleBuffer<R_TG_Handle,R_TG_Handle>(pScript, &v336, &color);
+    cRBT_Draw2D_ReceivePostFXComposite<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v336, &v270, &scope);
+    v246 = *((_QWORD *)v2 + 1);
   }
   else
   {
-    v254 = 1;
-    cRBT_Draw2D_BackupScopeReticle<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v412, &color, &scope);
-    v253 = *(_QWORD *)v4;
+    v336.index = triIDTexture.index;
   }
-  if ( (v253 & 0x2000000000000000i64) != 0 )
-    cRBT_Draw2D_ReceivePostFXLite<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v275, &scope);
-  if ( (*((_DWORD *)v4 + 2) & 0x80020) == 524320i64 )
-    R_TGS_Blur(pScript, v4, &color, 0);
-  `vector constructor iterator'(&v367, 4ui64, 2ui64, (void *(__fastcall *)(void *))R_TG_Handle::R_TG_Handle);
-  v255 = *((_QWORD *)v4 + 1);
-  if ( (v255 & 0x800) != 0 )
+  if ( (v246 & 0x10000) != 0 )
   {
-    v266 = GFX_GP_PASS_COUNT;
-    cRBT_CreateShellshockRT<R_TG_Handle,R_TG_Handle,R_TG_Handle,int>(pScript, &v367, &v368, &color, (const int *)&v266);
-    cRBT_CaptureShellshock<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v367, &v368, &color, &scope, &v341);
-    v255 = *((_QWORD *)v4 + 1);
-    v256 = triIDTexture.index;
+    v283.index = -1;
+    cRBT_Fidelity_FX_Sharpening<R_TG_Handle,R_TG_Handle>(pScript, &color, &v283);
+    v246 = *((_QWORD *)v2 + 1);
+    color.index = v283.index;
+  }
+  v249 = *(_QWORD *)v2;
+  v407.index = -1;
+  if ( (v249 & 0x2000000000000000i64) == 0 || ((v249 >> 58) & 3) < 2 || (v246 & 0x10000) != 0 )
+  {
+    v250 = 0;
   }
   else
   {
-    v256 = triIDTexture.index;
-    v367.index = triIDTexture.index;
-    v368.index = triIDTexture.index;
+    v250 = 1;
+    cRBT_Draw2D_BackupScopeReticle<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v407, &color, &scope);
+    v249 = *(_QWORD *)v2;
   }
-  v378.index = -1;
-  if ( (v255 & 0x4000) != 0 && (*(_QWORD *)v4 & 0x2000000000000000i64) != 0 )
+  if ( (v249 & 0x2000000000000000i64) != 0 )
+    cRBT_Draw2D_ReceivePostFXLite<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v270, &scope);
+  if ( (*((_DWORD *)v2 + 2) & 0x80020) == 524320i64 )
+    R_TGS_Blur(pScript, v2, &color, 0);
+  `vector constructor iterator'(&v362, 4ui64, 2ui64, (void *(__fastcall *)(void *))R_TG_Handle::R_TG_Handle);
+  v251 = *((_QWORD *)v2 + 1);
+  if ( (v251 & 0x800) != 0 )
   {
-    v318 = 960;
-    v257 = 540;
-    if ( (v255 & 0x80000) != 0 )
-      v257 = 270;
-    v266 = v257;
-    cAddDependencyInNextTask(pScript, v308.index);
-    cRBT_Draw2D_LowResOverlays<R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int>(pScript, &v378, &v275, &v319, (const unsigned int *)&v318, (const unsigned int *)&v266);
+    v261 = GFX_GP_PASS_COUNT;
+    cRBT_CreateShellshockRT<R_TG_Handle,R_TG_Handle,R_TG_Handle,int>(pScript, &v362, &v363, &color, (const int *)&v261);
+    cRBT_CaptureShellshock<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v362, &v363, &color, &scope, &v336);
+    v251 = *((_QWORD *)v2 + 1);
+    v252 = triIDTexture.index;
   }
   else
   {
-    v378.index = v256;
+    v252 = triIDTexture.index;
+    v362.index = triIDTexture.index;
+    v363.index = triIDTexture.index;
   }
-  cRBT_CompositeToDisplayAndApplyPostfx<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &color, &scope, &v367, &v368, &v378, &v341);
-  if ( (*((_QWORD *)v4 + 1) & 0x4000000000000i64) != 0 )
+  v373.index = -1;
+  if ( (v251 & 0x4000) != 0 && (*(_QWORD *)v2 & 0x2000000000000000i64) != 0 )
   {
-    v308.index = -1;
-    cUtil_DebugUav_Blend<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v308, &result, &v411);
-    cRBT_FullScreenFilter<R_TG_Handle,R_TG_Handle>(pScript, &result, &v308);
+    v313 = 960;
+    v253 = 540;
+    if ( (v251 & 0x80000) != 0 )
+      v253 = 270;
+    v261 = v253;
+    cAddDependencyInNextTask(pScript, v303.index);
+    cRBT_Draw2D_LowResOverlays<R_TG_Handle,R_TG_Handle,R_TG_Handle,unsigned int,unsigned int>(pScript, &v373, &v270, &v314, (const unsigned int *)&v313, (const unsigned int *)&v261);
   }
-  if ( v254 )
-    cRBT_Draw2D_RestoreScopeReticle<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v412, &scope);
-  if ( (*(_QWORD *)v4 & 0x4000000000000000i64) != 0 && *(_QWORD *)v4 >= 0 )
+  else
   {
-    if ( (*((_BYTE *)v4 + 8) & 1) != 0 )
-      cRBT_ApplyHudOutlineVrsInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &sceneEntityIDVelocity, &v275, &v274, &scope, &floatZ);
+    v373.index = v252;
+  }
+  cRBT_CompositeToDisplayAndApplyPostfx<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &color, &scope, &v362, &v363, &v373, &v336);
+  if ( (*((_QWORD *)v2 + 1) & 0x4000000000000i64) != 0 )
+  {
+    v303.index = -1;
+    cUtil_DebugUav_Blend<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &v303, &result, &v406);
+    cRBT_FullScreenFilter<R_TG_Handle,R_TG_Handle>(pScript, &result, &v303);
+  }
+  if ( v250 )
+    cRBT_Draw2D_RestoreScopeReticle<R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &color, &v407, &scope);
+  if ( (*(_QWORD *)v2 & 0x4000000000000000i64) != 0 && *(_QWORD *)v2 >= 0 )
+  {
+    if ( (*((_BYTE *)v2 + 8) & 1) != 0 )
+      cRBT_ApplyHudOutlineVrsInlineResolve<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &sceneEntityIDVelocity, &v270, &v269, &scope, &floatZ);
     else
-      cRBT_ApplyHudOutline<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &sceneEntityIDVelocity, &v275, &v274, &scope, &floatZ);
+      cRBT_ApplyHudOutline<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &sceneEntityIDVelocity, &v270, &v269, &scope, &floatZ);
   }
-  v258 = *((_QWORD *)v4 + 1);
-  v259 = v258;
-  if ( (v258 & 0x20) != 0 && (v258 & 0x80000) == 0 )
+  v254 = *((_QWORD *)v2 + 1);
+  v255 = v254;
+  if ( (v254 & 0x20) != 0 && (v254 & 0x80000) == 0 )
   {
-    R_TGS_Blur(pScript, v4, &result, 1);
-    v259 = *((_QWORD *)v4 + 1);
+    R_TGS_Blur(pScript, v2, &result, 1);
+    v255 = *((_QWORD *)v2 + 1);
   }
-  if ( (v259 & 0x4000000000i64) != 0 )
+  if ( (v255 & 0x4000000000i64) != 0 )
   {
-    cRBTD_ShowEmissiveOverdraw<R_TG_Handle,R_TG_Handle>(pScript, &result, &v379);
-    v259 = *((_QWORD *)v4 + 1);
+    cRBTD_ShowEmissiveOverdraw<R_TG_Handle,R_TG_Handle>(pScript, &result, &v374);
+    v255 = *((_QWORD *)v2 + 1);
   }
-  if ( (v259 & 0x80000000000i64) != 0 )
+  if ( (v255 & 0x80000000000i64) != 0 )
   {
-    v266 = GFX_GP_PASS_COUNT;
-    cRBTD_Screenshot_CapturePipelineStage<R_TG_Handle,enum GfxScreenshotPipelineStage>(pScript, &result, (const GfxScreenshotPipelineStage *)&v266);
-    v259 = *((_QWORD *)v4 + 1);
+    v261 = GFX_GP_PASS_COUNT;
+    cRBTD_Screenshot_CapturePipelineStage<R_TG_Handle,enum GfxScreenshotPipelineStage>(pScript, &result, (const GfxScreenshotPipelineStage *)&v261);
+    v255 = *((_QWORD *)v2 + 1);
   }
-  if ( (v259 & 0x4000000) != 0 )
+  if ( (v255 & 0x4000000) != 0 )
   {
-    cRBTD_DrawPrimitives_Overlay<R_TG_Handle,R_TG_Handle>(pScript, &result, &v380);
-    v259 = *((_QWORD *)v4 + 1);
+    cRBTD_DrawPrimitives_Overlay<R_TG_Handle,R_TG_Handle>(pScript, &result, &v375);
+    v255 = *((_QWORD *)v2 + 1);
   }
-  v260 = v259;
-  if ( (v259 & 0x20000000) != 0 && (v259 & 0x40000000) == 0 )
+  v256 = v255;
+  if ( (v255 & 0x20000000) != 0 && (v255 & 0x40000000) == 0 )
   {
-    cRBTD_Overlay<R_TG_Handle,R_TG_Handle>(pScript, &result, &v335);
-    v260 = *((_QWORD *)v4 + 1);
+    cRBTD_Overlay<R_TG_Handle,R_TG_Handle>(pScript, &result, &v330);
+    v256 = *((_QWORD *)v2 + 1);
   }
-  if ( (v260 & 0x100000000000i64) != 0 )
+  if ( (v256 & 0x100000000000i64) != 0 )
   {
-    cRBTD_Shadow_Overlay<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &sunshadowCascades, &sunShadow1, &v514, &sunshadowCascade0ForViewmodel, &staleCache, &sunshadowCache, &compressedCascades, &v516, &v517, &v297, &transSunShadowMask);
-    v260 = *((_QWORD *)v4 + 1);
+    cRBTD_Shadow_Overlay<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &sunshadowCascades, &sunShadow1, &v509, &sunshadowCascade0ForViewmodel, &staleCache, &sunshadowCache, &compressedCascades, &v511, &v512, &v292, &transSunShadowMask);
+    v256 = *((_QWORD *)v2 + 1);
   }
-  if ( (v260 & 0x20000000000i64) != 0 )
+  if ( (v256 & 0x20000000000i64) != 0 )
   {
-    v308.index = -1;
-    cRBTD_Magnifier_Part1<R_TG_Handle,R_TG_Handle>(pScript, &v308, &result);
-    cRBTD_Magnifier_Part2<R_TG_Handle,R_TG_Handle>(pScript, &result, &v308);
-    v260 = *((_QWORD *)v4 + 1);
+    v303.index = -1;
+    cRBTD_Magnifier_Part1<R_TG_Handle,R_TG_Handle>(pScript, &v303, &result);
+    cRBTD_Magnifier_Part2<R_TG_Handle,R_TG_Handle>(pScript, &result, &v303);
+    v256 = *((_QWORD *)v2 + 1);
   }
-  if ( (v260 & 0x80000000) != 0 )
+  if ( (v256 & 0x80000000) != 0 )
   {
-    v266 = GFX_GP_PASS_SHADOWS;
-    cRBTD_HDR_ScopesProcess<R_TG_Handle,enum HDRScopesStage>(pScript, &result, (const HDRScopesStage *)&v266);
-    v260 = *((_QWORD *)v4 + 1);
+    v261 = GFX_GP_PASS_SHADOWS;
+    cRBTD_HDR_ScopesProcess<R_TG_Handle,enum HDRScopesStage>(pScript, &result, (const HDRScopesStage *)&v261);
+    v256 = *((_QWORD *)v2 + 1);
   }
-  if ( (*(_QWORD *)v4 & 0x2000000000000000i64) != 0 )
+  if ( (*(_QWORD *)v2 & 0x2000000000000000i64) != 0 )
   {
     cRBT_Draw2D_RTT<R_TG_Handle>(pScript, &result);
-    cRBT_Draw2D_Hud<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &v275, &v319, &v382, &v334);
-    v260 = *((_QWORD *)v4 + 1);
-    if ( (v260 & 0x800000000000i64) != 0 )
+    cRBT_Draw2D_Hud<R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle,R_TG_Handle>(pScript, &result, &v270, &v314, &v377, &v329);
+    v256 = *((_QWORD *)v2 + 1);
+    if ( (v256 & 0x800000000000i64) != 0 )
     {
       cRBTD_Rtt_Overlay<R_TG_Handle>(pScript, &result);
-      v260 = *((_QWORD *)v4 + 1);
+      v256 = *((_QWORD *)v2 + 1);
     }
   }
-  if ( (v260 & 0x80000000) != 0 )
+  if ( (v256 & 0x80000000) != 0 )
   {
-    v266 = GFX_GP_PASS_COUNT;
-    cRBTD_HDR_ScopesProcess<R_TG_Handle,enum HDRScopesStage>(pScript, &result, (const HDRScopesStage *)&v266);
-    v260 = *((_QWORD *)v4 + 1);
+    v261 = GFX_GP_PASS_COUNT;
+    cRBTD_HDR_ScopesProcess<R_TG_Handle,enum HDRScopesStage>(pScript, &result, (const HDRScopesStage *)&v261);
+    v256 = *((_QWORD *)v2 + 1);
   }
-  if ( (v260 & 0x8000000) != 0 )
+  if ( (v256 & 0x8000000) != 0 )
   {
-    v261 = 0;
+    v257 = 0;
     value.index = 256;
-    v278.index = 0;
-    if ( v306.index != -1 && v306.index != triIDTexture.index )
+    v273.index = 0;
+    if ( v301.index != -1 && v301.index != triIDTexture.index )
     {
-      v266 = GFX_GP_PASS_CAMERA;
-      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &v306, (const int *)&v266, &v278.index, &value.index, &value.index);
-      v278.index = 256;
-      v261 = 256;
+      v261 = GFX_GP_PASS_CAMERA;
+      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &v301, (const int *)&v261, &v273.index, &value.index, &value.index);
+      v273.index = 256;
+      v257 = 256;
     }
-    if ( v366.index != -1 )
+    if ( v361.index != -1 )
     {
-      v266 = GFX_GP_PASS_CAMERA;
-      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &v366, (const int *)&v266, &v278.index, &value.index, &value.index);
-      v261 += 256;
-      v278.index = v261;
+      v261 = GFX_GP_PASS_CAMERA;
+      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &v361, (const int *)&v261, &v273.index, &value.index, &value.index);
+      v257 += 256;
+      v273.index = v257;
     }
     if ( outColor.index != -1 && outColor.index != triIDTexture.index )
     {
-      v266 = GFX_GP_PASS_CAMERA;
-      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &outColor, (const int *)&v266, &v278.index, &value.index, &value.index);
-      v278.index = v261 + 256;
+      v261 = GFX_GP_PASS_CAMERA;
+      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &outColor, (const int *)&v261, &v273.index, &value.index, &value.index);
+      v273.index = v257 + 256;
     }
     if ( outFog.index != -1 && outFog.index != triIDTexture.index )
     {
-      v266 = GFX_GP_PASS_CAMERA;
-      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &outFog, (const int *)&v266, &v278.index, &value.index, &value.index);
+      v261 = GFX_GP_PASS_CAMERA;
+      cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,unsigned int,unsigned int,unsigned int>(pScript, &result, &outFog, (const int *)&v261, &v273.index, &value.index, &value.index);
     }
   }
-  if ( (*((_DWORD *)v4 + 2) & 0x40000000) != 0 )
+  if ( (*((_DWORD *)v2 + 2) & 0x40000000) != 0 )
   {
-    v266 = pScript->displaySize.v[1] >> 2;
-    v318 = pScript->displaySize.v[0] >> 2;
+    v261 = pScript->displaySize.v[1] >> 2;
+    v313 = pScript->displaySize.v[0] >> 2;
     SceneDownsampleVeilMipCount = EMISSIVE_PASS_EMISSIVE;
     SceneDownsampleMipForExposureCalculation = EMISSIVE_PASS_EMISSIVE;
-    cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,int,unsigned int,unsigned int>(pScript, &result, &v335, (const int *)&SceneDownsampleMipForExposureCalculation, (const int *)&SceneDownsampleVeilMipCount, (const unsigned int *)&v318, (const unsigned int *)&v266);
+    cRBT_PartialScreenFilter<R_TG_Handle,R_TG_Handle,int,int,unsigned int,unsigned int>(pScript, &result, &v330, (const int *)&SceneDownsampleMipForExposureCalculation, (const int *)&SceneDownsampleVeilMipCount, (const unsigned int *)&v313, (const unsigned int *)&v261);
   }
   cRBT_End3D<R_TG_Handle>(pScript, &result);
 }

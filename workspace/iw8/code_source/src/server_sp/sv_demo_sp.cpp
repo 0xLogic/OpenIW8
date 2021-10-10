@@ -963,34 +963,28 @@ SvDemoSP::GetFloat
 */
 float SvDemoSP::GetFloat(SvDemoSP *this)
 {
-  const char *v3; 
-  const char *v4; 
+  const char *v1; 
+  const char *v2; 
+  double Float; 
 
   if ( !sv_demo.playing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 2220, ASSERT_TYPE_ASSERT, "(sv_demo.playing)", (const char *)&queryFormat, "sv_demo.playing") )
     __debugbreak();
   if ( sv_demo.readType == 7 )
   {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
-    *(double *)&_XMM0 = MSG_ReadFloat(&sv_demo.msg);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = MSG_ReadFloat(&sv_demo.msg);
     SV_DemoSP_ReadNextDemoType();
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
   }
   else
   {
     if ( sv_demo.readType > 0x19u )
-      v3 = j_va("invalid:%i", sv_demo.readType);
+      v1 = j_va("invalid:%i", sv_demo.readType);
     else
-      v3 = s_svdDemoTypeNames[sv_demo.readType];
-    v4 = j_va("SV_Demo_GetFloat(): Invalid sv_demo.readType: '%s'", v3);
-    SV_DemoSP_EndDemo(v4);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+      v1 = s_svdDemoTypeNames[sv_demo.readType];
+    v2 = j_va("SV_Demo_GetFloat(): Invalid sv_demo.readType: '%s'", v1);
+    SV_DemoSP_EndDemo(v2);
+    LODWORD(Float) = 0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&Float;
 }
 
 /*
@@ -1203,24 +1197,16 @@ void SvDemoSP::RecordCheatsOk(SvDemoSP *this, int cheatsOk)
 SvDemoSP::RecordFloat
 ==============
 */
-
-void __fastcall SvDemoSP::RecordFloat(SvDemoSP *this, double value)
+void SvDemoSP::RecordFloat(SvDemoSP *this, float value)
 {
-  __int64 v4; 
+  __int64 v2; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( SV_Demo_IsRecording() )
   {
-    SV_DemoSP_CheckSize(v4);
+    SV_DemoSP_CheckSize(v2);
     MSG_WriteByte(&sv_demo.msg, 7i64);
-    __asm { vmovaps xmm1, xmm6; f }
-    MSG_WriteFloat(&sv_demo.msg, *(float *)&_XMM1);
+    MSG_WriteFloat(&sv_demo.msg, value);
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1455,11 +1441,12 @@ SV_DemoSP_Back_f
 ==============
 */
 
-void __fastcall SV_DemoSP_Back_f(double _XMM0_8)
+void __fastcall SV_DemoSP_Back_f(double a1)
 {
   SvGameModeApplication *ActiveServerApplication; 
   int v3; 
   const char *v4; 
+  __int128 v6; 
 
   if ( !sv_demo.msg.data )
   {
@@ -1474,12 +1461,10 @@ void __fastcall SV_DemoSP_Back_f(double _XMM0_8)
   if ( SV_Cmd_Argc() > 1 )
   {
     v4 = SV_Cmd_Argv(1);
-    _XMM0_8 = atof(v4);
-    __asm
-    {
-      vmulsd  xmm1, xmm0, cs:__real@408f400000000000
-      vcvttsd2si edi, xmm1
-    }
+    *((double *)&v6 + 1) = *(&a1 + 1);
+    *(double *)&v6 = atof(v4) * 1000.0;
+    _XMM1 = v6;
+    __asm { vcvttsd2si edi, xmm1 }
     if ( _EDI <= 0 )
     {
       Com_Printf(0, &stru_1440E06D8.mp.gametype[1]);
@@ -1599,10 +1584,12 @@ __int64 SV_DemoSP_DemoSaveHistory(server_demo_history_t *history)
   server_demo_save_t *p_save; 
   int readcount; 
   SvClient *CommonClient; 
+  usercmd_s *lastUsercmd; 
+  usercmd_s *p_lastUsercmd; 
   __int64 v7; 
-  unsigned int v16; 
-  int v17; 
-  __int64 v19; 
+  unsigned int v8; 
+  int v9; 
+  __int64 v11; 
 
   p_save = &history->save;
   if ( history->save.buf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 2866, ASSERT_TYPE_ASSERT, "(!history->save.buf)", (const char *)&queryFormat, "!history->save.buf") )
@@ -1634,8 +1621,8 @@ __int64 SV_DemoSP_DemoSaveHistory(server_demo_history_t *history)
   history->msgReadcount = readcount;
   if ( (sv_demo.msg.bit & 7) != 0 )
   {
-    LODWORD(v19) = sv_demo.msg.bit & 7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 2900, ASSERT_TYPE_ASSERT, "( sv_demo.msg.bit & 7 ) == ( 0 )", "sv_demo.msg.bit & 7 == 0\n\t%i, %i", v19, 0i64) )
+    LODWORD(v11) = sv_demo.msg.bit & 7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 2900, ASSERT_TYPE_ASSERT, "( sv_demo.msg.bit & 7 ) == ( 0 )", "sv_demo.msg.bit & 7 == 0\n\t%i, %i", v11, 0i64) )
       __debugbreak();
   }
   history->randomSeed = *G_GetRandomSeed();
@@ -1645,39 +1632,25 @@ __int64 SV_DemoSP_DemoSaveHistory(server_demo_history_t *history)
   if ( (_BYTE)SvClient::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.h", 83, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
   CommonClient = SvClient::GetCommonClient(0);
-  _RCX = history->lastUsercmd;
-  _RAX = &CommonClient->lastUsercmd;
+  lastUsercmd = history->lastUsercmd;
+  p_lastUsercmd = &CommonClient->lastUsercmd;
   v7 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
+    *(_OWORD *)&lastUsercmd->buttons = *(_OWORD *)&p_lastUsercmd->buttons;
+    *(_OWORD *)&lastUsercmd->commandTime = *(_OWORD *)&p_lastUsercmd->commandTime;
+    *(_OWORD *)(&lastUsercmd->angles.xy + 1) = *(_OWORD *)(&p_lastUsercmd->angles.xy + 1);
+    *(_OWORD *)&lastUsercmd->weapon.weaponOthers = *(_OWORD *)&p_lastUsercmd->weapon.weaponOthers;
+    *(_OWORD *)&lastUsercmd->weapon.attachmentVariationIndices[1] = *(_OWORD *)&p_lastUsercmd->weapon.attachmentVariationIndices[1];
+    *(_OWORD *)&lastUsercmd->weapon.attachmentVariationIndices[17] = *(_OWORD *)&p_lastUsercmd->weapon.attachmentVariationIndices[17];
+    *(_OWORD *)&lastUsercmd->offHand.weaponIdx = *(_OWORD *)&p_lastUsercmd->offHand.weaponIdx;
+    lastUsercmd = (usercmd_s *)((char *)lastUsercmd + 128);
+    *(_OWORD *)&lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_lastUsercmd->offHand.weaponAttachments[2];
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
     --v7;
   }
   while ( v7 );
-  _RCX->buttons = _RAX->buttons;
+  lastUsercmd->buttons = p_lastUsercmd->buttons;
   if ( !p_save && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 2614, ASSERT_TYPE_ASSERT, "(save)", (const char *)&queryFormat, "save") )
     __debugbreak();
   if ( p_save->buf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 2615, ASSERT_TYPE_ASSERT, "(!save->buf)", (const char *)&queryFormat, "!save->buf") )
@@ -1685,13 +1658,13 @@ __int64 SV_DemoSP_DemoSaveHistory(server_demo_history_t *history)
   p_save->buf = NULL;
   p_save->bufLen = 0i64;
   p_save->file.handle = 0i64;
-  v16 = 1;
-  if ( (unsigned int)SV_DemoSP_AddDemoSave(NULL, p_save, 1) && (v17 = G_DemoSP_SaveFreeEntities(NULL), history->freeEntBufLen = v17, SV_DemoSP_HistoryAlloc(history, &history->freeEntBuf, v17)) )
+  v8 = 1;
+  if ( (unsigned int)SV_DemoSP_AddDemoSave(NULL, p_save, 1) && (v9 = G_DemoSP_SaveFreeEntities(NULL), history->freeEntBufLen = v9, SV_DemoSP_HistoryAlloc(history, &history->freeEntBuf, v9)) )
     G_DemoSP_SaveFreeEntities(history->freeEntBuf);
   else
-    v16 = 0;
+    v8 = 0;
   Profile_EndInternal(NULL);
-  return v16;
+  return v8;
 }
 
 /*
@@ -1860,16 +1833,17 @@ SV_DemoSP_Forward_f
 ==============
 */
 
-void __fastcall SV_DemoSP_Forward_f(double _XMM0_8, __int64 a2, double _XMM2_8)
+void __fastcall SV_DemoSP_Forward_f(double a1)
 {
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
-  const char *v5; 
-  int v13; 
-  int v14; 
-  int v15; 
-  server_demo_history_t *v16; 
-  int v17; 
+  const char *v3; 
+  __int128 v5; 
+  int v7; 
+  int v8; 
+  int v9; 
+  server_demo_history_t *v10; 
+  int v11; 
 
   if ( !sv_demo.playing )
   {
@@ -1888,47 +1862,40 @@ void __fastcall SV_DemoSP_Forward_f(double _XMM0_8, __int64 a2, double _XMM2_8)
     sv_demo.forwardTime = FrameDuration + G_Main_GetTime();
     return;
   }
-  v5 = SV_Cmd_Argv(1);
-  _XMM0_8 = atof(v5);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@447a0000
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ebx
-    vdivss  xmm2, xmm1, xmm2
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmulsd  xmm0, xmm0, xmm3
-    vcvttsd2si esi, xmm0
-  }
-  v13 = FrameDuration * _ESI;
-  if ( v13 <= 0 )
+  v3 = SV_Cmd_Argv(1);
+  *((double *)&v5 + 1) = *(&a1 + 1);
+  *(double *)&v5 = atof(v3) * (float)(1000.0 / (float)FrameDuration);
+  _XMM0 = v5;
+  __asm { vcvttsd2si esi, xmm0 }
+  v7 = FrameDuration * _ESI;
+  if ( v7 <= 0 )
   {
     Com_Printf(0, &stru_1440E06D8.mp.gametype[1]);
     return;
   }
-  v14 = v13 + G_Main_GetTime();
-  SV_DemoSP_LoadHistoryForTime(v14);
+  v8 = v7 + G_Main_GetTime();
+  SV_DemoSP_LoadHistoryForTime(v8);
   if ( g_history )
     goto LABEL_12;
-  v15 = 2 * Dvar_GetInt_Internal_DebugName(DVARINT_replay_autosave, "replay_autosave");
-  if ( G_Main_GetTime() <= v15 )
+  v9 = 2 * Dvar_GetInt_Internal_DebugName(DVARINT_replay_autosave, "replay_autosave");
+  if ( G_Main_GetTime() <= v9 )
   {
 LABEL_13:
-    sv_demo.forwardTime = v14;
+    sv_demo.forwardTime = v8;
     return;
   }
-  v16 = g_history;
+  v10 = g_history;
   if ( g_history )
   {
 LABEL_12:
-    v17 = g_history->time - G_Main_GetTime();
-    if ( v17 <= 2 * Dvar_GetInt_Internal_DebugName(DVARINT_replay_autosave, "replay_autosave") )
+    v11 = g_history->time - G_Main_GetTime();
+    if ( v11 <= 2 * Dvar_GetInt_Internal_DebugName(DVARINT_replay_autosave, "replay_autosave") )
       goto LABEL_13;
-    v16 = g_history;
+    v10 = g_history;
   }
-  sv_demo.nextLevelSave = v16;
+  sv_demo.nextLevelSave = v10;
   SV_DemoSP_Restart();
-  SV_DemoSP_SetNextLevelTime(v14);
+  SV_DemoSP_SetNextLevelTime(v8);
 }
 
 /*
@@ -1965,12 +1932,13 @@ SV_DemoSP_FullForward_f
 ==============
 */
 
-void __fastcall SV_DemoSP_FullForward_f(double _XMM0_8, __int64 a2, double _XMM2_8)
+void __fastcall SV_DemoSP_FullForward_f(double a1)
 {
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
-  const char *v5; 
-  int v13; 
+  const char *v3; 
+  __int128 v5; 
+  int v7; 
 
   if ( sv_demo.playing )
   {
@@ -1984,21 +1952,14 @@ void __fastcall SV_DemoSP_FullForward_f(double _XMM0_8, __int64 a2, double _XMM2
       FrameDuration = SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
       if ( SV_Cmd_Argc() > 1 )
       {
-        v5 = SV_Cmd_Argv(1);
-        _XMM0_8 = atof(v5);
-        __asm
-        {
-          vmovss  xmm1, cs:__real@447a0000
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, ebx
-          vdivss  xmm2, xmm1, xmm2
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmulsd  xmm0, xmm0, xmm3
-          vcvttsd2si edi, xmm0
-        }
-        v13 = FrameDuration * _EDI;
-        if ( v13 > 0 )
-          sv_demo.forwardTime = v13 + G_Main_GetTime();
+        v3 = SV_Cmd_Argv(1);
+        *((double *)&v5 + 1) = *(&a1 + 1);
+        *(double *)&v5 = atof(v3) * (float)(1000.0 / (float)FrameDuration);
+        _XMM0 = v5;
+        __asm { vcvttsd2si edi, xmm0 }
+        v7 = FrameDuration * _EDI;
+        if ( v7 > 0 )
+          sv_demo.forwardTime = v7 + G_Main_GetTime();
         else
           Com_Printf(0, &stru_1440E06D8.mp.gametype[1]);
       }
@@ -2259,37 +2220,30 @@ LABEL_7:
 SV_DemoSP_GetFxVisibility
 ==============
 */
-
-float __fastcall SV_DemoSP_GetFxVisibility(double _XMM0_8)
+float SV_DemoSP_GetFxVisibility()
 {
-  const char *v2; 
-  const char *v3; 
+  const char *v0; 
+  const char *v1; 
+  double Float; 
 
   if ( !sv_demo.playing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_demo_sp.cpp", 1733, ASSERT_TYPE_ASSERT, "(sv_demo.playing)", (const char *)&queryFormat, "sv_demo.playing") )
     __debugbreak();
   if ( sv_demo.readType == 1 )
   {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
-    _XMM0_8 = MSG_ReadFloat(&sv_demo.msg);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = MSG_ReadFloat(&sv_demo.msg);
     SV_DemoSP_ReadNextDemoType();
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
   }
   else
   {
     if ( sv_demo.readType > 0x19u )
-      v2 = j_va("invalid:%i", sv_demo.readType);
+      v0 = j_va("invalid:%i", sv_demo.readType);
     else
-      v2 = s_svdDemoTypeNames[sv_demo.readType];
-    v3 = j_va("SV_DemoFxVisibility(): Invalid sv_demo.readType: '%s'", v2);
-    SV_DemoSP_EndDemo(v3);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+      v0 = s_svdDemoTypeNames[sv_demo.readType];
+    v1 = j_va("SV_DemoFxVisibility(): Invalid sv_demo.readType: '%s'", v0);
+    SV_DemoSP_EndDemo(v1);
+    LODWORD(Float) = 0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&Float;
 }
 
 /*
@@ -2766,7 +2720,10 @@ void SV_DemoSP_InitReadDemo(unsigned int *randomSeed)
   unsigned int i; 
   SvClient *CommonClient; 
   __int64 v6; 
-  int v17; 
+  usercmd_s *p_lastUsercmd; 
+  usercmd_s *lastUsercmd; 
+  __int128 v9; 
+  int v10; 
   int nextLevelTime; 
 
   ProfLoad_Begin("SV_InitReadDemo");
@@ -2797,35 +2754,25 @@ void SV_DemoSP_InitReadDemo(unsigned int *randomSeed)
       __debugbreak();
     CommonClient = SvClient::GetCommonClient(0);
     v6 = 2i64;
-    _RCX = &CommonClient->lastUsercmd;
-    _RAX = sv_demo.nextLevelSave->lastUsercmd;
+    p_lastUsercmd = &CommonClient->lastUsercmd;
+    lastUsercmd = sv_demo.nextLevelSave->lastUsercmd;
     do
     {
-      _RCX = (usercmd_s *)((char *)_RCX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rcx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [rcx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [rcx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [rcx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [rcx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [rcx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+      v9 = *(_OWORD *)&lastUsercmd->buttons;
+      lastUsercmd = (usercmd_s *)((char *)lastUsercmd + 128);
+      *(_OWORD *)&p_lastUsercmd[-1].offHand.attachmentVariationIndices[13] = v9;
+      *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo = *(_OWORD *)&lastUsercmd[-1].offHand.weaponCamo;
+      *(_OWORD *)p_lastUsercmd[-1].remoteControlMove = *(_OWORD *)lastUsercmd[-1].remoteControlMove;
+      *(_OWORD *)p_lastUsercmd[-1].vehAngles = *(_OWORD *)lastUsercmd[-1].vehAngles;
+      *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ = *(_OWORD *)&lastUsercmd[-1].vehOrgZ;
+      *(_OWORD *)&p_lastUsercmd[-1].gunYOfs = *(_OWORD *)&lastUsercmd[-1].gunYOfs;
+      *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data = *(_OWORD *)lastUsercmd[-1].sightedClientsMask.data;
+      *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&lastUsercmd[-1].sightedClientsMask.data[4];
       --v6;
     }
     while ( v6 );
-    _RCX->buttons = _RAX->buttons;
+    p_lastUsercmd->buttons = lastUsercmd->buttons;
     sv_demo.nextFramePos = sv_demo.nextLevelSave->nextFramePos;
     sv_demo.msg.readcount = sv_demo.nextLevelSave->msgReadcount;
     sv_demo.msg.bit = 8 * sv_demo.msg.readcount;
@@ -2857,9 +2804,9 @@ void SV_DemoSP_InitReadDemo(unsigned int *randomSeed)
   }
   if ( sv_demo.nextLevelTime )
   {
-    v17 = sv_demo.nextLevelTime - G_Main_GetTime();
+    v10 = sv_demo.nextLevelTime - G_Main_GetTime();
     nextLevelTime = 0;
-    if ( v17 > 0 )
+    if ( v10 > 0 )
       nextLevelTime = sv_demo.nextLevelTime;
     sv_demo.forwardTime = nextLevelTime;
     sv_demo.nextLevelTime = 0;
@@ -3588,22 +3535,14 @@ void SV_DemoSP_RecordCorpseOrigins(void)
 SV_DemoSP_RecordFxVisibility
 ==============
 */
-
-void __fastcall SV_DemoSP_RecordFxVisibility(double visibility)
+void SV_DemoSP_RecordFxVisibility(float visibility)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( sv_demo.recording )
   {
     SV_DemoSP_CheckSize();
     MSG_WriteByte(&sv_demo.msg, 1i64);
-    __asm { vmovaps xmm1, xmm6; f }
-    MSG_WriteFloat(&sv_demo.msg, *(float *)&_XMM1);
+    MSG_WriteFloat(&sv_demo.msg, visibility);
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*

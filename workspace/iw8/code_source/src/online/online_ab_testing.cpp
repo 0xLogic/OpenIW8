@@ -359,12 +359,7 @@ Online_AB_Testing::OutputCurrentState
 void Online_AB_Testing::OutputCurrentState(Online_AB_Testing *this, const int controllerIndex)
 {
   Com_Printf(25, "Online_AB_Testing DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@4051110000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_68_265625);
   Com_Printf(25, "Online_AB_Testing DUMP END\n");
 }
 
@@ -375,28 +370,28 @@ LUI_CoD_LuaCall_CompletedABTestingEnrollment
 */
 __int64 LUI_CoD_LuaCall_CompletedABTestingEnrollment(lua_State *const luaVM)
 {
-  unsigned int v3; 
-  unsigned int v5; 
+  unsigned int v2; 
+  double v3; 
+  unsigned int v4; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: OnlineABTesting.CompletedABTestingEnrollment( <controllerIndex> )");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isnumber(luaVM, 1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si eax, xmm0 }
-    j_lua_pushboolean(luaVM, Online_AB_Testing::s_instance.m_enrollCompleted[_EAX]);
+    v3 = lui_tonumber32(luaVM, 1);
+    j_lua_pushboolean(luaVM, Online_AB_Testing::s_instance.m_enrollCompleted[*(float *)&v3]);
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v4);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -593,24 +588,24 @@ void Online_AB_Testing::ParseModifiers(Online_AB_Testing *this, const int contro
   char v13; 
   unsigned int m_count; 
   unsigned int i; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
+  char v19; 
   char v20; 
-  char v21; 
   unsigned int *p_m_numEnrollments; 
+  bdJSONDeserializer v25; 
+  bdJSONDeserializer v26; 
   bdJSONDeserializer v27; 
   bdJSONDeserializer v28; 
-  bdJSONDeserializer v29; 
-  bdJSONDeserializer v30; 
-  __int64 v31; 
+  __int64 v29; 
   char value[64]; 
-  char v33[64]; 
+  char v31[64]; 
   char name[64]; 
 
-  v31 = -2i64;
+  v29 = -2i64;
   v2 = controllerIndex;
   v3 = this;
-  bdJSONDeserializer::bdJSONDeserializer(&v28);
+  bdJSONDeserializer::bdJSONDeserializer(&v26);
   v4 = v2;
   v5 = 0i64;
   p_m_numEnrollments = &Online_AB_Testing::s_instance.m_abResponse[v2].m_numEnrollments;
@@ -626,9 +621,9 @@ void Online_AB_Testing::ParseModifiers(Online_AB_Testing *this, const int contro
         v9 = v3->m_modifiers[v4][v5];
         do
         {
-          if ( bdJSONDeserializer::parse(&v28, v9) && bdJSONDeserializer::hasKey(&v28, "type") )
+          if ( bdJSONDeserializer::parse(&v26, v9) && bdJSONDeserializer::hasKey(&v26, "type") )
           {
-            bdJSONDeserializer::getString(&v28, "type", value, 0x40u);
+            bdJSONDeserializer::getString(&v26, "type", value, 0x40u);
             v10 = 0i64;
             v11 = 0x7FFFFFFFi64;
             while ( 1 )
@@ -638,34 +633,30 @@ void Online_AB_Testing::ParseModifiers(Online_AB_Testing *this, const int contro
               if ( !v11-- )
               {
 LABEL_11:
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rsp+1D0h+var_178.m_type]
-                  vmovups ymmword ptr [rbp+0D0h+var_130.m_type], ymm0
-                }
-                bdJSONDeserializer::bdJSONDeserializer(&v29);
+                v28 = v26;
                 bdJSONDeserializer::bdJSONDeserializer(&v27);
-                if ( bdJSONDeserializer::getArray(&v30, "data", &v29) )
+                bdJSONDeserializer::bdJSONDeserializer(&v25);
+                if ( bdJSONDeserializer::getArray(&v28, "data", &v27) )
                 {
-                  m_count = v29.m_count;
+                  m_count = v27.m_count;
                   for ( i = 0; i < m_count; ++i )
                   {
-                    if ( bdJSONDeserializer::getElementByIndex(&v29, i, &v27) && bdJSONDeserializer::hasKey(&v27, "key") )
+                    if ( bdJSONDeserializer::getElementByIndex(&v27, i, &v25) && bdJSONDeserializer::hasKey(&v25, "key") )
                     {
-                      bdJSONDeserializer::getString(&v27, "key", name, 0x40u);
-                      if ( bdJSONDeserializer::hasKey(&v27, (const char *const)&stru_143CE7590) )
+                      bdJSONDeserializer::getString(&v25, "key", name, 0x40u);
+                      if ( bdJSONDeserializer::hasKey(&v25, (const char *const)&stru_143CE7590) )
                       {
-                        bdJSONDeserializer::getString(&v27, (const char *const)&stru_143CE7590, v33, 0x40u);
-                        PublisherVariableManager::RegisterDvarByString(name, v33);
+                        bdJSONDeserializer::getString(&v25, (const char *const)&stru_143CE7590, v31, 0x40u);
+                        PublisherVariableManager::RegisterDvarByString(name, v31);
                       }
                     }
                   }
                   LODWORD(v2) = controllerIndex;
                   v3 = this;
                 }
+                bdJSONDeserializer::~bdJSONDeserializer(&v25);
                 bdJSONDeserializer::~bdJSONDeserializer(&v27);
-                bdJSONDeserializer::~bdJSONDeserializer(&v29);
-                bdJSONDeserializer::~bdJSONDeserializer(&v30);
+                bdJSONDeserializer::~bdJSONDeserializer(&v28);
                 goto LABEL_20;
               }
               if ( v12 != v13 )
@@ -673,24 +664,20 @@ LABEL_11:
               if ( !v12 )
                 goto LABEL_11;
             }
-            v18 = 0i64;
-            v19 = 0x7FFFFFFFi64;
+            v17 = 0i64;
+            v18 = 0x7FFFFFFFi64;
             do
             {
-              v20 = aLuiDataModel[v18];
-              v21 = value[v18++];
-              if ( !v19-- )
+              v19 = aLuiDataModel[v17];
+              v20 = value[v17++];
+              if ( !v18-- )
                 break;
-              if ( v20 != v21 )
+              if ( v19 != v20 )
                 goto LABEL_20;
             }
-            while ( v20 );
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsp+1D0h+var_178.m_type]
-              vmovups ymmword ptr [rbp+0D0h+var_130.m_type], ymm0
-            }
-            Online_AB_Testing::SetLUIDataModelFromPayload(v3, v2, &v30);
+            while ( v19 );
+            v28 = v26;
+            Online_AB_Testing::SetLUIDataModelFromPayload(v3, v2, &v28);
           }
 LABEL_20:
           ++v7;
@@ -702,7 +689,7 @@ LABEL_20:
     }
     while ( (unsigned int)v5 < *p_m_numEnrollments );
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v28);
+  bdJSONDeserializer::~bdJSONDeserializer(&v26);
 }
 
 /*
@@ -762,34 +749,34 @@ void Online_AB_Testing::SetLUIDataModelFromPayload(Online_AB_Testing *this, cons
   char v11; 
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
-  bool v17; 
-  float v18; 
-  int v19; 
-  bdJSONDeserializer v20; 
-  bdJSONDeserializer v21; 
+  bool v15; 
+  float v16; 
+  int v17; 
+  bdJSONDeserializer v18; 
+  bdJSONDeserializer v19; 
   bdJSONDeserializer value; 
-  __int64 v23; 
-  bdJSONDeserializer *v24; 
-  bdJSONDeserializer v25; 
+  __int64 v21; 
+  bdJSONDeserializer *v22; 
+  bdJSONDeserializer v23; 
   char path[64]; 
   char newValue[64]; 
 
-  v23 = -2i64;
-  v24 = payload;
+  v21 = -2i64;
+  v22 = payload;
   v5 = 1;
   bdJSONDeserializer::bdJSONDeserializer(&value);
-  bdJSONDeserializer::bdJSONDeserializer(&v21);
-  bdJSONDeserializer::bdJSONDeserializer(&v25);
+  bdJSONDeserializer::bdJSONDeserializer(&v19);
+  bdJSONDeserializer::bdJSONDeserializer(&v23);
   if ( bdJSONDeserializer::getArray(payload, "data", &value) )
   {
     m_count = value.m_count;
     for ( i = 0; i < m_count; ++i )
     {
-      if ( bdJSONDeserializer::getElementByIndex(&value, i, &v21) )
+      if ( bdJSONDeserializer::getElementByIndex(&value, i, &v19) )
       {
-        if ( v5 && bdJSONDeserializer::hasKey(&v21, "key") )
+        if ( v5 && bdJSONDeserializer::hasKey(&v19, "key") )
         {
-          bdJSONDeserializer::getString(&v21, "key", path, 0x40u);
+          bdJSONDeserializer::getString(&v19, "key", path, 0x40u);
           v8 = 0i64;
           v9 = 10i64;
           while ( 1 )
@@ -807,38 +794,33 @@ LABEL_10:
             if ( !v10 )
               goto LABEL_10;
           }
-          if ( bdJSONDeserializer::hasKey(&v21, (const char *const)&stru_143CE7590) )
+          if ( bdJSONDeserializer::hasKey(&v19, (const char *const)&stru_143CE7590) )
           {
-            bdJSONDeserializer::getFieldByKey(&v21, (const char *const)&stru_143CE7590, &v25, 1);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+80h+var_E0.m_type]
-              vmovups ymmword ptr [rsp+180h+var_150.m_type], ymm0
-            }
+            bdJSONDeserializer::getFieldByKey(&v19, (const char *const)&stru_143CE7590, &v23, 1);
+            v18 = v23;
             ModelForController = LUI_Model_GetModelForController(controllerIndex);
             ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, path);
-            if ( bdJSONDeserializer::isString(&v20) )
+            if ( bdJSONDeserializer::isString(&v18) )
             {
-              bdJSONDeserializer::getString(&v20, newValue, 0x40u);
+              bdJSONDeserializer::getString(&v18, newValue, 0x40u);
               LUI_Model_SetString(ModelFromPath, newValue);
             }
-            else if ( bdJSONDeserializer::isFloatingPoint(&v20) )
+            else if ( bdJSONDeserializer::isFloatingPoint(&v18) )
             {
-              bdJSONDeserializer::getFloat32(&v20, &v18);
-              __asm { vmovss  xmm1, [rsp+180h+var_15C]; newValue }
-              LUI_Model_SetReal(ModelFromPath, *(float *)&_XMM1);
+              bdJSONDeserializer::getFloat32(&v18, &v16);
+              LUI_Model_SetReal(ModelFromPath, v16);
             }
-            else if ( bdJSONDeserializer::isNumber(&v20) )
+            else if ( bdJSONDeserializer::isNumber(&v18) )
             {
-              bdJSONDeserializer::getInt32(&v20, &v19);
-              LUI_Model_SetInt(ModelFromPath, v19);
+              bdJSONDeserializer::getInt32(&v18, &v17);
+              LUI_Model_SetInt(ModelFromPath, v17);
             }
-            else if ( bdJSONDeserializer::isBoolean(&v20) )
+            else if ( bdJSONDeserializer::isBoolean(&v18) )
             {
-              bdJSONDeserializer::getBoolean(&v20, &v17);
-              LUI_Model_SetBool(ModelFromPath, v17);
+              bdJSONDeserializer::getBoolean(&v18, &v15);
+              LUI_Model_SetBool(ModelFromPath, v15);
             }
-            bdJSONDeserializer::~bdJSONDeserializer(&v20);
+            bdJSONDeserializer::~bdJSONDeserializer(&v18);
           }
         }
         else
@@ -849,8 +831,8 @@ LABEL_11:
       }
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v25);
-  bdJSONDeserializer::~bdJSONDeserializer(&v21);
+  bdJSONDeserializer::~bdJSONDeserializer(&v23);
+  bdJSONDeserializer::~bdJSONDeserializer(&v19);
   bdJSONDeserializer::~bdJSONDeserializer(&value);
   bdJSONDeserializer::~bdJSONDeserializer(payload);
 }
@@ -864,14 +846,14 @@ void Online_AB_Testing::setLUIDataModelFromValue(Online_AB_Testing *this, const 
 {
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
-  bool v9; 
-  float v10; 
-  __int64 v11; 
-  bdJSONDeserializer *v12; 
+  bool v8; 
+  float v9; 
+  __int64 v10; 
+  bdJSONDeserializer *v11; 
   char value[64]; 
 
-  v11 = -2i64;
-  v12 = valueJsonObject;
+  v10 = -2i64;
+  v11 = valueJsonObject;
   ModelForController = LUI_Model_GetModelForController(controllerIndex);
   ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, key);
   if ( bdJSONDeserializer::isString(valueJsonObject) )
@@ -881,19 +863,18 @@ void Online_AB_Testing::setLUIDataModelFromValue(Online_AB_Testing *this, const 
   }
   else if ( bdJSONDeserializer::isFloatingPoint(valueJsonObject) )
   {
-    bdJSONDeserializer::getFloat32(valueJsonObject, &v10);
-    __asm { vmovss  xmm1, [rsp+98h+var_74]; newValue }
-    LUI_Model_SetReal(ModelFromPath, *(float *)&_XMM1);
+    bdJSONDeserializer::getFloat32(valueJsonObject, &v9);
+    LUI_Model_SetReal(ModelFromPath, v9);
   }
   else if ( bdJSONDeserializer::isNumber(valueJsonObject) )
   {
-    bdJSONDeserializer::getInt32(valueJsonObject, (int *)&v10);
-    LUI_Model_SetInt(ModelFromPath, SLODWORD(v10));
+    bdJSONDeserializer::getInt32(valueJsonObject, (int *)&v9);
+    LUI_Model_SetInt(ModelFromPath, SLODWORD(v9));
   }
   else if ( bdJSONDeserializer::isBoolean(valueJsonObject) )
   {
-    bdJSONDeserializer::getBoolean(valueJsonObject, &v9);
-    LUI_Model_SetBool(ModelFromPath, v9);
+    bdJSONDeserializer::getBoolean(valueJsonObject, &v8);
+    LUI_Model_SetBool(ModelFromPath, v8);
   }
   bdJSONDeserializer::~bdJSONDeserializer(valueJsonObject);
 }

@@ -21342,10 +21342,13 @@ void Load_GfxCompressedSunShadowDataTempPtrArray(const DBStreamStart streamStart
   GfxCompressedSunShadowDataTemp **v4; 
   GfxCompressedSunShadowDataTemp *v5; 
   XZoneHandleUnique CurrentZoneLoadHandleUnique; 
+  GfxCompressedSunShadowDataTemp *v7; 
   unsigned int m_packed; 
+  DB_BackendCallbackDataRingBufferAlloc v9; 
+  int v10; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v17; 
+  int v13; 
 
   v2 = count;
   Load_Stream(streamStart, varGfxCompressedSunShadowDataTempPtr, 8 * count);
@@ -21363,32 +21366,19 @@ void Load_GfxCompressedSunShadowDataTempPtrArray(const DBStreamStart streamStart
       varGfxCompressedSunShadowDataTemp = (GfxCompressedSunShadowDataTemp *)g_streamPosGlob.pos;
       Load_GfxCompressedSunShadowDataTemp(AtStart);
       CurrentZoneLoadHandleUnique = DB_Zones_GetCurrentZoneLoadHandleUnique();
-      _RSI = varGfxCompressedSunShadowDataTemp;
-      v17 = 0;
+      v7 = varGfxCompressedSunShadowDataTemp;
+      v13 = 0;
       m_packed = CurrentZoneLoadHandleUnique.m_packed;
-      _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      LODWORD(_RAX) = v17;
-      __asm
-      {
-        vmovq   rcx, xmm0
-        vmovups xmmword ptr [rsp+88h+alloc.m_data], xmm0
-      }
-      *(_DWORD *)_RCX = 112;
-      *(_DWORD *)(_RCX + 4) = m_packed;
-      *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-      *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
-      *(_QWORD *)(_RCX + 24) = 0i64;
-      *(_QWORD *)(_RCX + 32) = R_CompressedSunShadow_StreamIn;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rcx+28h], ymm0
-        vmovups ymm1, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rcx+48h], ymm1
-        vmovsd  xmm0, qword ptr [rsi+40h]
-        vmovsd  qword ptr [rcx+68h], xmm0
-      }
+      v9 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
+      v10 = v13;
+      alloc = v9;
+      *(_DWORD *)v9.m_data = 112;
+      *((_DWORD *)v9.m_data + 1) = m_packed;
+      *((_DWORD *)v9.m_data + 2) = v10;
+      *((_QWORD *)v9.m_data + 2) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
+      *((_QWORD *)v9.m_data + 3) = 0i64;
+      *((_QWORD *)v9.m_data + 4) = R_CompressedSunShadow_StreamIn;
+      *(GfxCompressedSunShadowDataTemp *)(v9.m_data + 40) = *v7;
       DB_BackendCallbackDataRingBuffer_Queue(&alloc);
       *v4 = NULL;
       varGfxCompressedSunShadowDataTemp = v5;
@@ -21408,10 +21398,13 @@ void Load_GfxCompressedSunShadowDataTempPtrStream(const DBStreamStart streamStar
   GfxCompressedSunShadowDataTemp **v4; 
   GfxCompressedSunShadowDataTemp *v5; 
   XZoneHandleUnique CurrentZoneLoadHandleUnique; 
+  GfxCompressedSunShadowDataTemp *v7; 
   unsigned int m_packed; 
+  DB_BackendCallbackDataRingBufferAlloc v9; 
+  int v10; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v17; 
+  int v13; 
 
   if ( streamStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\db_generated\\load\\impl\\archive_impl_r_bsp_db.h", 21033, ASSERT_TYPE_ASSERT, "(streamStart == DBStreamStart::AtStart)", (const char *)&queryFormat, "streamStart == DBStreamStart::AtStart") )
     __debugbreak();
@@ -21431,32 +21424,19 @@ void Load_GfxCompressedSunShadowDataTempPtrStream(const DBStreamStart streamStar
         varGfxCompressedSunShadowDataTemp = (GfxCompressedSunShadowDataTemp *)g_streamPosGlob.pos;
         Load_GfxCompressedSunShadowDataTemp(AtStart);
         CurrentZoneLoadHandleUnique = DB_Zones_GetCurrentZoneLoadHandleUnique();
-        _RDI = varGfxCompressedSunShadowDataTemp;
-        v17 = 0;
+        v7 = varGfxCompressedSunShadowDataTemp;
+        v13 = 0;
         m_packed = CurrentZoneLoadHandleUnique.m_packed;
-        _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        LODWORD(_RAX) = v17;
-        __asm
-        {
-          vmovq   rcx, xmm0
-          vmovups xmmword ptr [rsp+98h+alloc.m_data], xmm0
-        }
-        *(_DWORD *)_RCX = 112;
-        *(_DWORD *)(_RCX + 4) = m_packed;
-        *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-        *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
-        *(_QWORD *)(_RCX + 24) = 0i64;
-        *(_QWORD *)(_RCX + 32) = R_CompressedSunShadow_StreamIn;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [rcx+28h], ymm0
-          vmovups ymm1, ymmword ptr [rdi+20h]
-          vmovups ymmword ptr [rcx+48h], ymm1
-          vmovsd  xmm0, qword ptr [rdi+40h]
-          vmovsd  qword ptr [rcx+68h], xmm0
-        }
+        v9 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
+        v10 = v13;
+        alloc = v9;
+        *(_DWORD *)v9.m_data = 112;
+        *((_DWORD *)v9.m_data + 1) = m_packed;
+        *((_DWORD *)v9.m_data + 2) = v10;
+        *((_QWORD *)v9.m_data + 2) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
+        *((_QWORD *)v9.m_data + 3) = 0i64;
+        *((_QWORD *)v9.m_data + 4) = R_CompressedSunShadow_StreamIn;
+        *(GfxCompressedSunShadowDataTemp *)(v9.m_data + 40) = *v7;
         DB_BackendCallbackDataRingBuffer_Queue(&alloc);
         *v4 = NULL;
         varGfxCompressedSunShadowDataTemp = v5;
@@ -37239,10 +37219,13 @@ void Postload_GfxCompressedSunShadowDataTempPtrArray(const DBStreamStart streamS
   GfxCompressedSunShadowDataTemp **v4; 
   GfxCompressedSunShadowDataTemp *v5; 
   XZoneHandleUnique CurrentZoneLoadHandleUnique; 
+  GfxCompressedSunShadowDataTemp *v7; 
   unsigned int m_packed; 
+  DB_BackendCallbackDataRingBufferAlloc v9; 
+  int v10; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v17; 
+  int v13; 
 
   v2 = count;
   Postload_Stream(streamStart, varGfxCompressedSunShadowDataTempPtr, 8 * count);
@@ -37264,32 +37247,19 @@ void Postload_GfxCompressedSunShadowDataTempPtrArray(const DBStreamStart streamS
       varGfxCompressedSunShadowDataTemp = (GfxCompressedSunShadowDataTemp *)g_streamPosGlob.pos;
       Postload_GfxCompressedSunShadowDataTemp(AtStart);
       CurrentZoneLoadHandleUnique = DB_Zones_GetCurrentZoneLoadHandleUnique();
-      _RSI = varGfxCompressedSunShadowDataTemp;
-      v17 = 0;
+      v7 = varGfxCompressedSunShadowDataTemp;
+      v13 = 0;
       m_packed = CurrentZoneLoadHandleUnique.m_packed;
-      _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      LODWORD(_RAX) = v17;
-      __asm
-      {
-        vmovq   rcx, xmm0
-        vmovups xmmword ptr [rsp+88h+alloc.m_data], xmm0
-      }
-      *(_DWORD *)_RCX = 112;
-      *(_DWORD *)(_RCX + 4) = m_packed;
-      *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-      *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
-      *(_QWORD *)(_RCX + 24) = 0i64;
-      *(_QWORD *)(_RCX + 32) = R_CompressedSunShadow_StreamIn;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rcx+28h], ymm0
-        vmovups ymm1, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rcx+48h], ymm1
-        vmovsd  xmm0, qword ptr [rsi+40h]
-        vmovsd  qword ptr [rcx+68h], xmm0
-      }
+      v9 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
+      v10 = v13;
+      alloc = v9;
+      *(_DWORD *)v9.m_data = 112;
+      *((_DWORD *)v9.m_data + 1) = m_packed;
+      *((_DWORD *)v9.m_data + 2) = v10;
+      *((_QWORD *)v9.m_data + 2) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
+      *((_QWORD *)v9.m_data + 3) = 0i64;
+      *((_QWORD *)v9.m_data + 4) = R_CompressedSunShadow_StreamIn;
+      *(GfxCompressedSunShadowDataTemp *)(v9.m_data + 40) = *v7;
       DB_BackendCallbackDataRingBuffer_Queue(&alloc);
       *v4 = NULL;
       varGfxCompressedSunShadowDataTemp = v5;
@@ -37310,10 +37280,13 @@ void Postload_GfxCompressedSunShadowDataTempPtrStream(const DBStreamStart stream
   GfxCompressedSunShadowDataTemp **v5; 
   GfxCompressedSunShadowDataTemp *v6; 
   XZoneHandleUnique CurrentZoneLoadHandleUnique; 
+  GfxCompressedSunShadowDataTemp *v8; 
   unsigned int m_packed; 
+  DB_BackendCallbackDataRingBufferAlloc v10; 
+  int v11; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v18; 
+  int v14; 
 
   if ( streamStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\db_generated\\load\\impl\\archive_impl_r_bsp_db.h", 41745, ASSERT_TYPE_ASSERT, "(streamStart == DBStreamStart::AtStart)", (const char *)&queryFormat, "streamStart == DBStreamStart::AtStart") )
     __debugbreak();
@@ -37343,32 +37316,19 @@ void Postload_GfxCompressedSunShadowDataTempPtrStream(const DBStreamStart stream
         varGfxCompressedSunShadowDataTemp = (GfxCompressedSunShadowDataTemp *)g_streamPosGlob.pos;
         Postload_GfxCompressedSunShadowDataTemp(AtStart);
         CurrentZoneLoadHandleUnique = DB_Zones_GetCurrentZoneLoadHandleUnique();
-        _RDI = varGfxCompressedSunShadowDataTemp;
-        v18 = 0;
+        v8 = varGfxCompressedSunShadowDataTemp;
+        v14 = 0;
         m_packed = CurrentZoneLoadHandleUnique.m_packed;
-        _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        LODWORD(_RAX) = v18;
-        __asm
-        {
-          vmovq   rcx, xmm0
-          vmovups xmmword ptr [rsp+98h+alloc.m_data], xmm0
-        }
-        *(_DWORD *)_RCX = 112;
-        *(_DWORD *)(_RCX + 4) = m_packed;
-        *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-        *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
-        *(_QWORD *)(_RCX + 24) = 0i64;
-        *(_QWORD *)(_RCX + 32) = R_CompressedSunShadow_StreamIn;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [rcx+28h], ymm0
-          vmovups ymm1, ymmword ptr [rdi+20h]
-          vmovups ymmword ptr [rcx+48h], ymm1
-          vmovsd  xmm0, qword ptr [rdi+40h]
-          vmovsd  qword ptr [rcx+68h], xmm0
-        }
+        v10 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
+        v11 = v14;
+        alloc = v10;
+        *(_DWORD *)v10.m_data = 112;
+        *((_DWORD *)v10.m_data + 1) = m_packed;
+        *((_DWORD *)v10.m_data + 2) = v11;
+        *((_QWORD *)v10.m_data + 2) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
+        *((_QWORD *)v10.m_data + 3) = 0i64;
+        *((_QWORD *)v10.m_data + 4) = R_CompressedSunShadow_StreamIn;
+        *(GfxCompressedSunShadowDataTemp *)(v10.m_data + 40) = *v8;
         DB_BackendCallbackDataRingBuffer_Queue(&alloc);
         *v5 = NULL;
         pos = g_streamPosGlob.pos;
@@ -47619,10 +47579,13 @@ void Postload_GfxWorldTransientZoneStream(const DBStreamStart streamStart, const
   GfxCompressedSunShadowDataTemp **p_compressedSunShadow; 
   GfxCompressedSunShadowDataTemp *v21; 
   XZoneHandleUnique v22; 
+  GfxCompressedSunShadowDataTemp *v23; 
   unsigned int m_packed; 
+  DB_BackendCallbackDataRingBufferAlloc v25; 
+  int v26; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v33; 
+  int v29; 
 
   if ( streamStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\db_generated\\load\\impl\\archive_impl_r_bsp_db.h", 42092, ASSERT_TYPE_ASSERT, "(streamStart == DBStreamStart::AtStart)", (const char *)&queryFormat, "streamStart == DBStreamStart::AtStart") )
     __debugbreak();
@@ -47730,32 +47693,19 @@ void Postload_GfxWorldTransientZoneStream(const DBStreamStart streamStart, const
         varGfxCompressedSunShadowDataTemp = (GfxCompressedSunShadowDataTemp *)g_streamPosGlob.pos;
         Postload_GfxCompressedSunShadowDataTemp(AtStart);
         v22 = DB_Zones_GetCurrentZoneLoadHandleUnique();
-        _RDI = varGfxCompressedSunShadowDataTemp;
-        v33 = 0;
+        v23 = varGfxCompressedSunShadowDataTemp;
+        v29 = 0;
         m_packed = v22.m_packed;
-        _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        LODWORD(_RAX) = v33;
-        __asm
-        {
-          vmovq   rcx, xmm0
-          vmovups xmmword ptr [rsp+98h+alloc.m_data], xmm0
-        }
-        *(_DWORD *)_RCX = 112;
-        *(_DWORD *)(_RCX + 4) = m_packed;
-        *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-        *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
-        *(_QWORD *)(_RCX + 24) = 0i64;
-        *(_QWORD *)(_RCX + 32) = R_CompressedSunShadow_StreamIn;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [rcx+28h], ymm0
-          vmovups ymm1, ymmword ptr [rdi+20h]
-          vmovups ymmword ptr [rcx+48h], ymm1
-          vmovsd  xmm0, qword ptr [rdi+40h]
-          vmovsd  qword ptr [rcx+68h], xmm0
-        }
+        v25 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
+        v26 = v29;
+        alloc = v25;
+        *(_DWORD *)v25.m_data = 112;
+        *((_DWORD *)v25.m_data + 1) = m_packed;
+        *((_DWORD *)v25.m_data + 2) = v26;
+        *((_QWORD *)v25.m_data + 2) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
+        *((_QWORD *)v25.m_data + 3) = 0i64;
+        *((_QWORD *)v25.m_data + 4) = R_CompressedSunShadow_StreamIn;
+        *(GfxCompressedSunShadowDataTemp *)(v25.m_data + 40) = *v23;
         DB_BackendCallbackDataRingBuffer_Queue(&alloc);
         *p_compressedSunShadow = NULL;
         varGfxCompressedSunShadowDataTemp = v21;

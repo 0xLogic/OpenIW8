@@ -167,10 +167,9 @@ __int64 AD_UserManagerAddUser(AD_UserManager *const userManager, const AD_UserIn
   unsigned int v11; 
   char *fmt; 
 
-  _R12 = userInfo;
   if ( !userManager && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 240, ASSERT_TYPE_ASSERT, "userManager != nullptr", "userManager != nullptr") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 241, ASSERT_TYPE_ASSERT, "userInfo != nullptr", "userInfo != nullptr") )
+  if ( !userInfo && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 241, ASSERT_TYPE_ASSERT, "userInfo != nullptr", "userInfo != nullptr") )
     __debugbreak();
   while ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 1, 0) )
     AD_Sleep(0);
@@ -182,7 +181,7 @@ __int64 AD_UserManagerAddUser(AD_UserManager *const userManager, const AD_UserIn
   {
     if ( v7 == 2 && m_elements->userId == AD_InvalidUser.userId && m_elements->platformId == AD_InvalidUser.platformId )
       v7 = v5;
-    if ( m_elements->userId == _R12->userId && m_elements->platformId == _R12->platformId )
+    if ( m_elements->userId == userInfo->userId && m_elements->platformId == userInfo->platformId )
       break;
     ++v5;
     ++m_elements;
@@ -191,7 +190,7 @@ __int64 AD_UserManagerAddUser(AD_UserManager *const userManager, const AD_UserIn
       v8 = userManager->currentUserInfo.m_elements;
       do
       {
-        v9 = v8->userId == _R12->userId && v8->platformId == _R12->platformId;
+        v9 = v8->userId == userInfo->userId && v8->platformId == userInfo->platformId;
         v11 = v4;
         if ( !v9 )
           v11 = v7;
@@ -202,7 +201,6 @@ __int64 AD_UserManagerAddUser(AD_UserManager *const userManager, const AD_UserIn
       while ( v4 < 2 );
       if ( v11 != 2 )
       {
-        _RBX = 2i64 * v11;
         while ( userManager->pendingUserInfo.m_elements[v7].userId != userManager->currentUserInfo.m_elements[v7].userId || userManager->pendingUserInfo.m_elements[v7].platformId != userManager->currentUserInfo.m_elements[v7].platformId )
         {
           if ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
@@ -215,13 +213,7 @@ __int64 AD_UserManagerAddUser(AD_UserManager *const userManager, const AD_UserIn
           while ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 1, 0) )
             AD_Sleep(0);
         }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r12]
-          vmovups [rsp+68h+var_38], xmm0
-        }
-        _RAX = userManager->pendingUserInfo.m_elements;
-        __asm { vmovups xmmword ptr [rax+rbx*8], xmm0 }
+        userManager->pendingUserInfo.m_elements[v7] = *userInfo;
       }
       if ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
         __debugbreak();
@@ -230,7 +222,7 @@ __int64 AD_UserManagerAddUser(AD_UserManager *const userManager, const AD_UserIn
   }
   if ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
     __debugbreak();
-  LODWORD(fmt) = _R12->userId;
+  LODWORD(fmt) = userInfo->userId;
   AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", "256", Canceled, "Duplicate user initilization for user %d", fmt);
   return v5;
 }
@@ -266,15 +258,10 @@ AD_UserManagerConnect
 */
 void AD_UserManagerConnect(AD_UserManager *const userManager)
 {
-  _RBX = userManager;
   if ( !userManager && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 63, ASSERT_TYPE_ASSERT, "userManager != nullptr", "userManager != nullptr") )
     __debugbreak();
-  AD_UserArrayClear_AD_Array_AD_UserInfo_2_16___(&_RBX->currentUserInfo);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vmovups xmmword ptr [rbx+60h], xmm0
-  }
+  AD_UserArrayClear_AD_Array_AD_UserInfo_2_16___(&userManager->currentUserInfo);
+  userManager->iteratorInfo = AD_InvalidUser;
 }
 
 /*
@@ -431,16 +418,11 @@ AD_UserManagerInit
 */
 void AD_UserManagerInit(AD_UserManager *const userManager)
 {
-  _RBX = userManager;
   if ( !userManager && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 44, ASSERT_TYPE_ASSERT, "userManager != nullptr", "userManager != nullptr") )
     __debugbreak();
-  AD_UserArrayClear_AD_Array_AD_UserInfo_2_16___(&_RBX->currentUserInfo);
-  AD_UserArrayClear_AD_Array_AD_UserInfo_2_16___(&_RBX->pendingUserInfo);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vmovups xmmword ptr [rbx+60h], xmm0
-  }
+  AD_UserArrayClear_AD_Array_AD_UserInfo_2_16___(&userManager->currentUserInfo);
+  AD_UserArrayClear_AD_Array_AD_UserInfo_2_16___(&userManager->pendingUserInfo);
+  userManager->iteratorInfo = AD_InvalidUser;
 }
 
 /*
@@ -454,7 +436,7 @@ __int64 AD_UserManagerRemoveUser(AD_UserManager *const userManager, const AD_Use
   unsigned int v6; 
   AD_UserInfo *m_elements; 
   unsigned int v8; 
-  char *v10; 
+  char *v9; 
   char *fmt; 
 
   if ( !userManager && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 292, ASSERT_TYPE_ASSERT, "userManager != nullptr", "userManager != nullptr") )
@@ -489,9 +471,8 @@ __int64 AD_UserManagerRemoveUser(AD_UserManager *const userManager, const AD_Use
       }
     }
     v8 = v6;
-    _RDI = 2i64 * v6;
-    v10 = (char *)userManager + 16 * v6;
-    while ( *((_DWORD *)v10 + 16) != *((_DWORD *)v10 + 4) || *((_QWORD *)v10 + 9) != *((_QWORD *)v10 + 3) )
+    v9 = (char *)userManager + 16 * v6;
+    while ( *((_DWORD *)v9 + 16) != *((_DWORD *)v9 + 4) || *((_QWORD *)v9 + 9) != *((_QWORD *)v9 + 3) )
     {
       if ( AD_InterlockedCompareExchange(&p_spinLock->spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
         __debugbreak();
@@ -503,13 +484,7 @@ __int64 AD_UserManagerRemoveUser(AD_UserManager *const userManager, const AD_Use
       while ( AD_InterlockedCompareExchange(&p_spinLock->spinLock, 1, 0) )
         AD_Sleep(0);
     }
-    _R13 = userManager->pendingUserInfo.m_elements;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-      vmovups [rsp+68h+var_38], xmm0
-      vmovups xmmword ptr [r13+rdi*8+0], xmm0
-    }
+    userManager->pendingUserInfo.m_elements[v6] = AD_InvalidUser;
 LABEL_20:
     if ( AD_InterlockedCompareExchange(&p_spinLock->spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
       __debugbreak();
@@ -525,62 +500,44 @@ AD_UserManagerUpdateAdvance
 __int64 AD_UserManagerUpdateAdvance(AD_UserManager *const userManager, const unsigned int handle)
 {
   __int64 v3; 
-  unsigned int v7; 
-  unsigned int v8; 
-  AD_UserInfo *v9; 
+  AD_UserInfo iteratorInfo; 
+  unsigned int v5; 
+  unsigned int v6; 
+  AD_UserInfo *v7; 
 
-  _RSI = userManager;
   v3 = handle;
   if ( !userManager && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 105, ASSERT_TYPE_ASSERT, "userManager != nullptr", "userManager != nullptr") )
     __debugbreak();
-  if ( !AD_UserHandleIsValid(_RSI, v3) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 107, ASSERT_TYPE_ASSERT, "AD_UserHandleIsValid( userManager, handle )", "AD_UserHandleIsValid( userManager, handle )") )
+  if ( !AD_UserHandleIsValid(userManager, v3) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 107, ASSERT_TYPE_ASSERT, "AD_UserHandleIsValid( userManager, handle )", "AD_UserHandleIsValid( userManager, handle )") )
     __debugbreak();
-  while ( AD_InterlockedCompareExchange(&_RSI->spinLock.spinLock, 1, 0) )
+  while ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 1, 0) )
     AD_Sleep(0);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+60h]
-    vmovups [rsp+68h+var_38], xmm0
-  }
-  if ( (unsigned int)v3 >= 2 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 154, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
-      __debugbreak();
-    __asm { vmovups xmm0, [rsp+68h+var_38] }
-  }
-  _RAX = 2 * (v3 + 1);
-  __asm
-  {
-    vmovups xmmword ptr [rsi+rax*8], xmm0
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vmovups xmmword ptr [rsi+60h], xmm0
-  }
-  v7 = 2;
-  v8 = v3 + 1;
-  if ( v8 < 2 )
-  {
-    v9 = &_RSI->currentUserInfo.m_elements[v8];
-    while ( v9[3].userId == v9->userId && v9[3].platformId == v9->platformId )
-    {
-      ++v8;
-      ++v9;
-      if ( v8 >= 2 )
-        goto LABEL_24;
-    }
-    if ( (_RSI->iteratorInfo.userId != AD_InvalidUser.userId || _RSI->iteratorInfo.platformId != AD_InvalidUser.platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 120, ASSERT_TYPE_ASSERT, "userManager->iteratorInfo == AD_InvalidUser", "userManager->iteratorInfo == AD_InvalidUser") )
-      __debugbreak();
-    v7 = v8;
-    _RAX = 2i64 * v8;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+rax*8+40h]
-      vmovups xmmword ptr [rsi+60h], xmm0
-    }
-  }
-LABEL_24:
-  if ( AD_InterlockedCompareExchange(&_RSI->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
+  iteratorInfo = userManager->iteratorInfo;
+  if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 154, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
     __debugbreak();
-  return v7;
+  userManager->currentUserInfo.m_elements[v3] = iteratorInfo;
+  userManager->iteratorInfo = AD_InvalidUser;
+  v5 = 2;
+  v6 = v3 + 1;
+  if ( v6 < 2 )
+  {
+    v7 = &userManager->currentUserInfo.m_elements[v6];
+    while ( v7[3].userId == v7->userId && v7[3].platformId == v7->platformId )
+    {
+      ++v6;
+      ++v7;
+      if ( v6 >= 2 )
+        goto LABEL_23;
+    }
+    if ( (userManager->iteratorInfo.userId != AD_InvalidUser.userId || userManager->iteratorInfo.platformId != AD_InvalidUser.platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 120, ASSERT_TYPE_ASSERT, "userManager->iteratorInfo == AD_InvalidUser", "userManager->iteratorInfo == AD_InvalidUser") )
+      __debugbreak();
+    v5 = v6;
+    userManager->iteratorInfo = userManager->pendingUserInfo.m_elements[v6];
+  }
+LABEL_23:
+  if ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
+    __debugbreak();
+  return v5;
 }
 
 /*
@@ -594,13 +551,12 @@ __int64 AD_UserManagerUpdateBegin(AD_UserManager *const userManager)
   AD_UserInfo *m_elements; 
   unsigned int v4; 
 
-  _RSI = userManager;
   if ( !userManager && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 80, ASSERT_TYPE_ASSERT, "userManager != nullptr", "userManager != nullptr") )
     __debugbreak();
-  while ( AD_InterlockedCompareExchange(&_RSI->spinLock.spinLock, 1, 0) )
+  while ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 1, 0) )
     AD_Sleep(0);
   v2 = 2;
-  m_elements = _RSI->currentUserInfo.m_elements;
+  m_elements = userManager->currentUserInfo.m_elements;
   v4 = 0;
   while ( m_elements[3].userId == m_elements->userId && m_elements[3].platformId == m_elements->platformId )
   {
@@ -609,17 +565,12 @@ __int64 AD_UserManagerUpdateBegin(AD_UserManager *const userManager)
     if ( v4 >= 2 )
       goto LABEL_16;
   }
-  if ( (_RSI->iteratorInfo.userId != AD_InvalidUser.userId || _RSI->iteratorInfo.platformId != AD_InvalidUser.platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 90, ASSERT_TYPE_ASSERT, "userManager->iteratorInfo == AD_InvalidUser", "userManager->iteratorInfo == AD_InvalidUser") )
+  if ( (userManager->iteratorInfo.userId != AD_InvalidUser.userId || userManager->iteratorInfo.platformId != AD_InvalidUser.platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_user.cpp", 90, ASSERT_TYPE_ASSERT, "userManager->iteratorInfo == AD_InvalidUser", "userManager->iteratorInfo == AD_InvalidUser") )
     __debugbreak();
   v2 = v4;
-  _RAX = 2i64 * v4;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+rax*8+40h]
-    vmovups xmmword ptr [rsi+60h], xmm0
-  }
+  userManager->iteratorInfo = userManager->pendingUserInfo.m_elements[v4];
 LABEL_16:
-  if ( AD_InterlockedCompareExchange(&_RSI->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
+  if ( AD_InterlockedCompareExchange(&userManager->spinLock.spinLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_interlocked.h", 44, ASSERT_TYPE_ASSERT, "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )", "( AD_InterlockedCompareExchange( spinLock, 0, 1 ) ) == ( 1 )") )
     __debugbreak();
   return v2;
 }

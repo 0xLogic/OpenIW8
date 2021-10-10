@@ -427,79 +427,24 @@ Windows::Foundation::Collections::IVectorView<Windows::Xbox::Input::IController 
 GPadXB3_RegisterDvars
 ==============
 */
-
-void __fastcall GPadXB3_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void GPadXB3_RegisterDvars()
 {
-  const dvar_t *v8; 
-  const dvar_t *v12; 
-  const dvar_t *v16; 
-  const dvar_t *v20; 
-
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3e051eb8; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v8 = Dvar_RegisterFloat("MPLMKPSRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Game pad button deadzone threshhold");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  gpad_button_deadzone = v8;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v12 = Dvar_RegisterFloat("NQQSMKLKRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "On XB3 xb3_gpad_stick_deadzone_min is used. This one is the value being passed in by the override call GPad_SetRightStickDeadzoneOverride");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
-  gpad_stick_deadzone_min = v12;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v16 = Dvar_RegisterFloat("OPTMSRPOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Game pad maximum stick deadzone");
-  __asm { vmovss  xmm1, cs:__real@3ecccccd; value }
-  gpad_stick_deadzone_max = v16;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v20 = Dvar_RegisterFloat("NPSNRPPQNP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Game pad stick pressed threshhold");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  gpad_stick_pressed = v20;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  gpad_stick_pressed_hysteresis = Dvar_RegisterFloat("TTKLLTLMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Game pad stick pressed no-change-zone around gpad_stick_pressed to prevent bouncing");
+  gpad_button_deadzone = Dvar_RegisterFloat("MPLMKPSRT", 0.13, 0.0, 1.0, 4u, "Game pad button deadzone threshhold");
+  gpad_stick_deadzone_min = Dvar_RegisterFloat("NQQSMKLKRO", 0.1, 0.0, 1.0, 4u, "On XB3 xb3_gpad_stick_deadzone_min is used. This one is the value being passed in by the override call GPad_SetRightStickDeadzoneOverride");
+  gpad_stick_deadzone_max = Dvar_RegisterFloat("OPTMSRPOS", 0.0099999998, 0.0, 1.0, 4u, "Game pad maximum stick deadzone");
+  gpad_stick_pressed = Dvar_RegisterFloat("NPSNRPPQNP", 0.40000001, 0.0, 1.0, 4u, "Game pad stick pressed threshhold");
+  gpad_stick_pressed_hysteresis = Dvar_RegisterFloat("TTKLLTLMP", 0.1, 0.0, 1.0, 4u, "Game pad stick pressed no-change-zone around gpad_stick_pressed to prevent bouncing");
   gpad_menu_scroll_delay_first = Dvar_RegisterInt("SKSNNRNQQ", 420, 0, 1000, 0, "Menu scroll key-repeat delay, for the first repeat, in milliseconds");
   gpad_menu_scroll_delay_rest_start = Dvar_RegisterInt("LSNMOLPNPP", 210, 0, 1000, 0, "Menu scroll key-repeat delay start, for repeats after the first, in milliseconds");
   gpad_menu_scroll_delay_rest_end = Dvar_RegisterInt("NKLNROKPQO", 50, 0, 1000, 0, "Menu scroll key-repeat delay end, for repeats after the first, in milliseconds");
   gpad_menu_scroll_delay_rest_accel = Dvar_RegisterInt("NPKOTOKTKR", 2, 0, 1000, 0, "Menu scroll key-repeat delay acceleration from start to end, for repeats after the first, in milliseconds per repeat");
   gpad_dpadDebounceTime = Dvar_RegisterInt("LKSQPTSMPR", 0, 0, 0x7FFFFFFF, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm7; value
-  }
-  gpad_button_lstick_deflect_max = Dvar_RegisterFloat("LMORSKSTPK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Left stick deflect max");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm7; value
-  }
-  gpad_button_rstick_deflect_max = Dvar_RegisterFloat("NOPKLKMSRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Right stick deflect max");
+  gpad_button_lstick_deflect_max = Dvar_RegisterFloat("LMORSKSTPK", 1.0, 0.0, 1.0, 4u, "Left stick deflect max");
+  gpad_button_rstick_deflect_max = Dvar_RegisterFloat("NOPKLKMSRM", 1.0, 0.0, 1.0, 4u, "Right stick deflect max");
   gpad_isLefty = Dvar_RegisterBool("LMTKLROPNM", 0, 4u, "Whether we're in lefty mode");
   gpad_use_deadzone_option_value = Dvar_RegisterBool("NPQOMTNPOQ", 1, 0, "Use the new profile value as a deadzone for the sticks in the gamepad updates.");
   gpad_rapidfire = Dvar_RegisterBool("LMRSPQRPNK", 0, 4u, "Simulate a modded controller (hold rtrigger most of the way down)");
-  __asm { vmovaps xmm7, [rsp+48h+var_18] }
   Dvar_EndPermanentRegistration();
 }
 
@@ -509,40 +454,35 @@ GPad_ConvertStickToFloat
 ==============
 */
 
-void __fastcall GPad_ConvertStickToFloat(double inX, double inY, float *outX, float *outY, float deadzoneMin)
+void __fastcall GPad_ConvertStickToFloat(double inX, float inY, float *outX, float *outY, float deadzoneMin)
 {
+  float v5; 
+  __int128 v7; 
+  float v8; 
+  float value; 
+
+  v7 = *(_OWORD *)&inX;
+  v5 = *(float *)&inX;
+  *(float *)&v7 = fsqrt((float)(*(float *)&inX * *(float *)&inX) + (float)(inY * inY));
+  _XMM6 = v7;
+  v8 = FLOAT_1_0;
   __asm
   {
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm2, xmm1, xmm1
-    vaddss  xmm3, xmm3, xmm2
-    vmovaps xmm4, xmm0
-    vmovaps [rsp+28h+var_18], xmm6
-    vsqrtss xmm6, xmm3, xmm3
-    vmovss  xmm3, cs:__real@3f800000
     vcmpless xmm2, xmm6, cs:__real@80000000
-    vmovaps xmm5, xmm1
     vblendvps xmm0, xmm6, xmm3, xmm2
-    vdivss  xmm1, xmm3, xmm0
-    vmovaps [rsp+28h+var_28], xmm7
-    vmulss  xmm7, xmm1, xmm4
-    vmovss  xmm4, [rsp+28h+deadzoneMin]
-    vcomiss xmm6, xmm4
-    vmulss  xmm5, xmm1, xmm5
   }
-  _RAX = gpad_stick_deadzone_max;
-  __asm
+  if ( *(float *)&v7 >= deadzoneMin )
   {
-    vmovss  xmm2, dword ptr [rax+28h]
-    vsubss  xmm0, xmm3, xmm2
-    vcomiss xmm6, xmm0
-    vmovaps xmm6, [rsp+28h+var_18]
-    vmulss  xmm0, xmm7, xmm3
-    vmovaps xmm7, [rsp+28h+var_28]
-    vmulss  xmm1, xmm5, xmm3
-    vmovss  dword ptr [r8], xmm0
-    vmovss  dword ptr [r9], xmm1
+    value = gpad_stick_deadzone_max->current.value;
+    if ( *(float *)&v7 <= (float)(1.0 - value) )
+      v8 = (float)(*(float *)&v7 - deadzoneMin) / (float)(1.0 - (float)(value + deadzoneMin));
   }
+  else
+  {
+    v8 = 0.0;
+  }
+  *outX = (float)((float)(1.0 / *(float *)&_XMM0) * v5) * v8;
+  *outY = (float)((float)(1.0 / *(float *)&_XMM0) * inY) * v8;
 }
 
 /*
@@ -644,41 +584,32 @@ GPad_GetButton
 */
 float GPad_GetButton(int portIndex, GamePadButton button)
 {
-  __int64 v4; 
-  __int64 v5; 
+  __int64 v2; 
+  __int64 v3; 
+  GamePad *v4; 
 
-  v4 = portIndex;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v5 = button;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = portIndex;
+  v3 = button;
   if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1186, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
     __debugbreak();
-  if ( (v5 & 0x30000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1187, ASSERT_TYPE_ASSERT, "(button & (0x10000000 | 0x20000000))", (const char *)&queryFormat, "button & (GPAD_DIGITAL_MASK | GPAD_ANALOG_MASK)") )
+  if ( (v3 & 0x30000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1187, ASSERT_TYPE_ASSERT, "(button & (0x10000000 | 0x20000000))", (const char *)&queryFormat, "button & (GPAD_DIGITAL_MASK | GPAD_ANALOG_MASK)") )
     __debugbreak();
-  _RCX = &s_gamePads[v4];
-  if ( (v5 & 0x10000000) != 0 )
+  v4 = &s_gamePads[v2];
+  if ( (v3 & 0x10000000) != 0 )
   {
-    _EAX = v5 & _RCX->digitals & 0xEFFFFFFF;
-    __asm { vmovd   xmm0, eax }
-    _ECX = 0;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vblendvps xmm0, xmm1, xmm6, xmm2
-    }
+    _XMM0 = (unsigned int)v3 & v4->digitals & 0xEFFFFFFF;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_1_0);
+    __asm { vblendvps xmm0, xmm1, xmm6, xmm2 }
   }
-  else if ( (v5 & 0x20000000) != 0 )
+  else if ( (v3 & 0x20000000) != 0 )
   {
-    _RAX = v5 & 0xFFFFFFFFDFFFFFFFui64;
-    __asm { vmovss  xmm0, dword ptr [rcx+rax*4+14h] }
+    *(float *)&_XMM0 = v4->analogs[v3 & 0xFFFFFFFFDFFFFFFFui64];
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(_XMM0) = 0;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   return *(float *)&_XMM0;
 }
 
@@ -1332,10 +1263,7 @@ float GPad_GetStick(int portIndex, GamePadStick stick)
     __debugbreak();
   if ( (v3 & 0x40000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1270, ASSERT_TYPE_ASSERT, "(stick & 0x40000000)", (const char *)&queryFormat, "stick & GPAD_STICK_MASK") )
     __debugbreak();
-  _RAX = s_gamePads[0].sticks;
-  _RDX = 38 * v2 + (v3 & 0xFFFFFFFFBFFFFFFFui64);
-  __asm { vmovss  xmm0, dword ptr [rax+rdx*4] }
-  return *(float *)&_XMM0;
+  return s_gamePads[v2].sticks[v3 & 0xFFFFFFFFBFFFFFFFui64];
 }
 
 /*
@@ -1635,56 +1563,52 @@ bool GPad_HasKeyboard(int portIndex)
 GPad_InitAll
 ==============
 */
-void GPad_InitAll(__int64 a1, __int64 a2, double a3)
+void GPad_InitAll(void)
 {
-  GamePad *v5; 
-  int v6; 
-  bool v7; 
-  int v8; 
+  GamePad *v0; 
+  int v1; 
+  bool v2; 
+  int v3; 
   float *p_LeftTriggerLevel; 
-  bool v10; 
-  __int64 v11; 
-  __int64 v12; 
+  bool v5; 
+  __int64 v6; 
+  __int64 v7; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:gpad_rStick_deadzone_min_override, xmm0
-  }
-  GPadXB3_RegisterDvars(a1, a2, a3);
-  v5 = s_gamePads;
-  v6 = 0;
-  v7 = 1;
+  gpad_rStick_deadzone_min_override = 0.0;
+  GPadXB3_RegisterDvars();
+  v0 = s_gamePads;
+  v1 = 0;
+  v2 = 1;
   do
   {
-    if ( !v7 )
+    if ( !v2 )
     {
-      LODWORD(v12) = 8;
-      LODWORD(v11) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 605, ASSERT_TYPE_ASSERT, "(unsigned)( portIndex ) < (unsigned)( 8 )", "portIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v7) = 8;
+      LODWORD(v6) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 605, ASSERT_TYPE_ASSERT, "(unsigned)( portIndex ) < (unsigned)( 8 )", "portIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, v7) )
         __debugbreak();
     }
-    if ( v5->enabled && v5->gamepad )
+    if ( v0->enabled && v0->gamepad )
     {
-      v5->vibration.__vftable = NULL;
-      *(_QWORD *)&v5->vibration.LeftTriggerLevel = 0i64;
-      GPad_SetVibration(v5);
+      v0->vibration.__vftable = NULL;
+      *(_QWORD *)&v0->vibration.LeftTriggerLevel = 0i64;
+      GPad_SetVibration(v0);
     }
-    ++v6;
-    ++v5;
-    v7 = (unsigned int)v6 < 8;
+    ++v1;
+    ++v0;
+    v2 = (unsigned int)v1 < 8;
   }
-  while ( v6 < 8 );
-  v8 = 0;
+  while ( v1 < 8 );
+  v3 = 0;
   p_LeftTriggerLevel = &s_gamePads[0].vibration.LeftTriggerLevel;
-  v10 = 1;
+  v5 = 1;
   do
   {
-    if ( !v10 )
+    if ( !v5 )
     {
-      LODWORD(v12) = 8;
-      LODWORD(v11) = v8;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 626, ASSERT_TYPE_ASSERT, "(unsigned)( portIndex ) < (unsigned)( 8 )", "portIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v7) = 8;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 626, ASSERT_TYPE_ASSERT, "(unsigned)( portIndex ) < (unsigned)( 8 )", "portIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, v7) )
         __debugbreak();
     }
     if ( *((_BYTE *)p_LeftTriggerLevel - 140) && *(_QWORD *)(p_LeftTriggerLevel - 33) )
@@ -1692,11 +1616,11 @@ void GPad_InitAll(__int64 a1, __int64 a2, double a3)
       *(_QWORD *)p_LeftTriggerLevel = 0i64;
       GPad_SetVibration((GamePad *)(p_LeftTriggerLevel - 35));
     }
-    ++v8;
+    ++v3;
     p_LeftTriggerLevel += 38;
-    v10 = (unsigned int)v8 < 8;
+    v5 = (unsigned int)v3 < 8;
   }
-  while ( v8 < 8 );
+  while ( v3 < 8 );
   GPad_RefreshAll();
 }
 
@@ -1732,35 +1656,32 @@ GPad_IsButtonPressed
 */
 bool GPad_IsButtonPressed(int portIndex, GamePadButton button)
 {
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
+  GamePad *v4; 
+  bool v5; 
   bool v6; 
-  bool v7; 
 
-  v3 = portIndex;
-  v4 = button;
+  v2 = portIndex;
+  v3 = button;
   if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1213, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
     __debugbreak();
-  if ( (v4 & 0x30000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1214, ASSERT_TYPE_ASSERT, "(button & (0x10000000 | 0x20000000))", (const char *)&queryFormat, "button & (GPAD_DIGITAL_MASK | GPAD_ANALOG_MASK)") )
+  if ( (v3 & 0x30000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1214, ASSERT_TYPE_ASSERT, "(button & (0x10000000 | 0x20000000))", (const char *)&queryFormat, "button & (GPAD_DIGITAL_MASK | GPAD_ANALOG_MASK)") )
     __debugbreak();
-  _RCX = &s_gamePads[v3];
-  if ( (v4 & 0x10000000) != 0 )
+  v4 = &s_gamePads[v2];
+  if ( (v3 & 0x10000000) != 0 )
   {
-    v6 = ((unsigned int)v4 & _RCX->digitals & 0xEFFFFFFF) != 0;
-    v7 = ((unsigned int)v4 & _RCX->lastDigitals & 0xEFFFFFFF) != 0;
+    v5 = ((unsigned int)v3 & v4->digitals & 0xEFFFFFFF) != 0;
+    v6 = ((unsigned int)v3 & v4->lastDigitals & 0xEFFFFFFF) != 0;
   }
   else
   {
-    if ( (v4 & 0x20000000) == 0 )
+    if ( (v3 & 0x20000000) == 0 )
       return 0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RAX = v4 & 0xFFFFFFFFDFFFFFFFui64;
-    __asm { vcomiss xmm0, dword ptr [rcx+rax*4+14h] }
-    v6 = (v4 & 0x20000000) != 0;
-    __asm { vcomiss xmm0, dword ptr [rcx+rax*4+34h] }
-    v7 = v6;
+    v5 = v4->analogs[v3 & 0xFFFFFFFFDFFFFFFFui64] > 0.0;
+    v6 = v4->lastAnalogs[v3 & 0xFFFFFFFFDFFFFFFFui64] > 0.0;
   }
-  return v6 && !v7;
+  return v5 && !v6;
 }
 
 /*
@@ -1770,35 +1691,32 @@ GPad_IsButtonReleased
 */
 bool GPad_IsButtonReleased(int portIndex, GamePadButton button)
 {
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
+  GamePad *v4; 
+  bool v5; 
   bool v6; 
-  bool v7; 
 
-  v3 = portIndex;
-  v4 = button;
+  v2 = portIndex;
+  v3 = button;
   if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1242, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
     __debugbreak();
-  if ( (v4 & 0x30000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1243, ASSERT_TYPE_ASSERT, "(button & (0x10000000 | 0x20000000))", (const char *)&queryFormat, "button & (GPAD_DIGITAL_MASK | GPAD_ANALOG_MASK)") )
+  if ( (v3 & 0x30000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1243, ASSERT_TYPE_ASSERT, "(button & (0x10000000 | 0x20000000))", (const char *)&queryFormat, "button & (GPAD_DIGITAL_MASK | GPAD_ANALOG_MASK)") )
     __debugbreak();
-  _RCX = &s_gamePads[v3];
-  if ( (v4 & 0x10000000) != 0 )
+  v4 = &s_gamePads[v2];
+  if ( (v3 & 0x10000000) != 0 )
   {
-    v6 = ((unsigned int)v4 & _RCX->digitals & 0xEFFFFFFF) != 0;
-    v7 = ((unsigned int)v4 & _RCX->lastDigitals & 0xEFFFFFFF) != 0;
+    v5 = ((unsigned int)v3 & v4->digitals & 0xEFFFFFFF) != 0;
+    v6 = ((unsigned int)v3 & v4->lastDigitals & 0xEFFFFFFF) != 0;
   }
   else
   {
-    if ( (v4 & 0x20000000) == 0 )
+    if ( (v3 & 0x20000000) == 0 )
       return 0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RAX = v4 & 0xFFFFFFFFDFFFFFFFui64;
-    __asm { vcomiss xmm0, dword ptr [rcx+rax*4+14h] }
-    v6 = (v4 & 0x20000000) != 0;
-    __asm { vcomiss xmm0, dword ptr [rcx+rax*4+34h] }
-    v7 = v6;
+    v5 = v4->analogs[v3 & 0xFFFFFFFFDFFFFFFFui64] > 0.0;
+    v6 = v4->lastAnalogs[v3 & 0xFFFFFFFFDFFFFFFFui64] > 0.0;
   }
-  return !v6 && v7;
+  return !v5 && v6;
 }
 
 /*
@@ -2008,86 +1926,82 @@ bool GPad_IsStickReleased(int portIndex, GamePadStick stick, GamePadStickDir sti
 GPad_RefreshAll
 ==============
 */
-void GPad_RefreshAll()
+void GPad_RefreshAll(void)
 {
-  unsigned int v3; 
-  __int64 v4; 
-  __int64 v5; 
+  unsigned int v0; 
+  __int64 v1; 
+  __int64 v2; 
   int ActivationFactoryByPCWSTR; 
+  int v4; 
+  __int64 v5; 
+  __int64 v6; 
   int v7; 
-  __int64 v8; 
+  int v8; 
   __int64 v9; 
-  int v10; 
-  int v11; 
+  __int64 v10; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  __int64 v14; 
+  unsigned int v13; 
+  int v14; 
   __int64 v15; 
-  unsigned int v16; 
-  int v17; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v16; 
+  __int64 v17; 
+  int v18; 
+  int v19; 
   __int64 v20; 
-  int v21; 
-  int v22; 
-  __int64 v23; 
   __int64 i; 
-  unsigned int v25; 
-  __int64 *v26; 
+  unsigned int v22; 
+  __int64 *v23; 
   Windows::Xbox::Input::IGamepad **p_gamepad; 
-  __int64 v28; 
-  __int64 v29; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  unsigned int v28; 
+  unsigned int v29; 
   __int64 v30; 
-  unsigned int v31; 
-  unsigned int v32; 
+  __int64 v31; 
+  int v32; 
   __int64 v33; 
   __int64 v34; 
-  int v35; 
-  __int64 v36; 
-  __int64 v37; 
-  Platform::Object_vtbl *v38; 
-  int v39; 
-  int v40; 
-  unsigned __int64 v41; 
+  Platform::Object_vtbl *v35; 
+  int v36; 
+  int v37; 
+  unsigned __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
+  Windows::Xbox::Input::IGamepad *v41; 
   __int64 v42; 
   __int64 v43; 
-  Windows::Xbox::Input::IGamepad *v47; 
-  __int64 v48; 
-  __int64 v49; 
   Windows::Xbox::Input::IGamepad *gamepad; 
-  void (__fastcall *v61)(int); 
-  __int64 *v65; 
+  __int64 v45; 
+  const dvar_t *v46; 
+  __int128 unsignedInt; 
+  __int128 v51; 
+  void (__fastcall *v53)(int); 
+  __int64 *v54; 
   void *ppActivationFactory; 
   Platform::Guid pGuid; 
-  Platform::Object_vtbl *v68; 
-  __int64 v69; 
-  __int64 v70; 
-  __int64 v71; 
-  __int64 v72; 
-  __int64 v73; 
-  __int64 v74; 
-  __int64 v75[8]; 
-  __int64 v76[8]; 
-  __int64 v77; 
-  char v78; 
-  void *retaddr; 
+  Platform::Object_vtbl *v57; 
+  __int64 v58; 
+  __int64 v59; 
+  __int64 v60; 
+  __int64 v61; 
+  __int64 v62; 
+  __int64 v63; 
+  __int64 v64[8]; 
+  __int64 v65[8]; 
+  __int64 v66; 
 
-  _RAX = &retaddr;
-  v74 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v3 = 0;
-  v4 = 0i64;
-  v70 = 0i64;
-  v5 = 0i64;
-  v71 = 0i64;
+  v63 = -2i64;
+  v0 = 0;
+  v1 = 0i64;
+  v59 = 0i64;
+  v2 = 0i64;
+  v60 = 0i64;
   if ( !s_gamepadPortMappingValid )
   {
-    memset(v76, 0, sizeof(v76));
-    memset(v75, 0, sizeof(v75));
+    memset(v65, 0, sizeof(v65));
+    memset(v64, 0, sizeof(v64));
     pGuid.__vftable = (Platform::Object_vtbl *)0x4BF8FDAB8C4C1BCDi64;
     *(_DWORD *)&pGuid.__d = -1297356355;
     *(_DWORD *)&pGuid.__h = -738339151;
@@ -2095,148 +2009,148 @@ void GPad_RefreshAll()
     ActivationFactoryByPCWSTR = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.Input.Gamepad", &pGuid, &ppActivationFactory);
     if ( ActivationFactoryByPCWSTR < 0 )
       __abi_WinRTraiseException(ActivationFactoryByPCWSTR);
-    v65 = NULL;
-    v7 = (*(__int64 (__fastcall **)(void *, __int64 **))(*(_QWORD *)ppActivationFactory + 48i64))(ppActivationFactory, &v65);
-    if ( v7 < 0 )
-      __abi_WinRTraiseException(v7);
-    v8 = (__int64)v65;
-    v9 = (__int64)v65;
-    if ( v65 )
+    v54 = NULL;
+    v4 = (*(__int64 (__fastcall **)(void *, __int64 **))(*(_QWORD *)ppActivationFactory + 48i64))(ppActivationFactory, &v54);
+    if ( v4 < 0 )
+      __abi_WinRTraiseException(v4);
+    v5 = (__int64)v54;
+    v6 = (__int64)v54;
+    if ( v54 )
     {
-      (*(void (__fastcall **)(__int64 *))(*v65 + 8))(v65);
-      v8 = (__int64)v65;
+      (*(void (__fastcall **)(__int64 *))(*v54 + 8))(v54);
+      v5 = (__int64)v54;
     }
-    if ( v8 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v8 + 16i64))(v8);
-    v69 = v9;
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 8i64))(v9);
-    v69 = v9;
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 8i64))(v9);
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
+    if ( v5 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v5 + 16i64))(v5);
+    v58 = v6;
+    if ( v6 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 8i64))(v6);
+    v58 = v6;
+    if ( v6 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
+    if ( v6 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 8i64))(v6);
+    if ( v6 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
     if ( ppActivationFactory )
       (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-    v69 = v9;
-    if ( v9 )
+    v58 = v6;
+    if ( v6 )
     {
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 8i64))(v9);
-      v4 = v9;
-      v70 = v9;
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 8i64))(v6);
+      v1 = v6;
+      v59 = v6;
     }
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
-    v10 = (*(__int64 (__fastcall **)(__int64, void **))(*(_QWORD *)v4 + 56i64))(v4, &ppActivationFactory);
-    if ( v10 < 0 )
-      __abi_WinRTraiseException(v10);
-    v11 = (int)ppActivationFactory;
-    v77 = 0i64;
-    v12 = 0i64;
-    v13 = 8i64;
+    if ( v6 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
+    v7 = (*(__int64 (__fastcall **)(__int64, void **))(*(_QWORD *)v1 + 56i64))(v1, &ppActivationFactory);
+    if ( v7 < 0 )
+      __abi_WinRTraiseException(v7);
+    v8 = (int)ppActivationFactory;
+    v66 = 0i64;
+    v9 = 0i64;
+    v10 = 8i64;
     do
     {
-      v14 = v76[v12];
-      if ( v14 )
+      v11 = v65[v9];
+      if ( v11 )
       {
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v14 + 16i64))(v14);
-        v76[v12] = 0i64;
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 16i64))(v11);
+        v65[v9] = 0i64;
       }
-      v15 = v75[v12];
-      if ( v15 )
+      v12 = v64[v9];
+      if ( v12 )
       {
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v15 + 16i64))(v15);
-        v75[v12] = 0i64;
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v12 + 16i64))(v12);
+        v64[v9] = 0i64;
       }
-      ++v12;
-      --v13;
+      ++v9;
+      --v10;
     }
-    while ( v13 );
-    v16 = 0;
-    if ( v11 )
+    while ( v10 );
+    v13 = 0;
+    if ( v8 )
     {
       while ( 1 )
       {
-        v65 = NULL;
-        v17 = (*(__int64 (__fastcall **)(__int64, _QWORD, __int64 **))(*(_QWORD *)v4 + 48i64))(v4, v16, &v65);
-        if ( v17 < 0 )
-          __abi_WinRTraiseException(v17);
-        v18 = (__int64)v65;
-        v19 = (__int64)v65;
-        if ( v65 )
+        v54 = NULL;
+        v14 = (*(__int64 (__fastcall **)(__int64, _QWORD, __int64 **))(*(_QWORD *)v1 + 48i64))(v1, v13, &v54);
+        if ( v14 < 0 )
+          __abi_WinRTraiseException(v14);
+        v15 = (__int64)v54;
+        v16 = (__int64)v54;
+        if ( v54 )
         {
-          (*(void (__fastcall **)(__int64 *))(*v65 + 8))(v65);
-          v18 = (__int64)v65;
+          (*(void (__fastcall **)(__int64 *))(*v54 + 8))(v54);
+          v15 = (__int64)v54;
         }
-        if ( v18 )
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v18 + 16i64))(v18);
-        v69 = v19;
-        v20 = 0i64;
-        v68 = NULL;
-        if ( v19 )
+        if ( v15 )
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v15 + 16i64))(v15);
+        v58 = v16;
+        v17 = 0i64;
+        v57 = NULL;
+        if ( v16 )
         {
-          v21 = (**(__int64 (__fastcall ***)(__int64, Platform::Guid *, __int64 *))v19)(v19, &_uuidof__AUIController_Input_Xbox_Windows__, (__int64 *)&v68);
-          if ( v21 < 0 )
-            __abi_WinRTraiseException(v21);
-          v20 = (__int64)v68;
+          v18 = (**(__int64 (__fastcall ***)(__int64, Platform::Guid *, __int64 *))v16)(v16, &_uuidof__AUIController_Input_Xbox_Windows__, (__int64 *)&v57);
+          if ( v18 < 0 )
+            __abi_WinRTraiseException(v18);
+          v17 = (__int64)v57;
         }
-        v73 = v20;
-        v22 = (*(__int64 (__fastcall **)(__int64, __int64 *))(*(_QWORD *)v20 + 48i64))(v20, &v72);
-        if ( v22 < 0 )
-          __abi_WinRTraiseException(v22);
-        v23 = v72;
-        if ( !v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 132, ASSERT_TYPE_ASSERT, "(id)", (const char *)&queryFormat, &valueOut) )
+        v62 = v17;
+        v19 = (*(__int64 (__fastcall **)(__int64, __int64 *))(*(_QWORD *)v17 + 48i64))(v17, &v61);
+        if ( v19 < 0 )
+          __abi_WinRTraiseException(v19);
+        v20 = v61;
+        if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 132, ASSERT_TYPE_ASSERT, "(id)", (const char *)&queryFormat, &valueOut) )
           __debugbreak();
         for ( i = 0i64; i < 8; ++i )
         {
-          if ( s_gamepadIds[i] == v23 )
+          if ( s_gamepadIds[i] == v20 )
             goto LABEL_46;
         }
         i = -1i64;
 LABEL_46:
-        if ( v20 )
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v20 + 16i64))(v20);
-        if ( v19 )
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v19 + 16i64))(v19);
+        if ( v17 )
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v17 + 16i64))(v17);
+        if ( v16 )
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v16 + 16i64))(v16);
         if ( i >= 0 )
-          *((_BYTE *)&v77 + i) = 1;
-        if ( ++v16 >= (unsigned int)ppActivationFactory )
+          *((_BYTE *)&v66 + i) = 1;
+        if ( ++v13 >= (unsigned int)ppActivationFactory )
           break;
-        v4 = v70;
+        v1 = v59;
       }
     }
-    v25 = 0;
-    v26 = &v77;
-    v65 = &v77;
+    v22 = 0;
+    v23 = &v66;
+    v54 = &v66;
     p_gamepad = &s_gamePads[0].gamepad;
-    v28 = 0i64;
+    v25 = 0i64;
     do
     {
-      if ( !s_isPadActiveInGameCB || s_isPadActiveInGameCB(v25) || *(_BYTE *)v26 )
+      if ( !s_isPadActiveInGameCB || s_isPadActiveInGameCB(v22) || *(_BYTE *)v23 )
       {
-        v29 = v76[v28];
-        v30 = (__int64)*p_gamepad;
-        if ( *p_gamepad != (Windows::Xbox::Input::IGamepad *)v29 )
+        v26 = v65[v25];
+        v27 = (__int64)*p_gamepad;
+        if ( *p_gamepad != (Windows::Xbox::Input::IGamepad *)v26 )
         {
-          if ( v30 )
-            (*(void (__fastcall **)(Windows::Xbox::Input::IGamepad *))(*(_QWORD *)v30 + 8i64))(*p_gamepad);
-          if ( v29 )
-            (*(void (__fastcall **)(__int64))(*(_QWORD *)v29 + 16i64))(v29);
-          v76[v28] = v30;
+          if ( v27 )
+            (*(void (__fastcall **)(Windows::Xbox::Input::IGamepad *))(*(_QWORD *)v27 + 8i64))(*p_gamepad);
+          if ( v26 )
+            (*(void (__fastcall **)(__int64))(*(_QWORD *)v26 + 16i64))(v26);
+          v65[v25] = v27;
         }
-        v26 = v65;
+        v23 = v54;
       }
       else
       {
-        s_gamepadIds[v28] = 0i64;
+        s_gamepadIds[v25] = 0i64;
         *((_BYTE *)p_gamepad - 8) = 0;
         if ( *p_gamepad )
         {
-          GPad_UpdateSticks(v25, NULL);
-          GPad_UpdateDigitals(v25, NULL);
-          GPad_UpdateAnalogs(v25, NULL);
+          GPad_UpdateSticks(v22, NULL);
+          GPad_UpdateDigitals(v22, NULL);
+          GPad_UpdateAnalogs(v22, NULL);
           if ( *p_gamepad )
           {
             (*p_gamepad)->__abi_Release(*p_gamepad);
@@ -2244,191 +2158,174 @@ LABEL_46:
           }
         }
       }
-      ++v25;
-      v26 = (__int64 *)((char *)v26 + 1);
-      v65 = v26;
+      ++v22;
+      v23 = (__int64 *)((char *)v23 + 1);
+      v54 = v23;
       p_gamepad += 19;
-      ++v28;
+      ++v25;
     }
-    while ( v25 < 8 );
-    v31 = 0;
-    v32 = (unsigned int)ppActivationFactory;
-    v33 = v71;
+    while ( v22 < 8 );
+    v28 = 0;
+    v29 = (unsigned int)ppActivationFactory;
+    v30 = v60;
     if ( (_DWORD)ppActivationFactory )
     {
-      v34 = v70;
-      do
+      v31 = v59;
+      while ( 1 )
       {
-        v65 = NULL;
-        v35 = (*(__int64 (__fastcall **)(__int64, _QWORD, __int64 **))(*(_QWORD *)v34 + 48i64))(v34, v31, &v65);
-        if ( v35 < 0 )
-          __abi_WinRTraiseException(v35);
-        v36 = (__int64)v65;
-        v37 = (__int64)v65;
-        if ( v65 )
+        v54 = NULL;
+        v32 = (*(__int64 (__fastcall **)(__int64, _QWORD, __int64 **))(*(_QWORD *)v31 + 48i64))(v31, v28, &v54);
+        if ( v32 < 0 )
+          __abi_WinRTraiseException(v32);
+        v33 = (__int64)v54;
+        v34 = (__int64)v54;
+        if ( v54 )
         {
-          (*(void (__fastcall **)(__int64 *))(*v65 + 8))(v65);
-          v36 = (__int64)v65;
+          (*(void (__fastcall **)(__int64 *))(*v54 + 8))(v54);
+          v33 = (__int64)v54;
         }
-        if ( v36 )
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v36 + 16i64))(v36);
-        v73 = v37;
-        if ( v37 != v33 )
-        {
-          if ( v37 )
-            (*(void (__fastcall **)(__int64))(*(_QWORD *)v37 + 8i64))(v37);
-          if ( v33 )
-            (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 16i64))(v33);
-          v33 = v37;
-          v71 = v37;
-        }
-        if ( v37 )
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v37 + 16i64))(v37);
-        v38 = NULL;
-        v68 = NULL;
         if ( v33 )
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 16i64))(v33);
+        v62 = v34;
+        if ( v34 != v30 )
         {
-          v39 = (**(__int64 (__fastcall ***)(__int64, Platform::Guid *, __int64 *))v33)(v33, &_uuidof__AUIController_Input_Xbox_Windows__, (__int64 *)&v68);
-          if ( v39 < 0 )
-            __abi_WinRTraiseException(v39);
-          v38 = v68;
+          if ( v34 )
+            (*(void (__fastcall **)(__int64))(*(_QWORD *)v34 + 8i64))(v34);
+          if ( v30 )
+            (*(void (__fastcall **)(__int64))(*(_QWORD *)v30 + 16i64))(v30);
+          v30 = v34;
+          v60 = v34;
         }
-        pGuid.__vftable = v38;
-        v40 = (*((__int64 (__fastcall **)(Platform::Object_vtbl *, __int64 *))v38->__abi_QueryInterface + 6))(v38, &v69);
-        if ( v40 < 0 )
-          __abi_WinRTraiseException(v40);
-        v41 = v69;
-        (*((void (__fastcall **)(Platform::Object_vtbl *))v38->__abi_QueryInterface + 2))(v38);
-        if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 132, ASSERT_TYPE_ASSERT, "(id)", (const char *)&queryFormat, &valueOut) )
-          __debugbreak();
-        v42 = 0i64;
-        while ( s_gamepadIds[v42] != v41 )
+        if ( v34 )
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v34 + 16i64))(v34);
+        v35 = NULL;
+        v57 = NULL;
+        if ( v30 )
         {
-          if ( ++v42 >= 8 )
+          v36 = (**(__int64 (__fastcall ***)(__int64, Platform::Guid *, __int64 *))v30)(v30, &_uuidof__AUIController_Input_Xbox_Windows__, (__int64 *)&v57);
+          if ( v36 < 0 )
+            __abi_WinRTraiseException(v36);
+          v35 = v57;
+        }
+        pGuid.__vftable = v35;
+        v37 = (*((__int64 (__fastcall **)(Platform::Object_vtbl *, __int64 *))v35->__abi_QueryInterface + 6))(v35, &v58);
+        if ( v37 < 0 )
+          __abi_WinRTraiseException(v37);
+        v38 = v58;
+        (*((void (__fastcall **)(Platform::Object_vtbl *))v35->__abi_QueryInterface + 2))(v35);
+        if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 132, ASSERT_TYPE_ASSERT, "(id)", (const char *)&queryFormat, &valueOut) )
+          __debugbreak();
+        v39 = 0i64;
+        while ( s_gamepadIds[v39] != v38 )
+        {
+          if ( ++v39 >= 8 )
             goto LABEL_96;
         }
-        if ( v42 == -1 )
+        if ( v39 == -1 )
         {
 LABEL_96:
-          if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 154, ASSERT_TYPE_ASSERT, "(id)", (const char *)&queryFormat, &valueOut) )
+          if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 154, ASSERT_TYPE_ASSERT, "(id)", (const char *)&queryFormat, &valueOut) )
             __debugbreak();
-          v42 = 0i64;
-          while ( s_gamepadIds[v42] )
+          v39 = 0i64;
+          while ( s_gamepadIds[v39] )
           {
-            if ( ++v42 >= 8 )
+            if ( ++v39 >= 8 )
               goto LABEL_104;
           }
-          s_gamepadIds[v42] = v41;
-          if ( v42 != -1 )
+          s_gamepadIds[v39] = v38;
+          if ( v39 != -1 )
           {
 LABEL_106:
-            v43 = v75[v42];
-            if ( v33 != v43 )
+            v40 = v64[v39];
+            if ( v30 != v40 )
             {
-              if ( v33 )
-                (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 8i64))(v33);
-              if ( v43 )
-                (*(void (__fastcall **)(__int64))(*(_QWORD *)v43 + 16i64))(v43);
-              v75[v42] = v33;
+              if ( v30 )
+                (*(void (__fastcall **)(__int64))(*(_QWORD *)v30 + 8i64))(v30);
+              if ( v40 )
+                (*(void (__fastcall **)(__int64))(*(_QWORD *)v40 + 16i64))(v40);
+              v64[v39] = v30;
             }
             goto LABEL_112;
           }
 LABEL_104:
-          Com_PrintWarning(1, "Ignoring a newly inserted controller id %llu due to the application max of %d controllers, a controller must be removed for this controller to be usable by the application!", v41, 8i64);
+          Com_PrintWarning(1, "Ignoring a newly inserted controller id %llu due to the application max of %d controllers, a controller must be removed for this controller to be usable by the application!", v38, 8i64);
         }
-        else if ( *((_BYTE *)&v77 + v42) )
+        else if ( *((_BYTE *)&v66 + v39) )
         {
           goto LABEL_106;
         }
 LABEL_112:
-        ++v31;
+        if ( ++v28 >= v29 )
+          goto LABEL_113;
       }
-      while ( v31 < v32 );
     }
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f800000
-      vxorps  xmm7, xmm7, xmm7
-    }
-    _R12 = 0x140000000ui64;
     while ( 1 )
     {
-      v47 = (Windows::Xbox::Input::IGamepad *)v75[v3];
-      v48 = v76[v3];
-      if ( (Windows::Xbox::Input::IGamepad *)v48 != v47 )
+LABEL_113:
+      v41 = (Windows::Xbox::Input::IGamepad *)v64[v0];
+      v42 = v65[v0];
+      if ( (Windows::Xbox::Input::IGamepad *)v42 != v41 )
       {
-        v49 = v3;
-        gamepad = s_gamePads[v49].gamepad;
-        if ( v47 != gamepad )
+        v43 = v0;
+        gamepad = s_gamePads[v43].gamepad;
+        if ( v41 != gamepad )
         {
-          if ( v47 )
+          if ( v41 )
           {
-            v47->__abi_AddRef((Platform::Object *)v75[v3]);
-            gamepad = s_gamePads[v49].gamepad;
+            v41->__abi_AddRef((Platform::Object *)v64[v0]);
+            gamepad = s_gamePads[v43].gamepad;
           }
           if ( gamepad )
             gamepad->__abi_Release(gamepad);
-          s_gamePads[v49].gamepad = v47;
+          s_gamePads[v43].gamepad = v41;
         }
-        if ( v48 )
+        if ( v42 )
         {
-          if ( !v47 )
+          if ( !v41 )
           {
-            s_gamePads[v49].enabled = 0;
-            GPad_UpdateSticks(v3, NULL);
-            GPad_UpdateDigitals(v3, NULL);
-            _RDX = (int)v3;
-            s_gamePads[_RDX].lastAnalogs[0] = s_gamePads[_RDX].analogs[0];
-            _RCX = gpad_button_deadzone;
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rcx+28h]
-              vsubss  xmm0, xmm1, xmm6
-              vdivss  xmm2, xmm1, xmm0
-              vmaxss  xmm1, xmm2, xmm7
-              vmovss  dword ptr [rdx+r12+16440644h], xmm1
-            }
-            s_gamePads[_RDX].lastAnalogs[1] = s_gamePads[_RDX].analogs[1];
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rcx+28h]
-              vsubss  xmm0, xmm1, xmm6
-              vdivss  xmm2, xmm1, xmm0
-              vmaxss  xmm1, xmm2, xmm7
-              vmovss  dword ptr [rdx+r12+16440648h], xmm1
-            }
-            v61 = s_removedCB;
-            goto LABEL_126;
+            s_gamePads[v43].enabled = 0;
+            GPad_UpdateSticks(v0, NULL);
+            GPad_UpdateDigitals(v0, NULL);
+            v45 = (int)v0;
+            s_gamePads[v45].lastAnalogs[0] = s_gamePads[v45].analogs[0];
+            v46 = gpad_button_deadzone;
+            unsignedInt = gpad_button_deadzone->current.unsignedInt;
+            *(float *)&unsignedInt = gpad_button_deadzone->current.value / (float)(gpad_button_deadzone->current.value - 1.0);
+            _XMM2 = unsignedInt;
+            __asm { vmaxss  xmm1, xmm2, xmm7 }
+            s_gamePads[v45].analogs[0] = *(float *)&_XMM1;
+            s_gamePads[v45].lastAnalogs[1] = s_gamePads[v45].analogs[1];
+            v51 = v46->current.unsignedInt;
+            *(float *)&v51 = v46->current.value / (float)(v46->current.value - 1.0);
+            _XMM2 = v51;
+            __asm { vmaxss  xmm1, xmm2, xmm7 }
+            s_gamePads[v45].analogs[1] = *(float *)&_XMM1;
+            v53 = s_removedCB;
+            goto LABEL_125;
           }
         }
-        else if ( v47 )
+        else if ( v41 )
         {
-          s_gamePads[v49].enabled = 1;
-          v61 = s_insertedCB;
-LABEL_126:
-          if ( v61 )
-            v61(v3);
+          s_gamePads[v43].enabled = 1;
+          v53 = s_insertedCB;
+LABEL_125:
+          if ( v53 )
+            v53(v0);
         }
       }
-      if ( ++v3 >= 8 )
+      if ( ++v0 >= 8 )
       {
         s_gamepadPortMappingValid = 1;
-        v5 = v71;
-        v4 = v70;
+        v2 = v60;
+        v1 = v59;
         break;
       }
     }
   }
-  if ( v5 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v5 + 16i64))(v5);
-  if ( v4 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v4 + 16i64))(v4);
-  _R11 = &v78;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  if ( v2 )
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v2 + 16i64))(v2);
+  if ( v1 )
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v1 + 16i64))(v1);
 }
 
 /*
@@ -2471,60 +2368,20 @@ GPad_SetHighRumble
 
 void __fastcall GPad_SetHighRumble(int portIndex, double rumble)
 {
-  __int64 v4; 
-  bool v6; 
-  bool v7; 
-  bool v8; 
-  double v16; 
-  double v17; 
-  double v18; 
+  __int64 v2; 
+  float v3; 
 
-  v4 = portIndex;
-  __asm
+  v2 = portIndex;
+  v3 = *(float *)&rumble;
+  if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1296, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
+    __debugbreak();
+  if ( *(float *)&rumble < 0.0 || *(float *)&rumble > 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = (unsigned int)portIndex < 7;
-  v7 = (unsigned int)portIndex <= 7;
-  if ( (unsigned int)portIndex > 7 )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1296, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)");
-    v6 = 0;
-    v7 = !v8;
-    if ( v8 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1297, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v3, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v6 )
-    goto LABEL_6;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !v7 )
-  {
-LABEL_6:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+58h+var_20], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+58h+var_28], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1297, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v16, v17, v18) )
-      __debugbreak();
-  }
-  _RCX = 152 * v4;
-  _RAX = (char *)&s_gamePads[0].vibration.__vftable + 4;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  *((float *)&s_gamePads[v2].vibration.__vftable + 1) = v3;
 }
 
 /*
@@ -2547,60 +2404,20 @@ GPad_SetLeftTriggerRumble
 
 void __fastcall GPad_SetLeftTriggerRumble(int portIndex, double rumble)
 {
-  __int64 v4; 
-  bool v6; 
-  bool v7; 
-  bool v8; 
-  double v16; 
-  double v17; 
-  double v18; 
+  __int64 v2; 
+  float v3; 
 
-  v4 = portIndex;
-  __asm
+  v2 = portIndex;
+  v3 = *(float *)&rumble;
+  if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1308, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
+    __debugbreak();
+  if ( *(float *)&rumble < 0.0 || *(float *)&rumble > 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = (unsigned int)portIndex < 7;
-  v7 = (unsigned int)portIndex <= 7;
-  if ( (unsigned int)portIndex > 7 )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1308, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)");
-    v6 = 0;
-    v7 = !v8;
-    if ( v8 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1309, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v3, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v6 )
-    goto LABEL_6;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !v7 )
-  {
-LABEL_6:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+58h+var_20], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+58h+var_28], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1309, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v16, v17, v18) )
-      __debugbreak();
-  }
-  _RCX = 152 * v4;
-  _RAX = &s_gamePads[0].vibration.LeftTriggerLevel;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamePads[v2].vibration.LeftTriggerLevel = v3;
 }
 
 /*
@@ -2611,60 +2428,20 @@ GPad_SetLowRumble
 
 void __fastcall GPad_SetLowRumble(int portIndex, double rumble)
 {
-  __int64 v4; 
-  bool v6; 
-  bool v7; 
-  bool v8; 
-  double v16; 
-  double v17; 
-  double v18; 
+  __int64 v2; 
+  float v3; 
 
-  v4 = portIndex;
-  __asm
+  v2 = portIndex;
+  v3 = *(float *)&rumble;
+  if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1284, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
+    __debugbreak();
+  if ( *(float *)&rumble < 0.0 || *(float *)&rumble > 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = (unsigned int)portIndex < 7;
-  v7 = (unsigned int)portIndex <= 7;
-  if ( (unsigned int)portIndex > 7 )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1284, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)");
-    v6 = 0;
-    v7 = !v8;
-    if ( v8 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1285, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v3, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v6 )
-    goto LABEL_6;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !v7 )
-  {
-LABEL_6:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+58h+var_20], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+58h+var_28], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1285, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v16, v17, v18) )
-      __debugbreak();
-  }
-  _RCX = 152 * v4;
-  _RAX = &s_gamePads[0].vibration;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  *(float *)&s_gamePads[v2].vibration.__vftable = v3;
 }
 
 /*
@@ -2684,10 +2461,9 @@ void GPad_SetRemovedCB(void (*cb)(int))
 GPad_SetRightStickDeadzoneOverride
 ==============
 */
-
-void __fastcall GPad_SetRightStickDeadzoneOverride(double rightStickDeadzoneVal)
+void GPad_SetRightStickDeadzoneOverride(float rightStickDeadzoneVal)
 {
-  __asm { vmovss  cs:gpad_rStick_deadzone_min_override, xmm0 }
+  gpad_rStick_deadzone_min_override = rightStickDeadzoneVal;
 }
 
 /*
@@ -2698,60 +2474,20 @@ GPad_SetRightTriggerRumble
 
 void __fastcall GPad_SetRightTriggerRumble(int portIndex, double rumble)
 {
-  __int64 v4; 
-  bool v6; 
-  bool v7; 
-  bool v8; 
-  double v16; 
-  double v17; 
-  double v18; 
+  __int64 v2; 
+  float v3; 
 
-  v4 = portIndex;
-  __asm
+  v2 = portIndex;
+  v3 = *(float *)&rumble;
+  if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1320, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
+    __debugbreak();
+  if ( *(float *)&rumble < 0.0 || *(float *)&rumble > 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = (unsigned int)portIndex < 7;
-  v7 = (unsigned int)portIndex <= 7;
-  if ( (unsigned int)portIndex > 7 )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1320, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)");
-    v6 = 0;
-    v7 = !v8;
-    if ( v8 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1321, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v3, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v6 )
-    goto LABEL_6;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !v7 )
-  {
-LABEL_6:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+58h+var_20], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+58h+var_28], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 1321, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( rumble ) && ( rumble ) <= ( 1.f )", "rumble not in [0.f, 1.f]\n\t%g not in [%g, %g]", v16, v17, v18) )
-      __debugbreak();
-  }
-  _RCX = 152 * v4;
-  _RAX = &s_gamePads[0].vibration.RightTriggerLevel;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamePads[v2].vibration.RightTriggerLevel = v3;
 }
 
 /*
@@ -2761,96 +2497,35 @@ GPad_SetVibration
 */
 void GPad_SetVibration(GamePad *gPad)
 {
-  bool v5; 
-  bool v6; 
-  bool v10; 
-  bool v12; 
-  bool v14; 
-  __int64 *gamepad; 
-  __int64 v17; 
-  int v19; 
-  __int128 v22[3]; 
-  void *retaddr; 
+  float v2; 
+  float v3; 
+  float LeftTriggerLevel; 
+  float RightTriggerLevel; 
+  Windows::Xbox::Input::IGamepad *gamepad; 
+  Windows::Xbox::Input::IGamepad_vtbl *v7; 
+  int v8; 
+  Windows::Xbox::Input::GamepadVibration vibration; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
-  _RBX = gPad;
-  v5 = gPad == NULL;
-  if ( !gPad )
-  {
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 577, ASSERT_TYPE_ASSERT, "(gPad)", (const char *)&queryFormat, "gPad", -2i64);
-    v5 = !v6;
-    if ( v6 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+84h]
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( !v5 )
-  {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 578, ASSERT_TYPE_ASSERT, "(( gPad->vibration.LeftMotorLevel >= 0.0f ) && ( gPad->vibration.LeftMotorLevel <= 1.0f ))", (const char *)&queryFormat, "( gPad->vibration.LeftMotorLevel >= 0.0f ) && ( gPad->vibration.LeftMotorLevel <= 1.0f )");
-    v5 = !v10;
-    if ( v10 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+88h]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( !v5 )
-  {
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 579, ASSERT_TYPE_ASSERT, "(( gPad->vibration.RightMotorLevel >= 0.0f ) && ( gPad->vibration.RightMotorLevel <= 1.0f ))", (const char *)&queryFormat, "( gPad->vibration.RightMotorLevel >= 0.0f ) && ( gPad->vibration.RightMotorLevel <= 1.0f )");
-    v5 = !v12;
-    if ( v12 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8Ch]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( !v5 )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 580, ASSERT_TYPE_ASSERT, "(( gPad->vibration.LeftTriggerLevel >= 0.0f ) && ( gPad->vibration.LeftTriggerLevel <= 1.0f ))", (const char *)&queryFormat, "( gPad->vibration.LeftTriggerLevel >= 0.0f ) && ( gPad->vibration.LeftTriggerLevel <= 1.0f )");
-    v5 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+90h]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 581, ASSERT_TYPE_ASSERT, "(( gPad->vibration.RightTriggerLevel >= 0.0f ) && ( gPad->vibration.RightTriggerLevel <= 1.0 ))", (const char *)&queryFormat, "( gPad->vibration.RightTriggerLevel >= 0.0f ) && ( gPad->vibration.RightTriggerLevel <= 1.0 )") )
+  if ( !gPad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 577, ASSERT_TYPE_ASSERT, "(gPad)", (const char *)&queryFormat, "gPad", -2i64) )
     __debugbreak();
-  gamepad = (__int64 *)_RBX->gamepad;
-  v17 = *gamepad;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+84h]
-    vmovups [rsp+78h+var_38], xmm0
-  }
-  v19 = (*(__int64 (__fastcall **)(__int64 *, __int128 *))(v17 + 48))(gamepad, v22);
-  if ( v19 < 0 )
-    __abi_WinRTraiseException(v19);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
+  v2 = *(float *)&gPad->vibration.__vftable;
+  if ( (v2 < 0.0 || v2 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 578, ASSERT_TYPE_ASSERT, "(( gPad->vibration.LeftMotorLevel >= 0.0f ) && ( gPad->vibration.LeftMotorLevel <= 1.0f ))", (const char *)&queryFormat, "( gPad->vibration.LeftMotorLevel >= 0.0f ) && ( gPad->vibration.LeftMotorLevel <= 1.0f )") )
+    __debugbreak();
+  v3 = *((float *)&gPad->vibration.__vftable + 1);
+  if ( (v3 < 0.0 || v3 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 579, ASSERT_TYPE_ASSERT, "(( gPad->vibration.RightMotorLevel >= 0.0f ) && ( gPad->vibration.RightMotorLevel <= 1.0f ))", (const char *)&queryFormat, "( gPad->vibration.RightMotorLevel >= 0.0f ) && ( gPad->vibration.RightMotorLevel <= 1.0f )") )
+    __debugbreak();
+  LeftTriggerLevel = gPad->vibration.LeftTriggerLevel;
+  if ( (LeftTriggerLevel < 0.0 || LeftTriggerLevel > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 580, ASSERT_TYPE_ASSERT, "(( gPad->vibration.LeftTriggerLevel >= 0.0f ) && ( gPad->vibration.LeftTriggerLevel <= 1.0f ))", (const char *)&queryFormat, "( gPad->vibration.LeftTriggerLevel >= 0.0f ) && ( gPad->vibration.LeftTriggerLevel <= 1.0f )") )
+    __debugbreak();
+  RightTriggerLevel = gPad->vibration.RightTriggerLevel;
+  if ( (RightTriggerLevel < 0.0 || RightTriggerLevel > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 581, ASSERT_TYPE_ASSERT, "(( gPad->vibration.RightTriggerLevel >= 0.0f ) && ( gPad->vibration.RightTriggerLevel <= 1.0 ))", (const char *)&queryFormat, "( gPad->vibration.RightTriggerLevel >= 0.0f ) && ( gPad->vibration.RightTriggerLevel <= 1.0 )") )
+    __debugbreak();
+  gamepad = gPad->gamepad;
+  v7 = gamepad->Platform::Object::__vftable;
+  vibration = gPad->vibration;
+  v8 = ((__int64 (__fastcall *)(Windows::Xbox::Input::IGamepad *, Windows::Xbox::Input::GamepadVibration *))v7->__abi_SetVibration)(gamepad, &vibration);
+  if ( v8 < 0 )
+    __abi_WinRTraiseException(v8);
 }
 
 /*
@@ -2860,47 +2535,27 @@ GPad_StopRumbles
 */
 void GPad_StopRumbles(int portIndex, bool force)
 {
-  __int64 v3; 
-  bool v7; 
-  bool v8; 
+  __int64 v2; 
+  GamePad *v4; 
+  Windows::Xbox::Input::GamepadVibration *p_vibration; 
 
-  v3 = portIndex;
+  v2 = portIndex;
   if ( (unsigned int)portIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 605, ASSERT_TYPE_ASSERT, "(unsigned)( portIndex ) < (unsigned)( 8 )", "portIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", portIndex, 8) )
     __debugbreak();
-  _RBX = &s_gamePads[v3];
-  if ( _RBX->enabled && _RBX->gamepad )
+  v4 = &s_gamePads[v2];
+  if ( v4->enabled && v4->gamepad )
   {
-    _RDI = &_RBX->vibration;
+    p_vibration = &v4->vibration;
     if ( force )
       goto LABEL_14;
-    v7 = _RDI == NULL;
-    if ( _RBX == (GamePad *)-132i64 )
-    {
-      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 125, ASSERT_TYPE_ASSERT, "(vibration)", (const char *)&queryFormat, "vibration");
-      v7 = !v8;
-      if ( v8 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi]
-    }
-    if ( !v7 )
-      goto LABEL_14;
-    __asm { vucomiss xmm0, dword ptr [rbx+8Ch] }
-    if ( !v7 )
-      goto LABEL_14;
-    __asm { vucomiss xmm0, dword ptr [rbx+88h] }
-    if ( !v7 )
-      goto LABEL_14;
-    __asm { vucomiss xmm0, dword ptr [rbx+90h] }
-    if ( !v7 )
+    if ( v4 == (GamePad *)-132i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 125, ASSERT_TYPE_ASSERT, "(vibration)", (const char *)&queryFormat, "vibration") )
+      __debugbreak();
+    if ( *(float *)&p_vibration->__vftable != 0.0 || v4->vibration.LeftTriggerLevel != 0.0 || *((float *)&v4->vibration.__vftable + 1) != 0.0 || v4->vibration.RightTriggerLevel != 0.0 )
     {
 LABEL_14:
-      _RDI->__vftable = NULL;
-      *(_QWORD *)&_RBX->vibration.LeftTriggerLevel = 0i64;
-      GPad_SetVibration(_RBX);
+      p_vibration->__vftable = NULL;
+      *(_QWORD *)&v4->vibration.LeftTriggerLevel = 0i64;
+      GPad_SetVibration(v4);
     }
   }
 }
@@ -3125,74 +2780,67 @@ LABEL_33:
 GPad_UpdateAnalogs
 ==============
 */
-
-void __fastcall GPad_UpdateAnalogs(int portIndex, Windows::Xbox::Input::IGamepadReading *xpad, double _XMM2_8)
+void GPad_UpdateAnalogs(int portIndex, Windows::Xbox::Input::IGamepadReading *xpad)
 {
-  __int64 v6; 
+  __int64 v2; 
+  __int64 v4; 
+  int v5; 
+  __int128 v6; 
+  const dvar_t *v7; 
+  __int128 v8; 
   int v11; 
-  int v18; 
-  int v30; 
+  __int128 v15; 
+  unsigned int v18; 
 
-  v6 = portIndex;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v2 = portIndex;
   if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 427, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
     __debugbreak();
-  _RDI = v6;
-  _RSI = s_gamePads;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  s_gamePads[_RDI].lastAnalogs[0] = s_gamePads[_RDI].analogs[0];
+  v4 = v2;
+  s_gamePads[v4].lastAnalogs[0] = s_gamePads[v4].analogs[0];
   if ( xpad )
   {
-    v11 = xpad->__abi_get_LeftTrigger(xpad, (float *)&v30);
+    v5 = xpad->__abi_get_LeftTrigger(xpad, (float *)&v18);
+    if ( v5 < 0 )
+      __abi_WinRTraiseException(v5);
+    v6 = v18;
+  }
+  else
+  {
+    v6 = 0i64;
+  }
+  v7 = gpad_button_deadzone;
+  v8 = v6;
+  *(float *)&v8 = (float)(*(float *)&v6 - gpad_button_deadzone->current.value) / (float)(1.0 - gpad_button_deadzone->current.value);
+  _XMM1 = v8;
+  __asm { vmaxss  xmm1, xmm1, xmm6 }
+  s_gamePads[v4].analogs[0] = *(float *)&_XMM1;
+  s_gamePads[v4].lastAnalogs[1] = s_gamePads[v4].analogs[1];
+  if ( xpad )
+  {
+    v11 = xpad->__abi_get_RightTrigger(xpad, (float *)&v18);
     if ( v11 < 0 )
       __abi_WinRTraiseException(v11);
-    __asm { vmovss  xmm1, [rsp+58h+arg_0] }
+    _XMM2 = v18;
+    v7 = gpad_button_deadzone;
   }
   else
   {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vsubss  xmm1, xmm1, dword ptr [rcx+28h]
-    vsubss  xmm0, xmm7, dword ptr [rcx+28h]
-    vdivss  xmm1, xmm1, xmm0
-    vmaxss  xmm1, xmm1, xmm6
-    vmovss  dword ptr [rdi+rsi+14h], xmm1
-  }
-  s_gamePads[_RDI].lastAnalogs[1] = s_gamePads[_RDI].analogs[1];
-  if ( xpad )
-  {
-    v18 = xpad->__abi_get_RightTrigger(xpad, (float *)&v30);
-    if ( v18 < 0 )
-      __abi_WinRTraiseException(v18);
-    __asm { vmovss  xmm2, [rsp+58h+arg_0] }
-  }
-  else
-  {
-    __asm { vxorps  xmm2, xmm2, xmm2 }
+    _XMM2 = 0i64;
   }
   if ( gpad_rapidfire->current.enabled && (s_rapidFireCounter & 1) != 0 )
   {
+    _XMM0 = LODWORD(FLOAT_0_5);
     __asm
     {
-      vmovss  xmm0, cs:__real@3f000000
       vcmpltss xmm1, xmm0, xmm2
       vblendvps xmm2, xmm2, xmm6, xmm1
     }
   }
-  __asm
-  {
-    vsubss  xmm0, xmm7, dword ptr [rcx+28h]
-    vsubss  xmm1, xmm2, dword ptr [rcx+28h]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vdivss  xmm1, xmm1, xmm0
-    vmaxss  xmm1, xmm1, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rdi+rsi+18h], xmm1
-  }
+  v15 = _XMM2;
+  *(float *)&v15 = (float)(*(float *)&_XMM2 - v7->current.value) / (float)(1.0 - v7->current.value);
+  _XMM1 = v15;
+  __asm { vmaxss  xmm1, xmm1, xmm6 }
+  s_gamePads[v4].analogs[1] = *(float *)&_XMM1;
 }
 
 /*
@@ -3202,78 +2850,39 @@ GPad_UpdateDigitals
 */
 void GPad_UpdateDigitals(int portIndex, Windows::Xbox::Input::IGamepadReading *xpad)
 {
-  __int64 v3; 
-  __int16 v7; 
-  int v8; 
-  char v9; 
-  bool v10; 
-  char v18; 
-  bool v19; 
-  int v28; 
+  __int64 v2; 
+  __int64 v4; 
+  __int16 v5; 
+  int v6; 
+  float gpadButtonRStickDeflect; 
+  float gpadButtonLStickDeflect; 
+  int v9; 
 
-  v3 = portIndex;
+  v2 = portIndex;
   if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 385, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
     __debugbreak();
-  _RBX = v3;
-  _RBP = s_gamePads;
-  s_gamePads[v3].lastDigitals = s_gamePads[v3].digitals;
-  v7 = 0;
+  v4 = v2;
+  s_gamePads[v2].lastDigitals = s_gamePads[v2].digitals;
+  v5 = 0;
   if ( xpad )
   {
-    v28 = 0;
-    v8 = xpad->__abi_get_Buttons(xpad, (Windows::Xbox::Input::GamepadButtons *)&v28);
-    if ( v8 < 0 )
-      __abi_WinRTraiseException(v8);
-    v7 = v28;
-  }
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  s_gamePads[_RBX].digitals = v7;
-  _RAX = GamerProfile_GetProfileSettings(v3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rbp+5Ch]
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm0, xmm0, xmm6
-    vmovss  xmm1, dword ptr [rax+60h]
-    vcomiss xmm0, xmm1
-  }
-  if ( !(v9 | v10) )
-  {
     v9 = 0;
-    v10 = (s_gamePads[_RBX].digitals & 0x7FFF) == 0;
-    s_gamePads[_RBX].digitals &= ~0x8000u;
+    v6 = xpad->__abi_get_Buttons(xpad, (Windows::Xbox::Input::GamepadButtons *)&v9);
+    if ( v6 < 0 )
+      __abi_WinRTraiseException(v6);
+    v5 = v9;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rbp+60h]
-    vandps  xmm0, xmm0, xmm6
-    vcomiss xmm0, xmm1
-  }
-  if ( !(v9 | v10) )
-    s_gamePads[_RBX].digitals &= ~0x8000u;
-  _RAX = GamerProfile_GetProfileSettings(v3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rbp+54h]
-    vandps  xmm0, xmm0, xmm6
-    vmovss  xmm1, dword ptr [rax+5Ch]
-    vcomiss xmm0, xmm1
-  }
-  if ( !(v18 | v19) )
-  {
-    v18 = 0;
-    v19 = (s_gamePads[_RBX].digitals & 0xBFFF) == 0;
-    s_gamePads[_RBX].digitals &= ~0x4000u;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rbp+58h]
-    vandps  xmm0, xmm0, xmm6
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  if ( !(v18 | v19) )
-    s_gamePads[_RBX].digitals &= ~0x4000u;
+  s_gamePads[v4].digitals = v5;
+  gpadButtonRStickDeflect = GamerProfile_GetProfileSettings(v2)->config.gpadButtonRStickDeflect;
+  if ( COERCE_FLOAT(LODWORD(s_gamePads[v4].sticks[2]) & _xmm) > gpadButtonRStickDeflect )
+    s_gamePads[v4].digitals &= ~0x8000u;
+  if ( COERCE_FLOAT(LODWORD(s_gamePads[v4].sticks[3]) & _xmm) > gpadButtonRStickDeflect )
+    s_gamePads[v4].digitals &= ~0x8000u;
+  gpadButtonLStickDeflect = GamerProfile_GetProfileSettings(v2)->config.gpadButtonLStickDeflect;
+  if ( COERCE_FLOAT(LODWORD(s_gamePads[v4].sticks[0]) & _xmm) > gpadButtonLStickDeflect )
+    s_gamePads[v4].digitals &= ~0x4000u;
+  if ( COERCE_FLOAT(LODWORD(s_gamePads[v4].sticks[1]) & _xmm) > gpadButtonLStickDeflect )
+    s_gamePads[v4].digitals &= ~0x4000u;
 }
 
 /*
@@ -3321,195 +2930,135 @@ GPad_UpdateSticks
 */
 void GPad_UpdateSticks(int portIndex, Windows::Xbox::Input::IGamepadReading *xpad)
 {
-  __int64 v7; 
-  int v16; 
-  int v17; 
-  int v20; 
-  int v21; 
-  float v29; 
+  __int64 v2; 
+  __int64 v4; 
+  float v7; 
+  const dvar_t *v8; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  float *sticks; 
+  float v19; 
   bool (*stickDownLast)[2]; 
-  float v33; 
-  float v35; 
-  float v37; 
-  __int64 v38; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int64 v26; 
   __int64 i; 
-  bool v43; 
-  bool v44; 
-  bool v45; 
-  bool v46; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
+  float value; 
+  bool v29; 
+  float v30; 
+  bool v31; 
+  unsigned int v32; 
+  float v33; 
+  int v34; 
+  float v35; 
   float outX; 
   float outY; 
-  float v60; 
-  float v61; 
+  float v38; 
+  float v39; 
 
-  __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
-  v7 = portIndex;
+  v2 = portIndex;
   if ( (unsigned int)portIndex > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 521, ASSERT_TYPE_ASSERT, "((portIndex >= 0) && (portIndex < 8))", (const char *)&queryFormat, "(portIndex >= 0) && (portIndex < MAX_GPAD_COUNT)") )
     __debugbreak();
-  _RBP = v7;
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_48], xmm7
-    vmovaps [rsp+0C8h+var_58], xmm8
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v4 = v2;
+  _XMM6 = 0i64;
   if ( gpad_use_deadzone_option_value->current.enabled )
   {
-    _RAX = GamerProfile_GetProfileSettings(v7);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rax+0C94h]
-      vmovaps xmm8, xmm7
-    }
+    *(float *)&_XMM7 = GamerProfile_GetProfileSettings(v2)->config.gpadMinDeadzone;
+    v7 = *(float *)&_XMM7;
   }
   else
   {
-    _RDI = DVARFLT_xb3_gpad_stick_deadzone_min;
+    v8 = DVARFLT_xb3_gpad_stick_deadzone_min;
     if ( !DVARFLT_xb3_gpad_stick_deadzone_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xb3_gpad_stick_deadzone_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
+    Dvar_CheckFrontendServerThread(v8);
+    _XMM7 = v8->current.unsignedInt;
     __asm
     {
-      vmovss  xmm1, cs:gpad_rStick_deadzone_min_override
-      vmovss  xmm7, dword ptr [rdi+28h]
       vcmpltss xmm0, xmm6, xmm1
       vblendvps xmm0, xmm7, xmm1, xmm0
-      vmovaps xmm8, xmm0
-      vmovss  [rsp+0C8h+var_88], xmm0
     }
+    v7 = *(float *)&_XMM0;
+    v32 = _XMM0;
   }
   if ( xpad )
   {
-    v16 = xpad->__abi_get_LeftThumbstickY(xpad, (float *)&v55);
-    if ( v16 < 0 )
-      __abi_WinRTraiseException(v16);
-    v17 = xpad->__abi_get_LeftThumbstickX(xpad, (float *)&v56);
-    if ( v17 < 0 )
-      __abi_WinRTraiseException(v17);
-    __asm
-    {
-      vmovss  xmm1, [rsp+0C8h+var_84]; inY
-      vmovss  xmm0, [rsp+0C8h+var_80]; inX
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-    }
-    GPad_ConvertStickToFloat(*(double *)&_XMM0, *(double *)&_XMM1, &outX, &outY, fmt);
-    v20 = xpad->__abi_get_RightThumbstickY(xpad, (float *)&v57);
-    if ( v20 < 0 )
-      __abi_WinRTraiseException(v20);
-    v21 = xpad->__abi_get_RightThumbstickX(xpad, (float *)&v54);
-    if ( v21 < 0 )
-      __abi_WinRTraiseException(v21);
-    __asm
-    {
-      vmovss  xmm1, [rsp+0C8h+var_7C]
-      vmovss  xmm0, [rsp+0C8h+var_88]
-    }
+    v11 = xpad->__abi_get_LeftThumbstickY(xpad, &v33);
+    if ( v11 < 0 )
+      __abi_WinRTraiseException(v11);
+    v12 = xpad->__abi_get_LeftThumbstickX(xpad, (float *)&v34);
+    if ( v12 < 0 )
+      __abi_WinRTraiseException(v12);
+    GPad_ConvertStickToFloat(COERCE_DOUBLE((unsigned __int64)v34), v33, &outX, &outY, *(float *)&_XMM7);
+    v13 = xpad->__abi_get_RightThumbstickY(xpad, &v35);
+    if ( v13 < 0 )
+      __abi_WinRTraiseException(v13);
+    v14 = xpad->__abi_get_RightThumbstickX(xpad, (float *)&v32);
+    if ( v14 < 0 )
+      __abi_WinRTraiseException(v14);
+    v15 = v35;
+    *(_QWORD *)&v16 = v32;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1; inY
-      vxorps  xmm0, xmm0, xmm0; inX
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-    }
-    GPad_ConvertStickToFloat(*(double *)&_XMM0, *(double *)&_XMM1, &outX, &outY, fmta);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1; inY
-      vxorps  xmm0, xmm0, xmm0; inX
-    }
+    GPad_ConvertStickToFloat(0.0, 0.0, &outX, &outY, *(float *)&_XMM7);
+    v15 = 0.0;
+    v16 = 0.0;
   }
-  __asm { vmovss  dword ptr [rsp+0C8h+fmt], xmm8 }
-  GPad_ConvertStickToFloat(*(double *)&_XMM0, *(double *)&_XMM1, &v60, &v61, fmtb);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+outX]
-    vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-  }
-  _RCX = s_gamePads;
-  v29 = s_gamePads[_RBP].sticks[0];
-  _RSI = s_gamePads[_RBP].sticks;
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, [rsp+0C8h+outY]
-  }
-  s_gamePads[_RBP].lastSticks[0] = v29;
-  stickDownLast = s_gamePads[_RBP].stickDownLast;
-  v33 = s_gamePads[_RBP].sticks[1];
-  __asm
-  {
-    vmovss  dword ptr [rcx+rbp+58h], xmm0
-    vmovss  xmm0, [rsp+0C8h+var_70]
-  }
-  s_gamePads[_RBP].lastSticks[1] = v33;
-  v35 = s_gamePads[_RBP].sticks[2];
-  __asm
-  {
-    vmovss  dword ptr [rcx+rbp+5Ch], xmm0
-    vmovss  xmm0, [rsp+0C8h+var_6C]
-  }
-  s_gamePads[_RBP].lastSticks[2] = v35;
-  v37 = s_gamePads[_RBP].sticks[3];
-  __asm { vmovss  dword ptr [rcx+rbp+60h], xmm0 }
-  v38 = 4i64;
-  s_gamePads[_RBP].lastSticks[3] = v37;
+  GPad_ConvertStickToFloat(v16, v15, &v38, &v39, v7);
+  v17 = s_gamePads[v4].sticks[0];
+  sticks = s_gamePads[v4].sticks;
+  *sticks = outX;
+  v19 = outY;
+  s_gamePads[v4].lastSticks[0] = v17;
+  stickDownLast = s_gamePads[v4].stickDownLast;
+  v21 = s_gamePads[v4].sticks[1];
+  s_gamePads[v4].sticks[1] = v19;
+  v22 = v38;
+  s_gamePads[v4].lastSticks[1] = v21;
+  v23 = s_gamePads[v4].sticks[2];
+  s_gamePads[v4].sticks[2] = v22;
+  v24 = v39;
+  s_gamePads[v4].lastSticks[2] = v23;
+  v25 = s_gamePads[v4].sticks[3];
+  s_gamePads[v4].sticks[3] = v24;
+  v26 = 4i64;
+  s_gamePads[v4].lastSticks[3] = v25;
   do
   {
     for ( i = 0i64; i != 2; ++i )
     {
-      _RAX = gpad_stick_pressed;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-      LOBYTE(_RAX) = (*stickDownLast)[i - 8];
-      (*stickDownLast)[i] = (char)_RAX;
-      if ( (_BYTE)_RAX )
-        __asm { vsubss  xmm6, xmm0, dword ptr [rax+28h] }
+      value = gpad_stick_pressed->current.value;
+      v29 = (*stickDownLast)[i - 8];
+      (*stickDownLast)[i] = v29;
+      if ( v29 )
+        v30 = value - gpad_stick_pressed_hysteresis->current.value;
       else
-        __asm { vaddss  xmm6, xmm0, dword ptr [rax+28h] }
+        v30 = value + gpad_stick_pressed_hysteresis->current.value;
       if ( i )
       {
-        v44 = i == 0;
-        v45 = i == 1;
-        if ( i != 1 )
-        {
-          v46 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 506, ASSERT_TYPE_ASSERT, "(dir == GPAD_STICK_NEG)", (const char *)&queryFormat, "dir == GPAD_STICK_NEG");
-          v44 = 0;
-          v45 = !v46;
-          if ( v46 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vxorps  xmm0, xmm6, xmm7
-          vcomiss xmm0, dword ptr [rsi]
-        }
-        v43 = !v44 && !v45;
+        if ( i != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gamepad.cpp", 506, ASSERT_TYPE_ASSERT, "(dir == GPAD_STICK_NEG)", (const char *)&queryFormat, "dir == GPAD_STICK_NEG") )
+          __debugbreak();
+        v31 = COERCE_FLOAT(LODWORD(v30) ^ _xmm) > *sticks;
       }
       else
       {
-        __asm { vcomiss xmm6, dword ptr [rsi] }
-        v43 = 0;
+        v31 = v30 < *sticks;
       }
-      (*stickDownLast)[i - 8] = v43;
+      (*stickDownLast)[i - 8] = v31;
     }
-    ++_RSI;
+    ++sticks;
     ++stickDownLast;
-    --v38;
+    --v26;
   }
-  while ( v38 );
-  __asm
-  {
-    vmovaps xmm8, [rsp+0C8h+var_58]
-    vmovaps xmm7, [rsp+0C8h+var_48]
-    vmovaps xmm6, [rsp+0C8h+var_38]
-  }
+  while ( v26 );
 }
 

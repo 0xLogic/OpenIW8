@@ -118,9 +118,9 @@ void jpeg_CreateDecompress(jpeg_decompress_struct *cinfo, int version, unsigned 
 {
   jpeg_error_mgr *err; 
   void *client_data; 
+  jpeg_alloc alloc; 
 
   cinfo->mem = NULL;
-  _RSI = cinfo;
   if ( version != 62 )
   {
     cinfo->err->msg_code = 12;
@@ -130,40 +130,38 @@ void jpeg_CreateDecompress(jpeg_decompress_struct *cinfo, int version, unsigned 
   }
   if ( structsize != 616 )
   {
-    _RSI->err->msg_code = 21;
-    _RSI->err->msg_parm.i[0] = 616;
-    _RSI->err->msg_parm.i[1] = structsize;
-    _RSI->err->error_exit((jpeg_common_struct *)_RSI);
+    cinfo->err->msg_code = 21;
+    cinfo->err->msg_parm.i[0] = 616;
+    cinfo->err->msg_parm.i[1] = structsize;
+    cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  __asm { vmovups xmm0, xmmword ptr [rsi+28h] }
-  err = _RSI->err;
-  client_data = _RSI->client_data;
-  __asm { vmovups [rsp+38h+var_18], xmm0 }
-  memset_0(_RSI, 0, sizeof(jpeg_decompress_struct));
-  __asm { vmovups xmm0, [rsp+38h+var_18] }
-  _RSI->err = err;
-  __asm { vmovups xmmword ptr [rsi+28h], xmm0 }
-  _RSI->client_data = client_data;
-  _RSI->is_decompressor = 1;
-  j_jinit_memory_mgr((jpeg_common_struct *)_RSI);
-  _RSI->progress = NULL;
-  _RSI->src = NULL;
-  _RSI->quant_tbl_ptrs[0] = NULL;
-  _RSI->quant_tbl_ptrs[1] = NULL;
-  _RSI->quant_tbl_ptrs[2] = NULL;
-  _RSI->quant_tbl_ptrs[3] = NULL;
-  _RSI->dc_huff_tbl_ptrs[0] = NULL;
-  _RSI->ac_huff_tbl_ptrs[0] = NULL;
-  _RSI->dc_huff_tbl_ptrs[1] = NULL;
-  _RSI->ac_huff_tbl_ptrs[1] = NULL;
-  _RSI->dc_huff_tbl_ptrs[2] = NULL;
-  _RSI->ac_huff_tbl_ptrs[2] = NULL;
-  _RSI->dc_huff_tbl_ptrs[3] = NULL;
-  _RSI->ac_huff_tbl_ptrs[3] = NULL;
-  _RSI->marker_list = NULL;
-  j_jinit_marker_reader(_RSI);
-  j_jinit_input_controller(_RSI);
-  _RSI->global_state = 200;
+  err = cinfo->err;
+  client_data = cinfo->client_data;
+  alloc = cinfo->alloc;
+  memset_0(cinfo, 0, sizeof(jpeg_decompress_struct));
+  cinfo->err = err;
+  cinfo->alloc = alloc;
+  cinfo->client_data = client_data;
+  cinfo->is_decompressor = 1;
+  j_jinit_memory_mgr((jpeg_common_struct *)cinfo);
+  cinfo->progress = NULL;
+  cinfo->src = NULL;
+  cinfo->quant_tbl_ptrs[0] = NULL;
+  cinfo->quant_tbl_ptrs[1] = NULL;
+  cinfo->quant_tbl_ptrs[2] = NULL;
+  cinfo->quant_tbl_ptrs[3] = NULL;
+  cinfo->dc_huff_tbl_ptrs[0] = NULL;
+  cinfo->ac_huff_tbl_ptrs[0] = NULL;
+  cinfo->dc_huff_tbl_ptrs[1] = NULL;
+  cinfo->ac_huff_tbl_ptrs[1] = NULL;
+  cinfo->dc_huff_tbl_ptrs[2] = NULL;
+  cinfo->ac_huff_tbl_ptrs[2] = NULL;
+  cinfo->dc_huff_tbl_ptrs[3] = NULL;
+  cinfo->ac_huff_tbl_ptrs[3] = NULL;
+  cinfo->marker_list = NULL;
+  j_jinit_marker_reader(cinfo);
+  j_jinit_input_controller(cinfo);
+  cinfo->global_state = 200;
 }
 
 /*

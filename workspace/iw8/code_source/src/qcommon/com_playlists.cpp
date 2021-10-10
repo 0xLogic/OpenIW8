@@ -1258,9 +1258,9 @@ bool Playlist_AnyPlaylistInCategoryDoesNotMatchGameType(const int playlistId, co
   state.arrayIndex = -1;
   v21.isValid = 0;
   v21.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0E8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v21.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0E8h+var_A0.member], xmm0 }
+  *(_OWORD *)&v21.member = _XMM0;
   if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v4, &filter_out, &v21, &v24) )
     return 0;
   v11 = numEntries;
@@ -1327,9 +1327,9 @@ bool Playlist_AnyPlaylistInCategoryMatchesGameType(const int playlistId, const u
   state.arrayIndex = -1;
   v21.isValid = 0;
   v21.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0E8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v21.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0E8h+var_A0.member], xmm0 }
+  *(_OWORD *)&v21.member = _XMM0;
   if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v4, &filter_out, &v21, &v24) )
     return 0;
   v11 = numEntries;
@@ -1396,9 +1396,9 @@ bool Playlist_AnyPlaylistInCategoryRestrictsF2P(const int playlistId, const unsi
   state.arrayIndex = -1;
   v18.isValid = 0;
   v18.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v18.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+var_98.member], xmm0 }
+  *(_OWORD *)&v18.member = _XMM0;
   if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v3, &filter_out, &v18, &v21) )
     return 0;
   v9 = numEntries;
@@ -1465,9 +1465,9 @@ bool Playlist_AnyPlaylistInCategoryRestrictsJoinInProgress(const int playlistId,
   state.arrayIndex = -1;
   v18.isValid = 0;
   v18.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v18.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+var_98.member], xmm0 }
+  *(_OWORD *)&v18.member = _XMM0;
   if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v3, &filter_out, &v18, &v21) )
     return 0;
   v9 = numEntries;
@@ -1534,9 +1534,9 @@ bool Playlist_AnyPlaylistInCategoryRestrictsSplitscreen(const int playlistId, co
   state.arrayIndex = -1;
   v18.isValid = 0;
   v18.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v18.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+var_98.member], xmm0 }
+  *(_OWORD *)&v18.member = _XMM0;
   if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v3, &filter_out, &v18, &v21) )
     return 0;
   v9 = numEntries;
@@ -1639,70 +1639,68 @@ bool Playlist_CanRunRules()
 Playlist_ChooseEntry
 ==============
 */
-__int64 Playlist_ChooseEntry(const int lastSelection, bool markEntryPlayed)
+unsigned __int64 Playlist_ChooseEntry(const int lastSelection, bool markEntryPlayed)
 {
-  const dvar_t *v4; 
-  const dvar_t *v7; 
-  const dvar_t *v8; 
+  const dvar_t *v2; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
   __int64 integer; 
+  int v8; 
+  int v9; 
   int v10; 
-  int v11; 
-  int v12; 
+  float v11; 
   unsigned __int16 numEntries; 
-  signed int v15; 
-  __int64 v16; 
+  signed int v13; 
+  __int64 v14; 
   playlistEntry *Entry; 
-  char v18; 
-  char v19; 
-  int v20; 
-  unsigned __int16 v21; 
-  const dvar_t *v22; 
+  double MapWeight; 
+  int v17; 
+  unsigned __int16 v18; 
+  const dvar_t *v19; 
   int PlaylistIdForNum; 
-  unsigned int v24; 
-  __int64 v25; 
-  __int64 result; 
-  int v27; 
-  int v28; 
+  unsigned int v21; 
+  __int64 v22; 
+  int v24; 
+  int v25; 
   int flags; 
-  __int64 v30; 
-  playlistEntry *v31; 
-  playlistEntry *v32; 
+  __int64 v27; 
+  playlistEntry *v28; 
+  playlistEntry *v29; 
   __int64 mapindex; 
-  const char *v34; 
+  const char *v31; 
   PartyData *PartyData; 
   char *fmt; 
-  __int64 v38; 
+  __int64 v34; 
+  __int64 v35; 
+  int v37; 
+  int v38; 
   __int64 v39; 
+  int v40; 
   int v41; 
-  int v42; 
-  __int64 v43; 
-  int v44; 
-  int v45; 
-  playlistEntry *v46; 
-  int v47[20]; 
+  playlistEntry *v42; 
+  int v43[20]; 
 
-  v4 = DVARBOOL_online_matchmaking_use_lobby_affinity;
+  v2 = DVARBOOL_online_matchmaking_use_lobby_affinity;
   if ( !DVARBOOL_online_matchmaking_use_lobby_affinity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_use_lobby_affinity") )
     __debugbreak();
-  __asm { vmovaps [rsp+108h+var_38], xmm6 }
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    v7 = DVARINT_playlistID;
+    v5 = DVARINT_playlistID;
     if ( !DVARINT_playlistID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playlistID") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    v8 = DVARBOOL_online_matchmaking_use_map_weights;
-    integer = v7->current.integer;
-    v10 = -1;
+    Dvar_CheckFrontendServerThread(v5);
+    v6 = DVARBOOL_online_matchmaking_use_map_weights;
+    integer = v5->current.integer;
+    v8 = -1;
     if ( !DVARBOOL_online_matchmaking_use_map_weights && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_use_map_weights") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( !v8->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( !v6->current.enabled )
       goto LABEL_26;
-    v11 = 0;
-    v12 = 20;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v9 = 0;
+    v10 = 20;
+    v11 = 0.0;
     numEntries = playlists[integer].numEntries;
     if ( numEntries > 0x14u )
     {
@@ -1710,176 +1708,166 @@ __int64 Playlist_ChooseEntry(const int lastSelection, bool markEntryPlayed)
       Com_PrintError(25, "Playlist Id %u contains %u entries which is more then can be handled by playlist weight calculations which has a max of %u.\n", (unsigned int)integer, numEntries, fmt);
       numEntries = playlists[integer].numEntries;
     }
-    v15 = 0;
+    v13 = 0;
     if ( numEntries < 0x14u )
-      v12 = numEntries;
-    if ( !v12 )
+      v10 = numEntries;
+    if ( !v10 )
       goto LABEL_26;
-    v16 = 0i64;
+    v14 = 0i64;
     do
     {
-      Entry = Playlist_GetEntry(integer, v15);
-      *(double *)&_XMM0 = OnlineMatchmakerOmniscient::GetMapWeight(&OnlineMatchmakerOmniscient::ms_instance, Entry->mapindex);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( v19 | v18 )
+      Entry = Playlist_GetEntry(integer, v13);
+      MapWeight = OnlineMatchmakerOmniscient::GetMapWeight(&OnlineMatchmakerOmniscient::ms_instance, Entry->mapindex);
+      if ( *(float *)&MapWeight <= v11 )
       {
-        __asm { vucomiss xmm0, xmm6 }
-        if ( v18 )
+        if ( *(float *)&MapWeight == v11 )
         {
-          ++v11;
-          v47[v16++] = v15;
+          ++v9;
+          v43[v14++] = v13;
         }
       }
       else
       {
-        __asm { vmovaps xmm6, xmm0 }
-        v47[0] = v15;
-        v11 = 1;
-        v16 = 1i64;
+        v11 = *(float *)&MapWeight;
+        v43[0] = v13;
+        v9 = 1;
+        v14 = 1i64;
       }
-      ++v15;
+      ++v13;
     }
-    while ( v15 < v12 );
-    if ( v11 )
-    {
-      s_randSeed_0 = 1103515245 * s_randSeed_0 + 12345;
-      v20 = s_randSeed_0;
-      v10 = v47[((s_randSeed_0 / 0x10000) & 0x7FFFi64) % v11];
-      if ( v10 != -1 )
-      {
-LABEL_71:
-        result = (unsigned int)v10;
-        goto LABEL_72;
-      }
-    }
-    else
+    while ( v13 < v10 );
+    if ( !v9 )
     {
 LABEL_26:
-      v20 = s_randSeed_0;
+      v17 = s_randSeed_0;
+      goto LABEL_27;
     }
-    v21 = playlists[integer].numEntries;
-    if ( v21 )
+    s_randSeed_0 = 1103515245 * s_randSeed_0 + 12345;
+    v17 = s_randSeed_0;
+    v8 = v43[((s_randSeed_0 / 0x10000) & 0x7FFFi64) % v9];
+    if ( v8 == -1 )
     {
-      s_randSeed_0 = 1103515245 * v20 + 12345;
-      v10 = ((s_randSeed_0 / 0x10000) & 0x7FFFui64) % v21;
+LABEL_27:
+      v18 = playlists[integer].numEntries;
+      if ( v18 )
+      {
+        s_randSeed_0 = 1103515245 * v17 + 12345;
+        return ((s_randSeed_0 / 0x10000) & 0x7FFFui64) % v18;
+      }
     }
-    goto LABEL_71;
   }
-  v22 = DVARINT_playlist;
-  if ( !DVARINT_playlist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playlist") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  PlaylistIdForNum = Playlist_GetPlaylistIdForNum(v22->current.integer);
-  v24 = PlaylistIdForNum;
-  v25 = PlaylistIdForNum;
-  v43 = v25 * 992;
-  if ( playlists[v25].numEntries )
+  else
   {
-    v27 = Playlist_CalcTotalWeights(PlaylistIdForNum, lastSelection);
-    if ( !v27 )
+    v19 = DVARINT_playlist;
+    if ( !DVARINT_playlist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playlist") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v19);
+    PlaylistIdForNum = Playlist_GetPlaylistIdForNum(v19->current.integer);
+    v21 = PlaylistIdForNum;
+    v22 = PlaylistIdForNum;
+    v39 = v22 * 992;
+    if ( !playlists[v22].numEntries )
     {
-      if ( (playlists[v25].flags & 4) != 0 )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE9668, 788i64, &playlists[v22]);
+      return 0xFFFFFFFFi64;
+    }
+    v24 = Playlist_CalcTotalWeights(PlaylistIdForNum, lastSelection);
+    if ( !v24 )
+    {
+      if ( (playlists[v22].flags & 4) != 0 )
       {
         if ( !markEntryPlayed )
-        {
-          result = (unsigned int)lastSelection;
-          goto LABEL_72;
-        }
+          return (unsigned int)lastSelection;
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE96A0, 789i64);
       }
-      Playlist_ResetWeights(v24);
-      v27 = Playlist_CalcTotalWeights(v24, lastSelection);
+      Playlist_ResetWeights(v21);
+      v24 = Playlist_CalcTotalWeights(v21, lastSelection);
     }
-    if ( v27 <= 0 )
-      v27 = 1;
-    v45 = v27;
+    if ( v24 <= 0 )
+      v24 = 1;
+    v41 = v24;
     s_randSeed_0 = 1103515245 * s_randSeed_0 + 12345;
-    v42 = ((s_randSeed_0 / 0x10000) & 0x7FFFi64) % v27;
-    if ( v24 >= 0x81 )
+    v38 = ((s_randSeed_0 / 0x10000) & 0x7FFFi64) % v24;
+    if ( v21 >= 0x81 )
     {
-      LODWORD(v39) = 129;
-      LODWORD(v38) = v24;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 2580, ASSERT_TYPE_ASSERT, "(unsigned)( playlistId ) < (unsigned)( 129 )", "playlistId doesn't index MAX_PLAYLISTS\n\t%i not in [0, %i)", v38, v39) )
+      LODWORD(v35) = 129;
+      LODWORD(v34) = v21;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 2580, ASSERT_TYPE_ASSERT, "(unsigned)( playlistId ) < (unsigned)( 129 )", "playlistId doesn't index MAX_PLAYLISTS\n\t%i not in [0, %i)", v34, v35) )
         __debugbreak();
     }
-    v41 = 0;
-    v28 = 0;
-    if ( lastSelection < 0 || lastSelection >= playlists[v25].numEntries )
-      v46 = NULL;
+    v37 = 0;
+    v25 = 0;
+    if ( lastSelection < 0 || lastSelection >= playlists[v22].numEntries )
+      v42 = NULL;
     else
-      v46 = Playlist_GetEntry(v24, lastSelection);
-    flags = playlists[v25].flags;
-    v10 = 0;
-    v30 = v43;
-    v44 = flags & 8;
-    if ( *(unsigned __int16 *)((char *)&playlists[0].numEntries + v43) )
+      v42 = Playlist_GetEntry(v21, lastSelection);
+    flags = playlists[v22].flags;
+    v8 = 0;
+    v27 = v39;
+    v40 = flags & 8;
+    if ( *(unsigned __int16 *)((char *)&playlists[0].numEntries + v39) )
     {
       do
       {
-        if ( v10 != lastSelection )
+        if ( v8 != lastSelection )
         {
-          v31 = Playlist_GetEntry(v24, v10);
-          v32 = v31;
-          if ( !v44 && v46 && v31->mapindex == v46->mapindex )
+          v28 = Playlist_GetEntry(v21, v8);
+          v29 = v28;
+          if ( !v40 && v42 && v28->mapindex == v42->mapindex )
           {
-            v28 = v41;
+            v25 = v37;
           }
           else
           {
-            mapindex = v31->mapindex;
+            mapindex = v28->mapindex;
             if ( (unsigned int)mapindex >= maps.numEntries )
-              v34 = NULL;
+              v31 = NULL;
             else
-              v34 = maps.name[mapindex];
+              v31 = maps.name[mapindex];
             PartyData = Lobby_GetPartyData();
-            if ( PartyHost_MapIsAcceptable(PartyData, v34, v24) )
+            if ( PartyHost_MapIsAcceptable(PartyData, v31, v21) )
             {
-              v28 = v32->remainingWeight + v41;
-              v41 = v28;
-              if ( v42 < v28 )
+              v25 = v29->remainingWeight + v37;
+              v37 = v25;
+              if ( v38 < v25 )
                 goto LABEL_66;
             }
             else
             {
-              v28 = v41;
+              v25 = v37;
             }
-            v30 = v43;
+            v27 = v39;
           }
         }
-        ++v10;
+        ++v8;
       }
-      while ( v10 < *(unsigned __int16 *)((char *)&playlists[0].numEntries + v30) );
+      while ( v8 < *(unsigned __int16 *)((char *)&playlists[0].numEntries + v27) );
     }
-    if ( (unsigned int)Playlist_CalcTotalWeights(v24, lastSelection) )
+    if ( (unsigned int)Playlist_CalcTotalWeights(v21, lastSelection) )
     {
-      LODWORD(v38) = Playlist_CalcTotalWeights(v24, lastSelection);
-      LODWORD(fmt) = v24;
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE9430, 787i64, (unsigned int)v42, fmt, v38);
-      v10 = v28;
+      LODWORD(v34) = Playlist_CalcTotalWeights(v21, lastSelection);
+      LODWORD(fmt) = v21;
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE9430, 787i64, (unsigned int)v38, fmt, v34);
+      v8 = v25;
     }
     else
     {
-      v10 = 0;
+      v8 = 0;
     }
 LABEL_66:
-    if ( v10 >= *(unsigned __int16 *)((char *)&playlists[0].numEntries + v43) )
+    if ( v8 >= *(unsigned __int16 *)((char *)&playlists[0].numEntries + v39) )
     {
-      LODWORD(v38) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 2740, ASSERT_TYPE_ASSERT, "( ( itemSelected < playlists[playlistId].numEntries ) )", "( itemSelected ) = %i", v38) )
+      LODWORD(v34) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 2740, ASSERT_TYPE_ASSERT, "( ( itemSelected < playlists[playlistId].numEntries ) )", "( itemSelected ) = %i", v34) )
         __debugbreak();
     }
-    LODWORD(v38) = v45;
-    LODWORD(fmt) = v24;
-    Com_DPrintf(16, "Last playlist entry we played was %i, this time it's %i for playlistId %i. We choose from a pool of %i total weight.\n", (unsigned int)lastSelection, (unsigned int)v10, fmt, v38);
+    LODWORD(v34) = v41;
+    LODWORD(fmt) = v21;
+    Com_DPrintf(16, "Last playlist entry we played was %i, this time it's %i for playlistId %i. We choose from a pool of %i total weight.\n", (unsigned int)lastSelection, (unsigned int)v8, fmt, v34);
     if ( markEntryPlayed )
-      Playlist_MarkEntryPlayed(v24, v10);
-    goto LABEL_71;
+      Playlist_MarkEntryPlayed(v21, v8);
   }
-  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE9668, 788i64, &playlists[v25]);
-  result = 0xFFFFFFFFi64;
-LABEL_72:
-  __asm { vmovaps xmm6, [rsp+108h+var_38] }
-  return result;
+  return (unsigned int)v8;
 }
 
 /*
@@ -1985,11 +1973,8 @@ void Playlist_ClearFilter(LocalClientNum_t clientNum, unsigned int category, uns
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.arrayIndex = -1;
   high_state.arrayIndex = -1;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+state.member], xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_58.member], xmm0
-  }
+  *(_OWORD *)&state.member = _XMM0;
+  *(_OWORD *)&high_state.member = _XMM0;
   if ( Playlist_GetFiltersForCategory(clientNum, &buffer, &state, category, &crc_out, &high_state, &high_filter_out) )
   {
     if ( !crc_out )
@@ -2506,16 +2491,16 @@ char Playlist_GetFiltersCRC32ForCategory(LocalClientNum_t clientNum, DDLContext 
   __int64 v6; 
   int ControllerFromClient; 
   char *v10; 
+  DDLState *RootState; 
   int v12; 
   int navStringCount; 
   DDLState result; 
   char *navStrings[16]; 
 
-  _RDI = state;
   v6 = category;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 3718, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 3719, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+  if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 3719, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
   if ( CL_Mgr_GetControllerFromClient(clientNum) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 3722, ASSERT_TYPE_ASSERT, "(CL_Mgr_GetControllerFromClient( clientNum ) >= 0)", (const char *)&queryFormat, "CL_Mgr_GetControllerFromClient( clientNum ) >= 0") )
     __debugbreak();
@@ -2524,16 +2509,12 @@ char Playlist_GetFiltersCRC32ForCategory(LocalClientNum_t clientNum, DDLContext 
     return 0;
   v10 = j_va("commonData.filteredPlaylists.%d.crc32", categories[v6].categoryLabel);
   Com_ParseNavStrings(v10, (const char **)navStrings, 16, &navStringCount);
-  _RAX = DDL_GetRootState(&result, buffer->def);
+  RootState = DDL_GetRootState(&result, buffer->def);
   v12 = navStringCount;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi], ymm0
-  }
-  if ( !DDL_MoveToPath(_RDI, _RDI, v12, (const char **)navStrings) )
+  *state = *RootState;
+  if ( !DDL_MoveToPath(state, state, v12, (const char **)navStrings) )
     return 0;
-  *crc_out = DDL_GetInt(_RDI, buffer);
+  *crc_out = DDL_GetInt(state, buffer);
   return 1;
 }
 
@@ -2554,9 +2535,9 @@ bool Playlist_GetFiltersForCategory(LocalClientNum_t clientNum, unsigned int cat
   high_state.offset = 0;
   state.isValid = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0B8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   high_state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0B8h+var_78.member], xmm0 }
+  *(_OWORD *)&high_state.member = _XMM0;
   return Playlist_GetFiltersForCategory(clientNum, &buffer, &state, category, filter_out, &high_state, high_filter_out);
 }
 
@@ -2570,8 +2551,8 @@ char Playlist_GetFiltersForCategory(LocalClientNum_t clientNum, DDLContext *buff
   __int64 v11; 
   int ControllerFromClient; 
   unsigned __int8 *p_categoryLabel; 
-  char *v17; 
-  char *v18; 
+  char *v15; 
+  char *v16; 
   int navStringCount; 
   DDLState fromState; 
   DDLState result; 
@@ -2581,11 +2562,8 @@ char Playlist_GetFiltersForCategory(LocalClientNum_t clientNum, DDLContext *buff
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+158h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 3675, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 3676, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
@@ -2597,17 +2575,15 @@ char Playlist_GetFiltersForCategory(LocalClientNum_t clientNum, DDLContext *buff
   ControllerFromClient = CL_Mgr_GetControllerFromClient(clientNum);
   if ( !CL_PlayerData_GetDDLBuffer(buffer, ControllerFromClient, STATS_ONLINE, STATSGROUP_COMMON) )
     return 0;
-  _RAX = DDL_GetRootState(&result, buffer->def);
-  __asm { vmovups ymm0, ymmword ptr [rax] }
   p_categoryLabel = &categories[v11].categoryLabel;
-  __asm { vmovups ymmword ptr [rsp+158h+fromState.isValid], ymm0 }
-  v17 = j_va("commonData.filteredPlaylists.%d.filter", *p_categoryLabel);
-  Com_ParseNavStrings(v17, (const char **)navStrings, 16, &navStringCount);
+  fromState = *DDL_GetRootState(&result, buffer->def);
+  v15 = j_va("commonData.filteredPlaylists.%d.filter", *p_categoryLabel);
+  Com_ParseNavStrings(v15, (const char **)navStrings, 16, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, state, navStringCount, (const char **)navStrings) )
     return 0;
   *filter_out = DDL_GetUInt64(state, buffer);
-  v18 = j_va("commonData.filteredPlaylists.%d.localFilter", *p_categoryLabel);
-  Com_ParseNavStrings(v18, (const char **)navStrings, 16, &navStringCount);
+  v16 = j_va("commonData.filteredPlaylists.%d.localFilter", *p_categoryLabel);
+  Com_ParseNavStrings(v16, (const char **)navStrings, 16, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, high_state, navStringCount, (const char **)navStrings) )
     return 0;
   *high_filter_out = DDL_GetUInt64(high_state, buffer);
@@ -3078,11 +3054,8 @@ __int64 Playlist_GetMinimumMaxPartySizeForCategory(const int playlistId, const u
     state.arrayIndex = -1;
     high_state.arrayIndex = -1;
     numEntries = categories[v4].numEntries;
-    __asm
-    {
-      vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0
-      vmovdqu xmmword ptr [rsp+0D8h+var_98.member], xmm0
-    }
+    *(_OWORD *)&state.member = _XMM0;
+    *(_OWORD *)&high_state.member = _XMM0;
     if ( Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v4, &filter_out, &high_state, &high_filter_out) )
     {
       v9 = numEntries;
@@ -3541,11 +3514,11 @@ LABEL_13:
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+0E8h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     high_state.isValid = 0;
     high_state.offset = 0;
     high_state.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+0E8h+var_A8.member], xmm0 }
+    *(_OWORD *)&high_state.member = _XMM0;
     if ( Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, unsignedInt, &filter_out, &high_state, &high_filter_out) )
     {
       v11 = high_filter_out;
@@ -3899,9 +3872,9 @@ bool Playlist_IsPlaylistFiltered(LocalClientNum_t clientNum, unsigned int catego
   high_state.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v13.arrayIndex = -1;
-  __asm { vmovdqu [rsp+0C8h+var_50], xmm0 }
+  *(_OWORD *)&v13.member = _XMM0;
   high_state.arrayIndex = -1;
-  __asm { vmovdqu [rsp+0C8h+var_70], xmm0 }
+  *(_OWORD *)&high_state.member = _XMM0;
   if ( !Playlist_GetFiltersForCategory(clientNum, &v14, &v13, category, &filter_out, &high_state, &high_filter_out) )
     return 0;
   num = categories[v4].entries[v5].num;
@@ -4191,268 +4164,271 @@ void Playlist_ParsePlaylists(const char *buffer)
   __int64 v72; 
   const char *v73; 
   unsigned int jj; 
-  const dvar_t *v78; 
+  const dvar_t *v75; 
   int integer; 
+  int v77; 
+  unsigned __int8 v78; 
+  __int64 v79; 
   int v80; 
   unsigned __int8 v81; 
-  __int64 v82; 
-  int v83; 
-  unsigned __int8 v84; 
-  char *v85; 
-  const dvar_t *v86; 
-  int v87; 
+  char *v82; 
+  const dvar_t *v83; 
+  int v84; 
+  int v85; 
+  unsigned __int8 v86; 
+  __int64 v87; 
   int v88; 
-  unsigned __int8 v89; 
-  __int64 v90; 
-  int v91; 
-  int v92; 
-  char *v93; 
-  __int64 v94; 
+  int v89; 
+  char *v90; 
+  __int64 v91; 
   unsigned int kk; 
-  __int64 v96; 
-  __int64 v97; 
+  __int64 v93; 
+  __int64 v94; 
+  int v95; 
+  int v96; 
   int v98; 
   int v99; 
-  int v101; 
-  int v102; 
-  unsigned int v103; 
-  __int64 v104; 
-  __int64 v105; 
-  char v106; 
-  char v107; 
+  unsigned int v100; 
+  __int64 v101; 
+  __int64 v102; 
+  char v103; 
+  char v104; 
   unsigned int mm; 
-  unsigned __int16 v110; 
+  unsigned __int16 v107; 
+  __int64 v108; 
+  int v109; 
+  char *v110; 
   __int64 v111; 
-  int v112; 
-  char *v113; 
-  __int64 v114; 
-  char *v115; 
-  signed __int64 v116; 
+  char *v112; 
+  signed __int64 v113; 
+  int v114; 
+  int v115; 
   int v117; 
   int v118; 
-  int v120; 
+  __int64 v119; 
+  __int64 v120; 
   int v121; 
-  __int64 v122; 
-  __int64 v123; 
+  int v122; 
   int v124; 
   int v125; 
-  int v127; 
+  __int64 v126; 
+  __int64 v127; 
   int v128; 
-  __int64 v129; 
-  __int64 v130; 
+  int v129; 
   int v131; 
   int v132; 
-  int v134; 
+  __int64 v133; 
+  __int64 v134; 
   int v135; 
-  __int64 v136; 
-  __int64 v137; 
+  int v136; 
   int v138; 
   int v139; 
-  int v141; 
+  __int64 v140; 
+  __int64 v141; 
   int v142; 
-  __int64 v143; 
-  __int64 v144; 
+  int v143; 
   int v145; 
   int v146; 
-  int v148; 
+  __int64 v147; 
+  __int64 v148; 
   int v149; 
-  __int64 v150; 
-  __int64 v151; 
+  int v150; 
   int v152; 
   int v153; 
-  int v155; 
+  __int64 v154; 
+  __int64 v155; 
   int v156; 
-  __int64 v157; 
-  __int64 v158; 
+  int v157; 
   int v159; 
   int v160; 
-  int v162; 
+  __int64 v161; 
+  __int64 v162; 
   int v163; 
-  __int64 v164; 
-  __int64 v165; 
+  int v164; 
   int v166; 
   int v167; 
-  int v169; 
+  __int64 v168; 
+  __int64 v169; 
   int v170; 
-  __int64 v171; 
-  __int64 v172; 
+  int v171; 
   int v173; 
   int v174; 
-  int v176; 
+  __int64 v175; 
+  __int64 v176; 
   int v177; 
-  __int64 v178; 
-  __int64 v179; 
+  int v178; 
   int v180; 
   int v181; 
-  int v183; 
+  __int64 v182; 
+  __int64 v183; 
   int v184; 
-  __int64 v185; 
-  __int64 v186; 
+  int v185; 
   int v187; 
   int v188; 
-  int v190; 
+  __int64 v189; 
+  __int64 v190; 
   int v191; 
-  __int64 v192; 
-  __int64 v193; 
+  int v192; 
   int v194; 
   int v195; 
-  int v197; 
+  __int64 v196; 
+  __int64 v197; 
   int v198; 
-  __int64 v199; 
-  __int64 v200; 
+  int v199; 
   int v201; 
   int v202; 
-  int v204; 
+  __int64 v203; 
+  __int64 v204; 
   int v205; 
-  __int64 v206; 
-  __int64 v207; 
+  int v206; 
   int v208; 
   int v209; 
-  int v211; 
+  __int64 v210; 
+  __int64 v211; 
   int v212; 
-  __int64 v213; 
-  __int64 v214; 
+  int v213; 
   int v215; 
   int v216; 
-  int v218; 
-  int v219; 
-  __int64 v220; 
-  __int64 v221; 
-  char v222; 
-  char v223; 
-  int v225; 
-  __int64 v226; 
-  char *v227; 
-  __int64 v228; 
+  __int64 v217; 
+  __int64 v218; 
+  char v219; 
+  char v220; 
+  int v222; 
+  __int64 v223; 
+  char *v224; 
+  __int64 v225; 
+  int v226; 
+  int v227; 
   int v229; 
   int v230; 
-  int v232; 
-  int v233; 
-  __int64 v234; 
+  __int64 v231; 
   unsigned __int16 firstEntry; 
-  unsigned __int16 v236; 
+  unsigned __int16 v233; 
+  __int64 v234; 
+  unsigned int v235; 
+  __int64 v236; 
   __int64 v237; 
-  unsigned int v238; 
-  __int64 v239; 
-  __int64 v240; 
-  char v241; 
-  char v242; 
-  int v244; 
-  __int64 v245; 
-  __int64 v246; 
-  __int64 v247; 
+  char v238; 
+  char v239; 
+  int v241; 
+  __int64 v242; 
+  __int64 v243; 
+  __int64 v244; 
   char *image; 
   unsigned int *p_requiredDLCMask; 
-  __int64 v250; 
-  __int64 v251; 
+  __int64 v247; 
+  __int64 v248; 
+  int v249; 
+  int v250; 
   int v252; 
   int v253; 
-  int v255; 
-  int v256; 
+  int v254; 
+  __int64 v255; 
+  __int64 v256; 
   int v257; 
-  __int64 v258; 
-  __int64 v259; 
+  int v258; 
   int v260; 
   int v261; 
-  int v263; 
-  int v264; 
-  const char *v265; 
-  __int64 v266; 
-  __int64 v267; 
+  const char *v262; 
+  __int64 v263; 
+  __int64 v264; 
+  int v265; 
+  int v266; 
   int v268; 
   int v269; 
-  int v271; 
+  __int64 v270; 
+  __int64 v271; 
   int v272; 
-  __int64 v273; 
-  __int64 v274; 
+  int v273; 
   int v275; 
   int v276; 
-  int v278; 
+  __int64 v277; 
+  __int64 v278; 
   int v279; 
-  __int64 v280; 
-  __int64 v281; 
+  int v280; 
   int v282; 
   int v283; 
-  int v285; 
+  __int64 v284; 
+  __int64 v285; 
   int v286; 
-  __int64 v287; 
-  __int64 v288; 
+  int v287; 
   int v289; 
   int v290; 
-  int v292; 
+  __int64 v291; 
+  __int64 v292; 
   int v293; 
-  __int64 v294; 
-  __int64 v295; 
+  int v294; 
   int v296; 
   int v297; 
-  int v299; 
+  __int64 v298; 
+  __int64 v299; 
   int v300; 
-  __int64 v301; 
-  __int64 v302; 
+  int v301; 
   int v303; 
   int v304; 
-  int v306; 
+  __int64 v305; 
+  __int64 v306; 
   int v307; 
-  __int64 v308; 
-  __int64 v309; 
+  int v308; 
   int v310; 
   int v311; 
-  int v313; 
-  int v314; 
-  const char *v315; 
-  __int64 v316; 
-  __int64 v317; 
-  char v318; 
-  char v319; 
-  __int64 v321; 
-  __int64 v322; 
-  char v323; 
-  char v324; 
-  __int64 v326; 
-  __int64 v327; 
-  char v328; 
-  char v329; 
-  __int64 v331; 
-  __int64 v332; 
-  char v333; 
-  char v334; 
-  __int64 v336; 
-  __int64 v337; 
-  char v338; 
-  char v339; 
-  __int64 v341; 
-  __int64 v342; 
-  char v343; 
-  char v344; 
-  __int64 v346; 
-  __int64 v347; 
-  char v348; 
-  char v349; 
-  categoryInfo *v351; 
+  const char *v312; 
+  __int64 v313; 
+  __int64 v314; 
+  char v315; 
+  char v316; 
+  __int64 v318; 
+  __int64 v319; 
+  char v320; 
+  char v321; 
+  __int64 v323; 
+  __int64 v324; 
+  char v325; 
+  char v326; 
+  __int64 v328; 
+  __int64 v329; 
+  char v330; 
+  char v331; 
+  __int64 v333; 
+  __int64 v334; 
+  char v335; 
+  char v336; 
+  __int64 v338; 
+  __int64 v339; 
+  char v340; 
+  char v341; 
+  __int64 v343; 
+  __int64 v344; 
+  char v345; 
+  char v346; 
+  categoryInfo *v348; 
   unsigned int nn; 
   const char *StringSafe; 
-  unsigned int v354; 
-  char *v355; 
+  unsigned int v351; 
+  char *v352; 
+  __int64 v353; 
+  __int64 v354; 
+  int v355; 
   __int64 v356; 
-  __int64 v357; 
-  int v358; 
-  __int64 v359; 
-  StringBuffer *v360; 
-  const char *v361; 
+  StringBuffer *v357; 
+  const char *v358; 
   int RemainingAfterTail; 
   unsigned __int8 numEntries; 
-  int v364; 
-  unsigned __int8 *v365; 
-  int v366; 
-  unsigned __int16 *v367; 
-  const char *v368; 
-  const char *v369; 
+  int v361; 
+  unsigned __int8 *v362; 
+  int v363; 
+  unsigned __int16 *v364; 
+  const char *v365; 
+  const char *v366; 
   PublisherVariableManager *Instance; 
-  __int64 v371; 
-  __int64 v372; 
+  __int64 v368; 
+  __int64 v369; 
+  __int64 v370; 
+  int v371; 
+  int v372; 
   __int64 v373; 
-  int v374; 
-  int v375; 
+  __int64 v374; 
+  __int64 v375; 
   __int64 v376; 
   __int64 v377; 
   __int64 v378; 
@@ -4461,166 +4437,163 @@ void Playlist_ParsePlaylists(const char *buffer)
   __int64 v381; 
   __int64 v382; 
   __int64 v383; 
-  __int64 v384; 
+  char *v384; 
   __int64 v385; 
-  __int64 v386; 
-  char *v387; 
-  __int64 v388; 
-  int v389; 
-  __int64 v390; 
-  int v391; 
-  __int64 v392; 
-  int v393; 
-  __int64 v394; 
-  int v395; 
-  __int64 v396; 
-  int v397; 
-  __int64 v398; 
-  int v399; 
-  __int64 v400; 
-  int v401; 
-  __int64 v402; 
-  int v403; 
-  __int64 v404; 
-  int v405; 
-  __int64 v406; 
-  int v407; 
-  __int64 v408; 
-  int v409; 
-  __int64 v410; 
-  int v411; 
-  __int64 v412; 
-  int v413; 
-  __int64 v414; 
-  int v415; 
-  __int64 v416; 
-  int v417; 
-  __int64 v418; 
-  int v419; 
-  __int64 v420; 
-  int v421; 
-  __int64 v422; 
-  int v423; 
-  __int64 v424; 
-  int v425; 
-  __int64 v426; 
-  int v427; 
-  __int64 v428; 
-  int v429; 
-  __int64 v430; 
-  int v431; 
-  __int64 v432; 
-  int v433; 
-  __int64 v434; 
-  int v435; 
-  __int64 v436; 
-  int v437; 
-  __int64 v438; 
-  int v439; 
-  __int64 v440; 
-  int v441; 
-  __int64 v442; 
-  int v443; 
-  __int64 v444; 
-  int v445; 
-  __int64 v446; 
-  int v447; 
+  int v386; 
+  __int64 v387; 
+  int v388; 
+  __int64 v389; 
+  int v390; 
+  __int64 v391; 
+  int v392; 
+  __int64 v393; 
+  int v394; 
+  __int64 v395; 
+  int v396; 
+  __int64 v397; 
+  int v398; 
+  __int64 v399; 
+  int v400; 
+  __int64 v401; 
+  int v402; 
+  __int64 v403; 
+  int v404; 
+  __int64 v405; 
+  int v406; 
+  __int64 v407; 
+  int v408; 
+  __int64 v409; 
+  int v410; 
+  __int64 v411; 
+  int v412; 
+  __int64 v413; 
+  int v414; 
+  __int64 v415; 
+  int v416; 
+  __int64 v417; 
+  int v418; 
+  __int64 v419; 
+  int v420; 
+  __int64 v421; 
+  int v422; 
+  __int64 v423; 
+  int v424; 
+  __int64 v425; 
+  int v426; 
+  __int64 v427; 
+  int v428; 
+  __int64 v429; 
+  int v430; 
+  __int64 v431; 
+  int v432; 
+  __int64 v433; 
+  int v434; 
+  __int64 v435; 
+  int v436; 
+  __int64 v437; 
+  int v438; 
+  __int64 v439; 
+  int v440; 
+  __int64 v441; 
+  int v442; 
+  __int64 v443; 
+  int v444; 
+  __int64 v445; 
+  unsigned int v446; 
+  categoryInfo *v447; 
   __int64 v448; 
-  unsigned int v449; 
-  categoryInfo *v450; 
+  __int64 v449; 
+  int v450; 
   __int64 v451; 
-  __int64 v452; 
-  int v453; 
-  __int64 v454; 
-  int v455; 
-  __int64 v456; 
-  int v457; 
-  __int64 v458; 
-  int v459; 
-  __int64 v460; 
-  int v461; 
-  __int64 v462; 
-  int v463; 
-  __int64 v464; 
-  int v465; 
-  __int64 v466; 
-  int v467; 
-  __int64 v468; 
-  int v469; 
-  __int64 v470; 
-  int v471; 
-  __int64 v472; 
-  int v473; 
-  __int64 v474; 
-  int v475; 
-  __int64 v476; 
-  int v477; 
-  __int64 v478; 
-  int v479; 
-  __int64 v480; 
-  int v481; 
-  __int64 v482; 
-  int v483; 
-  __int64 v484; 
-  int v485; 
-  __int64 v486; 
-  int v487; 
-  __int64 v488; 
-  int v489; 
-  __int64 v490; 
-  int v491; 
-  __int64 v492; 
-  int v493; 
-  __int64 v494; 
-  int v495; 
-  __int64 v496; 
-  int v497; 
-  __int64 v498; 
+  int v452; 
+  __int64 v453; 
+  int v454; 
+  __int64 v455; 
+  int v456; 
+  __int64 v457; 
+  int v458; 
+  __int64 v459; 
+  int v460; 
+  __int64 v461; 
+  int v462; 
+  __int64 v463; 
+  int v464; 
+  __int64 v465; 
+  int v466; 
+  __int64 v467; 
+  int v468; 
+  __int64 v469; 
+  int v470; 
+  __int64 v471; 
+  int v472; 
+  __int64 v473; 
+  int v474; 
+  __int64 v475; 
+  int v476; 
+  __int64 v477; 
+  int v478; 
+  __int64 v479; 
+  int v480; 
+  __int64 v481; 
+  int v482; 
+  __int64 v483; 
+  int v484; 
+  __int64 v485; 
+  int v486; 
+  __int64 v487; 
+  int v488; 
+  __int64 v489; 
+  int v490; 
+  __int64 v491; 
+  int v492; 
+  __int64 v493; 
+  int v494; 
+  __int64 v495; 
+  int v496; 
+  __int64 v497; 
+  unsigned int v498; 
   int v499; 
-  __int64 v500; 
-  unsigned int v501; 
-  int v502; 
-  bdJSONDeserializer *v503; 
+  bdJSONDeserializer *v500; 
+  __int64 v501; 
+  __int64 v502; 
+  __int64 v503; 
   __int64 v504; 
-  __int64 v505; 
-  __int64 v506; 
-  __int64 v507; 
-  int v508; 
+  int v505; 
+  bdJSONDeserializer v506; 
+  int v507[2]; 
+  unsigned int v508; 
   bdJSONDeserializer v509; 
-  int v510[2]; 
-  unsigned int v511; 
-  bdJSONDeserializer v512; 
-  int v513; 
-  unsigned __int64 v514; 
+  int v510; 
+  unsigned __int64 v511; 
   bdJSONDeserializer value; 
-  float v516[2]; 
-  int v517[2]; 
-  int v518[2]; 
+  float v513[2]; 
+  int v514[2]; 
+  int v515[2]; 
+  __int64 v516; 
+  unsigned __int64 v517; 
+  bdJSONDeserializer v518; 
   __int64 v519; 
-  unsigned __int64 v520; 
-  bdJSONDeserializer v521; 
-  __int64 v522; 
-  bdJSONDeserializer v523; 
-  char v524[8]; 
+  bdJSONDeserializer v520; 
+  char v521[8]; 
   char src[64]; 
-  char v526[64]; 
+  char v523[64]; 
   char _Buffer; 
   char Src[3]; 
   char Str1[10]; 
-  char v530; 
-  char v531[6]; 
-  char v532[2]; 
-  char v533[14]; 
-  char v534; 
+  char v527; 
+  char v528[6]; 
+  char v529[2]; 
+  char v530[14]; 
+  char v531; 
   char key[256]; 
-  char v536[512]; 
+  char v533[512]; 
   char dest[3072]; 
 
-  v522 = -2i64;
+  v519 = -2i64;
   v2 = 0;
-  v511 = 0;
   v508 = 0;
-  v513 = 0;
+  v505 = 0;
+  v510 = 0;
   numGametypes = -1;
   memset_0(&playlistStringBuffer, 0, sizeof(playlistStringBuffer));
   globalRules.rules = (char *)PlaylistStringBuffer_GetTail();
@@ -4628,10 +4601,10 @@ void Playlist_ParsePlaylists(const char *buffer)
   memset_0(dest, 0, sizeof(dest));
   s_playlistEntryCount = 0;
   s_dedicatedServersRequired = 0;
-  bdJSONDeserializer::bdJSONDeserializer(&v521);
+  bdJSONDeserializer::bdJSONDeserializer(&v518);
   bdJSONDeserializer::bdJSONDeserializer(&value);
-  bdJSONDeserializer::parse(&v521, buffer);
-  if ( bdJSONDeserializer::getObject(&v521, "global_dvars", &value) )
+  bdJSONDeserializer::parse(&v518, buffer);
+  if ( bdJSONDeserializer::getObject(&v518, "global_dvars", &value) )
   {
     crc32 = globalRules.crc32;
     globalRules.crc32 = 0;
@@ -4646,31 +4619,31 @@ void Playlist_ParsePlaylists(const char *buffer)
         globalRules.crc32Changed = crc32Changed;
       }
     }
-    *(_QWORD *)&v523.m_type = "dvars";
-    v523.m_ptr = "xb3_dvars";
-    v523.m_end = "dev_dvars";
-    *(_QWORD *)&v523.m_isFloatingPoint = 0i64;
+    *(_QWORD *)&v520.m_type = "dvars";
+    v520.m_ptr = "xb3_dvars";
+    v520.m_end = "dev_dvars";
+    *(_QWORD *)&v520.m_isFloatingPoint = 0i64;
     v5 = 0i64;
     v6 = "dvars";
     do
     {
       if ( bdJSONDeserializer::hasKey(&value, v6) )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v509);
-        bdJSONDeserializer::getObject(&value, v6, &v509);
-        for ( i = 0; i < v509.m_count; ++i )
+        bdJSONDeserializer::bdJSONDeserializer(&v506);
+        bdJSONDeserializer::getObject(&value, v6, &v506);
+        for ( i = 0; i < v506.m_count; ++i )
         {
-          bdJSONDeserializer::bdJSONDeserializer(&v512);
-          bdJSONDeserializer::getFieldByIndex(&v509, i, key, 0x100u, &v512);
-          if ( bdJSONDeserializer::isString(&v512) )
+          bdJSONDeserializer::bdJSONDeserializer(&v509);
+          bdJSONDeserializer::getFieldByIndex(&v506, i, key, 0x100u, &v509);
+          if ( bdJSONDeserializer::isString(&v509) )
           {
-            if ( !bdJSONDeserializer::getString(&v512, v536, 0x200u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 541, ASSERT_TYPE_ASSERT, "(ok && \"Global Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Global Dvar string too large.\"") )
+            if ( !bdJSONDeserializer::getString(&v509, v533, 0x200u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 541, ASSERT_TYPE_ASSERT, "(ok && \"Global Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Global Dvar string too large.\"") )
               __debugbreak();
-            j_sprintf(&_Buffer, "%s \"%s\";", key, v536);
+            j_sprintf(&_Buffer, "%s \"%s\";", key, v533);
           }
-          else if ( bdJSONDeserializer::convertToString(&v512, v536, 0x200u) )
+          else if ( bdJSONDeserializer::convertToString(&v509, v533, 0x200u) )
           {
-            j_sprintf(&_Buffer, "%s %s;", key, v536);
+            j_sprintf(&_Buffer, "%s %s;", key, v533);
           }
           else
           {
@@ -4686,33 +4659,33 @@ void Playlist_ParsePlaylists(const char *buffer)
             ++v9;
           while ( Src[v9 - 1] );
           PlaylistStringBuffer_MoveTail(v9);
-          bdJSONDeserializer::~bdJSONDeserializer(&v512);
+          bdJSONDeserializer::~bdJSONDeserializer(&v509);
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v509);
+        bdJSONDeserializer::~bdJSONDeserializer(&v506);
       }
       ++v5;
-      v6 = (const char *)*((_QWORD *)&v523.m_type + v5);
+      v6 = (const char *)*((_QWORD *)&v520.m_type + v5);
     }
     while ( v6 );
   }
-  if ( bdJSONDeserializer::getObject(&v521, "system", &value) )
+  if ( bdJSONDeserializer::getObject(&v518, "system", &value) )
   {
     if ( bdJSONDeserializer::hasKey(&value, "version") )
       bdJSONDeserializer::getUInt32(&value, "version", &playlist_versionNum);
     if ( bdJSONDeserializer::hasKey(&value, "flags") )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v512);
-      bdJSONDeserializer::getArray(&value, "flags", &v512);
-      for ( j = 0; j < v512.m_count; ++j )
+      bdJSONDeserializer::bdJSONDeserializer(&v509);
+      bdJSONDeserializer::getArray(&value, "flags", &v509);
+      for ( j = 0; j < v509.m_count; ++j )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v523);
-        bdJSONDeserializer::getElementByIndex(&v512, j, &v523);
-        bdJSONDeserializer::getString(&v523, v526, 0x40u);
+        bdJSONDeserializer::bdJSONDeserializer(&v520);
+        bdJSONDeserializer::getElementByIndex(&v509, j, &v520);
+        bdJSONDeserializer::getString(&v520, v523, 0x40u);
         v11 = 0x7FFFFFFFi64;
         v12 = 0i64;
         do
         {
-          v13 = v526[v12];
+          v13 = v523[v12];
           v14 = aDorestart[v12++];
           if ( !v11-- )
             break;
@@ -4722,13 +4695,13 @@ void Playlist_ParsePlaylists(const char *buffer)
         while ( v13 );
         globalRules.crc32Changed = 1;
 LABEL_35:
-        bdJSONDeserializer::~bdJSONDeserializer(&v523);
+        bdJSONDeserializer::~bdJSONDeserializer(&v520);
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v512);
+      bdJSONDeserializer::~bdJSONDeserializer(&v509);
     }
   }
-  Array = bdJSONDeserializer::getArray(&v521, "gametypes", &value);
-  v519 = 2i64;
+  Array = bdJSONDeserializer::getArray(&v518, "gametypes", &value);
+  v516 = 2i64;
   if ( Array )
   {
     for ( k = 0; k < value.m_count; ++k )
@@ -4764,11 +4737,11 @@ LABEL_35:
       v22 = gametypes[v21].crc32;
       gametypes[v21].crc32 = 0;
       gametypes[v21].crc32Changed = 0;
-      bdJSONDeserializer::bdJSONDeserializer(&v509);
-      bdJSONDeserializer::getElementByIndex(&value, k, &v509);
-      if ( bdJSONDeserializer::hasKey(&v509, "crc32") )
+      bdJSONDeserializer::bdJSONDeserializer(&v506);
+      bdJSONDeserializer::getElementByIndex(&value, k, &v506);
+      if ( bdJSONDeserializer::hasKey(&v506, "crc32") )
       {
-        bdJSONDeserializer::getUInt32(&v509, "crc32", &gametypes[numGametypes].crc32);
+        bdJSONDeserializer::getUInt32(&v506, "crc32", &gametypes[numGametypes].crc32);
         if ( playist_initialParse )
         {
           v23 = numGametypes;
@@ -4776,11 +4749,11 @@ LABEL_35:
             gametypes[v23].crc32Changed = 1;
         }
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "gametype") )
-        bdJSONDeserializer::getString(&v509, "gametype", gametypes[numGametypes].internalName, 0x10u);
-      if ( bdJSONDeserializer::hasKey(&v509, (const char *const)&stru_143C9A1A4) )
+      if ( bdJSONDeserializer::hasKey(&v506, "gametype") )
+        bdJSONDeserializer::getString(&v506, "gametype", gametypes[numGametypes].internalName, 0x10u);
+      if ( bdJSONDeserializer::hasKey(&v506, (const char *const)&stru_143C9A1A4) )
       {
-        bdJSONDeserializer::getString(&v509, (const char *const)&stru_143C9A1A4, &_Buffer, 0x400u);
+        bdJSONDeserializer::getString(&v506, (const char *const)&stru_143C9A1A4, &_Buffer, 0x400u);
         if ( _Buffer == 35 )
           v24 = Src;
         else
@@ -4792,14 +4765,14 @@ LABEL_35:
           v28 = *v24;
           if ( !*v24 )
             break;
-          v510[0] = 0;
+          v507[0] = 0;
           if ( v28 < 0 )
           {
             if ( (v28 & 0xE0) == 0xC0 )
             {
               if ( (v24[1] & 0x7F | ((unsigned __int8)(v28 & 0x1F) << 6)) < 0x80u )
                 break;
-              v510[0] = 2;
+              v507[0] = 2;
               v29 = 2;
             }
             else if ( (v28 & 0xF0) == 0xE0 )
@@ -4807,21 +4780,21 @@ LABEL_35:
               v30 = v24[2] & 0x7F | ((v24[1] & 0x7F | ((v28 & 0xF) << 6)) << 6);
               if ( v30 - 2048 > 0xCFFF && v30 < 0xE000 )
                 break;
-              v510[0] = 3;
+              v507[0] = 3;
               v29 = 3;
             }
             else
             {
               if ( (v28 & 0xF8) != 0xF0 || (((v24[2] & 0x7F | ((v24[1] & 0x7F | ((v28 & 7) << 6)) << 6)) << 6) | v24[3] & 0x7Fu) - 0x10000 > 0xFFFFE )
                 break;
-              v510[0] = 4;
+              v507[0] = 4;
               v29 = 4;
             }
           }
           else
           {
             v29 = 1;
-            v510[0] = 1;
+            v507[0] = 1;
           }
           v31 = m - v29;
           if ( (int)(m - v29) < 0 )
@@ -4846,26 +4819,26 @@ LABEL_35:
         *localizedName = 0;
         v2 = 0;
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "script") )
-        bdJSONDeserializer::getString(&v509, "script", gametypes[numGametypes].scriptName, 0x10u);
-      if ( bdJSONDeserializer::hasKey(&v509, "teamCount") )
-        bdJSONDeserializer::getInt32(&v509, "teamCount", &gametypes[numGametypes].teamCount);
-      if ( bdJSONDeserializer::hasKey(&v509, "teamSize") )
-        bdJSONDeserializer::getInt32(&v509, "teamSize", &gametypes[numGametypes].teamSize);
-      if ( bdJSONDeserializer::hasKey(&v509, "flags") )
+      if ( bdJSONDeserializer::hasKey(&v506, "script") )
+        bdJSONDeserializer::getString(&v506, "script", gametypes[numGametypes].scriptName, 0x10u);
+      if ( bdJSONDeserializer::hasKey(&v506, "teamCount") )
+        bdJSONDeserializer::getInt32(&v506, "teamCount", &gametypes[numGametypes].teamCount);
+      if ( bdJSONDeserializer::hasKey(&v506, "teamSize") )
+        bdJSONDeserializer::getInt32(&v506, "teamSize", &gametypes[numGametypes].teamSize);
+      if ( bdJSONDeserializer::hasKey(&v506, "flags") )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v512);
-        bdJSONDeserializer::getArray(&v509, "flags", &v512);
-        for ( n = 0; n < v512.m_count; ++n )
+        bdJSONDeserializer::bdJSONDeserializer(&v509);
+        bdJSONDeserializer::getArray(&v506, "flags", &v509);
+        for ( n = 0; n < v509.m_count; ++n )
         {
-          bdJSONDeserializer::bdJSONDeserializer(&v523);
-          bdJSONDeserializer::getElementByIndex(&v512, n, &v523);
-          bdJSONDeserializer::getString(&v523, v526, 0x40u);
+          bdJSONDeserializer::bdJSONDeserializer(&v520);
+          bdJSONDeserializer::getElementByIndex(&v509, n, &v520);
+          bdJSONDeserializer::getString(&v520, v523, 0x40u);
           v35 = 0x7FFFFFFFi64;
           v36 = 0i64;
           while ( 1 )
           {
-            v37 = (unsigned __int8)v526[v36];
+            v37 = (unsigned __int8)v523[v36];
             v38 = (unsigned __int8)aHardcore[v36++];
             if ( !v35-- )
             {
@@ -4892,7 +4865,7 @@ LABEL_97:
           v44 = 0i64;
           do
           {
-            v45 = (unsigned __int8)v526[v44];
+            v45 = (unsigned __int8)v523[v44];
             v46 = (unsigned __int8)aTactical[v44++];
             if ( !v43-- )
               break;
@@ -4912,28 +4885,28 @@ LABEL_97:
           while ( v45 );
           gametypes[numGametypes].tactical = 1;
 LABEL_98:
-          bdJSONDeserializer::~bdJSONDeserializer(&v523);
+          bdJSONDeserializer::~bdJSONDeserializer(&v520);
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v512);
+        bdJSONDeserializer::~bdJSONDeserializer(&v509);
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "dvars") )
+      if ( bdJSONDeserializer::hasKey(&v506, "dvars") )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v523);
-        if ( bdJSONDeserializer::getObject(&v509, "dvars", &v523) )
+        bdJSONDeserializer::bdJSONDeserializer(&v520);
+        if ( bdJSONDeserializer::getObject(&v506, "dvars", &v520) )
         {
-          for ( ii = 0; ii < v523.m_count; ++ii )
+          for ( ii = 0; ii < v520.m_count; ++ii )
           {
-            bdJSONDeserializer::bdJSONDeserializer(&v512);
-            bdJSONDeserializer::getFieldByIndex(&v523, ii, key, 0x100u, &v512);
-            if ( bdJSONDeserializer::isString(&v512) )
+            bdJSONDeserializer::bdJSONDeserializer(&v509);
+            bdJSONDeserializer::getFieldByIndex(&v520, ii, key, 0x100u, &v509);
+            if ( bdJSONDeserializer::isString(&v509) )
             {
-              if ( !bdJSONDeserializer::getString(&v512, v536, 0x200u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 688, ASSERT_TYPE_ASSERT, "(ok && \"Gametypes Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Gametypes Dvar string too large.\"") )
+              if ( !bdJSONDeserializer::getString(&v509, v533, 0x200u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 688, ASSERT_TYPE_ASSERT, "(ok && \"Gametypes Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Gametypes Dvar string too large.\"") )
                 __debugbreak();
-              j_sprintf(&_Buffer, "%s \"%s\";", key, v536);
+              j_sprintf(&_Buffer, "%s \"%s\";", key, v533);
             }
-            else if ( bdJSONDeserializer::convertToString(&v512, v536, 0x200u) )
+            else if ( bdJSONDeserializer::convertToString(&v509, v533, 0x200u) )
             {
-              j_sprintf(&_Buffer, "%s %s;", key, v536);
+              j_sprintf(&_Buffer, "%s %s;", key, v533);
             }
             else
             {
@@ -4949,24 +4922,24 @@ LABEL_98:
               ++v51;
             while ( Src[v51 - 1] );
             PlaylistStringBuffer_MoveTail(v51);
-            bdJSONDeserializer::~bdJSONDeserializer(&v512);
+            bdJSONDeserializer::~bdJSONDeserializer(&v509);
           }
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v523);
+        bdJSONDeserializer::~bdJSONDeserializer(&v520);
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "recipe") )
+      if ( bdJSONDeserializer::hasKey(&v506, "recipe") )
       {
         gametypes[numGametypes].hasRecipe = 1;
-        if ( bdJSONDeserializer::hasKey(&v509, "recipestart") )
-          bdJSONDeserializer::getInt32(&v509, "recipestart", &gametypes[numGametypes].recipe_offset);
-        if ( bdJSONDeserializer::hasKey(&v509, "recipesize") )
-          bdJSONDeserializer::getInt32(&v509, "recipesize", &gametypes[numGametypes].recipe_size);
+        if ( bdJSONDeserializer::hasKey(&v506, "recipestart") )
+          bdJSONDeserializer::getInt32(&v506, "recipestart", &gametypes[numGametypes].recipe_offset);
+        if ( bdJSONDeserializer::hasKey(&v506, "recipesize") )
+          bdJSONDeserializer::getInt32(&v506, "recipesize", &gametypes[numGametypes].recipe_size);
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v509);
+      bdJSONDeserializer::~bdJSONDeserializer(&v506);
     }
   }
   v53 = playlists;
-  if ( bdJSONDeserializer::getArray(&v521, "playlists", &value) )
+  if ( bdJSONDeserializer::getArray(&v518, "playlists", &value) )
   {
     p_numEntries = &playlists[0].numEntries;
     do
@@ -4981,19 +4954,19 @@ LABEL_98:
     }
     while ( (__int64)p_numEntries < (__int64)&categories[0].overrideDvarName[49] );
     v55 = 0;
-    for ( LODWORD(v514) = 0; v55 < value.m_count; LODWORD(v514) = v55 )
+    for ( LODWORD(v511) = 0; v55 < value.m_count; LODWORD(v511) = v55 )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v509);
-      bdJSONDeserializer::getElementByIndex(&value, v55, &v509);
-      bdJSONDeserializer::getInt32(&v509, "playlist", &v508);
-      if ( (unsigned int)v508 >= 0x81 )
+      bdJSONDeserializer::bdJSONDeserializer(&v506);
+      bdJSONDeserializer::getElementByIndex(&value, v55, &v506);
+      bdJSONDeserializer::getInt32(&v506, "playlist", &v505);
+      if ( (unsigned int)v505 >= 0x81 )
       {
-        LODWORD(v505) = 129;
-        LODWORD(v504) = v508;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 741, ASSERT_TYPE_ASSERT, "(unsigned)( playlistNum ) < (unsigned)( ( sizeof( *array_counter( playlists ) ) + 0 ) )", "playlistNum doesn't index ARRAY_COUNT( playlists )\n\t%i not in [0, %i)", v504, v505) )
+        LODWORD(v502) = 129;
+        LODWORD(v501) = v505;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 741, ASSERT_TYPE_ASSERT, "(unsigned)( playlistNum ) < (unsigned)( ( sizeof( *array_counter( playlists ) ) + 0 ) )", "playlistNum doesn't index ARRAY_COUNT( playlists )\n\t%i not in [0, %i)", v501, v502) )
           __debugbreak();
       }
-      v56 = v508;
+      v56 = v505;
       playlists[v56].name[0] = 0;
       playlists[v56].description[0] = 0;
       playlists[v56].image[0] = 0;
@@ -5022,7 +4995,7 @@ LABEL_98:
         v58 = &playlistStringBuffer;
       }
       playlistStringBuffer.tail = (char *)v58;
-      v60 = v508;
+      v60 = v505;
       playlists[v60].rules = (char *)v58;
       *(_QWORD *)&playlists[v60].requiredDLCMask = 0i64;
       *(_DWORD *)&playlists[v60].firstEntry = 0;
@@ -5040,32 +5013,32 @@ LABEL_98:
       v61 = playlists[v60].crc32;
       playlists[v60].crc32 = 0;
       playlists[v60].crc32Changed = 0;
-      if ( bdJSONDeserializer::hasKey(&v509, "crc32") )
+      if ( bdJSONDeserializer::hasKey(&v506, "crc32") )
       {
-        bdJSONDeserializer::getUInt32(&v509, "crc32", &playlists[v508].crc32);
+        bdJSONDeserializer::getUInt32(&v506, "crc32", &playlists[v505].crc32);
         if ( playist_initialParse )
         {
-          v62 = v508;
+          v62 = v505;
           if ( v61 != playlists[v62].crc32 )
             playlists[v62].crc32Changed = 1;
         }
       }
-      if ( bdJSONDeserializer::hasKey(&v509, (const char *const)&stru_143C9A1A4) )
+      if ( bdJSONDeserializer::hasKey(&v506, (const char *const)&stru_143C9A1A4) )
       {
-        bdJSONDeserializer::getString(&v509, (const char *const)&stru_143C9A1A4, &_Buffer, 0x400u);
+        bdJSONDeserializer::getString(&v506, (const char *const)&stru_143C9A1A4, &_Buffer, 0x400u);
         if ( _Buffer == 35 )
           v63 = Src;
         else
           v63 = (char *)UI_SafeTranslateString(&_Buffer);
         v64 = 128;
-        v65 = &playlists[v508];
+        v65 = &playlists[v505];
         v66 = 124;
         while ( 1 )
         {
           v67 = *v63;
           if ( !*v63 )
             break;
-          v510[0] = 0;
+          v507[0] = 0;
           if ( v67 < 0 )
           {
             if ( (v67 & 0xE0) == 0xC0 )
@@ -5073,28 +5046,28 @@ LABEL_98:
               if ( (((v67 & 0x1F) << 6) | v63[1] & 0x7Fu) < 0x80 )
                 break;
               v68 = 2;
-              v510[0] = 2;
+              v507[0] = 2;
             }
             else if ( (v67 & 0xF0) == 0xE0 )
             {
               v69 = v63[2] & 0x7F | ((((v67 & 0xF) << 6) | v63[1] & 0x7F) << 6);
               if ( v69 - 2048 > 0xCFFF && v69 < 0xE000 )
                 break;
-              v510[0] = 3;
+              v507[0] = 3;
               v68 = 3;
             }
             else
             {
               if ( (v67 & 0xF8) != 0xF0 || (((v63[2] & 0x7F | ((((v67 & 7) << 6) | v63[1] & 0x7F) << 6)) << 6) | v63[3] & 0x7Fu) - 0x10000 > 0xFFFFE )
                 break;
-              v510[0] = 4;
+              v507[0] = 4;
               v68 = 4;
             }
           }
           else
           {
             v68 = 1;
-            v510[0] = 1;
+            v507[0] = 1;
           }
           v70 = v66 - v68;
           if ( (int)(v66 - v68) < 0 )
@@ -5124,69 +5097,63 @@ LABEL_98:
         }
         v65->name[0] = 0;
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "description") )
+      if ( bdJSONDeserializer::hasKey(&v506, "description") )
       {
-        bdJSONDeserializer::getString(&v509, "description", &_Buffer, 0x400u);
+        bdJSONDeserializer::getString(&v506, "description", &_Buffer, 0x400u);
         if ( _Buffer == 35 )
           v73 = Src;
         else
           v73 = UI_SafeTranslateString(&_Buffer);
-        Core_strcpy(playlists[v508].description, 0x200ui64, v73);
+        Core_strcpy(playlists[v505].description, 0x200ui64, v73);
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "image") )
-        bdJSONDeserializer::getString(&v509, "image", playlists[v508].image, 0x40u);
-      if ( bdJSONDeserializer::hasKey(&v509, "smallImage") )
-        bdJSONDeserializer::getString(&v509, "smallImage", playlists[v508].smallImage, 0x40u);
-      if ( bdJSONDeserializer::hasKey(&v509, "featuredImage") )
-        bdJSONDeserializer::getString(&v509, "featuredImage", playlists[v508].featuredImage, 0x40u);
-      if ( bdJSONDeserializer::hasKey(&v509, "video") )
-        bdJSONDeserializer::getString(&v509, "video", playlists[v508].video, 0x20u);
-      if ( bdJSONDeserializer::hasKey(&v509, "context") )
-        bdJSONDeserializer::getString(&v509, "context", playlists[v508].context, 0x10u);
-      if ( bdJSONDeserializer::hasKey(&v509, "dc_restrict") )
-        bdJSONDeserializer::getString(&v509, "dc_restrict", playlists[v508].dc_restrict, 0x20u);
-      if ( bdJSONDeserializer::hasKey(&v509, "dvars") )
+      if ( bdJSONDeserializer::hasKey(&v506, "image") )
+        bdJSONDeserializer::getString(&v506, "image", playlists[v505].image, 0x40u);
+      if ( bdJSONDeserializer::hasKey(&v506, "smallImage") )
+        bdJSONDeserializer::getString(&v506, "smallImage", playlists[v505].smallImage, 0x40u);
+      if ( bdJSONDeserializer::hasKey(&v506, "featuredImage") )
+        bdJSONDeserializer::getString(&v506, "featuredImage", playlists[v505].featuredImage, 0x40u);
+      if ( bdJSONDeserializer::hasKey(&v506, "video") )
+        bdJSONDeserializer::getString(&v506, "video", playlists[v505].video, 0x20u);
+      if ( bdJSONDeserializer::hasKey(&v506, "context") )
+        bdJSONDeserializer::getString(&v506, "context", playlists[v505].context, 0x10u);
+      if ( bdJSONDeserializer::hasKey(&v506, "dc_restrict") )
+        bdJSONDeserializer::getString(&v506, "dc_restrict", playlists[v505].dc_restrict, 0x20u);
+      if ( bdJSONDeserializer::hasKey(&v506, "dvars") )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v523);
-        if ( bdJSONDeserializer::getObject(&v509, "dvars", &v523) )
+        bdJSONDeserializer::bdJSONDeserializer(&v520);
+        if ( bdJSONDeserializer::getObject(&v506, "dvars", &v520) )
         {
-          for ( jj = 0; jj < v523.m_count; ++jj )
+          for ( jj = 0; jj < v520.m_count; ++jj )
           {
-            bdJSONDeserializer::bdJSONDeserializer(&v512);
-            bdJSONDeserializer::getFieldByIndex(&v523, jj, key, 0x100u, &v512);
-            if ( !bdJSONDeserializer::isNumber(&v512) )
+            bdJSONDeserializer::bdJSONDeserializer(&v509);
+            bdJSONDeserializer::getFieldByIndex(&v520, jj, key, 0x100u, &v509);
+            if ( !bdJSONDeserializer::isNumber(&v509) )
             {
-              if ( bdJSONDeserializer::isString(&v512) )
+              if ( bdJSONDeserializer::isString(&v509) )
               {
-                if ( !bdJSONDeserializer::getString(&v512, v536, 0x200u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 961, ASSERT_TYPE_ASSERT, "(ok && \"Playlist Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Playlist Dvar string too large.\"") )
+                if ( !bdJSONDeserializer::getString(&v509, v533, 0x200u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 961, ASSERT_TYPE_ASSERT, "(ok && \"Playlist Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Playlist Dvar string too large.\"") )
                   __debugbreak();
-                j_sprintf(&_Buffer, "%s \"%s\";", key, v536);
+                j_sprintf(&_Buffer, "%s \"%s\";", key, v533);
               }
               goto LABEL_276;
             }
-            if ( bdJSONDeserializer::isFloatingPoint(&v512) )
+            if ( bdJSONDeserializer::isFloatingPoint(&v509) )
             {
-              bdJSONDeserializer::getFloat32(&v512, v516);
-              __asm
-              {
-                vmovss  xmm3, [rbp+1400h+var_1428]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovq   r9, xmm3
-              }
-              j_sprintf(&_Buffer, "%s %f;", key, *(double *)&_XMM3);
+              bdJSONDeserializer::getFloat32(&v509, v513);
+              j_sprintf(&_Buffer, "%s %f;", key, v513[0]);
               goto LABEL_276;
             }
-            bdJSONDeserializer::getInt32(&v512, v517);
-            j_sprintf(&_Buffer, "%s %d;", key, (unsigned int)v517[0]);
+            bdJSONDeserializer::getInt32(&v509, v514);
+            j_sprintf(&_Buffer, "%s %d;", key, (unsigned int)v514[0]);
             if ( !strncmp(&_Buffer, "set ", 4ui64) )
             {
               if ( !strncmp(Str1, "LLNLRTQRPO", 0xAui64) )
               {
-                v78 = DCONST_DVARINT_online_force_min_lobby_size;
+                v75 = DCONST_DVARINT_online_force_min_lobby_size;
                 if ( !DCONST_DVARINT_online_force_min_lobby_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_force_min_lobby_size") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v78);
-                integer = v78->current.integer;
+                Dvar_CheckFrontendServerThread(v75);
+                integer = v75->current.integer;
                 if ( integer )
                 {
                   if ( integer < 0 || (unsigned int)integer > 0xFF )
@@ -5194,9 +5161,9 @@ LABEL_98:
                 }
                 else
                 {
-                  if ( (unsigned __int8)(v531[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 886, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                  if ( (unsigned __int8)(v528[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 886, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                     __debugbreak();
-                  integer = atoi(v531);
+                  integer = atoi(v528);
                   if ( integer < 0 || (unsigned int)integer > 0xFF )
                   {
 LABEL_211:
@@ -5204,1390 +5171,1390 @@ LABEL_211:
                       __debugbreak();
                   }
                 }
-                playlists[v508].minLobbySize = integer;
+                playlists[v505].minLobbySize = integer;
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "OOTQKOTRM", 9ui64) )
               {
-                if ( (unsigned __int8)(v530 - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 893, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                if ( (unsigned __int8)(v527 - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 893, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                   __debugbreak();
-                v80 = atoi(&v530);
-                v81 = v80;
-                if ( (v80 < 0 || (unsigned int)v80 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v80, "signed", v80) )
+                v77 = atoi(&v527);
+                v78 = v77;
+                if ( (v77 < 0 || (unsigned int)v77 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v77, "signed", v77) )
                   __debugbreak();
-                v82 = v508;
-                playlists[v82].maxLobbySize = v81;
-                if ( (v81 & 1) != 0 )
-                  playlists[v82].maxLobbySize = v81 + 1;
+                v79 = v505;
+                playlists[v79].maxLobbySize = v78;
+                if ( (v78 & 1) != 0 )
+                  playlists[v79].maxLobbySize = v78 + 1;
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "RRNTNNKNP", 9ui64) )
               {
-                if ( (unsigned __int8)(v530 - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 903, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                if ( (unsigned __int8)(v527 - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 903, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                   __debugbreak();
-                v83 = atoi(&v530);
-                v84 = v83;
-                if ( (v83 < 0 || (unsigned int)v83 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v83, "signed", v83) )
+                v80 = atoi(&v527);
+                v81 = v80;
+                if ( (v80 < 0 || (unsigned int)v80 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v80, "signed", v80) )
                   __debugbreak();
-                playlists[v508].maxSquadSize = v84;
+                playlists[v505].maxSquadSize = v81;
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "LRSSMMRMLM", 0xAui64) )
               {
-                if ( (unsigned __int8)(v531[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 909, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                if ( (unsigned __int8)(v528[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 909, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                   __debugbreak();
-                v85 = v531;
+                v82 = v528;
 LABEL_270:
-                v92 = atoi(v85);
-                playlists[v508].dedicatedServerRequired = v92 != 0;
+                v89 = atoi(v82);
+                playlists[v505].dedicatedServerRequired = v89 != 0;
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "party_minplayers", 0x10ui64) )
               {
-                v86 = DCONST_DVARINT_online_force_min_lobby_size;
+                v83 = DCONST_DVARINT_online_force_min_lobby_size;
                 if ( !DCONST_DVARINT_online_force_min_lobby_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_force_min_lobby_size") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v86);
-                v87 = v86->current.integer;
-                if ( !v87 )
+                Dvar_CheckFrontendServerThread(v83);
+                v84 = v83->current.integer;
+                if ( !v84 )
                 {
-                  if ( (unsigned __int8)(v532[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 926, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                  if ( (unsigned __int8)(v529[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 926, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                     __debugbreak();
-                  v87 = atoi(v532);
+                  v84 = atoi(v529);
                 }
-                playlists[v508].minLobbySize = truncate_cast<unsigned char,int>(v87);
+                playlists[v505].minLobbySize = truncate_cast<unsigned char,int>(v84);
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "party_maxplayers", 0x10ui64) )
               {
-                if ( (unsigned __int8)(v532[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 933, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                if ( (unsigned __int8)(v529[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 933, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                   __debugbreak();
-                v88 = atoi(v532);
-                v89 = truncate_cast<unsigned char,int>(v88);
-                v90 = v508;
-                playlists[v90].maxLobbySize = v89;
-                if ( (v89 & 1) != 0 )
-                  playlists[v90].maxLobbySize = v89 + 1;
+                v85 = atoi(v529);
+                v86 = truncate_cast<unsigned char,int>(v85);
+                v87 = v505;
+                playlists[v87].maxLobbySize = v86;
+                if ( (v86 & 1) != 0 )
+                  playlists[v87].maxLobbySize = v86 + 1;
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "party_maxSquadSize", 0x12ui64) )
               {
-                if ( (unsigned __int8)(v533[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 943, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                if ( (unsigned __int8)(v530[0] - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 943, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                   __debugbreak();
-                v91 = atoi(v533);
-                playlists[v508].maxSquadSize = truncate_cast<unsigned char,int>(v91);
+                v88 = atoi(v530);
+                playlists[v505].maxSquadSize = truncate_cast<unsigned char,int>(v88);
                 goto LABEL_276;
               }
               if ( !strncmp(Str1, "online_matchmaking_dedi_required", 0x20ui64) )
               {
-                if ( (unsigned __int8)(v534 - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 949, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
+                if ( (unsigned __int8)(v531 - 48) > 9u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 949, ASSERT_TYPE_ASSERT, "(*rule_value >= '0' && *rule_value <= '9')", (const char *)&queryFormat, "*rule_value >= '0' && *rule_value <= '9'") )
                   __debugbreak();
-                v85 = &v534;
+                v82 = &v531;
                 goto LABEL_270;
               }
             }
 LABEL_276:
-            v93 = playlists[v508].rules - 1;
+            v90 = playlists[v505].rules - 1;
             do
-              ++v93;
-            while ( *v93 );
-            strcpy(v93, &_Buffer);
-            v94 = -1i64;
+              ++v90;
+            while ( *v90 );
+            strcpy(v90, &_Buffer);
+            v91 = -1i64;
             do
-              ++v94;
-            while ( Src[v94 - 1] );
-            PlaylistStringBuffer_MoveTail(v94);
-            bdJSONDeserializer::~bdJSONDeserializer(&v512);
+              ++v91;
+            while ( Src[v91 - 1] );
+            PlaylistStringBuffer_MoveTail(v91);
+            bdJSONDeserializer::~bdJSONDeserializer(&v509);
           }
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v523);
+        bdJSONDeserializer::~bdJSONDeserializer(&v520);
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "dlc") )
-        bdJSONDeserializer::getUInt32(&v509, "dlc", &playlists[v508].requiredDLCMask);
-      if ( bdJSONDeserializer::hasKey(&v509, "flags") )
+      if ( bdJSONDeserializer::hasKey(&v506, "dlc") )
+        bdJSONDeserializer::getUInt32(&v506, "dlc", &playlists[v505].requiredDLCMask);
+      if ( bdJSONDeserializer::hasKey(&v506, "flags") )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v523);
-        bdJSONDeserializer::getArray(&v509, "flags", &v523);
-        for ( kk = 0; kk < v523.m_count; ++kk )
+        bdJSONDeserializer::bdJSONDeserializer(&v520);
+        bdJSONDeserializer::getArray(&v506, "flags", &v520);
+        for ( kk = 0; kk < v520.m_count; ++kk )
         {
-          bdJSONDeserializer::bdJSONDeserializer(&v512);
-          bdJSONDeserializer::getElementByIndex(&v523, kk, &v512);
-          bdJSONDeserializer::getString(&v512, src, 0x40u);
-          v96 = 0x7FFFFFFFi64;
-          v97 = 0i64;
+          bdJSONDeserializer::bdJSONDeserializer(&v509);
+          bdJSONDeserializer::getElementByIndex(&v520, kk, &v509);
+          bdJSONDeserializer::getString(&v509, src, 0x40u);
+          v93 = 0x7FFFFFFFi64;
+          v94 = 0i64;
           while ( 1 )
           {
-            v98 = (unsigned __int8)src[v97];
-            v99 = (unsigned __int8)aNojip[v97++];
-            if ( !v96-- )
+            v95 = (unsigned __int8)src[v94];
+            v96 = (unsigned __int8)aNojip[v94++];
+            if ( !v93-- )
             {
 LABEL_295:
-              playlists[v508].flags |= 1u;
+              playlists[v505].flags |= 1u;
               goto LABEL_296;
             }
-            if ( v98 != v99 )
+            if ( v95 != v96 )
             {
-              v101 = v98 + 32;
-              if ( (unsigned int)(v98 - 65) > 0x19 )
-                v101 = v98;
-              v98 = v101;
-              v102 = v99 + 32;
-              if ( (unsigned int)(v99 - 65) > 0x19 )
-                v102 = v99;
-              if ( v98 != v102 )
+              v98 = v95 + 32;
+              if ( (unsigned int)(v95 - 65) > 0x19 )
+                v98 = v95;
+              v95 = v98;
+              v99 = v96 + 32;
+              if ( (unsigned int)(v96 - 65) > 0x19 )
+                v99 = v96;
+              if ( v95 != v99 )
                 break;
             }
-            if ( !v98 )
+            if ( !v95 )
               goto LABEL_295;
           }
-          v122 = 0x7FFFFFFFi64;
-          v123 = 0i64;
+          v119 = 0x7FFFFFFFi64;
+          v120 = 0i64;
           while ( 1 )
           {
-            v124 = (unsigned __int8)src[v123];
-            v125 = (unsigned __int8)aNolooping[v123++];
-            if ( !v122-- )
+            v121 = (unsigned __int8)src[v120];
+            v122 = (unsigned __int8)aNolooping[v120++];
+            if ( !v119-- )
             {
 LABEL_363:
-              playlists[v508].flags |= 4u;
+              playlists[v505].flags |= 4u;
               goto LABEL_296;
             }
-            if ( v124 != v125 )
+            if ( v121 != v122 )
             {
-              v127 = v124 + 32;
-              if ( (unsigned int)(v124 - 65) > 0x19 )
-                v127 = v124;
-              v124 = v127;
-              v128 = v125 + 32;
-              if ( (unsigned int)(v125 - 65) > 0x19 )
-                v128 = v125;
-              if ( v124 != v128 )
+              v124 = v121 + 32;
+              if ( (unsigned int)(v121 - 65) > 0x19 )
+                v124 = v121;
+              v121 = v124;
+              v125 = v122 + 32;
+              if ( (unsigned int)(v122 - 65) > 0x19 )
+                v125 = v122;
+              if ( v121 != v125 )
                 break;
             }
-            if ( !v124 )
+            if ( !v121 )
               goto LABEL_363;
           }
-          v129 = 0x7FFFFFFFi64;
-          v130 = 0i64;
+          v126 = 0x7FFFFFFFi64;
+          v127 = 0i64;
           while ( 1 )
           {
-            v131 = (unsigned __int8)src[v130];
-            v132 = (unsigned __int8)aAllowdupes[v130++];
-            if ( !v129-- )
+            v128 = (unsigned __int8)src[v127];
+            v129 = (unsigned __int8)aAllowdupes[v127++];
+            if ( !v126-- )
             {
 LABEL_373:
-              playlists[v508].flags |= 8u;
+              playlists[v505].flags |= 8u;
               goto LABEL_296;
             }
-            if ( v131 != v132 )
+            if ( v128 != v129 )
             {
-              v134 = v131 + 32;
-              if ( (unsigned int)(v131 - 65) > 0x19 )
-                v134 = v131;
-              v131 = v134;
-              v135 = v132 + 32;
-              if ( (unsigned int)(v132 - 65) > 0x19 )
-                v135 = v132;
-              if ( v131 != v135 )
+              v131 = v128 + 32;
+              if ( (unsigned int)(v128 - 65) > 0x19 )
+                v131 = v128;
+              v128 = v131;
+              v132 = v129 + 32;
+              if ( (unsigned int)(v129 - 65) > 0x19 )
+                v132 = v129;
+              if ( v128 != v132 )
                 break;
             }
-            if ( !v131 )
+            if ( !v128 )
               goto LABEL_373;
           }
-          v136 = 0x7FFFFFFFi64;
-          v137 = 0i64;
+          v133 = 0x7FFFFFFFi64;
+          v134 = 0i64;
           while ( 1 )
           {
-            v138 = (unsigned __int8)src[v137];
-            v139 = (unsigned __int8)aPartyteams[v137++];
-            if ( !v136-- )
+            v135 = (unsigned __int8)src[v134];
+            v136 = (unsigned __int8)aPartyteams[v134++];
+            if ( !v133-- )
             {
 LABEL_383:
-              playlists[v508].flags |= 2u;
+              playlists[v505].flags |= 2u;
               goto LABEL_296;
             }
-            if ( v138 != v139 )
+            if ( v135 != v136 )
             {
-              v141 = v138 + 32;
-              if ( (unsigned int)(v138 - 65) > 0x19 )
-                v141 = v138;
-              v138 = v141;
-              v142 = v139 + 32;
-              if ( (unsigned int)(v139 - 65) > 0x19 )
-                v142 = v139;
-              if ( v138 != v142 )
+              v138 = v135 + 32;
+              if ( (unsigned int)(v135 - 65) > 0x19 )
+                v138 = v135;
+              v135 = v138;
+              v139 = v136 + 32;
+              if ( (unsigned int)(v136 - 65) > 0x19 )
+                v139 = v136;
+              if ( v135 != v139 )
                 break;
             }
-            if ( !v138 )
+            if ( !v135 )
               goto LABEL_383;
           }
-          v143 = 0x7FFFFFFFi64;
-          v144 = 0i64;
+          v140 = 0x7FFFFFFFi64;
+          v141 = 0i64;
           while ( 1 )
           {
-            v145 = (unsigned __int8)src[v144];
-            v146 = (unsigned __int8)aAlwayssearch[v144++];
-            if ( !v143-- )
+            v142 = (unsigned __int8)src[v141];
+            v143 = (unsigned __int8)aAlwayssearch[v141++];
+            if ( !v140-- )
             {
 LABEL_393:
-              playlists[v508].flags |= 0x10u;
+              playlists[v505].flags |= 0x10u;
               goto LABEL_296;
             }
-            if ( v145 != v146 )
+            if ( v142 != v143 )
             {
-              v148 = v145 + 32;
-              if ( (unsigned int)(v145 - 65) > 0x19 )
-                v148 = v145;
-              v145 = v148;
-              v149 = v146 + 32;
-              if ( (unsigned int)(v146 - 65) > 0x19 )
-                v149 = v146;
-              if ( v145 != v149 )
+              v145 = v142 + 32;
+              if ( (unsigned int)(v142 - 65) > 0x19 )
+                v145 = v142;
+              v142 = v145;
+              v146 = v143 + 32;
+              if ( (unsigned int)(v143 - 65) > 0x19 )
+                v146 = v143;
+              if ( v142 != v146 )
                 break;
             }
-            if ( !v145 )
+            if ( !v142 )
               goto LABEL_393;
           }
-          v150 = 0x7FFFFFFFi64;
-          v151 = 0i64;
+          v147 = 0x7FFFFFFFi64;
+          v148 = 0i64;
           while ( 1 )
           {
-            v152 = (unsigned __int8)src[v151];
-            v153 = (unsigned __int8)aBotMatchmaking[v151++];
-            if ( !v150-- )
+            v149 = (unsigned __int8)src[v148];
+            v150 = (unsigned __int8)aBotMatchmaking[v148++];
+            if ( !v147-- )
             {
 LABEL_403:
-              playlists[v508].flags |= 0x20u;
+              playlists[v505].flags |= 0x20u;
               goto LABEL_296;
             }
-            if ( v152 != v153 )
+            if ( v149 != v150 )
             {
-              v155 = v152 + 32;
-              if ( (unsigned int)(v152 - 65) > 0x19 )
-                v155 = v152;
-              v152 = v155;
-              v156 = v153 + 32;
-              if ( (unsigned int)(v153 - 65) > 0x19 )
-                v156 = v153;
-              if ( v152 != v156 )
+              v152 = v149 + 32;
+              if ( (unsigned int)(v149 - 65) > 0x19 )
+                v152 = v149;
+              v149 = v152;
+              v153 = v150 + 32;
+              if ( (unsigned int)(v150 - 65) > 0x19 )
+                v153 = v150;
+              if ( v149 != v153 )
                 break;
             }
-            if ( !v152 )
+            if ( !v149 )
               goto LABEL_403;
           }
-          v157 = 0x7FFFFFFFi64;
-          v158 = 0i64;
+          v154 = 0x7FFFFFFFi64;
+          v155 = 0i64;
           while ( 1 )
           {
-            v159 = (unsigned __int8)src[v158];
-            v160 = (unsigned __int8)aHumansOnTeamAl[v158++];
-            if ( !v157-- )
+            v156 = (unsigned __int8)src[v155];
+            v157 = (unsigned __int8)aHumansOnTeamAl[v155++];
+            if ( !v154-- )
             {
 LABEL_413:
-              playlists[v508].flags |= 0x40u;
+              playlists[v505].flags |= 0x40u;
               goto LABEL_296;
             }
-            if ( v159 != v160 )
+            if ( v156 != v157 )
             {
-              v162 = v159 + 32;
-              if ( (unsigned int)(v159 - 65) > 0x19 )
-                v162 = v159;
-              v159 = v162;
-              v163 = v160 + 32;
-              if ( (unsigned int)(v160 - 65) > 0x19 )
-                v163 = v160;
-              if ( v159 != v163 )
+              v159 = v156 + 32;
+              if ( (unsigned int)(v156 - 65) > 0x19 )
+                v159 = v156;
+              v156 = v159;
+              v160 = v157 + 32;
+              if ( (unsigned int)(v157 - 65) > 0x19 )
+                v160 = v157;
+              if ( v156 != v160 )
                 break;
             }
-            if ( !v159 )
+            if ( !v156 )
               goto LABEL_413;
           }
-          v164 = 0x7FFFFFFFi64;
-          v165 = 0i64;
+          v161 = 0x7FFFFFFFi64;
+          v162 = 0i64;
           while ( 1 )
           {
-            v166 = (unsigned __int8)src[v165];
-            v167 = (unsigned __int8)aNoJoinViaPrese[v165++];
-            if ( !v164-- )
+            v163 = (unsigned __int8)src[v162];
+            v164 = (unsigned __int8)aNoJoinViaPrese[v162++];
+            if ( !v161-- )
             {
 LABEL_423:
-              playlists[v508].flags |= 0x80u;
+              playlists[v505].flags |= 0x80u;
               goto LABEL_296;
             }
-            if ( v166 != v167 )
+            if ( v163 != v164 )
             {
-              v169 = v166 + 32;
-              if ( (unsigned int)(v166 - 65) > 0x19 )
-                v169 = v166;
-              v166 = v169;
-              v170 = v167 + 32;
-              if ( (unsigned int)(v167 - 65) > 0x19 )
-                v170 = v167;
-              if ( v166 != v170 )
+              v166 = v163 + 32;
+              if ( (unsigned int)(v163 - 65) > 0x19 )
+                v166 = v163;
+              v163 = v166;
+              v167 = v164 + 32;
+              if ( (unsigned int)(v164 - 65) > 0x19 )
+                v167 = v164;
+              if ( v163 != v167 )
                 break;
             }
-            if ( !v166 )
+            if ( !v163 )
               goto LABEL_423;
           }
-          v171 = 0x7FFFFFFFi64;
-          v172 = 0i64;
+          v168 = 0x7FFFFFFFi64;
+          v169 = 0i64;
           while ( 1 )
           {
-            v173 = (unsigned __int8)src[v172];
-            v174 = (unsigned __int8)aAllowF2p[v172++];
-            if ( !v171-- )
+            v170 = (unsigned __int8)src[v169];
+            v171 = (unsigned __int8)aAllowF2p[v169++];
+            if ( !v168-- )
             {
 LABEL_433:
-              playlists[v508].flags |= 0x100u;
+              playlists[v505].flags |= 0x100u;
               goto LABEL_296;
             }
-            if ( v173 != v174 )
+            if ( v170 != v171 )
             {
-              v176 = v173 + 32;
-              if ( (unsigned int)(v173 - 65) > 0x19 )
-                v176 = v173;
-              v173 = v176;
-              v177 = v174 + 32;
-              if ( (unsigned int)(v174 - 65) > 0x19 )
-                v177 = v174;
-              if ( v173 != v177 )
+              v173 = v170 + 32;
+              if ( (unsigned int)(v170 - 65) > 0x19 )
+                v173 = v170;
+              v170 = v173;
+              v174 = v171 + 32;
+              if ( (unsigned int)(v171 - 65) > 0x19 )
+                v174 = v171;
+              if ( v170 != v174 )
                 break;
             }
-            if ( !v173 )
+            if ( !v170 )
               goto LABEL_433;
           }
-          v178 = 0x7FFFFFFFi64;
-          v179 = 0i64;
+          v175 = 0x7FFFFFFFi64;
+          v176 = 0i64;
           while ( 1 )
           {
-            v180 = (unsigned __int8)src[v179];
-            v181 = (unsigned __int8)aSplitscreenRes[v179++];
-            if ( !v178-- )
+            v177 = (unsigned __int8)src[v176];
+            v178 = (unsigned __int8)aSplitscreenRes[v176++];
+            if ( !v175-- )
             {
 LABEL_443:
-              playlists[v508].flags |= 0x200u;
+              playlists[v505].flags |= 0x200u;
               goto LABEL_296;
             }
-            if ( v180 != v181 )
+            if ( v177 != v178 )
             {
-              v183 = v180 + 32;
-              if ( (unsigned int)(v180 - 65) > 0x19 )
-                v183 = v180;
-              v180 = v183;
-              v184 = v181 + 32;
-              if ( (unsigned int)(v181 - 65) > 0x19 )
-                v184 = v181;
-              if ( v180 != v184 )
+              v180 = v177 + 32;
+              if ( (unsigned int)(v177 - 65) > 0x19 )
+                v180 = v177;
+              v177 = v180;
+              v181 = v178 + 32;
+              if ( (unsigned int)(v178 - 65) > 0x19 )
+                v181 = v178;
+              if ( v177 != v181 )
                 break;
             }
-            if ( !v180 )
+            if ( !v177 )
               goto LABEL_443;
           }
-          v185 = 0x7FFFFFFFi64;
-          v186 = 0i64;
+          v182 = 0x7FFFFFFFi64;
+          v183 = 0i64;
           while ( 1 )
           {
-            v187 = (unsigned __int8)src[v186];
-            v188 = (unsigned __int8)aBrPlunderPostT[v186++];
-            if ( !v185-- )
+            v184 = (unsigned __int8)src[v183];
+            v185 = (unsigned __int8)aBrPlunderPostT[v183++];
+            if ( !v182-- )
             {
 LABEL_453:
-              playlists[v508].flags |= 0x400u;
+              playlists[v505].flags |= 0x400u;
               goto LABEL_296;
             }
-            if ( v187 != v188 )
+            if ( v184 != v185 )
             {
-              v190 = v187 + 32;
-              if ( (unsigned int)(v187 - 65) > 0x19 )
-                v190 = v187;
-              v187 = v190;
-              v191 = v188 + 32;
-              if ( (unsigned int)(v188 - 65) > 0x19 )
-                v191 = v188;
-              if ( v187 != v191 )
+              v187 = v184 + 32;
+              if ( (unsigned int)(v184 - 65) > 0x19 )
+                v187 = v184;
+              v184 = v187;
+              v188 = v185 + 32;
+              if ( (unsigned int)(v185 - 65) > 0x19 )
+                v188 = v185;
+              if ( v184 != v188 )
                 break;
             }
-            if ( !v187 )
+            if ( !v184 )
               goto LABEL_453;
           }
-          v192 = 0x7FFFFFFFi64;
-          v193 = 0i64;
+          v189 = 0x7FFFFFFFi64;
+          v190 = 0i64;
           while ( 1 )
           {
-            v194 = (unsigned __int8)src[v193];
-            v195 = (unsigned __int8)aDmzPostTutoria[v193++];
-            if ( !v192-- )
+            v191 = (unsigned __int8)src[v190];
+            v192 = (unsigned __int8)aDmzPostTutoria[v190++];
+            if ( !v189-- )
             {
 LABEL_463:
-              playlists[v508].flags |= 0x800u;
+              playlists[v505].flags |= 0x800u;
               goto LABEL_296;
             }
-            if ( v194 != v195 )
+            if ( v191 != v192 )
             {
-              v197 = v194 + 32;
-              if ( (unsigned int)(v194 - 65) > 0x19 )
-                v197 = v194;
-              v194 = v197;
-              v198 = v195 + 32;
-              if ( (unsigned int)(v195 - 65) > 0x19 )
-                v198 = v195;
-              if ( v194 != v198 )
+              v194 = v191 + 32;
+              if ( (unsigned int)(v191 - 65) > 0x19 )
+                v194 = v191;
+              v191 = v194;
+              v195 = v192 + 32;
+              if ( (unsigned int)(v192 - 65) > 0x19 )
+                v195 = v192;
+              if ( v191 != v195 )
                 break;
             }
-            if ( !v194 )
+            if ( !v191 )
               goto LABEL_463;
           }
-          v199 = 0x7FFFFFFFi64;
-          v200 = 0i64;
+          v196 = 0x7FFFFFFFi64;
+          v197 = 0i64;
           while ( 1 )
           {
-            v201 = (unsigned __int8)src[v200];
-            v202 = (unsigned __int8)aSurvivalPlayli[v200++];
-            if ( !v199-- )
+            v198 = (unsigned __int8)src[v197];
+            v199 = (unsigned __int8)aSurvivalPlayli[v197++];
+            if ( !v196-- )
             {
 LABEL_473:
-              playlists[v508].flags |= 0x1000u;
+              playlists[v505].flags |= 0x1000u;
               goto LABEL_296;
             }
-            if ( v201 != v202 )
+            if ( v198 != v199 )
             {
-              v204 = v201 + 32;
-              if ( (unsigned int)(v201 - 65) > 0x19 )
-                v204 = v201;
-              v201 = v204;
-              v205 = v202 + 32;
-              if ( (unsigned int)(v202 - 65) > 0x19 )
-                v205 = v202;
-              if ( v201 != v205 )
+              v201 = v198 + 32;
+              if ( (unsigned int)(v198 - 65) > 0x19 )
+                v201 = v198;
+              v198 = v201;
+              v202 = v199 + 32;
+              if ( (unsigned int)(v199 - 65) > 0x19 )
+                v202 = v199;
+              if ( v198 != v202 )
                 break;
             }
-            if ( !v201 )
+            if ( !v198 )
               goto LABEL_473;
           }
-          v206 = 0x7FFFFFFFi64;
-          v207 = 0i64;
+          v203 = 0x7FFFFFFFi64;
+          v204 = 0i64;
           while ( 1 )
           {
-            v208 = (unsigned __int8)src[v207];
-            v209 = (unsigned __int8)aLimitedTime[v207++];
-            if ( !v206-- )
+            v205 = (unsigned __int8)src[v204];
+            v206 = (unsigned __int8)aLimitedTime[v204++];
+            if ( !v203-- )
             {
 LABEL_483:
-              playlists[v508].flags |= 0x2000u;
+              playlists[v505].flags |= 0x2000u;
               goto LABEL_296;
             }
-            if ( v208 != v209 )
+            if ( v205 != v206 )
             {
-              v211 = v208 + 32;
-              if ( (unsigned int)(v208 - 65) > 0x19 )
-                v211 = v208;
-              v208 = v211;
-              v212 = v209 + 32;
-              if ( (unsigned int)(v209 - 65) > 0x19 )
-                v212 = v209;
-              if ( v208 != v212 )
+              v208 = v205 + 32;
+              if ( (unsigned int)(v205 - 65) > 0x19 )
+                v208 = v205;
+              v205 = v208;
+              v209 = v206 + 32;
+              if ( (unsigned int)(v206 - 65) > 0x19 )
+                v209 = v206;
+              if ( v205 != v209 )
                 break;
             }
-            if ( !v208 )
+            if ( !v205 )
               goto LABEL_483;
           }
-          v213 = 0x7FFFFFFFi64;
-          v214 = 0i64;
+          v210 = 0x7FFFFFFFi64;
+          v211 = 0i64;
           do
           {
-            v215 = (unsigned __int8)src[v214];
-            v216 = (unsigned __int8)aPulse[v214++];
-            if ( !v213-- )
+            v212 = (unsigned __int8)src[v211];
+            v213 = (unsigned __int8)aPulse[v211++];
+            if ( !v210-- )
               break;
-            if ( v215 != v216 )
+            if ( v212 != v213 )
             {
-              v218 = v215 + 32;
-              if ( (unsigned int)(v215 - 65) > 0x19 )
-                v218 = v215;
-              v215 = v218;
-              v219 = v216 + 32;
-              if ( (unsigned int)(v216 - 65) > 0x19 )
-                v219 = v216;
-              if ( v215 != v219 )
+              v215 = v212 + 32;
+              if ( (unsigned int)(v212 - 65) > 0x19 )
+                v215 = v212;
+              v212 = v215;
+              v216 = v213 + 32;
+              if ( (unsigned int)(v213 - 65) > 0x19 )
+                v216 = v213;
+              if ( v212 != v216 )
                 goto LABEL_296;
             }
           }
-          while ( v215 );
-          playlists[v508].flags |= 0x4000u;
+          while ( v212 );
+          playlists[v505].flags |= 0x4000u;
 LABEL_296:
-          bdJSONDeserializer::~bdJSONDeserializer(&v512);
+          bdJSONDeserializer::~bdJSONDeserializer(&v509);
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v523);
+        bdJSONDeserializer::~bdJSONDeserializer(&v520);
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "partners") )
+      if ( bdJSONDeserializer::hasKey(&v506, "partners") )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v523);
-        bdJSONDeserializer::getArray(&v509, "partners", &v523);
-        v103 = 0;
-        if ( v523.m_count )
+        bdJSONDeserializer::bdJSONDeserializer(&v520);
+        bdJSONDeserializer::getArray(&v506, "partners", &v520);
+        v100 = 0;
+        if ( v520.m_count )
         {
           do
           {
-            if ( v103 >= 8 )
+            if ( v100 >= 8 )
               break;
-            bdJSONDeserializer::bdJSONDeserializer(&v512);
-            bdJSONDeserializer::getElementByIndex(&v523, v103, &v512);
-            bdJSONDeserializer::getUByte8(&v512, &playlists[v508].partners[v103]);
-            bdJSONDeserializer::~bdJSONDeserializer(&v512);
-            ++v103;
+            bdJSONDeserializer::bdJSONDeserializer(&v509);
+            bdJSONDeserializer::getElementByIndex(&v520, v100, &v509);
+            bdJSONDeserializer::getUByte8(&v509, &playlists[v505].partners[v100]);
+            bdJSONDeserializer::~bdJSONDeserializer(&v509);
+            ++v100;
           }
-          while ( v103 < v523.m_count );
+          while ( v100 < v520.m_count );
           v53 = playlists;
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v523);
+        bdJSONDeserializer::~bdJSONDeserializer(&v520);
       }
-      if ( bdJSONDeserializer::hasKey(&v509, "maxparty") )
-        bdJSONDeserializer::getUByte8(&v509, "maxparty", &playlists[v508].maxPartySize);
-      if ( bdJSONDeserializer::hasKey(&v509, "minparty") )
-        bdJSONDeserializer::getUByte8(&v509, "minparty", &playlists[v508].minPartySize);
-      if ( bdJSONDeserializer::hasKey(&v509, "maxhumanplayers") )
-        bdJSONDeserializer::getUByte8(&v509, "maxhumanplayers", &playlists[v508].maxHumanPlayers);
-      if ( bdJSONDeserializer::hasKey(&v509, "numrounds") )
-        bdJSONDeserializer::getUInt32(&v509, "numrounds", &playlists[v508].numRounds);
-      if ( bdJSONDeserializer::hasKey(&v509, "score_limit") )
-        bdJSONDeserializer::getUInt32(&v509, "score_limit", &playlists[v508].score_limit);
-      if ( bdJSONDeserializer::hasKey(&v509, "time_limit") )
-        bdJSONDeserializer::getUInt32(&v509, "time_limit", &playlists[v508].time_limit);
-      if ( bdJSONDeserializer::hasKey(&v509, "user_generated") )
-        playlists[v508].user_generated = 1;
-      if ( bdJSONDeserializer::hasKey(&v509, "showonlywhenhavemaps") )
-        playlists[v508].show_only_when_have_maps = 1;
-      if ( bdJSONDeserializer::hasKey(&v509, "showonlywhenhaveentitlement") )
-        bdJSONDeserializer::getByte8(&v509, "showonlywhenhaveentitlement", &playlists[v508].show_only_when_have_entitlement);
-      if ( bdJSONDeserializer::hasKey(&v509, "bots_reserved_slots_axis") )
-        bdJSONDeserializer::getUByte8(&v509, "bots_reserved_slots_axis", &playlists[v508].botMMReserveSlotsAxis);
-      if ( bdJSONDeserializer::hasKey(&v509, "bots_reserved_slots_allies") )
-        bdJSONDeserializer::getUByte8(&v509, "bots_reserved_slots_allies", &playlists[v508].botMMReserveSlotsAllies);
-      if ( bdJSONDeserializer::hasKey(&v509, "is_new") )
-        playlists[v508].is_new = 1;
-      if ( bdJSONDeserializer::hasKey(&v509, "type") )
+      if ( bdJSONDeserializer::hasKey(&v506, "maxparty") )
+        bdJSONDeserializer::getUByte8(&v506, "maxparty", &playlists[v505].maxPartySize);
+      if ( bdJSONDeserializer::hasKey(&v506, "minparty") )
+        bdJSONDeserializer::getUByte8(&v506, "minparty", &playlists[v505].minPartySize);
+      if ( bdJSONDeserializer::hasKey(&v506, "maxhumanplayers") )
+        bdJSONDeserializer::getUByte8(&v506, "maxhumanplayers", &playlists[v505].maxHumanPlayers);
+      if ( bdJSONDeserializer::hasKey(&v506, "numrounds") )
+        bdJSONDeserializer::getUInt32(&v506, "numrounds", &playlists[v505].numRounds);
+      if ( bdJSONDeserializer::hasKey(&v506, "score_limit") )
+        bdJSONDeserializer::getUInt32(&v506, "score_limit", &playlists[v505].score_limit);
+      if ( bdJSONDeserializer::hasKey(&v506, "time_limit") )
+        bdJSONDeserializer::getUInt32(&v506, "time_limit", &playlists[v505].time_limit);
+      if ( bdJSONDeserializer::hasKey(&v506, "user_generated") )
+        playlists[v505].user_generated = 1;
+      if ( bdJSONDeserializer::hasKey(&v506, "showonlywhenhavemaps") )
+        playlists[v505].show_only_when_have_maps = 1;
+      if ( bdJSONDeserializer::hasKey(&v506, "showonlywhenhaveentitlement") )
+        bdJSONDeserializer::getByte8(&v506, "showonlywhenhaveentitlement", &playlists[v505].show_only_when_have_entitlement);
+      if ( bdJSONDeserializer::hasKey(&v506, "bots_reserved_slots_axis") )
+        bdJSONDeserializer::getUByte8(&v506, "bots_reserved_slots_axis", &playlists[v505].botMMReserveSlotsAxis);
+      if ( bdJSONDeserializer::hasKey(&v506, "bots_reserved_slots_allies") )
+        bdJSONDeserializer::getUByte8(&v506, "bots_reserved_slots_allies", &playlists[v505].botMMReserveSlotsAllies);
+      if ( bdJSONDeserializer::hasKey(&v506, "is_new") )
+        playlists[v505].is_new = 1;
+      if ( bdJSONDeserializer::hasKey(&v506, "type") )
       {
-        bdJSONDeserializer::getString(&v509, "type", v524, 8u);
-        v104 = 0x7FFFFFFFi64;
-        v105 = 0i64;
+        bdJSONDeserializer::getString(&v506, "type", v521, 8u);
+        v101 = 0x7FFFFFFFi64;
+        v102 = 0i64;
         while ( 1 )
         {
-          v106 = v524[v105];
-          v107 = aMp_2[v105++];
-          if ( !v104-- )
+          v103 = v521[v102];
+          v104 = aMp_2[v102++];
+          if ( !v101-- )
           {
 LABEL_333:
-            playlists[v508].gamemodeType = PLAYLIST_GAMEMODE_TYPE_MP;
+            playlists[v505].gamemodeType = PLAYLIST_GAMEMODE_TYPE_MP;
             goto LABEL_334;
           }
-          if ( v106 != v107 )
+          if ( v103 != v104 )
             break;
-          if ( !v106 )
+          if ( !v103 )
             goto LABEL_333;
         }
-        v220 = 0x7FFFFFFFi64;
-        v221 = 0i64;
+        v217 = 0x7FFFFFFFi64;
+        v218 = 0i64;
         while ( 1 )
         {
-          v222 = v524[v221];
-          v223 = aCp_3[v221++];
-          if ( !v220-- )
+          v219 = v521[v218];
+          v220 = aCp_3[v218++];
+          if ( !v217-- )
           {
 LABEL_498:
-            playlists[v508].gamemodeType = PLAYLIST_GAMEMODE_TYPE_CP;
+            playlists[v505].gamemodeType = PLAYLIST_GAMEMODE_TYPE_CP;
             goto LABEL_334;
           }
-          if ( v222 != v223 )
+          if ( v219 != v220 )
             break;
-          if ( !v222 )
+          if ( !v219 )
             goto LABEL_498;
         }
-        Com_PrintError(25, "Unknown playlist game mode type %s.\n", v524);
+        Com_PrintError(25, "Unknown playlist game mode type %s.\n", v521);
       }
 LABEL_334:
-      if ( bdJSONDeserializer::hasKey(&v509, "maps") )
+      if ( bdJSONDeserializer::hasKey(&v506, "maps") )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v512);
-        bdJSONDeserializer::getArray(&v509, "maps", &v512);
-        for ( mm = 0; mm < v512.m_count; v2 = 0 )
+        bdJSONDeserializer::bdJSONDeserializer(&v509);
+        bdJSONDeserializer::getArray(&v506, "maps", &v509);
+        for ( mm = 0; mm < v509.m_count; v2 = 0 )
         {
-          bdJSONDeserializer::bdJSONDeserializer(&v523);
-          bdJSONDeserializer::getObject(&v512, mm, &v523);
-          bdJSONDeserializer::getString(&v523, "map", src, 0x40u);
-          bdJSONDeserializer::getString(&v523, "gametype", v526, 0x40u);
-          bdJSONDeserializer::getInt32(&v523, "weight", v518);
-          v110 = s_playlistEntryCount;
+          bdJSONDeserializer::bdJSONDeserializer(&v520);
+          bdJSONDeserializer::getObject(&v509, mm, &v520);
+          bdJSONDeserializer::getString(&v520, "map", src, 0x40u);
+          bdJSONDeserializer::getString(&v520, "gametype", v523, 0x40u);
+          bdJSONDeserializer::getInt32(&v520, "weight", v515);
+          v107 = s_playlistEntryCount;
           if ( s_playlistEntryCount >= 0x800u )
           {
-            LODWORD(v505) = 2048;
-            LODWORD(v504) = s_playlistEntryCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 1120, ASSERT_TYPE_ASSERT, "(unsigned)( s_playlistEntryCount ) < (unsigned)( 2048 )", "s_playlistEntryCount doesn't index MAX_PLAYLIST_ENTRIES\n\t%i not in [0, %i)", v504, v505) )
+            LODWORD(v502) = 2048;
+            LODWORD(v501) = s_playlistEntryCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 1120, ASSERT_TYPE_ASSERT, "(unsigned)( s_playlistEntryCount ) < (unsigned)( 2048 )", "s_playlistEntryCount doesn't index MAX_PLAYLIST_ENTRIES\n\t%i not in [0, %i)", v501, v502) )
               __debugbreak();
-            v110 = s_playlistEntryCount;
+            v107 = s_playlistEntryCount;
           }
-          v111 = v110;
-          v112 = 0;
+          v108 = v107;
+          v109 = 0;
           if ( maps.numEntries )
           {
 LABEL_341:
-            v113 = maps.name[v112];
-            v114 = 0x7FFFFFFFi64;
-            v115 = src;
-            if ( !v113 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v110 = maps.name[v109];
+            v111 = 0x7FFFFFFFi64;
+            v112 = src;
+            if ( !v110 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v116 = v113 - src;
+            v113 = v110 - src;
             do
             {
-              v117 = (unsigned __int8)v115[v116];
-              v118 = (unsigned __int8)*v115++;
-              if ( !v114-- )
+              v114 = (unsigned __int8)v112[v113];
+              v115 = (unsigned __int8)*v112++;
+              if ( !v111-- )
                 break;
-              if ( v117 != v118 )
+              if ( v114 != v115 )
               {
-                v120 = v117 + 32;
-                if ( (unsigned int)(v117 - 65) > 0x19 )
-                  v120 = v117;
-                v117 = v120;
-                v121 = v118 + 32;
-                if ( (unsigned int)(v118 - 65) > 0x19 )
-                  v121 = v118;
-                if ( v117 != v121 )
+                v117 = v114 + 32;
+                if ( (unsigned int)(v114 - 65) > 0x19 )
+                  v117 = v114;
+                v114 = v117;
+                v118 = v115 + 32;
+                if ( (unsigned int)(v115 - 65) > 0x19 )
+                  v118 = v115;
+                if ( v114 != v118 )
                 {
-                  if ( ++v112 < (unsigned int)maps.numEntries )
+                  if ( ++v109 < (unsigned int)maps.numEntries )
                     goto LABEL_341;
                   goto LABEL_501;
                 }
               }
             }
-            while ( v117 );
+            while ( v114 );
           }
           else
           {
 LABEL_501:
-            v112 = 255;
+            v109 = 255;
           }
-          if ( v112 == 255 )
+          if ( v109 == 255 )
           {
             Core_strcpy(&dest[24 * maps.numEntries], 0x18ui64, src);
             maps.name[maps.numEntries] = &dest[24 * maps.numEntries];
-            LOBYTE(v112) = maps.numEntries++;
+            LOBYTE(v109) = maps.numEntries++;
           }
-          s_playlistEntries[v111].mapindex = v112;
-          v225 = 0;
+          s_playlistEntries[v108].mapindex = v109;
+          v222 = 0;
           if ( numGametypes + 1 <= 0 )
           {
 LABEL_518:
-            Com_PrintError(16, "Unknown gametype name '%s'\n", v526);
-            LOBYTE(v225) = 64;
+            Com_PrintError(16, "Unknown gametype name '%s'\n", v523);
+            LOBYTE(v222) = 64;
           }
           else
           {
 LABEL_505:
-            v226 = 0x7FFFFFFFi64;
-            v227 = v526;
-            v228 = v225;
-            if ( &gametypes[v228] == (playlistGametype *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v223 = 0x7FFFFFFFi64;
+            v224 = v523;
+            v225 = v222;
+            if ( &gametypes[v225] == (playlistGametype *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
             do
             {
-              v229 = (unsigned __int8)gametypes[0].internalName[v228 * 136 - (_QWORD)v526 + (_QWORD)v227];
-              v230 = (unsigned __int8)*v227++;
-              if ( !v226-- )
+              v226 = (unsigned __int8)gametypes[0].internalName[v225 * 136 - (_QWORD)v523 + (_QWORD)v224];
+              v227 = (unsigned __int8)*v224++;
+              if ( !v223-- )
                 break;
-              if ( v229 != v230 )
+              if ( v226 != v227 )
               {
-                v232 = v229 + 32;
-                if ( (unsigned int)(v229 - 65) > 0x19 )
-                  v232 = v229;
-                v229 = v232;
-                v233 = v230 + 32;
-                if ( (unsigned int)(v230 - 65) > 0x19 )
-                  v233 = v230;
-                if ( v229 != v233 )
+                v229 = v226 + 32;
+                if ( (unsigned int)(v226 - 65) > 0x19 )
+                  v229 = v226;
+                v226 = v229;
+                v230 = v227 + 32;
+                if ( (unsigned int)(v227 - 65) > 0x19 )
+                  v230 = v227;
+                if ( v226 != v230 )
                 {
-                  if ( ++v225 < numGametypes + 1 )
+                  if ( ++v222 < numGametypes + 1 )
                     goto LABEL_505;
                   goto LABEL_518;
                 }
               }
             }
-            while ( v229 );
+            while ( v226 );
           }
-          s_playlistEntries[v111].gametype = v225;
-          s_playlistEntries[v111].fullWeight = v518[0];
-          v234 = v508;
-          if ( playlists[v234].numEntries )
+          s_playlistEntries[v108].gametype = v222;
+          s_playlistEntries[v108].fullWeight = v515[0];
+          v231 = v505;
+          if ( playlists[v231].numEntries )
           {
-            v236 = s_playlistEntryCount;
+            v233 = s_playlistEntryCount;
           }
           else
           {
-            firstEntry = playlists[v234].firstEntry;
+            firstEntry = playlists[v231].firstEntry;
             if ( firstEntry )
             {
-              LODWORD(v504) = firstEntry;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 1140, ASSERT_TYPE_ASSERT, "( ( playlists[playlistNum].firstEntry == 0 ) )", "( playlists[playlistNum].firstEntry ) = %i", v504) )
+              LODWORD(v501) = firstEntry;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 1140, ASSERT_TYPE_ASSERT, "( ( playlists[playlistNum].firstEntry == 0 ) )", "( playlists[playlistNum].firstEntry ) = %i", v501) )
                 __debugbreak();
             }
-            v234 = v508;
-            v236 = s_playlistEntryCount;
-            playlists[v234].firstEntry = s_playlistEntryCount;
+            v231 = v505;
+            v233 = s_playlistEntryCount;
+            playlists[v231].firstEntry = s_playlistEntryCount;
           }
-          s_playlistEntryCount = v236 + 1;
-          ++playlists[v234].numEntries;
-          bdJSONDeserializer::~bdJSONDeserializer(&v523);
+          s_playlistEntryCount = v233 + 1;
+          ++playlists[v231].numEntries;
+          bdJSONDeserializer::~bdJSONDeserializer(&v520);
           ++mm;
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v512);
+        bdJSONDeserializer::~bdJSONDeserializer(&v509);
       }
       if ( playist_initialParse )
       {
-        v237 = v508;
-        if ( playlists[v237].previousNumEntries )
+        v234 = v505;
+        if ( playlists[v234].previousNumEntries )
         {
-          if ( !playlists[v237].numEntries )
-            playlists[v237].crc32Changed = 1;
+          if ( !playlists[v234].numEntries )
+            playlists[v234].crc32Changed = 1;
         }
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v509);
-      v55 = v514 + 1;
+      bdJSONDeserializer::~bdJSONDeserializer(&v506);
+      v55 = v511 + 1;
     }
-    if ( bdJSONDeserializer::getArray(&v521, "categories", &value) )
+    if ( bdJSONDeserializer::getArray(&v518, "categories", &value) )
     {
       memset_0(categories, 0, sizeof(categories));
-      v238 = 0;
-      for ( LODWORD(v514) = 0; v238 < value.m_count; LODWORD(v514) = v238 )
+      v235 = 0;
+      for ( LODWORD(v511) = 0; v235 < value.m_count; LODWORD(v511) = v235 )
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v509);
-        bdJSONDeserializer::getElementByIndex(&value, v238, &v509);
-        bdJSONDeserializer::getString(&v509, "category", &_Buffer, 0x400u);
-        v239 = 0x7FFFFFFFi64;
-        v240 = 0i64;
+        bdJSONDeserializer::bdJSONDeserializer(&v506);
+        bdJSONDeserializer::getElementByIndex(&value, v235, &v506);
+        bdJSONDeserializer::getString(&v506, "category", &_Buffer, 0x400u);
+        v236 = 0x7FFFFFFFi64;
+        v237 = 0i64;
         while ( 1 )
         {
-          v241 = Src[v240 - 1];
-          v242 = aTop_0[v240++];
-          if ( !v239-- )
+          v238 = Src[v237 - 1];
+          v239 = aTop_0[v237++];
+          if ( !v236-- )
           {
 LABEL_538:
-            v244 = 0;
-            v513 = 0;
+            v241 = 0;
+            v510 = 0;
             goto LABEL_544;
           }
-          if ( v241 != v242 )
+          if ( v238 != v239 )
             break;
-          if ( !v241 )
+          if ( !v238 )
             goto LABEL_538;
         }
-        v245 = -1i64;
+        v242 = -1i64;
         do
-          ++v245;
-        while ( Src[v245 - 1] );
-        if ( (_DWORD)v245 == 1 )
+          ++v242;
+        while ( Src[v242 - 1] );
+        if ( (_DWORD)v242 == 1 )
         {
-          v244 = _Buffer - 64;
-          v513 = v244;
+          v241 = _Buffer - 64;
+          v510 = v241;
         }
         else
         {
-          v244 = v513;
+          v241 = v510;
         }
 LABEL_544:
-        v246 = v244;
-        v247 = v244;
-        image = categories[v247].image;
+        v243 = v241;
+        v244 = v241;
+        image = categories[v244].image;
         *image = 0;
-        categories[v247].numEntries = 0;
-        p_requiredDLCMask = &categories[v247].requiredDLCMask;
+        categories[v244].numEntries = 0;
+        p_requiredDLCMask = &categories[v244].requiredDLCMask;
         *p_requiredDLCMask = 0;
-        categories[v247].categoryLabel = 0;
-        categories[v247].categoryClass = 2;
-        *(_WORD *)&categories[v247].override = 0;
-        categories[v247].overrideDvarValue[0] = 0;
-        categories[v247].flags = 0;
-        categories[v247].start_utc = 0;
-        categories[v247].end_utc = 0;
-        categories[v247].crc32 = 0;
-        categories[v247].rules = (char *)PlaylistStringBuffer_GetTail();
-        if ( bdJSONDeserializer::hasKey(&v509, "xb3_crc32") )
-          bdJSONDeserializer::getUInt32(&v509, "xb3_crc32", &categories[v247].crc32);
-        if ( bdJSONDeserializer::hasKey(&v509, "category") )
+        categories[v244].categoryLabel = 0;
+        categories[v244].categoryClass = 2;
+        *(_WORD *)&categories[v244].override = 0;
+        categories[v244].overrideDvarValue[0] = 0;
+        categories[v244].flags = 0;
+        categories[v244].start_utc = 0;
+        categories[v244].end_utc = 0;
+        categories[v244].crc32 = 0;
+        categories[v244].rules = (char *)PlaylistStringBuffer_GetTail();
+        if ( bdJSONDeserializer::hasKey(&v506, "xb3_crc32") )
+          bdJSONDeserializer::getUInt32(&v506, "xb3_crc32", &categories[v244].crc32);
+        if ( bdJSONDeserializer::hasKey(&v506, "category") )
         {
-          bdJSONDeserializer::getString(&v509, "category", &_Buffer, 0x400u);
-          v250 = 0x7FFFFFFFi64;
-          v251 = 0i64;
+          bdJSONDeserializer::getString(&v506, "category", &_Buffer, 0x400u);
+          v247 = 0x7FFFFFFFi64;
+          v248 = 0i64;
           while ( 1 )
           {
-            v252 = (unsigned __int8)Src[v251 - 1];
-            v253 = (unsigned __int8)aTop_0[v251++];
-            if ( !v250-- )
+            v249 = (unsigned __int8)Src[v248 - 1];
+            v250 = (unsigned __int8)aTop_0[v248++];
+            if ( !v247-- )
             {
 LABEL_556:
-              categories[v247].categoryLabel = -1;
+              categories[v244].categoryLabel = -1;
               goto LABEL_558;
             }
-            if ( v252 != v253 )
+            if ( v249 != v250 )
             {
-              v255 = v252 + 32;
-              if ( (unsigned int)(v252 - 65) > 0x19 )
-                v255 = v252;
-              v252 = v255;
-              v256 = v253 + 32;
-              if ( (unsigned int)(v253 - 65) > 0x19 )
-                v256 = v253;
-              if ( v252 != v256 )
+              v252 = v249 + 32;
+              if ( (unsigned int)(v249 - 65) > 0x19 )
+                v252 = v249;
+              v249 = v252;
+              v253 = v250 + 32;
+              if ( (unsigned int)(v250 - 65) > 0x19 )
+                v253 = v250;
+              if ( v249 != v253 )
                 break;
             }
-            if ( !v252 )
+            if ( !v249 )
               goto LABEL_556;
           }
-          categories[v247].categoryLabel = _Buffer - 65;
+          categories[v244].categoryLabel = _Buffer - 65;
         }
 LABEL_558:
-        if ( bdJSONDeserializer::hasKey(&v509, "categoryclass") )
+        if ( bdJSONDeserializer::hasKey(&v506, "categoryclass") )
         {
-          bdJSONDeserializer::getString(&v509, "categoryclass", &_Buffer, 0x400u);
-          v257 = atoi(&_Buffer);
-          if ( v257 )
+          bdJSONDeserializer::getString(&v506, "categoryclass", &_Buffer, 0x400u);
+          v254 = atoi(&_Buffer);
+          if ( v254 )
           {
 LABEL_570:
-            categories[v247].categoryClass = v257;
+            categories[v244].categoryClass = v254;
           }
           else
           {
-            v258 = 0x7FFFFFFFi64;
-            v259 = 0i64;
+            v255 = 0x7FFFFFFFi64;
+            v256 = 0i64;
             while ( 1 )
             {
-              v260 = (unsigned __int8)Src[v259 - 1];
-              v261 = (unsigned __int8)serv[v259++];
-              if ( !v258-- )
+              v257 = (unsigned __int8)Src[v256 - 1];
+              v258 = (unsigned __int8)serv[v256++];
+              if ( !v255-- )
               {
 LABEL_569:
-                v257 = atoi(&_Buffer);
+                v254 = atoi(&_Buffer);
                 goto LABEL_570;
               }
-              if ( v260 != v261 )
+              if ( v257 != v258 )
               {
-                v263 = v260 + 32;
-                if ( (unsigned int)(v260 - 65) > 0x19 )
-                  v263 = v260;
-                v260 = v263;
-                v264 = v261 + 32;
-                if ( (unsigned int)(v261 - 65) > 0x19 )
-                  v264 = v261;
-                if ( v260 != v264 )
+                v260 = v257 + 32;
+                if ( (unsigned int)(v257 - 65) > 0x19 )
+                  v260 = v257;
+                v257 = v260;
+                v261 = v258 + 32;
+                if ( (unsigned int)(v258 - 65) > 0x19 )
+                  v261 = v258;
+                if ( v257 != v261 )
                   break;
               }
-              if ( !v260 )
+              if ( !v257 )
                 goto LABEL_569;
             }
-            v266 = 0x7FFFFFFFi64;
-            v267 = 0i64;
+            v263 = 0x7FFFFFFFi64;
+            v264 = 0i64;
             do
             {
-              v268 = (unsigned __int8)Src[v267 - 1];
-              v269 = (unsigned __int8)aNone_9[v267++];
-              if ( !v266-- )
+              v265 = (unsigned __int8)Src[v264 - 1];
+              v266 = (unsigned __int8)aNone_9[v264++];
+              if ( !v263-- )
                 break;
-              if ( v268 != v269 )
+              if ( v265 != v266 )
               {
-                v271 = v268 + 32;
-                if ( (unsigned int)(v268 - 65) > 0x19 )
-                  v271 = v268;
-                v268 = v271;
-                v272 = v269 + 32;
-                if ( (unsigned int)(v269 - 65) > 0x19 )
-                  v272 = v269;
-                if ( v268 != v272 )
+                v268 = v265 + 32;
+                if ( (unsigned int)(v265 - 65) > 0x19 )
+                  v268 = v265;
+                v265 = v268;
+                v269 = v266 + 32;
+                if ( (unsigned int)(v266 - 65) > 0x19 )
+                  v269 = v266;
+                if ( v265 != v269 )
                 {
-                  v273 = 0x7FFFFFFFi64;
-                  v274 = 0i64;
+                  v270 = 0x7FFFFFFFi64;
+                  v271 = 0i64;
                   while ( 1 )
                   {
-                    v275 = (unsigned __int8)Src[v274 - 1];
-                    v276 = (unsigned __int8)aOff_1[v274++];
-                    if ( !v273-- )
+                    v272 = (unsigned __int8)Src[v271 - 1];
+                    v273 = (unsigned __int8)aOff_1[v271++];
+                    if ( !v270-- )
                       goto LABEL_583;
-                    if ( v275 != v276 )
+                    if ( v272 != v273 )
                     {
-                      v278 = v275 + 32;
-                      if ( (unsigned int)(v275 - 65) > 0x19 )
-                        v278 = v275;
-                      v275 = v278;
-                      v279 = v276 + 32;
-                      if ( (unsigned int)(v276 - 65) > 0x19 )
-                        v279 = v276;
-                      if ( v275 != v279 )
+                      v275 = v272 + 32;
+                      if ( (unsigned int)(v272 - 65) > 0x19 )
+                        v275 = v272;
+                      v272 = v275;
+                      v276 = v273 + 32;
+                      if ( (unsigned int)(v273 - 65) > 0x19 )
+                        v276 = v273;
+                      if ( v272 != v276 )
                       {
-                        v280 = 0x7FFFFFFFi64;
-                        v281 = 0i64;
+                        v277 = 0x7FFFFFFFi64;
+                        v278 = 0i64;
                         do
                         {
-                          v282 = (unsigned __int8)Src[v281 - 1];
-                          v283 = (unsigned __int8)aDefault_3[v281++];
-                          if ( !v280-- )
+                          v279 = (unsigned __int8)Src[v278 - 1];
+                          v280 = (unsigned __int8)aDefault_3[v278++];
+                          if ( !v277-- )
                             break;
-                          if ( v282 != v283 )
+                          if ( v279 != v280 )
                           {
-                            v285 = v282 + 32;
-                            if ( (unsigned int)(v282 - 65) > 0x19 )
-                              v285 = v282;
-                            v282 = v285;
-                            v286 = v283 + 32;
-                            if ( (unsigned int)(v283 - 65) > 0x19 )
-                              v286 = v283;
-                            if ( v282 != v286 )
+                            v282 = v279 + 32;
+                            if ( (unsigned int)(v279 - 65) > 0x19 )
+                              v282 = v279;
+                            v279 = v282;
+                            v283 = v280 + 32;
+                            if ( (unsigned int)(v280 - 65) > 0x19 )
+                              v283 = v280;
+                            if ( v279 != v283 )
                             {
-                              v287 = 0x7FFFFFFFi64;
-                              v288 = 0i64;
+                              v284 = 0x7FFFFFFFi64;
+                              v285 = 0i64;
                               while ( 1 )
                               {
-                                v289 = (unsigned __int8)Src[v288 - 1];
-                                v290 = (unsigned __int8)aAny_0[v288++];
-                                if ( !v287-- )
+                                v286 = (unsigned __int8)Src[v285 - 1];
+                                v287 = (unsigned __int8)aAny_0[v285++];
+                                if ( !v284-- )
                                   goto LABEL_603;
-                                if ( v289 != v290 )
+                                if ( v286 != v287 )
                                 {
-                                  v292 = v289 + 32;
-                                  if ( (unsigned int)(v289 - 65) > 0x19 )
-                                    v292 = v289;
-                                  v289 = v292;
-                                  v293 = v290 + 32;
-                                  if ( (unsigned int)(v290 - 65) > 0x19 )
-                                    v293 = v290;
-                                  if ( v289 != v293 )
+                                  v289 = v286 + 32;
+                                  if ( (unsigned int)(v286 - 65) > 0x19 )
+                                    v289 = v286;
+                                  v286 = v289;
+                                  v290 = v287 + 32;
+                                  if ( (unsigned int)(v287 - 65) > 0x19 )
+                                    v290 = v287;
+                                  if ( v286 != v290 )
                                   {
-                                    v294 = 0x7FFFFFFFi64;
-                                    v295 = 0i64;
+                                    v291 = 0x7FFFFFFFi64;
+                                    v292 = 0i64;
                                     while ( 1 )
                                     {
-                                      v296 = (unsigned __int8)Src[v295 - 1];
-                                      v297 = (unsigned __int8)aAll_3[v295++];
-                                      if ( !v294-- )
+                                      v293 = (unsigned __int8)Src[v292 - 1];
+                                      v294 = (unsigned __int8)aAll_3[v292++];
+                                      if ( !v291-- )
                                         goto LABEL_603;
-                                      if ( v296 != v297 )
+                                      if ( v293 != v294 )
                                       {
-                                        v299 = v296 + 32;
-                                        if ( (unsigned int)(v296 - 65) > 0x19 )
-                                          v299 = v296;
-                                        v296 = v299;
-                                        v300 = v297 + 32;
-                                        if ( (unsigned int)(v297 - 65) > 0x19 )
-                                          v300 = v297;
-                                        if ( v296 != v300 )
+                                        v296 = v293 + 32;
+                                        if ( (unsigned int)(v293 - 65) > 0x19 )
+                                          v296 = v293;
+                                        v293 = v296;
+                                        v297 = v294 + 32;
+                                        if ( (unsigned int)(v294 - 65) > 0x19 )
+                                          v297 = v294;
+                                        if ( v293 != v297 )
                                         {
-                                          v301 = 0x7FFFFFFFi64;
-                                          v302 = 0i64;
+                                          v298 = 0x7FFFFFFFi64;
+                                          v299 = 0i64;
                                           while ( 1 )
                                           {
-                                            v303 = (unsigned __int8)Src[v302 - 1];
-                                            v304 = (unsigned __int8)aOn_0[v302++];
-                                            if ( !v301-- )
+                                            v300 = (unsigned __int8)Src[v299 - 1];
+                                            v301 = (unsigned __int8)aOn_0[v299++];
+                                            if ( !v298-- )
                                               goto LABEL_603;
-                                            if ( v303 != v304 )
+                                            if ( v300 != v301 )
                                             {
-                                              v306 = v303 + 32;
-                                              if ( (unsigned int)(v303 - 65) > 0x19 )
-                                                v306 = v303;
-                                              v303 = v306;
-                                              v307 = v304 + 32;
-                                              if ( (unsigned int)(v304 - 65) > 0x19 )
-                                                v307 = v304;
-                                              if ( v303 != v307 )
+                                              v303 = v300 + 32;
+                                              if ( (unsigned int)(v300 - 65) > 0x19 )
+                                                v303 = v300;
+                                              v300 = v303;
+                                              v304 = v301 + 32;
+                                              if ( (unsigned int)(v301 - 65) > 0x19 )
+                                                v304 = v301;
+                                              if ( v300 != v304 )
                                               {
-                                                v308 = 0x7FFFFFFFi64;
-                                                v309 = 0i64;
+                                                v305 = 0x7FFFFFFFi64;
+                                                v306 = 0i64;
                                                 while ( 1 )
                                                 {
-                                                  v310 = (unsigned __int8)Src[v309 - 1];
-                                                  v311 = (unsigned __int8)aCore_0[v309++];
-                                                  if ( !v308-- )
+                                                  v307 = (unsigned __int8)Src[v306 - 1];
+                                                  v308 = (unsigned __int8)aCore_0[v306++];
+                                                  if ( !v305-- )
                                                     goto LABEL_643;
-                                                  if ( v310 != v311 )
+                                                  if ( v307 != v308 )
                                                   {
-                                                    v313 = v310 + 32;
-                                                    if ( (unsigned int)(v310 - 65) > 0x19 )
-                                                      v313 = v310;
-                                                    v310 = v313;
-                                                    v314 = v311 + 32;
-                                                    if ( (unsigned int)(v311 - 65) > 0x19 )
-                                                      v314 = v311;
-                                                    if ( v310 != v314 )
+                                                    v310 = v307 + 32;
+                                                    if ( (unsigned int)(v307 - 65) > 0x19 )
+                                                      v310 = v307;
+                                                    v307 = v310;
+                                                    v311 = v308 + 32;
+                                                    if ( (unsigned int)(v308 - 65) > 0x19 )
+                                                      v311 = v308;
+                                                    if ( v307 != v311 )
                                                       break;
                                                   }
-                                                  if ( !v310 )
+                                                  if ( !v307 )
                                                     goto LABEL_643;
                                                 }
                                                 if ( !I_stricmp(&_Buffer, "MP") || !I_stricmp(&_Buffer, "MPCORE") )
                                                 {
 LABEL_643:
-                                                  categories[v247].categoryClass = 4;
+                                                  categories[v244].categoryClass = 4;
                                                   goto LABEL_571;
                                                 }
                                                 if ( I_stricmp(&_Buffer, "ALIENS") && I_stricmp(&_Buffer, "ALIEN") )
                                                 {
                                                   if ( !I_stricmp(&_Buffer, "MAGMA") )
-                                                    categories[v247].categoryClass = 16;
+                                                    categories[v244].categoryClass = 16;
                                                 }
                                                 else
                                                 {
-                                                  categories[v247].categoryClass = 8;
+                                                  categories[v244].categoryClass = 8;
                                                 }
                                                 goto LABEL_571;
                                               }
                                             }
-                                            if ( !v303 )
+                                            if ( !v300 )
                                               goto LABEL_603;
                                           }
                                         }
                                       }
-                                      if ( !v296 )
+                                      if ( !v293 )
                                         goto LABEL_603;
                                     }
                                   }
                                 }
-                                if ( !v289 )
+                                if ( !v286 )
                                   goto LABEL_603;
                               }
                             }
                           }
                         }
-                        while ( v282 );
+                        while ( v279 );
 LABEL_603:
-                        categories[v247].categoryClass = 2;
+                        categories[v244].categoryClass = 2;
                         goto LABEL_571;
                       }
                     }
-                    if ( !v275 )
+                    if ( !v272 )
                       goto LABEL_583;
                   }
                 }
               }
             }
-            while ( v268 );
+            while ( v265 );
 LABEL_583:
-            categories[v247].categoryClass = 1;
+            categories[v244].categoryClass = 1;
           }
         }
 LABEL_571:
-        if ( bdJSONDeserializer::hasKey(&v509, (const char *const)&stru_143C9A1A4) )
+        if ( bdJSONDeserializer::hasKey(&v506, (const char *const)&stru_143C9A1A4) )
         {
-          bdJSONDeserializer::getString(&v509, (const char *const)&stru_143C9A1A4, &_Buffer, 0x400u);
+          bdJSONDeserializer::getString(&v506, (const char *const)&stru_143C9A1A4, &_Buffer, 0x400u);
           if ( _Buffer == 35 )
-            v265 = Src;
+            v262 = Src;
           else
-            v265 = UI_SafeTranslateString(&_Buffer);
-          Com_UTF8_TruncateToGlyphCount(v265, categories[v247].name, 128, 128, NULL);
+            v262 = UI_SafeTranslateString(&_Buffer);
+          Com_UTF8_TruncateToGlyphCount(v262, categories[v244].name, 128, 128, NULL);
         }
-        if ( bdJSONDeserializer::hasKey(&v509, "description") )
+        if ( bdJSONDeserializer::hasKey(&v506, "description") )
         {
-          bdJSONDeserializer::getString(&v509, "description", &_Buffer, 0x400u);
+          bdJSONDeserializer::getString(&v506, "description", &_Buffer, 0x400u);
           if ( _Buffer == 35 )
-            v315 = Src;
+            v312 = Src;
           else
-            v315 = UI_SafeTranslateString(&_Buffer);
-          Core_strcpy(categories[v247].description, 0x200ui64, v315);
+            v312 = UI_SafeTranslateString(&_Buffer);
+          Core_strcpy(categories[v244].description, 0x200ui64, v312);
         }
-        if ( bdJSONDeserializer::hasKey(&v509, "image") )
-          bdJSONDeserializer::getString(&v509, "image", image, 0x40u);
-        if ( bdJSONDeserializer::hasKey(&v509, "dlc") )
-          bdJSONDeserializer::getUInt32(&v509, "dlc", p_requiredDLCMask);
-        if ( bdJSONDeserializer::hasKey(&v509, "filtered") )
+        if ( bdJSONDeserializer::hasKey(&v506, "image") )
+          bdJSONDeserializer::getString(&v506, "image", image, 0x40u);
+        if ( bdJSONDeserializer::hasKey(&v506, "dlc") )
+          bdJSONDeserializer::getUInt32(&v506, "dlc", p_requiredDLCMask);
+        if ( bdJSONDeserializer::hasKey(&v506, "filtered") )
         {
-          bdJSONDeserializer::getString(&v509, "filtered", &_Buffer, 0x400u);
-          v316 = 0x7FFFFFFFi64;
+          bdJSONDeserializer::getString(&v506, "filtered", &_Buffer, 0x400u);
+          v313 = 0x7FFFFFFFi64;
           v2 = 0;
-          v317 = 0i64;
+          v314 = 0i64;
           do
           {
-            v318 = Src[v317 - 1];
-            v319 = aYes_1[v317++];
-            if ( !v316-- )
+            v315 = Src[v314 - 1];
+            v316 = aYes_1[v314++];
+            if ( !v313-- )
               break;
-            if ( v318 != v319 )
+            if ( v315 != v316 )
               goto LABEL_669;
           }
-          while ( v318 );
-          categories[v247].flags |= 1u;
+          while ( v315 );
+          categories[v244].flags |= 1u;
         }
         else
         {
           v2 = 0;
         }
 LABEL_669:
-        if ( bdJSONDeserializer::hasKey(&v509, "featured") )
+        if ( bdJSONDeserializer::hasKey(&v506, "featured") )
         {
-          bdJSONDeserializer::getString(&v509, "featured", &_Buffer, 0x400u);
-          v321 = 0x7FFFFFFFi64;
-          v322 = 0i64;
+          bdJSONDeserializer::getString(&v506, "featured", &_Buffer, 0x400u);
+          v318 = 0x7FFFFFFFi64;
+          v319 = 0i64;
           do
           {
-            v323 = Src[v322 - 1];
-            v324 = aYes_1[v322++];
-            if ( !v321-- )
+            v320 = Src[v319 - 1];
+            v321 = aYes_1[v319++];
+            if ( !v318-- )
               break;
-            if ( v323 != v324 )
+            if ( v320 != v321 )
               goto LABEL_675;
           }
-          while ( v323 );
-          categories[v247].flags |= 4u;
+          while ( v320 );
+          categories[v244].flags |= 4u;
         }
 LABEL_675:
-        if ( bdJSONDeserializer::hasKey(&v509, "hardcore") )
+        if ( bdJSONDeserializer::hasKey(&v506, "hardcore") )
         {
-          bdJSONDeserializer::getString(&v509, "hardcore", &_Buffer, 0x400u);
-          v326 = 0x7FFFFFFFi64;
-          v327 = 0i64;
+          bdJSONDeserializer::getString(&v506, "hardcore", &_Buffer, 0x400u);
+          v323 = 0x7FFFFFFFi64;
+          v324 = 0i64;
           do
           {
-            v328 = Src[v327 - 1];
-            v329 = aYes_1[v327++];
-            if ( !v326-- )
+            v325 = Src[v324 - 1];
+            v326 = aYes_1[v324++];
+            if ( !v323-- )
               break;
-            if ( v328 != v329 )
+            if ( v325 != v326 )
               goto LABEL_681;
           }
-          while ( v328 );
-          categories[v247].flags |= 2u;
+          while ( v325 );
+          categories[v244].flags |= 2u;
         }
 LABEL_681:
-        if ( bdJSONDeserializer::hasKey(&v509, "promoted") )
+        if ( bdJSONDeserializer::hasKey(&v506, "promoted") )
         {
-          bdJSONDeserializer::getString(&v509, "promoted", &_Buffer, 0x400u);
-          v331 = 0x7FFFFFFFi64;
-          v332 = 0i64;
+          bdJSONDeserializer::getString(&v506, "promoted", &_Buffer, 0x400u);
+          v328 = 0x7FFFFFFFi64;
+          v329 = 0i64;
           do
           {
-            v333 = Src[v332 - 1];
-            v334 = aYes_1[v332++];
-            if ( !v331-- )
+            v330 = Src[v329 - 1];
+            v331 = aYes_1[v329++];
+            if ( !v328-- )
               break;
-            if ( v333 != v334 )
+            if ( v330 != v331 )
               goto LABEL_687;
           }
-          while ( v333 );
-          categories[v247].flags |= 8u;
+          while ( v330 );
+          categories[v244].flags |= 8u;
         }
 LABEL_687:
-        if ( bdJSONDeserializer::hasKey(&v509, "cdl") )
+        if ( bdJSONDeserializer::hasKey(&v506, "cdl") )
         {
-          bdJSONDeserializer::getString(&v509, "cdl", &_Buffer, 0x400u);
-          v336 = 0x7FFFFFFFi64;
-          v337 = 0i64;
+          bdJSONDeserializer::getString(&v506, "cdl", &_Buffer, 0x400u);
+          v333 = 0x7FFFFFFFi64;
+          v334 = 0i64;
           do
           {
-            v338 = Src[v337 - 1];
-            v339 = aYes_1[v337++];
-            if ( !v336-- )
+            v335 = Src[v334 - 1];
+            v336 = aYes_1[v334++];
+            if ( !v333-- )
               break;
-            if ( v338 != v339 )
+            if ( v335 != v336 )
               goto LABEL_693;
           }
-          while ( v338 );
-          categories[v247].flags |= 0x10u;
+          while ( v335 );
+          categories[v244].flags |= 0x10u;
         }
 LABEL_693:
-        if ( bdJSONDeserializer::hasKey(&v509, "party") )
+        if ( bdJSONDeserializer::hasKey(&v506, "party") )
         {
-          bdJSONDeserializer::getString(&v509, "party", &_Buffer, 0x400u);
-          v341 = 0x7FFFFFFFi64;
-          v342 = 0i64;
+          bdJSONDeserializer::getString(&v506, "party", &_Buffer, 0x400u);
+          v338 = 0x7FFFFFFFi64;
+          v339 = 0i64;
           do
           {
-            v343 = Src[v342 - 1];
-            v344 = aYes_1[v342++];
-            if ( !v341-- )
+            v340 = Src[v339 - 1];
+            v341 = aYes_1[v339++];
+            if ( !v338-- )
               break;
-            if ( v343 != v344 )
+            if ( v340 != v341 )
               goto LABEL_699;
           }
-          while ( v343 );
-          categories[v247].flags |= 0x20u;
+          while ( v340 );
+          categories[v244].flags |= 0x20u;
         }
 LABEL_699:
-        if ( bdJSONDeserializer::hasKey(&v509, "br") )
+        if ( bdJSONDeserializer::hasKey(&v506, "br") )
         {
-          bdJSONDeserializer::getString(&v509, "br", &_Buffer, 0x400u);
-          v346 = 0x7FFFFFFFi64;
-          v347 = 0i64;
+          bdJSONDeserializer::getString(&v506, "br", &_Buffer, 0x400u);
+          v343 = 0x7FFFFFFFi64;
+          v344 = 0i64;
           do
           {
-            v348 = Src[v347 - 1];
-            v349 = aYes_1[v347++];
-            if ( !v346-- )
+            v345 = Src[v344 - 1];
+            v346 = aYes_1[v344++];
+            if ( !v343-- )
               break;
-            if ( v348 != v349 )
+            if ( v345 != v346 )
               goto LABEL_705;
           }
-          while ( v348 );
-          categories[v247].flags |= 0x40u;
+          while ( v345 );
+          categories[v244].flags |= 0x40u;
         }
 LABEL_705:
-        if ( bdJSONDeserializer::hasKey(&v509, "start_utc") )
-          bdJSONDeserializer::getUInt32(&v509, "start_utc", &categories[v247].start_utc);
-        if ( bdJSONDeserializer::hasKey(&v509, "end_utc") )
-          bdJSONDeserializer::getUInt32(&v509, "end_utc", &categories[v246].end_utc);
-        if ( bdJSONDeserializer::hasKey(&v509, "xb3_include") )
+        if ( bdJSONDeserializer::hasKey(&v506, "start_utc") )
+          bdJSONDeserializer::getUInt32(&v506, "start_utc", &categories[v244].start_utc);
+        if ( bdJSONDeserializer::hasKey(&v506, "end_utc") )
+          bdJSONDeserializer::getUInt32(&v506, "end_utc", &categories[v243].end_utc);
+        if ( bdJSONDeserializer::hasKey(&v506, "xb3_include") )
         {
-          v351 = &categories[v246];
-          bdJSONDeserializer::bdJSONDeserializer(&v512);
-          bdJSONDeserializer::getArray(&v509, "xb3_include", &v512);
-          for ( nn = 0; nn < v512.m_count; ++nn )
+          v348 = &categories[v243];
+          bdJSONDeserializer::bdJSONDeserializer(&v509);
+          bdJSONDeserializer::getArray(&v506, "xb3_include", &v509);
+          for ( nn = 0; nn < v509.m_count; ++nn )
           {
-            bdJSONDeserializer::bdJSONDeserializer(&v523);
-            bdJSONDeserializer::getElementByIndex(&v512, nn, &v523);
-            if ( bdJSONDeserializer::isString(&v523) )
+            bdJSONDeserializer::bdJSONDeserializer(&v520);
+            bdJSONDeserializer::getElementByIndex(&v509, nn, &v520);
+            if ( bdJSONDeserializer::isString(&v520) )
             {
-              bdJSONDeserializer::getString(&v523, &_Buffer, 0x400u);
-              v510[0] = _Buffer - 64;
-              v351->entries[v351->numEntries].type = CATEGORY;
+              bdJSONDeserializer::getString(&v520, &_Buffer, 0x400u);
+              v507[0] = _Buffer - 64;
+              v348->entries[v348->numEntries].type = CATEGORY;
             }
             else
             {
-              bdJSONDeserializer::getInt32(&v523, v510);
-              v351->entries[v351->numEntries].type = PLAYLIST;
+              bdJSONDeserializer::getInt32(&v520, v507);
+              v348->entries[v348->numEntries].type = PLAYLIST;
             }
-            v351->entries[v351->numEntries++].num = v510[0];
-            bdJSONDeserializer::~bdJSONDeserializer(&v523);
+            v348->entries[v348->numEntries++].num = v507[0];
+            bdJSONDeserializer::~bdJSONDeserializer(&v520);
           }
-          bdJSONDeserializer::~bdJSONDeserializer(&v512);
+          bdJSONDeserializer::~bdJSONDeserializer(&v509);
         }
-        if ( bdJSONDeserializer::hasKey(&v509, "override") )
+        if ( bdJSONDeserializer::hasKey(&v506, "override") )
         {
-          categories[v246].override = 1;
-          bdJSONDeserializer::getString(&v509, "override", categories[v246].overrideDvarName, 0x40u);
-          StringSafe = Dvar_GetStringSafe(categories[v246].overrideDvarName);
-          Core_strcpy(categories[v246].overrideDvarValue, 0x40ui64, StringSafe);
+          categories[v243].override = 1;
+          bdJSONDeserializer::getString(&v506, "override", categories[v243].overrideDvarName, 0x40u);
+          StringSafe = Dvar_GetStringSafe(categories[v243].overrideDvarName);
+          Core_strcpy(categories[v243].overrideDvarValue, 0x40ui64, StringSafe);
         }
-        if ( bdJSONDeserializer::hasKey(&v509, "dvars") )
+        if ( bdJSONDeserializer::hasKey(&v506, "dvars") )
         {
-          bdJSONDeserializer::bdJSONDeserializer(&v512);
-          if ( bdJSONDeserializer::getObject(&v509, "dvars", &v512) )
+          bdJSONDeserializer::bdJSONDeserializer(&v509);
+          if ( bdJSONDeserializer::getObject(&v506, "dvars", &v509) )
           {
-            v354 = 0;
-            if ( v512.m_count )
+            v351 = 0;
+            if ( v509.m_count )
             {
               do
               {
-                bdJSONDeserializer::bdJSONDeserializer(&v523);
-                bdJSONDeserializer::getFieldByIndex(&v512, v354, v536, 0x100u, &v523);
-                if ( bdJSONDeserializer::isString(&v523) )
+                bdJSONDeserializer::bdJSONDeserializer(&v520);
+                bdJSONDeserializer::getFieldByIndex(&v509, v351, v533, 0x100u, &v520);
+                if ( bdJSONDeserializer::isString(&v520) )
                 {
-                  if ( !bdJSONDeserializer::getString(&v523, key, 0x100u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 1393, ASSERT_TYPE_ASSERT, "(ok && \"Category Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Category Dvar string too large.\"") )
+                  if ( !bdJSONDeserializer::getString(&v520, key, 0x100u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_playlists.cpp", 1393, ASSERT_TYPE_ASSERT, "(ok && \"Category Dvar string too large.\")", (const char *)&queryFormat, "ok && \"Category Dvar string too large.\"") )
                     __debugbreak();
-                  j_sprintf(&_Buffer, "%s \"%s\";", v536, key);
+                  j_sprintf(&_Buffer, "%s \"%s\";", v533, key);
                 }
-                else if ( bdJSONDeserializer::convertToString(&v523, key, 0x100u) )
+                else if ( bdJSONDeserializer::convertToString(&v520, key, 0x100u) )
                 {
-                  j_sprintf(&_Buffer, "%s %s;", v536, key);
+                  j_sprintf(&_Buffer, "%s %s;", v533, key);
                 }
                 else
                 {
-                  Com_PrintError(25, "[Playlist] failed to convert rule to string '%s'\n", v536);
+                  Com_PrintError(25, "[Playlist] failed to convert rule to string '%s'\n", v533);
                 }
-                v355 = categories[v246].rules - 1;
+                v352 = categories[v243].rules - 1;
                 do
-                  ++v355;
-                while ( *v355 );
-                strcpy(v355, &_Buffer);
-                v356 = -1i64;
+                  ++v352;
+                while ( *v352 );
+                strcpy(v352, &_Buffer);
+                v353 = -1i64;
                 do
-                  ++v356;
-                while ( Src[v356 - 1] );
-                PlaylistStringBuffer_MoveTail(v356);
-                bdJSONDeserializer::~bdJSONDeserializer(&v523);
-                ++v354;
+                  ++v353;
+                while ( Src[v353 - 1] );
+                PlaylistStringBuffer_MoveTail(v353);
+                bdJSONDeserializer::~bdJSONDeserializer(&v520);
+                ++v351;
               }
-              while ( v354 < v512.m_count );
-              v238 = v514;
+              while ( v351 < v509.m_count );
+              v235 = v511;
             }
           }
-          bdJSONDeserializer::~bdJSONDeserializer(&v512);
+          bdJSONDeserializer::~bdJSONDeserializer(&v509);
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v509);
-        ++v238;
+        bdJSONDeserializer::~bdJSONDeserializer(&v506);
+        ++v235;
       }
       v53 = playlists;
     }
   }
-  v357 = playist_initialParse;
+  v354 = playist_initialParse;
   if ( !playist_initialParse )
-    v357 = 1i64;
-  playist_initialParse = v357;
-  v358 = 0;
+    v354 = 1i64;
+  playist_initialParse = v354;
+  v355 = 0;
   if ( maps.numEntries )
   {
     while ( 1 )
     {
-      v359 = -1i64;
+      v356 = -1i64;
       do
-        ++v359;
-      while ( maps.name[v358][v359] );
-      if ( (int)v359 >= (int)PlaylistStringBuffer_GetRemainingAfterTail() )
+        ++v356;
+      while ( maps.name[v355][v356] );
+      if ( (int)v356 >= (int)PlaylistStringBuffer_GetRemainingAfterTail() )
         break;
-      if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING|0x80) && Live_GetMapIndex(maps.name[v358]) < 0 )
-        Com_PrintWarning(16, "Playlist_ParsePlaylists: Map %s is not in presence data\n", maps.name[v358]);
-      v360 = PlaylistStringBuffer_GetTail();
-      v361 = maps.name[v358];
+      if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING|0x80) && Live_GetMapIndex(maps.name[v355]) < 0 )
+        Com_PrintWarning(16, "Playlist_ParsePlaylists: Map %s is not in presence data\n", maps.name[v355]);
+      v357 = PlaylistStringBuffer_GetTail();
+      v358 = maps.name[v355];
       RemainingAfterTail = PlaylistStringBuffer_GetRemainingAfterTail();
-      Core_strcpy(v360->buffer, RemainingAfterTail, v361);
-      maps.name[v358] = (char *)v360;
-      PlaylistStringBuffer_MoveTail(v359);
-      if ( ++v358 >= (unsigned int)maps.numEntries )
+      Core_strcpy(v357->buffer, RemainingAfterTail, v358);
+      maps.name[v355] = (char *)v357;
+      PlaylistStringBuffer_MoveTail(v356);
+      if ( ++v355 >= (unsigned int)maps.numEntries )
         goto LABEL_750;
     }
     Com_PrintError(16, "Not enough room in string buffer for map names after adding rules\n");
-    v511 = 1;
+    v508 = 1;
 LABEL_750:
     v2 = 0;
   }
   numEntries = categories[0].numEntries;
   if ( !categories[0].numEntries )
   {
-    v364 = 1;
-    v365 = &categories[1].numEntries;
+    v361 = 1;
+    v362 = &categories[1].numEntries;
     do
     {
-      if ( *v365 )
+      if ( *v362 )
       {
         categories[0].entries[numEntries].type = CATEGORY;
-        categories[0].entries[categories[0].numEntries].num = v364;
+        categories[0].entries[categories[0].numEntries].num = v361;
         numEntries = ++categories[0].numEntries;
       }
-      ++v364;
-      v365 += 1032;
+      ++v361;
+      v362 += 1032;
     }
-    while ( v364 < 26 );
+    while ( v361 < 26 );
     if ( !numEntries )
     {
-      v366 = 1;
-      v367 = &playlists[1].numEntries;
+      v363 = 1;
+      v364 = &playlists[1].numEntries;
       do
       {
-        if ( *v367 )
+        if ( *v364 )
         {
           categories[0].entries[numEntries].type = PLAYLIST;
-          categories[0].entries[categories[0].numEntries].num = v366;
+          categories[0].entries[categories[0].numEntries].num = v363;
           numEntries = ++categories[0].numEntries;
         }
-        ++v366;
-        v367 += 496;
+        ++v363;
+        v364 += 496;
       }
-      while ( v366 < 129 );
+      while ( v363 < 129 );
       if ( !numEntries )
       {
-        Com_PrintError(16, "Playlist Error: No entries in the root category\n", v367);
-        ++v511;
+        Com_PrintError(16, "Playlist Error: No entries in the root category\n", v364);
+        ++v508;
       }
     }
-    v368 = "MENU/PLAYERMATCH_PLAYLISTS";
-    v369 = SEH_LocalizeTextMessage("MENU/PLAYERMATCH_PLAYLISTS", "playlist title", LOCMSG_NOERR);
-    if ( v369 )
-      v368 = v369;
-    Core_strcpy(categories[0].name, 0x80ui64, v368);
+    v365 = "MENU/PLAYERMATCH_PLAYLISTS";
+    v366 = SEH_LocalizeTextMessage("MENU/PLAYERMATCH_PLAYLISTS", "playlist title", LOCMSG_NOERR);
+    if ( v366 )
+      v365 = v366;
+    Core_strcpy(categories[0].name, 0x80ui64, v365);
   }
-  Playlist_UpdateFeatured(v357, v52);
+  Playlist_UpdateFeatured(v354, v52);
   Playlist_UpdateXPScales();
   if ( !s_setPubVarCallback )
   {
@@ -6595,362 +6562,362 @@ LABEL_750:
     PublisherVariableManager::AddRetrievedCallback(Instance, Playlist_UpdateXPScales);
     s_setPubVarCallback = 1;
   }
-  v371 = 129i64;
+  v368 = 129i64;
   do
   {
-    v372 = -1i64;
+    v369 = -1i64;
     do
-      ++v372;
-    while ( v53->description[v372] );
-    v373 = -1i64;
+      ++v369;
+    while ( v53->description[v369] );
+    v370 = -1i64;
     do
-      ++v373;
-    while ( v53->name[v373] );
-    v374 = v2 + v372;
-    v2 = v374 + v373 + 2;
+      ++v370;
+    while ( v53->name[v370] );
+    v371 = v2 + v369;
+    v2 = v371 + v370 + 2;
     ++v53;
-    --v371;
+    --v368;
   }
-  while ( v371 );
-  *(_QWORD *)v524 = (unsigned int)(v374 + v373 + 2);
-  v375 = 2;
+  while ( v368 );
+  *(_QWORD *)v521 = (unsigned int)(v371 + v370 + 2);
+  v372 = 2;
   do
   {
-    v376 = v375 - 2;
-    v520 = 136i64 * (v375 - 1);
-    v377 = v375;
-    *(_QWORD *)v510 = 136i64 * (v375 + 1);
-    v514 = 136i64 * (v375 + 2);
-    *(_QWORD *)v516 = 136i64 * (v375 + 3);
-    *(_QWORD *)v517 = 136i64 * (v375 + 4);
-    v378 = v375 + 5;
-    v379 = v375 + 6;
-    v380 = v375 + 7;
-    v381 = v375 + 8;
-    *(_QWORD *)v518 = 136i64 * (v375 + 9);
-    v382 = v375 + 10;
-    v383 = v375 + 11;
-    v384 = v375 + 12;
-    v385 = v375 + 13;
-    v386 = -1i64;
+    v373 = v372 - 2;
+    v517 = 136i64 * (v372 - 1);
+    v374 = v372;
+    *(_QWORD *)v507 = 136i64 * (v372 + 1);
+    v511 = 136i64 * (v372 + 2);
+    *(_QWORD *)v513 = 136i64 * (v372 + 3);
+    *(_QWORD *)v514 = 136i64 * (v372 + 4);
+    v375 = v372 + 5;
+    v376 = v372 + 6;
+    v377 = v372 + 7;
+    v378 = v372 + 8;
+    *(_QWORD *)v515 = 136i64 * (v372 + 9);
+    v379 = v372 + 10;
+    v380 = v372 + 11;
+    v381 = v372 + 12;
+    v382 = v372 + 13;
+    v383 = -1i64;
     do
-      ++v386;
-    while ( gametypes[v376].internalName[v386] );
-    v387 = gametypes[v376].localizedName;
-    v388 = -1i64;
+      ++v383;
+    while ( gametypes[v373].internalName[v383] );
+    v384 = gametypes[v373].localizedName;
+    v385 = -1i64;
     do
-      ++v388;
-    while ( v387[v388] );
-    v389 = *(_DWORD *)v524 + v386;
-    v390 = -1i64;
+      ++v385;
+    while ( v384[v385] );
+    v386 = *(_DWORD *)v521 + v383;
+    v387 = -1i64;
     do
-      ++v390;
-    while ( gametypes[v377].internalName[v390] );
-    v391 = v388 + v389;
-    v392 = -1i64;
+      ++v387;
+    while ( gametypes[v374].internalName[v387] );
+    v388 = v385 + v386;
+    v389 = -1i64;
     do
-      ++v392;
-    while ( gametypes[v377].localizedName[v392] );
-    v393 = v391 + v390;
-    v394 = -1i64;
+      ++v389;
+    while ( gametypes[v374].localizedName[v389] );
+    v390 = v388 + v387;
+    v391 = -1i64;
     do
-      ++v394;
-    while ( gametypes[v385].internalName[v394] );
-    v395 = v392 + v393;
-    v396 = -1i64;
+      ++v391;
+    while ( gametypes[v382].internalName[v391] );
+    v392 = v389 + v390;
+    v393 = -1i64;
     do
-      ++v396;
-    while ( gametypes[v385].localizedName[v396] );
-    v397 = v395 + v394;
-    v398 = -1i64;
+      ++v393;
+    while ( gametypes[v382].localizedName[v393] );
+    v394 = v392 + v391;
+    v395 = -1i64;
     do
-      ++v398;
-    while ( gametypes[v384].internalName[v398] );
-    v399 = v396 + v397;
-    v400 = -1i64;
+      ++v395;
+    while ( gametypes[v381].internalName[v395] );
+    v396 = v393 + v394;
+    v397 = -1i64;
     do
-      ++v400;
-    while ( gametypes[v384].localizedName[v400] );
-    v401 = v399 + v398;
-    v402 = -1i64;
+      ++v397;
+    while ( gametypes[v381].localizedName[v397] );
+    v398 = v396 + v395;
+    v399 = -1i64;
     do
-      ++v402;
-    while ( gametypes[v383].internalName[v402] );
-    v403 = v400 + v401;
-    v404 = -1i64;
+      ++v399;
+    while ( gametypes[v380].internalName[v399] );
+    v400 = v397 + v398;
+    v401 = -1i64;
     do
-      ++v404;
-    while ( gametypes[v383].localizedName[v404] );
-    v405 = v403 + v402;
-    v406 = -1i64;
+      ++v401;
+    while ( gametypes[v380].localizedName[v401] );
+    v402 = v400 + v399;
+    v403 = -1i64;
     do
-      ++v406;
-    while ( gametypes[v381].internalName[v406] );
-    v407 = v404 + v405;
-    v408 = -1i64;
+      ++v403;
+    while ( gametypes[v378].internalName[v403] );
+    v404 = v401 + v402;
+    v405 = -1i64;
     do
-      ++v408;
-    while ( gametypes[v381].localizedName[v408] );
-    v409 = v407 + v406;
-    v410 = -1i64;
+      ++v405;
+    while ( gametypes[v378].localizedName[v405] );
+    v406 = v404 + v403;
+    v407 = -1i64;
     do
-      ++v410;
-    while ( gametypes[v380].internalName[v410] );
-    v411 = v408 + v409;
-    v412 = -1i64;
+      ++v407;
+    while ( gametypes[v377].internalName[v407] );
+    v408 = v405 + v406;
+    v409 = -1i64;
     do
-      ++v412;
-    while ( gametypes[v380].localizedName[v412] );
-    v413 = v411 + v410;
-    v414 = -1i64;
+      ++v409;
+    while ( gametypes[v377].localizedName[v409] );
+    v410 = v408 + v407;
+    v411 = -1i64;
     do
-      ++v414;
-    while ( gametypes[v382].internalName[v414] );
-    v415 = v412 + v413;
-    v416 = -1i64;
+      ++v411;
+    while ( gametypes[v379].internalName[v411] );
+    v412 = v409 + v410;
+    v413 = -1i64;
     do
-      ++v416;
-    while ( gametypes[v382].localizedName[v416] );
-    v417 = v415 + v414;
-    v418 = -1i64;
+      ++v413;
+    while ( gametypes[v379].localizedName[v413] );
+    v414 = v412 + v411;
+    v415 = -1i64;
     do
-      ++v418;
-    while ( gametypes[v379].internalName[v418] );
-    v419 = v416 + v417;
-    v420 = -1i64;
+      ++v415;
+    while ( gametypes[v376].internalName[v415] );
+    v416 = v413 + v414;
+    v417 = -1i64;
     do
-      ++v420;
-    while ( gametypes[v379].localizedName[v420] );
-    v421 = v419 + v418;
-    v422 = -1i64;
+      ++v417;
+    while ( gametypes[v376].localizedName[v417] );
+    v418 = v416 + v415;
+    v419 = -1i64;
     do
-      ++v422;
-    while ( gametypes[v378].internalName[v422] );
-    v423 = v420 + v421;
-    v424 = -1i64;
+      ++v419;
+    while ( gametypes[v375].internalName[v419] );
+    v420 = v417 + v418;
+    v421 = -1i64;
     do
-      ++v424;
-    while ( gametypes[v378].localizedName[v424] );
-    v425 = v423 + v422;
-    v426 = -1i64;
+      ++v421;
+    while ( gametypes[v375].localizedName[v421] );
+    v422 = v420 + v419;
+    v423 = -1i64;
     do
-      ++v426;
-    while ( gametypes[0].internalName[*(_QWORD *)v518 + v426] );
-    v427 = v424 + v425;
-    v428 = -1i64;
+      ++v423;
+    while ( gametypes[0].internalName[*(_QWORD *)v515 + v423] );
+    v424 = v421 + v422;
+    v425 = -1i64;
     do
-      ++v428;
-    while ( gametypes[0].localizedName[*(_QWORD *)v518 + v428] );
-    v429 = v427 + v426;
-    v430 = -1i64;
+      ++v425;
+    while ( gametypes[0].localizedName[*(_QWORD *)v515 + v425] );
+    v426 = v424 + v423;
+    v427 = -1i64;
     do
-      ++v430;
-    while ( gametypes[0].internalName[*(_QWORD *)v517 + v430] );
-    v431 = v428 + v429;
-    v432 = -1i64;
+      ++v427;
+    while ( gametypes[0].internalName[*(_QWORD *)v514 + v427] );
+    v428 = v425 + v426;
+    v429 = -1i64;
     do
-      ++v432;
-    while ( gametypes[0].localizedName[*(_QWORD *)v517 + v432] );
-    v433 = v431 + v430;
-    v434 = -1i64;
+      ++v429;
+    while ( gametypes[0].localizedName[*(_QWORD *)v514 + v429] );
+    v430 = v428 + v427;
+    v431 = -1i64;
     do
-      ++v434;
-    while ( gametypes[0].internalName[*(_QWORD *)v516 + v434] );
-    v435 = v432 + v433;
-    v436 = -1i64;
+      ++v431;
+    while ( gametypes[0].internalName[*(_QWORD *)v513 + v431] );
+    v432 = v429 + v430;
+    v433 = -1i64;
     do
-      ++v436;
-    while ( gametypes[0].localizedName[*(_QWORD *)v516 + v436] );
-    v437 = v435 + v434;
-    v438 = -1i64;
+      ++v433;
+    while ( gametypes[0].localizedName[*(_QWORD *)v513 + v433] );
+    v434 = v432 + v431;
+    v435 = -1i64;
     do
-      ++v438;
-    while ( gametypes[v514 / 0x88].internalName[v438] );
-    v439 = v436 + v437;
-    v440 = -1i64;
+      ++v435;
+    while ( gametypes[v511 / 0x88].internalName[v435] );
+    v436 = v433 + v434;
+    v437 = -1i64;
     do
-      ++v440;
-    while ( gametypes[v514 / 0x88].localizedName[v440] );
-    v441 = v439 + v438;
-    v442 = -1i64;
+      ++v437;
+    while ( gametypes[v511 / 0x88].localizedName[v437] );
+    v438 = v436 + v435;
+    v439 = -1i64;
     do
-      ++v442;
-    while ( gametypes[0].internalName[*(_QWORD *)v510 + v442] );
-    v443 = v440 + v441;
-    v444 = -1i64;
+      ++v439;
+    while ( gametypes[0].internalName[*(_QWORD *)v507 + v439] );
+    v440 = v437 + v438;
+    v441 = -1i64;
     do
-      ++v444;
-    while ( gametypes[0].localizedName[*(_QWORD *)v510 + v444] );
-    v445 = v443 + v442;
-    v446 = -1i64;
+      ++v441;
+    while ( gametypes[0].localizedName[*(_QWORD *)v507 + v441] );
+    v442 = v440 + v439;
+    v443 = -1i64;
     do
-      ++v446;
-    while ( gametypes[v520 / 0x88].internalName[v446] );
-    v447 = v444 + v445;
+      ++v443;
+    while ( gametypes[v517 / 0x88].internalName[v443] );
+    v444 = v441 + v442;
+    v445 = -1i64;
+    do
+      ++v445;
+    while ( gametypes[v517 / 0x88].localizedName[v445] );
+    v446 = v444 + v443 + v445 + 32;
+    *(_QWORD *)v521 = v446;
+    v372 += 16;
+  }
+  while ( v372 - 2 < 64 );
+  v447 = &categories[1];
+  do
+  {
     v448 = -1i64;
     do
       ++v448;
-    while ( gametypes[v520 / 0x88].localizedName[v448] );
-    v449 = v447 + v446 + v448 + 32;
-    *(_QWORD *)v524 = v449;
-    v375 += 16;
-  }
-  while ( v375 - 2 < 64 );
-  v450 = &categories[1];
-  do
-  {
+    while ( v447[2].description[v448] );
+    v449 = -1i64;
+    do
+      ++v449;
+    while ( v447[2].name[v449] );
+    v450 = v446 + v448;
     v451 = -1i64;
     do
       ++v451;
-    while ( v450[2].description[v451] );
-    v452 = -1i64;
+    while ( v447[1].description[v451] );
+    v452 = v449 + v450;
+    v453 = -1i64;
     do
-      ++v452;
-    while ( v450[2].name[v452] );
-    v453 = v449 + v451;
-    v454 = -1i64;
+      ++v453;
+    while ( v447[-1].name[v453] );
+    v454 = v452 + v451;
+    v455 = -1i64;
     do
-      ++v454;
-    while ( v450[1].description[v454] );
-    v455 = v452 + v453;
-    v456 = -1i64;
+      ++v455;
+    while ( v447[1].name[v455] );
+    v456 = v453 + v454;
+    v457 = -1i64;
     do
-      ++v456;
-    while ( v450[-1].name[v456] );
-    v457 = v455 + v454;
-    v458 = -1i64;
+      ++v457;
+    while ( v447->name[v457 - 904] );
+    v458 = v456 + v455;
+    v459 = -1i64;
     do
-      ++v458;
-    while ( v450[1].name[v458] );
-    v459 = v456 + v457;
-    v460 = -1i64;
+      ++v459;
+    while ( v447->description[v459] );
+    v460 = v457 + v458;
+    v461 = -1i64;
     do
-      ++v460;
-    while ( v450->name[v460 - 904] );
-    v461 = v459 + v458;
-    v462 = -1i64;
+      ++v461;
+    while ( v447[11].description[v461] );
+    v462 = v460 + v459;
+    v463 = -1i64;
     do
-      ++v462;
-    while ( v450->description[v462] );
-    v463 = v460 + v461;
-    v464 = -1i64;
+      ++v463;
+    while ( v447[11].name[v463] );
+    v464 = v461 + v462;
+    v465 = -1i64;
     do
-      ++v464;
-    while ( v450[11].description[v464] );
-    v465 = v463 + v462;
-    v466 = -1i64;
+      ++v465;
+    while ( v447[10].description[v465] );
+    v466 = v464 + v463;
+    v467 = -1i64;
     do
-      ++v466;
-    while ( v450[11].name[v466] );
-    v467 = v464 + v465;
-    v468 = -1i64;
+      ++v467;
+    while ( v447[10].name[v467] );
+    v468 = v465 + v466;
+    v469 = -1i64;
     do
-      ++v468;
-    while ( v450[10].description[v468] );
-    v469 = v467 + v466;
-    v470 = -1i64;
+      ++v469;
+    while ( v447[9].description[v469] );
+    v470 = v468 + v467;
+    v471 = -1i64;
     do
-      ++v470;
-    while ( v450[10].name[v470] );
-    v471 = v468 + v469;
-    v472 = -1i64;
+      ++v471;
+    while ( v447[9].name[v471] );
+    v472 = v469 + v470;
+    v473 = -1i64;
     do
-      ++v472;
-    while ( v450[9].description[v472] );
-    v473 = v471 + v470;
-    v474 = -1i64;
+      ++v473;
+    while ( v447[8].description[v473] );
+    v474 = v472 + v471;
+    v475 = -1i64;
     do
-      ++v474;
-    while ( v450[9].name[v474] );
-    v475 = v472 + v473;
-    v476 = -1i64;
+      ++v475;
+    while ( v447[8].name[v475] );
+    v476 = v473 + v474;
+    v477 = -1i64;
     do
-      ++v476;
-    while ( v450[8].description[v476] );
-    v477 = v475 + v474;
-    v478 = -1i64;
+      ++v477;
+    while ( v447[7].description[v477] );
+    v478 = v476 + v475;
+    v479 = -1i64;
     do
-      ++v478;
-    while ( v450[8].name[v478] );
-    v479 = v476 + v477;
-    v480 = -1i64;
+      ++v479;
+    while ( v447[7].name[v479] );
+    v480 = v477 + v478;
+    v481 = -1i64;
     do
-      ++v480;
-    while ( v450[7].description[v480] );
-    v481 = v479 + v478;
-    v482 = -1i64;
+      ++v481;
+    while ( v447[6].description[v481] );
+    v482 = v480 + v479;
+    v483 = -1i64;
     do
-      ++v482;
-    while ( v450[7].name[v482] );
-    v483 = v480 + v481;
-    v484 = -1i64;
+      ++v483;
+    while ( v447[6].name[v483] );
+    v484 = v481 + v482;
+    v485 = -1i64;
     do
-      ++v484;
-    while ( v450[6].description[v484] );
-    v485 = v483 + v482;
-    v486 = -1i64;
+      ++v485;
+    while ( v447[5].description[v485] );
+    v486 = v484 + v483;
+    v487 = -1i64;
     do
-      ++v486;
-    while ( v450[6].name[v486] );
-    v487 = v484 + v485;
-    v488 = -1i64;
+      ++v487;
+    while ( v447[5].name[v487] );
+    v488 = v485 + v486;
+    v489 = -1i64;
     do
-      ++v488;
-    while ( v450[5].description[v488] );
-    v489 = v487 + v486;
-    v490 = -1i64;
+      ++v489;
+    while ( v447[4].description[v489] );
+    v490 = v488 + v487;
+    v491 = -1i64;
     do
-      ++v490;
-    while ( v450[5].name[v490] );
-    v491 = v488 + v489;
-    v492 = -1i64;
+      ++v491;
+    while ( v447[4].name[v491] );
+    v492 = v489 + v490;
+    v493 = -1i64;
     do
-      ++v492;
-    while ( v450[4].description[v492] );
-    v493 = v491 + v490;
-    v494 = -1i64;
+      ++v493;
+    while ( v447[3].description[v493] );
+    v494 = v492 + v491;
+    v495 = -1i64;
     do
-      ++v494;
-    while ( v450[4].name[v494] );
-    v495 = v492 + v493;
-    v496 = -1i64;
+      ++v495;
+    while ( v447[3].name[v495] );
+    v496 = v493 + v494;
+    v497 = -1i64;
     do
-      ++v496;
-    while ( v450[3].description[v496] );
-    v497 = v495 + v494;
-    v498 = -1i64;
-    do
-      ++v498;
-    while ( v450[3].name[v498] );
-    v499 = v496 + v497;
-    v500 = -1i64;
-    do
-      ++v500;
-    while ( v450->name[v500] );
-    v449 = v499 + v498 + v500 + 26;
-    v450 += 13;
-    --v519;
+      ++v497;
+    while ( v447->name[v497] );
+    v446 = v496 + v495 + v497 + 26;
+    v447 += 13;
+    --v516;
   }
-  while ( v519 );
+  while ( v516 );
   Com_Printf(131086, "Playlist: Version %d\n", playlist_versionNum);
-  v501 = v511;
-  LODWORD(v507) = v511;
-  LODWORD(v506) = 26;
-  LODWORD(v505) = v513;
-  LODWORD(v504) = 129;
-  LODWORD(v503) = v508;
-  Com_Printf(131086, "Playlist: %d/%d gametypes, %d/%d playlists, %d/%d categories (%d parse errors)\n", (unsigned int)numGametypes, 64i64, v503, v504, v505, v506, v507);
-  v502 = PlaylistStringBuffer_GetRemainingAfterTail();
-  Com_Printf(131086, "Playlist: There are %i/%i bytes of the playlist string buffer used\n", (unsigned int)(204800 - v502), 204800i64);
-  Com_Printf(131086, "Playlist: There are %d/%d bytes of static char arrays being used\n", v449, 104320i64);
+  v498 = v508;
+  LODWORD(v504) = v508;
+  LODWORD(v503) = 26;
+  LODWORD(v502) = v510;
+  LODWORD(v501) = 129;
+  LODWORD(v500) = v505;
+  Com_Printf(131086, "Playlist: %d/%d gametypes, %d/%d playlists, %d/%d categories (%d parse errors)\n", (unsigned int)numGametypes, 64i64, v500, v501, v502, v503, v504);
+  v499 = PlaylistStringBuffer_GetRemainingAfterTail();
+  Com_Printf(131086, "Playlist: There are %i/%i bytes of the playlist string buffer used\n", (unsigned int)(204800 - v499), 204800i64);
+  Com_Printf(131086, "Playlist: There are %d/%d bytes of static char arrays being used\n", v446, 104320i64);
   Com_Printf(131086, "Playlist: Total memory footprint of data is approximately %zu bytes\n", 0x5A2C0ui64);
-  if ( v501 )
+  if ( v498 )
   {
     LiveStorage_PauseFetchingPlaylists();
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE8E88, 786i64, v501);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE8E88, 786i64, v498);
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
-  bdJSONDeserializer::~bdJSONDeserializer(&v521);
+  bdJSONDeserializer::~bdJSONDeserializer(&v518);
 }
 
 /*
@@ -7440,12 +7407,9 @@ void Playlist_SetFiltered(LocalClientNum_t clientNum, unsigned int category, uns
   v16.isValid = 0;
   v16.offset = 0;
   v16.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0
-    vmovdqu xmmword ptr [rsp+0D8h+var_70.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  *(_OWORD *)&v16.member = _XMM0;
   if ( index >= 0x800 )
   {
     high_filter_out = 2048;
@@ -7483,31 +7447,23 @@ void Playlist_SetFiltersForCategory(const LocalClientNum_t clientNum, const unsi
   DDLState state; 
   DDLState high_state; 
   DDLContext ddlContext; 
-  void *retaddr; 
 
-  if ( category < 0x1A )
+  if ( category < 0x1A && (categories[category].flags & 1) != 0 )
   {
-    _R11 = &retaddr;
-    if ( (categories[category].flags & 1) != 0 )
+    high_state.arrayIndex = -1;
+    high_state.isValid = 0;
+    high_state.offset = 0;
+    state.offset = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    state.isValid = 0;
+    state.arrayIndex = -1;
+    *(_OWORD *)&state.member = _XMM0;
+    *(_OWORD *)&high_state.member = _XMM0;
+    if ( Playlist_GetFiltersForCategory(clientNum, &ddlContext, &state, category, &filter_out, &high_state, &high_filter_out) )
     {
-      high_state.arrayIndex = -1;
-      high_state.isValid = 0;
-      high_state.offset = 0;
-      state.offset = 0;
-      __asm { vpxor   xmm0, xmm0, xmm0 }
-      state.isValid = 0;
-      state.arrayIndex = -1;
-      __asm
-      {
-        vmovdqu xmmword ptr [rsp+0C8h+state.member], xmm0
-        vmovdqu xmmword ptr [r11-48h], xmm0
-      }
-      if ( Playlist_GetFiltersForCategory(clientNum, &ddlContext, &state, category, &filter_out, &high_state, &high_filter_out) )
-      {
-        Com_Printf(25, "[playlist] Updating filters for category %i from %zu %zu to %zu %zu\n", category, filter_out, high_filter_out, filters, high_filters);
-        DDL_SetUInt64(&state, &ddlContext, filters);
-        DDL_SetUInt64(&high_state, &ddlContext, high_filters);
-      }
+      Com_Printf(25, "[playlist] Updating filters for category %i from %zu %zu to %zu %zu\n", category, filter_out, high_filter_out, filters, high_filters);
+      DDL_SetUInt64(&state, &ddlContext, filters);
+      DDL_SetUInt64(&high_state, &ddlContext, high_filters);
     }
   }
 }
@@ -7603,7 +7559,7 @@ void Playlist_UpdateFilters(const int controllerIndex)
           state.isValid = 0;
           state.offset = 0;
           state.arrayIndex = -1;
-          __asm { vmovdqu xmmword ptr [rbp+40h+state.member], xmm0 }
+          *(_OWORD *)&state.member = _XMM0;
           if ( Playlist_GetFiltersCRC32ForCategory((LocalClientNum_t)ClientFromController, &buffer, &state, i, &crc_out) )
           {
             v7 = *p_crc32;
@@ -7614,10 +7570,10 @@ void Playlist_UpdateFilters(const int controllerIndex)
               v14.offset = 0;
               v14.arrayIndex = -1;
               high_state.isValid = 0;
-              __asm { vmovdqu xmmword ptr [rsp+140h+var_F8.member], xmm0 }
+              *(_OWORD *)&v14.member = _XMM0;
               high_state.offset = 0;
               high_state.arrayIndex = -1;
-              __asm { vmovdqu xmmword ptr [rsp+140h+var_D8.member], xmm0 }
+              *(_OWORD *)&high_state.member = _XMM0;
               if ( Playlist_GetFiltersForCategory((LocalClientNum_t)ClientFromController, &ddlContext, &v14, i, &filter_out, &high_state, &high_filter_out) )
               {
                 if ( !filter_out )
@@ -7975,11 +7931,11 @@ bool Playlist_WritePlaylistConfigInfoJSON(const int playlistId, const int playli
     state.offset = 0;
     numEntries = categories[v8].numEntries;
     state.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+5B0h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     v109.isValid = 0;
     v109.offset = 0;
     v109.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+5B0h+var_640.member], xmm0 }
+    *(_OWORD *)&v109.member = _XMM0;
     if ( Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, playlistCategory, &filter_out, &v109, &v106) )
     {
       v11 = numEntries;
@@ -8723,9 +8679,9 @@ bool Playlist_WritePlaylistTeamInfoJSON(const int playlistId, const int category
     state.arrayIndex = -1;
     v45.isValid = 0;
     v45.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+110h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     v45.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+210h+var_1B0.member], xmm0 }
+    *(_OWORD *)&v45.member = _XMM0;
     if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &state, v8, &filter_out, &v45, &v42) )
       goto LABEL_37;
     v18 = v17;
@@ -8770,10 +8726,10 @@ bool Playlist_WritePlaylistTeamInfoJSON(const int playlistId, const int category
       v30 = categories[v28].numEntries;
       v45.arrayIndex = -1;
       state.isValid = 0;
-      __asm { vmovdqu xmmword ptr [rsp+210h+var_1B0.member], xmm0 }
+      *(_OWORD *)&v45.member = _XMM0;
       state.offset = 0;
       state.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rbp+110h+state.member], xmm0 }
+      *(_OWORD *)&state.member = _XMM0;
       if ( !Playlist_GetFiltersForCategory(LOCAL_CLIENT_0, &buffer, &v45, v8, &v42, &state, &filter_out) )
         goto LABEL_61;
       v31 = v30;

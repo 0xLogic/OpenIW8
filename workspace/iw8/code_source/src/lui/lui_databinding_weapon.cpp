@@ -16,29 +16,21 @@ s_LUI_DataBinding_Get_AmmoName
 */
 bool s_LUI_DataBinding_Get_AmmoName(LocalClientNum_t localClientNum, unsigned __int64 outStringSize, char *outString)
 {
+  __int16 v3; 
+  bool v7; 
   CgHandler *Handler; 
   Weapon result; 
   Weapon weapon; 
 
   *outString = 0;
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0D8h+weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0D8h+weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( (_WORD)_EAX )
+  weapon = *LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
+  v7 = v3;
+  if ( v3 )
   {
     Handler = CgHandler::getHandler(localClientNum);
-    LOBYTE(_EAX) = BG_GetWeaponAmmoPoolName(&weapon, 0, Handler, outString, outStringSize);
+    return BG_GetWeaponAmmoPoolName(&weapon, 0, Handler, outString, outStringSize);
   }
-  return _EAX;
+  return v7;
 }
 
 /*
@@ -46,33 +38,33 @@ bool s_LUI_DataBinding_Get_AmmoName(LocalClientNum_t localClientNum, unsigned __
 s_LUI_DataBinding_Get_WeaponAttachmentsIndexString
 ==============
 */
-bool s_LUI_DataBinding_Get_WeaponAttachmentsIndexString(LocalClientNum_t localClientNum, unsigned __int64 outStringSize, char *outString)
+char s_LUI_DataBinding_Get_WeaponAttachmentsIndexString(LocalClientNum_t localClientNum, unsigned __int64 outStringSize, char *outString)
 {
+  __int16 v3; 
+  Weapon *Weapon; 
+  __m256i v7; 
+  __int128 v8; 
+  double v9; 
+  char v10; 
   Weapon r_weapon; 
   Weapon result; 
 
   *outString = 0;
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovsd  xmm1, qword ptr [rax+30h]
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovd   eax, xmm2
-    vmovups ymmword ptr [rsp+0A8h+r_weapon.weaponIdx], ymm2
-    vmovups xmmword ptr [rsp+0A8h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  qword ptr [rsp+0A8h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  if ( (_WORD)_EAX )
+  Weapon = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
+  v7 = *(__m256i *)&Weapon->weaponIdx;
+  v8 = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+  v9 = *(double *)&Weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&Weapon->weaponCamo;
+  v10 = v3;
+  *(__m256i *)&r_weapon.weaponIdx = v7;
+  *(_OWORD *)&r_weapon.attachmentVariationIndices[5] = v8;
+  *(double *)&r_weapon.attachmentVariationIndices[21] = v9;
+  if ( v3 )
   {
     LUI_DataBinding_Interactions_GetWeaponAttachmentsIndexString(&r_weapon, outString, outStringSize);
-    LOBYTE(_EAX) = 1;
+    return 1;
   }
-  return _EAX;
+  return v10;
 }
 
 /*
@@ -184,47 +176,27 @@ LABEL_11:
 LUI_DataBindingWeapon_GetClipAmmoDisplay
 ==============
 */
-int LUI_DataBindingWeapon_GetClipAmmoDisplay(LocalClientNum_t localClientNum, PlayerHandIndex hand)
+__int64 LUI_DataBindingWeapon_GetClipAmmoDisplay(LocalClientNum_t localClientNum, PlayerHandIndex hand)
 {
   const cg_t *LocalClientGlobals; 
-  cg_t *v10; 
+  cg_t *v5; 
   const Weapon *WeaponForHud; 
   bool UsingAltForHud; 
-  int result; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   CG_Utils_GetPlayerClipAmmoCount(localClientNum, hand);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v10 = CG_GetLocalClientGlobals(localClientNum);
+  v5 = CG_GetLocalClientGlobals(localClientNum);
   WeaponForHud = CG_GetWeaponForHud(LocalClientGlobals);
-  UsingAltForHud = CG_GetUsingAltForHud(&v10->predictedPlayerState);
+  UsingAltForHud = CG_GetUsingAltForHud(&v5->predictedPlayerState);
   BG_AmmoUsedPerShot(WeaponForHud, UsingAltForHud);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm6, xmm6, xmm0
-  }
-  if ( hand == WEAPON_HAND_LEFT && BG_HasLadderHand(&v10->predictedPlayerState) )
-  {
-    result = 0;
-  }
+  if ( hand == WEAPON_HAND_LEFT && BG_HasLadderHand(&v5->predictedPlayerState) )
+    return 0i64;
+  _XMM1 = 0i64;
+  if ( BG_RequireAmmoUsedPerShot(WeaponForHud, UsingAltForHud) )
+    __asm { vroundss xmm1, xmm1, xmm6, 1 }
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    if ( BG_RequireAmmoUsedPerShot(WeaponForHud, UsingAltForHud) )
-      __asm { vroundss xmm1, xmm1, xmm6, 1 }
-    else
-      __asm { vroundss xmm1, xmm1, xmm6, 2 }
-    __asm { vcvttss2si eax, xmm1 }
-  }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    __asm { vroundss xmm1, xmm1, xmm6, 2 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -543,7 +515,9 @@ void LUI_DataBinding_Weapon_FrameUpdate(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
   const playerState_s *p_predictedPlayerState; 
+  cg_t *v4; 
   CgWeaponMap *Instance; 
+  Weapon *Weapon; 
   bool v7; 
   bool v8; 
   bool v9; 
@@ -617,17 +591,17 @@ void LUI_DataBinding_Weapon_FrameUpdate(LocalClientNum_t localClientNum)
     LUIBinding::PushBool(&s_LUI_DataBinding_BinocularsZoomLevel, localClientNum);
     LUIBinding::PushBool(&s_LUI_DataBinding_BinocularsThermalEnabled, localClientNum);
     LUIBinding::PushBool(&s_LUI_DataBinding_WeaponInspectOnAltToggle, localClientNum);
-    _R14 = CG_GetLocalClientGlobals(localClientNum);
+    v4 = CG_GetLocalClientGlobals(localClientNum);
     Instance = CgWeaponMap::GetInstance(localClientNum);
     if ( Instance )
-      _RDI = (Weapon *)BgWeaponMap::GetWeapon(Instance, p_predictedPlayerState->weapCommon.weaponHandle);
+      Weapon = (Weapon *)BgWeaponMap::GetWeapon(Instance, p_predictedPlayerState->weapCommon.weaponHandle);
     else
-      _RDI = &NULL_WEAPON;
+      Weapon = &NULL_WEAPON;
     v7 = BG_UsingAlternate(p_predictedPlayerState);
-    v8 = memcmp_0(&_R14->prevLUIWeapon, _RDI, 0x3Cui64) || _R14->prevLUIWeaponIsAlternate != v7 || !Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_weapon_datasource_caching_enabled, "killswitch_weapon_datasource_caching_enabled");
+    v8 = memcmp_0(&v4->prevLUIWeapon, Weapon, 0x3Cui64) || v4->prevLUIWeaponIsAlternate != v7 || !Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_weapon_datasource_caching_enabled, "killswitch_weapon_datasource_caching_enabled");
     v9 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->pm_flags, ACTIVE, 6u);
-    v10 = v9 != _R14->prevOnLadder;
-    _R14->prevOnLadder = v9;
+    v10 = v9 != v4->prevOnLadder;
+    v4->prevOnLadder = v9;
     if ( v8 || v10 )
     {
       LUIBinding::PushBool(&s_LUI_DataBinding_IsNull, localClientNum);
@@ -645,17 +619,11 @@ void LUI_DataBinding_Weapon_FrameUpdate(LocalClientNum_t localClientNum)
       LUIBinding::PushString(&s_LUI_DataBinding_DisplayName, localClientNum);
       LUIBinding::PushString(&s_LUI_DataBinding_HUDIcon, localClientNum);
       LUIBinding::PushFloat(&s_LUI_DataBinding_EnemyNameplateRange, localClientNum);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymmword ptr [r14+1822Ch], ymm0
-        vmovups xmm1, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [r14+1824Ch], xmm1
-        vmovsd  xmm0, qword ptr [rdi+30h]
-        vmovsd  qword ptr [r14+1825Ch], xmm0
-      }
-      *(_DWORD *)&_R14->prevLUIWeapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
-      _R14->prevLUIWeaponIsAlternate = v7;
+      *(__m256i *)&v4->prevLUIWeapon.weaponIdx = *(__m256i *)&Weapon->weaponIdx;
+      *(_OWORD *)&v4->prevLUIWeapon.attachmentVariationIndices[5] = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+      *(double *)&v4->prevLUIWeapon.attachmentVariationIndices[21] = *(double *)&Weapon->attachmentVariationIndices[21];
+      *(_DWORD *)&v4->prevLUIWeapon.weaponCamo = *(_DWORD *)&Weapon->weaponCamo;
+      v4->prevLUIWeaponIsAlternate = v7;
     }
   }
   Sys_ProfEndNamedEvent();
@@ -668,9 +636,7 @@ s_LUI_DataBinding_Get_ADSPercent
 */
 float s_LUI_DataBinding_Get_ADSPercent(LocalClientNum_t localClientNum)
 {
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovss  xmm0, dword ptr [rax+738h] }
-  return *(float *)&_XMM0;
+  return CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.fWeaponPosFrac;
 }
 
 /*
@@ -722,35 +688,21 @@ weapFireType_t s_LUI_DataBinding_Get_AltModeFireType(LocalClientNum_t localClien
 s_LUI_DataBinding_Get_AltModeHoldProgress
 ==============
 */
-
-double __fastcall s_LUI_DataBinding_Get_AltModeHoldProgress(LocalClientNum_t localClientNum, double _XMM1_8)
+double s_LUI_DataBinding_Get_AltModeHoldProgress(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
+  const dvar_t *v1; 
+  int integer; 
+  int ButtonHeldTime; 
 
-  v3 = DCONST_DVARINT_cl_weaponToggleAltModeHoldTime;
+  v1 = DCONST_DVARINT_cl_weaponToggleAltModeHoldTime;
   if ( !DCONST_DVARINT_cl_weaponToggleAltModeHoldTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_weaponToggleAltModeHoldTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.integer )
-  {
-    CL_Input_CycleWeapon_GetButtonHeldTime(localClientNum);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, ebx
-      vdivss  xmm0, xmm1, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(double *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v1);
+  integer = v1->current.integer;
+  if ( !integer )
+    return 0.0;
+  ButtonHeldTime = CL_Input_CycleWeapon_GetButtonHeldTime(localClientNum);
+  return I_fclamp((float)ButtonHeldTime / (float)integer, 0.0, 1.0);
 }
 
 /*
@@ -871,33 +823,22 @@ _BOOL8 s_LUI_DataBinding_Get_AmmoHideReserve(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_AmmoStockDisplay
 ==============
 */
-
-int __fastcall s_LUI_DataBinding_Get_AmmoStockDisplay(LocalClientNum_t localClientNum, double _XMM1_8, __int64 a3, double _XMM3_8)
+__int64 s_LUI_DataBinding_Get_AmmoStockDisplay(LocalClientNum_t localClientNum)
 {
   const cg_t *LocalClientGlobals; 
-  cg_t *v7; 
+  cg_t *v3; 
   const Weapon *WeaponForHud; 
   bool UsingAltForHud; 
-  int result; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v7 = CG_GetLocalClientGlobals(localClientNum);
+  v3 = CG_GetLocalClientGlobals(localClientNum);
   WeaponForHud = CG_GetWeaponForHud(LocalClientGlobals);
-  UsingAltForHud = CG_GetUsingAltForHud(&v7->predictedPlayerState);
+  UsingAltForHud = CG_GetUsingAltForHud(&v3->predictedPlayerState);
   BG_AmmoUsedPerShot(WeaponForHud, UsingAltForHud);
   CG_GetPlayerWeaponAmmoStock(localClientNum);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm2, xmm1, xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 2
-    vcvttss2si eax, xmm3
-  }
-  return result;
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 2 }
+  return (unsigned int)(int)*(float *)&_XMM3;
 }
 
 /*
@@ -1047,14 +988,7 @@ __int64 s_LUI_DataBinding_Get_ChamberedAmmoRight(LocalClientNum_t localClientNum
   v3 = CG_GetLocalClientGlobals(localClientNum);
   WeaponForHud = CG_GetWeaponForHud(LocalClientGlobals);
   UsingAltForHud = CG_GetUsingAltForHud(&v3->predictedPlayerState);
-  _RAX = BG_AmmoStoreForWeapon(&result, WeaponForHud, UsingAltForHud);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0B8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clipIndex = *BG_AmmoStoreForWeapon(&result, WeaponForHud, UsingAltForHud);
   ClipAmmoPtrConst = BG_GetClipAmmoPtrConst(&v3->predictedPlayerState, &r_clipIndex);
   if ( ClipAmmoPtrConst )
     return (unsigned int)ClipAmmoPtrConst->chamberedCount[0];
@@ -1077,7 +1011,7 @@ int s_LUI_DataBinding_Get_ClipAmmoLeft(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_ClipAmmoLeftDisplay
 ==============
 */
-int s_LUI_DataBinding_Get_ClipAmmoLeftDisplay(LocalClientNum_t localClientNum)
+__int64 s_LUI_DataBinding_Get_ClipAmmoLeftDisplay(LocalClientNum_t localClientNum)
 {
   return LUI_DataBindingWeapon_GetClipAmmoDisplay(localClientNum, WEAPON_HAND_LEFT);
 }
@@ -1116,7 +1050,7 @@ int s_LUI_DataBinding_Get_ClipAmmoRight(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_ClipAmmoRightDisplay
 ==============
 */
-int s_LUI_DataBinding_Get_ClipAmmoRightDisplay(LocalClientNum_t localClientNum)
+__int64 s_LUI_DataBinding_Get_ClipAmmoRightDisplay(LocalClientNum_t localClientNum)
 {
   return LUI_DataBindingWeapon_GetClipAmmoDisplay(localClientNum, WEAPON_HAND_DEFAULT);
 }
@@ -1254,9 +1188,7 @@ s_LUI_DataBinding_Get_GunAnglesX
 */
 float s_LUI_DataBinding_Get_GunAnglesX(LocalClientNum_t localClientNum)
 {
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovss  xmm0, dword ptr [rax+49DF0h] }
-  return *(float *)&_XMM0;
+  return CG_GetLocalClientGlobals(localClientNum)->gunAngles.v[0];
 }
 
 /*
@@ -1266,9 +1198,7 @@ s_LUI_DataBinding_Get_GunAnglesY
 */
 float s_LUI_DataBinding_Get_GunAnglesY(LocalClientNum_t localClientNum)
 {
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovss  xmm0, dword ptr [rax+49DF4h] }
-  return *(float *)&_XMM0;
+  return CG_GetLocalClientGlobals(localClientNum)->gunAngles.v[1];
 }
 
 /*
@@ -1278,9 +1208,7 @@ s_LUI_DataBinding_Get_GunAnglesZ
 */
 float s_LUI_DataBinding_Get_GunAnglesZ(LocalClientNum_t localClientNum)
 {
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovss  xmm0, dword ptr [rax+49DF8h] }
-  return *(float *)&_XMM0;
+  return CG_GetLocalClientGlobals(localClientNum)->gunAngles.v[2];
 }
 
 /*
@@ -1380,17 +1308,9 @@ __int64 s_LUI_DataBinding_Get_HybridScopeState(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_InADS
 ==============
 */
-char s_LUI_DataBinding_Get_InADS(LocalClientNum_t localClientNum)
+bool s_LUI_DataBinding_Get_InADS(LocalClientNum_t localClientNum)
 {
-  char v4; 
-
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rax+738h]
-  }
-  return v4;
+  return CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.fWeaponPosFrac > 0.0;
 }
 
 /*
@@ -1413,16 +1333,7 @@ s_LUI_DataBinding_Get_InFullADS
 */
 bool s_LUI_DataBinding_Get_InFullADS(LocalClientNum_t localClientNum)
 {
-  char v3; 
-  char v4; 
-
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rax+738h]
-  }
-  return v3 | v4;
+  return CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.fWeaponPosFrac >= 1.0;
 }
 
 /*
@@ -1432,29 +1343,16 @@ s_LUI_DataBinding_Get_InWorldAttachmentsAlpha
 */
 float s_LUI_DataBinding_Get_InWorldAttachmentsAlpha(LocalClientNum_t localClientNum)
 {
-  char v5; 
-  char v6; 
+  float blurRadius; 
+  __int128 v3; 
 
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, dword ptr [rax+69D0h]
-    vcomiss xmm2, xmm0
-  }
-  if ( v5 | v6 )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm0, xmm1, xmm2
-      vminss  xmm0, xmm0, xmm1
-    }
-  }
+  blurRadius = CG_GetLocalClientGlobals(localClientNum)->refdef.blurRadius;
+  if ( blurRadius <= 0.0 )
+    return FLOAT_1_0;
+  v3 = LODWORD(FLOAT_1_0);
+  *(float *)&v3 = 1.0 / blurRadius;
+  _XMM0 = v3;
+  __asm { vminss  xmm0, xmm0, xmm1 }
   return *(float *)&_XMM0;
 }
 
@@ -1529,84 +1427,74 @@ s_LUI_DataBinding_Get_IsHoldBreathHintVisible
 bool s_LUI_DataBinding_Get_IsHoldBreathHintVisible(LocalClientNum_t localClientNum)
 {
   playerState_s *p_predictedPlayerState; 
-  const dvar_t *v4; 
-  __int64 v5; 
+  const dvar_t *v3; 
+  __int64 v4; 
   CgWeaponMap *Instance; 
-  char v7; 
+  double v6; 
   const ClActiveClient *Client; 
   int CmdNumber; 
-  const ClActiveClient *v10; 
+  const ClActiveClient *v9; 
+  int v10; 
   int v11; 
-  int v12; 
+  __int64 v12; 
+  __int64 *v13; 
   char *fmt; 
-  __int64 v22; 
-  int v23; 
+  __int64 v16; 
+  int v17; 
 
   p_predictedPlayerState = &CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF && BG_IsTurretActive(p_predictedPlayerState) )
     return 0;
-  v4 = DVARBOOL_cg_drawBreathHint;
+  v3 = DVARBOOL_cg_drawBreathHint;
   if ( !DVARBOOL_cg_drawBreathHint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawBreathHint") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( !v3->current.enabled )
     return 0;
-  v5 = 2i64;
+  v4 = 2i64;
   if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 2u) )
     return 0;
   Instance = CgWeaponMap::GetInstance(localClientNum);
-  *(double *)&_XMM0 = BG_WeaponADSFractionAffectedByReload(Instance, p_predictedPlayerState);
-  __asm { vucomiss xmm0, cs:__real@3f800000 }
-  if ( !v7 || !BG_HasHoldBreathAbility(Instance, p_predictedPlayerState) )
+  v6 = BG_WeaponADSFractionAffectedByReload(Instance, p_predictedPlayerState);
+  if ( *(float *)&v6 != 1.0 || !BG_HasHoldBreathAbility(Instance, p_predictedPlayerState) )
     return 0;
   Client = ClActiveClient::GetClient(localClientNum);
   CmdNumber = ClActiveClient_GetCmdNumber(Client);
-  v10 = ClActiveClient::GetClient(localClientNum);
-  v11 = ClActiveClient_GetCmdNumber(v10);
-  v12 = v11;
-  v23 = v11;
-  if ( CmdNumber > v11 )
+  v9 = ClActiveClient::GetClient(localClientNum);
+  v10 = ClActiveClient_GetCmdNumber(v9);
+  v11 = v10;
+  v17 = v10;
+  if ( CmdNumber > v10 )
   {
-    LODWORD(fmt) = v11;
+    LODWORD(fmt) = v10;
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CEE128, 754i64, (unsigned int)CmdNumber, fmt);
   }
-  if ( CmdNumber <= v12 - 128 || CmdNumber <= 0 )
+  if ( CmdNumber <= v11 - 128 || CmdNumber <= 0 )
   {
-    memset(&v23, 0, sizeof(v23));
+    memset(&v17, 0, sizeof(v17));
   }
   else
   {
-    _RBX = &v10->cmds[CmdNumber & 0x7F];
-    memset(&v23, 0, sizeof(v23));
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+    v12 = (__int64)&v9->cmds[CmdNumber & 0x7F];
+    memset(&v17, 0, sizeof(v17));
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
       __debugbreak();
-    _RDX = &v22;
+    v13 = &v16;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups ymm0, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rdx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rdx+40h], ymm0
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rdx+60h], xmm0
-      }
-      _RDX += 16;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
-      --v5;
+      *(__m256i *)v13 = *(__m256i *)v12;
+      *((__m256i *)v13 + 1) = *(__m256i *)(v12 + 32);
+      *((__m256i *)v13 + 2) = *(__m256i *)(v12 + 64);
+      *((_OWORD *)v13 + 6) = *(_OWORD *)(v12 + 96);
+      v13 += 16;
+      *((_OWORD *)v13 - 1) = *(_OWORD *)(v12 + 112);
+      v12 += 128i64;
+      --v4;
     }
-    while ( v5 );
-    *_RDX = _RBX->buttons;
+    while ( v4 );
+    *v13 = *(_QWORD *)v12;
   }
-  return (v22 & 0x800) == 0 && !BG_HoldingBreath(p_predictedPlayerState);
+  return (v16 & 0x800) == 0 && !BG_HoldingBreath(p_predictedPlayerState);
 }
 
 /*
@@ -1621,8 +1509,8 @@ bool s_LUI_DataBinding_Get_IsHybridVisible(LocalClientNum_t localClientNum)
   bool v3; 
   const BgWeaponMap **v4; 
   const playerState_s *p_predictedPlayerState; 
-  bool v10; 
-  bool v11; 
+  bool v6; 
+  bool v7; 
   bool result; 
   Weapon r_weapon; 
 
@@ -1633,25 +1521,15 @@ bool s_LUI_DataBinding_Get_IsHybridVisible(LocalClientNum_t localClientNum)
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
   if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  _RAX = BG_GetViewmodelWeapon(*v4, p_predictedPlayerState);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  r_weapon = *BG_GetViewmodelWeapon(*v4, p_predictedPlayerState);
   result = 0;
   if ( ((unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF || !BG_IsTurretActive(p_predictedPlayerState)) && BG_InADS(p_predictedPlayerState) )
   {
-    v10 = BG_UsingAlternate(p_predictedPlayerState);
-    if ( BG_CanHybridToggle(p_predictedPlayerState, &r_weapon, v10) )
+    v6 = BG_UsingAlternate(p_predictedPlayerState);
+    if ( BG_CanHybridToggle(p_predictedPlayerState, &r_weapon, v6) )
     {
-      v11 = BG_UsingAlternate(p_predictedPlayerState);
-      if ( !BG_CanThermalToggle(&r_weapon, v11) )
+      v7 = BG_UsingAlternate(p_predictedPlayerState);
+      if ( !BG_CanThermalToggle(&r_weapon, v7) )
         return 1;
     }
   }
@@ -1740,17 +1618,7 @@ bool s_LUI_DataBinding_Get_IsThermalHintVisible(LocalClientNum_t localClientNum)
   if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
   v6 = *v4;
-  _RAX = BG_GetViewmodelOrOffhandADSWeapon(v6, p_predictedPlayerState, &outIsAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  r_weapon = *BG_GetViewmodelOrOffhandADSWeapon(v6, p_predictedPlayerState, &outIsAlternate);
   if ( BG_IsUsingOffhandGestureWeaponADSActive(p_predictedPlayerState) )
     return BG_CanThermalToggle(&r_weapon, outIsAlternate);
   return BG_InADS(p_predictedPlayerState) && BG_IsThermalEnabled(v6, &r_weapon, p_predictedPlayerState) && BG_CanThermalToggle(&r_weapon, outIsAlternate);
@@ -1766,13 +1634,12 @@ bool s_LUI_DataBinding_Get_IsZoomHintVisible(LocalClientNum_t localClientNum)
   const dvar_t *v1; 
   playerState_s *p_predictedPlayerState; 
   CgWeaponMap *Instance; 
-  char v9; 
-  char v10; 
+  double v5; 
   bool IsUsingOffhandGestureWeaponADSActive; 
-  char v12; 
+  bool v7; 
   CgHandler *Handler; 
-  bool v14; 
-  CgWeaponMap *v15; 
+  bool v9; 
+  CgWeaponMap *v10; 
   bool outIsAlternate; 
   Weapon r_weapon; 
 
@@ -1784,34 +1651,22 @@ bool s_LUI_DataBinding_Get_IsZoomHintVisible(LocalClientNum_t localClientNum)
     return 0;
   p_predictedPlayerState = &CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState;
   Instance = CgWeaponMap::GetInstance(localClientNum);
-  _RAX = BG_GetViewmodelOrOffhandADSWeapon(Instance, p_predictedPlayerState, &outIsAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+98h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+98h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+98h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  *(double *)&_XMM0 = BG_WeaponADSFractionAffectedByReload(Instance, p_predictedPlayerState);
-  __asm { vucomiss xmm0, cs:__real@3f800000 }
-  v10 = v9;
+  r_weapon = *BG_GetViewmodelOrOffhandADSWeapon(Instance, p_predictedPlayerState, &outIsAlternate);
+  v5 = BG_WeaponADSFractionAffectedByReload(Instance, p_predictedPlayerState);
   IsUsingOffhandGestureWeaponADSActive = BG_IsUsingOffhandGestureWeaponADSActive(p_predictedPlayerState);
-  v12 = v10;
+  v7 = *(float *)&v5 == 1.0;
   if ( IsUsingOffhandGestureWeaponADSActive )
-    v12 = 1;
+    v7 = 1;
   if ( !r_weapon.weaponIdx )
     return 0;
-  if ( !v12 )
+  if ( !v7 )
     return 0;
   Handler = CgHandler::getHandler(localClientNum);
   if ( BG_PlayerUsesNVGHalfADS(p_predictedPlayerState, Handler) )
     return 0;
-  v14 = outIsAlternate;
-  v15 = CgWeaponMap::GetInstance(localClientNum);
-  return BG_ADSZoomCount(v15, p_predictedPlayerState, &r_weapon, v14) > 1;
+  v9 = outIsAlternate;
+  v10 = CgWeaponMap::GetInstance(localClientNum);
+  return BG_ADSZoomCount(v10, p_predictedPlayerState, &r_weapon, v9) > 1;
 }
 
 /*
@@ -1898,8 +1753,8 @@ __int64 s_LUI_DataBinding_Get_SecondaryAmmoInClip(LocalClientNum_t localClientNu
   const cg_t *LocalClientGlobals; 
   playerState_s *p_predictedPlayerState; 
   const Weapon *SecondPrimaryWeapon; 
-  unsigned int v9; 
-  int v10; 
+  unsigned int v6; 
+  int v7; 
   AmmoStore result; 
   AmmoStore r_clip2; 
 
@@ -1910,25 +1765,18 @@ __int64 s_LUI_DataBinding_Get_SecondaryAmmoInClip(LocalClientNum_t localClientNu
     return 0i64;
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, SecondPrimaryWeapon, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+r_clip2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0C8h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clip2 = *BG_AmmoStoreForWeapon(&result, SecondPrimaryWeapon, 0);
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   BG_HasLadderHand(p_predictedPlayerState);
-  v9 = 0;
-  v10 = 0;
-  while ( !BG_IsClipCompatible(&p_predictedPlayerState->weapCommon.ammoInClip[v10].clipIndex, &r_clip2) )
+  v6 = 0;
+  v7 = 0;
+  while ( !BG_IsClipCompatible(&p_predictedPlayerState->weapCommon.ammoInClip[v7].clipIndex, &r_clip2) )
   {
-    if ( (unsigned int)++v10 >= 0xF )
-      return v9;
+    if ( (unsigned int)++v7 >= 0xF )
+      return v6;
   }
-  return (unsigned int)p_predictedPlayerState->weapCommon.ammoInClip[v10].ammoCount[0];
+  return (unsigned int)p_predictedPlayerState->weapCommon.ammoInClip[v7].ammoCount[0];
 }
 
 /*
@@ -1941,8 +1789,8 @@ __int64 s_LUI_DataBinding_Get_SecondaryAmmoNotInClip(LocalClientNum_t localClien
   const cg_t *LocalClientGlobals; 
   playerState_s *p_predictedPlayerState; 
   const Weapon *SecondPrimaryWeapon; 
-  unsigned int v9; 
-  int v10; 
+  unsigned int v6; 
+  int v7; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
 
@@ -1953,26 +1801,19 @@ __int64 s_LUI_DataBinding_Get_SecondaryAmmoNotInClip(LocalClientNum_t localClien
     return 0i64;
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, SecondPrimaryWeapon, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0C8h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammo2 = *BG_AmmoStoreForWeapon(&result, SecondPrimaryWeapon, 0);
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = 0;
-  v10 = 0;
-  while ( !BG_IsAmmoCompatible(&p_predictedPlayerState->weapCommon.ammoNotInClip[v10].ammoType, &r_ammo2) )
+  v6 = 0;
+  v7 = 0;
+  while ( !BG_IsAmmoCompatible(&p_predictedPlayerState->weapCommon.ammoNotInClip[v7].ammoType, &r_ammo2) )
   {
-    if ( (unsigned int)++v10 >= 0xF )
-      return v9;
+    if ( (unsigned int)++v7 >= 0xF )
+      return v6;
   }
-  if ( (playerState_s *)((char *)p_predictedPlayerState + 68 * v10) != (playerState_s *)-1912i64 )
-    return (unsigned int)p_predictedPlayerState->weapCommon.ammoNotInClip[v10].ammoCount;
-  return v9;
+  if ( (playerState_s *)((char *)p_predictedPlayerState + 68 * v7) != (playerState_s *)-1912i64 )
+    return (unsigned int)p_predictedPlayerState->weapCommon.ammoNotInClip[v7].ammoCount;
+  return v6;
 }
 
 /*
@@ -2006,13 +1847,7 @@ s_LUI_DataBinding_Get_SpreadPercent
 */
 float s_LUI_DataBinding_Get_SpreadPercent(LocalClientNum_t localClientNum)
 {
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+74Ch]
-    vmulss  xmm0, xmm0, cs:__real@3b808081
-  }
-  return *(float *)&_XMM0;
+  return CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.aimSpreadScale * 0.0039215689;
 }
 
 /*
@@ -2070,13 +1905,13 @@ s_LUI_DataBinding_Get_TotalAltAmmo
 ==============
 */
 
-__int64 __fastcall s_LUI_DataBinding_Get_TotalAltAmmo(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+__int64 __fastcall s_LUI_DataBinding_Get_TotalAltAmmo(LocalClientNum_t localClientNum, __int64 a2, double a3)
 {
   const cg_t *LocalClientGlobals; 
   playerState_s *p_predictedPlayerState; 
   int TotalAmmoReserve; 
-  int v12; 
-  int v15; 
+  int v7; 
+  int v8; 
   CgWeaponMap *Instance; 
   AmmoStore result; 
   Weapon r_weapon; 
@@ -2084,59 +1919,31 @@ __int64 __fastcall s_LUI_DataBinding_Get_TotalAltAmmo(LocalClientNum_t localClie
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   p_predictedPlayerState = &CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState;
-  _RAX = CG_GetWeaponForHud(LocalClientGlobals);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+118h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+118h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+118h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  r_weapon = *CG_GetWeaponForHud(LocalClientGlobals);
   if ( BG_AltSharesAmmo(&r_weapon) )
     return 0xFFFFFFFFi64;
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1257, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, &r_weapon, 1);
   TotalAmmoReserve = 0;
-  v12 = 0;
-  __asm
+  v7 = 0;
+  r_clip2 = *BG_AmmoStoreForWeapon(&result, &r_weapon, 1);
+  while ( !BG_IsClipCompatible(&p_predictedPlayerState->weapCommon.ammoInClip[v7].clipIndex, &r_clip2) )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+118h+r_clip2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+118h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-  }
-  while ( !BG_IsClipCompatible(&p_predictedPlayerState->weapCommon.ammoInClip[v12].clipIndex, &r_clip2) )
-  {
-    if ( (unsigned int)++v12 >= 0xF )
+    if ( (unsigned int)++v7 >= 0xF )
     {
-      v15 = 0;
+      v8 = 0;
       goto LABEL_10;
     }
   }
-  v15 = p_predictedPlayerState->weapCommon.ammoInClip[v12].ammoCount[0] + p_predictedPlayerState->weapCommon.ammoInClip[v12].ammoCount[1];
+  v8 = p_predictedPlayerState->weapCommon.ammoInClip[v7].ammoCount[0] + p_predictedPlayerState->weapCommon.ammoInClip[v7].ammoCount[1];
 LABEL_10:
-  _RAX = CG_ClipCounterWeapon(&r_clip2.weapon, LocalClientGlobals, &r_weapon, 1);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+118h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+118h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+118h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( (_WORD)_RAX )
+  r_weapon = *CG_ClipCounterWeapon(&r_clip2.weapon, LocalClientGlobals, &r_weapon, 1);
+  if ( LOWORD(a3) )
   {
     Instance = CgWeaponMap::GetInstance(localClientNum);
     TotalAmmoReserve = BG_GetTotalAmmoReserve(Instance, p_predictedPlayerState, &r_weapon, 1);
   }
-  return (unsigned int)(v15 + TotalAmmoReserve);
+  return (unsigned int)(v8 + TotalAmmoReserve);
 }
 
 /*
@@ -2146,11 +1953,11 @@ s_LUI_DataBinding_Get_ViewFov
 */
 float s_LUI_DataBinding_Get_ViewFov(LocalClientNum_t localClientNum)
 {
+  __int64 v1; 
   ClientFov result; 
 
-  _RAX = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
-  __asm { vmovsd  xmm0, qword ptr [rax] }
-  return *(float *)&_XMM0;
+  v1 = *(_QWORD *)&CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0)->finalFov;
+  return *(float *)&v1;
 }
 
 /*
@@ -2211,8 +2018,6 @@ float s_LUI_DataBinding_Get_ZoomLevelWeights(LocalClientNum_t localClientNum, un
   UsingAltForHud = CG_GetUsingAltForHud(p_predictedPlayerState);
   ADSZoomLevelFraction = BG_GetADSZoomLevelFraction(v5, p_predictedPlayerState, CurrentWeaponForPlayer, UsingAltForHud, p_predictedPlayerState->serverTimeInterpolated);
   BG_GetADSZoomLevelWeights(*(const float *)&ADSZoomLevelFraction, outZoomLevelWeights);
-  _RAX = param;
-  __asm { vmovss  xmm0, [rsp+rax*4+58h+outZoomLevelWeights] }
-  return *(float *)&_XMM0;
+  return outZoomLevelWeights[param];
 }
 

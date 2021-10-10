@@ -261,10 +261,13 @@ void Online_BandwidthTest::Frame(Online_BandwidthTest *this)
 {
   int Status; 
   bdBandwidthTestResults *UploadResults; 
+  double Bandwidth; 
   bool v5; 
+  __int64 m_uploadBitsPerSec; 
   bdBandwidthTestResults *DownloadResults; 
+  double v8; 
   unsigned int NecessaryBandwidth; 
-  int m_uploadBitsPerSec; 
+  int v10; 
   int m_downloadBitsPerSec; 
   bdLobbyErrorCode ErrorCode; 
 
@@ -283,24 +286,18 @@ void Online_BandwidthTest::Frame(Online_BandwidthTest *this)
     else if ( Status == 7 )
     {
       UploadResults = bdBandwidthTestClient::getUploadResults(&this->m_bandwidthTestClient);
-      *(double *)&_XMM0 = bdBandwidthTestResults::getBandwidth(UploadResults);
+      Bandwidth = bdBandwidthTestResults::getBandwidth(UploadResults);
       v5 = this->m_bandwidthTestType == BD_UPLOAD_DOWNLOAD_TEST;
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@447a0000
-        vcvttss2si r8d, xmm0
-      }
-      this->m_uploadBitsPerSec = _R8;
+      m_uploadBitsPerSec = (unsigned int)(int)(float)(*(float *)&Bandwidth * 1000.0);
+      this->m_uploadBitsPerSec = m_uploadBitsPerSec;
       if ( v5 )
       {
         DownloadResults = bdBandwidthTestClient::getDownloadResults(&this->m_bandwidthTestClient);
-        *(double *)&_XMM0 = bdBandwidthTestResults::getBandwidth(DownloadResults);
-        __asm { vmulss  xmm1, xmm0, cs:__real@447a0000 }
-        _R8 = (unsigned int)this->m_uploadBitsPerSec;
-        __asm { vcvttss2si eax, xmm1 }
-        this->m_downloadBitsPerSec = _EAX;
+        v8 = bdBandwidthTestResults::getBandwidth(DownloadResults);
+        m_uploadBitsPerSec = (unsigned int)this->m_uploadBitsPerSec;
+        this->m_downloadBitsPerSec = (int)(float)(*(float *)&v8 * 1000.0);
       }
-      Com_Printf(25, "Upload Bandwidth: %d bits/s\n", _R8);
+      Com_Printf(25, "Upload Bandwidth: %d bits/s\n", m_uploadBitsPerSec);
       Com_Printf(25, "Download Bandwidth: %d bits/s\n", (unsigned int)this->m_downloadBitsPerSec);
       if ( !this->m_uploadBitsPerSec )
       {
@@ -311,10 +308,10 @@ void Online_BandwidthTest::Frame(Online_BandwidthTest *this)
       }
       bdBandwidthTestClient::stop(&this->m_bandwidthTestClient);
       bdBandwidthTestClient::quit(&this->m_bandwidthTestClient);
-      m_uploadBitsPerSec = this->m_uploadBitsPerSec;
+      v10 = this->m_uploadBitsPerSec;
       m_downloadBitsPerSec = this->m_downloadBitsPerSec;
       this->m_complete = 1;
-      Live_QueueBandwidthSample(m_downloadBitsPerSec, m_uploadBitsPerSec);
+      Live_QueueBandwidthSample(m_downloadBitsPerSec, v10);
     }
   }
 }
@@ -451,61 +448,52 @@ Online_BandwidthTest::TryStartBandwidthTest
 */
 void Online_BandwidthTest::TryStartBandwidthTest(Online_BandwidthTest *this, const int controllerIndex)
 {
-  const dvar_t *v6; 
-  const dvar_t *v7; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
   Online_Commerce *Instance; 
+  Online_Commerce *v7; 
+  bool v8; 
   Online_Commerce *v9; 
-  bool v10; 
-  Online_Commerce *v11; 
   bool HavePaidEntitlement; 
-  char v19; 
-  DWServicesAccess *v20; 
+  const dvar_t *v11; 
+  float value; 
+  DWServicesAccess *v13; 
   DWLobbyService *DWLobbyService; 
   bdBandwidthTestType m_bandwidthTestType; 
 
   if ( bdBandwidthTestClient::getStatus(&this->m_bandwidthTestClient) <= BD_BANDWIDTH_TEST_IDLE )
   {
-    v6 = DVARBOOL_com_force_free_to_play;
+    v4 = DVARBOOL_com_force_free_to_play;
     if ( !DVARBOOL_com_force_free_to_play && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_free_to_play") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v6);
-    if ( v6->current.enabled )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.enabled )
       goto LABEL_30;
-    v7 = DVARBOOL_com_force_premium;
+    v5 = DVARBOOL_com_force_premium;
     if ( !DVARBOOL_com_force_premium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_premium") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( !v7->current.enabled && (!Content_IsEnumerationDone() || !Content_DoWeHavePaidContentPackEntitlement()) )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( !v5->current.enabled && (!Content_IsEnumerationDone() || !Content_DoWeHavePaidContentPackEntitlement()) )
     {
       Instance = Online_Commerce::GetInstance();
-      v10 = 1;
+      v8 = 1;
       if ( Online_Commerce::GetPaidEntitlementTaskState(Instance, controllerIndex) != ENTITLEMENT_STATE_COMPLETE )
       {
-        v9 = Online_Commerce::GetInstance();
-        if ( Online_Commerce::GetPaidEntitlementTaskState(v9, controllerIndex) != ENTITLEMENT_STATE_ERROR )
-          v10 = 0;
+        v7 = Online_Commerce::GetInstance();
+        if ( Online_Commerce::GetPaidEntitlementTaskState(v7, controllerIndex) != ENTITLEMENT_STATE_ERROR )
+          v8 = 0;
       }
-      v11 = Online_Commerce::GetInstance();
-      HavePaidEntitlement = Online_Commerce::HavePaidEntitlement(v11, controllerIndex);
-      if ( !Live_IsUserSignedInToLive(controllerIndex) || !v10 || !HavePaidEntitlement )
+      v9 = Online_Commerce::GetInstance();
+      HavePaidEntitlement = Online_Commerce::HavePaidEntitlement(v9, controllerIndex);
+      if ( !Live_IsUserSignedInToLive(controllerIndex) || !v8 || !HavePaidEntitlement )
       {
 LABEL_30:
-        _RSI = DVARFLT_online_bandwith_test_f2p_pct;
-        __asm { vmovaps [rsp+68h+var_28], xmm6 }
+        v11 = DVARFLT_online_bandwith_test_f2p_pct;
         if ( !DVARFLT_online_bandwith_test_f2p_pct && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_bandwith_test_f2p_pct") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RSI);
-        __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-        rand();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@38000100
-          vcomiss xmm1, xmm6
-          vmovaps xmm6, [rsp+68h+var_28]
-        }
-        if ( !v19 )
+        Dvar_CheckFrontendServerThread(v11);
+        value = v11->current.value;
+        if ( (float)((float)rand() * 0.000030518509) >= value )
         {
           Com_Printf(25, "%s skipping bandwidth test for f2p player due to failing random pct chance\n", "Online_BandwidthTest::TryStartBandwidthTest");
 LABEL_27:
@@ -515,8 +503,8 @@ LABEL_27:
       }
     }
     this->m_complete = 0;
-    v20 = DWServicesAccess::GetInstance();
-    DWLobbyService = DWServicesAccess::GetDWLobbyService(v20, controllerIndex);
+    v13 = DWServicesAccess::GetInstance();
+    DWLobbyService = DWServicesAccess::GetDWLobbyService(v13, controllerIndex);
     if ( DWLobbyService::initBandwidthTestClient(DWLobbyService, &this->m_bandwidthTestClient) )
     {
       m_bandwidthTestType = this->m_bandwidthTestType;

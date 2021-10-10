@@ -723,40 +723,36 @@ void R_TG_PoolAllocator::Free(R_TG_PoolAllocator *this, const unsigned int index
 {
   __int64 v3; 
   unsigned int m_activeCount; 
-  __int64 v11; 
+  __m256i *v5; 
+  __int64 m_freeCount; 
+  __int64 v7; 
+  __int64 v8; 
 
-  _R10 = this;
   v3 = 0i64;
   m_activeCount = this->m_activeCount;
   if ( m_activeCount )
   {
-    while ( _R10->m_active[v3].index != index )
+    while ( this->m_active[v3].index != index )
     {
       v3 = (unsigned int)(v3 + 1);
       if ( (unsigned int)v3 >= m_activeCount )
         return;
     }
-    _RAX = 9 * v3;
-    __asm { vmovups ymm0, ymmword ptr [r10+rax*4] }
-    _RDX = (char *)_R10 + 4 * _RAX;
-    _RCX = _R10->m_freeCount;
-    __asm { vmovups ymmword ptr [r10+rcx*4+4804h], ymm0 }
-    _R10->m_free[_RCX].multisample = *((_DWORD *)_RDX + 8);
-    _RCX = _R10->m_activeCount - 1;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r10+rcx*4]
-      vmovups ymmword ptr [rdx], ymm0
-    }
-    *((_DWORD *)_RDX + 8) = _R10->m_active[_RCX].multisample;
-    v11 = _R10->m_activeCount - 1;
-    *(_QWORD *)&_R10->m_active[v11].index = 0i64;
-    *(_QWORD *)&_R10->m_active[v11].width = 0i64;
-    *(_QWORD *)&_R10->m_active[v11].depth = 0i64;
-    *(_QWORD *)&_R10->m_active[v11].levels = 0i64;
-    _R10->m_active[v11].multisample = 0;
-    --_R10->m_activeCount;
-    ++_R10->m_freeCount;
+    v5 = (__m256i *)&this->m_active[v3];
+    m_freeCount = this->m_freeCount;
+    *(__m256i *)&this->m_free[m_freeCount].index = *v5;
+    this->m_free[m_freeCount].multisample = v5[1].m256i_u32[0];
+    v7 = this->m_activeCount - 1;
+    *v5 = *(__m256i *)&this->m_active[this->m_activeCount - 1].index;
+    v5[1].m256i_i32[0] = this->m_active[v7].multisample;
+    v8 = this->m_activeCount - 1;
+    *(_QWORD *)&this->m_active[v8].index = 0i64;
+    *(_QWORD *)&this->m_active[v8].width = 0i64;
+    *(_QWORD *)&this->m_active[v8].depth = 0i64;
+    *(_QWORD *)&this->m_active[v8].levels = 0i64;
+    this->m_active[v8].multisample = 0;
+    --this->m_activeCount;
+    ++this->m_freeCount;
   }
 }
 

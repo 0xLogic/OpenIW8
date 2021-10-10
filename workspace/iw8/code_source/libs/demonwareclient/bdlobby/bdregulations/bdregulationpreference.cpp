@@ -49,13 +49,7 @@ bdRegulationPreference::bdRegulationPreference
 */
 void bdRegulationPreference::bdRegulationPreference(bdRegulationPreference *this, bdRegulation *regulation, unsigned __int64 clientMessageVersion, bool value)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  xmm1, qword ptr [rdx+10h]
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  this->m_regulation = *regulation;
   this->m_clientMessageVersion = clientMessageVersion;
   this->m_value = value;
 }

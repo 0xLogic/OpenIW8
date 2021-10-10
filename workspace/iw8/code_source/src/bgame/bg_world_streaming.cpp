@@ -137,30 +137,23 @@ BG_WorldStreaming_DecodeVelocity
 */
 void BG_WorldStreaming_DecodeVelocity(msg_t *msg, vec3_t *outVelocity)
 {
-  msg_t *v4; 
+  msg_t *v3; 
   int Bits; 
-  int v6; 
+  int v5; 
+  double v6; 
+  double v7; 
+  double v8; 
 
-  _RBP = outVelocity;
-  v4 = msg;
+  v3 = msg;
   Bits = MSG_ReadBits(msg, 9u);
-  v6 = MSG_ReadBits(v4, 9u);
-  __asm { vmovss  xmm1, cs:__real@45000000; maxAbsValueSize }
-  LODWORD(v4) = MSG_ReadBits(v4, 9u);
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(Bits, *(float *)&_XMM1, 9u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@45000000; maxAbsValueSize
-    vmovss  dword ptr [rbp+0], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(v6, *(float *)&_XMM1, 9u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@45400000; maxAbsValueSize
-    vmovss  dword ptr [rbp+4], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat((int)v4, *(float *)&_XMM1, 9u);
-  __asm { vmovss  dword ptr [rbp+8], xmm0 }
+  v5 = MSG_ReadBits(v3, 9u);
+  LODWORD(v3) = MSG_ReadBits(v3, 9u);
+  v6 = MSG_UnpackSignedFloat(Bits, 2048.0, 9u);
+  outVelocity->v[0] = *(float *)&v6;
+  v7 = MSG_UnpackSignedFloat(v5, 2048.0, 9u);
+  outVelocity->v[1] = *(float *)&v7;
+  v8 = MSG_UnpackSignedFloat((int)v3, 3072.0, 9u);
+  outVelocity->v[2] = *(float *)&v8;
 }
 
 /*
@@ -221,74 +214,26 @@ BG_WorldStreaming_EncodeVelocity
 */
 void BG_WorldStreaming_EncodeVelocity(msg_t *msg, const vec3_t *velocity)
 {
-  __int64 v24; 
-  int v27; 
-  __int64 v29; 
-  __int64 v31; 
-  char v39; 
-  void *retaddr; 
+  double v4; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@c5000000; min
-    vmovss  xmm0, dword ptr [rdx]; val
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RBX = velocity;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm10
-    vmovss  xmm10, cs:__real@45000000
-    vmovaps xmm2, xmm10; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@c5000000; min
-    vmovaps xmm7, xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; val
-    vmovaps xmm2, xmm10; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@45400000; max
-    vmovss  xmm1, cs:__real@c5400000; min
-    vmovaps xmm8, xmm0
-    vmovss  xmm0, dword ptr [rbx+8]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovaps xmm0, xmm7; value
-    vmovaps xmm1, xmm10; maxAbsValueSize
-  }
-  v24 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u);
-  __asm
-  {
-    vmovaps xmm1, xmm10; maxAbsValueSize
-    vmovaps xmm0, xmm8; value
-  }
-  v27 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u);
-  __asm { vmovss  xmm1, cs:__real@45400000; maxAbsValueSize }
-  v29 = v27;
-  __asm { vmovaps xmm0, xmm6; value }
-  v31 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u);
-  MSG_WriteBits(msg, v24, 9u);
-  MSG_WriteBits(msg, v29, 9u);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  _R11 = &v39;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  MSG_WriteBits(msg, v31, 9u);
+  v4 = I_fclamp(velocity->v[0], -2048.0, 2048.0);
+  v5 = *(float *)&v4;
+  v6 = I_fclamp(velocity->v[1], -2048.0, 2048.0);
+  v7 = *(float *)&v6;
+  v8 = I_fclamp(velocity->v[2], -3072.0, 3072.0);
+  v9 = MSG_PackSignedFloat(v5, 2048.0, 9u);
+  v10 = MSG_PackSignedFloat(v7, 2048.0, 9u);
+  v11 = MSG_PackSignedFloat(*(float *)&v8, 3072.0, 9u);
+  MSG_WriteBits(msg, v9, 9u);
+  MSG_WriteBits(msg, v10, 9u);
+  MSG_WriteBits(msg, v11, 9u);
 }
 
 /*

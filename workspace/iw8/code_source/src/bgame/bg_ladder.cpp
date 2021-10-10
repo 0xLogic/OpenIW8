@@ -356,527 +356,324 @@ void __fastcall PM_CheckLadderMove(pmove_t *pm, pml_t *pml)
 BG_GetLadderInfo
 ==============
 */
-bool BG_GetLadderInfo(const vec3_t *origin, const BgHandler *handler, LadderInfo *outLadderInfo, vec3_t *outToCenterTarget, bool printWarning, unsigned int *edgeLadderQueryHint, unsigned int *edgeWidthQueryHint)
+char BG_GetLadderInfo(const vec3_t *origin, const BgHandler *handler, LadderInfo *outLadderInfo, vec3_t *outToCenterTarget, bool printWarning, unsigned int *edgeLadderQueryHint, unsigned int *edgeWidthQueryHint)
 {
-  const BgHandler *v17; 
-  bool v19; 
-  int v21; 
-  bool v22; 
-  unsigned int v23; 
-  EdgeId v26; 
-  bool result; 
-  int v38; 
-  const BgHandler *v39; 
-  EdgeId *v40; 
-  char v41; 
-  char v59; 
-  char v60; 
-  char v126; 
-  char v127; 
-  unsigned __int64 v198; 
-  __int64 v199; 
-  char v200; 
-  char *fmt; 
-  char *fmta; 
-  unsigned __int64 resultPoolSize; 
-  unsigned __int64 resultPoolSizea; 
-  unsigned __int64 *outResultCount; 
+  __int128 v7; 
+  const BgHandler *v10; 
+  bool v12; 
+  int v13; 
+  bool v14; 
+  unsigned int v15; 
+  LadderInfo *p_row2; 
+  vec3_t *p_top; 
+  EdgeId v18; 
+  int v20; 
+  const BgHandler *v21; 
+  EdgeId *v22; 
+  __int128 v23; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  __int128 v31; 
+  float v32; 
+  float v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  LadderInfo *p_row1; 
+  float v60; 
+  __int128 v61; 
+  float v62; 
+  unsigned __int64 v66; 
+  __int64 v67; 
+  float v68; 
+  __int128 v70; 
   EdgeId edgeId; 
-  unsigned __int64 v240; 
+  unsigned __int64 outResultCount; 
   vec3_t *angles; 
   unsigned int *outHintNodeIndex; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere> v243; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere> v244; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere> v77; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere> v78; 
   vec3_t handlera; 
-  EdgeOctreeQuerySphere v246; 
-  EdgeOctreeQuerySphere v247; 
-  vec3_t v248[2]; 
+  EdgeOctreeQuerySphere v80; 
+  EdgeOctreeQuerySphere v81; 
+  vec3_t v82[2]; 
   vec3_t outNormal0; 
   vec3_t outNormal1; 
   vec3_t outLineSegment[2]; 
-  vec3_t v252[2]; 
+  vec3_t v86[2]; 
   EdgeId resultIdPool[16]; 
   float resultFractionPool[16]; 
+  __int128 v89; 
 
-  _R14 = outToCenterTarget;
-  _RDI = outLadderInfo;
   outHintNodeIndex = edgeWidthQueryHint;
-  v17 = handler;
+  v10 = handler;
   *(_QWORD *)handlera.v = handler;
   angles = (vec3_t *)origin;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 169, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 170, ASSERT_TYPE_ASSERT, "(outLadderInfo)", (const char *)&queryFormat, "outLadderInfo") )
+  if ( !outLadderInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 170, ASSERT_TYPE_ASSERT, "(outLadderInfo)", (const char *)&queryFormat, "outLadderInfo") )
     __debugbreak();
   if ( !edgeLadderQueryHint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 171, ASSERT_TYPE_ASSERT, "(edgeLadderQueryHint)", (const char *)&queryFormat, "edgeLadderQueryHint") )
     __debugbreak();
   if ( !edgeWidthQueryHint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 172, ASSERT_TYPE_ASSERT, "(edgeWidthQueryHint)", (const char *)&queryFormat, "edgeWidthQueryHint") )
     __debugbreak();
-  v19 = v17->RequiresScriptMoverLadderChecks((BgHandler *)v17);
-  __asm { vmovss  xmm2, cs:?LADDER_LINE_QUERY_DISTANCE@@3MA; radius }
-  v21 = 0;
-  v240 = 0i64;
-  v22 = v19;
-  EdgeOctreeQuerySphere::EdgeOctreeQuerySphere(&v246, origin, *(float *)&_XMM2);
-  v243.m_hint = *edgeLadderQueryHint;
-  v243.m_queryShape = &v246;
-  v23 = 0;
-  v243.m_bucket = LADDER_CENTERLINE;
-  if ( v22 )
-    v23 = 1;
-  v243.m_flags = v23;
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(&v243, v17, resultIdPool, resultFractionPool, NULL, 0x10ui64, &v240, edgeLadderQueryHint);
-  *(_QWORD *)_RDI->axis.row2.v = 0i64;
-  _R12 = (LadderInfo *)&_RDI->axis.row2;
-  _RDI->axis.m[2].v[2] = 1.0;
-  _R13 = &_RDI->top;
-  *(_QWORD *)_RDI->bottom.v = 0i64;
-  _RDI->bottom.v[2] = 0.0;
-  *(_QWORD *)_RDI->top.v = 0i64;
-  _RDI->top.v[2] = 0.0;
-  _RDI->rungDistance = 12.0;
+  v12 = v10->RequiresScriptMoverLadderChecks((BgHandler *)v10);
+  v13 = 0;
+  outResultCount = 0i64;
+  v14 = v12;
+  EdgeOctreeQuerySphere::EdgeOctreeQuerySphere(&v80, origin, LADDER_LINE_QUERY_DISTANCE);
+  v77.m_hint = *edgeLadderQueryHint;
+  v77.m_queryShape = &v80;
+  v15 = 0;
+  v77.m_bucket = LADDER_CENTERLINE;
+  if ( v14 )
+    v15 = 1;
+  v77.m_flags = v15;
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(&v77, v10, resultIdPool, resultFractionPool, NULL, 0x10ui64, &outResultCount, edgeLadderQueryHint);
+  *(_QWORD *)outLadderInfo->axis.row2.v = 0i64;
+  p_row2 = (LadderInfo *)&outLadderInfo->axis.row2;
+  outLadderInfo->axis.m[2].v[2] = 1.0;
+  p_top = &outLadderInfo->top;
+  *(_QWORD *)outLadderInfo->bottom.v = 0i64;
+  outLadderInfo->bottom.v[2] = 0.0;
+  *(_QWORD *)outLadderInfo->top.v = 0i64;
+  outLadderInfo->top.v[2] = 0.0;
+  outLadderInfo->rungDistance = 12.0;
   EdgeId::Clear(&edgeId);
-  v26 = edgeId;
-  if ( v240 )
-    v26 = resultIdPool[0];
-  edgeId = v26;
-  if ( v240 )
+  v18 = edgeId;
+  if ( outResultCount )
+    v18 = resultIdPool[0];
+  edgeId = v18;
+  if ( outResultCount )
   {
-    __asm
+    v89 = v7;
+    if ( outResultCount > 1 )
     {
-      vmovaps [rsp+3D0h+var_50], xmm6
-      vmovaps [rsp+3D0h+var_60], xmm7
-      vmovaps [rsp+3D0h+var_70], xmm8
-      vmovaps [rsp+3D0h+var_80], xmm9
-      vmovaps [rsp+3D0h+var_90], xmm10
-      vmovaps [rsp+3D0h+var_A0], xmm11
-      vmovaps [rsp+3D0h+var_B0], xmm12
-      vmovaps [rsp+3D0h+var_C0], xmm13
-      vmovss  xmm12, cs:__real@80000000
-      vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm11, cs:__real@3f800000
-    }
-    if ( v240 > 1 )
-    {
-      v38 = 0;
-      v39 = *(const BgHandler **)handlera.v;
-      v40 = resultIdPool;
+      v20 = 0;
+      v21 = *(const BgHandler **)handlera.v;
+      v22 = resultIdPool;
       do
       {
-        edgeId = *v40;
-        Edge_GetLineSegment(v39, edgeId, (vec3_t (*)[2])outLineSegment);
+        edgeId = *v22;
+        Edge_GetLineSegment(v21, edgeId, (vec3_t (*)[2])outLineSegment);
+        v23 = LODWORD(outLineSegment[0].v[1]);
+        *(float *)&v23 = fsqrt((float)((float)((float)(outLineSegment[0].v[1] - outLineSegment[1].v[1]) * (float)(outLineSegment[0].v[1] - outLineSegment[1].v[1])) + (float)((float)(outLineSegment[0].v[0] - outLineSegment[1].v[0]) * (float)(outLineSegment[0].v[0] - outLineSegment[1].v[0]))) + (float)((float)(outLineSegment[0].v[2] - outLineSegment[1].v[2]) * (float)(outLineSegment[0].v[2] - outLineSegment[1].v[2])));
+        _XMM1 = v23;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbp+2D0h+outLineSegment]
-          vsubss  xmm3, xmm0, dword ptr [rbp+2D0h+outLineSegment+0Ch]
-          vmovss  xmm1, dword ptr [rbp+2D0h+outLineSegment+4]
-          vsubss  xmm2, xmm1, dword ptr [rbp+2D0h+outLineSegment+10h]
-          vmovss  xmm0, dword ptr [rbp+2D0h+outLineSegment+8]
-          vsubss  xmm4, xmm0, dword ptr [rbp+2D0h+outLineSegment+14h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm3, cs:?LADDER_ALIGNMENT_THRESHOLD@@3MA; float LADDER_ALIGNMENT_THRESHOLD
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm12
           vblendvps xmm0, xmm1, xmm11, xmm0
-          vdivss  xmm2, xmm4, xmm0
-          vcomiss xmm2, xmm3
         }
-        if ( !(v41 | v60) )
+        if ( (float)((float)(outLineSegment[0].v[2] - outLineSegment[1].v[2]) / *(float *)&_XMM0) > LADDER_ALIGNMENT_THRESHOLD )
           break;
-        __asm
-        {
-          vxorps  xmm0, xmm3, xmm10
-          vcomiss xmm2, xmm0
-        }
-        if ( v41 )
+        if ( (float)((float)(outLineSegment[0].v[2] - outLineSegment[1].v[2]) / *(float *)&_XMM0) < COERCE_FLOAT(LODWORD(LADDER_ALIGNMENT_THRESHOLD) ^ _xmm) )
           break;
-        ++v38;
-        ++v40;
+        ++v20;
+        ++v22;
       }
-      while ( v38 < v240 );
-      v26 = edgeId;
-      _R13 = &_RDI->top;
-      v17 = *(const BgHandler **)handlera.v;
+      while ( v20 < outResultCount );
+      v18 = edgeId;
+      p_top = &outLadderInfo->top;
+      v10 = *(const BgHandler **)handlera.v;
     }
-    Edge_GetLineSegment(v17, v26, (vec3_t (*)[2])v248);
-    Edge_CalculateNormals(v17, edgeId, &outNormal0, &outNormal1);
+    Edge_GetLineSegment(v10, v18, (vec3_t (*)[2])v82);
+    Edge_CalculateNormals(v10, edgeId, &outNormal0, &outNormal1);
+    v28 = LODWORD(outNormal1.v[1]);
+    v27 = outNormal1.v[1] + outNormal0.v[1];
+    v29 = outNormal1.v[2] + outNormal0.v[2];
+    v30 = v82[0].v[1];
+    v31 = LODWORD(v82[1].v[0]);
+    v32 = v82[0].v[0];
+    v33 = v82[0].v[2];
+    *(float *)&v28 = fsqrt((float)((float)(v27 * v27) + (float)((float)(outNormal0.v[0] + outNormal1.v[0]) * (float)(outNormal0.v[0] + outNormal1.v[0]))) + (float)(v29 * v29));
+    _XMM3 = v28;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+2D0h+outNormal0]
-      vaddss  xmm5, xmm0, dword ptr [rbp+2D0h+outNormal1]
-      vmovss  xmm1, dword ptr [rbp+2D0h+outNormal1+4]
-      vaddss  xmm6, xmm1, dword ptr [rbp+2D0h+outNormal0+4]
-      vmovss  xmm0, dword ptr [rbp+2D0h+outNormal1+8]
-      vaddss  xmm4, xmm0, dword ptr [rbp+2D0h+outNormal0+8]
-      vmovss  xmm9, dword ptr [rbp+2D0h+var_1F0+4]
-      vmovss  xmm7, dword ptr [rbp+2D0h+var_1F0+0Ch]
-      vmovss  xmm8, dword ptr [rbp+2D0h+var_1F0]
-      vmovss  xmm13, dword ptr [rbp+2D0h+var_1F0+8]
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm12
       vblendvps xmm0, xmm3, xmm11, xmm0
-      vdivss  xmm2, xmm11, xmm0
-      vmulss  xmm0, xmm2, xmm5
-      vmovss  xmm5, dword ptr [rbp+2D0h+var_1F0+14h]
-      vmovss  dword ptr [rdi], xmm0
-      vmulss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rdi+8], xmm0
-      vmulss  xmm1, xmm2, xmm6
-      vmovss  xmm6, dword ptr [rbp+2D0h+var_1F0+10h]
-      vmovss  dword ptr [rdi+4], xmm1
-      vsubss  xmm0, xmm6, xmm9
-      vmovss  dword ptr [r12+4], xmm0
-      vmulss  xmm0, xmm0, xmm0
-      vsubss  xmm3, xmm5, xmm13
-      vmovss  dword ptr [r12+8], xmm3
-      vsubss  xmm4, xmm7, xmm8
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vcmpless xmm0, xmm3, xmm12
-      vblendvps xmm0, xmm3, xmm11, xmm0
-      vdivss  xmm2, xmm11, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [r12], xmm0
-      vmulss  xmm1, xmm2, dword ptr [r12+4]
-      vmovss  dword ptr [r12+4], xmm1
-      vmulss  xmm2, xmm2, dword ptr [r12+8]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm2, xmm0
-      vmovss  dword ptr [r12+8], xmm2
-      vmovss  xmm1, dword ptr [r12]
     }
-    if ( v59 )
+    v37 = v82[1].v[2];
+    outLadderInfo->axis.m[0].v[0] = (float)(1.0 / *(float *)&_XMM0) * (float)(outNormal0.v[0] + outNormal1.v[0]);
+    outLadderInfo->axis.m[0].v[2] = (float)(1.0 / *(float *)&_XMM0) * v29;
+    v38 = (float)(1.0 / *(float *)&_XMM0) * v27;
+    v39 = v82[1].v[1];
+    outLadderInfo->axis.m[0].v[1] = v38;
+    outLadderInfo->axis.m[2].v[1] = v39 - v30;
+    outLadderInfo->axis.m[2].v[2] = v37 - v33;
+    v40 = v31;
+    *(float *)&v40 = fsqrt((float)((float)((float)(*(float *)&v31 - v32) * (float)(*(float *)&v31 - v32)) + (float)((float)(v39 - v30) * (float)(v39 - v30))) + (float)((float)(v37 - v33) * (float)(v37 - v33)));
+    _XMM3 = v40;
+    __asm
     {
-      __asm
-      {
-        vxorps  xmm0, xmm1, xmm10
-        vmovss  dword ptr [r12], xmm0
-        vmovss  xmm1, dword ptr [rdi+1Ch]
-        vxorps  xmm2, xmm1, xmm10
-        vmovss  dword ptr [r12+4], xmm2
-        vmovss  xmm0, dword ptr [rdi+20h]
-        vxorps  xmm1, xmm0, xmm10
-        vmovss  dword ptr [r12+8], xmm1
-        vmovaps xmm1, xmm8
-        vmovaps xmm2, xmm13
-        vmovaps xmm0, xmm9
-      }
+      vcmpless xmm0, xmm3, xmm12
+      vblendvps xmm0, xmm3, xmm11, xmm0
+    }
+    p_row2->axis.m[0].v[0] = (float)(*(float *)&v31 - v32) * (float)(1.0 / *(float *)&_XMM0);
+    outLadderInfo->axis.m[2].v[1] = (float)(1.0 / *(float *)&_XMM0) * outLadderInfo->axis.m[2].v[1];
+    *(float *)&v40 = (float)(1.0 / *(float *)&_XMM0) * outLadderInfo->axis.m[2].v[2];
+    outLadderInfo->axis.m[2].v[2] = *(float *)&v40;
+    if ( *(float *)&v40 >= 0.0 )
+    {
+      v45 = v37;
+      v46 = v39;
+      v44 = *(float *)&v31;
+      v37 = v33;
+      v39 = v30;
+      *(float *)&v31 = v32;
     }
     else
     {
-      __asm
-      {
-        vmovaps xmm2, xmm5
-        vmovaps xmm0, xmm6
-        vmovaps xmm1, xmm7
-        vmovaps xmm5, xmm13
-        vmovaps xmm6, xmm9
-        vmovaps xmm7, xmm8
-      }
+      p_row2->axis.m[0].v[0] = COERCE_FLOAT(LODWORD(p_row2->axis.m[0].v[0]) ^ _xmm);
+      outLadderInfo->axis.m[2].v[1] = COERCE_FLOAT(LODWORD(outLadderInfo->axis.m[2].v[1]) ^ _xmm);
+      outLadderInfo->axis.m[2].v[2] = COERCE_FLOAT(LODWORD(outLadderInfo->axis.m[2].v[2]) ^ _xmm);
+      v44 = v32;
+      v45 = v33;
+      v46 = v30;
     }
-    __asm
+    outLadderInfo->bottom.v[0] = *(float *)&v31;
+    outLadderInfo->bottom.v[1] = v39;
+    outLadderInfo->bottom.v[2] = v37;
+    p_top->v[0] = v44;
+    p_top->v[1] = v46;
+    p_top->v[2] = v45;
+    v47 = p_top->v[2] - outLadderInfo->bottom.v[2];
+    v48 = p_top->v[0];
+    if ( v47 > LADDER_ALIGNMENT_THRESHOLD )
     {
-      vmovss  dword ptr [rdi+24h], xmm7
-      vmovss  dword ptr [rdi+28h], xmm6
-      vmovss  dword ptr [rdi+2Ch], xmm5
-      vmovss  dword ptr [r13+0], xmm1
-      vmovss  dword ptr [r13+4], xmm0
-      vmovss  dword ptr [r13+8], xmm2
-      vmovss  xmm1, dword ptr [r13+8]
-      vsubss  xmm3, xmm1, dword ptr [rdi+2Ch]
-      vcomiss xmm3, cs:?LADDER_ALIGNMENT_THRESHOLD@@3MA; float LADDER_ALIGNMENT_THRESHOLD
-      vmovss  xmm9, dword ptr [r13+0]
-      vmovss  xmm0, dword ptr [r13+4]
-      vsubss  xmm2, xmm9, dword ptr [rdi+24h]
-      vsubss  xmm4, xmm0, dword ptr [rdi+28h]
-      vmovaps xmm13, [rsp+3D0h+var_C0]
-    }
-    if ( v59 | v60 )
-    {
-      if ( _R14 )
+      v49 = p_top->v[1] - outLadderInfo->bottom.v[1];
+      v50 = fsqrt((float)((float)((float)(p_top->v[0] - outLadderInfo->bottom.v[0]) * (float)(p_top->v[0] - outLadderInfo->bottom.v[0])) + (float)(v49 * v49)) + (float)(v47 * v47));
+      v51 = fmodf_0(v50, 12.0);
+      if ( v51 >= 0.00000011920929 )
       {
-        *(_QWORD *)_R14->v = 0i64;
-        _R14->v[2] = 0.0;
-      }
-      result = 0;
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm8, cs:__real@41400000
-        vmulss  xmm1, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm7, xmm2, xmm2
-        vmovaps xmm0, xmm7; X
-        vmovaps xmm1, xmm8; Y
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vcomiss xmm0, cs:__real@34000000
-        vmovaps xmm2, xmm0
-      }
-      if ( !v126 )
-      {
-        __asm
-        {
-          vcomiss xmm2, cs:__real@40c00000
-          vmulss  xmm0, xmm7, cs:__real@3daaaaab
-          vxorps  xmm6, xmm6, xmm6
-        }
-        if ( v126 )
-          __asm { vroundss xmm6, xmm6, xmm0, 1 }
-        else
+        _XMM6 = 0i64;
+        if ( v51 >= 6.0 )
           __asm { vroundss xmm6, xmm6, xmm0, 2 }
-        __asm { vcomiss xmm2, xmm11 }
-        if ( !(v126 | v127) )
-          goto LABEL_43;
-        __asm { vcomiss xmm2, cs:__real@41300000 }
-        if ( v126 )
-        {
-LABEL_43:
-          if ( printWarning )
-          {
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rdi+34h]
-              vmovss  xmm4, dword ptr [rdi+38h]
-              vmovsd  xmm0, cs:__real@4028000000000000
-              vmovsd  [rsp+3D0h+outResultCount], xmm0
-              vcvtss2sd xmm3, xmm3, xmm3
-              vcvtss2sd xmm1, xmm7, xmm7
-              vcvtss2sd xmm2, xmm9, xmm9
-              vcvtss2sd xmm4, xmm4, xmm4
-              vmovsd  [rsp+3D0h+resultPoolSize], xmm1
-              vmovq   r9, xmm3
-              vmovq   r8, xmm2
-              vmovsd  [rsp+3D0h+fmt], xmm4
-            }
-            Com_PrintWarning(34, "WARNING: player is using a ladder %0.2f %0.2f %0.2f with segment length (%0.2f) that is not a multiple of %0.2f.  Dynamically resizing the ladder. \n", _R8, _R9, fmt, resultPoolSize, outResultCount);
-          }
-        }
-        __asm
-        {
-          vmulss  xmm2, xmm6, xmm8
-          vmulss  xmm0, xmm2, dword ptr [r12]
-          vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-          vmovss  dword ptr [r13+0], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r12+4]
-          vaddss  xmm1, xmm0, dword ptr [rdi+28h]
-          vmovss  dword ptr [r13+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r12+8]
-          vaddss  xmm1, xmm0, dword ptr [rdi+2Ch]
-          vmovss  dword ptr [r13+8], xmm1
-        }
+        else
+          __asm { vroundss xmm6, xmm6, xmm0, 1 }
+        if ( (v51 > 1.0 || v51 < 11.0) && printWarning )
+          Com_PrintWarning(34, "WARNING: player is using a ladder %0.2f %0.2f %0.2f with segment length (%0.2f) that is not a multiple of %0.2f.  Dynamically resizing the ladder. \n", v48, outLadderInfo->top.v[1], outLadderInfo->top.v[2], v50, DOUBLE_12_0);
+        p_top->v[0] = (float)((float)(*(float *)&_XMM6 * 12.0) * p_row2->axis.m[0].v[0]) + outLadderInfo->bottom.v[0];
+        p_top->v[1] = (float)((float)(*(float *)&_XMM6 * 12.0) * outLadderInfo->axis.m[2].v[1]) + outLadderInfo->bottom.v[1];
+        p_top->v[2] = (float)((float)(*(float *)&_XMM6 * 12.0) * outLadderInfo->axis.m[2].v[2]) + outLadderInfo->bottom.v[2];
       }
-      if ( _R14 )
+      if ( outToCenterTarget )
       {
-        _RAX = angles;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vsubss  xmm1, xmm0, dword ptr [rbp+2D0h+var_1F0]
-          vmovss  xmm2, dword ptr [rax+4]
-          vsubss  xmm0, xmm2, dword ptr [rbp+2D0h+var_1F0+4]
-          vmovss  dword ptr [rbp+2D0h+handler], xmm1
-          vmovss  xmm1, dword ptr [rax+8]
-          vsubss  xmm2, xmm1, dword ptr [rbp+2D0h+var_1F0+8]
-          vmovss  [rbp+2D0h+var_338], xmm2
-          vmovss  dword ptr [rbp+2D0h+handler+4], xmm0
-        }
-        ProjectPointOnPlane(&handlera, _RDI->axis.m, &handlera);
-        __asm
-        {
-          vmovss  xmm5, dword ptr [r12]
-          vmovss  xmm8, dword ptr [r12+4]
-          vmovss  xmm9, dword ptr [r12+8]
-          vmulss  xmm1, xmm5, dword ptr [rbp+2D0h+handler]
-          vmulss  xmm0, xmm8, dword ptr [rbp+2D0h+handler+4]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm9, [rbp+2D0h+var_338]
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm3, xmm5
-          vsubss  xmm2, xmm0, dword ptr [rbp+2D0h+handler]
-          vmulss  xmm1, xmm3, xmm8
-          vsubss  xmm0, xmm1, dword ptr [rbp+2D0h+handler+4]
-          vmovss  dword ptr [r14], xmm2
-          vmulss  xmm2, xmm3, xmm9
-          vsubss  xmm1, xmm2, [rbp+2D0h+var_338]
-          vmovss  dword ptr [r14+8], xmm1
-          vmovss  dword ptr [r14+4], xmm0
-        }
+        v54 = angles->v[1] - v82[0].v[1];
+        handlera.v[0] = angles->v[0] - v82[0].v[0];
+        handlera.v[2] = angles->v[2] - v82[0].v[2];
+        handlera.v[1] = v54;
+        ProjectPointOnPlane(&handlera, outLadderInfo->axis.m, &handlera);
+        v55 = outLadderInfo->axis.m[2].v[1];
+        v56 = outLadderInfo->axis.m[2].v[2];
+        v57 = (float)((float)(p_row2->axis.m[0].v[0] * handlera.v[0]) + (float)(v55 * handlera.v[1])) + (float)(v56 * handlera.v[2]);
+        v58 = (float)(v57 * v55) - handlera.v[1];
+        outToCenterTarget->v[0] = (float)(v57 * p_row2->axis.m[0].v[0]) - handlera.v[0];
+        outToCenterTarget->v[2] = (float)(v57 * v56) - handlera.v[2];
+        outToCenterTarget->v[1] = v58;
       }
-      _RBX = (LadderInfo *)&_RDI->axis.row1;
-      if ( _R12 == (LadderInfo *)&_RDI->axis.row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+      p_row1 = (LadderInfo *)&outLadderInfo->axis.row1;
+      if ( p_row2 == (LadderInfo *)&outLadderInfo->axis.row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
         __debugbreak();
-      if ( _RDI == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+      if ( outLadderInfo == p_row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
         __debugbreak();
+      v60 = (float)(outLadderInfo->axis.m[2].v[1] * outLadderInfo->axis.m[0].v[2]) - (float)(outLadderInfo->axis.m[0].v[1] * outLadderInfo->axis.m[2].v[2]);
+      p_row1->axis.m[0].v[0] = v60;
+      v61 = LODWORD(outLadderInfo->axis.m[0].v[0]);
+      *(float *)&v61 = (float)(outLadderInfo->axis.m[0].v[0] * outLadderInfo->axis.m[2].v[2]) - (float)(outLadderInfo->axis.m[2].v[0] * outLadderInfo->axis.m[0].v[2]);
+      outLadderInfo->axis.m[1].v[1] = *(float *)&v61;
+      v62 = (float)(outLadderInfo->axis.m[0].v[1] * outLadderInfo->axis.m[2].v[0]) - (float)(outLadderInfo->axis.m[0].v[0] * outLadderInfo->axis.m[2].v[1]);
+      outLadderInfo->axis.m[1].v[2] = v62;
+      *(float *)&v61 = fsqrt((float)((float)(*(float *)&v61 * *(float *)&v61) + (float)(v60 * v60)) + (float)(v62 * v62));
+      _XMM3 = v61;
       __asm
       {
-        vmovss  xmm0, dword ptr [r12+4]
-        vmulss  xmm3, xmm0, dword ptr [rdi+8]
-        vmovss  xmm1, dword ptr [rdi+4]
-        vmulss  xmm2, xmm1, dword ptr [r12+8]
-        vsubss  xmm6, xmm3, xmm2
-        vmovss  dword ptr [rbx], xmm6
-        vmovss  xmm0, dword ptr [rdi]
-        vmulss  xmm3, xmm0, dword ptr [r12+8]
-        vmovss  xmm1, dword ptr [r12]
-        vmulss  xmm2, xmm1, dword ptr [rdi+8]
-        vsubss  xmm5, xmm3, xmm2
-        vmovss  dword ptr [rbx+4], xmm5
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmulss  xmm3, xmm0, dword ptr [r12]
-        vmovss  xmm1, dword ptr [rdi]
-        vmulss  xmm2, xmm1, dword ptr [r12+4]
-        vsubss  xmm4, xmm3, xmm2
-        vmovss  dword ptr [rbx+8], xmm4
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, xmm12
         vblendvps xmm0, xmm3, xmm11, xmm0
-        vdivss  xmm2, xmm11, xmm0
-        vmulss  xmm0, xmm2, xmm6
-        vmovss  dword ptr [rbx], xmm0
-        vmulss  xmm1, xmm2, dword ptr [rbx+4]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx+8], xmm0
       }
-      _RDI->width = 15.2496;
-      __asm { vmovss  xmm2, cs:?LADDER_WIDTH_QUERY_DISTANCE@@3MA; radius }
-      EdgeOctreeQuerySphere::EdgeOctreeQuerySphere(&v247, _R13, *(float *)&_XMM2);
-      v244.m_queryShape = &v247;
-      v244.m_flags = 1;
-      v244.m_hint = *outHintNodeIndex;
-      v244.m_bucket = LADDER_CENTERLINE;
-      EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(&v244, v17, resultIdPool, resultFractionPool, NULL, 0x10ui64, &v240, outHintNodeIndex);
-      v198 = v240;
-      if ( v240 )
+      p_row1->axis.m[0].v[0] = (float)(1.0 / *(float *)&_XMM0) * v60;
+      outLadderInfo->axis.m[1].v[1] = (float)(1.0 / *(float *)&_XMM0) * outLadderInfo->axis.m[1].v[1];
+      outLadderInfo->axis.m[1].v[2] = (float)(1.0 / *(float *)&_XMM0) * outLadderInfo->axis.m[1].v[2];
+      outLadderInfo->width = 15.2496;
+      EdgeOctreeQuerySphere::EdgeOctreeQuerySphere(&v81, p_top, LADDER_WIDTH_QUERY_DISTANCE);
+      v78.m_queryShape = &v81;
+      v78.m_flags = 1;
+      v78.m_hint = *outHintNodeIndex;
+      v78.m_bucket = LADDER_CENTERLINE;
+      EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(&v78, v10, resultIdPool, resultFractionPool, NULL, 0x10ui64, &outResultCount, outHintNodeIndex);
+      v66 = outResultCount;
+      if ( outResultCount )
       {
-        v199 = 0i64;
+        v67 = 0i64;
         while ( 1 )
         {
-          Edge_GetLineSegment(v17, resultIdPool[v199], (vec3_t (*)[2])v252);
+          Edge_GetLineSegment(v10, resultIdPool[v67], (vec3_t (*)[2])v86);
+          v70 = LODWORD(v86[0].v[1]);
+          v68 = (float)((float)((float)(v86[0].v[1] - v86[1].v[1]) * (float)(v86[0].v[1] - v86[1].v[1])) + (float)((float)(v86[0].v[0] - v86[1].v[0]) * (float)(v86[0].v[0] - v86[1].v[0]))) + (float)((float)(v86[0].v[2] - v86[1].v[2]) * (float)(v86[0].v[2] - v86[1].v[2]));
+          *(float *)&v70 = fsqrt(v68);
+          _XMM5 = v70;
           __asm
           {
-            vmovss  xmm0, dword ptr [rbp+2D0h+var_1A8]
-            vsubss  xmm3, xmm0, dword ptr [rbp+2D0h+var_1A8+0Ch]
-            vmovss  xmm1, dword ptr [rbp+2D0h+var_1A8+4]
-            vsubss  xmm2, xmm1, dword ptr [rbp+2D0h+var_1A8+10h]
-            vmovss  xmm0, dword ptr [rbp+2D0h+var_1A8+8]
-            vsubss  xmm4, xmm0, dword ptr [rbp+2D0h+var_1A8+14h]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vaddss  xmm3, xmm2, xmm1
-            vmovss  xmm2, cs:?LADDER_ALIGNMENT_THRESHOLD@@3MA; float LADDER_ALIGNMENT_THRESHOLD
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm3, xmm0
-            vsqrtss xmm5, xmm3, xmm3
             vcmpless xmm0, xmm5, xmm12
             vblendvps xmm0, xmm5, xmm11, xmm0
-            vdivss  xmm1, xmm4, xmm0
-            vcomiss xmm1, xmm2
           }
-          if ( v200 | v60 )
-          {
-            __asm
-            {
-              vxorps  xmm0, xmm2, xmm10
-              vcomiss xmm1, xmm0
-            }
-            if ( !v200 )
-              break;
-          }
-          v199 = ++v21;
-          if ( v21 >= v198 )
+          if ( (float)((float)(v86[0].v[2] - v86[1].v[2]) / *(float *)&_XMM0) <= LADDER_ALIGNMENT_THRESHOLD && (float)((float)(v86[0].v[2] - v86[1].v[2]) / *(float *)&_XMM0) >= COERCE_FLOAT(LODWORD(LADDER_ALIGNMENT_THRESHOLD) ^ _xmm) )
+            break;
+          v67 = ++v13;
+          if ( v13 >= v66 )
             goto LABEL_59;
         }
-        __asm { vcomiss xmm3, cs:__real@43688ce1 }
-        if ( v200 )
-          __asm { vmovss  dword ptr [rdi+3Ch], xmm5 }
+        if ( v68 < 232.55031 )
+          outLadderInfo->width = *(float *)&v70;
       }
       else
       {
 LABEL_59:
         if ( printWarning )
-        {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rdi+34h]
-            vmovss  xmm2, dword ptr [r13+0]
-            vmovss  xmm1, dword ptr [rdi+38h]
-            vmovsd  xmm0, cs:__real@402e7fcba0000000
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm2, xmm2, xmm2
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  [rsp+3D0h+resultPoolSize], xmm0
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+3D0h+fmt], xmm1
-          }
-          Com_PrintWarning(34, "WARNING: Ladder at %0.2f %0.2f %0.2f has no width edge segment.  Using default %0.2f \n", _R8, _R9, fmta, resultPoolSizea);
-        }
+          Com_PrintWarning(34, "WARNING: Ladder at %0.2f %0.2f %0.2f has no width edge segment.  Using default %0.2f \n", p_top->v[0], outLadderInfo->top.v[1], outLadderInfo->top.v[2], DOUBLE_15_24960041046143);
       }
-      result = 1;
+      return 1;
     }
-    __asm
+    else
     {
-      vmovaps xmm11, [rsp+3D0h+var_A0]
-      vmovaps xmm10, [rsp+3D0h+var_90]
-      vmovaps xmm9, [rsp+3D0h+var_80]
-      vmovaps xmm8, [rsp+3D0h+var_70]
-      vmovaps xmm7, [rsp+3D0h+var_60]
-      vmovaps xmm6, [rsp+3D0h+var_50]
-      vmovaps xmm12, [rsp+3D0h+var_B0]
+      if ( outToCenterTarget )
+      {
+        *(_QWORD *)outToCenterTarget->v = 0i64;
+        outToCenterTarget->v[2] = 0.0;
+      }
+      return 0;
     }
   }
   else
   {
     if ( printWarning )
       Com_PrintWarning(34, "WARNING: player using ladder that has no line tagging, have level design use line tagging. See mp_firingrange.\n");
-    if ( _R14 )
+    if ( outToCenterTarget )
     {
-      *(_QWORD *)_R14->v = 0i64;
-      _R14->v[2] = 0.0;
+      *(_QWORD *)outToCenterTarget->v = 0i64;
+      outToCenterTarget->v[2] = 0.0;
     }
-    AnglesToAxis(angles, &_RDI->axis);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [rdi+4]
-      vxorps  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rdi+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+8]
-      vxorps  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rdi+8], xmm0
-    }
+    AnglesToAxis(angles, &outLadderInfo->axis);
+    outLadderInfo->axis.m[0].v[0] = COERCE_FLOAT(LODWORD(outLadderInfo->axis.m[0].v[0]) ^ _xmm);
+    outLadderInfo->axis.m[0].v[1] = COERCE_FLOAT(LODWORD(outLadderInfo->axis.m[0].v[1]) ^ _xmm);
+    outLadderInfo->axis.m[0].v[2] = COERCE_FLOAT(LODWORD(outLadderInfo->axis.m[0].v[2]) ^ _xmm);
     return 0;
   }
-  return result;
 }
 
 /*
@@ -972,12 +769,11 @@ void BG_Ladder_FinishLeftWeaponDrop(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
   const Weapon *CurrentWeaponForPlayer; 
-  WeaponAnimNumber v7; 
-  bool v8; 
-  int v9; 
+  WeaponAnimNumber v6; 
+  bool v7; 
+  int v8; 
+  bool v9; 
   bool v10; 
-  bool v11; 
-  float fmt; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 747, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -991,34 +787,29 @@ void BG_Ladder_FinishLeftWeaponDrop(pmove_t *pm, pml_t *pml)
   CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
   if ( BG_Ladder_CanAim(CurrentWeaponForPlayer, ps, 0) )
   {
-    v7 = WEAP_QUICK_RAISE;
+    v6 = WEAP_QUICK_RAISE;
     if ( BG_ViewModelBlendSpaceExists(ps, WEAPON_BLEND_SPACE_LADDER_CLIMB_RAISE, pm->m_bgHandler) )
-      v7 = WEAP_RAISE_LADDER_CLIMB;
-    v8 = BG_UsingAlternate(ps);
-    v9 = BG_LadderAimRaiseTime(ps, CurrentWeaponForPlayer, v8, 0);
+      v6 = WEAP_RAISE_LADDER_CLIMB;
+    v7 = BG_UsingAlternate(ps);
+    v8 = BG_LadderAimRaiseTime(ps, CurrentWeaponForPlayer, v7, 0);
   }
   else
   {
-    v7 = WEAP_QUICK_RAISE;
+    v6 = WEAP_QUICK_RAISE;
     if ( BG_Ladder_CanClimb(ps) )
     {
       if ( BG_ViewModelBlendSpaceExists(ps, WEAPON_BLEND_SPACE_LADDER_CLIMB_RAISE, pm->m_bgHandler) )
-        v7 = WEAP_RAISE_LADDER_CLIMB;
-      v10 = BG_UsingAlternate(ps);
-      v9 = BG_LadderClimbRaiseTime(ps, CurrentWeaponForPlayer, v10, 0);
+        v6 = WEAP_RAISE_LADDER_CLIMB;
+      v9 = BG_UsingAlternate(ps);
+      v8 = BG_LadderClimbRaiseTime(ps, CurrentWeaponForPlayer, v9, 0);
     }
     else
     {
-      v11 = BG_UsingAlternate(ps);
-      v9 = BG_LadderAimRaiseTime(ps, CurrentWeaponForPlayer, v11, 0) / 2;
+      v10 = BG_UsingAlternate(ps);
+      v8 = BG_LadderAimRaiseTime(ps, CurrentWeaponForPlayer, v10, 0) / 2;
     }
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+48h+fmt], xmm0
-  }
-  PM_Weapon_BeginWeaponRaise(pm, pml, v7, v9, fmt, 0, WEAPON_HAND_LEFT, ps->weapState[1].weaponState);
+  PM_Weapon_BeginWeaponRaise(pm, pml, v6, v8, 0.0, 0, WEAPON_HAND_LEFT, ps->weapState[1].weaponState);
 }
 
 /*
@@ -1028,24 +819,24 @@ BG_Ladder_GetAnchorWorldPosition
 */
 void BG_Ladder_GetAnchorWorldPosition(const vec3_t *entityOrigin, int suitIndex, bool viewModel, vec3_t *outAnchorPos)
 {
-  _RBX = outAnchorPos;
-  _RSI = entityOrigin;
+  const SuitDef *SuitDef; 
+  float v9; 
+  float v10; 
+
   if ( !outAnchorPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1911, ASSERT_TYPE_ASSERT, "(outAnchorPos)", (const char *)&queryFormat, "outAnchorPos") )
     __debugbreak();
-  if ( !BG_GetSuitDef(suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1914, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+  SuitDef = BG_GetSuitDef(suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1914, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  _RBX->v[0] = _RSI->v[0];
-  _RBX->v[1] = _RSI->v[1];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  outAnchorPos->v[0] = entityOrigin->v[0];
+  outAnchorPos->v[1] = entityOrigin->v[1];
+  v9 = entityOrigin->v[2];
+  outAnchorPos->v[2] = v9;
   if ( viewModel )
-    __asm { vaddss  xmm0, xmm0, dword ptr [rdi+1A4h] }
+    v10 = v9 + SuitDef->ladder_anchorOffset;
   else
-    __asm { vaddss  xmm0, xmm0, dword ptr [rdi+1A8h] }
-  __asm { vmovss  dword ptr [rbx+8], xmm0 }
+    v10 = v9 + SuitDef->ladder_anchorOffsetWM;
+  outAnchorPos->v[2] = v10;
 }
 
 /*
@@ -1369,21 +1160,16 @@ BG_Ladder_GetHandAnimDistance
 */
 float BG_Ladder_GetHandAnimDistance(const playerState_s *ps)
 {
+  const SuitDef *SuitDef; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1900, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_GetSuitDef(ps->suitIndex);
-  _RBX = _RAX;
-  if ( _RAX )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+1ACh] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1903, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+1ACh] }
-  }
-  return *(float *)&_XMM0;
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
+  if ( SuitDef )
+    return SuitDef->ladder_handDistance;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1903, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+    __debugbreak();
+  return MEMORY[0x1AC];
 }
 
 /*
@@ -1391,48 +1177,17 @@ float BG_Ladder_GetHandAnimDistance(const playerState_s *ps)
 BG_Ladder_GetScrubOffset
 ==============
 */
-
-float __fastcall BG_Ladder_GetScrubOffset(const vec3_t *ladderBottom, const vec3_t *ladderTop, double handDistance)
+float BG_Ladder_GetScrubOffset(const vec3_t *ladderBottom, const vec3_t *ladderTop, float handDistance)
 {
-  char v17; 
-  char v18; 
+  float v3; 
+  float v4; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm4, xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm3, xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm5, xmm0, dword ptr [rcx+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm3, xmm3, xmm3
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm0, xmm4, xmm0; X
-    vmovaps [rsp+38h+var_18], xmm6
-    vmulss  xmm1, xmm2, xmm2; Y
-    vmovaps xmm6, xmm2
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( v17 | v18 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@3f000000
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
+  v3 = ladderTop->v[1] - ladderBottom->v[1];
+  v4 = ladderTop->v[2] - ladderBottom->v[2];
+  if ( fmodf_0((float)((float)(v3 * v3) + (float)((float)(ladderTop->v[0] - ladderBottom->v[0]) * (float)(ladderTop->v[0] - ladderBottom->v[0]))) + (float)(v4 * v4), handDistance * handDistance) <= 1.0 )
+    return handDistance * 0.5;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -1440,32 +1195,16 @@ float __fastcall BG_Ladder_GetScrubOffset(const vec3_t *ladderBottom, const vec3
 BG_Ladder_GetTargetAnimationTime
 ==============
 */
-
-float __fastcall BG_Ladder_GetTargetAnimationTime(const vec3_t *playerAnchorPos, const vec3_t *ladderBottom, const vec3_t *ladderTop, double handDistance)
+float BG_Ladder_GetTargetAnimationTime(const vec3_t *playerAnchorPos, const vec3_t *ladderBottom, const vec3_t *ladderTop, float handDistance)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovaps [rsp+48h+var_18], xmm6
-    vsubss  xmm6, xmm0, dword ptr [rdx+8]
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm2, xmm3; handDistance
-    vmovaps xmm7, xmm3
-  }
-  *(double *)&_XMM0 = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vdivss  xmm2, xmm1, xmm7
-    vmovaps xmm7, [rsp+48h+var_28]
-    vaddss  xmm4, xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmulss  xmm3, xmm4, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm3, 1
-    vsubss  xmm0, xmm3, xmm1
-  }
-  return *(float *)&_XMM0;
+  float v4; 
+  double ScrubOffset; 
+
+  v4 = playerAnchorPos->v[2] - ladderBottom->v[2];
+  ScrubOffset = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, handDistance);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm3, 1 }
+  return (float)((float)(*(float *)&ScrubOffset + v4) * (float)(0.5 / handDistance)) - *(float *)&_XMM1;
 }
 
 /*
@@ -1473,32 +1212,18 @@ float __fastcall BG_Ladder_GetTargetAnimationTime(const vec3_t *playerAnchorPos,
 BG_Ladder_GetTargetAnimationTimeClamped
 ==============
 */
-
-float __fastcall BG_Ladder_GetTargetAnimationTimeClamped(const vec3_t *playerAnchorPos, const vec3_t *ladderBottom, const vec3_t *ladderTop, double handDistance)
+float BG_Ladder_GetTargetAnimationTimeClamped(const vec3_t *playerAnchorPos, const vec3_t *ladderBottom, const vec3_t *ladderTop, float handDistance)
 {
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RBX = playerAnchorPos;
-  __asm
-  {
-    vmovaps xmm2, xmm3; handDistance
-    vmovaps xmm6, xmm3
-  }
-  BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+8]
-    vminss  xmm2, xmm1, dword ptr [rdi+8]
-    vsubss  xmm4, xmm2, dword ptr [rsi+8]
-    vaddss  xmm5, xmm4, xmm0
-    vmovss  xmm0, cs:__real@3f000000
-    vdivss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmulss  xmm3, xmm5, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, xmm3, 1
-    vsubss  xmm0, xmm3, xmm0
-  }
-  return *(float *)&_XMM0;
+  double ScrubOffset; 
+  float v9; 
+
+  ScrubOffset = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, handDistance);
+  _XMM1 = LODWORD(playerAnchorPos->v[2]);
+  __asm { vminss  xmm2, xmm1, dword ptr [rdi+8] }
+  v9 = (float)(*(float *)&_XMM2 - ladderBottom->v[2]) + *(float *)&ScrubOffset;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, xmm3, 1 }
+  return (float)(v9 * (float)(0.5 / handDistance)) - *(float *)&_XMM0;
 }
 
 /*
@@ -1616,18 +1341,9 @@ LABEL_9:
 BG_Ladder_MantleDropTime
 ==============
 */
-int BG_Ladder_MantleDropTime(const playerState_s *ps)
+__int64 BG_Ladder_MantleDropTime(const playerState_s *ps)
 {
-  int result; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:?LADDER_MANTLE_WEAPON_DROP_PERCENT@@3MA; float LADDER_MANTLE_WEAPON_DROP_PERCENT
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)(ps->mantleState.endTime - ps->mantleState.startTime) * LADDER_MANTLE_WEAPON_DROP_PERCENT);
 }
 
 /*
@@ -1673,349 +1389,223 @@ PM_CheckLadderMove
 */
 void PM_CheckLadderMove(pmove_t *pm, pml_t *pml)
 {
-  char v25; 
-  bool v26; 
-  bool v27; 
-  EdgeQueryCache *v28; 
-  playerState_s *v29; 
+  playerState_s *ps; 
+  float v5; 
+  __int128 v6; 
+  bool v10; 
+  bool v11; 
+  EdgeQueryCache *v12; 
+  playerState_s *v13; 
+  bool LadderInfo; 
+  float yaw; 
+  __int128 v20; 
+  __int128 v21; 
   bool IsUsingScriptedOffhandWeapon; 
-  __int32 v66; 
+  __int32 v26; 
   const Weapon *CurrentWeaponForPlayer; 
-  bool v68; 
-  const dvar_t *v72; 
-  const dvar_t *v75; 
-  char v76; 
-  bool v86; 
-  bool v88; 
-  bool v113; 
-  bool v118; 
-  bool v119; 
-  bool v120; 
-  int v121; 
+  bool v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  float v31; 
+  bool v32; 
+  const SuitDef *SuitDef; 
+  float v34; 
+  double Float_Internal_DebugName; 
+  bool v36; 
+  bool v37; 
+  bool v38; 
+  int v39; 
+  float v40; 
   vec3_t forward; 
   Bounds bounds; 
   vec3_t end; 
   vec3_t angles; 
   LadderInfo outLadderInfo; 
   trace_t outResults; 
-  char v130; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R12 = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1565, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1565, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1565, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (pm->cmd.buttons & 0x800000000000000i64) != 0 || pm->isBot )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "PM_CheckLadderMove");
+    v5 = ps->velocity.v[2];
+    v6 = LODWORD(ps->velocity.v[0]);
+    *(float *)&v6 = fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(v5 * v5));
+    _XMM3 = v6;
     __asm
     {
-      vmovss  xmm2, dword ptr [rdi+40h]
-      vmovss  xmm0, dword ptr [rdi+3Ch]
-      vmovss  xmm4, dword ptr [rdi+44h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vmovss  xmm6, cs:__real@80000000
       vcmpless xmm0, xmm3, xmm6
-      vmovss  xmm10, cs:__real@3f800000
       vblendvps xmm0, xmm3, xmm10, xmm0
-      vdivss  xmm1, xmm4, xmm0
-      vcomiss xmm1, cs:s_normalCompare
     }
-    v26 = !(v76 | v25);
-    v27 = pm->cmd.serverTime - _RDI->jumpState.jumpTime > LADDER_RELATCH_TIME;
-    v28 = pm->m_bgHandler->GetEdgeQueryCache(pm->m_bgHandler, (unsigned int)_RDI->clientNum);
-    if ( pm->ground->walking || v26 && v27 )
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x12u);
-    if ( BG_IsPlayerZeroG(_RDI) )
+    v10 = (float)(v5 / *(float *)&_XMM0) > s_normalCompare;
+    v11 = pm->cmd.serverTime - ps->jumpState.jumpTime > LADDER_RELATCH_TIME;
+    v12 = pm->m_bgHandler->GetEdgeQueryCache(pm->m_bgHandler, (unsigned int)ps->clientNum);
+    if ( pm->ground->walking || v10 && v11 )
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x12u);
+    if ( BG_IsPlayerZeroG(ps) )
     {
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 6u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x12u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 6u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x12u);
     }
     else
     {
-      if ( _RDI->pm_time && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u) && (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0xCu) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0xDu)) )
+      if ( ps->pm_time && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xCu) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xDu)) )
         goto LABEL_17;
-      _ER15 = 0;
-      __asm { vmovd   xmm1, r15d }
-      _EAX = pm->ground->walking;
-      __asm
+      LadderInfo = 0;
+      _XMM0 = pm->ground->walking;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM8 = LODWORD(FLOAT_8_0);
+      __asm { vblendvps xmm0, xmm8, xmm2, xmm3 }
+      v40 = *(float *)&_XMM0;
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && ps->groundEntityNum == 2047 )
       {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm2, cs:__real@41f00000
-        vmovss  xmm8, cs:__real@41000000
-        vblendvps xmm0, xmm8, xmm2, xmm3
-        vmovss  [rsp+200h+var_1AC], xmm0
-        vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm7, xmm7, xmm7
-      }
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u) && _RDI->groundEntityNum == 2047 )
-      {
-        v121 = 1;
-        LOBYTE(_ER15) = BG_GetLadderInfo(&_RDI->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v28->ladderHintNode, &v28->ladderWidthHintNode);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+100h+outLadderInfo.axis]
-          vxorps  xmm1, xmm0, xmm9
-          vmovss  dword ptr [rsp+200h+forward], xmm1
-          vmovss  xmm2, dword ptr [rbp+100h+outLadderInfo.axis+4]
-          vxorps  xmm0, xmm2, xmm9
-          vmovss  dword ptr [rsp+200h+forward+4], xmm0
-          vmovss  xmm1, dword ptr [rbp+100h+outLadderInfo.axis+8]
-          vxorps  xmm2, xmm1, xmm9
-          vmovss  dword ptr [rsp+200h+forward+8], xmm2
-        }
+        v39 = 1;
+        LadderInfo = BG_GetLadderInfo(&ps->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v12->ladderHintNode, &v12->ladderWidthHintNode);
+        LODWORD(forward.v[0]) = LODWORD(outLadderInfo.axis.m[0].v[0]) ^ _xmm;
+        LODWORD(forward.v[1]) = LODWORD(outLadderInfo.axis.m[0].v[1]) ^ _xmm;
+        LODWORD(forward.v[2]) = LODWORD(outLadderInfo.axis.m[0].v[2]) ^ _xmm;
       }
       else
       {
-        v121 = 0;
-        if ( (_RDI->mantleState.flags & 0x800) != 0 )
+        v39 = 0;
+        if ( (ps->mantleState.flags & 0x800) != 0 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+37Ch]
-            vaddss  xmm1, xmm0, cs:__real@43340000
-            vmovss  dword ptr [rbp+100h+angles], xmm7
-            vmovss  dword ptr [rbp+100h+angles+4], xmm1
-            vmovss  dword ptr [rbp+100h+angles+8], xmm7
-          }
+          yaw = ps->mantleState.yaw;
+          angles.v[0] = 0.0;
+          angles.v[1] = yaw + 180.0;
+          angles.v[2] = 0.0;
           AngleVectors(&angles, &forward, NULL, NULL);
         }
         else
         {
+          v20 = LODWORD(pml->forward.v[1]);
+          v21 = v20;
+          *(float *)&v21 = fsqrt((float)(*(float *)&v20 * *(float *)&v20) + (float)(pml->forward.v[0] * pml->forward.v[0]));
+          _XMM2 = v21;
           __asm
           {
-            vmovss  xmm3, dword ptr [r12]
-            vmovss  xmm4, dword ptr [r12+4]
-            vmulss  xmm1, xmm4, xmm4
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
             vcmpless xmm0, xmm2, xmm6
             vblendvps xmm1, xmm2, xmm10, xmm0
-            vdivss  xmm1, xmm10, xmm1
-            vmulss  xmm0, xmm3, xmm1
-            vmovss  dword ptr [rsp+200h+forward], xmm0
-            vmulss  xmm1, xmm4, xmm1
-            vmovss  dword ptr [rsp+200h+forward+4], xmm1
           }
+          *(float *)&_XMM1 = 1.0 / *(float *)&_XMM1;
+          forward.v[0] = pml->forward.v[0] * *(float *)&_XMM1;
+          forward.v[1] = *(float *)&v20 * *(float *)&_XMM1;
         }
-        __asm { vmovss  dword ptr [rsp+200h+forward+8], xmm7 }
+        forward.v[2] = 0.0;
       }
-      if ( _RDI->pm_type < 7 )
+      if ( ps->pm_type < 7 )
       {
-        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 5u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u) )
-          _RDI->mantleState.flags = 0;
-        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x12u) && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_bg_ladder_enabled, "bg_ladder_enabled") && (unsigned int)(_RDI->weapState[0].weaponState - 26) > 6 && !BG_IsUsingOffhandGestureWeapon(_RDI) && !BG_CarryObject_IsActive(_RDI) )
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
+          ps->mantleState.flags = 0;
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x12u) && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_bg_ladder_enabled, "bg_ladder_enabled") && (unsigned int)(ps->weapState[0].weaponState - 26) > 6 && !BG_IsUsingOffhandGestureWeapon(ps) && !BG_CarryObject_IsActive(ps) )
         {
-          IsUsingScriptedOffhandWeapon = BG_IsUsingScriptedOffhandWeapon(_RDI);
-          v29 = _RDI;
+          IsUsingScriptedOffhandWeapon = BG_IsUsingScriptedOffhandWeapon(ps);
+          v13 = ps;
           if ( IsUsingScriptedOffhandWeapon )
             goto LABEL_16;
-          if ( !BG_NightVisionAnyGestureIsPlaying(pm->weaponMap, _RDI, pm->cmd.serverTime) )
+          if ( !BG_NightVisionAnyGestureIsPlaying(pm->weaponMap, ps, pm->cmd.serverTime) )
           {
-            v66 = PM_GetEffectiveStance(_RDI) - 1;
-            if ( v66 )
+            v26 = PM_GetEffectiveStance(ps) - 1;
+            if ( v26 )
             {
-              if ( v66 != 2 )
+              if ( v26 != 2 )
               {
-                v29 = _RDI;
-                if ( pm->cmd.serverTime - _RDI->jumpState.jumpTime < 300 )
+                v13 = ps;
+                if ( pm->cmd.serverTime - ps->jumpState.jumpTime < 300 )
                   goto LABEL_16;
-                CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, _RDI);
-                v68 = BG_UsingAlternate(_RDI);
-                if ( !BG_IsForceUseWeapon(CurrentWeaponForPlayer, v68) && !BG_GameInterface_LadderDisallowed(_RDI) )
+                CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
+                v28 = BG_UsingAlternate(ps);
+                if ( !BG_IsForceUseWeapon(CurrentWeaponForPlayer, v28) && !BG_GameInterface_LadderDisallowed(ps) )
                 {
                   if ( BG_UsingNewPlayerCollision() )
                   {
-                    if ( !(_BYTE)_ER15 && !BG_GetLadderInfo(&_RDI->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v28->ladderHintNode, &v28->ladderWidthHintNode) )
+                    if ( !LadderInfo && !BG_GetLadderInfo(&ps->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v12->ladderHintNode, &v12->ladderWidthHintNode) )
                       goto LABEL_15;
-                    LOBYTE(_ER15) = 1;
+                    LadderInfo = 1;
                   }
-                  _RAX = pm->bounds;
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rax]
-                    vmovups xmmword ptr [rbp+100h+bounds.midPoint], xmm0
-                    vmovsd  xmm1, qword ptr [rax+10h]
-                    vmovsd  qword ptr [rbp+100h+bounds.halfSize+4], xmm1
-                  }
-                  v72 = DCONST_DVARMPFLT_ladderPullinBoundsScale;
+                  bounds = *pm->bounds;
+                  v29 = DCONST_DVARMPFLT_ladderPullinBoundsScale;
                   if ( !DCONST_DVARMPFLT_ladderPullinBoundsScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderPullinBoundsScale") )
                     __debugbreak();
-                  Dvar_CheckFrontendServerThread(v72);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+100h+bounds.halfSize]
-                    vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-                    vmovss  dword ptr [rbp+100h+bounds.halfSize], xmm1
-                  }
-                  v75 = DCONST_DVARMPFLT_ladderPullinBoundsScale;
+                  Dvar_CheckFrontendServerThread(v29);
+                  bounds.halfSize.v[0] = bounds.halfSize.v[0] * v29->current.value;
+                  v30 = DCONST_DVARMPFLT_ladderPullinBoundsScale;
                   if ( !DCONST_DVARMPFLT_ladderPullinBoundsScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderPullinBoundsScale") )
                     __debugbreak();
-                  Dvar_CheckFrontendServerThread(v75);
-                  __asm
+                  Dvar_CheckFrontendServerThread(v30);
+                  bounds.halfSize.v[1] = bounds.halfSize.v[1] * v30->current.value;
+                  v31 = (float)((float)(bounds.halfSize.v[2] + bounds.midPoint.v[2]) * 0.5) + 4.0;
+                  bounds.midPoint.v[2] = v31;
+                  bounds.halfSize.v[2] = v31 - 8.0;
+                  if ( (float)(v31 - 8.0) < 0.0 )
                   {
-                    vmovss  xmm0, dword ptr [rbp+100h+bounds.halfSize+4]
-                    vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-                    vmovss  dword ptr [rbp+100h+bounds.halfSize+4], xmm1
-                    vmovss  xmm2, dword ptr [rbp+100h+bounds.halfSize+8]
-                    vaddss  xmm0, xmm2, dword ptr [rbp+100h+bounds.midPoint+8]
-                    vmulss  xmm1, xmm0, cs:__real@3f000000
-                    vaddss  xmm3, xmm1, cs:__real@40800000
-                    vmovss  dword ptr [rbp+100h+bounds.midPoint+8], xmm3
-                    vsubss  xmm0, xmm3, xmm8
-                    vmovss  dword ptr [rbp+100h+bounds.halfSize+8], xmm0
-                    vcomiss xmm0, xmm7
+                    bounds.midPoint.v[2] = v31 - (float)(v31 - 8.0);
+                    bounds.halfSize.v[2] = 0.0;
                   }
-                  if ( v76 )
-                  {
-                    __asm
-                    {
-                      vsubss  xmm0, xmm3, xmm0
-                      vmovss  dword ptr [rbp+100h+bounds.midPoint+8], xmm0
-                      vmovss  dword ptr [rbp+100h+bounds.halfSize+8], xmm7
-                    }
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+100h+bounds.halfSize]
-                    vcomiss xmm0, xmm7
-                  }
-                  if ( v76 )
-                  {
-                    v86 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 149, ASSERT_TYPE_ASSERT, "(bounds->halfSize[0] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[0] >= 0.0f");
-                    v76 = 0;
-                    if ( v86 )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+100h+bounds.halfSize+4]
-                    vcomiss xmm0, xmm7
-                  }
-                  if ( v76 )
-                  {
-                    v88 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 150, ASSERT_TYPE_ASSERT, "(bounds->halfSize[1] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[1] >= 0.0f");
-                    v76 = 0;
-                    if ( v88 )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+100h+bounds.halfSize+8]
-                    vcomiss xmm0, xmm7
-                  }
-                  if ( v76 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 151, ASSERT_TYPE_ASSERT, "(bounds->halfSize[2] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[2] >= 0.0f") )
+                  if ( bounds.halfSize.v[0] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 149, ASSERT_TYPE_ASSERT, "(bounds->halfSize[0] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[0] >= 0.0f") )
                     __debugbreak();
-                  __asm
-                  {
-                    vmovss  xmm6, [rsp+200h+var_1AC]
-                    vmulss  xmm1, xmm6, dword ptr [rsp+200h+forward]
-                    vaddss  xmm2, xmm1, dword ptr [rdi+30h]
-                    vmovss  dword ptr [rbp+100h+end], xmm2
-                    vmulss  xmm1, xmm6, dword ptr [rsp+200h+forward+4]
-                    vaddss  xmm2, xmm1, dword ptr [rdi+34h]
-                    vmovss  dword ptr [rbp+100h+end+4], xmm2
-                    vmulss  xmm1, xmm6, dword ptr [rsp+200h+forward+8]
-                    vaddss  xmm2, xmm1, dword ptr [rdi+38h]
-                    vmovss  dword ptr [rbp+100h+end+8], xmm2
-                  }
-                  BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &_RDI->origin, &end, &bounds, _RDI->clientNum, pm->tracemask, 0);
-                  __asm
-                  {
-                    vmovss  xmm0, [rbp+100h+outResults.fraction]
-                    vcomiss xmm0, xmm10
-                  }
-                  if ( !v76 || (outResults.surfaceFlags & 8) == 0 || pm->ground->walking && pm->cmd.forwardmove <= 0 )
-                    goto LABEL_95;
-                  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u) && !BGMovingPlatforms::IsOnMovingPlatform(_RDI) )
+                  if ( bounds.halfSize.v[1] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 150, ASSERT_TYPE_ASSERT, "(bounds->halfSize[1] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[1] >= 0.0f") )
+                    __debugbreak();
+                  if ( bounds.halfSize.v[2] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 151, ASSERT_TYPE_ASSERT, "(bounds->halfSize[2] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[2] >= 0.0f") )
+                    __debugbreak();
+                  end.v[0] = (float)(v40 * forward.v[0]) + ps->origin.v[0];
+                  end.v[1] = (float)(v40 * forward.v[1]) + ps->origin.v[1];
+                  end.v[2] = (float)(v40 * forward.v[2]) + ps->origin.v[2];
+                  BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &ps->origin, &end, &bounds, ps->clientNum, pm->tracemask, 0);
+                  if ( outResults.fraction >= 1.0 || (outResults.surfaceFlags & 8) == 0 || pm->ground->walking && pm->cmd.forwardmove <= 0 )
+                    goto LABEL_96;
+                  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && !BGMovingPlatforms::IsOnMovingPlatform(ps) )
                     goto LABEL_88;
-                  if ( !(_BYTE)_ER15 )
-                    BG_GetLadderInfo(&_RDI->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v28->ladderHintNode, &v28->ladderWidthHintNode);
-                  __asm
-                  {
-                    vmovss  xmm2, dword ptr [rbp+100h+outLadderInfo.axis]
-                    vxorps  xmm0, xmm2, xmm9
-                    vmovss  dword ptr [rsp+200h+forward], xmm0
-                    vmovss  xmm3, dword ptr [rbp+100h+outLadderInfo.axis+4]
-                    vxorps  xmm1, xmm3, xmm9
-                    vmovss  dword ptr [rsp+200h+forward+4], xmm1
-                    vmovss  xmm0, dword ptr [rbp+100h+outLadderInfo.axis+8]
-                    vxorps  xmm4, xmm0, xmm9
-                    vmovss  dword ptr [rsp+200h+forward+8], xmm4
-                    vmulss  xmm1, xmm2, xmm6
-                    vmovss  xmm0, dword ptr [rdi+30h]
-                    vsubss  xmm1, xmm0, xmm1
-                    vmovss  dword ptr [rbp+100h+end], xmm1
-                    vmulss  xmm2, xmm3, xmm6
-                    vmovss  xmm0, dword ptr [rdi+34h]
-                    vsubss  xmm1, xmm0, xmm2
-                    vmovss  dword ptr [rbp+100h+end+4], xmm1
-                    vmulss  xmm2, xmm4, xmm6
-                    vaddss  xmm0, xmm2, dword ptr [rdi+38h]
-                    vmovss  dword ptr [rbp+100h+end+8], xmm0
-                  }
-                  BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &_RDI->origin, &end, &bounds, _RDI->clientNum, pm->tracemask, 0);
-                  __asm
-                  {
-                    vmovss  xmm0, [rbp+100h+outResults.fraction]
-                    vcomiss xmm0, xmm10
-                  }
-                  v113 = v76 && (outResults.surfaceFlags & 8) != 0;
-                  _R15 = BG_GetSuitDef(_RDI->suitIndex);
-                  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1914, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+                  if ( !LadderInfo )
+                    BG_GetLadderInfo(&ps->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v12->ladderHintNode, &v12->ladderWidthHintNode);
+                  LODWORD(forward.v[0]) = LODWORD(outLadderInfo.axis.m[0].v[0]) ^ _xmm;
+                  LODWORD(forward.v[1]) = LODWORD(outLadderInfo.axis.m[0].v[1]) ^ _xmm;
+                  LODWORD(forward.v[2]) = LODWORD(outLadderInfo.axis.m[0].v[2]) ^ _xmm;
+                  end.v[0] = ps->origin.v[0] - (float)(outLadderInfo.axis.m[0].v[0] * v40);
+                  end.v[1] = ps->origin.v[1] - (float)(outLadderInfo.axis.m[0].v[1] * v40);
+                  end.v[2] = (float)(COERCE_FLOAT(LODWORD(outLadderInfo.axis.m[0].v[2]) ^ _xmm) * v40) + ps->origin.v[2];
+                  BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &ps->origin, &end, &bounds, ps->clientNum, pm->tracemask, 0);
+                  v32 = outResults.fraction < 1.0 && (outResults.surfaceFlags & 8) != 0;
+                  SuitDef = BG_GetSuitDef(ps->suitIndex);
+                  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1914, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
                     __debugbreak();
-                  __asm
+                  v34 = SuitDef->ladder_anchorOffset + ps->origin.v[2];
+                  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_ladderVaultOffset, "ladderVaultOffset");
+                  v36 = v32;
+                  if ( v34 >= (float)(*(float *)&Float_Internal_DebugName + outLadderInfo.top.v[2]) )
+                    v36 = 0;
+                  if ( (pm->cmd.buttons & 0x10004000C0i64) != 0 && pm->cmd.serverTime - ps->mantleState.endTime > LADDER_MANTLE_SLIDE_ATTACH_TIME || !v36 )
                   {
-                    vmovss  xmm0, dword ptr [r15+1A4h]
-                    vaddss  xmm6, xmm0, dword ptr [rdi+38h]
-                  }
-                  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_ladderVaultOffset, "ladderVaultOffset");
-                  __asm { vaddss  xmm1, xmm0, dword ptr [rbp+100h+outLadderInfo.top+8] }
-                  v118 = v113;
-                  __asm { vcomiss xmm6, xmm1 }
-                  if ( !v76 )
-                    v118 = 0;
-                  if ( ((pm->cmd.buttons & 0x10004000C0i64) == 0 || pm->cmd.serverTime - _RDI->mantleState.endTime <= LADDER_MANTLE_SLIDE_ATTACH_TIME) && v118 )
-                  {
-LABEL_88:
-                    v119 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u);
-                    v120 = !v119;
-                    if ( !v119 )
-                      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, GameModeFlagValues::ms_mpValue, 0x3Fu);
-                    if ( v120 )
-                      __asm { vcomiss xmm7, dword ptr [rdi+730h] }
-                    if ( (pm->cmd.buttons & 0x200) == 0 )
-                      GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&_RDI->weapCommon.weapFlags, ACTIVE, 6u);
-                    pm->ground->trace.surfaceFlags = outResults.surfaceFlags;
-                    _RDI->pm_flags.m_flags[0] |= 0x40u;
+LABEL_96:
+                    PM_SetLadderMode(pm, ps, LADDER_MODE_INVALID);
+                    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && v39 )
+                    {
+                      BG_AnimScriptEvent(pm->m_bgHandler, ps, ANIM_ET_JUMP, 0, 1, &pml->holdrand);
+                      BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, ANIM_MT_AIR, 0, 0);
+                    }
                   }
                   else
                   {
-LABEL_95:
-                    PM_SetLadderMode(pm, _RDI, LADDER_MODE_INVALID);
-                    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && v121 )
+LABEL_88:
+                    v37 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u);
+                    v38 = !v37;
+                    if ( !v37 )
+                      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, GameModeFlagValues::ms_mpValue, 0x3Fu);
+                    if ( v38 && ps->weapCommon.fWeaponPosFrac > 0.0 )
                     {
-                      BG_AnimScriptEvent(pm->m_bgHandler, _RDI, ANIM_ET_JUMP, 0, 1, &pml->holdrand);
-                      BG_AnimScriptAnimation(pm->m_bgHandler, _RDI, AISTATE_COMBAT, ANIM_MT_AIR, 0, 0);
+                      GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 6u);
+                      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 9u);
+                      PM_ExitAimDownSight(pm);
                     }
+                    else if ( (pm->cmd.buttons & 0x200) == 0 )
+                    {
+                      GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 6u);
+                    }
+                    pm->ground->trace.surfaceFlags = outResults.surfaceFlags;
+                    ps->pm_flags.m_flags[0] |= 0x40u;
                   }
                   goto LABEL_17;
                 }
@@ -2026,27 +1616,18 @@ LABEL_95:
       }
       else
       {
-        _RDI->groundEntityNum = 2047;
+        ps->groundEntityNum = 2047;
         pm->ground->groundPlane = 0;
         PM_SetAlmostGroundPlane(pm, 0);
         pm->ground->walking = 0;
       }
     }
 LABEL_15:
-    v29 = _RDI;
+    v13 = ps;
 LABEL_16:
-    PM_SetLadderMode(pm, v29, LADDER_MODE_INVALID);
+    PM_SetLadderMode(pm, v13, LADDER_MODE_INVALID);
 LABEL_17:
     Sys_ProfEndNamedEvent();
-  }
-  _R11 = &v130;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
   }
 }
 
@@ -2080,75 +1661,56 @@ PM_Footstep_LadderMove
 */
 void PM_Footstep_LadderMove(pmove_t *pm, pml_t *pml)
 {
-  bool v7; 
-  bool v8; 
-  PlayerAnimStrafeStates v16; 
-  const dvar_t *v18; 
-  PlayerAnimScriptMoveType v19; 
+  playerState_s *ps; 
+  playerState_s *v4; 
+  float v5; 
+  float v6; 
+  PlayerAnimStrafeStates v7; 
+  float v8; 
+  const dvar_t *v9; 
+  PlayerAnimScriptMoveType v10; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 857, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 857, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 857, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u) && Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "PM_Footstep_LadderMove");
-    if ( pm->cmd.serverTime - _RDI->jumpState.jumpTime >= 300 )
+    if ( pm->cmd.serverTime - ps->jumpState.jumpTime >= 300 )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_MANTLE_UP_WEAPON_UP|0x80) )
       {
-        _RSI = pm->ps;
-        v7 = _RSI == NULL;
-        if ( !_RSI )
-        {
-          v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 78, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps");
-          v7 = !v8;
-          if ( v8 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi+3Ch]; rightMove
-          vmovss  xmm1, dword ptr [rsi+40h]; forwardMove
-          vmulss  xmm3, xmm1, xmm1
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm3, xmm3, xmm0
-          vsqrtss xmm5, xmm3, xmm3
-          vmovss  xmm4, dword ptr [rsi+44h]
-          vandps  xmm4, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        }
-        v16 = ANIM_STRAFE_NOT;
-        __asm { vcomiss xmm5, xmm4 }
-        if ( !v7 )
-          v16 = BG_DetermineStrafeCondition(pm, *(const float *)&_XMM1, *(const float *)&_XMM2);
-        PM_SetStrafeCondition(pm, v16);
+        v4 = pm->ps;
+        if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 78, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+          __debugbreak();
+        v5 = v4->velocity.v[0];
+        v6 = v4->velocity.v[1];
+        v7 = ANIM_STRAFE_NOT;
+        if ( fsqrt((float)(v6 * v6) + (float)(v5 * v5)) > COERCE_FLOAT(LODWORD(v4->velocity.v[2]) & _xmm) )
+          v7 = BG_DetermineStrafeCondition(pm, v6, v5);
+        PM_SetStrafeCondition(pm, v7);
       }
-      __asm { vmovss  xmm6, dword ptr [rdi+44h] }
-      v18 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+      v8 = ps->velocity.v[2];
+      v9 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
       if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v18);
-      if ( v18->current.enabled )
+      Dvar_CheckFrontendServerThread(v9);
+      if ( v9->current.enabled )
       {
-        if ( _RDI->ladderState.mode == LADDER_MODE_SLIDE )
-          v19 = ANIM_MT_LADDERSLIDE;
+        if ( ps->ladderState.mode == LADDER_MODE_SLIDE )
+          v10 = ANIM_MT_LADDERSLIDE;
         else
-          v19 = ANIM_MT_CLIMBUP;
+          v10 = ANIM_MT_CLIMBUP;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm6, xmm0
-        }
-        v19 = ANIM_MT_CLIMBUP;
-        if ( !v18->current.enabled )
-          v19 = ANIM_MT_CLIMBDOWN;
+        v10 = ANIM_MT_CLIMBUP;
+        if ( v8 <= 0.0 )
+          v10 = ANIM_MT_CLIMBDOWN;
       }
-      BG_AnimScriptAnimation(pm->m_bgHandler, _RDI, AISTATE_COMBAT, v19, 0, 0);
+      BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, v10, 0, 0);
       Sys_ProfEndNamedEvent();
     }
     else
@@ -2156,7 +1718,6 @@ void PM_Footstep_LadderMove(pmove_t *pm, pml_t *pml)
       Sys_ProfEndNamedEvent();
     }
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -2166,197 +1727,127 @@ PM_Jump_PushOffLadder
 */
 void PM_Jump_PushOffLadder(const pmove_t *pm, playerState_s *ps, pml_t *pml)
 {
-  EdgeQueryCache *v16; 
-  const dvar_t *v64; 
-  const dvar_t *v87; 
+  EdgeQueryCache *v6; 
+  double UpContribution; 
+  float v8; 
+  __int128 v9; 
+  __int128 v10; 
+  float v14; 
+  __int128 v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  const dvar_t *v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  __int128 v31; 
+  double v32; 
+  const dvar_t *v33; 
+  __int128 v37; 
+  float v39; 
+  float v40; 
   BgWeaponMap *weaponMap; 
+  float v42; 
   vec3_t vec; 
   vec3_t outMove; 
   LadderInfo outLadderInfo; 
-  char v123; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
-  _R15 = pml;
-  _RSI = ps;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1497, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1498, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
+  if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1498, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1499, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1499, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 6u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1500, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::LADDER ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::LADDER )") )
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1500, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::LADDER ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::LADDER )") )
     __debugbreak();
-  v16 = pm->m_bgHandler->GetEdgeQueryCache(pm->m_bgHandler, (unsigned int)_RSI->clientNum);
-  BG_GetLadderInfo(&_RSI->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v16->ladderHintNode, &v16->ladderWidthHintNode);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &_RSI->velocity);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovaps xmm12, xmm0
-    vxorps  xmm11, xmm11, xmm11
-  }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RSI->velocity);
+  v6 = pm->m_bgHandler->GetEdgeQueryCache(pm->m_bgHandler, (unsigned int)ps->clientNum);
+  BG_GetLadderInfo(&ps->origin, pm->m_bgHandler, &outLadderInfo, NULL, 0, &v6->ladderHintNode, &v6->ladderWidthHintNode);
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &ps->velocity);
+  v8 = *(float *)&UpContribution;
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &ps->velocity);
   BG_GetNormalizedMovementCmd(&pm->cmd, &outMove);
+  *(float *)&UpContribution = pml->forward.v[1];
+  v9 = LODWORD(outMove.v[0]);
+  vec.v[0] = pml->forward.v[0];
+  vec.v[2] = pml->forward.v[2];
+  vec.v[1] = *(float *)&UpContribution;
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+  v10 = LODWORD(vec.v[1]);
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+  _XMM3 = v10;
   __asm
   {
-    vmovss  xmm1, dword ptr [r15]
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  xmm7, dword ptr [rsp+160h+outMove]
-    vmovss  dword ptr [rsp+160h+vec], xmm1
-    vmovss  xmm1, dword ptr [r15+8]
-    vmovss  dword ptr [rsp+160h+vec+8], xmm1
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+160h+vec+4], xmm0
-  }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rsp+160h+vec]
-    vmovss  xmm6, dword ptr [rsp+160h+vec+4]
-    vmovss  xmm5, dword ptr [rsp+160h+vec+8]
-    vmovss  xmm9, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm1, xmm9, xmm0
-    vmulss  xmm3, xmm4, xmm1
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm0, xmm5, xmm1
-    vmulss  xmm5, xmm7, xmm2
-    vmulss  xmm6, xmm7, xmm3
-    vmovss  dword ptr [rsp+160h+vec+4], xmm2
-    vmulss  xmm2, xmm6, dword ptr [rsp+160h+outLadderInfo.axis]
-    vmovss  dword ptr [rsp+160h+vec], xmm3
-    vmulss  xmm3, xmm5, dword ptr [rsp+160h+outLadderInfo.axis+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm5, dword ptr [rbp+60h+outLadderInfo.axis+10h]
-    vmulss  xmm7, xmm7, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rsp+160h+outLadderInfo.axis+8]
-    vaddss  xmm2, xmm4, xmm1
-    vxorps  xmm10, xmm2, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm2, xmm6, dword ptr [rsp+160h+outLadderInfo.axis+0Ch]
-    vmulss  xmm1, xmm7, dword ptr [rbp+60h+outLadderInfo.axis+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vaddss  xmm6, xmm2, dword ptr [rsp+160h+outMove+4]
-    vmovss  dword ptr [rsp+160h+vec+8], xmm0
-    vmulss  xmm0, xmm10, xmm12
-    vmulss  xmm3, xmm0, cs:?LADDER_JUMP_UP_SCALE@@3MA; float LADDER_JUMP_UP_SCALE
-    vmulss  xmm1, xmm3, dword ptr [rbp+60h+outLadderInfo.axis+18h]
-    vaddss  xmm2, xmm1, dword ptr [rsi+3Ch]
-    vmulss  xmm1, xmm3, dword ptr [rbp+60h+outLadderInfo.axis+1Ch]
-    vmovss  dword ptr [rsi+3Ch], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsi+40h]
-    vmulss  xmm1, xmm3, dword ptr [rbp+60h+outLadderInfo.axis+20h]
-    vmovss  dword ptr [rsi+40h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsi+44h]
-    vmovss  dword ptr [rsi+44h], xmm2
   }
-  v64 = DCONST_DVARMPFLT_ladderJumpRightScale;
+  *(float *)&_XMM3 = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v14 = vec.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&_XMM0 = vec.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v15 = v9;
+  v16 = *(float *)&v9 * *(float *)&_XMM3;
+  vec.v[1] = v14;
+  vec.v[0] = *(float *)&_XMM3;
+  v17 = (float)((float)(*(float *)&v9 * v14) * outLadderInfo.axis.m[0].v[1]) + (float)((float)(*(float *)&v9 * *(float *)&_XMM3) * outLadderInfo.axis.m[0].v[0]);
+  *(float *)&v15 = (float)(*(float *)&v9 * v14) * outLadderInfo.axis.m[1].v[1];
+  *(float *)&v9 = *(float *)&v9 * *(float *)&_XMM0;
+  LODWORD(v18) = COERCE_UNSIGNED_INT(v17 + (float)(*(float *)&v9 * outLadderInfo.axis.m[0].v[2])) ^ _xmm;
+  *(float *)&v15 = (float)((float)(*(float *)&v15 + (float)(v16 * outLadderInfo.axis.m[1].v[0])) + (float)(*(float *)&v9 * outLadderInfo.axis.m[1].v[2])) + outMove.v[1];
+  v19 = v15;
+  vec.v[2] = *(float *)&_XMM0;
+  *(float *)&v15 = (float)(v18 * v8) * LADDER_JUMP_UP_SCALE;
+  v20 = *(float *)&v15 * outLadderInfo.axis.m[2].v[1];
+  ps->velocity.v[0] = (float)(*(float *)&v15 * outLadderInfo.axis.m[2].v[0]) + ps->velocity.v[0];
+  *(float *)&v15 = *(float *)&v15 * outLadderInfo.axis.m[2].v[2];
+  ps->velocity.v[1] = v20 + ps->velocity.v[1];
+  ps->velocity.v[2] = *(float *)&v15 + ps->velocity.v[2];
+  v21 = DCONST_DVARMPFLT_ladderJumpRightScale;
   if ( !DCONST_DVARMPFLT_ladderJumpRightScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderJumpRightScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v64);
+  Dvar_CheckFrontendServerThread(v21);
+  v22 = (float)(*(float *)&v19 * v8) * v21->current.value;
+  v23 = v22 * outLadderInfo.axis.m[1].v[1];
+  ps->velocity.v[0] = (float)(v22 * outLadderInfo.axis.m[1].v[0]) + ps->velocity.v[0];
+  v24 = v23 + ps->velocity.v[1];
+  v25 = v22 * outLadderInfo.axis.m[1].v[2];
+  ps->velocity.v[1] = v24;
+  v26 = v25 + ps->velocity.v[2];
+  v27 = v19;
+  *(float *)&v27 = fsqrt((float)(*(float *)&v19 * *(float *)&v19) + (float)(v18 * v18));
+  _XMM7 = v27;
   __asm
   {
-    vmulss  xmm0, xmm6, xmm12
-    vmulss  xmm3, xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+160h+outLadderInfo.axis+0Ch]
-    vaddss  xmm2, xmm1, dword ptr [rsi+3Ch]
-    vmulss  xmm1, xmm3, dword ptr [rbp+60h+outLadderInfo.axis+10h]
-    vmovss  dword ptr [rsi+3Ch], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsi+40h]
-    vmulss  xmm1, xmm3, dword ptr [rbp+60h+outLadderInfo.axis+14h]
-    vmovss  dword ptr [rsi+40h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsi+44h]
-    vmulss  xmm3, xmm6, xmm6
-    vmulss  xmm0, xmm10, xmm10
-    vaddss  xmm1, xmm3, xmm0
-    vsqrtss xmm7, xmm1, xmm1
     vcmpless xmm1, xmm7, cs:__real@80000000
     vblendvps xmm1, xmm7, xmm9, xmm1
-    vmovss  dword ptr [rsi+44h], xmm2
-    vdivss  xmm2, xmm9, xmm1
-    vmulss  xmm1, xmm2, xmm10; X
-    vmulss  xmm0, xmm2, xmm6; Y
   }
-  *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm6, xmm0, cs:__real@3e22f983
-    vmovaps xmm0, xmm7; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vaddss  xmm2, xmm6, cs:__real@3f000000 }
-  v87 = DCONST_DVARMPFLT_ladderJumpBackVelocity;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm4, xmm2, xmm3, 1
-    vmovaps xmm5, xmm0
-    vsubss  xmm1, xmm6, xmm4
-    vmulss  xmm2, xmm1, cs:__real@43b40000
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm1, xmm2, cs:__real@42b40000
-    vmaxss  xmm2, xmm1, xmm11
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm0, xmm2, cs:__real@3c360b61
-    vmulss  xmm3, xmm0, xmm5
-    vsubss  xmm1, xmm9, xmm5
-    vmulss  xmm0, xmm1, cs:__real@3f000000
-    vaddss  xmm6, xmm3, xmm0
-  }
+  ps->velocity.v[2] = v26;
+  v31 = LODWORD(FLOAT_1_0);
+  *(float *)&v31 = atan2f_0((float)(1.0 / *(float *)&_XMM1) * *(float *)&v19, (float)(1.0 / *(float *)&_XMM1) * v18) * 0.15915494;
+  v32 = I_fclamp(*(float *)&_XMM7, 0.0, 1.0);
+  v33 = DCONST_DVARMPFLT_ladderJumpBackVelocity;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm4, xmm2, xmm3, 1 }
+  *(float *)&v31 = (float)(*(float *)&v31 - *(float *)&_XMM4) * 360.0;
+  v37 = v31 & _xmm;
+  *(float *)&v37 = *(float *)&v37 - 90.0;
+  _XMM1 = v37;
+  __asm { vmaxss  xmm2, xmm1, xmm11 }
   if ( !DCONST_DVARMPFLT_ladderJumpBackVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderJumpBackVelocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v87);
-  __asm
-  {
-    vmulss  xmm3, xmm6, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+160h+outLadderInfo.axis]
-    vaddss  xmm2, xmm1, dword ptr [rsi+3Ch]
-    vmulss  xmm1, xmm3, dword ptr [rsp+160h+outLadderInfo.axis+4]
-  }
+  Dvar_CheckFrontendServerThread(v33);
+  v39 = (float)((float)((float)(COERCE_FLOAT(_XMM2 & _xmm) * 0.011111111) * *(float *)&v32) + (float)((float)(1.0 - *(float *)&v32) * 0.5)) * v33->current.value;
+  v40 = v39 * outLadderInfo.axis.m[0].v[1];
   weaponMap = pm->weaponMap;
-  __asm
-  {
-    vmovss  dword ptr [rsi+3Ch], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsi+40h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+160h+outLadderInfo.axis+8]
-    vmovss  dword ptr [rsi+40h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsi+44h]
-    vmovss  dword ptr [rsi+44h], xmm2
-  }
-  PM_ClearLadderFlag(weaponMap, _RSI);
-  _R11 = &v123;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  ps->velocity.v[0] = (float)(v39 * outLadderInfo.axis.m[0].v[0]) + ps->velocity.v[0];
+  v42 = v39 * outLadderInfo.axis.m[0].v[2];
+  ps->velocity.v[1] = v40 + ps->velocity.v[1];
+  ps->velocity.v[2] = v42 + ps->velocity.v[2];
+  PM_ClearLadderFlag(weaponMap, ps);
 }
 
 /*
@@ -2366,671 +1857,477 @@ PM_LadderMove
 */
 void PM_LadderMove(pmove_t *pm, pml_t *pml)
 {
-  bool v26; 
-  __int64 v27; 
+  playerState_s *ps; 
+  float value; 
+  const dvar_t *v6; 
+  float v7; 
+  float v8; 
+  bool v9; 
+  EdgeQueryCache *v10; 
+  __int128 v11; 
+  __int128 v12; 
+  bool v16; 
+  vec3_t *p_right; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  unsigned __int128 v25; 
+  float v26; 
+  unsigned __int128 v27; 
+  double v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  const char *v34; 
+  float v35; 
+  char forwardmove; 
+  const dvar_t *v37; 
+  const dvar_t *v38; 
+  char v39; 
+  char rightmove; 
+  float v41; 
   bool v42; 
-  const dvar_t *v75; 
-  const char *v77; 
-  const dvar_t *v84; 
-  const dvar_t *v85; 
-  char v86; 
-  bool v98; 
-  const dvar_t *v108; 
-  const dvar_t *v128; 
-  const char *v130; 
-  unsigned int mode; 
-  BgGroundState *ground; 
-  bool v186; 
-  bool v213; 
-  bool v214; 
-  bool v225; 
-  const dvar_t *v226; 
-  char v227; 
-  LadderMode v228; 
-  bool v229; 
+  const dvar_t *v43; 
+  float v44; 
+  const dvar_t *v45; 
+  float v46; 
+  const dvar_t *v47; 
+  float v48; 
+  __int128 v49; 
+  float v53; 
+  float v54; 
+  float v55; 
+  const dvar_t *v58; 
+  const dvar_t *v59; 
+  const char *v60; 
+  float v61; 
+  LadderMode mode; 
+  __int128 v63; 
+  float v67; 
+  float v68; 
+  __int128 v70; 
+  __int128 v73; 
+  __int128 v74; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  int v82; 
+  float v83; 
+  const SuitDef *SuitDef; 
+  float v88; 
+  bool v89; 
+  const dvar_t *v90; 
+  char v91; 
+  LadderMode v92; 
   unsigned __int64 weaponState; 
-  __int64 v231; 
-  const dvar_t *v232; 
-  char v246; 
-  bool v247; 
-  float fmt; 
-  float fmta; 
-  float edgeLadderQueryHint; 
-  float edgeWidthQueryHint; 
-  float v267; 
+  __int64 v94; 
+  const dvar_t *v95; 
+  playerState_s *v96; 
+  float v97; 
+  float v98; 
+  float v99; 
+  double Float_Internal_DebugName; 
+  float v101; 
+  float v102; 
   vec3_t inOutWishVel; 
   vec3_t relativePoint; 
   LadderInfo outLadderInfo; 
   vec3_t outToCenterTarget; 
   vec3_t wishdir; 
-  char v278; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R14 = pml;
-  _RSI = pm;
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_LadderMove");
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1226, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
+  if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1226, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = _RSI->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1226, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1226, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3e4ccccd
-    vmovss  dword ptr [rsp+1E0h+var_188], xmm9
-  }
+  value = FLOAT_0_2;
+  v102 = FLOAT_0_2;
   if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|WEAPON_OFFHAND_END|0x80) )
   {
-    _RBX = DCONST_DVARFLT_fastSideLadderScale;
+    v6 = DCONST_DVARFLT_fastSideLadderScale;
     if ( !DCONST_DVARFLT_fastSideLadderScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fastSideLadderScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rbx+28h]
-      vmovss  dword ptr [rsp+1E0h+var_188], xmm9
-    }
+    Dvar_CheckFrontendServerThread(v6);
+    value = v6->current.value;
+    v102 = value;
   }
-  if ( !Jump_Check(_RSI, _R14) )
+  if ( !Jump_Check(pm, pml) )
   {
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
     if ( PM_UseLegacyMouseLadderMove() )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+8]
-        vmulss  xmm1, xmm0, cs:__real@40200000
-        vaddss  xmm0, xmm1, cs:__real@3f200000; val
-        vmovaps xmm2, xmm7; max
-        vmovss  xmm1, cs:__real@bf800000; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm15, xmm0 }
+      v7 = (float)(pml->forward.v[2] * 2.5) + 0.625;
+      I_fclamp(v7, -1.0, 1.0);
+      v8 = v7;
     }
     else
     {
-      __asm { vmovaps xmm15, xmm7 }
+      v8 = FLOAT_1_0;
     }
-    v26 = _RDI->ladderState.mode == LADDER_MODE_INVALID;
-    v27 = (__int64)_RSI->m_bgHandler->GetEdgeQueryCache(_RSI->m_bgHandler, (unsigned int)_RDI->clientNum);
-    BG_GetLadderInfo(&_RDI->origin, _RSI->m_bgHandler, &outLadderInfo, &outToCenterTarget, v26, (unsigned int *)(v27 + 8), (unsigned int *)(v27 + 16));
+    v9 = ps->ladderState.mode == LADDER_MODE_INVALID;
+    v10 = pm->m_bgHandler->GetEdgeQueryCache(pm->m_bgHandler, (unsigned int)ps->clientNum);
+    BG_GetLadderInfo(&ps->origin, pm->m_bgHandler, &outLadderInfo, &outToCenterTarget, v9, &v10->ladderHintNode, &v10->ladderWidthHintNode);
+    pml->ladderWidth = outLadderInfo.width;
+    pml->forward.v[2] = 0.0;
+    v11 = LODWORD(pml->forward.v[0]);
+    v12 = v11;
+    *(float *)&v12 = fsqrt((float)(*(float *)&v11 * *(float *)&v11) + (float)(pml->forward.v[1] * pml->forward.v[1]));
+    _XMM2 = v12;
     __asm
     {
-      vmovss  xmm0, [rbp+0E0h+outLadderInfo.width]
-      vmovss  dword ptr [r14+2ACh], xmm0
-    }
-    _R14->forward.v[2] = 0.0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  xmm3, dword ptr [r14]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vmovss  xmm10, cs:__real@80000000
       vcmpless xmm0, xmm2, xmm10
       vblendvps xmm1, xmm2, xmm7, xmm0
-      vmovss  [rsp+1E0h+var_190], xmm1
-      vdivss  xmm2, xmm7, xmm1
-      vmulss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [r14], xmm0
-      vmulss  xmm1, xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [r14+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r14+8]
-      vmovss  dword ptr [r14+8], xmm0
     }
-    v42 = PM_UseLegacyMouseLadderMove();
-    __asm
+    pml->forward.v[0] = *(float *)&v11 * (float)(1.0 / *(float *)&_XMM1);
+    pml->forward.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->forward.v[1];
+    pml->forward.v[2] = (float)(1.0 / *(float *)&_XMM1) * pml->forward.v[2];
+    v16 = PM_UseLegacyMouseLadderMove();
+    _XMM8 = 0i64;
+    p_right = &pml->right;
+    pml->right.v[2] = 0.0;
+    if ( v16 )
     {
-      vmovss  xmm11, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm8, xmm8, xmm8
-    }
-    _R15 = &_R14->right;
-    _R14->right.v[2] = 0.0;
-    if ( v42 )
-    {
+      v19 = pml->right.v[1];
+      v20 = LODWORD(p_right->v[0]);
+      v21 = v20;
+      *(float *)&v21 = fsqrt((float)(*(float *)&v20 * *(float *)&v20) + (float)(v19 * v19));
+      _XMM2 = v21;
       __asm
       {
-        vmovss  xmm4, dword ptr [r15+4]
-        vmovss  xmm3, dword ptr [r15]
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
         vcmpless xmm0, xmm2, xmm10
         vblendvps xmm1, xmm2, xmm7, xmm0
-        vmovss  [rsp+1E0h+var_190], xmm1
-        vdivss  xmm1, xmm7, xmm1
-        vmulss  xmm0, xmm3, xmm1
-        vmovss  dword ptr [rsp+1E0h+relativePoint], xmm0
-        vmulss  xmm1, xmm4, xmm1
-        vmovss  dword ptr [rsp+1E0h+relativePoint+4], xmm1
-        vmovss  dword ptr [rbp+0E0h+relativePoint+8], xmm8
       }
-      ProjectPointOnPlane(&relativePoint, outLadderInfo.axis.m, &_R14->right);
+      *(float *)&_XMM1 = 1.0 / *(float *)&_XMM1;
+      relativePoint.v[0] = *(float *)&v20 * *(float *)&_XMM1;
+      relativePoint.v[1] = v19 * *(float *)&_XMM1;
+      relativePoint.v[2] = 0.0;
+      ProjectPointOnPlane(&relativePoint, outLadderInfo.axis.m, &pml->right);
     }
     else
     {
+      v25 = LODWORD(outLadderInfo.axis.m[0].v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
+      v26 = outLadderInfo.axis.m[0].v[1];
+      pml->right.v[1] = *(float *)&v25;
+      v27 = v25;
+      *(float *)&v27 = fsqrt((float)(*(float *)&v25 * *(float *)&v25) + (float)(v26 * v26));
+      _XMM2 = v27;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+0E0h+outLadderInfo.axis]
-        vxorps  xmm1, xmm0, xmm11
-        vmovss  xmm3, dword ptr [rbp+0E0h+outLadderInfo.axis+4]
-        vmovss  dword ptr [r15+4], xmm1
-        vmulss  xmm1, xmm1, xmm1
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
         vcmpless xmm0, xmm2, xmm10
         vblendvps xmm1, xmm2, xmm7, xmm0
-        vmovss  [rsp+1E0h+var_190], xmm1
-        vdivss  xmm2, xmm7, xmm1
-        vmulss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [r15], xmm0
-        vmulss  xmm1, xmm2, dword ptr [r15+4]
-        vmovss  dword ptr [r15+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [r15+8]
-        vmovss  dword ptr [r15+8], xmm0
-        vmovss  xmm0, dword ptr [r15]
-        vxorps  xmm1, xmm0, xmm11
-        vmovss  dword ptr [r15], xmm1
-        vmovss  xmm2, dword ptr [r15+4]
-        vxorps  xmm0, xmm2, xmm11
-        vmovss  dword ptr [r15+4], xmm0
-        vmovss  xmm1, dword ptr [r15+8]
-        vxorps  xmm2, xmm1, xmm11
-        vmovss  dword ptr [r15+8], xmm2
       }
+      p_right->v[0] = v26 * (float)(1.0 / *(float *)&_XMM1);
+      pml->right.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->right.v[1];
+      pml->right.v[2] = (float)(1.0 / *(float *)&_XMM1) * pml->right.v[2];
+      p_right->v[0] = COERCE_FLOAT(LODWORD(p_right->v[0]) ^ _xmm);
+      pml->right.v[1] = COERCE_FLOAT(LODWORD(pml->right.v[1]) ^ _xmm);
+      pml->right.v[2] = COERCE_FLOAT(LODWORD(pml->right.v[2]) ^ _xmm);
     }
-    *(double *)&_XMM0 = PM_CmdScale(_RDI, &_RSI->cmd);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovss  [rsp+1E0h+var_190], xmm0
-      vmovss  dword ptr [rsp+1E0h+var_178], xmm8
-      vmovss  dword ptr [rsp+1E0h+var_178+4], xmm8
-      vmovss  dword ptr [rsp+1E0h+var_178+8], xmm8
-    }
-    v75 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+    v31 = PM_CmdScale(ps, &pm->cmd);
+    v101 = *(float *)&v31;
+    inOutWishVel.v[0] = 0.0;
+    inOutWishVel.v[1] = 0.0;
+    inOutWishVel.v[2] = 0.0;
+    v32 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
     if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v75);
-    if ( v75->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    if ( v32->current.enabled )
     {
-      _RBX = DCONST_DVARMPSPFLT_player_ladderEnhancedVerticalSpeedScale;
+      v33 = DCONST_DVARMPSPFLT_player_ladderEnhancedVerticalSpeedScale;
       if ( DCONST_DVARMPSPFLT_player_ladderEnhancedVerticalSpeedScale )
         goto LABEL_30;
-      v77 = "player_ladderEnhancedVerticalSpeedScale";
+      v34 = "player_ladderEnhancedVerticalSpeedScale";
     }
     else
     {
-      _RBX = DCONST_DVARMPSPFLT_player_ladderVerticalSpeedScale;
+      v33 = DCONST_DVARMPSPFLT_player_ladderVerticalSpeedScale;
       if ( DCONST_DVARMPSPFLT_player_ladderVerticalSpeedScale )
         goto LABEL_30;
-      v77 = "player_ladderVerticalSpeedScale";
+      v34 = "player_ladderVerticalSpeedScale";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v77) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v34) )
       __debugbreak();
 LABEL_30:
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm14, dword ptr [rbx+28h] }
-    if ( _RSI->cmd.forwardmove )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm14, xmm15
-        vmulss  xmm2, xmm0, xmm6
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rsp+1E0h+var_178+8], xmm0
-      }
-    }
-    v84 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+    Dvar_CheckFrontendServerThread(v33);
+    v35 = v33->current.value;
+    forwardmove = pm->cmd.forwardmove;
+    if ( forwardmove )
+      inOutWishVel.v[2] = (float)((float)(v35 * v8) * *(float *)&v31) * (float)forwardmove;
+    v37 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
     if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v84);
-    if ( !v84->current.enabled )
+    Dvar_CheckFrontendServerThread(v37);
+    if ( !v37->current.enabled )
       goto LABEL_41;
-    v85 = DCONST_DVARMPBOOL_ladderEnableStrafe;
+    v38 = DCONST_DVARMPBOOL_ladderEnableStrafe;
     if ( !DCONST_DVARMPBOOL_ladderEnableStrafe && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableStrafe") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v85);
-    if ( v85->current.enabled )
+    Dvar_CheckFrontendServerThread(v38);
+    if ( v38->current.enabled )
 LABEL_41:
-      v86 = 1;
+      v39 = 1;
     else
-      v86 = 0;
-    LOBYTE(_EAX) = _RSI->cmd.rightmove;
-    if ( (_BYTE)_EAX && v86 )
+      v39 = 0;
+    rightmove = pm->cmd.rightmove;
+    if ( rightmove && v39 )
     {
-      __asm { vmulss  xmm1, xmm6, xmm9 }
-      _EAX = (char)_EAX;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm3, xmm1, xmm0
-        vmulss  xmm2, xmm3, dword ptr [r15]
-        vaddss  xmm0, xmm2, dword ptr [rsp+1E0h+var_178]
-        vmovss  dword ptr [rsp+1E0h+var_178], xmm0
-        vmulss  xmm1, xmm3, dword ptr [r15+4]
-        vaddss  xmm1, xmm1, dword ptr [rsp+1E0h+var_178+4]
-        vmovss  dword ptr [rsp+1E0h+var_178+4], xmm1
-        vmulss  xmm2, xmm3, dword ptr [r15+8]
-        vaddss  xmm1, xmm2, dword ptr [rsp+1E0h+var_178+8]
-        vmovss  dword ptr [rsp+1E0h+var_178+8], xmm1
-      }
+      v41 = (float)(*(float *)&v31 * value) * _mm_cvtepi32_ps((__m128i)(unsigned int)rightmove).m128_f32[0];
+      inOutWishVel.v[0] = (float)(v41 * p_right->v[0]) + inOutWishVel.v[0];
+      inOutWishVel.v[1] = (float)(v41 * pml->right.v[1]) + inOutWishVel.v[1];
+      inOutWishVel.v[2] = (float)(v41 * pml->right.v[2]) + inOutWishVel.v[2];
     }
-    v98 = (_RSI->cmd.buttons & 0x4000000000i64) != 0;
-    if ( (_RSI->cmd.buttons & 0x4000000000i64) != 0 )
+    v42 = (pm->cmd.buttons & 0x4000000000i64) != 0;
+    if ( (pm->cmd.buttons & 0x4000000000i64) != 0 )
     {
-      _RBX = DCONST_DVARMPFLT_ladderCrouchSlideSpeed;
+      v43 = DCONST_DVARMPFLT_ladderCrouchSlideSpeed;
       if ( !DCONST_DVARMPFLT_ladderCrouchSlideSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderCrouchSlideSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
+      Dvar_CheckFrontendServerThread(v43);
+      LODWORD(v44) = v43->current.integer ^ _xmm;
+      if ( v44 >= ps->velocity.v[2] )
       {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vxorps  xmm1, xmm0, xmm11
-        vcomiss xmm1, dword ptr [rdi+44h]
-      }
-      if ( !v229 )
-      {
-        _RBX = DCONST_DVARMPFLT_ladderCrouchSlideAccel;
+        v45 = DCONST_DVARMPFLT_ladderCrouchSlideAccel;
         if ( !DCONST_DVARMPFLT_ladderCrouchSlideAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderCrouchSlideAccel") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmulss  xmm1, xmm0, dword ptr [r14+24h]
-          vmovss  xmm0, dword ptr [rdi+44h]
-          vsubss  xmm1, xmm0, xmm1
-        }
+        Dvar_CheckFrontendServerThread(v45);
+        v44 = ps->velocity.v[2] - (float)(v45->current.value * pml->frametime);
       }
-      __asm { vmovss  dword ptr [rsp+1E0h+var_178+8], xmm1 }
+      inOutWishVel.v[2] = v44;
     }
-    BG_GetNormalizedMovementCmd(&_RSI->cmd, &relativePoint);
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rsp+1E0h+relativePoint]
-      vmovss  xmm13, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    if ( v98 )
+    BG_GetNormalizedMovementCmd(&pm->cmd, &relativePoint);
+    v46 = relativePoint.v[0];
+    if ( v42 )
       goto LABEL_62;
-    v108 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+    v47 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
     if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v108);
-    if ( v108->current.enabled && !v86 )
+    Dvar_CheckFrontendServerThread(v47);
+    if ( v47->current.enabled && !v39 )
 LABEL_62:
-      __asm { vmovaps xmm9, xmm7 }
+      v48 = FLOAT_1_0;
     else
-      __asm { vandps  xmm9, xmm9, xmm13 }
+      LODWORD(v48) = LODWORD(v46) & _xmm;
+    v49 = LODWORD(outToCenterTarget.v[0]);
+    *(float *)&v49 = fsqrt((float)((float)(*(float *)&v49 * *(float *)&v49) + (float)(outToCenterTarget.v[1] * outToCenterTarget.v[1])) + (float)(outToCenterTarget.v[2] * outToCenterTarget.v[2]));
+    _XMM3 = v49;
     __asm
     {
-      vmovss  xmm6, dword ptr [rbp+0E0h+outToCenterTarget]
-      vmulss  xmm1, xmm6, xmm6
-      vmovss  xmm5, dword ptr [rbp+0E0h+outToCenterTarget+4]
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm4, dword ptr [rbp+0E0h+outToCenterTarget+8]
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm1, xmm3, xmm7, xmm0
-      vdivss  xmm0, xmm7, xmm1
-      vmulss  xmm6, xmm6, xmm0
-      vmulss  xmm10, xmm5, xmm0
-      vmulss  xmm11, xmm4, xmm0
-      vdivss  xmm0, xmm3, cs:?LADDER_MAGNETISM_SCALE_DIST@@3MA; float LADDER_MAGNETISM_SCALE_DIST
-      vminss  xmm12, xmm0, xmm7
     }
-    v128 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+    v53 = outToCenterTarget.v[0] * (float)(1.0 / *(float *)&_XMM1);
+    v54 = outToCenterTarget.v[1] * (float)(1.0 / *(float *)&_XMM1);
+    v55 = outToCenterTarget.v[2] * (float)(1.0 / *(float *)&_XMM1);
+    *(float *)&v49 = *(float *)&v49 / LADDER_MAGNETISM_SCALE_DIST;
+    _XMM0 = v49;
+    __asm { vminss  xmm12, xmm0, xmm7 }
+    v58 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
     if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v128);
-    if ( !v128->current.enabled || v86 )
+    Dvar_CheckFrontendServerThread(v58);
+    if ( !v58->current.enabled || v39 )
     {
-      _RBX = DCONST_DVARMPFLT_ladderMagnetismSpeed;
+      v59 = DCONST_DVARMPFLT_ladderMagnetismSpeed;
       if ( DCONST_DVARMPFLT_ladderMagnetismSpeed )
         goto LABEL_74;
-      v130 = "ladderMagnetismSpeed";
+      v60 = "ladderMagnetismSpeed";
     }
     else
     {
-      _RBX = DCONST_DVARMPFLT_ladderMagnetismEnhancedSpeed;
+      v59 = DCONST_DVARMPFLT_ladderMagnetismEnhancedSpeed;
       if ( DCONST_DVARMPFLT_ladderMagnetismEnhancedSpeed )
         goto LABEL_74;
-      v130 = "ladderMagnetismEnhancedSpeed";
+      v60 = "ladderMagnetismEnhancedSpeed";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v130) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v60) )
       __debugbreak();
 LABEL_74:
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v59);
+    v61 = (float)(v59->current.value * *(float *)&_XMM12) * v48;
+    inOutWishVel.v[0] = (float)(v61 * v53) + inOutWishVel.v[0];
+    inOutWishVel.v[1] = (float)(v61 * v54) + inOutWishVel.v[1];
+    inOutWishVel.v[2] = (float)(v61 * v55) + inOutWishVel.v[2];
+    if ( ps->weapCommon.fWeaponPosFrac <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm0, xmm0, xmm12
-      vmulss  xmm4, xmm0, xmm9
-      vmulss  xmm2, xmm4, xmm6
-      vaddss  xmm0, xmm2, dword ptr [rsp+1E0h+var_178]
-      vmovss  dword ptr [rsp+1E0h+var_178], xmm0
-      vmulss  xmm3, xmm4, xmm10
-      vaddss  xmm0, xmm3, dword ptr [rsp+1E0h+var_178+4]
-      vmovss  dword ptr [rsp+1E0h+var_178+4], xmm0
-      vmulss  xmm2, xmm4, xmm11
-      vaddss  xmm0, xmm2, dword ptr [rsp+1E0h+var_178+8]
-      vmovss  dword ptr [rsp+1E0h+var_178+8], xmm0
-      vcomiss xmm8, dword ptr [rdi+730h]
-    }
-    if ( v229 )
-    {
-      mode = 0;
-      if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RDI->weapCommon.weapFlags, ACTIVE, 6u) )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+1E0h+var_178], xmm8
-          vmovss  dword ptr [rsp+1E0h+var_178+4], xmm8
-          vmovss  dword ptr [rsp+1E0h+var_178+8], xmm8
-        }
-        *(_QWORD *)_RDI->velocity.v = 0i64;
-        _RDI->velocity.v[2] = 0.0;
-      }
+      mode = LADDER_MODE_INVALID;
     }
     else
     {
-      mode = 0;
+      mode = LADDER_MODE_INVALID;
+      if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 6u) )
+      {
+        inOutWishVel.v[0] = 0.0;
+        inOutWishVel.v[1] = 0.0;
+        inOutWishVel.v[2] = 0.0;
+        *(_QWORD *)ps->velocity.v = 0i64;
+        ps->velocity.v[2] = 0.0;
+      }
     }
+    BGMovingPlatformClient::AdjustWishVelocityForLadder(pm->movingPlatforms, pm, pml, &pml->right, v35, v8, v101, v102, &inOutWishVel, outLadderInfo.axis.m);
+    v63 = LODWORD(inOutWishVel.v[1]);
+    *(float *)&v63 = fsqrt((float)((float)(*(float *)&v63 * *(float *)&v63) + (float)(inOutWishVel.v[0] * inOutWishVel.v[0])) + (float)(inOutWishVel.v[2] * inOutWishVel.v[2]));
+    _XMM3 = v63;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsp+1E0h+var_188]
-      vmovss  dword ptr [rsp+1E0h+var_1A8], xmm0
-      vmovss  xmm0, [rsp+1E0h+var_190]
-      vmovss  dword ptr [rsp+1E0h+edgeWidthQueryHint], xmm0
-      vmovss  dword ptr [rsp+1E0h+edgeLadderQueryHint], xmm15
-      vmovss  dword ptr [rsp+1E0h+fmt], xmm14
-    }
-    BGMovingPlatformClient::AdjustWishVelocityForLadder(_RSI->movingPlatforms, _RSI, _R14, &_R14->right, fmt, edgeLadderQueryHint, edgeWidthQueryHint, v267, &inOutWishVel, outLadderInfo.axis.m);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+1E0h+var_178+4]
-      vmulss  xmm1, xmm6, xmm6
-      vmovss  xmm4, dword ptr [rsp+1E0h+var_178]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm5, dword ptr [rsp+1E0h+var_178+8]
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0; wishspeed
-      vmovss  xmm9, cs:__real@80000000
       vcmpless xmm0, xmm3, xmm9
       vblendvps xmm1, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm1
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbp+0E0h+wishdir], xmm0
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rbp+0E0h+wishdir+4], xmm1
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbp+0E0h+wishdir+8], xmm0
-      vmovss  xmm1, cs:__real@41100000
-      vmovss  dword ptr [rsp+1E0h+fmt], xmm1
     }
-    PM_Accelerate(_RSI, _R14, &wishdir, *(float *)&_XMM3, fmta);
-    if ( !_RSI->cmd.forwardmove && !v98 )
+    wishdir.v[0] = inOutWishVel.v[0] * (float)(1.0 / *(float *)&_XMM1);
+    wishdir.v[1] = inOutWishVel.v[1] * (float)(1.0 / *(float *)&_XMM1);
+    wishdir.v[2] = inOutWishVel.v[2] * (float)(1.0 / *(float *)&_XMM1);
+    PM_Accelerate(pm, pml, &wishdir, *(float *)&v63, 9.0);
+    if ( !pm->cmd.forwardmove && !v42 )
     {
-      __asm
+      v67 = ps->velocity.v[2];
+      v68 = (float)ps->gravity * pml->frametime;
+      if ( v67 <= 0.0 )
       {
-        vmovss  xmm2, dword ptr [rdi+44h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, dword ptr [r14+24h]
-        vcomiss xmm2, xmm8
-        vaddss  xmm2, xmm2, xmm1
-        vcmpltss xmm0, xmm8, xmm2
-        vblendvps xmm0, xmm2, xmm8, xmm0
-        vmovss  dword ptr [rdi+44h], xmm0
-      }
-    }
-    if ( _RSI->cmd.rightmove || v98 )
-    {
-      __asm { vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000 }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r15]
-        vmovss  xmm4, dword ptr [r15+4]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vcmpless xmm0, xmm2, xmm9
-        vblendvps xmm1, xmm2, xmm7, xmm0
-        vdivss  xmm0, xmm7, xmm1
-        vmulss  xmm5, xmm3, xmm0
-        vmulss  xmm4, xmm4, xmm0
-        vmovss  xmm3, dword ptr [rdi+3Ch]
-        vmulss  xmm1, xmm4, dword ptr [rdi+40h]
-        vmulss  xmm0, xmm3, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-        vucomiss xmm2, xmm8
-      }
-    }
-    ground = _RSI->ground;
-    _R15 = &_RDI->origin;
-    v186 = !ground->walking;
-    if ( !ground->walking )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15]
-        vsubss  xmm4, xmm0, dword ptr [rbp+0E0h+outLadderInfo.bottom]
-        vmovss  xmm1, dword ptr [r15+4]
-        vsubss  xmm2, xmm1, dword ptr [rbp+0E0h+outLadderInfo.bottom+4]
-        vmovss  xmm0, dword ptr [r15+8]
-        vsubss  xmm3, xmm0, dword ptr [rbp+0E0h+outLadderInfo.bottom+8]
-        vmulss  xmm1, xmm2, dword ptr [rbp+0E0h+outLadderInfo.axis+4]
-        vmovss  xmm5, dword ptr [rbp+0E0h+outLadderInfo.axis]
-        vmulss  xmm0, xmm4, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, dword ptr [rbp+0E0h+outLadderInfo.axis+8]
-        vaddss  xmm3, xmm2, xmm1
-      }
-      _RAX = _RSI->bounds;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+0Ch]
-        vaddss  xmm1, xmm0, cs:__real@3e19999a
-        vcomiss xmm3, xmm1
-      }
-      if ( !v186 )
-      {
+        v70 = LODWORD(ps->velocity.v[2]);
+        *(float *)&v70 = v67 + v68;
+        _XMM2 = v70;
         __asm
         {
-          vmovss  xmm4, cs:__real@42480000
-          vmulss  xmm1, xmm5, xmm4
-          vmovss  xmm0, dword ptr [rdi+3Ch]
-          vsubss  xmm1, xmm0, xmm1
-          vmovss  dword ptr [rdi+3Ch], xmm1
-          vmulss  xmm3, xmm4, dword ptr [rbp+0E0h+outLadderInfo.axis+4]
-          vmovss  xmm0, dword ptr [rdi+40h]
-          vsubss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rdi+40h], xmm1
-          vmulss  xmm3, xmm4, dword ptr [rbp+0E0h+outLadderInfo.axis+8]
-          vmovss  xmm0, dword ptr [rdi+44h]
-          vsubss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rdi+44h], xmm1
+          vcmpltss xmm0, xmm8, xmm2
+          vblendvps xmm0, xmm2, xmm8, xmm0
         }
-      }
-    }
-    PM_UpdatePlayerCollision(_RSI, _R14, 0, 1, 1, 1);
-    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-      BG_UpdateMovementDir(_RSI, _R14, 0);
-    _RBX = BG_GetSuitDef(_RDI->suitIndex);
-    v213 = _RBX == NULL;
-    if ( !_RBX )
-    {
-      v214 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1914, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef");
-      v213 = !v214;
-      if ( v214 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1A4h]
-      vaddss  xmm6, xmm0, dword ptr [r15+8]
-      vmovss  xmm0, dword ptr [rbp+0E0h+outLadderInfo.axis+1Ch]
-      vmulss  xmm3, xmm0, dword ptr [rdi+40h]
-      vmovss  xmm1, dword ptr [rbp+0E0h+outLadderInfo.axis+18h]
-      vmulss  xmm2, xmm1, dword ptr [rdi+3Ch]
-      vaddss  xmm4, xmm3, xmm2
-      vmovss  xmm0, dword ptr [rbp+0E0h+outLadderInfo.axis+20h]
-      vmulss  xmm1, xmm0, dword ptr [rdi+44h]
-      vaddss  xmm2, xmm4, xmm1
-      vcomiss xmm2, xmm8
-    }
-    v225 = !v213;
-    v226 = DVARBOOL_killswitch_ladder_akimbo_cresting_fix_enabled;
-    if ( !DVARBOOL_killswitch_ladder_akimbo_cresting_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_ladder_akimbo_cresting_fix_enabled") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v226);
-    if ( !v226->current.enabled || _RDI->ladderState.mode )
-    {
-      v227 = 1;
-      mode = _RDI->ladderState.mode;
-    }
-    else
-    {
-      v227 = 0;
-    }
-    if ( _RSI->ground->walking && mode == 5 )
-    {
-      v228 = LADDER_MODE_INVALID;
-    }
-    else if ( v98 && ((v229 = mode < 5, mode == 5) || (weaponState = _RDI->weapState[1].weaponState, (unsigned int)weaponState <= 0x2F) && (v231 = 0x800000001020i64, v229 = _bittest64(&v231, weaponState))) )
-    {
-      __asm { vcomiss xmm8, dword ptr [rdi+730h] }
-      if ( v229 )
-      {
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 9u);
-        PM_ExitAimDownSight(_RSI);
-      }
-      v228 = LADDER_MODE_SLIDE;
-    }
-    else
-    {
-      v232 = DCONST_DVARMPFLT_ladderVaultOffset;
-      if ( !DCONST_DVARMPFLT_ladderVaultOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderVaultOffset") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v232);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0E0h+outLadderInfo.top+8]
-        vaddss  xmm1, xmm0, dword ptr [rbx+28h]
-        vcomiss xmm6, xmm1
-      }
-      if ( !v229 && v225 )
-      {
-        if ( _RDI->ladderState.mode != LADDER_MODE_VAULTING )
-        {
-          PM_SetLadderMode(_RSI, _RDI, LADDER_MODE_VAULTING);
-          __asm
-          {
-            vmovss  xmm0, cs:?LADDER_VAULT_NUDGE_DIST@@3MA; float LADDER_VAULT_NUDGE_DIST
-            vxorps  xmm2, xmm0, xmm9
-            vmulss  xmm1, xmm2, dword ptr [rbp+0E0h+outLadderInfo.axis]
-            vaddss  xmm5, xmm1, dword ptr [rax+30h]
-            vmulss  xmm0, xmm2, dword ptr [rbp+0E0h+outLadderInfo.axis+4]
-            vaddss  xmm4, xmm0, dword ptr [rax+34h]
-            vmulss  xmm2, xmm2, dword ptr [rbp+0E0h+outLadderInfo.axis+8]
-            vmovss  xmm1, dword ptr [rbp+0E0h+outLadderInfo.top+8]
-            vaddss  xmm0, xmm1, cs:__real@34000000
-            vaddss  xmm3, xmm2, xmm0
-            vsubss  xmm2, xmm3, dword ptr [rdi+38h]
-            vmovss  dword ptr [rsi+384h], xmm2
-          }
-          _RSI->m_flags |= 0x100u;
-          __asm
-          {
-            vmovss  dword ptr [rdi+30h], xmm5
-            vmovss  dword ptr [rdi+34h], xmm4
-            vmovss  dword ptr [rdi+38h], xmm3
-          }
-        }
-        goto LABEL_123;
-      }
-      v246 = 0;
-      v247 = v227 == 0;
-      if ( !v227 )
-        goto LABEL_120;
-      Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_ladderCresting, "ladderCresting");
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+0E0h+outLadderInfo.top+8]
-        vsubss  xmm0, xmm1, xmm0
-        vcomiss xmm6, xmm0
-      }
-      if ( v246 )
-      {
-LABEL_120:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+44h]
-          vandps  xmm0, xmm0, xmm13
-          vcomiss xmm0, cs:__real@34000000
-        }
-        v228 = LADDER_MODE_CLIMB;
-        if ( v246 | v247 )
-          v228 = LADDER_MODE_STATIONARY;
+        ps->velocity.v[2] = *(float *)&_XMM0;
       }
       else
       {
-        v228 = LADDER_MODE_CRESTING;
+        ps->velocity.v[2] = v67 - v68;
+        if ( (float)(v67 - v68) < 0.0 )
+          ps->velocity.v[2] = 0.0;
       }
     }
-    PM_SetLadderMode(_RSI, _RDI, v228);
-LABEL_123:
-    PM_Ladder_ClampViewAngles(_RSI, _RDI, &outLadderInfo);
-    goto LABEL_124;
+    if ( pm->cmd.rightmove || v42 )
+    {
+      v82 = _xmm;
+    }
+    else
+    {
+      v73 = LODWORD(pml->right.v[1]);
+      v74 = v73;
+      *(float *)&v74 = fsqrt((float)(*(float *)&v73 * *(float *)&v73) + (float)(p_right->v[0] * p_right->v[0]));
+      _XMM2 = v74;
+      __asm
+      {
+        vcmpless xmm0, xmm2, xmm9
+        vblendvps xmm1, xmm2, xmm7, xmm0
+      }
+      v78 = p_right->v[0] * (float)(1.0 / *(float *)&_XMM1);
+      v79 = *(float *)&v73 * (float)(1.0 / *(float *)&_XMM1);
+      v80 = ps->velocity.v[0];
+      v81 = (float)(v79 * ps->velocity.v[1]) + (float)(v80 * v78);
+      v82 = _xmm;
+      if ( v81 != 0.0 )
+      {
+        v83 = (float)(COERCE_FLOAT(LODWORD(v81) ^ _xmm) * v78) + v80;
+        ps->velocity.v[0] = v83;
+        ps->velocity.v[1] = (float)(COERCE_FLOAT(LODWORD(v81) ^ _xmm) * v79) + ps->velocity.v[1];
+        *(float *)&_XMM1 = (float)(v81 * pml->frametime) * LADDER_FRICTION;
+        if ( COERCE_FLOAT(LODWORD(v81) & _xmm) > COERCE_FLOAT(_XMM1 & _xmm) )
+        {
+          if ( COERCE_FLOAT(_XMM1 & _xmm) < 1.0 )
+          {
+            if ( COERCE_FLOAT(LODWORD(v81) & _xmm) < 1.0 )
+            {
+              *(float *)&_XMM1 = v81;
+            }
+            else
+            {
+              __asm { vcmpless xmm0, xmm8, xmm1 }
+              _XMM1 = LODWORD(FLOAT_N1_0);
+              __asm { vblendvps xmm1, xmm1, xmm7, xmm0 }
+            }
+          }
+          ps->velocity.v[0] = (float)((float)(v81 - *(float *)&_XMM1) * v78) + v83;
+          ps->velocity.v[1] = (float)((float)(v81 - *(float *)&_XMM1) * v79) + ps->velocity.v[1];
+        }
+      }
+    }
+    if ( !pm->ground->walking && (float)((float)((float)((float)(ps->origin.v[1] - outLadderInfo.bottom.v[1]) * outLadderInfo.axis.m[0].v[1]) + (float)((float)(ps->origin.v[0] - outLadderInfo.bottom.v[0]) * outLadderInfo.axis.m[0].v[0])) + (float)((float)(ps->origin.v[2] - outLadderInfo.bottom.v[2]) * outLadderInfo.axis.m[0].v[2])) > (float)(pm->bounds->halfSize.v[0] + 0.15000001) )
+    {
+      ps->velocity.v[0] = ps->velocity.v[0] - (float)(outLadderInfo.axis.m[0].v[0] * 50.0);
+      ps->velocity.v[1] = ps->velocity.v[1] - (float)(50.0 * outLadderInfo.axis.m[0].v[1]);
+      ps->velocity.v[2] = ps->velocity.v[2] - (float)(50.0 * outLadderInfo.axis.m[0].v[2]);
+    }
+    PM_UpdatePlayerCollision(pm, pml, 0, 1, 1, 1);
+    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
+      BG_UpdateMovementDir(pm, pml, 0);
+    SuitDef = BG_GetSuitDef(ps->suitIndex);
+    if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1914, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+      __debugbreak();
+    v88 = SuitDef->ladder_anchorOffset + ps->origin.v[2];
+    v89 = (float)((float)((float)(outLadderInfo.axis.m[2].v[1] * ps->velocity.v[1]) + (float)(outLadderInfo.axis.m[2].v[0] * ps->velocity.v[0])) + (float)(outLadderInfo.axis.m[2].v[2] * ps->velocity.v[2])) > 0.0;
+    v90 = DVARBOOL_killswitch_ladder_akimbo_cresting_fix_enabled;
+    if ( !DVARBOOL_killswitch_ladder_akimbo_cresting_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_ladder_akimbo_cresting_fix_enabled") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v90);
+    if ( !v90->current.enabled || ps->ladderState.mode )
+    {
+      v91 = 1;
+      mode = ps->ladderState.mode;
+    }
+    else
+    {
+      v91 = 0;
+    }
+    if ( pm->ground->walking && mode == LADDER_MODE_SLIDE )
+    {
+      v92 = LADDER_MODE_INVALID;
+    }
+    else if ( v42 && (mode == LADDER_MODE_SLIDE || (weaponState = ps->weapState[1].weaponState, (unsigned int)weaponState <= 0x2F) && (v94 = 0x800000001020i64, _bittest64(&v94, weaponState))) )
+    {
+      if ( ps->weapCommon.fWeaponPosFrac > 0.0 )
+      {
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 9u);
+        PM_ExitAimDownSight(pm);
+      }
+      v92 = LADDER_MODE_SLIDE;
+    }
+    else
+    {
+      v95 = DCONST_DVARMPFLT_ladderVaultOffset;
+      if ( !DCONST_DVARMPFLT_ladderVaultOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderVaultOffset") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v95);
+      if ( v88 >= (float)(outLadderInfo.top.v[2] + v95->current.value) && v89 )
+      {
+        if ( ps->ladderState.mode != LADDER_MODE_VAULTING )
+        {
+          PM_SetLadderMode(pm, ps, LADDER_MODE_VAULTING);
+          v96 = pm->ps;
+          v97 = (float)(COERCE_FLOAT(LODWORD(LADDER_VAULT_NUDGE_DIST) ^ v82) * outLadderInfo.axis.m[0].v[0]) + v96->origin.v[0];
+          v98 = (float)(COERCE_FLOAT(LODWORD(LADDER_VAULT_NUDGE_DIST) ^ v82) * outLadderInfo.axis.m[0].v[1]) + v96->origin.v[1];
+          v99 = (float)(COERCE_FLOAT(LODWORD(LADDER_VAULT_NUDGE_DIST) ^ v82) * outLadderInfo.axis.m[0].v[2]) + (float)(outLadderInfo.top.v[2] + 0.00000011920929);
+          pm->m_stepHeight = v99 - ps->origin.v[2];
+          pm->m_flags |= 0x100u;
+          ps->origin.v[0] = v97;
+          ps->origin.v[1] = v98;
+          ps->origin.v[2] = v99;
+        }
+        goto LABEL_132;
+      }
+      if ( v91 && (Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_ladderCresting, "ladderCresting"), v88 >= (float)(outLadderInfo.top.v[2] - *(float *)&Float_Internal_DebugName)) )
+      {
+        v92 = LADDER_MODE_CRESTING;
+      }
+      else
+      {
+        v92 = LADDER_MODE_CLIMB;
+        if ( COERCE_FLOAT(LODWORD(ps->velocity.v[2]) & _xmm) <= 0.00000011920929 )
+          v92 = LADDER_MODE_STATIONARY;
+      }
+    }
+    PM_SetLadderMode(pm, ps, v92);
+LABEL_132:
+    PM_Ladder_ClampViewAngles(pm, ps, &outLadderInfo);
+    goto LABEL_133;
   }
-  PM_AirMove(_RSI, _R14);
-LABEL_124:
+  PM_AirMove(pm, pml);
+LABEL_133:
   Sys_ProfEndNamedEvent();
-  _R11 = &v278;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -3147,15 +2444,13 @@ PM_Ladder_CheckForLadderSlide
 */
 void PM_Ladder_CheckForLadderSlide(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   int weaponState; 
   const Weapon *CurrentWeaponForPlayer; 
-  const Weapon *v15; 
-  char v16; 
-  char v17; 
   bool CanAim; 
-  playerState_s *v19; 
-  int v20; 
-  bool v21; 
+  playerState_s *v8; 
+  int v9; 
+  bool v10; 
   bool IsLadderWeapon; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 985, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -3164,65 +2459,52 @@ void PM_Ladder_CheckForLadderSlide(pmove_t *pm, pml_t *pml)
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 988, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 988, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 988, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  weaponState = _RBX->weapState[0].weaponState;
-  if ( _RBX->ladderState.mode == LADDER_MODE_SLIDE )
+  weaponState = ps->weapState[0].weaponState;
+  if ( ps->ladderState.mode == LADDER_MODE_SLIDE )
   {
     if ( weaponState == 49 )
       goto LABEL_18;
-    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, ACTIVE, 0x10u) )
+    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x10u) )
     {
-      PM_StartWeaponAnim(_RBX, WEAP_LADDER_SLIDE, WEAPON_HAND_LEFT);
-      PM_StartWeaponAnim(_RBX, WEAP_LADDER_SLIDE, WEAPON_HAND_DEFAULT);
-      _RBX->weapState[0].weaponState = 49;
-      _RBX->weapState[1].weaponState = 49;
+      PM_StartWeaponAnim(ps, WEAP_LADDER_SLIDE, WEAPON_HAND_LEFT);
+      PM_StartWeaponAnim(ps, WEAP_LADDER_SLIDE, WEAPON_HAND_DEFAULT);
+      ps->weapState[0].weaponState = 49;
+      ps->weapState[1].weaponState = 49;
       return;
     }
   }
   if ( weaponState != 49 )
     return;
 LABEL_18:
-  if ( _RBX->ladderState.mode != LADDER_MODE_SLIDE )
+  if ( ps->ladderState.mode != LADDER_MODE_SLIDE )
   {
-    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, _RBX);
-    __asm
+    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
+    if ( (float)((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2])) <= 0.00000011920929 || pm->cmd.forwardmove || !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
     {
-      vmovss  xmm0, dword ptr [rbx+3Ch]
-      vmovss  xmm2, dword ptr [rbx+40h]
-      vmovss  xmm3, dword ptr [rbx+44h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@34000000
-    }
-    v15 = CurrentWeaponForPlayer;
-    if ( v16 | v17 || pm->cmd.forwardmove || !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) )
-    {
-      CanAim = BG_Ladder_CanAim(v15, _RBX, 0);
-      v19 = _RBX;
+      CanAim = BG_Ladder_CanAim(CurrentWeaponForPlayer, ps, 0);
+      v8 = ps;
       if ( CanAim )
       {
-        _RBX->weapState[1].weaponState = 47;
-        _RBX->weapState[0].weaponState = 0;
-        v20 = 1;
+        ps->weapState[1].weaponState = 47;
+        ps->weapState[0].weaponState = 0;
+        v9 = 1;
       }
       else
       {
-        if ( !BG_Ladder_CanClimb(_RBX) )
+        if ( !BG_Ladder_CanClimb(ps) )
           return;
-        _RBX->weapState[0].weaponState = 47;
-        _RBX->weapState[1].weaponState = 47;
-        v21 = BG_UsingAlternate(_RBX);
-        IsLadderWeapon = BG_IsLadderWeapon(v15, v21);
-        v19 = _RBX;
-        v20 = IsLadderWeapon + 68;
+        ps->weapState[0].weaponState = 47;
+        ps->weapState[1].weaponState = 47;
+        v10 = BG_UsingAlternate(ps);
+        IsLadderWeapon = BG_IsLadderWeapon(CurrentWeaponForPlayer, v10);
+        v8 = ps;
+        v9 = IsLadderWeapon + 68;
       }
-      PM_StartWeaponAnim(v19, (WeaponAnimNumber)v20, WEAPON_HAND_DEFAULT);
-      PM_StartWeaponAnim(_RBX, WEAP_LADDER_CLIMB, WEAPON_HAND_LEFT);
+      PM_StartWeaponAnim(v8, (WeaponAnimNumber)v9, WEAPON_HAND_DEFAULT);
+      PM_StartWeaponAnim(ps, WEAP_LADDER_CLIMB, WEAPON_HAND_LEFT);
     }
   }
 }
@@ -3237,293 +2519,257 @@ void PM_Ladder_ClampViewAngles(pmove_t *pm, playerState_s *ps, LadderInfo *ladde
   const Weapon *BestLadderWeapon; 
   bool IsLadderWeapon; 
   LadderMode mode; 
-  bool v16; 
-  const char *v24; 
-  const dvar_t *v37; 
-  const dvar_t *v44; 
-  const dvar_t *v48; 
-  const dvar_t *v65; 
-  const dvar_t *v67; 
-  bool v76; 
-  const dvar_t *v77; 
-  const dvar_t *v79; 
+  bool v9; 
+  const dvar_t *v10; 
+  float value; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  const char *v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  float v21; 
+  double v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  double v27; 
+  const dvar_t *v28; 
+  float v29; 
+  float integer; 
+  const dvar_t *v31; 
+  float v32; 
+  const dvar_t *v33; 
+  float modeStartTime; 
+  double v35; 
+  float v36; 
+  float v37; 
+  double v38; 
+  const dvar_t *v39; 
+  float v40; 
+  const dvar_t *v41; 
+  float v42; 
+  const dvar_t *v43; 
+  float v44; 
+  const dvar_t *v45; 
+  float v46; 
+  const dvar_t *v47; 
+  float v48; 
+  const dvar_t *v49; 
+  bool v50; 
+  const dvar_t *v51; 
+  float v52; 
+  const dvar_t *v53; 
+  float v54; 
+  const dvar_t *v55; 
+  float v56; 
+  const dvar_t *v57; 
+  float v58; 
+  const dvar_t *v59; 
+  float v60; 
+  float v61; 
+  const dvar_t *v62; 
+  float v63; 
   vec3_t worldAnglesCenter; 
   viewClampState clamp; 
-  char v102; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R15 = ps;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 904, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 905, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 905, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  BestLadderWeapon = BG_GetBestLadderWeapon(pm->weaponMap, _R15);
+  BestLadderWeapon = BG_GetBestLadderWeapon(pm->weaponMap, ps);
   IsLadderWeapon = BG_IsLadderWeapon(BestLadderWeapon, 0);
-  mode = _R15->ladderState.mode;
-  v16 = IsLadderWeapon;
+  mode = ps->ladderState.mode;
+  v9 = IsLadderWeapon;
   if ( (unsigned int)(mode - 2) <= 1 && IsLadderWeapon )
   {
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_pitch_down_base_cap;
+    v10 = DCONST_DVARFLT_bg_ladder_aim_pitch_down_base_cap;
     if ( !DCONST_DVARFLT_bg_ladder_aim_pitch_down_base_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_pitch_down_base_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm10, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_pitch_down_max_cap;
+    Dvar_CheckFrontendServerThread(v10);
+    value = v10->current.value;
+    v12 = DCONST_DVARFLT_bg_ladder_aim_pitch_down_max_cap;
     if ( !DCONST_DVARFLT_bg_ladder_aim_pitch_down_max_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_pitch_down_max_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm9, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_pitch_down_slope_begin_yaw;
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = v12->current.value;
+    v14 = DCONST_DVARFLT_bg_ladder_aim_pitch_down_slope_begin_yaw;
     if ( !DCONST_DVARFLT_bg_ladder_aim_pitch_down_slope_begin_yaw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_pitch_down_slope_begin_yaw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_pitch_down_slope_end_yaw;
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = v14->current.value;
+    v16 = DCONST_DVARFLT_bg_ladder_aim_pitch_down_slope_end_yaw;
     if ( !DCONST_DVARFLT_bg_ladder_aim_pitch_down_slope_end_yaw )
     {
-      v24 = "bg_ladder_aim_pitch_down_slope_end_yaw";
+      v17 = "bg_ladder_aim_pitch_down_slope_end_yaw";
       goto LABEL_31;
     }
   }
   else
   {
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_down_base_cap;
+    v18 = DCONST_DVARFLT_bg_ladder_climb_pitch_down_base_cap;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_down_base_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_down_base_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm10, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_down_max_cap;
+    Dvar_CheckFrontendServerThread(v18);
+    value = v18->current.value;
+    v19 = DCONST_DVARFLT_bg_ladder_climb_pitch_down_max_cap;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_down_max_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_down_max_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm9, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_down_slope_begin_yaw;
+    Dvar_CheckFrontendServerThread(v19);
+    v13 = v19->current.value;
+    v20 = DCONST_DVARFLT_bg_ladder_climb_pitch_down_slope_begin_yaw;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_down_slope_begin_yaw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_down_slope_begin_yaw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_down_slope_end_yaw;
+    Dvar_CheckFrontendServerThread(v20);
+    v15 = v20->current.value;
+    v16 = DCONST_DVARFLT_bg_ladder_climb_pitch_down_slope_end_yaw;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_down_slope_end_yaw )
     {
-      v24 = "bg_ladder_climb_pitch_down_slope_end_yaw";
+      v17 = "bg_ladder_climb_pitch_down_slope_end_yaw";
 LABEL_31:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v24) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v17) )
         __debugbreak();
     }
   }
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)ladderInfo);
-  __asm { vaddss  xmm0, xmm0, cs:__real@43340000; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15+1DCh]; angle2
-    vmovaps xmm6, xmm0
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm0, xmm0, xmm8; value
-    vmovaps xmm2, xmm7; max
-    vmovaps xmm1, xmm8; min
-  }
-  *(double *)&_XMM0 = ApplyLinearMap(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  v37 = DCONST_DVARINT_bg_ladder_clamp_interp_accel_time;
-  __asm
-  {
-    vsubss  xmm1, xmm10, xmm9
-    vmulss  xmm2, xmm0, xmm1
-    vaddss  xmm9, xmm2, xmm9
-  }
+  Dvar_CheckFrontendServerThread(v16);
+  v21 = v16->current.value;
+  v22 = vectoyaw((const vec2_t *)ladderInfo);
+  v23 = *(float *)&v22 + 180.0;
+  v24 = AngleNormalize360(*(float *)&v22 + 180.0);
+  v25 = v23;
+  v26 = AngleDelta(*(const float *)&v24, ps->viewangles.v[1]);
+  v27 = ApplyLinearMap(COERCE_FLOAT(LODWORD(v26) & _xmm) - v15, v15, v21);
+  v28 = DCONST_DVARINT_bg_ladder_clamp_interp_accel_time;
+  v29 = (float)(*(float *)&v27 * (float)(value - v13)) + v13;
   if ( !DCONST_DVARINT_bg_ladder_clamp_interp_accel_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_clamp_interp_accel_time") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+28h]
-  }
-  v44 = DCONST_DVARINT_bg_ladder_clamp_interp_decel_time;
-  __asm
-  {
-    vmulss  xmm0, xmm0, xmm8
-    vmovss  [rbp+60h+clamp.accelTime], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v28);
+  integer = (float)v28->current.integer;
+  v31 = DCONST_DVARINT_bg_ladder_clamp_interp_decel_time;
+  clamp.accelTime = integer * 0.001;
   if ( !DCONST_DVARINT_bg_ladder_clamp_interp_decel_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_clamp_interp_decel_time") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v44);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+28h]
-  }
-  v48 = DCONST_DVARINT_bg_ladder_clamp_interp_total_time;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm8
-    vmovss  [rbp+60h+clamp.decelTime], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v31);
+  v32 = (float)v31->current.integer;
+  v33 = DCONST_DVARINT_bg_ladder_clamp_interp_total_time;
+  clamp.decelTime = v32 * 0.001;
   if ( !DCONST_DVARINT_bg_ladder_clamp_interp_total_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_clamp_interp_total_time") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  __asm
+  Dvar_CheckFrontendServerThread(v33);
+  clamp.totalTime = (float)v33->current.integer * 0.001;
+  modeStartTime = (float)ps->ladderState.modeStartTime;
+  clamp.min.start.v[0] = ps->ladderState.startViewAngles.v[0];
+  clamp.startTime = modeStartTime * 0.001;
+  v35 = AngleDelta(ps->ladderState.startViewAngles.v[1], v25);
+  v36 = ps->ladderState.startViewAngles.v[0];
+  v37 = *(float *)&v35 + v25;
+  *(float *)&v35 = ps->ladderState.startViewAngles.v[1];
+  clamp.min.start.v[1] = v37;
+  clamp.max.start.v[0] = v36;
+  v38 = AngleDelta(*(const float *)&v35, v25);
+  clamp.max.start.v[1] = *(float *)&v38 + v25;
+  clamp.resistMin.start.v[0] = 0.0;
+  clamp.resistMin.start.v[1] = 0.0;
+  clamp.resistMax.start.v[0] = 0.0;
+  clamp.resistMax.start.v[1] = 0.0;
+  if ( mode == LADDER_MODE_STATIONARY && v9 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+28h]
-    vmulss  xmm1, xmm0, xmm8
-    vmovss  [rbp+60h+clamp.totalTime], xmm1
-    vmovss  xmm1, dword ptr [r15+3ECh]
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, dword ptr [r15+3E8h]
-    vmulss  xmm0, xmm2, xmm8
-    vmovss  dword ptr [rsp+160h+clamp.min.start], xmm1
-    vmovss  [rbp+60h+clamp.startTime], xmm0
-    vmovss  xmm0, dword ptr [r15+3F0h]; angle1
-    vmovaps xmm1, xmm6; angle2
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r15+3ECh]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  xmm0, dword ptr [r15+3F0h]; angle1
-    vmovss  dword ptr [rsp+160h+clamp.min.start+4], xmm1
-    vmovaps xmm1, xmm6; angle2
-    vmovss  dword ptr [rsp+160h+clamp.max.start], xmm2
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rsp+160h+clamp.max.start+4], xmm1
-    vmovss  dword ptr [rbp+60h+clamp.resistMin.start], xmm7
-    vmovss  dword ptr [rbp+60h+clamp.resistMin.start+4], xmm7
-    vmovss  dword ptr [rbp+60h+clamp.resistMax.start], xmm7
-    vmovss  dword ptr [rbp+60h+clamp.resistMax.start+4], xmm7
-  }
-  if ( mode == LADDER_MODE_STATIONARY && v16 )
-  {
-    v65 = DCONST_DVARFLT_bg_ladder_aim_yaw_cap;
+    v39 = DCONST_DVARFLT_bg_ladder_aim_yaw_cap;
     if ( !DCONST_DVARFLT_bg_ladder_aim_yaw_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_yaw_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v65);
-    __asm { vsubss  xmm0, xmm6, dword ptr [rsi+28h] }
-    v67 = DCONST_DVARFLT_bg_ladder_aim_yaw_cap;
-    __asm { vmovss  dword ptr [rsp+160h+clamp.min.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v39);
+    v40 = v25 - v39->current.value;
+    v41 = DCONST_DVARFLT_bg_ladder_aim_yaw_cap;
+    clamp.min.goal.v[1] = v40;
     if ( !DCONST_DVARFLT_bg_ladder_aim_yaw_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_yaw_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v67);
-    __asm { vaddss  xmm0, xmm6, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_yaw_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.max.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v41);
+    v42 = v25 + v41->current.value;
+    v43 = DCONST_DVARFLT_bg_ladder_aim_yaw_soft_angle_clamp;
+    clamp.max.goal.v[1] = v42;
     if ( !DCONST_DVARFLT_bg_ladder_aim_yaw_soft_angle_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_yaw_soft_angle_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_yaw_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.resistMin.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v43);
+    v44 = v43->current.value;
+    v45 = DCONST_DVARFLT_bg_ladder_aim_yaw_soft_angle_clamp;
+    clamp.resistMin.goal.v[1] = v44;
     if ( !DCONST_DVARFLT_bg_ladder_aim_yaw_soft_angle_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_yaw_soft_angle_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.resistMax.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v45);
+    v46 = v45->current.value;
+    v47 = DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp;
+    clamp.resistMax.goal.v[1] = v46;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_soft_angle_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_aim_pitch_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.resistMin.goal], xmm0 }
+    Dvar_CheckFrontendServerThread(v47);
+    v48 = v47->current.value;
+    v49 = DCONST_DVARFLT_bg_ladder_aim_pitch_soft_angle_clamp;
+    clamp.resistMin.goal.v[0] = v48;
     if ( !DCONST_DVARFLT_bg_ladder_aim_pitch_soft_angle_clamp )
     {
-      v76 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_pitch_soft_angle_clamp");
+      v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_aim_pitch_soft_angle_clamp");
       goto LABEL_78;
     }
   }
   else
   {
-    v77 = DCONST_DVARFLT_bg_ladder_climb_yaw_cap;
+    v51 = DCONST_DVARFLT_bg_ladder_climb_yaw_cap;
     if ( !DCONST_DVARFLT_bg_ladder_climb_yaw_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_yaw_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v77);
-    __asm { vsubss  xmm0, xmm6, dword ptr [rsi+28h] }
-    v79 = DCONST_DVARFLT_bg_ladder_climb_yaw_cap;
-    __asm { vmovss  dword ptr [rsp+160h+clamp.min.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v51);
+    v52 = v25 - v51->current.value;
+    v53 = DCONST_DVARFLT_bg_ladder_climb_yaw_cap;
+    clamp.min.goal.v[1] = v52;
     if ( !DCONST_DVARFLT_bg_ladder_climb_yaw_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_yaw_cap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v79);
-    __asm { vaddss  xmm0, xmm6, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_yaw_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.max.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v53);
+    v54 = v25 + v53->current.value;
+    v55 = DCONST_DVARFLT_bg_ladder_climb_yaw_soft_angle_clamp;
+    clamp.max.goal.v[1] = v54;
     if ( !DCONST_DVARFLT_bg_ladder_climb_yaw_soft_angle_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_yaw_soft_angle_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_yaw_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.resistMin.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v55);
+    v56 = v55->current.value;
+    v57 = DCONST_DVARFLT_bg_ladder_climb_yaw_soft_angle_clamp;
+    clamp.resistMin.goal.v[1] = v56;
     if ( !DCONST_DVARFLT_bg_ladder_climb_yaw_soft_angle_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_yaw_soft_angle_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.resistMax.goal+4], xmm0 }
+    Dvar_CheckFrontendServerThread(v57);
+    v58 = v57->current.value;
+    v59 = DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp;
+    clamp.resistMax.goal.v[1] = v58;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_soft_angle_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp;
-    __asm { vmovss  dword ptr [rbp+60h+clamp.resistMin.goal], xmm0 }
+    Dvar_CheckFrontendServerThread(v59);
+    v60 = v59->current.value;
+    v49 = DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp;
+    clamp.resistMin.goal.v[0] = v60;
     if ( !DCONST_DVARFLT_bg_ladder_climb_pitch_soft_angle_clamp )
     {
-      v76 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_soft_angle_clamp");
+      v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_climb_pitch_soft_angle_clamp");
 LABEL_78:
-      if ( v76 )
+      if ( v50 )
         __debugbreak();
     }
   }
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-  _RSI = DCONST_DVARFLT_bg_ladder_pitch_up_cap;
-  __asm { vmovss  dword ptr [rbp+60h+clamp.resistMax.goal], xmm0 }
+  Dvar_CheckFrontendServerThread(v49);
+  v61 = v49->current.value;
+  v62 = DCONST_DVARFLT_bg_ladder_pitch_up_cap;
+  clamp.resistMax.goal.v[0] = v61;
   if ( !DCONST_DVARFLT_bg_ladder_pitch_up_cap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_pitch_up_cap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+160h+clamp.min.goal], xmm1
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+1Ch]
-    vmulss  xmm0, xmm0, xmm8; currentTime
-    vmovss  dword ptr [rbp+60h+clamp.max.goal], xmm9
-    vmovss  dword ptr [rsp+160h+worldAnglesCenter], xmm7
-    vmovss  dword ptr [rsp+160h+worldAnglesCenter+4], xmm7
-    vmovss  dword ptr [rsp+160h+worldAnglesCenter+8], xmm7
-  }
-  BG_UpdateViewAngleClamp(*(const float *)&_XMM0, &worldAnglesCenter, &clamp, _R15);
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  Dvar_CheckFrontendServerThread(v62);
+  LODWORD(clamp.min.goal.v[0]) = v62->current.integer ^ _xmm;
+  v63 = (float)pm->cmd.serverTime * 0.001;
+  clamp.max.goal.v[0] = v29;
+  worldAnglesCenter.v[0] = 0.0;
+  worldAnglesCenter.v[1] = 0.0;
+  worldAnglesCenter.v[2] = 0.0;
+  BG_UpdateViewAngleClamp(v63, &worldAnglesCenter, &clamp, ps);
 }
 
 /*
@@ -3533,90 +2779,81 @@ PM_Ladder_GetChangeWeapon
 */
 char PM_Ladder_GetChangeWeapon(pmove_t *pm, const Weapon **outWeapon)
 {
+  playerState_s *ps; 
   const Weapon *CurrentWeaponForPlayer; 
   const Weapon *RequestedWeapon; 
-  const dvar_t *v8; 
+  const dvar_t *v7; 
   const Weapon *BestLadderWeapon; 
   unsigned __int64 weaponState; 
-  unsigned __int64 v12; 
-  const Weapon *v13; 
+  unsigned __int64 v11; 
+  const Weapon *v12; 
+  bool v13; 
   bool v14; 
-  char v16; 
-  __int64 v17; 
-  bool v18; 
-  char v19; 
-  __int64 v20; 
-  bool v21; 
-  char v22; 
-  char v23; 
+  __int64 v15; 
+  bool v16; 
+  char v17; 
+  __int64 v18; 
+  bool v19; 
+  char v20; 
+  char v21; 
   const Weapon *Buf2; 
 
   if ( !outWeapon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1128, ASSERT_TYPE_ASSERT, "(outWeapon)", (const char *)&queryFormat, "outWeapon") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1130, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1130, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1130, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, _RBX);
+  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
   RequestedWeapon = PM_GetRequestedWeapon(pm);
-  v8 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+  v7 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
   Buf2 = RequestedWeapon;
   if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    BestLadderWeapon = BG_GetBestLadderWeapon(pm->weaponMap, _RBX);
-    weaponState = _RBX->weapState[1].weaponState;
-    v12 = _RBX->weapState[0].weaponState;
-    v13 = BestLadderWeapon;
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) || BG_HasLadderHand(_RBX) )
+    BestLadderWeapon = BG_GetBestLadderWeapon(pm->weaponMap, ps);
+    weaponState = ps->weapState[1].weaponState;
+    v11 = ps->weapState[0].weaponState;
+    v12 = BestLadderWeapon;
+    v14 = 0;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && !BG_HasLadderHand(ps) )
     {
-      v16 = 0;
+      v13 = BG_UsingAlternate(ps);
+      if ( !BG_IsLadderWeapon(CurrentWeaponForPlayer, v13) || ps->weapCommon.fWeaponPosFrac <= 0.0 )
+        v14 = 1;
     }
-    else
+    v16 = 0;
+    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && BG_HasLadderHand(ps) )
     {
-      v14 = BG_UsingAlternate(_RBX);
-      if ( BG_IsLadderWeapon(CurrentWeaponForPlayer, v14) )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm0, dword ptr [rbx+730h]
-        }
-      }
-      v16 = 1;
+      if ( (unsigned int)weaponState > 0x32 || (v15 = 0x4000000001F82i64, !_bittest64(&v15, weaponState)) )
+        v16 = 1;
     }
-    v18 = 0;
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) && BG_HasLadderHand(_RBX) )
-    {
-      if ( (unsigned int)weaponState > 0x32 || (v17 = 0x4000000001F82i64, !_bittest64(&v17, weaponState)) )
-        v18 = 1;
-    }
-    v19 = v16 | v18;
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) && BG_HasLadderHand(_RBX) && (_DWORD)v12 == 1 || (unsigned int)v12 <= 0x30 && (v20 = 0x1000000012040i64, _bittest64(&v20, v12)) && !BG_GetAmmoInClip(_RBX, CurrentWeaponForPlayer, 0, WEAPON_HAND_DEFAULT) && _RBX->ladderState.mode != LADDER_MODE_SLIDE )
+    v17 = v14 || v16;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && BG_HasLadderHand(ps) && (_DWORD)v11 == 1 || (unsigned int)v11 <= 0x30 && (v18 = 0x1000000012040i64, _bittest64(&v18, v11)) && !BG_GetAmmoInClip(ps, CurrentWeaponForPlayer, 0, WEAPON_HAND_DEFAULT) && ps->ladderState.mode != LADDER_MODE_SLIDE )
+      v17 = 1;
+    v19 = !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) && memcmp_0(CurrentWeaponForPlayer, Buf2, 0x3Cui64) && BG_HasLadderHand(ps) && (_DWORD)weaponState != 50;
+    if ( ps->ladderState.mode == LADDER_MODE_VAULTING )
       v19 = 1;
-    v21 = !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) && memcmp_0(CurrentWeaponForPlayer, Buf2, 0x3Cui64) && BG_HasLadderHand(_RBX) && (_DWORD)weaponState != 50;
-    if ( _RBX->ladderState.mode == LADDER_MODE_VAULTING )
-      v21 = 1;
-    v22 = v21 | v19;
-    if ( BG_HasLadderHand(_RBX) && !memcmp_0(CurrentWeaponForPlayer, Buf2, 0x3Cui64) && ((unsigned int)(weaponState - 7) <= 5 || (_DWORD)weaponState == 50 || (unsigned int)(v12 - 7) <= 5 || (_DWORD)v12 == 50) )
-      v22 = 0;
-    v23 = 0;
-    if ( (_DWORD)v12 != 44 )
-      v23 = v22;
-    if ( v23 )
+    v20 = v19 | v17;
+    if ( BG_HasLadderHand(ps) && !memcmp_0(CurrentWeaponForPlayer, Buf2, 0x3Cui64) && ((unsigned int)(weaponState - 7) <= 5 || (_DWORD)weaponState == 50 || (unsigned int)(v11 - 7) <= 5 || (_DWORD)v11 == 50) )
+      v20 = 0;
+    v21 = 0;
+    if ( (_DWORD)v11 != 44 )
+      v21 = v20;
+    if ( v21 )
     {
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) || _RBX->ladderState.mode == LADDER_MODE_VAULTING )
-        v13 = Buf2;
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) || ps->ladderState.mode == LADDER_MODE_VAULTING )
+        v12 = Buf2;
     }
     else
     {
-      v13 = CurrentWeaponForPlayer;
+      v12 = CurrentWeaponForPlayer;
     }
-    *outWeapon = v13;
-    return v23;
+    *outWeapon = v12;
+    return v21;
   }
   else
   {
@@ -3630,22 +2867,17 @@ char PM_Ladder_GetChangeWeapon(pmove_t *pm, const Weapon **outWeapon)
 PM_Ladder_ResolveCharacterCollision
 ==============
 */
-
-void __fastcall PM_Ladder_ResolveCharacterCollision(pmove_t *pm, const BgAntiLagEntityInfo *entityInfo, double ladderWidth)
+void PM_Ladder_ResolveCharacterCollision(pmove_t *pm, const BgAntiLagEntityInfo *entityInfo, const float ladderWidth)
 {
   playerState_s *ps; 
   WorldUpReferenceFramePM *p_refFrame; 
-  char v19; 
-  char v21; 
+  double UpContribution; 
+  float v8; 
+  double v9; 
+  double RightContribution; 
   vec3_t vec; 
   vec3_t outOrigin; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1198, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
@@ -3654,46 +2886,18 @@ void __fastcall PM_Ladder_ResolveCharacterCollision(pmove_t *pm, const BgAntiLag
   if ( !entityInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 1200, ASSERT_TYPE_ASSERT, "(entityInfo)", (const char *)&queryFormat, "entityInfo") )
     __debugbreak();
   BgAntiLagEntity_GetOrigin(entityInfo, &outOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+outOrigin]
-    vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-    vmovss  xmm2, dword ptr [rsp+88h+outOrigin+4]
-    vmovss  dword ptr [rsp+88h+vec], xmm1
-    vsubss  xmm0, xmm2, dword ptr [rdi+34h]
-    vmovss  xmm1, dword ptr [rsp+88h+outOrigin+8]
-    vmovss  dword ptr [rsp+88h+vec+4], xmm0
-    vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-  }
+  vec.v[0] = outOrigin.v[0] - ps->origin.v[0];
+  vec.v[1] = outOrigin.v[1] - ps->origin.v[1];
   p_refFrame = &pm->refFrame;
-  __asm { vmovss  dword ptr [rsp+88h+vec+8], xmm2 }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->velocity);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &vec);
-  __asm
+  vec.v[2] = outOrigin.v[2] - ps->origin.v[2];
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->velocity);
+  v8 = *(float *)&UpContribution;
+  v9 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &vec);
+  if ( (float)(*(float *)&v9 * v8) >= 0.0 )
   {
-    vmulss  xmm2, xmm0, xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm2, xmm6
-  }
-  if ( !v19 )
-  {
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(p_refFrame, &vec);
-    __asm
-    {
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, xmm7
-    }
-    if ( v19 | v21 )
-    {
-      __asm { vxorps  xmm1, xmm1, xmm1; height }
-      WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&_XMM1, &ps->velocity);
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
+    RightContribution = WorldUpReferenceFrame::GetRightContribution(p_refFrame, &vec);
+    if ( COERCE_FLOAT(LODWORD(RightContribution) & _xmm) <= ladderWidth )
+      WorldUpReferenceFrame::SetUpContribution(p_refFrame, 0.0, &ps->velocity);
   }
 }
 
@@ -3704,93 +2908,55 @@ PM_SetLadderMode
 */
 void PM_SetLadderMode(pmove_t *const pm, playerState_s *ps, LadderMode mode)
 {
-  LadderMode v8; 
+  LadderMode v6; 
   BgWeaponMap *weaponMap; 
   int serverTime; 
-  unsigned int v11; 
-  entity_event_t v12; 
+  unsigned int v9; 
+  entity_event_t v10; 
+  float v13; 
 
-  _RBP = ps;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 108, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 109, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ladder.cpp", 109, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v8 = _RBP->ladderState.mode;
-  if ( v8 != mode )
+  v6 = ps->ladderState.mode;
+  if ( v6 != mode )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm7
-      vmovaps [rsp+58h+var_28], xmm8
-    }
     if ( mode == LADDER_MODE_SLIDE )
     {
       weaponMap = pm->weaponMap;
       serverTime = pm->cmd.serverTime;
-      v11 = PM_GroundSurfaceType(pm);
-      v12 = EV_LADDER_START_SLIDE;
+      v9 = PM_GroundSurfaceType(pm);
+      v10 = EV_LADDER_START_SLIDE;
     }
     else
     {
-      if ( v8 != LADDER_MODE_SLIDE || mode == LADDER_MODE_INVALID )
+      if ( v6 != LADDER_MODE_SLIDE || mode == LADDER_MODE_INVALID )
         goto LABEL_14;
       weaponMap = pm->weaponMap;
       serverTime = pm->cmd.serverTime;
-      v11 = PM_GroundSurfaceType(pm);
-      v12 = EV_LADDER_STOP_SLIDE;
+      v9 = PM_GroundSurfaceType(pm);
+      v10 = EV_LADDER_STOP_SLIDE;
     }
-    BG_AddPredictableEventToPlayerstate(v12, v11, serverTime, weaponMap, _RBP);
+    BG_AddPredictableEventToPlayerstate(v10, v9, serverTime, weaponMap, ps);
 LABEL_14:
-    _RBP->ladderState.modeStartTime = pm->cmd.serverTime;
-    _RBP->ladderState.mode = mode;
+    ps->ladderState.modeStartTime = pm->cmd.serverTime;
+    ps->ladderState.mode = mode;
+    ps->ladderState.startViewAngles.v[0] = ps->viewangles.v[0];
+    ps->ladderState.startViewAngles.v[1] = ps->viewangles.v[1];
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v13 = _mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0];
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    ps->ladderState.startViewAngles.v[0] = (float)((float)(v13 * 0.000015258789) - *(float *)&_XMM2) * 360.0;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+1D8h]
-      vmovss  xmm7, cs:__real@3f000000
-      vmovss  dword ptr [rbp+3ECh], xmm0
-    }
-    _RBP->ladderState.startViewAngles.v[1] = _RBP->viewangles.v[1];
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@43360b61
-      vaddss  xmm1, xmm0, xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm2, xmm8, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm3, xmm0, cs:__real@37800000
-      vaddss  xmm1, xmm3, xmm7
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vmovss  dword ptr [rbp+3ECh], xmm0
-      vmovss  xmm1, dword ptr [rbp+3F0h]
-      vmulss  xmm0, xmm1, cs:__real@43360b61
-      vaddss  xmm3, xmm0, xmm7
       vroundss xmm0, xmm8, xmm3, 1
-      vcvttss2si eax, xmm0
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
-      vmovaps xmm7, [rsp+58h+var_18]
       vroundss xmm3, xmm8, xmm2, 1
-      vmovaps xmm8, [rsp+58h+var_28]
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  dword ptr [rbp+3F0h], xmm0
     }
+    ps->ladderState.startViewAngles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
     if ( mode == LADDER_MODE_INVALID )
-      PM_ClearLadderFlag(pm->weaponMap, _RBP);
+      PM_ClearLadderFlag(pm->weaponMap, ps);
   }
 }
 

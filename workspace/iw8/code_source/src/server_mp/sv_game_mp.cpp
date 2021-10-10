@@ -256,21 +256,9 @@ void __fastcall SV_GameMP_RestartGameProgs(const SvServerInitSettings *initSetti
 SvPersistentGlobalsMP::CheckFontScaleRange
 ==============
 */
-
-bool __fastcall SvPersistentGlobalsMP::CheckFontScaleRange(SvPersistentGlobalsMP *this, double fontScale)
+bool SvPersistentGlobalsMP::CheckFontScaleRange(SvPersistentGlobalsMP *this, const float fontScale)
 {
-  char v2; 
-  char v3; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( v2 )
-    return 0;
-  __asm { vcomiss xmm1, cs:__real@40cccccd }
-  return (v2 | v3) != 0;
+  return fontScale >= 0.0 && fontScale <= 6.4000001;
 }
 
 /*
@@ -280,153 +268,79 @@ SvPersistentGlobalsMP::CheckOriginIsInPlayableBounds
 */
 __int64 SvPersistentGlobalsMP::CheckOriginIsInPlayableBounds(SvPersistentGlobalsMP *this, const vec3_t *origin)
 {
-  unsigned int v11; 
-  unsigned __int8 v16; 
-  bool v17; 
-  bool v22; 
-  bool v23; 
-  bool v25; 
-  bool v26; 
-  __int64 result; 
-  char *fmt; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
-  __int64 v58; 
-  __int128 v59; 
-  __int128 v60; 
-  char v66; 
-  void *retaddr; 
+  unsigned int v2; 
+  signed __int64 v3; 
+  const vec3_t *v4; 
+  unsigned __int8 v6; 
+  bool v7; 
+  float v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps [rsp+0F8h+var_98], xmm12
-    vmovaps [rsp+0F8h+var_A8], xmm13
-  }
-  v11 = 0;
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f000000
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R14 = (char *)&this->mapCenterBoundsMax - (char *)origin;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm8 }
-  _RDI = origin;
-  __asm { vmovaps xmmword ptr [rax-68h], xmm9 }
-  _RSI = this;
-  __asm { vmovaps xmmword ptr [rax-78h], xmm10 }
-  v16 = 1;
-  __asm { vmovaps [rsp+0F8h+var_88], xmm11 }
-  v17 = 1;
-  __asm { vxorps  xmm12, xmm12, xmm12 }
+  v2 = 0;
+  v3 = (char *)&this->mapCenterBoundsMax - (char *)origin;
+  v4 = origin;
+  v6 = 1;
+  v7 = 1;
+  _XMM12 = 0i64;
   do
   {
-    if ( !v17 )
+    if ( !v7 )
     {
-      LODWORD(v54) = 3;
-      LODWORD(v52) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v54) )
+      LODWORD(v19) = 3;
+      LODWORD(v18) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    __asm
+    __asm { vroundss xmm0, xmm12, xmm2, 1 }
+    if ( v2 >= 3 )
     {
-      vaddss  xmm2, xmm13, dword ptr [rdi]
-      vroundss xmm0, xmm12, xmm2, 1
-      vcvttss2si ebp, xmm0
-    }
-    v22 = v11 < 3;
-    if ( v11 >= 3 )
-    {
-      LODWORD(v54) = 3;
-      LODWORD(v52) = v11;
-      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v54);
-      v22 = 0;
-      if ( v23 )
+      LODWORD(v19) = 3;
+      LODWORD(v18) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, ebp
-      vcomiss xmm6, dword ptr [r14+rdi-0Ch]
-    }
-    if ( v22 )
+    v10 = (float)(int)*(float *)&_XMM0;
+    if ( v10 < *(float *)((char *)v4[-1].v + v3) )
       goto LABEL_13;
-    v25 = v11 <= 3;
-    if ( v11 >= 3 )
+    if ( v2 >= 3 )
     {
-      LODWORD(v54) = 3;
-      LODWORD(v52) = v11;
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v54);
-      v25 = !v26;
-      if ( v26 )
+      LODWORD(v19) = 3;
+      LODWORD(v18) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    __asm { vcomiss xmm6, dword ptr [r14+rdi] }
-    if ( !v25 )
+    if ( v10 > *(float *)((char *)v4->v + v3) )
     {
 LABEL_13:
-      __asm
+      v11 = this->mapCenterBoundsMax.v[2];
+      v12 = this->mapCenterBoundsMax.v[1];
+      v13 = this->mapCenterBoundsMax.v[0];
+      v14 = this->mapCenterBoundsMin.v[2];
+      v15 = this->mapCenterBoundsMin.v[1];
+      v16 = this->mapCenterBoundsMin.v[0];
+      if ( v2 >= 3 )
       {
-        vmovss  xmm6, dword ptr [rsi+6Ch]
-        vmovss  xmm7, dword ptr [rsi+68h]
-        vmovss  xmm8, dword ptr [rsi+64h]
-        vmovss  xmm9, dword ptr [rsi+60h]
-        vmovss  xmm10, dword ptr [rsi+5Ch]
-        vmovss  xmm11, dword ptr [rsi+58h]
-        vcvtss2sd xmm6, xmm6, xmm6
-        vcvtss2sd xmm7, xmm7, xmm7
-        vcvtss2sd xmm8, xmm8, xmm8
-        vcvtss2sd xmm9, xmm9, xmm9
-        vcvtss2sd xmm10, xmm10, xmm10
-        vcvtss2sd xmm11, xmm11, xmm11
-      }
-      if ( v11 >= 3 )
-      {
-        LODWORD(v54) = 3;
-        LODWORD(v52) = v11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v54) )
+        LODWORD(v19) = 3;
+        LODWORD(v18) = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi]
-        vmovsd  [rsp+0F8h+var_B0], xmm6
-        vmovsd  [rsp+0F8h+var_B8], xmm7
-        vmovsd  [rsp+0F8h+var_C0], xmm8
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+0F8h+var_C8], xmm9
-        vmovsd  [rsp+0F8h+var_D0], xmm10
-        vmovq   r9, xmm3
-        vmovsd  [rsp+0F8h+fmt], xmm11
-      }
-      Com_PrintError(25, "Entity with axis '%i' coordinate of %f is too far outside the playable area of the map.  The playable area goes from ( %f, %f, %f ) to ( %f, %f, %f )\n", v11, _R9, fmt, v53, v55, v56, v57, v58, v59, v60);
-      v16 = 0;
+      Com_PrintError(25, "Entity with axis '%i' coordinate of %f is too far outside the playable area of the map.  The playable area goes from ( %f, %f, %f ) to ( %f, %f, %f )\n", v2, v4->v[0], v16, v15, v14, v13, v12, v11);
+      v6 = 0;
     }
-    ++v11;
-    _RDI = (const vec3_t *)((char *)_RDI + 4);
-    v17 = v11 < 3;
+    ++v2;
+    v4 = (const vec3_t *)((char *)v4 + 4);
+    v7 = v2 < 3;
   }
-  while ( (int)v11 < 3 );
-  __asm { vmovaps xmm11, [rsp+0F8h+var_88] }
-  _R11 = &v66;
-  result = v16;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm10, [rsp+0F8h+var_78]
-    vmovaps xmm9, [rsp+0F8h+var_68]
-    vmovaps xmm8, [rsp+0F8h+var_58]
-    vmovaps xmm7, [rsp+0F8h+var_48]
-  }
-  return result;
+  while ( (int)v2 < 3 );
+  return v6;
 }
 
 /*
@@ -446,42 +360,23 @@ SvPersistentGlobalsMP::KeepPointInPlayableBounds
 */
 void SvPersistentGlobalsMP::KeepPointInPlayableBounds(SvPersistentGlobalsMP *this, vec3_t *pos)
 {
-  unsigned int v4; 
-  bool v7; 
-  void *retaddr; 
+  unsigned int i; 
+  float v3; 
 
-  _RAX = &retaddr;
-  v4 = 0;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RSI = pos;
-  _RBP = this;
-  v7 = 1;
-  do
+  for ( i = 0; i < 3; ++i )
   {
-    _RDI = (int)v4;
-    __asm
+    if ( this->mapCenterBoundsMin.v[i] <= pos->v[i] )
     {
-      vmovss  xmm0, dword ptr [rbp+rdi*4+58h]
-      vcomiss xmm0, dword ptr [rsi+rdi*4]
-    }
-    if ( v7 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+rdi*4+64h]
-        vcomiss xmm0, dword ptr [rsi+rdi*4]
-        vmovss  xmm6, dword ptr [rbp+rdi*4+64h]
-      }
+      if ( this->mapCenterBoundsMax.v[i] >= pos->v[i] )
+        continue;
+      v3 = this->mapCenterBoundsMax.v[i];
     }
     else
     {
-      __asm { vmovss  xmm6, dword ptr [rbp+rdi*4+58h] }
+      v3 = this->mapCenterBoundsMin.v[i];
     }
-    __asm { vmovss  dword ptr [rsi+rdi*4], xmm6 }
-    v7 = ++v4 <= 3;
+    pos->v[i] = v3;
   }
-  while ( v4 < 3 );
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -593,35 +488,28 @@ SV_GameMP_GetExtrapolatedData
 void SV_GameMP_GetExtrapolatedData(const int clientNum, const int commandTime, ClientExtrapData *outExtrapData)
 {
   SvClientMP *CommonClient; 
-  int v9; 
+  double v7; 
+  int v8; 
   SvClientPredictedOrigin outPredictedOrigin; 
 
-  _RBX = outExtrapData;
   if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
   CommonClient = (SvClientMP *)SvClient::GetCommonClient(clientNum);
   if ( SvClientMP::GetPredictedOrigin(CommonClient, commandTime, &outPredictedOrigin) )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+98h+outPredictedOrigin.extrapData.offset]
-      vmovsd  xmm1, qword ptr [rsp+98h+outPredictedOrigin.extrapData.inputTime]
-    }
-    v9 = outPredictedOrigin.extrapData.packedBobCycle[1];
-    __asm
-    {
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
+    v7 = *(double *)&outPredictedOrigin.extrapData.inputTime;
+    v8 = outPredictedOrigin.extrapData.packedBobCycle[1];
+    *(_OWORD *)outExtrapData->offset.v = *(_OWORD *)outPredictedOrigin.extrapData.offset.v;
+    *(double *)&outExtrapData->inputTime = v7;
   }
   else
   {
-    v9 = 0;
-    *(_QWORD *)_RBX->offset.v = 0i64;
-    *(_QWORD *)&_RBX->offset.z = 0i64;
-    *(_QWORD *)&_RBX->inputTime = 0i64;
+    v8 = 0;
+    *(_QWORD *)outExtrapData->offset.v = 0i64;
+    *(_QWORD *)&outExtrapData->offset.z = 0i64;
+    *(_QWORD *)&outExtrapData->inputTime = 0i64;
   }
-  _RBX->packedBobCycle[1] = v9;
+  outExtrapData->packedBobCycle[1] = v8;
 }
 
 /*
@@ -701,35 +589,24 @@ SV_GameMP_InitGameProgs
 */
 void SV_GameMP_InitGameProgs(const SvServerInitSettings *initSettings)
 {
+  __m256i v2; 
+  __m256i v3; 
   SvServerInitSettings initSettingsa; 
 
-  _RBX = initSettings;
   if ( !initSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_mp.cpp", 276, ASSERT_TYPE_ASSERT, "(initSettings)", (const char *)&queryFormat, "initSettings") )
     __debugbreak();
-  if ( !_RBX->registerDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_mp.cpp", 277, ASSERT_TYPE_ASSERT, "(initSettings->registerDvars)", (const char *)&queryFormat, "initSettings->registerDvars") )
+  if ( !initSettings->registerDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_mp.cpp", 277, ASSERT_TYPE_ASSERT, "(initSettings->registerDvars)", (const char *)&queryFormat, "initSettings->registerDvars") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymm1, ymmword ptr [rbx+80h]
-  }
-  _RAX = &initSettingsa;
+  v2 = *(__m256i *)initSettings->mapName;
+  v3 = *(__m256i *)initSettings->serverHostName;
   s_gameInitializedMP = 1;
-  __asm
-  {
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rax+20h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rax+60h], ymm0
-    vmovups ymmword ptr [rax+80h], ymm1
-    vmovups ymm1, ymmword ptr [rbx+0A0h]
-    vmovups ymmword ptr [rax+0A0h], ymm1
-    vmovups ymm1, ymmword ptr [rbx+0C0h]
-    vmovups ymmword ptr [rax+0C0h], ymm1
-  }
+  *(__m256i *)initSettingsa.mapName = v2;
+  *(__m256i *)&initSettingsa.mapName[32] = *(__m256i *)&initSettings->mapName[32];
+  *(__m256i *)initSettingsa.gameType = *(__m256i *)initSettings->gameType;
+  *(__m256i *)&initSettingsa.gameType[32] = *(__m256i *)&initSettings->gameType[32];
+  *(__m256i *)initSettingsa.serverHostName = v3;
+  *(__m256i *)&initSettingsa.serverHostName[32] = *(__m256i *)&initSettings->serverHostName[32];
+  *(__m256i *)&initSettingsa.hardcoreMode = *(__m256i *)&initSettings->hardcoreMode;
   initSettingsa.isRestart = 0;
   SV_GameMP_InitGameVM(&initSettingsa);
 }
@@ -893,45 +770,19 @@ SV_GameMP_SetMapCenter
 */
 void SV_GameMP_SetMapCenter(const vec3_t *mapCenter)
 {
-  const char *v12; 
+  SvPersistentGlobalsMP *PersistentGlobalsMP; 
+  const char *v3; 
 
-  _RDI = mapCenter;
-  _RBX = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-  _RBX->mapCenter = *_RDI;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+8]
-    vmovss  xmm2, dword ptr [rdi+4]
-    vmovss  xmm1, dword ptr [rdi]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v12 = j_va("%f %f %f", _RDX, _R8, _R9);
-  SV_SetConfigstring(0x216u, v12);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm0, xmm0, cs:__real@47ffce00
-    vmovss  xmm3, cs:__real@47ffcd80
-    vmovss  dword ptr [rbx+58h], xmm0
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm2, xmm1, cs:__real@47ffce00
-    vmovss  dword ptr [rbx+5Ch], xmm2
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, cs:__real@46ff3800
-    vmovss  dword ptr [rbx+60h], xmm1
-    vaddss  xmm0, xmm3, dword ptr [rdi]
-    vmovss  dword ptr [rbx+64h], xmm0
-    vaddss  xmm2, xmm3, dword ptr [rdi+4]
-    vmovss  dword ptr [rbx+68h], xmm2
-    vmovss  xmm0, dword ptr [rdi+8]
-    vaddss  xmm1, xmm0, cs:__real@46ff3600
-    vmovss  dword ptr [rbx+6Ch], xmm1
-  }
+  PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+  PersistentGlobalsMP->mapCenter = *mapCenter;
+  v3 = j_va("%f %f %f", mapCenter->v[0], mapCenter->v[1], mapCenter->v[2]);
+  SV_SetConfigstring(0x216u, v3);
+  PersistentGlobalsMP->mapCenterBoundsMin.v[0] = mapCenter->v[0] - 130972.0;
+  PersistentGlobalsMP->mapCenterBoundsMin.v[1] = mapCenter->v[1] - 130972.0;
+  PersistentGlobalsMP->mapCenterBoundsMin.v[2] = mapCenter->v[2] - 32668.0;
+  PersistentGlobalsMP->mapCenterBoundsMax.v[0] = mapCenter->v[0] + 130971.0;
+  PersistentGlobalsMP->mapCenterBoundsMax.v[1] = mapCenter->v[1] + 130971.0;
+  PersistentGlobalsMP->mapCenterBoundsMax.v[2] = mapCenter->v[2] + 32667.0;
 }
 
 /*

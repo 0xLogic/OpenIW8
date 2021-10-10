@@ -361,95 +361,38 @@ void __fastcall AIBotInterface::GetPerfectInfo(AIBotInterface *this, sentient_s 
 AIBotInterface::CanSeeProneEntityTorsoOrFeet
 ==============
 */
-
-bool __fastcall AIBotInterface::CanSeeProneEntityTorsoOrFeet(AIBotInterface *this, const vec3_t *vEntHeadPos, double fovDot, double fovDotZ, float fMaxDistSqrd, const vec3_t *vViewPos, const gentity_s *pOtherEnt)
+bool AIBotInterface::CanSeeProneEntityTorsoOrFeet(AIBotInterface *this, const vec3_t *vEntHeadPos, float fovDot, float fovDotZ, float fMaxDistSqrd, const vec3_t *vViewPos, const gentity_s *pOtherEnt)
 {
   const playerState_s *EntityPlayerStateConst; 
+  const playerState_s *v11; 
   int ignoreEntityNum; 
   bool result; 
+  float v14; 
   int number; 
-  float v43; 
-  float v44; 
+  float v16; 
   vec3_t forward; 
   vec3_t vPoint; 
-  vec3_t v47; 
-  void *retaddr; 
+  vec3_t v19; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
   EntityPlayerStateConst = G_GetEntityPlayerStateConst(pOtherEnt);
-  _RBX = EntityPlayerStateConst;
-  if ( EntityPlayerStateConst && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerStateConst->pm_flags, ACTIVE, 0) )
+  v11 = EntityPlayerStateConst;
+  if ( !EntityPlayerStateConst || !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerStateConst->pm_flags, ACTIVE, 0) )
+    return 0;
+  YawVectors(v11->viewangles.v[1] - 180.0, &forward, NULL);
+  ignoreEntityNum = pOtherEnt->s.number;
+  vPoint.v[0] = (float)(25.0 * forward.v[0]) + vEntHeadPos->v[0];
+  vPoint.v[1] = (float)(25.0 * forward.v[1]) + vEntHeadPos->v[1];
+  vPoint.v[2] = (float)(25.0 * forward.v[2]) + vEntHeadPos->v[2];
+  result = AICommonInterface::CanSeePointExInternal(this, &vPoint, fovDot, fovDotZ, fMaxDistSqrd, ignoreEntityNum, vViewPos, NORMAL_FOLIAGE_CHECKS);
+  if ( !result )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1DCh]
-      vsubss  xmm0, xmm0, cs:__real@43340000; yaw
-      vmovaps [rsp+0D8h+var_58], xmm8
-    }
-    YawVectors(*(float *)&_XMM0, &forward, NULL);
-    __asm
-    {
-      vmovss  xmm3, cs:__real@41c80000
-      vmulss  xmm1, xmm3, dword ptr [rsp+0D8h+forward]
-      vaddss  xmm2, xmm1, dword ptr [rdi]
-      vmulss  xmm1, xmm3, dword ptr [rsp+0D8h+forward+4]
-    }
-    ignoreEntityNum = pOtherEnt->s.number;
-    __asm
-    {
-      vmovss  xmm8, [rsp+0D8h+fMaxDistSqrd]
-      vmovss  dword ptr [rsp+0D8h+vPoint], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rdi+4]
-      vmulss  xmm1, xmm3, dword ptr [rsp+0D8h+forward+8]
-      vmovss  dword ptr [rsp+0D8h+vPoint+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+0D8h+vPoint+8], xmm2
-      vmovaps xmm2, xmm6; fovDot
-      vmovaps xmm3, xmm7; fovDotZ
-      vmovss  [rsp+0D8h+var_B8], xmm8
-    }
-    result = AICommonInterface::CanSeePointExInternal(this, &vPoint, *(float *)&_XMM2, *(float *)&_XMM3, v43, ignoreEntityNum, vViewPos, NORMAL_FOLIAGE_CHECKS);
-    if ( !result )
-    {
-      __asm
-      {
-        vmovss  xmm5, cs:__real@42480000
-        vmulss  xmm1, xmm5, dword ptr [rsp+0D8h+forward]
-        vaddss  xmm2, xmm1, dword ptr [rdi]
-        vmulss  xmm1, xmm5, dword ptr [rsp+0D8h+forward+4]
-        vaddss  xmm4, xmm1, dword ptr [rdi+4]
-        vmulss  xmm1, xmm5, dword ptr [rsp+0D8h+forward+8]
-      }
-      number = pOtherEnt->s.number;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0D8h+var_78+4], xmm4
-        vaddss  xmm4, xmm1, dword ptr [rdi+8]
-        vmovss  dword ptr [rsp+0D8h+var_78], xmm2
-        vmovaps xmm3, xmm7; fovDotZ
-        vmovaps xmm2, xmm6; fovDot
-        vmovss  dword ptr [rsp+0D8h+var_78+8], xmm4
-        vmovss  [rsp+0D8h+var_B8], xmm8
-      }
-      result = AICommonInterface::CanSeePointExInternal(this, &v47, *(float *)&_XMM2, *(float *)&_XMM3, v44, number, vViewPos, NORMAL_FOLIAGE_CHECKS);
-    }
-    __asm { vmovaps xmm8, [rsp+0D8h+var_58] }
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0D8h+var_38]
-    vmovaps xmm7, [rsp+0D8h+var_48]
+    v14 = (float)(50.0 * forward.v[0]) + vEntHeadPos->v[0];
+    number = pOtherEnt->s.number;
+    v19.v[1] = (float)(50.0 * forward.v[1]) + vEntHeadPos->v[1];
+    v16 = (float)(50.0 * forward.v[2]) + vEntHeadPos->v[2];
+    v19.v[0] = v14;
+    v19.v[2] = v16;
+    return AICommonInterface::CanSeePointExInternal(this, &v19, fovDot, fovDotZ, fMaxDistSqrd, number, vViewPos, NORMAL_FOLIAGE_CHECKS);
   }
   return result;
 }
@@ -742,7 +685,7 @@ AIBotAgentInterface::GetWeaponFlashTagName
 ==============
 */
 
-TagPair *__fastcall AIBotAgentInterface::GetWeaponFlashTagName(AIBotAgentInterface *this, TagPair *result, double _XMM2_8)
+TagPair *__fastcall AIBotAgentInterface::GetWeaponFlashTagName(AIBotAgentInterface *this, TagPair *result, double a3)
 {
   gagent_s *agent; 
   GWeaponMap *Instance; 
@@ -754,19 +697,8 @@ TagPair *__fastcall AIBotAgentInterface::GetWeaponFlashTagName(AIBotAgentInterfa
     __debugbreak();
   if ( !agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BgWeaponMap::GetWeapon(Instance, agent->playerState.weaponsEquipped[0]);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+98h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+98h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+98h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   ecx, xmm2 }
-  if ( (_WORD)_ECX )
+  r_weapon = *BgWeaponMap::GetWeapon(Instance, agent->playerState.weaponsEquipped[0]);
+  if ( LOWORD(a3) )
     BG_GetWeaponFlashTagname(result, &r_weapon, 0, 0);
   else
     TagPair::TagPair(result, scr_const.none, (scr_string_t)0);

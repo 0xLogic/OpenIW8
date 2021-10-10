@@ -93,28 +93,16 @@ bdObjectStoreValidationToken::bdObjectStoreValidationToken
 */
 void bdObjectStoreValidationToken::bdObjectStoreValidationToken(bdObjectStoreValidationToken *this, const bdObjectStoreValidationToken *__that)
 {
-  _RBX = __that;
-  _RDI = this;
   *((_QWORD *)&this->m_validationTokenResult.__vftable + 1) = &bdValidationTokenResult::`vbtable';
   bdReferencable::bdReferencable((bdReferencable *)&this->m_validationTokenResult.gap2824[4], (const bdReferencable *)((char *)&__that->m_validationTokenResult.__vftable + *(int *)(*((_QWORD *)&__that->m_validationTokenResult.__vftable + 1) + 4i64) + 8));
-  bdTaskResult::bdTaskResult(&_RDI->m_validationTokenResult, &_RBX->m_validationTokenResult);
-  _RDI->m_validationTokenResult.__vftable = (bdValidationTokenResult_vtbl *)&bdValidationTokenResult::`vftable'{for `bdTaskResult'};
-  *(bdValidationTokenResult_vtbl **)((char *)&_RDI->m_validationTokenResult.__vftable + *(int *)(*((_QWORD *)&_RDI->m_validationTokenResult.__vftable + 1) + 4i64) + 8) = (bdValidationTokenResult_vtbl *)&bdValidationTokenResult::`vftable'{for `bdReferencable'};
-  *((_QWORD *)&_RDI->m_validationTokenResult.__vftable + 2) = *((_QWORD *)&_RBX->m_validationTokenResult.__vftable + 2);
-  *((_QWORD *)&_RDI->m_validationTokenResult.__vftable + 3) = *((_QWORD *)&_RBX->m_validationTokenResult.__vftable + 3);
-  memcpy_0(_RDI->m_validationTokenResult.m_validationToken, _RBX->m_validationTokenResult.m_validationToken, sizeof(_RDI->m_validationTokenResult.m_validationToken));
-  _RDI->m_validationTokenResult.m_validationTokenSize = _RBX->m_validationTokenResult.m_validationTokenSize;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+2838h]
-    vmovups ymmword ptr [rdi+2838h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+2858h]
-    vmovups ymmword ptr [rdi+2858h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+2878h]
-    vmovups ymmword ptr [rdi+2878h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+2898h]
-    vmovups xmmword ptr [rdi+2898h], xmm1
-  }
+  bdTaskResult::bdTaskResult(&this->m_validationTokenResult, &__that->m_validationTokenResult);
+  this->m_validationTokenResult.__vftable = (bdValidationTokenResult_vtbl *)&bdValidationTokenResult::`vftable'{for `bdTaskResult'};
+  *(bdValidationTokenResult_vtbl **)((char *)&this->m_validationTokenResult.__vftable + *(int *)(*((_QWORD *)&this->m_validationTokenResult.__vftable + 1) + 4i64) + 8) = (bdValidationTokenResult_vtbl *)&bdValidationTokenResult::`vftable'{for `bdReferencable'};
+  *((_QWORD *)&this->m_validationTokenResult.__vftable + 2) = *((_QWORD *)&__that->m_validationTokenResult.__vftable + 2);
+  *((_QWORD *)&this->m_validationTokenResult.__vftable + 3) = *((_QWORD *)&__that->m_validationTokenResult.__vftable + 3);
+  memcpy_0(this->m_validationTokenResult.m_validationToken, __that->m_validationTokenResult.m_validationToken, sizeof(this->m_validationTokenResult.m_validationToken));
+  this->m_validationTokenResult.m_validationTokenSize = __that->m_validationTokenResult.m_validationTokenSize;
+  this->m_objectID = __that->m_objectID;
 }
 
 /*
@@ -143,8 +131,6 @@ char bdObjectStoreValidationToken::deserialize(bdObjectStoreValidationToken *thi
   unsigned __int8 dest[10240]; 
   char value[13664]; 
 
-  _RDI = objectID;
-  _RBX = this;
   if ( !bdJSONDeserializer::getString(json, "validationToken", value, 0x3559u) )
     return 0;
   memset_0(dest, 0, sizeof(dest));
@@ -156,18 +142,11 @@ char bdObjectStoreValidationToken::deserialize(bdObjectStoreValidationToken *thi
   v7 = bdBase64::decode(value, v6, dest, 0x2800u);
   if ( v7 - 1 > 0x27FF )
     return 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx+2838h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+2858h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rbx+2878h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rbx+2898h], xmm1
-  }
-  bdValidationTokenResult::initialize(&_RBX->m_validationTokenResult, dest, v7);
+  *(__m256i *)&this->m_objectID.m_ownerType = *(__m256i *)&objectID->m_ownerType;
+  *(__m256i *)&this->m_objectID.m_owner[28] = *(__m256i *)&objectID->m_owner[28];
+  *(__m256i *)&this->m_objectID.m_objectName[30] = *(__m256i *)&objectID->m_objectName[30];
+  *(_OWORD *)&this->m_objectID.m_objectName[62] = *(_OWORD *)&objectID->m_objectName[62];
+  bdValidationTokenResult::initialize(&this->m_validationTokenResult, dest, v7);
   return 1;
 }
 

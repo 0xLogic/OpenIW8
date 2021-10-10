@@ -84,133 +84,66 @@ FresnelTerm
 ==============
 */
 
-float __fastcall FresnelTerm(double n0, double n1, double cosIncidentAngle)
+float __fastcall FresnelTerm(float n0, float n1, double cosIncidentAngle)
 {
-  char v28; 
-  char v46; 
-  double v55; 
-  double v56; 
-  double v57; 
-  void *retaddr; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v11; 
+  double v12; 
+  __int128 v16; 
+  double v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vcomiss xmm2, cs:__real@bf800000
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmm10, xmm0
-    vmovaps xmm6, xmm2
-    vmovaps xmm9, xmm1
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm6, xmm7
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovsd  [rsp+98h+var_70], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 378, ASSERT_TYPE_SANITY, "( ( cosIncidentAngle <= 1 ) )", "( cosIncidentAngle ) = %g", v55) )
+  if ( *(float *)&cosIncidentAngle < -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 377, ASSERT_TYPE_SANITY, "( ( cosIncidentAngle >= -1 ) )", "( cosIncidentAngle ) = %g", *(float *)&cosIncidentAngle) )
     __debugbreak();
-  __asm { vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; X }
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
+  _XMM7 = LODWORD(FLOAT_1_0);
+  if ( *(float *)&cosIncidentAngle > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 378, ASSERT_TYPE_SANITY, "( ( cosIncidentAngle <= 1 ) )", "( cosIncidentAngle ) = %g", *(float *)&cosIncidentAngle) )
+    __debugbreak();
+  *((_QWORD *)&v7 + 1) = *(_QWORD *)(&cosIncidentAngle + 1) & *((_QWORD *)&_xmm + 1);
+  *(double *)&v7 = acosf_0(COERCE_FLOAT(LODWORD(cosIncidentAngle) & _xmm));
+  v6 = v7;
+  *((_QWORD *)&v7 + 1) = *(_QWORD *)(&cosIncidentAngle + 1) & *((_QWORD *)&_xmm + 1);
+  *(double *)&v7 = sin_0(*(double *)&v7) * (float)(n0 / n1);
+  _XMM0 = v7;
   __asm
   {
-    vcvtss2sd xmm8, xmm0, xmm0
-    vmovaps xmm0, xmm8; X
-  }
-  *(double *)&_XMM0 = sin_0(*(double *)&_XMM0);
-  __asm
-  {
-    vdivss  xmm1, xmm10, xmm9
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmulsd  xmm0, xmm0, xmm2
     vmaxsd  xmm3, xmm0, cs:__real@bff0000000000000
     vminsd  xmm0, xmm3, cs:__real@3ff0000000000000; X
   }
   *(double *)&_XMM0 = asin_0(*(double *)&_XMM0);
-  __asm
+  *((_QWORD *)&v7 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v7 = *(double *)&_XMM0 + *(double *)&v6;
+  v11 = v7;
+  v12 = *(double *)&_XMM0;
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  _XMM6 = v7;
+  if ( sin_0(*(double *)&_XMM0 + *(double *)&v6) == *(double *)&_XMM11 )
   {
-    vaddsd  xmm10, xmm0, xmm8
-    vmovaps xmm9, xmm0
-    vmovaps xmm0, xmm10; X
-  }
-  *(double *)&_XMM0 = sin_0(*(double *)&_XMM0);
-  __asm
-  {
-    vxorpd  xmm11, xmm11, xmm11
-    vucomisd xmm0, xmm11
-    vmovaps xmm6, xmm0
-  }
-  if ( v28 )
-  {
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm6, xmm0
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovsd  [rsp+98h+var_70], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 391, ASSERT_TYPE_SANITY, "( ( sinSum != 0 ) )", "( sinSum ) = %g", v56) )
+    __asm { vcvtsd2ss xmm1, xmm6, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 391, ASSERT_TYPE_SANITY, "( ( sinSum != 0 ) )", "( sinSum ) = %g", *(float *)&_XMM1) )
       __debugbreak();
   }
-  __asm
+  *((_QWORD *)&v16 + 1) = *((_QWORD *)&v6 + 1);
+  *(double *)&v16 = *(double *)&v6 - v12;
+  v17 = sin_0(*(double *)&v6 - v12) / *(double *)&_XMM6;
+  _XMM6 = v11;
+  if ( tan_0(*(double *)&v11) == *(double *)&_XMM11 )
   {
-    vsubsd  xmm9, xmm8, xmm9
-    vmovaps xmm0, xmm9; X
-  }
-  *(double *)&_XMM0 = sin_0(*(double *)&_XMM0);
-  __asm
-  {
-    vdivsd  xmm8, xmm0, xmm6
-    vmovaps xmm0, xmm10; X
-  }
-  *(double *)&_XMM0 = tan_0(*(double *)&_XMM0);
-  __asm
-  {
-    vucomisd xmm0, xmm11
-    vmovaps xmm6, xmm0
-  }
-  if ( v28 )
-  {
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm6, xmm0
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovsd  [rsp+98h+var_70], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 397, ASSERT_TYPE_SANITY, "( ( tanSum != 0 ) )", "( tanSum ) = %g", v57) )
+    __asm { vcvtsd2ss xmm1, xmm6, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_utils.cpp", 397, ASSERT_TYPE_SANITY, "( ( tanSum != 0 ) )", "( tanSum ) = %g", *(float *)&_XMM1) )
       __debugbreak();
   }
-  __asm { vmovaps xmm0, xmm9; X }
-  *(double *)&_XMM0 = tan_0(*(double *)&_XMM0);
-  __asm
-  {
-    vdivsd  xmm1, xmm0, xmm6
-    vmulsd  xmm3, xmm1, xmm1
-    vmulsd  xmm2, xmm8, xmm8
-    vaddsd  xmm0, xmm3, xmm2
-    vmulsd  xmm1, xmm0, cs:__real@3fe0000000000000
-    vcvtsd2ss xmm4, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm4, xmm0
-  }
-  if ( !v46 )
+  *(double *)&_XMM0 = tan_0(*(double *)&v16);
+  *(double *)&v16 = (*(double *)&_XMM0 / *(double *)&v11 * (*(double *)&_XMM0 / *(double *)&v11) + v17 * v17) * 0.5;
+  _XMM1 = v16;
+  __asm { vcvtsd2ss xmm4, xmm1, xmm1 }
+  LODWORD(_XMM0) = 0;
+  if ( *(float *)&_XMM4 >= 0.0 )
   {
     __asm
     {
       vcmpltss xmm0, xmm7, xmm4
       vblendvps xmm0, xmm4, xmm7, xmm0
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm10, [rsp+98h+var_58]
-    vmovaps xmm11, [rsp+98h+var_68]
   }
   return *(float *)&_XMM0;
 }
@@ -230,50 +163,19 @@ void *R_AllocGlobalVariable(unsigned __int64 bytes, const char *name)
 R_CullPointAndRadius
 ==============
 */
-
-char __fastcall R_CullPointAndRadius(const vec3_t *pt, double radius, const DpvsPlane *clipPlanes, unsigned int clipPlaneCount)
+char R_CullPointAndRadius(const vec3_t *pt, float radius, const DpvsPlane *clipPlanes, unsigned int clipPlaneCount)
 {
-  unsigned int v5; 
-  char result; 
+  int v4; 
 
-  v5 = 0;
-  __asm { vmovaps [rsp+18h+var_18], xmm6 }
-  if ( clipPlaneCount )
+  v4 = 0;
+  if ( !clipPlaneCount )
+    return 0;
+  while ( (float)((float)((float)((float)(pt->v[1] * clipPlanes[v4].coeffs.v[1]) + (float)(pt->v[0] * clipPlanes[v4].coeffs.v[0])) + (float)(pt->v[2] * clipPlanes[v4].coeffs.v[2])) + clipPlanes[v4].coeffs.v[3]) >= COERCE_FLOAT(LODWORD(radius) ^ _xmm) )
   {
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rcx+4]
-      vmovss  xmm3, dword ptr [rcx]
-      vmovss  xmm6, dword ptr [rcx+8]
-      vxorps  xmm4, xmm1, cs:__xmm@80000000800000008000000080000000
-    }
-    while ( 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm5, dword ptr [rax+4]
-        vmulss  xmm0, xmm3, dword ptr [rax]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rax+8]
-        vaddss  xmm0, xmm2, xmm1
-        vaddss  xmm2, xmm0, dword ptr [rax+0Ch]
-        vcomiss xmm2, xmm4
-      }
-      if ( __CFADD__(clipPlanes, 16i64 * v5) )
-        break;
-      if ( ++v5 >= clipPlaneCount )
-        goto LABEL_5;
-    }
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
-    return 1;
+    if ( ++v4 >= clipPlaneCount )
+      return 0;
   }
-  else
-  {
-LABEL_5:
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -285,10 +187,11 @@ bool R_GetClearColor(const GfxViewInfo *viewInfo, vec4_t *unpackedRgba)
 {
   bool result; 
   int integer; 
-  const dvar_t *v7; 
+  const dvar_t *v5; 
   unsigned int flags; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
 
-  _RBX = unpackedRgba;
   if ( (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x4000000) != 0 )
   {
     *unpackedRgba = viewInfo->viewportFeatures.m_overrideClearColor;
@@ -301,58 +204,34 @@ bool R_GetClearColor(const GfxViewInfo *viewInfo, vec4_t *unpackedRgba)
       goto LABEL_19;
     if ( integer != 1 )
       goto LABEL_16;
-    v7 = DCONST_DVARINT_developer;
+    v5 = DCONST_DVARINT_developer;
     if ( !DCONST_DVARINT_developer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "developer") )
       __debugbreak();
     if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
     {
-      flags = v7->flags;
-      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v7->name) )
+      flags = v5->flags;
+      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v5->name) )
         __debugbreak();
     }
-    if ( v7->current.integer )
+    if ( v5->current.integer )
     {
 LABEL_16:
       if ( r_clear->current.integer == 3 || (Sys_Milliseconds() & 0x200) == 0 )
       {
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3b808081
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rbx], xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm0, xmm1, xmm2
-          vmovss  dword ptr [rbx+4], xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm0, xmm1, xmm2
-          vmovss  dword ptr [rbx+8], xmm0
-        }
-        _RBX->v[3] = 1.0;
+        v8 = r_clearColor;
+        unpackedRgba->v[0] = (float)r_clearColor->current.color[0] * 0.0039215689;
+        unpackedRgba->v[1] = (float)v8->current.color[1] * 0.0039215689;
+        unpackedRgba->v[2] = (float)v8->current.color[2] * 0.0039215689;
+        unpackedRgba->v[3] = 1.0;
         return 1;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3b808081
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rbx], xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm0, xmm1, xmm2
-          vmovss  dword ptr [rbx+4], xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm0, xmm1, xmm2
-          vmovss  dword ptr [rbx+8], xmm0
-        }
-        _RBX->v[3] = 1.0;
+        v7 = r_clearColor2;
+        unpackedRgba->v[0] = (float)r_clearColor2->current.color[0] * 0.0039215689;
+        unpackedRgba->v[1] = (float)v7->current.color[1] * 0.0039215689;
+        unpackedRgba->v[2] = (float)v7->current.color[2] * 0.0039215689;
+        unpackedRgba->v[3] = 1.0;
         return 1;
       }
     }
@@ -360,8 +239,8 @@ LABEL_16:
     {
 LABEL_19:
       result = 0;
-      *(_QWORD *)_RBX->v = 0i64;
-      *(_QWORD *)&_RBX->xyz.z = 0i64;
+      *(_QWORD *)unpackedRgba->v = 0i64;
+      *(_QWORD *)&unpackedRgba->xyz.z = 0i64;
     }
   }
   return result;

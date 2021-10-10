@@ -588,36 +588,20 @@ scr_clone_element__init
 */
 void scr_clone_element__init(_ScrCloneElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE2F8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE2F8), dword_14D1CE2F8 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_clone_element__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_13.base.descriptor, xmm0
-      vmovsd  cs:init_value_13.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_clone_element__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_13.base.descriptor = v2;
+    *(double *)&init_value_13.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE2F8);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_13.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_13;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_13.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_13;
   }
 }
 
@@ -628,36 +612,20 @@ scr_clone_element_reply__init
 */
 void scr_clone_element_reply__init(_ScrCloneElementReply *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE328 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE328), dword_14D1CE328 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_clone_element_reply__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_14.base.descriptor, xmm0
-      vmovsd  cs:init_value_14.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_clone_element_reply__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_14.base.descriptor = v2;
+    *(double *)&init_value_14.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE328);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_14.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_14;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_14.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_14;
   }
 }
 
@@ -668,35 +636,21 @@ scr_expand_element__init
 */
 void scr_expand_element__init(_ScrExpandElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE360 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE360);
     if ( dword_14D1CE360 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_expand_element__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_15.base.descriptor, xmm0
-        vmovsd  cs:init_value_15.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_expand_element__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_15.base.descriptor = v2;
+      *(double *)&init_value_15.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE360);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_15.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_15.has_expand
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_15;
 }
 
 /*
@@ -706,36 +660,20 @@ scr_select_element__init
 */
 void scr_select_element__init(_ScrSelectElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE390 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE390), dword_14D1CE390 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_select_element__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_16.base.descriptor, xmm0
-      vmovsd  cs:init_value_16.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_select_element__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_16.base.descriptor = v2;
+    *(double *)&init_value_16.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE390);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_16.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_16;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_16.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_16;
   }
 }
 
@@ -746,36 +684,20 @@ scr_toggle_expand_element__init
 */
 void scr_toggle_expand_element__init(_ScrToggleExpandElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE3C0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE3C0), dword_14D1CE3C0 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_toggle_expand_element__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_17.base.descriptor, xmm0
-      vmovsd  cs:init_value_17.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_toggle_expand_element__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_17.base.descriptor = v2;
+    *(double *)&init_value_17.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE3C0);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_17.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_17;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_17.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_17;
   }
 }
 
@@ -786,35 +708,21 @@ scr_evaluate__init
 */
 void scr_evaluate__init(_ScrEvaluate *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE3E4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE3E4);
     if ( dword_14D1CE3E4 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_evaluate__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_18.base.descriptor, xmm0
-        vmovsd  cs:init_value_18.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_evaluate__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_18.base.descriptor = v2;
+      *(double *)&init_value_18.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE3E4);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_18.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_18.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_18;
 }
 
 /*
@@ -824,37 +732,21 @@ scr_toggle_breakpoint__init
 */
 void scr_toggle_breakpoint__init(_ScrToggleBreakpoint *message)
 {
-  __int128 v7; 
-  __int64 v8; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE450 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE450);
     if ( dword_14D1CE450 == -1 )
     {
-      *(_QWORD *)&v7 = &scr_toggle_breakpoint__descriptor;
-      DWORD2(v7) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v8 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_19.base.descriptor, xmm0
-        vmovsd  cs:init_value_19.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_toggle_breakpoint__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_19.base.descriptor = v2;
+      *(double *)&init_value_19.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE450);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_19.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_19.has_selectedline
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups xmm0, xmmword ptr cs:init_value_19.has_breakpointtype
-    vmovups xmmword ptr [rbx+40h], xmm0
-  }
+  *message = init_value_19;
 }
 
 /*
@@ -864,39 +756,21 @@ scr_toggle_breakpoint_reply__init
 */
 void scr_toggle_breakpoint_reply__init(_ScrToggleBreakpointReply *message)
 {
-  __int128 v8; 
-  __int64 v9; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE4DC > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE4DC);
     if ( dword_14D1CE4DC == -1 )
     {
-      *(_QWORD *)&v8 = &scr_toggle_breakpoint_reply__descriptor;
-      DWORD2(v8) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v9 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_20.base.descriptor, xmm0
-        vmovsd  cs:init_value_20.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_toggle_breakpoint_reply__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_20.base.descriptor = v2;
+      *(double *)&init_value_20.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE4DC);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_20.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_20.has_selectedline
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm0, ymmword ptr cs:init_value_20.has_breakpointtype
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_20.has_sourcepos
-    vmovsd  qword ptr [rbx+60h], xmm1
-  }
+  *message = init_value_20;
 }
 
 /*
@@ -906,35 +780,21 @@ scr_hit_breakpoint__init
 */
 void scr_hit_breakpoint__init(_ScrHitBreakpoint *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE51C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE51C);
     if ( dword_14D1CE51C == -1 )
     {
-      *(_QWORD *)&v6 = &scr_hit_breakpoint__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_21.base.descriptor, xmm0
-        vmovsd  cs:init_value_21.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_hit_breakpoint__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_21.base.descriptor = v2;
+      *(double *)&init_value_21.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE51C);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_21.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:init_value_21.has_linenum
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_21;
 }
 
 /*
@@ -944,35 +804,21 @@ scr_sort_hit_breakpoints_top__init
 */
 void scr_sort_hit_breakpoints_top__init(_ScrSortHitBreakpointsTop *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE53C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE53C);
     if ( dword_14D1CE53C == -1 )
     {
-      *(_QWORD *)&v6 = &scr_sort_hit_breakpoints_top__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_22.base.descriptor, xmm0
-        vmovsd  cs:init_value_22.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_sort_hit_breakpoints_top__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_22.base.descriptor = v2;
+      *(double *)&init_value_22.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE53C);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_22.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_22.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_22;
 }
 
 /*
@@ -982,35 +828,21 @@ scr_step__init
 */
 void scr_step__init(_ScrStep *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE570 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE570);
     if ( dword_14D1CE570 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_step__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_23.base.descriptor, xmm0
-        vmovsd  cs:init_value_23.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_step__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_23.base.descriptor = v2;
+      *(double *)&init_value_23.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE570);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_23.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_23.has_skipinstr
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_23;
 }
 
 /*
@@ -1020,35 +852,21 @@ scr_run_to_cursor__init
 */
 void scr_run_to_cursor__init(_ScrRunToCursor *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE5A8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE5A8);
     if ( dword_14D1CE5A8 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_run_to_cursor__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_24.base.descriptor, xmm0
-        vmovsd  cs:init_value_24.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_run_to_cursor__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_24.base.descriptor = v2;
+      *(double *)&init_value_24.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE5A8);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_24.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_24.has_selectedline
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_24;
 }
 
 /*
@@ -1058,35 +876,21 @@ scr_toggle_watch_breakpoint__init
 */
 void scr_toggle_watch_breakpoint__init(_ScrToggleWatchBreakpoint *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE5E0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE5E0);
     if ( dword_14D1CE5E0 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_toggle_watch_breakpoint__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_25.base.descriptor, xmm0
-        vmovsd  cs:init_value_25.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_toggle_watch_breakpoint__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_25.base.descriptor = v2;
+      *(double *)&init_value_25.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE5E0);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_25.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_25.has_type
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_25;
 }
 
 /*
@@ -1096,35 +900,21 @@ scr_toggle_watch_breakpoint_reply__init
 */
 void scr_toggle_watch_breakpoint_reply__init(_ScrToggleWatchBreakpointReply *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE618 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE618);
     if ( dword_14D1CE618 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_toggle_watch_breakpoint_reply__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_26.base.descriptor, xmm0
-        vmovsd  cs:init_value_26.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_toggle_watch_breakpoint_reply__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_26.base.descriptor = v2;
+      *(double *)&init_value_26.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE618);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_26.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_26.has_type
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_26;
 }
 
 /*
@@ -1134,35 +924,21 @@ scr_watch_element_hit_breakpoint__init
 */
 void scr_watch_element_hit_breakpoint__init(_ScrWatchElementHitBreakpoint *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE650 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE650);
     if ( dword_14D1CE650 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_watch_element_hit_breakpoint__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_27.base.descriptor, xmm0
-        vmovsd  cs:init_value_27.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_watch_element_hit_breakpoint__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_27.base.descriptor = v2;
+      *(double *)&init_value_27.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE650);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_27.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_27.has_enabled
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_27;
 }
 
 /*
@@ -1172,36 +948,20 @@ scr_free_watch_element_children__init
 */
 void scr_free_watch_element_children__init(_ScrFreeWatchElementChildren *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE680 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE680), dword_14D1CE680 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_free_watch_element_children__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_28.base.descriptor, xmm0
-      vmovsd  cs:init_value_28.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_free_watch_element_children__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_28.base.descriptor = v2;
+    *(double *)&init_value_28.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE680);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_28.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_28;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_28.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_28;
   }
 }
 
@@ -1212,35 +972,21 @@ scr_set_element_object_type__init
 */
 void scr_set_element_object_type__init(_ScrSetElementObjectType *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE6DC > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE6DC);
     if ( dword_14D1CE6DC == -1 )
     {
-      *(_QWORD *)&v6 = &scr_set_element_object_type__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_29.base.descriptor, xmm0
-        vmovsd  cs:init_value_29.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_set_element_object_type__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_29.base.descriptor = v2;
+      *(double *)&init_value_29.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE6DC);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_29.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_29.has_type
-    vmovups ymmword ptr [rbx+20h], ymm1
-  }
+  *message = init_value_29;
 }
 
 /*
@@ -1250,37 +996,21 @@ scr_set_element_thread_start__init
 */
 void scr_set_element_thread_start__init(_ScrSetElementThreadStart *message)
 {
-  __int128 v7; 
-  __int64 v8; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE738 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE738);
     if ( dword_14D1CE738 == -1 )
     {
-      *(_QWORD *)&v7 = &scr_set_element_thread_start__descriptor;
-      DWORD2(v7) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v8 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_30.base.descriptor, xmm0
-        vmovsd  cs:init_value_30.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_set_element_thread_start__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_30.base.descriptor = v2;
+      *(double *)&init_value_30.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE738);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_30.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_30.has_bufferindex
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovsd  xmm0, cs:init_value_30.line
-    vmovsd  qword ptr [rbx+40h], xmm0
-  }
+  *message = init_value_30;
 }
 
 /*
@@ -1290,36 +1020,20 @@ scr_set_stack_frame__init
 */
 void scr_set_stack_frame__init(_ScrSetStackFrame *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE768 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE768), dword_14D1CE768 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_set_stack_frame__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_31.base.descriptor, xmm0
-      vmovsd  cs:init_value_31.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_set_stack_frame__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_31.base.descriptor = v2;
+    *(double *)&init_value_31.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE768);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_31.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_31;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_31.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_31;
   }
 }
 
@@ -1330,35 +1044,21 @@ scr_set_element_value_text__init
 */
 void scr_set_element_value_text__init(_ScrSetElementValueText *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE7A0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE7A0);
     if ( dword_14D1CE7A0 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_set_element_value_text__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_32.base.descriptor, xmm0
-        vmovsd  cs:init_value_32.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_set_element_value_text__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_32.base.descriptor = v2;
+      *(double *)&init_value_32.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE7A0);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_32.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, cs:init_value_32.valuetext
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_32;
 }
 
 /*
@@ -1368,35 +1068,21 @@ scr_set_non_field_ref_text__init
 */
 void scr_set_non_field_ref_text__init(_ScrSetNonFieldRefText *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE7E4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE7E4);
     if ( dword_14D1CE7E4 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_set_non_field_ref_text__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_33.base.descriptor, xmm0
-        vmovsd  cs:init_value_33.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_set_non_field_ref_text__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_33.base.descriptor = v2;
+      *(double *)&init_value_33.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE7E4);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_33.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:init_value_33.has_fieldname
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_33;
 }
 
 /*
@@ -1406,35 +1092,21 @@ scr_set_element_ref_text__init
 */
 void scr_set_element_ref_text__init(_ScrSetElementRefText *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE824 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE824);
     if ( dword_14D1CE824 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_set_element_ref_text__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_34.base.descriptor, xmm0
-        vmovsd  cs:init_value_34.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_set_element_ref_text__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_34.base.descriptor = v2;
+      *(double *)&init_value_34.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE824);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_34.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:init_value_34.fieldtext
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_34;
 }
 
 /*
@@ -1444,37 +1116,21 @@ scr_set_child_count__init
 */
 void scr_set_child_count__init(_ScrSetChildCount *message)
 {
-  __int128 v7; 
-  __int64 v8; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE890 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE890);
     if ( dword_14D1CE890 == -1 )
     {
-      *(_QWORD *)&v7 = &scr_set_child_count__descriptor;
-      DWORD2(v7) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v8 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_35.base.descriptor, xmm0
-        vmovsd  cs:init_value_35.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_set_child_count__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_35.base.descriptor = v2;
+      *(double *)&init_value_35.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE890);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_35.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_35.has_count
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups xmm0, xmmword ptr cs:init_value_35.n_children
-    vmovups xmmword ptr [rbx+40h], xmm0
-  }
+  *message = init_value_35;
 }
 
 /*
@@ -1484,37 +1140,21 @@ scr_update__callstack_line__init
 */
 void scr_update__callstack_line__init(_ScrUpdate__CallstackLine *message)
 {
-  __int128 v7; 
-  __int64 v8; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE8F8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE8F8);
     if ( dword_14D1CE8F8 == -1 )
     {
-      *(_QWORD *)&v7 = &scr_update__callstack_line__descriptor;
-      DWORD2(v7) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v8 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_36.base.descriptor, xmm0
-        vmovsd  cs:init_value_36.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_update__callstack_line__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_36.base.descriptor = v2;
+      *(double *)&init_value_36.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE8F8);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_36.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_36.has_sourcepos
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovsd  xmm0, cs:init_value_36.function
-    vmovsd  qword ptr [rbx+40h], xmm0
-  }
+  *message = init_value_36;
 }
 
 /*
@@ -1524,35 +1164,21 @@ scr_update__init
 */
 void scr_update__init(_ScrUpdate *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE930 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE930);
     if ( dword_14D1CE930 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_update__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_37.base.descriptor, xmm0
-        vmovsd  cs:init_value_37.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_update__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_37.base.descriptor = v2;
+      *(double *)&init_value_37.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE930);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_37.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, cs:init_value_37.callstack
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_37;
 }
 
 /*
@@ -1562,35 +1188,21 @@ scr_update_watch_height__init
 */
 void scr_update_watch_height__init(_ScrUpdateWatchHeight *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE954 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE954);
     if ( dword_14D1CE954 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_update_watch_height__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_38.base.descriptor, xmm0
-        vmovsd  cs:init_value_38.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_update_watch_height__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_38.base.descriptor = v2;
+      *(double *)&init_value_38.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE954);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_38.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_38.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_38;
 }
 
 /*
@@ -1600,35 +1212,21 @@ scr_keep_alive__init
 */
 void scr_keep_alive__init(_ScrKeepAlive *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE974 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE974);
     if ( dword_14D1CE974 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_keep_alive__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_39.base.descriptor, xmm0
-        vmovsd  cs:init_value_39.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_keep_alive__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_39.base.descriptor = v2;
+      *(double *)&init_value_39.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE974);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_39.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_39.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_39;
 }
 
 /*
@@ -1638,36 +1236,20 @@ scr_display_thread_pos__init
 */
 void scr_display_thread_pos__init(_ScrDisplayThreadPos *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE9A0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE9A0), dword_14D1CE9A0 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_display_thread_pos__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_40.base.descriptor, xmm0
-      vmovsd  cs:init_value_40.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_display_thread_pos__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_40.base.descriptor = v2;
+    *(double *)&init_value_40.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE9A0);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_40.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_40;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_40.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_40;
   }
 }
 
@@ -1678,35 +1260,21 @@ scr_select_script_line__init
 */
 void scr_select_script_line__init(_ScrSelectScriptLine *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE9E4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE9E4);
     if ( dword_14D1CE9E4 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_select_script_line__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_41.base.descriptor, xmm0
-        vmovsd  cs:init_value_41.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_select_script_line__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_41.base.descriptor = v2;
+      *(double *)&init_value_41.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE9E4);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_41.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:init_value_41.has_linenum
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_41;
 }
 
 /*
@@ -1716,36 +1284,20 @@ scr_sort_element_children__init
 */
 void scr_sort_element_children__init(_ScrSortElementChildren *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEA10 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CEA10), dword_14D1CEA10 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_sort_element_children__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_42.base.descriptor, xmm0
-      vmovsd  cs:init_value_42.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_sort_element_children__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_42.base.descriptor = v2;
+    *(double *)&init_value_42.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CEA10);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_42.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_42;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_42.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_42;
   }
 }
 
@@ -1756,36 +1308,20 @@ print_message__init
 */
 void print_message__init(_PrintMessage *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEA40 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CEA40), dword_14D1CEA40 == -1) )
   {
-    *(_QWORD *)&v6 = &print_message__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_43.base.descriptor, xmm0
-      vmovsd  cs:init_value_43.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &print_message__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_43.base.descriptor = v2;
+    *(double *)&init_value_43.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CEA40);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_43.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_43;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_43.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_43;
   }
 }
 
@@ -1796,35 +1332,21 @@ console_fix_pos__init
 */
 void console_fix_pos__init(_ConsoleFixPos *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEA64 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEA64);
     if ( dword_14D1CEA64 == -1 )
     {
-      *(_QWORD *)&v6 = &console_fix_pos__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_44.base.descriptor, xmm0
-        vmovsd  cs:init_value_44.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &console_fix_pos__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_44.base.descriptor = v2;
+      *(double *)&init_value_44.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEA64);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_44.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_44.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_44;
 }
 
 /*
@@ -1834,35 +1356,21 @@ pause__init
 */
 void pause__init(_Pause *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEA84 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEA84);
     if ( dword_14D1CEA84 == -1 )
     {
-      *(_QWORD *)&v6 = &pause__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_45.base.descriptor, xmm0
-        vmovsd  cs:init_value_45.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &pause__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_45.base.descriptor = v2;
+      *(double *)&init_value_45.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEA84);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_45.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_45.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_45;
 }
 
 /*
@@ -1872,35 +1380,21 @@ scr_enter_call__init
 */
 void scr_enter_call__init(_ScrEnterCall *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEAB8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEAB8);
     if ( dword_14D1CEAB8 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_enter_call__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_46.base.descriptor, xmm0
-        vmovsd  cs:init_value_46.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_enter_call__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_46.base.descriptor = v2;
+      *(double *)&init_value_46.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEAB8);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_46.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_46.has_selectedline
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_46;
 }
 
 /*
@@ -1910,35 +1404,21 @@ scr_close__init
 */
 void scr_close__init(_ScrClose *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEADC > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEADC);
     if ( dword_14D1CEADC == -1 )
     {
-      *(_QWORD *)&v6 = &scr_close__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_47.base.descriptor, xmm0
-        vmovsd  cs:init_value_47.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_close__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_47.base.descriptor = v2;
+      *(double *)&init_value_47.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEADC);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_47.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_47.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_47;
 }
 
 /*
@@ -1948,35 +1428,21 @@ scr_quit__init
 */
 void scr_quit__init(_ScrQuit *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEAFC > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEAFC);
     if ( dword_14D1CEAFC == -1 )
     {
-      *(_QWORD *)&v6 = &scr_quit__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_48.base.descriptor, xmm0
-        vmovsd  cs:init_value_48.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_quit__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_48.base.descriptor = v2;
+      *(double *)&init_value_48.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEAFC);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_48.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_48.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_48;
 }
 
 /*
@@ -1986,35 +1452,21 @@ scr_diff_files__line__init
 */
 void scr_diff_files__line__init(_ScrDiffFiles__Line *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEB30 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEB30);
     if ( dword_14D1CEB30 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_diff_files__line__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_49.base.descriptor, xmm0
-        vmovsd  cs:init_value_49.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_diff_files__line__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_49.base.descriptor = v2;
+      *(double *)&init_value_49.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEB30);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_49.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_49.has_toline
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_49;
 }
 
 /*
@@ -2024,47 +1476,23 @@ scr_diff_files__init
 */
 void scr_diff_files__init(_ScrDiffFiles *message)
 {
-  __int128 v9; 
-  __int128 v10; 
-  __int64 v11; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEBB4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEBB4);
     if ( dword_14D1CEBB4 == -1 )
     {
-      *(_QWORD *)&v9 = &scr_diff_files__descriptor;
-      DWORD2(v9) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v10 = 0ui64;
-      __asm
-      {
-        vmovups xmmword ptr cs:init_value_50.base.descriptor, xmm0
-        vmovups xmm0, [rsp+48h+var_28]
-        vmovups xmmword ptr cs:init_value_50.frombuf.len, xmm0
-      }
-      v11 = 0i64;
-      __asm { vmovsd  xmm1, [rsp+48h+var_18] }
-      *((_QWORD *)&v10 + 1) = 0i64;
-      __asm
-      {
-        vmovups xmm0, [rsp+48h+var_28]
-        vmovups xmmword ptr cs:init_value_50.tobuf.len, xmm0
-        vmovsd  cs:init_value_50.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_diff_files__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_50.base.descriptor = v2;
+      init_value_50.frombuf = 0ui64;
+      init_value_50.tobuf = 0ui64;
+      *(double *)&init_value_50.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEBB4);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_50.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_50.has_frombuf
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm0, ymmword ptr cs:init_value_50.tobuf.len
-    vmovups ymmword ptr [rbx+40h], ymm0
-  }
+  *message = init_value_50;
 }
 
 /*
@@ -2074,35 +1502,21 @@ debug_message__init
 */
 void debug_message__init(_DebugMessage *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CEBE8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CEBE8);
     if ( dword_14D1CEBE8 == -1 )
     {
-      *(_QWORD *)&v6 = &debug_message__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_51.base.descriptor, xmm0
-        vmovsd  cs:init_value_51.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &debug_message__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_51.base.descriptor = v2;
+      *(double *)&init_value_51.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CEBE8);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_51.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:init_value_51.___u2
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_51;
 }
 
 /*
@@ -2112,44 +1526,22 @@ scr_read_file__init
 */
 void scr_read_file__init(_ScrReadFile *message)
 {
-  __int128 v8; 
-  __int128 v9; 
-  __int64 v10; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE004 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE004);
     if ( dword_14D1CE004 == -1 )
     {
-      *(_QWORD *)&v8 = &scr_read_file__descriptor;
-      DWORD2(v8) = 0;
-      __asm
-      {
-        vmovups xmm0, [rsp+48h+var_28]
-        vmovups xmmword ptr cs:init_value.base.descriptor, xmm0
-      }
-      v10 = 0i64;
-      __asm { vmovsd  xmm1, [rsp+48h+var_18] }
-      v9 = 0ui64;
-      __asm
-      {
-        vmovups xmm0, [rsp+48h+var_28]
-        vmovups xmmword ptr cs:init_value.sourcebuf.len, xmm0
-        vmovsd  cs:init_value.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_read_file__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value.base.descriptor = v2;
+      init_value.sourcebuf = 0ui64;
+      *(double *)&init_value.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE004);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:init_value.has_sourcebuf
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  xmm0, cs:init_value.sourcebuf.data
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
+  *message = init_value;
 }
 
 /*
@@ -2159,35 +1551,21 @@ scr_restart__init
 */
 void scr_restart__init(_ScrRestart *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE024 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE024);
     if ( dword_14D1CE024 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_restart__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_0.base.descriptor, xmm0
-        vmovsd  cs:init_value_0.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_restart__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_0.base.descriptor = v2;
+      *(double *)&init_value_0.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE024);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:init_value_0.base.descriptor
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, cs:init_value_0.base.unknown_fields
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *message = init_value_0;
 }
 
 /*
@@ -2197,35 +1575,21 @@ scr_load_script_names__init
 */
 void scr_load_script_names__init(_ScrLoadScriptNames *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE058 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE058);
     if ( dword_14D1CE058 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_load_script_names__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_1.base.descriptor, xmm0
-        vmovsd  cs:init_value_1.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_load_script_names__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_1.base.descriptor = v2;
+      *(double *)&init_value_1.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE058);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_1.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, cs:init_value_1.sourcenames
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_1;
 }
 
 /*
@@ -2235,36 +1599,20 @@ scr_request_script__init
 */
 void scr_request_script__init(_ScrRequestScript *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE088 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE088), dword_14D1CE088 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_request_script__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_2.base.descriptor, xmm0
-      vmovsd  cs:init_value_2.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_request_script__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_2.base.descriptor = v2;
+    *(double *)&init_value_2.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE088);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_2.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_2;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_2.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_2;
   }
 }
 
@@ -2275,35 +1623,21 @@ scr_add_text__init
 */
 void scr_add_text__init(_ScrAddText *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE0C0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE0C0);
     if ( dword_14D1CE0C0 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_add_text__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_3.base.descriptor, xmm0
-        vmovsd  cs:init_value_3.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_add_text__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_3.base.descriptor = v2;
+      *(double *)&init_value_3.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE0C0);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_3.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, cs:init_value_3.text
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_3;
 }
 
 /*
@@ -2313,35 +1647,21 @@ scr_add_text_reply__init
 */
 void scr_add_text_reply__init(_ScrAddTextReply *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE0F8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE0F8);
     if ( dword_14D1CE0F8 == -1 )
     {
-      *(_QWORD *)&v6 = &scr_add_text_reply__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_4.base.descriptor, xmm0
-        vmovsd  cs:init_value_4.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_add_text_reply__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_4.base.descriptor = v2;
+      *(double *)&init_value_4.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE0F8);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_4.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, cs:init_value_4.text
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
+  *message = init_value_4;
 }
 
 /*
@@ -2351,35 +1671,21 @@ scr_paste_element__init
 */
 void scr_paste_element__init(_ScrPasteElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE14C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE14C);
     if ( dword_14D1CE14C == -1 )
     {
-      *(_QWORD *)&v6 = &scr_paste_element__descriptor;
-      DWORD2(v6) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v7 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_5.base.descriptor, xmm0
-        vmovsd  cs:init_value_5.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_paste_element__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_5.base.descriptor = v2;
+      *(double *)&init_value_5.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE14C);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_5.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_5.text
-    vmovups ymmword ptr [rbx+20h], ymm1
-  }
+  *message = init_value_5;
 }
 
 /*
@@ -2389,37 +1695,21 @@ scr_paste_element_reply__init
 */
 void scr_paste_element_reply__init(_ScrPasteElementReply *message)
 {
-  __int128 v7; 
-  __int64 v8; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE1A8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14D1CE1A8);
     if ( dword_14D1CE1A8 == -1 )
     {
-      *(_QWORD *)&v7 = &scr_paste_element_reply__descriptor;
-      DWORD2(v7) = 0;
-      __asm { vmovups xmm0, [rsp+48h+var_28] }
-      v8 = 0i64;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+48h+var_18]
-        vmovups xmmword ptr cs:init_value_6.base.descriptor, xmm0
-        vmovsd  cs:init_value_6.base.unknown_fields, xmm1
-      }
+      *(_QWORD *)&v2 = &scr_paste_element_reply__descriptor;
+      DWORD2(v2) = 0;
+      *(_OWORD *)&init_value_6.base.descriptor = v2;
+      *(double *)&init_value_6.base.unknown_fields = 0.0;
       j__Init_thread_footer(&dword_14D1CE1A8);
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:init_value_6.base.descriptor
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:init_value_6.text
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovsd  xmm0, qword ptr cs:init_value_6.has_newelement
-    vmovsd  qword ptr [rbx+40h], xmm0
-  }
+  *message = init_value_6;
 }
 
 /*
@@ -2429,36 +1719,20 @@ scr_insert_element__init
 */
 void scr_insert_element__init(_ScrInsertElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE1D8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE1D8), dword_14D1CE1D8 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_insert_element__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_7.base.descriptor, xmm0
-      vmovsd  cs:init_value_7.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_insert_element__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_7.base.descriptor = v2;
+    *(double *)&init_value_7.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE1D8);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_7.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_7;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_7.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_7;
   }
 }
 
@@ -2469,36 +1743,20 @@ scr_insert_element_reply__init
 */
 void scr_insert_element_reply__init(_ScrInsertElementReply *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE208 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE208), dword_14D1CE208 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_insert_element_reply__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_8.base.descriptor, xmm0
-      vmovsd  cs:init_value_8.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_insert_element_reply__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_8.base.descriptor = v2;
+    *(double *)&init_value_8.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE208);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_8.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_8;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_8.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_8;
   }
 }
 
@@ -2509,36 +1767,20 @@ scr_delete_element__init
 */
 void scr_delete_element__init(_ScrDeleteElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE238 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE238), dword_14D1CE238 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_delete_element__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_9.base.descriptor, xmm0
-      vmovsd  cs:init_value_9.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_delete_element__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_9.base.descriptor = v2;
+    *(double *)&init_value_9.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE238);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_9.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_9;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_9.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_9;
   }
 }
 
@@ -2549,36 +1791,20 @@ scr_delete_element_reply__init
 */
 void scr_delete_element_reply__init(_ScrDeleteElementReply *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE268 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE268), dword_14D1CE268 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_delete_element_reply__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_10.base.descriptor, xmm0
-      vmovsd  cs:init_value_10.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_delete_element_reply__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_10.base.descriptor = v2;
+    *(double *)&init_value_10.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE268);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_10.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_10;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_10.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_10;
   }
 }
 
@@ -2589,36 +1815,20 @@ scr_backspace_element__init
 */
 void scr_backspace_element__init(_ScrBackspaceElement *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE298 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE298), dword_14D1CE298 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_backspace_element__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_11.base.descriptor, xmm0
-      vmovsd  cs:init_value_11.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_backspace_element__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_11.base.descriptor = v2;
+    *(double *)&init_value_11.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE298);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_11.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_11;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_11.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_11;
   }
 }
 
@@ -2629,36 +1839,20 @@ scr_backspace_element_reply__init
 */
 void scr_backspace_element_reply__init(_ScrBackspaceElementReply *message)
 {
-  __int128 v6; 
-  __int64 v7; 
+  __int128 v2; 
 
-  _RBX = message;
   if ( dword_14D1CE2C8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) && (j__Init_thread_header(&dword_14D1CE2C8), dword_14D1CE2C8 == -1) )
   {
-    *(_QWORD *)&v6 = &scr_backspace_element_reply__descriptor;
-    DWORD2(v6) = 0;
-    __asm { vmovups xmm0, [rsp+48h+var_28] }
-    v7 = 0i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:init_value_12.base.descriptor, xmm0
-      vmovsd  cs:init_value_12.base.unknown_fields, xmm1
-    }
+    *(_QWORD *)&v2 = &scr_backspace_element_reply__descriptor;
+    DWORD2(v2) = 0;
+    *(_OWORD *)&init_value_12.base.descriptor = v2;
+    *(double *)&init_value_12.base.unknown_fields = 0.0;
     j__Init_thread_footer(&dword_14D1CE2C8);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_12.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_12;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:init_value_12.base.descriptor
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *message = init_value_12;
   }
 }
 
@@ -2669,19 +1863,12 @@ _ConsoleFixPos::_ConsoleFixPos
 */
 void _ConsoleFixPos::_ConsoleFixPos(_ConsoleFixPos *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &console_fix_pos__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &console_fix_pos__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2691,21 +1878,14 @@ _DebugMessage::_DebugMessage
 */
 void _DebugMessage::_DebugMessage(_DebugMessage *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &debug_message__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &debug_message__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->debug_message_case = DEBUG_MESSAGE__DEBUG_MESSAGE__NOT_SET;
   this->scrreadfile = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2715,19 +1895,12 @@ _Pause::_Pause
 */
 void _Pause::_Pause(_Pause *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &pause__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &pause__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2737,20 +1910,13 @@ _PrintMessage::_PrintMessage
 */
 void _PrintMessage::_PrintMessage(_PrintMessage *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &print_message__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &print_message__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->msg = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2760,21 +1926,14 @@ _ScrAddText::_ScrAddText
 */
 void _ScrAddText::_ScrAddText(_ScrAddText *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_add_text__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_add_text__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   this->text = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2784,21 +1943,14 @@ _ScrAddTextReply::_ScrAddTextReply
 */
 void _ScrAddTextReply::_ScrAddTextReply(_ScrAddTextReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_add_text_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_add_text_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   this->text = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2808,20 +1960,13 @@ _ScrBackspaceElement::_ScrBackspaceElement
 */
 void _ScrBackspaceElement::_ScrBackspaceElement(_ScrBackspaceElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_backspace_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_backspace_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2831,20 +1976,13 @@ _ScrBackspaceElementReply::_ScrBackspaceElementReply
 */
 void _ScrBackspaceElementReply::_ScrBackspaceElementReply(_ScrBackspaceElementReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_backspace_element_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_backspace_element_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2854,20 +1992,13 @@ _ScrCloneElement::_ScrCloneElement
 */
 void _ScrCloneElement::_ScrCloneElement(_ScrCloneElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_clone_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_clone_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2877,20 +2008,13 @@ _ScrCloneElementReply::_ScrCloneElementReply
 */
 void _ScrCloneElementReply::_ScrCloneElementReply(_ScrCloneElementReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_clone_element_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_clone_element_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2900,19 +2024,12 @@ _ScrClose::_ScrClose
 */
 void _ScrClose::_ScrClose(_ScrClose *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_close__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_close__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2922,20 +2039,13 @@ _ScrDeleteElement::_ScrDeleteElement
 */
 void _ScrDeleteElement::_ScrDeleteElement(_ScrDeleteElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_delete_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_delete_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2945,20 +2055,13 @@ _ScrDeleteElementReply::_ScrDeleteElementReply
 */
 void _ScrDeleteElementReply::_ScrDeleteElementReply(_ScrDeleteElementReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_delete_element_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_delete_element_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -2968,38 +2071,19 @@ _ScrDiffFiles::_ScrDiffFiles
 */
 void _ScrDiffFiles::_ScrDiffFiles(_ScrDiffFiles *this)
 {
-  __int128 v5; 
-  __int128 v6; 
-  __int128 v7; 
-  __int64 v8; 
+  __int128 v1; 
 
-  *(_QWORD *)&v5 = &scr_diff_files__descriptor;
-  DWORD2(v5) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v6 = 0ui64;
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm0, [rsp+28h+var_28]
-  }
-  v8 = 0i64;
-  __asm { vmovsd  xmm1, [rsp+28h+var_18] }
-  v7 = 0ui64;
-  __asm
-  {
-    vmovups xmmword ptr [rcx+28h], xmm0
-    vmovups xmm0, [rsp+28h+var_28]
-  }
+  *(_QWORD *)&v1 = &scr_diff_files__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->frombuf = 0ui64;
   this->filename = NULL;
   this->has_frombuf = 0;
   this->has_tobuf = 0;
   this->n_lines = 0i64;
   this->lines = NULL;
-  __asm
-  {
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  this->tobuf = 0ui64;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3009,21 +2093,14 @@ _ScrDiffFiles__Line::_ScrDiffFiles__Line
 */
 void _ScrDiffFiles__Line::_ScrDiffFiles__Line(_ScrDiffFiles__Line *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_diff_files__line__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_diff_files__line__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_fromline = 0i64;
   *(_QWORD *)&this->has_toline = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3033,20 +2110,13 @@ _ScrDisplayThreadPos::_ScrDisplayThreadPos
 */
 void _ScrDisplayThreadPos::_ScrDisplayThreadPos(_ScrDisplayThreadPos *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_display_thread_pos__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_display_thread_pos__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3056,21 +2126,14 @@ _ScrEnterCall::_ScrEnterCall
 */
 void _ScrEnterCall::_ScrEnterCall(_ScrEnterCall *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_enter_call__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_enter_call__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->filename = NULL;
   *(_QWORD *)&this->has_selectedline = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3080,19 +2143,12 @@ _ScrEvaluate::_ScrEvaluate
 */
 void _ScrEvaluate::_ScrEvaluate(_ScrEvaluate *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_evaluate__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_evaluate__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3102,21 +2158,14 @@ _ScrExpandElement::_ScrExpandElement
 */
 void _ScrExpandElement::_ScrExpandElement(_ScrExpandElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_expand_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_expand_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_expand = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3126,20 +2175,13 @@ _ScrFreeWatchElementChildren::_ScrFreeWatchElementChildren
 */
 void _ScrFreeWatchElementChildren::_ScrFreeWatchElementChildren(_ScrFreeWatchElementChildren *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_free_watch_element_children__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_free_watch_element_children__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3149,22 +2191,15 @@ _ScrHitBreakpoint::_ScrHitBreakpoint
 */
 void _ScrHitBreakpoint::_ScrHitBreakpoint(_ScrHitBreakpoint *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_hit_breakpoint__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_hit_breakpoint__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_bufferindex = 0i64;
   *(_QWORD *)&this->has_linenum = 0i64;
   this->filename = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3174,20 +2209,13 @@ _ScrInsertElement::_ScrInsertElement
 */
 void _ScrInsertElement::_ScrInsertElement(_ScrInsertElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_insert_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_insert_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3197,20 +2225,13 @@ _ScrInsertElementReply::_ScrInsertElementReply
 */
 void _ScrInsertElementReply::_ScrInsertElementReply(_ScrInsertElementReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_insert_element_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_insert_element_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3220,19 +2241,12 @@ _ScrKeepAlive::_ScrKeepAlive
 */
 void _ScrKeepAlive::_ScrKeepAlive(_ScrKeepAlive *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_keep_alive__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_keep_alive__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3242,21 +2256,14 @@ _ScrLoadScriptNames::_ScrLoadScriptNames
 */
 void _ScrLoadScriptNames::_ScrLoadScriptNames(_ScrLoadScriptNames *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_load_script_names__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_load_script_names__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->n_sourcenames = 0i64;
   this->sourcenames = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3266,24 +2273,17 @@ _ScrPasteElement::_ScrPasteElement
 */
 void _ScrPasteElement::_ScrPasteElement(_ScrPasteElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_paste_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_paste_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   this->text = NULL;
   *(_QWORD *)&this->has_user = 0i64;
   *(_QWORD *)&this->has_type = 0i64;
   *(_QWORD *)&this->has_requestid = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3293,25 +2293,18 @@ _ScrPasteElementReply::_ScrPasteElementReply
 */
 void _ScrPasteElementReply::_ScrPasteElementReply(_ScrPasteElementReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_paste_element_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_paste_element_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   this->text = NULL;
   *(_QWORD *)&this->has_user = 0i64;
   *(_QWORD *)&this->has_type = 0i64;
   *(_QWORD *)&this->has_requestid = 0i64;
   *(_QWORD *)&this->has_newelement = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3321,19 +2314,12 @@ _ScrQuit::_ScrQuit
 */
 void _ScrQuit::_ScrQuit(_ScrQuit *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_quit__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_quit__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3343,28 +2329,15 @@ _ScrReadFile::_ScrReadFile
 */
 void _ScrReadFile::_ScrReadFile(_ScrReadFile *this)
 {
-  __int128 v4; 
-  __int128 v5; 
-  __int64 v6; 
+  __int128 v1; 
 
-  *(_QWORD *)&v4 = &scr_read_file__descriptor;
-  DWORD2(v4) = 0;
-  __asm
-  {
-    vmovups xmm0, [rsp+28h+var_28]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  v6 = 0i64;
-  __asm { vmovsd  xmm1, [rsp+28h+var_18] }
-  v5 = 0ui64;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
+  *(_QWORD *)&v1 = &scr_read_file__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->filename = NULL;
   this->has_sourcebuf = 0;
-  __asm
-  {
-    vmovups xmmword ptr [rcx+28h], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  this->sourcebuf = 0ui64;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3374,20 +2347,13 @@ _ScrRequestScript::_ScrRequestScript
 */
 void _ScrRequestScript::_ScrRequestScript(_ScrRequestScript *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_request_script__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_request_script__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->filename = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3397,19 +2363,12 @@ _ScrRestart::_ScrRestart
 */
 void _ScrRestart::_ScrRestart(_ScrRestart *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_restart__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_restart__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3419,21 +2378,14 @@ _ScrRunToCursor::_ScrRunToCursor
 */
 void _ScrRunToCursor::_ScrRunToCursor(_ScrRunToCursor *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_run_to_cursor__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_run_to_cursor__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->filename = NULL;
   *(_QWORD *)&this->has_selectedline = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3443,20 +2395,13 @@ _ScrSelectElement::_ScrSelectElement
 */
 void _ScrSelectElement::_ScrSelectElement(_ScrSelectElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_select_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_select_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3466,22 +2411,15 @@ _ScrSelectScriptLine::_ScrSelectScriptLine
 */
 void _ScrSelectScriptLine::_ScrSelectScriptLine(_ScrSelectScriptLine *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_select_script_line__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_select_script_line__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_bufferindex = 0i64;
   *(_QWORD *)&this->has_linenum = 0i64;
   this->filename = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3491,18 +2429,11 @@ _ScrSetChildCount::_ScrSetChildCount
 */
 void _ScrSetChildCount::_ScrSetChildCount(_ScrSetChildCount *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_child_count__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_child_count__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_parentelement = 0i64;
   *(_QWORD *)&this->has_count = 0i64;
   *(_QWORD *)&this->has_sametype = 0i64;
@@ -3510,7 +2441,7 @@ void _ScrSetChildCount::_ScrSetChildCount(_ScrSetChildCount *this)
   this->compareresult = NULL;
   this->n_children = 0i64;
   this->children = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3520,24 +2451,17 @@ _ScrSetElementObjectType::_ScrSetElementObjectType
 */
 void _ScrSetElementObjectType::_ScrSetElementObjectType(_ScrSetElementObjectType *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_element_object_type__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_element_object_type__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_type = 0i64;
   *(_QWORD *)&this->has_directobject = 0i64;
   *(_QWORD *)&this->has_watchtype = 0i64;
   *(_QWORD *)&this->has_expandable = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3547,22 +2471,15 @@ _ScrSetElementRefText::_ScrSetElementRefText
 */
 void _ScrSetElementRefText::_ScrSetElementRefText(_ScrSetElementRefText *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_element_ref_text__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_element_ref_text__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   this->fieldtext = NULL;
   this->reftext = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3572,25 +2489,18 @@ _ScrSetElementThreadStart::_ScrSetElementThreadStart
 */
 void _ScrSetElementThreadStart::_ScrSetElementThreadStart(_ScrSetElementThreadStart *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_element_thread_start__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_element_thread_start__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_bufferindex = 0i64;
   *(_QWORD *)&this->has_sourcepos = 0i64;
   this->filename = NULL;
   *(_QWORD *)&this->has_linenum = 0i64;
   this->line = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3600,21 +2510,14 @@ _ScrSetElementValueText::_ScrSetElementValueText
 */
 void _ScrSetElementValueText::_ScrSetElementValueText(_ScrSetElementValueText *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_element_value_text__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_element_value_text__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   this->valuetext = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3624,22 +2527,15 @@ _ScrSetNonFieldRefText::_ScrSetNonFieldRefText
 */
 void _ScrSetNonFieldRefText::_ScrSetNonFieldRefText(_ScrSetNonFieldRefText *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_non_field_ref_text__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_non_field_ref_text__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_fieldname = 0i64;
   this->reftext = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3649,20 +2545,13 @@ _ScrSetStackFrame::_ScrSetStackFrame
 */
 void _ScrSetStackFrame::_ScrSetStackFrame(_ScrSetStackFrame *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_set_stack_frame__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_set_stack_frame__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_stackframe = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3672,20 +2561,13 @@ _ScrSortElementChildren::_ScrSortElementChildren
 */
 void _ScrSortElementChildren::_ScrSortElementChildren(_ScrSortElementChildren *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_sort_element_children__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_sort_element_children__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_parentelement = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3695,19 +2577,12 @@ _ScrSortHitBreakpointsTop::_ScrSortHitBreakpointsTop
 */
 void _ScrSortHitBreakpointsTop::_ScrSortHitBreakpointsTop(_ScrSortHitBreakpointsTop *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_sort_hit_breakpoints_top__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_sort_hit_breakpoints_top__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3717,21 +2592,14 @@ _ScrStep::_ScrStep
 */
 void _ScrStep::_ScrStep(_ScrStep *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_step__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_step__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_stepmode = 0i64;
   *(_QWORD *)&this->has_skipinstr = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3741,18 +2609,11 @@ _ScrToggleBreakpoint::_ScrToggleBreakpoint
 */
 void _ScrToggleBreakpoint::_ScrToggleBreakpoint(_ScrToggleBreakpoint *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_toggle_breakpoint__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_toggle_breakpoint__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->filename = NULL;
   *(_QWORD *)&this->has_selectedline = 0i64;
   *(_QWORD *)&this->has_element = 0i64;
@@ -3760,7 +2621,7 @@ void _ScrToggleBreakpoint::_ScrToggleBreakpoint(_ScrToggleBreakpoint *this)
   *(_QWORD *)&this->has_overwrite = 0i64;
   *(_QWORD *)&this->has_breakpointtype = 0i64;
   *(_QWORD *)&this->has_user = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3770,18 +2631,11 @@ _ScrToggleBreakpointReply::_ScrToggleBreakpointReply
 */
 void _ScrToggleBreakpointReply::_ScrToggleBreakpointReply(_ScrToggleBreakpointReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_toggle_breakpoint_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_toggle_breakpoint_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->filename = NULL;
   *(_QWORD *)&this->has_selectedline = 0i64;
   *(_QWORD *)&this->has_element = 0i64;
@@ -3792,7 +2646,7 @@ void _ScrToggleBreakpointReply::_ScrToggleBreakpointReply(_ScrToggleBreakpointRe
   *(_QWORD *)&this->has_success = 0i64;
   *(_QWORD *)&this->has_bufferindex = 0i64;
   *(_QWORD *)&this->has_sourcepos = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3802,20 +2656,13 @@ _ScrToggleExpandElement::_ScrToggleExpandElement
 */
 void _ScrToggleExpandElement::_ScrToggleExpandElement(_ScrToggleExpandElement *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_toggle_expand_element__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_toggle_expand_element__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3825,21 +2672,14 @@ _ScrToggleWatchBreakpoint::_ScrToggleWatchBreakpoint
 */
 void _ScrToggleWatchBreakpoint::_ScrToggleWatchBreakpoint(_ScrToggleWatchBreakpoint *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_toggle_watch_breakpoint__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_toggle_watch_breakpoint__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_type = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3849,21 +2689,14 @@ _ScrToggleWatchBreakpointReply::_ScrToggleWatchBreakpointReply
 */
 void _ScrToggleWatchBreakpointReply::_ScrToggleWatchBreakpointReply(_ScrToggleWatchBreakpointReply *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_toggle_watch_breakpoint_reply__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_toggle_watch_breakpoint_reply__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_type = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3873,21 +2706,14 @@ _ScrUpdate::_ScrUpdate
 */
 void _ScrUpdate::_ScrUpdate(_ScrUpdate *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_update__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_update__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   this->n_callstack = 0i64;
   this->callstack = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3897,19 +2723,12 @@ _ScrUpdateWatchHeight::_ScrUpdateWatchHeight
 */
 void _ScrUpdateWatchHeight::_ScrUpdateWatchHeight(_ScrUpdateWatchHeight *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_update_watch_height__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *(_QWORD *)&v1 = &scr_update_watch_height__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3919,25 +2738,18 @@ _ScrUpdate__CallstackLine::_ScrUpdate__CallstackLine
 */
 void _ScrUpdate__CallstackLine::_ScrUpdate__CallstackLine(_ScrUpdate__CallstackLine *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_update__callstack_line__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_update__callstack_line__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_bufferindex = 0i64;
   *(_QWORD *)&this->has_sourcepos = 0i64;
   this->filename = NULL;
   *(_QWORD *)&this->has_line = 0i64;
   *(_QWORD *)&this->has_column = 0i64;
   this->function = NULL;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*
@@ -3947,21 +2759,14 @@ _ScrWatchElementHitBreakpoint::_ScrWatchElementHitBreakpoint
 */
 void _ScrWatchElementHitBreakpoint::_ScrWatchElementHitBreakpoint(_ScrWatchElementHitBreakpoint *this)
 {
-  __int128 v3; 
-  __int64 v4; 
+  __int128 v1; 
 
-  *(_QWORD *)&v3 = &scr_watch_element_hit_breakpoint__descriptor;
-  DWORD2(v3) = 0;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  v4 = 0i64;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_QWORD *)&v1 = &scr_watch_element_hit_breakpoint__descriptor;
+  DWORD2(v1) = 0;
+  *(_OWORD *)&this->base.descriptor = v1;
   *(_QWORD *)&this->has_element = 0i64;
   *(_QWORD *)&this->has_enabled = 0i64;
-  __asm { vmovsd  qword ptr [rcx+10h], xmm1 }
+  this->base.unknown_fields = NULL;
 }
 
 /*

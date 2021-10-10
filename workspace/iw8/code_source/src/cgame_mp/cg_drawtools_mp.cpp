@@ -109,103 +109,102 @@ CG_DrawToolsMP_MiniMapCPRaidChanged
 */
 void CG_DrawToolsMP_MiniMapCPRaidChanged(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
-  __int64 v4; 
-  const char *v5; 
-  CgCompassSystemCPRaid *v7; 
-  const char *v8; 
-  const char *v10; 
-  const char *v12; 
-  const char *v14; 
-  __int64 v34; 
-  __int64 v35; 
-  int v36; 
-  int v37; 
+  const dvar_t *v2; 
+  __int64 v3; 
+  const char *v4; 
+  cg_t *LocalClientGlobals; 
+  CgCompassSystemCPRaid *v6; 
+  const char *v7; 
+  const char *v9; 
+  const char *v11; 
+  const char *v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v20; 
+  __int64 v27; 
+  __int64 v28; 
+  int v29; 
+  int v30; 
   char *data_p; 
   GfxImage *output_material; 
   vec2_t mazeUpperLeft; 
   vec2_t mazeWorldSize; 
 
-  v3 = DVARBOOL_isCompassCPRaidSecurityScreen;
-  v4 = localClientNum;
+  v2 = DVARBOOL_isCompassCPRaidSecurityScreen;
+  v3 = localClientNum;
   if ( !DVARBOOL_isCompassCPRaidSecurityScreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "isCompassCPRaidSecurityScreen") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
     data_p = (char *)CL_GetConfigString(15);
-    v5 = Com_Parse((const char **)&data_p);
-    if ( *v5 )
+    v4 = Com_Parse((const char **)&data_p);
+    if ( *v4 )
     {
-      __asm { vmovaps [rsp+0A8h+var_28], xmm6 }
-      _RBP = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
       if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF )
       {
-        v37 = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-        v36 = 2;
-        LODWORD(v35) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v35, v36, v37) )
+        v30 = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+        v29 = 2;
+        LODWORD(v28) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v28, v29, v30) )
           __debugbreak();
       }
-      if ( (unsigned int)v4 >= CgCompassSystem::ms_allocatedCount )
+      if ( (unsigned int)v3 >= CgCompassSystem::ms_allocatedCount )
       {
-        LODWORD(v35) = CgCompassSystem::ms_allocatedCount;
-        LODWORD(v34) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v34, v35) )
+        LODWORD(v28) = CgCompassSystem::ms_allocatedCount;
+        LODWORD(v27) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v27, v28) )
           __debugbreak();
       }
-      if ( !CgCompassSystem::ms_compassSystemArray[v4] )
+      if ( !CgCompassSystem::ms_compassSystemArray[v3] )
       {
-        LODWORD(v35) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v35) )
+        LODWORD(v28) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v28) )
           __debugbreak();
       }
-      v7 = (CgCompassSystemCPRaid *)CgCompassSystem::ms_compassSystemArray[v4];
-      LUI_Interface_RegisterMaterial(v5, (const GfxImage **)&output_material);
-      v8 = Com_Parse((const char **)&data_p);
-      *(double *)&_XMM0 = atof(v8);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+0A8h+mazeUpperLeft], xmm1
-      }
-      v10 = Com_Parse((const char **)&data_p);
-      *(double *)&_XMM0 = atof(v10);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+0A8h+mazeUpperLeft+4], xmm1
-      }
-      v12 = Com_Parse((const char **)&data_p);
-      *(double *)&_XMM0 = atof(v12);
+      v6 = (CgCompassSystemCPRaid *)CgCompassSystem::ms_compassSystemArray[v3];
+      LUI_Interface_RegisterMaterial(v4, (const GfxImage **)&output_material);
+      v7 = Com_Parse((const char **)&data_p);
+      *(double *)&_XMM0 = atof(v7);
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      mazeUpperLeft.v[0] = *(float *)&_XMM1;
+      v9 = Com_Parse((const char **)&data_p);
+      *(double *)&_XMM0 = atof(v9);
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      mazeUpperLeft.v[1] = *(float *)&_XMM1;
+      v11 = Com_Parse((const char **)&data_p);
+      *(double *)&_XMM0 = atof(v11);
       __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-      v14 = Com_Parse((const char **)&data_p);
-      *(double *)&_XMM0 = atof(v14);
+      v13 = Com_Parse((const char **)&data_p);
+      *(double *)&_XMM0 = atof(v13);
+      v14 = LocalClientGlobals->compassNorth.v[0];
+      v15 = LocalClientGlobals->compassNorth.v[1];
+      v17 = _XMM6;
+      *(float *)&v17 = *(float *)&_XMM6 - mazeUpperLeft.v[0];
+      v16 = v17;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      *(float *)&v17 = (float)((float)(*(float *)&_XMM6 - mazeUpperLeft.v[0]) * v15) - (float)((float)(*(float *)&_XMM1 - mazeUpperLeft.v[1]) * v14);
+      _XMM6 = v17;
+      v20 = v16;
+      *(float *)&v20 = (float)(*(float *)&v16 * v14) + (float)((float)(*(float *)&_XMM1 - mazeUpperLeft.v[1]) * v15);
+      _XMM4 = v20;
+      _XMM3 = v20 ^ _xmm;
       __asm
       {
-        vmovss  xmm4, dword ptr [rbp+4A000h]
-        vmovss  xmm5, dword ptr [rbp+4A004h]
-        vsubss  xmm2, xmm6, dword ptr [rsp+0A8h+mazeUpperLeft]
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vsubss  xmm3, xmm1, dword ptr [rsp+0A8h+mazeUpperLeft+4]
-        vmulss  xmm0, xmm3, xmm4
-        vmulss  xmm1, xmm2, xmm5
-        vsubss  xmm6, xmm1, xmm0
-        vmulss  xmm0, xmm3, xmm5
-        vmulss  xmm2, xmm2, xmm4
-        vaddss  xmm4, xmm2, xmm0
-        vmovss  xmm2, cs:__real@447a0000
-        vxorps  xmm3, xmm4, cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm0, xmm0, xmm0
         vcmpeqss xmm1, xmm6, xmm0
         vblendvps xmm0, xmm6, xmm2, xmm1
-        vmovss  dword ptr [rsp+0A8h+mazeWorldSize], xmm0
+      }
+      mazeWorldSize.v[0] = *(float *)&_XMM0;
+      __asm
+      {
         vcmpeqss xmm0, xmm4, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm2, xmm0
-        vmovss  dword ptr [rsp+0A8h+mazeWorldSize+4], xmm0
       }
-      CgCompassSystemCPRaid::InitMaze(v7, output_material, &mazeUpperLeft, &mazeWorldSize);
-      __asm { vmovaps xmm6, [rsp+0A8h+var_28] }
+      mazeWorldSize.v[1] = *(float *)&_XMM0;
+      CgCompassSystemCPRaid::InitMaze(v6, output_material, &mazeUpperLeft, &mazeWorldSize);
     }
   }
 }
@@ -407,14 +406,7 @@ void CG_DrawToolsMP_TeamColor(const int team, vec4_t *outColor)
         }
         else
         {
-          _RAX = team;
-          _RCX = cg_teamColorsTable;
-          _RAX *= 2i64;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx+rax*8]
-            vmovups xmmword ptr [rdx], xmm0
-          }
+          *outColor = cg_teamColorsTable[team];
         }
         break;
     }
@@ -434,6 +426,7 @@ CG_DrawTools_SetupTeamColors
 void __fastcall CG_DrawTools_SetupTeamColors(double _XMM0_8)
 {
   int v1; 
+  float *v2; 
   const char *ColumnValueForRow; 
   StringTable *v4; 
   const char *v6; 
@@ -445,42 +438,30 @@ void __fastcall CG_DrawTools_SetupTeamColors(double _XMM0_8)
 
   StringTable_GetAsset("teamColors.csv", (const StringTable **)&tablePtr);
   v1 = 0;
-  _RDI = &cg_teamColorsTable[0].v[1];
+  v2 = &cg_teamColorsTable[0].v[1];
   do
   {
     ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v1, 0);
     _XMM0_8 = atof(ColumnValueForRow);
     v4 = tablePtr;
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rdi-4], xmm1
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    *(v2 - 1) = *(float *)&_XMM1;
     v6 = StringTable_GetColumnValueForRow(v4, v1, 1);
     _XMM0_8 = atof(v6);
     v7 = tablePtr;
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rdi], xmm1
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    *v2 = *(float *)&_XMM1;
     v9 = StringTable_GetColumnValueForRow(v7, v1, 2);
     _XMM0_8 = atof(v9);
     v10 = tablePtr;
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rdi+4], xmm1
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    v2[1] = *(float *)&_XMM1;
     v12 = StringTable_GetColumnValueForRow(v10, v1, 3);
     _XMM0_8 = atof(v12);
     ++v1;
-    _RDI += 4;
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rdi-8], xmm1
-    }
+    v2 += 4;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    *(v2 - 2) = *(float *)&_XMM1;
   }
   while ( v1 < 203 );
 }

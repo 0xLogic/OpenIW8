@@ -1441,22 +1441,22 @@ const char *Scr_DisassembleArg(const scrContext_t *scrContext, OP_argType arg, c
   __int64 v4; 
   const char *v6; 
   __int64 v7; 
-  const char *v11; 
-  int v13; 
-  const char *v23; 
+  const char *v8; 
+  int v9; 
+  const char *v10; 
   unsigned int functionCount; 
   scrDebugFunctionInfo *functionList; 
-  __int64 v26; 
+  __int64 v13; 
   unsigned __int16 NativeCodePos; 
-  unsigned int v28; 
+  unsigned int v15; 
   const char *CanonicalDebugString; 
-  unsigned int v30; 
-  const char *v31; 
-  unsigned int v32; 
-  void (*v33)(const char *, ...); 
-  const char *v34; 
+  unsigned int v17; 
+  const char *v18; 
+  unsigned int v19; 
+  void (*v20)(const char *, ...); 
+  const char *v21; 
   char *posa; 
-  int v37; 
+  int v24; 
   char dest[1024]; 
 
   v3 = 0;
@@ -1488,9 +1488,9 @@ const char *Scr_DisassembleArg(const scrContext_t *scrContext, OP_argType arg, c
       break;
     case 3:
       v6 = pos + 4;
-      v11 = SL_ConvertToString((scr_string_t)*(_DWORD *)pos);
+      v8 = SL_ConvertToString((scr_string_t)*(_DWORD *)pos);
       if ( s_disassemblePrint )
-        Scr_DisPrint(" \"%s\"", v11);
+        Scr_DisPrint(" \"%s\"", v8);
       break;
     case 4:
       v6 = pos + 2;
@@ -1501,42 +1501,19 @@ const char *Scr_DisassembleArg(const scrContext_t *scrContext, OP_argType arg, c
       v6 = pos + 4;
       LODWORD(posa) = *(_DWORD *)pos;
       if ( s_disassemblePrint )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsp+458h+pos]
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   rdx, xmm1
-        }
-        Scr_DisPrint(" %f", _RDX, pos, 0x140000000ui64);
-      }
+        Scr_DisPrint(" %f", *(float *)&posa, pos, 0x140000000ui64);
       break;
     case 6:
       v6 = pos + 12;
-      __asm { vmovsd  xmm0, qword ptr [r8] }
-      v13 = *((_DWORD *)pos + 2);
-      __asm { vmovsd  [rsp+458h+pos], xmm0 }
-      v37 = v13;
+      v9 = *((_DWORD *)pos + 2);
+      posa = *(char **)pos;
+      v24 = v9;
       if ( s_disassemblePrint )
-      {
-        __asm
-        {
-          vmovss  xmm3, [rsp+458h+var_430]
-          vmovss  xmm2, dword ptr [rsp+458h+pos+4]
-          vmovss  xmm1, dword ptr [rsp+458h+pos]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-        }
-        Scr_DisPrint(" [%f, %f, %f]", _RDX, _R8, _R9);
-      }
+        Scr_DisPrint(" [%f, %f, %f]", *(float *)&posa, *((float *)&posa + 1), v24);
       break;
     case 7:
       v6 = pos + 3;
-      v23 = &pos[(__int64)(int)(*(_DWORD *)pos << 8) >> 8];
+      v10 = &pos[(__int64)(int)(*(_DWORD *)pos << 8) >> 8];
       if ( s_disassemblePrint )
       {
         Scr_DisPrint(" ", v4, pos, 0x140000000ui64);
@@ -1544,22 +1521,22 @@ const char *Scr_DisassembleArg(const scrContext_t *scrContext, OP_argType arg, c
         if ( functionCount )
         {
           functionList = scrContext->m_parserPub.functionList;
-          while ( functionList[v3].codePosValue != v23 )
+          while ( functionList[v3].codePosValue != v10 )
           {
             if ( ++v3 >= functionCount )
               goto LABEL_24;
           }
-          v26 = v3;
-          Core_strcpy(dest, 0x400ui64, functionList[v26].filenameExt);
+          v13 = v3;
+          Core_strcpy(dest, 0x400ui64, functionList[v13].filenameExt);
           I_strcat(dest, 0x400ui64, "::");
-          I_strcat(dest, 0x400ui64, scrContext->m_parserPub.functionList[v26].name);
+          I_strcat(dest, 0x400ui64, scrContext->m_parserPub.functionList[v13].name);
           Scr_DisPrint((const char *)&queryFormat, dest);
         }
         else
         {
 LABEL_24:
           if ( s_disassemblePrint )
-            Scr_DisPrint("0x%016llX", v23);
+            Scr_DisPrint("0x%016llX", v10);
         }
       }
       break;
@@ -1573,29 +1550,29 @@ LABEL_24:
       v6 = posa;
       break;
     case 9:
-      v28 = *(unsigned __int16 *)pos;
+      v15 = *(unsigned __int16 *)pos;
       v6 = pos + 2;
-      CanonicalDebugString = Scr_GetCanonicalDebugString(v28);
-      s_localVarScrName = v28;
+      CanonicalDebugString = Scr_GetCanonicalDebugString(v15);
+      s_localVarScrName = v15;
       if ( s_disassemblePrint )
         Scr_DisPrint(" %s", CanonicalDebugString);
       break;
     case 10:
       v6 = pos + 1;
-      v30 = *(unsigned __int8 *)pos;
-      v31 = j_va("lv%d", *(unsigned __int8 *)pos);
-      s_localVarScrName = SL_GetCanonicalString(v31);
+      v17 = *(unsigned __int8 *)pos;
+      v18 = j_va("lv%d", *(unsigned __int8 *)pos);
+      s_localVarScrName = SL_GetCanonicalString(v18);
       if ( s_disassemblePrint )
-        Scr_DisPrint(" lv%d", v30);
+        Scr_DisPrint(" lv%d", v17);
       break;
     case 11:
       v6 = pos + 1;
-      v32 = scrContext->m_vmPub.localVars[-*(unsigned __int8 *)pos];
+      v19 = scrContext->m_vmPub.localVars[-*(unsigned __int8 *)pos];
       if ( s_disassemblePrint && !s_ignoreLocalVars )
       {
-        v33 = Scr_DisPrint;
-        v34 = Scr_GetCanonicalDebugString(*(&s_localUnusedVarCnt + s_localVarCnt - *(unsigned __int8 *)pos));
-        v33(" %s %d", v34, v32);
+        v20 = Scr_DisPrint;
+        v21 = Scr_GetCanonicalDebugString(*(&s_localUnusedVarCnt + s_localVarCnt - *(unsigned __int8 *)pos));
+        v20(" %s %d", v21, v19);
       }
       break;
     case 12:

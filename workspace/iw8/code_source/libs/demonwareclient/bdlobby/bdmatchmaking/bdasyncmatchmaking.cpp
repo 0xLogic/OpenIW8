@@ -916,39 +916,42 @@ bdReference<bdRemoteTask> *bdAsyncMatchMaking::qosHostsReply(bdAsyncMatchMaking 
   bool v11; 
   unsigned int v12; 
   unsigned int v13; 
+  __int64 v14; 
   unsigned int v15; 
-  _BOOL8 v18; 
-  bool v20; 
+  bdQoSProbeInfo *m_data; 
+  _BOOL8 v17; 
+  bool v18; 
   unsigned int m_dataSize; 
-  unsigned int v22; 
-  unsigned __int8 *m_data; 
-  bdQoSProbeInfo *v24; 
-  _BOOL8 v25; 
-  bool v26; 
-  bdQoSProbeInfo *v27; 
-  _BOOL8 v28; 
-  bool v29; 
-  bdQoSProbeInfo *v30; 
-  _BOOL8 v31; 
-  bool v32; 
-  _BOOL8 v34; 
-  bool v36; 
+  unsigned int v20; 
+  unsigned __int8 *v21; 
+  bdQoSProbeInfo *v22; 
+  _BOOL8 v23; 
+  bool v24; 
+  bdQoSProbeInfo *v25; 
+  _BOOL8 v26; 
+  bool v27; 
+  bdQoSProbeInfo *v28; 
+  _BOOL8 v29; 
+  bool v30; 
+  bdQoSProbeInfo *v31; 
+  _BOOL8 v32; 
+  bool v33; 
   unsigned int offset[4]; 
   bdTaskParams params; 
-  int v40; 
+  int v37; 
+  bdReference<bdRemoteTask> *v38; 
+  bdAsyncMatchMaking *v39; 
+  __int64 v40; 
   bdReference<bdRemoteTask> *v41; 
-  bdAsyncMatchMaking *v42; 
-  __int64 v43; 
-  bdReference<bdRemoteTask> *v44; 
   unsigned __int8 buffer[96]; 
 
-  v43 = -2i64;
+  v40 = -2i64;
   v6 = result;
+  v38 = result;
+  v39 = this;
   v41 = result;
-  v42 = this;
-  v44 = result;
   result->m_ptr = NULL;
-  v40 = 1;
+  v37 = 1;
   bdTaskParams::bdTaskParams(&params, 0x91u, 4u, 0x400u, 0xFFFFu);
   LOBYTE(v7) = 1;
   if ( params.ensureCapacity(&params, 8u, v7) )
@@ -975,116 +978,103 @@ bdReference<bdRemoteTask> *bdAsyncMatchMaking::qosHostsReply(bdAsyncMatchMaking 
     {
       memset_0(buffer, 0, 0x54ui64);
       bdHandleAssert(v12 < v13, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      _R15 = v12;
-      if ( qosResponse->m_data[_R15].m_addr.m_ptr )
+      v14 = v12;
+      if ( qosResponse->m_data[v14].m_addr.m_ptr )
       {
         bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-        bdCommonAddr::serialize(qosResponse->m_data[_R15].m_addr.m_ptr, buffer);
+        bdCommonAddr::serialize(qosResponse->m_data[v14].m_addr.m_ptr, buffer);
       }
       bdBufferParams::addBlob(&params, buffer, 0x54u);
       offset[0] = 0;
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      bdAddr::serialize(&qosResponse->m_data[_R15].m_realAddr, buffer, 0x54u, offset[0], offset);
+      bdAddr::serialize(&qosResponse->m_data[v14].m_realAddr, buffer, 0x54u, offset[0], offset);
       bdBufferParams::addBlob(&params, buffer, offset[0]);
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      bdBufferParams::arrayStart(&params, 0xDu, qosResponse->m_data[_R15].m_numReplies, 4u);
+      bdBufferParams::arrayStart(&params, 0xDu, qosResponse->m_data[v14].m_numReplies, 4u);
       v15 = 0;
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      if ( qosResponse->m_data[_R15].m_numReplies )
+      if ( qosResponse->m_data[v14].m_numReplies )
       {
         do
         {
           bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-          _R14 = 70i64 * v12 + v15;
-          _R12 = qosResponse->m_data;
-          LOBYTE(v18) = 1;
-          if ( params.ensureCapacity(&params, 4u, v18) )
+          m_data = qosResponse->m_data;
+          LOBYTE(v17) = 1;
+          if ( params.ensureCapacity(&params, 4u, v17) )
           {
             if ( params.m_isWritingArray )
               --params.m_arrayWriteCount;
-            if ( !params.m_serializeOk )
-              goto LABEL_22;
-            __asm { vmovss  xmm1, dword ptr [r12+r14*4+0C8h]; f }
-            v20 = bdByteBuffer::writeFloat32(params.m_buffer.m_ptr, *(const float *)&_XMM1);
-            params.m_serializeOk = 1;
-            if ( !v20 )
-LABEL_22:
+            if ( !params.m_serializeOk || (v18 = bdByteBuffer::writeFloat32(params.m_buffer.m_ptr, m_data[v12].m_replies[v15]), params.m_serializeOk = 1, !v18) )
               params.m_serializeOk = 0;
           }
           ++v15;
           bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
         }
-        while ( v15 < qosResponse->m_data[_R15].m_numReplies );
+        while ( v15 < qosResponse->m_data[v14].m_numReplies );
       }
       bdBufferParams::arrayEnd(&params);
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      if ( qosResponse->m_data[_R15].m_data )
+      if ( qosResponse->m_data[v14].m_data )
       {
         bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-        m_dataSize = qosResponse->m_data[_R15].m_dataSize;
+        m_dataSize = qosResponse->m_data[v14].m_dataSize;
         bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-        v22 = m_dataSize;
-        m_data = qosResponse->m_data[_R15].m_data;
+        v20 = m_dataSize;
+        v21 = qosResponse->m_data[v14].m_data;
       }
       else
       {
-        v22 = 0;
-        m_data = buffer;
+        v20 = 0;
+        v21 = buffer;
       }
-      bdBufferParams::addBlob(&params, m_data, v22);
+      bdBufferParams::addBlob(&params, v21, v20);
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      v24 = qosResponse->m_data;
-      LOBYTE(v25) = 1;
-      if ( params.ensureCapacity(&params, 1u, v25) )
+      v22 = qosResponse->m_data;
+      LOBYTE(v23) = 1;
+      if ( params.ensureCapacity(&params, 1u, v23) )
       {
         if ( params.m_isWritingArray )
           --params.m_arrayWriteCount;
-        if ( !params.m_serializeOk || (v26 = bdByteBuffer::writeBool(params.m_buffer.m_ptr, v24[_R15].m_disabled), params.m_serializeOk = 1, !v26) )
+        if ( !params.m_serializeOk || (v24 = bdByteBuffer::writeBool(params.m_buffer.m_ptr, v22[v14].m_disabled), params.m_serializeOk = 1, !v24) )
           params.m_serializeOk = 0;
       }
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      v27 = qosResponse->m_data;
-      LOBYTE(v28) = 1;
-      if ( params.ensureCapacity(&params, 4u, v28) )
+      v25 = qosResponse->m_data;
+      LOBYTE(v26) = 1;
+      if ( params.ensureCapacity(&params, 4u, v26) )
       {
         if ( params.m_isWritingArray )
           --params.m_arrayWriteCount;
-        if ( !params.m_serializeOk || (v29 = bdByteBuffer::writeUInt32(params.m_buffer.m_ptr, v27[_R15].m_bandwidthDown), params.m_serializeOk = 1, !v29) )
+        if ( !params.m_serializeOk || (v27 = bdByteBuffer::writeUInt32(params.m_buffer.m_ptr, v25[v14].m_bandwidthDown), params.m_serializeOk = 1, !v27) )
           params.m_serializeOk = 0;
       }
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      v30 = qosResponse->m_data;
-      LOBYTE(v31) = 1;
-      if ( params.ensureCapacity(&params, 4u, v31) )
+      v28 = qosResponse->m_data;
+      LOBYTE(v29) = 1;
+      if ( params.ensureCapacity(&params, 4u, v29) )
       {
         if ( params.m_isWritingArray )
           --params.m_arrayWriteCount;
-        if ( !params.m_serializeOk || (v32 = bdByteBuffer::writeUInt32(params.m_buffer.m_ptr, v30[_R15].m_bandwidthUp), params.m_serializeOk = 1, !v32) )
+        if ( !params.m_serializeOk || (v30 = bdByteBuffer::writeUInt32(params.m_buffer.m_ptr, v28[v14].m_bandwidthUp), params.m_serializeOk = 1, !v30) )
           params.m_serializeOk = 0;
       }
       bdHandleAssert(v12 < qosResponse->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      _RBX = qosResponse->m_data;
-      LOBYTE(v34) = 1;
-      if ( params.ensureCapacity(&params, 4u, v34) )
+      v31 = qosResponse->m_data;
+      LOBYTE(v32) = 1;
+      if ( params.ensureCapacity(&params, 4u, v32) )
       {
         if ( params.m_isWritingArray )
           --params.m_arrayWriteCount;
-        if ( !params.m_serializeOk )
-          goto LABEL_50;
-        __asm { vmovss  xmm1, dword ptr [rbx+r15+0C0h]; f }
-        v36 = bdByteBuffer::writeFloat32(params.m_buffer.m_ptr, *(const float *)&_XMM1);
-        params.m_serializeOk = 1;
-        if ( !v36 )
-LABEL_50:
+        if ( !params.m_serializeOk || (v33 = bdByteBuffer::writeFloat32(params.m_buffer.m_ptr, v31[v14].m_minLatency), params.m_serializeOk = 1, !v33) )
           params.m_serializeOk = 0;
       }
       ++v12;
       v13 = qosResponse->m_size;
     }
     while ( v12 < v13 );
-    v6 = v41;
+    v6 = v38;
   }
-  bdAsyncMatchMaking::startTaskWithResult(v42, v6, &params);
+  bdAsyncMatchMaking::startTaskWithResult(v39, v6, &params);
   bdTaskParams::~bdTaskParams(&params);
   return v6;
 }

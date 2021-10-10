@@ -117,10 +117,12 @@ void GMovingPlatformsMP::SaveMP_Read(MemoryFile *memFile, SaveGame *save)
   unsigned int m_moverClientCount; 
   unsigned int v6; 
   const saveField_t *SaveField; 
+  __m256i v8; 
+  __int128 v9; 
   int m_lastValidGroundTime; 
   GHandler *Handler; 
   int p[4]; 
-  GMovingPlatformClient v14; 
+  GMovingPlatformClient v13; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_moving_platforms_mp.cpp", 44, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
@@ -141,28 +143,23 @@ void GMovingPlatformsMP::SaveMP_Read(MemoryFile *memFile, SaveGame *save)
   {
     do
     {
-      _RBX = &v4->m_moverClientArray[v6];
-      GMovingPlatformClient::GMovingPlatformClient(&v14);
+      GMovingPlatformClient::GMovingPlatformClient(&v13);
       SaveField = GMovingPlatforms::GetSaveField(v4);
-      G_SaveFieldMP_ReadStruct(SaveField, (unsigned __int8 *)&v14, 88, save);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0C8h+var_88.m_deferredData.backupOrigin]
-        vmovaps xmm1, xmmword ptr [rsp+0C8h+var_88.m_deferredData.deltaAngles+8]
-      }
-      v4->m_moverClientArray[v6].m_bgHandler = v14.m_bgHandler;
-      v4->m_moverClientArray[v6].m_localClientNum = v14.m_localClientNum;
-      v4->m_moverClientArray[v6].m_contactEnt = v14.m_contactEnt;
-      v4->m_moverClientArray[v6].m_clientID = v14.m_clientID;
-      v4->m_moverClientArray[v6].paddForSaveSizeAssertBase = v14.paddForSaveSizeAssertBase;
-      v4->m_moverClientArray[v6].m_moverAppliedDelta.v[2] = v14.m_moverAppliedDelta.v[2];
-      m_lastValidGroundTime = v14.m_lastValidGroundTime;
-      __asm { vmovups ymmword ptr [rbx+20h], ymm0 }
+      G_SaveFieldMP_ReadStruct(SaveField, (unsigned __int8 *)&v13, 88, save);
+      v8 = *(__m256i *)v13.m_deferredData.backupOrigin.v;
+      v9 = *(_OWORD *)&v13.m_deferredData.deltaAngles.z;
+      v4->m_moverClientArray[v6].m_bgHandler = v13.m_bgHandler;
+      v4->m_moverClientArray[v6].m_localClientNum = v13.m_localClientNum;
+      v4->m_moverClientArray[v6].m_contactEnt = v13.m_contactEnt;
+      v4->m_moverClientArray[v6].m_clientID = v13.m_clientID;
+      v4->m_moverClientArray[v6].paddForSaveSizeAssertBase = v13.paddForSaveSizeAssertBase;
+      v4->m_moverClientArray[v6].m_moverAppliedDelta.v[2] = v13.m_moverAppliedDelta.v[2];
+      m_lastValidGroundTime = v13.m_lastValidGroundTime;
+      *(__m256i *)v4->m_moverClientArray[v6].m_deferredData.backupOrigin.v = v8;
       v4->m_moverClientArray[v6].m_lastValidGroundTime = m_lastValidGroundTime;
-      __asm { vmovups xmmword ptr [rbx+40h], xmm1 }
+      *(_OWORD *)&v4->m_moverClientArray[v6].m_deferredData.deltaAngles.z = v9;
       Handler = GHandler::getHandler();
-      BGMovingPlatformClient::SetHandler(_RBX, Handler);
-      ++v6;
+      BGMovingPlatformClient::SetHandler(&v4->m_moverClientArray[v6++], Handler);
     }
     while ( v6 < v4->m_moverClientCount );
   }
@@ -178,6 +175,9 @@ void GMovingPlatformsMP::SaveMP_Write(MemoryFile *memFile)
   GMovingPlatforms *v2; 
   unsigned int i; 
   __int64 v4; 
+  const unsigned __int8 *v5; 
+  __m256i v6; 
+  __int128 v7; 
   const saveField_t *SaveField; 
   unsigned int p[4]; 
   unsigned __int8 dest[8]; 
@@ -186,6 +186,8 @@ void GMovingPlatformsMP::SaveMP_Write(MemoryFile *memFile)
   int m_contactEnt; 
   int m_clientID; 
   int paddForSaveSizeAssertBase; 
+  __m256i v16; 
+  __int128 v17; 
   float v18; 
   int m_lastValidGroundTime; 
 
@@ -201,25 +203,19 @@ void GMovingPlatformsMP::SaveMP_Write(MemoryFile *memFile)
     v4 = i;
     m_bgHandler = v2->m_moverClientArray[v4].m_bgHandler;
     m_localClientNum = v2->m_moverClientArray[v4].m_localClientNum;
-    _RBX = (const unsigned __int8 *)&v2->m_moverClientArray[v4];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+20h]
-      vmovups xmm1, xmmword ptr [rbx+40h]
-    }
+    v5 = (const unsigned __int8 *)&v2->m_moverClientArray[v4];
+    v6 = *(__m256i *)v2->m_moverClientArray[v4].m_deferredData.backupOrigin.v;
+    v7 = *(_OWORD *)&v2->m_moverClientArray[v4].m_deferredData.deltaAngles.z;
     m_contactEnt = v2->m_moverClientArray[v4].m_contactEnt;
     m_clientID = v2->m_moverClientArray[v4].m_clientID;
     paddForSaveSizeAssertBase = v2->m_moverClientArray[v4].paddForSaveSizeAssertBase;
     v18 = v2->m_moverClientArray[v4].m_moverAppliedDelta.v[2];
     m_lastValidGroundTime = v2->m_moverClientArray[v4].m_lastValidGroundTime;
     *(_QWORD *)dest = &GMovingPlatformClient::`vftable';
-    __asm
-    {
-      vmovups [rsp+0C8h+var_68], ymm0
-      vmovaps [rsp+0C8h+var_48], xmm1
-    }
+    v16 = v6;
+    v17 = v7;
     SaveField = GMovingPlatforms::GetSaveField(v2);
-    G_SaveFieldMP_WriteStruct(SaveField, _RBX, dest, 88, memFile);
+    G_SaveFieldMP_WriteStruct(SaveField, v5, dest, 88, memFile);
   }
 }
 

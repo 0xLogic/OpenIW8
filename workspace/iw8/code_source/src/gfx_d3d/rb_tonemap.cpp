@@ -260,292 +260,302 @@ RB_Tonemap_Apply
 void RB_Tonemap_Apply(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_Group *activeGroup)
 {
   bool v4; 
+  unsigned int v8; 
   unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
   const R_RT_Surface *Surface; 
   unsigned int maxSceneRtWidth; 
   unsigned int maxSceneRtHeight; 
   unsigned int SceneDownsampleVeilMip; 
-  __int64 v16; 
+  __int64 v15; 
   unsigned int SceneDownsampleVeilMipCount; 
   unsigned int SceneDownsampleTotalMipCount; 
-  const dvar_t *v19; 
-  unsigned int v20; 
+  const dvar_t *v18; 
+  unsigned int v19; 
   bool enabled; 
-  __int64 v26; 
+  RB_Perceptual_MipChain *v21; 
+  __m256i *v22; 
+  __int64 v23; 
+  __m256i v24; 
+  __int128 v25; 
+  __m256i v26; 
   const char *m_location; 
-  __int64 v34; 
-  TonemapState *v35; 
-  const char *v44; 
-  const GfxViewInfo *v45; 
-  const dvar_t *v49; 
+  __int64 v28; 
+  TonemapState *v29; 
+  R_RT_Group *v30; 
+  __m256i *p_sceneMipChain; 
+  __m256i v32; 
+  __int128 v33; 
+  __m256i v34; 
+  const char *v35; 
+  const GfxViewInfo *v36; 
+  R_RT_Handle v37; 
+  const dvar_t *v39; 
   R_RT_Flags rtFlags; 
-  bool v54; 
-  GfxBackEndData *v55; 
-  GfxCmdBufState *v56; 
-  __int64 v64; 
-  const char *v71; 
-  __int64 v72; 
-  TonemapState *v73; 
-  const char *v82; 
-  unsigned int v84; 
-  unsigned int v87; 
-  const R_RT_Surface *v88; 
-  __int64 v92; 
-  const char *v99; 
-  __int64 v100; 
-  const char *v109; 
-  unsigned int v110; 
-  const R_RT_Surface *v111; 
-  __int64 v115; 
-  const char *v122; 
-  __int64 v123; 
-  const char *v132; 
-  const R_RT_Surface *v136; 
-  const char *v137; 
+  R_RT_Handle v41; 
+  bool v43; 
+  GfxBackEndData *v44; 
+  GfxCmdBufState *v45; 
+  GfxCmdBufContext *v46; 
+  RB_Perceptual_MipChain *v47; 
+  __m256i *v48; 
+  __int64 v49; 
+  __m256i v50; 
+  __int128 v51; 
+  __m256i v52; 
+  const char *v53; 
+  __int64 v54; 
+  TonemapState *v55; 
+  R_RT_Group *v56; 
+  __m256i *p_veilMipChain; 
+  __m256i v58; 
+  __int128 v59; 
+  __m256i v60; 
+  const char *v61; 
+  __int64 v62; 
+  unsigned int v63; 
+  const GfxViewInfo *v64; 
+  unsigned int v65; 
+  RB_Perceptual_MipChain *v66; 
+  __m256i *v67; 
+  __int64 v68; 
+  __m256i v69; 
+  __int128 v70; 
+  __m256i v71; 
+  const char *v72; 
+  __int64 v73; 
+  __m256i *p_localLumaMipChain; 
+  R_RT_Group *v75; 
+  __m256i v76; 
+  __int128 v77; 
+  __m256i v78; 
+  const char *v79; 
+  unsigned int v80; 
+  RB_Perceptual_MipChain *v81; 
+  __m256i *v82; 
+  __int64 v83; 
+  __m256i v84; 
+  __int128 v85; 
+  __m256i v86; 
+  const char *v87; 
+  __int64 v88; 
+  __m256i *p_filteredLocalLumaMipChain; 
+  R_RT_Group *v90; 
+  __m256i v91; 
+  __int128 v92; 
+  __m256i v93; 
+  const char *v94; 
+  R_RT_Handle v95; 
+  const R_RT_Surface *v96; 
+  const char *v97; 
   GfxImage *p_m_base; 
-  GfxCmdBufSourceState *v139; 
+  __int64 v99; 
   R_RT_Handle *colorRts; 
   R_RT_Image *p_m_image; 
-  bool v142; 
-  GfxCmdBufInput *p_input; 
-  bool v144; 
-  char v151; 
-  const R_RT_Surface *v153; 
-  const char *v154; 
+  __int64 v102; 
+  float veilStrength; 
+  float localStrength; 
+  GfxCmdBufSourceState *v105; 
+  float localEvBounds; 
+  const R_RT_Surface *v107; 
+  const char *v108; 
   GfxImage *blackImage; 
-  __int64 v159; 
+  __int128 v111; 
+  __int64 v112; 
+  ID3D12Resource *v113; 
   const char *name; 
   unsigned int m_allocCounter; 
-  const char *v163; 
+  const char *v116; 
   R_RT_FlagsInternal rtFlagsInternal; 
-  const GfxBackEndData *v165; 
-  const dvar_t *v167; 
-  int v168; 
-  const dvar_t *v169; 
-  const dvar_t *v170; 
-  int v171; 
-  int v172; 
-  unsigned int v173; 
-  bool v177; 
+  const GfxBackEndData *v118; 
+  const dvar_t *v119; 
+  int v120; 
+  const dvar_t *v121; 
+  const dvar_t *v122; 
+  int v123; 
+  int v124; 
+  unsigned int v125; 
+  R_RT_Handle v126; 
+  bool v128; 
+  const GfxViewInfo *v129; 
   unsigned __int16 m_surfaceID; 
   PostAAMode mode; 
-  const dvar_t *v182; 
-  const dvar_t *v183; 
-  const dvar_t *v184; 
-  int v185; 
-  int v186; 
-  bool v190; 
-  unsigned int v202; 
-  const R_RT_Surface *v203; 
-  GfxCmdBufState *v206; 
-  unsigned int v207; 
-  unsigned int v209; 
-  unsigned int v210; 
-  const R_RT_Surface *v211; 
-  GfxCmdBufSourceState *v219; 
-  GfxCmdBufInput *v220; 
-  TonemapState *v223; 
+  const dvar_t *v133; 
+  const dvar_t *v134; 
+  const dvar_t *v135; 
+  int v136; 
+  int v137; 
+  R_RT_Handle v138; 
+  bool v140; 
+  __int64 m_colorRtCount; 
+  unsigned __int64 v143; 
+  unsigned int v145; 
+  const R_RT_Surface *v146; 
+  GfxCmdBufState *v147; 
+  unsigned int v148; 
+  unsigned int v149; 
+  unsigned int v150; 
+  const R_RT_Surface *v151; 
+  ID3D12Resource *v152; 
+  GfxCmdBufSourceState *v153; 
+  GfxCmdBufInput *p_input; 
+  __int128 v155; 
+  TonemapState *v156; 
   unsigned int mipEnd; 
   unsigned int mipBegin; 
-  unsigned int v229; 
-  unsigned int v230; 
-  unsigned int v232; 
-  unsigned int v233; 
+  unsigned int v159; 
+  unsigned int v160; 
+  unsigned int v161; 
+  unsigned int v162; 
   unsigned int fmt; 
   unsigned int fmta; 
   unsigned int depth; 
-  R_RT_Handle v237; 
-  GfxCmdBufContext *v238; 
-  const GfxViewInfo *v239; 
+  R_RT_Handle v166; 
+  GfxCmdBufContext *v167; 
+  const GfxViewInfo *v168; 
   unsigned int allocHeight; 
   unsigned int allocWidth; 
   unsigned int height; 
   unsigned int width; 
   GfxBackEndData *dataa; 
-  R_RT_Handle v245; 
+  R_RT_Handle v174; 
   ID3D12Resource *buffers[2]; 
-  TonemapState *v247; 
-  R_RT_Handle v248; 
-  R_RT_Handle v249; 
-  R_RT_Handle v250; 
-  R_RT_Handle v252; 
+  TonemapState *v176; 
+  R_RT_Handle v177; 
+  R_RT_Handle v178; 
+  R_RT_Handle v179; 
+  R_RT_Handle v180; 
+  R_RT_Handle v181; 
   R_RT_Handle result; 
-  R_RT_Handle v254; 
-  R_RT_Group v255; 
+  R_RT_Handle v183; 
+  R_RT_Group v184; 
   ComputeCmdBufState state; 
+  _BYTE v186[64]; 
 
   v4 = !viewInfo->tonemap.enabled;
-  _R15 = activeGroup;
   dataa = (GfxBackEndData *)data;
-  v239 = viewInfo;
-  v238 = gfxContext;
+  v168 = viewInfo;
+  v167 = gfxContext;
   if ( !v4 )
   {
     if ( !activeGroup->m_colorRtCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1119, ASSERT_TYPE_ASSERT, "(activeGroup.m_colorRtCount > 0)", (const char *)&queryFormat, "activeGroup.m_colorRtCount > 0") )
       __debugbreak();
-    if ( _R15->m_colorRtCount > 2u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1121, ASSERT_TYPE_ASSERT, "(activeGroup.m_colorRtCount <= ( sizeof( *array_counter( s_tonemapColorNames ) ) + 0 ))", (const char *)&queryFormat, "activeGroup.m_colorRtCount <= ARRAY_COUNT( s_tonemapColorNames )") )
+    if ( activeGroup->m_colorRtCount > 2u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1121, ASSERT_TYPE_ASSERT, "(activeGroup.m_colorRtCount <= ( sizeof( *array_counter( s_tonemapColorNames ) ) + 0 ))", (const char *)&queryFormat, "activeGroup.m_colorRtCount <= ARRAY_COUNT( s_tonemapColorNames )") )
       __debugbreak();
-    if ( _R15->m_colorRtCount > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1122, ASSERT_TYPE_ASSERT, "(activeGroup.m_colorRtCount <= ( sizeof( *array_counter( s_tonemapLumaNames ) ) + 0 ))", (const char *)&queryFormat, "activeGroup.m_colorRtCount <= ARRAY_COUNT( s_tonemapLumaNames )") )
+    if ( activeGroup->m_colorRtCount > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1122, ASSERT_TYPE_ASSERT, "(activeGroup.m_colorRtCount <= ( sizeof( *array_counter( s_tonemapLumaNames ) ) + 0 ))", (const char *)&queryFormat, "activeGroup.m_colorRtCount <= ARRAY_COUNT( s_tonemapLumaNames )") )
       __debugbreak();
-    __asm
+    v179 = (R_RT_Handle)activeGroup->m_colorRts[0];
+    v178 = v179;
+    v8 = R_RT_Handle::GetSurface(&v178)->m_image.m_base.height;
+    v9 = R_RT_Handle::GetSurface(&v178)->m_image.m_base.width;
+    v10 = 0;
+    while ( v9 > 0xA0 || v8 > 0x5A )
     {
-      vmovups ymm0, ymmword ptr [r15+8]
-      vmovups ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID], ymm0
-    }
-    v9 = R_RT_Handle::GetSurface(&v249)->m_image.m_base.height;
-    v10 = R_RT_Handle::GetSurface(&v249)->m_image.m_base.width;
-    v11 = 0;
-    while ( v10 > 0xA0 || v9 > 0x5A )
-    {
-      ++v11;
-      v10 >>= 1;
+      ++v10;
       v9 >>= 1;
+      v8 >>= 1;
     }
-    if ( v11 )
+    if ( v10 )
     {
       Sys_ProfBeginNamedEvent(0xFFFF7F50, "Tone Mapping");
       R_ProfBeginNamedEvent(gfxContext->state, "Tone Mapping");
       R_GPU_BeginTimer(GPU_TIMER_TONEMAP);
-      v247 = &s_tonemapStateArray[viewInfo->viewInfoIndex];
-      v247->downsampleMipIndex = v11;
-      width = R_RT_Handle::GetSurface(&v249)->m_image.m_base.width;
-      height = R_RT_Handle::GetSurface(&v249)->m_image.m_base.height;
-      allocWidth = R_RT_Handle::GetSurface(&v249)->m_allocWidth;
-      Surface = R_RT_Handle::GetSurface(&v249);
+      v176 = &s_tonemapStateArray[viewInfo->viewInfoIndex];
+      v176->downsampleMipIndex = v10;
+      width = R_RT_Handle::GetSurface(&v178)->m_image.m_base.width;
+      height = R_RT_Handle::GetSurface(&v178)->m_image.m_base.height;
+      allocWidth = R_RT_Handle::GetSurface(&v178)->m_allocWidth;
+      Surface = R_RT_Handle::GetSurface(&v178);
       maxSceneRtWidth = viewInfo->sceneRtInput.maxSceneRtWidth;
       maxSceneRtHeight = viewInfo->sceneRtInput.maxSceneRtHeight;
       allocHeight = Surface->m_allocHeight;
-      SceneDownsampleVeilMip = R_Perceptual_GetSceneDownsampleVeilMip(v11);
-      v16 = SceneDownsampleVeilMip;
+      SceneDownsampleVeilMip = R_Perceptual_GetSceneDownsampleVeilMip(v10);
+      v15 = SceneDownsampleVeilMip;
       SceneDownsampleVeilMipCount = R_Perceptual_GetSceneDownsampleVeilMipCount(maxSceneRtWidth, maxSceneRtHeight, SceneDownsampleVeilMip);
-      SceneDownsampleTotalMipCount = R_Perceptual_GetSceneDownsampleTotalMipCount(v11, v16, SceneDownsampleVeilMipCount);
-      v19 = DCONST_DVARBOOL_r_veilTonemap;
-      v20 = SceneDownsampleTotalMipCount;
+      SceneDownsampleTotalMipCount = R_Perceptual_GetSceneDownsampleTotalMipCount(v10, v15, SceneDownsampleVeilMipCount);
+      v18 = DCONST_DVARBOOL_r_veilTonemap;
+      v19 = SceneDownsampleTotalMipCount;
       if ( !DCONST_DVARBOOL_r_veilTonemap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_veilTonemap") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v19);
-      _RAX = v238;
-      enabled = v19->current.enabled;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      _RAX = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v237, 1u, v20, maxSceneRtWidth, maxSceneRtHeight, GFX_RENDERTARGET_FORMAT_SCENE_MIP, (const char *const (*)[9])s_tonemapSceneMipNames);
-      _RCX = &v255;
-      v26 = 2i64;
+      Dvar_CheckFrontendServerThread(v18);
+      enabled = v18->current.enabled;
+      *(GfxCmdBufContext *)&v166.m_surfaceID = *v167;
+      v21 = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v166, 1u, v19, maxSceneRtWidth, maxSceneRtHeight, GFX_RENDERTARGET_FORMAT_SCENE_MIP, (const char *const (*)[9])s_tonemapSceneMipNames);
+      v22 = (__m256i *)&v184;
+      v23 = 2i64;
       do
       {
-        _RCX = (R_RT_Group *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (RB_Perceptual_MipChain *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v26;
+        v22 += 4;
+        v24 = *(__m256i *)&v21->mipBegin;
+        v25 = *(_OWORD *)&v21->colorRts[3].m_tracking.m_allocCounter;
+        v21 = (RB_Perceptual_MipChain *)((char *)v21 + 128);
+        v22[-4] = v24;
+        v22[-3] = (__m256i)v21[-1].colorRts[6];
+        v22[-2] = (__m256i)v21[-1].colorRts[7];
+        *(_OWORD *)v22[-1].m256i_i8 = *(_OWORD *)&v21[-1].colorRts[8].m_surfaceID;
+        *(_OWORD *)&v22[-1].m256i_u64[2] = v25;
+        --v23;
       }
-      while ( v26 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      m_location = _RAX->colorRts[0].m_tracking.m_location;
-      v34 = 2i64;
-      v35 = v247;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      _RCX->m_colorRts[0].m_tracking.m_location = m_location;
-      _RAX = &v255;
-      *(_QWORD *)&v237.m_surfaceID = &v35->sceneMipChain;
-      _RCX = &v35->sceneMipChain;
+      while ( v23 );
+      v26 = *(__m256i *)&v21->mipBegin;
+      m_location = v21->colorRts[0].m_tracking.m_location;
+      v28 = 2i64;
+      v29 = v176;
+      *v22 = v26;
+      v22[1].m256i_i64[0] = (__int64)m_location;
+      v30 = &v184;
+      *(_QWORD *)&v166.m_surfaceID = &v29->sceneMipChain;
+      p_sceneMipChain = (__m256i *)&v29->sceneMipChain;
       do
       {
-        _RCX = (RB_Perceptual_MipChain *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (R_RT_Group *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v34;
+        p_sceneMipChain += 4;
+        v32 = *(__m256i *)&v30->m_colorRtCount;
+        v33 = *(_OWORD *)&v30->m_colorRts[3].m_tracking.m_allocCounter;
+        v30 = (R_RT_Group *)((char *)v30 + 128);
+        p_sceneMipChain[-4] = v32;
+        p_sceneMipChain[-3] = (__m256i)v30[-1].m_colorRts[3];
+        p_sceneMipChain[-2] = (__m256i)v30[-1].m_depthRt;
+        *(_OWORD *)p_sceneMipChain[-1].m256i_i8 = *(_OWORD *)&v30[-1].m_vrsRt.m_surfaceID;
+        *(_OWORD *)&p_sceneMipChain[-1].m256i_u64[2] = v33;
+        --v28;
       }
-      while ( v34 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v44 = _RAX->m_colorRts[0].m_tracking.m_location;
-      v45 = v239;
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID]
-      }
-      _RCX->colorRts[0].m_tracking.m_location = v44;
-      _RAX = v238;
-      __asm
-      {
-        vmovups ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID], ymm0
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+0CA0h+buffers], xmm0
-      }
-      RB_Perceptual_DownsampleScene((GfxCmdBufContext *)buffers, &v35->sceneMipChain, v45, (R_RT_ColorHandle *)&v250, (VeilTonemapMode)enabled, v16);
+      while ( v28 );
+      v34 = *(__m256i *)&v30->m_colorRtCount;
+      v35 = v30->m_colorRts[0].m_tracking.m_location;
+      v36 = v168;
+      *p_sceneMipChain = v34;
+      v37 = v179;
+      p_sceneMipChain[1].m256i_i64[0] = (__int64)v35;
+      v179 = v37;
+      _XMM0 = *v167;
+      *(GfxCmdBufContext *)buffers = *v167;
+      RB_Perceptual_DownsampleScene((GfxCmdBufContext *)buffers, &v29->sceneMipChain, v36, (R_RT_ColorHandle *)&v179, (VeilTonemapMode)enabled, v15);
       if ( Dvar_GetBool_Internal(r_deviceDebug) )
         goto LABEL_29;
-      v49 = DCONST_DVARBOOL_r_esramPostFX;
+      v39 = DCONST_DVARBOOL_r_esramPostFX;
       if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v49);
+      Dvar_CheckFrontendServerThread(v39);
       rtFlags = R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_PreferESRAM;
-      if ( !v49->current.enabled )
+      if ( !v39->current.enabled )
 LABEL_29:
         rtFlags = R_RT_Flag_RWView|R_RT_Flag_RTView;
-      _RAX = R_RT_CreateInternal(&result, maxSceneRtWidth >> v35->downsampleMipIndex, maxSceneRtHeight >> v35->downsampleMipIndex, maxSceneRtWidth >> v35->downsampleMipIndex, maxSceneRtHeight >> v35->downsampleMipIndex, 1u, 1u, 1u, g_R_RT_renderTargetFmts[20], rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Local Luma", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1158)");
-      __asm
+      v41 = *R_RT_CreateInternal(&result, maxSceneRtWidth >> v29->downsampleMipIndex, maxSceneRtHeight >> v29->downsampleMipIndex, maxSceneRtWidth >> v29->downsampleMipIndex, maxSceneRtHeight >> v29->downsampleMipIndex, 1u, 1u, 1u, g_R_RT_renderTargetFmts[20], rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Local Luma", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1158)");
+      v178 = v41;
+      v174 = v41;
+      if ( LOWORD(_XMM0.source) )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID], ymm0
-        vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v245);
-        if ( (R_RT_Handle::GetSurface(&v245)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v174);
+        if ( (R_RT_Handle::GetSurface(&v174)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID]
-            vmovups ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID], ymm0
-          }
+          v41 = v174;
+          v178 = v174;
           __debugbreak();
         }
         else
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID]
-            vmovups ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID], ymm0
-          }
+          v41 = v174;
+          v178 = v174;
         }
       }
       else
@@ -553,417 +563,293 @@ LABEL_29:
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v54 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID] }
-          if ( v54 )
+          v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v41 = v178;
+          if ( v43 )
             __debugbreak();
         }
       }
-      v55 = dataa;
-      __asm { vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0 }
+      v44 = dataa;
+      v174 = v41;
       R_InitComputeCmdBufState(&state, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
-      buffers[0] = v55->globalSceneConstantBuffer->buffer;
+      buffers[0] = v44->globalSceneConstantBuffer->buffer;
       R_SetComputeConstantBuffers(&state, 7, 1, buffers);
-      v56 = v238->state;
-      R_ComputeWaitForGraphics(&state, v56);
-      __asm { vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID] }
-      _RAX = v238;
-      __asm
-      {
-        vmovups ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID], ymm0
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+0CA0h+buffers], xmm0
-      }
-      RB_Tonemap_CalculateCurve((GfxCmdBufContext *)buffers, &state, *(const RB_Perceptual_MipChain **)&v237.m_surfaceID, (const R_RT_ColorHandle *)&v250, v239);
+      v45 = v167->state;
+      R_ComputeWaitForGraphics(&state, v45);
+      v179 = v178;
+      *(GfxCmdBufContext *)buffers = *v167;
+      RB_Tonemap_CalculateCurve((GfxCmdBufContext *)buffers, &state, *(const RB_Perceptual_MipChain **)&v166.m_surfaceID, (const R_RT_ColorHandle *)&v179, v168);
       R_ShutdownComputeCmdBufState(&state);
-      if ( (_DWORD)v16 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1172, ASSERT_TYPE_ASSERT, "(veilMipIndex > 0)", (const char *)&queryFormat, "veilMipIndex > 0") )
+      if ( (_DWORD)v15 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1172, ASSERT_TYPE_ASSERT, "(veilMipIndex > 0)", (const char *)&queryFormat, "veilMipIndex > 0") )
       {
-        _RAX = v238;
+        v46 = v167;
       }
       else
       {
         __debugbreak();
-        _RAX = v238;
-        v56 = v238->state;
+        v46 = v167;
+        v45 = v167->state;
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      _RAX = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v237, v16, SceneDownsampleVeilMipCount - 1, maxSceneRtWidth, maxSceneRtHeight, GFX_RENDERTARGET_FORMAT_SCENE_MIP, (const char *const (*)[9])s_tonemapVeilMipNames);
-      _RCX = &v255;
-      v64 = 2i64;
+      *(GfxCmdBufContext *)&v166.m_surfaceID = *v46;
+      v47 = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v166, v15, SceneDownsampleVeilMipCount - 1, maxSceneRtWidth, maxSceneRtHeight, GFX_RENDERTARGET_FORMAT_SCENE_MIP, (const char *const (*)[9])s_tonemapVeilMipNames);
+      v48 = (__m256i *)&v184;
+      v49 = 2i64;
       do
       {
-        _RCX = (R_RT_Group *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (RB_Perceptual_MipChain *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v64;
+        v48 += 4;
+        v50 = *(__m256i *)&v47->mipBegin;
+        v51 = *(_OWORD *)&v47->colorRts[3].m_tracking.m_allocCounter;
+        v47 = (RB_Perceptual_MipChain *)((char *)v47 + 128);
+        v48[-4] = v50;
+        v48[-3] = (__m256i)v47[-1].colorRts[6];
+        v48[-2] = (__m256i)v47[-1].colorRts[7];
+        *(_OWORD *)v48[-1].m256i_i8 = *(_OWORD *)&v47[-1].colorRts[8].m_surfaceID;
+        *(_OWORD *)&v48[-1].m256i_u64[2] = v51;
+        --v49;
       }
-      while ( v64 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v71 = _RAX->colorRts[0].m_tracking.m_location;
-      v72 = 2i64;
-      v73 = v247;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      _RCX->m_colorRts[0].m_tracking.m_location = v71;
-      _RAX = &v255;
-      _RCX = &v73->veilMipChain;
+      while ( v49 );
+      v52 = *(__m256i *)&v47->mipBegin;
+      v53 = v47->colorRts[0].m_tracking.m_location;
+      v54 = 2i64;
+      v55 = v176;
+      *v48 = v52;
+      v48[1].m256i_i64[0] = (__int64)v53;
+      v56 = &v184;
+      p_veilMipChain = (__m256i *)&v55->veilMipChain;
       do
       {
-        _RCX = (RB_Perceptual_MipChain *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (R_RT_Group *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v72;
+        p_veilMipChain += 4;
+        v58 = *(__m256i *)&v56->m_colorRtCount;
+        v59 = *(_OWORD *)&v56->m_colorRts[3].m_tracking.m_allocCounter;
+        v56 = (R_RT_Group *)((char *)v56 + 128);
+        p_veilMipChain[-4] = v58;
+        p_veilMipChain[-3] = (__m256i)v56[-1].m_colorRts[3];
+        p_veilMipChain[-2] = (__m256i)v56[-1].m_depthRt;
+        *(_OWORD *)p_veilMipChain[-1].m256i_i8 = *(_OWORD *)&v56[-1].m_vrsRt.m_surfaceID;
+        *(_OWORD *)&p_veilMipChain[-1].m256i_u64[2] = v59;
+        --v54;
       }
-      while ( v72 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v82 = _RAX->m_colorRts[0].m_tracking.m_location;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      _RCX->colorRts[0].m_tracking.m_location = v82;
-      R_Perceptual_UpdateVeilWeights(v239->thermalParams.useNightAndThermalVisionCombo);
-      _R14 = (__int64)v238;
-      v84 = SceneDownsampleVeilMipCount;
-      _R13 = v239;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      RB_Perceptual_UpsampleScene((GfxCmdBufContext *)&v237, v239, v16, v84, &v73->sceneMipChain, &v73->veilMipChain, s_veilWeights);
-      R_WaitAsyncCompute(v56, v55, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
+      while ( v54 );
+      v60 = *(__m256i *)&v56->m_colorRtCount;
+      v61 = v56->m_colorRts[0].m_tracking.m_location;
+      *p_veilMipChain = v60;
+      p_veilMipChain[1].m256i_i64[0] = (__int64)v61;
+      R_Perceptual_UpdateVeilWeights(v168->thermalParams.useNightAndThermalVisionCombo);
+      v62 = (__int64)v167;
+      v63 = SceneDownsampleVeilMipCount;
+      v64 = v168;
+      *(GfxCmdBufContext *)&v166.m_surfaceID = *v167;
+      RB_Perceptual_UpsampleScene((GfxCmdBufContext *)&v166, v168, v15, v63, &v55->sceneMipChain, &v55->veilMipChain, s_veilWeights);
+      R_WaitAsyncCompute(v45, v44, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
       R_Perceptual_UpdateLocalTonemapWeights();
-      v87 = R_RT_Handle::GetSurface(&v245)->m_image.m_base.height;
-      v88 = R_RT_Handle::GetSurface(&v245);
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      fmt = v88->m_image.m_base.width;
-      __asm { vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0 }
-      _RAX = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v237, 0, 4u, fmt, v87, GFX_RENDERTARGET_FORMAT_HALF_FLOATZ, (const char *const (*)[9])s_tonemapLocalMipNames);
-      _RCX = &v255;
-      v92 = 2i64;
+      v65 = R_RT_Handle::GetSurface(&v174)->m_image.m_base.height;
+      fmt = R_RT_Handle::GetSurface(&v174)->m_image.m_base.width;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      v66 = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v166, 0, 4u, fmt, v65, GFX_RENDERTARGET_FORMAT_HALF_FLOATZ, (const char *const (*)[9])s_tonemapLocalMipNames);
+      v67 = (__m256i *)&v184;
+      v68 = 2i64;
       do
       {
-        _RCX = (R_RT_Group *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (RB_Perceptual_MipChain *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v92;
+        v67 += 4;
+        v69 = *(__m256i *)&v66->mipBegin;
+        v70 = *(_OWORD *)&v66->colorRts[3].m_tracking.m_allocCounter;
+        v66 = (RB_Perceptual_MipChain *)((char *)v66 + 128);
+        v67[-4] = v69;
+        v67[-3] = (__m256i)v66[-1].colorRts[6];
+        v67[-2] = (__m256i)v66[-1].colorRts[7];
+        *(_OWORD *)v67[-1].m256i_i8 = *(_OWORD *)&v66[-1].colorRts[8].m_surfaceID;
+        *(_OWORD *)&v67[-1].m256i_u64[2] = v70;
+        --v68;
       }
-      while ( v92 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v99 = _RAX->colorRts[0].m_tracking.m_location;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      _RCX->m_colorRts[0].m_tracking.m_location = v99;
-      v100 = 2i64;
-      _RCX = &v73->localLumaMipChain;
-      _RAX = &v255;
+      while ( v68 );
+      v71 = *(__m256i *)&v66->mipBegin;
+      v72 = v66->colorRts[0].m_tracking.m_location;
+      *v67 = v71;
+      v67[1].m256i_i64[0] = (__int64)v72;
+      v73 = 2i64;
+      p_localLumaMipChain = (__m256i *)&v55->localLumaMipChain;
+      v75 = &v184;
       do
       {
-        _RCX = (RB_Perceptual_MipChain *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (R_RT_Group *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v100;
+        p_localLumaMipChain += 4;
+        v76 = *(__m256i *)&v75->m_colorRtCount;
+        v77 = *(_OWORD *)&v75->m_colorRts[3].m_tracking.m_allocCounter;
+        v75 = (R_RT_Group *)((char *)v75 + 128);
+        p_localLumaMipChain[-4] = v76;
+        p_localLumaMipChain[-3] = (__m256i)v75[-1].m_colorRts[3];
+        p_localLumaMipChain[-2] = (__m256i)v75[-1].m_depthRt;
+        *(_OWORD *)p_localLumaMipChain[-1].m256i_i8 = *(_OWORD *)&v75[-1].m_vrsRt.m_surfaceID;
+        *(_OWORD *)&p_localLumaMipChain[-1].m256i_u64[2] = v77;
+        --v73;
       }
-      while ( v100 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v109 = _RAX->m_colorRts[0].m_tracking.m_location;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      _RCX->colorRts[0].m_tracking.m_location = v109;
-      v110 = R_RT_Handle::GetSurface(&v245)->m_image.m_base.height;
-      v111 = R_RT_Handle::GetSurface(&v245);
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      fmta = v111->m_image.m_base.width;
-      __asm { vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0 }
-      _RAX = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v237, 0, 3u, fmta, v110, GFX_RENDERTARGET_FORMAT_HALF_FLOATZ, (const char *const (*)[9])s_tonemapLocalFilterMipNames);
-      _RCX = &v255;
-      v115 = 2i64;
+      while ( v73 );
+      v78 = *(__m256i *)&v75->m_colorRtCount;
+      v79 = v75->m_colorRts[0].m_tracking.m_location;
+      *p_localLumaMipChain = v78;
+      p_localLumaMipChain[1].m256i_i64[0] = (__int64)v79;
+      v80 = R_RT_Handle::GetSurface(&v174)->m_image.m_base.height;
+      fmta = R_RT_Handle::GetSurface(&v174)->m_image.m_base.width;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      v81 = RB_Perceptual_CommitMipChain((RB_Perceptual_MipChain *)&state, (GfxCmdBufContext *)&v166, 0, 3u, fmta, v80, GFX_RENDERTARGET_FORMAT_HALF_FLOATZ, (const char *const (*)[9])s_tonemapLocalFilterMipNames);
+      v82 = (__m256i *)&v184;
+      v83 = 2i64;
       do
       {
-        _RCX = (R_RT_Group *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (RB_Perceptual_MipChain *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v115;
+        v82 += 4;
+        v84 = *(__m256i *)&v81->mipBegin;
+        v85 = *(_OWORD *)&v81->colorRts[3].m_tracking.m_allocCounter;
+        v81 = (RB_Perceptual_MipChain *)((char *)v81 + 128);
+        v82[-4] = v84;
+        v82[-3] = (__m256i)v81[-1].colorRts[6];
+        v82[-2] = (__m256i)v81[-1].colorRts[7];
+        *(_OWORD *)v82[-1].m256i_i8 = *(_OWORD *)&v81[-1].colorRts[8].m_surfaceID;
+        *(_OWORD *)&v82[-1].m256i_u64[2] = v85;
+        --v83;
       }
-      while ( v115 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v122 = _RAX->colorRts[0].m_tracking.m_location;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      _RCX->m_colorRts[0].m_tracking.m_location = v122;
-      v123 = 2i64;
-      _RCX = &v73->filteredLocalLumaMipChain;
-      _RAX = &v255;
+      while ( v83 );
+      v86 = *(__m256i *)&v81->mipBegin;
+      v87 = v81->colorRts[0].m_tracking.m_location;
+      *v82 = v86;
+      v82[1].m256i_i64[0] = (__int64)v87;
+      v88 = 2i64;
+      p_filteredLocalLumaMipChain = (__m256i *)&v55->filteredLocalLumaMipChain;
+      v90 = &v184;
       do
       {
-        _RCX = (RB_Perceptual_MipChain *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (R_RT_Group *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v123;
+        p_filteredLocalLumaMipChain += 4;
+        v91 = *(__m256i *)&v90->m_colorRtCount;
+        v92 = *(_OWORD *)&v90->m_colorRts[3].m_tracking.m_allocCounter;
+        v90 = (R_RT_Group *)((char *)v90 + 128);
+        p_filteredLocalLumaMipChain[-4] = v91;
+        p_filteredLocalLumaMipChain[-3] = (__m256i)v90[-1].m_colorRts[3];
+        p_filteredLocalLumaMipChain[-2] = (__m256i)v90[-1].m_depthRt;
+        *(_OWORD *)p_filteredLocalLumaMipChain[-1].m256i_i8 = *(_OWORD *)&v90[-1].m_vrsRt.m_surfaceID;
+        *(_OWORD *)&p_filteredLocalLumaMipChain[-1].m256i_u64[2] = v92;
+        --v88;
       }
-      while ( v123 );
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v132 = _RAX->m_colorRts[0].m_tracking.m_location;
-      __asm
+      while ( v88 );
+      v93 = *(__m256i *)&v90->m_colorRtCount;
+      v94 = v90->m_colorRts[0].m_tracking.m_location;
+      *p_filteredLocalLumaMipChain = v93;
+      v95 = v178;
+      p_filteredLocalLumaMipChain[1].m256i_i64[0] = (__int64)v94;
+      depth = v55->localLumaMipChain.mipEnd;
+      v179 = v95;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_Perceptual_DownsampleScene((GfxCmdBufContext *)&v166, &v55->localLumaMipChain, v64, (R_RT_ColorHandle *)&v179, R_VEIL_TONEMAP_DISABLED, depth);
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_Perceptual_UpsampleScene((GfxCmdBufContext *)&v166, v64, 0, 4u, &v55->localLumaMipChain, &v55->filteredLocalLumaMipChain, s_localTonemapWeights);
+      if ( v64->perceptual.veilEnabled )
       {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID]
-      }
-      _RCX->colorRts[0].m_tracking.m_location = v132;
-      depth = v73->localLumaMipChain.mipEnd;
-      __asm
-      {
-        vmovups ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID], ymm0
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      RB_Perceptual_DownsampleScene((GfxCmdBufContext *)&v237, &v73->localLumaMipChain, _R13, (R_RT_ColorHandle *)&v250, R_VEIL_TONEMAP_DISABLED, depth);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      RB_Perceptual_UpsampleScene((GfxCmdBufContext *)&v237, _R13, 0, 4u, &v73->localLumaMipChain, &v73->filteredLocalLumaMipChain, s_localTonemapWeights);
-      if ( _R13->perceptual.veilEnabled )
-      {
-        if ( !(_DWORD)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1190, ASSERT_TYPE_ASSERT, "(veilMipIndex > 0)", (const char *)&queryFormat, "veilMipIndex > 0") )
+        if ( !(_DWORD)v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 1190, ASSERT_TYPE_ASSERT, "(veilMipIndex > 0)", (const char *)&queryFormat, "veilMipIndex > 0") )
           __debugbreak();
-        v136 = R_RT_Handle::GetSurface(&v73->veilMipChain.colorRts[v16]);
-        v137 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1191)";
-        p_m_base = &v136->m_image.m_base;
+        v96 = R_RT_Handle::GetSurface(&v55->veilMipChain.colorRts[v15]);
+        v97 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1191)";
+        p_m_base = &v96->m_image.m_base;
       }
       else
       {
         p_m_base = rgp.blackImage;
-        v137 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1195)";
+        v97 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1195)";
       }
-      v139 = *(GfxCmdBufSourceState **)_R14;
-      R_SetCodeImageTextureInternal(*(GfxCmdBufSourceState **)_R14, 0x15u, p_m_base, v137);
-      colorRts = v73->filteredLocalLumaMipChain.colorRts;
-      p_m_image = &R_RT_Handle::GetSurface(v73->filteredLocalLumaMipChain.colorRts)->m_image;
-      if ( !v139 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+      v99 = *(_QWORD *)v62;
+      R_SetCodeImageTextureInternal(*(GfxCmdBufSourceState **)v62, 0x15u, p_m_base, v97);
+      colorRts = v55->filteredLocalLumaMipChain.colorRts;
+      p_m_image = &R_RT_Handle::GetSurface(v55->filteredLocalLumaMipChain.colorRts)->m_image;
+      if ( !v99 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
         __debugbreak();
-      v142 = __CFADD__(v139, 1792i64);
-      p_input = &v139->input;
-      if ( !p_input )
-      {
-        v144 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input");
-        v142 = 0;
-        if ( v144 )
-          __debugbreak();
-      }
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-      p_input->codeImages[22] = &p_m_image->m_base;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r13+3860h]
-        vmovss  xmm3, dword ptr [r13+3840h]
-      }
-      _RBX = *(GfxCmdBufSourceState **)_R14;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r13+3844h]
-        vmovss  dword ptr [rbx+0EC0h], xmm1
-        vsubss  xmm1, xmm0, xmm1
-        vmovss  dword ptr [rbx+0EC4h], xmm1
-        vmovss  dword ptr [rbx+0EC8h], xmm3
-        vmovss  dword ptr [rbx+0ECCh], xmm2
-      }
-      v151 = v142 | (_RBX->constVersions[124]++ == 0xFFFF);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm3, xmm0
-      }
-      if ( v151 )
+      v102 = v99 + 1792;
+      if ( !v102 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+        __debugbreak();
+      *(_QWORD *)(v102 + 6320) = p_m_image;
+      veilStrength = v64->perceptual.veilStrength;
+      localStrength = v64->tonemap.localStrength;
+      v105 = *(GfxCmdBufSourceState **)v62;
+      localEvBounds = v64->tonemap.localEvBounds;
+      v105->input.consts[124].v[0] = veilStrength;
+      v105->input.consts[124].v[1] = 1.0 - veilStrength;
+      v105->input.consts[124].v[2] = localStrength;
+      v105->input.consts[124].v[3] = localEvBounds;
+      ++v105->constVersions[124];
+      if ( localStrength <= 0.0 )
       {
         blackImage = rgp.blackImage;
-        v154 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1211)";
+        v108 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1211)";
       }
       else
       {
-        v153 = R_RT_Handle::GetSurface(colorRts);
-        v154 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1207)";
-        blackImage = &v153->m_image.m_base;
+        v107 = R_RT_Handle::GetSurface(colorRts);
+        v108 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1207)";
+        blackImage = &v107->m_image.m_base;
       }
-      R_SetCodeImageTextureInternal(_RBX, 0x16u, blackImage, v154);
-      __asm
+      R_SetCodeImageTextureInternal(v105, 0x16u, blackImage, v108);
+      _XMM0 = *(_OWORD *)v62;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v166, v64);
+      v111 = *(_OWORD *)v62;
+      v179 = (R_RT_Handle)activeGroup->m_colorRts[0];
+      *(_OWORD *)&v166.m_surfaceID = v111;
+      R_Screenshot_HdrExposedScene((GfxCmdBufContext *)&v166, v64, dataa, (R_RT_ColorHandle *)&v179);
+      v112 = activeGroup->m_colorRtCount - 1i64;
+      dataa = (GfxBackEndData *)v112;
+      if ( v112 >= 0 )
       {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v237, _R13);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r15+8]
-        vmovups xmm1, xmmword ptr [r14]
-        vmovups ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID], ymm0
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm1
-      }
-      R_Screenshot_HdrExposedScene((GfxCmdBufContext *)&v237, _R13, dataa, (R_RT_ColorHandle *)&v250);
-      v159 = _R15->m_colorRtCount - 1i64;
-      dataa = (GfxBackEndData *)v159;
-      if ( v159 >= 0 )
-      {
-        _RDI = (ID3D12Resource *)&_R15->m_colorRts[v159];
-        buffers[0] = _RDI;
+        v113 = (ID3D12Resource *)&activeGroup->m_colorRts[v112];
+        buffers[0] = v113;
         do
         {
           name = "Tonemap Color";
           m_allocCounter = 0;
-          v163 = "Tonemap Luma";
+          v116 = "Tonemap Luma";
           rtFlagsInternal = R_RT_FlagInternal_None;
-          if ( R_PostAAHasTemporalSupersampling(_R13->postAA.mode) )
+          if ( R_PostAAHasTemporalSupersampling(v64->postAA.mode) )
           {
-            v165 = _R13->input.data;
+            v118 = v64->input.data;
             rtFlagsInternal = 2;
-            name = s_tonemapColorNames[v165->frameIndex & 1];
-            v163 = s_tonemapLumaNames[v159][v165->frameCount & 3];
+            name = s_tonemapColorNames[v118->frameIndex & 1];
+            v116 = s_tonemapLumaNames[v112][v118->frameCount & 3];
           }
-          __asm { vmovups ymm0, ymmword ptr [rdi] }
-          v167 = DCONST_DVARINT_r_dccPostFX;
-          __asm
-          {
-            vmovups ymmword ptr [rbp+0CA0h+result.m_surfaceID], ymm0
-            vmovups ymmword ptr [rbp+0CA0h+var_BD0.m_surfaceID], ymm0
-          }
+          v119 = DCONST_DVARINT_r_dccPostFX;
+          result = *(R_RT_Handle *)&v113->m_pFunction;
+          v183 = result;
           if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v167);
-          v168 = 0;
-          if ( v167->current.integer == 1 )
-            v168 = 8;
-          v169 = r_deviceDebug;
+          Dvar_CheckFrontendServerThread(v119);
+          v120 = 0;
+          if ( v119->current.integer == 1 )
+            v120 = 8;
+          v121 = r_deviceDebug;
           if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v169);
-          if ( v169->current.enabled )
+          Dvar_CheckFrontendServerThread(v121);
+          if ( v121->current.enabled )
             goto LABEL_86;
-          v170 = DCONST_DVARBOOL_r_esramPostFX;
+          v122 = DCONST_DVARBOOL_r_esramPostFX;
           if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v170);
-          v171 = 6208;
-          if ( !v170->current.enabled )
+          Dvar_CheckFrontendServerThread(v122);
+          v123 = 6208;
+          if ( !v122->current.enabled )
 LABEL_86:
-            v171 = 6144;
-          v172 = v168 | v171;
-          v173 = 0;
-          _RAX = R_RT_CreateInternal(&v252, width, height, allocWidth, allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)v172, rtFlagsInternal, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, name, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1241)");
-          __asm
+            v123 = 6144;
+          v124 = v120 | v123;
+          v125 = 0;
+          v126 = *R_RT_CreateInternal(&v181, width, height, allocWidth, allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)v124, rtFlagsInternal, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, name, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1241)");
+          v180 = v126;
+          v174 = v126;
+          if ( (_WORD)_XMM0 )
           {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovd   eax, xmm0
-            vmovups [rbp+0CA0h+var_C30], ymm0
-            vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0
-          }
-          if ( (_WORD)_RAX )
-          {
-            R_RT_Handle::GetSurface(&v245);
-            if ( (R_RT_Handle::GetSurface(&v245)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+            R_RT_Handle::GetSurface(&v174);
+            if ( (R_RT_Handle::GetSurface(&v174)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID]
-                vmovups [rbp+0CA0h+var_C30], ymm0
-              }
+              v126 = v174;
+              v180 = v174;
               __debugbreak();
             }
             else
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID]
-                vmovups [rbp+0CA0h+var_C30], ymm0
-              }
+              v126 = v174;
+              v180 = v174;
             }
           }
           else
@@ -971,74 +857,60 @@ LABEL_86:
             __asm { vpextrd rax, xmm0, 2 }
             if ( (_DWORD)_RAX )
             {
-              v177 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-              __asm { vmovups ymm0, [rbp+0CA0h+var_C30] }
-              if ( v177 )
+              v128 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+              v126 = v180;
+              if ( v128 )
                 __debugbreak();
             }
           }
-          _RSI = v239;
+          v129 = v168;
           m_surfaceID = 0;
-          __asm
-          {
-            vmovups ymmword ptr [rbp+0CA0h+var_C50.m_surfaceID], ymm0
-            vpxor   xmm0, xmm0, xmm0
-          }
-          v248.m_surfaceID = 0;
-          mode = v239->postAA.mode;
-          v248.m_tracking.m_allocCounter = 0;
-          __asm { vmovdqu xmmword ptr [rbp+0CA0h+var_C90.m_tracking.m_name], xmm0 }
+          v179 = v126;
+          __asm { vpxor   xmm0, xmm0, xmm0 }
+          v177.m_surfaceID = 0;
+          mode = v168->postAA.mode;
+          v177.m_tracking.m_allocCounter = 0;
+          *(_OWORD *)&v177.m_tracking.m_name = _XMM0;
           if ( R_PostAAIsSMAA(mode) )
           {
-            v182 = DCONST_DVARINT_r_dccPostFX;
+            v133 = DCONST_DVARINT_r_dccPostFX;
             if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v182);
-            if ( v182->current.integer == 1 )
-              v173 = 8;
-            v183 = r_deviceDebug;
+            Dvar_CheckFrontendServerThread(v133);
+            if ( v133->current.integer == 1 )
+              v125 = 8;
+            v134 = r_deviceDebug;
             if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v183);
-            if ( v183->current.enabled )
+            Dvar_CheckFrontendServerThread(v134);
+            if ( v134->current.enabled )
               goto LABEL_109;
-            v184 = DCONST_DVARBOOL_r_esramPostFX;
+            v135 = DCONST_DVARBOOL_r_esramPostFX;
             if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v184);
-            v185 = 6208;
-            if ( !v184->current.enabled )
+            Dvar_CheckFrontendServerThread(v135);
+            v136 = 6208;
+            if ( !v135->current.enabled )
 LABEL_109:
-              v185 = 6144;
-            v186 = v173 | v185;
-            v173 = 0;
-            _RAX = R_RT_CreateInternal(&v252, width, height, allocWidth, allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[36], (R_RT_Flags)v186, rtFlagsInternal, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v163, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1247)");
-            __asm
+              v136 = 6144;
+            v137 = v125 | v136;
+            v125 = 0;
+            v138 = *R_RT_CreateInternal(&v181, width, height, allocWidth, allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[36], (R_RT_Flags)v137, rtFlagsInternal, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v116, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1247)");
+            v174 = v138;
+            v177 = v138;
+            if ( (_WORD)_XMM0 )
             {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovd   eax, xmm0
-              vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0
-              vmovups ymmword ptr [rbp+0CA0h+var_C90.m_surfaceID], ymm0
-            }
-            if ( (_WORD)_RAX )
-            {
-              R_RT_Handle::GetSurface(&v248);
-              if ( (R_RT_Handle::GetSurface(&v248)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+              R_RT_Handle::GetSurface(&v177);
+              if ( (R_RT_Handle::GetSurface(&v177)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C90.m_surfaceID]
-                  vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0
-                }
+                v138 = v177;
+                v174 = v177;
                 __debugbreak();
               }
               else
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C90.m_surfaceID]
-                  vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0
-                }
+                v138 = v177;
+                v174 = v177;
               }
             }
             else
@@ -1046,61 +918,46 @@ LABEL_109:
               __asm { vpextrd rax, xmm0, 2 }
               if ( (_DWORD)_RAX )
               {
-                v190 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-                __asm { vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID] }
-                if ( v190 )
+                v140 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+                v138 = v174;
+                if ( v140 )
                   __debugbreak();
               }
             }
-            _RAX = 32i64 * _RSI->sceneRtInput.m_lumaGroup.m_colorRtCount;
-            __asm { vmovups ymmword ptr [rbp+0CA0h+var_C90.m_surfaceID], ymm0 }
-            m_allocCounter = v248.m_tracking.m_allocCounter;
-            m_surfaceID = v248.m_surfaceID;
-            __asm { vmovups ymmword ptr [rax+rsi+3690h], ymm0 }
-            ++_RSI->sceneRtInput.m_lumaGroup.m_colorRtCount;
+            m_colorRtCount = v129->sceneRtInput.m_lumaGroup.m_colorRtCount;
+            v177 = v138;
+            m_allocCounter = v177.m_tracking.m_allocCounter;
+            m_surfaceID = v177.m_surfaceID;
+            v129->sceneRtInput.m_lumaGroup.m_colorRts[m_colorRtCount] = (R_RT_ColorHandle)v138;
+            ++v129->sceneRtInput.m_lumaGroup.m_colorRtCount;
           }
           else
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C90.m_surfaceID]
-              vmovups ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID], ymm0
-            }
+            v138 = v177;
+            v174 = v177;
           }
-          __asm
-          {
-            vmovups ymm1, [rbp+0CA0h+var_C30]
-            vmovups [rbp+0CA0h+var_70], ymm0
-          }
-          v237.m_surfaceID = 0;
-          v237.m_tracking.m_allocCounter = 0;
-          __asm
-          {
-            vpxor   xmm0, xmm0, xmm0
-            vmovdqu xmmword ptr [rbp+0CA0h+var_D20.m_tracking.m_name], xmm0
-            vmovups [rbp+0CA0h+var_90], ymm1
-          }
+          *(R_RT_Handle *)&v186[32] = v138;
+          v166.m_surfaceID = 0;
+          v166.m_tracking.m_allocCounter = 0;
+          __asm { vpxor   xmm0, xmm0, xmm0 }
+          *(_OWORD *)&v166.m_tracking.m_name = _XMM0;
+          *(R_RT_Handle *)v186 = v180;
           if ( m_surfaceID )
           {
-            R_RT_Handle::GetSurface(&v248);
+            R_RT_Handle::GetSurface(&v177);
           }
           else if ( m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           {
             __debugbreak();
           }
-          v255.m_colorRtCount = (m_surfaceID != 0) + 1;
+          v184.m_colorRtCount = (m_surfaceID != 0) + 1;
           do
           {
-            _RBX = 32i64 * v173;
-            __asm
+            v143 = 32i64 * v125;
+            v181 = *(R_RT_Handle *)&v186[v143];
+            if ( (_WORD)_XMM0 )
             {
-              vmovups ymm0, [rbp+rbx+0CA0h+var_90]
-              vmovd   eax, xmm0
-              vmovups ymmword ptr [rbp+0CA0h+var_C10.m_surfaceID], ymm0
-            }
-            if ( (_WORD)_EAX )
-            {
-              R_RT_Handle::GetSurface(&v252);
+              R_RT_Handle::GetSurface(&v181);
             }
             else
             {
@@ -1110,153 +967,101 @@ LABEL_109:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
                 __debugbreak();
             }
-            __asm { vmovups ymm0, [rbp+rbx+0CA0h+var_90] }
-            ++v173;
-            __asm { vmovups ymmword ptr [rbp+rbx+0CA0h+var_BB0.m_colorRts.baseclass_0.m_surfaceID], ymm0 }
+            ++v125;
+            v184.m_colorRts[v143 / 0x20] = *(R_RT_ColorHandle *)&v186[v143];
           }
-          while ( v173 != (m_surfaceID != 0) + 1 );
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+0CA0h+var_D20.m_surfaceID]
-            vmovups ymmword ptr [rbp+0CA0h+var_BB0.m_depthRt.baseclass_0.m_surfaceID], ymm0
-          }
-          _RAX = R_RT_Group::GetValidRt(&v255, &v252);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rbp+0CA0h+var_D20.m_surfaceID], ymm0
-          }
-          v202 = R_RT_Handle::GetSurface(&v237)->m_image.m_base.height;
-          v203 = R_RT_Handle::GetSurface(&v237);
-          _R14 = (__int64)v238;
-          R_SetRenderTargetSize(v238->source, v203->m_image.m_base.width, v202, GFX_USE_VIEWPORT_FOR_VIEW);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r14]
-            vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-          }
-          R_SetRenderTargetsInternal((GfxCmdBufContext *)&v237, &v255, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1257)");
-          __asm { vmovups ymm0, [rbp+0CA0h+var_C30] }
-          v206 = *(GfxCmdBufState **)(_R14 + 8);
-          __asm { vmovups ymmword ptr [rbp+0CA0h+var_C10.m_surfaceID], ymm0 }
-          R_AddRenderTargetTransition(v206, (R_RT_ColorHandle *)&v252, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-          v207 = v248.m_tracking.m_allocCounter;
+          while ( v125 != (m_surfaceID != 0) + 1 );
+          v184.m_depthRt = (R_RT_DepthHandle)v166;
+          v166 = *R_RT_Group::GetValidRt(&v184, &v181);
+          v145 = R_RT_Handle::GetSurface(&v166)->m_image.m_base.height;
+          v146 = R_RT_Handle::GetSurface(&v166);
+          v62 = (__int64)v167;
+          R_SetRenderTargetSize(v167->source, v146->m_image.m_base.width, v145, GFX_USE_VIEWPORT_FOR_VIEW);
+          *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+          R_SetRenderTargetsInternal((GfxCmdBufContext *)&v166, &v184, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1257)");
+          v147 = *(GfxCmdBufState **)(v62 + 8);
+          v181 = v180;
+          R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&v181, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v148 = v177.m_tracking.m_allocCounter;
           if ( m_surfaceID )
           {
-            R_RT_Handle::GetSurface(&v248);
+            R_RT_Handle::GetSurface(&v177);
           }
-          else if ( v248.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+          else if ( v177.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           {
             __debugbreak();
           }
           if ( m_surfaceID )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID]
-              vmovups ymmword ptr [rbp+0CA0h+var_C10.m_surfaceID], ymm0
-            }
-            R_AddRenderTargetTransition(v206, (R_RT_ColorHandle *)&v252, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v181 = v174;
+            R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&v181, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          R_FlushResourceTransitions(v206);
-          v209 = R_RT_Handle::GetSurface(&v250)->m_image.m_base.height;
-          v210 = R_RT_Handle::GetSurface(&v250)->m_image.m_base.width;
-          v211 = R_RT_Handle::GetSurface(&v254);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r14]
-            vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-          }
-          R_Tonemap_Filter((GfxCmdBufContext *)&v237, v239, &v211->m_image.m_base, v210, v209);
-          __asm
-          {
-            vmovups ymm0, [rbp+0CA0h+var_C30]
-            vmovups ymmword ptr [rbp+0CA0h+var_BD0.m_surfaceID], ymm0
-          }
-          R_AddRenderTargetTransition(v206, (R_RT_ColorHandle *)&v254, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          R_FlushResourceTransitions(v147);
+          v149 = R_RT_Handle::GetSurface(&v179)->m_image.m_base.height;
+          v150 = R_RT_Handle::GetSurface(&v179)->m_image.m_base.width;
+          v151 = R_RT_Handle::GetSurface(&v183);
+          *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+          R_Tonemap_Filter((GfxCmdBufContext *)&v166, v168, &v151->m_image.m_base, v150, v149);
+          v183 = v180;
+          R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&v183, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           if ( m_surfaceID )
           {
-            R_RT_Handle::GetSurface(&v248);
+            R_RT_Handle::GetSurface(&v177);
           }
-          else if ( v207 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+          else if ( v148 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           {
             __debugbreak();
-            v206 = *(GfxCmdBufState **)(_R14 + 8);
+            v147 = *(GfxCmdBufState **)(v62 + 8);
           }
           if ( m_surfaceID )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+0CA0h+var_CD0.m_surfaceID]
-              vmovups ymmword ptr [rbp+0CA0h+var_BD0.m_surfaceID], ymm0
-            }
-            R_AddRenderTargetTransition(v206, (R_RT_ColorHandle *)&v254, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v183 = v174;
+            R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&v183, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          R_FlushResourceTransitions(v206);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+0CA0h+result.m_surfaceID]
-            vmovups ymmword ptr [rbp+0CA0h+result.m_surfaceID], ymm0
-            vmovups xmm0, xmmword ptr [r14]
-            vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-          }
-          R_RT_Destroy((GfxCmdBufContext *)&v237, (R_RT_ColorHandle *)&result);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r14]
-            vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-          }
-          R_UnbindRenderTarget((GfxCmdBufContext *)&v237);
-          _RDI = buffers[0];
-          __asm { vmovups ymm0, [rbp+0CA0h+var_C30] }
-          _R13 = v239;
-          v159 = (__int64)&dataa[-1].rttContext + 559;
-          __asm { vmovups ymmword ptr [rdi], ymm0 }
-          _RDI = _RDI - 2;
-          dataa = (GfxBackEndData *)v159;
-          buffers[0] = _RDI;
+          R_FlushResourceTransitions(v147);
+          *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+          R_RT_Destroy((GfxCmdBufContext *)&v166, (R_RT_ColorHandle *)&result);
+          _XMM0 = *(_OWORD *)v62;
+          *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+          R_UnbindRenderTarget((GfxCmdBufContext *)&v166);
+          v152 = buffers[0];
+          v64 = v168;
+          v112 = (__int64)&dataa[-1].rttContext + 559;
+          *(R_RT_Handle *)buffers[0] = v180;
+          v113 = v152 - 2;
+          dataa = (GfxBackEndData *)v112;
+          buffers[0] = v113;
         }
-        while ( v159 >= 0 );
+        while ( v112 >= 0 );
       }
-      v219 = *(GfxCmdBufSourceState **)_R14;
-      if ( !*(_QWORD *)_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+      v153 = *(GfxCmdBufSourceState **)v62;
+      if ( !*(_QWORD *)v62 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
         __debugbreak();
-      v220 = &v219->input;
-      if ( !v220 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+      p_input = &v153->input;
+      if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+0CA0h+var_C70.m_surfaceID]
-        vmovups ymmword ptr [rbp+0CA0h+result.m_surfaceID], ymm0
-        vmovups xmm0, xmmword ptr [r14]
-      }
-      v220->codeImages[21] = NULL;
-      __asm { vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0 }
-      R_RT_Destroy((GfxCmdBufContext *)&v237, (R_RT_ColorHandle *)&result);
-      v223 = v247;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0
-      }
-      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v237, &v247->localLumaMipChain, v247->localLumaMipChain.mipBegin, v247->localLumaMipChain.mipEnd);
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      mipEnd = v223->filteredLocalLumaMipChain.mipEnd;
-      mipBegin = v223->filteredLocalLumaMipChain.mipBegin;
-      __asm { vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0 }
-      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v237, &v223->filteredLocalLumaMipChain, mipBegin, mipEnd);
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      v229 = v223->veilMipChain.mipEnd;
-      v230 = v223->veilMipChain.mipBegin;
-      __asm { vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0 }
-      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v237, &v223->veilMipChain, v230, v229);
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      v232 = v223->sceneMipChain.mipEnd;
-      v233 = v223->sceneMipChain.mipBegin;
-      __asm { vmovups xmmword ptr [rbp+0CA0h+var_D20.m_surfaceID], xmm0 }
-      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v237, &v223->sceneMipChain, v233, v232);
+      result = v178;
+      v155 = *(_OWORD *)v62;
+      p_input->codeImages[21] = NULL;
+      *(_OWORD *)&v166.m_surfaceID = v155;
+      R_RT_Destroy((GfxCmdBufContext *)&v166, (R_RT_ColorHandle *)&result);
+      v156 = v176;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v166, &v176->localLumaMipChain, v176->localLumaMipChain.mipBegin, v176->localLumaMipChain.mipEnd);
+      mipEnd = v156->filteredLocalLumaMipChain.mipEnd;
+      mipBegin = v156->filteredLocalLumaMipChain.mipBegin;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v166, &v156->filteredLocalLumaMipChain, mipBegin, mipEnd);
+      v159 = v156->veilMipChain.mipEnd;
+      v160 = v156->veilMipChain.mipBegin;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v166, &v156->veilMipChain, v160, v159);
+      v161 = v156->sceneMipChain.mipEnd;
+      v162 = v156->sceneMipChain.mipBegin;
+      *(_OWORD *)&v166.m_surfaceID = *(_OWORD *)v62;
+      RB_Perceptual_DecommitMipChain((GfxCmdBufContext *)&v166, &v156->sceneMipChain, v162, v161);
       R_GPU_EndTimer();
-      R_ProfEndNamedEvent(*(CmdBufState **)(_R14 + 8));
+      R_ProfEndNamedEvent(*(CmdBufState **)(v62 + 8));
       Sys_ProfEndNamedEvent();
     }
     else
@@ -1284,21 +1089,20 @@ void RB_Tonemap_CalculateCurve(GfxCmdBufContext *gfxContext, ComputeCmdBufState 
   __int64 viewInfoIndex; 
   __int64 downsampleMipIndex; 
   GfxWrappedRWBuffer *p_exposureInfoStructuredBuffer; 
+  __m256i m_floatZFullRt; 
   __int64 clientIndex; 
-  TonemapState *v28; 
+  TonemapState *v21; 
   __int64 tonemapExposureInfoIndex; 
   _DWORD *p_unusedfilmicCrossover; 
   __int64 flag; 
   __int64 flaga; 
-  __int64 v33; 
-  __int64 v34; 
-  R_RT_Handle v35; 
-  R_RT_ColorHandle v36; 
-  R_RT_ColorHandle v37; 
-  R_RT_Handle v38; 
+  __int64 v26; 
+  __int64 v27; 
+  R_RT_Handle v28; 
+  R_RT_ColorHandle v29; 
+  R_RT_ColorHandle v30; 
+  R_RT_Handle v31; 
 
-  _R14 = localLuma;
-  _R15 = sceneMipChain;
   Value = (char *)Sys_GetValue(0);
   v9 = (unsigned int *)(Value + 6296);
   if ( (unsigned int)(*((_DWORD *)Value + 1574) + 1) >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", *((_DWORD *)Value + 1574) + 1, 3) )
@@ -1307,9 +1111,9 @@ void RB_Tonemap_CalculateCurve(GfxCmdBufContext *gfxContext, ComputeCmdBufState 
   *v9 = v10;
   if ( v10 >= 3 )
   {
-    LODWORD(v33) = 3;
+    LODWORD(v26) = 3;
     LODWORD(flag) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", flag, v33) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", flag, v26) )
       __debugbreak();
   }
   v11 = Value + 2088;
@@ -1332,62 +1136,42 @@ void RB_Tonemap_CalculateCurve(GfxCmdBufContext *gfxContext, ComputeCmdBufState 
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 105, NULL, 0);
   Sys_ProfBeginNamedEvent(0xFF191970, "RB_Tonemap_CalculateCurve");
   R_ProfBeginNamedEvent(computeState, "RB_Tonemap_CalculateCurve");
-  _RDI = viewInfo;
   viewInfoIndex = viewInfo->viewInfoIndex;
   downsampleMipIndex = s_tonemapStateArray[viewInfoIndex].downsampleMipIndex;
   if ( !(_DWORD)downsampleMipIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 763, ASSERT_TYPE_ASSERT, "(downsampleMipIndex > 0)", (const char *)&queryFormat, "downsampleMipIndex > 0") )
     __debugbreak();
   p_exposureInfoStructuredBuffer = &s_tonemapStateArray[viewInfoIndex].exposureInfoStructuredBuffer;
-  _RAX = 32 * downsampleMipIndex;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+r15+8]
-    vmovups [rsp+0F8h+var_88], ymm0
-  }
+  v29 = sceneMipChain->colorRts[downsampleMipIndex];
   R_HW_AddResourceTransition(computeState, p_exposureInfoStructuredBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rsp+0F8h+var_A8], ymm0
-  }
-  R_HW_AddResourceTransition(computeState, &v35, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v28 = localLuma->R_RT_Handle;
+  R_HW_AddResourceTransition(computeState, &v28, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(computeState);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [r14]
-    vmovups ymm0, ymmword ptr [rdi+3340h]
-    vmovups [rsp+0F8h+var_68], ymm1
-    vmovups [rsp+0F8h+var_48], ymm1
-    vmovups ymm1, [rsp+0F8h+var_88]
-    vmovups [rsp+0F8h+var_A8], ymm0
-    vmovups [rsp+0F8h+var_88], ymm1
-  }
-  R_Tonemap_CalculateExposureCS(computeState, viewInfo, &v36, (const R_RT_ColorHandle *)&v38, &v37, (const R_RT_ColorHandle *)&v35, rgp.blackImage, p_exposureInfoStructuredBuffer, 1);
+  m_floatZFullRt = (__m256i)viewInfo->sceneRtInput.m_floatZFullRt;
+  v30 = *localLuma;
+  v31 = (R_RT_Handle)v30;
+  v28 = (R_RT_Handle)m_floatZFullRt;
+  R_Tonemap_CalculateExposureCS(computeState, viewInfo, &v29, (const R_RT_ColorHandle *)&v31, &v30, (const R_RT_ColorHandle *)&v28, rgp.blackImage, p_exposureInfoStructuredBuffer, 1);
   R_HW_AddResourceTransition(computeState, p_exposureInfoStructuredBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rsp+0F8h+var_48], ymm0
-  }
-  R_HW_AddResourceTransition(computeState, &v38, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v31 = localLuma->R_RT_Handle;
+  R_HW_AddResourceTransition(computeState, &v31, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(computeState);
   clientIndex = viewInfo->clientIndex;
   if ( (unsigned int)clientIndex >= gfxCfg.maxClientRenderViews )
   {
-    LODWORD(v34) = gfxCfg.maxClientRenderViews;
+    LODWORD(v27) = gfxCfg.maxClientRenderViews;
     LODWORD(flaga) = viewInfo->clientIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 684, ASSERT_TYPE_ASSERT, "(unsigned)( client ) < (unsigned)( gfxCfg.maxClientRenderViews )", "client doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", flaga, v34) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 684, ASSERT_TYPE_ASSERT, "(unsigned)( client ) < (unsigned)( gfxCfg.maxClientRenderViews )", "client doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", flaga, v27) )
       __debugbreak();
   }
-  v28 = &s_tonemapStateArray[clientIndex];
+  v21 = &s_tonemapStateArray[clientIndex];
   tonemapExposureInfoIndex = viewInfo->input.data->tonemapExposureInfoIndex;
-  p_unusedfilmicCrossover = (_DWORD *)&v28->exposureInfo->unusedfilmicCrossover;
-  v28->readbackInfo[tonemapExposureInfoIndex].exposure = (float)p_unusedfilmicCrossover[13];
-  v28->readbackInfo[tonemapExposureInfoIndex].sceneExposure = (float)p_unusedfilmicCrossover[15];
-  v28->readbackInfo[tonemapExposureInfoIndex].sceneAvgKiloNits = (float)p_unusedfilmicCrossover[3];
-  v28->readbackInfo[tonemapExposureInfoIndex].sceneAmbientAvgKiloNits = (float)p_unusedfilmicCrossover[16];
-  v28->readbackInfo[tonemapExposureInfoIndex].imageKey = (float)p_unusedfilmicCrossover[2];
-  v28->readbackInfo[tonemapExposureInfoIndex].exposureAndRadiometricScale = (float)p_unusedfilmicCrossover[14];
+  p_unusedfilmicCrossover = (_DWORD *)&v21->exposureInfo->unusedfilmicCrossover;
+  v21->readbackInfo[tonemapExposureInfoIndex].exposure = (float)p_unusedfilmicCrossover[13];
+  v21->readbackInfo[tonemapExposureInfoIndex].sceneExposure = (float)p_unusedfilmicCrossover[15];
+  v21->readbackInfo[tonemapExposureInfoIndex].sceneAvgKiloNits = (float)p_unusedfilmicCrossover[3];
+  v21->readbackInfo[tonemapExposureInfoIndex].sceneAmbientAvgKiloNits = (float)p_unusedfilmicCrossover[16];
+  v21->readbackInfo[tonemapExposureInfoIndex].imageKey = (float)p_unusedfilmicCrossover[2];
+  v21->readbackInfo[tonemapExposureInfoIndex].exposureAndRadiometricScale = (float)p_unusedfilmicCrossover[14];
   R_ProfEndNamedEvent(computeState);
   Sys_ProfEndNamedEvent();
   Profile_EndInternal(NULL);
@@ -1420,201 +1204,30 @@ RB_Tonemap_RegisterDvars
 */
 void RB_Tonemap_RegisterDvars()
 {
-  const dvar_t *v7; 
-  const dvar_t *v13; 
-  const dvar_t *v30; 
-  const dvar_t *v34; 
-  const dvar_t *v38; 
-  const dvar_t *v42; 
-  const dvar_t *v46; 
-  const dvar_t *v54; 
-  const dvar_t *v61; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  float description; 
-  float descriptiona; 
-  float descriptionb; 
-  float descriptionc; 
-  float v82; 
-  float v83; 
-  float v84; 
-  float v85; 
-
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm7
-    vmovaps [rsp+88h+var_28], xmm9
-    vmovaps [rsp+88h+var_38], xmm10
-  }
   Dvar_BeginPermanentRegistration();
   DVARBOOL_r_tonemapUseTweaks = Dvar_RegisterBool("LTPMPPQQKK", 0, 0x44u, "Override tone map LightSet settings with tweak dvar values.");
   DVARBOOL_r_tonemap = Dvar_RegisterBool("MQNOKQQTSO", 1, 0x44u, "Tonemap disable");
   DVARBOOL_r_tonemapAuto = Dvar_RegisterBool("LSRSRKPLSR", 0, 0x44u, "HDR Tonemapping performs auto-exposure");
   DVARBOOL_r_tonemapBlend = Dvar_RegisterBool("PSKPSLTQL", 1, 0x44u, "HDR Tonemapping blends between exposures");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@c1200000
-    vmovss  xmm3, cs:__real@42000000; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
   DVARBOOL_r_tonemapAdaptOnPause = Dvar_RegisterBool("NKQNRTNOTL", 0, 0x44u, "Keep exposure adaption going even while paused");
-  __asm { vmovaps xmm2, xmm7; min }
-  v7 = Dvar_RegisterFloat("QONSKKTRL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "HDR Tonemap exposure (in EV) override (only works in non-auto mode)");
-  __asm
-  {
-    vmovss  xmm10, cs:__real@41a00000
-    vmovss  xmm2, cs:__real@c1a00000; min
-  }
-  DVARFLT_r_tonemapExposure = v7;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm1, xmm1, xmm1; value
-    vxorps  xmm9, xmm9, xmm9
-  }
-  v13 = Dvar_RegisterFloat("PSKPQRRQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "HDR Tonemap exposure adjustment (in EV, 0 is no adjustment, works like a camera where +1 reduces EV by 1)");
-  __asm { vmovss  xmm3, cs:__real@42000000; max }
-  DVARFLT_r_tonemapExposureAdjust = v13;
-  __asm
-  {
-    vmovaps xmm2, xmm7; min
-    vmovaps xmm1, xmm7; value
-  }
-  DCONST_DVARFLT_r_tonemapMaxExposure = Dvar_RegisterFloat("r_tonemapMaxExposure", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "HDR Tonemap maximum exposure (in EV)");
-  __asm { vmovss  xmm2, cs:__real@c1a00000; min }
+  DVARFLT_r_tonemapExposure = Dvar_RegisterFloat("QONSKKTRL", 10.0, -10.0, 32.0, 0x40u, "HDR Tonemap exposure (in EV) override (only works in non-auto mode)");
+  DVARFLT_r_tonemapExposureAdjust = Dvar_RegisterFloat("PSKPQRRQQ", 0.0, -20.0, 20.0, 0x40u, "HDR Tonemap exposure adjustment (in EV, 0 is no adjustment, works like a camera where +1 reduces EV by 1)");
+  DCONST_DVARFLT_r_tonemapMaxExposure = Dvar_RegisterFloat("r_tonemapMaxExposure", -10.0, -10.0, 32.0, 0x40004u, "HDR Tonemap maximum exposure (in EV)");
   DCONST_DVARBOOL_r_tonemapLockAutoExposureAdjust = Dvar_RegisterBool("r_tonemapLockAutoExposureAdjust", 1, 0x40004u, "HDR Tonemapping lock auto exposure adjust");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_r_tonemapAutoExposureAdjust = Dvar_RegisterFloat("r_tonemapAutoExposureAdjust", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "HDR Tonemap Auto Exposure Adjust value (set to 0.0 for automatic adjustment)");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm2, cs:__real@38d1b717; min
-    vmovss  xmm1, cs:__real@3ca3d70a; value
-    vmovaps xmm3, xmm7; max
-  }
-  DVARFLT_r_tonemapAdaptSpeed = Dvar_RegisterFloat("MNSNPONNLP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "HDR Tonemap exposure adaptation speed");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_r_tonemapGrainStrength = Dvar_RegisterFloat("MRRSKNSLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "HDR Tonemap Film Grain Strength");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@c1a00000; min
-    vmovss  xmm1, cs:__real@3fc00000; value
-  }
+  DCONST_DVARFLT_r_tonemapAutoExposureAdjust = Dvar_RegisterFloat("r_tonemapAutoExposureAdjust", 0.0, -20.0, 20.0, 0x40004u, "HDR Tonemap Auto Exposure Adjust value (set to 0.0 for automatic adjustment)");
+  DVARFLT_r_tonemapAdaptSpeed = Dvar_RegisterFloat("MNSNPONNLP", 0.02, 0.000099999997, 1.0, 0x40u, "HDR Tonemap exposure adaptation speed");
+  DVARFLT_r_tonemapGrainStrength = Dvar_RegisterFloat("MRRSKNSLO", 0.0, 0.0, 1.0, 0x40u, "HDR Tonemap Film Grain Strength");
   DCONST_DVARBOOL_r_tonemapUseRegularTonemapForNightVision = Dvar_RegisterBool("r_tonemapUseRegularTonemapForNightVision", 0, 0x40004u, "Override thermal tonemap with regular tonemap");
-  __asm { vmovaps xmm3, xmm10; max }
-  v30 = Dvar_RegisterFloat("NNTKQMMSMM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Universal tonemap exposure adjustment (in EV) set so that exposureAdjust 0.0 gets a resonable exposure in HDR Capable mode");
-  __asm { vmovss  xmm1, cs:__real@3e800000; value }
-  DVARFLT_r_tonemapUniversalBaseExposureAdjust = v30;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v34 = Dvar_RegisterFloat("LKOLMLQRRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Film Grain Attenuation value. Intended for use in UI options to reduce strength of noise vs. TV sharpness settings.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42800000; max
-    vmovss  xmm1, cs:__real@40000000; value
-  }
-  DVARFLT_r_filmGrainAtten = v34;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v38 = Dvar_RegisterFloat("NNONKTMKRQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 1u, "Tonemap Central Focus : 0.0 - 64.0 (0.0f = uniform weight for each pixel");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f733333; max
-    vmovss  xmm1, cs:__real@3ea0c49c; value
-  }
-  DVARFLT_r_tonemapFocus = v38;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v42 = Dvar_RegisterFloat("LNNNQOSSQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 1u, "Tonemap Scope Focus : 0.0 - 1.0 (0.0f = use scene weight only 1.0f = use scope weight only when in ADS");
-  __asm { vmovss  xmm3, cs:__real@42800000; max }
-  DVARFLT_r_tonemapScopeFocus = v42;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v46 = Dvar_RegisterFloat("LTSRTRRSNQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 1u, "Tonemap Local adaptation strength. Specifies local blending between global and local tonemapper.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41800000; max
-    vmovss  xmm1, cs:__real@40800000; value
-  }
-  DVARFLT_r_tonemapLocalStrength = v46;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_r_tonemapLocalEvBounds = Dvar_RegisterFloat("MTQNPPMQRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 1u, "Tonemap Local adaptation EV bounds. Specifies EV range in which local tonemapper is switched off (0 means it is on for all pixels, 16 it is on for pixels further away from mean by 16EV.");
-  __asm
-  {
-    vmovss  [rsp+88h+var_58], xmm7
-    vmovss  xmm0, cs:__real@3f4ccccd
-    vmovss  xmm3, cs:__real@3e4ccccd; z
-    vmovss  xmm2, cs:__real@3d4ccccd; y
-    vmovss  xmm1, cs:__real@3ccccccd; x
-    vmovss  dword ptr [rsp+88h+description], xmm9
-    vmovss  [rsp+88h+flags], xmm0
-  }
-  v54 = Dvar_RegisterVec4("MMNOKOORO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, description, v82, 1u, "Tonemap Local adaptation kernel weights.");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f19999a
-    vmovss  xmm1, cs:__real@bf19999a
-    vmovss  xmm2, cs:__real@b8d1b717; y
-  }
-  DVARVEC4_r_tonemapLocalWeights = v54;
-  __asm
-  {
-    vmovss  [rsp+88h+var_58], xmm0
-    vmovss  xmm0, cs:__real@bf0ccccd
-    vmovss  dword ptr [rsp+88h+description], xmm1
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovaps xmm3, xmm2; z
-    vmovss  [rsp+88h+flags], xmm0
-  }
-  v61 = Dvar_RegisterVec4("r_nvgColorGradeLift", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, descriptiona, v83, 0x40004u, "NVG color grade lift");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@40400000
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm3, cs:__real@3f48b439; z
-    vmovss  xmm2, cs:__real@3f420c4a; y
-  }
-  DCONST_DVARVEC4_r_nvgColorGradeLift = v61;
-  __asm
-  {
-    vmovss  [rsp+88h+var_58], xmm0
-    vmovss  xmm0, cs:__real@3f1cac08
-    vmovss  dword ptr [rsp+88h+description], xmm1
-    vmovss  xmm1, cs:__real@3f8f7cee; x
-    vmovss  [rsp+88h+flags], xmm0
-  }
-  DCONST_DVARVEC4_r_nvgColorGradeGamma = Dvar_RegisterVec4("r_nvgColorGradeGamma", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, descriptionb, v84, 0x40004u, "NVG color grade gamma");
-  __asm
-  {
-    vmovss  [rsp+88h+var_58], xmm10
-    vmovss  dword ptr [rsp+88h+description], xmm9
-    vmovaps xmm3, xmm7; z
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm7; x
-    vmovss  [rsp+88h+flags], xmm10
-  }
-  DCONST_DVARVEC4_r_nvgColorGradeGain = Dvar_RegisterVec4("r_nvgColorGradeGain", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, descriptionc, v85, 0x40004u, "NVG color grade gain");
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_18]
-    vmovaps xmm9, [rsp+88h+var_28]
-    vmovaps xmm10, [rsp+88h+var_38]
-  }
+  DVARFLT_r_tonemapUniversalBaseExposureAdjust = Dvar_RegisterFloat("NNTKQMMSMM", 1.5, -20.0, 20.0, 0, "Universal tonemap exposure adjustment (in EV) set so that exposureAdjust 0.0 gets a resonable exposure in HDR Capable mode");
+  DVARFLT_r_filmGrainAtten = Dvar_RegisterFloat("LKOLMLQRRT", 0.25, 0.0, 1.0, 0, "Film Grain Attenuation value. Intended for use in UI options to reduce strength of noise vs. TV sharpness settings.");
+  DVARFLT_r_tonemapFocus = Dvar_RegisterFloat("NNONKTMKRQ", 2.0, 0.0, 64.0, 1u, "Tonemap Central Focus : 0.0 - 64.0 (0.0f = uniform weight for each pixel");
+  DVARFLT_r_tonemapScopeFocus = Dvar_RegisterFloat("LNNNQOSSQQ", 0.31400001, 0.0, 0.94999999, 1u, "Tonemap Scope Focus : 0.0 - 1.0 (0.0f = use scene weight only 1.0f = use scope weight only when in ADS");
+  DVARFLT_r_tonemapLocalStrength = Dvar_RegisterFloat("LTSRTRRSNQ", 0.0, 0.0, 64.0, 1u, "Tonemap Local adaptation strength. Specifies local blending between global and local tonemapper.");
+  DVARFLT_r_tonemapLocalEvBounds = Dvar_RegisterFloat("MTQNPPMQRT", 4.0, 0.0, 16.0, 1u, "Tonemap Local adaptation EV bounds. Specifies EV range in which local tonemapper is switched off (0 means it is on for all pixels, 16 it is on for pixels further away from mean by 16EV.");
+  DVARVEC4_r_tonemapLocalWeights = Dvar_RegisterVec4("MMNOKOORO", 0.025, 0.050000001, 0.2, 0.80000001, 0.0, 1.0, 1u, "Tonemap Local adaptation kernel weights.");
+  DCONST_DVARVEC4_r_nvgColorGradeLift = Dvar_RegisterVec4("r_nvgColorGradeLift", 0.0, -0.000099999997, -0.000099999997, -0.55000001, -0.60000002, 0.60000002, 0x40004u, "NVG color grade lift");
+  DCONST_DVARVEC4_r_nvgColorGradeGamma = Dvar_RegisterVec4("r_nvgColorGradeGamma", 1.1210001, 0.75800002, 0.78399998, 0.61199999, 0.5, 3.0, 0x40004u, "NVG color grade gamma");
+  DCONST_DVARVEC4_r_nvgColorGradeGain = Dvar_RegisterVec4("r_nvgColorGradeGain", 1.0, 1.0, 1.0, 20.0, 0.0, 20.0, 0x40004u, "NVG color grade gain");
   Dvar_EndPermanentRegistration();
 }
 
@@ -1652,33 +1265,28 @@ void R_FlushTonemap(void)
 R_InitTonemap
 ==============
 */
-void R_InitTonemap()
+void R_InitTonemap(void)
 {
   float *p_sceneAvgKiloNits; 
-  unsigned int *v2; 
+  unsigned int *v1; 
   GfxWrappedBuffer *p_exposureInfoConstantBuffer; 
   _QWORD *initialData; 
-  bool v6; 
+  float *v4; 
+  __int64 v5; 
+  unsigned int *v6; 
+  float *v7; 
   __int64 v8; 
-  bool v9; 
-  bool v10; 
-  bool v11; 
-  unsigned int *v14; 
-  float *v15; 
-  __int64 v16; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
   RB_Tonemap_RegisterDvars();
   p_sceneAvgKiloNits = &s_tonemapStateArray[0].readbackInfo[0].sceneAvgKiloNits;
-  v16 = 2i64;
-  v2 = s_tonemapFrame;
-  v15 = &s_tonemapStateArray[0].readbackInfo[0].sceneAvgKiloNits;
-  v14 = s_tonemapFrame;
+  v8 = 2i64;
+  v1 = s_tonemapFrame;
+  v7 = &s_tonemapStateArray[0].readbackInfo[0].sceneAvgKiloNits;
+  v6 = s_tonemapFrame;
   p_exposureInfoConstantBuffer = &s_tonemapStateArray[0].exposureInfoConstantBuffer;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   do
   {
-    *v2 = 0;
+    *v1 = 0;
     initialData = PMem_Alloc(0x80ui64, 0x40ui64, MEM_POOL_GPU_PRIVATE, PMEM_STACK_GAME, "Tonemapping exposure info");
     *initialData = 0i64;
     initialData[1] = 0i64;
@@ -1694,51 +1302,31 @@ void R_InitTonemap()
     *((_DWORD *)initialData + 12) = 0;
     R_CreateGfxWrappedBuffer((GfxWrappedRWBuffer *)&p_exposureInfoConstantBuffer[1], GfxWrappedBuffer_Structured, 80, 1u, GFX_DATA_FORMAT_R32_UINT, 1u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, initialData, "Tonemapping exposure info buffer");
     R_CreateGfxWrappedBuffer(p_exposureInfoConstantBuffer, GfxWrappedBuffer_Const, 80, 1u, GFX_DATA_FORMAT_R32_UINT, 0, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, initialData, "Tonemapping exposure info constant buffer");
-    _RBX = p_sceneAvgKiloNits;
-    v8 = 2i64;
+    v4 = p_sceneAvgKiloNits;
+    v5 = 2i64;
     do
     {
-      __asm { vucomiss xmm6, dword ptr [rbx-8] }
-      if ( !v6 )
-      {
-        v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 468, ASSERT_TYPE_ASSERT, "(info->exposure == 0.0f)", (const char *)&queryFormat, "info->exposure == 0.0f");
-        v6 = !v9;
-        if ( v9 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm6, dword ptr [rbx+8] }
-      if ( !v6 )
-      {
-        v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 469, ASSERT_TYPE_ASSERT, "(info->imageKey == 0.0f)", (const char *)&queryFormat, "info->imageKey == 0.0f");
-        v6 = !v10;
-        if ( v10 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm6, dword ptr [rbx] }
-      if ( !v6 )
-      {
-        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 470, ASSERT_TYPE_ASSERT, "(info->sceneAvgKiloNits == 0.0f)", (const char *)&queryFormat, "info->sceneAvgKiloNits == 0.0f");
-        v6 = !v11;
-        if ( v11 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm6, dword ptr [rbx+4] }
-      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 471, ASSERT_TYPE_ASSERT, "(info->sceneAmbientAvgKiloNits == 0.0f)", (const char *)&queryFormat, "info->sceneAmbientAvgKiloNits == 0.0f") )
+      if ( *(v4 - 2) != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 468, ASSERT_TYPE_ASSERT, "(info->exposure == 0.0f)", (const char *)&queryFormat, "info->exposure == 0.0f") )
         __debugbreak();
-      _RBX += 6;
-      v6 = --v8 == 0;
+      if ( v4[2] != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 469, ASSERT_TYPE_ASSERT, "(info->imageKey == 0.0f)", (const char *)&queryFormat, "info->imageKey == 0.0f") )
+        __debugbreak();
+      if ( *v4 != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 470, ASSERT_TYPE_ASSERT, "(info->sceneAvgKiloNits == 0.0f)", (const char *)&queryFormat, "info->sceneAvgKiloNits == 0.0f") )
+        __debugbreak();
+      if ( v4[1] != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 471, ASSERT_TYPE_ASSERT, "(info->sceneAmbientAvgKiloNits == 0.0f)", (const char *)&queryFormat, "info->sceneAmbientAvgKiloNits == 0.0f") )
+        __debugbreak();
+      v4 += 6;
+      --v5;
     }
-    while ( v8 );
-    v2 = v14 + 1;
-    p_sceneAvgKiloNits = v15 + 340;
-    ++v14;
+    while ( v5 );
+    v1 = v6 + 1;
+    p_sceneAvgKiloNits = v7 + 340;
+    ++v6;
     p_exposureInfoConstantBuffer = (GfxWrappedBuffer *)((char *)p_exposureInfoConstantBuffer + 1360);
-    v15 += 340;
-    --v16;
+    v7 += 340;
+    --v8;
   }
-  while ( v16 );
+  while ( v8 );
   R_CreateGfxWrappedBuffer(&s_reductionBuffer, GfxWrappedBuffer_Raw, 4, 0xA00u, GFX_DATA_FORMAT_R32_UINT, 9u, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, NULL, NULL, "Tonemapping reduction buffer");
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*
@@ -1748,42 +1336,38 @@ R_Screenshot_HdrExposedScene
 */
 void R_Screenshot_HdrExposedScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *srcRt)
 {
-  int v12; 
+  __int128 v5; 
+  int v9; 
   Material *tonemapGradingScreenshotMaterial; 
   const GfxImage *thermalRadiationLut; 
-  unsigned int v16; 
+  unsigned int height; 
   const R_RT_Surface *Surface; 
-  const char *v35; 
-  const R_RT_Surface *v36; 
+  GfxCmdBufContext v14; 
+  const R_RT_Surface *v16; 
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  CmdBufState *state; 
+  GfxCmdBufContext v20; 
+  float v21; 
   float width; 
-  float height; 
-  float v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  float v57; 
-  R_RT_Handle v58; 
-  R_RT_Handle v59; 
-  R_RT_Handle v61; 
-  char v62; 
-  const char *v65; 
-  GfxViewport v66; 
+  GfxCmdBufState *state; 
+  R_RT_Handle v24; 
+  R_RT_Handle v25; 
+  R_RT_Handle v26; 
+  R_RT_Handle v27; 
+  R_RT_Group v28; 
+  GfxViewport v29; 
   R_RT_ColorHandle result; 
-  R_RT_Group v68; 
+  R_RT_Group v31; 
+  __int128 v32; 
 
-  _R14 = gfxContext;
-  LOBYTE(v12) = R_Screenshot_GetDeferredScreenshotPipelineStage(viewInfo->deferredScreenshotIndex);
-  if ( v12 == 4 )
+  LOBYTE(v9) = R_Screenshot_GetDeferredScreenshotPipelineStage(viewInfo->deferredScreenshotIndex);
+  if ( v9 == 4 )
   {
     R_Screenshot_CreateDeferredRt(&result, EASE_IN_CUBIC, GFX_RENDERTARGET_FORMAT_SCENEBUFFER, viewInfo->deferredScreenshotIndex, 0x780u, 0x4B0u);
     if ( result.m_surfaceID )
     {
-      __asm { vmovaps [rsp+310h+var_40], xmm6 }
+      v32 = v5;
       R_RT_Handle::GetSurface(&result);
       tonemapGradingScreenshotMaterial = rgp.tonemapGradingScreenshotMaterial;
       if ( viewInfo->thermalParams.useNightAndThermalVisionCombo )
@@ -1802,30 +1386,20 @@ void R_Screenshot_HdrExposedScene(GfxCmdBufContext *gfxContext, const GfxViewInf
             tonemapGradingScreenshotMaterial = rgp.tonemapGradingScreenshotNightvisionLutMaterial;
         }
       }
-      __asm { vmovups ymm0, ymmword ptr [rbp+210h+result.baseclass_0.m_surfaceID] }
-      v66.width = 1920;
-      *(_QWORD *)&v66.x = 0i64;
-      __asm { vmovups ymmword ptr [rbp+210h+var_280.m_surfaceID], ymm0 }
-      v66.height = 1200;
-      v16 = R_RT_Handle::GetSurface(&v59)->m_image.m_base.height;
-      Surface = R_RT_Handle::GetSurface(&v59);
-      R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, v16, GFX_USE_VIEWPORT_FULL);
-      __asm
+      v29.width = 1920;
+      *(_QWORD *)&v29.x = 0i64;
+      v25 = (R_RT_Handle)result;
+      v29.height = 1200;
+      height = R_RT_Handle::GetSurface(&v25)->m_image.m_base.height;
+      Surface = R_RT_Handle::GetSurface(&v25);
+      R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
+      v14 = *gfxContext;
+      v26 = (R_RT_Handle)result;
+      v24 = (R_RT_Handle)result;
+      if ( (_WORD)_XMM0 )
       {
-        vmovups ymm0, ymmword ptr [rbp+210h+result.baseclass_0.m_surfaceID]
-        vmovups xmm6, xmmword ptr [r14]
-        vmovd   eax, xmm0
-        vmovups [rbp+210h+var_260], ymm0
-        vmovups ymmword ptr [rsp+310h+var_2A0.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_EAX )
-      {
-        R_RT_Handle::GetSurface(&v58);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+310h+var_2A0.m_surfaceID]
-          vmovups [rbp+210h+var_260], ymm0
-        }
+        R_RT_Handle::GetSurface(&v24);
+        v26 = v24;
       }
       else
       {
@@ -1834,94 +1408,46 @@ void R_Screenshot_HdrExposedScene(GfxCmdBufContext *gfxContext, const GfxViewInf
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 453, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
           __debugbreak();
       }
-      __asm
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+      v25.m_surfaceID = 0;
+      v25.m_tracking.m_allocCounter = 0;
+      v28.m_colorRtCount = 1;
+      v27 = v26;
+      if ( (_WORD)_XMM0 )
       {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+210h+var_280.m_tracking.m_name], xmm0
-        vmovups ymm0, [rbp+210h+var_260]
-        vmovd   eax, xmm0
-      }
-      v59.m_surfaceID = 0;
-      v59.m_tracking.m_allocCounter = 0;
-      v62 = 1;
-      __asm { vmovups ymmword ptr [rbp+210h+var_240.m_surfaceID], ymm0 }
-      if ( (_WORD)_EAX )
-      {
-        R_RT_Handle::GetSurface(&v61);
+        R_RT_Handle::GetSurface(&v27);
       }
       else
       {
-        if ( v58.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+        if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, [rbp+210h+var_260]
-        vmovups [rbp+210h+var_218], ymm0
-        vmovups ymm0, ymmword ptr [rbp+210h+var_280.m_surfaceID]
-        vmovups [rbp+210h+var_198], ymm0
-      }
-      _RDX = &v68;
-      _RAX = &v62;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymm1, ymmword ptr [rax+80h]
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rdx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rdx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rdx+60h], ymm0
-        vmovups ymmword ptr [rdx+80h], ymm1
-        vmovups ymm1, ymmword ptr [rax+0A0h]
-      }
-      v35 = v65;
-      __asm { vmovups ymmword ptr [rdx+0A0h], ymm1 }
-      v68.m_vrsRt.m_tracking.m_location = v35;
-      __asm { vmovdqa xmmword ptr [rsp+310h+var_2A0.m_surfaceID], xmm6 }
-      R_SetRenderTargetsInternal((GfxCmdBufContext *)&v58, &v68, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(989)");
-      v36 = R_RT_Handle::GetSurface(srcRt);
-      source = _R14->source;
-      __asm { vmovaps xmm6, [rsp+310h+var_40] }
-      p_m_image = &v36->m_image;
-      if ( !_R14->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+      v28.m_colorRts[0] = (R_RT_ColorHandle)v26;
+      v28.m_depthRt = (R_RT_DepthHandle)v25;
+      v31 = v28;
+      *(GfxCmdBufContext *)&v24.m_surfaceID = v14;
+      R_SetRenderTargetsInternal((GfxCmdBufContext *)&v24, &v31, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(989)");
+      v16 = R_RT_Handle::GetSurface(srcRt);
+      source = gfxContext->source;
+      p_m_image = &v16->m_image;
+      if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
         __debugbreak();
       p_input = &source->input;
       if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vxorps  xmm1, xmm1, xmm1
-      }
+      v20 = *gfxContext;
       p_input->codeImages[4] = &p_m_image->m_base;
-      __asm
-      {
-        vxorps  xmm3, xmm3, xmm3
-        vcvtsi2ss xmm3, xmm3, rax
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, rax
-        vmovups xmmword ptr [rsp+310h+var_2A0.m_surfaceID], xmm0
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  [rsp+310h+var_2B8], xmm0
-        vmovss  [rsp+310h+var_2C0], xmm0
-        vmovss  [rsp+310h+var_2C8], xmm1
-        vmovss  [rsp+310h+var_2D0], xmm1
-        vmovss  [rsp+310h+var_2D8], xmm3
-        vmovss  [rsp+310h+var_2E0], xmm2
-        vmovss  [rsp+310h+height], xmm1
-        vmovss  [rsp+310h+width], xmm1
-      }
-      RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v58, tonemapGradingScreenshotMaterial, 0xFFFFFFFF, &v66, width, height, v52, v53, v54, v55, v56, v57, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(991)");
-      __asm { vmovups ymm0, ymmword ptr [rbp+210h+result.baseclass_0.m_surfaceID] }
-      state = _R14->state;
-      __asm { vmovups ymmword ptr [rbp+210h+var_240.m_surfaceID], ymm0 }
-      R_HW_AddResourceTransition(state, &v61, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-      R_FlushResourceTransitions(_R14->state);
+      v21 = (float)v29.height;
+      width = (float)v29.width;
+      *(GfxCmdBufContext *)&v24.m_surfaceID = v20;
+      RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v24, tonemapGradingScreenshotMaterial, 0xFFFFFFFF, &v29, 0.0, 0.0, width, v21, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(991)");
+      state = gfxContext->state;
+      v27 = (R_RT_Handle)result;
+      R_HW_AddResourceTransition(state, &v27, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      R_FlushResourceTransitions(gfxContext->state);
     }
     else if ( result.m_tracking.m_allocCounter )
     {
@@ -1941,7 +1467,7 @@ void R_Screenshot_HdrExposedSceneCS(ComputeCmdBufState *computeState, const GfxV
   int v7; 
   const dvar_t *v8; 
   ComputeShader *tonemapScreenshotComputeShader; 
-  R_RT_Handle v11; 
+  R_RT_Handle v10; 
   R_RT_ColorHandle result; 
 
   LOBYTE(v7) = R_Screenshot_GetDeferredScreenshotPipelineStage(viewInfo->deferredScreenshotIndex);
@@ -1961,12 +1487,8 @@ void R_Screenshot_HdrExposedSceneCS(ComputeCmdBufState *computeState, const GfxV
         tonemapScreenshotComputeShader = rgp.tonemapScreenshotNVGComputeShader[(viewInfo->thermalParams.useScopedNVG ? 2 : 0) | (unsigned __int64)(viewInfo->thermalParams.thermalRadiationLut != NULL)];
       R_SetComputeShader(computeState, tonemapScreenshotComputeShader);
       R_Dispatch(computeState, 0xF0u, 0x96u, 1u);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0A8h+result.baseclass_0.m_surfaceID]
-        vmovups [rsp+0A8h+var_68], ymm0
-      }
-      R_HW_AddResourceTransition(computeState, &v11, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      v10 = (R_RT_Handle)result;
+      R_HW_AddResourceTransition(computeState, &v10, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_FlushResourceTransitions(computeState);
     }
     else if ( result.m_tracking.m_allocCounter )
@@ -2026,43 +1548,55 @@ void R_Tonemap_CalculateExposureCS(ComputeCmdBufState *state, const GfxViewInfo 
 {
   unsigned int width; 
   unsigned int height; 
+  unsigned int v14; 
+  unsigned int v15; 
   unsigned int v16; 
-  unsigned int v17; 
-  unsigned int v18; 
-  bool v19; 
+  bool v17; 
   ComputeShader *logAccumFromTex2dComputeShader; 
+  float focus; 
   __int64 m_pFunction_high; 
-  __int64 v24; 
-  const GfxBackEndData *v28; 
+  __int64 clientIndex; 
+  float v22; 
+  const GfxBackEndData *v23; 
   const R_RT_Surface *Surface; 
-  R_RT_Handle *v31; 
+  R_RT_Handle *v25; 
   GfxTextureId textureId; 
-  const R_RT_Surface *v33; 
-  const R_RT_Surface *v34; 
-  int lockAutoExposureAdjust; 
-  int autoExposure; 
+  const R_RT_Surface *v27; 
+  const R_RT_Surface *v28; 
+  BOOL lockAutoExposureAdjust; 
+  float userExposure; 
+  BOOL autoExposure; 
+  float userExposureAdjust; 
+  float userMaxExposure; 
+  float v34; 
   char *fmt; 
   __int64 flag; 
   R_RT_Handle *p_view; 
   R_RT_Handle *p_rwView; 
   ID3D12Resource *buffers; 
   R_RT_Handle *Resident; 
-  R_RT_Handle *v55; 
+  R_RT_Handle *v41; 
   GfxTexture *textures; 
   GfxShaderBufferRWView *views; 
   __int64 data; 
-  unsigned int v59; 
-  unsigned int v60; 
-  unsigned int v61; 
-  unsigned int v62; 
-  int v65[10]; 
-  int v66; 
-  int v67; 
-  unsigned int v73[4]; 
+  unsigned int v45; 
+  unsigned int v46; 
+  unsigned int v47; 
+  unsigned int v48; 
+  float v49; 
+  float v50; 
+  int v51[10]; 
+  int v52; 
+  BOOL v53; 
+  float userAutoExposureAdjust; 
+  float v55; 
+  float v56; 
+  float v57; 
+  __m256i v58; 
+  unsigned int v59[4]; 
 
   p_rwView = &ambientLumaRt->R_RT_Handle;
-  v55 = &floatZFull->R_RT_Handle;
-  _RDI = viewInfo;
+  v41 = &floatZFull->R_RT_Handle;
   textures = (GfxTexture *)scopeBuffer;
   views = (GfxShaderBufferRWView *)exposureInfoStructuredBuffer;
   p_view = &localLumaRt->R_RT_Handle;
@@ -2075,151 +1609,116 @@ void R_Tonemap_CalculateExposureCS(ComputeCmdBufState *state, const GfxViewInfo 
     __debugbreak();
   if ( width * height )
   {
-    v16 = (height + 7) >> 3;
-    v17 = (width + 7) >> 3;
-    v18 = v17 * v16;
-    __asm
-    {
-      vmovaps [rsp+180h+var_50], xmm6
-      vmovaps [rsp+180h+var_60], xmm7
-    }
-    if ( v17 * v16 > 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 527, ASSERT_TYPE_ASSERT, "(( 4 * 128 ) >= groupsX * groupsY)", (const char *)&queryFormat, "REDUCTION_BUFFER_SIZE >= groupsX * groupsY") )
+    v14 = (height + 7) >> 3;
+    v15 = (width + 7) >> 3;
+    v16 = v15 * v14;
+    if ( v15 * v14 > 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 527, ASSERT_TYPE_ASSERT, "(( 4 * 128 ) >= groupsX * groupsY)", (const char *)&queryFormat, "REDUCTION_BUFFER_SIZE >= groupsX * groupsY") )
       __debugbreak();
-    v19 = _RDI->thermalParams.useNightAndThermalVisionCombo && !_RDI->thermalParams.useScopedNVG;
+    v17 = viewInfo->thermalParams.useNightAndThermalVisionCombo && !viewInfo->thermalParams.useScopedNVG;
     logAccumFromTex2dComputeShader = rgp.logAccumFromTex2dComputeShader;
-    if ( v19 )
+    if ( v17 )
       logAccumFromTex2dComputeShader = rgp.logAccumFromTex2dNvgComputeShader;
     R_SetComputeShader(state, logAccumFromTex2dComputeShader);
     buffers = (ID3D12Resource *)state->data;
-    __asm { vmovss  xmm6, dword ptr [rdi+3854h] }
+    focus = viewInfo->tonemap.focus;
     if ( !buffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 361, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
       __debugbreak();
-    if ( _RDI->clientIndex >= gfxCfg.maxClientRenderViews )
+    if ( viewInfo->clientIndex >= gfxCfg.maxClientRenderViews )
     {
-      LODWORD(flag) = _RDI->clientIndex;
+      LODWORD(flag) = viewInfo->clientIndex;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 363, ASSERT_TYPE_ASSERT, "(unsigned)( viewInfo->clientIndex ) < (unsigned)( gfxCfg.maxClientRenderViews )", "viewInfo->clientIndex doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", flag, gfxCfg.maxClientRenderViews) )
         __debugbreak();
     }
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
     m_pFunction_high = HIDWORD(buffers[1968].m_pFunction);
-    v24 = 340i64 * (int)_RDI->clientIndex;
-    __asm { vmovss  [rbp+80h+var_E8], xmm6 }
-    _RDX = v24 + m_pFunction_high;
-    v61 = (width + 7) >> 3;
-    v62 = (height + 7) >> 3;
-    _RAX = s_tonemapStateArray[0].radiometricScale;
-    __asm { vmovss  xmm7, dword ptr [rax+rdx*4] }
+    clientIndex = viewInfo->clientIndex;
+    v49 = focus;
+    v47 = (width + 7) >> 3;
+    v48 = (height + 7) >> 3;
+    v22 = s_tonemapStateArray[clientIndex].radiometricScale[m_pFunction_high];
     data = 0i64;
-    v59 = width - 1;
-    v60 = height - 1;
-    v28 = state->data;
-    __asm
-    {
-      vdivss  xmm6, xmm0, xmm7
-      vmovss  [rbp+80h+var_E4], xmm6
-    }
-    buffers = v28->globalSceneConstantBuffer->buffer;
+    v45 = width - 1;
+    v46 = height - 1;
+    v23 = state->data;
+    v50 = 1.0 / v22;
+    buffers = v23->globalSceneConstantBuffer->buffer;
     R_SetComputeConstantBuffers(state, 7, 1, &buffers);
     R_UploadAndSetComputeConstants(state, 0, &data, 0x20u, NULL);
     Surface = R_RT_Handle::GetSurface(Resident);
     Resident = (R_RT_Handle *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
     R_SetComputeTextures(state, 0, 1, (const GfxTexture *const *)&Resident);
-    v31 = v55;
-    if ( R_RT_Handle::IsValid(v55) )
-      textureId = R_RT_Handle::GetSurface(v31)->m_image.m_base.textureId;
+    v25 = v41;
+    if ( R_RT_Handle::IsValid(v41) )
+      textureId = R_RT_Handle::GetSurface(v25)->m_image.m_base.textureId;
     else
       textureId = rgp.blackImage->textureId;
-    v55 = (R_RT_Handle *)R_Texture_GetResident(textureId);
-    R_SetComputeTextures(state, 1, 1, (const GfxTexture *const *)&v55);
+    v41 = (R_RT_Handle *)R_Texture_GetResident(textureId);
+    R_SetComputeTextures(state, 1, 1, (const GfxTexture *const *)&v41);
     textures = (GfxTexture *)R_Texture_GetResident((GfxTextureId)textures->shaderView.view);
     R_SetComputeTextures(state, 2, 1, (const GfxTexture *const *)&textures);
-    v33 = R_RT_Handle::GetSurface(p_rwView);
-    p_rwView = (R_RT_Handle *)R_Texture_GetResident(v33->m_image.m_base.textureId);
+    v27 = R_RT_Handle::GetSurface(p_rwView);
+    p_rwView = (R_RT_Handle *)R_Texture_GetResident(v27->m_image.m_base.textureId);
     R_SetComputeTextures(state, 3, 1, (const GfxTexture *const *)&p_rwView);
     R_HW_AddResourceTransition(state, &s_reductionBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     p_rwView = (R_RT_Handle *)&s_reductionBuffer.rwView;
     R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-    v34 = R_RT_Handle::GetSurface(p_view);
-    p_view = (R_RT_Handle *)R_Texture_GetResident(v34->m_image.m_base.textureId);
+    v28 = R_RT_Handle::GetSurface(p_view);
+    p_view = (R_RT_Handle *)R_Texture_GetResident(v28->m_image.m_base.textureId);
     R_SetComputeRWTextures(state, 1, 1, (const GfxTexture *const *)&p_view);
-    R_Dispatch(state, v17, v16, 1u);
-    while ( v18 > 0x40 )
+    R_Dispatch(state, v15, v14, 1u);
+    while ( v16 > 0x40 )
     {
       R_HW_AddResourceTransition(state, &s_reductionBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_FlushResourceTransitions(state);
       R_SetComputeShader(state, rgp.logAccumContinueComputeShader);
-      v73[0] = v18;
-      R_UploadAndSetComputeConstants(state, 0, v73, 0x10u, NULL);
+      v59[0] = v16;
+      R_UploadAndSetComputeConstants(state, 0, v59, 0x10u, NULL);
       p_view = (R_RT_Handle *)&s_reductionBuffer.rwView;
       R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&p_view, NULL);
-      v18 = (v18 + 63) >> 6;
-      R_Dispatch(state, v18, 1u, 1u);
+      v16 = (v16 + 63) >> 6;
+      R_Dispatch(state, v16, 1u, 1u);
     }
     R_HW_AddResourceTransition(state, &s_reductionBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_SetComputeShader(state, rgp.logAccumFinishComputeShader);
-    lockAutoExposureAdjust = _RDI->tonemap.lockAutoExposureAdjust;
-    __asm
+    lockAutoExposureAdjust = viewInfo->tonemap.lockAutoExposureAdjust;
+    userAutoExposureAdjust = viewInfo->tonemap.userAutoExposureAdjust;
+    userExposure = viewInfo->tonemap.userExposure;
+    v53 = lockAutoExposureAdjust;
+    autoExposure = viewInfo->tonemap.autoExposure;
+    *(float *)&v51[4] = v22;
+    *(float *)&v51[5] = 1.0 / v22;
+    v55 = userExposure;
+    v51[9] = autoExposure;
+    if ( !viewInfo->tonemap.blendExposure || (v52 = 1, !allowBlendExposure) )
+      v52 = 0;
+    userExposureAdjust = viewInfo->tonemap.userExposureAdjust;
+    userMaxExposure = viewInfo->tonemap.userMaxExposure;
+    v51[8] = LODWORD(viewInfo->tonemap.adaptSpeed);
+    v58 = *(__m256i *)&viewInfo->tonemap.darkEv;
+    v56 = userExposureAdjust;
+    v57 = userMaxExposure;
+    if ( viewInfo->thermalParams.useNightAndThermalVisionCombo )
     {
-      vmovss  xmm0, dword ptr [rdi+3804h]
-      vmovss  [rbp+80h+var_B0], xmm0
-      vmovss  xmm0, dword ptr [rdi+380Ch]
-    }
-    v67 = lockAutoExposureAdjust;
-    autoExposure = _RDI->tonemap.autoExposure;
-    __asm
-    {
-      vmovss  [rbp+80h+var_D0], xmm7
-      vmovaps xmm7, [rsp+180h+var_60]
-      vmovss  [rbp+80h+var_CC], xmm6
-      vmovaps xmm6, [rsp+180h+var_50]
-      vmovss  [rbp+80h+var_AC], xmm0
-    }
-    v65[9] = autoExposure;
-    if ( !_RDI->tonemap.blendExposure || (v66 = 1, !allowBlendExposure) )
-      v66 = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+3814h]
-      vmovss  xmm2, dword ptr [rdi+3810h]
-      vmovss  xmm3, dword ptr [rdi+3808h]
-      vmovss  [rbp+80h+var_C0], xmm0
-      vmovups ymm0, ymmword ptr [rdi+381Ch]
-      vmovups [rbp+80h+var_A0], ymm0
-      vmovss  [rbp+80h+var_A8], xmm2
-      vmovss  [rbp+80h+var_A4], xmm3
-    }
-    if ( _RDI->thermalParams.useNightAndThermalVisionCombo )
-    {
-      __asm { vmovss  xmm0, dword ptr [rdi+5D4h] }
-      if ( _RDI->thermalParams.useScopedNVG )
+      if ( viewInfo->thermalParams.useScopedNVG )
       {
-        __asm
-        {
-          vmovss  [rbp+80h+var_DC], xmm0
-          vmovss  xmm0, cs:__real@41700000
-          vmovss  [rbp+80h+var_D8], xmm0
-        }
+        v51[1] = LODWORD(viewInfo->thermalParams.nightVisionExposureAdjustment);
+        *(float *)&v51[2] = FLOAT_15_0;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm1, xmm3, dword ptr [rdi+5D8h]
-          vaddss  xmm0, xmm2, xmm0
-          vmovss  [rbp+80h+var_A8], xmm0
-          vmovss  [rbp+80h+var_A4], xmm1
-        }
+        v34 = userMaxExposure + viewInfo->thermalParams.nightVisionMinExposureBias;
+        v56 = userExposureAdjust + viewInfo->thermalParams.nightVisionExposureAdjustment;
+        v57 = v34;
       }
     }
-    v65[0] = v18;
-    R_UploadAndSetComputeConstants(state, 0, v65, 0x60u, NULL);
+    v51[0] = v16;
+    R_UploadAndSetComputeConstants(state, 0, v51, 0x60u, NULL);
     p_view = (R_RT_Handle *)&s_reductionBuffer.view;
     R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&p_view);
     views = (GfxShaderBufferRWView *)((char *)views + 32);
     R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-    R_Dispatch(state, (v18 + 63) >> 6, 1u, 1u);
+    R_Dispatch(state, (v16 + 63) >> 6, 1u, 1u);
   }
   else
   {
@@ -2236,32 +1735,27 @@ R_Tonemap_Filter
 */
 void R_Tonemap_Filter(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxImage *srcColor, unsigned int dstWidth, unsigned int dstHeight)
 {
-  const dvar_t *v8; 
+  const dvar_t *v5; 
   Material *tonemapMaterial; 
   const GfxImage *thermalRadiationLut; 
   GfxCmdBufSourceState *source; 
   GfxCmdBufInput *p_input; 
-  float fmt; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
+  vec4_t *SMAAColorimetryInfo; 
+  vec4_t v16; 
+  float height; 
+  float width; 
   vec4_t result; 
-  GfxViewport v35; 
+  GfxViewport v20; 
 
-  v8 = DCONST_DVARBOOL_r_tonemapUseRegularTonemapForNightVision;
+  v5 = DCONST_DVARBOOL_r_tonemapUseRegularTonemapForNightVision;
   tonemapMaterial = rgp.tonemapMaterial;
-  *(_QWORD *)&v35.x = 0i64;
-  _R14 = gfxContext;
-  v35.width = dstWidth;
-  v35.height = dstHeight;
+  *(_QWORD *)&v20.x = 0i64;
+  v20.width = dstWidth;
+  v20.height = dstHeight;
   if ( !DCONST_DVARBOOL_r_tonemapUseRegularTonemapForNightVision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapUseRegularTonemapForNightVision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( !v8->current.enabled && viewInfo->thermalParams.useNightAndThermalVisionCombo )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled && viewInfo->thermalParams.useNightAndThermalVisionCombo )
   {
     thermalRadiationLut = viewInfo->thermalParams.thermalRadiationLut;
     if ( viewInfo->thermalParams.useScopedNVG )
@@ -2277,21 +1771,21 @@ void R_Tonemap_Filter(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo,
         tonemapMaterial = rgp.nightvisionLutMaterial;
     }
   }
-  source = _R14->source;
-  if ( !_R14->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  source = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[4] = srcColor;
-  _RBX = _R14->source;
+  _RBX = gfxContext->source;
   if ( R_PostAAIsSMAA(viewInfo->postAA.mode) )
   {
-    _RAX = R_GetSMAAColorimetryInfo(&result);
+    SMAAColorimetryInfo = R_GetSMAAColorimetryInfo(&result);
+    _XMM2 = *SMAAColorimetryInfo;
+    _RBX->input.consts[38].v[0] = COERCE_FLOAT(*SMAAColorimetryInfo);
     __asm
     {
-      vmovups xmm2, xmmword ptr [rax]
-      vmovss  dword ptr [rbx+960h], xmm2
       vextractps dword ptr [rbx+964h], xmm2, 1
       vextractps dword ptr [rbx+968h], xmm2, 2
       vextractps dword ptr [rbx+96Ch], xmm2, 3
@@ -2302,30 +1796,14 @@ void R_Tonemap_Filter(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo,
     *(_QWORD *)_RBX->input.consts[38].v = 0i64;
     *(_QWORD *)&_RBX->input.consts[38].xyz.z = 0i64;
   }
-  __asm { vmovups xmm0, xmmword ptr [r14] }
+  v16 = *(vec4_t *)gfxContext;
   ++_RBX->constVersions[38];
-  __asm { vmovups xmmword ptr [rsp+0D8h+result], xmm0 }
+  result = v16;
   RB_SetDisplayMappingParams((GfxCmdBufContext *)&result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovups xmmword ptr [rsp+0D8h+result], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0D8h+var_80], xmm0
-    vmovss  [rsp+0D8h+var_88], xmm0
-    vmovss  [rsp+0D8h+var_90], xmm1
-    vmovss  [rsp+0D8h+var_98], xmm1
-    vmovss  [rsp+0D8h+var_A0], xmm3
-    vmovss  dword ptr [rsp+0D8h+var_A8], xmm2
-    vmovss  dword ptr [rsp+0D8h+var_B0], xmm1
-    vmovss  dword ptr [rsp+0D8h+fmt], xmm1
-  }
-  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&result, tonemapMaterial, 0xFFFFFFFF, &v35, fmt, v27, v28, v29, v30, v31, v32, v33, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1109)");
+  height = (float)v20.height;
+  width = (float)v20.width;
+  result = *(vec4_t *)gfxContext;
+  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&result, tonemapMaterial, 0xFFFFFFFF, &v20, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp(1109)");
 }
 
 /*
@@ -2373,13 +1851,11 @@ R_Tonemap_GetExposureAdjust
 */
 double R_Tonemap_GetExposureAdjust(const GfxViewInfo *viewInfo)
 {
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rcx+3818h]; Y
-    vmovss  xmm0, cs:__real@40000000; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  return *(double *)&_XMM0;
+  double result; 
+
+  *(_QWORD *)&result = LODWORD(FLOAT_2_0);
+  *(float *)&result = powf_0(2.0, viewInfo->tonemap.tonemapModeExposureAdjust);
+  return result;
 }
 
 /*
@@ -2422,14 +1898,7 @@ R_Tonemap_GetFinalExposureAndRadiometricScale
 */
 float R_Tonemap_GetFinalExposureAndRadiometricScale(const GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+3818h]; Y
-    vmovss  xmm0, cs:__real@40000000; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vmulss  xmm0, xmm0, dword ptr [rax+rcx] }
-  return *(float *)&_XMM0;
+  return powf_0(2.0, viewInfo->tonemap.tonemapModeExposureAdjust) * s_tonemapStateArray[viewInfo->clientIndex].readbackInfo[data->tonemapExposureInfoIndex].exposureAndRadiometricScale;
 }
 
 /*
@@ -2489,12 +1958,13 @@ R_Tonemap_GetUniversalExposureAdjust
 */
 float R_Tonemap_GetUniversalExposureAdjust()
 {
-  _RBX = DVARFLT_r_tonemapUniversalBaseExposureAdjust;
+  const dvar_t *v0; 
+
+  v0 = DVARFLT_r_tonemapUniversalBaseExposureAdjust;
   if ( !DVARFLT_r_tonemapUniversalBaseExposureAdjust && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapUniversalBaseExposureAdjust") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*
@@ -2560,52 +2030,51 @@ R_Tonemap_SetConstantCS
 */
 void R_Tonemap_SetConstantCS(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, bool outputLuma, bool compositeHudoutline)
 {
-  GfxColorimetry FramebufferColorimetry; 
+  BOOL v4; 
+  float localStrength; 
+  GfxDisplayMappingParams *DisplayMappingParams; 
+  __m128 v15; 
+  float v16; 
   vec4_t result; 
   vec4_t outMatrixR; 
   vec4_t outMatrixG; 
   vec4_t outMatrixB; 
+  float veilStrength; 
+  float v22; 
+  float v23; 
+  float localEvBounds; 
   float outScaleU; 
   float outScaleV; 
   float outScaleW; 
   float outOffsetU; 
   float outOffsetV; 
   float outOffsetW[6]; 
-  BOOL v44; 
+  __int128 v31; 
+  int v32; 
+  BOOL v33; 
 
-  _EBX = compositeHudoutline;
-  _RDI = viewInfo;
+  v4 = compositeHudoutline;
   R_UniversalClut_GetParameters(&outScaleU, &outScaleV, &outScaleW, &outOffsetU, &outOffsetV, outOffsetW);
+  _XMM3 = LODWORD(FLOAT_1_0);
+  localStrength = viewInfo->tonemap.localStrength;
+  veilStrength = viewInfo->perceptual.veilStrength;
+  v22 = 1.0 - veilStrength;
+  localEvBounds = viewInfo->tonemap.localEvBounds;
+  v23 = localStrength;
+  _XMM0 = v4;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+3860h]
-    vmovss  xmm3, cs:__real@3f800000
-    vmovss  xmm1, dword ptr [rdi+3840h]
-    vmovss  [rbp+57h+var_A0], xmm0
-    vsubss  xmm0, xmm3, xmm0
-    vmovss  [rbp+57h+var_9C], xmm0
-    vmovss  xmm0, dword ptr [rdi+3844h]
-    vmovss  [rbp+57h+var_94], xmm0
-    vmovss  [rbp+57h+var_98], xmm1
-    vmovd   xmm0, ebx
-  }
-  _ER15 = 0;
-  __asm
-  {
-    vmovd   xmm1, r15d
     vpcmpeqd xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
     vblendvps xmm0, xmm3, xmm1, xmm2
-    vmovss  [rbp+57h+var_50], xmm0
   }
-  RB_GetUIWhiteBalanceParams(_RDI, &outMatrixR, &outMatrixG, &outMatrixB);
-  if ( R_PostAAIsSMAA(_RDI->postAA.mode) )
+  v32 = _XMM0;
+  RB_GetUIWhiteBalanceParams(viewInfo, &outMatrixR, &outMatrixG, &outMatrixB);
+  if ( R_PostAAIsSMAA(viewInfo->postAA.mode) )
   {
-    _RAX = R_GetSMAAColorimetryInfo(&result);
+    _XMM2 = (__int128)*R_GetSMAAColorimetryInfo(&result);
+    LODWORD(v31) = _XMM2;
     __asm
     {
-      vmovups xmm2, xmmword ptr [rax]
-      vmovss  dword ptr [rbp+57h+var_60], xmm2
       vextractps dword ptr [rbp+57h+var_60+4], xmm2, 1
       vextractps dword ptr [rbp+57h+var_60+8], xmm2, 2
       vextractps dword ptr [rbp+57h+var_60+0Ch], xmm2, 3
@@ -2613,34 +2082,18 @@ void R_Tonemap_SetConstantCS(ComputeCmdBufState *computeState, const GfxViewInfo
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovups [rbp+57h+var_60], xmm0
-    }
+    v31 = 0i64;
   }
-  FramebufferColorimetry = R_GetFramebufferColorimetry();
-  _RAX = R_GetDisplayMappingParams((GfxDisplayMappingParams *)&result);
-  __asm
-  {
-    vmovss  xmm0, [rsp+120h+var_F0]
-    vmovsd  xmm1, qword ptr [rax]
-  }
-  *(float *)&_RAX = _RAX->maxLuminance;
-  __asm
-  {
-    vmovss  [rbp+57h+var_70], xmm0
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-  }
-  LODWORD(result.v[2]) = (_DWORD)_RAX;
-  __asm
-  {
-    vmovss  [rbp+57h+var_68], xmm0
-    vmovss  xmm0, dword ptr [rsp+120h+result+8]
-    vmovss  [rbp+57h+var_64], xmm0
-    vmovss  [rbp+57h+var_6C], xmm1
-  }
-  v44 = outputLuma;
+  v16 = COERCE_FLOAT(R_GetFramebufferColorimetry());
+  DisplayMappingParams = R_GetDisplayMappingParams((GfxDisplayMappingParams *)&result);
+  v15 = (__m128)*(unsigned __int64 *)&DisplayMappingParams->gamma;
+  *(float *)&DisplayMappingParams = DisplayMappingParams->maxLuminance;
+  outOffsetW[2] = v16;
+  LODWORD(result.v[2]) = (_DWORD)DisplayMappingParams;
+  LODWORD(outOffsetW[4]) = _mm_shuffle_ps(v15, v15, 85).m128_u32[0];
+  outOffsetW[5] = *(float *)&DisplayMappingParams;
+  outOffsetW[3] = v15.m128_f32[0];
+  v33 = outputLuma;
   R_UploadAndSetComputeConstants(computeState, 0, &outMatrixR, 0x90u, NULL);
 }
 
@@ -2651,64 +2104,35 @@ R_Tonemap_UpdateExposure
 */
 float R_Tonemap_UpdateExposure(GfxViewInfo *viewInfo)
 {
-  _RBX = viewInfo;
-  __asm
+  TonemapState *v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  __int128 v6; 
+  __int128 v8; 
+
+  v2 = &s_tonemapStateArray[viewInfo->viewInfoIndex];
+  v3 = powf_0(2.0, 2.8399999 - viewInfo->tonemap.userExposure) * 180.0;
+  v4 = logf_0(v3);
+  v5 = v4;
+  if ( !v2->valid )
   {
-    vmovss  xmm0, cs:__real@40000000; X
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm9
-    vmovss  xmm9, cs:__real@4035c28f
-    vsubss  xmm1, xmm9, dword ptr [rcx+380Ch]; Y
+    viewInfo->tonemap.blendExposure = 0;
+    v2->valid = 1;
   }
-  _RDI = &s_tonemapStateArray[viewInfo->viewInfoIndex];
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
+  if ( viewInfo->tonemap.blendExposure )
   {
-    vmulss  xmm7, xmm0, cs:__real@43340000
-    vmovaps xmm0, xmm7; X
+    v5 = (float)((float)(v4 - v2->exposureLog) * viewInfo->tonemap.adaptSpeed) + v2->exposureLog;
+    expf_0(v5);
   }
-  *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( !_RDI->valid )
-  {
-    _RBX->tonemap.blendExposure = 0;
-    _RDI->valid = 1;
-  }
-  if ( _RBX->tonemap.blendExposure )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm0, dword ptr [rdi+4]
-      vmulss  xmm1, xmm0, dword ptr [rbx+3814h]
-      vaddss  xmm6, xmm1, dword ptr [rdi+4]
-      vmovaps xmm0, xmm6; X
-    }
-    *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-    __asm { vmovaps xmm7, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@40000000; X
-    vmovss  dword ptr [rdi+4], xmm6
-    vsubss  xmm1, xmm9, dword ptr [rbx+3808h]; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm6, xmm0, cs:__real@43340000
-    vmovss  xmm0, cs:__real@40000000; X
-    vmovss  xmm1, dword ptr [rbx+3810h]; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm9, [rsp+58h+var_38]
-    vmulss  xmm1, xmm0, xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vminss  xmm0, xmm6, xmm1
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  v6 = LODWORD(FLOAT_2_0);
+  v2->exposureLog = v5;
+  *(float *)&v6 = powf_0(2.0, 2.8399999 - viewInfo->tonemap.userMaxExposure);
+  v8 = v6;
+  *(float *)&v8 = *(float *)&v6 * 180.0;
+  _XMM6 = v8;
+  powf_0(2.0, viewInfo->tonemap.userExposureAdjust);
+  __asm { vminss  xmm0, xmm6, xmm1 }
   return *(float *)&_XMM0;
 }
 
@@ -2719,80 +2143,71 @@ R_Tonemap_UpdateRadiometricScale
 */
 void R_Tonemap_UpdateRadiometricScale(const GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
+  __int64 tonemapExposureInfoIndex; 
   __int64 clientIndex; 
-  char v11; 
-  __int64 v27; 
+  __int64 v6; 
+  TonemapState *v7; 
+  const dvar_t *v10; 
+  __int128 v13; 
+  __int64 v20; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 316, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 317, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
   if ( viewInfo->clientIndex >= gfxCfg.maxClientRenderViews )
   {
-    LODWORD(v27) = viewInfo->clientIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 318, ASSERT_TYPE_ASSERT, "(unsigned)( viewInfo->clientIndex ) < (unsigned)( gfxCfg.maxClientRenderViews )", "viewInfo->clientIndex doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", v27, gfxCfg.maxClientRenderViews) )
+    LODWORD(v20) = viewInfo->clientIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_tonemap.cpp", 318, ASSERT_TYPE_ASSERT, "(unsigned)( viewInfo->clientIndex ) < (unsigned)( gfxCfg.maxClientRenderViews )", "viewInfo->clientIndex doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", v20, gfxCfg.maxClientRenderViews) )
       __debugbreak();
   }
-  _RBP = data->tonemapExposureInfoIndex;
+  tonemapExposureInfoIndex = data->tonemapExposureInfoIndex;
   clientIndex = viewInfo->clientIndex;
-  _RBX = ((_BYTE)_RBP - 1) & 1;
-  _RDI = &s_tonemapStateArray[clientIndex];
-  __asm { vmovss  xmm6, dword ptr [rdi+rbx*4+8] }
-  if ( !rg.debugShaderEnabled || (v11 = 0, rg.debugShaderLightingData) )
+  v6 = ((_BYTE)tonemapExposureInfoIndex - 1) & 1;
+  v7 = &s_tonemapStateArray[clientIndex];
+  _XMM6 = LODWORD(v7->radiometricScale[v6]);
+  if ( !rg.debugShaderEnabled || rg.debugShaderLightingData )
   {
-    _RSI = r_radiometricScale;
+    v10 = r_radiometricScale;
     if ( !r_radiometricScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm3, dword ptr [rsi+28h] }
+    Dvar_CheckFrontendServerThread(v10);
+    _XMM3 = v10->current.unsignedInt;
   }
   else
   {
-    __asm { vmovss  xmm3, cs:__real@3f800000 }
+    _XMM3 = LODWORD(FLOAT_1_0);
   }
-  __asm { vcomiss xmm3, cs:__real@c0200000 }
-  if ( v11 )
+  if ( *(float *)&_XMM3 >= -2.5 )
   {
-    __asm { vmovss  xmm1, cs:__real@3d800000 }
-    _RAX = 3 * _RBX + 165;
-    __asm
+    if ( *(float *)&_XMM3 >= -1.5 )
     {
-      vmovss  xmm0, dword ptr [rdi+rax*8]
-      vmaxss  xmm2, xmm0, cs:__real@322bcc77
-      vdivss  xmm3, xmm1, xmm2
-    }
-  }
-  else
-  {
-    __asm { vcomiss xmm3, cs:__real@bfc00000 }
-    if ( v11 )
-    {
-      _RAX = 3 * _RBX;
-      __asm { vmovss  xmm3, dword ptr [rdi+rax*8+520h] }
+      if ( *(float *)&_XMM3 < -0.5 )
+        _XMM3 = LODWORD(v7->readbackInfo[v6].sceneExposure);
     }
     else
     {
-      __asm { vcomiss xmm3, cs:__real@bf000000 }
-      if ( v11 )
-      {
-        _RAX = 3 * _RBX;
-        __asm { vmovss  xmm3, dword ptr [rdi+rax*8+524h] }
-      }
+      _XMM3 = LODWORD(v7->readbackInfo[v6].exposure);
     }
+  }
+  else
+  {
+    _XMM0 = LODWORD(v7->readbackInfo[v6].sceneAvgKiloNits);
+    __asm { vmaxss  xmm2, xmm0, cs:__real@322bcc77 }
+    v13 = LODWORD(FLOAT_0_0625);
+    *(float *)&v13 = 0.0625 / *(float *)&_XMM2;
+    _XMM3 = v13;
   }
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vcmpeqss xmm1, xmm6, xmm0
     vmaxss  xmm0, xmm3, cs:__real@3a83126f
     vblendvps xmm4, xmm6, xmm3, xmm1
     vminss  xmm3, xmm0, cs:__real@48000000
     vmaxss  xmm0, xmm4, cs:__real@3a83126f
     vminss  xmm1, xmm0, cs:__real@48000000
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rdi+rbp*4+10h], xmm1
-    vmovss  dword ptr [rdi+rbp*4+8], xmm3
   }
+  v7->prevFrameRadiometricScale[tonemapExposureInfoIndex] = *(float *)&_XMM1;
+  v7->radiometricScale[tonemapExposureInfoIndex] = *(float *)&_XMM3;
 }
 

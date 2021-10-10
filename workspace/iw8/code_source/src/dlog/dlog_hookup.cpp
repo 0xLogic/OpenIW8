@@ -786,34 +786,15 @@ int DLogHookup::GetEventChannelSample(DLogHookup *this, const char *name, const 
 DLogHookup::GetEventSampleRate
 ==============
 */
-
-float __fastcall DLogHookup::GetEventSampleRate(DLogHookup *this, const char *name, double sampleRate)
+float DLogHookup::GetEventSampleRate(DLogHookup *this, const char *name, float sampleRate)
 {
   const dvar_t *EventDvar; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   EventDvar = DLog_GetEventDvar(name, "sample_rate");
-  if ( EventDvar )
-  {
-    *(double *)&_XMM0 = atof(EventDvar->current.string);
-    __asm
-    {
-      vcvtsd2ss xmm0, xmm0, xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
+  if ( !EventDvar )
+    return sampleRate;
+  *(double *)&_XMM0 = atof(EventDvar->current.string);
+  __asm { vcvtsd2ss xmm0, xmm0, xmm0 }
   return *(float *)&_XMM0;
 }
 

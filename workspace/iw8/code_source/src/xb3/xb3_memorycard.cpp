@@ -220,27 +220,27 @@ void MemCard_CloseFile_Platform(MemCardFileHandle fileHandle, bool async, Memcar
   Concurrency::task_options *v23; 
   std::_Ref_count_base *Rep; 
   volatile signed __int32 *actionSubmitUpdates; 
-  Concurrency::task<void> *v28; 
-  HSTRING v29; 
-  Concurrency::task<void> v30; 
+  Concurrency::task<void> *v27; 
+  HSTRING v28; 
+  Concurrency::task<void> v29; 
   HSTRING string[6]; 
-  Windows::Foundation::IAsyncAction *v32; 
-  MemCard_CloseFile_Platform::__l50::<lambda_a9ac7a0c310a8e05bbfb1c2014b4e7f9> v33; 
-  Windows::Foundation::IAsyncAction *v34; 
-  MemcardError *v35; 
-  __int64 v36; 
-  Concurrency::task<void> v37; 
+  Windows::Foundation::IAsyncAction *v31; 
+  MemCard_CloseFile_Platform::__l50::<lambda_a9ac7a0c310a8e05bbfb1c2014b4e7f9> v32; 
+  Windows::Foundation::IAsyncAction *v33; 
+  MemcardError *v34; 
+  __int64 v35; 
+  Concurrency::task<void> v36; 
   HSTRING_HEADER hstringHeader; 
+  Concurrency::task_options v38; 
   Concurrency::task_options v39; 
-  Concurrency::task_options v40; 
-  void *v41; 
-  bool v42; 
-  MemcardError *v43; 
-  Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> *v44; 
+  void *v40; 
+  bool v41; 
+  MemcardError *v42; 
+  Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> *v43; 
 
-  v43 = writeError;
-  v42 = async;
-  v36 = -2i64;
+  v42 = writeError;
+  v41 = async;
+  v35 = -2i64;
   if ( !writeError && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_memorycard.cpp", 565, ASSERT_TYPE_ASSERT, "(writeError != nullptr)", (const char *)&queryFormat, "writeError != nullptr") )
     __debugbreak();
   if ( fileHandle.handle )
@@ -264,13 +264,13 @@ LABEL_8:
       goto LABEL_8;
     SaveDataFileInfo->isWriting = 1;
     v8 = NewString(SaveDataFileInfo->fileName);
-    v41 = (void *)v8;
+    v40 = (void *)v8;
     v9 = (Platform::String *)__abi_winrt_ptrto_string_ctor(v8);
-    v29 = (HSTRING)v9;
+    v28 = (HSTRING)v9;
     WindowsDeleteString_0((HSTRING)v8);
     v10 = WrapDataBuffer(v7->buffer, v7->bufferSize, v7->position);
     v11 = v10;
-    v41 = v10;
+    v40 = v10;
     if ( v10 )
       v10->__abi_AddRef(v10);
     string[5] = (HSTRING)v11;
@@ -278,7 +278,7 @@ LABEL_8:
       v11->__abi_Release(v11);
     UserConnectedStorage = Users_GetUserConnectedStorage(v7->user);
     v13 = UserConnectedStorage;
-    v41 = UserConnectedStorage;
+    v40 = UserConnectedStorage;
     if ( UserConnectedStorage )
       UserConnectedStorage->__abi_AddRef(UserConnectedStorage);
     string[4] = (HSTRING)v13;
@@ -286,10 +286,10 @@ LABEL_8:
       v13->__abi_Release(v13);
     if ( v13 )
     {
-      v44 = (Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> *)Platform::Details::Heap::Allocate(0x68ui64, 0x90ui64);
-      Platform::Collections::Map<Platform::String __gc *,Windows::Storage::Streams::IBuffer __gc *,std::less<Platform::String __gc *>,1,1>::Map<Platform::String __gc *,Windows::Storage::Streams::IBuffer __gc *,std::less<Platform::String __gc *>,1,1>(v44, (const std::less<Platform::String _> *)&v41);
+      v43 = (Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> *)Platform::Details::Heap::Allocate(0x68ui64, 0x90ui64);
+      Platform::Collections::Map<Platform::String __gc *,Windows::Storage::Streams::IBuffer __gc *,std::less<Platform::String __gc *>,1,1>::Map<Platform::String __gc *,Windows::Storage::Streams::IBuffer __gc *,std::less<Platform::String __gc *>,1,1>(v43, (const std::less<Platform::String _> *)&v40);
       v15 = v14;
-      v44 = v14;
+      v43 = v14;
       if ( v14 )
         v14->__abi_AddRef(v14);
       string[3] = (HSTRING)v15;
@@ -303,7 +303,7 @@ LABEL_8:
       j__Insert__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAA_NPE_AAVString_6_PE_AAUIBuffer_Streams_Storage_4__Z(v15, (Platform::String *)string[0], v11);
       Container = (Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> *)Windows::Xbox::Storage::IConnectedStorageSpace::CreateContainer(v13, v9);
       v18 = (HSTRING)Container;
-      v44 = Container;
+      v43 = Container;
       if ( Container )
         Container->__abi_AddRef(Container);
       string[2] = v18;
@@ -313,71 +313,64 @@ LABEL_8:
         __debugbreak();
       Com_Printf(16, "MEMCARD: WRITE %s\n", v7->fileName);
       View__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ = j__GetView__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ(v15);
-      v44 = NULL;
-      v20 = (*(__int64 (__fastcall **)(HSTRING, Windows::Foundation::Collections::IMapView<Platform::String _,Windows::Storage::Streams::IBuffer _> *, _QWORD, Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> **))(*(_QWORD *)v18 + 64i64))(v18, View__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ, 0i64, &v44);
+      v43 = NULL;
+      v20 = (*(__int64 (__fastcall **)(HSTRING, Windows::Foundation::Collections::IMapView<Platform::String _,Windows::Storage::Streams::IBuffer _> *, _QWORD, Platform::Collections::Map<Platform::String _,Windows::Storage::Streams::IBuffer _,std::less<Platform::String _>,1,1> **))(*(_QWORD *)v18 + 64i64))(v18, View__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ, 0i64, &v43);
       if ( v20 < 0 )
         __abi_WinRTraiseException(v20);
-      v21 = v44;
-      v22 = (Windows::Foundation::IAsyncAction *)v44;
-      if ( v44 )
+      v21 = v43;
+      v22 = (Windows::Foundation::IAsyncAction *)v43;
+      if ( v43 )
       {
-        v44->__abi_AddRef(v44);
-        v21 = v44;
+        v43->__abi_AddRef(v43);
+        v21 = v43;
       }
       if ( v21 )
         v21->__abi_Release(v21);
-      v32 = v22;
+      v31 = v22;
       if ( v22 )
         v22->__abi_AddRef(v22);
-      v32 = v22;
+      v31 = v22;
       if ( v22 )
         v22->__abi_Release(v22);
       if ( View__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ )
         View__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ->__abi_Release(View__Q__IMap_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows____Map_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__U__less_PE_AAVString_Platform___std___00_00_2Platform__UE_AAAPE_AAU__IMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___234_XZ);
+      Concurrency::task_options::task_options(&v38);
+      v27 = Concurrency::create_task<Windows::Foundation::IAsyncAction __gc *>(&v36, v22, v23);
+      v29._M_unitTask._M_Impl._Ptr = (Concurrency::details::_Task_impl<unsigned char> *)&v39;
       Concurrency::task_options::task_options(&v39);
-      v28 = Concurrency::create_task<Windows::Foundation::IAsyncAction __gc *>(&v37, v22, v23);
-      v30._M_unitTask._M_Impl._Ptr = (Concurrency::details::_Task_impl<unsigned char> *)&v40;
-      Concurrency::task_options::task_options(&v40);
-      v33.writeError = (MemcardError *)v7;
+      v32.writeError = (MemcardError *)v7;
       if ( v22 )
         v22->__abi_AddRef(v22);
-      v34 = v22;
-      v35 = v43;
-      Concurrency::task_void_::then__lambda_a9ac7a0c310a8e05bbfb1c2014b4e7f9___(v28, &v33, (Concurrency::task_options *)&v33.writeError);
-      if ( v34 )
-        v34->__abi_Release(v34);
-      Rep = v37._M_unitTask._M_Impl._Rep;
-      if ( v37._M_unitTask._M_Impl._Rep )
+      v33 = v22;
+      v34 = v42;
+      Concurrency::task_void_::then__lambda_a9ac7a0c310a8e05bbfb1c2014b4e7f9___(v27, &v32, (Concurrency::task_options *)&v32.writeError);
+      if ( v33 )
+        v33->__abi_Release(v33);
+      Rep = v36._M_unitTask._M_Impl._Rep;
+      if ( v36._M_unitTask._M_Impl._Rep )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v37._M_unitTask._M_Impl._Rep->_Uses, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v36._M_unitTask._M_Impl._Rep->_Uses, 0xFFFFFFFF) == 1 )
         {
           Rep->_Destroy(Rep);
           if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
             Rep->_Delete_this(Rep);
         }
       }
-      if ( !v42 )
+      if ( !v41 )
       {
         UnlockMutex(memoryCardGlob.fileInfoMutex);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu [rsp+1E8h+var_1A8], xmm0
-        }
-        if ( v33.actionSubmitUpdates )
-          _InterlockedIncrement((volatile signed __int32 *)&v33.actionSubmitUpdates->Windows::Foundation::IAsyncInfo);
-        __asm
-        {
-          vmovups xmm0, [rsp+1E8h+var_158]
-          vmovdqa [rsp+1E8h+var_1A8], xmm0
-        }
-        Memcard_Wait_void_(&v30);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        v29 = _XMM0;
+        if ( v32.actionSubmitUpdates )
+          _InterlockedIncrement((volatile signed __int32 *)&v32.actionSubmitUpdates->Windows::Foundation::IAsyncInfo);
+        v29 = *(Concurrency::task<void> *)&v32.info;
+        Memcard_Wait_void_(&v29);
         LockMutex(memoryCardGlob.fileInfoMutex);
       }
-      actionSubmitUpdates = (volatile signed __int32 *)v33.actionSubmitUpdates;
-      if ( v33.actionSubmitUpdates )
+      actionSubmitUpdates = (volatile signed __int32 *)v32.actionSubmitUpdates;
+      if ( v32.actionSubmitUpdates )
       {
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v33.actionSubmitUpdates->Windows::Foundation::IAsyncInfo, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v32.actionSubmitUpdates->Windows::Foundation::IAsyncInfo, 0xFFFFFFFF) == 1 )
         {
           (**(void (__fastcall ***)(volatile signed __int32 *))actionSubmitUpdates)(actionSubmitUpdates);
           if ( _InterlockedExchangeAdd(actionSubmitUpdates + 3, 0xFFFFFFFF) == 1 )
@@ -392,7 +385,7 @@ LABEL_8:
       v13->__abi_Release(v13);
       if ( v11 )
         v11->__abi_Release(v11);
-      WindowsDeleteString_0(v29);
+      WindowsDeleteString_0(v28);
       goto LABEL_8;
     }
     MemCard_SetMemcardError(writeError, MEMCARD_UNABLE_TO_ACCESS_DEVICE, 0);
@@ -525,11 +518,8 @@ void __fastcall MemCard_DeleteAllFilesForAllUsers_Platform(double _XMM0_8)
         v20._M_CancellationToken._M_Impl = NULL;
         v20._M_ContinuationContext._M_context._M_captureMethod = 1i64;
         v20._M_ContinuationContext._M_RunInline = 0;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu [rbp+57h+var_C0], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v20._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myfirst = *(_OWORD *)&_XMM0_8;
         v20._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myend = NULL;
         v20._M_InternalTaskOptions._M_presetCreationCallstack._M_SingleFrame = NULL;
         v20._M_InternalTaskOptions._M_hasPresetCreationCallstack = 0;
@@ -950,11 +940,8 @@ LABEL_13:
   v64[2] = (HSTRING)v25;
   if ( v25 )
     v25->__abi_Release((Platform::Object *)v25);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+158h+var_120.baseclass_0._Mypair._Myval2._Myval2._Myhead], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v57._Mypair._Myval2._Myval2._Mysize = *((_QWORD *)&_XMM0 + 1);
   v27 = (std::_Tree_node<std::pair<Platform::String _ const,Windows::Storage::Streams::IBuffer _>,void *> *)operator new(0x30ui64);
   v56._Ptr = v27;
   v27->_Left = v27;

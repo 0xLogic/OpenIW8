@@ -221,43 +221,39 @@ bdGetAchievementStatesRequest::addAchievementName
 bdGetAchievementStatesRequest *bdGetAchievementStatesRequest::addAchievementName(bdGetAchievementStatesRequest *this, const char *achievementName)
 {
   __int64 m_size; 
-  _BYTE *v8; 
-  unsigned __int64 v9; 
+  __int64 v4; 
+  _BYTE *v5; 
+  unsigned __int64 v6; 
   char dst[32]; 
-  int v14; 
-  char v15; 
+  __m256i v9; 
+  __m256i v10; 
+  int v11; 
+  char v12; 
 
-  _RBX = this;
   if ( bdStrlcpy(dst, achievementName, 0x65ui64) > 0x64 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  bdHandleAssert(_RBX->m_achievementNames.m_size < 3, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdStructFixedSizeString<100>,3>::pushBack", 0x40u, "No more capacity for pushBack");
-  m_size = _RBX->m_achievementNames.m_size;
+  bdHandleAssert(this->m_achievementNames.m_size < 3, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdStructFixedSizeString<100>,3>::pushBack", 0x40u, "No more capacity for pushBack");
+  m_size = this->m_achievementNames.m_size;
   if ( (unsigned int)m_size < 3 )
   {
-    _RCX = m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+0D8h+dst]
-      vmovups ymmword ptr [rcx+rbx+470h], ymm0
-      vmovups ymm1, [rsp+0D8h+var_68]
-      vmovups ymmword ptr [rcx+rbx+490h], ymm1
-      vmovups ymm0, [rsp+0D8h+var_48]
-      vmovups ymmword ptr [rcx+rbx+4B0h], ymm0
-    }
-    *(_DWORD *)&_RBX->m_achievementNames.m_elements[_RCX].m_buffer[96] = v14;
-    _RBX->m_achievementNames.m_elements[_RCX].m_buffer[100] = v15;
-    ++_RBX->m_achievementNames.m_size;
+    v4 = m_size;
+    *(__m256i *)this->m_achievementNames.m_elements[v4].m_buffer = *(__m256i *)dst;
+    *(__m256i *)&this->m_achievementNames.m_elements[v4].m_buffer[32] = v9;
+    *(__m256i *)&this->m_achievementNames.m_elements[v4].m_buffer[64] = v10;
+    *(_DWORD *)&this->m_achievementNames.m_elements[v4].m_buffer[96] = v11;
+    this->m_achievementNames.m_elements[v4].m_buffer[100] = v12;
+    ++this->m_achievementNames.m_size;
   }
-  v8 = memchr_0(dst, 0, 0x65ui64);
-  if ( v8 )
-    v9 = v8 - dst;
+  v5 = memchr_0(dst, 0, 0x65ui64);
+  if ( v5 )
+    v6 = v5 - dst;
   else
-    v9 = 101i64;
-  bdHandleAssert(v9 < 0x65, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  return _RBX;
+    v6 = 101i64;
+  bdHandleAssert(v6 < 0x65, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  return this;
 }
 
 /*
@@ -483,112 +479,89 @@ void bdGetAchievementStatesRequest::bdGetAchievementStatesRequest(bdGetAchieveme
   __int64 v5; 
   unsigned int m_size; 
   unsigned int i; 
-  __int64 v11; 
-  unsigned int v20; 
+  bdStructFixedSizeString<1024> *p_m_pageToken; 
+  bdStructFixedSizeString<1024> *v9; 
+  __int64 v10; 
+  unsigned int v11; 
   unsigned int j; 
-  unsigned int v22; 
+  unsigned int v13; 
   unsigned int k; 
-  unsigned int v28; 
+  __int64 v15; 
+  unsigned int v16; 
 
-  _RSI = __that;
-  _RDI = this;
   v5 = 0i64;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdGetAchievementStatesRequest::`vbtable';
     bdReferencable::bdReferencable((bdReferencable *)(&this->m_platform + 1), (const bdReferencable *)((char *)&__that->__vftable + *(int *)(*((_QWORD *)&__that->__vftable + 1) + 4i64) + 8));
   }
-  bdStructBufferSerializable::bdStructBufferSerializable(_RDI, _RSI);
-  _RDI->__vftable = (bdGetAchievementStatesRequest_vtbl *)&bdGetAchievementStatesRequest::`vftable'{for `bdStructBufferSerializable'};
-  *(bdGetAchievementStatesRequest_vtbl **)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8) = (bdGetAchievementStatesRequest_vtbl *)&bdGetAchievementStatesRequest::`vftable'{for `bdReferencable'};
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+10h]
-    vmovups xmmword ptr [rdi+10h], xmm0
-  }
-  *(_DWORD *)_RDI->m_context = *(_DWORD *)_RSI->m_context;
-  _RDI->m_context[4] = _RSI->m_context[4];
-  _RDI->m_kinds.m_size = 0;
-  m_size = _RSI->m_kinds.m_size;
-  _RDI->m_kinds.m_size = m_size;
-  for ( i = 0; i < _RDI->m_kinds.m_size; ++i )
-    _RDI->m_kinds.m_elements[i] = _RSI->m_kinds.m_elements[i];
-  _RDI->m_limit = _RSI->m_limit;
-  _RDI->m_includeUninitialized = _RSI->m_includeUninitialized;
-  _RCX = &_RDI->m_pageToken;
-  _RAX = &_RSI->m_pageToken;
-  v11 = 8i64;
+  bdStructBufferSerializable::bdStructBufferSerializable(this, __that);
+  this->__vftable = (bdGetAchievementStatesRequest_vtbl *)&bdGetAchievementStatesRequest::`vftable'{for `bdStructBufferSerializable'};
+  *(bdGetAchievementStatesRequest_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdGetAchievementStatesRequest_vtbl *)&bdGetAchievementStatesRequest::`vftable'{for `bdReferencable'};
+  *((_OWORD *)&this->__vftable + 1) = *((_OWORD *)&__that->__vftable + 1);
+  *(_DWORD *)this->m_context = *(_DWORD *)__that->m_context;
+  this->m_context[4] = __that->m_context[4];
+  this->m_kinds.m_size = 0;
+  m_size = __that->m_kinds.m_size;
+  this->m_kinds.m_size = m_size;
+  for ( i = 0; i < this->m_kinds.m_size; ++i )
+    this->m_kinds.m_elements[i] = __that->m_kinds.m_elements[i];
+  this->m_limit = __that->m_limit;
+  this->m_includeUninitialized = __that->m_includeUninitialized;
+  p_m_pageToken = &this->m_pageToken;
+  v9 = &__that->m_pageToken;
+  v10 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (bdStructFixedSizeString<1024> *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (bdStructFixedSizeString<1024> *)((char *)_RAX + 128);
-    --v11;
+    *(_OWORD *)p_m_pageToken->m_buffer = *(_OWORD *)v9->m_buffer;
+    *(_OWORD *)&p_m_pageToken->m_buffer[16] = *(_OWORD *)&v9->m_buffer[16];
+    *(_OWORD *)&p_m_pageToken->m_buffer[32] = *(_OWORD *)&v9->m_buffer[32];
+    *(_OWORD *)&p_m_pageToken->m_buffer[48] = *(_OWORD *)&v9->m_buffer[48];
+    *(_OWORD *)&p_m_pageToken->m_buffer[64] = *(_OWORD *)&v9->m_buffer[64];
+    *(_OWORD *)&p_m_pageToken->m_buffer[80] = *(_OWORD *)&v9->m_buffer[80];
+    *(_OWORD *)&p_m_pageToken->m_buffer[96] = *(_OWORD *)&v9->m_buffer[96];
+    p_m_pageToken = (bdStructFixedSizeString<1024> *)((char *)p_m_pageToken + 128);
+    *(_OWORD *)&p_m_pageToken[-1].m_buffer[1009] = *(_OWORD *)&v9->m_buffer[112];
+    v9 = (bdStructFixedSizeString<1024> *)((char *)v9 + 128);
+    --v10;
   }
-  while ( v11 );
-  _RCX->m_buffer[0] = _RAX->m_buffer[0];
-  _RDI->m_statuses.m_size = 0;
-  v20 = _RSI->m_statuses.m_size;
-  _RDI->m_statuses.m_size = v20;
-  for ( j = 0; j < _RDI->m_statuses.m_size; ++j )
-    _RDI->m_statuses.m_elements[j] = _RSI->m_statuses.m_elements[j];
-  `eh vector constructor iterator'(&_RDI->m_achievementNames, 0x65ui64, 3ui64, (void (__fastcall *)(void *))bdStructFixedSizeString<100>::bdStructFixedSizeString<100>, (void (__fastcall *)(void *))bdStructFixedSizeString<100>::~bdStructFixedSizeString<100>);
-  _RDI->m_achievementNames.m_size = 0;
-  v22 = _RSI->m_achievementNames.m_size;
-  _RDI->m_achievementNames.m_size = v22;
-  for ( k = 0; k < _RDI->m_achievementNames.m_size; ++k )
+  while ( v10 );
+  p_m_pageToken->m_buffer[0] = v9->m_buffer[0];
+  this->m_statuses.m_size = 0;
+  v11 = __that->m_statuses.m_size;
+  this->m_statuses.m_size = v11;
+  for ( j = 0; j < this->m_statuses.m_size; ++j )
+    this->m_statuses.m_elements[j] = __that->m_statuses.m_elements[j];
+  `eh vector constructor iterator'(&this->m_achievementNames, 0x65ui64, 3ui64, (void (__fastcall *)(void *))bdStructFixedSizeString<100>::bdStructFixedSizeString<100>, (void (__fastcall *)(void *))bdStructFixedSizeString<100>::~bdStructFixedSizeString<100>);
+  this->m_achievementNames.m_size = 0;
+  v13 = __that->m_achievementNames.m_size;
+  this->m_achievementNames.m_size = v13;
+  for ( k = 0; k < this->m_achievementNames.m_size; ++k )
   {
-    _RCX = k;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+rsi+470h]
-      vmovups ymmword ptr [rcx+rdi+470h], ymm0
-      vmovups ymm1, ymmword ptr [rcx+rsi+490h]
-      vmovups ymmword ptr [rcx+rdi+490h], ymm1
-      vmovups ymm0, ymmword ptr [rcx+rsi+4B0h]
-      vmovups ymmword ptr [rcx+rdi+4B0h], ymm0
-    }
-    *(_DWORD *)&_RDI->m_achievementNames.m_elements[_RCX].m_buffer[96] = *(_DWORD *)&_RSI->m_achievementNames.m_elements[_RCX].m_buffer[96];
-    _RDI->m_achievementNames.m_elements[_RCX].m_buffer[100] = _RSI->m_achievementNames.m_elements[_RCX].m_buffer[100];
+    v15 = k;
+    *(__m256i *)this->m_achievementNames.m_elements[v15].m_buffer = *(__m256i *)__that->m_achievementNames.m_elements[v15].m_buffer;
+    *(__m256i *)&this->m_achievementNames.m_elements[v15].m_buffer[32] = *(__m256i *)&__that->m_achievementNames.m_elements[v15].m_buffer[32];
+    *(__m256i *)&this->m_achievementNames.m_elements[v15].m_buffer[64] = *(__m256i *)&__that->m_achievementNames.m_elements[v15].m_buffer[64];
+    *(_DWORD *)&this->m_achievementNames.m_elements[v15].m_buffer[96] = *(_DWORD *)&__that->m_achievementNames.m_elements[v15].m_buffer[96];
+    this->m_achievementNames.m_elements[v15].m_buffer[100] = __that->m_achievementNames.m_elements[v15].m_buffer[100];
   }
-  _RDI->m_achievementIds.m_size = 0;
-  v28 = _RSI->m_achievementIds.m_size;
-  _RDI->m_achievementIds.m_size = v28;
-  if ( v28 )
+  this->m_achievementIds.m_size = 0;
+  v16 = __that->m_achievementIds.m_size;
+  this->m_achievementIds.m_size = v16;
+  if ( v16 )
   {
     do
     {
-      _RDI->m_achievementIds.m_elements[v5] = _RSI->m_achievementIds.m_elements[v5];
+      this->m_achievementIds.m_elements[v5] = __that->m_achievementIds.m_elements[v5];
       v5 = (unsigned int)(v5 + 1);
     }
-    while ( (unsigned int)v5 < _RDI->m_achievementIds.m_size );
+    while ( (unsigned int)v5 < this->m_achievementIds.m_size );
   }
-  _RDI->m_user.m_hasValue = _RSI->m_user.m_hasValue;
-  bdStructUserAccountID::bdStructUserAccountID(&_RDI->m_user.m_value, &_RSI->m_user.m_value);
-  _RDI->m_firstPartyUser.m_hasValue = _RSI->m_firstPartyUser.m_hasValue;
-  bdStructUserAccountID::bdStructUserAccountID(&_RDI->m_firstPartyUser.m_value, &_RSI->m_firstPartyUser.m_value);
-  _RDI->m_platform.m_hasValue = _RSI->m_platform.m_hasValue;
-  _RDI->m_platform.m_value = _RSI->m_platform.m_value;
+  this->m_user.m_hasValue = __that->m_user.m_hasValue;
+  bdStructUserAccountID::bdStructUserAccountID(&this->m_user.m_value, &__that->m_user.m_value);
+  this->m_firstPartyUser.m_hasValue = __that->m_firstPartyUser.m_hasValue;
+  bdStructUserAccountID::bdStructUserAccountID(&this->m_firstPartyUser.m_value, &__that->m_firstPartyUser.m_value);
+  this->m_platform.m_hasValue = __that->m_platform.m_hasValue;
+  this->m_platform.m_value = __that->m_platform.m_value;
 }
 

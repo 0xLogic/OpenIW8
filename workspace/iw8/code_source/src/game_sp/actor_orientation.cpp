@@ -368,140 +368,77 @@ AIScriptedInterface::AdjustFacingForStrafe
 */
 void AIScriptedInterface::AdjustFacingForStrafe(AIScriptedInterface *this, const vec3_t *desiredAngles)
 {
-  __int64 v26; 
-  __int64 v28; 
-  char v68; 
+  ai_scripted_t *m_pAI; 
+  double v5; 
+  float v6; 
+  __int128 v7; 
+  __int64 v10; 
+  __int64 v11; 
+  ai_scripted_t *v12; 
+  gentity_s *ent; 
+  ai_scripted_t *v14; 
+  float v17; 
+  float v20; 
+  double v21; 
+  char v23; 
   vec2_t vec; 
-  int v71[5]; 
-  bfx::AreaHandle v72; 
-  bfx::LinkHandle v73; 
-  void *retaddr; 
+  float v25; 
+  int v26[5]; 
+  bfx::AreaHandle v27; 
+  bfx::LinkHandle v28; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RAX = this->m_pAI;
-  if ( _RAX->eAnimMode == AI_ANIM_MOVE_CODE )
+  m_pAI = this->m_pAI;
+  if ( m_pAI->eAnimMode == AI_ANIM_MOVE_CODE )
   {
-    _RCX = (const vec2_t *)&_RAX->Physics.vWishDelta;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rcx+4]
-      vmovss  xmm0, dword ptr [rcx]
-      vmovss  xmm3, dword ptr [rcx+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@3a83126f
-    }
-    if ( _RAX->eAnimMode == AI_ANIM_UNKNOWN )
-      goto LABEL_11;
-    *(double *)&_XMM0 = vectoyaw(_RCX);
-    __asm { vmovaps xmm6, xmm0 }
+    if ( (float)((float)((float)(m_pAI->Physics.vWishDelta.v[0] * m_pAI->Physics.vWishDelta.v[0]) + (float)(m_pAI->Physics.vWishDelta.v[1] * m_pAI->Physics.vWishDelta.v[1])) + (float)(m_pAI->Physics.vWishDelta.v[2] * m_pAI->Physics.vWishDelta.v[2])) < 0.001 )
+      return;
+    v5 = vectoyaw((const vec2_t *)&m_pAI->Physics.vWishDelta);
+    v6 = *(float *)&v5;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+88Ch]
-      vmovss  xmm0, dword ptr [rax+888h]
-      vmovss  xmm3, dword ptr [rax+890h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmaxss  xmm6, xmm0, cs:__real@3f800000
-    }
-    bfx::AreaHandle::AreaHandle(&v72);
-    bfx::LinkHandle::LinkHandle(&v73);
-    v68 = 0;
-    LOBYTE(v26) = 1;
-    __asm { vmovaps xmm1, xmm6 }
-    ((void (__fastcall *)(AINavigator *, __int64, __int64, int *, char))this->m_pAI->pNavigator->GetPosAlongPath)(this->m_pAI->pNavigator, v28, v26, v71, v68);
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_60]
-      vsubss  xmm1, xmm0, dword ptr [rcx+130h]
-      vmovss  dword ptr [rsp+0A8h+vec], xmm1
-      vmovss  xmm2, [rsp+0A8h+var_5C]
-      vsubss  xmm0, xmm2, dword ptr [rcx+134h]
-      vmovss  dword ptr [rsp+0A8h+vec+4], xmm0
-      vmovss  xmm1, [rsp+0A8h+var_58]
-      vsubss  xmm2, xmm1, dword ptr [rcx+138h]
-      vmovss  [rsp+0A8h+var_68], xmm2
-    }
-    *(double *)&_XMM0 = vectoyaw(&vec);
-    __asm { vmovaps xmm6, xmm0 }
-    bfx::LinkHandle::~LinkHandle(&v73);
-    bfx::AreaHandle::~AreaHandle(&v72);
+    v7 = LODWORD(m_pAI->Physics.vWishDelta.v[0]);
+    *(float *)&v7 = fsqrt((float)((float)(m_pAI->Physics.vWishDelta.v[0] * m_pAI->Physics.vWishDelta.v[0]) + (float)(m_pAI->Physics.vWishDelta.v[1] * m_pAI->Physics.vWishDelta.v[1])) + (float)(m_pAI->Physics.vWishDelta.v[2] * m_pAI->Physics.vWishDelta.v[2]));
+    _XMM0 = v7;
+    __asm { vmaxss  xmm6, xmm0, cs:__real@3f800000 }
+    bfx::AreaHandle::AreaHandle(&v27);
+    bfx::LinkHandle::LinkHandle(&v28);
+    v23 = 0;
+    LOBYTE(v10) = 1;
+    ((void (__fastcall *)(AINavigator *, __int64, __int64, int *, char))this->m_pAI->pNavigator->GetPosAlongPath)(this->m_pAI->pNavigator, v11, v10, v26, v23);
+    v12 = this->m_pAI;
+    ent = v12->ent;
+    vec.v[0] = *(float *)v26 - v12->ent->r.currentOrigin.v[0];
+    vec.v[1] = *(float *)&v26[1] - ent->r.currentOrigin.v[1];
+    v25 = *(float *)&v26[2] - ent->r.currentOrigin.v[2];
+    LODWORD(v6) = COERCE_UNSIGNED_INT64(vectoyaw(&vec));
+    bfx::LinkHandle::~LinkHandle(&v28);
+    bfx::AreaHandle::~AreaHandle(&v27);
   }
-  _RCX = this->m_pAI;
-  if ( _RCX->bPredictedFaceMotionChanged )
+  v14 = this->m_pAI;
+  if ( v14->bPredictedFaceMotionChanged )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm6, dword ptr [rax+140h]
-      vmulss  xmm5, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm5, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm3, xmm1, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm4, xmm0, xmm3, 1
-      vsubss  xmm1, xmm5, xmm4
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  dword ptr [rcx+0D50h], xmm0
-    }
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm3, 1 }
+    v14->animData.strafeBlendYaw = (float)((float)((float)(v6 - v14->ent->r.currentAngles.v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0;
   }
   else
   {
-    __asm
+    v17 = v6 - desiredAngles->v[1];
+    _XMM6 = 0i64;
+    __asm { vroundss xmm2, xmm6, xmm1, 1 }
+    v20 = (float)((float)((float)(v17 - v14->animData.strafeBlendYaw) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    if ( COERCE_FLOAT(LODWORD(v20) & _xmm) <= 45.0 || v14->bStrafeReverse )
     {
-      vsubss  xmm4, xmm6, dword ptr [rdi+4]
-      vsubss  xmm0, xmm4, dword ptr [rcx+0D50h]
-      vmovss  xmm5, cs:__real@3b360b61
-      vmulss  xmm3, xmm0, xmm5
-      vxorps  xmm6, xmm6, xmm6
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm6, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000; val
-      vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm2, cs:__real@42340000; max
-      vcomiss xmm1, xmm2
-    }
-    if ( !_RCX->bPredictedFaceMotionChanged || _RCX->bStrafeReverse )
-    {
-      __asm
-      {
-        vmulss  xmm3, xmm4, xmm5
-        vaddss  xmm1, xmm3, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, xmm0, xmm1
-        vroundss xmm2, xmm6, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rcx+0D50h], xmm1
-      }
+      __asm { vroundss xmm2, xmm6, xmm1, 1 }
+      v14->animData.strafeBlendYaw = (float)((float)(v17 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
     }
     else
     {
-      __asm { vmovss  xmm1, cs:__real@c2340000; min }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _RAX = this->m_pAI;
-      __asm
-      {
-        vaddss  xmm0, xmm0, dword ptr [rax+0D50h]
-        vmovss  dword ptr [rax+0D50h], xmm0
-      }
+      v21 = I_fclamp(v20, -45.0, 45.0);
+      this->m_pAI->animData.strafeBlendYaw = *(float *)&v21 + this->m_pAI->animData.strafeBlendYaw;
     }
   }
-LABEL_11:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
 }
 
 /*
@@ -511,92 +448,62 @@ AIScriptedInterface::CheckGunBlockedByWallWhileMoving
 */
 char AIScriptedInterface::CheckGunBlockedByWallWhileMoving(AIScriptedInterface *this, const vec3_t *predictedMovePos, const vec2_t *dir)
 {
-  char v16; 
-  AIScriptedInterface_vtbl *v19; 
   ai_scripted_t *m_pAI; 
-  const dvar_t *v32; 
-  const dvar_t *v34; 
+  AIScriptedInterface_vtbl *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  ai_scripted_t *v12; 
+  float v13; 
+  const dvar_t *v15; 
+  const dvar_t *v17; 
   vec3_t start; 
   vec3_t end; 
   vec3_t vFinalGoal; 
   Bounds bounds; 
 
-  _RSI = predictedMovePos;
   if ( this->Is3D(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 339, ASSERT_TYPE_ASSERT, "(!Is3D())", (const char *)&queryFormat, "!Is3D()") )
     __debugbreak();
   if ( !AICommonInterface::HasPath(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 340, ASSERT_TYPE_ASSERT, "(HasPath())", (const char *)&queryFormat, "HasPath()") )
     __debugbreak();
   AICommonInterface::GetPathFinalGoal(this, &vFinalGoal);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+vFinalGoal]
-    vmovss  xmm1, dword ptr [rbp+57h+vFinalGoal+4]
-    vsubss  xmm3, xmm0, dword ptr [rcx+130h]
-    vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-    vmovss  xmm0, dword ptr [rbp+57h+vFinalGoal+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+138h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, cs:__real@44800000
-  }
-  if ( v16 )
-    return 0;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41200000
-    vmovups xmm0, cs:__xmm@41200000000000000000000000000000
-  }
-  v19 = this->__vftable;
-  __asm
-  {
-    vmovss  dword ptr [rbp+57h+bounds.halfSize+4], xmm1
-    vmovss  dword ptr [rbp+57h+bounds.halfSize+8], xmm1
-    vmovups xmmword ptr [rbp+57h+bounds.midPoint], xmm0
-  }
-  v19->GetEyePosition(this, &start);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+start+8]
-    vsubss  xmm1, xmm0, cs:__real@40a00000
-    vmovss  xmm3, cs:__real@42200000
-    vmulss  xmm0, xmm3, dword ptr [rdi]
-    vmovss  xmm4, dword ptr [rsi]
-    vmovss  xmm5, dword ptr [rsi+4]
-    vmovss  xmm2, dword ptr [rbp+57h+bounds.halfSize+8]
-  }
   m_pAI = this->m_pAI;
-  __asm
+  if ( (float)((float)((float)((float)(vFinalGoal.v[1] - m_pAI->ent->r.currentOrigin.v[1]) * (float)(vFinalGoal.v[1] - m_pAI->ent->r.currentOrigin.v[1])) + (float)((float)(vFinalGoal.v[0] - m_pAI->ent->r.currentOrigin.v[0]) * (float)(vFinalGoal.v[0] - m_pAI->ent->r.currentOrigin.v[0]))) + (float)((float)(vFinalGoal.v[2] - m_pAI->ent->r.currentOrigin.v[2]) * (float)(vFinalGoal.v[2] - m_pAI->ent->r.currentOrigin.v[2]))) < 1024.0 )
+    return 0;
+  v7 = this->__vftable;
+  bounds.halfSize.v[1] = FLOAT_10_0;
+  bounds.halfSize.v[2] = FLOAT_10_0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  v7->GetEyePosition(this, &start);
+  v8 = 40.0 * dir->v[0];
+  v9 = predictedMovePos->v[0];
+  v10 = predictedMovePos->v[1];
+  _XMM2 = LODWORD(bounds.halfSize.v[2]);
+  v12 = this->m_pAI;
+  end.v[2] = start.v[2] - 5.0;
+  v13 = 40.0 * dir->v[1];
+  end.v[0] = v8 + v9;
+  __asm { vmaxss  xmm0, xmm2, dword ptr [rbp+57h+bounds.halfSize] }
+  bounds.halfSize.v[2] = *(float *)&_XMM0;
+  start.v[0] = v9;
+  start.v[1] = v10;
+  end.v[1] = v13 + v10;
+  if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &end, &bounds, v12->ent->s.number, 2047, 8394769) )
   {
-    vmovss  dword ptr [rbp+57h+end+8], xmm1
-    vaddss  xmm1, xmm0, xmm4
-    vmulss  xmm0, xmm3, dword ptr [rdi+4]
-    vmovss  dword ptr [rbp+57h+end], xmm1
-    vaddss  xmm1, xmm0, xmm5
-    vmaxss  xmm0, xmm2, dword ptr [rbp+57h+bounds.halfSize]
-    vmovss  dword ptr [rbp+57h+bounds.halfSize+8], xmm0
-    vmovss  dword ptr [rbp+57h+start], xmm4
-    vmovss  dword ptr [rbp+57h+start+4], xmm5
-    vmovss  dword ptr [rbp+57h+end+4], xmm1
-  }
-  if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &end, &bounds, m_pAI->ent->s.number, 2047, 8394769) )
-  {
-    v34 = DVARBOOL_ai_debugGunBlocked;
+    v17 = DVARBOOL_ai_debugGunBlocked;
     if ( !DVARBOOL_ai_debugGunBlocked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugGunBlocked") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    if ( v34->current.enabled )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v17->current.enabled )
       G_DebugLine(&start, &end, &colorGreen, 0);
     return 0;
   }
   this->m_pAI->orientation.gunBlockedByWall = 1;
-  v32 = DVARBOOL_ai_debugGunBlocked;
+  v15 = DVARBOOL_ai_debugGunBlocked;
   if ( !DVARBOOL_ai_debugGunBlocked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugGunBlocked") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v32);
-  if ( v32->current.enabled )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.enabled )
     G_DebugLine(&start, &end, &colorRed, 0);
   return 1;
 }
@@ -609,8 +516,9 @@ AIScriptedInterface::ClearScriptOrient
 void AIScriptedInterface::ClearScriptOrient(AIScriptedInterface *this)
 {
   const dvar_t *v1; 
-  unsigned __int16 GroundEntNum; 
   ai_scripted_t *m_pAI; 
+  unsigned __int16 GroundEntNum; 
+  ai_scripted_t *v5; 
 
   v1 = DVARBOOL_ai_iw7;
   if ( !DVARBOOL_ai_iw7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_iw7") )
@@ -618,33 +526,23 @@ void AIScriptedInterface::ClearScriptOrient(AIScriptedInterface *this)
   Dvar_CheckFrontendServerThread(v1);
   if ( !v1->current.enabled )
   {
-    _RAX = this->m_pAI;
-    if ( _RAX->ScriptOrient.eMode )
+    m_pAI = this->m_pAI;
+    if ( m_pAI->ScriptOrient.eMode )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax+994h]
-        vmovups xmmword ptr [rax+97Ch], xmm0
-        vmovsd  xmm1, qword ptr [rax+9A4h]
-        vmovsd  qword ptr [rax+98Ch], xmm1
-      }
+      *(_OWORD *)&m_pAI->CodeOrient.eMode = *(_OWORD *)&m_pAI->ScriptOrient.eMode;
+      *(double *)&m_pAI->CodeOrient.fDesiredLookPitch = *(double *)&m_pAI->ScriptOrient.fDesiredLookPitch;
       GroundEntNum = AIScriptedInterface::GetGroundEntNum(this);
       if ( BGMovingPlatforms::IsMovingPlatform(GroundEntNum) && this->m_pAI->CodeOrient.eMode == AI_ORIENT_TO_MOTION )
         AIScriptedInterface::ResetMoveHistoryToEntForward(this);
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax+97Ch]
-        vmovups xmmword ptr [rax+994h], xmm0
-        vmovsd  xmm1, qword ptr [rax+98Ch]
-        vmovsd  qword ptr [rax+9A4h], xmm1
-      }
+      *(_OWORD *)&m_pAI->ScriptOrient.eMode = *(_OWORD *)&m_pAI->CodeOrient.eMode;
+      *(double *)&m_pAI->ScriptOrient.fDesiredLookPitch = *(double *)&m_pAI->CodeOrient.fDesiredLookPitch;
     }
-    m_pAI = this->m_pAI;
-    if ( !m_pAI->orientation.lockScriptOrient )
-      m_pAI->ScriptOrient.eMode = AI_ORIENT_INVALID;
+    v5 = this->m_pAI;
+    if ( !v5->orientation.lockScriptOrient )
+      v5->ScriptOrient.eMode = AI_ORIENT_INVALID;
   }
 }
 
@@ -657,13 +555,15 @@ void AIScriptedInterface::DecideOrientation(AIScriptedInterface *this)
 {
   ai_scripted_t *m_pAI; 
   __int64 v3; 
+  char *v4; 
   bool predictedFaceMotion; 
   bool v6; 
   ai_scripted_t *v7; 
   ai_orient_t *v8; 
   AIScriptedInterface *v9; 
-  ai_scripted_t *v12; 
-  __int64 v13; 
+  gentity_s *ent; 
+  ai_scripted_t *v11; 
+  __int64 v12; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "AI_DecideOrientation");
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1322, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
@@ -674,60 +574,56 @@ void AIScriptedInterface::DecideOrientation(AIScriptedInterface *this)
   v3 = 2452i64;
   if ( m_pAI->ScriptOrient.eMode == AI_ORIENT_INVALID )
     v3 = 2428i64;
-  _RDI = (ai_orient_t *)((char *)m_pAI + v3);
+  v4 = (char *)m_pAI + v3;
   predictedFaceMotion = m_pAI->orientation.predictedFaceMotion;
   v6 = !AIScriptedInterface::ShouldStrafe(this);
   v7 = this->m_pAI;
   v7->orientation.predictedFaceMotion = v6;
   this->m_pAI->bPredictedFaceMotionChanged = predictedFaceMotion != this->m_pAI->orientation.predictedFaceMotion;
-  switch ( _RDI->eMode )
+  switch ( *(_DWORD *)v4 )
   {
-    case AI_ORIENT_DONT_CHANGE:
-    case AI_ORIENT_DONT_CHANGE_RELATIVE:
+    case 1:
+    case 2:
       this->m_pAI->orientation.faceMotion = this->m_pAI->orientation.predictedFaceMotion;
       break;
-    case AI_ORIENT_TO_MOTION:
+    case 3:
       goto LABEL_23;
-    case AI_ORIENT_TO_ENEMY:
-      v8 = _RDI;
+    case 4:
+      v8 = (ai_orient_t *)v4;
       v9 = this;
       goto LABEL_15;
-    case AI_ORIENT_TO_ENEMY_OR_MOTION:
+    case 5:
       if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1298, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
         __debugbreak();
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1299, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
+      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1299, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
         __debugbreak();
-      v8 = _RDI;
+      v8 = (ai_orient_t *)v4;
       v9 = this;
       if ( this->m_pAI->orientation.predictedFaceMotion )
 LABEL_23:
-        AIScriptedInterface::FaceMotion(this, _RDI);
+        AIScriptedInterface::FaceMotion(this, (ai_orient_t *)v4);
       else
 LABEL_15:
         AIScriptedInterface::FaceEnemy(v9, v8);
       break;
-    case AI_ORIENT_TO_GOAL:
-      AIScriptedInterface::FaceGoalNode(this, _RDI);
+    case 6:
+      AIScriptedInterface::FaceGoalNode(this, (ai_orient_t *)v4);
       break;
-    case AI_ORIENT_CURRENT_ANGLES:
+    case 7:
       this->m_pAI->orientation.faceMotion = this->m_pAI->orientation.predictedFaceMotion;
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rcx+13Ch]
-        vmovsd  qword ptr [rdi+4], xmm0
-      }
-      _RDI->vDesiredAngles.v[2] = _RCX->r.currentAngles.v[2];
+      ent = this->m_pAI->ent;
+      *(double *)(v4 + 4) = *(double *)ent->r.currentAngles.v;
+      *((_DWORD *)v4 + 3) = LODWORD(ent->r.currentAngles.v[2]);
       break;
     default:
-      LODWORD(v13) = _RDI->eMode;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1364, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid orient mode %i (code = %i, script = %i)", v13, this->m_pAI->CodeOrient.eMode, this->m_pAI->ScriptOrient.eMode) )
+      LODWORD(v12) = *(_DWORD *)v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1364, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid orient mode %i (code = %i, script = %i)", v12, this->m_pAI->CodeOrient.eMode, this->m_pAI->ScriptOrient.eMode) )
         __debugbreak();
       break;
   }
-  v12 = this->m_pAI;
-  if ( v12->orientation.faceMotion )
-    v12->blackboard.m_bUseBackwardStrafeSpace = 0;
+  v11 = this->m_pAI;
+  if ( v11->orientation.faceMotion )
+    v11->blackboard.m_bUseBackwardStrafeSpace = 0;
   Sys_ProfEndNamedEvent();
 }
 
@@ -738,51 +634,67 @@ AIScriptedInterface::FaceEnemy
 */
 void AIScriptedInterface::FaceEnemy(AIScriptedInterface *this, ai_orient_t *pOrient)
 {
-  unsigned __int8 v10; 
+  unsigned __int8 v4; 
   gentity_s *TargetEntity; 
-  __int64 v12; 
+  __int64 v6; 
+  gentity_s *v7; 
   ai_scripted_t *m_pAI; 
   bool ShouldFaceGoalNode; 
-  AIScriptedInterface *v19; 
-  ai_scripted_t *v23; 
-  tacpoint_t *p_outLastKnownPos; 
+  AIScriptedInterface *v10; 
+  ai_scripted_t *v11; 
+  vec3_t *p_outLastKnownPos; 
+  ai_scripted_t *v13; 
   gentity_s *ent; 
-  const gentity_s *v87; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  float v22; 
+  float v23; 
+  float v24; 
+  ai_scripted_t *v25; 
+  gentity_s *v26; 
+  gentity_s *v27; 
+  float v28; 
+  __int128 v29; 
+  float v30; 
+  __int128 v34; 
+  ai_scripted_t *v37; 
+  gentity_s *v38; 
+  const gentity_s *v39; 
   sentient_s *TargetSentient; 
-  sentient_info_t *v89; 
-  const gentity_s *v90; 
-  bool v91; 
-  char v103; 
-  const gentity_s *v123; 
+  sentient_info_t *v41; 
+  const gentity_s *v42; 
+  bool v43; 
+  ai_scripted_t *v44; 
+  ai_scripted_t *v45; 
+  gentity_s *v46; 
+  tacpoint_t *Point; 
+  ai_scripted_t *v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  int time; 
+  const gentity_s *v53; 
   int fmt; 
-  vec3_t v131; 
-  vec3_t v132; 
-  __int64 v133; 
-  __int64 v134; 
-  __int64 v135; 
+  vec3_t v55; 
+  vec3_t v56; 
+  __int64 v57; 
+  double v58; 
+  __int64 v59; 
   vec3_t desiredAngles; 
   vec3_t outLastKnownPos; 
   vec3_t forward; 
-  int v139; 
-  vec3_t v142; 
-  char v143[20]; 
-  bfx::AreaHandle v144; 
-  bfx::LinkHandle v145; 
-  char v146; 
-  void *retaddr; 
+  float v63; 
+  float v64; 
+  float v65; 
+  vec3_t v66; 
+  char v67[20]; 
+  bfx::AreaHandle v68; 
+  bfx::LinkHandle v69; 
 
-  _RAX = &retaddr;
-  v133 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RDI = pOrient;
-  v10 = 1;
+  v57 = -2i64;
+  v4 = 1;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1104, ASSERT_TYPE_ASSERT, "( m_pAI )", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1105, ASSERT_TYPE_ASSERT, "( m_pAI->sentient )", (const char *)&queryFormat, "m_pAI->sentient") )
@@ -792,319 +704,222 @@ void AIScriptedInterface::FaceEnemy(AIScriptedInterface *this, ai_orient_t *pOri
   if ( !this->m_pAI->pNavigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1107, ASSERT_TYPE_ASSERT, "( m_pAI->pNavigator )", (const char *)&queryFormat, "m_pAI->pNavigator") )
     __debugbreak();
   TargetEntity = AICommonInterface::GetTargetEntity(this);
-  _RSI = TargetEntity;
+  v7 = TargetEntity;
   this->m_pAI->orientation.faceEnemyEndTime = level.time;
-  if ( _RDI->eMode == AI_ORIENT_TO_ENEMY )
+  if ( pOrient->eMode == AI_ORIENT_TO_ENEMY )
   {
     if ( TargetEntity )
     {
       m_pAI = this->m_pAI;
       if ( m_pAI->blackboard.m_bMeleeChargeRequested || m_pAI->blackboard.m_bMeleeRequested || this->IsInPain(this) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+130h]
-          vmovss  dword ptr [rsp+170h+outLastKnownPos], xmm0
-          vmovss  xmm1, dword ptr [rsi+134h]
-          vmovss  dword ptr [rsp+170h+outLastKnownPos+4], xmm1
-          vmovss  xmm0, dword ptr [rsi+138h]
-          vmovss  dword ptr [rbp+70h+outLastKnownPos+8], xmm0
-        }
-        LOBYTE(v12) = 1;
-LABEL_60:
-        p_outLastKnownPos = (tacpoint_t *)&outLastKnownPos;
-        goto LABEL_61;
+        outLastKnownPos = v7->r.currentOrigin;
+        LOBYTE(v6) = 1;
+LABEL_65:
+        p_outLastKnownPos = &outLastKnownPos;
+        goto LABEL_66;
       }
     }
   }
   ShouldFaceGoalNode = AIScriptedInterface::ShouldFaceGoalNode(this);
-  v19 = this;
+  v10 = this;
   if ( ShouldFaceGoalNode )
   {
-    AIScriptedInterface::FaceGoalNode(this, _RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+170h+desiredAngles], xmm0
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+170h+desiredAngles+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+0Ch]
-      vmovss  dword ptr [rsp+170h+desiredAngles+8], xmm0
-    }
+    AIScriptedInterface::FaceGoalNode(this, pOrient);
+    desiredAngles = pOrient->vDesiredAngles;
     AIScriptedInterface::AdjustFacingForStrafe(this, &desiredAngles);
-    this->SetDesiredBodyAngles(this, _RDI, &desiredAngles, 0);
-    goto LABEL_63;
+    this->SetDesiredBodyAngles(this, pOrient, &desiredAngles, 0);
+    return;
   }
   this->m_pAI->orientation.faceMotion = 0;
-  v23 = this->m_pAI;
-  if ( v23->orientation.predictedStrafePosValid )
+  v11 = this->m_pAI;
+  if ( !v11->orientation.predictedStrafePosValid )
   {
-    p_outLastKnownPos = (tacpoint_t *)&v23->orientation.predictedStrafePos;
-    v12 = 0i64;
-LABEL_62:
-    this->FaceVectorSnapToMovementQuadrant(v19, _RDI, (const vec3_t *)p_outLastKnownPos, v12);
-    goto LABEL_63;
-  }
-  if ( AICommonInterface::HasPath(this) && AIScriptedInterface::ShouldCautiousStrafe(this) )
-  {
-    bfx::AreaHandle::AreaHandle(&v144);
-    bfx::LinkHandle::LinkHandle(&v145);
-    _RDX = this->m_pAI;
-    LOBYTE(fmt) = 0;
-    __asm { vmovss  xmm1, dword ptr [rdx+184h] }
-    ((void (__fastcall *)(AINavigator *, ai_scripted_t *, _QWORD, char *, int))_RDX->pNavigator->GetPosAlongPath)(_RDX->pNavigator, _RDX, 0i64, v143, fmt);
-    this->FaceVectorSnapToMovementQuadrant(this, _RDI, (const vec3_t *)v143, 0);
-    bfx::LinkHandle::~LinkHandle(&v145);
-    bfx::AreaHandle::~AreaHandle(&v144);
-    goto LABEL_63;
-  }
-  if ( !_RSI )
-  {
-    if ( AICommonInterface::HasPath(this) )
+    if ( AICommonInterface::HasPath(this) && AIScriptedInterface::ShouldCautiousStrafe(this) )
     {
-      this->m_pAI->pNavigator->GetNextCorner(this->m_pAI->pNavigator, &forward);
-      ent = this->m_pAI->ent;
-      __asm
+      bfx::AreaHandle::AreaHandle(&v68);
+      bfx::LinkHandle::LinkHandle(&v69);
+      LOBYTE(fmt) = 0;
+      ((void (__fastcall *)(AINavigator *, ai_scripted_t *, _QWORD, char *, int))this->m_pAI->pNavigator->GetPosAlongPath)(this->m_pAI->pNavigator, this->m_pAI, 0i64, v67, fmt);
+      this->FaceVectorSnapToMovementQuadrant(this, pOrient, (const vec3_t *)v67, 0);
+      bfx::LinkHandle::~LinkHandle(&v69);
+      bfx::AreaHandle::~AreaHandle(&v68);
+      return;
+    }
+    if ( !v7 )
+    {
+      if ( AICommonInterface::HasPath(this) )
       {
-        vmovss  xmm0, dword ptr [rbp+70h+forward]
-        vsubss  xmm4, xmm0, dword ptr [rcx+130h]
-        vmovss  xmm1, dword ptr [rbp+70h+forward+4]
-        vsubss  xmm5, xmm1, dword ptr [rcx+134h]
-        vmovss  xmm0, dword ptr [rbp+70h+forward+8]
-        vsubss  xmm6, xmm0, dword ptr [rcx+138h]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vcmpless xmm0, xmm1, cs:__real@80000000
-        vmovss  xmm10, cs:__real@3f800000
-        vblendvps xmm0, xmm1, xmm10, xmm0
-        vdivss  xmm1, xmm10, xmm0
-        vmulss  xmm7, xmm1, xmm4
-        vmovss  [rsp+170h+var_118], xmm7
-        vmulss  xmm8, xmm1, xmm5
-        vmovss  [rsp+170h+var_114], xmm8
-        vmulss  xmm9, xmm1, xmm6
-        vmovss  dword ptr [rsp+170h+var_110], xmm9
-      }
-      AngleVectors(&ent->r.currentAngles, &desiredAngles, NULL, NULL);
-      _RCX = this->m_pAI;
-      if ( _RCX->blackboard.m_bForceStrafe )
-      {
-        if ( _RCX->blackboard.m_bStrafeFacingPosValid )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+248h]
-            vmovss  [rsp+170h+var_118], xmm0
-            vmovss  xmm1, dword ptr [rcx+24Ch]
-            vmovss  [rsp+170h+var_114], xmm1
-            vmovss  xmm0, dword ptr [rcx+250h]
-            vmovss  dword ptr [rsp+170h+var_110], xmm0
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm3, cs:__real@42700000
-            vmulss  xmm1, xmm3, dword ptr [rsp+170h+desiredAngles]
-            vaddss  xmm2, xmm1, dword ptr [rax+130h]
-            vmovss  [rsp+170h+var_118], xmm2
-            vmulss  xmm1, xmm3, dword ptr [rsp+170h+desiredAngles+4]
-            vaddss  xmm2, xmm1, dword ptr [rax+134h]
-            vmovss  [rsp+170h+var_114], xmm2
-            vmulss  xmm1, xmm3, dword ptr [rsp+170h+desiredAngles+8]
-            vaddss  xmm2, xmm1, dword ptr [rax+138h]
-            vmovss  dword ptr [rsp+170h+var_110], xmm2
-          }
-        }
-        v12 = 0i64;
-        p_outLastKnownPos = (tacpoint_t *)&v134;
-        goto LABEL_61;
-      }
-      _RCX->pNavigator->GetRequestedGoalPos(_RCX->pNavigator, (vec3_t *)&v139);
-      __asm
-      {
-        vmovss  xmm0, [rbp+70h+var_D8]
-        vsubss  xmm6, xmm0, dword ptr [rcx+130h]
-        vmovss  xmm1, [rbp+70h+var_D4]
-        vsubss  xmm5, xmm1, dword ptr [rcx+134h]
-        vmovss  xmm0, [rbp+70h+var_D0]
-        vsubss  xmm4, xmm0, dword ptr [rcx+138h]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vcmpless xmm0, xmm1, cs:__real@80000000
-        vblendvps xmm0, xmm1, xmm10, xmm0
-        vdivss  xmm1, xmm10, xmm0
-        vmulss  xmm3, xmm1, xmm6
-        vmulss  xmm2, xmm1, xmm5
-        vmulss  xmm0, xmm1, xmm4
-        vmovss  dword ptr [rbp+70h+var_C0+8], xmm0
-        vunpcklps xmm1, xmm3, xmm2
-        vmovsd  qword ptr [rsp+170h+var_140], xmm1
-      }
-      v131.v[2] = v142.v[2];
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rsp+170h+desiredAngles]
-        vmovsd  qword ptr [rsp+170h+var_130], xmm0
-      }
-      v132.v[2] = desiredAngles.v[2];
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rsp+170h+var_118]
-        vmovsd  qword ptr [rbp+70h+var_C0], xmm0
-      }
-      LODWORD(v142.v[2]) = v135;
-      *(float *)&_XMM0 = GetMinDistToFaceMotion(&v142, &v132, &v131);
-      __asm { vmovaps xmm1, xmm0 }
-      if ( ((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathDistToGoalAtLeast)(this->m_pAI->pNavigator) )
-      {
+        this->m_pAI->pNavigator->GetNextCorner(this->m_pAI->pNavigator, &forward);
+        v13 = this->m_pAI;
+        ent = v13->ent;
+        v15 = forward.v[0] - v13->ent->r.currentOrigin.v[0];
+        v17 = LODWORD(forward.v[1]);
+        v16 = forward.v[1] - v13->ent->r.currentOrigin.v[1];
+        v18 = forward.v[2] - v13->ent->r.currentOrigin.v[2];
+        *(float *)&v17 = fsqrt((float)((float)(v16 * v16) + (float)(v15 * v15)) + (float)(v18 * v18));
+        _XMM1 = v17;
         __asm
         {
-          vmovss  xmm3, cs:__real@42700000
-          vmulss  xmm0, xmm7, xmm3
-          vaddss  xmm1, xmm0, dword ptr [rcx+130h]
-          vmovss  [rsp+170h+var_118], xmm1
-          vmulss  xmm2, xmm8, xmm3
-          vaddss  xmm0, xmm2, dword ptr [rcx+134h]
-          vmovss  [rsp+170h+var_114], xmm0
-          vmulss  xmm1, xmm9, xmm3
-          vaddss  xmm0, xmm1, dword ptr [rcx+138h]
-          vmovss  dword ptr [rsp+170h+var_110], xmm0
+          vcmpless xmm0, xmm1, cs:__real@80000000
+          vblendvps xmm0, xmm1, xmm10, xmm0
         }
-        v12 = 0i64;
-        p_outLastKnownPos = (tacpoint_t *)&v134;
-LABEL_61:
-        v19 = this;
-        goto LABEL_62;
+        v22 = (float)(1.0 / *(float *)&_XMM0) * v15;
+        *(float *)&v58 = v22;
+        v23 = (float)(1.0 / *(float *)&_XMM0) * v16;
+        *((float *)&v58 + 1) = v23;
+        v24 = (float)(1.0 / *(float *)&_XMM0) * v18;
+        *(float *)&v59 = v24;
+        AngleVectors(&ent->r.currentAngles, &desiredAngles, NULL, NULL);
+        v25 = this->m_pAI;
+        if ( v25->blackboard.m_bForceStrafe )
+        {
+          if ( v25->blackboard.m_bStrafeFacingPosValid )
+          {
+            v58 = *(double *)v25->blackboard.m_forceStrafeFacingPos.v;
+            *(float *)&v59 = v25->blackboard.m_forceStrafeFacingPos.v[2];
+          }
+          else
+          {
+            v26 = v25->ent;
+            *(float *)&v58 = (float)(60.0 * desiredAngles.v[0]) + v25->ent->r.currentOrigin.v[0];
+            *((float *)&v58 + 1) = (float)(60.0 * desiredAngles.v[1]) + v26->r.currentOrigin.v[1];
+            *(float *)&v59 = (float)(60.0 * desiredAngles.v[2]) + v26->r.currentOrigin.v[2];
+          }
+          v6 = 0i64;
+          p_outLastKnownPos = (vec3_t *)&v58;
+          goto LABEL_66;
+        }
+        v25->pNavigator->GetRequestedGoalPos(v25->pNavigator, (vec3_t *)&v63);
+        v27 = this->m_pAI->ent;
+        v28 = v63 - v27->r.currentOrigin.v[0];
+        v29 = LODWORD(v64);
+        v30 = v65 - v27->r.currentOrigin.v[2];
+        *(float *)&v29 = fsqrt((float)((float)((float)(v64 - v27->r.currentOrigin.v[1]) * (float)(v64 - v27->r.currentOrigin.v[1])) + (float)(v28 * v28)) + (float)(v30 * v30));
+        _XMM1 = v29;
+        __asm
+        {
+          vcmpless xmm0, xmm1, cs:__real@80000000
+          vblendvps xmm0, xmm1, xmm10, xmm0
+        }
+        v34 = LODWORD(FLOAT_1_0);
+        *(float *)&v34 = (float)(1.0 / *(float *)&_XMM0) * v28;
+        _XMM3 = v34;
+        __asm { vunpcklps xmm1, xmm3, xmm2 }
+        *(double *)v55.v = *(double *)&_XMM1;
+        v55.v[2] = (float)(1.0 / *(float *)&_XMM0) * v30;
+        v56 = desiredAngles;
+        *(double *)v66.v = v58;
+        LODWORD(v66.v[2]) = v59;
+        GetMinDistToFaceMotion(&v66, &v56, &v55);
+        if ( ((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathDistToGoalAtLeast)(this->m_pAI->pNavigator) )
+        {
+          v37 = this->m_pAI;
+          v38 = v37->ent;
+          *(float *)&v58 = (float)(v22 * 60.0) + v37->ent->r.currentOrigin.v[0];
+          *((float *)&v58 + 1) = (float)(v23 * 60.0) + v38->r.currentOrigin.v[1];
+          *(float *)&v59 = (float)(v24 * 60.0) + v38->r.currentOrigin.v[2];
+          v6 = 0i64;
+          p_outLastKnownPos = (vec3_t *)&v58;
+LABEL_66:
+          v10 = this;
+          goto LABEL_67;
+        }
       }
-    }
 LABEL_48:
-    AIScriptedInterface::FaceLikelyEnemyPath(this, _RDI);
-    goto LABEL_63;
-  }
-  if ( AIScriptedInterface::GetReacquire(this) == AI_REACQUIRE_ENABLED_STEP && AICommonInterface::HasPath(this) )
-  {
-    v87 = AICommonInterface::GetTargetEntity(this);
-    Sentient_GetLastKnownEnemyPos(this->m_pAI->sentient, v87, &outLastKnownPos);
-    LOBYTE(v12) = 1;
-    goto LABEL_60;
-  }
-  TargetSentient = AICommonInterface::GetTargetSentient(this);
-  if ( !TargetSentient || (v89 = &this->m_pAI->sentientInfo[TargetSentient - level.sentients], v89->VisCache.bVisible) )
-  {
-LABEL_59:
-    v123 = AICommonInterface::GetTargetEntity(this);
-    Sentient_GetLastKnownEnemyPos(this->m_pAI->sentient, v123, &outLastKnownPos);
-    v12 = v10;
-    goto LABEL_60;
-  }
-  v10 = 0;
-  if ( !AIScriptedInterface::UsingCoverNodes(this) )
-  {
-    SentientInfo_GetLastKnownPos(v89, &v142);
-    v12 = 0i64;
-    p_outLastKnownPos = (tacpoint_t *)&v142;
-    goto LABEL_61;
-  }
-  if ( v89->VisCache.iLastVisTime )
-  {
-    if ( !AICommonInterface::HasPath(this) )
-    {
-      if ( level.time - v89->VisCache.iLastVisTime < 10000 )
-        goto LABEL_63;
-      goto LABEL_48;
+      AIScriptedInterface::FaceLikelyEnemyPath(this, pOrient);
+      return;
     }
-    this->m_pAI->pNavigator->GetGoalOrLink(this->m_pAI->pNavigator, (vec3_t *)&v139);
-    v91 = this->m_pAI->pNavigator->IsStraightLineToGoalOrLink(this->m_pAI->pNavigator);
-    __asm
+    if ( AIScriptedInterface::GetReacquire(this) == AI_REACQUIRE_ENABLED_STEP && AICommonInterface::HasPath(this) )
     {
-      vmovss  xmm0, [rbp+70h+var_D8]
-      vsubss  xmm3, xmm0, dword ptr [rdx+130h]
-      vmovss  xmm1, [rbp+70h+var_D4]
-      vsubss  xmm2, xmm1, dword ptr [rdx+134h]
-      vmovss  xmm0, [rbp+70h+var_D0]
-      vsubss  xmm4, xmm0, dword ptr [rdx+138h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@45800000
+      v39 = AICommonInterface::GetTargetEntity(this);
+      Sentient_GetLastKnownEnemyPos(this->m_pAI->sentient, v39, &outLastKnownPos);
+      LOBYTE(v6) = 1;
+      goto LABEL_65;
     }
-    if ( v103 && v91 && !AIScriptedInterface::IsDoingReacquire(this) )
+    TargetSentient = AICommonInterface::GetTargetSentient(this);
+    if ( TargetSentient )
     {
-      AngleVectors(&this->m_pAI->ent->r.currentAngles, &forward, NULL, NULL);
-      __asm
+      v41 = &this->m_pAI->sentientInfo[TargetSentient - level.sentients];
+      if ( !v41->VisCache.bVisible )
       {
-        vmovss  xmm3, cs:__real@43800000
-        vmulss  xmm1, xmm3, dword ptr [rbp+70h+forward]
-        vaddss  xmm2, xmm1, dword ptr [rcx+130h]
-        vmovss  dword ptr [rsp+170h+desiredAngles], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+70h+forward+4]
-        vaddss  xmm2, xmm1, dword ptr [rcx+134h]
-        vmovss  dword ptr [rsp+170h+desiredAngles+4], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+70h+forward+8]
-        vaddss  xmm2, xmm1, dword ptr [rcx+138h]
-        vmovss  dword ptr [rsp+170h+desiredAngles+8], xmm2
-      }
-      v12 = 0i64;
-      p_outLastKnownPos = (tacpoint_t *)&desiredAngles;
-      goto LABEL_61;
-    }
-    if ( !AICommonInterface::RecentlyKnownEnemy(this, 500) && (signed int)(this->m_pAI->pNavigator->m_TimeOfLastPathUpdate + 300) < level.time && level.time - v89->VisCache.iLastVisTime > 500 && AIScriptedInterface::GetAnglesToLikelyEnemyPath(this) )
-    {
-      p_outLastKnownPos = tacpoint_ref_t::GetPoint(&this->m_pAI->sight.faceLikelyEnemyTacPoint);
-      if ( p_outLastKnownPos )
-      {
-        _RCX = this->m_pAI->ent;
-        __asm
+        v4 = 0;
+        if ( !AIScriptedInterface::UsingCoverNodes(this) )
         {
-          vmovss  xmm0, dword ptr [rcx+130h]
-          vsubss  xmm3, xmm0, dword ptr [rax]
-          vmovss  xmm1, dword ptr [rcx+134h]
-          vsubss  xmm2, xmm1, dword ptr [rax+4]
-          vmovss  xmm0, dword ptr [rcx+138h]
-          vsubss  xmm4, xmm0, dword ptr [rax+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, cs:__real@44800000
+          SentientInfo_GetLastKnownPos(v41, &v66);
+          v6 = 0i64;
+          p_outLastKnownPos = &v66;
+          goto LABEL_66;
         }
-        v12 = 0i64;
-        goto LABEL_61;
+        if ( !v41->VisCache.iLastVisTime )
+        {
+          if ( v41->lastKnownPosTime <= level.time - 500 )
+          {
+            AIScriptedInterface::FaceLikelyEnemyPath(this, pOrient);
+            return;
+          }
+          v42 = AICommonInterface::GetTargetEntity(this);
+          Sentient_GetLastKnownEnemyPos(this->m_pAI->sentient, v42, &outLastKnownPos);
+          v6 = 0i64;
+          goto LABEL_65;
+        }
+        if ( !AICommonInterface::HasPath(this) )
+        {
+          if ( level.time - v41->VisCache.iLastVisTime < 10000 )
+            return;
+          goto LABEL_48;
+        }
+        this->m_pAI->pNavigator->GetGoalOrLink(this->m_pAI->pNavigator, (vec3_t *)&v63);
+        v43 = this->m_pAI->pNavigator->IsStraightLineToGoalOrLink(this->m_pAI->pNavigator);
+        v44 = this->m_pAI;
+        if ( (float)((float)((float)((float)(v64 - v44->ent->r.currentOrigin.v[1]) * (float)(v64 - v44->ent->r.currentOrigin.v[1])) + (float)((float)(v63 - v44->ent->r.currentOrigin.v[0]) * (float)(v63 - v44->ent->r.currentOrigin.v[0]))) + (float)((float)(v65 - v44->ent->r.currentOrigin.v[2]) * (float)(v65 - v44->ent->r.currentOrigin.v[2]))) < 4096.0 && v43 && !AIScriptedInterface::IsDoingReacquire(this) )
+        {
+          AngleVectors(&this->m_pAI->ent->r.currentAngles, &forward, NULL, NULL);
+          v45 = this->m_pAI;
+          v46 = v45->ent;
+          desiredAngles.v[0] = (float)(256.0 * forward.v[0]) + v45->ent->r.currentOrigin.v[0];
+          desiredAngles.v[1] = (float)(256.0 * forward.v[1]) + v46->r.currentOrigin.v[1];
+          desiredAngles.v[2] = (float)(256.0 * forward.v[2]) + v46->r.currentOrigin.v[2];
+          v6 = 0i64;
+          p_outLastKnownPos = &desiredAngles;
+          goto LABEL_66;
+        }
+        if ( !AICommonInterface::RecentlyKnownEnemy(this, 500) && (signed int)(this->m_pAI->pNavigator->m_TimeOfLastPathUpdate + 300) < level.time && level.time - v41->VisCache.iLastVisTime > 500 && AIScriptedInterface::GetAnglesToLikelyEnemyPath(this) )
+        {
+          Point = tacpoint_ref_t::GetPoint(&this->m_pAI->sight.faceLikelyEnemyTacPoint);
+          p_outLastKnownPos = &Point->m_Pos;
+          if ( Point )
+          {
+            v48 = this->m_pAI;
+            v49 = v48->ent->r.currentOrigin.v[0] - Point->m_Pos.v[0];
+            v50 = v48->ent->r.currentOrigin.v[1] - Point->m_Pos.v[1];
+            v51 = v48->ent->r.currentOrigin.v[2] - Point->m_Pos.v[2];
+            if ( (float)((float)((float)(v50 * v50) + (float)(v49 * v49)) + (float)(v51 * v51)) < 1024.0 )
+            {
+              time = level.time;
+              if ( v48->sight.faceLikelyEnemyPathNeedRecalculateTime > level.time )
+              {
+                v48->sight.faceLikelyEnemyPathNeedRecalculateTime = level.time;
+                v48 = this->m_pAI;
+              }
+              if ( v48->sight.faceLikelyEnemyPathNeedCheckTime > time )
+                v48->sight.faceLikelyEnemyPathNeedRecalculateTime = time;
+            }
+            v6 = 0i64;
+            goto LABEL_66;
+          }
+        }
       }
     }
-    goto LABEL_59;
+    v53 = AICommonInterface::GetTargetEntity(this);
+    Sentient_GetLastKnownEnemyPos(this->m_pAI->sentient, v53, &outLastKnownPos);
+    v6 = v4;
+    goto LABEL_65;
   }
-  if ( v89->lastKnownPosTime > level.time - 500 )
-  {
-    v90 = AICommonInterface::GetTargetEntity(this);
-    Sentient_GetLastKnownEnemyPos(this->m_pAI->sentient, v90, &outLastKnownPos);
-    v12 = 0i64;
-    goto LABEL_60;
-  }
-  AIScriptedInterface::FaceLikelyEnemyPath(this, _RDI);
-LABEL_63:
-  _R11 = &v146;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  p_outLastKnownPos = &v11->orientation.predictedStrafePos;
+  v6 = 0i64;
+LABEL_67:
+  this->FaceVectorSnapToMovementQuadrant(v10, pOrient, p_outLastKnownPos, v6);
 }
 
 /*
@@ -1133,11 +948,13 @@ void AIScriptedInterface::FaceGoalNode(AIScriptedInterface *this, ai_orient_t *p
 {
   sentient_s *sentient; 
   pathnode_t *pClaimedNode; 
-  AIScriptedInterface_vtbl *v9; 
-  pathnode_t *v10; 
-  AIScriptedInterface_vtbl *v15; 
-  bool v16; 
-  vec3_t v18; 
+  double v6; 
+  float v7; 
+  double Angle; 
+  double v9; 
+  AIScriptedInterface_vtbl *v10; 
+  bool v11; 
+  vec3_t v12; 
   vec3_t angles; 
   vec3_t vector; 
   tmat33_t<vec3_t> in2; 
@@ -1151,43 +968,30 @@ void AIScriptedInterface::FaceGoalNode(AIScriptedInterface *this, ai_orient_t *p
   pClaimedNode = sentient->pClaimedNode;
   if ( pClaimedNode && (pClaimedNode->constant.spawnflags & 0x8000) != 0 )
   {
-    v9 = this->__vftable;
-    v10 = sentient->pClaimedNode;
-    __asm { vmovaps [rsp+0F8h+var_18], xmm6 }
-    *(double *)&_XMM0 = ((double (__fastcall *)(AIScriptedInterface *, pathnode_t *))v9->GetNodeAngleYawOffset)(this, v10);
-    __asm { vmovaps xmm6, xmm0 }
+    v6 = ((double (__fastcall *)(AIScriptedInterface *, pathnode_t *))this->GetNodeAngleYawOffset)(this, sentient->pClaimedNode);
+    v7 = *(float *)&v6;
     if ( this->Is3D(this) && ((1 << LOBYTE(pClaimedNode->constant.type)) & 0x62700000) != 0 )
     {
       pathnode_t::GetAngles(pClaimedNode, &vector);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+0F8h+angles], xmm0
-        vmovss  dword ptr [rsp+0F8h+angles+8], xmm0
-        vmovss  dword ptr [rsp+0F8h+angles+4], xmm6
-      }
+      angles.v[0] = 0.0;
+      angles.v[2] = 0.0;
+      angles.v[1] = *(float *)&v6;
       AnglesToAxis(&vector, &axis);
       AnglesToAxis(&angles, &in2);
       MatrixMultiply(&axis, &in2, &out);
-      AxisToAngles(&out, &v18);
+      AxisToAngles(&out, &v12);
     }
     else
     {
-      *(double *)&_XMM0 = pathnode_t::GetAngle(pClaimedNode);
-      __asm { vaddss  xmm0, xmm0, xmm6; angle }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  dword ptr [rsp+0F8h+var_C8], xmm1
-        vmovss  dword ptr [rsp+0F8h+var_C8+8], xmm1
-        vmovss  dword ptr [rsp+0F8h+var_C8+4], xmm0
-      }
+      Angle = pathnode_t::GetAngle(pClaimedNode);
+      v9 = AngleNormalize360(*(float *)&Angle + v7);
+      v12.v[0] = 0.0;
+      v12.v[2] = 0.0;
+      v12.v[1] = *(float *)&v9;
     }
-    v15 = this->__vftable;
-    v16 = this->Is3D(this);
-    v15->SetDesiredBodyAngles(this, pOrient, &v18, v16);
-    __asm { vmovaps xmm6, [rsp+0F8h+var_18] }
+    v10 = this->__vftable;
+    v11 = this->Is3D(this);
+    v10->SetDesiredBodyAngles(this, pOrient, &v12, v11);
   }
 }
 
@@ -1199,71 +1003,48 @@ AIScriptedInterface::FaceLikelyEnemyPath
 void AIScriptedInterface::FaceLikelyEnemyPath(AIScriptedInterface *this, ai_orient_t *pOrient)
 {
   ai_scripted_t *m_pAI; 
+  gentity_s *ent; 
+  float v6; 
   bool AnglesToLikelyEnemyPath; 
+  ai_scripted_t *v8; 
   sentient_s *sentient; 
   pathnode_t *pClaimedNode; 
-  AIScriptedInterface_vtbl *v20; 
-  bool v21; 
+  AIScriptedInterface_vtbl *v11; 
+  bool v12; 
   vec3_t vector; 
   vec3_t desiredAngles; 
 
   m_pAI = this->m_pAI;
   if ( m_pAI->sight.faceLikelyEnemyPathNeedCheckTime > level.time )
   {
-    _RAX = m_pAI->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+13Ch]
-      vmovss  xmm1, dword ptr [rax+140h]
-      vmovss  dword ptr [rsp+58h+desiredAngles], xmm0
-      vmovss  xmm0, dword ptr [rax+144h]
-      vmovss  dword ptr [rsp+58h+desiredAngles+8], xmm0
-      vmovss  dword ptr [rsp+58h+desiredAngles+4], xmm1
-    }
+    ent = m_pAI->ent;
+    v6 = m_pAI->ent->r.currentAngles.v[1];
+    desiredAngles.v[0] = m_pAI->ent->r.currentAngles.v[0];
+    desiredAngles.v[2] = ent->r.currentAngles.v[2];
+    desiredAngles.v[1] = v6;
     AIScriptedInterface::AdjustFacingForStrafe(this, &desiredAngles);
     return;
   }
   AnglesToLikelyEnemyPath = AIScriptedInterface::GetAnglesToLikelyEnemyPath(this);
-  _RDX = this->m_pAI;
+  v8 = this->m_pAI;
   if ( AnglesToLikelyEnemyPath )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+0C4h]
-      vmovss  dword ptr [rsp+58h+vector], xmm0
-      vmovss  xmm1, dword ptr [rdx+0C8h]
-      vmovss  dword ptr [rsp+58h+vector+4], xmm1
-      vmovss  xmm0, dword ptr [rdx+0CCh]
-      vmovss  dword ptr [rsp+58h+vector+8], xmm0
-    }
+    vector = v8->sight.anglesToLikelyEnemyPath;
     AIScriptedInterface::AdjustFacingForStrafe(this, &vector);
 LABEL_12:
-    v20 = this->__vftable;
-    v21 = this->Is3D(this);
-    v20->SetDesiredBodyAngles(this, pOrient, &vector, v21);
+    v11 = this->__vftable;
+    v12 = this->Is3D(this);
+    v11->SetDesiredBodyAngles(this, pOrient, &vector, v12);
     return;
   }
-  sentient = _RDX->sentient;
+  sentient = v8->sentient;
   pClaimedNode = sentient->pClaimedNode;
-  if ( pClaimedNode && (pClaimedNode->constant.spawnflags & 0x8000) != 0 && AICommonInterface::PointNearNode(this, &_RDX->ent->r.currentOrigin, sentient->pClaimedNode) )
+  if ( pClaimedNode && (pClaimedNode->constant.spawnflags & 0x8000) != 0 && AICommonInterface::PointNearNode(this, &v8->ent->r.currentOrigin, sentient->pClaimedNode) )
   {
     if ( this->Is3D(this) && Path_NodeIgnoresAngles(pClaimedNode) )
-    {
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+13Ch]
-        vmovss  dword ptr [rsp+58h+vector], xmm0
-        vmovss  xmm1, dword ptr [rcx+140h]
-        vmovss  dword ptr [rsp+58h+vector+4], xmm1
-        vmovss  xmm0, dword ptr [rcx+144h]
-        vmovss  dword ptr [rsp+58h+vector+8], xmm0
-      }
-    }
+      vector = this->m_pAI->ent->r.currentAngles;
     else
-    {
       pathnode_t::GetAngles(pClaimedNode, &vector);
-    }
     goto LABEL_12;
   }
 }
@@ -1277,16 +1058,20 @@ void AIScriptedInterface::FaceMotion(AIScriptedInterface *this, ai_orient_t *pOr
 {
   ai_scripted_t *m_pAI; 
   bool faceMotion; 
-  ai_scripted_t *v10; 
-  char v13; 
-  char v53; 
-  bool v54; 
-  AIScriptedInterface_vtbl *v85; 
-  bool v86; 
+  double PathDistToGoal; 
+  bool v7; 
+  __int128 v8; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  ai_scripted_t *v19; 
+  __int128 v22; 
+  float v26; 
+  AIScriptedInterface_vtbl *v27; 
+  bool v28; 
   vec3_t *p_vLookaheadDir; 
-  int v97; 
-  int v98; 
-  int v99; 
+  float v30; 
   vec3_t vec; 
   vec3_t vLookaheadDir; 
   vec3_t forward; 
@@ -1295,7 +1080,6 @@ void AIScriptedInterface::FaceMotion(AIScriptedInterface *this, ai_orient_t *pOr
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> outAxis; 
 
-  _RSI = pOrient;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 735, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   m_pAI = this->m_pAI;
@@ -1303,246 +1087,110 @@ void AIScriptedInterface::FaceMotion(AIScriptedInterface *this, ai_orient_t *pOr
   m_pAI->orientation.faceMotion = 1;
   if ( AICommonInterface::HasPath(this) && AIScriptedInterface::GetAnimMode(this) == AI_ANIM_MOVE_CODE )
   {
-    v10 = this->m_pAI;
-    __asm
+    if ( !this->m_pAI->moveMode || !AIScriptedInterface::UsingCoverNodes(this) || AIScriptedInterface::IsOnStairs(this) || (AIScriptedInterface::GetPathLookaheadDir(this, &vLookaheadDir), PathDistToGoal = Nav_GetPathDistToGoal(this->m_pAI->pNavigator), !this->m_pAI->pNavigator->IsNextCornerGoal(this->m_pAI->pNavigator)) || *(float *)&PathDistToGoal >= 60.0 || (!AICommonInterface::Use3DPathing(this) || !this->Is3D(this) ? (v7 = (float)((float)(vLookaheadDir.v[1] * this->m_pAI->orientation.vLookForward.v[1]) + (float)(vLookaheadDir.v[0] * this->m_pAI->orientation.vLookForward.v[0])) < 0.0) : (v7 = (float)((float)((float)(vLookaheadDir.v[1] * this->m_pAI->orientation.vLookForward.v[1]) + (float)(vLookaheadDir.v[0] * this->m_pAI->orientation.vLookForward.v[0])) + (float)(vLookaheadDir.v[2] * this->m_pAI->orientation.vLookForward.v[2])) < 0.0), !v7) )
     {
-      vmovaps [rsp+120h+var_20], xmm6
-      vmovaps [rsp+120h+var_30], xmm7
-      vmovaps [rsp+120h+var_40], xmm8
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( v10->moveMode )
-    {
-      if ( AIScriptedInterface::UsingCoverNodes(this) && !AIScriptedInterface::IsOnStairs(this) )
+      AIScriptedInterface::GetWishDelta(this, &vWishDelta);
+      v8 = LODWORD(vWishDelta.v[0]);
+      *(float *)&v8 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(vWishDelta.v[1] * vWishDelta.v[1])) + (float)(vWishDelta.v[2] * vWishDelta.v[2]));
+      _XMM3 = v8;
+      __asm
       {
-        AIScriptedInterface::GetPathLookaheadDir(this, &vLookaheadDir);
-        *(double *)&_XMM0 = Nav_GetPathDistToGoal(this->m_pAI->pNavigator);
-        __asm { vmovaps xmm6, xmm0 }
-        if ( this->m_pAI->pNavigator->IsNextCornerGoal(this->m_pAI->pNavigator) )
-          __asm { vcomiss xmm6, cs:__real@42700000 }
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm0, xmm3, xmm8, xmm0
       }
-    }
-    AIScriptedInterface::GetWishDelta(this, &vWishDelta);
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsp+120h+vWishDelta]
-      vmovss  xmm6, dword ptr [rsp+120h+vWishDelta+4]
-      vmovss  xmm4, dword ptr [rbp+20h+vWishDelta+8]
-      vmovss  xmm8, cs:__real@3f800000
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
-      vcmpless xmm0, xmm3, cs:__real@80000000
-      vblendvps xmm0, xmm3, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm2, xmm5, xmm1
-      vucomiss xmm2, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmulss  xmm0, xmm6, xmm1
-      vmulss  xmm3, xmm4, xmm1
-      vmovss  dword ptr [rsp+120h+vec], xmm2
-      vmovss  dword ptr [rsp+120h+vec+4], xmm0
-      vmovss  dword ptr [rsp+120h+vec+8], xmm3
-    }
-    if ( !v13 )
-      goto LABEL_41;
-    __asm { vucomiss xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin }
-    if ( !v13 )
-      goto LABEL_41;
-    __asm { vucomiss xmm3, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin }
-    if ( !v13 )
-    {
-LABEL_41:
-      if ( this->m_pAI->moveMode )
-        goto LABEL_18;
-      if ( AICommonInterface::Use3DPathing(this) && this->Is3D(this) )
+      v12 = 1.0 / *(float *)&_XMM0;
+      v13 = vWishDelta.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v14 = vWishDelta.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      vec.v[0] = v13;
+      vec.v[1] = v14;
+      vec.v[2] = vWishDelta.v[2] * v12;
+      if ( (float)(vWishDelta.v[0] * v12) != 0.0 || v14 != 0.0 || (float)(vWishDelta.v[2] * v12) != 0.0 )
       {
-        __asm
+        if ( this->m_pAI->moveMode )
+          goto LABEL_23;
+        if ( AICommonInterface::Use3DPathing(this) && this->Is3D(this) )
         {
-          vmovss  xmm6, dword ptr [rsp+120h+vec+4]
-          vmovss  xmm4, dword ptr [rsp+120h+vec]
-          vmovss  xmm5, dword ptr [rsp+120h+vec+8]
-          vmulss  xmm1, xmm6, xmm6
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm0, xmm2, xmm1
-          vsqrtss xmm3, xmm0, xmm0
-          vcmpless xmm0, xmm3, cs:__real@80000000
-          vblendvps xmm0, xmm3, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm4, xmm2
-          vmovss  dword ptr [rsp+120h+vec], xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmulss  xmm1, xmm6, xmm2
-          vmovss  dword ptr [rsp+120h+vec+8], xmm0
-          vmovss  dword ptr [rsp+120h+vec+4], xmm1
-        }
-        AngleVectors(&_RSI->vDesiredAngles, &forward, NULL, NULL);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+120h+forward+4]
-          vmovss  xmm1, dword ptr [rsp+120h+forward]
-          vmulss  xmm2, xmm1, dword ptr [rsp+120h+vec]
-          vmulss  xmm3, xmm0, dword ptr [rsp+120h+vec+4]
-          vmovss  xmm0, dword ptr [rsp+120h+forward+8]
-          vmulss  xmm1, xmm0, dword ptr [rsp+120h+vec+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, cs:__real@3f666666
-        }
-        if ( v53 )
-          goto LABEL_18;
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+120h+vec+4]
-          vmovss  xmm3, dword ptr [rsp+120h+vec]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vcmpless xmm0, xmm2, cs:__real@80000000
-          vblendvps xmm0, xmm2, xmm8, xmm0
-          vdivss  xmm1, xmm8, xmm0
-          vmulss  xmm0, xmm3, xmm1
-          vmovss  dword ptr [rsp+120h+vec], xmm0
-          vmovss  xmm0, dword ptr [rsi+8]; yaw
-          vmulss  xmm1, xmm4, xmm1
-          vmovss  dword ptr [rsp+120h+vec+4], xmm1
-        }
-        YawVectors(*(float *)&_XMM0, &forward, NULL);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+120h+forward+4]
-          vmovss  xmm1, dword ptr [rsp+120h+forward]
-          vmulss  xmm3, xmm0, dword ptr [rsp+120h+vec+4]
-          vmulss  xmm2, xmm1, dword ptr [rsp+120h+vec]
-          vaddss  xmm0, xmm3, xmm2
-          vcomiss xmm0, cs:__real@3f666666
-        }
-        if ( v53 )
-        {
-LABEL_18:
-          v54 = !faceMotion;
-          if ( !faceMotion )
-          {
-            vectoangles(&vec, &vLookaheadDir);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+120h+vLookaheadDir+4]
-              vsubss  xmm1, xmm0, dword ptr [rax+140h]
-              vmulss  xmm5, xmm1, cs:__real@3b360b61
-              vaddss  xmm2, xmm5, cs:__real@3f000000
-              vxorps  xmm1, xmm1, xmm1
-              vroundss xmm4, xmm1, xmm2, 1
-              vsubss  xmm0, xmm5, xmm4
-              vmulss  xmm1, xmm0, cs:__real@43b40000
-              vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-              vcomiss xmm1, cs:__real@41c80000
-            }
-            if ( !(v53 | v54) )
-            {
-              this->m_pAI->orientation.faceMotion = 0;
-              AIScriptedInterface::AdjustFacingForStrafe(this, &vLookaheadDir);
-              this->SetDesiredBodyAngles(this, _RSI, &vLookaheadDir, 0);
-LABEL_38:
-              __asm
-              {
-                vmovaps xmm7, [rsp+120h+var_30]
-                vmovaps xmm6, [rsp+120h+var_20]
-                vmovaps xmm8, [rsp+120h+var_40]
-              }
-              return;
-            }
-          }
+          v15 = LODWORD(vec.v[1]);
+          *(float *)&v15 = fsqrt((float)((float)(*(float *)&v15 * *(float *)&v15) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+          _XMM3 = v15;
           __asm
           {
-            vmovss  xmm0, dword ptr [rsp+120h+vec]
-            vucomiss xmm0, xmm7
+            vcmpless xmm0, xmm3, cs:__real@80000000
+            vblendvps xmm0, xmm3, xmm8, xmm0
           }
-          if ( v54 )
+          vec.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+          vec.v[2] = vec.v[2] * (float)(1.0 / *(float *)&_XMM0);
+          vec.v[1] = vec.v[1] * (float)(1.0 / *(float *)&_XMM0);
+          AngleVectors(&pOrient->vDesiredAngles, &forward, NULL, NULL);
+          if ( (float)((float)((float)(forward.v[1] * vec.v[1]) + (float)(forward.v[0] * vec.v[0])) + (float)(forward.v[2] * vec.v[2])) < 0.89999998 )
+            goto LABEL_23;
+        }
+        else
+        {
+          v22 = LODWORD(vec.v[1]);
+          *(float *)&v22 = fsqrt((float)(*(float *)&v22 * *(float *)&v22) + (float)(vec.v[0] * vec.v[0]));
+          _XMM2 = v22;
+          __asm
           {
-            __asm
+            vcmpless xmm0, xmm2, cs:__real@80000000
+            vblendvps xmm0, xmm2, xmm8, xmm0
+          }
+          v26 = 1.0 / *(float *)&_XMM0;
+          vec.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+          *(float *)&_XMM0 = pOrient->vDesiredAngles.v[1];
+          vec.v[1] = vec.v[1] * v26;
+          YawVectors(*(float *)&_XMM0, &forward, NULL);
+          if ( (float)((float)(forward.v[1] * vec.v[1]) + (float)(forward.v[0] * vec.v[0])) < 0.89999998 )
+          {
+LABEL_23:
+            if ( !faceMotion )
             {
-              vmovss  xmm0, dword ptr [rsp+120h+vec+4]
-              vucomiss xmm0, xmm7
-            }
-            if ( v54 )
-            {
-              __asm
+              vectoangles(&vec, &vLookaheadDir);
+              v19 = this->m_pAI;
+              _XMM1 = 0i64;
+              __asm { vroundss xmm4, xmm1, xmm2, 1 }
+              if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(vLookaheadDir.v[1] - v19->ent->r.currentAngles.v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0) & _xmm) > 25.0 )
               {
-                vmovss  xmm0, dword ptr [rsp+120h+vec+8]
-                vucomiss xmm0, xmm7
+                v19->orientation.faceMotion = 0;
+                AIScriptedInterface::AdjustFacingForStrafe(this, &vLookaheadDir);
+                this->SetDesiredBodyAngles(this, pOrient, &vLookaheadDir, 0);
+                return;
               }
-              if ( v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 655, ASSERT_TYPE_ASSERT, "(v[0] || v[1] || v[2])", (const char *)&queryFormat, "v[0] || v[1] || v[2]") )
+            }
+            if ( vec.v[0] == 0.0 && vec.v[1] == 0.0 && vec.v[2] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 655, ASSERT_TYPE_ASSERT, "(v[0] || v[1] || v[2])", (const char *)&queryFormat, "v[0] || v[1] || v[2]") )
+              __debugbreak();
+            v30 = vec.v[0];
+            if ( (LODWORD(vec.v[0]) & 0x7F800000) == 2139095040 || (v30 = vec.v[1], (LODWORD(vec.v[1]) & 0x7F800000) == 2139095040) || (v30 = vec.v[2], (LODWORD(vec.v[2]) & 0x7F800000) == 2139095040) )
+            {
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 656, ASSERT_TYPE_ASSERT, "(!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ))", (const char *)&queryFormat, "!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] )", v30) )
                 __debugbreak();
             }
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+120h+vec]
-            vmovss  [rsp+120h+var_F0], xmm0
-          }
-          if ( (v97 & 0x7F800000) == 2139095040 )
+            if ( this->Is3D(this) )
+            {
+              AnglesToAxis(&this->m_pAI->ent->r.currentAngles, &axis);
+              GenerateAxisFromForwardVector(&vec, &axis, &outAxis);
+              AxisToAngles(&outAxis, &vLookaheadDir);
+            }
+            else
+            {
+              vectoangles(&vec, &vLookaheadDir);
+            }
+            v27 = this->__vftable;
+            v28 = this->Is3D(this);
+            p_vLookaheadDir = &vLookaheadDir;
             goto LABEL_42;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+120h+vec+4]
-            vmovss  [rsp+120h+var_F0], xmm0
           }
-          if ( (v98 & 0x7F800000) == 2139095040 )
-            goto LABEL_42;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+120h+vec+8]
-            vmovss  [rsp+120h+var_F0], xmm0
-          }
-          if ( (v99 & 0x7F800000) == 2139095040 )
-          {
-LABEL_42:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 656, ASSERT_TYPE_ASSERT, "(!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ))", (const char *)&queryFormat, "!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] )") )
-              __debugbreak();
-          }
-          if ( this->Is3D(this) )
-          {
-            AnglesToAxis(&this->m_pAI->ent->r.currentAngles, &axis);
-            GenerateAxisFromForwardVector(&vec, &axis, &outAxis);
-            AxisToAngles(&outAxis, &vLookaheadDir);
-          }
-          else
-          {
-            vectoangles(&vec, &vLookaheadDir);
-          }
-          v85 = this->__vftable;
-          v86 = this->Is3D(this);
-          p_vLookaheadDir = &vLookaheadDir;
-LABEL_37:
-          v85->SetDesiredBodyAngles(this, _RSI, p_vLookaheadDir, v86);
-          goto LABEL_38;
         }
       }
     }
     this->m_pAI->orientation.faceMotion = 0;
-    _R8 = this->m_pAI->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8+13Ch]
-      vmovss  dword ptr [rsp+120h+desiredAngles], xmm0
-      vmovss  xmm1, dword ptr [r8+140h]
-      vmovss  dword ptr [rsp+120h+desiredAngles+4], xmm1
-      vmovss  xmm0, dword ptr [r8+144h]
-      vmovss  dword ptr [rsp+120h+desiredAngles+8], xmm0
-    }
+    desiredAngles = this->m_pAI->ent->r.currentAngles;
     AIScriptedInterface::AdjustFacingForStrafe(this, &desiredAngles);
-    v85 = this->__vftable;
-    v86 = this->Is3D(this);
+    v27 = this->__vftable;
+    v28 = this->Is3D(this);
     p_vLookaheadDir = &desiredAngles;
-    goto LABEL_37;
+LABEL_42:
+    v27->SetDesiredBodyAngles(this, pOrient, p_vLookaheadDir, v28);
   }
 }
 
@@ -1553,73 +1201,34 @@ AIScriptedInterface::FaceVector
 */
 void AIScriptedInterface::FaceVector(AIScriptedInterface *this, ai_orient_t *pOrient, const vec3_t *v)
 {
-  char v4; 
-  AIScriptedInterface_vtbl *v12; 
-  bool v13; 
-  int v14; 
-  int v15; 
-  int v16; 
+  AIScriptedInterface_vtbl *v6; 
+  bool v7; 
+  float v8; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> outAxis; 
 
-  __asm
+  if ( v->v[0] == 0.0 && v->v[1] == 0.0 && v->v[2] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 655, ASSERT_TYPE_ASSERT, "(v[0] || v[1] || v[2])", (const char *)&queryFormat, "v[0] || v[1] || v[2]") )
+    __debugbreak();
+  v8 = v->v[0];
+  if ( (LODWORD(v->v[0]) & 0x7F800000) == 2139095040 || (v8 = v->v[1], (LODWORD(v8) & 0x7F800000) == 2139095040) || (v8 = v->v[2], (LODWORD(v8) & 0x7F800000) == 2139095040) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [r8]
-  }
-  _RBX = v;
-  if ( v4 )
-  {
-    __asm { vucomiss xmm0, dword ptr [r8+4] }
-    if ( v4 )
-    {
-      __asm { vucomiss xmm0, dword ptr [r8+8] }
-      if ( v4 )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 655, ASSERT_TYPE_ASSERT, "(v[0] || v[1] || v[2])", (const char *)&queryFormat, "v[0] || v[1] || v[2]") )
-          __debugbreak();
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+0B8h+var_88], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0B8h+var_88], xmm0
-  }
-  if ( (v15 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+0B8h+var_88], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-  {
-LABEL_17:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 656, ASSERT_TYPE_ASSERT, "(!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ))", (const char *)&queryFormat, "!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 656, ASSERT_TYPE_ASSERT, "(!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ))", (const char *)&queryFormat, "!IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] )", v8) )
       __debugbreak();
   }
   if ( this->Is3D(this) )
   {
     AnglesToAxis(&this->m_pAI->ent->r.currentAngles, &axis);
-    GenerateAxisFromForwardVector(_RBX, &axis, &outAxis);
+    GenerateAxisFromForwardVector(v, &axis, &outAxis);
     AxisToAngles(&outAxis, &angles);
   }
   else
   {
-    vectoangles(_RBX, &angles);
+    vectoangles(v, &angles);
   }
-  v12 = this->__vftable;
-  v13 = this->Is3D(this);
-  v12->SetDesiredBodyAngles(this, pOrient, &angles, v13);
+  v6 = this->__vftable;
+  v7 = this->Is3D(this);
+  v6->SetDesiredBodyAngles(this, pOrient, &angles, v7);
 }
 
 /*
@@ -1629,10 +1238,43 @@ AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D
 */
 void AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D(AIScriptedInterface *this, ai_orient_t *pOrient, const vec3_t *lookAtPos, __int64 enemyVisible)
 {
-  char v52; 
-  bool v53; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  bool v14; 
   ai_scripted_t *m_pAI; 
-  char v131; 
+  gentity_s *ent; 
+  float v20; 
+  float v21; 
+  __int128 v23; 
+  __int128 v27; 
+  ai_scripted_t *v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
+  double v47; 
+  float v48; 
+  double v49; 
+  float v54; 
+  double v58; 
+  float v59; 
+  double v60; 
+  float v62; 
+  float v64; 
+  float v69; 
   vec3_t vLookaheadDir; 
   vec3_t angles; 
   vec3_t desiredAngles; 
@@ -1641,58 +1283,46 @@ void AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D(AIScriptedInterface
   vec3_t vFinalGoal; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> outAxis; 
-  void *retaddr; 
+  __int128 v78; 
+  __int128 v79; 
+  __int128 v80; 
+  __int128 v81; 
+  __int128 v82; 
+  __int128 v83; 
+  __int128 v84; 
+  __int128 v85; 
+  _OWORD v86[3]; 
 
-  _R11 = &retaddr;
-  v53 = this->m_pAI == NULL;
-  _RDI = lookAtPos;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm13
-  }
-  if ( v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 450, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+  v14 = this->m_pAI == NULL;
+  v86[1] = v4;
+  v85 = v6;
+  v84 = v7;
+  v83 = v8;
+  v80 = v11;
+  if ( v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 450, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( (!((unsigned __int8 (__fastcall *)(AIScriptedInterface *, ai_orient_t *, const vec3_t *, __int64))this->Is3D)(this, pOrient, lookAtPos, enemyVisible) || !AICommonInterface::Use3DPathing(this)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 453, ASSERT_TYPE_ASSERT, "(Is3D() && Use3DPathing())", (const char *)&queryFormat, "Is3D() && Use3DPathing()") )
     __debugbreak();
-  _RCX = this->m_pAI;
+  m_pAI = this->m_pAI;
+  v86[0] = v5;
+  v82 = v9;
+  v81 = v10;
+  ent = m_pAI->ent;
+  v79 = v12;
+  v78 = v13;
+  v20 = ent->r.currentOrigin.v[0];
+  v21 = ent->r.currentOrigin.v[1];
+  v23 = LODWORD(ent->r.currentOrigin.v[2]);
+  *(float *)&v23 = ent->r.currentOrigin.v[2] - 41.0;
+  _XMM3 = v23;
+  _XMM0 = m_pAI->Physics.bSpace;
   __asm
   {
-    vmovaps [rsp+1A0h+var_38+8], xmm7
-    vmovaps [rsp+1A0h+var_78+8], xmm11
-    vmovaps [rsp+1A0h+var_88+8], xmm12
-  }
-  _RAX = _RCX->ent;
-  __asm
-  {
-    vmovaps [rsp+1A0h+var_A8+8], xmm14
-    vmovaps [rsp+1A0h+var_B8+8], xmm15
-    vmovss  xmm4, dword ptr [rax+138h]
-    vmovss  xmm9, dword ptr [rax+130h]
-    vmovss  xmm10, dword ptr [rax+134h]
-  }
-  LODWORD(_RAX) = _RCX->Physics.bSpace;
-  LODWORD(_RCX) = 0;
-  __asm
-  {
-    vsubss  xmm3, xmm4, cs:__real@42240000
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm8, xmm3, xmm4, xmm2
-    vmovss  dword ptr [rsp+1A0h+var_170], xmm8
-    vmovss  xmm13, cs:__real@3f000000
   }
   if ( AICommonInterface::HasPath(this) && this->IsHumanAI(this) )
   {
-    __asm
-    {
-      vmovss  xmm15, cs:__real@80000000
-      vmovss  xmm11, cs:__real@3f800000
-    }
     if ( this->m_pAI->moveHistoryConsistent )
     {
       AIScriptedInterface::GetPathLookaheadDir(this, &vLookaheadDir);
@@ -1701,203 +1331,97 @@ void AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D(AIScriptedInterface
     {
       AIScriptedInterface::GetMoveHistoryAverage(this, &vLookaheadDir);
       AIScriptedInterface::GetPathLookaheadDir(this, &angles);
+      v27 = LODWORD(vLookaheadDir.v[0]);
+      *(float *)&v27 = fsqrt((float)((float)(*(float *)&v27 * *(float *)&v27) + (float)(vLookaheadDir.v[1] * vLookaheadDir.v[1])) + (float)(vLookaheadDir.v[2] * vLookaheadDir.v[2]));
+      _XMM3 = v27;
       __asm
       {
-        vmovss  xmm4, dword ptr [rsp+1A0h+vLookaheadDir]
-        vmovss  xmm6, dword ptr [rsp+1A0h+vLookaheadDir+4]
-        vmovss  xmm7, dword ptr [rsp+1A0h+vLookaheadDir+8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
         vcmpless xmm0, xmm3, xmm15
         vblendvps xmm0, xmm3, xmm11, xmm0
-        vdivss  xmm1, xmm11, xmm0
-        vmulss  xmm2, xmm6, xmm1
-        vmulss  xmm3, xmm2, dword ptr [rsp+1A0h+angles+4]
-        vmulss  xmm5, xmm4, xmm1
-        vmulss  xmm4, xmm7, xmm1
-        vmulss  xmm0, xmm4, dword ptr [rsp+1A0h+angles+8]
-        vmovss  dword ptr [rsp+1A0h+vLookaheadDir+4], xmm2
-        vmulss  xmm2, xmm5, dword ptr [rsp+1A0h+angles]
-        vaddss  xmm3, xmm3, xmm2
-        vaddss  xmm1, xmm3, xmm0
-        vcomiss xmm1, cs:__real@3f34fdf4
-        vmovss  dword ptr [rsp+1A0h+vLookaheadDir], xmm5
-        vmovss  dword ptr [rsp+1A0h+vLookaheadDir+8], xmm4
       }
-      if ( v52 )
-      {
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rsp+1A0h+angles]
-          vmovsd  qword ptr [rsp+1A0h+vLookaheadDir], xmm0
-        }
-        vLookaheadDir.v[2] = angles.v[2];
-      }
+      vLookaheadDir.v[1] = vLookaheadDir.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      vLookaheadDir.v[0] = vLookaheadDir.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      vLookaheadDir.v[2] = vLookaheadDir.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      if ( (float)((float)((float)(vLookaheadDir.v[1] * angles.v[1]) + (float)(vLookaheadDir.v[0] * angles.v[0])) + (float)(vLookaheadDir.v[2] * angles.v[2])) < 0.70700002 )
+        vLookaheadDir = angles;
     }
     AICommonInterface::GetPathFinalGoal(this, &vFinalGoal);
+    v31 = this->m_pAI;
+    v69 = (float)((float)((float)(vFinalGoal.v[1] - v31->ent->r.currentOrigin.v[1]) * (float)(vFinalGoal.v[1] - v31->ent->r.currentOrigin.v[1])) + (float)((float)(vFinalGoal.v[0] - v31->ent->r.currentOrigin.v[0]) * (float)(vFinalGoal.v[0] - v31->ent->r.currentOrigin.v[0]))) + (float)((float)(vFinalGoal.v[2] - v31->ent->r.currentOrigin.v[2]) * (float)(vFinalGoal.v[2] - v31->ent->r.currentOrigin.v[2]));
+    if ( v69 > 225.0 )
+    {
+      v20 = (float)(vLookaheadDir.v[0] * 15.0) + v20;
+      *(float *)&_XMM8 = (float)(vLookaheadDir.v[2] * 15.0) + *(float *)&_XMM8;
+      v21 = (float)(vLookaheadDir.v[1] * 15.0) + v21;
+    }
+    v32 = lookAtPos->v[0] - v20;
+    v33 = lookAtPos->v[2] - *(float *)&_XMM8;
+    v35 = LODWORD(lookAtPos->v[1]);
+    *(float *)&v35 = lookAtPos->v[1] - v21;
+    v34 = v35;
+    v36 = LODWORD(vLookaheadDir.v[0]);
+    *(float *)&v36 = fsqrt((float)((float)(vLookaheadDir.v[0] * vLookaheadDir.v[0]) + (float)(vLookaheadDir.v[1] * vLookaheadDir.v[1])) + (float)(vLookaheadDir.v[2] * vLookaheadDir.v[2]));
+    _XMM1 = v36;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+0A0h+vFinalGoal]
-      vmovss  xmm1, dword ptr [rbp+0A0h+vFinalGoal+4]
-    }
-    m_pAI = this->m_pAI;
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rsp+1A0h+vLookaheadDir+8]
-      vmovss  xmm12, dword ptr [rsp+1A0h+vLookaheadDir+4]
-      vmovss  xmm14, dword ptr [rsp+1A0h+vLookaheadDir]
-      vsubss  xmm3, xmm0, dword ptr [rax+130h]
-      vmovss  xmm0, dword ptr [rbp+0A0h+vFinalGoal+8]
-      vsubss  xmm2, xmm1, dword ptr [rax+134h]
-      vsubss  xmm4, xmm0, dword ptr [rax+138h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm0, xmm3, xmm0
-      vcomiss xmm0, cs:__real@43610000
-      vmovss  dword ptr [rsp+1A0h+var_170], xmm0
-    }
-    if ( !(v52 | v53) )
-    {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@41700000
-        vmulss  xmm0, xmm14, xmm2
-        vaddss  xmm9, xmm0, xmm9
-        vmulss  xmm0, xmm7, xmm2
-        vmulss  xmm1, xmm12, xmm2
-        vaddss  xmm8, xmm0, xmm8
-        vaddss  xmm10, xmm1, xmm10
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vsubss  xmm4, xmm0, xmm9
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm6, xmm0, xmm8
-      vsubss  xmm5, xmm1, xmm10
-      vmulss  xmm0, xmm7, xmm7
-      vmulss  xmm2, xmm14, xmm14
-      vmulss  xmm1, xmm12, xmm12
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, xmm15
       vblendvps xmm0, xmm1, xmm11, xmm0
-      vdivss  xmm2, xmm11, xmm0
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm8, xmm14, xmm2
-      vmulss  xmm9, xmm12, xmm2
-      vmulss  xmm7, xmm7, xmm2
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
+    }
+    v40 = vLookaheadDir.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v41 = vLookaheadDir.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    v42 = vLookaheadDir.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    v43 = v34;
+    *(float *)&v43 = fsqrt((float)((float)(*(float *)&v34 * *(float *)&v34) + (float)(v32 * v32)) + (float)(v33 * v33));
+    _XMM3 = v43;
+    __asm
+    {
       vcmpless xmm0, xmm3, xmm15
       vblendvps xmm0, xmm3, xmm11, xmm0
-      vdivss  xmm1, xmm11, xmm0
-      vmovss  xmm0, dword ptr [rsp+1A0h+var_170]
-      vcomiss xmm0, xmm11
-      vmulss  xmm2, xmm1, xmm4
-      vmulss  xmm4, xmm1, xmm6
-      vmulss  xmm3, xmm1, xmm5
-      vmovss  [rbp+0A0h+var_120], xmm4
-      vmovss  dword ptr [rsp+1A0h+vLookaheadDir], xmm8
-      vmovss  dword ptr [rsp+1A0h+vLookaheadDir+4], xmm9
-      vmovss  dword ptr [rsp+1A0h+vLookaheadDir+8], xmm7
-      vmovss  dword ptr [rsp+1A0h+vec], xmm2
-      vmovss  dword ptr [rsp+1A0h+vec+4], xmm3
     }
-    if ( v52 )
+    vec.v[2] = (float)(1.0 / *(float *)&_XMM0) * v33;
+    vLookaheadDir.v[0] = v40;
+    vLookaheadDir.v[1] = v41;
+    vLookaheadDir.v[2] = v42;
+    vec.v[0] = (float)(1.0 / *(float *)&_XMM0) * v32;
+    vec.v[1] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v34;
+    if ( v69 >= 1.0 )
     {
-      __asm
+      if ( (float)((float)((float)(v41 * (float)((float)(1.0 / *(float *)&_XMM0) * *(float *)&v34)) + (float)(v40 * (float)((float)(1.0 / *(float *)&_XMM0) * v32))) + (float)(v42 * (float)((float)(1.0 / *(float *)&_XMM0) * v33))) <= 0.99800003 )
       {
-        vmovsd  xmm0, qword ptr [rsp+1A0h+vec]
-        vmovsd  qword ptr [rsp+1A0h+forward], xmm0
-      }
-      forward.v[2] = vec.v[2];
-      m_pAI->orientation.relativeDir = 1;
-    }
-    else
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm9, xmm3
-        vmulss  xmm0, xmm8, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm7, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, cs:__real@3f7f7cee
-      }
-      if ( v52 | v53 )
-      {
-        *(double *)&_XMM0 = vectoyaw((const vec2_t *)&vec);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = vectoyaw((const vec2_t *)&vLookaheadDir);
-        __asm
+        v47 = vectoyaw((const vec2_t *)&vec);
+        v48 = *(float *)&v47;
+        v49 = vectoyaw((const vec2_t *)&vLookaheadDir);
+        *(float *)&_XMM7 = FLOAT_180_0;
+        _XMM12 = LODWORD(FLOAT_90_0);
+        _XMM15 = 0i64;
+        __asm { vroundss xmm2, xmm15, xmm1, 1 }
+        LODWORD(v54) = COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v49 - v48) * 0.0027777778) - *(float *)&_XMM2) * 360.0) & _xmm;
+        _XMM8 = 0i64;
+        if ( v54 < 135.0 )
         {
-          vmovss  xmm14, cs:__real@3b360b61
-          vmovss  xmm7, cs:__real@43340000
-          vmovss  xmm12, cs:__real@42b40000
-          vmovss  xmm11, cs:__real@c2b40000
-          vmovss  xmm10, cs:__real@42340000
-          vsubss  xmm1, xmm0, xmm6
-          vmulss  xmm3, xmm1, xmm14
-          vxorps  xmm0, xmm0, xmm0
-          vaddss  xmm1, xmm3, xmm13
-          vmovss  xmm1, xmm0, xmm1
-          vxorps  xmm15, xmm15, xmm15
-          vroundss xmm2, xmm15, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm4, xmm0, cs:__real@43b40000
-          vandps  xmm1, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcomiss xmm1, cs:__real@43070000
-          vxorps  xmm8, xmm8, xmm8
-        }
-        if ( v52 )
-        {
-          __asm
+          LODWORD(_XMM9) = 0;
+          if ( v54 >= 45.0 )
           {
-            vcomiss xmm1, xmm10
-            vxorps  xmm9, xmm9, xmm9
+            __asm
+            {
+              vcmpltss xmm0, xmm8, xmm4
+              vblendvps xmm9, xmm12, xmm11, xmm0
+            }
           }
         }
         else
         {
-          __asm { vmovaps xmm9, xmm7 }
+          *(float *)&_XMM9 = FLOAT_180_0;
         }
-        *(double *)&_XMM0 = vectopitch(&vec);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = vectopitch(&vLookaheadDir);
-        __asm
+        v58 = vectopitch(&vec);
+        v59 = *(float *)&v58;
+        v60 = vectopitch(&vLookaheadDir);
+        __asm { vroundss xmm3, xmm15, xmm1, 1 }
+        LODWORD(v62) = COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v60 - v59) * 0.0027777778) - *(float *)&_XMM3) * 360.0) & _xmm;
+        if ( v62 < 135.0 )
         {
-          vsubss  xmm1, xmm0, xmm6
-          vmulss  xmm4, xmm1, xmm14
-          vaddss  xmm2, xmm4, xmm13
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  xmm1, xmm0, xmm2
-          vroundss xmm3, xmm15, xmm1, 1
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm2, xmm0, cs:__real@43b40000
-          vandps  xmm1, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcomiss xmm1, cs:__real@43070000
-        }
-        if ( v131 )
-        {
-          __asm
-          {
-            vcomiss xmm1, xmm10
-            vxorps  xmm7, xmm7, xmm7
-          }
-          if ( !v131 )
+          LODWORD(_XMM7) = 0;
+          if ( v62 >= 45.0 )
           {
             __asm
             {
@@ -1907,97 +1431,45 @@ void AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D(AIScriptedInterface
           }
         }
         vectoangles(&vLookaheadDir, &angles);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsp+1A0h+angles]
-          vaddss  xmm0, xmm9, dword ptr [rsp+1A0h+angles+4]
-          vmovss  dword ptr [rsp+1A0h+angles], xmm1
-          vmovss  dword ptr [rsp+1A0h+angles+4], xmm0
-        }
+        angles.v[0] = *(float *)&_XMM7 + angles.v[0];
+        angles.v[1] = *(float *)&_XMM9 + angles.v[1];
         AngleVectors(&angles, &forward, NULL, NULL);
       }
       else
       {
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rsp+1A0h+vLookaheadDir]
-          vmovsd  qword ptr [rsp+1A0h+forward], xmm0
-        }
-        forward.v[2] = vLookaheadDir.v[2];
-        m_pAI->orientation.relativeDir = 1;
+        forward = vLookaheadDir;
+        v31->orientation.relativeDir = 1;
       }
+    }
+    else
+    {
+      forward = vec;
+      v31->orientation.relativeDir = 1;
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  xmm2, dword ptr [rdi+4]
-      vsubss  xmm1, xmm0, xmm9
-      vsubss  xmm0, xmm2, xmm10
-      vmovss  dword ptr [rsp+1A0h+forward], xmm1
-      vmovss  xmm1, dword ptr [rdi+8]
-      vsubss  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rsp+1A0h+forward+8], xmm2
-      vmovss  dword ptr [rsp+1A0h+forward+4], xmm0
-    }
+    v64 = lookAtPos->v[1] - v21;
+    forward.v[0] = lookAtPos->v[0] - v20;
+    forward.v[2] = lookAtPos->v[2] - *(float *)&_XMM8;
+    forward.v[1] = v64;
   }
   AnglesToAxis(&this->m_pAI->ent->r.currentAngles, &axis);
   GenerateAxisFromForwardVector(&forward, &axis, &outAxis);
   AxisToAngles(&outAxis, &desiredAngles);
+  _XMM6 = 0i64;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  desiredAngles.v[0] = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM1).m128_f32[0] * 0.1;
   __asm
   {
-    vmovss  xmm5, cs:__real@41200000
-    vmulss  xmm1, xmm5, dword ptr [rsp+1A0h+desiredAngles]
-    vmulss  xmm2, xmm5, dword ptr [rsp+1A0h+desiredAngles+4]
-    vmovss  xmm4, cs:__real@3dcccccd
-    vmovaps xmm15, [rsp+1A0h+var_B8+8]
-    vmovaps xmm14, [rsp+1A0h+var_A8+8]
-    vmovaps xmm12, [rsp+1A0h+var_88+8]
-    vmovaps xmm11, [rsp+1A0h+var_78+8]
-    vmovaps xmm10, [rsp+1A0h+var_68+8]
-    vmovaps xmm9, [rsp+1A0h+var_58+8]
-    vmovaps xmm8, [rsp+1A0h+var_48+8]
-    vmovaps xmm7, [rsp+1A0h+var_38+8]
-    vaddss  xmm3, xmm1, xmm13
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm1, xmm6, xmm3, 1
-    vcvttss2si eax, xmm1
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm0, xmm0, xmm4
-    vmovss  dword ptr [rsp+1A0h+desiredAngles], xmm0
-    vaddss  xmm3, xmm2, xmm13
     vroundss xmm2, xmm6, xmm3, 1
-    vcvttss2si eax, xmm2
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm1, xmm0, xmm4
-    vmulss  xmm0, xmm5, dword ptr [rsp+1A0h+desiredAngles+8]
-    vaddss  xmm3, xmm0, xmm13
-    vmovaps xmm13, [rsp+1A0h+var_98+8]
     vroundss xmm0, xmm6, xmm3, 1
-    vmovaps xmm6, xmmword ptr [rsp+1A0h+var_28+8]
-    vcvttss2si eax, xmm0
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmovss  dword ptr [rsp+1A0h+desiredAngles+4], xmm1
-    vmulss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rsp+1A0h+desiredAngles+8], xmm1
   }
+  desiredAngles.v[1] = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM2).m128_f32[0] * 0.1;
+  desiredAngles.v[2] = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM0).m128_f32[0] * 0.1;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  _RCX = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmovss  xmm0, dword ptr [rcx+0B40h]
-    vmulss  xmm2, xmm0, cs:__real@3c0efa35
-    vmulss  xmm2, xmm2, xmm1; lerpSpeed
-  }
-  AIScriptedInterface::LerpAnglesWithQuaternions(&_RCX->ent->r.currentAngles, &desiredAngles, *(const float *)&_XMM2, &desiredAngles);
+  AIScriptedInterface::LerpAnglesWithQuaternions(&this->m_pAI->ent->r.currentAngles, &desiredAngles, (float)(this->m_pAI->turnRate * 0.0087266462) * (float)level.frameDuration, &desiredAngles);
   this->SetDesiredBodyAngles(this, pOrient, &desiredAngles, 1);
 }
 
@@ -2008,67 +1480,51 @@ AIScriptedInterface::FaceVectorSnapToMovementQuadrant
 */
 void AIScriptedInterface::FaceVectorSnapToMovementQuadrant(AIScriptedInterface *this, ai_orient_t *pOrient, const vec3_t *lookAtPos, bool enemyVisible)
 {
-  char v9; 
+  char v8; 
+  ai_scripted_t *m_pAI; 
+  float v10; 
+  float v11; 
+  float v12; 
+  ai_scripted_t *v13; 
+  gentity_s *ent; 
+  float v15; 
   vec3_t vec; 
   vec3_t angles; 
   vec3_t vLookaheadDir; 
-  char v28[16]; 
+  char v19[16]; 
 
-  _RDI = lookAtPos;
   if ( this->Is3D(this) && AICommonInterface::Use3DPathing(this) )
   {
-    AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D(this, pOrient, _RDI, enemyVisible);
+    AIScriptedInterface::FaceVectorSnapToMovementQuadrant3D(this, pOrient, lookAtPos, enemyVisible);
   }
   else
   {
     if ( AICommonInterface::HasPath(this) && this->IsHumanAI(this) )
-    {
-      __asm { vmovss  xmm1, cs:__real@3f800000 }
-      v9 = ((__int64 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathDistToGoalAtLeast)(this->m_pAI->pNavigator);
-    }
+      v8 = ((__int64 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathDistToGoalAtLeast)(this->m_pAI->pNavigator);
     else
-    {
-      v9 = 0;
-    }
-    if ( v9 )
+      v8 = 0;
+    if ( v8 )
     {
       AIScriptedInterface::GetPathLookaheadDir(this, &vLookaheadDir);
-      this->UpdateMoveDirBasedOnHistory(this, &vLookaheadDir, (vec3_t *)v28);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  xmm2, dword ptr [rdi+4]
-      }
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vsubss  xmm1, xmm0, dword ptr [rcx+130h]
-        vmovss  xmm3, dword ptr [rcx+134h]
-        vmovss  xmm4, dword ptr [rcx+138h]
-        vsubss  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rsp+88h+vec], xmm1
-        vmovss  xmm1, dword ptr [rdi+8]
-        vsubss  xmm2, xmm1, xmm4
-        vmovss  dword ptr [rsp+88h+vec+8], xmm2
-        vmovss  dword ptr [rsp+88h+vec+4], xmm0
-      }
+      this->UpdateMoveDirBasedOnHistory(this, &vLookaheadDir, (vec3_t *)v19);
+      m_pAI = this->m_pAI;
+      v10 = m_pAI->ent->r.currentOrigin.v[2];
+      v11 = lookAtPos->v[1] - m_pAI->ent->r.currentOrigin.v[1];
+      vec.v[0] = lookAtPos->v[0] - m_pAI->ent->r.currentOrigin.v[0];
+      vec.v[2] = lookAtPos->v[2] - v10;
+      vec.v[1] = v11;
       vectoangles(&vec, &angles);
       AIScriptedInterface::AdjustFacingForStrafe(this, &angles);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  xmm2, dword ptr [rdi+4]
-        vsubss  xmm1, xmm0, dword ptr [rcx+130h]
-        vmovss  dword ptr [rsp+88h+vec], xmm1
-        vsubss  xmm0, xmm2, dword ptr [rcx+134h]
-        vmovss  xmm1, dword ptr [rdi+8]
-        vmovss  dword ptr [rsp+88h+vec+4], xmm0
-        vsubss  xmm2, xmm1, dword ptr [rcx+138h]
-        vmovss  dword ptr [rsp+88h+vec+8], xmm2
-      }
+      v12 = lookAtPos->v[1];
+      v13 = this->m_pAI;
+      ent = v13->ent;
+      vec.v[0] = lookAtPos->v[0] - v13->ent->r.currentOrigin.v[0];
+      v15 = lookAtPos->v[2];
+      vec.v[1] = v12 - ent->r.currentOrigin.v[1];
+      vec.v[2] = v15 - ent->r.currentOrigin.v[2];
       vectoangles(&vec, &angles);
     }
     this->SetDesiredBodyAngles(this, pOrient, &angles, 0);
@@ -2080,76 +1536,41 @@ void AIScriptedInterface::FaceVectorSnapToMovementQuadrant(AIScriptedInterface *
 AIScriptedInterface::ForcePitchAndYawDeltas
 ==============
 */
-
-void __fastcall AIScriptedInterface::ForcePitchAndYawDeltas(AIScriptedInterface *this, double pitchDelta, double yawDelta)
+void AIScriptedInterface::ForcePitchAndYawDeltas(AIScriptedInterface *this, const float pitchDelta, const float yawDelta)
 {
+  ai_scripted_t *m_pAI; 
+  AIScriptedInterface_vtbl *v6; 
+  float v7; 
+  ai_scripted_t *v8; 
   AIScriptedInterface_vtbl *v9; 
-  ai_orient_t *p_CodeOrient; 
-  AIScriptedInterface_vtbl *v14; 
-  ai_orient_t *p_ScriptOrient; 
-  AIScriptedInterface_vtbl *v18; 
-  int v25; 
+  float v10; 
+  AIScriptedInterface_vtbl *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
   if ( this->Is3D(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 168, ASSERT_TYPE_ASSERT, "(!Is3D())", (const char *)&queryFormat, "!Is3D()") )
     __debugbreak();
+  m_pAI = this->m_pAI;
+  v6 = this->__vftable;
+  v7 = yawDelta + m_pAI->CodeOrient.vDesiredAngles.v[1];
+  v12 = pitchDelta + m_pAI->CodeOrient.fDesiredLookPitch;
+  v13 = v7;
+  v14 = 0.0;
+  v6->SetDesiredBodyAngles(this, &m_pAI->CodeOrient, (const vec3_t *)&v12, 0);
+  v8 = this->m_pAI;
   v9 = this->__vftable;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vaddss  xmm1, xmm7, dword ptr [rdx+984h]
-    vaddss  xmm0, xmm8, dword ptr [rdx+98Ch]
-  }
-  p_CodeOrient = &this->m_pAI->CodeOrient;
-  __asm
-  {
-    vmovss  [rsp+88h+var_58], xmm0
-    vmovss  [rsp+88h+var_54], xmm1
-    vmovss  [rsp+88h+var_50], xmm6
-  }
-  v9->SetDesiredBodyAngles(this, p_CodeOrient, (const vec3_t *)&v25, 0);
-  v14 = this->__vftable;
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rdx+99Ch]
-    vaddss  xmm0, xmm8, dword ptr [rdx+9A4h]
-  }
-  p_ScriptOrient = &this->m_pAI->ScriptOrient;
-  __asm
-  {
-    vmovss  [rsp+88h+var_58], xmm0
-    vmovss  [rsp+88h+var_54], xmm1
-    vmovss  [rsp+88h+var_50], xmm6
-  }
-  v14->SetDesiredBodyAngles(this, p_ScriptOrient, (const vec3_t *)&v25, 0);
-  v18 = this->__vftable;
-  __asm
-  {
-    vaddss  xmm0, xmm7, dword ptr [rdx+140h]
-    vmovss  [rsp+88h+var_54], xmm0
-    vmovss  [rsp+88h+var_58], xmm6
-    vmovss  [rsp+88h+var_50], xmm6
-  }
-  v18->SetBodyAngles(this, (const vec3_t *)&v25);
-  __asm
-  {
-    vaddss  xmm2, xmm7, dword ptr [rax+144h]; fYaw
-    vaddss  xmm1, xmm8, dword ptr [rax+140h]; fPitch
-  }
-  AIScriptedInterface::SetLookAngles(this, *(const float *)&_XMM1, *(const float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-  }
+  v10 = yawDelta + v8->ScriptOrient.vDesiredAngles.v[1];
+  v12 = pitchDelta + v8->ScriptOrient.fDesiredLookPitch;
+  v13 = v10;
+  v14 = 0.0;
+  v9->SetDesiredBodyAngles(this, &v8->ScriptOrient, (const vec3_t *)&v12, 0);
+  v11 = this->__vftable;
+  v13 = yawDelta + this->m_pAI->ent->r.currentAngles.v[1];
+  v12 = 0.0;
+  v14 = 0.0;
+  v11->SetBodyAngles(this, (const vec3_t *)&v12);
+  AIScriptedInterface::SetLookAngles(this, pitchDelta + this->m_pAI->orientation.fLookPitch, yawDelta + this->m_pAI->orientation.fLookYaw);
 }
 
 /*
@@ -2169,13 +1590,17 @@ char AIScriptedInterface::GetAnglesToLikelyEnemyPath(AIScriptedInterface *this)
   const tacpoint_t *v9; 
   sentient_s *TargetSentient; 
   sentient_s *v12; 
-  sentient_info_t *v14; 
-  bool v15; 
-  ai_scripted_t *v16; 
-  char v17; 
-  bool v18; 
+  sentient_info_t *v13; 
+  bool v14; 
+  ai_scripted_t *v15; 
   const tacpoint_t *PointForPathnodeVis; 
-  int v42; 
+  float v17; 
+  float v18; 
+  float v19; 
+  ai_scripted_t *v20; 
+  gentity_s *ent; 
+  gentity_s *v22; 
+  int v23; 
   const tacpoint_t *LastTacPointOnPathWithVis; 
   vec3_t outPos; 
 
@@ -2236,74 +1661,45 @@ char AIScriptedInterface::GetAnglesToLikelyEnemyPath(AIScriptedInterface *this)
   v12 = TargetSentient;
   if ( !TargetSentient || G_EntIsLinked(TargetSentient->ent) )
   {
-    v42 = v4 + level.time;
+    v23 = v4 + level.time;
     goto LABEL_38;
   }
-  __asm { vmovss  xmm1, cs:__real@41700000; dist }
-  v14 = &this->m_pAI->sentientInfo[v12 - level.sentients];
-  v15 = AICommonInterface::NearClaimNode(this, *(float *)&_XMM1);
-  v16 = this->m_pAI;
-  v17 = 0;
-  v18 = !v15;
-  if ( v15 )
+  v13 = &this->m_pAI->sentientInfo[v12 - level.sentients];
+  v14 = AICommonInterface::NearClaimNode(this, 15.0);
+  v15 = this->m_pAI;
+  if ( v14 )
   {
-    PointForPathnodeVis = TacGraph_GetPointForPathnodeVis(v16->sentient->pClaimedNode);
-    v17 = 0;
-    v18 = PointForPathnodeVis == NULL;
+    PointForPathnodeVis = TacGraph_GetPointForPathnodeVis(v15->sentient->pClaimedNode);
     if ( PointForPathnodeVis )
     {
       TacGraph_GetApproxGroundPosForPoint(PointForPathnodeVis, &outPos);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+68h+outPos+8]
-        vmovss  xmm2, dword ptr [rsp+68h+outPos+4]
-        vmovss  xmm1, dword ptr [rsp+68h+outPos]
-      }
+      v17 = outPos.v[2];
+      v18 = outPos.v[1];
+      v19 = outPos.v[0];
       goto LABEL_33;
     }
-    _RCX = this->m_pAI->ent;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rcx+130h]
-      vmovss  dword ptr [rsp+68h+outPos], xmm1
-      vmovss  xmm2, dword ptr [rcx+134h]
-      vmovss  dword ptr [rsp+68h+outPos+4], xmm2
-      vmovss  xmm4, dword ptr [rcx+138h]
-    }
+    v20 = this->m_pAI;
+    ent = v20->ent;
+    v19 = v20->ent->r.currentOrigin.v[0];
+    outPos.v[0] = v19;
+    v18 = ent->r.currentOrigin.v[1];
+    outPos.v[1] = v18;
+    v17 = ent->r.currentOrigin.v[2];
   }
   else
   {
-    _RAX = v16->ent;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+130h]
-      vmovss  dword ptr [rsp+68h+outPos], xmm1
-      vmovss  xmm2, dword ptr [rax+134h]
-      vmovss  dword ptr [rsp+68h+outPos+4], xmm2
-      vmovss  xmm4, dword ptr [rax+138h]
-    }
+    v22 = v15->ent;
+    v19 = v15->ent->r.currentOrigin.v[0];
+    outPos.v[0] = v19;
+    v18 = v22->r.currentOrigin.v[1];
+    outPos.v[1] = v18;
+    v17 = v22->r.currentOrigin.v[2];
   }
-  __asm { vmovss  dword ptr [rsp+68h+outPos+8], xmm4 }
+  outPos.v[2] = v17;
 LABEL_33:
-  _RAX = v12->ent;
-  __asm
+  if ( (float)((float)((float)((float)(v12->ent->r.currentOrigin.v[1] - v18) * (float)(v12->ent->r.currentOrigin.v[1] - v18)) + (float)((float)(v12->ent->r.currentOrigin.v[0] - v19) * (float)(v12->ent->r.currentOrigin.v[0] - v19))) + (float)((float)(v12->ent->r.currentOrigin.v[2] - v17) * (float)(v12->ent->r.currentOrigin.v[2] - v17))) <= 262144.0 )
   {
-    vmovss  xmm0, dword ptr [rax+130h]
-    vsubss  xmm3, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rax+134h]
-    vmovss  xmm0, dword ptr [rax+138h]
-    vsubss  xmm2, xmm1, xmm2
-    vmulss  xmm2, xmm2, xmm2
-    vsubss  xmm4, xmm0, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, cs:__real@48800000
-  }
-  if ( v17 | v18 )
-  {
-    LastTacPointOnPathWithVis = Sentient_FindLastTacPointOnPathWithVis(this->m_pAI->sentient, v12, v14, &outPos, &this->m_pAI->sight.faceLikelyEnemyCornerPos);
+    LastTacPointOnPathWithVis = Sentient_FindLastTacPointOnPathWithVis(this->m_pAI->sentient, v12, v13, &outPos, &this->m_pAI->sight.faceLikelyEnemyCornerPos);
     tacpoint_ref_t::SetPoint(&this->m_pAI->sight.faceLikelyEnemyTacPoint, LastTacPointOnPathWithVis);
     if ( tacpoint_ref_t::IsDefined(&this->m_pAI->sight.faceLikelyEnemyTacPoint) )
     {
@@ -2313,9 +1709,9 @@ LABEL_33:
       return 1;
     }
   }
-  v42 = v5 + level.time;
+  v23 = v5 + level.time;
 LABEL_38:
-  this->m_pAI->sight.faceLikelyEnemyPathNeedRecalculateTime = v42;
+  this->m_pAI->sight.faceLikelyEnemyPathNeedRecalculateTime = v23;
   this->m_pAI->sight.faceLikelyEnemyPathNeedCheckTime = this->m_pAI->sight.faceLikelyEnemyPathNeedRecalculateTime;
   return 0;
 }
@@ -2327,79 +1723,50 @@ AIScriptedInterface::GetDesiredLookDirFromMoveAndFacingDir3D
 */
 void AIScriptedInterface::GetDesiredLookDirFromMoveAndFacingDir3D(const vec3_t *moveDir, const vec3_t *dirToFace, vec3_t *outDesiredDir)
 {
-  char v32; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v13; 
+  double v17; 
+  float v18; 
+  double v19; 
+  float v21; 
   vec3_t angles; 
-  char v55; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v6 = vectoyaw((const vec2_t *)dirToFace);
+  v7 = *(float *)&v6;
+  v8 = vectoyaw((const vec2_t *)moveDir);
+  *(float *)&_XMM7 = FLOAT_180_0;
+  _XMM12 = LODWORD(FLOAT_90_0);
+  _XMM14 = 0i64;
+  __asm { vroundss xmm2, xmm14, xmm1, 1 }
+  LODWORD(v13) = COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v8 - v7) * 0.0027777778) - *(float *)&_XMM2) * 360.0) & _xmm;
+  _XMM8 = 0i64;
+  if ( v13 < 135.0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0C8h+var_88], xmm14
-  }
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)dirToFace);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)moveDir);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@43340000
-    vmovss  xmm12, cs:__real@42b40000
-    vmovss  xmm11, cs:__real@c2b40000
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm3, xmm1, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm1
-    vxorps  xmm14, xmm14, xmm14
-    vroundss xmm2, xmm14, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm4, xmm0, cs:__real@43b40000
-    vandps  xmm1, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@43070000
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( v32 )
-  {
-    __asm
+    LODWORD(_XMM9) = 0;
+    if ( v13 >= 45.0 )
     {
-      vcomiss xmm1, cs:__real@42340000
-      vxorps  xmm9, xmm9, xmm9
+      __asm
+      {
+        vcmpltss xmm0, xmm8, xmm4
+        vblendvps xmm9, xmm12, xmm11, xmm0
+      }
     }
   }
   else
   {
-    __asm { vmovaps xmm9, xmm7 }
+    *(float *)&_XMM9 = FLOAT_180_0;
   }
-  *(double *)&_XMM0 = vectopitch(dirToFace);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = vectopitch(moveDir);
-  __asm
+  v17 = vectopitch(dirToFace);
+  v18 = *(float *)&v17;
+  v19 = vectopitch(moveDir);
+  __asm { vroundss xmm3, xmm14, xmm1, 1 }
+  LODWORD(v21) = COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v19 - v18) * 0.0027777778) - *(float *)&_XMM3) * 360.0) & _xmm;
+  if ( v21 < 135.0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm4, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm2
-    vroundss xmm3, xmm14, xmm1, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm2, xmm0, cs:__real@43b40000
-    vandps  xmm1, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@43070000
-  }
-  if ( v32 )
-  {
-    __asm
-    {
-      vcomiss xmm1, cs:__real@42340000
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( !v32 )
+    LODWORD(_XMM7) = 0;
+    if ( v21 >= 45.0 )
     {
       __asm
       {
@@ -2409,25 +1776,9 @@ void AIScriptedInterface::GetDesiredLookDirFromMoveAndFacingDir3D(const vec3_t *
     }
   }
   vectoangles(moveDir, &angles);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rsp+0C8h+angles]
-    vaddss  xmm0, xmm9, dword ptr [rsp+0C8h+angles+4]
-    vmovss  dword ptr [rsp+0C8h+angles], xmm1
-    vmovss  dword ptr [rsp+0C8h+angles+4], xmm0
-  }
+  angles.v[0] = *(float *)&_XMM7 + angles.v[0];
+  angles.v[1] = *(float *)&_XMM9 + angles.v[1];
   AngleVectors(&angles, outDesiredDir, NULL, NULL);
-  _R11 = &v55;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -2437,76 +1788,59 @@ GetMinDistToFaceMotion
 */
 float GetMinDistToFaceMotion(vec3_t *lookaheadDir, vec3_t *forwardDir, vec3_t *pathDir)
 {
-  void *retaddr; 
+  float v3; 
+  __int128 v4; 
+  float v5; 
+  float v6; 
+  __int128 v7; 
+  __int128 v9; 
+  float v13; 
+  __int128 v14; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
 
-  _RAX = &retaddr;
+  v3 = forwardDir->v[1];
+  v4 = LODWORD(forwardDir->v[0]);
+  v5 = pathDir->v[1];
+  v6 = lookaheadDir->v[1];
+  v7 = LODWORD(lookaheadDir->v[0]);
+  _XMM10 = LODWORD(FLOAT_1_0);
+  v9 = v7;
+  *(float *)&v9 = fsqrt((float)(*(float *)&v7 * *(float *)&v7) + (float)(v6 * v6));
+  _XMM2 = v9;
   __asm
   {
-    vmovss  xmm4, dword ptr [rdx+4]
-    vmovss  xmm3, dword ptr [rdx]
-    vmovss  xmm5, dword ptr [r8+4]
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm6, cs:__real@80000000
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, dword ptr [rcx+4]
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm9, dword ptr [rcx]
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovss  xmm10, cs:__real@3f800000
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
     vcmpless xmm0, xmm2, xmm6
     vblendvps xmm0, xmm2, xmm10, xmm0
-    vdivss  xmm7, xmm10, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm1, xmm0
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+88h+var_88], xmm13
-    vsqrtss xmm2, xmm1, xmm1
+  }
+  v13 = 1.0 / *(float *)&_XMM0;
+  v14 = v4;
+  *(float *)&v14 = fsqrt((float)(*(float *)&v4 * *(float *)&v4) + (float)(v3 * v3));
+  _XMM2 = v14;
+  __asm
+  {
     vcmpless xmm0, xmm2, xmm6
     vblendvps xmm0, xmm2, xmm10, xmm0
-    vdivss  xmm1, xmm10, xmm0
-    vmulss  xmm11, xmm3, xmm1
-    vmovss  xmm3, dword ptr [r8]
-    vmulss  xmm12, xmm4, xmm1
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
+  }
+  v18 = *(float *)&v4 * (float)(1.0 / *(float *)&_XMM0);
+  v19 = LODWORD(pathDir->v[0]);
+  v20 = v3 * (float)(1.0 / *(float *)&_XMM0);
+  v21 = v19;
+  *(float *)&v21 = fsqrt((float)(*(float *)&v19 * *(float *)&v19) + (float)(v5 * v5));
+  _XMM2 = v21;
+  __asm
+  {
     vcmpless xmm0, xmm2, xmm6
     vblendvps xmm0, xmm2, xmm10, xmm0
-    vdivss  xmm1, xmm10, xmm0
-    vmulss  xmm6, xmm3, xmm1
-    vmulss  xmm13, xmm5, xmm1
-    vmovss  xmm5, cs:__real@3f000000
-    vmulss  xmm0, xmm8, xmm7
-    vmulss  xmm1, xmm9, xmm7
-    vmulss  xmm2, xmm1, xmm11
-    vmulss  xmm3, xmm0, xmm12
-    vaddss  xmm0, xmm3, xmm2
-    vcomiss xmm0, xmm5
-    vxorps  xmm4, xmm4, xmm4
-    vmulss  xmm1, xmm13, xmm12
-    vmulss  xmm0, xmm6, xmm11
-    vaddss  xmm1, xmm1, xmm0
-    vcomiss xmm1, xmm5
-    vxorps  xmm10, xmm10, xmm10
-    vmovss  xmm1, cs:__real@42c80000
-    vmovss  xmm0, cs:__real@42800000
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm11, [rsp+88h+var_68]
-    vmovaps xmm12, [rsp+88h+var_78]
-    vmovaps xmm13, [rsp+88h+var_88]
+  }
+  if ( (float)((float)((float)(v6 * v13) * v20) + (float)((float)(*(float *)&v7 * v13) * v18)) >= 0.5 && (float)((float)((float)(v5 * (float)(1.0 / *(float *)&_XMM0)) * v20) + (float)((float)(*(float *)&v19 * (float)(1.0 / *(float *)&_XMM0)) * v18)) >= 0.5 )
+    _XMM10 = 0i64;
+  _XMM0 = LODWORD(FLOAT_64_0);
+  __asm
+  {
     vcmpneqss xmm2, xmm10, xmm4
-    vmovaps xmm10, [rsp+88h+var_58]
     vblendvps xmm0, xmm0, xmm1, xmm2
   }
   return *(float *)&_XMM0;
@@ -2517,48 +1851,20 @@ float GetMinDistToFaceMotion(vec3_t *lookaheadDir, vec3_t *forwardDir, vec3_t *p
 AIScriptedInterface::LerpAnglesWithQuaternions
 ==============
 */
-
-void __fastcall AIScriptedInterface::LerpAnglesWithQuaternions(const vec3_t *currentAngles, const vec3_t *desiredAngles, double lerpSpeed, vec3_t *outAngles)
+void AIScriptedInterface::LerpAnglesWithQuaternions(const vec3_t *currentAngles, const vec3_t *desiredAngles, const float lerpSpeed, vec3_t *outAngles)
 {
-  char v23; 
-  char v24; 
+  float v6; 
   vec4_t qb; 
   vec4_t quat; 
   vec4_t out; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmm7, xmm2
-  }
   AnglesToQuat(currentAngles, &quat);
   AnglesToQuat(desiredAngles, &qb);
-  __asm
+  LODWORD(v6) = COERCE_UNSIGNED_INT((float)((float)((float)(qb.v[0] * quat.v[0]) + (float)(qb.v[1] * quat.v[1])) + (float)(qb.v[2] * quat.v[2])) + (float)(qb.v[3] * quat.v[3])) & _xmm;
+  if ( v6 <= cosf_0(lerpSpeed) )
   {
-    vmovss  xmm1, dword ptr [rsp+0B8h+qb+4]
-    vmulss  xmm2, xmm1, dword ptr [rsp+0B8h+quat+4]
-    vmovss  xmm0, dword ptr [rsp+0B8h+qb]
-    vmulss  xmm3, xmm0, dword ptr [rsp+0B8h+quat]
-    vmovss  xmm0, dword ptr [rsp+0B8h+qb+8]
-    vmulss  xmm1, xmm0, dword ptr [rsp+0B8h+quat+8]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm2, dword ptr [rsp+0B8h+qb+0Ch]
-    vmulss  xmm0, xmm2, dword ptr [rsp+0B8h+quat+0Ch]
-    vaddss  xmm3, xmm4, xmm1
-    vaddss  xmm6, xmm3, xmm0
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps xmm0, xmm7; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm { vcomiss xmm6, xmm0 }
-  if ( v23 | v24 )
-  {
-    __asm { vmovaps xmm2, xmm7; frac }
-    QuatLerp(&quat, &qb, *(float *)&_XMM2, &out);
+    QuatLerp(&quat, &qb, lerpSpeed, &out);
     QuatToAxis(&out, &axis);
     AxisToAngles(&axis, outAngles);
   }
@@ -2567,11 +1873,6 @@ void __fastcall AIScriptedInterface::LerpAnglesWithQuaternions(const vec3_t *cur
     outAngles->v[0] = desiredAngles->v[0];
     outAngles->v[1] = desiredAngles->v[1];
     outAngles->v[2] = desiredAngles->v[2];
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_28]
-    vmovaps xmm7, [rsp+0B8h+var_38]
   }
 }
 
@@ -2596,8 +1897,13 @@ AIScriptedInterface::SetAnglesToLikelyEnemyPath
 */
 void AIScriptedInterface::SetAnglesToLikelyEnemyPath(AIScriptedInterface *this)
 {
-  AIScriptedInterface_vtbl *v9; 
-  bool v10; 
+  ai_scripted_t *m_pAI; 
+  gentity_s *ent; 
+  float v4; 
+  AIScriptedInterface_vtbl *v5; 
+  ai_scripted_t *v6; 
+  vec3_t *p_anglesToLikelyEnemyPath; 
+  gentity_s *v8; 
   vec3_t forward; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> outAxis; 
@@ -2606,52 +1912,34 @@ void AIScriptedInterface::SetAnglesToLikelyEnemyPath(AIScriptedInterface *this)
     __debugbreak();
   if ( !tacpoint_ref_t::IsDefined(&this->m_pAI->sight.faceLikelyEnemyTacPoint) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 831, ASSERT_TYPE_ASSERT, "(m_pAI->sight.faceLikelyEnemyTacPoint.IsDefined())", (const char *)&queryFormat, "m_pAI->sight.faceLikelyEnemyTacPoint.IsDefined()") )
     __debugbreak();
-  _RAX = this->m_pAI;
-  __asm
+  m_pAI = this->m_pAI;
+  ent = m_pAI->ent;
+  forward.v[0] = m_pAI->sight.faceLikelyEnemyCornerPos.v[0] - m_pAI->ent->r.currentOrigin.v[0];
+  forward.v[1] = m_pAI->sight.faceLikelyEnemyCornerPos.v[1] - ent->r.currentOrigin.v[1];
+  v4 = m_pAI->sight.faceLikelyEnemyCornerPos.v[2] - ent->r.currentOrigin.v[2];
+  v5 = this->__vftable;
+  forward.v[2] = v4;
+  if ( v5->Is3D(this) && (float)((float)((float)(forward.v[1] * forward.v[1]) + (float)(forward.v[0] * forward.v[0])) + (float)(forward.v[2] * forward.v[2])) >= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rax+0DCh]
-    vsubss  xmm1, xmm0, dword ptr [rcx+130h]
-    vmovss  dword ptr [rsp+0A8h+forward], xmm1
-    vmovss  xmm2, dword ptr [rax+0E0h]
-    vsubss  xmm0, xmm2, dword ptr [rcx+134h]
-    vmovss  dword ptr [rsp+0A8h+forward+4], xmm0
-    vmovss  xmm1, dword ptr [rax+0E4h]
-    vsubss  xmm2, xmm1, dword ptr [rcx+138h]
-  }
-  v9 = this->__vftable;
-  __asm { vmovss  dword ptr [rsp+0A8h+forward+8], xmm2 }
-  v10 = v9->Is3D(this);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rsp+0A8h+forward+4]
-    vmovss  xmm5, dword ptr [rsp+0A8h+forward]
-  }
-  if ( v10 )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm3, xmm1, xmm0
-      vmovss  xmm1, dword ptr [rsp+0A8h+forward+8]
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm0, xmm3, xmm2
-      vcomiss xmm0, cs:__real@3f800000
-    }
     AnglesToAxis(&this->m_pAI->ent->r.currentAngles, &axis);
     GenerateAxisFromForwardVector(&forward, &axis, &outAxis);
     AxisToAngles(&outAxis, &this->m_pAI->sight.anglesToLikelyEnemyPath);
   }
   else
   {
-    __asm
+    v6 = this->m_pAI;
+    p_anglesToLikelyEnemyPath = &v6->sight.anglesToLikelyEnemyPath;
+    if ( (float)((float)(forward.v[1] * forward.v[1]) + (float)(forward.v[0] * forward.v[0])) < 1.0 )
     {
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm1, xmm1, xmm0
-      vcomiss xmm1, cs:__real@3f800000
+      v8 = v6->ent;
+      p_anglesToLikelyEnemyPath->v[0] = v8->r.currentAngles.v[0];
+      p_anglesToLikelyEnemyPath->v[1] = v8->r.currentAngles.v[1];
+      p_anglesToLikelyEnemyPath->v[2] = v8->r.currentAngles.v[2];
     }
-    vectoangles(&forward, &this->m_pAI->sight.anglesToLikelyEnemyPath);
+    else
+    {
+      vectoangles(&forward, p_anglesToLikelyEnemyPath);
+    }
   }
 }
 
@@ -2662,66 +1950,26 @@ AIScriptedInterface::SetBodyAngles
 */
 void AIScriptedInterface::SetBodyAngles(AIScriptedInterface *this, const vec3_t *angles)
 {
-  int v19; 
-  int v20; 
-  int v21; 
+  gentity_s *v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  _RBX = angles;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-  {
-LABEL_12:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 148, ASSERT_TYPE_ASSERT, "(!IS_NAN( angles[0] ) && !IS_NAN( angles[1] ) && !IS_NAN( angles[2] ))", "%s\n\tActor_SetBodyAngles has an invalid set of angles", "!IS_NAN( angles[0] ) && !IS_NAN( angles[1] ) && !IS_NAN( angles[2] )") )
-      __debugbreak();
-  }
-  _RDI = this->GetEntity(this);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 151, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  if ( ((LODWORD(angles->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(angles->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(angles->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 148, ASSERT_TYPE_ASSERT, "(!IS_NAN( angles[0] ) && !IS_NAN( angles[1] ) && !IS_NAN( angles[2] ))", "%s\n\tActor_SetBodyAngles has an invalid set of angles", "!IS_NAN( angles[0] ) && !IS_NAN( angles[1] ) && !IS_NAN( angles[2] )") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx+8]; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, dword ptr [rbx]; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rdi+140h], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rdi+144h], xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rdi+13Ch], xmm0
-  }
+  v4 = this->GetEntity(this);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 151, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+    __debugbreak();
+  v5 = AngleNormalize360(angles->v[2]);
+  v6 = *(float *)&v5;
+  v7 = AngleNormalize360(angles->v[1]);
+  v8 = *(float *)&v7;
+  v9 = AngleNormalize360(angles->v[0]);
+  v4->r.currentAngles.v[1] = v8;
+  v4->r.currentAngles.v[2] = v6;
+  v4->r.currentAngles.v[0] = *(float *)&v9;
 }
 
 /*
@@ -2731,88 +1979,38 @@ AIScriptedInterface::SetDesiredBodyAngles
 */
 void AIScriptedInterface::SetDesiredBodyAngles(AIScriptedInterface *this, ai_orient_t *pOrient, const vec3_t *vDesiredAngles, int bSetBodyPitchAndRoll)
 {
-  int v26; 
-  int v27; 
-  int v28; 
+  float v7; 
+  float v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  float v12; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps [rsp+68h+var_38], xmm7
-  }
-  _RBX = vDesiredAngles;
-  _RDI = pOrient;
   if ( !pOrient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 100, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+68h+arg_18], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+68h+arg_18], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+68h+arg_18], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-  {
-LABEL_18:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 101, ASSERT_TYPE_ASSERT, "(!IS_NAN( vDesiredAngles[0] ) && !IS_NAN( vDesiredAngles[1] ) && !IS_NAN( vDesiredAngles[2] ))", "%s\n\tActor_SetDesiredBodyAngles has an invalid set of angles", "!IS_NAN( vDesiredAngles[0] ) && !IS_NAN( vDesiredAngles[1] ) && !IS_NAN( vDesiredAngles[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+4]
-    vmovss  xmm7, dword ptr [rbx]
-  }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 36, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
+  if ( ((LODWORD(vDesiredAngles->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vDesiredAngles->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vDesiredAngles->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 101, ASSERT_TYPE_ASSERT, "(!IS_NAN( vDesiredAngles[0] ) && !IS_NAN( vDesiredAngles[1] ) && !IS_NAN( vDesiredAngles[2] ))", "%s\n\tActor_SetDesiredBodyAngles has an invalid set of angles", "!IS_NAN( vDesiredAngles[0] ) && !IS_NAN( vDesiredAngles[1] ) && !IS_NAN( vDesiredAngles[2] )") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm7; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rdi+10h], xmm0
-    vmovaps xmm0, xmm6; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rdi+14h], xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
+  v7 = vDesiredAngles->v[1];
+  v8 = vDesiredAngles->v[0];
+  if ( !pOrient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 36, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
+    __debugbreak();
+  v9 = AngleNormalize360(v8);
+  pOrient->fDesiredLookPitch = *(float *)&v9;
+  v10 = AngleNormalize360(v7);
+  pOrient->fDesiredLookYaw = *(float *)&v10;
+  v11 = AngleNormalize360(vDesiredAngles->v[1]);
+  pOrient->vDesiredAngles.v[1] = *(float *)&v11;
   if ( bSetBodyPitchAndRoll )
   {
-    __asm { vmovss  xmm1, dword ptr [rbx]; fAngle }
-    AIScriptedInterface::SetDesiredBodyPitch(_RDI, *(const float *)&_XMM1);
-    __asm { vmovss  xmm6, dword ptr [rbx+8] }
+    AIScriptedInterface::SetDesiredBodyPitch(pOrient, vDesiredAngles->v[0]);
+    v12 = vDesiredAngles->v[2];
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1; fAngle
-      vxorps  xmm6, xmm6, xmm6
-    }
-    AIScriptedInterface::SetDesiredBodyPitch(_RDI, *(const float *)&_XMM1);
+    v12 = 0.0;
+    AIScriptedInterface::SetDesiredBodyPitch(pOrient, 0.0);
   }
-  __asm
-  {
-    vmovaps xmm1, xmm6; fAngle
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
-  }
-  AIScriptedInterface::SetDesiredBodyRoll(_RDI, *(const float *)&_XMM1);
+  AIScriptedInterface::SetDesiredBodyRoll(pOrient, v12);
 }
 
 /*
@@ -2820,21 +2018,14 @@ LABEL_18:
 AIScriptedInterface::SetDesiredBodyPitch
 ==============
 */
-
-void __fastcall AIScriptedInterface::SetDesiredBodyPitch(ai_orient_t *pOrient, double fAngle)
+void AIScriptedInterface::SetDesiredBodyPitch(ai_orient_t *pOrient, const float fAngle)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = pOrient;
-  __asm { vmovaps xmm6, xmm1 }
+  double v3; 
+
   if ( !pOrient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 69, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm6; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rbx+4], xmm0
-  }
+  v3 = AngleNormalize360(fAngle);
+  pOrient->vDesiredAngles.v[0] = *(float *)&v3;
 }
 
 /*
@@ -2842,21 +2033,14 @@ void __fastcall AIScriptedInterface::SetDesiredBodyPitch(ai_orient_t *pOrient, d
 AIScriptedInterface::SetDesiredBodyRoll
 ==============
 */
-
-void __fastcall AIScriptedInterface::SetDesiredBodyRoll(ai_orient_t *pOrient, double fAngle)
+void AIScriptedInterface::SetDesiredBodyRoll(ai_orient_t *pOrient, const float fAngle)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = pOrient;
-  __asm { vmovaps xmm6, xmm1 }
+  double v3; 
+
   if ( !pOrient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 85, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm6; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
+  v3 = AngleNormalize360(fAngle);
+  pOrient->vDesiredAngles.v[2] = *(float *)&v3;
 }
 
 /*
@@ -2864,21 +2048,14 @@ void __fastcall AIScriptedInterface::SetDesiredBodyRoll(ai_orient_t *pOrient, do
 AIScriptedInterface::SetDesiredBodyYaw
 ==============
 */
-
-void __fastcall AIScriptedInterface::SetDesiredBodyYaw(ai_orient_t *pOrient, double fAngle)
+void AIScriptedInterface::SetDesiredBodyYaw(ai_orient_t *pOrient, const float fAngle)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = pOrient;
-  __asm { vmovaps xmm6, xmm1 }
+  double v3; 
+
   if ( !pOrient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 53, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm6; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  v3 = AngleNormalize360(fAngle);
+  pOrient->vDesiredAngles.v[1] = *(float *)&v3;
 }
 
 /*
@@ -2886,33 +2063,17 @@ void __fastcall AIScriptedInterface::SetDesiredBodyYaw(ai_orient_t *pOrient, dou
 AIScriptedInterface::SetDesiredLookAngles
 ==============
 */
-
-void __fastcall AIScriptedInterface::SetDesiredLookAngles(ai_orient_t *pOrient, double fPitch, double fYaw)
+void AIScriptedInterface::SetDesiredLookAngles(ai_orient_t *pOrient, const float fPitch, const float fYaw)
 {
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = pOrient;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm2
-  }
+  double v4; 
+  double v5; 
+
   if ( !pOrient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 36, ASSERT_TYPE_ASSERT, "(pOrient)", (const char *)&queryFormat, "pOrient") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm7; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovaps xmm0, xmm6; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rbx+14h], xmm0
-  }
+  v4 = AngleNormalize360(fPitch);
+  pOrient->fDesiredLookPitch = *(float *)&v4;
+  v5 = AngleNormalize360(fYaw);
+  pOrient->fDesiredLookYaw = *(float *)&v5;
 }
 
 /*
@@ -2920,46 +2081,24 @@ void __fastcall AIScriptedInterface::SetDesiredLookAngles(ai_orient_t *pOrient, 
 AIScriptedInterface::SetLookAngles
 ==============
 */
-
-void __fastcall AIScriptedInterface::SetLookAngles(AIScriptedInterface *this, double fPitch, double fYaw)
+void AIScriptedInterface::SetLookAngles(AIScriptedInterface *this, const float fPitch, const float fYaw)
 {
+  double v4; 
+  double v5; 
   ai_scripted_t *m_pAI; 
   vec3_t angles; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 127, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm6; angle }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vmovss  dword ptr [rax+140h], xmm0
-    vmovss  dword ptr [rsp+78h+angles], xmm0
-    vmovaps xmm0, xmm7; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  _RAX = this->m_pAI;
-  __asm { vmovss  dword ptr [rax+144h], xmm0 }
+  v4 = AngleNormalize360(fPitch);
+  this->m_pAI->orientation.fLookPitch = *(float *)&v4;
+  angles.v[0] = *(float *)&v4;
+  v5 = AngleNormalize360(fYaw);
+  this->m_pAI->orientation.fLookYaw = *(float *)&v5;
   m_pAI = this->m_pAI;
-  __asm
-  {
-    vmovss  dword ptr [rsp+78h+angles+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+78h+angles+8], xmm0
-  }
+  angles.v[1] = *(float *)&v5;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, &m_pAI->orientation.vLookForward, &m_pAI->orientation.vLookRight, &m_pAI->orientation.vLookUp);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
 }
 
 /*
@@ -2984,116 +2123,79 @@ AIScriptedInterface::ShouldCautiousStrafe
 bool AIScriptedInterface::ShouldCautiousStrafe(AIScriptedInterface *this)
 {
   ai_scripted_t *m_pAI; 
-  char v11; 
+  const dvar_t *v3; 
+  ai_scripted_t *v4; 
+  double PathDistToGoal; 
+  const dvar_t *v6; 
   pathnode_t *node; 
   bool HasValidUpcomingTurnCached; 
-  bool result; 
-  char v42; 
+  ai_scripted_t *v9; 
+  __int128 v11; 
+  __int128 v12; 
+  float v13; 
+  float v14; 
   vec3_t forward; 
-  char v49; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
   if ( !AIScriptedInterface::IsApproachingTightQuarters(this) )
   {
     m_pAI = this->m_pAI;
     if ( !m_pAI->cautiousNavigationEnabled )
     {
       if ( m_pAI->avoidance_active )
-        goto LABEL_28;
-      _RDI = DCONST_DVARFLT_ai_maxSpeedForForcedCornerStrafing;
+        goto LABEL_27;
+      v3 = DCONST_DVARFLT_ai_maxSpeedForForcedCornerStrafing;
       if ( !DCONST_DVARFLT_ai_maxSpeedForForcedCornerStrafing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_maxSpeedForForcedCornerStrafing") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      _RCX = this->m_pAI;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vcomiss xmm0, dword ptr [rcx+0D4Ch]
-      }
-      if ( v11 )
-        goto LABEL_28;
-      *(double *)&_XMM0 = Nav_GetPathDistToGoal(_RCX->pNavigator);
-      _RDI = DCONST_DVARFLT_ai_minDistanceFromGoalForForcedCornerStrafing;
-      __asm { vmovaps xmm6, xmm0 }
+      Dvar_CheckFrontendServerThread(v3);
+      v4 = this->m_pAI;
+      if ( v3->current.value < v4->animData.desiredSpeed )
+        goto LABEL_27;
+      PathDistToGoal = Nav_GetPathDistToGoal(v4->pNavigator);
+      v6 = DCONST_DVARFLT_ai_minDistanceFromGoalForForcedCornerStrafing;
       if ( !DCONST_DVARFLT_ai_minDistanceFromGoalForForcedCornerStrafing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_minDistanceFromGoalForForcedCornerStrafing") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-      if ( v11 )
+      Dvar_CheckFrontendServerThread(v6);
+      if ( *(float *)&PathDistToGoal < v6->current.value )
       {
         node = this->m_pAI->codeGoal.node;
         if ( node )
         {
           if ( ((1 << LOBYTE(node->constant.type)) & 0x82641EFC) != 0 )
           {
-LABEL_28:
+LABEL_27:
             if ( !AIScriptedInterface::ShouldCornerStrafeBecauseEnemy(this) )
-              goto LABEL_24;
+              return 0;
           }
         }
       }
     }
   }
   if ( AICommonInterface::GetTargetEntity(this) && (AICommonInterface::RecentlySeeEnemy(this) || AIScriptedInterface::IsDoingReacquire(this)) )
-    goto LABEL_24;
+    return 0;
   HasValidUpcomingTurnCached = AIScriptedInterface::HasValidUpcomingTurnCached(this);
-  _RCX = this->m_pAI;
+  v9 = this->m_pAI;
   if ( HasValidUpcomingTurnCached )
   {
-    _RCX->isInCautiousCornerStrafe = 1;
-    result = 1;
-    goto LABEL_25;
+    v9->isInCautiousCornerStrafe = 1;
+    return 1;
   }
-  if ( !_RCX->isInCautiousCornerStrafe )
-  {
-LABEL_24:
-    result = 0;
-    goto LABEL_25;
-  }
+  if ( !v9->isInCautiousCornerStrafe )
+    return 0;
+  v11 = LODWORD(v9->Physics.vVelocity.v[0]);
+  v12 = v11;
+  v13 = v9->Physics.vVelocity.v[1];
+  v14 = v9->Physics.vVelocity.v[2];
+  *(float *)&v12 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(v13 * v13)) + (float)(v14 * v14));
+  _XMM3 = v12;
   __asm
   {
-    vmovaps [rsp+0A8h+var_28], xmm7
-    vmovss  xmm7, dword ptr [rcx+838h]
-    vmulss  xmm1, xmm7, xmm7
-    vmovaps [rsp+0A8h+var_38], xmm8
-    vmovss  xmm8, dword ptr [rcx+83Ch]
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmovaps [rsp+0A8h+var_48], xmm9
-    vmovss  xmm9, dword ptr [rcx+840h]
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm6, xmm1, xmm0
   }
-  AngleVectors(&_RCX->ent->r.currentAngles, &forward, NULL, NULL);
-  __asm
-  {
-    vmulss  xmm0, xmm7, xmm6
-    vmulss  xmm3, xmm0, dword ptr [rsp+0A8h+forward]
-    vmovaps xmm7, [rsp+0A8h+var_28]
-    vmulss  xmm1, xmm8, xmm6
-    vmulss  xmm2, xmm1, dword ptr [rsp+0A8h+forward+4]
-    vmovaps xmm8, [rsp+0A8h+var_38]
-    vmulss  xmm0, xmm9, xmm6
-    vmulss  xmm1, xmm0, dword ptr [rsp+0A8h+forward+8]
-    vmovaps xmm9, [rsp+0A8h+var_48]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vcomiss xmm2, cs:__real@3f774bc7
-  }
-  if ( !(v11 | v42) )
+  AngleVectors(&v9->ent->r.currentAngles, &forward, NULL, NULL);
+  if ( (float)((float)((float)((float)(*(float *)&v11 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[0]) + (float)((float)(v13 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[1])) + (float)((float)(v14 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[2])) > 0.96600002 )
     this->m_pAI->isInCautiousCornerStrafe = 0;
-  result = this->m_pAI->isInCautiousCornerStrafe;
-LABEL_25:
-  _R11 = &v49;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return this->m_pAI->isInCautiousCornerStrafe;
 }
 
 /*
@@ -3103,123 +2205,58 @@ AIScriptedInterface::ShouldCornerStrafeBecauseEnemy
 */
 bool AIScriptedInterface::ShouldCornerStrafeBecauseEnemy(AIScriptedInterface *this)
 {
-  bool result; 
-  char v30; 
-  char v31; 
-  bool v33; 
-  __int64 v48; 
-  __int64 v49; 
-  bool v62; 
-  char v69; 
-  int v70; 
-  int v71[5]; 
-  bfx::AreaHandle v72; 
-  bfx::LinkHandle v73; 
-  char v74; 
-  void *retaddr; 
+  gentity_s *TargetEntity; 
+  float v4; 
+  float v5; 
+  __int128 v6; 
+  float v7; 
+  float v8; 
+  float v12; 
+  ai_scripted_t *m_pAI; 
+  float *v; 
+  __int64 v15; 
+  __int64 v16; 
+  bool v17; 
+  char v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  int v22[5]; 
+  bfx::AreaHandle v23; 
+  bfx::LinkHandle v24; 
 
-  _RAX = &retaddr;
+  TargetEntity = AICommonInterface::GetTargetEntity(this);
+  if ( !TargetEntity )
+    return 0;
+  this->m_pAI->pNavigator->GetNextCorner(this->m_pAI->pNavigator, (vec3_t *)&v19);
+  v4 = TargetEntity->r.currentOrigin.v[0] - v19;
+  v6 = LODWORD(TargetEntity->r.currentOrigin.v[1]);
+  v5 = TargetEntity->r.currentOrigin.v[1] - v20;
+  v7 = TargetEntity->r.currentOrigin.v[2] - v21;
+  v8 = (float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v7 * v7);
+  *(float *)&v6 = fsqrt(v8);
+  _XMM3 = v6;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm11
-    vmovaps xmmword ptr [rax-48h], xmm12
-    vmovaps xmmword ptr [rax-58h], xmm13
-  }
-  if ( !AICommonInterface::GetTargetEntity(this) )
-    goto LABEL_2;
-  this->m_pAI->pNavigator->GetNextCorner(this->m_pAI->pNavigator, (vec3_t *)&v70);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+130h]
-    vsubss  xmm7, xmm0, [rsp+0F8h+var_B8]
-    vmovss  xmm1, dword ptr [rdi+134h]
-    vsubss  xmm6, xmm1, [rsp+0F8h+var_B4]
-    vmovss  xmm0, dword ptr [rdi+138h]
-    vsubss  xmm5, xmm0, [rsp+0F8h+var_B0]
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm4, xmm2, xmm1
-    vsqrtss xmm3, xmm4, xmm4
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm3, xmm2, xmm0
-    vdivss  xmm0, xmm2, xmm1
-    vmulss  xmm11, xmm7, xmm0
-    vmulss  xmm12, xmm6, xmm0
-    vmulss  xmm13, xmm5, xmm0
   }
-  _RAX = this->m_pAI;
-  __asm { vcomiss xmm4, dword ptr [rax+5DCh] }
-  if ( !(v30 | v31) )
-    goto LABEL_2;
-  _RAX = _RAX->ent;
-  v33 = __CFADD__(_RAX, 304i64) || &_RAX->r.currentOrigin == NULL;
-  _RAX = (gentity_s *)((char *)_RAX + 304);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vsubss  xmm3, xmm0, [rsp+0F8h+var_B8]
-    vmovss  xmm1, dword ptr [rax+4]
-    vsubss  xmm2, xmm1, [rsp+0F8h+var_B4]
-    vmovss  xmm0, dword ptr [rax+8]
-    vsubss  xmm4, xmm0, [rsp+0F8h+var_B0]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-    vmovss  xmm7, cs:__real@42800000
-    vcomiss xmm6, xmm7
-  }
-  if ( v33 )
-  {
-    bfx::AreaHandle::AreaHandle(&v72);
-    bfx::LinkHandle::LinkHandle(&v73);
-    __asm { vaddss  xmm1, xmm6, xmm7 }
-    v69 = 0;
-    LOBYTE(v48) = 1;
-    ((void (__fastcall *)(AINavigator *, __int64, __int64, int *, char))this->m_pAI->pNavigator->GetPosAlongPath)(this->m_pAI->pNavigator, v49, v48, v71, v69);
-    __asm
-    {
-      vmovss  xmm0, [rsp+0F8h+var_A8]
-      vsubss  xmm2, xmm0, [rsp+0F8h+var_B8]
-      vmovss  xmm1, [rsp+0F8h+var_A4]
-      vsubss  xmm3, xmm1, [rsp+0F8h+var_B4]
-      vmovss  xmm0, [rsp+0F8h+var_A0]
-      vsubss  xmm4, xmm0, [rsp+0F8h+var_B0]
-      vmulss  xmm2, xmm2, xmm11
-      vmulss  xmm1, xmm3, xmm12
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm13
-      vaddss  xmm4, xmm3, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm4, xmm1
-    }
-    v62 = !v30;
-    bfx::LinkHandle::~LinkHandle(&v73);
-    bfx::AreaHandle::~AreaHandle(&v72);
-    result = v62;
-  }
-  else
-  {
-LABEL_2:
-    result = 0;
-  }
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm11, xmmword ptr [r11-30h]
-    vmovaps xmm12, xmmword ptr [r11-40h]
-    vmovaps xmm13, xmmword ptr [r11-50h]
-  }
-  return result;
+  v12 = v7 * (float)(1.0 / *(float *)&_XMM1);
+  m_pAI = this->m_pAI;
+  if ( v8 > m_pAI->maxFaceEnemyDist )
+    return 0;
+  v = m_pAI->ent->r.currentOrigin.v;
+  if ( fsqrt((float)((float)((float)(v[1] - v20) * (float)(v[1] - v20)) + (float)((float)(*v - v19) * (float)(*v - v19))) + (float)((float)(v[2] - v21) * (float)(v[2] - v21))) > 64.0 )
+    return 0;
+  bfx::AreaHandle::AreaHandle(&v23);
+  bfx::LinkHandle::LinkHandle(&v24);
+  v18 = 0;
+  LOBYTE(v15) = 1;
+  ((void (__fastcall *)(AINavigator *, __int64, __int64, int *, char))this->m_pAI->pNavigator->GetPosAlongPath)(this->m_pAI->pNavigator, v16, v15, v22, v18);
+  v17 = (float)((float)((float)((float)(*(float *)v22 - v19) * (float)(v4 * (float)(1.0 / *(float *)&_XMM1))) + (float)((float)(*(float *)&v22[1] - v20) * (float)(v5 * (float)(1.0 / *(float *)&_XMM1)))) + (float)((float)(*(float *)&v22[2] - v21) * v12)) >= 0.0;
+  bfx::LinkHandle::~LinkHandle(&v24);
+  bfx::AreaHandle::~AreaHandle(&v23);
+  return v17;
 }
 
 /*
@@ -3227,97 +2264,50 @@ LABEL_2:
 AIScriptedInterface::ShouldFaceGoalNode
 ==============
 */
-bool AIScriptedInterface::ShouldFaceGoalNode(AIScriptedInterface *this)
+char AIScriptedInterface::ShouldFaceGoalNode(AIScriptedInterface *this)
 {
   ai_scripted_t *m_pAI; 
   pathnode_t *pClaimedNode; 
-  char v5; 
-  ai_scripted_t *v9; 
+  ai_scripted_t *v4; 
+  float v5; 
   gentity_s *TargetEntity; 
   unsigned __int16 type; 
-  bool result; 
   vec3_t pos; 
-  int v24[4]; 
+  int v10[4]; 
 
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 594, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
   if ( !AICommonInterface::HasPath(this) )
-    goto LABEL_26;
+    return 0;
   if ( !AIScriptedInterface::UsingCoverNodes(this) )
-    goto LABEL_26;
+    return 0;
   m_pAI = this->m_pAI;
   if ( !m_pAI->bArrivalFailed && m_pAI->orientation.faceMotion )
-    goto LABEL_26;
+    return 0;
   pClaimedNode = m_pAI->sentient->pClaimedNode;
   if ( !pClaimedNode )
-    goto LABEL_26;
+    return 0;
   if ( ((1 << LOBYTE(pClaimedNode->constant.type)) & 0x82641EFC) == 0 )
-    goto LABEL_26;
+    return 0;
   pathnode_t::GetPos(pClaimedNode, &pos);
-  this->m_pAI->pNavigator->GetRequestedGoalPos(this->m_pAI->pNavigator, (vec3_t *)v24);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+78h+pos]
-    vucomiss xmm2, [rsp+78h+var_38]
-  }
-  if ( !v5 )
-    goto LABEL_26;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+78h+pos+4]
-    vucomiss xmm0, [rsp+78h+var_34]
-  }
-  if ( !v5 )
-    goto LABEL_26;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+78h+pos+8]
-    vucomiss xmm1, [rsp+78h+var_30]
-  }
-  if ( !v5 )
-    goto LABEL_26;
-  v9 = this->m_pAI;
-  __asm
-  {
-    vsubss  xmm0, xmm0, dword ptr [rax+4]
-    vsubss  xmm2, xmm2, dword ptr [rax]
-    vsubss  xmm3, xmm1, dword ptr [rax+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm6, xmm2, xmm1
-    vcomiss xmm6, cs:__real@45800000
-  }
-  if ( v9->ent < (gentity_s *)0xFFFFFFFFFFFFFED0i64 && v9->ent != (gentity_s *)-304i64 )
-    goto LABEL_26;
-  if ( !v9->pNavigator->IsNextCornerGoal(v9->pNavigator) )
-    __asm { vcomiss xmm6, cs:__real@44800000 }
+  this->m_pAI->pNavigator->GetRequestedGoalPos(this->m_pAI->pNavigator, (vec3_t *)v10);
+  if ( pos.v[0] != *(float *)v10 )
+    return 0;
+  if ( pos.v[1] != *(float *)&v10[1] )
+    return 0;
+  if ( pos.v[2] != *(float *)&v10[2] )
+    return 0;
+  v4 = this->m_pAI;
+  v5 = (float)((float)((float)(pos.v[1] - v4->ent->r.currentOrigin.v[1]) * (float)(pos.v[1] - v4->ent->r.currentOrigin.v[1])) + (float)((float)(pos.v[0] - v4->ent->r.currentOrigin.v[0]) * (float)(pos.v[0] - v4->ent->r.currentOrigin.v[0]))) + (float)((float)(pos.v[2] - v4->ent->r.currentOrigin.v[2]) * (float)(pos.v[2] - v4->ent->r.currentOrigin.v[2]));
+  if ( v5 > 4096.0 || !v4->pNavigator->IsNextCornerGoal(v4->pNavigator) && v5 > 1024.0 )
+    return 0;
   TargetEntity = AICommonInterface::GetTargetEntity(this);
   if ( !TargetEntity )
-    goto LABEL_25;
-  if ( this->m_pAI->blackboard.m_bShouldInitiallyAttackFromExposed )
-    goto LABEL_26;
-  if ( (pClaimedNode->constant.spawnflags & 4) != 0 || (type = pClaimedNode->constant.type, (unsigned __int16)(type - 2) <= 2u) || type == 22 )
-  {
-    if ( AIScriptedInterface::CanShootEnemy(this, 250, 0, 0) )
-      goto LABEL_26;
-  }
-  if ( !Path_NodeIgnoresAngles(pClaimedNode) )
-  {
-    __asm { vxorps  xmm2, xmm2, xmm2; dotLimit }
-    if ( !Path_IsNodeFacingToward(pClaimedNode, &TargetEntity->r.currentOrigin, *(float *)&_XMM2) )
-      goto LABEL_26;
-  }
-  if ( AIScriptedInterface::Cover_IsValidAgainstEnemy(this, pClaimedNode, 1) )
-LABEL_25:
-    result = 1;
+    return 1;
+  if ( !this->m_pAI->blackboard.m_bShouldInitiallyAttackFromExposed && ((pClaimedNode->constant.spawnflags & 4) == 0 && (type = pClaimedNode->constant.type, (unsigned __int16)(type - 2) > 2u) && type != 22 || !AIScriptedInterface::CanShootEnemy(this, 250, 0, 0)) && (Path_NodeIgnoresAngles(pClaimedNode) || Path_IsNodeFacingToward(pClaimedNode, &TargetEntity->r.currentOrigin, 0.0)) && AIScriptedInterface::Cover_IsValidAgainstEnemy(this, pClaimedNode, 1) )
+    return 1;
   else
-LABEL_26:
-    result = 0;
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  return result;
+    return 0;
 }
 
 /*
@@ -3327,39 +2317,27 @@ AIScriptedInterface::ShouldForceCautiousStrafe
 */
 bool AIScriptedInterface::ShouldForceCautiousStrafe(AIScriptedInterface *this)
 {
-  char v6; 
+  const dvar_t *v2; 
+  ai_scripted_t *m_pAI; 
+  double PathDistToGoal; 
+  const dvar_t *v5; 
   pathnode_t *node; 
 
   if ( this->m_pAI->avoidance_active )
     return 0;
-  _RDI = DCONST_DVARFLT_ai_maxSpeedForForcedCornerStrafing;
+  v2 = DCONST_DVARFLT_ai_maxSpeedForForcedCornerStrafing;
   if ( !DCONST_DVARFLT_ai_maxSpeedForForcedCornerStrafing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_maxSpeedForForcedCornerStrafing") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  _RCX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vcomiss xmm0, dword ptr [rcx+0D4Ch]
-  }
-  if ( v6 )
+  Dvar_CheckFrontendServerThread(v2);
+  m_pAI = this->m_pAI;
+  if ( v2->current.value < m_pAI->animData.desiredSpeed )
     return 0;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  *(double *)&_XMM0 = Nav_GetPathDistToGoal(_RCX->pNavigator);
-  _RDI = DCONST_DVARFLT_ai_minDistanceFromGoalForForcedCornerStrafing;
-  __asm { vmovaps xmm6, xmm0 }
+  PathDistToGoal = Nav_GetPathDistToGoal(m_pAI->pNavigator);
+  v5 = DCONST_DVARFLT_ai_minDistanceFromGoalForForcedCornerStrafing;
   if ( !DCONST_DVARFLT_ai_minDistanceFromGoalForForcedCornerStrafing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_minDistanceFromGoalForForcedCornerStrafing") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rdi+28h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  if ( !v6 )
-    return 1;
-  node = this->m_pAI->codeGoal.node;
-  return !node || ((1 << LOBYTE(node->constant.type)) & 0x82641EFC) == 0;
+  Dvar_CheckFrontendServerThread(v5);
+  return *(float *)&PathDistToGoal >= v5->current.value || (node = this->m_pAI->codeGoal.node) == NULL || ((1 << LOBYTE(node->constant.type)) & 0x82641EFC) == 0;
 }
 
 /*
@@ -3369,246 +2347,151 @@ AIScriptedInterface::ShouldStrafe
 */
 bool AIScriptedInterface::ShouldStrafe(AIScriptedInterface *this)
 {
+  __int128 v1; 
   ai_scripted_t *m_pAI; 
-  bool v8; 
-  bool result; 
-  ai_scripted_t *v13; 
+  ai_scripted_t *v5; 
   sentient_s *sentient; 
   pathnode_t *pClaimedNode; 
   ai_reacquire_state_t Reacquire; 
-  ai_scripted_t *v18; 
-  ai_scripted_t *v19; 
-  char v22; 
-  ai_scripted_t *v24; 
-  int v25; 
+  ai_scripted_t *v9; 
+  double PathDistToGoal; 
+  ai_scripted_t *v11; 
+  float v12; 
+  double TargetSpeed; 
+  float v14; 
+  ai_scripted_t *v15; 
+  int v16; 
   sentient_s *TargetSentient; 
+  __int128 v19; 
   AINavigator *pNavigator; 
-  char v52; 
-  vec3_t v69; 
+  float MinDistToFaceMotion; 
+  unsigned int *v23; 
+  float v25; 
+  double v27; 
+  ai_scripted_t *v28; 
+  ai_scripted_t *v30; 
+  vec3_t v34; 
   vec3_t position; 
   vec3_t pos; 
-  int v72[4]; 
-  int v73; 
+  int v37[4]; 
+  int v38[4]; 
   vec3_t forward; 
   vec3_t outLookaheadDir; 
+  __int128 v41; 
 
   if ( !this->m_pAI->pNavigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 1374, ASSERT_TYPE_ASSERT, "( m_pAI->pNavigator )", (const char *)&queryFormat, "m_pAI->pNavigator") )
     __debugbreak();
   m_pAI = this->m_pAI;
-  __asm
+  if ( m_pAI->bAllowStrafe )
   {
-    vmovaps [rsp+100h+var_10], xmm6
-    vmovaps [rsp+100h+var_20], xmm7
-  }
-  v8 = !m_pAI->bAllowStrafe;
-  __asm { vmovaps [rsp+100h+var_30], xmm8 }
-  if ( v8 )
-    goto LABEL_46;
-  if ( !m_pAI->arrivalInfo.arriving )
-  {
-    if ( !AICommonInterface::HasPath(this) )
-      goto LABEL_46;
-    if ( AIScriptedInterface::IsOnStairs(this) )
-      goto LABEL_46;
-    if ( EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) )
-      goto LABEL_46;
-    __asm
+    if ( m_pAI->arrivalInfo.arriving )
+      return !m_pAI->orientation.predictedFaceMotion;
+    if ( AICommonInterface::HasPath(this) && !AIScriptedInterface::IsOnStairs(this) && !EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) && !((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->HasTraversalWithin)(this->m_pAI->pNavigator) && !((unsigned __int8 (__fastcall *)(AIScriptedInterface *))this->GetStairsWithinDist)(this) )
     {
-      vmovss  xmm6, cs:__real@42c80000
-      vmovaps xmm1, xmm6
-    }
-    if ( ((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->HasTraversalWithin)(this->m_pAI->pNavigator) )
-      goto LABEL_46;
-    __asm { vmovaps xmm1, xmm6 }
-    if ( ((unsigned __int8 (__fastcall *)(AIScriptedInterface *))this->GetStairsWithinDist)(this) )
-      goto LABEL_46;
-    v13 = this->m_pAI;
-    if ( (v13->eAllowedStances & 1) == 0 )
-      goto LABEL_46;
-    if ( (((__int64 (__fastcall *)(AINavigator *))v13->pNavigator->GetAllowedStances)(v13->pNavigator) & 1) == 0 )
-      goto LABEL_46;
-    sentient = this->m_pAI->sentient;
-    pClaimedNode = sentient->pClaimedNode;
-    if ( pClaimedNode )
-    {
-      pathnode_t::GetPos(sentient->pClaimedNode, &pos);
-      __asm { vmovss  xmm3, cs:__real@40000000; buffer }
-      if ( AICommonInterface::PointNearPoint(this, &pos, &this->m_pAI->ent->r.currentOrigin, *(float *)&_XMM3) && (pClaimedNode->constant.spawnflags & 4) != 0 )
-        goto LABEL_46;
-    }
-    Reacquire = AIScriptedInterface::GetReacquire(this);
-    v18 = this->m_pAI;
-    if ( Reacquire == AI_REACQUIRE_REACQUIRED || v18->blackboard.m_bForceStrafe )
-    {
-      v18->orientation.predictedStrafePosValid = 0;
-      result = 1;
-      goto LABEL_47;
-    }
-    *(double *)&_XMM0 = Nav_GetPathDistToGoal(v18->pNavigator);
-    v19 = this->m_pAI;
-    __asm
-    {
-      vmovss  xmm7, cs:__real@42800000
-      vmovaps xmm8, xmm0
-    }
-    if ( !v19->orientation.predictedFaceMotion )
-    {
-      v22 = 0;
-      if ( !v19->speedScaleMode[0] )
-        goto LABEL_23;
-      *(double *)&_XMM0 = AIScriptedInterface::GetTargetSpeed(this);
-      __asm { vcomiss xmm0, cs:__real@42700000 }
-      if ( v22 | v8 )
-        __asm { vmovss  xmm0, cs:__real@42200000 }
-      else
-LABEL_23:
-        __asm { vmovaps xmm0, xmm7 }
-      __asm { vcomiss xmm8, xmm0 }
-      if ( v22 )
-        goto LABEL_37;
-    }
-    if ( AIScriptedInterface::IsDoingReacquire(this) )
-      __asm { vcomiss xmm8, xmm6 }
-    if ( AIScriptedInterface::ShouldFaceGoalNode(this) )
-      goto LABEL_37;
-    if ( AICommonInterface::GetTargetEntity(this) )
-    {
-      v24 = this->m_pAI;
-      v25 = 2000;
-      if ( v24->orientation.predictedFaceMotion && (signed int)v24->pNavigator->m_TimeOfLastPathUpdate < level.time )
-        v25 = 200;
-      TargetSentient = AICommonInterface::GetTargetSentient(this);
-      if ( TargetSentient )
+      v5 = this->m_pAI;
+      if ( (v5->eAllowedStances & 1) != 0 && (((__int64 (__fastcall *)(AINavigator *))v5->pNavigator->GetAllowedStances)(v5->pNavigator) & 1) != 0 )
       {
-        if ( !AICommonInterface::RecentlySeeSentient(this, TargetSentient, v25) )
-          goto LABEL_34;
-      }
-      else if ( !AICommonInterface::CanSeeEnemy(this) )
-      {
-        goto LABEL_34;
-      }
-      __asm { vmovaps [rsp+100h+var_40], xmm9 }
-      AICommonInterface::GetTargetPosition(this, &position);
-      _RCX = this->m_pAI;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+position]
-        vmovss  xmm1, dword ptr [rbp+57h+position+4]
-        vmovss  xmm6, dword ptr [rcx+5DCh]
-        vsubss  xmm3, xmm0, dword ptr [rax+130h]
-        vsubss  xmm2, xmm1, dword ptr [rax+134h]
-        vmovss  xmm0, dword ptr [rbp+57h+position+8]
-        vsubss  xmm4, xmm0, dword ptr [rax+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm9, xmm3, xmm0
-      }
-      if ( level.time - _RCX->iLastSetEnemyTime <= 3000 )
-      {
-        __asm
+        sentient = this->m_pAI->sentient;
+        pClaimedNode = sentient->pClaimedNode;
+        if ( !pClaimedNode || (pathnode_t::GetPos(sentient->pClaimedNode, &pos), !AICommonInterface::PointNearPoint(this, &pos, &this->m_pAI->ent->r.currentOrigin, 2.0)) || (pClaimedNode->constant.spawnflags & 4) == 0 )
         {
-          vmovss  xmm0, dword ptr [rcx+5E0h]
-          vmaxss  xmm6, xmm0, xmm6
-        }
-      }
-      *(double *)&_XMM0 = AIScriptedInterface::GetTargetSpeed(this);
-      __asm { vcomiss xmm0, cs:__real@42a00000 }
-      if ( v52 )
-      {
-        _RAX = this->m_pAI;
-        __asm
-        {
-          vmovss  xmm0, cs:__real@42b00000
-          vcomiss xmm0, dword ptr [rax+0B48h]
-        }
-        if ( v52 )
-        {
+          Reacquire = AIScriptedInterface::GetReacquire(this);
+          v9 = this->m_pAI;
+          if ( Reacquire == AI_REACQUIRE_REACQUIRED || v9->blackboard.m_bForceStrafe )
+          {
+            v9->orientation.predictedStrafePosValid = 0;
+            return 1;
+          }
+          PathDistToGoal = Nav_GetPathDistToGoal(v9->pNavigator);
+          v11 = this->m_pAI;
+          v12 = *(float *)&PathDistToGoal;
+          if ( !v11->orientation.predictedFaceMotion )
+          {
+            if ( v11->speedScaleMode[0] && (TargetSpeed = AIScriptedInterface::GetTargetSpeed(this), *(float *)&TargetSpeed <= 60.0) )
+              v14 = FLOAT_40_0;
+            else
+              v14 = FLOAT_64_0;
+            if ( v12 < v14 )
+              goto LABEL_37;
+          }
+          if ( AIScriptedInterface::IsDoingReacquire(this) && v12 < 100.0 || AIScriptedInterface::ShouldFaceGoalNode(this) )
+            goto LABEL_37;
+          if ( !AICommonInterface::GetTargetEntity(this) )
+            goto LABEL_34;
+          v15 = this->m_pAI;
+          v16 = 2000;
+          if ( v15->orientation.predictedFaceMotion && (signed int)v15->pNavigator->m_TimeOfLastPathUpdate < level.time )
+            v16 = 200;
+          TargetSentient = AICommonInterface::GetTargetSentient(this);
+          if ( TargetSentient )
+          {
+            if ( !AICommonInterface::RecentlySeeSentient(this, TargetSentient, v16) )
+              goto LABEL_34;
+          }
+          else if ( !AICommonInterface::CanSeeEnemy(this) )
+          {
+LABEL_34:
+            this->m_pAI->pNavigator->GetSnappedPathStartPos(this->m_pAI->pNavigator, (vec3_t *)v38);
+            this->m_pAI->pNavigator->GetRequestedGoalPos(this->m_pAI->pNavigator, (vec3_t *)v37);
+            v19 = (unsigned int)v37[0];
+            *(float *)&v19 = *(float *)v37 - *(float *)v38;
+            _XMM7 = v19;
+            pNavigator = this->m_pAI->pNavigator;
+            pos.v[2] = *(float *)&v37[2] - *(float *)&v38[2];
+            Nav_GetLookaheadDir(pNavigator, &outLookaheadDir);
+            AngleVectors(&this->m_pAI->ent->r.currentAngles, &forward, NULL, NULL);
+            position.v[2] = pos.v[2];
+            __asm { vunpcklps xmm0, xmm7, xmm6 }
+            *(double *)position.v = *(double *)&_XMM0;
+            v34 = forward;
+            pos = outLookaheadDir;
+            MinDistToFaceMotion = GetMinDistToFaceMotion(&pos, &v34, &position);
+            if ( !((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathLengthAtLeast)(this->m_pAI->pNavigator) && v12 < MinDistToFaceMotion || AIScriptedInterface::ShouldCautiousStrafe(this) )
+            {
+LABEL_37:
+              this->m_pAI->orientation.predictedStrafePosValid = 0;
+              return 1;
+            }
+            return 0;
+          }
+          v41 = v1;
+          AICommonInterface::GetTargetPosition(this, &position);
+          v23 = (unsigned int *)this->m_pAI;
+          _XMM6 = v23[375];
+          v25 = (float)((float)((float)(position.v[1] - *(float *)(*(_QWORD *)v23 + 308i64)) * (float)(position.v[1] - *(float *)(*(_QWORD *)v23 + 308i64))) + (float)((float)(position.v[0] - *(float *)(*(_QWORD *)v23 + 304i64)) * (float)(position.v[0] - *(float *)(*(_QWORD *)v23 + 304i64)))) + (float)((float)(position.v[2] - *(float *)(*(_QWORD *)v23 + 312i64)) * (float)(position.v[2] - *(float *)(*(_QWORD *)v23 + 312i64)));
+          if ( (int)(level.time - v23[389]) <= 3000 )
+          {
+            _XMM0 = v23[376];
+            __asm { vmaxss  xmm6, xmm0, xmm6 }
+          }
+          v27 = AIScriptedInterface::GetTargetSpeed(this);
+          if ( *(float *)&v27 < 80.0 )
+          {
+            v28 = this->m_pAI;
+            if ( v28->script_desiredSpeed > 88.0 )
+            {
+              _XMM0 = LODWORD(v28->maxFaceEnemyDistSlow);
+              __asm { vmaxss  xmm6, xmm0, xmm6 }
+            }
+          }
+          v30 = this->m_pAI;
+          _XMM0 = v30->orientation.predictedFaceMotion;
           __asm
           {
-            vmovss  xmm0, dword ptr [rax+5E4h]
-            vmaxss  xmm6, xmm0, xmm6
+            vpcmpeqd xmm2, xmm0, xmm1
+            vblendvps xmm3, xmm6, xmm3, xmm2
           }
+          if ( v25 < (float)(*(float *)&_XMM3 * *(float *)&_XMM3) )
+          {
+            v30->orientation.predictedStrafePosValid = 0;
+            return 1;
+          }
+          goto LABEL_34;
         }
       }
-      _EDX = 0;
-      __asm
-      {
-        vmovd   xmm1, edx
-        vaddss  xmm3, xmm6, xmm7
-      }
-      _EAX = this->m_pAI->orientation.predictedFaceMotion;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vblendvps xmm3, xmm6, xmm3, xmm2
-        vmulss  xmm0, xmm3, xmm3
-        vcomiss xmm9, xmm0
-        vmovaps xmm9, [rsp+100h+var_40]
-        vmovss  [rbp+57h+var_D0], xmm3
-      }
     }
-LABEL_34:
-    this->m_pAI->pNavigator->GetSnappedPathStartPos(this->m_pAI->pNavigator, (vec3_t *)&v73);
-    this->m_pAI->pNavigator->GetRequestedGoalPos(this->m_pAI->pNavigator, (vec3_t *)v72);
-    __asm
-    {
-      vmovss  xmm0, [rbp+57h+var_90]
-      vsubss  xmm7, xmm0, [rbp+57h+var_80]
-      vmovss  xmm0, [rbp+57h+var_88]
-      vsubss  xmm2, xmm0, [rbp+57h+var_78]
-      vmovss  xmm1, [rbp+57h+var_8C]
-    }
-    pNavigator = this->m_pAI->pNavigator;
-    __asm
-    {
-      vsubss  xmm6, xmm1, [rbp+57h+var_7C]
-      vmovss  dword ptr [rbp+57h+pos+8], xmm2
-    }
-    Nav_GetLookaheadDir(pNavigator, &outLookaheadDir);
-    AngleVectors(&this->m_pAI->ent->r.currentAngles, &forward, NULL, NULL);
-    position.v[2] = pos.v[2];
-    __asm
-    {
-      vunpcklps xmm0, xmm7, xmm6
-      vmovsd  qword ptr [rbp+57h+position], xmm0
-      vmovsd  xmm0, qword ptr [rbp+57h+forward]
-      vmovsd  [rbp+57h+var_C0], xmm0
-      vmovsd  xmm0, qword ptr [rbp+57h+outLookaheadDir]
-    }
-    v69.v[2] = forward.v[2];
-    __asm { vmovsd  qword ptr [rbp+57h+pos], xmm0 }
-    pos.v[2] = outLookaheadDir.v[2];
-    *(float *)&_XMM0 = GetMinDistToFaceMotion(&pos, &v69, &position);
-    __asm
-    {
-      vmovaps xmm1, xmm0
-      vmovaps xmm6, xmm0
-    }
-    if ( !((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathLengthAtLeast)(this->m_pAI->pNavigator) )
-      __asm { vcomiss xmm8, xmm6 }
-    if ( AIScriptedInterface::ShouldCautiousStrafe(this) )
-    {
-LABEL_37:
-      this->m_pAI->orientation.predictedStrafePosValid = 0;
-      result = 1;
-      goto LABEL_47;
-    }
-LABEL_46:
-    result = 0;
-    goto LABEL_47;
   }
-  result = !m_pAI->orientation.predictedFaceMotion;
-LABEL_47:
-  __asm
-  {
-    vmovaps xmm8, [rsp+100h+var_30]
-    vmovaps xmm7, [rsp+100h+var_20]
-    vmovaps xmm6, [rsp+100h+var_10]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -3618,165 +2501,113 @@ AIScriptedInterface::UpdateBodyAngle
 */
 void AIScriptedInterface::UpdateBodyAngle(AIScriptedInterface *this)
 {
+  __int128 v1; 
+  __int128 v2; 
   ai_scripted_t *m_pAI; 
+  float v5; 
+  ai_scripted_t *v6; 
+  int frameDuration; 
+  ai_scripted_t *v8; 
   EntityTagInfo *tagInfo; 
-  int IsProne; 
-  bool v26; 
-  AIScriptedInterface_vtbl *v53; 
+  float v10; 
+  float v13; 
+  float turnRate; 
+  float v15; 
+  float v16; 
+  ai_scripted_t *v17; 
+  float v19; 
+  float v20; 
+  float v21; 
+  AIScriptedInterface_vtbl *v22; 
   vec3_t currentAngles; 
   vec3_t outAngles; 
+  __int128 v25; 
+  __int128 v26; 
 
-  _RCX = this->m_pAI;
-  if ( _RCX->ScriptOrient.eMode )
+  m_pAI = this->m_pAI;
+  if ( m_pAI->ScriptOrient.eMode )
   {
-    _RCX->orientation.vDesiredAngles.v[0] = _RCX->ScriptOrient.vDesiredAngles.v[0];
-    _RCX->orientation.vDesiredAngles.v[1] = _RCX->ScriptOrient.vDesiredAngles.v[1];
-    __asm { vmovss  xmm0, dword ptr [rcx+9A0h] }
+    m_pAI->orientation.vDesiredAngles.v[0] = m_pAI->ScriptOrient.vDesiredAngles.v[0];
+    m_pAI->orientation.vDesiredAngles.v[1] = m_pAI->ScriptOrient.vDesiredAngles.v[1];
+    v5 = m_pAI->ScriptOrient.vDesiredAngles.v[2];
   }
   else
   {
-    _RCX->orientation.vDesiredAngles.v[0] = _RCX->CodeOrient.vDesiredAngles.v[0];
-    _RCX->orientation.vDesiredAngles.v[1] = _RCX->CodeOrient.vDesiredAngles.v[1];
-    __asm { vmovss  xmm0, dword ptr [rcx+988h] }
+    m_pAI->orientation.vDesiredAngles.v[0] = m_pAI->CodeOrient.vDesiredAngles.v[0];
+    m_pAI->orientation.vDesiredAngles.v[1] = m_pAI->CodeOrient.vDesiredAngles.v[1];
+    v5 = m_pAI->CodeOrient.vDesiredAngles.v[2];
   }
-  __asm { vmovss  dword ptr [rcx+13Ch], xmm0 }
-  _RAX = _RCX->ent;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+13Ch]
-    vmovss  dword ptr [rsp+0B8h+currentAngles], xmm0
-    vmovss  xmm1, dword ptr [rax+140h]
-    vmovss  dword ptr [rsp+0B8h+currentAngles+4], xmm1
-    vmovss  xmm0, dword ptr [rax+144h]
-    vmovss  dword ptr [rsp+0B8h+currentAngles+8], xmm0
-  }
+  m_pAI->orientation.vDesiredAngles.v[2] = v5;
+  currentAngles = m_pAI->ent->r.currentAngles;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  m_pAI = this->m_pAI;
-  if ( m_pAI->Physics.bJumping || m_pAI->Physics.bTrackMoverUp || this->Is3D(this) || (_RDX = this->m_pAI, (tagInfo = _RDX->ent->tagInfo) != NULL) && tagInfo->movementChangesOffset )
+  v6 = this->m_pAI;
+  frameDuration = level.frameDuration;
+  if ( v6->Physics.bJumping || v6->Physics.bTrackMoverUp || this->Is3D(this) || (v8 = this->m_pAI, (tagInfo = v8->ent->tagInfo) != NULL) && tagInfo->movementChangesOffset )
   {
-    _RDX = this->m_pAI;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edi
-      vmovss  xmm0, dword ptr [rdx+0B40h]
-      vmulss  xmm2, xmm0, cs:__real@3c8efa35
-      vmulss  xmm2, xmm2, xmm1; lerpSpeed
-    }
-    AIScriptedInterface::LerpAnglesWithQuaternions(&currentAngles, &_RDX->orientation.vDesiredAngles, *(const float *)&_XMM2, &outAngles);
+    AIScriptedInterface::LerpAnglesWithQuaternions(&currentAngles, &this->m_pAI->orientation.vDesiredAngles, (float)(this->m_pAI->turnRate * 0.017453292) * (float)frameDuration, &outAngles);
     this->SetBodyAngles(this, &outAngles);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+138h]
-      vsubss  xmm1, xmm0, dword ptr [rsp+0B8h+currentAngles+4]
-      vmulss  xmm3, xmm1, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vmovaps [rsp+0B8h+var_18], xmm6
-      vmovaps [rsp+0B8h+var_28], xmm10
-      vmovaps [rsp+0B8h+var_38], xmm11
-      vmovaps [rsp+0B8h+var_48], xmm12
-      vmovaps [rsp+0B8h+var_58], xmm14
-      vxorps  xmm14, xmm14, xmm14
-      vroundss xmm2, xmm14, xmm1, 1
-      vxorps  xmm12, xmm12, xmm12
-      vcomiss xmm12, dword ptr [rdx+0B40h]
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm6, xmm0, cs:__real@43b40000
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 299, ASSERT_TYPE_ASSERT, "(m_pAI->turnRate > 0)", (const char *)&queryFormat, "m_pAI->turnRate > 0") )
+    v10 = v8->orientation.vDesiredAngles.v[1];
+    v26 = v1;
+    v25 = v2;
+    _XMM14 = 0i64;
+    __asm { vroundss xmm2, xmm14, xmm1, 1 }
+    v13 = (float)((float)((float)(v10 - currentAngles.v[1]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    if ( v8->turnRate <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 299, ASSERT_TYPE_ASSERT, "(m_pAI->turnRate > 0)", (const char *)&queryFormat, "m_pAI->turnRate > 0") )
       __debugbreak();
-    IsProne = BG_ActorIsProne(&this->m_pAI->ProneInfo, level.time);
-    v26 = IsProne == 0;
-    if ( IsProne )
-    {
-      __asm { vmovss  xmm0, cs:__real@3d1374bc }
-    }
+    if ( BG_ActorIsProne(&this->m_pAI->ProneInfo, level.time) )
+      turnRate = FLOAT_0_035999998;
     else
+      turnRate = this->m_pAI->turnRate;
+    v15 = (float)frameDuration;
+    v16 = (float)frameDuration * turnRate;
+    if ( v13 <= (float)(v16 * 2.0) )
     {
-      _RAX = this->m_pAI;
-      __asm { vmovss  xmm0, dword ptr [rax+0B40h] }
-    }
-    __asm
-    {
-      vmovss  xmm5, cs:__real@40400000
-      vxorps  xmm10, xmm10, xmm10
-      vcvtsi2ss xmm10, xmm10, edi
-      vmulss  xmm1, xmm10, xmm0
-      vmulss  xmm0, xmm1, cs:__real@40000000
-      vcomiss xmm6, xmm0
-    }
-    if ( v26 )
-    {
-      __asm
+      if ( v13 >= (float)(v16 * -2.0) )
       {
-        vmulss  xmm0, xmm1, cs:__real@c0000000
-        vcomiss xmm6, xmm0
-        vcomiss xmm6, xmm5
+        if ( v13 > 3.0 || v13 < -3.0 )
+          v13 = v13 * 0.40000001;
       }
-      if ( v26 )
-        __asm { vcomiss xmm6, cs:__real@c0400000 }
       else
-        __asm { vmulss  xmm6, xmm6, cs:__real@3ecccccd }
-    }
-    else
-    {
-      __asm { vmovaps xmm6, xmm1 }
-    }
-    _RAX = this->m_pAI;
-    __asm
-    {
-      vaddss  xmm11, xmm6, dword ptr [rsp+0B8h+currentAngles+4]
-      vmovss  xmm6, dword ptr [rsp+0B8h+currentAngles]
-      vmovss  xmm1, dword ptr [rax+134h]
-      vsubss  xmm0, xmm1, xmm6
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vroundss xmm3, xmm14, xmm2, 1
-      vmulss  xmm2, xmm10, dword ptr [rax+0B40h]
-      vmovaps xmm14, [rsp+0B8h+var_58]
-      vmovaps xmm10, [rsp+0B8h+var_28]
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vcomiss xmm0, xmm2
-    }
-    if ( v26 )
-    {
-      __asm
       {
-        vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
-        vcomiss xmm0, xmm1
-        vcomiss xmm0, xmm5
+        LODWORD(v13) = LODWORD(v16) ^ _xmm;
       }
-      if ( v26 )
-        __asm { vcomiss xmm0, cs:__real@c0400000 }
-      else
-        __asm { vmulss  xmm0, xmm0, cs:__real@3f000000 }
     }
     else
     {
-      __asm { vmovaps xmm0, xmm2 }
+      v13 = (float)frameDuration * turnRate;
     }
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    v17 = this->m_pAI;
+    __asm { vroundss xmm3, xmm14, xmm2, 1 }
+    v19 = v15 * v17->turnRate;
+    v21 = (float)((float)((float)(v17->orientation.vDesiredAngles.v[0] - currentAngles.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    v20 = v21;
+    if ( v21 <= v19 )
+    {
+      if ( v21 >= COERCE_FLOAT(LODWORD(v19) ^ _xmm) )
+      {
+        if ( v21 > 3.0 || v21 < -3.0 )
+          v20 = v21 * 0.5;
+      }
+      else
+      {
+        LODWORD(v20) = LODWORD(v19) ^ _xmm;
+      }
+    }
+    else
+    {
+      v20 = v15 * v17->turnRate;
+    }
     if ( this->Is3D(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_orientation.cpp", 322, ASSERT_TYPE_ASSERT, "(!Is3D())", (const char *)&queryFormat, "!Is3D()") )
       __debugbreak();
-    v53 = this->__vftable;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0B8h+outAngles], xmm6
-      vmovss  dword ptr [rsp+0B8h+outAngles+4], xmm11
-      vmovss  dword ptr [rsp+0B8h+outAngles+8], xmm12
-    }
-    v53->SetBodyAngles(this, &outAngles);
-    __asm
-    {
-      vmovaps xmm12, [rsp+0B8h+var_48]
-      vmovaps xmm11, [rsp+0B8h+var_38]
-      vmovaps xmm6, [rsp+0B8h+var_18]
-    }
+    v22 = this->__vftable;
+    outAngles.v[0] = currentAngles.v[0] + v20;
+    outAngles.v[1] = v13 + currentAngles.v[1];
+    outAngles.v[2] = 0.0;
+    v22->SetBodyAngles(this, &outAngles);
   }
 }
 
@@ -3787,95 +2618,53 @@ AIScriptedInterface::UpdateLookAngles
 */
 void AIScriptedInterface::UpdateLookAngles(AIScriptedInterface *this)
 {
+  ai_scripted_t *m_pAI; 
   ai_orient_mode_t eMode; 
-  char v48; 
+  float fLookYaw; 
+  float fLookPitch; 
+  __int64 v6; 
+  __m128 v8; 
+  __m128 v13; 
+  __int64 v14; 
+  float v15; 
+  __m128 v18; 
 
-  _RBX = this->m_pAI;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm9
-  }
-  eMode = _RBX->ScriptOrient.eMode;
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+144h]
-    vmovss  xmm9, dword ptr [rbx+140h]
-    vmovaps [rsp+78h+var_48], xmm10
-  }
+  m_pAI = this->m_pAI;
+  eMode = m_pAI->ScriptOrient.eMode;
+  fLookYaw = m_pAI->orientation.fLookYaw;
+  fLookPitch = m_pAI->orientation.fLookPitch;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3b360b61
-    vmovd   xmm6, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-  }
-  _RAX = 2468i64;
+  v6 = 2468i64;
   if ( eMode == AI_ORIENT_INVALID )
-    _RAX = 2444i64;
-  __asm
+    v6 = 2444i64;
+  _XMM10 = 0i64;
+  v8 = _mm_cvtepi32_ps((__m128i)(unsigned int)level.frameDuration);
+  *(float *)&_XMM5 = v8.m128_f32[0] * 0.80000001;
+  __asm { vroundss xmm2, xmm10, xmm1, 1 }
+  if ( (float)((float)((float)((float)(*(float *)((char *)&m_pAI->ent + v6) - fLookPitch) * 0.0027777778) - *(float *)&_XMM2) * 360.0) <= (float)(v8.m128_f32[0] * 0.80000001) )
   {
-    vxorps  xmm10, xmm10, xmm10
-    vcvtdq2ps xmm6, xmm6
-    vmulss  xmm5, xmm6, cs:__real@3f4ccccd
-    vmovss  xmm0, dword ptr [rax+rbx]
-    vsubss  xmm1, xmm0, xmm9
-    vmulss  xmm3, xmm1, xmm4
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-    vroundss xmm2, xmm10, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vcomiss xmm1, xmm5
-  }
-  if ( eMode )
-  {
-    __asm { vmovaps xmm0, xmm5 }
+    v13 = v8;
+    v13.m128_f32[0] = v8.m128_f32[0] * -0.80000001;
+    _XMM0 = v13;
+    __asm { vmaxss  xmm0, xmm0, xmm1 }
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@bf4ccccd
-      vmaxss  xmm0, xmm0, xmm1
-    }
+    *(float *)&_XMM0 = v8.m128_f32[0] * 0.80000001;
   }
-  _RAX = 2472i64;
-  __asm { vaddss  xmm9, xmm9, xmm0 }
+  v14 = 2472i64;
+  v15 = fLookPitch + *(float *)&_XMM0;
   if ( eMode == AI_ORIENT_INVALID )
-    _RAX = 2448i64;
-  __asm
+    v14 = 2448i64;
+  __asm { vroundss xmm3, xmm10, xmm2, 1 }
+  if ( (float)((float)((float)((float)(*(float *)((char *)&m_pAI->ent + v14) - fLookYaw) * 0.0027777778) - *(float *)&_XMM3) * 360.0) <= *(float *)&_XMM5 )
   {
-    vmovss  xmm0, dword ptr [rax+rbx]
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm4, xmm1, xmm4
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vcomiss xmm1, xmm5
+    v18 = v8;
+    v18.m128_f32[0] = v8.m128_f32[0] * -0.80000001;
+    _XMM0 = v18;
+    __asm { vmaxss  xmm5, xmm0, xmm1 }
   }
-  if ( eMode == AI_ORIENT_INVALID )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@bf4ccccd
-      vmaxss  xmm5, xmm0, xmm1
-    }
-  }
-  __asm
-  {
-    vaddss  xmm2, xmm7, xmm5; fYaw
-    vmovaps xmm1, xmm9; fPitch
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  AIScriptedInterface::SetLookAngles(this, *(const float *)&_XMM1, *(const float *)&_XMM2);
+  AIScriptedInterface::SetLookAngles(this, v15, fLookYaw + *(float *)&_XMM5);
 }
 

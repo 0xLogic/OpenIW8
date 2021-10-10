@@ -9,14 +9,7 @@ __int64 pk_get_oid(int pk, Oid *st)
   {
     if ( pk == 1 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:dsa_oid.OID
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups ymm1, ymmword ptr cs:dsa_oid.OID+20h
-        vmovups ymmword ptr [rdx+20h], ymm1
-      }
-      st->OIDlen = dsa_oid.OIDlen;
+      *st = dsa_oid;
       return 0i64;
     }
     else
@@ -26,14 +19,7 @@ __int64 pk_get_oid(int pk, Oid *st)
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:rsa_oid.OID
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm1, ymmword ptr cs:rsa_oid.OID+20h
-      vmovups ymmword ptr [rdx+20h], ymm1
-    }
-    st->OIDlen = rsa_oid.OIDlen;
+    *st = rsa_oid;
     return 0i64;
   }
 }

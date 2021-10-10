@@ -365,13 +365,11 @@ char SV_AddEntities()
   SvGameGlobals *SvGameGlobalsCommon; 
   int v1; 
   SvGameGlobals *v2; 
-  ServerSnapshotCache *v10; 
-  __int64 v12; 
-  __int64 v13; 
-  __int64 v14; 
-  double v15; 
-  double v16; 
-  double v17; 
+  gentity_s *v3; 
+  ServerSnapshotCache *v4; 
+  __int64 v6; 
+  __int64 v7; 
+  __int64 v8; 
 
   if ( !s_svSnapshot_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 615, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache)", (const char *)&queryFormat, "s_svSnapshot_cache") )
     __debugbreak();
@@ -387,53 +385,41 @@ char SV_AddEntities()
       do
       {
         SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
-        _RDI = &SvGameGlobalsCommon->gentities[v1];
-        if ( !_RDI )
+        v3 = &SvGameGlobalsCommon->gentities[v1];
+        if ( !v3 )
         {
           LOBYTE(SvGameGlobalsCommon) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 601, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent");
           if ( (_BYTE)SvGameGlobalsCommon )
             __debugbreak();
         }
-        if ( _RDI->r.isLinked && (_RDI->r.svFlags & 1) == 0 )
+        if ( v3->r.isLinked && (v3->r.svFlags & 1) == 0 )
         {
-          if ( _RDI->s.number != v1 )
+          if ( v3->s.number != v1 )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+138h]
-              vmovss  xmm1, dword ptr [rdi+134h]
-              vmovss  xmm2, dword ptr [rdi+130h]
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+88h+var_30], xmm0
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+88h+var_38], xmm1
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovsd  [rsp+88h+var_40], xmm2
-            }
-            LODWORD(v14) = _RDI->s.eType;
-            LODWORD(v13) = v1;
-            LODWORD(v12) = _RDI->s.number;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 635, ASSERT_TYPE_ASSERT, "(ent->s.number == e)", "%s\n\tentnum: %d vs %d, eType: %d, origin: %f %f %f", "ent->s.number == e", v12, v13, v14, v15, v16, v17) )
+            LODWORD(v8) = v3->s.eType;
+            LODWORD(v7) = v1;
+            LODWORD(v6) = v3->s.number;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 635, ASSERT_TYPE_ASSERT, "(ent->s.number == e)", "%s\n\tentnum: %d vs %d, eType: %d, origin: %f %f %f", "ent->s.number == e", v6, v7, v8, v3->r.currentOrigin.v[0], v3->r.currentOrigin.v[1], v3->r.currentOrigin.v[2]) )
               __debugbreak();
           }
           if ( v1 >= 1 || (LODWORD(SvGameGlobalsCommon) = CL_GetOnlyLocalClientNum(), v1 != (_DWORD)SvGameGlobalsCommon) )
           {
-            v10 = s_svSnapshot_cache;
+            v4 = s_svSnapshot_cache;
             if ( !s_svSnapshot_cache )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 416, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache)", (const char *)&queryFormat, "s_svSnapshot_cache") )
                 __debugbreak();
-              v10 = s_svSnapshot_cache;
+              v4 = s_svSnapshot_cache;
             }
-            if ( v10->entityCount == 2048 )
+            if ( v4->entityCount == 2048 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 417, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache->entityCount != SV_MAX_SNAPSHOT_ENTITIES_SP)", (const char *)&queryFormat, "s_svSnapshot_cache->entityCount != SV_MAX_SNAPSHOT_ENTITIES_SP") )
                 __debugbreak();
-              v10 = s_svSnapshot_cache;
+              v4 = s_svSnapshot_cache;
             }
-            SvGameGlobalsCommon = (SvGameGlobals *)v10->entityCount;
-            v10->entityNums[(_QWORD)SvGameGlobalsCommon] = v1;
-            ++v10->entityCount;
+            SvGameGlobalsCommon = (SvGameGlobals *)v4->entityCount;
+            v4->entityNums[(_QWORD)SvGameGlobalsCommon] = v1;
+            ++v4->entityCount;
           }
         }
         ++v1;
@@ -452,21 +438,31 @@ SV_AddSoundInfos
 char SV_AddSoundInfos()
 {
   serverSoundInfo_s *ServerSoundInfo; 
-  int v3; 
-  int v4; 
-  signed int v5; 
+  int v1; 
+  int v2; 
+  signed int v3; 
+  float *v4; 
+  playerState_s *PlayerstateForClientNum; 
+  float v6; 
+  float v7; 
+  float v8; 
   __int16 linkEnt; 
+  __int64 v10; 
+  float v11; 
+  int v12; 
+  int v13; 
+  __int64 v14; 
   int v15; 
-  int v16; 
-  __int64 v18; 
-  int v19; 
-  bool v22; 
-  __int64 v24; 
-  bool v36; 
-  ServerSnapshotCache *v37; 
-  __int64 v41; 
-  __int64 v42; 
-  char v43; 
+  float *v16; 
+  float *v18; 
+  __int64 v19; 
+  __int128 v20; 
+  float v21; 
+  float v22; 
+  ServerSnapshotCache *v24; 
+  __int64 v26; 
+  __int64 v27; 
+  char v28; 
 
   if ( !s_svSnapshot_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 480, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache)", (const char *)&queryFormat, "s_svSnapshot_cache") )
     __debugbreak();
@@ -476,133 +472,100 @@ char SV_AddSoundInfos()
   s_svSnapshot_cache->soundInfoCount = 0;
   if ( SvStaticGlobals::ms_svStaticGlobals.state )
   {
-    v3 = SvClient::ms_clientCount;
-    v4 = 0;
+    v1 = SvClient::ms_clientCount;
+    v2 = 0;
     if ( (int)SvClient::ms_clientCount > 1 )
     {
-      LODWORD(v41) = SvClient::ms_clientCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 494, ASSERT_TYPE_ASSERT, "( SvClient::GetClientCount() ) <= ( 1 )", "SvClient::GetClientCount() <= MAX_CLIENTS_SP\n\t%i, %i", v41, 1) )
+      LODWORD(v26) = SvClient::ms_clientCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 494, ASSERT_TYPE_ASSERT, "( SvClient::GetClientCount() ) <= ( 1 )", "SvClient::GetClientCount() <= MAX_CLIENTS_SP\n\t%i, %i", v26, 1) )
         __debugbreak();
-      v3 = SvClient::ms_clientCount;
+      v1 = SvClient::ms_clientCount;
     }
-    v5 = 0;
-    if ( v3 <= 0 )
-      goto LABEL_53;
-    _RDI = &v43;
+    v3 = 0;
+    if ( v1 <= 0 )
+      goto LABEL_52;
+    v4 = (float *)&v28;
     do
     {
-      if ( SvClient::GetCommonClient(v5)->state == CS_ACTIVE )
+      if ( SvClient::GetCommonClient(v3)->state == CS_ACTIVE )
       {
-        _RBX = SV_Game_GetPlayerstateForClientNum(v5);
-        if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, ACTIVE, 1u) )
+        PlayerstateForClientNum = SV_Game_GetPlayerstateForClientNum(v3);
+        if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&PlayerstateForClientNum->otherFlags, ACTIVE, 1u) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+134h]
-            vmovss  xmm1, dword ptr [rbx+130h]
-            vmovss  xmm2, dword ptr [rbx+12Ch]
-          }
+          v6 = PlayerstateForClientNum->vehicleState.origin.v[2];
+          v7 = PlayerstateForClientNum->vehicleState.origin.v[1];
+          v8 = PlayerstateForClientNum->vehicleState.origin.v[0];
         }
-        else if ( (_RBX->linkFlags.m_flags[0] & 4) == 0 || (linkEnt = _RBX->linkEnt, linkEnt == 2047) )
+        else if ( (PlayerstateForClientNum->linkFlags.m_flags[0] & 4) == 0 || (linkEnt = PlayerstateForClientNum->linkEnt, linkEnt == 2047) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+38h]
-            vmovss  xmm1, dword ptr [rbx+34h]
-            vmovss  xmm2, dword ptr [rbx+30h]
-            vmovss  dword ptr [rdi], xmm0
-            vaddss  xmm0, xmm0, dword ptr [rbx+1E8h]
-          }
+          v11 = PlayerstateForClientNum->origin.v[2];
+          v7 = PlayerstateForClientNum->origin.v[1];
+          v8 = PlayerstateForClientNum->origin.v[0];
+          *v4 = v11;
+          v6 = v11 + PlayerstateForClientNum->viewHeightCurrent;
         }
         else
         {
-          _RCX = 1456i64 * linkEnt;
-          _RAX = g_entities;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+rax+138h]
-            vmovss  xmm1, dword ptr [rcx+rax+134h]
-            vmovss  xmm2, dword ptr [rcx+rax+130h]
-          }
+          v10 = linkEnt;
+          v6 = g_entities[v10].r.currentOrigin.v[2];
+          v7 = g_entities[v10].r.currentOrigin.v[1];
+          v8 = g_entities[v10].r.currentOrigin.v[0];
         }
-        __asm
-        {
-          vmovss  dword ptr [rdi-8], xmm2
-          vmovss  dword ptr [rdi-4], xmm1
-        }
-        ++v4;
-        __asm { vmovss  dword ptr [rdi], xmm0 }
-        _RDI += 12;
+        *(v4 - 2) = v8;
+        *(v4 - 1) = v7;
+        ++v2;
+        *v4 = v6;
+        v4 += 3;
       }
-      ++v5;
+      ++v3;
     }
-    while ( v5 < (int)SvClient::ms_clientCount );
-    if ( !v4 )
+    while ( v3 < (int)SvClient::ms_clientCount );
+    if ( !v2 )
     {
-LABEL_53:
+LABEL_52:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 523, ASSERT_TYPE_ASSERT, "(listenerCount)", (const char *)&queryFormat, "listenerCount") )
         __debugbreak();
     }
     LODWORD(ServerSoundInfo) = SV_ServerCulledSoundsSP_GetMaxSoundInfo();
-    v15 = 0;
-    v16 = (int)ServerSoundInfo;
+    v12 = 0;
+    v13 = (int)ServerSoundInfo;
     if ( (int)ServerSoundInfo > 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+0A8h+var_38], xmm6
-        vmovaps [rsp+0A8h+var_48], xmm7
-        vmovss  xmm7, cs:__real@7149f2ca
-      }
-      v18 = v4 % 2;
+      v14 = v2 % 2;
       do
       {
-        ServerSoundInfo = SV_ServerCulledSoundsSP_GetServerSoundInfo(v15);
-        v19 = 0;
-        _RSI = ServerSoundInfo;
-        __asm { vmovaps xmm6, xmm7 }
-        v22 = v18 == 0;
-        if ( v18 > 0 )
+        ServerSoundInfo = SV_ServerCulledSoundsSP_GetServerSoundInfo(v12);
+        v15 = 0;
+        v16 = (float *)ServerSoundInfo;
+        *(float *)&_XMM6 = FLOAT_1_0e30;
+        if ( v14 > 0 )
         {
-          _RDI = &v43;
-          v24 = v18;
+          v18 = (float *)&v28;
+          v19 = v14;
           do
           {
-            if ( v19 )
+            if ( v15 )
             {
-              LODWORD(v42) = 1;
-              LODWORD(v41) = v19;
-              LOBYTE(ServerSoundInfo) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 539, ASSERT_TYPE_ASSERT, "(unsigned)( listenerIndex ) < (unsigned)( ( sizeof( *array_counter( listenerOrigin ) ) + 0 ) )", "listenerIndex doesn't index ARRAY_COUNT( listenerOrigin )\n\t%i not in [0, %i)", v41, v42);
+              LODWORD(v27) = 1;
+              LODWORD(v26) = v15;
+              LOBYTE(ServerSoundInfo) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 539, ASSERT_TYPE_ASSERT, "(unsigned)( listenerIndex ) < (unsigned)( ( sizeof( *array_counter( listenerOrigin ) ) + 0 ) )", "listenerIndex doesn't index ARRAY_COUNT( listenerOrigin )\n\t%i not in [0, %i)", v26, v27);
               if ( (_BYTE)ServerSoundInfo )
                 __debugbreak();
             }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi-8]
-              vsubss  xmm3, xmm0, dword ptr [rsi]
-              vmovss  xmm1, dword ptr [rdi-4]
-              vmovss  xmm0, dword ptr [rdi]
-              vsubss  xmm2, xmm1, dword ptr [rsi+4]
-              vsubss  xmm4, xmm0, dword ptr [rsi+8]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-            }
-            ++v19;
-            _RDI += 12;
-            __asm
-            {
-              vaddss  xmm2, xmm3, xmm0
-              vminss  xmm6, xmm2, xmm6
-            }
-            v36 = v24-- == 0;
-            v22 = v36 || v24 == 0;
+            v20 = *((unsigned int *)v18 - 1);
+            *(float *)&v20 = *(v18 - 1) - v16[1];
+            v21 = (float)(*(v18 - 2) - *v16) * (float)(*(v18 - 2) - *v16);
+            v22 = (float)(*v18 - v16[2]) * (float)(*v18 - v16[2]);
+            ++v15;
+            v18 += 3;
+            *(float *)&v20 = (float)((float)(*(float *)&v20 * *(float *)&v20) + v21) + v22;
+            _XMM2 = v20;
+            __asm { vminss  xmm6, xmm2, xmm6 }
+            --v19;
           }
-          while ( v24 );
+          while ( v19 );
         }
-        __asm { vcomiss xmm6, dword ptr [rsi+1Ch] }
-        if ( v22 )
+        if ( *(float *)&_XMM6 <= v16[7] )
         {
           if ( !s_svSnapshot_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 458, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache)", (const char *)&queryFormat, "s_svSnapshot_cache") )
             __debugbreak();
@@ -610,21 +573,16 @@ LABEL_53:
             __debugbreak();
           if ( s_svSnapshot_cache->soundInfoCount >= 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 460, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache->soundInfoCount < 1024)", (const char *)&queryFormat, "s_svSnapshot_cache->soundInfoCount < MAX_SERVER_CULLED_SOUNDS") )
             __debugbreak();
-          if ( v15 >= 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 461, ASSERT_TYPE_ASSERT, "(soundIndex < 0xFFFF)", (const char *)&queryFormat, "soundIndex < 0xFFFF") )
+          if ( v12 >= 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 461, ASSERT_TYPE_ASSERT, "(soundIndex < 0xFFFF)", (const char *)&queryFormat, "soundIndex < 0xFFFF") )
             __debugbreak();
-          v37 = s_svSnapshot_cache;
+          v24 = s_svSnapshot_cache;
           ServerSoundInfo = (serverSoundInfo_s *)s_svSnapshot_cache->soundInfoCount;
-          s_svSnapshot_cache->soundInfoNums[(_QWORD)ServerSoundInfo] = v15;
-          ++v37->soundInfoCount;
+          s_svSnapshot_cache->soundInfoNums[(_QWORD)ServerSoundInfo] = v12;
+          ++v24->soundInfoCount;
         }
-        ++v15;
+        ++v12;
       }
-      while ( v15 < v16 );
-      __asm
-      {
-        vmovaps xmm7, [rsp+0A8h+var_48]
-        vmovaps xmm6, [rsp+0A8h+var_38]
-      }
+      while ( v12 < v13 );
     }
   }
   return (char)ServerSoundInfo;
@@ -912,18 +870,14 @@ SV_GetSnapshotUmbraGateStates
 */
 bitarray<384> *SV_GetSnapshotUmbraGateStates(bitarray<384> *result)
 {
-  _RBX = result;
+  __int128 v2; 
+
   if ( !s_svSnapshot_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 247, ASSERT_TYPE_ASSERT, "(s_svSnapshot_cache)", (const char *)&queryFormat, "s_svSnapshot_cache") )
     __debugbreak();
-  _RAX = s_svSnapshot_cache;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+0A7DF0h]
-    vmovups xmm1, xmmword ptr [rax+0A7E10h]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
-  return _RBX;
+  v2 = *(_OWORD *)&s_svSnapshot_cache->umbraGateStates.array[8];
+  *(__m256i *)result->array = *(__m256i *)s_svSnapshot_cache->umbraGateStates.array;
+  *(_OWORD *)&result->array[8] = v2;
+  return result;
 }
 
 /*
@@ -1122,40 +1076,56 @@ void SV_WriteSnapshot(msg_t *msg)
   __int64 v3; 
   int Time; 
   playerState_s *PlayerstateForClientNum; 
+  ServerSnapshotCache *v6; 
   unsigned int v7; 
   int i; 
   __int64 v9; 
   SvGameGlobals *SvGameGlobalsCommon; 
-  int v28; 
-  __int64 v29; 
-  __int64 v30; 
-  int v34; 
-  int v36; 
-  __int64 v37; 
-  __int64 v38; 
-  int v42; 
+  __int64 v11; 
+  entityState_t *v12; 
+  int v13; 
+  __int64 v14; 
+  unsigned __int64 v15; 
+  __m256i *FXEntity; 
+  unsigned __int64 v17; 
+  int v18; 
+  ServerSnapshotCache *v19; 
+  int v20; 
+  __int64 v21; 
+  unsigned __int64 v22; 
+  __m256i *ServerSoundInfo; 
+  unsigned __int64 v24; 
+  int v25; 
   GWeaponMap *Instance; 
-  BgWeaponMap *v45; 
-  int v46; 
-  __int64 v47; 
-  __int64 v48; 
-  int v54; 
-  __int16 v55; 
+  ServerSnapshotCache *v27; 
+  BgWeaponMap *v28; 
+  int v29; 
+  __int64 v30; 
+  unsigned __int64 v31; 
+  const WeaponMapEntry *WeaponEntry; 
+  unsigned __int64 v33; 
+  __int128 v34; 
+  double v35; 
+  int v36; 
+  __int16 v37; 
   int PreviousTime; 
   const ScriptableReplicatedInstance *ReplicatedInstances; 
   unsigned int ReplicatedInstanceLimit; 
   const ScriptablePartWorldState *PartWorldState; 
-  ServerSnapshotCache *v60; 
-  const void **v61; 
+  ServerSnapshotCache *v42; 
+  const void **v43; 
   ScriptableReplicatedInstance *scriptableActiveRpInstances; 
-  __int64 v63; 
+  __int64 v45; 
   unsigned int ReplicatedPartLimitForWorld; 
-  unsigned int v65; 
+  unsigned int v47; 
   SvClient *CommonClient; 
-  SvGameGlobals *v67; 
-  __int64 v88; 
-  __int64 v89; 
-  __int64 v90; 
+  SvGameGlobals *v49; 
+  ServerSnapshotCache *v50; 
+  __int64 v51; 
+  entityState_t *v52; 
+  __int64 v53; 
+  __int64 v54; 
+  __int64 v55; 
 
   v1 = msg;
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
@@ -1175,203 +1145,176 @@ void SV_WriteSnapshot(msg_t *msg)
   if ( PlayerstateForClientNum->clientNum != OnlyLocalClientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 284, ASSERT_TYPE_ASSERT, "(ps->clientNum == localClientNum)", (const char *)&queryFormat, "ps->clientNum == localClientNum") )
     __debugbreak();
   CL_ParseSP_TransferPlayerstate(OnlyLocalClientNum, PlayerstateForClientNum);
-  _R9 = s_svSnapshot_cache;
+  v6 = s_svSnapshot_cache;
   v7 = 0;
   if ( s_svSnapshot_cache->entityCount < 0 || s_svSnapshot_cache->entityCount > 0x800u )
   {
-    LODWORD(v88) = s_svSnapshot_cache->entityCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 288, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->entityCount ) && ( s_svSnapshot_cache->entityCount ) <= ( SV_MAX_SNAPSHOT_ENTITIES_SP )", "s_svSnapshot_cache->entityCount not in [0, SV_MAX_SNAPSHOT_ENTITIES_SP]\n\t%i not in [%i, %i]", v88, 0i64, 2048) )
+    LODWORD(v53) = s_svSnapshot_cache->entityCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 288, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->entityCount ) && ( s_svSnapshot_cache->entityCount ) <= ( SV_MAX_SNAPSHOT_ENTITIES_SP )", "s_svSnapshot_cache->entityCount not in [0, SV_MAX_SNAPSHOT_ENTITIES_SP]\n\t%i not in [%i, %i]", v53, 0i64, 2048) )
       __debugbreak();
-    _R9 = s_svSnapshot_cache;
+    v6 = s_svSnapshot_cache;
   }
-  for ( i = 0; i < _R9->entityCount; _R9->entityUseCounts[v9] = *(_DWORD *)(_RDX + 1180) )
+  for ( i = 0; i < v6->entityCount; v6->entityUseCounts[v9] = *(_DWORD *)(v11 + 1180) )
   {
-    v9 = *(unsigned __int16 *)((char *)&_R9->entityCount + v3);
+    v9 = *(unsigned __int16 *)((char *)&v6->entityCount + v3);
     if ( (unsigned int)v9 >= 0x800 )
     {
-      LODWORD(v89) = 2048;
-      LODWORD(v88) = *(unsigned __int16 *)((char *)&_R9->entityCount + v3);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 292, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v88, v89) )
+      LODWORD(v54) = 2048;
+      LODWORD(v53) = *(unsigned __int16 *)((char *)&v6->entityCount + v3);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 292, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
         __debugbreak();
     }
     SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
-    _R9 = s_svSnapshot_cache;
+    v6 = s_svSnapshot_cache;
     ++i;
     v3 += 2i64;
-    _RDX = (__int64)&SvGameGlobalsCommon->gentities[v9];
-    __asm { vmovups xmm0, xmmword ptr [rdx] }
-    _RCX = &s_svSnapshot_cache->entityStates[v9];
-    __asm
-    {
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rdx+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+70h]
-      vmovups xmmword ptr [rcx+70h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+80h]
-      vmovups xmmword ptr [rcx+80h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+90h]
-      vmovups xmmword ptr [rcx+90h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+0A0h]
-      vmovups xmmword ptr [rcx+0A0h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+0B0h]
-      vmovups xmmword ptr [rcx+0B0h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+0C0h]
-      vmovups xmmword ptr [rcx+0C0h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+0D0h]
-      vmovups xmmword ptr [rcx+0D0h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+0E0h]
-      vmovups xmmword ptr [rcx+0E0h], xmm0
-    }
-    *(_QWORD *)&_RCX->partBits.array[6] = *(_QWORD *)(_RDX + 240);
+    v11 = (__int64)&SvGameGlobalsCommon->gentities[v9];
+    v12 = &s_svSnapshot_cache->entityStates[v9];
+    *(_OWORD *)&v12->number = *(_OWORD *)v11;
+    *(_OWORD *)&v12->lerp.pos.trType = *(_OWORD *)(v11 + 16);
+    *(_OWORD *)&v12->lerp.pos.trBase.y = *(_OWORD *)(v11 + 32);
+    *(_OWORD *)&v12->lerp.pos.trDelta.z = *(_OWORD *)(v11 + 48);
+    *(_OWORD *)v12->lerp.apos.trBase.v = *(_OWORD *)(v11 + 64);
+    *(_OWORD *)&v12->lerp.apos.trDelta.y = *(_OWORD *)(v11 + 80);
+    *(_OWORD *)&v12->lerp.u.vehicle.bodyPitch = *(_OWORD *)(v11 + 96);
+    *(LerpEntityStateInfoVolumeGrapple *)((char *)&v12->lerp.u.infoVolumeGrapple + 24) = *(LerpEntityStateInfoVolumeGrapple *)(v11 + 112);
+    *(_OWORD *)&v12->staticState.turret.carrierEntNum = *(_OWORD *)(v11 + 128);
+    *(_OWORD *)&v12->clientNum = *(_OWORD *)(v11 + 144);
+    *(_OWORD *)&v12->events[0].eventType = *(_OWORD *)(v11 + 160);
+    *(_OWORD *)&v12->events[2].eventType = *(_OWORD *)(v11 + 176);
+    *(_OWORD *)&v12->index.brushModel = *(_OWORD *)(v11 + 192);
+    *(_OWORD *)&v12->animInfo.selectAnim = *(_OWORD *)(v11 + 208);
+    *(_OWORD *)&v12->partBits.array[2] = *(_OWORD *)(v11 + 224);
+    *(_QWORD *)&v12->partBits.array[6] = *(_QWORD *)(v11 + 240);
   }
-  if ( _R9->fxEntCount > 0x500u )
+  if ( v6->fxEntCount > 0x500u )
   {
-    LODWORD(v90) = 1280;
-    LODWORD(v88) = _R9->fxEntCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 299, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->fxEntCount ) && ( s_svSnapshot_cache->fxEntCount ) <= ( 1280 )", "s_svSnapshot_cache->fxEntCount not in [0, FX_ENTITY_MAX]\n\t%i not in [%i, %i]", v88, 0i64, v90) )
+    LODWORD(v55) = 1280;
+    LODWORD(v53) = v6->fxEntCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 299, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->fxEntCount ) && ( s_svSnapshot_cache->fxEntCount ) <= ( 1280 )", "s_svSnapshot_cache->fxEntCount not in [0, FX_ENTITY_MAX]\n\t%i not in [%i, %i]", v53, 0i64, v55) )
       __debugbreak();
-    _R9 = s_svSnapshot_cache;
+    v6 = s_svSnapshot_cache;
   }
-  v28 = 0;
-  if ( _R9->fxEntCount > 0 )
+  v13 = 0;
+  if ( v6->fxEntCount > 0 )
   {
-    v29 = 520200i64;
+    v14 = 520200i64;
     do
     {
-      v30 = *(unsigned __int16 *)((char *)&_R9->entityCount + v29);
-      if ( (unsigned int)v30 >= 0x800 )
+      v15 = *(unsigned __int16 *)((char *)&v6->entityCount + v14);
+      if ( (unsigned int)v15 >= 0x800 )
       {
-        LODWORD(v89) = 2048;
-        LODWORD(v88) = *(unsigned __int16 *)((char *)&_R9->entityCount + v29);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 303, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v88, v89) )
+        LODWORD(v54) = 2048;
+        LODWORD(v53) = *(unsigned __int16 *)((char *)&v6->entityCount + v14);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 303, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
           __debugbreak();
       }
-      _RAX = SV_GetFXEntity(v30);
-      _R9 = s_svSnapshot_cache;
-      _RCX = v30;
-      ++v28;
-      v29 += 2i64;
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v34 = *(_DWORD *)&_RAX->fxId;
-      __asm { vmovups ymmword ptr [r9+rcx*4+7FA08h], ymm0 }
-      *(_DWORD *)&_R9->fxEntities[_RCX].fxId = v34;
+      FXEntity = (__m256i *)SV_GetFXEntity(v15);
+      v6 = s_svSnapshot_cache;
+      v17 = v15;
+      ++v13;
+      v14 += 2i64;
+      v18 = FXEntity[1].m256i_i32[0];
+      *(__m256i *)s_svSnapshot_cache->fxEntities[v17].origin.v = *FXEntity;
+      *(_DWORD *)&v6->fxEntities[v17].fxId = v18;
     }
-    while ( v28 < _R9->fxEntCount );
+    while ( v13 < v6->fxEntCount );
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 307, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_SERVER_CULL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_SERVER_CULL )") )
     __debugbreak();
-  _R8 = s_svSnapshot_cache;
+  v19 = s_svSnapshot_cache;
   if ( s_svSnapshot_cache->soundInfoCount > 0x400u )
   {
-    LODWORD(v90) = 1024;
-    LODWORD(v88) = s_svSnapshot_cache->soundInfoCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 309, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->soundInfoCount ) && ( s_svSnapshot_cache->soundInfoCount ) <= ( 1024 )", "s_svSnapshot_cache->soundInfoCount not in [0, MAX_SERVER_CULLED_SOUNDS]\n\t%i not in [%i, %i]", v88, 0i64, v90) )
+    LODWORD(v55) = 1024;
+    LODWORD(v53) = s_svSnapshot_cache->soundInfoCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 309, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->soundInfoCount ) && ( s_svSnapshot_cache->soundInfoCount ) <= ( 1024 )", "s_svSnapshot_cache->soundInfoCount not in [0, MAX_SERVER_CULLED_SOUNDS]\n\t%i not in [%i, %i]", v53, 0i64, v55) )
       __debugbreak();
-    _R8 = s_svSnapshot_cache;
+    v19 = s_svSnapshot_cache;
   }
-  v36 = 0;
-  if ( _R8->soundInfoCount > 0 )
+  v20 = 0;
+  if ( v19->soundInfoCount > 0 )
   {
-    v37 = 568844i64;
+    v21 = 568844i64;
     do
     {
-      v38 = *(unsigned __int16 *)((char *)&_R8->entityCount + v37);
-      if ( (unsigned int)v38 >= 0x400 )
+      v22 = *(unsigned __int16 *)((char *)&v19->entityCount + v21);
+      if ( (unsigned int)v22 >= 0x400 )
       {
-        LODWORD(v89) = 1024;
-        LODWORD(v88) = *(unsigned __int16 *)((char *)&_R8->entityCount + v37);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 313, ASSERT_TYPE_ASSERT, "(unsigned)( soundnum ) < (unsigned)( 1024 )", "soundnum doesn't index MAX_SERVER_CULLED_SOUNDS\n\t%i not in [0, %i)", v88, v89) )
+        LODWORD(v54) = 1024;
+        LODWORD(v53) = *(unsigned __int16 *)((char *)&v19->entityCount + v21);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 313, ASSERT_TYPE_ASSERT, "(unsigned)( soundnum ) < (unsigned)( 1024 )", "soundnum doesn't index MAX_SERVER_CULLED_SOUNDS\n\t%i not in [0, %i)", v53, v54) )
           __debugbreak();
       }
-      _RAX = SV_ServerCulledSoundsSP_GetServerSoundInfo(v38);
-      _R8 = s_svSnapshot_cache;
-      _RCX = v38;
-      ++v36;
-      v37 += 2i64;
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v42 = *(_DWORD *)&_RAX->loopSound;
-      __asm { vmovups ymmword ptr [r8+rcx*4+8B60Ch], ymm0 }
-      *(_DWORD *)&_R8->soundInfos[_RCX].loopSound = v42;
+      ServerSoundInfo = (__m256i *)SV_ServerCulledSoundsSP_GetServerSoundInfo(v22);
+      v19 = s_svSnapshot_cache;
+      v24 = v22;
+      ++v20;
+      v21 += 2i64;
+      v25 = ServerSoundInfo[1].m256i_i32[0];
+      *(__m256i *)s_svSnapshot_cache->soundInfos[v24].soundOrigin.v = *ServerSoundInfo;
+      *(_DWORD *)&v19->soundInfos[v24].loopSound = v25;
     }
-    while ( v36 < _R8->soundInfoCount );
+    while ( v20 < v19->soundInfoCount );
   }
-  if ( _R8->weaponCount < 0 )
+  if ( v19->weaponCount < 0 )
     goto LABEL_55;
   if ( !BgWeaponMap::ms_runtimeSizeInitialized )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    _R8 = s_svSnapshot_cache;
+    v19 = s_svSnapshot_cache;
   }
-  if ( _R8->weaponCount > BgWeaponMap::ms_runtimeSize )
+  if ( v19->weaponCount > BgWeaponMap::ms_runtimeSize )
   {
 LABEL_55:
     if ( !BgWeaponMap::ms_runtimeSizeInitialized )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
         __debugbreak();
-      _R8 = s_svSnapshot_cache;
+      v19 = s_svSnapshot_cache;
     }
-    LODWORD(v90) = BgWeaponMap::ms_runtimeSize;
-    LODWORD(v88) = _R8->weaponCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 318, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->weaponCount ) && ( s_svSnapshot_cache->weaponCount ) <= ( BgWeaponMap::GetRuntimeSize() )", "s_svSnapshot_cache->weaponCount not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v88, 0i64, v90) )
+    LODWORD(v55) = BgWeaponMap::ms_runtimeSize;
+    LODWORD(v53) = v19->weaponCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 318, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_svSnapshot_cache->weaponCount ) && ( s_svSnapshot_cache->weaponCount ) <= ( BgWeaponMap::GetRuntimeSize() )", "s_svSnapshot_cache->weaponCount not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v53, 0i64, v55) )
       __debugbreak();
   }
   Instance = GWeaponMap::GetInstance();
-  _R9 = s_svSnapshot_cache;
-  v45 = Instance;
-  v46 = 0;
+  v27 = s_svSnapshot_cache;
+  v28 = Instance;
+  v29 = 0;
   if ( s_svSnapshot_cache->weaponCount > 0 )
   {
-    v47 = 624176i64;
+    v30 = 624176i64;
     do
     {
-      v48 = *(unsigned __int16 *)((char *)&_R9->entityCount + v47);
+      v31 = *(unsigned __int16 *)((char *)&v27->entityCount + v30);
       if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
         __debugbreak();
-      if ( (unsigned int)v48 >= BgWeaponMap::ms_runtimeSize )
+      if ( (unsigned int)v31 >= BgWeaponMap::ms_runtimeSize )
       {
         if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
           __debugbreak();
-        LODWORD(v89) = BgWeaponMap::ms_runtimeSize;
-        LODWORD(v88) = v48;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 323, ASSERT_TYPE_ASSERT, "(unsigned)( weaponNum ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponNum doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v88, v89) )
+        LODWORD(v54) = BgWeaponMap::ms_runtimeSize;
+        LODWORD(v53) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 323, ASSERT_TYPE_ASSERT, "(unsigned)( weaponNum ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponNum doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v53, v54) )
           __debugbreak();
       }
-      _RAX = BgWeaponMap::GetWeaponEntry(v45, v48);
-      _R9 = s_svSnapshot_cache;
-      ++v46;
-      _RCX = v48;
-      __asm
-      {
-        vmovups ymm1, ymmword ptr [rax]
-        vmovups xmm2, xmmword ptr [rax+20h]
-        vmovsd  xmm0, qword ptr [rax+30h]
-      }
-      v54 = *(_DWORD *)&_RAX->weapon.attachmentVariationIndices[27];
-      v47 += 2i64;
-      v55 = *(_WORD *)&_RAX->weapon.scopeVariation;
-      __asm
-      {
-        vmovups ymmword ptr [rcx+r9+9882Eh], ymm1
-        vmovups xmmword ptr [rcx+r9+9884Eh], xmm2
-        vmovsd  qword ptr [rcx+r9+9885Eh], xmm0
-      }
-      *(_DWORD *)&_R9->weaponEntries[_RCX].weapon.attachmentVariationIndices[27] = v54;
-      *(_WORD *)&_R9->weaponEntries[_RCX].weapon.scopeVariation = v55;
+      WeaponEntry = BgWeaponMap::GetWeaponEntry(v28, v31);
+      v27 = s_svSnapshot_cache;
+      ++v29;
+      v33 = v31;
+      v34 = *(_OWORD *)&WeaponEntry->weapon.attachmentVariationIndices[3];
+      v35 = *(double *)&WeaponEntry->weapon.attachmentVariationIndices[19];
+      v36 = *(_DWORD *)&WeaponEntry->weapon.attachmentVariationIndices[27];
+      v30 += 2i64;
+      v37 = *(_WORD *)&WeaponEntry->weapon.scopeVariation;
+      *(__m256i *)&s_svSnapshot_cache->weaponEntries[v33].index = *(__m256i *)&WeaponEntry->index;
+      *(_OWORD *)&v27->weaponEntries[v33].weapon.attachmentVariationIndices[3] = v34;
+      *(double *)&v27->weaponEntries[v33].weapon.attachmentVariationIndices[19] = v35;
+      *(_DWORD *)&v27->weaponEntries[v33].weapon.attachmentVariationIndices[27] = v36;
+      *(_WORD *)&v27->weaponEntries[v33].weapon.scopeVariation = v37;
     }
-    while ( v46 < _R9->weaponCount );
+    while ( v29 < v27->weaponCount );
     v1 = msg;
   }
   PreviousTime = G_MainSP_GetPreviousTime();
@@ -1381,24 +1324,24 @@ LABEL_55:
   ReplicatedInstances = ScriptableSv_GetReplicatedInstances();
   ReplicatedInstanceLimit = ScriptableSv_GetReplicatedInstanceLimit();
   PartWorldState = ScriptableSv_GetPartWorldState();
-  v60 = s_svSnapshot_cache;
-  v61 = (const void **)PartWorldState;
+  v42 = s_svSnapshot_cache;
+  v43 = (const void **)PartWorldState;
   scriptableActiveRpInstances = s_svSnapshot_cache->scriptableActiveRpInstances;
   s_svSnapshot_cache->scriptableActiveRpInstanceCount = ReplicatedInstanceLimit;
   memcpy_0(scriptableActiveRpInstances, ReplicatedInstances, 32i64 * ReplicatedInstanceLimit);
-  v63 = 607760i64 - (_QWORD)v61;
+  v45 = 607760i64 - (_QWORD)v43;
   while ( 1 )
   {
     ReplicatedPartLimitForWorld = ScriptableSv_GetReplicatedPartLimitForWorld(v7);
-    memcpy_0(*(void **)((char *)&v60->entityCount + (_QWORD)v61 + v63), *v61, ReplicatedPartLimitForWorld);
+    memcpy_0(*(void **)((char *)&v42->entityCount + (_QWORD)v43 + v45), *v43, ReplicatedPartLimitForWorld);
     ++v7;
-    ++v61;
+    ++v43;
     if ( v7 >= 2 )
       break;
-    v60 = s_svSnapshot_cache;
+    v42 = s_svSnapshot_cache;
   }
-  v65 = BG_Omnvar_PerGameCount();
-  memcpy_0(&s_svSnapshot_cache->gameOmnvars, level.gameOmnvars, 8i64 * v65);
+  v47 = BG_Omnvar_PerGameCount();
+  memcpy_0(&s_svSnapshot_cache->gameOmnvars, level.gameOmnvars, 8i64 * v47);
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_GetActiveGameMode() == GameModeType::SP)", "%s\n\tThis is intended to replace a singleplayer-only feature", "Com_GameMode_GetActiveGameMode() == GameModeType::SP") )
     __debugbreak();
   if ( (int)SvClient::ms_clientCount > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.h", 91, ASSERT_TYPE_ASSERT, "(SvClient::GetClientCount() <= 1)", "%s\n\tShould not use this function when more than one client is possible.", "SvClient::GetClientCount() <= 1") )
@@ -1411,51 +1354,28 @@ LABEL_55:
   if ( !CommonClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_snapshot_sp.cpp", 336, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
     __debugbreak();
   memcpy_0(s_svSnapshot_cache->m_hudElems, &CommonClient[31].lastUsercmd.weapon.weaponAttachments[10], sizeof(s_svSnapshot_cache->m_hudElems));
-  v67 = SvGameGlobals::GetSvGameGlobalsCommon();
-  _R9 = s_svSnapshot_cache;
-  _RDX = (__int64)&v67->gentities[OnlyLocalClientNum];
-  __asm { vmovups xmm0, xmmword ptr [rdx] }
-  _RCX = &s_svSnapshot_cache->entityStates[OnlyLocalClientNum];
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+50h]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rcx+60h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [rcx+80h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+90h]
-    vmovups xmmword ptr [rcx+90h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0A0h]
-    vmovups xmmword ptr [rcx+0A0h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0B0h]
-    vmovups xmmword ptr [rcx+0B0h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0C0h]
-    vmovups xmmword ptr [rcx+0C0h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0D0h]
-    vmovups xmmword ptr [rcx+0D0h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0E0h]
-    vmovups xmmword ptr [rcx+0E0h], xmm0
-  }
-  *(_QWORD *)&_RCX->partBits.array[6] = *(_QWORD *)(_RDX + 240);
-  _R9->entityUseCounts[OnlyLocalClientNum] = *(_DWORD *)(_RDX + 1180);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?level@@3Ulevel_locals_t@@A.umbraGateStates.array; level_locals_t level
-    vmovups ymmword ptr [r9+0A7DF0h], ymm0
-    vmovups xmm1, xmmword ptr cs:?level@@3Ulevel_locals_t@@A.umbraGateStates.array+20h; level_locals_t level
-    vmovups xmmword ptr [r9+0A7E10h], xmm1
-  }
+  v49 = SvGameGlobals::GetSvGameGlobalsCommon();
+  v50 = s_svSnapshot_cache;
+  v51 = (__int64)&v49->gentities[OnlyLocalClientNum];
+  v52 = &s_svSnapshot_cache->entityStates[OnlyLocalClientNum];
+  *(_OWORD *)&v52->number = *(_OWORD *)v51;
+  *(_OWORD *)&v52->lerp.pos.trType = *(_OWORD *)(v51 + 16);
+  *(_OWORD *)&v52->lerp.pos.trBase.y = *(_OWORD *)(v51 + 32);
+  *(_OWORD *)&v52->lerp.pos.trDelta.z = *(_OWORD *)(v51 + 48);
+  *(_OWORD *)v52->lerp.apos.trBase.v = *(_OWORD *)(v51 + 64);
+  *(_OWORD *)&v52->lerp.apos.trDelta.y = *(_OWORD *)(v51 + 80);
+  *(_OWORD *)&v52->lerp.u.vehicle.bodyPitch = *(_OWORD *)(v51 + 96);
+  *(LerpEntityStateInfoVolumeGrapple *)((char *)&v52->lerp.u.infoVolumeGrapple + 24) = *(LerpEntityStateInfoVolumeGrapple *)(v51 + 112);
+  *(_OWORD *)&v52->staticState.turret.carrierEntNum = *(_OWORD *)(v51 + 128);
+  *(_OWORD *)&v52->clientNum = *(_OWORD *)(v51 + 144);
+  *(_OWORD *)&v52->events[0].eventType = *(_OWORD *)(v51 + 160);
+  *(_OWORD *)&v52->events[2].eventType = *(_OWORD *)(v51 + 176);
+  *(_OWORD *)&v52->index.brushModel = *(_OWORD *)(v51 + 192);
+  *(_OWORD *)&v52->animInfo.selectAnim = *(_OWORD *)(v51 + 208);
+  *(_OWORD *)&v52->partBits.array[2] = *(_OWORD *)(v51 + 224);
+  *(_QWORD *)&v52->partBits.array[6] = *(_QWORD *)(v51 + 240);
+  v50->entityUseCounts[OnlyLocalClientNum] = *(_DWORD *)(v51 + 1180);
+  *(__m256i *)v50->umbraGateStates.array = *(__m256i *)level.umbraGateStates.array;
+  *(_OWORD *)&v50->umbraGateStates.array[8] = *(_OWORD *)&level.umbraGateStates.array[8];
 }
 

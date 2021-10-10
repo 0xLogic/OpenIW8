@@ -5,454 +5,456 @@ jpeg_fdct_float
 */
 void jpeg_fdct_float(float *data)
 {
-  __int64 v12; 
-  __int64 v13; 
-  void *retaddr; 
+  __int64 v1; 
+  __int64 v2; 
+  float *v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
+  float *v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  float v99; 
+  float v100; 
+  float v101; 
+  float v102; 
+  float v103; 
+  float v104; 
+  float v105; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  float v115; 
+  float v116; 
+  float v117; 
+  float v118; 
+  float v119; 
+  float v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  float v132; 
+  float v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  float v137; 
+  float v138; 
+  float v139; 
+  float v140; 
+  float v141; 
+  float v142; 
+  float v143; 
+  float v144; 
+  float v145; 
+  float v146; 
+  float v147; 
+  float v148; 
+  float v149; 
+  float v150; 
+  float v151; 
+  float v152; 
+  float v153; 
+  float v154; 
+  float v155; 
+  float v156; 
+  float v157; 
+  float v158; 
+  float v159; 
+  float v160; 
+  float v161; 
+  float v162; 
+  float v163; 
+  float v164; 
+  float v165; 
+  float v166; 
+  float v167; 
+  float v168; 
+  float v169; 
+  float v170; 
+  float v171; 
+  float v172; 
+  float v173; 
+  float v174; 
+  float v175; 
+  float v176; 
+  float v177; 
+  float v178; 
+  float v179; 
+  float v180; 
+  float v181; 
+  float v182; 
+  float v183; 
+  float v184; 
+  float v185; 
+  float v186; 
+  float v187; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v12 = 2i64;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  v13 = 2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
-  _RAX = data + 2;
-  __asm
-  {
-    vmovss  xmm12, cs:__real@3f3504f3
-    vmovaps [rsp+0A8h+var_88], xmm13
-    vmovss  xmm13, cs:__real@3ec3ef15
-    vmovaps [rsp+0A8h+var_98], xmm14
-    vmovss  xmm14, cs:__real@3f0a8bd4
-    vmovaps [rsp+0A8h+var_A8], xmm15
-    vmovss  xmm15, cs:__real@3fa73d75
-  }
+  v1 = 2i64;
+  v2 = 2i64;
+  v3 = data + 2;
   do
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax-8]
-      vsubss  xmm10, xmm0, dword ptr [rax+14h]
-      vaddss  xmm4, xmm0, dword ptr [rax+14h]
-      vmovss  xmm0, dword ptr [rax-4]
-      vsubss  xmm9, xmm0, dword ptr [rax+10h]
-      vaddss  xmm7, xmm0, dword ptr [rax+10h]
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm8, xmm0, dword ptr [rax+0Ch]
-      vaddss  xmm3, xmm0, dword ptr [rax+0Ch]
-      vmovss  xmm6, dword ptr [rax+8]
-      vmovss  xmm5, dword ptr [rax+4]
-      vaddss  xmm1, xmm3, xmm7
-      vaddss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm4, xmm4, xmm0
-      vaddss  xmm0, xmm1, xmm2
-      vsubss  xmm1, xmm2, xmm1
-      vmovss  dword ptr [rax-8], xmm0
-      vmovss  dword ptr [rax+8], xmm1
-      vsubss  xmm0, xmm7, xmm3
-      vaddss  xmm2, xmm0, xmm4
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm1, xmm3, xmm4
-      vsubss  xmm0, xmm4, xmm3
-      vmovss  dword ptr [rax+10h], xmm0
-      vmovss  dword ptr [rax], xmm1
-      vsubss  xmm1, xmm5, xmm6
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm1, xmm2, xmm14
-      vaddss  xmm4, xmm9, xmm10
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm3, xmm0, xmm13
-      vaddss  xmm5, xmm1, xmm3
-      vmulss  xmm0, xmm4, xmm15
-      vaddss  xmm6, xmm0, xmm3
-      vaddss  xmm1, xmm8, xmm9
-      vmulss  xmm2, xmm1, xmm12
-      vsubss  xmm3, xmm10, xmm2
-      vaddss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rax+0Ch], xmm0
-      vaddss  xmm4, xmm2, xmm10
-      vsubss  xmm1, xmm3, xmm5
-      vmovss  xmm5, dword ptr [rax+24h]
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax-4], xmm0
-      vmovss  xmm0, dword ptr [rax+18h]
-      vsubss  xmm10, xmm0, dword ptr [rax+34h]
-      vmovss  dword ptr [rax+4], xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vaddss  xmm4, xmm0, dword ptr [rax+34h]
-      vmovss  xmm0, dword ptr [rax+1Ch]
-      vaddss  xmm7, xmm0, dword ptr [rax+30h]
-      vsubss  xmm9, xmm0, dword ptr [rax+30h]
-      vmovss  xmm0, dword ptr [rax+20h]
-      vaddss  xmm3, xmm0, dword ptr [rax+2Ch]
-      vsubss  xmm8, xmm0, dword ptr [rax+2Ch]
-      vmovss  xmm6, dword ptr [rax+28h]
-      vmovss  dword ptr [rax+14h], xmm1
-      vaddss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm4, xmm4, xmm0
-      vaddss  xmm1, xmm3, xmm7
-      vaddss  xmm0, xmm1, xmm2
-      vsubss  xmm1, xmm2, xmm1
-      vmovss  dword ptr [rax+18h], xmm0
-      vsubss  xmm0, xmm7, xmm3
-      vaddss  xmm2, xmm0, xmm4
-      vmulss  xmm3, xmm2, xmm12
-      vsubss  xmm0, xmm4, xmm3
-      vmovss  dword ptr [rax+28h], xmm1
-      vaddss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rax+20h], xmm1
-      vsubss  xmm1, xmm5, xmm6
-      vaddss  xmm2, xmm1, xmm8
-      vaddss  xmm4, xmm9, xmm10
-      vmovss  dword ptr [rax+30h], xmm0
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm3, xmm0, xmm13
-      vmulss  xmm1, xmm2, xmm14
-      vaddss  xmm5, xmm1, xmm3
-      vmulss  xmm0, xmm4, xmm15
-      vaddss  xmm6, xmm0, xmm3
-      vaddss  xmm1, xmm8, xmm9
-      vmulss  xmm2, xmm1, xmm12
-      vsubss  xmm3, xmm10, xmm2
-      vaddss  xmm4, xmm2, xmm10
-      vaddss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rax+2Ch], xmm0
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax+1Ch], xmm0
-      vmovss  xmm0, dword ptr [rax+38h]
-      vsubss  xmm10, xmm0, dword ptr [rax+54h]
-      vsubss  xmm1, xmm3, xmm5
-      vmovss  xmm5, dword ptr [rax+44h]
-      vmovss  dword ptr [rax+24h], xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vaddss  xmm4, xmm0, dword ptr [rax+54h]
-      vmovss  xmm0, dword ptr [rax+3Ch]
-      vsubss  xmm9, xmm0, dword ptr [rax+50h]
-      vaddss  xmm7, xmm0, dword ptr [rax+50h]
-      vmovss  xmm0, dword ptr [rax+40h]
-      vsubss  xmm8, xmm0, dword ptr [rax+4Ch]
-      vaddss  xmm3, xmm0, dword ptr [rax+4Ch]
-      vmovss  xmm6, dword ptr [rax+48h]
-      vmovss  dword ptr [rax+34h], xmm1
-      vaddss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm4, xmm4, xmm0
-      vaddss  xmm1, xmm3, xmm7
-      vaddss  xmm0, xmm1, xmm2
-      vsubss  xmm1, xmm2, xmm1
-      vmovss  dword ptr [rax+38h], xmm0
-      vmovss  dword ptr [rax+48h], xmm1
-      vsubss  xmm0, xmm7, xmm3
-      vaddss  xmm2, xmm0, xmm4
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rax+40h], xmm1
-      vsubss  xmm1, xmm5, xmm6
-      vaddss  xmm2, xmm1, xmm8
-      vsubss  xmm0, xmm4, xmm3
-      vmovss  dword ptr [rax+50h], xmm0
-      vaddss  xmm4, xmm9, xmm10
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm3, xmm0, xmm13
-      vmulss  xmm1, xmm2, xmm14
-      vaddss  xmm5, xmm1, xmm3
-      vaddss  xmm1, xmm8, xmm9
-      vmulss  xmm2, xmm1, xmm12
-      vmulss  xmm0, xmm4, xmm15
-      vaddss  xmm6, xmm0, xmm3
-      vaddss  xmm4, xmm2, xmm10
-      vsubss  xmm3, xmm10, xmm2
-      vaddss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rax+4Ch], xmm0
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax+3Ch], xmm0
-      vmovss  xmm0, dword ptr [rax+58h]
-      vsubss  xmm11, xmm0, dword ptr [rax+74h]
-      vsubss  xmm1, xmm3, xmm5
-      vaddss  xmm5, xmm0, dword ptr [rax+74h]
-      vmovss  xmm0, dword ptr [rax+5Ch]
-      vaddss  xmm8, xmm0, dword ptr [rax+70h]
-      vsubss  xmm10, xmm0, dword ptr [rax+70h]
-      vmovss  xmm0, dword ptr [rax+60h]
-      vsubss  xmm9, xmm0, dword ptr [rax+6Ch]
-      vmovss  dword ptr [rax+44h], xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vaddss  xmm6, xmm0, dword ptr [rax+6Ch]
-      vmovss  xmm0, dword ptr [rax+64h]
-      vsubss  xmm7, xmm0, dword ptr [rax+68h]
-      vaddss  xmm2, xmm6, xmm8
-      vmovss  dword ptr [rax+54h], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rax+68h]
-      vaddss  xmm4, xmm1, xmm5
-      vaddss  xmm0, xmm2, xmm4
-      vsubss  xmm5, xmm5, xmm1
-      vsubss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rax+58h], xmm0
-      vsubss  xmm0, xmm8, xmm6
-      vaddss  xmm2, xmm0, xmm5
-      vmovss  dword ptr [rax+68h], xmm1
-    }
-    _RAX += 32;
-    __asm
-    {
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm1, xmm3, xmm5
-      vmovss  dword ptr [rax-20h], xmm1
-      vsubss  xmm0, xmm5, xmm3
-      vmovss  dword ptr [rax-10h], xmm0
-      vaddss  xmm1, xmm7, xmm9
-      vaddss  xmm3, xmm10, xmm11
-      vsubss  xmm0, xmm1, xmm3
-      vmulss  xmm2, xmm0, xmm13
-      vmulss  xmm1, xmm1, xmm14
-      vaddss  xmm5, xmm1, xmm2
-      vmulss  xmm0, xmm3, xmm15
-      vaddss  xmm6, xmm0, xmm2
-      vaddss  xmm1, xmm9, xmm10
-      vmulss  xmm2, xmm1, xmm12
-      vsubss  xmm3, xmm11, xmm2
-      vaddss  xmm0, xmm3, xmm5
-      vsubss  xmm1, xmm3, xmm5
-      vaddss  xmm4, xmm2, xmm11
-      vmovss  dword ptr [rax-14h], xmm0
-      vmovss  dword ptr [rax-1Ch], xmm1
-      vaddss  xmm0, xmm4, xmm6
-      vsubss  xmm1, xmm4, xmm6
-      vmovss  dword ptr [rax-24h], xmm0
-      vmovss  dword ptr [rax-0Ch], xmm1
-    }
-    --v13;
+    v4 = *(v3 - 2);
+    v5 = v4 - v3[5];
+    v6 = v4 + v3[5];
+    v7 = *(v3 - 1);
+    v8 = v7 - v3[4];
+    v9 = v7 + v3[4];
+    v10 = *v3 - v3[3];
+    v11 = *v3 + v3[3];
+    v12 = v3[2];
+    v13 = v3[1];
+    v14 = (float)(v12 + v13) + v6;
+    v15 = v6 - (float)(v12 + v13);
+    *(v3 - 2) = (float)(v11 + v9) + v14;
+    v3[2] = v14 - (float)(v11 + v9);
+    v16 = (float)((float)(v9 - v11) + v15) * 0.70710677;
+    v3[4] = v15 - v16;
+    *v3 = v16 + v15;
+    v17 = (float)(v13 - v12) + v10;
+    v18 = (float)(v17 - (float)(v8 + v5)) * 0.38268343;
+    v19 = (float)(v17 * 0.54119611) + v18;
+    v20 = (float)((float)(v8 + v5) * 1.306563) + v18;
+    v21 = (float)(v10 + v8) * 0.70710677;
+    v3[3] = (float)(v5 - v21) + v19;
+    v22 = v21 + v5;
+    v23 = (float)(v5 - v21) - v19;
+    v24 = v3[9];
+    *(v3 - 1) = (float)(v21 + v5) + v20;
+    v25 = v3[6];
+    v26 = v25 - v3[13];
+    v3[1] = v23;
+    v27 = v22 - v20;
+    v28 = v25 + v3[13];
+    v29 = v3[7];
+    v30 = v29 + v3[12];
+    v31 = v29 - v3[12];
+    v32 = v3[8];
+    v33 = v32 + v3[11];
+    v34 = v32 - v3[11];
+    v35 = v3[10];
+    v3[5] = v27;
+    v36 = (float)(v35 + v24) + v28;
+    v37 = v28 - (float)(v35 + v24);
+    v38 = v36 - (float)(v33 + v30);
+    v3[6] = (float)(v33 + v30) + v36;
+    v39 = (float)((float)(v30 - v33) + v37) * 0.70710677;
+    v3[10] = v38;
+    v3[8] = v39 + v37;
+    v40 = (float)(v24 - v35) + v34;
+    v3[12] = v37 - v39;
+    v41 = (float)(v40 - (float)(v31 + v26)) * 0.38268343;
+    v42 = (float)(v40 * 0.54119611) + v41;
+    v43 = (float)((float)(v31 + v26) * 1.306563) + v41;
+    v44 = (float)(v34 + v31) * 0.70710677;
+    v45 = v26 - v44;
+    v46 = v44 + v26;
+    v3[11] = (float)(v26 - v44) + v42;
+    v3[7] = (float)(v44 + v26) + v43;
+    v47 = v3[14];
+    v48 = v47 - v3[21];
+    v49 = v45 - v42;
+    v50 = v3[17];
+    v3[9] = v49;
+    v51 = v46 - v43;
+    v52 = v47 + v3[21];
+    v53 = v3[15];
+    v54 = v53 - v3[20];
+    v55 = v53 + v3[20];
+    v56 = v3[16];
+    v57 = v56 - v3[19];
+    v58 = v56 + v3[19];
+    v59 = v3[18];
+    v3[13] = v51;
+    v60 = (float)(v59 + v50) + v52;
+    v61 = v52 - (float)(v59 + v50);
+    v3[14] = (float)(v58 + v55) + v60;
+    v3[18] = v60 - (float)(v58 + v55);
+    v62 = (float)((float)(v55 - v58) + v61) * 0.70710677;
+    v3[16] = v62 + v61;
+    v63 = (float)(v50 - v59) + v57;
+    v3[20] = v61 - v62;
+    v64 = (float)(v63 - (float)(v54 + v48)) * 0.38268343;
+    v65 = (float)(v63 * 0.54119611) + v64;
+    v66 = (float)(v57 + v54) * 0.70710677;
+    v67 = (float)((float)(v54 + v48) * 1.306563) + v64;
+    v68 = v66 + v48;
+    v3[19] = (float)(v48 - v66) + v65;
+    v3[15] = (float)(v66 + v48) + v67;
+    v69 = v3[22];
+    v70 = v69 - v3[29];
+    v71 = (float)(v48 - v66) - v65;
+    v72 = v69 + v3[29];
+    v73 = v3[23];
+    v74 = v73 + v3[28];
+    v75 = v73 - v3[28];
+    v76 = v3[24];
+    v77 = v76 - v3[27];
+    v3[17] = v71;
+    v78 = v68 - v67;
+    v79 = v76 + v3[27];
+    v80 = v3[25];
+    v81 = v80 - v3[26];
+    v3[21] = v78;
+    v82 = v80 + v3[26];
+    v83 = v82 + v72;
+    v84 = (float)(v79 + v74) + (float)(v82 + v72);
+    v85 = v72 - v82;
+    v3[22] = v84;
+    v3[26] = v83 - (float)(v79 + v74);
+    v3 += 32;
+    v86 = (float)((float)(v74 - v79) + v85) * 0.70710677;
+    *(v3 - 8) = v86 + v85;
+    *(v3 - 4) = v85 - v86;
+    v87 = (float)((float)(v81 + v77) - (float)(v75 + v70)) * 0.38268343;
+    v88 = (float)((float)(v81 + v77) * 0.54119611) + v87;
+    v89 = (float)((float)(v75 + v70) * 1.306563) + v87;
+    v90 = (float)(v77 + v75) * 0.70710677;
+    *(v3 - 5) = (float)(v70 - v90) + v88;
+    *(v3 - 7) = (float)(v70 - v90) - v88;
+    *(v3 - 9) = (float)(v90 + v70) + v89;
+    *(v3 - 3) = (float)(v90 + v70) - v89;
+    --v2;
   }
-  while ( v13 );
-  _RAX = data + 16;
+  while ( v2 );
+  v91 = data + 16;
   do
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+0A0h]
-      vmovss  xmm0, dword ptr [rax-40h]
-      vmovss  xmm2, dword ptr [rax+80h]
-      vmovss  xmm6, dword ptr [rax+40h]
-      vmovss  xmm5, dword ptr [rax+20h]
-      vsubss  xmm10, xmm0, xmm1
-      vaddss  xmm4, xmm1, xmm0
-      vmovss  xmm0, dword ptr [rax-20h]
-      vsubss  xmm9, xmm0, xmm2
-      vaddss  xmm7, xmm2, xmm0
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm8, xmm0, dword ptr [rax+60h]
-      vaddss  xmm3, xmm0, dword ptr [rax+60h]
-      vaddss  xmm1, xmm3, xmm7
-      vaddss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm4, xmm4, xmm0
-      vaddss  xmm0, xmm1, xmm2
-      vsubss  xmm1, xmm2, xmm1
-      vmovss  dword ptr [rax-40h], xmm0
-      vmovss  dword ptr [rax+40h], xmm1
-      vsubss  xmm0, xmm7, xmm3
-      vaddss  xmm2, xmm0, xmm4
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm1, xmm3, xmm4
-      vsubss  xmm0, xmm4, xmm3
-      vmovss  dword ptr [rax+80h], xmm0
-      vmovss  dword ptr [rax], xmm1
-      vsubss  xmm1, xmm5, xmm6
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm1, xmm2, xmm14
-      vaddss  xmm4, xmm9, xmm10
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm3, xmm0, xmm13
-      vaddss  xmm5, xmm1, xmm3
-      vmulss  xmm0, xmm4, xmm15
-      vaddss  xmm6, xmm0, xmm3
-      vaddss  xmm1, xmm8, xmm9
-      vmulss  xmm2, xmm1, xmm12
-      vsubss  xmm3, xmm10, xmm2
-      vaddss  xmm4, xmm2, xmm10
-      vmovss  xmm2, dword ptr [rax+0A4h]
-      vaddss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rax+60h], xmm0
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax-20h], xmm0
-      vmovss  xmm0, dword ptr [rax-3Ch]
-      vsubss  xmm10, xmm0, xmm2
-      vsubss  xmm1, xmm3, xmm5
-      vmovss  xmm5, dword ptr [rax+24h]
-      vmovss  dword ptr [rax+20h], xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vmovss  xmm6, dword ptr [rax+44h]
-      vaddss  xmm4, xmm2, xmm0
-      vmovss  xmm0, dword ptr [rax-1Ch]
-      vmovss  dword ptr [rax+0A0h], xmm1
-      vmovss  xmm1, dword ptr [rax+84h]
-      vsubss  xmm9, xmm0, xmm1
-      vaddss  xmm7, xmm1, xmm0
-      vmovss  xmm0, dword ptr [rax+4]
-      vaddss  xmm3, xmm0, dword ptr [rax+64h]
-      vsubss  xmm8, xmm0, dword ptr [rax+64h]
-      vaddss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm4, xmm4, xmm0
-      vaddss  xmm1, xmm3, xmm7
-      vaddss  xmm0, xmm1, xmm2
-      vsubss  xmm1, xmm2, xmm1
-      vmovss  dword ptr [rax-3Ch], xmm0
-      vsubss  xmm0, xmm7, xmm3
-      vaddss  xmm2, xmm0, xmm4
-      vmulss  xmm3, xmm2, xmm12
-      vsubss  xmm0, xmm4, xmm3
-      vmovss  dword ptr [rax+44h], xmm1
-      vaddss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rax+4], xmm1
-      vsubss  xmm1, xmm5, xmm6
-      vaddss  xmm2, xmm1, xmm8
-      vaddss  xmm4, xmm9, xmm10
-      vmovss  dword ptr [rax+84h], xmm0
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm3, xmm0, xmm13
-      vmulss  xmm1, xmm2, xmm14
-      vaddss  xmm5, xmm1, xmm3
-      vmulss  xmm0, xmm4, xmm15
-      vaddss  xmm6, xmm0, xmm3
-      vaddss  xmm1, xmm8, xmm9
-      vmulss  xmm2, xmm1, xmm12
-      vsubss  xmm3, xmm10, xmm2
-      vaddss  xmm4, xmm2, xmm10
-      vmovss  xmm2, dword ptr [rax+0A8h]
-      vaddss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rax+64h], xmm0
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax-1Ch], xmm0
-      vmovss  xmm0, dword ptr [rax-38h]
-      vsubss  xmm10, xmm0, xmm2
-      vsubss  xmm1, xmm3, xmm5
-      vmovss  xmm5, dword ptr [rax+28h]
-      vmovss  dword ptr [rax+24h], xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vmovss  xmm6, dword ptr [rax+48h]
-      vaddss  xmm4, xmm2, xmm0
-      vmovss  xmm0, dword ptr [rax-18h]
-      vmovss  dword ptr [rax+0A4h], xmm1
-      vmovss  xmm1, dword ptr [rax+88h]
-      vsubss  xmm9, xmm0, xmm1
-      vaddss  xmm7, xmm1, xmm0
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm8, xmm0, dword ptr [rax+68h]
-      vaddss  xmm3, xmm0, dword ptr [rax+68h]
-      vaddss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm4, xmm4, xmm0
-      vaddss  xmm1, xmm3, xmm7
-      vaddss  xmm0, xmm1, xmm2
-      vsubss  xmm1, xmm2, xmm1
-      vmovss  dword ptr [rax-38h], xmm0
-      vmovss  dword ptr [rax+48h], xmm1
-      vsubss  xmm0, xmm7, xmm3
-      vaddss  xmm2, xmm0, xmm4
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rax+8], xmm1
-      vsubss  xmm0, xmm4, xmm3
-      vmovss  dword ptr [rax+88h], xmm0
-      vsubss  xmm1, xmm5, xmm6
-      vaddss  xmm2, xmm1, xmm8
-      vaddss  xmm4, xmm9, xmm10
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm3, xmm0, xmm13
-      vmulss  xmm1, xmm2, xmm14
-      vaddss  xmm5, xmm1, xmm3
-      vaddss  xmm1, xmm8, xmm9
-      vmulss  xmm2, xmm1, xmm12
-      vmulss  xmm0, xmm4, xmm15
-      vaddss  xmm6, xmm0, xmm3
-      vaddss  xmm4, xmm2, xmm10
-      vsubss  xmm3, xmm10, xmm2
-      vmovss  xmm2, dword ptr [rax+0ACh]
-      vaddss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rax+68h], xmm0
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax-18h], xmm0
-      vmovss  xmm0, dword ptr [rax-34h]
-      vsubss  xmm1, xmm3, xmm5
-      vaddss  xmm5, xmm2, xmm0
-      vmovss  dword ptr [rax+28h], xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vsubss  xmm11, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rax-14h]
-      vmovss  dword ptr [rax+0A8h], xmm1
-      vmovss  xmm1, dword ptr [rax+8Ch]
-      vaddss  xmm8, xmm1, xmm0
-      vsubss  xmm10, xmm0, xmm1
-      vmovss  xmm0, dword ptr [rax+0Ch]
-      vaddss  xmm6, xmm0, dword ptr [rax+6Ch]
-      vsubss  xmm9, xmm0, dword ptr [rax+6Ch]
-      vmovss  xmm0, dword ptr [rax+2Ch]
-      vaddss  xmm1, xmm0, dword ptr [rax+4Ch]
-      vsubss  xmm7, xmm0, dword ptr [rax+4Ch]
-      vaddss  xmm4, xmm1, xmm5
-    }
-    _RAX += 4;
-    __asm
-    {
-      vsubss  xmm5, xmm5, xmm1
-      vaddss  xmm2, xmm6, xmm8
-      vaddss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rax-44h], xmm0
-      vsubss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rax+3Ch], xmm1
-      vsubss  xmm0, xmm8, xmm6
-      vaddss  xmm2, xmm0, xmm5
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm1, xmm3, xmm5
-      vmovss  dword ptr [rax-4], xmm1
-      vsubss  xmm0, xmm5, xmm3
-      vmovss  dword ptr [rax+7Ch], xmm0
-      vaddss  xmm1, xmm7, xmm9
-      vaddss  xmm3, xmm10, xmm11
-      vsubss  xmm0, xmm1, xmm3
-      vmulss  xmm2, xmm0, xmm13
-      vmulss  xmm1, xmm1, xmm14
-      vaddss  xmm5, xmm1, xmm2
-      vmulss  xmm0, xmm3, xmm15
-      vaddss  xmm6, xmm0, xmm2
-      vaddss  xmm1, xmm9, xmm10
-      vmulss  xmm2, xmm1, xmm12
-      vsubss  xmm3, xmm11, xmm2
-      vaddss  xmm0, xmm3, xmm5
-      vsubss  xmm1, xmm3, xmm5
-      vaddss  xmm4, xmm2, xmm11
-      vmovss  dword ptr [rax+5Ch], xmm0
-      vmovss  dword ptr [rax+1Ch], xmm1
-      vaddss  xmm0, xmm4, xmm6
-      vsubss  xmm1, xmm4, xmm6
-      vmovss  dword ptr [rax-24h], xmm0
-      vmovss  dword ptr [rax+9Ch], xmm1
-    }
-    --v12;
+    v92 = v91[40];
+    v93 = *(v91 - 16);
+    v94 = v91[32];
+    v95 = v91[16];
+    v96 = v91[8];
+    v97 = v93 - v92;
+    v98 = v92 + v93;
+    v99 = *(v91 - 8);
+    v100 = v99 - v94;
+    v101 = v94 + v99;
+    v102 = *v91 - v91[24];
+    v103 = *v91 + v91[24];
+    v104 = v103 + (float)(v94 + v99);
+    v105 = (float)(v95 + v96) + v98;
+    v106 = v98 - (float)(v95 + v96);
+    *(v91 - 16) = v104 + v105;
+    v91[16] = v105 - v104;
+    v107 = (float)((float)(v101 - v103) + v106) * 0.70710677;
+    v91[32] = v106 - v107;
+    *v91 = v107 + v106;
+    v108 = (float)(v96 - v95) + v102;
+    v109 = (float)(v108 - (float)(v100 + v97)) * 0.38268343;
+    v110 = (float)(v108 * 0.54119611) + v109;
+    v111 = (float)((float)(v100 + v97) * 1.306563) + v109;
+    v112 = (float)(v102 + v100) * 0.70710677;
+    v113 = v97 - v112;
+    v114 = v112 + v97;
+    v115 = v91[41];
+    v91[24] = v113 + v110;
+    *(v91 - 8) = v114 + v111;
+    v116 = *(v91 - 15);
+    v117 = v116 - v115;
+    v118 = v113 - v110;
+    v119 = v91[9];
+    v91[8] = v118;
+    v120 = v114 - v111;
+    v121 = v91[17];
+    v122 = v115 + v116;
+    v123 = *(v91 - 7);
+    v91[40] = v120;
+    v124 = v91[33];
+    v125 = v123 - v124;
+    v126 = v124 + v123;
+    v127 = v91[1];
+    v128 = v127 + v91[25];
+    v129 = v127 - v91[25];
+    v130 = (float)(v121 + v119) + v122;
+    v131 = v122 - (float)(v121 + v119);
+    v132 = v130 - (float)(v128 + v126);
+    *(v91 - 15) = (float)(v128 + v126) + v130;
+    v133 = (float)((float)(v126 - v128) + v131) * 0.70710677;
+    v91[17] = v132;
+    v91[1] = v133 + v131;
+    v134 = (float)(v119 - v121) + v129;
+    v91[33] = v131 - v133;
+    v135 = (float)(v134 - (float)(v125 + v117)) * 0.38268343;
+    v136 = (float)(v134 * 0.54119611) + v135;
+    v137 = (float)((float)(v125 + v117) * 1.306563) + v135;
+    v138 = (float)(v129 + v125) * 0.70710677;
+    v139 = v117 - v138;
+    v140 = v138 + v117;
+    v141 = v91[42];
+    v91[25] = v139 + v136;
+    *(v91 - 7) = v140 + v137;
+    v142 = *(v91 - 14);
+    v143 = v142 - v141;
+    v144 = v139 - v136;
+    v145 = v91[10];
+    v91[9] = v144;
+    v146 = v140 - v137;
+    v147 = v91[18];
+    v148 = v141 + v142;
+    v149 = *(v91 - 6);
+    v91[41] = v146;
+    v150 = v91[34];
+    v151 = v149 - v150;
+    v152 = v150 + v149;
+    v153 = v91[2];
+    v154 = v153 - v91[26];
+    v155 = v153 + v91[26];
+    v156 = (float)(v147 + v145) + v148;
+    v157 = v148 - (float)(v147 + v145);
+    *(v91 - 14) = (float)(v155 + v152) + v156;
+    v91[18] = v156 - (float)(v155 + v152);
+    v158 = (float)((float)(v152 - v155) + v157) * 0.70710677;
+    v91[2] = v158 + v157;
+    v91[34] = v157 - v158;
+    v159 = (float)(v145 - v147) + v154;
+    v160 = (float)(v159 - (float)(v151 + v143)) * 0.38268343;
+    v161 = (float)(v159 * 0.54119611) + v160;
+    v162 = (float)(v154 + v151) * 0.70710677;
+    v163 = (float)((float)(v151 + v143) * 1.306563) + v160;
+    v164 = v162 + v143;
+    v165 = v143 - v162;
+    v166 = v91[43];
+    v91[26] = v165 + v161;
+    *(v91 - 6) = v164 + v163;
+    v167 = *(v91 - 13);
+    v168 = v165 - v161;
+    v169 = v166 + v167;
+    v91[10] = v168;
+    v170 = v167 - v166;
+    v171 = *(v91 - 5);
+    v91[42] = v164 - v163;
+    v172 = v91[35];
+    v173 = v172 + v171;
+    v174 = v171 - v172;
+    v175 = v91[3];
+    v176 = v175 + v91[27];
+    v177 = v175 - v91[27];
+    v178 = v91[11];
+    v179 = v178 + v91[19];
+    v180 = v178 - v91[19];
+    v181 = v179 + v169;
+    v91 += 4;
+    v182 = v169 - v179;
+    *(v91 - 17) = (float)(v176 + v173) + v181;
+    v91[15] = v181 - (float)(v176 + v173);
+    v183 = (float)((float)(v173 - v176) + v182) * 0.70710677;
+    *(v91 - 1) = v183 + v182;
+    v91[31] = v182 - v183;
+    v184 = (float)((float)(v180 + v177) - (float)(v174 + v170)) * 0.38268343;
+    v185 = (float)((float)(v180 + v177) * 0.54119611) + v184;
+    v186 = (float)((float)(v174 + v170) * 1.306563) + v184;
+    v187 = (float)(v177 + v174) * 0.70710677;
+    v91[23] = (float)(v170 - v187) + v185;
+    v91[7] = (float)(v170 - v187) - v185;
+    *(v91 - 9) = (float)(v187 + v170) + v186;
+    v91[39] = (float)(v187 + v170) - v186;
+    --v1;
   }
-  while ( v12 );
-  __asm { vmovaps xmm13, [rsp+0A8h+var_88] }
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm14, [rsp+0A8h+var_98]
-    vmovaps xmm15, [rsp+0A8h+var_A8]
-  }
+  while ( v1 );
 }
 

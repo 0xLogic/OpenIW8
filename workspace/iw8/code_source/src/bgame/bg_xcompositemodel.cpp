@@ -165,51 +165,45 @@ BG_XCompositeModel_CalculateSubCompositeModelInfo
 */
 bool BG_XCompositeModel_CalculateSubCompositeModelInfo(const XCompositeModelDef *const compositeModel, const int *const remap, const int subCompositeModelIndex, const int modelStartIndex, const int recursiveParentSlot, const scr_string_t recursiveParentBoneName, const vec3_t *recursiveOffsets, const vec4_t *recursiveQuat, const XCompositeModelDef **outSubCompositeModel, vec3_t *outOffsets, vec4_t *outQuat, int *outParentSlot, scr_string_t *outParentBoneName)
 {
-  const XCompositeModelDef *v17; 
-  bool v19; 
-  float v21; 
+  XCompositeSubCompositeModel *v15; 
+  const XCompositeModelDef *v16; 
+  bool v17; 
+  float v18; 
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> in2; 
   tmat43_t<vec3_t> result; 
 
-  _RSI = outOffsets;
-  _RBX = &compositeModel->subCompositeModels[subCompositeModelIndex];
-  v17 = _RBX->compositeModel;
-  *outSubCompositeModel = v17;
-  if ( v17 )
+  v15 = &compositeModel->subCompositeModels[subCompositeModelIndex];
+  v16 = v15->compositeModel;
+  *outSubCompositeModel = v16;
+  if ( v16 )
   {
-    __asm
+    *outOffsets = v15->translation;
+    AnglesToQuat(&v15->angles, outQuat);
+    v17 = v15->parentSubmodelSlot >= 0;
+    if ( v15->parentSubmodelSlot >= 0 )
     {
-      vmovsd  xmm0, qword ptr [rbx+8]
-      vmovsd  qword ptr [rsi], xmm0
-    }
-    outOffsets->v[2] = _RBX->translation.v[2];
-    AnglesToQuat(&_RBX->angles, outQuat);
-    v19 = _RBX->parentSubmodelSlot >= 0;
-    if ( _RBX->parentSubmodelSlot >= 0 )
-    {
-      recursiveParentSlot = modelStartIndex + remap[_RBX->parentSubmodelSlot];
+      recursiveParentSlot = modelStartIndex + remap[v15->parentSubmodelSlot];
     }
     else
     {
       QuatAndOriginToMatrix43(outQuat, outOffsets, &result);
       QuatAndOriginToMatrix43(recursiveQuat, recursiveOffsets, &in2);
       MatrixMultiply43(&result, &in2, &out);
-      __asm { vmovsd  xmm0, qword ptr [rsp+108h+out+24h] }
-      v21 = out.m[3].v[2];
-      __asm { vmovsd  qword ptr [rsi], xmm0 }
-      outOffsets->v[2] = v21;
+      v18 = out.m[3].v[2];
+      *(double *)outOffsets->v = *(double *)out.row3.v;
+      outOffsets->v[2] = v18;
       AxisToQuat((const tmat33_t<vec3_t> *)&out, outQuat);
     }
     *outParentSlot = recursiveParentSlot;
-    if ( v19 )
-      LODWORD(v17) = _RBX->parentBoneName;
+    if ( v17 )
+      LODWORD(v16) = v15->parentBoneName;
     else
-      LODWORD(v17) = recursiveParentBoneName;
-    *outParentBoneName = (int)v17;
-    LOBYTE(v17) = 1;
+      LODWORD(v16) = recursiveParentBoneName;
+    *outParentBoneName = (int)v16;
+    LOBYTE(v16) = 1;
   }
-  return (char)v17;
+  return (char)v16;
 }
 
 /*
@@ -220,45 +214,44 @@ BG_XCompositeModel_CalculateSubmodelOffsets
 void BG_XCompositeModel_CalculateSubmodelOffsets(const XCompositeModelDef *const compositeModel, const XCompositeSubmodel *const submodel, const DObjModel *const dobjModels, const int recursiveParentSlot, const scr_string_t recursiveParentBoneName, const vec3_t *recursiveOffsets, const vec4_t *recursiveQuat, vec3_t *outOffsets, vec4_t *outQuat, int *outParentSlot, scr_string_t *outParentBoneName)
 {
   __int64 v11; 
-  int v14; 
-  const DObjModel *v15; 
+  int v13; 
+  const DObjModel *v14; 
   const XModel *model; 
   unsigned __int8 numBones; 
-  __int64 v18; 
+  __int64 v17; 
   scr_string_t *boneNames; 
   tmat43_t<vec3_t> *p_out; 
-  tmat43_t<vec3_t> *v21; 
-  float v23; 
-  tmat43_t<vec3_t> v25; 
+  tmat43_t<vec3_t> *v20; 
+  float v21; 
+  tmat43_t<vec3_t> v23; 
   tmat43_t<vec3_t> out; 
-  tmat43_t<vec3_t> v27; 
+  tmat43_t<vec3_t> v25; 
   tmat43_t<vec3_t> in; 
   tmat43_t<vec3_t> in2; 
   tmat43_t<vec3_t> result; 
 
   v11 = 0i64;
-  _R14 = outOffsets;
-  v14 = recursiveParentSlot;
+  v13 = recursiveParentSlot;
   if ( recursiveParentSlot == -1 )
-    v14 = 0;
-  *outParentSlot = v14;
-  v15 = &dobjModels[v14];
-  if ( (!v15 || !v15->model->numBones) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 136, ASSERT_TYPE_ASSERT, "( parentDobjModel && parentDobjModel->model->numBones > 0 )", "Error: CompositeModel: %s, submodel: %s has a parent with no bones, this will cause strange offsets.", compositeModel->name, submodel->modelName) )
+    v13 = 0;
+  *outParentSlot = v13;
+  v14 = &dobjModels[v13];
+  if ( (!v14 || !v14->model->numBones) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 136, ASSERT_TYPE_ASSERT, "( parentDobjModel && parentDobjModel->model->numBones > 0 )", "Error: CompositeModel: %s, submodel: %s has a parent with no bones, this will cause strange offsets.", compositeModel->name, submodel->modelName) )
     __debugbreak();
   if ( recursiveParentBoneName )
   {
     *outParentBoneName = recursiveParentBoneName;
-    model = v15->model;
-    numBones = v15->model->numBones;
+    model = v14->model;
+    numBones = v14->model->numBones;
     if ( numBones )
     {
-      v18 = numBones;
+      v17 = numBones;
       boneNames = model->boneNames;
       while ( *boneNames != recursiveParentBoneName )
       {
         ++v11;
         ++boneNames;
-        if ( v11 >= v18 )
+        if ( v11 >= v17 )
           goto LABEL_13;
       }
     }
@@ -270,7 +263,7 @@ LABEL_13:
   }
   else
   {
-    *outParentBoneName = *v15->model->boneNames;
+    *outParentBoneName = *v14->model->boneNames;
   }
   if ( recursiveParentSlot == -1 )
   {
@@ -278,23 +271,22 @@ LABEL_13:
     QuatAndOriginToMatrix43(&dobjModels->quat, &dobjModels->offsets, &in);
     QuatAndOriginToMatrix43(recursiveQuat, recursiveOffsets, &in2);
     MatrixInverseOrthogonal43(&in, &out);
-    MatrixMultiply43(&result, &in2, &v27);
+    MatrixMultiply43(&result, &in2, &v25);
     p_out = &out;
-    v21 = &v27;
+    v20 = &v25;
   }
   else
   {
     QuatAndOriginToMatrix43(outQuat, outOffsets, &out);
-    QuatAndOriginToMatrix43(recursiveQuat, recursiveOffsets, &v27);
-    p_out = &v27;
-    v21 = &out;
+    QuatAndOriginToMatrix43(recursiveQuat, recursiveOffsets, &v25);
+    p_out = &v25;
+    v20 = &out;
   }
-  MatrixMultiply43(v21, p_out, &v25);
-  __asm { vmovsd  xmm0, qword ptr [rsp+1B0h+var_160+24h] }
-  v23 = v25.m[3].v[2];
-  __asm { vmovsd  qword ptr [r14], xmm0 }
-  outOffsets->v[2] = v23;
-  AxisToQuat((const tmat33_t<vec3_t> *)&v25, outQuat);
+  MatrixMultiply43(v20, p_out, &v23);
+  v21 = v23.m[3].v[2];
+  *(double *)outOffsets->v = *(double *)v23.row3.v;
+  outOffsets->v[2] = v21;
+  AxisToQuat((const tmat33_t<vec3_t> *)&v23, outQuat);
 }
 
 /*
@@ -375,9 +367,10 @@ char BG_XCompositeModel_GetSubmodelInfo(const XCompositeModelDef *const composit
   __int64 index; 
   const BgXCompositeModelSortInfo *v14; 
   bool v16; 
+  XCompositeSubmodel *v17; 
   XModel *model; 
   __int64 parentSlot; 
-  int v22; 
+  int v20; 
 
   v12 = submodelIndex;
   index = sortInfos[v12].index;
@@ -385,28 +378,22 @@ char BG_XCompositeModel_GetSubmodelInfo(const XCompositeModelDef *const composit
   if ( (_DWORD)index == -1 )
     return 0;
   v16 = &compositeModel->submodels[index] == NULL;
-  _RBX = &compositeModel->submodels[index];
-  *outSubmodel = _RBX;
+  v17 = &compositeModel->submodels[index];
+  *outSubmodel = v17;
   if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 98, ASSERT_TYPE_ASSERT, "( *outSubmodel )", "Error: CompositeModel: %s, submodel at: %d is missing.", compositeModel->name, v14->index) )
     __debugbreak();
-  model = _RBX->model;
+  model = v17->model;
   *outModel = model;
-  if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 101, ASSERT_TYPE_ASSERT, "( *outModel )", "Error: CompositeModel: %s, submodel %s, at: %d is missing a model.", compositeModel->name, _RBX->modelName, v14->index) )
+  if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 101, ASSERT_TYPE_ASSERT, "( *outModel )", "Error: CompositeModel: %s, submodel %s, at: %d is missing a model.", compositeModel->name, v17->modelName, v14->index) )
     __debugbreak();
-  _RCX = outOffsets;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx+8]
-    vmovsd  qword ptr [rcx], xmm0
-  }
-  outOffsets->v[2] = _RBX->translation.v[2];
-  AnglesToQuat(&_RBX->angles, outQuat);
+  *outOffsets = v17->translation;
+  AnglesToQuat(&v17->angles, outQuat);
   parentSlot = v14->parentSlot;
   if ( (_DWORD)parentSlot == -1 )
-    v22 = -1;
+    v20 = -1;
   else
-    v22 = modelStartIndex + remap[parentSlot];
-  *outParentSlot = v22;
+    v20 = modelStartIndex + remap[parentSlot];
+  *outParentSlot = v20;
   return 1;
 }
 
@@ -420,17 +407,10 @@ void BG_XCompositeModel_SetupRootModel(const vec3_t *recursiveOffsets, const vec
   tmat43_t<vec3_t> in2; 
   tmat43_t<vec3_t> result; 
 
-  _RBP = outOffsets;
-  _RSI = outResultMat;
   QuatAndOriginToMatrix43(outQuat, outOffsets, &result);
   QuatAndOriginToMatrix43(recursiveQuat, recursiveOffsets, &in2);
   MatrixMultiply43(&result, &in2, outResultMat);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi+24h]
-    vmovsd  qword ptr [rbp+0], xmm0
-  }
-  _RBP->v[2] = outResultMat->m[3].v[2];
+  *outOffsets = outResultMat->row3;
   AxisToQuat((const tmat33_t<vec3_t> *)outResultMat, outQuat);
   *outParentBoneName = 0;
 }
@@ -449,21 +429,27 @@ void BG_XCompositeModel_SortSubmodels(const XCompositeModelDef *const compositeM
   int parentSubmodelSlot; 
   int v11; 
   __int64 v12; 
-  __int64 v22; 
-  unsigned int v23; 
-  _DWORD v27[8]; 
-  __int64 v28; 
+  double v13; 
+  __m256i v14; 
+  __m256i v15; 
+  __m256i v16; 
+  __int128 v17; 
+  double v18; 
+  __int64 v19; 
+  unsigned int v20; 
+  __m256i v24; 
+  double v25; 
   __m256i Base; 
-  __m256i v30; 
-  __m256i v31; 
-  __int128 v32; 
-  __int64 v33; 
+  __m256i v27; 
+  __m256i v28; 
+  __int128 v29; 
+  double v30; 
 
   submodels = compositeModel->submodels;
   memset_0(&Base, -1, 0x78ui64);
   v7 = 0;
   p_Base = &Base;
-  v23 = 0;
+  v20 = 0;
   v9 = submodels;
   do
   {
@@ -479,14 +465,14 @@ void BG_XCompositeModel_SortSubmodels(const XCompositeModelDef *const compositeM
           v12 = parentSubmodelSlot;
           if ( !submodels[parentSubmodelSlot].model )
           {
-            LODWORD(v22) = parentSubmodelSlot;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 60, ASSERT_TYPE_ASSERT, "( submodels[parent].model != nullptr )", "Error: CompositeModel: %s is trying to parent submodel: %s to slot: %d which is empty.", compositeModel->name, v9->modelName, v22) )
+            LODWORD(v19) = parentSubmodelSlot;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 60, ASSERT_TYPE_ASSERT, "( submodels[parent].model != nullptr )", "Error: CompositeModel: %s is trying to parent submodel: %s to slot: %d which is empty.", compositeModel->name, v9->modelName, v19) )
               __debugbreak();
           }
           parentSubmodelSlot = submodels[v12].parentSubmodelSlot;
         }
         while ( parentSubmodelSlot >= 0 );
-        v7 = v23;
+        v7 = v20;
       }
       p_Base->m256i_i32[2] = v11;
       p_Base->m256i_i32[1] = v7;
@@ -499,58 +485,49 @@ void BG_XCompositeModel_SortSubmodels(const XCompositeModelDef *const compositeM
     ++v7;
     p_Base = (__m256i *)((char *)p_Base + 12);
     ++v9;
-    v23 = v7;
+    v20 = v7;
   }
   while ( v7 < 0xA );
   qsort(&Base, 0xAui64, 0xCui64, (_CoreCrtNonSecureSearchSortCompareFunction)CompareSortInfos);
-  memset(v27, 255, sizeof(v27));
-  v28 = -1i64;
+  memset(&v24, 255, sizeof(v24));
+  v25 = NAN;
   if ( Base.m256i_i32[1] >= 0 )
-    v27[Base.m256i_i32[1]] = 0;
+    v24.m256i_i32[Base.m256i_i32[1]] = 0;
   if ( Base.m256i_i32[4] >= 0 )
-    v27[Base.m256i_i32[4]] = 1;
+    v24.m256i_i32[Base.m256i_i32[4]] = 1;
   if ( Base.m256i_i32[7] >= 0 )
-    v27[Base.m256i_i32[7]] = 2;
-  if ( v30.m256i_i32[2] >= 0 )
-    v27[v30.m256i_i32[2]] = 3;
-  if ( v30.m256i_i32[5] >= 0 )
-    v27[v30.m256i_i32[5]] = 4;
-  if ( v31.m256i_i32[0] >= 0 )
-    v27[v31.m256i_i32[0]] = 5;
-  if ( v31.m256i_i32[3] >= 0 )
-    v27[v31.m256i_i32[3]] = 6;
-  if ( v31.m256i_i32[6] >= 0 )
-    v27[v31.m256i_i32[6]] = 7;
-  if ( (SDWORD1(v32) & 0x80000000) == 0 )
-    v27[SDWORD1(v32)] = 8;
-  if ( (int)v33 >= 0 )
-    v27[(int)v33] = 9;
+    v24.m256i_i32[Base.m256i_i32[7]] = 2;
+  if ( v27.m256i_i32[2] >= 0 )
+    v24.m256i_i32[v27.m256i_i32[2]] = 3;
+  if ( v27.m256i_i32[5] >= 0 )
+    v24.m256i_i32[v27.m256i_i32[5]] = 4;
+  if ( v28.m256i_i32[0] >= 0 )
+    v24.m256i_i32[v28.m256i_i32[0]] = 5;
+  if ( v28.m256i_i32[3] >= 0 )
+    v24.m256i_i32[v28.m256i_i32[3]] = 6;
+  if ( v28.m256i_i32[6] >= 0 )
+    v24.m256i_i32[v28.m256i_i32[6]] = 7;
+  if ( (SDWORD1(v29) & 0x80000000) == 0 )
+    v24.m256i_i32[SDWORD1(v29)] = 8;
+  if ( SLODWORD(v30) >= 0 )
+    v24.m256i_i32[SLODWORD(v30)] = 9;
   if ( remapArraySize != 10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 79, ASSERT_TYPE_ASSERT, "(remapArraySize == ( sizeof( *array_counter( remap ) ) + 0 ))", (const char *)&queryFormat, "remapArraySize == ARRAY_COUNT( remap )") )
     __debugbreak();
   if ( sortInfoSize != 10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_xcompositemodel.cpp", 80, ASSERT_TYPE_ASSERT, "(sortInfoSize == ( sizeof( *array_counter( sortInfos ) ) + 0 ))", (const char *)&queryFormat, "sortInfoSize == ARRAY_COUNT( sortInfos )") )
     __debugbreak();
-  _RAX = outRemapArray;
-  __asm
-  {
-    vmovups ymm0, [rsp+150h+var_F0]
-    vmovsd  xmm1, [rbp+50h+var_D0]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, [rbp+50h+Base]
-    vmovsd  qword ptr [rax+20h], xmm1
-  }
-  _RAX = outSortInfos;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rbp-50h]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, [rbp+50h+var_80]
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups xmm1, xmmword ptr [rbp-10h]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovsd  xmm0, [rbp+50h+var_50]
-    vmovups xmmword ptr [rax+60h], xmm1
-    vmovsd  qword ptr [rax+70h], xmm0
-  }
+  v13 = v25;
+  *(__m256i *)outRemapArray = v24;
+  v14 = Base;
+  *((double *)outRemapArray + 4) = v13;
+  v15 = v27;
+  *(__m256i *)&outSortInfos->parentSlot = v14;
+  v16 = v28;
+  *(__m256i *)&outSortInfos[2].depth = v15;
+  v17 = v29;
+  *(__m256i *)&outSortInfos[5].index = v16;
+  v18 = v30;
+  *(_OWORD *)&outSortInfos[8].parentSlot = v17;
+  *(double *)&outSortInfos[9].index = v18;
 }
 
 /*

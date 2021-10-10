@@ -97,13 +97,16 @@ __int64 LUI_CoD_LuaCall_PlayerData_Cleanup_impl(lua_State *const luaVM)
   signed __int64 v8; 
   __int64 v9; 
   unsigned __int64 m_size; 
+  unsigned __int64 v11; 
   char *v12; 
   bool v13; 
-  unsigned int v20; 
+  unsigned __int64 v14; 
+  __int128 v15; 
+  unsigned int v17; 
 
   v1 = 0;
   p_bindings = &s_bindings[0].bindings;
-  v20 = 0;
+  v17 = 0;
   do
   {
     if ( *(_QWORD *)&p_bindings[-1].m_keyAccessor.ntl::unary_function<ntl::pair<int,DDLToModelBinding>,int> )
@@ -138,50 +141,44 @@ __int64 LUI_CoD_LuaCall_PlayerData_Cleanup_impl(lua_State *const luaVM)
             v3 = (unsigned __int64)p_bindings;
             if ( m_size )
               v3 = (unsigned __int64)p_bindings + 112 * (v8 / 112);
-            _RBX = v3 + 112;
+            v11 = v3 + 112;
             v12 = &p_bindings->m_data.m_buffer[112 * m_size];
             if ( v3 + 112 == v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
               __debugbreak();
             if ( v12 == (char *)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
               __debugbreak();
-            v13 = _RBX < (unsigned __int64)v12;
-            if ( _RBX > (unsigned __int64)v12 )
+            v13 = v11 < (unsigned __int64)v12;
+            if ( v11 > (unsigned __int64)v12 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v13 = _RBX < (unsigned __int64)v12;
+              v13 = v11 < (unsigned __int64)v12;
             }
             if ( v13 )
             {
-              _RAX = v3;
+              v14 = v3;
               do
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbx]
-                  vmovups ymmword ptr [rax], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+20h]
-                  vmovups ymmword ptr [rax+20h], ymm1
-                  vmovups ymm0, ymmword ptr [rbx+40h]
-                  vmovups ymmword ptr [rax+40h], ymm0
-                  vmovups xmm1, xmmword ptr [rbx+60h]
-                }
-                _RBX += 112i64;
-                __asm { vmovups xmmword ptr [rax+60h], xmm1 }
-                _RAX += 112i64;
+                *(__m256i *)v14 = *(__m256i *)v11;
+                *(__m256i *)(v14 + 32) = *(__m256i *)(v11 + 32);
+                *(__m256i *)(v14 + 64) = *(__m256i *)(v11 + 64);
+                v15 = *(_OWORD *)(v11 + 96);
+                v11 += 112i64;
+                *(_OWORD *)(v14 + 96) = v15;
+                v14 += 112i64;
               }
-              while ( _RBX < (unsigned __int64)v12 );
+              while ( v11 < (unsigned __int64)v12 );
             }
             --p_bindings->m_size;
           }
         }
         while ( (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)v3 != (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)p_bindings + 112 * p_bindings->m_size) );
-        v1 = v20;
+        v1 = v17;
       }
     }
     ++v1;
     p_bindings = (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)p_bindings + 35864);
-    v20 = v1;
+    v17 = v1;
   }
   while ( v1 < 0x38 );
   return 0i64;
@@ -352,8 +349,11 @@ void LUI_CoD_PlayerData_CleanupBindingMap(ntl::fixed_vector_map<int,DDLToModelBi
   signed __int64 v7; 
   __int64 v8; 
   unsigned __int64 m_size; 
+  char *v10; 
   ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *v11; 
   bool v12; 
+  ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *v13; 
+  __int128 v14; 
 
   v2 = currentBindingMap;
   while ( v2 != (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)currentBindingMap + 112 * currentBindingMap->m_size) )
@@ -383,39 +383,33 @@ void LUI_CoD_PlayerData_CleanupBindingMap(ntl::fixed_vector_map<int,DDLToModelBi
       v2 = currentBindingMap;
       if ( m_size )
         v2 = (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)currentBindingMap + 112 * (v7 / 112));
-      _RBX = &v2->m_data.m_buffer[112];
+      v10 = &v2->m_data.m_buffer[112];
       v11 = (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)currentBindingMap + 112 * m_size);
       if ( &v2->m_data.m_buffer[112] == (char *)v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
         __debugbreak();
       if ( v11 == v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
         __debugbreak();
-      v12 = _RBX < (char *)v11;
-      if ( _RBX > (char *)v11 )
+      v12 = v10 < (char *)v11;
+      if ( v10 > (char *)v11 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
           __debugbreak();
-        v12 = _RBX < (char *)v11;
+        v12 = v10 < (char *)v11;
       }
       if ( v12 )
       {
-        _RAX = v2;
+        v13 = v2;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rax], ymm0
-            vmovups ymm1, ymmword ptr [rbx+20h]
-            vmovups ymmword ptr [rax+20h], ymm1
-            vmovups ymm0, ymmword ptr [rbx+40h]
-            vmovups ymmword ptr [rax+40h], ymm0
-            vmovups xmm1, xmmword ptr [rbx+60h]
-          }
-          _RBX += 112;
-          __asm { vmovups xmmword ptr [rax+60h], xmm1 }
-          _RAX = (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)_RAX + 112);
+          *(__m256i *)v13->m_data.m_buffer = *(__m256i *)v10;
+          *(__m256i *)&v13->m_data.m_buffer[32] = *((__m256i *)v10 + 1);
+          *(__m256i *)&v13->m_data.m_buffer[64] = *((__m256i *)v10 + 2);
+          v14 = *((_OWORD *)v10 + 6);
+          v10 += 112;
+          *(_OWORD *)&v13->m_data.m_buffer[96] = v14;
+          v13 = (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)v13 + 112);
         }
-        while ( _RBX < (char *)v11 );
+        while ( v10 < (char *)v11 );
       }
       --currentBindingMap->m_size;
     }
@@ -430,10 +424,9 @@ LUI_CoD_PlayerData_PushToDataModel
 char LUI_CoD_PlayerData_PushToDataModel(unsigned __int16 model, const DDLContext *context, const DDLState *state, int controllerIndex)
 {
   DDLValue Value; 
-  int v8; 
+  int intValue; 
   const char *v9; 
   const char *EnumString; 
-  int intValue; 
 
   if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_playerdata.cpp", 67, ASSERT_TYPE_ASSERT, "(model != 0)", (const char *)&queryFormat, "model != INVALID_LUI_MODEL") )
     __debugbreak();
@@ -446,20 +439,19 @@ char LUI_CoD_PlayerData_PushToDataModel(unsigned __int16 model, const DDLContext
   if ( state->member->type == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_playerdata.cpp", 71, ASSERT_TYPE_ASSERT, "(state->member->type != DDL_INVALID_TYPE)", (const char *)&queryFormat, "state->member->type != DDL_INVALID_TYPE") )
     __debugbreak();
   Value = DDL_GetValue(state, context);
-  intValue = Value.intValue;
   switch ( state->member->type )
   {
     case 0:
     case 1:
     case 3:
-      v8 = Value.intValue;
+      intValue = Value.intValue;
       goto LABEL_18;
     case 2:
-      v8 = Value.intValue;
+      intValue = Value.intValue;
       if ( Value.intValue <= 0x7FFFFFFFu )
       {
 LABEL_18:
-        LUI_Model_SetInt(model, v8);
+        LUI_Model_SetInt(model, intValue);
       }
       else
       {
@@ -474,8 +466,7 @@ $LN36_58:
       return 1;
     case 6:
     case 7:
-      __asm { vmovss  xmm1, dword ptr [rsp+38h+arg_8]; jumptable 00000001425A9BA5 cases 6,7 }
-      LUI_Model_SetReal(model, *(float *)&_XMM1);
+      LUI_Model_SetReal(model, Value.fixedPointValue);
       return 1;
     case 8:
       goto $LN36_58;
@@ -505,13 +496,19 @@ void LUI_CoD_PlayerData_RegisterCallback(DDLContext *context, DDLState *state, c
   unsigned int v14; 
   ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *p_bindings; 
   __int64 m_size; 
+  unsigned __int64 v17; 
   __int64 v18; 
   __int64 v19; 
   __int64 v20; 
+  unsigned __int64 v21; 
+  unsigned __int64 v22; 
   bool v23; 
+  __m256i v24; 
+  __m256i v25; 
   DDLState toState; 
   char dest[32]; 
-  __int128 v35; 
+  __m256i v28; 
+  __int128 v29; 
 
   if ( !DDL_StateIsLeaf(state) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_playerdata.cpp", 175, ASSERT_TYPE_ASSERT, "(DDL_StateIsLeaf( state ))", (const char *)&queryFormat, "DDL_StateIsLeaf( state )") )
     __debugbreak();
@@ -527,7 +524,7 @@ void LUI_CoD_PlayerData_RegisterCallback(DDLContext *context, DDLState *state, c
   *(_QWORD *)dest = 0i64;
   *(_DWORD *)&toState.isValid = state->offset + def->headerBitSize;
   DDL_StateCopy(state, (DDLState *)&toState.arrayIndex);
-  DWORD2(v35) = controllerIndex;
+  DWORD2(v29) = controllerIndex;
   Core_strcpy(&dest[8], 0x40ui64, targetModelName);
   buff = (unsigned __int8 *)context->buff;
   v13 = s_bindings;
@@ -548,80 +545,68 @@ LABEL_12:
   if ( v11->bindings.m_size >= 0x140 )
     LUI_CoD_PlayerData_CleanupBindingMap(&v11->bindings);
   m_size = v11->bindings.m_size;
-  _RSI = &v11->bindings;
+  v17 = (unsigned __int64)&v11->bindings;
   v18 = m_size;
   while ( m_size > 0 )
   {
     v19 = 112 * (m_size >> 1);
-    if ( *(_DWORD *)&_RSI->m_data.m_buffer[v19] >= *(int *)&toState.isValid )
+    if ( *(_DWORD *)(v19 + v17) >= *(int *)&toState.isValid )
     {
       m_size >>= 1;
     }
     else
     {
-      _RSI = (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)_RSI + v19 + 112);
+      v17 += v19 + 112;
       m_size += -1 - (m_size >> 1);
     }
   }
-  if ( _RSI == (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)p_bindings + 112 * v18) || *(int *)&toState.isValid < *(_DWORD *)_RSI->m_data.m_buffer )
+  if ( (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)v17 == (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)p_bindings + 112 * v18) || *(int *)&toState.isValid < *(_DWORD *)v17 )
   {
     if ( 320 == v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
       __debugbreak();
-    if ( (_RSI < p_bindings || _RSI > (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)((char *)&v11->bindings + 112 * v11->bindings.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+    if ( (v17 < (unsigned __int64)p_bindings || v17 > (unsigned __int64)&v11->bindings + 112 * v11->bindings.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
       __debugbreak();
-    v20 = ((unsigned __int64)((char *)_RSI - (char *)p_bindings) * (unsigned __int128)0x2492492492492493ui64) >> 64;
-    if ( (char *)_RSI - (char *)p_bindings != 112 * ((v20 + ((unsigned __int64)((char *)_RSI - (char *)p_bindings - v20) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+    v20 = ((v17 - (unsigned __int64)p_bindings) * (unsigned __int128)0x2492492492492493ui64) >> 64;
+    if ( v17 - (_QWORD)p_bindings != 112 * ((v20 + ((v17 - (unsigned __int64)p_bindings - v20) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
       __debugbreak();
-    if ( &toState >= (DDLState *)_RSI && &toState < (DDLState *)((char *)&v11->bindings + 112 * v11->bindings.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+    if ( (unsigned __int64)&toState >= v17 && &toState < (DDLState *)((char *)&v11->bindings + 112 * v11->bindings.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
       __debugbreak();
-    _RBX = (unsigned __int64)&v11->bindings + 112 * v11->bindings.m_size;
-    if ( _RSI != (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)_RBX )
+    v21 = (unsigned __int64)&v11->bindings + 112 * v11->bindings.m_size;
+    if ( v17 != v21 )
     {
-      _RDI = _RBX + 112;
-      if ( _RSI == (ntl::fixed_vector_map<int,DDLToModelBinding,320,ntl::less<int,int> > *)(_RBX + 112) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+      v22 = v21 + 112;
+      if ( v17 == v21 + 112 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
         __debugbreak();
-      if ( _RBX == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+      if ( v21 == v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
         __debugbreak();
-      v23 = _RBX <= (unsigned __int64)_RSI;
-      if ( _RBX < (unsigned __int64)_RSI )
+      v23 = v21 <= v17;
+      if ( v21 < v17 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
           __debugbreak();
-        v23 = _RBX <= (unsigned __int64)_RSI;
+        v23 = v21 <= v17;
       }
       if ( !v23 )
       {
         do
         {
-          __asm { vmovups ymm0, ymmword ptr [rbx-70h] }
-          _RBX -= 112i64;
-          _RDI -= 112i64;
-          __asm
-          {
-            vmovups ymmword ptr [rdi], ymm0
-            vmovups ymm1, ymmword ptr [rbx+20h]
-            vmovups ymmword ptr [rdi+20h], ymm1
-            vmovups ymm0, ymmword ptr [rbx+40h]
-            vmovups ymmword ptr [rdi+40h], ymm0
-            vmovups xmm1, xmmword ptr [rbx+60h]
-            vmovups xmmword ptr [rdi+60h], xmm1
-          }
+          v24 = *(__m256i *)(v21 - 112);
+          v21 -= 112i64;
+          v22 -= 112i64;
+          *(__m256i *)v22 = v24;
+          *(__m256i *)(v22 + 32) = *(__m256i *)(v21 + 32);
+          *(__m256i *)(v22 + 64) = *(__m256i *)(v21 + 64);
+          *(_OWORD *)(v22 + 96) = *(_OWORD *)(v21 + 96);
         }
-        while ( _RBX > (unsigned __int64)_RSI );
+        while ( v21 > v17 );
       }
     }
-    __asm { vmovups ymm0, ymmword ptr [rsp+0E8h+toState.isValid] }
+    v25 = (__m256i)toState;
     ++p_bindings->m_size;
-    __asm
-    {
-      vmovups ymmword ptr [rsi], ymm0
-      vmovups ymm1, ymmword ptr [rsp+0E8h+dest]
-      vmovups ymmword ptr [rsi+20h], ymm1
-      vmovups ymm0, [rsp+0E8h+var_78]
-      vmovups ymmword ptr [rsi+40h], ymm0
-      vmovups xmm1, xmmword ptr [rsp+90h]
-      vmovups xmmword ptr [rsi+60h], xmm1
-    }
+    *(__m256i *)v17 = v25;
+    *(__m256i *)(v17 + 32) = *(__m256i *)dest;
+    *(__m256i *)(v17 + 64) = v28;
+    *(_OWORD *)(v17 + 96) = v29;
   }
 }
 

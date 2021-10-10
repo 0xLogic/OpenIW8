@@ -58,15 +58,10 @@ bdGetHostByNameConfig::sanityCheckConfig
 */
 void bdGetHostByNameConfig::sanityCheckConfig(bdGetHostByNameConfig *this)
 {
-  double v3; 
+  float m_timeout; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vcomiss xmm0, cs:__real@42200000
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm0
-  }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "getHostByNameConfig", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdgethostbyname\\bdgethostbynameconfig.cpp", "bdGetHostByNameConfig::sanityCheckConfig", 0x2Bu, "Lookup timeout set to %f seconds. This is outside the normal recommended range", v3);
+  m_timeout = this->m_timeout;
+  if ( this->m_timeout > 40.0 || m_timeout < 1.0 )
+    bdLogMessage(BD_LOG_WARNING, "warn/", "getHostByNameConfig", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdgethostbyname\\bdgethostbynameconfig.cpp", "bdGetHostByNameConfig::sanityCheckConfig", 0x2Bu, "Lookup timeout set to %f seconds. This is outside the normal recommended range", m_timeout);
 }
 

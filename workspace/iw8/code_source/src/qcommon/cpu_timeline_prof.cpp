@@ -695,6 +695,7 @@ void __fastcall CPUTimelineProfiler::Init(CPUTimelineProfiler *this, const char 
   const int *v5; 
   int v12; 
   const int *v13; 
+  int v16; 
   int v17; 
   int v18; 
   __int64 v19; 
@@ -741,8 +742,8 @@ void __fastcall CPUTimelineProfiler::Init(CPUTimelineProfiler *this, const char 
   {
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   ebx, xmm0
   }
+  v16 = _XMM0;
   v17 = 0;
   v18 = 0;
   v19 = 24i64;
@@ -756,11 +757,11 @@ void __fastcall CPUTimelineProfiler::Init(CPUTimelineProfiler *this, const char 
   while ( v19 < 27 );
   if ( v19 < 28 )
   {
-    _EBX += s_numSamplesPerThread[v19];
+    v16 = s_numSamplesPerThread[v19] + _XMM0;
     v20 = 928;
   }
   this->m_frameWritePtr = 0;
-  v21 = v17 + v18 + _EBX;
+  v21 = v17 + v18 + v16;
   this->m_frameReadPtr = 0;
   v22 = Mem_Paged_GetDevMemorySize() >= 0x30000000;
   if ( cmdLine && I_stristr(cmdLine, "useCpuProfiler") || v22 )

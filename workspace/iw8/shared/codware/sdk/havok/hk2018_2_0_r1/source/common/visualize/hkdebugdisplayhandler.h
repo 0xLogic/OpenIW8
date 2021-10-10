@@ -401,14 +401,7 @@ hkDebugDisplayHandler::display2Points
 */
 unsigned __int64 hkDebugDisplayHandler::display2Points(hkDebugDisplayHandler *this, unsigned __int64 id, const hkVector4f *a, const hkVector4f *b, __int64 color, int tag, int a7)
 {
-  int v11; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+58h+var_20], xmm0
-  }
-  ((void (__fastcall *)(hkDebugDisplayHandler *, unsigned __int64, const hkVector4f *, const hkVector4f *, __int64, int, _DWORD, int, int))this->display2PointsEx)(this, id, a, b, color, tag, 0, v11, a7);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, unsigned __int64, const hkVector4f *, const hkVector4f *, __int64, int, _DWORD, _DWORD, int))this->display2PointsEx)(this, id, a, b, color, tag, 0, 0, a7);
   return id;
 }
 
@@ -485,14 +478,7 @@ hkDebugDisplayHandler::displayPoint
 */
 unsigned __int64 hkDebugDisplayHandler::displayPoint(hkDebugDisplayHandler *this, unsigned __int64 id, const hkVector4f *a, __int64 color, int tag, int a6)
 {
-  int v10; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  ((void (__fastcall *)(hkDebugDisplayHandler *, unsigned __int64, const hkVector4f *, __int64, int, _DWORD, int, int))this->displayPointEx)(this, id, a, color, tag, 0, v10, a6);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, unsigned __int64, const hkVector4f *, __int64, int, _DWORD, _DWORD, int))this->displayPointEx)(this, id, a, color, tag, 0, 0, a6);
   return id;
 }
 

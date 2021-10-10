@@ -776,91 +776,86 @@ ScriptableCl_SetState
 */
 void ScriptableCl_SetState(ScriptableEventParams *eventParams, unsigned int newState)
 {
-  __int64 v3; 
-  LocalClientNum_t v5; 
+  __int64 v2; 
+  LocalClientNum_t v4; 
   unsigned int scriptableIndex; 
-  __int64 v7; 
+  __int64 v6; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  int v9; 
-  const char *v10; 
+  int v8; 
+  const char *v9; 
   ScriptablePartRuntime *PartRuntime; 
   const ScriptablePartDef *partDef; 
-  __int64 v13; 
+  __int64 v12; 
+  __int64 eventStreamBufferOffsetClient; 
   const ScriptableDef *def; 
   unsigned int LinkObject; 
   cg_t *LocalClientGlobals; 
   ScriptableLinkType LinkType; 
-  Scriptable_Analytics_Zone v22; 
+  Scriptable_Analytics_Zone v18; 
 
-  v3 = newState;
+  v2 = newState;
   if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4746, ASSERT_TYPE_ASSERT, "(eventParams)", (const char *)&queryFormat, "eventParams") )
     __debugbreak();
   if ( !eventParams->partDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4747, ASSERT_TYPE_ASSERT, "(eventParams->partDef)", (const char *)&queryFormat, "eventParams->partDef") )
     __debugbreak();
-  v5 = ScriptableCl_ContextToLocalClient((const ScriptableContext)eventParams->context);
+  v4 = ScriptableCl_ContextToLocalClient((const ScriptableContext)eventParams->context);
   scriptableIndex = eventParams->scriptableIndex;
-  v7 = v5;
-  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(v5, scriptableIndex);
-  if ( (unsigned int)v3 >= eventParams->partDef->numStates )
+  v6 = v4;
+  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(v4, scriptableIndex);
+  if ( (unsigned int)v2 >= eventParams->partDef->numStates )
   {
-    v9 = ScriptableCl_GetLinkType((const LocalClientNum_t)v7, scriptableIndex) == SCRIPTABLE_LINK_ENTITY ? ScriptableCl_GetEntity((const LocalClientNum_t)v7, scriptableIndex)->nextState.eType : -1;
-    v10 = InstanceCommonContext->def ? InstanceCommonContext->def->name : "Unknown";
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4753, ASSERT_TYPE_ASSERT, "(newState >= 0 && newState < eventParams->partDef->numStates)", "%s\n\tnewState is %i and the range is 0..%i.  Def is %s.  EType is %i.\n", "newState >= 0 && newState < eventParams->partDef->numStates", v3, eventParams->partDef->numStates, v10, v9) )
+    v8 = ScriptableCl_GetLinkType((const LocalClientNum_t)v6, scriptableIndex) == SCRIPTABLE_LINK_ENTITY ? ScriptableCl_GetEntity((const LocalClientNum_t)v6, scriptableIndex)->nextState.eType : -1;
+    v9 = InstanceCommonContext->def ? InstanceCommonContext->def->name : "Unknown";
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4753, ASSERT_TYPE_ASSERT, "(newState >= 0 && newState < eventParams->partDef->numStates)", "%s\n\tnewState is %i and the range is 0..%i.  Def is %s.  EType is %i.\n", "newState >= 0 && newState < eventParams->partDef->numStates", v2, eventParams->partDef->numStates, v9, v8) )
       __debugbreak();
   }
-  PartRuntime = ScriptableCl_GetPartRuntime((const LocalClientNum_t)v7, scriptableIndex, eventParams->partDef);
+  PartRuntime = ScriptableCl_GetPartRuntime((const LocalClientNum_t)v6, scriptableIndex, eventParams->partDef);
   if ( !PartRuntime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4757, ASSERT_TYPE_ASSERT, "(partRuntime)", (const char *)&queryFormat, "partRuntime") )
     __debugbreak();
-  PartRuntime->stateId = truncate_cast<unsigned short,unsigned int>(v3);
+  PartRuntime->stateId = truncate_cast<unsigned short,unsigned int>(v2);
   partDef = eventParams->partDef;
-  v13 = (__int64)&partDef->states[v3];
-  if ( (*(_DWORD *)(v13 + 8) & 0x80) != 0 )
+  v12 = (__int64)&partDef->states[v2];
+  if ( (*(_DWORD *)(v12 + 8) & 0x80) != 0 )
   {
-    if ( *(_DWORD *)(v13 + 24) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4767, ASSERT_TYPE_ASSERT, "(stateDef->type == Scriptable_StateType_Health)", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
+    if ( *(_DWORD *)(v12 + 24) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4767, ASSERT_TYPE_ASSERT, "(stateDef->type == Scriptable_StateType_Health)", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
       __debugbreak();
-    _R14 = eventParams->partDef->eventStreamBufferOffsetClient;
-    if ( _R14 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4771, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+    eventStreamBufferOffsetClient = eventParams->partDef->eventStreamBufferOffsetClient;
+    if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4771, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
-    _RAX = InstanceCommonContext->eventStreamBuffer;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbp+28h]
-      vmovss  dword ptr [r14+rax], xmm0
-    }
+    *(float *)&InstanceCommonContext->eventStreamBuffer[eventStreamBufferOffsetClient] = (float)*(int *)(v12 + 40);
     partDef = eventParams->partDef;
   }
-  if ( (partDef->flags & 0x200) != 0 && ScriptableCl_IsLinked((const LocalClientNum_t)v7, scriptableIndex) )
+  if ( (partDef->flags & 0x200) != 0 && ScriptableCl_IsLinked((const LocalClientNum_t)v6, scriptableIndex) )
   {
-    def = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v7, scriptableIndex)->def;
+    def = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v6, scriptableIndex)->def;
     if ( !ScriptableDef_HasServerInstance(def) || ScriptableDef_IsStandaloneRequested(def) )
     {
-      ScriptableCl_RefreshNonEntityPerFrameUpdateList((const LocalClientNum_t)v7, scriptableIndex, def, (const ScriptableStateDef *)v13);
+      ScriptableCl_RefreshNonEntityPerFrameUpdateList((const LocalClientNum_t)v6, scriptableIndex, def, (const ScriptableStateDef *)v12);
     }
-    else if ( ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v7, scriptableIndex, SCRIPTABLE_LINK_ENTITY) )
+    else if ( ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v6, scriptableIndex, SCRIPTABLE_LINK_ENTITY) )
     {
-      LinkObject = ScriptableCl_GetLinkObject((const LocalClientNum_t)v7, scriptableIndex);
-      if ( (*(_DWORD *)(v13 + 8) & 0x200) != 0 )
-        ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_updateNeededEntitiesBits[v7], LinkObject, 1);
+      LinkObject = ScriptableCl_GetLinkObject((const LocalClientNum_t)v6, scriptableIndex);
+      if ( (*(_DWORD *)(v12 + 8) & 0x200) != 0 )
+        ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_updateNeededEntitiesBits[v6], LinkObject, 1);
     }
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
-  ScriptableBg_DebugTrackStateChange(0, scriptableIndex, eventParams->partDef->flatId, v3, LocalClientGlobals->time);
-  LinkType = ScriptableCl_GetLinkType((const LocalClientNum_t)v7, scriptableIndex);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
+  ScriptableBg_DebugTrackStateChange(0, scriptableIndex, eventParams->partDef->flatId, v2, LocalClientGlobals->time);
+  LinkType = ScriptableCl_GetLinkType((const LocalClientNum_t)v6, scriptableIndex);
   if ( LinkType == SCRIPTABLE_LINK_ENTITY )
   {
     ScriptableCommon_AssertCountsInitialized();
-    v22 = Scriptable_Analytics_Zone_SC_Clipmap_C;
+    v18 = Scriptable_Analytics_Zone_SC_Clipmap_C;
     if ( scriptableIndex < g_scriptableWorldCounts.runtimeInstanceCount )
-      v22 = Scriptable_Analytics_Zone_SC_Reserved_C;
+      v18 = Scriptable_Analytics_Zone_SC_Reserved_C;
   }
   else
   {
     if ( LinkType != SCRIPTABLE_LINK_DYNENT )
       return;
-    v22 = Scriptable_Analytics_Zone_C_Clipmap;
+    v18 = Scriptable_Analytics_Zone_C_Clipmap;
   }
-  Scriptable_Analytics_AddStateChangeCount(v22, 1);
+  Scriptable_Analytics_AddStateChangeCount(v18, 1);
 }
 
 /*
@@ -979,19 +974,15 @@ void ScriptableInstanceContextSecure::GetOrigin(ScriptableInstanceContextSecure 
   float v8; 
   unsigned int v9; 
   unsigned int v10; 
-  int v14; 
-  int v15; 
-  int v16; 
-  __int64 v17; 
+  __int64 v11; 
 
-  _RSI = outOrigin;
   ScriptableCommon_AssertCountsInitialized();
   p_origin = &this->origin;
   if ( scriptableIndex >= g_scriptableWorldCounts.runtimeInstanceCount )
   {
-    _RSI->v[0] = p_origin->v[0];
-    _RSI->v[1] = this->origin.v[1];
-    _RSI->v[2] = this->origin.v[2];
+    outOrigin->v[0] = p_origin->v[0];
+    outOrigin->v[1] = this->origin.v[1];
+    outOrigin->v[2] = this->origin.v[2];
   }
   else
   {
@@ -999,35 +990,12 @@ void ScriptableInstanceContextSecure::GetOrigin(ScriptableInstanceContextSecure 
     v8 = p_origin->v[0];
     v9 = s_scriptable_aab_Y;
     v10 = s_scriptable_aab_X;
-    LODWORD(_RSI->v[2]) = LODWORD(v7) ^ s_scriptable_aab_Z ^ (unsigned int)p_origin ^ LODWORD(p_origin->v[2]);
-    LODWORD(_RSI->v[1]) = v9 ^ LODWORD(v8) ^ LODWORD(v7) ^ (unsigned int)p_origin;
-    memset(&v17, 0, sizeof(v17));
-    LODWORD(_RSI->v[0]) = LODWORD(v8) ^ (unsigned int)p_origin ^ ~v10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  [rsp+38h+arg_8], xmm0
-    }
-    if ( (v14 & 0x7F800000) == 2139095040 )
-      goto LABEL_10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  [rsp+38h+arg_8], xmm0
-    }
-    if ( (v15 & 0x7F800000) == 2139095040 )
-      goto LABEL_10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  [rsp+38h+arg_8], xmm0
-    }
-    if ( (v16 & 0x7F800000) == 2139095040 )
-    {
-LABEL_10:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-        __debugbreak();
-    }
+    LODWORD(outOrigin->v[2]) = LODWORD(v7) ^ s_scriptable_aab_Z ^ (unsigned int)p_origin ^ LODWORD(p_origin->v[2]);
+    LODWORD(outOrigin->v[1]) = v9 ^ LODWORD(v8) ^ LODWORD(v7) ^ (unsigned int)p_origin;
+    memset(&v11, 0, sizeof(v11));
+    LODWORD(outOrigin->v[0]) = LODWORD(v8) ^ (unsigned int)p_origin ^ ~v10;
+    if ( ((LODWORD(outOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+      __debugbreak();
   }
 }
 
@@ -1183,60 +1151,47 @@ ScriptableCL_ModifiedSnapshotInstance
 void ScriptableCL_ModifiedSnapshotInstance(const LocalClientNum_t localClientNum, const ScriptableReplicatedInstance *instance)
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  unsigned int v23; 
+  signed __int64 m_data; 
+  float v6; 
+  float v7; 
+  float v8; 
+  unsigned int v9; 
   const centity_t *Entity; 
   __int64 instanceIndex; 
-  const dvar_t *v26; 
+  const dvar_t *v12; 
   ScriptableStandaloneParentData *StandaloneEntityParentData; 
   unsigned __int16 extraPayload; 
   unsigned __int16 payload; 
-  unsigned int v30; 
-  ScriptableInstanceContextSecure *v31; 
+  unsigned int v16; 
+  ScriptableInstanceContextSecure *v17; 
   vec3_t *outWorldOrigin; 
   vec3_t *outWorldAngles; 
-  int v34; 
-  int v35; 
   vec3_t origin; 
-  __int64 v37; 
+  __int64 v21; 
   vec3_t angles; 
 
-  v37 = -2i64;
+  v21 = -2i64;
   if ( !instance->replicatedType[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3876, ASSERT_TYPE_ASSERT, "(instance.replicatedType != ScriptableReplicatedType::ENTITY)", (const char *)&queryFormat, "instance.replicatedType != ScriptableReplicatedType::ENTITY") )
     __debugbreak();
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, instance->instanceIndex);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  dword ptr [rsp+0A8h+origin], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  dword ptr [rsp+0A8h+origin+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmovss  dword ptr [rsp+0A8h+origin+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  xmm2, cs:__real@3bb40000
-    vmulss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rsp+0A8h+angles], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rsp+0A8h+angles+4], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rsp+0A8h+angles+8], xmm0
-  }
+  m_data = instance->origin.m_data;
+  v6 = (float)(m_data << 42 >> 42);
+  origin.v[0] = v6;
+  v7 = (float)(m_data << 20 >> 42);
+  origin.v[1] = v7;
+  v8 = (float)(m_data >> 44);
+  origin.v[2] = v8;
+  angles.v[0] = (float)instance->angles.m_pitch * 0.0054931641;
+  angles.v[1] = (float)instance->angles.m_yaw * 0.0054931641;
+  angles.v[2] = (float)instance->angles.m_roll * 0.0054931641;
   if ( instance->parent.m_data )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3887, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::SCRIPTABLE_PARENT_ENTITIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::SCRIPTABLE_PARENT_ENTITIES )") )
       __debugbreak();
     if ( !instance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 323, ASSERT_TYPE_ASSERT, "(HasEntity())", (const char *)&queryFormat, "HasEntity()") )
       __debugbreak();
-    v23 = (unsigned __int16)(instance->parent.m_data - 1);
-    Entity = CG_GetEntity(localClientNum, v23);
+    v9 = (unsigned __int16)(instance->parent.m_data - 1);
+    Entity = CG_GetEntity(localClientNum, v9);
     ScriptableCl_SetInitialOriginAndAngles(localClientNum, instance->instanceIndex, &origin, &angles);
     ScriptableCl_ConvertStandaloneParentEntityPoseToWorldSpace(localClientNum, instance->instanceIndex, Entity, &origin, &angles, &origin, &angles);
     if ( (*((_BYTE *)InstanceCommonContext + 60) & 0x20) != 0 )
@@ -1253,11 +1208,11 @@ void ScriptableCL_ModifiedSnapshotInstance(const LocalClientNum_t localClientNum
       }
       if ( !ScriptableCl_IsStandaloneServerInstance(localClientNum, instanceIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3546, ASSERT_TYPE_ASSERT, "(ScriptableCl_IsStandaloneServerInstance( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_IsStandaloneServerInstance( localClientNum, scriptableIndex )") )
         __debugbreak();
-      v26 = DVARBOOL_scriptable_entity_parenting;
+      v12 = DVARBOOL_scriptable_entity_parenting;
       if ( !DVARBOOL_scriptable_entity_parenting && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_entity_parenting") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v26);
-      if ( v26->current.enabled )
+      Dvar_CheckFrontendServerThread(v12);
+      if ( v12->current.enabled )
       {
         StandaloneEntityParentData = ScriptableCl_GetStandaloneEntityParentData(localClientNum);
         if ( (unsigned int)instanceIndex >= 0x800 )
@@ -1267,23 +1222,18 @@ void ScriptableCL_ModifiedSnapshotInstance(const LocalClientNum_t localClientNum
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3556, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ( sizeof( *array_counter( parentData.m_parentEntity ) ) + 0 ) )", "scriptableIndex doesn't index parentData.m_parentEntity\n\t%i not in [0, %i)", outWorldOrigin, outWorldAngles) )
             __debugbreak();
         }
-        if ( StandaloneEntityParentData->m_parentEntity[instanceIndex] == 0xFFFF )
-        {
-          v35 = 0xFFFF;
-          v34 = 0xFFFF;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3557, ASSERT_TYPE_ASSERT, "( parentData.m_parentEntity[scriptableIndex] ) != ( 0xffff )", "%s != %s\n\t%i, %i", "parentData.m_parentEntity[scriptableIndex]", "USHRT_MAX", v34, v35) )
-            __debugbreak();
-        }
-        if ( StandaloneEntityParentData->m_parentEntity[instanceIndex] != v23 )
+        if ( StandaloneEntityParentData->m_parentEntity[instanceIndex] == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3557, ASSERT_TYPE_ASSERT, "( parentData.m_parentEntity[scriptableIndex] ) != ( 0xffff )", "%s != %s\n\t%i, %i", "parentData.m_parentEntity[scriptableIndex]", "USHRT_MAX", 0xFFFF, 0xFFFF) )
+          __debugbreak();
+        if ( StandaloneEntityParentData->m_parentEntity[instanceIndex] != v9 )
         {
           ScriptableCl_ClearStandaloneEntityParentUpdate(localClientNum, instanceIndex);
-          ScriptableCl_MarkStandaloneEntityParentUpdate(localClientNum, instanceIndex, v23);
+          ScriptableCl_MarkStandaloneEntityParentUpdate(localClientNum, instanceIndex, v9);
         }
       }
     }
     else
     {
-      ScriptableCl_MarkStandaloneEntityParentUpdate(localClientNum, instance->instanceIndex, v23);
+      ScriptableCl_MarkStandaloneEntityParentUpdate(localClientNum, instance->instanceIndex, v9);
       *((_BYTE *)InstanceCommonContext + 60) |= 0x20u;
     }
   }
@@ -1296,14 +1246,14 @@ void ScriptableCL_ModifiedSnapshotInstance(const LocalClientNum_t localClientNum
   ScriptableCl_SetOriginAndAngles(localClientNum, instance->instanceIndex, &origin, &angles);
   extraPayload = instance->extraPayload;
   payload = instance->payload;
-  v30 = instance->instanceIndex;
-  v31 = ScriptableCl_GetInstanceCommonContext(localClientNum, instance->instanceIndex);
-  if ( v31->payload != payload || v31->extraPayload != extraPayload )
+  v16 = instance->instanceIndex;
+  v17 = ScriptableCl_GetInstanceCommonContext(localClientNum, instance->instanceIndex);
+  if ( v17->payload != payload || v17->extraPayload != extraPayload )
   {
-    v31->payload = payload;
-    v31->extraPayload = extraPayload;
-    if ( ScriptableCl_GetInstanceInUse(localClientNum, v30) && ScriptableCl_GetLinkType(localClientNum, v30) == SCRIPTABLE_LINK_CLIENTMODEL )
-      ScriptableCl_SetClientModelInstanceModels(localClientNum, v30);
+    v17->payload = payload;
+    v17->extraPayload = extraPayload;
+    if ( ScriptableCl_GetInstanceInUse(localClientNum, v16) && ScriptableCl_GetLinkType(localClientNum, v16) == SCRIPTABLE_LINK_CLIENTMODEL )
+      ScriptableCl_SetClientModelInstanceModels(localClientNum, v16);
   }
   ScriptableCl_Spatial_UpdateOrigin(localClientNum, instance->instanceIndex);
   memset(&origin, 0, sizeof(origin));
@@ -1396,71 +1346,78 @@ void ScriptableClSP_ArchiveState(MemoryFile *memFile)
 {
   ScriptableStandaloneParentData *StandaloneEntityParentData; 
   unsigned int totalInstanceCount; 
-  unsigned int v5; 
-  __int64 v6; 
+  unsigned int v4; 
+  __int64 v5; 
+  ScriptableInstanceClientContext *v6; 
   ScriptableInstanceClientContext *v7; 
-  ScriptableInstanceClientContext *v8; 
   const char **p_name; 
   unsigned __int16 eventStreamBufferSize; 
-  const char **v11; 
-  unsigned __int8 v12; 
+  const char **v10; 
+  unsigned __int8 v11; 
+  __int64 v12; 
   __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
-  unsigned int v16; 
-  ScriptableStandaloneParentData *v17; 
-  unsigned int v18; 
-  __int64 v19; 
+  unsigned int v15; 
+  ScriptableStandaloneParentData *v16; 
+  unsigned int v17; 
+  __int64 v18; 
+  ScriptableInstanceClientContext *v19; 
   const char *CString; 
-  XAssetHeader v22; 
-  char v23; 
-  char v24; 
+  XAssetHeader v21; 
+  double Float; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  char v28; 
+  char v29; 
   int havokData; 
-  char v26; 
-  const char *v27; 
-  XAssetHeader v28; 
-  const char *v29; 
-  unsigned __int16 v30; 
+  char v31; 
+  const char *v32; 
+  XAssetHeader v33; 
+  const char *v34; 
+  unsigned __int16 v35; 
   const char *name; 
   ScriptableLinkType linkedObjectType; 
   bool IsCharacterEntityIndex; 
   unsigned __int8 *EventStreamBuffer; 
-  unsigned __int16 v35; 
-  char v36; 
-  ScriptableInstanceClientContext *v37; 
-  const char *v38; 
-  XAssetHeader v39; 
+  unsigned __int16 v40; 
+  char v41; 
+  ScriptableInstanceClientContext *v42; 
+  const char *v43; 
+  XAssetHeader v44; 
   char *fmt; 
-  __int64 v41; 
-  __int64 v42; 
-  char v43; 
-  char v44; 
-  char v45; 
-  char v46; 
-  char v47; 
+  __int64 v46; 
+  __int64 v47; 
   char v48; 
   char v49; 
   char v50; 
   char v51; 
   char v52; 
-  bool v53; 
-  bool v54; 
-  bool v55; 
-  char v56[3]; 
-  unsigned __int16 v57; 
+  char v53; 
+  char v54; 
+  char v55; 
+  char v56; 
+  char v57; 
+  bool v58; 
+  bool v59; 
+  bool v60; 
+  char v61[3]; 
+  unsigned __int16 v62; 
   vec3_t outOrigin; 
-  unsigned int v59; 
-  unsigned int v60; 
-  unsigned int v61; 
-  unsigned int v62; 
-  ScriptableInstanceClientContext *v63; 
-  __int64 v64; 
+  unsigned int v64; 
+  unsigned int v65; 
+  unsigned int v66; 
+  unsigned int v67; 
+  ScriptableInstanceClientContext *v68; 
+  __int64 v69; 
   unsigned int p; 
-  ScriptableLinkType v66; 
-  unsigned __int8 v67; 
-  char v68; 
+  ScriptableLinkType v71; 
+  unsigned __int8 v72; 
+  char v73; 
 
-  v64 = -2i64;
+  v69 = -2i64;
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1407, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1410, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::SCRIPTABLES_MULTIPLAYER ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::SCRIPTABLES_MULTIPLAYER )") )
@@ -1514,114 +1471,114 @@ void ScriptableClSP_ArchiveState(MemoryFile *memFile)
     }
     ScriptableCommon_AssertCountsInitialized();
     totalInstanceCount = g_scriptableWorldCounts.totalInstanceCount;
-    v5 = 0;
+    v4 = 0;
     if ( g_scriptableWorldCounts.totalInstanceCount )
     {
-      v6 = 0i64;
+      v5 = 0i64;
       do
       {
         ScriptableCommon_AssertCountsInitialized();
-        if ( v5 >= g_scriptableWorldCounts.totalInstanceCount )
+        if ( v4 >= g_scriptableWorldCounts.totalInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          LODWORD(v42) = g_scriptableWorldCounts.totalInstanceCount;
-          LODWORD(v41) = v5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v41, v42) )
+          LODWORD(v47) = g_scriptableWorldCounts.totalInstanceCount;
+          LODWORD(v46) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
             __debugbreak();
         }
         if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
           __debugbreak();
-        v7 = &g_scriptableCl_instanceContexts[0][v6];
+        v6 = &g_scriptableCl_instanceContexts[0][v5];
         ScriptableCommon_AssertCountsInitialized();
-        if ( v5 >= g_scriptableWorldCounts.totalInstanceCount )
+        if ( v4 >= g_scriptableWorldCounts.totalInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          LODWORD(v42) = g_scriptableWorldCounts.totalInstanceCount;
-          LODWORD(v41) = v5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v41, v42) )
+          LODWORD(v47) = g_scriptableWorldCounts.totalInstanceCount;
+          LODWORD(v46) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
             __debugbreak();
         }
         if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 125, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
           __debugbreak();
-        v8 = g_scriptableCl_instanceContexts[0];
-        if ( v7->commonContext.def )
+        v7 = g_scriptableCl_instanceContexts[0];
+        if ( v6->commonContext.def )
         {
           LOBYTE(p) = 1;
           MemFile_WriteData(memFile, 1ui64, &p);
-          MemFile_WriteCString(memFile, v7->commonContext.def->name);
+          MemFile_WriteCString(memFile, v6->commonContext.def->name);
         }
         else
         {
           LOBYTE(p) = 0;
           MemFile_WriteData(memFile, 1ui64, &p);
         }
-        ScriptableInstanceContextSecure::GetOrigin(&v7->commonContext, v5, &outOrigin);
+        ScriptableInstanceContextSecure::GetOrigin(&v6->commonContext, v4, &outOrigin);
         MemFile_WriteData(memFile, 0xCui64, &outOrigin);
-        MemFile_WriteData(memFile, 0xCui64, &v7->commonContext.angles);
-        p = v7->commonContext.linkedObjectIndex;
+        MemFile_WriteData(memFile, 0xCui64, &v6->commonContext.angles);
+        p = v6->commonContext.linkedObjectIndex;
         MemFile_WriteData(memFile, 4ui64, &p);
-        LOBYTE(p) = v7->commonContext.linkedObjectType;
+        LOBYTE(p) = v6->commonContext.linkedObjectType;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = v7->commonContext.initializationCount;
+        LOBYTE(p) = v6->commonContext.initializationCount;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = *((_BYTE *)&v7->commonContext + 60) & 1;
+        LOBYTE(p) = *((_BYTE *)&v6->commonContext + 60) & 1;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = (*((_BYTE *)&v7->commonContext + 60) & 2) != 0;
+        LOBYTE(p) = (*((_BYTE *)&v6->commonContext + 60) & 2) != 0;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = (*((_BYTE *)&v7->commonContext + 60) & 4) != 0;
+        LOBYTE(p) = (*((_BYTE *)&v6->commonContext + 60) & 4) != 0;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = v7->commonContext.dataType == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
+        LOBYTE(p) = v6->commonContext.dataType == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
         MemFile_WriteData(memFile, 1ui64, &p);
-        p_name = &v7->commonContext.data.compositeModel->name;
+        p_name = &v6->commonContext.data.compositeModel->name;
         LOBYTE(p) = p_name != NULL;
         MemFile_WriteData(memFile, 1ui64, &p);
         if ( p_name )
           MemFile_WriteCString(memFile, *p_name);
-        LOBYTE(p) = (*((_BYTE *)&v7->commonContext + 60) & 0x40) != 0;
+        LOBYTE(p) = (*((_BYTE *)&v6->commonContext + 60) & 0x40) != 0;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = *((_BYTE *)&v7->commonContext + 60) >> 7;
+        LOBYTE(p) = *((_BYTE *)&v6->commonContext + 60) >> 7;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = *((_BYTE *)&v7->commonContext + 61) & 1;
+        LOBYTE(p) = *((_BYTE *)&v6->commonContext + 61) & 1;
         MemFile_WriteData(memFile, 1ui64, &p);
         if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
         {
-          LOBYTE(p) = (*((_BYTE *)&v7->commonContext + 60) & 0x20) != 0;
+          LOBYTE(p) = (*((_BYTE *)&v6->commonContext + 60) & 0x20) != 0;
           MemFile_WriteData(memFile, 1ui64, &p);
         }
-        p = v7->commonContext.reservedStateListHeader;
+        p = v6->commonContext.reservedStateListHeader;
         MemFile_WriteData(memFile, 4ui64, &p);
-        LOWORD(p) = v7->commonContext.eventStreamBufferSize;
+        LOWORD(p) = v6->commonContext.eventStreamBufferSize;
         MemFile_WriteData(memFile, 2ui64, &p);
-        eventStreamBufferSize = v7->commonContext.eventStreamBufferSize;
+        eventStreamBufferSize = v6->commonContext.eventStreamBufferSize;
         if ( eventStreamBufferSize )
-          MemFile_WriteData(memFile, eventStreamBufferSize, v7->commonContext.eventStreamBuffer);
-        LOBYTE(p) = v8[v6].collisionContext.collisionActiveFlags;
+          MemFile_WriteData(memFile, eventStreamBufferSize, v6->commonContext.eventStreamBuffer);
+        LOBYTE(p) = v7[v5].collisionContext.collisionActiveFlags;
         MemFile_WriteData(memFile, 1ui64, &p);
-        if ( v8[v6].collisionContext.collisionActiveFlags )
+        if ( v7[v5].collisionContext.collisionActiveFlags )
         {
-          p = v8[v6].collisionContext.clipmapCModelIndex;
+          p = v7[v5].collisionContext.clipmapCModelIndex;
           MemFile_WriteData(memFile, 4ui64, &p);
-          LOBYTE(p) = v8[v6].collisionContext.neverMoves;
+          LOBYTE(p) = v7[v5].collisionContext.neverMoves;
           MemFile_WriteData(memFile, 1ui64, &p);
-          LOBYTE(p) = v8[v6].collisionContext.canPush;
+          LOBYTE(p) = v7[v5].collisionContext.canPush;
           MemFile_WriteData(memFile, 1ui64, &p);
-          LOBYTE(p) = v8[v6].collisionContext.canTouch;
+          LOBYTE(p) = v7[v5].collisionContext.canTouch;
           MemFile_WriteData(memFile, 1ui64, &p);
-          v11 = &v8[v6].collisionContext.model->name;
-          LOBYTE(p) = v11 != NULL;
+          v10 = &v7[v5].collisionContext.model->name;
+          LOBYTE(p) = v10 != NULL;
           MemFile_WriteData(memFile, 1ui64, &p);
-          if ( v11 )
-            MemFile_WriteCString(memFile, *v11);
+          if ( v10 )
+            MemFile_WriteCString(memFile, *v10);
         }
+        ++v4;
         ++v5;
-        ++v6;
       }
-      while ( v5 < totalInstanceCount );
+      while ( v4 < totalInstanceCount );
     }
     goto LABEL_166;
   }
   MemFile_ReadData(memFile, 1ui64, &p);
-  v12 = p;
+  v11 = p;
   if ( (_BYTE)p != 2 )
   {
     if ( (_BYTE)p == 1 && (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
@@ -1631,38 +1588,38 @@ void ScriptableClSP_ArchiveState(MemoryFile *memFile)
     else
     {
       LODWORD(fmt) = 2;
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A4F0, 6239i64, v12, fmt);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A4F0, 6239i64, v11, fmt);
     }
   }
   MemFile_ReadData(memFile, 4ui64, &p);
   g_scriptableCl_fixedWorldMap.partCount = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  v13 = p;
+  v12 = p;
   if ( g_scriptableCl_fixedWorldMap.indicesCount != p )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A550, 5821i64);
   MemFile_ReadData(memFile, 4ui64, &p);
-  v14 = p;
+  v13 = p;
   if ( p != s_scriptableCl_reverseFixedWorldMapCount )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A600, 5822i64);
   MemFile_ReadData(memFile, 4ui64, &p);
-  v15 = p;
+  v14 = p;
   if ( p != s_scriptableCl_reverseReservedWorldMapCount )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A6B0, 5823i64);
-  MemFile_ReadData(memFile, 4 * v13, g_scriptableCl_fixedWorldMap.indices);
-  MemFile_ReadData(memFile, 4 * v14, s_scriptableCl_reverseFixedWorldMap);
-  MemFile_ReadData(memFile, 4 * v15, s_scriptableCl_reverseReservedWorldMap[0]);
+  MemFile_ReadData(memFile, 4 * v12, g_scriptableCl_fixedWorldMap.indices);
+  MemFile_ReadData(memFile, 4 * v13, s_scriptableCl_reverseFixedWorldMap);
+  MemFile_ReadData(memFile, 4 * v14, s_scriptableCl_reverseReservedWorldMap[0]);
   ScriptableCommon_ArchiveReplicatedLimits(memFile, &g_scriptableCl_replicatedLimits);
   ScriptableClSP_ArchiveSpWorld(memFile, s_scriptableCl_worldCurrent[0]);
   ScriptableClSP_ArchiveSpWorld(memFile, s_scriptableCl_spWorldCached[0]);
   MemFile_ReadData(memFile, 4ui64, &p);
-  v16 = g_ScriptableClRuntimePartStatesCount;
+  v15 = g_ScriptableClRuntimePartStatesCount;
   if ( p != g_ScriptableClRuntimePartStatesCount )
   {
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A760, 222i64);
-    v16 = g_ScriptableClRuntimePartStatesCount;
+    v15 = g_ScriptableClRuntimePartStatesCount;
   }
-  if ( v16 )
-    MemFile_ReadData(memFile, 8i64 * v16, g_ScriptableClRuntimePartStates[0]);
+  if ( v15 )
+    MemFile_ReadData(memFile, 8i64 * v15, g_ScriptableClRuntimePartStates[0]);
   MemFile_ReadData(memFile, 4ui64, &p);
   if ( p != g_scriptableClReservedPartRuntimeCount[0] )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A800, 223i64);
@@ -1678,186 +1635,186 @@ void ScriptableClSP_ArchiveState(MemoryFile *memFile)
   MemFile_ReadData(memFile, 0x100ui64, s_scriptableCl_updateNeededEntitiesBits);
   if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
   {
-    v17 = ScriptableCl_GetStandaloneEntityParentData(LOCAL_CLIENT_0);
-    MemFile_ReadData(memFile, 0x3000ui64, v17);
+    v16 = ScriptableCl_GetStandaloneEntityParentData(LOCAL_CLIENT_0);
+    MemFile_ReadData(memFile, 0x3000ui64, v16);
   }
   ScriptableCommon_AssertCountsInitialized();
-  v62 = g_scriptableWorldCounts.totalInstanceCount;
-  v18 = 0;
+  v67 = g_scriptableWorldCounts.totalInstanceCount;
+  v17 = 0;
   if ( g_scriptableWorldCounts.totalInstanceCount )
   {
-    v19 = 0i64;
+    v18 = 0i64;
     do
     {
       ScriptableCommon_AssertCountsInitialized();
-      if ( v18 >= g_scriptableWorldCounts.totalInstanceCount )
+      if ( v17 >= g_scriptableWorldCounts.totalInstanceCount )
       {
         ScriptableCommon_AssertCountsInitialized();
-        LODWORD(v42) = g_scriptableWorldCounts.totalInstanceCount;
-        LODWORD(v41) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v41, v42) )
+        LODWORD(v47) = g_scriptableWorldCounts.totalInstanceCount;
+        LODWORD(v46) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
           __debugbreak();
       }
       if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
         __debugbreak();
-      _RDI = &g_scriptableCl_instanceContexts[0][v19];
+      v19 = &g_scriptableCl_instanceContexts[0][v18];
       ScriptableCommon_AssertCountsInitialized();
-      if ( v18 >= g_scriptableWorldCounts.totalInstanceCount )
+      if ( v17 >= g_scriptableWorldCounts.totalInstanceCount )
       {
         ScriptableCommon_AssertCountsInitialized();
-        LODWORD(v42) = g_scriptableWorldCounts.totalInstanceCount;
-        LODWORD(v41) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v41, v42) )
+        LODWORD(v47) = g_scriptableWorldCounts.totalInstanceCount;
+        LODWORD(v46) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
           __debugbreak();
       }
       if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 125, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
         __debugbreak();
-      v63 = g_scriptableCl_instanceContexts[0];
+      v68 = g_scriptableCl_instanceContexts[0];
       MemFile_ReadData(memFile, 1ui64, &p);
       if ( (_BYTE)p )
       {
         CString = MemFile_ReadCString(memFile);
-        v22.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_SCRIPTABLE, CString, 0).physicsLibrary;
-        _RDI->commonContext.def = v22.scriptable;
+        v21.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_SCRIPTABLE, CString, 0).physicsLibrary;
+        v19->commonContext.def = v21.scriptable;
       }
       else
       {
-        _RDI->commonContext.def = NULL;
-        v22.physicsLibrary = NULL;
+        v19->commonContext.def = NULL;
+        v21.physicsLibrary = NULL;
       }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+57h+outOrigin], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+57h+outOrigin+4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+57h+outOrigin+8], xmm0 }
-      ScriptableInstanceContextSecure::SetOrigin(&_RDI->commonContext, v18, &outOrigin);
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+2Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+30h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+34h], xmm0 }
-      MemFile_ReadData(memFile, 4ui64, &v59);
-      _RDI->commonContext.linkedObjectIndex = v59;
-      MemFile_ReadData(memFile, 1ui64, &v66);
-      _RDI->commonContext.linkedObjectType = v66;
-      MemFile_ReadData(memFile, 1ui64, &v67);
-      _RDI->commonContext.initializationCount = v67;
-      MemFile_ReadData(memFile, 1ui64, &v68);
-      *((_BYTE *)&_RDI->commonContext + 60) &= ~1u;
-      *((_BYTE *)&_RDI->commonContext + 60) |= v68 & 1;
-      MemFile_ReadData(memFile, 1ui64, &v43);
-      *((_BYTE *)&_RDI->commonContext + 60) = *((_BYTE *)&_RDI->commonContext + 60) & 0xF9 | (2 * (v43 & 1));
-      MemFile_ReadData(memFile, 1ui64, &v44);
-      v23 = v44;
-      if ( v44 )
+      Float = MemFile_ReadFloat(memFile);
+      outOrigin.v[0] = *(float *)&Float;
+      v23 = MemFile_ReadFloat(memFile);
+      outOrigin.v[1] = *(float *)&v23;
+      v24 = MemFile_ReadFloat(memFile);
+      outOrigin.v[2] = *(float *)&v24;
+      ScriptableInstanceContextSecure::SetOrigin(&v19->commonContext, v17, &outOrigin);
+      v25 = MemFile_ReadFloat(memFile);
+      v19->commonContext.angles.v[0] = *(float *)&v25;
+      v26 = MemFile_ReadFloat(memFile);
+      v19->commonContext.angles.v[1] = *(float *)&v26;
+      v27 = MemFile_ReadFloat(memFile);
+      v19->commonContext.angles.v[2] = *(float *)&v27;
+      MemFile_ReadData(memFile, 4ui64, &v64);
+      v19->commonContext.linkedObjectIndex = v64;
+      MemFile_ReadData(memFile, 1ui64, &v71);
+      v19->commonContext.linkedObjectType = v71;
+      MemFile_ReadData(memFile, 1ui64, &v72);
+      v19->commonContext.initializationCount = v72;
+      MemFile_ReadData(memFile, 1ui64, &v73);
+      *((_BYTE *)&v19->commonContext + 60) &= ~1u;
+      *((_BYTE *)&v19->commonContext + 60) |= v73 & 1;
+      MemFile_ReadData(memFile, 1ui64, &v48);
+      *((_BYTE *)&v19->commonContext + 60) = *((_BYTE *)&v19->commonContext + 60) & 0xF9 | (2 * (v48 & 1));
+      MemFile_ReadData(memFile, 1ui64, &v49);
+      v28 = v49;
+      if ( v49 )
       {
-        if ( !v22.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1699, ASSERT_TYPE_ASSERT, "(def != nullptr)", (const char *)&queryFormat, "def != nullptr") )
+        if ( !v21.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1699, ASSERT_TYPE_ASSERT, "(def != nullptr)", (const char *)&queryFormat, "def != nullptr") )
           __debugbreak();
-        if ( !_RDI->commonContext.initializationCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1700, ASSERT_TYPE_ASSERT, "(r_context.initializationCount > 0)", (const char *)&queryFormat, "r_context.initializationCount > 0") )
+        if ( !v19->commonContext.initializationCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1700, ASSERT_TYPE_ASSERT, "(r_context.initializationCount > 0)", (const char *)&queryFormat, "r_context.initializationCount > 0") )
           __debugbreak();
-        if ( !ScriptableCl_IsLinked(LOCAL_CLIENT_0, v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1701, ASSERT_TYPE_ASSERT, "(ScriptableCl_IsLinked( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_IsLinked( localClientNum, scriptableIndex )") )
+        if ( !ScriptableCl_IsLinked(LOCAL_CLIENT_0, v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1701, ASSERT_TYPE_ASSERT, "(ScriptableCl_IsLinked( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_IsLinked( localClientNum, scriptableIndex )") )
           __debugbreak();
-        v24 = *((_BYTE *)&_RDI->commonContext + 60);
-        if ( (v24 & 2) == 0 )
-          *((_BYTE *)&_RDI->commonContext + 60) = v24 | 1;
+        v29 = *((_BYTE *)&v19->commonContext + 60);
+        if ( (v29 & 2) == 0 )
+          *((_BYTE *)&v19->commonContext + 60) = v29 | 1;
       }
-      if ( v22.physicsLibrary )
+      if ( v21.physicsLibrary )
       {
-        havokData = (int)v22.physicsLibrary->havokData;
+        havokData = (int)v21.physicsLibrary->havokData;
         if ( (havokData & 2) == 0 || (havokData & 0x2000) != 0 )
         {
-          v26 = *((_BYTE *)&_RDI->commonContext + 60);
-          if ( (v26 & 1) != 0 )
+          v31 = *((_BYTE *)&v19->commonContext + 60);
+          if ( (v31 & 1) != 0 )
           {
-            ScriptableCl_MarkClientUpdateRequired(LOCAL_CLIENT_0, v18, SCRIPTABLE_UPDATE_INIT);
+            ScriptableCl_MarkClientUpdateRequired(LOCAL_CLIENT_0, v17, SCRIPTABLE_UPDATE_INIT);
           }
-          else if ( (v26 & 2) != 0 )
+          else if ( (v31 & 2) != 0 )
           {
-            ScriptableCl_MarkClientUpdateRequired(LOCAL_CLIENT_0, v18, SCRIPTABLE_UPDATE_SHUTDOWN);
+            ScriptableCl_MarkClientUpdateRequired(LOCAL_CLIENT_0, v17, SCRIPTABLE_UPDATE_SHUTDOWN);
           }
         }
       }
       else
       {
-        if ( v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1733, ASSERT_TYPE_ASSERT, "(!wasInitialized)", (const char *)&queryFormat, "!wasInitialized") )
+        if ( v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1733, ASSERT_TYPE_ASSERT, "(!wasInitialized)", (const char *)&queryFormat, "!wasInitialized") )
           __debugbreak();
-        if ( (*((_BYTE *)&_RDI->commonContext + 60) & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1734, ASSERT_TYPE_ASSERT, "(!r_context.needsInitialization)", (const char *)&queryFormat, "!r_context.needsInitialization") )
+        if ( (*((_BYTE *)&v19->commonContext + 60) & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1734, ASSERT_TYPE_ASSERT, "(!r_context.needsInitialization)", (const char *)&queryFormat, "!r_context.needsInitialization") )
           __debugbreak();
-        if ( (*((_BYTE *)&_RDI->commonContext + 60) & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1735, ASSERT_TYPE_ASSERT, "(!r_context.needsShutdown)", (const char *)&queryFormat, "!r_context.needsShutdown") )
+        if ( (*((_BYTE *)&v19->commonContext + 60) & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1735, ASSERT_TYPE_ASSERT, "(!r_context.needsShutdown)", (const char *)&queryFormat, "!r_context.needsShutdown") )
           __debugbreak();
       }
-      _RDI->commonContext.data.compositeModel = NULL;
-      _RDI->commonContext.dataType = SCRIPTABLE_DATA_TYPE_INVALID;
-      MemFile_ReadData(memFile, 1ui64, &v45);
-      if ( v45 )
-      {
-        MemFile_ReadData(memFile, 1ui64, &v46);
-        if ( !v46 )
-          goto LABEL_132;
-        v27 = MemFile_ReadCString(memFile);
-        v28.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XCOMPOSITEMODEL, v27, 0).physicsLibrary;
-        if ( !v28.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1750, ASSERT_TYPE_ASSERT, "(compositeModel)", (const char *)&queryFormat, "compositeModel") )
-          __debugbreak();
-        _RDI->commonContext.dataType = SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
-      }
-      else
-      {
-        MemFile_ReadData(memFile, 1ui64, &v47);
-        if ( !v47 )
-          goto LABEL_132;
-        v29 = MemFile_ReadCString(memFile);
-        v28.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XMODEL, v29, 0).physicsLibrary;
-        if ( !v28.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1762, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
-          __debugbreak();
-        _RDI->commonContext.dataType = SCRIPTABLE_DATA_TYPE_XMODEL;
-      }
-      _RDI->commonContext.data.compositeModel = v28.compositeModel;
-LABEL_132:
-      MemFile_ReadData(memFile, 1ui64, &v48);
-      *((_BYTE *)&_RDI->commonContext + 60) ^= (*((_BYTE *)&_RDI->commonContext + 60) ^ (v48 << 6)) & 0x40;
-      MemFile_ReadData(memFile, 1ui64, &v49);
-      *((_BYTE *)&_RDI->commonContext + 60) = *((_BYTE *)&_RDI->commonContext + 60) & 0x7F | (v49 << 7);
+      v19->commonContext.data.compositeModel = NULL;
+      v19->commonContext.dataType = SCRIPTABLE_DATA_TYPE_INVALID;
       MemFile_ReadData(memFile, 1ui64, &v50);
-      *((_BYTE *)&_RDI->commonContext + 61) &= ~1u;
-      *((_BYTE *)&_RDI->commonContext + 61) |= v50 & 1;
-      if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
+      if ( v50 )
       {
         MemFile_ReadData(memFile, 1ui64, &v51);
-        *((_BYTE *)&_RDI->commonContext + 60) ^= (*((_BYTE *)&_RDI->commonContext + 60) ^ (32 * v51)) & 0x20;
+        if ( !v51 )
+          goto LABEL_132;
+        v32 = MemFile_ReadCString(memFile);
+        v33.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XCOMPOSITEMODEL, v32, 0).physicsLibrary;
+        if ( !v33.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1750, ASSERT_TYPE_ASSERT, "(compositeModel)", (const char *)&queryFormat, "compositeModel") )
+          __debugbreak();
+        v19->commonContext.dataType = SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
       }
       else
       {
-        *((_BYTE *)&_RDI->commonContext + 60) &= ~0x20u;
+        MemFile_ReadData(memFile, 1ui64, &v52);
+        if ( !v52 )
+          goto LABEL_132;
+        v34 = MemFile_ReadCString(memFile);
+        v33.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XMODEL, v34, 0).physicsLibrary;
+        if ( !v33.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1762, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+          __debugbreak();
+        v19->commonContext.dataType = SCRIPTABLE_DATA_TYPE_XMODEL;
       }
-      MemFile_ReadData(memFile, 4ui64, &v60);
-      _RDI->commonContext.reservedStateListHeader = v60;
-      if ( v22.physicsLibrary )
-        v30 = *(_WORD *)&v22.physicsLibrary[2].isMotionPropertiesList;
-      else
-        v30 = 0;
-      MemFile_ReadData(memFile, 2ui64, &v57);
-      if ( v30 != v57 )
+      v19->commonContext.data.compositeModel = v33.compositeModel;
+LABEL_132:
+      MemFile_ReadData(memFile, 1ui64, &v53);
+      *((_BYTE *)&v19->commonContext + 60) ^= (*((_BYTE *)&v19->commonContext + 60) ^ (v53 << 6)) & 0x40;
+      MemFile_ReadData(memFile, 1ui64, &v54);
+      *((_BYTE *)&v19->commonContext + 60) = *((_BYTE *)&v19->commonContext + 60) & 0x7F | (v54 << 7);
+      MemFile_ReadData(memFile, 1ui64, &v55);
+      *((_BYTE *)&v19->commonContext + 61) &= ~1u;
+      *((_BYTE *)&v19->commonContext + 61) |= v55 & 1;
+      if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
       {
-        if ( v22.physicsLibrary )
-          name = v22.physicsLibrary->name;
+        MemFile_ReadData(memFile, 1ui64, &v56);
+        *((_BYTE *)&v19->commonContext + 60) ^= (*((_BYTE *)&v19->commonContext + 60) ^ (32 * v56)) & 0x20;
+      }
+      else
+      {
+        *((_BYTE *)&v19->commonContext + 60) &= ~0x20u;
+      }
+      MemFile_ReadData(memFile, 4ui64, &v65);
+      v19->commonContext.reservedStateListHeader = v65;
+      if ( v21.physicsLibrary )
+        v35 = *(_WORD *)&v21.physicsLibrary[2].isMotionPropertiesList;
+      else
+        v35 = 0;
+      MemFile_ReadData(memFile, 2ui64, &v62);
+      if ( v35 != v62 )
+      {
+        if ( v21.physicsLibrary )
+          name = v21.physicsLibrary->name;
         else
           name = "<none>";
-        LODWORD(v41) = v30;
-        LODWORD(fmt) = v57;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406AA80, 6167i64, name, fmt, v41);
+        LODWORD(v46) = v35;
+        LODWORD(fmt) = v62;
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406AA80, 6167i64, name, fmt, v46);
       }
-      _RDI->commonContext.eventStreamBufferSize = v30;
-      if ( v30 )
+      v19->commonContext.eventStreamBufferSize = v35;
+      if ( v35 )
       {
         ScriptableCommon_AssertCountsInitialized();
-        if ( v18 < g_scriptableWorldCounts.runtimeInstanceCount )
+        if ( v17 < g_scriptableWorldCounts.runtimeInstanceCount )
         {
-          linkedObjectType = _RDI->commonContext.linkedObjectType;
+          linkedObjectType = v19->commonContext.linkedObjectType;
           if ( linkedObjectType == SCRIPTABLE_LINK_ENTITY )
           {
-            IsCharacterEntityIndex = BG_IsCharacterEntityIndex(_RDI->commonContext.linkedObjectIndex);
+            IsCharacterEntityIndex = BG_IsCharacterEntityIndex(v19->commonContext.linkedObjectIndex);
           }
           else
           {
@@ -1865,57 +1822,57 @@ LABEL_132:
               __debugbreak();
             IsCharacterEntityIndex = 0;
           }
-          EventStreamBuffer = Scriptable_Bg_AllocateEventStreamBuffer(IsCharacterEntityIndex, 0, LOCAL_CLIENT_0, _RDI->commonContext.eventStreamBufferSize);
-          _RDI->commonContext.eventStreamBuffer = EventStreamBuffer;
+          EventStreamBuffer = Scriptable_Bg_AllocateEventStreamBuffer(IsCharacterEntityIndex, 0, LOCAL_CLIENT_0, v19->commonContext.eventStreamBufferSize);
+          v19->commonContext.eventStreamBuffer = EventStreamBuffer;
           if ( !EventStreamBuffer )
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406AB80, 224i64, _RDI->commonContext.eventStreamBufferSize);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406AB80, 224i64, v19->commonContext.eventStreamBufferSize);
         }
       }
-      v35 = _RDI->commonContext.eventStreamBufferSize;
-      if ( v35 )
-        MemFile_ReadData(memFile, v35, _RDI->commonContext.eventStreamBuffer);
-      MemFile_ReadData(memFile, 1ui64, &v52);
-      v36 = v52;
-      v37 = v63;
-      v63[v19].collisionContext.collisionActiveFlags = v52;
-      *(_QWORD *)&v37[v19].collisionContext.scriptableCollisionPredictive = -1i64;
-      v37[v19].collisionContext.scriptableCollisionDetail = -1;
-      if ( !v36 )
+      v40 = v19->commonContext.eventStreamBufferSize;
+      if ( v40 )
+        MemFile_ReadData(memFile, v40, v19->commonContext.eventStreamBuffer);
+      MemFile_ReadData(memFile, 1ui64, &v57);
+      v41 = v57;
+      v42 = v68;
+      v68[v18].collisionContext.collisionActiveFlags = v57;
+      *(_QWORD *)&v42[v18].collisionContext.scriptableCollisionPredictive = -1i64;
+      v42[v18].collisionContext.scriptableCollisionDetail = -1;
+      if ( !v41 )
         goto LABEL_165;
-      MemFile_ReadData(memFile, 4ui64, &v61);
-      v37[v19].collisionContext.clipmapCModelIndex = v61;
-      MemFile_ReadData(memFile, 1ui64, &v53);
-      v37[v19].collisionContext.neverMoves = v53;
-      MemFile_ReadData(memFile, 1ui64, &v54);
-      v37[v19].collisionContext.canPush = v54;
-      MemFile_ReadData(memFile, 1ui64, &v55);
-      v37[v19].collisionContext.canTouch = v55;
-      MemFile_ReadData(memFile, 1ui64, v56);
-      if ( v56[0] )
+      MemFile_ReadData(memFile, 4ui64, &v66);
+      v42[v18].collisionContext.clipmapCModelIndex = v66;
+      MemFile_ReadData(memFile, 1ui64, &v58);
+      v42[v18].collisionContext.neverMoves = v58;
+      MemFile_ReadData(memFile, 1ui64, &v59);
+      v42[v18].collisionContext.canPush = v59;
+      MemFile_ReadData(memFile, 1ui64, &v60);
+      v42[v18].collisionContext.canTouch = v60;
+      MemFile_ReadData(memFile, 1ui64, v61);
+      if ( v61[0] )
       {
-        v38 = MemFile_ReadCString(memFile);
-        v39.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XMODEL, v38, 0).physicsLibrary;
-        if ( !v39.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1841, ASSERT_TYPE_ASSERT, "(collisionModel)", (const char *)&queryFormat, "collisionModel") )
+        v43 = MemFile_ReadCString(memFile);
+        v44.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XMODEL, v43, 0).physicsLibrary;
+        if ( !v44.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 1841, ASSERT_TYPE_ASSERT, "(collisionModel)", (const char *)&queryFormat, "collisionModel") )
           __debugbreak();
-        v37[v19].collisionContext.model = v39.model;
-        if ( v39.physicsLibrary )
+        v42[v18].collisionContext.model = v44.model;
+        if ( v44.physicsLibrary )
         {
 LABEL_164:
-          ScriptableCl_CreateCollisionFromArchive(LOCAL_CLIENT_0, v18);
+          ScriptableCl_CreateCollisionFromArchive(LOCAL_CLIENT_0, v17);
           goto LABEL_165;
         }
       }
       else
       {
-        v37[v19].collisionContext.model = NULL;
+        v42[v18].collisionContext.model = NULL;
       }
-      if ( v37[v19].collisionContext.clipmapCModelIndex <= 0xFFFFFFFD )
+      if ( v42[v18].collisionContext.clipmapCModelIndex <= 0xFFFFFFFD )
         goto LABEL_164;
 LABEL_165:
+      ++v17;
       ++v18;
-      ++v19;
     }
-    while ( v18 < v62 );
+    while ( v17 < v67 );
   }
 LABEL_166:
   memset(&outOrigin, 0, sizeof(outOrigin));
@@ -2211,7 +2168,7 @@ LABEL_25:
       eventParams.callbacks = &s_clCallbackTable;
       eventParams.scriptableIndex = v23;
       eventParams.partDef = currentNoteTrackPartDef;
-      __asm { vmovdqu xmmword ptr [rsp+98h+eventParams.damageEvent], xmm0 }
+      *(_OWORD *)&eventParams.damageEvent = _XMM0;
       holdrand = ScriptableCl_GenerateRandSeed(localClientNum, scriptableIndex);
       ScriptableCl_RunStateEvents_Specific(localClientNum, &eventParams, &holdrand, 1, *(ScriptableEventDef **)(v13 + 24), *(_DWORD *)(v13 + 20));
     }
@@ -2851,37 +2808,27 @@ ScriptableCl_ConvertStandaloneParentEntityPoseToWorldSpace
 */
 void ScriptableCl_ConvertStandaloneParentEntityPoseToWorldSpace(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const centity_t *const parent, const vec3_t *localOrigin, const vec3_t *localAngles, vec3_t *outWorldOrigin, vec3_t *outWorldAngles)
 {
-  tmat43_t<vec3_t> v16; 
+  float v9; 
+  float v10; 
+  tmat43_t<vec3_t> v11; 
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> axis; 
 
-  _RDI = localOrigin;
-  _RSI = outWorldOrigin;
   if ( !parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3444, ASSERT_TYPE_ASSERT, "(parent)", (const char *)&queryFormat, "parent") )
     __debugbreak();
   AnglesToAxis(&parent->pose.angles, (tmat33_t<vec3_t> *)&axis);
   CG_GetPoseOrigin(&parent->pose, &axis.m[3]);
-  AnglesToAxis(localAngles, (tmat33_t<vec3_t> *)&v16);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  [rsp+0E8h+var_94], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0E8h+var_8C], xmm0
-    vmovss  [rsp+0E8h+var_90], xmm1
-  }
-  MatrixMultiply43(&v16, &axis, &out);
+  AnglesToAxis(localAngles, (tmat33_t<vec3_t> *)&v11);
+  v9 = localOrigin->v[1];
+  v11.m[3].v[0] = localOrigin->v[0];
+  v11.m[3].v[2] = localOrigin->v[2];
+  v11.m[3].v[1] = v9;
+  MatrixMultiply43(&v11, &axis, &out);
   AxisToAngles((const tmat33_t<vec3_t> *)&out, outWorldAngles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+out+24h]
-    vmovss  xmm1, dword ptr [rsp+0E8h+out+28h]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsp+0E8h+out+2Ch]
-    vmovss  dword ptr [rsi+8], xmm0
-    vmovss  dword ptr [rsi+4], xmm1
-  }
+  v10 = out.m[3].v[1];
+  outWorldOrigin->v[0] = out.m[3].v[0];
+  outWorldOrigin->v[2] = out.m[3].v[2];
+  outWorldOrigin->v[1] = v10;
 }
 
 /*
@@ -2910,109 +2857,65 @@ ScriptableCl_Debug_DrawLoot
 */
 void ScriptableCl_Debug_DrawLoot(const LocalClientNum_t localClientNum)
 {
-  __int64 v7; 
+  __int64 v1; 
   unsigned int runtimeInstanceCount; 
-  unsigned int v9; 
-  char v24; 
-  char v25; 
+  unsigned int v3; 
+  float v4; 
+  float v5; 
+  float v6; 
   const BG_SpawnGroup_Loot_ItemDef *LootItemDef; 
   __int64 rarity; 
-  __int64 v44; 
-  __int64 v45; 
+  BG_SpawnGroup_Loot_Table *v9; 
+  __int64 v12; 
+  __int64 v13; 
   vec3_t outPos; 
   vec3_t end; 
   vec3_t start; 
   vec4_t color; 
 
-  v7 = localClientNum;
+  v1 = localClientNum;
   CL_GetViewPos(localClientNum, &outPos);
   ScriptableCommon_AssertCountsInitialized();
   runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
-  v9 = g_scriptableWorldCounts.runtimeInstanceCount + s_scriptableClLootCount[v7];
-  if ( g_scriptableWorldCounts.runtimeInstanceCount < v9 )
+  v3 = g_scriptableWorldCounts.runtimeInstanceCount + s_scriptableClLootCount[v1];
+  if ( g_scriptableWorldCounts.runtimeInstanceCount < v3 )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_38], xmm6
-      vmovss  xmm6, cs:__real@40a00000
-      vmovaps [rsp+118h+var_48], xmm7
-      vmovss  xmm7, cs:__real@42200000
-      vmovaps [rsp+118h+var_58], xmm8
-      vmovss  xmm8, dword ptr [rsp+118h+outPos+8]
-      vmovaps [rsp+118h+var_68], xmm9
-      vmovss  xmm9, dword ptr [rsp+118h+outPos+4]
-      vmovaps [rsp+118h+var_78], xmm10
-      vmovss  xmm10, dword ptr [rsp+118h+outPos]
-      vmovaps [rsp+118h+var_88], xmm11
-      vmovss  xmm11, cs:__real@4f1502f9
-    }
+    v4 = outPos.v[2];
+    v5 = outPos.v[1];
+    v6 = outPos.v[0];
     do
     {
-      ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v7, runtimeInstanceCount, &outPos);
-      __asm
+      ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v1, runtimeInstanceCount, &outPos);
+      if ( (float)((float)((float)((float)(v5 - outPos.v[1]) * (float)(v5 - outPos.v[1])) + (float)((float)(v6 - outPos.v[0]) * (float)(v6 - outPos.v[0]))) + (float)((float)(v4 - outPos.v[2]) * (float)(v4 - outPos.v[2]))) <= 2500000000.0 )
       {
-        vsubss  xmm0, xmm9, dword ptr [rsp+118h+outPos+4]
-        vsubss  xmm2, xmm10, dword ptr [rsp+118h+outPos]
-        vsubss  xmm3, xmm8, dword ptr [rsp+118h+outPos+8]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, xmm11
-      }
-      if ( v24 | v25 )
-      {
-        LootItemDef = ScriptableCl_GetLootItemDef((const LocalClientNum_t)v7, runtimeInstanceCount);
+        LootItemDef = ScriptableCl_GetLootItemDef((const LocalClientNum_t)v1, runtimeInstanceCount);
         if ( !LootItemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 6048, ASSERT_TYPE_ASSERT, "(lootItemDef)", (const char *)&queryFormat, "lootItemDef") )
           __debugbreak();
-        __asm
-        {
-          vaddss  xmm0, xmm6, dword ptr [rsp+118h+outPos+8]
-          vmovss  xmm3, dword ptr [rsp+118h+outPos]
-          vmovss  xmm2, dword ptr [rsp+118h+outPos+4]
-          vmovss  dword ptr [rsp+118h+start+8], xmm0
-          vaddss  xmm0, xmm7, dword ptr [rsp+118h+outPos+8]
-          vmovss  dword ptr [rsp+118h+end+8], xmm0
-          vmovss  dword ptr [rsp+118h+start], xmm3
-          vmovss  dword ptr [rsp+118h+start+4], xmm2
-          vmovss  dword ptr [rsp+118h+end], xmm3
-          vmovss  dword ptr [rsp+118h+end+4], xmm2
-        }
+        start.v[2] = outPos.v[2] + 5.0;
+        end.v[2] = outPos.v[2] + 40.0;
+        start.v[0] = outPos.v[0];
+        start.v[1] = outPos.v[1];
+        end.v[0] = outPos.v[0];
+        end.v[1] = outPos.v[1];
         rarity = LootItemDef->rarity;
         if ( (unsigned int)rarity >= 8 )
         {
-          LODWORD(v45) = 8;
-          LODWORD(v44) = LootItemDef->rarity;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4991, ASSERT_TYPE_ASSERT, "(unsigned)( rarity ) < (unsigned)( 8 )", "rarity doesn't index SPAWNGROUP_LOOT_MAX_RARITIES\n\t%i not in [0, %i)", v44, v45) )
+          LODWORD(v13) = 8;
+          LODWORD(v12) = LootItemDef->rarity;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4991, ASSERT_TYPE_ASSERT, "(unsigned)( rarity ) < (unsigned)( 8 )", "rarity doesn't index SPAWNGROUP_LOOT_MAX_RARITIES\n\t%i not in [0, %i)", v12, v13) )
             __debugbreak();
         }
-        _RDI = s_scriptableClLootTable[v7];
-        if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4994, ASSERT_TYPE_ASSERT, "(table)", (const char *)&queryFormat, "table") )
+        v9 = s_scriptableClLootTable[v1];
+        if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4994, ASSERT_TYPE_ASSERT, "(table)", (const char *)&queryFormat, "table") )
           __debugbreak();
-        _RCX = 5 * rarity;
-        __asm
-        {
-          vmovd   xmm0, dword ptr [rdi+rcx*8+2E6C8h]
-          vpmovzxbd xmm1, xmm0
-          vcvtdq2ps xmm3, xmm1
-          vmulps  xmm0, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-          vmovups xmmword ptr [rsp+118h+color], xmm0
-        }
+        _XMM0 = v9->rarities[rarity].colors;
+        __asm { vpmovzxbd xmm1, xmm0 }
+        color = (vec4_t)_mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
         CG_DebugLine(&start, &end, &color, 0, 0);
       }
       ++runtimeInstanceCount;
     }
-    while ( runtimeInstanceCount < v9 );
-    __asm
-    {
-      vmovaps xmm11, [rsp+118h+var_88]
-      vmovaps xmm10, [rsp+118h+var_78]
-      vmovaps xmm9, [rsp+118h+var_68]
-      vmovaps xmm8, [rsp+118h+var_58]
-      vmovaps xmm7, [rsp+118h+var_48]
-      vmovaps xmm6, [rsp+118h+var_38]
-    }
+    while ( runtimeInstanceCount < v3 );
   }
 }
 
@@ -4394,7 +4297,9 @@ void ScriptableCl_InitInstancePart(const LocalClientNum_t localClientNum, const 
   unsigned int v8; 
   ScriptableStateDef *states; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
+  __int64 eventStreamBufferOffsetClient; 
   ScriptableInstanceContextSecure *v12; 
+  __int128 v13; 
   ScriptableEventParams eventParams; 
 
   if ( !partDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 577, ASSERT_TYPE_ASSERT, "(partDef)", (const char *)&queryFormat, "partDef") )
@@ -4412,24 +4317,21 @@ void ScriptableCl_InitInstancePart(const LocalClientNum_t localClientNum, const 
       if ( states->type != Scriptable_StateType_Health && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 593, ASSERT_TYPE_ASSERT, "(stateDef->type == Scriptable_StateType_Health)", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
         __debugbreak();
       InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-      _R13 = partDef->eventStreamBufferOffsetClient;
+      eventStreamBufferOffsetClient = partDef->eventStreamBufferOffsetClient;
       v12 = InstanceCommonContext;
-      if ( _R13 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 599, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+      if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 599, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
         __debugbreak();
-      _RAX = v12->eventStreamBuffer;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [r14+28h]
-        vmovss  dword ptr [rax+r13], xmm0
-      }
+      v13 = 0i64;
+      *(float *)&v13 = (float)states->data.health.health;
+      _XMM0 = v13;
+      *(float *)&v12->eventStreamBuffer[eventStreamBufferOffsetClient] = *(float *)&v13;
     }
     eventParams.context = ScriptableCl_LocalClientToContext(localClientNum);
     eventParams.scriptableIndex = scriptableIndex;
     __asm { vpxor   xmm0, xmm0, xmm0 }
     eventParams.callbacks = &s_clCallbackTable;
     eventParams.partDef = partDef;
-    __asm { vmovdqu xmmword ptr [rsp+88h+eventParams.damageEvent], xmm0 }
+    *(_OWORD *)&eventParams.damageEvent = _XMM0;
     ScriptableBg_EnterState(&eventParams, 1);
   }
   if ( partDef->numChildParts )
@@ -4476,6 +4378,7 @@ void ScriptableCl_InitLootInstancesForClient(const LocalClientNum_t localClientN
   unsigned int v27; 
   SpawnGroupPoint *v28; 
   LocalClientNum_t v29; 
+  ScriptableInstanceClientContext *v30; 
   unsigned __int8 itemDefCount; 
   char *fmt; 
   BG_SpawnGroup_Loot_Table *table; 
@@ -4485,13 +4388,13 @@ void ScriptableCl_InitLootInstancesForClient(const LocalClientNum_t localClientN
   LocalClientNum_t localClientNuma; 
   StringTable *zoneMapTable; 
   ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> r_element; 
-  __int64 v43; 
-  ntl::red_black_tree_iterator<ScriptableDef const *,ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> >,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> &> v44; 
+  __int64 v40; 
+  ntl::red_black_tree_iterator<ScriptableDef const *,ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> >,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> &> v41; 
   ntl::red_black_tree_iterator<ScriptableDef const *,ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> >,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> &> result; 
-  Mem_LargeLocal v46; 
+  Mem_LargeLocal v43; 
   BG_SpawnGroup_Loot loot; 
 
-  v43 = -2i64;
+  v40 = -2i64;
   v1 = localClientNum;
   localClientNuma = localClientNum;
   ScriptableCl_ClearLootPingFX(localClientNum);
@@ -4546,9 +4449,9 @@ void ScriptableCl_InitLootInstancesForClient(const LocalClientNum_t localClientN
     v8[1203] = v8 + 1201;
     v8[1204] = v8 + 1201;
     s_scriptableClLootTable[v1]->scriptableDefMap = (ntl::fixed_map<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *,200,ntl::less<ScriptableDef const *,ScriptableDef const *> > *)v8;
-    Mem_LargeLocal::Mem_LargeLocal(&v46, 0xFFFFui64, "BG_SpawnGroup_Loot_PointMap pointToDefBuffer");
-    m_ptr = (BG_SpawnGroup_Loot_PointMap *)v46.m_ptr;
-    memset_0(v46.m_ptr, 0, 0xFFFFui64);
+    Mem_LargeLocal::Mem_LargeLocal(&v43, 0xFFFFui64, "BG_SpawnGroup_Loot_PointMap pointToDefBuffer");
+    m_ptr = (BG_SpawnGroup_Loot_PointMap *)v43.m_ptr;
+    memset_0(v43.m_ptr, 0, 0xFFFFui64);
     v12 = (BG_SpawnGroup_Loot_Caches *)Mem_HunkUser_AllocInternal(s_ScriptableClRuntimeHunk[v1], 0x413D0ui64, 8ui64, "ScriptableCl_InitLootInstancesForClient");
     s_scriptableClLootCaches[v1] = v12;
     if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 934, ASSERT_TYPE_ASSERT, "( ( s_scriptableClLootCaches[localClientNum] != nullptr ) )", "( s_scriptableClLootCaches[localClientNum] ) = %p", NULL) )
@@ -4593,7 +4496,7 @@ void ScriptableCl_InitLootInstancesForClient(const LocalClientNum_t localClientN
           goto LABEL_46;
         if ( p_m_endNodeBase != scriptableDefMap->m_endNodeBase.mp_left )
           break;
-        ntl::red_black_tree<ScriptableDef const *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>>,200,8>,ntl::return_pair_first<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::less<ScriptableDef const *,ScriptableDef const *>>::insert_node(scriptableDefMap, &v44, p_m_endNodeBase, &r_element, 1, 0);
+        ntl::red_black_tree<ScriptableDef const *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>>,200,8>,ntl::return_pair_first<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::less<ScriptableDef const *,ScriptableDef const *>>::insert_node(scriptableDefMap, &v41, p_m_endNodeBase, &r_element, 1, 0);
 LABEL_51:
         ++v14;
         v15 = s_scriptableClLootTable[v4];
@@ -4680,7 +4583,7 @@ LABEL_53:
           }
           if ( !g_scriptableCl_instanceContexts[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
             __debugbreak();
-          _RBX = &g_scriptableCl_instanceContexts[v4][v27];
+          v30 = &g_scriptableCl_instanceContexts[v4][v27];
           itemDefCount = s_scriptableClLootTable[v4]->itemDefCount;
           if ( v26 >= itemDefCount )
           {
@@ -4689,17 +4592,11 @@ LABEL_53:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 969, ASSERT_TYPE_ASSERT, "(unsigned)( itemDefIndex ) < (unsigned)( s_scriptableClLootTable[localClientNum]->itemDefCount )", "itemDefIndex doesn't index s_scriptableClLootTable[localClientNum]->itemDefCount\n\t%i not in [0, %i)", tablea, printResultsToConsole) )
               __debugbreak();
           }
-          _RBX->commonContext.def = s_scriptableClLootTable[v4]->itemDefs[(unsigned __int64)v26].scriptableDef;
-          ScriptableInstanceContextSecure::SetOrigin(&_RBX->commonContext, v27, &v28->origin);
-          _R9 = &v28->angles;
-          _RBX->commonContext.angles.v[0] = v28->angles.v[0];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r9+4]
-            vmovss  dword ptr [rbx+30h], xmm0
-            vmovss  xmm1, dword ptr [r9+8]
-            vmovss  dword ptr [rbx+34h], xmm1
-          }
+          v30->commonContext.def = s_scriptableClLootTable[v4]->itemDefs[(unsigned __int64)v26].scriptableDef;
+          ScriptableInstanceContextSecure::SetOrigin(&v30->commonContext, v27, &v28->origin);
+          v30->commonContext.angles.v[0] = v28->angles.v[0];
+          v30->commonContext.angles.v[1] = v28->angles.v[1];
+          v30->commonContext.angles.v[2] = v28->angles.v[2];
           ScriptableCl_SetInitialOriginAndAngles(v29, v27, &v28->origin, &v28->angles);
           ++s_scriptableClLootCount[v4];
           mapEnts = cm.mapEnts;
@@ -4710,7 +4607,7 @@ LABEL_53:
     }
     if ( s_scriptableClLootCount[v4] != loot.itemCounts.itemCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 979, ASSERT_TYPE_ASSERT, "(s_scriptableClLootCount[localClientNum] == loot.itemCounts.itemCount)", (const char *)&queryFormat, "s_scriptableClLootCount[localClientNum] == loot.itemCounts.itemCount") )
       __debugbreak();
-    Mem_LargeLocal::~Mem_LargeLocal(&v46);
+    Mem_LargeLocal::~Mem_LargeLocal(&v43);
   }
 }
 
@@ -5008,81 +4905,71 @@ void ScriptableCl_InterlockedBitSetTo(volatile bitarray<2048> *entityBits, const
   __int64 v3; 
   unsigned __int64 v4; 
   __int64 v5; 
-  unsigned int v22; 
-  char *v23; 
-  char v24[256]; 
+  char *v6; 
+  volatile bitarray<2048> *v9; 
+  __m256i v10; 
+  __int128 v11; 
+  volatile bitarray<2048> *v12; 
+  char *v13; 
+  __m256i v14; 
+  __int128 v15; 
+  unsigned int v16; 
+  char *v17; 
+  char v18[256]; 
 
   v3 = 2i64;
   v4 = entityNum;
   v5 = 2i64;
-  _R9 = v24;
-  _RAX = entityBits;
+  v6 = v18;
+  v9 = entityBits;
   do
   {
-    _R9 += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (volatile bitarray<2048> *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [r9-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [r9-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [r9-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r9-20h], xmm0
-      vmovups xmmword ptr [r9-10h], xmm1
-    }
+    v6 += 128;
+    v10 = *(__m256i *)v9->array;
+    v11 = *(_OWORD *)&v9->array[28];
+    v9 = (volatile bitarray<2048> *)((char *)v9 + 128);
+    *((__m256i *)v6 - 4) = v10;
+    *((__m256i *)v6 - 3) = *(__m256i *)&v9[-1].array[40];
+    *((__m256i *)v6 - 2) = *(__m256i *)&v9[-1].array[48];
+    *((_OWORD *)v6 - 2) = *(_OWORD *)&v9[-1].array[56];
+    *((_OWORD *)v6 - 1) = v11;
     --v5;
   }
   while ( v5 );
   if ( entityNum >> 5 >= 0x40 )
   {
-    _RAX = entityBits;
-    _RCX = v24;
+    v12 = entityBits;
+    v13 = v18;
     do
     {
-      _RCX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (volatile bitarray<2048> *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      v13 += 128;
+      v14 = *(__m256i *)v12->array;
+      v15 = *(_OWORD *)&v12->array[28];
+      v12 = (volatile bitarray<2048> *)((char *)v12 + 128);
+      *((__m256i *)v13 - 4) = v14;
+      *((__m256i *)v13 - 3) = *(__m256i *)&v12[-1].array[40];
+      *((__m256i *)v13 - 2) = *(__m256i *)&v12[-1].array[48];
+      *((_OWORD *)v13 - 2) = *(_OWORD *)&v12[-1].array[56];
+      *((_OWORD *)v13 - 1) = v15;
       --v3;
     }
     while ( v3 );
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2070, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum >> 5 ) < (unsigned)( entityBits.WORD_COUNT )", "entityNum >> 5 doesn't index entityBits.WORD_COUNT\n\t%i not in [0, %i)", entityNum >> 5, 64) )
       __debugbreak();
   }
-  v22 = 0x80000000 >> (v4 & 0x1F);
-  v23 = (char *)&entityBits->array[v4 >> 5];
+  v16 = 0x80000000 >> (v4 & 0x1F);
+  v17 = (char *)&entityBits->array[v4 >> 5];
   if ( set )
   {
-    if ( ((unsigned __int8)v23 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v23) )
+    if ( ((unsigned __int8)v17 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v17) )
       __debugbreak();
-    _InterlockedOr((volatile signed __int32 *)v23, v22);
+    _InterlockedOr((volatile signed __int32 *)v17, v16);
   }
   else
   {
-    if ( ((unsigned __int8)v23 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 51, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v23) )
+    if ( ((unsigned __int8)v17 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 51, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v17) )
       __debugbreak();
-    _InterlockedAnd((volatile signed __int32 *)v23, ~v22);
+    _InterlockedAnd((volatile signed __int32 *)v17, ~v16);
   }
 }
 
@@ -5311,45 +5198,48 @@ ScriptableCl_IsNearChangeQueueOverflow
 */
 char ScriptableCl_IsNearChangeQueueOverflow(const LocalClientNum_t localClientNum)
 {
+  __int64 v1; 
   __int64 v2; 
-  __int64 v3; 
   unsigned __int64 writeIndex; 
   unsigned __int64 readIndex; 
-  int v14; 
+  float capacity; 
+  float v6; 
+  float v7; 
+  unsigned __int64 v8; 
+  int v11; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v14 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableCl_changeQueue ) ) + 0 ) )", "localClientNum doesn't index s_scriptableCl_changeQueue\n\t%i not in [0, %i)", localClientNum, v14) )
+    v11 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableCl_changeQueue ) ) + 0 ) )", "localClientNum doesn't index s_scriptableCl_changeQueue\n\t%i not in [0, %i)", localClientNum, v11) )
       __debugbreak();
   }
-  v3 = v2;
-  if ( s_scriptableCl_changeQueue[v3].writeIndex == s_scriptableCl_changeQueue[v3].readIndex )
+  v2 = v1;
+  if ( s_scriptableCl_changeQueue[v2].writeIndex == s_scriptableCl_changeQueue[v2].readIndex )
     return 0;
-  if ( !s_scriptableCl_changeQueue[v3].buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4266, ASSERT_TYPE_ASSERT, "(changeQueue.buffer)", (const char *)&queryFormat, "changeQueue.buffer") )
+  if ( !s_scriptableCl_changeQueue[v2].buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4266, ASSERT_TYPE_ASSERT, "(changeQueue.buffer)", (const char *)&queryFormat, "changeQueue.buffer") )
     __debugbreak();
-  __asm { vmovss  xmm2, cs:__real@5f000000 }
-  writeIndex = s_scriptableCl_changeQueue[v3].writeIndex;
-  readIndex = s_scriptableCl_changeQueue[v3].readIndex;
-  __asm
+  writeIndex = s_scriptableCl_changeQueue[v2].writeIndex;
+  readIndex = s_scriptableCl_changeQueue[v2].readIndex;
+  capacity = (float)s_scriptableCl_changeQueue[v2].capacity;
+  v7 = capacity * 0.89999998;
+  v6 = v7;
+  v8 = 0i64;
+  if ( v7 >= 9.223372e18 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3f666666
-    vcomiss xmm1, xmm2
-    vsubss  xmm1, xmm1, xmm2
-    vcomiss xmm1, xmm2
-    vcvttss2si rcx, xmm1
+    v6 = v7 - 9.223372e18;
+    if ( (float)(v7 - 9.223372e18) < 9.223372e18 )
+      v8 = 0x8000000000000000ui64;
   }
-  if ( writeIndex - readIndex >= _RCX )
+  if ( writeIndex - readIndex >= v8 + (unsigned int)(int)v6 )
   {
-    Com_PrintError(29, "ScriptableCl_IsNearChangeQueueOverflow: Close to the change index capacity. Write %zu Read %zu Start %zu\n", s_scriptableCl_changeQueue[v3].writeIndex, readIndex, s_scriptableCl_changeQueue[v3].startIndex);
+    Com_PrintError(29, "ScriptableCl_IsNearChangeQueueOverflow: Close to the change index capacity. Write %zu Read %zu Start %zu\n", s_scriptableCl_changeQueue[v2].writeIndex, readIndex, s_scriptableCl_changeQueue[v2].startIndex);
     return 1;
   }
-  if ( ScriptableMsgRead_CheckAvailableBufferSpace(s_scriptableCl_changeQueue[v3].readIndex, writeIndex, s_scriptableCl_changeQueue[v3].buffer, 0x6666u) )
+  if ( ScriptableMsgRead_CheckAvailableBufferSpace(s_scriptableCl_changeQueue[v2].readIndex, writeIndex, s_scriptableCl_changeQueue[v2].buffer, 0x6666u) )
     return 0;
-  Com_PrintError(29, "ScriptableCl_IsNearChangeQueueOverflow: Close to the change buffer capacity. Write %zu Read %zu Start %zu\n", s_scriptableCl_changeQueue[v3].writeIndex, s_scriptableCl_changeQueue[v3].readIndex, s_scriptableCl_changeQueue[v3].startIndex);
+  Com_PrintError(29, "ScriptableCl_IsNearChangeQueueOverflow: Close to the change buffer capacity. Write %zu Read %zu Start %zu\n", s_scriptableCl_changeQueue[v2].writeIndex, s_scriptableCl_changeQueue[v2].readIndex, s_scriptableCl_changeQueue[v2].startIndex);
   return 1;
 }
 
@@ -5825,7 +5715,7 @@ void ScriptableCl_ReenterInstancePart(const LocalClientNum_t localClientNum, con
     __asm { vpxor   xmm0, xmm0, xmm0 }
     eventParams.callbacks = &s_clCallbackTable;
     eventParams.partDef = partDef;
-    __asm { vmovdqu xmmword ptr [rsp+68h+eventParams.damageEvent], xmm0 }
+    *(_OWORD *)&eventParams.damageEvent = _XMM0;
     ScriptableBg_ExitState(&eventParams);
     ScriptableBg_EnterState(&eventParams, 0);
   }
@@ -6468,7 +6358,7 @@ void ScriptableCl_ShutdownInstancePart(const LocalClientNum_t localClientNum, co
     __asm { vpxor   xmm0, xmm0, xmm0 }
     eventParams.callbacks = &s_clCallbackTable;
     eventParams.partDef = partDef;
-    __asm { vmovdqu xmmword ptr [rsp+68h+eventParams.damageEvent], xmm0 }
+    *(_OWORD *)&eventParams.damageEvent = _XMM0;
     ScriptableBg_ExitState(&eventParams);
     ScriptableCl_DestroyCollision(localClientNum, scriptableIndex);
   }
@@ -6781,79 +6671,55 @@ ScriptableCl_Spatial_DrawOverlay
 */
 void ScriptableCl_Spatial_DrawOverlay(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
+  const dvar_t *v1; 
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
-  bool v5; 
-  const ScreenPlacement *v6; 
-  const vec4_t *v8; 
-  const vec4_t *v13; 
+  bool v4; 
+  const ScreenPlacement *v5; 
+  const vec4_t *v6; 
+  const vec4_t *v7; 
   char *fmt; 
   char *fmta; 
-  float v19; 
-  float v20; 
-  float v21; 
   char dest[256]; 
 
-  v2 = DCONST_DVARBOOL_scriptable_debug_spatial_overlay;
-  v3 = localClientNum;
+  v1 = DCONST_DVARBOOL_scriptable_debug_spatial_overlay;
+  v2 = localClientNum;
   if ( !DCONST_DVARBOOL_scriptable_debug_spatial_overlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_spatial_overlay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled && cm.mapEnts->scriptableMapEnts.spatialPopulationTree )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled && cm.mapEnts->scriptableMapEnts.spatialPopulationTree )
   {
-    v4 = v3;
-    __asm { vmovaps [rsp+188h+var_28], xmm7 }
+    v3 = v2;
     if ( activeScreenPlacementMode )
     {
       if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
       {
-        v6 = &scrPlaceViewDisplay[v3];
+        v5 = &scrPlaceViewDisplay[v2];
         goto LABEL_13;
       }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v5 )
+        v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v4 )
         __debugbreak();
     }
-    v6 = &scrPlaceFull;
+    v5 = &scrPlaceFull;
 LABEL_13:
     Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, "scriptablesSpatial");
-    __asm { vmovss  xmm7, cs:__real@41000000 }
-    v8 = &colorWhite;
-    __asm
-    {
-      vmovss  [rsp+188h+var_150], xmm7
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm7; x
-    }
-    CG_DrawStringExt(v6, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v19, 0);
+    v6 = &colorWhite;
+    CG_DrawStringExt(v5, 8.0, 8.0, dest, &colorWhite, 0, 1, 8.0, 0);
     LODWORD(fmt) = 1024;
-    Com_sprintf(dest, 0x100ui64, "active      = %d / %d", s_scriptableSpatial[v4].activeCount, fmt);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41800000; y
-      vmovss  xmm1, cs:__real@41c00000; x
-      vmovss  [rsp+188h+var_150], xmm7
-    }
-    v13 = &colorWhite;
-    if ( s_scriptableSpatial[v4].activeCount >= 0x400 )
-      v13 = &colorRed;
-    CG_DrawStringExt(v6, *(float *)&_XMM1, *(float *)&_XMM2, dest, v13, 0, 1, v20, 0);
+    Com_sprintf(dest, 0x100ui64, "active      = %d / %d", s_scriptableSpatial[v3].activeCount, fmt);
+    v7 = &colorWhite;
+    if ( s_scriptableSpatial[v3].activeCount >= 0x400 )
+      v7 = &colorRed;
+    CG_DrawStringExt(v5, 24.0, 16.0, dest, v7, 0, 1, 8.0, 0);
     LODWORD(fmta) = 256;
-    Com_sprintf(dest, 0x100ui64, "visable     = %d / %d", s_scriptableSpatial[v4].localCount, fmta);
-    __asm { vmovss  xmm2, cs:__real@41c00000; y }
-    if ( s_scriptableSpatial[v4].localCount >= 0x100 )
-      v8 = &colorRed;
-    __asm
-    {
-      vmovss  [rsp+188h+var_150], xmm7
-      vmovaps xmm1, xmm2; x
-    }
-    CG_DrawStringExt(v6, *(float *)&_XMM1, *(float *)&_XMM2, dest, v8, 0, 1, v21, 0);
-    __asm { vmovaps xmm7, [rsp+188h+var_28] }
+    Com_sprintf(dest, 0x100ui64, "visable     = %d / %d", s_scriptableSpatial[v3].localCount, fmta);
+    if ( s_scriptableSpatial[v3].localCount >= 0x100 )
+      v6 = &colorRed;
+    CG_DrawStringExt(v5, 24.0, 24.0, dest, v6, 0, 1, 8.0, 0);
   }
 }
 
@@ -6864,31 +6730,30 @@ ScriptableCl_Spatial_GetPartitionIndex
 */
 __int64 ScriptableCl_Spatial_GetPartitionIndex(const vec3_t *origin)
 {
-  float v2; 
+  float v1; 
   unsigned int Partition; 
-  unsigned int v4; 
-  __int64 v6; 
+  unsigned int v3; 
+  __int64 v5; 
   unsigned int partitionCount; 
   vec3_t pos; 
 
-  __asm { vmovsd  xmm0, qword ptr [rcx] }
-  v2 = origin->v[2];
-  __asm { vmovsd  qword ptr [rsp+68h+pos], xmm0 }
-  pos.v[2] = v2;
+  v1 = origin->v[2];
+  *(_QWORD *)pos.v = *(_QWORD *)origin->v;
+  pos.v[2] = v1;
   if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5106, ASSERT_TYPE_ASSERT, "(cm.mapEnts)", (const char *)&queryFormat, "cm.mapEnts") )
     __debugbreak();
   if ( !cm.mapEnts->scriptableMapEnts.spatialPopulationTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5107, ASSERT_TYPE_ASSERT, "(cm.mapEnts->scriptableMapEnts.spatialPopulationTree)", (const char *)&queryFormat, "cm.mapEnts->scriptableMapEnts.spatialPopulationTree") )
     __debugbreak();
   Partition = SpatialPartition_PopulationTree_FindPartition(cm.mapEnts->scriptableMapEnts.spatialPopulationTree, &pos);
-  v4 = truncate_cast<unsigned short,unsigned int>(Partition);
-  if ( v4 >= cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount )
+  v3 = truncate_cast<unsigned short,unsigned int>(Partition);
+  if ( v3 >= cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount )
   {
     partitionCount = cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount;
-    LODWORD(v6) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5110, ASSERT_TYPE_SANITY, "(unsigned)( partitionIndex ) < (unsigned)( cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount )", "partitionIndex doesn't index cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount\n\t%i not in [0, %i)", v6, partitionCount) )
+    LODWORD(v5) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5110, ASSERT_TYPE_SANITY, "(unsigned)( partitionIndex ) < (unsigned)( cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount )", "partitionIndex doesn't index cm.mapEnts->scriptableMapEnts.spatialPopulationTree->partitionCount\n\t%i not in [0, %i)", v5, partitionCount) )
       __debugbreak();
   }
-  return (unsigned __int16)v4;
+  return (unsigned __int16)v3;
 }
 
 /*
@@ -6947,12 +6812,12 @@ void ScriptableCl_Spatial_MarkerAlloc(const LocalClientNum_t localClientNum, uns
   __int64 v6; 
   ScriptableSpatialMarker *v7; 
   unsigned __int16 PartitionIndex; 
+  __int64 v9; 
   __int64 v10; 
   __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
   vec3_t outOrigin; 
-  vec3_t v15; 
+  vec3_t v14; 
 
   v2 = scriptableIndex;
   v3 = localClientNum;
@@ -6971,25 +6836,25 @@ void ScriptableCl_Spatial_MarkerAlloc(const LocalClientNum_t localClientNum, uns
   v6 = s_scriptableSpatial[v4].markerFreeList[s_scriptableSpatial[v4].markerCount];
   if ( (unsigned int)v6 >= s_scriptableSpatial[v4].markerMax )
   {
-    LODWORD(v11) = s_scriptableSpatial[v4].markerMax;
-    LODWORD(v10) = s_scriptableSpatial[v4].markerFreeList[s_scriptableSpatial[v4].markerCount];
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5389, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v10) = s_scriptableSpatial[v4].markerMax;
+    LODWORD(v9) = s_scriptableSpatial[v4].markerFreeList[s_scriptableSpatial[v4].markerCount];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5389, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
   if ( s_scriptableSpatial[v4].markerFreeList[s_scriptableSpatial[v4].markerCount] == -1 )
   {
-    LODWORD(v13) = -1;
     LODWORD(v12) = -1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5391, ASSERT_TYPE_ASSERT, "( spatial.markerFreeList[spatial.markerCount] ) != ( ( SCRIPTABLE_INVALID_INSTANCE_INDEX ) )", "%s != %s\n\t%i, %i", "spatial.markerFreeList[spatial.markerCount]", "SCRIPTABLE_SPATIAL_MARKER_INVALID", v12, v13) )
+    LODWORD(v11) = -1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5391, ASSERT_TYPE_ASSERT, "( spatial.markerFreeList[spatial.markerCount] ) != ( ( SCRIPTABLE_INVALID_INSTANCE_INDEX ) )", "%s != %s\n\t%i, %i", "spatial.markerFreeList[spatial.markerCount]", "SCRIPTABLE_SPATIAL_MARKER_INVALID", v11, v12) )
       __debugbreak();
   }
   s_scriptableSpatial[v4].markerFreeList[s_scriptableSpatial[v4].markerCount++] = -1;
   v7 = &s_scriptableSpatial[v4].markerList[v6];
   if ( v7->scriptableIndex != -1 )
   {
-    LODWORD(v13) = -1;
-    LODWORD(v12) = v7->scriptableIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5396, ASSERT_TYPE_ASSERT, "( marker.scriptableIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "%s == %s\n\t%i, %i", "marker.scriptableIndex", "SCRIPTABLE_INVALID_INSTANCE_INDEX", v12, v13) )
+    LODWORD(v12) = -1;
+    LODWORD(v11) = v7->scriptableIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5396, ASSERT_TYPE_ASSERT, "( marker.scriptableIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "%s == %s\n\t%i, %i", "marker.scriptableIndex", "SCRIPTABLE_INVALID_INSTANCE_INDEX", v11, v12) )
       __debugbreak();
   }
   v7->scriptableIndex = v2;
@@ -6997,13 +6862,8 @@ void ScriptableCl_Spatial_MarkerAlloc(const LocalClientNum_t localClientNum, uns
   (*p_scriptableToMarker)[v2] = v6;
   ScriptableCl_Spatial_VerifyMarkerNotLinked((const LocalClientNum_t)v3, v6);
   ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v3, v2, &outOrigin);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+98h+outOrigin]
-    vmovsd  [rsp+98h+var_28], xmm0
-  }
-  v15.v[2] = outOrigin.v[2];
-  PartitionIndex = ScriptableCl_Spatial_GetPartitionIndex(&v15);
+  v14 = outOrigin;
+  PartitionIndex = ScriptableCl_Spatial_GetPartitionIndex(&v14);
   ScriptableCl_Spatial_MarkerLinkToTree((const LocalClientNum_t)v3, v6, PartitionIndex);
   memset(&outOrigin, 0, sizeof(outOrigin));
 }
@@ -7221,16 +7081,10 @@ ScriptableCl_Spatial_Sort
 */
 __int64 ScriptableCl_Spatial_Sort(const void *pe0, const void *pe1)
 {
-  char v2; 
   __int64 result; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vcomiss xmm0, dword ptr [rdx+4]
-  }
   result = 1i64;
-  if ( v2 )
+  if ( *((float *)pe0 + 1) < *((float *)pe1 + 1) )
     return 0xFFFFFFFFi64;
   return result;
 }
@@ -7242,129 +7096,135 @@ ScriptableCl_Spatial_Update
 */
 void ScriptableCl_Spatial_Update(const LocalClientNum_t localClientNum)
 {
-  __int64 v11; 
-  unsigned int v15; 
+  __int64 v1; 
+  const dvar_t *v2; 
+  float value; 
+  float v4; 
+  unsigned int v5; 
   cg_t *LocalClientGlobals; 
-  cg_t *v17; 
+  cg_t *v7; 
   unsigned int cursorHintEntIndex; 
-  __int64 v19; 
+  __int64 v9; 
   unsigned int IndexByName; 
-  unsigned int v21; 
+  unsigned int v11; 
   const OmnvarDef *Def; 
   OmnvarData *Data; 
   bool enabled; 
   unsigned int runtimeInstanceCount; 
-  unsigned int v26; 
-  __int64 v27; 
-  ScriptableInstanceClientContext *v28; 
+  unsigned int v16; 
+  __int64 v17; 
+  ScriptableInstanceClientContext *v18; 
   ntl::red_black_tree_node_base *LootItemDefByScriptableDef; 
-  const BG_SpawnGroup_Loot_ItemDef *v30; 
+  const BG_SpawnGroup_Loot_ItemDef *v20; 
   unsigned int ScriptableInstanceFirstPartWorldIndex; 
   unsigned __int8 ScriptableInstanceFirstPartWorldState; 
+  float v23; 
+  __int128 v24; 
   SpatialPartition_Population_Tree *spatialPopulationTree; 
+  ScriptableSpatial *v28; 
   unsigned int *markerBitField; 
   unsigned int markerMax; 
-  unsigned int *v41; 
+  unsigned int *v31; 
   __int64 markerBitFieldWorldCount; 
-  __int64 v43; 
-  unsigned int *v44; 
+  __int64 v33; 
+  unsigned int *v34; 
   unsigned __int16 m_curPartition; 
   unsigned int next; 
   ScriptableSpatialMarker *markerList; 
-  unsigned int v48; 
+  unsigned int v38; 
   unsigned int scriptableIndex; 
-  const ScriptableDef *v50; 
-  bool v51; 
-  __int64 v52; 
-  char v60; 
-  char v61; 
+  const ScriptableDef *v40; 
+  bool v41; 
+  __int64 v42; 
+  float v43; 
   unsigned int localCount; 
-  unsigned int v64; 
+  unsigned int v45; 
   __int64 markerIndex; 
-  ScriptableSpatialMarker *v66; 
-  __int64 v67; 
-  signed int v68; 
-  unsigned int *v69; 
-  __int64 v70; 
-  ScriptableSpatialMarker *v71; 
-  unsigned int v72; 
-  __int64 v73; 
-  ScriptableSpatialMarker *v74; 
-  __int64 v75; 
-  char v76; 
-  unsigned int v77; 
+  ScriptableSpatialMarker *v47; 
+  __int64 v48; 
+  signed int v49; 
+  unsigned int *v50; 
+  __int64 v51; 
+  ScriptableSpatialMarker *v52; 
+  unsigned int v53; 
+  __int64 v54; 
+  ScriptableSpatialMarker *v55; 
+  __int64 v56; 
+  char v57; 
+  unsigned int v58; 
   unsigned int i; 
-  const dvar_t *v79; 
-  __int64 v82; 
-  unsigned int v83; 
-  ScriptableSpatialMarker *v85; 
-  unsigned int v86; 
-  const vec4_t *v99; 
-  const char *v100; 
-  const dvar_t *v102; 
-  unsigned __int16 v103; 
-  unsigned __int16 v104; 
-  __int64 v106; 
-  __int64 v108; 
+  const dvar_t *v60; 
+  __int64 v61; 
+  unsigned int v62; 
+  ScriptableSpatialMarker *v63; 
+  unsigned int v64; 
+  float v65; 
+  const vec4_t *v66; 
+  const char *v67; 
+  const dvar_t *v68; 
+  __int64 v69; 
+  unsigned __int16 v70; 
+  unsigned __int16 v71; 
+  __int64 v72; 
+  __int64 v73; 
+  __int64 v74; 
+  ExtentBounds *extents; 
+  __int128 v77; 
+  __int128 v80; 
+  __int128 v82; 
+  float v84; 
+  __int128 v87; 
+  float v89; 
+  vec4_t v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  const char *v94; 
   __int64 duration; 
-  __int64 v138; 
-  __int64 v139; 
-  __int64 v140; 
-  bool v141; 
-  unsigned int v142; 
-  SpatialPartition_Population_Tree *v143; 
-  int v144; 
+  __int64 v96; 
+  __int64 v97; 
+  __int64 v98; 
+  bool v99; 
+  unsigned int v100; 
+  SpatialPartition_Population_Tree *v101; 
+  int v102; 
   vec3_t outPos; 
   vec3_t outOrigin; 
   vec3_t start; 
   vec4_t color; 
   vec3_t end; 
   Bounds bounds; 
-  SpatialPartition_Population_Tree_AABBPartitionIterator v152; 
-  char v157; 
-  void *retaddr; 
+  SpatialPartition_Population_Tree_AABBPartitionIterator v110; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-  }
-  v11 = localClientNum;
+  v1 = localClientNum;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5658, ASSERT_TYPE_ASSERT, "( Sys_IsMainThread() )", "Updating partitions can't be done from workers") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_scriptable_spatialViewRadiusMax;
+  v2 = DCONST_DVARFLT_scriptable_spatialViewRadiusMax;
   if ( !DCONST_DVARFLT_scriptable_spatialViewRadiusMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_spatialViewRadiusMax") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v4 = value * value;
+  CL_GetViewPos((LocalClientNum_t)v1, &outPos);
+  v5 = -1;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+  v7 = LocalClientGlobals;
+  if ( LocalClientGlobals->predictedPlayerState.cursorHintClass == USE_CLASS_SCRIPTABLE && ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v1, LocalClientGlobals->predictedPlayerState.cursorHintEntIndex) )
   {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vmulss  xmm11, xmm6, xmm6
+    cursorHintEntIndex = v7->predictedPlayerState.cursorHintEntIndex;
+    if ( ScriptableCl_IsLoot((const LocalClientNum_t)v1, cursorHintEntIndex) )
+      v5 = cursorHintEntIndex;
   }
-  CL_GetViewPos((LocalClientNum_t)v11, &outPos);
-  v15 = -1;
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v11);
-  v17 = LocalClientGlobals;
-  if ( LocalClientGlobals->predictedPlayerState.cursorHintClass == USE_CLASS_SCRIPTABLE && ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v11, LocalClientGlobals->predictedPlayerState.cursorHintEntIndex) )
-  {
-    cursorHintEntIndex = v17->predictedPlayerState.cursorHintEntIndex;
-    if ( ScriptableCl_IsLoot((const LocalClientNum_t)v11, cursorHintEntIndex) )
-      v15 = cursorHintEntIndex;
-  }
-  *(_QWORD *)start.v = v11;
-  v19 = v11;
-  ScriptableCl_UpdateLootPingFX((const LocalClientNum_t)v11, v15, s_scriptableClLootTable[v11]);
-  v141 = 0;
+  *(_QWORD *)start.v = v1;
+  v9 = v1;
+  ScriptableCl_UpdateLootPingFX((const LocalClientNum_t)v1, v5, s_scriptableClLootTable[v1]);
+  v99 = 0;
   IndexByName = BG_Omnvar_GetIndexByName("scriptable_loot_hide");
-  v21 = IndexByName;
+  v11 = IndexByName;
   if ( IndexByName != -1 )
   {
     Def = BG_Omnvar_GetDef(IndexByName);
-    Data = CG_Omnvar_GetData((LocalClientNum_t)v11, v21);
+    Data = CG_Omnvar_GetData((LocalClientNum_t)v1, v11);
     if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 224, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
       __debugbreak();
     if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 225, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -7378,153 +7238,147 @@ void ScriptableCl_Spatial_Update(const LocalClientNum_t localClientNum)
     else
 LABEL_22:
       enabled = Data->current.enabled;
-    v141 = enabled;
+    v99 = enabled;
     if ( s_scriptableCl_lootHidden != enabled )
     {
       s_scriptableCl_lootHidden = enabled;
       ScriptableCommon_AssertCountsInitialized();
       runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
-      v26 = g_scriptableWorldCounts.runtimeInstanceCount + s_scriptableClLootCount[v11];
-      if ( g_scriptableWorldCounts.runtimeInstanceCount < v26 )
+      v16 = g_scriptableWorldCounts.runtimeInstanceCount + s_scriptableClLootCount[v1];
+      if ( g_scriptableWorldCounts.runtimeInstanceCount < v16 )
       {
-        v27 = g_scriptableWorldCounts.runtimeInstanceCount;
+        v17 = g_scriptableWorldCounts.runtimeInstanceCount;
         do
         {
-          if ( !ScriptableCl_ObjectiveAddSafe((const LocalClientNum_t)v11) )
+          if ( !ScriptableCl_ObjectiveAddSafe((const LocalClientNum_t)v1) )
             break;
           ScriptableCommon_AssertCountsInitialized();
           if ( runtimeInstanceCount >= g_scriptableWorldCounts.totalInstanceCount )
           {
             ScriptableCommon_AssertCountsInitialized();
-            LODWORD(v138) = g_scriptableWorldCounts.totalInstanceCount;
+            LODWORD(v96) = g_scriptableWorldCounts.totalInstanceCount;
             LODWORD(duration) = runtimeInstanceCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, v138) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, v96) )
               __debugbreak();
           }
-          if ( (unsigned int)v11 >= 2 )
+          if ( (unsigned int)v1 >= 2 )
           {
-            LODWORD(v138) = 2;
-            LODWORD(duration) = v11;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 114, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableCl_instanceContexts ) ) + 0 ) )", "localClientNum doesn't index g_scriptableCl_instanceContexts\n\t%i not in [0, %i)", duration, v138) )
+            LODWORD(v96) = 2;
+            LODWORD(duration) = v1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 114, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableCl_instanceContexts ) ) + 0 ) )", "localClientNum doesn't index g_scriptableCl_instanceContexts\n\t%i not in [0, %i)", duration, v96) )
               __debugbreak();
           }
-          if ( !g_scriptableCl_instanceContexts[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
+          if ( !g_scriptableCl_instanceContexts[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
             __debugbreak();
-          v28 = g_scriptableCl_instanceContexts[v11];
-          LootItemDefByScriptableDef = ScriptableCl_GetLootItemDefByScriptableDef((const LocalClientNum_t)v11, v28[v27].commonContext.def);
-          v30 = (const BG_SpawnGroup_Loot_ItemDef *)LootItemDefByScriptableDef;
+          v18 = g_scriptableCl_instanceContexts[v1];
+          LootItemDefByScriptableDef = ScriptableCl_GetLootItemDefByScriptableDef((const LocalClientNum_t)v1, v18[v17].commonContext.def);
+          v20 = (const BG_SpawnGroup_Loot_ItemDef *)LootItemDefByScriptableDef;
           if ( LootItemDefByScriptableDef && HIDWORD(LootItemDefByScriptableDef[7].mp_left) )
           {
-            ScriptableInstanceFirstPartWorldIndex = ScriptableCl_GetScriptableInstanceFirstPartWorldIndex((const LocalClientNum_t)v11, runtimeInstanceCount);
-            ScriptableInstanceFirstPartWorldState = ScriptableCl_GetScriptableInstanceFirstPartWorldState((const LocalClientNum_t)v11, runtimeInstanceCount, ScriptableInstanceFirstPartWorldIndex);
-            ScriptableCl_ProcessChangedServerStateLootObjective((const LocalClientNum_t)v11, runtimeInstanceCount, v28[v27].commonContext.def, v30, ScriptableInstanceFirstPartWorldState);
+            ScriptableInstanceFirstPartWorldIndex = ScriptableCl_GetScriptableInstanceFirstPartWorldIndex((const LocalClientNum_t)v1, runtimeInstanceCount);
+            ScriptableInstanceFirstPartWorldState = ScriptableCl_GetScriptableInstanceFirstPartWorldState((const LocalClientNum_t)v1, runtimeInstanceCount, ScriptableInstanceFirstPartWorldIndex);
+            ScriptableCl_ProcessChangedServerStateLootObjective((const LocalClientNum_t)v1, runtimeInstanceCount, v18[v17].commonContext.def, v20, ScriptableInstanceFirstPartWorldState);
           }
           ++runtimeInstanceCount;
-          ++v27;
+          ++v17;
         }
-        while ( runtimeInstanceCount < v26 );
+        while ( runtimeInstanceCount < v16 );
       }
     }
   }
   Sys_ProfBeginNamedEvent(0xFF008008, "ScriptableCl_Spatial_Update");
-  __asm
-  {
-    vmovss  xmm14, dword ptr [rsp+3C0h+outPos+8]
-    vmovss  xmm12, dword ptr [rsp+3C0h+outPos+4]
-    vmovss  xmm13, dword ptr [rsp+3C0h+outPos]
-  }
+  v23 = outPos.v[2];
+  v24 = LODWORD(outPos.v[1]);
+  _XMM13 = LODWORD(outPos.v[0]);
   spatialPopulationTree = cm.mapEnts->scriptableMapEnts.spatialPopulationTree;
-  v143 = spatialPopulationTree;
+  v101 = spatialPopulationTree;
   if ( spatialPopulationTree )
   {
     __asm { vunpcklps xmm0, xmm13, xmm12 }
-    v152.m_tree = NULL;
-    *(_QWORD *)&v152.m_curPartition = 0i64;
-    _R12 = &s_scriptableSpatial[v11];
+    v110.m_tree = NULL;
+    *(_QWORD *)&v110.m_curPartition = 0i64;
+    v28 = &s_scriptableSpatial[v1];
     bounds.midPoint.v[2] = outPos.v[2];
-    __asm
-    {
-      vmovss  dword ptr [rbp+2C0h+bounds.halfSize], xmm6
-      vmovss  dword ptr [rbp+2C0h+bounds.halfSize+4], xmm6
-      vmovss  dword ptr [rbp+2C0h+bounds.halfSize+8], xmm6
-      vmovsd  qword ptr [rsp+3C0h+outPos], xmm0
-      vmovsd  qword ptr [rbp+2C0h+bounds.midPoint], xmm0
-    }
-    SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&v152, spatialPopulationTree, &bounds);
-    markerBitField = _R12->markerBitField;
+    bounds.halfSize.v[0] = value;
+    bounds.halfSize.v[1] = value;
+    bounds.halfSize.v[2] = value;
+    *(double *)outPos.v = *(double *)&_XMM0;
+    *(double *)bounds.midPoint.v = *(double *)&_XMM0;
+    SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&v110, spatialPopulationTree, &bounds);
+    markerBitField = v28->markerBitField;
     *(_QWORD *)color.v = 0i64;
     markerMax = 0;
-    v142 = 0;
+    v100 = 0;
     if ( markerBitField )
     {
-      markerMax = _R12->markerMax;
-      v41 = markerBitField;
-      markerBitFieldWorldCount = _R12->markerBitFieldWorldCount;
+      markerMax = v28->markerMax;
+      v31 = markerBitField;
+      markerBitFieldWorldCount = v28->markerBitFieldWorldCount;
       *(_QWORD *)color.v = markerBitField;
-      v142 = markerMax;
+      v100 = markerMax;
       if ( (markerMax + 31) >> 5 != (_DWORD)markerBitFieldWorldCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 1220, ASSERT_TYPE_ASSERT, "( calculateWordCount( newBitCount ) ) == ( newWordCount )", "%s == %s\n\t%i, %i", "calculateWordCount( newBitCount )", "newWordCount", (markerMax + 31) >> 5, markerBitFieldWorldCount) )
         __debugbreak();
       if ( (_DWORD)markerBitFieldWorldCount )
       {
-        v43 = markerBitFieldWorldCount;
-        v44 = v41;
-        while ( v43 )
+        v33 = markerBitFieldWorldCount;
+        v34 = v31;
+        while ( v33 )
         {
-          *v44++ = 0;
-          --v43;
+          *v34++ = 0;
+          --v33;
         }
       }
     }
-    for ( _R12->localCount = 0; SpatialPartition_Population_Tree_AABBPartitionIterator::Advance(&v152); markerMax = v142 )
+    for ( v28->localCount = 0; SpatialPartition_Population_Tree_AABBPartitionIterator::Advance(&v110); markerMax = v100 )
     {
-      if ( _R12->localCount >= 0x400 )
+      if ( v28->localCount >= 0x400 )
         break;
-      m_curPartition = v152.m_curPartition;
-      if ( v152.m_curPartition > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", LOWORD(v152.m_curPartition), "unsigned", v152.m_curPartition) )
+      m_curPartition = v110.m_curPartition;
+      if ( v110.m_curPartition > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", LOWORD(v110.m_curPartition), "unsigned", v110.m_curPartition) )
         __debugbreak();
-      v144 = m_curPartition;
+      v102 = m_curPartition;
       if ( m_curPartition >= spatialPopulationTree->partitionCount )
       {
-        LODWORD(v138) = spatialPopulationTree->partitionCount;
+        LODWORD(v96) = spatialPopulationTree->partitionCount;
         LODWORD(duration) = m_curPartition;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5757, ASSERT_TYPE_ASSERT, "(unsigned)( partitionIndex ) < (unsigned)( spatialTree->partitionCount )", "partitionIndex doesn't index spatialTree->partitionCount\n\t%i not in [0, %i)", duration, v138) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5757, ASSERT_TYPE_ASSERT, "(unsigned)( partitionIndex ) < (unsigned)( spatialTree->partitionCount )", "partitionIndex doesn't index spatialTree->partitionCount\n\t%i not in [0, %i)", duration, v96) )
           __debugbreak();
       }
-      next = _R12->partitionToMarker[m_curPartition];
+      next = v28->partitionToMarker[m_curPartition];
       if ( next != -1 )
       {
         do
         {
-          if ( _R12->localCount >= 0x400 )
+          if ( v28->localCount >= 0x400 )
             break;
-          if ( next >= _R12->markerMax )
+          if ( next >= v28->markerMax )
           {
-            LODWORD(v138) = _R12->markerMax;
+            LODWORD(v96) = v28->markerMax;
             LODWORD(duration) = next;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5763, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v138) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5763, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v96) )
               __debugbreak();
           }
-          markerList = _R12->markerList;
+          markerList = v28->markerList;
           if ( markerList[next].scriptableIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5766, ASSERT_TYPE_ASSERT, "(marker.scriptableIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX)", (const char *)&queryFormat, "marker.scriptableIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX") )
             __debugbreak();
           if ( (*((_BYTE *)&markerList[next] + 10) & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5767, ASSERT_TYPE_ASSERT, "(!marker.isLocal)", (const char *)&queryFormat, "!marker.isLocal") )
             __debugbreak();
-          if ( !ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v11, markerList[next].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5768, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex )") )
+          if ( !ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v1, markerList[next].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5768, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex )") )
             __debugbreak();
           if ( next >= markerMax )
           {
-            LODWORD(v138) = markerMax;
+            LODWORD(v96) = markerMax;
             LODWORD(duration) = next;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", duration, v138) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", duration, v96) )
               __debugbreak();
           }
           *(_QWORD *)end.v = (unsigned __int64)next >> 5;
-          v48 = 0x80000000 >> (next & 0x1F);
-          if ( (v48 & *(_DWORD *)(*(_QWORD *)color.v + 4i64 * *(_QWORD *)end.v)) != 0 )
+          v38 = 0x80000000 >> (next & 0x1F);
+          if ( (v38 & *(_DWORD *)(*(_QWORD *)color.v + 4i64 * *(_QWORD *)end.v)) != 0 )
           {
-            LODWORD(v138) = v144;
+            LODWORD(v96) = v102;
             LODWORD(duration) = next;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5771, ASSERT_TYPE_ASSERT, "( !localMarkersAdded.testBit( markerIndex ) )", "Found duplicate marker in spatial tree (Marker %d, Partition %d)", duration, v138) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5771, ASSERT_TYPE_ASSERT, "( !localMarkersAdded.testBit( markerIndex ) )", "Found duplicate marker in spatial tree (Marker %d, Partition %d)", duration, v96) )
               __debugbreak();
           }
           scriptableIndex = markerList[next].scriptableIndex;
@@ -7532,343 +7386,312 @@ LABEL_22:
           if ( scriptableIndex >= g_scriptableWorldCounts.totalInstanceCount )
           {
             ScriptableCommon_AssertCountsInitialized();
-            LODWORD(v138) = g_scriptableWorldCounts.totalInstanceCount;
+            LODWORD(v96) = g_scriptableWorldCounts.totalInstanceCount;
             LODWORD(duration) = scriptableIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2547, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, v138) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2547, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, v96) )
               __debugbreak();
           }
-          v50 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v11, scriptableIndex)->def;
-          if ( v50 )
-            v51 = (v50->flags & 0x20000) != 0;
+          v40 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v1, scriptableIndex)->def;
+          if ( v40 )
+            v41 = (v40->flags & 0x20000) != 0;
           else
-            v51 = 0;
-          if ( !v141 || !v51 )
+            v41 = 0;
+          if ( !v99 || !v41 )
           {
-            v52 = markerList[next].scriptableIndex;
+            v42 = markerList[next].scriptableIndex;
             ScriptableCommon_AssertCountsInitialized();
-            if ( (unsigned int)v52 >= g_scriptableWorldCounts.totalInstanceCount )
+            if ( (unsigned int)v42 >= g_scriptableWorldCounts.totalInstanceCount )
             {
               ScriptableCommon_AssertCountsInitialized();
-              LODWORD(v138) = g_scriptableWorldCounts.totalInstanceCount;
-              LODWORD(duration) = v52;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, v138) )
+              LODWORD(v96) = g_scriptableWorldCounts.totalInstanceCount;
+              LODWORD(duration) = v42;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, v96) )
                 __debugbreak();
             }
-            if ( (unsigned int)v11 >= 2 )
+            if ( (unsigned int)v1 >= 2 )
             {
-              LODWORD(v138) = 2;
-              LODWORD(duration) = v11;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 114, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableCl_instanceContexts ) ) + 0 ) )", "localClientNum doesn't index g_scriptableCl_instanceContexts\n\t%i not in [0, %i)", duration, v138) )
+              LODWORD(v96) = 2;
+              LODWORD(duration) = v1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 114, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableCl_instanceContexts ) ) + 0 ) )", "localClientNum doesn't index g_scriptableCl_instanceContexts\n\t%i not in [0, %i)", duration, v96) )
                 __debugbreak();
             }
-            if ( !g_scriptableCl_instanceContexts[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
+            if ( !g_scriptableCl_instanceContexts[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
               __debugbreak();
-            ScriptableInstanceContextSecure::GetOrigin(&g_scriptableCl_instanceContexts[v11][v52].commonContext, markerList[next].scriptableIndex, &outOrigin);
-            __asm
+            ScriptableInstanceContextSecure::GetOrigin(&g_scriptableCl_instanceContexts[v1][v42].commonContext, markerList[next].scriptableIndex, &outOrigin);
+            v43 = (float)((float)((float)(*(float *)&v24 - outOrigin.v[1]) * (float)(*(float *)&v24 - outOrigin.v[1])) + (float)((float)(*(float *)&_XMM13 - outOrigin.v[0]) * (float)(*(float *)&_XMM13 - outOrigin.v[0]))) + (float)((float)(v23 - outOrigin.v[2]) * (float)(v23 - outOrigin.v[2]));
+            if ( v43 <= v4 )
             {
-              vsubss  xmm0, xmm12, dword ptr [rsp+3C0h+outOrigin+4]
-              vsubss  xmm2, xmm13, dword ptr [rsp+3C0h+outOrigin]
-              vsubss  xmm3, xmm14, dword ptr [rbp+2C0h+outOrigin+8]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm6, xmm2, xmm1
-              vcomiss xmm6, xmm11
-            }
-            if ( v60 | v61 )
-            {
-              if ( _R12->localCount >= 0x400 )
+              if ( v28->localCount >= 0x400 )
               {
-                LODWORD(v138) = 1024;
-                LODWORD(duration) = _R12->localCount;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5798, ASSERT_TYPE_ASSERT, "(unsigned)( spatial.localCount ) < (unsigned)( ( 1024 ) )", "spatial.localCount doesn't index SCRIPTABLE_SPATIAL_LOCAL_MAX\n\t%i not in [0, %i)", duration, v138) )
+                LODWORD(v96) = 1024;
+                LODWORD(duration) = v28->localCount;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5798, ASSERT_TYPE_ASSERT, "(unsigned)( spatial.localCount ) < (unsigned)( ( 1024 ) )", "spatial.localCount doesn't index SCRIPTABLE_SPATIAL_LOCAL_MAX\n\t%i not in [0, %i)", duration, v96) )
                   __debugbreak();
               }
-              _R12->localList[_R12->localCount].markerIndex = next;
-              _RAX = _R12->localCount;
-              __asm { vmovss  dword ptr [r12+rax*8+4], xmm6 }
-              ++_R12->localCount;
-              if ( next >= v142 )
+              v28->localList[v28->localCount].markerIndex = next;
+              v28->localList[v28->localCount++].score = v43;
+              if ( next >= v100 )
               {
-                LODWORD(v140) = v142;
-                LODWORD(v139) = next;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v139, v140) )
+                LODWORD(v98) = v100;
+                LODWORD(v97) = next;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v97, v98) )
                   __debugbreak();
               }
-              *(_DWORD *)(*(_QWORD *)color.v + 4i64 * *(_QWORD *)end.v) |= v48;
+              *(_DWORD *)(*(_QWORD *)color.v + 4i64 * *(_QWORD *)end.v) |= v38;
             }
           }
           next = markerList[next].next;
-          markerMax = v142;
+          markerMax = v100;
         }
         while ( next != -1 );
-        spatialPopulationTree = v143;
+        spatialPopulationTree = v101;
       }
     }
-    localCount = _R12->localCount;
+    localCount = v28->localCount;
     if ( localCount > 0x100 )
     {
-      qsort(_R12, localCount, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)ScriptableCl_Spatial_Sort);
+      qsort(v28, localCount, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)ScriptableCl_Spatial_Sort);
       localCount = 256;
-      _R12->localCount = 256;
+      v28->localCount = 256;
     }
-    v64 = 0;
+    v45 = 0;
     if ( localCount )
     {
       do
       {
-        markerIndex = _R12->localList[v64].markerIndex;
-        if ( (unsigned int)markerIndex >= _R12->markerMax )
+        markerIndex = v28->localList[v45].markerIndex;
+        if ( (unsigned int)markerIndex >= v28->markerMax )
         {
-          LODWORD(v138) = _R12->markerMax;
-          LODWORD(duration) = _R12->localList[v64].markerIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5830, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v138) )
+          LODWORD(v96) = v28->markerMax;
+          LODWORD(duration) = v28->localList[v45].markerIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5830, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v96) )
             __debugbreak();
         }
-        v66 = _R12->markerList;
-        v67 = markerIndex;
-        if ( (*((_BYTE *)&v66[v67] + 10) & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5832, ASSERT_TYPE_ASSERT, "(!marker.isLocal)", (const char *)&queryFormat, "!marker.isLocal") )
+        v47 = v28->markerList;
+        v48 = markerIndex;
+        if ( (*((_BYTE *)&v47[v48] + 10) & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5832, ASSERT_TYPE_ASSERT, "(!marker.isLocal)", (const char *)&queryFormat, "!marker.isLocal") )
           __debugbreak();
-        *((_BYTE *)&v66[v67] + 10) |= 1u;
-        ++v64;
-        localCount = _R12->localCount;
+        *((_BYTE *)&v47[v48] + 10) |= 1u;
+        ++v45;
+        localCount = v28->localCount;
       }
-      while ( v64 < localCount );
-      LODWORD(v11) = localClientNum;
+      while ( v45 < localCount );
+      LODWORD(v1) = localClientNum;
     }
-    v68 = _R12->activeCount - 1;
-    if ( v68 >= 0 )
+    v49 = v28->activeCount - 1;
+    if ( v49 >= 0 )
     {
-      v69 = &_R12->activeList[v68];
+      v50 = &v28->activeList[v49];
       do
       {
-        v70 = *v69;
-        if ( (unsigned int)v70 >= _R12->markerMax )
+        v51 = *v50;
+        if ( (unsigned int)v51 >= v28->markerMax )
         {
-          LODWORD(v138) = _R12->markerMax;
-          LODWORD(duration) = *v69;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5846, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v138) )
+          LODWORD(v96) = v28->markerMax;
+          LODWORD(duration) = *v50;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5846, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v96) )
             __debugbreak();
         }
-        v71 = _R12->markerList;
-        if ( (*((_BYTE *)&v71[v70] + 10) & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5848, ASSERT_TYPE_ASSERT, "(marker.isActive)", (const char *)&queryFormat, "marker.isActive") )
+        v52 = v28->markerList;
+        if ( (*((_BYTE *)&v52[v51] + 10) & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5848, ASSERT_TYPE_ASSERT, "(marker.isActive)", (const char *)&queryFormat, "marker.isActive") )
           __debugbreak();
-        if ( !ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v11, v71[v70].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5849, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex )") )
+        if ( !ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v1, v52[v51].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5849, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex )") )
           __debugbreak();
-        if ( (*((_BYTE *)&v71[v70] + 10) & 1) == 0 )
+        if ( (*((_BYTE *)&v52[v51] + 10) & 1) == 0 )
         {
-          ScriptableCl_Spatial_ActiveList_RemoveIndex((const LocalClientNum_t)v11, v70, v68);
-          ScriptableCl_Spatial_Shutdown((const LocalClientNum_t)v11, v71[v70].scriptableIndex);
+          ScriptableCl_Spatial_ActiveList_RemoveIndex((const LocalClientNum_t)v1, v51, v49);
+          ScriptableCl_Spatial_Shutdown((const LocalClientNum_t)v1, v52[v51].scriptableIndex);
         }
-        --v69;
-        --v68;
+        --v50;
+        --v49;
       }
-      while ( v68 >= 0 );
-      localCount = _R12->localCount;
+      while ( v49 >= 0 );
+      localCount = v28->localCount;
     }
-    v72 = 0;
+    v53 = 0;
     if ( localCount )
     {
       do
       {
-        v73 = _R12->localList[v72].markerIndex;
-        if ( (unsigned int)v73 >= _R12->markerMax )
+        v54 = v28->localList[v53].markerIndex;
+        if ( (unsigned int)v54 >= v28->markerMax )
         {
-          LODWORD(v138) = _R12->markerMax;
-          LODWORD(duration) = _R12->localList[v72].markerIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5868, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v138) )
+          LODWORD(v96) = v28->markerMax;
+          LODWORD(duration) = v28->localList[v53].markerIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5868, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", duration, v96) )
             __debugbreak();
         }
-        v74 = _R12->markerList;
-        v75 = v73;
-        if ( (*((_BYTE *)&v74[v73] + 10) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5870, ASSERT_TYPE_ASSERT, "(marker.isLocal)", (const char *)&queryFormat, "marker.isLocal") )
+        v55 = v28->markerList;
+        v56 = v54;
+        if ( (*((_BYTE *)&v55[v54] + 10) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5870, ASSERT_TYPE_ASSERT, "(marker.isLocal)", (const char *)&queryFormat, "marker.isLocal") )
           __debugbreak();
-        if ( !ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v11, v74[v73].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5871, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex )") )
+        if ( !ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v1, v55[v54].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5871, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, marker.scriptableIndex )") )
           __debugbreak();
-        v76 = *((_BYTE *)&v74[v73] + 10);
-        if ( (v76 & 2) == 0 )
+        v57 = *((_BYTE *)&v55[v54] + 10);
+        if ( (v57 & 2) == 0 )
         {
-          if ( _R12->activeCount >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5322, ASSERT_TYPE_ASSERT, "(spatial.activeCount < ( 1024 ))", (const char *)&queryFormat, "spatial.activeCount < SCRIPTABLE_SPATIAL_LOCAL_MAX") )
+          if ( v28->activeCount >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5322, ASSERT_TYPE_ASSERT, "(spatial.activeCount < ( 1024 ))", (const char *)&queryFormat, "spatial.activeCount < SCRIPTABLE_SPATIAL_LOCAL_MAX") )
             __debugbreak();
-          _R12->activeList[_R12->activeCount++] = v73;
-          *((_BYTE *)&_R12->markerList[v73] + 10) |= 2u;
-          v77 = v74[v73].scriptableIndex;
-          if ( ScriptableCl_IsLinked((const LocalClientNum_t)v11, v74[v75].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5287, ASSERT_TYPE_ASSERT, "(!ScriptableCl_IsActive( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "!ScriptableCl_IsActive( localClientNum, scriptableIndex )") )
+          v28->activeList[v28->activeCount++] = v54;
+          *((_BYTE *)&v28->markerList[v54] + 10) |= 2u;
+          v58 = v55[v54].scriptableIndex;
+          if ( ScriptableCl_IsLinked((const LocalClientNum_t)v1, v55[v56].scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5287, ASSERT_TYPE_ASSERT, "(!ScriptableCl_IsActive( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "!ScriptableCl_IsActive( localClientNum, scriptableIndex )") )
             __debugbreak();
-          ScriptableCl_SpawnClientModelInstance((const LocalClientNum_t)v11, v77);
-          ScriptableCl_MarkClientUpdateRequired((const LocalClientNum_t)v11, v77, SCRIPTABLE_UPDATE_INIT);
-          v76 = *((_BYTE *)&v74[v75] + 10);
+          ScriptableCl_SpawnClientModelInstance((const LocalClientNum_t)v1, v58);
+          ScriptableCl_MarkClientUpdateRequired((const LocalClientNum_t)v1, v58, SCRIPTABLE_UPDATE_INIT);
+          v57 = *((_BYTE *)&v55[v56] + 10);
         }
-        ++v72;
-        *((_BYTE *)&v74[v75] + 10) = v76 & 0xFE;
+        ++v53;
+        *((_BYTE *)&v55[v56] + 10) = v57 & 0xFE;
       }
-      while ( v72 < _R12->localCount );
+      while ( v53 < v28->localCount );
     }
-    for ( i = 0; i < _R12->markerCount; ++i )
+    for ( i = 0; i < v28->markerCount; ++i )
     {
-      if ( (*((_BYTE *)&_R12->markerList[i] + 10) & 1) != 0 )
+      if ( (*((_BYTE *)&v28->markerList[i] + 10) & 1) != 0 )
       {
         LODWORD(duration) = i;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5890, ASSERT_TYPE_ASSERT, "( ( !marker.isLocal ) )", "( markerIndex ) = %i", duration) )
           __debugbreak();
       }
     }
-    spatialPopulationTree = v143;
-    v19 = (int)v11;
+    spatialPopulationTree = v101;
+    v9 = (int)v1;
   }
   Sys_ProfEndNamedEvent();
   if ( spatialPopulationTree )
   {
-    v79 = DCONST_DVARBOOL_scriptable_debug_spatial_3d;
-    __asm
-    {
-      vmovaps [rsp+3C0h+var_68+8], xmm9
-      vmovaps [rsp+3C0h+var_78+8], xmm10
-    }
+    v60 = DCONST_DVARBOOL_scriptable_debug_spatial_3d;
     if ( !DCONST_DVARBOOL_scriptable_debug_spatial_3d && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_spatial_3d") )
       __debugbreak();
-    __asm
+    Dvar_CheckFrontendServerThread(v60);
+    if ( v60->current.enabled )
     {
-      vmovaps xmmword ptr [rsp+3C0h+var_48+8], xmm7
-      vmovaps [rsp+3C0h+var_58+8], xmm8
-    }
-    Dvar_CheckFrontendServerThread(v79);
-    __asm
-    {
-      vmovss  xmm10, cs:__real@40000000
-      vmovss  xmm9, cs:__real@3e800000
-    }
-    if ( v79->current.enabled )
-    {
-      v82 = v19;
-      v83 = 0;
-      if ( s_scriptableSpatial[v19].markerMax )
+      v61 = v9;
+      v62 = 0;
+      if ( s_scriptableSpatial[v9].markerMax )
       {
-        __asm { vmovss  xmm8, cs:__real@41f00000 }
         do
         {
-          v85 = s_scriptableSpatial[v82].markerList;
-          v86 = v85[v83].scriptableIndex;
-          if ( v86 != -1 )
+          v63 = s_scriptableSpatial[v61].markerList;
+          v64 = v63[v62].scriptableIndex;
+          if ( v64 != -1 )
           {
-            ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v11, v86, &outPos);
-            __asm
+            ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v1, v64, &outPos);
+            v65 = (float)((float)((float)(*(float *)&v24 - outPos.v[1]) * (float)(*(float *)&v24 - outPos.v[1])) + (float)((float)(*(float *)&_XMM13 - outPos.v[0]) * (float)(*(float *)&_XMM13 - outPos.v[0]))) + (float)((float)(v23 - outPos.v[2]) * (float)(v23 - outPos.v[2]));
+            if ( v65 <= (float)(v4 * 2.0) )
             {
-              vmovss  xmm5, dword ptr [rsp+3C0h+outPos+4]
-              vmovss  xmm4, dword ptr [rsp+3C0h+outPos]
-              vmovss  xmm7, dword ptr [rsp+3C0h+outPos+8]
-              vsubss  xmm0, xmm12, xmm5
-              vmulss  xmm1, xmm0, xmm0
-              vsubss  xmm2, xmm13, xmm4
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vsubss  xmm3, xmm14, xmm7
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm6, xmm2, xmm1
-              vmulss  xmm0, xmm11, xmm10
-              vcomiss xmm6, xmm0
-            }
-            if ( v60 | v61 )
-            {
-              __asm
+              outOrigin.v[2] = outPos.v[2] + 30.0;
+              outOrigin.v[0] = outPos.v[0];
+              outOrigin.v[1] = outPos.v[1];
+              if ( (*((_BYTE *)&v63[v62] + 10) & 2) != 0 )
               {
-                vaddss  xmm0, xmm7, xmm8
-                vmovss  dword ptr [rbp+2C0h+outOrigin+8], xmm0
-                vmovss  dword ptr [rsp+3C0h+outOrigin], xmm4
-                vmovss  dword ptr [rsp+3C0h+outOrigin+4], xmm5
-              }
-              if ( (*((_BYTE *)&v85[v83] + 10) & 2) != 0 )
-              {
-                v99 = &colorGreen;
+                v66 = &colorGreen;
               }
               else
               {
-                __asm { vcomiss xmm11, xmm6 }
-                v99 = &colorRed;
-                if ( (*((_BYTE *)&v85[v83] + 10) & 2) == 0 )
-                  v99 = &colorWhite;
+                v66 = &colorRed;
+                if ( v4 <= v65 )
+                  v66 = &colorWhite;
               }
-              CG_DebugLine(&outPos, &outOrigin, v99, 0, 0);
-              __asm { vcomiss xmm6, xmm11 }
-              if ( v60 )
+              CG_DebugLine(&outPos, &outOrigin, v66, 0, 0);
+              if ( v65 < v4 )
               {
-                v100 = j_va("%d", v83);
-                __asm { vmovaps xmm2, xmm9; scale }
-                CL_AddDebugStringCentered(&outPos, &colorWhite, *(float *)&_XMM2, v100, 0, 0);
+                v67 = j_va("%d", v62);
+                CL_AddDebugStringCentered(&outPos, &colorWhite, 0.25, v67, 0, 0);
               }
             }
           }
-          ++v83;
+          ++v62;
         }
-        while ( v83 < s_scriptableSpatial[v82].markerMax );
+        while ( v62 < s_scriptableSpatial[v61].markerMax );
+        v9 = *(_QWORD *)start.v;
       }
     }
-    v102 = DCONST_DVARBOOL_scriptable_debug_spatial_tree;
+    v68 = DCONST_DVARBOOL_scriptable_debug_spatial_tree;
     if ( !DCONST_DVARBOOL_scriptable_debug_spatial_tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_spatial_tree") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v102);
-    if ( v102->current.enabled )
+    Dvar_CheckFrontendServerThread(v68);
+    if ( v68->current.enabled )
     {
-      v103 = truncate_cast<unsigned short,unsigned int>(v143->partitionCount);
-      v104 = 0;
-      if ( v103 )
+      v69 = v9;
+      v70 = truncate_cast<unsigned short,unsigned int>(v101->partitionCount);
+      v71 = 0;
+      if ( v70 )
       {
-        __asm { vmovss  xmm8, cs:__real@3f000000 }
-        v106 = 0i64;
-        _RDI = 0i64;
-        v108 = 0i64;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v72 = 0i64;
+        v73 = 0i64;
+        v74 = 0i64;
         do
         {
-          if ( (*((_DWORD *)&v143->partitions[v108] + 1) & 0x7FFFFFFC) == 0 )
+          if ( (*((_DWORD *)&v101->partitions[v74] + 1) & 0x7FFFFFFC) == 0 )
           {
-            _RCX = v143->extents;
-            __asm
+            extents = v101->extents;
+            v77 = _XMM13;
+            *(float *)&v77 = *(float *)&_XMM13 - extents[v73].maxs.v[0];
+            _XMM0 = v77;
+            __asm { vmaxss  xmm2, xmm0, xmm6 }
+            v80 = LODWORD(extents[v73].mins.v[0]);
+            *(float *)&v80 = extents[v73].mins.v[0] - *(float *)&_XMM13;
+            _XMM1 = v80;
+            v82 = v24;
+            *(float *)&v82 = *(float *)&v24 - extents[v73].maxs.v[1];
+            _XMM0 = v82;
+            __asm { vmaxss  xmm1, xmm1, xmm6 }
+            v84 = *(float *)&_XMM2 + *(float *)&_XMM1;
+            __asm { vmaxss  xmm2, xmm0, xmm6 }
+            v87 = LODWORD(extents[v73].mins.v[1]);
+            *(float *)&v87 = extents[v73].mins.v[1] - *(float *)&v24;
+            _XMM1 = v87;
+            __asm { vmaxss  xmm1, xmm1, xmm6 }
+            v89 = (float)((float)(*(float *)&_XMM2 + *(float *)&_XMM1) * (float)(*(float *)&_XMM2 + *(float *)&_XMM1)) + (float)(v84 * v84);
+            if ( v89 < (float)(v4 * 2.0) )
             {
-              vsubss  xmm0, xmm13, dword ptr [rdi+rcx+0Ch]
-              vmaxss  xmm2, xmm0, xmm6
-              vmovss  xmm0, dword ptr [rdi+rcx]
-              vsubss  xmm1, xmm0, xmm13
-              vsubss  xmm0, xmm12, dword ptr [rdi+rcx+10h]
-              vmaxss  xmm1, xmm1, xmm6
-              vaddss  xmm4, xmm2, xmm1
-              vmaxss  xmm2, xmm0, xmm6
-              vmovss  xmm0, dword ptr [rdi+rcx+4]
-              vsubss  xmm1, xmm0, xmm12
-              vmaxss  xmm1, xmm1, xmm6
-              vaddss  xmm0, xmm2, xmm1
-              vmulss  xmm3, xmm0, xmm0
-              vmulss  xmm2, xmm4, xmm4
-              vaddss  xmm7, xmm3, xmm2
-              vmulss  xmm0, xmm11, xmm10
-              vcomiss xmm7, xmm0
+              if ( s_scriptableSpatial[v69].partitionToMarker[v72] == -1 )
+              {
+                v90 = colorPartitionEmpty;
+              }
+              else if ( v89 < v4 )
+              {
+                v90 = colorPartitionActive;
+              }
+              else
+              {
+                v90 = colorPartitionInactive;
+              }
+              color = v90;
+              v91 = extents[v73].mins.v[1];
+              start.v[0] = extents[v73].mins.v[0];
+              start.v[1] = v91;
+              start.v[2] = 0.0;
+              v92 = extents[v73].maxs.v[1];
+              end.v[0] = extents[v73].mins.v[0];
+              end.v[1] = v92;
+              end.v[2] = 0.0;
+              v93 = extents[v73].maxs.v[1];
+              outPos.v[0] = extents[v73].maxs.v[0];
+              outPos.v[1] = v93;
+              outPos.v[2] = 0.0;
+              CG_DebugLine(&start, &end, &color, 0, 0);
+              CG_DebugLine(&end, &outPos, &color, 0, 0);
+              if ( v89 < v4 )
+              {
+                outOrigin.v[0] = (float)(outPos.v[0] + start.v[0]) * 0.5;
+                outOrigin.v[1] = (float)(outPos.v[1] + start.v[1]) * 0.5;
+                outOrigin.v[2] = 0.0;
+                v94 = j_va("%d", v71);
+                CL_AddDebugStringCentered(&outOrigin, &color, 0.25, v94, 0, 0);
+              }
             }
           }
-          ++v104;
-          ++v108;
-          _RDI += 24i64;
-          v106 += 4i64;
+          ++v71;
+          ++v74;
+          ++v73;
+          ++v72;
         }
-        while ( v104 < v103 );
+        while ( v71 < v70 );
       }
     }
-    __asm
-    {
-      vmovaps xmm8, [rsp+3C0h+var_58+8]
-      vmovaps xmm7, xmmword ptr [rsp+3C0h+var_48+8]
-      vmovaps xmm9, [rsp+3C0h+var_68+8]
-      vmovaps xmm10, [rsp+3C0h+var_78+8]
-    }
-  }
-  _R11 = &v157;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
   }
 }
 
@@ -7882,63 +7705,44 @@ void ScriptableCl_Spatial_UpdateMarkerPartition(const LocalClientNum_t localClie
   __int64 v5; 
   __int64 v7; 
   ScriptableSpatialMarker *v8; 
-  int v10; 
-  unsigned __int16 v11; 
-  int v12; 
-  unsigned int markerMax; 
-  __int64 v14; 
-  unsigned int v15; 
-  __int64 v16; 
-  unsigned int v17; 
+  int v9; 
+  unsigned __int16 v10; 
+  __int64 v11; 
+  __int64 v12; 
   vec3_t outOrigin; 
-  vec3_t v19; 
+  vec3_t v14; 
 
   v5 = markerIndex;
   v7 = localClientNum;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5168, ASSERT_TYPE_ASSERT, "( Sys_IsMainThread() )", "Updating partitions can't be done from workers") )
     __debugbreak();
-  if ( (unsigned int)v5 >= s_scriptableSpatial[v7].markerMax )
-  {
-    markerMax = s_scriptableSpatial[v7].markerMax;
-    v12 = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5173, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", v12, markerMax) )
-      __debugbreak();
-  }
+  if ( (unsigned int)v5 >= s_scriptableSpatial[v7].markerMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5173, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", v5, s_scriptableSpatial[v7].markerMax) )
+    __debugbreak();
   v8 = &s_scriptableSpatial[v7].markerList[v5];
-  if ( v8->scriptableIndex != scriptableIndex )
-  {
-    v17 = scriptableIndex;
-    v15 = v8->scriptableIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5176, ASSERT_TYPE_ASSERT, "( marker.scriptableIndex ) == ( truncate_cast<ScriptableInstanceIndex>( scriptableIndex ) )", "%s == %s\n\t%i, %i", "marker.scriptableIndex", "truncate_cast<ScriptableInstanceIndex>( scriptableIndex )", v15, v17) )
-      __debugbreak();
-  }
+  if ( v8->scriptableIndex != scriptableIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5176, ASSERT_TYPE_ASSERT, "( marker.scriptableIndex ) == ( truncate_cast<ScriptableInstanceIndex>( scriptableIndex ) )", "%s == %s\n\t%i, %i", "marker.scriptableIndex", "truncate_cast<ScriptableInstanceIndex>( scriptableIndex )", v8->scriptableIndex, scriptableIndex) )
+    __debugbreak();
   if ( v8->partition == partitionIndex )
   {
-    LODWORD(v16) = partitionIndex;
-    LODWORD(v14) = v8->partition;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5177, ASSERT_TYPE_ASSERT, "( marker.partition ) != ( partitionIndex )", "%s != %s\n\t%i, %i", "marker.partition", "partitionIndex", v14, v16) )
+    LODWORD(v12) = partitionIndex;
+    LODWORD(v11) = v8->partition;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5177, ASSERT_TYPE_ASSERT, "( marker.partition ) != ( partitionIndex )", "%s != %s\n\t%i, %i", "marker.partition", "partitionIndex", v11, v12) )
       __debugbreak();
   }
   ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v7, v8->scriptableIndex, &outOrigin);
-  __asm
+  v14 = outOrigin;
+  v9 = (unsigned __int16)ScriptableCl_Spatial_GetPartitionIndex(&v14);
+  if ( partitionIndex != v9 )
   {
-    vmovsd  xmm0, qword ptr [rsp+98h+outOrigin]
-    vmovsd  [rsp+98h+var_28], xmm0
-  }
-  v19.v[2] = outOrigin.v[2];
-  v10 = (unsigned __int16)ScriptableCl_Spatial_GetPartitionIndex(&v19);
-  if ( partitionIndex != v10 )
-  {
-    LODWORD(v16) = v10;
-    LODWORD(v14) = partitionIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5182, ASSERT_TYPE_ASSERT, "( partitionIndex ) == ( verifyPartitionIndex )", "%s == %s\n\t%i, %i", "partitionIndex", "verifyPartitionIndex", v14, v16) )
+    LODWORD(v12) = v9;
+    LODWORD(v11) = partitionIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5182, ASSERT_TYPE_ASSERT, "( partitionIndex ) == ( verifyPartitionIndex )", "%s == %s\n\t%i, %i", "partitionIndex", "verifyPartitionIndex", v11, v12) )
       __debugbreak();
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
   ScriptableCl_Spatial_MarkerUnLinkFromTree((const LocalClientNum_t)v7, v5);
   ScriptableCl_Spatial_VerifyMarkerNotLinked((const LocalClientNum_t)v7, v5);
-  v11 = truncate_cast<unsigned short,unsigned int>(partitionIndex);
-  ScriptableCl_Spatial_MarkerLinkToTree((const LocalClientNum_t)v7, v5, v11);
+  v10 = truncate_cast<unsigned short,unsigned int>(partitionIndex);
+  ScriptableCl_Spatial_MarkerLinkToTree((const LocalClientNum_t)v7, v5, v10);
 }
 
 /*
@@ -7954,14 +7758,13 @@ void ScriptableCl_Spatial_UpdateOrigin(const LocalClientNum_t localClientNum, un
   SpatialPartition_Population_Tree *spatialPopulationTree; 
   __int64 v6; 
   ScriptableSpatialMarker *markerList; 
-  char v8; 
-  char v9; 
+  ExtentBounds *extents; 
   unsigned __int16 PartitionIndex; 
-  unsigned int v16; 
-  __int64 v17; 
-  __int64 v18; 
+  unsigned int v10; 
+  __int64 v11; 
+  __int64 v12; 
   vec3_t outOrigin; 
-  vec3_t v20; 
+  vec3_t v14; 
 
   v2 = scriptableIndex;
   v3 = localClientNum;
@@ -7980,8 +7783,8 @@ void ScriptableCl_Spatial_UpdateOrigin(const LocalClientNum_t localClientNum, un
   v6 = s_scriptableSpatial[v4].scriptableToMarker[v2];
   if ( (unsigned int)v6 >= s_scriptableSpatial[v4].markerMax )
   {
-    LODWORD(v17) = s_scriptableSpatial[v4].scriptableToMarker[v2];
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5462, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", v17, s_scriptableSpatial[v4].markerMax) )
+    LODWORD(v11) = s_scriptableSpatial[v4].scriptableToMarker[v2];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5462, ASSERT_TYPE_ASSERT, "(unsigned)( markerIndex ) < (unsigned)( spatial.markerMax )", "markerIndex doesn't index spatial.markerMax\n\t%i not in [0, %i)", v11, s_scriptableSpatial[v4].markerMax) )
       __debugbreak();
   }
   markerList = s_scriptableSpatial[v4].markerList;
@@ -7989,45 +7792,22 @@ void ScriptableCl_Spatial_UpdateOrigin(const LocalClientNum_t localClientNum, un
     __debugbreak();
   if ( markerList[v6].partition >= spatialPopulationTree->partitionCount )
   {
-    LODWORD(v18) = spatialPopulationTree->partitionCount;
-    LODWORD(v17) = markerList[v6].partition;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5466, ASSERT_TYPE_ASSERT, "(unsigned)( marker.partition ) < (unsigned)( spatialTree->partitionCount )", "marker.partition doesn't index spatialTree->partitionCount\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v12) = spatialPopulationTree->partitionCount;
+    LODWORD(v11) = markerList[v6].partition;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 5466, ASSERT_TYPE_ASSERT, "(unsigned)( marker.partition ) < (unsigned)( spatialTree->partitionCount )", "marker.partition doesn't index spatialTree->partitionCount\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v3, markerList[v6].scriptableIndex, &outOrigin);
-  _RCX = 3i64 * markerList[v6].partition;
-  _RAX = spatialPopulationTree->extents;
-  __asm
+  extents = spatialPopulationTree->extents;
+  if ( outOrigin.v[0] < extents[markerList[v6].partition].mins.v[0] || outOrigin.v[1] < extents[markerList[v6].partition].mins.v[1] || outOrigin.v[0] > extents[markerList[v6].partition].maxs.v[0] || outOrigin.v[1] > extents[markerList[v6].partition].maxs.v[1] )
   {
-    vmovss  xmm1, dword ptr [rsp+98h+outOrigin]
-    vcomiss xmm1, dword ptr [rax+rcx*8]
-  }
-  if ( v8 )
-    goto LABEL_29;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+outOrigin+4]
-    vcomiss xmm0, dword ptr [rax+rcx*8+4]
-    vcomiss xmm1, dword ptr [rax+rcx*8+0Ch]
-  }
-  if ( !(v8 | v9) )
-    goto LABEL_29;
-  __asm { vcomiss xmm0, dword ptr [rax+rcx*8+10h] }
-  if ( !(v8 | v9) )
-  {
-LABEL_29:
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+98h+outOrigin]
-      vmovsd  [rsp+98h+var_38], xmm0
-    }
-    v20.v[2] = outOrigin.v[2];
-    PartitionIndex = ScriptableCl_Spatial_GetPartitionIndex(&v20);
+    v14 = outOrigin;
+    PartitionIndex = ScriptableCl_Spatial_GetPartitionIndex(&v14);
     if ( markerList[v6].partition != PartitionIndex )
     {
-      v16 = PartitionIndex;
+      v10 = PartitionIndex;
       if ( !CG_EntityWorkers_TryAddScriptableSpatialUpdate((const LocalClientNum_t)v3, markerList[v6].scriptableIndex, v6, PartitionIndex) )
-        ScriptableCl_Spatial_UpdateMarkerPartition((const LocalClientNum_t)v3, markerList[v6].scriptableIndex, v6, v16);
+        ScriptableCl_Spatial_UpdateMarkerPartition((const LocalClientNum_t)v3, markerList[v6].scriptableIndex, v6, v10);
     }
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
@@ -8180,124 +7960,113 @@ ScriptableCl_UpdateClientOnlyEvents
 */
 void ScriptableCl_UpdateClientOnlyEvents(const LocalClientNum_t localClientNum, ScriptableUpdateBitset *r_updateList, const unsigned int updateWordCount, const int frameTime)
 {
-  int v10; 
-  __int64 v11; 
-  unsigned int v12; 
+  int v6; 
+  __int64 v7; 
+  unsigned int v8; 
+  unsigned int v9; 
+  double TimeScale; 
+  int v11; 
+  __int64 v12; 
   unsigned int v13; 
-  int v14; 
-  __int64 v15; 
-  unsigned int v16; 
+  unsigned int v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19; 
+  __int64 v20; 
   unsigned int v21; 
-  unsigned int v22; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  int v28; 
-  __int64 v29; 
-  unsigned int v30; 
-  void *retaddr; 
   unsigned int perFrameMoveCount; 
   unsigned int perFrameUpdateCount; 
-  int v36; 
+  int v25; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm6 }
   Sys_ProfBeginNamedEvent(0xFFFF0000, "ScriptableCl_UpdateClientOnlyMove");
-  v36 = 0;
-  v10 = 0;
+  v25 = 0;
+  v6 = 0;
   perFrameMoveCount = r_updateList->perFrameMoveCount;
-  LODWORD(v11) = 0;
-  v12 = 0;
+  LODWORD(v7) = 0;
+  v8 = 0;
   if ( updateWordCount )
-    v12 = r_updateList->perFrameMove.array[0];
-  while ( v12 )
+    v8 = r_updateList->perFrameMove.array[0];
+  while ( v8 )
   {
 LABEL_6:
-    v13 = __lzcnt(v12);
-    if ( v13 >= 0x20 )
+    v9 = __lzcnt(v8);
+    if ( v9 >= 0x20 )
     {
-      LODWORD(v26) = 32;
-      LODWORD(v25) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v25, v26) )
+      LODWORD(v17) = 32;
+      LODWORD(v16) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
-    if ( (v12 & (0x80000000 >> v13)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v8 & (0x80000000 >> v9)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v12 &= ~(0x80000000 >> v13);
-    ScriptableCl_UpdateClientOnlyMovement(localClientNum, v13 + 32 * v11);
-    ++v10;
+    v8 &= ~(0x80000000 >> v9);
+    ScriptableCl_UpdateClientOnlyMovement(localClientNum, v9 + 32 * v7);
+    ++v6;
   }
   while ( 1 )
   {
-    v11 = (unsigned int)(v11 + 1);
-    if ( (unsigned int)v11 >= updateWordCount )
+    v7 = (unsigned int)(v7 + 1);
+    if ( (unsigned int)v7 >= updateWordCount )
       break;
-    v12 = r_updateList->perFrameMove.array[v11];
-    if ( v12 )
+    v8 = r_updateList->perFrameMove.array[v7];
+    if ( v8 )
       goto LABEL_6;
   }
-  if ( v10 != perFrameMoveCount )
+  if ( v6 != perFrameMoveCount )
   {
-    v30 = perFrameMoveCount;
-    v28 = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3289, ASSERT_TYPE_ASSERT, "( moveCount ) == ( expectedMovecount )", "%s == %s\n\t%i, %i", "moveCount", "expectedMovecount", v28, v30) )
+    v21 = perFrameMoveCount;
+    v19 = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3289, ASSERT_TYPE_ASSERT, "( moveCount ) == ( expectedMovecount )", "%s == %s\n\t%i, %i", "moveCount", "expectedMovecount", v19, v21) )
       __debugbreak();
   }
   Sys_ProfEndNamedEvent();
   Sys_ProfBeginNamedEvent(0xFFFF0000, "ScriptableCl_UpdateClientOnlyEvents");
   perFrameUpdateCount = r_updateList->perFrameUpdateCount;
-  *(double *)&_XMM0 = Com_GetTimeScale();
-  v14 = 0;
-  LODWORD(v15) = 0;
-  v16 = 0;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, [rsp+0A8h+arg_18]
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vmulss  xmm6, xmm0, xmm2
-  }
+  TimeScale = Com_GetTimeScale();
+  v11 = 0;
+  LODWORD(v12) = 0;
+  v13 = 0;
   if ( updateWordCount )
-    v16 = r_updateList->perFrameUpdate.array[0];
-  while ( v16 )
+    v13 = r_updateList->perFrameUpdate.array[0];
+  while ( v13 )
   {
 LABEL_21:
-    v21 = __lzcnt(v16);
-    v22 = v21 + 32 * v15;
-    if ( v21 >= 0x20 )
+    v14 = __lzcnt(v13);
+    v15 = v14 + 32 * v12;
+    if ( v14 >= 0x20 )
     {
-      LODWORD(v26) = 32;
-      LODWORD(v25) = v21;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v25, v26) )
+      LODWORD(v17) = 32;
+      LODWORD(v16) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
-    if ( (v16 & (0x80000000 >> v21)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v13 & (0x80000000 >> v14)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    __asm { vmovaps xmm2, xmm6; deltaTime }
-    v16 &= ~(0x80000000 >> v21);
-    if ( !ScriptableCl_UpdateInstanceEvents(localClientNum, v22, *(const float *)&_XMM2) )
+    v13 &= ~(0x80000000 >> v14);
+    if ( !ScriptableCl_UpdateInstanceEvents(localClientNum, v15, *(float *)&TimeScale * (float)((float)frameTime * 0.001)) )
     {
-      ScriptableCl_MarkPerFrameUpdateRequired(r_updateList, v22, 0);
-      bitarray_base<bitarray<500000>>::setBit(&r_updateList->perFrameUpdateCompleted, v22);
+      ScriptableCl_MarkPerFrameUpdateRequired(r_updateList, v15, 0);
+      bitarray_base<bitarray<500000>>::setBit(&r_updateList->perFrameUpdateCompleted, v15);
     }
-    v14 = ++v36;
+    v11 = ++v25;
   }
   while ( 1 )
   {
-    v15 = (unsigned int)(v15 + 1);
-    if ( (unsigned int)v15 >= updateWordCount )
+    v12 = (unsigned int)(v12 + 1);
+    if ( (unsigned int)v12 >= updateWordCount )
       break;
-    v16 = r_updateList->perFrameUpdate.array[v15];
-    if ( v16 )
+    v13 = r_updateList->perFrameUpdate.array[v12];
+    if ( v13 )
       goto LABEL_21;
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+0A8h+var_58] }
-  if ( v14 != perFrameUpdateCount )
+  if ( v11 != perFrameUpdateCount )
   {
-    LODWORD(v29) = perFrameUpdateCount;
-    LODWORD(v27) = v14;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3322, ASSERT_TYPE_ASSERT, "( updateCount ) == ( expectedUpdatecount )", "%s == %s\n\t%i, %i", "updateCount", "expectedUpdatecount", v27, v29) )
+    LODWORD(v20) = perFrameUpdateCount;
+    LODWORD(v18) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3322, ASSERT_TYPE_ASSERT, "( updateCount ) == ( expectedUpdatecount )", "%s == %s\n\t%i, %i", "updateCount", "expectedUpdatecount", v18, v20) )
       __debugbreak();
   }
 }
@@ -8597,16 +8366,19 @@ void ScriptableCl_UpdateParentedInstanceTransform(const LocalClientNum_t localCl
   ScriptableReplicatedInstance *ReplicatedInstance; 
   unsigned __int16 m_data; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t *outWorldOrigin; 
   vec3_t *outWorldAngles; 
-  __int64 v29; 
-  __int64 v30; 
+  __int64 v14; 
+  __int64 v15; 
   vec3_t localOrigin; 
-  __int64 v32; 
-  char v33[12]; 
+  __int64 v17; 
+  char v18[12]; 
   vec3_t localAngles; 
 
-  v32 = -2i64;
+  v17 = -2i64;
   if ( !parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4340, ASSERT_TYPE_ASSERT, "(parent)", (const char *)&queryFormat, "parent") )
     __debugbreak();
   if ( (parent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4341, ASSERT_TYPE_ASSERT, "(CENextValid( parent ))", (const char *)&queryFormat, "CENextValid( parent )") )
@@ -8631,9 +8403,9 @@ void ScriptableCl_UpdateParentedInstanceTransform(const LocalClientNum_t localCl
   {
     if ( !m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 323, ASSERT_TYPE_ASSERT, "(HasEntity())", (const char *)&queryFormat, "HasEntity()") )
       __debugbreak();
-    LODWORD(v30) = (unsigned __int16)(ReplicatedInstance->parent.m_data - 1);
-    LODWORD(v29) = parent->nextState.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4348, ASSERT_TYPE_ASSERT, "( parent->nextState.number ) == ( replicatedInstance->parent.GetEntityNum() )", "%s == %s\n\t%i, %i", "parent->nextState.number", "replicatedInstance->parent.GetEntityNum()", v29, v30) )
+    LODWORD(v15) = (unsigned __int16)(ReplicatedInstance->parent.m_data - 1);
+    LODWORD(v14) = parent->nextState.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4348, ASSERT_TYPE_ASSERT, "( parent->nextState.number ) == ( replicatedInstance->parent.GetEntityNum() )", "%s == %s\n\t%i, %i", "parent->nextState.number", "replicatedInstance->parent.GetEntityNum()", v14, v15) )
       __debugbreak();
   }
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
@@ -8654,35 +8426,19 @@ void ScriptableCl_UpdateParentedInstanceTransform(const LocalClientNum_t localCl
   }
   if ( (*((_BYTE *)InstanceCommonContext + 61) & 2) == 0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  dword ptr [rsp+0C8h+localOrigin], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  dword ptr [rsp+0C8h+localOrigin+4], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  dword ptr [rsp+0C8h+localOrigin+8], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  xmm2, cs:__real@3bb40000
-      vmulss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rsp+0C8h+localAngles], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rsp+0C8h+localAngles+4], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rsp+0C8h+localAngles+8], xmm0
-    }
+    v9 = (float)((__int64)(ReplicatedInstance->origin.m_data << 42) >> 42);
+    localOrigin.v[0] = v9;
+    v10 = (float)((__int64)(ReplicatedInstance->origin.m_data << 20) >> 42);
+    localOrigin.v[1] = v10;
+    v11 = (float)((__int64)ReplicatedInstance->origin.m_data >> 44);
+    localOrigin.v[2] = v11;
+    localAngles.v[0] = (float)ReplicatedInstance->angles.m_pitch * 0.0054931641;
+    localAngles.v[1] = (float)ReplicatedInstance->angles.m_yaw * 0.0054931641;
+    localAngles.v[2] = (float)ReplicatedInstance->angles.m_roll * 0.0054931641;
     ScriptableCl_ConvertStandaloneParentEntityPoseToWorldSpace(localClientNum, scriptableIndex, parent, &localOrigin, &localAngles, &localOrigin, &localAngles);
     ScriptableCL_SetPose(localClientNum, scriptableIndex, InstanceCommonContext, &localOrigin, &localAngles, 0);
   }
-  memset(v33, 0, sizeof(v33));
+  memset(v18, 0, sizeof(v18));
   memset(&localOrigin, 0, sizeof(localOrigin));
 }
 
@@ -8750,9 +8506,9 @@ ScriptableCl_UpdatePosition
 void ScriptableCl_UpdatePosition(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const centity_t *const cent)
 {
   const dvar_t *v6; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
   vec3_t outOrigin; 
 
-  _RBX = cent;
   v6 = DCONST_DVARBOOL_scriptable_enable;
   if ( !DCONST_DVARBOOL_scriptable_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_enable") )
     __debugbreak();
@@ -8761,24 +8517,17 @@ void ScriptableCl_UpdatePosition(const LocalClientNum_t localClientNum, const un
   {
     if ( localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4317, ASSERT_TYPE_ASSERT, "(localClientNum < SCRIPTABLE_MAX_NUM_SUPPORTED_CLIENTS)", (const char *)&queryFormat, "localClientNum < SCRIPTABLE_MAX_NUM_SUPPORTED_CLIENTS") )
       __debugbreak();
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4318, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
+    if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4318, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
       __debugbreak();
-    if ( (_RBX->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4319, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
+    if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4319, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
       __debugbreak();
-    if ( !ScriptableCl_IsScriptableEntity(localClientNum, _RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4320, ASSERT_TYPE_ASSERT, "(ScriptableCl_IsScriptableEntity( localClientNum, cent ))", (const char *)&queryFormat, "ScriptableCl_IsScriptableEntity( localClientNum, cent )") )
+    if ( !ScriptableCl_IsScriptableEntity(localClientNum, cent) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 4320, ASSERT_TYPE_ASSERT, "(ScriptableCl_IsScriptableEntity( localClientNum, cent ))", (const char *)&queryFormat, "ScriptableCl_IsScriptableEntity( localClientNum, cent )") )
       __debugbreak();
-    ScriptableCl_AssertLinkEquals(localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY, _RBX->nextState.number);
-    CG_GetPoseOrigin(&_RBX->pose, &outOrigin);
-    _RDI = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    ScriptableInstanceContextSecure::SetOrigin(_RDI, scriptableIndex, &outOrigin);
-    _RDI->angles.v[0] = _RBX->pose.angles.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4Ch]
-      vmovss  dword ptr [rdi+30h], xmm0
-      vmovss  xmm1, dword ptr [rbx+50h]
-      vmovss  dword ptr [rdi+34h], xmm1
-    }
+    ScriptableCl_AssertLinkEquals(localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY, cent->nextState.number);
+    CG_GetPoseOrigin(&cent->pose, &outOrigin);
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    ScriptableInstanceContextSecure::SetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
+    InstanceCommonContext->angles = cent->pose.angles;
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
 }
@@ -8824,7 +8573,7 @@ void ScriptableCl_UpdateServerControlledState(const LocalClientNum_t localClient
       __asm { vpxor   xmm0, xmm0, xmm0 }
       eventParams.callbacks = &s_clCallbackTable;
       eventParams.partDef = partDef;
-      __asm { vmovdqu xmmword ptr [rsp+88h+eventParams.damageEvent], xmm0 }
+      *(_OWORD *)&eventParams.damageEvent = _XMM0;
       ScriptableBg_ExecutePartChange(&eventParams, v13, v14);
       CG_EntityWorkers_LeaveCriticalSection_LegacyOnly();
       Sys_ProfEndNamedEvent();
@@ -8854,92 +8603,85 @@ ScriptableCl_UpdateSharedInstance
 */
 void ScriptableCl_UpdateSharedInstance(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const unsigned int entityIndex)
 {
-  __int64 v8; 
-  const dvar_t *v9; 
+  __int64 v5; 
+  const dvar_t *v6; 
   const ScriptableDef *def; 
-  bool updated; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
+  cg_t *LocalClientGlobals; 
+  double TimeScale; 
+  float v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  v8 = localClientNum;
+  v5 = localClientNum;
   if ( localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2366, ASSERT_TYPE_ASSERT, "(localClientNum < SCRIPTABLE_MAX_NUM_SUPPORTED_CLIENTS)", (const char *)&queryFormat, "localClientNum < SCRIPTABLE_MAX_NUM_SUPPORTED_CLIENTS") )
     __debugbreak();
   if ( entityIndex >= 0x800 )
   {
-    LODWORD(v18) = entityIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2367, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
+    LODWORD(v11) = entityIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2367, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, 2048) )
       __debugbreak();
   }
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "ScriptableCl_UpdateSharedInstance");
-  ScriptableCl_AssertLinkEquals((const LocalClientNum_t)v8, scriptableIndex, SCRIPTABLE_LINK_ENTITY, entityIndex);
-  if ( (unsigned int)v8 >= 2 )
+  ScriptableCl_AssertLinkEquals((const LocalClientNum_t)v5, scriptableIndex, SCRIPTABLE_LINK_ENTITY, entityIndex);
+  if ( (unsigned int)v5 >= 2 )
   {
-    LODWORD(v20) = 2;
-    LODWORD(v18) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2375, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableCl_serverChangedEntitiesBits ) ) + 0 ) )", "localClientNum doesn't index s_scriptableCl_serverChangedEntitiesBits\n\t%i not in [0, %i)", v18, v20) )
+    LODWORD(v13) = 2;
+    LODWORD(v11) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2375, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableCl_serverChangedEntitiesBits ) ) + 0 ) )", "localClientNum doesn't index s_scriptableCl_serverChangedEntitiesBits\n\t%i not in [0, %i)", v11, v13) )
       __debugbreak();
-    LODWORD(v21) = 2;
-    LODWORD(v19) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2376, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableCl_updateNeededEntitiesBits ) ) + 0 ) )", "localClientNum doesn't index s_scriptableCl_updateNeededEntitiesBits\n\t%i not in [0, %i)", v19, v21) )
+    LODWORD(v14) = 2;
+    LODWORD(v12) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2376, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableCl_updateNeededEntitiesBits ) ) + 0 ) )", "localClientNum doesn't index s_scriptableCl_updateNeededEntitiesBits\n\t%i not in [0, %i)", v12, v14) )
       __debugbreak();
   }
-  if ( (*((_BYTE *)ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v8, scriptableIndex) + 60) & 1) != 0 )
+  if ( (*((_BYTE *)ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v5, scriptableIndex) + 60) & 1) != 0 )
   {
     Sys_ProfBeginNamedEvent(0xFF44CCFF, "ScriptableCl_UpdateSharedInstance_Initialize");
     CG_EntityWorkers_EnterCriticalSection_LegacyOnly();
-    ScriptableCl_Update_InitInstance((const LocalClientNum_t)v8, scriptableIndex);
+    ScriptableCl_Update_InitInstance((const LocalClientNum_t)v5, scriptableIndex);
     CG_EntityWorkers_LeaveCriticalSection_LegacyOnly();
-    ScriptableCl_Update_AssertInitializedScriptable((const LocalClientNum_t)v8, scriptableIndex);
-    ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_serverChangedEntitiesBits[v8], entityIndex, 1);
-    ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_updateNeededEntitiesBits[v8], entityIndex, 1);
+    ScriptableCl_Update_AssertInitializedScriptable((const LocalClientNum_t)v5, scriptableIndex);
+    ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_serverChangedEntitiesBits[v5], entityIndex, 1);
+    ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_updateNeededEntitiesBits[v5], entityIndex, 1);
     Sys_ProfEndNamedEvent();
   }
-  v9 = DCONST_DVARBOOL_scriptable_enable;
+  v6 = DCONST_DVARBOOL_scriptable_enable;
   if ( !DCONST_DVARBOOL_scriptable_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
   {
-    def = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v8, scriptableIndex)->def;
+    def = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v5, scriptableIndex)->def;
     if ( !def )
     {
-      LODWORD(v18) = scriptableIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2412, ASSERT_TYPE_ASSERT, "( ( def ) )", "( scriptableIndex ) = %i", v18) )
+      LODWORD(v11) = scriptableIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2412, ASSERT_TYPE_ASSERT, "( ( def ) )", "( scriptableIndex ) = %i", v11) )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_load_query.h", 276, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
     }
     if ( (def->flags & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 2413, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_HasServerInstance( def ) ) )", "( def->name ) = %s", def->name) )
       __debugbreak();
-    if ( (def->flags & 4) != 0 && bitarray_base<bitarray<2048>>::testBit(&s_scriptableCl_serverChangedEntitiesBits[v8], entityIndex) )
+    if ( (def->flags & 4) != 0 && bitarray_base<bitarray<2048>>::testBit(&s_scriptableCl_serverChangedEntitiesBits[v5], entityIndex) )
     {
-      ScriptableCl_UpdateSharedInstanceStates((const LocalClientNum_t)v8, scriptableIndex);
-      ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_serverChangedEntitiesBits[v8], entityIndex, 0);
+      ScriptableCl_UpdateSharedInstanceStates((const LocalClientNum_t)v5, scriptableIndex);
+      ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_serverChangedEntitiesBits[v5], entityIndex, 0);
     }
-    if ( (def->flags & 0x200) != 0 && bitarray_base<bitarray<2048>>::testBit(&s_scriptableCl_updateNeededEntitiesBits[v8], entityIndex) )
+    if ( (def->flags & 0x200) != 0 && bitarray_base<bitarray<2048>>::testBit(&s_scriptableCl_updateNeededEntitiesBits[v5], entityIndex) )
     {
-      CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
-      *(double *)&_XMM0 = Com_GetTimeScale();
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rbx+65E4h]
-        vmulss  xmm2, xmm1, cs:__real@3a83126f
-        vmulss  xmm6, xmm0, xmm2
-      }
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
+      TimeScale = Com_GetTimeScale();
+      v10 = *(float *)&TimeScale * (float)((float)LocalClientGlobals->frametime * 0.001);
       CG_EntityWorkers_EnterCriticalSection_LegacyOnly();
-      __asm { vmovaps xmm2, xmm6; deltaTime }
-      updated = ScriptableCl_UpdateInstanceEvents((const LocalClientNum_t)v8, scriptableIndex, *(const float *)&_XMM2);
+      LOBYTE(LocalClientGlobals) = ScriptableCl_UpdateInstanceEvents((const LocalClientNum_t)v5, scriptableIndex, v10);
       CG_EntityWorkers_LeaveCriticalSection_LegacyOnly();
-      if ( !updated )
-        ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_updateNeededEntitiesBits[v8], entityIndex, 0);
+      if ( !(_BYTE)LocalClientGlobals )
+        ScriptableCl_InterlockedBitSetTo(&s_scriptableCl_updateNeededEntitiesBits[v5], entityIndex, 0);
     }
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -9637,81 +9379,73 @@ ScriptableCl_UpdateStandaloneEvents
 */
 void ScriptableCl_UpdateStandaloneEvents(const LocalClientNum_t localClientNum, ScriptableUpdateBitset *r_updateList, const unsigned int updateWordCount)
 {
-  int v10; 
+  int v6; 
+  cg_t *LocalClientGlobals; 
+  double TimeScale; 
+  float v9; 
+  __int64 v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  __int64 v14; 
   __int64 v15; 
-  unsigned int v16; 
-  unsigned int v17; 
-  unsigned int v18; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  void *retaddr; 
+  __int64 v16; 
+  __int64 v17; 
   unsigned int perFrameUpdateCount; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
   Sys_ProfBeginNamedEvent(0xFFFF0000, "ScriptableCl_UpdateStandaloneEvents");
-  v10 = 0;
+  v6 = 0;
   perFrameUpdateCount = r_updateList->perFrameUpdateCount;
-  CG_GetLocalClientGlobals(localClientNum);
-  *(double *)&_XMM0 = Com_GetTimeScale();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+65E4h]
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vmulss  xmm6, xmm0, xmm2
-  }
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  TimeScale = Com_GetTimeScale();
+  v9 = *(float *)&TimeScale * (float)((float)LocalClientGlobals->frametime * 0.001);
   if ( updateWordCount > 0x3D09 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3234, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( r_updateList.perFrameUpdate.WORD_COUNT )", "%s <= %s\n\t%i, %i", "updateWordCount", "r_updateList.perFrameUpdate.WORD_COUNT", updateWordCount, 15625) )
     __debugbreak();
-  LODWORD(v15) = 0;
-  v16 = 0;
+  LODWORD(v10) = 0;
+  v11 = 0;
   if ( updateWordCount )
-    v16 = r_updateList->perFrameUpdate.array[0];
-  while ( v16 )
+    v11 = r_updateList->perFrameUpdate.array[0];
+  while ( v11 )
   {
 LABEL_9:
-    v17 = __lzcnt(v16);
-    v18 = v17 + 32 * v15;
-    if ( v17 >= 0x20 )
+    v12 = __lzcnt(v11);
+    v13 = v12 + 32 * v10;
+    if ( v12 >= 0x20 )
     {
-      LODWORD(v22) = 32;
-      LODWORD(v21) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v15) = 32;
+      LODWORD(v14) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    if ( (v16 & (0x80000000 >> v17)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v11 & (0x80000000 >> v12)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v16 &= ~(0x80000000 >> v17);
-    if ( !ScriptableCl_GetInstanceInUse(localClientNum, v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3240, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, scriptableIndex )") )
+    v11 &= ~(0x80000000 >> v12);
+    if ( !ScriptableCl_GetInstanceInUse(localClientNum, v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3240, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetInstanceInUse( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, scriptableIndex )") )
       __debugbreak();
-    if ( ScriptableCl_GetInstanceShouldHaveEntity(localClientNum, v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3241, ASSERT_TYPE_ASSERT, "(!ScriptableCl_GetInstanceShouldHaveEntity( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "!ScriptableCl_GetInstanceShouldHaveEntity( localClientNum, scriptableIndex )") )
+    if ( ScriptableCl_GetInstanceShouldHaveEntity(localClientNum, v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3241, ASSERT_TYPE_ASSERT, "(!ScriptableCl_GetInstanceShouldHaveEntity( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "!ScriptableCl_GetInstanceShouldHaveEntity( localClientNum, scriptableIndex )") )
       __debugbreak();
-    __asm { vmovaps xmm2, xmm6; deltaTime }
-    if ( !ScriptableCl_UpdateInstanceEvents(localClientNum, v18, *(const float *)&_XMM2) )
+    if ( !ScriptableCl_UpdateInstanceEvents(localClientNum, v13, v9) )
     {
-      ScriptableCl_MarkPerFrameUpdateRequired(r_updateList, v18, 0);
-      bitarray_base<bitarray<500000>>::setBit(&r_updateList->perFrameUpdateCompleted, v18);
+      ScriptableCl_MarkPerFrameUpdateRequired(r_updateList, v13, 0);
+      bitarray_base<bitarray<500000>>::setBit(&r_updateList->perFrameUpdateCompleted, v13);
     }
-    ++v10;
+    ++v6;
   }
   while ( 1 )
   {
-    v15 = (unsigned int)(v15 + 1);
-    if ( (unsigned int)v15 >= updateWordCount )
+    v10 = (unsigned int)(v10 + 1);
+    if ( (unsigned int)v10 >= updateWordCount )
       break;
-    v16 = r_updateList->perFrameUpdate.array[v15];
-    if ( v16 )
+    v11 = r_updateList->perFrameUpdate.array[v10];
+    if ( v11 )
       goto LABEL_9;
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
-  if ( v10 != perFrameUpdateCount )
+  if ( v6 != perFrameUpdateCount )
   {
-    LODWORD(v24) = perFrameUpdateCount;
-    LODWORD(v23) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3258, ASSERT_TYPE_ASSERT, "( updateCount ) == ( expectedUpdateCount )", "%s == %s\n\t%i, %i", "updateCount", "expectedUpdateCount", v23, v24) )
+    LODWORD(v17) = perFrameUpdateCount;
+    LODWORD(v16) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client.cpp", 3258, ASSERT_TYPE_ASSERT, "( updateCount ) == ( expectedUpdateCount )", "%s == %s\n\t%i, %i", "updateCount", "expectedUpdateCount", v16, v17) )
       __debugbreak();
   }
 }
@@ -10227,61 +9961,37 @@ ScriptableInstanceContextSecure::SetOrigin
 */
 void ScriptableInstanceContextSecure::SetOrigin(ScriptableInstanceContextSecure *this, const unsigned int scriptableIndex, const vec3_t *newOrigin)
 {
+  unsigned int v6; 
   unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
+  int v9; 
+  int v10; 
+  int v11; 
   int v12; 
-  int v13; 
-  int v14; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  __int64 v19; 
+  __int64 v13; 
 
-  _RBX = newOrigin;
   ScriptableCommon_AssertCountsInitialized();
   if ( scriptableIndex >= g_scriptableWorldCounts.runtimeInstanceCount )
   {
-    this->origin.v[0] = _RBX->v[0];
-    this->origin.v[1] = _RBX->v[1];
-    this->origin.v[2] = _RBX->v[2];
+    this->origin.v[0] = newOrigin->v[0];
+    this->origin.v[1] = newOrigin->v[1];
+    this->origin.v[2] = newOrigin->v[2];
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rbx] }
-    v7 = s_scriptable_aab_X;
-    v8 = s_scriptable_aab_Z;
-    __asm { vmovss  [rsp+48h+arg_8], xmm0 }
-    v9 = s_scriptable_aab_Y;
-    if ( (v16 & 0x7F800000) == 2139095040 )
-      goto LABEL_11;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  [rsp+48h+arg_8], xmm0
-    }
-    if ( (v17 & 0x7F800000) == 2139095040 )
-      goto LABEL_11;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  [rsp+48h+arg_8], xmm0
-    }
-    if ( (v18 & 0x7F800000) == 2139095040 )
-    {
-LABEL_11:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
-        __debugbreak();
-    }
-    v12 = ((_DWORD)this + 32) ^ LODWORD(_RBX->v[2]);
-    v13 = LODWORD(_RBX->v[0]) ^ ((_DWORD)this + 32) ^ ~v7;
-    v14 = v13 ^ ((_DWORD)this + 32) ^ LODWORD(_RBX->v[1]);
-    LODWORD(this->origin.v[0]) = v13;
-    v15 = v9 ^ v14;
-    LODWORD(this->origin.v[1]) = v15;
-    LODWORD(this->origin.v[2]) = v8 ^ v15 ^ v12;
-    memset(&v19, 0, sizeof(v19));
+    v6 = s_scriptable_aab_X;
+    v7 = s_scriptable_aab_Z;
+    v8 = s_scriptable_aab_Y;
+    if ( ((LODWORD(newOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(newOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(newOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
+      __debugbreak();
+    v9 = ((_DWORD)this + 32) ^ LODWORD(newOrigin->v[2]);
+    v10 = LODWORD(newOrigin->v[0]) ^ ((_DWORD)this + 32) ^ ~v6;
+    v11 = v10 ^ ((_DWORD)this + 32) ^ LODWORD(newOrigin->v[1]);
+    LODWORD(this->origin.v[0]) = v10;
+    v12 = v8 ^ v11;
+    LODWORD(this->origin.v[1]) = v12;
+    LODWORD(this->origin.v[2]) = v7 ^ v12 ^ v9;
+    memset(&v13, 0, sizeof(v13));
   }
 }
 

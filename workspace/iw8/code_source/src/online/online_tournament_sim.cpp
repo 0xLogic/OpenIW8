@@ -357,6 +357,7 @@ OnlinetTournamentSim_SetupFakeDoc
 */
 OnlineTournamentBracket *OnlinetTournamentSim_SetupFakeDoc(OnlineTournamentBracket *result, OnlineTournamentBracket *bracket)
 {
+  OnlineTournamentBracket *v2; 
   const dvar_t *v4; 
   const dvar_t *v5; 
   int integer; 
@@ -376,26 +377,29 @@ OnlineTournamentBracket *OnlinetTournamentSim_SetupFakeDoc(OnlineTournamentBrack
   signed int v20; 
   __int64 v21; 
   int v22; 
+  OnlineTournamentBracket *v23; 
   __int64 v24; 
-  __int64 v31; 
-  __int64 v32; 
+  MatchStatus v25; 
+  __int128 v26; 
+  __int64 v28; 
+  __int64 v29; 
   XUID resulta; 
-  XUID v34; 
+  XUID v31; 
 
-  _RBX = bracket;
+  v2 = bracket;
   bracket->mmStatus = PLAYING;
   v4 = DVARINT_online_tournament_definition_partysize;
   if ( !DVARINT_online_tournament_definition_partysize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_tournament_definition_partysize") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
-  _RBX->teamSize = v4->current.integer;
+  v2->teamSize = v4->current.integer;
   v5 = DVARINT_online_tournament_definition_teamcount;
   if ( !DVARINT_online_tournament_definition_teamcount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_tournament_definition_teamcount") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v5);
   integer = v5->current.integer;
-  _RBX->teamCount = integer;
-  _RBX->participantCount = _RBX->teamSize * integer;
+  v2->teamCount = integer;
+  v2->participantCount = v2->teamSize * integer;
   v7 = DVARINT_online_tournament_sim_mode_local_player_index;
   if ( !DVARINT_online_tournament_sim_mode_local_player_index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_tournament_sim_mode_local_player_index") )
     __debugbreak();
@@ -404,7 +408,7 @@ OnlineTournamentBracket *OnlinetTournamentSim_SetupFakeDoc(OnlineTournamentBrack
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   Live_GetXuid(&resulta, ControllerFromClient);
   v10 = 0;
-  for ( i = 0; i < _RBX->participantCount; ++i )
+  for ( i = 0; i < v2->participantCount; ++i )
   {
     if ( v8 == i )
     {
@@ -413,13 +417,13 @@ OnlineTournamentBracket *OnlinetTournamentSim_SetupFakeDoc(OnlineTournamentBrack
     else
     {
       v13 = XUID::ToUint64(&resulta);
-      p_resulta = XUID::FromUInt64(&v34, v13 + i + 1);
+      p_resulta = XUID::FromUInt64(&v31, v13 + i + 1);
     }
-    XUID::operator=(&_RBX->participants[i], p_resulta);
+    XUID::operator=(&v2->participants[i], p_resulta);
   }
-  teamCount = _RBX->teamCount;
+  teamCount = v2->teamCount;
   v15 = teamCount;
-  _RBX->totalRounds = 0;
+  v2->totalRounds = 0;
   if ( teamCount > 1 )
   {
     v16 = 0;
@@ -429,65 +433,56 @@ OnlineTournamentBracket *OnlinetTournamentSim_SetupFakeDoc(OnlineTournamentBrack
       v15 >>= 1;
     }
     while ( v15 > 1 );
-    _RBX->totalRounds = v16;
+    v2->totalRounds = v16;
   }
-  _RBX->tournamentID = 123456789i64;
-  _RBX->bracketSize = teamCount / 2;
-  memset_0(_RBX->matchStatus, 0, sizeof(_RBX->matchStatus));
+  v2->tournamentID = 123456789i64;
+  v2->bracketSize = teamCount / 2;
+  memset_0(v2->matchStatus, 0, sizeof(v2->matchStatus));
   v17 = 1;
-  if ( _RBX->bracketSize > 0 )
+  if ( v2->bracketSize > 0 )
   {
     v18 = 0;
     do
     {
-      v19 = 1 << (LOBYTE(_RBX->totalRounds) - 1);
+      v19 = 1 << (LOBYTE(v2->totalRounds) - 1);
       if ( v18 >= v19 )
       {
-        LODWORD(v32) = 1 << (LOBYTE(_RBX->totalRounds) - 1);
-        LODWORD(v31) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament_sim.cpp", 98, ASSERT_TYPE_ASSERT, "(unsigned)( matchIndex ) < (unsigned)( roundSize )", "matchIndex doesn't index roundSize\n\t%i not in [0, %i)", v31, v32) )
+        LODWORD(v29) = 1 << (LOBYTE(v2->totalRounds) - 1);
+        LODWORD(v28) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament_sim.cpp", 98, ASSERT_TYPE_ASSERT, "(unsigned)( matchIndex ) < (unsigned)( roundSize )", "matchIndex doesn't index roundSize\n\t%i not in [0, %i)", v28, v29) )
           __debugbreak();
       }
       v20 = v18 + v19;
       if ( (unsigned int)(v20 - 1) >= 0xF )
       {
-        LODWORD(v32) = 15;
-        LODWORD(v31) = v20 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament_sim.cpp", 102, ASSERT_TYPE_SANITY, "(unsigned)( resultIndex ) < (unsigned)( ( sizeof( *array_counter( bracket.matchStatus ) ) + 0 ) )", "resultIndex doesn't index ARRAY_COUNT( bracket.matchStatus )\n\t%i not in [0, %i)", v31, v32) )
+        LODWORD(v29) = 15;
+        LODWORD(v28) = v20 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament_sim.cpp", 102, ASSERT_TYPE_SANITY, "(unsigned)( resultIndex ) < (unsigned)( ( sizeof( *array_counter( bracket.matchStatus ) ) + 0 ) )", "resultIndex doesn't index ARRAY_COUNT( bracket.matchStatus )\n\t%i not in [0, %i)", v28, v29) )
           __debugbreak();
       }
       ++v10;
       v21 = 4i64 * v20;
       v18 = v10;
-      HIDWORD(_RBX->participants[v21 + 79].m_id) = v17;
+      HIDWORD(v2->participants[v21 + 79].m_id) = v17;
       v22 = v17 + 1;
-      LODWORD(_RBX->participants[v21 + 80].m_id) = v22;
+      LODWORD(v2->participants[v21 + 80].m_id) = v22;
       v17 = v22 + 1;
     }
-    while ( v10 < _RBX->bracketSize );
+    while ( v10 < v2->bracketSize );
   }
-  _RAX = result;
+  v23 = result;
   v24 = 9i64;
   do
   {
-    _RAX = (OnlineTournamentBracket *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups xmm1, xmmword ptr [rbx+70h]
-    }
-    _RBX = (OnlineTournamentBracket *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rbx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rbx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v23 = (OnlineTournamentBracket *)((char *)v23 + 128);
+    v25 = *(MatchStatus *)&v2->tournamentID;
+    v26 = *(_OWORD *)&v2->participants[13].m_id;
+    v2 = (OnlineTournamentBracket *)((char *)v2 + 128);
+    v23[-1].matchStatus[11] = v25;
+    v23[-1].matchStatus[12] = v2[-1].matchStatus[12];
+    v23[-1].matchStatus[13] = v2[-1].matchStatus[13];
+    *(_OWORD *)v23[-1].matchStatus[14].readyStatus = *(_OWORD *)v2[-1].matchStatus[14].readyStatus;
+    *(_OWORD *)v23[-1].matchStatus[14].scores = v26;
     --v24;
   }
   while ( v24 );

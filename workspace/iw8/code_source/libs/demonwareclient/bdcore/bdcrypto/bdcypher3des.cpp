@@ -102,15 +102,16 @@ bdCypher3Des::decrypt
 */
 char bdCypher3Des::decrypt(bdCypher3Des *this, const unsigned __int8 *iv, const unsigned __int8 *cypherText, unsigned __int8 *plainText, unsigned int size)
 {
+  double v5; 
   void *m_cypherKey; 
   NTSTATUS v7; 
   ULONG v9; 
-  __int64 v10; 
+  double v10; 
 
-  __asm { vmovsd  xmm0, qword ptr [rdx] }
+  v5 = *(double *)iv;
   m_cypherKey = this->m_cypherKey;
   v9 = 0;
-  __asm { vmovsd  [rsp+78h+var_20], xmm0 }
+  v10 = v5;
   v7 = BCryptDecrypt_0(m_cypherKey, (PUCHAR)cypherText, size, NULL, (PUCHAR)&v10, 8u, plainText, size, &v9, 0);
   if ( v7 >= 0 )
     return 1;
@@ -125,15 +126,16 @@ bdCypher3Des::encrypt
 */
 char bdCypher3Des::encrypt(bdCypher3Des *this, const unsigned __int8 *iv, const unsigned __int8 *plainText, unsigned __int8 *cypherText, unsigned int size)
 {
+  double v5; 
   void *m_cypherKey; 
   NTSTATUS v7; 
   ULONG v9; 
-  __int64 v10; 
+  double v10; 
 
-  __asm { vmovsd  xmm0, qword ptr [rdx] }
+  v5 = *(double *)iv;
   m_cypherKey = this->m_cypherKey;
   v9 = 0;
-  __asm { vmovsd  [rsp+78h+var_20], xmm0 }
+  v10 = v5;
   v7 = BCryptEncrypt_0(m_cypherKey, (PUCHAR)plainText, size, NULL, (PUCHAR)&v10, 8u, cypherText, size, &v9, 0);
   if ( v7 >= 0 )
     return 1;

@@ -327,8 +327,7 @@ GTurretMP::FireLead_GetSpread
 */
 float GTurretMP::FireLead_GetSpread(GTurretMP *this, const gentity_s *activator)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+48h] }
-  return *(float *)&_XMM0;
+  return this->m_data.playerSpread;
 }
 
 /*
@@ -454,14 +453,13 @@ void GTurretMP::GetTargetEyePosition(GTurretMP *this, const gentity_s *target, v
 {
   gclient_s *client; 
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_eFlags; 
+  float v7; 
 
-  _RDI = outEyePos;
-  _RBX = target;
   if ( !target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 318, ASSERT_TYPE_ASSERT, "( target )", (const char *)&queryFormat, "target") )
     __debugbreak();
-  if ( !_RBX->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 319, ASSERT_TYPE_ASSERT, "( target->sentient )", (const char *)&queryFormat, "target->sentient") )
+  if ( !target->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 319, ASSERT_TYPE_ASSERT, "( target->sentient )", (const char *)&queryFormat, "target->sentient") )
     __debugbreak();
-  client = _RBX->client;
+  client = target->client;
   if ( client )
   {
     p_eFlags = &client->ps.eFlags;
@@ -474,22 +472,18 @@ void GTurretMP::GetTargetEyePosition(GTurretMP *this, const gentity_s *target, v
       if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2052, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL )") )
         __debugbreak();
 LABEL_17:
-      _RDI->v[0] = _RBX->r.currentOrigin.v[0];
-      _RDI->v[1] = _RBX->r.currentOrigin.v[1];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  dword ptr [rdi+8], xmm0
-        vaddss  xmm0, xmm0, dword ptr [rax+1E8h]
-        vmovss  dword ptr [rdi+8], xmm0
-      }
+      outEyePos->v[0] = target->r.currentOrigin.v[0];
+      outEyePos->v[1] = target->r.currentOrigin.v[1];
+      v7 = target->r.currentOrigin.v[2];
+      outEyePos->v[2] = v7;
+      outEyePos->v[2] = v7 + target->client->ps.viewHeightCurrent;
       return;
     }
-    G_Client_GetEyePosition(&_RBX->client->ps, _RDI);
+    G_Client_GetEyePosition(&target->client->ps, outEyePos);
   }
   else
   {
-    Sentient_GetEyePosition(_RBX->sentient, _RDI);
+    Sentient_GetEyePosition(target->sentient, outEyePos);
   }
 }
 
@@ -612,9 +606,11 @@ void GTurretMP::SaveMP_WriteTurrets(MemoryFile *memFile)
 {
   GTurret **v2; 
   __int64 v3; 
+  GTurret *v4; 
   const saveField_t *CommonSaveFields; 
   char p[16]; 
-  unsigned __int8 dest[240]; 
+  _BYTE dest[224]; 
+  __int128 v8; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 48, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
@@ -624,39 +620,27 @@ void GTurretMP::SaveMP_WriteTurrets(MemoryFile *memFile)
   v3 = 128i64;
   do
   {
-    _RBX = *v2;
+    v4 = *v2;
     if ( !*v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 54, ASSERT_TYPE_ASSERT, "( turret )", (const char *)&queryFormat, "turret") )
       __debugbreak();
-    p[0] = _RBX->m_inuse;
+    p[0] = v4->m_inuse;
     MemFile_WriteData(memFile, 1ui64, p);
-    if ( _RBX->m_inuse )
+    if ( v4->m_inuse )
     {
       if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 23, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
         __debugbreak();
-      if ( !_RBX->m_inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 25, ASSERT_TYPE_ASSERT, "( turret->m_inuse )", (const char *)&queryFormat, "turret->m_inuse") )
+      if ( !v4->m_inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 25, ASSERT_TYPE_ASSERT, "( turret->m_inuse )", (const char *)&queryFormat, "turret->m_inuse") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbx+0Ch] }
-      _RCX = dest;
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rbx+2Ch]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+4Ch]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+6Ch]
-        vmovups ymmword ptr [rcx+60h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+8Ch]
-        vmovups ymmword ptr [rcx+80h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+0ACh]
-        vmovups ymmword ptr [rcx+0A0h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+0CCh]
-        vmovups ymmword ptr [rcx+0C0h], ymm0
-        vmovups xmm0, xmmword ptr [rbx+0ECh]
-        vmovups xmmword ptr [rcx+0E0h], xmm0
-      }
+      *(__m256i *)dest = *(__m256i *)&v4->m_data.state;
+      *(__m256i *)&dest[32] = *(__m256i *)&v4->m_data.dropPitch;
+      *(__m256i *)&dest[64] = *(__m256i *)&v4->m_data.target.number;
+      *(__m256i *)&dest[96] = *(__m256i *)&v4->m_data.targetTime;
+      *(__m256i *)&dest[128] = *(__m256i *)&v4->m_data.convergenceHeightPercent;
+      *(__m256i *)&dest[160] = *(__m256i *)&v4->m_data.scanDecelYaw;
+      *(__m256i *)&dest[192] = *(__m256i *)&v4->m_data.forwardAngleDot;
+      v8 = *(_OWORD *)&v4->m_data.startUseTime;
       CommonSaveFields = G_Turret_GetCommonSaveFields();
-      G_SaveFieldMP_WriteStruct(CommonSaveFields, (const unsigned __int8 *)&_RBX->m_data, dest, 240, memFile);
+      G_SaveFieldMP_WriteStruct(CommonSaveFields, (const unsigned __int8 *)&v4->m_data, dest, 240, memFile);
     }
     ++v2;
     --v3;
@@ -827,19 +811,13 @@ bool GTurretMP::UpdateTargetAngles_GetStartingPitch(GTurretMP *this, gentity_s *
 {
   bool result; 
 
-  _RBX = self;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 288, ASSERT_TYPE_ASSERT, "( self )", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !outPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_turret_mp.cpp", 289, ASSERT_TYPE_ASSERT, "( outPitch )", (const char *)&queryFormat, "outPitch") )
     __debugbreak();
-  *outPitch = _RBX->s.lerp.u.turret.gunAngles.v[0];
+  *outPitch = self->s.lerp.u.turret.gunAngles.v[0];
   result = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+60h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+58h]
-    vmovss  dword ptr [rbx+58h], xmm1
-  }
+  self->s.lerp.u.turret.gunAngles.v[0] = self->s.lerp.u.turret.gunAngles.v[2] + self->s.lerp.u.turret.gunAngles.v[0];
   return result;
 }
 

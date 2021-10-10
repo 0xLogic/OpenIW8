@@ -592,22 +592,22 @@ __int64 bdAuthUtility::getLicenseID(const char *licenseCode)
   bool v4; 
   __int64 v5; 
   unsigned int resultSize; 
-  __int64 v8; 
-  bdHashTiger192 v9; 
-  __int64 v10; 
-  unsigned __int8 result[8]; 
+  __int64 v7; 
+  bdHashTiger192 v8; 
+  __int64 v9; 
+  __int64 result[3]; 
 
-  v10 = -2i64;
+  v9 = -2i64;
   if ( !licenseCode )
     return 0i64;
-  bdHashTiger192::bdHashTiger192(&v9);
+  bdHashTiger192::bdHashTiger192(&v8);
   resultSize = 24;
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   v3 = -1i64;
   do
     ++v3;
   while ( licenseCode[v3] );
-  v4 = bdHashTiger192::hash(&v9, (const unsigned __int8 *)licenseCode, v3, result, &resultSize);
+  v4 = bdHashTiger192::hash(&v8, (const unsigned __int8 *)licenseCode, v3, (unsigned __int8 *)result, &resultSize);
   bdHandleAssert(v4, "success", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauthcommon.cpp", "bdAuthUtility::getLicenseID", 0x27u, "Hash function failed.");
   v5 = 0i64;
   if ( resultSize < 8 )
@@ -616,14 +616,10 @@ __int64 bdAuthUtility::getLicenseID(const char *licenseCode)
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+98h+result]
-      vmovsd  [rsp+98h+var_50], xmm0
-    }
-    v5 = v8;
+    v7 = result[0];
+    v5 = result[0];
   }
-  bdHashTiger192::~bdHashTiger192(&v9);
+  bdHashTiger192::~bdHashTiger192(&v8);
   return v5;
 }
 
@@ -634,44 +630,34 @@ bdAuthUtility::getLicenseKey
 */
 void bdAuthUtility::getLicenseKey(const char *licenseCode, char *licenseKey)
 {
-  __int64 v6; 
-  bool v7; 
+  __int64 v4; 
+  bool v5; 
   __int64 resultSize; 
-  bdHashTiger192 v11; 
-  __int64 v12; 
+  bdHashTiger192 v7; 
+  __int64 v8; 
   unsigned __int8 result[16]; 
+  double v10; 
 
-  v12 = -2i64;
-  _RDI = licenseKey;
+  v8 = -2i64;
   if ( licenseCode )
   {
-    bdHashTiger192::bdHashTiger192(&v11);
+    bdHashTiger192::bdHashTiger192(&v7);
     LODWORD(resultSize) = 24;
     bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen", resultSize);
-    v6 = -1i64;
+    v4 = -1i64;
     do
-      ++v6;
-    while ( licenseCode[v6] );
-    v7 = bdHashTiger192::hash(&v11, (const unsigned __int8 *)licenseCode, v6, result, (unsigned int *)&resultSize);
-    bdHandleAssert(v7, "success", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauthcommon.cpp", "bdAuthUtility::getLicenseKey", 0x40u, "Hash function failed.");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+78h+result]
-      vmovups xmmword ptr [rdi], xmm0
-      vmovsd  xmm1, [rsp+78h+var_18]
-      vmovsd  qword ptr [rdi+10h], xmm1
-    }
-    bdHashTiger192::~bdHashTiger192(&v11);
+      ++v4;
+    while ( licenseCode[v4] );
+    v5 = bdHashTiger192::hash(&v7, (const unsigned __int8 *)licenseCode, v4, result, (unsigned int *)&resultSize);
+    bdHandleAssert(v5, "success", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauthcommon.cpp", "bdAuthUtility::getLicenseKey", 0x40u, "Hash function failed.");
+    *(_OWORD *)licenseKey = *(_OWORD *)result;
+    *((double *)licenseKey + 2) = v10;
+    bdHashTiger192::~bdHashTiger192(&v7);
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?BD_MAGIC_LICENSE_KEY@@3QBEB; uchar const near * const BD_MAGIC_LICENSE_KEY
-      vmovups xmmword ptr [rdx], xmm0
-      vmovsd  xmm1, qword ptr cs:?BD_MAGIC_LICENSE_KEY@@3QBEB+10h; uchar const near * const BD_MAGIC_LICENSE_KEY
-      vmovsd  qword ptr [rdx+10h], xmm1
-    }
+    *(_OWORD *)licenseKey = *(_OWORD *)BD_MAGIC_LICENSE_KEY;
+    *((double *)licenseKey + 2) = *(double *)&BD_MAGIC_LICENSE_KEY[16];
   }
 }
 
@@ -690,19 +676,19 @@ __int64 bdAuthUtility::getUserID(const char *username)
   _BYTE *v7; 
   signed __int64 v8; 
   unsigned int resultSize; 
-  __int64 v12; 
-  bdHashTiger192 v13; 
-  __int64 v14; 
+  __int64 v11; 
+  bdHashTiger192 v12; 
+  __int64 v13; 
   __int64 Buf[8]; 
-  char v16; 
+  char v15; 
   unsigned __int8 result[8]; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
 
-  v14 = -2i64;
+  v13 = -2i64;
   v2 = 0i64;
   memset(Buf, 0, sizeof(Buf));
-  v16 = 0;
+  v15 = 0;
   bdHandleAssert(username != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   v3 = -1i64;
   v4 = -1i64;
@@ -731,16 +717,16 @@ __int64 bdAuthUtility::getUserID(const char *username)
     while ( *((_BYTE *)Buf + v6) );
   }
   resultSize = 24;
-  *(_QWORD *)result = 0i64;
+  *(double *)result = 0.0;
+  v17 = 0i64;
   v18 = 0i64;
-  v19 = 0i64;
-  bdHashTiger192::bdHashTiger192(&v13);
+  bdHashTiger192::bdHashTiger192(&v12);
   v7 = memchr_0(Buf, 0, 0x41ui64);
   if ( v7 )
     v8 = v7 - (_BYTE *)Buf;
   else
     LODWORD(v8) = 65;
-  if ( bdHashTiger192::hash(&v13, (const unsigned __int8 *)Buf, v8, result, &resultSize) )
+  if ( bdHashTiger192::hash(&v12, (const unsigned __int8 *)Buf, v8, result, &resultSize) )
   {
     if ( resultSize < 8 )
     {
@@ -748,19 +734,15 @@ __int64 bdAuthUtility::getUserID(const char *username)
     }
     else
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+57h+result]
-        vmovsd  [rbp+57h+var_A8], xmm0
-      }
-      v2 = v12;
+      v11 = *(__int64 *)result;
+      v2 = *(_QWORD *)result;
     }
   }
   else
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdCore/bdAuthUtility", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauthcommon.cpp", "bdAuthUtility::getUserID", 0x80u, "Hash failed.");
   }
-  bdHashTiger192::~bdHashTiger192(&v13);
+  bdHashTiger192::~bdHashTiger192(&v12);
   return v2;
 }
 
@@ -774,29 +756,24 @@ void bdAuthUtility::getUserKey(const char *password, char *userKey)
   __int64 v4; 
   bool v5; 
   __int64 resultSize; 
-  bdHashTiger192 v9; 
-  __int64 v10; 
+  bdHashTiger192 v7; 
+  __int64 v8; 
   unsigned __int8 result[16]; 
+  double v10; 
 
-  v10 = -2i64;
-  _RDI = userKey;
-  bdHashTiger192::bdHashTiger192(&v9);
+  v8 = -2i64;
+  bdHashTiger192::bdHashTiger192(&v7);
   LODWORD(resultSize) = 24;
   bdHandleAssert(password != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen", resultSize);
   v4 = -1i64;
   do
     ++v4;
   while ( password[v4] );
-  v5 = bdHashTiger192::hash(&v9, (const unsigned __int8 *)password, v4, result, (unsigned int *)&resultSize);
+  v5 = bdHashTiger192::hash(&v7, (const unsigned __int8 *)password, v4, result, (unsigned int *)&resultSize);
   bdHandleAssert(v5, "success", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdauth\\bdauthcommon.cpp", "bdAuthUtility::getUserKey", 0x4Fu, "Hash function failed.");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+78h+result]
-    vmovups xmmword ptr [rdi], xmm0
-    vmovsd  xmm1, [rsp+78h+var_18]
-    vmovsd  qword ptr [rdi+10h], xmm1
-  }
-  bdHashTiger192::~bdHashTiger192(&v9);
+  *(_OWORD *)userKey = *(_OWORD *)result;
+  *((double *)userKey + 2) = v10;
+  bdHashTiger192::~bdHashTiger192(&v7);
 }
 
 /*

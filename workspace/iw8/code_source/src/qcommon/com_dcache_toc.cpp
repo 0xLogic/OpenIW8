@@ -311,14 +311,20 @@ __int64 DCache_TOC_Allocate(dcacheType_t cacheType, unsigned __int64 fileID, dca
   Online_ErrorReporting *v53; 
   int v54; 
   __int64 v55; 
+  _OWORD *m_ptr; 
   dcacheTOC_t *v57; 
+  _OWORD *v58; 
+  _OWORD *v59; 
   __int64 v60; 
   __int64 v61; 
-  dcacheTOC_t *v75; 
-  __int64 v76; 
-  __int64 v79; 
+  dcacheTOC_t *v62; 
+  __int64 v63; 
+  _OWORD *v64; 
+  _OWORD *v65; 
+  __int64 v66; 
   dcacheFileInfo_t *m_fileInfo; 
-  Mem_LargeLocal v108; 
+  dcacheFileInfo_t *v68; 
+  Mem_LargeLocal v69; 
 
   v13 = cacheType;
   if ( (unsigned int)(fileSize - 1) > 0x10CFFFFF )
@@ -491,150 +497,84 @@ LABEL_80:
         *((_DWORD *)DCache_TOC_GetTOC((dcacheType_t)v13) + 118 * v52 - 62) = v54;
         if ( (_DWORD)v52 - 1 != DCache_TOC_GetTOC((dcacheType_t)v13)->m_numFiles - 1 )
         {
-          Mem_LargeLocal::Mem_LargeLocal(&v108, 0x1D8ui64, "dcacheFileInfo_t tempFileInfo");
-          _RBX = v108.m_ptr;
+          Mem_LargeLocal::Mem_LargeLocal(&v69, 0x1D8ui64, "dcacheFileInfo_t tempFileInfo");
+          m_ptr = v69.m_ptr;
           v57 = DCache_TOC_GetTOC((dcacheType_t)v13);
-          _RCX = _RBX;
-          _RAX = (__int64)v57 + v55 - 440;
+          v58 = m_ptr;
+          v59 = (_OWORD *)((char *)v57 + v55 - 440);
           v60 = 3i64;
           v61 = 3i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX += 16;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RAX += 128i64;
+            *v58 = *v59;
+            v58[1] = v59[1];
+            v58[2] = v59[2];
+            v58[3] = v59[3];
+            v58[4] = v59[4];
+            v58[5] = v59[5];
+            v58[6] = v59[6];
+            v58 += 8;
+            *(v58 - 1) = v59[7];
+            v59 += 8;
             --v61;
           }
           while ( v61 );
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-          }
-          _RCX[10] = *(_QWORD *)(_RAX + 80);
-          v75 = DCache_TOC_GetTOC((dcacheType_t)v13);
-          v76 = 472i64 * DCache_TOC_GetTOC((dcacheType_t)v13)->m_numFiles;
-          _RCX = (char *)DCache_TOC_GetTOC((dcacheType_t)v13) + v55 - 440;
-          _RAX = (__int64)v75 + v76 - 440;
-          v79 = 3i64;
+          *v58 = *v59;
+          v58[1] = v59[1];
+          v58[2] = v59[2];
+          v58[3] = v59[3];
+          v58[4] = v59[4];
+          *((_QWORD *)v58 + 10) = *((_QWORD *)v59 + 10);
+          v62 = DCache_TOC_GetTOC((dcacheType_t)v13);
+          v63 = 472i64 * DCache_TOC_GetTOC((dcacheType_t)v13)->m_numFiles;
+          v64 = (_OWORD *)((char *)DCache_TOC_GetTOC((dcacheType_t)v13) + v55 - 440);
+          v65 = (_OWORD *)((char *)v62 + v63 - 440);
+          v66 = 3i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX += 128;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RAX += 128i64;
-            --v79;
+            *v64 = *v65;
+            v64[1] = v65[1];
+            v64[2] = v65[2];
+            v64[3] = v65[3];
+            v64[4] = v65[4];
+            v64[5] = v65[5];
+            v64[6] = v65[6];
+            v64 += 8;
+            *(v64 - 1) = v65[7];
+            v65 += 8;
+            --v66;
           }
-          while ( v79 );
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-          }
-          *((_QWORD *)_RCX + 10) = *(_QWORD *)(_RAX + 80);
+          while ( v66 );
+          *v64 = *v65;
+          v64[1] = v65[1];
+          v64[2] = v65[2];
+          v64[3] = v65[3];
+          v64[4] = v65[4];
+          *((_QWORD *)v64 + 10) = *((_QWORD *)v65 + 10);
           m_fileInfo = DCache_TOC_GetTOC((dcacheType_t)v13)->m_fileInfo;
-          _RCX = &m_fileInfo[DCache_TOC_GetTOC((dcacheType_t)v13)->m_numFiles - 1];
+          v68 = &m_fileInfo[DCache_TOC_GetTOC((dcacheType_t)v13)->m_numFiles - 1];
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbx]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rbx+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rbx+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rbx+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rbx+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rbx+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rbx+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX = (dcacheFileInfo_t *)((char *)_RCX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rbx+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RBX += 16;
+            *(_OWORD *)&v68->m_details.m_fileID = *m_ptr;
+            *(_OWORD *)&v68->m_details.m_name[4] = m_ptr[1];
+            *(_OWORD *)&v68->m_details.m_name[20] = m_ptr[2];
+            *(_OWORD *)&v68->m_details.m_name[36] = m_ptr[3];
+            *(_OWORD *)&v68->m_details.m_name[52] = m_ptr[4];
+            *(_OWORD *)&v68->m_details.m_name[68] = m_ptr[5];
+            *(_OWORD *)&v68->m_details.m_name[84] = m_ptr[6];
+            v68 = (dcacheFileInfo_t *)((char *)v68 + 128);
+            *(_OWORD *)&v68[-1].m_bitfield[256] = m_ptr[7];
+            m_ptr += 8;
             --v60;
           }
           while ( v60 );
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rbx+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-          }
-          *(_QWORD *)&_RCX->m_details.m_name[68] = _RBX[10];
-          Mem_LargeLocal::~Mem_LargeLocal(&v108);
+          *(_OWORD *)&v68->m_details.m_fileID = *m_ptr;
+          *(_OWORD *)&v68->m_details.m_name[4] = m_ptr[1];
+          *(_OWORD *)&v68->m_details.m_name[20] = m_ptr[2];
+          *(_OWORD *)&v68->m_details.m_name[36] = m_ptr[3];
+          *(_OWORD *)&v68->m_details.m_name[52] = m_ptr[4];
+          *(_QWORD *)&v68->m_details.m_name[68] = *((_QWORD *)m_ptr + 10);
+          Mem_LargeLocal::~Mem_LargeLocal(&v69);
         }
       }
       else
@@ -704,7 +644,10 @@ char DCache_TOC_CondenseTOC(dcacheTOC_t *toc)
   int v5; 
   int v6; 
   _DWORD *v7; 
+  _OWORD *v8; 
+  dcacheFileInfo_t *v9; 
   __int64 v10; 
+  __int128 v11; 
   StreamerMemLoan result; 
 
   if ( !toc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 696, ASSERT_TYPE_ASSERT, "(toc)", (const char *)&queryFormat, "toc") )
@@ -725,50 +668,32 @@ char DCache_TOC_CondenseTOC(dcacheTOC_t *toc)
       {
         if ( v7[2] )
         {
-          _RAX = v7;
-          _R8 = &toc->m_fileInfo[v5];
+          v8 = v7;
+          v9 = &toc->m_fileInfo[v5];
           v10 = 3i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [r8], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [r8+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [r8+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [r8+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [r8+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [r8+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [r8+60h], xmm0
-              vmovups xmm1, xmmword ptr [rax+70h]
-            }
-            _RAX += 32;
-            _R8 = (dcacheFileInfo_t *)((char *)_R8 + 128);
-            __asm { vmovups xmmword ptr [r8-10h], xmm1 }
+            *(_OWORD *)&v9->m_details.m_fileID = *v8;
+            *(_OWORD *)&v9->m_details.m_name[4] = v8[1];
+            *(_OWORD *)&v9->m_details.m_name[20] = v8[2];
+            *(_OWORD *)&v9->m_details.m_name[36] = v8[3];
+            *(_OWORD *)&v9->m_details.m_name[52] = v8[4];
+            *(_OWORD *)&v9->m_details.m_name[68] = v8[5];
+            *(_OWORD *)&v9->m_details.m_name[84] = v8[6];
+            v11 = v8[7];
+            v8 += 8;
+            v9 = (dcacheFileInfo_t *)((char *)v9 + 128);
+            *(_OWORD *)&v9[-1].m_bitfield[256] = v11;
             --v10;
           }
           while ( v10 );
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [r8], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [r8+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [r8+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [r8+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [r8+40h], xmm0
-          }
+          *(_OWORD *)&v9->m_details.m_fileID = *v8;
+          *(_OWORD *)&v9->m_details.m_name[4] = v8[1];
+          *(_OWORD *)&v9->m_details.m_name[20] = v8[2];
+          *(_OWORD *)&v9->m_details.m_name[36] = v8[3];
+          *(_OWORD *)&v9->m_details.m_name[52] = v8[4];
           ++v5;
-          *(_QWORD *)&_R8->m_details.m_name[68] = *((_QWORD *)_RAX + 10);
+          *(_QWORD *)&v9->m_details.m_name[68] = *((_QWORD *)v8 + 10);
         }
         ++v6;
         v7 += 118;
@@ -891,42 +816,36 @@ DCache_TOC_FlushTOC
 void DCache_TOC_FlushTOC(dcacheType_t cacheType, bool keepAdditionalData)
 {
   __int64 v3; 
+  _DWORD *m_ptr; 
   dcacheTOC_t **v5; 
-  Mem_LargeLocal v9; 
+  dcacheTOC_t *v6; 
+  Mem_LargeLocal v7; 
 
   v3 = cacheType;
-  Mem_LargeLocal::Mem_LargeLocal(&v9, 0x14ui64, "dcacheAdditionalData_t additionalData");
-  _RDI = v9.m_ptr;
+  Mem_LargeLocal::Mem_LargeLocal(&v7, 0x14ui64, "dcacheAdditionalData_t additionalData");
+  m_ptr = v7.m_ptr;
   v5 = &s_dcacheTOCs[v3];
   if ( !*v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 30, ASSERT_TYPE_ASSERT, "(s_dcacheTOCs[cacheType])", (const char *)&queryFormat, "s_dcacheTOCs[cacheType]", -2i64) )
     __debugbreak();
-  _RBX = *v5;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 603, ASSERT_TYPE_ASSERT, "(toc)", (const char *)&queryFormat, "toc") )
+  v6 = *v5;
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 603, ASSERT_TYPE_ASSERT, "(toc)", (const char *)&queryFormat, "toc") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+8]
-    vmovups xmmword ptr [rdi], xmm0
-  }
-  _RDI[4] = _RBX->m_additionalData.m_genericConfig;
-  memset_0(_RBX, 0, sizeof(dcacheTOC_t));
-  *(_DWORD *)&_RBX->m_versionMajor = 589835;
-  _RBX->m_localFileIDSequence = 0xFFFFFFFFi64;
-  _RBX->m_additionalData.m_remotePurgeCacheRequestId = _RDI[1];
+  *(_OWORD *)m_ptr = *(_OWORD *)&v6->m_additionalData.m_languageSetting;
+  m_ptr[4] = v6->m_additionalData.m_genericConfig;
+  memset_0(v6, 0, sizeof(dcacheTOC_t));
+  *(_DWORD *)&v6->m_versionMajor = 589835;
+  v6->m_localFileIDSequence = 0xFFFFFFFFi64;
+  v6->m_additionalData.m_remotePurgeCacheRequestId = m_ptr[1];
   if ( keepAdditionalData )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rbx+8], xmm0
-    }
-    _RBX->m_additionalData.m_genericConfig = _RDI[4];
+    *(_OWORD *)&v6->m_additionalData.m_languageSetting = *(_OWORD *)m_ptr;
+    v6->m_additionalData.m_genericConfig = m_ptr[4];
   }
   else
   {
-    _RBX->m_additionalData.m_languageSetting = MAX_LANGUAGES;
+    v6->m_additionalData.m_languageSetting = MAX_LANGUAGES;
   }
-  Mem_LargeLocal::~Mem_LargeLocal(&v9);
+  Mem_LargeLocal::~Mem_LargeLocal(&v7);
 }
 
 /*
@@ -1162,42 +1081,27 @@ DCache_TOC_GetFileDetails
 */
 char DCache_TOC_GetFileDetails(dcacheType_t cacheType, unsigned __int64 fileID, dcacheLocation_t location, dcacheFileDetails_t *outFileDetails)
 {
+  dcacheFileInfo_t *v8; 
   int index; 
 
-  _RBX = outFileDetails;
   if ( !outFileDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 88, ASSERT_TYPE_ASSERT, "(outFileDetails)", (const char *)&queryFormat, "outFileDetails") )
     __debugbreak();
   if ( !DCache_TOC_GetIndex(cacheType, fileID, location, &index) )
     return 0;
-  _RAX = &DCache_TOC_GetTOC(cacheType)->m_fileInfo[index];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rbx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rbx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rbx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rbx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rbx+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rax+0B0h]
-    vmovups xmmword ptr [rbx+0B0h], xmm0
-  }
-  *(_QWORD *)&_RBX->m_timestamp = *(_QWORD *)&_RAX->m_details.m_timestamp;
+  v8 = &DCache_TOC_GetTOC(cacheType)->m_fileInfo[index];
+  *(_OWORD *)&outFileDetails->m_fileID = *(_OWORD *)&v8->m_details.m_fileID;
+  *(_OWORD *)&outFileDetails->m_name[4] = *(_OWORD *)&v8->m_details.m_name[4];
+  *(_OWORD *)&outFileDetails->m_name[20] = *(_OWORD *)&v8->m_details.m_name[20];
+  *(_OWORD *)&outFileDetails->m_name[36] = *(_OWORD *)&v8->m_details.m_name[36];
+  *(_OWORD *)&outFileDetails->m_name[52] = *(_OWORD *)&v8->m_details.m_name[52];
+  *(_OWORD *)&outFileDetails->m_name[68] = *(_OWORD *)&v8->m_details.m_name[68];
+  *(_OWORD *)&outFileDetails->m_name[84] = *(_OWORD *)&v8->m_details.m_name[84];
+  *(_OWORD *)&outFileDetails->m_name[100] = *(_OWORD *)&v8->m_details.m_name[100];
+  *(_OWORD *)&outFileDetails->m_name[116] = *(_OWORD *)&v8->m_details.m_name[116];
+  *(_OWORD *)outFileDetails->m_computedHashValue.hashBytes = *(_OWORD *)v8->m_details.m_computedHashValue.hashBytes;
+  *(_OWORD *)&outFileDetails->m_computedHashValue.hashBytes[16] = *(_OWORD *)&v8->m_details.m_computedHashValue.hashBytes[16];
+  *(_OWORD *)&outFileDetails->m_size = *(_OWORD *)&v8->m_details.m_size;
+  *(_QWORD *)&outFileDetails->m_timestamp = *(_QWORD *)&v8->m_details.m_timestamp;
   return 1;
 }
 
@@ -1523,20 +1427,22 @@ void DCache_TOC_RemotePurgeCacheRequest(int remotePurgeCacheRequestId)
   int *v5; 
   dcacheTOC_t *v6; 
   int m_remotePurgeCacheRequestId; 
-  const char *v12; 
+  _DWORD *m_ptr; 
+  dcacheTOC_t *v9; 
+  const char *v10; 
   Online_ErrorReporting *InstancePtr; 
   char *fmt; 
-  __int64 v15; 
-  Mem_LargeLocal v16; 
-  __int16 v17; 
-  __int64 v18; 
+  __int64 v13; 
+  Mem_LargeLocal v14; 
+  __int16 v15; 
+  __int64 v16; 
 
-  v17 = 0;
+  v15 = 0;
   v2 = 0;
-  v18 = 0i64;
-  v3 = &v17;
+  v16 = 0i64;
+  v3 = &v15;
   v4 = s_dcacheTOCs;
-  v5 = (int *)&v18;
+  v5 = (int *)&v16;
   do
   {
     if ( !*v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 30, ASSERT_TYPE_ASSERT, "(s_dcacheTOCs[cacheType])", (const char *)&queryFormat, "s_dcacheTOCs[cacheType]") )
@@ -1549,30 +1455,22 @@ void DCache_TOC_RemotePurgeCacheRequest(int remotePurgeCacheRequestId)
     *v5 = m_remotePurgeCacheRequestId;
     if ( v6 && v6->m_additionalData.m_remotePurgeCacheRequestId != remotePurgeCacheRequestId )
     {
-      Mem_LargeLocal::Mem_LargeLocal(&v16, 0x14ui64, "dcacheAdditionalData_t additionalData");
-      _R13 = v16.m_ptr;
+      Mem_LargeLocal::Mem_LargeLocal(&v14, 0x14ui64, "dcacheAdditionalData_t additionalData");
+      m_ptr = v14.m_ptr;
       if ( !*v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 30, ASSERT_TYPE_ASSERT, "(s_dcacheTOCs[cacheType])", (const char *)&queryFormat, "s_dcacheTOCs[cacheType]") )
         __debugbreak();
-      _RSI = *v4;
+      v9 = *v4;
       if ( !*v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_dcache_toc.cpp", 603, ASSERT_TYPE_ASSERT, "(toc)", (const char *)&queryFormat, "toc") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi+8]
-        vmovups xmmword ptr [r13+0], xmm0
-      }
-      _R13[4] = _RSI->m_additionalData.m_genericConfig;
-      memset_0(_RSI, 0, sizeof(dcacheTOC_t));
-      *(_DWORD *)&_RSI->m_versionMajor = 589835;
-      _RSI->m_localFileIDSequence = 0xFFFFFFFFi64;
-      _RSI->m_additionalData.m_remotePurgeCacheRequestId = _R13[1];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r13+0]
-        vmovups xmmword ptr [rsi+8], xmm0
-      }
-      _RSI->m_additionalData.m_genericConfig = _R13[4];
-      Mem_LargeLocal::~Mem_LargeLocal(&v16);
+      *(_OWORD *)m_ptr = *(_OWORD *)&v9->m_additionalData.m_languageSetting;
+      m_ptr[4] = v9->m_additionalData.m_genericConfig;
+      memset_0(v9, 0, sizeof(dcacheTOC_t));
+      *(_DWORD *)&v9->m_versionMajor = 589835;
+      v9->m_localFileIDSequence = 0xFFFFFFFFi64;
+      v9->m_additionalData.m_remotePurgeCacheRequestId = m_ptr[1];
+      *(_OWORD *)&v9->m_additionalData.m_languageSetting = *(_OWORD *)m_ptr;
+      v9->m_additionalData.m_genericConfig = m_ptr[4];
+      Mem_LargeLocal::~Mem_LargeLocal(&v14);
       v6->m_additionalData.m_remotePurgeCacheRequestId = remotePurgeCacheRequestId;
       if ( DCache_IO_SerializeTOC((dcacheType_t)v2, v6) )
         *(_BYTE *)v3 = 1;
@@ -1583,14 +1481,14 @@ void DCache_TOC_RemotePurgeCacheRequest(int remotePurgeCacheRequestId)
     v3 = (__int16 *)((char *)v3 + 1);
   }
   while ( v2 < 2 );
-  if ( remotePurgeCacheRequestId != (_DWORD)v18 || remotePurgeCacheRequestId != HIDWORD(v18) )
+  if ( remotePurgeCacheRequestId != (_DWORD)v16 || remotePurgeCacheRequestId != HIDWORD(v16) )
   {
-    LODWORD(v15) = 1;
-    LODWORD(fmt) = v18;
-    v12 = j_va("RemotePurgeCache: %d, %d:%d(%d), %d:%d(%d)", (unsigned int)remotePurgeCacheRequestId, 0i64, (unsigned __int8)v17, fmt, v15, HIBYTE(v17), HIDWORD(v18));
+    LODWORD(v13) = 1;
+    LODWORD(fmt) = v16;
+    v10 = j_va("RemotePurgeCache: %d, %d:%d(%d), %d:%d(%d)", (unsigned int)remotePurgeCacheRequestId, 0i64, (unsigned __int8)v15, fmt, v13, HIBYTE(v15), HIDWORD(v16));
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v12);
-    Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144000490, 6371i64, v12);
+    Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v10);
+    Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144000490, 6371i64, v10);
   }
 }
 
@@ -1697,11 +1595,8 @@ DCache_TOC_Shutdown
 
 void __fastcall DCache_TOC_Shutdown(double _XMM0_8)
 {
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu cs:?s_dcacheTOCs@@3PAPEAUdcacheTOC_t@@A, xmm0; dcacheTOC_t * near * s_dcacheTOCs
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)s_dcacheTOCs = _XMM0;
 }
 
 /*
@@ -1715,14 +1610,20 @@ void DCache_TOC_TouchByIndex(dcacheType_t cacheType, int fileIndex)
   Online_ErrorReporting *InstancePtr; 
   int v5; 
   __int64 v6; 
+  _OWORD *m_ptr; 
   dcacheTOC_t *TOC; 
+  _OWORD *v9; 
+  dcacheFileInfo_t *v10; 
   __int64 v11; 
   __int64 v12; 
-  dcacheTOC_t *v26; 
-  __int64 v27; 
-  __int64 v30; 
-  unsigned int *v44; 
-  Mem_LargeLocal v59; 
+  dcacheTOC_t *v13; 
+  __int64 v14; 
+  dcacheFileInfo_t *v15; 
+  _OWORD *v16; 
+  __int64 v17; 
+  unsigned int *v18; 
+  char *v19; 
+  Mem_LargeLocal v20; 
 
   v2 = fileIndex;
   if ( DCache_TOC_AssertFileIndex(cacheType, fileIndex) )
@@ -1732,150 +1633,84 @@ void DCache_TOC_TouchByIndex(dcacheType_t cacheType, int fileIndex)
     DCache_TOC_GetTOC(cacheType)->m_fileInfo[v2].m_details.m_timestamp = v5;
     if ( (_DWORD)v2 != DCache_TOC_GetTOC(cacheType)->m_numFiles - 1 )
     {
-      Mem_LargeLocal::Mem_LargeLocal(&v59, 0x1D8ui64, "dcacheFileInfo_t tempFileInfo");
-      _RBX = v59.m_ptr;
+      Mem_LargeLocal::Mem_LargeLocal(&v20, 0x1D8ui64, "dcacheFileInfo_t tempFileInfo");
+      m_ptr = v20.m_ptr;
       TOC = DCache_TOC_GetTOC(cacheType);
-      _RCX = _RBX;
-      _RAX = (__int64)&TOC->m_fileInfo[v6];
+      v9 = m_ptr;
+      v10 = &TOC->m_fileInfo[v6];
       v11 = 3i64;
       v12 = 3i64;
       do
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rax+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rax+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [rax+40h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [rax+50h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-        }
-        _RCX += 16;
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        _RAX += 128i64;
+        *v9 = *(_OWORD *)&v10->m_details.m_fileID;
+        v9[1] = *(_OWORD *)&v10->m_details.m_name[4];
+        v9[2] = *(_OWORD *)&v10->m_details.m_name[20];
+        v9[3] = *(_OWORD *)&v10->m_details.m_name[36];
+        v9[4] = *(_OWORD *)&v10->m_details.m_name[52];
+        v9[5] = *(_OWORD *)&v10->m_details.m_name[68];
+        v9[6] = *(_OWORD *)&v10->m_details.m_name[84];
+        v9 += 8;
+        *(v9 - 1) = *(_OWORD *)&v10->m_details.m_name[100];
+        v10 = (dcacheFileInfo_t *)((char *)v10 + 128);
         --v12;
       }
       while ( v12 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-      }
-      _RCX[10] = *(_QWORD *)(_RAX + 80);
-      v26 = DCache_TOC_GetTOC(cacheType);
-      v27 = 472i64 * DCache_TOC_GetTOC(cacheType)->m_numFiles;
-      _RCX = &DCache_TOC_GetTOC(cacheType)->m_fileInfo[v6];
-      _RAX = (__int64)v26 + v27 - 440;
-      v30 = 3i64;
+      *v9 = *(_OWORD *)&v10->m_details.m_fileID;
+      v9[1] = *(_OWORD *)&v10->m_details.m_name[4];
+      v9[2] = *(_OWORD *)&v10->m_details.m_name[20];
+      v9[3] = *(_OWORD *)&v10->m_details.m_name[36];
+      v9[4] = *(_OWORD *)&v10->m_details.m_name[52];
+      *((_QWORD *)v9 + 10) = *(_QWORD *)&v10->m_details.m_name[68];
+      v13 = DCache_TOC_GetTOC(cacheType);
+      v14 = 472i64 * DCache_TOC_GetTOC(cacheType)->m_numFiles;
+      v15 = &DCache_TOC_GetTOC(cacheType)->m_fileInfo[v6];
+      v16 = (_OWORD *)((char *)v13 + v14 - 440);
+      v17 = 3i64;
       do
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rax+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rax+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [rax+40h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [rax+50h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-        }
-        _RCX = (dcacheFileInfo_t *)((char *)_RCX + 128);
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        _RAX += 128i64;
-        --v30;
+        *(_OWORD *)&v15->m_details.m_fileID = *v16;
+        *(_OWORD *)&v15->m_details.m_name[4] = v16[1];
+        *(_OWORD *)&v15->m_details.m_name[20] = v16[2];
+        *(_OWORD *)&v15->m_details.m_name[36] = v16[3];
+        *(_OWORD *)&v15->m_details.m_name[52] = v16[4];
+        *(_OWORD *)&v15->m_details.m_name[68] = v16[5];
+        *(_OWORD *)&v15->m_details.m_name[84] = v16[6];
+        v15 = (dcacheFileInfo_t *)((char *)v15 + 128);
+        *(_OWORD *)&v15[-1].m_bitfield[256] = v16[7];
+        v16 += 8;
+        --v17;
       }
-      while ( v30 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-      }
-      *(_QWORD *)&_RCX->m_details.m_name[68] = *(_QWORD *)(_RAX + 80);
-      v44 = &DCache_TOC_GetTOC(cacheType)[-1].m_checksumByteCount[2114];
-      _RCX = (char *)&v44[118 * DCache_TOC_GetTOC(cacheType)->m_numFiles];
+      while ( v17 );
+      *(_OWORD *)&v15->m_details.m_fileID = *v16;
+      *(_OWORD *)&v15->m_details.m_name[4] = v16[1];
+      *(_OWORD *)&v15->m_details.m_name[20] = v16[2];
+      *(_OWORD *)&v15->m_details.m_name[36] = v16[3];
+      *(_OWORD *)&v15->m_details.m_name[52] = v16[4];
+      *(_QWORD *)&v15->m_details.m_name[68] = *((_QWORD *)v16 + 10);
+      v18 = &DCache_TOC_GetTOC(cacheType)[-1].m_checksumByteCount[2114];
+      v19 = (char *)&v18[118 * DCache_TOC_GetTOC(cacheType)->m_numFiles];
       do
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rbx+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+40h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+50h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-        }
-        _RCX += 128;
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rbx+70h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        _RBX += 16;
+        *(_OWORD *)v19 = *m_ptr;
+        *((_OWORD *)v19 + 1) = m_ptr[1];
+        *((_OWORD *)v19 + 2) = m_ptr[2];
+        *((_OWORD *)v19 + 3) = m_ptr[3];
+        *((_OWORD *)v19 + 4) = m_ptr[4];
+        *((_OWORD *)v19 + 5) = m_ptr[5];
+        *((_OWORD *)v19 + 6) = m_ptr[6];
+        v19 += 128;
+        *((_OWORD *)v19 - 1) = m_ptr[7];
+        m_ptr += 8;
         --v11;
       }
       while ( v11 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rbx+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-      }
-      *((_QWORD *)_RCX + 10) = _RBX[10];
-      Mem_LargeLocal::~Mem_LargeLocal(&v59);
+      *(_OWORD *)v19 = *m_ptr;
+      *((_OWORD *)v19 + 1) = m_ptr[1];
+      *((_OWORD *)v19 + 2) = m_ptr[2];
+      *((_OWORD *)v19 + 3) = m_ptr[3];
+      *((_OWORD *)v19 + 4) = m_ptr[4];
+      *((_QWORD *)v19 + 10) = *((_QWORD *)m_ptr + 10);
+      Mem_LargeLocal::~Mem_LargeLocal(&v20);
     }
   }
   else

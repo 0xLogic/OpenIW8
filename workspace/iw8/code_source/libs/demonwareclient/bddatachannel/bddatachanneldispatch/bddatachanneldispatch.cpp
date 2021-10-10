@@ -343,25 +343,24 @@ void bdDataChannelDispatch::bdDataChannelDispatch(bdDataChannelDispatch *this, c
   unsigned __int64 v12; 
   unsigned __int64 v13; 
   unsigned __int64 v14; 
-  unsigned __int64 v17; 
-  size_t v18; 
+  unsigned __int64 v15; 
+  size_t v16; 
 
-  _RSI = this;
   bdDataChannelBase::bdDataChannelBase(this, NULL);
-  _RSI->__vftable = (bdDataChannelDispatch_vtbl *)&bdDataChannelDispatch::`vftable';
-  _RSI->m_contentType = BD_CONTENT_TYPE_BINARY;
-  _RSI->m_isDLog = 0;
-  _RSI->m_http = NULL;
-  *(_QWORD *)&_RSI->m_currentStatus = 0i64;
-  _RSI->m_hasData = 0;
-  _RSI->m_lastPostTime = 0i64;
-  _RSI->m_userInfo = NULL;
-  _RSI->m_userId = userId;
-  _RSI->m_titleId = titleId;
-  _RSI->m_msgSchemaGuidSize = 0;
-  _RSI->m_useMsgEnvelope = 1;
-  _RSI->m_data.m_ptr = NULL;
-  bdUUIDGenerator::bdUUIDGenerator(&_RSI->m_uuidGenerator);
+  this->__vftable = (bdDataChannelDispatch_vtbl *)&bdDataChannelDispatch::`vftable';
+  this->m_contentType = BD_CONTENT_TYPE_BINARY;
+  this->m_isDLog = 0;
+  this->m_http = NULL;
+  *(_QWORD *)&this->m_currentStatus = 0i64;
+  this->m_hasData = 0;
+  this->m_lastPostTime = 0i64;
+  this->m_userInfo = NULL;
+  this->m_userId = userId;
+  this->m_titleId = titleId;
+  this->m_msgSchemaGuidSize = 0;
+  this->m_useMsgEnvelope = 1;
+  this->m_data.m_ptr = NULL;
+  bdUUIDGenerator::bdUUIDGenerator(&this->m_uuidGenerator);
   bdHandleAssert(titleId != 0, "titleId > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x73u, "The 'titleId' must be valid and non-zero.");
   bdHandleAssert(client != NULL, "client != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x75u, "The client name must not be null.");
   bdHandleAssert(client != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
@@ -371,7 +370,7 @@ void bdDataChannelDispatch::bdDataChannelDispatch(bdDataChannelDispatch *this, c
     ++v13;
   while ( client[v13] );
   bdHandleAssert(v13 < 0x40, "bdStrlen(client) < BD_DATACHANNEL_MAX_CLIENT_NAME_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x77u, "The length of 'client' cannot be longer than 64.");
-  bdStrlcpy(_RSI->m_client, client, 0x40ui64);
+  bdStrlcpy(this->m_client, client, 0x40ui64);
   bdHandleAssert(msgName != NULL, "msgName != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x7Au, "The payload name must not be null.");
   bdHandleAssert(msgName != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   v14 = -1i64;
@@ -379,38 +378,33 @@ void bdDataChannelDispatch::bdDataChannelDispatch(bdDataChannelDispatch *this, c
     ++v14;
   while ( msgName[v14] );
   bdHandleAssert(v14 < 0x40, "bdStrlen(msgName) < BD_DATACHANNEL_MAX_CATEGORY_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x7Cu, "The length of 'msgName' cannot be longer than 64");
-  bdStrlcpy(_RSI->m_msgName, msgName, 0x40ui64);
-  _RAX = msgSchemaGuid;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi+1BC8h], ymm0
-  }
-  _RSI->m_msgSchemaGuidSize = msgSchemaGuidSize;
+  bdStrlcpy(this->m_msgName, msgName, 0x40ui64);
+  *(__m256i *)this->m_msgSchemaGuid = *(__m256i *)msgSchemaGuid;
+  this->m_msgSchemaGuidSize = msgSchemaGuidSize;
   bdHandleAssert(userAcctType != NULL, "userAcctType != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x82u, "The 'userAcctType' must not be null.");
   bdHandleAssert(userAcctType != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-  v17 = -1i64;
+  v15 = -1i64;
   do
-    ++v17;
-  while ( userAcctType[v17] );
-  bdHandleAssert(v17 <= 0x20, "bdStrlen(userAcctType) <= BD_DATACHANNEL_MAX_USER_ACCOUNT_TYPE_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x84u, "The 'userAcctType' must not be longer than 32 in length.");
-  bdStrlcpy(_RSI->m_userAcctType, userAcctType, 0x20ui64);
+    ++v15;
+  while ( userAcctType[v15] );
+  bdHandleAssert(v15 <= 0x20, "bdStrlen(userAcctType) <= BD_DATACHANNEL_MAX_USER_ACCOUNT_TYPE_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x84u, "The 'userAcctType' must not be longer than 32 in length.");
+  bdStrlcpy(this->m_userAcctType, userAcctType, 0x20ui64);
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   do
     ++v12;
   while ( statusDataChannelOK[v12] );
-  if ( _RSI != (bdDataChannelDispatch *)-1469i64 )
+  if ( this != (bdDataChannelDispatch *)-1469i64 )
   {
-    v18 = 254i64;
+    v16 = 254i64;
     if ( v12 < 0xFE )
-      v18 = v12;
-    memcpy_0(_RSI->m_httpError, "No Error", v18);
-    _RSI->m_httpError[v18] = 0;
+      v16 = v12;
+    memcpy_0(this->m_httpError, "No Error", v16);
+    this->m_httpError[v16] = 0;
   }
-  memset_0(_RSI->m_httpDownloadBuffer, 0, sizeof(_RSI->m_httpDownloadBuffer));
-  bdDataChannelUtilities::buildEndpointURLV2(_RSI->m_endpoint, ingestionEndpoint, _RSI->m_client, _RSI->m_userId, titleId, _RSI->m_userAcctType, _RSI->m_msgName, bdDataChannelUtilities::DEFAULT_MESSAGE_STREAM_NAME);
-  bdDataChannelDispatch::setAuthToken(_RSI, authToken);
-  _RSI->m_http = bdHTTPUtility::newHTTP(0, 0);
+  memset_0(this->m_httpDownloadBuffer, 0, sizeof(this->m_httpDownloadBuffer));
+  bdDataChannelUtilities::buildEndpointURLV2(this->m_endpoint, ingestionEndpoint, this->m_client, this->m_userId, titleId, this->m_userAcctType, this->m_msgName, bdDataChannelUtilities::DEFAULT_MESSAGE_STREAM_NAME);
+  bdDataChannelDispatch::setAuthToken(this, authToken);
+  this->m_http = bdHTTPUtility::newHTTP(0, 0);
 }
 
 /*
@@ -423,8 +417,8 @@ void bdDataChannelDispatch::bdDataChannelDispatch(bdDataChannelDispatch *this, c
   unsigned __int64 v11; 
   unsigned __int64 v12; 
   unsigned __int64 v13; 
-  const char *v17; 
-  size_t v18; 
+  const char *v14; 
+  size_t v15; 
 
   bdDataChannelBase::bdDataChannelBase(this, NULL);
   this->__vftable = (bdDataChannelDispatch_vtbl *)&bdDataChannelDispatch::`vftable';
@@ -458,15 +452,9 @@ void bdDataChannelDispatch::bdDataChannelDispatch(bdDataChannelDispatch *this, c
   while ( msgName[v13] );
   bdHandleAssert(v13 < 0x40, "bdStrlen(msgName) < BD_DATACHANNEL_MAX_CATEGORY_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x42u, "The length of 'msgName' cannot be longer than 64");
   bdStrlcpy(this->m_msgName, msgName, 0x40ui64);
-  _RSI = this->m_msgSchemaGuid;
   bdHandleAssert(this->m_msgSchemaGuid != NULL, "m_msgSchemaGuid != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x45u, "The m_msgSchemaGuid must not be null.");
   bdHandleAssert(msgSchemaGuidSize <= 0x20, "msgSchemaGuidSize <= BD_DATACHANNEL_MAX_SCHEMA_GUID_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachanneldispatch\\bddatachanneldispatch.cpp", "bdDataChannelDispatch::bdDataChannelDispatch", 0x47u, "The length of 'msgSchemaGuid' cannot be longer than 32");
-  _RAX = msgSchemaGuid;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi], ymm0
-  }
+  *(__m256i *)this->m_msgSchemaGuid = *(__m256i *)msgSchemaGuid;
   this->m_msgSchemaGuidSize = msgSchemaGuidSize;
   this->m_userInfo = userInfo->clone(userInfo);
   this->m_userId = bdDataChannelUserInfoV2::getUserId((bdDataChannelUserInfoV2 *)userInfo);
@@ -474,19 +462,19 @@ void bdDataChannelDispatch::bdDataChannelDispatch(bdDataChannelDispatch *this, c
   *(_QWORD *)&this->m_userAcctType[8] = 0i64;
   *(_QWORD *)&this->m_userAcctType[16] = 0i64;
   *(_QWORD *)&this->m_userAcctType[24] = 0i64;
-  v17 = bdDataChannelUserInfoV2::acctTypeEnumToString((bdDataChannelUserInfoV2 *)userInfo);
-  bdStrlcpy(this->m_userAcctType, v17, 0x20ui64);
+  v14 = bdDataChannelUserInfoV2::acctTypeEnumToString((bdDataChannelUserInfoV2 *)userInfo);
+  bdStrlcpy(this->m_userAcctType, v14, 0x20ui64);
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   do
     ++v11;
   while ( statusDataChannelOK[v11] );
   if ( this != (bdDataChannelDispatch *)-1469i64 )
   {
-    v18 = 254i64;
+    v15 = 254i64;
     if ( v11 < 0xFE )
-      v18 = v11;
-    memcpy_0(this->m_httpError, "No Error", v18);
-    this->m_httpError[v18] = 0;
+      v15 = v11;
+    memcpy_0(this->m_httpError, "No Error", v15);
+    this->m_httpError[v15] = 0;
   }
   memset_0(this->m_httpDownloadBuffer, 0, sizeof(this->m_httpDownloadBuffer));
   bdDataChannelUtilities::buildEndpointURLV2(this->m_endpoint, ingestionEndpoint, this->m_client, this->m_userId, titleId, this->m_userAcctType, this->m_msgName, bdDataChannelUtilities::DEFAULT_MESSAGE_STREAM_NAME);

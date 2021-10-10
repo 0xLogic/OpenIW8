@@ -214,6 +214,8 @@ bdClansGroupFile::bdClansGroupFile
 */
 void bdClansGroupFile::bdClansGroupFile(bdClansGroupFile *this, const bdClansGroupFile *__that, int a3)
 {
+  bdStructFixedSizeString<255> *p_m_fileName; 
+  bdStructFixedSizeString<255> *v6; 
   __int64 v7; 
 
   if ( a3 )
@@ -233,35 +235,21 @@ void bdClansGroupFile::bdClansGroupFile(bdClansGroupFile *this, const bdClansGro
   *(_QWORD *)&this->m_group[8] = *(_QWORD *)&__that->m_group[8];
   *(_WORD *)&this->m_group[16] = *(_WORD *)&__that->m_group[16];
   *(_QWORD *)&this->m_group[24] = *(_QWORD *)&__that->m_group[24];
-  _RCX = &this->m_fileName;
-  _RAX = &__that->m_fileName;
+  p_m_fileName = &this->m_fileName;
+  v6 = &__that->m_fileName;
   v7 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (bdStructFixedSizeString<255> *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (bdStructFixedSizeString<255> *)((char *)_RAX + 128);
+    *(_OWORD *)p_m_fileName->m_buffer = *(_OWORD *)v6->m_buffer;
+    *(_OWORD *)&p_m_fileName->m_buffer[16] = *(_OWORD *)&v6->m_buffer[16];
+    *(_OWORD *)&p_m_fileName->m_buffer[32] = *(_OWORD *)&v6->m_buffer[32];
+    *(_OWORD *)&p_m_fileName->m_buffer[48] = *(_OWORD *)&v6->m_buffer[48];
+    *(_OWORD *)&p_m_fileName->m_buffer[64] = *(_OWORD *)&v6->m_buffer[64];
+    *(_OWORD *)&p_m_fileName->m_buffer[80] = *(_OWORD *)&v6->m_buffer[80];
+    *(_OWORD *)&p_m_fileName->m_buffer[96] = *(_OWORD *)&v6->m_buffer[96];
+    p_m_fileName = (bdStructFixedSizeString<255> *)((char *)p_m_fileName + 128);
+    *(_OWORD *)&p_m_fileName[-1].m_buffer[240] = *(_OWORD *)&v6->m_buffer[112];
+    v6 = (bdStructFixedSizeString<255> *)((char *)v6 + 128);
     --v7;
   }
   while ( v7 );

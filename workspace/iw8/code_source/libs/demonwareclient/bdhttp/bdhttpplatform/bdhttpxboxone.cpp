@@ -805,8 +805,7 @@ bdHTTPXboxOne::getDownloadRate
 */
 float bdHTTPXboxOne::getDownloadRate(bdHTTPXboxOne *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+89E4h] }
-  return *(float *)&_XMM0;
+  return this->m_downloadRate;
 }
 
 /*
@@ -980,43 +979,20 @@ bdHTTPXboxOne::getUploadRate
 */
 float bdHTTPXboxOne::getUploadRate(bdHTTPXboxOne *this)
 {
-  char v5; 
-  char v6; 
+  double ElapsedTimeInSeconds; 
+  float BytesUploaded; 
+  double v4; 
 
-  _RBX = this;
   if ( !this->m_request.ptr_ )
-    goto LABEL_5;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rcx+89E0h]
-  }
-  if ( this->m_request.ptr_ )
-    goto LABEL_5;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
-  __asm { vcomiss xmm0, cs:__real@3dcccccd }
-  if ( v5 | v6 )
-  {
-LABEL_5:
-    __asm { vmovss  xmm0, dword ptr [rbx+89E0h] }
-  }
-  else
-  {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    bdRequestStream::getBytesUploaded(_RBX->m_requestStream.ptr_);
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, rax
-    }
-    bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_stopwatch);
-    __asm
-    {
-      vdivss  xmm0, xmm6, xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+    return this->m_uploadRate;
+  if ( this->m_uploadRate != 0.0 )
+    return this->m_uploadRate;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
+  if ( *(float *)&ElapsedTimeInSeconds <= 0.1 )
+    return this->m_uploadRate;
+  BytesUploaded = (float)bdRequestStream::getBytesUploaded(this->m_requestStream.ptr_);
+  v4 = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
+  return BytesUploaded / *(float *)&v4;
 }
 
 /*
@@ -1610,28 +1586,16 @@ bdHTTPXboxOne::setDownloadRate
 */
 void bdHTTPXboxOne::setDownloadRate(bdHTTPXboxOne *this)
 {
-  char v4; 
-  char v5; 
+  double ElapsedTimeInSeconds; 
+  float DownloadProgress; 
+  double v4; 
 
-  _RBX = this;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
-  __asm { vcomiss xmm0, cs:__real@3dcccccd }
-  if ( !(v4 | v5) )
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
+  if ( *(float *)&ElapsedTimeInSeconds > 0.1 )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    bdHttpCallbackHandler::getDownloadProgress(_RBX->m_httpCallback.ptr_);
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, rax
-    }
-    bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_stopwatch);
-    __asm
-    {
-      vdivss  xmm1, xmm6, xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmovss  dword ptr [rbx+89E4h], xmm1
-    }
+    DownloadProgress = (float)bdHttpCallbackHandler::getDownloadProgress(this->m_httpCallback.ptr_);
+    v4 = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
+    this->m_downloadRate = DownloadProgress / *(float *)&v4;
   }
 }
 
@@ -1845,27 +1809,15 @@ bdHTTPXboxOne::setUploadRate
 void bdHTTPXboxOne::setUploadRate(bdHTTPXboxOne *this)
 {
   bdRequestStream *ptr; 
+  double ElapsedTimeInSeconds; 
+  float BytesUploaded; 
 
   ptr = this->m_requestStream.ptr_;
-  _RBX = this;
   if ( ptr )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm6, xmm1, xmm0
-    }
-    bdRequestStream::getBytesUploaded(ptr);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmovss  dword ptr [rbx+89E0h], xmm1
-    }
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_stopwatch);
+    BytesUploaded = (float)bdRequestStream::getBytesUploaded(ptr);
+    this->m_uploadRate = BytesUploaded * (float)(1.0 / *(float *)&ElapsedTimeInSeconds);
   }
 }
 

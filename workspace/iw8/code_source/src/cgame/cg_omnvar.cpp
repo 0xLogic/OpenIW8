@@ -272,36 +272,21 @@ CG_Omnvar_AreValuesEqual
 */
 bool CG_Omnvar_AreValuesEqual(const OmnvarDef *const omnvarDef, const OmnvarData *const lhs, const OmnvarData *const rhs)
 {
-  bool v6; 
-  bool v7; 
   bool result; 
 
-  _RBX = rhs;
-  _RDI = lhs;
   if ( !omnvarDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 47, ASSERT_TYPE_ASSERT, "(omnvarDef)", (const char *)&queryFormat, "omnvarDef") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 48, ASSERT_TYPE_ASSERT, "(lhs)", (const char *)&queryFormat, "lhs") )
+  if ( !lhs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 48, ASSERT_TYPE_ASSERT, "(lhs)", (const char *)&queryFormat, "lhs") )
     __debugbreak();
-  v6 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 49, ASSERT_TYPE_ASSERT, "(rhs)", (const char *)&queryFormat, "rhs");
-    v6 = !v7;
-    if ( v7 )
-      __debugbreak();
-  }
+  if ( !rhs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 49, ASSERT_TYPE_ASSERT, "(rhs)", (const char *)&queryFormat, "rhs") )
+    __debugbreak();
   switch ( omnvarDef->type )
   {
     case OMNVAR_TYPE_BOOL:
-      result = _RDI->current.enabled == _RBX->current.enabled;
+      result = lhs->current.enabled == rhs->current.enabled;
       break;
     case OMNVAR_TYPE_FLOAT:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]; jumptable 00000001419EAC2B case 1
-        vucomiss xmm0, dword ptr [rdi+4]
-      }
-      if ( !v6 )
+      if ( rhs->current.value != lhs->current.value )
         goto LABEL_17;
       result = 1;
       break;
@@ -309,7 +294,7 @@ bool CG_Omnvar_AreValuesEqual(const OmnvarDef *const omnvarDef, const OmnvarData
     case OMNVAR_TYPE_UINT:
     case OMNVAR_TYPE_TIME:
     case OMNVAR_TYPE_NCS_LUI:
-      result = _RDI->current.integer == _RBX->current.integer;
+      result = lhs->current.integer == rhs->current.integer;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 66, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
@@ -486,77 +471,43 @@ CG_Omnvar_Interpolate
 */
 void CG_Omnvar_Interpolate(const LocalClientNum_t localClientNum, const OmnvarDef *def, const OmnvarData *oldData, const OmnvarData *newData, const OmnvarData *currentData, float lerpValue, OmnvarData *outData)
 {
-  const OmnvarData *v8; 
-  lua_State *v54; 
+  OmnvarData *v10; 
+  OmnvarValue current; 
+  float value; 
+  float v19; 
+  lua_State *v20; 
   int ControllerFromClient; 
 
-  v8 = newData;
   if ( def->type == OMNVAR_TYPE_FLOAT )
   {
-    _RAX = currentData;
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r9+4]
-      vucomiss xmm3, dword ptr [rax+4]
-    }
-    if ( def->type == OMNVAR_TYPE_FLOAT )
+    value = newData->current.value;
+    if ( value == currentData->current.value )
       return;
     if ( def->userType == OMNVAR_USER_TYPE_ANGLE )
     {
-      __asm
-      {
-        vsubss  xmm0, xmm3, dword ptr [r8+4]
-        vmulss  xmm5, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm5, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vsubss  xmm1, xmm5, xmm4
-        vmulss  xmm0, xmm1, cs:__real@43b40000
-        vmulss  xmm2, xmm0, [rsp+38h+lerpValue]
-        vaddss  xmm3, xmm2, dword ptr [r8+4]
-      }
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      v19 = (float)((float)((float)((float)((float)(value - oldData->current.value) * 0.0027777778) - *(float *)&_XMM4) * 360.0) * lerpValue) + oldData->current.value;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm0, xmm0, [rsp+38h+lerpValue]
-        vmulss  xmm2, xmm0, dword ptr [r8+4]
-        vmulss  xmm1, xmm3, [rsp+38h+lerpValue]
-        vaddss  xmm3, xmm2, xmm1
-      }
+      v19 = (float)((float)(1.0 - lerpValue) * oldData->current.value) + (float)(value * lerpValue);
     }
-    _RSI = outData;
-    __asm { vmovss  dword ptr [rsi+4], xmm3 }
+    v10 = outData;
+    outData->current.value = v19;
     goto LABEL_18;
   }
   if ( def->type == OMNVAR_TYPE_INT )
   {
-    _ECX = newData->current;
-    if ( currentData->current.integer == _ECX.integer )
+    current = newData->current;
+    if ( currentData->current.integer == current.integer )
       return;
-    __asm
-    {
-      vmovd   xmm1, dword ptr [r8+4]
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm0, xmm0, [rsp+38h+lerpValue]
-    }
-    _RSI = outData;
-    __asm
-    {
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm3, xmm1, xmm0
-      vmovd   xmm1, ecx
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm2, xmm1, [rsp+38h+lerpValue]
-      vaddss  xmm0, xmm3, xmm2
-      vaddss  xmm3, xmm0, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm4, xmm0, xmm3, 1
-      vcvttss2si eax, xmm4
-    }
-    outData->current = _EAX;
+    v10 = outData;
+    _mm_cvtepi32_ps((__m128i)oldData->current.unsignedInteger);
+    _mm_cvtepi32_ps((__m128i)current.unsignedInteger);
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm3, 1 }
+    outData->current.integer = (int)*(float *)&_XMM4;
     goto LABEL_18;
   }
   if ( def->type != OMNVAR_TYPE_TIME )
@@ -567,35 +518,18 @@ void CG_Omnvar_Interpolate(const LocalClientNum_t localClientNum, const OmnvarDe
   }
   if ( def->userType == OMNVAR_USER_TYPE_NOTIFY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 308, ASSERT_TYPE_ASSERT, "(def->userType != OMNVAR_USER_TYPE_NOTIFY)", (const char *)&queryFormat, "def->userType != OMNVAR_USER_TYPE_NOTIFY") )
     __debugbreak();
-  if ( currentData->current.integer != v8->current.integer )
+  if ( currentData->current.integer != newData->current.integer )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm0, xmm0, [rsp+38h+lerpValue]
-    }
-    _RSI = outData;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmulss  xmm2, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rcx
-      vmulss  xmm0, xmm1, [rsp+38h+lerpValue]
-      vaddss  xmm2, xmm2, xmm0
-      vaddss  xmm3, xmm2, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm2, xmm0, xmm3, 1
-      vcvttss2si eax, xmm2
-    }
-    outData->current = _EAX;
+    v10 = outData;
+    _XMM0 = 0i64;
+    __asm { vroundss xmm2, xmm0, xmm3, 1 }
+    outData->current.integer = (int)*(float *)&_XMM2;
 LABEL_18:
     if ( (def->flags & 1) != 0 )
     {
-      v54 = LUI_luaVM;
+      v20 = LUI_luaVM;
       ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-      LUI_NotifyOmnvarChanged(ControllerFromClient, def, _RSI, v54);
+      LUI_NotifyOmnvarChanged(ControllerFromClient, def, v10, v20);
     }
   }
 }
@@ -607,39 +541,23 @@ CG_Omnvar_IsDefault
 */
 bool CG_Omnvar_IsDefault(const OmnvarDef *const omnvarDef, const OmnvarData *const current)
 {
-  OmnvarValue initial; 
-  bool v5; 
-  bool v6; 
+  float value; 
   bool result; 
-  OmnvarValue v9; 
 
-  _RDI = current;
   if ( !omnvarDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 74, ASSERT_TYPE_ASSERT, "(omnvarDef)", (const char *)&queryFormat, "omnvarDef") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 75, ASSERT_TYPE_ASSERT, "(current)", (const char *)&queryFormat, "current") )
+  if ( !current && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 75, ASSERT_TYPE_ASSERT, "(current)", (const char *)&queryFormat, "current") )
     __debugbreak();
-  initial = omnvarDef->initial;
-  v9 = initial;
-  v5 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 49, ASSERT_TYPE_ASSERT, "(rhs)", (const char *)&queryFormat, "rhs");
-    v5 = !v6;
-    if ( v6 )
-      __debugbreak();
-  }
+  value = omnvarDef->initial.value;
+  if ( !current && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 49, ASSERT_TYPE_ASSERT, "(rhs)", (const char *)&queryFormat, "rhs") )
+    __debugbreak();
   switch ( omnvarDef->type )
   {
     case OMNVAR_TYPE_BOOL:
-      result = initial.enabled == _RDI->current.enabled;
+      result = LOBYTE(value) == current->current.enabled;
       break;
     case OMNVAR_TYPE_FLOAT:
-      __asm
-      {
-        vmovss  xmm0, [rsp+38h+arg_4]; jumptable 00000001419EB6DF case 1
-        vucomiss xmm0, dword ptr [rdi+4]
-      }
-      if ( !v5 )
+      if ( value != current->current.value )
         goto LABEL_17;
       result = 1;
       break;
@@ -647,7 +565,7 @@ bool CG_Omnvar_IsDefault(const OmnvarDef *const omnvarDef, const OmnvarData *con
     case OMNVAR_TYPE_UINT:
     case OMNVAR_TYPE_TIME:
     case OMNVAR_TYPE_NCS_LUI:
-      result = initial.integer == _RDI->current.integer;
+      result = LODWORD(value) == current->current.integer;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 66, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
@@ -685,104 +603,90 @@ void CG_Omnvar_UpdateInterpolation(const LocalClientNum_t localClientNum, const 
   cg_t *LocalClientGlobals; 
   snapshot_t *nextSnap; 
   snapshot_t *snap; 
-  __int64 v20; 
-  unsigned int v21; 
+  int serverTime; 
+  int v12; 
+  float v13; 
+  double lerpValue; 
+  __int64 v15; 
+  unsigned int v16; 
   const OmnvarDef *Def; 
   OmnvarData *outData; 
-  cg_t *v25; 
-  unsigned int v26; 
-  unsigned int v27; 
-  unsigned __int32 v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
+  cg_t *v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned __int32 v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  unsigned int v25; 
+  __int64 v26; 
+  const OmnvarDef *v27; 
+  __int64 v28; 
+  OmnvarData *v29; 
+  cg_t *v30; 
+  snapshot_t *v31; 
   __int64 v32; 
-  const OmnvarDef *v33; 
-  __int64 v34; 
-  OmnvarData *v35; 
-  float lerpValue; 
-  float lerpValuea; 
-  cg_t *v39; 
-  snapshot_t *v41; 
-  __int64 v42; 
-  __int64 v43; 
+  __int64 v33; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
   if ( !oldSnapOmnvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 369, ASSERT_TYPE_ASSERT, "(oldSnapOmnvars)", (const char *)&queryFormat, "oldSnapOmnvars") )
     __debugbreak();
   if ( !newSnapOmnvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_omnvar.cpp", 370, ASSERT_TYPE_ASSERT, "(newSnapOmnvars)", (const char *)&queryFormat, "newSnapOmnvars") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovss  xmm2, cs:__real@3f800000; max }
   nextSnap = (snapshot_t *)LocalClientGlobals->nextSnap;
   snap = (snapshot_t *)LocalClientGlobals->snap;
-  v41 = nextSnap;
-  if ( nextSnap->serverTime == snap->serverTime )
-  {
-    __asm { vmovaps xmm0, xmm2; val }
-  }
+  v31 = nextSnap;
+  serverTime = nextSnap->serverTime;
+  v12 = snap->serverTime;
+  if ( serverTime == v12 )
+    v13 = FLOAT_1_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm0, xmm0, ecx
-      vcvtsi2ss xmm1, xmm1, eax
-      vdivss  xmm0, xmm1, xmm0
-    }
-  }
-  __asm { vxorps  xmm1, xmm1, xmm1; min }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  v20 = 0i64;
-  v21 = 0;
-  __asm { vmovaps xmm6, xmm0 }
+    v13 = (float)(LocalClientGlobals->time - v12) / (float)(serverTime - v12);
+  lerpValue = I_fclamp(v13, 0.0, 1.0);
+  v15 = 0i64;
+  v16 = 0;
   if ( perSnapOmnvarCount )
   {
     do
     {
-      Def = BG_Omnvar_GetDef(v21);
+      Def = BG_Omnvar_GetDef(v16);
       if ( (Def->flags & 8) != 0 )
       {
-        outData = CG_Omnvar_GetData(localClientNum, v21);
-        __asm { vmovss  [rsp+98h+lerpValue], xmm6 }
-        CG_Omnvar_Interpolate(localClientNum, Def, &oldSnapOmnvars[v21], &newSnapOmnvars[v21], outData, lerpValue, outData);
+        outData = CG_Omnvar_GetData(localClientNum, v16);
+        CG_Omnvar_Interpolate(localClientNum, Def, &oldSnapOmnvars[v16], &newSnapOmnvars[v16], outData, *(float *)&lerpValue, outData);
       }
-      ++v21;
+      ++v16;
     }
-    while ( v21 < perSnapOmnvarCount );
-    nextSnap = v41;
+    while ( v16 < perSnapOmnvarCount );
+    nextSnap = v31;
   }
-  v42 = (__int64)nextSnap->GetPlayerState(nextSnap, localClientNum);
-  v43 = (__int64)snap->GetPlayerState(snap, localClientNum);
-  v25 = CG_GetLocalClientGlobals(localClientNum);
-  v26 = BG_Omnvar_PerGameCount();
-  v27 = BG_Omnvar_PerClientCount() + v26;
-  v28 = localClientNum * (BG_Omnvar_PerPlayerstateCount() + v27);
-  v29 = BG_Omnvar_PerGameCount();
-  v30 = BG_Omnvar_PerClientCount() + v29 + v28;
-  v39 = CG_GetLocalClientGlobals(localClientNum);
+  v32 = (__int64)nextSnap->GetPlayerState(nextSnap, localClientNum);
+  v33 = (__int64)snap->GetPlayerState(snap, localClientNum);
+  v19 = CG_GetLocalClientGlobals(localClientNum);
+  v20 = BG_Omnvar_PerGameCount();
+  v21 = BG_Omnvar_PerClientCount() + v20;
+  v22 = localClientNum * (BG_Omnvar_PerPlayerstateCount() + v21);
+  v23 = BG_Omnvar_PerGameCount();
+  v24 = BG_Omnvar_PerClientCount() + v23 + v22;
+  v30 = CG_GetLocalClientGlobals(localClientNum);
   if ( BG_Omnvar_PerPlayerstateCount() )
   {
-    v31 = perSnapOmnvarCount - v30;
+    v25 = perSnapOmnvarCount - v24;
     do
     {
-      v32 = (unsigned int)v20 + v30;
-      v33 = BG_Omnvar_GetDef(v31 + (unsigned int)v32);
-      if ( (v33->flags & 8) != 0 )
+      v26 = (unsigned int)v15 + v24;
+      v27 = BG_Omnvar_GetDef(v25 + (unsigned int)v26);
+      if ( (v27->flags & 8) != 0 )
       {
-        v34 = (unsigned int)v32;
-        v35 = &s_localClientOmnvars[v32];
-        __asm { vmovss  [rsp+98h+lerpValue], xmm6 }
-        CG_Omnvar_Interpolate(localClientNum, v33, (const OmnvarData *)(v43 + 8 * v20 + 20432), (const OmnvarData *)(v42 + 8 * v20 + 20432), v35, lerpValuea, &v25->predictedPlayerState.rxvOmnvars[v20]);
-        s_localClientOmnvars[v34].current.integer = v25->predictedPlayerState.rxvOmnvars[v20].current.integer;
-        v35->timeModified = v39->time;
+        v28 = (unsigned int)v26;
+        v29 = &s_localClientOmnvars[v26];
+        CG_Omnvar_Interpolate(localClientNum, v27, (const OmnvarData *)(v33 + 8 * v15 + 20432), (const OmnvarData *)(v32 + 8 * v15 + 20432), v29, *(float *)&lerpValue, &v19->predictedPlayerState.rxvOmnvars[v15]);
+        s_localClientOmnvars[v28].current.integer = v19->predictedPlayerState.rxvOmnvars[v15].current.integer;
+        v29->timeModified = v30->time;
       }
-      v20 = (unsigned int)(v20 + 1);
+      v15 = (unsigned int)(v15 + 1);
     }
-    while ( (unsigned int)v20 < BG_Omnvar_PerPlayerstateCount() );
+    while ( (unsigned int)v15 < BG_Omnvar_PerPlayerstateCount() );
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*

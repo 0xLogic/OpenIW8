@@ -926,51 +926,41 @@ R_BeginComputeConstants
 GfxConstantBufferDesc *R_BeginComputeConstants(GfxConstantBufferDesc *result, ComputeCmdBufState *state, int index, unsigned int size)
 {
   __int64 computeContextType; 
-  __int64 v10; 
+  __int64 v8; 
   const GfxBackEndData *data; 
-  __int64 v12; 
-  unsigned int v13; 
-  unsigned __int32 v14; 
-  __int64 v15; 
-  GfxConstantBufferDesc v18; 
+  __int64 v10; 
+  unsigned int v11; 
+  unsigned __int32 v12; 
+  __int64 v13; 
+  GfxConstantBufferDesc v15; 
   GfxConstantBufferDesc cbDesc; 
   GfxConstantBufferDesc resulta; 
 
   computeContextType = (unsigned int)state->computeContextType;
-  _R14 = result;
   if ( (_DWORD)computeContextType == 3 )
   {
-    _RAX = R_AllocateConstantBufferBegin(&resulta, state, CBUFFER_GFXCOMPUTE, size);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+78h+var_48.bufferData], xmm0
-      vmovups xmmword ptr [rsp+78h+cbDesc.bufferData], xmm0
-    }
+    v15 = *R_AllocateConstantBufferBegin(&resulta, state, CBUFFER_GFXCOMPUTE, size);
+    cbDesc = v15;
     R_HW_SetComputeConstantBuffer(state, index, &cbDesc);
   }
   else
   {
-    v10 = computeContextType;
+    v8 = computeContextType;
     data = state->data;
-    v12 = (__int64)&data->compute.contextData[v10];
-    v13 = (size + 63) & 0xFFFFFFC0;
-    if ( (((_BYTE)(v10 * 9192) + (_BYTE)data - 96) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &data->compute.contextData[v10]) )
+    v10 = (__int64)&data->compute.contextData[v8];
+    v11 = (size + 63) & 0xFFFFFFC0;
+    if ( (((_BYTE)(v8 * 9192) + (_BYTE)data - 96) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &data->compute.contextData[v8]) )
       __debugbreak();
-    v14 = _InterlockedExchangeAdd((volatile signed __int32 *)v12, v13);
-    v15 = *(unsigned int *)(v12 + 64);
-    if ( *(_DWORD *)v12 > (int)v15 )
-      Sys_Error((const ObfuscateErrorText)&stru_1443C8020, v15, (unsigned int)state->computeContextType);
-    v18.bufferData = (void *)(*(_QWORD *)(v12 + 32) + v14);
-    v18.bufferSize = v13;
-    R_HW_SetComputeConstantBuffer(state, index, &v18);
+    v12 = _InterlockedExchangeAdd((volatile signed __int32 *)v10, v11);
+    v13 = *(unsigned int *)(v10 + 64);
+    if ( *(_DWORD *)v10 > (int)v13 )
+      Sys_Error((const ObfuscateErrorText)&stru_1443C8020, v13, (unsigned int)state->computeContextType);
+    v15.bufferData = (void *)(*(_QWORD *)(v10 + 32) + v12);
+    v15.bufferSize = v11;
+    R_HW_SetComputeConstantBuffer(state, index, &v15);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+78h+var_48.bufferData]
-    vmovups xmmword ptr [r14], xmm0
-  }
-  return _R14;
+  *result = v15;
+  return result;
 }
 
 /*
@@ -1028,11 +1018,8 @@ void R_ComputeWaitForCompute(ComputeCmdBufState *state, PipeFlushMode pipeFlushM
     __debugbreak();
   if ( pipeFlushMode == PIPE_FLUSH_FULL )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+58h+var_20], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    v7 = _XMM0;
     v6 = 1i64;
   }
   else
@@ -1107,41 +1094,36 @@ R_CreateComputeBuffer
 */
 void R_CreateComputeBuffer(unsigned int size, unsigned int gfxBufferType, D3D12_RESOURCE_STATES initialState, unsigned __int8 *const *placement, const void *initData, GfxBufferCreationContext *context, ID3D12Resource **outBuffer)
 {
-  D3D12_RESOURCE_FLAGS v9; 
-  __int16 v12; 
-  signed int v13; 
-  GfxBufferCreationContext v15; 
-  D3D12_RESOURCE_DESC v16; 
+  D3D12_RESOURCE_FLAGS v8; 
+  __int16 v11; 
+  signed int v12; 
+  GfxBufferCreationContext v13; 
+  D3D12_RESOURCE_DESC v14; 
 
-  _R14 = context;
-  v9 = D3D12_RESOURCE_FLAG_NONE;
-  *(_QWORD *)&v16.Flags = 0i64;
-  v16.Alignment = 0i64;
+  v8 = D3D12_RESOURCE_FLAG_NONE;
+  *(_QWORD *)&v14.Flags = 0i64;
+  v14.Alignment = 0i64;
   if ( (gfxBufferType & 4) != 0 )
-    v9 = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-  *(_QWORD *)&v16.Dimension = 1i64;
-  v16.Width = size;
-  v12 = gfxBufferType;
-  v16.Height = 1;
-  *(_QWORD *)&v16.DepthOrArraySize = 65537i64;
-  v16.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
-  v16.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-  v16.Flags = v9;
+    v8 = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+  *(_QWORD *)&v14.Dimension = 1i64;
+  v14.Width = size;
+  v11 = gfxBufferType;
+  v14.Height = 1;
+  *(_QWORD *)&v14.DepthOrArraySize = 65537i64;
+  v14.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
+  v14.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+  v14.Flags = v8;
   if ( (gfxBufferType & 0x20) != 0 )
-    v16.Flags = v9 | 0x20000;
-  v13 = (gfxBufferType & 1) + 1;
-  if ( (v12 & 0x100) != 0 )
+    v14.Flags = v8 | 0x20000;
+  v12 = (gfxBufferType & 1) + 1;
+  if ( (v11 & 0x100) != 0 )
   {
-    if ( v13 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 2255, ASSERT_TYPE_ASSERT, "(heapType == D3D12_HEAP_TYPE_DEFAULT)", (const char *)&queryFormat, "heapType == D3D12_HEAP_TYPE_DEFAULT") )
+    if ( v12 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 2255, ASSERT_TYPE_ASSERT, "(heapType == D3D12_HEAP_TYPE_DEFAULT)", (const char *)&queryFormat, "heapType == D3D12_HEAP_TYPE_DEFAULT") )
       __debugbreak();
-    v13 = 3;
+    v12 = 3;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups [rsp+0B8h+var_78], xmm0
-  }
-  R_DX12_CreateBuffer(&v16, (D3D12_HEAP_TYPE)v13, initialState, placement, initData, size, outBuffer, &v15);
+  v13 = *context;
+  R_DX12_CreateBuffer(&v14, (D3D12_HEAP_TYPE)v12, initialState, placement, initData, size, outBuffer, &v13);
 }
 
 /*
@@ -1195,15 +1177,10 @@ R_CreateComputeConstantBuffer
 */
 void R_CreateComputeConstantBuffer(unsigned int size, unsigned int gfxBufferType, D3D12_RESOURCE_STATES initialState, unsigned __int8 *const *placement, const void *initData, ID3D12Resource **outBuffer, GfxBufferCreationContext *context)
 {
-  GfxBufferCreationContext v9; 
+  GfxBufferCreationContext v7; 
 
-  _RAX = context;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+58h+var_18.zoneName], xmm0
-  }
-  R_CreateComputeBuffer(size, gfxBufferType, initialState, placement, initData, &v9, outBuffer);
+  v7 = *context;
+  R_CreateComputeBuffer(size, gfxBufferType, initialState, placement, initData, &v7, outBuffer);
 }
 
 /*
@@ -1213,15 +1190,10 @@ R_CreateComputeRawBuffer
 */
 void R_CreateComputeRawBuffer(unsigned int size, unsigned int gfxBufferType, D3D12_RESOURCE_STATES initialState, unsigned __int8 *const *placement, const void *data, ID3D12Resource **outBuffer, GfxBufferCreationContext *context)
 {
-  GfxBufferCreationContext v9; 
+  GfxBufferCreationContext v7; 
 
-  _RAX = context;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+58h+var_18.zoneName], xmm0
-  }
-  R_CreateComputeBuffer(size, gfxBufferType | 0x20, initialState, placement, data, &v9, outBuffer);
+  v7 = *context;
+  R_CreateComputeBuffer(size, gfxBufferType | 0x20, initialState, placement, data, &v7, outBuffer);
 }
 
 /*
@@ -1276,15 +1248,10 @@ R_CreateComputeStructuredBuffer
 */
 void R_CreateComputeStructuredBuffer(unsigned int count, unsigned int stride, unsigned int gfxBufferType, D3D12_RESOURCE_STATES initialState, unsigned __int8 *const *placement, const void *data, ID3D12Resource **outBuffer, GfxBufferCreationContext *context)
 {
-  GfxBufferCreationContext v10; 
+  GfxBufferCreationContext v8; 
 
-  _RAX = context;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+58h+var_18.zoneName], xmm0
-  }
-  R_CreateComputeBuffer(stride * count, gfxBufferType, initialState, placement, data, &v10, outBuffer);
+  v8 = *context;
+  R_CreateComputeBuffer(stride * count, gfxBufferType, initialState, placement, data, &v8, outBuffer);
 }
 
 /*
@@ -1295,42 +1262,40 @@ R_CreateComputeStructuredBufferRWViewWithFlags
 void R_CreateComputeStructuredBufferRWViewWithFlags(ID3D12Resource *bufferHandle, unsigned int stride, GfxShaderRWViewFlags flags, GfxShaderBufferRWView *outRWView)
 {
   unsigned __int64 v5; 
-  ID3D12Resource *v9; 
+  ID3D12Resource *v8; 
   unsigned int freeSlot; 
-  unsigned int *v11; 
-  GfxBufferCreationContext v12; 
-  ID3D12Resource *v13; 
+  unsigned int *v10; 
+  GfxBufferCreationContext v11; 
+  ID3D12Resource *v12; 
   D3D12_UNORDERED_ACCESS_VIEW_DESC viewDesc; 
-  D3D12_RESOURCE_DESC v15; 
-  char v16[16]; 
-  unsigned __int64 v17; 
+  D3D12_RESOURCE_DESC v14; 
+  char v15[16]; 
+  unsigned __int64 v16; 
 
   v5 = stride;
-  ((void (__fastcall *)(ID3D12Resource *, char *))bufferHandle->m_pFunction[3].AddRef)(bufferHandle, v16);
+  ((void (__fastcall *)(ID3D12Resource *, char *))bufferHandle->m_pFunction[3].AddRef)(bufferHandle, v15);
   viewDesc.Buffer.StructureByteStride = v5;
   viewDesc.Format = DXGI_FORMAT_UNKNOWN;
   viewDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
   viewDesc.Buffer.FirstElement = 0i64;
-  viewDesc.Buffer.NumElements = v17 / v5;
+  viewDesc.Buffer.NumElements = v16 / v5;
   *((_OWORD *)&viewDesc.Texture3D + 1) = 0ui64;
   if ( !viewDesc.Buffer.NumElements && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 2487, ASSERT_TYPE_ASSERT, "(rwViewDesc.Buffer.NumElements > 0)", (const char *)&queryFormat, "rwViewDesc.Buffer.NumElements > 0") )
     __debugbreak();
   if ( (flags & 4) != 0 )
   {
-    v12.objectName = "Counter buffer";
-    v12.zoneName = (char *)&queryFormat.fmt + 3;
-    __asm { vmovups xmm0, [rsp+130h+var_F0] }
-    *(_QWORD *)&v15.Dimension = 1i64;
-    *(_QWORD *)&v15.Flags = 0i64;
-    *(_QWORD *)&v15.DepthOrArraySize = 65537i64;
-    v15.Alignment = 0i64;
-    v15.Width = 4i64;
-    v15.Height = 1;
-    v15.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
-    v15.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    __asm { vmovdqa [rsp+130h+var_F0], xmm0 }
-    R_DX12_CreateBuffer(&v15, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, NULL, NULL, 4u, &v13, &v12);
-    v9 = v13;
+    v11.objectName = "Counter buffer";
+    v11.zoneName = (char *)&queryFormat.fmt + 3;
+    *(_QWORD *)&v14.Dimension = 1i64;
+    *(_QWORD *)&v14.Flags = 0i64;
+    *(_QWORD *)&v14.DepthOrArraySize = 65537i64;
+    v14.Alignment = 0i64;
+    v14.Width = 4i64;
+    v14.Height = 1;
+    v14.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
+    v14.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    R_DX12_CreateBuffer(&v14, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, NULL, NULL, 4u, &v12, &v11);
+    v8 = v12;
     R_LockDescriptorPool(&g_descriptorPools.shaderViewPool);
     freeSlot = g_descriptorPools.shaderViewPool.freeSlot;
     if ( !g_descriptorPools.shaderViewPool.freeSlot )
@@ -1339,17 +1304,17 @@ void R_CreateComputeStructuredBufferRWViewWithFlags(ID3D12Resource *bufferHandle
         __debugbreak();
       freeSlot = g_descriptorPools.shaderViewPool.freeSlot;
     }
-    v11 = &g_descriptorPools.shaderViewPool.nextSlot[freeSlot];
-    g_descriptorPools.shaderViewPool.freeSlot = *v11;
-    *v11 = 0;
+    v10 = &g_descriptorPools.shaderViewPool.nextSlot[freeSlot];
+    g_descriptorPools.shaderViewPool.freeSlot = *v10;
+    *v10 = 0;
     ++g_descriptorPools.shaderViewPool.handle.used;
     if ( ((unsigned __int8)&g_descriptorPools.shaderViewPool.lock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
       __debugbreak();
     _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
-    ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, ID3D12Resource *, D3D12_UNORDERED_ACCESS_VIEW_DESC *, unsigned __int64))g_dx.d3d12device->m_pFunction[6].AddRef)(g_dx.d3d12device, bufferHandle, v9, &viewDesc, g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (freeSlot + g_descriptorPools.shaderViewPool.handle.startSlot));
+    ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, ID3D12Resource *, D3D12_UNORDERED_ACCESS_VIEW_DESC *, unsigned __int64))g_dx.d3d12device->m_pFunction[6].AddRef)(g_dx.d3d12device, bufferHandle, v8, &viewDesc, g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (freeSlot + g_descriptorPools.shaderViewPool.handle.startSlot));
     outRWView->rwView = freeSlot;
     outRWView->rwResource = bufferHandle;
-    outRWView->rwCounterResource = v9;
+    outRWView->rwCounterResource = v8;
     outRWView->rwSubresourceToTransition = -1;
   }
   else
@@ -1631,6 +1596,7 @@ void R_ExecuteComputeCmdListInternal(ComputeCmdBufState *cmdBufState, const Comp
   __int64 v17; 
   __int64 v18[4]; 
   __int64 v19; 
+  __int128 v20; 
   unsigned __int8 *cmds; 
 
   v4 = heads;
@@ -1828,7 +1794,7 @@ void R_ExecuteComputeCmdListInternal(ComputeCmdBufState *cmdBufState, const Comp
   m_pFunction = v12->m_pFunction;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v19 = 1i64;
-  __asm { vmovdqu [rsp+0B8h+var_50], xmm0 }
+  v20 = _XMM0;
   ((void (__fastcall *)(GfxDevice *, __int64, __int64 *))m_pFunction[8].Release)(v12, 1i64, &v19);
   R_ProfEndNamedEvent(cmdBufState);
   Sys_ProfEndNamedEvent();
@@ -2105,11 +2071,11 @@ R_InitComputeCmdBufState
 void R_InitComputeCmdBufState(ComputeCmdBufState *state, GfxBackEndData *data, ComputeContextType contextType)
 {
   __int64 v3; 
-  char *v9; 
-  GfxDevice *v10; 
+  char *v8; 
+  GfxDevice *v9; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  int v13; 
+  int v12; 
   GfxCmdBufContext result; 
 
   v3 = (unsigned int)contextType;
@@ -2128,27 +2094,27 @@ void R_InitComputeCmdBufState(ComputeCmdBufState *state, GfxBackEndData *data, C
     state->data = data;
     if ( (unsigned int)v3 >= 2 )
     {
-      v13 = 2;
-      LODWORD(v11) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 1568, ASSERT_TYPE_ASSERT, "(unsigned)( contextType ) < (unsigned)( COMPUTE_CONTEXT_ASYNC_NUM_TYPES )", "contextType doesn't index COMPUTE_CONTEXT_ASYNC_NUM_TYPES\n\t%i not in [0, %i)", v11, v13) )
+      v12 = 2;
+      LODWORD(v10) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 1568, ASSERT_TYPE_ASSERT, "(unsigned)( contextType ) < (unsigned)( COMPUTE_CONTEXT_ASYNC_NUM_TYPES )", "contextType doesn't index COMPUTE_CONTEXT_ASYNC_NUM_TYPES\n\t%i not in [0, %i)", v10, v12) )
         __debugbreak();
     }
     state->computeContextType = v3;
-    v9 = (char *)data + 9192 * v3;
-    v10 = (GfxDevice *)g_dx.computeCommandList[*((unsigned int *)v9 + 3348)];
-    state->descState = (GfxDescriptorState *)(v9 + 4328);
-    state->device = v10;
-    R_InitDescriptorState((GfxDescriptorState *)(v9 + 4328));
-    if ( *((_DWORD *)v9 + 3348) >= 2u )
+    v8 = (char *)data + 9192 * v3;
+    v9 = (GfxDevice *)g_dx.computeCommandList[*((unsigned int *)v8 + 3348)];
+    state->descState = (GfxDescriptorState *)(v8 + 4328);
+    state->device = v9;
+    R_InitDescriptorState((GfxDescriptorState *)(v8 + 4328));
+    if ( *((_DWORD *)v8 + 3348) >= 2u )
     {
-      LODWORD(v12) = 2;
-      LODWORD(v11) = *((_DWORD *)v9 + 3348);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 1591, ASSERT_TYPE_ASSERT, "(unsigned)( contextData->computeQueueIndex ) < (unsigned)( ( sizeof( *array_counter( data->computeDescHeapInfo ) ) + 0 ) )", "contextData->computeQueueIndex doesn't index ARRAY_COUNT( data->computeDescHeapInfo )\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v11) = 2;
+      LODWORD(v10) = *((_DWORD *)v8 + 3348);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 1591, ASSERT_TYPE_ASSERT, "(unsigned)( contextData->computeQueueIndex ) < (unsigned)( ( sizeof( *array_counter( data->computeDescHeapInfo ) ) + 0 ) )", "contextData->computeQueueIndex doesn't index ARRAY_COUNT( data->computeDescHeapInfo )\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    R_InitDescriptorHeapInfoState(state->descState, &data->computeDescHeapInfo[*((unsigned int *)v9 + 3348)]);
+    R_InitDescriptorHeapInfoState(state->descState, &data->computeDescHeapInfo[*((unsigned int *)v8 + 3348)]);
     if ( !R_CheckReserveDescriptorHeaps(state->descState) )
-      Sys_Error((const ObfuscateErrorText)&stru_143DB8680, *((unsigned int *)v9 + 3348));
+      Sys_Error((const ObfuscateErrorText)&stru_143DB8680, *((unsigned int *)v8 + 3348));
     if ( state->computeContextType != COMPUTE_CONTEXT_TYPE_GFX )
     {
       state->simdWalk = COMPUTECMD_SIMD_WALK_DEFAULT;
@@ -2162,12 +2128,8 @@ void R_InitComputeCmdBufState(ComputeCmdBufState *state, GfxBackEndData *data, C
     R_LockGfxImmediateContext();
     if ( data != backEndData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 1552, ASSERT_TYPE_ASSERT, "(data == backEndData)", (const char *)&queryFormat, "data == backEndData") )
       __debugbreak();
-    _RAX = RB_GetBackendCmdBufContext(&result);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vpextrq rdx, xmm0, 1; refGfxState
-    }
+    _XMM0 = (__int128)*RB_GetBackendCmdBufContext(&result);
+    __asm { vpextrq rdx, xmm0, 1; refGfxState }
     R_InitGfxComputeCmdBufState(state, _RDX);
   }
 }
@@ -2274,10 +2236,12 @@ void R_PreDispatch(ComputeCmdBufState *state)
   GfxDescriptorState *descState; 
   int v3; 
   GfxDevice *device; 
-  unsigned int v8; 
-  GfxDevice *v9; 
-  int v10[4]; 
-  __int64 v11; 
+  unsigned int *m_pCurrent; 
+  ID3D12PipelineState *derivedCS; 
+  unsigned int v7; 
+  GfxDevice *v8; 
+  int v9[4]; 
+  __int64 v10; 
 
   descState = state->descState;
   state->resourceTransitionDispatchOrDraw = 1;
@@ -2302,40 +2266,36 @@ LABEL_8:
   if ( !state->computeShader->prog.derivedCS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 4002, ASSERT_TYPE_ASSERT, "(state->computeShader->prog.derivedCS)", (const char *)&queryFormat, "state->computeShader->prog.derivedCS") )
     __debugbreak();
   device = state->device;
-  _RDX = device->m_Putter.m_pCurrent;
-  _R8 = state->computeShader->prog.derivedCS;
-  if ( _RDX >= device->m_Putter.m_pLimit_Api )
+  m_pCurrent = device->m_Putter.m_pCurrent;
+  derivedCS = state->computeShader->prog.derivedCS;
+  if ( m_pCurrent >= device->m_Putter.m_pLimit_Api )
   {
-    ((void (__fastcall *)(GfxDevice *, ID3D12PipelineState *))device->m_pFunction[8].AddRef)(device, _R8);
+    ((void (__fastcall *)(GfxDevice *, ID3D12PipelineState *))device->m_pFunction[8].AddRef)(device, derivedCS);
   }
   else
   {
-    __asm
-    {
-      vmovdqu xmm0, xmmword ptr [r8+10h]
-      vmovdqu xmmword ptr [rdx], xmm0
-    }
-    *((_QWORD *)_RDX + 2) = _R8->m_Packet.Oword[1].m128i_i64[0];
-    device->m_Putter.m_pCurrent = _RDX + 6;
+    *(_OWORD *)m_pCurrent = *(_OWORD *)derivedCS->m_Packet.Descriptor.Data;
+    *((_QWORD *)m_pCurrent + 2) = derivedCS->m_Packet.Oword[1].m128i_i64[0];
+    device->m_Putter.m_pCurrent = m_pCurrent + 6;
   }
   if ( state->computeContextType != COMPUTE_CONTEXT_TYPE_GFX && state->computeLimitsDirty )
   {
-    v8 = 480;
+    v7 = 480;
     if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_SCORPIO )
-      v8 = 1600;
-    if ( state->wavesTotal > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 585, ASSERT_TYPE_ASSERT, "(state->wavesTotal <= waveLimit)", (const char *)&queryFormat, "state->wavesTotal <= waveLimit") )
+      v7 = 1600;
+    if ( state->wavesTotal > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 585, ASSERT_TYPE_ASSERT, "(state->wavesTotal <= waveLimit)", (const char *)&queryFormat, "state->wavesTotal <= waveLimit") )
       __debugbreak();
     if ( state->threadGroupsPerCu > 0xF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 586, ASSERT_TYPE_ASSERT, "(state->threadGroupsPerCu <= threadGroupsPerCuLimit)", (const char *)&queryFormat, "state->threadGroupsPerCu <= threadGroupsPerCuLimit") )
       __debugbreak();
-    if ( state->lockThresholdWavesTotal > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 587, ASSERT_TYPE_ASSERT, "(state->lockThresholdWavesTotal <= lockThresholdLimit)", (const char *)&queryFormat, "state->lockThresholdWavesTotal <= lockThresholdLimit") )
+    if ( state->lockThresholdWavesTotal > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 587, ASSERT_TYPE_ASSERT, "(state->lockThresholdWavesTotal <= lockThresholdLimit)", (const char *)&queryFormat, "state->lockThresholdWavesTotal <= lockThresholdLimit") )
       __debugbreak();
-    v9 = state->device;
-    v10[0] = 0;
-    v11 = 0i64;
-    v10[1] = state->wavesTotal;
-    v10[2] = state->threadGroupsPerCu;
-    v10[3] = state->lockThresholdWavesTotal;
-    ((void (__fastcall *)(GfxDevice *, int *))v9->m_pFunction[32].QueryInterface)(v9, v10);
+    v8 = state->device;
+    v9[0] = 0;
+    v10 = 0i64;
+    v9[1] = state->wavesTotal;
+    v9[2] = state->threadGroupsPerCu;
+    v9[3] = state->lockThresholdWavesTotal;
+    ((void (__fastcall *)(GfxDevice *, int *))v8->m_pFunction[32].QueryInterface)(v8, v9);
     state->computeLimitsDirty = 0;
   }
 }
@@ -2921,50 +2881,47 @@ R_SetComputeViewWithOffset
 void R_SetComputeViewWithOffset(ComputeCmdBufState *state, int startIndex, unsigned __int8 *buffer, unsigned int bufferOffset, unsigned int stride, const GfxShaderBufferView *view, ID3D12Resource *resource)
 {
   GfxDescriptorState *descState; 
-  unsigned __int64 v14; 
-  __int64 v18; 
-  unsigned __int64 v20; 
-  int v21[4]; 
-  __int64 v22; 
+  unsigned __int64 v13; 
+  __int64 v16; 
+  unsigned __int64 v17; 
+  int v18[4]; 
+  __int64 v19; 
+  int v20; 
+  unsigned int v21; 
+  int v22; 
   int v23; 
-  unsigned int v24; 
-  int v25; 
-  int v26; 
-  char v27[64]; 
+  char v24[64]; 
   unsigned int descriptor; 
 
-  _RBX = view;
   if ( view->view <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 3670, ASSERT_TYPE_ASSERT, "(!view.IsNull())", (const char *)&queryFormat, "!view.IsNull()") )
     __debugbreak();
   if ( (bufferOffset & 0x3F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_compute.cpp", 3671, ASSERT_TYPE_ASSERT, "(( bufferOffset & ( ( 64 ) - 1 ) ) == 0)", (const char *)&queryFormat, "( bufferOffset & ( GFX_RESOURCE_VIEW_OFFSET_ALIGNMENT - 1 ) ) == 0") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
+  _XMM0 = *view;
   descState = state->descState;
   __asm { vpextrd rcx, xmm0, 2 }
   descriptor = _RCX;
-  v14 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + (unsigned int)(g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (_RCX + g_descriptorPools.shaderViewPool.handle.startSlot));
-  _RAX = ((__int64 (__fastcall *)(char *, ID3D12Resource *))resource->m_pFunction[5].QueryInterface)(v27, resource);
-  __asm { vmovups ymm2, ymmword ptr [rax] }
-  v21[3] = 0;
-  v26 = 0;
+  v13 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + (unsigned int)(g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (_RCX + g_descriptorPools.shaderViewPool.handle.startSlot));
+  _YMM2 = *(__m256i *)((__int64 (__fastcall *)(char *, ID3D12Resource *))resource->m_pFunction[5].QueryInterface)(v24, resource);
+  v18[3] = 0;
+  v23 = 0;
   __asm { vextractf128 xmm0, ymm2, 1 }
-  v18 = bufferOffset / stride;
-  __asm { vmovq   r15, xmm0 }
+  v16 = bufferOffset / stride;
   if ( bufferOffset % stride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 474, ASSERT_TYPE_ASSERT, "(offset % stride == 0)", (const char *)&queryFormat, "offset % stride == 0") )
     __debugbreak();
-  v20 = _R15 / stride;
-  if ( _R15 % stride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 475, ASSERT_TYPE_ASSERT, "(width % stride == 0)", (const char *)&queryFormat, "width % stride == 0") )
+  v17 = (unsigned __int64)_XMM0 / stride;
+  if ( (unsigned __int64)_XMM0 % stride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 475, ASSERT_TYPE_ASSERT, "(width % stride == 0)", (const char *)&queryFormat, "width % stride == 0") )
     __debugbreak();
-  if ( (unsigned int)v18 >= (unsigned int)v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 480, ASSERT_TYPE_ASSERT, "(firstElement < numElements)", (const char *)&queryFormat, "firstElement < numElements") )
+  if ( (unsigned int)v16 >= (unsigned int)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 480, ASSERT_TYPE_ASSERT, "(firstElement < numElements)", (const char *)&queryFormat, "firstElement < numElements") )
     __debugbreak();
-  v21[1] = 1;
-  v21[0] = 0;
-  v25 = 0;
-  v21[2] = 5768;
-  v22 = v18;
-  v23 = v20 - v18;
-  v24 = stride;
-  ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, int *, unsigned __int64))g_dx.d3d12device->m_pFunction[6].QueryInterface)(g_dx.d3d12device, resource, v21, v14);
+  v18[1] = 1;
+  v18[0] = 0;
+  v22 = 0;
+  v18[2] = 5768;
+  v19 = v16;
+  v20 = v17 - v16;
+  v21 = stride;
+  ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, int *, unsigned __int64))g_dx.d3d12device->m_pFunction[6].QueryInterface)(g_dx.d3d12device, resource, v18, v13);
   R_ClearDescriptorRangeSlots(descState, COMPUTE_SRV_RANGE, startIndex, 1u);
   R_SetDescriptorInRange(descState, COMPUTE_SRV_RANGE, startIndex, descriptor);
 }
@@ -3108,55 +3065,44 @@ R_UploadAndSetComputeConstants
 void R_UploadAndSetComputeConstants(ComputeCmdBufState *state, int index, const void *data, unsigned int size)
 {
   __int64 computeContextType; 
-  size_t v10; 
-  __int64 v13; 
-  const GfxBackEndData *v14; 
-  __int64 v15; 
-  unsigned __int32 v16; 
-  __int64 v17; 
-  GfxConstantBufferDesc v20; 
+  size_t v8; 
+  GfxConstantBufferDesc v9; 
+  __int64 v10; 
+  const GfxBackEndData *v11; 
+  __int64 v12; 
+  unsigned __int32 v13; 
+  __int64 v14; 
+  GfxConstantBufferDesc v15; 
   GfxConstantBufferDesc cbDesc; 
   GfxConstantBufferDesc cbuff; 
   GfxConstantBufferDesc result; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   computeContextType = (unsigned int)state->computeContextType;
-  v10 = size;
+  v8 = size;
   if ( (_DWORD)computeContextType == 3 )
   {
-    _RAX = R_AllocateConstantBufferBegin(&result, state, CBUFFER_GFXCOMPUTE, size);
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+98h+cbDesc.bufferData], xmm6
-    }
+    v9 = *R_AllocateConstantBufferBegin(&result, state, CBUFFER_GFXCOMPUTE, size);
+    cbDesc = v9;
     R_HW_SetComputeConstantBuffer(state, index, &cbDesc);
   }
   else
   {
-    v13 = computeContextType;
-    v14 = state->data;
-    v15 = (__int64)&v14->compute.contextData[v13];
-    if ( (((_BYTE)(v13 * 9192) + (_BYTE)v14 - 96) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &v14->compute.contextData[v13]) )
+    v10 = computeContextType;
+    v11 = state->data;
+    v12 = (__int64)&v11->compute.contextData[v10];
+    if ( (((_BYTE)(v10 * 9192) + (_BYTE)v11 - 96) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &v11->compute.contextData[v10]) )
       __debugbreak();
-    v16 = _InterlockedExchangeAdd((volatile signed __int32 *)v15, (v10 + 63) & 0xFFFFFFC0);
-    v17 = *(unsigned int *)(v15 + 64);
-    if ( *(_DWORD *)v15 > (int)v17 )
-      Sys_Error((const ObfuscateErrorText)&stru_1443C8020, v17, (unsigned int)state->computeContextType);
-    v20.bufferData = (void *)(*(_QWORD *)(v15 + 32) + v16);
-    v20.bufferSize = (v10 + 63) & 0xFFFFFFC0;
-    R_HW_SetComputeConstantBuffer(state, index, &v20);
-    __asm { vmovups xmm6, xmmword ptr [rsp+98h+var_68.bufferData] }
+    v13 = _InterlockedExchangeAdd((volatile signed __int32 *)v12, (v8 + 63) & 0xFFFFFFC0);
+    v14 = *(unsigned int *)(v12 + 64);
+    if ( *(_DWORD *)v12 > (int)v14 )
+      Sys_Error((const ObfuscateErrorText)&stru_1443C8020, v14, (unsigned int)state->computeContextType);
+    v15.bufferData = (void *)(*(_QWORD *)(v12 + 32) + v13);
+    v15.bufferSize = (v8 + 63) & 0xFFFFFFC0;
+    R_HW_SetComputeConstantBuffer(state, index, &v15);
+    v9 = v15;
   }
-  __asm
-  {
-    vmovq   rcx, xmm6; void *
-    vmovdqa xmmword ptr [rsp+98h+cbuff.bufferData], xmm6
-  }
-  memcpy_0(_RCX, data, v10);
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
+  cbuff = v9;
+  memcpy_0(v9.bufferData, data, v8);
   if ( state->computeContextType == COMPUTE_CONTEXT_TYPE_GFX )
     R_AllocateConstantBufferEnd(state, &cbuff);
 }

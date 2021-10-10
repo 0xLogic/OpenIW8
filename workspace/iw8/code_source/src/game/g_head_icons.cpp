@@ -502,29 +502,39 @@ void G_HeadIcons_Update(gentity_s *player)
   unsigned int number; 
   playerState_s *EntityPlayerState; 
   unsigned int v4; 
+  const playerState_s *v5; 
   signed int v6; 
   bool v7; 
+  bool *p_renderInMap; 
   __int64 v9; 
+  char *v10; 
+  float *p_naturalDistance; 
   float *v12; 
   int v13; 
   int RelativeIcon; 
-  signed int v19; 
+  signed int v15; 
   HeadIconView *headIcons; 
-  unsigned int v26; 
-  __int64 v27; 
-  __int64 v29; 
-  bool v31; 
-  _BYTE *v37; 
+  unsigned int v17; 
+  __int64 v18; 
+  char *v19; 
+  __int64 v20; 
+  char *v21; 
+  bool v22; 
+  __int128 v23; 
+  double v24; 
+  __int64 v25; 
+  HeadIconExtendedView v26; 
+  _BYTE *v27; 
   HeadIconFlags *p_flags; 
-  __int64 v39; 
-  __int64 v40; 
-  bool *p_renderInMap; 
-  char *v43; 
-  __int128 v44; 
-  _BYTE v45[24]; 
-  char v46[512]; 
-  char v47[768]; 
-  __int64 v48[4]; 
+  __int64 v29; 
+  __int64 v30; 
+  bool *v31; 
+  char *v33; 
+  __int128 v34; 
+  _BYTE v35[24]; 
+  char v36[512]; 
+  char v37[768]; 
+  __int64 v38[4]; 
 
   v1 = player;
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_head_icons.cpp", 198, ASSERT_TYPE_ASSERT, "( player )", (const char *)&queryFormat, rowName) )
@@ -532,8 +542,8 @@ void G_HeadIcons_Update(gentity_s *player)
   number = v1->s.number;
   if ( number >= 0xE0 )
   {
-    LODWORD(v39) = v1->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v39, 224) )
+    LODWORD(v29) = v1->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v29, 224) )
       __debugbreak();
   }
   if ( ((0x80000000 >> (number & 0x1F)) & s_headIcons_updateRequired.array[(unsigned __int64)number >> 5]) != 0 )
@@ -541,78 +551,64 @@ void G_HeadIcons_Update(gentity_s *player)
     Sys_ProfBeginNamedEvent(0xFFFFFFFu, "G_HeadIcons_Update");
     EntityPlayerState = G_GetEntityPlayerState(v1);
     v4 = v1->s.number;
-    _RSI = EntityPlayerState;
+    v5 = EntityPlayerState;
     if ( v4 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v1->s.number, 224) )
       __debugbreak();
     s_headIcons_updateRequired.array[(unsigned __int64)v4 >> 5] &= ~(0x80000000 >> (v4 & 0x1F));
-    memset_0(v47, 0, sizeof(v47));
-    memset_0(v46, 0, sizeof(v46));
-    memset(v48, 0, sizeof(v48));
+    memset_0(v37, 0, sizeof(v37));
+    memset_0(v36, 0, sizeof(v36));
+    memset(v38, 0, sizeof(v38));
     v6 = 0;
     v7 = Com_GameMode_SupportsFeature(WEAPON_LEAP_LOOP|0x80);
-    _R15 = &level.headIconExtendedData[0].renderInMap;
     p_renderInMap = &level.headIconExtendedData[0].renderInMap;
+    v31 = &level.headIconExtendedData[0].renderInMap;
     v9 = 256i64;
-    v43 = v46;
-    _R12 = v47;
+    v33 = v36;
+    v10 = v37;
     if ( v7 )
       v9 = 1024i64;
-    _RDI = &level.headIcons[0].naturalDistance;
-    v40 = v9;
+    p_naturalDistance = &level.headIcons[0].naturalDistance;
+    v30 = v9;
     do
     {
-      v12 = _RDI - 7;
-      if ( _RDI == (float *)28 )
+      v12 = p_naturalDistance - 7;
+      if ( p_naturalDistance == (float *)28 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_head_icons.cpp", (_DWORD)v12 + 93, ASSERT_TYPE_ASSERT, "(headIcon)", (const char *)&queryFormat, "headIcon") )
           __debugbreak();
-        v9 = v40;
+        v9 = v30;
       }
-      if ( (*(_BYTE *)(_RDI - 1) & 1) != 0 )
+      if ( (*(_BYTE *)(p_naturalDistance - 1) & 1) != 0 )
       {
-        if ( G_PlayerMask_IsPlayerInMask((const PlayerMask *)(_RDI + 3), _RSI, NULL) )
+        if ( G_PlayerMask_IsPlayerInMask((const PlayerMask *)(p_naturalDistance + 3), v5, NULL) )
         {
           v13 = *(_DWORD *)v12;
-          *(float *)v45 = *v12;
-          RelativeIcon = G_HeadIcons_GetRelativeIcon((const HeadIcon *)(_RDI - 7), _RSI);
-          __asm
-          {
-            vcvttss2si ecx, dword ptr [rdi]
-            vmovss  xmm0, dword ptr [r15-0Dh]
-            vmovss  xmm1, dword ptr [r15-9]
-          }
-          *(_DWORD *)&v45[12] = _ECX;
-          __asm { vcvttss2si ecx, dword ptr [rdi+4] }
-          *(_DWORD *)&v45[16] = _ECX;
-          v19 = 0;
-          *(float *)&v45[20] = _RDI[2];
-          *(float *)&v45[8] = *(_RDI - 1);
-          BYTE12(v44) = *(_R15 - 1);
-          __asm
-          {
-            vmovss  dword ptr [rsp+5F0h+var_580], xmm0
-            vmovss  xmm0, dword ptr [r15-5]
-          }
-          BYTE13(v44) = *_R15;
-          headIcons = _RSI->headIcons;
-          __asm
-          {
-            vmovss  dword ptr [rsp+5F0h+var_580+4], xmm1
-            vmovss  dword ptr [rsp+5F0h+var_580+8], xmm0
-          }
-          *(_DWORD *)&v45[4] = RelativeIcon;
+          *(float *)v35 = *v12;
+          RelativeIcon = G_HeadIcons_GetRelativeIcon((const HeadIcon *)(p_naturalDistance - 7), v5);
+          *(_DWORD *)&v35[12] = (int)*p_naturalDistance;
+          *(_DWORD *)&v35[16] = (int)p_naturalDistance[1];
+          v15 = 0;
+          *(float *)&v35[20] = p_naturalDistance[2];
+          *(float *)&v35[8] = *(p_naturalDistance - 1);
+          BYTE12(v34) = *(p_renderInMap - 1);
+          LODWORD(v34) = *(_DWORD *)(p_renderInMap - 13);
+          BYTE13(v34) = *p_renderInMap;
+          headIcons = v5->headIcons;
+          DWORD1(v34) = *(_DWORD *)(p_renderInMap - 9);
+          DWORD2(v34) = *(_DWORD *)(p_renderInMap - 5);
+          *(_DWORD *)&v35[4] = RelativeIcon;
           do
           {
-            if ( headIcons->entityNumber == v13 && headIcons->icon == RelativeIcon && *(_QWORD *)&headIcons->entityNumber == *(_QWORD *)v45 && *(_OWORD *)&headIcons->flags == *(_OWORD *)&v45[8] && *(_OWORD *)&_RSI->headIconsExtendedData[v19] == v44 )
+            if ( headIcons->entityNumber == v13 && headIcons->icon == RelativeIcon && *(_QWORD *)&headIcons->entityNumber == *(_QWORD *)v35 && *(_OWORD *)&headIcons->flags == *(_OWORD *)&v35[8] && *(_OWORD *)&v5->headIconsExtendedData[v15] == v34 )
             {
               v1 = player;
-              *((_BYTE *)v48 + v19) = 1;
+              *((_BYTE *)v38 + v15) = 1;
               goto LABEL_31;
             }
-            ++v19;
+            ++v15;
             ++headIcons;
           }
-          while ( (unsigned int)v19 < 0x20 );
+          while ( (unsigned int)v15 < 0x20 );
           v1 = player;
           if ( (unsigned int)v6 >= 0x20 )
           {
@@ -620,92 +616,78 @@ void G_HeadIcons_Update(gentity_s *player)
           }
           else
           {
-            _RAX = v43;
             ++v6;
-            __asm
-            {
-              vmovups xmm0, [rbp+4F0h+var_570]
-              vmovsd  xmm1, [rbp+4F0h+var_560]
-              vmovups xmmword ptr [r12], xmm0
-              vmovups xmm0, [rsp+5F0h+var_580]
-              vmovsd  qword ptr [r12+10h], xmm1
-            }
-            _R12 += 24;
-            __asm { vmovups xmmword ptr [rax], xmm0 }
-            v43 += 16;
+            *(_OWORD *)v10 = *(_OWORD *)v35;
+            *((double *)v10 + 2) = *(double *)&v35[16];
+            v10 += 24;
+            *(_OWORD *)v33 = v34;
+            v33 += 16;
           }
 LABEL_31:
-          _R15 = p_renderInMap;
+          p_renderInMap = v31;
         }
-        v9 = v40;
+        v9 = v30;
       }
-      _R15 += 16;
-      _RDI += 19;
-      p_renderInMap = _R15;
-      v40 = --v9;
+      p_renderInMap += 16;
+      p_naturalDistance += 19;
+      v31 = p_renderInMap;
+      v30 = --v9;
     }
     while ( v9 );
-    v26 = 0;
+    v17 = 0;
     if ( v6 > 0i64 )
     {
-      v27 = 0i64;
-      _R8 = v47;
-      v29 = 0i64;
-      _R10 = v46;
+      v18 = 0i64;
+      v19 = v37;
+      v20 = 0i64;
+      v21 = v36;
       do
       {
-        v31 = v26 == 32;
-        if ( v26 < 0x20 )
+        v22 = v17 == 32;
+        if ( v17 < 0x20 )
         {
-          while ( *((_BYTE *)v48 + v29) )
+          while ( *((_BYTE *)v38 + v20) )
           {
-            ++v26;
-            ++v29;
-            if ( v26 >= 0x20 )
+            ++v17;
+            ++v20;
+            if ( v17 >= 0x20 )
               goto LABEL_41;
           }
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r8]
-            vmovsd  xmm1, qword ptr [r8+10h]
-          }
-          _RAX = 3 * v29 + 1278;
-          *((_BYTE *)v48 + v29) = 1;
-          __asm
-          {
-            vmovups xmmword ptr [rsi+rax*8], xmm0
-            vmovups xmm0, xmmword ptr [r10]
-            vmovsd  qword ptr [rsi+rax*8+10h], xmm1
-          }
-          _RAX = 2 * (v29 + 687);
-          __asm { vmovups xmmword ptr [rsi+rax*8], xmm0 }
+          v23 = *(_OWORD *)v19;
+          v24 = *((double *)v19 + 2);
+          v25 = 3 * v20 + 1278;
+          *((_BYTE *)v38 + v20) = 1;
+          *(_OWORD *)(&v5->commandTime + 2 * v25) = v23;
+          v26 = *(HeadIconExtendedView *)v21;
+          *((double *)&v5->pm_time + v25) = v24;
+          v5->headIconsExtendedData[v20] = v26;
 LABEL_41:
-          v31 = v26 == 32;
+          v22 = v17 == 32;
         }
-        if ( v31 )
+        if ( v22 )
         {
           Com_PrintWarning(15, "G_HeadIcons_Update: Can't add new icon, list is full for player %i\n", (unsigned int)v1->s.number);
           goto LABEL_49;
         }
-        ++v27;
-        _R8 += 24;
-        _R10 += 16;
+        ++v18;
+        v19 += 24;
+        v21 += 16;
       }
-      while ( v27 < v6 );
-      if ( v26 >= 0x20 )
+      while ( v18 < v6 );
+      if ( v17 >= 0x20 )
         goto LABEL_49;
     }
-    v37 = (char *)v48 + (int)v26;
-    p_flags = &_RSI->headIcons[v26].flags;
+    v27 = (char *)v38 + (int)v17;
+    p_flags = &v5->headIcons[v17].flags;
     do
     {
-      if ( !*v37 )
+      if ( !*v27 )
         *p_flags = NONE;
-      ++v26;
-      ++v37;
+      ++v17;
+      ++v27;
       p_flags += 6;
     }
-    while ( v26 < 0x20 );
+    while ( v17 < 0x20 );
 LABEL_49:
     Sys_ProfEndNamedEvent();
   }
@@ -1114,29 +1096,22 @@ ScrCmd_SetHeadIconMaxDistance
 void ScrCmd_SetHeadIconMaxDistance(scrContext_t *scrContext)
 {
   int Int; 
-  char v7; 
-  char v8; 
+  double Float; 
+  HeadIcon *v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   Int = Scr_GetInt(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
+  Float = Scr_GetFloat(scrContext, 1u);
   *(_QWORD *)s_headIcons_updateRequired.array = -1i64;
-  __asm { vmovaps xmm6, xmm0 }
   *(_QWORD *)&s_headIcons_updateRequired.array[2] = -1i64;
   *(_QWORD *)&s_headIcons_updateRequired.array[4] = -1i64;
   s_headIcons_updateRequired.array[6] = -1;
-  _RAX = G_HeadIcon_Get(Int);
-  __asm
+  v4 = G_HeadIcon_Get(Int);
+  v4->maxDistance = *(float *)&Float;
+  if ( *(float *)&Float > 32000.0 )
   {
-    vcomiss xmm6, cs:__real@46fa0000
-    vmovss  dword ptr [rax+20h], xmm6
-  }
-  if ( !(v7 | v8) )
-  {
-    _RAX->maxDistance = 32000.0;
+    v4->maxDistance = 32000.0;
     Scr_Error(COM_ERR_5283, scrContext, "SetHeadIconMaxDistance( index, distance ) should be called with a distance < 32000\n");
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1147,29 +1122,22 @@ ScrCmd_SetHeadIconNaturalDistance
 void ScrCmd_SetHeadIconNaturalDistance(scrContext_t *scrContext)
 {
   int Int; 
-  char v7; 
-  char v8; 
+  double Float; 
+  HeadIcon *v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   Int = Scr_GetInt(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
+  Float = Scr_GetFloat(scrContext, 1u);
   *(_QWORD *)s_headIcons_updateRequired.array = -1i64;
-  __asm { vmovaps xmm6, xmm0 }
   *(_QWORD *)&s_headIcons_updateRequired.array[2] = -1i64;
   *(_QWORD *)&s_headIcons_updateRequired.array[4] = -1i64;
   s_headIcons_updateRequired.array[6] = -1;
-  _RAX = G_HeadIcon_Get(Int);
-  __asm
+  v4 = G_HeadIcon_Get(Int);
+  v4->naturalDistance = *(float *)&Float;
+  if ( *(float *)&Float > 32000.0 )
   {
-    vcomiss xmm6, cs:__real@46fa0000
-    vmovss  dword ptr [rax+1Ch], xmm6
-  }
-  if ( !(v7 | v8) )
-  {
-    _RAX->naturalDistance = 32000.0;
+    v4->naturalDistance = 32000.0;
     Scr_Error(COM_ERR_5282, scrContext, "SetHeadIconNaturalDistance( index, distance ) should be called with a distance < 32000\n");
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1310,12 +1278,11 @@ ScrCmd_SetHeadIconZOffset
 void ScrCmd_SetHeadIconZOffset(scrContext_t *scrContext)
 {
   int Int; 
+  double Float; 
 
-  _RBX = scrContext;
   Int = Scr_GetInt(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(_RBX, 1u);
-  __asm { vcvttss2si ebx, xmm0 }
-  G_HeadIcon_Get(Int)->zOffset = (int)_RBX;
+  Float = Scr_GetFloat(scrContext, 1u);
+  G_HeadIcon_Get(Int)->zOffset = (int)*(float *)&Float;
   *(_QWORD *)s_headIcons_updateRequired.array = -1i64;
   *(_QWORD *)&s_headIcons_updateRequired.array[2] = -1i64;
   *(_QWORD *)&s_headIcons_updateRequired.array[4] = -1i64;

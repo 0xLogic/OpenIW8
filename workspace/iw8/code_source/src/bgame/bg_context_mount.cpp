@@ -452,29 +452,17 @@ BG_ContextMount_ApplyWeaponMovement_Angles
 */
 void BG_ContextMount_ApplyWeaponMovement_Angles(const WeaponMovementState *const ws, vec3_t *outMountAngles, vec3_t *inOutCombinedAngles)
 {
-  _RDI = inOutCombinedAngles;
-  _RSI = outMountAngles;
-  _RBX = ws;
+  float v6; 
+
   if ( !ws && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1909, ASSERT_TYPE_ASSERT, "(ws)", (const char *)&queryFormat, "ws") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0C4h]
-    vmovss  dword ptr [rsi], xmm0
-  }
-  _RSI->v[1] = _RBX->mountAngles.v[1];
-  _RSI->v[2] = _RBX->mountAngles.v[2];
-  __asm
-  {
-    vaddss  xmm0, xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm1, dword ptr [rsi+4]
-    vaddss  xmm0, xmm1, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vaddss  xmm0, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm0
-  }
+  v6 = ws->mountAngles.v[0];
+  outMountAngles->v[0] = v6;
+  outMountAngles->v[1] = ws->mountAngles.v[1];
+  outMountAngles->v[2] = ws->mountAngles.v[2];
+  inOutCombinedAngles->v[0] = v6 + inOutCombinedAngles->v[0];
+  inOutCombinedAngles->v[1] = outMountAngles->v[1] + inOutCombinedAngles->v[1];
+  inOutCombinedAngles->v[2] = outMountAngles->v[2] + inOutCombinedAngles->v[2];
 }
 
 /*
@@ -484,56 +472,31 @@ BG_ContextMount_ApplyWeaponMovement_Origin
 */
 void BG_ContextMount_ApplyWeaponMovement_Origin(const WeaponMovementParams *const params, const WeaponMovementState *const ws, vec3_t *inOutOrigin)
 {
+  const playerState_s *ps; 
   const BgWeaponMap *weaponMap; 
-  bool v10; 
-  bool v11; 
+  float mountFraction; 
   const Weapon *CurrentWeaponForPlayer; 
-  bool v15; 
+  bool v10; 
+  double MountViewmodelOffset; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RSI = inOutOrigin;
   if ( !params && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1918, ASSERT_TYPE_ASSERT, "(params)", (const char *)&queryFormat, "params") )
     __debugbreak();
   if ( !ws && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1919, ASSERT_TYPE_ASSERT, "(ws)", (const char *)&queryFormat, "ws") )
     __debugbreak();
-  _RDI = params->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1922, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = params->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1922, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   weaponMap = params->weaponMap;
-  v10 = weaponMap == NULL;
-  if ( !weaponMap )
+  if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1925, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    __debugbreak();
+  mountFraction = ps->mountState.mountFraction;
+  if ( mountFraction > 0.0 && !BG_HasDualFOVEquipped(weaponMap, ps) )
   {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1925, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
+    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+    v10 = BG_UsingAlternate(ps);
+    MountViewmodelOffset = BG_GetMountViewmodelOffset(CurrentWeaponForPlayer, v10);
+    inOutOrigin->v[0] = (float)(*(float *)&MountViewmodelOffset * (float)((float)((float)((float)((float)(mountFraction * 6.0) - 15.0) * mountFraction) + 10.0) * (float)((float)(mountFraction * mountFraction) * mountFraction))) + inOutOrigin->v[0];
   }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+4C0h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !v10 && !BG_HasDualFOVEquipped(weaponMap, _RDI) )
-  {
-    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, _RDI);
-    v15 = BG_UsingAlternate(_RDI);
-    *(double *)&_XMM0 = BG_GetMountViewmodelOffset(CurrentWeaponForPlayer, v15);
-    __asm
-    {
-      vmulss  xmm1, xmm6, cs:__real@40c00000
-      vsubss  xmm2, xmm1, cs:__real@41700000
-      vmulss  xmm3, xmm2, xmm6
-      vaddss  xmm4, xmm3, cs:__real@41200000
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm2, xmm1, xmm6
-      vmulss  xmm3, xmm4, xmm2
-      vmulss  xmm0, xmm0, xmm3
-      vaddss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -543,98 +506,57 @@ BG_ContextMount_BBPrintCancel
 */
 void BG_ContextMount_BBPrintCancel(int clientIndex, int startTime, int endTime, int type, const vec3_t *pos, const vec3_t *angles)
 {
-  const dvar_t *v12; 
-  __int64 v17; 
-  const dvar_t *v19; 
+  const dvar_t *v6; 
+  __int64 v9; 
+  const dvar_t *v11; 
   _BYTE *integer64; 
-  const char *v27; 
-  bool v28; 
-  __int64 v41; 
-  __int64 v42; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  const char *v19; 
+  bool v20; 
+  __int64 v21; 
+  __int64 v22; 
   DLogContext context; 
   char buffer[4096]; 
 
-  v12 = DVARBOOL_mount_bb_analytics;
-  _RSI = pos;
-  _RBP = angles;
-  v17 = type;
+  v6 = DVARBOOL_mount_bb_analytics;
+  v9 = type;
   if ( !DVARBOOL_mount_bb_analytics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_bb_analytics") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
   {
-    v19 = DVARSTR_package_type;
+    v11 = DVARSTR_package_type;
     if ( !DVARSTR_package_type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "package_type") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    integer64 = (_BYTE *)v19->current.integer64;
+    Dvar_CheckFrontendServerThread(v11);
+    integer64 = (_BYTE *)v11->current.integer64;
     if ( integer64 && *integer64 )
     {
-      __asm
+      if ( (unsigned int)v9 >= 4 )
       {
-        vmovaps [rsp+1258h+var_58], xmm6
-        vmovaps [rsp+1258h+var_68], xmm7
-        vmovaps [rsp+1258h+var_78], xmm8
-        vmovaps [rsp+1258h+var_88], xmm9
-        vmovaps [rsp+1258h+var_98], xmm10
-        vmovaps [rsp+1258h+var_A8], xmm11
-      }
-      if ( (unsigned int)v17 >= 4 )
-      {
-        LODWORD(v42) = 4;
-        LODWORD(v41) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2182, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( COUNT_MOUNT_TYPE )", "type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", v41, v42) )
+        LODWORD(v22) = 4;
+        LODWORD(v21) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2182, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( COUNT_MOUNT_TYPE )", "type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm10, dword ptr [rbp+8]
-        vmovss  xmm11, dword ptr [rbp+4]
-        vmovss  xmm9, dword ptr [rbp+0]
-        vmovss  xmm8, dword ptr [rsi+8]
-        vmovss  xmm7, dword ptr [rsi+4]
-        vmovss  xmm6, dword ptr [rsi]
-      }
-      v27 = bg_contextMountTypeNames_BB[v17];
+      v13 = angles->v[2];
+      v14 = angles->v[1];
+      v15 = angles->v[0];
+      v16 = pos->v[2];
+      v17 = pos->v[1];
+      v18 = pos->v[0];
+      v19 = bg_contextMountTypeNames_BB[v9];
       if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
       {
-        v28 = DLog_BeginEvent(&context, "mount");
+        v20 = DLog_BeginEvent(&context, "mount");
         context.autoEndEvent = 1;
-        if ( v28 && DLog_Int32(&context, "start_gametime", startTime) && DLog_Int32(&context, "end_gametime", endTime) && DLog_String(&context, "type", v27, 0) )
-        {
-          __asm { vmovaps xmm2, xmm6; value }
-          if ( DLog_Float32(&context, "x", *(float *)&_XMM2) )
-          {
-            __asm { vmovaps xmm2, xmm7; value }
-            if ( DLog_Float32(&context, "y", *(float *)&_XMM2) )
-            {
-              __asm { vmovaps xmm2, xmm8; value }
-              if ( DLog_Float32(&context, "z", *(float *)&_XMM2) )
-              {
-                __asm { vmovaps xmm2, xmm9; value }
-                if ( DLog_Float32(&context, "pitch", *(float *)&_XMM2) )
-                {
-                  __asm { vmovaps xmm2, xmm11; value }
-                  if ( DLog_Float32(&context, "yaw", *(float *)&_XMM2) )
-                  {
-                    __asm { vmovaps xmm2, xmm10; value }
-                    if ( DLog_Float32(&context, "roll", *(float *)&_XMM2) && DLog_Int32(&context, "clientindex", clientIndex) )
-                      DLog_RecordContext(&context);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      __asm
-      {
-        vmovaps xmm10, [rsp+1258h+var_98]
-        vmovaps xmm9, [rsp+1258h+var_88]
-        vmovaps xmm8, [rsp+1258h+var_78]
-        vmovaps xmm7, [rsp+1258h+var_68]
-        vmovaps xmm6, [rsp+1258h+var_58]
-        vmovaps xmm11, [rsp+1258h+var_A8]
+        if ( v20 && DLog_Int32(&context, "start_gametime", startTime) && DLog_Int32(&context, "end_gametime", endTime) && DLog_String(&context, "type", v19, 0) && DLog_Float32(&context, "x", v18) && DLog_Float32(&context, "y", v17) && DLog_Float32(&context, "z", v16) && DLog_Float32(&context, "pitch", v15) && DLog_Float32(&context, "yaw", v14) && DLog_Float32(&context, "roll", v13) && DLog_Int32(&context, "clientindex", clientIndex) )
+          DLog_RecordContext(&context);
       }
     }
   }
@@ -647,38 +569,27 @@ BG_ContextMount_CalcIconType
 */
 void BG_ContextMount_CalcIconType(const playerState_s *const ps, const BgWeaponMap *const weaponMap, const BgHandler *const handler, const ContextMountType mountType, const vec3_t *mountPoint, ContextMountIconType *outIconType)
 {
-  int v9; 
-  ContextMountIconType v14; 
+  int v8; 
+  ContextMountIconType v11; 
   vec3_t out; 
   tmat43_t<vec3_t> axis; 
 
-  v9 = 0;
+  v8 = 0;
   *outIconType = MOUNT_ICON_TYPE_NONE;
   AnglesToAxis(&ps->viewangles, (tmat33_t<vec3_t> *)&axis);
   BG_GetPlayerEyePosition(weaponMap, ps, &axis.m[3], handler);
   MatrixTransposeTransformVector43(mountPoint, &axis, &out);
-  __asm { vxorps  xmm1, xmm1, xmm1 }
   if ( mountType == MOUNT_TYPE_TOP )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+out+8]
-      vcomiss xmm0, xmm1
-    }
-    LOBYTE(v9) = mountType == MOUNT_TYPE_NONE;
-    v14 = v9 + 1;
+    LOBYTE(v8) = out.v[2] < 0.0;
+    v11 = v8 + 1;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+out+4]
-      vcomiss xmm0, xmm1
-    }
-    LOBYTE(v9) = mountType != MOUNT_TYPE_NONE;
-    v14 = v9 + 3;
+    LOBYTE(v8) = out.v[1] >= 0.0;
+    v11 = v8 + 3;
   }
-  *outIconType = v14;
+  *outIconType = v11;
 }
 
 /*
@@ -689,276 +600,195 @@ BG_ContextMount_CalcWorldmodelDerivedProperties
 void BG_ContextMount_CalcWorldmodelDerivedProperties(const BgHandler *handler, const int serverTimeMs, const vec3_t *playerOrigin, const vec3_t *playerAngles, const int entityNum, const Weapon *weapon, const bool isAlternate, const MountWorldmodelAbbreviatedProperties *properties, MountWorldmodelDerivedProperties *outDerivedProperties)
 {
   int startTime; 
-  bool v22; 
-  bool v23; 
   int endTime; 
-  int v25; 
-  int v26; 
+  int v15; 
+  double v16; 
   unsigned int EdgeIndex; 
-  const dvar_t *v28; 
-  const dvar_t *v71; 
-  __int64 v72; 
-  BgHandler_vtbl *v79; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  __int128 v25; 
+  float v31; 
+  const dvar_t *v34; 
+  __int64 v35; 
+  BgHandler_vtbl *v36; 
+  float v37; 
   void (__fastcall *DebugString)(BgHandler *, const vec3_t *, const vec4_t *, float, const char *, int); 
+  const dvar_t *v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float value; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
   int exitDurationMs; 
   int outEnterDurationMs[3]; 
   vec3_t relativePoint; 
+  vec3_t forward; 
   vec3_t outNormal; 
-  vec3_t v125; 
+  vec3_t v56; 
   vec3_t outBelow; 
-  int v127[4]; 
+  int v58[4]; 
   vec3_t right; 
   vec3_t outParallel; 
 
-  __asm { vmovaps [rsp+150h+var_60], xmm8 }
-  _R14 = properties;
-  _RDI = outDerivedProperties;
   startTime = properties->startTime;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  v22 = serverTimeMs < (unsigned int)startTime;
-  v23 = serverTimeMs == startTime;
-  if ( serverTimeMs < startTime || (endTime = properties->endTime, startTime <= endTime) && (v25 = maxMountExitDurationMs + endTime, v22 = v25 < (unsigned int)serverTimeMs, v23 = v25 == serverTimeMs, v25 < serverTimeMs) )
+  if ( serverTimeMs < startTime || (endTime = properties->endTime, startTime <= endTime) && maxMountExitDurationMs + endTime < serverTimeMs )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(v16) = 0;
   }
   else
   {
     BG_GetMountEnterExitDuration((const ContextMountType)properties->type, weapon, isAlternate, outEnterDurationMs, &exitDurationMs);
-    v26 = exitDurationMs;
+    v15 = exitDurationMs;
     if ( exitDurationMs > maxMountExitDurationMs )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1975, ASSERT_TYPE_ASSERT, "(exitDurationMs <= maxMountExitDurationMs)", "%s\n\tMount exit duration %i is longer than maximum expected exit duration %i.  Please update the maximum value in code.", "exitDurationMs <= maxMountExitDurationMs", exitDurationMs, maxMountExitDurationMs) )
         __debugbreak();
-      v26 = exitDurationMs;
+      v15 = exitDurationMs;
     }
-    *(double *)&_XMM0 = BG_ContextMount_CalculateMountFraction((const ContextMountType)properties->type, outEnterDurationMs[0], v26, serverTimeMs, properties->startTime, properties->endTime);
+    v16 = BG_ContextMount_CalculateMountFraction((const ContextMountType)properties->type, outEnterDurationMs[0], v15, serverTimeMs, properties->startTime, properties->endTime);
   }
-  __asm
+  outDerivedProperties->fraction = *(float *)&v16;
+  if ( *(float *)&v16 > 0.0 )
   {
-    vcomiss xmm0, xmm8
-    vmovss  dword ptr [rdi], xmm0
-  }
-  if ( v22 || v23 )
-  {
-    outDerivedProperties->angles = 0i64;
-    outDerivedProperties->yawVelocity = 0.0;
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps [rsp+150h+var_40], xmm6
-      vmovaps [rsp+150h+var_50], xmm7
-      vmovaps [rsp+150h+var_70], xmm9
-    }
     EdgeIndex = EdgeId::GetEdgeIndex(&properties->edge);
     if ( !MapEdgeList_IsLoaded(EdgeIndex) )
-      goto LABEL_28;
-    v28 = DCONST_DVARBOOL_mount_edge_fallback_debug_enable;
+      goto LABEL_32;
+    v18 = DCONST_DVARBOOL_mount_edge_fallback_debug_enable;
     if ( !DCONST_DVARBOOL_mount_edge_fallback_debug_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_edge_fallback_debug_enable") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v28);
-    if ( v28->current.enabled )
+    Dvar_CheckFrontendServerThread(v18);
+    if ( v18->current.enabled )
     {
-LABEL_28:
+LABEL_32:
       outDerivedProperties->fraction = 0.0;
-      AngleVectors(playerAngles, &v125, &right, NULL);
-      _RBX = DCONST_DVARVEC3_mount_edge_fallback_pivot_offset;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbp+50h+var_D0]
-        vmovss  xmm7, dword ptr [rbp+50h+var_D0+4]
-        vmovss  xmm8, dword ptr [rbp+50h+right]
-        vmovss  xmm9, dword ptr [rbp+50h+right+4]
-      }
+      AngleVectors(playerAngles, &v56, &right, NULL);
+      v39 = DCONST_DVARVEC3_mount_edge_fallback_pivot_offset;
+      v40 = v56.v[0];
+      v41 = v56.v[1];
+      v42 = right.v[0];
+      v43 = right.v[1];
       if ( !DCONST_DVARVEC3_mount_edge_fallback_pivot_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_edge_fallback_pivot_offset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+28h]
-        vmovss  xmm4, dword ptr [rbx+2Ch]
-        vmovss  xmm5, dword ptr [rbx+30h]
-        vmulss  xmm0, xmm6, xmm1
-        vaddss  xmm2, xmm0, dword ptr [r13+0]
-        vmovss  dword ptr [rdi+4], xmm2
-        vmulss  xmm1, xmm7, xmm1
-        vaddss  xmm0, xmm1, dword ptr [r13+4]
-        vmovss  dword ptr [rdi+8], xmm0
-      }
+      Dvar_CheckFrontendServerThread(v39);
+      value = v39->current.value;
+      v45 = v39->current.vector.v[1];
+      v46 = v39->current.vector.v[2];
+      v47 = (float)(v40 * value) + playerOrigin->v[0];
+      outDerivedProperties->pivotPoint.v[0] = v47;
+      outDerivedProperties->pivotPoint.v[1] = (float)(v41 * value) + playerOrigin->v[1];
       outDerivedProperties->pivotPoint.v[2] = playerOrigin->v[2];
-      __asm
-      {
-        vmulss  xmm0, xmm8, xmm4
-        vaddss  xmm3, xmm0, xmm2
-        vmovss  dword ptr [rdi+4], xmm3
-        vmulss  xmm0, xmm9, xmm4
-        vaddss  xmm1, xmm0, dword ptr [rdi+8]
-        vmovss  dword ptr [rdi+8], xmm1
-        vmovss  xmm1, dword ptr [rbp+50h+var_D0]
-      }
+      v48 = (float)(v42 * v45) + v47;
+      outDerivedProperties->pivotPoint.v[0] = v48;
+      outDerivedProperties->pivotPoint.v[1] = (float)(v43 * v45) + outDerivedProperties->pivotPoint.v[1];
+      v49 = v56.v[0];
       outDerivedProperties->pivotPoint.v[2] = outDerivedProperties->pivotPoint.v[2];
-      __asm { vmovss  dword ptr [rdi+4], xmm3 }
+      outDerivedProperties->pivotPoint.v[0] = v48;
       outDerivedProperties->pivotPoint.v[1] = outDerivedProperties->pivotPoint.v[1];
-      __asm
-      {
-        vaddss  xmm0, xmm5, dword ptr [rdi+0Ch]
-        vmovss  dword ptr [rdi+0Ch], xmm0
-        vmovss  xmm0, dword ptr [rbp+50h+var_D0+4]
-        vmovss  dword ptr [rdi+10h], xmm1
-        vmovss  xmm1, dword ptr [rbp+50h+var_D0+8]
-        vmovss  dword ptr [rdi+18h], xmm1
-        vmovss  dword ptr [rdi+14h], xmm0
-      }
+      outDerivedProperties->pivotPoint.v[2] = v46 + outDerivedProperties->pivotPoint.v[2];
+      v50 = v56.v[1];
+      outDerivedProperties->worldmodelForwardDir.v[0] = v49;
+      outDerivedProperties->worldmodelForwardDir.v[2] = v56.v[2];
+      outDerivedProperties->worldmodelForwardDir.v[1] = v50;
       outDerivedProperties->angles = 0i64;
     }
     else
     {
-      __asm { vmovss  xmm2, dword ptr [r14+18h]; fraction }
-      Edge_CalculateVectors(handler, properties->edge, *(float *)&_XMM2, properties->normalIndex, &outNormal, &outParallel, &outBelow);
-      __asm { vmovss  xmm2, dword ptr [r14+18h]; fraction }
-      Edge_CalculatePoint(handler, properties->edge, *(float *)&_XMM2, &outDerivedProperties->pivotPoint);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+150h+outNormal]
-        vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm2, dword ptr [rsp+150h+outNormal+4]
-        vxorps  xmm1, xmm0, xmm7
-        vxorps  xmm0, xmm2, xmm7
-        vmovss  dword ptr [rdi+10h], xmm1
-        vmovss  xmm1, dword ptr [rsp+150h+outNormal+8]
-        vxorps  xmm2, xmm1, xmm7
-        vmovss  dword ptr [rdi+18h], xmm2
-        vmovss  dword ptr [rdi+14h], xmm0
-      }
+      Edge_CalculateVectors(handler, properties->edge, properties->edgeFraction, properties->normalIndex, &outNormal, &outParallel, &outBelow);
+      Edge_CalculatePoint(handler, properties->edge, properties->edgeFraction, &outDerivedProperties->pivotPoint);
+      LODWORD(v19) = LODWORD(outNormal.v[1]) ^ _xmm;
+      outDerivedProperties->worldmodelForwardDir.v[0] = COERCE_FLOAT(LODWORD(outNormal.v[0]) ^ _xmm);
+      outDerivedProperties->worldmodelForwardDir.v[2] = COERCE_FLOAT(LODWORD(outNormal.v[2]) ^ _xmm);
+      outDerivedProperties->worldmodelForwardDir.v[1] = v19;
       ProjectPointOnPlane(&outDerivedProperties->worldmodelForwardDir, &worldUpDir, &outDerivedProperties->worldmodelForwardDir);
       if ( properties->type == MOUNT_TYPE_TOP || (unsigned int)(properties->type - 2) > 1 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+10h]
-          vmovss  xmm1, dword ptr [rdi+14h]
-          vmovss  dword ptr [rsp+150h+relativePoint], xmm0
-          vmovss  xmm0, dword ptr [rdi+18h]
-          vmovss  dword ptr [rsp+150h+relativePoint+8], xmm0
-          vmovss  dword ptr [rsp+150h+relativePoint+4], xmm1
-        }
+        v20 = outDerivedProperties->worldmodelForwardDir.v[1];
+        relativePoint.v[0] = outDerivedProperties->worldmodelForwardDir.v[0];
+        relativePoint.v[2] = outDerivedProperties->worldmodelForwardDir.v[2];
+        relativePoint.v[1] = v20;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+50h+var_C0]
-          vmovss  xmm2, dword ptr [rbp+50h+var_C0+4]
-          vxorps  xmm1, xmm0, xmm7
-          vxorps  xmm0, xmm2, xmm7
-          vmovss  dword ptr [rsp+150h+relativePoint], xmm1
-          vmovss  xmm1, dword ptr [rbp+50h+var_C0+8]
-          vxorps  xmm2, xmm1, xmm7
-          vmovss  dword ptr [rsp+150h+relativePoint+8], xmm2
-          vmovss  dword ptr [rsp+150h+relativePoint+4], xmm0
-        }
+        LODWORD(relativePoint.v[0]) = LODWORD(outBelow.v[0]) ^ _xmm;
+        LODWORD(relativePoint.v[2]) = LODWORD(outBelow.v[2]) ^ _xmm;
+        LODWORD(relativePoint.v[1]) = LODWORD(outBelow.v[1]) ^ _xmm;
       }
       ProjectPointOnPlane(&relativePoint, &worldUpDir, &relativePoint);
+      v21 = LODWORD(relativePoint.v[1]);
+      *(float *)&v21 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)(relativePoint.v[0] * relativePoint.v[0])) + (float)(relativePoint.v[2] * relativePoint.v[2]));
+      _XMM6 = v21;
       __asm
       {
-        vmovss  xmm5, dword ptr [rsp+150h+relativePoint+4]
-        vmovss  xmm3, dword ptr [rsp+150h+relativePoint]
-        vmovss  xmm4, dword ptr [rsp+150h+relativePoint+8]
-        vmovss  xmm9, cs:__real@3f800000
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm6, xmm0, xmm0
         vcmpless xmm0, xmm6, cs:__real@80000000
         vblendvps xmm0, xmm6, xmm9, xmm0
-        vdivss  xmm2, xmm9, xmm0
-        vmulss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [rsp+150h+relativePoint], xmm0
       }
-      _RBX = playerAngles;
-      __asm
+      relativePoint.v[0] = relativePoint.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      relativePoint.v[2] = relativePoint.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      relativePoint.v[1] = relativePoint.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      if ( *(float *)&v21 > 0.0 )
       {
-        vcomiss xmm6, xmm8
-        vmulss  xmm0, xmm4, xmm2
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rsp+150h+relativePoint+8], xmm0
-        vmovss  dword ptr [rsp+150h+relativePoint+4], xmm1
+        AngleVectors(playerAngles, &forward, NULL, NULL);
+        ProjectPointOnPlane(&forward, &worldUpDir, &forward);
+        v25 = LODWORD(forward.v[0]);
+        *(float *)&v25 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(forward.v[1] * forward.v[1])) + (float)(forward.v[2] * forward.v[2]));
+        _XMM3 = v25;
+        __asm
+        {
+          vcmpless xmm0, xmm3, cs:__real@80000000
+          vblendvps xmm0, xmm3, xmm9, xmm0
+        }
+        forward.v[0] = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+        forward.v[2] = forward.v[2] * (float)(1.0 / *(float *)&_XMM0);
+        forward.v[1] = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+        *(double *)&_XMM0 = SignedAngleBetween(&forward, &relativePoint, &worldUpDir);
+        *(float *)&v25 = *(float *)&_XMM0 * 0.0027777778;
+        _XMM0 = 0i64;
+        __asm { vroundss xmm4, xmm0, xmm3, 1 }
+        v31 = (float)(*(float *)&v25 - *(float *)&_XMM4) * 360.0;
+        outDerivedProperties->angles.v[1] = v31;
+        if ( properties->type == MOUNT_TYPE_RIGHT )
+          outDerivedProperties->angles.v[1] = COERCE_FLOAT(LODWORD(v31) ^ _xmm);
       }
-      outDerivedProperties->angles.v[1] = 0.0;
-      __asm
+      else
       {
-        vmovss  xmm0, dword ptr [rbx]
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rdi+1Ch], xmm1
+        outDerivedProperties->angles.v[1] = 0.0;
       }
+      _XMM1 = 0i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 1 }
+      outDerivedProperties->angles.v[0] = (float)((float)(playerAngles->v[0] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
       outDerivedProperties->yawVelocity = 0.0;
-      v71 = DCONST_DVARINT_mount_debug;
+      v34 = DCONST_DVARINT_mount_debug;
       if ( !DCONST_DVARINT_mount_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v71);
-      if ( v71->current.integer == 3 && !entityNum && handler->IsClient((BgHandler *)handler) )
+      Dvar_CheckFrontendServerThread(v34);
+      if ( v34->current.integer == 3 && !entityNum && handler->IsClient((BgHandler *)handler) )
       {
-        __asm { vmovaps xmm2, xmm9 }
-        ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, int, _DWORD))handler->DebugSphere)(handler, &outDerivedProperties->pivotPoint, v72, &colorRed, 1, 0);
-        __asm
-        {
-          vmovss  xmm4, cs:__real@41400000
-          vmovss  xmm1, dword ptr [rdi+4]
-          vmulss  xmm3, xmm4, dword ptr [rsp+150h+outNormal+4]
-          vmulss  xmm2, xmm4, dword ptr [rsp+150h+outNormal]
-          vmovss  xmm0, dword ptr [rsp+150h+outNormal+8]
-        }
-        v79 = handler->__vftable;
-        __asm
-        {
-          vsubss  xmm2, xmm1, xmm2
-          vmovss  xmm1, dword ptr [rdi+8]
-          vmovss  [rbp+50h+var_B0], xmm2
-          vsubss  xmm2, xmm1, xmm3
-          vxorps  xmm1, xmm0, xmm7
-          vmovss  [rbp+50h+var_AC], xmm2
-          vmulss  xmm2, xmm1, xmm4
-          vaddss  xmm3, xmm2, dword ptr [rdi+0Ch]
-          vmovss  [rbp+50h+var_A8], xmm3
-        }
-        v79->DebugLine((BgHandler *)handler, &outDerivedProperties->pivotPoint, (const vec3_t *)v127, &colorRed, 1, 0);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rdi+20h]
-          vmovss  xmm2, dword ptr [rdi+1Ch]
-          vmovss  xmm1, dword ptr [r14+20h]
-        }
+        ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, int, _DWORD))handler->DebugSphere)(handler, &outDerivedProperties->pivotPoint, v35, &colorRed, 1, 0);
+        v36 = handler->__vftable;
+        v37 = outDerivedProperties->pivotPoint.v[1];
+        *(float *)v58 = outDerivedProperties->pivotPoint.v[0] - (float)(12.0 * outNormal.v[0]);
+        *(float *)&v58[1] = v37 - (float)(12.0 * outNormal.v[1]);
+        *(float *)&v58[2] = (float)(COERCE_FLOAT(LODWORD(outNormal.v[2]) ^ _xmm) * 12.0) + outDerivedProperties->pivotPoint.v[2];
+        v36->DebugLine((BgHandler *)handler, &outDerivedProperties->pivotPoint, (const vec3_t *)v58, &colorRed, 1, 0);
         DebugString = handler->DebugString;
-        __asm
-        {
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-        }
-        j_va("h|p|y: {%.2f, %.1f, %.1f}", _RDX, _R8, _R9);
-        __asm { vmovss  xmm3, cs:scale }
+        j_va("h|p|y: {%.2f, %.1f, %.1f}", properties->pivotHeight, outDerivedProperties->angles.v[0], outDerivedProperties->angles.v[1]);
         ((void (__fastcall *)(const BgHandler *, vec3_t *, vec4_t *))DebugString)(handler, &outDerivedProperties->pivotPoint, &colorRed);
       }
     }
-    __asm
-    {
-      vmovaps xmm7, [rsp+150h+var_50]
-      vmovaps xmm6, [rsp+150h+var_40]
-      vmovaps xmm9, [rsp+150h+var_70]
-    }
   }
-  __asm { vmovaps xmm8, [rsp+150h+var_60] }
+  else
+  {
+    outDerivedProperties->angles = 0i64;
+    outDerivedProperties->yawVelocity = 0.0;
+  }
 }
 
 /*
@@ -968,37 +798,20 @@ BG_ContextMount_CalculateMountFraction
 */
 double BG_ContextMount_CalculateMountFraction(const ContextMountType mountType, const int enterDurationMs, const int exitDurationMs, const int serverTime, const int mountStartTime, const int mountEndTime)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0; value }
+  double v8; 
+  int v10; 
+
+  LODWORD(v8) = 0;
   if ( mountStartTime )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm0, xmm0, edx
-      vcvtsi2ss xmm1, xmm1, eax
-      vdivss  xmm0, xmm1, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0 }
+    v10 = serverTime;
+    if ( mountStartTime < mountEndTime )
+      v10 = mountEndTime;
+    v8 = I_fclamp((float)(v10 - mountStartTime) / (float)enterDurationMs, 0.0, 1.0);
     if ( mountEndTime >= mountStartTime )
-    {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm3, xmm3, xmm3
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vcvtsi2ss xmm3, xmm3, edi
-        vdivss  xmm3, xmm3, xmm0
-        vsubss  xmm0, xmm1, xmm3; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    }
+      v8 = I_fclamp(*(float *)&v8 - (float)((float)(serverTime - mountEndTime) / (float)exitDurationMs), 0.0, 1.0);
   }
-  return BG_ContextMount_QuantizeFloat01Byte(*(float *)&_XMM0);
+  return BG_ContextMount_QuantizeFloat01Byte(*(float *)&v8);
 }
 
 /*
@@ -1008,143 +821,68 @@ BG_ContextMount_CalculateWeaponMovement
 */
 void BG_ContextMount_CalculateWeaponMovement(const WeaponMovementParams *const params, WeaponMovementState *const inOutWs)
 {
+  const playerState_s *ps; 
   const BgWeaponMap *weaponMap; 
-  int startTime; 
+  float mountFraction; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v8; 
   const Weapon *CurrentWeaponForPlayer; 
-  bool v27; 
-  char v32; 
-  char v33; 
+  bool v10; 
+  float v11; 
+  double v13; 
+  float v14; 
   float outStartFrac; 
   float outEndFrac; 
   float outRollDeg; 
 
-  __asm { vmovaps [rsp+88h+var_48], xmm7 }
-  _R14 = inOutWs;
-  _RSI = params;
   if ( !params && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1858, ASSERT_TYPE_ASSERT, "(params)", (const char *)&queryFormat, "params") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1859, ASSERT_TYPE_ASSERT, "(inOutWs)", (const char *)&queryFormat, "inOutWs") )
+  if ( !inOutWs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1859, ASSERT_TYPE_ASSERT, "(inOutWs)", (const char *)&queryFormat, "inOutWs") )
     __debugbreak();
-  _RDI = _RSI->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1862, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = params->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1862, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  weaponMap = _RSI->weaponMap;
+  weaponMap = params->weaponMap;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1865, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RBX = &_R14->mountAngles;
-  *(_QWORD *)_R14->mountAngles.v = 0i64;
-  _R14->mountAngles.v[2] = 0.0;
-  __asm { vmovss  xmm7, dword ptr [rdi+4C0h] }
-  if ( _RDI->mountState.surface.type != MOUNT_TYPE_TOP || BG_HasDualFOVEquipped(weaponMap, _RDI) )
+  *(_QWORD *)inOutWs->mountAngles.v = 0i64;
+  inOutWs->mountAngles.v[2] = 0.0;
+  mountFraction = ps->mountState.mountFraction;
+  if ( ps->mountState.surface.type != MOUNT_TYPE_TOP || BG_HasDualFOVEquipped(weaponMap, ps) )
   {
-    if ( (unsigned int)(_RDI->mountState.surface.type - 2) <= 1 )
+    if ( (unsigned int)(ps->mountState.surface.type - 2) <= 1 )
     {
-      CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, _RDI);
-      v27 = BG_UsingAlternate(_RDI);
-      BG_GetMountSideRoll(CurrentWeaponForPlayer, v27, &outRollDeg, &outStartFrac, &outEndFrac);
-      __asm
-      {
-        vmovss  xmm2, [rsp+88h+outStartFrac]
-        vmovss  xmm0, [rsp+88h+outEndFrac]
-        vsubss  xmm3, xmm0, xmm2
-        vcvtss2sd xmm1, xmm3, xmm3
-        vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-      }
-      if ( v32 | v33 )
-      {
-        __asm { vxorps  xmm0, xmm0, xmm0; val }
-      }
+      CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+      v10 = BG_UsingAlternate(ps);
+      BG_GetMountSideRoll(CurrentWeaponForPlayer, v10, &outRollDeg, &outStartFrac, &outEndFrac);
+      if ( (float)(outEndFrac - outStartFrac) <= 0.000001 )
+        v11 = 0.0;
       else
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm2
-          vdivss  xmm0, xmm0, xmm3
-        }
-      }
+        v11 = (float)(mountFraction - outStartFrac) / (float)(outEndFrac - outStartFrac);
+      _XMM6 = LODWORD(FLOAT_1_0);
+      v13 = I_fclamp(v11, 0.0, 1.0);
+      v14 = (float)((float)((float)((float)(*(float *)&v13 * 6.0) - 15.0) * *(float *)&v13) + 10.0) * (float)((float)(*(float *)&v13 * *(float *)&v13) * *(float *)&v13);
+      _XMM0 = (unsigned int)ps->mountState.surface.type;
       __asm
       {
-        vmovss  xmm6, cs:__real@3f800000
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@40c00000
-        vsubss  xmm2, xmm1, cs:__real@41700000
-        vmulss  xmm3, xmm2, xmm0
-        vaddss  xmm4, xmm3, cs:__real@41200000
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm0
-        vmulss  xmm3, xmm4, xmm0
-        vmovd   xmm0, dword ptr [rdi+484h]
-      }
-      _EAX = 2;
-      __asm
-      {
-        vmovd   xmm1, eax
         vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@bf800000
         vblendvps xmm0, xmm6, xmm1, xmm2
-        vmulss  xmm1, xmm0, [rsp+88h+outRollDeg]
-        vmulss  xmm2, xmm3, xmm1
-        vmovss  dword ptr [r14+0CCh], xmm2
       }
+      inOutWs->mountAngles.v[2] = v14 * (float)(*(float *)&_XMM0 * outRollDeg);
     }
+  }
+  else if ( ps->mountState.endTime >= ps->mountState.startTime || mountFraction <= 0.0 )
+  {
+    v8 = DCONST_DVARFLT_mount_top_enter_pitch_blend_out_rate;
+    if ( !DCONST_DVARFLT_mount_top_enter_pitch_blend_out_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_top_enter_pitch_blend_out_rate") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v8);
+    DiffTrackAngles(&vec3_origin, &inOutWs->mountAngles, v8->current.value, params->updateTime, &inOutWs->mountAngles);
   }
   else
   {
-    startTime = _RDI->mountState.startTime;
-    if ( _RDI->mountState.endTime >= startTime )
-      goto LABEL_18;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm7, xmm0
-    }
-    if ( _RDI->mountState.endTime <= (unsigned int)startTime )
-    {
-LABEL_18:
-      _RDI = DCONST_DVARFLT_mount_top_enter_pitch_blend_out_rate;
-      if ( !DCONST_DVARFLT_mount_top_enter_pitch_blend_out_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_top_enter_pitch_blend_out_rate") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+4]; deltaTime
-        vmovss  xmm2, dword ptr [rdi+28h]; rate
-      }
-      DiffTrackAngles(&vec3_origin, &_R14->mountAngles, *(float *)&_XMM2, *(float *)&_XMM3, &_R14->mountAngles);
-    }
-    else
-    {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_mount_top_enter_pitch_delta, "mount_top_enter_pitch_delta");
-      __asm
-      {
-        vmulss  xmm1, xmm7, cs:__real@4196cbe4
-        vsubss  xmm2, xmm1, cs:__real@423c7edd
-        vmulss  xmm3, xmm2, xmm7
-        vaddss  xmm4, xmm3, cs:__real@41fb53d2
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm2, xmm1, xmm7
-        vmovaps xmm6, xmm0
-        vmulss  xmm0, xmm4, xmm2; X
-      }
-      sinf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm6, xmm0
-        vaddss  xmm1, xmm1, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_mount_top_enter_pitch_delta, "mount_top_enter_pitch_delta");
+    inOutWs->mountAngles.v[0] = (float)(*(float *)&Float_Internal_DebugName * sinf_0((float)((float)((float)((float)(mountFraction * 18.849556) - 47.12389) * mountFraction) + 31.415928) * (float)((float)(mountFraction * mountFraction) * mountFraction))) + inOutWs->mountAngles.v[0];
   }
 }
 
@@ -1165,118 +903,73 @@ BG_ContextMount_Cancel
 */
 void BG_ContextMount_Cancel(BgWeaponMap *const weaponMap, playerState_s *const ps, const int gameTime, const bool cancelToLowerStance, const BgHandler *handler, const char *debugString, const bool putMountOnCooldown)
 {
+  __int128 v7; 
+  __int128 v8; 
   __int64 startTime; 
   BgHandler_vtbl *v14; 
   __int64 clientNum; 
-  int type; 
-  entity_event_t v34; 
-  int v36; 
-  int v39; 
-  char v56; 
-  unsigned int v57; 
-  const dvar_t *v58; 
+  ContextMountType type; 
+  float v17; 
+  float v18; 
+  float v19; 
+  double v20; 
+  entity_event_t v21; 
+  int v22; 
+  double v23; 
+  int v24; 
+  float v25; 
+  ContextMountType v26; 
+  const dvar_t *v27; 
   vec3_t outUp; 
   vec3_t outOrigin; 
-  WorldUpReferenceFrame v62; 
+  WorldUpReferenceFrame v30; 
+  __int128 v31; 
+  __int128 v32; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 472, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  startTime = (unsigned int)_RBX->mountState.startTime;
-  if ( (int)startTime > _RBX->mountState.endTime )
+  startTime = (unsigned int)ps->mountState.startTime;
+  if ( (int)startTime > ps->mountState.endTime )
   {
     v14 = handler->__vftable;
-    clientNum = (unsigned int)_RBX->clientNum;
-    type = _RBX->mountState.surface.type;
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_48], xmm6
-      vmovaps [rsp+0E8h+var_58], xmm7
-    }
-    v14->OnMountCancel((BgHandler *)handler, clientNum, startTime, gameTime, type, &_RBX->mountState.eyePoint, &_RBX->viewangles);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v62, _RBX, handler);
-    WorldUpReferenceFrame::GetUpVector(&v62, &outUp);
-    BG_GetPlayerEyePosition(weaponMap, _RBX, &outOrigin, handler);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+0E8h+outUp+8]
-      vmovss  xmm5, dword ptr [rsp+0E8h+outUp+4]
-      vmulss  xmm1, xmm5, dword ptr [rbx+34h]
-      vmovss  xmm7, dword ptr [rsp+0E8h+outUp]
-      vmulss  xmm0, xmm5, dword ptr [rsp+0E8h+outOrigin+4]
-      vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+outOrigin]
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm6, dword ptr [rsp+0E8h+outOrigin+8]
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rbx+30h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, dword ptr [rbx+38h]
-      vmovss  xmm6, cs:__real@42b40000
-    }
-    _RBX->mountState.flags |= 8u;
-    __asm
-    {
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  xmm1, cs:__real@c2b40000; min
-      vsubss  xmm0, xmm4, xmm0; val
-      vmovaps xmm2, xmm6; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    v34 = EV_STANCE_FORCE_CROUCH;
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    v36 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xBu);
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(v36, *(float *)&_XMM1, 0xBu);
-    __asm
-    {
-      vmovaps xmm7, [rsp+0E8h+var_58]
-      vmovss  dword ptr [rbx+4F0h], xmm0
-    }
-    _RBX->viewHeightLerpTime = 0;
+    clientNum = (unsigned int)ps->clientNum;
+    type = ps->mountState.surface.type;
+    v32 = v7;
+    v31 = v8;
+    v14->OnMountCancel((BgHandler *)handler, clientNum, startTime, gameTime, type, &ps->mountState.eyePoint, &ps->viewangles);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v30, ps, handler);
+    WorldUpReferenceFrame::GetUpVector(&v30, &outUp);
+    BG_GetPlayerEyePosition(weaponMap, ps, &outOrigin, handler);
+    v17 = (float)((float)(outUp.v[0] * outOrigin.v[0]) + (float)(outUp.v[1] * outOrigin.v[1])) + (float)(outUp.v[2] * outOrigin.v[2]);
+    v18 = (float)(outUp.v[1] * ps->origin.v[1]) + (float)(outUp.v[0] * ps->origin.v[0]);
+    v19 = outUp.v[2] * ps->origin.v[2];
+    ps->mountState.flags |= 8u;
+    v20 = I_fclamp(v17 - (float)(v18 + v19), -90.0, 90.0);
+    v21 = EV_STANCE_FORCE_CROUCH;
+    v22 = MSG_PackSignedFloat(*(float *)&v20, 90.0, 0xBu);
+    v23 = MSG_UnpackSignedFloat(v22, 90.0, 0xBu);
+    ps->mountState.mountViewHeight = *(float *)&v23;
+    ps->viewHeightLerpTime = 0;
     if ( putMountOnCooldown )
-      _RBX->mountState.flags |= 2u;
+      ps->mountState.flags |= 2u;
     if ( cancelToLowerStance )
     {
-      v39 = _RBX->mountState.startTime;
-      if ( (!v39 || v39 <= _RBX->mountState.endTime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1704, ASSERT_TYPE_ASSERT, "(BG_ContextMount_IsActive( ps ))", "%s\n\tContext mount must be active when invoking GetViewHeightTarget()", "BG_ContextMount_IsActive( ps )") )
+      v24 = ps->mountState.startTime;
+      if ( (!v24 || v24 <= ps->mountState.endTime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1704, ASSERT_TYPE_ASSERT, "(BG_ContextMount_IsActive( ps ))", "%s\n\tContext mount must be active when invoking GetViewHeightTarget()", "BG_ContextMount_IsActive( ps )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+0E8h+outUp+4]
-        vmulss  xmm1, xmm6, dword ptr [r13+4]
-        vmovss  xmm4, dword ptr [rsp+0E8h+outUp]
-        vmulss  xmm0, xmm4, dword ptr [r13+0]
-        vmovss  xmm5, dword ptr [rsp+0E8h+outUp+8]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rbx+34h]
-        vmulss  xmm0, xmm5, dword ptr [r13+8]
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm4, dword ptr [rbx+30h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rbx+38h]
-        vaddss  xmm0, xmm2, xmm1
-        vsubss  xmm6, xmm3, xmm0
-      }
-      BG_GetSuitDef(_RBX->suitIndex);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+204h]
-        vcomiss xmm0, xmm6
-      }
-      if ( !v56 )
-        v34 = EV_STANCE_FORCE_PRONE;
-      BG_AddPredictableEventToPlayerstate(v34, 0, gameTime, weaponMap, _RBX);
+      v25 = (float)((float)((float)(outUp.v[1] * ps->mountState.eyePoint.v[1]) + (float)(outUp.v[0] * ps->mountState.eyePoint.v[0])) + (float)(outUp.v[2] * ps->mountState.eyePoint.v[2])) - (float)((float)((float)(outUp.v[1] * ps->origin.v[1]) + (float)(outUp.v[0] * ps->origin.v[0])) + (float)(outUp.v[2] * ps->origin.v[2]));
+      if ( (float)BG_GetSuitDef(ps->suitIndex)->viewheight_crouch >= v25 )
+        v21 = EV_STANCE_FORCE_PRONE;
+      BG_AddPredictableEventToPlayerstate(v21, 0, gameTime, weaponMap, ps);
     }
-    v57 = _RBX->mountState.surface.type;
-    _RBX->mountState.endTime = gameTime;
-    BG_AddPredictableEventToPlayerstate(EV_MOUNT_EXIT, v57, gameTime, weaponMap, _RBX);
-    v58 = DCONST_DVARINT_mount_debug;
-    __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
+    v26 = ps->mountState.surface.type;
+    ps->mountState.endTime = gameTime;
+    BG_AddPredictableEventToPlayerstate(EV_MOUNT_EXIT, v26, gameTime, weaponMap, ps);
+    v27 = DCONST_DVARINT_mount_debug;
     if ( !DCONST_DVARINT_mount_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v58);
-    if ( v58->current.integer )
+    Dvar_CheckFrontendServerThread(v27);
+    if ( v27->current.integer )
     {
       if ( handler->IsServer((BgHandler *)handler) )
         Com_Printf(17, "Context Mount Cancelled: %s\n", debugString);
@@ -1291,15 +984,17 @@ BG_ContextMount_DrawLegsModel
 */
 char BG_ContextMount_DrawLegsModel(const playerState_s *const ps)
 {
-  _RBX = ps;
+  const dvar_t *v2; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2145, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+4C0h]
-  }
-  return 1;
+  if ( ps->mountState.mountFraction <= 0.0 )
+    return 1;
+  v2 = DCONST_DVARBOOL_mount_draw_legs;
+  if ( !DCONST_DVARBOOL_mount_draw_legs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_draw_legs") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v2);
+  return v2->current.enabled;
 }
 
 /*
@@ -1309,44 +1004,20 @@ BG_ContextMount_FindMountEdge
 */
 __int64 BG_ContextMount_FindMountEdge(const BgHandler *const handler, playerState_s *const ps, const tmat33_t<vec3_t> *worldBasis, const Weapon *weapon, MountPlayerProperties *outPlayerProperties, MountSurfaceDetailedProperties *outMountProperties)
 {
-  _RSI = weapon;
-  _R14 = ps;
+  float viewHeightCurrent; 
+
   Sys_ProfBeginNamedEvent(0xFF808080, "BG_ContextMount_FindMountEdge");
-  _RDI = outPlayerProperties;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r14+30h]
-    vmovsd  qword ptr [rdi], xmm0
-  }
-  outPlayerProperties->origin.v[2] = _R14->origin.v[2];
+  outPlayerProperties->origin = ps->origin;
   MatrixCopy33(worldBasis, &outPlayerProperties->worldBasis);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14+1E8h]
-    vmulss  xmm0, xmm2, dword ptr [rdi+54h]
-    vaddss  xmm1, xmm0, dword ptr [r14+30h]
-    vmovss  dword ptr [rdi+0Ch], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+58h]
-    vaddss  xmm1, xmm0, dword ptr [r14+34h]
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+5Ch]
-    vaddss  xmm1, xmm0, dword ptr [r14+38h]
-    vmovss  dword ptr [rdi+14h], xmm1
-  }
-  AnglesToAxis(&_R14->viewangles, &outPlayerProperties->eyeBasis);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rdi+60h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdi+80h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+30h]
-    vmovsd  qword ptr [rdi+90h], xmm0
-  }
-  *(_DWORD *)&outPlayerProperties->weapon.weaponCamo = *(_DWORD *)&_RSI->weaponCamo;
-  outPlayerProperties->isAlternate = BG_UsingAlternate(_R14);
+  viewHeightCurrent = ps->viewHeightCurrent;
+  outPlayerProperties->eyeOrigin.v[0] = (float)(viewHeightCurrent * outPlayerProperties->worldBasis.m[2].v[0]) + ps->origin.v[0];
+  outPlayerProperties->eyeOrigin.v[1] = (float)(viewHeightCurrent * outPlayerProperties->worldBasis.m[2].v[1]) + ps->origin.v[1];
+  outPlayerProperties->eyeOrigin.v[2] = (float)(viewHeightCurrent * outPlayerProperties->worldBasis.m[2].v[2]) + ps->origin.v[2];
+  AnglesToAxis(&ps->viewangles, &outPlayerProperties->eyeBasis);
+  outPlayerProperties->weapon = *weapon;
+  outPlayerProperties->isAlternate = BG_UsingAlternate(ps);
   outPlayerProperties->handler = handler;
-  outPlayerProperties->ps = _R14;
+  outPlayerProperties->ps = ps;
   LOBYTE(worldBasis) = PM_ContextMount_FindMountEdge_Initial(outPlayerProperties, outMountProperties);
   Sys_ProfEndNamedEvent();
   return (unsigned __int8)worldBasis;
@@ -1359,205 +1030,82 @@ BG_ContextMount_GetEyePoint
 */
 void BG_ContextMount_GetEyePoint(const BgHandler *const handler, const ContextMountState *r_mountState, const vec3_t *playerUp, const Weapon *r_weapon, const bool isAlternate, vec3_t *inOutEyePos)
 {
-  const ContextMountState *v16; 
-  char v18; 
-  bool v19; 
-  bool v23; 
-  const dvar_t *v24; 
-  bool MoverTransform; 
-  bool v26; 
-  __int64 v81; 
+  float mountFraction; 
+  bool v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  double Float_Internal_DebugName; 
   int outEnterDurationMs; 
   int outExitDurationMs; 
   vec3_t out; 
   tmat43_t<vec3_t> outMoverToWorld; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
+  mountFraction = r_mountState->mountFraction;
+  if ( mountFraction > 0.0 )
   {
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovss  xmm7, dword ptr [rdx+3Ch]
-  }
-  _RBX = inOutEyePos;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm7, xmm9
-  }
-  v16 = r_mountState;
-  if ( (unsigned __int64)&v81 != _security_cookie )
-  {
-    v18 = 0;
-    v19 = (r_mountState->flags & 0x40) == 0;
-    __asm
+    v11 = (r_mountState->flags & 0x40) == 0;
+    v12 = r_mountState->eyePoint.v[1];
+    out.v[0] = r_mountState->eyePoint.v[0];
+    out.v[2] = r_mountState->eyePoint.v[2];
+    out.v[1] = v12;
+    if ( !v11 && Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) )
     {
-      vmovss  xmm0, dword ptr [rdx+40h]
-      vmovss  xmm1, dword ptr [rdx+44h]
-      vmovss  dword ptr [rsp+108h+out], xmm0
-      vmovss  xmm0, dword ptr [rdx+48h]
-      vmovss  dword ptr [rsp+108h+out+8], xmm0
-      vmovss  dword ptr [rsp+108h+out+4], xmm1
-      vmovaps xmmword ptr [r11-58h], xmm8
-    }
-    if ( !v19 )
-    {
-      v23 = Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100);
-      v18 = 0;
-      v19 = !v23;
-      if ( v23 )
-      {
-        v24 = DVARBOOL_killswitch_mount_mover_fix_enabled;
-        if ( !DVARBOOL_killswitch_mount_mover_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_mount_mover_fix_enabled") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v24);
-        v18 = 0;
-        v19 = !v24->current.enabled;
-        if ( v24->current.enabled )
-        {
-          MoverTransform = PM_ContextMount_GetMoverTransform(handler, v16->moverId, &outMoverToWorld);
-          v18 = 0;
-          v19 = !MoverTransform;
-          if ( MoverTransform )
-            MatrixTransformVector43(&v16->eyePointMover, &outMoverToWorld, &out);
-        }
-      }
-    }
-    __asm { vcomiss xmm7, xmm9 }
-    if ( v18 | v19 )
-    {
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1655, ASSERT_TYPE_ASSERT, "(0.0f < mountFraction)", (const char *)&queryFormat, "0.0f < mountFraction");
-      v18 = 0;
-      if ( v26 )
+      v13 = DVARBOOL_killswitch_mount_mover_fix_enabled;
+      if ( !DVARBOOL_killswitch_mount_mover_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_mount_mover_fix_enabled") )
         __debugbreak();
+      Dvar_CheckFrontendServerThread(v13);
+      if ( v13->current.enabled && PM_ContextMount_GetMoverTransform(handler, r_mountState->moverId, &outMoverToWorld) )
+        MatrixTransformVector43(&r_mountState->eyePointMover, &outMoverToWorld, &out);
     }
-    __asm
+    if ( mountFraction <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1655, ASSERT_TYPE_ASSERT, "(0.0f < mountFraction)", (const char *)&queryFormat, "0.0f < mountFraction") )
+      __debugbreak();
+    if ( mountFraction < 1.0 )
     {
-      vmovss  xmm8, cs:__real@3f800000
-      vcomiss xmm7, xmm8
-    }
-    if ( v18 )
-    {
-      __asm
+      v15 = (float)((float)((float)((float)(mountFraction * 6.0) - 15.0) * mountFraction) + 10.0) * (float)((float)(mountFraction * mountFraction) * mountFraction);
+      v16 = (float)(out.v[1] - inOutEyePos->v[1]) * v15;
+      v17 = out.v[2] - inOutEyePos->v[2];
+      inOutEyePos->v[0] = (float)((float)(out.v[0] - inOutEyePos->v[0]) * v15) + inOutEyePos->v[0];
+      inOutEyePos->v[1] = v16 + inOutEyePos->v[1];
+      inOutEyePos->v[2] = (float)(v17 * v15) + inOutEyePos->v[2];
+      if ( r_mountState->surface.type == MOUNT_TYPE_TOP )
       {
-        vmulss  xmm0, xmm7, cs:__real@40c00000
-        vsubss  xmm1, xmm0, cs:__real@41700000
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm3, xmm2, cs:__real@41200000
-        vmulss  xmm0, xmm7, xmm7
-        vmulss  xmm1, xmm0, xmm7
-        vmovss  xmm0, dword ptr [rsp+108h+out]
-        vmovaps [rsp+108h+var_38], xmm6
-        vmulss  xmm6, xmm3, xmm1
-        vsubss  xmm1, xmm0, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rsp+108h+out+4]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rbx+4]
-        vaddss  xmm3, xmm2, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rsp+108h+out+8]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rbx+4]
-        vmovss  dword ptr [rbx+4], xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx+8], xmm3
-      }
-      if ( v16->surface.type == MOUNT_TYPE_TOP )
-      {
-        if ( v16->endTime >= v16->startTime )
+        if ( r_mountState->endTime >= r_mountState->startTime )
         {
-          __asm { vmovaps [rsp+108h+var_78], xmm10 }
           BG_GetMountEnterExitDuration(MOUNT_TYPE_TOP, r_weapon, isAlternate, &outEnterDurationMs, &outExitDurationMs);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, [rsp+108h+outEnterDurationMs]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vdivss  xmm0, xmm0, xmm1; val
-            vxorps  xmm1, xmm1, xmm1; min
-            vmovaps xmm2, xmm8; max
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovaps xmm10, xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_top_enter_up_delta, "mount_top_enter_up_delta");
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmulss  xmm0, xmm10, cs:__real@40490fdb; X
-          }
-          sinf_0(*(float *)&_XMM0);
-          __asm
-          {
-            vcomiss xmm10, xmm9
-            vmulss  xmm6, xmm6, xmm0
-            vmovaps xmm0, xmm8
-          }
-          if ( !(v18 | v19) )
-          {
-            __asm
-            {
-              vsubss  xmm0, xmm10, xmm7
-              vdivss  xmm0, xmm0, xmm10; val
-              vmovaps xmm2, xmm8; max
-              vxorps  xmm1, xmm1, xmm1; min
-            }
-            I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          }
-          __asm
-          {
-            vmovaps xmm10, [rsp+108h+var_78]
-            vsubss  xmm0, xmm8, xmm0
-            vmulss  xmm2, xmm0, xmm6
-          }
+          v20 = (float)(r_mountState->endTime - r_mountState->startTime) / (float)outEnterDurationMs;
+          I_fclamp(v20, 0.0, 1.0);
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_top_enter_up_delta, "mount_top_enter_up_delta");
+          v21 = *(float *)&Float_Internal_DebugName * sinf_0(v20 * 3.1415927);
+          *(float *)&Float_Internal_DebugName = FLOAT_1_0;
+          if ( v20 > 0.0 )
+            Float_Internal_DebugName = I_fclamp((float)(v20 - mountFraction) / v20, 0.0, 1.0);
+          v19 = (float)(1.0 - *(float *)&Float_Internal_DebugName) * v21;
         }
         else
         {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_top_enter_up_delta, "mount_top_enter_up_delta");
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmulss  xmm0, xmm7, cs:__real@40490fdb; X
-          }
-          sinf_0(*(float *)&_XMM0);
-          __asm { vmulss  xmm2, xmm6, xmm0 }
+          v18 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_top_enter_up_delta, "mount_top_enter_up_delta");
+          v19 = *(float *)&v18 * sinf_0(mountFraction * 3.1415927);
         }
-        __asm
-        {
-          vmulss  xmm1, xmm2, dword ptr [rbp+0]
-          vaddss  xmm0, xmm1, dword ptr [rbx]
-          vmovss  dword ptr [rbx], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbp+4]
-          vaddss  xmm0, xmm1, dword ptr [rbx+4]
-          vmovss  dword ptr [rbx+4], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbp+8]
-          vaddss  xmm0, xmm1, dword ptr [rbx+8]
-          vmovss  dword ptr [rbx+8], xmm0
-        }
+        inOutEyePos->v[0] = (float)(v19 * playerUp->v[0]) + inOutEyePos->v[0];
+        inOutEyePos->v[1] = (float)(v19 * playerUp->v[1]) + inOutEyePos->v[1];
+        inOutEyePos->v[2] = (float)(v19 * playerUp->v[2]) + inOutEyePos->v[2];
       }
-      __asm { vmovaps xmm6, [rsp+108h+var_38] }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+108h+out]
-        vmovss  xmm1, dword ptr [rsp+108h+out+4]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm0, dword ptr [rsp+108h+out+8]
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v14 = out.v[1];
+      inOutEyePos->v[0] = out.v[0];
+      inOutEyePos->v[2] = out.v[2];
+      inOutEyePos->v[1] = v14;
     }
-    __asm { vmovaps xmm8, [rsp+108h+var_58] }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+108h+var_48]
-    vmovaps xmm9, [rsp+108h+var_68]
   }
 }
 
@@ -1569,10 +1117,13 @@ BG_ContextMount_GetMountEdgeHeight
 float BG_ContextMount_GetMountEdgeHeight(const playerState_s *const ps, const BgHandler *handler)
 {
   unsigned int EdgeIndex; 
-  const dvar_t *v6; 
+  const dvar_t *v5; 
+  float v6; 
+  double UpContribution; 
+  double v8; 
   vec3_t outMountPoint; 
   vec3_t vec; 
-  WorldUpReferenceFrame v18; 
+  WorldUpReferenceFrame v12; 
   MountSurfaceProperties mount; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1713, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -1582,41 +1133,28 @@ float BG_ContextMount_GetMountEdgeHeight(const playerState_s *const ps, const Bg
   EdgeIndex = EdgeId::GetEdgeIndex(&ps->mountState.surface.id);
   if ( !MapEdgeList_IsLoaded(EdgeIndex) )
     goto LABEL_11;
-  v6 = DCONST_DVARBOOL_mount_edge_fallback_debug_enable;
+  v5 = DCONST_DVARBOOL_mount_edge_fallback_debug_enable;
   if ( !DCONST_DVARBOOL_mount_edge_fallback_debug_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_edge_fallback_debug_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( !v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled )
   {
     MountSurfaceProperties::Initialize(&mount, handler, &ps->mountState.surface);
     BG_ContextMount_CalcMountPoint(handler, &mount, &outMountPoint);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0D8h+outMountPoint]
-      vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-      vmovss  xmm2, dword ptr [rsp+0D8h+outMountPoint+4]
-      vsubss  xmm0, xmm2, dword ptr [rdi+34h]
-      vmovss  dword ptr [rsp+0D8h+vec], xmm1
-      vmovss  xmm1, dword ptr [rsp+0D8h+outMountPoint+8]
-      vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-      vmovss  dword ptr [rsp+0D8h+vec+8], xmm2
-      vmovss  dword ptr [rsp+0D8h+vec+4], xmm0
-    }
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v18, ps, handler);
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v18, &vec);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42b40000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+    v6 = outMountPoint.v[1] - ps->origin.v[1];
+    vec.v[0] = outMountPoint.v[0] - ps->origin.v[0];
+    vec.v[2] = outMountPoint.v[2] - ps->origin.v[2];
+    vec.v[1] = v6;
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v12, ps, handler);
+    UpContribution = WorldUpReferenceFrame::GetUpContribution(&v12, &vec);
+    v8 = I_fclamp(*(float *)&UpContribution, 0.0, 90.0);
   }
   else
   {
 LABEL_11:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(v8) = 0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&v8;
 }
 
 /*
@@ -1628,8 +1166,6 @@ float BG_ContextMount_GetViewHeightTarget(const BgWeaponMap *const weaponMap, co
 {
   int startTime; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = entityUp;
   if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1703, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -1640,25 +1176,7 @@ float BG_ContextMount_GetViewHeightTarget(const BgWeaponMap *const weaponMap, co
   startTime = ps->mountState.startTime;
   if ( (!startTime || startTime <= ps->mountState.endTime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1704, ASSERT_TYPE_ASSERT, "(BG_ContextMount_IsActive( ps ))", "%s\n\tContext mount must be active when invoking GetViewHeightTarget()", "BG_ContextMount_IsActive( ps )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi]
-    vmulss  xmm0, xmm3, dword ptr [rbx+4C4h]
-    vmovss  xmm6, dword ptr [rdi+8]
-    vmovss  xmm5, dword ptr [rdi+4]
-    vmulss  xmm1, xmm5, dword ptr [rbx+4C8h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rbx+4CCh]
-    vmulss  xmm0, xmm3, dword ptr [rbx+30h]
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+38h]
-    vmulss  xmm2, xmm5, dword ptr [rbx+34h]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vaddss  xmm3, xmm2, xmm0
-    vaddss  xmm0, xmm3, xmm1
-    vsubss  xmm0, xmm4, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)(entityUp->v[1] * ps->mountState.eyePoint.v[1]) + (float)(entityUp->v[0] * ps->mountState.eyePoint.v[0])) + (float)(entityUp->v[2] * ps->mountState.eyePoint.v[2])) - (float)((float)((float)(entityUp->v[1] * ps->origin.v[1]) + (float)(entityUp->v[0] * ps->origin.v[0])) + (float)(entityUp->v[2] * ps->origin.v[2]));
 }
 
 /*
@@ -1681,91 +1199,66 @@ BG_ContextMount_GetWorldmodelProperties
 */
 void BG_ContextMount_GetWorldmodelProperties(const BgHandler *const handler, const playerState_s *const ps, MountWorldmodelAbbreviatedProperties *outWorldmodelProps)
 {
-  bool v8; 
+  double v6; 
   unsigned int EdgeIndex; 
-  const dvar_t *v11; 
-  int v23; 
+  const dvar_t *v8; 
+  float v9; 
+  double UpContribution; 
+  double v11; 
+  double v12; 
+  int v13; 
+  double v14; 
   vec3_t outMountPoint; 
   vec3_t vec; 
-  WorldUpReferenceFrame v28; 
+  WorldUpReferenceFrame v17; 
   MountSurfaceProperties mount; 
 
-  _RBX = outWorldmodelProps;
-  _RBP = ps;
   if ( !outWorldmodelProps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1942, ASSERT_TYPE_ASSERT, "(outWorldmodelProps)", (const char *)&queryFormat, "outWorldmodelProps") )
     __debugbreak();
-  _RBX->type = _RBP->mountState.surface.type;
-  _RBX->startTime = _RBP->mountState.startTime;
-  _RBX->endTime = _RBP->mountState.endTime;
-  _RBX->sideLow = ((unsigned int)_RBP->mountState.flags >> 4) & 1;
-  _RBX->edge = _RBP->mountState.surface.id;
-  __asm { vmovss  xmm0, dword ptr [rbp+490h]; value }
-  *(double *)&_XMM0 = BG_ContextMount_QuantizeFloat01Byte(*(float *)&_XMM0);
-  __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-  _RBX->normalIndex = _RBP->mountState.surface.normalFaceIndex != 0;
-  if ( BG_ContextMount_IsActive(_RBP) )
+  outWorldmodelProps->type = ps->mountState.surface.type;
+  outWorldmodelProps->startTime = ps->mountState.startTime;
+  outWorldmodelProps->endTime = ps->mountState.endTime;
+  outWorldmodelProps->sideLow = ((unsigned int)ps->mountState.flags >> 4) & 1;
+  outWorldmodelProps->edge = ps->mountState.surface.id;
+  v6 = BG_ContextMount_QuantizeFloat01Byte(ps->mountState.surface.fraction);
+  outWorldmodelProps->edgeFraction = *(float *)&v6;
+  outWorldmodelProps->normalIndex = ps->mountState.surface.normalFaceIndex != 0;
+  if ( BG_ContextMount_IsActive(ps) )
   {
-    v8 = _RBP->mountState.surface.type == MOUNT_TYPE_NONE;
-    __asm { vmovaps [rsp+118h+var_38], xmm6 }
-    if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1956, ASSERT_TYPE_ASSERT, "( mountState->surface.type ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "mountState->surface.type", "MOUNT_TYPE_NONE", 0, 0i64) )
+    if ( ps->mountState.surface.type == MOUNT_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1956, ASSERT_TYPE_ASSERT, "( mountState->surface.type ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "mountState->surface.type", "MOUNT_TYPE_NONE", 0, 0i64) )
       __debugbreak();
-    if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1713, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1713, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    __asm { vmovss  xmm6, cs:__real@42b40000 }
-    if ( !EdgeId::IsValid(&_RBP->mountState.surface.id) )
+    if ( !EdgeId::IsValid(&ps->mountState.surface.id) )
       goto LABEL_18;
-    EdgeIndex = EdgeId::GetEdgeIndex(&_RBP->mountState.surface.id);
+    EdgeIndex = EdgeId::GetEdgeIndex(&ps->mountState.surface.id);
     if ( !MapEdgeList_IsLoaded(EdgeIndex) )
       goto LABEL_18;
-    v11 = DCONST_DVARBOOL_mount_edge_fallback_debug_enable;
+    v8 = DCONST_DVARBOOL_mount_edge_fallback_debug_enable;
     if ( !DCONST_DVARBOOL_mount_edge_fallback_debug_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_edge_fallback_debug_enable") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( !v11->current.enabled )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( !v8->current.enabled )
     {
-      MountSurfaceProperties::Initialize(&mount, handler, &_RBP->mountState.surface);
+      MountSurfaceProperties::Initialize(&mount, handler, &ps->mountState.surface);
       BG_ContextMount_CalcMountPoint(handler, &mount, &outMountPoint);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+118h+outMountPoint]
-        vsubss  xmm1, xmm0, dword ptr [rbp+30h]
-        vmovss  xmm2, dword ptr [rsp+118h+outMountPoint+4]
-        vsubss  xmm0, xmm2, dword ptr [rbp+34h]
-        vmovss  dword ptr [rsp+118h+vec], xmm1
-        vmovss  xmm1, dword ptr [rsp+118h+outMountPoint+8]
-        vsubss  xmm2, xmm1, dword ptr [rbp+38h]
-        vmovss  dword ptr [rsp+118h+vec+8], xmm2
-        vmovss  dword ptr [rsp+118h+vec+4], xmm0
-      }
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v28, _RBP, handler);
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v28, &vec);
-      __asm
-      {
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      v9 = outMountPoint.v[1] - ps->origin.v[1];
+      vec.v[0] = outMountPoint.v[0] - ps->origin.v[0];
+      vec.v[2] = outMountPoint.v[2] - ps->origin.v[2];
+      vec.v[1] = v9;
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v17, ps, handler);
+      UpContribution = WorldUpReferenceFrame::GetUpContribution(&v17, &vec);
+      v11 = I_fclamp(*(float *)&UpContribution, 0.0, 90.0);
     }
     else
     {
 LABEL_18:
-      __asm { vxorps  xmm0, xmm0, xmm0; val }
+      LODWORD(v11) = 0;
     }
-    __asm
-    {
-      vmovss  xmm1, cs:__real@c2b40000; min
-      vmovaps xmm2, xmm6; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    v23 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xBu);
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(v23, *(float *)&_XMM1, 0xBu);
-    __asm
-    {
-      vmovaps xmm6, [rsp+118h+var_38]
-      vmovss  dword ptr [rbx+20h], xmm0
-    }
+    v12 = I_fclamp(*(float *)&v11, -90.0, 90.0);
+    v13 = MSG_PackSignedFloat(*(float *)&v12, 90.0, 0xBu);
+    v14 = MSG_UnpackSignedFloat(v13, 90.0, 0xBu);
+    outWorldmodelProps->pivotHeight = *(float *)&v14;
   }
 }
 
@@ -1774,179 +1267,117 @@ LABEL_18:
 BG_ContextMount_InterpolateMountState
 ==============
 */
-
-void __fastcall BG_ContextMount_InterpolateMountState(const playerState_s *const prevPs, const playerState_s *const nextPs, double fraction, ContextMountState *r_out)
+void BG_ContextMount_InterpolateMountState(const playerState_s *const prevPs, const playerState_s *const nextPs, float fraction, ContextMountState *r_out)
 {
+  float v7; 
+  int v8; 
+  float serverTime; 
   int startTime; 
-  char v52; 
+  int v11; 
+  char v12; 
   int endTime; 
-  int v54; 
+  int v14; 
+  __int128 v15; 
   int pullbackStartTime; 
   int pullsideStartTime; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBX = r_out;
-  _RDI = nextPs;
-  _RSI = prevPs;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !prevPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1742, ASSERT_TYPE_ASSERT, "(prevPs)", (const char *)&queryFormat, "prevPs") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1743, ASSERT_TYPE_ASSERT, "(nextPs)", (const char *)&queryFormat, "nextPs") )
+  if ( !nextPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1743, ASSERT_TYPE_ASSERT, "(nextPs)", (const char *)&queryFormat, "nextPs") )
     __debugbreak();
-  memset_0(_RBX, 0, sizeof(ContextMountState));
-  if ( (unsigned int)(_RDI->pm_type - 7) > 1 )
+  memset_0(r_out, 0, sizeof(ContextMountState));
+  if ( (unsigned int)(nextPs->pm_type - 7) > 1 )
   {
-    if ( BG_ContextMount_IsActive(_RSI) && _RSI->mountState.surface.type && BG_IsPlayerLinkedToAnything(_RSI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1763, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerLinkedToAnything( prevPs ))", "%s\n\tPlayer should not be mounted while linked.", "!BG_IsPlayerLinkedToAnything( prevPs )") )
+    if ( BG_ContextMount_IsActive(prevPs) && prevPs->mountState.surface.type && BG_IsPlayerLinkedToAnything(prevPs) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1763, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerLinkedToAnything( prevPs ))", "%s\n\tPlayer should not be mounted while linked.", "!BG_IsPlayerLinkedToAnything( prevPs )") )
       __debugbreak();
-    if ( BG_ContextMount_IsActive(_RDI) && _RDI->mountState.surface.type && BG_IsPlayerLinkedToAnything(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1767, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerLinkedToAnything( nextPs ))", "%s\n\tPlayer should not be mounted while linked.", "!BG_IsPlayerLinkedToAnything( nextPs )") )
+    if ( BG_ContextMount_IsActive(nextPs) && nextPs->mountState.surface.type && BG_IsPlayerLinkedToAnything(nextPs) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1767, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerLinkedToAnything( nextPs ))", "%s\n\tPlayer should not be mounted while linked.", "!BG_IsPlayerLinkedToAnything( nextPs )") )
       __debugbreak();
-    _RBX->flags = _RDI->mountState.flags & 0x60;
-    if ( _RDI->serverTime > _RSI->serverTime )
+    r_out->flags = nextPs->mountState.flags & 0x60;
+    if ( nextPs->serverTime <= prevPs->serverTime )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+4C0h]
-        vmovss  xmm0, dword ptr [rdi+4C0h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rbx+3Ch], xmm3
-        vmovss  xmm3, dword ptr [rsi+4C4h]
-        vmovss  xmm0, dword ptr [rdi+4C4h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rbx+40h], xmm3
-        vmovss  xmm4, dword ptr [rsi+4C8h]
-        vmovss  xmm0, dword ptr [rdi+4C8h]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rbx+44h], xmm3
-        vmovss  xmm5, dword ptr [rsi+4CCh]
-        vmovss  xmm0, dword ptr [rdi+4CCh]
-        vsubss  xmm1, xmm0, xmm5
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm5
-        vmovss  dword ptr [rbx+48h], xmm3
-      }
-      _RBX->moverId = _RDI->mountState.moverId;
-      if ( _RSI->mountState.moverId == _RDI->mountState.moverId )
-      {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsi+4D0h]
-          vmovss  xmm0, dword ptr [rdi+4D0h]
-          vsubss  xmm1, xmm0, xmm3
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, xmm3
-          vmovss  dword ptr [rbx+4Ch], xmm3
-          vmovss  xmm4, dword ptr [rsi+4D4h]
-          vmovss  xmm0, dword ptr [rdi+4D4h]
-          vsubss  xmm1, xmm0, xmm4
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, xmm4
-          vmovss  dword ptr [rbx+50h], xmm3
-          vmovss  xmm5, dword ptr [rsi+4D8h]
-          vmovss  xmm0, dword ptr [rdi+4D8h]
-          vsubss  xmm1, xmm0, xmm5
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, xmm5
-        }
-      }
-      else
-      {
-        _RBX->eyePointMover.v[0] = _RDI->mountState.eyePointMover.v[0];
-        _RBX->eyePointMover.v[1] = _RDI->mountState.eyePointMover.v[1];
-        __asm { vmovss  xmm3, dword ptr [rdi+4D8h] }
-      }
-      __asm { vmovss  dword ptr [rbx+54h], xmm3 }
-      if ( _RDI->serverTime - _RSI->serverTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1802, ASSERT_TYPE_ASSERT, "(0 < snapDeltaDuration)", (const char *)&queryFormat, "0 < snapDeltaDuration") )
-        __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rsi+4]
-      }
-      _RBX->startTime = _RSI->mountState.startTime;
-      startTime = _RDI->mountState.startTime;
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vcvttss2si edx, xmm2
-      }
-      if ( _RSI->mountState.startTime > startTime || startTime > _EDX )
-      {
-        v52 = 0;
-      }
-      else
-      {
-        v52 = 1;
-        _RBX->startTime = startTime;
-      }
-      endTime = _RSI->mountState.endTime;
-      _RBX->endTime = endTime;
-      v54 = _RDI->mountState.endTime;
-      if ( _RSI->mountState.endTime > v54 || v54 > _EDX )
-        v54 = endTime;
-      else
-        _RBX->endTime = v54;
-      __asm { vxorps  xmm2, xmm2, xmm2 }
-      if ( v52 )
-      {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+484h]
-          vmovups ymmword ptr [rbx], ymm0
-          vmovups xmm1, xmmword ptr [rdi+4A4h]
-          vmovups xmmword ptr [rbx+20h], xmm1
-        }
-      }
-      else
-      {
-        __asm { vcomiss xmm2, dword ptr [rbx+3Ch] }
-        _RBX->surface.type = MOUNT_TYPE_NONE;
-      }
-      _RBX->pullbackStartTime = _RSI->mountState.pullbackStartTime;
-      pullbackStartTime = _RDI->mountState.pullbackStartTime;
-      if ( _RSI->mountState.pullbackStartTime < pullbackStartTime && pullbackStartTime <= _EDX )
-        _RBX->pullbackStartTime = pullbackStartTime;
-      _RBX->pullsideStartTime = _RSI->mountState.pullsideStartTime;
-      pullsideStartTime = _RDI->mountState.pullsideStartTime;
-      if ( _RSI->mountState.pullsideStartTime < pullsideStartTime && pullsideStartTime <= _EDX )
-        _RBX->pullsideStartTime = pullsideStartTime;
-      if ( v54 < _RBX->startTime )
-      {
-        __asm { vcomiss xmm2, dword ptr [rbx+3Ch] }
-        if ( (unsigned int)v54 < _RBX->startTime && _RBX->surface.type == MOUNT_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1850, ASSERT_TYPE_ASSERT, "( r_out.surface.type ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "r_out.surface.type", "MOUNT_TYPE_NONE", 0, 0i64) )
-          __debugbreak();
-      }
+      *(__m256i *)&r_out->surface.type = *(__m256i *)&nextPs->mountState.surface.type;
+      *(_OWORD *)&r_out->surface.transitionType = *(_OWORD *)&nextPs->mountState.surface.transitionType;
+      r_out->startTime = nextPs->mountState.startTime;
+      r_out->endTime = nextPs->mountState.endTime;
+      r_out->mountFraction = nextPs->mountState.mountFraction;
+      r_out->eyePoint.v[0] = nextPs->mountState.eyePoint.v[0];
+      r_out->eyePoint.v[1] = nextPs->mountState.eyePoint.v[1];
+      r_out->eyePoint.v[2] = nextPs->mountState.eyePoint.v[2];
+      r_out->eyePointMover.v[0] = nextPs->mountState.eyePointMover.v[0];
+      r_out->eyePointMover.v[1] = nextPs->mountState.eyePointMover.v[1];
+      r_out->eyePointMover.v[2] = nextPs->mountState.eyePointMover.v[2];
+      r_out->moverId = nextPs->mountState.moverId;
+      return;
+    }
+    r_out->mountFraction = (float)((float)(nextPs->mountState.mountFraction - prevPs->mountState.mountFraction) * fraction) + prevPs->mountState.mountFraction;
+    r_out->eyePoint.v[0] = (float)((float)(nextPs->mountState.eyePoint.v[0] - prevPs->mountState.eyePoint.v[0]) * fraction) + prevPs->mountState.eyePoint.v[0];
+    r_out->eyePoint.v[1] = (float)((float)(nextPs->mountState.eyePoint.v[1] - prevPs->mountState.eyePoint.v[1]) * fraction) + prevPs->mountState.eyePoint.v[1];
+    r_out->eyePoint.v[2] = (float)((float)(nextPs->mountState.eyePoint.v[2] - prevPs->mountState.eyePoint.v[2]) * fraction) + prevPs->mountState.eyePoint.v[2];
+    r_out->moverId = nextPs->mountState.moverId;
+    if ( prevPs->mountState.moverId == nextPs->mountState.moverId )
+    {
+      r_out->eyePointMover.v[0] = (float)((float)(nextPs->mountState.eyePointMover.v[0] - prevPs->mountState.eyePointMover.v[0]) * fraction) + prevPs->mountState.eyePointMover.v[0];
+      r_out->eyePointMover.v[1] = (float)((float)(nextPs->mountState.eyePointMover.v[1] - prevPs->mountState.eyePointMover.v[1]) * fraction) + prevPs->mountState.eyePointMover.v[1];
+      v7 = (float)((float)(nextPs->mountState.eyePointMover.v[2] - prevPs->mountState.eyePointMover.v[2]) * fraction) + prevPs->mountState.eyePointMover.v[2];
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+484h]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups xmm1, xmmword ptr [rdi+4A4h]
-        vmovups xmmword ptr [rbx+20h], xmm1
-      }
-      _RBX->startTime = _RDI->mountState.startTime;
-      _RBX->endTime = _RDI->mountState.endTime;
-      _RBX->mountFraction = _RDI->mountState.mountFraction;
-      _RBX->eyePoint.v[0] = _RDI->mountState.eyePoint.v[0];
-      _RBX->eyePoint.v[1] = _RDI->mountState.eyePoint.v[1];
-      _RBX->eyePoint.v[2] = _RDI->mountState.eyePoint.v[2];
-      _RBX->eyePointMover.v[0] = _RDI->mountState.eyePointMover.v[0];
-      _RBX->eyePointMover.v[1] = _RDI->mountState.eyePointMover.v[1];
-      _RBX->eyePointMover.v[2] = _RDI->mountState.eyePointMover.v[2];
-      _RBX->moverId = _RDI->mountState.moverId;
+      r_out->eyePointMover.v[0] = nextPs->mountState.eyePointMover.v[0];
+      r_out->eyePointMover.v[1] = nextPs->mountState.eyePointMover.v[1];
+      v7 = nextPs->mountState.eyePointMover.v[2];
     }
+    r_out->eyePointMover.v[2] = v7;
+    v8 = nextPs->serverTime - prevPs->serverTime;
+    if ( v8 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1802, ASSERT_TYPE_ASSERT, "(0 < snapDeltaDuration)", (const char *)&queryFormat, "0 < snapDeltaDuration") )
+      __debugbreak();
+    serverTime = (float)prevPs->serverTime;
+    r_out->startTime = prevPs->mountState.startTime;
+    startTime = nextPs->mountState.startTime;
+    v11 = (int)(float)((float)((float)v8 * fraction) + serverTime);
+    if ( prevPs->mountState.startTime > startTime || startTime > v11 )
+    {
+      v12 = 0;
+    }
+    else
+    {
+      v12 = 1;
+      r_out->startTime = startTime;
+    }
+    endTime = prevPs->mountState.endTime;
+    r_out->endTime = endTime;
+    v14 = nextPs->mountState.endTime;
+    if ( prevPs->mountState.endTime > v14 || v14 > v11 )
+      v14 = endTime;
+    else
+      r_out->endTime = v14;
+    if ( v12 )
+    {
+      *(__m256i *)&r_out->surface.type = *(__m256i *)&nextPs->mountState.surface.type;
+      v15 = *(_OWORD *)&nextPs->mountState.surface.transitionType;
+    }
+    else
+    {
+      if ( r_out->mountFraction <= 0.0 )
+      {
+        r_out->surface.type = MOUNT_TYPE_NONE;
+        goto LABEL_40;
+      }
+      *(__m256i *)&r_out->surface.type = *(__m256i *)&prevPs->mountState.surface.type;
+      v15 = *(_OWORD *)&prevPs->mountState.surface.transitionType;
+    }
+    *(_OWORD *)&r_out->surface.transitionType = v15;
+LABEL_40:
+    r_out->pullbackStartTime = prevPs->mountState.pullbackStartTime;
+    pullbackStartTime = nextPs->mountState.pullbackStartTime;
+    if ( prevPs->mountState.pullbackStartTime < pullbackStartTime && pullbackStartTime <= v11 )
+      r_out->pullbackStartTime = pullbackStartTime;
+    r_out->pullsideStartTime = prevPs->mountState.pullsideStartTime;
+    pullsideStartTime = nextPs->mountState.pullsideStartTime;
+    if ( prevPs->mountState.pullsideStartTime < pullsideStartTime && pullsideStartTime <= v11 )
+      r_out->pullsideStartTime = pullsideStartTime;
+    if ( v14 < r_out->startTime && r_out->mountFraction > 0.0 && r_out->surface.type == MOUNT_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1850, ASSERT_TYPE_ASSERT, "( r_out.surface.type ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "r_out.surface.type", "MOUNT_TYPE_NONE", 0, 0i64) )
+      __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -1983,24 +1414,19 @@ BG_ContextMount_IsBlendingToMount
 */
 bool BG_ContextMount_IsBlendingToMount(const playerState_s *const ps)
 {
-  unsigned int endTime; 
+  float mountFraction; 
+  bool result; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 461, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  endTime = _RBX->mountState.endTime;
-  if ( _RBX->mountState.startTime < (signed int)endTime )
-    return 0;
-  __asm
+  result = 0;
+  if ( ps->mountState.startTime >= ps->mountState.endTime )
   {
-    vmovss  xmm1, dword ptr [rbx+4C0h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
+    mountFraction = ps->mountState.mountFraction;
+    if ( mountFraction > 0.0 && mountFraction < 1.0 )
+      return 1;
   }
-  if ( _RBX->mountState.startTime <= endTime )
-    return 0;
-  __asm { vcomiss xmm1, cs:__real@3f800000 }
-  return _RBX->mountState.startTime < endTime;
+  return result;
 }
 
 /*
@@ -2059,60 +1485,53 @@ BG_ContextMount_IsValidMountState
 char BG_ContextMount_IsValidMountState(const BgWeaponMap *const weaponMap, const playerState_s *const ps, MountFailureResult *outResults)
 {
   bool IsActive; 
-  char v9; 
-  char v10; 
-  const dvar_t *v12; 
-  bool v13; 
-  bool v14; 
-  char v15; 
+  const dvar_t *v7; 
+  const dvar_t *v9; 
+  bool v10; 
+  bool v11; 
+  char v12; 
   int WeaponHand; 
   int *p_weaponState; 
-  __int64 v18; 
-  __int64 v19; 
-  unsigned __int64 v20; 
-  const char *v21; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned __int64 v17; 
+  const char *v18; 
   EffectiveStance EffectiveStance; 
-  __int32 v23; 
-  const dvar_t *v24; 
-  const char *v25; 
+  __int32 v20; 
+  const dvar_t *v21; 
+  const char *v22; 
 
   *(_WORD *)&outResults->cancelToLower = 0;
   outResults->failReason[0] = 0;
-  _RSI = ps;
   IsActive = BG_ContextMount_IsActive(ps);
   if ( !IsActive )
   {
-    _RBX = DCONST_DVARFLT_mount_tuning_min_fraction;
+    v7 = DCONST_DVARFLT_mount_tuning_min_fraction;
     if ( !DCONST_DVARFLT_mount_tuning_min_fraction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_tuning_min_fraction") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4C0h]
-      vcomiss xmm0, dword ptr [rbx+28h]
-    }
-    if ( !(v9 | v10) )
+    Dvar_CheckFrontendServerThread(v7);
+    if ( ps->mountState.mountFraction > v7->current.value )
     {
       strncpy(outResults->failReason, "can only initiate mount at 'mount_tuning_min_fraction' fraction", 0x80ui64);
       return 0;
     }
   }
-  v12 = DCONST_DVARMPBOOL_mount_enable;
+  v9 = DCONST_DVARMPBOOL_mount_enable;
   if ( !DCONST_DVARMPBOOL_mount_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( !v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled )
   {
     strncpy(outResults->failReason, "mount is disabled", 0x80ui64);
     return 0;
   }
-  if ( BG_IsPlayerLinkedToAnything(_RSI) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0xBu) || _RSI->pm_type >= 7 )
+  if ( BG_IsPlayerLinkedToAnything(ps) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) || ps->pm_type >= 7 )
     goto LABEL_24;
-  if ( _RSI == (const playerState_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2042, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
+  if ( ps == (const playerState_s *const)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2042, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, ACTIVE, 5u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, ACTIVE, 6u) )
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 5u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 6u) )
     goto LABEL_24;
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, ACTIVE, 7u) )
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 7u) )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2052, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL )") )
       __debugbreak();
@@ -2120,89 +1539,89 @@ LABEL_24:
     strncpy(outResults->failReason, "player is not permitted to enter mount in current state", 0x80ui64);
     return 0;
   }
-  if ( BG_IsInAir(_RSI, 0) )
+  if ( BG_IsInAir(ps, 0) )
   {
     outResults->putOnCooldown = 1;
     strncpy(outResults->failReason, "player in air", 0x80ui64);
     return 0;
   }
-  v13 = BG_ContextMount_IsActive(_RSI);
-  v14 = 1;
-  v15 = 0;
-  WeaponHand = BG_PlayerLastWeaponHand(weaponMap, _RSI);
+  v10 = BG_ContextMount_IsActive(ps);
+  v11 = 1;
+  v12 = 0;
+  WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
   if ( WeaponHand >= 0 )
   {
-    p_weaponState = &_RSI->weapState[0].weaponState;
-    v18 = 0x3E39401C01FF863Fi64;
-    v19 = WeaponHand + 1i64;
+    p_weaponState = &ps->weapState[0].weaponState;
+    v15 = 0x3E39401C01FF863Fi64;
+    v16 = WeaponHand + 1i64;
     do
     {
-      if ( v15 || *p_weaponState == 24 )
-        v15 = 1;
-      v14 = v14 && ((v20 = *p_weaponState, (unsigned int)v20 <= 0x3D) && _bittest64(&v18, v20) || (unsigned int)(v20 - 76) <= 1 || !v13 && v15);
+      if ( v12 || *p_weaponState == 24 )
+        v12 = 1;
+      v11 = v11 && ((v17 = *p_weaponState, (unsigned int)v17 <= 0x3D) && _bittest64(&v15, v17) || (unsigned int)(v17 - 76) <= 1 || !v10 && v12);
       p_weaponState += 20;
-      --v19;
+      --v16;
     }
-    while ( v19 );
-    if ( !v14 )
+    while ( v16 );
+    if ( !v11 )
     {
       outResults->putOnCooldown = 1;
-      v21 = "invalid weapon state";
+      v18 = "invalid weapon state";
       goto LABEL_43;
     }
   }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x10u) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x10u) )
   {
-    v21 = "controls are frozen";
+    v18 = "controls are frozen";
     goto LABEL_43;
   }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x15u) && BG_GetShellshockParms(_RSI->shellshockIndex)->mount.affect )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x15u) && BG_GetShellshockParms(ps->shellshockIndex)->mount.affect )
   {
-    v21 = "shellshocked";
+    v18 = "shellshocked";
     goto LABEL_43;
   }
-  EffectiveStance = PM_GetEffectiveStance(_RSI);
+  EffectiveStance = PM_GetEffectiveStance(ps);
   if ( EffectiveStance == PM_EFF_STANCE_DEFAULT )
   {
-    v24 = DCONST_DVARBOOL_mount_stance_allow_mount_stand;
+    v21 = DCONST_DVARBOOL_mount_stance_allow_mount_stand;
     if ( DCONST_DVARBOOL_mount_stance_allow_mount_stand )
       goto LABEL_62;
-    v25 = "mount_stance_allow_mount_stand";
+    v22 = "mount_stance_allow_mount_stand";
     goto LABEL_60;
   }
-  v23 = EffectiveStance - 1;
-  if ( !v23 )
+  v20 = EffectiveStance - 1;
+  if ( !v20 )
   {
-    v24 = DCONST_DVARBOOL_mount_stance_allow_mount_prone;
+    v21 = DCONST_DVARBOOL_mount_stance_allow_mount_prone;
     if ( DCONST_DVARBOOL_mount_stance_allow_mount_prone )
       goto LABEL_62;
-    v25 = "mount_stance_allow_mount_prone";
+    v22 = "mount_stance_allow_mount_prone";
     goto LABEL_60;
   }
-  if ( v23 == 1 )
+  if ( v20 == 1 )
   {
-    v24 = DCONST_DVARBOOL_mount_stance_allow_mount_crouch;
+    v21 = DCONST_DVARBOOL_mount_stance_allow_mount_crouch;
     if ( DCONST_DVARBOOL_mount_stance_allow_mount_crouch )
       goto LABEL_62;
-    v25 = "mount_stance_allow_mount_crouch";
+    v22 = "mount_stance_allow_mount_crouch";
 LABEL_60:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v25) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v22) )
       __debugbreak();
 LABEL_62:
-    Dvar_CheckFrontendServerThread(v24);
-    if ( !v24->current.enabled && !IsActive )
+    Dvar_CheckFrontendServerThread(v21);
+    if ( !v21->current.enabled && !IsActive )
     {
-      v21 = "not a valid stance";
+      v18 = "not a valid stance";
       goto LABEL_43;
     }
   }
-  if ( BG_PlayerDualWielding(_RSI) )
+  if ( BG_PlayerDualWielding(ps) )
     return 0;
-  if ( !BG_IsUsingOffhandGestureWeaponADSSupport(weaponMap, _RSI) )
+  if ( !BG_IsUsingOffhandGestureWeaponADSSupport(weaponMap, ps) )
     return 1;
-  v21 = "offhand ads";
+  v18 = "offhand ads";
 LABEL_43:
-  strncpy(outResults->failReason, v21, 0x80ui64);
+  strncpy(outResults->failReason, v18, 0x80ui64);
   return 0;
 }
 
@@ -2213,290 +1632,121 @@ BG_ContextMount_IsViewangleTooShallow
 */
 bool BG_ContextMount_IsViewangleTooShallow(const ContextMountType type, const tmat33_t<vec3_t> *viewBasis, const vec3_t *entityUp, const vec3_t *edgeParallel)
 {
-  const char *v34; 
-  char v35; 
-  bool v36; 
-  bool v54; 
-  bool v68; 
-  bool result; 
-  double v135; 
-  double v136; 
-  double v137; 
-  double v138; 
-  double v139; 
-  double v140; 
-  double v141; 
-  double v142; 
-  double v143; 
-  double v144; 
-  double v145; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  __int128 v11; 
+  const char *v15; 
+  float value; 
+  float v17; 
+  __int128 v19; 
+  double v21; 
+  __int128 v23; 
+  float v27; 
+  __int128 v28; 
   vec3_t outProjectedPoint; 
-  vec3_t v147; 
-  char v148; 
-  void *retaddr; 
+  vec3_t v33; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  _RSI = entityUp;
-  _RBX = viewBasis;
   if ( (unsigned int)type >= COUNT_MOUNT_TYPE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 284, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( COUNT_MOUNT_TYPE )", "type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", type, 4) )
     __debugbreak();
-  __asm { vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  if ( type )
+  if ( type == MOUNT_TYPE_NONE )
   {
-    if ( type == MOUNT_TYPE_TOP )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 285, ASSERT_TYPE_ASSERT, "(type != MOUNT_TYPE_NONE)", (const char *)&queryFormat, "type != MOUNT_TYPE_NONE") )
+      __debugbreak();
+    goto LABEL_7;
+  }
+  if ( type != MOUNT_TYPE_TOP )
+  {
+LABEL_7:
+    v8 = viewBasis->m[0].v[1];
+    v33.v[0] = viewBasis->m[0].v[0];
+    v33.v[2] = viewBasis->m[0].v[2];
+    v33.v[1] = v8;
+    ProjectPointOnPlane(edgeParallel, &viewBasis->m[1], &outProjectedPoint);
+    v9 = FLOAT_1_0;
+    v10 = DCONST_DVARMPFLT_mount_side_max_pitch;
+    v11 = LODWORD(outProjectedPoint.v[0]);
+    *(float *)&v11 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(outProjectedPoint.v[1] * outProjectedPoint.v[1])) + (float)(outProjectedPoint.v[2] * outProjectedPoint.v[2]));
+    _XMM3 = v11;
+    __asm
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+4]
-        vmulss  xmm3, xmm0, dword ptr [rbx+4]
-        vmovss  xmm1, dword ptr [rsi]
-        vmulss  xmm2, xmm1, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vmulss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  xmm9, cs:__real@80000000
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vandps  xmm2, xmm2, xmm8
-        vsubss  xmm0, xmm2, xmm7
-        vandps  xmm0, xmm0, xmm8
-        vcomiss xmm0, cs:__real@3a83126f
-      }
-      ProjectPointOnPlane(_RBX->m, _RSI, &v147);
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbp+57h+var_80]
-        vmovss  xmm6, dword ptr [rbp+57h+var_80+4]
-        vmovss  xmm4, dword ptr [rbp+57h+var_80+8]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
-        vcmpless xmm0, xmm3, xmm9
-        vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm2, xmm7, xmm0
-        vmulss  xmm0, xmm5, xmm2
-        vmovss  dword ptr [rbp+57h+var_80], xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmulss  xmm1, xmm6, xmm2
-        vmovss  dword ptr [rbp+57h+var_80+8], xmm0
-        vmovss  dword ptr [rbp+57h+var_80+4], xmm1
-      }
-      ProjectPointOnPlane(edgeParallel, _RSI, &outProjectedPoint);
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbp+57h+outProjectedPoint]
-        vmovss  xmm6, dword ptr [rbp+57h+outProjectedPoint+4]
-        vmovss  xmm4, dword ptr [rbp+57h+outProjectedPoint+8]
-      }
-      _RBX = DCONST_DVARFLT_mount_top_max_yaw;
-      __asm
-      {
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
-        vcmpless xmm0, xmm3, xmm9
-        vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm2, xmm7, xmm0
-        vmulss  xmm0, xmm5, xmm2
-        vmovss  dword ptr [rbp+57h+outProjectedPoint], xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmulss  xmm1, xmm6, xmm2
-        vmovss  dword ptr [rbp+57h+outProjectedPoint+8], xmm0
-        vmovss  dword ptr [rbp+57h+outProjectedPoint+4], xmm1
-      }
-      if ( DCONST_DVARFLT_mount_top_max_yaw )
-        goto LABEL_11;
-      v34 = "mount_top_max_yaw";
-      goto LABEL_9;
+      vcmpless xmm0, xmm3, cs:__real@80000000
+      vblendvps xmm0, xmm3, xmm7, xmm0
     }
+    outProjectedPoint.v[0] = outProjectedPoint.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    outProjectedPoint.v[2] = outProjectedPoint.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    outProjectedPoint.v[1] = outProjectedPoint.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    if ( DCONST_DVARMPFLT_mount_side_max_pitch )
+      goto LABEL_11;
+    v15 = "mount_side_max_pitch";
+    goto LABEL_9;
   }
-  else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 285, ASSERT_TYPE_ASSERT, "(type != MOUNT_TYPE_NONE)", (const char *)&queryFormat, "type != MOUNT_TYPE_NONE") )
+  v9 = FLOAT_1_0;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(entityUp->v[1] * viewBasis->m[0].v[1]) + (float)(entityUp->v[0] * viewBasis->m[0].v[0])) + (float)(entityUp->v[2] * viewBasis->m[0].v[2])) & _xmm) - 1.0) & _xmm) < 0.001 )
   {
-    __debugbreak();
+    LODWORD(v27) = LODWORD(viewBasis->m[2].v[1]) ^ _xmm;
+    LODWORD(v33.v[0]) = LODWORD(viewBasis->m[2].v[0]) ^ _xmm;
+    LODWORD(v33.v[2]) = LODWORD(viewBasis->m[2].v[2]) ^ _xmm;
+    v33.v[1] = v27;
   }
+  else
+  {
+    ProjectPointOnPlane(viewBasis->m, entityUp, &v33);
+    v23 = LODWORD(v33.v[0]);
+    *(float *)&v23 = fsqrt((float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(v33.v[1] * v33.v[1])) + (float)(v33.v[2] * v33.v[2]));
+    _XMM3 = v23;
+    __asm
+    {
+      vcmpless xmm0, xmm3, xmm9
+      vblendvps xmm0, xmm3, xmm7, xmm0
+    }
+    v33.v[0] = v33.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v33.v[2] = v33.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    v33.v[1] = v33.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  }
+  ProjectPointOnPlane(edgeParallel, entityUp, &outProjectedPoint);
+  v10 = DCONST_DVARFLT_mount_top_max_yaw;
+  v28 = LODWORD(outProjectedPoint.v[0]);
+  *(float *)&v28 = fsqrt((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(outProjectedPoint.v[1] * outProjectedPoint.v[1])) + (float)(outProjectedPoint.v[2] * outProjectedPoint.v[2]));
+  _XMM3 = v28;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+57h+var_80], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+57h+var_80+8], xmm0
-    vmovss  dword ptr [rbp+57h+var_80+4], xmm1
-  }
-  ProjectPointOnPlane(edgeParallel, &_RBX->m[1], &outProjectedPoint);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+57h+outProjectedPoint]
-    vmovss  xmm6, dword ptr [rbp+57h+outProjectedPoint+4]
-    vmovss  xmm4, dword ptr [rbp+57h+outProjectedPoint+8]
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  _RBX = DCONST_DVARMPFLT_mount_side_max_pitch;
-  __asm
-  {
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
-    vcmpless xmm0, xmm3, cs:__real@80000000
+    vcmpless xmm0, xmm3, xmm9
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+57h+outProjectedPoint], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+57h+outProjectedPoint+8], xmm0
-    vmovss  dword ptr [rbp+57h+outProjectedPoint+4], xmm1
   }
-  if ( DCONST_DVARMPFLT_mount_side_max_pitch )
+  outProjectedPoint.v[0] = outProjectedPoint.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  outProjectedPoint.v[2] = outProjectedPoint.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  outProjectedPoint.v[1] = outProjectedPoint.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  if ( DCONST_DVARFLT_mount_top_max_yaw )
     goto LABEL_11;
-  v34 = "mount_side_max_pitch";
+  v15 = "mount_top_max_yaw";
 LABEL_9:
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v34) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v15) )
     __debugbreak();
 LABEL_11:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v10);
+  value = v10->current.value;
+  v17 = (float)((float)(v33.v[0] * v33.v[0]) + (float)(v33.v[1] * v33.v[1])) + (float)(v33.v[2] * v33.v[2]);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v17 - v9) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 315, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( viewForward ) )", "(%g, %g, %g) len %g", v33.v[0], v33.v[1], v33.v[2], fsqrt(v17)) )
+    __debugbreak();
+  v19 = LODWORD(outProjectedPoint.v[0]);
+  *(float *)&v19 = (float)((float)(*(float *)&v19 * *(float *)&v19) + (float)(outProjectedPoint.v[1] * outProjectedPoint.v[1])) + (float)(outProjectedPoint.v[2] * outProjectedPoint.v[2]);
+  _XMM1 = v19;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v19 - v9) & _xmm) >= 0.0020000001 )
   {
-    vmovss  xmm4, dword ptr [rbp+57h+var_80]
-    vmovss  xmm3, dword ptr [rbp+57h+var_80+4]
-    vmovss  xmm5, dword ptr [rbp+57h+var_80+8]
-    vmovss  xmm9, cs:__real@3b03126f
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm1, xmm2, xmm1
-    vsubss  xmm0, xmm1, xmm7
-    vandps  xmm0, xmm0, xmm8
-    vcomiss xmm0, xmm9
-  }
-  if ( !v35 )
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm1, xmm1
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0E0h+var_A0], xmm1
-      vcvtss2sd xmm2, xmm5, xmm5
-      vmovsd  [rsp+0E0h+var_A8], xmm2
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+0E0h+var_B0], xmm3
-      vcvtss2sd xmm0, xmm4, xmm4
-      vmovsd  [rsp+0E0h+var_B8], xmm0
-    }
-    v54 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 315, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( viewForward ) )", "(%g, %g, %g) len %g", v135, v138, v141, v144);
-    v35 = 0;
-    v36 = !v54;
-    if ( v54 )
+    *(double *)&v19 = fsqrt(*(float *)&v19);
+    _XMM1 = v19;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 316, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( projectedEdge ) )", "(%g, %g, %g) len %g", outProjectedPoint.v[0], outProjectedPoint.v[1], outProjectedPoint.v[2], *(double *)&v19) )
       __debugbreak();
   }
-  __asm
+  if ( value < 0.0 || value > 90.0 )
   {
-    vmovss  xmm4, dword ptr [rbp+57h+outProjectedPoint]
-    vmovss  xmm3, dword ptr [rbp+57h+outProjectedPoint+4]
-    vmovss  xmm5, dword ptr [rbp+57h+outProjectedPoint+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm1, xmm2, xmm1
-    vsubss  xmm0, xmm1, xmm7
-    vandps  xmm0, xmm0, xmm8
-    vcomiss xmm0, xmm9
-  }
-  if ( !v35 )
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm1, xmm1
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0E0h+var_A0], xmm1
-      vcvtss2sd xmm2, xmm5, xmm5
-      vmovsd  [rsp+0E0h+var_A8], xmm2
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+0E0h+var_B0], xmm3
-      vcvtss2sd xmm0, xmm4, xmm4
-      vmovsd  [rsp+0E0h+var_B8], xmm0
-    }
-    v68 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 316, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( projectedEdge ) )", "(%g, %g, %g) len %g", v136, v139, v142, v145);
-    v35 = 0;
-    v36 = !v68;
-    if ( v68 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 317, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( minAngleWithEdge ) && ( minAngleWithEdge ) <= ( 90.0f )", "minAngleWithEdge not in [0.0f, 90.0f]\n\t%g not in [%g, %g]", value, *(double *)&_XMM1, DOUBLE_90_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm9, cs:__real@42b40000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v35 )
-    goto LABEL_19;
-  __asm { vcomiss xmm6, xmm9 }
-  if ( !(v35 | v36) )
-  {
-LABEL_19:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@4056800000000000
-      vmovsd  [rsp+0E0h+var_A8], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0E0h+var_B0], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+0E0h+var_B8], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 317, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( minAngleWithEdge ) && ( minAngleWithEdge ) <= ( 90.0f )", "minAngleWithEdge not in [0.0f, 90.0f]\n\t%g not in [%g, %g]", v137, v140, v143) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+outProjectedPoint]
-    vmulss  xmm4, xmm0, dword ptr [rbp+57h+var_80]
-    vmovss  xmm1, dword ptr [rbp+57h+outProjectedPoint+4]
-    vmulss  xmm3, xmm1, dword ptr [rbp+57h+var_80+4]
-    vmovss  xmm0, dword ptr [rbp+57h+outProjectedPoint+8]
-    vmulss  xmm1, xmm0, dword ptr [rbp+57h+var_80+8]
-    vaddss  xmm5, xmm4, xmm3
-    vaddss  xmm0, xmm5, xmm1; val
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm2, xmm7; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vsubss  xmm2, xmm9, xmm1
-    vandps  xmm2, xmm2, xmm8
-    vcomiss xmm2, xmm6
-  }
-  result = !(v35 | v36);
-  _R11 = &v148;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  v21 = I_fclamp((float)((float)(outProjectedPoint.v[0] * v33.v[0]) + (float)(outProjectedPoint.v[1] * v33.v[1])) + (float)(outProjectedPoint.v[2] * v33.v[2]), -1.0, v9);
+  return COERCE_FLOAT(COERCE_UNSIGNED_INT(90.0 - (float)(acosf_0(*(float *)&v21) * 57.295776)) & _xmm) > value;
 }
 
 /*
@@ -2504,184 +1754,78 @@ LABEL_19:
 BG_ContextMount_MoveToPoint
 ==============
 */
-
-bool __fastcall BG_ContextMount_MoveToPoint(pmove_t *const pm, pml_t *const pml, double max2DSpeed, const vec3_t *goalPoint)
+char BG_ContextMount_MoveToPoint(pmove_t *const pm, pml_t *const pml, const float max2DSpeed, const vec3_t *goalPoint)
 {
-  bool v19; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   BgGroundState *ground; 
-  char v38; 
-  bool result; 
-  double performSlideMove; 
-  double v87; 
-  double v88; 
-  double v89; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  playerState_s *ps; 
+  playerState_s *v23; 
   vec3_t velInConst; 
-  char v92; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0F8h+var_88], xmm12
-  }
-  _RSI = goalPoint;
-  _RDI = pml;
-  __asm { vmovaps xmm6, xmm2 }
+  *(float *)&_XMM6 = max2DSpeed;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1393, ASSERT_TYPE_ASSERT, "(pm != 0)", (const char *)&queryFormat, "pm != NULL") )
     __debugbreak();
   if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1394, ASSERT_TYPE_ASSERT, "(pm->ps != 0)", (const char *)&queryFormat, "pm->ps != NULL") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+4]
-  }
-  _RAX = pm->ps;
-  v19 = __CFADD__(_RAX, 48i64) || &_RAX->origin == NULL;
-  _RAX = (playerState_s *)((char *)_RAX + 48);
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rax]
-    vmovss  xmm11, dword ptr [rax+4]
-    vmovss  xmm12, dword ptr [rax+8]
-    vsubss  xmm7, xmm0, xmm10
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm9, xmm0, xmm12
-    vsubss  xmm8, xmm1, xmm11
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vcvtss2sd xmm0, xmm3, xmm3
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( !v19 )
+  v8 = pm->ps->origin.v[0];
+  v9 = pm->ps->origin.v[1];
+  v10 = pm->ps->origin.v[2];
+  v11 = goalPoint->v[0] - v8;
+  v12 = goalPoint->v[2] - v10;
+  v13 = goalPoint->v[1] - v9;
+  v14 = fsqrt((float)((float)(v13 * v13) + (float)(v11 * v11)) + (float)(v12 * v12));
+  if ( v14 > 0.000001 )
   {
     ground = pm->ground;
-    __asm
-    {
-      vdivss  xmm0, xmm7, xmm3
-      vmovss  dword ptr [rsp+0F8h+velInConst], xmm0
-      vdivss  xmm0, xmm9, xmm3
-      vdivss  xmm1, xmm8, xmm3
-      vmovss  dword ptr [rsp+0F8h+velInConst+8], xmm0
-      vmovss  dword ptr [rsp+0F8h+velInConst+4], xmm1
-    }
+    velInConst.v[0] = v11 / v14;
+    velInConst.v[2] = v12 / v14;
+    velInConst.v[1] = v13 / v14;
     PM_ProjectVelocity(pm, &velInConst, &ground->trace.normal, &velInConst);
-    __asm
+    v16 = velInConst.v[0];
+    if ( pml->frametime > 0.0 )
     {
-      vmovss  xmm4, dword ptr [rsp+0F8h+velInConst]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+24h]
-    }
-    if ( v38 )
-    {
-      __asm
+      v17 = LODWORD(velInConst.v[1]);
+      v18 = velInConst.v[2];
+      v19 = (float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(velInConst.v[0] * velInConst.v[0])) + (float)(v18 * v18);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v19 - 1.0) & _xmm) >= 0.0020000001 )
       {
-        vmovss  xmm3, dword ptr [rsp+0F8h+velInConst+4]
-        vmovss  xmm5, dword ptr [rsp+0F8h+velInConst+8]
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm1, xmm2, xmm1
-        vsubss  xmm0, xmm1, cs:__real@3f800000
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:__real@3b03126f
-      }
-      if ( !v38 )
-      {
-        __asm
-        {
-          vsqrtss xmm0, xmm1, xmm1
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+0F8h+var_B8], xmm1
-          vcvtss2sd xmm2, xmm5, xmm5
-          vmovsd  [rsp+0F8h+var_C0], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  [rsp+0F8h+var_C8], xmm3
-          vcvtss2sd xmm0, xmm4, xmm4
-          vmovsd  qword ptr [rsp+0F8h+performSlideMove], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1419, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( wishDir ) )", "(%g, %g, %g) len %g", performSlideMove, v87, v88, v89) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1419, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( wishDir ) )", "(%g, %g, %g) len %g", velInConst.v[0], velInConst.v[1], velInConst.v[2], fsqrt(v19)) )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+0F8h+velInConst]
-          vmovss  xmm3, dword ptr [rsp+0F8h+velInConst+4]
-          vmovss  xmm5, dword ptr [rsp+0F8h+velInConst+8]
-        }
+        v16 = velInConst.v[0];
+        v17 = LODWORD(velInConst.v[1]);
+        v18 = velInConst.v[2];
       }
-      __asm
-      {
-        vmulss  xmm1, xmm3, xmm8
-        vmulss  xmm0, xmm4, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm9
-        vaddss  xmm2, xmm2, xmm1
-        vdivss  xmm0, xmm2, dword ptr [rdi+24h]
-        vminss  xmm6, xmm0, xmm6
-      }
+      v20 = v17;
+      *(float *)&v20 = (float)((float)((float)(*(float *)&v17 * v13) + (float)(v16 * v11)) + (float)(v18 * v12)) / pml->frametime;
+      _XMM0 = v20;
+      __asm { vminss  xmm6, xmm0, xmm6 }
     }
-    _RAX = pm->ps;
-    __asm
+    ps = pm->ps;
+    ps->velocity.v[0] = v16 * *(float *)&_XMM6;
+    ps->velocity.v[1] = *(float *)&_XMM6 * velInConst.v[1];
+    ps->velocity.v[2] = *(float *)&_XMM6 * velInConst.v[2];
+    PM_UpdatePlayerCollision(pm, pml, 0, 1, 0, 1);
+    v23 = pm->ps;
+    if ( (float)((float)((float)((float)(v23->origin.v[1] - v9) * (float)(v23->origin.v[1] - v9)) + (float)((float)(v23->origin.v[0] - v8) * (float)(v23->origin.v[0] - v8))) + (float)((float)(v23->origin.v[2] - v10) * (float)(v23->origin.v[2] - v10))) < minMoveDistSq )
     {
-      vmulss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rax+3Ch], xmm0
-      vmulss  xmm2, xmm6, dword ptr [rsp+0F8h+velInConst+4]
-      vmovss  dword ptr [rax+40h], xmm2
-      vmulss  xmm1, xmm6, dword ptr [rsp+0F8h+velInConst+8]
-      vmovss  dword ptr [rax+44h], xmm1
+      v23->origin.v[0] = v8;
+      v23->origin.v[1] = v9;
+      v23->origin.v[2] = v10;
     }
-    PM_UpdatePlayerCollision(pm, _RDI, 0, 1, 0, 1);
-    _RAX = pm->ps;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+30h]
-      vmovss  xmm1, dword ptr [rax+34h]
-      vsubss  xmm3, xmm0, xmm10
-      vmovss  xmm0, dword ptr [rax+38h]
-      vsubss  xmm2, xmm1, xmm11
-      vmulss  xmm2, xmm2, xmm2
-      vsubss  xmm4, xmm0, xmm12
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:minMoveDistSq
-    }
-    if ( v38 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rax+30h], xmm10
-        vmovss  dword ptr [rax+34h], xmm11
-        vmovss  dword ptr [rax+38h], xmm12
-      }
-    }
-    PM_GroundTrace(pm, _RDI, 0);
+    PM_GroundTrace(pm, pml, 0);
   }
-  result = 1;
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -2705,58 +1849,25 @@ BG_ContextMount_QuantizeFloat01Byte
 ==============
 */
 
-float __fastcall BG_ContextMount_QuantizeFloat01Byte(double value, double _XMM1_8, double _XMM2_8)
+float __fastcall BG_ContextMount_QuantizeFloat01Byte(float value, __int64 a2, double _XMM2_8)
 {
-  char v13; 
-  double v20; 
-  double v21; 
-  double v22; 
+  unsigned __int8 v6; 
 
-  __asm
+  if ( value < 0.0 || value > 1.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@3f800000
-    vmovsd  xmm1, cs:__real@3ff0000000000000
-    vmovsd  [rsp+58h+var_20], xmm1
-    vxorpd  xmm2, xmm2, xmm2
-    vmovsd  [rsp+58h+var_28], xmm2
-    vcvtss2sd xmm3, xmm6, xmm6
-    vmovsd  [rsp+58h+var_30], xmm3
+    __asm { vxorpd  xmm2, xmm2, xmm2 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", value, *(double *)&_XMM2, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", v20, v21, v22) )
-    __debugbreak();
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:__real@43800000
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si eax, xmm2
-  }
-  v13 = _EAX;
-  if ( _EAX > 255 )
-    v13 = -1;
-  if ( v13 == -1 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v6 = (int)*(float *)&_XMM2;
+  if ( (int)*(float *)&_XMM2 > 255 )
+    v6 = -1;
+  if ( v6 == 0xFF )
+    return FLOAT_1_0;
   else
-  {
-    __asm
-    {
-      vmovaps xmm6, [rsp+58h+var_18]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, cs:__real@3b800000
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)v6 * 0.00390625;
 }
 
 /*
@@ -2766,19 +1877,12 @@ BG_ContextMount_QuantizeViewHeight
 */
 double BG_ContextMount_QuantizeViewHeight(float viewHeight)
 {
-  double v3; 
-  int v5; 
+  double v1; 
+  int v2; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@42b40000; max
-    vmovss  xmm1, cs:__real@c2b40000; min
-  }
-  v3 = I_fclamp(viewHeight, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm1, cs:__real@42b40000; maxAbsValueSize }
-  v5 = MSG_PackSignedFloat(*(float *)&v3, *(float *)&_XMM1, 0xBu);
-  __asm { vmovss  xmm1, cs:__real@42b40000; maxAbsValueSize }
-  return MSG_UnpackSignedFloat(v5, *(float *)&_XMM1, 0xBu);
+  v1 = I_fclamp(viewHeight, -90.0, 90.0);
+  v2 = MSG_PackSignedFloat(*(float *)&v1, 90.0, 0xBu);
+  return MSG_UnpackSignedFloat(v2, 90.0, 0xBu);
 }
 
 /*
@@ -2788,30 +1892,67 @@ BG_ContextMount_UpdatePlayerPullingAway
 */
 char BG_ContextMount_UpdatePlayerPullingAway(const pmove_t *const pm, const pml_t *const pml, const vec3_t *entityUp, const vec3_t *edgeParallel, const vec3_t *edgeNormal, const vec3_t *edgeBelow)
 {
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
   playerState_s *ps; 
-  const dvar_t *v21; 
+  const dvar_t *v19; 
   ContextMountType type; 
-  const dvar_t *v24; 
-  char v75; 
-  char v86; 
-  int v87; 
-  bool v94; 
-  const dvar_t *v158; 
-  const dvar_t *v161; 
+  const dvar_t *v21; 
+  unsigned int rightmove; 
+  unsigned int forwardmove; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __m128 v28; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  __int128 v38; 
+  float v39; 
+  float v40; 
+  double v41; 
+  int v42; 
+  __int128 v43; 
+  float v47; 
+  __int128 v48; 
+  float v49; 
+  float v50; 
+  __int128 v51; 
+  const dvar_t *v55; 
+  const dvar_t *v56; 
+  const dvar_t *v57; 
+  const dvar_t *v58; 
   int pullbackStartTime; 
-  const dvar_t *v166; 
-  int v167; 
+  const dvar_t *v60; 
+  int v61; 
   int pullsideStartTime; 
-  int v169; 
-  const dvar_t *v170; 
-  const char *v171; 
-  __int64 v173; 
-  ContextMountType v174; 
+  int v63; 
+  const dvar_t *v64; 
+  const char *v65; 
+  __int64 v67; 
+  ContextMountType v68; 
   vec3_t outProjectedPoint; 
-  vec3_t v176; 
+  vec3_t v70; 
+  __int128 v71; 
+  __int128 v72; 
+  __int128 v73; 
+  __int128 v74; 
+  __int128 v75; 
+  __int128 v76; 
+  __int128 v77; 
+  __int128 v78; 
 
-  _R13 = edgeParallel;
-  _R14 = entityUp;
   *(_QWORD *)outProjectedPoint.v = edgeNormal;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 327, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -2824,341 +1965,205 @@ char BG_ContextMount_UpdatePlayerPullingAway(const pmove_t *const pm, const pml_
     __debugbreak();
   if ( ps->mountState.surface.type >= (unsigned int)COUNT_MOUNT_TYPE )
   {
-    LODWORD(v173) = ps->mountState.surface.type;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 330, ASSERT_TYPE_ASSERT, "(unsigned)( ps->mountState.surface.type ) < (unsigned)( COUNT_MOUNT_TYPE )", "ps->mountState.surface.type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", v173, 4) )
+    LODWORD(v67) = ps->mountState.surface.type;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 330, ASSERT_TYPE_ASSERT, "(unsigned)( ps->mountState.surface.type ) < (unsigned)( COUNT_MOUNT_TYPE )", "ps->mountState.surface.type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", v67, 4) )
       __debugbreak();
   }
   if ( ps->mountState.surface.type == MOUNT_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 331, ASSERT_TYPE_ASSERT, "(ps->mountState.surface.type != MOUNT_TYPE_NONE)", (const char *)&queryFormat, "ps->mountState.surface.type != MOUNT_TYPE_NONE") )
     __debugbreak();
-  v21 = DCONST_DVARBOOL_mount_pull_away_enabled;
+  v19 = DCONST_DVARBOOL_mount_pull_away_enabled;
   if ( !DCONST_DVARBOOL_mount_pull_away_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_pull_away_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  if ( !v21->current.enabled || (pm->cmd.buttons & 0x80000000000000i64) != 0 )
+  Dvar_CheckFrontendServerThread(v19);
+  if ( !v19->current.enabled || (pm->cmd.buttons & 0x80000000000000i64) != 0 )
   {
     *(_QWORD *)&ps->mountState.pullbackStartTime = 0i64;
     return 0;
   }
   type = ps->mountState.surface.type;
-  __asm
-  {
-    vmovaps [rsp+120h+var_40], xmm6
-    vmovaps [rsp+120h+var_60], xmm8
-    vmovaps [rsp+120h+var_70], xmm9
-  }
-  v174 = type;
-  __asm { vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
+  v78 = v6;
+  v76 = v8;
+  v75 = v9;
+  v68 = type;
   if ( type != MOUNT_TYPE_TOP )
     goto LABEL_50;
-  v24 = DCONST_DVARBOOL_mount_controls_project_input_desires;
+  v21 = DCONST_DVARBOOL_mount_controls_project_input_desires;
   if ( !DCONST_DVARBOOL_mount_controls_project_input_desires && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_controls_project_input_desires") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  if ( !v24->current.enabled )
+  Dvar_CheckFrontendServerThread(v21);
+  if ( !v21->current.enabled )
   {
 LABEL_50:
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm8, xmm0, cs:__real@bc010204
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm6, xmm1, cs:__real@3c010204
-    }
+    v25 = (float)pm->cmd.forwardmove * -0.0078740157;
+    v26 = (float)pm->cmd.rightmove * 0.0078740157;
     goto LABEL_51;
   }
-  _EDX = pm->cmd.rightmove;
-  _ER8 = pm->cmd.forwardmove;
-  __asm
+  rightmove = pm->cmd.rightmove;
+  forwardmove = pm->cmd.forwardmove;
+  v24 = fsqrt((float)(int)(rightmove * rightmove + forwardmove * forwardmove));
+  if ( v24 <= 0.000001 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vsqrtss xmm3, xmm0, xmm0
-    vcvtss2sd xmm1, xmm3, xmm3
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( __CFADD__(_EDX * _EDX, _ER8 * _ER8) || _EDX * _EDX + _ER8 * _ER8 == 0 )
-  {
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm6, xmm6, xmm6
-    }
+    v25 = 0.0;
+    v26 = 0.0;
     goto LABEL_51;
   }
-  __asm
+  v77 = v7;
+  v74 = v10;
+  v73 = v11;
+  v72 = v12;
+  v27 = _mm_cvtepi32_ps((__m128i)rightmove).m128_f32[0];
+  v28 = _mm_cvtepi32_ps((__m128i)forwardmove);
+  _XMM1 = *(_OWORD *)&v28 & (unsigned int)_xmm;
+  __asm { vmaxss  xmm2, xmm1, xmm0 }
+  v31 = *(float *)&_XMM2 * (float)(0.0078740157 / v24);
+  v32 = (float)((float)(v27 * pml->right.v[0]) + (float)(v28.m128_f32[0] * pml->forward.v[0])) * v31;
+  *(float *)&_XMM1 = (float)(v27 * pml->right.v[1]) + (float)(v28.m128_f32[0] * pml->forward.v[1]);
+  *(float *)&_XMM2 = v27 * pml->right.v[2];
+  v33 = v28.m128_f32[0] * pml->forward.v[2];
+  v34 = entityUp->v[1];
+  v35 = entityUp->v[2];
+  v36 = *(float *)&_XMM1 * v31;
+  v71 = v13;
+  v37 = (float)(*(float *)&_XMM2 + v33) * v31;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v34 * *(float *)(*(_QWORD *)outProjectedPoint.v + 4i64)) + (float)(entityUp->v[0] * **(float **)outProjectedPoint.v)) + (float)(v35 * *(float *)(*(_QWORD *)outProjectedPoint.v + 8i64))) & _xmm) - 1.0) & _xmm) < 0.001 )
   {
-    vmovaps [rsp+120h+var_50], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps [rsp+120h+var_80], xmm10
-    vmovaps [rsp+120h+var_90], xmm12
-    vmovaps [rsp+120h+var_A0], xmm13
-    vmovd   xmm4, edx
-    vcvtdq2ps xmm4, xmm4
-    vandps  xmm0, xmm4, xmm9
-    vmovd   xmm5, r8d
-    vcvtdq2ps xmm5, xmm5
-    vandps  xmm1, xmm5, xmm9
-    vmaxss  xmm2, xmm1, xmm0
-    vmovss  xmm0, cs:__real@3c010204
-    vdivss  xmm1, xmm0, xmm3
-    vmulss  xmm0, xmm5, dword ptr [r12]
-    vmulss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [r12+0Ch]
-    vmulss  xmm2, xmm4, dword ptr [r12+10h]
-    vaddss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, dword ptr [r12+4]
-    vmulss  xmm12, xmm1, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vmulss  xmm2, xmm4, dword ptr [r12+14h]
-    vmulss  xmm0, xmm5, dword ptr [r12+8]
-    vmovss  xmm4, dword ptr [r14+4]
-    vmovss  xmm5, dword ptr [r14+8]
-    vmulss  xmm13, xmm1, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vmovaps [rsp+120h+var_B0], xmm14
-    vmulss  xmm14, xmm1, xmm3
-    vmulss  xmm1, xmm4, dword ptr [rax+4]
-    vmovss  xmm3, dword ptr [r14]
-    vmulss  xmm0, xmm3, dword ptr [rax]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rax+8]
-    vaddss  xmm0, xmm2, xmm1
-    vandps  xmm0, xmm0, xmm9
-    vsubss  xmm1, xmm0, xmm7
-    vandps  xmm1, xmm1, xmm9
-    vcomiss xmm1, cs:__real@3a83126f
-  }
-  if ( __CFADD__(_EDX * _EDX, _ER8 * _ER8) )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm4, dword ptr [r15+4]
-      vmulss  xmm0, xmm3, dword ptr [r15]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [r15+8]
-      vaddss  xmm0, xmm2, xmm1
-      vandps  xmm0, xmm0, xmm9
-      vsubss  xmm2, xmm0, xmm7
-      vandps  xmm2, xmm2, xmm9
-      vcomiss xmm2, cs:__real@3a83126f
-    }
-    if ( __CFADD__(_EDX * _EDX, _ER8 * _ER8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 368, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( edgeBelow, entityUp ))", (const char *)&queryFormat, "!Vec3IsParallel( edgeBelow, entityUp )") )
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v34 * edgeBelow->v[1]) + (float)(entityUp->v[0] * edgeBelow->v[0])) + (float)(v35 * edgeBelow->v[2])) & _xmm) - 1.0) & _xmm) < 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 368, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( edgeBelow, entityUp ))", (const char *)&queryFormat, "!Vec3IsParallel( edgeBelow, entityUp )") )
       __debugbreak();
-    ProjectPointOnPlane(edgeBelow, _R14, &outProjectedPoint);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+120h+outProjectedPoint]
-      vmovss  xmm5, dword ptr [rsp+120h+outProjectedPoint+4]
-      vmovss  xmm6, dword ptr [rsp+120h+outProjectedPoint+8]
-      vmovsd  xmm8, cs:__real@3d719799812dea11
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm0, xmm2, xmm1
-      vcvtss2sd xmm2, xmm0, xmm0
-      vcomisd xmm2, xmm8
-    }
-    if ( !(v75 | v86) )
+    ProjectPointOnPlane(edgeBelow, entityUp, &outProjectedPoint);
+    v38 = LODWORD(outProjectedPoint.v[0]);
+    v39 = outProjectedPoint.v[1];
+    v40 = outProjectedPoint.v[2];
+    v41 = DOUBLE_1_0eN12;
+    if ( (float)((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(v39 * v39)) + (float)(v40 * v40)) > 1.0e-12 )
       goto LABEL_42;
-    v87 = 370;
+    v42 = 370;
     goto LABEL_39;
   }
-  ProjectPointOnPlane(*(const vec3_t **)outProjectedPoint.v, _R14, &outProjectedPoint);
-  __asm
+  ProjectPointOnPlane(*(const vec3_t **)outProjectedPoint.v, entityUp, &outProjectedPoint);
+  v38 = LODWORD(outProjectedPoint.v[0]);
+  v39 = outProjectedPoint.v[1];
+  v40 = outProjectedPoint.v[2];
+  v41 = DOUBLE_1_0eN12;
+  if ( (float)((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(v39 * v39)) + (float)(v40 * v40)) <= 1.0e-12 )
   {
-    vmovss  xmm4, dword ptr [rsp+120h+outProjectedPoint]
-    vmovss  xmm5, dword ptr [rsp+120h+outProjectedPoint+4]
-    vmovss  xmm6, dword ptr [rsp+120h+outProjectedPoint+8]
-    vmovsd  xmm8, cs:__real@3d719799812dea11
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm0, xmm2, xmm1
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcomisd xmm2, xmm8
-  }
-  if ( v75 | v86 )
-  {
-    v87 = 377;
+    v42 = 377;
 LABEL_39:
-    v94 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", v87, ASSERT_TYPE_ASSERT, "((1.0E-6 * 1.0E-6) < Vec3LengthSq( projectedWallNormal ))", (const char *)&queryFormat, "(ZERO_EPSILON * ZERO_EPSILON) < Vec3LengthSq( projectedWallNormal )");
-    v75 = 0;
-    if ( v94 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", v42, ASSERT_TYPE_ASSERT, "((1.0E-6 * 1.0E-6) < Vec3LengthSq( projectedWallNormal ))", (const char *)&queryFormat, "(ZERO_EPSILON * ZERO_EPSILON) < Vec3LengthSq( projectedWallNormal )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+120h+outProjectedPoint+8]
-      vmovss  xmm5, dword ptr [rsp+120h+outProjectedPoint+4]
-      vmovss  xmm4, dword ptr [rsp+120h+outProjectedPoint]
-    }
+    v40 = outProjectedPoint.v[2];
+    v39 = outProjectedPoint.v[1];
+    v38 = LODWORD(outProjectedPoint.v[0]);
   }
 LABEL_42:
+  v43 = v38;
+  *(float *)&v43 = fsqrt((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(v39 * v39)) + (float)(v40 * v40));
+  _XMM3 = v43;
   __asm
   {
-    vmovss  xmm10, cs:__real@80000000
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm10
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+120h+outProjectedPoint], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+120h+outProjectedPoint+8], xmm0
-    vmovss  xmm0, dword ptr [r13+4]
-    vmulss  xmm3, xmm0, dword ptr [r14+4]
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  dword ptr [rsp+120h+outProjectedPoint+4], xmm1
-    vmovss  xmm1, dword ptr [r14]
-    vmulss  xmm2, xmm1, dword ptr [r13+0]
-    vmulss  xmm1, xmm0, dword ptr [r14+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vandps  xmm2, xmm2, xmm9
-    vsubss  xmm0, xmm2, xmm7
-    vandps  xmm0, xmm0, xmm9
-    vcomiss xmm0, cs:__real@3a83126f
   }
-  if ( v75 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 382, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( edgeParallel, entityUp ))", (const char *)&queryFormat, "!Vec3IsParallel( edgeParallel, entityUp )") )
+  v47 = 1.0 / *(float *)&_XMM0;
+  outProjectedPoint.v[0] = *(float *)&v38 * (float)(1.0 / *(float *)&_XMM0);
+  outProjectedPoint.v[2] = v40 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&_XMM3 = edgeParallel->v[1] * entityUp->v[1];
+  *(float *)&_XMM0 = edgeParallel->v[2];
+  outProjectedPoint.v[1] = v39 * v47;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&_XMM3 + (float)(entityUp->v[0] * edgeParallel->v[0])) + (float)(*(float *)&_XMM0 * entityUp->v[2])) & _xmm) - 1.0) & _xmm) < 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 382, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( edgeParallel, entityUp ))", (const char *)&queryFormat, "!Vec3IsParallel( edgeParallel, entityUp )") )
     __debugbreak();
-  ProjectPointOnPlane(_R13, _R14, &v176);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rsp+120h+var_C8]
-    vmovss  xmm5, dword ptr [rbp+47h+var_C8+4]
-    vmovss  xmm6, dword ptr [rbp+47h+var_C8+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm0, xmm2, xmm1
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcomisd xmm2, xmm8
-  }
-  if ( v75 | v86 )
+  ProjectPointOnPlane(edgeParallel, entityUp, &v70);
+  v48 = LODWORD(v70.v[0]);
+  v49 = v70.v[1];
+  v50 = v70.v[2];
+  if ( (float)((float)((float)(*(float *)&v48 * *(float *)&v48) + (float)(v49 * v49)) + (float)(v50 * v50)) <= v41 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 384, ASSERT_TYPE_ASSERT, "((1.0E-6 * 1.0E-6) < Vec3LengthSq( projectedEdgeLeft ))", (const char *)&queryFormat, "(ZERO_EPSILON * ZERO_EPSILON) < Vec3LengthSq( projectedEdgeLeft )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+120h+var_C8]
-      vmovss  xmm5, dword ptr [rbp+47h+var_C8+4]
-      vmovss  xmm6, dword ptr [rbp+47h+var_C8+8]
-    }
+    v48 = LODWORD(v70.v[0]);
+    v49 = v70.v[1];
+    v50 = v70.v[2];
   }
+  v51 = v48;
+  *(float *)&v51 = fsqrt((float)((float)(*(float *)&v48 * *(float *)&v48) + (float)(v49 * v49)) + (float)(v50 * v50));
+  _XMM3 = v51;
   __asm
   {
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vmulss  xmm2, xmm13, dword ptr [rsp+120h+outProjectedPoint+4]
     vcmpless xmm0, xmm3, xmm10
-    vmovaps xmm10, [rsp+120h+var_80]
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vmulss  xmm3, xmm12, dword ptr [rsp+120h+outProjectedPoint]
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm7, xmm4, xmm1
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm5, xmm5, xmm1
-    vmulss  xmm1, xmm14, dword ptr [rsp+120h+outProjectedPoint+8]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm2, xmm7, xmm12
-    vmovaps xmm12, [rsp+120h+var_90]
-    vmovaps xmm7, [rsp+120h+var_50]
-    vmulss  xmm0, xmm5, xmm13
-    vmovaps xmm13, [rsp+120h+var_A0]
-    vaddss  xmm8, xmm4, xmm1
-    vmulss  xmm1, xmm6, xmm14
-    vmovaps xmm14, [rsp+120h+var_B0]
-    vaddss  xmm3, xmm2, xmm0
-    vaddss  xmm6, xmm3, xmm1
-    vandps  xmm6, xmm6, xmm9
   }
+  v25 = (float)((float)(v32 * outProjectedPoint.v[0]) + (float)(v36 * outProjectedPoint.v[1])) + (float)(v37 * outProjectedPoint.v[2]);
+  LODWORD(v26) = COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v48 * (float)(1.0 / *(float *)&_XMM0)) * v32) + (float)((float)(v49 * (float)(1.0 / *(float *)&_XMM0)) * v36)) + (float)((float)(v50 * (float)(1.0 / *(float *)&_XMM0)) * v37)) & _xmm;
 LABEL_51:
-  v158 = DCONST_DVARBOOL_mount_pullforward_enabled;
+  v55 = DCONST_DVARBOOL_mount_pullforward_enabled;
   if ( !DCONST_DVARBOOL_mount_pullforward_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_pullforward_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v158);
-  if ( v158->current.enabled )
-    __asm { vandps  xmm8, xmm8, xmm9 }
-  _R14 = DCONST_DVARFLT_mount_pullback_forward_move_fraction;
+  Dvar_CheckFrontendServerThread(v55);
+  if ( v55->current.enabled )
+    LODWORD(v25) &= _xmm;
+  v56 = DCONST_DVARFLT_mount_pullback_forward_move_fraction;
   if ( !DCONST_DVARFLT_mount_pullback_forward_move_fraction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_pullback_forward_move_fraction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
+  Dvar_CheckFrontendServerThread(v56);
+  if ( v25 > v56->current.value )
   {
-    vcomiss xmm8, dword ptr [r14+28h]
-    vmovaps xmm8, [rsp+120h+var_60]
+    if ( !ps->mountState.pullbackStartTime )
+      ps->mountState.pullbackStartTime = pm->cmd.serverTime;
   }
-  ps->mountState.pullbackStartTime = 0;
-  v161 = DCONST_DVARBOOL_mount_pullside_into_cover_enabled;
+  else
+  {
+    ps->mountState.pullbackStartTime = 0;
+  }
+  v57 = DCONST_DVARBOOL_mount_pullside_into_cover_enabled;
   if ( !DCONST_DVARBOOL_mount_pullside_into_cover_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_pullside_into_cover_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v161);
-  if ( v161->current.enabled )
+  Dvar_CheckFrontendServerThread(v57);
+  if ( v57->current.enabled )
   {
-    __asm { vandps  xmm6, xmm6, xmm9 }
+    LODWORD(v26) &= _xmm;
   }
   else if ( ps->mountState.surface.type == MOUNT_TYPE_LEFT )
   {
-    __asm { vxorps  xmm6, xmm6, cs:__xmm@80000000800000008000000080000000 }
+    LODWORD(v26) ^= _xmm;
   }
-  _R14 = DCONST_DVARFLT_mount_pullside_side_move_fraction;
-  __asm { vmovaps xmm9, [rsp+120h+var_70] }
+  v58 = DCONST_DVARFLT_mount_pullside_side_move_fraction;
   if ( !DCONST_DVARFLT_mount_pullside_side_move_fraction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_pullside_side_move_fraction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
+  Dvar_CheckFrontendServerThread(v58);
+  if ( v26 > v58->current.value )
   {
-    vcomiss xmm6, dword ptr [r14+28h]
-    vmovaps xmm6, [rsp+120h+var_40]
+    if ( !ps->mountState.pullsideStartTime )
+      ps->mountState.pullsideStartTime = pm->cmd.serverTime;
   }
-  if ( v75 | v86 )
+  else
   {
     ps->mountState.pullsideStartTime = 0;
-  }
-  else if ( !ps->mountState.pullsideStartTime )
-  {
-    ps->mountState.pullsideStartTime = pm->cmd.serverTime;
   }
   pullbackStartTime = ps->mountState.pullbackStartTime;
   if ( pullbackStartTime > 0 )
   {
-    v166 = DCONST_DVARINT_mount_pullback_time_ms;
-    v167 = pm->cmd.serverTime - pullbackStartTime;
+    v60 = DCONST_DVARINT_mount_pullback_time_ms;
+    v61 = pm->cmd.serverTime - pullbackStartTime;
     if ( !DCONST_DVARINT_mount_pullback_time_ms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_pullback_time_ms") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v166);
-    if ( v166->current.integer < v167 )
+    Dvar_CheckFrontendServerThread(v60);
+    if ( v60->current.integer < v61 )
       return 1;
   }
   pullsideStartTime = ps->mountState.pullsideStartTime;
   if ( pullsideStartTime > 0 )
   {
-    if ( v174 == MOUNT_TYPE_TOP )
+    if ( v68 == MOUNT_TYPE_TOP )
     {
-      v170 = DCONST_DVARINT_mount_pullside_top_time_ms;
-      v171 = "mount_pullside_top_time_ms";
+      v64 = DCONST_DVARINT_mount_pullside_top_time_ms;
+      v65 = "mount_pullside_top_time_ms";
     }
     else
     {
-      v170 = DCONST_DVARINT_mount_pullside_side_time_ms;
-      v171 = "mount_pullside_side_time_ms";
+      v64 = DCONST_DVARINT_mount_pullside_side_time_ms;
+      v65 = "mount_pullside_side_time_ms";
     }
-    v169 = pm->cmd.serverTime - pullsideStartTime;
-    if ( Dvar_GetInt_Internal_DebugName(v170, v171) < v169 )
+    v63 = pm->cmd.serverTime - pullsideStartTime;
+    if ( Dvar_GetInt_Internal_DebugName(v64, v65) < v63 )
       return 1;
   }
   return 0;
@@ -3172,21 +2177,18 @@ MountSurfaceProperties::Initialize
 void MountSurfaceProperties::Initialize(MountSurfaceProperties *this, const BgHandler *handler, const MountSurfaceAbbreviatedProperties *mount)
 {
   unsigned int normalFaceIndex; 
-  MountEdgeProperties v8; 
+  MountEdgeProperties v6; 
 
-  _RBX = this;
   this->MountSurfaceAbbreviatedProperties = *mount;
   *(_QWORD *)&this->adjFraction = 0i64;
   if ( EdgeId::IsValid(&this->adjId) )
   {
-    MountEdgeProperties::MountEdgeProperties(&v8);
-    __asm { vmovss  xmm3, dword ptr [rbx+0Ch]; argFraction }
-    MountEdgeProperties::Initialize(&v8, handler, _RBX->id, *(float *)&_XMM3, _RBX->normalFaceIndex, _RBX->type);
-    MountEdgeProperties::TransitionToAdjacent(&v8, handler, _RBX->adjId, 0);
-    __asm { vmovss  xmm0, [rsp+0A8h+var_78.fraction] }
-    normalFaceIndex = v8.normalFaceIndex;
-    __asm { vmovss  dword ptr [rbx+30h], xmm0 }
-    _RBX->adjNormalFaceIndex = normalFaceIndex;
+    MountEdgeProperties::MountEdgeProperties(&v6);
+    MountEdgeProperties::Initialize(&v6, handler, this->id, this->fraction, this->normalFaceIndex, this->type);
+    MountEdgeProperties::TransitionToAdjacent(&v6, handler, this->adjId, 0);
+    normalFaceIndex = v6.normalFaceIndex;
+    this->adjFraction = v6.fraction;
+    this->adjNormalFaceIndex = normalFaceIndex;
   }
 }
 
@@ -3261,10 +2263,48 @@ PM_ContextMount_CalcPlayerSpeed
 */
 float PM_ContextMount_CalcPlayerSpeed(const pmove_t *const pm, const pml_t *const pml)
 {
-  __asm
+  playerState_s *ps; 
+  int startTime; 
+  double v7; 
+  const dvar_t *v8; 
+  float v9; 
+  __int128 unsignedInt; 
+  const dvar_t *v11; 
+  __int128 v13; 
+
+  LODWORD(_XMM0) = 0;
+  if ( pml->frametime > 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rdx+24h]
+    if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2102, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
+      __debugbreak();
+    ps = pm->ps;
+    if ( !ps )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2102, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+        __debugbreak();
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 80, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+        __debugbreak();
+    }
+    startTime = ps->mountState.startTime;
+    if ( (!startTime || startTime <= ps->mountState.endTime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2104, ASSERT_TYPE_ASSERT, "(BG_ContextMount_IsActive( ps ))", (const char *)&queryFormat, "BG_ContextMount_IsActive( ps )") )
+      __debugbreak();
+    if ( !pml->mountState.isPreviousViewangleValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 2105, ASSERT_TYPE_ASSERT, "(pml->mountState.isPreviousViewangleValid)", (const char *)&queryFormat, "pml->mountState.isPreviousViewangleValid") )
+      __debugbreak();
+    v7 = AngleDelta(ps->viewangles.v[1], pml->mountState.previousViewangles.v[1]);
+    v8 = DCONST_DVARFLT_mount_bob_rate;
+    v9 = COERCE_FLOAT(LODWORD(v7) & _xmm) / pml->frametime;
+    if ( !DCONST_DVARFLT_mount_bob_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_bob_rate") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v8);
+    unsignedInt = v8->current.unsignedInt;
+    v11 = DCONST_DVARFLT_mount_bob_max_speed;
+    if ( !DCONST_DVARFLT_mount_bob_max_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_bob_max_speed") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v11);
+    v13 = unsignedInt;
+    *(float *)&v13 = *(float *)&unsignedInt * v9;
+    _XMM0 = v13;
+    __asm { vminss  xmm0, xmm0, dword ptr [rbx+28h] }
   }
   return *(float *)&_XMM0;
 }
@@ -3276,22 +2316,18 @@ PM_ContextMount_CheckValidMountState
 */
 bool PM_ContextMount_CheckValidMountState(const pmove_t *const pm, const pml_t *const pml, MountFailureResult *outResults)
 {
+  playerState_s *ps; 
   bool IsActive; 
-  char v8; 
+  char v7; 
   Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
-  bool v11; 
+  bool v10; 
   unsigned __int64 buttons; 
-  bool v13; 
-  unsigned __int64 v15; 
+  bool v12; 
+  unsigned __int64 v14; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
-  char v18; 
-  char v19; 
-  bool IsTopMountYawClamped; 
-  bool v24; 
-  bool IsViewangleTooShallow; 
-  bool v27; 
+  bool v17; 
   float outForward; 
   float outAbove; 
   int outEnterDurationMs; 
@@ -3307,69 +2343,55 @@ bool PM_ContextMount_CheckValidMountState(const pmove_t *const pm, const pml_t *
   pmla = (pml_t *)pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 961, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 961, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 961, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !outResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 962, ASSERT_TYPE_ASSERT, "( outResults ) != ( nullptr )", "%s != %s\n\t%p, %p", "outResults", "nullptr", NULL, NULL) )
     __debugbreak();
   *(_WORD *)&outResults->cancelToLower = 0;
   outResults->failReason[0] = 0;
-  IsActive = BG_ContextMount_IsActive(_RDI);
-  v8 = _RDI->mountState.flags & 1;
+  IsActive = BG_ContextMount_IsActive(ps);
+  v7 = ps->mountState.flags & 1;
   if ( IsActive )
   {
     p_weapon = &pm->cmd.weapon;
     weaponMap = pm->weaponMap;
-    if ( _RDI->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _RDI, &pm->cmd.weapon) )
-      p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _RDI);
-    v11 = BG_UsingAlternate(_RDI);
+    if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+      p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+    v10 = BG_UsingAlternate(ps);
     buttons = pm->cmd.buttons;
-    v13 = v11;
+    v12 = v10;
     if ( (buttons & 0x200) == 0 )
     {
       *(_WORD *)&outResults->cancelToLower = 0;
       strncpy(outResults->failReason, "player released ADS", 0x80ui64);
       return 0;
     }
-    v15 = buttons & ~pm->oldcmd.buttons;
-    v16 = (unsigned __int16)buttons & (unsigned __int16)~LOWORD(pm->oldcmd.buttons) & 0x5C0;
+    v14 = buttons & ~pm->oldcmd.buttons;
+    v15 = (unsigned __int16)buttons & (unsigned __int16)~LOWORD(pm->oldcmd.buttons) & 0x5C0;
     if ( (pm->cmd.stateFlags & 8) != 0 )
-      v17 = (buttons & 0x80000000000i64) == 0;
+      v16 = (buttons & 0x80000000000i64) == 0;
     else
-      v17 = v15 & 0x80000000000i64;
-    if ( v17 || v16 )
+      v16 = v14 & 0x80000000000i64;
+    if ( v16 || v15 )
     {
-      outResults->cancelToLower = (v15 & 0x4C0) != 0;
-      outResults->putOnCooldown = (v15 & 0x4C0) != 0;
+      outResults->cancelToLower = (v14 & 0x4C0) != 0;
+      outResults->putOnCooldown = (v14 & 0x4C0) != 0;
       strncpy(outResults->failReason, "player button press cancelled mount", 0x80ui64);
       return 0;
     }
-    BG_GetMountEdgeToEyeDistance((const ContextMountType)_RDI->mountState.surface.type, p_weapon, v11, &outForward, &outAbove);
-    __asm
+    BG_GetMountEdgeToEyeDistance((const ContextMountType)ps->mountState.surface.type, p_weapon, v10, &outForward, &outAbove);
+    if ( outForward <= 0.0 || outAbove <= 0.0 )
     {
-      vmovss  xmm0, [rsp+148h+outForward]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v18 | v19 )
-      goto LABEL_37;
-    __asm
-    {
-      vmovss  xmm0, [rsp+148h+outAbove]
-      vcomiss xmm0, xmm1
-    }
-    if ( v18 | v19 )
-    {
-LABEL_37:
       strncpy(outResults->failReason, "weapon has invalid edgeToEyeDistance", 0x80ui64);
       return 0;
     }
-    if ( v8 )
+    if ( v7 )
     {
-      BG_GetMountEnterExitDuration((const ContextMountType)_RDI->mountState.surface.type, p_weapon, v13, &outEnterDurationMs, &outExitDurationMs);
+      BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, p_weapon, v12, &outEnterDurationMs, &outExitDurationMs);
       WorldUpReferenceFrame::GetUpVector(&pm->refFrame, &outUp);
-      AnglesToAxis(&_RDI->viewangles, &axis);
-      MountSurfaceProperties::Initialize(&mount, pm->m_bgHandler, &_RDI->mountState.surface);
+      AnglesToAxis(&ps->viewangles, &axis);
+      MountSurfaceProperties::Initialize(&mount, pm->m_bgHandler, &ps->mountState.surface);
       BG_ContextMount_CalcMountVectors(pm->m_bgHandler, &mount, &outNormal, &outParallel, &outBelow);
       if ( BG_ContextMount_UpdatePlayerPullingAway(pm, pmla, &outUp, &outParallel, &outNormal, &outBelow) )
       {
@@ -3377,24 +2399,14 @@ LABEL_37:
         strncpy(outResults->failReason, "player pulled back from edge", 0x80ui64);
         return 0;
       }
-      if ( _RDI->mountState.surface.type != MOUNT_TYPE_TOP || (IsTopMountYawClamped = BG_IsTopMountYawClamped(p_weapon, v13), v24 = !IsTopMountYawClamped) )
+      if ( (ps->mountState.surface.type != MOUNT_TYPE_TOP || !BG_IsTopMountYawClamped(p_weapon, v12)) && BG_ContextMount_IsViewangleTooShallow((const ContextMountType)ps->mountState.surface.type, &axis, &outUp, &outParallel) )
       {
-        IsViewangleTooShallow = BG_ContextMount_IsViewangleTooShallow((const ContextMountType)_RDI->mountState.surface.type, &axis, &outUp, &outParallel);
-        v24 = !IsViewangleTooShallow;
-        if ( IsViewangleTooShallow )
-        {
-          outResults->putOnCooldown = 1;
-          strncpy(outResults->failReason, "view vector nearly parallel to mount edge", 0x80ui64);
-          return 0;
-        }
+        outResults->putOnCooldown = 1;
+        strncpy(outResults->failReason, "view vector nearly parallel to mount edge", 0x80ui64);
+        return 0;
       }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vcomiss xmm0, dword ptr [rdi+730h]
-      }
-      v27 = !v24 && !_RDI->weapCommon.fWeaponPosFracIn;
-      if ( outEnterDurationMs + gracePeriodMs + _RDI->mountState.startTime < pm->cmd.serverTime && v27 )
+      v17 = ps->weapCommon.fWeaponPosFrac < 1.0 && !ps->weapCommon.fWeaponPosFracIn;
+      if ( outEnterDurationMs + gracePeriodMs + ps->mountState.startTime < pm->cmd.serverTime && v17 )
       {
         *(_WORD *)&outResults->cancelToLower = 0;
         strncpy(outResults->failReason, "player not in ADS", 0x80ui64);
@@ -3403,7 +2415,7 @@ LABEL_37:
     }
   }
   if ( PM_CalcIsAdsAllowed(pm) )
-    return BG_ContextMount_IsValidMountState(pm->weaponMap, _RDI, outResults);
+    return BG_ContextMount_IsValidMountState(pm->weaponMap, ps, outResults);
   strncpy(outResults->failReason, "player is not permitted to enter ADS in current state", 0x80ui64);
   return 0;
 }
@@ -3413,87 +2425,55 @@ LABEL_37:
 PM_ContextMount_ClampViewAngles
 ==============
 */
-bool PM_ContextMount_ClampViewAngles(const MountPlayerProperties *player, const MountSurfaceDetailedProperties *mountProperties, pmove_t *pm)
+char PM_ContextMount_ClampViewAngles(const MountPlayerProperties *player, const MountSurfaceDetailedProperties *mountProperties, pmove_t *pm)
 {
   playerState_s *ps; 
-  const dvar_t *v10; 
-  const dvar_t *v14; 
+  const dvar_t *v7; 
+  float integer; 
+  const dvar_t *v9; 
   vec2_t maxClampDeg; 
-  bool result; 
+  float serverTime; 
   int outEnterDurationMs; 
   int outExitDurationMs; 
   vec3_t worldAnglesCenter; 
   viewClampState clamp; 
 
-  __asm { vmovaps [rsp+118h+var_38], xmm6 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 143, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 143, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   BG_GetMountEnterExitDuration((const ContextMountType)mountProperties->mount.type, &player->weapon, player->isAlternate, &outEnterDurationMs, &outExitDurationMs);
-  v10 = DCONST_DVARINT_mount_viewclamp_accel_duration_ms;
+  v7 = DCONST_DVARINT_mount_viewclamp_accel_duration_ms;
   if ( !DCONST_DVARINT_mount_viewclamp_accel_duration_ms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_viewclamp_accel_duration_ms") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-  }
-  v14 = DCONST_DVARINT_mount_viewclamp_decel_duration_ms;
-  __asm
-  {
-    vmulss  xmm0, xmm0, xmm6
-    vmovss  [rsp+118h+clamp.accelTime], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  integer = (float)v7->current.integer;
+  v9 = DCONST_DVARINT_mount_viewclamp_decel_duration_ms;
+  clamp.accelTime = integer * 0.001;
   if ( !DCONST_DVARINT_mount_viewclamp_decel_duration_ms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_viewclamp_decel_duration_ms") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  [rsp+118h+clamp.decelTime], xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, [rsp+118h+outEnterDurationMs]
-    vmulss  xmm0, xmm2, xmm6
-    vmovss  [rsp+118h+clamp.totalTime], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rdi+4B8h]
-    vmulss  xmm2, xmm1, xmm6
-    vmovss  [rsp+118h+clamp.startTime], xmm2
-  }
+  Dvar_CheckFrontendServerThread(v9);
+  clamp.decelTime = (float)v9->current.integer * 0.001;
+  clamp.totalTime = (float)outEnterDurationMs * 0.001;
+  clamp.startTime = (float)ps->mountState.startTime * 0.001;
   clamp.min.start = ps->mountState.startViewAngles;
   clamp.max.start = ps->mountState.startViewAngles;
   clamp.min.goal = mountProperties->minClampDeg;
   maxClampDeg = mountProperties->maxClampDeg;
-  __asm
-  {
-    vmovss  dword ptr [rsp+118h+clamp.resistMin.start], xmm0
-    vmovss  dword ptr [rsp+118h+clamp.resistMin.start+4], xmm0
-    vmovss  dword ptr [rsp+118h+clamp.resistMax.start], xmm0
-    vmovss  dword ptr [rsp+118h+clamp.resistMax.start+4], xmm0
-    vmovss  dword ptr [rsp+118h+worldAnglesCenter], xmm0
-    vmovss  dword ptr [rsp+118h+worldAnglesCenter+4], xmm0
-    vmovss  dword ptr [rsp+118h+worldAnglesCenter+8], xmm0
-  }
+  clamp.resistMin.start.v[0] = 0.0;
+  clamp.resistMin.start.v[1] = 0.0;
+  clamp.resistMax.start.v[0] = 0.0;
+  clamp.resistMax.start.v[1] = 0.0;
+  worldAnglesCenter.v[0] = 0.0;
+  worldAnglesCenter.v[1] = 0.0;
+  worldAnglesCenter.v[2] = 0.0;
   clamp.max.goal = maxClampDeg;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+1Ch]
-  }
+  serverTime = (float)pm->cmd.serverTime;
   clamp.resistMin.goal = mountProperties->minResistDeg;
-  __asm { vmulss  xmm0, xmm0, xmm6; currentTime }
   clamp.resistMax.goal = mountProperties->maxResistDeg;
-  BG_UpdateViewAngleClamp(*(const float *)&_XMM0, &worldAnglesCenter, &clamp, ps);
-  result = 1;
-  __asm { vmovaps xmm6, [rsp+118h+var_38] }
-  return result;
+  BG_UpdateViewAngleClamp(serverTime * 0.001, &worldAnglesCenter, &clamp, ps);
+  return 1;
 }
 
 /*
@@ -3503,125 +2483,82 @@ PM_ContextMount_Debug
 */
 void PM_ContextMount_Debug(const pmove_t *const pm)
 {
-  const dvar_t *v6; 
+  playerState_s *ps; 
+  const dvar_t *v3; 
   Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
-  bool v10; 
-  __int64 v22; 
+  bool v6; 
+  __int128 v7; 
+  __int64 v8; 
   vec3_t vec; 
   vec3_t forward; 
-  int v44[4]; 
-  int v45[4]; 
-  int v46[4]; 
+  int v13[4]; 
+  int v14[4]; 
+  int v15[4]; 
   Bounds bounds; 
+  vec3_t outMountPoint; 
   vec3_t outUp; 
-  WorldUpReferenceFrame v49; 
-  char v50; 
-  void *retaddr; 
+  WorldUpReferenceFrame v19; 
+  MountSurfaceProperties mount; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 696, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 696, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 696, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = DCONST_DVARINT_mount_debug;
+  v3 = DCONST_DVARINT_mount_debug;
   if ( !DCONST_DVARINT_mount_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.integer == 2 && pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation && !pm->initialCall )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.integer == 2 && pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation && !pm->initialCall )
   {
-    __asm
+    if ( ps->mountState.mountFraction > 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rsi+4C0h]
+      MountSurfaceProperties::Initialize(&mount, pm->m_bgHandler, &ps->mountState.surface);
+      BG_ContextMount_CalcMountPoint(pm->m_bgHandler, &mount, &outMountPoint);
+      ((void (__fastcall *)(const BgHandler *, vec3_t *, void (__fastcall *)(BgHandler *, const vec3_t *, float, const vec4_t *, int, int), vec4_t *, int, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &outMountPoint, pm->m_bgHandler->DebugSphere, &colorRed, depthTest_2, 0);
     }
     p_weapon = &pm->cmd.weapon;
     weaponMap = pm->weaponMap;
-    if ( _RSI->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _RSI, &pm->cmd.weapon) )
-      p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _RSI);
-    v10 = BG_UsingAlternate(_RSI);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsi+30h]
-      vmovsd  qword ptr [rsp+170h+vec], xmm0
-    }
-    vec.v[2] = _RSI->origin.v[2];
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v49, _RSI, pm->m_bgHandler);
-    WorldUpReferenceFrame::GetUpVector(&v49, &outUp);
-    __asm { vmovss  xmm1, dword ptr [rsi+1E8h]; height }
-    WorldUpReferenceFrame::AddUpContribution(&v49, *(float *)&_XMM1, &vec);
-    BG_ContextMount_GetEyePoint(pm->m_bgHandler, &_RSI->mountState, &outUp, p_weapon, v10, &vec);
+    if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+      p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+    v6 = BG_UsingAlternate(ps);
+    v7 = *(unsigned __int64 *)ps->origin.v;
+    vec = ps->origin;
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v19, ps, pm->m_bgHandler);
+    WorldUpReferenceFrame::GetUpVector(&v19, &outUp);
+    WorldUpReferenceFrame::AddUpContribution(&v19, ps->viewHeightCurrent, &vec);
+    BG_ContextMount_GetEyePoint(pm->m_bgHandler, &ps->mountState, &outUp, p_weapon, v6, &vec);
     if ( dword_148A5F73C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
     {
       j__Init_thread_header(&dword_148A5F73C);
       if ( dword_148A5F73C == -1 )
       {
-        *(double *)&_XMM0 = BG_ContextMount_CalcCameraMinDistToMountBrush();
-        __asm { vmovaps xmm6, xmm0 }
+        *(double *)&v7 = BG_ContextMount_CalcCameraMinDistToMountBrush();
+        _XMM6 = v7;
         BG_ContextMount_CalcCameraMinDistToPlayerClip();
-        __asm
-        {
-          vmaxss  xmm1, xmm6, xmm0
-          vmovss  cs:eyeRadius, xmm1
-        }
+        __asm { vmaxss  xmm1, xmm6, xmm0 }
+        eyeRadius = *(float *)&_XMM1;
         j__Init_thread_footer(&dword_148A5F73C);
       }
     }
-    __asm { vmovss  xmm2, cs:eyeRadius }
     ((void (__fastcall *)(const BgHandler *, vec3_t *, BgHandler_vtbl *, vec4_t *, int, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &vec, pm->m_bgHandler->__vftable, &colorOrange, depthTest_2, 0);
-    AngleVectors(&_RSI->viewangles, &forward, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm3, cs:__real@41c00000
-      vmulss  xmm1, xmm3, dword ptr [rsp+170h+forward]
-      vaddss  xmm2, xmm1, dword ptr [rsp+170h+vec]
-      vmovss  [rsp+170h+var_108], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rsp+170h+forward+4]
-      vaddss  xmm2, xmm1, dword ptr [rsp+170h+vec+4]
-      vmovss  [rsp+170h+var_104], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rsp+170h+forward+8]
-      vaddss  xmm2, xmm1, dword ptr [rsp+170h+vec+8]
-      vmovss  [rsp+170h+var_100], xmm2
-    }
-    pm->m_bgHandler->DebugLine((BgHandler *)pm->m_bgHandler, &vec, (const vec3_t *)v44, &colorOrange, depthTest_2, 0);
-    __asm { vmovss  xmm2, cs:__real@40000000 }
-    ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &_RSI->origin, v22, &colorBlue, 0, 0);
-    _RAX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+70h+bounds.midPoint], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbp+70h+bounds.halfSize+4], xmm1
-    }
+    AngleVectors(&ps->viewangles, &forward, NULL, NULL);
+    *(float *)v13 = (float)(24.0 * forward.v[0]) + vec.v[0];
+    *(float *)&v13[1] = (float)(24.0 * forward.v[1]) + vec.v[1];
+    *(float *)&v13[2] = (float)(24.0 * forward.v[2]) + vec.v[2];
+    pm->m_bgHandler->DebugLine((BgHandler *)pm->m_bgHandler, &vec, (const vec3_t *)v13, &colorOrange, depthTest_2, 0);
+    ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &ps->origin, v8, &colorBlue, 0, 0);
+    bounds = *pm->bounds;
     BG_PlayerCollision_AdjustCapsuleBoundsForStickSystem(&bounds);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+70h+bounds.midPoint]
-      vaddss  xmm0, xmm4, dword ptr [rsi+30h]
-      vmovss  [rbp+70h+var_E8], xmm0
-      vmovss  xmm1, dword ptr [rbp+70h+bounds.midPoint+4]
-      vaddss  xmm0, xmm1, dword ptr [rsi+34h]
-      vmovss  [rbp+70h+var_E4], xmm0
-      vmovss  xmm3, dword ptr [rbp+70h+bounds.midPoint+8]
-      vaddss  xmm0, xmm3, dword ptr [rsi+38h]
-      vaddss  xmm0, xmm0, dword ptr [rbp+70h+bounds.halfSize+8]
-      vmovss  [rbp+70h+var_E0], xmm0
-      vaddss  xmm0, xmm4, dword ptr [rsi+30h]
-      vmovss  [rsp+170h+var_F8], xmm0
-      vaddss  xmm1, xmm1, dword ptr [rsi+34h]
-      vmovss  [rsp+170h+var_F4], xmm1
-      vaddss  xmm0, xmm3, dword ptr [rsi+38h]
-      vsubss  xmm1, xmm0, dword ptr [rbp+70h+bounds.halfSize+8]
-      vmovss  [rbp+70h+var_F0], xmm1
-      vmovss  xmm3, dword ptr [rbp+70h+bounds.halfSize]
-    }
-    ((void (__fastcall *)(const BgHandler *, int *, int *))pm->m_bgHandler->DebugCapsule)(pm->m_bgHandler, v46, v45);
+    *(float *)v15 = bounds.midPoint.v[0] + ps->origin.v[0];
+    *(float *)&v15[1] = bounds.midPoint.v[1] + ps->origin.v[1];
+    *(float *)&v15[2] = (float)(bounds.midPoint.v[2] + ps->origin.v[2]) + bounds.halfSize.v[2];
+    *(float *)v14 = bounds.midPoint.v[0] + ps->origin.v[0];
+    *(float *)&v14[1] = bounds.midPoint.v[1] + ps->origin.v[1];
+    *(float *)&v14[2] = (float)(bounds.midPoint.v[2] + ps->origin.v[2]) - bounds.halfSize.v[2];
+    ((void (__fastcall *)(const BgHandler *, int *, int *))pm->m_bgHandler->DebugCapsule)(pm->m_bgHandler, v15, v14);
   }
-  _R11 = &v50;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -3631,43 +2568,43 @@ PM_ContextMount_Finalize
 */
 void PM_ContextMount_Finalize(pmove_t *const pm, const pml_t *const pml, ContextMountType iconType, vec3_t *iconPos, const EdgeId *iconEdge, bool foundValidEdge, bool isEarlyOut)
 {
+  playerState_s *ps; 
   Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
-  bool v18; 
+  bool v13; 
   int serverTime; 
+  double v15; 
   int flags; 
-  unsigned int v22; 
-  playerState_s *ps; 
-  const dvar_t *v24; 
-  playerState_s *v25; 
+  unsigned int v17; 
+  playerState_s *v18; 
+  const dvar_t *v19; 
+  playerState_s *v20; 
   bool IsActive; 
+  bool v22; 
+  bool v23; 
+  bool v24; 
+  bool v25; 
+  bool updated; 
   bool v27; 
   bool v28; 
-  bool v29; 
-  bool v30; 
-  bool updated; 
-  bool v32; 
-  int v33; 
-  unsigned int v34; 
-  playerState_s *v35; 
-  vec3_t *v36; 
+  int v29; 
+  unsigned int v30; 
+  playerState_s *v31; 
+  vec3_t *v32; 
   EdgeId *mountHint; 
   const BgHandler *m_bgHandler; 
-  BgWeaponMap *v39; 
-  int v40; 
-  ContextMountIconType v41; 
-  int v42; 
-  char v44; 
-  bool v45; 
-  bool v49; 
+  BgWeaponMap *v35; 
+  int v36; 
+  ContextMountIconType v37; 
+  int v38; 
+  double v39; 
+  float v40; 
+  double v41; 
   __int64 mountEndTime; 
   __int64 mountEndTimea; 
   __int64 synchronizeWithMount; 
-  double synchronizeWithMounta; 
-  double v59; 
-  double v60; 
-  bool v61; 
-  bool v62; 
+  bool v45; 
+  bool v46; 
   int outExitDurationMs; 
   int outEnterDurationMs; 
   int exitDurationMs; 
@@ -3675,105 +2612,91 @@ void PM_ContextMount_Finalize(pmove_t *const pm, const pml_t *const pml, Context
   vec3_t *in1; 
   vec3_t out; 
   tmat43_t<vec3_t> axis; 
-  char v70; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
   in1 = iconPos;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 756, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 756, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 756, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   p_weapon = &pm->cmd.weapon;
   weaponMap = pm->weaponMap;
-  if ( _RSI->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _RSI, &pm->cmd.weapon) )
-    p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _RSI);
-  v18 = BG_UsingAlternate(_RSI);
+  if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+    p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+  v13 = BG_UsingAlternate(ps);
   serverTime = pm->cmd.serverTime;
-  v61 = v18;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  if ( _RSI->mountState.startTime )
+  v45 = v13;
+  if ( ps->mountState.startTime )
   {
-    BG_GetMountEnterExitDuration((const ContextMountType)_RSI->mountState.surface.type, p_weapon, v18, &outEnterDurationMs, &outExitDurationMs);
-    *(double *)&_XMM0 = BG_ContextMount_CalculateMountFraction((const ContextMountType)_RSI->mountState.surface.type, outEnterDurationMs, outExitDurationMs, serverTime, _RSI->mountState.startTime, _RSI->mountState.endTime);
+    BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, p_weapon, v13, &outEnterDurationMs, &outExitDurationMs);
+    v15 = BG_ContextMount_CalculateMountFraction((const ContextMountType)ps->mountState.surface.type, outEnterDurationMs, outExitDurationMs, serverTime, ps->mountState.startTime, ps->mountState.endTime);
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0; value }
-    *(double *)&_XMM0 = BG_ContextMount_QuantizeFloat01Byte(*(float *)&_XMM0);
+    v15 = BG_ContextMount_QuantizeFloat01Byte(0.0);
   }
-  __asm { vmovss  dword ptr [rsi+4C0h], xmm0 }
-  if ( !BG_ContextMount_IsActive(_RSI) )
-  {
-    __asm { vcomiss xmm8, dword ptr [rsi+4C0h] }
-    _RSI->mountState.surface.type = MOUNT_TYPE_NONE;
-  }
+  ps->mountState.mountFraction = *(float *)&v15;
+  if ( !BG_ContextMount_IsActive(ps) && ps->mountState.mountFraction <= 0.0 )
+    ps->mountState.surface.type = MOUNT_TYPE_NONE;
   if ( !isEarlyOut )
   {
-    flags = _RSI->mountState.flags;
+    flags = ps->mountState.flags;
     if ( foundValidEdge )
-      v22 = flags | 0x20;
+      v17 = flags | 0x20;
     else
-      v22 = flags & 0xFFFFFFDF;
-    _RSI->mountState.flags = v22;
+      v17 = flags & 0xFFFFFFDF;
+    ps->mountState.flags = v17;
   }
   PM_GameInterface_ContextMount_Finalize(pm, pml);
-  ps = pm->ps;
-  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v18 = pm->ps;
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (ps->mountState.flags & 2) != 0 )
+  if ( (v18->mountState.flags & 2) != 0 )
   {
-    v24 = DCONST_DVARINT_mount_controls_cooldown_duration;
+    v19 = DCONST_DVARINT_mount_controls_cooldown_duration;
     if ( !DCONST_DVARINT_mount_controls_cooldown_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_controls_cooldown_duration") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    if ( pm->cmd.serverTime > v24->current.integer + ps->mountState.endTime )
-      ps->mountState.flags &= ~2u;
+    Dvar_CheckFrontendServerThread(v19);
+    if ( pm->cmd.serverTime > v19->current.integer + v18->mountState.endTime )
+      v18->mountState.flags &= ~2u;
   }
-  v25 = pm->ps;
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 664, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v20 = pm->ps;
+  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 664, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  IsActive = BG_ContextMount_IsActive(v25);
-  v27 = BG_PlayerDualWielding(v25) != 0;
-  v62 = v27;
+  IsActive = BG_ContextMount_IsActive(v20);
+  v22 = BG_PlayerDualWielding(v20) != 0;
+  v46 = v22;
   if ( !IsActive )
   {
-    if ( (v25->mountState.flags & 4) == 0 )
-      goto LABEL_49;
-    goto LABEL_34;
-  }
-  if ( v25->mountState.surface.type != MOUNT_TYPE_TOP )
-  {
-LABEL_34:
-    v28 = 0;
+    if ( (v20->mountState.flags & 4) == 0 )
+      goto LABEL_50;
     goto LABEL_35;
   }
-  v28 = 1;
+  if ( v20->mountState.surface.type != MOUNT_TYPE_TOP )
+  {
 LABEL_35:
-  v29 = IsActive && v25->mountState.surface.type == MOUNT_TYPE_LEFT;
-  v30 = IsActive && v25->mountState.surface.type == MOUNT_TYPE_RIGHT;
-  updated = PM_ContextMount_UpdateGesture(pm, p_weapon, v61, v27, v28, GESTUREANIMTYPE_MOUNT_TOP, 1);
-  v32 = PM_ContextMount_UpdateGesture(pm, p_weapon, v61, v62, v29, GESTUREANIMTYPE_MOUNT_LEFT, 1);
-  v18 = v61;
-  v45 = ((v32 || updated) | PM_ContextMount_UpdateGesture(pm, p_weapon, v61, v62, v30, GESTUREANIMTYPE_MOUNT_RIGHT, 1)) == 0;
-  v33 = v25->mountState.flags;
-  if ( v45 )
-    v34 = v33 & 0xFFFFFFFB;
+    v23 = 0;
+    goto LABEL_36;
+  }
+  v23 = 1;
+LABEL_36:
+  v24 = IsActive && v20->mountState.surface.type == MOUNT_TYPE_LEFT;
+  v25 = IsActive && v20->mountState.surface.type == MOUNT_TYPE_RIGHT;
+  updated = PM_ContextMount_UpdateGesture(pm, p_weapon, v45, v22, v23, GESTUREANIMTYPE_MOUNT_TOP, 1);
+  v27 = PM_ContextMount_UpdateGesture(pm, p_weapon, v45, v46, v24, GESTUREANIMTYPE_MOUNT_LEFT, 1);
+  v13 = v45;
+  v28 = ((v27 || updated) | PM_ContextMount_UpdateGesture(pm, p_weapon, v45, v46, v25, GESTUREANIMTYPE_MOUNT_RIGHT, 1)) == 0;
+  v29 = v20->mountState.flags;
+  if ( v28 )
+    v30 = v29 & 0xFFFFFFFB;
   else
-    v34 = v33 | 4;
-  v25->mountState.flags = v34;
-LABEL_49:
+    v30 = v29 | 4;
+  v20->mountState.flags = v30;
+LABEL_50:
   if ( !isEarlyOut )
   {
-    v35 = pm->ps;
-    if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 219, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v31 = pm->ps;
+    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 219, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( pm->mountHint )
     {
@@ -3784,41 +2707,31 @@ LABEL_49:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 226, ASSERT_TYPE_ASSERT, "(unsigned)( mountType ) < (unsigned)( COUNT_MOUNT_TYPE )", "mountType doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", mountEndTime, synchronizeWithMount) )
           __debugbreak();
       }
-      v36 = in1;
+      v32 = in1;
       pm->mountHint->type = iconType;
-      pm->mountHint->origin = *v36;
+      pm->mountHint->origin = *v32;
       mountHint = (EdgeId *)pm->mountHint;
       if ( iconType )
       {
         mountHint[4] = *iconEdge;
         m_bgHandler = pm->m_bgHandler;
-        v39 = pm->weaponMap;
-        AnglesToAxis(&v35->viewangles, (tmat33_t<vec3_t> *)&axis);
-        BG_GetPlayerEyePosition(v39, v35, &axis.m[3], m_bgHandler);
+        v35 = pm->weaponMap;
+        AnglesToAxis(&v31->viewangles, (tmat33_t<vec3_t> *)&axis);
+        BG_GetPlayerEyePosition(v35, v31, &axis.m[3], m_bgHandler);
         MatrixTransposeTransformVector43(in1, &axis, &out);
-        v40 = 0;
+        v36 = 0;
         if ( iconType == MOUNT_TYPE_TOP )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+138h+out+8]
-            vcomiss xmm0, xmm8
-          }
-          LOBYTE(v40) = iconType == MOUNT_TYPE_NONE;
-          v41 = v40 + 1;
+          LOBYTE(v36) = out.v[2] < 0.0;
+          v37 = v36 + 1;
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+138h+out+4]
-            vcomiss xmm0, xmm8
-          }
-          LOBYTE(v40) = iconType != MOUNT_TYPE_NONE;
-          v41 = v40 + 3;
+          LOBYTE(v36) = out.v[1] >= 0.0;
+          v37 = v36 + 3;
         }
-        pm->mountHint->reticleIconType = v41;
-        pm->mountHint->commandTime = v35->commandTime;
+        pm->mountHint->reticleIconType = v37;
+        pm->mountHint->commandTime = v31->commandTime;
       }
       else
       {
@@ -3827,58 +2740,26 @@ LABEL_49:
     }
   }
   PM_ContextMount_Debug(pm);
-  BG_GetMountEnterExitDuration((const ContextMountType)_RSI->mountState.surface.type, p_weapon, v18, &enterDurationMs, &exitDurationMs);
-  v42 = pm->cmd.serverTime;
-  if ( _RSI->mountState.startTime )
+  BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, p_weapon, v13, &enterDurationMs, &exitDurationMs);
+  v38 = pm->cmd.serverTime;
+  if ( ps->mountState.startTime )
   {
-    BG_GetMountEnterExitDuration((const ContextMountType)_RSI->mountState.surface.type, p_weapon, v18, &outExitDurationMs, &outEnterDurationMs);
-    *(double *)&_XMM0 = BG_ContextMount_CalculateMountFraction((const ContextMountType)_RSI->mountState.surface.type, outExitDurationMs, outEnterDurationMs, v42, _RSI->mountState.startTime, _RSI->mountState.endTime);
+    BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, p_weapon, v13, &outExitDurationMs, &outEnterDurationMs);
+    v39 = BG_ContextMount_CalculateMountFraction((const ContextMountType)ps->mountState.surface.type, outExitDurationMs, outEnterDurationMs, v38, ps->mountState.startTime, ps->mountState.endTime);
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0; value }
-    *(double *)&_XMM0 = BG_ContextMount_QuantizeFloat01Byte(*(float *)&_XMM0);
+    v39 = BG_ContextMount_QuantizeFloat01Byte(0.0);
   }
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = BG_ContextMount_CalculateMountFraction((const ContextMountType)_RSI->mountState.surface.type, enterDurationMs, exitDurationMs, _RSI->serverTime, _RSI->mountState.startTime, _RSI->mountState.endTime);
-  __asm
+  v40 = *(float *)&v39;
+  v41 = BG_ContextMount_CalculateMountFraction((const ContextMountType)ps->mountState.surface.type, enterDurationMs, exitDurationMs, ps->serverTime, ps->mountState.startTime, ps->mountState.endTime);
+  if ( v40 != *(float *)&v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 811, ASSERT_TYPE_ASSERT, "( mountFractionPs ) == ( mountFraction )", "%s == %s\n\t%g, %g", "mountFractionPs", "mountFraction", v40, *(float *)&v41) )
+    __debugbreak();
+  if ( *(float *)&v41 > 0.0 && ps->mountState.surface.type == MOUNT_TYPE_NONE )
   {
-    vucomiss xmm7, xmm0
-    vmovaps xmm6, xmm0
-  }
-  if ( !v45 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovsd  [rsp+138h+var_F8], xmm1
-      vcvtss2sd xmm2, xmm7, xmm7
-      vmovsd  [rsp+138h+var_100], xmm2
-    }
-    v49 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 811, ASSERT_TYPE_ASSERT, "( mountFractionPs ) == ( mountFraction )", "%s == %s\n\t%g, %g", "mountFractionPs", "mountFraction", v59, v60);
-    v44 = 0;
-    v45 = !v49;
-    if ( v49 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, xmm8 }
-  if ( !(v44 | v45) && _RSI->mountState.surface.type == MOUNT_TYPE_NONE )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  qword ptr [rsp+138h+synchronizeWithMount], xmm0
-    }
     LODWORD(mountEndTimea) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 816, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Mount type (%i) is MOUNT_TYPE_NONE but mount fraction (%f) is nonzero.", mountEndTimea, synchronizeWithMounta) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 816, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Mount type (%i) is MOUNT_TYPE_NONE but mount fraction (%f) is nonzero.", mountEndTimea, *(float *)&v41) )
       __debugbreak();
-  }
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
   }
 }
 
@@ -3918,107 +2799,51 @@ PM_ContextMount_SetEdgeState
 */
 void PM_ContextMount_SetEdgeState(pmove_t *const pm, pml_t *const pml, const MountSurfaceProperties *mountProperties, const bool justStartedMount, ContextMountState *const inOutMountState)
 {
-  int v21; 
+  playerState_s *ps; 
+  double v10; 
+  int v11; 
+  double v12; 
+  float v15; 
 
-  _R14 = mountProperties;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 248, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 249, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  _RBX = inOutMountState;
   if ( !inOutMountState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 250, ASSERT_TYPE_ASSERT, "(inOutMountState)", (const char *)&queryFormat, "inOutMountState") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 251, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 251, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 251, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( _R14->type == MOUNT_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 253, ASSERT_TYPE_ASSERT, "( mountProperties.type ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "mountProperties.type", "MOUNT_TYPE_NONE", 0, 0i64) )
+  if ( mountProperties->type == MOUNT_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 253, ASSERT_TYPE_ASSERT, "( mountProperties.type ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "mountProperties.type", "MOUNT_TYPE_NONE", 0, 0i64) )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr [r14+20h]
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *(__m256i *)&inOutMountState->surface.type = *(__m256i *)&mountProperties->type;
+  *(_OWORD *)&inOutMountState->surface.transitionType = *(_OWORD *)&mountProperties->transitionType;
   if ( justStartedMount )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@c2b40000; min
-      vmovaps [rsp+98h+var_28], xmm6
-      vmovss  xmm6, cs:__real@42b40000
-    }
     inOutMountState->startTime = pm->cmd.serverTime;
     inOutMountState->flags = 0;
     *(_QWORD *)&inOutMountState->pullbackStartTime = 0i64;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+1E8h]; val
-      vmovaps xmm2, xmm6; max
-      vmovaps [rsp+98h+var_38], xmm7
-      vmovaps [rsp+98h+var_48], xmm8
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    v21 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xBu);
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(v21, *(float *)&_XMM1, 0xBu);
-    __asm { vmovss  dword ptr [rbx+6Ch], xmm0 }
-    if ( PM_GetEffectiveStance(_RSI) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x1Du) )
+    v10 = I_fclamp(ps->viewHeightCurrent, -90.0, 90.0);
+    v11 = MSG_PackSignedFloat(*(float *)&v10, 90.0, 0xBu);
+    v12 = MSG_UnpackSignedFloat(v11, 90.0, 0xBu);
+    inOutMountState->mountViewHeight = *(float *)&v12;
+    if ( PM_GetEffectiveStance(ps) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
       inOutMountState->flags |= 0x10u;
+    inOutMountState->startViewAngles = *(vec2_t *)ps->viewangles.v;
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v15 = _mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0];
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    inOutMountState->startViewAngles.v[0] = (float)((float)(v15 * 0.000015258789) - *(float *)&_XMM2) * 360.0;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsi+1D8h]
-      vmovss  xmm7, cs:__real@3f000000
-      vmovss  xmm6, cs:__real@43360b61
-      vmovss  dword ptr [rbx+64h], xmm0
-      vmulss  xmm0, xmm0, xmm6
-      vaddss  xmm1, xmm0, xmm7
-    }
-    inOutMountState->startViewAngles.v[1] = _RSI->viewangles.v[1];
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm2, xmm8, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm3, xmm0, cs:__real@37800000
-      vaddss  xmm1, xmm3, xmm7
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vmovss  dword ptr [rbx+64h], xmm0
-      vmulss  xmm0, xmm6, dword ptr [rbx+68h]
-      vaddss  xmm3, xmm0, xmm7
       vroundss xmm0, xmm8, xmm3, 1
-      vcvttss2si eax, xmm0
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
       vroundss xmm3, xmm8, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  dword ptr [rbx+68h], xmm0
     }
+    inOutMountState->startViewAngles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
     BG_AddPredictableEventToPlayerstate(EV_MOUNT_ENTER, inOutMountState->surface.type, pm->cmd.serverTime, pm->weaponMap, pm->ps);
-    __asm
-    {
-      vmovaps xmm8, [rsp+98h+var_48]
-      vmovaps xmm7, [rsp+98h+var_38]
-      vmovaps xmm6, [rsp+98h+var_28]
-    }
   }
 }
 
@@ -4029,6 +2854,8 @@ PM_ContextMount_TryMaintainEdge
 */
 char PM_ContextMount_TryMaintainEdge(pmove_t *const pm, pml_t *const pml, MountFailureResult *outResults)
 {
+  playerState_s *ps; 
+  const Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
   MountPlayerProperties player; 
   MountSurfaceDetailedProperties outSurfaceDetail; 
@@ -4036,60 +2863,40 @@ char PM_ContextMount_TryMaintainEdge(pmove_t *const pm, pml_t *const pml, MountF
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1121, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1121, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1121, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !outResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1122, ASSERT_TYPE_ASSERT, "( outResults ) != ( nullptr )", "%s != %s\n\t%p, %p", "outResults", "nullptr", NULL, NULL) )
     __debugbreak();
   *(_WORD *)&outResults->cancelToLower = 0;
   outResults->failReason[0] = 0;
-  _R13 = &_RDI->mountState;
   MountPlayerProperties::MountPlayerProperties(&player);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+1D0h+player.origin], xmm0
-  }
-  player.origin.v[2] = _RDI->origin.v[2];
+  *(_QWORD *)player.origin.v = *(_QWORD *)ps->origin.v;
+  player.origin.v[2] = ps->origin.v[2];
   MatrixCopy33(&pm->refFrame.m_axis, &player.worldBasis);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r13+40h]
-    vmovsd  qword ptr [rsp+1D0h+player.eyeOrigin], xmm0
-  }
-  player.eyeOrigin.v[2] = _RDI->mountState.eyePoint.v[2];
-  AnglesToAxis(&_RDI->viewangles, &player.eyeBasis);
-  _R15 = &pm->cmd.weapon;
+  player.eyeOrigin = ps->mountState.eyePoint;
+  AnglesToAxis(&ps->viewangles, &player.eyeBasis);
+  p_weapon = &pm->cmd.weapon;
   weaponMap = pm->weaponMap;
-  if ( _RDI->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _RDI, &pm->cmd.weapon) )
-    _R15 = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _RDI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymmword ptr [rbp+0D0h+player.weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [r15+20h]
-    vmovups xmmword ptr [rbp+0D0h+player.weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [r15+30h]
-    vmovsd  qword ptr [rbp+0D0h+player.weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&player.weapon.weaponCamo = *(_DWORD *)&_R15->weaponCamo;
-  player.isAlternate = BG_UsingAlternate(_RDI);
+  if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+    p_weapon = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+  player.weapon = *p_weapon;
+  player.isAlternate = BG_UsingAlternate(ps);
   player.handler = pm->m_bgHandler;
-  player.ps = _RDI;
+  player.ps = ps;
   AnglesToAxis(&pml->mountState.previousViewangles, &axis);
   MountSurfaceDetailedProperties::MountSurfaceDetailedProperties(&outSurfaceDetail);
   if ( PM_ContextMount_FindMountEdge_Maintain(&player, pml, &axis, &outSurfaceDetail) )
   {
     if ( outSurfaceDetail.mount.type )
     {
-      PM_ContextMount_SetEdgeState(pm, pml, &outSurfaceDetail.mount, 0, &_RDI->mountState);
+      PM_ContextMount_SetEdgeState(pm, pml, &outSurfaceDetail.mount, 0, &ps->mountState);
       if ( PM_ContextMount_ClampViewAngles(&player, &outSurfaceDetail, pm) )
       {
-        __asm { vmovss  xmm1, dword ptr [rdi+1DCh]; oldYaw }
-        PM_UpdateViewAngles_RangeLimited(_RDI, *(const float *)&_XMM1);
-        if ( PM_ContextMount_CalcMountEyePoint(&outSurfaceDetail, &player, &_RDI->mountState.eyePoint) )
+        PM_UpdateViewAngles_RangeLimited(ps, ps->viewangles.v[1]);
+        if ( PM_ContextMount_CalcMountEyePoint(&outSurfaceDetail, &player, &ps->mountState.eyePoint) )
         {
-          PM_ContextMount_UpdateMoverEyePoint(&player, &_RDI->mountState);
+          PM_ContextMount_UpdateMoverEyePoint(&player, &ps->mountState);
           return 1;
         }
         else
@@ -4127,14 +2934,17 @@ PM_ContextMount_TryMountEdge
 */
 char PM_ContextMount_TryMountEdge(pmove_t *const pm, pml_t *const pml, ContextMountType *outIconType, vec3_t *outIconPos, EdgeId *outIconEdge, bool *outFoundEdge)
 {
+  playerState_s *ps; 
+  const Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
   int *p_weaponState; 
   const BgHandler *m_bgHandler; 
+  float viewHeightCurrent; 
   bool MountEdge_Initial; 
-  bool v25; 
-  PlayerHandIndex v26; 
+  bool v15; 
+  PlayerHandIndex v16; 
   int WeaponHand; 
-  __int64 v28; 
+  __int64 v18; 
   __int64 isQuickMelee; 
   __int64 applyPendingDamage; 
   MountPlayerProperties player; 
@@ -4142,52 +2952,30 @@ char PM_ContextMount_TryMountEdge(pmove_t *const pm, pml_t *const pml, ContextMo
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1216, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _R15 = pm->ps;
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1216, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1216, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   MountPlayerProperties::MountPlayerProperties(&player);
   MountSurfaceDetailedProperties::MountSurfaceDetailedProperties(&outSurfaceDetail);
-  _R13 = &pm->cmd.weapon;
+  p_weapon = &pm->cmd.weapon;
   weaponMap = pm->weaponMap;
-  p_weaponState = &_R15->weapState[0].weaponState;
-  if ( _R15->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _R15, &pm->cmd.weapon) )
-    _R13 = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _R15);
+  p_weaponState = &ps->weapState[0].weaponState;
+  if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+    p_weapon = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
   m_bgHandler = pm->m_bgHandler;
   Sys_ProfBeginNamedEvent(0xFF808080, "BG_ContextMount_FindMountEdge");
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r15+30h]
-    vmovsd  qword ptr [rsp+1D0h+player.origin], xmm0
-  }
-  player.origin.v[2] = _R15->origin.v[2];
+  *(_QWORD *)player.origin.v = *(_QWORD *)ps->origin.v;
+  player.origin.v[2] = ps->origin.v[2];
   MatrixCopy33(&pm->refFrame.m_axis, &player.worldBasis);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r15+1E8h]
-    vmulss  xmm1, xmm3, dword ptr [rbp+0D0h+player.worldBasis+18h]
-    vaddss  xmm2, xmm1, dword ptr [r15+30h]
-    vmovss  dword ptr [rsp+1D0h+player.eyeOrigin], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rbp+0D0h+player.worldBasis+1Ch]
-    vaddss  xmm2, xmm1, dword ptr [r15+34h]
-    vmovss  dword ptr [rbp+0D0h+player.eyeOrigin+4], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rbp+0D0h+player.worldBasis+20h]
-    vaddss  xmm2, xmm1, dword ptr [r15+38h]
-    vmovss  dword ptr [rbp+0D0h+player.eyeOrigin+8], xmm2
-  }
-  AnglesToAxis(&_R15->viewangles, &player.eyeBasis);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r13+0]
-    vmovups ymmword ptr [rbp+0D0h+player.weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [r13+20h]
-    vmovups xmmword ptr [rbp+0D0h+player.weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [r13+30h]
-    vmovsd  qword ptr [rbp+0D0h+player.weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&player.weapon.weaponCamo = *(_DWORD *)&_R13->weaponCamo;
-  player.isAlternate = BG_UsingAlternate(_R15);
+  viewHeightCurrent = ps->viewHeightCurrent;
+  player.eyeOrigin.v[0] = (float)(viewHeightCurrent * player.worldBasis.m[2].v[0]) + ps->origin.v[0];
+  player.eyeOrigin.v[1] = (float)(viewHeightCurrent * player.worldBasis.m[2].v[1]) + ps->origin.v[1];
+  player.eyeOrigin.v[2] = (float)(viewHeightCurrent * player.worldBasis.m[2].v[2]) + ps->origin.v[2];
+  AnglesToAxis(&ps->viewangles, &player.eyeBasis);
+  player.weapon = *p_weapon;
+  player.isAlternate = BG_UsingAlternate(ps);
   player.handler = m_bgHandler;
-  player.ps = _R15;
+  player.ps = ps;
   MountEdge_Initial = PM_ContextMount_FindMountEdge_Initial(&player, &outSurfaceDetail);
   Sys_ProfEndNamedEvent();
   *outFoundEdge = MountEdge_Initial;
@@ -4198,31 +2986,31 @@ char PM_ContextMount_TryMountEdge(pmove_t *const pm, pml_t *const pml, ContextMo
     *outIconEdge = outSurfaceDetail.mount.id;
     MountEdge_Initial = *outFoundEdge;
   }
-  PM_GameInterface_ContextMount_TryMountEdge(pm, pml, &outSurfaceDetail.mount, MountEdge_Initial, &_R15->mountState);
-  v25 = PM_ContextMount_ButtonEnterMount(pm);
-  if ( !*outFoundEdge || !v25 )
+  PM_GameInterface_ContextMount_TryMountEdge(pm, pml, &outSurfaceDetail.mount, MountEdge_Initial, &ps->mountState);
+  v15 = PM_ContextMount_ButtonEnterMount(pm);
+  if ( !*outFoundEdge || !v15 )
     return 0;
-  v26 = WEAPON_HAND_DEFAULT;
-  WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, _R15);
+  v16 = WEAPON_HAND_DEFAULT;
+  WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, ps);
   if ( WeaponHand >= 0 )
   {
-    v28 = WeaponHand + 1i64;
+    v18 = WeaponHand + 1i64;
     do
     {
       if ( *p_weaponState == 24 )
-        PM_Weapon_MeleeEnd(pm, pml, 0, v26, 0, 0, 0);
-      ++v26;
+        PM_Weapon_MeleeEnd(pm, pml, 0, v16, 0, 0, 0);
+      ++v16;
       p_weaponState += 20;
-      --v28;
+      --v18;
     }
-    while ( v28 );
+    while ( v18 );
   }
-  if ( PM_GetEffectiveStance(_R15) == PM_EFF_STANCE_PRONE )
-    BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_CROUCH, 0, pm->cmd.serverTime, pm->weaponMap, _R15);
-  PM_ContextMount_SetEdgeState(pm, pml, &outSurfaceDetail.mount, 1, &_R15->mountState);
-  if ( !PM_ContextMount_CalcMountEyePoint(&outSurfaceDetail, &player, &_R15->mountState.eyePoint) || !PM_ContextMount_ClampViewAngles(&player, &outSurfaceDetail, pm) )
+  if ( PM_GetEffectiveStance(ps) == PM_EFF_STANCE_PRONE )
+    BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_CROUCH, 0, pm->cmd.serverTime, pm->weaponMap, ps);
+  PM_ContextMount_SetEdgeState(pm, pml, &outSurfaceDetail.mount, 1, &ps->mountState);
+  if ( !PM_ContextMount_CalcMountEyePoint(&outSurfaceDetail, &player, &ps->mountState.eyePoint) || !PM_ContextMount_ClampViewAngles(&player, &outSurfaceDetail, pm) )
     return 0;
-  PM_ContextMount_UpdateMoverEyePoint(&player, &_R15->mountState);
+  PM_ContextMount_UpdateMoverEyePoint(&player, &ps->mountState);
   if ( *outIconType >= (unsigned int)COUNT_MOUNT_TYPE )
   {
     LODWORD(applyPendingDamage) = 4;
@@ -4242,14 +3030,17 @@ bool PM_ContextMount_UpdateGesture(pmove_t *const pm, const Weapon *weapon, bool
 {
   playerState_s *ps; 
   const Gesture *Gesture; 
-  const Gesture *v14; 
+  const Gesture *v13; 
   unsigned int IndexFromGesture; 
   bool IsPlayingByIndex; 
   bool IsStoppingByIndex; 
+  double v17; 
+  int v18; 
   GestureAnimationSettings *AnimationSettings; 
   int mountContactTime; 
-  int v31; 
-  bool v33; 
+  int v21; 
+  int v22; 
+  bool v23; 
   int outEnterDurationMs; 
   int outExitDurationMs; 
   GesturePlayRequest request; 
@@ -4262,7 +3053,7 @@ bool PM_ContextMount_UpdateGesture(pmove_t *const pm, const Weapon *weapon, bool
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 589, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   Gesture = BG_Suit_GetGesture(ps, WEAPON_HAND_DEFAULT, weapon, isAlternate, isDualWielding, gestureType);
-  v14 = Gesture;
+  v13 = Gesture;
   if ( Gesture )
   {
     IndexFromGesture = BG_Gesture_GetIndexFromGesture(Gesture);
@@ -4275,44 +3066,23 @@ bool PM_ContextMount_UpdateGesture(pmove_t *const pm, const Weapon *weapon, bool
     {
       if ( !IsPlayingByIndex || IsStoppingByIndex )
       {
-        _RAX = BG_GesturePriority_SetupRequest(&result, pm->weaponMap, ps, pm->m_bgHandler, IndexFromGesture, pm->cmd.serverTime);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+0D8h+request.weaponMap], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rsp+0D8h+request.startTime], xmm1
-          vmovsd  xmm0, qword ptr [rax+30h]
-          vmovsd  qword ptr [rsp+0D8h+request.cancelTransitions], xmm0
-        }
+        request = *BG_GesturePriority_SetupRequest(&result, pm->weaponMap, ps, pm->m_bgHandler, IndexFromGesture, pm->cmd.serverTime);
         if ( synchronizeWithMount )
         {
           BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, weapon, isAlternate, &outEnterDurationMs, &outExitDurationMs);
-          __asm
-          {
-            vmovss  xmm2, cs:__real@3f800000; max
-            vsubss  xmm0, xmm2, dword ptr [rsi+4C0h]; val
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, [rsp+0D8h+outEnterDurationMs]
-            vmulss  xmm0, xmm0, xmm1
-            vcvttss2si esi, xmm0
-          }
-          AnimationSettings = BG_Gesture_GetAnimationSettings(v14);
+          v17 = I_fclamp(1.0 - ps->mountState.mountFraction, 0.0, 1.0);
+          v18 = (int)(float)(*(float *)&v17 * (float)outEnterDurationMs);
+          AnimationSettings = BG_Gesture_GetAnimationSettings(v13);
           if ( !AnimationSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 620, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
             __debugbreak();
           mountContactTime = AnimationSettings->mountContactTime;
-          v31 = 0;
-          if ( mountContactTime - _ESI > 0 )
-            v31 = mountContactTime - _ESI;
-          request.startTime = v31;
+          v21 = 0;
+          if ( mountContactTime - v18 > 0 )
+            v21 = mountContactTime - v18;
+          request.startTime = v21;
           request.slotBlendDuration = blendDurationMs;
-          request.slotBlend = v31 > 0;
-          if ( mountContactTime <= v31 )
+          request.slotBlend = v21 > 0;
+          if ( mountContactTime <= v21 )
           {
             *(_QWORD *)&request.startTime = 0i64;
             request.slotBlend = 0;
@@ -4324,24 +3094,18 @@ bool PM_ContextMount_UpdateGesture(pmove_t *const pm, const Weapon *weapon, bool
     }
     else if ( IsPlayingByIndex && !IsStoppingByIndex )
     {
-      _EDI = 0;
+      v22 = 0;
       if ( synchronizeWithMount && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_mount_anim_sync_out, "mount_anim_sync_out") )
       {
-        v33 = 1;
+        v23 = 1;
         BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, weapon, isAlternate, &outExitDurationMs, &outEnterDurationMs);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, [rsp+0D8h+outEnterDurationMs]
-          vmulss  xmm0, xmm0, dword ptr [rsi+4C0h]
-          vcvttss2si edi, xmm0
-        }
+        v22 = (int)(float)((float)outEnterDurationMs * ps->mountState.mountFraction);
       }
       else
       {
-        v33 = 0;
+        v23 = 0;
       }
-      BG_Gesture_StopBySlot(ps, outSlot, pm->cmd.serverTime, v33, _EDI, 0);
+      BG_Gesture_StopBySlot(ps, outSlot, pm->cmd.serverTime, v23, v22, 0);
     }
     LOBYTE(Gesture) = IsPlayingByIndex;
   }
@@ -4355,58 +3119,59 @@ PM_ContextMount_UpdateMove
 */
 void PM_ContextMount_UpdateMove(pmove_t *const pm, pml_t *const pml)
 {
+  playerState_s *ps; 
   int startTime; 
-  char v23; 
-  const dvar_t *v60; 
-  __int64 v62; 
+  const SuitDef *SuitDef; 
+  float v7; 
+  __int128 v8; 
+  __int128 v13; 
+  const dvar_t *v15; 
+  __int64 v16; 
   Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
-  bool v77; 
-  int v78; 
-  playerState_s *ps; 
-  const dvar_t *v101; 
-  __int64 v102; 
+  bool v19; 
+  int v20; 
+  double v21; 
+  playerState_s *v22; 
+  const dvar_t *v23; 
+  __int64 v24; 
   ContextMountType type; 
-  PlayerAnimScriptMoveType v118; 
+  PlayerAnimScriptMoveType v26; 
   char *fmt; 
   vec3_t *outParallel; 
   int outEnterDurationMs; 
   int outExitDurationMs[2]; 
-  __int64 v126; 
+  __int64 v31; 
   vec3_t point; 
   vec3_t outProjectedPoint; 
-  int v129; 
-  int v132; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
   Bounds bounds; 
   vec3_t outUp; 
   vec3_t outNormal; 
   vec3_t outEdgePoint; 
   vec3_t outBelow; 
-  vec3_t v140; 
-  char v141; 
-  void *retaddr; 
+  vec3_t v45; 
 
-  _RAX = &retaddr;
-  v126 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
+  v31 = -2i64;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1455, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1456, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI )
+  ps = pm->ps;
+  if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1456, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 80, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  startTime = _RSI->mountState.startTime;
-  if ( (!startTime || startTime <= _RSI->mountState.endTime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1457, ASSERT_TYPE_ASSERT, "(BG_ContextMount_IsActive( ps ))", (const char *)&queryFormat, "BG_ContextMount_IsActive( ps )") )
+  startTime = ps->mountState.startTime;
+  if ( (!startTime || startTime <= ps->mountState.endTime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1457, ASSERT_TYPE_ASSERT, "(BG_ContextMount_IsActive( ps ))", (const char *)&queryFormat, "BG_ContextMount_IsActive( ps )") )
     __debugbreak();
   if ( !pml->mountState.isPreviousViewangleValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1460, ASSERT_TYPE_ASSERT, "(pml->mountState.isPreviousViewangleValid)", (const char *)&queryFormat, "pml->mountState.isPreviousViewangleValid") )
     __debugbreak();
@@ -4415,255 +3180,132 @@ void PM_ContextMount_UpdateMove(pmove_t *const pm, pml_t *const pml)
   pml->mountState.isMoveUpdated = 1;
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_ContextMount_UpdateMove");
   WorldUpReferenceFrame::GetUpVector(&pm->refFrame, &outUp);
-  __asm { vmovss  xmm2, dword ptr [rsi+490h]; fraction }
-  Edge_CalculateVectors(pm->m_bgHandler, _RSI->mountState.surface.id, *(float *)&_XMM2, _RSI->mountState.surface.normalFaceIndex, &outNormal, &v140, &outBelow);
-  __asm { vmovss  xmm2, dword ptr [rsi+490h]; fraction }
-  Edge_CalculatePoint(pm->m_bgHandler, _RSI->mountState.surface.id, *(float *)&_XMM2, &outEdgePoint);
-  BG_GetSuitDef(_RSI->suitIndex);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+60h+outNormal]
-    vmulss  xmm3, xmm0, dword ptr [rbp+60h+outUp]
-    vmovss  xmm1, dword ptr [rbp+60h+outNormal+4]
-    vmulss  xmm2, xmm1, dword ptr [rbp+60h+outUp+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm0, dword ptr [rbp+60h+outNormal+8]
-    vmulss  xmm1, xmm0, dword ptr [rbp+60h+outUp+8]
-    vaddss  xmm3, xmm4, xmm1
-    vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm7, cs:__real@3f800000
-    vsubss  xmm0, xmm3, xmm7
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3a83126f
-  }
-  if ( v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1495, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( edgeNormalVec, entityUp ))", (const char *)&queryFormat, "!Vec3IsParallel( edgeNormalVec, entityUp )") )
+  Edge_CalculateVectors(pm->m_bgHandler, ps->mountState.surface.id, ps->mountState.surface.fraction, ps->mountState.surface.normalFaceIndex, &outNormal, &v45, &outBelow);
+  Edge_CalculatePoint(pm->m_bgHandler, ps->mountState.surface.id, ps->mountState.surface.fraction, &outEdgePoint);
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
+  v7 = FLOAT_1_0;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(outNormal.v[0] * outUp.v[0]) + (float)(outNormal.v[1] * outUp.v[1])) + (float)(outNormal.v[2] * outUp.v[2])) & _xmm) - 1.0) & _xmm) < 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1495, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( edgeNormalVec, entityUp ))", (const char *)&queryFormat, "!Vec3IsParallel( edgeNormalVec, entityUp )") )
     __debugbreak();
   ProjectPointOnPlane(&outNormal, &vec3_origin, &outUp, &outProjectedPoint);
+  v8 = LODWORD(outProjectedPoint.v[0]);
+  *(float *)&v8 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(outProjectedPoint.v[1] * outProjectedPoint.v[1])) + (float)(outProjectedPoint.v[2] * outProjectedPoint.v[2]));
+  _XMM3 = v8;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+160h+outProjectedPoint]
-    vmulss  xmm1, xmm5, xmm5
-    vmovss  xmm6, dword ptr [rsp+160h+outProjectedPoint+4]
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm4, dword ptr [rsp+160h+outProjectedPoint+8]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm1, xmm3, xmm7, xmm0
-    vmovss  [rsp+160h+outEnterDurationMs], xmm1
-    vdivss  xmm2, xmm7, xmm1
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+160h+outProjectedPoint], xmm0
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+160h+outProjectedPoint+4], xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+160h+outProjectedPoint+8], xmm0
   }
-  ProjectPointOnPlane(&_RSI->mountState.eyePoint, &outEdgePoint, &outProjectedPoint, &point);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+160h+point]
-    vsubss  xmm3, xmm0, dword ptr [rsi+4C4h]
-    vmovss  xmm1, dword ptr [rsp+160h+point+4]
-    vsubss  xmm2, xmm1, dword ptr [rsi+4C8h]
-    vmovss  xmm0, dword ptr [rsp+160h+point+8]
-    vsubss  xmm4, xmm0, dword ptr [rsi+4CCh]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-  }
-  ProjectPointOnPlane(&point, &_RSI->origin, &outUp, &point);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r15+220h]
-    vmaxss  xmm4, xmm0, xmm6
-    vmulss  xmm2, xmm4, dword ptr [rsp+160h+outProjectedPoint]
-    vaddss  xmm2, xmm2, dword ptr [rsp+160h+point]
-    vmovss  dword ptr [rsp+160h+point], xmm2
-    vmulss  xmm3, xmm4, dword ptr [rsp+160h+outProjectedPoint+4]
-    vaddss  xmm2, xmm3, dword ptr [rsp+160h+point+4]
-    vmovss  dword ptr [rsp+160h+point+4], xmm2
-    vmulss  xmm3, xmm4, dword ptr [rsp+160h+outProjectedPoint+8]
-    vaddss  xmm2, xmm3, dword ptr [rsp+160h+point+8]
-    vmovss  dword ptr [rsp+160h+point+8], xmm2
-  }
-  v60 = DCONST_DVARINT_mount_debug;
+  outEnterDurationMs = _XMM1;
+  outProjectedPoint.v[0] = outProjectedPoint.v[0] * (float)(1.0 / *(float *)&_XMM1);
+  outProjectedPoint.v[1] = outProjectedPoint.v[1] * (float)(1.0 / *(float *)&_XMM1);
+  outProjectedPoint.v[2] = outProjectedPoint.v[2] * (float)(1.0 / *(float *)&_XMM1);
+  ProjectPointOnPlane(&ps->mountState.eyePoint, &outEdgePoint, &outProjectedPoint, &point);
+  fsqrt((float)((float)((float)(point.v[1] - ps->mountState.eyePoint.v[1]) * (float)(point.v[1] - ps->mountState.eyePoint.v[1])) + (float)((float)(point.v[0] - ps->mountState.eyePoint.v[0]) * (float)(point.v[0] - ps->mountState.eyePoint.v[0]))) + (float)((float)(point.v[2] - ps->mountState.eyePoint.v[2]) * (float)(point.v[2] - ps->mountState.eyePoint.v[2])));
+  ProjectPointOnPlane(&point, &ps->origin, &outUp, &point);
+  v13 = 0i64;
+  *(float *)&v13 = (float)SuitDef->bounds_radius;
+  _XMM0 = v13;
+  __asm { vmaxss  xmm4, xmm0, xmm6 }
+  point.v[0] = (float)(*(float *)&_XMM4 * outProjectedPoint.v[0]) + point.v[0];
+  point.v[1] = (float)(*(float *)&_XMM4 * outProjectedPoint.v[1]) + point.v[1];
+  point.v[2] = (float)(*(float *)&_XMM4 * outProjectedPoint.v[2]) + point.v[2];
+  v15 = DCONST_DVARINT_mount_debug;
   if ( !DCONST_DVARINT_mount_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v60);
-  __asm { vmovss  xmm6, cs:__real@40000000 }
-  if ( v60->current.integer == 2 && pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation && !pm->initialCall )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.integer == 2 && pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation && !pm->initialCall )
   {
-    __asm { vmovaps xmm2, xmm6 }
-    ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &point, v62, &colorGreen, 0, 0);
-    _RAX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+60h+bounds.midPoint], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbp+60h+bounds.halfSize+4], xmm1
-    }
+    ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &point, v16, &colorGreen, 0, 0);
+    bounds = *pm->bounds;
     BG_PlayerCollision_AdjustCapsuleBoundsForStickSystem(&bounds);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+60h+bounds.midPoint]
-      vaddss  xmm4, xmm0, dword ptr [rsp+160h+point]
-      vmovss  [rbp+60h+var_D8], xmm4
-      vmovss  xmm1, dword ptr [rbp+60h+bounds.midPoint+4]
-      vaddss  xmm3, xmm1, dword ptr [rsp+160h+point+4]
-      vmovss  [rbp+60h+var_D4], xmm3
-      vmovss  xmm0, dword ptr [rbp+60h+bounds.midPoint+8]
-      vaddss  xmm2, xmm0, dword ptr [rsp+160h+point+8]
-      vaddss  xmm0, xmm2, dword ptr [rbp+60h+bounds.halfSize+8]
-      vmovss  [rbp+60h+var_D0], xmm0
-      vmovss  [rsp+160h+var_E8], xmm4
-      vmovss  [rsp+160h+var_E4], xmm3
-      vsubss  xmm0, xmm2, dword ptr [rbp+60h+bounds.halfSize+8]
-      vmovss  [rbp+60h+var_E0], xmm0
-    }
+    v37 = bounds.midPoint.v[0] + point.v[0];
+    v38 = bounds.midPoint.v[1] + point.v[1];
+    v39 = (float)(bounds.midPoint.v[2] + point.v[2]) + bounds.halfSize.v[2];
+    v34 = bounds.midPoint.v[0] + point.v[0];
+    v35 = bounds.midPoint.v[1] + point.v[1];
+    v36 = (float)(bounds.midPoint.v[2] + point.v[2]) - bounds.halfSize.v[2];
     fmt = (char *)&colorGreen;
-    __asm { vmovss  xmm3, dword ptr [rbp+60h+bounds.halfSize] }
-    ((void (__fastcall *)(const BgHandler *, int *, int *))pm->m_bgHandler->DebugCapsule)(pm->m_bgHandler, &v132, &v129);
+    ((void (__fastcall *)(const BgHandler *, float *, float *))pm->m_bgHandler->DebugCapsule)(pm->m_bgHandler, &v37, &v34);
   }
-  if ( (_RSI->mountState.flags & 1) != 0 )
+  if ( (ps->mountState.flags & 1) != 0 )
   {
-    __asm { vmovss  xmm2, cs:max2DSpeed; max2DSpeed }
-    BG_ContextMount_MoveToPoint(pm, pml, *(double *)&_XMM2, &point);
+    BG_ContextMount_MoveToPoint(pm, pml, max2DSpeed, &point);
   }
   else
   {
     p_weapon = &pm->cmd.weapon;
     weaponMap = pm->weaponMap;
-    if ( _RSI->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _RSI, &pm->cmd.weapon) )
-      p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _RSI);
-    v77 = BG_UsingAlternate(_RSI);
-    BG_GetMountEnterExitDuration((const ContextMountType)_RSI->mountState.surface.type, p_weapon, v77, &outEnterDurationMs, outExitDurationMs);
-    v78 = outEnterDurationMs - (pm->cmd.serverTime - _RSI->mountState.startTime);
-    if ( v78 < 0 )
-      v78 = 0;
-    if ( v78 > 0 )
+    if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+      p_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+    v19 = BG_UsingAlternate(ps);
+    BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, p_weapon, v19, &outEnterDurationMs, outExitDurationMs);
+    v20 = outEnterDurationMs - (pm->cmd.serverTime - ps->mountState.startTime);
+    if ( v20 < 0 )
+      v20 = 0;
+    if ( v20 > 0 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebx
-        vmovss  xmm0, cs:__real@447a0000
-        vdivss  xmm1, xmm0, xmm1
-        vmulss  xmm0, xmm1, dword ptr [r14+24h]; val
-        vmovaps xmm2, xmm7; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm7, xmm0 }
+      v21 = I_fclamp((float)(1000.0 / (float)v20) * pml->frametime, 0.0, 1.0);
+      v7 = *(float *)&v21;
     }
-    __asm
+    point.v[0] = (float)((float)(point.v[0] - ps->origin.v[0]) * v7) + ps->origin.v[0];
+    point.v[1] = (float)((float)(point.v[1] - ps->origin.v[1]) * v7) + ps->origin.v[1];
+    point.v[2] = (float)((float)(point.v[2] - ps->origin.v[2]) * v7) + ps->origin.v[2];
+    BG_ContextMount_MoveToPoint(pm, pml, max2DSpeed, &point);
+    if ( v20 <= 0 )
     {
-      vmovss  xmm0, dword ptr [rsp+160h+point]
-      vsubss  xmm1, xmm0, dword ptr [rsi+30h]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm3, xmm2, dword ptr [rsi+30h]
-      vmovss  dword ptr [rsp+160h+point], xmm3
-      vmovss  xmm0, dword ptr [rsp+160h+point+4]
-      vsubss  xmm1, xmm0, dword ptr [rsi+34h]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm3, xmm2, dword ptr [rsi+34h]
-      vmovss  dword ptr [rsp+160h+point+4], xmm3
-      vmovss  xmm0, dword ptr [rsp+160h+point+8]
-      vsubss  xmm1, xmm0, dword ptr [rsi+38h]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm3, xmm2, dword ptr [rsi+38h]
-      vmovss  dword ptr [rsp+160h+point+8], xmm3
-      vmovss  xmm2, cs:max2DSpeed; max2DSpeed
-    }
-    BG_ContextMount_MoveToPoint(pm, pml, *(double *)&_XMM2, &point);
-    if ( v78 <= 0 )
-    {
-      _RSI->mountState.flags |= 1u;
-      BG_AddPredictableEventToPlayerstate(EV_MOUNT, _RSI->mountState.surface.type, pm->cmd.serverTime, pm->weaponMap, _RSI);
-      ps = pm->ps;
-      *(_QWORD *)ps->velocity.v = 0i64;
-      ps->velocity.v[2] = 0.0;
+      ps->mountState.flags |= 1u;
+      BG_AddPredictableEventToPlayerstate(EV_MOUNT, ps->mountState.surface.type, pm->cmd.serverTime, pm->weaponMap, ps);
+      v22 = pm->ps;
+      *(_QWORD *)v22->velocity.v = 0i64;
+      v22->velocity.v[2] = 0.0;
     }
   }
-  v101 = DCONST_DVARINT_mount_debug;
+  v23 = DCONST_DVARINT_mount_debug;
   if ( !DCONST_DVARINT_mount_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v101);
-  if ( v101->current.integer == 2 && pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation && !pm->initialCall )
+  Dvar_CheckFrontendServerThread(v23);
+  if ( v23->current.integer == 2 && pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation && !pm->initialCall )
   {
     LODWORD(fmt) = 0;
-    __asm { vmovaps xmm2, xmm6 }
-    ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, char *, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &point, v102, &colorCyan, fmt, 0);
-    _RAX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+60h+bounds.midPoint], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbp+60h+bounds.halfSize+4], xmm1
-    }
+    ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, char *, _DWORD))pm->m_bgHandler->DebugSphere)(pm->m_bgHandler, &point, v24, &colorCyan, fmt, 0);
+    bounds = *pm->bounds;
     BG_PlayerCollision_AdjustCapsuleBoundsForStickSystem(&bounds);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+60h+bounds.midPoint]
-      vaddss  xmm4, xmm0, dword ptr [rsp+160h+point]
-      vmovss  [rsp+160h+var_E8], xmm4
-      vmovss  xmm1, dword ptr [rbp+60h+bounds.midPoint+4]
-      vaddss  xmm3, xmm1, dword ptr [rsp+160h+point+4]
-      vmovss  [rsp+160h+var_E4], xmm3
-      vmovss  xmm0, dword ptr [rbp+60h+bounds.midPoint+8]
-      vaddss  xmm2, xmm0, dword ptr [rsp+160h+point+8]
-      vaddss  xmm0, xmm2, dword ptr [rbp+60h+bounds.halfSize+8]
-      vmovss  [rbp+60h+var_E0], xmm0
-      vmovss  [rbp+60h+var_D8], xmm4
-      vmovss  [rbp+60h+var_D4], xmm3
-      vsubss  xmm0, xmm2, dword ptr [rbp+60h+bounds.halfSize+8]
-      vmovss  [rbp+60h+var_D0], xmm0
-      vmovss  xmm3, dword ptr [rbp+60h+bounds.halfSize]
-    }
-    ((void (__fastcall *)(const BgHandler *, int *, int *))pm->m_bgHandler->DebugCapsule)(pm->m_bgHandler, &v129, &v132);
+    v34 = bounds.midPoint.v[0] + point.v[0];
+    v35 = bounds.midPoint.v[1] + point.v[1];
+    v36 = (float)(bounds.midPoint.v[2] + point.v[2]) + bounds.halfSize.v[2];
+    v37 = bounds.midPoint.v[0] + point.v[0];
+    v38 = bounds.midPoint.v[1] + point.v[1];
+    v39 = (float)(bounds.midPoint.v[2] + point.v[2]) - bounds.halfSize.v[2];
+    ((void (__fastcall *)(const BgHandler *, float *, float *))pm->m_bgHandler->DebugCapsule)(pm->m_bgHandler, &v34, &v37);
   }
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
     BG_UpdateMovementDir(pm, pml, 0);
-    type = _RSI->mountState.surface.type;
+    type = ps->mountState.surface.type;
     if ( type )
     {
       switch ( type )
       {
         case MOUNT_TYPE_TOP:
-          v118 = ANIM_MT_MOUNTED_TOP;
+          v26 = ANIM_MT_MOUNTED_TOP;
           break;
         case MOUNT_TYPE_LEFT:
-          v118 = ANIM_MT_MOUNTED_LEFT;
+          v26 = ANIM_MT_MOUNTED_LEFT;
           break;
         case MOUNT_TYPE_RIGHT:
-          v118 = ANIM_MT_MOUNTED_RIGHT;
+          v26 = ANIM_MT_MOUNTED_RIGHT;
           break;
         default:
-          LODWORD(outParallel) = _RSI->mountState.surface.type;
+          LODWORD(outParallel) = ps->mountState.surface.type;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1605, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid mount type %d", outParallel) )
             __debugbreak();
           goto LABEL_64;
       }
-      BG_AnimScriptAnimation(pm->m_bgHandler, _RSI, AISTATE_COMBAT, v118, 0, 0);
+      BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, v26, 0, 0);
     }
   }
 LABEL_64:
   Sys_ProfEndNamedEvent();
-  _R11 = &v141;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -4710,20 +3352,20 @@ void PM_ContextMount_UpdateState(pmove_t *const pm, pml_t *const pml)
   playerState_s *ps; 
   ContextMountType v5; 
   bool IsActive; 
-  bool v8; 
-  const dvar_t *v9; 
+  bool v7; 
+  const dvar_t *v8; 
   char *debugString; 
   __int64 putMountOnCooldown; 
   bool putMountOnCooldowna; 
   bool outFoundEdge; 
   ContextMountType outIconType; 
   EdgeId outIconEdge; 
-  vec3_t v17; 
-  __int64 v18; 
+  vec3_t v15; 
+  __int64 v16; 
   vec3_t outIconPos; 
   MountFailureResult outResults; 
 
-  v18 = -2i64;
+  v16 = -2i64;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1279, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1280, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -4737,21 +3379,16 @@ void PM_ContextMount_UpdateState(pmove_t *const pm, pml_t *const pml)
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_ContextMount_UpdateState");
   v5 = MOUNT_TYPE_NONE;
   outIconType = MOUNT_TYPE_NONE;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vmovsd  qword ptr [rsp+150h+outIconPos], xmm0
-  }
-  outIconPos.v[2] = vec3_origin.v[2];
+  outIconPos = vec3_origin;
   EdgeId::Clear(&outIconEdge);
   IsActive = BG_ContextMount_IsActive(ps);
-  v8 = PM_ContextMount_ButtonEnterMount(pm);
+  v7 = PM_ContextMount_ButtonEnterMount(pm);
   outFoundEdge = 0;
-  v9 = DCONST_DVARBOOL_mount_do_edge_query_on_server;
+  v8 = DCONST_DVARBOOL_mount_do_edge_query_on_server;
   if ( !DCONST_DVARBOOL_mount_do_edge_query_on_server && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_do_edge_query_on_server") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( (v9->current.enabled && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation || IsActive || v8) && !pm->isBot )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( (v8->current.enabled && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && !pm->isExtrapolation || IsActive || v7) && !pm->isBot )
   {
     if ( IsActive )
     {
@@ -4765,7 +3402,7 @@ void PM_ContextMount_UpdateState(pmove_t *const pm, pml_t *const pml)
 LABEL_29:
         BG_ContextMount_Cancel(pm->weaponMap, ps, pm->cmd.serverTime, outResults.cancelToLower, pm->m_bgHandler, outResults.failReason, outResults.putOnCooldown);
     }
-    else if ( v8 )
+    else if ( v7 )
     {
       *(_WORD *)&outResults.cancelToLower = 0;
       outResults.failReason[0] = 0;
@@ -4788,13 +3425,8 @@ LABEL_29:
   {
     putMountOnCooldowna = 1;
   }
-  v17.v[2] = outIconPos.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+150h+outIconPos]
-    vmovsd  [rsp+150h+var_100], xmm0
-  }
-  PM_ContextMount_Finalize(pm, pml, v5, &v17, &outIconEdge, outFoundEdge, putMountOnCooldowna);
+  v15 = outIconPos;
+  PM_ContextMount_Finalize(pm, pml, v5, &v15, &outIconEdge, outFoundEdge, putMountOnCooldowna);
   Sys_ProfEndNamedEvent();
 }
 
@@ -4805,84 +3437,67 @@ PM_ContextMount_UpdateState_Extrapolation
 */
 void PM_ContextMount_UpdateState_Extrapolation(pmove_t *const pm, pml_t *const pml)
 {
+  playerState_s *ps; 
+  const Weapon *p_weapon; 
   BgWeaponMap *weaponMap; 
-  bool v8; 
+  bool v7; 
   int serverTime; 
+  double v9; 
   int outEnterDurationMs[2]; 
-  __int64 v17; 
+  __int64 v11; 
   MountPlayerProperties player; 
   MountSurfaceDetailedProperties inOutDetailMount; 
   MountEdgeProperties edge; 
 
-  v17 = -2i64;
+  v11 = -2i64;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1349, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1350, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1350, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1350, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !pm->isExtrapolation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1351, ASSERT_TYPE_ASSERT, "(pm->isExtrapolation)", (const char *)&queryFormat, "pm->isExtrapolation") )
     __debugbreak();
   if ( pml->mountState.isStateUpdated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_context_mount.cpp", 1352, ASSERT_TYPE_ASSERT, "(!pml->mountState.isStateUpdated)", (const char *)&queryFormat, "!pml->mountState.isStateUpdated") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_ContextMount_UpdateState_Extrapolation");
-  _R14 = &pm->cmd.weapon;
+  p_weapon = &pm->cmd.weapon;
   weaponMap = pm->weaponMap;
-  if ( _RBX->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, _RBX, &pm->cmd.weapon) )
-    _R14 = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, _RBX);
-  v8 = BG_UsingAlternate(_RBX);
+  if ( ps->weapState[0].weaponState != 24 || !BG_IsWeaponValid(pm->weaponMap, ps, &pm->cmd.weapon) )
+    p_weapon = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+  v7 = BG_UsingAlternate(ps);
   serverTime = pm->cmd.serverTime;
-  if ( _RBX->mountState.startTime )
+  if ( ps->mountState.startTime )
   {
-    BG_GetMountEnterExitDuration((const ContextMountType)_RBX->mountState.surface.type, _R14, v8, &outEnterDurationMs[1], outEnterDurationMs);
-    *(double *)&_XMM0 = BG_ContextMount_CalculateMountFraction((const ContextMountType)_RBX->mountState.surface.type, outEnterDurationMs[1], outEnterDurationMs[0], serverTime, _RBX->mountState.startTime, _RBX->mountState.endTime);
+    BG_GetMountEnterExitDuration((const ContextMountType)ps->mountState.surface.type, p_weapon, v7, &outEnterDurationMs[1], outEnterDurationMs);
+    v9 = BG_ContextMount_CalculateMountFraction((const ContextMountType)ps->mountState.surface.type, outEnterDurationMs[1], outEnterDurationMs[0], serverTime, ps->mountState.startTime, ps->mountState.endTime);
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0; value }
-    *(double *)&_XMM0 = BG_ContextMount_QuantizeFloat01Byte(*(float *)&_XMM0);
+    v9 = BG_ContextMount_QuantizeFloat01Byte(0.0);
   }
-  __asm { vmovss  dword ptr [rbx+4C0h], xmm0 }
-  if ( BG_ContextMount_IsActive(_RBX) )
+  ps->mountState.mountFraction = *(float *)&v9;
+  if ( BG_ContextMount_IsActive(ps) )
   {
     MountSurfaceDetailedProperties::MountSurfaceDetailedProperties(&inOutDetailMount);
-    MountSurfaceProperties::Initialize(&inOutDetailMount.mount, pm->m_bgHandler, &_RBX->mountState.surface);
+    MountSurfaceProperties::Initialize(&inOutDetailMount.mount, pm->m_bgHandler, &ps->mountState.surface);
     MountPlayerProperties::MountPlayerProperties(&player);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+30h]
-      vmovsd  qword ptr [rsp+1D0h+player.origin], xmm0
-    }
-    player.origin.v[2] = _RBX->origin.v[2];
+    *(_QWORD *)player.origin.v = *(_QWORD *)ps->origin.v;
+    player.origin.v[2] = ps->origin.v[2];
     MatrixCopy33(&pm->refFrame.m_axis, &player.worldBasis);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+4C4h]
-      vmovsd  qword ptr [rsp+1D0h+player.eyeOrigin], xmm0
-    }
-    player.eyeOrigin.v[2] = _RBX->mountState.eyePoint.v[2];
-    AnglesToAxis(&_RBX->viewangles, &player.eyeBasis);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rbp+0D0h+player.weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [r14+20h]
-      vmovups xmmword ptr [rbp+0D0h+player.weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [r14+30h]
-      vmovsd  qword ptr [rbp+0D0h+player.weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&player.weapon.weaponCamo = *(_DWORD *)&_R14->weaponCamo;
-    player.isAlternate = BG_UsingAlternate(_RBX);
+    player.eyeOrigin = ps->mountState.eyePoint;
+    AnglesToAxis(&ps->viewangles, &player.eyeBasis);
+    player.weapon = *p_weapon;
+    player.isAlternate = BG_UsingAlternate(ps);
     player.handler = pm->m_bgHandler;
-    player.ps = _RBX;
+    player.ps = ps;
     MountEdgeProperties::MountEdgeProperties(&edge);
-    __asm { vmovss  xmm3, dword ptr [rbx+490h]; argFraction }
-    MountEdgeProperties::Initialize(&edge, player.handler, _RBX->mountState.surface.id, *(float *)&_XMM3, _RBX->mountState.surface.normalFaceIndex, _RBX->mountState.surface.type);
+    MountEdgeProperties::Initialize(&edge, player.handler, ps->mountState.surface.id, ps->mountState.surface.fraction, ps->mountState.surface.normalFaceIndex, ps->mountState.surface.type);
     if ( PM_ContextMount_CalcFinalClampAngles(&player, &edge, &inOutDetailMount) )
     {
-      PM_ContextMount_CalcMountEyePoint(&inOutDetailMount, &player, &_RBX->mountState.eyePoint);
-      PM_ContextMount_UpdateMoverEyePoint(&player, &_RBX->mountState);
+      PM_ContextMount_CalcMountEyePoint(&inOutDetailMount, &player, &ps->mountState.eyePoint);
+      PM_ContextMount_UpdateMoverEyePoint(&player, &ps->mountState);
     }
   }
   Sys_ProfEndNamedEvent();

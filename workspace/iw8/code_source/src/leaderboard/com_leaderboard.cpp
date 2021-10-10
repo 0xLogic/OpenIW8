@@ -941,13 +941,14 @@ bool LB_CombineUpdate(const int localControllerIndex, const unsigned __int64 use
   int v24; 
   int v25; 
   __int64 v26; 
+  double v27; 
   bool result; 
-  __m256i v30; 
+  __m256i v29; 
+  double v30; 
 
-  _RDI = lbRow;
   ClientFromController = CL_Mgr_GetClientFromController(localControllerIndex);
   v11 = 0;
-  v12 = &v30.m256i_i32[1];
+  v12 = &v29.m256i_i32[1];
   do
   {
     v11 += 10;
@@ -987,7 +988,7 @@ bool LB_CombineUpdate(const int localControllerIndex, const unsigned __int64 use
   v19 = &s_lbCacheStats[0][0].m_secondsSinceUpdate + 1560 * v14 + 52 * v13 + 1;
   for ( i = 0; i < 4; ++i )
   {
-    if ( LB_MakeRow(localControllerIndex, lbDef, _RDI, (LbAggType)i, userID) )
+    if ( LB_MakeRow(localControllerIndex, lbDef, lbRow, (LbAggType)i, userID) )
     {
       columnCount = lbDef->columnCount;
       if ( columnCount > 0 )
@@ -1004,7 +1005,7 @@ bool LB_CombineUpdate(const int localControllerIndex, const unsigned __int64 use
             break;
           v23 = 9;
 LABEL_17:
-          v24 = *(_DWORD *)&_RDI->m_entityName[4 * v23 + 72];
+          v24 = *(_DWORD *)&lbRow->m_entityName[4 * v23 + 72];
           v25 = v19[v23];
           if ( v24 != 0x7FFFFFFF )
           {
@@ -1014,22 +1015,22 @@ LABEL_17:
               {
                 if ( i == 2 )
                 {
-                  v30.m256i_i32[v23] = v25 + v24;
+                  v29.m256i_i32[v23] = v25 + v24;
                 }
                 else if ( i == 3 )
                 {
-                  v30.m256i_i32[v23] = v24;
+                  v29.m256i_i32[v23] = v24;
                 }
                 goto LABEL_31;
               }
               if ( v24 > v25 )
-                v25 = *(_DWORD *)&_RDI->m_entityName[4 * v23 + 72];
+                v25 = *(_DWORD *)&lbRow->m_entityName[4 * v23 + 72];
             }
             else if ( v24 < v25 )
             {
-              v25 = *(_DWORD *)&_RDI->m_entityName[4 * v23 + 72];
+              v25 = *(_DWORD *)&lbRow->m_entityName[4 * v23 + 72];
             }
-            v30.m256i_i32[v23] = v25;
+            v29.m256i_i32[v23] = v25;
           }
 LABEL_31:
           p_id += 14;
@@ -1046,20 +1047,16 @@ LABEL_16:
 LABEL_32:
     ;
   }
-  v26 = v30.m256i_i32[0];
-  _RDI->m_rating = v30.m256i_i32[0];
+  v26 = v29.m256i_i32[0];
+  lbRow->m_rating = v29.m256i_i32[0];
   if ( v26 != 0x7FFFFFFF )
   {
-    __asm
-    {
-      vmovups ymm0, [rsp+98h+var_68]
-      vmovsd  xmm1, [rsp+98h+var_48]
-      vmovups ymmword ptr [rdi+90h], ymm0
-      vmovsd  qword ptr [rdi+0B0h], xmm1
-    }
-    *(_DWORD *)_RDI->_bytes_20 = v15;
+    v27 = v30;
+    *(__m256i *)(&lbRow->m_secondsSinceUpdate + 1) = v29;
+    *(double *)&lbRow->m_columns[16] = v27;
+    *(_DWORD *)lbRow->_bytes_20 = v15;
     result = 1;
-    _RDI->m_writeType = STAT_WRITE_REPLACE;
+    lbRow->m_writeType = STAT_WRITE_REPLACE;
     ++*uploadRows;
     return result;
   }
@@ -1400,7 +1397,6 @@ char LB_GetByPlayer(Leaderboard *lb, const LocalClientNum_t localClientNum)
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@41a00000 }
     ((void (__fastcall *)(bdRemoteTask *))OpenTaskSlot->u.remoteTask.m_ptr->setTimeout)(OpenTaskSlot->u.remoteTask.m_ptr);
     return 1;
   }
@@ -1445,7 +1441,6 @@ char LB_GetByRank(Leaderboard *lb, const LocalClientNum_t localClientNum, const 
     TaskManager_ClearTask(OpenTaskSlot);
     return 0;
   }
-  __asm { vmovss  xmm1, cs:__real@41a00000 }
   ((void (__fastcall *)(bdRemoteTask *))OpenTaskSlot->u.remoteTask.m_ptr->setTimeout)(OpenTaskSlot->u.remoteTask.m_ptr);
   return 1;
 }
@@ -2003,7 +1998,6 @@ char LB_GetStatsByXuids(const int controllerIndex, Leaderboard *lb, unsigned __i
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@41a00000 }
     ((void (__fastcall *)(bdRemoteTask *))OpenTaskSlot->u.remoteTask.m_ptr->setTimeout)(OpenTaskSlot->u.remoteTask.m_ptr);
     return 1;
   }

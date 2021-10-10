@@ -47,50 +47,36 @@ CL_SetLocalClientMigrationState
 */
 void CL_SetLocalClientMigrationState(int client, clientMigState_t state)
 {
-  __int64 v3; 
-  __int64 v5; 
+  __int64 v2; 
+  __int64 v4; 
   __int64 migrationState; 
-  const char *v7; 
-  __int64 v18; 
+  const char *v6; 
+  double v7; 
+  double v8; 
+  __int64 v9; 
 
-  v3 = client;
+  v2 = client;
   if ( (unsigned int)client >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 265, ASSERT_TYPE_ASSERT, "(unsigned)( client ) < (unsigned)( 2 )", "client doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", client, 2) )
     __debugbreak();
-  if ( (unsigned int)state > CMSTATE_OLDHOSTLEAVING && clientUIActives[v3].migrationState == CMSTATE_INACTIVE )
+  if ( (unsigned int)state > CMSTATE_OLDHOSTLEAVING && clientUIActives[v2].migrationState == CMSTATE_INACTIVE )
   {
-    LODWORD(v18) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 268, ASSERT_TYPE_ASSERT, "( ( (state == CMSTATE_INACTIVE) || (state == CMSTATE_OLDHOSTLEAVING) || (clientUIActives[client].migrationState != CMSTATE_INACTIVE) ) )", "( clientUIActives[client].migrationState ) = %i", v18) )
+    LODWORD(v9) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 268, ASSERT_TYPE_ASSERT, "( ( (state == CMSTATE_INACTIVE) || (state == CMSTATE_OLDHOSTLEAVING) || (clientUIActives[client].migrationState != CMSTATE_INACTIVE) ) )", "( clientUIActives[client].migrationState ) = %i", v9) )
       __debugbreak();
   }
-  v5 = v3;
-  migrationState = clientUIActives[v3].migrationState;
+  v4 = v2;
+  migrationState = clientUIActives[v2].migrationState;
   if ( (_DWORD)migrationState != state )
   {
     if ( (_DWORD)migrationState )
     {
-      v7 = UI_SafeTranslateString(s_stateStrings[migrationState]);
-      Sys_Milliseconds();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3a83126f
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [%s]\n", *(double *)&_XMM2, v7);
+      v6 = UI_SafeTranslateString(s_stateStrings[migrationState]);
+      v7 = (float)((float)(Sys_Milliseconds() - lastProfTime) * 0.001);
+      Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [%s]\n", v7, v6);
       if ( state == CMSTATE_INACTIVE )
       {
-        Sys_Milliseconds();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [TOTAL]\n", *(double *)&_XMM2);
+        v8 = (float)((float)(Sys_Milliseconds() - startTime) * 0.001);
+        Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [TOTAL]\n", v8);
       }
       lastProfTime = Sys_Milliseconds();
     }
@@ -100,6 +86,6 @@ void CL_SetLocalClientMigrationState(int client, clientMigState_t state)
       startTime = Sys_Milliseconds();
     }
   }
-  clientUIActives[v5].migrationState = state;
+  clientUIActives[v4].migrationState = state;
 }
 

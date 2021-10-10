@@ -323,11 +323,7 @@ DynEntCL_Spatial_GetPosition
 */
 void DynEntCL_Spatial_GetPosition(SpatialPartition_PopulationSort_ClientData *clientData, SpatialPartition_Population_Node *node, vec3_t *out_pos)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdx-0Ch]
-    vmovsd  qword ptr [r8], xmm0
-  }
+  *(double *)out_pos->v = *(double *)&node[-3].spatialNodeNext;
   LODWORD(out_pos->z) = (SpatialPartition_Population_Node)node[-1].spatialNodeNext;
 }
 
@@ -1107,22 +1103,20 @@ DynEntCL_Spatial_CollisionUpdateNeeded
 */
 __int64 DynEntCL_Spatial_CollisionUpdateNeeded(SpatialPartition_PopulationSort_ClientData *clientData)
 {
-  SpatialPartition_PopulationSort_DependentClientData *v4; 
+  SpatialPartition_PopulationSort_DependentClientData *v2; 
+  SpatialPartition_PopulationSort_Entry *sortedPartitions; 
   unsigned int sortedPartitionCount; 
-  bool v11; 
-  bool v12; 
+  const dvar_t *v5; 
+  float v6; 
+  __int64 v7; 
   unsigned __int64 partitionIndex; 
   unsigned int *array; 
-  unsigned __int8 v15; 
-  __int64 result; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
-  void *retaddr; 
+  unsigned __int8 v10; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   Sys_ProfBeginNamedEvent(0xFFFF6347, "DynEntCL_Spatial_CollisionUpdateNeeded");
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 611, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
     __debugbreak();
@@ -1130,83 +1124,72 @@ __int64 DynEntCL_Spatial_CollisionUpdateNeeded(SpatialPartition_PopulationSort_C
     __debugbreak();
   if ( clientData->localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v18) = clientData->localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 613, ASSERT_TYPE_ASSERT, "(unsigned)( clientData->localClientNum ) < (unsigned)( 2 )", "clientData->localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v18, 2) )
+    LODWORD(v12) = clientData->localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 613, ASSERT_TYPE_ASSERT, "(unsigned)( clientData->localClientNum ) < (unsigned)( 2 )", "clientData->localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v12, 2) )
       __debugbreak();
   }
-  v4 = g_dynEntSpatialSortOccluderCollisionClientData[clientData->localClientNum];
-  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 615, ASSERT_TYPE_ASSERT, "(collisionData)", (const char *)&queryFormat, "collisionData") )
+  v2 = g_dynEntSpatialSortOccluderCollisionClientData[clientData->localClientNum];
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 615, ASSERT_TYPE_ASSERT, "(collisionData)", (const char *)&queryFormat, "collisionData") )
     __debugbreak();
-  if ( clientData->population->partitionCount > v4->anyActivePartitionBitfield.bitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 616, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyActivePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyActivePartitionBitfield.bitCount", clientData->population->partitionCount, v4->anyActivePartitionBitfield.bitCount) )
+  if ( clientData->population->partitionCount > v2->anyActivePartitionBitfield.bitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 616, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyActivePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyActivePartitionBitfield.bitCount", clientData->population->partitionCount, v2->anyActivePartitionBitfield.bitCount) )
     __debugbreak();
-  if ( clientData->population->partitionCount > v4->anyAvailablePartitionBitfield.bitCount )
+  if ( clientData->population->partitionCount > v2->anyAvailablePartitionBitfield.bitCount )
   {
-    LODWORD(v21) = v4->anyAvailablePartitionBitfield.bitCount;
-    LODWORD(v20) = clientData->population->partitionCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 617, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyAvailablePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyAvailablePartitionBitfield.bitCount", v20, v21) )
+    LODWORD(v15) = v2->anyAvailablePartitionBitfield.bitCount;
+    LODWORD(v14) = clientData->population->partitionCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 617, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyAvailablePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyAvailablePartitionBitfield.bitCount", v14, v15) )
       __debugbreak();
   }
-  _RBP = clientData->sortedPartitions;
+  sortedPartitions = clientData->sortedPartitions;
   sortedPartitionCount = clientData->sortedPartitionCount;
-  _RBX = DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance;
+  v5 = DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance;
   if ( !DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_spatialSparseOccluderCollisionActivationDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm6, xmm0, xmm0
-  }
-  _RDI = 0i64;
-  v11 = 0;
-  v12 = sortedPartitionCount == 0;
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value * v5->current.value;
+  v7 = 0i64;
   if ( sortedPartitionCount )
   {
     while ( 1 )
     {
-      __asm { vcomiss xmm6, dword ptr [rbp+rdi*8+4] }
-      partitionIndex = _RBP[_RDI].partitionIndex;
-      if ( v11 || v12 )
+      partitionIndex = sortedPartitions[v7].partitionIndex;
+      if ( v6 <= sortedPartitions[v7].distanceSq )
       {
-        if ( (unsigned int)partitionIndex >= v4->anyActivePartitionBitfield.bitCount )
+        if ( (unsigned int)partitionIndex >= v2->anyActivePartitionBitfield.bitCount )
         {
-          LODWORD(v19) = v4->anyActivePartitionBitfield.bitCount;
-          LODWORD(v18) = _RBP[_RDI].partitionIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, v19) )
+          LODWORD(v13) = v2->anyActivePartitionBitfield.bitCount;
+          LODWORD(v12) = sortedPartitions[v7].partitionIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v13) )
             __debugbreak();
         }
-        array = v4->anyActivePartitionBitfield.array;
+        array = v2->anyActivePartitionBitfield.array;
       }
       else
       {
-        if ( (unsigned int)partitionIndex >= v4->anyAvailablePartitionBitfield.bitCount )
+        if ( (unsigned int)partitionIndex >= v2->anyAvailablePartitionBitfield.bitCount )
         {
-          LODWORD(v19) = v4->anyAvailablePartitionBitfield.bitCount;
-          LODWORD(v18) = _RBP[_RDI].partitionIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, v19) )
+          LODWORD(v13) = v2->anyAvailablePartitionBitfield.bitCount;
+          LODWORD(v12) = sortedPartitions[v7].partitionIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v13) )
             __debugbreak();
         }
-        array = v4->anyAvailablePartitionBitfield.array;
+        array = v2->anyAvailablePartitionBitfield.array;
       }
       if ( ((0x80000000 >> (partitionIndex & 0x1F)) & array[partitionIndex >> 5]) != 0 )
         break;
-      _RDI = (unsigned int)(_RDI + 1);
-      v11 = (unsigned int)_RDI < sortedPartitionCount;
-      v12 = (_DWORD)_RDI == sortedPartitionCount;
-      if ( (unsigned int)_RDI >= sortedPartitionCount )
+      v7 = (unsigned int)(v7 + 1);
+      if ( (unsigned int)v7 >= sortedPartitionCount )
         goto LABEL_34;
     }
-    v15 = 1;
+    v10 = 1;
   }
   else
   {
 LABEL_34:
-    v15 = 0;
+    v10 = 0;
   }
   Sys_ProfEndNamedEvent();
-  result = v15;
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  return result;
+  return v10;
 }
 
 /*
@@ -1214,44 +1197,36 @@ LABEL_34:
 DynEntCL_Spatial_DebugDrawOverlay
 ==============
 */
-
-void __fastcall DynEntCL_Spatial_DebugDrawOverlay(DynEntitySpatialPopulationType populationIndex, double zoomWorldSize)
+void DynEntCL_Spatial_DebugDrawOverlay(DynEntitySpatialPopulationType populationIndex, float zoomWorldSize)
 {
-  int v5; 
+  int v3; 
   __int64 i; 
   SpatialPartition_Population_Node *p_dynEntNoSpatialList; 
   const vec3_t *LastCameraPos; 
-  int v11; 
-  int v12; 
+  int v7; 
+  int v8; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( (unsigned __int8)populationIndex >= DYNENT_SPATIAL_POPULATION_TYPE_COUNT )
   {
-    v12 = 2;
-    v11 = (unsigned __int8)populationIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 939, ASSERT_TYPE_ASSERT, "(unsigned)( populationIndex ) < (unsigned)( DYNENT_SPATIAL_POPULATION_TYPE_COUNT )", "populationIndex doesn't index DYNENT_SPATIAL_POPULATION_TYPE_COUNT\n\t%i not in [0, %i)", v11, v12) )
+    v8 = 2;
+    v7 = (unsigned __int8)populationIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 939, ASSERT_TYPE_ASSERT, "(unsigned)( populationIndex ) < (unsigned)( DYNENT_SPATIAL_POPULATION_TYPE_COUNT )", "populationIndex doesn't index DYNENT_SPATIAL_POPULATION_TYPE_COUNT\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
   if ( cm.mapEnts == (MapEnts *)-456i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 940, ASSERT_TYPE_ASSERT, "(cm.mapEnts->dynEntSpatialPopulation)", (const char *)&queryFormat, "cm.mapEnts->dynEntSpatialPopulation") )
     __debugbreak();
-  v5 = 0;
+  v3 = 0;
   for ( i = 0i64; ; ++i )
   {
     if ( !LODWORD(cl_maxLocalClients) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 336, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients)", "%s\n\tMust be called after client allocation", "cl_maxLocalClients") )
       __debugbreak();
-    if ( v5 >= cls.m_localClientsActive.activeCount )
+    if ( v3 >= cls.m_localClientsActive.activeCount )
       break;
     p_dynEntNoSpatialList = &cm.mapEnts->dynEntNoSpatialList;
-    LastCameraPos = DynEntCL_GetLastCameraPos((LocalClientNum_t)v5);
-    __asm { vmovaps xmm3, xmm6; overlayWorldSize }
-    SpatialPartition_PopulationSort_DebugDrawOverlay(g_dynEntSpatialSortClientData[i][(unsigned __int8)populationIndex], &s_dynEntSpatialCallbacks[(unsigned __int64)(unsigned __int8)populationIndex], LastCameraPos, *(float *)&_XMM3, p_dynEntNoSpatialList);
-    ++v5;
+    LastCameraPos = DynEntCL_GetLastCameraPos((LocalClientNum_t)v3);
+    SpatialPartition_PopulationSort_DebugDrawOverlay(g_dynEntSpatialSortClientData[i][(unsigned __int8)populationIndex], &s_dynEntSpatialCallbacks[(unsigned __int64)(unsigned __int8)populationIndex], LastCameraPos, zoomWorldSize, p_dynEntNoSpatialList);
+    ++v3;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -1596,11 +1571,8 @@ __int64 DynEntCL_Spatial_FindPartitionForDynEnt(const DynEntityDef *def)
     return 0xFFFFFFFFi64;
   while ( 1 )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+58h+var_28.m_population], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v8.m_population = _XMM0;
     v8.m_curIndex = -1;
     SpatialPartition_Population_NodeIterator::Init(&v8, *(const SpatialPartition_Population **)((char *)&mapEnts->name + v4), v6);
     if ( SpatialPartition_Population_NodeIterator::Advance(&v8) )
@@ -2223,27 +2195,15 @@ void __fastcall DynEntCL_Spatial_SortByDistance(SpatialPartition_PopulationSort_
 DynEntCL_Spatial_SortByDistanceAndView
 ==============
 */
-
-void __fastcall DynEntCL_Spatial_SortByDistanceAndView(SpatialPartition_PopulationSort_ClientData *clientData, const vec3_t *viewPos, const vec3_t *lookAtDir, double fovInDegrees)
+void DynEntCL_Spatial_SortByDistanceAndView(SpatialPartition_PopulationSort_ClientData *clientData, const vec3_t *viewPos, const vec3_t *lookAtDir, const float fovInDegrees)
 {
-  float fmt; 
+  const dvar_t *v4; 
 
-  _RBX = DCONST_DVARFLT_dynEnt_spatialViewBasedStartDistance;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v4 = DCONST_DVARFLT_dynEnt_spatialViewBasedStartDistance;
   if ( !DCONST_DVARFLT_dynEnt_spatialViewBasedStartDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_spatialViewBasedStartDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+28h]; minViewAngleDistance
-    vmovss  dword ptr [rsp+58h+fmt], xmm6
-  }
-  SpatialPartition_PopulationSort_SortByDistanceWithViewAngle(clientData, viewPos, *(const float *)&_XMM2, lookAtDir, fmt);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  Dvar_CheckFrontendServerThread(v4);
+  SpatialPartition_PopulationSort_SortByDistanceWithViewAngle(clientData, viewPos, v4->current.value, lookAtDir, fovInDegrees);
 }
 
 /*
@@ -2254,13 +2214,15 @@ DynEntCL_Spatial_SparseOccluderActivated
 void DynEntCL_Spatial_SparseOccluderActivated(const SpatialPartition_PopulationSort_ClientData *clientData, const DynEntityDef *def, const unsigned int sortedPartitionIndex)
 {
   __int64 v3; 
-  bitarray_base<bitarray_dynamic> *v11; 
-  char v12; 
-  char v13; 
-  char v14; 
+  __int64 v6; 
+  const dvar_t *v7; 
+  SpatialPartition_PopulationSort_Entry *sortedPartitions; 
+  float value; 
+  bitarray_base<bitarray_dynamic> *v10; 
+  bool v11; 
   DynEntityClient *ClientFromClientId; 
   unsigned int partitionIndex; 
-  __int64 v17; 
+  __int64 v14; 
 
   v3 = sortedPartitionIndex;
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 120, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
@@ -2269,40 +2231,35 @@ void DynEntCL_Spatial_SparseOccluderActivated(const SpatialPartition_PopulationS
     __debugbreak();
   if ( (unsigned int)v3 >= clientData->sortedPartitionCount )
   {
-    LODWORD(v17) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( sortedPartitionIndex ) < (unsigned)( clientData->sortedPartitionCount )", "sortedPartitionIndex doesn't index clientData->sortedPartitionCount\n\t%i not in [0, %i)", v17, clientData->sortedPartitionCount) )
+    LODWORD(v14) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( sortedPartitionIndex ) < (unsigned)( clientData->sortedPartitionCount )", "sortedPartitionIndex doesn't index clientData->sortedPartitionCount\n\t%i not in [0, %i)", v14, clientData->sortedPartitionCount) )
       __debugbreak();
   }
   if ( (def->collisionFlags & 1) != 0 )
   {
-    _RBP = v3;
-    _RDI = DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance;
-    _R14 = clientData->sortedPartitions;
+    v6 = v3;
+    v7 = DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance;
+    sortedPartitions = clientData->sortedPartitions;
     if ( !DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_spatialSparseOccluderCollisionActivationDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm1, dword ptr [r14+rbp*8+4]
-    }
-    v11 = (bitarray_base<bitarray_dynamic> *)g_dynEntSpatialSortOccluderCollisionClientData[clientData->localClientNum];
-    v14 = v12 | v13;
-    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 132, ASSERT_TYPE_ASSERT, "(collisionClientData)", (const char *)&queryFormat, "collisionClientData") )
+    Dvar_CheckFrontendServerThread(v7);
+    value = v7->current.value;
+    v10 = (bitarray_base<bitarray_dynamic> *)g_dynEntSpatialSortOccluderCollisionClientData[clientData->localClientNum];
+    v11 = (float)(value * value) <= sortedPartitions[v6].distanceSq;
+    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 132, ASSERT_TYPE_ASSERT, "(collisionClientData)", (const char *)&queryFormat, "collisionClientData") )
       __debugbreak();
     ClientFromClientId = DynEnt_GetClientFromClientId(clientData->localClientNum, def->clientId[clientData->localClientNum], def->basis);
     if ( !ClientFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 134, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
       __debugbreak();
-    partitionIndex = _R14[_RBP].partitionIndex;
-    if ( v14 )
+    partitionIndex = sortedPartitions[v6].partitionIndex;
+    if ( v11 )
     {
-      bitarray_base<bitarray_dynamic>::setBit(v11 + 16, partitionIndex);
+      bitarray_base<bitarray_dynamic>::setBit(v10 + 16, partitionIndex);
       ClientFromClientId->flags |= 0x2000u;
     }
     else
     {
-      bitarray_base<bitarray_dynamic>::setBit(v11, partitionIndex);
+      bitarray_base<bitarray_dynamic>::setBit(v10, partitionIndex);
       ClientFromClientId->flags &= ~0x2000u;
     }
   }
@@ -2607,35 +2564,35 @@ DynEntCL_Spatial_UpdateCollisions
 void DynEntCL_Spatial_UpdateCollisions(const SpatialPartition_PopulationSort_ClientData *clientData)
 {
   __int64 localClientNum; 
-  SpatialPartition_PopulationSort_DependentClientData *v4; 
+  SpatialPartition_PopulationSort_DependentClientData *v3; 
+  SpatialPartition_PopulationSort_Entry *sortedPartitions; 
   __int64 sortedPartitionCount; 
-  bool v10; 
-  bool v11; 
-  bool v12; 
+  const dvar_t *v6; 
+  float v8; 
+  bool v9; 
   unsigned __int64 partitionIndex; 
-  char v14; 
-  char v15; 
+  char v11; 
+  char v12; 
   SpatialPartition_Population_Node *m_curNode; 
-  SpatialPartition_Population_Node *v17; 
-  unsigned __int8 v18; 
-  unsigned __int16 v19; 
-  __int64 v20; 
-  unsigned __int16 v21; 
-  DynEntityClient *v22; 
+  SpatialPartition_Population_Node *v14; 
+  unsigned __int8 v15; 
+  unsigned __int16 v16; 
+  __int64 v17; 
+  unsigned __int16 v18; 
+  DynEntityClient *v19; 
   unsigned __int16 flags; 
-  bool v24; 
-  unsigned __int64 v25; 
-  unsigned __int64 v26; 
-  __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  SpatialPartition_PopulationSort_DependentClientData *v32; 
-  SpatialPartition_Population_NodeIterator v33; 
-  SpatialPartition_PopulationSort_Entry *v36; 
+  bool v21; 
+  unsigned __int64 v22; 
+  unsigned __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  SpatialPartition_PopulationSort_DependentClientData *v28; 
+  SpatialPartition_Population_NodeIterator v29; 
+  SpatialPartition_PopulationSort_Entry *v31; 
   __int64 i; 
 
-  __asm { vmovaps [rsp+0D8h+var_58], xmm6 }
   Sys_ProfBeginNamedEvent(0xFFFF6347, "DynEntCL_Spatial_UpdateCollisions");
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 742, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
     __debugbreak();
@@ -2643,194 +2600,182 @@ void DynEntCL_Spatial_UpdateCollisions(const SpatialPartition_PopulationSort_Cli
     __debugbreak();
   if ( clientData->localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v28) = clientData->localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 744, ASSERT_TYPE_ASSERT, "(unsigned)( clientData->localClientNum ) < (unsigned)( 2 )", "clientData->localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v28, 2) )
+    LODWORD(v24) = clientData->localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 744, ASSERT_TYPE_ASSERT, "(unsigned)( clientData->localClientNum ) < (unsigned)( 2 )", "clientData->localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, 2) )
       __debugbreak();
   }
   localClientNum = clientData->localClientNum;
-  v4 = g_dynEntSpatialSortOccluderCollisionClientData[localClientNum];
-  v32 = v4;
-  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 747, ASSERT_TYPE_ASSERT, "(collisionData)", (const char *)&queryFormat, "collisionData") )
+  v3 = g_dynEntSpatialSortOccluderCollisionClientData[localClientNum];
+  v28 = v3;
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 747, ASSERT_TYPE_ASSERT, "(collisionData)", (const char *)&queryFormat, "collisionData") )
     __debugbreak();
-  if ( clientData->population->partitionCount > v4->anyActivePartitionBitfield.bitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 748, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyActivePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyActivePartitionBitfield.bitCount", clientData->population->partitionCount, v4->anyActivePartitionBitfield.bitCount) )
+  if ( clientData->population->partitionCount > v3->anyActivePartitionBitfield.bitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 748, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyActivePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyActivePartitionBitfield.bitCount", clientData->population->partitionCount, v3->anyActivePartitionBitfield.bitCount) )
     __debugbreak();
-  if ( clientData->population->partitionCount > v4->anyAvailablePartitionBitfield.bitCount )
+  if ( clientData->population->partitionCount > v3->anyAvailablePartitionBitfield.bitCount )
   {
-    LODWORD(v31) = v4->anyAvailablePartitionBitfield.bitCount;
-    LODWORD(v30) = clientData->population->partitionCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 749, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyAvailablePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyAvailablePartitionBitfield.bitCount", v30, v31) )
+    LODWORD(v27) = v3->anyAvailablePartitionBitfield.bitCount;
+    LODWORD(v26) = clientData->population->partitionCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 749, ASSERT_TYPE_ASSERT, "( clientData->population->partitionCount ) <= ( collisionData->anyAvailablePartitionBitfield.bitCount )", "%s <= %s\n\t%u, %u", "clientData->population->partitionCount", "collisionData->anyAvailablePartitionBitfield.bitCount", v26, v27) )
       __debugbreak();
   }
-  _RSI = clientData->sortedPartitions;
-  v36 = _RSI;
+  sortedPartitions = clientData->sortedPartitions;
+  v31 = sortedPartitions;
   sortedPartitionCount = clientData->sortedPartitionCount;
-  _RBX = DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance;
+  v6 = DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance;
   if ( !DCONST_DVARFLT_dynEnt_spatialSparseOccluderCollisionActivationDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_spatialSparseOccluderCollisionActivationDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm6, xmm0, xmm0
-  }
-  v10 = 0;
-  v11 = (_DWORD)sortedPartitionCount == 0;
+  Dvar_CheckFrontendServerThread(v6);
+  _XMM0 = v6->current.unsignedInt;
+  v8 = *(float *)&_XMM0 * *(float *)&_XMM0;
   if ( (_DWORD)sortedPartitionCount )
   {
     for ( i = sortedPartitionCount; i; --i )
     {
-      __asm { vcomiss xmm6, dword ptr [rsi+4] }
-      v12 = !v10 && !v11;
-      partitionIndex = _RSI->partitionIndex;
-      if ( v10 || v11 )
+      v9 = v8 > sortedPartitions->distanceSq;
+      partitionIndex = sortedPartitions->partitionIndex;
+      if ( v8 <= sortedPartitions->distanceSq )
       {
-        if ( (unsigned int)partitionIndex >= v4->anyActivePartitionBitfield.bitCount )
+        if ( (unsigned int)partitionIndex >= v3->anyActivePartitionBitfield.bitCount )
         {
-          LODWORD(v29) = v4->anyActivePartitionBitfield.bitCount;
-          LODWORD(v28) = _RSI->partitionIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v28, v29) )
+          LODWORD(v25) = v3->anyActivePartitionBitfield.bitCount;
+          LODWORD(v24) = sortedPartitions->partitionIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v24, v25) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (partitionIndex & 0x1F)) & v4->anyActivePartitionBitfield.array[partitionIndex >> 5]) == 0 )
+        if ( ((0x80000000 >> (partitionIndex & 0x1F)) & v3->anyActivePartitionBitfield.array[partitionIndex >> 5]) == 0 )
           goto LABEL_86;
       }
       else
       {
-        if ( (unsigned int)partitionIndex >= v4->anyAvailablePartitionBitfield.bitCount )
+        if ( (unsigned int)partitionIndex >= v3->anyAvailablePartitionBitfield.bitCount )
         {
-          LODWORD(v29) = v4->anyAvailablePartitionBitfield.bitCount;
-          LODWORD(v28) = _RSI->partitionIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v28, v29) )
+          LODWORD(v25) = v3->anyAvailablePartitionBitfield.bitCount;
+          LODWORD(v24) = sortedPartitions->partitionIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v24, v25) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (partitionIndex & 0x1F)) & v4->anyAvailablePartitionBitfield.array[partitionIndex >> 5]) == 0 )
+        if ( ((0x80000000 >> (partitionIndex & 0x1F)) & v3->anyAvailablePartitionBitfield.array[partitionIndex >> 5]) == 0 )
           goto LABEL_86;
       }
-      v14 = 0;
-      v15 = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+0D8h+var_78.m_population], xmm0
-      }
-      v33.m_curIndex = -1;
-      SpatialPartition_Population_NodeIterator::Init(&v33, clientData->population, _RSI->partitionIndex);
-      if ( SpatialPartition_Population_NodeIterator::Advance(&v33) )
+      v11 = 0;
+      v12 = 0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v29.m_population = _XMM0;
+      v29.m_curIndex = -1;
+      SpatialPartition_Population_NodeIterator::Init(&v29, clientData->population, sortedPartitions->partitionIndex);
+      if ( SpatialPartition_Population_NodeIterator::Advance(&v29) )
       {
         do
         {
-          if ( !v33.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
+          if ( !v29.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
             __debugbreak();
-          m_curNode = v33.m_curNode;
-          if ( !v33.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 769, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+          m_curNode = v29.m_curNode;
+          if ( !v29.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 769, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
             __debugbreak();
-          v17 = m_curNode - 11;
+          v14 = m_curNode - 11;
           if ( m_curNode == (SpatialPartition_Population_Node *)44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 771, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
             __debugbreak();
-          if ( (v17[19].spatialNodeNext & 0x100) != 0 && ((unsigned __int8)(1 << localClientNum) & v17[12].spatialNodeNext) != 0 )
+          if ( (v14[19].spatialNodeNext & 0x100) != 0 && ((unsigned __int8)(1 << localClientNum) & v14[12].spatialNodeNext) != 0 )
           {
-            v18 = BYTE1(v17[12].spatialNodeNext);
-            v19 = *((_WORD *)&v17[14].spatialNodeNext + localClientNum);
+            v15 = BYTE1(v14[12].spatialNodeNext);
+            v16 = *((_WORD *)&v14[14].spatialNodeNext + localClientNum);
             if ( (unsigned int)localClientNum >= 2 )
             {
-              LODWORD(v29) = 2;
-              LODWORD(v28) = localClientNum;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v28, v29) )
+              LODWORD(v25) = 2;
+              LODWORD(v24) = localClientNum;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
                 __debugbreak();
             }
-            if ( v18 >= 2u )
+            if ( v15 >= 2u )
             {
-              LODWORD(v29) = 2;
-              LODWORD(v28) = v18;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( basis ) < (unsigned)( DYNENT_BASIS_COUNT )", "basis doesn't index DYNENT_BASIS_COUNT\n\t%i not in [0, %i)", v28, v29) )
+              LODWORD(v25) = 2;
+              LODWORD(v24) = v15;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( basis ) < (unsigned)( DYNENT_BASIS_COUNT )", "basis doesn't index DYNENT_BASIS_COUNT\n\t%i not in [0, %i)", v24, v25) )
                 __debugbreak();
             }
-            v20 = v18 + 2 * localClientNum;
-            v21 = g_dynEntClientEntsAllocCount[0][v20];
-            if ( v19 >= v21 )
+            v17 = v15 + 2 * localClientNum;
+            v18 = g_dynEntClientEntsAllocCount[0][v17];
+            if ( v16 >= v18 )
             {
-              LODWORD(v29) = v21;
-              LODWORD(v28) = v19;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 324, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v28, v29) )
+              LODWORD(v25) = v18;
+              LODWORD(v24) = v16;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 324, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v24, v25) )
                 __debugbreak();
             }
-            if ( !g_dynEntClientLists[0][v20] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 325, ASSERT_TYPE_ASSERT, "(g_dynEntClientLists[localClientNum][basis])", (const char *)&queryFormat, "g_dynEntClientLists[localClientNum][basis]") )
+            if ( !g_dynEntClientLists[0][v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 325, ASSERT_TYPE_ASSERT, "(g_dynEntClientLists[localClientNum][basis])", (const char *)&queryFormat, "g_dynEntClientLists[localClientNum][basis]") )
               __debugbreak();
-            v22 = &g_dynEntClientLists[0][v20][v19];
-            if ( !v22 )
+            v19 = &g_dynEntClientLists[0][v17][v16];
+            if ( !v19 )
             {
-              LODWORD(v28) = *((unsigned __int16 *)&v17[14].spatialNodeNext + localClientNum);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 778, ASSERT_TYPE_ASSERT, "( ( dynEntClient ) )", "( dynEntDef->clientId[localClientNum] ) = %u", v28) )
+              LODWORD(v24) = *((unsigned __int16 *)&v14[14].spatialNodeNext + localClientNum);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.cpp", 778, ASSERT_TYPE_ASSERT, "( ( dynEntClient ) )", "( dynEntDef->clientId[localClientNum] ) = %u", v24) )
                 __debugbreak();
             }
-            flags = v22->flags;
-            if ( ((flags & 0x2000) != 0) == v12 )
+            flags = v19->flags;
+            if ( ((flags & 0x2000) != 0) == v9 )
             {
-              v24 = 1;
-              if ( BYTE2(v17[12].spatialNodeNext) == 3 )
+              v21 = 1;
+              if ( BYTE2(v14[12].spatialNodeNext) == 3 )
               {
-                v24 = ScriptableCl_TryRequestDynEntCollisionActivationChange((const LocalClientNum_t)localClientNum, v17[15].spatialNodeNext, v12);
-                flags = v22->flags;
+                v21 = ScriptableCl_TryRequestDynEntCollisionActivationChange((const LocalClientNum_t)localClientNum, v14[15].spatialNodeNext, v9);
+                flags = v19->flags;
               }
-              if ( v24 )
+              if ( v21 )
               {
-                if ( v12 )
+                if ( v9 )
                   flags &= ~0x2000u;
                 else
                   flags |= 0x2000u;
-                v22->flags = flags;
+                v19->flags = flags;
               }
             }
             if ( (flags & 0x2000) != 0 )
-              v15 = 1;
+              v12 = 1;
             else
-              v14 = 1;
+              v11 = 1;
           }
         }
-        while ( SpatialPartition_Population_NodeIterator::Advance(&v33) );
-        v4 = v32;
-        _RSI = v36;
+        while ( SpatialPartition_Population_NodeIterator::Advance(&v29) );
+        v3 = v28;
+        sortedPartitions = v31;
       }
-      v25 = _RSI->partitionIndex;
-      if ( v15 )
+      v22 = sortedPartitions->partitionIndex;
+      if ( v12 )
       {
-        bitarray_base<bitarray_dynamic>::setBit(&v4->anyAvailablePartitionBitfield, _RSI->partitionIndex);
-      }
-      else
-      {
-        if ( (unsigned int)v25 >= v4->anyAvailablePartitionBitfield.bitCount )
-        {
-          LODWORD(v31) = v4->anyAvailablePartitionBitfield.bitCount;
-          LODWORD(v30) = _RSI->partitionIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v30, v31) )
-            __debugbreak();
-        }
-        v4->anyAvailablePartitionBitfield.array[v25 >> 5] &= ~(0x80000000 >> (v25 & 0x1F));
-      }
-      v26 = _RSI->partitionIndex;
-      if ( v14 )
-      {
-        bitarray_base<bitarray_dynamic>::setBit((bitarray_base<bitarray_dynamic> *)v4, _RSI->partitionIndex);
+        bitarray_base<bitarray_dynamic>::setBit(&v3->anyAvailablePartitionBitfield, sortedPartitions->partitionIndex);
       }
       else
       {
-        if ( (unsigned int)v26 >= v4->anyActivePartitionBitfield.bitCount )
+        if ( (unsigned int)v22 >= v3->anyAvailablePartitionBitfield.bitCount )
         {
-          LODWORD(v31) = v4->anyActivePartitionBitfield.bitCount;
-          LODWORD(v30) = _RSI->partitionIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v30, v31) )
+          LODWORD(v27) = v3->anyAvailablePartitionBitfield.bitCount;
+          LODWORD(v26) = sortedPartitions->partitionIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v26, v27) )
             __debugbreak();
         }
-        v4->anyActivePartitionBitfield.array[v26 >> 5] &= ~(0x80000000 >> (v26 & 0x1F));
+        v3->anyAvailablePartitionBitfield.array[v22 >> 5] &= ~(0x80000000 >> (v22 & 0x1F));
+      }
+      v23 = sortedPartitions->partitionIndex;
+      if ( v11 )
+      {
+        bitarray_base<bitarray_dynamic>::setBit((bitarray_base<bitarray_dynamic> *)v3, sortedPartitions->partitionIndex);
+      }
+      else
+      {
+        if ( (unsigned int)v23 >= v3->anyActivePartitionBitfield.bitCount )
+        {
+          LODWORD(v27) = v3->anyActivePartitionBitfield.bitCount;
+          LODWORD(v26) = sortedPartitions->partitionIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v26, v27) )
+            __debugbreak();
+        }
+        v3->anyActivePartitionBitfield.array[v23 >> 5] &= ~(0x80000000 >> (v23 & 0x1F));
       }
 LABEL_86:
-      v36 = ++_RSI;
-      v10 = i == 0;
-      v11 = i == 1;
+      v31 = ++sortedPartitions;
     }
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+0D8h+var_58] }
 }
 
 /*

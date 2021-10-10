@@ -1362,20 +1362,15 @@ hkArrayBase<hkGeometryDecorations::Edge>::copy<hkGeometryDecorations::Edge>
 void hkArrayBase<hkGeometryDecorations::Edge>::copy<hkGeometryDecorations::Edge>(hkGeometryDecorations::Edge *dst, const hkGeometryDecorations::Edge *src, int n)
 {
   __int64 v3; 
+  signed __int64 v4; 
 
   v3 = n;
   if ( n > 0 )
   {
-    _RDX = (char *)src - (char *)dst;
+    v4 = (char *)src - (char *)dst;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovsd  xmm1, qword ptr [rdx+rcx+10h]
-        vmovsd  qword ptr [rcx+10h], xmm1
-      }
+      *dst = *(hkGeometryDecorations::Edge *)((char *)dst + v4);
       ++dst;
       --v3;
     }
@@ -1391,20 +1386,15 @@ hkArrayBase<hkGeometryDecorations::Point>::copy<hkGeometryDecorations::Point>
 void hkArrayBase<hkGeometryDecorations::Point>::copy<hkGeometryDecorations::Point>(hkGeometryDecorations::Point *dst, const hkGeometryDecorations::Point *src, int n)
 {
   __int64 v3; 
+  signed __int64 v4; 
 
   v3 = n;
   if ( n > 0 )
   {
-    _RDX = (char *)src - (char *)dst;
+    v4 = (char *)src - (char *)dst;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovsd  xmm1, qword ptr [rdx+rcx+10h]
-        vmovsd  qword ptr [rcx+10h], xmm1
-      }
+      *dst = *(hkGeometryDecorations::Point *)((char *)dst + v4);
       ++dst;
       --v3;
     }
@@ -1449,18 +1439,15 @@ hkArrayBase<hk1PointDisplayMaterial>::copy<hk1PointDisplayMaterial>
 void hkArrayBase<hk1PointDisplayMaterial>::copy<hk1PointDisplayMaterial>(hk1PointDisplayMaterial *dst, const hk1PointDisplayMaterial *src, int n)
 {
   __int64 v3; 
+  signed __int64 v4; 
 
   v3 = n;
   if ( n > 0 )
   {
-    _RDX = (char *)src - (char *)dst;
+    v4 = (char *)src - (char *)dst;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-      }
+      *dst = *(hk1PointDisplayMaterial *)((char *)dst + v4);
       ++dst;
       --v3;
     }
@@ -1476,18 +1463,15 @@ hkArrayBase<hk2PointDisplayMaterial>::copy<hk2PointDisplayMaterial>
 void hkArrayBase<hk2PointDisplayMaterial>::copy<hk2PointDisplayMaterial>(hk2PointDisplayMaterial *dst, const hk2PointDisplayMaterial *src, int n)
 {
   __int64 v3; 
+  signed __int64 v4; 
 
   v3 = n;
   if ( n > 0 )
   {
-    _RDX = (char *)src - (char *)dst;
+    v4 = (char *)src - (char *)dst;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-      }
+      *dst = *(hk2PointDisplayMaterial *)((char *)dst + v4);
       ++dst;
       --v3;
     }
@@ -1557,18 +1541,15 @@ hkArrayBase<hkVector4f>::copy<hkVector4f>
 void hkArrayBase<hkVector4f>::copy<hkVector4f>(hkVector4f *dst, const hkVector4f *src, int n)
 {
   __int64 v3; 
+  signed __int64 v4; 
 
   v3 = n;
   if ( n > 0 )
   {
-    _RDX = (char *)src - (char *)dst;
+    v4 = (char *)src - (char *)dst;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-      }
+      *dst = *(hkVector4f *)((char *)dst + v4);
       ++dst;
       --v3;
     }
@@ -2114,18 +2095,15 @@ hkArrayBase<hkGeometry::Triangle>::copy<hkGeometry::Triangle>
 void hkArrayBase<hkGeometry::Triangle>::copy<hkGeometry::Triangle>(hkGeometry::Triangle *dst, const hkGeometry::Triangle *src, int n)
 {
   __int64 v3; 
+  signed __int64 v4; 
 
   v3 = n;
   if ( n > 0 )
   {
-    _RDX = (char *)src - (char *)dst;
+    v4 = (char *)src - (char *)dst;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-      }
+      *dst = *(hkGeometry::Triangle *)((char *)dst + v4);
       ++dst;
       --v3;
     }

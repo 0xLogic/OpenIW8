@@ -52,9 +52,11 @@ __int64 R_StableSortSurfs_All<GfxSortStDrawSurfsInterface,GfxStDrawSurf>(const G
   unsigned int v18; 
   __int64 v19; 
   int v20; 
-  int v26; 
-  unsigned int v27; 
-  unsigned __int16 v31[512]; 
+  const GfxStDrawSurf *v21; 
+  __int128 v22; 
+  __int64 v23; 
+  int v24; 
+  unsigned __int16 v28[512]; 
 
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sortsurfs.h", 32, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
     __debugbreak();
@@ -66,7 +68,7 @@ __int64 R_StableSortSurfs_All<GfxSortStDrawSurfsInterface,GfxStDrawSurf>(const G
   v8 = 46080;
   LODWORD(v9) = 0;
   v10 = 0;
-  v26 = 0;
+  v24 = 0;
   v11 = 0;
   v12 = src;
   do
@@ -84,7 +86,7 @@ __int64 R_StableSortSurfs_All<GfxSortStDrawSurfsInterface,GfxStDrawSurf>(const G
         do
         {
           v9 = (v15 + v14) >> 1;
-          v16 = v31[4 * v9];
+          v16 = v28[4 * v9];
           if ( v16 >= packed_low )
           {
             if ( v16 <= packed_low )
@@ -103,59 +105,50 @@ __int64 R_StableSortSurfs_All<GfxSortStDrawSurfsInterface,GfxStDrawSurf>(const G
       LODWORD(v9) = v10;
       if ( v10 > v15 )
       {
-        v17 = &v31[4 * v10];
+        v17 = &v28[4 * v10];
         do
         {
           v9 = (unsigned int)(v9 - 1);
           v17 -= 4;
-          *((_QWORD *)v17 + 1) = *(_QWORD *)&v31[4 * v9];
+          *((_QWORD *)v17 + 1) = *(_QWORD *)&v28[4 * v9];
         }
         while ( (unsigned int)v9 > v15 );
       }
       ++v10;
-      v31[4 * (unsigned int)v9] = packed_low;
-      v31[4 * (unsigned int)v9 + 1] = v11;
+      v28[4 * (unsigned int)v9] = packed_low;
+      v28[4 * (unsigned int)v9 + 1] = v11;
     }
 LABEL_28:
     ++v12;
-    *(_DWORD *)&v31[4 * (unsigned int)v9 + 2] = v11++;
+    *(_DWORD *)&v28[4 * (unsigned int)v9 + 2] = v11++;
   }
   while ( v11 < count );
-  v27 = v10;
   if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sortsurfs.h", 76, ASSERT_TYPE_ASSERT, "(binCount)", (const char *)&queryFormat, "binCount") )
     __debugbreak();
   v18 = 0;
   do
   {
-    v19 = v31[4 * v7 + 1];
-    v20 = v31[4 * v7];
-    _R15 = dst;
+    v19 = v28[4 * v7 + 1];
+    v20 = v28[4 * v7];
     do
     {
-      _RDI = &src[v19];
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_drawsurf.cpp", 19, ASSERT_TYPE_ASSERT, "(drawSurf)", (const char *)&queryFormat, "drawSurf") )
+      v21 = &src[v19];
+      if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_drawsurf.cpp", 19, ASSERT_TYPE_ASSERT, "(drawSurf)", (const char *)&queryFormat, "drawSurf") )
         __debugbreak();
-      if ( v20 == LOWORD(_RDI->drawGroup.packed) )
+      if ( v20 == LOWORD(v21->drawGroup.packed) )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups xmm1, xmmword ptr [rdi+20h]
-        }
-        _RCX = 6i64 * v18++;
-        __asm
-        {
-          vmovups ymmword ptr [r15+rcx*8], ymm0
-          vmovups xmmword ptr [r15+rcx*8+20h], xmm1
-        }
+        v22 = *(_OWORD *)&v21->baseIndex;
+        v23 = v18++;
+        *(__m256i *)&dst[v23].drawGroup.fields = *(__m256i *)&v21->drawGroup.fields;
+        *(_OWORD *)&dst[v23].baseIndex = v22;
       }
       v19 = (unsigned int)(v19 + 1);
     }
-    while ( (unsigned int)v19 <= *(_DWORD *)&v31[4 * v7 + 2] );
-    v7 = (unsigned int)(v26 + 1);
-    v26 = v7;
+    while ( (unsigned int)v19 <= *(_DWORD *)&v28[4 * v7 + 2] );
+    v7 = (unsigned int)(v24 + 1);
+    v24 = v7;
   }
-  while ( (_DWORD)v7 != v27 );
+  while ( (_DWORD)v7 != v10 );
   if ( v18 != count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sortsurfs.h", 96, ASSERT_TYPE_ASSERT, "(outCount == count)", (const char *)&queryFormat, "outCount == count") )
     __debugbreak();
   return v18;
@@ -187,16 +180,18 @@ __int64 R_StableSortSurfs_All<GfxSortFlareSurfsInterface,GfxFlareSurf>(const Gfx
   unsigned int v23; 
   unsigned __int16 *v24; 
   int v25; 
+  const GfxFlareSurf *v26; 
   Material *v27; 
   __int64 v28; 
   unsigned __int16 *v29; 
   const char *v30; 
   Material *v31; 
-  __int64 v35; 
-  __int64 v36; 
-  int v37; 
-  unsigned int v38; 
-  unsigned __int16 v42[512]; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  int v35; 
+  unsigned int v36; 
+  unsigned __int16 v40[512]; 
 
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sortsurfs.h", 32, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
     __debugbreak();
@@ -207,7 +202,7 @@ __int64 R_StableSortSurfs_All<GfxSortFlareSurfsInterface,GfxFlareSurf>(const Gfx
   v7 = 46080;
   v8 = 0;
   v9 = 0;
-  v37 = 0;
+  v35 = 0;
   LODWORD(v10) = 0;
   v11 = src;
   do
@@ -220,9 +215,9 @@ __int64 R_StableSortSurfs_All<GfxSortFlareSurfsInterface,GfxFlareSurf>(const Gfx
       __debugbreak();
     if ( (unsigned int)p1_low >= rgp.materialCount )
     {
-      LODWORD(v36) = rgp.materialCount;
-      LODWORD(v35) = p1_low;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v35, v36) )
+      LODWORD(v34) = rgp.materialCount;
+      LODWORD(v33) = p1_low;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v33, v34) )
         __debugbreak();
     }
     v14 = &rgp.sortedMaterials[p1_low];
@@ -231,9 +226,9 @@ __int64 R_StableSortSurfs_All<GfxSortFlareSurfsInterface,GfxFlareSurf>(const Gfx
       name = material->name;
       if ( (unsigned int)p1_low >= rgp.materialCount )
       {
-        LODWORD(v36) = rgp.materialCount;
-        LODWORD(v35) = p1_low;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v34) = rgp.materialCount;
+        LODWORD(v33) = p1_low;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v33, v34) )
           __debugbreak();
       }
       MaterialAtIndex = DB_GetMaterialAtIndex(*v14);
@@ -251,7 +246,7 @@ __int64 R_StableSortSurfs_All<GfxSortFlareSurfsInterface,GfxFlareSurf>(const Gfx
         do
         {
           v10 = (v19 + v18) >> 1;
-          v20 = v42[4 * v10];
+          v20 = v40[4 * v10];
           if ( v20 >= (unsigned int)p1_low )
           {
             if ( v20 <= (unsigned int)p1_low )
@@ -270,47 +265,47 @@ __int64 R_StableSortSurfs_All<GfxSortFlareSurfsInterface,GfxFlareSurf>(const Gfx
       LODWORD(v10) = v9;
       if ( v9 > v19 )
       {
-        v21 = &v42[4 * v9];
+        v21 = &v40[4 * v9];
         do
         {
           v10 = (unsigned int)(v10 - 1);
           v21 -= 4;
-          *((_QWORD *)v21 + 1) = *(_QWORD *)&v42[4 * v10];
+          *((_QWORD *)v21 + 1) = *(_QWORD *)&v40[4 * v10];
         }
         while ( (unsigned int)v10 > v19 );
       }
       ++v9;
-      v42[4 * (unsigned int)v10] = p1_low;
-      v42[4 * (unsigned int)v10 + 1] = v8;
+      v40[4 * (unsigned int)v10] = p1_low;
+      v40[4 * (unsigned int)v10 + 1] = v8;
     }
 LABEL_39:
     ++v11;
-    *(_DWORD *)&v42[4 * (unsigned int)v10 + 2] = v8++;
+    *(_DWORD *)&v40[4 * (unsigned int)v10 + 2] = v8++;
   }
   while ( v8 < count );
-  v38 = v9;
+  v36 = v9;
   if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sortsurfs.h", 76, ASSERT_TYPE_ASSERT, "(binCount)", (const char *)&queryFormat, "binCount") )
     __debugbreak();
   v22 = 0;
   do
   {
-    v23 = v42[4 * v17 + 1];
-    v24 = &v42[4 * v17 + 2];
-    v25 = v42[4 * v17];
+    v23 = v40[4 * v17 + 1];
+    v24 = &v40[4 * v17 + 2];
+    v25 = v40[4 * v17];
     do
     {
-      _R14 = &src[v23];
-      v27 = _R14->material;
-      if ( !_R14->material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 534, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
+      v26 = &src[v23];
+      v27 = v26->material;
+      if ( !v26->material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 534, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
         __debugbreak();
       v28 = LOWORD(v27->drawSurf.packed.p1);
       if ( (_DWORD)v28 == 45055 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 536, ASSERT_TYPE_ASSERT, "( ( mtlSortIndex != MAX_SORTED_MATERIALS ) )", "( mtl->name ) = %s", v27->name) )
         __debugbreak();
       if ( (unsigned int)v28 >= rgp.materialCount )
       {
-        LODWORD(v36) = rgp.materialCount;
-        LODWORD(v35) = v28;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v34) = rgp.materialCount;
+        LODWORD(v33) = v28;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v33, v34) )
           __debugbreak();
       }
       v29 = &rgp.sortedMaterials[v28];
@@ -319,9 +314,9 @@ LABEL_39:
         v30 = v27->name;
         if ( (unsigned int)v28 >= rgp.materialCount )
         {
-          LODWORD(v36) = rgp.materialCount;
-          LODWORD(v35) = v28;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v35, v36) )
+          LODWORD(v34) = rgp.materialCount;
+          LODWORD(v33) = v28;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
         v31 = DB_GetMaterialAtIndex(*v29);
@@ -330,18 +325,16 @@ LABEL_39:
       }
       if ( v25 == (_DWORD)v28 )
       {
-        _RCX = dst;
-        __asm { vmovups ymm0, ymmword ptr [r14] }
-        _RAX = 32i64 * v22++;
-        __asm { vmovups ymmword ptr [rax+rcx], ymm0 }
+        v32 = v22++;
+        dst[v32] = *v26;
       }
       ++v23;
     }
     while ( v23 <= *(_DWORD *)v24 );
-    v17 = (unsigned int)(v37 + 1);
-    v37 = v17;
+    v17 = (unsigned int)(v35 + 1);
+    v35 = v17;
   }
-  while ( (_DWORD)v17 != v38 );
+  while ( (_DWORD)v17 != v36 );
   if ( v22 != count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sortsurfs.h", 96, ASSERT_TYPE_ASSERT, "(outCount == count)", (const char *)&queryFormat, "outCount == count") )
     __debugbreak();
   return v22;
@@ -354,24 +347,32 @@ R_StableSortSurfsWithSortOrder_NonAuto<GfxSortCodeSurfsInterface,GfxCodeSurf>
 */
 unsigned int R_StableSortSurfsWithSortOrder_NonAuto<GfxSortCodeSurfsInterface,GfxCodeSurf>(const GfxCodeSurf *src, unsigned int count, GfxCodeSurf *dst)
 {
+  const GfxCodeSurf *v3; 
   __int64 v5; 
   __int64 sortKeyEffectAuto; 
   unsigned int v7; 
   unsigned int v8; 
   unsigned int v9; 
   unsigned int outCount; 
+  __m256i *v11; 
   __int64 v12; 
-  unsigned int packed_low; 
+  unsigned int v13; 
+  __m256i v14; 
+  unsigned __int64 v15; 
   unsigned int result; 
-  unsigned int v18; 
-  __int64 v19; 
+  unsigned int v17; 
+  __int64 v18; 
+  unsigned int packed_low; 
   unsigned int v20; 
   unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
+  unsigned __int64 v23; 
+  __m256i v24; 
+  __int64 v25; 
+  __m256i v26; 
+  unsigned __int64 v27; 
 
-  _RDI = src;
-  _RBX = dst;
+  v3 = src;
   v5 = count;
   sortKeyEffectAuto = rgp.world->sortKeyEffectAuto;
   v7 = rgp.mtlSortIndexBeginKey[sortKeyEffectAuto];
@@ -380,83 +381,62 @@ unsigned int R_StableSortSurfsWithSortOrder_NonAuto<GfxSortCodeSurfsInterface,Gf
   outCount = R_InsertSortSurfsInRange_GfxSortCodeSurfsInterface_GfxCodeSurf_(src, count, 0, v7, dst, 0);
   if ( (_DWORD)v5 )
   {
-    _RCX = _RDI;
+    v11 = (__m256i *)v3;
     v12 = (unsigned int)v5;
     do
     {
-      packed_low = LOWORD(_RCX->drawGroup.packed);
-      if ( packed_low >= v7 && packed_low < v8 )
+      v13 = v11->m256i_u16[0];
+      if ( v13 >= v7 && v13 < v8 )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymm1, ymmword ptr [rcx+20h]
-        }
-        _RAX = (unsigned __int64)outCount++ << 6;
-        __asm
-        {
-          vmovups ymmword ptr [rax+rbx], ymm0
-          vmovups ymmword ptr [rax+rbx+20h], ymm1
-        }
+        v14 = v11[1];
+        v15 = (unsigned __int64)outCount++ << 6;
+        *(__m256i *)((char *)&dst->drawGroup.fields + v15) = *v11;
+        *(__m256i *)((char *)dst->bounds.midPoint.v + v15) = v14;
       }
-      ++_RCX;
+      v11 += 2;
       --v12;
     }
     while ( v12 );
   }
-  result = R_InsertSortSurfsInRange_GfxSortCodeSurfsInterface_GfxCodeSurf_(_RDI, v5, v8, v9, _RBX, outCount);
-  v18 = result;
+  result = R_InsertSortSurfsInRange_GfxSortCodeSurfsInterface_GfxCodeSurf_(v3, v5, v8, v9, dst, outCount);
+  v17 = result;
   if ( (_DWORD)v5 )
   {
-    v19 = v5;
+    v18 = v5;
     do
     {
-      v20 = LOWORD(_RDI->drawGroup.packed);
-      if ( v20 >= v9 && v20 < 0xB400 )
+      packed_low = LOWORD(v3->drawGroup.packed);
+      if ( packed_low >= v9 && packed_low < 0xB400 )
       {
-        v21 = v18;
-        v22 = _RDI->sortOrder << 16;
-        if ( v18 )
+        v20 = v17;
+        v21 = v3->sortOrder << 16;
+        if ( v17 )
         {
           do
           {
-            v23 = v21 - 1;
-            _RDX = (unsigned __int64)(v21 - 1) << 6;
-            if ( v22 >= *(unsigned int *)((char *)&_RBX->sortOrder + _RDX) << 16 )
+            v22 = v20 - 1;
+            v23 = (unsigned __int64)(v20 - 1) << 6;
+            if ( v21 >= *(unsigned int *)((char *)&dst->sortOrder + v23) << 16 )
               break;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdx+rbx]
-              vmovups ymm1, ymmword ptr [rdx+rbx+20h]
-            }
-            _RCX = v21--;
-            _RCX <<= 6;
-            __asm
-            {
-              vmovups ymmword ptr [rcx+rbx], ymm0
-              vmovups ymmword ptr [rcx+rbx+20h], ymm1
-            }
+            v24 = *(__m256i *)((char *)dst->bounds.midPoint.v + v23);
+            v25 = v20--;
+            v25 <<= 6;
+            *(__m256i *)((char *)&dst->drawGroup.fields + v25) = *(__m256i *)((char *)&dst->drawGroup.fields + v23);
+            *(__m256i *)((char *)dst->bounds.midPoint.v + v25) = v24;
           }
-          while ( v23 );
+          while ( v22 );
         }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymm1, ymmword ptr [rdi+20h]
-        }
-        _RCX = (unsigned __int64)v21 << 6;
-        ++v18;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+rbx], ymm0
-          vmovups ymmword ptr [rcx+rbx+20h], ymm1
-        }
+        v26 = *(__m256i *)v3->bounds.midPoint.v;
+        v27 = (unsigned __int64)v20 << 6;
+        ++v17;
+        *(__m256i *)((char *)&dst->drawGroup.fields + v27) = *(__m256i *)&v3->drawGroup.fields;
+        *(__m256i *)((char *)dst->bounds.midPoint.v + v27) = v26;
       }
-      ++_RDI;
-      --v19;
+      ++v3;
+      --v18;
     }
-    while ( v19 );
-    return v18;
+    while ( v18 );
+    return v17;
   }
   return result;
 }

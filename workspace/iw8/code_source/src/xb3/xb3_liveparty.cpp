@@ -1797,18 +1797,18 @@ __int64 LiveParty_InviteToSession(const int controllerIndex, const bool queueFor
 {
   __int64 v5; 
   const PartyData *ActiveParty; 
-  wchar_t *v11; 
-  unsigned __int64 v12; 
+  wchar_t *v10; 
+  unsigned __int64 v11; 
   std::wstring *Myfirst; 
-  unsigned __int64 v15; 
+  unsigned __int64 v13; 
   wchar_t *Ptr; 
   char *Myres; 
-  unsigned __int64 v18; 
+  unsigned __int64 v16; 
   std::vector<std::wstring> usersToInvite; 
   unsigned __int64 outPlatformId[2]; 
   std::wstring _Right; 
-  std::wstring v23; 
-  char v24[6]; 
+  std::wstring v21; 
+  char v22[6]; 
 
   outPlatformId[1] = -2i64;
   v5 = (unsigned int)numInvites;
@@ -1819,17 +1819,10 @@ __int64 LiveParty_InviteToSession(const int controllerIndex, const bool queueFor
   if ( (int)v5 >= 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_liveparty.cpp", 671, ASSERT_TYPE_ASSERT, "(numInvites < 32)", (const char *)&queryFormat, "numInvites < XPARTY_MAX_USERS") )
     __debugbreak();
   ActiveParty = Party_GetActiveParty();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+usersToInvite.baseclass_0._Mypair._Myval2._Myfirst], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&usersToInvite._Mypair._Myval2._Myfirst = _XMM0;
   usersToInvite._Mypair._Myval2._Myend = NULL;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+57h+_Right.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
+  *(_OWORD *)&_Right._Mypair._Myval2._Mysize = _xmm;
   _Right._Mypair._Myval2._Bx._Buf[0] = 0;
   if ( (int)v5 > 0 )
   {
@@ -1837,25 +1830,21 @@ __int64 LiveParty_InviteToSession(const int controllerIndex, const bool queueFor
     {
       if ( Party_FindMemberByXUID_AllowNotPresent(ActiveParty, (const XUID)xuids->m_id) == -1 && XUID::GetPlatformIdFromXuid((const XUID)xuids->m_id, outPlatformId) )
       {
-        v11 = (wchar_t *)v24;
-        v12 = outPlatformId[0];
+        v10 = (wchar_t *)v22;
+        v11 = outPlatformId[0];
         do
         {
-          *--v11 = v12 % 0xA + 48;
-          v12 /= 0xAui64;
+          *--v10 = v11 % 0xA + 48;
+          v11 /= 0xAui64;
         }
-        while ( v12 );
-        v23._Mypair._Myval2._Mysize = 0i64;
-        v23._Mypair._Myval2._Myres = 7i64;
-        v23._Mypair._Myval2._Bx._Buf[0] = 0;
-        if ( v11 != (wchar_t *)v24 )
-          std::wstring::assign(&v23, v11, (v24 - (char *)v11) >> 1);
+        while ( v11 );
+        v21._Mypair._Myval2._Mysize = 0i64;
+        v21._Mypair._Myval2._Myres = 7i64;
+        v21._Mypair._Myval2._Bx._Buf[0] = 0;
+        if ( v10 != (wchar_t *)v22 )
+          std::wstring::assign(&v21, v10, (v22 - (char *)v10) >> 1);
         std::wstring::_Tidy_deallocate(&_Right);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+57h+var_78.baseclass_0._Mypair._Myval2._Bx]
-          vmovups ymmword ptr [rbp+57h+_Right.baseclass_0._Mypair._Myval2._Bx], ymm0
-        }
+        _Right = v21;
         if ( usersToInvite._Mypair._Myval2._Myend == usersToInvite._Mypair._Myval2._Mylast )
           std::vector<std::wstring>::_Emplace_reallocate<std::wstring const &>(&usersToInvite, usersToInvite._Mypair._Myval2._Mylast, &_Right);
         else
@@ -1874,31 +1863,31 @@ __int64 LiveParty_InviteToSession(const int controllerIndex, const bool queueFor
   }
   if ( _Right._Mypair._Myval2._Myres >= 8 )
   {
-    v15 = 2 * _Right._Mypair._Myval2._Myres + 2;
+    v13 = 2 * _Right._Mypair._Myval2._Myres + 2;
     Ptr = _Right._Mypair._Myval2._Bx._Ptr;
-    if ( v15 >= 0x1000 )
+    if ( v13 >= 0x1000 )
     {
-      v15 = 2 * _Right._Mypair._Myval2._Myres + 41;
+      v13 = 2 * _Right._Mypair._Myval2._Myres + 41;
       Ptr = (wchar_t *)*((_QWORD *)_Right._Mypair._Myval2._Bx._Ptr - 1);
       if ( (unsigned __int64)((char *)_Right._Mypair._Myval2._Bx._Ptr - (char *)Ptr - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(Ptr, v15);
+    operator delete(Ptr, v13);
     Myfirst = usersToInvite._Mypair._Myval2._Myfirst;
   }
   if ( Myfirst )
   {
     std::_Destroy_range<std::allocator<std::wstring>>(Myfirst, usersToInvite._Mypair._Myval2._Mylast, (std::allocator<std::wstring > *)&usersToInvite);
     Myres = (char *)usersToInvite._Mypair._Myval2._Myfirst;
-    v18 = ((char *)usersToInvite._Mypair._Myval2._Myend - (char *)usersToInvite._Mypair._Myval2._Myfirst) & 0xFFFFFFFFFFFFFFE0ui64;
-    if ( v18 >= 0x1000 )
+    v16 = ((char *)usersToInvite._Mypair._Myval2._Myend - (char *)usersToInvite._Mypair._Myval2._Myfirst) & 0xFFFFFFFFFFFFFFE0ui64;
+    if ( v16 >= 0x1000 )
     {
-      v18 += 39i64;
+      v16 += 39i64;
       Myres = (char *)usersToInvite._Mypair._Myval2._Myfirst[-1]._Mypair._Myval2._Myres;
       if ( (unsigned __int64)((char *)usersToInvite._Mypair._Myval2._Myfirst - Myres - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(Myres, v18);
+    operator delete(Myres, v16);
   }
   return 0i64;
 }

@@ -51,45 +51,33 @@ void sessionParameters::sessionParameters(sessionParameters *this, const session
 {
   XSECURITY_INFO *p_m_security; 
 
-  _RSI = __that;
-  _R14 = this;
   this->m_mainController = __that->m_mainController;
   this->m_secondaryController = __that->m_secondaryController;
   this->m_isHost = __that->m_isHost;
   this->m_isInviteOnly = __that->m_isInviteOnly;
   this->m_numSlots = __that->m_numSlots;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+10h]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+30h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+50h]
-    vmovups xmmword ptr [rcx+50h], xmm0
-  }
+  *(__m256i *)this->m_joinInfo.communicationInfo.session.m_address.addrBuff = *(__m256i *)__that->m_joinInfo.communicationInfo.session.m_address.addrBuff;
+  *(__m256i *)&this->m_joinInfo.communicationInfo.session.m_address.addrBuff[32] = *(__m256i *)&__that->m_joinInfo.communicationInfo.session.m_address.addrBuff[32];
+  *(_OWORD *)&this->m_joinInfo.communicationInfo.session.m_address.addrBuff[64] = *(_OWORD *)&__that->m_joinInfo.communicationInfo.session.m_address.addrBuff[64];
   *(_DWORD *)&this->m_joinInfo.communicationInfo.session.m_address.addrBuff[80] = *(_DWORD *)&__that->m_joinInfo.communicationInfo.session.m_address.addrBuff[80];
   p_m_security = &this->m_joinInfo.communicationInfo.session.m_security;
   bdSecurityID::bdSecurityID(&this->m_joinInfo.communicationInfo.session.m_security.m_id, &__that->m_joinInfo.communicationInfo.session.m_security.m_id);
-  bdSecurityKey::bdSecurityKey(&p_m_security->m_key, &_RSI->m_joinInfo.communicationInfo.session.m_security.m_key);
-  _R14->m_joinInfo.gameMode[0] = _RSI->m_joinInfo.gameMode[0];
-  _R14->m_joinInfo.isInMatchmakingArea = _RSI->m_joinInfo.isInMatchmakingArea;
-  _R14->m_joinInfo.clientPlatform[0] = _RSI->m_joinInfo.clientPlatform[0];
-  _R14->m_joinInfo.matchmakingLobbyId = _RSI->m_joinInfo.matchmakingLobbyId;
-  _R14->m_joinInfo.tournamentId = _RSI->m_joinInfo.tournamentId;
-  _R14->m_joinInfo.isJoinerInInvitersBlocklist = _RSI->m_joinInfo.isJoinerInInvitersBlocklist;
-  _R14->m_sessionName = _RSI->m_sessionName;
-  _R14->m_activeSessionType = _RSI->m_activeSessionType;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+0A4h]
-    vmovups xmmword ptr [r14+0A4h], xmm0
-  }
-  _R14->m_createSessionForPartyRequest = _RSI->m_createSessionForPartyRequest;
-  _R14->m_lobbyId = _RSI->m_lobbyId;
-  _R14->m_hostXUID.m_id = _RSI->m_hostXUID.m_id;
-  _R14->m_platformSessionHandledByPartyHost = _RSI->m_platformSessionHandledByPartyHost;
-  _R14->m_partyVersionNumber = _RSI->m_partyVersionNumber;
-  _R14->m_isMatchReady = _RSI->m_isMatchReady;
+  bdSecurityKey::bdSecurityKey(&p_m_security->m_key, &__that->m_joinInfo.communicationInfo.session.m_security.m_key);
+  this->m_joinInfo.gameMode[0] = __that->m_joinInfo.gameMode[0];
+  this->m_joinInfo.isInMatchmakingArea = __that->m_joinInfo.isInMatchmakingArea;
+  this->m_joinInfo.clientPlatform[0] = __that->m_joinInfo.clientPlatform[0];
+  this->m_joinInfo.matchmakingLobbyId = __that->m_joinInfo.matchmakingLobbyId;
+  this->m_joinInfo.tournamentId = __that->m_joinInfo.tournamentId;
+  this->m_joinInfo.isJoinerInInvitersBlocklist = __that->m_joinInfo.isJoinerInInvitersBlocklist;
+  this->m_sessionName = __that->m_sessionName;
+  this->m_activeSessionType = __that->m_activeSessionType;
+  this->xb3SessionId = __that->xb3SessionId;
+  this->m_createSessionForPartyRequest = __that->m_createSessionForPartyRequest;
+  this->m_lobbyId = __that->m_lobbyId;
+  this->m_hostXUID.m_id = __that->m_hostXUID.m_id;
+  this->m_platformSessionHandledByPartyHost = __that->m_platformSessionHandledByPartyHost;
+  this->m_partyVersionNumber = __that->m_partyVersionNumber;
+  this->m_isMatchReady = __that->m_isMatchReady;
 }
 
 /*

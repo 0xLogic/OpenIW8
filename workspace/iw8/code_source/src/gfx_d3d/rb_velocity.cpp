@@ -90,48 +90,50 @@ void RB_CompositeStaticVelocity(ComputeCmdBufState *computeState, const GfxViewI
   int v10; 
   const dvar_t *v11; 
   int v12; 
+  R_RT_Handle v13; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  unsigned int v23; 
-  unsigned int v24; 
-  const dvar_t *v25; 
-  int v26; 
-  const dvar_t *v27; 
-  const R_RT_Surface *v31; 
+  unsigned int v18; 
+  unsigned int v19; 
+  const dvar_t *v20; 
+  int v21; 
+  const dvar_t *v22; 
+  __m256i v23; 
+  const R_RT_Surface *v25; 
   R_RT_Image *p_m_image; 
-  const R_RT_Surface *v33; 
+  const R_RT_Surface *v27; 
   unsigned __int16 width; 
-  const R_RT_Surface *v35; 
+  const R_RT_Surface *v29; 
   unsigned __int16 height; 
-  const R_RT_Surface *v37; 
-  const GfxTexture *v38; 
-  const R_RT_Surface *v39; 
-  const GfxTexture *v40; 
-  const R_RT_Surface *v41; 
-  const GfxTexture *v42; 
+  const R_RT_Surface *v31; 
+  const GfxTexture *v32; 
+  const R_RT_Surface *v33; 
+  const GfxTexture *v34; 
+  const R_RT_Surface *v35; 
+  const GfxTexture *v36; 
   __int64 mipLimit; 
   __int64 format; 
-  R_RT_Handle v45; 
-  R_RT_Handle v46; 
-  __int64 v47; 
+  R_RT_Handle v39; 
+  R_RT_Handle v40; 
+  __int64 v41; 
+  __m256i v42; 
   R_RT_Handle result; 
   R_RT_ColorHandle srcPackedStencil; 
   R_RT_ColorHandle srcFloatzFull; 
-  R_RT_Handle v52; 
+  R_RT_Handle v46; 
   bool enabled; 
-  R_RT_AllocationLockSentry v54; 
+  R_RT_AllocationLockSentry v48; 
 
-  v47 = -2i64;
-  _RDI = viewInfo;
+  v41 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF00FFFF, "R_RT_AllocationLockSentry");
-  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v54);
+  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v48);
   Sys_ProfEndNamedEvent();
   R_LockIfGfxImmediateContext(computeState->device);
   name = "Velocity";
-  if ( R_PostAARequestPreviousFrameVelocities(_RDI->postAA.mode) || R_SSAO_RequestPreviousFrameVelocities((unsigned __int8)_RDI->ssao.mode) )
+  if ( R_PostAARequestPreviousFrameVelocities(viewInfo->postAA.mode) || R_SSAO_RequestPreviousFrameVelocities((unsigned __int8)viewInfo->ssao.mode) )
   {
     name = "Velocity [0]";
-    if ( (_RDI->input.data->frameIndex & 1) != 0 )
+    if ( (viewInfo->input.data->frameIndex & 1) != 0 )
       name = "Velocity [1]";
     rtFlagsInternal = 2;
   }
@@ -161,20 +163,15 @@ void RB_CompositeStaticVelocity(ComputeCmdBufState *computeState, const GfxViewI
   if ( !v11->current.enabled )
 LABEL_20:
     v12 = 4096;
-  _RAX = R_RT_CreateInternal(&result, _RDI->sceneRtInput.maxSceneRtWidth >> 1, _RDI->sceneRtInput.maxSceneRtHeight >> 1, _RDI->sceneRtInput.maxSceneRtWidth >> 1, _RDI->sceneRtInput.maxSceneRtHeight >> 1, 1u, 1u, 1u, g_R_RT_renderTargetFmts[35], (R_RT_Flags)(v12 | v8), rtFlagsInternal, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, name, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp(250)");
-  __asm
+  v13 = *R_RT_CreateInternal(&result, viewInfo->sceneRtInput.maxSceneRtWidth >> 1, viewInfo->sceneRtInput.maxSceneRtHeight >> 1, viewInfo->sceneRtInput.maxSceneRtWidth >> 1, viewInfo->sceneRtInput.maxSceneRtHeight >> 1, 1u, 1u, 1u, g_R_RT_renderTargetFmts[35], (R_RT_Flags)(v12 | v8), rtFlagsInternal, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, name, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp(250)");
+  v40 = v13;
+  v39 = v13;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0A0h+var_100.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+0A0h+var_120.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v45);
-    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v39);
+    if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+0A0h+var_120.m_surfaceID] }
+    v13 = v39;
   }
   else
   {
@@ -183,68 +180,53 @@ LABEL_20:
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+0A0h+var_100.m_surfaceID] }
+      v13 = v40;
     }
   }
-  __asm { vmovups ymmword ptr cs:s_halfVelocityRt.m_surfaceID, ymm0 }
-  if ( !R_PostAARequestPreviousFrameVelocities(_RDI->postAA.mode) )
-    R_SSAO_RequestPreviousFrameVelocities((unsigned __int8)_RDI->ssao.mode);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_halfVelocityRt.m_surfaceID
-    vmovups ymmword ptr [rbp+0A0h+var_100.m_surfaceID], ymm0
-  }
-  v45.m_surfaceID = 0;
-  v45.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+0A0h+var_120.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rdi+3140h]
-    vmovups ymmword ptr [rbp+0A0h+result.m_surfaceID], ymm1
-    vmovups ymm0, ymmword ptr [rdi+33C0h]
-    vmovups ymmword ptr [rbp+0A0h+srcPackedStencil.baseclass_0.m_surfaceID], ymm0
-    vmovups ymm1, ymmword ptr [rdi+3340h]
-    vmovups ymmword ptr [rbp+0A0h+srcFloatzFull.baseclass_0.m_surfaceID], ymm1
-  }
-  Surface = R_RT_Handle::GetSurface(&v46);
+  s_halfVelocityRt = v13;
+  if ( !R_PostAARequestPreviousFrameVelocities(viewInfo->postAA.mode) )
+    R_SSAO_RequestPreviousFrameVelocities((unsigned __int8)viewInfo->ssao.mode);
+  v40 = s_halfVelocityRt;
+  v39.m_surfaceID = 0;
+  v39.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v39.m_tracking.m_name = _XMM0;
+  result = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+  srcPackedStencil = viewInfo->sceneRtInput.m_packedStencilRt;
+  srcFloatzFull = viewInfo->sceneRtInput.m_floatZFullRt;
+  Surface = R_RT_Handle::GetSurface(&v40);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_HW_AddResourceTransition(computeState, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  enabled = _RDI->motionBlur.enabled;
+  enabled = viewInfo->motionBlur.enabled;
   if ( enabled )
   {
-    v23 = _RDI->sceneRtInput.maxSceneRtWidth >> 1;
-    v24 = _RDI->sceneRtInput.maxSceneRtHeight >> 1;
-    v25 = DCONST_DVARINT_r_dccPostFX;
+    v18 = viewInfo->sceneRtInput.maxSceneRtWidth >> 1;
+    v19 = viewInfo->sceneRtInput.maxSceneRtHeight >> 1;
+    v20 = DCONST_DVARINT_r_dccPostFX;
     if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    v26 = 2048;
-    if ( v25->current.integer == 1 )
-      v26 = 2056;
+    Dvar_CheckFrontendServerThread(v20);
+    v21 = 2048;
+    if ( v20->current.integer == 1 )
+      v21 = 2056;
     if ( Dvar_GetBool_Internal(r_deviceDebug) )
       goto LABEL_39;
-    v27 = DCONST_DVARBOOL_r_esramPostFX;
+    v22 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    if ( !v27->current.enabled )
+    Dvar_CheckFrontendServerThread(v22);
+    if ( !v22->current.enabled )
 LABEL_39:
       v10 = 4096;
-    _RAX = R_RT_CreateInternal(&v52, v23, v24, _RDI->sceneRtInput.maxSceneRtWidth >> 1, _RDI->sceneRtInput.maxSceneRtHeight >> 1, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)(v26 | v10), R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "mblur velocity", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp(271)");
-    __asm
+    v23 = *(__m256i *)R_RT_CreateInternal(&v46, v18, v19, viewInfo->sceneRtInput.maxSceneRtWidth >> 1, viewInfo->sceneRtInput.maxSceneRtHeight >> 1, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)(v21 | v10), R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "mblur velocity", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp(271)");
+    v42 = v23;
+    v39 = (R_RT_Handle)v23;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+0A0h+var_D0], ymm0
-      vmovups ymmword ptr [rbp+0A0h+var_120.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v45);
-      if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v39);
+      if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+0A0h+var_120.m_surfaceID] }
+      v23 = (__m256i)v39;
     }
     else
     {
@@ -253,60 +235,57 @@ LABEL_39:
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, [rbp+0A0h+var_D0] }
+        v23 = v42;
       }
     }
-    __asm
-    {
-      vmovups ymmword ptr [rbp+0A0h+var_120.m_surfaceID], ymm0
-      vmovups ymmword ptr [rdi+3648h], ymm0
-    }
-    v31 = R_RT_Handle::GetSurface(&v45);
-    p_m_image = &v31->m_image;
-    if ( v31 == (const R_RT_Surface *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 274, ASSERT_TYPE_ASSERT, "(dstVelocityMBlurImage)", (const char *)&queryFormat, "dstVelocityMBlurImage") )
+    v39 = (R_RT_Handle)v23;
+    viewInfo->sceneRtInput.m_halfVelocityMBlurRt = (R_RT_ColorHandle)v23;
+    v25 = R_RT_Handle::GetSurface(&v39);
+    p_m_image = &v25->m_image;
+    if ( v25 == (const R_RT_Surface *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 274, ASSERT_TYPE_ASSERT, "(dstVelocityMBlurImage)", (const char *)&queryFormat, "dstVelocityMBlurImage") )
       __debugbreak();
-    v33 = R_RT_Handle::GetSurface(&v46);
+    v27 = R_RT_Handle::GetSurface(&v40);
     width = p_m_image->m_base.width;
-    if ( v33->m_image.m_base.width > width )
+    if ( v27->m_image.m_base.width > width )
     {
       LODWORD(format) = width;
-      LODWORD(mipLimit) = R_RT_Handle::GetSurface(&v46)->m_image.m_base.width;
+      LODWORD(mipLimit) = R_RT_Handle::GetSurface(&v40)->m_image.m_base.width;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 275, ASSERT_TYPE_ASSERT, "( dstVelocityAA.GetImage()->width ) <= ( dstVelocityMBlurImage->width )", "%s <= %s\n\t%u, %u", "dstVelocityAA.GetImage()->width", "dstVelocityMBlurImage->width", mipLimit, format) )
         __debugbreak();
     }
-    v35 = R_RT_Handle::GetSurface(&v46);
+    v29 = R_RT_Handle::GetSurface(&v40);
     height = p_m_image->m_base.height;
-    if ( v35->m_image.m_base.height > height )
+    if ( v29->m_image.m_base.height > height )
     {
       LODWORD(format) = height;
-      LODWORD(mipLimit) = R_RT_Handle::GetSurface(&v46)->m_image.m_base.height;
+      LODWORD(mipLimit) = R_RT_Handle::GetSurface(&v40)->m_image.m_base.height;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 276, ASSERT_TYPE_ASSERT, "( dstVelocityAA.GetImage()->height ) <= ( dstVelocityMBlurImage->height )", "%s <= %s\n\t%u, %u", "dstVelocityAA.GetImage()->height", "dstVelocityMBlurImage->height", mipLimit, format) )
         __debugbreak();
     }
-    v37 = R_RT_Handle::GetSurface(&v45);
-    v38 = R_Texture_GetResident(v37->m_image.m_base.textureId);
-    R_HW_AddResourceTransition(computeState, v38, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v31 = R_RT_Handle::GetSurface(&v39);
+    v32 = R_Texture_GetResident(v31->m_image.m_base.textureId);
+    R_HW_AddResourceTransition(computeState, v32, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   }
   R_FlushResourceTransitions(computeState);
   Sys_ProfBeginNamedEvent(0xFFFF7F50, "velocity composite");
   R_ProfBeginNamedEvent(computeState, "R_CompositeStaticVelocityAndDownsampleCS");
   R_GPU_BeginTimer(GPU_TIMER_VELOCITY_STATIC);
-  R_CompositeStaticVelocity_Internal(computeState, _RDI, (const R_RT_ColorHandle *)&result, &srcFloatzFull, &srcPackedStencil, (const R_RT_ColorHandle *)&v46, (const R_RT_ColorHandle *)&v45, 0);
+  R_CompositeStaticVelocity_Internal(computeState, viewInfo, (const R_RT_ColorHandle *)&result, &srcFloatzFull, &srcPackedStencil, (const R_RT_ColorHandle *)&v40, (const R_RT_ColorHandle *)&v39, 0);
   R_GPU_EndTimer();
   R_ProfEndNamedEvent(computeState);
   Sys_ProfEndNamedEvent();
-  v39 = R_RT_Handle::GetSurface(&v46);
-  v40 = R_Texture_GetResident(v39->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(computeState, v40, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v33 = R_RT_Handle::GetSurface(&v40);
+  v34 = R_Texture_GetResident(v33->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(computeState, v34, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   if ( enabled )
   {
-    v41 = R_RT_Handle::GetSurface(&v45);
-    v42 = R_Texture_GetResident(v41->m_image.m_base.textureId);
-    R_HW_AddResourceTransition(computeState, v42, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v35 = R_RT_Handle::GetSurface(&v39);
+    v36 = R_Texture_GetResident(v35->m_image.m_base.textureId);
+    R_HW_AddResourceTransition(computeState, v36, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   }
   R_FlushResourceTransitions(computeState);
   R_UnlockIfGfxImmediateContext(computeState->device);
-  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v54);
+  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v48);
 }
 
 /*
@@ -316,38 +295,24 @@ RB_DestroyHalfVelocityRt
 */
 void RB_DestroyHalfVelocityRt(GfxCmdBufContext *gfxContext)
 {
-  GfxCmdBufContext v9; 
-  R_RT_ColorHandle v10; 
+  GfxCmdBufContext v2; 
+  GfxCmdBufContext v7; 
+  R_RT_ColorHandle v8; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups ymm0, ymmword ptr cs:s_halfVelocityRt.m_surfaceID
-  }
-  _RBX = gfxContext;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-    vmovups [rsp+58h+var_38], xmm1
-  }
-  R_RT_Destroy(&v9, &v10);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr cs:stru_151A9B090.m_surfaceID
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:s_halfVelocityRt.m_tracking.m_name, xmm0
-    vmovups xmm0, xmmword ptr [rbx]
-  }
+  v2 = *gfxContext;
+  v8 = (R_RT_ColorHandle)s_halfVelocityRt;
+  v7 = v2;
+  R_RT_Destroy(&v7, &v8);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&s_halfVelocityRt.m_tracking.m_name = _XMM0;
+  _XMM0 = *gfxContext;
   s_halfVelocityRt.m_surfaceID = 0;
-  __asm { vmovups [rsp+58h+var_38], xmm0 }
+  v7 = _XMM0;
   s_halfVelocityRt.m_tracking.m_allocCounter = 0;
-  __asm { vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm1 }
-  R_RT_Destroy(&v9, &v10);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:stru_151A9B090.m_tracking.m_name, xmm0
-  }
+  v8 = (R_RT_ColorHandle)stru_151A9B090;
+  R_RT_Destroy(&v7, &v8);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&stru_151A9B090.m_tracking.m_name = _XMM0;
   stru_151A9B090.m_surfaceID = 0;
   stru_151A9B090.m_tracking.m_allocCounter = 0;
 }
@@ -361,18 +326,11 @@ R_RT_ColorHandle *RB_GetHalfVelocityRt(R_RT_ColorHandle *result, const GfxViewIn
 {
   __int64 v4; 
 
-  _RSI = result;
   v4 = frameIndex;
   if ( !R_PostAARequestPreviousFrameVelocities(viewInfo->postAA.mode) && !R_SSAO_RequestPreviousFrameVelocities((unsigned __int8)viewInfo->ssao.mode) && (_DWORD)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 30, ASSERT_TYPE_ASSERT, "(RB_PreviousFrameVelocitiesRequested( viewInfo ) || ( frameIndex == 0 ))", (const char *)&queryFormat, "RB_PreviousFrameVelocitiesRequested( viewInfo ) || ( frameIndex == 0 )") )
     __debugbreak();
-  _RCX = &s_halfVelocityRt;
-  _RAX = 32 * v4;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+rcx]
-    vmovups ymmword ptr [rsi], ymm0
-  }
-  return _RSI;
+  *result = *((R_RT_ColorHandle *)&s_halfVelocityRt + v4);
+  return result;
 }
 
 /*
@@ -382,57 +340,39 @@ RB_RotateHalfVelocityRt
 */
 void RB_RotateHalfVelocityRt(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
-  GfxCmdBufContext v15; 
-  R_RT_ColorHandle v16; 
+  GfxCmdBufContext v5; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufContext v11; 
+  R_RT_ColorHandle v12; 
 
-  _RDI = gfxContext;
   if ( R_PostAARequestPreviousFrameVelocities(viewInfo->postAA.mode) || R_SSAO_RequestPreviousFrameVelocities((unsigned __int8)viewInfo->ssao.mode) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:stru_151A9B090.m_surfaceID
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-      vmovups [rsp+58h+var_38], xmm1
-    }
-    R_RT_Destroy(&v15, &v16);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_halfVelocityRt.m_surfaceID
-      vmovups ymmword ptr cs:stru_151A9B090.m_surfaceID, ymm0
-      vpxor   xmm0, xmm0, xmm0
-    }
+    v9 = *gfxContext;
+    v12 = (R_RT_ColorHandle)stru_151A9B090;
+    v11 = v9;
+    R_RT_Destroy(&v11, &v12);
+    stru_151A9B090 = s_halfVelocityRt;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
     s_halfVelocityRt.m_surfaceID = 0;
     s_halfVelocityRt.m_tracking.m_allocCounter = 0;
-    __asm { vmovdqu xmmword ptr cs:s_halfVelocityRt.m_tracking.m_name, xmm0 }
+    *(_OWORD *)&s_halfVelocityRt.m_tracking.m_name = _XMM0;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_halfVelocityRt.m_surfaceID
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-      vmovups [rsp+58h+var_38], xmm1
-    }
-    R_RT_Destroy(&v15, &v16);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr cs:stru_151A9B090.m_surfaceID
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:s_halfVelocityRt.m_tracking.m_name, xmm0
-      vmovups xmm0, xmmword ptr [rdi]
-    }
+    v5 = *gfxContext;
+    v12 = (R_RT_ColorHandle)s_halfVelocityRt;
+    v11 = v5;
+    R_RT_Destroy(&v11, &v12);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&s_halfVelocityRt.m_tracking.m_name = _XMM0;
+    _XMM0 = *gfxContext;
     s_halfVelocityRt.m_surfaceID = 0;
-    __asm { vmovups [rsp+58h+var_38], xmm0 }
+    v11 = _XMM0;
     s_halfVelocityRt.m_tracking.m_allocCounter = 0;
-    __asm { vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm1 }
-    R_RT_Destroy(&v15, &v16);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:stru_151A9B090.m_tracking.m_name, xmm0
-    }
+    v12 = (R_RT_ColorHandle)stru_151A9B090;
+    R_RT_Destroy(&v11, &v12);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&stru_151A9B090.m_tracking.m_name = _XMM0;
     stru_151A9B090.m_surfaceID = 0;
     stru_151A9B090.m_tracking.m_allocCounter = 0;
   }
@@ -456,154 +396,165 @@ R_CompositeStaticVelocity_Internal
 void R_CompositeStaticVelocity_Internal(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, const R_RT_ColorHandle *srcVelocity, const R_RT_ColorHandle *srcFloatzFull, const R_RT_ColorHandle *srcPackedStencil, const R_RT_ColorHandle *dstVelocityAA, const R_RT_ColorHandle *dstVelocityMBlur, bool vrsInlineResolve)
 {
   R_RT_Image *p_m_image; 
-  R_RT_Image *v12; 
+  R_RT_Image *v11; 
   const R_RT_Surface *Surface; 
-  R_RT_Image *v14; 
-  int v15; 
+  R_RT_Image *v13; 
+  int v14; 
+  const R_RT_Surface *v15; 
   const R_RT_Surface *v16; 
   const R_RT_Surface *v17; 
   const R_RT_Surface *v18; 
-  const R_RT_Surface *v19; 
   R_RT_Handle *Resident; 
-  bool v21; 
-  R_RT_Handle *v22; 
-  const R_RT_Surface *v23; 
-  ComputeCmdBufState *v24; 
-  bool v25; 
-  const R_RT_Surface *v26; 
+  bool v20; 
+  R_RT_Handle *v21; 
+  const R_RT_Surface *v22; 
+  ComputeCmdBufState *v23; 
+  bool v24; 
+  const R_RT_Surface *v25; 
+  __int64 v26; 
   unsigned int v27; 
   unsigned int v28; 
-  unsigned int v58; 
-  __int64 v59; 
+  __m128 v29; 
+  vec4_t v30; 
+  vec4_t v31; 
+  vec4_t v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __int64 v38; 
+  unsigned int v39; 
+  __int64 v40; 
   unsigned int frameCount; 
   __int64 unsignedInt; 
-  unsigned int v62; 
-  __int64 v63; 
+  unsigned int v43; 
+  __int64 v44; 
   ComputeShader **motionVectorsStaticVrsInlineResolveComputeShader; 
-  __int64 v67; 
-  __int64 v68; 
+  __int64 v46; 
+  __int64 v47; 
   unsigned int height; 
   unsigned int width; 
-  R_RT_Handle *v71; 
-  R_RT_Image *v72; 
+  R_RT_Handle *v50; 
+  R_RT_Image *v51; 
   ComputeCmdBufState *state; 
-  R_RT_Handle *v74[2]; 
-  R_RT_Handle *v75[2]; 
+  R_RT_Handle *v53[2]; 
+  R_RT_Handle *v54[2]; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v58; 
   __int128 data[5]; 
+  float v60; 
+  int v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  int v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  int v69; 
+  float v70; 
+  __int128 v71; 
   GfxTexture *textures[3]; 
 
-  __asm { vmovaps [rsp+1C0h+var_50], xmm6 }
-  _R15 = viewInfo;
   state = computeState;
-  v74[0] = &srcPackedStencil->R_RT_Handle;
-  v71 = &dstVelocityAA->R_RT_Handle;
-  v75[0] = &srcFloatzFull->R_RT_Handle;
+  v53[0] = &srcPackedStencil->R_RT_Handle;
+  v50 = &dstVelocityAA->R_RT_Handle;
+  v54[0] = &srcFloatzFull->R_RT_Handle;
   p_m_image = &R_RT_Handle::GetSurface(&srcVelocity->R_RT_Handle)->m_image;
-  v12 = &R_RT_Handle::GetSurface(&srcPackedStencil->R_RT_Handle)->m_image;
+  v11 = &R_RT_Handle::GetSurface(&srcPackedStencil->R_RT_Handle)->m_image;
   Surface = R_RT_Handle::GetSurface(&dstVelocityAA->R_RT_Handle);
   if ( dstVelocityMBlur->m_surfaceID )
-    v14 = &R_RT_Handle::GetSurface(&dstVelocityMBlur->R_RT_Handle)->m_image;
+    v13 = &R_RT_Handle::GetSurface(&dstVelocityMBlur->R_RT_Handle)->m_image;
   else
-    v14 = NULL;
+    v13 = NULL;
   width = Surface->m_image.m_base.width;
   height = Surface->m_image.m_base.height;
-  v72 = v14;
-  if ( (!p_m_image || !v12) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 101, ASSERT_TYPE_ASSERT, "(dstVelocityAAImage && srcVelocityImage && srcStencilImage)", (const char *)&queryFormat, "dstVelocityAAImage && srcVelocityImage && srcStencilImage") )
+  v51 = v13;
+  if ( (!p_m_image || !v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 101, ASSERT_TYPE_ASSERT, "(dstVelocityAAImage && srcVelocityImage && srcStencilImage)", (const char *)&queryFormat, "dstVelocityAAImage && srcVelocityImage && srcStencilImage") )
     __debugbreak();
-  v15 = vrsInlineResolve + 1;
-  if ( (_R15->sceneViewport.width > v15 * (unsigned int)p_m_image->m_base.width || _R15->sceneViewport.height > v15 * (unsigned int)p_m_image->m_base.height) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 103, ASSERT_TYPE_ASSERT, "(srcViewport->width <= srcVelocityImage->width * sizeMult && srcViewport->height <= srcVelocityImage->height * sizeMult)", (const char *)&queryFormat, "srcViewport->width <= srcVelocityImage->width * sizeMult && srcViewport->height <= srcVelocityImage->height * sizeMult") )
+  v14 = vrsInlineResolve + 1;
+  if ( (viewInfo->sceneViewport.width > v14 * (unsigned int)p_m_image->m_base.width || viewInfo->sceneViewport.height > v14 * (unsigned int)p_m_image->m_base.height) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 103, ASSERT_TYPE_ASSERT, "(srcViewport->width <= srcVelocityImage->width * sizeMult && srcViewport->height <= srcVelocityImage->height * sizeMult)", (const char *)&queryFormat, "srcViewport->width <= srcVelocityImage->width * sizeMult && srcViewport->height <= srcVelocityImage->height * sizeMult") )
     __debugbreak();
   if ( (width > Surface->m_image.m_base.width || height > Surface->m_image.m_base.height) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 104, ASSERT_TYPE_ASSERT, "(dstWidth <= dstVelocityAAImage->width && dstHeight <= dstVelocityAAImage->height)", (const char *)&queryFormat, "dstWidth <= dstVelocityAAImage->width && dstHeight <= dstVelocityAAImage->height") )
     __debugbreak();
-  v16 = R_RT_Handle::GetSurface(v74[0]);
-  textures[0] = (GfxTexture *)R_Texture_GetResident(v16->m_image.m_base.textureId);
-  v17 = R_RT_Handle::GetSurface(&srcVelocity->R_RT_Handle);
-  textures[1] = (GfxTexture *)R_Texture_GetResident(v17->m_image.m_base.textureId);
-  v18 = R_RT_Handle::GetSurface(v75[0]);
-  textures[2] = (GfxTexture *)R_Texture_GetResident(v18->m_image.m_base.textureId);
-  v19 = R_RT_Handle::GetSurface(v71);
-  Resident = (R_RT_Handle *)R_Texture_GetResident(v19->m_image.m_base.textureId);
-  v21 = dstVelocityMBlur->m_surfaceID == 0;
-  v74[0] = Resident;
-  if ( v21 )
+  v15 = R_RT_Handle::GetSurface(v53[0]);
+  textures[0] = (GfxTexture *)R_Texture_GetResident(v15->m_image.m_base.textureId);
+  v16 = R_RT_Handle::GetSurface(&srcVelocity->R_RT_Handle);
+  textures[1] = (GfxTexture *)R_Texture_GetResident(v16->m_image.m_base.textureId);
+  v17 = R_RT_Handle::GetSurface(v54[0]);
+  textures[2] = (GfxTexture *)R_Texture_GetResident(v17->m_image.m_base.textureId);
+  v18 = R_RT_Handle::GetSurface(v50);
+  Resident = (R_RT_Handle *)R_Texture_GetResident(v18->m_image.m_base.textureId);
+  v20 = dstVelocityMBlur->m_surfaceID == 0;
+  v53[0] = Resident;
+  if ( v20 )
   {
-    v22 = NULL;
+    v21 = NULL;
   }
   else
   {
-    v23 = R_RT_Handle::GetSurface(&dstVelocityMBlur->R_RT_Handle);
-    v22 = (R_RT_Handle *)R_Texture_GetResident(v23->m_image.m_base.textureId);
+    v22 = R_RT_Handle::GetSurface(&dstVelocityMBlur->R_RT_Handle);
+    v21 = (R_RT_Handle *)R_Texture_GetResident(v22->m_image.m_base.textureId);
   }
-  v24 = state;
-  v74[1] = v22;
+  v23 = state;
+  v53[1] = v21;
   R_SetComputeTextures(state, 0, 3, (const GfxTexture *const *)textures);
-  v25 = vrsInlineResolve;
+  v24 = vrsInlineResolve;
   if ( vrsInlineResolve )
   {
-    v26 = R_RT_Handle::GetSurface(&srcVelocity->R_RT_Handle);
-    v71 = (R_RT_Handle *)R_Texture_GetResident(v26->m_color.m_fmaskImage.m_base.textureId);
-    R_SetComputeTextures(state, 3, 1, (const GfxTexture *const *)&v71);
+    v25 = R_RT_Handle::GetSurface(&srcVelocity->R_RT_Handle);
+    v50 = (R_RT_Handle *)R_Texture_GetResident(v25->m_color.m_fmaskImage.m_base.textureId);
+    R_SetComputeTextures(state, 3, 1, (const GfxTexture *const *)&v50);
   }
-  R_SetComputeRWTextures(v24, 0, (v14 != NULL) + 1, (const GfxTexture *const *)v74);
+  R_SetComputeRWTextures(v23, 0, (v13 != NULL) + 1, (const GfxTexture *const *)v53);
+  v26 = viewInfo->sceneViewport.width;
   v27 = width;
   v28 = height;
-  __asm
-  {
-    vmovups xmm5, xmmword ptr [r15+570h]
-    vmovups xmm0, xmmword ptr [r15+5A0h]
-    vmovups xmm4, xmmword ptr [r15+580h]
-    vmovups xmm2, xmmword ptr [r15+590h]
-    vshufps xmm1, xmm2, xmm0, 44h ; 'D'
-    vshufps xmm2, xmm2, xmm0, 0EEh ; 'î'
-    vshufps xmm3, xmm5, xmm4, 44h ; 'D'
-    vshufps xmm6, xmm3, xmm1, 88h ; 'ˆ'
-    vshufps xmm1, xmm3, xmm1, 0DDh ; 'Ý'
-    vmovups [rbp+0C0h+var_130], xmm1
-    vmovaps [rbp+0C0h+var_F0], xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vshufps xmm4, xmm5, xmm4, 0EEh ; 'î'
-    vshufps xmm0, xmm4, xmm2, 0DDh ; 'Ý'
-    vmovups [rbp+0C0h+var_110], xmm0
-    vmovaps [rbp+0C0h+var_D0], xmm0
-    vmovups xmm0, xmmword ptr [r15+140h]
-    vmovaps [rbp+0C0h+var_C0], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  [rbp+0C0h+var_B0], xmm0
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  [rbp+0C0h+var_AC], xmm1
-    vshufps xmm5, xmm4, xmm2, 88h ; 'ˆ'
-    vmovss  xmm2, cs:__real@3f800000
-    vdivss  xmm0, xmm2, xmm0
-    vmovss  [rbp+0C0h+var_A8], xmm0
-    vdivss  xmm1, xmm2, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+0C0h+var_A4], xmm1
-    vcvtsi2ss xmm0, xmm0, rsi
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rbp+0C0h+var_A0], xmm0
-    vcvtsi2ss xmm1, xmm1, rbx
-    vdivss  xmm0, xmm2, xmm0
-    vmovss  [rbp+0C0h+var_9C], xmm1
-    vmovss  [rbp+0C0h+var_98], xmm0
-    vmovss  xmm0, dword ptr [r15+37E8h]
-    vdivss  xmm1, xmm2, xmm1
-    vmovss  [rbp+0C0h+var_94], xmm1
-    vmovss  xmm1, dword ptr [r15+37ECh]
-    vmovss  [rbp+0C0h+var_90], xmm0
-    vmovss  xmm0, dword ptr [r15+37F0h]
-    vmovss  [rbp+0C0h+var_8C], xmm1
-    vmovss  [rbp+0C0h+var_88], xmm0
-    vmovups [rbp+0C0h+var_140], xmm6
-    vmovups [rbp+0C0h+var_120], xmm5
-    vmovaps [rbp+0C0h+data], xmm6
-    vmovaps [rbp+0C0h+var_E0], xmm5
-  }
+  v29 = (__m128)viewInfo->curToPrevPixelMatrix.m.m[0];
+  v30 = viewInfo->curToPrevPixelMatrix.m.m[3];
+  v31 = viewInfo->curToPrevPixelMatrix.m.m[1];
+  v32 = viewInfo->curToPrevPixelMatrix.m.m[2];
+  v33 = _mm_shuffle_ps((__m128)v32, (__m128)v30, 68);
+  v34 = _mm_shuffle_ps((__m128)v32, (__m128)v30, 238);
+  v35 = _mm_shuffle_ps(v29, (__m128)v31, 68);
+  v36 = _mm_shuffle_ps(v35, v33, 136);
+  v56 = _mm_shuffle_ps(v35, v33, 221);
+  data[1] = (__int128)v56;
+  v37 = _mm_shuffle_ps(v29, (__m128)v31, 238);
+  v58 = _mm_shuffle_ps(v37, v34, 221);
+  data[3] = (__int128)v58;
+  data[4] = *(_OWORD *)viewInfo->viewParms.camera.zPlanes;
+  v30.v[0] = (float)v26;
+  v38 = viewInfo->sceneViewport.height;
+  v60 = v30.v[0];
+  v33.m128_f32[0] = (float)v38;
+  v61 = v33.m128_i32[0];
+  v62 = 1.0 / v30.v[0];
+  v63 = 1.0 / v33.m128_f32[0];
+  v30.v[0] = (float)width;
+  v64 = v30.v[0];
+  v33.m128_f32[0] = (float)height;
+  v65 = v33.m128_i32[0];
+  v66 = 1.0 / v30.v[0];
+  v30.v[0] = viewInfo->motionBlur.velocityScale;
+  v67 = 1.0 / v33.m128_f32[0];
+  v33.m128_i32[0] = LODWORD(viewInfo->motionBlur.velocityScaleViewModel);
+  v68 = v30.v[0];
+  v30.v[0] = viewInfo->motionBlur.velocityFpsCompensationScale;
+  v69 = v33.m128_i32[0];
+  v70 = v30.v[0];
+  v55 = v36;
+  v57 = _mm_shuffle_ps(v37, v34, 136);
+  data[0] = (__int128)v36;
+  data[2] = (__int128)v57;
   if ( vrsInlineResolve )
   {
-    v58 = 0;
-    v59 = 0i64;
-    frameCount = _R15->input.data->frameCount;
+    v39 = 0;
+    v40 = 0i64;
+    frameCount = viewInfo->input.data->frameCount;
     do
     {
       unsignedInt = frameCount & 3;
@@ -611,42 +562,40 @@ void R_CompositeStaticVelocity_Internal(ComputeCmdBufState *computeState, const 
         unsignedInt = r_vrsDebugFrameSamplePattern->current.unsignedInt;
       if ( (unsigned int)unsignedInt >= 4 )
       {
-        LODWORD(v68) = 4;
-        LODWORD(v67) = unsignedInt;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_variable_rate_shading.h", 76, ASSERT_TYPE_ASSERT, "(unsigned)( samplePattern ) < (unsigned)( 4 )", "samplePattern doesn't index VRS_MAX_SAMPLES\n\t%i not in [0, %i)", v67, v68) )
+        LODWORD(v47) = 4;
+        LODWORD(v46) = unsignedInt;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_variable_rate_shading.h", 76, ASSERT_TYPE_ASSERT, "(unsigned)( samplePattern ) < (unsigned)( 4 )", "samplePattern doesn't index VRS_MAX_SAMPLES\n\t%i not in [0, %i)", v46, v47) )
           __debugbreak();
       }
-      v62 = s_VRSPixelToSampleOrdered_0[unsignedInt][v59];
-      v63 = (int)v58;
-      ++v59;
-      ++v58;
-      *((_DWORD *)v75 + v63) = v62;
+      v43 = s_VRSPixelToSampleOrdered_0[unsignedInt][v40];
+      v44 = (int)v39;
+      ++v40;
+      ++v39;
+      *((_DWORD *)v54 + v44) = v43;
     }
-    while ( v58 < 4 );
-    __asm { vmovups xmm0, xmmword ptr [rsp+1C0h+var_150] }
-    v14 = v72;
-    v24 = state;
-    v25 = vrsInlineResolve;
+    while ( v39 < 4 );
+    v13 = v51;
+    v23 = state;
+    v24 = vrsInlineResolve;
     v28 = height;
     v27 = width;
-    __asm { vmovups [rbp+0C0h+var_80], xmm0 }
+    v71 = *(_OWORD *)v54;
   }
-  R_UploadAndSetComputeConstants(v24, 0, data, 0x90u, NULL);
-  if ( v25 )
+  R_UploadAndSetComputeConstants(v23, 0, data, 0x90u, NULL);
+  if ( v24 )
   {
-    if ( !*(ComputeShader **)((char *)rgp.motionVectorsStaticVrsInlineResolveComputeShader + (v14 != NULL ? 8 : 0)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 192, ASSERT_TYPE_ASSERT, "(compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticVrsInlineResolveComputeShader[compositeMtlIndex])", (const char *)&queryFormat, "compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticVrsInlineResolveComputeShader[compositeMtlIndex]") )
+    if ( !*(ComputeShader **)((char *)rgp.motionVectorsStaticVrsInlineResolveComputeShader + (v13 != NULL ? 8 : 0)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 192, ASSERT_TYPE_ASSERT, "(compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticVrsInlineResolveComputeShader[compositeMtlIndex])", (const char *)&queryFormat, "compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticVrsInlineResolveComputeShader[compositeMtlIndex]") )
       __debugbreak();
     motionVectorsStaticVrsInlineResolveComputeShader = rgp.motionVectorsStaticVrsInlineResolveComputeShader;
   }
   else
   {
-    if ( !*(ComputeShader **)((char *)rgp.motionVectorsStaticComputeShader + (v14 != NULL ? 8 : 0)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 198, ASSERT_TYPE_ASSERT, "(compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticComputeShader[compositeMtlIndex])", (const char *)&queryFormat, "compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticComputeShader[compositeMtlIndex]") )
+    if ( !*(ComputeShader **)((char *)rgp.motionVectorsStaticComputeShader + (v13 != NULL ? 8 : 0)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_velocity.cpp", 198, ASSERT_TYPE_ASSERT, "(compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticComputeShader[compositeMtlIndex])", (const char *)&queryFormat, "compositeMtlIndex < VELOCITY_COMPOSITE_COUNT && rgp.motionVectorsStaticComputeShader[compositeMtlIndex]") )
       __debugbreak();
     motionVectorsStaticVrsInlineResolveComputeShader = rgp.motionVectorsStaticComputeShader;
   }
-  R_SetComputeShader(v24, *(ComputeShader **)((char *)motionVectorsStaticVrsInlineResolveComputeShader + (v14 != NULL ? 8 : 0)));
-  R_Dispatch(v24, (v27 + 7) >> 3, (v28 + 7) >> 3, 1u);
-  __asm { vmovaps xmm6, [rsp+1C0h+var_50] }
+  R_SetComputeShader(v23, *(ComputeShader **)((char *)motionVectorsStaticVrsInlineResolveComputeShader + (v13 != NULL ? 8 : 0)));
+  R_Dispatch(v23, (v27 + 7) >> 3, (v28 + 7) >> 3, 1u);
 }
 
 /*
@@ -657,37 +606,23 @@ R_ShutdownVelocity
 
 void __fastcall R_ShutdownVelocity(double _XMM0_8)
 {
-  R_RT_Handle v4; 
+  R_RT_Handle v2; 
 
   if ( R_RT_Handle::IsValid(&s_halfVelocityRt) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_halfVelocityRt.m_surfaceID
-      vmovups ymmword ptr [rsp+48h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v4);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:s_halfVelocityRt.m_tracking.m_name, xmm0
-    }
+    v2 = s_halfVelocityRt;
+    R_RT_DestroyInternal(&v2);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&s_halfVelocityRt.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
     s_halfVelocityRt.m_surfaceID = 0;
     s_halfVelocityRt.m_tracking.m_allocCounter = 0;
   }
   if ( R_RT_Handle::IsValid(&stru_151A9B090) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:stru_151A9B090.m_surfaceID
-      vmovups ymmword ptr [rsp+48h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v4);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:stru_151A9B090.m_tracking.m_name, xmm0
-    }
+    v2 = stru_151A9B090;
+    R_RT_DestroyInternal(&v2);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&stru_151A9B090.m_tracking.m_name = _XMM0;
     stru_151A9B090.m_surfaceID = 0;
     stru_151A9B090.m_tracking.m_allocCounter = 0;
   }
@@ -701,37 +636,23 @@ R_Velocity_FreeTemporalRts
 
 void __fastcall R_Velocity_FreeTemporalRts(double _XMM0_8)
 {
-  R_RT_Handle v4; 
+  R_RT_Handle v2; 
 
   if ( R_RT_Handle::IsValid(&s_halfVelocityRt) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_halfVelocityRt.m_surfaceID
-      vmovups ymmword ptr [rsp+48h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v4);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:s_halfVelocityRt.m_tracking.m_name, xmm0
-    }
+    v2 = s_halfVelocityRt;
+    R_RT_DestroyInternal(&v2);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&s_halfVelocityRt.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
     s_halfVelocityRt.m_surfaceID = 0;
     s_halfVelocityRt.m_tracking.m_allocCounter = 0;
   }
   if ( R_RT_Handle::IsValid(&stru_151A9B090) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:stru_151A9B090.m_surfaceID
-      vmovups ymmword ptr [rsp+48h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v4);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:stru_151A9B090.m_tracking.m_name, xmm0
-    }
+    v2 = stru_151A9B090;
+    R_RT_DestroyInternal(&v2);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&stru_151A9B090.m_tracking.m_name = _XMM0;
     stru_151A9B090.m_surfaceID = 0;
     stru_151A9B090.m_tracking.m_allocCounter = 0;
   }

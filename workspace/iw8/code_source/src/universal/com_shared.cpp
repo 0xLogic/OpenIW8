@@ -342,29 +342,28 @@ Com_LocalTimeFromUTC
 */
 tm *Com_LocalTimeFromUTC(int utcTime)
 {
-  __time64_t v3; 
-  struct tm *v4; 
-  __time64_t v5; 
-  struct tm *v7; 
-  struct tm *v9; 
+  __int128 v1; 
+  __time64_t v2; 
+  struct tm *v3; 
+  __time64_t v4; 
+  struct tm *v6; 
+  struct tm *v8; 
   __time64_t Time; 
-  __time64_t v14; 
+  __time64_t v11; 
 
-  v3 = utcTime;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
+  v2 = utcTime;
   Time = _time64(NULL);
-  v4 = _gmtime64(&Time);
-  v5 = _mktime64(v4);
-  *(double *)&_XMM0 = _difftime64(v5, Time);
-  v14 = v3;
-  __asm { vmovaps xmm6, xmm0 }
-  v7 = _gmtime64(&v14);
+  v3 = _gmtime64(&Time);
+  v4 = _mktime64(v3);
+  *(double *)&v1 = _difftime64(v4, Time);
+  v11 = v2;
+  _XMM6 = v1;
+  v6 = _gmtime64(&v11);
   __asm { vcvttsd2si ecx, xmm6 }
-  v9 = v7;
-  v7->tm_sec -= _ECX;
-  _mktime64(v7);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return v9;
+  v8 = v6;
+  v6->tm_sec -= _ECX;
+  _mktime64(v6);
+  return v8;
 }
 
 /*

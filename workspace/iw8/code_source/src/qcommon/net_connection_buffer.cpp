@@ -224,38 +224,39 @@ NetConnectionBuffer::Print
 */
 void NetConnectionBuffer::Print(NetConnectionBuffer *this)
 {
+  int v2; 
   NetConnection **m_connections; 
-  int v6; 
-  NetConnection *v7; 
+  int v4; 
+  NetConnection *v5; 
   ThreadContext m_printContext; 
   int Type; 
-  bool v10; 
+  bool v8; 
   NetEndpoint *Endpoint; 
   NetSession *Session; 
   const char *String; 
-  const char *v14; 
+  const char *v12; 
+  double v13; 
+  double v14; 
   NetAddress *Address; 
   const char *StateString; 
   const char *TypeString; 
-  __int64 v27; 
+  __int64 v18; 
   unsigned int m_hash; 
-  char v29[32]; 
-  char v30[32]; 
-  char v31[40]; 
+  char v20[32]; 
+  char v21[32]; 
+  char v22[40]; 
   char dest[64]; 
 
   if ( this->m_printContext == Sys_GetCurrentThreadContext() )
   {
-    __asm { vmovaps [rsp+140h+var_30], xmm6 }
-    Sys_Milliseconds();
+    v2 = Sys_Milliseconds();
     Com_Printf(25, "[NET] ========== Network Connections (%d) ==========\n", (unsigned int)this->m_connectionCount);
     Com_Printf(25, " %-5s%-12s%-36s%-20s%-20s%-9s%-10s%-10s\n", "IDX", "TYPE", "ADDRESS", "SECID", "ADDRESS STATE", "CA HASH", "LAST SENT", "LAST RECV");
-    __asm { vmovss  xmm6, cs:__real@3a83126f }
     m_connections = (NetConnection **)this->m_connections;
-    v6 = 0;
+    v4 = 0;
     while ( 1 )
     {
-      v7 = *m_connections;
+      v5 = *m_connections;
       if ( !*m_connections )
         goto LABEL_18;
       m_printContext = this->m_printContext;
@@ -268,69 +269,52 @@ void NetConnectionBuffer::Print(NetConnectionBuffer *this)
           goto LABEL_13;
         if ( Type <= 5 )
         {
-          v10 = NetConnection::GetNetId(v7) == NS_MAXCLIENTS;
+          v8 = NetConnection::GetNetId(v5) == NS_MAXCLIENTS;
 LABEL_12:
-          if ( v10 )
+          if ( v8 )
           {
 LABEL_13:
-            Endpoint = NetConnection::GetEndpoint(v7);
+            Endpoint = NetConnection::GetEndpoint(v5);
             Session = NetEndpoint::GetSession(Endpoint);
-            String = NetConnection::GetString(v7);
+            String = NetConnection::GetString(v5);
             Core_strcpy(dest, 0x40ui64, String);
-            v14 = NetSession::GetString(Session);
-            Core_strcpy(v31, 0x20ui64, v14);
+            v12 = NetSession::GetString(Session);
+            Core_strcpy(v22, 0x20ui64, v12);
             m_hash = NetEndpoint::GetCommonAddr(Endpoint)->m_ptr->m_hash;
-            strcpy(v30, "never");
-            memset(&v30[6], 0, 26);
+            strcpy(v21, "never");
+            memset(&v21[6], 0, 26);
             if ( NetEndpoint::GetLastSent(Endpoint) > 0 )
             {
-              NetEndpoint::GetLastSent(Endpoint);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, ecx
-                vmulss  xmm1, xmm0, xmm6
-                vcvtss2sd xmm2, xmm1, xmm1
-                vmovq   r8, xmm2
-              }
-              Com_sprintf<32>((char (*)[32])v30, "%.3f", *(double *)&_XMM2);
+              v13 = (float)((float)(v2 - NetEndpoint::GetLastSent(Endpoint)) * 0.001);
+              Com_sprintf<32>((char (*)[32])v21, "%.3f", v13);
             }
-            strcpy(v29, "never");
-            memset(&v29[6], 0, 26);
+            strcpy(v20, "never");
+            memset(&v20[6], 0, 26);
             if ( NetEndpoint::GetLastRecv(Endpoint) > 0 )
             {
-              NetEndpoint::GetLastRecv(Endpoint);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, edx
-                vmulss  xmm1, xmm0, xmm6
-                vcvtss2sd xmm2, xmm1, xmm1
-                vmovq   r8, xmm2
-              }
-              Com_sprintf<32>((char (*)[32])v29, "%.3f", *(double *)&_XMM2);
+              v14 = (float)((float)(v2 - NetEndpoint::GetLastRecv(Endpoint)) * 0.001);
+              Com_sprintf<32>((char (*)[32])v20, "%.3f", v14);
             }
             Address = NetEndpoint::GetAddress(Endpoint);
             StateString = NetAddress::GetStateString(Address);
-            TypeString = NetConnection::GetTypeString(v7);
-            LODWORD(v27) = m_hash;
-            Com_Printf(25, " %03d. %-12s%-36s%-20s%-20s%-9x%-10s%-10s\n", (unsigned int)v6, TypeString, dest, v31, StateString, v27, v30, v29);
+            TypeString = NetConnection::GetTypeString(v5);
+            LODWORD(v18) = m_hash;
+            Com_Printf(25, " %03d. %-12s%-36s%-20s%-20s%-9x%-10s%-10s\n", (unsigned int)v4, TypeString, dest, v22, StateString, v18, v21, v20);
           }
         }
       }
 LABEL_18:
-      ++v6;
+      ++v4;
       ++m_connections;
-      if ( v6 >= 602 )
+      if ( v4 >= 602 )
       {
         Com_Printf(25, "[NET] ========== End Network Connections ==========\n");
-        __asm { vmovaps xmm6, [rsp+140h+var_30] }
         return;
       }
     }
     if ( m_printContext != THREAD_CONTEXT_SERVER || (unsigned int)(NetConnection::GetType(*m_connections) - 4) > 1 )
       goto LABEL_18;
-    v10 = NetConnection::GetNetId(v7) != NS_MAXCLIENTS;
+    v8 = NetConnection::GetNetId(v5) != NS_MAXCLIENTS;
     goto LABEL_12;
   }
 }

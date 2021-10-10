@@ -105,255 +105,204 @@ BG_LookAt_Init
 
 void __fastcall BG_LookAt_Init(double _XMM0_8)
 {
-  int v5; 
+  int v1; 
   int RowCount; 
-  __int64 v7; 
-  __int64 v8; 
+  __int64 v3; 
+  __int64 v4; 
+  float *p_m_maxDownPitch; 
   const char *ColumnValueForRow; 
   scr_string_t String; 
-  StringTable *v16; 
-  const char *v17; 
-  StringTable *v21; 
-  const char *v22; 
-  StringTable *v26; 
-  const char *v27; 
-  StringTable *v31; 
-  const char *v32; 
+  StringTable *v8; 
+  const char *v9; 
+  StringTable *v11; 
+  const char *v12; 
+  StringTable *v14; 
+  const char *v15; 
+  StringTable *v17; 
+  const char *v18; 
+  StringTable *v20; 
+  const char *v21; 
+  StringTable *v22; 
+  const char *v25; 
+  StringTable *v27; 
+  const char *v28; 
+  StringTable *v30; 
+  const char *v31; 
+  int v32; 
+  float *v33; 
+  __int64 v34; 
+  const char *v35; 
   StringTable *v36; 
-  const char *v37; 
-  StringTable *v38; 
-  const char *v41; 
+  const char *v40; 
+  StringTable *v41; 
+  const char *v44; 
   StringTable *v45; 
-  const char *v46; 
+  const char *v49; 
   StringTable *v50; 
-  const char *v51; 
-  int v54; 
-  __int64 v56; 
-  const char *v57; 
-  StringTable *v58; 
-  const char *v62; 
-  StringTable *v63; 
-  const char *v66; 
-  StringTable *v67; 
-  const char *v71; 
-  StringTable *v72; 
-  const char *v76; 
-  StringTable *v77; 
-  const char *v81; 
-  StringTable *v82; 
-  const char *v86; 
+  const char *v54; 
+  StringTable *v55; 
+  const char *v59; 
+  StringTable *v60; 
+  const char *v64; 
   StringTable *table; 
 
   if ( !s_lookAtInitialized )
   {
-    v5 = 0;
+    v1 = 0;
     s_lookAtInitialized = 1;
     s_lookAtNumStates = 0;
     StringTable_GetAsset("lookatstates.csv", (const StringTable **)&table);
     if ( !DB_IsXAssetDefault(ASSET_TYPE_STRINGTABLE, "lookatstates.csv") )
     {
       RowCount = StringTable_GetRowCount(table);
-      v7 = RowCount;
+      v3 = RowCount;
       if ( RowCount > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_lookat.cpp", 48, ASSERT_TYPE_ASSERT, "(rowNum <= 8)", "%s\n\tToo many lookat states defined.", "rowNum <= BG_LOOKAT_MAX_STATES") )
         __debugbreak();
-      v8 = v7;
-      if ( (int)v7 > 0 )
+      v4 = v3;
+      if ( (int)v3 > 0 )
       {
-        _R14 = &s_lookAtLimits[0].m_maxDownPitch;
-        __asm
-        {
-          vmovaps [rsp+88h+var_28], xmm6
-          vmovss  xmm6, cs:__real@43340000
-          vmovaps [rsp+88h+var_38], xmm7
-          vmovss  xmm7, cs:__real@c3340000
-          vmovaps [rsp+88h+var_48], xmm8
-          vmovaps [rsp+88h+var_58], xmm9
-          vmovss  xmm9, cs:__real@3f800000
-          vxorps  xmm8, xmm8, xmm8
-        }
+        p_m_maxDownPitch = &s_lookAtLimits[0].m_maxDownPitch;
         do
         {
-          ColumnValueForRow = StringTable_GetColumnValueForRow(table, v5, 0);
+          ColumnValueForRow = StringTable_GetColumnValueForRow(table, v1, 0);
           String = j_SL_GetString_(ColumnValueForRow, 0, 22);
-          v16 = table;
-          *((_DWORD *)_R14 - 2) = String;
-          v17 = StringTable_GetColumnValueForRow(v16, v5, 1);
-          _XMM0_8 = atof(v17);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v21 = table;
-          __asm { vmovss  dword ptr [r14-4], xmm0 }
-          v22 = StringTable_GetColumnValueForRow(v21, v5, 2);
-          *(double *)&_XMM0 = atof(v22);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v26 = table;
-          __asm { vmovss  dword ptr [r14], xmm0 }
-          v27 = StringTable_GetColumnValueForRow(v26, v5, 3);
-          *(double *)&_XMM0 = atof(v27);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v31 = table;
-          __asm { vmovss  dword ptr [r14+4], xmm0 }
-          v32 = StringTable_GetColumnValueForRow(v31, v5, 4);
-          *(double *)&_XMM0 = atof(v32);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v36 = table;
-          __asm { vmovss  dword ptr [r14+8], xmm0 }
-          v37 = StringTable_GetColumnValueForRow(v36, v5, 5);
-          *(double *)&_XMM0 = atof(v37);
-          v38 = table;
+          v8 = table;
+          *((_DWORD *)p_m_maxDownPitch - 2) = String;
+          v9 = StringTable_GetColumnValueForRow(v8, v1, 1);
+          _XMM0_8 = atof(v9);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -180.0, 180.0);
+          v11 = table;
+          *(p_m_maxDownPitch - 1) = *(float *)&_XMM0;
+          v12 = StringTable_GetColumnValueForRow(v11, v1, 2);
+          *(double *)&_XMM0 = atof(v12);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -180.0, 180.0);
+          v14 = table;
+          *p_m_maxDownPitch = *(float *)&_XMM0;
+          v15 = StringTable_GetColumnValueForRow(v14, v1, 3);
+          *(double *)&_XMM0 = atof(v15);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -180.0, 180.0);
+          v17 = table;
+          p_m_maxDownPitch[1] = *(float *)&_XMM0;
+          v18 = StringTable_GetColumnValueForRow(v17, v1, 4);
+          *(double *)&_XMM0 = atof(v18);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -180.0, 180.0);
+          v20 = table;
+          p_m_maxDownPitch[2] = *(float *)&_XMM0;
+          v21 = StringTable_GetColumnValueForRow(v20, v1, 5);
+          *(double *)&_XMM0 = atof(v21);
+          v22 = table;
           __asm
           {
             vcvtsd2ss xmm1, xmm0, xmm0
             vmaxss  xmm1, xmm1, xmm8
-            vmovss  dword ptr [r14+0Ch], xmm1
           }
-          v41 = StringTable_GetColumnValueForRow(v38, v5, 6);
-          *(double *)&_XMM0 = atof(v41);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v45 = table;
-          __asm { vmovss  dword ptr [r14+10h], xmm0 }
-          v46 = StringTable_GetColumnValueForRow(v45, v5, 7);
-          *(double *)&_XMM0 = atof(v46);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v50 = table;
-          __asm { vmovss  dword ptr [r14+14h], xmm0 }
-          v51 = StringTable_GetColumnValueForRow(v50, v5, 8);
-          *(double *)&_XMM0 = atof(v51);
-          __asm
-          {
-            vcvtsd2ss xmm0, xmm0, xmm0; val
-            vmovaps xmm2, xmm6; max
-            vmovaps xmm1, xmm7; min
-          }
-          _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, *(float *)&_XMM1, *(float *)&_XMM2);
-          v54 = 13;
-          _RSI = _R14 + 11;
-          __asm { vmovss  dword ptr [r14+18h], xmm0 }
-          v56 = 4i64;
+          p_m_maxDownPitch[3] = *(float *)&_XMM1;
+          v25 = StringTable_GetColumnValueForRow(v22, v1, 6);
+          *(double *)&_XMM0 = atof(v25);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -180.0, 180.0);
+          v27 = table;
+          p_m_maxDownPitch[4] = *(float *)&_XMM0;
+          v28 = StringTable_GetColumnValueForRow(v27, v1, 7);
+          *(double *)&_XMM0 = atof(v28);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -180.0, 180.0);
+          v30 = table;
+          p_m_maxDownPitch[5] = *(float *)&_XMM0;
+          v31 = StringTable_GetColumnValueForRow(v30, v1, 8);
+          *(double *)&_XMM0 = atof(v31);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0; val }
+          _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, -180.0, 180.0);
+          v32 = 13;
+          v33 = p_m_maxDownPitch + 11;
+          p_m_maxDownPitch[6] = *(float *)&_XMM0_8;
+          v34 = 4i64;
           do
           {
-            v57 = StringTable_GetColumnValueForRow(table, v5, v54 - 4);
-            _XMM0_8 = atof(v57);
-            v58 = table;
+            v35 = StringTable_GetColumnValueForRow(table, v1, v32 - 4);
+            _XMM0_8 = atof(v35);
+            v36 = table;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm1, xmm1, xmm8
               vminss  xmm0, xmm1, xmm9
-              vmovss  dword ptr [rsi-10h], xmm0
             }
-            v62 = StringTable_GetColumnValueForRow(v58, v5, v54);
-            *(double *)&_XMM0 = atof(v62);
-            v63 = table;
+            *(v33 - 4) = *(float *)&_XMM0;
+            v40 = StringTable_GetColumnValueForRow(v36, v1, v32);
+            *(double *)&_XMM0 = atof(v40);
+            v41 = table;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm1, xmm1, xmm8
               vminss  xmm0, xmm1, xmm9
-              vmovss  dword ptr [rsi], xmm0
             }
-            v66 = StringTable_GetColumnValueForRow(v63, v5, v54 + 4);
-            _XMM0_8 = atof(v66);
-            v67 = table;
+            *v33 = *(float *)&_XMM0_8;
+            v44 = StringTable_GetColumnValueForRow(v41, v1, v32 + 4);
+            _XMM0_8 = atof(v44);
+            v45 = table;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm2, xmm1, xmm7
               vminss  xmm3, xmm2, xmm6
-              vmovss  dword ptr [rsi+10h], xmm3
             }
-            v71 = StringTable_GetColumnValueForRow(v67, v5, v54 + 8);
-            _XMM0_8 = atof(v71);
-            v72 = table;
+            v33[4] = *(float *)&_XMM3;
+            v49 = StringTable_GetColumnValueForRow(v45, v1, v32 + 8);
+            _XMM0_8 = atof(v49);
+            v50 = table;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm2, xmm1, xmm7
               vminss  xmm3, xmm2, xmm6
-              vmovss  dword ptr [rsi+20h], xmm3
             }
-            v76 = StringTable_GetColumnValueForRow(v72, v5, v54 + 12);
-            _XMM0_8 = atof(v76);
-            v77 = table;
+            v33[8] = *(float *)&_XMM3;
+            v54 = StringTable_GetColumnValueForRow(v50, v1, v32 + 12);
+            _XMM0_8 = atof(v54);
+            v55 = table;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm2, xmm1, xmm7
               vminss  xmm3, xmm2, xmm6
-              vmovss  dword ptr [rsi+30h], xmm3
             }
-            v81 = StringTable_GetColumnValueForRow(v77, v5, v54 + 16);
-            _XMM0_8 = atof(v81);
-            v82 = table;
+            v33[12] = *(float *)&_XMM3;
+            v59 = StringTable_GetColumnValueForRow(v55, v1, v32 + 16);
+            _XMM0_8 = atof(v59);
+            v60 = table;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm2, xmm1, xmm7
               vminss  xmm3, xmm2, xmm6
-              vmovss  dword ptr [rsi+40h], xmm3
             }
-            v86 = StringTable_GetColumnValueForRow(v82, v5, v54 + 20);
-            _XMM0_8 = atof(v86);
-            ++v54;
-            ++_RSI;
+            v33[16] = *(float *)&_XMM3;
+            v64 = StringTable_GetColumnValueForRow(v60, v1, v32 + 20);
+            _XMM0_8 = atof(v64);
+            ++v32;
+            ++v33;
             __asm
             {
               vcvtsd2ss xmm1, xmm0, xmm0
               vmaxss  xmm2, xmm1, xmm7
               vminss  xmm3, xmm2, xmm6
-              vmovss  dword ptr [rsi+4Ch], xmm3
             }
-            --v56;
+            v33[19] = *(float *)&_XMM3;
+            --v34;
           }
-          while ( v56 );
+          while ( v34 );
           ++s_lookAtNumStates;
-          ++v5;
-          _R14 += 37;
-          --v8;
+          ++v1;
+          p_m_maxDownPitch += 37;
+          --v4;
         }
-        while ( v8 );
-        __asm
-        {
-          vmovaps xmm9, [rsp+88h+var_58]
-          vmovaps xmm8, [rsp+88h+var_48]
-          vmovaps xmm7, [rsp+88h+var_38]
-          vmovaps xmm6, [rsp+88h+var_28]
-        }
+        while ( v4 );
       }
     }
   }

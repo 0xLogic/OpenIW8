@@ -150,68 +150,33 @@ G_ActorSP_PointCouldSeeSpawn
 */
 __int64 G_ActorSP_PointCouldSeeSpawn(const vec3_t *vEyePos, const vec3_t *vSpawnPos, int iIgnoreEnt1, int iIgnoreEnt2)
 {
-  bool v7; 
-  bool v8; 
-  bool v9; 
-  int v22; 
+  float v8; 
+  float v9; 
+  int v10; 
   float *i; 
+  float v12; 
+  float v13; 
+  float v14; 
   vec3_t end; 
 
-  _RBP = vEyePos;
-  v7 = Com_GameMode_SupportsFeature(WEAPON_READY);
-  v8 = !v7;
-  if ( !v7 )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 49, ASSERT_TYPE_ASSERT, "(BG_ActorSystemEnabled())", "%s\n\tUsing FOG_FRACTION_OPAQUE_SP below, must be an SP mode", "BG_ActorSystemEnabled()");
-    v8 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vsubss  xmm3, xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rbp+4]
-    vsubss  xmm2, xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rbp+8]
-    vsubss  xmm4, xmm0, dword ptr [rsi+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm2, cs:__real@3f2f826f
-    vcomiss xmm1, cs:?level@@3Ulevel_locals_t@@A.fFogOpaqueDistSqrd; level_locals_t level
-  }
-  if ( !v8 )
+  if ( !Com_GameMode_SupportsFeature(WEAPON_READY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 49, ASSERT_TYPE_ASSERT, "(BG_ActorSystemEnabled())", "%s\n\tUsing FOG_FRACTION_OPAQUE_SP below, must be an SP mode", "BG_ActorSystemEnabled()") )
+    __debugbreak();
+  v8 = vEyePos->v[1] - vSpawnPos->v[1];
+  v9 = vEyePos->v[2] - vSpawnPos->v[2];
+  if ( (float)((float)((float)((float)(v8 * v8) + (float)((float)(vEyePos->v[0] - vSpawnPos->v[0]) * (float)(vEyePos->v[0] - vSpawnPos->v[0]))) + (float)(v9 * v9)) * 0.68558401) > level.fFogOpaqueDistSqrd )
     return 0i64;
-  v22 = 0;
+  v10 = 0;
   for ( i = &g_vSpawnCheckPoints[0].v[1]; ; i += 3 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?actorBox@@3UBounds@@B.halfSize; Bounds const actorBox
-      vmulss  xmm3, xmm0, dword ptr [rdi-4]
-      vmovss  xmm1, dword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-      vaddss  xmm2, xmm1, dword ptr [rsi]
-      vmovss  xmm1, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm3, xmm1, dword ptr [rdi]
-      vmovss  dword ptr [rsp+88h+end], xmm0
-      vmovss  xmm0, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+4; Bounds const actorBox
-      vaddss  xmm2, xmm0, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox
-      vaddss  xmm1, xmm3, xmm2
-      vmulss  xmm3, xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+88h+end+4], xmm1
-      vmovss  xmm1, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+8; Bounds const actorBox
-      vaddss  xmm2, xmm1, dword ptr [rsi+8]
-      vaddss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [rsp+88h+end+8], xmm0
-    }
-    if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, _RBP, &end, &bounds_origin, iIgnoreEnt1, iIgnoreEnt2, 6145) )
+    v12 = 15.0 * *i;
+    end.v[0] = (float)(15.0 * *(i - 1)) + (float)(vSpawnPos->v[0] + 0.0);
+    v13 = v12 + (float)(vSpawnPos->v[1] + 0.0);
+    v14 = 36.0 * i[1];
+    end.v[1] = v13;
+    end.v[2] = v14 + (float)(vSpawnPos->v[2] + 36.0);
+    if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, vEyePos, &end, &bounds_origin, iIgnoreEnt1, iIgnoreEnt2, 6145) )
       break;
-    if ( (unsigned int)++v22 >= 0xB )
+    if ( (unsigned int)++v10 >= 0xB )
       return 0i64;
   }
   return 1i64;
@@ -225,8 +190,14 @@ G_ActorSP_SpawnActorFromAitype
 gentity_s *G_ActorSP_SpawnActorFromAitype(const scr_string_t aitypeName, const vec3_t *origin, const vec3_t *angles, enumForceSpawn forceSpawn, const int spawnFlags)
 {
   const dvar_t *v5; 
+  int v11; 
+  int v12; 
+  unsigned int v13; 
   const char *v14; 
   gentity_s *v15; 
+  int v16; 
+  int v17; 
+  unsigned int v18; 
   const char *v19; 
   AIScriptedInterface *m_pAI; 
   char *fmt; 
@@ -236,7 +207,6 @@ gentity_s *G_ActorSP_SpawnActorFromAitype(const scr_string_t aitypeName, const v
   vec3_t vEyePosOut; 
 
   v5 = DVARBOOL_ai_disableSpawn;
-  _RSI = origin;
   if ( !DVARBOOL_ai_disableSpawn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_disableSpawn") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v5);
@@ -256,13 +226,13 @@ gentity_s *G_ActorSP_SpawnActorFromAitype(const scr_string_t aitypeName, const v
     if ( !*g_entityIsInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 269, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( 0 ) )", (const char *)&queryFormat, "G_IsEntityInUse( 0 )") )
       __debugbreak();
     Sentient_GetEyePosition(g_entities->sentient, &vEyePosOut);
-    if ( !G_ActorSP_PointCouldSeeSpawn(&vEyePosOut, _RSI, g_entities->s.number, -1) )
+    if ( !G_ActorSP_PointCouldSeeSpawn(&vEyePosOut, origin, g_entities->s.number, -1) )
     {
 LABEL_19:
       v15 = G_Utils_SpawnEntity();
       Scr_SetString(&v15->classname, aitypeName);
       Scr_SetString(&v15->script_classname, aitypeName);
-      G_SetOriginAndAngle(v15, _RSI, angles, 1, 1);
+      G_SetOriginAndAngle(v15, origin, angles, 1, 1);
       v15->spawnflags = spawnFlags;
       if ( AIActorInterface::SpawnActor(v15) )
       {
@@ -282,31 +252,25 @@ LABEL_19:
       }
       else
       {
-        __asm
-        {
-          vcvttss2si ebx, dword ptr [rsi+8]
-          vcvttss2si edi, dword ptr [rsi+4]
-          vcvttss2si esi, dword ptr [rsi]
-        }
+        v16 = (int)origin->v[2];
+        v17 = (int)origin->v[1];
+        v18 = (int)origin->v[0];
         v19 = SL_ConvertToString(aitypeName);
-        LODWORD(v23) = _EBX;
-        LODWORD(fmta) = _EDI;
-        Com_DPrintf(18, "^3couldn't spawn aitype %s at (%i, %i, %i) because there are no free actors\n", v19, _ESI, fmta, v23);
+        LODWORD(v23) = v16;
+        LODWORD(fmta) = v17;
+        Com_DPrintf(18, "^3couldn't spawn aitype %s at (%i, %i, %i) because there are no free actors\n", v19, v18, fmta, v23);
         return 0i64;
       }
     }
     else
     {
-      __asm
-      {
-        vcvttss2si ebx, dword ptr [rsi+8]
-        vcvttss2si edi, dword ptr [rsi+4]
-        vcvttss2si esi, dword ptr [rsi]
-      }
+      v11 = (int)origin->v[2];
+      v12 = (int)origin->v[1];
+      v13 = (int)origin->v[0];
       v14 = SL_ConvertToString(aitypeName);
-      LODWORD(v23) = _EBX;
-      LODWORD(fmt) = _EDI;
-      Com_DPrintf(18, "^3couldn't spawn aitype %s at (%i, %i, %i) because player can see spawnpoint\n", v14, _ESI, fmt, v23);
+      LODWORD(v23) = v11;
+      LODWORD(fmt) = v12;
+      Com_DPrintf(18, "^3couldn't spawn aitype %s at (%i, %i, %i) because player can see spawnpoint\n", v14, v13, fmt, v23);
       return 0i64;
     }
   }
@@ -321,12 +285,21 @@ gentity_s *G_ActorSP_SpawnActorFromEnt(gentity_s *ent, const scr_string_t target
 {
   const dvar_t *v4; 
   scr_string_t v10; 
+  int v11; 
+  int v12; 
+  unsigned int v13; 
   const char *v14; 
   gentity_s *v15; 
   scr_string_t v16; 
+  int v17; 
+  int v18; 
+  unsigned int v19; 
   const char *v20; 
   gentity_s *v21; 
   scr_string_t v22; 
+  int v23; 
+  int v24; 
+  unsigned int v25; 
   const char *v26; 
   AIScriptedInterface *m_pAI; 
   bool v28; 
@@ -337,7 +310,6 @@ gentity_s *G_ActorSP_SpawnActorFromEnt(gentity_s *ent, const scr_string_t target
   vec3_t vEyePosOut; 
 
   v4 = DVARBOOL_ai_disableSpawn;
-  _RBX = ent;
   if ( !DVARBOOL_ai_disableSpawn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_disableSpawn") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
@@ -346,7 +318,7 @@ gentity_s *G_ActorSP_SpawnActorFromEnt(gentity_s *ent, const scr_string_t target
     Com_DPrintf(18, "Attempted spawn prevented by ai_disableSpawn.\n");
     return 0i64;
   }
-  else if ( _RBX->c.spawner.count )
+  else if ( ent->c.spawner.count )
   {
     if ( forceSpawn || level.loading )
       goto LABEL_27;
@@ -358,12 +330,12 @@ gentity_s *G_ActorSP_SpawnActorFromEnt(gentity_s *ent, const scr_string_t target
     if ( !v15->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 77, ASSERT_TYPE_ASSERT, "(player->sentient)", (const char *)&queryFormat, "player->sentient") )
       __debugbreak();
     Sentient_GetEyePosition(v15->sentient, &vEyePosOut);
-    if ( !G_ActorSP_PointCouldSeeSpawn(&vEyePosOut, &_RBX->r.currentOrigin, v15->s.number, _RBX->s.number) )
+    if ( !G_ActorSP_PointCouldSeeSpawn(&vEyePosOut, &ent->r.currentOrigin, v15->s.number, ent->s.number) )
     {
 LABEL_27:
       v21 = G_Utils_SpawnEntity();
-      G_Spawn_DuplicateEntityFields(v21, _RBX);
-      G_Spawn_DuplicateScriptFields(v21, _RBX);
+      G_Spawn_DuplicateEntityFields(v21, ent);
+      G_Spawn_DuplicateScriptFields(v21, ent);
       Scr_SetString(&v21->targetname, targetname);
       v21->spawnflags &= ~1u;
       if ( AIActorInterface::SpawnActor(v21) )
@@ -372,14 +344,14 @@ LABEL_27:
         m_pAI = v32.m_pAI;
         if ( !v32.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 154, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
           __debugbreak();
-        v28 = dontShareEnemyInfo || (_RBX->spawnflags & 0x10) == 0;
-        if ( AIScriptedInterface::InitSpawn(m_pAI, (_RBX->spawnflags & 8) != 0, v28) )
+        v28 = dontShareEnemyInfo || (ent->spawnflags & 0x10) == 0;
+        if ( AIScriptedInterface::InitSpawn(m_pAI, (ent->spawnflags & 8) != 0, v28) )
         {
           GScr_AddEntity(v21);
-          GScr_Notify(_RBX, scr_const.spawned, 1u);
-          count = _RBX->c.spawner.count;
+          GScr_Notify(ent, scr_const.spawned, 1u);
+          count = ent->c.spawner.count;
           if ( count > 0 )
-            _RBX->c.spawner.count = count - 1;
+            ent->c.spawner.count = count - 1;
           return v21;
         }
         else
@@ -390,58 +362,49 @@ LABEL_27:
       }
       else
       {
-        v22 = _RBX->targetname;
-        __asm
-        {
-          vcvttss2si edi, dword ptr [rbx+138h]
-          vcvttss2si esi, dword ptr [rbx+134h]
-          vcvttss2si ebp, dword ptr [rbx+130h]
-        }
+        v22 = ent->targetname;
+        v23 = (int)ent->r.currentOrigin.v[2];
+        v24 = (int)ent->r.currentOrigin.v[1];
+        v25 = (int)ent->r.currentOrigin.v[0];
         if ( v22 )
           v26 = SL_ConvertToString(v22);
         else
           v26 = "<unnamed>";
-        LODWORD(v31) = _EDI;
-        LODWORD(fmt) = _ESI;
-        Com_DPrintf(18, "^3couldn't spawn from %s at (%i, %i, %i) because there are no free actors\n", v26, _EBP, fmt, v31);
+        LODWORD(v31) = v23;
+        LODWORD(fmt) = v24;
+        Com_DPrintf(18, "^3couldn't spawn from %s at (%i, %i, %i) because there are no free actors\n", v26, v25, fmt, v31);
         return 0i64;
       }
     }
     else
     {
-      v16 = _RBX->targetname;
-      __asm
-      {
-        vcvttss2si edi, dword ptr [rbx+138h]
-        vcvttss2si esi, dword ptr [rbx+134h]
-        vcvttss2si ebp, dword ptr [rbx+130h]
-      }
+      v16 = ent->targetname;
+      v17 = (int)ent->r.currentOrigin.v[2];
+      v18 = (int)ent->r.currentOrigin.v[1];
+      v19 = (int)ent->r.currentOrigin.v[0];
       if ( v16 )
         v20 = SL_ConvertToString(v16);
       else
         v20 = "<unnamed>";
-      LODWORD(v31) = _EDI;
-      LODWORD(fmt) = _ESI;
-      Com_DPrintf(18, "^3couldn't spawn from %s at (%i, %i, %i) because player can see spawnpoint\n", v20, _EBP, fmt, v31);
+      LODWORD(v31) = v17;
+      LODWORD(fmt) = v18;
+      Com_DPrintf(18, "^3couldn't spawn from %s at (%i, %i, %i) because player can see spawnpoint\n", v20, v19, fmt, v31);
       return 0i64;
     }
   }
   else
   {
-    v10 = _RBX->targetname;
-    __asm
-    {
-      vcvttss2si edi, dword ptr [rbx+138h]
-      vcvttss2si esi, dword ptr [rbx+134h]
-      vcvttss2si ebp, dword ptr [rbx+130h]
-    }
+    v10 = ent->targetname;
+    v11 = (int)ent->r.currentOrigin.v[2];
+    v12 = (int)ent->r.currentOrigin.v[1];
+    v13 = (int)ent->r.currentOrigin.v[0];
     if ( v10 )
       v14 = SL_ConvertToString(v10);
     else
       v14 = "<unnamed>";
-    LODWORD(v31) = _EDI;
-    LODWORD(fmt) = _ESI;
-    Com_DPrintf(18, "^3Warning: SpawnActor( %s ) at (%i, %i, %i) failed due to 0 count.\n", v14, _EBP, fmt, v31);
+    LODWORD(v31) = v11;
+    LODWORD(fmt) = v12;
+    Com_DPrintf(18, "^3Warning: SpawnActor( %s ) at (%i, %i, %i) failed due to 0 count.\n", v14, v13, fmt, v31);
     return 0i64;
   }
 }
@@ -568,6 +531,9 @@ G_DropActorSpawnersToFloor
 */
 void G_DropActorSpawnersToFloor()
 {
+  __int128 v0; 
+  __int128 v1; 
+  __int128 v2; 
   int v3; 
   __int64 v4; 
   __int64 v5; 
@@ -576,18 +542,23 @@ void G_DropActorSpawnersToFloor()
   int v8; 
   __int64 v9; 
   __int64 v10; 
-  int v20; 
-  __int64 v23; 
-  __int64 v24; 
-  const gentity_s *v25; 
-  unsigned int v26; 
-  char *fmt; 
-  __int64 v28; 
-  double v29; 
-  __int64 v30; 
-  char v31[2048]; 
+  gentity_s *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  int v15; 
+  __int64 v16; 
+  __int64 v17; 
+  const gentity_s *v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  __int64 v21; 
+  char v22[2048]; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
 
-  memset_0(v31, 0, sizeof(v31));
+  memset_0(v22, 0, sizeof(v22));
   v3 = 0;
   if ( level.num_entities > 0 )
   {
@@ -598,9 +569,9 @@ void G_DropActorSpawnersToFloor()
       v6 = &level.gentities[v5];
       if ( (unsigned int)v3 >= 0x800 )
       {
-        LODWORD(v30) = 2048;
-        LODWORD(v28) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, v30) )
+        LODWORD(v21) = 2048;
+        LODWORD(v20) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -614,7 +585,7 @@ void G_DropActorSpawnersToFloor()
           Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v6);
           if ( Instance != -1 && G_PhysicsObject_IsPhysicsObjectShown(v6->s.number) )
           {
-            v31[v4] = 1;
+            v22[v4] = 1;
             Physics_RemoveInstanceFromWorld(PHYSICS_WORLD_ID_FIRST, Instance, 1);
           }
         }
@@ -628,19 +599,19 @@ void G_DropActorSpawnersToFloor()
   v8 = 0;
   if ( level.num_entities > 0 )
   {
-    __asm { vmovaps [rsp+8A8h+var_38], xmm6 }
+    v25 = v0;
     v9 = 0i64;
-    __asm { vmovaps [rsp+8A8h+var_48], xmm7 }
+    v24 = v1;
     v10 = 0i64;
-    __asm { vmovaps [rsp+8A8h+var_58], xmm8 }
+    v23 = v2;
     do
     {
-      _RBX = &level.gentities[v10];
+      v11 = &level.gentities[v10];
       if ( (unsigned int)v8 >= 0x800 )
       {
-        LODWORD(v30) = 2048;
-        LODWORD(v28) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, v30) )
+        LODWORD(v21) = 2048;
+        LODWORD(v20) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -649,27 +620,15 @@ void G_DropActorSpawnersToFloor()
         __debugbreak();
       if ( g_entityIsInUse[v9] )
       {
-        if ( _RBX->s.eType == ET_ACTOR_SPAWNER && (_RBX->spawnflags & 0x40) == 0 )
+        if ( v11->s.eType == ET_ACTOR_SPAWNER && (v11->spawnflags & 0x40) == 0 )
         {
-          __asm
+          v12 = v11->r.currentOrigin.v[0];
+          v13 = v11->r.currentOrigin.v[1];
+          v14 = v11->r.currentOrigin.v[2];
+          if ( !AI_DropToFloor(v11) )
           {
-            vmovss  xmm6, dword ptr [rbx+130h]
-            vmovss  xmm7, dword ptr [rbx+134h]
-            vmovss  xmm8, dword ptr [rbx+138h]
-          }
-          if ( !AI_DropToFloor(_RBX) )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm8, xmm8
-              vcvtss2sd xmm3, xmm6, xmm6
-              vcvtss2sd xmm1, xmm7, xmm7
-              vmovsd  [rsp+8A8h+var_880], xmm0
-              vmovq   r9, xmm3
-              vmovsd  [rsp+8A8h+fmt], xmm1
-            }
-            Com_Printf(18, "^3Spawner [%d] at (%g %g %g) is in solid\n", (unsigned int)_RBX->s.number, *(double *)&_XMM3, *(double *)&fmt, v29);
-            _RBX->r.svFlags &= ~1u;
+            Com_Printf(18, "^3Spawner [%d] at (%g %g %g) is in solid\n", (unsigned int)v11->s.number, v12, v13, v14);
+            v11->r.svFlags &= ~1u;
           }
         }
       }
@@ -678,43 +637,37 @@ void G_DropActorSpawnersToFloor()
       ++v10;
     }
     while ( v8 < level.num_entities );
-    __asm { vmovaps xmm8, [rsp+8A8h+var_58] }
-    v20 = 0;
-    __asm
-    {
-      vmovaps xmm7, [rsp+8A8h+var_48]
-      vmovaps xmm6, [rsp+8A8h+var_38]
-    }
+    v15 = 0;
     if ( level.num_entities > 0 )
     {
-      v23 = 0i64;
-      v24 = 0i64;
+      v16 = 0i64;
+      v17 = 0i64;
       do
       {
-        v25 = &level.gentities[v20];
-        if ( (unsigned int)v20 >= 0x800 )
+        v18 = &level.gentities[v15];
+        if ( (unsigned int)v15 >= 0x800 )
         {
-          LODWORD(v30) = 2048;
-          LODWORD(v28) = v20;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, v30) )
+          LODWORD(v21) = 2048;
+          LODWORD(v20) = v15;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( g_entities[v24].r.isInUse != g_entityIsInUse[v23] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        if ( g_entities[v17].r.isInUse != g_entityIsInUse[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( g_entityIsInUse[v23] && v31[v23] )
+        if ( g_entityIsInUse[v16] && v22[v16] )
         {
-          v26 = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v25);
-          if ( v26 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 466, ASSERT_TYPE_ASSERT, "(physicsInstanceId != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstanceId != PHYSICSINSTANCEID_INVALID") )
+          v19 = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v18);
+          if ( v19 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 466, ASSERT_TYPE_ASSERT, "(physicsInstanceId != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstanceId != PHYSICSINSTANCEID_INVALID") )
             __debugbreak();
-          Physics_AddInstanceToWorld(PHYSICS_WORLD_ID_FIRST, v26, 1, 1);
+          Physics_AddInstanceToWorld(PHYSICS_WORLD_ID_FIRST, v19, 1, 1);
         }
-        ++v20;
-        ++v23;
-        ++v24;
+        ++v15;
+        ++v16;
+        ++v17;
       }
-      while ( v20 < level.num_entities );
+      while ( v15 < level.num_entities );
     }
   }
 }
@@ -726,21 +679,14 @@ InitDroneEntity
 */
 void InitDroneEntity(gentity_s *ent)
 {
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_spawner.cpp", 397, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  _RBX->r.svFlags &= ~4u;
-  _RBX->r.svFlags |= 2u;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-    vmovups xmmword ptr [rbx+100h], xmm0
-    vmovsd  xmm1, qword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-    vmovsd  qword ptr [rbx+110h], xmm1
-  }
-  _RBX->flags.m_flags[0] |= 0x80000200;
-  _RBX->s.un.scriptMoverType = 1;
-  G_PhysicsCharacterProxy_AddCharacter(_RBX);
+  ent->r.svFlags &= ~4u;
+  ent->r.svFlags |= 2u;
+  ent->r.box = actorBox;
+  ent->flags.m_flags[0] |= 0x80000200;
+  ent->s.un.scriptMoverType = 1;
+  G_PhysicsCharacterProxy_AddCharacter(ent);
 }
 
 /*

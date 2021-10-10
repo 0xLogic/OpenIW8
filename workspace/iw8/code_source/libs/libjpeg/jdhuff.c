@@ -5,10 +5,12 @@ decode_mcu
 */
 unsigned __int8 decode_mcu(jpeg_decompress_struct *cinfo, __int16 (**MCU_data)[64])
 {
+  jpeg_entropy_decoder *entropy; 
   int v3; 
   int v6; 
   unsigned __int8 (__fastcall **p_decode_mcu)(jpeg_decompress_struct *, __int16 (**)[64]); 
   jpeg_source_mgr *src; 
+  __int128 v9; 
   int start_pass; 
   int start_pass_high; 
   const unsigned __int8 *next_input_byte; 
@@ -48,18 +50,18 @@ unsigned __int8 decode_mcu(jpeg_decompress_struct *cinfo, __int16 (**MCU_data)[6
   char *v47; 
   __int128 v48; 
 
-  _R15 = cinfo->entropy;
+  entropy = cinfo->entropy;
   v3 = 0;
-  if ( cinfo->restart_interval && !LODWORD(_R15[2].start_pass) )
+  if ( cinfo->restart_interval && !LODWORD(entropy[2].start_pass) )
   {
-    cinfo->marker->discarded_bytes += SHIDWORD(_R15[1].start_pass) / 8;
-    HIDWORD(_R15[1].start_pass) = 0;
+    cinfo->marker->discarded_bytes += SHIDWORD(entropy[1].start_pass) / 8;
+    HIDWORD(entropy[1].start_pass) = 0;
     if ( !cinfo->marker->read_restart_marker(cinfo) )
       return 0;
     v6 = 0;
     if ( cinfo->comps_in_scan > 0 )
     {
-      p_decode_mcu = &_R15[1].decode_mcu;
+      p_decode_mcu = &entropy[1].decode_mcu;
       do
       {
         *(_DWORD *)p_decode_mcu = 0;
@@ -68,30 +70,30 @@ unsigned __int8 decode_mcu(jpeg_decompress_struct *cinfo, __int16 (**MCU_data)[6
       }
       while ( v6 < cinfo->comps_in_scan );
     }
-    LODWORD(_R15[2].start_pass) = cinfo->restart_interval;
+    LODWORD(entropy[2].start_pass) = cinfo->restart_interval;
     if ( !cinfo->unread_marker )
-      _R15->insufficient_data = 0;
+      entropy->insufficient_data = 0;
   }
-  if ( _R15->insufficient_data )
+  if ( entropy->insufficient_data )
     goto LABEL_72;
   src = cinfo->src;
-  __asm { vmovups xmm0, xmmword ptr [r15+20h] }
-  start_pass = (int)_R15[1].start_pass;
-  start_pass_high = HIDWORD(_R15[1].start_pass);
+  v9 = *(_OWORD *)&entropy[1].decode_mcu;
+  start_pass = (int)entropy[1].start_pass;
+  start_pass_high = HIDWORD(entropy[1].start_pass);
   next_input_byte = src->next_input_byte;
   bytes_in_buffer = src->bytes_in_buffer;
   state.next_input_byte = src->next_input_byte;
   state.bytes_in_buffer = bytes_in_buffer;
   state.cinfo = cinfo;
-  __asm { vmovups [rbp+57h+var_50], xmm0 }
+  v48 = v9;
   if ( cinfo->blocks_in_MCU <= 0 )
     goto LABEL_71;
   v45 = 0i64;
   MCU_membership = cinfo->MCU_membership;
-  v14 = (d_derived_tbl **)&_R15[8].decode_mcu;
+  v14 = (d_derived_tbl **)&entropy[8].decode_mcu;
   v15 = 0i64;
-  v46 = &_R15[8].decode_mcu;
-  v16 = (char *)((char *)MCU_data - (char *)_R15 - 200);
+  v46 = &entropy[8].decode_mcu;
+  v16 = (char *)((char *)MCU_data - (char *)entropy - 200);
   v47 = v16;
   do
   {
@@ -142,13 +144,13 @@ LABEL_21:
       else
         v23 = v24 + extend_offset[v23];
     }
-    if ( *(&_R15[11].insufficient_data + v15) )
+    if ( *(&entropy[11].insufficient_data + v15) )
     {
       v25 = *MCU_membership;
       *((_DWORD *)&v48 + v25) += v23;
       *v17 = *((_DWORD *)&v48 + v25);
     }
-    if ( *((_BYTE *)&_R15[12].start_pass + v15 + 2) )
+    if ( *((_BYTE *)&entropy[12].start_pass + v15 + 2) )
     {
       v26 = 1;
       while ( 1 )
@@ -271,15 +273,15 @@ LABEL_69:
   src = cinfo->src;
   bytes_in_buffer = state.bytes_in_buffer;
   next_input_byte = state.next_input_byte;
-  __asm { vmovups xmm0, [rbp+57h+var_50] }
+  v9 = v48;
 LABEL_71:
   src->next_input_byte = next_input_byte;
   cinfo->src->bytes_in_buffer = bytes_in_buffer;
-  LODWORD(_R15[1].start_pass) = start_pass;
-  HIDWORD(_R15[1].start_pass) = start_pass_high;
-  __asm { vmovups xmmword ptr [r15+20h], xmm0 }
+  LODWORD(entropy[1].start_pass) = start_pass;
+  HIDWORD(entropy[1].start_pass) = start_pass_high;
+  *(_OWORD *)&entropy[1].decode_mcu = v9;
 LABEL_72:
-  --LODWORD(_R15[2].start_pass);
+  --LODWORD(entropy[2].start_pass);
   return 1;
 }
 

@@ -390,69 +390,59 @@ lua_equal
 */
 unsigned __int64 lua_equal(lua_State *L, int idx1, int idx2)
 {
-  const TValue *v7; 
-  __int64 v9; 
-  __int64 v11; 
-  bool v12; 
-  int v13; 
+  const TValue *v5; 
+  const TValue *v6; 
+  __int64 *v7; 
+  __int64 v8; 
+  double n; 
   unsigned __int64 result; 
   __int64 u64; 
-  __int64 v17; 
-  const TValue *v18; 
+  __int64 v12; 
+  const TValue *v13; 
 
-  _RSI = index2adr(L, idx1);
-  v7 = index2adr(L, idx2);
-  _RBX = (__int64 *)v7;
-  v9 = _RSI->it64 >> 47;
-  if ( (unsigned int)v9 <= 0xFFFFFFF2 && (unsigned int)(v7->it64 >> 47) <= 0xFFFFFFF2 )
+  v5 = index2adr(L, idx1);
+  v6 = index2adr(L, idx2);
+  v7 = (__int64 *)v6;
+  v8 = v5->it64 >> 47;
+  if ( (unsigned int)v8 <= 0xFFFFFFF2 && (unsigned int)(v6->it64 >> 47) <= 0xFFFFFFF2 )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    if ( (unsigned int)v9 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+    if ( (unsigned int)v8 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm6, qword ptr [rsi] }
-    v11 = *_RBX >> 47;
-    v12 = (_DWORD)v11 == -14;
-    if ( (unsigned int)v11 >= 0xFFFFFFF2 )
+    n = v5->n;
+    if ( (unsigned int)(*v7 >> 47) >= 0xFFFFFFF2 )
     {
-      v13 = j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))");
-      v12 = v13 == 0;
-      if ( v13 )
+      if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
         __debugbreak();
     }
-    __asm
-    {
-      vucomisd xmm6, qword ptr [rbx]
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-    return v12;
+    return n == *(double *)v7;
   }
-  u64 = v7->u64;
-  v17 = v7->it64 >> 47;
-  if ( (_DWORD)v9 != (_DWORD)v17 )
+  u64 = v6->u64;
+  v12 = v6->it64 >> 47;
+  if ( (_DWORD)v8 != (_DWORD)v12 )
     return 0i64;
-  if ( (unsigned int)v9 >= 0xFFFFFFFD )
+  if ( (unsigned int)v8 >= 0xFFFFFFFD )
   {
     if ( *(_QWORD *)(L->glref.ptr64 + 248) != -1i64 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 342, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
       __debugbreak();
-    v18 = (const TValue *)(L->glref.ptr64 + 248);
-    if ( _RSI != v18 )
+    v13 = (const TValue *)(L->glref.ptr64 + 248);
+    if ( v5 != v13 )
     {
-      if ( v18->u64 != -1i64 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 342, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
+      if ( v13->u64 != -1i64 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 342, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
         __debugbreak();
-      if ( _RBX != (__int64 *)(L->glref.ptr64 + 248) )
+      if ( v7 != (__int64 *)(L->glref.ptr64 + 248) )
         return 1i64;
     }
     return 0i64;
   }
-  if ( _RSI->u64 == u64 )
+  if ( v5->u64 == u64 )
     return 1i64;
-  if ( (unsigned int)v9 > 0xFFFFFFF4 )
+  if ( (unsigned int)v8 > 0xFFFFFFF4 )
     return 0i64;
-  if ( (unsigned int)(v17 + 4) <= 0xFFFFFFF6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 352, "((((uint32_t)((o2)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1)))") )
+  if ( (unsigned int)(v12 + 4) <= 0xFFFFFFF6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 352, "((((uint32_t)((o2)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1)))") )
     __debugbreak();
-  if ( (unsigned int)(_RSI->it64 >> 47) + 4 <= 0xFFFFFFF6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 352, "((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1)))") )
+  if ( (unsigned int)(v5->it64 >> 47) + 4 <= 0xFFFFFFF6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 352, "((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1)))") )
     __debugbreak();
-  result = (unsigned __int64)j_lj_meta_equal(L, (GCobj *)(_RSI->u64 & 0x7FFFFFFFFFFFi64), (GCobj *)(*_RBX & 0x7FFFFFFFFFFFi64), 0);
+  result = (unsigned __int64)j_lj_meta_equal(L, (GCobj *)(v5->u64 & 0x7FFFFFFFFFFFi64), (GCobj *)(*v7 & 0x7FFFFFFFFFFFi64), 0);
   if ( result > 1 )
   {
     L->top = (TValue *)(result + 16);
@@ -499,25 +489,28 @@ lua_lessthan
 */
 TValue *lua_lessthan(lua_State *L, int idx1, int idx2)
 {
-  const TValue *v8; 
-  __int64 v9; 
+  const TValue *v5; 
+  const TValue *v6; 
+  const TValue *v7; 
+  __int64 v8; 
+  double n; 
   TValue *result; 
 
-  _RSI = index2adr(L, idx1);
-  _RBX = index2adr(L, idx2);
+  v5 = index2adr(L, idx1);
+  v6 = index2adr(L, idx2);
   if ( *(_QWORD *)(L->glref.ptr64 + 248) != -1i64 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 368, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
     __debugbreak();
-  v8 = (const TValue *)(L->glref.ptr64 + 248);
-  if ( _RSI == v8 )
+  v7 = (const TValue *)(L->glref.ptr64 + 248);
+  if ( v5 == v7 )
     return 0i64;
-  if ( v8->u64 != -1i64 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 368, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
+  if ( v7->u64 != -1i64 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 368, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
     __debugbreak();
-  if ( _RBX == (const TValue *)(L->glref.ptr64 + 248) )
+  if ( v6 == (const TValue *)(L->glref.ptr64 + 248) )
     return 0i64;
-  v9 = _RSI->it64 >> 47;
-  if ( (unsigned int)v9 > 0xFFFFFFF2 || (unsigned int)(_RBX->it64 >> 47) > 0xFFFFFFF2 )
+  v8 = v5->it64 >> 47;
+  if ( (unsigned int)v8 > 0xFFFFFFF2 || (unsigned int)(v6->it64 >> 47) > 0xFFFFFFF2 )
   {
-    result = j_lj_meta_comp(L, _RSI, _RBX, 0);
+    result = j_lj_meta_comp(L, v5, v6, 0);
     if ( (unsigned __int64)result > 1 )
     {
       L->top = result + 2;
@@ -528,21 +521,15 @@ TValue *lua_lessthan(lua_State *L, int idx1, int idx2)
   }
   else
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    if ( (unsigned int)v9 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+    if ( (unsigned int)v8 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm6, qword ptr [rsi] }
-    if ( (unsigned int)(_RBX->it64 >> 47) >= 0xFFFFFFF2 )
+    n = v5->n;
+    if ( (unsigned int)(v6->it64 >> 47) >= 0xFFFFFFF2 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
         __debugbreak();
     }
-    result = NULL;
-    __asm
-    {
-      vcomisd xmm6, qword ptr [rbx]
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    return (TValue *)(n < v6->n);
   }
   return result;
 }
@@ -554,18 +541,19 @@ lua_tonumber
 */
 long double lua_tonumber(lua_State *L, int idx)
 {
+  const TValue *v3; 
   __int64 v4; 
   TValue o; 
 
-  _RBX = index2adr(L, idx);
-  v4 = _RBX->it64 >> 47;
+  v3 = index2adr(L, idx);
+  v4 = v3->it64 >> 47;
   if ( (unsigned int)v4 > 0xFFFFFFF2 )
   {
-    if ( (_DWORD)v4 == -5 && j_lj_strscan_num((GCstr *)(_RBX->u64 & 0x7FFFFFFFFFFFi64), &o) )
+    if ( (_DWORD)v4 == -5 && j_lj_strscan_num((GCstr *)(v3->u64 & 0x7FFFFFFFFFFFi64), &o) )
     {
       if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 394, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
         __debugbreak();
-      __asm { vmovsd  xmm0, qword ptr [rsp+28h+o] }
+      *(TValue *)&_XMM0 = o;
     }
     else
     {
@@ -576,7 +564,7 @@ long double lua_tonumber(lua_State *L, int idx)
   {
     if ( (unsigned int)v4 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rbx] }
+    *(TValue *)&_XMM0 = (TValue)v3->u64;
   }
   return *(double *)&_XMM0;
 }
@@ -588,26 +576,24 @@ lua_tointeger
 */
 __int64 lua_tointeger(lua_State *L, int idx)
 {
+  const TValue *v2; 
   __int64 v3; 
   __int64 result; 
   TValue o; 
 
-  _RAX = index2adr(L, idx);
-  v3 = _RAX->it64 >> 47;
+  v2 = index2adr(L, idx);
+  v3 = v2->it64 >> 47;
   if ( (unsigned int)v3 >= 0xFFFFFFF2 )
   {
-    if ( (_DWORD)v3 == -5 && j_lj_strscan_num((GCstr *)(_RAX->u64 & 0x7FFFFFFFFFFFi64), &o) )
+    if ( (_DWORD)v3 == -5 && j_lj_strscan_num((GCstr *)(v2->u64 & 0x7FFFFFFFFFFFi64), &o) )
     {
       if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 )
       {
         if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 453, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rsp+28h+o]
-        vcvttsd2si rax, xmm0
-      }
+      _XMM0 = o.u64;
+      __asm { vcvttsd2si rax, xmm0 }
     }
     else
     {
@@ -616,11 +602,8 @@ __int64 lua_tointeger(lua_State *L, int idx)
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vcvttsd2si rax, xmm0
-    }
+    _XMM0 = v2->u64;
+    __asm { vcvttsd2si rax, xmm0 }
   }
   return result;
 }
@@ -793,16 +776,14 @@ void lua_pushnil(lua_State *L)
 lua_pushnumber
 ==============
 */
-
-void __fastcall lua_pushnumber(lua_State *L, double n)
+void lua_pushnumber(lua_State *L, long double n)
 {
-  TValue *v3; 
+  TValue *v2; 
 
-  _RAX = L->top;
-  __asm { vmovsd  qword ptr [rax], xmm1 }
-  v3 = L->top + 1;
-  L->top = v3;
-  if ( (unsigned __int64)v3 >= L->maxstack.ptr64 )
+  *(long double *)&L->top->u64 = n;
+  v2 = L->top + 1;
+  L->top = v2;
+  if ( (unsigned __int64)v2 >= L->maxstack.ptr64 )
     j_lj_state_growstack1(L);
 }
 
@@ -813,13 +794,9 @@ lua_pushinteger
 */
 void lua_pushinteger(lua_State *L, __int64 n)
 {
-  _RAX = L->top;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rdx
-    vmovsd  qword ptr [rax], xmm0
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rdx }
+  L->top->u64 = *(unsigned __int64 *)&_XMM0;
   if ( ++L->top >= (TValue *)L->maxstack.ptr64 )
     j_lj_state_growstack1(L);
 }
@@ -2475,13 +2452,14 @@ lua_tonumberx
 */
 long double lua_tonumberx(lua_State *L, int idx, int *ok)
 {
+  const TValue *v5; 
   __int64 u64; 
   __int64 v7; 
   TValue o; 
 
-  _RDI = index2adr(L, idx);
-  u64 = _RDI->u64;
-  v7 = _RDI->it64 >> 47;
+  v5 = index2adr(L, idx);
+  u64 = v5->u64;
+  v7 = v5->it64 >> 47;
   if ( (unsigned int)v7 > 0xFFFFFFF2 )
   {
     if ( (_DWORD)v7 == -5 && j_lj_strscan_num((GCstr *)(u64 & 0x7FFFFFFFFFFFi64), &o) )
@@ -2490,7 +2468,7 @@ long double lua_tonumberx(lua_State *L, int idx, int *ok)
         *ok = 1;
       if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 408, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
         __debugbreak();
-      __asm { vmovsd  xmm0, qword ptr [rsp+28h+o] }
+      *(TValue *)&_XMM0 = o;
     }
     else
     {
@@ -2504,11 +2482,11 @@ long double lua_tonumberx(lua_State *L, int idx, int *ok)
     if ( ok )
     {
       *ok = 1;
-      u64 = _RDI->u64;
+      u64 = v5->u64;
     }
     if ( (unsigned int)(u64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
+    *(TValue *)&_XMM0 = (TValue)v5->u64;
   }
   return *(double *)&_XMM0;
 }
@@ -2520,26 +2498,27 @@ lua_tointegerx
 */
 __int64 lua_tointegerx(lua_State *L, int idx, int *ok)
 {
+  const TValue *v4; 
   __int64 v5; 
   __int64 result; 
   TValue o; 
 
-  _RAX = index2adr(L, idx);
-  v5 = _RAX->it64 >> 47;
+  v4 = index2adr(L, idx);
+  v5 = v4->it64 >> 47;
   if ( (unsigned int)v5 < 0xFFFFFFF2 )
   {
-    __asm { vmovsd  xmm0, qword ptr [rax] }
+    _XMM0 = v4->u64;
 LABEL_9:
     if ( ok )
       *ok = 1;
     __asm { vcvttsd2si rax, xmm0 }
     return result;
   }
-  if ( (_DWORD)v5 == -5 && j_lj_strscan_num((GCstr *)(_RAX->u64 & 0x7FFFFFFFFFFFi64), &o) )
+  if ( (_DWORD)v5 == -5 && j_lj_strscan_num((GCstr *)(v4->u64 & 0x7FFFFFFFFFFFi64), &o) )
   {
     if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 481, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rsp+28h+o] }
+    _XMM0 = o.u64;
     goto LABEL_9;
   }
   if ( ok )
@@ -2626,26 +2605,29 @@ luaL_checknumber
 */
 long double luaL_checknumber(lua_State *L, int idx)
 {
+  const TValue *v4; 
   __int64 v5; 
   TValue o; 
 
-  _RBX = index2adr(L, idx);
-  v5 = _RBX->it64 >> 47;
+  v4 = index2adr(L, idx);
+  v5 = v4->it64 >> 47;
   if ( (unsigned int)v5 > 0xFFFFFFF2 )
   {
-    if ( (_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(_RBX->u64 & 0x7FFFFFFFFFFFi64), &o) )
+    if ( (_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(v4->u64 & 0x7FFFFFFFFFFFi64), &o) )
       j_lj_err_argt(L, idx, 3);
     if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 423, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rsp+28h+o] }
+    return o.n;
   }
   else
   {
-    if ( (unsigned int)v5 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
-      __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rbx] }
+    if ( (unsigned int)v5 >= 0xFFFFFFF2 )
+    {
+      if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+        __debugbreak();
+    }
+    return v4->n;
   }
-  return *(double *)&_XMM0;
 }
 
 /*
@@ -2653,44 +2635,40 @@ long double luaL_checknumber(lua_State *L, int idx)
 luaL_optnumber
 ==============
 */
-
-long double __fastcall luaL_optnumber(lua_State *L, int idx, double def)
+double luaL_optnumber(lua_State *L, int idx, long double def)
 {
+  const TValue *v5; 
   __int64 u64; 
-  __int64 v9; 
+  __int64 v7; 
   TValue o; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = index2adr(L, idx);
-  u64 = _RBX->u64;
-  v9 = _RBX->it64 >> 47;
-  if ( (unsigned int)v9 > 0xFFFFFFF2 )
+  v5 = index2adr(L, idx);
+  u64 = v5->u64;
+  v7 = v5->it64 >> 47;
+  if ( (unsigned int)v7 > 0xFFFFFFF2 )
   {
     if ( u64 == -1 )
     {
-      __asm { vmovaps xmm0, xmm6 }
+      return def;
     }
     else
     {
-      if ( (_DWORD)v9 != -5 || !j_lj_strscan_num((GCstr *)(u64 & 0x7FFFFFFFFFFFi64), &o) )
+      if ( (_DWORD)v7 != -5 || !j_lj_strscan_num((GCstr *)(u64 & 0x7FFFFFFFFFFFi64), &o) )
         j_lj_err_argt(L, idx, 3);
       if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 436, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
         __debugbreak();
-      __asm { vmovsd  xmm0, qword ptr [rsp+38h+o] }
+      return o.n;
     }
   }
   else
   {
-    if ( (unsigned int)v9 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
-      __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rbx] }
+    if ( (unsigned int)v7 >= 0xFFFFFFF2 )
+    {
+      if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+        __debugbreak();
+    }
+    return v5->n;
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return *(double *)&_XMM0;
 }
 
 /*
@@ -2700,34 +2678,29 @@ luaL_checkinteger
 */
 __int64 luaL_checkinteger(lua_State *L, int idx)
 {
+  const TValue *v4; 
   __int64 v5; 
   __int64 result; 
   TValue o; 
 
-  _RAX = index2adr(L, idx);
-  v5 = _RAX->it64 >> 47;
+  v4 = index2adr(L, idx);
+  v5 = v4->it64 >> 47;
   if ( (unsigned int)v5 >= 0xFFFFFFF2 )
   {
-    if ( (_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(_RAX->u64 & 0x7FFFFFFFFFFFi64), &o) )
+    if ( (_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(v4->u64 & 0x7FFFFFFFFFFFi64), &o) )
       j_lj_err_argt(L, idx, 3);
     if ( (unsigned int)(o.it64 >> 47) >= 0xFFFFFFF2 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 505, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+28h+o]
-      vcvttsd2si rax, xmm0
-    }
+    _XMM0 = o.u64;
+    __asm { vcvttsd2si rax, xmm0 }
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vcvttsd2si rax, xmm0
-    }
+    _XMM0 = v4->u64;
+    __asm { vcvttsd2si rax, xmm0 }
   }
   return result;
 }
@@ -2739,14 +2712,15 @@ luaL_optinteger
 */
 __int64 luaL_optinteger(lua_State *L, int idx, __int64 def)
 {
+  const TValue *v6; 
   __int64 u64; 
   __int64 v8; 
   __int64 result; 
   TValue o; 
 
-  _RAX = index2adr(L, idx);
-  u64 = _RAX->u64;
-  v8 = _RAX->it64 >> 47;
+  v6 = index2adr(L, idx);
+  u64 = v6->u64;
+  v8 = v6->it64 >> 47;
   if ( (unsigned int)v8 >= 0xFFFFFFF2 )
   {
     if ( u64 == -1 )
@@ -2762,20 +2736,14 @@ __int64 luaL_optinteger(lua_State *L, int idx, __int64 def)
         if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_api.c", 530, "(((uint32_t)((&tmp)->it64 >> 47)) < (~13u))") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rsp+28h+o]
-        vcvttsd2si rax, xmm0
-      }
+      _XMM0 = o.u64;
+      __asm { vcvttsd2si rax, xmm0 }
     }
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vcvttsd2si rax, xmm0
-    }
+    _XMM0 = v6->u64;
+    __asm { vcvttsd2si rax, xmm0 }
   }
   return result;
 }

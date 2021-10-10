@@ -73,36 +73,33 @@ R_RT_ColorHandle *R_RT_GetGlobalColor(R_RT_ColorHandle *result, GfxRenderTargetI
 {
   __int64 v4; 
   unsigned __int16 m_surfaceID; 
+  R_RT_Handle *v6; 
   const char *LastKnownName; 
-  __int64 v10; 
-  R_RT_Handle v11; 
+  __int64 v9; 
+  R_RT_Handle v10; 
 
   if ( (unsigned __int8)rtId >= R_RENDERTARGET_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 72, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( rtId ) ) < (unsigned)( ( sizeof( *array_counter( g_R_RT_globals ) ) + 0 ) )", "static_cast<uint>( rtId ) doesn't index ARRAY_COUNT( g_R_RT_globals )\n\t%i not in [0, %i)", (unsigned __int8)rtId, 10) )
     __debugbreak();
   v4 = (unsigned __int8)rtId;
   m_surfaceID = g_R_RT_globals[v4].m_surfaceID;
-  _RBX = &g_R_RT_globals[v4];
+  v6 = &g_R_RT_globals[v4];
   if ( m_surfaceID )
   {
     R_RT_Handle::GetSurface(&g_R_RT_globals[v4]);
   }
-  else if ( _RBX->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v6->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   if ( !m_surfaceID )
   {
-    LastKnownName = R_RT_Handle::DebugGetLastKnownName(_RBX);
-    LODWORD(v10) = (unsigned __int8)rtId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v10, g_R_RT_globalSlotNames[(unsigned __int8)rtId], LastKnownName) )
+    LastKnownName = R_RT_Handle::DebugGetLastKnownName(v6);
+    LODWORD(v9) = (unsigned __int8)rtId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v9, g_R_RT_globalSlotNames[(unsigned __int8)rtId], LastKnownName) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups [rsp+88h+var_38], ymm0
-  }
-  R_RT_ColorHandle::Cast(result, &v11);
+  v10 = *v6;
+  R_RT_ColorHandle::Cast(result, &v10);
   return result;
 }
 
@@ -115,35 +112,34 @@ R_RT_Handle *R_RT_GetGlobal(R_RT_Handle *result, GfxRenderTargetId rtId)
 {
   __int64 v4; 
   unsigned __int16 m_surfaceID; 
+  R_RT_Handle *v6; 
   const char *LastKnownName; 
-  R_RT_Handle *v9; 
-  __int64 v10; 
+  R_RT_Handle *v8; 
+  __int64 v9; 
 
-  _RSI = result;
   if ( (unsigned __int8)rtId >= R_RENDERTARGET_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 72, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( rtId ) ) < (unsigned)( ( sizeof( *array_counter( g_R_RT_globals ) ) + 0 ) )", "static_cast<uint>( rtId ) doesn't index ARRAY_COUNT( g_R_RT_globals )\n\t%i not in [0, %i)", (unsigned __int8)rtId, 10) )
     __debugbreak();
   v4 = (unsigned __int8)rtId;
   m_surfaceID = g_R_RT_globals[v4].m_surfaceID;
-  _RBX = &g_R_RT_globals[v4];
+  v6 = &g_R_RT_globals[v4];
   if ( m_surfaceID )
   {
     R_RT_Handle::GetSurface(&g_R_RT_globals[v4]);
   }
-  else if ( _RBX->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v6->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   if ( !m_surfaceID )
   {
-    LastKnownName = R_RT_Handle::DebugGetLastKnownName(_RBX);
-    LODWORD(v10) = (unsigned __int8)rtId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v10, g_R_RT_globalSlotNames[(unsigned __int8)rtId], LastKnownName) )
+    LastKnownName = R_RT_Handle::DebugGetLastKnownName(v6);
+    LODWORD(v9) = (unsigned __int8)rtId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v9, g_R_RT_globalSlotNames[(unsigned __int8)rtId], LastKnownName) )
       __debugbreak();
   }
-  __asm { vmovups ymm0, ymmword ptr [rbx] }
-  v9 = _RSI;
-  __asm { vmovups ymmword ptr [rsi], ymm0 }
-  return v9;
+  v8 = result;
+  *result = *v6;
+  return v8;
 }
 
 /*
@@ -174,43 +170,34 @@ R_RT_SetGlobal
 void R_RT_SetGlobal(GfxRenderTargetId rtId, R_RT_Handle *rt)
 {
   __int64 v2; 
+  __m256i *v3; 
   unsigned __int16 m_surfaceID; 
   __int16 v6; 
   __int16 v7; 
-  __m256i v11; 
+  __m256i v8; 
 
   v2 = (unsigned __int8)rtId;
-  _RBX = &g_R_RT_globals[v2];
-  _RDI = rt;
+  v3 = (__m256i *)&g_R_RT_globals[v2];
   m_surfaceID = g_R_RT_globals[v2].m_surfaceID;
   if ( m_surfaceID )
   {
     R_RT_Handle::GetSurface(&g_R_RT_globals[v2]);
   }
-  else if ( _RBX->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v3->m256i_i32[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   if ( m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 46, ASSERT_TYPE_ASSERT, "(!g_R_RT_globals[rtId].IsValid())", (const char *)&queryFormat, "!g_R_RT_globals[rtId].IsValid()") )
     __debugbreak();
-  v6 = _RDI->m_surfaceID & 0x7FFF;
+  v6 = rt->m_surfaceID & 0x7FFF;
   if ( v6 )
     v7 = v6 | 0x8000;
   else
     v7 = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+8]
-    vmovsd  xmm1, qword ptr [rdi+18h]
-    vmovups xmmword ptr [rsp+58h+var_28+8], xmm0
-    vmovsd  qword ptr [rsp+58h+var_28+18h], xmm1
-  }
-  v11.m256i_i16[0] = v7;
-  __asm
-  {
-    vmovups ymm0, [rsp+58h+var_28]
-    vmovups ymmword ptr [rbx], ymm0
-  }
+  *(_OWORD *)&v8.m256i_u64[1] = *(_OWORD *)&rt->m_tracking.m_allocCounter;
+  v8.m256i_i64[3] = (__int64)rt->m_tracking.m_location;
+  v8.m256i_i16[0] = v7;
+  *v3 = v8;
 }
 
 /*
@@ -221,31 +208,28 @@ R_RT_FlipDisplayBufferGlobals
 
 void __fastcall R_RT_FlipDisplayBufferGlobals(double _XMM0_8)
 {
-  bool v4; 
-  __int16 v8; 
-  R_RT_Handle v15; 
+  R_RT_Handle v1; 
+  bool v3; 
+  unsigned __int16 m_surfaceID; 
+  __int16 v5; 
+  R_RT_Handle v6; 
   R_RT_Handle result; 
-  __m256i v17; 
+  R_RT_Handle v8; 
 
-  _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
-  __asm
+  v1 = *R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
+  v8 = v1;
+  v6 = v1;
+  if ( LOWORD(_XMM0_8) )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups [rbp+57h+var_20], ymm0
-    vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v15);
-    if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v6);
+    if ( (R_RT_Handle::GetSurface(&v6)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+      v1 = v6;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+      v1 = v6;
     }
   }
   else
@@ -253,64 +237,45 @@ void __fastcall R_RT_FlipDisplayBufferGlobals(double _XMM0_8)
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, [rbp+57h+var_20] }
-      if ( v4 )
+      v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v1 = v8;
+      if ( v3 )
         __debugbreak();
     }
   }
-  __asm { vmovups [rbp+57h+var_20], ymm0 }
-  _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER_PREV);
-  __asm
+  v8 = v1;
+  m_surfaceID = LOWORD(_XMM0_8);
+  v6 = *R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER_PREV);
+  if ( LOWORD(_XMM0_8) )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   ebx, xmm0
-    vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v15);
-    if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v6);
+    if ( (R_RT_Handle::GetSurface(&v6)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      LOWORD(_EBX) = v15.m_surfaceID;
+      m_surfaceID = v6.m_surfaceID;
       __debugbreak();
     }
     else
     {
-      LOWORD(_EBX) = v15.m_surfaceID;
+      m_surfaceID = v6.m_surfaceID;
     }
   }
-  else if ( v15.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v6.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
-  v8 = _EBX & 0x7FFF;
-  if ( v8 )
-    result.m_surfaceID = v8 | 0x8000;
+  v5 = m_surfaceID & 0x7FFF;
+  if ( v5 )
+    result.m_surfaceID = v5 | 0x8000;
   else
     result.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+57h+var_60.m_tracking.m_allocCounter]
-    vmovsd  xmm1, [rbp+57h+var_60.m_tracking.m_location]
-    vmovups xmmword ptr [rbp+57h+result.m_tracking.m_allocCounter], xmm0
-    vmovsd  [rbp+57h+result.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+57h+result.m_surfaceID]
-    vmovups ymmword ptr cs:?g_R_RT_globals@@3PAVR_RT_Handle@@A.m_surfaceID, ymm0; R_RT_Handle near * g_R_RT_globals
-  }
-  if ( (v17.m256i_i16[0] & 0x7FFF) != 0 )
-    result.m_surfaceID = v17.m256i_i16[0] & 0x7FFF | 0x8000;
+  result.m_tracking = v6.m_tracking;
+  g_R_RT_globals[0] = result;
+  if ( (v8.m_surfaceID & 0x7FFF) != 0 )
+    result.m_surfaceID = v8.m_surfaceID & 0x7FFF | 0x8000;
   else
     result.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+57h+var_20+8]
-    vmovsd  xmm1, qword ptr [rbp+57h+var_20+18h]
-    vmovups xmmword ptr [rbp+57h+result.m_tracking.m_allocCounter], xmm0
-    vmovsd  [rbp+57h+result.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+57h+result.m_surfaceID]
-    vmovups ymmword ptr cs:?g_R_RT_globals@@3PAVR_RT_Handle@@A.m_surfaceID+20h, ymm0; R_RT_Handle near * g_R_RT_globals
-  }
+  result.m_tracking = v8.m_tracking;
+  g_R_RT_globals[1] = result;
 }
 
 /*
@@ -321,33 +286,30 @@ R_RT_FlipGameDVRBufferGlobals
 
 void __fastcall R_RT_FlipGameDVRBufferGlobals(double _XMM0_8)
 {
-  bool v4; 
-  __int16 v8; 
-  R_RT_Handle v15; 
+  R_RT_Handle v1; 
+  bool v3; 
+  unsigned __int16 m_surfaceID; 
+  __int16 v5; 
+  R_RT_Handle v6; 
   R_RT_Handle result; 
-  __m256i v17; 
+  R_RT_Handle v8; 
 
   if ( R_RT_Handle::IsValid(&g_R_RT_globals[2]) )
   {
-    _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_GAMEDVR_SDR_BUFFER);
-    __asm
+    v1 = *R_RT_GetGlobal(&result, R_RENDERTARGET_GAMEDVR_SDR_BUFFER);
+    v8 = v1;
+    v6 = v1;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+57h+var_20], ymm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v15);
-      if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v6);
+      if ( (R_RT_Handle::GetSurface(&v6)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v1 = v6;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v1 = v6;
       }
     }
     else
@@ -355,64 +317,45 @@ void __fastcall R_RT_FlipGameDVRBufferGlobals(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+57h+var_20] }
-        if ( v4 )
+        v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v1 = v8;
+        if ( v3 )
           __debugbreak();
       }
     }
-    __asm { vmovups [rbp+57h+var_20], ymm0 }
-    _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_GAMEDVR_SDR_BUFFER_PREV);
-    __asm
+    v8 = v1;
+    m_surfaceID = LOWORD(_XMM0_8);
+    v6 = *R_RT_GetGlobal(&result, R_RENDERTARGET_GAMEDVR_SDR_BUFFER_PREV);
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   ebx, xmm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EBX )
-    {
-      R_RT_Handle::GetSurface(&v15);
-      if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v6);
+      if ( (R_RT_Handle::GetSurface(&v6)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        LOWORD(_EBX) = v15.m_surfaceID;
+        m_surfaceID = v6.m_surfaceID;
         __debugbreak();
       }
       else
       {
-        LOWORD(_EBX) = v15.m_surfaceID;
+        m_surfaceID = v6.m_surfaceID;
       }
     }
-    else if ( v15.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( v6.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
     {
       __debugbreak();
     }
-    v8 = _EBX & 0x7FFF;
-    if ( v8 )
-      result.m_surfaceID = v8 | 0x8000;
+    v5 = m_surfaceID & 0x7FFF;
+    if ( v5 )
+      result.m_surfaceID = v5 | 0x8000;
     else
       result.m_surfaceID = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+57h+var_60.m_tracking.m_allocCounter]
-      vmovsd  xmm1, [rbp+57h+var_60.m_tracking.m_location]
-      vmovups xmmword ptr [rbp+57h+result.m_tracking.m_allocCounter], xmm0
-      vmovsd  [rbp+57h+result.m_tracking.m_location], xmm1
-      vmovups ymm0, ymmword ptr [rbp+57h+result.m_surfaceID]
-      vmovups ymmword ptr cs:?g_R_RT_globals@@3PAVR_RT_Handle@@A.m_surfaceID+40h, ymm0; R_RT_Handle near * g_R_RT_globals
-    }
-    if ( (v17.m256i_i16[0] & 0x7FFF) != 0 )
-      result.m_surfaceID = v17.m256i_i16[0] & 0x7FFF | 0x8000;
+    result.m_tracking = v6.m_tracking;
+    g_R_RT_globals[2] = result;
+    if ( (v8.m_surfaceID & 0x7FFF) != 0 )
+      result.m_surfaceID = v8.m_surfaceID & 0x7FFF | 0x8000;
     else
       result.m_surfaceID = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+57h+var_20+8]
-      vmovsd  xmm1, qword ptr [rbp+57h+var_20+18h]
-      vmovups xmmword ptr [rbp+57h+result.m_tracking.m_allocCounter], xmm0
-      vmovsd  [rbp+57h+result.m_tracking.m_location], xmm1
-      vmovups ymm0, ymmword ptr [rbp+57h+result.m_surfaceID]
-      vmovups ymmword ptr cs:?g_R_RT_globals@@3PAVR_RT_Handle@@A.m_surfaceID+60h, ymm0; R_RT_Handle near * g_R_RT_globals
-    }
+    result.m_tracking = v8.m_tracking;
+    g_R_RT_globals[3] = result;
   }
 }
 

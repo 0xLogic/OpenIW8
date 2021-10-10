@@ -347,159 +347,121 @@ R_BeginViewInternal
 */
 void R_BeginViewInternal(GfxCmdBufSourceState *source, const GfxSceneDef *sceneDef, const GfxViewParms *viewParms, const GfxViewParms *prevFrameViewParms)
 {
+  GfxViewParms *p_viewParms3D; 
+  __int64 v9; 
+  GfxViewParms *v10; 
   __int64 v11; 
-  __int64 v13; 
-  __int64 v24; 
+  const GfxViewParms *v12; 
+  vec4_t v13; 
+  GfxViewParms *p_prevFrameViewParms3D; 
+  __int64 v15; 
+  vec4_t v16; 
+  GfxViewParms *p_viewParms; 
+  __m256i v18; 
+  vec4_t v19; 
   GfxMatrix *ActiveMatrixForEdit; 
-  char v42; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = viewParms;
-  _RBP = sceneDef;
-  _RSI = source;
   if ( !sceneDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 647, ASSERT_TYPE_ASSERT, "(sceneDef)", (const char *)&queryFormat, "sceneDef") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 648, ASSERT_TYPE_ASSERT, "(viewParms)", (const char *)&queryFormat, "viewParms") )
+  if ( !viewParms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 648, ASSERT_TYPE_ASSERT, "(viewParms)", (const char *)&queryFormat, "viewParms") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbp+0] }
-  _RCX = &_RSI->viewParms3D;
+  p_viewParms3D = &source->viewParms3D;
+  v9 = 3i64;
+  source->sceneDef = *sceneDef;
+  v10 = &source->viewParms3D;
   v11 = 3i64;
-  __asm { vmovups ymmword ptr [rsi+2CE4h], ymm0 }
-  _RAX = &_RSI->viewParms3D;
-  v13 = 3i64;
-  _RDX = _RBX;
+  v12 = viewParms;
   do
   {
-    _RAX = (GfxViewParms *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rdx] }
-    _RDX = (const GfxViewParms *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v13;
-  }
-  while ( v13 );
-  _RAX = &_RSI->prevFrameViewParms3D;
-  v24 = 3i64;
-  if ( prevFrameViewParms )
-    _RBX = prevFrameViewParms;
-  do
-  {
-    _RAX = (GfxViewParms *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (const GfxViewParms *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v24;
-  }
-  while ( v24 );
-  _RSI->skinnedPlacement.base.origin.v[0] = _RBP->viewOffset.v[0];
-  _RSI->skinnedPlacement.base.origin.v[1] = _RBP->viewOffset.v[1];
-  _RSI->skinnedPlacement.base.origin.v[2] = _RBP->viewOffset.v[2];
-  _RSI->skinnedPlacementPrevFrame.base.origin.v[0] = _RBP->viewOffsetPrev.v[0];
-  _RSI->skinnedPlacementPrevFrame.base.origin.v[1] = _RBP->viewOffsetPrev.v[1];
-  _RSI->skinnedPlacementPrevFrame.base.origin.v[2] = _RBP->viewOffsetPrev.v[2];
-  _RAX = &_RSI->viewParms;
-  _RSI->viewMode = VIEW_MODE_3D;
-  do
-  {
-    _RAX = (GfxViewParms *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups xmm1, xmmword ptr [rcx+70h]
-    }
-    _RCX = (GfxViewParms *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v10 = (GfxViewParms *)((char *)v10 + 128);
+    v13 = v12->viewMatrix.m.m[0];
+    v12 = (const GfxViewParms *)((char *)v12 + 128);
+    *(vec4_t *)v10[-1].camera.origin.v = v13;
+    *(_OWORD *)&v10[-1].camera.axis.row0.y = *(_OWORD *)&v12[-1].camera.axis.row0.y;
+    *(_OWORD *)&v10[-1].camera.axis.row1.z = *(_OWORD *)&v12[-1].camera.axis.row1.z;
+    *(_OWORD *)&v10[-1].camera.tanHalfFovX = *(_OWORD *)&v12[-1].camera.tanHalfFovX;
+    *(_OWORD *)v10[-1].camera.zPlanes = *(_OWORD *)v12[-1].camera.zPlanes;
+    *(_OWORD *)&v10[-1].camera.focalLength = *(_OWORD *)&v12[-1].camera.focalLength;
+    *(_OWORD *)&v10[-1].camera.visibilityQueryDistance = *(_OWORD *)&v12[-1].camera.visibilityQueryDistance;
+    *(_OWORD *)&v10[-1].cameraMotion = *(_OWORD *)&v12[-1].cameraMotion;
     --v11;
   }
   while ( v11 );
-  _RSI->eyeOffset.v[0] = _RSI->viewParms.camera.origin.v[0];
-  _RSI->eyeOffset.v[1] = _RSI->viewParms.camera.origin.v[1];
-  _RSI->eyeOffset.v[2] = _RSI->viewParms.camera.origin.v[2];
-  _RSI->eyeOffset.v[3] = 1.0;
-  _RSI->prevFrameEyeOffset.v[0] = _RSI->prevFrameViewParms3D.camera.origin.v[0];
-  _RSI->prevFrameEyeOffset.v[1] = _RSI->prevFrameViewParms3D.camera.origin.v[1];
-  _RSI->prevFrameEyeOffset.v[2] = _RSI->prevFrameViewParms3D.camera.origin.v[2];
-  _RSI->prevFrameEyeOffset.v[3] = 1.0;
-  R_MatrixNeedsRefresh(_RSI, 0xA0u);
-  R_MatrixNeedsRefresh(_RSI, 0xA2u);
-  ActiveMatrixForEdit = R_GetActiveMatrixForEdit(_RSI, 0xAAu);
+  p_prevFrameViewParms3D = &source->prevFrameViewParms3D;
+  v15 = 3i64;
+  if ( prevFrameViewParms )
+    viewParms = prevFrameViewParms;
+  do
+  {
+    p_prevFrameViewParms3D = (GfxViewParms *)((char *)p_prevFrameViewParms3D + 128);
+    v16 = viewParms->viewMatrix.m.m[0];
+    viewParms = (const GfxViewParms *)((char *)viewParms + 128);
+    *(vec4_t *)p_prevFrameViewParms3D[-1].camera.origin.v = v16;
+    *(_OWORD *)&p_prevFrameViewParms3D[-1].camera.axis.row0.y = *(_OWORD *)&viewParms[-1].camera.axis.row0.y;
+    *(_OWORD *)&p_prevFrameViewParms3D[-1].camera.axis.row1.z = *(_OWORD *)&viewParms[-1].camera.axis.row1.z;
+    *(_OWORD *)&p_prevFrameViewParms3D[-1].camera.tanHalfFovX = *(_OWORD *)&viewParms[-1].camera.tanHalfFovX;
+    *(_OWORD *)p_prevFrameViewParms3D[-1].camera.zPlanes = *(_OWORD *)viewParms[-1].camera.zPlanes;
+    *(_OWORD *)&p_prevFrameViewParms3D[-1].camera.focalLength = *(_OWORD *)&viewParms[-1].camera.focalLength;
+    *(_OWORD *)&p_prevFrameViewParms3D[-1].camera.visibilityQueryDistance = *(_OWORD *)&viewParms[-1].camera.visibilityQueryDistance;
+    *(_OWORD *)&p_prevFrameViewParms3D[-1].cameraMotion = *(_OWORD *)&viewParms[-1].cameraMotion;
+    --v15;
+  }
+  while ( v15 );
+  source->skinnedPlacement.base.origin.v[0] = sceneDef->viewOffset.v[0];
+  source->skinnedPlacement.base.origin.v[1] = sceneDef->viewOffset.v[1];
+  source->skinnedPlacement.base.origin.v[2] = sceneDef->viewOffset.v[2];
+  source->skinnedPlacementPrevFrame.base.origin.v[0] = sceneDef->viewOffsetPrev.v[0];
+  source->skinnedPlacementPrevFrame.base.origin.v[1] = sceneDef->viewOffsetPrev.v[1];
+  source->skinnedPlacementPrevFrame.base.origin.v[2] = sceneDef->viewOffsetPrev.v[2];
+  p_viewParms = &source->viewParms;
+  source->viewMode = VIEW_MODE_3D;
+  do
+  {
+    p_viewParms = (GfxViewParms *)((char *)p_viewParms + 128);
+    v18 = *(__m256i *)p_viewParms3D->viewMatrix.m.m[0].v;
+    v19 = p_viewParms3D->projectionMatrix.m.m[3];
+    p_viewParms3D = (GfxViewParms *)((char *)p_viewParms3D + 128);
+    *(__m256i *)p_viewParms[-1].camera.origin.v = v18;
+    *(__m256i *)&p_viewParms[-1].camera.axis.row1.z = *(__m256i *)&p_viewParms3D[-1].camera.axis.row1.z;
+    *(__m256i *)p_viewParms[-1].camera.zPlanes = *(__m256i *)p_viewParms3D[-1].camera.zPlanes;
+    *(_OWORD *)&p_viewParms[-1].camera.visibilityQueryDistance = *(_OWORD *)&p_viewParms3D[-1].camera.visibilityQueryDistance;
+    *(vec4_t *)&p_viewParms[-1].cameraMotion = v19;
+    --v9;
+  }
+  while ( v9 );
+  source->eyeOffset.v[0] = source->viewParms.camera.origin.v[0];
+  source->eyeOffset.v[1] = source->viewParms.camera.origin.v[1];
+  source->eyeOffset.v[2] = source->viewParms.camera.origin.v[2];
+  source->eyeOffset.v[3] = 1.0;
+  source->prevFrameEyeOffset.v[0] = source->prevFrameViewParms3D.camera.origin.v[0];
+  source->prevFrameEyeOffset.v[1] = source->prevFrameViewParms3D.camera.origin.v[1];
+  source->prevFrameEyeOffset.v[2] = source->prevFrameViewParms3D.camera.origin.v[2];
+  source->prevFrameEyeOffset.v[3] = 1.0;
+  R_MatrixNeedsRefresh(source, 0xA0u);
+  R_MatrixNeedsRefresh(source, 0xA2u);
+  ActiveMatrixForEdit = R_GetActiveMatrixForEdit(source, 0xAAu);
   MatrixIdentity44(&ActiveMatrixForEdit->m);
-  _RSI->input.consts[0].v[0] = _RSI->eyeOffset.v[0];
-  _RSI->input.consts[0].v[1] = _RSI->eyeOffset.v[1];
-  _RSI->input.consts[0].v[2] = _RSI->eyeOffset.v[2];
-  _RSI->input.consts[0].v[3] = _RSI->eyeOffset.v[3];
-  ++_RSI->constVersions[0];
-  R_SetPreciseCodeConstantFromVec4(_RSI, 1u, &_RSI->eyeOffset);
-  _RSI->input.consts[11].v[0] = _RSI->prevFrameEyeOffset.v[0];
-  _RSI->input.consts[11].v[1] = _RSI->prevFrameEyeOffset.v[1];
-  _RSI->input.consts[11].v[2] = _RSI->prevFrameEyeOffset.v[2];
-  _RSI->input.consts[11].v[3] = _RSI->prevFrameEyeOffset.v[3];
-  ++_RSI->constVersions[11];
-  R_SetPreciseCodeConstantFromVec4(_RSI, 0xCu, &_RSI->prevFrameEyeOffset);
-  MatrixInverse44Aligned(&_RSI->viewParms.viewProjectionMatrix.m, &_RSI->inverseViewProjectionMatrixNoOrigin3D.m);
-  __asm { vmovss  xmm1, cs:__real@3f800000; msScale }
-  R_SetViewportMSParams(_RSI, *(float *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rsi+2D28h]
-  }
-  if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 665, ASSERT_TYPE_ASSERT, "(!source->materialTime)", (const char *)&queryFormat, "!source->materialTime") )
+  source->input.consts[0].v[0] = source->eyeOffset.v[0];
+  source->input.consts[0].v[1] = source->eyeOffset.v[1];
+  source->input.consts[0].v[2] = source->eyeOffset.v[2];
+  source->input.consts[0].v[3] = source->eyeOffset.v[3];
+  ++source->constVersions[0];
+  R_SetPreciseCodeConstantFromVec4(source, 1u, &source->eyeOffset);
+  source->input.consts[11].v[0] = source->prevFrameEyeOffset.v[0];
+  source->input.consts[11].v[1] = source->prevFrameEyeOffset.v[1];
+  source->input.consts[11].v[2] = source->prevFrameEyeOffset.v[2];
+  source->input.consts[11].v[3] = source->prevFrameEyeOffset.v[3];
+  ++source->constVersions[11];
+  R_SetPreciseCodeConstantFromVec4(source, 0xCu, &source->prevFrameEyeOffset);
+  MatrixInverse44Aligned(&source->viewParms.viewProjectionMatrix.m, &source->inverseViewProjectionMatrixNoOrigin3D.m);
+  R_SetViewportMSParams(source, 1.0);
+  if ( source->materialTime != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 665, ASSERT_TYPE_ASSERT, "(!source->materialTime)", (const char *)&queryFormat, "!source->materialTime") )
     __debugbreak();
-  __asm { vmovss  xmm1, dword ptr [rbp+4]; gameTime }
-  R_SetGameTime(_RSI, *(float *)&_XMM1);
-  R_SetScriptablePackedColorEmissive(_RSI, &SCRIPTABLE_PACKED_COLOR_EMISSIVE_DEFAULT_1);
-  R_SetScriptableTemperature(_RSI, &SCRIPTABLE_TEMPERATURE_DEFAULT_1);
-  R_SetMaterialEntityID(_RSI, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; eyePupilSize
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  R_SetEyeSensorPupilSize(_RSI, *(float *)&_XMM1);
+  R_SetGameTime(source, sceneDef->floatTime);
+  R_SetScriptablePackedColorEmissive(source, &SCRIPTABLE_PACKED_COLOR_EMISSIVE_DEFAULT_1);
+  R_SetScriptableTemperature(source, &SCRIPTABLE_TEMPERATURE_DEFAULT_1);
+  R_SetMaterialEntityID(source, 0);
+  R_SetEyeSensorPupilSize(source, 0.0);
 }
 
 /*
@@ -554,46 +516,30 @@ void R_DebugDuplicateAllImageReferences(GfxCmdBufInput *input, const char *fileA
 R_FindAnisoWindowID
 ==============
 */
-
-__int64 __fastcall R_FindAnisoWindowID(double window)
+__int64 R_FindAnisoWindowID(float window)
 {
-  bool v1; 
-  unsigned int v2; 
+  unsigned int i; 
+  __int64 v2; 
+  float v3; 
+  float v4; 
 
-  v1 = 1;
-  v2 = 0;
-  _R8 = s_anisoWindows;
-  while ( 1 )
+  for ( i = 0; ; ++i )
   {
-    _RDX = v2 + 1;
-    __asm
+    v2 = i + 1;
+    v3 = s_anisoWindows[v2];
+    if ( v3 <= window )
     {
-      vmovss  xmm2, dword ptr [r8+rdx*4]
-      vcomiss xmm2, xmm0
-    }
-    if ( v1 )
-    {
-      _RAX = v2;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r8+rax*4]
-        vcomiss xmm0, xmm1
-      }
-      if ( v1 )
+      v4 = s_anisoWindows[i];
+      if ( window <= v4 )
         break;
     }
-    ++v2;
-    v1 = (unsigned int)_RDX <= 7;
-    if ( (_DWORD)_RDX == 7 )
+    if ( (_DWORD)v2 == 7 )
       return 7i64;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm1, xmm0
-    vsubss  xmm0, xmm0, xmm2
-    vcomiss xmm1, xmm0
-  }
-  return v2;
+  if ( (float)(v4 - window) <= (float)(window - v3) )
+    return i;
+  else
+    return i + 1;
 }
 
 /*
@@ -601,46 +547,30 @@ __int64 __fastcall R_FindAnisoWindowID(double window)
 R_FindTrilinearWindowID
 ==============
 */
-
-__int64 __fastcall R_FindTrilinearWindowID(double window)
+__int64 R_FindTrilinearWindowID(float window)
 {
-  bool v1; 
-  unsigned int v2; 
+  unsigned int i; 
+  __int64 v2; 
+  float v3; 
+  float v4; 
 
-  v1 = 1;
-  v2 = 0;
-  _R8 = s_trilinearWindows;
-  while ( 1 )
+  for ( i = 0; ; ++i )
   {
-    _RDX = v2 + 1;
-    __asm
+    v2 = i + 1;
+    v3 = s_trilinearWindows[v2];
+    if ( v3 <= window )
     {
-      vmovss  xmm2, dword ptr [r8+rdx*4]
-      vcomiss xmm2, xmm0
-    }
-    if ( v1 )
-    {
-      _RAX = v2;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r8+rax*4]
-        vcomiss xmm0, xmm1
-      }
-      if ( v1 )
+      v4 = s_trilinearWindows[i];
+      if ( window <= v4 )
         break;
     }
-    ++v2;
-    v1 = (unsigned int)_RDX <= 0xF;
-    if ( (_DWORD)_RDX == 15 )
+    if ( (_DWORD)v2 == 15 )
       return 15i64;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm1, xmm0
-    vsubss  xmm0, xmm0, xmm2
-    vcomiss xmm1, xmm0
-  }
-  return v2;
+  if ( (float)(v4 - window) <= (float)(window - v3) )
+    return i;
+  else
+    return i + 1;
 }
 
 /*
@@ -650,73 +580,53 @@ R_ForceSet2D
 */
 void R_ForceSet2D(GfxCmdBufSourceState *source, const GfxViewport *viewport)
 {
-  __int64 v22; 
-  __m256i v23; 
+  float width; 
+  float v7; 
+  float height; 
+  GfxMatrix *ActiveMatrixForEdit; 
+  __int64 v10; 
+  __m256i v11; 
+  __m256i v12; 
   tmat44_t<vec4_t> out; 
 
   *((_BYTE *)source + 11668) |= 2u;
   source->viewMode = VIEW_MODE_2D;
-  _RDI = source;
   if ( !viewport->width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 520, ASSERT_TYPE_ASSERT, "( ( viewport->width > 0 ) )", "( viewport->width ) = %i", 0) )
     __debugbreak();
   if ( !viewport->height )
   {
-    LODWORD(v22) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 521, ASSERT_TYPE_ASSERT, "( ( viewport->height > 0 ) )", "( viewport->height ) = %i", v22) )
+    LODWORD(v10) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 521, ASSERT_TYPE_ASSERT, "( ( viewport->height > 0 ) )", "( viewport->height ) = %i", v10) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vpxor   xmm0, xmm0, xmm0
-  }
-  *(_OWORD *)((char *)v23.m256i_i64 + 4) = 0ui64;
-  v23.m256i_i64[3] = 0i64;
-  __asm
-  {
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovdqu xmmword ptr [rsp+0C8h+var_78], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm1, xmm0, xmm1
-    vmulss  xmm2, xmm1, cs:__real@40000000
-    vmovss  xmm0, cs:__real@c0000000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  dword ptr [rsp+0C8h+var_98], xmm2
-    vmovups xmm2, cs:__xmm@3f800000000000003f800000bf800000
-    vdivss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rsp+0C8h+var_98+14h], xmm1
-    vmovups xmmword ptr [rsp+0C8h+var_78+10h], xmm2
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)((char *)v11.m256i_i64 + 4) = 0ui64;
+  v11.m256i_i64[3] = 0i64;
+  width = (float)viewport->width;
+  *(_OWORD *)v12.m256i_i8 = _XMM0;
+  v7 = (float)(1.0 / width) * 2.0;
+  height = (float)viewport->height;
+  *(float *)v11.m256i_i32 = v7;
+  *(float *)&v11.m256i_i32[5] = -2.0 / height;
+  *(_OWORD *)&v12.m256i_u64[2] = _xmm;
   MatrixIdentity44(&out);
-  MatrixIdentity44(&_RDI->viewParms.viewMatrix.m);
-  __asm
-  {
-    vmovups ymm1, [rsp+0C8h+var_98]
-    vmovups ymm0, [rsp+0C8h+var_78]
-    vmovups ymmword ptr [rdi+2650h], ymm1
-    vmovups ymmword ptr [rdi+2690h], ymm1
-    vmovups ymmword ptr [rdi+2670h], ymm0
-    vmovups ymmword ptr [rdi+26B0h], ymm0
-  }
-  *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.m[0].v = 0i64;
-  *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row0.xyz.z = 0i64;
-  *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.row1.v = 0i64;
-  *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row1.xyz.z = 0i64;
-  *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.row2.v = 0i64;
-  *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row2.xyz.z = 0i64;
-  *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.row3.v = 0i64;
-  *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row3.xyz.z = 0i64;
-  R_MatrixNeedsRefresh(_RDI, 0xA0u);
-  R_MatrixNeedsRefresh(_RDI, 0xA2u);
-  _RAX = R_GetActiveMatrixForEdit(_RDI, 0xAAu);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0C8h+out]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm1, ymmword ptr [rsp+0C8h+out+20h]
-    vmovups ymmword ptr [rax+20h], ymm1
-  }
+  MatrixIdentity44(&source->viewParms.viewMatrix.m);
+  *(__m256i *)source->viewParms.projectionMatrix.m.m[0].v = v11;
+  *(__m256i *)source->viewParms.viewProjectionMatrix.m.m[0].v = v11;
+  *(__m256i *)source->viewParms.projectionMatrix.m.row2.v = v12;
+  *(__m256i *)source->viewParms.viewProjectionMatrix.m.row2.v = v12;
+  *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.m[0].v = 0i64;
+  *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row0.xyz.z = 0i64;
+  *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.row1.v = 0i64;
+  *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row1.xyz.z = 0i64;
+  *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.row2.v = 0i64;
+  *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row2.xyz.z = 0i64;
+  *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.row3.v = 0i64;
+  *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row3.xyz.z = 0i64;
+  R_MatrixNeedsRefresh(source, 0xA0u);
+  R_MatrixNeedsRefresh(source, 0xA2u);
+  ActiveMatrixForEdit = R_GetActiveMatrixForEdit(source, 0xAAu);
+  ActiveMatrixForEdit->m = out;
 }
 
 /*
@@ -726,18 +636,17 @@ R_GetAnisoWindow
 */
 float R_GetAnisoWindow(unsigned int windowID)
 {
-  int v6; 
+  __int64 v1; 
+  int v4; 
 
-  _RBX = windowID;
+  v1 = windowID;
   if ( windowID >= 8 )
   {
-    v6 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 279, ASSERT_TYPE_ASSERT, "(unsigned)( windowID ) < (unsigned)( ( sizeof( *array_counter( s_anisoWindows ) ) + 0 ) )", "windowID doesn't index ARRAY_COUNT( s_anisoWindows )\n\t%i not in [0, %i)", windowID, v6) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 279, ASSERT_TYPE_ASSERT, "(unsigned)( windowID ) < (unsigned)( ( sizeof( *array_counter( s_anisoWindows ) ) + 0 ) )", "windowID doesn't index ARRAY_COUNT( s_anisoWindows )\n\t%i not in [0, %i)", windowID, v4) )
       __debugbreak();
   }
-  _RCX = s_anisoWindows;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_anisoWindows[v1];
 }
 
 /*
@@ -747,18 +656,17 @@ R_GetTrilinearWindow
 */
 float R_GetTrilinearWindow(unsigned int windowID)
 {
-  int v6; 
+  __int64 v1; 
+  int v4; 
 
-  _RBX = windowID;
+  v1 = windowID;
   if ( windowID >= 0x10 )
   {
-    v6 = 16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 236, ASSERT_TYPE_ASSERT, "(unsigned)( windowID ) < (unsigned)( ( sizeof( *array_counter( s_trilinearWindows ) ) + 0 ) )", "windowID doesn't index ARRAY_COUNT( s_trilinearWindows )\n\t%i not in [0, %i)", windowID, v6) )
+    v4 = 16;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 236, ASSERT_TYPE_ASSERT, "(unsigned)( windowID ) < (unsigned)( ( sizeof( *array_counter( s_trilinearWindows ) ) + 0 ) )", "windowID doesn't index ARRAY_COUNT( s_trilinearWindows )\n\t%i not in [0, %i)", windowID, v4) )
       __debugbreak();
   }
-  _RCX = s_trilinearWindows;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_trilinearWindows[v1];
 }
 
 /*
@@ -770,103 +678,73 @@ void R_InitCmdBufSourceState(GfxCmdBufSourceState *source, const GfxCmdBufInput 
 {
   const GfxBackEndData *data; 
   LocalClientNum_t clientIndex; 
-  const GfxBackEndData *v7; 
-  const MaterialUpdateFrequency *v8; 
+  const GfxBackEndData *v6; 
+  const MaterialUpdateFrequency *v7; 
   unsigned __int16 *constVersions; 
-  __int64 v10; 
-  _QWORD *p_z; 
-  bool v13; 
-  bool v14; 
+  __int64 v9; 
+  float *v10; 
   GfxCmdBufContext result; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = source;
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 143, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  if ( input == &_RBX->input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 144, ASSERT_TYPE_ASSERT, "(input != &source->input)", (const char *)&queryFormat, "input != &source->input") )
+  if ( input == &source->input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 144, ASSERT_TYPE_ASSERT, "(input != &source->input)", (const char *)&queryFormat, "input != &source->input") )
     __debugbreak();
   if ( !input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 145, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  memset_0(_RBX, 0, sizeof(GfxCmdBufSourceState));
-  if ( &_RBX->input != input )
-    memcpy_0(&_RBX->input, input, sizeof(_RBX->input));
+  memset_0(source, 0, sizeof(GfxCmdBufSourceState));
+  if ( &source->input != input )
+    memcpy_0(&source->input, input, sizeof(source->input));
   data = input->data;
   if ( data && data->viewInfoCount )
     clientIndex = data->viewInfo[data->viewInfoIndex].clientIndex;
   else
     clientIndex = LOCAL_CLIENT_0;
-  RB_RTT_UpdateInputCodeImages(clientIndex, _RBX);
+  RB_RTT_UpdateInputCodeImages(clientIndex, source);
   if ( input == &g_gfxCmdBufInput )
   {
-    if ( RB_GetBackendCmdBufContext(&result)->source != _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 162, ASSERT_TYPE_ASSERT, "(RB_GetBackendCmdBufContext().source == source)", (const char *)&queryFormat, "RB_GetBackendCmdBufContext().source == source") )
+    if ( RB_GetBackendCmdBufContext(&result)->source != source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 162, ASSERT_TYPE_ASSERT, "(RB_GetBackendCmdBufContext().source == source)", (const char *)&queryFormat, "RB_GetBackendCmdBufContext().source == source") )
       __debugbreak();
-    v7 = _RBX->input.data;
-    if ( v7 && v7 != backEndData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 163, ASSERT_TYPE_ASSERT, "(source->input.data == nullptr || source->input.data == backEndData)", (const char *)&queryFormat, "source->input.data == nullptr || source->input.data == backEndData") )
+    v6 = source->input.data;
+    if ( v6 && v6 != backEndData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 163, ASSERT_TYPE_ASSERT, "(source->input.data == nullptr || source->input.data == backEndData)", (const char *)&queryFormat, "source->input.data == nullptr || source->input.data == backEndData") )
       __debugbreak();
-    _RBX->input.data = backEndData;
+    source->input.data = backEndData;
   }
-  _RBX->forceTransposeMatrixChange = 0;
-  v8 = s_codeConstUpdateFreq;
-  constVersions = _RBX->constVersions;
-  v10 = 160i64;
-  p_z = (_QWORD *)&_RBX->input.consts[0].xyz.z;
+  source->forceTransposeMatrixChange = 0;
+  v7 = s_codeConstUpdateFreq;
+  constVersions = source->constVersions;
+  v9 = 160i64;
+  v10 = &source->input.consts[0].v[2];
   do
   {
-    if ( input == &g_gfxCmdBufInput || *v8 != MTL_UPDATE_STABLE )
+    if ( input == &g_gfxCmdBufInput || *v7 != MTL_UPDATE_STABLE )
     {
-      *((_DWORD *)p_z - 2) = 2139095039;
-      *((_DWORD *)p_z - 1) = 2139095039;
-      *p_z = 2139095039i64;
+      *(v10 - 2) = 3.4028235e38;
+      *(v10 - 1) = 3.4028235e38;
+      *(_QWORD *)v10 = 2139095039i64;
     }
     else
     {
       *constVersions = 1;
     }
     ++constVersions;
-    p_z += 2;
-    ++v8;
-    --v10;
+    v10 += 4;
+    ++v7;
+    --v9;
   }
-  while ( v10 );
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  _RBX->tess = RB_GetBackEndTess();
-  __asm { vucomiss xmm6, dword ptr [rbx+2C74h] }
-  if ( !v13 )
-    goto LABEL_44;
-  __asm { vucomiss xmm6, dword ptr [rbx+2C78h] }
-  if ( !v13 )
-    goto LABEL_44;
-  __asm { vucomiss xmm6, dword ptr [rbx+2C7Ch] }
-  if ( !v13 )
-  {
-LABEL_44:
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 189, ASSERT_TYPE_ASSERT, "(( source->skinnedPlacement.base.quat[0] == 0.f ) && ( source->skinnedPlacement.base.quat[1] == 0.f ) && ( source->skinnedPlacement.base.quat[2] == 0.f ))", (const char *)&queryFormat, "( source->skinnedPlacement.base.quat[0] == 0.f ) && ( source->skinnedPlacement.base.quat[1] == 0.f ) && ( source->skinnedPlacement.base.quat[2] == 0.f )");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  _RBX->skinnedPlacement.base.quat.v[3] = 1.0;
-  _RBX->skinnedPlacement.scale = 1.0;
-  __asm { vucomiss xmm6, dword ptr [rbx+2CC0h] }
-  if ( !v13 )
-    goto LABEL_45;
-  __asm { vucomiss xmm6, dword ptr [rbx+2CC4h] }
-  if ( !v13 )
-    goto LABEL_45;
-  __asm { vucomiss xmm6, dword ptr [rbx+2CC8h] }
-  if ( !v13 )
-  {
-LABEL_45:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 194, ASSERT_TYPE_ASSERT, "(( source->skinnedPlacementPrevFrame.base.quat[0] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[1] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[2] == 0.f ))", (const char *)&queryFormat, "( source->skinnedPlacementPrevFrame.base.quat[0] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[1] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[2] == 0.f )") )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  _RBX->skinnedPlacementPrevFrame.base.quat.v[3] = 1.0;
-  *((_BYTE *)_RBX + 11668) &= 0xCFu;
-  _RBX->mtlFlagsFilter = 0;
-  _RBX->viewStatsTarget = GFX_VIEW_STATS_2D;
-  _RBX->skinnedPlacementPrevFrame.scale = 1.0;
-  _RBX->drawListType = DRAWLIST_BACKEND_COUNT;
+  while ( v9 );
+  source->tess = RB_GetBackEndTess();
+  if ( (source->skinnedPlacement.base.quat.v[0] != 0.0 || source->skinnedPlacement.base.quat.v[1] != 0.0 || source->skinnedPlacement.base.quat.v[2] != 0.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 189, ASSERT_TYPE_ASSERT, "(( source->skinnedPlacement.base.quat[0] == 0.f ) && ( source->skinnedPlacement.base.quat[1] == 0.f ) && ( source->skinnedPlacement.base.quat[2] == 0.f ))", (const char *)&queryFormat, "( source->skinnedPlacement.base.quat[0] == 0.f ) && ( source->skinnedPlacement.base.quat[1] == 0.f ) && ( source->skinnedPlacement.base.quat[2] == 0.f )") )
+    __debugbreak();
+  source->skinnedPlacement.base.quat.v[3] = 1.0;
+  source->skinnedPlacement.scale = 1.0;
+  if ( (source->skinnedPlacementPrevFrame.base.quat.v[0] != 0.0 || source->skinnedPlacementPrevFrame.base.quat.v[1] != 0.0 || source->skinnedPlacementPrevFrame.base.quat.v[2] != 0.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 194, ASSERT_TYPE_ASSERT, "(( source->skinnedPlacementPrevFrame.base.quat[0] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[1] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[2] == 0.f ))", (const char *)&queryFormat, "( source->skinnedPlacementPrevFrame.base.quat[0] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[1] == 0.f ) && ( source->skinnedPlacementPrevFrame.base.quat[2] == 0.f )") )
+    __debugbreak();
+  source->skinnedPlacementPrevFrame.base.quat.v[3] = 1.0;
+  *((_BYTE *)source + 11668) &= 0xCFu;
+  source->mtlFlagsFilter = 0;
+  source->viewStatsTarget = GFX_VIEW_STATS_2D;
+  source->skinnedPlacementPrevFrame.scale = 1.0;
+  source->drawListType = DRAWLIST_BACKEND_COUNT;
 }
 
 /*
@@ -953,107 +831,92 @@ void R_InitCmdBufState(GfxCmdBufState *state)
 R_Set2D
 ==============
 */
-
-void __fastcall R_Set2D(GfxCmdBufSourceState *source, double _XMM1_8, double _XMM2_8)
+void R_Set2D(GfxCmdBufSourceState *source)
 {
   unsigned int width; 
-  __int64 v21; 
+  unsigned int height; 
+  float v6; 
+  float v7; 
+  __m256i v8; 
+  __m256i v9; 
+  GfxMatrix *ActiveMatrixForEdit; 
+  __int64 v11; 
   GfxViewport outViewport; 
-  __m256i v23; 
+  __m256i v13; 
+  __m256i v14; 
   tmat44_t<vec4_t> out; 
 
-  _RDI = source;
   if ( source->viewMode != VIEW_MODE_2D )
   {
     if ( source->viewportTransformOverride.width )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+2D14h]
-        vmovups xmmword ptr [rsp+0D8h+outViewport.x], xmm0
-      }
+      _XMM0 = source->viewportTransformOverride;
+      outViewport = _XMM0;
     }
     else
     {
       R_GetViewport(source, &outViewport);
     }
-    *((_BYTE *)_RDI + 11668) |= 2u;
+    *((_BYTE *)source + 11668) |= 2u;
     width = outViewport.width;
-    _RDI->viewMode = VIEW_MODE_2D;
+    source->viewMode = VIEW_MODE_2D;
     if ( !width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 520, ASSERT_TYPE_ASSERT, "( ( viewport->width > 0 ) )", "( viewport->width ) = %i", 0) )
       __debugbreak();
+    height = outViewport.height;
     if ( !outViewport.height )
     {
-      LODWORD(v21) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 521, ASSERT_TYPE_ASSERT, "( ( viewport->height > 0 ) )", "( viewport->height ) = %i", v21) )
+      LODWORD(v11) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_utils.cpp", 521, ASSERT_TYPE_ASSERT, "( ( viewport->height > 0 ) )", "( viewport->height ) = %i", v11) )
         __debugbreak();
+      height = outViewport.height;
     }
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmovdqu xmmword ptr [rsp+0D8h+var_78], xmm0
-      vmovss  xmm0, cs:__real@40000000
-      vdivss  xmm1, xmm0, xmm1
-      vmovss  xmm0, cs:__real@c0000000
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vmovss  dword ptr [rsp+0D8h+var_98], xmm1
-      vdivss  xmm1, xmm0, xmm2
-      vmovups xmm2, cs:__xmm@3f800000000000003f800000bf800000
-      vmovups xmmword ptr [rsp+0D8h+var_78+10h], xmm2
-      vmovss  dword ptr [rsp+0D8h+var_98+14h], xmm1
-    }
-    *(__int64 *)((char *)v23.m256i_i64 + 4) = 0i64;
-    *(__int64 *)((char *)&v23.m256i_i64[1] + 4) = 0i64;
-    v23.m256i_i64[3] = 0i64;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    v6 = (float)outViewport.width;
+    *(_OWORD *)v14.m256i_i8 = _XMM0;
+    v7 = (float)height;
+    *(float *)v13.m256i_i32 = 2.0 / v6;
+    *(_OWORD *)&v14.m256i_u64[2] = _xmm;
+    *(float *)&v13.m256i_i32[5] = -2.0 / v7;
+    *(__int64 *)((char *)v13.m256i_i64 + 4) = 0i64;
+    *(__int64 *)((char *)&v13.m256i_i64[1] + 4) = 0i64;
+    v13.m256i_i64[3] = 0i64;
     MatrixIdentity44(&out);
-    MatrixIdentity44(&_RDI->viewParms.viewMatrix.m);
-    __asm
-    {
-      vmovups ymm1, [rsp+0D8h+var_98]
-      vmovups ymm0, [rsp+0D8h+var_78]
-      vmovups ymmword ptr [rdi+2650h], ymm1
-      vmovups ymmword ptr [rdi+2690h], ymm1
-      vmovups ymmword ptr [rdi+2670h], ymm0
-      vmovups ymmword ptr [rdi+26B0h], ymm0
-    }
-    *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.m[0].v = 0i64;
-    *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row0.xyz.z = 0i64;
-    *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.row1.v = 0i64;
-    *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row1.xyz.z = 0i64;
-    *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.row2.v = 0i64;
-    *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row2.xyz.z = 0i64;
-    *(_QWORD *)_RDI->viewParms.inverseViewProjectionMatrix.m.row3.v = 0i64;
-    *(_QWORD *)&_RDI->viewParms.inverseViewProjectionMatrix.m.row3.xyz.z = 0i64;
-    R_MatrixNeedsRefresh(_RDI, 0xA0u);
-    R_MatrixNeedsRefresh(_RDI, 0xA2u);
-    _RAX = R_GetActiveMatrixForEdit(_RDI, 0xAAu);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+0D8h+out]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [rsp+0D8h+out+20h]
-      vmovups ymmword ptr [rax+20h], ymm1
-    }
-    *(_QWORD *)_RDI->eyeOffset.v = 0i64;
-    _RDI->eyeOffset.v[2] = 0.0;
-    *(_QWORD *)(&_RDI->eyeOffset.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RDI->prevFrameEyeOffset.xyz.y = 0i64;
-    _RDI->prevFrameEyeOffset.v[3] = 1.0;
-    _RDI->input.consts[0].v[0] = _RDI->eyeOffset.v[0];
-    _RDI->input.consts[0].v[1] = _RDI->eyeOffset.v[1];
-    _RDI->input.consts[0].v[2] = _RDI->eyeOffset.v[2];
-    _RDI->input.consts[0].v[3] = _RDI->eyeOffset.v[3];
-    ++_RDI->constVersions[0];
-    R_SetPreciseCodeConstantFromVec4(_RDI, 1u, &_RDI->eyeOffset);
-    _RDI->input.consts[11].v[0] = _RDI->prevFrameEyeOffset.v[0];
-    _RDI->input.consts[11].v[1] = _RDI->prevFrameEyeOffset.v[1];
-    _RDI->input.consts[11].v[2] = _RDI->prevFrameEyeOffset.v[2];
-    _RDI->input.consts[11].v[3] = _RDI->prevFrameEyeOffset.v[3];
-    ++_RDI->constVersions[11];
-    R_SetPreciseCodeConstantFromVec4(_RDI, 0xCu, &_RDI->prevFrameEyeOffset);
+    MatrixIdentity44(&source->viewParms.viewMatrix.m);
+    v8 = v13;
+    v9 = v14;
+    *(__m256i *)source->viewParms.projectionMatrix.m.m[0].v = v13;
+    *(__m256i *)source->viewParms.viewProjectionMatrix.m.m[0].v = v8;
+    *(__m256i *)source->viewParms.projectionMatrix.m.row2.v = v9;
+    *(__m256i *)source->viewParms.viewProjectionMatrix.m.row2.v = v9;
+    *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.m[0].v = 0i64;
+    *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row0.xyz.z = 0i64;
+    *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.row1.v = 0i64;
+    *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row1.xyz.z = 0i64;
+    *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.row2.v = 0i64;
+    *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row2.xyz.z = 0i64;
+    *(_QWORD *)source->viewParms.inverseViewProjectionMatrix.m.row3.v = 0i64;
+    *(_QWORD *)&source->viewParms.inverseViewProjectionMatrix.m.row3.xyz.z = 0i64;
+    R_MatrixNeedsRefresh(source, 0xA0u);
+    R_MatrixNeedsRefresh(source, 0xA2u);
+    ActiveMatrixForEdit = R_GetActiveMatrixForEdit(source, 0xAAu);
+    ActiveMatrixForEdit->m = out;
+    *(_QWORD *)source->eyeOffset.v = 0i64;
+    source->eyeOffset.v[2] = 0.0;
+    *(_QWORD *)(&source->eyeOffset.xyz + 1) = 1065353216i64;
+    *(_QWORD *)&source->prevFrameEyeOffset.xyz.y = 0i64;
+    source->prevFrameEyeOffset.v[3] = 1.0;
+    source->input.consts[0].v[0] = source->eyeOffset.v[0];
+    source->input.consts[0].v[1] = source->eyeOffset.v[1];
+    source->input.consts[0].v[2] = source->eyeOffset.v[2];
+    source->input.consts[0].v[3] = source->eyeOffset.v[3];
+    ++source->constVersions[0];
+    R_SetPreciseCodeConstantFromVec4(source, 1u, &source->eyeOffset);
+    source->input.consts[11].v[0] = source->prevFrameEyeOffset.v[0];
+    source->input.consts[11].v[1] = source->prevFrameEyeOffset.v[1];
+    source->input.consts[11].v[2] = source->prevFrameEyeOffset.v[2];
+    source->input.consts[11].v[3] = source->prevFrameEyeOffset.v[3];
+    ++source->constVersions[11];
+    R_SetPreciseCodeConstantFromVec4(source, 0xCu, &source->prevFrameEyeOffset);
   }
 }
 
@@ -1064,35 +927,30 @@ R_Set3D
 */
 void R_Set3D(GfxCmdBufSourceState *source)
 {
+  GfxViewParms *p_viewParms; 
+  GfxViewParms *p_viewParms3D; 
   __int64 v4; 
+  __m256i v5; 
+  vec4_t v6; 
   GfxMatrix *ActiveMatrixForEdit; 
 
   if ( source->viewMode != VIEW_MODE_3D )
   {
-    _RAX = &source->viewParms;
+    p_viewParms = &source->viewParms;
     source->viewMode = VIEW_MODE_3D;
-    _RDX = &source->viewParms3D;
+    p_viewParms3D = &source->viewParms3D;
     v4 = 3i64;
     do
     {
-      _RAX = (GfxViewParms *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx]
-        vmovups xmm1, xmmword ptr [rdx+70h]
-      }
-      _RDX = (GfxViewParms *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rax-80h], ymm0
-        vmovups ymm0, ymmword ptr [rdx-60h]
-        vmovups ymmword ptr [rax-60h], ymm0
-        vmovups ymm0, ymmword ptr [rdx-40h]
-        vmovups ymmword ptr [rax-40h], ymm0
-        vmovups xmm0, xmmword ptr [rdx-20h]
-        vmovups xmmword ptr [rax-20h], xmm0
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
+      p_viewParms = (GfxViewParms *)((char *)p_viewParms + 128);
+      v5 = *(__m256i *)p_viewParms3D->viewMatrix.m.m[0].v;
+      v6 = p_viewParms3D->projectionMatrix.m.m[3];
+      p_viewParms3D = (GfxViewParms *)((char *)p_viewParms3D + 128);
+      *(__m256i *)p_viewParms[-1].camera.origin.v = v5;
+      *(__m256i *)&p_viewParms[-1].camera.axis.row1.z = *(__m256i *)&p_viewParms3D[-1].camera.axis.row1.z;
+      *(__m256i *)p_viewParms[-1].camera.zPlanes = *(__m256i *)p_viewParms3D[-1].camera.zPlanes;
+      *(_OWORD *)&p_viewParms[-1].camera.visibilityQueryDistance = *(_OWORD *)&p_viewParms3D[-1].camera.visibilityQueryDistance;
+      *(vec4_t *)&p_viewParms[-1].cameraMotion = v6;
       --v4;
     }
     while ( v4 );

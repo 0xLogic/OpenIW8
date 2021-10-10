@@ -318,9 +318,8 @@ void BG_TransientsInfilMP_InitTableForMap(const char *mapName)
     __debugbreak();
   if ( s_bgTransientsTableInitLock.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr cs:s_bgTransientsTableInitLock.tempPriority.threadHandle }
   s_bgTransientsTableInitLock.writeThreadId = 0;
-  __asm { vmovups xmmword ptr [rsp+88h+tempPriority.threadHandle], xmm0 }
+  tempPriority = s_bgTransientsTableInitLock.tempPriority;
   if ( ((unsigned __int8)&s_bgTransientsTableInitLock.writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_bgTransientsTableInitLock.writeCount) )
     __debugbreak();
   if ( _InterlockedCompareExchange(&s_bgTransientsTableInitLock.writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )

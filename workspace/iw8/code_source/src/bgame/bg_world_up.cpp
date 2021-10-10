@@ -677,33 +677,21 @@ void WorldUpReferenceFrame::WorldUpReferenceFrame(WorldUpReferenceFrame *this)
 WorldUpReferenceFrame::AddUpContribution
 ==============
 */
-
-void __fastcall WorldUpReferenceFrame::AddUpContribution(WorldUpReferenceFrame *this, double height, vec3_t *vec)
+void WorldUpReferenceFrame::AddUpContribution(WorldUpReferenceFrame *this, float height, vec3_t *vec)
 {
-  __asm { vmovaps xmm2, xmm1 }
+  float v3; 
+
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm2, dword ptr [rcx+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [r8]
-      vmovss  dword ptr [r8], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rcx+20h]
-      vaddss  xmm1, xmm0, dword ptr [r8+4]
-      vmovss  dword ptr [r8+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rcx+24h]
-      vaddss  xmm1, xmm0, dword ptr [r8+8]
-      vmovss  dword ptr [r8+8], xmm1
-    }
+    vec->v[0] = (float)(height * this->m_axis.m[2].v[0]) + vec->v[0];
+    vec->v[1] = (float)(height * this->m_axis.m[2].v[1]) + vec->v[1];
+    v3 = (float)(height * this->m_axis.m[2].v[2]) + vec->v[2];
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm1, dword ptr [r8+8]
-      vmovss  dword ptr [r8+8], xmm0
-    }
+    v3 = height + vec->v[2];
   }
+  vec->v[2] = v3;
 }
 
 /*
@@ -751,83 +739,30 @@ WorldUpReferenceFrame::ApplyReferenceFrameToQuat
 */
 void WorldUpReferenceFrame::ApplyReferenceFrameToQuat(WorldUpReferenceFrame *this, vec4_t *quat)
 {
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
   vec4_t out; 
-  char v61; 
-  void *retaddr; 
+  char v10; 
 
-  _R11 = &retaddr;
-  _RBX = (char *)quat;
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-18h], xmm6
-      vmovaps xmmword ptr [r11-28h], xmm7
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vmovaps xmmword ptr [r11-48h], xmm9
-      vmovaps xmmword ptr [r11-58h], xmm10
-      vmovaps xmmword ptr [r11-68h], xmm11
-      vmovaps xmmword ptr [r11-78h], xmm12
-      vmovaps xmmword ptr [r11-88h], xmm13
-      vmovaps [rsp+108h+var_98], xmm14
-      vmovaps [rsp+108h+var_A8], xmm15
-    }
     AxisToQuat(&this->m_axis, &out);
-    if ( _RBX == &v61 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    if ( quat == (vec4_t *)&v10 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm13, dword ptr [rbx+0Ch]
-      vmovss  xmm14, dword ptr [rbx]
-      vmovss  xmm15, dword ptr [rbx+8]
-      vmovss  xmm12, dword ptr [rbx+4]
-      vmovss  xmm11, dword ptr [rsp+108h+out+0Ch]
-      vmovss  xmm10, dword ptr [rsp+108h+out]
-      vmovss  xmm9, dword ptr [rsp+108h+out+4]
-      vmovss  xmm7, dword ptr [rsp+108h+out+8]
-      vmulss  xmm1, xmm14, xmm11
-      vmulss  xmm0, xmm13, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm15, xmm9
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm12, xmm7
-      vsubss  xmm8, xmm3, xmm0
-      vmulss  xmm2, xmm12, xmm11
-      vmulss  xmm1, xmm15, xmm10
-      vsubss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm13, xmm9
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm1, xmm14, xmm7
-      vaddss  xmm6, xmm4, xmm1
-      vmulss  xmm0, xmm15, xmm11
-      vmulss  xmm2, xmm12, xmm10
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm14, xmm9
-      vsubss  xmm4, xmm3, xmm1
-      vmulss  xmm0, xmm13, xmm7
-      vmulss  xmm1, xmm14, xmm10
-      vmovaps xmm14, [rsp+108h+var_98]
-      vmovaps xmm10, [rsp+108h+var_58]
-      vmulss  xmm2, xmm13, xmm11
-      vmovaps xmm13, [rsp+108h+var_88]
-      vmovaps xmm11, [rsp+108h+var_68]
-      vaddss  xmm5, xmm4, xmm0
-      vsubss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm12, xmm9
-      vmovaps xmm12, [rsp+108h+var_78]
-      vmovaps xmm9, [rsp+108h+var_48]
-      vmulss  xmm1, xmm15, xmm7
-      vmovaps xmm15, [rsp+108h+var_A8]
-      vmovaps xmm7, [rsp+108h+var_28]
-      vsubss  xmm4, xmm3, xmm0
-      vsubss  xmm2, xmm4, xmm1
-      vmovss  dword ptr [rbx], xmm8
-      vmovaps xmm8, [rsp+108h+var_38]
-      vmovss  dword ptr [rbx+4], xmm6
-      vmovaps xmm6, [rsp+108h+var_18]
-      vmovss  dword ptr [rbx+0Ch], xmm2
-      vmovss  dword ptr [rbx+8], xmm5
-    }
+    v3 = quat->v[3];
+    v4 = quat->v[2];
+    v5 = quat->v[1];
+    v6 = (float)((float)((float)(v5 * out.v[3]) - (float)(v4 * out.v[0])) + (float)(v3 * out.v[1])) + (float)(quat->v[0] * out.v[2]);
+    v7 = (float)((float)((float)(v5 * out.v[0]) + (float)(v4 * out.v[3])) - (float)(quat->v[0] * out.v[1])) + (float)(v3 * out.v[2]);
+    v8 = (float)((float)((float)(v3 * out.v[3]) - (float)(quat->v[0] * out.v[0])) - (float)(v5 * out.v[1])) - (float)(v4 * out.v[2]);
+    quat->v[0] = (float)((float)((float)(quat->v[0] * out.v[3]) + (float)(v3 * out.v[0])) + (float)(v4 * out.v[1])) - (float)(v5 * out.v[2]);
+    quat->v[1] = v6;
+    quat->v[3] = v8;
+    quat->v[2] = v7;
   }
 }
 
@@ -838,21 +773,16 @@ WorldUpReferenceFrame::ApplyReferenceFrameToVector
 */
 void WorldUpReferenceFrame::ApplyReferenceFrameToVector(WorldUpReferenceFrame *this, vec3_t *vec)
 {
+  float v3; 
   vec3_t out; 
 
-  _RBX = vec;
   if ( this->m_axisAdjusted )
   {
     MatrixTransformVector(vec, &this->m_axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+48h+out]
-      vmovss  xmm1, dword ptr [rsp+48h+out+4]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+48h+out+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    v3 = out.v[1];
+    vec->v[0] = out.v[0];
+    vec->v[2] = out.v[2];
+    vec->v[1] = v3;
   }
 }
 
@@ -873,8 +803,6 @@ WorldUpReferenceFrame::CalculateEntMoverAxis
 */
 void WorldUpReferenceFrame::CalculateEntMoverAxis(WorldUpReferenceFrame *this, const playerState_s *ps, const BgHandler *handler, tmat33_t<vec3_t> *outAxis)
 {
-  char v8; 
-  char v13; 
   vec3_t angles; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
@@ -883,56 +811,14 @@ void WorldUpReferenceFrame::CalculateEntMoverAxis(WorldUpReferenceFrame *this, c
   if ( WorldUpReferenceFrame::IsTrackingMover(ps) )
   {
     handler->GetEntityAngles((BgHandler *)handler, ps->movingPlatforms.m_movingPlatformEntity, &angles);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+angles]
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( !v8 )
-      goto LABEL_5;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+angles+4]
-      vucomiss xmm0, xmm1
-    }
-    if ( !v8 )
-      goto LABEL_5;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+angles+8]
-      vucomiss xmm0, xmm1
-    }
-    if ( !v8 )
-LABEL_5:
+    if ( angles.v[0] != 0.0 || angles.v[1] != 0.0 || angles.v[2] != 0.0 )
       AnglesToAxis(&angles, outAxis);
   }
   else if ( WorldUpReferenceFrame::HasValidWorldUpEnt(ps) )
   {
     handler->GetEntityAngles((BgHandler *)handler, ps->worldUpRefEnt, &angles);
-    __asm
+    if ( angles.v[0] != 0.0 || angles.v[1] != 0.0 || angles.v[2] != 0.0 )
     {
-      vmovss  xmm0, dword ptr [rsp+0A8h+angles]
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( !v13 )
-      goto LABEL_10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+angles+4]
-      vucomiss xmm0, xmm1
-    }
-    if ( !v13 )
-      goto LABEL_10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+angles+8]
-      vucomiss xmm0, xmm1
-    }
-    if ( !v13 )
-    {
-LABEL_10:
       AnglesToAxis(&angles, &axis);
       AxisCopy(outAxis, &out);
       MatrixMultiply(&axis, &out, outAxis);
@@ -968,16 +854,55 @@ WorldUpReferenceFramePM::CalculateNormalForGroundUpdate
 */
 char WorldUpReferenceFramePM::CalculateNormalForGroundUpdate(WorldUpReferenceFramePM *this, pmove_t *pm, vec3_t *outNormal)
 {
-  int v15; 
-  char v16; 
-  char v19; 
-  unsigned int v20; 
-  unsigned int v28; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  int v11; 
+  char v12; 
+  playerState_s *ps; 
+  char v15; 
+  unsigned int v16; 
+  float v17; 
+  float v18; 
+  unsigned int v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   bool m_axisAdjusted; 
-  char v64; 
-  bool v65; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  __int128 v39; 
+  float v40; 
+  __int128 v41; 
+  float v45; 
+  float v46; 
+  float v47; 
   const BgHandler *m_bgHandler; 
-  bool v103; 
+  bool v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
   bool outHadValidTriggerData; 
   bool WorldUpTriggerData; 
   vec3_t start; 
@@ -985,16 +910,20 @@ char WorldUpReferenceFramePM::CalculateNormalForGroundUpdate(WorldUpReferenceFra
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   trace_t results; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
 
-  _RDI = outNormal;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 846, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  v15 = 0;
-  _RDI->v[2] = 1.0;
-  *(_QWORD *)_RDI->v = 0i64;
+  v11 = 0;
+  outNormal->v[2] = 1.0;
+  *(_QWORD *)outNormal->v = 0i64;
   outHadValidTriggerData = 0;
-  WorldUpTriggerData = WorldUpReferenceFramePM::GetWorldUpTriggerData(this, pm, _RDI, &outHadValidTriggerData);
-  v16 = WorldUpTriggerData;
+  WorldUpTriggerData = WorldUpReferenceFramePM::GetWorldUpTriggerData(this, pm, outNormal, &outHadValidTriggerData);
+  v12 = WorldUpTriggerData;
   if ( !WorldUpTriggerData )
   {
     if ( !pm->refFrame.m_axisAdjusted )
@@ -1004,355 +933,196 @@ char WorldUpReferenceFramePM::CalculateNormalForGroundUpdate(WorldUpReferenceFra
   if ( !outHadValidTriggerData )
   {
 LABEL_6:
-    _RSI = pm->ps;
+    ps = pm->ps;
     if ( WorldUpTriggerData || BG_IsPlayerZeroG(pm->ps) )
     {
-      v19 = 0;
-      __asm
-      {
-        vmovaps [rsp+1C0h+var_40], xmm6
-        vmovaps [rsp+1C0h+var_70], xmm9
-        vmovaps [rsp+1C0h+var_80], xmm10
-        vmovaps [rsp+1C0h+var_90], xmm11
-        vmovaps [rsp+1C0h+var_A0], xmm12
-        vmovaps [rsp+1C0h+var_B0], xmm13
-      }
+      v15 = 0;
+      v70 = v3;
+      v67 = v6;
+      v66 = v7;
       if ( worldUpDrawTraces )
       {
-        v19 = 1;
+        v15 = 1;
         worldUpDrawTraces = 0;
       }
-      v20 = WORLD_UP_GROUND_SOLVER_RAY_COUNT;
+      v16 = WORLD_UP_GROUND_SOLVER_RAY_COUNT;
       if ( !WORLD_UP_GROUND_SOLVER_RAY_COUNT )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 898, ASSERT_TYPE_ASSERT, "(WORLD_UP_GROUND_SOLVER_RAY_COUNT > 0)", (const char *)&queryFormat, "WORLD_UP_GROUND_SOLVER_RAY_COUNT > 0") )
           __debugbreak();
-        v20 = WORLD_UP_GROUND_SOLVER_RAY_COUNT;
+        v16 = WORLD_UP_GROUND_SOLVER_RAY_COUNT;
       }
-      __asm
+      v17 = WORLD_UP_GROUND_SOLVER_RAY_START_SCALE * ps->viewHeightCurrent;
+      v18 = 0.0;
+      if ( (int)(v16 - 1) > 0 )
+        v18 = 360.0 / (float)(int)(v16 - 1);
+      v19 = 0;
+      if ( v16 )
       {
-        vmovss  xmm0, cs:WORLD_UP_GROUND_SOLVER_RAY_START_SCALE
-        vmulss  xmm9, xmm0, dword ptr [rsi+1E8h]
-        vxorps  xmm10, xmm10, xmm10
-        vxorps  xmm12, xmm12, xmm12
-      }
-      if ( (int)(v20 - 1) > 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@43b40000
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ecx
-          vdivss  xmm12, xmm0, xmm1
-        }
-      }
-      v28 = 0;
-      __asm
-      {
-        vmovss  xmm11, cs:__real@3f800000
-        vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-      }
-      if ( v20 )
-      {
-        __asm
-        {
-          vmovaps [rsp+1C0h+var_50], xmm7
-          vmovaps [rsp+1C0h+var_60], xmm8
-        }
+        v69 = v4;
+        v68 = v5;
         do
         {
-          __asm
+          LODWORD(v20) = LODWORD(WORLD_UP_GROUND_SOLVER_RAY_LENGTH) ^ _xmm;
+          v21 = 0.0;
+          v22 = 0.0;
+          if ( v19 )
           {
-            vmovss  xmm0, cs:WORLD_UP_GROUND_SOLVER_RAY_LENGTH
-            vxorps  xmm6, xmm0, xmm13
-            vmovaps xmm7, xmm10
-            vmovaps xmm8, xmm10
-          }
-          if ( v28 )
-          {
-            __asm
-            {
-              vmovss  xmm0, cs:WORLD_UP_GROUND_SOLVER_RAY_CONE_ANGLE
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, rax
-              vmovss  dword ptr [rsp+1C0h+angles], xmm0
-              vmulss  xmm0, xmm1, xmm12
-              vmovss  dword ptr [rsp+1C0h+angles+4], xmm0
-              vmovss  dword ptr [rsp+1C0h+angles+8], xmm10
-            }
+            v23 = (float)v19;
+            angles.v[0] = WORLD_UP_GROUND_SOLVER_RAY_CONE_ANGLE;
+            angles.v[1] = v23 * v18;
+            angles.v[2] = 0.0;
             AnglesToAxis(&angles, &axis);
-            __asm
-            {
-              vmulss  xmm7, xmm6, dword ptr [rbp+0C0h+axis+18h]
-              vmulss  xmm8, xmm6, dword ptr [rbp+0C0h+axis+1Ch]
-              vmulss  xmm6, xmm6, dword ptr [rbp+0C0h+axis+20h]
-            }
+            v21 = v20 * axis.m[2].v[0];
+            v22 = v20 * axis.m[2].v[1];
+            v20 = v20 * axis.m[2].v[2];
           }
           m_axisAdjusted = pm->refFrame.m_axisAdjusted;
           if ( m_axisAdjusted )
           {
-            __asm
-            {
-              vmulss  xmm1, xmm8, dword ptr [rbx+364h]
-              vmulss  xmm0, xmm7, dword ptr [rbx+358h]
-              vmulss  xmm3, xmm7, dword ptr [rbx+35Ch]
-              vmulss  xmm4, xmm7, dword ptr [rbx+360h]
-              vmulss  xmm5, xmm8, dword ptr [rbx+36Ch]
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm6, dword ptr [rbx+370h]
-              vmulss  xmm0, xmm8, dword ptr [rbx+368h]
-              vaddss  xmm7, xmm2, xmm1
-              vmulss  xmm1, xmm6, dword ptr [rbx+374h]
-              vaddss  xmm2, xmm0, xmm3
-              vaddss  xmm8, xmm2, xmm1
-              vmulss  xmm2, xmm6, dword ptr [rbx+378h]
-              vaddss  xmm0, xmm5, xmm4
-              vaddss  xmm6, xmm2, xmm0
-            }
+            v25 = v21 * pm->refFrame.m_axis.m[0].v[1];
+            v26 = v21 * pm->refFrame.m_axis.m[0].v[2];
+            v27 = v22 * pm->refFrame.m_axis.m[1].v[2];
+            v21 = (float)((float)(v22 * pm->refFrame.m_axis.m[1].v[0]) + (float)(v21 * pm->refFrame.m_axis.m[0].v[0])) + (float)(v20 * pm->refFrame.m_axis.m[2].v[0]);
+            v22 = (float)((float)(v22 * pm->refFrame.m_axis.m[1].v[1]) + v25) + (float)(v20 * pm->refFrame.m_axis.m[2].v[1]);
+            v20 = (float)(v20 * pm->refFrame.m_axis.m[2].v[2]) + (float)(v27 + v26);
           }
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+30h]
-            vmovss  xmm2, dword ptr [rsi+34h]
-            vmovss  xmm3, dword ptr [rsi+38h]
-            vmovss  dword ptr [rsp+1C0h+start], xmm1
-            vmovss  dword ptr [rsp+1C0h+start+4], xmm2
-          }
+          v28 = ps->origin.v[0];
+          v29 = ps->origin.v[1];
+          v30 = ps->origin.v[2];
+          start.v[0] = v28;
+          start.v[1] = v29;
           if ( m_axisAdjusted )
           {
-            __asm
-            {
-              vmulss  xmm0, xmm9, dword ptr [rbx+370h]
-              vaddss  xmm1, xmm0, xmm1
-              vmulss  xmm0, xmm9, dword ptr [rbx+374h]
-              vaddss  xmm2, xmm0, xmm2
-              vmulss  xmm0, xmm9, dword ptr [rbx+378h]
-              vaddss  xmm3, xmm0, xmm3
-              vmovss  dword ptr [rsp+1C0h+start], xmm1
-              vmovss  dword ptr [rsp+1C0h+start+4], xmm2
-            }
+            v28 = (float)(v17 * pm->refFrame.m_axis.m[2].v[0]) + v28;
+            v29 = (float)(v17 * pm->refFrame.m_axis.m[2].v[1]) + v29;
+            v31 = (float)(v17 * pm->refFrame.m_axis.m[2].v[2]) + v30;
+            start.v[0] = v28;
+            start.v[1] = v29;
           }
           else
           {
-            __asm { vaddss  xmm3, xmm3, xmm9 }
+            v31 = v30 + v17;
           }
-          __asm
-          {
-            vaddss  xmm0, xmm1, xmm7
-            vmovss  dword ptr [rsp+1C0h+end], xmm0
-            vaddss  xmm0, xmm6, xmm3
-            vaddss  xmm1, xmm2, xmm8
-            vmovss  dword ptr [rsp+1C0h+end+8], xmm0
-            vmovss  dword ptr [rsp+1C0h+start+8], xmm3
-            vmovss  dword ptr [rsp+1C0h+end+4], xmm1
-          }
-          if ( v19 )
+          end.v[0] = v28 + v21;
+          end.v[2] = v20 + v31;
+          start.v[2] = v31;
+          end.v[1] = v29 + v22;
+          if ( v15 )
             pm->m_bgHandler->DebugLine((BgHandler *)pm->m_bgHandler, &start, &end, &colorRed, 1, 10000);
-          BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &end, &bounds_origin, _RSI->clientNum, pm->tracemask);
-          __asm
+          BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &end, &bounds_origin, ps->clientNum, pm->tracemask);
+          if ( results.fraction < 1.0 )
           {
-            vmovss  xmm0, [rbp+0C0h+results.fraction]
-            vcomiss xmm0, xmm11
-          }
-          if ( v64 )
-          {
-            v64 = 0;
-            v65 = !pm->refFrame.m_axisAdjusted;
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbp+0C0h+results.normal+8]
-              vmovss  xmm6, dword ptr [rbp+0C0h+results.normal]
-              vmovss  xmm7, dword ptr [rbp+0C0h+results.normal+4]
-              vmovaps xmm8, xmm2
-            }
+            v32 = results.normal.v[2];
+            v33 = results.normal.v[0];
+            v34 = results.normal.v[1];
+            v35 = results.normal.v[2];
             if ( pm->refFrame.m_axisAdjusted )
             {
               MatrixTranspose(&pm->refFrame.m_axis, &axis);
-              __asm
-              {
-                vmulss  xmm1, xmm6, dword ptr [rbp+0C0h+axis+8]
-                vmulss  xmm0, xmm7, dword ptr [rbp+0C0h+axis+14h]
-                vmovss  xmm7, dword ptr [rbp+0C0h+results.normal+4]
-                vmovss  xmm6, dword ptr [rbp+0C0h+results.normal]
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm8, dword ptr [rbp+0C0h+axis+20h]
-                vaddss  xmm8, xmm2, xmm1
-                vmovss  xmm2, dword ptr [rbp+0C0h+results.normal+8]
-              }
+              v36 = v33 * axis.m[0].v[2];
+              v37 = v34 * axis.m[1].v[2];
+              v34 = results.normal.v[1];
+              v33 = results.normal.v[0];
+              v35 = (float)(v36 + v37) + (float)(v35 * axis.m[2].v[2]);
+              v32 = results.normal.v[2];
             }
-            __asm { vcomiss xmm8, cs:WORLD_UP_GROUND_SOLVER_RAY_WALL_NORMAL }
-            if ( !(v64 | v65) )
+            if ( v35 > WORLD_UP_GROUND_SOLVER_RAY_WALL_NORMAL )
             {
-              if ( v15 )
+              if ( v11 )
               {
-                __asm
-                {
-                  vaddss  xmm0, xmm6, dword ptr [rdi]
-                  vaddss  xmm1, xmm7, dword ptr [rdi+4]
-                  vmovss  dword ptr [rdi], xmm0
-                  vaddss  xmm0, xmm2, dword ptr [rdi+8]
-                  vmovss  dword ptr [rdi+8], xmm0
-                  vmovss  dword ptr [rdi+4], xmm1
-                }
+                v38 = v34 + outNormal->v[1];
+                outNormal->v[0] = v33 + outNormal->v[0];
+                outNormal->v[2] = v32 + outNormal->v[2];
+                outNormal->v[1] = v38;
               }
               else
               {
-                __asm
-                {
-                  vmovss  dword ptr [rdi], xmm6
-                  vmovss  dword ptr [rdi+4], xmm7
-                  vmovss  dword ptr [rdi+8], xmm2
-                }
+                outNormal->v[0] = v33;
+                outNormal->v[1] = v34;
+                outNormal->v[2] = v32;
               }
-              ++v15;
+              ++v11;
             }
           }
-          ++v28;
+          ++v19;
         }
-        while ( v28 < WORLD_UP_GROUND_SOLVER_RAY_COUNT );
-        v16 = WorldUpTriggerData;
-        __asm
-        {
-          vmovaps xmm8, [rsp+1C0h+var_60]
-          vmovaps xmm7, [rsp+1C0h+var_50]
-        }
+        while ( v19 < WORLD_UP_GROUND_SOLVER_RAY_COUNT );
+        v12 = WorldUpTriggerData;
       }
+      v39 = LODWORD(outNormal->v[1]);
+      v40 = outNormal->v[2];
+      v41 = v39;
+      *(float *)&v41 = fsqrt((float)((float)(*(float *)&v39 * *(float *)&v39) + (float)(outNormal->v[0] * outNormal->v[0])) + (float)(v40 * v40));
+      _XMM3 = v41;
       __asm
       {
-        vmovss  xmm5, dword ptr [rdi+4]
-        vmovss  xmm4, dword ptr [rdi]
-        vmovss  xmm6, dword ptr [rdi+8]
-        vmovaps xmm12, [rsp+1C0h+var_A0]
-        vmovaps xmm10, [rsp+1C0h+var_80]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm11, xmm0
-        vdivss  xmm1, xmm11, xmm0
-        vmulss  xmm2, xmm4, xmm1
-        vmulss  xmm4, xmm5, xmm1
-        vmulss  xmm5, xmm6, xmm1
-        vmovaps xmm6, [rsp+1C0h+var_40]
-        vmovss  dword ptr [rdi+8], xmm5
-        vmovss  dword ptr [rdi], xmm2
-        vmovss  dword ptr [rdi+4], xmm4
       }
-      if ( v19 )
+      v45 = outNormal->v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v46 = *(float *)&v39 * (float)(1.0 / *(float *)&_XMM0);
+      v47 = v40 * (float)(1.0 / *(float *)&_XMM0);
+      outNormal->v[2] = v47;
+      outNormal->v[0] = v45;
+      outNormal->v[1] = v46;
+      if ( v15 )
       {
-        __asm { vmovss  xmm3, cs:__real@43960000 }
         m_bgHandler = pm->m_bgHandler;
-        __asm
-        {
-          vmulss  xmm0, xmm2, xmm3
-          vaddss  xmm1, xmm0, dword ptr [rdx]
-          vmovss  dword ptr [rsp+1C0h+angles], xmm1
-          vmulss  xmm2, xmm4, xmm3
-          vaddss  xmm0, xmm2, dword ptr [rdx+4]
-          vmovss  dword ptr [rsp+1C0h+angles+4], xmm0
-          vmulss  xmm1, xmm5, xmm3
-          vaddss  xmm0, xmm1, dword ptr [rdx+8]
-          vmovss  dword ptr [rsp+1C0h+angles+8], xmm0
-        }
-        m_bgHandler->DebugLine((BgHandler *)m_bgHandler, &_RSI->origin, &angles, &colorWhite, 1, 10000);
+        angles.v[0] = (float)(v45 * 300.0) + ps->origin.v[0];
+        angles.v[1] = (float)(v46 * 300.0) + ps->origin.v[1];
+        angles.v[2] = (float)(v47 * 300.0) + ps->origin.v[2];
+        m_bgHandler->DebugLine((BgHandler *)m_bgHandler, &ps->origin, &angles, &colorWhite, 1, 10000);
       }
-      if ( !BG_IsPlayerZeroG(_RSI) && !v15 && v16 )
+      if ( !BG_IsPlayerZeroG(ps) && !v11 && v12 )
       {
-        v103 = pm->refFrame.m_axisAdjusted;
-        __asm
+        v49 = pm->refFrame.m_axisAdjusted;
+        v50 = ps->origin.v[0];
+        v51 = ps->origin.v[1];
+        v52 = ps->origin.v[2];
+        end.v[0] = v50;
+        end.v[1] = v51;
+        if ( v49 )
         {
-          vmovss  xmm4, dword ptr [rsi+30h]
-          vmovss  xmm5, dword ptr [rsi+34h]
-          vmovss  xmm3, dword ptr [rsi+38h]
-          vmovss  dword ptr [rsp+1C0h+end], xmm4
-          vmovss  dword ptr [rsp+1C0h+end+4], xmm5
-        }
-        if ( v103 )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm9, dword ptr [rbx+370h]
-            vaddss  xmm1, xmm0, xmm4
-            vmulss  xmm0, xmm9, dword ptr [rbx+374h]
-            vmovss  dword ptr [rsp+1C0h+end], xmm1
-            vaddss  xmm1, xmm0, xmm5
-            vmulss  xmm0, xmm9, dword ptr [rbx+378h]
-            vmovss  dword ptr [rsp+1C0h+end+4], xmm1
-            vaddss  xmm1, xmm0, xmm3
-            vmovss  dword ptr [rsp+1C0h+end+8], xmm1
-          }
+          v53 = v17 * pm->refFrame.m_axis.m[2].v[1];
+          end.v[0] = (float)(v17 * pm->refFrame.m_axis.m[2].v[0]) + v50;
+          v54 = v17 * pm->refFrame.m_axis.m[2].v[2];
+          end.v[1] = v53 + v51;
+          end.v[2] = v54 + v52;
         }
         else
         {
-          __asm
-          {
-            vaddss  xmm0, xmm3, xmm9
-            vmovss  dword ptr [rsp+1C0h+end+8], xmm0
-          }
+          end.v[2] = v52 + v17;
         }
-        __asm
+        LODWORD(v55) = LODWORD(ARBITRARY_UP_GROUND_TRACE_HEIGHT) ^ _xmm;
+        start.v[0] = v50;
+        start.v[1] = v51;
+        if ( v49 )
         {
-          vmovss  xmm0, cs:ARBITRARY_UP_GROUND_TRACE_HEIGHT
-          vxorps  xmm2, xmm0, xmm13
-          vmovss  dword ptr [rsp+1C0h+start], xmm4
-          vmovss  dword ptr [rsp+1C0h+start+4], xmm5
-        }
-        if ( v103 )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm2, dword ptr [rbx+370h]
-            vaddss  xmm1, xmm0, xmm4
-            vmulss  xmm0, xmm2, dword ptr [rbx+374h]
-            vmovss  dword ptr [rsp+1C0h+start], xmm1
-            vaddss  xmm1, xmm0, xmm5
-            vmulss  xmm0, xmm2, dword ptr [rbx+378h]
-            vmovss  dword ptr [rsp+1C0h+start+4], xmm1
-            vaddss  xmm1, xmm0, xmm3
-            vmovss  dword ptr [rsp+1C0h+start+8], xmm1
-          }
+          v56 = v55 * pm->refFrame.m_axis.m[2].v[1];
+          start.v[0] = (float)(v55 * pm->refFrame.m_axis.m[2].v[0]) + v50;
+          v57 = v55 * pm->refFrame.m_axis.m[2].v[2];
+          start.v[1] = v56 + v51;
+          start.v[2] = v57 + v52;
         }
         else
         {
-          __asm
-          {
-            vaddss  xmm0, xmm3, xmm2
-            vmovss  dword ptr [rsp+1C0h+start+8], xmm0
-          }
+          start.v[2] = v52 + v55;
         }
-        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &end, &start, &bounds_origin, _RSI->clientNum, pm->tracemask);
-        __asm
+        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &end, &start, &bounds_origin, ps->clientNum, pm->tracemask);
+        if ( results.fraction < 1.0 )
         {
-          vmovss  xmm0, [rbp+0C0h+results.fraction]
-          vcomiss xmm0, xmm11
+          v58 = results.normal.v[1];
+          outNormal->v[0] = results.normal.v[0];
+          outNormal->v[2] = results.normal.v[2];
+          outNormal->v[1] = v58;
         }
-        if ( v64 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+0C0h+results.normal]
-            vmovss  xmm1, dword ptr [rbp+0C0h+results.normal+4]
-            vmovss  dword ptr [rdi], xmm0
-            vmovss  xmm0, dword ptr [rbp+0C0h+results.normal+8]
-            vmovss  dword ptr [rdi+8], xmm0
-            vmovss  dword ptr [rdi+4], xmm1
-          }
-        }
-      }
-      __asm
-      {
-        vmovaps xmm11, [rsp+1C0h+var_90]
-        vmovaps xmm9, [rsp+1C0h+var_70]
-        vmovaps xmm13, [rsp+1C0h+var_B0]
       }
     }
     else
     {
-      *(_QWORD *)_RDI->v = 0i64;
-      _RDI->v[2] = 1.0;
+      *(_QWORD *)outNormal->v = 0i64;
+      outNormal->v[2] = 1.0;
     }
   }
   return 1;
@@ -1413,21 +1183,9 @@ WorldUpReferenceFrame::GetAngles
 void WorldUpReferenceFrame::GetAngles(WorldUpReferenceFrame *this, vec3_t *outAngles)
 {
   if ( this->m_axisAdjusted )
-  {
     AxisToAngles(&this->m_axis, outAngles);
-  }
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [rdx], xmm0
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  dword ptr [rdx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-      vmovss  dword ptr [rdx+8], xmm0
-    }
-  }
+    *outAngles = vec3_origin;
 }
 
 /*
@@ -1447,56 +1205,46 @@ WorldUpReferenceFrame::GetEyePosition
 */
 float WorldUpReferenceFrame::GetEyePosition(WorldUpReferenceFrame *this, const playerState_s *ps, const BgWeaponMap *weaponMap, const BgHandler *handler, vec3_t *outEye)
 {
-  _RBX = outEye;
-  _RSI = ps;
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float result; 
+  float v17; 
+  float v18; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 341, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 342, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  BG_GetPlayerEyePosition(weaponMap, _RSI, outEye, handler);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rsi+38h]
-    vmovss  xmm5, dword ptr [rsi+30h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+8]
-    vsubss  xmm2, xmm5, dword ptr [rbx]
-    vmulss  xmm0, xmm4, xmm4
-    vmovss  dword ptr [rbx], xmm5
-    vmovss  xmm4, dword ptr [rsi+34h]
-    vmulss  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rbx+4], xmm4
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm3, dword ptr [rsi+38h]
-    vmovss  dword ptr [rbx+8], xmm3
-    vsqrtss xmm0, xmm2, xmm2
-  }
+  BG_GetPlayerEyePosition(weaponMap, ps, outEye, handler);
+  v9 = ps->origin.v[1] - outEye->v[1];
+  v10 = ps->origin.v[0];
+  v11 = ps->origin.v[2] - outEye->v[2];
+  v12 = v10 - outEye->v[0];
+  v13 = v11 * v11;
+  outEye->v[0] = v10;
+  v14 = ps->origin.v[1];
+  outEye->v[1] = v14;
+  v15 = ps->origin.v[2];
+  outEye->v[2] = v15;
+  v17 = fsqrt((float)((float)(v12 * v12) + (float)(v9 * v9)) + v13);
+  result = v17;
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmulss  xmm1, xmm0, dword ptr [rdi+1Ch]
-      vaddss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rbx], xmm2
-      vmulss  xmm1, xmm0, dword ptr [rdi+20h]
-      vaddss  xmm2, xmm1, xmm4
-      vmovss  dword ptr [rbx+4], xmm2
-      vmulss  xmm1, xmm0, dword ptr [rdi+24h]
-    }
+    outEye->v[0] = (float)(v17 * this->m_axis.m[2].v[0]) + v10;
+    outEye->v[1] = (float)(v17 * this->m_axis.m[2].v[1]) + v14;
+    v18 = v17 * this->m_axis.m[2].v[2];
   }
   else
   {
-    __asm { vmovaps xmm1, xmm0 }
+    v18 = v17;
   }
-  __asm
-  {
-    vaddss  xmm1, xmm3, xmm1
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  return *(float *)&_XMM0;
+  outEye->v[2] = v15 + v18;
+  return result;
 }
 
 /*
@@ -1507,24 +1255,9 @@ WorldUpReferenceFrame::GetForwardContribution
 float WorldUpReferenceFrame::GetForwardContribution(WorldUpReferenceFrame *this, const vec3_t *vec)
 {
   if ( this->m_axisAdjusted )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+8]
-      vmulss  xmm3, xmm0, dword ptr [rdx+4]
-      vmovss  xmm1, dword ptr [rcx+4]
-      vmovss  xmm0, dword ptr [rcx+0Ch]
-      vmulss  xmm2, xmm1, dword ptr [rdx]
-      vmulss  xmm1, xmm0, dword ptr [rdx+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, xmm1
-    }
-  }
+    return (float)((float)(this->m_axis.m[0].v[1] * vec->v[1]) + (float)(this->m_axis.m[0].v[0] * vec->v[0])) + (float)(this->m_axis.m[0].v[2] * vec->v[2]);
   else
-  {
-    __asm { vmovss  xmm0, dword ptr [rdx] }
-  }
-  return *(float *)&_XMM0;
+    return vec->v[0];
 }
 
 /*
@@ -1534,87 +1267,46 @@ WorldUpReferenceFrame::GetHorizontalDistance
 */
 float WorldUpReferenceFrame::GetHorizontalDistance(WorldUpReferenceFrame *this, const vec3_t *vecA, const vec3_t *vecB)
 {
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdx+8]
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovaps [rsp+98h+var_58], xmm10
-    vmovss  xmm10, dword ptr [rdx]
-    vmovaps [rsp+98h+var_68], xmm11
-    vmovss  xmm11, dword ptr [rdx+4]
-    vmovaps [rsp+98h+var_78], xmm12
-    vmovss  xmm12, dword ptr [r8]
-    vmovaps [rsp+98h+var_88], xmm13
-    vmovss  xmm13, dword ptr [r8+4]
-    vmovaps [rsp+98h+var_98], xmm14
-    vmovss  xmm14, dword ptr [r8+8]
-  }
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+
+  v3 = vecA->v[2];
+  v4 = vecA->v[0];
+  v5 = vecA->v[1];
+  v6 = vecB->v[0];
+  v7 = vecB->v[1];
+  v8 = vecB->v[2];
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rcx+1Ch]
-      vmovaps [rsp+98h+var_28], xmm7
-      vmovss  xmm7, dword ptr [rcx+24h]
-      vmovaps [rsp+98h+var_38], xmm8
-      vmovss  xmm8, dword ptr [rcx+20h]
-      vmulss  xmm1, xmm8, xmm11
-      vmulss  xmm0, xmm6, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm1, xmm8, xmm2
-      vaddss  xmm10, xmm0, xmm10
-      vmulss  xmm0, xmm7, xmm2
-      vmulss  xmm2, xmm13, xmm8
-      vaddss  xmm9, xmm0, xmm4
-      vaddss  xmm11, xmm1, xmm11
-      vmulss  xmm1, xmm6, xmm12
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm14, xmm7
-      vaddss  xmm4, xmm3, xmm0
-      vxorps  xmm2, xmm4, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, xmm2
-      vmovaps xmm6, [rsp+98h+var_18]
-      vmulss  xmm1, xmm2, xmm8
-      vmovaps xmm8, [rsp+98h+var_38]
-      vaddss  xmm12, xmm0, xmm12
-      vmulss  xmm0, xmm2, xmm7
-      vmovaps xmm7, [rsp+98h+var_28]
-      vaddss  xmm13, xmm1, xmm13
-      vaddss  xmm1, xmm0, xmm14
-    }
+    v11 = this->m_axis.m[2].v[0];
+    v12 = this->m_axis.m[2].v[2];
+    v13 = this->m_axis.m[2].v[1];
+    LODWORD(v14) = COERCE_UNSIGNED_INT((float)((float)(v13 * v5) + (float)(v11 * v4)) + (float)(v12 * v3)) ^ _xmm;
+    v4 = (float)(v11 * v14) + v4;
+    v9 = (float)(v12 * v14) + v3;
+    v5 = (float)(v13 * v14) + v5;
+    LODWORD(v15) = COERCE_UNSIGNED_INT((float)((float)(v7 * v13) + (float)(v11 * v6)) + (float)(v8 * v12)) ^ _xmm;
+    v6 = (float)(v11 * v15) + v6;
+    v7 = (float)(v15 * v13) + v7;
+    v10 = (float)(v15 * v12) + v8;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm1, xmm1, xmm1
-    }
+    v9 = 0.0;
+    v10 = 0.0;
   }
-  __asm
-  {
-    vmovaps xmm14, [rsp+98h+var_98]
-    vsubss  xmm0, xmm13, xmm11
-    vmovaps xmm11, [rsp+98h+var_68]
-    vmovaps xmm13, [rsp+98h+var_88]
-    vsubss  xmm2, xmm12, xmm10
-    vmovaps xmm10, [rsp+98h+var_58]
-    vmovaps xmm12, [rsp+98h+var_78]
-    vsubss  xmm3, xmm1, xmm9
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-  }
-  return *(float *)&_XMM0;
+  return fsqrt((float)((float)((float)(v7 - v5) * (float)(v7 - v5)) + (float)((float)(v6 - v4) * (float)(v6 - v4))) + (float)((float)(v10 - v9) * (float)(v10 - v9)));
 }
 
 /*
@@ -1624,83 +1316,44 @@ WorldUpReferenceFrame::GetHorizontalDistanceSq
 */
 float WorldUpReferenceFrame::GetHorizontalDistanceSq(WorldUpReferenceFrame *this, const vec3_t *vecA, const vec3_t *vecB)
 {
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdx+8]
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps [rsp+88h+var_58], xmm10
-    vmovss  xmm10, dword ptr [rdx]
-    vmovaps [rsp+88h+var_68], xmm11
-    vmovss  xmm11, dword ptr [rdx+4]
-    vmovaps [rsp+88h+var_78], xmm12
-    vmovss  xmm12, dword ptr [r8]
-    vmovaps [rsp+88h+var_88], xmm13
-    vmovss  xmm13, dword ptr [r8+4]
-  }
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+
+  v3 = vecA->v[2];
+  v4 = vecA->v[0];
+  v5 = vecA->v[1];
+  v6 = vecB->v[0];
+  v7 = vecB->v[1];
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rcx+1Ch]
-      vmovaps [rsp+88h+var_28], xmm7
-      vmovss  xmm7, dword ptr [rcx+24h]
-      vmovaps [rsp+88h+var_38], xmm8
-      vmovss  xmm8, dword ptr [rcx+20h]
-      vmulss  xmm1, xmm8, xmm11
-      vmulss  xmm0, xmm6, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm1, xmm8, xmm2
-      vaddss  xmm10, xmm0, xmm10
-      vmulss  xmm0, xmm7, xmm2
-      vmulss  xmm2, xmm12, xmm6
-      vaddss  xmm9, xmm0, xmm4
-      vmulss  xmm0, xmm7, dword ptr [r8+8]
-      vaddss  xmm11, xmm1, xmm11
-      vmulss  xmm1, xmm8, xmm13
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm4, xmm3, xmm0
-      vxorps  xmm2, xmm4, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, xmm2
-      vmovaps xmm6, [rsp+88h+var_18]
-      vmulss  xmm1, xmm2, xmm8
-      vmovaps xmm8, [rsp+88h+var_38]
-      vaddss  xmm12, xmm0, xmm12
-      vmulss  xmm0, xmm2, xmm7
-      vmovaps xmm7, [rsp+88h+var_28]
-      vaddss  xmm13, xmm1, xmm13
-      vaddss  xmm1, xmm0, dword ptr [r8+8]
-    }
+    v10 = this->m_axis.m[2].v[0];
+    v11 = this->m_axis.m[2].v[2];
+    v12 = this->m_axis.m[2].v[1];
+    LODWORD(v13) = COERCE_UNSIGNED_INT((float)((float)(v12 * v5) + (float)(v10 * v4)) + (float)(v11 * v3)) ^ _xmm;
+    v4 = (float)(v10 * v13) + v4;
+    v8 = (float)(v11 * v13) + v3;
+    v5 = (float)(v12 * v13) + v5;
+    LODWORD(v14) = COERCE_UNSIGNED_INT((float)((float)(v6 * v10) + (float)(v12 * v7)) + (float)(v11 * vecB->v[2])) ^ _xmm;
+    v6 = (float)(v10 * v14) + v6;
+    v7 = (float)(v14 * v12) + v7;
+    v9 = (float)(v14 * v11) + vecB->v[2];
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm1, xmm1, xmm1
-    }
+    v8 = 0.0;
+    v9 = 0.0;
   }
-  __asm
-  {
-    vsubss  xmm0, xmm13, xmm11
-    vmovaps xmm11, [rsp+88h+var_68]
-    vmovaps xmm13, [rsp+88h+var_88]
-    vsubss  xmm2, xmm12, xmm10
-    vmovaps xmm10, [rsp+88h+var_58]
-    vmovaps xmm12, [rsp+88h+var_78]
-    vsubss  xmm3, xmm1, xmm9
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)(v7 - v5) * (float)(v7 - v5)) + (float)((float)(v6 - v4) * (float)(v6 - v4))) + (float)((float)(v9 - v8) * (float)(v9 - v8));
 }
 
 /*
@@ -1711,24 +1364,9 @@ WorldUpReferenceFrame::GetRightContribution
 float WorldUpReferenceFrame::GetRightContribution(WorldUpReferenceFrame *this, const vec3_t *vec)
 {
   if ( this->m_axisAdjusted )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+14h]
-      vmulss  xmm3, xmm0, dword ptr [rdx+4]
-      vmovss  xmm1, dword ptr [rcx+10h]
-      vmovss  xmm0, dword ptr [rcx+18h]
-      vmulss  xmm2, xmm1, dword ptr [rdx]
-      vmulss  xmm1, xmm0, dword ptr [rdx+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, xmm1
-    }
-  }
+    return (float)((float)(this->m_axis.m[1].v[1] * vec->v[1]) + (float)(this->m_axis.m[1].v[0] * vec->v[0])) + (float)(this->m_axis.m[1].v[2] * vec->v[2]);
   else
-  {
-    __asm { vmovss  xmm0, dword ptr [rdx+4] }
-  }
-  return *(float *)&_XMM0;
+    return vec->v[1];
 }
 
 /*
@@ -1738,100 +1376,28 @@ WorldUpReferenceFrame::GetStandardAxisFromAxis
 */
 __int64 WorldUpReferenceFrame::GetStandardAxisFromAxis(const tmat33_t<vec3_t> *axis, tmat33_t<vec3_t> *resultAxis)
 {
-  char v11; 
-  char v12; 
-  bool v16; 
-  unsigned int v17; 
-  __int64 result; 
+  const dvar_t *v4; 
+  float value; 
+  int v6; 
+  float *i; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RBX = axis;
-  _RDI = DVARFLT_pmove_snap_world_up;
+  v4 = DVARFLT_pmove_snap_world_up;
   if ( !DVARFLT_pmove_snap_world_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pmove_snap_world_up") )
     __debugbreak();
-  __asm
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  if ( value <= 0.0 )
+    return 0i64;
+  if ( !WorldUpReferenceFrame::m_standardInit )
+    WorldUpReferenceFrame::InitStandardAxes();
+  v6 = 0;
+  for ( i = &WorldUpReferenceFrame::m_standardAxis[0].m[0].v[2]; (float)((float)((float)(axis->m[0].v[0] * *(i - 2)) + (float)(axis->m[0].v[1] * *(i - 1))) + (float)(axis->m[0].v[2] * *i)) <= value || (float)((float)((float)(axis->m[1].v[1] * i[2]) + (float)(i[1] * axis->m[1].v[0])) + (float)(axis->m[1].v[2] * i[3])) <= value || (float)((float)((float)(axis->m[2].v[1] * i[5]) + (float)(i[4] * axis->m[2].v[0])) + (float)(axis->m[2].v[2] * i[6])) <= value; i += 9 )
   {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
+    if ( (unsigned int)++v6 >= 5 )
+      return 0i64;
   }
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v11 | v12 )
-  {
-LABEL_12:
-    result = 0i64;
-  }
-  else
-  {
-    if ( !WorldUpReferenceFrame::m_standardInit )
-      WorldUpReferenceFrame::InitStandardAxes();
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rbx+4]
-      vmovss  xmm7, dword ptr [rbx]
-      vmovss  xmm5, dword ptr [rbx+8]
-    }
-    v16 = 1;
-    v17 = 0;
-    _RAX = &WorldUpReferenceFrame::m_standardAxis[0].m[0].v[2];
-    while ( 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rax-8]
-        vmulss  xmm0, xmm8, dword ptr [rax-4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rax]
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, xmm6
-      }
-      if ( !v16 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+10h]
-          vmovss  xmm1, dword ptr [rax+4]
-          vmulss  xmm2, xmm1, dword ptr [rbx+0Ch]
-          vmulss  xmm3, xmm0, dword ptr [rax+8]
-          vmovss  xmm0, dword ptr [rbx+14h]
-          vmulss  xmm1, xmm0, dword ptr [rax+0Ch]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm6
-          vmovss  xmm0, dword ptr [rbx+1Ch]
-          vmovss  xmm1, dword ptr [rax+10h]
-          vmulss  xmm2, xmm1, dword ptr [rbx+18h]
-          vmulss  xmm3, xmm0, dword ptr [rax+14h]
-          vmovss  xmm0, dword ptr [rbx+20h]
-          vmulss  xmm1, xmm0, dword ptr [rax+18h]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm6
-        }
-        if ( !v16 )
-          break;
-      }
-      ++v17;
-      _RAX += 9;
-      v16 = v17 <= 5;
-      if ( v17 >= 5 )
-        goto LABEL_12;
-    }
-    MatrixCopy33(&WorldUpReferenceFrame::m_standardAxis[v17], resultAxis);
-    result = 1i64;
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  return result;
+  MatrixCopy33(&WorldUpReferenceFrame::m_standardAxis[v6], resultAxis);
+  return 1i64;
 }
 
 /*
@@ -1842,24 +1408,9 @@ WorldUpReferenceFrame::GetUpContribution
 float WorldUpReferenceFrame::GetUpContribution(WorldUpReferenceFrame *this, const vec3_t *vec)
 {
   if ( this->m_axisAdjusted )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+20h]
-      vmulss  xmm3, xmm0, dword ptr [rdx+4]
-      vmovss  xmm1, dword ptr [rcx+1Ch]
-      vmovss  xmm0, dword ptr [rcx+24h]
-      vmulss  xmm2, xmm1, dword ptr [rdx]
-      vmulss  xmm1, xmm0, dword ptr [rdx+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, xmm1
-    }
-  }
+    return (float)((float)(this->m_axis.m[2].v[1] * vec->v[1]) + (float)(this->m_axis.m[2].v[0] * vec->v[0])) + (float)(this->m_axis.m[2].v[2] * vec->v[2]);
   else
-  {
-    __asm { vmovss  xmm0, dword ptr [rdx+8] }
-  }
-  return *(float *)&_XMM0;
+    return vec->v[2];
 }
 
 /*
@@ -1871,18 +1422,12 @@ void WorldUpReferenceFrame::GetUpVector(WorldUpReferenceFrame *this, vec3_t *out
 {
   if ( this->m_axisAdjusted )
   {
-    *(_QWORD *)outUp->v = *(_QWORD *)this->m_axis.row2.v;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+24h]
-      vmovss  dword ptr [rdx+8], xmm0
-    }
+    *outUp = this->m_axis.row2;
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
     *(_QWORD *)outUp->v = 0i64;
-    __asm { vmovss  dword ptr [rdx+8], xmm0 }
+    outUp->v[2] = FLOAT_1_0;
   }
 }
 
@@ -1894,36 +1439,9 @@ WorldUpReferenceFrame::GetVerticalDelta
 float WorldUpReferenceFrame::GetVerticalDelta(WorldUpReferenceFrame *this, const vec3_t *vecA, const vec3_t *vecB)
 {
   if ( this->m_axisAdjusted )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rcx+20h]
-      vmulss  xmm1, xmm3, dword ptr [rdx+4]
-      vmovss  xmm5, dword ptr [rcx+1Ch]
-      vmulss  xmm0, xmm5, dword ptr [rdx]
-      vmulss  xmm3, xmm3, dword ptr [r8+4]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm5, dword ptr [r8]
-      vmovaps [rsp+18h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rcx+24h]
-      vmulss  xmm1, xmm6, dword ptr [rdx+8]
-      vaddss  xmm4, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [r8+8]
-      vmovaps xmm6, [rsp+18h+var_18]
-      vaddss  xmm2, xmm3, xmm0
-      vaddss  xmm2, xmm2, xmm1
-      vsubss  xmm0, xmm4, xmm2
-    }
-  }
+    return (float)((float)((float)(this->m_axis.m[2].v[1] * vecA->v[1]) + (float)(this->m_axis.m[2].v[0] * vecA->v[0])) + (float)(this->m_axis.m[2].v[2] * vecA->v[2])) - (float)((float)((float)(this->m_axis.m[2].v[1] * vecB->v[1]) + (float)(this->m_axis.m[2].v[0] * vecB->v[0])) + (float)(this->m_axis.m[2].v[2] * vecB->v[2]));
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+8]
-      vsubss  xmm0, xmm0, dword ptr [r8+8]
-    }
-  }
-  return *(float *)&_XMM0;
+    return vecA->v[2] - vecB->v[2];
 }
 
 /*
@@ -1933,79 +1451,73 @@ WorldUpReferenceFramePM::GetWorldUpTriggerData
 */
 char WorldUpReferenceFramePM::GetWorldUpTriggerData(WorldUpReferenceFramePM *this, pmove_t *pm, vec3_t *outWorldUpDir, bool *outHadValidTriggerData)
 {
-  Physics_WorldId v8; 
+  Physics_WorldId v7; 
   HavokPhysics_CollisionQueryResult *AllResult; 
   playerState_s *ps; 
-  int v11; 
+  int v10; 
   unsigned int NumHits; 
   int ClosestPointHitRef; 
   int EntityNum; 
-  unsigned __int16 v16; 
-  __int64 v25; 
-  __int64 v26; 
+  unsigned __int16 v14; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  __int64 v20; 
   Physics_QueryPointExtendedData extendedData; 
   vec3_t angles; 
-  char v29[16]; 
+  char v23[16]; 
 
-  _RBP = outWorldUpDir;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 796, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !outHadValidTriggerData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 797, ASSERT_TYPE_ASSERT, "(outHadValidTriggerData)", (const char *)&queryFormat, "outHadValidTriggerData") )
     __debugbreak();
   *outHadValidTriggerData = 0;
-  v8 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
-  AllResult = PhysicsQuery_GetAllResult(v8);
+  v7 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
+  AllResult = PhysicsQuery_GetAllResult(v7);
   if ( !AllResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 803, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(AllResult, 1);
   ps = pm->ps;
-  v11 = 0;
+  v10 = 0;
   extendedData.simplify = 0;
-  __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
   extendedData.ignoreBodies = NULL;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm { vmovss  [rsp+0D8h+extendedData.collisionBuffer], xmm2 }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.contents = 1078198280;
-  Physics_QueryPoint(v8, &ps->origin, *(float *)&_XMM2, &extendedData, AllResult);
+  Physics_QueryPoint(v7, &ps->origin, 0.0, &extendedData, AllResult);
   NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(AllResult);
   if ( !NumHits )
     return 0;
   while ( 1 )
   {
-    ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(AllResult, v11);
+    ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(AllResult, v10);
     EntityNum = Physics_GetEntityNum(ClosestPointHitRef);
-    v16 = EntityNum;
+    v14 = EntityNum;
     if ( (EntityNum < 0 || (unsigned int)EntityNum > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)EntityNum, "signed", EntityNum) )
       __debugbreak();
-    if ( v16 >= 0x800u )
+    if ( v14 >= 0x800u )
     {
-      LODWORD(v26) = 2048;
-      LODWORD(v25) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 819, ASSERT_TYPE_ASSERT, "(unsigned)( triggerEntNum ) < (unsigned)( ( 2048 ) )", "triggerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, v26) )
+      LODWORD(v20) = 2048;
+      LODWORD(v19) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 819, ASSERT_TYPE_ASSERT, "(unsigned)( triggerEntNum ) < (unsigned)( ( 2048 ) )", "triggerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    if ( pm->IsWorldUpVolume(pm, v16) )
+    if ( pm->IsWorldUpVolume(pm, v14) )
       break;
-    if ( ++v11 >= NumHits )
+    if ( ++v10 >= NumHits )
       return 0;
   }
-  if ( pm->GetWorldUpParentOrientation(pm, v16, (vec3_t *)v29, &angles) )
+  if ( pm->GetWorldUpParentOrientation(pm, v14, (vec3_t *)v23, &angles) )
   {
-    AngleVectors(&angles, _RBP, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbp+4]
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rbp+0], xmm0
-      vxorps  xmm0, xmm1, xmm2
-      vmovss  xmm1, dword ptr [rbp+8]
-      vmovss  dword ptr [rbp+4], xmm0
-      vxorps  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rbp+8], xmm0
-    }
+    AngleVectors(&angles, outWorldUpDir, NULL, NULL);
+    v16 = outWorldUpDir->v[1];
+    outWorldUpDir->v[0] = COERCE_FLOAT(LODWORD(outWorldUpDir->v[0]) ^ _xmm);
+    LODWORD(v17) = LODWORD(v16) ^ _xmm;
+    v18 = outWorldUpDir->v[2];
+    outWorldUpDir->v[1] = v17;
+    outWorldUpDir->v[2] = COERCE_FLOAT(LODWORD(v18) ^ _xmm);
     *outHadValidTriggerData = 1;
   }
   return 1;
@@ -2020,8 +1532,7 @@ _BOOL8 WorldUpReferenceFrame::HasValidWorldUpAngles(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 161, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-  return !VecNCompareCustomEpsilon(ps->worldUpAngles.v, vec3_origin.v, *(float *)&_XMM2, 3);
+  return !VecNCompareCustomEpsilon(ps->worldUpAngles.v, vec3_origin.v, 0.001, 3);
 }
 
 /*
@@ -2102,32 +1613,18 @@ WorldUpReferenceFrame::InitFromNormal
 */
 void WorldUpReferenceFrame::InitFromNormal(WorldUpReferenceFrame *this, const vec3_t *normal)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm2, dword ptr [rdx+4]
-    vmovss  xmm3, dword ptr [rdx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm0, xmm3, cs:__real@3f800000
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-  }
-  _RDI = normal;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 473, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( normal ))", (const char *)&queryFormat, "Vec3IsNormalized( normal )") )
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(normal->v[0] * normal->v[0]) + (float)(normal->v[1] * normal->v[1])) + (float)(normal->v[2] * normal->v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 473, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( normal ))", (const char *)&queryFormat, "Vec3IsNormalized( normal )") )
     __debugbreak();
-  __asm
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(normal->v[2] - 1.0) & _xmm) >= 0.001 )
   {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, cs:__real@3f800000
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
+    GenerateAxisFromUpVector(normal, &identityMatrix33, &this->m_axis);
+    this->m_axisAdjusted = 1;
   }
-  GenerateAxisFromUpVector(_RDI, &identityMatrix33, &this->m_axis);
-  this->m_axisAdjusted = 1;
+  else
+  {
+    this->m_axisAdjusted = 0;
+    MatrixIdentity33(&this->m_axis);
+  }
 }
 
 /*
@@ -2135,162 +1632,104 @@ void WorldUpReferenceFrame::InitFromNormal(WorldUpReferenceFrame *this, const ve
 WorldUpReferenceFrame::InitStandardAxes
 ==============
 */
-void WorldUpReferenceFrame::InitStandardAxes()
+void WorldUpReferenceFrame::InitStandardAxes(void)
 {
-  unsigned int v11; 
+  tmat33_t<vec3_t> *v0; 
+  unsigned int v1; 
+  __int64 *v2; 
   int i; 
   int j; 
-  char v65; 
-  __int64 v73; 
-  __int64 v74; 
-  vec3_t v75; 
+  unsigned int v11; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  __int64 v17; 
+  vec3_t v18; 
   __m256i angles; 
-  void *retaddr; 
+  __int128 v20; 
+  float v21; 
+  float v22; 
+  float v23; 
 
-  _R11 = &retaddr;
   if ( !WorldUpReferenceFrame::m_standardInit )
   {
-    __asm
-    {
-      vmovups ymm0, cs:__ymm@0000000042b4000042b4000000000000c2b40000c33400000000000000000000
-      vmovups xmm1, cs:__xmm@000000000000000042b40000c2b40000
-    }
-    _RSI = WorldUpReferenceFrame::m_standardAxis;
-    v11 = 0;
-    _R15 = &angles.m256i_i64[1];
-    __asm
-    {
-      vmovaps xmmword ptr [r11-28h], xmm6
-      vmovaps xmmword ptr [r11-38h], xmm7
-      vmovaps xmmword ptr [r11-48h], xmm8
-      vmovaps xmmword ptr [r11-58h], xmm9
-      vmovss  xmm9, cs:__real@3f000000
-      vmovups ymmword ptr [rsp+58h], ymm0
-      vmovss  xmm0, cs:__real@c2b40000
-      vmovaps xmmword ptr [r11-68h], xmm10
-      vmovaps xmmword ptr [r11-78h], xmm11
-      vmovss  xmm11, cs:__real@3b360b61
-      vxorps  xmm10, xmm10, xmm10
-      vmovss  [rsp+128h+var_A0], xmm0
-      vmovups [rsp+128h+var_B0], xmm1
-      vmovaps xmmword ptr [r11-88h], xmm12
-      vmovss  xmm12, cs:__real@43b40000
-      vmovss  dword ptr [r11-9Ch], xmm10
-      vmovss  dword ptr [r11-98h], xmm10
-      vxorps  xmm8, xmm8, xmm8
-    }
+    v0 = WorldUpReferenceFrame::m_standardAxis;
+    v1 = 0;
+    v2 = &angles.m256i_i64[1];
+    angles = _ymm;
+    v21 = FLOAT_N90_0;
+    v20 = _xmm;
+    v22 = 0.0;
+    v23 = 0.0;
+    _XMM8 = 0i64;
     do
     {
-      AnglesToAxis((const vec3_t *)&angles + (int)v11, &WorldUpReferenceFrame::m_standardAxis[v11]);
+      AnglesToAxis((const vec3_t *)&angles + (int)v1, &WorldUpReferenceFrame::m_standardAxis[v1]);
       for ( i = 0; i < 3; ++i )
       {
         for ( j = 0; j < 3; ++j )
         {
           if ( (unsigned int)i >= 3 )
           {
-            LODWORD(v74) = 3;
-            LODWORD(v73) = i;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v73, v74) )
+            LODWORD(v17) = 3;
+            LODWORD(v16) = i;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v16, v17) )
               __debugbreak();
           }
           if ( (unsigned int)j >= 3 )
           {
-            LODWORD(v74) = 3;
-            LODWORD(v73) = j;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v73, v74) )
+            LODWORD(v17) = 3;
+            LODWORD(v16) = j;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v16, v17) )
               __debugbreak();
           }
-          __asm
-          {
-            vaddss  xmm2, xmm9, dword ptr [rsi]
-            vroundss xmm0, xmm8, xmm2, 1
-            vcvttss2si eax, xmm0
-            vxorps  xmm6, xmm6, xmm6
-            vcvtsi2ss xmm6, xmm6, eax
-          }
+          __asm { vroundss xmm0, xmm8, xmm2, 1 }
           if ( (unsigned int)i >= 3 )
           {
-            LODWORD(v74) = 3;
-            LODWORD(v73) = i;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v73, v74) )
+            LODWORD(v17) = 3;
+            LODWORD(v16) = i;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v16, v17) )
               __debugbreak();
           }
           if ( (unsigned int)j >= 3 )
           {
-            LODWORD(v74) = 3;
-            LODWORD(v73) = j;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v73, v74) )
+            LODWORD(v17) = 3;
+            LODWORD(v16) = j;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v16, v17) )
               __debugbreak();
           }
-          __asm { vmovss  dword ptr [rsi], xmm6 }
-          _RSI = (tmat33_t<vec3_t> *)((char *)_RSI + 4);
+          v0->m[0].v[0] = (float)(int)*(float *)&_XMM0;
+          v0 = (tmat33_t<vec3_t> *)((char *)v0 + 4);
         }
       }
-      AxisToAngles(&WorldUpReferenceFrame::m_standardAxis[v11], &v75);
+      AxisToAngles(&WorldUpReferenceFrame::m_standardAxis[v1], &v18);
       __asm
       {
-        vmulss  xmm4, xmm11, dword ptr [rsp+128h+var_E0]
-        vmulss  xmm5, xmm11, dword ptr [rsp+128h+var_E0+4]
-        vmulss  xmm7, xmm11, dword ptr [rsp+128h+var_E0+8]
-        vaddss  xmm2, xmm4, xmm9
         vroundss xmm3, xmm8, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm12
-        vaddss  xmm4, xmm0, xmm9
         vroundss xmm0, xmm8, xmm4, 1
-        vcvttss2si eax, xmm0
-        vaddss  xmm1, xmm5, xmm9
         vroundss xmm2, xmm8, xmm1, 1
-        vsubss  xmm0, xmm5, xmm2
-        vmulss  xmm1, xmm0, xmm12
-        vaddss  xmm3, xmm1, xmm9
         vroundss xmm1, xmm8, xmm3, 1
-        vmovd   xmm6, eax
-        vcvttss2si eax, xmm1
-        vaddss  xmm1, xmm7, xmm9
-        vroundss xmm2, xmm8, xmm1, 1
-        vsubss  xmm0, xmm7, xmm2
-        vmulss  xmm1, xmm0, xmm12
-        vmovss  xmm0, dword ptr [r15-8]
-        vaddss  xmm3, xmm1, xmm9
-        vroundss xmm1, xmm8, xmm3, 1
-        vmovd   xmm5, eax
-        vcvttss2si eax, xmm1
-        vmovss  xmm1, dword ptr [r15-4]
-        vcvtdq2ps xmm6, xmm6
-        vsubss  xmm3, xmm0, xmm6
-        vmovss  xmm0, dword ptr [r15]
-        vcvtdq2ps xmm5, xmm5
-        vsubss  xmm2, xmm1, xmm5
-        vmovd   xmm4, eax
-        vcvtdq2ps xmm4, xmm4
-        vmovss  dword ptr [rsp+128h+var_E0+8], xmm4
-        vsubss  xmm4, xmm0, xmm4
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm4, xmm3, xmm0
-        vucomiss xmm4, xmm10
-        vmovss  dword ptr [rsp+128h+var_E0], xmm6
-        vmovss  dword ptr [rsp+128h+var_E0+4], xmm5
       }
-      if ( !v65 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 135, ASSERT_TYPE_ASSERT, "(Vec3DistanceSq( compare, standardAngles[iStandard] ) == 0.0f)", (const char *)&queryFormat, "Vec3DistanceSq( compare, standardAngles[iStandard] ) == 0.0f") )
+      v11 = (int)*(float *)&_XMM1;
+      __asm
+      {
+        vroundss xmm2, xmm8, xmm1, 1
+        vroundss xmm1, xmm8, xmm3, 1
+      }
+      v14 = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM0).m128_f32[0];
+      *(float *)&_XMM3 = *((float *)v2 - 2) - v14;
+      LODWORD(_XMM0) = *(_DWORD *)v2;
+      v15 = _mm_cvtepi32_ps((__m128i)v11).m128_f32[0];
+      *(float *)&_XMM2 = *((float *)v2 - 1) - v15;
+      v18.v[2] = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM1).m128_f32[0];
+      v18.v[0] = v14;
+      v18.v[1] = v15;
+      if ( (float)((float)((float)(*(float *)&_XMM2 * *(float *)&_XMM2) + (float)(*(float *)&_XMM3 * *(float *)&_XMM3)) + (float)((float)(*(float *)&_XMM0 - v18.v[2]) * (float)(*(float *)&_XMM0 - v18.v[2]))) != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 135, ASSERT_TYPE_ASSERT, "(Vec3DistanceSq( compare, standardAngles[iStandard] ) == 0.0f)", (const char *)&queryFormat, "Vec3DistanceSq( compare, standardAngles[iStandard] ) == 0.0f") )
         __debugbreak();
-      ++v11;
-      _R15 = (__int64 *)((char *)_R15 + 12);
+      ++v1;
+      v2 = (__int64 *)((char *)v2 + 12);
     }
-    while ( v11 < 5 );
-    __asm
-    {
-      vmovaps xmm12, [rsp+128h+var_88]
-      vmovaps xmm11, [rsp+128h+var_78]
-      vmovaps xmm10, [rsp+128h+var_68]
-      vmovaps xmm9, [rsp+128h+var_58]
-      vmovaps xmm8, [rsp+128h+var_48]
-      vmovaps xmm7, [rsp+128h+var_38]
-      vmovaps xmm6, [rsp+128h+var_28]
-    }
+    while ( v1 < 5 );
     WorldUpReferenceFrame::m_standardInit = 1;
   }
 }
@@ -2334,56 +1773,32 @@ WorldUpReferenceFrame::PackEntityStateAngles
 */
 __int64 WorldUpReferenceFrame::PackEntityStateAngles(const vec3_t *worldUpAngles)
 {
-  unsigned int v9; 
-  int *v10; 
-  __int64 result; 
-  int v26[4]; 
-  char v27; 
-  void *retaddr; 
+  unsigned int v1; 
+  int *v2; 
+  __int128 v4; 
+  __int128 v6; 
+  int v10[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm6, cs:__real@3b360b61
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm9, cs:__real@43ff8000
-  }
-  v9 = 0;
-  v10 = v26;
-  _RSI = worldUpAngles;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v1 = 0;
+  v2 = v10;
   do
   {
-    _RAX = (int)v9;
-    __asm { vmovss  xmm0, dword ptr [rsi+rax*4]; angle }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
+    v4 = LODWORD(worldUpAngles->v[v1]);
+    *(double *)&v4 = AngleNormalize360(*(const float *)&v4);
+    v6 = v4;
+    *(float *)&v6 = *(float *)&v4 * 0.0027777778;
+    _XMM1 = v6;
     __asm
     {
-      vmulss  xmm1, xmm0, xmm6
       vmaxss  xmm1, xmm1, xmm7
       vminss  xmm0, xmm1, xmm8
-      vmulss  xmm2, xmm0, xmm9
-      vcvttss2si eax, xmm2
     }
-    *v10 = _EAX;
-    ++v9;
-    ++v10;
+    *v2 = (int)(float)(*(float *)&_XMM0 * 511.0);
+    ++v1;
+    ++v2;
   }
-  while ( v9 < 3 );
-  result = (unsigned int)(v26[0] + ((v26[1] + (v26[2] << 9)) << 9));
-  _R11 = &v27;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  while ( v1 < 3 );
+  return (unsigned int)(v10[0] + ((v10[1] + (v10[2] << 9)) << 9));
 }
 
 /*
@@ -2452,23 +1867,18 @@ WorldUpReferenceFrame::RemoveReferenceFrameFromVector
 */
 void WorldUpReferenceFrame::RemoveReferenceFrameFromVector(WorldUpReferenceFrame *this, vec3_t *vec)
 {
-  vec3_t v6; 
+  float v3; 
+  vec3_t v4; 
   tmat33_t<vec3_t> out; 
 
-  _RBX = vec;
   if ( this->m_axisAdjusted )
   {
     MatrixTranspose(&this->m_axis, &out);
-    MatrixTransformVector(_RBX, &out, &v6);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+var_48]
-      vmovss  xmm1, dword ptr [rsp+68h+var_48+4]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+68h+var_48+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    MatrixTransformVector(vec, &out, &v4);
+    v3 = v4.v[1];
+    vec->v[0] = v4.v[0];
+    vec->v[2] = v4.v[2];
+    vec->v[1] = v3;
   }
 }
 
@@ -2494,140 +1904,58 @@ WorldUpReferenceFrame::SetAngles
 */
 void WorldUpReferenceFrame::SetAngles(WorldUpReferenceFrame *this, playerState_s *ps, const BgHandler *handler, const vec3_t *angles)
 {
-  char v18; 
-  char v19; 
-  bool v23; 
-  unsigned int v24; 
+  const dvar_t *v8; 
+  float value; 
+  int v10; 
+  float *i; 
   float v1[4]; 
   tmat33_t<vec3_t> outAxis; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v54; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v16; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RBX = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 231, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3a83126f
-    vxorps  xmm7, xmm7, xmm7
-  }
   if ( !WorldUpReferenceFrame::HasValidWorldUpAngles(ps) && !WorldUpReferenceFrame::IsTrackingMover(ps) && !WorldUpReferenceFrame::HasValidWorldUpEnt(ps) )
   {
-    __asm
-    {
-      vmovaps xmm2, xmm6; epsilon
-      vmovss  [rsp+158h+v1], xmm7
-      vmovss  [rsp+158h+var_114], xmm7
-      vmovss  [rsp+158h+var_110], xmm7
-    }
-    if ( VecNCompareCustomEpsilon(angles->v, v1, *(float *)&_XMM2, 3) )
+    v1[0] = 0.0;
+    v1[1] = 0.0;
+    v1[2] = 0.0;
+    if ( VecNCompareCustomEpsilon(angles->v, v1, 0.001, 3) )
       goto LABEL_9;
   }
-  WorldUpReferenceFrame::CalculateEntMoverAxis(_RBX, ps, handler, &outAxis);
+  WorldUpReferenceFrame::CalculateEntMoverAxis(this, ps, handler, &outAxis);
   MatrixTranspose(&outAxis, &out);
   AnglesToAxis(angles, &axis);
-  MatrixMultiply(&axis, &out, &v54);
-  AxisToAngles(&v54, &ps->worldUpAngles);
-  __asm { vmovaps xmm2, xmm6; epsilon }
-  if ( !VecNCompareCustomEpsilon(angles->v, vec3_origin.v, *(float *)&_XMM2, 3) )
+  MatrixMultiply(&axis, &out, &v16);
+  AxisToAngles(&v16, &ps->worldUpAngles);
+  if ( !VecNCompareCustomEpsilon(angles->v, vec3_origin.v, 0.001, 3) )
   {
-    _RBX->m_axisAdjusted = 1;
-    AnglesToAxis(angles, &_RBX->m_axis);
-    _RDI = DVARFLT_pmove_snap_world_up;
+    this->m_axisAdjusted = 1;
+    AnglesToAxis(angles, &this->m_axis);
+    v8 = DVARFLT_pmove_snap_world_up;
     if ( !DVARFLT_pmove_snap_world_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pmove_snap_world_up") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
+    Dvar_CheckFrontendServerThread(v8);
+    value = v8->current.value;
+    if ( value > 0.0 )
     {
-      vmovss  xmm6, dword ptr [rdi+28h]
-      vcomiss xmm6, xmm7
-    }
-    if ( !(v18 | v19) )
-    {
-      __asm { vmovaps [rsp+158h+var_58], xmm8 }
       if ( !WorldUpReferenceFrame::m_standardInit )
         WorldUpReferenceFrame::InitStandardAxes();
-      __asm
+      v10 = 0;
+      for ( i = &WorldUpReferenceFrame::m_standardAxis[0].m[0].v[2]; (float)((float)((float)(this->m_axis.m[0].v[0] * *(i - 2)) + (float)(this->m_axis.m[0].v[1] * *(i - 1))) + (float)(this->m_axis.m[0].v[2] * *i)) <= value || (float)((float)((float)(this->m_axis.m[1].v[1] * i[2]) + (float)(i[1] * this->m_axis.m[1].v[0])) + (float)(this->m_axis.m[1].v[2] * i[3])) <= value || (float)((float)((float)(this->m_axis.m[2].v[1] * i[5]) + (float)(i[4] * this->m_axis.m[2].v[0])) + (float)(this->m_axis.m[2].v[2] * i[6])) <= value; i += 9 )
       {
-        vmovss  xmm8, dword ptr [rbx+8]
-        vmovss  xmm7, dword ptr [rbx+4]
-        vmovss  xmm5, dword ptr [rbx+0Ch]
+        if ( (unsigned int)++v10 >= 5 )
+          return;
       }
-      v23 = 1;
-      v24 = 0;
-      _RAX = &WorldUpReferenceFrame::m_standardAxis[0].m[0].v[2];
-      while ( 1 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm7, dword ptr [rax-8]
-          vmulss  xmm0, xmm8, dword ptr [rax-4]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, dword ptr [rax]
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm2, xmm6
-        }
-        if ( !v23 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+14h]
-            vmovss  xmm1, dword ptr [rax+4]
-            vmulss  xmm2, xmm1, dword ptr [rbx+10h]
-            vmulss  xmm3, xmm0, dword ptr [rax+8]
-            vmovss  xmm0, dword ptr [rbx+18h]
-            vmulss  xmm1, xmm0, dword ptr [rax+0Ch]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vcomiss xmm2, xmm6
-          }
-          if ( !v23 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+20h]
-              vmovss  xmm1, dword ptr [rax+10h]
-              vmulss  xmm2, xmm1, dword ptr [rbx+1Ch]
-              vmulss  xmm3, xmm0, dword ptr [rax+14h]
-              vmovss  xmm0, dword ptr [rbx+24h]
-              vmulss  xmm1, xmm0, dword ptr [rax+18h]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vcomiss xmm2, xmm6
-            }
-            if ( !v23 )
-              break;
-          }
-        }
-        ++v24;
-        _RAX += 9;
-        v23 = v24 <= 5;
-        if ( v24 >= 5 )
-          goto LABEL_23;
-      }
-      MatrixCopy33(&WorldUpReferenceFrame::m_standardAxis[v24], &_RBX->m_axis);
-LABEL_23:
-      __asm { vmovaps xmm8, [rsp+158h+var_58] }
+      MatrixCopy33(&WorldUpReferenceFrame::m_standardAxis[v10], &this->m_axis);
     }
   }
   else
   {
 LABEL_9:
-    _RBX->m_axisAdjusted = 0;
-    MatrixIdentity33(&_RBX->m_axis);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+158h+var_38]
-    vmovaps xmm7, [rsp+158h+var_48]
+    this->m_axisAdjusted = 0;
+    MatrixIdentity33(&this->m_axis);
   }
 }
 
@@ -2638,23 +1966,18 @@ WorldUpReferenceFrame::SetAnglesAndNormalizeViewAngles
 */
 void WorldUpReferenceFrame::SetAnglesAndNormalizeViewAngles(WorldUpReferenceFrame *this, playerState_s *ps, const BgHandler *handler, const vec3_t *newWorldAngles)
 {
+  float v8; 
   vec3_t inOutViewAngles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 287, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1D8h]
-    vmovss  xmm1, dword ptr [rbx+1DCh]
-    vmovss  dword ptr [rsp+0C8h+inOutViewAngles], xmm0
-    vmovss  xmm0, dword ptr [rbx+1E0h]
-    vmovss  dword ptr [rsp+0C8h+inOutViewAngles+8], xmm0
-    vmovss  dword ptr [rsp+0C8h+inOutViewAngles+4], xmm1
-  }
-  BG_CalcLinkedViewValues(_RBX, &inOutViewAngles);
+  v8 = ps->viewangles.v[1];
+  inOutViewAngles.v[0] = ps->viewangles.v[0];
+  inOutViewAngles.v[2] = ps->viewangles.v[2];
+  inOutViewAngles.v[1] = v8;
+  BG_CalcLinkedViewValues(ps, &inOutViewAngles);
   if ( this->m_axisAdjusted )
   {
     AnglesToAxis(&inOutViewAngles, &axis);
@@ -2665,7 +1988,7 @@ void WorldUpReferenceFrame::SetAnglesAndNormalizeViewAngles(WorldUpReferenceFram
     }
     AxisToAngles(&axis, &inOutViewAngles);
   }
-  WorldUpReferenceFrame::SetAnglesAndViewAngles(this, _RBX, handler, newWorldAngles, &inOutViewAngles);
+  WorldUpReferenceFrame::SetAnglesAndViewAngles(this, ps, handler, newWorldAngles, &inOutViewAngles);
 }
 
 /*
@@ -2675,168 +1998,76 @@ WorldUpReferenceFrame::SetAnglesAndViewAngles
 */
 void WorldUpReferenceFrame::SetAnglesAndViewAngles(WorldUpReferenceFrame *this, playerState_s *ps, const BgHandler *handler, const vec3_t *newWorldAngles, const vec3_t *newViewAngles)
 {
-  bool v17; 
+  bool v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v16; 
+  float v25; 
+  float v27; 
   vec3_t angles; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v113; 
-  char v114; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v32; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
-  _RDI = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 263, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  WorldUpReferenceFrame::SetAngles(this, _RDI, handler, newWorldAngles);
-  v17 = !this->m_axisAdjusted;
-  _RAX = newViewAngles;
-  __asm
-  {
-    vmovss  xmm11, dword ptr [rax]
-    vmovss  xmm12, dword ptr [rax+4]
-    vmovss  xmm0, dword ptr [rax+8]
-    vmovss  dword ptr [rsp+158h+angles], xmm11
-    vmovss  dword ptr [rsp+158h+angles+4], xmm12
-    vmovss  dword ptr [rsp+158h+angles+8], xmm0
-  }
-  if ( !v17 )
+  WorldUpReferenceFrame::SetAngles(this, ps, handler, newWorldAngles);
+  v9 = !this->m_axisAdjusted;
+  v10 = newViewAngles->v[0];
+  v11 = newViewAngles->v[1];
+  v12 = newViewAngles->v[2];
+  angles.v[0] = newViewAngles->v[0];
+  angles.v[1] = v11;
+  angles.v[2] = v12;
+  if ( !v9 )
   {
     AnglesToAxis(&angles, &axis);
     MatrixTranspose(&this->m_axis, &out);
-    MatrixMultiply(&axis, &out, &v113);
-    AxisToAngles(&v113, &angles);
-    __asm
-    {
-      vmovss  xmm12, dword ptr [rsp+158h+angles+4]
-      vmovss  xmm11, dword ptr [rsp+158h+angles]
-    }
+    MatrixMultiply(&axis, &out, &v32);
+    AxisToAngles(&v32, &angles);
+    v11 = angles.v[1];
+    v10 = angles.v[0];
   }
+  _XMM10 = 0i64;
   __asm
   {
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rdi+1D8h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+0B4h]
-    vmovss  xmm7, cs:__real@43b40000
-    vmovss  xmm9, cs:__real@3b360b61
-    vmulss  xmm3, xmm1, xmm9
-    vaddss  xmm1, xmm3, xmm8
-    vxorps  xmm10, xmm10, xmm10
     vroundss xmm2, xmm10, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm6, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rdi+1DCh]
-    vsubss  xmm1, xmm0, dword ptr [rdi+0B8h]
-    vmulss  xmm4, xmm1, xmm9
-    vmovss  xmm1, dword ptr [rdi+1E0h]
-    vaddss  xmm2, xmm4, xmm8
     vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm2, xmm1, dword ptr [rdi+0BCh]
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm4, xmm0, xmm7
-    vmulss  xmm5, xmm2, xmm9
-    vsubss  xmm0, xmm12, xmm4
-    vmovss  dword ptr [rdi+0B8h], xmm0
-    vaddss  xmm2, xmm5, xmm8
-    vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm1, xmm5, xmm3
-    vmulss  xmm0, xmm1, cs:__real@c3b40000
-    vmovss  xmm5, cs:__real@37800000
-    vmovss  dword ptr [rdi+0BCh], xmm0
-    vsubss  xmm2, xmm11, xmm6
-    vmovss  xmm6, cs:__real@43360b61
-    vmulss  xmm0, xmm2, xmm6
-    vaddss  xmm3, xmm0, xmm8
-    vroundss xmm0, xmm10, xmm3, 1
-    vcvttss2si eax, xmm0
   }
-  _ECX = (unsigned __int16)_EAX;
+  v16 = (float)(ps->viewangles.v[2] - ps->delta_angles.v[2]) * 0.0027777778;
+  ps->delta_angles.v[1] = v11 - (float)((float)((float)((float)(ps->viewangles.v[1] - ps->delta_angles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0);
+  __asm { vroundss xmm3, xmm10, xmm2, 1 }
+  ps->delta_angles.v[2] = (float)(v16 - *(float *)&_XMM3) * -360.0;
   __asm
   {
-    vmovd   xmm1, ecx
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm4, xmm1, xmm5
-    vaddss  xmm2, xmm4, xmm8
+    vroundss xmm0, xmm10, xmm3, 1
     vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rdi+0B4h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rdi+0B8h]
-    vaddss  xmm3, xmm1, xmm8
+  }
+  ps->delta_angles.v[0] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+  __asm
+  {
     vroundss xmm1, xmm10, xmm3, 1
-    vcvttss2si eax, xmm1
+    vroundss xmm3, xmm10, xmm2, 1
   }
-  _ECX = (unsigned __int16)_EAX;
+  ps->delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
   __asm
   {
-    vmovd   xmm0, ecx
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm4, xmm0, xmm5
-    vaddss  xmm2, xmm4, xmm8
-    vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, xmm7
-    vmovss  dword ptr [rdi+0B8h], xmm0
-    vmulss  xmm0, xmm6, dword ptr [rdi+0BCh]
-    vaddss  xmm3, xmm0, xmm8
     vroundss xmm0, xmm10, xmm3, 1
-    vcvttss2si eax, xmm0
-  }
-  _ECX = (unsigned __int16)_EAX;
-  __asm
-  {
-    vmovd   xmm0, ecx
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm4, xmm0, xmm5
-    vaddss  xmm2, xmm4, xmm8
     vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, xmm7
-    vmovss  dword ptr [rdi+0BCh], xmm0
-    vmulss  xmm3, xmm11, xmm9
-    vaddss  xmm1, xmm3, xmm8
-    vroundss xmm2, xmm10, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rdi+1DCh], xmm12
   }
-  _RDI->viewangles.v[2] = 0.0;
-  __asm
-  {
-    vmulss  xmm4, xmm9, dword ptr [rdi+1DCh]
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm2, xmm4, xmm8
-    vmovss  dword ptr [rdi+1D8h], xmm1
-    vroundss xmm3, xmm10, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm4, xmm9, dword ptr [rdi+1E0h]
-    vmulss  xmm0, xmm1, xmm7
-    vaddss  xmm2, xmm4, xmm8
-    vroundss xmm3, xmm10, xmm2, 1
-    vmovss  dword ptr [rdi+1DCh], xmm0
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rdi+1E0h], xmm1
-  }
-  _R11 = &v114;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-  }
+  ps->delta_angles.v[2] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+  __asm { vroundss xmm2, xmm10, xmm1, 1 }
+  ps->viewangles.v[1] = v11;
+  ps->viewangles.v[2] = 0.0;
+  v25 = 0.0027777778 * ps->viewangles.v[1];
+  ps->viewangles.v[0] = (float)((float)(v10 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+  __asm { vroundss xmm3, xmm10, xmm2, 1 }
+  *(float *)&_XMM1 = v25 - *(float *)&_XMM3;
+  v27 = 0.0027777778 * ps->viewangles.v[2];
+  __asm { vroundss xmm3, xmm10, xmm2, 1 }
+  ps->viewangles.v[1] = *(float *)&_XMM1 * 360.0;
+  ps->viewangles.v[2] = (float)(v27 - *(float *)&_XMM3) * 360.0;
 }
 
 /*
@@ -2865,24 +2096,19 @@ WorldUpReferenceFrame::SetEntityAndNormalizeViewAngles
 */
 void WorldUpReferenceFrame::SetEntityAndNormalizeViewAngles(WorldUpReferenceFrame *this, playerState_s *ps, const BgHandler *handler, __int16 entity)
 {
+  float v8; 
   vec3_t inOutViewAngles; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 309, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1D8h]
-    vmovss  xmm1, dword ptr [rbx+1DCh]
-    vmovss  dword ptr [rsp+0D8h+inOutViewAngles], xmm0
-    vmovss  xmm0, dword ptr [rbx+1E0h]
-    vmovss  dword ptr [rsp+0D8h+inOutViewAngles+8], xmm0
-    vmovss  dword ptr [rsp+0D8h+inOutViewAngles+4], xmm1
-  }
-  BG_CalcLinkedViewValues(_RBX, &inOutViewAngles);
+  v8 = ps->viewangles.v[1];
+  inOutViewAngles.v[0] = ps->viewangles.v[0];
+  inOutViewAngles.v[2] = ps->viewangles.v[2];
+  inOutViewAngles.v[1] = v8;
+  BG_CalcLinkedViewValues(ps, &inOutViewAngles);
   AnglesToAxis(&inOutViewAngles, &axis);
   if ( this->m_axisAdjusted )
   {
@@ -2890,24 +2116,15 @@ void WorldUpReferenceFrame::SetEntityAndNormalizeViewAngles(WorldUpReferenceFram
     AxisCopy(&out, &axis);
   }
   AxisToAngles(&axis, &inOutViewAngles);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 333, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 333, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBX->worldUpRefEnt = entity;
-  WorldUpReferenceFrame::Init(this, _RBX, handler);
+  ps->worldUpRefEnt = entity;
+  WorldUpReferenceFrame::Init(this, ps, handler);
   if ( this->m_axisAdjusted )
-  {
     AxisToAngles(&this->m_axis, &angles);
-  }
   else
-  {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovsd  qword ptr [rsp+0D8h+angles], xmm0
-    }
-    angles.v[2] = vec3_origin.v[2];
-  }
-  WorldUpReferenceFrame::SetAnglesAndViewAngles(this, _RBX, handler, &angles, &inOutViewAngles);
+    angles = vec3_origin;
+  WorldUpReferenceFrame::SetAnglesAndViewAngles(this, ps, handler, &angles, &inOutViewAngles);
 }
 
 /*
@@ -2917,109 +2134,37 @@ WorldUpReferenceFrame::SetFinalInternalAngles
 */
 void WorldUpReferenceFrame::SetFinalInternalAngles(WorldUpReferenceFrame *this, const vec3_t *angles)
 {
-  char v12; 
-  char v13; 
-  bool v17; 
-  unsigned int v18; 
+  const dvar_t *v4; 
+  float value; 
+  int v6; 
+  float *i; 
 
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-  _RBX = this;
-  if ( VecNCompareCustomEpsilon(angles->v, vec3_origin.v, *(float *)&_XMM2, 3) )
+  if ( VecNCompareCustomEpsilon(angles->v, vec3_origin.v, 0.001, 3) )
   {
-    _RBX->m_axisAdjusted = 0;
-    MatrixIdentity33(&_RBX->m_axis);
+    this->m_axisAdjusted = 0;
+    MatrixIdentity33(&this->m_axis);
   }
   else
   {
-    __asm { vmovaps [rsp+78h+var_18], xmm6 }
-    _RBX->m_axisAdjusted = 1;
-    AnglesToAxis(angles, &_RBX->m_axis);
-    _RDI = DVARFLT_pmove_snap_world_up;
+    this->m_axisAdjusted = 1;
+    AnglesToAxis(angles, &this->m_axis);
+    v4 = DVARFLT_pmove_snap_world_up;
     if ( !DVARFLT_pmove_snap_world_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pmove_snap_world_up") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
+    Dvar_CheckFrontendServerThread(v4);
+    value = v4->current.value;
+    if ( value > 0.0 )
     {
-      vmovss  xmm6, dword ptr [rdi+28h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( !(v12 | v13) )
-    {
-      __asm
-      {
-        vmovaps [rsp+78h+var_28], xmm7
-        vmovaps [rsp+78h+var_38], xmm8
-      }
       if ( !WorldUpReferenceFrame::m_standardInit )
         WorldUpReferenceFrame::InitStandardAxes();
-      __asm
+      v6 = 0;
+      for ( i = &WorldUpReferenceFrame::m_standardAxis[0].m[0].v[2]; (float)((float)((float)(this->m_axis.m[0].v[0] * *(i - 2)) + (float)(this->m_axis.m[0].v[1] * *(i - 1))) + (float)(this->m_axis.m[0].v[2] * *i)) <= value || (float)((float)((float)(this->m_axis.m[1].v[1] * i[2]) + (float)(i[1] * this->m_axis.m[1].v[0])) + (float)(this->m_axis.m[1].v[2] * i[3])) <= value || (float)((float)((float)(this->m_axis.m[2].v[1] * i[5]) + (float)(i[4] * this->m_axis.m[2].v[0])) + (float)(this->m_axis.m[2].v[2] * i[6])) <= value; i += 9 )
       {
-        vmovss  xmm8, dword ptr [rbx+8]
-        vmovss  xmm7, dword ptr [rbx+4]
-        vmovss  xmm5, dword ptr [rbx+0Ch]
+        if ( (unsigned int)++v6 >= 5 )
+          return;
       }
-      v17 = 1;
-      v18 = 0;
-      _RAX = &WorldUpReferenceFrame::m_standardAxis[0].m[0].v[2];
-      while ( 1 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm7, dword ptr [rax-8]
-          vmulss  xmm0, xmm8, dword ptr [rax-4]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, dword ptr [rax]
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm2, xmm6
-        }
-        if ( !v17 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+14h]
-            vmovss  xmm1, dword ptr [rax+4]
-            vmulss  xmm2, xmm1, dword ptr [rbx+10h]
-            vmulss  xmm3, xmm0, dword ptr [rax+8]
-            vmovss  xmm0, dword ptr [rbx+18h]
-            vmulss  xmm1, xmm0, dword ptr [rax+0Ch]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vcomiss xmm2, xmm6
-          }
-          if ( !v17 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+20h]
-              vmovss  xmm1, dword ptr [rax+10h]
-              vmulss  xmm2, xmm1, dword ptr [rbx+1Ch]
-              vmulss  xmm3, xmm0, dword ptr [rax+14h]
-              vmovss  xmm0, dword ptr [rbx+24h]
-              vmulss  xmm1, xmm0, dword ptr [rax+18h]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vcomiss xmm2, xmm6
-            }
-            if ( !v17 )
-              break;
-          }
-        }
-        ++v18;
-        _RAX += 9;
-        v17 = v18 <= 5;
-        if ( v18 >= 5 )
-          goto LABEL_16;
-      }
-      MatrixCopy33(&WorldUpReferenceFrame::m_standardAxis[v18], &_RBX->m_axis);
-LABEL_16:
-      __asm
-      {
-        vmovaps xmm7, [rsp+78h+var_28]
-        vmovaps xmm8, [rsp+78h+var_38]
-      }
+      MatrixCopy33(&WorldUpReferenceFrame::m_standardAxis[v6], &this->m_axis);
     }
-    __asm { vmovaps xmm6, [rsp+78h+var_18] }
   }
 }
 
@@ -3047,48 +2192,26 @@ void WorldUpReferenceFramePM::SetToWorldFallTransition(WorldUpReferenceFramePM *
 WorldUpReferenceFrame::SetUpContribution
 ==============
 */
-
-void __fastcall WorldUpReferenceFrame::SetUpContribution(WorldUpReferenceFrame *this, double height, vec3_t *vec)
+void WorldUpReferenceFrame::SetUpContribution(WorldUpReferenceFrame *this, float height, vec3_t *vec)
 {
-  __asm
-  {
-    vmovaps [rsp+28h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rcx+1Ch]
-      vmovss  xmm5, dword ptr [r8+4]
-      vmulss  xmm1, xmm5, dword ptr [rcx+20h]
-      vmulss  xmm0, xmm3, dword ptr [r8]
-      vaddss  xmm2, xmm1, xmm0
-      vmovaps [rsp+28h+var_18], xmm6
-      vmovss  xmm6, dword ptr [r8+8]
-      vmulss  xmm1, xmm6, dword ptr [rcx+24h]
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm7, xmm0
-      vmovaps xmm7, [rsp+28h+var_28]
-      vmulss  xmm0, xmm2, xmm3
-      vaddss  xmm1, xmm0, dword ptr [r8]
-      vmovss  dword ptr [r8], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rcx+20h]
-      vaddss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [r8+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rcx+24h]
-      vaddss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+28h+var_18]
-      vmovss  dword ptr [r8+8], xmm1
-    }
+    v3 = this->m_axis.m[2].v[0];
+    v4 = vec->v[1];
+    v5 = vec->v[2];
+    v6 = height - (float)((float)((float)(v4 * this->m_axis.m[2].v[1]) + (float)(v3 * vec->v[0])) + (float)(v5 * this->m_axis.m[2].v[2]));
+    vec->v[0] = (float)(v6 * v3) + vec->v[0];
+    vec->v[1] = (float)(v6 * this->m_axis.m[2].v[1]) + v4;
+    vec->v[2] = (float)(v6 * this->m_axis.m[2].v[2]) + v5;
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [r8+8], xmm1
-      vmovaps xmm7, [rsp+28h+var_28]
-    }
+    vec->v[2] = height;
   }
 }
 
@@ -3099,73 +2222,53 @@ WorldUpReferenceFrame::Unlink
 */
 void WorldUpReferenceFrame::Unlink(WorldUpReferenceFrame *this, playerState_s *ps, const BgWeaponMap *weaponMap, const BgHandler *handler, const int useParentAngles, const vec3_t *parentAngles)
 {
+  float v10; 
+  float v11; 
+  float v12; 
   bool m_axisAdjusted; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   const vec3_t *p_angles; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   vec3_t outOrigin; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 355, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 356, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 341, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 341, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_world_up.cpp", 342, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  BG_GetPlayerEyePosition(weaponMap, _RBX, &outOrigin, handler);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+34h]
-    vsubss  xmm0, xmm7, dword ptr [rsp+110h+outOrigin+4]
-    vmovss  xmm5, dword ptr [rbx+30h]
-    vsubss  xmm2, xmm5, dword ptr [rsp+110h+outOrigin]
-    vmovss  xmm4, dword ptr [rbx+38h]
-    vsubss  xmm3, xmm4, dword ptr [rsp+110h+outOrigin+8]
-  }
+  BG_GetPlayerEyePosition(weaponMap, ps, &outOrigin, handler);
+  v10 = ps->origin.v[1];
+  v11 = ps->origin.v[0];
+  v12 = ps->origin.v[2];
   m_axisAdjusted = this->m_axisAdjusted;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-    vmovss  dword ptr [rsp+110h+outOrigin], xmm5
-    vmovss  dword ptr [rsp+110h+outOrigin+4], xmm7
-  }
+  v15 = fsqrt((float)((float)((float)(v10 - outOrigin.v[1]) * (float)(v10 - outOrigin.v[1])) + (float)((float)(v11 - outOrigin.v[0]) * (float)(v11 - outOrigin.v[0]))) + (float)((float)(v12 - outOrigin.v[2]) * (float)(v12 - outOrigin.v[2])));
+  v14 = v15;
+  outOrigin.v[0] = v11;
+  outOrigin.v[1] = v10;
   if ( m_axisAdjusted )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rdi+1Ch]
-      vaddss  xmm1, xmm0, xmm5
-      vmulss  xmm0, xmm6, dword ptr [rdi+20h]
-      vmovss  dword ptr [rsp+110h+outOrigin], xmm1
-      vaddss  xmm1, xmm0, xmm7
-      vmulss  xmm0, xmm6, dword ptr [rdi+24h]
-      vmovss  dword ptr [rsp+110h+outOrigin+4], xmm1
-      vaddss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rsp+110h+outOrigin+8], xmm1
-    }
+    v16 = v15 * this->m_axis.m[2].v[1];
+    outOrigin.v[0] = (float)(v15 * this->m_axis.m[2].v[0]) + v11;
+    v17 = v15 * this->m_axis.m[2].v[2];
+    outOrigin.v[1] = v16 + v10;
+    outOrigin.v[2] = v17 + v12;
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm4, xmm6
-      vmovss  dword ptr [rsp+110h+outOrigin+8], xmm0
-    }
+    outOrigin.v[2] = v12 + v15;
   }
   if ( useParentAngles && parentAngles )
   {
@@ -3173,15 +2276,10 @@ void WorldUpReferenceFrame::Unlink(WorldUpReferenceFrame *this, playerState_s *p
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+280h]
-      vmovss  xmm1, dword ptr [rbx+284h]
-      vmovss  dword ptr [rsp+110h+angles], xmm0
-      vmovss  xmm0, dword ptr [rbx+288h]
-      vmovss  dword ptr [rsp+110h+angles+8], xmm0
-      vmovss  dword ptr [rsp+110h+angles+4], xmm1
-    }
+    v19 = ps->linkAngles.v[1];
+    angles.v[0] = ps->linkAngles.v[0];
+    angles.v[2] = ps->linkAngles.v[2];
+    angles.v[1] = v19;
     if ( m_axisAdjusted )
     {
       AnglesToAxis(&angles, &axis);
@@ -3194,45 +2292,24 @@ void WorldUpReferenceFrame::Unlink(WorldUpReferenceFrame *this, playerState_s *p
     }
     p_angles = &angles;
   }
-  WorldUpReferenceFrame::SetAnglesAndNormalizeViewAngles(this, _RBX, handler, p_angles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+110h+outOrigin]
-    vmovss  xmm1, dword ptr [rsp+110h+outOrigin+4]
-    vxorps  xmm2, xmm6, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rbx+30h], xmm0
-    vmovss  xmm0, dword ptr [rsp+110h+outOrigin+8]
-    vmovss  dword ptr [rbx+38h], xmm0
-    vmovss  dword ptr [rbx+34h], xmm1
-  }
+  WorldUpReferenceFrame::SetAnglesAndNormalizeViewAngles(this, ps, handler, p_angles);
+  v20 = outOrigin.v[1];
+  LODWORD(v21) = LODWORD(v14) ^ _xmm;
+  ps->origin.v[0] = outOrigin.v[0];
+  v22 = outOrigin.v[2];
+  ps->origin.v[2] = outOrigin.v[2];
+  ps->origin.v[1] = v20;
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm2, dword ptr [rdi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rbx+30h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdi+20h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+34h]
-      vmovss  dword ptr [rbx+34h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdi+24h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+38h]
-      vmovss  dword ptr [rbx+38h], xmm1
-    }
+    ps->origin.v[0] = (float)(v21 * this->m_axis.m[2].v[0]) + ps->origin.v[0];
+    ps->origin.v[1] = (float)(v21 * this->m_axis.m[2].v[1]) + ps->origin.v[1];
+    v23 = (float)(v21 * this->m_axis.m[2].v[2]) + ps->origin.v[2];
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm2, xmm0
-      vmovss  dword ptr [rbx+38h], xmm0
-    }
+    v23 = v21 + v22;
   }
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+110h+var_58+8]
-    vmovaps xmm7, [rsp+110h+var_68+8]
-  }
+  ps->origin.v[2] = v23;
 }
 
 /*
@@ -3242,44 +2319,21 @@ WorldUpReferenceFrame::UnpackEntityStateAngles
 */
 void WorldUpReferenceFrame::UnpackEntityStateAngles(int angles, vec3_t *outWorldUpAngles)
 {
-  unsigned int v9; 
+  unsigned int v2; 
+  __int64 v3; 
+  float v4; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovss  xmm7, cs:__real@3f345a2d
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rdx], xmm0
-    vxorps  xmm0, xmm0, xmm0
-  }
-  v9 = 0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rdx+4], xmm0
-  }
-  _RSI = outWorldUpAngles;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmovss  dword ptr [rdx+8], xmm0
-  }
+  outWorldUpAngles->v[0] = (float)(angles & 0x1FF);
+  v2 = 0;
+  outWorldUpAngles->v[1] = (float)((angles >> 9) & 0x1FF);
+  outWorldUpAngles->v[2] = (float)((angles >> 18) & 0x1FF);
   do
   {
-    _RDI = (int)v9;
-    __asm { vmulss  xmm6, xmm7, dword ptr [rsi+rdi*4] }
-    ++v9;
-    __asm { vmovss  dword ptr [rsi+rdi*4], xmm6 }
+    v3 = (int)v2;
+    v4 = 0.70450097 * outWorldUpAngles->v[v2++];
+    outWorldUpAngles->v[v3] = v4;
   }
-  while ( v9 < 3 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
+  while ( v2 < 3 );
 }
 
 /*
@@ -3289,13 +2343,25 @@ WorldUpReferenceFramePM::UpdateArbitraryUpForGroundUpdate
 */
 void WorldUpReferenceFramePM::UpdateArbitraryUpForGroundUpdate(WorldUpReferenceFramePM *this, pmove_t *pm, const pml_t *pml, const trace_t *trace)
 {
-  unsigned int v22; 
-  bool v23; 
+  playerState_s *ps; 
+  double v9; 
+  unsigned int i; 
+  float v11; 
   bool m_axisAdjusted; 
-  char v53; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float fraction; 
+  float v23; 
   vec3_t start; 
   vec3_t end; 
-  vec3_t v73; 
+  vec3_t v26; 
   vec3_t outOrigin; 
   vec3_t angles; 
   vec3_t outNormal; 
@@ -3314,193 +2380,92 @@ void WorldUpReferenceFramePM::UpdateArbitraryUpForGroundUpdate(WorldUpReferenceF
     WorldUpMp_UpdateArbitraryUpForGroundUpdate(pm, pml, trace);
     return;
   }
-  _R14 = pm->ps;
-  if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_MID_AIR_DETACH|WEAPON_OFFHAND_END|0x80) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&_R14->otherFlags, DEAD|PRONE|0x20) )
+  ps = pm->ps;
+  if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_MID_AIR_DETACH|WEAPON_OFFHAND_END|0x80) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&ps->otherFlags, DEAD|PRONE|0x20) )
   {
-    if ( BG_IsPlayerZeroG(_R14) )
+    if ( BG_IsPlayerZeroG(ps) )
     {
-      if ( !BG_IsPlayerZeroGWalking(_R14) )
+      if ( !BG_IsPlayerZeroGWalking(ps) )
         return;
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2612, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2612, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
     }
-    if ( !WorldUpReferenceFrame::HasValidWorldUpEnt(_R14) && WorldUpReferenceFramePM::CalculateNormalForGroundUpdate(this, pm, &outNormal) )
+    if ( !WorldUpReferenceFrame::HasValidWorldUpEnt(ps) && WorldUpReferenceFramePM::CalculateNormalForGroundUpdate(this, pm, &outNormal) )
     {
-      __asm
-      {
-        vmovaps [rsp+1D0h+var_40], xmm6
-        vmovaps [rsp+1D0h+var_50], xmm7
-        vmovaps [rsp+1D0h+var_60], xmm8
-      }
       GenerateAxisFromUpVector(&outNormal, &pm->refFrame.m_axis, &outAxis);
-      __asm
-      {
-        vmovss  xmm0, cs:WORLD_UP_GROUND_SOLVER_BLEND_STRENGTH
-        vmulss  xmm0, xmm0, dword ptr [rdi+24h]; val
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vxorps  xmm8, xmm8, xmm8
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm2, xmm0; fraction }
-      BgSpaceship::AxisLerp(&pm->refFrame.m_axis, &outAxis, *(const float *)&_XMM2, &axis);
+      v9 = I_fclamp(WORLD_UP_GROUND_SOLVER_BLEND_STRENGTH * pml->frametime, 0.0, 1.0);
+      BgSpaceship::AxisLerp(&pm->refFrame.m_axis, &outAxis, *(const float *)&v9, &axis);
       if ( pm->refFrame.m_axisAdjusted )
-      {
         AxisToAngles(&pm->refFrame.m_axis, &angles);
-      }
       else
+        angles = vec3_origin;
+      AxisToAngles(&axis, &v26);
+      for ( i = 0; i < 3; ++i )
       {
-        __asm
-        {
-          vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-          vmovsd  qword ptr [rbp+0D0h+angles], xmm0
-        }
-        angles.v[2] = vec3_origin.v[2];
+        if ( v26.v[i] != 0.0 && (COERCE_FLOAT(LODWORD(v26.v[i]) & _xmm) < *(float *)&dword_14503F444 || COERCE_FLOAT(COERCE_UNSIGNED_INT(360.0 - v26.v[i]) & _xmm) < *(float *)&dword_14503F444) )
+          v26.v[i] = 0.0;
       }
-      AxisToAngles(&axis, &v73);
-      __asm
-      {
-        vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm7, cs:__real@43b40000
-      }
-      v22 = 0;
-      v23 = 0;
-      do
-      {
-        _RDI = (int)v22;
-        __asm { vucomiss xmm8, dword ptr [rsp+rdi*4+1D0h+var_160] }
-        if ( !v23 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+rdi*4+1D0h+var_160]
-            vandps  xmm0, xmm0, xmm6
-            vcomiss xmm0, cs:dword_14503F444
-          }
-          v73.v[v22] = 0.0;
-        }
-        v23 = ++v22 == 3;
-      }
-      while ( v22 < 3 );
-      WorldUpReferenceFrame::SetAngles(&pm->refFrame, _R14, pm->m_bgHandler, &v73);
-      __asm { vmovss  xmm1, dword ptr [r14+30h] }
+      WorldUpReferenceFrame::SetAngles(&pm->refFrame, ps, pm->m_bgHandler, &v26);
+      v11 = ps->origin.v[0];
       m_axisAdjusted = pm->refFrame.m_axisAdjusted;
-      __asm
-      {
-        vmovaps xmm8, [rsp+1D0h+var_60]
-        vmovaps xmm7, [rsp+1D0h+var_50]
-        vmovss  dword ptr [rsp+1D0h+start], xmm1
-        vmovss  xmm4, dword ptr [r14+34h]
-        vmovss  dword ptr [rsp+1D0h+start+4], xmm4
-        vmovss  xmm3, dword ptr [r14+38h]
-      }
+      start.v[0] = v11;
+      v13 = ps->origin.v[1];
+      start.v[1] = v13;
+      v14 = ps->origin.v[2];
       if ( m_axisAdjusted )
       {
-        __asm
-        {
-          vmovss  xmm2, cs:WORLD_UP_GROUND_SOLVER_TRACE_UP
-          vmulss  xmm0, xmm2, dword ptr [rsi+370h]
-          vaddss  xmm1, xmm0, xmm1
-          vmulss  xmm0, xmm2, dword ptr [rsi+374h]
-          vmovss  dword ptr [rsp+1D0h+start], xmm1
-          vaddss  xmm1, xmm0, xmm4
-          vmulss  xmm0, xmm2, dword ptr [rsi+378h]
-          vmovss  dword ptr [rsp+1D0h+start+4], xmm1
-          vaddss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rsp+1D0h+start+8], xmm1
-        }
+        v15 = WORLD_UP_GROUND_SOLVER_TRACE_UP * pm->refFrame.m_axis.m[2].v[1];
+        start.v[0] = (float)(WORLD_UP_GROUND_SOLVER_TRACE_UP * pm->refFrame.m_axis.m[2].v[0]) + v11;
+        v16 = WORLD_UP_GROUND_SOLVER_TRACE_UP * pm->refFrame.m_axis.m[2].v[2];
+        start.v[1] = v15 + v13;
+        start.v[2] = v16 + v14;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm0, xmm3, cs:WORLD_UP_GROUND_SOLVER_TRACE_UP
-          vmovss  dword ptr [rsp+1D0h+start+8], xmm0
-        }
+        start.v[2] = v14 + WORLD_UP_GROUND_SOLVER_TRACE_UP;
       }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14+30h]
-        vmovss  dword ptr [rsp+1D0h+end], xmm1
-        vmovss  xmm4, dword ptr [r14+34h]
-        vmovss  dword ptr [rsp+1D0h+end+4], xmm4
-        vmovss  xmm3, dword ptr [r14+38h]
-      }
+      v17 = ps->origin.v[0];
+      end.v[0] = v17;
+      v18 = ps->origin.v[1];
+      end.v[1] = v18;
+      v19 = ps->origin.v[2];
       if ( m_axisAdjusted )
       {
-        __asm
-        {
-          vmovss  xmm2, cs:WORLD_UP_GROUND_SOLVER_TRACE_DOWN
-          vmulss  xmm0, xmm2, dword ptr [rsi+370h]
-          vaddss  xmm1, xmm0, xmm1
-          vmulss  xmm0, xmm2, dword ptr [rsi+374h]
-          vmovss  dword ptr [rsp+1D0h+end], xmm1
-          vaddss  xmm1, xmm0, xmm4
-          vmulss  xmm0, xmm2, dword ptr [rsi+378h]
-          vmovss  dword ptr [rsp+1D0h+end+4], xmm1
-          vaddss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rsp+1D0h+end+8], xmm1
-        }
+        v20 = WORLD_UP_GROUND_SOLVER_TRACE_DOWN * pm->refFrame.m_axis.m[2].v[1];
+        end.v[0] = (float)(WORLD_UP_GROUND_SOLVER_TRACE_DOWN * pm->refFrame.m_axis.m[2].v[0]) + v17;
+        v21 = WORLD_UP_GROUND_SOLVER_TRACE_DOWN * pm->refFrame.m_axis.m[2].v[2];
+        end.v[1] = v20 + v18;
+        end.v[2] = v21 + v19;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm0, xmm3, cs:WORLD_UP_GROUND_SOLVER_TRACE_DOWN
-          vmovss  dword ptr [rsp+1D0h+end+8], xmm0
-        }
+        end.v[2] = v19 + WORLD_UP_GROUND_SOLVER_TRACE_DOWN;
       }
-      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &end, pm->bounds, _R14->clientNum, pm->tracemask);
-      __asm
+      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &end, pm->bounds, ps->clientNum, pm->tracemask);
+      if ( results.fraction < 1.0 && !results.startsolid )
       {
-        vmovss  xmm0, [rbp+0D0h+results.fraction]
-        vcomiss xmm0, cs:__real@3f800000
+        if ( BG_IsPlayerZeroG(ps) )
+        {
+          fraction = results.fraction;
+          ps->origin.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+          ps->origin.v[1] = (float)((float)(end.v[1] - start.v[1]) * fraction) + start.v[1];
+          ps->origin.v[2] = (float)((float)(end.v[2] - start.v[2]) * fraction) + start.v[2];
+          ps->rollVelocity = 0.0;
+          return;
+        }
+        goto LABEL_42;
       }
-      if ( !v53 || results.startsolid )
+      if ( PM_ResolvePlayerPenetration(pm, &ps->origin, NULL, pm->bounds, NULL, pm->tracemask, 0, &outOrigin, NULL) )
       {
-        if ( !PM_ResolvePlayerPenetration(pm, &_R14->origin, NULL, pm->bounds, NULL, pm->tracemask, 0, &outOrigin, NULL) )
-        {
-          WorldUpReferenceFrame::SetAngles(&pm->refFrame, _R14, pm->m_bgHandler, &angles);
-          goto LABEL_42;
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0D0h+outOrigin]
-          vmovss  xmm1, dword ptr [rbp+0D0h+outOrigin+4]
-          vmovss  dword ptr [r14+30h], xmm0
-          vmovss  xmm0, dword ptr [rbp+0D0h+outOrigin+8]
-          vmovss  dword ptr [r14+38h], xmm0
-          vmovss  dword ptr [r14+34h], xmm1
-        }
-      }
-      else if ( BG_IsPlayerZeroG(_R14) )
-      {
-        __asm
-        {
-          vmovss  xmm6, [rbp+0D0h+results.fraction]
-          vmovss  xmm0, dword ptr [rsp+1D0h+end]
-          vsubss  xmm1, xmm0, dword ptr [rsp+1D0h+start]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rsp+1D0h+start]
-          vmovss  dword ptr [r14+30h], xmm3
-          vmovss  xmm0, dword ptr [rsp+1D0h+end+4]
-          vsubss  xmm1, xmm0, dword ptr [rsp+1D0h+start+4]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rsp+1D0h+start+4]
-          vmovss  dword ptr [r14+34h], xmm3
-          vmovss  xmm0, dword ptr [rsp+1D0h+end+8]
-          vsubss  xmm1, xmm0, dword ptr [rsp+1D0h+start+8]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rsp+1D0h+start+8]
-          vmovss  dword ptr [r14+38h], xmm3
-        }
-        _R14->rollVelocity = 0.0;
+        v23 = outOrigin.v[1];
+        ps->origin.v[0] = outOrigin.v[0];
+        ps->origin.v[2] = outOrigin.v[2];
+        ps->origin.v[1] = v23;
 LABEL_42:
-        __asm { vmovaps xmm6, [rsp+1D0h+var_40] }
+        ps->rollVelocity = 0.0;
         return;
       }
-      _R14->rollVelocity = 0.0;
-      goto LABEL_42;
+      WorldUpReferenceFrame::SetAngles(&pm->refFrame, ps, pm->m_bgHandler, &angles);
     }
   }
 }
@@ -3510,86 +2475,48 @@ LABEL_42:
 WorldUpReferenceFrame::Vec2Dot
 ==============
 */
-
-float __fastcall WorldUpReferenceFrame::Vec2Dot(WorldUpReferenceFrame *this, const vec3_t *dirA, const vec3_t *dirB, double _XMM3_8)
+float WorldUpReferenceFrame::Vec2Dot(WorldUpReferenceFrame *this, const vec3_t *dirA, const vec3_t *dirB)
 {
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdx+8]
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovaps [rsp+98h+var_58], xmm10
-    vmovss  xmm10, dword ptr [rdx]
-    vmovaps [rsp+98h+var_68], xmm11
-    vmovss  xmm11, dword ptr [rdx+4]
-    vmovaps [rsp+98h+var_78], xmm12
-    vmovss  xmm12, dword ptr [r8]
-    vmovaps [rsp+98h+var_88], xmm13
-    vmovss  xmm13, dword ptr [r8+4]
-    vmovaps [rsp+98h+var_98], xmm14
-    vmovss  xmm14, dword ptr [r8+8]
-  }
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+
+  v3 = dirA->v[2];
+  v4 = dirA->v[0];
+  v5 = dirA->v[1];
+  v6 = dirB->v[0];
+  v7 = dirB->v[1];
+  v8 = dirB->v[2];
   if ( this->m_axisAdjusted )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rcx+1Ch]
-      vmovaps [rsp+98h+var_28], xmm7
-      vmovss  xmm7, dword ptr [rcx+24h]
-      vmovaps [rsp+98h+var_38], xmm8
-      vmovss  xmm8, dword ptr [rcx+20h]
-      vmulss  xmm1, xmm8, xmm11
-      vmulss  xmm0, xmm6, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm1, xmm8, xmm2
-      vaddss  xmm10, xmm0, xmm10
-      vmulss  xmm0, xmm7, xmm2
-      vmulss  xmm2, xmm6, xmm12
-      vaddss  xmm9, xmm0, xmm4
-      vmulss  xmm0, xmm14, xmm7
-      vaddss  xmm11, xmm1, xmm11
-      vmulss  xmm1, xmm13, xmm8
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm4, xmm3, xmm0
-      vxorps  xmm2, xmm4, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm2, xmm6
-      vmovaps xmm6, [rsp+98h+var_18]
-      vmulss  xmm1, xmm2, xmm8
-      vmovaps xmm8, [rsp+98h+var_38]
-      vaddss  xmm12, xmm0, xmm12
-      vmulss  xmm0, xmm7, xmm2
-      vmovaps xmm7, [rsp+98h+var_28]
-      vaddss  xmm3, xmm0, xmm14
-      vaddss  xmm13, xmm1, xmm13
-    }
+    v11 = this->m_axis.m[2].v[0];
+    v12 = this->m_axis.m[2].v[2];
+    v13 = this->m_axis.m[2].v[1];
+    LODWORD(v14) = COERCE_UNSIGNED_INT((float)((float)(v13 * v5) + (float)(v11 * v4)) + (float)(v12 * v3)) ^ _xmm;
+    v4 = (float)(v11 * v14) + v4;
+    v9 = (float)(v12 * v14) + v3;
+    v5 = (float)(v13 * v14) + v5;
+    LODWORD(v15) = COERCE_UNSIGNED_INT((float)((float)(v11 * v6) + (float)(v7 * v13)) + (float)(v8 * v12)) ^ _xmm;
+    v6 = (float)(v15 * v11) + v6;
+    v10 = (float)(v12 * v15) + v8;
+    v7 = (float)(v15 * v13) + v7;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm3, xmm3, xmm3
-    }
+    v9 = 0.0;
+    v10 = 0.0;
   }
-  __asm
-  {
-    vmovaps xmm14, [rsp+98h+var_98]
-    vmulss  xmm1, xmm10, xmm12
-    vmovaps xmm10, [rsp+98h+var_58]
-    vmovaps xmm12, [rsp+98h+var_78]
-    vmulss  xmm0, xmm13, xmm11
-    vmovaps xmm11, [rsp+98h+var_68]
-    vmovaps xmm13, [rsp+98h+var_88]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm3
-    vmovaps xmm9, [rsp+98h+var_48]
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)(v4 * v6) + (float)(v7 * v5)) + (float)(v9 * v10);
 }
 
 /*

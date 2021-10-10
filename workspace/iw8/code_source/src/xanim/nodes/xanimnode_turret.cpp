@@ -133,155 +133,120 @@ XAnimTurret_Update
 */
 void XAnimTurret_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex, float dtime)
 {
-  scr_string_t **v13; 
-  unsigned __int8 *v14; 
-  __int64 v15; 
-  char v16; 
-  int v17; 
-  unsigned int v35; 
-  int v37; 
-  refdef_t *v55; 
+  scr_string_t **v8; 
+  unsigned __int8 *v9; 
+  __int64 v10; 
+  char v11; 
+  int v12; 
+  const dvar_t *v13; 
+  float value; 
+  float v15; 
+  float v16; 
+  float *v17; 
+  float v18; 
+  unsigned int v19; 
+  float v20; 
+  int v21; 
+  vec3_t *v22; 
+  float v23; 
+  float v24; 
+  refdef_t *v25; 
   int modelIndex[4]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBX = nodeData;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 349, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 350, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 351, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
     __debugbreak();
-  if ( _RBX[1052] )
+  if ( *((_BYTE *)nodeData + 1052) )
   {
-    v16 = _RBX[1053];
+    v11 = *((_BYTE *)nodeData + 1053);
   }
   else
   {
-    v13 = (scr_string_t **)s_tagNames;
-    v14 = _RBX;
-    _RBX[1052] = 1;
-    v15 = 12i64;
+    v8 = (scr_string_t **)s_tagNames;
+    v9 = (unsigned __int8 *)nodeData;
+    *((_BYTE *)nodeData + 1052) = 1;
+    v10 = 12i64;
     do
     {
-      if ( *v14 == 0xFE )
+      if ( *v9 == 0xFE )
       {
-        DObjGetBoneIndexInternal_34(obj, **v13, v14, modelIndex);
-        if ( *v14 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 318, ASSERT_TYPE_ASSERT, "(binfo.boneIndex < 254)", "%s\n\tXAnimTurret: tag isn't found", "binfo.boneIndex < UNDEFINED_BONEINDEX") )
+        DObjGetBoneIndexInternal_34(obj, **v8, v9, modelIndex);
+        if ( *v9 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 318, ASSERT_TYPE_ASSERT, "(binfo.boneIndex < 254)", "%s\n\tXAnimTurret: tag isn't found", "binfo.boneIndex < UNDEFINED_BONEINDEX") )
           __debugbreak();
       }
-      v14 += 52;
-      ++v13;
-      --v15;
+      v9 += 52;
+      ++v8;
+      --v10;
     }
-    while ( v15 );
-    v16 = 0;
-    _RBX[1053] = 0;
+    while ( v10 );
+    v11 = 0;
+    *((_BYTE *)nodeData + 1053) = 0;
   }
-  v17 = *((_DWORD *)_RBX + 156);
-  if ( v17 != *((_DWORD *)_RBX + 174) )
+  v12 = *((_DWORD *)nodeData + 156);
+  if ( v12 != *((_DWORD *)nodeData + 174) )
   {
-    *((_DWORD *)_RBX + 174) = v17;
+    *((_DWORD *)nodeData + 174) = v12;
 LABEL_22:
-    _RBX[1053] = 1;
+    *((_BYTE *)nodeData + 1053) = 1;
     goto LABEL_23;
   }
-  if ( !v16 )
+  if ( !v11 )
     goto LABEL_22;
 LABEL_23:
-  _RDI = DCONST_DVARFLT_turret_deploy_cover_speed;
+  v13 = DCONST_DVARFLT_turret_deploy_cover_speed;
   if ( !DCONST_DVARFLT_turret_deploy_cover_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turret_deploy_cover_speed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vmovss  xmm2, dword ptr [rbx+3E4h]
-    vmovss  xmm5, [rsp+0B8h+dtime]
-    vmovss  xmm4, dword ptr [rbx+3ECh]
-    vmovss  xmm0, dword ptr [rbx+3E0h]
-    vmovss  xmm8, cs:dword_147F8EA04
-  }
-  _R8 = _RBX + 708;
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm1, xmm1, xmm5
-    vmulss  xmm0, xmm1, xmm6
-    vaddss  xmm2, xmm0, xmm2
-    vmovss  xmm0, dword ptr [rbx+3E8h]
-    vsubss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rbx+3E4h], xmm2
-    vmulss  xmm2, xmm1, xmm5
-    vmulss  xmm3, xmm2, xmm6
-    vaddss  xmm0, xmm3, xmm4
-    vmovss  dword ptr [rbx+3ECh], xmm0
-  }
-  v35 = 0;
-  __asm { vmulss  xmm9, xmm6, xmm5 }
+  Dvar_CheckFrontendServerThread(v13);
+  value = v13->current.value;
+  v15 = *((float *)nodeData + 251);
+  v16 = *(float *)&dword_147F8EA04;
+  v17 = (float *)((char *)nodeData + 708);
+  v18 = *((float *)nodeData + 250) - v15;
+  *((float *)nodeData + 249) = (float)((float)((float)(*((float *)nodeData + 248) - *((float *)nodeData + 249)) * dtime) * value) + *((float *)nodeData + 249);
+  *((float *)nodeData + 251) = (float)((float)(v18 * dtime) * value) + v15;
+  v19 = 0;
+  v20 = value * dtime;
   do
   {
-    v37 = *((_DWORD *)_RBX + 247);
-    if ( v37 )
+    v21 = *((_DWORD *)nodeData + 247);
+    if ( v21 )
     {
-      if ( v37 == 1 )
+      if ( v21 == 1 )
       {
-        __asm { vcomiss xmm8, dword ptr [rbx+3E4h] }
-        _RAX = &s_foldedPoseAngles[v35];
+        if ( v16 <= *((float *)nodeData + 249) )
+          v22 = &s_foldedPoseAngles[v19];
+        else
+          v22 = &s_foldedMaxPoseAngles[v19];
       }
       else
       {
-        _RAX = &vec3_origin;
+        v22 = &vec3_origin;
       }
     }
     else
     {
-      _RAX = (vec3_t *)&_RBX[12 * v35 + 844];
+      v22 = (vec3_t *)((char *)nodeData + 12 * v19 + 844);
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm1, xmm0, dword ptr [r8-8]
-      vmovss  xmm5, dword ptr [rax+4]
-      vmovss  xmm7, dword ptr [rax+8]
-      vmulss  xmm2, xmm1, xmm9
-      vaddss  xmm3, xmm2, dword ptr [r8-8]
-      vmovss  dword ptr [r8-8], xmm3
-      vsubss  xmm0, xmm5, dword ptr [r8-4]
-      vmulss  xmm1, xmm0, xmm9
-      vaddss  xmm2, xmm1, dword ptr [r8-4]
-      vmovss  dword ptr [r8-4], xmm2
-      vsubss  xmm0, xmm7, dword ptr [r8]
-      vmulss  xmm1, xmm0, xmm9
-      vaddss  xmm2, xmm1, dword ptr [r8]
-      vmovss  dword ptr [r8], xmm2
-    }
-    _R8 += 12;
-    ++v35;
+    v23 = v22->v[1];
+    v24 = v22->v[2];
+    *(v17 - 2) = (float)((float)(v22->v[0] - *(v17 - 2)) * v20) + *(v17 - 2);
+    *(v17 - 1) = (float)((float)(v23 - *(v17 - 1)) * v20) + *(v17 - 1);
+    *v17 = (float)((float)(v24 - *v17) * v20) + *v17;
+    v17 += 3;
+    ++v19;
   }
-  while ( v35 < 0xC );
-  __asm
-  {
-    vmovaps xmm9, [rsp+0B8h+var_68]
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm6, [rsp+0B8h+var_38]
-  }
-  *((_QWORD *)_RBX + 126) = 0i64;
-  *((_DWORD *)_RBX + 254) = 0;
-  v55 = g_activeRefDef;
+  while ( v19 < 0xC );
+  *((_QWORD *)nodeData + 126) = 0i64;
+  *((_DWORD *)nodeData + 254) = 0;
+  v25 = g_activeRefDef;
   if ( g_activeRefDef )
   {
-    *((_DWORD *)_RBX + 252) = LODWORD(g_activeRefDef->viewOffset.v[0]);
-    *((_DWORD *)_RBX + 253) = LODWORD(v55->viewOffset.v[1]);
-    *((_DWORD *)_RBX + 254) = LODWORD(v55->viewOffset.v[2]);
+    *((_DWORD *)nodeData + 252) = LODWORD(g_activeRefDef->viewOffset.v[0]);
+    *((_DWORD *)nodeData + 253) = LODWORD(v25->viewOffset.v[1]);
+    *((_DWORD *)nodeData + 254) = LODWORD(v25->viewOffset.v[2]);
   }
 }
 
@@ -292,160 +257,139 @@ XAnimTurret_Calc
 */
 void XAnimTurret_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
-  unsigned __int8 *v15; 
-  const vec3_t *v16; 
-  unsigned __int8 v17; 
-  int v24; 
-  XAnimCalcBuffer *v31; 
+  unsigned __int8 *v11; 
+  const vec3_t *v12; 
+  unsigned __int8 v13; 
+  int v15; 
+  __int128 v17; 
+  XAnimCalcBuffer *v20; 
+  float *v21; 
   XAnimTurret *pNode; 
-  __int64 v34; 
-  const DObj *v35; 
-  XAnimCalcAnimInfo *v36; 
-  unsigned __int8 v37; 
+  __int64 v23; 
+  const DObj *v24; 
+  XAnimCalcAnimInfo *v25; 
+  unsigned __int8 v26; 
+  vec4_t v27; 
+  vec4_t v28; 
+  float v29; 
+  float v30; 
   const float4 *fmt; 
   float4 *outModelTranslation; 
-  float v49; 
-  __int64 v50; 
+  __int64 v33; 
   XAnimTurretParams params; 
-  __int128 v52; 
-  float4 v53; 
+  __int128 v35; 
+  float4 v36; 
   vec4_t quat; 
-  vec4_t v55; 
+  vec4_t v38; 
   tmat33_t<vec3_t> dst; 
+  float v40; 
+  int v41; 
+  int v42; 
   tmat33_t<vec3_t> out; 
+  float v44; 
+  int v45; 
+  int v46; 
   float4 outModelQuat; 
   tmat33_t<vec3_t> axis; 
   DObjPartBits savedPartBits; 
   tmat33_t<vec3_t> in1; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   if ( !animCalcInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 687, ASSERT_TYPE_ASSERT, "(animCalcInfo)", (const char *)&queryFormat, "animCalcInfo") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 688, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm { vmovss  xmm7, [rbp+110h+weightScale] }
   params.bNormQuat = bNormQuat;
-  __asm { vmovss  [rsp+210h+params.weightScale], xmm7 }
+  params.weightScale = weightScale;
   params.pNode = (XAnimTurret *)nodeData;
   params.animCalcInfo = animCalcInfo;
   params.obj = obj;
   params.animInfo = animInfo;
   params.destBuffer = destBuffer;
   XAnimTurret_PreCalc(&params, &savedPartBits);
-  v50 = 9i64;
-  v15 = (unsigned __int8 *)nodeData + 156;
-  v16 = (const vec3_t *)((char *)nodeData + 736);
+  v33 = 9i64;
+  v11 = (unsigned __int8 *)nodeData + 156;
+  v12 = (const vec3_t *)((char *)nodeData + 736);
   do
   {
-    v17 = *v15;
+    v13 = *v11;
     if ( (!nodeData || !animCalcInfo || !obj || !destBuffer) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 420, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
       __debugbreak();
-    if ( v17 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 421, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
+    if ( v13 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 421, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
       __debugbreak();
-    XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v17, &outModelQuat, &v53);
+    XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v13, &outModelQuat, &v36);
+    _XMM1 = v36.v;
+    v40 = v36.v.m128_f32[0];
     __asm
     {
-      vmovups xmm1, xmmword ptr [rbp+110h+var_180.v]
-      vmovups xmm0, xmmword ptr [rbp+110h+outModelQuat.v]
-      vmovss  [rbp+110h+var_12C], xmm1
       vextractps [rbp+110h+var_128], xmm1, 1
       vextractps [rbp+110h+var_124], xmm1, 2
-      vmovups xmmword ptr [rbp+110h+quat], xmm0
     }
+    quat = (vec4_t)outModelQuat.v;
     QuatToAxis(&quat, &axis);
     MatrixCopy33(&axis, &dst);
-    __asm
-    {
-      vmovss  xmm0, [rbp+110h+var_12C]
-      vmovss  xmm1, [rbp+110h+var_128]
-      vmovss  [rbp+110h+var_FC], xmm0
-      vmovss  xmm0, [rbp+110h+var_124]
-      vmovss  [rbp+110h+var_F4], xmm0
-      vmovss  [rbp+110h+var_F8], xmm1
-    }
-    AnglesToAxis(v16, &in1);
+    v44 = v40;
+    v46 = v42;
+    v45 = v41;
+    AnglesToAxis(v12, &in1);
     MatrixMultiply(&in1, &dst, &out);
-    __asm { vmovss  xmm0, [rbp+110h+var_FC] }
-    v24 = *v15;
-    HIDWORD(v52) = 0;
+    v15 = *v11;
+    HIDWORD(v35) = 0;
+    v17 = v35;
+    *(float *)&v17 = v44;
+    _XMM6 = v17;
     __asm
     {
-      vmovups xmm6, xmmword ptr [rbp-80h]
-      vmovss  xmm6, xmm6, xmm0
       vinsertps xmm6, xmm6, [rbp+110h+var_F8], 110h+out+20h
       vinsertps xmm6, xmm6, [rbp+110h+var_F4], 110h+outModelQuat
-      vmovups xmmword ptr [rbp-80h], xmm6
     }
-    AxisToQuat(&out, &v55);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+110h+var_160]
-      vmovups xmm1, xmm6
-      vmovss  dword ptr [rsp+30h], xmm7
-    }
-    XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, v24, fmt, outModelTranslation, v49);
-    ++v16;
-    v15 += 52;
-    --v50;
+    v35 = _XMM6;
+    AxisToQuat(&out, &v38);
+    XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, v15, fmt, outModelTranslation, weightScale);
+    ++v12;
+    v11 += 52;
+    --v33;
   }
-  while ( v50 );
+  while ( v33 );
   XAnimTurret_ComputePivotHeight(&params);
   if ( *((_BYTE *)nodeData + 1053) == 1 )
   {
     XAnimTurret_InitPose(&params);
     *((_BYTE *)nodeData + 1053) = 2;
   }
-  v31 = params.destBuffer;
-  _RBX = (char *)nodeData + 48;
+  v20 = params.destBuffer;
+  v21 = (float *)((char *)nodeData + 48);
   pNode = params.pNode;
-  v34 = 12i64;
-  v35 = params.obj;
-  v36 = params.animCalcInfo;
+  v23 = 12i64;
+  v24 = params.obj;
+  v25 = params.animCalcInfo;
   do
   {
-    v37 = *(_RBX - 48);
-    if ( (!pNode || !v36 || !v35 || !v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 420, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
+    v26 = *((_BYTE *)v21 - 48);
+    if ( (!pNode || !v25 || !v24 || !v20) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 420, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
       __debugbreak();
-    if ( v37 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 421, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
+    if ( v26 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 421, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
       __debugbreak();
-    XAnimGetLocalBoneTransform(v36, v35, v31, v37, (float4 *)&v55, (float4 *)&quat);
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rbp+110h+quat]
-      vmovups xmm0, xmmword ptr [rbp+110h+var_160]
-      vmovss  dword ptr [rbx-8], xmm3
-      vmovups xmmword ptr [rbp+110h+var_180.v], xmm0
-      vshufps xmm1, xmm3, xmm3, 55h ; 'U'
-      vmovss  dword ptr [rbx-4], xmm1
-      vshufps xmm2, xmm3, xmm3, 0AAh ; 'ª'
-      vmovss  dword ptr [rbx], xmm2
-      vaddss  xmm0, xmm3, dword ptr [rdi+3F0h]
-      vmovss  dword ptr [rbx-8], xmm0
-      vaddss  xmm1, xmm1, dword ptr [rdi+3F4h]
-      vmovss  dword ptr [rbx-4], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdi+3F8h]
-      vmovss  dword ptr [rbx], xmm0
-    }
-    QuatToAxis((const vec4_t *)&v53, &axis);
-    MatrixCopy33(&axis, (tmat33_t<vec3_t> *)(_RBX - 44));
-    _RBX += 52;
-    --v34;
+    XAnimGetLocalBoneTransform(v25, v24, v20, v26, (float4 *)&v38, (float4 *)&quat);
+    v27 = quat;
+    v28 = v38;
+    *(v21 - 2) = quat.v[0];
+    v36.v = (__m128)v28;
+    v29 = _mm_shuffle_ps((__m128)v27, (__m128)v27, 85).m128_f32[0];
+    *(v21 - 1) = v29;
+    v30 = _mm_shuffle_ps((__m128)v27, (__m128)v27, 170).m128_f32[0];
+    *v21 = v30;
+    *(v21 - 2) = v27.v[0] + pNode->entityViewOffset.v[0];
+    *(v21 - 1) = v29 + pNode->entityViewOffset.v[1];
+    *v21 = v30 + pNode->entityViewOffset.v[2];
+    QuatToAxis((const vec4_t *)&v36, &axis);
+    MatrixCopy33(&axis, (tmat33_t<vec3_t> *)(v21 - 11));
+    v21 += 13;
+    --v23;
   }
-  while ( v34 );
-  if ( (!pNode || !v36 || !v35 || !v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 477, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
+  while ( v23 );
+  if ( (!pNode || !v25 || !v24 || !v20) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 477, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
     __debugbreak();
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(v36->partBits, &savedPartBits);
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+210h+var_58+8]
-    vmovaps xmm7, [rsp+210h+var_68+8]
-  }
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(v25->partBits, &savedPartBits);
 }
 
 /*
@@ -455,35 +399,41 @@ XAnimTurret_Read
 */
 void XAnimTurret_Read(void *nodeData, MemoryFile *memFile)
 {
+  double Float; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
   int p; 
 
-  _RDI = nodeData;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI[156] = p;
-  MemFile_ReadData(memFile, 0x270ui64, _RDI);
-  MemFile_ReadData(memFile, 0x90ui64, _RDI + 175);
-  MemFile_ReadData(memFile, 0x90ui64, _RDI + 211);
+  *((_DWORD *)nodeData + 156) = p;
+  MemFile_ReadData(memFile, 0x270ui64, nodeData);
+  MemFile_ReadData(memFile, 0x90ui64, (char *)nodeData + 700);
+  MemFile_ReadData(memFile, 0x90ui64, (char *)nodeData + 844);
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI[247] = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3E0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3E4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3E8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3ECh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3F0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3F4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3F8h], xmm0 }
-  MemFile_ReadData(memFile, 0x20ui64, _RDI + 255);
+  *((_DWORD *)nodeData + 247) = p;
+  Float = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 248) = *(float *)&Float;
+  v5 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 249) = *(float *)&v5;
+  v6 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 250) = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 251) = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 252) = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 253) = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 254) = *(float *)&v10;
+  MemFile_ReadData(memFile, 0x20ui64, (char *)nodeData + 1020);
   MemFile_ReadData(memFile, 1ui64, &p);
-  *((_BYTE *)_RDI + 1052) = p;
+  *((_BYTE *)nodeData + 1052) = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  *((_BYTE *)_RDI + 1053) = p;
+  *((_BYTE *)nodeData + 1053) = p;
 }
 
 /*
@@ -496,26 +446,21 @@ void XAnimTurret_Write(void *nodeData, MemoryFile *memFile)
   int p; 
 
   p = *((_DWORD *)nodeData + 156);
-  _RBX = (char *)nodeData;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0x270ui64, _RBX);
-  MemFile_WriteData(memFile, 0x90ui64, _RBX + 700);
-  MemFile_WriteData(memFile, 0x90ui64, _RBX + 844);
-  p = *((_DWORD *)_RBX + 247);
+  MemFile_WriteData(memFile, 0x270ui64, nodeData);
+  MemFile_WriteData(memFile, 0x90ui64, (char *)nodeData + 700);
+  MemFile_WriteData(memFile, 0x90ui64, (char *)nodeData + 844);
+  p = *((_DWORD *)nodeData + 247);
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+3E0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+3E4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+3E8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+3ECh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0xCui64, _RBX + 1008);
-  MemFile_WriteData(memFile, 0x20ui64, _RBX + 1020);
-  LOBYTE(p) = _RBX[1052];
+  MemFile_WriteFloat(memFile, *((float *)nodeData + 248));
+  MemFile_WriteFloat(memFile, *((float *)nodeData + 249));
+  MemFile_WriteFloat(memFile, *((float *)nodeData + 250));
+  MemFile_WriteFloat(memFile, *((float *)nodeData + 251));
+  MemFile_WriteData(memFile, 0xCui64, (char *)nodeData + 1008);
+  MemFile_WriteData(memFile, 0x20ui64, (char *)nodeData + 1020);
+  LOBYTE(p) = *((_BYTE *)nodeData + 1052);
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX[1053];
+  LOBYTE(p) = *((_BYTE *)nodeData + 1053);
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -536,89 +481,61 @@ XAnimTurret_Debug
 */
 void XAnimTurret_Debug(void *nodeData, const XAnimInfo *animInfo, char *buffer, const int size)
 {
-  char **v11; 
-  __int64 v12; 
-  const vec3_t *v13; 
-  int v15; 
-  const vec4_t **v16; 
-  char *p_z; 
-  const vec4_t *v21; 
-  __int64 v30; 
-  __int64 v31; 
+  char **v4; 
+  __int64 v5; 
+  const vec3_t *v6; 
+  int v7; 
+  const vec4_t **v8; 
+  float *v9; 
+  float v10; 
+  const vec4_t *v11; 
+  float v12; 
+  __int64 v13; 
+  __int64 v14; 
   char *text; 
   vec3_t end; 
-  char v35; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm8, cs:__real@3f333333
-    vmovss  xmm6, cs:__real@41200000
-    vmovss  xmm7, cs:__real@3e19999a
-  }
-  v11 = (char **)s_tagLabelNames;
-  v12 = 12i64;
-  v13 = (const vec3_t *)((char *)nodeData + 40);
+  v4 = (char **)s_tagLabelNames;
+  v5 = 12i64;
+  v6 = (const vec3_t *)((char *)nodeData + 40);
   do
   {
-    text = *v11;
-    __asm { vmovaps xmm1, xmm8; radius }
-    CG_DebugSphere(v13, *(float *)&_XMM1, &colorYellow, 0, 0);
-    v15 = 0;
-    v16 = off_147F8EA20;
-    p_z = (char *)&v13[-3].z;
+    text = *v4;
+    CG_DebugSphere(v6, 0.69999999, &colorYellow, 0, 0);
+    v7 = 0;
+    v8 = off_147F8EA20;
+    v9 = &v6[-3].v[2];
     do
     {
-      if ( (unsigned int)v15 >= 4 )
+      if ( (unsigned int)v7 >= 4 )
       {
-        LODWORD(v31) = 4;
-        LODWORD(v30) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v30, v31) )
+        LODWORD(v14) = 4;
+        LODWORD(v13) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rsi-8]
-        vaddss  xmm2, xmm1, dword ptr [rdi]
-        vmulss  xmm1, xmm6, dword ptr [rsi-4]
-      }
-      v21 = *v16;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+end], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rdi+4]
-        vmulss  xmm1, xmm6, dword ptr [rsi]
-        vmovss  dword ptr [rsp+0B8h+end+4], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rdi+8]
-        vmovss  dword ptr [rsp+0B8h+end+8], xmm2
-      }
-      CG_DebugLine(v13, &end, v21, 0, 0);
-      ++v15;
-      p_z += 12;
-      ++v16;
+      v10 = 10.0 * *(v9 - 1);
+      v11 = *v8;
+      end.v[0] = (float)(10.0 * *(v9 - 2)) + v6->v[0];
+      v12 = 10.0 * *v9;
+      end.v[1] = v10 + v6->v[1];
+      end.v[2] = v12 + v6->v[2];
+      CG_DebugLine(v6, &end, v11, 0, 0);
+      ++v7;
+      v9 += 3;
+      ++v8;
     }
-    while ( v15 < 3 );
-    if ( text && *text )
+    while ( v7 < 3 );
+    if ( text )
     {
-      __asm { vmovaps xmm2, xmm7; scale }
-      CL_AddDebugString(v13, &colorWhiteFaded, *(float *)&_XMM2, text, 0, 0);
+      if ( *text )
+        CL_AddDebugString(v6, &colorWhiteFaded, 0.15000001, text, 0, 0);
     }
-    ++v11;
-    v13 = (const vec3_t *)((char *)v13 + 52);
-    --v12;
+    ++v4;
+    v6 = (const vec3_t *)((char *)v6 + 52);
+    --v5;
   }
-  while ( v12 );
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  while ( v5 );
 }
 
 /*
@@ -638,129 +555,79 @@ XAnimTurret_ComputePivotHeight
 */
 void XAnimTurret_ComputePivotHeight(XAnimTurretParams *params)
 {
+  float v2; 
   XAnimTurret *pNode; 
-  XAnimTurret *v23; 
+  float v8; 
+  double v9; 
+  XAnimTurret *v10; 
   int boneIndex; 
-  XAnimTurret *v35; 
-  int v39; 
-  const float4 *v49; 
-  const float4 *v50; 
-  const float4 *v51; 
-  const float4 *v52; 
-  float v53; 
-  float v54; 
+  vec4_t v13; 
+  XAnimTurret *v16; 
+  int v17; 
+  vec4_t v19; 
+  const float4 *v22; 
+  const float4 *v23; 
+  const float4 *v24; 
+  const float4 *v25; 
   vec4_t out; 
   tmat43_t<vec3_t> outTransform; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = params;
   XAnimTurret_GetBonePosition(params, params->pNode->bones[0].boneIndex, 1, (vec3_t *)&out);
-  _RAX = _RDI->pNode;
+  v2 = out.v[2];
+  _XMM0 = LODWORD(params->pNode->footTracePos1.v[2]);
   __asm
   {
-    vmovss  xmm6, dword ptr [rbp+57h+out+8]
-    vmovss  xmm0, dword ptr [rax+28Ch]
     vminss  xmm0, xmm0, dword ptr [rax+280h]
     vminss  xmm1, xmm0, dword ptr [rax+298h]
     vminss  xmm2, xmm1, dword ptr [rax+274h]
-    vmovss  xmm1, cs:__real@c2280000; min
-    vsubss  xmm0, xmm2, xmm6; val
-    vxorps  xmm2, xmm2, xmm2; max
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = _RDI->pNode;
-  __asm { vmovss  dword ptr [rax+3E0h], xmm0 }
-  pNode = _RDI->pNode;
-  if ( _RDI->pNode->poseIndex == 1 )
+  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM2 - out.v[2], -42.0, 0.0);
+  params->pNode->tgtPivotHeight = *(float *)&_XMM0;
+  pNode = params->pNode;
+  if ( params->pNode->poseIndex == 1 )
   {
-    XAnimTurret_GetBonePosition(_RDI, pNode->bones[7].boneIndex, 1, (vec3_t *)&out);
-    _RAX = _RDI->pNode;
-    if ( _RDI->pNode->poseIndex == 1 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm6, cs:offs
-        vsubss  xmm1, xmm0, dword ptr [rbp+57h+out+8]
-      }
-    }
+    XAnimTurret_GetBonePosition(params, pNode->bones[7].boneIndex, 1, (vec3_t *)&out);
+    if ( params->pNode->poseIndex == 1 )
+      v8 = (float)(v2 + offs) - out.v[2];
     else
-    {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
-    }
-    __asm { vmovss  dword ptr [rax+3E8h], xmm1 }
-    _RAX = _RDI->pNode;
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2; max
-      vmovss  xmm1, dword ptr [rax+3E0h]; min
-      vmovss  xmm0, dword ptr [rax+3E8h]; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    _RAX = _RDI->pNode;
-    __asm { vmovss  dword ptr [rax+3E8h], xmm0 }
-    pNode = _RDI->pNode;
+      v8 = 0.0;
+    params->pNode->tgtBaseHeight = v8;
+    v9 = I_fclamp(params->pNode->tgtBaseHeight, params->pNode->tgtPivotHeight, 0.0);
+    params->pNode->tgtBaseHeight = *(float *)&v9;
+    pNode = params->pNode;
   }
-  XAnimTurret_GetBoneTransformMatrix(_RDI, pNode->bones[1].boneIndex, 0, &outTransform);
-  v23 = _RDI->pNode;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+outTransform+2Ch]
-    vaddss  xmm2, xmm0, dword ptr [rax+3E4h]
-    vmovss  xmm0, dword ptr [rbp+57h+outTransform+24h]
-    vmovss  dword ptr [rbp+57h+outTransform+2Ch], xmm2
-  }
-  boneIndex = v23->bones[1].boneIndex;
+  XAnimTurret_GetBoneTransformMatrix(params, pNode->bones[1].boneIndex, 0, &outTransform);
+  v10 = params->pNode;
+  outTransform.m[3].v[2] = outTransform.m[3].v[2] + params->pNode->curPivotHeight;
+  boneIndex = v10->bones[1].boneIndex;
   out.v[3] = 0.0;
+  v13 = out;
+  v13.v[0] = outTransform.m[3].v[0];
+  _XMM6 = v13;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rbp+57h+out]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rbp+57h+outTransform+28h], 57h+outTransform+9
     vinsertps xmm6, xmm6, xmm2, 20h ; ' '
-    vmovups xmmword ptr [rbp+57h+out], xmm6
   }
+  out = _XMM6;
   AxisToQuat((const tmat33_t<vec3_t> *)&outTransform, &out);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+20h]
-    vmovups xmm0, xmmword ptr [rbp+57h+out]
-    vmovups xmm1, xmm6
-    vmovss  [rsp+0A0h+var_70], xmm2
-  }
-  XAnimSetLocalBoneTransform(_RDI->animCalcInfo, _RDI->obj, _RDI->destBuffer, boneIndex, v49, v51, v53);
-  XAnimTurret_GetBoneTransformMatrix(_RDI, _RDI->pNode->bones[2].boneIndex, 0, &outTransform);
-  v35 = _RDI->pNode;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+outTransform+2Ch]
-    vaddss  xmm2, xmm0, dword ptr [rax+3ECh]
-    vmovss  xmm0, dword ptr [rbp+57h+outTransform+24h]
-    vmovss  dword ptr [rbp+57h+outTransform+2Ch], xmm2
-  }
-  v39 = v35->bones[2].boneIndex;
+  XAnimSetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, boneIndex, v22, v24, params->weightScale);
+  XAnimTurret_GetBoneTransformMatrix(params, params->pNode->bones[2].boneIndex, 0, &outTransform);
+  v16 = params->pNode;
+  outTransform.m[3].v[2] = outTransform.m[3].v[2] + params->pNode->curBaseHeight;
+  v17 = v16->bones[2].boneIndex;
   out.v[3] = 0.0;
+  v19 = out;
+  v19.v[0] = outTransform.m[3].v[0];
+  _XMM6 = v19;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rbp+57h+out]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rbp+57h+outTransform+28h], 57h+outTransform+9
     vinsertps xmm6, xmm6, xmm2, 20h ; ' '
-    vmovups xmmword ptr [rbp+57h+out], xmm6
   }
+  out = _XMM6;
   AxisToQuat((const tmat33_t<vec3_t> *)&outTransform, &out);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+20h]
-    vmovups xmm0, xmmword ptr [rbp+57h+out]
-    vmovups xmm1, xmm6
-    vmovss  [rsp+0A0h+var_70], xmm2
-  }
-  XAnimSetLocalBoneTransform(_RDI->animCalcInfo, _RDI->obj, _RDI->destBuffer, v39, v50, v52, v54);
-  _R11 = &vars0;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  XAnimSetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v17, v23, v25, params->weightScale);
 }
 
 /*
@@ -839,35 +706,30 @@ XAnimTurret_GetBonePosition
 */
 void XAnimTurret_GetBonePosition(const XAnimTurretParams *params, unsigned __int8 boneIndex, bool applyViewOffset, vec3_t *outPos)
 {
+  __m128 v; 
+  float v9; 
+  float v10; 
+  XAnimTurret *pNode; 
   float4 outModelTranslation; 
   float4 outModelQuat; 
 
-  _RBX = outPos;
   if ( !XAnimTurretParams::IsValid((XAnimTurretParams *)params) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 405, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
     __debugbreak();
   if ( boneIndex >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
     __debugbreak();
   XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, boneIndex, &outModelQuat, &outModelTranslation);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+88h+var_58.v]
-    vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-    vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovss  dword ptr [rbx+8], xmm2
-    vmovss  dword ptr [rbx], xmm0
-  }
+  v = outModelTranslation.v;
+  LODWORD(v9) = _mm_shuffle_ps(v, v, 85).m128_u32[0];
+  LODWORD(v10) = _mm_shuffle_ps(v, v, 170).m128_u32[0];
+  outPos->v[1] = v9;
+  outPos->v[2] = v10;
+  outPos->v[0] = v.m128_f32[0];
   if ( applyViewOffset )
   {
-    __asm
-    {
-      vaddss  xmm0, xmm0, dword ptr [rax+3F0h]
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm1, xmm1, dword ptr [rax+3F4h]
-      vmovss  dword ptr [rbx+4], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rax+3F8h]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    pNode = params->pNode;
+    outPos->v[0] = v.m128_f32[0] + params->pNode->entityViewOffset.v[0];
+    outPos->v[1] = v9 + pNode->entityViewOffset.v[1];
+    outPos->v[2] = v10 + pNode->entityViewOffset.v[2];
   }
 }
 
@@ -878,6 +740,8 @@ XAnimTurret_GetBoneTransformMatrix
 */
 void XAnimTurret_GetBoneTransformMatrix(const XAnimTurretParams *params, unsigned __int8 boneIndex, bool applyViewOffset, tmat43_t<vec3_t> *outTransform)
 {
+  vec4_t v; 
+  XAnimTurret *pNode; 
   float4 outModelQuat; 
   float4 outModelTranslation; 
   vec4_t quat; 
@@ -889,28 +753,21 @@ void XAnimTurret_GetBoneTransformMatrix(const XAnimTurretParams *params, unsigne
   if ( boneIndex >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 421, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
     __debugbreak();
   XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, boneIndex, &outModelQuat, &outModelTranslation);
+  _XMM2 = outModelTranslation.v;
+  v = (vec4_t)outModelQuat.v;
+  _RBX[1].m[0].v[0] = outModelTranslation.v.m128_f32[0];
   __asm
   {
-    vmovups xmm2, xmmword ptr [rsp+0B8h+var_78.v]
-    vmovups xmm0, xmmword ptr [rsp+0B8h+outModelQuat.v]
-    vmovss  dword ptr [rbx+24h], xmm2
     vextractps dword ptr [rbx+28h], xmm2, 1
     vextractps dword ptr [rbx+2Ch], xmm2, 2
-    vmovups xmmword ptr [rsp+0B8h+quat], xmm0
   }
+  quat = v;
   if ( applyViewOffset )
   {
-    __asm
-    {
-      vaddss  xmm0, xmm2, dword ptr [rax+3F0h]
-      vmovss  dword ptr [rbx+24h], xmm0
-      vmovss  xmm1, dword ptr [rbx+28h]
-      vaddss  xmm2, xmm1, dword ptr [rax+3F4h]
-      vmovss  dword ptr [rbx+28h], xmm2
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vaddss  xmm1, xmm0, dword ptr [rax+3F8h]
-      vmovss  dword ptr [rbx+2Ch], xmm1
-    }
+    pNode = params->pNode;
+    _RBX[1].m[0].v[0] = _XMM2.m128_f32[0] + params->pNode->entityViewOffset.v[0];
+    _RBX[1].m[0].v[1] = _RBX[1].m[0].v[1] + pNode->entityViewOffset.v[1];
+    _RBX[1].m[0].v[2] = _RBX[1].m[0].v[2] + pNode->entityViewOffset.v[2];
   }
   QuatToAxis(&quat, &axis);
   MatrixCopy33(&axis, _RBX);
@@ -978,136 +835,110 @@ XAnimTurret_InitPose
 void XAnimTurret_InitPose(XAnimTurretParams *params)
 {
   XAnimTurret *pNode; 
-  int v7; 
+  int v3; 
+  int v4; 
   unsigned __int8 boneIndex; 
-  int v12; 
-  const dvar_t *v50; 
+  XAnimTurret *v6; 
+  int v7; 
+  __int64 v8; 
+  __int128 v10; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  int v20; 
+  bool v21; 
+  float tgtPivotHeight; 
+  bool v23; 
+  char v24; 
+  char v25; 
+  const dvar_t *v26; 
+  double v27; 
   float4 outModelTranslation; 
   float4 outModelQuat; 
   vec3_t *p_footTracePos0; 
   vec3_t *p_footTracePos1; 
   vec3_t *p_footTracePos2; 
-  char v67; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   if ( dword_14FFF6BA8 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14FFF6BA8);
     if ( dword_14FFF6BA8 == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f7f069e
-        vmovss  cs:COS_INCLINED_ANGLE_THRESHOLD, xmm0
-      }
+      COS_INCLINED_ANGLE_THRESHOLD = FLOAT_0_99619472;
       j__Init_thread_footer(&dword_14FFF6BA8);
     }
   }
   pNode = params->pNode;
-  v7 = 0;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v3 = 0;
+  v4 = 0;
   p_footTracePos0 = &params->pNode->footTracePos0;
   p_footTracePos1 = &pNode->footTracePos1;
   p_footTracePos2 = &pNode->footTracePos2;
   do
   {
-    boneIndex = params->pNode->bones[3 * v7 + 5].boneIndex;
+    boneIndex = params->pNode->bones[3 * v4 + 5].boneIndex;
     if ( !XAnimTurretParams::IsValid(params) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 405, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
       __debugbreak();
     if ( boneIndex >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
       __debugbreak();
     XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, boneIndex, &outModelQuat, &outModelTranslation);
-    __asm { vmovss  xmm1, dword ptr [rsp+0D8h+var_98.v+8] }
-    _RSI = params->pNode;
-    v12 = 2;
-    if ( v7 < 2 )
-      v12 = v7;
-    __asm { vaddss  xmm2, xmm1, dword ptr [rsi+3F8h] }
-    _RCX = (__int64)*(&p_footTracePos0 + v12);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+8]
-      vsubss  xmm1, xmm0, xmm2
-      vminss  xmm8, xmm1, xmm8
-      vmovss  xmm0, cs:COS_INCLINED_ANGLE_THRESHOLD
-    }
-    _RAX = v7;
-    __asm { vcomiss xmm0, dword ptr [rsi+rax*4+2A8h] }
-    ++v7;
+    v6 = params->pNode;
+    v7 = 2;
+    if ( v4 < 2 )
+      v7 = v4;
+    v8 = (__int64)*(&p_footTracePos0 + v7);
+    v10 = *(unsigned int *)(v8 + 8);
+    *(float *)&v10 = *(float *)(v8 + 8) - (float)(outModelTranslation.v.m128_f32[2] + v6->entityViewOffset.v[2]);
+    _XMM1 = v10;
+    __asm { vminss  xmm8, xmm1, xmm8 }
+    if ( COS_INCLINED_ANGLE_THRESHOLD > v6->footCosNormals.v[v4] )
+      ++v3;
+    ++v4;
   }
-  while ( (unsigned int)v7 < 3 );
-  __asm { vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  _RBP = p_footTracePos0;
-  _R14 = (__int64)p_footTracePos1;
-  _R15 = (__int64)p_footTracePos2;
-  _R8 = params->pNode;
-  __asm
+  while ( (unsigned int)v4 < 3 );
+  v12 = p_footTracePos0->v[2];
+  v13 = p_footTracePos1->v[2];
+  v14 = p_footTracePos2->v[2];
+  LODWORD(v15) = COERCE_UNSIGNED_INT(v12 - v14) & _xmm;
+  LODWORD(v16) = COERCE_UNSIGNED_INT(v13 - v14) & _xmm;
+  LODWORD(v17) = COERCE_UNSIGNED_INT(v12 - v13) & _xmm;
+  LODWORD(v18) = COERCE_UNSIGNED_INT((float)((float)(v14 + v13) * 0.5) - v12) & _xmm;
+  LODWORD(v19) = COERCE_UNSIGNED_INT(v12 - params->pNode->baseTracePos.v[2]) & _xmm;
+  v20 = (COERCE_FLOAT(COERCE_UNSIGNED_INT(v17 - v15) & _xmm) < 0.001) + (COERCE_FLOAT(COERCE_UNSIGNED_INT(v17 - v16) & _xmm) < 0.001) + (COERCE_FLOAT(COERCE_UNSIGNED_INT(v15 - v16) & _xmm) < 0.001);
+  v21 = !v20 || v16 > THRESHOLD_CONSIDERED_UNEVEN_SMALL || v18 > THRESHOLD_CONSIDERED_UNEVEN_SMALL && v18 <= BACK_FRONT_HEIGHTS_THRESHOLD;
+  tgtPivotHeight = params->pNode->tgtPivotHeight;
+  v23 = COERCE_FLOAT(LODWORD(tgtPivotHeight) & _xmm) > PIVOT_MOVED_THRESHOLD;
+  if ( v19 <= THRESHOLD_CONSIDERED_UNEVEN || v19 >= BACK_FRONT_HEIGHTS_THRESHOLD )
   {
-    vmovss  xmm2, dword ptr [rbp+8]
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  xmm0, dword ptr [r15+8]
-    vsubss  xmm3, xmm2, xmm0
-    vsubss  xmm7, xmm1, xmm0
-    vaddss  xmm0, xmm0, xmm1
-    vsubss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vsubss  xmm6, xmm1, xmm2
-    vmovss  xmm1, cs:__real@3a83126f
-    vsubss  xmm2, xmm2, dword ptr [r8+2A4h]
-    vandps  xmm3, xmm3, xmm5
-    vandps  xmm7, xmm7, xmm5
-    vsubss  xmm0, xmm3, xmm7
-    vandps  xmm0, xmm0, xmm5
-    vcomiss xmm0, xmm1
-    vandps  xmm4, xmm4, xmm5
-    vsubss  xmm0, xmm4, xmm7
-    vandps  xmm0, xmm0, xmm5
-    vcomiss xmm0, xmm1
-    vsubss  xmm0, xmm4, xmm3
-    vmovss  xmm3, cs:BACK_FRONT_HEIGHTS_THRESHOLD
-    vandps  xmm0, xmm0, xmm5
-    vandps  xmm6, xmm6, xmm5
-    vandps  xmm2, xmm2, xmm5
-    vcomiss xmm0, xmm1
-    vmovss  xmm1, dword ptr [r8+3E0h]
-    vandps  xmm0, xmm1, xmm5
-    vcomiss xmm0, cs:PIVOT_MOVED_THRESHOLD
-    vcomiss xmm8, xmm1
-    vcomiss xmm2, cs:THRESHOLD_CONSIDERED_UNEVEN
+    v24 = 0;
+LABEL_26:
+    v25 = 0;
+    goto LABEL_27;
   }
-  v50 = DCONST_DVARBOOL_turret_deploy_never_folded;
+  v24 = 1;
+  if ( COERCE_FLOAT(LODWORD(tgtPivotHeight) & _xmm) <= PIVOT_MOVED_THRESHOLD || !v20 )
+    goto LABEL_26;
+  v25 = 1;
+LABEL_27:
+  v26 = DCONST_DVARBOOL_turret_deploy_never_folded;
   if ( !DCONST_DVARBOOL_turret_deploy_never_folded && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turret_deploy_never_folded") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v50);
-  __asm
+  Dvar_CheckFrontendServerThread(v26);
+  if ( v26->current.enabled || (!v23 || *(float *)&_XMM8 >= tgtPivotHeight || v3 || v21 || v24) && !v25 )
   {
-    vxorps  xmm2, xmm2, xmm2; max
-    vmovaps xmm0, xmm8; val
+    params->pNode->poseIndex = 0;
+    v27 = I_fclamp(*(float *)&_XMM8, params->pNode->tgtPivotHeight, 0.0);
+    params->pNode->tgtBaseHeight = *(float *)&v27 * 0.75;
+    XAnimTurret_InitPseudoIkPose(params);
   }
-  params->pNode->poseIndex = 0;
-  _RAX = params->pNode;
-  __asm { vmovss  xmm1, dword ptr [rax+3E0h]; min }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = params->pNode;
-  __asm
+  else
   {
-    vmulss  xmm1, xmm0, cs:__real@3f400000
-    vmovss  dword ptr [rax+3E8h], xmm1
-  }
-  XAnimTurret_InitPseudoIkPose(params);
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    params->pNode->poseIndex = 1;
   }
 }
 
@@ -1119,260 +950,209 @@ XAnimTurret_InitPseudoIkPose
 void XAnimTurret_InitPseudoIkPose(XAnimTurretParams *params)
 {
   XAnimTurret *pNode; 
-  __int64 *v16; 
-  int v18; 
+  vec3_t *pseudoIkPose; 
+  int v4; 
+  float **v5; 
+  unsigned int i; 
+  int v7; 
   unsigned __int8 boneIndex; 
-  char v34; 
-  char v35; 
-  __int64 v36; 
-  unsigned __int8 v37; 
-  __int64 v45; 
-  unsigned __int8 v46; 
+  __m128 v; 
+  float v10; 
+  float v11; 
+  __m128 v12; 
+  __m128 v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  unsigned __int8 v17; 
+  __m128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  __int64 v22; 
+  unsigned __int8 v23; 
+  __m128 v24; 
+  float v25; 
+  float v26; 
+  __m128 v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v39; 
+  float v41; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v47; 
+  float v48; 
+  __int64 v53; 
+  float v60; 
+  __int128 v61; 
+  __int128 v66; 
+  __int128 v67; 
+  __int64 v69; 
+  float v75; 
   vec3_t b; 
   vec3_t a; 
   float4 outModelTranslation; 
-  float4 v161; 
-  float4 v162; 
+  float4 v79; 
+  float4 v80; 
   float4 outModelQuat; 
-  float4 v164; 
-  float4 v165; 
-  _QWORD v166[3]; 
-  char v170; 
-  void *retaddr; 
+  float4 v82; 
+  float4 v83; 
+  _QWORD v84[3]; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovaps xmmword ptr [r11-0C8h], xmm15
-  }
   pNode = params->pNode;
-  v166[0] = &params->pNode->footTracePos0;
-  _R13 = pNode->pseudoIkPose;
-  v166[1] = &pNode->footTracePos1;
-  v166[2] = &pNode->footTracePos2;
+  v84[0] = &params->pNode->footTracePos0;
+  pseudoIkPose = pNode->pseudoIkPose;
+  v84[1] = &pNode->footTracePos1;
+  v84[2] = &pNode->footTracePos2;
   memset_0(pNode->pseudoIkPose, 0, sizeof(pNode->pseudoIkPose));
-  __asm
+  v4 = _xmm;
+  v5 = (float **)v84;
+  for ( i = 0; i < 3; ++i )
   {
-    vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+1B8h+var_98], xmm12
-  }
-  v16 = v166;
-  _EDI = 0;
-  __asm
-  {
-    vmovaps [rsp+1B8h+var_A8], xmm13
-    vmovaps [rsp+1B8h+var_B8], xmm14
-  }
-  do
-  {
-    v18 = 3 * _EDI;
-    boneIndex = params->pNode->bones[3 * _EDI + 5].boneIndex;
+    v7 = 3 * i;
+    boneIndex = params->pNode->bones[3 * i + 5].boneIndex;
     if ( !XAnimTurretParams::IsValid(params) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 405, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
       __debugbreak();
     if ( boneIndex >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
       __debugbreak();
     XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, boneIndex, &outModelQuat, &outModelTranslation);
-    __asm
+    v = outModelTranslation.v;
+    v10 = outModelTranslation.v.m128_f32[0] + params->pNode->entityViewOffset.v[0];
+    v11 = (float)(_mm_shuffle_ps(v, v, 170).m128_f32[0] + params->pNode->entityViewOffset.v[2]) + params->pNode->tgtBaseHeight;
+    v13 = _mm_shuffle_ps(v, v, 85);
+    v13.m128_f32[0] = v13.m128_f32[0] + params->pNode->entityViewOffset.v[1];
+    v12 = v13;
+    v14 = **v5;
+    v75 = (*v5)[1];
+    v15 = (*v5)[2] + 3.0;
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v11 - v15) & v4) > dispZAllowed )
     {
-      vmovups xmm0, xmmword ptr [rsp+1B8h+var_148.v]
-      vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-      vaddss  xmm7, xmm0, dword ptr [rax+3F0h]
-      vaddss  xmm0, xmm2, dword ptr [rax+3F8h]
-      vaddss  xmm6, xmm0, dword ptr [rax+3E8h]
-      vaddss  xmm8, xmm1, dword ptr [rax+3F4h]
-    }
-    _RAX = *v16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+4]
-      vmovss  xmm15, dword ptr [rax]
-      vmovss  [rsp+1B8h+var_178], xmm0
-      vmovss  xmm0, dword ptr [rax+8]
-      vaddss  xmm10, xmm0, cs:__real@40400000
-      vsubss  xmm11, xmm6, xmm10
-      vandps  xmm0, xmm11, xmm9
-      vcomiss xmm0, cs:dispZAllowed
-    }
-    if ( !(v34 | v35) )
-    {
-      v36 = (unsigned int)(v18 + 3);
-      v37 = params->pNode->bones[v36].boneIndex;
+      v16 = (unsigned int)(v7 + 3);
+      v17 = params->pNode->bones[v16].boneIndex;
       if ( !XAnimTurretParams::IsValid(params) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 405, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
         __debugbreak();
-      if ( v37 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
+      if ( v17 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
         __debugbreak();
-      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v37, &v164, &v161);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+1B8h+var_138.v]
-        vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-        vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-        vaddss  xmm12, xmm0, dword ptr [rax+3F0h]
-        vaddss  xmm0, xmm2, dword ptr [rax+3F8h]
-        vaddss  xmm14, xmm0, dword ptr [rax+3E8h]
-        vaddss  xmm13, xmm1, dword ptr [rax+3F4h]
-      }
-      v45 = (unsigned int)(v18 + 4);
-      v46 = params->pNode->bones[v45].boneIndex;
+      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v17, &v82, &v79);
+      v18 = v79.v;
+      v19 = v79.v.m128_f32[0] + params->pNode->entityViewOffset.v[0];
+      v20 = (float)(_mm_shuffle_ps(v18, v18, 170).m128_f32[0] + params->pNode->entityViewOffset.v[2]) + params->pNode->tgtBaseHeight;
+      v21 = _mm_shuffle_ps(v18, v18, 85).m128_f32[0] + params->pNode->entityViewOffset.v[1];
+      v22 = (unsigned int)(v7 + 4);
+      v23 = params->pNode->bones[v22].boneIndex;
       if ( !XAnimTurretParams::IsValid(params) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 405, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
         __debugbreak();
-      if ( v46 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
+      if ( v23 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 406, ASSERT_TYPE_ASSERT, "(boneIndex < 254)", (const char *)&queryFormat, "boneIndex < UNDEFINED_BONEINDEX") )
         __debugbreak();
-      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v46, &v165, &v162);
+      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v23, &v83, &v80);
+      v24 = v80.v;
+      v25 = v80.v.m128_f32[0] + params->pNode->entityViewOffset.v[0];
+      v27 = _mm_shuffle_ps(v24, v24, 85);
+      v26 = v27.m128_f32[0] + params->pNode->entityViewOffset.v[1];
+      v28 = (float)(_mm_shuffle_ps(v24, v24, 170).m128_f32[0] + params->pNode->entityViewOffset.v[2]) + params->pNode->tgtBaseHeight;
+      v29 = v11 - v28;
+      v30 = v10 - v25;
+      v31 = v25 - v19;
+      v27.m128_f32[0] = v26 - v21;
+      v32 = v27;
+      v34 = v12;
+      v34.m128_f32[0] = v12.m128_f32[0] - v26;
+      v33 = v34;
+      v35 = v32;
+      v35.m128_f32[0] = fsqrt((float)((float)(v32.m128_f32[0] * v32.m128_f32[0]) + (float)(v31 * v31)) + (float)((float)(v28 - v20) * (float)(v28 - v20)));
+      _XMM3 = v35;
       __asm
       {
-        vmovups xmm0, xmmword ptr [rsp+1B8h+var_128.v]
-        vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-        vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-        vaddss  xmm4, xmm0, dword ptr [rax+3F0h]
-        vaddss  xmm3, xmm1, dword ptr [rax+3F4h]
-        vaddss  xmm0, xmm2, dword ptr [rax+3F8h]
-        vaddss  xmm1, xmm0, dword ptr [rax+3E8h]
-        vsubss  xmm9, xmm6, xmm1
-        vsubss  xmm6, xmm1, xmm14
-        vsubss  xmm7, xmm7, xmm4
-        vsubss  xmm5, xmm4, xmm12
-        vsubss  xmm4, xmm3, xmm13
-        vsubss  xmm8, xmm8, xmm3
-        vmulss  xmm0, xmm5, xmm5
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm2, xmm5
-        vmulss  xmm1, xmm2, xmm4
-        vmovss  dword ptr [rsp+1B8h+a], xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmovss  dword ptr [rsp+1B8h+a+8], xmm0
-        vmovss  dword ptr [rsp+1B8h+a+4], xmm1
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm2, xmm8, xmm8
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm9, xmm9
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vxorps  xmm6, xmm1, cs:__xmm@80000000800000008000000080000000
+      }
+      a.v[0] = (float)(1.0 / *(float *)&_XMM0) * v31;
+      a.v[2] = (float)(v28 - v20) * (float)(1.0 / *(float *)&_XMM0);
+      a.v[1] = (float)(1.0 / *(float *)&_XMM0) * v32.m128_f32[0];
+      v39 = v33;
+      v39.m128_f32[0] = fsqrt((float)((float)(v33.m128_f32[0] * v33.m128_f32[0]) + (float)(v30 * v30)) + (float)(v29 * v29));
+      _XMM1 = v39;
+      LODWORD(v41) = v39.m128_i32[0] ^ _xmm;
+      __asm
+      {
         vcmpless xmm0, xmm1, cs:__real@80000000
-        vmovss  xmm2, cs:__real@3f800000
         vblendvps xmm0, xmm1, xmm2, xmm0
-        vdivss  xmm5, xmm2, xmm0
-        vmulss  xmm0, xmm5, xmm7
-        vmovss  xmm7, cs:__real@3f800000
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm4, xmm1, xmm15
-        vmulss  xmm2, xmm5, xmm8
-        vmulss  xmm0, xmm2, xmm6
-        vaddss  xmm3, xmm0, [rsp+1B8h+var_178]
-        vmulss  xmm1, xmm5, xmm9
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm0, xmm2, xmm10
-        vsubss  xmm6, xmm0, xmm14
-        vsubss  xmm5, xmm4, xmm12
-        vsubss  xmm4, xmm3, xmm13
-        vmulss  xmm0, xmm5, xmm5
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
+      }
+      v45 = LODWORD(FLOAT_1_0);
+      *(float *)&v45 = 1.0 / *(float *)&_XMM0;
+      v44 = v45;
+      *(float *)&v45 = (float)(1.0 / *(float *)&_XMM0) * v30;
+      _XMM7 = LODWORD(FLOAT_1_0);
+      v32.m128_f32[0] = (float)(*(float *)&v45 * v41) + v14;
+      v47 = v44;
+      _XMM3.m128_f32[0] = (float)((float)(*(float *)&v44 * v33.m128_f32[0]) * v41) + v75;
+      v48 = (float)((float)((float)(*(float *)&v44 * v29) * v41) + v15) - v20;
+      *(float *)&v44 = v32.m128_f32[0] - v19;
+      v32.m128_f32[0] = _XMM3.m128_f32[0] - v21;
+      *(float *)&v47 = fsqrt((float)((float)((float)(_XMM3.m128_f32[0] - v21) * (float)(_XMM3.m128_f32[0] - v21)) + (float)(*(float *)&v44 * *(float *)&v44)) + (float)(v48 * v48));
+      _XMM3 = v47;
+      __asm
+      {
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm2, xmm7, xmm0
-        vmulss  xmm0, xmm2, xmm5
-        vmovss  dword ptr [rsp+1B8h+b], xmm0
-        vmulss  xmm0, xmm2, xmm6
-        vmulss  xmm1, xmm2, xmm4
-        vmovss  dword ptr [rsp+1B8h+b+8], xmm0
-        vmovss  dword ptr [rsp+1B8h+b+4], xmm1
       }
+      b.v[0] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v44;
+      b.v[2] = (float)(1.0 / *(float *)&_XMM0) * v48;
+      b.v[1] = (float)(1.0 / *(float *)&_XMM0) * v32.m128_f32[0];
       *(double *)&_XMM0 = AngleBetween(&a, &b);
+      _XMM10 = LODWORD(FLOAT_N1_0);
+      v4 = _xmm;
+      v53 = v16;
+      _XMM8 = 0i64;
       __asm
       {
-        vmovss  xmm10, cs:__real@bf800000
-        vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovaps xmm5, xmm0
-      }
-      _ESI = 0;
-      _RAX = v36;
-      __asm
-      {
-        vmovd   xmm2, esi
-        vxorps  xmm8, xmm8, xmm8
         vcmpless xmm1, xmm8, xmm11
         vblendvps xmm4, xmm10, xmm7, xmm1
-        vmovd   xmm1, edi
-        vpcmpeqd xmm3, xmm1, xmm2
-        vblendvps xmm1, xmm10, xmm7, xmm3
-        vmulss  xmm0, xmm4, xmm1
-        vmulss  xmm6, xmm5, xmm0
-        vmovd   xmm1, esi
-        vmovd   xmm0, edi
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@42820000
-        vmovss  xmm0, cs:__real@42480000
-        vblendvps xmm0, xmm1, xmm0, xmm2
-        vandps  xmm3, xmm6, xmm9
-        vdivss  xmm0, xmm3, xmm0; val
-        vmovaps xmm2, xmm7; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovss  dword ptr [r13+rax*4+0], xmm6
       }
-      *(_QWORD *)&_R13[_RAX].y = 0i64;
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      _XMM1 = i;
       __asm
       {
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm1
-        vmulss  xmm2, xmm0, cs:__real@41400000
-        vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
+        vpcmpeqd xmm3, xmm1, xmm2
+        vblendvps xmm1, xmm10, xmm7, xmm3
       }
-      _RAX = v45;
+      v61 = (unsigned __int64)_XMM0;
+      *(float *)&v61 = *(float *)&_XMM0 * (float)(*(float *)&_XMM4 * *(float *)&_XMM1);
+      v60 = *(float *)&v61;
+      _XMM0 = i;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_65_0);
+      __asm { vblendvps xmm0, xmm1, xmm0, xmm2 }
+      v66 = v61 & (unsigned int)_xmm;
+      *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&v66 + 1);
+      pseudoIkPose[v53].v[0] = v60;
+      *(_QWORD *)&pseudoIkPose[v53].y = 0i64;
+      *(double *)&_XMM0 = I_fclamp(*(float *)&v66 / *(float *)&_XMM0, 0.0, 1.0);
+      v67 = _XMM0;
+      *(float *)&v67 = (float)((float)(*(float *)&_XMM0 * *(float *)&_XMM0) * (float)(*(float *)&_XMM0 * *(float *)&_XMM0)) * 12.0;
+      _XMM1 = v67 ^ _xmm;
+      v69 = v22;
       __asm
       {
         vcmpless xmm0, xmm8, xmm6
         vblendvps xmm3, xmm1, xmm2, xmm0
-        vmovd   xmm1, esi
-        vmovd   xmm0, edi
+      }
+      _XMM0 = i;
+      __asm
+      {
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm7, xmm10, xmm2
-        vmulss  xmm1, xmm3, xmm0
-        vsubss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [r13+rax*4+0], xmm2
       }
-      *(_QWORD *)&_R13[_RAX].y = 0i64;
+      pseudoIkPose[v69].v[0] = (float)(*(float *)&_XMM3 * *(float *)&_XMM0) - v60;
+      *(_QWORD *)&pseudoIkPose[v69].y = 0i64;
     }
-    ++_EDI;
-    ++v16;
-  }
-  while ( _EDI < 3 );
-  __asm
-  {
-    vmovaps xmm14, [rsp+1B8h+var_B8]
-    vmovaps xmm13, [rsp+1B8h+var_A8]
-    vmovaps xmm12, [rsp+1B8h+var_98]
-  }
-  _R11 = &v170;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    ++v5;
   }
 }
 
@@ -1383,42 +1163,40 @@ XAnimTurret_PreCalc
 */
 void XAnimTurret_PreCalc(XAnimTurretParams *params, DObjPartBits *savedPartBits)
 {
+  unsigned int v4; 
   unsigned int v5; 
-  unsigned int v6; 
   DObjPartBits *p_partBits; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
   unsigned __int64 boneIndex; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RSI = params;
   if ( !XAnimTurretParams::IsValid(params) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_turret.cpp", 456, ASSERT_TYPE_ASSERT, "(params.IsValid())", (const char *)&queryFormat, "params.IsValid()") )
     __debugbreak();
+  v4 = 0;
   v5 = 0;
-  v6 = 0;
-  p_partBits = &_RSI->pNode->partBits;
+  p_partBits = &params->pNode->partBits;
   while ( !p_partBits->array[0] )
   {
-    ++v6;
+    ++v5;
     p_partBits = (DObjPartBits *)((char *)p_partBits + 4);
-    if ( v6 >= 8 )
+    if ( v5 >= 8 )
     {
-      v8 = 0i64;
-      v9 = 12i64;
+      v7 = 0i64;
+      v8 = 12i64;
       do
       {
-        boneIndex = _RSI->pNode->bones[v8++].boneIndex;
-        _RSI->pNode->partBits.array[boneIndex >> 5] |= 0x80000000 >> (boneIndex & 0x1F);
-        --v9;
+        boneIndex = params->pNode->bones[v7++].boneIndex;
+        params->pNode->partBits.array[boneIndex >> 5] |= 0x80000000 >> (boneIndex & 0x1F);
+        --v8;
       }
-      while ( v9 );
-      DObjCompleteHierarchyBits(_RSI->obj, &_RSI->pNode->partBits);
+      while ( v8 );
+      DObjCompleteHierarchyBits(params->obj, &params->pNode->partBits);
       break;
     }
   }
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(savedPartBits, _RSI->animCalcInfo->partBits);
-  _RDI = _RSI->animCalcInfo->partBits;
-  _RBP = (char *)((char *)&_RSI->pNode->partBits - (char *)_RDI);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(savedPartBits, params->animCalcInfo->partBits);
+  _RDI = params->animCalcInfo->partBits;
+  _RBP = (char *)((char *)&params->pNode->partBits - (char *)_RDI);
   do
   {
     __asm
@@ -1426,15 +1204,13 @@ void XAnimTurret_PreCalc(XAnimTurretParams *params, DObjPartBits *savedPartBits)
       vlddqu  xmm6, xmmword ptr [rdi+rbp]
       vlddqu  xmm0, xmmword ptr [rdi]
       vpor    xmm6, xmm0, xmm6
-      vmovdqu xmmword ptr [rdi], xmm6
     }
+    *(_OWORD *)_RDI->array = _XMM6;
     _RDI = (DObjPartBits *)((char *)_RDI + 16);
-    ++v5;
+    ++v4;
   }
-  while ( v5 < 2 );
-  __asm { vmovss  xmm3, dword ptr [rsi+20h]; weightScale }
-  XAnimCalcDefaultBlendNode(_RSI->animCalcInfo, _RSI->obj, _RSI->animInfo, *(float *)&_XMM3, _RSI->bNormQuat, _RSI->destBuffer, LINEAR);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  while ( v4 < 2 );
+  XAnimCalcDefaultBlendNode(params->animCalcInfo, params->obj, params->animInfo, params->weightScale, params->bNormQuat, params->destBuffer, LINEAR);
 }
 
 /*

@@ -419,53 +419,37 @@ void NetEndpoint::Close(NetEndpoint *this)
 {
   NetSession *m_session; 
   bool IsBacklog; 
-  bdDTLSAssociationTelemetry v18; 
+  __int64 v4; 
+  bdDTLSAssociationTelemetry v5; 
 
-  _RBX = this;
   if ( this->m_referenceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 65, ASSERT_TYPE_ASSERT, "(m_referenceCount == 0)", (const char *)&queryFormat, "m_referenceCount == 0") )
     __debugbreak();
-  if ( _RBX->m_connectionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 66, ASSERT_TYPE_ASSERT, "(m_connectionCount == 0)", (const char *)&queryFormat, "m_connectionCount == 0") )
+  if ( this->m_connectionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 66, ASSERT_TYPE_ASSERT, "(m_connectionCount == 0)", (const char *)&queryFormat, "m_connectionCount == 0") )
     __debugbreak();
-  m_session = _RBX->m_session;
+  m_session = this->m_session;
   if ( m_session )
   {
-    IsBacklog = NetAddress::IsBacklog(&_RBX->m_address);
+    IsBacklog = NetAddress::IsBacklog(&this->m_address);
     NetSession::RemoveReference(m_session, IsBacklog);
-    _RBX->m_session = NULL;
+    this->m_session = NULL;
   }
-  *(_QWORD *)&_RBX->m_lastRecv = 0i64;
-  _RBX->m_graveyarded = 0;
-  bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(&v18);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx+0C0h], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbx+0D0h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+0E0h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rbx+0F0h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+100h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rbx+110h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbx+120h], xmm0
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rbx+130h], xmm0
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+140h], xmm1
-    vmovups xmm0, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rbx+150h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rbx+160h], xmm1
-    vmovups xmm0, xmmword ptr [rax+0B0h]
-    vmovups xmmword ptr [rbx+170h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0C0h]
-    vmovups xmmword ptr [rbx+180h], xmm1
-  }
-  NetAddress::Clear(&_RBX->m_address);
+  *(_QWORD *)&this->m_lastRecv = 0i64;
+  this->m_graveyarded = 0;
+  bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(&v5);
+  *(_OWORD *)&this->m_telemetry.m_lastState = *(_OWORD *)v4;
+  *(_OWORD *)&this->m_telemetry.m_stageCookieEchoMsSinceStart = *(_OWORD *)(v4 + 16);
+  *(_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(_OWORD *)(v4 + 32);
+  *(in6_addr *)((char *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr.sin6_addr + 8) = *(in6_addr *)(v4 + 48);
+  *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 2) = *(_OWORD *)(v4 + 64);
+  *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 3) = *(_OWORD *)(v4 + 80);
+  *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 4) = *(_OWORD *)(v4 + 96);
+  *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 5) = *(_OWORD *)(v4 + 112);
+  *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 6) = *(_OWORD *)(v4 + 128);
+  *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 7) = *(_OWORD *)(v4 + 144);
+  this->m_telemetry.m_peerAddr.m_relayRoute = *(bdRelayRoute *)(v4 + 160);
+  *(_OWORD *)&this->m_telemetry.m_peerAddr.m_type = *(_OWORD *)(v4 + 176);
+  *(_OWORD *)&this->m_telemetry.m_recvSeqNum = *(_OWORD *)(v4 + 192);
+  NetAddress::Clear(&this->m_address);
 }
 
 /*
@@ -721,11 +705,10 @@ bdDTLSAssociationTelemetry *NetEndpoint::GetTelemetry(NetEndpoint *this)
   bdSocketRouter *SocketRouter; 
   bdDTLSAssociationTelemetry *p_m_telemetry; 
   bdReference<bdAddrHandle> addrHandle; 
-  __int64 v22; 
+  __int64 v8; 
   bdDTLSAssociationTelemetry result; 
 
-  v22 = -2i64;
-  _RSI = this;
+  v8 = -2i64;
   m_ptr = NetAddress::GetHandle(&this->m_address)->m_ptr;
   p_m_refCount = (volatile signed __int32 *)&m_ptr->m_refCount;
   if ( m_ptr )
@@ -736,39 +719,10 @@ bdDTLSAssociationTelemetry *NetEndpoint::GetTelemetry(NetEndpoint *this)
     SocketRouter = dwGetSocketRouter();
     addrHandle.m_ptr = m_ptr;
     _InterlockedExchangeAdd(p_m_refCount, 1u);
-    _RAX = bdSocketRouter::getTelemetry(SocketRouter, &result, (const bdReference<bdAddrHandle>)&addrHandle);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsi+0C0h], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rsi+0D0h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsi+0E0h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rsi+0F0h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rsi+100h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rsi+110h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rsi+120h], xmm0
-      vmovups xmm0, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rsi+130h], xmm0
-      vmovups xmm1, xmmword ptr [rax+80h]
-      vmovups xmmword ptr [rsi+140h], xmm1
-      vmovups xmm0, xmmword ptr [rax+90h]
-      vmovups xmmword ptr [rsi+150h], xmm0
-      vmovups xmm1, xmmword ptr [rax+0A0h]
-      vmovups xmmword ptr [rsi+160h], xmm1
-      vmovups xmm0, xmmword ptr [rax+0B0h]
-      vmovups xmmword ptr [rsi+170h], xmm0
-      vmovups xmm1, xmmword ptr [rax+0C0h]
-      vmovups xmmword ptr [rsi+180h], xmm1
-    }
+    this->m_telemetry = *bdSocketRouter::getTelemetry(SocketRouter, &result, (const bdReference<bdAddrHandle>)&addrHandle);
   }
   NET_ExitCriticalSection();
-  p_m_telemetry = &_RSI->m_telemetry;
+  p_m_telemetry = &this->m_telemetry;
   if ( m_ptr && _InterlockedExchangeAdd(p_m_refCount, 0xFFFFFFFF) == 1 )
     ((void (__fastcall *)(bdAddrHandle *, __int64))m_ptr->~bdReferencable)(m_ptr, 1i64);
   return p_m_telemetry;
@@ -857,37 +811,7 @@ void NetEndpoint::OnClose(NetEndpoint *this, const bdReference<bdDTLSAssociation
 {
   bdDTLSAssociationTelemetry result; 
 
-  _RBX = this;
-  _RAX = bdDTLSAssociation::getTelemetry(dtls->m_ptr, &result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx+0C0h], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbx+0D0h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+0E0h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rbx+0F0h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+100h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rbx+110h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbx+120h], xmm0
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rbx+130h], xmm0
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+140h], xmm1
-    vmovups xmm0, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rbx+150h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rbx+160h], xmm1
-    vmovups xmm0, xmmword ptr [rax+0B0h]
-    vmovups xmmword ptr [rbx+170h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0C0h]
-    vmovups xmmword ptr [rbx+180h], xmm1
-  }
+  this->m_telemetry = *bdDTLSAssociation::getTelemetry(dtls->m_ptr, &result);
 }
 
 /*
@@ -937,65 +861,49 @@ NetEndpoint::RemoveReference
 */
 void NetEndpoint::RemoveReference(NetEndpoint *this, bool keepOpen)
 {
-  volatile signed __int32 *p_m_referenceCount; 
+  volatile int *p_m_referenceCount; 
   NetSession *m_session; 
   bool IsBacklog; 
-  bdDTLSAssociationTelemetry v21; 
+  __int64 v7; 
+  bdDTLSAssociationTelemetry v8; 
 
-  _RBX = this;
   if ( NetAddress::IsNull(&this->m_address) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 176, ASSERT_TYPE_ASSERT, "(IsOpened())", (const char *)&queryFormat, "IsOpened()") )
     __debugbreak();
-  p_m_referenceCount = &_RBX->m_referenceCount;
-  if ( _RBX->m_referenceCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 177, ASSERT_TYPE_ASSERT, "(m_referenceCount > 0)", (const char *)&queryFormat, "m_referenceCount > 0") )
+  p_m_referenceCount = &this->m_referenceCount;
+  if ( this->m_referenceCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 177, ASSERT_TYPE_ASSERT, "(m_referenceCount > 0)", (const char *)&queryFormat, "m_referenceCount > 0") )
     __debugbreak();
-  if ( (((_BYTE)_RBX - 88) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &_RBX->m_referenceCount) )
+  if ( (((_BYTE)this - 88) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &this->m_referenceCount) )
     __debugbreak();
   if ( _InterlockedExchangeAdd(p_m_referenceCount, 0xFFFFFFFF) == 1 && !keepOpen )
   {
     if ( *p_m_referenceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 65, ASSERT_TYPE_ASSERT, "(m_referenceCount == 0)", (const char *)&queryFormat, "m_referenceCount == 0") )
       __debugbreak();
-    if ( _RBX->m_connectionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 66, ASSERT_TYPE_ASSERT, "(m_connectionCount == 0)", (const char *)&queryFormat, "m_connectionCount == 0") )
+    if ( this->m_connectionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_endpoint.cpp", 66, ASSERT_TYPE_ASSERT, "(m_connectionCount == 0)", (const char *)&queryFormat, "m_connectionCount == 0") )
       __debugbreak();
-    m_session = _RBX->m_session;
+    m_session = this->m_session;
     if ( m_session )
     {
-      IsBacklog = NetAddress::IsBacklog(&_RBX->m_address);
+      IsBacklog = NetAddress::IsBacklog(&this->m_address);
       NetSession::RemoveReference(m_session, IsBacklog);
-      _RBX->m_session = NULL;
+      this->m_session = NULL;
     }
-    *(_QWORD *)&_RBX->m_lastRecv = 0i64;
-    _RBX->m_graveyarded = 0;
-    bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(&v21);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx+0C0h], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rbx+0D0h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbx+0E0h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rbx+0F0h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rbx+100h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rbx+110h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rbx+120h], xmm0
-      vmovups xmm0, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rbx+130h], xmm0
-      vmovups xmm1, xmmword ptr [rax+80h]
-      vmovups xmmword ptr [rbx+140h], xmm1
-      vmovups xmm0, xmmword ptr [rax+90h]
-      vmovups xmmword ptr [rbx+150h], xmm0
-      vmovups xmm1, xmmword ptr [rax+0A0h]
-      vmovups xmmword ptr [rbx+160h], xmm1
-      vmovups xmm0, xmmword ptr [rax+0B0h]
-      vmovups xmmword ptr [rbx+170h], xmm0
-      vmovups xmm1, xmmword ptr [rax+0C0h]
-      vmovups xmmword ptr [rbx+180h], xmm1
-    }
-    NetAddress::Clear(&_RBX->m_address);
+    *(_QWORD *)&this->m_lastRecv = 0i64;
+    this->m_graveyarded = 0;
+    bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(&v8);
+    *(_OWORD *)&this->m_telemetry.m_lastState = *(_OWORD *)v7;
+    *(_OWORD *)&this->m_telemetry.m_stageCookieEchoMsSinceStart = *(_OWORD *)(v7 + 16);
+    *(_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(_OWORD *)(v7 + 32);
+    *(in6_addr *)((char *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr.sin6_addr + 8) = *(in6_addr *)(v7 + 48);
+    *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 2) = *(_OWORD *)(v7 + 64);
+    *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 3) = *(_OWORD *)(v7 + 80);
+    *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 4) = *(_OWORD *)(v7 + 96);
+    *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 5) = *(_OWORD *)(v7 + 112);
+    *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 6) = *(_OWORD *)(v7 + 128);
+    *((_OWORD *)&this->m_telemetry.m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 7) = *(_OWORD *)(v7 + 144);
+    this->m_telemetry.m_peerAddr.m_relayRoute = *(bdRelayRoute *)(v7 + 160);
+    *(_OWORD *)&this->m_telemetry.m_peerAddr.m_type = *(_OWORD *)(v7 + 176);
+    *(_OWORD *)&this->m_telemetry.m_recvSeqNum = *(_OWORD *)(v7 + 192);
+    NetAddress::Clear(&this->m_address);
   }
 }
 

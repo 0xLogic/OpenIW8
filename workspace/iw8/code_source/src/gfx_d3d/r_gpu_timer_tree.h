@@ -65,12 +65,10 @@ char TimerTree::WalkSubTree<GPUTimerTree::WalkData *>(bool (*pNodeFunc)(GfxCmdBu
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_head_base<ntl::internal::list_node<GPUTimeStampNode *> > *p_m_listHead; 
   GPUTimeStampNode *mp_prev; 
-  GfxCmdBufContext v15[3]; 
+  GfxCmdBufContext v13[3]; 
 
-  __asm { vmovups xmm0, xmmword ptr [rdx] }
-  _R14 = gfxContext;
-  __asm { vmovups [rsp+68h+var_38], xmm0 }
-  if ( !((unsigned __int8 (__fastcall *)(GfxCmdBufContext *, GPUTimeStampNode *, _QWORD))pNodeFunc)(v15, pSubtree, currentDepth) )
+  v13[0] = *gfxContext;
+  if ( !((unsigned __int8 (__fastcall *)(GfxCmdBufContext *, GPUTimeStampNode *, _QWORD))pNodeFunc)(v13, pSubtree, currentDepth) )
   {
     mp_next = pSubtree->m_children.m_listHead.m_sentinel.mp_next;
     p_m_listHead = &pSubtree->m_children.m_listHead;
@@ -80,10 +78,9 @@ char TimerTree::WalkSubTree<GPUTimerTree::WalkData *>(bool (*pNodeFunc)(GfxCmdBu
     {
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      __asm { vmovups xmm0, xmmword ptr [r14] }
       mp_prev = (GPUTimeStampNode *)mp_next[1].mp_prev;
-      __asm { vmovups [rsp+68h+var_38], xmm0 }
-      if ( TimerTree::WalkSubTree<GPUTimerTree::WalkData *>(pNodeFunc, v15, mp_prev, userdata, currentDepth + 1) )
+      v13[0] = *gfxContext;
+      if ( TimerTree::WalkSubTree<GPUTimerTree::WalkData *>(pNodeFunc, v13, mp_prev, userdata, currentDepth + 1) )
         break;
       mp_next = mp_next->mp_next;
       if ( mp_next == (ntl::internal::list_node_base *)p_m_listHead )
@@ -103,12 +100,10 @@ char TimerTree::WalkSubTree<GpuTimerView *>(bool (*pNodeFunc)(GfxCmdBufContext *
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_head_base<ntl::internal::list_node<GPUTimeStampNode *> > *p_m_listHead; 
   GPUTimeStampNode *mp_prev; 
-  GfxCmdBufContext v15[3]; 
+  GfxCmdBufContext v13[3]; 
 
-  __asm { vmovups xmm0, xmmword ptr [rdx] }
-  _R14 = gfxContext;
-  __asm { vmovups [rsp+68h+var_38], xmm0 }
-  if ( !((unsigned __int8 (__fastcall *)(GfxCmdBufContext *, GPUTimeStampNode *, _QWORD))pNodeFunc)(v15, pSubtree, currentDepth) )
+  v13[0] = *gfxContext;
+  if ( !((unsigned __int8 (__fastcall *)(GfxCmdBufContext *, GPUTimeStampNode *, _QWORD))pNodeFunc)(v13, pSubtree, currentDepth) )
   {
     mp_next = pSubtree->m_children.m_listHead.m_sentinel.mp_next;
     p_m_listHead = &pSubtree->m_children.m_listHead;
@@ -118,10 +113,9 @@ char TimerTree::WalkSubTree<GpuTimerView *>(bool (*pNodeFunc)(GfxCmdBufContext *
     {
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      __asm { vmovups xmm0, xmmword ptr [r14] }
       mp_prev = (GPUTimeStampNode *)mp_next[1].mp_prev;
-      __asm { vmovups [rsp+68h+var_38], xmm0 }
-      if ( TimerTree::WalkSubTree<GpuTimerView *>(pNodeFunc, v15, mp_prev, userdata, currentDepth + 1) )
+      v13[0] = *gfxContext;
+      if ( TimerTree::WalkSubTree<GpuTimerView *>(pNodeFunc, v13, mp_prev, userdata, currentDepth + 1) )
         break;
       mp_next = mp_next->mp_next;
       if ( mp_next == (ntl::internal::list_node_base *)p_m_listHead )

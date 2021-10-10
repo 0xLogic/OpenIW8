@@ -775,110 +775,80 @@ PacketStream<NetPacket,1288,32768,0>::WaitAt
 void PacketStream<NetPacket,1288,32768,0>::WaitAt(PacketStream<NetPacket,1288,32768,0> *this, unsigned int writeOffset, int size)
 {
   char *Value; 
-  int *v10; 
-  _QWORD *v11; 
-  char *v12; 
-  __int64 v13; 
-  unsigned __int64 v14; 
+  int *v7; 
+  _QWORD *v8; 
+  char *v9; 
+  __int64 v10; 
+  unsigned __int64 v11; 
   ThreadContext CurrentThreadContext; 
-  unsigned __int64 v16; 
-  unsigned __int64 v18; 
-  unsigned __int64 v23; 
-  bool v24; 
+  unsigned __int64 v13; 
+  unsigned __int64 v14; 
+  __int128 v19; 
+  __int128 v21; 
+  __int64 v23; 
+  int v24; 
   __int64 v25; 
-  __int64 v34; 
-  int v35; 
-  __int64 v36; 
-  int v37; 
-  void *retaddr; 
+  int v26; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
   Value = (char *)Sys_GetValue(0);
-  v10 = (int *)(Value + 17936);
+  v7 = (int *)(Value + 17936);
   if ( (unsigned int)(*((_DWORD *)Value + 4484) + 1) >= 3 )
   {
-    v37 = 3;
-    v35 = *((_DWORD *)Value + 4484) + 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v35, v37) )
+    v26 = 3;
+    v24 = *((_DWORD *)Value + 4484) + 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v24, v26) )
       __debugbreak();
   }
-  if ( (unsigned int)++*v10 >= 3 )
+  if ( (unsigned int)++*v7 >= 3 )
   {
-    LODWORD(v36) = 3;
-    LODWORD(v34) = *v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v34, v36) )
+    LODWORD(v25) = 3;
+    LODWORD(v23) = *v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v23, v25) )
       __debugbreak();
   }
-  v11 = Value + 2088;
-  v12 = Value + 40;
-  if ( *v11 < (unsigned __int64)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+  v8 = Value + 2088;
+  v9 = Value + 40;
+  if ( *v8 < (unsigned __int64)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
     __debugbreak();
-  *v11 += 8i64;
-  if ( *v11 >= (unsigned __int64)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+  *v8 += 8i64;
+  if ( *v8 >= (unsigned __int64)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
     __debugbreak();
-  *(_QWORD *)*v11 = v10;
-  if ( *v11 <= (unsigned __int64)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+  *(_QWORD *)*v8 = v7;
+  if ( *v8 <= (unsigned __int64)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v13 = *v10;
-  v14 = __rdtsc();
-  v10[v13 + 2] = v14;
+  v10 = *v7;
+  v11 = __rdtsc();
+  v7[v10 + 2] = v11;
   if ( Sys_HasValidCurrentThreadContext() )
     CurrentThreadContext = Sys_GetCurrentThreadContext();
   else
     CurrentThreadContext = THREAD_CONTEXT_COUNT;
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 396, NULL, 0);
-  v16 = __rdtsc();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+98h+var_40], xmm7
-  }
-  v18 = __rdtsc();
+  v13 = __rdtsc();
+  v14 = __rdtsc();
   Com_Printf(0x20000, "[NET] Started wait\n");
   while ( !PacketStream<NetPacket,1288,32768,0>::WriteableAt(this, writeOffset, size) )
     _mm_pause();
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v14) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v13) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v19 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v19;
   }
-  if ( (__int64)(__rdtsc() - v18) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r8, xmm2
-  }
-  Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", *(double *)&_XMM2);
-  v23 = __rdtsc();
-  v24 = v23 < v16;
-  v25 = v23 - v16;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( v25 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm2, xmm7
-  }
-  if ( !v24 && v25 != 0 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", *(double *)&_XMM3);
-  }
+  *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v21 = *(double *)&_XMM0 * usecPerRawTimerTick;
+  _XMM0 = v21;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  if ( (float)(*(float *)&_XMM1 * 0.001) > 0.0 )
+    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", (float)(*(float *)&_XMM1 * 0.001));
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
 }
 
 /*
@@ -1355,71 +1325,43 @@ PacketStream<NetPacket,1288,65536,0>::Reserve
 NetPacket *PacketStream<NetPacket,1288,65536,0>::Reserve(PacketStream<NetPacket,1288,65536,0> *this, int size)
 {
   unsigned int m_writeOffset; 
-  unsigned __int64 v7; 
-  unsigned __int64 v9; 
-  unsigned __int64 v14; 
-  bool v15; 
-  __int64 v16; 
+  unsigned __int64 v5; 
+  unsigned __int64 v6; 
+  __int128 v11; 
+  __int128 v13; 
   PacketBuffer<65536,1312,8> *p_m_buffer; 
-  NetPacket *result; 
   int WordIndex; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm7 }
   if ( size <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 246, ASSERT_TYPE_ASSERT, "(size > 0)", (const char *)&queryFormat, "size > 0") )
     __debugbreak();
   m_writeOffset = this->m_writeOffset;
   if ( !PacketStream<NetPacket,1288,65536,0>::WriteableAt(this, this->m_writeOffset, size) )
   {
     Profile_Begin(396);
-    v7 = __rdtsc();
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+98h+var_40], xmm7
-    }
-    v9 = __rdtsc();
+    v5 = __rdtsc();
+    v6 = __rdtsc();
     Com_Printf(0x20000, "[NET] Started wait\n");
     while ( !PacketStream<NetPacket,1288,65536,0>::WriteableAt(this, m_writeOffset, size) )
       _mm_pause();
-    __asm
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v6) < 0 )
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v5) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
+      *((_QWORD *)&v11 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v11 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v11;
     }
-    if ( (__int64)(__rdtsc() - v9) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovq   r8, xmm2
-    }
-    Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", *(double *)&_XMM2);
-    v14 = __rdtsc();
-    v15 = v14 < v7;
-    v16 = v14 - v7;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
-    if ( v16 < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmulss  xmm2, xmm1, cs:__real@3a83126f
-      vcomiss xmm2, xmm7
-    }
-    if ( !v15 && v16 != 0 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm3, xmm2, xmm2
-        vmovq   r9, xmm3
-      }
-      Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", *(double *)&_XMM3);
-    }
+    *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v13 = *(double *)&_XMM0 * usecPerRawTimerTick;
+    _XMM0 = v13;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    if ( (float)(*(float *)&_XMM1 * 0.001) > 0.0 )
+      Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", (float)(*(float *)&_XMM1 * 0.001));
     Profile_EndInternal(NULL);
   }
   p_m_buffer = &this->m_buffer;
@@ -1431,9 +1373,7 @@ NetPacket *PacketStream<NetPacket,1288,65536,0>::Reserve(PacketStream<NetPacket,
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 104, ASSERT_TYPE_ASSERT, "(!IsReadable( packet ))", "%s\n\tExpected not-readable at %u", "!IsReadable( packet )", WordIndex) )
       __debugbreak();
   }
-  result = (NetPacket *)&p_m_buffer->m_data[(unsigned __int16)m_writeOffset];
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  return result;
+  return (NetPacket *)((char *)p_m_buffer + (unsigned __int16)m_writeOffset);
 }
 
 /*
@@ -1443,88 +1383,58 @@ PacketStream<NetPacket,1288,262144,1>::Reserve
 */
 NetPacket *PacketStream<NetPacket,1288,262144,1>::Reserve(PacketStream<NetPacket,1288,262144,1> *this, int size)
 {
-  unsigned int v6; 
-  unsigned __int64 v7; 
-  unsigned __int64 v9; 
-  unsigned __int64 v14; 
-  bool v15; 
-  __int64 v16; 
-  NetPacket *v24; 
-  NetPacket *result; 
+  unsigned int v4; 
+  unsigned __int64 v5; 
+  unsigned __int64 v6; 
+  __int128 v11; 
+  __int128 v13; 
+  const NetPacket *v15; 
   int WordIndex; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm7 }
   if ( size <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 246, ASSERT_TYPE_ASSERT, "(size > 0)", (const char *)&queryFormat, "size > 0") )
     __debugbreak();
   if ( ((unsigned __int8)this & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", this) )
     __debugbreak();
-  v6 = _InterlockedExchangeAdd((volatile signed __int32 *)this, (size + 151) & 0xFFFFFF80);
-  if ( !PacketStream<NetPacket,1288,262144,1>::WriteableAt(this, v6, size) )
+  v4 = _InterlockedExchangeAdd((volatile signed __int32 *)this, (size + 151) & 0xFFFFFF80);
+  if ( !PacketStream<NetPacket,1288,262144,1>::WriteableAt(this, v4, size) )
   {
     Profile_Begin(396);
-    v7 = __rdtsc();
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+98h+var_40], xmm7
-    }
-    v9 = __rdtsc();
+    v5 = __rdtsc();
+    v6 = __rdtsc();
     Com_Printf(0x20000, "[NET] Started wait\n");
-    while ( !PacketStream<NetPacket,1288,262144,1>::WriteableAt(this, v6, size) )
+    while ( !PacketStream<NetPacket,1288,262144,1>::WriteableAt(this, v4, size) )
       _mm_pause();
-    __asm
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v6) < 0 )
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v5) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
+      *((_QWORD *)&v11 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v11 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v11;
     }
-    if ( (__int64)(__rdtsc() - v9) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovq   r8, xmm2
-    }
-    Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", *(double *)&_XMM2);
-    v14 = __rdtsc();
-    v15 = v14 < v7;
-    v16 = v14 - v7;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
-    if ( v16 < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmulss  xmm2, xmm1, cs:__real@3a83126f
-      vcomiss xmm2, xmm7
-    }
-    if ( !v15 && v16 != 0 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm3, xmm2, xmm2
-        vmovq   r9, xmm3
-      }
-      Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", *(double *)&_XMM3);
-    }
+    *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v13 = *(double *)&_XMM0 * usecPerRawTimerTick;
+    _XMM0 = v13;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    if ( (float)(*(float *)&_XMM1 * 0.001) > 0.0 )
+      Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", (float)(*(float *)&_XMM1 * 0.001));
     Profile_EndInternal(NULL);
   }
   if ( size > 1312 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_buffer.h", 75, ASSERT_TYPE_ASSERT, "(length <= PACKET_SIZE)", (const char *)&queryFormat, "length <= PACKET_SIZE") )
     __debugbreak();
-  v24 = (NetPacket *)&this->m_buffer.m_data[v6 & 0x3FFFF];
-  if ( this->m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(this, v24)] )
+  v15 = (const NetPacket *)&this->m_buffer.m_data[v4 & 0x3FFFF];
+  if ( this->m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(this, v15)] )
   {
-    WordIndex = PacketStream<NetPacket,1288,262144,1>::GetWordIndex(this, v24);
+    WordIndex = PacketStream<NetPacket,1288,262144,1>::GetWordIndex(this, v15);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 104, ASSERT_TYPE_ASSERT, "(!IsReadable( packet ))", "%s\n\tExpected not-readable at %u", "!IsReadable( packet )", WordIndex) )
       __debugbreak();
   }
-  result = v24;
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  return result;
+  return (NetPacket *)v15;
 }
 
 /*
@@ -1534,67 +1444,37 @@ PacketStream<NetPacket,1288,65536,0>::WaitAt
 */
 void PacketStream<NetPacket,1288,65536,0>::WaitAt(PacketStream<NetPacket,1288,65536,0> *this, unsigned int writeOffset, int size)
 {
-  unsigned __int64 v9; 
-  unsigned __int64 v11; 
-  unsigned __int64 v16; 
-  bool v17; 
-  __int64 v18; 
-  void *retaddr; 
+  unsigned __int64 v6; 
+  unsigned __int64 v7; 
+  __int128 v12; 
+  __int128 v14; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
   Profile_Begin(396);
-  v9 = __rdtsc();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+78h+var_40], xmm7
-  }
-  v11 = __rdtsc();
+  v6 = __rdtsc();
+  v7 = __rdtsc();
   Com_Printf(0x20000, "[NET] Started wait\n");
   while ( !PacketStream<NetPacket,1288,65536,0>::WriteableAt(this, writeOffset, size) )
     _mm_pause();
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v7) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v6) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v12;
   }
-  if ( (__int64)(__rdtsc() - v11) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r8, xmm2
-  }
-  Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", *(double *)&_XMM2);
-  v16 = __rdtsc();
-  v17 = v16 < v9;
-  v18 = v16 - v9;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( v18 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm2, xmm7
-  }
-  if ( !v17 && v18 != 0 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", *(double *)&_XMM3);
-  }
+  *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v14 = *(double *)&_XMM0 * usecPerRawTimerTick;
+  _XMM0 = v14;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  if ( (float)(*(float *)&_XMM1 * 0.001) > 0.0 )
+    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", (float)(*(float *)&_XMM1 * 0.001));
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm7, [rsp+78h+var_28] }
 }
 
 /*
@@ -1604,67 +1484,37 @@ PacketStream<NetPacket,1288,262144,1>::WaitAt
 */
 void PacketStream<NetPacket,1288,262144,1>::WaitAt(PacketStream<NetPacket,1288,262144,1> *this, unsigned int writeOffset, int size)
 {
-  unsigned __int64 v9; 
-  unsigned __int64 v11; 
-  unsigned __int64 v16; 
-  bool v17; 
-  __int64 v18; 
-  void *retaddr; 
+  unsigned __int64 v6; 
+  unsigned __int64 v7; 
+  __int128 v12; 
+  __int128 v14; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
   Profile_Begin(396);
-  v9 = __rdtsc();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+78h+var_40], xmm7
-  }
-  v11 = __rdtsc();
+  v6 = __rdtsc();
+  v7 = __rdtsc();
   Com_Printf(0x20000, "[NET] Started wait\n");
   while ( !PacketStream<NetPacket,1288,262144,1>::WriteableAt(this, writeOffset, size) )
     _mm_pause();
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v7) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v6) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v12;
   }
-  if ( (__int64)(__rdtsc() - v11) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r8, xmm2
-  }
-  Com_Printf(0x20000, "[NET] Stopped wait after %.3fms\n", *(double *)&_XMM2);
-  v16 = __rdtsc();
-  v17 = v16 < v9;
-  v18 = v16 - v9;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( v18 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm2, xmm7
-  }
-  if ( !v17 && v18 != 0 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", *(double *)&_XMM3);
-  }
+  *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v14 = *(double *)&_XMM0 * usecPerRawTimerTick;
+  _XMM0 = v14;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  if ( (float)(*(float *)&_XMM1 * 0.001) > 0.0 )
+    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "PacketStream_Wait", (float)(*(float *)&_XMM1 * 0.001));
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm7, [rsp+78h+var_28] }
 }
 
 /*

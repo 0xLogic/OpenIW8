@@ -91,38 +91,39 @@ void BG_FindAnimsInAtr(const char *atrFileName, const char *atrTreeName, AtrAnim
   const char *v10; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
   ntl::red_black_tree_node_base *mp_parent; 
-  unsigned int v15; 
+  unsigned int v13; 
   ntl::pair<ntl::fixed_string<64>,scr_anim_t> *p_r_element; 
-  __int64 v17; 
-  unsigned __int8 v18; 
-  unsigned int v19; 
+  __int64 v15; 
+  unsigned __int8 v16; 
+  unsigned int v17; 
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *i; 
-  ntl::red_black_tree_node_base *v22; 
-  char *v23; 
-  char *v24; 
-  int v25; 
-  int v26; 
+  ntl::red_black_tree_node_base *v20; 
+  char *v21; 
+  char *v22; 
+  int v23; 
+  int v24; 
   ntl::red_black_tree_node_base *j; 
   char *fmt; 
   char *data_p; 
-  unsigned int v30; 
-  const char *v31; 
-  const char *v32; 
-  __int64 v33; 
+  unsigned int v28; 
+  const char *v29; 
+  const char *v30; 
+  __int64 v31; 
   ntl::red_black_tree_iterator<ntl::fixed_string<64>,ntl::red_black_tree_node<ntl::pair<ntl::fixed_string<64>,scr_anim_t> >,ntl::pair<ntl::fixed_string<64>,scr_anim_t> *,ntl::pair<ntl::fixed_string<64>,scr_anim_t> &> result; 
-  ntl::red_black_tree_iterator<ntl::fixed_string<64>,ntl::red_black_tree_node<ntl::pair<ntl::fixed_string<64>,scr_anim_t> >,ntl::pair<ntl::fixed_string<64>,scr_anim_t> *,ntl::pair<ntl::fixed_string<64>,scr_anim_t> &> v35; 
-  Mem_LargeLocal v36; 
+  ntl::red_black_tree_iterator<ntl::fixed_string<64>,ntl::red_black_tree_node<ntl::pair<ntl::fixed_string<64>,scr_anim_t> >,ntl::pair<ntl::fixed_string<64>,scr_anim_t> *,ntl::pair<ntl::fixed_string<64>,scr_anim_t> &> v33; 
+  Mem_LargeLocal v34; 
   ntl::pair<ntl::fixed_string<64>,scr_anim_t> r_element; 
   char p_destString[32]; 
+  __m256i v37; 
 
-  v33 = -2i64;
+  v31 = -2i64;
   v5 = dataSize;
-  v30 = dataSize;
+  v28 = dataSize;
   v7 = atrTreeName;
-  v32 = atrTreeName;
+  v30 = atrTreeName;
   v8 = atrFileName;
-  v31 = atrFileName;
+  v29 = atrFileName;
   if ( !atrFileName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_atr_utils.cpp", 25, ASSERT_TYPE_ASSERT, "(atrFileName)", (const char *)&queryFormat, "atrFileName") )
     __debugbreak();
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_atr_utils.cpp", 26, ASSERT_TYPE_ASSERT, "(atrTreeName)", (const char *)&queryFormat, "atrTreeName") )
@@ -133,9 +134,9 @@ void BG_FindAnimsInAtr(const char *atrFileName, const char *atrTreeName, AtrAnim
     __debugbreak();
   if ( DB_XAssetExists(ASSET_TYPE_RAWFILE, v8) )
   {
-    Mem_LargeLocal::Mem_LargeLocal(&v36, 0x8000ui64, "AtrAnimBuf animParseBuffer");
+    Mem_LargeLocal::Mem_LargeLocal(&v34, 0x8000ui64, "AtrAnimBuf animParseBuffer");
     memset(&r_element, 0, sizeof(r_element));
-    data_p = DB_ReadRawFile(v8, (char *)v36.m_ptr, 0x8000);
+    data_p = DB_ReadRawFile(v8, (char *)v34.m_ptr, 0x8000);
     v9 = j_va("Load Atr ... %s", v8);
     Com_BeginParseSession(v9);
     Com_SetParseNegativeNumbers(1);
@@ -152,16 +153,11 @@ void BG_FindAnimsInAtr(const char *atrFileName, const char *atrTreeName, AtrAnim
         }
         ntl::internal::string_assign(p_destString, 0x40ui64, v10);
         ntl::internal::string_tolower(p_destString, 0x40ui64);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+70h+p_destString]
-          vmovups ymmword ptr [rbp+70h+r_element.first.baseclass_0.baseclass_0.baseclass_0.m_string], ymm0
-          vmovups ymm1, [rbp+70h+var_70]
-          vmovups ymmword ptr [rbp+70h+r_element.first.baseclass_0.baseclass_0.baseclass_0.m_string+20h], ymm1
-        }
+        *(__m256i *)r_element.first.m_string = *(__m256i *)p_destString;
+        *(__m256i *)&r_element.first.m_string[32] = v37;
         p_m_endNodeBase = &animData->anims.m_endNodeBase;
         mp_parent = animData->anims.m_endNodeBase.mp_parent;
-        LOBYTE(v15) = 1;
+        LOBYTE(v13) = 1;
         if ( mp_parent )
         {
           do
@@ -170,33 +166,33 @@ void BG_FindAnimsInAtr(const char *atrFileName, const char *atrTreeName, AtrAnim
             if ( mp_parent == (ntl::red_black_tree_node_base *)-32i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\string\\string_storage.h", (_DWORD)mp_parent + 73, ASSERT_TYPE_ASSERT, "( p_constString != 0 )", (const char *)&queryFormat, "p_constString != NULL") )
               __debugbreak();
             p_r_element = &r_element;
-            v17 = (char *)&mp_parent[1] - (char *)&r_element;
+            v15 = (char *)&mp_parent[1] - (char *)&r_element;
             while ( 1 )
             {
-              v18 = p_r_element->first.m_string[0];
-              if ( p_r_element->first.m_string[0] != p_r_element->first.m_string[v17] )
+              v16 = p_r_element->first.m_string[0];
+              if ( p_r_element->first.m_string[0] != p_r_element->first.m_string[v15] )
                 break;
               p_r_element = (ntl::pair<ntl::fixed_string<64>,scr_anim_t> *)((char *)p_r_element + 1);
-              if ( !v18 )
+              if ( !v16 )
               {
-                v19 = 0;
+                v17 = 0;
                 goto LABEL_27;
               }
             }
-            v19 = v18 < (unsigned int)p_r_element->first.m_string[v17] ? -1 : 1;
+            v17 = v16 < (unsigned int)p_r_element->first.m_string[v15] ? -1 : 1;
 LABEL_27:
-            v15 = v19 >> 31;
-            if ( (_BYTE)v15 )
+            v13 = v17 >> 31;
+            if ( (_BYTE)v13 )
               mp_parent = mp_parent->mp_left;
             else
               mp_parent = mp_parent->mp_right;
           }
           while ( mp_parent );
-          v8 = v31;
-          v5 = v30;
+          v8 = v29;
+          v5 = v28;
         }
         mp_left = p_m_endNodeBase;
-        if ( !(_BYTE)v15 )
+        if ( !(_BYTE)v13 )
           goto LABEL_47;
         if ( p_m_endNodeBase != animData->anims.m_endNodeBase.mp_left )
         {
@@ -217,10 +213,10 @@ LABEL_27:
               {
                 do
                 {
-                  v22 = mp_left;
+                  v20 = mp_left;
                   mp_left = mp_left->mp_parent;
                 }
-                while ( v22 == mp_left->mp_left );
+                while ( v20 == mp_left->mp_left );
               }
             }
           }
@@ -231,21 +227,21 @@ LABEL_27:
 LABEL_47:
           if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v23 = (char *)&mp_left[1];
-          v24 = (char *)((char *)&r_element - v23);
+          v21 = (char *)&mp_left[1];
+          v22 = (char *)((char *)&r_element - v21);
           do
           {
-            v25 = (unsigned __int8)v24[(_QWORD)v23];
-            v26 = (unsigned __int8)*v23 - v25;
-            if ( v26 )
+            v23 = (unsigned __int8)v22[(_QWORD)v21];
+            v24 = (unsigned __int8)*v21 - v23;
+            if ( v24 )
               break;
-            ++v23;
+            ++v21;
           }
-          while ( v25 );
-          if ( v26 >= 0 )
+          while ( v23 );
+          if ( v24 >= 0 )
             Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9E950, 24i64, v10, v8);
           else
-            ntl::red_black_tree<ntl::fixed_string<64>,ntl::pair<ntl::fixed_string<64>,scr_anim_t>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ntl::fixed_string<64>,scr_anim_t>>,600,8>,ntl::return_pair_first<ntl::fixed_string<64>,scr_anim_t>,ntl::less<ntl::fixed_string<64>,ntl::fixed_string<64>>>::insert_node(&animData->anims, &v35, p_m_endNodeBase, &r_element, 0, 0);
+            ntl::red_black_tree<ntl::fixed_string<64>,ntl::pair<ntl::fixed_string<64>,scr_anim_t>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ntl::fixed_string<64>,scr_anim_t>>,600,8>,ntl::return_pair_first<ntl::fixed_string<64>,scr_anim_t>,ntl::less<ntl::fixed_string<64>,ntl::fixed_string<64>>>::insert_node(&animData->anims, &v33, p_m_endNodeBase, &r_element, 0, 0);
           goto LABEL_56;
         }
         ntl::red_black_tree<ntl::fixed_string<64>,ntl::pair<ntl::fixed_string<64>,scr_anim_t>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ntl::fixed_string<64>,scr_anim_t>>,600,8>,ntl::return_pair_first<ntl::fixed_string<64>,scr_anim_t>,ntl::less<ntl::fixed_string<64>,ntl::fixed_string<64>>>::insert_node(&animData->anims, &result, p_m_endNodeBase, &r_element, 1, 0);
@@ -255,8 +251,8 @@ LABEL_56:
       v10 = Com_Parse((const char **)&data_p);
     }
     Com_EndParseSession();
-    Mem_LargeLocal::~Mem_LargeLocal(&v36);
-    v7 = v32;
+    Mem_LargeLocal::~Mem_LargeLocal(&v34);
+    v7 = v30;
   }
   for ( j = animData->anims.m_endNodeBase.mp_left; j != &animData->anims.m_endNodeBase; j = ntl::red_black_tree_node_base::get_next(j) )
   {

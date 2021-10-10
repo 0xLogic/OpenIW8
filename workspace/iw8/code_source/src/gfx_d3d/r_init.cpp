@@ -515,11 +515,7 @@ void R_BeginRegistration(vidConfig_t *vidConfigOut)
   memset_0(&rg, 0, sizeof(rg));
   memset_0(&rgp, 0, sizeof(rgp));
   RB_InitBackendGlobalStructs();
-  __asm
-  {
-    vmovups ymm0, cs:__ymm@3f8000000000000000000000000000003f800000000000000000000000000000
-    vmovups ymmword ptr cs:?g_drawConsts@@3UGfxDrawConsts@@A.identityPlacement.base.quat, ymm0; GfxDrawConsts g_drawConsts
-  }
+  g_drawConsts.identityPlacement = (GfxScaledPlacement)_ymm;
   MatrixIdentity44(&rg.identityViewParms.viewMatrix.m);
   MatrixIdentity44(&rg.identityViewParms.projectionMatrix.m);
   MatrixIdentity44(&rg.identityViewParms.viewProjectionMatrix.m);
@@ -633,32 +629,26 @@ R_ConfigureRenderer
 */
 void R_ConfigureRenderer(const GfxConfiguration *config)
 {
+  __int64 v2; 
   __int64 v3; 
   __int64 v4; 
-  __int64 v5; 
 
-  _RBX = config;
   if ( !config && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1447, ASSERT_TYPE_ASSERT, "(config)", (const char *)&queryFormat, "config") )
     __debugbreak();
-  if ( _RBX->maxClientViews - 1 > 1 )
+  if ( config->maxClientViews - 1 > 1 )
   {
-    LODWORD(v3) = _RBX->maxClientViews;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1448, ASSERT_TYPE_ASSERT, "( 1 ) <= ( config->maxClientViews ) && ( config->maxClientViews ) <= ( 2 )", "config->maxClientViews not in [1, GFX_MAX_CLIENT_VIEWS]\n\t%i not in [%i, %i]", v3, 1, 2) )
+    LODWORD(v2) = config->maxClientViews;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1448, ASSERT_TYPE_ASSERT, "( 1 ) <= ( config->maxClientViews ) && ( config->maxClientViews ) <= ( 2 )", "config->maxClientViews not in [1, GFX_MAX_CLIENT_VIEWS]\n\t%i not in [%i, %i]", v2, 1, 2) )
       __debugbreak();
   }
-  if ( _RBX->critSectCount != 116 )
+  if ( config->critSectCount != 116 )
   {
-    LODWORD(v5) = 116;
-    LODWORD(v4) = _RBX->critSectCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1450, ASSERT_TYPE_ASSERT, "(config->critSectCount == CRITSECT_COUNT)", "%s\n\t%d != %d", "config->critSectCount == CRITSECT_COUNT", v4, v5) )
+    LODWORD(v4) = 116;
+    LODWORD(v3) = config->critSectCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1450, ASSERT_TYPE_ASSERT, "(config->critSectCount == CRITSECT_COUNT)", "%s\n\t%d != %d", "config->critSectCount == CRITSECT_COUNT", v3, v4) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr cs:?gfxCfg@@3UGfxConfiguration@@A.inited, ymm0; GfxConfiguration gfxCfg
-  }
-  *(_DWORD *)&gfxCfg.defaultFullscreen = *(_DWORD *)&_RBX->defaultFullscreen;
+  gfxCfg = *config;
   gfxCfg.inited = 1;
   R_RegisterDvars();
   R_InitRenderCommands();
@@ -1124,34 +1114,21 @@ char R_CreateGameWindow(GfxWindowParms *wndParms, vidConfig_t *vidConfigOut)
   const RawFile *rawfile; 
   unsigned __int64 FFValidationHash; 
   int RawFileLen; 
-  char *v11; 
-  GfxCmdBufContext v13; 
+  char *v7; 
+  GfxCmdBufContext v9; 
   GfxCmdBufContext result; 
 
-  _RBX = vidConfigOut;
   if ( !vidConfigOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 7083, ASSERT_TYPE_ASSERT, "(vidConfigOut)", (const char *)&queryFormat, "vidConfigOut") )
     __debugbreak();
   R_SetWndParms(wndParms);
   R_StoreWindowSettings(wndParms);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?vidConfig@@3UvidConfig_t@@A.sceneWidth; vidConfig_t vidConfig
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm1, qword ptr cs:?vidConfig@@3UvidConfig_t@@A.displayAspectRatio; vidConfig_t vidConfig
-    vmovsd  qword ptr [rbx+20h], xmm1
-  }
-  _RBX->aspectRatioDisplayPixel = vidConfig.aspectRatioDisplayPixel;
+  *vidConfigOut = vidConfig;
   if ( R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 23, ASSERT_TYPE_ASSERT, "(!R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "!R_IsLockedGfxImmediateContext()") )
     __debugbreak();
   R_HW_InitCallbacks();
   R_StoreWindowSettings(wndParms);
-  _RAX = RB_GetBackendCmdBufContext(&result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rsp+58h+var_28], xmm0
-  }
-  RB_InitSceneViewport(&v13);
+  v9 = *RB_GetBackendCmdBufContext(&result);
+  RB_InitSceneViewport(&v9);
   RB_InitCodeConstants();
   Com_Printf(8, "Setting initial state...\n");
   RB_SetInitialState();
@@ -1171,13 +1148,13 @@ char R_CreateGameWindow(GfxWindowParms *wndParms, vidConfig_t *vidConfigOut)
   {
     FFValidationHash = Material_GenerateFFValidationHash();
     RawFileLen = DB_GetRawFileLen(rawfile);
-    v11 = (char *)Mem_Virtual_Alloc((RawFileLen + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64, "StructLayout", TRACK_MISC);
-    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 6054, ASSERT_TYPE_ASSERT, "(allocBuf)", (const char *)&queryFormat, "allocBuf") )
+    v7 = (char *)Mem_Virtual_Alloc((RawFileLen + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64, "StructLayout", TRACK_MISC);
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 6054, ASSERT_TYPE_ASSERT, "(allocBuf)", (const char *)&queryFormat, "allocBuf") )
       __debugbreak();
-    DB_GetRawBuffer(rawfile, v11, RawFileLen);
-    if ( FFValidationHash != *(_QWORD *)v11 )
+    DB_GetRawBuffer(rawfile, v7, RawFileLen);
+    if ( FFValidationHash != *(_QWORD *)v7 )
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_1444051E0, 967i64);
-    Mem_Virtual_Free(v11);
+    Mem_Virtual_Free(v7);
     return 1;
   }
   else
@@ -1402,10 +1379,7 @@ float R_GetAspectRatio(GfxAspectRatio aspectRatio)
   v1 = aspectRatio;
   if ( (aspectRatio == GFX_ASPECT_RATIO_AUTO || aspectRatio >= GFX_ASPECT_RATIO_COUNT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 560, ASSERT_TYPE_ASSERT, "(aspectRatio != GFX_ASPECT_RATIO_AUTO && aspectRatio < GFX_ASPECT_RATIO_COUNT)", (const char *)&queryFormat, "aspectRatio != GFX_ASPECT_RATIO_AUTO && aspectRatio < GFX_ASPECT_RATIO_COUNT") )
     __debugbreak();
-  _RCX = 3 * v1;
-  _RAX = &s_aspectRatioFractionList[0].ratio;
-  __asm { vmovss  xmm0, dword ptr [rax+rcx*4] }
-  return *(float *)&_XMM0;
+  return s_aspectRatioFractionList[v1].ratio;
 }
 
 /*
@@ -1451,9 +1425,8 @@ void __fastcall R_GetSurfPosStats(unsigned int *stats, double _XMM1_8, double _X
     vpaddd  xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   eax, xmm0
   }
-  *stats = _EAX / 64;
+  *stats = (int)_XMM0 / 64;
 }
 
 /*
@@ -1677,11 +1650,8 @@ void R_InitGraphicsApi(vidConfig_t *vidConfigOut)
   GfxWindowParms wndParms; 
 
   wndParms.coreWindow._object = NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+wndParms.coreWindow._contextCallback.ptr_], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&wndParms.coreWindow._contextCallback.ptr_ = _XMM0;
   wndParms.coreWindow._agileState = SaudiArabia;
   v4 = !s_windowExists;
   s_windowExists = 1;
@@ -1690,11 +1660,8 @@ void R_InitGraphicsApi(vidConfig_t *vidConfigOut)
     do
     {
       wndParms.displayMode = g_wndParms.displayMode;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+57h+var_68._object], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v8._object = _XMM0;
       v8._contextToken = 0i64;
       v8._agileState = SaudiArabia;
       v6 = Platform::Agile<Windows::UI::Core::CoreWindow,1>::Get(&g_wndParms.coreWindow);
@@ -1712,11 +1679,8 @@ void R_InitGraphicsApi(vidConfig_t *vidConfigOut)
       if ( v8._object )
         v8._object->__abi_Release(v8._object);
       wndParms.isWideScreen = g_wndParms.isWideScreen;
-      __asm
-      {
-        vmovss  xmm0, cs:g_wndParms.hz
-        vmovss  [rbp+57h+wndParms.hz], xmm0
-      }
+      _XMM0 = LODWORD(g_wndParms.hz);
+      wndParms.hz = g_wndParms.hz;
       wndParms.sceneWidth = g_wndParms.sceneWidth;
       wndParms.sceneHeight = g_wndParms.sceneHeight;
       wndParms.displayWidth = g_wndParms.displayWidth;
@@ -1864,504 +1828,378 @@ R_LogGpuPipelineStats
 void R_LogGpuPipelineStats()
 {
   trStatistics_t *stats; 
-  const char **v3; 
-  unsigned int v4; 
+  const char **v2; 
+  unsigned int v3; 
   int *numPostOcclusionGPClusters; 
-  const char *v35; 
-  const char **v76; 
-  __int64 v77; 
+  const char *v25; 
+  const char **v52; 
+  __int64 v53; 
   int *ugbPhysPageInUseCount; 
   char dest[256]; 
-  char v101; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   memset_0(dest, 0, sizeof(dest));
   stats = rg.stats;
-  v3 = g_gpPassNames;
-  v4 = 0;
+  v2 = g_gpPassNames;
+  v3 = 0;
   numPostOcclusionGPClusters = rg.stats->numPostOcclusionGPClusters;
   do
   {
-    if ( v4 )
+    if ( v3 )
     {
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-30h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-30h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Tris");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Tris");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-28h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-28h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Clusters");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Clusters");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-20h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-20h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batch Max Indices");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batch Max Indices");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-18h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-18h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batch Indices Watermark");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batch Indices Watermark");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-10h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-10h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      v35 = " GP Batches Drawn";
+      v25 = " GP Batches Drawn";
     }
     else
     {
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-30h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-30h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Tris (Prepass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Tris (Prepass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-28h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-28h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Wrkgrps (Prepass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Wrkgrps (Prepass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-20h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-20h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batch Max Indices (Prepass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batch Max Indices (Prepass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-18h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-18h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batch Indices Watermark (Prepass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batch Indices Watermark (Prepass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-10h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-10h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batches Drawn (Prepass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batches Drawn (Prepass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx-8]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-8] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Tris (Lit Pass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Tris (Lit Pass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Clusters (Lit Pass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Clusters (Lit Pass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx+8]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+8] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batch Max Indices Count (Lit Pass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batch Max Indices Count (Lit Pass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx+10h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+10h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batch Indices Watermark (Lit Pass)");
-      __asm { vmovaps xmm1, xmm6; value }
-      Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+      Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batch Indices Watermark (Lit Pass)");
+      Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
       if ( stats )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2sd xmm6, xmm6, dword ptr [rbx+18h]
-        }
+        _XMM6 = 0i64;
+        __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+18h] }
       }
       else
       {
         __asm { vxorpd  xmm6, xmm6, xmm6 }
       }
-      v35 = " GP Batches Drawn (Lit Pass)";
+      v25 = " GP Batches Drawn (Lit Pass)";
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, v35);
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, v25);
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+20h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+20h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP SubMeshes");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP SubMeshes");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+28h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+28h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Batches");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Batches");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+30h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+30h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Static Surfs");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Static Surfs");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+38h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+38h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Rigid Surfs");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Rigid Surfs");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+40h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+40h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Skinned Surfs");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Skinned Surfs");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+48h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+48h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v3, " GP Surfs Total");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
-    ++v4;
-    ++numPostOcclusionGPClusters;
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v2, " GP Surfs Total");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     ++v3;
+    ++numPostOcclusionGPClusters;
+    ++v2;
   }
-  while ( v4 < 2 );
+  while ( v3 < 2 );
   if ( stats )
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, dword ptr [rsi+0AD4h]
-    }
+    _XMM6 = 0i64;
+    __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rsi+0AD4h] }
   }
   else
   {
     __asm { vxorpd  xmm6, xmm6, xmm6 }
   }
   Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s", " UGB Resident XSurfs");
-  __asm { vmovaps xmm1, xmm6; value }
-  Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+  Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
   if ( stats )
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, dword ptr [rsi+0AD8h]
-    }
+    _XMM6 = 0i64;
+    __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rsi+0AD8h] }
   }
   else
   {
     __asm { vxorpd  xmm6, xmm6, xmm6 }
   }
   Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s", " UGB Delta XSurfs");
-  __asm { vmovaps xmm1, xmm6; value }
-  Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+  Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
   if ( stats )
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, dword ptr [rsi+0ADCh]
-    }
+    _XMM6 = 0i64;
+    __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rsi+0ADCh] }
   }
   else
   {
     __asm { vxorpd  xmm6, xmm6, xmm6 }
   }
   Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s", " UGB XSurfs");
-  __asm { vmovaps xmm1, xmm6; value }
-  Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
-  v76 = g_unifiedBufferNames;
-  v77 = 3i64;
+  Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
+  v52 = g_unifiedBufferNames;
+  v53 = 3i64;
   ugbPhysPageInUseCount = stats->ugbPhysPageInUseCount;
   do
   {
     __asm { vxorpd  xmm6, xmm6, xmm6 }
     if ( stats )
       __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+0Ch] }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Virt Pages In Use");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Virt Pages In Use");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Phys Pages In Use");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Phys Pages In Use");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, eax
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, eax }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Phys Buffer Memory");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Phys Buffer Memory");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx-18h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-18h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Allocated Virt Pages");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Allocated Virt Pages");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx-0Ch]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx-0Ch] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Virt Pages Paged In");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Virt Pages Paged In");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, dword ptr [rbx+24h]
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+24h] }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Phys Page Watermark");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Phys Page Watermark");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     if ( stats )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2sd xmm6, xmm6, eax
-      }
+      _XMM6 = 0i64;
+      __asm { vcvtsi2sd xmm6, xmm6, eax }
     }
     else
     {
       __asm { vxorpd  xmm6, xmm6, xmm6 }
     }
-    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v76, " Phys Mem Watermark");
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(dest, *(long double *)&_XMM1);
+    Com_sprintf(dest, 0x100ui64, "Counters.GPU.%s.%s", *v52, " Phys Mem Watermark");
+    Com_CSVWriteMetric(dest, *(long double *)&_XMM6);
     ++ugbPhysPageInUseCount;
-    ++v76;
-    --v77;
+    ++v52;
+    --v53;
   }
-  while ( v77 );
-  _R11 = &v101;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  while ( v53 );
 }
 
 /*
@@ -2554,27 +2392,29 @@ R_SetWndParms
 void R_SetWndParms(GfxWindowParms *wndParms)
 {
   int ActivationFactoryByPCWSTR; 
-  int v5; 
+  int v4; 
+  Windows::UI::Core::CoreWindow *v5; 
   Windows::UI::Core::CoreWindow *v6; 
-  Windows::UI::Core::CoreWindow *v7; 
-  Windows::UI::Core::CoreWindow *v9; 
+  Windows::UI::Core::CoreWindow *v8; 
   int ContextToken; 
-  struct IUnknown *v11; 
+  struct IUnknown *v10; 
   IUnknown *ptr; 
-  IUnknown *v13; 
+  IUnknown *v12; 
   XB3ConsoleType XB3ConsoleType; 
   int integer; 
+  int v15; 
   int v16; 
-  int v17; 
   RenderMemMode DefaultRenderMemMode; 
-  char v25; 
+  double SceneLODScale; 
+  float v19; 
+  const dvar_t *v20; 
+  double v21; 
   Platform::Guid pGuid; 
-  Platform::Agile<Windows::UI::Core::CoreWindow,1> v28; 
+  Platform::Agile<Windows::UI::Core::CoreWindow,1> v23; 
   Windows::UI::Core::CoreWindow *object; 
   void *ppActivationFactory; 
   ULONG_PTR pToken; 
 
-  __asm { vmovaps [rsp+80h+var_10], xmm6 }
   pGuid.__vftable = (Platform::Object_vtbl *)0x41B13C2A4D239005i64;
   *(_DWORD *)&pGuid.__d = 1800610448;
   *(_DWORD *)&pGuid.__h = -1315713095;
@@ -2583,75 +2423,72 @@ void R_SetWndParms(GfxWindowParms *wndParms)
   if ( ActivationFactoryByPCWSTR < 0 )
     __abi_WinRTraiseException(ActivationFactoryByPCWSTR);
   object = NULL;
-  v5 = (*(__int64 (__fastcall **)(void *, Windows::UI::Core::CoreWindow **))(*(_QWORD *)ppActivationFactory + 48i64))(ppActivationFactory, &object);
-  if ( v5 < 0 )
-    __abi_WinRTraiseException(v5);
+  v4 = (*(__int64 (__fastcall **)(void *, Windows::UI::Core::CoreWindow **))(*(_QWORD *)ppActivationFactory + 48i64))(ppActivationFactory, &object);
+  if ( v4 < 0 )
+    __abi_WinRTraiseException(v4);
+  v5 = object;
   v6 = object;
-  v7 = object;
   if ( object )
   {
     object->__abi_AddRef(object);
-    v6 = object;
+    v5 = object;
   }
-  if ( v6 )
-    v6->__abi_Release(v6);
+  if ( v5 )
+    v5->__abi_Release(v5);
   pToken = 0i64;
   if ( ppActivationFactory )
     (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-  __asm
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v23._object = _XMM0;
+  v23._contextToken = 0i64;
+  v23._agileState = SaudiArabia;
+  Platform::Agile<Windows::UI::Core::CoreWindow,1>::SetObject(&v23, v6);
+  Platform::Agile<Windows::UI::Core::CoreWindow,1>::Swap(&v23, &wndParms->coreWindow);
+  v8 = v23._object;
+  if ( v23._object )
   {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+var_38._object], xmm0
-  }
-  v28._contextToken = 0i64;
-  v28._agileState = SaudiArabia;
-  Platform::Agile<Windows::UI::Core::CoreWindow,1>::SetObject(&v28, v7);
-  Platform::Agile<Windows::UI::Core::CoreWindow,1>::Swap(&v28, &wndParms->coreWindow);
-  v9 = v28._object;
-  if ( v28._object )
-  {
-    v28._object = NULL;
+    v23._object = NULL;
     ContextToken = CoGetContextToken(&pToken);
     if ( ContextToken < 0 )
       __abi_WinRTraiseException(ContextToken);
-    if ( v28._contextToken && v28._contextCallback.ptr_ && v28._contextToken != pToken )
-      Platform::Details::ReleaseInContextImpl((Platform::Details *)v9, v28._contextCallback.ptr_, v11);
+    if ( v23._contextToken && v23._contextCallback.ptr_ && v23._contextToken != pToken )
+      Platform::Details::ReleaseInContextImpl((Platform::Details *)v8, v23._contextCallback.ptr_, v10);
     else
-      v9->__abi_Release(v9);
-    ptr = v28._contextCallback.ptr_;
-    if ( v28._contextCallback.ptr_ )
+      v8->__abi_Release(v8);
+    ptr = v23._contextCallback.ptr_;
+    if ( v23._contextCallback.ptr_ )
     {
-      v28._contextCallback.ptr_ = NULL;
+      v23._contextCallback.ptr_ = NULL;
       ptr->Release(ptr);
     }
-    v28._contextToken = 0i64;
-    v28._agileState = SaudiArabia;
-    v9 = v28._object;
+    v23._contextToken = 0i64;
+    v23._agileState = SaudiArabia;
+    v8 = v23._object;
   }
-  v13 = v28._contextCallback.ptr_;
-  if ( v28._contextCallback.ptr_ )
+  v12 = v23._contextCallback.ptr_;
+  if ( v23._contextCallback.ptr_ )
   {
-    v28._contextCallback.ptr_ = NULL;
-    v13->Release(v13);
-    v9 = v28._object;
+    v23._contextCallback.ptr_ = NULL;
+    v12->Release(v12);
+    v8 = v23._object;
   }
-  if ( v9 )
-    v9->__abi_Release(v9);
-  if ( v7 )
-    v7->__abi_Release(v7);
+  if ( v8 )
+    v8->__abi_Release(v8);
+  if ( v6 )
+    v6->__abi_Release(v6);
   wndParms->isWideScreen = 1;
   wndParms->hz = 60.0;
   XB3ConsoleType = Sys_GetXB3ConsoleType();
   integer = r_mode->current.integer;
   if ( integer )
   {
-    v16 = integer - 1;
-    if ( v16 )
+    v15 = integer - 1;
+    if ( v15 )
     {
-      v17 = v16 - 1;
-      if ( v17 )
+      v16 = v15 - 1;
+      if ( v16 )
       {
-        if ( v17 == 1 )
+        if ( v16 == 1 )
         {
           if ( XB3ConsoleType == XB3_CONSOLE_SCORPIO )
           {
@@ -2692,28 +2529,19 @@ void R_SetWndParms(GfxWindowParms *wndParms)
   wndParms->displayWidth = 1920;
 LABEL_38:
   DefaultRenderMemMode = R_GetDefaultRenderMemMode();
-  *(double *)&_XMM0 = R_GetSceneLODScale(DefaultRenderMemMode);
-  __asm { vmovaps xmm6, xmm0 }
-  _RAX = r_lodScale;
+  SceneLODScale = R_GetSceneLODScale(DefaultRenderMemMode);
+  v19 = *(float *)&SceneLODScale;
+  v20 = r_lodScale;
   if ( !r_lodScale )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 6959, ASSERT_TYPE_ASSERT, "(r_lodScale)", (const char *)&queryFormat, "r_lodScale", -2i64) )
       __debugbreak();
-    _RAX = r_lodScale;
+    v20 = r_lodScale;
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rax+5Ch]; max
-    vmovss  xmm1, dword ptr [rax+58h]; min
-    vmovaps xmm0, xmm6; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm1, xmm0; value }
-  Dvar_SetFloat_Internal(r_lodScale, *(float *)&_XMM1);
-  __asm { vcomiss xmm6, cs:__real@3f7fbe77 }
-  if ( v25 )
+  v21 = I_fclamp(*(float *)&SceneLODScale, v20->domain.value.min, v20->domain.value.max);
+  Dvar_SetFloat_Internal(r_lodScale, *(float *)&v21);
+  if ( v19 < 0.99900001 )
     Dvar_SetInt_Internal(r_SkinnedCacheSize, 737280);
-  __asm { vmovaps xmm6, [rsp+80h+var_10] }
 }
 
 /*
@@ -2736,12 +2564,8 @@ void R_Shutdown(int destroyWindow, int isRestart)
     __debugbreak();
   if ( g_dx.d3d12device )
   {
-    _RAX = RB_GetBackendCmdBufContext(&result);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vpextrq rbx, xmm0, 1
-    }
+    _XMM0 = (__int128)*RB_GetBackendCmdBufContext(&result);
+    __asm { vpextrq rbx, xmm0, 1 }
     if ( _RBX->device )
     {
       R_LockGfxImmediateContext();
@@ -2774,12 +2598,8 @@ void R_ShutdownStreams(void)
 
   if ( g_dx.d3d12device )
   {
-    _RAX = RB_GetBackendCmdBufContext(&result);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vpextrq rbx, xmm0, 1
-    }
+    _XMM0 = (__int128)*RB_GetBackendCmdBufContext(&result);
+    __asm { vpextrq rbx, xmm0, 1 }
     if ( _RBX->device )
     {
       R_LockGfxImmediateContext();
@@ -2796,77 +2616,36 @@ R_StoreWindowSettings
 */
 void R_StoreWindowSettings(const GfxWindowParms *wndParms)
 {
-  int sceneHeight; 
-  bool v5; 
-  bool v23; 
-  bool v25; 
+  __int64 sceneHeight; 
+  float v7; 
+  float sceneWidth; 
+  float displayHeight; 
+  float displayWidth; 
 
-  sceneHeight = wndParms->sceneHeight;
-  _RBX = wndParms;
+  sceneHeight = (unsigned int)wndParms->sceneHeight;
   vidConfig.sceneWidth = wndParms->sceneWidth;
   vidConfig.sceneHeight = sceneHeight;
   vidConfig.displayWidth = wndParms->displayWidth;
   vidConfig.displayHeight = wndParms->displayHeight;
-  _EAX = 0;
-  v5 = com_wideScreen == NULL;
-  __asm { vmovd   xmm1, eax }
-  _EAX = wndParms->isWideScreen;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm0, cs:__real@3fe38e39
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3faaaaab
-    vblendvps xmm1, xmm0, xmm6, xmm2
-    vmovss  cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio, xmm1; vidConfig_t vidConfig
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm2, xmm2, rdx
-    vcvtsi2ss xmm0, xmm0, r8
-    vdivss  xmm1, xmm2, xmm0
-    vmovss  cs:?vidConfig@@3UvidConfig_t@@A.sceneAspectRatio, xmm1; vidConfig_t vidConfig
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, dword ptr [rcx+38h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rcx+3Ch]
-    vdivss  xmm1, xmm2, xmm0
-    vmovss  cs:?vidConfig@@3UvidConfig_t@@A.displayAspectRatio, xmm1; vidConfig_t vidConfig
-  }
-  if ( !com_wideScreen )
-  {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1417, ASSERT_TYPE_ASSERT, "(com_wideScreen)", (const char *)&queryFormat, "com_wideScreen");
-    v5 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; vidConfig_t vidConfig
-    vucomiss xmm0, xmm6
-  }
-  v25 = !v5;
-  Dvar_SetBool_Internal(com_wideScreen, v25);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  cs:?vidConfig@@3UvidConfig_t@@A.displayFrequency, xmm0; vidConfig_t vidConfig
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm2, xmm1, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; vidConfig_t vidConfig
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm2, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm2, xmm0, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; vidConfig_t vidConfig
-    vmovss  cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioScenePixel, xmm1; vidConfig_t vidConfig
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm0, xmm2, xmm1
-    vmovss  cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioDisplayPixel, xmm0; vidConfig_t vidConfig
-  }
+  _XMM0 = wndParms->isWideScreen;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = LODWORD(FLOAT_1_7777778);
+  __asm { vblendvps xmm1, xmm0, xmm6, xmm2 }
+  vidConfig.windowAspectRatio = *(float *)&_XMM1;
+  *(float *)&_XMM2 = (float)vidConfig.sceneWidth;
+  *(float *)&_XMM0 = (float)sceneHeight;
+  vidConfig.sceneAspectRatio = *(float *)&_XMM2 / *(float *)&_XMM0;
+  vidConfig.displayAspectRatio = (float)wndParms->displayWidth / (float)wndParms->displayHeight;
+  if ( !com_wideScreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 1417, ASSERT_TYPE_ASSERT, "(com_wideScreen)", (const char *)&queryFormat, "com_wideScreen") )
+    __debugbreak();
+  Dvar_SetBool_Internal(com_wideScreen, vidConfig.windowAspectRatio != 1.3333334);
+  vidConfig.displayFrequency = wndParms->hz;
+  v7 = (float)vidConfig.sceneHeight;
+  sceneWidth = (float)vidConfig.sceneWidth;
+  displayHeight = (float)vidConfig.displayHeight;
+  vidConfig.aspectRatioScenePixel = (float)(v7 * vidConfig.windowAspectRatio) / sceneWidth;
+  displayWidth = (float)vidConfig.displayWidth;
+  vidConfig.aspectRatioDisplayPixel = (float)(displayHeight * vidConfig.windowAspectRatio) / displayWidth;
 }
 
 /*
@@ -3003,6 +2782,8 @@ void R_SyncGPURecordFrameStatistics(unsigned int currFrame, unsigned int frameCo
   unsigned __int64 *p_VSyncCount; 
   bool v7; 
   __int64 v8; 
+  unsigned __int64 v10; 
+  __int128 v11; 
 
   v3 = 0;
   if ( !frameCount )
@@ -3029,19 +2810,18 @@ LABEL_7:
   s_syncGpu.prevVsyncCount = statistics[v8].VSyncCount;
   if ( !v7 )
   {
-    _RAX = r_longFrameSlop;
-    __asm
+    _XMM1 = COERCE_UNSIGNED_INT64(r_longFrameSlop->current.value / msecPerRawTimerTick);
+    v10 = 0i64;
+    if ( r_longFrameSlop->current.value / msecPerRawTimerTick >= 9.223372036854776e18 )
     {
-      vmovsd  xmm2, cs:__real@43e0000000000000
-      vmovss  xmm0, dword ptr [rax+28h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vdivsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcomisd xmm1, xmm2
-      vsubsd  xmm1, xmm1, xmm2
-      vcomisd xmm1, xmm2
-      vcvttsd2si rdx, xmm1
+      *((_QWORD *)&v11 + 1) = 0i64;
+      *(double *)&v11 = *(double *)&_XMM1 - 9.223372036854776e18;
+      _XMM1 = v11;
+      if ( *(double *)&v11 < 9.223372036854776e18 )
+        v10 = 0x8000000000000000ui64;
     }
-    if ( statistics[v8].CPUTimeFlip - statistics[v8].CPUTimeFrameComplete < _RDX )
+    __asm { vcvttsd2si rdx, xmm1 }
+    if ( statistics[v8].CPUTimeFlip - statistics[v8].CPUTimeFrameComplete < v10 + _RDX )
       v7 = 1;
   }
   Sys_EnterCriticalSection(CRITSECT_RECORD_SYNC_GPU);
@@ -3073,54 +2853,57 @@ void R_SyncGPURecordWakeBackend(void)
 R_SyncGpu
 ==============
 */
-
-void __fastcall R_SyncGpu(double _XMM0_8)
+void R_SyncGpu(void)
 {
-  unsigned __int64 v3; 
-  unsigned __int64 v4; 
-  unsigned __int64 v11; 
+  unsigned __int64 v0; 
+  unsigned __int64 v1; 
+  __int128 v5; 
+  unsigned __int64 v6; 
+  unsigned __int64 v8; 
   unsigned int queueFlipFrame; 
   volatile unsigned __int64 queueFlipTime; 
   volatile unsigned int flipFrame; 
   volatile unsigned __int64 flipTime; 
   volatile unsigned int longFrame; 
-  unsigned int v17; 
+  unsigned int v14; 
   volatile unsigned int *frontendFrame; 
+  unsigned __int64 v16; 
+  __int64 v17; 
+  unsigned __int64 v18; 
   unsigned __int64 v19; 
-  __int64 v20; 
-  unsigned __int64 v21; 
-  unsigned __int64 v22; 
-  unsigned __int64 v23; 
-  unsigned __int64 v41; 
-  unsigned __int64 v53; 
-  unsigned __int64 v54; 
-  unsigned __int64 v55; 
-  const char *v60; 
+  unsigned __int64 v20; 
+  double v21; 
+  __int128 v25; 
+  unsigned __int64 v26; 
+  __int128 v31; 
+  unsigned __int64 v32; 
+  unsigned __int64 v34; 
+  double v35; 
+  unsigned __int64 v37; 
+  __int128 v38; 
+  __int64 v40; 
+  unsigned __int64 v42; 
+  __int128 v43; 
+  unsigned __int64 v45; 
+  unsigned __int64 v46; 
+  unsigned __int64 v47; 
+  unsigned __int64 v48; 
+  const char *v51; 
   __int64 frontendIndex; 
-  unsigned __int64 v62; 
-  __int64 v64; 
-  unsigned int v65; 
-  __int64 v66; 
-  volatile int v67; 
-  void *retaddr; 
+  unsigned __int64 v53; 
+  __int64 v54; 
+  __int64 v55; 
   unsigned __int64 timeoutUserData; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( (!Sys_IsMainThread() || R_IsInRemoteScreenUpdate()) && (!Sys_IsRenderThread() || !R_IsInRemoteScreenUpdate()) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 9482, ASSERT_TYPE_ASSERT, "(( Sys_IsMainThread() && !R_IsInRemoteScreenUpdate() ) || ( Sys_IsRenderThread() && R_IsInRemoteScreenUpdate() ))", (const char *)&queryFormat, "( Sys_IsMainThread() && !R_IsInRemoteScreenUpdate() ) || ( Sys_IsRenderThread() && R_IsInRemoteScreenUpdate() )") )
     __debugbreak();
-  if ( (int)g_frontEndSwapFrame < g_gpuSwapFrame )
-  {
-    v67 = g_gpuSwapFrame;
-    v65 = g_frontEndSwapFrame;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 9487, ASSERT_TYPE_ASSERT, "( g_frontEndSwapFrame ) >= ( g_gpuSwapFrame )", "%s >= %s\n\t%u, %u", "g_frontEndSwapFrame", "g_gpuSwapFrame", v65, v67) )
-      __debugbreak();
-  }
+  if ( (int)g_frontEndSwapFrame < g_gpuSwapFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 9487, ASSERT_TYPE_ASSERT, "( g_frontEndSwapFrame ) >= ( g_gpuSwapFrame )", "%s >= %s\n\t%u, %u", "g_frontEndSwapFrame", "g_gpuSwapFrame", g_frontEndSwapFrame, g_gpuSwapFrame) )
+    __debugbreak();
   if ( (int)g_frontEndSwapFrame > g_gpuSwapFrame + 2 )
   {
-    LODWORD(v66) = g_gpuSwapFrame + 2;
-    LODWORD(v64) = g_frontEndSwapFrame;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 9488, ASSERT_TYPE_ASSERT, "( g_frontEndSwapFrame ) <= ( g_gpuSwapFrame + 2 )", "%s <= %s\n\t%u, %u", "g_frontEndSwapFrame", "g_gpuSwapFrame + 2", v64, v66) )
+    LODWORD(v55) = g_gpuSwapFrame + 2;
+    LODWORD(v54) = g_frontEndSwapFrame;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 9488, ASSERT_TYPE_ASSERT, "( g_frontEndSwapFrame ) <= ( g_gpuSwapFrame + 2 )", "%s <= %s\n\t%u, %u", "g_frontEndSwapFrame", "g_gpuSwapFrame + 2", v54, v55) )
       __debugbreak();
   }
   if ( (int)g_frontEndSwapFrame < g_gpuSwapFrame )
@@ -3133,8 +2916,8 @@ void __fastcall R_SyncGpu(double _XMM0_8)
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8064);
   Profile_BeginCSV(9);
-  v3 = __rdtsc();
-  v4 = Sys_Microseconds();
+  v0 = __rdtsc();
+  v1 = Sys_Microseconds();
   s_gpuSyncStartMs = Sys_Milliseconds();
   s_gpuHung = 0;
   if ( scene.updateSound && !R_FinishGpuCatchup(0) )
@@ -3157,22 +2940,25 @@ void __fastcall R_SyncGpu(double _XMM0_8)
   if ( ((unsigned __int64)&dword_14FDE8068 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8068) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8068);
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, cs:?g_maxFpsWaitTime@@3HA; int g_maxFpsWaitTime }
+  *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v5 = *(double *)&_XMM0 / msecPerRawTimerTick;
+  _XMM1 = v5;
+  v6 = 0i64;
+  if ( *(double *)&_XMM0 / msecPerRawTimerTick >= 9.223372036854776e18 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, cs:?g_maxFpsWaitTime@@3HA; int g_maxFpsWaitTime
-    vdivsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovsd  xmm6, cs:__real@43e0000000000000
-    vcomisd xmm1, xmm6
-    vsubsd  xmm1, xmm1, xmm6
-    vcomisd xmm1, xmm6
-    vcvttsd2si rbx, xmm1
+    *(double *)&v5 = *(double *)&v5 - 9.223372036854776e18;
+    _XMM1 = v5;
+    if ( *(double *)&v5 < 9.223372036854776e18 )
+      v6 = 0x8000000000000000ui64;
   }
-  v11 = v3 + _RBX;
+  __asm { vcvttsd2si rbx, xmm1 }
+  v8 = v0 + v6 + _RBX;
   if ( !r_delayForSlop->current.enabled )
-    goto LABEL_52;
+    goto LABEL_67;
   if ( !r_vsync->current.enabled )
-    goto LABEL_52;
+    goto LABEL_67;
   Sys_EnterCriticalSection(CRITSECT_RECORD_SYNC_GPU);
   queueFlipFrame = s_syncGpu.queueFlipFrame;
   queueFlipTime = s_syncGpu.queueFlipTime;
@@ -3181,128 +2967,123 @@ void __fastcall R_SyncGpu(double _XMM0_8)
   longFrame = s_syncGpu.longFrame;
   Sys_LeaveCriticalSection(CRITSECT_RECORD_SYNC_GPU);
   if ( !queueFlipFrame || !flipFrame || rg.frontEndFrameCount <= queueFlipFrame || rg.frontEndFrameCount < longFrame + r_longFrameBackoff->current.integer )
-    goto LABEL_52;
-  v17 = 0;
+    goto LABEL_67;
+  v14 = 0;
   frontendFrame = s_syncGpu.frontendFrame;
   do
   {
     if ( *frontendFrame == queueFlipFrame )
       break;
-    ++v17;
+    ++v14;
     ++frontendFrame;
   }
-  while ( v17 < 4 );
-  if ( v17 == 4 )
-    goto LABEL_52;
-  v19 = 0i64;
-  v20 = v17;
-  v21 = s_syncGpu.wakeBackendTime[v17];
-  if ( s_syncGpu.beginBackendTime[v20] > v21 && v21 > s_syncGpu.endDelayTime[v20] )
-    v19 = s_syncGpu.beginBackendTime[v20] - s_syncGpu.wakeBackendTime[v20];
-  v22 = s_syncGpu.endDelayTime[v20];
-  if ( queueFlipTime < v22 + v19 )
-    goto LABEL_52;
-  v23 = queueFlipTime - v22 - v19;
-  __asm
+  while ( v14 < 4 );
+  if ( v14 == 4 )
+    goto LABEL_67;
+  v16 = 0i64;
+  v17 = v14;
+  v18 = s_syncGpu.wakeBackendTime[v14];
+  if ( s_syncGpu.beginBackendTime[v17] > v18 && v18 > s_syncGpu.endDelayTime[v17] )
+    v16 = s_syncGpu.beginBackendTime[v17] - s_syncGpu.wakeBackendTime[v17];
+  v19 = s_syncGpu.endDelayTime[v17];
+  if ( queueFlipTime < v19 + v16 )
+    goto LABEL_67;
+  v20 = queueFlipTime - v19 - v16;
+  v21 = 1000000.0 / vidConfig.displayFrequency;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rcx }
+  *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v25 = *(double *)&_XMM0 * v21 * (1.0 / usecPerRawTimerTick);
+  _XMM2 = v25;
+  v26 = 0i64;
+  if ( *(double *)&v25 >= 9.223372036854776e18 )
   {
-    vmovss  xmm1, cs:?vidConfig@@3UvidConfig_t@@A.displayFrequency; vidConfig_t vidConfig
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  xmm0, cs:__real@412e848000000000
-    vdivsd  xmm3, xmm0, xmm1
-    vmovsd  xmm5, cs:__real@3ff0000000000000
-    vdivsd  xmm4, xmm5, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rcx
-    vmulsd  xmm1, xmm0, xmm3
-    vmulsd  xmm2, xmm1, xmm4
-    vcomisd xmm2, xmm6
-    vsubsd  xmm2, xmm2, xmm6
-    vcomisd xmm2, xmm6
-    vcvttsd2si rax, xmm2
+    *(double *)&v25 = *(double *)&v25 - 9.223372036854776e18;
+    _XMM2 = v25;
+    if ( *(double *)&v25 < 9.223372036854776e18 )
+      v26 = 0x8000000000000000ui64;
   }
-  if ( v23 > _RAX )
-    goto LABEL_52;
-  __asm
+  __asm { vcvttsd2si rax, xmm2 }
+  if ( v20 > v26 + _RAX )
+    goto LABEL_67;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v31 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v31 = *(double *)&_XMM0 * v21 * (1.0 / usecPerRawTimerTick);
+  _XMM2 = v31;
+  v32 = 0i64;
+  if ( *(double *)&v31 >= 9.223372036854776e18 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, xmm3
-    vmulsd  xmm2, xmm1, xmm4
-    vcomisd xmm2, xmm6
-    vsubsd  xmm2, xmm2, xmm6
-    vcomisd xmm2, xmm6
-    vcvttsd2si rdx, xmm2
+    *(double *)&v31 = *(double *)&v31 - 9.223372036854776e18;
+    _XMM2 = v31;
+    if ( *(double *)&v31 < 9.223372036854776e18 )
+      v32 = 0x8000000000000000ui64;
   }
-  v41 = flipTime + _RDX;
-  __asm { vdivsd  xmm2, xmm5, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
-  _RAX = r_slopTarget;
-  __asm
+  __asm { vcvttsd2si rdx, xmm2 }
+  v34 = flipTime + v32 + _RDX;
+  v35 = 1.0 / msecPerRawTimerTick;
+  _XMM1 = COERCE_UNSIGNED_INT64(r_slopTarget->current.value * (1.0 / msecPerRawTimerTick));
+  v37 = 0i64;
+  if ( r_slopTarget->current.value * (1.0 / msecPerRawTimerTick) >= 9.223372036854776e18 )
   {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmulsd  xmm1, xmm0, xmm2
-    vcomisd xmm1, xmm6
-    vsubsd  xmm1, xmm1, xmm6
-    vcomisd xmm1, xmm6
-    vcvttsd2si r9, xmm1
+    *((_QWORD *)&v38 + 1) = 0i64;
+    *(double *)&v38 = *(double *)&_XMM1 - 9.223372036854776e18;
+    _XMM1 = v38;
+    if ( *(double *)&v38 < 9.223372036854776e18 )
+      v37 = 0x8000000000000000ui64;
   }
-  if ( v41 >= _R9 + v23 )
+  __asm { vcvttsd2si r9, xmm1 }
+  v40 = v37 + _R9;
+  if ( v34 >= v40 + v20 )
   {
-    _RAX = r_slopDelayReduction;
-    __asm
+    _XMM1 = COERCE_UNSIGNED_INT64(r_slopDelayReduction->current.value * v35);
+    v42 = 0i64;
+    if ( r_slopDelayReduction->current.value * v35 >= 9.223372036854776e18 )
     {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmulsd  xmm1, xmm0, xmm2
-      vcomisd xmm1, xmm6
-      vsubsd  xmm1, xmm1, xmm6
-      vcomisd xmm1, xmm6
-      vcvttsd2si rcx, xmm1
+      *((_QWORD *)&v43 + 1) = 0i64;
+      *(double *)&v43 = *(double *)&_XMM1 - 9.223372036854776e18;
+      _XMM1 = v43;
+      if ( *(double *)&v43 < 9.223372036854776e18 )
+        v42 = 0x8000000000000000ui64;
     }
-    v53 = v41 - _R9 - v23;
-    v54 = v53 - _RCX;
-    if ( v53 < _RCX )
-      v54 = 0i64;
+    __asm { vcvttsd2si rcx, xmm1 }
+    v45 = v42 + _RCX;
+    v46 = v34 - v40 - v20;
+    v47 = v46 - v45;
+    if ( v46 < v45 )
+      v47 = 0i64;
   }
   else
   {
-LABEL_52:
-    v54 = 0i64;
+LABEL_67:
+    v47 = 0i64;
   }
-  if ( v54 > v11 )
-    v11 = v54;
-  timeoutUserData = v11;
+  if ( v47 > v8 )
+    v8 = v47;
+  timeoutUserData = v8;
   g_maxFpsWaitTime = 0;
-  if ( scene.updateSound && __rdtsc() < v11 )
+  if ( scene.updateSound && __rdtsc() < v8 )
   {
     scene.updateSound = 0;
     if ( SND_ExistsPendingRestore() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_init.cpp", 9562, ASSERT_TYPE_ASSERT, "(!SND_ExistsPendingRestore())", (const char *)&queryFormat, "!SND_ExistsPendingRestore()") )
       __debugbreak();
     CL_Main_UpdateSound(0);
-    v11 = timeoutUserData;
+    v8 = timeoutUserData;
   }
-  v55 = __rdtsc();
-  if ( v11 > v55 )
+  v48 = __rdtsc();
+  if ( v8 > v48 )
   {
     Profile_Begin(139);
     Profile2_UpdateEntry(39);
     if ( ((unsigned __int8)dword_14FDE806C & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", dword_14FDE806C) )
       __debugbreak();
     _InterlockedIncrement(dword_14FDE806C);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
-    if ( (__int64)(timeoutUserData - v55) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovq   rdx, xmm1
-    }
-    v60 = j_va("wait frontend delay: %.3f ms", _RDX);
-    Sys_ProfBeginNamedEvent(0xFF404040, v60);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(timeoutUserData - v48) < 0 )
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    v51 = j_va("wait frontend delay: %.3f ms", *(double *)&_XMM0 * msecPerRawTimerTick);
+    Sys_ProfBeginNamedEvent(0xFF404040, v51);
     Sys_ProcessWorkerCmdsWithTimeout(R_FinishFrontendDelay, &timeoutUserData);
     Sys_ProfEndNamedEvent();
     Profile2_UpdateEntry(39);
@@ -3321,11 +3102,10 @@ LABEL_52:
   _InterlockedDecrement(&dword_14FDE8064);
   if ( Sys_IsMainThread() )
   {
-    v62 = Sys_Microseconds();
-    CG_Draw_AddFrontendSyncFrameTimeUSec(v62 - v4);
+    v53 = Sys_Microseconds();
+    CG_Draw_AddFrontendSyncFrameTimeUSec(v53 - v1);
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*

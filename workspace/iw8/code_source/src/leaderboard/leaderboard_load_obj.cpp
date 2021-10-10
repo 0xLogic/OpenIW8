@@ -150,12 +150,17 @@ LeaderboardDef *__fastcall LB_VR_GenerateLeaderboardDef(const char *name, double
   const char *v6; 
   LeaderboardDef *Def_FastFile; 
   int v10; 
+  __int64 v11; 
   __int64 v12; 
   const char *v13; 
   int v14; 
+  LbColumnDef *v15; 
+  LbColumnDef *v16; 
+  LbColumnDef *v17; 
+  int v18; 
+  LbColType v19; 
   LbColumnDef *SourceColumn; 
-  int v21; 
-  LbColType v22; 
+  LbColumnDef *columns; 
   LbColType type; 
 
   physicsLibrary = (const char **)DB_FindXAssetHeader(ASSET_TYPE_VIRTUAL_LEADERBOARD, name, 1).physicsLibrary;
@@ -181,11 +186,8 @@ LeaderboardDef *__fastcall LB_VR_GenerateLeaderboardDef(const char *name, double
       }
       s_generatedVirtualLbDef.columns = s_generatedVirtualLbCols;
       s_generatedVirtualLbDef.name = NULL;
-      __asm
-      {
-        vmovdqu xmmword ptr cs:s_generatedVirtualLbDef.id, xmm0
-        vmovdqu xmmword ptr cs:s_generatedVirtualLbDef.updateType, xmm1
-      }
+      *(_OWORD *)&s_generatedVirtualLbDef.id = _XMM0;
+      *(_OWORD *)&s_generatedVirtualLbDef.updateType = _XMM1;
       memset_0(s_generatedVirtualLbCols, 0, sizeof(s_generatedVirtualLbCols));
       *(_QWORD *)&s_generatedVirtualLbDef.xpColId = -1i64;
       v10 = 0;
@@ -200,7 +202,7 @@ LeaderboardDef *__fastcall LB_VR_GenerateLeaderboardDef(const char *name, double
       s_generatedVirtualLbDef.rankColIdY = *((_DWORD *)physicsLibrary + 10);
       if ( *((int *)physicsLibrary + 8) > 0 )
       {
-        _RDI = 0i64;
+        v11 = 0i64;
         v12 = 0i64;
         do
         {
@@ -208,70 +210,58 @@ LeaderboardDef *__fastcall LB_VR_GenerateLeaderboardDef(const char *name, double
           v14 = *(_DWORD *)&v13[v12 + 8];
           if ( (unsigned int)(v14 - 65523) > 3 )
           {
-            _RBP = LB_VR_FindSourceColumn(Def_FastFile, v14, *(const char **)&v13[v12]);
-            if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard_load_obj.cpp", 776, ASSERT_TYPE_ASSERT, "(sourceColumn)", (const char *)&queryFormat, "sourceColumn") )
+            SourceColumn = LB_VR_FindSourceColumn(Def_FastFile, v14, *(const char **)&v13[v12]);
+            if ( !SourceColumn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard_load_obj.cpp", 776, ASSERT_TYPE_ASSERT, "(sourceColumn)", (const char *)&queryFormat, "sourceColumn") )
               __debugbreak();
-            _RAX = s_generatedVirtualLbDef.columns;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+0]
-              vmovups ymmword ptr [rdi+rax], ymm0
-              vmovups xmm1, xmmword ptr [rbp+20h]
-              vmovups xmmword ptr [rdi+rax+20h], xmm1
-              vmovsd  xmm0, qword ptr [rbp+30h]
-              vmovsd  qword ptr [rdi+rax+30h], xmm0
-            }
-            type = s_generatedVirtualLbDef.columns[_RDI].type;
+            columns = s_generatedVirtualLbDef.columns;
+            *(__m256i *)&s_generatedVirtualLbDef.columns[v11].name = *(__m256i *)&SourceColumn->name;
+            *(_OWORD *)&columns[v11].type = *(_OWORD *)&SourceColumn->type;
+            *(double *)&columns[v11].uiCalColY = *(double *)&SourceColumn->uiCalColY;
+            type = s_generatedVirtualLbDef.columns[v11].type;
             if ( type == LBCOL_TYPE_LEVELXP )
             {
-              s_generatedVirtualLbDef.xpColId = s_generatedVirtualLbDef.columns[_RDI].id;
+              s_generatedVirtualLbDef.xpColId = s_generatedVirtualLbDef.columns[v11].id;
             }
             else if ( type == LBCOL_TYPE_PRESTIGE )
             {
-              s_generatedVirtualLbDef.prestigeColId = s_generatedVirtualLbDef.columns[_RDI].id;
+              s_generatedVirtualLbDef.prestigeColId = s_generatedVirtualLbDef.columns[v11].id;
             }
           }
           else
           {
-            _RBP = LB_VR_FindSourceColumn(Def_FastFile, *(_DWORD *)&v13[v12 + 12], NULL);
-            SourceColumn = LB_VR_FindSourceColumn(Def_FastFile, *(_DWORD *)&physicsLibrary[3][v12 + 16], NULL);
-            if ( (!_RBP || !SourceColumn) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard_load_obj.cpp", 764, ASSERT_TYPE_ASSERT, "(xColumn && yColumn)", (const char *)&queryFormat, "xColumn && yColumn") )
+            v15 = LB_VR_FindSourceColumn(Def_FastFile, *(_DWORD *)&v13[v12 + 12], NULL);
+            v16 = LB_VR_FindSourceColumn(Def_FastFile, *(_DWORD *)&physicsLibrary[3][v12 + 16], NULL);
+            if ( (!v15 || !v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\leaderboard\\leaderboard_load_obj.cpp", 764, ASSERT_TYPE_ASSERT, "(xColumn && yColumn)", (const char *)&queryFormat, "xColumn && yColumn") )
               __debugbreak();
-            _RAX = s_generatedVirtualLbDef.columns;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+0]
-              vmovups ymmword ptr [rdi+rax], ymm0
-              vmovups xmm1, xmmword ptr [rbp+20h]
-              vmovups xmmword ptr [rdi+rax+20h], xmm1
-              vmovsd  xmm0, qword ptr [rbp+30h]
-              vmovsd  qword ptr [rdi+rax+30h], xmm0
-            }
-            s_generatedVirtualLbDef.columns[_RDI].id = *(_DWORD *)&physicsLibrary[3][v12 + 8];
-            s_generatedVirtualLbDef.columns[_RDI].name = *(const char **)&physicsLibrary[3][v12];
-            s_generatedVirtualLbDef.columns[_RDI].uiCalColX = *(_DWORD *)&physicsLibrary[3][v12 + 12];
-            s_generatedVirtualLbDef.columns[_RDI].uiCalColY = *(_DWORD *)&physicsLibrary[3][v12 + 16];
+            v17 = s_generatedVirtualLbDef.columns;
+            *(__m256i *)&s_generatedVirtualLbDef.columns[v11].name = *(__m256i *)&v15->name;
+            *(_OWORD *)&v17[v11].type = *(_OWORD *)&v15->type;
+            *(double *)&v17[v11].uiCalColY = *(double *)&v15->uiCalColY;
+            s_generatedVirtualLbDef.columns[v11].id = *(_DWORD *)&physicsLibrary[3][v12 + 8];
+            s_generatedVirtualLbDef.columns[v11].name = *(const char **)&physicsLibrary[3][v12];
+            s_generatedVirtualLbDef.columns[v11].uiCalColX = *(_DWORD *)&physicsLibrary[3][v12 + 12];
+            s_generatedVirtualLbDef.columns[v11].uiCalColY = *(_DWORD *)&physicsLibrary[3][v12 + 16];
             if ( *(_DWORD *)&physicsLibrary[3][v12 + 8] == 65523 || *(_DWORD *)&physicsLibrary[3][v12 + 8] == 65524 )
             {
-              v21 = 2;
+              v18 = 2;
             }
             else if ( *(_DWORD *)&physicsLibrary[3][v12 + 8] == 65525 )
             {
-              v21 = 3;
+              v18 = 3;
             }
             else
             {
-              v21 = 0;
+              v18 = 0;
             }
-            s_generatedVirtualLbDef.columns[_RDI].precision = v21;
-            v22 = LBCOL_TYPE_NUMBER;
+            s_generatedVirtualLbDef.columns[v11].precision = v18;
+            v19 = LBCOL_TYPE_NUMBER;
             if ( *(_DWORD *)&physicsLibrary[3][v12 + 8] == 65523 )
-              v22 = LBCOL_TYPE_PERCENT;
-            s_generatedVirtualLbDef.columns[_RDI].type = v22;
+              v19 = LBCOL_TYPE_PERCENT;
+            s_generatedVirtualLbDef.columns[v11].type = v19;
           }
           ++v10;
           v12 += 24i64;
-          ++_RDI;
+          ++v11;
         }
         while ( v10 < *((_DWORD *)physicsLibrary + 8) );
       }

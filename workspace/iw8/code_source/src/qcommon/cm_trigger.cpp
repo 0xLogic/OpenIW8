@@ -29,13 +29,24 @@ void CM_StageTriggerBounds(unsigned int triggerIndex, Bounds *bounds, bool debug
 {
   __int64 v5; 
   TriggerModel *v8; 
-  unsigned int v19; 
+  TriggerHull *v9; 
+  double v10; 
+  float v11; 
+  unsigned int v12; 
+  float *v13; 
+  float v14; 
+  __m128 v16; 
+  __m128 v20; 
+  __m128 v24; 
+  __int128 v28; 
+  double v37; 
+  float v38; 
   unsigned int count; 
   Bounds boundsa; 
-  Bounds v61; 
-  __int128 v62; 
-  __int128 v63; 
-  __int128 v64; 
+  Bounds v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
 
   v5 = triggerIndex;
   _R15 = bounds;
@@ -48,110 +59,105 @@ void CM_StageTriggerBounds(unsigned int triggerIndex, Bounds *bounds, bool debug
   v8 = &cm.stageTrigger.models[v5];
   if ( !v8->hullCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_trigger.cpp", 73, ASSERT_TYPE_ASSERT, "(tmodel->hullCount)", (const char *)&queryFormat, "tmodel->hullCount") )
     __debugbreak();
-  _R14 = &cm.stageTrigger.hulls[v8->firstHull];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [r15], xmm0
-    vmovsd  xmm1, qword ptr [r14+10h]
-    vmovsd  qword ptr [r15+10h], xmm1
-  }
+  v9 = &cm.stageTrigger.hulls[v8->firstHull];
+  *(_OWORD *)_R15->midPoint.v = *(_OWORD *)v9->bounds.midPoint.v;
+  *(double *)&_R15->halfSize.y = *(double *)&v9->bounds.halfSize.y;
   if ( debugDraw )
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [r14]
-      vmovsd  xmm0, qword ptr [r14+10h]
-      vmovups xmmword ptr [rbp+57h+bounds.midPoint], xmm1
-      vmovsd  qword ptr [rbp+57h+bounds.halfSize+4], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rbp+57h+bounds.midPoint+4]
-      vaddss  xmm2, xmm1, dword ptr [rdi+4]
-      vmovss  dword ptr [rbp+57h+bounds.midPoint], xmm0
-      vmovss  xmm0, dword ptr [rbp+57h+bounds.midPoint+8]
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+57h+bounds.midPoint+8], xmm1
-      vmovss  dword ptr [rbp+57h+bounds.midPoint+4], xmm2
-    }
+    v10 = *(double *)&v9->bounds.halfSize.y;
+    *(_OWORD *)boundsa.midPoint.v = *(_OWORD *)v9->bounds.midPoint.v;
+    *(double *)&boundsa.halfSize.y = v10;
+    v11 = boundsa.midPoint.v[1] + origin->v[1];
+    boundsa.midPoint.v[0] = boundsa.midPoint.v[0] + origin->v[0];
+    boundsa.midPoint.v[2] = boundsa.midPoint.v[2] + origin->v[2];
+    boundsa.midPoint.v[1] = v11;
     R_AddDebugBox(&frontEndDataOut->debugGlobals, &boundsa, &colorCyan, 0);
   }
-  v19 = 1;
+  v12 = 1;
   if ( v8->hullCount > 1u )
   {
-    __asm { vmovaps [rsp+0F0h+var_30], xmm6 }
-    _R14 = &_R14->bounds.halfSize.v[2];
+    v13 = &v9->bounds.halfSize.v[2];
     do
     {
-      __asm { vmovss  xmm0, dword ptr [r15] }
-      _R14 += 8;
-      HIDWORD(v62) = 0;
-      HIDWORD(v63) = 0;
-      HIDWORD(v64) = 0;
+      v14 = _R15->midPoint.v[0];
+      v13 += 8;
+      v43.m128_i32[3] = 0;
+      v44.m128_i32[3] = 0;
+      v45.m128_i32[3] = 0;
       boundsa.halfSize.v[0] = 0.0;
+      v16 = v43;
+      v16.m128_f32[0] = v14;
+      _XMM6 = v16;
       __asm
       {
-        vmovups xmm6, xmmword ptr [rbp-19h]
-        vmovups xmm3, xmmword ptr [rbp-9]
-        vmovups xmm5, xmmword ptr [rbp+7]
-        vmovups xmm4, xmmword ptr [rbp+57h+bounds.midPoint]
-        vmovss  xmm6, xmm6, xmm0
-        vmovss  xmm0, dword ptr [r15+0Ch]
         vinsertps xmm6, xmm6, dword ptr [r15+4], 10h
         vinsertps xmm6, xmm6, dword ptr [r15+8], 20h ; ' '
-        vmovss  xmm3, xmm3, xmm0
+      }
+      v20 = v44;
+      v20.m128_f32[0] = _R15->halfSize.v[0];
+      _XMM3 = v20;
+      __asm
+      {
         vinsertps xmm3, xmm3, dword ptr [r15+10h], 10h
         vinsertps xmm3, xmm3, dword ptr [r15+14h], 20h ; ' '
-        vmovss  xmm0, dword ptr [r14-14h]
-        vmovss  xmm5, xmm5, xmm0
-        vmovss  xmm0, dword ptr [r14-8]
+      }
+      v24 = v45;
+      v24.m128_f32[0] = *(v13 - 5);
+      _XMM5 = v24;
+      __asm
+      {
         vinsertps xmm5, xmm5, dword ptr [r14-10h], 10h
         vinsertps xmm5, xmm5, dword ptr [r14-0Ch], 20h ; ' '
-        vmovss  xmm4, xmm4, xmm0
+      }
+      v28 = *(_OWORD *)boundsa.midPoint.v;
+      *(float *)&v28 = *(v13 - 2);
+      _XMM4 = v28;
+      __asm
+      {
         vinsertps xmm4, xmm4, dword ptr [r14-4], 10h
         vinsertps xmm4, xmm4, dword ptr [r14], 20h ; ' '
-        vsubps  xmm2, xmm6, xmm3
-        vaddps  xmm1, xmm5, xmm4
-        vsubps  xmm0, xmm5, xmm4
-        vmovups xmmword ptr [rbp-9], xmm3
-        vaddps  xmm3, xmm6, xmm3
-        vmovups xmmword ptr [rbp+57h+bounds.midPoint], xmm4
+      }
+      _mm128_sub_ps(_XMM6, _XMM3);
+      _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+      _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+      v44 = _XMM3;
+      _mm128_add_ps(_XMM6, _XMM3);
+      *(__m128 *)boundsa.midPoint.v = _XMM4;
+      __asm
+      {
         vminps  xmm4, xmm0, xmm2
         vmaxps  xmm0, xmm1, xmm3
-        vaddps  xmm1, xmm0, xmm4
-        vmulps  xmm2, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-        vmovss  dword ptr [r15], xmm2
-        vsubps  xmm3, xmm2, xmm4
+      }
+      _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+      _R15->midPoint.v[0] = _XMM2.m128_f32[0];
+      _XMM3 = _mm128_sub_ps(_XMM2, _XMM4);
+      __asm
+      {
         vextractps dword ptr [r15+4], xmm2, 1
         vextractps dword ptr [r15+8], xmm2, 2
-        vmovss  dword ptr [r15+0Ch], xmm3
+      }
+      _R15->halfSize.v[0] = _XMM3.m128_f32[0];
+      __asm
+      {
         vextractps dword ptr [r15+10h], xmm3, 1
         vextractps dword ptr [r15+14h], xmm3, 2
-        vmovups xmmword ptr [rbp-19h], xmm6
-        vmovups xmmword ptr [rbp+7], xmm5
       }
+      v43 = _XMM6;
+      v45 = _XMM5;
       if ( debugDraw )
       {
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [r14-14h]
-          vmovsd  xmm0, qword ptr [r14-4]
-          vmovups xmmword ptr [rbp+57h+var_90.midPoint], xmm1
-          vmovsd  qword ptr [rbp+57h+var_90.halfSize+4], xmm0
-          vaddss  xmm0, xmm1, dword ptr [rdi]
-          vmovss  xmm1, dword ptr [rbp+57h+var_90.midPoint+4]
-          vaddss  xmm2, xmm1, dword ptr [rdi+4]
-          vmovss  dword ptr [rbp+57h+var_90.midPoint], xmm0
-          vmovss  xmm0, dword ptr [rbp+57h+var_90.midPoint+8]
-          vaddss  xmm1, xmm0, dword ptr [rdi+8]
-          vmovss  dword ptr [rbp+57h+var_90.midPoint+8], xmm1
-          vmovss  dword ptr [rbp+57h+var_90.midPoint+4], xmm2
-        }
-        R_AddDebugBox(&frontEndDataOut->debugGlobals, &v61, &colorCyan, 0);
+        v37 = *(double *)(v13 - 1);
+        *(_OWORD *)v42.midPoint.v = *(_OWORD *)(v13 - 5);
+        *(double *)&v42.halfSize.y = v37;
+        v38 = v42.midPoint.v[1] + origin->v[1];
+        v42.midPoint.v[0] = v42.midPoint.v[0] + origin->v[0];
+        v42.midPoint.v[2] = v42.midPoint.v[2] + origin->v[2];
+        v42.midPoint.v[1] = v38;
+        R_AddDebugBox(&frontEndDataOut->debugGlobals, &v42, &colorCyan, 0);
       }
-      ++v19;
+      ++v12;
     }
-    while ( v19 < v8->hullCount );
-    __asm { vmovaps xmm6, [rsp+0F0h+var_30] }
+    while ( v12 < v8->hullCount );
   }
 }
 
@@ -162,103 +168,50 @@ CM_TestStageTriggerContainsPoint
 */
 __int64 CM_TestStageTriggerContainsPoint(unsigned int triggerIndex, const vec3_t *point)
 {
-  __int64 v4; 
-  TriggerModel *v6; 
-  int v7; 
-  __int64 v8; 
-  bool v9; 
-  bool v11; 
-  unsigned int slabCount; 
-  unsigned int v22; 
-  bool v23; 
-  __int64 result; 
+  __int64 v3; 
+  TriggerModel *v4; 
+  int v5; 
+  TriggerHull *v6; 
+  float v7; 
+  float v8; 
+  int v9; 
+  int firstSlab; 
 
-  _RSI = point;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  v4 = triggerIndex;
+  v3 = triggerIndex;
   if ( triggerIndex >= cm.stageTrigger.count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_trigger.cpp", 38, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( cm.stageTrigger.count )", "triggerIndex doesn't index cm.stageTrigger.count\n\t%i not in [0, %i)", triggerIndex, cm.stageTrigger.count) )
     __debugbreak();
-  __asm { vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  v6 = &cm.stageTrigger.models[v4];
-  v7 = 0;
+  v4 = &cm.stageTrigger.models[v3];
+  v5 = 0;
   do
   {
-    v8 = v7 + (unsigned int)v6->firstHull;
-    v9 = __CFADD__(cm.stageTrigger.hulls, v8 * 32);
-    _RBX = &cm.stageTrigger.hulls[v8];
-    if ( !_RBX )
+    v6 = &cm.stageTrigger.hulls[v5 + (unsigned int)v4->firstHull];
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 496, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+      __debugbreak();
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(point->v[0] - v6->bounds.midPoint.v[0]) & _xmm) < v6->bounds.halfSize.v[0] )
     {
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 496, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds");
-      v9 = 0;
-      if ( v11 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsi]
-      vsubss  xmm0, xmm5, dword ptr [rbx]
-      vandps  xmm0, xmm0, xmm6
-      vcomiss xmm0, dword ptr [rbx+0Ch]
-    }
-    if ( v9 )
-    {
-      __asm
+      v7 = point->v[1];
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v7 - v6->bounds.midPoint.v[1]) & _xmm) < v6->bounds.halfSize.v[1] )
       {
-        vmovss  xmm4, dword ptr [rsi+4]
-        vsubss  xmm0, xmm4, dword ptr [rbx+4]
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, dword ptr [rbx+10h]
-      }
-      if ( v9 )
-      {
-        __asm
+        v8 = point->v[2];
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v8 - v6->bounds.midPoint.v[2]) & _xmm) < v6->bounds.halfSize.v[2] )
         {
-          vmovss  xmm3, dword ptr [rsi+8]
-          vsubss  xmm0, xmm3, dword ptr [rbx+8]
-          vandps  xmm0, xmm0, xmm6
-          vcomiss xmm0, dword ptr [rbx+14h]
-        }
-        if ( v9 )
-        {
-          slabCount = _RBX->slabCount;
-          v22 = 0;
-          v23 = 0;
-          if ( !_RBX->slabCount )
-          {
-LABEL_15:
-            result = 1i64;
-            goto LABEL_18;
-          }
-          _R8 = cm.stageTrigger.slabs;
+          v9 = 0;
+          if ( !v6->slabCount )
+            return 1i64;
           while ( 1 )
           {
-            _RAX = 5i64 * (_RBX->firstSlab + v22);
-            __asm
-            {
-              vmulss  xmm1, xmm4, dword ptr [r8+rax*4+4]
-              vmulss  xmm0, xmm5, dword ptr [r8+rax*4]
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, dword ptr [r8+rax*4+8]
-              vaddss  xmm0, xmm2, xmm1
-              vsubss  xmm2, xmm0, dword ptr [r8+rax*4+0Ch]
-              vandps  xmm2, xmm2, xmm6
-              vcomiss xmm2, dword ptr [r8+rax*4+10h]
-            }
-            if ( !v23 )
+            firstSlab = v6->firstSlab;
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v7 * cm.stageTrigger.slabs[firstSlab + v9].dir.v[1]) + (float)(point->v[0] * cm.stageTrigger.slabs[firstSlab + v9].dir.v[0])) + (float)(v8 * cm.stageTrigger.slabs[firstSlab + v9].dir.v[2])) - cm.stageTrigger.slabs[firstSlab + v9].midPoint) & _xmm) >= cm.stageTrigger.slabs[firstSlab + v9].halfSize )
               break;
-            v23 = ++v22 < slabCount;
-            if ( v22 >= slabCount )
-              goto LABEL_15;
+            if ( ++v9 >= (unsigned int)v6->slabCount )
+              return 1i64;
           }
         }
       }
     }
-    ++v7;
+    ++v5;
   }
-  while ( v7 != v6->hullCount );
-  result = 0i64;
-LABEL_18:
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  while ( v5 != v4->hullCount );
+  return 0i64;
 }
 

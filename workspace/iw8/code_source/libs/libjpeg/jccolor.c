@@ -337,93 +337,53 @@ rgb_ycc_start
 void rgb_ycc_start(jpeg_compress_struct *cinfo)
 {
   jpeg_color_converter *cconvert; 
-  jpeg_memory_mgr *mem; 
-  __int64 v13; 
-  char v53; 
-  void *retaddr; 
+  __int64 v2; 
+  int v3; 
+  _OWORD *v4; 
 
-  _RAX = &retaddr;
   cconvert = cinfo->cconvert;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
-  mem = cinfo->mem;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_88], xmm13
-    vmovaps [rsp+0B8h+var_98], xmm14
-  }
-  v13 = (__int64)mem->alloc_small((jpeg_common_struct *)cinfo, 1, 0x2000ui64);
-  __asm
-  {
-    vmovdqu xmm4, cs:__xmm@00000003000000020000000100000000
-    vmovdqu xmm5, cs:__xmm@00004c8b00004c8b00004c8b00004c8b
-    vmovdqu xmm6, cs:__xmm@00009646000096460000964600009646
-    vmovdqu xmm7, cs:__xmm@00001d2f00001d2f00001d2f00001d2f
-    vmovdqu xmm8, cs:__xmm@00008000000080000000800000008000
-    vmovdqu xmm9, cs:__xmm@ffffd4cdffffd4cdffffd4cdffffd4cd
-    vmovdqu xmm10, cs:__xmm@ffffab33ffffab33ffffab33ffffab33
-    vmovdqu xmm12, cs:__xmm@00807fff00807fff00807fff00807fff
-    vmovdqu xmm13, cs:__xmm@ffff94d1ffff94d1ffff94d1ffff94d1
-    vmovdqu xmm14, cs:__xmm@ffffeb2fffffeb2fffffeb2fffffeb2f
-  }
-  _ECX = 0;
-  cconvert[1].start_pass = (void (__fastcall *)(jpeg_compress_struct *))v13;
-  _EDX = 15;
-  _RAX = v13 + 2048;
-  __asm { vmovd   xmm11, edx }
+  v2 = cinfo->mem->alloc_small((jpeg_common_struct *)cinfo, 1i64, 0x2000i64);
+  v3 = 0;
+  cconvert[1].start_pass = (void (__fastcall *)(jpeg_compress_struct *))v2;
+  v4 = (_OWORD *)(v2 + 2048);
   do
   {
+    _XMM0 = (unsigned int)v3;
     __asm
     {
-      vmovd   xmm0, ecx
       vpshufd xmm0, xmm0, 0
       vpaddd  xmm3, xmm0, xmm4
       vpmulld xmm0, xmm3, xmm6
-      vmovdqu xmmword ptr [rax-400h], xmm0
-      vpmulld xmm1, xmm3, xmm5
-      vmovdqu xmmword ptr [rax-800h], xmm1
+    }
+    *(v4 - 64) = _XMM0;
+    __asm { vpmulld xmm1, xmm3, xmm5 }
+    *(v4 - 128) = _XMM1;
+    __asm
+    {
       vpmulld xmm0, xmm3, xmm7
       vpaddd  xmm1, xmm0, xmm8
-      vmovdqu xmmword ptr [rax], xmm1
-      vpmulld xmm0, xmm3, xmm9
-      vmovdqu xmmword ptr [rax+400h], xmm0
+    }
+    *v4 = _XMM1;
+    __asm { vpmulld xmm0, xmm3, xmm9 }
+    v4[64] = _XMM0;
+    __asm
+    {
       vpslld  xmm0, xmm3, xmm11
       vpmulld xmm1, xmm3, xmm10
       vpaddd  xmm2, xmm0, xmm12
-      vmovdqu xmmword ptr [rax+800h], xmm1
+    }
+    v4[128] = _XMM1;
+    __asm
+    {
       vpmulld xmm0, xmm3, xmm13
       vpmulld xmm1, xmm3, xmm14
     }
-    _ECX += 4;
-    __asm
-    {
-      vmovdqu xmmword ptr [rax+1000h], xmm0
-      vmovdqu xmmword ptr [rax+0C00h], xmm2
-      vmovdqu xmmword ptr [rax+1400h], xmm1
-    }
-    _RAX += 16i64;
+    v3 += 4;
+    v4[256] = _XMM0;
+    v4[192] = _XMM2;
+    v4[320] = _XMM1;
+    ++v4;
   }
-  while ( _ECX <= 255 );
-  __asm { vmovaps xmm14, [rsp+0B8h+var_98] }
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  while ( v3 <= 255 );
 }
 

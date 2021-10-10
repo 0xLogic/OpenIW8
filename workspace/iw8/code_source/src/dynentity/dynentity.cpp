@@ -128,55 +128,49 @@ void DynEnt_AddDynEntityList(DynEntityList *dynEntityList)
 {
   LocalClientNum_t v2; 
   DynEntityListId index; 
-  DynEntityListId v5; 
-  bool v8; 
+  DynEntityListId v4; 
+  unsigned __int64 v5; 
+  bool v6; 
+  __int64 v7; 
+  __int64 v8; 
+  __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
-  __int64 v13; 
 
-  _RDI = dynEntityList;
   if ( !s_dynEntInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 121, ASSERT_TYPE_ASSERT, "(DynEnt_IsInitialized())", "%s\n\tTrying to addDynEntityList to unitialized dynEnt system.", "DynEnt_IsInitialized()") )
     __debugbreak();
   v2 = LOCAL_CLIENT_0;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 124, ASSERT_TYPE_ASSERT, "( dynEntityList ) != ( nullptr )", "%s != %s\n\t%p, %p", "dynEntityList", "nullptr", NULL, NULL) )
+  if ( !dynEntityList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 124, ASSERT_TYPE_ASSERT, "( dynEntityList ) != ( nullptr )", "%s != %s\n\t%p, %p", "dynEntityList", "nullptr", NULL, NULL) )
     __debugbreak();
-  index = _RDI->index;
+  index = dynEntityList->index;
   if ( index != DEFAULT_DYNENTITY_LIST_ID )
   {
     if ( (unsigned __int16)index >= DEFAULT_DYNENTITY_LIST_ID )
     {
-      LODWORD(v11) = 1536;
-      LODWORD(v10) = (unsigned __int16)index;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 129, ASSERT_TYPE_ASSERT, "(unsigned)( dynEntityList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "dynEntityList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v10, v11) )
+      LODWORD(v8) = 1536;
+      LODWORD(v7) = (unsigned __int16)index;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 129, ASSERT_TYPE_ASSERT, "(unsigned)( dynEntityList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "dynEntityList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v7, v8) )
         __debugbreak();
     }
     Sys_ProfBeginNamedEvent(0xFFFFA500, "DynEnt_AddDynEntityList");
-    _RBP = g_dynEntityLists;
-    v5 = g_dynEntityLists[(unsigned __int64)(unsigned __int16)_RDI->index].index;
-    if ( v5 != DEFAULT_DYNENTITY_LIST_ID )
+    v4 = g_dynEntityLists[(unsigned __int64)(unsigned __int16)dynEntityList->index].index;
+    if ( v4 != DEFAULT_DYNENTITY_LIST_ID )
     {
-      LODWORD(v13) = 1536;
-      LODWORD(v12) = (unsigned __int16)v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 134, ASSERT_TYPE_ASSERT, "( g_dynEntityLists[dynEntityList->index].index ) == ( DYNENTITY_LIST_ID_INVALID )", "%s == %s\n\t%u, %u", "g_dynEntityLists[dynEntityList->index].index", "DYNENTITY_LIST_ID_INVALID", v12, v13) )
+      LODWORD(v10) = 1536;
+      LODWORD(v9) = (unsigned __int16)v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 134, ASSERT_TYPE_ASSERT, "( g_dynEntityLists[dynEntityList->index].index ) == ( DYNENTITY_LIST_ID_INVALID )", "%s == %s\n\t%u, %u", "g_dynEntityLists[dynEntityList->index].index", "DYNENTITY_LIST_ID_INVALID", v9, v10) )
         __debugbreak();
     }
-    __asm { vmovups ymm0, ymmword ptr [rdi] }
-    _RAX = (unsigned __int64)(unsigned __int16)_RDI->index << 6;
-    v8 = SLODWORD(cl_maxLocalClients) <= 0;
-    __asm
-    {
-      vmovups ymmword ptr [rax+rbp], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rax+rbp+20h], ymm1
-    }
-    if ( !v8 )
+    v5 = (unsigned __int64)(unsigned __int16)dynEntityList->index << 6;
+    v6 = SLODWORD(cl_maxLocalClients) <= 0;
+    *(__m256i *)((char *)&g_dynEntityLists[0].name + v5) = *(__m256i *)&dynEntityList->name;
+    *(__m256i *)((char *)&g_dynEntityLists[0].dynEntDefList[1] + v5) = *(__m256i *)&dynEntityList->dynEntDefList[1];
+    if ( !v6 )
     {
       do
-        DynEntCL_DynEntityListAdded(v2++, _RDI->index);
+        DynEntCL_DynEntityListAdded(v2++, dynEntityList->index);
       while ( v2 < SLODWORD(cl_maxLocalClients) );
     }
-    DynEntCL_Spatial_DynEntityListAdded(_RDI->index);
+    DynEntCL_Spatial_DynEntityListAdded(dynEntityList->index);
     Sys_ProfEndNamedEvent();
   }
 }
@@ -189,45 +183,33 @@ DynEnt_CopyDynEntityList
 void DynEnt_CopyDynEntityList(DynEntityList *fromList, DynEntityList *toList)
 {
   DynEntityListId index; 
-  DynEntityListId v7; 
-  __int64 v10; 
+  DynEntityListId v5; 
+  __int64 v6; 
 
-  _RDI = toList;
-  _RBX = fromList;
   if ( !fromList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 304, ASSERT_TYPE_ASSERT, "(fromList)", (const char *)&queryFormat, "fromList") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 305, ASSERT_TYPE_ASSERT, "(toList)", (const char *)&queryFormat, "toList") )
+  if ( !toList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 305, ASSERT_TYPE_ASSERT, "(toList)", (const char *)&queryFormat, "toList") )
     __debugbreak();
-  index = _RBX->index;
+  index = fromList->index;
   if ( index == DEFAULT_DYNENTITY_LIST_ID )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
+    *(__m256i *)&toList->name = *(__m256i *)&fromList->name;
+    *(__m256i *)&toList->dynEntDefList[1] = *(__m256i *)&fromList->dynEntDefList[1];
   }
   else
   {
     if ( (unsigned __int16)index >= DEFAULT_DYNENTITY_LIST_ID )
     {
-      LODWORD(v10) = (unsigned __int16)index;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 313, ASSERT_TYPE_ASSERT, "(unsigned)( fromList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "fromList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v10, 1536) )
+      LODWORD(v6) = (unsigned __int16)index;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 313, ASSERT_TYPE_ASSERT, "(unsigned)( fromList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "fromList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v6, 1536) )
         __debugbreak();
     }
-    v7 = g_dynEntityLists[(unsigned __int64)(unsigned __int16)_RBX->index].index;
-    if ( v7 != DEFAULT_DYNENTITY_LIST_ID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 314, ASSERT_TYPE_ASSERT, "( g_dynEntityLists[fromList->index].index ) == ( DYNENTITY_LIST_ID_INVALID )", "%s == %s\n\t%u, %u", "g_dynEntityLists[fromList->index].index", "DYNENTITY_LIST_ID_INVALID", (unsigned __int16)v7, 1536) )
+    v5 = g_dynEntityLists[(unsigned __int64)(unsigned __int16)fromList->index].index;
+    if ( v5 != DEFAULT_DYNENTITY_LIST_ID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 314, ASSERT_TYPE_ASSERT, "( g_dynEntityLists[fromList->index].index ) == ( DYNENTITY_LIST_ID_INVALID )", "%s == %s\n\t%u, %u", "g_dynEntityLists[fromList->index].index", "DYNENTITY_LIST_ID_INVALID", (unsigned __int16)v5, 1536) )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
-    DynEnt_AddDynEntityList(_RDI);
+    *(__m256i *)&toList->name = *(__m256i *)&fromList->name;
+    *(__m256i *)&toList->dynEntDefList[1] = *(__m256i *)&fromList->dynEntDefList[1];
+    DynEnt_AddDynEntityList(toList);
   }
 }
 
@@ -294,54 +276,42 @@ DynEnt_MoveDynEntityList
 void DynEnt_MoveDynEntityList(DynEntityList *fromList, DynEntityList *toList)
 {
   DynEntityListId index; 
-  DynEntityListId v7; 
-  DynEntityListId v8; 
-  __int64 v11; 
+  DynEntityListId v5; 
+  DynEntityListId v6; 
+  __int64 v7; 
 
-  _RBX = toList;
-  _RDI = fromList;
   if ( !fromList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 262, ASSERT_TYPE_ASSERT, "(fromList)", (const char *)&queryFormat, "fromList") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 263, ASSERT_TYPE_ASSERT, "(toList)", (const char *)&queryFormat, "toList") )
+  if ( !toList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 263, ASSERT_TYPE_ASSERT, "(toList)", (const char *)&queryFormat, "toList") )
     __debugbreak();
-  index = _RDI->index;
+  index = fromList->index;
   if ( index == DEFAULT_DYNENTITY_LIST_ID )
   {
-    DynEnt_RemoveDynEntityList(_RBX);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-    }
+    DynEnt_RemoveDynEntityList(toList);
+    *(__m256i *)&toList->name = *(__m256i *)&fromList->name;
+    *(__m256i *)&toList->dynEntDefList[1] = *(__m256i *)&fromList->dynEntDefList[1];
   }
   else
   {
     if ( (unsigned __int16)index >= DEFAULT_DYNENTITY_LIST_ID )
     {
-      LODWORD(v11) = (unsigned __int16)index;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 274, ASSERT_TYPE_ASSERT, "(unsigned)( fromList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "fromList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v11, 1536) )
+      LODWORD(v7) = (unsigned __int16)index;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 274, ASSERT_TYPE_ASSERT, "(unsigned)( fromList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "fromList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v7, 1536) )
         __debugbreak();
     }
-    v7 = _RBX->index;
-    if ( v7 != DEFAULT_DYNENTITY_LIST_ID && g_dynEntityLists[(unsigned __int64)(unsigned __int16)v7].index == v7 )
+    v5 = toList->index;
+    if ( v5 != DEFAULT_DYNENTITY_LIST_ID && g_dynEntityLists[(unsigned __int64)(unsigned __int16)v5].index == v5 )
     {
       if ( DynEntCl_IsAnyClientInitialized() )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143D65CB0, 5724i64);
-      DynEnt_RemoveDynEntityList(_RBX);
+      DynEnt_RemoveDynEntityList(toList);
     }
-    v8 = g_dynEntityLists[(unsigned __int64)(unsigned __int16)_RDI->index].index;
-    if ( v8 != DEFAULT_DYNENTITY_LIST_ID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 285, ASSERT_TYPE_ASSERT, "( g_dynEntityLists[fromList->index].index ) == ( DYNENTITY_LIST_ID_INVALID )", "%s == %s\n\t%u, %u", "g_dynEntityLists[fromList->index].index", "DYNENTITY_LIST_ID_INVALID", (unsigned __int16)v8, 1536) )
+    v6 = g_dynEntityLists[(unsigned __int64)(unsigned __int16)fromList->index].index;
+    if ( v6 != DEFAULT_DYNENTITY_LIST_ID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 285, ASSERT_TYPE_ASSERT, "( g_dynEntityLists[fromList->index].index ) == ( DYNENTITY_LIST_ID_INVALID )", "%s == %s\n\t%u, %u", "g_dynEntityLists[fromList->index].index", "DYNENTITY_LIST_ID_INVALID", (unsigned __int16)v6, 1536) )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-    }
-    DynEnt_AddDynEntityList(_RBX);
+    *(__m256i *)&toList->name = *(__m256i *)&fromList->name;
+    *(__m256i *)&toList->dynEntDefList[1] = *(__m256i *)&fromList->dynEntDefList[1];
+    DynEnt_AddDynEntityList(toList);
   }
 }
 
@@ -484,61 +454,51 @@ void DynEnt_SwapDynEntityList(DynEntityList *fromList, DynEntityList *toList)
   DynEntityListId index; 
   DynEntityListId v5; 
   DynEntityListId v6; 
-  unsigned __int64 v11; 
-  __int64 v16; 
-  __int64 v17; 
+  unsigned __int64 v7; 
+  __m256i v8; 
+  __m256i v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __m256i v12; 
+  __m256i v13; 
 
-  _RBX = toList;
-  _RDI = fromList;
   if ( DynEntCl_IsAnyClientInitialized() )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143D65A40);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 221, ASSERT_TYPE_ASSERT, "(fromList)", (const char *)&queryFormat, "fromList") )
+  if ( !fromList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 221, ASSERT_TYPE_ASSERT, "(fromList)", (const char *)&queryFormat, "fromList") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 222, ASSERT_TYPE_ASSERT, "(toList)", (const char *)&queryFormat, "toList") )
+  if ( !toList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 222, ASSERT_TYPE_ASSERT, "(toList)", (const char *)&queryFormat, "toList") )
     __debugbreak();
-  index = _RDI->index;
-  v5 = _RBX->index;
+  index = fromList->index;
+  v5 = toList->index;
   if ( index != v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 223, ASSERT_TYPE_ASSERT, "( fromList->index ) == ( toList->index )", "%s == %s\n\t%u, %u", "fromList->index", "toList->index", (unsigned __int16)index, (unsigned __int16)v5) )
     __debugbreak();
-  v6 = _RBX->index;
+  v6 = toList->index;
   if ( v6 == DEFAULT_DYNENTITY_LIST_ID )
   {
-    __asm
-    {
-      vmovups ymm0, [rsp+98h+var_48]
-      vmovups ymm1, [rsp+98h+var_28]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
+    *(__m256i *)&toList->name = v12;
+    *(__m256i *)&toList->dynEntDefList[1] = v13;
+    *(__m256i *)&fromList->name = *(__m256i *)&toList->name;
+    *(__m256i *)&fromList->dynEntDefList[1] = *(__m256i *)&toList->dynEntDefList[1];
   }
   else
   {
     if ( (unsigned __int16)v6 >= DEFAULT_DYNENTITY_LIST_ID )
     {
-      LODWORD(v17) = 1536;
-      LODWORD(v16) = (unsigned __int16)v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 232, ASSERT_TYPE_ASSERT, "(unsigned)( toList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "toList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v16, v17) )
+      LODWORD(v11) = 1536;
+      LODWORD(v10) = (unsigned __int16)v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.cpp", 232, ASSERT_TYPE_ASSERT, "(unsigned)( toList->index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "toList->index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    v11 = (unsigned __int64)(unsigned __int16)_RBX->index << 6;
-    if ( *(DynEntityListId *)((char *)&g_dynEntityLists[0].index + v11) == _RBX->index )
-      *(DynEntityListId *)((char *)&g_dynEntityLists[0].index + v11) = DEFAULT_DYNENTITY_LIST_ID;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymm2, ymmword ptr [rbx]
-      vmovups ymm3, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups ymmword ptr [rdi], ymm2
-      vmovups ymmword ptr [rdi+20h], ymm3
-    }
-    DynEnt_AddDynEntityList(_RBX);
+    v7 = (unsigned __int64)(unsigned __int16)toList->index << 6;
+    if ( *(DynEntityListId *)((char *)&g_dynEntityLists[0].index + v7) == toList->index )
+      *(DynEntityListId *)((char *)&g_dynEntityLists[0].index + v7) = DEFAULT_DYNENTITY_LIST_ID;
+    v8 = *(__m256i *)&toList->name;
+    v9 = *(__m256i *)&toList->dynEntDefList[1];
+    *(__m256i *)&toList->name = *(__m256i *)&fromList->name;
+    *(__m256i *)&toList->dynEntDefList[1] = *(__m256i *)&fromList->dynEntDefList[1];
+    *(__m256i *)&fromList->name = v8;
+    *(__m256i *)&fromList->dynEntDefList[1] = v9;
+    DynEnt_AddDynEntityList(toList);
   }
 }
 

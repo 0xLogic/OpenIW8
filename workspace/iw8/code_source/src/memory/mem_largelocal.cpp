@@ -535,82 +535,72 @@ void LargeLocalAllocator::Pop(LargeLocalAllocator *this, void *voidPtr, const un
 LargeLocalAllocator::Push
 ==============
 */
-char *LargeLocalAllocator::Push(LargeLocalAllocator *this, const LargeLocalAllocator *otherAllocator, const unsigned __int64 size, const char *const name)
+void *LargeLocalAllocator::Push(LargeLocalAllocator *this, const LargeLocalAllocator *otherAllocator, const unsigned __int64 size, const char *const name)
 {
   char *m_curPos; 
   char *v9; 
-  char *v10; 
+  double v10; 
   char *v11; 
   unsigned __int64 v12; 
-  __int128 v17; 
-  char *v18; 
+  unsigned __int64 v13; 
+  __int128 v15; 
 
-  _RDI = this;
   if ( !size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 86, ASSERT_TYPE_ASSERT, "(size)", (const char *)&queryFormat, "size") )
     __debugbreak();
   if ( (size & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 87, ASSERT_TYPE_ASSERT, "(IsAligned( size, LARGE_LOCAL_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( size, LARGE_LOCAL_ALIGNMENT )") )
     __debugbreak();
-  if ( otherAllocator->m_direction == _RDI->m_direction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 88, ASSERT_TYPE_ASSERT, "(otherAllocator.m_direction != m_direction)", (const char *)&queryFormat, "otherAllocator.m_direction != m_direction") )
+  if ( otherAllocator->m_direction == this->m_direction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 88, ASSERT_TYPE_ASSERT, "(otherAllocator.m_direction != m_direction)", (const char *)&queryFormat, "otherAllocator.m_direction != m_direction") )
     __debugbreak();
   Sys_LockWrite(&s_largeLocalCritSect);
-  m_curPos = _RDI->m_curPos;
+  m_curPos = this->m_curPos;
   v9 = otherAllocator->m_curPos;
-  if ( _RDI->m_direction )
+  if ( this->m_direction )
   {
     if ( m_curPos < v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 112, ASSERT_TYPE_ASSERT, "(m_curPos >= otherAllocator.m_curPos)", (const char *)&queryFormat, "m_curPos >= otherAllocator.m_curPos") )
       __debugbreak();
-    v11 = _RDI->m_curPos;
+    v11 = this->m_curPos;
     if ( &v11[-size] < otherAllocator->m_curPos )
     {
       Mem_LargeLocal_DumpStatsInternal();
       Mem_Error_CannotAlloc_Dev((Mem_AllocatorType)16, "LargeLocalAllocator::AllocFailure", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 268, "size=%zu name=%s\n", size, name);
-      v11 = _RDI->m_curPos;
+      v11 = this->m_curPos;
     }
     v12 = s_largeLocalMinFree;
-    v10 = &v11[-size];
-    _RDI->m_curPos = v10;
-    if ( v10 - otherAllocator->m_curPos < v12 )
-      v12 = v10 - otherAllocator->m_curPos;
+    *(_QWORD *)&v10 = &v11[-size];
+    *(double *)&this->m_curPos = v10;
+    if ( *(_QWORD *)&v10 - (unsigned __int64)otherAllocator->m_curPos < v12 )
+      v12 = *(_QWORD *)&v10 - (unsigned __int64)otherAllocator->m_curPos;
     s_largeLocalMinFree = v12;
   }
   else
   {
     if ( m_curPos > v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 96, ASSERT_TYPE_ASSERT, "(m_curPos <= otherAllocator.m_curPos)", (const char *)&queryFormat, "m_curPos <= otherAllocator.m_curPos") )
       __debugbreak();
-    v10 = _RDI->m_curPos;
-    if ( &v10[size] > otherAllocator->m_curPos )
+    v10 = *(double *)&this->m_curPos;
+    if ( (char *)(*(_QWORD *)&v10 + size) > otherAllocator->m_curPos )
     {
       Mem_LargeLocal_DumpStatsInternal();
       Mem_Error_CannotAlloc_Dev((Mem_AllocatorType)16, "LargeLocalAllocator::AllocFailure", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 268, "size=%zu name=%s\n", size, name);
-      v10 = _RDI->m_curPos;
+      v10 = *(double *)&this->m_curPos;
     }
-    _RDI->m_curPos = &v10[size];
-    if ( otherAllocator->m_curPos - &v10[size] < s_largeLocalMinFree )
-      s_largeLocalMinFree = otherAllocator->m_curPos - &v10[size];
+    this->m_curPos = (char *)(*(_QWORD *)&v10 + size);
+    if ( &otherAllocator->m_curPos[-*(_QWORD *)&v10 - size] < (char *)s_largeLocalMinFree )
+      s_largeLocalMinFree = (unsigned __int64)&otherAllocator->m_curPos[-*(_QWORD *)&v10 - size];
   }
-  if ( ((unsigned __int8)v10 & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 127, ASSERT_TYPE_ASSERT, "(IsAligned( retPtr, LARGE_LOCAL_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( retPtr, LARGE_LOCAL_ALIGNMENT )") )
+  if ( (LOBYTE(v10) & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 127, ASSERT_TYPE_ASSERT, "(IsAligned( retPtr, LARGE_LOCAL_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( retPtr, LARGE_LOCAL_ALIGNMENT )") )
     __debugbreak();
-  if ( ((__int64)_RDI->m_curPos & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 128, ASSERT_TYPE_ASSERT, "(IsAligned( m_curPos, LARGE_LOCAL_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( m_curPos, LARGE_LOCAL_ALIGNMENT )") )
+  if ( ((__int64)this->m_curPos & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_largelocal.cpp", 128, ASSERT_TYPE_ASSERT, "(IsAligned( m_curPos, LARGE_LOCAL_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( m_curPos, LARGE_LOCAL_ALIGNMENT )") )
     __debugbreak();
-  *(_QWORD *)&v17 = name;
-  v18 = v10;
-  *((_QWORD *)&v17 + 1) = size;
-  if ( _RDI->m_debugInfo.m_size >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+  *(_QWORD *)&v15 = name;
+  *((_QWORD *)&v15 + 1) = size;
+  if ( this->m_debugInfo.m_size >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+78h+var_38]
-    vmovsd  xmm1, [rsp+78h+var_28]
-  }
-  _R8 = 3 * _RDI->m_debugInfo.m_size;
-  __asm
-  {
-    vmovups xmmword ptr [rdi+r8*8+18h], xmm0
-    vmovsd  qword ptr [rdi+r8*8+28h], xmm1
-  }
-  ++_RDI->m_debugInfo.m_size;
+  v13 = 3 * this->m_debugInfo.m_size;
+  *(_OWORD *)&this->m_debugInfo.m_data.m_buffer[8 * v13] = v15;
+  *(double *)&this->m_debugInfo.m_data.m_buffer[8 * v13 + 16] = v10;
+  ++this->m_debugInfo.m_size;
   Sys_UnlockWrite(&s_largeLocalCritSect);
-  return v10;
+  return *(void **)&v10;
 }
 
 /*

@@ -27,155 +27,88 @@ GVehicleEventSystem::CarImpact
 */
 void GVehicleEventSystem::CarImpact(GVehicleEventSystem *this, const BgVehiclePhysicsGround *vehObj, const vec3_t *impactPosWs, unsigned int surfaceData)
 {
-  char v7; 
-  int m_entityNumber; 
+  char v4; 
   gentity_s *GEntity; 
-  bool v12; 
-  bool v13; 
-  char v56; 
-  char v57; 
-  int v61; 
+  float v8; 
+  __int128 v9; 
+  __int128 v10; 
+  float v11; 
+  float v15; 
+  __int128 v16; 
+  float v20; 
+  float v21; 
+  __int128 v22; 
+  float v26; 
+  float v27; 
+  double v28; 
+  int v29; 
   vec3_t a; 
   vec3_t b; 
 
-  v7 = surfaceData;
-  _RBP = impactPosWs;
-  _RDI = vehObj;
+  v4 = surfaceData;
   if ( vehObj->m_worldId > (unsigned int)PHYSICS_WORLD_ID_SERVER_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_event_system.cpp", 13, ASSERT_TYPE_ASSERT, "(vehObj.IsServer())", (const char *)&queryFormat, "vehObj.IsServer()") )
     __debugbreak();
-  if ( !_RDI->m_pmoveObject )
+  if ( !vehObj->m_pmoveObject )
   {
-    m_entityNumber = _RDI->m_entityNumber;
+    GEntity = G_GetGEntity(vehObj->m_entityNumber);
+    if ( !GEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_event_system.cpp", 18, ASSERT_TYPE_ASSERT, "(vehEnt)", (const char *)&queryFormat, "vehEnt") )
+      __debugbreak();
+    v8 = impactPosWs->v[0] - vehObj->m_transform.m[3].v[0];
+    v10 = LODWORD(impactPosWs->v[1]);
+    *(float *)&v10 = impactPosWs->v[1] - vehObj->m_transform.m[3].v[1];
+    v9 = v10;
+    v11 = impactPosWs->v[2] - vehObj->m_transform.m[3].v[2];
+    *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v8 * v8)) + (float)(v11 * v11));
+    _XMM1 = v10;
     __asm
     {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm8
-      vmovaps [rsp+0A8h+var_48], xmm9
-    }
-    GEntity = G_GetGEntity(m_entityNumber);
-    v12 = GEntity == NULL;
-    if ( !GEntity )
-    {
-      v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_event_system.cpp", 18, ASSERT_TYPE_ASSERT, "(vehEnt)", (const char *)&queryFormat, "vehEnt");
-      v12 = !v13;
-      if ( v13 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  xmm0, dword ptr [rbp+0]
-      vsubss  xmm6, xmm0, dword ptr [rdi+198h]
-      vmovss  xmm1, dword ptr [rbp+4]
-      vsubss  xmm5, xmm1, dword ptr [rdi+19Ch]
-      vmovss  xmm0, dword ptr [rbp+8]
-      vsubss  xmm4, xmm0, dword ptr [rdi+1A0h]
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm4, xmm6, xmm1
-      vmulss  xmm5, xmm5, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm2, xmm5, xmm5
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm3, xmm1, xmm1
+    }
+    v15 = v8 * (float)(1.0 / *(float *)&_XMM0);
+    v16 = v9;
+    *(float *)&v9 = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+    *(float *)&v16 = fsqrt((float)(*(float *)&v9 * *(float *)&v9) + (float)(v15 * v15));
+    _XMM3 = v16;
+    __asm
+    {
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm6, xmm4, xmm1
-      vmovsd  xmm4, qword ptr [rdi+174h]
-      vmulss  xmm9, xmm5, xmm1
-      vmovsd  qword ptr [rsp+0A8h+a], xmm4
     }
-    a.v[1] = *((float *)&_RT0 + 1);
+    v20 = v15 * (float)(1.0 / *(float *)&_XMM0);
+    v21 = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+    *(_QWORD *)a.v = *(_QWORD *)vehObj->m_transform.m[0].v;
+    v22 = *(unsigned __int64 *)a.v;
+    *(float *)&v22 = fsqrt((float)(*(float *)&v22 * *(float *)&v22) + (float)(a.v[1] * a.v[1]));
+    _XMM2 = v22;
     __asm
     {
-      vmovss  xmm3, dword ptr [rsp+0A8h+a+4]
-      vmulss  xmm0, xmm3, xmm3
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmovaps xmm8, [rsp+0A8h+var_38]
-      vxorps  xmm5, xmm5, xmm5
-      vmulss  xmm2, xmm4, xmm1
-      vmulss  xmm0, xmm3, xmm1
-      vmovss  dword ptr [rsp+0A8h+b], xmm6
-      vucomiss xmm6, xmm5
-      vmovaps xmm6, [rsp+0A8h+var_28]
-      vmovss  dword ptr [rsp+0A8h+a], xmm2
-      vmovss  dword ptr [rsp+0A8h+a+4], xmm0
-      vmovss  dword ptr [rsp+0A8h+b+4], xmm9
-      vmovss  dword ptr [rsp+0A8h+b+8], xmm5
-      vmovss  dword ptr [rsp+0A8h+a+8], xmm5
     }
-    if ( v12 )
+    v26 = a.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v27 = a.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    b.v[0] = v20;
+    a.v[0] = v26;
+    a.v[1] = v27;
+    b.v[1] = v21;
+    b.v[2] = 0.0;
+    a.v[2] = 0.0;
+    if ( v20 == 0.0 && v21 == 0.0 || v26 == 0.0 && v27 == 0.0 || (v28 = SignedAngleBetween(&a, &b, &identityMatrix33.m[2]), COERCE_FLOAT(LODWORD(v28) & _xmm) <= degThres) )
     {
-      __asm { vucomiss xmm9, xmm5 }
-      if ( v12 )
-        goto LABEL_13;
+      v29 = 0;
     }
-    __asm { vucomiss xmm2, xmm5 }
-    if ( v12 )
+    else if ( *(float *)&v28 <= 40.0 || *(float *)&v28 > (float)(180.0 - degThres) )
     {
-      __asm { vucomiss xmm0, xmm5 }
-      if ( v12 )
-        goto LABEL_13;
-    }
-    *(double *)&_XMM0 = SignedAngleBetween(&a, &b, &identityMatrix33.m[2]);
-    __asm
-    {
-      vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm3, cs:degThres
-      vcomiss xmm1, xmm3
-      vmovaps xmm2, xmm0
-    }
-    if ( v56 | v57 )
-    {
-LABEL_13:
-      v61 = 0;
+      v29 = 64;
+      if ( COERCE_FLOAT(LODWORD(v28) & _xmm) > (float)(180.0 - degThres) )
+        v29 = 128;
     }
     else
     {
-      __asm
-      {
-        vcomiss xmm2, cs:__real@42200000
-        vmovss  xmm4, cs:__real@43340000
-      }
-      if ( v56 | v57 )
-        goto LABEL_17;
-      __asm
-      {
-        vsubss  xmm0, xmm4, xmm3
-        vcomiss xmm2, xmm0
-      }
-      if ( !(v56 | v57) )
-      {
-LABEL_17:
-        __asm
-        {
-          vsubss  xmm0, xmm4, xmm3
-          vcomiss xmm1, xmm0
-        }
-        v61 = 64;
-        if ( !(v56 | v57) )
-          v61 = 128;
-      }
-      else
-      {
-        v61 = 192;
-      }
+      v29 = 192;
     }
-    G_Utils_AddEvent(GEntity, 0xA6u, v61 | v7 & 0x3F);
-    __asm { vmovaps xmm9, [rsp+0A8h+var_48] }
+    G_Utils_AddEvent(GEntity, 0xA6u, v29 | v4 & 0x3F);
   }
 }
 

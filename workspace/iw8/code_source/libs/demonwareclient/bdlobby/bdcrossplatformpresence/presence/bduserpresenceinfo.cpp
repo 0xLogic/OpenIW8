@@ -214,23 +214,12 @@ bdUserPresenceInfo::bdUserPresenceInfo
 */
 void bdUserPresenceInfo::bdUserPresenceInfo(bdUserPresenceInfo *this, const bdUserPresenceInfo *other)
 {
-  const bdUserPresenceInfo *v2; 
-  bdUserPresenceInfo *v3; 
-
-  v2 = other;
-  v3 = this;
   this->m_online = other->m_online;
-  this->m_platform.m_hasValue = other->m_platform.m_hasValue;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+2]
-    vmovups xmmword ptr [rcx+2], xmm0
-  }
-  this->m_platform.m_value.m_buffer[16] = other->m_platform.m_value.m_buffer[16];
+  this->m_platform = other->m_platform;
   this->m_data.m_hasValue = other->m_data.m_hasValue;
   bdPresenceData::bdPresenceData(&this->m_data.m_value, &other->m_data.m_value);
-  v3->m_updateTime.m_hasValue = v2->m_updateTime.m_hasValue;
-  v3->m_updateTime.m_value = v2->m_updateTime.m_value;
+  this->m_updateTime.m_hasValue = other->m_updateTime.m_hasValue;
+  this->m_updateTime.m_value = other->m_updateTime.m_value;
 }
 
 /*
@@ -273,35 +262,30 @@ bdUserPresenceInfo::bdUserPresenceInfo
 */
 void bdUserPresenceInfo::bdUserPresenceInfo(bdUserPresenceInfo *this, const bool online, const char *platform, const bdPresenceData *data)
 {
-  _BYTE *v7; 
-  unsigned __int64 v8; 
+  _BYTE *v6; 
+  unsigned __int64 v7; 
   __int128 Buf; 
-  char v10; 
+  char v9; 
 
-  _RBX = this;
   this->m_online = online;
   if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  _RBX->m_platform.m_hasValue = 1;
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+Buf]
-    vmovups xmmword ptr [rbx+2], xmm0
-  }
-  _RBX->m_platform.m_value.m_buffer[16] = v10;
-  v7 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v7 )
-    v8 = v7 - (_BYTE *)&Buf;
+  this->m_platform.m_hasValue = 1;
+  *(_OWORD *)this->m_platform.m_value.m_buffer = Buf;
+  this->m_platform.m_value.m_buffer[16] = v9;
+  v6 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v6 )
+    v7 = v6 - (_BYTE *)&Buf;
   else
-    v8 = 17i64;
-  bdHandleAssert(v8 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  _RBX->m_data.m_hasValue = 1;
-  bdPresenceData::bdPresenceData(&_RBX->m_data.m_value, data);
-  _RBX->m_updateTime.m_hasValue = 1;
-  _RBX->m_updateTime.m_value = 0i64;
+    v7 = 17i64;
+  bdHandleAssert(v7 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  this->m_data.m_hasValue = 1;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, data);
+  this->m_updateTime.m_hasValue = 1;
+  this->m_updateTime.m_value = 0i64;
 }
 
 /*
@@ -311,35 +295,30 @@ bdUserPresenceInfo::bdUserPresenceInfo
 */
 void bdUserPresenceInfo::bdUserPresenceInfo(bdUserPresenceInfo *this, const bool online, const char *platform, const bdPresenceData *data, const unsigned __int64 updateTime)
 {
-  _BYTE *v8; 
-  unsigned __int64 v9; 
+  _BYTE *v7; 
+  unsigned __int64 v8; 
   __int128 Buf; 
-  char v11; 
+  char v10; 
 
-  _RBX = this;
   this->m_online = online;
   if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  _RBX->m_platform.m_hasValue = 1;
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+Buf]
-    vmovups xmmword ptr [rbx+2], xmm0
-  }
-  _RBX->m_platform.m_value.m_buffer[16] = v11;
-  v8 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v8 )
-    v9 = v8 - (_BYTE *)&Buf;
+  this->m_platform.m_hasValue = 1;
+  *(_OWORD *)this->m_platform.m_value.m_buffer = Buf;
+  this->m_platform.m_value.m_buffer[16] = v10;
+  v7 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v7 )
+    v8 = v7 - (_BYTE *)&Buf;
   else
-    v9 = 17i64;
-  bdHandleAssert(v9 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  _RBX->m_data.m_hasValue = 1;
-  bdPresenceData::bdPresenceData(&_RBX->m_data.m_value, data);
-  _RBX->m_updateTime.m_hasValue = 1;
-  _RBX->m_updateTime.m_value = updateTime;
+    v8 = 17i64;
+  bdHandleAssert(v8 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  this->m_data.m_hasValue = 1;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, data);
+  this->m_updateTime.m_hasValue = 1;
+  this->m_updateTime.m_value = updateTime;
 }
 
 /*
@@ -365,18 +344,8 @@ bdUserPresenceInfo *bdUserPresenceInfo::operator=(bdUserPresenceInfo *this, cons
   if ( this != other )
   {
     this->m_online = other->m_online;
-    _RCX = (bdUserPresenceInfo *)&other->m_platform;
-    _RDX = &this->m_platform;
-    if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)_RCX )
-    {
-      _RDX->m_hasValue = _RCX->m_online;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+1]
-        vmovups xmmword ptr [rdx+1], xmm0
-      }
-      this->m_platform.m_value.m_buffer[16] = _RCX->m_platform.m_value.m_buffer[15];
-    }
+    if ( &this->m_platform != &other->m_platform )
+      this->m_platform = other->m_platform;
     if ( &this->m_data != &other->m_data )
     {
       this->m_data.m_hasValue = other->m_data.m_hasValue;
@@ -403,34 +372,34 @@ _BOOL8 bdUserPresenceInfo::deserialize(bdUserPresenceInfo *this, const char *pre
   size_t v7; 
   bool UInt64; 
   unsigned __int64 v9; 
+  __int128 v10; 
   char v11; 
-  _BYTE *v13; 
-  unsigned __int64 v14; 
-  bool v16; 
-  unsigned __int64 v17; 
-  bool v18; 
-  bdStructFixedSizeString<16> v19; 
+  _BYTE *v12; 
+  unsigned __int64 v13; 
+  bool v15; 
+  unsigned __int64 v16; 
+  bool v17; 
+  bdStructFixedSizeString<16> v18; 
   bdJSONDeserializer value; 
   bdPresenceData other; 
-  __int64 v22; 
-  __int128 Buf; 
-  char v24; 
+  __int64 v21; 
+  bdStructFixedSizeString<16> Buf; 
   char Src[8]; 
-  __int64 v26; 
+  __int64 v24; 
 
-  v22 = -2i64;
+  v21 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   Object = bdJSONDeserializer::getObject(deserializer, presenceKey, &value);
-  v16 = 0;
+  v15 = 0;
   *(_QWORD *)Src = 0i64;
-  v26 = 0i64;
-  v17 = 0i64;
+  v24 = 0i64;
+  v16 = 0i64;
   v7 = 16i64;
-  if ( Object && bdJSONDeserializer::getBoolean(&value, "online", &v16) && (!bdJSONDeserializer::hasKey(&value, "platform") || bdJSONDeserializer::getString(&value, "platform", Src, 0x10u)) )
+  if ( Object && bdJSONDeserializer::getBoolean(&value, "online", &v15) && (!bdJSONDeserializer::hasKey(&value, "platform") || bdJSONDeserializer::getString(&value, "platform", Src, 0x10u)) )
   {
     UInt64 = 1;
     if ( bdJSONDeserializer::hasKey(&value, "updateTime") )
-      UInt64 = bdJSONDeserializer::getUInt64(&value, "updateTime", &v17);
+      UInt64 = bdJSONDeserializer::getUInt64(&value, "updateTime", &v16);
   }
   else
   {
@@ -448,7 +417,7 @@ _BOOL8 bdUserPresenceInfo::deserialize(bdUserPresenceInfo *this, const char *pre
       }
       UInt64 = 1;
     }
-    this->m_online = v16;
+    this->m_online = v15;
     bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
     v9 = -1i64;
     do
@@ -457,46 +426,41 @@ _BOOL8 bdUserPresenceInfo::deserialize(bdUserPresenceInfo *this, const char *pre
     if ( v9 < 0x10 )
       v7 = v9;
     memcpy_0(&Buf, Src, v7);
-    *((_BYTE *)&Buf + v7) = 0;
+    Buf.m_buffer[v7] = 0;
     if ( v9 > 0x10 )
     {
       bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
       bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     }
-    v18 = 1;
-    __asm
+    v17 = 1;
+    v10 = *(_OWORD *)Buf.m_buffer;
+    v18 = Buf;
+    v11 = Buf.m_buffer[16];
+    if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&v17 )
     {
-      vmovups xmm0, [rbp+57h+Buf]
-      vmovups xmmword ptr [rbp+57h+var_AF.m_buffer], xmm0
-    }
-    v11 = v24;
-    v19.m_buffer[16] = v24;
-    _RAX = &this->m_platform;
-    if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&v18 )
-    {
-      _RAX->m_hasValue = 1;
-      __asm { vmovups xmmword ptr [rax+1], xmm0 }
+      this->m_platform.m_hasValue = 1;
+      *(_OWORD *)this->m_platform.m_value.m_buffer = v10;
       this->m_platform.m_value.m_buffer[16] = v11;
     }
-    bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>(&v19);
-    v13 = memchr_0(&Buf, 0, 0x11ui64);
-    if ( v13 )
-      v14 = v13 - (_BYTE *)&Buf;
+    bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>(&v18);
+    v12 = memchr_0(&Buf, 0, 0x11ui64);
+    if ( v12 )
+      v13 = v12 - (_BYTE *)&Buf;
     else
-      v14 = 17i64;
-    bdHandleAssert(v14 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-    v18 = 1;
-    bdPresenceData::bdPresenceData((bdPresenceData *)&v19.m_buffer[7], &other);
-    if ( &this->m_data != (bdStructOptionalObject<bdPresenceData> *)&v18 )
+      v13 = 17i64;
+    bdHandleAssert(v13 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+    v17 = 1;
+    bdPresenceData::bdPresenceData((bdPresenceData *)&v18.m_buffer[7], &other);
+    if ( &this->m_data != (bdStructOptionalObject<bdPresenceData> *)&v17 )
     {
-      this->m_data.m_hasValue = v18;
-      bdCrossPlatformUserMetadata::operator=(&this->m_data.m_value, (const bdCrossPlatformUserMetadata *)&v19.m_buffer[7]);
+      this->m_data.m_hasValue = v17;
+      bdCrossPlatformUserMetadata::operator=(&this->m_data.m_value, (const bdCrossPlatformUserMetadata *)&v18.m_buffer[7]);
     }
-    bdPresenceData::~bdPresenceData((bdPresenceData *)&v19.m_buffer[7]);
+    bdPresenceData::~bdPresenceData((bdPresenceData *)&v18.m_buffer[7]);
     if ( &this->m_updateTime != (bdStructOptionalObject<unsigned __int64> *)&Buf )
     {
       this->m_updateTime.m_hasValue = 1;
-      this->m_updateTime.m_value = v17;
+      this->m_updateTime.m_value = v16;
     }
   }
 LABEL_28:
@@ -639,41 +603,36 @@ bdUserPresenceInfo::setPlatform
 */
 void bdUserPresenceInfo::setPlatform(bdUserPresenceInfo *this, const char *platform)
 {
+  __int128 v3; 
   char v4; 
-  _BYTE *v6; 
-  unsigned __int64 v7; 
-  __int128 Buf; 
-  char v9; 
-  char v10; 
-  bdStructFixedSizeString<16> v11; 
+  _BYTE *v5; 
+  unsigned __int64 v6; 
+  bdStructFixedSizeString<16> Buf; 
+  char v8; 
+  bdStructFixedSizeString<16> v9; 
 
-  if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
+  if ( bdStrlcpy(Buf.m_buffer, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  v10 = 1;
-  __asm
+  v8 = 1;
+  v3 = *(_OWORD *)Buf.m_buffer;
+  v9 = Buf;
+  v4 = Buf.m_buffer[16];
+  if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&v8 )
   {
-    vmovups xmm0, [rsp+88h+Buf]
-    vmovups xmmword ptr [rsp+88h+var_27.m_buffer], xmm0
-  }
-  v4 = v9;
-  v11.m_buffer[16] = v9;
-  _RAX = &this->m_platform;
-  if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&v10 )
-  {
-    _RAX->m_hasValue = 1;
-    __asm { vmovups xmmword ptr [rax+1], xmm0 }
+    this->m_platform.m_hasValue = 1;
+    *(_OWORD *)this->m_platform.m_value.m_buffer = v3;
     this->m_platform.m_value.m_buffer[16] = v4;
   }
-  bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>(&v11);
-  v6 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v6 )
-    v7 = v6 - (_BYTE *)&Buf;
+  bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>(&v9);
+  v5 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v5 )
+    v6 = v5 - (_BYTE *)&Buf;
   else
-    v7 = 17i64;
-  bdHandleAssert(v7 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+    v6 = 17i64;
+  bdHandleAssert(v6 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
 }
 
 /*

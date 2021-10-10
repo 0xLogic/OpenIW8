@@ -240,24 +240,24 @@ SV_ClientWorkersMP_AddClientUsabilityUpdate
 void SV_ClientWorkersMP_AddClientUsabilityUpdate(const unsigned int clientIndex)
 {
   unsigned __int64 v1; 
-  unsigned __int64 v4; 
-  char v5; 
-  unsigned int v6; 
-  unsigned int v7; 
-  __int64 v8; 
-  __int64 v9; 
-  unsigned int v10; 
-  int v11; 
-  int v12; 
+  unsigned __int64 v2; 
+  char v3; 
+  unsigned int v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v7; 
+  unsigned int v8; 
+  int v9; 
+  int v10; 
 
   v1 = clientIndex;
   if ( !s_clientUsabilityOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 423, ASSERT_TYPE_ASSERT, "( s_clientUsabilityOutput != nullptr )", (const char *)&queryFormat, "s_clientUsabilityOutput != nullptr") )
     __debugbreak();
   if ( (unsigned int)v1 >= SvClient::ms_clientCount )
   {
-    v10 = SvClient::ms_clientCount;
-    LODWORD(v8) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( SvClient::GetClientCount() )", "clientIndex doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v8, v10) )
+    v8 = SvClient::ms_clientCount;
+    LODWORD(v6) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( SvClient::GetClientCount() )", "clientIndex doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v6, v8) )
       __debugbreak();
   }
   if ( s_clientUsabilityBuildWorker.clientCount >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 426, ASSERT_TYPE_ASSERT, "( s_clientUsabilityBuildWorker.clientCount < ( sizeof( *array_counter( s_clientUsabilityBuildWorker.clientIndexArray ) ) + 0 ) )", (const char *)&queryFormat, "s_clientUsabilityBuildWorker.clientCount < ARRAY_COUNT( s_clientUsabilityBuildWorker.clientIndexArray )") )
@@ -266,45 +266,33 @@ void SV_ClientWorkersMP_AddClientUsabilityUpdate(const unsigned int clientIndex)
   s_clientUsabilityOutput[v1].workStage[0] = 1;
   if ( (unsigned int)v1 >= 0xE0 )
   {
-    v12 = 224;
-    v11 = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v11, v12) )
+    v10 = 224;
+    v9 = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v9, v10) )
       __debugbreak();
   }
-  __asm
+  v2 = v1 >> 5;
+  v3 = v1 & 0x1F;
+  v4 = (unsigned int)v1 >> 5;
+  v5 = 0x80000000 >> v3;
+  s_clientUsabilityProcessingBits.array[v2] |= 0x80000000 >> v3;
+  if ( v4 >= 7 )
   {
-    vmovups xmm0, xmmword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array
-    vmovsd  xmm1, qword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array+10h
-  }
-  v4 = v1 >> 5;
-  v5 = v1 & 0x1F;
-  v6 = (unsigned int)v1 >> 5;
-  v7 = 0x80000000 >> v5;
-  __asm { vmovups [rsp+78h+var_28], xmm0 }
-  s_clientUsabilityProcessingBits.array[v4] |= 0x80000000 >> v5;
-  __asm { vmovsd  [rsp+78h+var_18], xmm1 }
-  if ( v6 >= 7 )
-  {
-    LODWORD(v9) = 7;
-    LODWORD(v8) = v6;
-    __asm
-    {
-      vmovups [rsp+78h+var_28], xmm0
-      vmovsd  [rsp+78h+var_18], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex >> 5 ) < (unsigned)( clientBits.WORD_COUNT )", "clientIndex >> 5 doesn't index clientBits.WORD_COUNT\n\t%i not in [0, %i)", v8, v9) )
+    LODWORD(v7) = 7;
+    LODWORD(v6) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex >> 5 ) < (unsigned)( clientBits.WORD_COUNT )", "clientIndex >> 5 doesn't index clientBits.WORD_COUNT\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
-  if ( (((unsigned __int8)0x40000000u + 4 * (_BYTE)v4 - 64) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 51, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_clientUsabilityThreadedReadyBits.array[v4]) )
+  if ( (((unsigned __int8)0x40000000u + 4 * (_BYTE)v2 - 64) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 51, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_clientUsabilityThreadedReadyBits.array[v2]) )
     __debugbreak();
-  _InterlockedAnd((volatile signed __int32 *)&s_clientUsabilityThreadedReadyBits.array[v4], ~v7);
+  _InterlockedAnd((volatile signed __int32 *)&s_clientUsabilityThreadedReadyBits.array[v2], ~v5);
   if ( s_clientUsabilityBuildWorker.clientCount == 4 )
   {
     SV_ClientWorkersMP_StartClientUsabilityUpdateWorker();
     if ( s_clientUsabilityBuildWorker.clientCount )
     {
-      LODWORD(v8) = s_clientUsabilityBuildWorker.clientCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 442, ASSERT_TYPE_ASSERT, "( s_clientUsabilityBuildWorker.clientCount ) == ( 0 )", "s_clientUsabilityBuildWorker.clientCount == 0\n\t%i, %i", v8, 0i64) )
+      LODWORD(v6) = s_clientUsabilityBuildWorker.clientCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 442, ASSERT_TYPE_ASSERT, "( s_clientUsabilityBuildWorker.clientCount ) == ( 0 )", "s_clientUsabilityBuildWorker.clientCount == 0\n\t%i, %i", v6, 0i64) )
         __debugbreak();
     }
   }
@@ -489,9 +477,9 @@ void SV_ClientWorkersMP_ClientUpdateUsabilityCmd(const void *const cmdInfo)
   unsigned __int64 v5; 
   gentity_s *v6; 
   ClientUsabilityWorkOutput *v7; 
-  volatile signed __int32 *v10; 
-  __int64 v11; 
-  __int64 v12; 
+  volatile signed __int32 *v8; 
+  __int64 v9; 
+  __int64 v10; 
 
   if ( !s_clientUsabilityOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 511, ASSERT_TYPE_ASSERT, "( s_clientUsabilityOutput != nullptr )", (const char *)&queryFormat, "s_clientUsabilityOutput != nullptr") )
     __debugbreak();
@@ -507,9 +495,9 @@ void SV_ClientWorkersMP_ClientUpdateUsabilityCmd(const void *const cmdInfo)
       v5 = *((unsigned int *)cmdInfo + v2);
       if ( (unsigned int)v5 >= SvClient::ms_clientCount )
       {
-        LODWORD(v12) = SvClient::ms_clientCount;
-        LODWORD(v11) = *((_DWORD *)cmdInfo + v2);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 522, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( SvClient::GetClientCount() )", "clientIndex doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v11, v12) )
+        LODWORD(v10) = SvClient::ms_clientCount;
+        LODWORD(v9) = *((_DWORD *)cmdInfo + v2);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 522, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( SvClient::GetClientCount() )", "clientIndex doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v9, v10) )
           __debugbreak();
       }
       if ( !(_BYTE)SvGameGlobals::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 98, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access server global data outside of an active server context", "ms_allocatedType != GameModeType::NONE") )
@@ -522,36 +510,24 @@ void SV_ClientWorkersMP_ClientUpdateUsabilityCmd(const void *const cmdInfo)
       v7 = &s_clientUsabilityOutput[v5];
       if ( v7->workStage[0] != 1 )
       {
-        LODWORD(v12) = 1;
-        LODWORD(v11) = v7->workStage[0];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 528, ASSERT_TYPE_ASSERT, "( usabilityOutput.workStage ) == ( UsabilityWorkStage::PROCESSING )", "usabilityOutput.workStage == UsabilityWorkStage::PROCESSING\n\t%i, %i", v11, v12) )
+        LODWORD(v10) = 1;
+        LODWORD(v9) = v7->workStage[0];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 528, ASSERT_TYPE_ASSERT, "( usabilityOutput.workStage ) == ( UsabilityWorkStage::PROCESSING )", "usabilityOutput.workStage == UsabilityWorkStage::PROCESSING\n\t%i, %i", v9, v10) )
           __debugbreak();
       }
       v7->vehicleCount = G_PlayerUse_UpdateScriptableVehiclesCollect(v6, v7->vehicleList, 0x80u);
       v7->workStage[0] = 2;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array
-        vmovsd  xmm1, qword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array+10h
-        vmovups [rsp+0A8h+var_68], xmm0
-        vmovsd  [rsp+0A8h+var_58], xmm1
-      }
       if ( (unsigned int)v5 >> 5 >= 7 )
       {
-        LODWORD(v12) = 7;
-        LODWORD(v11) = (unsigned int)v5 >> 5;
-        __asm
-        {
-          vmovups [rsp+0A8h+var_48], xmm0
-          vmovsd  [rsp+0A8h+var_38], xmm1
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex >> 5 ) < (unsigned)( clientBits.WORD_COUNT )", "clientIndex >> 5 doesn't index clientBits.WORD_COUNT\n\t%i not in [0, %i)", v11, v12) )
+        LODWORD(v10) = 7;
+        LODWORD(v9) = (unsigned int)v5 >> 5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex >> 5 ) < (unsigned)( clientBits.WORD_COUNT )", "clientIndex >> 5 doesn't index clientBits.WORD_COUNT\n\t%i not in [0, %i)", v9, v10) )
           __debugbreak();
       }
-      v10 = (volatile signed __int32 *)&s_clientUsabilityThreadedReadyBits.array[v5 >> 5];
-      if ( ((unsigned __int8)v10 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_clientUsabilityThreadedReadyBits.array[v5 >> 5]) )
+      v8 = (volatile signed __int32 *)&s_clientUsabilityThreadedReadyBits.array[v5 >> 5];
+      if ( ((unsigned __int8)v8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_clientUsabilityThreadedReadyBits.array[v5 >> 5]) )
         __debugbreak();
-      _InterlockedOr(v10, 0x80000000 >> (v5 & 0x1F));
+      _InterlockedOr(v8, 0x80000000 >> (v5 & 0x1F));
       ++v2;
     }
     while ( v2 < *((_DWORD *)cmdInfo + 4) );
@@ -748,143 +724,119 @@ SV_ClientWorkersMP_ProcessUsabilityUpdateOutput
 
 void __fastcall SV_ClientWorkersMP_ProcessUsabilityUpdateOutput(void *data)
 {
-  __int64 v3; 
-  unsigned int v5; 
-  unsigned int v6; 
-  ClientUsabilityWorkOutput *v7; 
+  __int64 v1; 
+  unsigned int v2; 
+  unsigned int v3; 
+  unsigned int v4; 
+  ClientUsabilityWorkOutput *v5; 
   unsigned __int8 vehicleCount; 
-  char v11; 
-  unsigned __int64 v12; 
+  char v7; 
+  unsigned __int64 v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  volatile signed __int32 *v12; 
   unsigned int v13; 
-  unsigned int v14; 
-  __int64 v15; 
-  volatile signed __int32 *v16; 
-  unsigned int v17; 
+  __int64 v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  __int64 v17; 
   __int64 v18; 
-  unsigned int v19; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v19; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array
-    vmovsd  xmm0, qword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array+10h
-  }
-  LODWORD(v3) = 0;
-  __asm
-  {
-    vmovups [rsp+0B8h+var_68], xmm1
-    vmovsd  [rsp+0B8h+var_58], xmm0
-    vmovd   edi, xmm1
-  }
+  LODWORD(v1) = 0;
+  v2 = s_clientUsabilityThreadedReadyBits.array[0];
   while ( 1 )
   {
-    for ( ; !_EDI; _EDI = s_clientUsabilityThreadedReadyBits.array[v3] )
+    for ( ; !v2; v2 = s_clientUsabilityThreadedReadyBits.array[v1] )
     {
-      v3 = (unsigned int)(v3 + 1);
-      if ( (unsigned int)v3 >= 7 )
+      v1 = (unsigned int)(v1 + 1);
+      if ( (unsigned int)v1 >= 7 )
       {
-        v17 = s_clientUsabilityProcessingBits.array[0];
-        LODWORD(v18) = 0;
+        v13 = s_clientUsabilityProcessingBits.array[0];
+        LODWORD(v14) = 0;
         while ( 1 )
         {
-          for ( ; !v17; v17 = s_clientUsabilityProcessingBits.array[v18] )
+          for ( ; !v13; v13 = s_clientUsabilityProcessingBits.array[v14] )
           {
-            v18 = (unsigned int)(v18 + 1);
-            if ( (unsigned int)v18 >= 7 )
+            v14 = (unsigned int)(v14 + 1);
+            if ( (unsigned int)v14 >= 7 )
               JUMPOUT(0x141471053i64);
           }
-          v19 = __lzcnt(v17);
-          if ( v19 >= 0x20 )
+          v15 = __lzcnt(v13);
+          if ( v15 >= 0x20 )
           {
-            LODWORD(v21) = 32;
-            LODWORD(v20) = v19;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v20, v21) )
+            LODWORD(v17) = 32;
+            LODWORD(v16) = v15;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v16, v17) )
               __debugbreak();
           }
-          if ( (v17 & (0x80000000 >> v19)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+          if ( (v13 & (0x80000000 >> v15)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
             __debugbreak();
-          v17 &= ~(0x80000000 >> v19);
-          if ( !s_clientUsabilityOutput[(int)(v19 + 32 * v18)].workStage[0] )
+          v13 &= ~(0x80000000 >> v15);
+          if ( !s_clientUsabilityOutput[(int)(v15 + 32 * v14)].workStage[0] )
           {
-            LODWORD(v20) = 0;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 479, ASSERT_TYPE_ASSERT, "( usabilityOutput.workStage ) != ( UsabilityWorkStage::IDLE )", "usabilityOutput.workStage != UsabilityWorkStage::IDLE\n\t%i, %i", v20, 0i64) )
+            LODWORD(v16) = 0;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 479, ASSERT_TYPE_ASSERT, "( usabilityOutput.workStage ) != ( UsabilityWorkStage::IDLE )", "usabilityOutput.workStage != UsabilityWorkStage::IDLE\n\t%i, %i", v16, 0i64) )
               __debugbreak();
           }
         }
       }
     }
-    v5 = __lzcnt(_EDI);
-    v6 = v5 + 32 * v3;
-    if ( v5 >= 0x20 )
+    v3 = __lzcnt(v2);
+    v4 = v3 + 32 * v1;
+    if ( v3 >= 0x20 )
     {
-      LODWORD(v21) = 32;
-      LODWORD(v20) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v17) = 32;
+      LODWORD(v16) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
-    if ( (_EDI & (0x80000000 >> v5)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v2 & (0x80000000 >> v3)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    _EDI &= ~(0x80000000 >> v5);
-    v7 = &s_clientUsabilityOutput[v6];
-    if ( v7->workStage[0] != 2 )
+    v2 &= ~(0x80000000 >> v3);
+    v5 = &s_clientUsabilityOutput[v4];
+    if ( v5->workStage[0] != 2 )
     {
-      LODWORD(v21) = 2;
-      LODWORD(v20) = v7->workStage[0];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 460, ASSERT_TYPE_ASSERT, "( usabilityOutput.workStage ) == ( UsabilityWorkStage::READY )", "usabilityOutput.workStage == UsabilityWorkStage::READY\n\t%i, %i", v20, v21) )
+      LODWORD(v17) = 2;
+      LODWORD(v16) = v5->workStage[0];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 460, ASSERT_TYPE_ASSERT, "( usabilityOutput.workStage ) == ( UsabilityWorkStage::READY )", "usabilityOutput.workStage == UsabilityWorkStage::READY\n\t%i, %i", v16, v17) )
         __debugbreak();
     }
-    vehicleCount = v7->vehicleCount;
-    v7->workStage[0] = 0;
+    vehicleCount = v5->vehicleCount;
+    v5->workStage[0] = 0;
     if ( vehicleCount )
     {
       if ( !(_BYTE)SvGameGlobals::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 98, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access server global data outside of an active server context", "ms_allocatedType != GameModeType::NONE") )
         __debugbreak();
       if ( !SvGameGlobals::ms_svGameGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 99, ASSERT_TYPE_ASSERT, "( ms_svGameGlobals )", (const char *)&queryFormat, "ms_svGameGlobals") )
         __debugbreak();
-      G_PlayerUse_UpdateScriptableVehiclesNotify(&SvGameGlobals::ms_svGameGlobals->gentities[v6], v7->vehicleList, vehicleCount);
+      G_PlayerUse_UpdateScriptableVehiclesNotify(&SvGameGlobals::ms_svGameGlobals->gentities[v4], v5->vehicleList, vehicleCount);
     }
-    if ( v6 >= 0xE0 )
+    if ( v4 >= 0xE0 )
     {
-      LODWORD(v23) = 224;
-      LODWORD(v22) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v22, v23) )
+      LODWORD(v19) = 224;
+      LODWORD(v18) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v18, v19) )
         __debugbreak();
     }
-    __asm
+    v7 = v4 & 0x1F;
+    v8 = (unsigned __int64)v4 >> 5;
+    v9 = v4 >> 5;
+    v10 = 0x80000000 >> v7;
+    v11 = 4 * v8;
+    s_clientUsabilityProcessingBits.array[v8] &= ~(0x80000000 >> v7);
+    if ( v9 >= 7 )
     {
-      vmovups xmm0, xmmword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array
-      vmovsd  xmm1, qword ptr cs:s_clientUsabilityThreadedReadyBits.baseclass_0.array+10h
-    }
-    v11 = v6 & 0x1F;
-    v12 = (unsigned __int64)v6 >> 5;
-    v13 = v6 >> 5;
-    v14 = 0x80000000 >> v11;
-    v15 = 4 * v12;
-    s_clientUsabilityProcessingBits.array[v12] &= ~(0x80000000 >> v11);
-    __asm
-    {
-      vmovups [rsp+0B8h+var_68], xmm0
-      vmovsd  [rsp+0B8h+var_58], xmm1
-    }
-    if ( v13 >= 7 )
-    {
-      LODWORD(v21) = 7;
-      LODWORD(v20) = v13;
-      __asm
-      {
-        vmovups [rsp+0B8h+var_48], xmm0
-        vmovsd  [rsp+0B8h+var_38], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex >> 5 ) < (unsigned)( clientBits.WORD_COUNT )", "clientIndex >> 5 doesn't index clientBits.WORD_COUNT\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v17) = 7;
+      LODWORD(v16) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_workers_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex >> 5 ) < (unsigned)( clientBits.WORD_COUNT )", "clientIndex >> 5 doesn't index clientBits.WORD_COUNT\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
-    v16 = (volatile signed __int32 *)((char *)&s_clientUsabilityThreadedReadyBits + v15);
-    if ( ((unsigned __int8)v16 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 51, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)v16) )
+    v12 = (volatile signed __int32 *)((char *)&s_clientUsabilityThreadedReadyBits + v11);
+    if ( ((unsigned __int8)v12 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 51, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)v12) )
       __debugbreak();
-    _InterlockedAnd(v16, ~v14);
+    _InterlockedAnd(v12, ~v10);
   }
 }
 

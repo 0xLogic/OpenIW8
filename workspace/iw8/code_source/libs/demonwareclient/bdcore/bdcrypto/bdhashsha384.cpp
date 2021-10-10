@@ -177,15 +177,17 @@ __int64 bdHashSHA384::hash(bdHashSHA384 *this, const unsigned __int8 *data, cons
   NTSTATUS Hash_0; 
   NTSTATUS v14; 
   NTSTATUS v15; 
+  __m256i v16; 
+  __int128 v17; 
   NTSTATUS v18; 
   unsigned __int8 pbOutput[32]; 
+  __int128 v21; 
 
-  _RSI = result;
   v9 = 0;
   bdHandleAssert(data != NULL, "(data != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha384.cpp", "bdHashSHA384::hash", 0xA7u, "SHA384 input cannot be NULL");
-  bdHandleAssert(_RSI != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha384.cpp", "bdHashSHA384::hash", 0xA8u, "SHA384 digest buffer cannot be NULL");
+  bdHandleAssert(result != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha384.cpp", "bdHashSHA384::hash", 0xA8u, "SHA384 digest buffer cannot be NULL");
   bdHandleAssert(*resultSize >= 0x30, "(resultSize >= BD_SHA384_HASH_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha384.cpp", "bdHashSHA384::hash", 0xA9u, "SHA384 requires digest buffer >= 48 bytes");
-  if ( data && _RSI && *resultSize >= 0x30 )
+  if ( data && result && *resultSize >= 0x30 )
   {
     v10 = bdHashSHA384::s_provider;
     if ( bdHashSHA384::s_provider )
@@ -213,18 +215,12 @@ LABEL_13:
             }
             else
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rsp+0B8h+pbOutput]
-                vmovups xmm1, [rsp+0B8h+var_58]
-              }
+              v16 = *(__m256i *)pbOutput;
+              v17 = v21;
               *resultSize = 48;
               v9 = 1;
-              __asm
-              {
-                vmovups ymmword ptr [rsi], ymm0
-                vmovups xmmword ptr [rsi+20h], xmm1
-              }
+              *(__m256i *)result = v16;
+              *((_OWORD *)result + 2) = v17;
             }
           }
           return v9;

@@ -96,172 +96,163 @@ HavokPhysics_SimpleCollisionCallback_OnContactImpulseEvent
 */
 void HavokPhysics_SimpleCollisionCallback_OnContactImpulseEvent(const hknpEventHandlerInput *input, const hknpEvent *event)
 {
-  hknpContactSolverEvent *v6; 
-  float v8; 
-  __int64 v9; 
+  hknpContactSolverEvent *v2; 
+  float v4; 
+  __int64 v5; 
   __int64 m_bodiesAreReversed; 
   unsigned int m_serialAndIndex; 
-  int v12; 
-  __int64 v13; 
-  __int64 v14; 
+  int v8; 
+  __int64 v9; 
+  __int64 v10; 
   const hknpStreamContactJacobian *m_contactJacobian; 
   const hknpStreamContactSolverTypes::JacModHdr *JacModHdr; 
-  const hknpStreamContactJacobian *v17; 
-  const hknpStreamContactSolverTypes::JacModHdr *v18; 
-  hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator> *v19; 
+  const hknpStreamContactJacobian *v13; 
+  const hknpStreamContactSolverTypes::JacModHdr *v14; 
+  hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator> *v15; 
   Dummy *Key; 
-  unsigned int v26; 
+  unsigned int v17; 
   const hknpTriangleShape *TriangleShape; 
-  unsigned __int64 v40; 
-  __int64 v41; 
-  float v42; 
-  unsigned int v43; 
+  unsigned __int64 v30; 
+  __int64 v31; 
+  float v32; 
+  unsigned int v33; 
   unsigned int *p_m_instanceId; 
-  __int64 v45; 
-  __int64 v46; 
+  __int64 v35; 
+  __int64 v36; 
   __int64 m_size; 
-  unsigned int v48; 
-  __int64 v49; 
-  unsigned int v53; 
+  unsigned int v38; 
+  __int64 v39; 
+  unsigned int v40; 
   const hknpTriangleShape *m_shape; 
-  unsigned __int64 v65; 
-  __int64 v66; 
-  unsigned int v67; 
-  unsigned int v68; 
-  unsigned int *v69; 
-  __int64 v70; 
-  __int64 v71; 
-  float v72; 
-  __int64 v73; 
-  __int64 v74; 
-  const hknpStreamContactJacobian *v81; 
+  unsigned __int64 v51; 
+  __int64 v52; 
+  unsigned int v53; 
+  unsigned int v54; 
+  unsigned int *v55; 
+  __int64 v56; 
+  __int64 v57; 
+  float v58; 
+  __int64 v59; 
+  __int64 v60; 
+  __int128 v61; 
+  __m128 v62; 
+  const hknpStreamContactJacobian *v63; 
   __int64 m_numPoints; 
   hkVector4f *m_positions; 
-  __int64 v101; 
-  hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator> *v102; 
-  int v103; 
-  __int64 v104; 
+  float *p_m_serialAndIndex; 
+  __int128 v67; 
+  __m128 v68; 
+  __m128 v69; 
+  __int64 v70; 
+  hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator> *v71; 
+  int v72; 
+  __int64 v73; 
   int m_hashMod; 
-  hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator>::Pair *v106; 
+  hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator>::Pair *v75; 
   float zero; 
-  float v112; 
-  unsigned int v113; 
+  float v77; 
+  unsigned int v78; 
   unsigned int m_value; 
-  unsigned int v115; 
-  __int64 v116; 
-  const hknpTriangleShape *v117; 
-  __int64 v118; 
-  __int64 v119; 
-  __int64 v120; 
-  const hknpEventHandlerInput *v121; 
+  unsigned int v80; 
+  __int64 v81; 
+  const hknpTriangleShape *v82; 
+  __int64 v83; 
+  __int64 v84; 
+  __int64 v85; 
+  const hknpEventHandlerInput *v86; 
   const hknpShape *m_parentShape; 
-  __int64 v123; 
-  Dummy *v124; 
-  const hknpEvent *v125; 
-  __int16 v126[2]; 
-  int v127; 
+  __int64 v88; 
+  Dummy *v89; 
+  const hknpEvent *v90; 
+  __int16 v91[2]; 
+  int v92; 
   unsigned __int64 userData; 
-  __int16 v129[2]; 
-  int v130; 
-  unsigned __int64 v131; 
-  __int64 v132; 
-  __int64 v133; 
-  hknpShapeCollector v134; 
-  __int128 v135; 
-  int v136[12]; 
+  __int16 v94[2]; 
+  int v95; 
+  unsigned __int64 v96; 
+  __int64 v97; 
+  __int64 v98; 
+  hknpShapeCollector v99; 
+  __m128 v100; 
+  int v101[12]; 
   hkcdManifold4 manifoldOut; 
-  hknpInplaceTriangleShape v138; 
-  char v139; 
-  void *retaddr; 
+  hknpInplaceTriangleShape v103; 
 
-  _RAX = &retaddr;
-  v133 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v6 = (hknpContactSolverEvent *)event;
-  v125 = event;
-  v121 = input;
+  v98 = -2i64;
+  v2 = (hknpContactSolverEvent *)event;
+  v90 = event;
+  v86 = input;
   if ( LOBYTE(event[4].m_sizePaddedTo16) != 1 )
-    goto LABEL_56;
-  v8 = COERCE_FLOAT(HavokPhysics_GetWorldId(input->m_world));
-  v9 = SLODWORD(v8);
-  zero = v8;
+    return;
+  v4 = COERCE_FLOAT(HavokPhysics_GetWorldId(input->m_world));
+  v5 = SLODWORD(v4);
+  zero = v4;
   m_bodiesAreReversed = input->m_bodiesAreReversed;
-  m_serialAndIndex = v6->m_bodyIds[m_bodiesAreReversed].m_serialAndIndex;
-  LODWORD(v116) = m_serialAndIndex;
-  v12 = v6->m_bodyIds[(unsigned int)(1 - m_bodiesAreReversed)].m_serialAndIndex;
-  v13 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getBody)(&input->m_world->hknpWorldReader, v6->m_bodyIds[0].m_serialAndIndex);
-  v14 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getBody)(&input->m_world->hknpWorldReader, v6->m_bodyIds[1].m_serialAndIndex);
-  v120 = v14;
-  v118 = *(_QWORD *)(v13 + 96);
-  v119 = *(_QWORD *)(v14 + 96);
-  m_contactJacobian = v6->m_contactJacobian;
+  m_serialAndIndex = v2->m_bodyIds[m_bodiesAreReversed].m_serialAndIndex;
+  LODWORD(v81) = m_serialAndIndex;
+  v8 = v2->m_bodyIds[(unsigned int)(1 - m_bodiesAreReversed)].m_serialAndIndex;
+  v9 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getBody)(&input->m_world->hknpWorldReader, v2->m_bodyIds[0].m_serialAndIndex);
+  v10 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getBody)(&input->m_world->hknpWorldReader, v2->m_bodyIds[1].m_serialAndIndex);
+  v85 = v10;
+  v83 = *(_QWORD *)(v9 + 96);
+  v84 = *(_QWORD *)(v10 + 96);
+  m_contactJacobian = v2->m_contactJacobian;
   if ( !m_contactJacobian )
   {
-    m_value = -1;
+    *(float *)&m_value = NAN;
     goto LABEL_6;
   }
   JacModHdr = hknpStreamContactJacobianUtil::getJacModHdr(m_contactJacobian);
   m_value = hknpStreamContactJacobianUtil::getJacModMfoldData(JacModHdr)->m_shapeKeyA.m_value;
-  v17 = v6->m_contactJacobian;
-  if ( !v17 )
+  v13 = v2->m_contactJacobian;
+  if ( !v13 )
   {
 LABEL_6:
-    v115 = -1;
+    v80 = -1;
     goto LABEL_7;
   }
-  v18 = hknpStreamContactJacobianUtil::getJacModHdr(v17);
-  v115 = hknpStreamContactJacobianUtil::getJacModMfoldData(v18)->m_shapeKeyB.m_value;
+  v14 = hknpStreamContactJacobianUtil::getJacModHdr(v13);
+  v80 = hknpStreamContactJacobianUtil::getJacModMfoldData(v14)->m_shapeKeyB.m_value;
 LABEL_7:
-  v132 = v9;
-  v19 = s_callbackMaps[v9];
-  Key = hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator>::findKey(v19, m_serialAndIndex);
-  v124 = Key;
-  if ( (int)Key > v19->m_hashMod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssimplecollisioncallback.cpp", 98, ASSERT_TYPE_ASSERT, "( s_callbackMaps[worldId]->isValid( it ) )", (const char *)&queryFormat, "s_callbackMaps[worldId]->isValid( it )") )
+  v97 = v5;
+  v15 = s_callbackMaps[v5];
+  Key = hkMultiMap<unsigned int,SimpleCollisionCallbackEntry,hkMultiMapOperations<unsigned int>,hkContainerHeapAllocator>::findKey(v15, m_serialAndIndex);
+  v89 = Key;
+  if ( (int)Key > v15->m_hashMod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssimplecollisioncallback.cpp", 98, ASSERT_TYPE_ASSERT, "( s_callbackMaps[worldId]->isValid( it ) )", (const char *)&queryFormat, "s_callbackMaps[worldId]->isValid( it )") )
     __debugbreak();
-  *(float *)v136 = zero;
-  v136[1] = m_serialAndIndex;
-  v136[2] = v12;
-  __asm { vmovss  xmm1, cs:__real@3c75c28f; radius }
-  hknpInplaceTriangleShape::hknpInplaceTriangleShape(&v138, *(float *)&_XMM1);
-  v134.m_internal.m_shapeBuffer.m_shape = NULL;
-  v134.m_internal.m_shapeBuffer.m_buffer = v134.m_internal.m_shapeBuffer.m_storage;
-  v134.m_internal.m_shapeBuffer.m_bufferSize = 2048;
-  v134.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpInplaceShapeBuffer<2048>::`vftable';
-  v134.m_internal.m_shapeTags[0] = -1;
-  v134.m_internal.m_shape = NULL;
-  v134.m_parentShape = NULL;
-  v134.m_shapeTagPath.m_size = 0;
-  *(_QWORD *)&v134.m_internal.m_flags.m_storage = 8i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-    vmovups ymmword ptr [rbp+0E70h+var_E80.m_transform.m_rotation.baseclass_0.m_col0.m_quad], ymm0
-    vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-    vmovups ymmword ptr [rbp+0E70h+var_E80.m_transform.m_rotation.baseclass_0.m_col2.m_quad], ymm0
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbp+0E70h+var_E80.m_internal.m_scale.m_quad], xmm0
-    vmovss  xmm6, cs:__real@34000000
-    vmovss  [rsp+0F70h+zero], xmm6
-  }
+  *(float *)v101 = zero;
+  v101[1] = m_serialAndIndex;
+  v101[2] = v8;
+  hknpInplaceTriangleShape::hknpInplaceTriangleShape(&v103, 0.015);
+  v99.m_internal.m_shapeBuffer.m_shape = NULL;
+  v99.m_internal.m_shapeBuffer.m_buffer = v99.m_internal.m_shapeBuffer.m_storage;
+  v99.m_internal.m_shapeBuffer.m_bufferSize = 2048;
+  v99.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpInplaceShapeBuffer<2048>::`vftable';
+  v99.m_internal.m_shapeTags[0] = -1;
+  v99.m_internal.m_shape = NULL;
+  v99.m_parentShape = NULL;
+  v99.m_shapeTagPath.m_size = 0;
+  *(_QWORD *)&v99.m_internal.m_flags.m_storage = 8i64;
+  *(__m256i *)v99.m_transform.m_rotation.m_col0.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+  *(__m256i *)v99.m_transform.m_rotation.m_col2.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[34].m128_f32;
+  v99.m_internal.m_scale.m_quad = g_vectorfConstants[6];
+  zero = FLOAT_1_1920929eN7;
   if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &zero) )
   {
-    v26 = v134.m_internal.m_flags.m_storage | 4;
-    v134.m_internal.m_flags.m_storage |= 4u;
+    v17 = v99.m_internal.m_flags.m_storage | 4;
+    v99.m_internal.m_flags.m_storage |= 4u;
+    v100 = g_vectorfConstants[38];
+    _XMM0 = g_vectorfConstants[35];
+    _mm128_sub_ps(g_vectorfConstants[35], g_vectorfConstants[5]);
+    _XMM1 = *(_OWORD *)hkMath::hkSse_signMask;
     __asm
     {
-      vmovups xmm4, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+260h; __m128 const near * const g_vectorfConstants
-      vmovups [rbp+0E70h+var_230], xmm4
-      vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+230h; __m128 const near * const g_vectorfConstants
-      vsubps  xmm2, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+50h; __m128 const near * const g_vectorfConstants
-      vmovups xmm1, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
       vandnps xmm3, xmm1, xmm2
       vcmpleps xmm5, xmm3, xmm4
-      vxorps  xmm2, xmm2, xmm2
+    }
+    _XMM2 = 0i64;
+    __asm
+    {
       vpxor   xmm0, xmm0, xmm0
       vpcmpeqd xmm1, xmm0, xmm0
       vblendps xmm2, xmm2, xmm1, 7
@@ -269,83 +260,80 @@ LABEL_7:
       vptest  xmm0, xmm2
     }
     if ( _CF )
-      v134.m_internal.m_flags.m_storage = v26 | 1;
+      v99.m_internal.m_flags.m_storage = v17 | 1;
   }
-  v134.m_internal.m_shapeTags[0] = -1;
-  (*(void (__fastcall **)(__int64, unsigned int *, __int64, hknpShapeCollector *))(*(_QWORD *)v118 + 176i64))(v118, &m_value, 1i64, &v134);
-  if ( (v134.m_internal.m_flags.m_storage & 0x10) != 0 )
-    TriangleShape = hknpShapeCollector::getTriangleShape(&v134, 0, (hknpTriangleShape *)&v138);
+  v99.m_internal.m_shapeTags[0] = -1;
+  (*(void (__fastcall **)(__int64, unsigned int *, __int64, hknpShapeCollector *))(*(_QWORD *)v83 + 176i64))(v83, &m_value, 1i64, &v99);
+  if ( (v99.m_internal.m_flags.m_storage & 0x10) != 0 )
+    TriangleShape = hknpShapeCollector::getTriangleShape(&v99, 0, (hknpTriangleShape *)&v103);
   else
-    TriangleShape = (const hknpTriangleShape *)v134.m_internal.m_shape;
-  v117 = TriangleShape;
-  v127 = *(_DWORD *)(v13 + 108);
-  v126[0] = *(_WORD *)(v13 + 106);
-  v40 = *(_QWORD *)(v13 + 160);
-  userData = v40;
-  if ( v134.m_parentShape )
+    TriangleShape = (const hknpTriangleShape *)v99.m_internal.m_shape;
+  v82 = TriangleShape;
+  v92 = *(_DWORD *)(v9 + 108);
+  v91[0] = *(_WORD *)(v9 + 106);
+  v30 = *(_QWORD *)(v9 + 160);
+  userData = v30;
+  if ( v99.m_parentShape )
   {
-    v41 = (__int64)v121->m_world->getShapeTagCodec(&v121->m_world->hknpWorldReader);
-    v123 = v41;
-    v42 = *(float *)&m_value;
-    LODWORD(v112) = m_value;
-    LOWORD(zero) = v134.m_internal.m_shapeTags[0];
-    *(_QWORD *)&v135 = v134.m_parentShape;
-    v43 = -1;
-    v113 = 0;
-    if ( v134.m_shapeTagPath.m_size > 0 )
+    v31 = (__int64)v86->m_world->getShapeTagCodec(&v86->m_world->hknpWorldReader);
+    v88 = v31;
+    v32 = *(float *)&m_value;
+    v77 = *(float *)&m_value;
+    LOWORD(zero) = v99.m_internal.m_shapeTags[0];
+    v100.m128_u64[0] = (unsigned __int64)v99.m_parentShape;
+    v33 = -1;
+    v78 = 0;
+    if ( v99.m_shapeTagPath.m_size > 0 )
     {
-      p_m_instanceId = &v134.m_shapeTagPath.m_data[0].m_instanceId;
-      v45 = v41;
-      v46 = v118;
-      m_size = v134.m_shapeTagPath.m_size;
-      v48 = v113;
+      p_m_instanceId = &v99.m_shapeTagPath.m_data[0].m_instanceId;
+      v35 = v31;
+      v36 = v83;
+      m_size = v99.m_shapeTagPath.m_size;
+      v38 = v78;
       do
       {
-        v49 = *((_QWORD *)p_m_instanceId - 1);
-        v43 = v43 & hknpShapeKeyPath_usedBitsMaskTable[v48] | (((*p_m_instanceId + 1) << (32 - (v48 + *(_BYTE *)(v49 + 27)))) - 1);
-        v48 += *(unsigned __int8 *)(v49 + 27);
-        (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v45 + 32i64))(v45, *((unsigned __int16 *)p_m_instanceId - 8), 5i64, v13, v46, v49, v43, *((_QWORD *)p_m_instanceId + 1), v126);
+        v39 = *((_QWORD *)p_m_instanceId - 1);
+        v33 = v33 & hknpShapeKeyPath_usedBitsMaskTable[v38] | (((*p_m_instanceId + 1) << (32 - (v38 + *(_BYTE *)(v39 + 27)))) - 1);
+        v38 += *(unsigned __int8 *)(v39 + 27);
+        (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v35 + 32i64))(v35, *((unsigned __int16 *)p_m_instanceId - 8), 5i64, v9, v36, v39, v33, *((_QWORD *)p_m_instanceId + 1), v91);
         p_m_instanceId += 8;
         --m_size;
       }
       while ( m_size );
-      m_serialAndIndex = v116;
-      v42 = v112;
-      LODWORD(Key) = (_DWORD)v124;
-      v6 = (hknpContactSolverEvent *)v125;
-      v14 = v120;
-      v41 = v123;
+      m_serialAndIndex = v81;
+      v32 = v77;
+      LODWORD(Key) = (_DWORD)v89;
+      v2 = (hknpContactSolverEvent *)v90;
+      v10 = v85;
+      v31 = v88;
     }
-    (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, _QWORD, float, const hknpTriangleShape *, __int16 *))(*(_QWORD *)v41 + 32i64))(v41, LOWORD(zero), 5i64, v13, v118, v135, COERCE_FLOAT(LODWORD(v42)), v117, v126);
-    v40 = userData;
+    (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, unsigned __int64, float, const hknpTriangleShape *, __int16 *))(*(_QWORD *)v31 + 32i64))(v31, LOWORD(zero), 5i64, v9, v83, v100.m128_u64[0], COERCE_FLOAT(LODWORD(v32)), v82, v91);
+    v30 = userData;
   }
-  v136[3] = Physics_GetSurfaceFlagsFromUserData(v40);
-  v134.m_internal.m_shape = NULL;
-  v134.m_parentShape = NULL;
-  v134.m_shapeTagPath.m_size = 0;
-  *(_QWORD *)&v134.m_internal.m_flags.m_storage = 8i64;
-  __asm
+  v101[3] = Physics_GetSurfaceFlagsFromUserData(v30);
+  v99.m_internal.m_shape = NULL;
+  v99.m_parentShape = NULL;
+  v99.m_shapeTagPath.m_size = 0;
+  *(_QWORD *)&v99.m_internal.m_flags.m_storage = 8i64;
+  *(__m256i *)v99.m_transform.m_rotation.m_col0.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+  *(__m256i *)v99.m_transform.m_rotation.m_col2.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[34].m128_f32;
+  v99.m_internal.m_scale.m_quad = g_vectorfConstants[6];
+  v77 = FLOAT_1_1920929eN7;
+  if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &v77) )
   {
-    vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-    vmovups ymmword ptr [rbp+0E70h+var_E80.m_transform.m_rotation.baseclass_0.m_col0.m_quad], ymm0
-    vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-    vmovups ymmword ptr [rbp+0E70h+var_E80.m_transform.m_rotation.baseclass_0.m_col2.m_quad], ymm0
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbp+0E70h+var_E80.m_internal.m_scale.m_quad], xmm0
-    vmovss  [rsp+0F70h+var_F1C], xmm6
-  }
-  if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &v112) )
-  {
-    v53 = v134.m_internal.m_flags.m_storage | 4;
-    v134.m_internal.m_flags.m_storage |= 4u;
+    v40 = v99.m_internal.m_flags.m_storage | 4;
+    v99.m_internal.m_flags.m_storage |= 4u;
+    _XMM0 = g_vectorfConstants[35];
+    _mm128_sub_ps(g_vectorfConstants[35], g_vectorfConstants[5]);
+    _XMM1 = *(_OWORD *)hkMath::hkSse_signMask;
     __asm
     {
-      vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+230h; __m128 const near * const g_vectorfConstants
-      vsubps  xmm2, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+50h; __m128 const near * const g_vectorfConstants
-      vmovups xmm1, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
       vandnps xmm3, xmm1, xmm2
       vcmpleps xmm5, xmm3, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+260h; __m128 const near * const g_vectorfConstants
-      vxorps  xmm2, xmm2, xmm2
+    }
+    _XMM2 = 0i64;
+    __asm
+    {
       vpxor   xmm0, xmm0, xmm0
       vpcmpeqd xmm1, xmm0, xmm0
       vblendps xmm2, xmm2, xmm1, 7
@@ -353,74 +341,67 @@ LABEL_7:
       vptest  xmm0, xmm2
     }
     if ( _CF )
-      v134.m_internal.m_flags.m_storage = v53 | 1;
+      v99.m_internal.m_flags.m_storage = v40 | 1;
   }
-  v134.m_internal.m_shapeTags[0] = -1;
-  (*(void (__fastcall **)(__int64, unsigned int *, __int64, hknpShapeCollector *))(*(_QWORD *)v119 + 176i64))(v119, &v115, 1i64, &v134);
-  if ( (v134.m_internal.m_flags.m_storage & 0x10) != 0 )
-    m_shape = hknpShapeCollector::getTriangleShape(&v134, 0, (hknpTriangleShape *)&v138);
+  v99.m_internal.m_shapeTags[0] = -1;
+  (*(void (__fastcall **)(__int64, unsigned int *, __int64, hknpShapeCollector *))(*(_QWORD *)v84 + 176i64))(v84, &v80, 1i64, &v99);
+  if ( (v99.m_internal.m_flags.m_storage & 0x10) != 0 )
+    m_shape = hknpShapeCollector::getTriangleShape(&v99, 0, (hknpTriangleShape *)&v103);
   else
-    m_shape = (const hknpTriangleShape *)v134.m_internal.m_shape;
-  v117 = m_shape;
-  v130 = *(_DWORD *)(v14 + 108);
-  v129[0] = *(_WORD *)(v14 + 106);
-  v65 = *(_QWORD *)(v14 + 160);
-  v131 = v65;
-  if ( v134.m_parentShape )
+    m_shape = (const hknpTriangleShape *)v99.m_internal.m_shape;
+  v82 = m_shape;
+  v95 = *(_DWORD *)(v10 + 108);
+  v94[0] = *(_WORD *)(v10 + 106);
+  v51 = *(_QWORD *)(v10 + 160);
+  v96 = v51;
+  if ( v99.m_parentShape )
   {
-    v66 = (__int64)v121->m_world->getShapeTagCodec(&v121->m_world->hknpWorldReader);
-    v67 = v115;
-    v113 = v115;
-    LOWORD(zero) = v134.m_internal.m_shapeTags[0];
-    m_parentShape = v134.m_parentShape;
-    v68 = -1;
-    v112 = 0.0;
-    if ( v134.m_shapeTagPath.m_size > 0 )
+    v52 = (__int64)v86->m_world->getShapeTagCodec(&v86->m_world->hknpWorldReader);
+    v53 = v80;
+    v78 = v80;
+    LOWORD(zero) = v99.m_internal.m_shapeTags[0];
+    m_parentShape = v99.m_parentShape;
+    v54 = -1;
+    v77 = 0.0;
+    if ( v99.m_shapeTagPath.m_size > 0 )
     {
-      v69 = &v134.m_shapeTagPath.m_data[0].m_instanceId;
-      v70 = v134.m_shapeTagPath.m_size;
-      v71 = v120;
-      v72 = v112;
-      v73 = v119;
+      v55 = &v99.m_shapeTagPath.m_data[0].m_instanceId;
+      v56 = v99.m_shapeTagPath.m_size;
+      v57 = v85;
+      v58 = v77;
+      v59 = v84;
       do
       {
-        v74 = *((_QWORD *)v69 - 1);
-        v68 = v68 & hknpShapeKeyPath_usedBitsMaskTable[SLODWORD(v72)] | (((*v69 + 1) << (32 - (LOBYTE(v72) + *(_BYTE *)(v74 + 27)))) - 1);
-        LODWORD(v72) += *(unsigned __int8 *)(v74 + 27);
-        (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v66 + 32i64))(v66, *((unsigned __int16 *)v69 - 8), 5i64, v71, v73, v74, v68, *((_QWORD *)v69 + 1), v129);
-        v69 += 8;
-        --v70;
+        v60 = *((_QWORD *)v55 - 1);
+        v54 = v54 & hknpShapeKeyPath_usedBitsMaskTable[SLODWORD(v58)] | (((*v55 + 1) << (32 - (LOBYTE(v58) + *(_BYTE *)(v60 + 27)))) - 1);
+        LODWORD(v58) += *(unsigned __int8 *)(v60 + 27);
+        (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v52 + 32i64))(v52, *((unsigned __int16 *)v55 - 8), 5i64, v57, v59, v60, v54, *((_QWORD *)v55 + 1), v94);
+        v55 += 8;
+        --v56;
       }
-      while ( v70 );
-      m_serialAndIndex = v116;
-      v67 = v113;
-      LODWORD(Key) = (_DWORD)v124;
-      v6 = (hknpContactSolverEvent *)v125;
+      while ( v56 );
+      m_serialAndIndex = v81;
+      v53 = v78;
+      LODWORD(Key) = (_DWORD)v89;
+      v2 = (hknpContactSolverEvent *)v90;
     }
-    (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, const hknpShape *, unsigned int, const hknpTriangleShape *, __int16 *))(*(_QWORD *)v66 + 32i64))(v66, LOWORD(zero), 5i64, v120, v119, m_parentShape, v67, v117, v129);
-    v65 = v131;
+    (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, const hknpShape *, unsigned int, const hknpTriangleShape *, __int16 *))(*(_QWORD *)v52 + 32i64))(v52, LOWORD(zero), 5i64, v85, v84, m_parentShape, v53, v82, v94);
+    v51 = v96;
   }
-  v136[4] = Physics_GetSurfaceFlagsFromUserData(v65);
-  hknpContactSolverEvent::calculateManifold(v6, v121->m_world, &manifoldOut);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0E70h+manifoldOut.m_normal.m_quad]
-    vmovss  [rbp+0E70h+var_200], xmm0
-    vmovss  xmm1, dword ptr [rbp+0E70h+manifoldOut.m_normal.m_quad+4]
-    vmovss  [rbp+0E70h+var_1FC], xmm1
-    vmovss  xmm0, dword ptr [rbp+0E70h+manifoldOut.m_normal.m_quad+8]
-    vmovss  [rbp+0E70h+var_1F8], xmm0
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm7, xmm7, xmm7
-  }
-  v81 = v6->m_contactJacobian;
-  if ( !v81 )
+  v101[4] = Physics_GetSurfaceFlagsFromUserData(v51);
+  hknpContactSolverEvent::calculateManifold(v2, v86->m_world, &manifoldOut);
+  v101[8] = manifoldOut.m_normal.m_quad.m128_i32[0];
+  v101[9] = manifoldOut.m_normal.m_quad.m128_i32[1];
+  v101[10] = manifoldOut.m_normal.m_quad.m128_i32[2];
+  v61 = 0i64;
+  v62 = 0i64;
+  v63 = v2->m_contactJacobian;
+  if ( !v63 )
   {
     m_numPoints = 0i64;
     goto LABEL_38;
   }
-  m_numPoints = v81->m_info.m_data.m_numPoints;
+  m_numPoints = v63->m_info.m_data.m_numPoints;
   if ( !(_BYTE)m_numPoints )
   {
 LABEL_38:
@@ -430,89 +411,65 @@ LABEL_38:
   if ( m_numPoints )
   {
     m_positions = manifoldOut.m_positions;
-    _RAX = v6[1].m_bodyIds;
+    p_m_serialAndIndex = (float *)&v2[1].m_bodyIds[0].m_serialAndIndex;
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rax]
-        vmovaps xmm0, xmm2
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm0, xmm0, xmmword ptr [rcx]
-        vaddps  xmm7, xmm0, xmm7
-        vaddss  xmm6, xmm6, xmm2
-      }
-      ++_RAX;
+      v62 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)*(unsigned int *)p_m_serialAndIndex, (__m128)*(unsigned int *)p_m_serialAndIndex, 0), m_positions->m_quad), v62);
+      v67 = v61;
+      *(float *)&v67 = *(float *)&v61 + *p_m_serialAndIndex;
+      v61 = v67;
+      ++p_m_serialAndIndex;
       ++m_positions;
-      _CF = m_numPoints-- == 0;
+      --m_numPoints;
     }
     while ( m_numPoints );
-    __asm { vcomiss xmm6, xmm8 }
-    if ( !_CF && (unsigned __int8)m_numPoints != 0i64 )
+    if ( *(float *)&v67 > 0.0 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm2, xmm0, xmm6
-        vshufps xmm2, xmm2, xmm2, 0
-        vmulps  xmm3, xmm7, xmm2
-        vmovss  xmm2, cs:__real@42000000
-        vmulss  xmm0, xmm3, xmm2
-        vmovss  [rbp+0E70h+var_20C], xmm0
-        vshufps xmm1, xmm3, xmm3, 55h ; 'U'
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  [rbp+0E70h+var_208], xmm0
-        vshufps xmm3, xmm3, xmm3, 0AAh ; 'ª'
-        vmulss  xmm0, xmm3, xmm2
-        vmovss  [rbp+0E70h+var_204], xmm0
-        vmovss  [rbp+0E70h+var_1F4], xmm6
-      }
-      v101 = v132;
-      v102 = s_callbackMaps[v132];
-      if ( (int)Key <= v102->m_hashMod )
+      v68 = (__m128)LODWORD(FLOAT_1_0);
+      v68.m128_f32[0] = 1.0 / *(float *)&v61;
+      v69 = _mm128_mul_ps(v62, _mm_shuffle_ps(v68, v68, 0));
+      *(float *)&v101[5] = v69.m128_f32[0] * 32.0;
+      *(float *)&v101[6] = _mm_shuffle_ps(v69, v69, 85).m128_f32[0] * 32.0;
+      *(float *)&v101[7] = _mm_shuffle_ps(v69, v69, 170).m128_f32[0] * 32.0;
+      v101[11] = v61;
+      v70 = v97;
+      v71 = s_callbackMaps[v97];
+      if ( (int)Key <= v71->m_hashMod )
       {
         do
         {
-          v102->m_elem[(int)Key].val.callback((Physics_SimpleCollisionCallback_Data *)v136);
-          v102 = s_callbackMaps[v101];
-          v103 = (_DWORD)Key + 1;
-          v104 = (int)Key + 1;
-          m_hashMod = v102->m_hashMod;
-          while ( v103 > m_hashMod )
+          v71->m_elem[(int)Key].val.callback((Physics_SimpleCollisionCallback_Data *)v101);
+          v71 = s_callbackMaps[v70];
+          v72 = (_DWORD)Key + 1;
+          v73 = (int)Key + 1;
+          m_hashMod = v71->m_hashMod;
+          while ( v72 > m_hashMod )
           {
 LABEL_51:
-            v103 = 0;
-            v104 = 0i64;
+            v72 = 0;
+            v73 = 0i64;
           }
-          v106 = &v102->m_elem[v104];
-          while ( v106->key != -1 )
+          v75 = &v71->m_elem[v73];
+          while ( v75->key != -1 )
           {
-            if ( v106->key == m_serialAndIndex )
+            if ( v75->key == m_serialAndIndex )
               goto LABEL_53;
-            ++v103;
-            ++v106;
-            if ( v103 > m_hashMod )
+            ++v72;
+            ++v75;
+            if ( v72 > m_hashMod )
               goto LABEL_51;
           }
-          v103 = m_hashMod + 1;
+          v72 = m_hashMod + 1;
 LABEL_53:
-          LODWORD(Key) = v103;
+          LODWORD(Key) = v72;
         }
-        while ( v103 <= m_hashMod );
+        while ( v72 <= m_hashMod );
       }
     }
   }
-  v134.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpShapeBuffer::`vftable';
-  if ( v134.m_internal.m_shapeBuffer.m_shape )
-    ((void (__fastcall *)(hknpShape *, _QWORD))v134.m_internal.m_shapeBuffer.m_shape->~hkBaseObject)(v134.m_internal.m_shapeBuffer.m_shape, 0i64);
-LABEL_56:
-  _R11 = &v139;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v99.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpShapeBuffer::`vftable';
+  if ( v99.m_internal.m_shapeBuffer.m_shape )
+    ((void (__fastcall *)(hknpShape *, _QWORD))v99.m_internal.m_shapeBuffer.m_shape->~hkBaseObject)(v99.m_internal.m_shapeBuffer.m_shape, 0i64);
 }
 
 /*

@@ -261,29 +261,24 @@ Float4Clamp
 */
 void Float4Clamp(const float4 *result, const float4 *a2, const float4 *a3, float4 *a4)
 {
+  __int128 v4; 
+  __int128 v5; 
+
+  _XMM6 = v5;
   __asm
   {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovups xmm6, xmm2
-    vmovups xmm7, xmm1
     vcmpltps xmm3, xmm6, xmm7
     vmovmskps eax, xmm3
   }
-  _RBX = a4;
-  __asm { vmovups xmm8, xmm0 }
+  _XMM8 = v4;
   if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
     __debugbreak();
   __asm
   {
     vmaxps  xmm0, xmm8, xmm7
     vminps  xmm1, xmm0, xmm6
-    vmovups xmmword ptr [rbx], xmm1
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
   }
+  *a4 = (float4)_XMM1.v;
 }
 
 /*
@@ -291,95 +286,41 @@ void Float4Clamp(const float4 *result, const float4 *a2, const float4 *a3, float
 Float4SinCos
 ==============
 */
-void Float4SinCos(const float4 *sin, float4 *cos, float4 *_R8)
+void Float4SinCos(const float4 *sin, float4 *cos, float4 *a3)
 {
-  void *retaddr; 
+  __int128 v3; 
+  __int128 v4; 
+  __m128 v7; 
+  __m128 v9; 
+  __m128 v11; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v20; 
+  __int128 v21; 
 
-  _RAX = &retaddr;
+  v4 = v3 & _xmm;
+  _XMM2 = _mm128_add_ps(_mm128_mul_ps((__m128)(v3 & _xmm), (__m128)_xmm), (__m128)_xmm);
+  __asm { vcvttps2dq xmm3, xmm2 }
+  v21 = v3;
+  v7 = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM3), (__m128)_xmm);
+  _XMM1 = _mm128_sub_ps(_mm128_add_ps((__m128)(v3 & _xmm), (__m128)_xmm), v7);
+  v9 = _mm128_sub_ps(_XMM1, (__m128)_xmm);
+  _XMM0 = _xmm;
+  v11 = _mm128_sub_ps((__m128)v4, v7);
   __asm
   {
-    vandps  xmm4, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulps  xmm2, xmm4, cs:__xmm@3ea2f9833ea2f9833ea2f9833ea2f983
-    vaddps  xmm2, xmm2, cs:__xmm@3f0000003f0000003f0000003f000000
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vcvttps2dq xmm3, xmm2
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovups [rsp+0C8h+var_B8], xmm0
-    vaddps  xmm0, xmm4, cs:__xmm@3fc90fdb3fc90fdb3fc90fdb3fc90fdb
-    vcvtdq2ps xmm1, xmm3
-    vmulps  xmm2, xmm1, cs:__xmm@40490fdb40490fdb40490fdb40490fdb
-    vsubps  xmm1, xmm0, xmm2
-    vsubps  xmm5, xmm1, cs:__xmm@3fc90fdb3fc90fdb3fc90fdb3fc90fdb
-    vmovdqu xmm0, cs:__xmm@00000001000000010000000100000001
-    vsubps  xmm10, xmm4, xmm2
     vpand   xmm2, xmm0, xmm3
     vpxor   xmm1, xmm1, xmm1
-    vmovaps [rsp+0C8h+var_88], xmm13
-    vmovaps [rsp+0C8h+var_98], xmm14
-    vmovaps [rsp+0C8h+var_A8], xmm15
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm13, [rsp+0C8h+var_88]
-    vmovaps xmm14, [rsp+0C8h+var_98]
-    vmovaps xmm15, [rsp+0C8h+var_A8]
     vpcmpeqd xmm2, xmm2, xmm1
-    vmulps  xmm4, xmm10, xmm10
-    vmulps  xmm0, xmm4, cs:__xmm@ab573f9fab573f9fab573f9fab573f9f
-    vaddps  xmm1, xmm0, cs:__xmm@2f3092312f3092312f3092312f309231
-    vmulps  xmm12, xmm5, xmm5
-    vmovups [rsp+0C8h+var_C8], xmm10
-    vandnps xmm10, xmm2, cs:__xmm@80000000800000008000000080000000
-    vmulps  xmm2, xmm1, xmm4
-    vaddps  xmm3, xmm2, cs:__xmm@b2d7322bb2d7322bb2d7322bb2d7322b
-    vmulps  xmm0, xmm3, xmm4
-    vaddps  xmm1, xmm0, cs:__xmm@3638ef1d3638ef1d3638ef1d3638ef1d
-    vmulps  xmm2, xmm1, xmm4
-    vaddps  xmm3, xmm2, cs:__xmm@b9500d01b9500d01b9500d01b9500d01
-    vmulps  xmm0, xmm3, xmm4
-    vaddps  xmm1, xmm0, cs:__xmm@3c0888893c0888893c0888893c088889
-    vmulps  xmm2, xmm1, xmm4
-    vaddps  xmm3, xmm2, cs:__xmm@be2aaaabbe2aaaabbe2aaaabbe2aaaab
-    vmulps  xmm0, xmm3, xmm4
-    vmulps  xmm1, xmm0, [rsp+0C8h+var_C8]
-    vaddps  xmm2, xmm1, [rsp+0C8h+var_C8]
-    vmovups xmm1, [rsp+0C8h+var_B8]
-    vxorps  xmm3, xmm2, xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vcmpltps xmm1, xmm1, xmm0
-    vandps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmulps  xmm0, xmm12, cs:__xmm@ad49cba5ad49cba5ad49cba5ad49cba5
-    vaddps  xmm1, xmm0, cs:__xmm@310f76c7310f76c7310f76c7310f76c7
-    vxorps  xmm3, xmm3, xmm2
-    vmulps  xmm2, xmm1, xmm12
-    vmovups xmmword ptr [rdx], xmm3
-    vaddps  xmm3, xmm2, cs:__xmm@b493f27eb493f27eb493f27eb493f27e
-    vmulps  xmm0, xmm3, xmm12
-    vaddps  xmm1, xmm0, cs:__xmm@37d00d0137d00d0137d00d0137d00d01
-    vmulps  xmm2, xmm1, xmm12
-    vaddps  xmm3, xmm2, cs:__xmm@bab60b61bab60b61bab60b61bab60b61
-    vmulps  xmm0, xmm3, xmm12
-    vaddps  xmm1, xmm0, cs:__xmm@3d2aaaab3d2aaaab3d2aaaab3d2aaaab
-    vmulps  xmm2, xmm1, xmm12
-    vaddps  xmm3, xmm2, cs:__xmm@bf000000bf000000bf000000bf000000
-    vmulps  xmm4, xmm3, xmm12
-    vaddps  xmm1, xmm4, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vxorps  xmm2, xmm1, xmm10
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovups xmmword ptr [r8], xmm2
   }
+  v15 = _mm128_mul_ps(v11, v11);
+  v16 = _mm128_mul_ps(v9, v9);
+  v20 = v11;
+  __asm { vandnps xmm10, xmm2, cs:__xmm@80000000800000008000000080000000 }
+  _XMM1 = v21;
+  __asm { vcmpltps xmm1, xmm1, xmm0 }
+  *cos = (float4)(*(_OWORD *)&_mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(v15, (__m128)_xmm_ab573f9fab573f9fab573f9fab573f9f), (__m128)_xmm), v15), (__m128)_xmm_b2d7322bb2d7322bb2d7322bb2d7322b), v15), (__m128)_xmm), v15), (__m128)_xmm_b9500d01b9500d01b9500d01b9500d01), v15), (__m128)_xmm), v15), (__m128)_xmm_be2aaaabbe2aaaabbe2aaaabbe2aaaab), v15), v20), v20) ^ _XMM10 ^ _XMM1 & _xmm);
+  *a3 = (float4)(*(_OWORD *)&_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(v16, (__m128)_xmm_ad49cba5ad49cba5ad49cba5ad49cba5), (__m128)_xmm), v16), (__m128)_xmm_b493f27eb493f27eb493f27eb493f27e), v16), (__m128)_xmm), v16), (__m128)_xmm_bab60b61bab60b61bab60b61bab60b61), v16), (__m128)_xmm), v16), (__m128)_xmm_bf000000bf000000bf000000bf000000), v16), (__m128)_xmm) ^ _XMM10);
 }
 
 /*
@@ -389,49 +330,37 @@ Float4RadianToQuat
 */
 void Float4RadianToQuat(float4 *result, const float4 *sinAngles)
 {
-  float4 v35; 
-  float4 v36[6]; 
-  void *retaddr; 
+  __m128 v2; 
+  __m128 v3; 
+  __m128 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  float4 v15; 
+  float4 v16; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vshufps xmm1, xmm0, xmm0, 0D8h ; 'Ø'
-    vmulps  xmm0, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-  }
-  Float4SinCos(result, &v35, v36);
-  __asm
-  {
-    vmovups xmm4, [rsp+98h+var_68]
-    vmovups xmm7, [rsp+98h+var_78]
-    vshufps xmm0, xmm7, xmm4, 0
-    vshufps xmm8, xmm0, xmm0, 0E8h ; 'è'
-    vshufps xmm1, xmm7, xmm4, 55h ; 'U'
-    vshufps xmm5, xmm1, xmm1, 0E6h ; 'æ'
-    vshufps xmm0, xmm4, xmm7, 0AAh ; 'ª'
-    vshufps xmm6, xmm0, xmm0, 24h ; '$'
-    vshufps xmm1, xmm4, xmm7, 0
-    vshufps xmm2, xmm1, xmm1, 0E8h ; 'è'
-    vshufps xmm0, xmm4, xmm7, 55h ; 'U'
-    vshufps xmm3, xmm0, xmm0, 0E6h ; 'æ'
-    vmulps  xmm0, xmm2, cs:__xmm@3f800000bf800000bf8000003f800000
-    vshufps xmm1, xmm7, xmm4, 0AAh ; 'ª'
-    vshufps xmm4, xmm1, xmm1, 24h ; '$'
-    vmulps  xmm2, xmm0, xmm3
-    vmulps  xmm0, xmm2, xmm4
-    vmulps  xmm1, xmm5, xmm8
-    vmulps  xmm1, xmm1, xmm6
-    vaddps  xmm1, xmm0, xmm1
-    vshufps xmm0, xmm1, xmm1, 0E1h ; 'á'
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-  }
+  _mm128_mul_ps(_mm_shuffle_ps(v2, v2, 216), g_oneHalf.v);
+  Float4SinCos(result, &v15, &v16);
+  v3 = _mm_shuffle_ps(v15.v, v16.v, 0);
+  v4 = _mm_shuffle_ps(v3, v3, 232);
+  v5 = _mm_shuffle_ps(v15.v, v16.v, 85);
+  v6 = _mm_shuffle_ps(v5, v5, 230);
+  v7 = _mm_shuffle_ps(v16.v, v15.v, 170);
+  v8 = _mm_shuffle_ps(v7, v7, 36);
+  v9 = _mm_shuffle_ps(v16.v, v15.v, 0);
+  v10 = _mm_shuffle_ps(v16.v, v15.v, 85);
+  v11 = _mm_shuffle_ps(v10, v10, 230);
+  v12 = _mm128_mul_ps(_mm_shuffle_ps(v9, v9, 232), (__m128)_xmm);
+  v13 = _mm_shuffle_ps(v15.v, v16.v, 170);
+  v14 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v12, v11), _mm_shuffle_ps(v13, v13, 36)), _mm128_mul_ps(_mm128_mul_ps(v6, v4), v8));
+  _mm_shuffle_ps(v14, v14, 225);
 }
 
 /*
@@ -441,141 +370,133 @@ Float4x4Inverse
 */
 vector4 *Float4x4Inverse(vector4 *result, const vector4 *in)
 {
+  vector4 *v2; 
+  __m128 v3; 
+  float4 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v61; 
   void *retaddr; 
 
-  _RAX = (vector4 *)&retaddr;
+  v2 = (vector4 *)&retaddr;
+  v3 = _mm_shuffle_ps(result->x.v, result->y.v, 238);
+  v4.v = (__m128)result->z;
+  v5 = _mm_shuffle_ps(v4.v, result->w.v, 238);
+  v6 = _mm_shuffle_ps(v4.v, result->w.v, 68);
+  v7 = _mm_shuffle_ps(result->x.v, result->y.v, 68);
+  v8 = _mm_shuffle_ps(v3, v5, 136);
+  v9 = _mm_shuffle_ps(v8, v8, 78);
+  v10 = _mm_shuffle_ps(v5, v3, 221);
+  v11 = _mm128_mul_ps(v10, v8);
+  v12 = _mm_shuffle_ps(v11, v11, 177);
+  v13 = _mm_shuffle_ps(v11, v11, 27);
+  v14 = _mm_shuffle_ps(v6, v7, 221);
+  v15 = _mm128_mul_ps(v14, v13);
+  v16 = _mm128_mul_ps(v14, v12);
+  v17 = _mm_shuffle_ps(v7, v6, 136);
+  v57 = _mm128_sub_ps(_mm128_mul_ps(v17, v13), _mm128_mul_ps(v17, v12));
+  v18 = _mm128_mul_ps(v8, v14);
+  v19 = _mm_shuffle_ps(v18, v18, 177);
+  v20 = _mm128_mul_ps(v17, v19);
+  v21 = _mm128_mul_ps(v10, v19);
+  v22 = _mm_shuffle_ps(v19, v19, 78);
+  v23 = _mm128_mul_ps(v10, v22);
+  v24 = _mm128_sub_ps(_mm128_mul_ps(v17, v22), v20);
+  v25 = _mm128_mul_ps(_mm_shuffle_ps(v14, v14, 78), v10);
+  v26 = _mm_shuffle_ps(v25, v25, 27);
+  v54 = v17;
+  v56 = v14;
+  v59 = v24;
+  v27 = _mm_shuffle_ps(v25, v25, 177);
+  v55 = v10;
+  v28 = _mm128_sub_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_add_ps(_mm128_sub_ps(v15, v16), v21), v23), _mm128_mul_ps(v9, v27)), _mm128_mul_ps(v9, v26));
+  v58 = _mm128_sub_ps(_mm128_mul_ps(v17, v26), _mm128_mul_ps(v17, v27));
+  v29 = _mm128_mul_ps(v14, v17);
+  v30 = _mm_shuffle_ps(v29, v29, 177);
+  v60 = _mm128_mul_ps(v9, v30);
+  v31 = _mm_shuffle_ps(v30, v30, 78);
+  v32 = _mm128_mul_ps(v10, v31);
+  v61 = _mm128_mul_ps(v9, v31);
+  v33 = _mm128_mul_ps(v10, v17);
+  v34 = _mm128_mul_ps(v10, v30);
+  v35 = _mm_shuffle_ps(v33, v33, 177);
+  v36 = _mm_shuffle_ps(v33, v33, 27);
+  v37 = _mm128_mul_ps(v9, v36);
+  v38 = _mm128_mul_ps(v14, v35);
+  v39 = _mm128_mul_ps(v14, v36);
+  v40 = _mm128_mul_ps(v9, v54);
+  v41 = _mm128_mul_ps(v9, v35);
+  v42 = _mm_shuffle_ps(v40, v40, 177);
+  v43 = _mm128_mul_ps(v42, v55);
+  v44 = _mm128_mul_ps(v42, v56);
+  v45 = _mm_shuffle_ps(v40, v40, 27);
+  v46 = _mm128_mul_ps(v45, v55);
+  v47 = _mm128_mul_ps(v45, v56);
+  _XMM0 = _mm128_mul_ps(v28, v54);
   __asm
   {
-    vmovups xmm3, xmmword ptr [rcx]
-    vshufps xmm2, xmm3, xmmword ptr [rcx+10h], 0EEh ; 'î'
-    vmovups xmm1, xmmword ptr [rcx+20h]
-    vshufps xmm5, xmm1, xmmword ptr [rcx+30h], 0EEh ; 'î'
-    vshufps xmm4, xmm1, xmmword ptr [rcx+30h], 44h ; 'D'
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vshufps xmm6, xmm3, xmmword ptr [rcx+10h], 44h ; 'D'
-    vshufps xmm3, xmm2, xmm5, 88h ; 'ˆ'
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vshufps xmm10, xmm3, xmm3, 4Eh ; 'N'
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vshufps xmm11, xmm5, xmm2, 0DDh ; 'Ý'
-    vmulps  xmm0, xmm11, xmm3
-    vshufps xmm1, xmm0, xmm0, 0B1h ; '±'
-    vshufps xmm0, xmm0, xmm0, 1Bh
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vshufps xmm12, xmm4, xmm6, 0DDh ; 'Ý'
-    vmulps  xmm8, xmm12, xmm0
-    vmulps  xmm9, xmm12, xmm1
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-    vshufps xmm13, xmm6, xmm4, 88h ; 'ˆ'
-    vmulps  xmm0, xmm13, xmm0
-    vmulps  xmm2, xmm13, xmm1
-    vsubps  xmm1, xmm0, xmm2
-    vmovups [rsp+128h+var_F8], xmm1
-    vmulps  xmm1, xmm3, xmm12
-    vshufps xmm0, xmm1, xmm1, 0B1h ; '±'
-    vmulps  xmm1, xmm13, xmm0
-    vmulps  xmm7, xmm11, xmm0
-    vshufps xmm0, xmm0, xmm0, 4Eh ; 'N'
-    vmulps  xmm6, xmm11, xmm0
-    vmulps  xmm0, xmm13, xmm0
-    vsubps  xmm2, xmm0, xmm1
-    vshufps xmm1, xmm12, xmm12, 4Eh ; 'N'
-    vmulps  xmm0, xmm1, xmm11
-    vshufps xmm4, xmm0, xmm0, 1Bh
-    vmovups [rsp+128h+var_128], xmm13
-    vmovups [rsp+128h+var_108], xmm12
-    vmovups [rsp+128h+var_D8], xmm2
-    vshufps xmm2, xmm0, xmm0, 0B1h ; '±'
-    vsubps  xmm0, xmm8, xmm9
-    vaddps  xmm1, xmm0, xmm7
-    vmulps  xmm5, xmm13, xmm2
-    vmulps  xmm0, xmm10, xmm4
-    vmulps  xmm3, xmm10, xmm2
-    vsubps  xmm2, xmm1, xmm6
-    vmulps  xmm1, xmm13, xmm4
-    vmovups [rsp+128h+var_118], xmm11
-    vaddps  xmm3, xmm2, xmm3
-    vsubps  xmm8, xmm3, xmm0
-    vsubps  xmm0, xmm1, xmm5
-    vmovups [rsp+128h+var_E8], xmm0
-    vmulps  xmm0, xmm12, xmm13
-    vshufps xmm1, xmm0, xmm0, 0B1h ; '±'
-    vmulps  xmm0, xmm10, xmm1
-    vmovups [rsp+128h+var_C8], xmm0
-    vshufps xmm0, xmm1, xmm1, 4Eh ; 'N'
-    vmulps  xmm14, xmm11, xmm0
-    vmulps  xmm0, xmm10, xmm0
-    vmovups [rsp+128h+var_B8], xmm0
-    vmulps  xmm0, xmm11, xmm13
-    vmulps  xmm15, xmm11, xmm1
-    vshufps xmm1, xmm0, xmm0, 0B1h ; '±'
-    vshufps xmm0, xmm0, xmm0, 1Bh
-    vmulps  xmm6, xmm10, xmm0
-    vmulps  xmm13, xmm12, xmm1
-    vmulps  xmm12, xmm12, xmm0
-    vmulps  xmm0, xmm10, [rsp+128h+var_128]
-    vmulps  xmm11, xmm10, xmm1
-    vshufps xmm1, xmm0, xmm0, 0B1h ; '±'
-    vmulps  xmm5, xmm1, [rsp+128h+var_118]
-    vmulps  xmm10, xmm1, [rsp+128h+var_108]
-    vshufps xmm0, xmm0, xmm0, 1Bh
-    vmulps  xmm4, xmm0, [rsp+128h+var_118]
-    vmulps  xmm9, xmm0, [rsp+128h+var_108]
-    vmulps  xmm0, xmm8, [rsp+128h+var_128]
     vhaddps xmm1, xmm0, xmm0
-  }
-  _R11 = &retaddr;
-  __asm
-  {
     vhaddps xmm2, xmm1, xmm1
     vrcpss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm0
-    vmovups xmm0, [rsp+128h+var_F8]
-    vshufps xmm0, xmm0, xmm0, 4Eh ; 'N'
-    vsubps  xmm1, xmm0, xmm11
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vaddss  xmm3, xmm3, xmm3
-    vsubss  xmm3, xmm3, xmm2
-    vshufps xmm7, xmm3, xmm3, 0
-    vaddps  xmm2, xmm1, xmm6
-    vaddps  xmm3, xmm2, xmm5
-    vsubps  xmm0, xmm3, xmm4
-    vmulps  xmm6, xmm0, xmm7
-    vmovups xmm0, [rsp+128h+var_E8]
-    vshufps xmm1, xmm0, xmm0, 4Eh ; 'N'
-    vaddps  xmm0, xmm1, xmm15
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-    vsubps  xmm2, xmm14, xmm0
-    vmovups xmm0, [rsp+128h+var_D8]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vaddps  xmm3, xmm2, xmm13
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vsubps  xmm4, xmm3, xmm12
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vshufps xmm3, xmm0, xmm0, 4Eh ; 'N'
-    vmovups xmm0, [rsp+128h+var_C8]
-    vmulps  xmm2, xmm4, xmm7
-    vsubps  xmm4, xmm0, xmm3
-    vsubps  xmm5, xmm4, [rsp+128h+var_B8]
-    vsubps  xmm3, xmm5, xmm10
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmulps  xmm8, xmm7, xmm8
-    vaddps  xmm4, xmm3, xmm9
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmulps  xmm3, xmm4, xmm7
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovups xmm1, xmm6
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovups xmm0, xmm8
-    vmovaps xmm8, xmmword ptr [r11-38h]
   }
-  return _RAX;
+  v52 = _XMM3;
+  v52.m128_f32[0] = (float)(_XMM3.m128_f32[0] + _XMM3.m128_f32[0]) - (float)(*(float *)&_XMM2 * (float)(_XMM3.m128_f32[0] * _XMM3.m128_f32[0]));
+  v53 = _mm_shuffle_ps(v52, v52, 0);
+  _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm_shuffle_ps(v57, v57, 78), v41), v37), v43), v46), v53);
+  _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_mm128_sub_ps(v32, _mm128_add_ps(_mm_shuffle_ps(v58, v58, 78), v34)), v38), v39), v53);
+  _mm128_mul_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_sub_ps(_mm128_sub_ps(v60, _mm_shuffle_ps(v59, v59, 78)), v61), v44), v47), v53);
+  _mm128_mul_ps(v53, v28);
+  return v2;
 }
 
 /*
@@ -585,71 +506,74 @@ Float4x4Mul
 */
 vector4 *Float4x4Mul(vector4 *result, const vector4 *M1, const vector4 *M2)
 {
-  vector4 *v7; 
-  __int64 v58; 
+  vector4 *v3; 
+  __m128 v8; 
+  __m128 v10; 
+  __m128 v12; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v34; 
+  __m128 v35; 
+  __int64 v37; 
 
+  v3 = (vector4 *)((unsigned __int64)&v37 ^ _security_cookie);
   __asm
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovaps [rsp+58h+var_48], xmm9
-  }
-  v7 = (vector4 *)((unsigned __int64)&v58 ^ _security_cookie);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
     vbroadcastss xmm1, dword ptr [rcx+30h]
     vbroadcastss xmm4, dword ptr [rcx]
     vbroadcastss xmm3, dword ptr [rcx+10h]
     vbroadcastss xmm2, dword ptr [rcx+20h]
-    vmulps  xmm6, xmm3, xmm0
-    vbroadcastss xmm3, dword ptr [rcx+24h]
-    vmulps  xmm7, xmm2, xmm0
-    vbroadcastss xmm2, dword ptr [rcx+14h]
-    vmulps  xmm8, xmm1, xmm0
-    vbroadcastss xmm1, dword ptr [rcx+4]
-    vmulps  xmm5, xmm4, xmm0
-    vmulps  xmm0, xmm1, xmmword ptr [rdx+10h]
+  }
+  v8 = _mm128_mul_ps(_XMM3, M1->x.v);
+  __asm { vbroadcastss xmm3, dword ptr [rcx+24h] }
+  v10 = _mm128_mul_ps(_XMM2, M1->x.v);
+  __asm { vbroadcastss xmm2, dword ptr [rcx+14h] }
+  v12 = _mm128_mul_ps(_XMM1, M1->x.v);
+  __asm { vbroadcastss xmm1, dword ptr [rcx+4] }
+  v14 = _mm128_mul_ps(_XMM4, M1->x.v);
+  v15 = _mm128_mul_ps(_XMM1, M1->y.v);
+  __asm
+  {
     vbroadcastss xmm4, dword ptr [rcx+34h]
     vbroadcastss xmm1, dword ptr [rcx+8]
-    vaddps  xmm5, xmm0, xmm5
-    vmulps  xmm0, xmm2, xmmword ptr [rdx+10h]
-    vbroadcastss xmm2, dword ptr [rcx+18h]
-    vaddps  xmm6, xmm0, xmm6
-    vmulps  xmm0, xmm3, xmmword ptr [rdx+10h]
-    vbroadcastss xmm3, dword ptr [rcx+28h]
-    vaddps  xmm7, xmm0, xmm7
-    vmulps  xmm0, xmm4, xmmword ptr [rdx+10h]
-    vbroadcastss xmm4, dword ptr [rcx+38h]
-    vaddps  xmm8, xmm0, xmm8
-    vmulps  xmm0, xmm1, xmmword ptr [rdx+20h]
-    vbroadcastss xmm1, dword ptr [rcx+0Ch]
-    vaddps  xmm9, xmm0, xmm5
-    vmulps  xmm0, xmm2, xmmword ptr [rdx+20h]
+  }
+  v18 = _mm128_add_ps(v15, v14);
+  v19 = _mm128_mul_ps(_XMM2, M1->y.v);
+  __asm { vbroadcastss xmm2, dword ptr [rcx+18h] }
+  v21 = _mm128_add_ps(v19, v8);
+  v22 = _mm128_mul_ps(_XMM3, M1->y.v);
+  __asm { vbroadcastss xmm3, dword ptr [rcx+28h] }
+  v24 = _mm128_add_ps(v22, v10);
+  v25 = _mm128_mul_ps(_XMM4, M1->y.v);
+  __asm { vbroadcastss xmm4, dword ptr [rcx+38h] }
+  v27 = _mm128_add_ps(v25, v12);
+  v28 = _mm128_mul_ps(_XMM1, M1->z.v);
+  __asm { vbroadcastss xmm1, dword ptr [rcx+0Ch] }
+  v30 = _mm128_add_ps(v28, v18);
+  v31 = _mm128_mul_ps(_XMM2, M1->z.v);
+  __asm
+  {
     vbroadcastss xmm2, dword ptr [rcx+1Ch]
     vbroadcastss xmm5, dword ptr [rcx+3Ch]
-    vaddps  xmm6, xmm0, xmm6
-    vmulps  xmm0, xmm3, xmmword ptr [rdx+20h]
-    vbroadcastss xmm3, dword ptr [rcx+2Ch]
-    vaddps  xmm7, xmm0, xmm7
-    vmulps  xmm0, xmm4, xmmword ptr [rdx+20h]
-    vaddps  xmm8, xmm0, xmm8
-    vmulps  xmm0, xmm1, xmmword ptr [rdx+30h]
-    vaddps  xmm4, xmm0, xmm9
-    vmulps  xmm0, xmm2, xmmword ptr [rdx+30h]
-    vmulps  xmm2, xmm3, xmmword ptr [rdx+30h]
-    vmulps  xmm3, xmm5, xmmword ptr [rdx+30h]
-    vaddps  xmm1, xmm0, xmm6
-    vaddps  xmm3, xmm3, xmm8
-    vaddps  xmm2, xmm2, xmm7
-    vmovups xmm0, xmm4
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm9, [rsp+58h+var_48]
   }
-  return v7;
+  v34 = _mm128_add_ps(v31, v21);
+  v35 = _mm128_mul_ps(_XMM3, M1->z.v);
+  __asm { vbroadcastss xmm3, dword ptr [rcx+2Ch] }
+  _mm128_add_ps(_mm128_mul_ps(_XMM2, M1->w.v), v34);
+  _mm128_add_ps(_mm128_mul_ps(_XMM5, M1->w.v), _mm128_add_ps(_mm128_mul_ps(_XMM4, M1->z.v), v27));
+  _mm128_add_ps(_mm128_mul_ps(_XMM3, M1->w.v), _mm128_add_ps(v35, v24));
+  _mm128_add_ps(_mm128_mul_ps(_XMM1, M1->w.v), v30);
+  return v3;
 }
 
 /*
@@ -659,43 +583,36 @@ Float4UnitQuatToAxis
 */
 void Float4UnitQuatToAxis(vector3 *result, const float4 *a2)
 {
-  __asm
-  {
-    vmovups xmm5, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-    vandps  xmm2, xmm5, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps [rsp+38h+var_28], xmm7
-    vmovups xmm7, xmm0
-    vmovaps [rsp+38h+var_38], xmm8
-    vaddps  xmm8, xmm0, xmm0
-    vmulps  xmm6, xmm0, xmm8
-    vshufps xmm1, xmm6, xmm6, 0C1h ; 'Á'
-    vandps  xmm3, xmm1, xmm5
-    vsubps  xmm4, xmm2, xmm3
-    vshufps xmm2, xmm0, xmm0, 0D0h ; 'Ð'
-    vshufps xmm3, xmm6, xmm6, 0DAh ; 'Ú'
-    vmovaps xmm6, [rsp+38h+var_18]
-    vandps  xmm1, xmm3, xmm5
-    vsubps  xmm5, xmm4, xmm1
-    vshufps xmm0, xmm8, xmm8, 0E6h ; 'æ'
-    vmulps  xmm3, xmm2, xmm0
-    vshufps xmm1, xmm7, xmm7, 0FFh
-    vmovaps xmm7, [rsp+38h+var_28]
-    vshufps xmm0, xmm8, xmm8, 0C9h ; 'É'
-    vmovaps xmm8, [rsp+38h+var_38]
-    vmulps  xmm2, xmm1, xmm0
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm2, xmm3
-    vshufps xmm0, xmm4, xmm1, 49h ; 'I'
-    vshufps xmm2, xmm0, xmm0, 78h ; 'x'
-    vshufps xmm3, xmm4, xmm1, 0A0h ; ' '
-    vshufps xmm0, xmm5, xmm2, 4Ch ; 'L'
-    vshufps xmm1, xmm5, xmm2, 0EDh ; 'í'
-    vshufps xmm2, xmm3, xmm3, 88h ; 'ˆ'
-    vblendps xmm2, xmm2, xmm5, 0Ch
-    vshufps xmm0, xmm0, xmm0, 78h ; 'x'
-    vshufps xmm1, xmm1, xmm1, 72h ; 'r'
-  }
+  __m128 v2; 
+  __m128 v3; 
+  __m128 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+
+  v3 = _mm128_add_ps(v2, v2);
+  v4 = _mm128_mul_ps(v2, v3);
+  v5 = _mm128_sub_ps(_mm128_sub_ps((__m128)(*(_OWORD *)&g_keepXYZ.v & _xmm), (__m128)(*(_OWORD *)&_mm_shuffle_ps(v4, v4, 193) & *(_OWORD *)&g_keepXYZ.v)), (__m128)(*(_OWORD *)&_mm_shuffle_ps(v4, v4, 218) & *(_OWORD *)&g_keepXYZ.v));
+  v6 = _mm128_mul_ps(_mm_shuffle_ps(v2, v2, 208), _mm_shuffle_ps(v3, v3, 230));
+  v7 = _mm128_mul_ps(_mm_shuffle_ps(v2, v2, 255), _mm_shuffle_ps(v3, v3, 201));
+  v8 = _mm128_sub_ps(v6, v7);
+  v9 = _mm128_add_ps(v7, v6);
+  v10 = _mm_shuffle_ps(v9, v8, 73);
+  v11 = _mm_shuffle_ps(v10, v10, 120);
+  v12 = _mm_shuffle_ps(v9, v8, 160);
+  v13 = _mm_shuffle_ps(v5, v11, 76);
+  v14 = _mm_shuffle_ps(v5, v11, 237);
+  _XMM2 = _mm_shuffle_ps(v12, v12, 136);
+  __asm { vblendps xmm2, xmm2, xmm5, 0Ch }
+  _mm_shuffle_ps(v13, v13, 120);
+  _mm_shuffle_ps(v14, v14, 114);
 }
 
 /*
@@ -705,53 +622,33 @@ Float3RotateQuatAroundOrigin
 */
 void Float3RotateQuatAroundOrigin(const float4 *result, const float4 *a2, const float4 *a3, float4 *a4)
 {
+  __m128 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v15; 
+
+  v7 = _mm128_mul_ps(v5, (__m128)_xmm);
+  _XMM3 = g_keepXYZ.v;
+  _mm128_sub_ps(v4, v6);
+  __asm { vblendps xmm4, xmm3, xmm0, 7 }
+  v10 = v6;
+  v11 = _mm_shuffle_ps(_XMM4, _XMM4, 255);
+  _XMM1 = _mm128_mul_ps(_XMM4, v7);
   __asm
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps [rsp+88h+var_58], xmm10
-    vmulps  xmm7, xmm1, cs:__xmm@3f800000bf800000bf800000bf800000
-    vmovups xmm3, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-    vsubps  xmm0, xmm0, xmm2
-    vblendps xmm4, xmm3, xmm0, 7
-    vmovups xmm9, xmm1
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vmovups xmm10, xmm2
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm4, xmm7
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
-    vshufps xmm8, xmm7, xmm7, 0FFh
-    vmulps  xmm0, xmm8, xmm6
-    vmulps  xmm4, xmm4, xmm8
-    vmulps  xmm1, xmm7, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vhaddps xmm3, xmm2, xmm2
-    vsubps  xmm2, xmm0, xmm3
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm0, xmm2, xmm0, 7
   }
-  _RBX = a4;
-  __asm { vmovups xmm1, xmm9 }
+  v15 = _mm_shuffle_ps(v7, v7, 255);
+  __asm { vhaddps xmm3, xmm2, xmm2 }
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v15, v11), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM4, _XMM4, 201), _mm_shuffle_ps(v7, v7, 210)), _mm128_mul_ps(_mm_shuffle_ps(_XMM4, _XMM4, 210), _mm_shuffle_ps(v7, v7, 201))), _mm128_add_ps(_mm128_mul_ps(_XMM4, v15), _mm128_mul_ps(v7, v11)));
+  __asm { vblendps xmm0, xmm2, xmm0, 7 }
   Float4QuatMultiply(result, a2, a4);
-  __asm
-  {
-    vaddps  xmm0, xmm10, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-  }
+  a4->v = _mm128_add_ps(v10, a4->v);
 }
 
 /*
@@ -761,35 +658,24 @@ Float4CosEst
 */
 __m128 Float4CosEst(float4 *result, const float4 *a2)
 {
-  __asm
-  {
-    vmovups xmm3, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vandnps xmm1, xmm3, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm2, xmm0, xmm1
-    vmulps  xmm1, xmm2, xmmword ptr cs:?g_inv2Pi@@3Ufloat4@@B.v; float4 const g_inv2Pi
-    vroundps xmm0, xmm1, 2
-    vsubps  xmm1, xmm0, xmm1
-    vsubps  xmm0, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-    vandnps xmm2, xmm3, xmm0
-    vsubps  xmm5, xmm2, xmmword ptr cs:?g_oneQuarter@@3Ufloat4@@B.v; float4 const g_oneQuarter
-    vmulps  xmm0, xmm5, xmm5
-    vmulps  xmm1, xmm0, xmm0
-    vmulps  xmm4, xmm5, xmm0
-    vmulps  xmm3, xmm5, xmm1
-    vmulps  xmm2, xmm1, xmm4
-    vmulps  xmm0, xmm1, xmm3
-    vmulps  xmm1, xmm0, xmmword ptr cs:?g_cosK9@@3Ufloat4@@B.v; float4 const g_cosK9
-    vmulps  xmm0, xmm2, xmmword ptr cs:?g_cosK7@@3Ufloat4@@B.v; float4 const g_cosK7
-    vaddps  xmm2, xmm0, xmm1
-    vmulps  xmm0, xmm3, xmmword ptr cs:?g_cosK5@@3Ufloat4@@B.v; float4 const g_cosK5
-    vaddps  xmm1, xmm0, xmm2
-    vmulps  xmm0, xmm4, xmmword ptr cs:?g_cosK3@@3Ufloat4@@B.v; float4 const g_cosK3
-    vaddps  xmm2, xmm0, xmm1
-    vmulps  xmm0, xmm5, xmmword ptr cs:?g_cosK1@@3Ufloat4@@B.v; float4 const g_cosK1
-    vaddps  xmm0, xmm0, xmm2
-  }
-  return _XMM0;
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+
+  _XMM3 = g_negativeZero.v;
+  __asm { vandnps xmm1, xmm3, xmm0 }
+  _XMM1 = _mm128_mul_ps(_mm128_sub_ps((__m128)0i64, _XMM1), g_inv2Pi.v);
+  __asm { vroundps xmm0, xmm1, 2 }
+  _mm128_sub_ps(_mm128_sub_ps(_XMM0, _XMM1), g_oneHalf.v);
+  __asm { vandnps xmm2, xmm3, xmm0 }
+  v7 = _mm128_sub_ps(_XMM2, g_oneQuarter.v);
+  v8 = _mm128_mul_ps(v7, v7);
+  v9 = _mm128_mul_ps(v8, v8);
+  v10 = _mm128_mul_ps(v7, v8);
+  v11 = _mm128_mul_ps(v7, v9);
+  return _mm128_add_ps(_mm128_mul_ps(v7, g_cosK1.v), _mm128_add_ps(_mm128_mul_ps(v10, g_cosK3.v), _mm128_add_ps(_mm128_mul_ps(v11, g_cosK5.v), _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v9, v10), g_cosK7.v), _mm128_mul_ps(_mm128_mul_ps(v9, v11), g_cosK9.v)))));
 }
 
 /*
@@ -799,18 +685,19 @@ Float4LoadVec3
 */
 void Float4LoadVec3(const vec3_t *element, float4 *result)
 {
-  __int128 v7; 
+  __int128 v3; 
+  __int128 v6; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx] }
-  HIDWORD(v7) = 0;
+  HIDWORD(v6) = 0;
+  v3 = v6;
+  *(float *)&v3 = element->v[0];
+  _XMM3 = v3;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+8], 20h ; ' '
-    vmovups xmmword ptr [rdx], xmm3
   }
+  *result = (float4)_XMM3.v;
 }
 
 /*
@@ -818,42 +705,38 @@ void Float4LoadVec3(const vec3_t *element, float4 *result)
 Float4QuatMultiply
 ==============
 */
-void Float4QuatMultiply(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4QuatMultiply(const float4 *result, const float4 *a2, float4 *a3)
 {
+  __m128 v3; 
+  __m128 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v14; 
+
+  v5 = _mm128_mul_ps(_mm_shuffle_ps(v4, v4, 201), _mm_shuffle_ps(v3, v3, 210));
+  v6 = _mm_shuffle_ps(v3, v3, 201);
+  v7 = v3;
+  v8 = _mm_shuffle_ps(v3, v3, 255);
+  _XMM0 = _mm128_mul_ps(v4, v3);
+  v10 = _mm128_mul_ps(_mm_shuffle_ps(v4, v4, 210), v6);
+  v11 = v4;
+  v12 = _mm_shuffle_ps(v4, v4, 255);
+  __asm { vinsertps xmm1, xmm0, xmm0, 8 }
+  v14 = _mm128_sub_ps(v5, v10);
   __asm
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovaps [rsp+58h+var_48], xmm9
-    vshufps xmm2, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm3, xmm1, xmm1, 0C9h ; 'É'
-    vmulps  xmm5, xmm3, xmm2
-    vshufps xmm3, xmm0, xmm0, 0C9h ; 'É'
-    vmovups xmm9, xmm0
-    vshufps xmm8, xmm0, xmm0, 0FFh
-    vmulps  xmm0, xmm1, xmm0
-    vshufps xmm4, xmm1, xmm1, 0D2h ; 'Ò'
-    vmulps  xmm2, xmm4, xmm3
-    vmovups xmm7, xmm1
-    vshufps xmm6, xmm1, xmm1, 0FFh
-    vinsertps xmm1, xmm0, xmm0, 8
-    vsubps  xmm5, xmm5, xmm2
     vhaddps xmm2, xmm1, xmm1
-    vmulps  xmm0, xmm8, xmm6
-    vmulps  xmm1, xmm6, xmm9
-    vmulps  xmm4, xmm8, xmm7
     vhaddps xmm3, xmm2, xmm2
-    vsubps  xmm2, xmm0, xmm3
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm0, xmm2, xmm0, 7
-    vmovups xmmword ptr [r8], xmm0
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm9, [rsp+58h+var_48]
   }
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v8, v12), _XMM3);
+  _mm128_add_ps(v14, _mm128_add_ps(_mm128_mul_ps(v8, v11), _mm128_mul_ps(v12, v7)));
+  __asm { vblendps xmm0, xmm2, xmm0, 7 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -862,23 +745,22 @@ Float4AnglesToAxis
 ==============
 */
 
-void __fastcall Float4AnglesToAxis(const float4 *axis, vector3 *a2, double _XMM2_8)
+void __fastcall Float4AnglesToAxis(const float4 *axis, vector3 *a2, double a3)
 {
+  __m128 v3; 
+  __int128 v4; 
+  __m128 v5; 
   const float4 *v7; 
   vector3 *v8; 
+  __m256i v9; 
 
-  __asm { vmulps  xmm0, xmm0, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian }
-  _RBX = a2;
+  v5 = _mm128_mul_ps(v3, g_degreeToRadian.v);
   Float4RadianToQuat((float4 *)axis, &a2->x);
   Float4UnitQuatToAxis(v8, v7);
-  __asm
-  {
-    vmovups xmmword ptr [rsp+68h+var_48+10h], xmm1
-    vmovups xmmword ptr [rsp+68h+var_48], xmm0
-    vmovups ymm1, [rsp+68h+var_48]
-    vmovups ymmword ptr [rbx], ymm1
-    vmovups xmmword ptr [rbx+20h], xmm2
-  }
+  *(_OWORD *)&v9.m256i_u64[2] = v4;
+  *(__m128 *)v9.m256i_i8 = v5;
+  *(__m256i *)a2->x.v.m128_f32 = v9;
+  a2->z = *(float4 *)&a3;
 }
 
 /*
@@ -886,13 +768,10 @@ void __fastcall Float4AnglesToAxis(const float4 *axis, vector3 *a2, double _XMM2
 Float4BlendXYzW
 ==============
 */
-void Float4BlendXYzW(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4BlendXYzW(const float4 *result, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vblendps xmm0, xmm0, xmm1, 4
-    vmovups xmmword ptr [r8], xmm0
-  }
+  __asm { vblendps xmm0, xmm0, xmm1, 4 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -900,13 +779,10 @@ void Float4BlendXYzW(const float4 *result, const float4 *a2, float4 *_R8)
 Float4BlendXyZW
 ==============
 */
-void Float4BlendXyZW(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4BlendXyZW(const float4 *result, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vblendps xmm0, xmm0, xmm1, 2
-    vmovups xmmword ptr [r8], xmm0
-  }
+  __asm { vblendps xmm0, xmm0, xmm1, 2 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -914,13 +790,10 @@ void Float4BlendXyZW(const float4 *result, const float4 *a2, float4 *_R8)
 Float4BlendXyzW
 ==============
 */
-void Float4BlendXyzW(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4BlendXyzW(const float4 *result, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vblendps xmm0, xmm0, xmm1, 6
-    vmovups xmmword ptr [r8], xmm0
-  }
+  __asm { vblendps xmm0, xmm0, xmm1, 6 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -928,13 +801,10 @@ void Float4BlendXyzW(const float4 *result, const float4 *a2, float4 *_R8)
 Float4BlendxYZW
 ==============
 */
-void Float4BlendxYZW(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4BlendxYZW(const float4 *result, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vblendps xmm0, xmm0, xmm1, 1
-    vmovups xmmword ptr [r8], xmm0
-  }
+  __asm { vblendps xmm0, xmm0, xmm1, 1 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -942,13 +812,10 @@ void Float4BlendxYZW(const float4 *result, const float4 *a2, float4 *_R8)
 Float4BlendxYzW
 ==============
 */
-void Float4BlendxYzW(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4BlendxYzW(const float4 *result, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vblendps xmm0, xmm0, xmm1, 5
-    vmovups xmmword ptr [r8], xmm0
-  }
+  __asm { vblendps xmm0, xmm0, xmm1, 5 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -956,13 +823,10 @@ void Float4BlendxYzW(const float4 *result, const float4 *a2, float4 *_R8)
 Float4BlendxyZW
 ==============
 */
-void Float4BlendxyZW(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4BlendxyZW(const float4 *result, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vblendps xmm0, xmm0, xmm1, 3
-    vmovups xmmword ptr [r8], xmm0
-  }
+  __asm { vblendps xmm0, xmm0, xmm1, 3 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -972,35 +836,26 @@ Float4QuatRotationAxis
 */
 void Float4QuatRotationAxis(const float4 *result, const float4 *a2, float4 *a3)
 {
-  float4 v20; 
-  float4 v21; 
+  __m128 v3; 
+  __m128 v4; 
+  __m128 v8; 
+  float4 v14; 
+  float4 v15; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmulps  xmm2, xmm0, xmm0
-    vinsertps xmm3, xmm2, xmm2, 8
-  }
-  _RBX = a3;
-  __asm
-  {
-    vmovups xmm7, xmm0
-    vmulps  xmm0, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-    vhaddps xmm6, xmm3, xmm3
-  }
-  Float4SinCos(result, &v20, &v21);
+  _XMM2 = _mm128_mul_ps(v3, v3);
+  __asm { vinsertps xmm3, xmm2, xmm2, 8 }
+  v8 = v3;
+  _mm128_mul_ps(v4, g_oneHalf.v);
+  __asm { vhaddps xmm6, xmm3, xmm3 }
+  Float4SinCos(result, &v14, &v15);
   __asm
   {
     vhaddps xmm0, xmm6, xmm6
     vrsqrtps xmm1, xmm0
-    vmulps  xmm2, xmm1, xmm7
-    vmulps  xmm3, xmm2, [rsp+78h+var_58]
-    vblendps xmm0, xmm3, [rsp+78h+var_48], 8
-    vmovups xmmword ptr [rbx], xmm0
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
   }
+  _XMM3 = _mm128_mul_ps(_mm128_mul_ps(_XMM1, v8), v14.v);
+  __asm { vblendps xmm0, xmm3, [rsp+78h+var_48], 8 }
+  *a3 = (float4)_XMM0.v;
 }
 
 /*
@@ -1008,33 +863,22 @@ void Float4QuatRotationAxis(const float4 *result, const float4 *a2, float4 *a3)
 Float4QuatTransform
 ==============
 */
-void Float4QuatTransform(const float4 *outResult, const float4 *a2, float4 *_R8)
+void Float4QuatTransform(const float4 *outResult, const float4 *a2, float4 *a3)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps [rsp+38h+var_28], xmm7
-    vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm5, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm1, xmm1, 0D2h ; 'Ò'
-    vshufps xmm2, xmm1, xmm1, 0C9h ; 'É'
-    vmulps  xmm4, xmm0, xmm6
-    vmulps  xmm3, xmm2, xmm7
-    vsubps  xmm0, xmm4, xmm3
-    vaddps  xmm2, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm2
-    vaddps  xmm4, xmm0, xmm1
-    vshufps xmm1, xmm2, xmm2, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vshufps xmm0, xmm2, xmm2, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm3, xmm1, xmm4
-    vmovups xmmword ptr [r8], xmm3
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovaps xmm7, [rsp+38h+var_28]
-  }
+  __m128 v3; 
+  __m128 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+
+  v5 = _mm_shuffle_ps(v3, v3, 210);
+  v6 = _mm_shuffle_ps(v3, v3, 201);
+  v7 = _mm_shuffle_ps(v3, v3, 255);
+  v8 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v4, v4, 210), v6), _mm128_mul_ps(_mm_shuffle_ps(v4, v4, 201), v5));
+  v9 = _mm128_add_ps(v8, v8);
+  a3->v = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v9, v9, 210), v6), _mm128_mul_ps(_mm_shuffle_ps(v9, v9, 201), v5)), _mm128_add_ps(_mm128_mul_ps(v7, v9), v4));
 }
 
 /*
@@ -1042,27 +886,19 @@ void Float4QuatTransform(const float4 *outResult, const float4 *a2, float4 *_R8)
 FloatPackFloat16HQ
 ==============
 */
-
-__int64 __fastcall FloatPackFloat16HQ(double v)
+__int64 FloatPackFloat16HQ(const float v)
 {
   unsigned int v1; 
   unsigned int v2; 
   int v4; 
   int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  int v8; 
 
-  __asm
-  {
-    vmovss  [rsp+arg_0], xmm0
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 959, ASSERT_TYPE_SANITY, "( !IS_NAN( v ) )", (const char *)&queryFormat, "!IS_NAN( v )") )
+  if ( (LODWORD(v) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 959, ASSERT_TYPE_SANITY, "( !IS_NAN( v ) )", (const char *)&queryFormat, "!IS_NAN( v )") )
     __debugbreak();
-  v1 = v7 & 0x7FFFFFFF;
-  v2 = HIWORD(v7) & 0x8000;
-  if ( (v7 & 0x7FFFFFFF) < 0x33000000 )
+  v1 = LODWORD(v) & 0x7FFFFFFF;
+  v2 = HIWORD(LODWORD(v)) & 0x8000;
+  if ( (LODWORD(v) & 0x7FFFFFFFu) < 0x33000000 )
     return v2;
   if ( v1 >= 0x477FD000 )
   {
@@ -1071,7 +907,7 @@ __int64 __fastcall FloatPackFloat16HQ(double v)
   }
   v4 = 0;
   v5 = v1 >> 23;
-  v6 = v7 & 0x7FFFFF;
+  v6 = LODWORD(v) & 0x7FFFFF;
   if ( v5 >= 113 )
     v4 = v5 - 112;
   else
@@ -1090,28 +926,16 @@ float FloatUnpackFloat16HQ(const unsigned int packedInt)
   unsigned int v2; 
   unsigned int v3; 
   int v4; 
-  unsigned int v8; 
-  int v9; 
+  float result; 
 
   v1 = packedInt >> 10;
   v2 = (packedInt & 0xFFFF8000) << 16;
   v3 = packedInt & 0x3FF;
   v4 = v1 & 0x1F;
-  if ( v4 )
-  {
-    v9 = v2 | (v3 << 13) | ((v4 + 112) << 23);
-    __asm { vmovss  xmm0, [rsp+arg_0] }
-  }
-  else
-  {
-    v8 = v3 + (v2 | 0x3F000000);
-    __asm
-    {
-      vmovss  xmm0, [rsp+arg_0]
-      vsubss  xmm0, xmm0, [rsp+arg_8]
-    }
-  }
-  return *(float *)&_XMM0;
+  if ( !v4 )
+    return COERCE_FLOAT(v3 + (v2 | 0x3F000000)) - COERCE_FLOAT(v2 | 0x3F000000);
+  LODWORD(result) = v2 | (v3 << 13) | ((v4 + 112) << 23);
+  return result;
 }
 
 /*
@@ -1121,17 +945,16 @@ Float4Clamp
 */
 char Float4Clamp(float4 *result, const float4 *a2, const float4 *a3, const float4 *a4)
 {
+  __int128 v4; 
+  __int128 v5; 
+
+  _XMM6 = v5;
   __asm
   {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovups xmm6, xmm2
-    vmovups xmm7, xmm1
     vcmpltps xmm3, xmm6, xmm7
     vmovmskps eax, xmm3
-    vmovups xmm8, xmm0
   }
+  _XMM8 = v4;
   if ( _EAX )
   {
     LOBYTE(_EAX) = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )");
@@ -1142,9 +965,6 @@ char Float4Clamp(float4 *result, const float4 *a2, const float4 *a3, const float
   {
     vmaxps  xmm0, xmm8, xmm7
     vminps  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
   }
   return _EAX;
 }
@@ -1154,116 +974,57 @@ char Float4Clamp(float4 *result, const float4 *a2, const float4 *a3, const float
 Float4x4RotationAroundUnitAxis
 ==============
 */
-
-vector4 *__fastcall Float4x4RotationAroundUnitAxis(vector4 *result, const float4 *axis, double radians)
+vector4 *Float4x4RotationAroundUnitAxis(vector4 *result, const float4 *axis, const float radians)
 {
-  vector4 *v79; 
-  int v85; 
-  float v86[3]; 
-  void *retaddr; 
+  __m128 v; 
+  vector4 *v18; 
+  int v19; 
+  float v20[3]; 
 
-  _RAX = &retaddr;
+  FastSinCos(radians, v20, (float *)&v19);
+  v = axis->v;
+  _mm_shuffle_ps(v, v, 170);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 170);
+  _XMM3 = 0i64;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
-  _RBX = axis;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RDI = result;
-  __asm
-  {
-    vmovaps xmm0, xmm2; radians
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  FastSinCos(*(const float *)&_XMM0, v86, (float *)&v85);
-  __asm
-  {
-    vmovups xmm10, xmmword ptr [rbx]
-    vmovss  xmm7, [rsp+88h+var_64]
-    vmovss  xmm8, [rsp+88h+var_68]
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm9, xmm0, xmm8
-    vshufps xmm0, xmm10, xmm10, 0AAh ; 'ª'
-    vmulss  xmm0, xmm0, xmm10
-    vmulss  xmm2, xmm0, xmm9
-    vshufps xmm1, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm1, xmm7
-    vaddss  xmm5, xmm2, xmm0
-    vshufps xmm2, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm2, xmm10
-    vmulss  xmm3, xmm0, xmm9
-    vshufps xmm1, xmm10, xmm10, 0AAh ; 'ª'
-    vmulss  xmm0, xmm1, xmm7
-    vsubss  xmm4, xmm3, xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vmulss  xmm0, xmm10, xmm10
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
     vinsertps xmm3, xmm3, xmm2, 0
     vinsertps xmm3, xmm3, xmm4, 10h
     vinsertps xmm3, xmm3, xmm5, 20h ; ' '
-    vmovups xmmword ptr [rdi], xmm3
-    vxorps  xmm4, xmm4, xmm4
-    vshufps xmm1, xmm10, xmm10, 0AAh ; 'ª'
-    vshufps xmm3, xmm10, xmm10, 55h ; 'U'
-    vshufps xmm0, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm1, xmm0
-    vmulss  xmm2, xmm0, xmm9
-    vmulss  xmm1, xmm10, xmm7
-    vsubss  xmm6, xmm2, xmm1
-    vshufps xmm2, xmm10, xmm10, 55h ; 'U'
-    vshufps xmm0, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm3, xmm0
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm5, xmm1, xmm8
-    vmulss  xmm0, xmm2, xmm10
-    vmulss  xmm3, xmm0, xmm9
-    vshufps xmm1, xmm10, xmm10, 0AAh ; 'ª'
-    vmulss  xmm0, xmm1, xmm7
-    vaddss  xmm2, xmm3, xmm0
+  }
+  result->x = (float4)_XMM3.v;
+  _XMM4 = 0i64;
+  _mm_shuffle_ps(v, v, 170);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 170);
+  __asm
+  {
     vinsertps xmm4, xmm4, xmm2, 0
     vinsertps xmm4, xmm4, xmm5, 10h
-    vxorps  xmm3, xmm3, xmm3
-    vshufps xmm1, xmm10, xmm10, 0AAh ; 'ª'
-    vshufps xmm2, xmm10, xmm10, 0AAh ; 'ª'
-    vinsertps xmm4, xmm4, xmm6, 20h ; ' '
-    vshufps xmm0, xmm10, xmm10, 0AAh ; 'ª'
-    vmulss  xmm0, xmm1, xmm0
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm5, xmm1, xmm8
-    vmulss  xmm1, xmm10, xmm7
-    vshufps xmm0, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm2, xmm0
-    vmulss  xmm2, xmm0, xmm9
-    vshufps xmm0, xmm10, xmm10, 0AAh ; 'ª'
-    vmulss  xmm0, xmm0, xmm10
-    vmovups xmmword ptr [rdi+10h], xmm4
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm9
-    vshufps xmm1, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm1, xmm7
-    vsubss  xmm2, xmm2, xmm0
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
+  }
+  _XMM3 = 0i64;
+  __asm { vinsertps xmm4, xmm4, xmm6, 20h ; ' ' }
+  _mm_shuffle_ps(v, v, 170);
+  _mm_shuffle_ps(v, v, 170);
+  _mm_shuffle_ps(v, v, 170);
+  _mm_shuffle_ps(v, v, 85);
+  _mm_shuffle_ps(v, v, 170);
+  result->y = (float4)_XMM4.v;
+  _mm_shuffle_ps(v, v, 85);
+  __asm
+  {
     vinsertps xmm3, xmm3, xmm2, 0
     vinsertps xmm3, xmm3, xmm4, 10h
     vinsertps xmm3, xmm3, xmm5, 20h ; ' '
-    vmovups xmmword ptr [rdi+20h], xmm3
   }
-  v79 = _RDI;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-    vmovups xmmword ptr [rdi+30h], xmm0
-  }
-  return v79;
+  result->z = (float4)_XMM3.v;
+  v18 = result;
+  result->w = (float4)_xmm;
+  return v18;
 }
 

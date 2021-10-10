@@ -601,26 +601,32 @@ __int64 CL_ConsolePrint_AddLine(LocalClientNum_t localClientNum, int channel, co
 {
   __int64 result; 
   print_msg_dest_t i; 
-  const dvar_t *v15; 
-  int v16; 
+  const dvar_t *v13; 
+  int v14; 
   GfxFont *FontHandle; 
+  double v16; 
+  float v17; 
   ClActiveClient *Client; 
+  int v19; 
+  double v20; 
+  int visiblePixelWidth; 
+  float v22; 
+  int v25; 
   int IsRightToLeft; 
-  __int64 v37; 
-  TextLine *v40; 
+  __int64 v27; 
+  TextLine *v29; 
   const char *textLeft; 
   const char *textRight; 
-  unsigned __int64 v43; 
-  int v44; 
-  float fmt; 
+  unsigned __int64 v32; 
+  int v33; 
   __int64 tracking; 
   __int64 leftToRight; 
   TextLine *outLines; 
   char colorEscape; 
-  unsigned __int8 v51; 
+  unsigned __int8 v38; 
   int outLineCount; 
-  __int64 v53; 
-  TextLine v54; 
+  __int64 v40; 
+  TextLine v41; 
   char output[512]; 
 
   if ( !txt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 966, ASSERT_TYPE_ASSERT, "(txt)", (const char *)&queryFormat, "txt") )
@@ -641,68 +647,46 @@ __int64 CL_ConsolePrint_AddLine(LocalClientNum_t localClientNum, int channel, co
   Con_UpdateNotifyMessageWindow(localClientNum, channel, duration, flags, CON_DEST_MINICON);
   for ( i = CON_DEST_GAME_FIRST; (unsigned int)i <= CON_DEST_GAME4; ++i )
     Con_UpdateNotifyMessageWindow(localClientNum, channel, duration, flags, i);
-  v15 = DCONST_DVARINT_developer;
+  v13 = DCONST_DVARINT_developer;
   if ( !DCONST_DVARINT_developer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "developer") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.integer )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.integer )
     Con_UpdateNotifyMessageWindow(localClientNum, channel, duration, flags, CON_DEST_ERROR);
   if ( channel != con.prevChannel && con.lineOffset )
     Con_Linefeed(localClientNum, con.prevChannel, flags);
-  v16 = 0;
-  __asm { vmovaps [rsp+32C8h+var_58], xmm6 }
+  v14 = 0;
   if ( channel == 4 )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3ec00000; scale
-      vmovss  xmm1, cs:__real@3ec00000; scale
-    }
-    FontHandle = UI_GetFontHandle(&scrPlaceFull, 8, *(float *)&_XMM2);
-    *(double *)&_XMM0 = R_NormalizedTextScale(FontHandle, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm0 }
+    FontHandle = UI_GetFontHandle(&scrPlaceFull, 8, 0.375);
+    v16 = R_NormalizedTextScale(FontHandle, 0.375);
+    v17 = *(float *)&v16;
 LABEL_35:
+    visiblePixelWidth = pixelWidth;
+    if ( !pixelWidth )
+      visiblePixelWidth = con.visiblePixelWidth;
     if ( FontHandle )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbp+8]
-        vmulss  xmm6, xmm0, xmm1
-        vaddss  xmm2, xmm6, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si ebx, xmm4
-      }
+      v22 = (float)FontHandle->pixelHeight * v17;
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      v25 = (int)*(float *)&_XMM4;
       IsRightToLeft = Language_IsRightToLeft();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vxorps  xmm1, xmm1, xmm1
-        vdivss  xmm2, xmm6, xmm0
-        vcvtsi2ss xmm1, xmm1, r13d; boxWidth
-        vmovss  dword ptr [rsp+32C8h+fmt], xmm2
-      }
-      R_Font_WordWrap(txt, *(float *)&_XMM1, FontHandle, _EBX, fmt, 0, 512, IsRightToLeft == 0, &v54, &outLineCount);
+      R_Font_WordWrap(txt, (float)visiblePixelWidth, FontHandle, v25, v22 / (float)v25, 0, 512, IsRightToLeft == 0, &v41, &outLineCount);
     }
     else
     {
-      memset_0(&v54.pixelWidth + 1, 0, 0x2FECui64);
-      v37 = -1i64;
-      v54.textLeft = txt;
-      while ( txt[++v37] != 0 )
+      memset_0(&v41.pixelWidth + 1, 0, 0x2FECui64);
+      v27 = -1i64;
+      v41.textLeft = txt;
+      while ( txt[++v27] != 0 )
         ;
       outLineCount = 1;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+32C8h+var_3268.pixelWidth], xmm0
-      }
-      v54.textRight = &txt[v37 - 1];
+      v41.pixelWidth = 0.0;
+      v41.textRight = &txt[v27 - 1];
     }
     colorEscape = 0;
-    v51 = color;
+    v38 = color;
     if ( outLineCount > 512 )
     {
       LODWORD(outLines) = 512;
@@ -712,48 +696,48 @@ LABEL_35:
     }
     if ( outLineCount > 0 )
     {
-      v40 = &v54;
+      v29 = &v41;
       do
       {
-        if ( (!v40->textLeft || !v40->textRight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1053, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
+        if ( (!v29->textLeft || !v29->textRight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1053, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
           __debugbreak();
-        textLeft = v40->textLeft;
-        if ( v40->textLeft )
+        textLeft = v29->textLeft;
+        if ( v29->textLeft )
         {
-          textRight = v40->textRight;
+          textRight = v29->textRight;
           if ( textRight )
           {
             if ( textLeft <= textRight )
             {
               R_PrepareTextLine(textLeft, textRight - textLeft + 1, output, 512, 1, &colorEscape);
               Core_strcpy(con.textTempLine, 0x200ui64, output);
-              v53 = 512i64;
-              v43 = -1i64;
+              v40 = 512i64;
+              v32 = -1i64;
               do
-                ++v43;
-              while ( output[v43] );
-              v44 = 512;
-              if ( v43 < 0x200 )
-                v44 = v43;
-              con.lineOffset += v44;
+                ++v32;
+              while ( output[v32] );
+              v33 = 512;
+              if ( v32 < 0x200 )
+                v33 = v32;
+              con.lineOffset += v33;
               Con_Linefeed(localClientNum, channel, flags);
             }
           }
         }
-        ++v16;
-        ++v40;
+        ++v14;
+        ++v29;
       }
-      while ( v16 < outLineCount );
+      while ( v14 < outLineCount );
     }
-    result = v51;
+    result = v38;
     con.prevChannel = channel;
-    goto LABEL_59;
+    goto LABEL_61;
   }
   if ( channel == 7 )
   {
     FontHandle = NULL;
 LABEL_34:
-    __asm { vmovss  xmm1, cs:__real@3f800000 }
+    v17 = FLOAT_1_0;
     goto LABEL_35;
   }
   if ( (unsigned int)(channel - 2) > 1 )
@@ -764,22 +748,15 @@ LABEL_34:
   if ( CL_GetLocalClientGameConnectionState(localClientNum) >= CA_CONNECTED )
   {
     Client = ClActiveClient::GetClient(localClientNum);
-    *(double *)&_XMM0 = ((double (__fastcall *)(ClActiveClient *))Client->GetHudMsgCharHeight)(Client);
+    v19 = Client->GetHudMsgCharHeight(Client);
     FontHandle = cls.consoleFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3caaaaab; scale
-    }
-    *(double *)&_XMM0 = R_NormalizedTextScale(cls.consoleFont, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm0 }
+    v20 = R_NormalizedTextScale(cls.consoleFont, (float)v19 * 0.020833334);
+    v17 = *(float *)&v20;
     goto LABEL_35;
   }
   result = (unsigned __int8)color;
-LABEL_59:
+LABEL_61:
   --callDepth;
-  __asm { vmovaps xmm6, [rsp+32C8h+var_58] }
   return result;
 }
 
@@ -834,297 +811,219 @@ LABEL_13:
 ConDrawInput_AutoCompleteArg
 ==============
 */
-
-void __fastcall ConDrawInput_AutoCompleteArg(const char *const *stringList, int stringCount, double _XMM2_8)
+void ConDrawInput_AutoCompleteArg(const char *const *stringList, int stringCount)
 {
+  __int128 v2; 
+  __int64 v3; 
+  const char *v4; 
+  const char *v5; 
+  __int64 v6; 
+  int v7; 
+  unsigned __int64 v8; 
   __int64 v9; 
-  const char *v10; 
+  char **v10; 
   const char *v11; 
   __int64 v12; 
-  int v13; 
-  unsigned __int64 v14; 
+  signed __int64 v13; 
+  int v14; 
   __int64 v15; 
-  char **v16; 
-  const char *v17; 
-  __int64 v18; 
-  signed __int64 v19; 
-  int v20; 
+  int v16; 
+  int v17; 
+  int v18; 
+  __int64 v19; 
+  const char *v20; 
   __int64 v21; 
-  int v22; 
   int v23; 
   int v24; 
   __int64 v25; 
-  const char *v26; 
-  __int64 v27; 
-  int v29; 
-  int v30; 
-  __int64 v31; 
-  __int64 v32; 
-  int v33; 
+  __int64 v26; 
+  int v27; 
   GfxFont *consoleFont; 
   char *buffer; 
-  int v36; 
-  char *v37; 
-  int v38; 
-  char *v39; 
-  int v40; 
-  const char *v70; 
-  int v74; 
-  float fmt; 
+  int v30; 
+  char *v31; 
+  int v32; 
+  char *v33; 
+  int v34; 
+  int v35; 
+  const dvar_t *v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  const char *v40; 
   float y; 
-  float xScale; 
-  float v85; 
-  float v86; 
-  int v87; 
-  int v88; 
-  __int64 v90; 
+  float x; 
+  int v43; 
+  int v44; 
+  int v45; 
+  __int64 v47; 
   vec4_t color; 
   __int64 Base[160]; 
+  __int128 v50; 
 
-  v9 = stringCount;
+  v3 = stringCount;
   if ( Cmd_Argc() < 2 )
   {
-    v11 = (char *)&queryFormat.fmt + 3;
-    v12 = 0i64;
+    v5 = (char *)&queryFormat.fmt + 3;
+    v6 = 0i64;
   }
   else
   {
-    v10 = Cmd_Argv(1);
-    v11 = v10;
-    v12 = -1i64;
+    v4 = Cmd_Argv(1);
+    v5 = v4;
+    v6 = -1i64;
     do
-      ++v12;
-    while ( v10[v12] );
+      ++v6;
+    while ( v4[v6] );
   }
-  v87 = 0;
-  v13 = 0;
-  v88 = 0;
-  v14 = 0i64;
-  v90 = v9;
-  if ( (int)v9 <= 0 )
+  v44 = 0;
+  v7 = 0;
+  v45 = 0;
+  v8 = 0i64;
+  v47 = v3;
+  if ( (int)v3 <= 0 )
     return;
-  v15 = 0i64;
-  v16 = (char **)Base;
+  v9 = 0i64;
+  v10 = (char **)Base;
   do
   {
-    if ( v12 )
+    if ( v6 )
     {
-      v17 = stringList[v15];
-      v18 = v12;
-      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v11 = stringList[v9];
+      v12 = v6;
+      if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v19 = v11 - v17;
+      v13 = v5 - v11;
       while ( 1 )
       {
-        v20 = (unsigned __int8)v17[v19];
-        v21 = v18;
-        v22 = *(unsigned __int8 *)v17++;
-        --v18;
-        if ( !v21 )
+        v14 = (unsigned __int8)v11[v13];
+        v15 = v12;
+        v16 = *(unsigned __int8 *)v11++;
+        --v12;
+        if ( !v15 )
         {
 LABEL_24:
-          v13 = v87;
+          v7 = v44;
           goto LABEL_25;
         }
-        if ( v20 != v22 )
+        if ( v14 != v16 )
         {
-          v23 = v20 + 32;
-          if ( (unsigned int)(v20 - 65) > 0x19 )
-            v23 = v20;
-          v20 = v23;
-          v24 = v22 + 32;
-          if ( (unsigned int)(v22 - 65) > 0x19 )
-            v24 = v22;
-          if ( v20 != v24 )
+          v17 = v14 + 32;
+          if ( (unsigned int)(v14 - 65) > 0x19 )
+            v17 = v14;
+          v14 = v17;
+          v18 = v16 + 32;
+          if ( (unsigned int)(v16 - 65) > 0x19 )
+            v18 = v16;
+          if ( v14 != v18 )
             break;
         }
-        if ( !v20 )
+        if ( !v14 )
           goto LABEL_24;
       }
-      v13 = v87;
+      v7 = v44;
       goto LABEL_41;
     }
 LABEL_25:
-    if ( v13 == 32 )
+    if ( v7 == 32 )
       break;
-    v25 = -1i64;
+    v19 = -1i64;
     do
-      ++v25;
-    while ( stringList[v15][v25] );
-    if ( v14 + v25 >= 0x400 )
+      ++v19;
+    while ( stringList[v9][v19] );
+    if ( v8 + v19 >= 0x400 )
       break;
-    *v16 = (char *)&Base[32] + v14;
-    if ( v14 > 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1589, ASSERT_TYPE_ASSERT, "(matchBufferUsed <= sizeof( matchBuffer ))", (const char *)&queryFormat, "matchBufferUsed <= sizeof( matchBuffer )") )
+    *v10 = (char *)&Base[32] + v8;
+    if ( v8 > 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1589, ASSERT_TYPE_ASSERT, "(matchBufferUsed <= sizeof( matchBuffer ))", (const char *)&queryFormat, "matchBufferUsed <= sizeof( matchBuffer )") )
       __debugbreak();
-    Com_CopyAndStripExtension(*v16, 1024 - v14, stringList[v15]);
-    v26 = *v16;
-    v27 = -1i64;
-    while ( v26[++v27] != 0 )
+    Com_CopyAndStripExtension(*v10, 1024 - v8, stringList[v9]);
+    v20 = *v10;
+    v21 = -1i64;
+    while ( v20[++v21] != 0 )
       ;
-    v14 += v27 + 1;
-    if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1274, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
+    v8 += v21 + 1;
+    if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1274, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
       __debugbreak();
-    v29 = R_TextWidth(v26, 0, cls.consoleFont);
-    v30 = v88;
-    if ( v88 < v29 )
-      v30 = v29;
-    v87 = ++v13;
-    ++v16;
-    v88 = v30;
+    v23 = R_TextWidth(v20, 0, cls.consoleFont);
+    v24 = v45;
+    if ( v45 < v23 )
+      v24 = v23;
+    v44 = ++v7;
+    ++v10;
+    v45 = v24;
 LABEL_41:
-    ++v15;
+    ++v9;
   }
-  while ( v15 < v90 );
-  v31 = 0i64;
-  if ( v13 )
+  while ( v9 < v47 );
+  v25 = 0i64;
+  if ( v7 )
   {
-    __asm
-    {
-      vmovaps [rsp+608h+var_38], xmm6
-      vmovaps [rsp+608h+var_48], xmm7
-      vmovaps [rsp+608h+var_58], xmm8
-    }
-    v32 = v13;
-    __asm
-    {
-      vmovaps [rsp+608h+var_68], xmm9
-      vmovaps [rsp+608h+var_78], xmm10
-    }
-    qsort(Base, v13, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)ConDrawInput_CompareStrings);
-    v33 = 0;
+    v26 = v7;
+    v50 = v2;
+    qsort(Base, v7, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)ConDrawInput_CompareStrings);
+    v27 = 0;
     consoleFont = cls.consoleFont;
     if ( isspace(g_consoleField.buffer[0]) )
     {
       buffer = g_consoleField.buffer;
       do
       {
-        v36 = *++buffer;
-        ++v33;
+        v30 = *++buffer;
+        ++v27;
       }
-      while ( isspace(v36) );
+      while ( isspace(v30) );
     }
-    v37 = &g_consoleField.buffer[v33];
-    if ( !isspace(*v37) )
+    v31 = &g_consoleField.buffer[v27];
+    if ( !isspace(*v31) )
     {
       do
       {
-        v38 = *++v37;
-        ++v33;
+        v32 = *++v31;
+        ++v27;
       }
-      while ( !isspace(v38) );
+      while ( !isspace(v32) );
     }
-    v39 = &g_consoleField.buffer[v33];
-    if ( isspace(*v39) )
+    v33 = &g_consoleField.buffer[v27];
+    if ( isspace(*v33) )
     {
       do
       {
-        v40 = *++v39;
-        ++v33;
+        v34 = *++v33;
+        ++v27;
       }
-      while ( isspace(v40) );
+      while ( isspace(v34) );
     }
-    R_TextWidth(g_consoleField.buffer, v33, consoleFont);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40000000
-      vmovss  xmm4, cs:conDrawInputGlob.fontHeight
-    }
-    _RBX = DVARVEC4_con_inputHintBoxColor;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm1, xmm0, cs:conDrawInputGlob.leftX
-      vsubss  xmm7, xmm1, xmm6
-      vaddss  xmm1, xmm4, dword ptr cs:?con@@3UConsole@@A.screenMin+4; Console con
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rsp+608h+var_5B8]
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, [rsp+608h+var_5B4]
-      vaddss  xmm9, xmm2, cs:__real@40800000
-      vaddss  xmm8, xmm1, xmm6
-      vmulss  xmm1, xmm0, xmm4
-      vaddss  xmm10, xmm1, cs:__real@40800000
-    }
+    v35 = R_TextWidth(g_consoleField.buffer, v27, consoleFont);
+    v36 = DVARVEC4_con_inputHintBoxColor;
+    v37 = (float)((float)v35 + conDrawInputGlob.leftX) - 2.0;
+    v38 = (float)(conDrawInputGlob.fontHeight + con.screenMin.v[1]) + 2.0;
+    v39 = (float)((float)v44 * conDrawInputGlob.fontHeight) + 4.0;
     if ( !DVARVEC4_con_inputHintBoxColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_inputHintBoxColor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v36);
+    color = v36->current.vector;
+    ConDraw_Box(v37, v38, (float)v45 + 4.0, v39, &color);
+    conDrawInputGlob.x = v37 + 2.0;
+    conDrawInputGlob.y = v38 + 2.0;
+    conDrawInputGlob.leftX = v37 + 2.0;
+    if ( v26 > 0 )
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rsp+608h+color], xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rsp+608h+color+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rsp+608h+color+8], xmm0
-      vmovss  xmm1, dword ptr [rbx+34h]
-      vmovss  dword ptr [rsp+608h+color+0Ch], xmm1
-      vmovaps xmm1, xmm8; y
-      vmovaps xmm3, xmm10; h
-      vmovaps xmm2, xmm9; w
-      vmovaps xmm0, xmm7; x
-    }
-    ConDraw_Box(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color);
-    __asm
-    {
-      vmovaps xmm10, [rsp+608h+var_78]
-      vaddss  xmm1, xmm7, xmm6
-      vaddss  xmm0, xmm8, xmm6
-      vmovss  cs:conDrawInputGlob.x, xmm1
-      vmovss  cs:conDrawInputGlob.y, xmm0
-      vmovss  cs:conDrawInputGlob.leftX, xmm1
-    }
-    if ( v32 > 0 )
-    {
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3f800000
-        vxorps  xmm9, xmm9, xmm9
-      }
       do
       {
-        v70 = (const char *)Base[v31];
-        if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1281, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
+        v40 = (const char *)Base[v25];
+        if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1281, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, cs:conDrawInputGlob.y
-          vaddss  xmm6, xmm0, cs:conDrawInputGlob.fontHeight
-          vmovss  xmm7, cs:conDrawInputGlob.x
-        }
-        v74 = R_TextHeight(cls.consoleFont);
-        __asm
-        {
-          vmovss  [rsp+608h+var_5C8], xmm9
-          vmovss  [rsp+608h+var_5D0], xmm8
-          vmovss  [rsp+608h+xScale], xmm8
-          vmovss  [rsp+608h+y], xmm6
-          vmovss  dword ptr [rsp+608h+fmt], xmm7
-        }
-        R_AddCmdDrawText(v70, 0x7FFFFFFF, cls.consoleFont, v74, fmt, y, xScale, v85, v86, &con_inputDvarInfoColor);
-        __asm
-        {
-          vmovss  xmm0, cs:conDrawInputGlob.y
-          vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-          vmovss  xmm2, cs:conDrawInputGlob.leftX
-        }
-        ++v31;
-        __asm
-        {
-          vmovss  cs:conDrawInputGlob.y, xmm1
-          vmovss  cs:conDrawInputGlob.x, xmm2
-        }
+        y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+        x = conDrawInputGlob.x;
+        v43 = R_TextHeight(cls.consoleFont);
+        R_AddCmdDrawText(v40, 0x7FFFFFFF, cls.consoleFont, v43, x, y, 1.0, 1.0, 0.0, &con_inputDvarInfoColor);
+        ++v25;
+        conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+        conDrawInputGlob.x = conDrawInputGlob.leftX;
       }
-      while ( v31 < v32 );
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+608h+var_58]
-      vmovaps xmm7, [rsp+608h+var_48]
-      vmovaps xmm6, [rsp+608h+var_38]
-      vmovaps xmm9, [rsp+608h+var_68]
+      while ( v25 < v26 );
     }
   }
 }
@@ -1141,14 +1040,8 @@ void ConDrawInput_CmdMatch(const char *str)
   if ( Con_IsAutoCompleteMatch(str, conDrawInputGlob.inputText, conDrawInputGlob.inputTextLen) )
   {
     ConDrawInput_Text(str, &con_inputCommandMatchColor);
-    __asm
-    {
-      vmovss  xmm0, cs:conDrawInputGlob.y
-      vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-      vmovss  xmm2, cs:conDrawInputGlob.leftX
-      vmovss  cs:conDrawInputGlob.y, xmm1
-      vmovss  cs:conDrawInputGlob.x, xmm2
-    }
+    conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+    conDrawInputGlob.x = conDrawInputGlob.leftX;
   }
 }
 
@@ -1169,6 +1062,7 @@ ConDrawInput_DetailedCmdMatch
 */
 void ConDrawInput_DetailedCmdMatch(const char *str)
 {
+  const dvar_t *v2; 
   char **stringList[2]; 
   CmdAutoCompleteResults result; 
   vec4_t color; 
@@ -1177,50 +1071,20 @@ void ConDrawInput_DetailedCmdMatch(const char *str)
     __debugbreak();
   if ( Con_IsAutoCompleteMatch(str, conDrawInputGlob.inputText, conDrawInputGlob.inputTextLen) && (!conDrawInputGlob.hasExactMatch || !str[conDrawInputGlob.inputTextLen]) )
   {
-    _RDI = DVARVEC4_con_inputHintBoxColor;
+    v2 = DVARVEC4_con_inputHintBoxColor;
     if ( !DVARVEC4_con_inputHintBoxColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_inputHintBoxColor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovss  xmm2, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vsubss  xmm4, xmm2, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vmovss  dword ptr [rsp+88h+color], xmm0
-      vmovss  xmm1, dword ptr [rdi+2Ch]
-      vmovss  dword ptr [rsp+88h+color+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+30h]
-      vmovss  dword ptr [rsp+88h+color+8], xmm0
-      vmovss  xmm1, dword ptr [rdi+34h]
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vsubss  xmm0, xmm0, cs:__real@40000000; x
-      vmovss  dword ptr [rsp+88h+color+0Ch], xmm1
-      vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-      vaddss  xmm3, xmm1, cs:__real@40800000; h
-      vsubss  xmm1, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vsubss  xmm2, xmm4, xmm1; w
-      vmovss  xmm4, cs:conDrawInputGlob.y
-      vsubss  xmm1, xmm4, cs:__real@40000000; y
-    }
-    ConDraw_Box(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color);
+    Dvar_CheckFrontendServerThread(v2);
+    color = v2->current.vector;
+    ConDraw_Box(conDrawInputGlob.x - 2.0, conDrawInputGlob.y - 2.0, (float)(con.screenMax.v[0] - con.screenMin.v[0]) - (float)((float)(conDrawInputGlob.x - 2.0) - con.screenMin.v[0]), conDrawInputGlob.fontHeight + 4.0, &color);
     ConDrawInput_Text(str, &con_inputCommandMatchColor);
-    __asm
-    {
-      vmovss  xmm0, cs:conDrawInputGlob.y
-      vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-      vmovss  xmm2, cs:conDrawInputGlob.leftX
-      vmovss  cs:conDrawInputGlob.y, xmm1
-      vmovss  cs:conDrawInputGlob.x, xmm2
-    }
-    _RAX = Cmd_GetAutoCompleteParameters(&result, str, "ConDrawInput_DetailedCmdMatch");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vpextrd rdx, xmm0, 2; stringCount
-      vmovups xmmword ptr [rsp+88h+stringList], xmm0
-    }
+    conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+    conDrawInputGlob.x = conDrawInputGlob.leftX;
+    _XMM0 = (__int128)*Cmd_GetAutoCompleteParameters(&result, str, "ConDrawInput_DetailedCmdMatch");
+    __asm { vpextrd rdx, xmm0, 2; stringCount }
+    *(_OWORD *)stringList = _XMM0;
     if ( (int)_RDX > 0 )
-      ConDrawInput_AutoCompleteArg((const char *const *)stringList[0], _RDX, *(double *)&_XMM2);
+      ConDrawInput_AutoCompleteArg((const char *const *)stringList[0], _RDX);
     Cmd_ReleaseAutoCompleteParameters((const CmdAutoCompleteResults *)stringList);
   }
 }
@@ -1232,39 +1096,39 @@ ConDrawInput_DetailedDvarMatch
 */
 void ConDrawInput_DetailedDvarMatch(const char *str)
 {
-  int v7; 
   const dvar_t *VarByName; 
   bool HasLatchedValue; 
-  const char *v36; 
-  int v43; 
-  const char *v46; 
-  int v49; 
-  const char *v52; 
-  const char *description; 
-  unsigned __int64 v59; 
-  int v60; 
-  unsigned __int64 i; 
-  int v62; 
-  const char *v75; 
-  unsigned int v79; 
-  __int64 v81; 
-  __int64 v88; 
-  int v92; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  const dvar_t *v4; 
+  int v5; 
+  bool v6; 
+  const char *v11; 
+  float fontHeight; 
+  float v13; 
+  float v14; 
+  float leftX; 
   float y; 
-  float ya; 
-  float yb; 
-  float xScale; 
-  float xScalea; 
-  float xScaleb; 
-  float v109; 
-  float v110; 
-  float v111; 
-  float v112; 
-  float v113; 
-  float v114; 
+  int v17; 
+  const char *v18; 
+  int v19; 
+  const char *v20; 
+  const char *description; 
+  unsigned __int64 v22; 
+  int v23; 
+  unsigned __int64 i; 
+  int v25; 
+  const char *v26; 
+  float v27; 
+  __int128 y_low; 
+  unsigned int v29; 
+  __int128 v30; 
+  __int128 fontHeight_low; 
+  __int64 v32; 
+  __int128 v33; 
+  __int64 v34; 
+  __int128 v35; 
+  float x; 
+  float v37; 
+  int v38; 
   int outLineCount; 
   vec4_t color; 
   char outBuffer[1024]; 
@@ -1273,263 +1137,131 @@ void ConDrawInput_DetailedDvarMatch(const char *str)
     __debugbreak();
   if ( Con_IsAutoCompleteMatch(str, conDrawInputGlob.inputText, conDrawInputGlob.inputTextLen) && (!conDrawInputGlob.hasExactMatch || !str[conDrawInputGlob.inputTextLen]) )
   {
-    v7 = *str;
-    __asm
-    {
-      vmovaps [rsp+4E8h+var_28], xmm6
-      vmovaps [rsp+4E8h+var_38], xmm7
-      vmovaps [rsp+4E8h+var_48], xmm8
-      vmovaps [rsp+4E8h+var_58], xmm9
-      vmovaps [rsp+4E8h+var_68], xmm11
-    }
-    if ( isalpha(v7) || (VarByName = Dvar_FindVarByChecksumString(str)) == NULL )
+    if ( isalpha(*str) || (VarByName = Dvar_FindVarByChecksumString(str)) == NULL )
     {
       VarByName = Dvar_FindVarByName(str);
       if ( !VarByName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1674, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
         __debugbreak();
     }
     HasLatchedValue = Dvar_HasLatchedValue(VarByName);
-    __asm { vmovss  xmm7, cs:__real@40000000 }
-    _RBP = DVARVEC4_con_inputHintBoxColor;
-    _ESI = 0;
-    _ER14 = HasLatchedValue;
-    __asm
-    {
-      vmovd   xmm0, r14d
-      vmovd   xmm1, esi
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm0, cs:__real@40400000
-      vblendvps xmm1, xmm0, xmm7, xmm2
-      vmovss  [rsp+4E8h+var_498], xmm1
-    }
+    v4 = DVARVEC4_con_inputHintBoxColor;
+    v5 = 0;
+    v6 = HasLatchedValue;
+    _XMM0 = HasLatchedValue;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM0 = LODWORD(FLOAT_3_0);
+    __asm { vblendvps xmm1, xmm0, xmm7, xmm2 }
     if ( !DVARVEC4_con_inputHintBoxColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_inputHintBoxColor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+28h]
-      vmovss  dword ptr [rsp+4E8h+color], xmm0
-      vmovss  xmm1, dword ptr [rbp+2Ch]
-      vmovss  dword ptr [rsp+4E8h+color+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+30h]
-      vmovss  dword ptr [rsp+4E8h+color+8], xmm0
-      vmovss  xmm1, dword ptr [rbp+34h]
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vmovss  dword ptr [rsp+4E8h+color+0Ch], xmm1
-      vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-      vmulss  xmm2, xmm1, [rsp+4E8h+var_498]
-      vmovss  xmm1, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vsubss  xmm4, xmm1, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vaddss  xmm3, xmm2, cs:__real@40800000; h
-      vmovss  xmm1, cs:conDrawInputGlob.y
-      vsubss  xmm0, xmm0, xmm7; x
-      vsubss  xmm2, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vsubss  xmm1, xmm1, xmm7; y
-      vsubss  xmm2, xmm4, xmm2; w
-    }
-    ConDraw_Box(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color);
+    Dvar_CheckFrontendServerThread(v4);
+    color = v4->current.vector;
+    ConDraw_Box(conDrawInputGlob.x - 2.0, conDrawInputGlob.y - 2.0, (float)(con.screenMax.v[0] - con.screenMin.v[0]) - (float)((float)(conDrawInputGlob.x - 2.0) - con.screenMin.v[0]), (float)(conDrawInputGlob.fontHeight * *(float *)&_XMM1) + 4.0, &color);
     ConDrawInput_TextLimitChars(str, 64, &con_inputDvarMatchColor);
-    __asm
+    conDrawInputGlob.x = conDrawInputGlob.x + 650.0;
+    v11 = Dvar_DisplayableValue(VarByName);
+    ConDrawInput_TextLimitChars(v11, 40, &con_inputDvarValueColor);
+    fontHeight = conDrawInputGlob.fontHeight;
+    v14 = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+    v13 = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+    leftX = conDrawInputGlob.leftX;
+    conDrawInputGlob.y = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+    conDrawInputGlob.x = conDrawInputGlob.leftX;
+    if ( v6 )
     {
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vaddss  xmm1, xmm0, cs:__real@44228000
-      vmovss  cs:conDrawInputGlob.x, xmm1
+      y = v14 + conDrawInputGlob.fontHeight;
+      v17 = R_TextHeight(cls.consoleFont);
+      R_AddCmdDrawText("  latched value", 0x7FFFFFFF, cls.consoleFont, v17, leftX, y, 1.0, 1.0, 0.0, &con_inputDvarInactiveValueColor);
+      conDrawInputGlob.x = conDrawInputGlob.x + 650.0;
+      v18 = Dvar_DisplayableLatchedValue(VarByName);
+      ConDrawInput_TextLimitChars(v18, 40, &con_inputDvarInactiveValueColor);
+      fontHeight = conDrawInputGlob.fontHeight;
+      v13 = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+      leftX = conDrawInputGlob.leftX;
+      conDrawInputGlob.y = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+      conDrawInputGlob.x = conDrawInputGlob.leftX;
     }
-    v36 = Dvar_DisplayableValue(VarByName);
-    ConDrawInput_TextLimitChars(v36, 40, &con_inputDvarValueColor);
-    __asm
-    {
-      vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-      vaddss  xmm0, xmm1, cs:conDrawInputGlob.y
-      vmovss  xmm8, cs:conDrawInputGlob.leftX
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  cs:conDrawInputGlob.y, xmm0
-      vmovss  cs:conDrawInputGlob.x, xmm8
-      vxorps  xmm11, xmm11, xmm11
-    }
-    if ( _ER14 )
-    {
-      __asm { vaddss  xmm6, xmm0, xmm1 }
-      v43 = R_TextHeight(cls.consoleFont);
-      __asm
-      {
-        vmovss  [rsp+4E8h+var_4A8], xmm11
-        vmovss  [rsp+4E8h+var_4B0], xmm9
-        vmovss  [rsp+4E8h+xScale], xmm9
-        vmovss  [rsp+4E8h+y], xmm6
-        vmovss  dword ptr [rsp+4E8h+fmt], xmm8
-      }
-      R_AddCmdDrawText("  latched value", 0x7FFFFFFF, cls.consoleFont, v43, fmt, y, xScale, v109, v112, &con_inputDvarInactiveValueColor);
-      __asm
-      {
-        vmovss  xmm0, cs:conDrawInputGlob.x
-        vaddss  xmm1, xmm0, cs:__real@44228000
-        vmovss  cs:conDrawInputGlob.x, xmm1
-      }
-      v46 = Dvar_DisplayableLatchedValue(VarByName);
-      ConDrawInput_TextLimitChars(v46, 40, &con_inputDvarInactiveValueColor);
-      __asm
-      {
-        vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-        vaddss  xmm0, xmm1, cs:conDrawInputGlob.y
-        vmovss  xmm8, cs:conDrawInputGlob.leftX
-        vmovss  cs:conDrawInputGlob.y, xmm0
-        vmovss  cs:conDrawInputGlob.x, xmm8
-      }
-    }
-    __asm { vaddss  xmm6, xmm1, xmm0 }
-    v49 = R_TextHeight(cls.consoleFont);
-    __asm
-    {
-      vmovss  [rsp+4E8h+var_4A8], xmm11
-      vmovss  [rsp+4E8h+var_4B0], xmm9
-      vmovss  [rsp+4E8h+xScale], xmm9
-      vmovss  [rsp+4E8h+y], xmm6
-      vmovss  dword ptr [rsp+4E8h+fmt], xmm8
-    }
-    R_AddCmdDrawText("  default", 0x7FFFFFFF, cls.consoleFont, v49, fmta, ya, xScalea, v110, v113, &con_inputDvarInactiveValueColor);
-    __asm
-    {
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vaddss  xmm1, xmm0, cs:__real@44228000
-      vmovss  cs:conDrawInputGlob.x, xmm1
-    }
-    v52 = Dvar_DisplayableResetValue(VarByName);
-    ConDrawInput_TextLimitChars(v52, 40, &con_inputDvarInactiveValueColor);
-    __asm
-    {
-      vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-      vaddss  xmm0, xmm1, cs:conDrawInputGlob.y
-      vmovss  xmm2, cs:conDrawInputGlob.leftX
-      vaddss  xmm1, xmm0, xmm1
-      vmovss  cs:conDrawInputGlob.y, xmm1
-      vmovss  cs:conDrawInputGlob.x, xmm2
-    }
+    v19 = R_TextHeight(cls.consoleFont);
+    R_AddCmdDrawText("  default", 0x7FFFFFFF, cls.consoleFont, v19, leftX, fontHeight + v13, 1.0, 1.0, 0.0, &con_inputDvarInactiveValueColor);
+    conDrawInputGlob.x = conDrawInputGlob.x + 650.0;
+    v20 = Dvar_DisplayableResetValue(VarByName);
+    ConDrawInput_TextLimitChars(v20, 40, &con_inputDvarInactiveValueColor);
+    conDrawInputGlob.y = (float)(conDrawInputGlob.fontHeight + conDrawInputGlob.y) + conDrawInputGlob.fontHeight;
+    conDrawInputGlob.x = conDrawInputGlob.leftX;
     Dvar_DomainToString_GetLines(VarByName, outBuffer, 0x400ui64, &outLineCount);
     description = VarByName->description;
-    __asm { vmovaps xmm8, [rsp+4E8h+var_48] }
     if ( description )
     {
-      v59 = -1i64;
+      v22 = -1i64;
       do
-        ++v59;
-      while ( description[v59] );
-      v60 = 1;
-      for ( i = 0i64; i < v59; v60 = v62 )
+        ++v22;
+      while ( description[v22] );
+      v23 = 1;
+      for ( i = 0i64; i < v22; v23 = v25 )
       {
-        v62 = v60 + 1;
+        v25 = v23 + 1;
         if ( description[i] != 10 )
-          v62 = v60;
+          v25 = v23;
         ++i;
       }
     }
     else
     {
-      v60 = 0;
+      v23 = 0;
     }
-    __asm
+    ConDraw_Box(conDrawInputGlob.x - 2.0, conDrawInputGlob.y - 2.0, (float)(con.screenMax.v[0] - con.screenMin.v[0]) - (float)((float)(conDrawInputGlob.x - 2.0) - con.screenMin.v[0]), (float)((float)(v23 + outLineCount + 1) * conDrawInputGlob.fontHeight) + 4.0, &color);
+    v26 = VarByName->description;
+    if ( v26 )
     {
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vxorps  xmm1, xmm1, xmm1
-      vsubss  xmm0, xmm0, xmm7; x
-      vcvtsi2ss xmm1, xmm1, ecx
-      vmulss  xmm2, xmm1, cs:conDrawInputGlob.fontHeight
-      vmovss  xmm1, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vsubss  xmm4, xmm1, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vaddss  xmm3, xmm2, cs:__real@40800000; h
-      vmovss  xmm1, cs:conDrawInputGlob.y
-      vsubss  xmm2, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vsubss  xmm1, xmm1, xmm7; y
-      vsubss  xmm2, xmm4, xmm2; w
-    }
-    ConDraw_Box(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color);
-    v75 = VarByName->description;
-    if ( v75 )
-    {
-      ConDrawInput_Text(v75, &con_inputDvarDescriptionColor);
-      __asm
+      ConDrawInput_Text(v26, &con_inputDvarDescriptionColor);
+      v27 = conDrawInputGlob.fontHeight;
+      y_low = LODWORD(conDrawInputGlob.y);
+      if ( v23 >= 8 )
       {
-        vmovss  xmm4, cs:conDrawInputGlob.fontHeight
-        vmovss  xmm5, cs:conDrawInputGlob.leftX
-        vmovss  xmm0, cs:conDrawInputGlob.y
-      }
-      if ( v60 >= 8 )
-      {
-        v79 = ((unsigned int)(v60 - 8) >> 3) + 1;
-        __asm { vmulss  xmm6, xmm4, xmm7 }
-        v81 = v79;
-        _ESI = 8 * v79;
+        v29 = ((unsigned int)(v23 - 8) >> 3) + 1;
+        fontHeight_low = LODWORD(conDrawInputGlob.fontHeight);
+        *(float *)&fontHeight_low = conDrawInputGlob.fontHeight * 2.0;
+        v30 = fontHeight_low;
+        v32 = v29;
+        v5 = 8 * v29;
         do
         {
-          __asm
-          {
-            vaddss  xmm0, xmm6, xmm0
-            vaddss  xmm1, xmm0, xmm4
-            vaddss  xmm2, xmm1, xmm4
-            vaddss  xmm3, xmm2, xmm4
-            vaddss  xmm0, xmm3, xmm4
-            vaddss  xmm1, xmm0, xmm4
-            vaddss  xmm0, xmm1, xmm4
-            vmovss  cs:conDrawInputGlob.x, xmm5
-          }
-          --v81;
+          v33 = v30;
+          *(float *)&v33 = (float)((float)((float)((float)((float)((float)(*(float *)&v30 + *(float *)&y_low) + conDrawInputGlob.fontHeight) + conDrawInputGlob.fontHeight) + conDrawInputGlob.fontHeight) + conDrawInputGlob.fontHeight) + conDrawInputGlob.fontHeight) + conDrawInputGlob.fontHeight;
+          y_low = v33;
+          conDrawInputGlob.x = conDrawInputGlob.leftX;
+          --v32;
         }
-        while ( v81 );
-        __asm { vmovss  cs:conDrawInputGlob.y, xmm0 }
+        while ( v32 );
+        conDrawInputGlob.y = *(float *)&v33;
       }
-      if ( _ESI < v60 )
+      if ( v5 < v23 )
       {
-        v88 = (unsigned int)(v60 - _ESI);
+        v34 = (unsigned int)(v23 - v5);
         do
         {
-          __asm
-          {
-            vmovss  cs:conDrawInputGlob.x, xmm5
-            vaddss  xmm0, xmm0, xmm4
-          }
-          --v88;
+          conDrawInputGlob.x = conDrawInputGlob.leftX;
+          v35 = y_low;
+          *(float *)&v35 = *(float *)&y_low + conDrawInputGlob.fontHeight;
+          y_low = v35;
+          --v34;
         }
-        while ( v88 );
-        __asm { vmovss  cs:conDrawInputGlob.y, xmm0 }
+        while ( v34 );
+        conDrawInputGlob.y = *(float *)&v35;
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm4, cs:conDrawInputGlob.fontHeight
-        vmovss  xmm0, cs:conDrawInputGlob.y
-      }
+      v27 = conDrawInputGlob.fontHeight;
+      *(float *)&y_low = conDrawInputGlob.y;
     }
-    __asm
-    {
-      vmovss  xmm7, cs:conDrawInputGlob.x
-      vaddss  xmm6, xmm4, xmm0
-    }
-    v92 = R_TextHeight(cls.consoleFont);
-    __asm
-    {
-      vmovss  [rsp+4E8h+var_4A8], xmm11
-      vmovss  [rsp+4E8h+var_4B0], xmm9
-      vmovss  [rsp+4E8h+xScale], xmm9
-      vmovss  [rsp+4E8h+y], xmm6
-      vmovss  dword ptr [rsp+4E8h+fmt], xmm7
-    }
-    R_AddCmdDrawText(outBuffer, 0x7FFFFFFF, cls.consoleFont, v92, fmtb, yb, xScaleb, v111, v114, &con_inputDvarInfoColor);
-    __asm
-    {
-      vmovss  xmm0, cs:conDrawInputGlob.y
-      vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-      vmovss  xmm2, cs:conDrawInputGlob.leftX
-      vmovaps xmm11, [rsp+4E8h+var_68]
-      vmovaps xmm9, [rsp+4E8h+var_58]
-      vmovaps xmm7, [rsp+4E8h+var_38]
-      vmovaps xmm6, [rsp+4E8h+var_28]
-      vmovss  cs:conDrawInputGlob.y, xmm1
-      vmovss  cs:conDrawInputGlob.x, xmm2
-    }
+    x = conDrawInputGlob.x;
+    v37 = v27 + *(float *)&y_low;
+    v38 = R_TextHeight(cls.consoleFont);
+    R_AddCmdDrawText(outBuffer, 0x7FFFFFFF, cls.consoleFont, v38, x, v37, 1.0, 1.0, 0.0, &con_inputDvarInfoColor);
+    conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+    conDrawInputGlob.x = conDrawInputGlob.leftX;
     if ( VarByName->type == 8 && Cmd_Argc() == 2 )
-      ConDrawInput_AutoCompleteArg(VarByName->domain.enumeration.strings, VarByName->domain.enumeration.stringCount, *(double *)&_XMM2);
+      ConDrawInput_AutoCompleteArg(VarByName->domain.enumeration.strings, VarByName->domain.enumeration.stringCount);
   }
 }
 
@@ -1547,22 +1279,11 @@ void ConDrawInput_DvarMatch(const char *str)
   if ( Con_IsAutoCompleteMatch(str, conDrawInputGlob.inputText, conDrawInputGlob.inputTextLen) )
   {
     ConDrawInput_TextLimitChars(str, 64, &con_inputDvarMatchColor);
-    __asm
-    {
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vaddss  xmm1, xmm0, cs:__real@44228000
-      vmovss  cs:conDrawInputGlob.x, xmm1
-    }
+    conDrawInputGlob.x = conDrawInputGlob.x + 650.0;
     VariantString = Dvar_GetVariantString(str);
     ConDrawInput_TextLimitChars(VariantString, 40, &con_inputDvarValueColor);
-    __asm
-    {
-      vmovss  xmm0, cs:conDrawInputGlob.y
-      vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-      vmovss  xmm2, cs:conDrawInputGlob.leftX
-      vmovss  cs:conDrawInputGlob.y, xmm1
-      vmovss  cs:conDrawInputGlob.x, xmm2
-    }
+    conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+    conDrawInputGlob.x = conDrawInputGlob.leftX;
   }
 }
 
@@ -1599,43 +1320,16 @@ ConDrawInput_Text
 */
 void ConDrawInput_Text(const char *str, const vec4_t *color)
 {
-  int v9; 
-  float fmt; 
   float y; 
-  float v16; 
-  float v17; 
-  float v18; 
+  float x; 
+  int v6; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
   if ( !str && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1281, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:conDrawInputGlob.fontHeight
-    vaddss  xmm6, xmm0, cs:conDrawInputGlob.y
-    vmovss  xmm7, cs:conDrawInputGlob.x
-  }
-  v9 = R_TextHeight(cls.consoleFont);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+78h+var_38], xmm0
-    vmovss  [rsp+78h+var_40], xmm1
-    vmovss  [rsp+78h+var_48], xmm1
-    vmovss  [rsp+78h+y], xmm6
-    vmovss  dword ptr [rsp+78h+fmt], xmm7
-  }
-  R_AddCmdDrawText(str, 0x7FFFFFFF, cls.consoleFont, v9, fmt, y, v16, v17, v18, color);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
+  y = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+  x = conDrawInputGlob.x;
+  v6 = R_TextHeight(cls.consoleFont);
+  R_AddCmdDrawText(str, 0x7FFFFFFF, cls.consoleFont, v6, x, y, 1.0, 1.0, 0.0, color);
 }
 
 /*
@@ -1645,43 +1339,16 @@ ConDrawInput_TextLimitChars
 */
 void ConDrawInput_TextLimitChars(const char *str, int maxChars, const vec4_t *color)
 {
-  int v11; 
-  float fmt; 
   float y; 
-  float v18; 
-  float v19; 
-  float v20; 
+  float x; 
+  int v8; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
   if ( !str && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1288, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:conDrawInputGlob.fontHeight
-    vaddss  xmm6, xmm0, cs:conDrawInputGlob.y
-    vmovss  xmm7, cs:conDrawInputGlob.x
-  }
-  v11 = R_TextHeight(cls.consoleFont);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+78h+var_38], xmm0
-    vmovss  [rsp+78h+var_40], xmm1
-    vmovss  [rsp+78h+var_48], xmm1
-    vmovss  [rsp+78h+y], xmm6
-    vmovss  dword ptr [rsp+78h+fmt], xmm7
-  }
-  R_AddCmdDrawText(str, maxChars, cls.consoleFont, v11, fmt, y, v18, v19, v20, color);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
+  y = conDrawInputGlob.fontHeight + conDrawInputGlob.y;
+  x = conDrawInputGlob.x;
+  v8 = R_TextHeight(cls.consoleFont);
+  R_AddCmdDrawText(str, maxChars, cls.consoleFont, v8, x, y, 1.0, 1.0, 0.0, color);
 }
 
 /*
@@ -1689,127 +1356,23 @@ void ConDrawInput_TextLimitChars(const char *str, int maxChars, const vec4_t *co
 ConDraw_Box
 ==============
 */
-
-void __fastcall ConDraw_Box(double x, double y, double w, double h, const vec4_t *color)
+void ConDraw_Box(float x, float y, float w, float h, const vec4_t *color)
 {
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  float v57; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float v68; 
-  vec4_t v69; 
-  char v70; 
-  void *retaddr; 
+  float v7; 
+  float v8; 
+  vec4_t v9; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
-  _RBX = color;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+0D8h+var_A0], xmm7
-    vmovss  [rsp+0D8h+var_A8], xmm7
-    vmovss  [rsp+0D8h+var_B0], xmm7
-    vmovss  [rsp+0D8h+var_B8], xmm7
-    vmovaps xmm9, xmm3
-    vmovaps xmm11, xmm2
-    vmovaps xmm8, xmm1
-    vmovaps xmm10, xmm0
-  }
-  R_AddCmdDrawStretchPic(*(float *)&x, *(float *)&y, *(float *)&w, *(float *)&h, v49, v54, v59, v64, color, cls.whiteMaterial);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f000000
-    vmulss  xmm2, xmm3, dword ptr [rbx+4]
-    vmulss  xmm0, xmm3, dword ptr [rbx]
-    vmulss  xmm1, xmm3, dword ptr [rbx+8]
-    vmovss  xmm6, cs:__real@40000000
-    vmovss  dword ptr [rsp+0D8h+var_88+4], xmm2
-    vmovss  xmm2, dword ptr [rbx+0Ch]
-    vmovss  [rsp+0D8h+var_A0], xmm7
-    vmovss  dword ptr [rsp+0D8h+var_88+0Ch], xmm2
-    vmovss  [rsp+0D8h+var_A8], xmm7
-    vmovss  dword ptr [rsp+0D8h+var_88], xmm0
-    vmovss  dword ptr [rsp+0D8h+var_88+8], xmm1
-    vmovss  [rsp+0D8h+var_B0], xmm7
-    vmovaps xmm2, xmm6; w
-    vmovaps xmm3, xmm9; h
-    vmovaps xmm1, xmm8; y
-    vmovaps xmm0, xmm10; x
-    vmovss  [rsp+0D8h+var_B8], xmm7
-  }
-  R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v50, v55, v60, v65, &v69, cls.whiteMaterial);
-  __asm
-  {
-    vmovss  [rsp+0D8h+var_A0], xmm7
-    vaddss  xmm0, xmm11, xmm10
-    vmovss  [rsp+0D8h+var_A8], xmm7
-    vmovss  [rsp+0D8h+var_B0], xmm7
-    vsubss  xmm0, xmm0, xmm6; x
-    vmovaps xmm3, xmm9; h
-    vmovaps xmm2, xmm6; w
-    vmovaps xmm1, xmm8; y
-    vmovss  [rsp+0D8h+var_B8], xmm7
-  }
-  R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v51, v56, v61, v66, &v69, cls.whiteMaterial);
-  __asm
-  {
-    vmovss  [rsp+0D8h+var_A0], xmm7
-    vmovss  [rsp+0D8h+var_A8], xmm7
-    vmovss  [rsp+0D8h+var_B0], xmm7
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm11; w
-    vmovaps xmm1, xmm8; y
-    vmovaps xmm0, xmm10; x
-    vmovss  [rsp+0D8h+var_B8], xmm7
-  }
-  R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v52, v57, v62, v67, &v69, cls.whiteMaterial);
-  __asm
-  {
-    vaddss  xmm0, xmm9, xmm8
-    vmovss  [rsp+0D8h+var_A0], xmm7
-    vmovss  [rsp+0D8h+var_A8], xmm7
-    vsubss  xmm1, xmm0, xmm6; y
-    vmovss  [rsp+0D8h+var_B0], xmm7
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm11; w
-    vmovaps xmm0, xmm10; x
-    vmovss  [rsp+0D8h+var_B8], xmm7
-  }
-  R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v53, v58, v63, v68, &v69, cls.whiteMaterial);
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  R_AddCmdDrawStretchPic(x, y, w, h, 0.0, 0.0, 0.0, 0.0, color, cls.whiteMaterial);
+  v7 = 0.5 * color->v[0];
+  v8 = 0.5 * color->v[2];
+  v9.v[1] = 0.5 * color->v[1];
+  v9.v[3] = color->v[3];
+  v9.v[0] = v7;
+  v9.v[2] = v8;
+  R_AddCmdDrawStretchPic(x, y, 2.0, h, 0.0, 0.0, 0.0, 0.0, &v9, cls.whiteMaterial);
+  R_AddCmdDrawStretchPic((float)(w + x) - 2.0, y, 2.0, h, 0.0, 0.0, 0.0, 0.0, &v9, cls.whiteMaterial);
+  R_AddCmdDrawStretchPic(x, y, w, 2.0, 0.0, 0.0, 0.0, 0.0, &v9, cls.whiteMaterial);
+  R_AddCmdDrawStretchPic(x, (float)(h + y) - 2.0, w, 2.0, 0.0, 0.0, 0.0, 0.0, &v9, cls.whiteMaterial);
 }
 
 /*
@@ -1987,54 +1550,27 @@ void Con_CheckResize(const ScreenPlacement *scrPlace)
 {
   int fontHeight; 
 
-  _EDI = 0;
-  __asm
-  {
-    vmovss  xmm2, cs:__real@40800000
-    vmovd   xmm1, edi
-    vmovaps [rsp+48h+var_18], xmm6
-  }
-  _EDX = cl_modifiedDebugPlacement->current.color[0];
-  __asm
-  {
-    vmovd   xmm0, edx
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@c1a00000
-    vblendvps xmm6, xmm1, xmm2, xmm3
-    vmovaps xmm1, xmm6; x
-  }
-  ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, 1);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 1
-    vmovss  dword ptr cs:?con@@3UConsole@@A.screenMin, xmm1; Console con
-    vmovaps xmm1, xmm6; y
-  }
-  ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, 1);
-  __asm
-  {
-    vxorps  xmm6, xmm6, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 1
-    vmovss  dword ptr cs:?con@@3UConsole@@A.screenMin+4, xmm1; Console con
-    vmovaps xmm1, xmm6; x
-  }
-  ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, 3);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm0, 1
-    vmovaps xmm1, xmm6; y
-    vmovss  dword ptr cs:?con@@3UConsole@@A.screenMax, xmm2; Console con
-  }
-  ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, 3);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 1
-    vmovss  dword ptr cs:?con@@3UConsole@@A.screenMax+4, xmm1; Console con
-  }
+  _XMM0 = cl_modifiedDebugPlacement->current.color[0];
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_N20_0);
+  __asm { vblendvps xmm6, xmm1, xmm2, xmm3 }
+  ScrPlace_ApplyX(scrPlace, *(float *)&_XMM6, 1);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1 }
+  con.screenMin.v[0] = *(float *)&_XMM1;
+  ScrPlace_ApplyY(scrPlace, *(float *)&_XMM6, 1);
+  LODWORD(_XMM6) = _XMM6 ^ _xmm;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1 }
+  con.screenMin.v[1] = *(float *)&_XMM1;
+  ScrPlace_ApplyX(scrPlace, *(float *)&_XMM6, 3);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm0, 1 }
+  con.screenMax.v[0] = *(float *)&_XMM2;
+  ScrPlace_ApplyY(scrPlace, *(float *)&_XMM6, 3);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1 }
+  con.screenMax.v[1] = *(float *)&_XMM1;
   if ( cls.consoleFont )
   {
     con.fontHeight = R_TextHeight(cls.consoleFont);
@@ -2045,27 +1581,11 @@ void Con_CheckResize(const ScreenPlacement *scrPlace)
         __debugbreak();
       fontHeight = con.fontHeight;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?con@@3UConsole@@A.screenMax+4; Console con
-      vsubss  xmm2, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin+4; Console con
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vsubss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, cs:__real@41c00000
-      vmovss  xmm0, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vsubss  xmm1, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vcvttss2si eax, xmm2
-      vsubss  xmm2, xmm1, cs:__real@41e00000
-    }
-    con.visibleLineCount = _EAX / fontHeight;
-    __asm { vcvttss2si eax, xmm2 }
-    con.visiblePixelWidth = _EAX;
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    con.visibleLineCount = (int)(float)((float)((float)(con.screenMax.v[1] - con.screenMin.v[1]) - (float)(2 * fontHeight)) - 24.0) / fontHeight;
+    con.visiblePixelWidth = (int)(float)((float)(con.screenMax.v[0] - con.screenMin.v[0]) - 28.0);
   }
   else
   {
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
     *(_QWORD *)&con.fontHeight = 0i64;
     con.visiblePixelWidth = 0;
   }
@@ -2411,8 +1931,7 @@ LABEL_11:
 Con_DrawConsole
 ==============
 */
-
-void __fastcall Con_DrawConsole(LocalClientNum_t localClientNum, double _XMM1_8)
+void Con_DrawConsole(LocalClientNum_t localClientNum)
 {
   const ScreenPlacement *ActivePlacement; 
 
@@ -2434,22 +1953,11 @@ void __fastcall Con_DrawConsole(LocalClientNum_t localClientNum, double _XMM1_8)
       con.outputVisible = 0;
     }
     Con_DrawInput(localClientNum);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vmulss  xmm0, xmm0, cs:__real@3f000000; x
-      vmovss  xmm1, dword ptr cs:?con@@3UConsole@@A.screenMin+4; y
-    }
-    R_GPU_SetDrawTopOffset(*(float *)&_XMM0, *(float *)&_XMM1);
+    R_GPU_SetDrawTopOffset(con.screenMax.v[0] * 0.5, con.screenMin.v[1]);
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1; y
-      vxorps  xmm0, xmm0, xmm0; x
-    }
-    R_GPU_SetDrawTopOffset(*(float *)&_XMM0, *(float *)&_XMM1);
+    R_GPU_SetDrawTopOffset(0.0, 0.0);
   }
 }
 
@@ -2460,48 +1968,29 @@ Con_DrawErrors
 */
 void Con_DrawErrors(LocalClientNum_t localClientNum, int xPos, int yPos, int charHeight, float alpha)
 {
-  __int64 v6; 
+  __int64 v5; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *font; 
   ClActiveClient *Client; 
-  float v18; 
   vec4_t color; 
 
-  __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
-  v6 = localClientNum;
+  v5 = localClientNum;
   s_dontAllowNewErrors = 1;
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm2, xmm6; scale
-    vmovss  xmm0, [rsp+0C8h+alpha]
-  }
-  font = UI_GetFontHandle(ActivePlacement, 2, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsp+0C8h+var_58], xmm6
-    vmovss  dword ptr [rsp+0C8h+var_58+4], xmm6
-    vmovss  dword ptr [rsp+0C8h+var_58+8], xmm6
-    vmovss  dword ptr [rsp+0C8h+var_58+0Ch], xmm0
-  }
-  if ( !&con.currentServerTime[4648 * v6 - 4704] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2442, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
+  font = UI_GetFontHandle(ActivePlacement, 2, 1.0);
+  color.v[0] = FLOAT_1_0;
+  color.v[1] = FLOAT_1_0;
+  color.v[2] = FLOAT_1_0;
+  color.v[3] = alpha;
+  if ( !&con.currentServerTime[4648 * v5 - 4704] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2442, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
-  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v6) == CA_ACTIVE )
+  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v5) == CA_ACTIVE )
   {
-    Client = ClActiveClient::GetClient((const LocalClientNum_t)v6);
+    Client = ClActiveClient::GetClient((const LocalClientNum_t)v5);
     if ( Client->ShouldDisplayMsgWindow(Client) )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f70a3d7
-        vmovss  [rsp+0C8h+var_70], xmm0
-      }
-      Con_DrawMessageWindowOldToNew((LocalClientNum_t)v6, (MessageWindow *)&con.currentServerTime[4648 * v6 - 4704], xPos, yPos, charHeight, 1, 1, 0, font, &color, 3, v18, 4);
-    }
+      Con_DrawMessageWindowOldToNew((LocalClientNum_t)v5, (MessageWindow *)&con.currentServerTime[4648 * v5 - 4704], xPos, yPos, charHeight, 1, 1, 0, font, &color, 3, 0.94, 4);
   }
   s_dontAllowNewErrors = 0;
-  __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
 }
 
 /*
@@ -2511,45 +2000,30 @@ Con_DrawGameMessageWindow
 */
 void Con_DrawGameMessageWindow(LocalClientNum_t localClientNum, int windowIndex, int xPos, int yPos, int horzAlign, int vertAlign, GfxFont *font, float fontScale, const vec4_t *color, int textStyle, int textAlignMode, msgwnd_mode_t mode)
 {
-  __int64 v14; 
-  __int64 v16; 
-  int v26; 
-  int v27; 
-  float v28; 
+  __int64 v13; 
+  __int64 v15; 
+  float value; 
+  int v19; 
+  int v20; 
 
-  v14 = windowIndex;
-  v16 = localClientNum;
+  v13 = windowIndex;
+  v15 = localClientNum;
   if ( !CL_Pause_IsGamePaused() )
   {
-    __asm { vmovaps [rsp+98h+var_28], xmm6 }
     if ( CL_IsRenderingSplitScreen() )
-    {
-      _RAX = con_gameMsgWindowNSplitscreenScale[v14];
-      __asm { vmovss  xmm6, dword ptr [rax+28h] }
-    }
+      value = con_gameMsgWindowNSplitscreenScale[v13]->current.value;
     else
+      value = FLOAT_1_0;
+    _XMM0 = 0i64;
+    __asm { vroundss xmm1, xmm0, xmm3, 1 }
+    if ( (unsigned int)v13 >= 4 )
     {
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-    }
-    __asm
-    {
-      vmovss  xmm0, [rsp+98h+fontScale]
-      vmulss  xmm1, xmm0, cs:__real@42400000
-      vaddss  xmm3, xmm1, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm3, 1
-      vcvttss2si ebp, xmm1
-    }
-    if ( (unsigned int)v14 >= 4 )
-    {
-      v27 = 4;
-      v26 = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2483, ASSERT_TYPE_ASSERT, "(unsigned)( windowIndex ) < (unsigned)( (CON_DEST_GAME_LAST - CON_DEST_GAME_FIRST + 1) )", "windowIndex doesn't index GAMEMSG_WINDOW_COUNT\n\t%i not in [0, %i)", v26, v27) )
+      v20 = 4;
+      v19 = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2483, ASSERT_TYPE_ASSERT, "(unsigned)( windowIndex ) < (unsigned)( (CON_DEST_GAME_LAST - CON_DEST_GAME_FIRST + 1) )", "windowIndex doesn't index GAMEMSG_WINDOW_COUNT\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    __asm { vmovss  [rsp+98h+var_48], xmm6 }
-    Con_DrawMessageWindow((LocalClientNum_t)v16, (MessageWindow *)&con.currentServerTime[4648 * v16 - 7248 + 16 * v14], xPos, yPos, _EBP, horzAlign, vertAlign, font, color, textStyle, v28, mode, textAlignMode);
-    __asm { vmovaps xmm6, [rsp+98h+var_28] }
+    Con_DrawMessageWindow((LocalClientNum_t)v15, (MessageWindow *)&con.currentServerTime[4648 * v15 - 7248 + 16 * v13], xPos, yPos, (int)*(float *)&_XMM1, horzAlign, vertAlign, font, color, textStyle, value, mode, textAlignMode);
   }
 }
 
@@ -2560,28 +2034,32 @@ Con_DrawInput
 */
 void Con_DrawInput(LocalClientNum_t localClientNum)
 {
-  const char *v4; 
-  int v29; 
-  const char *v33; 
-  __int64 v34; 
-  unsigned __int64 v35; 
-  int v36; 
+  const char *v2; 
+  int v3; 
+  const dvar_t *v4; 
+  float v5; 
+  int v6; 
+  const char *v7; 
+  __int64 v8; 
+  unsigned __int64 v9; 
   const char *inputText; 
-  char v40; 
-  const char *v41; 
-  unsigned __int64 v42; 
+  char v11; 
+  const char *v12; 
+  unsigned __int64 v13; 
   bool Bool_Internal_DebugName; 
-  int v44; 
+  int v15; 
   int matchCount; 
   int inputTextLen; 
-  const char *v47; 
-  const dvar_t *v48; 
-  char *v49; 
+  const char *v18; 
+  const dvar_t *v19; 
+  char *v20; 
   int AutoCompleteColorCodedStringContiguous; 
+  int y; 
   int cursorPos; 
+  int x; 
   int drawLen; 
-  char *v64; 
-  const char *v74; 
+  const dvar_t *v26; 
+  const char *v27; 
   vec4_t color; 
   char _Buffer[256]; 
 
@@ -2589,131 +2067,78 @@ void Con_DrawInput(LocalClientNum_t localClientNum)
     __debugbreak();
   if ( CL_Keys_IsCatcherActive(localClientNum, 1) && Sys_IsMainThread() )
   {
-    __asm { vmovaps [rsp+1A8h+var_38], xmm6 }
-    v4 = j_va("%s: %s> ", "IW8_DEV", "8.24");
-    R_TextHeight(cls.consoleFont);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40000000
-      vaddss  xmm2, xmm6, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-    }
-    _RDI = DVARVEC4_con_inputBoxColor;
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr cs:?con@@3UConsole@@A.screenMin+4; Console con
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  cs:conDrawInputGlob.fontHeight, xmm0
-      vmovss  cs:conDrawInputGlob.x, xmm2
-      vmovss  cs:conDrawInputGlob.y, xmm1
-      vmovss  cs:conDrawInputGlob.leftX, xmm2
-    }
+    v2 = j_va("%s: %s> ", "IW8_DEV", "8.24");
+    v3 = R_TextHeight(cls.consoleFont);
+    v4 = DVARVEC4_con_inputBoxColor;
+    conDrawInputGlob.fontHeight = (float)v3;
+    conDrawInputGlob.x = con.screenMin.v[0] + 2.0;
+    conDrawInputGlob.y = con.screenMin.v[1] + 2.0;
+    conDrawInputGlob.leftX = con.screenMin.v[0] + 2.0;
     if ( !DVARVEC4_con_inputBoxColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_inputBoxColor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovss  xmm2, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vsubss  xmm4, xmm2, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vmovss  dword ptr [rsp+1A8h+color], xmm0
-      vmovss  xmm1, dword ptr [rdi+2Ch]
-      vmovss  dword ptr [rsp+1A8h+color+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+30h]
-      vmovss  dword ptr [rsp+1A8h+color+8], xmm0
-      vmovss  xmm1, dword ptr [rdi+34h]
-      vmovss  xmm0, cs:conDrawInputGlob.x
-      vmovss  dword ptr [rsp+1A8h+color+0Ch], xmm1
-      vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-      vaddss  xmm3, xmm1, cs:__real@40800000; h
-      vsubss  xmm0, xmm0, xmm6; x
-      vsubss  xmm1, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-      vsubss  xmm2, xmm4, xmm1; w
-      vmovss  xmm4, cs:conDrawInputGlob.y
-      vsubss  xmm1, xmm4, xmm6; y
-    }
-    ConDraw_Box(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &color);
-    if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1308, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
+    Dvar_CheckFrontendServerThread(v4);
+    color = v4->current.vector;
+    ConDraw_Box(conDrawInputGlob.x - 2.0, conDrawInputGlob.y - 2.0, (float)(con.screenMax.v[0] - con.screenMin.v[0]) - (float)((float)(conDrawInputGlob.x - 2.0) - con.screenMin.v[0]), conDrawInputGlob.fontHeight + 4.0, &color);
+    if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1308, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
       __debugbreak();
-    ConDrawInput_Text(v4, &con_versionColor);
-    if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1274, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
+    ConDrawInput_Text(v2, &con_versionColor);
+    if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1274, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
       __debugbreak();
-    R_TextWidth(v4, 0, cls.consoleFont);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vaddss  xmm2, xmm1, cs:conDrawInputGlob.x
-    }
-    v29 = 1;
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  cs:conDrawInputGlob.x, xmm2
-      vmovss  cs:conDrawInputGlob.leftX, xmm2
-      vsubss  xmm2, xmm1, xmm2
-      vcvttss2si ecx, xmm2
-    }
-    if ( _ECX > 1 )
-      v29 = _ECX;
-    g_consoleField.widthInPixels = v29;
-    v33 = Con_TokenizeInput();
-    v34 = -1i64;
-    conDrawInputGlob.inputText = v33;
-    v35 = -1i64;
+    v5 = (float)R_TextWidth(v2, 0, cls.consoleFont) + conDrawInputGlob.x;
+    v6 = 1;
+    conDrawInputGlob.x = v5;
+    conDrawInputGlob.leftX = v5;
+    if ( (int)(float)((float)(con.screenMax.v[0] - 2.0) - v5) > 1 )
+      v6 = (int)(float)((float)(con.screenMax.v[0] - 2.0) - v5);
+    g_consoleField.widthInPixels = v6;
+    v7 = Con_TokenizeInput();
+    v8 = -1i64;
+    conDrawInputGlob.inputText = v7;
+    v9 = -1i64;
     do
-      ++v35;
-    while ( v33[v35] );
-    v36 = truncate_cast<int,unsigned __int64>(v35);
-    conDrawInputGlob.inputTextLen = v36;
+      ++v9;
+    while ( v7[v9] );
+    conDrawInputGlob.inputTextLen = truncate_cast<int,unsigned __int64>(v9);
     conDrawInputGlob.autoCompleteChoice[0] = 0;
-    if ( !v36 )
+    if ( !conDrawInputGlob.inputTextLen )
     {
-      __asm
-      {
-        vcvttss2si r9d, cs:conDrawInputGlob.y; y
-        vcvttss2si r8d, cs:conDrawInputGlob.x; x
-      }
-      conDrawInputGlob.mayAutoComplete = v36;
-      CL_Keys_DrawField(localClientNum, &g_consoleField, _ER8, _ER9, 5, 5);
+      conDrawInputGlob.mayAutoComplete = 0;
+      CL_Keys_DrawField(localClientNum, &g_consoleField, (int)conDrawInputGlob.x, (int)conDrawInputGlob.y, 5, 5);
       Cmd_EndTokenizedString();
-LABEL_78:
-      __asm { vmovaps xmm6, [rsp+1A8h+var_38] }
       return;
     }
     inputText = conDrawInputGlob.inputText;
     if ( Cmd_Argc() > 1 && Con_IsDvarCommand(conDrawInputGlob.inputText) )
     {
-      v40 = 1;
-      v41 = Cmd_Argv(1);
-      conDrawInputGlob.inputText = v41;
-      v42 = -1i64;
+      v11 = 1;
+      v12 = Cmd_Argv(1);
+      conDrawInputGlob.inputText = v12;
+      v13 = -1i64;
       do
-        ++v42;
-      while ( v41[v42] );
-      conDrawInputGlob.inputTextLen = truncate_cast<int,unsigned __int64>(v42);
+        ++v13;
+      while ( v12[v13] );
+      conDrawInputGlob.inputTextLen = truncate_cast<int,unsigned __int64>(v13);
       if ( !conDrawInputGlob.inputTextLen )
       {
         conDrawInputGlob.mayAutoComplete = 0;
         Con_DrawInputPrompt(localClientNum);
         Cmd_EndTokenizedString();
-        goto LABEL_78;
+        return;
       }
     }
     else
     {
-      v40 = 0;
+      v11 = 0;
     }
     Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_con_matchPrefixOnly, "con_matchPrefixOnly");
-    v44 = 0;
+    v15 = 0;
     conDrawInputGlob.hasExactMatch = 0;
     conDrawInputGlob.matchCount = 0;
     if ( Bool_Internal_DebugName )
     {
       con_ignoreMatchPrefixOnly = 1;
       Dvar_ForEachName(ConDrawInput_IncrMatchCounter);
-      if ( !v40 )
+      if ( !v11 )
         Cmd_ForEach(ConDrawInput_IncrMatchCounter);
       if ( conDrawInputGlob.matchCount <= con_inputMaxMatchesShown || (conDrawInputGlob.hasExactMatch = 0, conDrawInputGlob.matchCount = 0, con_ignoreMatchPrefixOnly = 0, Dvar_ForEachName(ConDrawInput_IncrMatchCounter), Cmd_ForEach(ConDrawInput_IncrMatchCounter), conDrawInputGlob.matchCount) )
       {
@@ -2724,37 +2149,37 @@ LABEL_37:
           Con_DrawInputPrompt(localClientNum);
 LABEL_77:
           Cmd_EndTokenizedString();
-          goto LABEL_78;
+          return;
         }
         if ( conDrawInputGlob.matchIndex < conDrawInputGlob.matchCount && conDrawInputGlob.autoCompleteChoice[0] )
         {
           if ( conDrawInputGlob.matchIndex >= 0 )
           {
             inputTextLen = conDrawInputGlob.inputTextLen;
-            v47 = conDrawInputGlob.inputText;
-            if ( v40 )
-              v44 = j_sprintf(_Buffer, "^2%s ", inputText);
-            v48 = DVARBOOL_con_matchPrefixOnly;
+            v18 = conDrawInputGlob.inputText;
+            if ( v11 )
+              v15 = j_sprintf(_Buffer, "^2%s ", inputText);
+            v19 = DVARBOOL_con_matchPrefixOnly;
             if ( !DVARBOOL_con_matchPrefixOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_matchPrefixOnly") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v48);
-            v49 = &_Buffer[v44];
-            if ( v48->current.enabled )
-              AutoCompleteColorCodedStringContiguous = Con_GetAutoCompleteColorCodedStringContiguous(conDrawInputGlob.autoCompleteChoice, v47, inputTextLen, v49);
+            Dvar_CheckFrontendServerThread(v19);
+            v20 = &_Buffer[v15];
+            if ( v19->current.enabled )
+              AutoCompleteColorCodedStringContiguous = Con_GetAutoCompleteColorCodedStringContiguous(conDrawInputGlob.autoCompleteChoice, v18, inputTextLen, v20);
             else
-              AutoCompleteColorCodedStringContiguous = Con_GetAutoCompleteColorCodedStringDiscontiguous(conDrawInputGlob.autoCompleteChoice, v47, inputTextLen, v49);
-            __asm { vcvttss2si r12d, cs:conDrawInputGlob.y }
-            cursorPos = v44 + AutoCompleteColorCodedStringContiguous;
-            __asm { vcvttss2si edi, cs:conDrawInputGlob.x }
+              AutoCompleteColorCodedStringContiguous = Con_GetAutoCompleteColorCodedStringDiscontiguous(conDrawInputGlob.autoCompleteChoice, v18, inputTextLen, v20);
+            y = (int)conDrawInputGlob.y;
+            cursorPos = v15 + AutoCompleteColorCodedStringContiguous;
+            x = (int)conDrawInputGlob.x;
             do
-              ++v34;
-            while ( _Buffer[v34] );
-            if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1786, ASSERT_TYPE_ASSERT, "(strlen( colorCodedLine ) > 0)", (const char *)&queryFormat, "strlen( colorCodedLine ) > 0") )
+              ++v8;
+            while ( _Buffer[v8] );
+            if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1786, ASSERT_TYPE_ASSERT, "(strlen( colorCodedLine ) > 0)", (const char *)&queryFormat, "strlen( colorCodedLine ) > 0") )
               __debugbreak();
             drawLen = SEH_PrintStrlen(_Buffer);
             if ( drawLen <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 1788, ASSERT_TYPE_ASSERT, "( ( drawLen > 0 ) )", "( colorCodedLine ) = %s", _Buffer) )
               __debugbreak();
-            CL_Keys_DrawTextOverrideField(localClientNum, &g_consoleField, _EDI, _ER12, 5, 5, _Buffer, drawLen, cursorPos);
+            CL_Keys_DrawTextOverrideField(localClientNum, &g_consoleField, x, y, 5, 5, _Buffer, drawLen, cursorPos);
             goto LABEL_61;
           }
         }
@@ -2764,107 +2189,46 @@ LABEL_77:
         }
         Con_DrawInputPrompt(localClientNum);
 LABEL_61:
-        __asm
-        {
-          vmovss  xmm2, cs:conDrawInputGlob.fontHeight
-          vaddss  xmm1, xmm2, cs:conDrawInputGlob.y
-        }
-        _RBX = DVARVEC4_con_inputHintBoxColor;
-        __asm
-        {
-          vmovss  xmm0, cs:conDrawInputGlob.leftX
-          vaddss  xmm2, xmm1, xmm2
-          vmovss  cs:conDrawInputGlob.y, xmm2
-          vmovss  cs:conDrawInputGlob.x, xmm0
-        }
+        v26 = DVARVEC4_con_inputHintBoxColor;
+        conDrawInputGlob.y = (float)(conDrawInputGlob.fontHeight + conDrawInputGlob.y) + conDrawInputGlob.fontHeight;
+        conDrawInputGlob.x = conDrawInputGlob.leftX;
         if ( !DVARVEC4_con_inputHintBoxColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_inputHintBoxColor") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmovss  dword ptr [rsp+1A8h+color], xmm0
-          vmovss  xmm1, dword ptr [rbx+2Ch]
-          vmovss  dword ptr [rsp+1A8h+color+4], xmm1
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vmovss  dword ptr [rsp+1A8h+color+8], xmm0
-          vmovss  xmm1, dword ptr [rbx+34h]
-          vmovss  dword ptr [rsp+1A8h+color+0Ch], xmm1
-        }
+        Dvar_CheckFrontendServerThread(v26);
+        color = v26->current.vector;
         if ( matchCount <= con_inputMaxMatchesShown )
         {
           if ( matchCount == 1 || conDrawInputGlob.hasExactMatch && Con_AnySpaceAfterCommand() )
           {
             Dvar_ForEachName(ConDrawInput_DetailedDvarMatch);
-            if ( !v40 )
+            if ( !v11 )
               Cmd_ForEach(ConDrawInput_DetailedCmdMatch);
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, cs:conDrawInputGlob.x
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, ebp
-              vmulss  xmm2, xmm1, cs:conDrawInputGlob.fontHeight
-              vmovss  xmm1, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-              vsubss  xmm4, xmm1, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-              vaddss  xmm3, xmm2, cs:__real@40800000; h
-              vmovss  xmm1, cs:conDrawInputGlob.y
-              vsubss  xmm0, xmm0, xmm6; x
-              vsubss  xmm2, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-              vsubss  xmm1, xmm1, xmm6; y
-              vsubss  xmm2, xmm4, xmm2; w
-            }
-            ConDraw_Box(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &color);
+            ConDraw_Box(conDrawInputGlob.x - 2.0, conDrawInputGlob.y - 2.0, (float)(con.screenMax.v[0] - con.screenMin.v[0]) - (float)((float)(conDrawInputGlob.x - 2.0) - con.screenMin.v[0]), (float)((float)matchCount * conDrawInputGlob.fontHeight) + 4.0, &color);
             Dvar_ForEachName(ConDrawInput_DvarMatch);
-            if ( !v40 )
+            if ( !v11 )
               Cmd_ForEach(ConDrawInput_CmdMatch);
             if ( Dvar_FindVarByName(conDrawInputGlob.autoCompleteChoice) )
             {
-              __asm
-              {
-                vmovss  xmm0, cs:conDrawInputGlob.y
-                vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-                vmovss  xmm2, cs:conDrawInputGlob.leftX
-                vmovss  cs:conDrawInputGlob.y, xmm1
-                vmovss  cs:conDrawInputGlob.x, xmm2
-              }
+              conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+              conDrawInputGlob.x = conDrawInputGlob.leftX;
               ConDrawInput_DetailedDvarMatch(conDrawInputGlob.autoCompleteChoice);
             }
-            else if ( !v40 )
+            else if ( !v11 )
             {
-              __asm
-              {
-                vmovss  xmm0, cs:conDrawInputGlob.y
-                vaddss  xmm1, xmm0, cs:conDrawInputGlob.fontHeight
-                vmovss  xmm2, cs:conDrawInputGlob.leftX
-                vmovss  cs:conDrawInputGlob.y, xmm1
-                vmovss  cs:conDrawInputGlob.x, xmm2
-              }
+              conDrawInputGlob.y = conDrawInputGlob.y + conDrawInputGlob.fontHeight;
+              conDrawInputGlob.x = conDrawInputGlob.leftX;
               ConDrawInput_DetailedCmdMatch(conDrawInputGlob.autoCompleteChoice);
             }
           }
         }
         else
         {
-          v64 = j_va("%i matches (too many to show here, press shift+tilde to open full console)", (unsigned int)matchCount);
-          __asm
-          {
-            vmovss  xmm1, cs:conDrawInputGlob.fontHeight
-            vmovss  xmm2, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-            vaddss  xmm3, xmm1, cs:__real@40800000; h
-            vsubss  xmm4, xmm2, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-            vmovss  xmm0, cs:conDrawInputGlob.x
-            vsubss  xmm0, xmm0, xmm6; x
-            vsubss  xmm1, xmm0, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-            vsubss  xmm2, xmm4, xmm1; w
-            vmovss  xmm4, cs:conDrawInputGlob.y
-          }
-          v74 = v64;
-          __asm { vsubss  xmm1, xmm4, xmm6; y }
-          ConDraw_Box(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &color);
-          ConDrawInput_Text(v74, &con_inputDvarMatchColor);
+          v27 = j_va("%i matches (too many to show here, press shift+tilde to open full console)", (unsigned int)matchCount);
+          ConDraw_Box(conDrawInputGlob.x - 2.0, conDrawInputGlob.y - 2.0, (float)(con.screenMax.v[0] - con.screenMin.v[0]) - (float)((float)(conDrawInputGlob.x - 2.0) - con.screenMin.v[0]), conDrawInputGlob.fontHeight + 4.0, &color);
+          ConDrawInput_Text(v27, &con_inputDvarMatchColor);
         }
         goto LABEL_77;
       }
@@ -2877,7 +2241,7 @@ LABEL_61:
       con_ignoreMatchPrefixOnly = 0;
     }
     Dvar_ForEachName(ConDrawInput_IncrMatchCounter);
-    if ( !v40 )
+    if ( !v11 )
       Cmd_ForEach(ConDrawInput_IncrMatchCounter);
     goto LABEL_37;
   }
@@ -2890,12 +2254,7 @@ Con_DrawInputPrompt
 */
 void Con_DrawInputPrompt(LocalClientNum_t localClientNum)
 {
-  __asm
-  {
-    vcvttss2si r9d, cs:conDrawInputGlob.y; y
-    vcvttss2si r8d, cs:conDrawInputGlob.x; x
-  }
-  CL_Keys_DrawField(localClientNum, &g_consoleField, _ER8, _ER9, 5, 5);
+  CL_Keys_DrawField(localClientNum, &g_consoleField, (int)conDrawInputGlob.x, (int)conDrawInputGlob.y, 5, 5);
 }
 
 /*
@@ -2907,259 +2266,183 @@ void Con_DrawMessageLineOnHUD(LocalClientNum_t localClientNum, const ScreenPlace
 {
   GfxFont *FontHandle; 
   MessageLine *v19; 
-  const dvar_t *v39; 
+  double v20; 
+  int v21; 
+  int v22; 
+  const dvar_t *v23; 
   int flags; 
-  const dvar_t *v41; 
-  const char *v42; 
-  int v43; 
-  const dvar_t *v44; 
-  int v45; 
+  const dvar_t *v25; 
+  const char *v26; 
+  int v27; 
+  const dvar_t *v28; 
+  int v29; 
   int integer; 
-  const dvar_t *v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  const char *v52; 
-  const dvar_t *v58; 
+  const dvar_t *v31; 
+  int v32; 
+  int v33; 
+  int v34; 
+  int v35; 
+  const char *v36; 
+  const dvar_t *v37; 
   int style; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
+  const dvar_t *v39; 
+  float v40; 
+  float v41; 
   float h; 
   float w; 
-  int v79; 
-  float v80; 
+  int v44; 
+  float v45; 
   float xa; 
   LocalClientNum_t localClientNuma; 
-  GfxFont *v83; 
-  const vec4_t *v84; 
-  vec4_t v85; 
+  GfxFont *v48; 
+  const vec4_t *v49; 
+  vec4_t v50; 
 
   FontHandle = font;
   localClientNuma = localClientNum;
-  v79 = serverTime;
-  v83 = font;
-  v84 = color;
+  v44 = serverTime;
+  v48 = font;
+  v49 = color;
   if ( !msgwnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2092, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
   v19 = &msgwnd->lines[lineIdx];
-  if ( serverTime >= v19->typingStartTime )
+  if ( serverTime < v19->typingStartTime )
+    return;
+  if ( (v19->flags & 1) != 0 )
   {
-    if ( (v19->flags & 1) != 0 )
-    {
-      __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-      FontHandle = UI_GetFontHandle(NULL, 6, *(float *)&_XMM2);
-      v83 = FontHandle;
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rbp+37h+charHeight]
-      vmulss  xmm1, xmm0, cs:__real@3caaaaab
-      vmulss  xmm1, xmm1, [rbp+37h+msgwndScale]; scale
-    }
-    *(double *)&_XMM0 = R_NormalizedTextScale(FontHandle, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  [rbp+37h+w], xmm0
-      vmovss  [rbp+37h+h], xmm0
-    }
-    if ( (textAlignMode & 3) == 1 )
-    {
-      R_ConsoleTextWidth(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, FontHandle);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, [rbp+37h+w]
-        vmulss  xmm2, xmm1, cs:__real@bf000000
-        vcvttss2si eax, xmm2
-      }
-    }
-    else if ( (textAlignMode & 3) == 2 )
-    {
-      R_ConsoleTextWidth(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, FontHandle);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, [rbp+37h+w]
-        vcvttss2si eax, xmm1
-      }
-    }
-    if ( (textAlignMode & 0xC) == 4 )
-    {
-      R_TextHeight(FontHandle);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, [rbp+37h+h]
-        vcvttss2si eax, xmm1
-      }
-    }
-    else if ( (textAlignMode & 0xC) == 8 )
-    {
-      R_TextHeight(FontHandle);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, [rbp+37h+h]
-        vmulss  xmm2, xmm1, cs:__real@3f000000
-        vcvttss2si eax, xmm2
-      }
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vcvtsi2ss xmm0, xmm0, esi
-      vmovss  [rbp+37h+x], xmm0
-      vmovss  [rbp+37h+var_64], xmm1
-    }
-    ScrPlace_ApplyRect(scrPlace, &xa, &v80, &w, &h, horzAlign, vertAlign);
-    if ( (v19->flags & 1) != 0 )
-    {
-      v39 = DVARVEC3_con_typewriterColorBase;
-      if ( !DVARVEC3_con_typewriterColorBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_typewriterColorBase") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v39);
-      flags = v19->flags;
-      if ( (flags & 0x10) != 0 )
-      {
-        v41 = DVARVEC4_con_typewriterColorGlowCheckpoint;
-        if ( DVARVEC4_con_typewriterColorGlowCheckpoint )
-          goto LABEL_33;
-        v42 = "con_typewriterColorGlowCheckpoint";
-      }
-      else if ( (flags & 4) != 0 )
-      {
-        v41 = DVARVEC4_con_typewriterColorGlowCompleted;
-        if ( DVARVEC4_con_typewriterColorGlowCompleted )
-          goto LABEL_33;
-        v42 = "con_typewriterColorGlowCompleted";
-      }
-      else if ( (flags & 8) != 0 )
-      {
-        v41 = DVARVEC4_con_typewriterColorGlowFailed;
-        if ( DVARVEC4_con_typewriterColorGlowFailed )
-          goto LABEL_33;
-        v42 = "con_typewriterColorGlowFailed";
-      }
-      else
-      {
-        v41 = DVARVEC4_con_typewriterColorGlowUpdated;
-        if ( DVARVEC4_con_typewriterColorGlowUpdated )
-          goto LABEL_33;
-        v42 = "con_typewriterColorGlowUpdated";
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v42) )
-        __debugbreak();
-LABEL_33:
-      Dvar_CheckFrontendServerThread(v41);
-      v43 = PrintableCharsCount(msgwnd, v19);
-      v44 = DVARINT_con_typewriterDecayStartTime;
-      v45 = v43;
-      if ( !DVARINT_con_typewriterDecayStartTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_typewriterDecayStartTime") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v44);
-      integer = v44->current.integer;
-      v47 = DVARINT_con_typewriterPrintSpeed;
-      if ( !DVARINT_con_typewriterPrintSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_typewriterPrintSpeed") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v47);
-      v48 = v47->current.integer;
-      v49 = v79 - v19->typingStartTime;
-      v50 = v19->lastTypingSoundTime - v19->typingStartTime;
-      v51 = v45 * v48;
-      if ( integer >= v45 * v48 )
-        v51 = integer;
-      if ( v49 < 0 )
-        goto LABEL_52;
-      if ( v49 <= v51 )
-      {
-        if ( v49 >= v45 * v48 )
-          goto LABEL_52;
-        if ( !v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2832, ASSERT_TYPE_ASSERT, "(fxLetterTime)", (const char *)&queryFormat, "fxLetterTime") )
-          __debugbreak();
-        if ( v50 >= v49 - v49 % v48 )
-          goto LABEL_52;
-        v52 = "ui_pulse_text_type";
-      }
-      else
-      {
-        if ( v50 >= v51 )
-        {
-LABEL_52:
-          __asm
-          {
-            vmovss  xmm0, [rbp+37h+h]
-            vmovss  xmm1, [rbp+37h+w]
-            vmovss  [rsp+0D0h+var_90], xmm0
-            vmovss  xmm0, [rbp+37h+var_64]
-            vmovss  [rsp+0D0h+var_98], xmm1
-            vmovss  xmm1, [rbp+37h+x]
-            vmovss  [rsp+0D0h+var_A0], xmm0
-            vmovss  [rsp+0D0h+var_A8], xmm1
-          }
-          R_AddCmdDrawConsoleText(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, v83, v69, v71, v73, v75, v84, textStyle);
-          return;
-        }
-        v52 = "ui_pulse_text_delete";
-      }
-      SND_PlayLocalSoundAliasAsync(localClientNuma, v52, SASYS_CGAME);
-      v19->lastTypingSoundTime = v79;
-      goto LABEL_52;
-    }
-    _RAX = v84;
-    v58 = DVARBOOL_con_forcedSubtitleEnableOverrideValues;
-    style = textStyle;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+37h+var_48], xmm0
-    }
-    if ( !DVARBOOL_con_forcedSubtitleEnableOverrideValues && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_forcedSubtitleEnableOverrideValues") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v58);
-    if ( v58->current.enabled && (v19->flags & 0x40) != 0 )
-    {
-      _RDI = DVARVEC3_con_forcedSubtitleColor;
-      if ( !DVARVEC3_con_forcedSubtitleColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_forcedSubtitleColor") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmovss  xmm1, dword ptr [rdi+2Ch]
-        vmovss  xmm2, dword ptr [rdi+30h]
-        vmovss  dword ptr [rbp+37h+var_48], xmm0
-        vmovss  dword ptr [rbp+37h+var_48+4], xmm1
-        vmovss  dword ptr [rbp+37h+var_48+8], xmm2
-      }
-      style = Dvar_GetInt_Internal_DebugName(DVARINT_con_forcedSubtitleTextStyle, "con_forcedSubtitleTextStyle");
-    }
-    __asm
-    {
-      vmovss  xmm0, [rbp+37h+h]
-      vmovss  xmm1, [rbp+37h+w]
-      vmovss  [rsp+0D0h+var_90], xmm0
-      vmovss  xmm0, [rbp+37h+var_64]
-      vmovss  [rsp+0D0h+var_98], xmm1
-      vmovss  xmm1, [rbp+37h+x]
-      vmovss  [rsp+0D0h+var_A0], xmm0
-      vmovss  [rsp+0D0h+var_A8], xmm1
-    }
-    R_AddCmdDrawConsoleText(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, FontHandle, v70, v72, v74, v76, &v85, style);
+    FontHandle = UI_GetFontHandle(NULL, 6, 1.0);
+    v48 = FontHandle;
   }
+  v20 = R_NormalizedTextScale(FontHandle, (float)((float)charHeight * 0.020833334) * msgwndScale);
+  w = *(float *)&v20;
+  h = *(float *)&v20;
+  if ( (textAlignMode & 3) == 1 )
+  {
+    x += (int)(float)((float)((float)R_ConsoleTextWidth(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, FontHandle) * w) * -0.5);
+  }
+  else if ( (textAlignMode & 3) == 2 )
+  {
+    x -= (int)(float)((float)R_ConsoleTextWidth(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, FontHandle) * w);
+  }
+  if ( (textAlignMode & 0xC) == 4 )
+  {
+    v21 = (int)(float)((float)R_TextHeight(FontHandle) * h);
+    goto LABEL_16;
+  }
+  if ( (textAlignMode & 0xC) == 8 )
+  {
+    v21 = (int)(float)((float)((float)R_TextHeight(FontHandle) * h) * 0.5);
+LABEL_16:
+    v22 = v21 + y;
+    goto LABEL_17;
+  }
+  v22 = y;
+LABEL_17:
+  xa = (float)x;
+  v45 = (float)v22;
+  ScrPlace_ApplyRect(scrPlace, &xa, &v45, &w, &h, horzAlign, vertAlign);
+  if ( (v19->flags & 1) != 0 )
+  {
+    v23 = DVARVEC3_con_typewriterColorBase;
+    if ( !DVARVEC3_con_typewriterColorBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_typewriterColorBase") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v23);
+    flags = v19->flags;
+    if ( (flags & 0x10) != 0 )
+    {
+      v25 = DVARVEC4_con_typewriterColorGlowCheckpoint;
+      if ( DVARVEC4_con_typewriterColorGlowCheckpoint )
+        goto LABEL_34;
+      v26 = "con_typewriterColorGlowCheckpoint";
+    }
+    else if ( (flags & 4) != 0 )
+    {
+      v25 = DVARVEC4_con_typewriterColorGlowCompleted;
+      if ( DVARVEC4_con_typewriterColorGlowCompleted )
+        goto LABEL_34;
+      v26 = "con_typewriterColorGlowCompleted";
+    }
+    else if ( (flags & 8) != 0 )
+    {
+      v25 = DVARVEC4_con_typewriterColorGlowFailed;
+      if ( DVARVEC4_con_typewriterColorGlowFailed )
+        goto LABEL_34;
+      v26 = "con_typewriterColorGlowFailed";
+    }
+    else
+    {
+      v25 = DVARVEC4_con_typewriterColorGlowUpdated;
+      if ( DVARVEC4_con_typewriterColorGlowUpdated )
+        goto LABEL_34;
+      v26 = "con_typewriterColorGlowUpdated";
+    }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v26) )
+      __debugbreak();
+LABEL_34:
+    Dvar_CheckFrontendServerThread(v25);
+    v27 = PrintableCharsCount(msgwnd, v19);
+    v28 = DVARINT_con_typewriterDecayStartTime;
+    v29 = v27;
+    if ( !DVARINT_con_typewriterDecayStartTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_typewriterDecayStartTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v28);
+    integer = v28->current.integer;
+    v31 = DVARINT_con_typewriterPrintSpeed;
+    if ( !DVARINT_con_typewriterPrintSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_typewriterPrintSpeed") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v31);
+    v32 = v31->current.integer;
+    v33 = v44 - v19->typingStartTime;
+    v34 = v19->lastTypingSoundTime - v19->typingStartTime;
+    v35 = v29 * v32;
+    if ( integer >= v29 * v32 )
+      v35 = integer;
+    if ( v33 < 0 )
+      goto LABEL_53;
+    if ( v33 <= v35 )
+    {
+      if ( v33 >= v29 * v32 )
+        goto LABEL_53;
+      if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2832, ASSERT_TYPE_ASSERT, "(fxLetterTime)", (const char *)&queryFormat, "fxLetterTime") )
+        __debugbreak();
+      if ( v34 >= v33 - v33 % v32 )
+        goto LABEL_53;
+      v36 = "ui_pulse_text_type";
+    }
+    else
+    {
+      if ( v34 >= v35 )
+      {
+LABEL_53:
+        R_AddCmdDrawConsoleText(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, v48, xa, v45, w, h, v49, textStyle);
+        return;
+      }
+      v36 = "ui_pulse_text_delete";
+    }
+    SND_PlayLocalSoundAliasAsync(localClientNuma, v36, SASYS_CGAME);
+    v19->lastTypingSoundTime = v44;
+    goto LABEL_53;
+  }
+  v37 = DVARBOOL_con_forcedSubtitleEnableOverrideValues;
+  style = textStyle;
+  v50 = *v49;
+  if ( !DVARBOOL_con_forcedSubtitleEnableOverrideValues && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_forcedSubtitleEnableOverrideValues") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v37);
+  if ( v37->current.enabled && (v19->flags & 0x40) != 0 )
+  {
+    v39 = DVARVEC3_con_forcedSubtitleColor;
+    if ( !DVARVEC3_con_forcedSubtitleColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_forcedSubtitleColor") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v39);
+    v40 = v39->current.vector.v[1];
+    v41 = v39->current.vector.v[2];
+    LODWORD(v50.v[0]) = v39->current.integer;
+    v50.v[1] = v40;
+    v50.v[2] = v41;
+    style = Dvar_GetInt_Internal_DebugName(DVARINT_con_forcedSubtitleTextStyle, "con_forcedSubtitleTextStyle");
+  }
+  R_AddCmdDrawConsoleText(msgwnd->circularTextBuffer, msgwnd->textBufSize, v19->textBufPos, v19->textBufSize, FontHandle, xa, v45, w, h, &v50, style);
 }
 
 /*
@@ -3171,8 +2454,6 @@ void Con_DrawMessageWindow(LocalClientNum_t localClientNum, MessageWindow *msgwn
 {
   ClActiveClient *Client; 
   bool up; 
-  float v21; 
-  float v22; 
 
   if ( !msgwnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2442, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
@@ -3187,12 +2468,7 @@ void Con_DrawMessageWindow(LocalClientNum_t localClientNum, MessageWindow *msgwn
           goto LABEL_17;
         if ( mode <= MWM_TOPDOWN_ALIGN_TOP )
         {
-          __asm
-          {
-            vmovss  xmm0, [rsp+78h+msgwndScale]
-            vmovss  [rsp+78h+var_20], xmm0
-          }
-          Con_DrawMessageWindowNewToOld(localClientNum, msgwnd, x, y, charHeight, horzAlign, vertAlign, mode == MWM_BOTTOMUP_ALIGN_BOTTOM, font, color, textStyle, v21, textAlignMode);
+          Con_DrawMessageWindowNewToOld(localClientNum, msgwnd, x, y, charHeight, horzAlign, vertAlign, mode == MWM_BOTTOMUP_ALIGN_BOTTOM, font, color, textStyle, msgwndScale, textAlignMode);
           return;
         }
         up = mode == MWM_TOPDOWN_ALIGN_BOTTOM;
@@ -3208,12 +2484,7 @@ LABEL_17:
       {
         up = 0;
       }
-      __asm
-      {
-        vmovss  xmm0, [rsp+78h+msgwndScale]
-        vmovss  [rsp+78h+var_20], xmm0
-      }
-      Con_DrawMessageWindowOldToNew(localClientNum, msgwnd, x, y, charHeight, horzAlign, vertAlign, up, font, color, textStyle, v22, textAlignMode);
+      Con_DrawMessageWindowOldToNew(localClientNum, msgwnd, x, y, charHeight, horzAlign, vertAlign, up, font, color, textStyle, msgwndScale, textAlignMode);
     }
   }
 }
@@ -3225,120 +2496,113 @@ Con_DrawMessageWindowNewToOld
 */
 void Con_DrawMessageWindowNewToOld(LocalClientNum_t localClientNum, MessageWindow *msgwnd, int x, int y, int hudCharHeight, int horzAlign, int vertAlign, bool up, GfxFont *font, const vec4_t *color, int textStyle, float msgwndScale, int textAlignMode)
 {
-  __int64 v19; 
+  __int128 v13; 
+  __int128 v14; 
+  __int64 v16; 
   ClActiveClient *Client; 
-  int v22; 
-  int v23; 
-  __int64 v24; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
   int activeLineCount; 
-  int v26; 
-  int v27; 
-  int v29; 
+  int v23; 
+  int v24; 
+  int v25; 
   int lineCount; 
-  int v33; 
-  unsigned __int64 v34; 
+  int v27; 
+  unsigned __int64 v28; 
   MessageLine *lines; 
-  unsigned __int64 v36; 
+  unsigned __int64 v30; 
   __int64 messageIndex; 
   Message *messages; 
   int startTime; 
-  int v55; 
-  int v58; 
-  int v59; 
+  int scrollTime; 
+  int v35; 
+  __int128 v37; 
+  int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
   __int64 lineIdx; 
-  MessageLine *v61; 
-  Message *v62; 
-  int v63; 
-  bool v65; 
-  const ScreenPlacement *v66; 
+  MessageLine *v47; 
+  Message *v48; 
+  int v49; 
+  bool v50; 
+  const ScreenPlacement *v51; 
   __int64 charHeight; 
-  __int64 v69; 
-  float v70; 
+  __int64 v53; 
   int serverTime; 
   int driftBuffer; 
-  __int64 v75; 
-  vec4_t v76; 
+  __int64 v58; 
+  vec4_t i; 
+  __int128 v60; 
+  __int128 v61; 
 
-  v19 = localClientNum;
+  v16 = localClientNum;
   if ( !msgwnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2290, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
-  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v19) != CA_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2291, ASSERT_TYPE_ASSERT, "(CL_IsLocalClientConnectionActiveForGameServer( localClientNum ))", (const char *)&queryFormat, "CL_IsLocalClientConnectionActiveForGameServer( localClientNum )") )
+  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v16) != CA_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2291, ASSERT_TYPE_ASSERT, "(CL_IsLocalClientConnectionActiveForGameServer( localClientNum ))", (const char *)&queryFormat, "CL_IsLocalClientConnectionActiveForGameServer( localClientNum )") )
     __debugbreak();
-  __asm { vmovaps [rsp+128h+var_48], xmm6 }
-  Client = ClActiveClient::GetClient((const LocalClientNum_t)v19);
-  v22 = Client->GetMsgWindowDriftTime(Client);
-  v75 = v19;
-  v23 = con.currentServerTime[v19];
-  v24 = v22;
-  driftBuffer = v22;
-  serverTime = v23;
-  Con_CullFinishedLines(v23, msgwnd);
+  Client = ClActiveClient::GetClient((const LocalClientNum_t)v16);
+  v19 = Client->GetMsgWindowDriftTime(Client);
+  v58 = v16;
+  v20 = con.currentServerTime[v16];
+  v21 = v19;
+  driftBuffer = v19;
+  serverTime = v20;
+  Con_CullFinishedLines(v20, msgwnd);
   activeLineCount = msgwnd->activeLineCount;
-  v26 = y - hudCharHeight;
+  v23 = y - hudCharHeight;
   if ( up )
-    v26 = y;
-  v27 = 0;
+    v23 = y;
+  v24 = 0;
   if ( activeLineCount > 0 )
   {
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f800000
-      vmovaps [rsp+128h+var_58], xmm7
-    }
-    v29 = v23;
-    __asm
-    {
-      vmovaps [rsp+128h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3f000000
-      vxorps  xmm7, xmm7, xmm7
-    }
+    v61 = v13;
+    v25 = v20;
+    v60 = v14;
     do
     {
       if ( msgwnd->lineCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2306, ASSERT_TYPE_ASSERT, "(msgwnd->lineCount > 0)", (const char *)&queryFormat, "msgwnd->lineCount > 0") )
         __debugbreak();
       lineCount = msgwnd->lineCount;
-      v33 = (v27 + msgwnd->firstLineIndex) % lineCount;
-      v34 = v33;
-      if ( v33 >= (unsigned int)lineCount )
+      v27 = (v24 + msgwnd->firstLineIndex) % lineCount;
+      v28 = v27;
+      if ( v27 >= (unsigned int)lineCount )
       {
-        LODWORD(v69) = msgwnd->lineCount;
-        LODWORD(charHeight) = (v27 + msgwnd->firstLineIndex) % lineCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2308, ASSERT_TYPE_ASSERT, "(unsigned)( imod ) < (unsigned)( msgwnd->lineCount )", "imod doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v69) )
+        LODWORD(v53) = msgwnd->lineCount;
+        LODWORD(charHeight) = (v24 + msgwnd->firstLineIndex) % lineCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2308, ASSERT_TYPE_ASSERT, "(unsigned)( imod ) < (unsigned)( msgwnd->lineCount )", "imod doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v53) )
           __debugbreak();
       }
       lines = msgwnd->lines;
-      v36 = v34;
-      if ( msgwnd->lines[v36].messageIndex >= (unsigned int)msgwnd->lineCount )
+      v30 = v28;
+      if ( msgwnd->lines[v30].messageIndex >= (unsigned int)msgwnd->lineCount )
       {
-        LODWORD(v69) = msgwnd->lineCount;
-        LODWORD(charHeight) = msgwnd->lines[v36].messageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2310, ASSERT_TYPE_ASSERT, "(unsigned)( line->messageIndex ) < (unsigned)( msgwnd->lineCount )", "line->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v69) )
+        LODWORD(v53) = msgwnd->lineCount;
+        LODWORD(charHeight) = msgwnd->lines[v30].messageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2310, ASSERT_TYPE_ASSERT, "(unsigned)( line->messageIndex ) < (unsigned)( msgwnd->lineCount )", "line->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v53) )
           __debugbreak();
       }
-      messageIndex = lines[v36].messageIndex;
+      messageIndex = lines[v30].messageIndex;
       messages = msgwnd->messages;
-      if ( v24 )
+      if ( v21 )
       {
         startTime = messages[messageIndex].startTime;
-        if ( startTime < 0 || startTime > v29 + (int)v24 )
+        if ( startTime < 0 || startTime > v25 + (int)v21 )
         {
           LODWORD(charHeight) = messages[messageIndex].startTime;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2312, ASSERT_TYPE_ASSERT, "( ( driftBuffer == 0 || (message->startTime >= 0 && message->startTime <= serverTime + driftBuffer) ) )", "( message->startTime ) = %i", charHeight) )
             __debugbreak();
         }
       }
-      if ( v29 - messages[messageIndex].startTime < msgwnd->scrollTime )
+      scrollTime = msgwnd->scrollTime;
+      v35 = v25 - messages[messageIndex].startTime;
+      if ( v35 < scrollTime )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm2, xmm1, xmm0
-          vsubss  xmm3, xmm6, xmm2
-        }
-        if ( v24 )
+        v37 = LODWORD(FLOAT_1_0);
+        *(float *)&v37 = 1.0 - (float)((float)v35 / (float)scrollTime);
+        _XMM3 = v37;
+        if ( v21 )
         {
           __asm
           {
@@ -3346,98 +2610,66 @@ void Con_DrawMessageWindowNewToOld(LocalClientNum_t localClientNum, MessageWindo
             vminss  xmm3, xmm0, xmm6
           }
         }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r13d
-          vmulss  xmm1, xmm0, xmm3
-          vaddss  xmm3, xmm1, xmm8
-          vxorps  xmm0, xmm0, xmm0
-          vroundss xmm1, xmm0, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
+        _XMM0 = 0i64;
+        __asm { vroundss xmm1, xmm0, xmm3, 1 }
+        v42 = (int)*(float *)&_XMM1;
         if ( up )
-          v26 += _EAX;
+          v23 += v42;
         else
-          v26 -= _EAX;
+          v23 -= v42;
       }
       activeLineCount = msgwnd->activeLineCount;
-      ++v27;
+      ++v24;
     }
-    while ( v27 < activeLineCount );
-    __asm
-    {
-      vmovaps xmm8, [rsp+128h+var_68]
-      vmovaps xmm7, [rsp+128h+var_58]
-    }
+    while ( v24 < activeLineCount );
   }
-  _R15 = color;
-  v55 = activeLineCount - 1;
-  __asm
+  v43 = activeLineCount - 1;
+  for ( i = *color; v43 >= 0; --v43 )
   {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rsp+128h+var_88], xmm0
-  }
-  if ( activeLineCount - 1 >= 0 )
-  {
-    __asm { vmovss  xmm6, [rsp+128h+msgwndScale] }
-    do
+    v44 = msgwnd->lineCount;
+    v45 = (v43 + msgwnd->firstLineIndex) % v44;
+    lineIdx = v45;
+    if ( v45 >= (unsigned int)v44 )
     {
-      v58 = msgwnd->lineCount;
-      v59 = (v55 + msgwnd->firstLineIndex) % v58;
-      lineIdx = v59;
-      if ( v59 >= (unsigned int)v58 )
-      {
-        LODWORD(v69) = msgwnd->lineCount;
-        LODWORD(charHeight) = (v55 + msgwnd->firstLineIndex) % v58;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2333, ASSERT_TYPE_ASSERT, "(unsigned)( imod ) < (unsigned)( msgwnd->lineCount )", "imod doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v69) )
-          __debugbreak();
-      }
-      v61 = msgwnd->lines;
-      if ( msgwnd->lines[lineIdx].messageIndex >= (unsigned int)msgwnd->lineCount )
-      {
-        LODWORD(v69) = msgwnd->lineCount;
-        LODWORD(charHeight) = msgwnd->lines[lineIdx].messageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2336, ASSERT_TYPE_ASSERT, "(unsigned)( line->messageIndex ) < (unsigned)( msgwnd->lineCount )", "line->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v69) )
-          __debugbreak();
-      }
-      v62 = &msgwnd->messages[v61[lineIdx].messageIndex];
-      v63 = v26 + hudCharHeight;
-      v26 -= hudCharHeight;
-      if ( !up )
-        v26 = v63;
-      if ( serverTime - v62->endTime >= 0 )
-        goto LABEL_52;
-      *(float *)&_XMM0 = Con_GetMessageAlpha(v62, msgwnd, serverTime, 1, driftBuffer);
-      __asm
-      {
-        vmulss  xmm1, xmm0, dword ptr [r15+0Ch]
-        vmovss  dword ptr [rsp+128h+var_88+0Ch], xmm1
-      }
-      if ( activeScreenPlacementMode )
-      {
-        if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
-        {
-          v66 = &scrPlaceViewDisplay[v75];
-          goto LABEL_51;
-        }
-        if ( activeScreenPlacementMode == SCRMODE_INVALID )
-          v65 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
-        else
-          v65 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-        if ( v65 )
-          __debugbreak();
-      }
-      v66 = &scrPlaceFull;
-LABEL_51:
-      __asm { vmovss  [rsp+128h+var_C0], xmm6 }
-      Con_DrawMessageLineOnHUD(localClientNum, v66, serverTime, x, v26, hudCharHeight, horzAlign, vertAlign, font, msgwnd, lineIdx, &v76, textStyle, v70, textAlignMode);
-LABEL_52:
-      --v55;
+      LODWORD(v53) = msgwnd->lineCount;
+      LODWORD(charHeight) = (v43 + msgwnd->firstLineIndex) % v44;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2333, ASSERT_TYPE_ASSERT, "(unsigned)( imod ) < (unsigned)( msgwnd->lineCount )", "imod doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v53) )
+        __debugbreak();
     }
-    while ( v55 >= 0 );
+    v47 = msgwnd->lines;
+    if ( msgwnd->lines[lineIdx].messageIndex >= (unsigned int)msgwnd->lineCount )
+    {
+      LODWORD(v53) = msgwnd->lineCount;
+      LODWORD(charHeight) = msgwnd->lines[lineIdx].messageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2336, ASSERT_TYPE_ASSERT, "(unsigned)( line->messageIndex ) < (unsigned)( msgwnd->lineCount )", "line->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", charHeight, v53) )
+        __debugbreak();
+    }
+    v48 = &msgwnd->messages[v47[lineIdx].messageIndex];
+    v49 = v23 + hudCharHeight;
+    v23 -= hudCharHeight;
+    if ( !up )
+      v23 = v49;
+    if ( serverTime - v48->endTime >= 0 )
+      continue;
+    i.v[3] = Con_GetMessageAlpha(v48, msgwnd, serverTime, 1, driftBuffer) * color->v[3];
+    if ( activeScreenPlacementMode )
+    {
+      if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
+      {
+        v51 = &scrPlaceViewDisplay[v58];
+        goto LABEL_49;
+      }
+      if ( activeScreenPlacementMode == SCRMODE_INVALID )
+        v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      else
+        v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v50 )
+        __debugbreak();
+    }
+    v51 = &scrPlaceFull;
+LABEL_49:
+    Con_DrawMessageLineOnHUD(localClientNum, v51, serverTime, x, v23, hudCharHeight, horzAlign, vertAlign, font, msgwnd, lineIdx, &i, textStyle, msgwndScale, textAlignMode);
   }
-  __asm { vmovaps xmm6, [rsp+128h+var_48] }
 }
 
 /*
@@ -3447,173 +2679,133 @@ Con_DrawMessageWindowOldToNew
 */
 void Con_DrawMessageWindowOldToNew(LocalClientNum_t localClientNum, MessageWindow *msgwnd, int x, int y, int charHeight, int horzAlign, int vertAlign, bool up, GfxFont *font, const vec4_t *color, int textStyle, float msgwndScale, int textAlignMode)
 {
-  __int64 v17; 
+  __int64 v14; 
   ClActiveClient *Client; 
+  int v17; 
+  int v18; 
+  int v19; 
   int v20; 
   int v21; 
-  int v22; 
-  int v24; 
-  int v25; 
   int lineCount; 
-  int v30; 
+  int v23; 
   __int64 lineIdx; 
   MessageLine *lines; 
-  Message *v33; 
+  Message *v26; 
   int endTime; 
   int scrollTime; 
-  bool v38; 
-  bool v48; 
-  const ScreenPlacement *v49; 
-  __int64 v52; 
-  __int64 v53; 
-  float v54; 
+  bool v29; 
+  int v32; 
+  bool v33; 
+  const ScreenPlacement *v34; 
+  __int64 v35; 
+  __int64 v36; 
   int driftBuffer; 
-  int v56; 
-  __int64 v59; 
-  vec4_t v60; 
+  int v38; 
+  __int64 v41; 
+  vec4_t v42; 
 
-  v17 = localClientNum;
+  v14 = localClientNum;
   if ( !msgwnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2367, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
-  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v17) != CA_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2368, ASSERT_TYPE_ASSERT, "(CL_IsLocalClientConnectionActiveForGameServer( localClientNum ))", (const char *)&queryFormat, "CL_IsLocalClientConnectionActiveForGameServer( localClientNum )") )
+  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v14) != CA_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2368, ASSERT_TYPE_ASSERT, "(CL_IsLocalClientConnectionActiveForGameServer( localClientNum ))", (const char *)&queryFormat, "CL_IsLocalClientConnectionActiveForGameServer( localClientNum )") )
     __debugbreak();
-  Client = ClActiveClient::GetClient((const LocalClientNum_t)v17);
-  v20 = Client->GetMsgWindowDriftTime(Client);
-  v59 = v17;
-  v21 = con.currentServerTime[v17];
-  driftBuffer = v20;
-  v22 = v20;
-  Con_CullFinishedLines(v21, msgwnd);
-  _RAX = color;
-  v24 = y - charHeight;
+  Client = ClActiveClient::GetClient((const LocalClientNum_t)v14);
+  v17 = Client->GetMsgWindowDriftTime(Client);
+  v41 = v14;
+  v18 = con.currentServerTime[v14];
+  driftBuffer = v17;
+  v19 = v17;
+  Con_CullFinishedLines(v18, msgwnd);
+  v20 = y - charHeight;
   if ( !up )
-    v24 = y;
-  v25 = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+118h+var_78], xmm0
-  }
+    v20 = y;
+  v21 = 0;
+  v42 = *color;
   if ( msgwnd->activeLineCount > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_48], xmm6
-      vmovss  xmm6, [rsp+118h+msgwndScale]
-      vmovaps [rsp+118h+var_58], xmm7
-      vmovss  xmm7, cs:__real@3f000000
-    }
-    v56 = v21 + v22;
+    v38 = v18 + v19;
     while ( 1 )
     {
       if ( msgwnd->lineCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2386, ASSERT_TYPE_ASSERT, "(msgwnd->lineCount > 0)", (const char *)&queryFormat, "msgwnd->lineCount > 0") )
         __debugbreak();
       lineCount = msgwnd->lineCount;
-      v30 = (v25 + msgwnd->firstLineIndex) % lineCount;
-      lineIdx = v30;
-      if ( v30 >= (unsigned int)lineCount )
+      v23 = (v21 + msgwnd->firstLineIndex) % lineCount;
+      lineIdx = v23;
+      if ( v23 >= (unsigned int)lineCount )
       {
-        LODWORD(v53) = msgwnd->lineCount;
-        LODWORD(v52) = (v25 + msgwnd->firstLineIndex) % lineCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2388, ASSERT_TYPE_ASSERT, "(unsigned)( imod ) < (unsigned)( msgwnd->lineCount )", "imod doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", v52, v53) )
+        LODWORD(v36) = msgwnd->lineCount;
+        LODWORD(v35) = (v21 + msgwnd->firstLineIndex) % lineCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2388, ASSERT_TYPE_ASSERT, "(unsigned)( imod ) < (unsigned)( msgwnd->lineCount )", "imod doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", v35, v36) )
           __debugbreak();
       }
       lines = msgwnd->lines;
       if ( msgwnd->lines[lineIdx].messageIndex >= (unsigned int)msgwnd->lineCount )
       {
-        LODWORD(v53) = msgwnd->lineCount;
-        LODWORD(v52) = msgwnd->lines[lineIdx].messageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2390, ASSERT_TYPE_ASSERT, "(unsigned)( line->messageIndex ) < (unsigned)( msgwnd->lineCount )", "line->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", v52, v53) )
+        LODWORD(v36) = msgwnd->lineCount;
+        LODWORD(v35) = msgwnd->lines[lineIdx].messageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2390, ASSERT_TYPE_ASSERT, "(unsigned)( line->messageIndex ) < (unsigned)( msgwnd->lineCount )", "line->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", v35, v36) )
           __debugbreak();
       }
-      v33 = &msgwnd->messages[lines[lineIdx].messageIndex];
-      if ( v33->startTime < 0 )
+      v26 = &msgwnd->messages[lines[lineIdx].messageIndex];
+      if ( v26->startTime < 0 )
       {
-        LODWORD(v52) = v33->startTime;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2393, ASSERT_TYPE_ASSERT, "( ( message->startTime >= 0 ) )", "( message->startTime ) = %i", v52) )
+        LODWORD(v35) = v26->startTime;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2393, ASSERT_TYPE_ASSERT, "( ( message->startTime >= 0 ) )", "( message->startTime ) = %i", v35) )
           __debugbreak();
       }
-      if ( !driftBuffer && v33->startTime > v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2395, ASSERT_TYPE_ASSERT, "(driftBuffer != 0 || message->startTime <= serverTime)", (const char *)&queryFormat, "driftBuffer != 0 || message->startTime <= serverTime") )
+      if ( !driftBuffer && v26->startTime > v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2395, ASSERT_TYPE_ASSERT, "(driftBuffer != 0 || message->startTime <= serverTime)", (const char *)&queryFormat, "driftBuffer != 0 || message->startTime <= serverTime") )
         __debugbreak();
-      if ( v33->startTime > v56 )
+      if ( v26->startTime > v38 )
         goto LABEL_50;
-      endTime = v33->endTime;
-      if ( v21 > endTime )
+      endTime = v26->endTime;
+      if ( v18 > endTime )
         goto LABEL_50;
       scrollTime = msgwnd->scrollTime;
-      if ( v21 <= endTime - scrollTime || v21 + scrollTime - endTime <= 0 )
+      if ( v18 <= endTime - scrollTime || v18 + scrollTime - endTime <= 0 )
       {
-        v38 = up;
+        v29 = up;
       }
       else
       {
         if ( scrollTime <= 0 )
         {
-          LODWORD(v52) = msgwnd->scrollTime;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2408, ASSERT_TYPE_ASSERT, "( ( msgwnd->scrollTime > 0 ) )", "( msgwnd->scrollTime ) = %i", v52) )
+          LODWORD(v35) = msgwnd->scrollTime;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2408, ASSERT_TYPE_ASSERT, "( ( msgwnd->scrollTime > 0 ) )", "( msgwnd->scrollTime ) = %i", v35) )
             __debugbreak();
         }
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ebx
-        }
-        v38 = up;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi+24h]
-          vdivss  xmm2, xmm1, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r12d
-          vmulss  xmm2, xmm2, xmm1
-          vaddss  xmm3, xmm2, xmm7
-          vxorps  xmm0, xmm0, xmm0
-          vroundss xmm1, xmm0, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
+        v29 = up;
+        _XMM0 = 0i64;
+        __asm { vroundss xmm1, xmm0, xmm3, 1 }
+        v32 = (int)*(float *)&_XMM1;
         if ( up )
-          v24 += _EAX;
+          v20 += v32;
         else
-          v24 -= _EAX;
+          v20 -= v32;
       }
-      *(float *)&_XMM0 = Con_GetMessageAlpha(v33, msgwnd, v21, 0, driftBuffer);
-      __asm
-      {
-        vmulss  xmm1, xmm0, dword ptr [rax+0Ch]
-        vmovss  dword ptr [rsp+118h+var_78+0Ch], xmm1
-      }
+      v42.v[3] = Con_GetMessageAlpha(v26, msgwnd, v18, 0, driftBuffer) * color->v[3];
       if ( activeScreenPlacementMode == SCRMODE_FULL )
         goto LABEL_44;
       if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
         break;
-      v49 = &scrPlaceViewDisplay[v59];
+      v34 = &scrPlaceViewDisplay[v41];
 LABEL_45:
-      __asm { vmovss  [rsp+118h+var_B0], xmm6 }
-      Con_DrawMessageLineOnHUD(localClientNum, v49, v21, x, v24, charHeight, horzAlign, vertAlign, font, msgwnd, lineIdx, &v60, textStyle, v54, textAlignMode);
-      if ( v38 )
-        v24 -= charHeight;
+      Con_DrawMessageLineOnHUD(localClientNum, v34, v18, x, v20, charHeight, horzAlign, vertAlign, font, msgwnd, lineIdx, &v42, textStyle, msgwndScale, textAlignMode);
+      if ( v29 )
+        v20 -= charHeight;
       else
-        v24 += charHeight;
+        v20 += charHeight;
 LABEL_50:
-      if ( ++v25 >= msgwnd->activeLineCount )
-      {
-        __asm
-        {
-          vmovaps xmm7, [rsp+118h+var_58]
-          vmovaps xmm6, [rsp+118h+var_48]
-        }
+      if ( ++v21 >= msgwnd->activeLineCount )
         return;
-      }
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v48 )
+      v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v33 )
       __debugbreak();
 LABEL_44:
-    v49 = &scrPlaceFull;
+    v34 = &scrPlaceFull;
     goto LABEL_45;
   }
 }
@@ -3623,128 +2815,104 @@ LABEL_44:
 Con_DrawMiniConsole
 ==============
 */
-
-void __fastcall Con_DrawMiniConsole(LocalClientNum_t localClientNum, int xPos, int yPos, double alpha)
+void Con_DrawMiniConsole(LocalClientNum_t localClientNum, int xPos, int yPos, float alpha)
 {
-  __int64 v10; 
-  const dvar_t *v15; 
-  const dvar_t *v16; 
-  const dvar_t *v17; 
-  const dvar_t *v18; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
+  __int64 v5; 
+  const dvar_t *v7; 
+  float value; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
   int integer; 
-  __int64 v22; 
+  __int64 v16; 
   GfxFont *font; 
-  __int64 v24; 
-  bool v25; 
-  MessageWindow *v26; 
+  __int64 v18; 
+  bool v19; 
+  MessageWindow *v20; 
   ClActiveClient *Client; 
   __int64 horzAlign; 
-  float v33; 
   vec4_t color; 
-  char v35; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmm8, xmm3
-  }
-  v10 = localClientNum;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
+  v5 = localClientNum;
   if ( CL_IsRenderingSplitScreen() )
   {
-    _RBX = DVARFLT_con_MiniConSplitscreenScale;
+    v7 = DVARFLT_con_MiniConSplitscreenScale;
     if ( !DVARFLT_con_MiniConSplitscreenScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_MiniConSplitscreenScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v7);
+    value = v7->current.value;
   }
   else
   {
-    __asm { vmovaps xmm7, xmm6 }
+    value = FLOAT_1_0;
   }
-  v15 = DVARINT_con_miniconlines;
+  v9 = DVARINT_con_miniconlines;
   if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.integer )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.integer )
   {
     Sys_EnterCriticalSection(CRITSECT_CONSOLE);
-    v16 = DVARINT_con_miniconlines;
+    v10 = DVARINT_con_miniconlines;
     if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    if ( v16->current.integer < 0 )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.integer < 0 )
       goto LABEL_19;
-    v17 = DVARINT_con_miniconlines;
+    v11 = DVARINT_con_miniconlines;
     if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    if ( v17->current.integer > 100 )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v11->current.integer > 100 )
     {
 LABEL_19:
-      v18 = DVARINT_con_miniconlines;
+      v12 = DVARINT_con_miniconlines;
       if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v18);
-      LODWORD(horzAlign) = v18->current.integer;
+      Dvar_CheckFrontendServerThread(v12);
+      LODWORD(horzAlign) = v12->current.integer;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2507, ASSERT_TYPE_ASSERT, "( ( Dvar_GetInt_Internal_DebugName( DVARINT_con_miniconlines, \"con_miniconlines\" ) >= 0 && Dvar_GetInt_Internal_DebugName( DVARINT_con_miniconlines, \"con_miniconlines\" ) <= 100 ) )", "( Dvar_GetInt_Internal_DebugName( DVARINT_con_miniconlines, \"con_miniconlines\" ) ) = %i", horzAlign) )
         __debugbreak();
     }
-    v19 = DVARINT_con_miniconlines;
+    v13 = DVARINT_con_miniconlines;
     if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    if ( con.messageBuffer[0].miniconWindow.lineCount == v19->current.integer )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( con.messageBuffer[0].miniconWindow.lineCount == v13->current.integer )
     {
-      v22 = v10;
+      v16 = v5;
     }
     else
     {
-      v20 = DVARINT_con_miniconlines;
+      v14 = DVARINT_con_miniconlines;
       if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      integer = v20->current.integer;
-      v22 = v10;
+      Dvar_CheckFrontendServerThread(v14);
+      integer = v14->current.integer;
+      v16 = v5;
       con.messageBuffer[0].miniconWindow.lineCount = integer;
-      Con_ClearMessageWindow((MessageWindow *)&con.currentServerTime[4648 * v10 - 5776]);
+      Con_ClearMessageWindow((MessageWindow *)&con.currentServerTime[4648 * v5 - 5776]);
     }
     font = cls.consoleFont;
-    v24 = 4648 * v22;
-    __asm { vmovss  dword ptr [rsp+0F8h+var_88], xmm6 }
-    v25 = &con.currentServerTime[v24 - 5776] == NULL;
-    v26 = (MessageWindow *)&con.currentServerTime[v24 - 5776];
-    __asm
-    {
-      vmovss  dword ptr [rsp+0F8h+var_88+4], xmm6
-      vmovss  dword ptr [rsp+0F8h+var_88+8], xmm6
-      vmovss  dword ptr [rsp+0F8h+var_88+0Ch], xmm8
-    }
-    if ( v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2442, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
+    v18 = 4648 * v16;
+    color.v[0] = FLOAT_1_0;
+    v19 = &con.currentServerTime[v18 - 5776] == NULL;
+    v20 = (MessageWindow *)&con.currentServerTime[v18 - 5776];
+    color.v[1] = FLOAT_1_0;
+    color.v[2] = FLOAT_1_0;
+    color.v[3] = alpha;
+    if ( v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2442, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
       __debugbreak();
-    if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v10) == CA_ACTIVE )
+    if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v5) == CA_ACTIVE )
     {
-      Client = ClActiveClient::GetClient((const LocalClientNum_t)v10);
+      Client = ClActiveClient::GetClient((const LocalClientNum_t)v5);
       if ( Client->ShouldDisplayMsgWindow(Client) )
-      {
-        __asm { vmovss  [rsp+0F8h+var_A0], xmm7 }
-        Con_DrawMessageWindowOldToNew((LocalClientNum_t)v10, v26, xPos, yPos, 10, 1, 1, 0, font, &color, 3, v33, 4);
-      }
+        Con_DrawMessageWindowOldToNew((LocalClientNum_t)v5, v20, xPos, yPos, 10, 1, 1, 0, font, &color, 3, value, 4);
     }
     Sys_LeaveCriticalSection(CRITSECT_CONSOLE);
-  }
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -3755,216 +2923,104 @@ Con_DrawOuputWindow
 */
 void Con_DrawOuputWindow()
 {
+  float v0; 
+  __int128 v1; 
+  __int128 v2; 
+  const dvar_t *v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  __int128 v9; 
   const char *BuildNumber; 
-  const char *v32; 
-  int visibleLineCount; 
-  int v79; 
-  int i; 
-  float fmt; 
+  const char *v12; 
   float y; 
-  float ya; 
-  float xScale; 
-  float xScalea; 
-  float v98; 
-  float v99; 
-  float v100; 
-  float v101; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float v17; 
+  double v18; 
+  int visibleLineCount; 
+  int v22; 
+  int v23; 
+  __int128 v24; 
+  int i; 
+  __int128 v26; 
   vec4_t outColor; 
   vec4_t color; 
-  char v104; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovss  xmm0, dword ptr cs:?con@@3UConsole@@A.screenMax; Console con
-    vmovss  xmm1, dword ptr cs:?con@@3UConsole@@A.screenMin+4; Console con
-    vmovss  xmm6, dword ptr cs:?con@@3UConsole@@A.screenMin; Console con
-    vaddss  xmm7, xmm1, cs:__real@42000000
-  }
-  _RBX = DVARVEC4_con_outputWindowColor;
-  __asm
-  {
-    vsubss  xmm8, xmm0, xmm6
-    vmovss  xmm0, dword ptr cs:?con@@3UConsole@@A.screenMax+4; Console con
-    vsubss  xmm1, xmm0, xmm1
-    vsubss  xmm9, xmm1, cs:__real@42000000
-  }
+  v0 = con.screenMin.v[0];
+  v2 = LODWORD(con.screenMin.v[1]);
+  *(float *)&v2 = con.screenMin.v[1] + 32.0;
+  v1 = v2;
+  v3 = DVARVEC4_con_outputWindowColor;
+  v4 = con.screenMax.v[0] - con.screenMin.v[0];
+  v6 = (float)(con.screenMax.v[1] - con.screenMin.v[1]) - 32.0;
+  v5 = v6;
   if ( !DVARVEC4_con_outputWindowColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_outputWindowColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  dword ptr [rsp+128h+color], xmm0
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vmovss  dword ptr [rsp+128h+color+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  dword ptr [rsp+128h+color+8], xmm0
-    vmovss  xmm1, dword ptr [rbx+34h]
-    vmovss  dword ptr [rsp+128h+color+0Ch], xmm1
-    vmovaps xmm1, xmm7; y
-    vmovaps xmm3, xmm9; h
-    vmovaps xmm2, xmm8; w
-    vmovaps xmm0, xmm6; x
-  }
-  ConDraw_Box(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &color);
-  __asm
-  {
-    vaddss  xmm11, xmm6, cs:__real@40c00000
-    vaddss  xmm6, xmm8, cs:__real@c1400000
-    vaddss  xmm7, xmm7, cs:__real@40c00000
-    vaddss  xmm10, xmm9, cs:__real@c1400000
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  color = v3->current.vector;
+  ConDraw_Box(v0, *(float *)&v1, v4, v6, &color);
+  v7 = v0 + 6.0;
+  v9 = v1;
+  *(float *)&v9 = *(float *)&v1 + 6.0;
+  v8 = v9;
+  *(float *)&_XMM10 = v5 + -12.0;
   BuildNumber = j_getBuildNumber();
-  v32 = j_va("Build %s %s", BuildNumber, "xb3");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm14, xmm14, xmm14
-    vmovss  [rsp+128h+var_E8], xmm14
-    vmovss  [rsp+128h+var_F0], xmm8
-    vmovss  [rsp+128h+xScale], xmm8
-    vaddss  xmm13, xmm10, xmm7
-    vmovss  [rsp+128h+y], xmm13
-    vmovss  dword ptr [rsp+128h+fmt], xmm11
-  }
-  R_AddCmdDrawText(v32, 0x7FFFFFFF, cls.consoleFont, 18, fmt, y, xScale, v98, v100, &con_versionColor);
-  _RBX = DVARVEC4_con_outputBarColor;
+  v12 = j_va("Build %s %s", BuildNumber, "xb3");
+  y = (float)(v5 + -12.0) + *(float *)&v9;
+  R_AddCmdDrawText(v12, 0x7FFFFFFF, cls.consoleFont, 18, v0 + 6.0, y, 1.0, 1.0, 0.0, &con_versionColor);
+  v14 = DVARVEC4_con_outputBarColor;
   if ( !DVARVEC4_con_outputBarColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_outputBarColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm9, cs:__real@41200000
-    vmovss  dword ptr [rsp+128h+outColor], xmm0
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vmovss  dword ptr [rsp+128h+outColor+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  dword ptr [rsp+128h+outColor+8], xmm0
-    vmovss  xmm1, dword ptr [rbx+34h]
-    vaddss  xmm0, xmm6, xmm11
-    vsubss  xmm12, xmm0, xmm9
-    vmovss  dword ptr [rsp+128h+outColor+0Ch], xmm1
-    vmovaps xmm0, xmm12; x
-    vmovaps xmm3, xmm10; h
-    vmovaps xmm2, xmm9; w
-    vmovaps xmm1, xmm7; y
-  }
-  ConDraw_Box(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &outColor);
-  _RBX = DVARVEC4_con_outputSliderColor;
+  Dvar_CheckFrontendServerThread(v14);
+  outColor = (vec4_t)v14->current;
+  v15 = (float)((float)(v4 + -12.0) + v7) - 10.0;
+  ConDraw_Box(v15, *(float *)&v8, 10.0, *(float *)&_XMM10, &outColor);
+  v16 = DVARVEC4_con_outputSliderColor;
   if ( !DVARVEC4_con_outputSliderColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_outputSliderColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  dword ptr [rsp+128h+outColor], xmm0
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vmovss  dword ptr [rsp+128h+outColor+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  dword ptr [rsp+128h+outColor+8], xmm0
-    vmovss  xmm1, dword ptr [rbx+34h]
-    vmovss  dword ptr [rsp+128h+outColor+0Ch], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v16);
+  outColor = v16->current.vector;
   if ( con.consoleWindow.activeLineCount > con.visibleLineCount )
   {
-    _EAX = con.consoleWindow.activeLineCount - con.visibleLineCount;
+    v18 = I_fclamp(_mm_cvtepi32_ps((__m128i)(unsigned int)(con.displayLineOffset - con.visibleLineCount)).m128_f32[0] * (float)(1.0 / _mm_cvtepi32_ps((__m128i)(unsigned int)(con.consoleWindow.activeLineCount - con.visibleLineCount)).m128_f32[0]), 0.0, 1.0);
+    _XMM4 = 0i64;
+    _mm_cvtepi32_ps((__m128i)(unsigned int)con.visibleLineCount);
     __asm
     {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vdivss  xmm6, xmm8, xmm0
-    }
-    _EAX = con.displayLineOffset - con.visibleLineCount;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm0, xmm0, xmm6; val
-      vmovaps xmm2, xmm8; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm5, xmm0
-      vmovd   xmm0, cs:?con@@3UConsole@@A.visibleLineCount; Console con
-      vxorps  xmm4, xmm4, xmm4
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm3, xmm1, xmm10
       vroundss xmm4, xmm4, xmm3, 2
       vmaxss  xmm10, xmm4, xmm9
-      vsubss  xmm1, xmm13, xmm10
-      vsubss  xmm4, xmm1, xmm7
-      vmulss  xmm5, xmm4, xmm5
-      vaddss  xmm1, xmm5, xmm7; y
     }
+    v17 = (float)((float)((float)(y - *(float *)&_XMM10) - *(float *)&v8) * *(float *)&v18) + *(float *)&v8;
   }
   else
   {
-    __asm { vmovaps xmm1, xmm7 }
+    v17 = *(float *)&v8;
   }
-  __asm
-  {
-    vmovaps xmm3, xmm10; h
-    vmovaps xmm2, xmm9; w
-    vmovaps xmm0, xmm12; x
-  }
-  ConDraw_Box(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &outColor);
+  ConDraw_Box(v15, v17, 10.0, *(float *)&_XMM10, &outColor);
   CL_LookupColor(LOCAL_CLIENT_0, 0x37u, &outColor);
   if ( !con.fontHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2608, ASSERT_TYPE_ASSERT, "(con.fontHeight)", (const char *)&queryFormat, "con.fontHeight") )
     __debugbreak();
   visibleLineCount = con.visibleLineCount;
-  v79 = con.displayLineOffset - con.visibleLineCount;
+  v22 = con.displayLineOffset - con.visibleLineCount;
   if ( con.displayLineOffset - con.visibleLineCount < 0 )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v23 = v22 * con.fontHeight;
     visibleLineCount = con.displayLineOffset;
-    v79 = 0;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, eax
-      vsubss  xmm7, xmm7, xmm0
-    }
+    v22 = 0;
+    v24 = v8;
+    *(float *)&v24 = *(float *)&v8 - (float)v23;
+    v8 = v24;
   }
   for ( i = 0; i < visibleLineCount; ++i )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, cs:?con@@3UConsole@@A.fontHeight; Console con
-      vaddss  xmm7, xmm7, xmm0
-      vmovss  [rsp+128h+var_E8], xmm8
-      vmovss  [rsp+128h+var_F0], xmm8
-      vmovss  [rsp+128h+xScale], xmm7
-      vmovss  [rsp+128h+y], xmm11
-    }
-    R_AddCmdDrawConsoleText(con.consoleWindow.circularTextBuffer, con.consoleWindow.textBufSize, con.consoleWindow.lines[(v79 + i + con.consoleWindow.firstLineIndex) % con.consoleWindow.lineCount].textBufPos, con.consoleWindow.lines[(v79 + i + con.consoleWindow.firstLineIndex) % con.consoleWindow.lineCount].textBufSize, cls.consoleFont, ya, xScalea, v99, v101, &outColor, 0);
-  }
-  _R11 = &v104;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
+    v26 = v8;
+    *(float *)&v26 = *(float *)&v8 + (float)con.fontHeight;
+    v8 = v26;
+    R_AddCmdDrawConsoleText(con.consoleWindow.circularTextBuffer, con.consoleWindow.textBufSize, con.consoleWindow.lines[(v22 + i + con.consoleWindow.firstLineIndex) % con.consoleWindow.lineCount].textBufPos, con.consoleWindow.lines[(v22 + i + con.consoleWindow.firstLineIndex) % con.consoleWindow.lineCount].textBufSize, cls.consoleFont, v7, *(float *)&v26, 1.0, 1.0, &outColor, 0);
   }
 }
 
@@ -4207,29 +3263,30 @@ Con_GetMessageAlpha
 float Con_GetMessageAlpha(Message *message, MessageWindow *msgwnd, int serverTime, bool scrollsIntoPlace, int driftBuffer)
 {
   int fadeOut; 
+  int v11; 
+  __int128 v12; 
   int fadeIn; 
   int scrollTime; 
-  int v19; 
+  int v15; 
+  float result; 
+  __int128 v17; 
+  int v18; 
+  __int128 v19; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  _XMM6 = LODWORD(FLOAT_1_0);
   if ( !message && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2234, ASSERT_TYPE_ASSERT, "(message)", (const char *)&queryFormat, "message") )
     __debugbreak();
   if ( !msgwnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 2235, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
   fadeOut = msgwnd->fadeOut;
-  if ( fadeOut > 0 && message->endTime - serverTime < fadeOut )
+  if ( fadeOut > 0 )
   {
-    __asm
+    v11 = message->endTime - serverTime;
+    if ( v11 < fadeOut )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, ecx
-      vdivss  xmm6, xmm1, xmm0
+      v12 = 0i64;
+      *(float *)&v12 = (float)v11 / (float)fadeOut;
+      _XMM6 = v12;
     }
   }
   fadeIn = msgwnd->fadeIn;
@@ -4237,47 +3294,31 @@ float Con_GetMessageAlpha(Message *message, MessageWindow *msgwnd, int serverTim
   {
     if ( scrollsIntoPlace && (scrollTime = msgwnd->scrollTime, fadeIn < scrollTime) )
     {
-      v19 = serverTime - message->startTime;
-      if ( v19 < scrollTime )
+      v15 = serverTime - message->startTime;
+      if ( v15 < scrollTime )
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        if ( v19 <= scrollTime - fadeIn )
-          goto LABEL_21;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm6, xmm6, xmm1
-        }
+        result = 0.0;
+        if ( v15 <= scrollTime - fadeIn )
+          return result;
+        v17 = _XMM6;
+        *(float *)&v17 = *(float *)&_XMM6 * (float)((float)(serverTime + fadeIn - message->startTime - scrollTime) / (float)fadeIn);
+        _XMM6 = v17;
       }
     }
-    else if ( serverTime - message->startTime < fadeIn )
+    else
     {
-      __asm
+      v18 = serverTime - message->startTime;
+      if ( v18 < fadeIn )
       {
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm2, xmm2, ebx
-        vcvtsi2ss xmm1, xmm1, ecx
-        vdivss  xmm2, xmm2, xmm1
-        vmulss  xmm6, xmm6, xmm2
+        v19 = _XMM6;
+        *(float *)&v19 = *(float *)&_XMM6 * (float)((float)v18 / (float)fadeIn);
+        _XMM6 = v19;
       }
     }
   }
   if ( driftBuffer )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmaxss  xmm6, xmm6, xmm1
-    }
-  }
-  __asm { vmovaps xmm0, xmm6 }
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return *(float *)&_XMM0;
+    __asm { vmaxss  xmm6, xmm6, xmm1 }
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -4357,29 +3398,30 @@ Con_Init
 */
 void Con_Init(void)
 {
-  field_t *v2; 
-  __int64 v3; 
+  float *p_charHeight; 
+  field_t *v1; 
+  __int64 v2; 
+  float v3; 
 
   CL_Keys_ClearField(&g_consoleField);
-  __asm { vmovss  xmm0, cs:?g_console_char_height@@3MA; float g_console_char_height }
-  _RBX = &g_historyEditLines[0].charHeight;
-  __asm { vmovss  cs:?g_consoleField@@3Ufield_t@@A.charHeight, xmm0; field_t g_consoleField }
+  p_charHeight = &g_historyEditLines[0].charHeight;
+  g_consoleField.charHeight = g_console_char_height;
   g_consoleField.widthInPixels = g_console_field_width;
-  v2 = g_historyEditLines;
+  v1 = g_historyEditLines;
   g_consoleField.fixedSize = 1;
-  v3 = 32i64;
+  v2 = 32i64;
   do
   {
-    CL_Keys_ClearField(v2);
-    __asm { vmovss  xmm0, cs:?g_console_char_height@@3MA; float g_console_char_height }
-    ++v2;
-    *((_DWORD *)_RBX - 1) = g_console_field_width;
-    *((_DWORD *)_RBX + 1) = 1;
-    __asm { vmovss  dword ptr [rbx], xmm0 }
-    _RBX += 70;
-    --v3;
+    CL_Keys_ClearField(v1);
+    v3 = g_console_char_height;
+    ++v1;
+    *((_DWORD *)p_charHeight - 1) = g_console_field_width;
+    *((_DWORD *)p_charHeight + 1) = 1;
+    *p_charHeight = v3;
+    p_charHeight += 70;
+    --v2;
   }
-  while ( v3 );
+  while ( v2 );
   conDrawInputGlob.matchIndex = -1;
   Cmd_AddCommandInternal("clear", Con_Clear_f, &Con_Clear_f_VAR);
 }
@@ -4435,436 +3477,194 @@ void Con_InitConfig(const LocalClientNum_t localClientNum, const char *config)
 Con_InitDvars
 ==============
 */
-void Con_InitDvars()
+void Con_InitDvars(void)
 {
-  const dvar_t *v15; 
-  const dvar_t *v20; 
-  const dvar_t *v25; 
-  const dvar_t *v29; 
-  const dvar_t *v38; 
-  const dvar_t *v48; 
-  const dvar_t *v52; 
-  const dvar_t *v57; 
-  const dvar_t *v61; 
-  char *v69; 
-  char *v71; 
-  char *v72; 
-  char *v73; 
-  char *v74; 
-  char *v75; 
-  char *v76; 
-  __int64 v78; 
-  __int64 v79; 
-  __int64 v85; 
-  __int64 v86; 
-  const char *v87; 
-  __int64 v88; 
-  __int64 v89; 
-  const char *v93; 
-  __int64 v94; 
-  __int64 v95; 
-  __int64 v103; 
-  __int64 v104; 
-  __int64 v108; 
-  __int64 v109; 
-  const dvar_t *v115; 
-  float min; 
-  float mina; 
-  float minb; 
-  float minc; 
-  float mind; 
-  float mine; 
-  float minf; 
-  float ming; 
-  float minh; 
-  float mini; 
-  float minj; 
-  float v136; 
-  float v137; 
-  float v138; 
-  float v139; 
-  float v140; 
-  float v141; 
-  float v142; 
-  float v143; 
-  float v144; 
-  float v145; 
-  float v146; 
-  float max; 
-  float maxa; 
-  float maxb; 
-  float maxc; 
-  float maxd; 
-  float maxe; 
-  float maxf; 
-  float maxg; 
-  float maxh; 
+  char *v1; 
+  unsigned int v2; 
+  char *v3; 
+  char *v4; 
+  char *v5; 
+  char *v6; 
+  char *v7; 
+  char *v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  const char *v13; 
+  __int64 v14; 
+  __int64 v15; 
+  const char *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  const dvar_t *v26; 
   char *dvarName; 
-  char *v157; 
-  char (*v158)[28]; 
-  char v160; 
-  void *retaddr; 
-  __int64 v162; 
+  char *v28; 
+  char (*v29)[28]; 
+  __int64 v30; 
   char *_Buffer; 
-  __int64 v164; 
-  __int64 v165; 
+  __int64 v32; 
+  __int64 v33; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps [rsp+138h+var_C8], xmm13
-  }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm12, cs:__real@3e800000
-    vmovss  xmm3, cs:__real@3e4ccccd; z
-    vmovss  [rsp+138h+max], xmm9
-    vxorps  xmm11, xmm11, xmm11
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm2, xmm12; y
-    vmovaps xmm1, xmm12; x
-    vmovss  [rsp+138h+min], xmm9
-  }
-  v15 = Dvar_RegisterVec4("NTRRQOTQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, min, v136, max, 0, "Color of the console input box");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3ecccccd; x
-    vmovss  xmm6, cs:__real@3eb33333
-  }
-  DVARVEC4_con_inputBoxColor = v15;
-  __asm
-  {
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm3, xmm6; z
-    vmovaps xmm2, xmm1; y
-    vmovss  [rsp+138h+min], xmm9
-  }
-  v20 = Dvar_RegisterVec4("MOOQQSSKTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, mina, v137, maxa, 0, "Color of the console input hint box");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f19999a
-    vmovss  xmm3, cs:__real@3f733333; z
-  }
-  DVARVEC4_con_inputHintBoxColor = v20;
-  __asm
-  {
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm2, xmm9; y
-    vmovaps xmm1, xmm9; x
-    vmovss  [rsp+138h+min], xmm8
-  }
-  v25 = Dvar_RegisterVec4("NPQPRQPSRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, minb, v138, maxb, 0, "Color of the console output slider bar");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e19999a; x
-    vmovss  xmm3, cs:__real@3dcccccd; z
-  }
-  DVARVEC4_con_outputBarColor = v25;
-  __asm
-  {
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm2, xmm1; y
-    vmovss  [rsp+138h+min], xmm8
-  }
-  v29 = Dvar_RegisterVec4("OKKOQRLTON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, minc, v139, maxc, 0, "Color of the console slider");
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f400000
-    vmovss  xmm3, cs:__real@3e99999a; z
-  }
-  DVARVEC4_con_outputSliderColor = v29;
-  __asm
-  {
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+138h+min], xmm13
-    vmovss  xmm10, cs:__real@7f7fffff
-  }
-  DVARVEC4_con_outputWindowColor = Dvar_RegisterVec4("RNRONLLQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, mind, v140, maxd, 0, "Color of the console output");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovss  xmm1, cs:__real@41000000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v38 = Dvar_RegisterFloat("LLQROLOMQM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Onscreen time for error messages in seconds");
-  __asm { vmovss  xmm1, cs:__real@40800000; value }
-  DVARFLT_con_errormessagetime = v38;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_con_minicontime = Dvar_RegisterFloat("MQNKNSQKQO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Onscreen time for minicon messages in seconds");
-  __asm { vmovss  xmm1, cs:__real@3fb33333; value }
+  _XMM12 = LODWORD(FLOAT_0_25);
+  DVARVEC4_con_inputBoxColor = Dvar_RegisterVec4("NTRRQOTQQ", 0.25, 0.25, 0.2, 1.0, 0.0, 1.0, 0, "Color of the console input box");
+  DVARVEC4_con_inputHintBoxColor = Dvar_RegisterVec4("MOOQQSSKTN", 0.40000001, 0.40000001, 0.34999999, 1.0, 0.0, 1.0, 0, "Color of the console input hint box");
+  DVARVEC4_con_outputBarColor = Dvar_RegisterVec4("NPQPRQPSRT", 1.0, 1.0, 0.94999999, 0.60000002, 0.0, 1.0, 0, "Color of the console output slider bar");
+  DVARVEC4_con_outputSliderColor = Dvar_RegisterVec4("OKKOQRLTON", 0.15000001, 0.15000001, 0.1, 0.60000002, 0.0, 1.0, 0, "Color of the console slider");
+  DVARVEC4_con_outputWindowColor = Dvar_RegisterVec4("RNRONLLQQ", 0.34999999, 0.34999999, 0.30000001, 0.75, 0.0, 1.0, 0, "Color of the console output");
+  DVARFLT_con_errormessagetime = Dvar_RegisterFloat("LLQROLOMQM", 8.0, 0.0, 3.4028235e38, 0, "Onscreen time for error messages in seconds");
+  DVARFLT_con_minicontime = Dvar_RegisterFloat("MQNKNSQKQO", 4.0, 0.0, 3.4028235e38, 0, "Onscreen time for minicon messages in seconds");
   DVARINT_con_miniconlines = Dvar_RegisterInt("LSTSTMSPRQ", 5, 0, 100, 0, "Number of lines in the minicon message window");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_con_MiniConSplitscreenScale = Dvar_RegisterFloat("LPNKNRPLKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Splitscreen scale value for the mini console");
+  DVARFLT_con_MiniConSplitscreenScale = Dvar_RegisterFloat("LPNKNRPLKN", 1.4, 0.0, 3.4028235e38, 0, "Splitscreen scale value for the mini console");
   DVARINT_con_typewriterPrintSpeed = Dvar_RegisterInt("MLOSSMQQSL", 50, 0, 0x7FFFFFFF, 0, "Time (in milliseconds) to print each letter in the line.");
   DVARINT_con_typewriterDecayStartTime = Dvar_RegisterInt("MOKKSMSRPQ", 6000, 0, 0x7FFFFFFF, 0, "Time (in milliseconds) to spend between the build and disolve phases.");
   DVARINT_con_typewriterDecayDuration = Dvar_RegisterInt("LPOTLQSKLT", 700, 0, 0x7FFFFFFF, 0, "Time (in milliseconds) to spend disolving the line away.");
-  __asm
-  {
-    vmovss  dword ptr [rsp+138h+var_110], xmm9
-    vmovaps xmm3, xmm9; z
-    vmovaps xmm2, xmm9; y
-    vmovaps xmm1, xmm9; x
-    vmovss  [rsp+138h+min], xmm11
-  }
-  v48 = Dvar_RegisterVec3("NRQKSNRORT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, mine, v141, 0x40u, "Base color of typewritten objective text.");
-  __asm { vmovss  xmm3, cs:__real@3e3851ec; z }
-  DVARVEC3_con_typewriterColorBase = v48;
-  __asm
-  {
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm2, xmm8; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+138h+min], xmm9
-  }
-  v52 = Dvar_RegisterVec4("TTNNQLPTQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, minf, v142, maxe, 0, "Color of typewritten objective text.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f4ccccd
-    vmovss  xmm2, cs:__real@3e99999a; y
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm3, xmm6; z
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+138h+min], xmm9
-  }
-  DVARVEC4_con_typewriterColorGlowUpdated = v52;
-  v57 = Dvar_RegisterVec4("MQRQQNTRSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ming, v143, maxf, 0, "Color of typewritten objective text.");
-  __asm
-  {
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+138h+min], xmm9
-  }
-  DVARVEC4_con_typewriterColorGlowCompleted = v57;
-  v61 = Dvar_RegisterVec4("MOTTNQKORK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, minh, v144, maxg, 0, "Color of typewritten objective text.");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f000000
-    vmovss  [rsp+138h+max], xmm9
-    vmovss  dword ptr [rsp+138h+var_110], xmm11
-    vmovaps xmm3, xmm8; z
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm8; x
-    vmovss  [rsp+138h+min], xmm9
-  }
-  DVARVEC4_con_typewriterColorGlowFailed = v61;
-  DVARVEC4_con_typewriterColorGlowCheckpoint = Dvar_RegisterVec4("LQQSKRTMMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, mini, v145, maxh, 0, "Color of typewritten objective text.");
+  DVARVEC3_con_typewriterColorBase = Dvar_RegisterVec3("NRQKSNRORT", 1.0, 1.0, 1.0, 0.0, 1.0, 0x40u, "Base color of typewritten objective text.");
+  DVARVEC4_con_typewriterColorGlowUpdated = Dvar_RegisterVec4("TTNNQLPTQ", 0.0, 0.60000002, 0.18000001, 1.0, 0.0, 1.0, 0, "Color of typewritten objective text.");
+  DVARVEC4_con_typewriterColorGlowCompleted = Dvar_RegisterVec4("MQRQQNTRSO", 0.0, 0.30000001, 0.80000001, 1.0, 0.0, 1.0, 0, "Color of typewritten objective text.");
+  DVARVEC4_con_typewriterColorGlowFailed = Dvar_RegisterVec4("MOTTNQKORK", 0.80000001, 0.0, 0.0, 1.0, 0.0, 1.0, 0, "Color of typewritten objective text.");
+  DVARVEC4_con_typewriterColorGlowCheckpoint = Dvar_RegisterVec4("LQQSKRTMMN", 0.60000002, 0.5, 0.60000002, 1.0, 0.0, 1.0, 0, "Color of typewritten objective text.");
   DVARBOOL_con_forcedSubtitleEnableOverrideValues = Dvar_RegisterBool("SQRQRQOKO", 0, 0x40u, "Do we want to enable the override for changing the stlye/color of forced subtitles");
-  __asm
-  {
-    vmovss  dword ptr [rsp+138h+var_110], xmm9
-    vxorps  xmm3, xmm3, xmm3; z
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm9; x
-    vmovss  [rsp+138h+min], xmm11
-  }
-  DVARVEC3_con_forcedSubtitleColor = Dvar_RegisterVec3("MMPTROLLTQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, minj, v146, 0x40u, "Color of forced subtitle text( translated foreign language ).");
+  DVARVEC3_con_forcedSubtitleColor = Dvar_RegisterVec3("MMPTROLLTQ", 1.0, 0.80000001, 0.0, 0.0, 1.0, 0x40u, "Color of forced subtitle text( translated foreign language ).");
   DVARINT_con_forcedSubtitleTextStyle = Dvar_RegisterInt("MPSQRMTPTL", 6, 0, 8, 0, "Text style for the forced subtitles( translated foreign language ). See r_font_api.h for the #defines of ITEM_TEXTSYLE_<type> for values( 6 == shadowedmore )");
-  v69 = con_gameMsgWindowNSplitscreenScale_Descs[0];
-  _EBX = 0;
-  v157 = con_gameMsgWindowNSplitscreenScale_Names[0];
-  v71 = con_gameMsgWindowNLineCount_Names[0];
-  v158 = con_gameMsgWindowNLineCount_Names;
+  v1 = con_gameMsgWindowNSplitscreenScale_Descs[0];
+  v2 = 0;
+  v28 = con_gameMsgWindowNSplitscreenScale_Names[0];
+  v3 = con_gameMsgWindowNLineCount_Names[0];
+  v29 = con_gameMsgWindowNLineCount_Names;
   dvarName = con_gameMsgWindowNFadeOutTime_Names[0];
-  v72 = con_gameMsgWindowNFadeOutTime_Descs[0];
+  v4 = con_gameMsgWindowNFadeOutTime_Descs[0];
   _Buffer = con_gameMsgWindowNFadeInTime_Descs[0];
-  v73 = con_gameMsgWindowNScrollTime_Descs[0];
-  v74 = con_gameMsgWindowNLineCount_Descs[0];
-  v165 = 0i64;
-  v75 = con_gameMsgWindowNMsgTime_Descs[0];
-  v164 = 0i64;
-  v76 = con_gameMsgWindowNMsgTime_Names[0];
-  v162 = 0i64;
-  __asm { vmovss  xmm6, cs:__real@3c23d70a }
+  v5 = con_gameMsgWindowNScrollTime_Descs[0];
+  v6 = con_gameMsgWindowNLineCount_Descs[0];
+  v33 = 0i64;
+  v7 = con_gameMsgWindowNMsgTime_Descs[0];
+  v32 = 0i64;
+  v8 = con_gameMsgWindowNMsgTime_Names[0];
+  v30 = 0i64;
   do
   {
-    j_sprintf(v76, "con_gameMsgWindow%dMsgTime", _EBX);
-    v78 = -1i64;
+    j_sprintf(v8, "con_gameMsgWindow%dMsgTime", v2);
+    v9 = -1i64;
     do
-      ++v78;
-    while ( v76[v78] );
-    if ( v78 != 25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 18, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNMsgTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNMsgTime_Names[gameWindowIndex] ) - 1") )
+      ++v9;
+    while ( v8[v9] );
+    if ( v9 != 25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 18, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNMsgTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNMsgTime_Names[gameWindowIndex] ) - 1") )
       __debugbreak();
-    j_sprintf(v75, "On screen time for game messages in seconds in game message window %d", _EBX);
-    v79 = -1i64;
+    j_sprintf(v7, "On screen time for game messages in seconds in game message window %d", v2);
+    v10 = -1i64;
     do
-      ++v79;
-    while ( v75[v79] );
-    if ( v79 != 68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 18, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNMsgTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNMsgTime_Descs[gameWindowIndex] ) - 1") )
+      ++v10;
+    while ( v7[v10] );
+    if ( v10 != 68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 18, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNMsgTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNMsgTime_Descs[gameWindowIndex] ) - 1") )
       __debugbreak();
-    _RAX = v164 * 4;
-    _RCX = 0x140000000ui64;
+    con_gameMsgWindowNMsgTime[v30] = Dvar_RegisterFloat(v8, defaultGameMessageTimes[v32], 0.0, 3.4028235e38, 0, v7);
+    j_sprintf(v3, "con_gameMsgWindow%dLineCount", v2);
+    v11 = -1i64;
+    do
+      ++v11;
+    while ( v3[v11] );
+    if ( v11 != 27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 21, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNLineCount_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNLineCount_Names[gameWindowIndex] ) - 1") )
+      __debugbreak();
+    j_sprintf(v6, "Maximum number of lines of text visible at once in game message window %d", v2);
+    v12 = -1i64;
+    do
+      ++v12;
+    while ( v6[v12] );
+    if ( v12 != 72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 21, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNLineCount_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNLineCount_Descs[gameWindowIndex] ) - 1") )
+      __debugbreak();
+    con_gameMsgWindowNLineCount[v30] = Dvar_RegisterInt(v3, defaultGameMessageWindowLineCounts[v32], 1, 9, 0, v6);
+    v13 = con_gameMsgWindowNScrollTime_Names[v33];
+    j_sprintf(con_gameMsgWindowNScrollTime_Names[v33], "con_gameMsgWindow%dScrollTime", v2);
+    v14 = -1i64;
+    do
+      ++v14;
+    while ( v13[v14] );
+    if ( v14 != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 25, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNScrollTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNScrollTime_Names[gameWindowIndex] ) - 1") )
+      __debugbreak();
+    j_sprintf(v5, "Time to scroll messages when the oldest message is removed in game message window %d", v2);
+    v15 = -1i64;
+    do
+      ++v15;
+    while ( v5[v15] );
+    if ( v15 != 83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 25, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNScrollTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNScrollTime_Descs[gameWindowIndex] ) - 1") )
+      __debugbreak();
+    con_gameMsgWindowNScrollTime[v30] = Dvar_RegisterFloat(v13, 0.25, 0.0, 3.4028235e38, 0, v5);
+    v16 = con_gameMsgWindowNFadeInTime_Names[v33];
+    j_sprintf(con_gameMsgWindowNFadeInTime_Names[v33], "con_gameMsgWindow%dFadeInTime", v2);
+    v17 = -1i64;
+    do
+      ++v17;
+    while ( v16[v17] );
+    if ( v17 != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 28, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeInTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeInTime_Names[gameWindowIndex] ) - 1") )
+      __debugbreak();
+    j_sprintf(_Buffer, "Time to fade in new messages in game message window %d", v2);
+    v18 = -1i64;
+    do
+      ++v18;
+    while ( _Buffer[v18] );
+    if ( v18 != 53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 28, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeInTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeInTime_Descs[gameWindowIndex] ) - 1") )
+      __debugbreak();
+    _XMM0 = v2;
     __asm
     {
-      vmovaps xmm3, xmm10; max
-      vmovaps xmm2, xmm11; min
-      vmovss  xmm1, dword ptr [rax+rcx+41ED380h]; value
-    }
-    con_gameMsgWindowNMsgTime[v162] = Dvar_RegisterFloat(v76, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, v75);
-    j_sprintf(v71, "con_gameMsgWindow%dLineCount", _EBX);
-    v85 = -1i64;
-    do
-      ++v85;
-    while ( v71[v85] );
-    if ( v85 != 27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 21, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNLineCount_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNLineCount_Names[gameWindowIndex] ) - 1") )
-      __debugbreak();
-    j_sprintf(v74, "Maximum number of lines of text visible at once in game message window %d", _EBX);
-    v86 = -1i64;
-    do
-      ++v86;
-    while ( v74[v86] );
-    if ( v86 != 72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 21, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNLineCount_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNLineCount_Descs[gameWindowIndex] ) - 1") )
-      __debugbreak();
-    con_gameMsgWindowNLineCount[v162] = Dvar_RegisterInt(v71, defaultGameMessageWindowLineCounts[v164], 1, 9, 0, v74);
-    v87 = con_gameMsgWindowNScrollTime_Names[v165];
-    j_sprintf(con_gameMsgWindowNScrollTime_Names[v165], "con_gameMsgWindow%dScrollTime", _EBX);
-    v88 = -1i64;
-    do
-      ++v88;
-    while ( v87[v88] );
-    if ( v88 != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 25, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNScrollTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNScrollTime_Names[gameWindowIndex] ) - 1") )
-      __debugbreak();
-    j_sprintf(v73, "Time to scroll messages when the oldest message is removed in game message window %d", _EBX);
-    v89 = -1i64;
-    do
-      ++v89;
-    while ( v73[v89] );
-    if ( v89 != 83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 25, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNScrollTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNScrollTime_Descs[gameWindowIndex] ) - 1") )
-      __debugbreak();
-    __asm
-    {
-      vmovaps xmm3, xmm10; max
-      vmovaps xmm2, xmm11; min
-      vmovaps xmm1, xmm12; value
-    }
-    con_gameMsgWindowNScrollTime[v162] = Dvar_RegisterFloat(v87, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, v73);
-    v93 = con_gameMsgWindowNFadeInTime_Names[v165];
-    j_sprintf(con_gameMsgWindowNFadeInTime_Names[v165], "con_gameMsgWindow%dFadeInTime", _EBX);
-    v94 = -1i64;
-    do
-      ++v94;
-    while ( v93[v94] );
-    if ( v94 != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 28, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeInTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeInTime_Names[gameWindowIndex] ) - 1") )
-      __debugbreak();
-    j_sprintf(_Buffer, "Time to fade in new messages in game message window %d", _EBX);
-    v95 = -1i64;
-    do
-      ++v95;
-    while ( _Buffer[v95] );
-    if ( v95 != 53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 28, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeInTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeInTime_Descs[gameWindowIndex] ) - 1") )
-      __debugbreak();
-    _EAX = 2;
-    __asm
-    {
-      vmovd   xmm1, eax
-      vmovd   xmm0, ebx
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm1, xmm12, xmm13, xmm2; value
-      vmovaps xmm2, xmm11; min
-      vmovaps xmm3, xmm10; max
     }
-    con_gameMsgWindowNFadeInTime[v162] = Dvar_RegisterFloat(v93, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, _Buffer);
-    j_sprintf(dvarName, "con_gameMsgWindow%dFadeOutTime", _EBX);
-    v103 = -1i64;
+    con_gameMsgWindowNFadeInTime[v30] = Dvar_RegisterFloat(v16, *(float *)&_XMM1, 0.0, 3.4028235e38, 0, _Buffer);
+    j_sprintf(dvarName, "con_gameMsgWindow%dFadeOutTime", v2);
+    v22 = -1i64;
     do
-      ++v103;
-    while ( dvarName[v103] );
-    if ( v103 != 29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 31, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeOutTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeOutTime_Names[gameWindowIndex] ) - 1") )
+      ++v22;
+    while ( dvarName[v22] );
+    if ( v22 != 29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 31, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeOutTime_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNFadeOutTime_Names[gameWindowIndex] ) - 1") )
       __debugbreak();
-    j_sprintf(v72, "Time to fade out old messages in game message window %d", _EBX);
-    v104 = -1i64;
+    j_sprintf(v4, "Time to fade out old messages in game message window %d", v2);
+    v23 = -1i64;
     do
-      ++v104;
-    while ( v72[v104] );
-    if ( v104 != 54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 31, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeOutTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeOutTime_Descs[gameWindowIndex] ) - 1") )
+      ++v23;
+    while ( v4[v23] );
+    if ( v23 != 54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 31, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeOutTime_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNFadeOutTime_Descs[gameWindowIndex] ) - 1") )
       __debugbreak();
-    __asm
-    {
-      vmovaps xmm3, xmm10; max
-      vmovaps xmm2, xmm6; min
-      vmovaps xmm1, xmm7; value
-    }
-    con_gameMsgWindowNFadeOutTime[v162] = Dvar_RegisterFloat(dvarName, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, v72);
-    j_sprintf(v157, "con_gameMsgWindow%dSplitscreenScale", _EBX);
-    v108 = -1i64;
+    con_gameMsgWindowNFadeOutTime[v30] = Dvar_RegisterFloat(dvarName, 0.5, 0.0099999998, 3.4028235e38, 0, v4);
+    j_sprintf(v28, "con_gameMsgWindow%dSplitscreenScale", v2);
+    v24 = -1i64;
     do
-      ++v108;
-    while ( v157[v108] );
-    if ( v108 != 34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 34, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNSplitscreenScale_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNSplitscreenScale_Names[gameWindowIndex] ) - 1") )
+      ++v24;
+    while ( v28[v24] );
+    if ( v24 != 34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 34, ASSERT_TYPE_ASSERT, "(strlen( dvarName ) == sizeof( con_gameMsgWindowNSplitscreenScale_Names[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarName ) == sizeof( con_gameMsgWindowNSplitscreenScale_Names[gameWindowIndex] ) - 1") )
       __debugbreak();
-    j_sprintf(v69, "Scaling of game message window %d in splitscreen", _EBX);
-    v109 = -1i64;
+    j_sprintf(v1, "Scaling of game message window %d in splitscreen", v2);
+    v25 = -1i64;
     do
-      ++v109;
-    while ( v69[v109] );
-    if ( v109 != 47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 34, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNSplitscreenScale_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNSplitscreenScale_Descs[gameWindowIndex] ) - 1") )
+      ++v25;
+    while ( v1[v25] );
+    if ( v25 != 47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console_msg_dvars.h", 34, ASSERT_TYPE_ASSERT, "(strlen( dvarDesc ) == sizeof( con_gameMsgWindowNSplitscreenScale_Descs[gameWindowIndex] ) - 1)", (const char *)&queryFormat, "strlen( dvarDesc ) == sizeof( con_gameMsgWindowNSplitscreenScale_Descs[gameWindowIndex] ) - 1") )
       __debugbreak();
-    _RAX = v164 * 4;
-    _RCX = 0x140000000ui64;
-    __asm
-    {
-      vmovaps xmm3, xmm10; max
-      vmovaps xmm2, xmm11; min
-      vmovss  xmm1, dword ptr [rax+rcx+41ED3A0h]; value
-    }
-    v115 = Dvar_RegisterFloat(v157, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, v69);
-    ++_EBX;
-    ++v165;
-    v71 = &(*v158)[28];
+    v26 = Dvar_RegisterFloat(v28, defaultGameMessageSplitscreenScale[v32], 0.0, 3.4028235e38, 0, v1);
+    ++v2;
+    ++v33;
+    v3 = &(*v29)[28];
     _Buffer += 54;
-    v76 += 26;
+    v8 += 26;
     dvarName += 30;
-    v75 += 69;
-    v157 += 35;
-    v74 += 73;
-    ++v164;
-    v73 += 84;
-    con_gameMsgWindowNSplitscreenScale[v162] = v115;
-    v72 += 55;
-    ++v158;
-    v69 += 48;
-    ++v162;
+    v7 += 69;
+    v28 += 35;
+    v6 += 73;
+    ++v32;
+    v5 += 84;
+    con_gameMsgWindowNSplitscreenScale[v30] = v26;
+    v4 += 55;
+    ++v29;
+    v1 += 48;
+    ++v30;
   }
-  while ( _EBX < 4 );
-  __asm { vmovaps xmm13, [rsp+138h+var_C8] }
-  _R11 = &v160;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-  }
+  while ( v2 < 4 );
   Dvar_EndPermanentRegistration();
 }
 
@@ -4873,101 +3673,76 @@ void Con_InitDvars()
 Con_InitMessageBuffer
 ==============
 */
-void Con_InitMessageBuffer()
+void Con_InitMessageBuffer(void)
 {
   MessageLine *miniconLines; 
-  __int64 v7; 
+  __int64 v2; 
   char *p_lastTypingSoundTime; 
-  __int64 v9; 
-  MessageWindow *v10; 
-  Message *v11; 
-  MessageLine *v12; 
-  int fadeOut; 
-  const dvar_t *v25; 
-  const dvar_t *v26; 
-  const dvar_t *v27; 
+  __int64 v4; 
+  MessageWindow *v5; 
+  Message *v6; 
+  MessageLine *v7; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
   __int64 scrollTime; 
+  int fadeIna; 
   __int64 fadeIn; 
-  char v37; 
-  __int64 v38; 
+  int fadeOut; 
+  __int64 v18; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
   miniconLines = con.messageBuffer[0].miniconLines;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovss  xmm7, cs:__real@447a0000
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovss  xmm8, cs:__real@3f000000
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v38 = 2i64;
+  _XMM6 = 0i64;
+  v18 = 2i64;
   do
   {
-    v7 = 0i64;
+    v2 = 0i64;
     p_lastTypingSoundTime = (char *)&miniconLines[-590].lastTypingSoundTime;
-    v9 = 4i64;
-    v10 = (MessageWindow *)&miniconLines[-248];
-    v11 = (Message *)&miniconLines[-190].lastTypingSoundTime;
-    v12 = (MessageLine *)((char *)miniconLines - 5696);
+    v4 = 4i64;
+    v5 = (MessageWindow *)&miniconLines[-248];
+    v6 = (Message *)&miniconLines[-190].lastTypingSoundTime;
+    v7 = (MessageLine *)((char *)miniconLines - 5696);
     do
     {
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rax+28h]
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si r9d, xmm1
-        vmulss  xmm1, xmm7, dword ptr [rax+28h]
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si r8d, xmm1
-        vmulss  xmm1, xmm7, dword ptr [rax+28h]
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si edx, xmm1
-      }
-      Con_InitMessageWindow(v10, v11, v12, p_lastTypingSoundTime, con_gameMsgWindowNLineCount[v7]->current.integer + 3, 3, 2048, _EDX, _ER8, fadeOut);
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      fadeOut = (int)*(float *)&_XMM1;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      fadeIna = (int)*(float *)&_XMM1;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      Con_InitMessageWindow(v5, v6, v7, p_lastTypingSoundTime, con_gameMsgWindowNLineCount[v2]->current.integer + 3, 3, 2048, (int)*(float *)&_XMM1, fadeIna, fadeOut);
       p_lastTypingSoundTime += 2048;
-      ++v7;
-      v12 += 12;
-      v11 += 12;
-      ++v10;
-      --v9;
+      ++v2;
+      v7 += 12;
+      v6 += 12;
+      ++v5;
+      --v4;
     }
-    while ( v9 );
-    v25 = DVARINT_con_miniconlines;
+    while ( v4 );
+    v11 = DVARINT_con_miniconlines;
     if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    if ( v25->current.integer > 100 )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v11->current.integer > 100 )
     {
-      v26 = DVARINT_con_miniconlines;
+      v12 = DVARINT_con_miniconlines;
       if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v26);
+      Dvar_CheckFrontendServerThread(v12);
       LODWORD(fadeIn) = 100;
-      LODWORD(scrollTime) = v26->current.integer;
+      LODWORD(scrollTime) = v12->current.integer;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 903, ASSERT_TYPE_ASSERT, "( Dvar_GetInt_Internal_DebugName( DVARINT_con_miniconlines, \"con_miniconlines\" ) ) <= ( 100 )", "%s <= %s\n\t%i, %i", "Dvar_GetInt( con_miniconlines )", "MINICON_LINES", scrollTime, fadeIn) )
         __debugbreak();
     }
-    v27 = DVARINT_con_miniconlines;
+    v13 = DVARINT_con_miniconlines;
     if ( !DVARINT_con_miniconlines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "con_miniconlines") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    Con_InitMessageWindow((MessageWindow *)&miniconLines[-3].textBufSize, (Message *)&miniconLines[100], miniconLines, (char *)&miniconLines[-174].lastTypingSoundTime, v27->current.integer, 0, 4096, 0, 0, 0);
+    Dvar_CheckFrontendServerThread(v13);
+    Con_InitMessageWindow((MessageWindow *)&miniconLines[-3].textBufSize, (Message *)&miniconLines[100], miniconLines, (char *)&miniconLines[-174].lastTypingSoundTime, v13->current.integer, 0, 4096, 0, 0, 0);
     Con_InitMessageWindow((MessageWindow *)&miniconLines[176], (Message *)&miniconLines[183].lastTypingSoundTime, (MessageLine *)((char *)miniconLines + 4288), (char *)&miniconLines[133].textBufSize, 5, 0, 1024, 0, 0, 0);
     miniconLines = (MessageLine *)((char *)miniconLines + 18592);
-    --v38;
+    --v18;
   }
-  while ( v38 );
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
+  while ( v18 );
 }
 
 /*
@@ -5452,7 +4227,6 @@ Con_OneTimeInit
 void Con_OneTimeInit(void)
 {
   Con_InitDvars();
-  __asm { vmovdqu xmm0, cs:__xmm@00000001000000010000000000000000 }
   con.consoleWindow.textBufSize = 0x8000;
   con.consoleWindow.lines = con.consoleLines;
   con.consoleWindow.messages = con.consoleMessages;
@@ -5460,13 +4234,9 @@ void Con_OneTimeInit(void)
   *(_QWORD *)&con.consoleWindow.textBufPos = 0i64;
   *(_QWORD *)&con.consoleWindow.activeLineCount = 0i64;
   con.consoleWindow.lineCount = 1024;
-  __asm { vmovdqu xmmword ptr cs:?con@@3UConsole@@A.consoleWindow.padding, xmm0; Console con }
+  *(_OWORD *)&con.consoleWindow.padding = _xmm;
   Con_InitMessageBuffer();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-    vmovups xmmword ptr cs:?con@@3UConsole@@A.color, xmm0; Console con
-  }
+  con.color = colorWhite;
 }
 
 /*
@@ -5699,11 +4469,10 @@ void Con_ToggleConsole(void)
     conDrawInputGlob.matchIndex = -1;
     conDrawInputGlob.autoCompleteChoice[0] = 0;
   }
-  __asm { vmovss  xmm0, cs:?g_console_char_height@@3MA; float g_console_char_height }
   g_consoleField.widthInPixels = g_console_field_width;
   g_consoleField.fixedSize = 1;
   con.outputVisible = 0;
-  __asm { vmovss  cs:?g_consoleField@@3Ufield_t@@A.charHeight, xmm0; field_t g_consoleField }
+  g_consoleField.charHeight = g_console_char_height;
   if ( ((LOBYTE(clientUIActives[0].keyCatchers) ^ LOBYTE(clientUIActives[1].keyCatchers)) & 1) != 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 187, ASSERT_TYPE_ASSERT, "((clientUIActives[0].keyCatchers & 0x0001) == (clientUIActives[localClientNum].keyCatchers & 0x0001))", (const char *)&queryFormat, "(clientUIActives[0].keyCatchers & KEYCATCH_CONSOLE) == (clientUIActives[localClientNum].keyCatchers & KEYCATCH_CONSOLE)") )
@@ -5976,31 +4745,31 @@ Con_UpdateNotifyMessageWindow
 void Con_UpdateNotifyMessageWindow(LocalClientNum_t localClientNum, int channel, int duration, int flags, print_msg_dest_t dest)
 {
   __int64 v6; 
-  const char *v10; 
-  int v15; 
-  int v16; 
+  const dvar_t *v7; 
+  const char *v8; 
+  int v11; 
+  int v12; 
   MessageWindow *DestWindow; 
   unsigned int lineCount; 
-  int v19; 
+  int v15; 
   Message *messages; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _EDI = duration;
   v6 = localClientNum;
   if ( !Con_IsChannelVisible(dest, channel, flags) )
     return;
-  if ( !_EDI )
+  if ( !duration )
   {
     if ( dest == CON_DEST_MINICON )
     {
-      _RDI = DVARFLT_con_minicontime;
+      v7 = DVARFLT_con_minicontime;
       if ( !DVARFLT_con_minicontime )
       {
-        v10 = "con_minicontime";
+        v8 = "con_minicontime";
 LABEL_13:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v10) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v8) )
           __debugbreak();
       }
     }
@@ -6010,33 +4779,25 @@ LABEL_13:
       {
         if ( (unsigned int)(dest - 4) > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 485, ASSERT_TYPE_ASSERT, "(dest >= CON_DEST_GAME_FIRST && dest <= CON_DEST_GAME_LAST)", (const char *)&queryFormat, "dest >= CON_DEST_GAME_FIRST && dest <= CON_DEST_GAME_LAST") )
           __debugbreak();
-        _RAX = *(_QWORD *)&con_gameMsgWindowNSplitscreenScale_Descs[3][8 * dest + 32];
-        __asm { vmovss  xmm0, dword ptr [rax+28h] }
         goto LABEL_16;
       }
-      _RDI = DVARFLT_con_errormessagetime;
+      v7 = DVARFLT_con_errormessagetime;
       if ( !DVARFLT_con_errormessagetime )
       {
-        v10 = "con_errormessagetime";
+        v8 = "con_errormessagetime";
         goto LABEL_13;
       }
     }
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm0, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v7);
 LABEL_16:
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vaddss  xmm3, xmm1, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm3, 1
-      vcvttss2si edi, xmm1
-    }
+    _XMM0 = 0i64;
+    __asm { vroundss xmm1, xmm0, xmm3, 1 }
+    duration = (int)*(float *)&_XMM1;
   }
-  v15 = 0;
-  v16 = 0;
-  if ( _EDI >= 0 )
-    v16 = _EDI;
+  v11 = 0;
+  v12 = 0;
+  if ( duration >= 0 )
+    v12 = duration;
   DestWindow = Con_GetDestWindow((LocalClientNum_t)v6, dest);
   if ( !DestWindow && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 495, ASSERT_TYPE_ASSERT, "(msgwnd)", (const char *)&queryFormat, "msgwnd") )
     __debugbreak();
@@ -6045,21 +4806,21 @@ LABEL_16:
   {
     if ( DestWindow->messageIndex >= lineCount )
     {
-      LODWORD(v23) = DestWindow->lineCount;
-      LODWORD(v22) = DestWindow->messageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 500, ASSERT_TYPE_ASSERT, "(unsigned)( msgwnd->messageIndex ) < (unsigned)( msgwnd->lineCount )", "msgwnd->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v19) = DestWindow->lineCount;
+      LODWORD(v18) = DestWindow->messageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 500, ASSERT_TYPE_ASSERT, "(unsigned)( msgwnd->messageIndex ) < (unsigned)( msgwnd->lineCount )", "msgwnd->messageIndex doesn't index msgwnd->lineCount\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     if ( !DestWindow->lineCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_console.cpp", 503, ASSERT_TYPE_ASSERT, "(msgwnd->lineCount != 0)", (const char *)&queryFormat, "msgwnd->lineCount != 0") )
       __debugbreak();
-    v19 = (DestWindow->messageIndex + 1) % DestWindow->lineCount;
-    DestWindow->messageIndex = v19;
+    v15 = (DestWindow->messageIndex + 1) % DestWindow->lineCount;
+    DestWindow->messageIndex = v15;
     messages = DestWindow->messages;
-    v21 = v19;
+    v17 = v15;
     if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v6) == CA_ACTIVE )
-      v15 = con.currentServerTime[v6];
-    messages[v21].startTime = v15;
-    messages[v21].endTime = v16 + v15;
+      v11 = con.currentServerTime[v6];
+    messages[v17].startTime = v11;
+    messages[v17].endTime = v12 + v11;
   }
 }
 

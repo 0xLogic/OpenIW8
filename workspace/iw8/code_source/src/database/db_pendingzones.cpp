@@ -258,95 +258,70 @@ DB_PendingList::AddHead
 */
 void DB_PendingList::AddHead(DB_PendingList *this, const DB_PendingZoneInfo *pendingInfo)
 {
-  bool v11; 
-  int v19; 
-  char v28[144]; 
-  int v29; 
+  __m256i v4; 
+  __m256i *v5; 
+  char *v6; 
+  bool v7; 
+  int v8; 
+  __int128 v9; 
+  __m256i v10; 
+  __m256i v11; 
+  __m256i v12; 
+  char v13[144]; 
+  int v14; 
 
-  _RBX = pendingInfo;
-  _RDI = this;
   DB_PendingList::CheckSizeForAdd(this);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups [rsp+168h+var_128], ymm0
-    vmovups ymm0, ymmword ptr [rbx+20h]
-    vmovups [rsp+168h+var_108], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups [rsp+168h+var_E8], ymm0
-    vmovups ymm0, ymmword ptr [rbx+60h]
-  }
-  LOBYTE(v29) = 0;
-  __asm
-  {
-    vmovups [rsp+168h+var_C8], ymm0
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups [rsp+168h+var_138], xmm0
-  }
-  if ( 1956 == _RDI->m_list.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
+  v10 = *(__m256i *)pendingInfo->parentZoneName;
+  v11 = *(__m256i *)&pendingInfo->parentZoneName[32];
+  v12 = *(__m256i *)pendingInfo->fastfileName;
+  v4 = *(__m256i *)&pendingInfo->fastfileName[32];
+  LOBYTE(v14) = 0;
+  v9 = *(_OWORD *)&pendingInfo->flags;
+  if ( 1956 == this->m_list.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
     __debugbreak();
-  if ( _RDI > (DB_PendingList *)((char *)_RDI + 148 * _RDI->m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+  if ( this > (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
     __debugbreak();
-  if ( v28 >= (char *)_RDI && v28 < &_RDI->m_list.m_data.m_buffer[148 * _RDI->m_list.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+  if ( v13 >= (char *)this && v13 < &this->m_list.m_data.m_buffer[148 * this->m_list.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
     __debugbreak();
-  _RBX = (DB_PendingList *)((char *)_RDI + 148 * _RDI->m_list.m_size);
-  if ( _RDI != _RBX )
+  v5 = (__m256i *)((char *)this + 148 * this->m_list.m_size);
+  if ( this != (DB_PendingList *)v5 )
   {
-    _RSI = &_RBX->m_list.m_data.m_buffer[148];
-    if ( _RDI == (DB_PendingList *)&_RBX->m_list.m_data.m_buffer[148] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+    v6 = &v5[4].m256i_i8[20];
+    if ( this == (DB_PendingList *)((char *)&v5[4].m256i_u64[2] + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
       __debugbreak();
-    if ( _RBX == (DB_PendingList *)_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+    if ( v5 == (__m256i *)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
       __debugbreak();
-    v11 = _RBX <= _RDI;
-    if ( _RBX < _RDI )
+    v7 = v5 <= (__m256i *)this;
+    if ( v5 < (__m256i *)this )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
         __debugbreak();
-      v11 = _RBX <= _RDI;
+      v7 = v5 <= (__m256i *)this;
     }
-    if ( !v11 )
+    if ( !v7 )
     {
       do
       {
-        _RBX = (DB_PendingList *)((char *)_RBX - 148);
-        _RSI -= 148;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymmword ptr [rsi], ymm0
-          vmovups ymm1, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rsi+20h], ymm1
-          vmovups ymm0, ymmword ptr [rbx+40h]
-          vmovups ymmword ptr [rsi+40h], ymm0
-          vmovups ymm1, ymmword ptr [rbx+60h]
-          vmovups ymmword ptr [rsi+60h], ymm1
-          vmovups xmm0, xmmword ptr [rbx+80h]
-          vmovups xmmword ptr [rsi+80h], xmm0
-        }
-        *((_DWORD *)_RSI + 36) = *(_DWORD *)&_RBX->m_list.m_data.m_buffer[144];
+        v5 = (__m256i *)((char *)v5 - 148);
+        v6 -= 148;
+        *(__m256i *)v6 = *v5;
+        *((__m256i *)v6 + 1) = v5[1];
+        *((__m256i *)v6 + 2) = v5[2];
+        *((__m256i *)v6 + 3) = v5[3];
+        *((_OWORD *)v6 + 8) = *(_OWORD *)v5[4].m256i_i8;
+        *((_DWORD *)v6 + 36) = v5[4].m256i_i32[4];
       }
-      while ( _RBX > _RDI );
+      while ( v5 > (__m256i *)this );
     }
   }
-  ++_RDI->m_list.m_size;
-  __asm
-  {
-    vmovups ymm0, [rsp+168h+var_128]
-    vmovups ymm1, [rsp+168h+var_108]
-  }
-  v19 = v29;
-  __asm
-  {
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm0, [rsp+168h+var_E8]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups ymm1, [rsp+168h+var_C8]
-    vmovups ymmword ptr [rdi+40h], ymm0
-    vmovups xmm0, [rsp+168h+var_138]
-    vmovups ymmword ptr [rdi+60h], ymm1
-    vmovups xmmword ptr [rdi+80h], xmm0
-  }
-  *(_DWORD *)&_RDI->m_list.m_data.m_buffer[144] = v19;
+  ++this->m_list.m_size;
+  v8 = v14;
+  *(__m256i *)this->m_list.m_data.m_buffer = v10;
+  *(__m256i *)&this->m_list.m_data.m_buffer[32] = v11;
+  *(__m256i *)&this->m_list.m_data.m_buffer[64] = v12;
+  *(__m256i *)&this->m_list.m_data.m_buffer[96] = v4;
+  *(_OWORD *)&this->m_list.m_data.m_buffer[128] = v9;
+  *(_DWORD *)&this->m_list.m_data.m_buffer[144] = v8;
 }
 
 /*
@@ -356,44 +331,36 @@ DB_PendingList::AddTail
 */
 void DB_PendingList::AddTail(DB_PendingList *this, const DB_PendingZoneInfo *pendingInfo, const bool wasUnpaused)
 {
-  int v21; 
+  __m256i v6; 
+  __m256i *v7; 
+  __int128 v8; 
+  __m256i v9; 
+  __m256i v10; 
+  __m256i v11; 
+  __m256i v12; 
+  int v13; 
 
-  _RBX = pendingInfo;
   DB_PendingList::CheckSizeForAdd(this);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymm2, ymmword ptr [rbx+40h]
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups [rsp+168h+var_108], ymm1
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups [rsp+168h+var_E8], ymm2
-    vmovups xmm2, xmmword ptr [rbx+80h]
-    vmovups [rsp+168h+var_C8], ymm1
-    vmovups [rsp+168h+var_138], xmm2
-    vmovups [rsp+168h+var_128], ymm0
-  }
-  LOBYTE(v21) = wasUnpaused;
+  v6 = *(__m256i *)pendingInfo->parentZoneName;
+  v10 = *(__m256i *)&pendingInfo->parentZoneName[32];
+  v11 = *(__m256i *)pendingInfo->fastfileName;
+  v12 = *(__m256i *)&pendingInfo->fastfileName[32];
+  v8 = *(_OWORD *)&pendingInfo->flags;
+  v9 = *(__m256i *)pendingInfo->parentZoneName;
+  LOBYTE(v13) = wasUnpaused;
   if ( this->m_list.m_size >= 0x7A4 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
       __debugbreak();
-    __asm { vmovups ymm0, [rsp+168h+var_128] }
+    v6 = v9;
   }
-  _RCX = &this->m_list.m_data.m_buffer[148 * this->m_list.m_size];
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, [rsp+168h+var_108]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, [rsp+168h+var_E8]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, [rsp+168h+var_C8]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups xmm0, [rsp+168h+var_138]
-    vmovups xmmword ptr [rcx+80h], xmm0
-  }
-  *((_DWORD *)_RCX + 36) = v21;
+  v7 = (__m256i *)((char *)this + 148 * this->m_list.m_size);
+  *v7 = v6;
+  v7[1] = v10;
+  v7[2] = v11;
+  v7[3] = v12;
+  *(_OWORD *)v7[4].m256i_i8 = v8;
+  v7[4].m256i_i32[4] = v13;
   ++this->m_list.m_size;
 }
 
@@ -407,9 +374,11 @@ void DB_PendingList::Cancel(DB_PendingList *this, const DB_FastfileInfo *info)
   DB_PendingList *v4; 
   signed __int64 v5; 
   unsigned __int64 m_size; 
+  char *v7; 
   DB_PendingList *v8; 
   bool v9; 
-  int v16; 
+  DB_PendingList *v10; 
+  int v11; 
 
   v4 = this;
   while ( v4 != (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
@@ -430,43 +399,35 @@ void DB_PendingList::Cancel(DB_PendingList *this, const DB_FastfileInfo *info)
       v4 = this;
       if ( m_size )
         v4 = (DB_PendingList *)((char *)this + 148 * (v5 / 148));
-      _RBX = &v4->m_list.m_data.m_buffer[148];
+      v7 = &v4->m_list.m_data.m_buffer[148];
       v8 = (DB_PendingList *)((char *)this + 148 * m_size);
       if ( &v4->m_list.m_data.m_buffer[148] == (char *)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
         __debugbreak();
       if ( v8 == v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
         __debugbreak();
-      v9 = _RBX < (char *)v8;
-      if ( _RBX > (char *)v8 )
+      v9 = v7 < (char *)v8;
+      if ( v7 > (char *)v8 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
           __debugbreak();
-        v9 = _RBX < (char *)v8;
+        v9 = v7 < (char *)v8;
       }
       if ( v9 )
       {
-        _RCX = v4;
+        v10 = v4;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups ymm1, ymmword ptr [rbx+20h]
-            vmovups ymmword ptr [rcx+20h], ymm1
-            vmovups ymm0, ymmword ptr [rbx+40h]
-            vmovups ymmword ptr [rcx+40h], ymm0
-            vmovups ymm1, ymmword ptr [rbx+60h]
-            vmovups ymmword ptr [rcx+60h], ymm1
-            vmovups xmm0, xmmword ptr [rbx+80h]
-            vmovups xmmword ptr [rcx+80h], xmm0
-          }
-          v16 = *((_DWORD *)_RBX + 36);
-          _RBX += 148;
-          *(_DWORD *)&_RCX->m_list.m_data.m_buffer[144] = v16;
-          _RCX = (DB_PendingList *)((char *)_RCX + 148);
+          *(__m256i *)v10->m_list.m_data.m_buffer = *(__m256i *)v7;
+          *(__m256i *)&v10->m_list.m_data.m_buffer[32] = *((__m256i *)v7 + 1);
+          *(__m256i *)&v10->m_list.m_data.m_buffer[64] = *((__m256i *)v7 + 2);
+          *(__m256i *)&v10->m_list.m_data.m_buffer[96] = *((__m256i *)v7 + 3);
+          *(_OWORD *)&v10->m_list.m_data.m_buffer[128] = *((_OWORD *)v7 + 8);
+          v11 = *((_DWORD *)v7 + 36);
+          v7 += 148;
+          *(_DWORD *)&v10->m_list.m_data.m_buffer[144] = v11;
+          v10 = (DB_PendingList *)((char *)v10 + 148);
         }
-        while ( _RBX < (char *)v8 );
+        while ( v7 < (char *)v8 );
       }
       --this->m_list.m_size;
     }
@@ -741,9 +702,10 @@ DB_PendingZones_Pause
 void DB_PendingZones_Pause(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount)
 {
   DB_PendingZonesGlob *p_pausedList; 
-  int v7; 
+  char *v5; 
+  int v6; 
   DB_PendingZoneInfo outZoneInfo; 
-  int v13; 
+  int v8; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 574, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -763,25 +725,13 @@ void DB_PendingZones_Pause(const DB_FastfileInfo *zoneInfo, unsigned int zoneCou
       while ( p_pausedList != (DB_PendingZonesGlob *)((char *)&s_pendingZones.pausedList + 148 * s_pendingZones.pausedList.m_list.m_size) );
       Sys_Error((const ObfuscateErrorText)&stru_143DFF3D8);
     }
-    LOBYTE(v13) = 0;
+    LOBYTE(v8) = 0;
     if ( s_pendingZones.pausedList.m_list.m_size >= 0x7A4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.parentZoneName] }
-    _RDX = &s_pendingZones.pausedList.m_list.m_data.m_buffer[148 * s_pendingZones.pausedList.m_list.m_size];
-    v7 = v13;
-    __asm
-    {
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.parentZoneName+20h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.fastfileName]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.fastfileName+20h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups xmm0, xmmword ptr [rsp+178h+outZoneInfo.flags]
-      vmovups xmmword ptr [rdx+80h], xmm0
-    }
-    *((_DWORD *)_RDX + 36) = v7;
+    v5 = &s_pendingZones.pausedList.m_list.m_data.m_buffer[148 * s_pendingZones.pausedList.m_list.m_size];
+    v6 = v8;
+    *(DB_PendingZoneInfo *)v5 = outZoneInfo;
+    *((_DWORD *)v5 + 36) = v6;
   }
   Sys_UnlockWrite(&s_pendingZones.lock);
 }
@@ -1180,79 +1130,63 @@ DB_PendingZones_TryGetNext
 */
 __int64 DB_PendingZones_TryGetNext(DB_PendingZoneInfo *outInfo)
 {
-  DB_PendingZonesGlob *v8; 
-  bool v9; 
-  unsigned __int8 v15; 
+  char *v2; 
+  DB_PendingZonesGlob *v3; 
+  bool v4; 
+  unsigned __int8 v5; 
 
-  _RBX = outInfo;
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 540, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 541, ASSERT_TYPE_ASSERT, "(outInfo)", (const char *)&queryFormat, "outInfo") )
+  if ( !outInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 541, ASSERT_TYPE_ASSERT, "(outInfo)", (const char *)&queryFormat, "outInfo") )
     __debugbreak();
   Sys_LockWrite(&s_pendingZones.lock);
   if ( s_pendingZones.pendingList.m_list.m_size )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_pendingZones.pendingList.m_list.baseclass_0.m_data.m_buffer
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr cs:s_pendingZones.pendingList.m_list.baseclass_0.m_data.m_buffer+20h
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups ymm0, ymmword ptr cs:s_pendingZones.pendingList.m_list.baseclass_0.m_data.m_buffer+40h
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups ymm1, ymmword ptr cs:s_pendingZones.pendingList.m_list.baseclass_0.m_data.m_buffer+60h
-      vmovups ymmword ptr [rbx+60h], ymm1
-      vmovups xmm0, xmmword ptr cs:s_pendingZones.pendingList.m_list.baseclass_0.m_data.m_buffer+80h
-      vmovups xmmword ptr [rbx+80h], xmm0
-    }
+    *(__m256i *)outInfo->parentZoneName = *(__m256i *)s_pendingZones.pendingList.m_list.m_data.m_buffer;
+    *(__m256i *)&outInfo->parentZoneName[32] = *(__m256i *)&s_pendingZones.pendingList.m_list.m_data.m_buffer[32];
+    *(__m256i *)outInfo->fastfileName = *(__m256i *)&s_pendingZones.pendingList.m_list.m_data.m_buffer[64];
+    *(__m256i *)&outInfo->fastfileName[32] = *(__m256i *)&s_pendingZones.pendingList.m_list.m_data.m_buffer[96];
+    *(_OWORD *)&outInfo->flags = *(_OWORD *)&s_pendingZones.pendingList.m_list.m_data.m_buffer[128];
     if ( !s_pendingZones.pendingList.m_list.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
       __debugbreak();
     if ( &s_pendingZones > (DB_PendingZonesGlob *)((char *)&s_pendingZones + 148 * s_pendingZones.pendingList.m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
       __debugbreak();
     if ( &s_pendingZones == (DB_PendingZonesGlob *)((char *)&s_pendingZones + 148 * s_pendingZones.pendingList.m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
       __debugbreak();
-    _RBX = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148];
-    v8 = (DB_PendingZonesGlob *)((char *)&s_pendingZones + 148 * s_pendingZones.pendingList.m_list.m_size);
-    if ( v8 == &s_pendingZones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+    v2 = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148];
+    v3 = (DB_PendingZonesGlob *)((char *)&s_pendingZones + 148 * s_pendingZones.pendingList.m_list.m_size);
+    if ( v3 == &s_pendingZones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
       __debugbreak();
-    v9 = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148] < (char *)v8;
-    if ( &s_pendingZones.pendingList.m_list.m_data.m_buffer[148] > (char *)v8 )
+    v4 = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148] < (char *)v3;
+    if ( &s_pendingZones.pendingList.m_list.m_data.m_buffer[148] > (char *)v3 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
         __debugbreak();
-      v9 = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148] < (char *)v8;
+      v4 = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148] < (char *)v3;
     }
-    if ( v9 )
+    if ( v4 )
     {
       do
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymmword ptr [rbx-94h], ymm0
-          vmovups ymm1, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rbx-74h], ymm1
-          vmovups ymm0, ymmword ptr [rbx+40h]
-          vmovups ymmword ptr [rbx-54h], ymm0
-          vmovups ymm1, ymmword ptr [rbx+60h]
-          vmovups ymmword ptr [rbx-34h], ymm1
-          vmovups xmm0, xmmword ptr [rbx+80h]
-          vmovups xmmword ptr [rbx-14h], xmm0
-        }
-        *((_DWORD *)_RBX - 1) = *((_DWORD *)_RBX + 36);
-        _RBX += 148;
+        *(__m256i *)(v2 - 148) = *(__m256i *)v2;
+        *(__m256i *)(v2 - 116) = *((__m256i *)v2 + 1);
+        *(__m256i *)(v2 - 84) = *((__m256i *)v2 + 2);
+        *(__m256i *)(v2 - 52) = *((__m256i *)v2 + 3);
+        *(_OWORD *)(v2 - 20) = *((_OWORD *)v2 + 8);
+        *((_DWORD *)v2 - 1) = *((_DWORD *)v2 + 36);
+        v2 += 148;
       }
-      while ( _RBX < (char *)v8 );
+      while ( v2 < (char *)v3 );
     }
     --s_pendingZones.pendingList.m_list.m_size;
-    v15 = 1;
+    v5 = 1;
   }
   else
   {
-    v15 = 0;
+    v5 = 0;
   }
   Sys_UnlockWrite(&s_pendingZones.lock);
-  return v15;
+  return v5;
 }
 
 /*
@@ -1263,9 +1197,10 @@ DB_PendingZones_Unpause
 void DB_PendingZones_Unpause(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount)
 {
   DB_PendingZonesGlob *v4; 
-  int v6; 
+  int v5; 
+  char *v6; 
   DB_PendingZoneInfo outZoneInfo; 
-  int v13; 
+  int v8; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 592, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -1285,25 +1220,13 @@ void DB_PendingZones_Unpause(const DB_FastfileInfo *zoneInfo, unsigned int zoneC
       while ( v4 != (DB_PendingZonesGlob *)((char *)&s_pendingZones + 148 * s_pendingZones.pendingList.m_list.m_size) );
       Sys_Error((const ObfuscateErrorText)&stru_143DFF3D8);
     }
-    LOBYTE(v13) = 1;
+    LOBYTE(v8) = 1;
     if ( s_pendingZones.pendingList.m_list.m_size >= 0x7A4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.parentZoneName] }
-    v6 = v13;
-    _RDX = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148 * s_pendingZones.pendingList.m_list.m_size];
-    __asm
-    {
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.parentZoneName+20h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.fastfileName]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rsp+178h+outZoneInfo.fastfileName+20h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups xmm0, xmmword ptr [rsp+178h+outZoneInfo.flags]
-      vmovups xmmword ptr [rdx+80h], xmm0
-    }
-    *((_DWORD *)_RDX + 36) = v6;
+    v5 = v8;
+    v6 = &s_pendingZones.pendingList.m_list.m_data.m_buffer[148 * s_pendingZones.pendingList.m_list.m_size];
+    *(DB_PendingZoneInfo *)v6 = outZoneInfo;
+    *((_DWORD *)v6 + 36) = v5;
   }
   Sys_UnlockWrite(&s_pendingZones.lock);
 }
@@ -1398,106 +1321,85 @@ DB_PendingList::InsertInPriorityOrder
 */
 void DB_PendingList::InsertInPriorityOrder(DB_PendingList *this, const DB_PendingZoneInfoQueueEntry *entry)
 {
+  DB_PendingList *v2; 
   unsigned __int64 m_size; 
   DB_PendingList *v6; 
-  bool v15; 
+  __m256i *v7; 
+  __m256i *v8; 
+  char *v9; 
+  bool v10; 
 
-  _RBX = this;
-  _R14 = entry;
+  v2 = this;
   m_size = this->m_list.m_size;
   v6 = (DB_PendingList *)((char *)this + 148 * m_size);
-  if ( _RBX == v6 )
+  if ( v2 == v6 )
   {
 LABEL_4:
     if ( m_size >= 0x7A4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [r14] }
-    _RCX = &this->m_list.m_data.m_buffer[148 * this->m_list.m_size];
-    __asm
-    {
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm1, ymmword ptr [r14+20h]
-      vmovups ymmword ptr [rcx+20h], ymm1
-      vmovups ymm0, ymmword ptr [r14+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm1, ymmword ptr [r14+60h]
-      vmovups ymmword ptr [rcx+60h], ymm1
-      vmovups xmm0, xmmword ptr [r14+80h]
-      vmovups xmmword ptr [rcx+80h], xmm0
-    }
-    *((_DWORD *)_RCX + 36) = *(_DWORD *)&_R14->wasUnpaused;
+    v7 = (__m256i *)((char *)this + 148 * this->m_list.m_size);
+    *v7 = *(__m256i *)entry->info.parentZoneName;
+    v7[1] = *(__m256i *)&entry->info.parentZoneName[32];
+    v7[2] = *(__m256i *)entry->info.fastfileName;
+    v7[3] = *(__m256i *)&entry->info.fastfileName[32];
+    *(_OWORD *)v7[4].m256i_i8 = *(_OWORD *)&entry->info.flags;
+    v7[4].m256i_i32[4] = *(_DWORD *)&entry->wasUnpaused;
     ++this->m_list.m_size;
   }
   else
   {
-    while ( _R14->info.priority <= *(_DWORD *)&_RBX->m_list.m_data.m_buffer[132] )
+    while ( entry->info.priority <= *(_DWORD *)&v2->m_list.m_data.m_buffer[132] )
     {
-      _RBX = (DB_PendingList *)((char *)_RBX + 148);
-      if ( _RBX == v6 )
+      v2 = (DB_PendingList *)((char *)v2 + 148);
+      if ( v2 == v6 )
         goto LABEL_4;
     }
     if ( 1956 == m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
       __debugbreak();
-    if ( (_RBX < this || _RBX > (DB_PendingList *)((char *)this + 148 * this->m_list.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+    if ( (v2 < this || v2 > (DB_PendingList *)((char *)this + 148 * this->m_list.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
       __debugbreak();
-    if ( (char *)_RBX - (char *)this != 148 * (((char *)_RBX - (char *)this) / 0x94ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+    if ( (char *)v2 - (char *)this != 148 * (((char *)v2 - (char *)this) / 0x94ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
       __debugbreak();
-    if ( _R14 >= (const DB_PendingZoneInfoQueueEntry *)_RBX && _R14 < (const DB_PendingZoneInfoQueueEntry *)this + this->m_list.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+    if ( entry >= (const DB_PendingZoneInfoQueueEntry *)v2 && entry < (const DB_PendingZoneInfoQueueEntry *)this + this->m_list.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
       __debugbreak();
-    _RDI = (DB_PendingList *)((char *)this + 148 * this->m_list.m_size);
-    if ( _RBX != _RDI )
+    v8 = (__m256i *)((char *)this + 148 * this->m_list.m_size);
+    if ( v2 != (DB_PendingList *)v8 )
     {
-      _RSI = &_RDI->m_list.m_data.m_buffer[148];
-      if ( _RBX == (DB_PendingList *)&_RDI->m_list.m_data.m_buffer[148] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+      v9 = &v8[4].m256i_i8[20];
+      if ( v2 == (DB_PendingList *)((char *)&v8[4].m256i_u64[2] + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
         __debugbreak();
-      if ( _RDI == (DB_PendingList *)_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+      if ( v8 == (__m256i *)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
         __debugbreak();
-      v15 = _RDI <= _RBX;
-      if ( _RDI < _RBX )
+      v10 = v8 <= (__m256i *)v2;
+      if ( v8 < (__m256i *)v2 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
           __debugbreak();
-        v15 = _RDI <= _RBX;
+        v10 = v8 <= (__m256i *)v2;
       }
-      if ( !v15 )
+      if ( !v10 )
       {
         do
         {
-          _RDI = (DB_PendingList *)((char *)_RDI - 148);
-          _RSI -= 148;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi]
-            vmovups ymmword ptr [rsi], ymm0
-            vmovups ymm1, ymmword ptr [rdi+20h]
-            vmovups ymmword ptr [rsi+20h], ymm1
-            vmovups ymm0, ymmword ptr [rdi+40h]
-            vmovups ymmword ptr [rsi+40h], ymm0
-            vmovups ymm1, ymmword ptr [rdi+60h]
-            vmovups ymmword ptr [rsi+60h], ymm1
-            vmovups xmm0, xmmword ptr [rdi+80h]
-            vmovups xmmword ptr [rsi+80h], xmm0
-          }
-          *((_DWORD *)_RSI + 36) = *(_DWORD *)&_RDI->m_list.m_data.m_buffer[144];
+          v8 = (__m256i *)((char *)v8 - 148);
+          v9 -= 148;
+          *(__m256i *)v9 = *v8;
+          *((__m256i *)v9 + 1) = v8[1];
+          *((__m256i *)v9 + 2) = v8[2];
+          *((__m256i *)v9 + 3) = v8[3];
+          *((_OWORD *)v9 + 8) = *(_OWORD *)v8[4].m256i_i8;
+          *((_DWORD *)v9 + 36) = v8[4].m256i_i32[4];
         }
-        while ( _RDI > _RBX );
+        while ( v8 > (__m256i *)v2 );
       }
     }
     ++this->m_list.m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [r14+20h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups ymm0, ymmword ptr [r14+40h]
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups ymm1, ymmword ptr [r14+60h]
-      vmovups ymmword ptr [rbx+60h], ymm1
-      vmovups xmm0, xmmword ptr [r14+80h]
-      vmovups xmmword ptr [rbx+80h], xmm0
-    }
-    *(_DWORD *)&_RBX->m_list.m_data.m_buffer[144] = *(_DWORD *)&_R14->wasUnpaused;
+    *(__m256i *)v2->m_list.m_data.m_buffer = *(__m256i *)entry->info.parentZoneName;
+    *(__m256i *)&v2->m_list.m_data.m_buffer[32] = *(__m256i *)&entry->info.parentZoneName[32];
+    *(__m256i *)&v2->m_list.m_data.m_buffer[64] = *(__m256i *)entry->info.fastfileName;
+    *(__m256i *)&v2->m_list.m_data.m_buffer[96] = *(__m256i *)&entry->info.fastfileName[32];
+    *(_OWORD *)&v2->m_list.m_data.m_buffer[128] = *(_OWORD *)&entry->info.flags;
+    *(_DWORD *)&v2->m_list.m_data.m_buffer[144] = *(_DWORD *)&entry->wasUnpaused;
   }
 }
 
@@ -1551,92 +1453,85 @@ DB_PendingList::SetInflightTransientPriority
 */
 void DB_PendingList::SetInflightTransientPriority(DB_PendingList *this, const char *const zoneName, const unsigned int priority)
 {
+  DB_PendingList *v6; 
   unsigned __int64 m_size; 
-  unsigned __int64 v13; 
+  __m256i v8; 
+  __int128 v9; 
+  __m256i v10; 
+  unsigned __int64 v11; 
+  DB_PendingList *v12; 
+  char *v13; 
   DB_PendingList *v14; 
+  bool v15; 
   DB_PendingList *v16; 
-  bool v17; 
-  int v24; 
+  int v17; 
   char entry[152]; 
 
   if ( !zoneName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 153, ASSERT_TYPE_ASSERT, "(zoneName)", (const char *)&queryFormat, "zoneName") )
     __debugbreak();
-  _RBX = this;
+  v6 = this;
   if ( this != (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
   {
-    while ( (*(_DWORD *)&_RBX->m_list.m_data.m_buffer[128] & 0x3CFF000) == 0 || I_strnicmp(zoneName, &_RBX->m_list.m_data.m_buffer[64], 0x7FFFFFFFui64) )
+    while ( (*(_DWORD *)&v6->m_list.m_data.m_buffer[128] & 0x3CFF000) == 0 || I_strnicmp(zoneName, &v6->m_list.m_data.m_buffer[64], 0x7FFFFFFFui64) )
     {
-      _RBX = (DB_PendingList *)((char *)_RBX + 148);
-      if ( _RBX == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
+      v6 = (DB_PendingList *)((char *)v6 + 148);
+      if ( v6 == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
         return;
     }
-    if ( *(_DWORD *)&_RBX->m_list.m_data.m_buffer[132] != priority )
+    if ( *(_DWORD *)&v6->m_list.m_data.m_buffer[132] != priority )
     {
-      *(_DWORD *)&_RBX->m_list.m_data.m_buffer[132] = priority;
+      *(_DWORD *)&v6->m_list.m_data.m_buffer[132] = priority;
       m_size = this->m_list.m_size;
       if ( m_size > 1 )
       {
-        *(_DWORD *)&entry[144] = *(_DWORD *)&_RBX->m_list.m_data.m_buffer[144];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymm1, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rsp+0D8h+entry], ymm0
-          vmovups ymm0, ymmword ptr [rbx+40h]
-          vmovups ymmword ptr [rsp+0D8h+entry+40h], ymm0
-          vmovups xmm0, xmmword ptr [rbx+80h]
-          vmovups ymmword ptr [rsp+0D8h+entry+20h], ymm1
-          vmovups ymm1, ymmword ptr [rbx+60h]
-          vmovups xmmword ptr [rsp+0D8h+entry+80h], xmm0
-          vmovups ymmword ptr [rsp+0D8h+entry+60h], ymm1
-        }
-        if ( (_RBX < this || _RBX > (DB_PendingList *)((char *)this + 148 * m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())", *(_QWORD *)entry, *(_QWORD *)&entry[8], *(_QWORD *)&entry[16], *(_QWORD *)&entry[24], *(_QWORD *)&entry[32], *(_QWORD *)&entry[40], *(_QWORD *)&entry[48], *(_QWORD *)&entry[56], *(_QWORD *)&entry[64], *(_QWORD *)&entry[72], *(_QWORD *)&entry[80], *(_QWORD *)&entry[88], *(_QWORD *)&entry[96], *(_QWORD *)&entry[104], *(_QWORD *)&entry[112], *(_QWORD *)&entry[120], *(_QWORD *)&entry[128], *(_QWORD *)&entry[136], *(_QWORD *)&entry[144]) )
+        *(_DWORD *)&entry[144] = *(_DWORD *)&v6->m_list.m_data.m_buffer[144];
+        v8 = *(__m256i *)&v6->m_list.m_data.m_buffer[32];
+        *(__m256i *)entry = *(__m256i *)v6->m_list.m_data.m_buffer;
+        *(__m256i *)&entry[64] = *(__m256i *)&v6->m_list.m_data.m_buffer[64];
+        v9 = *(_OWORD *)&v6->m_list.m_data.m_buffer[128];
+        *(__m256i *)&entry[32] = v8;
+        v10 = *(__m256i *)&v6->m_list.m_data.m_buffer[96];
+        *(_OWORD *)&entry[128] = v9;
+        *(__m256i *)&entry[96] = v10;
+        if ( (v6 < this || v6 > (DB_PendingList *)((char *)this + 148 * m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())", *(_QWORD *)entry, *(_QWORD *)&entry[8], *(_QWORD *)&entry[16], *(_QWORD *)&entry[24], *(_QWORD *)&entry[32], *(_QWORD *)&entry[40], *(_QWORD *)&entry[48], *(_QWORD *)&entry[56], *(_QWORD *)&entry[64], *(_QWORD *)&entry[72], *(_QWORD *)&entry[80], *(_QWORD *)&entry[88], *(_QWORD *)&entry[96], *(_QWORD *)&entry[104], *(_QWORD *)&entry[112], *(_QWORD *)&entry[120], *(_QWORD *)&entry[128], *(_QWORD *)&entry[136], *(_QWORD *)&entry[144]) )
           __debugbreak();
-        if ( (char *)_RBX - (char *)this != 148 * (((char *)_RBX - (char *)this) / 0x94ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+        if ( (char *)v6 - (char *)this != 148 * (((char *)v6 - (char *)this) / 0x94ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
           __debugbreak();
-        if ( _RBX == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
+        if ( v6 == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
           __debugbreak();
-        v13 = this->m_list.m_size;
-        v14 = this;
-        if ( v13 )
-          v14 = (DB_PendingList *)((char *)this + 148 * (((char *)_RBX - (char *)this) / 148));
-        _RBX = &v14->m_list.m_data.m_buffer[148];
-        v16 = (DB_PendingList *)((char *)this + 148 * v13);
-        if ( &v14->m_list.m_data.m_buffer[148] == (char *)v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+        v11 = this->m_list.m_size;
+        v12 = this;
+        if ( v11 )
+          v12 = (DB_PendingList *)((char *)this + 148 * (((char *)v6 - (char *)this) / 148));
+        v13 = &v12->m_list.m_data.m_buffer[148];
+        v14 = (DB_PendingList *)((char *)this + 148 * v11);
+        if ( &v12->m_list.m_data.m_buffer[148] == (char *)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
           __debugbreak();
-        if ( v16 == v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+        if ( v14 == v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
           __debugbreak();
-        v17 = _RBX < (char *)v16;
-        if ( _RBX > (char *)v16 )
+        v15 = v13 < (char *)v14;
+        if ( v13 > (char *)v14 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
             __debugbreak();
-          v17 = _RBX < (char *)v16;
+          v15 = v13 < (char *)v14;
         }
-        if ( v17 )
+        if ( v15 )
         {
-          _RCX = v14;
+          v16 = v12;
           do
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbx]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm1, ymmword ptr [rbx+20h]
-              vmovups ymmword ptr [rcx+20h], ymm1
-              vmovups ymm0, ymmword ptr [rbx+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm1, ymmword ptr [rbx+60h]
-              vmovups ymmword ptr [rcx+60h], ymm1
-              vmovups xmm0, xmmword ptr [rbx+80h]
-              vmovups xmmword ptr [rcx+80h], xmm0
-            }
-            v24 = *((_DWORD *)_RBX + 36);
-            _RBX += 148;
-            *(_DWORD *)&_RCX->m_list.m_data.m_buffer[144] = v24;
-            _RCX = (DB_PendingList *)((char *)_RCX + 148);
+            *(__m256i *)v16->m_list.m_data.m_buffer = *(__m256i *)v13;
+            *(__m256i *)&v16->m_list.m_data.m_buffer[32] = *((__m256i *)v13 + 1);
+            *(__m256i *)&v16->m_list.m_data.m_buffer[64] = *((__m256i *)v13 + 2);
+            *(__m256i *)&v16->m_list.m_data.m_buffer[96] = *((__m256i *)v13 + 3);
+            *(_OWORD *)&v16->m_list.m_data.m_buffer[128] = *((_OWORD *)v13 + 8);
+            v17 = *((_DWORD *)v13 + 36);
+            v13 += 148;
+            *(_DWORD *)&v16->m_list.m_data.m_buffer[144] = v17;
+            v16 = (DB_PendingList *)((char *)v16 + 148);
           }
-          while ( _RBX < (char *)v16 );
+          while ( v13 < (char *)v14 );
         }
         --this->m_list.m_size;
         DB_PendingList::InsertInPriorityOrder(this, (const DB_PendingZoneInfoQueueEntry *)entry);
@@ -1655,9 +1550,11 @@ char DB_PendingList::TryFastTransientCancel(DB_PendingList *this, const char *co
   DB_PendingList *v4; 
   unsigned __int64 m_size; 
   DB_PendingList *v7; 
+  char *v8; 
   DB_PendingList *v9; 
   bool v10; 
-  int v17; 
+  DB_PendingList *v11; 
+  int v12; 
 
   if ( !zoneName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 182, ASSERT_TYPE_ASSERT, "(zoneName)", (const char *)&queryFormat, "zoneName") )
     __debugbreak();
@@ -1683,43 +1580,35 @@ char DB_PendingList::TryFastTransientCancel(DB_PendingList *this, const char *co
   v7 = this;
   if ( m_size )
     v7 = (DB_PendingList *)((char *)this + 148 * (((char *)v4 - (char *)this) / 148));
-  _RBX = &v7->m_list.m_data.m_buffer[148];
+  v8 = &v7->m_list.m_data.m_buffer[148];
   v9 = (DB_PendingList *)((char *)this + 148 * m_size);
   if ( &v7->m_list.m_data.m_buffer[148] == (char *)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
     __debugbreak();
   if ( v9 == v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
     __debugbreak();
-  v10 = _RBX < (char *)v9;
-  if ( _RBX > (char *)v9 )
+  v10 = v8 < (char *)v9;
+  if ( v8 > (char *)v9 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
       __debugbreak();
-    v10 = _RBX < (char *)v9;
+    v10 = v8 < (char *)v9;
   }
   if ( v10 )
   {
-    _RCX = v7;
+    v11 = v7;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rcx+20h], ymm1
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm1, ymmword ptr [rbx+60h]
-        vmovups ymmword ptr [rcx+60h], ymm1
-        vmovups xmm0, xmmword ptr [rbx+80h]
-        vmovups xmmword ptr [rcx+80h], xmm0
-      }
-      v17 = *((_DWORD *)_RBX + 36);
-      _RBX += 148;
-      *(_DWORD *)&_RCX->m_list.m_data.m_buffer[144] = v17;
-      _RCX = (DB_PendingList *)((char *)_RCX + 148);
+      *(__m256i *)v11->m_list.m_data.m_buffer = *(__m256i *)v8;
+      *(__m256i *)&v11->m_list.m_data.m_buffer[32] = *((__m256i *)v8 + 1);
+      *(__m256i *)&v11->m_list.m_data.m_buffer[64] = *((__m256i *)v8 + 2);
+      *(__m256i *)&v11->m_list.m_data.m_buffer[96] = *((__m256i *)v8 + 3);
+      *(_OWORD *)&v11->m_list.m_data.m_buffer[128] = *((_OWORD *)v8 + 8);
+      v12 = *((_DWORD *)v8 + 36);
+      v8 += 148;
+      *(_DWORD *)&v11->m_list.m_data.m_buffer[144] = v12;
+      v11 = (DB_PendingList *)((char *)v11 + 148);
     }
-    while ( _RBX < (char *)v9 );
+    while ( v8 < (char *)v9 );
   }
   --this->m_list.m_size;
   return 1;
@@ -1732,17 +1621,19 @@ DB_PendingList::TryGetNextByZone
 */
 char DB_PendingList::TryGetNextByZone(DB_PendingList *this, DB_PendingZoneInfo *outZoneInfo, const DB_FastfileInfo *const zoneInfo, const unsigned int zoneCount)
 {
+  DB_PendingList *v8; 
   __int64 v9; 
   unsigned __int64 m_size; 
-  DB_PendingList *v17; 
-  DB_PendingList *v19; 
-  bool v20; 
-  int v27; 
+  DB_PendingList *v12; 
+  char *v13; 
+  DB_PendingList *v14; 
+  bool v15; 
+  DB_PendingList *v16; 
+  int v17; 
 
-  _R15 = outZoneInfo;
   if ( !zoneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_pendingzones.cpp", 90, ASSERT_TYPE_ASSERT, "(zoneInfo)", (const char *)&queryFormat, "zoneInfo") )
     __debugbreak();
-  _RDI = this;
+  v8 = this;
   if ( this == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
     return 0;
   while ( 1 )
@@ -1751,78 +1642,62 @@ char DB_PendingList::TryGetNextByZone(DB_PendingList *this, DB_PendingZoneInfo *
     if ( zoneCount )
       break;
 LABEL_8:
-    _RDI = (DB_PendingList *)((char *)_RDI + 148);
-    if ( _RDI == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
+    v8 = (DB_PendingList *)((char *)v8 + 148);
+    if ( v8 == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) )
       return 0;
   }
-  while ( !DB_Zones_FastfileInfoMatches(&zoneInfo[v9], *(_DWORD *)&_RDI->m_list.m_data.m_buffer[128], _RDI->m_list.m_data.m_buffer) )
+  while ( !DB_Zones_FastfileInfoMatches(&zoneInfo[v9], *(_DWORD *)&v8->m_list.m_data.m_buffer[128], v8->m_list.m_data.m_buffer) )
   {
     v9 = (unsigned int)(v9 + 1);
     if ( (unsigned int)v9 >= zoneCount )
       goto LABEL_8;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [r15], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [r15+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [r15+40h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [r15+60h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [r15+80h], xmm0
-  }
+  *(__m256i *)outZoneInfo->parentZoneName = *(__m256i *)v8->m_list.m_data.m_buffer;
+  *(__m256i *)&outZoneInfo->parentZoneName[32] = *(__m256i *)&v8->m_list.m_data.m_buffer[32];
+  *(__m256i *)outZoneInfo->fastfileName = *(__m256i *)&v8->m_list.m_data.m_buffer[64];
+  *(__m256i *)&outZoneInfo->fastfileName[32] = *(__m256i *)&v8->m_list.m_data.m_buffer[96];
+  *(_OWORD *)&outZoneInfo->flags = *(_OWORD *)&v8->m_list.m_data.m_buffer[128];
   if ( !this->m_list.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
     __debugbreak();
-  if ( (_RDI < this || _RDI > (DB_PendingList *)((char *)this + 148 * this->m_list.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+  if ( (v8 < this || v8 > (DB_PendingList *)((char *)this + 148 * this->m_list.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
     __debugbreak();
-  if ( (char *)_RDI - (char *)this != 148 * (((char *)_RDI - (char *)this) / 0x94ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+  if ( (char *)v8 - (char *)this != 148 * (((char *)v8 - (char *)this) / 0x94ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
     __debugbreak();
-  if ( _RDI == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
+  if ( v8 == (DB_PendingList *)((char *)this + 148 * this->m_list.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
     __debugbreak();
   m_size = this->m_list.m_size;
-  v17 = this;
+  v12 = this;
   if ( m_size )
-    v17 = (DB_PendingList *)((char *)this + 148 * (((char *)_RDI - (char *)this) / 148));
-  _RBX = &v17->m_list.m_data.m_buffer[148];
-  v19 = (DB_PendingList *)((char *)this + 148 * m_size);
-  if ( &v17->m_list.m_data.m_buffer[148] == (char *)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+    v12 = (DB_PendingList *)((char *)this + 148 * (((char *)v8 - (char *)this) / 148));
+  v13 = &v12->m_list.m_data.m_buffer[148];
+  v14 = (DB_PendingList *)((char *)this + 148 * m_size);
+  if ( &v12->m_list.m_data.m_buffer[148] == (char *)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
     __debugbreak();
-  if ( v19 == v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+  if ( v14 == v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
     __debugbreak();
-  v20 = _RBX < (char *)v19;
-  if ( _RBX > (char *)v19 )
+  v15 = v13 < (char *)v14;
+  if ( v13 > (char *)v14 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
       __debugbreak();
-    v20 = _RBX < (char *)v19;
+    v15 = v13 < (char *)v14;
   }
-  if ( v20 )
+  if ( v15 )
   {
-    _RCX = v17;
+    v16 = v12;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rcx+20h], ymm1
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm1, ymmword ptr [rbx+60h]
-        vmovups ymmword ptr [rcx+60h], ymm1
-        vmovups xmm0, xmmword ptr [rbx+80h]
-        vmovups xmmword ptr [rcx+80h], xmm0
-      }
-      v27 = *((_DWORD *)_RBX + 36);
-      _RBX += 148;
-      *(_DWORD *)&_RCX->m_list.m_data.m_buffer[144] = v27;
-      _RCX = (DB_PendingList *)((char *)_RCX + 148);
+      *(__m256i *)v16->m_list.m_data.m_buffer = *(__m256i *)v13;
+      *(__m256i *)&v16->m_list.m_data.m_buffer[32] = *((__m256i *)v13 + 1);
+      *(__m256i *)&v16->m_list.m_data.m_buffer[64] = *((__m256i *)v13 + 2);
+      *(__m256i *)&v16->m_list.m_data.m_buffer[96] = *((__m256i *)v13 + 3);
+      *(_OWORD *)&v16->m_list.m_data.m_buffer[128] = *((_OWORD *)v13 + 8);
+      v17 = *((_DWORD *)v13 + 36);
+      v13 += 148;
+      *(_DWORD *)&v16->m_list.m_data.m_buffer[144] = v17;
+      v16 = (DB_PendingList *)((char *)v16 + 148);
     }
-    while ( _RBX < (char *)v19 );
+    while ( v13 < (char *)v14 );
   }
   --this->m_list.m_size;
   return 1;

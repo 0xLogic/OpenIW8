@@ -888,20 +888,23 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
   unsigned int m_capacity; 
   bdObjectStoreCacheAwareObjectID *v23; 
   unsigned int v24; 
+  bdObjectStoreCacheAwareObjectID *v25; 
+  bdObjectStoreCacheAwareObjectID *v26; 
   __int64 v27; 
-  bdObjectStoreCacheAwareObjectID *v39; 
-  __int64 v40; 
-  DWServicesAccess *v54; 
-  const char *v55; 
-  void (__fastcall *v56)(OnlineStorageTask *); 
+  bdObjectStoreCacheAwareObjectID *v28; 
+  __int64 v29; 
+  bdObjectStoreCacheAwareObjectID *v30; 
+  DWServicesAccess *v31; 
+  const char *v32; 
+  void (__fastcall *v33)(OnlineStorageTask *); 
   bdObjectStoreCacheAwareObjectID *m_data; 
   __int64 m_size; 
-  bool v59; 
-  const char *v60; 
+  bool v36; 
+  const char *v37; 
   XUID *Xuid; 
-  DWServicesAccess *v62; 
-  const char *v63; 
-  void (__fastcall *v64)(OnlineStorageTask *); 
+  DWServicesAccess *v39; 
+  const char *v40; 
+  void (__fastcall *v41)(OnlineStorageTask *); 
   OnlineStorageOperation operation; 
   unsigned int i; 
   unsigned int fileEntryCount; 
@@ -909,18 +912,18 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
   const char *ClientID; 
   int PublisherObjects; 
   unsigned int j; 
-  unsigned int v72; 
-  DWServicesAccess *v73; 
-  const char *v74; 
-  void (__fastcall *v75)(OnlineStorageTask *); 
-  DWServicesAccess *v76; 
-  const char *v77; 
+  unsigned int v49; 
+  DWServicesAccess *v50; 
+  const char *v51; 
+  void (__fastcall *v52)(OnlineStorageTask *); 
+  DWServicesAccess *v53; 
+  const char *v54; 
   void (__fastcall *onTaskCompleteCallback)(OnlineStorageTask *); 
   __int64 limit; 
-  XUID v80; 
+  XUID v57; 
   OnlineStorage *UniversalId; 
   XUID result; 
-  __int64 v83; 
+  __int64 v60; 
   bdObjectStoreObjectID objectID; 
   bdObjectStoreListPublisherObjectsByCategoryRequest request; 
   bdObjectStoreMetadata metadata; 
@@ -928,7 +931,7 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
   bdArray<bdObjectStoreCacheAwareObjectID> dest[2]; 
   char owner[32]; 
 
-  v83 = -2i64;
+  v60 = -2i64;
   v2 = task;
   UniversalId = this;
   destination = task->destination;
@@ -936,14 +939,14 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
   {
     if ( destination != PUBLISHER_STORAGE )
     {
-      v59 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 747, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: Unknown storage destination %d", (unsigned __int8)destination);
+      v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 747, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: Unknown storage destination %d", (unsigned __int8)destination);
       goto LABEL_106;
     }
     operation = task->operation;
     switch ( operation )
     {
       case UPLOAD:
-        v59 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 655, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: The game should never upload to publisher storage.\n");
+        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 655, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: The game should never upload to publisher storage.\n");
         goto LABEL_106;
       case DOWNLOAD:
         if ( !task->getPublisherStorageResponse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 659, ASSERT_TYPE_ASSERT, "(task->getPublisherStorageResponse)", (const char *)&queryFormat, "task->getPublisherStorageResponse") )
@@ -991,16 +994,16 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
             j__Init_thread_footer(&dword_14B6A6EB4);
           }
         }
-        v72 = v2->fileEntryCount;
-        v73 = DWServicesAccess::GetInstance();
-        v74 = DWServicesAccess::GetClientID(v73);
-        bdObjectStoreGetPublisherObjectsRequest::init(&::request, v74, s_contextString, s_objectIDs, v72);
+        v49 = v2->fileEntryCount;
+        v50 = DWServicesAccess::GetInstance();
+        v51 = DWServicesAccess::GetClientID(v50);
+        bdObjectStoreGetPublisherObjectsRequest::init(&::request, v51, s_contextString, s_objectIDs, v49);
         PublisherObjects = dwGetPublisherObjectMetadatas(&v2->taskCreateRequest, &::request, v2->getPublisherStorageMetadatasResponse);
         break;
       case LIST:
-        v76 = DWServicesAccess::GetInstance();
-        v77 = DWServicesAccess::GetClientID(v76);
-        bdObjectStoreListPublisherObjectsByCategoryRequest::bdObjectStoreListPublisherObjectsByCategoryRequest(&request, v77, s_contextString, "infinityward", v2->category, 0x32u, NULL);
+        v53 = DWServicesAccess::GetInstance();
+        v54 = DWServicesAccess::GetClientID(v53);
+        bdObjectStoreListPublisherObjectsByCategoryRequest::bdObjectStoreListPublisherObjectsByCategoryRequest(&request, v54, s_contextString, "infinityward", v2->category, 0x32u, NULL);
         if ( dwListPublisherObjectsByCategory(&v2->taskCreateRequest, &request, v2->listPublisherStorageResponse) )
         {
           v2->status = AERIAL;
@@ -1018,7 +1021,7 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
         bdReferencable::~bdReferencable((bdReferencable *)&request.gap23D[3]);
         return;
       default:
-        v59 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 742, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: Unknown task operation %d", (unsigned __int8)operation);
+        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 742, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: Unknown task operation %d", (unsigned __int8)operation);
         goto LABEL_106;
     }
     if ( PublisherObjects )
@@ -1028,9 +1031,9 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
     else
     {
       v2->status = 4;
-      v75 = v2->onTaskCompleteCallback;
-      if ( v75 )
-        v75(v2);
+      v52 = v2->onTaskCompleteCallback;
+      if ( v52 )
+        v52(v2);
     }
     return;
   }
@@ -1047,13 +1050,13 @@ void OnlineStorage::ExecuteTask(OnlineStorage *this, OnlineStorageTask *task)
         if ( !v2->fileEntryCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 591, ASSERT_TYPE_ASSERT, "(task->fileEntryCount > 0)", (const char *)&queryFormat, "task->fileEntryCount > 0") )
           __debugbreak();
         m_id = 0;
-        LODWORD(v80.m_id) = 0;
+        LODWORD(v57.m_id) = 0;
         if ( !v2->fileEntryCount )
         {
 LABEL_52:
-          v54 = DWServicesAccess::GetInstance();
-          v55 = DWServicesAccess::GetClientID(v54);
-          bdObjectStoreGetUserObjectsVectorizedRequest::bdObjectStoreGetUserObjectsVectorizedRequest((bdObjectStoreGetUserObjectsVectorizedRequest *)&objectID, v55, s_userStorageContextString, dest);
+          v31 = DWServicesAccess::GetInstance();
+          v32 = DWServicesAccess::GetClientID(v31);
+          bdObjectStoreGetUserObjectsVectorizedRequest::bdObjectStoreGetUserObjectsVectorizedRequest((bdObjectStoreGetUserObjectsVectorizedRequest *)&objectID, v32, s_userStorageContextString, dest);
           if ( dwGetUserObjectsVectorized(&v2->taskCreateRequest, (const bdObjectStoreGetUserObjectsVectorizedRequest *)&objectID, v2->getUserStorageResponse) )
           {
             v2->status = AERIAL;
@@ -1061,9 +1064,9 @@ LABEL_52:
           else
           {
             v2->status = 4;
-            v56 = v2->onTaskCompleteCallback;
-            if ( v56 )
-              v56(v2);
+            v33 = v2->onTaskCompleteCallback;
+            if ( v33 )
+              v33(v2);
           }
           bdArray<bdObjectStoreCacheAwareObjectID>::~bdArray<bdObjectStoreCacheAwareObjectID>((bdArray<bdObjectStoreCacheAwareObjectID> *)&objectID.m_objectName[22]);
           bdRESTRequest::~bdRESTRequest((bdRESTRequest *)&objectID.m_objectName[14]);
@@ -1113,82 +1116,53 @@ LABEL_47:
           dest[0].m_data = v23;
           dest[0].m_capacity = v24;
           v21 = dest[0].m_size;
-          m_id = v80.m_id;
+          m_id = v57.m_id;
 LABEL_49:
-          _RCX = &v23[v21];
-          if ( _RCX )
+          v30 = &v23[v21];
+          if ( v30 )
           {
-            _RAX = &request;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx+70h], xmm1
-              vmovups xmm0, xmmword ptr [rax+80h]
-              vmovups xmmword ptr [rcx+80h], xmm0
-              vmovups xmm1, xmmword ptr [rax+90h]
-              vmovups xmmword ptr [rcx+90h], xmm1
-              vmovups xmm0, xmmword ptr [rax+0A0h]
-              vmovups xmmword ptr [rcx+0A0h], xmm0
-            }
-            *(_QWORD *)&_RCX->m_cachedChecksum[31] = *(_QWORD *)&request.m_pageToken[140];
+            *(_OWORD *)&v30->m_objectID.m_ownerType = *(_OWORD *)&request.bdObjectStorePaginatedRequestBase::bdObjectStoreRequestBase::__vftable;
+            *(_OWORD *)&v30->m_objectID.m_owner[12] = *(_OWORD *)&request.m_context[4];
+            *(_OWORD *)&v30->m_objectID.m_owner[28] = *(_OWORD *)&request.m_limit;
+            *(_OWORD *)&v30->m_objectID.m_objectName[14] = *(_OWORD *)&request.m_pageToken[12];
+            *(_OWORD *)&v30->m_objectID.m_objectName[30] = *(_OWORD *)&request.m_pageToken[28];
+            *(_OWORD *)&v30->m_objectID.m_objectName[46] = *(_OWORD *)&request.m_pageToken[44];
+            *(_OWORD *)&v30->m_objectID.m_objectName[62] = *(_OWORD *)&request.m_pageToken[60];
+            *(_OWORD *)v30->m_cachedObjectVersion = *(_OWORD *)&request.m_pageToken[76];
+            *(_OWORD *)&v30->m_cachedObjectVersion[16] = *(_OWORD *)&request.m_pageToken[92];
+            *(_OWORD *)&v30->m_cachedObjectVersion[32] = *(_OWORD *)&request.m_pageToken[108];
+            *(_OWORD *)&v30->m_cachedChecksum[15] = *(_OWORD *)&request.m_pageToken[124];
+            *(_QWORD *)&v30->m_cachedChecksum[31] = *(_QWORD *)&request.m_pageToken[140];
             v21 = dest[0].m_size;
           }
           dest[0].m_size = v21 + 1;
           bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID((bdObjectStoreCacheAwareObjectID *)&request);
-          LODWORD(v80.m_id) = ++m_id;
+          LODWORD(v57.m_id) = ++m_id;
           if ( m_id >= v2->fileEntryCount )
             goto LABEL_52;
         }
-        _R8 = dest[0].m_data;
-        _RDX = v23;
+        v25 = dest[0].m_data;
+        v26 = v23;
         v27 = dest[0].m_size;
         do
         {
-          if ( _RDX )
+          if ( v26 )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r8]
-              vmovups xmmword ptr [rdx], xmm0
-              vmovups xmm1, xmmword ptr [r8+10h]
-              vmovups xmmword ptr [rdx+10h], xmm1
-              vmovups xmm0, xmmword ptr [r8+20h]
-              vmovups xmmword ptr [rdx+20h], xmm0
-              vmovups xmm1, xmmword ptr [r8+30h]
-              vmovups xmmword ptr [rdx+30h], xmm1
-              vmovups xmm0, xmmword ptr [r8+40h]
-              vmovups xmmword ptr [rdx+40h], xmm0
-              vmovups xmm1, xmmword ptr [r8+50h]
-              vmovups xmmword ptr [rdx+50h], xmm1
-              vmovups xmm0, xmmword ptr [r8+60h]
-              vmovups xmmword ptr [rdx+60h], xmm0
-              vmovups xmm1, xmmword ptr [r8+70h]
-              vmovups xmmword ptr [rdx+70h], xmm1
-              vmovups xmm0, xmmword ptr [r8+80h]
-              vmovups xmmword ptr [rdx+80h], xmm0
-              vmovups xmm1, xmmword ptr [r8+90h]
-              vmovups xmmword ptr [rdx+90h], xmm1
-              vmovups xmm0, xmmword ptr [r8+0A0h]
-              vmovups xmmword ptr [rdx+0A0h], xmm0
-            }
-            *(_QWORD *)&_RDX->m_cachedChecksum[31] = *(_QWORD *)&_R8->m_cachedChecksum[31];
+            *(_OWORD *)&v26->m_objectID.m_ownerType = *(_OWORD *)&v25->m_objectID.m_ownerType;
+            *(_OWORD *)&v26->m_objectID.m_owner[12] = *(_OWORD *)&v25->m_objectID.m_owner[12];
+            *(_OWORD *)&v26->m_objectID.m_owner[28] = *(_OWORD *)&v25->m_objectID.m_owner[28];
+            *(_OWORD *)&v26->m_objectID.m_objectName[14] = *(_OWORD *)&v25->m_objectID.m_objectName[14];
+            *(_OWORD *)&v26->m_objectID.m_objectName[30] = *(_OWORD *)&v25->m_objectID.m_objectName[30];
+            *(_OWORD *)&v26->m_objectID.m_objectName[46] = *(_OWORD *)&v25->m_objectID.m_objectName[46];
+            *(_OWORD *)&v26->m_objectID.m_objectName[62] = *(_OWORD *)&v25->m_objectID.m_objectName[62];
+            *(_OWORD *)v26->m_cachedObjectVersion = *(_OWORD *)v25->m_cachedObjectVersion;
+            *(_OWORD *)&v26->m_cachedObjectVersion[16] = *(_OWORD *)&v25->m_cachedObjectVersion[16];
+            *(_OWORD *)&v26->m_cachedObjectVersion[32] = *(_OWORD *)&v25->m_cachedObjectVersion[32];
+            *(_OWORD *)&v26->m_cachedChecksum[15] = *(_OWORD *)&v25->m_cachedChecksum[15];
+            *(_QWORD *)&v26->m_cachedChecksum[31] = *(_QWORD *)&v25->m_cachedChecksum[31];
           }
-          ++_RDX;
-          ++_R8;
+          ++v26;
+          ++v25;
           --v27;
         }
         while ( v27 );
@@ -1196,29 +1170,29 @@ LABEL_49:
 LABEL_44:
         if ( v21 )
         {
-          v39 = dest[0].m_data;
-          v40 = v21;
+          v28 = dest[0].m_data;
+          v29 = v21;
           do
           {
-            bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID(v39++);
-            --v40;
+            bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID(v28++);
+            --v29;
           }
-          while ( v40 );
+          while ( v29 );
         }
         goto LABEL_47;
       case GET_INFO:
-        v59 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 623, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "TODO: add support for getting user storage file info");
+        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 623, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "TODO: add support for getting user storage file info");
         break;
       case LIST:
         LOBYTE(task) = 6;
-        v60 = OnlineStorage::GetPlatformStringFromPlatform(this, (OnlineStoragePlatform)task);
+        v37 = OnlineStorage::GetPlatformStringFromPlatform(this, (OnlineStoragePlatform)task);
         Xuid = Live_GetXuid(&result, v2->controllerIndex);
         UniversalId = (OnlineStorage *)XUID::GetUniversalId(Xuid);
-        bdUserAccountID::bdUserAccountID((bdUserAccountID *)&objectID, (const unsigned __int64 *)&UniversalId, v60);
+        bdUserAccountID::bdUserAccountID((bdUserAccountID *)&objectID, (const unsigned __int64 *)&UniversalId, v37);
         bdStructUserAccountID::bdStructUserAccountID((bdStructUserAccountID *)&request, (const bdUserAccountID *)&objectID);
-        v62 = DWServicesAccess::GetInstance();
-        v63 = DWServicesAccess::GetClientID(v62);
-        bdObjectStoreListUserObjectsByCategoryRequest::bdObjectStoreListUserObjectsByCategoryRequest((bdObjectStoreListUserObjectsByCategoryRequest *)&metadata, v63, s_userStorageContextString, (const bdStructUserAccountID *)&request, v2->category, 0x1Eu, NULL);
+        v39 = DWServicesAccess::GetInstance();
+        v40 = DWServicesAccess::GetClientID(v39);
+        bdObjectStoreListUserObjectsByCategoryRequest::bdObjectStoreListUserObjectsByCategoryRequest((bdObjectStoreListUserObjectsByCategoryRequest *)&metadata, v40, s_userStorageContextString, (const bdStructUserAccountID *)&request, v2->category, 0x1Eu, NULL);
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&request.m_pageToken[36]);
         bdUserAccountID::~bdUserAccountID((bdUserAccountID *)&request.m_pageToken[20]);
         bdReferencable::~bdReferencable((bdReferencable *)&request.m_pageToken[36]);
@@ -1229,9 +1203,9 @@ LABEL_44:
         else
         {
           v2->status = 4;
-          v64 = v2->onTaskCompleteCallback;
-          if ( v64 )
-            v64(v2);
+          v41 = v2->onTaskCompleteCallback;
+          if ( v41 )
+            v41(v2);
         }
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&metadata.m_contentURL[384]);
         bdUserAccountID::~bdUserAccountID((bdUserAccountID *)&metadata.m_contentURL[368]);
@@ -1243,11 +1217,11 @@ LABEL_44:
         bdReferencable::~bdReferencable((bdReferencable *)&objectID.m_objectName[22]);
         return;
       default:
-        v59 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 648, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: Unknown task operation %d", (unsigned __int8)v5);
+        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_storage.cpp", 648, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "OnlineStorage: Unknown task operation %d", (unsigned __int8)v5);
         break;
     }
 LABEL_106:
-    if ( v59 )
+    if ( v36 )
       __debugbreak();
     return;
   }
@@ -1264,8 +1238,8 @@ LABEL_106:
     while ( 1 )
     {
       v9 = v2->fileEntries[v8].platform[0];
-      v80.m_id = v2->fileEntries[v8].xuid.m_id;
-      v10 = XUID::ToString(&v80);
+      v57.m_id = v2->fileEntries[v8].xuid.m_id;
+      v10 = XUID::ToString(&v57);
       v11 = OnlineStorage::GetPlatformStringFromPlatform(this, (OnlineStoragePlatform)v9);
       Com_sprintf_truncate((char *)dest, 0x20ui64, "%s-%s", v11, v10);
       bdObjectStoreObjectID::bdObjectStoreObjectID(&objectID, (const char *const)dest, v2->fileEntries[v8].fileName, USER_OWNER_TYPE);

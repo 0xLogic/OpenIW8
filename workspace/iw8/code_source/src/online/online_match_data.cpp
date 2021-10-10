@@ -126,11 +126,8 @@ void __fastcall Online_MatchData_FlagHostMigration(double _XMM0_8)
     ActiveGameMode = Com_GameMode_GetActiveGameMode();
     if ( BG_GameInterface_GameModeIsMP((GameModeType)ActiveGameMode) )
     {
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+68h+toState.member], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&toState.member = _XMM0;
       toState.isValid = 0;
       toState.offset = 0;
       toState.arrayIndex = -1;
@@ -149,46 +146,33 @@ Online_MatchData_GetMotionState
 */
 __int64 Online_MatchData_GetMotionState(playerState_s *ps)
 {
-  char v10; 
-  unsigned __int8 v11; 
-  __int64 result; 
+  float v1; 
+  float v2; 
+  unsigned __int8 v3; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> pm_flags; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovss  xmm0, dword ptr [rcx+3Ch]
-    vmovss  xmm2, dword ptr [rcx+40h]
-    vmovss  xmm3, dword ptr [rcx+44h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-  }
+  v1 = (float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1]);
+  v2 = ps->velocity.v[2] * ps->velocity.v[2];
   pm_flags = ps->pm_flags;
-  __asm { vaddss  xmm6, xmm2, xmm1 }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 0) )
-    v10 = 2;
+    v3 = 2;
   else
-    v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 1u);
+    v3 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 1u);
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 0x1Du) )
-    v10 |= 0x80u;
+    v3 |= 0x80u;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 0x1Eu) )
-    v10 |= 0x40u;
+    v3 |= 0x40u;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 0x13u) )
-    v10 |= 0x10u;
+    v3 |= 0x10u;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm_flags, ACTIVE, 0x14u) )
   {
-    v11 = v10 | 8;
+    v3 |= 8u;
   }
-  else
+  else if ( (float)(v1 + v2) >= 225.0 )
   {
-    __asm { vcomiss xmm6, cs:__real@43610000 }
-    v11 = v10 | 4;
+    v3 |= 4u;
   }
-  result = v11;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return v3;
 }
 
 /*
@@ -278,10 +262,10 @@ void __fastcall Online_MatchData_RecordBreadcrumbCount(double _XMM0_8)
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0D8h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
   SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
@@ -289,12 +273,7 @@ void __fastcall Online_MatchData_RecordBreadcrumbCount(double _XMM0_8)
   {
     Asset = Com_DDL_LoadAsset(SvGameGlobalsMP->matchDataDef);
     Com_DDL_CreateContext(SvGameGlobalsMP->matchData, 2048, Asset, &ddlContext, NULL, NULL);
-    _RAX = DDL_GetRootState(&result, Asset);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0D8h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, Asset);
     RawHash = j_SL_GetRawHash(scr_const.breadcrumb_count);
     if ( DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL) )
     {

@@ -109,41 +109,39 @@ void HavokCloth_Debug_DrawActiveCollidableDetails(const ScreenPlacement *scrPlac
   const hclClothData *m_clothData; 
   const hclCollidable *collidable; 
   hclShape *m_shape; 
-  const char *v17; 
+  const char *v16; 
   char m_bool; 
   __int64 transformSetIdx; 
-  const char *v20; 
-  bool v23; 
-  const ScreenPlacement *v24; 
-  const vec4_t *v25; 
-  const char *v30; 
-  hclTransformSet *v31; 
-  ClothAssetBoneMappingSet *v32; 
-  __int64 v33; 
+  const char *v19; 
+  bool v20; 
+  const ScreenPlacement *v21; 
+  const vec4_t *v22; 
+  float v23; 
+  const char *v24; 
+  hclTransformSet *v25; 
+  ClothAssetBoneMappingSet *v26; 
+  __int64 v27; 
   __int64 transformIdx; 
-  unsigned __int16 v35; 
-  __int16 v36; 
-  unsigned __int16 v37; 
-  scr_string_t v38; 
-  const char *v39; 
-  char *v40; 
-  const char *v43; 
+  unsigned __int16 v29; 
+  __int16 v30; 
+  unsigned __int16 v31; 
+  scr_string_t v32; 
+  const char *v33; 
+  char *v34; 
+  const char *v35; 
   const vec4_t *fmt; 
   hclShape *shape; 
-  __int64 v52; 
-  const char *v53; 
-  hclShape *v56; 
+  __int64 v38; 
+  const char *v39; 
+  hclShape *v41; 
   const HavokCloth_ActiveCollidableData *activeCollidableDataa; 
   const HavokCloth_ActiveCollidableData *activeCollidableDatab; 
 
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
-  _RDI = y;
-  _RBP = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 417, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 418, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 418, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 419, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 419, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 420, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
     __debugbreak();
@@ -163,33 +161,22 @@ void HavokCloth_Debug_DrawActiveCollidableDetails(const ScreenPlacement *scrPlac
   if ( !collidable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 437, ASSERT_TYPE_ASSERT, "(collidable)", (const char *)&queryFormat, "collidable") )
     __debugbreak();
   m_shape = (hclShape *)collidable->m_shape;
-  v17 = "Disabled";
+  v16 = "Disabled";
   m_bool = collidable->m_enabled.m_bool;
   transformSetIdx = activeCollidableData->transformSetIdx;
-  v56 = m_shape;
+  v41 = m_shape;
   if ( m_bool )
-    v17 = "Enabled";
-  v20 = j_va("%i: %s %s", (unsigned int)activeCollidableDataIdx, *(_QWORD *)&activeCollidableDataa[6].clothInstanceIdx & 0xFFFFFFFFFFFFFFFEui64, v17);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rbp+0]; x
-  }
-  v23 = m_bool == 0;
-  v24 = scrPlace;
-  v25 = &colorDkGrey;
-  if ( !v23 )
-    v25 = &colorWhite;
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v20, v25);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vaddss  xmm0, xmm6, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm1, dword ptr [rbp+0]
-    vaddss  xmm1, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+    v16 = "Enabled";
+  v19 = j_va("%i: %s %s", (unsigned int)activeCollidableDataIdx, *(_QWORD *)&activeCollidableDataa[6].clothInstanceIdx & 0xFFFFFFFFFFFFFFFEui64, v16);
+  v20 = m_bool == 0;
+  v21 = scrPlace;
+  v22 = &colorDkGrey;
+  if ( !v20 )
+    v22 = &colorWhite;
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v19, v22);
+  *y = *y + 8.0;
+  v23 = *x + 12.0;
+  *x = v23;
   if ( (int)transformSetIdx >= 0 )
   {
     if ( (unsigned int)transformSetIdx >= m_clothData->m_transformSetDefinitions.m_size )
@@ -203,100 +190,80 @@ void HavokCloth_Debug_DrawActiveCollidableDetails(const ScreenPlacement *scrPlac
       __debugbreak();
     if ( (unsigned int)transformSetIdx >= ClothInstance->m_transformSets.m_size )
     {
-      LODWORD(v52) = ClothInstance->m_transformSets.m_size;
+      LODWORD(v38) = ClothInstance->m_transformSets.m_size;
       LODWORD(shape) = transformSetIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 466, ASSERT_TYPE_ASSERT, "(unsigned)( transformSetIdx ) < (unsigned)( clothInstance->m_transformSets.getSize() )", "transformSetIdx doesn't index clothInstance->m_transformSets.getSize()\n\t%i not in [0, %i)", shape, v52) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 466, ASSERT_TYPE_ASSERT, "(unsigned)( transformSetIdx ) < (unsigned)( clothInstance->m_transformSets.getSize() )", "transformSetIdx doesn't index clothInstance->m_transformSets.getSize()\n\t%i not in [0, %i)", shape, v38) )
         __debugbreak();
     }
-    v31 = ClothInstance->m_transformSets.m_data[transformSetIdx];
-    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 468, ASSERT_TYPE_ASSERT, "(transformSet)", (const char *)&queryFormat, "transformSet") )
+    v25 = ClothInstance->m_transformSets.m_data[transformSetIdx];
+    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 468, ASSERT_TYPE_ASSERT, "(transformSet)", (const char *)&queryFormat, "transformSet") )
       __debugbreak();
     if ( (unsigned int)clothInstanceIdx >= clothAsset->boneMappingSetCount )
     {
-      LODWORD(v52) = clothAsset->boneMappingSetCount;
+      LODWORD(v38) = clothAsset->boneMappingSetCount;
       LODWORD(shape) = clothInstanceIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 471, ASSERT_TYPE_ASSERT, "(unsigned)( clothInstanceIdx ) < (unsigned)( clothAsset->boneMappingSetCount )", "clothInstanceIdx doesn't index clothAsset->boneMappingSetCount\n\t%i not in [0, %i)", shape, v52) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 471, ASSERT_TYPE_ASSERT, "(unsigned)( clothInstanceIdx ) < (unsigned)( clothAsset->boneMappingSetCount )", "clothInstanceIdx doesn't index clothAsset->boneMappingSetCount\n\t%i not in [0, %i)", shape, v38) )
         __debugbreak();
     }
-    v32 = &clothAsset->boneMappingSets[clothInstanceIdx];
-    if ( (unsigned int)transformSetIdx >= v32->boneMappingCount )
+    v26 = &clothAsset->boneMappingSets[clothInstanceIdx];
+    if ( (unsigned int)transformSetIdx >= v26->boneMappingCount )
     {
-      LODWORD(v52) = v32->boneMappingCount;
+      LODWORD(v38) = v26->boneMappingCount;
       LODWORD(shape) = transformSetIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 475, ASSERT_TYPE_ASSERT, "(unsigned)( transformSetIdx ) < (unsigned)( boneMappingSet->boneMappingCount )", "transformSetIdx doesn't index boneMappingSet->boneMappingCount\n\t%i not in [0, %i)", shape, v52) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 475, ASSERT_TYPE_ASSERT, "(unsigned)( transformSetIdx ) < (unsigned)( boneMappingSet->boneMappingCount )", "transformSetIdx doesn't index boneMappingSet->boneMappingCount\n\t%i not in [0, %i)", shape, v38) )
         __debugbreak();
     }
-    v33 = (__int64)&v32->boneMappings[transformSetIdx];
+    v27 = (__int64)&v26->boneMappings[transformSetIdx];
     transformIdx = activeCollidableData->transformIdx;
-    if ( (unsigned int)transformIdx >= LODWORD(v31[1].m_propertyBag.m_bag) )
+    if ( (unsigned int)transformIdx >= LODWORD(v25[1].m_propertyBag.m_bag) )
     {
-      LODWORD(v52) = v31[1].m_propertyBag.m_bag;
+      LODWORD(v38) = v25[1].m_propertyBag.m_bag;
       LODWORD(shape) = activeCollidableData->transformIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 482, ASSERT_TYPE_ASSERT, "(unsigned)( transformIdx ) < (unsigned)( transformSet->m_boneIndices.getSize() )", "transformIdx doesn't index transformSet->m_boneIndices.getSize()\n\t%i not in [0, %i)", shape, v52) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 482, ASSERT_TYPE_ASSERT, "(unsigned)( transformIdx ) < (unsigned)( transformSet->m_boneIndices.getSize() )", "transformIdx doesn't index transformSet->m_boneIndices.getSize()\n\t%i not in [0, %i)", shape, v38) )
         __debugbreak();
     }
-    v35 = *((_WORD *)&v31[1].getExactType + (int)transformIdx);
-    v36 = v35 >> 15;
-    v37 = v35 & 0x7FFF;
-    if ( (unsigned int)transformIdx >= *(_DWORD *)(v33 + 8) )
+    v29 = *((_WORD *)&v25[1].getExactType + (int)transformIdx);
+    v30 = v29 >> 15;
+    v31 = v29 & 0x7FFF;
+    if ( (unsigned int)transformIdx >= *(_DWORD *)(v27 + 8) )
     {
-      LODWORD(v52) = *(_DWORD *)(v33 + 8);
+      LODWORD(v38) = *(_DWORD *)(v27 + 8);
       LODWORD(shape) = transformIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 488, ASSERT_TYPE_ASSERT, "(unsigned)( transformIdx ) < (unsigned)( boneMapping->scrTagCount )", "transformIdx doesn't index boneMapping->scrTagCount\n\t%i not in [0, %i)", shape, v52) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 488, ASSERT_TYPE_ASSERT, "(unsigned)( transformIdx ) < (unsigned)( boneMapping->scrTagCount )", "transformIdx doesn't index boneMapping->scrTagCount\n\t%i not in [0, %i)", shape, v38) )
         __debugbreak();
     }
-    v38 = *(_DWORD *)(*(_QWORD *)v33 + 4 * transformIdx);
-    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 490, ASSERT_TYPE_ASSERT, "(scrTagName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "scrTagName != NULL_SCR_STRING") )
+    v32 = *(_DWORD *)(*(_QWORD *)v27 + 4 * transformIdx);
+    if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 490, ASSERT_TYPE_ASSERT, "(scrTagName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "scrTagName != NULL_SCR_STRING") )
       __debugbreak();
-    v53 = SL_ConvertToString(v38);
-    v39 = (char *)&queryFormat.fmt + 3;
-    LODWORD(shape) = v37;
-    if ( (_BYTE)v36 )
-      v39 = "client";
-    v40 = j_va("Binding: TransformSet(%i:%s) Transform:%i (IW %sbone %i:%s)", (unsigned int)transformSetIdx, (const char *)(*(_QWORD *)&activeCollidableDatab[1].clothInstanceIdx & 0xFFFFFFFFFFFFFFFEui64), (unsigned int)transformIdx, v39, shape, v53);
-    __asm { vmovss  xmm1, dword ptr [rbp+0]; x }
-    v24 = scrPlace;
+    v39 = SL_ConvertToString(v32);
+    v33 = (char *)&queryFormat.fmt + 3;
+    LODWORD(shape) = v31;
+    if ( (_BYTE)v30 )
+      v33 = "client";
+    v34 = j_va("Binding: TransformSet(%i:%s) Transform:%i (IW %sbone %i:%s)", (unsigned int)transformSetIdx, (const char *)(*(_QWORD *)&activeCollidableDatab[1].clothInstanceIdx & 0xFFFFFFFFFFFFFFFEui64), (unsigned int)transformIdx, v33, shape, v39);
+    v23 = *x;
+    v21 = scrPlace;
     fmt = &colorWhite;
-    v30 = v40;
+    v24 = v34;
   }
   else
   {
     fmt = &colorYellow;
-    v30 = "Warning: Unbound Collidable";
+    v24 = "Warning: Unbound Collidable";
   }
-  __asm { vmovss  xmm2, dword ptr [rdi]; y }
-  Cloth_Debug_DrawString(v24, *(float *)&_XMM1, *(float *)&_XMM2, v30, fmt);
-  __asm
+  Cloth_Debug_DrawString(v21, v23, *y, v24, fmt);
+  *y = *y + 8.0;
+  if ( v41 )
   {
-    vaddss  xmm1, xmm6, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm1
-  }
-  if ( v56 )
-  {
-    HavokCloth_Debug_DrawShapeDetails(v24, _RBP, _RDI, NULL, NULL, v56);
+    HavokCloth_Debug_DrawShapeDetails(v21, x, y, NULL, NULL, v41);
   }
   else
   {
-    v43 = j_va("Missing Shape");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(v24, *(float *)&_XMM1, *(float *)&_XMM2, v43, &colorRed);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
+    v35 = j_va("Missing Shape");
+    Cloth_Debug_DrawString(v21, *x, *y, v35, &colorRed);
+    *y = *y + 8.0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vsubss  xmm1, xmm0, cs:__real@41400000
-    vmovaps xmm6, [rsp+88h+var_48]
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+  *x = *x - 12.0;
 }
 
 /*
@@ -306,68 +273,52 @@ HavokCloth_Debug_DrawAssetDetails
 */
 void HavokCloth_Debug_DrawAssetDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset)
 {
-  const ClothAsset *v6; 
-  const hclClothContainer *v10; 
+  const ClothAsset *v4; 
+  const hclClothContainer *v8; 
   __int64 m_size; 
-  const char *v13; 
+  const char *v10; 
+  float v11; 
   hkRefPtr<hclCollidable> *m_data; 
   unsigned int clothDataIdx; 
   hclCollidable *m_ptr; 
-  const char *v23; 
+  const char *v15; 
   char m_bool; 
-  const char *v25; 
-  const vec4_t *v28; 
-  const char *v31; 
-  const char *v36; 
-  __int64 v41; 
-  const char *v42; 
+  const char *v17; 
+  const vec4_t *v18; 
+  const char *v19; 
+  const char *v20; 
+  float v21; 
+  __int64 v22; 
+  const char *v23; 
   const hclClothData **p_m_ptr; 
-  const char *v48; 
+  const char *v25; 
+  float v26; 
   hclShape *shape; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
-  v6 = asset;
-  __asm { vmovaps [rsp+98h+var_58], xmm7 }
-  _RDI = y;
-  _RSI = x;
+  v4 = asset;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1235, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1236, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1236, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1237, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1237, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1238, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1238, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
-  v10 = HavokCloth_GetAsset(v6);
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1242, ASSERT_TYPE_ASSERT, "(container)", (const char *)&queryFormat, "container") )
+  v8 = HavokCloth_GetAsset(v4);
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1242, ASSERT_TYPE_ASSERT, "(container)", (const char *)&queryFormat, "container") )
     __debugbreak();
-  m_size = (unsigned int)v10->m_collidables.m_size;
-  __asm { vmovss  xmm6, cs:__real@41000000 }
+  m_size = (unsigned int)v8->m_collidables.m_size;
   if ( (int)m_size > 0 )
   {
-    v13 = j_va("%i Collidables", m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
+    v10 = j_va("%i Collidables", m_size);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v10, &colorWhite);
+    *y = *y + 8.0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm7, cs:__real@41400000
-    vaddss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rsi], xmm1
-  }
-  m_data = v10->m_collidables.m_data;
+  v11 = *x + 12.0;
+  *x = v11;
+  m_data = v8->m_collidables.m_data;
   clothDataIdx = 0;
-  if ( m_data != &m_data[v10->m_collidables.m_size] )
+  if ( m_data != &m_data[v8->m_collidables.m_size] )
   {
     do
     {
@@ -376,110 +327,62 @@ void HavokCloth_Debug_DrawAssetDetails(const ScreenPlacement *scrPlace, float *x
       {
         if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 384, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
           __debugbreak();
-        if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 386, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+        if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 386, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
           __debugbreak();
-        v23 = "Disabled";
+        v15 = "Disabled";
         m_bool = m_ptr->m_enabled.m_bool;
         shape = (hclShape *)m_ptr->m_shape;
         if ( m_bool )
-          v23 = "Enabled";
-        v25 = j_va("%i: %s %s", clothDataIdx, (unsigned __int64)m_ptr->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64, v23);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rsi]; x
-        }
-        v28 = &colorDkGrey;
+          v15 = "Enabled";
+        v17 = j_va("%i: %s %s", clothDataIdx, (unsigned __int64)m_ptr->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64, v15);
+        v18 = &colorDkGrey;
         if ( m_bool )
-          v28 = &colorWhite;
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v25, v28);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-          vaddss  xmm0, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm0
-        }
+          v18 = &colorWhite;
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v17, v18);
+        *y = *y + 8.0;
+        *x = *x + 12.0;
         if ( shape )
         {
-          HavokCloth_Debug_DrawShapeDetails(scrPlace, _RSI, _RDI, asset, v10, shape);
+          HavokCloth_Debug_DrawShapeDetails(scrPlace, x, y, asset, v8, shape);
         }
         else
         {
-          v31 = j_va("Missing Shape");
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vmovss  xmm1, dword ptr [rsi]; x
-          }
-          Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v31, &colorRed);
-          __asm
-          {
-            vaddss  xmm1, xmm6, dword ptr [rdi]
-            vmovss  dword ptr [rdi], xmm1
-          }
+          v19 = j_va("Missing Shape");
+          Cloth_Debug_DrawString(scrPlace, *x, *y, v19, &colorRed);
+          *y = *y + 8.0;
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi]
-          vsubss  xmm1, xmm0, xmm7
-          vmovss  dword ptr [rsi], xmm1
-        }
+        v11 = *x - 12.0;
+        *x = v11;
       }
       else
       {
-        v36 = j_va("%i Missing Collidable", clothDataIdx);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rsi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v36, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-          vmovss  xmm1, dword ptr [rsi]
-        }
+        v20 = j_va("%i Missing Collidable", clothDataIdx);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v20, &colorRed);
+        *y = *y + 8.0;
+        v11 = *x;
       }
       ++m_data;
       ++clothDataIdx;
     }
-    while ( m_data != &v10->m_collidables.m_data[v10->m_collidables.m_size] );
-    v6 = asset;
+    while ( m_data != &v8->m_collidables.m_data[v8->m_collidables.m_size] );
+    v4 = asset;
     clothDataIdx = 0;
   }
-  __asm
+  v21 = v11 - 12.0;
+  *x = v11 - 12.0;
+  v22 = (unsigned int)v8->m_clothDatas.m_size;
+  if ( (int)v22 > 0 )
   {
-    vsubss  xmm0, xmm1, xmm7
-    vmovss  dword ptr [rsi], xmm0
+    v23 = j_va("%i Cloth Datas", v22);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v23, &colorWhite);
+    *y = *y + 8.0;
+    v21 = *x;
   }
-  v41 = (unsigned int)v10->m_clothDatas.m_size;
-  if ( (int)v41 > 0 )
+  *x = v21 + 12.0;
+  p_m_ptr = (const hclClothData **)&v8->m_clothDatas.m_data->m_ptr;
+  if ( p_m_ptr == &p_m_ptr[v8->m_clothDatas.m_size] )
   {
-    v42 = j_va("%i Cloth Datas", v41);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v42, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm0, dword ptr [rsi]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rsi], xmm1
-  }
-  p_m_ptr = (const hclClothData **)&v10->m_clothDatas.m_data->m_ptr;
-  if ( p_m_ptr == &p_m_ptr[v10->m_clothDatas.m_size] )
-  {
-    __asm { vsubss  xmm1, xmm1, xmm7 }
+    v26 = (float)(v21 + 12.0) - 12.0;
   }
   else
   {
@@ -487,39 +390,21 @@ void HavokCloth_Debug_DrawAssetDetails(const ScreenPlacement *scrPlace, float *x
     {
       if ( *p_m_ptr )
       {
-        HavokCloth_Debug_DrawClothDataDetails(scrPlace, _RSI, _RDI, v6, v10, *p_m_ptr, clothDataIdx);
+        HavokCloth_Debug_DrawClothDataDetails(scrPlace, x, y, v4, v8, *p_m_ptr, clothDataIdx);
       }
       else
       {
-        v48 = j_va("%i Missing Cloth Data", clothDataIdx);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rsi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v48, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-        }
+        v25 = j_va("%i Missing Cloth Data", clothDataIdx);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v25, &colorRed);
+        *y = *y + 8.0;
       }
       ++p_m_ptr;
       ++clothDataIdx;
     }
-    while ( p_m_ptr != (const hclClothData **)&v10->m_clothDatas.m_data[v10->m_clothDatas.m_size].m_ptr );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, xmm7
-    }
+    while ( p_m_ptr != (const hclClothData **)&v8->m_clothDatas.m_data[v8->m_clothDatas.m_size].m_ptr );
+    v26 = *x - 12.0;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_48]
-    vmovaps xmm7, [rsp+98h+var_58]
-    vmovss  dword ptr [rsi], xmm1
-  }
+  *x = v26;
 }
 
 /*
@@ -530,16 +415,14 @@ HavokCloth_Debug_DrawBufferDefinitionDetails
 void HavokCloth_Debug_DrawBufferDefinitionDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const hclBufferDefinition *bufferDefinition, int bufferDefinitionIdx)
 {
   const char *v13; 
-  const char *v20; 
-  const char *v25; 
+  const char *v14; 
+  const char *v15; 
 
-  _RDI = y;
-  _RSI = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 645, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 646, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 646, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 647, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 647, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 648, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -550,50 +433,16 @@ void HavokCloth_Debug_DrawBufferDefinitionDetails(const ScreenPlacement *scrPlac
   if ( !bufferDefinition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 651, ASSERT_TYPE_ASSERT, "(bufferDefinition)", (const char *)&queryFormat, "bufferDefinition") )
     __debugbreak();
   v13 = j_va("%i: %s", (unsigned int)bufferDefinitionIdx, (const char *)((unsigned __int64)bufferDefinition->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm0, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm1, dword ptr [rsi]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-  }
-  v20 = j_va("Type: %s", s_HavokCloth_BufferTypeNames[bufferDefinition->m_type]);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v20, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rdi], xmm1
-  }
-  v25 = j_va("Verts: %i - Tris: %i", bufferDefinition->m_numVertices, bufferDefinition->m_numTriangles);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v25, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vsubss  xmm0, xmm2, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  v14 = j_va("Type: %s", s_HavokCloth_BufferTypeNames[bufferDefinition->m_type]);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
+  v15 = j_va("Verts: %i - Tris: %i", bufferDefinition->m_numVertices, bufferDefinition->m_numTriangles);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v15, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x - 12.0;
 }
 
 /*
@@ -603,56 +452,63 @@ HavokCloth_Debug_DrawClothDataDetails
 */
 void HavokCloth_Debug_DrawClothDataDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx)
 {
-  const char *v13; 
+  const char *v11; 
+  float v12; 
   __int64 m_size; 
-  const char *v22; 
+  const char *v14; 
+  float v15; 
   const hclBufferDefinition **m_data; 
   unsigned int bufferDefinitionIdx; 
-  const char *v29; 
+  const char *v18; 
+  float v19; 
+  __int64 v20; 
+  const char *v21; 
+  float v22; 
+  const hclTransformSetDefinition **v23; 
+  unsigned int v24; 
+  const char *v25; 
+  float v26; 
+  __int64 v27; 
+  const char *v28; 
+  float v29; 
+  const hclOperator **v30; 
+  unsigned int v31; 
+  const char *v32; 
+  float v33; 
   __int64 v34; 
   const char *v35; 
-  const hclTransformSetDefinition **v40; 
-  unsigned int v41; 
+  float v36; 
+  const hclSimClothData **v37; 
+  unsigned int v38; 
+  const char *v39; 
+  float v40; 
+  __int64 v41; 
   const char *v42; 
-  __int64 v47; 
-  const char *v48; 
-  const hclOperator **v53; 
-  unsigned int v54; 
-  const char *v55; 
-  __int64 v60; 
-  const char *v61; 
-  const hclSimClothData **v66; 
-  unsigned int v67; 
-  const char *v68; 
-  __int64 v73; 
-  const char *v74; 
-  const hclClothState **v79; 
-  unsigned int v80; 
-  const char *v81; 
-  __int64 v86; 
-  const char *v87; 
-  const hclStateTransition **v92; 
-  unsigned int v93; 
-  const char *v94; 
-  __int64 v99; 
-  const char *v100; 
-  const hclAction **v105; 
-  unsigned int v106; 
-  const char *v107; 
-  const vec4_t *v108; 
+  float v43; 
+  const hclClothState **v44; 
+  unsigned int v45; 
+  const char *v46; 
+  float v47; 
+  __int64 v48; 
+  const char *v49; 
+  float v50; 
+  const hclStateTransition **v51; 
+  unsigned int v52; 
+  const char *v53; 
+  float v54; 
+  __int64 v55; 
+  const char *v56; 
+  float v57; 
+  const hclAction **v58; 
+  unsigned int v59; 
+  const char *v60; 
+  const vec4_t *v61; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-  }
-  _RSI = y;
-  _RDI = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1040, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1041, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1041, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1042, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1042, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1043, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -660,45 +516,21 @@ void HavokCloth_Debug_DrawClothDataDetails(const ScreenPlacement *scrPlace, floa
     __debugbreak();
   if ( !clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1045, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
     __debugbreak();
-  v13 = j_va("%i: %s", (unsigned int)clothDataIdx, (const char *)((unsigned __int64)clothData->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vaddss  xmm0, xmm7, dword ptr [rsi]
-    vmovss  xmm6, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm1, dword ptr [rdi]
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
+  v11 = j_va("%i: %s", (unsigned int)clothDataIdx, (const char *)((unsigned __int64)clothData->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v11, &colorWhite);
+  *y = *y + 8.0;
+  v12 = *x + 12.0;
+  *x = v12;
   m_size = (unsigned int)clothData->m_bufferDefinitions.m_size;
   if ( (int)m_size > 0 )
   {
-    v22 = j_va("%i BufferDefinitions", m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm0, dword ptr [rdi]
-    }
+    v14 = j_va("%i BufferDefinitions", m_size);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+    *y = *y + 8.0;
+    v12 = *x;
   }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
+  v15 = v12 + 12.0;
+  *x = v15;
   m_data = clothData->m_bufferDefinitions.m_data;
   bufferDefinitionIdx = 0;
   if ( m_data != &m_data[clothData->m_bufferDefinitions.m_size] )
@@ -707,353 +539,209 @@ void HavokCloth_Debug_DrawClothDataDetails(const ScreenPlacement *scrPlace, floa
     {
       if ( *m_data )
       {
-        HavokCloth_Debug_DrawBufferDefinitionDetails(scrPlace, _RDI, _RSI, asset, container, clothData, clothDataIdx, *m_data, bufferDefinitionIdx);
+        HavokCloth_Debug_DrawBufferDefinitionDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *m_data, bufferDefinitionIdx);
       }
       else
       {
-        v29 = j_va("%i Missing BufferDefinition", bufferDefinitionIdx);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v29, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
+        v18 = j_va("%i Missing BufferDefinition", bufferDefinitionIdx);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v18, &colorRed);
+        *y = *y + 8.0;
       }
       ++m_data;
       ++bufferDefinitionIdx;
     }
     while ( m_data != &clothData->m_bufferDefinitions.m_data[clothData->m_bufferDefinitions.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    v15 = *x;
   }
-  __asm
+  v19 = v15 - 12.0;
+  *x = v15 - 12.0;
+  v20 = (unsigned int)clothData->m_transformSetDefinitions.m_size;
+  if ( (int)v20 > 0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
+    v21 = j_va("%i TransformSetDefinitions", v20);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v21, &colorWhite);
+    *y = *y + 8.0;
+    v19 = *x;
   }
-  v34 = (unsigned int)clothData->m_transformSetDefinitions.m_size;
+  v22 = v19 + 12.0;
+  *x = v19 + 12.0;
+  v23 = clothData->m_transformSetDefinitions.m_data;
+  v24 = 0;
+  if ( v23 != &v23[clothData->m_transformSetDefinitions.m_size] )
+  {
+    do
+    {
+      if ( *v23 )
+      {
+        HavokCloth_Debug_DrawTransformSetDefinitionDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *v23, v24);
+      }
+      else
+      {
+        v25 = j_va("%i Missing TransformSetDefinition", v24);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v25, &colorRed);
+        *y = *y + 8.0;
+      }
+      ++v23;
+      ++v24;
+    }
+    while ( v23 != &clothData->m_transformSetDefinitions.m_data[clothData->m_transformSetDefinitions.m_size] );
+    v22 = *x;
+  }
+  v26 = v22 - 12.0;
+  *x = v22 - 12.0;
+  v27 = (unsigned int)clothData->m_operators.m_size;
+  if ( (int)v27 > 0 )
+  {
+    v28 = j_va("%i Operators", v27);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v28, &colorWhite);
+    *y = *y + 8.0;
+    v26 = *x;
+  }
+  v29 = v26 + 12.0;
+  *x = v26 + 12.0;
+  v30 = clothData->m_operators.m_data;
+  v31 = 0;
+  if ( v30 != &v30[clothData->m_operators.m_size] )
+  {
+    do
+    {
+      if ( *v30 )
+      {
+        HavokCloth_Debug_DrawOperatorDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *v30, v31);
+      }
+      else
+      {
+        v32 = j_va("%i Missing Operator", v31);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v32, &colorRed);
+        *y = *y + 8.0;
+      }
+      ++v30;
+      ++v31;
+    }
+    while ( v30 != &clothData->m_operators.m_data[clothData->m_operators.m_size] );
+    v29 = *x;
+  }
+  v33 = v29 - 12.0;
+  *x = v29 - 12.0;
+  v34 = (unsigned int)clothData->m_simClothDatas.m_size;
   if ( (int)v34 > 0 )
   {
-    v35 = j_va("%i TransformSetDefinitions", v34);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v35, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm1, dword ptr [rdi]
-    }
+    v35 = j_va("%i SimClothDatas", v34);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v35, &colorWhite);
+    *y = *y + 8.0;
+    v33 = *x;
   }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v40 = clothData->m_transformSetDefinitions.m_data;
-  v41 = 0;
-  if ( v40 != &v40[clothData->m_transformSetDefinitions.m_size] )
+  v36 = v33 + 12.0;
+  *x = v33 + 12.0;
+  v37 = clothData->m_simClothDatas.m_data;
+  v38 = 0;
+  if ( v37 != &v37[clothData->m_simClothDatas.m_size] )
   {
     do
     {
-      if ( *v40 )
+      if ( *v37 )
       {
-        HavokCloth_Debug_DrawTransformSetDefinitionDetails(scrPlace, _RDI, _RSI, asset, container, clothData, clothDataIdx, *v40, v41);
+        HavokCloth_Debug_DrawSimClothDataDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *v37, v38);
       }
       else
       {
-        v42 = j_va("%i Missing TransformSetDefinition", v41);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v42, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
+        v39 = j_va("%i Missing SimClothData", v38);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v39, &colorRed);
+        *y = *y + 8.0;
       }
-      ++v40;
-      ++v41;
+      ++v37;
+      ++v38;
     }
-    while ( v40 != &clothData->m_transformSetDefinitions.m_data[clothData->m_transformSetDefinitions.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    while ( v37 != &clothData->m_simClothDatas.m_data[clothData->m_simClothDatas.m_size] );
+    v36 = *x;
   }
-  __asm
+  v40 = v36 - 12.0;
+  *x = v36 - 12.0;
+  v41 = (unsigned int)clothData->m_clothStateDatas.m_size;
+  if ( (int)v41 > 0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
+    v42 = j_va("%i ClothStates", v41);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v42, &colorWhite);
+    *y = *y + 8.0;
+    v40 = *x;
   }
-  v47 = (unsigned int)clothData->m_operators.m_size;
-  if ( (int)v47 > 0 )
-  {
-    v48 = j_va("%i Operators", v47);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v48, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm1, dword ptr [rdi]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v53 = clothData->m_operators.m_data;
-  v54 = 0;
-  if ( v53 != &v53[clothData->m_operators.m_size] )
+  v43 = v40 + 12.0;
+  *x = v40 + 12.0;
+  v44 = clothData->m_clothStateDatas.m_data;
+  v45 = 0;
+  if ( v44 != &v44[clothData->m_clothStateDatas.m_size] )
   {
     do
     {
-      if ( *v53 )
+      if ( *v44 )
       {
-        HavokCloth_Debug_DrawOperatorDetails(scrPlace, _RDI, _RSI, asset, container, clothData, clothDataIdx, *v53, v54);
+        HavokCloth_Debug_DrawClothStateDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *v44, v45);
       }
       else
       {
-        v55 = j_va("%i Missing Operator", v54);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v55, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
+        v46 = j_va("%i Missing ClothState", v45);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v46, &colorRed);
+        *y = *y + 8.0;
       }
-      ++v53;
-      ++v54;
+      ++v44;
+      ++v45;
     }
-    while ( v53 != &clothData->m_operators.m_data[clothData->m_operators.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    while ( v44 != &clothData->m_clothStateDatas.m_data[clothData->m_clothStateDatas.m_size] );
+    v43 = *x;
   }
-  __asm
+  v47 = v43 - 12.0;
+  *x = v43 - 12.0;
+  v48 = (unsigned int)clothData->m_stateTransitions.m_size;
+  if ( (int)v48 > 0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
+    v49 = j_va("%i StateTransitions", v48);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v49, &colorWhite);
+    *y = *y + 8.0;
+    v47 = *x;
   }
-  v60 = (unsigned int)clothData->m_simClothDatas.m_size;
-  if ( (int)v60 > 0 )
-  {
-    v61 = j_va("%i SimClothDatas", v60);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v61, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm1, dword ptr [rdi]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v66 = clothData->m_simClothDatas.m_data;
-  v67 = 0;
-  if ( v66 != &v66[clothData->m_simClothDatas.m_size] )
+  v50 = v47 + 12.0;
+  *x = v47 + 12.0;
+  v51 = clothData->m_stateTransitions.m_data;
+  v52 = 0;
+  if ( v51 != &v51[clothData->m_stateTransitions.m_size] )
   {
     do
     {
-      if ( *v66 )
+      if ( *v51 )
       {
-        HavokCloth_Debug_DrawSimClothDataDetails(scrPlace, _RDI, _RSI, asset, container, clothData, clothDataIdx, *v66, v67);
+        HavokCloth_Debug_DrawStateTransitionDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *v51, v52);
       }
       else
       {
-        v68 = j_va("%i Missing SimClothData", v67);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v68, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
+        v53 = j_va("%i Missing StateTransition", v52);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v53, &colorRed);
+        *y = *y + 8.0;
       }
-      ++v66;
-      ++v67;
+      ++v51;
+      ++v52;
     }
-    while ( v66 != &clothData->m_simClothDatas.m_data[clothData->m_simClothDatas.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    while ( v51 != &clothData->m_stateTransitions.m_data[clothData->m_stateTransitions.m_size] );
+    v50 = *x;
   }
-  __asm
+  v54 = v50 - 12.0;
+  *x = v50 - 12.0;
+  v55 = (unsigned int)clothData->m_actions.m_size;
+  if ( (int)v55 > 0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
+    v56 = j_va("%i Actions", v55);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v56, &colorWhite);
+    *y = *y + 8.0;
+    v54 = *x;
   }
-  v73 = (unsigned int)clothData->m_clothStateDatas.m_size;
-  if ( (int)v73 > 0 )
+  v57 = v54 + 12.0;
+  *x = v54 + 12.0;
+  v58 = clothData->m_actions.m_data;
+  if ( v58 != &v58[clothData->m_actions.m_size] )
   {
-    v74 = j_va("%i ClothStates", v73);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v74, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm1, dword ptr [rdi]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v79 = clothData->m_clothStateDatas.m_data;
-  v80 = 0;
-  if ( v79 != &v79[clothData->m_clothStateDatas.m_size] )
-  {
+    v59 = 0;
     do
     {
-      if ( *v79 )
-      {
-        HavokCloth_Debug_DrawClothStateDetails(scrPlace, _RDI, _RSI, asset, container, clothData, clothDataIdx, *v79, v80);
-      }
-      else
-      {
-        v81 = j_va("%i Missing ClothState", v80);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v81, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
-      }
-      ++v79;
-      ++v80;
-    }
-    while ( v79 != &clothData->m_clothStateDatas.m_data[clothData->m_clothStateDatas.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
-  }
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
-  }
-  v86 = (unsigned int)clothData->m_stateTransitions.m_size;
-  if ( (int)v86 > 0 )
-  {
-    v87 = j_va("%i StateTransitions", v86);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v87, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm1, dword ptr [rdi]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v92 = clothData->m_stateTransitions.m_data;
-  v93 = 0;
-  if ( v92 != &v92[clothData->m_stateTransitions.m_size] )
-  {
-    do
-    {
-      if ( *v92 )
-      {
-        HavokCloth_Debug_DrawStateTransitionDetails(scrPlace, _RDI, _RSI, asset, container, clothData, clothDataIdx, *v92, v93);
-      }
-      else
-      {
-        v94 = j_va("%i Missing StateTransition", v93);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v94, &colorRed);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
-      }
-      ++v92;
-      ++v93;
-    }
-    while ( v92 != &clothData->m_stateTransitions.m_data[clothData->m_stateTransitions.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
-  }
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm1
-  }
-  v99 = (unsigned int)clothData->m_actions.m_size;
-  if ( (int)v99 > 0 )
-  {
-    v100 = j_va("%i Actions", v99);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v100, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm1, dword ptr [rdi]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v105 = clothData->m_actions.m_data;
-  if ( v105 != &v105[clothData->m_actions.m_size] )
-  {
-    v106 = 0;
-    do
-    {
-      if ( *v105 )
+      if ( *v58 )
       {
         if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1023, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
           __debugbreak();
@@ -1061,38 +749,23 @@ void HavokCloth_Debug_DrawClothDataDetails(const ScreenPlacement *scrPlace, floa
           __debugbreak();
         if ( !container && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1027, ASSERT_TYPE_ASSERT, "(container)", (const char *)&queryFormat, "container") )
           __debugbreak();
-        v107 = j_va("%i: %s", v106, "Unexpected data - we haven't implemented any actions");
-        v108 = &colorWhite;
+        v60 = j_va("%i: %s", v59, "Unexpected data - we haven't implemented any actions");
+        v61 = &colorWhite;
       }
       else
       {
-        v107 = j_va("%i Missing Action", v106);
-        v108 = &colorRed;
+        v60 = j_va("%i Missing Action", v59);
+        v61 = &colorRed;
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi]; y
-        vmovss  xmm1, dword ptr [rdi]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v107, v108);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm1
-      }
-      ++v105;
-      ++v106;
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v60, v61);
+      *y = *y + 8.0;
+      ++v58;
+      ++v59;
     }
-    while ( v105 != &clothData->m_actions.m_data[clothData->m_actions.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    while ( v58 != &clothData->m_actions.m_data[clothData->m_actions.m_size] );
+    v57 = *x;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@41c00000
-    vmovaps xmm6, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_48]
-    vmovss  dword ptr [rdi], xmm1
-  }
+  *x = v57 - 24.0;
 }
 
 /*
@@ -1103,65 +776,69 @@ HavokCloth_Debug_DrawClothStateDetails
 void HavokCloth_Debug_DrawClothStateDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const hclClothState *clothState, int clothStateIdx)
 {
   signed __int64 v9; 
-  void *v13; 
-  const ScreenPlacement *v17; 
-  const char *v18; 
+  void *v10; 
+  float *v12; 
+  float *v13; 
+  const ScreenPlacement *v14; 
+  const char *v15; 
+  float v16; 
   __int64 m_size; 
-  const hclClothState *v27; 
-  const char *v28; 
+  const hclClothState *v18; 
+  const char *v19; 
   int simClothIdIdx; 
+  float v21; 
   const unsigned int *m_data; 
-  __int64 v36; 
-  const char *v37; 
-  const unsigned int *v42; 
-  int v43; 
-  __int64 v45; 
-  const char *v46; 
-  hclClothState::TransformSetAccess *v51; 
-  unsigned int v52; 
-  __int64 v54; 
-  const char *v55; 
-  unsigned int v60; 
-  __int64 v61; 
-  unsigned int *v62; 
-  unsigned int v63; 
-  unsigned int v64; 
-  __int64 v65; 
-  unsigned int v66; 
-  unsigned int v67; 
-  unsigned int *v68; 
-  unsigned int v69; 
-  unsigned int v70; 
-  const char *v71; 
-  unsigned int v76; 
-  const char *v79; 
-  unsigned int v84; 
+  float v23; 
+  __int64 v24; 
+  const char *v25; 
+  float v26; 
+  const unsigned int *v27; 
+  int v28; 
+  float v29; 
+  __int64 v30; 
+  const char *v31; 
+  hclClothState::TransformSetAccess *v32; 
+  unsigned int v33; 
+  __int64 v34; 
+  const char *v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  unsigned int *v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  __int64 v41; 
+  unsigned int v42; 
+  unsigned int v43; 
+  unsigned int *v44; 
+  unsigned int v45; 
+  unsigned int v46; 
+  const char *v47; 
+  unsigned int v48; 
+  float v49; 
+  const char *v50; 
+  unsigned int v51; 
+  float v52; 
+  float v53; 
   hclClothData *clothDataa; 
   __int64 clothDataIdxa; 
-  unsigned int v94; 
+  unsigned int v56; 
   unsigned int numTags; 
-  int v96; 
-  ClothAssetBoneMapping *v98; 
-  hclClothState::TransformSetAccess *v100; 
-  hclTransformSetUsage::TransformTracker *v101; 
+  int v58; 
+  ClothAssetBoneMapping *v60; 
+  hclClothState::TransformSetAccess *v62; 
+  hclTransformSetUsage::TransformTracker *v63; 
   scr_string_t tagNames[4096]; 
-  scr_string_t v105[4096]; 
-  char v109; 
+  scr_string_t v67[4096]; 
 
-  v13 = alloca(v9);
-  __asm
-  {
-    vmovaps [rsp+8128h+var_48], xmm6
-    vmovaps [rsp+8128h+var_58], xmm7
-  }
-  _R15 = y;
-  _R13 = x;
-  v17 = scrPlace;
+  v10 = alloca(v9);
+  v12 = y;
+  v13 = x;
+  v14 = scrPlace;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 845, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 846, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 846, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 847, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 847, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 848, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -1171,322 +848,208 @@ void HavokCloth_Debug_DrawClothStateDetails(const ScreenPlacement *scrPlace, flo
     __debugbreak();
   if ( !clothState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 851, ASSERT_TYPE_ASSERT, "(clothState)", (const char *)&queryFormat, "clothState") )
     __debugbreak();
-  v18 = j_va("%i: %s", (unsigned int)clothStateIdx, (const char *)((unsigned __int64)clothState->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r15]; y
-    vmovss  xmm1, dword ptr [r13+0]; x
-  }
-  Cloth_Debug_DrawString(v17, *(float *)&_XMM1, *(float *)&_XMM2, v18, &colorWhite);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vaddss  xmm0, xmm7, dword ptr [r15]
-    vmovss  xmm6, cs:__real@41400000
-    vmovss  dword ptr [r15], xmm0
-    vmovss  xmm1, dword ptr [r13+0]
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [r13+0], xmm0
-  }
+  v15 = j_va("%i: %s", (unsigned int)clothStateIdx, (const char *)((unsigned __int64)clothState->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(v14, *v13, *v12, v15, &colorWhite);
+  *v12 = *v12 + 8.0;
+  v16 = *v13 + 12.0;
+  *v13 = v16;
   m_size = (unsigned int)clothState->m_usedSimCloths.m_size;
-  v27 = clothState;
+  v18 = clothState;
   if ( (int)m_size > 0 )
   {
-    v28 = j_va("%i UsedSimCloths", m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r15]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    Cloth_Debug_DrawString(v17, *(float *)&_XMM1, *(float *)&_XMM2, v28, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [r15]
-      vmovss  dword ptr [r15], xmm1
-      vmovss  xmm0, dword ptr [r13+0]
-    }
-    v27 = clothState;
+    v19 = j_va("%i UsedSimCloths", m_size);
+    Cloth_Debug_DrawString(v14, *v13, *v12, v19, &colorWhite);
+    *v12 = *v12 + 8.0;
+    v16 = *v13;
+    v18 = clothState;
   }
   simClothIdIdx = 0;
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [r13+0], xmm0
-  }
-  m_data = v27->m_usedSimCloths.m_data;
-  if ( m_data != &m_data[v27->m_usedSimCloths.m_size] )
+  v21 = v16 + 12.0;
+  *v13 = v21;
+  m_data = v18->m_usedSimCloths.m_data;
+  if ( m_data != &m_data[v18->m_usedSimCloths.m_size] )
   {
     do
     {
-      HavokCloth_Debug_DrawSimClothIdDetails(v17, _R13, _R15, asset, container, clothData, clothDataIdx, *m_data, simClothIdIdx);
-      v27 = clothState;
+      HavokCloth_Debug_DrawSimClothIdDetails(v14, v13, v12, asset, container, clothData, clothDataIdx, *m_data, simClothIdIdx);
+      v18 = clothState;
       ++m_data;
       ++simClothIdIdx;
     }
     while ( m_data != &clothState->m_usedSimCloths.m_data[clothState->m_usedSimCloths.m_size] );
-    __asm { vmovss  xmm0, dword ptr [r13+0] }
+    v21 = *v13;
   }
-  __asm
+  v23 = v21 - 12.0;
+  *v13 = v21 - 12.0;
+  v24 = (unsigned int)v18->m_operators.m_size;
+  if ( (int)v24 > 0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r13+0], xmm1
+    v25 = j_va("%i Operators", v24);
+    Cloth_Debug_DrawString(v14, *v13, *v12, v25, &colorWhite);
+    v18 = clothState;
+    *v12 = *v12 + 8.0;
+    v23 = *v13;
   }
-  v36 = (unsigned int)v27->m_operators.m_size;
-  if ( (int)v36 > 0 )
-  {
-    v37 = j_va("%i Operators", v36);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r15]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    Cloth_Debug_DrawString(v17, *(float *)&_XMM1, *(float *)&_XMM2, v37, &colorWhite);
-    __asm { vaddss  xmm1, xmm7, dword ptr [r15] }
-    v27 = clothState;
-    __asm
-    {
-      vmovss  dword ptr [r15], xmm1
-      vmovss  xmm1, dword ptr [r13+0]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [r13+0], xmm0
-  }
-  v42 = v27->m_operators.m_data;
-  v43 = 0;
-  if ( v42 != &v42[v27->m_operators.m_size] )
+  v26 = v23 + 12.0;
+  *v13 = v23 + 12.0;
+  v27 = v18->m_operators.m_data;
+  v28 = 0;
+  if ( v27 != &v27[v18->m_operators.m_size] )
   {
     do
     {
-      HavokCloth_Debug_DrawOperatorIdDetails(v17, _R13, _R15, asset, container, clothData, clothDataIdx, *v42, v43);
-      v27 = clothState;
-      ++v42;
-      ++v43;
+      HavokCloth_Debug_DrawOperatorIdDetails(v14, v13, v12, asset, container, clothData, clothDataIdx, *v27, v28);
+      v18 = clothState;
+      ++v27;
+      ++v28;
     }
-    while ( v42 != &clothState->m_operators.m_data[clothState->m_operators.m_size] );
-    __asm { vmovss  xmm0, dword ptr [r13+0] }
+    while ( v27 != &clothState->m_operators.m_data[clothState->m_operators.m_size] );
+    v26 = *v13;
   }
-  __asm
+  v29 = v26 - 12.0;
+  *v13 = v26 - 12.0;
+  v30 = (unsigned int)v18->m_usedTransformSets.m_size;
+  if ( (int)v30 > 0 )
   {
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r13+0], xmm1
+    v31 = j_va("%i Used Transform Sets", v30);
+    Cloth_Debug_DrawString(v14, *v13, *v12, v31, &colorWhite);
+    v18 = clothState;
+    *v12 = *v12 + 8.0;
+    v29 = *v13;
   }
-  v45 = (unsigned int)v27->m_usedTransformSets.m_size;
-  if ( (int)v45 > 0 )
+  *v13 = v29 + 12.0;
+  v32 = v18->m_usedTransformSets.m_data;
+  v33 = 0;
+  v58 = 0;
+  v62 = v32;
+  if ( v32 == &v32[v18->m_usedTransformSets.m_size] )
   {
-    v46 = j_va("%i Used Transform Sets", v45);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r15]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    Cloth_Debug_DrawString(v17, *(float *)&_XMM1, *(float *)&_XMM2, v46, &colorWhite);
-    __asm { vaddss  xmm1, xmm7, dword ptr [r15] }
-    v27 = clothState;
-    __asm
-    {
-      vmovss  dword ptr [r15], xmm1
-      vmovss  xmm1, dword ptr [r13+0]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [r13+0], xmm0
-  }
-  v51 = v27->m_usedTransformSets.m_data;
-  v52 = 0;
-  v96 = 0;
-  v100 = v51;
-  if ( v51 == &v51[v27->m_usedTransformSets.m_size] )
-  {
-    __asm { vsubss  xmm0, xmm0, cs:__real@41c00000 }
+    v53 = (float)(v29 + 12.0) - 24.0;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+8128h+var_68], xmm8
-      vmovss  xmm8, cs:__real@41c00000
-    }
-    v54 = clothDataIdx;
+    v34 = clothDataIdx;
     do
     {
-      v101 = v51->m_transformSetUsage.m_perComponentTransformTrackers.m_data;
-      v98 = &asset->boneMappingSets[v54].boneMappings[v51->m_transformSetIndex];
-      v55 = j_va("Used Transform Set %i", v52);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r15]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      Cloth_Debug_DrawString(v17, *(float *)&_XMM1, *(float *)&_XMM2, v55, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [r15]
-        vmovss  dword ptr [r15], xmm1
-        vaddss  xmm0, xmm6, dword ptr [r13+0]
-        vmovss  dword ptr [r13+0], xmm0
-      }
-      v60 = v101->m_read.m_storage.m_words.m_size;
-      LODWORD(v61) = 0;
-      v62 = v101->m_read.m_storage.m_words.m_data;
-      v63 = 0;
+      v63 = v32->m_transformSetUsage.m_perComponentTransformTrackers.m_data;
+      v60 = &asset->boneMappingSets[v34].boneMappings[v32->m_transformSetIndex];
+      v35 = j_va("Used Transform Set %i", v33);
+      Cloth_Debug_DrawString(v14, *v13, *v12, v35, &colorWhite);
+      *v12 = *v12 + 8.0;
+      *v13 = *v13 + 12.0;
+      v36 = v63->m_read.m_storage.m_words.m_size;
+      LODWORD(v37) = 0;
+      v38 = v63->m_read.m_storage.m_words.m_data;
+      v39 = 0;
       numTags = 0;
-      v94 = 0;
-      if ( v60 )
-        v63 = *v62;
-      while ( v63 )
+      v56 = 0;
+      if ( v36 )
+        v39 = *v38;
+      while ( v39 )
       {
 LABEL_41:
-        v64 = __lzcnt(v63);
-        if ( v64 >= 0x20 )
+        v40 = __lzcnt(v39);
+        if ( v40 >= 0x20 )
         {
           LODWORD(clothDataIdxa) = 32;
-          LODWORD(clothDataa) = v64;
+          LODWORD(clothDataa) = v40;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", clothDataa, clothDataIdxa) )
             __debugbreak();
         }
-        if ( (v63 & (0x80000000 >> v64)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+        if ( (v39 & (0x80000000 >> v40)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
           __debugbreak();
-        v63 &= ~(0x80000000 >> v64);
-        tagNames[numTags++] = v98->scrTagNames[((_DWORD)v61 << 6) - (v64 + 32 * (_DWORD)v61) + 31];
+        v39 &= ~(0x80000000 >> v40);
+        tagNames[numTags++] = v60->scrTagNames[((_DWORD)v37 << 6) - (v40 + 32 * (_DWORD)v37) + 31];
       }
       while ( 1 )
       {
-        v61 = (unsigned int)(v61 + 1);
-        if ( (unsigned int)v61 >= v60 )
+        v37 = (unsigned int)(v37 + 1);
+        if ( (unsigned int)v37 >= v36 )
           break;
-        v63 = v62[v61];
-        if ( v63 )
+        v39 = v38[v37];
+        if ( v39 )
           goto LABEL_41;
       }
-      LODWORD(v65) = 0;
-      v66 = 0;
-      v67 = v101->m_written.m_storage.m_words.m_size;
-      v68 = v101->m_written.m_storage.m_words.m_data;
-      if ( v67 )
-        v66 = *v68;
-      v69 = 0;
-      while ( v66 )
+      LODWORD(v41) = 0;
+      v42 = 0;
+      v43 = v63->m_written.m_storage.m_words.m_size;
+      v44 = v63->m_written.m_storage.m_words.m_data;
+      if ( v43 )
+        v42 = *v44;
+      v45 = 0;
+      while ( v42 )
       {
 LABEL_54:
-        v70 = __lzcnt(v66);
-        if ( v70 >= 0x20 )
+        v46 = __lzcnt(v42);
+        if ( v46 >= 0x20 )
         {
           LODWORD(clothDataIdxa) = 32;
-          LODWORD(clothDataa) = v70;
+          LODWORD(clothDataa) = v46;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", clothDataa, clothDataIdxa) )
             __debugbreak();
         }
-        if ( (v66 & (0x80000000 >> v70)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+        if ( (v42 & (0x80000000 >> v46)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
           __debugbreak();
-        v66 &= ~(0x80000000 >> v70);
-        v105[v94] = v98->scrTagNames[((_DWORD)v65 << 6) - (v70 + 32 * (_DWORD)v65) + 31];
-        v69 = ++v94;
+        v42 &= ~(0x80000000 >> v46);
+        v67[v56] = v60->scrTagNames[((_DWORD)v41 << 6) - (v46 + 32 * (_DWORD)v41) + 31];
+        v45 = ++v56;
       }
       while ( 1 )
       {
-        v65 = (unsigned int)(v65 + 1);
-        if ( (unsigned int)v65 >= v67 )
+        v41 = (unsigned int)(v41 + 1);
+        if ( (unsigned int)v41 >= v43 )
           break;
-        v66 = v68[v65];
-        if ( v66 )
+        v42 = v44[v41];
+        if ( v42 )
           goto LABEL_54;
       }
-      v71 = j_va("%i Read Bones", numTags);
-      _R15 = y;
-      _R13 = x;
-      v17 = scrPlace;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r15]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v71, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [r15]
-        vmovss  dword ptr [r15], xmm1
-        vmovss  xmm2, dword ptr [r13+0]
-      }
-      v76 = 0;
-      __asm
-      {
-        vaddss  xmm0, xmm2, xmm6
-        vmovss  dword ptr [r13+0], xmm0
-      }
+      v47 = j_va("%i Read Bones", numTags);
+      v12 = y;
+      v13 = x;
+      v14 = scrPlace;
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v47, &colorWhite);
+      *y = *y + 8.0;
+      v48 = 0;
+      v49 = *x + 12.0;
+      *x = v49;
       if ( numTags )
       {
         do
         {
-          HavokCloth_Debug_DrawTags(scrPlace, x, y, tagNames, numTags, v76);
-          v76 += 5;
+          HavokCloth_Debug_DrawTags(scrPlace, x, y, tagNames, numTags, v48);
+          v48 += 5;
         }
-        while ( v76 < numTags );
-        __asm { vmovss  xmm0, dword ptr [r13+0] }
+        while ( v48 < numTags );
+        v49 = *x;
       }
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [r13+0], xmm0
-      }
-      v79 = j_va("%i Written Bones", v69);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r15]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v79, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [r15]
-        vmovss  dword ptr [r15], xmm1
-        vmovss  xmm2, dword ptr [r13+0]
-      }
-      v84 = 0;
-      __asm
-      {
-        vaddss  xmm0, xmm2, xmm6
-        vmovss  dword ptr [r13+0], xmm0
-      }
-      if ( v69 )
+      *x = v49 - 12.0;
+      v50 = j_va("%i Written Bones", v45);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v50, &colorWhite);
+      *y = *y + 8.0;
+      v51 = 0;
+      v52 = *x + 12.0;
+      *x = v52;
+      if ( v45 )
       {
         do
         {
-          HavokCloth_Debug_DrawTags(scrPlace, x, y, v105, v69, v84);
-          v84 += 5;
+          HavokCloth_Debug_DrawTags(scrPlace, x, y, v67, v45, v51);
+          v51 += 5;
         }
-        while ( v84 < v69 );
-        __asm { vmovss  xmm0, dword ptr [r13+0] }
+        while ( v51 < v45 );
+        v52 = *x;
       }
-      v51 = v100 + 1;
-      v54 = clothDataIdx;
-      v52 = v96 + 1;
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [r13+0], xmm1
-      }
-      v100 = v51;
-      ++v96;
+      v32 = v62 + 1;
+      v34 = clothDataIdx;
+      v33 = v58 + 1;
+      *x = v52 - 24.0;
+      v62 = v32;
+      ++v58;
     }
-    while ( v51 != &clothState->m_usedTransformSets.m_data[clothState->m_usedTransformSets.m_size] );
-    __asm
-    {
-      vsubss  xmm0, xmm1, xmm8
-      vmovaps xmm8, [rsp+8128h+var_68]
-    }
+    while ( v32 != &clothState->m_usedTransformSets.m_data[clothState->m_usedTransformSets.m_size] );
+    v53 = (float)(v52 - 24.0) - 24.0;
   }
-  __asm { vmovss  dword ptr [r13+0], xmm0 }
-  _R11 = &v109;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  *v13 = v53;
 }
 
 /*
@@ -1496,263 +1059,159 @@ HavokCloth_Debug_DrawHavokClothInstanceDetails
 */
 void HavokCloth_Debug_DrawHavokClothInstanceDetails(const ScreenPlacement *scrPlace, float *x, float *y, const hclClothInstance *const clothInstance, const unsigned int clothInstanceIdx)
 {
-  const hclClothInstance *v11; 
-  const ScreenPlacement *v14; 
+  const hclClothInstance *v5; 
+  const ScreenPlacement *v8; 
   const hclClothData *m_clothData; 
   __int64 m_currentState; 
-  const hclClothState *v17; 
-  const char *v18; 
+  const hclClothState *v11; 
+  const char *v12; 
   __int64 m_stateTransitionIndex; 
-  hclStateTransition *v26; 
-  __int64 v27; 
-  __int64 v28; 
-  const hclClothState *v29; 
-  const hclClothState *v30; 
-  const char *v31; 
-  const hclClothState *v35; 
+  hclStateTransition *v14; 
+  __int64 v15; 
+  __int64 v16; 
+  const hclClothState *v17; 
+  const hclClothState *v18; 
+  const char *v19; 
+  const hclClothState *v20; 
   __int64 m_size; 
-  const char *v37; 
-  __int64 v45; 
-  __int64 v46; 
-  const hclSimClothData *v47; 
+  const char *v22; 
+  float v23; 
+  __int64 v24; 
+  __int64 v25; 
+  const hclSimClothData *v26; 
+  hclSimClothInstance *v27; 
   const hclSimClothData::OverridableSimulationInfo *SimulationInfo; 
-  const char *v50; 
-  const char *v75; 
-  char *fmt; 
-  __int64 v90; 
-  __int64 v91; 
-  unsigned int v92; 
-  unsigned int v93; 
-  const hclClothState *v96; 
-  __int64 v97; 
-  char v104; 
+  const char *v29; 
+  const char *v30; 
+  float v31; 
+  __int64 v32; 
+  __int64 v33; 
+  unsigned int v34; 
+  unsigned int v35; 
+  const hclClothState *v38; 
+  __int64 v39; 
 
-  v11 = clothInstance;
-  __asm { vmovaps [rsp+118h+var_78], xmm8 }
-  _R15 = y;
-  __asm { vmovaps [rsp+118h+var_88], xmm9 }
-  _RDI = x;
-  v14 = scrPlace;
+  v5 = clothInstance;
+  v8 = scrPlace;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1299, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1300, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1300, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1301, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1301, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1302, ASSERT_TYPE_ASSERT, "(clothInstance)", (const char *)&queryFormat, "clothInstance") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1302, ASSERT_TYPE_ASSERT, "(clothInstance)", (const char *)&queryFormat, "clothInstance") )
     __debugbreak();
-  m_clothData = v11->m_clothData;
+  m_clothData = v5->m_clothData;
   if ( !m_clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1306, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
     __debugbreak();
-  m_currentState = (int)v11->m_currentState;
+  m_currentState = (int)v5->m_currentState;
   if ( (unsigned int)m_currentState >= m_clothData->m_clothStateDatas.m_size )
   {
-    LODWORD(v90) = v11->m_currentState;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1310, ASSERT_TYPE_ASSERT, "(unsigned)( stateIdx ) < (unsigned)( clothData->m_clothStateDatas.getSize() )", "stateIdx doesn't index clothData->m_clothStateDatas.getSize()\n\t%i not in [0, %i)", v90, m_clothData->m_clothStateDatas.m_size) )
+    LODWORD(v32) = v5->m_currentState;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1310, ASSERT_TYPE_ASSERT, "(unsigned)( stateIdx ) < (unsigned)( clothData->m_clothStateDatas.getSize() )", "stateIdx doesn't index clothData->m_clothStateDatas.getSize()\n\t%i not in [0, %i)", v32, m_clothData->m_clothStateDatas.m_size) )
       __debugbreak();
   }
-  v17 = m_clothData->m_clothStateDatas.m_data[m_currentState];
-  v96 = v17;
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1312, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+  v11 = m_clothData->m_clothStateDatas.m_data[m_currentState];
+  v38 = v11;
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1312, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
-  v18 = j_va("%i: State %i %s", clothInstanceIdx, (unsigned int)m_currentState, (const char *)((unsigned __int64)v17->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r15]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(v14, *(float *)&_XMM1, *(float *)&_XMM2, v18, &colorWhite);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@41000000
-    vaddss  xmm0, xmm9, dword ptr [r15]
-    vmovss  xmm8, cs:__real@41400000
-    vmovss  dword ptr [r15], xmm0
-    vaddss  xmm0, xmm8, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-  }
-  m_stateTransitionIndex = (int)v11->m_stateTransitionIndex;
-  v92 = m_stateTransitionIndex;
+  v12 = j_va("%i: State %i %s", clothInstanceIdx, (unsigned int)m_currentState, (const char *)((unsigned __int64)v11->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(v8, *x, *y, v12, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  m_stateTransitionIndex = (int)v5->m_stateTransitionIndex;
+  v34 = m_stateTransitionIndex;
   if ( (_DWORD)m_stateTransitionIndex != 0x7FFFFFFF )
   {
-    v26 = (hclStateTransition *)m_clothData->m_stateTransitions.m_data[m_stateTransitionIndex];
-    if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1327, ASSERT_TYPE_ASSERT, "(stateTransition)", (const char *)&queryFormat, "stateTransition") )
+    v14 = (hclStateTransition *)m_clothData->m_stateTransitions.m_data[m_stateTransitionIndex];
+    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1327, ASSERT_TYPE_ASSERT, "(stateTransition)", (const char *)&queryFormat, "stateTransition") )
       __debugbreak();
-    v27 = (int)hclStateTransition::getFromState(v26);
-    v28 = (int)hclStateTransition::getToState(v26);
-    if ( (unsigned int)v27 >= m_clothData->m_clothStateDatas.m_size )
+    v15 = (int)hclStateTransition::getFromState(v14);
+    v16 = (int)hclStateTransition::getToState(v14);
+    if ( (unsigned int)v15 >= m_clothData->m_clothStateDatas.m_size )
     {
-      LODWORD(v91) = m_clothData->m_clothStateDatas.m_size;
-      LODWORD(v90) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1332, ASSERT_TYPE_ASSERT, "(unsigned)( startStateIdx ) < (unsigned)( clothData->m_clothStateDatas.getSize() )", "startStateIdx doesn't index clothData->m_clothStateDatas.getSize()\n\t%i not in [0, %i)", v90, v91) )
+      LODWORD(v33) = m_clothData->m_clothStateDatas.m_size;
+      LODWORD(v32) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1332, ASSERT_TYPE_ASSERT, "(unsigned)( startStateIdx ) < (unsigned)( clothData->m_clothStateDatas.getSize() )", "startStateIdx doesn't index clothData->m_clothStateDatas.getSize()\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
     }
-    if ( (unsigned int)v28 >= m_clothData->m_clothStateDatas.m_size )
+    if ( (unsigned int)v16 >= m_clothData->m_clothStateDatas.m_size )
     {
-      LODWORD(v91) = m_clothData->m_clothStateDatas.m_size;
-      LODWORD(v90) = v28;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1333, ASSERT_TYPE_ASSERT, "(unsigned)( endStateIdx ) < (unsigned)( clothData->m_clothStateDatas.getSize() )", "endStateIdx doesn't index clothData->m_clothStateDatas.getSize()\n\t%i not in [0, %i)", v90, v91) )
+      LODWORD(v33) = m_clothData->m_clothStateDatas.m_size;
+      LODWORD(v32) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1333, ASSERT_TYPE_ASSERT, "(unsigned)( endStateIdx ) < (unsigned)( clothData->m_clothStateDatas.getSize() )", "endStateIdx doesn't index clothData->m_clothStateDatas.getSize()\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
     }
-    v29 = m_clothData->m_clothStateDatas.m_data[v27];
-    if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1337, ASSERT_TYPE_ASSERT, "(startState)", (const char *)&queryFormat, "startState") )
+    v17 = m_clothData->m_clothStateDatas.m_data[v15];
+    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1337, ASSERT_TYPE_ASSERT, "(startState)", (const char *)&queryFormat, "startState") )
       __debugbreak();
-    v30 = m_clothData->m_clothStateDatas.m_data[v28];
-    if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1339, ASSERT_TYPE_ASSERT, "(endState)", (const char *)&queryFormat, "endState") )
+    v18 = m_clothData->m_clothStateDatas.m_data[v16];
+    if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1339, ASSERT_TYPE_ASSERT, "(endState)", (const char *)&queryFormat, "endState") )
       __debugbreak();
-    LODWORD(v90) = v28;
-    v31 = j_va("Transitioning with transition %i %s from state %i %s to %i %s", v92, (const char *)((unsigned __int64)v26->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64), (unsigned int)v27, (const char *)((unsigned __int64)v29->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64), v90, (const char *)((unsigned __int64)v30->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-    v14 = scrPlace;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r15]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v31, &colorWhite);
-    __asm { vaddss  xmm1, xmm9, dword ptr [r15] }
-    v11 = clothInstance;
-    __asm { vmovss  dword ptr [r15], xmm1 }
+    LODWORD(v32) = v16;
+    v19 = j_va("Transitioning with transition %i %s from state %i %s to %i %s", v34, (const char *)((unsigned __int64)v14->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64), (unsigned int)v15, (const char *)((unsigned __int64)v17->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64), v32, (const char *)((unsigned __int64)v18->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+    v8 = scrPlace;
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v19, &colorWhite);
+    v5 = clothInstance;
+    *y = *y + 8.0;
   }
-  v35 = v96;
-  m_size = v96->m_usedSimCloths.m_size;
+  v20 = v38;
+  m_size = v38->m_usedSimCloths.m_size;
   if ( (int)m_size <= 0 )
   {
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    v31 = *x;
   }
   else
   {
-    v37 = j_va("%i Used Sim Cloths", (unsigned int)m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r15]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(v14, *(float *)&_XMM1, *(float *)&_XMM2, v37, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm9, dword ptr [r15]
-      vmovss  dword ptr [r15], xmm1
-      vmovss  xmm2, dword ptr [rdi]
-    }
-    v97 = m_size;
-    v93 = 0;
-    __asm
-    {
-      vaddss  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rdi], xmm0
-    }
+    v22 = j_va("%i Used Sim Cloths", (unsigned int)m_size);
+    Cloth_Debug_DrawString(v8, *x, *y, v22, &colorWhite);
+    *y = *y + 8.0;
+    v39 = m_size;
+    v35 = 0;
+    v23 = *x + 12.0;
+    *x = v23;
     if ( (int)m_size > 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+118h+var_98], xmm10
-        vmovss  xmm10, cs:__real@42000000
-        vmovaps [rsp+118h+var_A8], xmm11
-        vmovss  xmm11, cs:__real@44800000
-        vmovaps [rsp+118h+var_58], xmm6
-      }
-      v45 = 0i64;
-      __asm { vmovaps [rsp+118h+var_68], xmm7 }
+      v24 = 0i64;
       do
       {
-        v46 = (int)v35->m_usedSimCloths.m_data[v45];
-        if ( (unsigned int)v46 >= m_clothData->m_simClothDatas.m_size )
+        v25 = (int)v20->m_usedSimCloths.m_data[v24];
+        if ( (unsigned int)v25 >= m_clothData->m_simClothDatas.m_size )
         {
-          LODWORD(v91) = m_clothData->m_simClothDatas.m_size;
-          LODWORD(v90) = v46;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1359, ASSERT_TYPE_ASSERT, "(unsigned)( simClothIdx ) < (unsigned)( clothData->m_simClothDatas.getSize() )", "simClothIdx doesn't index clothData->m_simClothDatas.getSize()\n\t%i not in [0, %i)", v90, v91) )
+          LODWORD(v33) = m_clothData->m_simClothDatas.m_size;
+          LODWORD(v32) = v25;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1359, ASSERT_TYPE_ASSERT, "(unsigned)( simClothIdx ) < (unsigned)( clothData->m_simClothDatas.getSize() )", "simClothIdx doesn't index clothData->m_simClothDatas.getSize()\n\t%i not in [0, %i)", v32, v33) )
             __debugbreak();
         }
-        v47 = m_clothData->m_simClothDatas.m_data[v46];
-        if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1363, ASSERT_TYPE_ASSERT, "(simClothData)", (const char *)&queryFormat, "simClothData") )
+        v26 = m_clothData->m_simClothDatas.m_data[v25];
+        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1363, ASSERT_TYPE_ASSERT, "(simClothData)", (const char *)&queryFormat, "simClothData") )
           __debugbreak();
-        _R12 = v11->m_simClothInstances.m_data[v46];
-        if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1367, ASSERT_TYPE_ASSERT, "(simClothInstance)", (const char *)&queryFormat, "simClothInstance") )
+        v27 = v5->m_simClothInstances.m_data[v25];
+        if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1367, ASSERT_TYPE_ASSERT, "(simClothInstance)", (const char *)&queryFormat, "simClothInstance") )
           __debugbreak();
-        SimulationInfo = hclSimClothInstance::getSimulationInfo(_R12);
-        v50 = j_va("%i: Simcloth %i %s", v93, (unsigned int)v46, (const char *)((unsigned __int64)v47->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r15]; y
-          vmovss  xmm1, dword ptr [rdi]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v50, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vaddss  xmm0, xmm8, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm0
-        }
+        SimulationInfo = hclSimClothInstance::getSimulationInfo(v27);
+        v29 = j_va("%i: Simcloth %i %s", v35, (unsigned int)v25, (const char *)((unsigned __int64)v26->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v29, &colorWhite);
+        *y = *y + 8.0;
+        *x = *x + 12.0;
         if ( SimulationInfo->m_computeVelocity.m_bool )
         {
-          __asm
-          {
-            vmovss  xmm7, dword ptr [r12+240h]
-            vmovss  xmm6, dword ptr [r12+244h]
-            vmovss  xmm5, dword ptr [r12+248h]
-            vmulss  xmm1, xmm6, xmm6
-            vmulss  xmm0, xmm7, xmm7
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm2, xmm2, xmm1
-            vmulss  xmm0, xmm2, xmm11
-            vsqrtss xmm3, xmm0, xmm0
-            vmulss  xmm1, xmm5, xmm10
-            vcvtss2sd xmm4, xmm3, xmm3
-            vcvtss2sd xmm3, xmm1, xmm1
-            vmulss  xmm1, xmm7, xmm10
-            vmulss  xmm0, xmm6, xmm10
-            vcvtss2sd xmm1, xmm1, xmm1
-            vcvtss2sd xmm2, xmm0, xmm0
-            vmovq   rdx, xmm1
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+118h+fmt], xmm4
-          }
-          v75 = j_va("Computed average velocity of (%.2f, %.2f, %.2f) and speed of %.2f", _RDX, _R8, _R9, fmt);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r15]; y
-            vmovss  xmm1, dword ptr [rdi]; x
-          }
-          Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v75, &colorWhite);
-          __asm
-          {
-            vaddss  xmm1, xmm9, dword ptr [r15]
-            vmovss  dword ptr [r15], xmm1
-          }
+          v30 = j_va("Computed average velocity of (%.2f, %.2f, %.2f) and speed of %.2f", (float)(v27->m_averageParticleVelocity.m_quad.m128_f32[0] * 32.0), (float)(v27->m_averageParticleVelocity.m_quad.m128_f32[1] * 32.0), (float)(v27->m_averageParticleVelocity.m_quad.m128_f32[2] * 32.0), fsqrt((float)((float)((float)(v27->m_averageParticleVelocity.m_quad.m128_f32[1] * v27->m_averageParticleVelocity.m_quad.m128_f32[1]) + (float)(v27->m_averageParticleVelocity.m_quad.m128_f32[0] * v27->m_averageParticleVelocity.m_quad.m128_f32[0])) + (float)(v27->m_averageParticleVelocity.m_quad.m128_f32[2] * v27->m_averageParticleVelocity.m_quad.m128_f32[2])) * 1024.0));
+          Cloth_Debug_DrawString(scrPlace, *x, *y, v30, &colorWhite);
+          *y = *y + 8.0;
         }
-        __asm { vmovss  xmm0, dword ptr [rdi] }
-        v11 = clothInstance;
-        v35 = v96;
-        ++v45;
-        __asm
-        {
-          vsubss  xmm0, xmm0, xmm8
-          vmovss  dword ptr [rdi], xmm0
-        }
-        ++v93;
+        v5 = clothInstance;
+        v20 = v38;
+        ++v24;
+        v23 = *x - 12.0;
+        *x = v23;
+        ++v35;
       }
-      while ( v45 < v97 );
-      __asm
-      {
-        vmovaps xmm11, [rsp+118h+var_A8]
-        vmovaps xmm10, [rsp+118h+var_98]
-        vmovaps xmm7, [rsp+118h+var_68]
-        vmovaps xmm6, [rsp+118h+var_58]
-      }
+      while ( v24 < v39 );
     }
-    __asm { vsubss  xmm0, xmm0, xmm8 }
+    v31 = v23 - 12.0;
   }
-  __asm { vsubss  xmm1, xmm0, xmm8 }
-  _R11 = &v104;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovss  dword ptr [rdi], xmm1
-  }
+  *x = v31 - 12.0;
 }
 
 /*
@@ -1763,217 +1222,121 @@ HavokCloth_Debug_DrawInstanceDetails
 void HavokCloth_Debug_DrawInstanceDetails(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int instanceId)
 {
   signed __int64 v4; 
-  void *v8; 
-  const ClothAsset *v13; 
+  void *v5; 
+  const ClothAsset *v10; 
   unsigned int InstanceRuntimeMemoryRequirements; 
-  const char *v16; 
+  const char *v12; 
   HavokCloth_Update_StateId TargetStateId; 
-  const char *v21; 
+  const char *v14; 
   unsigned int NumClothInstances; 
-  unsigned int v26; 
-  const char *v28; 
+  unsigned int v16; 
+  const char *v17; 
   unsigned int activeCollidableDataIdx; 
-  unsigned int v33; 
+  unsigned int v19; 
   const hclClothInstance *ClothInstance; 
-  unsigned int v36; 
-  const char *v37; 
-  const char *v46; 
-  const char *v52; 
+  unsigned int v21; 
+  const char *v22; 
+  const char *v23; 
+  double BlendedSpeed; 
+  const char *v25; 
   unsigned int numCollidables; 
   float speed[2]; 
   HavokCloth_ActiveCollidableData outputBuffer[256]; 
 
-  v8 = alloca(v4);
-  __asm
-  {
-    vmovaps [rsp+18C8h+var_58], xmm6
-    vmovaps [rsp+18C8h+var_68], xmm7
-  }
-  _RBX = y;
-  _RSI = x;
+  v5 = alloca(v4);
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1404, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1405, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1405, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1406, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1406, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1407, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
     __debugbreak();
   *(_QWORD *)speed = HavokCloth_GetClothAsset(0, instanceId);
-  v13 = *(const ClothAsset **)speed;
+  v10 = *(const ClothAsset **)speed;
   if ( !*(_QWORD *)speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1411, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
     __debugbreak();
   InstanceRuntimeMemoryRequirements = HavokCloth_GetInstanceRuntimeMemoryRequirements(0, instanceId);
-  __asm { vmovss  xmm6, cs:__real@41000000 }
   if ( InstanceRuntimeMemoryRequirements )
   {
-    v16 = j_va("Runtime Memory Requirements: %i bytes", InstanceRuntimeMemoryRequirements);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v16, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
+    v12 = j_va("Runtime Memory Requirements: %i bytes", InstanceRuntimeMemoryRequirements);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v12, &colorWhite);
+    *y = *y + 8.0;
   }
   TargetStateId = HavokCloth_Update_GetTargetStateId(0, instanceId);
   if ( TargetStateId )
   {
     if ( TargetStateId == HAVOK_CLOTH_UPDATE_STATEID_ANIMATED )
-      v21 = j_va("Too far away for simulation - targeting Animated state");
+      v14 = j_va("Too far away for simulation - targeting Animated state");
     else
-      v21 = j_va("Targeting Simulation LOD %i", (unsigned int)(TargetStateId - 2));
+      v14 = j_va("Targeting Simulation LOD %i", (unsigned int)(TargetStateId - 2));
   }
   else
   {
-    v21 = j_va("Not updated last frame - Forcing Animated state until next update");
+    v14 = j_va("Not updated last frame - Forcing Animated state until next update");
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v21, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
   NumClothInstances = HavokCloth_GetNumClothInstances(0, instanceId);
-  v26 = NumClothInstances;
-  __asm { vmovss  xmm7, cs:__real@41400000 }
+  v16 = NumClothInstances;
   if ( NumClothInstances )
   {
-    v28 = j_va("%i Havok Cloth Instances", NumClothInstances);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v28, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm0, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm0
-    }
+    v17 = j_va("%i Havok Cloth Instances", NumClothInstances);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v17, &colorWhite);
+    *y = *y + 8.0;
+    *x = *x + 12.0;
   }
   activeCollidableDataIdx = 0;
-  v33 = 0;
-  if ( v26 )
+  v19 = 0;
+  if ( v16 )
   {
     do
     {
-      ClothInstance = HavokCloth_GetClothInstance(0, instanceId, v33);
+      ClothInstance = HavokCloth_GetClothInstance(0, instanceId, v19);
       if ( !ClothInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1460, ASSERT_TYPE_ASSERT, "(clothInstance)", (const char *)&queryFormat, "clothInstance") )
         __debugbreak();
-      HavokCloth_Debug_DrawHavokClothInstanceDetails(scrPlace, _RSI, _RBX, ClothInstance, v33++);
+      HavokCloth_Debug_DrawHavokClothInstanceDetails(scrPlace, x, y, ClothInstance, v19++);
     }
-    while ( v33 < v26 );
-    v13 = *(const ClothAsset **)speed;
+    while ( v19 < v16 );
+    v10 = *(const ClothAsset **)speed;
     activeCollidableDataIdx = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rsi], xmm1
-    }
+    *x = *x - 12.0;
   }
   numCollidables = 0;
   HavokCloth_GetActiveCollidables(0, instanceId, outputBuffer, 0x100u, &numCollidables, 1);
-  v36 = numCollidables;
+  v21 = numCollidables;
   if ( numCollidables )
   {
-    v37 = j_va("%i Active Collidables", numCollidables);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v37, &colorWhite);
-    __asm { vaddss  xmm1, xmm6, dword ptr [rbx] }
-    v36 = numCollidables;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm0, xmm7, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm0
-    }
+    v22 = j_va("%i Active Collidables", numCollidables);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v22, &colorWhite);
+    v21 = numCollidables;
+    *y = *y + 8.0;
+    *x = *x + 12.0;
   }
-  if ( v36 )
+  if ( v21 )
   {
     do
     {
-      HavokCloth_Debug_DrawActiveCollidableDetails(scrPlace, _RSI, _RBX, instanceId, v13, &outputBuffer[activeCollidableDataIdx], activeCollidableDataIdx);
+      HavokCloth_Debug_DrawActiveCollidableDetails(scrPlace, x, y, instanceId, v10, &outputBuffer[activeCollidableDataIdx], activeCollidableDataIdx);
       ++activeCollidableDataIdx;
     }
     while ( activeCollidableDataIdx < numCollidables );
     if ( numCollidables )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vsubss  xmm1, xmm0, xmm7
-        vmovss  dword ptr [rsi], xmm1
-      }
-    }
+      *x = *x - 12.0;
   }
   if ( HavokCloth_Update_GetNeedsSoundUpdate(0, instanceId) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+18C8h+speed], xmm0
-    }
+    speed[0] = 0.0;
     if ( HavokCloth_GetSimulatedSpeed(0, instanceId, speed) )
     {
-      __asm
-      {
-        vmovss  xmm1, [rsp+18C8h+speed]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v46 = j_va("Simulated Speed: %.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [rsi]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v46, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      v23 = j_va("Simulated Speed: %.2f", speed[0]);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v23, &colorWhite);
+      *y = *y + 8.0;
     }
-    *(double *)&_XMM0 = HavokCloth_GetBlendedSpeed(0, instanceId);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v52 = j_va("Blended Speed:   %.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v52, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+18C8h+var_58]
-    vmovaps xmm7, [rsp+18C8h+var_68]
+    BlendedSpeed = HavokCloth_GetBlendedSpeed(0, instanceId);
+    v25 = j_va("Blended Speed:   %.2f", *(float *)&BlendedSpeed);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v25, &colorWhite);
+    *y = *y + 8.0;
   }
 }
 
@@ -1984,122 +1347,74 @@ HavokCloth_Debug_DrawInstanceVectorField
 */
 void HavokCloth_Debug_DrawInstanceVectorField(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int instanceId)
 {
-  __int64 v9; 
+  __int64 v4; 
   const ClothAsset *ClothAsset; 
-  const char *v50; 
-  const char *v60; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  const char *v21; 
+  const char *v22; 
   vec3_t center; 
   vec3_t end; 
-  vec3_t v69; 
+  vec3_t v25; 
   vec3_t xyz; 
-  char v71; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  v9 = instanceId;
+  v4 = instanceId;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1515, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
   if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1516, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
   if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1517, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  if ( (_DWORD)v9 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1518, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
+  if ( (_DWORD)v4 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1518, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
     __debugbreak();
-  ClothAsset = HavokCloth_GetClothAsset(0, v9);
+  ClothAsset = HavokCloth_GetClothAsset(0, v4);
   if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1522, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
     __debugbreak();
   if ( !ClothAsset->vectorFieldSupport && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1523, ASSERT_TYPE_ASSERT, "(clothAsset->vectorFieldSupport)", (const char *)&queryFormat, "clothAsset->vectorFieldSupport") )
     __debugbreak();
-  __asm { vmovss  xmm3, cs:__real@3c23d70a }
-  _RBX = 9 * v9;
-  _RDI = s_HavokCloth_Debug_VectorFieldData;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+rbx*4]
-    vmovss  xmm5, dword ptr [rdi+rbx*4+4]
-    vmovss  xmm6, dword ptr [rdi+rbx*4+8]
-    vmulss  xmm0, xmm3, dword ptr [rdi+rbx*4+0Ch]
-    vaddss  xmm1, xmm0, xmm4
-    vmulss  xmm0, xmm3, dword ptr [rdi+rbx*4+10h]
-    vmovss  dword ptr [rsp+0C8h+end], xmm1
-    vaddss  xmm1, xmm0, xmm5
-    vmulss  xmm0, xmm3, dword ptr [rdi+rbx*4+14h]
-    vmovss  dword ptr [rsp+0C8h+end+4], xmm1
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rsp+0C8h+end+8], xmm1
-    vmulss  xmm1, xmm3, dword ptr [rdi+rbx*4+18h]
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm3, dword ptr [rdi+rbx*4+1Ch]
-    vmovss  dword ptr [rsp+0C8h+var_78], xmm2
-    vaddss  xmm2, xmm1, xmm5
-    vmulss  xmm1, xmm3, dword ptr [rdi+rbx*4+20h]
-    vmovss  dword ptr [rsp+0C8h+var_78+4], xmm2
-    vaddss  xmm2, xmm1, xmm6
-    vmovss  xmm1, cs:__real@3f800000; radius
-    vmovss  dword ptr [rsp+0C8h+var_78+8], xmm2
-    vmovss  dword ptr [rsp+0C8h+center], xmm4
-    vmovss  dword ptr [rsp+0C8h+center+4], xmm5
-    vmovss  dword ptr [rsp+0C8h+center+8], xmm6
-  }
-  CG_DebugSphere(&center, *(float *)&_XMM1, &colorYellow, 0, 0);
+  v8 = s_HavokCloth_Debug_VectorFieldData[0][v4].position.v[0];
+  v9 = s_HavokCloth_Debug_VectorFieldData[0][v4].position.v[1];
+  v10 = s_HavokCloth_Debug_VectorFieldData[0][v4].position.v[2];
+  v11 = 0.0099999998 * s_HavokCloth_Debug_VectorFieldData[0][v4].velocity.v[1];
+  end.v[0] = (float)(0.0099999998 * s_HavokCloth_Debug_VectorFieldData[0][v4].velocity.v[0]) + v8;
+  v12 = 0.0099999998 * s_HavokCloth_Debug_VectorFieldData[0][v4].velocity.v[2];
+  end.v[1] = v11 + v9;
+  end.v[2] = v12 + v10;
+  v13 = 0.0099999998 * s_HavokCloth_Debug_VectorFieldData[0][v4].force.v[1];
+  v25.v[0] = (float)(0.0099999998 * s_HavokCloth_Debug_VectorFieldData[0][v4].force.v[0]) + v8;
+  v14 = 0.0099999998 * s_HavokCloth_Debug_VectorFieldData[0][v4].force.v[2];
+  v25.v[1] = v13 + v9;
+  v25.v[2] = v14 + v10;
+  center.v[0] = v8;
+  center.v[1] = v9;
+  center.v[2] = v10;
+  CG_DebugSphere(&center, 1.0, &colorYellow, 0, 0);
   CL_AddDebugLine(&center, &end, &colorYellow, 0, 0, 0);
-  CL_AddDebugLine(&center, &v69, &colorBlue, 0, 0, 0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+center]
-    vmovss  xmm1, dword ptr [rsp+0C8h+center+4]
-    vmovss  xmm4, dword ptr [rdi+rbx*4+10h]
-    vmovss  xmm3, dword ptr [rdi+rbx*4+0Ch]
-    vmovss  xmm5, dword ptr [rdi+rbx*4+14h]
-    vmovss  xmm7, dword ptr [rdi+rbx*4+1Ch]
-    vmovss  xmm8, dword ptr [rdi+rbx*4+18h]
-    vmovss  xmm9, dword ptr [rdi+rbx*4+20h]
-    vmovss  dword ptr [rsp+0C8h+xyz], xmm0
-    vmovss  xmm0, dword ptr [rsp+0C8h+center+8]
-    vsubss  xmm2, xmm0, cs:__real@40c00000
-    vmovss  dword ptr [rsp+0C8h+xyz+4], xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vmovss  dword ptr [rsp+0C8h+xyz+8], xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovq   rdx, xmm1
-  }
-  v50 = j_va("Velocity: %.2f", _RDX);
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  CL_AddDebugString(&center, &colorYellow, *(float *)&_XMM2, v50, 0, 0);
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm3, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm3, xmm3, xmm1
-    vsqrtss xmm0, xmm3, xmm3
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovq   rdx, xmm1
-  }
-  v60 = j_va("Force: %.2f", _RDX);
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  CL_AddDebugString(&xyz, &colorBlue, *(float *)&_XMM2, v60, 0, 0);
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  CL_AddDebugLine(&center, &v25, &colorBlue, 0, 0, 0);
+  v15 = s_HavokCloth_Debug_VectorFieldData[0][v4].velocity.v[1];
+  v16 = s_HavokCloth_Debug_VectorFieldData[0][v4].velocity.v[0];
+  v17 = s_HavokCloth_Debug_VectorFieldData[0][v4].velocity.v[2];
+  v18 = s_HavokCloth_Debug_VectorFieldData[0][v4].force.v[1];
+  v19 = s_HavokCloth_Debug_VectorFieldData[0][v4].force.v[0];
+  v20 = s_HavokCloth_Debug_VectorFieldData[0][v4].force.v[2];
+  xyz.v[0] = center.v[0];
+  xyz.v[1] = center.v[1];
+  xyz.v[2] = center.v[2] - 6.0;
+  v21 = j_va("Velocity: %.2f", fsqrt((float)((float)(v16 * v16) + (float)(v15 * v15)) + (float)(v17 * v17)));
+  CL_AddDebugString(&center, &colorYellow, 0.5, v21, 0, 0);
+  v22 = j_va("Force: %.2f", fsqrt((float)((float)(v18 * v18) + (float)(v19 * v19)) + (float)(v20 * v20)));
+  CL_AddDebugString(&xyz, &colorBlue, 0.5, v22, 0, 0);
 }
 
 /*
@@ -2109,34 +1424,30 @@ HavokCloth_Debug_DrawOperatorDetails
 */
 void HavokCloth_Debug_DrawOperatorDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const hclOperator *op, int opIdx)
 {
-  const char *v15; 
-  const char *v22; 
+  const char *v13; 
+  const char *v14; 
   __int64 m_size; 
-  const char *v27; 
+  const char *v16; 
+  float v17; 
   hclClothState::BufferAccess *m_data; 
-  unsigned int v34; 
+  unsigned int v19; 
   __int64 m_bufferIndex; 
-  const char *v36; 
-  __int64 v41; 
-  const char *v42; 
-  hclClothState::TransformSetAccess *v47; 
-  unsigned int v48; 
-  const char *v49; 
+  const char *v21; 
+  float v22; 
+  __int64 v23; 
+  const char *v24; 
+  hclClothState::TransformSetAccess *v25; 
+  unsigned int v26; 
+  const char *v27; 
+  float v28; 
   char *fmt; 
-  const char *v58; 
+  const char *v30; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps [rsp+78h+var_48], xmm7
-  }
-  _RBP = y;
-  _RBX = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 728, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 729, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 729, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 730, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 730, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 731, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -2146,58 +1457,24 @@ void HavokCloth_Debug_DrawOperatorDetails(const ScreenPlacement *scrPlace, float
     __debugbreak();
   if ( !op && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 734, ASSERT_TYPE_ASSERT, "(op)", (const char *)&queryFormat, "op") )
     __debugbreak();
-  v15 = j_va("%i: %s", (unsigned int)opIdx, (const char *)((unsigned __int64)op->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rbx]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v15, &colorWhite);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vaddss  xmm0, xmm7, dword ptr [rbp+0]
-    vmovss  xmm6, cs:__real@41400000
-    vmovss  dword ptr [rbp+0], xmm0
-    vaddss  xmm0, xmm6, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-  }
-  v22 = j_va("ID: %i - Type: %s", op->m_operatorID, s_HavokCloth_OperatorTypeNames[op->m_type.m_storage]);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rbx]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbp+0]
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+  v13 = j_va("%i: %s", (unsigned int)opIdx, (const char *)((unsigned __int64)op->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  v14 = j_va("ID: %i - Type: %s", op->m_operatorID, s_HavokCloth_OperatorTypeNames[op->m_type.m_storage]);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
   m_size = (unsigned int)op->m_usedBuffers.m_size;
   if ( (int)m_size > 0 )
   {
-    v27 = j_va("%i UsedBuffers", m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [rbx]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v27, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-    }
+    v16 = j_va("%i UsedBuffers", m_size);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+    *y = *y + 8.0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm1
-  }
+  v17 = *x + 12.0;
+  *x = v17;
   m_data = op->m_usedBuffers.m_data;
-  v34 = 0;
+  v19 = 0;
   if ( m_data != &m_data[op->m_usedBuffers.m_size] )
   {
     do
@@ -2211,61 +1488,36 @@ void HavokCloth_Debug_DrawOperatorDetails(const ScreenPlacement *scrPlace, float
       if ( !clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 521, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
         __debugbreak();
       m_bufferIndex = (int)m_data->m_bufferIndex;
-      v58 = (const char *)((unsigned __int64)clothData->m_bufferDefinitions.m_data[m_bufferIndex]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64);
+      v30 = (const char *)((unsigned __int64)clothData->m_bufferDefinitions.m_data[m_bufferIndex]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64);
       LODWORD(fmt) = m_data->m_shadowBufferIndex;
-      v36 = j_va("%i: Buffer %i %s - ShadowBuffer %i %s", v34, m_bufferIndex, v58, fmt, v58);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]; y
-        vmovss  xmm1, dword ptr [rbx]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v36, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm1
-      }
+      v21 = j_va("%i: Buffer %i %s - ShadowBuffer %i %s", v19, m_bufferIndex, v30, fmt, v30);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v21, &colorWhite);
+      *y = *y + 8.0;
       ++m_data;
-      ++v34;
+      ++v19;
     }
     while ( m_data != &op->m_usedBuffers.m_data[op->m_usedBuffers.m_size] );
-    __asm { vmovss  xmm1, dword ptr [rbx] }
+    v17 = *x;
   }
-  __asm
+  v22 = v17 - 12.0;
+  *x = v17 - 12.0;
+  v23 = (unsigned int)op->m_usedTransformSets.m_size;
+  if ( (int)v23 > 0 )
   {
-    vsubss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rbx], xmm0
+    v24 = j_va("%i UsedTransformSets", v23);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v24, &colorWhite);
+    *y = *y + 8.0;
+    v22 = *x;
   }
-  v41 = (unsigned int)op->m_usedTransformSets.m_size;
-  if ( (int)v41 > 0 )
+  *x = v22 + 12.0;
+  v25 = op->m_usedTransformSets.m_data;
+  if ( v25 == &v25[op->m_usedTransformSets.m_size] )
   {
-    v42 = j_va("%i UsedTransformSets", v41);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [rbx]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v42, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-      vmovss  xmm0, dword ptr [rbx]
-    }
-  }
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v47 = op->m_usedTransformSets.m_data;
-  if ( v47 == &v47[op->m_usedTransformSets.m_size] )
-  {
-    __asm { vsubss  xmm1, xmm1, cs:__real@41c00000 }
+    v28 = (float)(v22 + 12.0) - 24.0;
   }
   else
   {
-    v48 = 0;
+    v26 = 0;
     do
     {
       if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 538, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
@@ -2276,34 +1528,16 @@ void HavokCloth_Debug_DrawOperatorDetails(const ScreenPlacement *scrPlace, float
         __debugbreak();
       if ( !clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 543, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
         __debugbreak();
-      v49 = j_va("%i: Transform Set %i %s", v48, (int)v47->m_transformSetIndex, (const char *)((unsigned __int64)clothData->m_transformSetDefinitions.m_data[v47->m_transformSetIndex]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]; y
-        vmovss  xmm1, dword ptr [rbx]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v49, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm1
-      }
-      ++v47;
-      ++v48;
+      v27 = j_va("%i: Transform Set %i %s", v26, (int)v25->m_transformSetIndex, (const char *)((unsigned __int64)clothData->m_transformSetDefinitions.m_data[v25->m_transformSetIndex]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v27, &colorWhite);
+      *y = *y + 8.0;
+      ++v25;
+      ++v26;
     }
-    while ( v47 != &op->m_usedTransformSets.m_data[op->m_usedTransformSets.m_size] );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm1, xmm0, cs:__real@41c00000
-    }
+    while ( v25 != &op->m_usedTransformSets.m_data[op->m_usedTransformSets.m_size] );
+    v28 = *x - 24.0;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
-    vmovss  dword ptr [rbx], xmm1
-  }
+  *x = v28;
 }
 
 /*
@@ -2315,13 +1549,11 @@ void HavokCloth_Debug_DrawOperatorIdDetails(const ScreenPlacement *scrPlace, flo
 {
   const char *v13; 
 
-  _RDI = y;
-  _RSI = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 558, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 559, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 559, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 560, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 560, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 561, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -2330,18 +1562,8 @@ void HavokCloth_Debug_DrawOperatorIdDetails(const ScreenPlacement *scrPlace, flo
   if ( !clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 563, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
     __debugbreak();
   v13 = j_va("%i: Operator %i %s", (unsigned int)operatorIdIdx, (int)operatorId, (const char *)((unsigned __int64)clothData->m_operators.m_data[operatorId]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rdi], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
 }
 
 /*
@@ -2352,155 +1574,59 @@ HavokCloth_Debug_DrawShapeDetails
 void HavokCloth_Debug_DrawShapeDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclShape *shape)
 {
   __int64 m_storage; 
-  const char *v14; 
-  const char *v36; 
-  const char *v98; 
-  hkMemoryAllocator *v102; 
-  hkMemoryAllocator *v103; 
-  char *fmt; 
-  char *fmta; 
+  const char *v10; 
+  const char *v11; 
+  const char *v22; 
+  hkMemoryAllocator *v23; 
+  hkMemoryAllocator *v24; 
   hkGeometry geometry; 
-  __int64 v114; 
-  void *retaddr; 
+  __int128 v26; 
 
-  _RAX = &retaddr;
-  v114 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _RBX = y;
-  _RDI = x;
-  _RSI = shape;
+  *(_QWORD *)&v26 = -2i64;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 226, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 227, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 227, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 228, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 228, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 229, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
   m_storage = shape->m_type.m_storage;
-  v14 = j_va("Shape: %s", s_HavokCloth_ShapeNames[m_storage]);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v14, &colorWhite);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vaddss  xmm0, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm1, dword ptr [rdi]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rdi], xmm0
-  }
+  v10 = j_va("Shape: %s", s_HavokCloth_ShapeNames[m_storage]);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v10, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
   switch ( (int)m_storage )
   {
     case 0:
-      __asm
-      {
-        vmovss  xmm5, cs:__real@42000000; jumptable 0000000141F8802E case 0
-        vmulss  xmm0, xmm5, dword ptr [rsi+2Ch]
-        vcvtss2sd xmm6, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rsi+28h]
-        vmulss  xmm2, xmm1, xmm5
-        vcvtss2sd xmm3, xmm2, xmm2
-        vmovss  xmm0, dword ptr [rsi+24h]
-        vmulss  xmm1, xmm0, xmm5
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovss  xmm4, dword ptr [rsi+20h]
-        vmulss  xmm0, xmm4, xmm5
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+0C0h+fmt], xmm6
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v36 = j_va("Pos:(%.2f, %.2f, %.2f) - Radius:%.2f", _RDX, _R8, _R9, fmt);
+      v11 = j_va("Pos:(%.2f, %.2f, %.2f) - Radius:%.2f", (float)(*(float *)&shape[1].__vftable * 32.0), (float)(*((float *)&shape[1].__vftable + 1) * 32.0), (float)(*(float *)&shape[1].m_propertyBag.m_bag * 32.0), (float)(32.0 * *((float *)&shape[1].m_propertyBag.m_bag + 1)));
       goto LABEL_24;
     case 1:
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rsi+2Ch]; jumptable 0000000141F8802E case 1
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovss  xmm4, cs:__real@42000000
-        vmulss  xmm0, xmm4, dword ptr [rsi+28h]
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rsi+24h]
-        vmulss  xmm2, xmm1, xmm4
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovss  xmm0, dword ptr [rsi+20h]
-        vmulss  xmm1, xmm0, xmm4
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0C0h+fmt], xmm5
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v36 = j_va("Plane Equation:(%.2f, %.2f, %.2f, %.2f)", _RDX, _R8, _R9, fmta);
+      v11 = j_va("Plane Equation:(%.2f, %.2f, %.2f, %.2f)", (float)(*(float *)&shape[1].__vftable * 32.0), (float)(*((float *)&shape[1].__vftable + 1) * 32.0), (float)(32.0 * *(float *)&shape[1].m_propertyBag.m_bag), *((float *)&shape[1].m_propertyBag.m_bag + 1));
       goto LABEL_24;
     case 2:
+      _XMM1 = _mm128_sub_ps(*(__m128 *)&shape[1].__vftable, *(__m128 *)&shape[1].m_memSizeAndFlags);
       __asm
       {
-        vmovups xmm0, xmmword ptr [rsi+20h]; jumptable 0000000141F8802E case 2
-        vsubps  xmm1, xmm0, xmmword ptr [rsi+30h]
         vdpps   xmm6, xmm1, xmm1, 7Fh
         vrsqrtps xmm4, xmm6
-        vxorps  xmm0, xmm0, xmm0
         vcmpleps xmm5, xmm6, xmm0
-        vmulps  xmm1, xmm4, xmm6
-        vmulps  xmm2, xmm1, xmm4
-        vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-        vsubps  xmm3, xmm0, xmm2
-        vmulps  xmm1, xmm4, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-        vmulps  xmm2, xmm3, xmm1
-        vmulps  xmm0, xmm2, xmm6
-        vandnps xmm4, xmm5, xmm0
-        vmovss  xmm1, dword ptr [rsi+50h]
-        vmulss  xmm0, xmm1, cs:__real@42000000
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm4, cs:__real@42000000
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
       }
-      v36 = j_va("Length:%.2f - Radius:%.2f", _RDX, _R8);
+      _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM4, _XMM6), _XMM4)), _mm128_mul_ps(_XMM4, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM6);
+      __asm { vandnps xmm4, xmm5, xmm0 }
+      v11 = j_va("Length:%.2f - Radius:%.2f", (float)(*(float *)&_XMM4 * 32.0), (float)(*(float *)&shape[2].m_memSizeAndFlags * 32.0));
       goto LABEL_24;
     case 3:
+      _XMM1 = _mm128_sub_ps(*(__m128 *)&shape[1].__vftable, *(__m128 *)&shape[1].m_memSizeAndFlags);
       __asm
       {
-        vmovups xmm0, xmmword ptr [rsi+20h]; jumptable 0000000141F8802E case 3
-        vsubps  xmm1, xmm0, xmmword ptr [rsi+30h]
         vdpps   xmm6, xmm1, xmm1, 7Fh
         vrsqrtps xmm4, xmm6
-        vxorps  xmm0, xmm0, xmm0
         vcmpleps xmm5, xmm6, xmm0
-        vmulps  xmm1, xmm4, xmm6
-        vmulps  xmm2, xmm1, xmm4
-        vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-        vsubps  xmm3, xmm0, xmm2
-        vmulps  xmm1, xmm4, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-        vmulps  xmm2, xmm3, xmm1
-        vmulps  xmm0, xmm2, xmm6
-        vandnps xmm5, xmm5, xmm0
-        vmovss  xmm1, dword ptr [rsi+90h]
-        vmovss  xmm4, cs:__real@42000000
-        vmulss  xmm2, xmm1, xmm4
-        vmovss  xmm0, dword ptr [rsi+94h]
-        vmulss  xmm1, xmm0, xmm4
-        vcvtss2sd xmm3, xmm1, xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmulss  xmm0, xmm5, xmm4
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
       }
-      v36 = j_va("Length:%.2f - Radii:(%.2f, %.2f)", _RDX, _R8, _R9);
+      _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM4, _XMM6), _XMM4)), _mm128_mul_ps(_XMM4, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM6);
+      __asm { vandnps xmm5, xmm5, xmm0 }
+      v11 = j_va("Length:%.2f - Radii:(%.2f, %.2f)", (float)(*(float *)&_XMM5 * 32.0), (float)(*(float *)&shape[4].m_memSizeAndFlags * 32.0), (float)(*(float *)(&shape[4].m_refCount + 1) * 32.0));
       goto LABEL_24;
     case 4:
     case 5:
@@ -2521,56 +1647,31 @@ void HavokCloth_Debug_DrawShapeDetails(const ScreenPlacement *scrPlace, float *x
       geometry.m_triangles.m_size = 0;
       geometry.m_triangles.m_capacityAndFlags = 0x80000000;
       hclConvexGeometryShape::getGeometry((hclConvexGeometryShape *)shape, &geometry);
-      v98 = j_va("Verts:%i - Tris:%i", (unsigned int)geometry.m_vertices.m_size, (unsigned int)geometry.m_triangles.m_size);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [rdi]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v98, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      v22 = j_va("Verts:%i - Tris:%i", (unsigned int)geometry.m_vertices.m_size, (unsigned int)geometry.m_triangles.m_size);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v22, &colorWhite);
+      *y = *y + 8.0;
       geometry.__vftable = (hkGeometry_vtbl *)hkGeometry::`vftable';
-      v102 = hkMemHeapAllocator();
+      v23 = hkMemHeapAllocator();
       geometry.m_triangles.m_size = 0;
       if ( geometry.m_triangles.m_capacityAndFlags >= 0 )
-        hkMemoryAllocator::bufFree2(v102, geometry.m_triangles.m_data, 16, geometry.m_triangles.m_capacityAndFlags & 0x3FFFFFFF);
+        hkMemoryAllocator::bufFree2(v23, geometry.m_triangles.m_data, 16, geometry.m_triangles.m_capacityAndFlags & 0x3FFFFFFF);
       geometry.m_triangles.m_data = NULL;
       geometry.m_triangles.m_capacityAndFlags = 0x80000000;
-      v103 = hkMemHeapAllocator();
+      v24 = hkMemHeapAllocator();
       geometry.m_vertices.m_size = 0;
       if ( geometry.m_vertices.m_capacityAndFlags >= 0 )
-        hkMemoryAllocator::bufFree2(v103, geometry.m_vertices.m_data, 16, geometry.m_vertices.m_capacityAndFlags & 0x3FFFFFFF);
+        hkMemoryAllocator::bufFree2(v24, geometry.m_vertices.m_data, 16, geometry.m_vertices.m_capacityAndFlags & 0x3FFFFFFF);
       geometry.m_vertices.m_data = NULL;
       geometry.m_vertices.m_capacityAndFlags = 0x80000000;
       hkReferencedObject::~hkReferencedObject(&geometry);
       goto $LN14_151;
     default:
-      v36 = j_va("Unknown Shape Type: %i", (unsigned int)m_storage);
+      v11 = j_va("Unknown Shape Type: %i", (unsigned int)m_storage);
 LABEL_24:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [rdi]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v36, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v11, &colorWhite);
+      *y = *y + 8.0;
 $LN14_151:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]; jumptable 0000000141F8802E cases 4-8,10,11
-        vsubss  xmm1, xmm0, cs:__real@41400000
-        vmovss  dword ptr [rdi], xmm1
-        vmovaps xmm6, xmmword ptr [rsp+0C0h+var_48+8]
-        vmovaps xmm7, [rsp+0C0h+var_58+8]
-      }
+      *x = *x - 12.0;
       return;
   }
 }
@@ -2582,23 +1683,21 @@ HavokCloth_Debug_DrawSimClothDataDetails
 */
 void HavokCloth_Debug_DrawSimClothDataDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const hclSimClothData *simClothData, int simClothDataIdx)
 {
+  const char *v13; 
+  const char *v14; 
   const char *v15; 
-  const char *v35; 
-  const char *v39; 
   __int64 m_size; 
-  const char *v44; 
+  const char *v17; 
+  float v18; 
   unsigned int *m_data; 
   int operatorIdIdx; 
+  float v21; 
 
-  _RBP = simClothData;
-  _R14 = y;
-  _RDI = x;
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 790, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 791, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 791, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 792, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 792, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 793, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -2608,106 +1707,42 @@ void HavokCloth_Debug_DrawSimClothDataDetails(const ScreenPlacement *scrPlace, f
     __debugbreak();
   if ( !simClothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 796, ASSERT_TYPE_ASSERT, "(simClothData)", (const char *)&queryFormat, "simClothData") )
     __debugbreak();
-  v15 = j_va("%i: %s", (unsigned int)simClothDataIdx, (const char *)((unsigned __int64)simClothData->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v15, &colorWhite);
-  __asm
-  {
-    vmovss  xmm4, cs:__real@42000000
-    vmovss  xmm6, cs:__real@41000000
-    vaddss  xmm0, xmm6, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm1, dword ptr [rdi]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm1, dword ptr [rbp+28h]
-    vmulss  xmm0, xmm1, xmm4
-    vmovss  xmm1, dword ptr [rbp+24h]
-    vmulss  xmm2, xmm1, xmm4
-    vcvtss2sd xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rbp+20h]
-    vmulss  xmm1, xmm0, xmm4
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovq   rdx, xmm1
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-  }
-  v35 = j_va("Gravity: (%.2f %.2f %.2f)", _RDX, _R8, _R9);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v35, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm1
-  }
+  v13 = j_va("%i: %s", (unsigned int)simClothDataIdx, (const char *)((unsigned __int64)simClothData->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  v14 = j_va("Gravity: (%.2f %.2f %.2f)", (float)(simClothData->m_simulationInfo.m_gravity.m_quad.m128_f32[0] * 32.0), (float)(simClothData->m_simulationInfo.m_gravity.m_quad.m128_f32[1] * 32.0), (float)(simClothData->m_simulationInfo.m_gravity.m_quad.m128_f32[2] * 32.0));
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
   if ( simClothData->m_simulationInfo.m_computeVelocity.m_bool )
   {
-    v39 = j_va("Requests Velocity be computed");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v39, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm1
-    }
+    v15 = j_va("Requests Velocity be computed");
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v15, &colorWhite);
+    *y = *y + 8.0;
   }
   m_size = (unsigned int)simClothData->m_simOpIds.m_size;
   if ( (int)m_size > 0 )
   {
-    v44 = j_va("%i Operators", m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v44, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm1
-    }
+    v17 = j_va("%i Operators", m_size);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v17, &colorWhite);
+    *y = *y + 8.0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rdi], xmm1
-  }
+  v18 = *x + 12.0;
+  *x = v18;
   m_data = simClothData->m_simOpIds.m_data;
   operatorIdIdx = 0;
   if ( m_data == &m_data[simClothData->m_simOpIds.m_size] )
   {
-    __asm { vsubss  xmm1, xmm1, cs:__real@41c00000 }
+    v21 = v18 - 24.0;
   }
   else
   {
     do
-      HavokCloth_Debug_DrawOperatorIdDetails(scrPlace, _RDI, _R14, asset, container, clothData, clothDataIdx, *m_data++, operatorIdIdx++);
+      HavokCloth_Debug_DrawOperatorIdDetails(scrPlace, x, y, asset, container, clothData, clothDataIdx, *m_data++, operatorIdIdx++);
     while ( m_data != &simClothData->m_simOpIds.m_data[simClothData->m_simOpIds.m_size] );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, cs:__real@41c00000
-    }
+    v21 = *x - 24.0;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_48]
-    vmovss  dword ptr [rdi], xmm1
-  }
+  *x = v21;
 }
 
 /*
@@ -2717,23 +1752,22 @@ HavokCloth_Debug_DrawSimClothIdDetails
 */
 void HavokCloth_Debug_DrawSimClothIdDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const unsigned int simClothId, int simClothIdIdx)
 {
-  const hclSimClothData *v14; 
-  const char *v15; 
+  const hclSimClothData *v13; 
+  const char *v14; 
   __int64 m_size; 
-  const char *v23; 
+  const char *v16; 
+  float v17; 
   const hclCollidable **m_data; 
-  unsigned int v30; 
-  const hclCollidable *v31; 
-  const char *v32; 
+  unsigned int v19; 
+  const hclCollidable *v20; 
+  const char *v21; 
+  float v22; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
-  _RBP = y;
-  _RBX = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 576, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 577, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 577, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 578, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 578, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 579, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -2741,92 +1775,50 @@ void HavokCloth_Debug_DrawSimClothIdDetails(const ScreenPlacement *scrPlace, flo
     __debugbreak();
   if ( !clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 581, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
     __debugbreak();
-  v14 = clothData->m_simClothDatas.m_data[simClothId];
-  v15 = j_va("%i: Sim Cloth %i %s", (unsigned int)simClothIdIdx, (int)simClothId, (const char *)((unsigned __int64)v14->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rbx]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v15, &colorWhite);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vaddss  xmm0, xmm6, dword ptr [rbp+0]
-    vmovss  dword ptr [rbp+0], xmm0
-    vmovss  xmm1, dword ptr [rbx]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rbx], xmm0
-  }
-  m_size = (unsigned int)v14->m_perInstanceCollidables.m_size;
+  v13 = clothData->m_simClothDatas.m_data[simClothId];
+  v14 = j_va("%i: Sim Cloth %i %s", (unsigned int)simClothIdIdx, (int)simClothId, (const char *)((unsigned __int64)v13->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  m_size = (unsigned int)v13->m_perInstanceCollidables.m_size;
   if ( (int)m_size <= 0 )
   {
     if ( !container->m_collidables.m_size )
       goto LABEL_24;
-    v23 = j_va("No Active Collidables");
+    v16 = j_va("No Active Collidables");
   }
   else
   {
-    v23 = j_va("%i Active Collidables", m_size);
+    v16 = j_va("%i Active Collidables", m_size);
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rbx]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rbp+0]
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+  *y = *y + 8.0;
 LABEL_24:
-  __asm
+  v17 = *x + 12.0;
+  *x = v17;
+  m_data = v13->m_perInstanceCollidables.m_data;
+  v19 = 0;
+  if ( m_data == &m_data[v13->m_perInstanceCollidables.m_size] )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rbx], xmm1
-  }
-  m_data = v14->m_perInstanceCollidables.m_data;
-  v30 = 0;
-  if ( m_data == &m_data[v14->m_perInstanceCollidables.m_size] )
-  {
-    __asm { vsubss  xmm1, xmm1, cs:__real@41c00000 }
+    v22 = v17 - 24.0;
   }
   else
   {
     do
     {
-      v31 = *m_data;
+      v20 = *m_data;
       if ( !*m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 612, ASSERT_TYPE_ASSERT, "(collidable)", (const char *)&queryFormat, "collidable") )
         __debugbreak();
-      v32 = j_va("%i - %s", v30, (const char *)((unsigned __int64)v31->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]; y
-        vmovss  xmm1, dword ptr [rbx]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v32, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm1
-      }
+      v21 = j_va("%i - %s", v19, (const char *)((unsigned __int64)v20->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v21, &colorWhite);
+      *y = *y + 8.0;
       ++m_data;
-      ++v30;
+      ++v19;
     }
-    while ( m_data != &v14->m_perInstanceCollidables.m_data[v14->m_perInstanceCollidables.m_size] );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm1, xmm0, cs:__real@41c00000
-    }
+    while ( m_data != &v13->m_perInstanceCollidables.m_data[v13->m_perInstanceCollidables.m_size] );
+    v22 = *x - 24.0;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_38]
-    vmovss  dword ptr [rbx], xmm1
-  }
+  *x = v22;
 }
 
 /*
@@ -2836,22 +1828,21 @@ HavokCloth_Debug_DrawStateTransitionDetails
 */
 void HavokCloth_Debug_DrawStateTransitionDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const hclStateTransition *stateTransition, int stateTransitionIdx)
 {
-  const char *v15; 
+  const char *v14; 
+  float v15; 
   __int64 m_size; 
-  const char *v23; 
+  const char *v17; 
+  float v18; 
   unsigned int *m_data; 
-  __int64 v29; 
-  const char *v30; 
+  __int64 v20; 
+  const char *v21; 
   unsigned int containera; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm7 }
-  _RBP = y;
-  _RBX = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 984, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 985, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 985, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 986, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 986, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 987, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -2861,51 +1852,28 @@ void HavokCloth_Debug_DrawStateTransitionDetails(const ScreenPlacement *scrPlace
     __debugbreak();
   if ( !stateTransition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 990, ASSERT_TYPE_ASSERT, "(stateTransition)", (const char *)&queryFormat, "stateTransition") )
     __debugbreak();
-  v15 = j_va("%i: %s", (unsigned int)stateTransitionIdx, (const char *)((unsigned __int64)stateTransition->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rbx]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v15, &colorWhite);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vaddss  xmm0, xmm7, dword ptr [rbp+0]
-    vmovss  dword ptr [rbp+0], xmm0
-    vmovss  xmm1, dword ptr [rbx]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rbx], xmm0
-  }
+  v14 = j_va("%i: %s", (unsigned int)stateTransitionIdx, (const char *)((unsigned __int64)stateTransition->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
+  v15 = *x + 12.0;
+  *x = v15;
   m_size = (unsigned int)stateTransition->m_stateIds.m_size;
   if ( (int)m_size > 0 )
   {
-    v23 = j_va("%i StateIds", m_size);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [rbx]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-      vmovss  xmm0, dword ptr [rbx]
-    }
+    v17 = j_va("%i StateIds", m_size);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v17, &colorWhite);
+    *y = *y + 8.0;
+    v15 = *x;
   }
-  __asm
-  {
-    vaddss  xmm0, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rbx], xmm0
-  }
+  v18 = v15 + 12.0;
+  *x = v18;
   m_data = stateTransition->m_stateIds.m_data;
   containera = 0;
   if ( m_data != &m_data[stateTransition->m_stateIds.m_size] )
   {
     do
     {
-      v29 = (int)*m_data;
+      v20 = (int)*m_data;
       if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 627, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
         __debugbreak();
       if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 630, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
@@ -2914,30 +1882,16 @@ void HavokCloth_Debug_DrawStateTransitionDetails(const ScreenPlacement *scrPlace
         __debugbreak();
       if ( !clothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 632, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
         __debugbreak();
-      v30 = j_va("%i: State %i %s", containera, (unsigned int)v29, (const char *)((unsigned __int64)clothData->m_clothStateDatas.m_data[v29]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]; y
-        vmovss  xmm1, dword ptr [rbx]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v30, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm1
-      }
+      v21 = j_va("%i: State %i %s", containera, (unsigned int)v20, (const char *)((unsigned __int64)clothData->m_clothStateDatas.m_data[v20]->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v21, &colorWhite);
+      *y = *y + 8.0;
       ++m_data;
       ++containera;
     }
     while ( m_data != &stateTransition->m_stateIds.m_data[stateTransition->m_stateIds.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rbx] }
+    v18 = *x;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@41c00000
-    vmovaps xmm7, [rsp+68h+var_38]
-    vmovss  dword ptr [rbx], xmm1
-  }
+  *x = v18 - 24.0;
 }
 
 /*
@@ -2950,52 +1904,48 @@ void HavokCloth_Debug_DrawTags(const ScreenPlacement *scrPlace, float *x, float 
   __int64 v10; 
   const char *v11; 
   const char *v12; 
-  __int64 v17; 
-  __int64 v18; 
-  const char *v19; 
-  scr_string_t v20; 
-  const char *v21; 
-  char *v22; 
-  const char *v24; 
-  const ScreenPlacement *v25; 
-  __int64 v26; 
-  const char *v27; 
-  scr_string_t v28; 
-  __int64 v29; 
+  __int64 v13; 
+  __int64 v14; 
+  const char *v15; 
+  scr_string_t v16; 
+  const char *v17; 
+  const char *v18; 
+  __int64 v19; 
+  const char *v20; 
+  scr_string_t v21; 
+  __int64 v22; 
+  const char *v23; 
+  scr_string_t v24; 
+  const char *v25; 
+  const char *v26; 
+  __int64 v27; 
+  const char *v28; 
+  scr_string_t v29; 
   const char *v30; 
   scr_string_t v31; 
   const char *v32; 
+  scr_string_t v33; 
+  const char *v34; 
+  const char *v35; 
+  const char *v36; 
   __int64 v37; 
   const char *v38; 
-  scr_string_t v39; 
-  const char *v40; 
-  scr_string_t v41; 
-  const char *v42; 
-  scr_string_t v43; 
-  const char *v44; 
+  const char *v39; 
+  scr_string_t v40; 
+  const char *v41; 
+  scr_string_t v42; 
+  const char *v43; 
+  scr_string_t v44; 
   const char *v45; 
-  char *v46; 
+  const char *v46; 
   __int64 v47; 
-  const char *v48; 
-  const char *v49; 
-  scr_string_t v50; 
-  const char *v51; 
-  scr_string_t v52; 
-  const char *v53; 
-  scr_string_t v54; 
-  const char *v55; 
-  const char *v56; 
-  const char *v58; 
-  __int64 v64; 
   unsigned int numTagsa; 
 
-  _R12 = y;
-  _RBP = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 184, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 185, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 185, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 186, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 186, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !tagNames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 187, ASSERT_TYPE_ASSERT, "(tagNames)", (const char *)&queryFormat, "tagNames") )
     __debugbreak();
@@ -3006,105 +1956,71 @@ void HavokCloth_Debug_DrawTags(const ScreenPlacement *scrPlace, float *x, float 
     {
       v11 = SL_ConvertToString(tagNames[startIdx]);
       v12 = j_va("%i %s", (unsigned int)tagNames[startIdx], v11);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r12]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v12, &colorWhite);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12]
-        vaddss  xmm1, xmm0, cs:__real@41000000
-        vmovss  dword ptr [r12], xmm1
-      }
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v12, &colorWhite);
+      *y = *y + 8.0;
       return;
     }
-    v17 = startIdx + 2;
-    if ( (_DWORD)v17 == numTags )
+    v13 = startIdx + 2;
+    if ( (_DWORD)v13 == numTags )
     {
-      v18 = (unsigned int)v10;
-      v19 = SL_ConvertToString(tagNames[v10]);
-      v20 = tagNames[v18];
-      v21 = SL_ConvertToString(tagNames[startIdx]);
-      v22 = j_va("%i %s:%i %s", (unsigned int)tagNames[startIdx], v21, (unsigned int)v20, v19);
-      __asm { vmovss  xmm1, dword ptr [rbp+0] }
-      v24 = v22;
-      v25 = scrPlace;
+      v14 = (unsigned int)v10;
+      v15 = SL_ConvertToString(tagNames[v10]);
+      v16 = tagNames[v14];
+      v17 = SL_ConvertToString(tagNames[startIdx]);
+      v18 = j_va("%i %s:%i %s", (unsigned int)tagNames[startIdx], v17, (unsigned int)v16, v15);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v18, &colorWhite);
 LABEL_20:
-      __asm { vmovss  xmm2, dword ptr [r12]; y }
-      Cloth_Debug_DrawString(v25, *(float *)&_XMM1, *(float *)&_XMM2, v24, &colorWhite);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12]
-        vaddss  xmm1, xmm0, cs:__real@41000000
-        vmovss  dword ptr [r12], xmm1
-      }
+      *y = *y + 8.0;
       return;
     }
-    v26 = startIdx + 3;
-    if ( (_DWORD)v26 == numTags )
+    v19 = startIdx + 3;
+    if ( (_DWORD)v19 == numTags )
     {
-      v27 = SL_ConvertToString(tagNames[v17]);
-      v28 = tagNames[v17];
-      v29 = (unsigned int)v10;
-      v30 = SL_ConvertToString(tagNames[v10]);
-      v31 = tagNames[v29];
-      v32 = SL_ConvertToString(tagNames[startIdx]);
-      LODWORD(v64) = v28;
-      v24 = j_va("%i %s:%i %s:%i %s", (unsigned int)tagNames[startIdx], v32, (unsigned int)v31, v30, v64, v27);
-      _RAX = x;
-      v25 = scrPlace;
-      __asm { vmovss  xmm1, dword ptr [rax]; x }
+      v20 = SL_ConvertToString(tagNames[v13]);
+      v21 = tagNames[v13];
+      v22 = (unsigned int)v10;
+      v23 = SL_ConvertToString(tagNames[v10]);
+      v24 = tagNames[v22];
+      v25 = SL_ConvertToString(tagNames[startIdx]);
+      LODWORD(v47) = v21;
+      v26 = j_va("%i %s:%i %s:%i %s", (unsigned int)tagNames[startIdx], v25, (unsigned int)v24, v23, v47, v20);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v26, &colorWhite);
       goto LABEL_20;
     }
-    v37 = startIdx + 4;
-    if ( (_DWORD)v37 == numTags )
+    v27 = startIdx + 4;
+    if ( (_DWORD)v27 == numTags )
     {
-      v38 = SL_ConvertToString(tagNames[v26]);
-      v39 = tagNames[v26];
-      v40 = SL_ConvertToString(tagNames[v17]);
-      v41 = tagNames[v17];
-      v42 = SL_ConvertToString(tagNames[v10]);
-      v43 = tagNames[(unsigned int)v10];
-      v44 = v42;
-      v45 = SL_ConvertToString(tagNames[startIdx]);
-      LODWORD(v64) = v41;
-      v46 = j_va("%i %s:%i %s:%i %s:%i %s", (unsigned int)tagNames[startIdx], v45, (unsigned int)v43, v44, v64, v40, v39, v38);
+      v28 = SL_ConvertToString(tagNames[v19]);
+      v29 = tagNames[v19];
+      v30 = SL_ConvertToString(tagNames[v13]);
+      v31 = tagNames[v13];
+      v32 = SL_ConvertToString(tagNames[v10]);
+      v33 = tagNames[(unsigned int)v10];
+      v34 = v32;
+      v35 = SL_ConvertToString(tagNames[startIdx]);
+      LODWORD(v47) = v31;
+      v36 = j_va("%i %s:%i %s:%i %s:%i %s", (unsigned int)tagNames[startIdx], v35, (unsigned int)v33, v34, v47, v30, v29, v28);
     }
     else
     {
       if ( startIdx + 5 > numTags )
         return;
-      v47 = (unsigned int)v37;
-      v48 = SL_ConvertToString(tagNames[v37]);
-      numTagsa = tagNames[v47];
-      v49 = SL_ConvertToString(tagNames[v26]);
-      v50 = tagNames[v26];
-      v51 = SL_ConvertToString(tagNames[v17]);
-      v52 = tagNames[v17];
-      v53 = SL_ConvertToString(tagNames[v10]);
-      v54 = tagNames[(unsigned int)v10];
-      v55 = v53;
-      v56 = SL_ConvertToString(tagNames[startIdx]);
-      LODWORD(v64) = v52;
-      v46 = j_va("%i %s:%i %s:%i %s:%i %s:%i %s", (unsigned int)tagNames[startIdx], v56, (unsigned int)v54, v55, v64, v51, v50, v49, numTagsa, v48);
+      v37 = (unsigned int)v27;
+      v38 = SL_ConvertToString(tagNames[v27]);
+      numTagsa = tagNames[v37];
+      v39 = SL_ConvertToString(tagNames[v19]);
+      v40 = tagNames[v19];
+      v41 = SL_ConvertToString(tagNames[v13]);
+      v42 = tagNames[v13];
+      v43 = SL_ConvertToString(tagNames[v10]);
+      v44 = tagNames[(unsigned int)v10];
+      v45 = v43;
+      v46 = SL_ConvertToString(tagNames[startIdx]);
+      LODWORD(v47) = v42;
+      v36 = j_va("%i %s:%i %s:%i %s:%i %s:%i %s", (unsigned int)tagNames[startIdx], v46, (unsigned int)v44, v45, v47, v41, v40, v39, numTagsa, v38);
     }
-    _RBX = y;
-    v58 = v46;
-    _RAX = x;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rax]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v58, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rbx], xmm1
-    }
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v36, &colorWhite);
+    *y = *y + 8.0;
   }
 }
 
@@ -3116,21 +2032,19 @@ HavokCloth_Debug_DrawTransformSetDefinitionDetails
 void HavokCloth_Debug_DrawTransformSetDefinitionDetails(const ScreenPlacement *scrPlace, float *x, float *y, const ClothAsset *const asset, const hclClothContainer *container, const hclClothData *clothData, int clothDataIdx, const hclTransformSetDefinition *transformSetDefinition, int transformSetDefinitionIdx)
 {
   const char *v13; 
-  const char *v20; 
+  const char *v14; 
   unsigned int m_numTransforms; 
-  const char *v26; 
-  ClothAssetBoneMappingSet *v33; 
-  __int64 v34; 
-  unsigned int v35; 
+  const char *v16; 
+  ClothAssetBoneMappingSet *v17; 
+  __int64 v18; 
+  unsigned int v19; 
   unsigned int startIdx; 
 
-  _RBP = y;
-  _RSI = x;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 677, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 678, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
+  if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 678, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 679, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 679, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 680, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
     __debugbreak();
@@ -3141,71 +2055,32 @@ void HavokCloth_Debug_DrawTransformSetDefinitionDetails(const ScreenPlacement *s
   if ( !transformSetDefinition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 683, ASSERT_TYPE_ASSERT, "(transformSetDefinition)", (const char *)&queryFormat, "transformSetDefinition") )
     __debugbreak();
   v13 = j_va("%i: %s", (unsigned int)transformSetDefinitionIdx, (const char *)((unsigned __int64)transformSetDefinition->m_name.m_stringAndFlag & 0xFFFFFFFFFFFFFFFEui64));
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vaddss  xmm0, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rbp+0], xmm0
-    vmovss  xmm1, dword ptr [rsi]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-  }
-  v20 = j_va("Type: %s", s_HavokCloth_TransformSetDefinitionTypeNames[transformSetDefinition->m_type]);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v20, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  v14 = j_va("Type: %s", s_HavokCloth_TransformSetDefinitionTypeNames[transformSetDefinition->m_type]);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+  *y = *y + 8.0;
   m_numTransforms = transformSetDefinition->m_numTransforms;
-  v26 = j_va("Num Transforms: %i", m_numTransforms);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v26, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vaddss  xmm0, xmm2, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-  }
+  v16 = j_va("Num Transforms: %i", m_numTransforms);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
   if ( (clothDataIdx < 0 || clothDataIdx >= (signed int)asset->boneMappingSetCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 705, ASSERT_TYPE_ASSERT, "(clothDataIdx >= 0 && clothDataIdx < static_cast<int>( asset->boneMappingSetCount ))", (const char *)&queryFormat, "clothDataIdx >= 0 && clothDataIdx < static_cast<int>( asset->boneMappingSetCount )") )
     __debugbreak();
-  v33 = &asset->boneMappingSets[clothDataIdx];
-  if ( (transformSetDefinitionIdx < 0 || transformSetDefinitionIdx >= (signed int)v33->boneMappingCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 709, ASSERT_TYPE_ASSERT, "(transformSetDefinitionIdx >= 0 && transformSetDefinitionIdx < static_cast<int>( boneMappingSet->boneMappingCount ))", (const char *)&queryFormat, "transformSetDefinitionIdx >= 0 && transformSetDefinitionIdx < static_cast<int>( boneMappingSet->boneMappingCount )") )
+  v17 = &asset->boneMappingSets[clothDataIdx];
+  if ( (transformSetDefinitionIdx < 0 || transformSetDefinitionIdx >= (signed int)v17->boneMappingCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 709, ASSERT_TYPE_ASSERT, "(transformSetDefinitionIdx >= 0 && transformSetDefinitionIdx < static_cast<int>( boneMappingSet->boneMappingCount ))", (const char *)&queryFormat, "transformSetDefinitionIdx >= 0 && transformSetDefinitionIdx < static_cast<int>( boneMappingSet->boneMappingCount )") )
     __debugbreak();
-  v34 = (__int64)&v33->boneMappings[transformSetDefinitionIdx];
-  if ( *(_DWORD *)(v34 + 8) != m_numTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 713, ASSERT_TYPE_ASSERT, "(boneMapping->scrTagCount == numTransforms)", (const char *)&queryFormat, "boneMapping->scrTagCount == numTransforms") )
+  v18 = (__int64)&v17->boneMappings[transformSetDefinitionIdx];
+  if ( *(_DWORD *)(v18 + 8) != m_numTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 713, ASSERT_TYPE_ASSERT, "(boneMapping->scrTagCount == numTransforms)", (const char *)&queryFormat, "boneMapping->scrTagCount == numTransforms") )
     __debugbreak();
-  v35 = *(_DWORD *)(v34 + 8);
-  for ( startIdx = 0; startIdx < v35; startIdx += 5 )
+  v19 = *(_DWORD *)(v18 + 8);
+  for ( startIdx = 0; startIdx < v19; startIdx += 5 )
   {
-    HavokCloth_Debug_DrawTags(scrPlace, _RSI, _RBP, *(scr_string_t **)v34, v35, startIdx);
-    v35 = *(_DWORD *)(v34 + 8);
+    HavokCloth_Debug_DrawTags(scrPlace, x, y, *(scr_string_t **)v18, v19, startIdx);
+    v19 = *(_DWORD *)(v18 + 8);
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm1, xmm0, cs:__real@41c00000
-    vmovss  dword ptr [rsi], xmm1
-  }
+  *x = *x - 24.0;
 }
 
 /*
@@ -3256,281 +2131,128 @@ HavokCloth_Debug_Sound_DrawInstance
 */
 void HavokCloth_Debug_Sound_DrawInstance(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int instanceId)
 {
-  unsigned int v14; 
+  __int128 v4; 
+  unsigned int v7; 
+  const ClothAsset *ClothAsset; 
   unsigned int soundCount; 
-  const char *v18; 
-  unsigned int v25; 
-  const char *v43; 
-  char v70; 
-  char v71; 
-  const char *v76; 
+  const char *v11; 
+  unsigned int v12; 
+  float v13; 
+  __int64 v14; 
+  ClothAssetSound *sounds; 
+  const char *v16; 
+  const hkVector4f *FocusPosition; 
+  float v18; 
+  float v24; 
+  const char *v25; 
   unsigned int CurrentSoundIdx; 
-  __int64 v81; 
-  unsigned int v82; 
-  __int64 v85; 
-  __int64 v88; 
-  const char *v93; 
-  const char *v101; 
-  const char *v104; 
-  const char *v113; 
-  char *fmt; 
-  __int64 duration; 
-  __int64 v128; 
-  __int64 v129; 
-  __int64 v130; 
+  __int64 v27; 
+  unsigned int v28; 
+  float *p_pitch; 
+  __int64 v30; 
+  __int64 v31; 
+  double v32; 
+  double v33; 
+  const char *v34; 
+  const char *v35; 
+  const char *v36; 
+  const char *v37; 
   vec3_t xyz; 
   hkVector4f position; 
-  char v135; 
-  void *retaddr; 
+  __int128 v41; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-  }
-  _RBP = x;
-  v14 = instanceId;
-  _RDI = y;
+  v7 = instanceId;
   if ( !HavokCloth_IsInstanceInUse(0, instanceId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1739, ASSERT_TYPE_ASSERT, "(HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId ))", (const char *)&queryFormat, "HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId )") )
     __debugbreak();
-  _R14 = HavokCloth_GetClothAsset(0, v14);
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1743, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+  ClothAsset = HavokCloth_GetClothAsset(0, v7);
+  if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1743, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
     __debugbreak();
-  soundCount = _R14->soundCount;
-  v18 = j_va("Asset has %i sound entries", soundCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rbp+0]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v18, &colorWhite);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41000000
-    vaddss  xmm0, xmm8, dword ptr [rdi]
-    vmovss  xmm10, cs:__real@41400000
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm1, dword ptr [rbp+0]
-  }
-  v25 = 0;
-  __asm
-  {
-    vaddss  xmm0, xmm1, xmm10
-    vmovss  dword ptr [rbp+0], xmm0
-  }
+  soundCount = ClothAsset->soundCount;
+  v11 = j_va("Asset has %i sound entries", soundCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v11, &colorWhite);
+  *y = *y + 8.0;
+  v12 = 0;
+  v13 = *x + 12.0;
+  *x = v13;
   if ( soundCount )
   {
-    _RBX = 0i64;
+    v14 = 0i64;
     do
     {
-      _RAX = _R14->sounds;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+rax+0Ch]
-        vmovss  xmm1, dword ptr [rbx+rax+8]
-        vmovss  xmm4, dword ptr [rbx+rax+14h]
-        vmovss  xmm5, dword ptr [rbx+rax+10h]
-        vmovss  xmm3, dword ptr [rbx+rax+4]
-        vmovss  xmm2, dword ptr [rbx+rax]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+148h+var_108], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+148h+var_110], xmm1
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+148h+var_118], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  qword ptr [rsp+148h+duration], xmm5
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      v43 = j_va("%i SpeedRange(%.2f %.2f) SoundAlias %s VolumeRange(%.2f %.2f) PitchRange(%.2f %.2f)", v25, _R8, _R9, _RAX[_RBX].soundAlias, duration, v128, v129, v130);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v43, &colorWhite);
-      __asm { vaddss  xmm1, xmm8, dword ptr [rdi] }
-      ++v25;
-      ++_RBX;
-      __asm { vmovss  dword ptr [rdi], xmm1 }
+      sounds = ClothAsset->sounds;
+      v16 = j_va("%i SpeedRange(%.2f %.2f) SoundAlias %s VolumeRange(%.2f %.2f) PitchRange(%.2f %.2f)", v12, sounds[v14].minSpeed, sounds[v14].maxSpeed, sounds[v14].soundAlias, sounds[v14].volumeMinSpeed, sounds[v14].volumeMaxSpeed, sounds[v14].pitchMinSpeed, sounds[v14].pitchMaxSpeed);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+      ++v12;
+      ++v14;
+      *y = *y + 8.0;
     }
-    while ( v25 < soundCount );
-    __asm { vmovss  xmm0, dword ptr [rbp+0] }
-    v14 = instanceId;
+    while ( v12 < soundCount );
+    v13 = *x;
+    v7 = instanceId;
   }
+  *x = v13 - 12.0;
+  HavokCloth_GetInstancePosition(0, v7, &position);
+  xyz.v[0] = 32.0 * position.m_quad.m128_f32[0];
+  xyz.v[1] = 32.0 * position.m_quad.m128_f32[1];
+  xyz.v[2] = 32.0 * position.m_quad.m128_f32[2];
+  FocusPosition = HavokCloth_GetFocusPosition(0);
+  v18 = fsqrt(ClothAsset->soundIWMaxDistanceSq);
+  _XMM1 = _mm128_sub_ps(FocusPosition->m_quad, position.m_quad);
   __asm
   {
-    vsubss  xmm0, xmm0, xmm10
-    vmovss  dword ptr [rbp+0], xmm0
-  }
-  HavokCloth_GetInstancePosition(0, v14, &position);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42000000
-    vmulss  xmm1, xmm7, dword ptr [rsp+148h+position.m_quad]
-    vmulss  xmm0, xmm7, dword ptr [rsp+148h+position.m_quad+4]
-    vmulss  xmm2, xmm7, dword ptr [rsp+148h+position.m_quad+8]
-    vmovss  dword ptr [rsp+148h+xyz], xmm1
-    vmovss  dword ptr [rsp+148h+xyz+4], xmm0
-    vmovss  dword ptr [rsp+148h+xyz+8], xmm2
-  }
-  _RAX = HavokCloth_GetFocusPosition(0);
-  __asm
-  {
-    vmovss  xmm12, dword ptr [r14+64h]
-    vsqrtss xmm12, xmm12, xmm12
-    vmovups xmm0, xmmword ptr [rax]
-    vsubps  xmm1, xmm0, xmmword ptr [rsp+148h+position.m_quad]
     vdpps   xmm6, xmm1, xmm1, 7Fh
     vrsqrtps xmm4, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vmulps  xmm1, xmm6, xmm4
-    vmulps  xmm2, xmm1, xmm4
-    vmulps  xmm1, xmm4, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
     vcmpleps xmm5, xmm6, xmm0
-    vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-    vsubps  xmm3, xmm0, xmm2
-    vmulps  xmm2, xmm3, xmm1
-    vmulps  xmm0, xmm2, xmm6
-    vandnps xmm4, xmm5, xmm0
-    vmulss  xmm11, xmm4, xmm7
-    vcomiss xmm11, xmm12
   }
-  if ( v70 | v71 )
+  _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM6, _XMM4), _XMM4)), _mm128_mul_ps(_XMM4, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM6);
+  __asm { vandnps xmm4, xmm5, xmm0 }
+  v24 = *(float *)&_XMM4 * 32.0;
+  if ( (float)(*(float *)&_XMM4 * 32.0) <= v18 )
   {
-    CurrentSoundIdx = HavokCloth_GetCurrentSoundIdx(0, v14);
-    LOBYTE(v81) = 0;
-    v82 = CurrentSoundIdx;
+    CurrentSoundIdx = HavokCloth_GetCurrentSoundIdx(0, v7);
+    LOBYTE(v27) = 0;
+    v28 = CurrentSoundIdx;
     if ( !s_HavokCloth_Debug_SoundCache_NumEntries[0] )
       goto LABEL_19;
-    __asm { vmovaps [rsp+148h+var_88], xmm9 }
-    _RSI = &s_HavokCloth_Debug_SoundCache[0][0].pitch;
-    __asm { vmovss  xmm9, cs:__real@3f000000 }
-    v85 = s_HavokCloth_Debug_SoundCache_NumEntries[0];
+    v41 = v4;
+    p_pitch = &s_HavokCloth_Debug_SoundCache[0][0].pitch;
+    v30 = s_HavokCloth_Debug_SoundCache_NumEntries[0];
     do
     {
-      if ( v14 == *((_DWORD *)_RSI - 5) )
+      if ( v7 == *((_DWORD *)p_pitch - 5) )
       {
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rsi-4]
-          vmovss  xmm6, dword ptr [rsi]
-        }
-        v88 = *(_QWORD *)(_RSI - 3);
-        __asm
-        {
-          vcvtss2sd xmm7, xmm7, xmm7
-          vmovaps xmm3, xmm7
-          vcvtss2sd xmm6, xmm6, xmm6
-          vmovq   r9, xmm3
-          vmovsd  [rsp+148h+fmt], xmm6
-        }
-        v93 = j_va("AssetEntry:%i Sound:%s Volume:%.2f Pitch:%.2f", v82, v88, _R9, fmt);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rbp+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v93, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm8, dword ptr [rdi]
-          vmovaps xmm3, xmm6
-          vmovaps xmm2, xmm7
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovss  dword ptr [rdi], xmm1
-        }
-        v101 = j_va("%s v:%.2f p:%.2f", v88, _R8, _R9);
-        __asm { vmovaps xmm2, xmm9; scale }
-        CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v101, 0, 0);
-        LOBYTE(v81) = 1;
+        v31 = *(_QWORD *)(p_pitch - 3);
+        v32 = *(p_pitch - 1);
+        v33 = *p_pitch;
+        v34 = j_va("AssetEntry:%i Sound:%s Volume:%.2f Pitch:%.2f", v28, v31, v32, v33);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v34, &colorWhite);
+        *y = *y + 8.0;
+        v35 = j_va("%s v:%.2f p:%.2f", v31, v32, v33);
+        CL_AddDebugString(&xyz, &colorWhite, 0.5, v35, 0, 0);
+        LOBYTE(v27) = 1;
       }
-      _RSI += 6;
-      --v85;
+      p_pitch += 6;
+      --v30;
     }
-    while ( v85 );
-    __asm { vmovaps xmm9, [rsp+148h+var_88] }
-    if ( !(_BYTE)v81 )
+    while ( v30 );
+    if ( !(_BYTE)v27 )
     {
 LABEL_19:
-      v104 = j_va("Did not play any sounds this frame", v81);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v104, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm8, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
+      v36 = j_va("Did not play any sounds this frame", v27);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v36, &colorWhite);
+      *y = *y + 8.0;
     }
-    __asm
-    {
-      vaddss  xmm1, xmm10, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-      vcvtss2sd xmm1, xmm11, xmm11
-      vcvtss2sd xmm2, xmm12, xmm12
-      vmovq   rdx, xmm1
-      vmovq   r8, xmm2
-    }
-    v113 = j_va("Distance %.2f (max %.2f)", _RDX, _R8);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v113, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm8, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rbp+0]
-      vsubss  xmm0, xmm2, xmm10
-      vmovss  dword ptr [rbp+0], xmm0
-    }
+    *x = *x + 12.0;
+    v37 = j_va("Distance %.2f (max %.2f)", v24, v18);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v37, &colorWhite);
+    *y = *y + 8.0;
+    *x = *x - 12.0;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm2, xmm12, xmm12
-      vcvtss2sd xmm1, xmm11, xmm11
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-    }
-    v76 = j_va("Too far away (%.2f - max %.2f) to play sounds", _RDX, _R8);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v76, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm8, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-  }
-  _R11 = &v135;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
+    v25 = j_va("Too far away (%.2f - max %.2f) to play sounds", v24, v18);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v25, &colorWhite);
+    *y = *y + 8.0;
   }
 }
 
@@ -3541,133 +2263,65 @@ HavokCloth_Debug_Sound_DrawSummary
 */
 void HavokCloth_Debug_Sound_DrawSummary(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  unsigned int v8; 
-  const char *v12; 
-  __int64 v18; 
-  unsigned int v21; 
-  const char *v22; 
+  unsigned int v3; 
+  const char *v7; 
+  float *p_pitch; 
+  __int64 v9; 
+  unsigned int v10; 
+  const char *v11; 
   const ClothAsset *ClothAsset; 
   const char *name; 
   unsigned int CurrentSoundIdx; 
-  const char *v34; 
-  const char *v37; 
-  const char *v45; 
-  double duration; 
-  double v53; 
+  const char *v15; 
+  double v16; 
+  double v17; 
+  const char *v18; 
+  const char *v19; 
   vec3_t xyz; 
   hkVector4f position; 
 
-  __asm { vmovaps [rsp+0F8h+var_68], xmm8 }
-  v8 = s_HavokCloth_Debug_SoundCache_NumEntries[0];
-  _R13 = x;
-  _R14 = y;
-  v12 = j_va("%i Sounds Playing", s_HavokCloth_Debug_SoundCache_NumEntries[0]);
-  __asm
+  v3 = s_HavokCloth_Debug_SoundCache_NumEntries[0];
+  v7 = j_va("%i Sounds Playing", s_HavokCloth_Debug_SoundCache_NumEntries[0]);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v7, &colorWhite);
+  *y = *y + 8.0;
+  if ( v3 )
   {
-    vmovss  xmm2, dword ptr [r14]; y
-    vmovss  xmm1, dword ptr [r13+0]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v12, &colorWhite);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41000000
-    vaddss  xmm0, xmm8, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-  }
-  if ( v8 )
-  {
-    _RBP = &s_HavokCloth_Debug_SoundCache[0][0].pitch;
-    v18 = v8;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_78], xmm9
-      vmovss  xmm9, cs:__real@42000000
-      vmovaps [rsp+0F8h+var_88], xmm10
-      vmovss  xmm10, cs:__real@3f000000
-      vmovaps [rsp+0F8h+var_48], xmm6
-      vmovaps [rsp+0F8h+var_58], xmm7
-    }
+    p_pitch = &s_HavokCloth_Debug_SoundCache[0][0].pitch;
+    v9 = v3;
     do
     {
-      v21 = *((_DWORD *)_RBP - 5);
-      if ( HavokCloth_IsInstanceInUse(0, v21) )
+      v10 = *((_DWORD *)p_pitch - 5);
+      if ( HavokCloth_IsInstanceInUse(0, v10) )
       {
-        ClothAsset = HavokCloth_GetClothAsset(0, v21);
+        ClothAsset = HavokCloth_GetClothAsset(0, v10);
         if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1707, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
           __debugbreak();
         name = ClothAsset->name;
-        HavokCloth_GetInstancePosition(0, v21, &position);
-        __asm
-        {
-          vmulss  xmm1, xmm9, dword ptr [rsp+0F8h+position.m_quad]
-          vmulss  xmm0, xmm9, dword ptr [rsp+0F8h+position.m_quad+4]
-          vmulss  xmm2, xmm9, dword ptr [rsp+0F8h+position.m_quad+8]
-          vmovss  dword ptr [rsp+0F8h+xyz], xmm1
-          vmovss  dword ptr [rsp+0F8h+xyz+4], xmm0
-          vmovss  dword ptr [rsp+0F8h+xyz+8], xmm2
-        }
-        CurrentSoundIdx = HavokCloth_GetCurrentSoundIdx(0, v21);
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rbp+0]
-          vmovss  xmm7, dword ptr [rbp-4]
-        }
-        v34 = *(const char **)(_RBP - 3);
-        __asm
-        {
-          vcvtss2sd xmm6, xmm6, xmm6
-          vmovsd  [rsp+0F8h+var_C8], xmm6
-          vcvtss2sd xmm7, xmm7, xmm7
-          vmovsd  qword ptr [rsp+0F8h+duration], xmm7
-        }
-        v37 = j_va("Instance %i %s: AssetEntry:%i Sound:%s Volume:%.2f Pitch:%.2f", v21, name, CurrentSoundIdx, v34, duration, v53);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14]; y
-          vmovss  xmm1, dword ptr [r13+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v37, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm8, dword ptr [r14]
-          vmovaps xmm3, xmm6
-          vmovaps xmm2, xmm7
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovss  dword ptr [r14], xmm1
-        }
-        v45 = j_va("%s v:%.2f p:%.2f", v34, _R8, _R9);
-        __asm { vmovaps xmm2, xmm10; scale }
-        CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v45, 0, 0);
+        HavokCloth_GetInstancePosition(0, v10, &position);
+        xyz.v[0] = 32.0 * position.m_quad.m128_f32[0];
+        xyz.v[1] = 32.0 * position.m_quad.m128_f32[1];
+        xyz.v[2] = 32.0 * position.m_quad.m128_f32[2];
+        CurrentSoundIdx = HavokCloth_GetCurrentSoundIdx(0, v10);
+        v15 = *(const char **)(p_pitch - 3);
+        v16 = *p_pitch;
+        v17 = *(p_pitch - 1);
+        v18 = j_va("Instance %i %s: AssetEntry:%i Sound:%s Volume:%.2f Pitch:%.2f", v10, name, CurrentSoundIdx, v15, v17, v16);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v18, &colorWhite);
+        *y = *y + 8.0;
+        v19 = j_va("%s v:%.2f p:%.2f", v15, v17, v16);
+        CL_AddDebugString(&xyz, &colorWhite, 0.5, v19, 0, 0);
       }
       else
       {
-        v22 = j_va("Instance %i was destroyed this frame", v21);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14]; y
-          vmovss  xmm1, dword ptr [r13+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm8, dword ptr [r14]
-          vmovss  dword ptr [r14], xmm1
-        }
+        v11 = j_va("Instance %i was destroyed this frame", v10);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v11, &colorWhite);
+        *y = *y + 8.0;
       }
-      _RBP += 6;
-      --v18;
+      p_pitch += 6;
+      --v9;
     }
-    while ( v18 );
-    __asm
-    {
-      vmovaps xmm10, [rsp+0F8h+var_88]
-      vmovaps xmm9, [rsp+0F8h+var_78]
-      vmovaps xmm7, [rsp+0F8h+var_58]
-      vmovaps xmm6, [rsp+0F8h+var_48]
-    }
+    while ( v9 );
   }
-  __asm { vmovaps xmm8, [rsp+0F8h+var_68] }
 }
 
 /*
@@ -3678,50 +2332,32 @@ HavokCloth_Debug_Sound_SetCache
 void HavokCloth_Debug_Sound_SetCache(const unsigned int globalWorldId, HavokCloth_Update_QueuedSound *sounds, unsigned int numSounds)
 {
   __int64 v3; 
+  HavokCloth_Update_QueuedSound *v6; 
 
   v3 = globalWorldId;
-  _RBX = sounds;
   if ( globalWorldId >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1831, ASSERT_TYPE_ASSERT, "(unsigned)( globalWorldId ) < (unsigned)( s_HavokCloth_Debug_GlobalClothWorldMax )", "globalWorldId doesn't index s_HavokCloth_Debug_GlobalClothWorldMax\n\t%i not in [0, %i)", globalWorldId, 2) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1832, ASSERT_TYPE_ASSERT, "(sounds)", (const char *)&queryFormat, "sounds") )
+  if ( !sounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1832, ASSERT_TYPE_ASSERT, "(sounds)", (const char *)&queryFormat, "sounds") )
     __debugbreak();
   if ( numSounds > 0xA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1833, ASSERT_TYPE_ASSERT, "(numSounds <= MAX_SIMULTANEOUS_CLOTH_SOUNDS)", (const char *)&queryFormat, "numSounds <= MAX_SIMULTANEOUS_CLOTH_SOUNDS") )
     __debugbreak();
   s_HavokCloth_Debug_SoundCache_NumEntries[v3] = numSounds;
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _RCX = s_HavokCloth_Debug_SoundCache[v3];
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rcx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [rcx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rcx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+90h]
-    vmovups xmmword ptr [rcx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0A0h]
-    vmovups xmmword ptr [rcx+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0B0h]
-    vmovups xmmword ptr [rcx+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0C0h]
-    vmovups xmmword ptr [rcx+0C0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0D0h]
-    vmovups xmmword ptr [rcx+0D0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0E0h]
-    vmovups xmmword ptr [rcx+0E0h], xmm1
-  }
+  v6 = s_HavokCloth_Debug_SoundCache[v3];
+  *(_OWORD *)&v6->instanceId = *(_OWORD *)&sounds->instanceId;
+  *(_OWORD *)&v6->volume = *(_OWORD *)&sounds->volume;
+  *(_OWORD *)&v6[1].soundAlias = *(_OWORD *)&sounds[1].soundAlias;
+  *(_OWORD *)&v6[2].instanceId = *(_OWORD *)&sounds[2].instanceId;
+  *(_OWORD *)&v6[2].volume = *(_OWORD *)&sounds[2].volume;
+  *(_OWORD *)&v6[3].soundAlias = *(_OWORD *)&sounds[3].soundAlias;
+  *(_OWORD *)&v6[4].instanceId = *(_OWORD *)&sounds[4].instanceId;
+  *(_OWORD *)&v6[4].volume = *(_OWORD *)&sounds[4].volume;
+  *(_OWORD *)&v6[5].soundAlias = *(_OWORD *)&sounds[5].soundAlias;
+  *(_OWORD *)&v6[6].instanceId = *(_OWORD *)&sounds[6].instanceId;
+  *(_OWORD *)&v6[6].volume = *(_OWORD *)&sounds[6].volume;
+  *(_OWORD *)&v6[7].soundAlias = *(_OWORD *)&sounds[7].soundAlias;
+  *(_OWORD *)&v6[8].instanceId = *(_OWORD *)&sounds[8].instanceId;
+  *(_OWORD *)&v6[8].volume = *(_OWORD *)&sounds[8].volume;
+  *(_OWORD *)&v6[9].soundAlias = *(_OWORD *)&sounds[9].soundAlias;
 }
 
 /*
@@ -3731,200 +2367,76 @@ HavokCloth_Debug_Speed_DrawInstance
 */
 void HavokCloth_Debug_Speed_DrawInstance(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int instanceId)
 {
+  const ClothAsset *ClothAsset; 
+  float defaultSpeed; 
   bool SimulatedSpeed; 
-  const char *v24; 
-  const char *v36; 
-  const char *v45; 
-  const char *v48; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  int duration; 
-  int durationa; 
-  float v85; 
-  float v86; 
+  double BlendedSpeed; 
+  float v12; 
+  const char *v13; 
+  double v14; 
+  double v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  float v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
   float speed; 
   vec3_t xyz; 
   hkVector4f position; 
-  char v90; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R15 = x;
-  _RBX = y;
   if ( !HavokCloth_IsInstanceInUse(0, instanceId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1627, ASSERT_TYPE_ASSERT, "(HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId ))", (const char *)&queryFormat, "HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId )") )
     __debugbreak();
-  _RSI = HavokCloth_GetClothAsset(0, instanceId);
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1631, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+  ClothAsset = HavokCloth_GetClothAsset(0, instanceId);
+  if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1631, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
     __debugbreak();
   HavokCloth_GetInstancePosition(0, instanceId, &position);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42000000
-    vmulss  xmm1, xmm3, dword ptr [rsp+128h+position.m_quad]
-    vmulss  xmm0, xmm3, dword ptr [rsp+128h+position.m_quad+4]
-    vmulss  xmm2, xmm3, dword ptr [rsp+128h+position.m_quad+8]
-    vmovss  dword ptr [rsp+128h+xyz], xmm1
-    vmovss  dword ptr [rsp+128h+xyz+4], xmm0
-    vmovss  dword ptr [rsp+128h+xyz+8], xmm2
-    vmovss  xmm9, dword ptr [rsi+5Ch]
-  }
+  xyz.v[0] = 32.0 * position.m_quad.m128_f32[0];
+  xyz.v[1] = 32.0 * position.m_quad.m128_f32[1];
+  xyz.v[2] = 32.0 * position.m_quad.m128_f32[2];
+  defaultSpeed = ClothAsset->defaultSpeed;
   SimulatedSpeed = HavokCloth_GetSimulatedSpeed(0, instanceId, &speed);
-  *(double *)&_XMM0 = HavokCloth_GetBlendedSpeed(0, instanceId);
-  __asm
+  BlendedSpeed = HavokCloth_GetBlendedSpeed(0, instanceId);
+  v12 = *(float *)&BlendedSpeed;
+  if ( !SimulatedSpeed && *(float *)&BlendedSpeed == 0.0 )
   {
-    vmovss  xmm8, cs:__real@41000000
-    vmovaps xmm7, xmm0
-    vxorps  xmm10, xmm10, xmm10
+    v13 = j_va("Speed is 0");
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+    *y = *y + 8.0;
   }
-  if ( !SimulatedSpeed )
-  {
-    __asm { vucomiss xmm0, xmm10 }
-    v24 = j_va("Speed is 0");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r15]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v24, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm8, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
-  }
-  __asm
-  {
-    vcvtss2sd xmm1, xmm9, xmm9
-    vmovq   rdx, xmm1
-    vcvtss2sd xmm6, xmm7, xmm7
-  }
+  v14 = defaultSpeed;
+  v15 = *(float *)&BlendedSpeed;
   if ( SimulatedSpeed )
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+128h+speed]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovaps xmm3, xmm6
-      vmovq   r8, xmm2
-      vmovq   r9, xmm3
-    }
-    v36 = j_va("Default: %.2f Simulated:%.2f Blended:%.2f", _RDX, _R8, _R9);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r15]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v36, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm8, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-      vmovss  xmm1, [rsp+128h+speed]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovaps xmm2, xmm6
-      vmovq   rdx, xmm1
-      vmovq   r8, xmm2
-    }
-    v45 = j_va("%.2f-%.2f", _RDX, _R8);
+    v16 = j_va("Default: %.2f Simulated:%.2f Blended:%.2f", v14, speed, v15);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+    *y = *y + 8.0;
+    v17 = j_va("%.2f-%.2f", speed, v15);
   }
   else
   {
-    __asm
-    {
-      vmovaps xmm2, xmm6
-      vmovq   r8, xmm2
-    }
-    v48 = j_va("Default: %.2f Blended:%.2f", _RDX, _R8);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r15]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v48, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm8, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-      vmovaps xmm1, xmm6
-      vmovq   rdx, xmm1
-    }
-    v45 = j_va("%.2f", _RDX);
+    v18 = j_va("Default: %.2f Blended:%.2f", v14, v15);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v18, &colorWhite);
+    *y = *y + 8.0;
+    v17 = j_va("%.2f", v15);
   }
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v45, 0, 0);
+  CL_AddDebugString(&xyz, &colorWhite, 0.5, v17, 0, 0);
   if ( SimulatedSpeed )
-    __asm { vmovss  xmm0, [rsp+128h+speed] }
+    v19 = speed;
   else
-    __asm { vmovss  xmm0, dword ptr [rsi+5Ch] }
-  _RCX = s_HavokCloth_SpeedHistoryStart;
-  _RDX = s_HavokCloth_TargetSpeedHistory;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@437a0000
-    vmovss  xmm8, cs:__real@42c80000
-    vmovss  dword ptr [rdx+rcx*4], xmm0
-  }
-  _RDI = s_HavokCloth_BlendedSpeedHistory;
-  __asm
-  {
-    vmovss  dword ptr [rdi+rcx*4], xmm7
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm2, xmm0, cs:__real@41200000; y
-    vmovss  xmm7, cs:__real@44000000
-    vmovss  [rsp+128h+var_F8], xmm6
-    vmovss  dword ptr [rbx], xmm2
-    vmovss  xmm1, dword ptr [r15]; x
-  }
-  s_HavokCloth_SpeedHistoryStart = ((_BYTE)_RCX + 1) & 0x7F;
-  __asm
-  {
-    vmovss  [rsp+128h+duration], xmm10
-    vmovaps xmm3, xmm7; width
-    vmovss  dword ptr [rsp+128h+fmt], xmm8
-  }
-  CG_DebugGraphs_DrawGraphData(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, *(float *)&duration, v85, s_HavokCloth_TargetSpeedHistory, 0x80u, s_HavokCloth_SpeedHistoryStart, &colorRed);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [r15]; x
-    vmovss  [rsp+128h+var_F8], xmm6
-    vmovss  [rsp+128h+duration], xmm10
-    vmovaps xmm3, xmm7; width
-    vmovss  dword ptr [rsp+128h+fmt], xmm8
-  }
-  CG_DebugGraphs_DrawGraphData(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, *(float *)&durationa, v86, s_HavokCloth_BlendedSpeedHistory, 0x80u, s_HavokCloth_SpeedHistoryStart, &colorGreen);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  dword ptr [rsp+128h+fmt], xmm8
-  }
-  CG_DebugGraphs_DrawAxes(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, cs:__real@42dc0000
-    vmovss  dword ptr [rbx], xmm1
-  }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+    v19 = ClothAsset->defaultSpeed;
+  v20 = s_HavokCloth_SpeedHistoryStart;
+  s_HavokCloth_TargetSpeedHistory[s_HavokCloth_SpeedHistoryStart] = v19;
+  s_HavokCloth_BlendedSpeedHistory[v20] = v12;
+  v21 = *y;
+  *y = *y + 10.0;
+  v22 = *x;
+  s_HavokCloth_SpeedHistoryStart = ((_BYTE)v20 + 1) & 0x7F;
+  CG_DebugGraphs_DrawGraphData(scrPlace, v22, v21 + 10.0, 512.0, 100.0, 0.0, 250.0, s_HavokCloth_TargetSpeedHistory, 0x80u, s_HavokCloth_SpeedHistoryStart, &colorRed);
+  CG_DebugGraphs_DrawGraphData(scrPlace, *x, *y, 512.0, 100.0, 0.0, 250.0, s_HavokCloth_BlendedSpeedHistory, 0x80u, s_HavokCloth_SpeedHistoryStart, &colorGreen);
+  CG_DebugGraphs_DrawAxes(scrPlace, *x, *y, 512.0, 100.0, &colorWhite);
+  *y = *y + 110.0;
 }
 
 /*
@@ -3934,137 +2446,63 @@ HavokCloth_Debug_Speed_DrawSummary
 */
 void HavokCloth_Debug_Speed_DrawSummary(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  unsigned int v12; 
-  unsigned int v17; 
+  unsigned int i; 
+  unsigned int v7; 
+  const ClothAsset *ClothAsset; 
   const char *name; 
+  float defaultSpeed; 
   bool SimulatedSpeed; 
-  const char *v30; 
-  const char *v39; 
-  const char *v40; 
-  char *fmt; 
-  char *fmta; 
-  double duration; 
+  double BlendedSpeed; 
+  double v13; 
+  double v14; 
+  const char *v15; 
+  double v16; 
+  const char *v17; 
+  const char *v18; 
   unsigned int numInstances; 
   float speed; 
   vec3_t xyz; 
   hkVector4f position; 
   unsigned int instances[1024]; 
 
-  _R14 = y;
-  _R12 = x;
   numInstances = 0;
   HavokCloth_GetInstanceList(0, instances, &numInstances);
-  v12 = 0;
-  if ( numInstances )
+  for ( i = 0; i < numInstances; ++i )
   {
-    __asm
+    v7 = instances[i];
+    if ( !HavokCloth_IsInstanceInUse(0, v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1580, ASSERT_TYPE_ASSERT, "(HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId ))", (const char *)&queryFormat, "HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId )") )
+      __debugbreak();
+    ClothAsset = HavokCloth_GetClothAsset(0, v7);
+    if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1584, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+      __debugbreak();
+    name = ClothAsset->name;
+    HavokCloth_GetInstancePosition(0, v7, &position);
+    xyz.v[0] = 32.0 * position.m_quad.m128_f32[0];
+    xyz.v[1] = 32.0 * position.m_quad.m128_f32[1];
+    xyz.v[2] = 32.0 * position.m_quad.m128_f32[2];
+    defaultSpeed = ClothAsset->defaultSpeed;
+    SimulatedSpeed = HavokCloth_GetSimulatedSpeed(0, v7, &speed);
+    BlendedSpeed = HavokCloth_GetBlendedSpeed(0, v7);
+    if ( SimulatedSpeed || *(float *)&BlendedSpeed != 0.0 )
     {
-      vmovaps [rsp+1108h+var_58], xmm7
-      vmovaps [rsp+1108h+var_68], xmm8
-      vmovss  xmm8, cs:__real@42000000
-      vmovaps [rsp+1108h+var_78], xmm9
-      vmovaps [rsp+1108h+var_88], xmm10
-      vmovss  xmm10, cs:__real@41000000
-      vmovaps [rsp+1108h+var_98], xmm11
-      vmovss  xmm11, cs:__real@3f000000
-      vmovaps [rsp+1108h+var_48], xmm6
-      vxorps  xmm9, xmm9, xmm9
-    }
-    do
-    {
-      v17 = instances[v12];
-      if ( !HavokCloth_IsInstanceInUse(0, v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1580, ASSERT_TYPE_ASSERT, "(HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId ))", (const char *)&queryFormat, "HavokCloth_IsInstanceInUse( LOCAL_CLIENT_0, instanceId )") )
-        __debugbreak();
-      _RSI = HavokCloth_GetClothAsset(0, v17);
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothdebug.cpp", 1584, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
-        __debugbreak();
-      name = _RSI->name;
-      HavokCloth_GetInstancePosition(0, v17, &position);
-      __asm
-      {
-        vmulss  xmm1, xmm8, dword ptr [rsp+1108h+position.m_quad]
-        vmulss  xmm0, xmm8, dword ptr [rsp+1108h+position.m_quad+4]
-        vmulss  xmm2, xmm8, dword ptr [rsp+1108h+position.m_quad+8]
-        vmovss  dword ptr [rsp+1108h+xyz], xmm1
-        vmovss  dword ptr [rsp+1108h+xyz+4], xmm0
-        vmovss  dword ptr [rsp+1108h+xyz+8], xmm2
-        vmovss  xmm7, dword ptr [rsi+5Ch]
-      }
-      SimulatedSpeed = HavokCloth_GetSimulatedSpeed(0, v17, &speed);
-      *(double *)&_XMM0 = HavokCloth_GetBlendedSpeed(0, v17);
+      v13 = defaultSpeed;
+      v14 = *(float *)&BlendedSpeed;
       if ( SimulatedSpeed )
       {
-        __asm
-        {
-          vcvtss2sd xmm3, xmm7, xmm7
-          vmovq   r9, xmm3
-          vcvtss2sd xmm6, xmm0, xmm0
-        }
-        if ( SimulatedSpeed )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+1108h+speed]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  qword ptr [rsp+1108h+duration], xmm6
-            vmovsd  [rsp+1108h+fmt], xmm0
-          }
-          v30 = j_va("Instance %i %s: Default: %.2f Simulated:%.2f Blended:%.2f", v17, name, *(double *)&_XMM3, *(double *)&fmt, duration);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r14]; y
-            vmovss  xmm1, dword ptr [r12]; x
-          }
-          Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v30, &colorWhite);
-          __asm
-          {
-            vmovss  xmm2, [rsp+1108h+speed]
-            vaddss  xmm1, xmm10, dword ptr [r14]
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovaps xmm3, xmm6
-            vmovq   r8, xmm2
-            vmovq   r9, xmm3
-            vmovss  dword ptr [r14], xmm1
-          }
-          v39 = j_va("%i-%.2f-%.2f", v17, _R8, _R9);
-        }
-        else
-        {
-          __asm { vmovsd  [rsp+1108h+fmt], xmm6 }
-          v40 = j_va("Instance %i %s: Default: %.2f Blended:%.2f", v17, name, *(double *)&_XMM3, *(double *)&fmta);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r14]; y
-            vmovss  xmm1, dword ptr [r12]; x
-          }
-          Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v40, &colorWhite);
-          __asm
-          {
-            vaddss  xmm1, xmm10, dword ptr [r14]
-            vmovaps xmm2, xmm6
-            vmovq   r8, xmm2
-            vmovss  dword ptr [r14], xmm1
-          }
-          v39 = j_va("%i-%.2f", v17, _R8);
-        }
-        __asm { vmovaps xmm2, xmm11; scale }
-        CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v39, 0, 0);
+        v15 = j_va("Instance %i %s: Default: %.2f Simulated:%.2f Blended:%.2f", v7, name, v13, speed, v14);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v15, &colorWhite);
+        v16 = speed;
+        *y = *y + 8.0;
+        v17 = j_va("%i-%.2f-%.2f", v7, v16, v14);
       }
       else
       {
-        __asm { vucomiss xmm0, xmm9 }
+        v18 = j_va("Instance %i %s: Default: %.2f Blended:%.2f", v7, name, v13, v14);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v18, &colorWhite);
+        *y = *y + 8.0;
+        v17 = j_va("%i-%.2f", v7, v14);
       }
-      ++v12;
-    }
-    while ( v12 < numInstances );
-    __asm
-    {
-      vmovaps xmm11, [rsp+1108h+var_98]
-      vmovaps xmm10, [rsp+1108h+var_88]
-      vmovaps xmm9, [rsp+1108h+var_78]
-      vmovaps xmm8, [rsp+1108h+var_68]
-      vmovaps xmm7, [rsp+1108h+var_58]
-      vmovaps xmm6, [rsp+1108h+var_48]
+      CL_AddDebugString(&xyz, &colorWhite, 0.5, v17, 0, 0);
     }
   }
 }

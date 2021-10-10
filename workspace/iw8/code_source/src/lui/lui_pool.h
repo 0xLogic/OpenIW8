@@ -71,24 +71,23 @@ LUIUserDataPool<LUIElement,0,4500>::Allocate
 */
 LUIElement *LUIUserDataPool<LUIElement,0,4500>::Allocate(LUIUserDataPool<LUIElement,0,4500> *this, int maxAttempts, const char *poolName, lua_State *luaVM)
 {
-  const char *v6; 
-  int v9; 
+  const char *v5; 
+  int v8; 
   unsigned __int16 m_firstFree; 
-  unsigned __int16 *v11; 
-  unsigned __int16 v12; 
-  const dvar_t *v13; 
-  unsigned int v14; 
-  int v15; 
-  const char *v18; 
+  unsigned __int16 *v10; 
+  unsigned __int16 v11; 
+  const dvar_t *v12; 
+  unsigned int v13; 
+  int v14; 
+  const char *v17; 
   bool (__fastcall *m_allocationErrorCallback)(const LUIUserDataPool<LUIElement,0,4500> *); 
   char *fmt; 
-  __int64 v22; 
-  double v23; 
+  __int64 v21; 
 
-  v6 = poolName;
+  v5 = poolName;
   if ( maxAttempts <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 184, ASSERT_TYPE_ASSERT, "(maxAttempts > 0)", (const char *)&queryFormat, "maxAttempts > 0") )
     __debugbreak();
-  v9 = 0;
+  v8 = 0;
   if ( maxAttempts <= 0 )
     goto LABEL_38;
   while ( 1 )
@@ -97,13 +96,13 @@ LUIElement *LUIUserDataPool<LUIElement,0,4500>::Allocate(LUIUserDataPool<LUIElem
     if ( m_firstFree < 0x1194u )
       break;
 LABEL_11:
-    if ( v9 >= maxAttempts - 1 )
+    if ( v8 >= maxAttempts - 1 )
     {
-      Com_PrintError(13, "LUI ERROR: Failed to allocate from %s pool. Restarting the Lua VM.\n", v6);
-      v18 = "unknown pool";
-      if ( v6 )
-        v18 = v6;
-      LUI_ReportErrorWithInfo("Failed to allocate from LUI pool ", v18, luaVM);
+      Com_PrintError(13, "LUI ERROR: Failed to allocate from %s pool. Restarting the Lua VM.\n", v5);
+      v17 = "unknown pool";
+      if ( v5 )
+        v17 = v5;
+      LUI_ReportErrorWithInfo("Failed to allocate from LUI pool ", v17, luaVM);
       m_allocationErrorCallback = this->m_allocationErrorCallback;
       if ( !m_allocationErrorCallback || !m_allocationErrorCallback(this) )
       {
@@ -114,68 +113,63 @@ LABEL_11:
       }
       goto LABEL_37;
     }
-    v13 = DVARBOOL_lui_pool_incremental_gc_enabled;
+    v12 = DVARBOOL_lui_pool_incremental_gc_enabled;
     if ( !DVARBOOL_lui_pool_incremental_gc_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_pool_incremental_gc_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( !v13->current.enabled )
+    Dvar_CheckFrontendServerThread(v12);
+    if ( !v12->current.enabled )
     {
       LODWORD(fmt) = maxAttempts;
-      LUI_EmergencyFullGC(luaVM, "LUI: Could not allocate from %s pool, attempt %d/%d", v6, (unsigned int)(v9 + 1), fmt);
+      LUI_EmergencyFullGC(luaVM, "LUI: Could not allocate from %s pool, attempt %d/%d", v5, (unsigned int)(v8 + 1), fmt);
       goto LABEL_37;
     }
     __rdtsc();
     Sys_ProfBeginNamedEvent(0xFF0000FF, "LUI_EmergencyGCUntilResourceAvailable");
+    v13 = 0;
     v14 = 0;
-    v15 = 0;
     while ( j_lua_gc(luaVM, 5, 0) )
     {
-      ++v14;
-      v15 = 0;
+      ++v13;
+      v14 = 0;
 LABEL_26:
-      if ( v14 >= 4 || this->m_firstFree < 0x1194u )
+      if ( v13 >= 4 || this->m_firstFree < 0x1194u )
         goto LABEL_22;
     }
-    if ( (unsigned int)++v15 < 0x249F0 )
+    if ( (unsigned int)++v14 < 0x249F0 )
       goto LABEL_26;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.h", 828, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "LUI_EmergencyGCUntilResourceAvailable: possible infinite loop detected.") )
       __debugbreak();
     Com_PrintError(13, "LUI_EmergencyGCUntilResourceAvailable: possible infinite loop detected. Terminating early.\n");
 LABEL_22:
-    if ( v14 > 1 )
+    if ( v13 > 1 )
       LUI_CoD_ClearFullGCCycleFlag();
     Sys_ProfEndNamedEvent();
     __rdtsc();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovsd  [rsp+78h+var_48], xmm1
-    }
-    LODWORD(v22) = v14;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    LODWORD(v21) = v13;
     LODWORD(fmt) = maxAttempts;
-    v6 = poolName;
-    Com_PrintWarning(13, "LUI: Could not allocate from %s pool, attempt %d/%d. Did emergency inc gc (%u full cycles) over %4.3f ms\n", poolName, (unsigned int)(v9 + 1), fmt, v22, v23);
+    v5 = poolName;
+    Com_PrintWarning(13, "LUI: Could not allocate from %s pool, attempt %d/%d. Did emergency inc gc (%u full cycles) over %4.3f ms\n", poolName, (unsigned int)(v8 + 1), fmt, v21, (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
 LABEL_37:
-    if ( ++v9 >= maxAttempts )
+    if ( ++v8 >= maxAttempts )
 LABEL_38:
       j_luaL_error(luaVM, (const char *)&queryFormat, "object != NULL");
   }
   this->m_firstFree = this->m_poolData[m_firstFree];
   this->m_poolData[m_firstFree] = this->m_iteration;
-  v11 = (unsigned __int16 *)j_lua_newuserdata(luaVM, 4ui64);
-  *v11 = m_firstFree;
-  v11[1] = this->m_iteration;
-  v12 = this->m_iteration + 1;
-  if ( v12 >= 0x1195u )
-    this->m_iteration = v12;
+  v10 = (unsigned __int16 *)j_lua_newuserdata(luaVM, 4ui64);
+  *v10 = m_firstFree;
+  v10[1] = this->m_iteration;
+  v11 = this->m_iteration + 1;
+  if ( v11 >= 0x1195u )
+    this->m_iteration = v11;
   else
     this->m_iteration = 4501;
   this->m_lastAllocated = m_firstFree;
   if ( !&this->m_pool[m_firstFree] )
   {
-    v6 = poolName;
+    v5 = poolName;
     goto LABEL_11;
   }
   LUI_Interface_CheckLowMemory(luaVM);
@@ -189,25 +183,24 @@ LUIUserDataPool<LUISubscriptionsHolder,0,3000>::Allocate
 */
 LUISubscriptionsHolder *LUIUserDataPool<LUISubscriptionsHolder,0,3000>::Allocate(LUIUserDataPool<LUISubscriptionsHolder,0,3000> *this, int maxAttempts, const char *poolName, lua_State *luaVM)
 {
-  const char *v6; 
-  int v9; 
+  const char *v5; 
+  int v8; 
   unsigned __int16 m_firstFree; 
-  unsigned __int16 *v11; 
-  unsigned __int16 v12; 
-  const dvar_t *v13; 
+  unsigned __int16 *v10; 
+  unsigned __int16 v11; 
+  const dvar_t *v12; 
   unsigned int flags; 
-  unsigned int v15; 
-  int v16; 
-  const char *v19; 
+  unsigned int v14; 
+  int v15; 
+  const char *v18; 
   bool (__fastcall *m_allocationErrorCallback)(const LUIUserDataPool<LUISubscriptionsHolder,0,3000> *); 
   char *fmt; 
-  __int64 v23; 
-  double v24; 
+  __int64 v22; 
 
-  v6 = poolName;
+  v5 = poolName;
   if ( maxAttempts <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 184, ASSERT_TYPE_ASSERT, "(maxAttempts > 0)", (const char *)&queryFormat, "maxAttempts > 0") )
     __debugbreak();
-  v9 = 0;
+  v8 = 0;
   if ( maxAttempts <= 0 )
     goto LABEL_42;
   while ( 1 )
@@ -216,86 +209,81 @@ LUISubscriptionsHolder *LUIUserDataPool<LUISubscriptionsHolder,0,3000>::Allocate
     if ( m_firstFree < 0xBB8u )
       break;
 LABEL_11:
-    if ( v9 >= maxAttempts - 1 )
+    if ( v8 >= maxAttempts - 1 )
     {
-      Com_PrintError(13, "LUI ERROR: Failed to allocate from %s pool. Restarting the Lua VM.\n", v6);
-      v19 = "unknown pool";
-      if ( v6 )
-        v19 = v6;
-      LUI_ReportErrorWithInfo("Failed to allocate from LUI pool ", v19, luaVM);
+      Com_PrintError(13, "LUI ERROR: Failed to allocate from %s pool. Restarting the Lua VM.\n", v5);
+      v18 = "unknown pool";
+      if ( v5 )
+        v18 = v5;
+      LUI_ReportErrorWithInfo("Failed to allocate from LUI pool ", v18, luaVM);
       m_allocationErrorCallback = this->m_allocationErrorCallback;
       if ( !m_allocationErrorCallback || !m_allocationErrorCallback(this) )
         LUI_HandleLuaError(4);
       goto LABEL_41;
     }
-    v13 = DVARBOOL_lui_pool_incremental_gc_enabled;
+    v12 = DVARBOOL_lui_pool_incremental_gc_enabled;
     if ( !DVARBOOL_lui_pool_incremental_gc_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_pool_incremental_gc_enabled") )
       __debugbreak();
     if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
     {
-      flags = v13->flags;
-      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v13->name) )
+      flags = v12->flags;
+      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v12->name) )
         __debugbreak();
     }
-    if ( !v13->current.enabled )
+    if ( !v12->current.enabled )
     {
       LODWORD(fmt) = maxAttempts;
-      LUI_EmergencyFullGC(luaVM, "LUI: Could not allocate from %s pool, attempt %d/%d", v6, (unsigned int)(v9 + 1), fmt);
+      LUI_EmergencyFullGC(luaVM, "LUI: Could not allocate from %s pool, attempt %d/%d", v5, (unsigned int)(v8 + 1), fmt);
       goto LABEL_41;
     }
     __rdtsc();
     Sys_ProfBeginNamedEvent(0xFF0000FF, "LUI_EmergencyGCUntilResourceAvailable");
+    v14 = 0;
     v15 = 0;
-    v16 = 0;
     while ( j_lua_gc(luaVM, 5, 0) )
     {
-      ++v15;
-      v16 = 0;
+      ++v14;
+      v15 = 0;
 LABEL_32:
-      if ( v15 >= 4 || this->m_firstFree < 0xBB8u )
+      if ( v14 >= 4 || this->m_firstFree < 0xBB8u )
         goto LABEL_28;
     }
-    if ( (unsigned int)++v16 < 0x249F0 )
+    if ( (unsigned int)++v15 < 0x249F0 )
       goto LABEL_32;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.h", 828, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "LUI_EmergencyGCUntilResourceAvailable: possible infinite loop detected.") )
       __debugbreak();
     Com_PrintError(13, "LUI_EmergencyGCUntilResourceAvailable: possible infinite loop detected. Terminating early.\n");
 LABEL_28:
     LUI_PostGC();
-    if ( v15 > 1 )
+    if ( v14 > 1 )
       LUI_CoD_ClearFullGCCycleFlag();
     Sys_ProfEndNamedEvent();
     __rdtsc();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovsd  [rsp+78h+var_48], xmm1
-    }
-    LODWORD(v23) = v15;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    LODWORD(v22) = v14;
     LODWORD(fmt) = maxAttempts;
-    v6 = poolName;
-    Com_PrintWarning(13, "LUI: Could not allocate from %s pool, attempt %d/%d. Did emergency inc gc (%u full cycles) over %4.3f ms\n", poolName, (unsigned int)(v9 + 1), fmt, v23, v24);
+    v5 = poolName;
+    Com_PrintWarning(13, "LUI: Could not allocate from %s pool, attempt %d/%d. Did emergency inc gc (%u full cycles) over %4.3f ms\n", poolName, (unsigned int)(v8 + 1), fmt, v22, (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
 LABEL_41:
-    if ( ++v9 >= maxAttempts )
+    if ( ++v8 >= maxAttempts )
 LABEL_42:
       j_luaL_error(luaVM, (const char *)&queryFormat, "object != NULL");
   }
   this->m_firstFree = this->m_poolData[m_firstFree];
   this->m_poolData[m_firstFree] = this->m_iteration;
-  v11 = (unsigned __int16 *)j_lua_newuserdata(luaVM, 4ui64);
-  *v11 = m_firstFree;
-  v11[1] = this->m_iteration;
-  v12 = this->m_iteration + 1;
-  if ( v12 >= 0xBB9u )
-    this->m_iteration = v12;
+  v10 = (unsigned __int16 *)j_lua_newuserdata(luaVM, 4ui64);
+  *v10 = m_firstFree;
+  v10[1] = this->m_iteration;
+  v11 = this->m_iteration + 1;
+  if ( v11 >= 0xBB9u )
+    this->m_iteration = v11;
   else
     this->m_iteration = 3001;
   this->m_lastAllocated = m_firstFree;
   if ( !&this->m_pool[m_firstFree] )
   {
-    v6 = poolName;
+    v5 = poolName;
     goto LABEL_11;
   }
   LUI_Interface_CheckLowMemory(luaVM);
@@ -387,25 +375,24 @@ LUIUserDataPool<LUITween,0,1200>::Allocate
 */
 LUITween *LUIUserDataPool<LUITween,0,1200>::Allocate(LUIUserDataPool<LUITween,0,1200> *this, int maxAttempts, const char *poolName, lua_State *luaVM)
 {
-  const char *v6; 
-  int v9; 
+  const char *v5; 
+  int v8; 
   unsigned __int16 m_firstFree; 
-  unsigned __int16 *v11; 
-  unsigned __int16 v12; 
-  const dvar_t *v13; 
+  unsigned __int16 *v10; 
+  unsigned __int16 v11; 
+  const dvar_t *v12; 
   unsigned int flags; 
-  unsigned int v15; 
-  int v16; 
-  const char *v19; 
+  unsigned int v14; 
+  int v15; 
+  const char *v18; 
   bool (__fastcall *m_allocationErrorCallback)(const LUIUserDataPool<LUITween,0,1200> *); 
   char *fmt; 
-  __int64 v23; 
-  double v24; 
+  __int64 v22; 
 
-  v6 = poolName;
+  v5 = poolName;
   if ( maxAttempts <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 184, ASSERT_TYPE_ASSERT, "(maxAttempts > 0)", (const char *)&queryFormat, "maxAttempts > 0") )
     __debugbreak();
-  v9 = 0;
+  v8 = 0;
   if ( maxAttempts <= 0 )
     goto LABEL_42;
   while ( 1 )
@@ -414,86 +401,81 @@ LUITween *LUIUserDataPool<LUITween,0,1200>::Allocate(LUIUserDataPool<LUITween,0,
     if ( m_firstFree < 0x4B0u )
       break;
 LABEL_11:
-    if ( v9 >= maxAttempts - 1 )
+    if ( v8 >= maxAttempts - 1 )
     {
-      Com_PrintError(13, "LUI ERROR: Failed to allocate from %s pool. Restarting the Lua VM.\n", v6);
-      v19 = "unknown pool";
-      if ( v6 )
-        v19 = v6;
-      LUI_ReportErrorWithInfo("Failed to allocate from LUI pool ", v19, luaVM);
+      Com_PrintError(13, "LUI ERROR: Failed to allocate from %s pool. Restarting the Lua VM.\n", v5);
+      v18 = "unknown pool";
+      if ( v5 )
+        v18 = v5;
+      LUI_ReportErrorWithInfo("Failed to allocate from LUI pool ", v18, luaVM);
       m_allocationErrorCallback = this->m_allocationErrorCallback;
       if ( !m_allocationErrorCallback || !m_allocationErrorCallback(this) )
         LUI_HandleLuaError(4);
       goto LABEL_41;
     }
-    v13 = DVARBOOL_lui_pool_incremental_gc_enabled;
+    v12 = DVARBOOL_lui_pool_incremental_gc_enabled;
     if ( !DVARBOOL_lui_pool_incremental_gc_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_pool_incremental_gc_enabled") )
       __debugbreak();
     if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
     {
-      flags = v13->flags;
-      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v13->name) )
+      flags = v12->flags;
+      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v12->name) )
         __debugbreak();
     }
-    if ( !v13->current.enabled )
+    if ( !v12->current.enabled )
     {
       LODWORD(fmt) = maxAttempts;
-      LUI_EmergencyFullGC(luaVM, "LUI: Could not allocate from %s pool, attempt %d/%d", v6, (unsigned int)(v9 + 1), fmt);
+      LUI_EmergencyFullGC(luaVM, "LUI: Could not allocate from %s pool, attempt %d/%d", v5, (unsigned int)(v8 + 1), fmt);
       goto LABEL_41;
     }
     __rdtsc();
     Sys_ProfBeginNamedEvent(0xFF0000FF, "LUI_EmergencyGCUntilResourceAvailable");
+    v14 = 0;
     v15 = 0;
-    v16 = 0;
     while ( j_lua_gc(luaVM, 5, 0) )
     {
-      ++v15;
-      v16 = 0;
+      ++v14;
+      v15 = 0;
 LABEL_32:
-      if ( v15 >= 4 || this->m_firstFree < 0x4B0u )
+      if ( v14 >= 4 || this->m_firstFree < 0x4B0u )
         goto LABEL_28;
     }
-    if ( (unsigned int)++v16 < 0x249F0 )
+    if ( (unsigned int)++v15 < 0x249F0 )
       goto LABEL_32;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.h", 828, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "LUI_EmergencyGCUntilResourceAvailable: possible infinite loop detected.") )
       __debugbreak();
     Com_PrintError(13, "LUI_EmergencyGCUntilResourceAvailable: possible infinite loop detected. Terminating early.\n");
 LABEL_28:
     LUI_PostGC();
-    if ( v15 > 1 )
+    if ( v14 > 1 )
       LUI_CoD_ClearFullGCCycleFlag();
     Sys_ProfEndNamedEvent();
     __rdtsc();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovsd  [rsp+78h+var_48], xmm1
-    }
-    LODWORD(v23) = v15;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    LODWORD(v22) = v14;
     LODWORD(fmt) = maxAttempts;
-    v6 = poolName;
-    Com_PrintWarning(13, "LUI: Could not allocate from %s pool, attempt %d/%d. Did emergency inc gc (%u full cycles) over %4.3f ms\n", poolName, (unsigned int)(v9 + 1), fmt, v23, v24);
+    v5 = poolName;
+    Com_PrintWarning(13, "LUI: Could not allocate from %s pool, attempt %d/%d. Did emergency inc gc (%u full cycles) over %4.3f ms\n", poolName, (unsigned int)(v8 + 1), fmt, v22, (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
 LABEL_41:
-    if ( ++v9 >= maxAttempts )
+    if ( ++v8 >= maxAttempts )
 LABEL_42:
       j_luaL_error(luaVM, (const char *)&queryFormat, "object != NULL");
   }
   this->m_firstFree = this->m_poolData[m_firstFree];
   this->m_poolData[m_firstFree] = this->m_iteration;
-  v11 = (unsigned __int16 *)j_lua_newuserdata(luaVM, 4ui64);
-  *v11 = m_firstFree;
-  v11[1] = this->m_iteration;
-  v12 = this->m_iteration + 1;
-  if ( v12 >= 0x4B1u )
-    this->m_iteration = v12;
+  v10 = (unsigned __int16 *)j_lua_newuserdata(luaVM, 4ui64);
+  *v10 = m_firstFree;
+  v10[1] = this->m_iteration;
+  v11 = this->m_iteration + 1;
+  if ( v11 >= 0x4B1u )
+    this->m_iteration = v11;
   else
     this->m_iteration = 1201;
   this->m_lastAllocated = m_firstFree;
   if ( !&this->m_pool[m_firstFree] )
   {
-    v6 = poolName;
+    v5 = poolName;
     goto LABEL_11;
   }
   LUI_Interface_CheckLowMemory(luaVM);

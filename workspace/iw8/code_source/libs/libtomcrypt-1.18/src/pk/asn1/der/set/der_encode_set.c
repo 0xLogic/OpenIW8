@@ -71,37 +71,31 @@ __int64 der_encode_set(ltc_asn1_list_ *list, unsigned int inlen, unsigned __int8
   size_t v4; 
   ltc_asn1_list_ *v8; 
   unsigned int v10; 
-  unsigned int v15; 
+  signed __int64 v11; 
+  unsigned int v12; 
 
   v4 = inlen;
-  _RBX = list;
   v8 = (ltc_asn1_list_ *)ltc_calloc(inlen, 0x38ui64);
   if ( !v8 )
     return 13i64;
   v10 = 0;
   if ( (_DWORD)v4 )
   {
-    _RCX = (char *)v8 - (char *)_RBX;
+    v11 = (char *)v8 - (char *)list;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rcx+rbx], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rcx+rbx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rcx+rbx+30h], xmm0
-      }
-      *(int *)((char *)&_RBX->used + _RCX) = v10;
-      ++_RBX;
+      *(__m256i *)((char *)&list->type + v11) = *(__m256i *)&list->type;
+      *(_OWORD *)((char *)&list->next + v11) = *(_OWORD *)&list->next;
+      *(ltc_asn1_list_ **)((char *)&list->parent + v11) = list->parent;
+      *(int *)((char *)&list->used + v11) = v10;
+      ++list;
       ++v10;
     }
     while ( v10 < (unsigned int)v4 );
   }
   qsort(v8, v4, 0x38ui64, (_CoreCrtNonSecureSearchSortCompareFunction)qsort_helper);
-  v15 = j_der_encode_sequence_ex(v8, v4, out, outlen, 14);
+  v12 = j_der_encode_sequence_ex(v8, v4, out, outlen, 14);
   ltc_free(v8);
-  return v15;
+  return v12;
 }
 

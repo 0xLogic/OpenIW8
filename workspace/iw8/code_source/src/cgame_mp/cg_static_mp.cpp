@@ -256,40 +256,45 @@ unsigned __int16 CgStaticMP::AttachWeapon(CgStaticMP *this, DObjModel *dobjModel
   const DObjCamoParams *camoParams; 
   unsigned __int16 v19; 
   bool v20; 
+  __m256i v21; 
+  __int128 v22; 
   unsigned __int16 v23; 
+  double v24; 
   scr_string_t stowTag; 
-  int *v29; 
+  __m256i v26; 
+  __int128 v27; 
+  int *v28; 
+  double v29; 
   const XModel *WeaponModels; 
-  __int64 v32; 
+  __int64 v31; 
+  bool v32; 
   bool v33; 
-  bool v34; 
+  XModel *v34; 
   XModel *v35; 
   XModel *v36; 
-  XModel *v37; 
   DObjModel *outDObjModel; 
   bool dobjModelsa; 
   bool dobjModelsb; 
-  unsigned __int16 v41; 
-  int v42; 
+  unsigned __int16 v40; 
+  int v41; 
   int *outWeaponModelIndex2; 
   int *outWeaponModelIndex1; 
+  unsigned int *v44; 
   unsigned int *v45; 
-  unsigned int *v46; 
-  int *v47; 
+  int *v46; 
   XModel *model; 
   Weapon outLocalParams; 
   XAnimWeaponIKModelsContainer outWeaponIKModels; 
 
-  _RDI = ci;
-  v46 = inOutFirstWeaponModelIdx;
-  v45 = inOutFirstWeaponBoneIdx;
-  v41 = numModels;
+  v45 = inOutFirstWeaponModelIdx;
+  v44 = inOutFirstWeaponBoneIdx;
+  v40 = numModels;
   outWeaponModelIndex1 = heldWeaponModelIdx1;
   outWeaponModelIndex2 = heldWeaponModelIdx2;
-  v47 = stowedWeaponModelIdx;
+  v46 = stowedWeaponModelIdx;
   if ( !dobjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 431, ASSERT_TYPE_ASSERT, "(dobjModels)", (const char *)&queryFormat, "dobjModels") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 432, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 432, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
   if ( !heldWeaponModelIdx1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 433, ASSERT_TYPE_ASSERT, "(heldWeaponModelIdx1)", (const char *)&queryFormat, "heldWeaponModelIdx1") )
     __debugbreak();
@@ -297,197 +302,184 @@ unsigned __int16 CgStaticMP::AttachWeapon(CgStaticMP *this, DObjModel *dobjModel
     __debugbreak();
   if ( !stowedWeaponModelIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 435, ASSERT_TYPE_ASSERT, "(stowedWeaponModelIdx)", (const char *)&queryFormat, "stowedWeaponModelIdx") )
     __debugbreak();
-  if ( v41 > 0xFEu )
+  if ( v40 > 0xFEu )
   {
-    LODWORD(outDObjModel) = v41;
+    LODWORD(outDObjModel) = v40;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 436, ASSERT_TYPE_ASSERT, "( 0 ) <= ( numModels ) && ( numModels ) <= ( ( DOBJ_MAX_PARTS ) )", "numModels not in [0, DOBJ_MAX_SUBMODELS]\n\t%i not in [%i, %i]", outDObjModel, 0i64, 254) )
       __debugbreak();
   }
   if ( useReferenceModels )
-    return BgStatic::AttachWeaponDefaultModelsMinimal(this, dobjModels, v41, _RDI, v46, v45, heldWeaponModelIdx1, heldWeaponModelIdx2, stowedWeaponModelIdx, outModelTypes);
+    return BgStatic::AttachWeaponDefaultModelsMinimal(this, dobjModels, v40, ci, v45, v44, heldWeaponModelIdx1, heldWeaponModelIdx2, stowedWeaponModelIdx, outModelTypes);
   XAnimWeaponIKModelsContainer::XAnimWeaponIKModelsContainer(&outWeaponIKModels);
   tag_stowed_back = scr_const.tag_stowed_back;
-  if ( _RDI->dobjExecutionWeapon.weaponIdx )
+  if ( ci->dobjExecutionWeapon.weaponIdx )
   {
-    v16 = CG_StaticMP_AttachExecutionWeapon(dobjModels, v41, _RDI, &outWeaponIKModels, outModelTypes);
-    v41 = v16;
+    v16 = CG_StaticMP_AttachExecutionWeapon(dobjModels, v40, ci, &outWeaponIKModels, outModelTypes);
+    v40 = v16;
   }
   else
   {
-    v16 = v41;
+    v16 = v40;
   }
-  if ( _RDI->dobjAccessoryWeapon.weaponIdx )
+  if ( ci->dobjAccessoryWeapon.weaponIdx )
   {
-    LOWORD(v42) = v16;
+    LOWORD(v41) = v16;
     if ( !dobjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 367, ASSERT_TYPE_ASSERT, "(dobjModels)", (const char *)&queryFormat, "dobjModels") )
       __debugbreak();
-    if ( _RDI->dobjAccessoryWeapon.weaponIdx )
+    if ( ci->dobjAccessoryWeapon.weaponIdx )
     {
-      dobjAccessoryWeaponLoaded = _RDI->dobjAccessoryWeaponLoaded;
-      camoParams = BG_Camo_GetWeaponDObjCamoParams(&_RDI->dobjAccessoryWeapon, 0, (DObjCamoParams *)&outLocalParams);
-      model = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, &_RDI->dobjAccessoryWeapon, 0, !dobjAccessoryWeaponLoaded, 0, 0, 0);
+      dobjAccessoryWeaponLoaded = ci->dobjAccessoryWeaponLoaded;
+      camoParams = BG_Camo_GetWeaponDObjCamoParams(&ci->dobjAccessoryWeapon, 0, (DObjCamoParams *)&outLocalParams);
+      model = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, &ci->dobjAccessoryWeapon, 0, !dobjAccessoryWeaponLoaded, 0, 0, 0);
       if ( model )
       {
-        if ( (unsigned __int16)v42 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 388, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
+        if ( (unsigned __int16)v41 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 388, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
           __debugbreak();
-        DObjInitModel(model, (scr_string_t)0, 1, 0, camoParams, &dobjModels[(unsigned __int16)v42]);
-        LOWORD(v42) = v42 + 1;
+        DObjInitModel(model, (scr_string_t)0, 1, 0, camoParams, &dobjModels[(unsigned __int16)v41]);
+        LOWORD(v41) = v41 + 1;
         if ( dobjAccessoryWeaponLoaded )
-          BG_AddWeaponAttachmentModels(&_RDI->dobjAccessoryWeapon, WEAPON_HAND_DEFAULT, 0, 0, 1, 0, dobjModels, 0xFEu, (unsigned __int16 *)&v42, NULL, camoParams);
+          BG_AddWeaponAttachmentModels(&ci->dobjAccessoryWeapon, WEAPON_HAND_DEFAULT, 0, 0, 1, 0, dobjModels, 0xFEu, (unsigned __int16 *)&v41, NULL, camoParams);
       }
     }
-    v16 = v42;
-    v41 = v42;
+    v16 = v41;
+    v40 = v41;
   }
-  if ( _RDI->dobjHeldWeapon.weaponIdx )
+  if ( ci->dobjHeldWeapon.weaponIdx )
   {
-    v19 = BG_Weapons_AttachHeldWeapon(dobjModels, v16, _RDI, outWeaponModelIndex1, outWeaponModelIndex2, 0, &outWeaponIKModels, outModelTypes);
-    v20 = !_RDI->stowHeldWeapon;
+    v19 = BG_Weapons_AttachHeldWeapon(dobjModels, v16, ci, outWeaponModelIndex1, outWeaponModelIndex2, 0, &outWeaponIKModels, outModelTypes);
+    v20 = !ci->stowHeldWeapon;
     v16 = v19;
-    v41 = v19;
+    v40 = v19;
     if ( !v20 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+5F4h]
-        vmovups xmm1, xmmword ptr [rdi+614h]
-      }
+      v21 = *(__m256i *)&ci->dobjHeldWeapon.weaponIdx;
+      v22 = *(_OWORD *)&ci->dobjHeldWeapon.attachmentVariationIndices[5];
       v23 = v19;
-      *(_DWORD *)&outLocalParams.weaponCamo = *(_DWORD *)&_RDI->dobjHeldWeapon.weaponCamo;
-      dobjModelsa = _RDI->dobjHeldWeaponLoaded;
-      __asm
+      *(_DWORD *)&outLocalParams.weaponCamo = *(_DWORD *)&ci->dobjHeldWeapon.weaponCamo;
+      dobjModelsa = ci->dobjHeldWeaponLoaded;
+      *(__m256i *)&outLocalParams.weaponIdx = v21;
+      v24 = *(double *)&ci->dobjHeldWeapon.attachmentVariationIndices[21];
+      *(_OWORD *)&outLocalParams.attachmentVariationIndices[5] = v22;
+      *(double *)&outLocalParams.attachmentVariationIndices[21] = v24;
+      v40 = CG_StaticMP_AttachStowedWeapon(dobjModels, v19, ci, v46, outModelTypes, &outLocalParams, dobjModelsa);
+      v16 = v40;
+      if ( v40 > v23 )
       {
-        vmovups ymmword ptr [rbp+0E0h+outLocalParams.___u0], ymm0
-        vmovsd  xmm0, qword ptr [rdi+624h]
-        vmovups [rbp+0E0h+var_110], xmm1
-        vmovsd  [rbp+0E0h+var_100], xmm0
-      }
-      v41 = CG_StaticMP_AttachStowedWeapon(dobjModels, v19, _RDI, v47, outModelTypes, &outLocalParams, dobjModelsa);
-      v16 = v41;
-      if ( v41 > v23 )
-      {
-        v16 = v41;
-        tag_stowed_back = BG_WeaponDef(&_RDI->dobjHeldWeapon, 0)->stowTag;
+        v16 = v40;
+        tag_stowed_back = BG_WeaponDef(&ci->dobjHeldWeapon, 0)->stowTag;
         if ( !tag_stowed_back )
           tag_stowed_back = scr_const.tag_stowed_back;
       }
     }
   }
-  _RBX = &_RDI->dobjStowedWeapon;
-  if ( !_RDI->dobjStowedWeapon.weaponIdx )
+  if ( !ci->dobjStowedWeapon.weaponIdx )
     goto LABEL_47;
-  if ( !_RDI->stowHeldWeapon )
+  if ( !ci->stowHeldWeapon )
     goto LABEL_46;
-  v16 = v41;
-  stowTag = BG_WeaponDef(&_RDI->dobjStowedWeapon, 0)->stowTag;
+  v16 = v40;
+  stowTag = BG_WeaponDef(&ci->dobjStowedWeapon, 0)->stowTag;
   if ( !stowTag )
     stowTag = scr_const.tag_stowed_back;
   if ( tag_stowed_back == stowTag )
   {
 LABEL_47:
-    v29 = v47;
+    v28 = v46;
   }
   else
   {
 LABEL_46:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups xmm1, xmmword ptr [rbx+20h]
-    }
-    v29 = v47;
-    *(_DWORD *)&outLocalParams.weaponCamo = *(_DWORD *)&_RDI->dobjStowedWeapon.weaponCamo;
-    dobjModelsb = _RDI->dobjStowedWeaponLoaded;
-    __asm
-    {
-      vmovups ymmword ptr [rbp+0E0h+outLocalParams.___u0], ymm0
-      vmovsd  xmm0, qword ptr [rbx+30h]
-      vmovups [rbp+0E0h+var_110], xmm1
-      vmovsd  [rbp+0E0h+var_100], xmm0
-    }
-    v16 = CG_StaticMP_AttachStowedWeapon(dobjModels, v16, _RDI, v47, outModelTypes, &outLocalParams, dobjModelsb);
-    v41 = v16;
+    v26 = *(__m256i *)&ci->dobjStowedWeapon.weaponIdx;
+    v27 = *(_OWORD *)&ci->dobjStowedWeapon.attachmentVariationIndices[5];
+    v28 = v46;
+    *(_DWORD *)&outLocalParams.weaponCamo = *(_DWORD *)&ci->dobjStowedWeapon.weaponCamo;
+    dobjModelsb = ci->dobjStowedWeaponLoaded;
+    *(__m256i *)&outLocalParams.weaponIdx = v26;
+    v29 = *(double *)&ci->dobjStowedWeapon.attachmentVariationIndices[21];
+    *(_OWORD *)&outLocalParams.attachmentVariationIndices[5] = v27;
+    *(double *)&outLocalParams.attachmentVariationIndices[21] = v29;
+    v16 = CG_StaticMP_AttachStowedWeapon(dobjModels, v16, ci, v46, outModelTypes, &outLocalParams, dobjModelsb);
+    v40 = v16;
   }
-  if ( _RDI->usingThrownWeapon )
+  if ( ci->usingThrownWeapon )
   {
     if ( !dobjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 405, ASSERT_TYPE_ASSERT, "(dobjModels)", (const char *)&queryFormat, "dobjModels") )
       __debugbreak();
-    WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, &_RDI->dobjThrownWeapon, 0, !_RDI->dobjThrownWeaponLoaded, _RDI->dualWielding != 0, _RDI->dobjUsingDetonator, 0);
+    WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, &ci->dobjThrownWeapon, 0, !ci->dobjThrownWeaponLoaded, ci->dualWielding != 0, ci->dobjUsingDetonator, 0);
     if ( WeaponModels )
     {
       if ( v16 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 416, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
         __debugbreak();
-      v32 = v16;
+      v31 = v16;
       DObjInitModel(WeaponModels, scr_const.tag_accessory_left, 0, 0, NULL, &dobjModels[v16++]);
-      (*outModelTypes)[v32] = CHAR_MODEL_WEAPON_THROWN;
+      (*outModelTypes)[v31] = CHAR_MODEL_WEAPON_THROWN;
     }
-    v41 = v16;
+    v40 = v16;
   }
-  if ( _RDI->usingKillstreakTrigger )
+  if ( ci->usingKillstreakTrigger )
   {
     if ( v16 >= 0xFEu )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 506, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
         __debugbreak();
-      v16 = v41;
+      v16 = v40;
     }
     DObjInitModel(cgMedia.killstreakTriggerModel, scr_const.tag_weapon_left, 0, 0, NULL, &dobjModels[v16]);
-    (*outModelTypes)[v41++] = CHAR_MODEL_KILLSTREAK_TRIGGER;
+    (*outModelTypes)[v40++] = CHAR_MODEL_KILLSTREAK_TRIGGER;
   }
-  if ( BG_IsPlayingVehicleOccupancyAnims(_RDI) )
+  if ( BG_IsPlayingVehicleOccupancyAnims(ci) )
   {
-    v33 = ENABLE_LEFT_HAND_IK && _RDI->vehicleAnimation.hasSeatIK[0];
-    v34 = ENABLE_RIGHT_HAND_IK && _RDI->vehicleAnimation.hasSeatIK[1];
-    if ( v33 && v34 )
+    v32 = ENABLE_LEFT_HAND_IK && ci->vehicleAnimation.hasSeatIK[0];
+    v33 = ENABLE_RIGHT_HAND_IK && ci->vehicleAnimation.hasSeatIK[1];
+    if ( v32 && v33 )
     {
-      result = v41;
+      result = v40;
     }
     else
     {
-      v35 = cg_tagIKTargetModelRight;
-      v36 = cg_tagIKTargetModelLeft;
-      if ( v34 )
-        v35 = NULL;
+      v34 = cg_tagIKTargetModelRight;
+      v35 = cg_tagIKTargetModelLeft;
       if ( v33 )
-        v36 = NULL;
-      result = BG_Weapons_AttachHeldWeaponIKTargets(dobjModels, v41, _RDI, v36, v35, 0, v46, v45, outWeaponModelIndex1, outWeaponModelIndex2, v29, &outWeaponIKModels, outModelTypes);
-      v41 = result;
+        v34 = NULL;
+      if ( v32 )
+        v35 = NULL;
+      result = BG_Weapons_AttachHeldWeaponIKTargets(dobjModels, v40, ci, v35, v34, 0, v45, v44, outWeaponModelIndex1, outWeaponModelIndex2, v28, &outWeaponIKModels, outModelTypes);
+      v40 = result;
+    }
+    if ( v32 )
+    {
+      result = BG_Weapons_AttachWorldIKTargets(dobjModels, result, ci, cg_tagIKTargetModelLeft, 0, outModelTypes);
+      v40 = result;
     }
     if ( v33 )
-    {
-      result = BG_Weapons_AttachWorldIKTargets(dobjModels, result, _RDI, cg_tagIKTargetModelLeft, 0, outModelTypes);
-      v41 = result;
-    }
-    if ( v34 )
-      return BG_Weapons_AttachWorldIKTargets(dobjModels, result, _RDI, cg_tagIKTargetModelRight, 0, outModelTypes);
+      return BG_Weapons_AttachWorldIKTargets(dobjModels, result, ci, cg_tagIKTargetModelRight, 0, outModelTypes);
   }
   else
   {
-    if ( (_RDI->carryObjectFlags & 1) != 0 && _RDI->carryObjectIKEnabled )
+    if ( (ci->carryObjectFlags & 1) != 0 && ci->carryObjectIKEnabled )
     {
-      v41 = BG_Weapons_AttachHeldWeaponIKTargets(dobjModels, v41, _RDI, NULL, cg_tagIKTargetModelRight, 0, v46, v45, outWeaponModelIndex1, outWeaponModelIndex2, v29, &outWeaponIKModels, outModelTypes);
-      return BG_Weapons_AttachWorldIKTargets(dobjModels, v41, _RDI, cg_tagIKTargetModelLeft, 0, outModelTypes);
+      v40 = BG_Weapons_AttachHeldWeaponIKTargets(dobjModels, v40, ci, NULL, cg_tagIKTargetModelRight, 0, v45, v44, outWeaponModelIndex1, outWeaponModelIndex2, v28, &outWeaponIKModels, outModelTypes);
+      return BG_Weapons_AttachWorldIKTargets(dobjModels, v40, ci, cg_tagIKTargetModelLeft, 0, outModelTypes);
     }
-    if ( BG_IsPlayingLadderAnims(_RDI) )
+    if ( BG_IsPlayingLadderAnims(ci) )
     {
-      XAnimIKAttachTargetToTag(cg_tagIKTargetModelLeft, scr_const.j_left_hand, dobjModels, &v41, &v42, outModelTypes);
-      if ( _RDI->hideWeapon )
+      XAnimIKAttachTargetToTag(cg_tagIKTargetModelLeft, scr_const.j_left_hand, dobjModels, &v40, &v41, outModelTypes);
+      if ( ci->hideWeapon )
       {
-        XAnimIKAttachTargetToTag(cg_tagIKTargetModelRight, scr_const.j_right_hand, dobjModels, &v41, &v42, outModelTypes);
-        return v41;
+        XAnimIKAttachTargetToTag(cg_tagIKTargetModelRight, scr_const.j_right_hand, dobjModels, &v40, &v41, outModelTypes);
+        return v40;
       }
-      v37 = NULL;
+      v36 = NULL;
     }
     else
     {
-      if ( !_RDI->skydiveAnimState && (BG_IsUsingWorldIKTargets(_RDI) || _RDI->hideWeapon) )
+      if ( !ci->skydiveAnimState && (BG_IsUsingWorldIKTargets(ci) || ci->hideWeapon) )
       {
-        v41 = BG_Weapons_AttachWorldIKTargets(dobjModels, v41, _RDI, cg_tagIKTargetModelLeft, 0, outModelTypes);
-        return BG_Weapons_AttachWorldIKTargets(dobjModels, v41, _RDI, cg_tagIKTargetModelRight, 0, outModelTypes);
+        v40 = BG_Weapons_AttachWorldIKTargets(dobjModels, v40, ci, cg_tagIKTargetModelLeft, 0, outModelTypes);
+        return BG_Weapons_AttachWorldIKTargets(dobjModels, v40, ci, cg_tagIKTargetModelRight, 0, outModelTypes);
       }
-      v37 = cg_tagIKTargetModelLeft;
+      v36 = cg_tagIKTargetModelLeft;
     }
-    return BG_Weapons_AttachHeldWeaponIKTargets(dobjModels, v41, _RDI, v37, cg_tagIKTargetModelRight, 0, v46, v45, outWeaponModelIndex1, outWeaponModelIndex2, v29, &outWeaponIKModels, outModelTypes);
+    return BG_Weapons_AttachHeldWeaponIKTargets(dobjModels, v40, ci, v36, cg_tagIKTargetModelRight, 0, v45, v44, outWeaponModelIndex1, outWeaponModelIndex2, v28, &outWeaponIKModels, outModelTypes);
   }
   return result;
 }
@@ -921,111 +913,105 @@ CG_StaticMP_AttachStowedWeapon
 */
 __int64 CG_StaticMP_AttachStowedWeapon(DObjModel *dobjModels, unsigned __int16 numModels, const characterInfo_t *ci, int *outWeaponModelIndex, CharacterModelType (*outModelTypes)[32], Weapon *stowedWeapon, bool weaponModelLoaded)
 {
-  const WeaponDef *v11; 
+  const WeaponDef *v10; 
+  XModel *StowedOffsetModel; 
   scr_string_t stowOffsetAttachTag; 
   const XModel *WeaponModels; 
   __int64 result; 
   unsigned __int16 i; 
-  const dvar_t *v17; 
-  DObjModel *v18; 
+  const dvar_t *v16; 
+  DObjModel *v17; 
   bool ignoreCollision; 
   scr_string_t boneName; 
   scr_string_t stowTag; 
+  unsigned __int16 v21; 
+  unsigned __int16 v22; 
   unsigned __int16 v23; 
-  unsigned __int16 v24; 
-  unsigned __int16 v25; 
-  CharacterModelType *v26; 
+  CharacterModelType *v24; 
   unsigned __int64 j; 
-  unsigned __int16 v28; 
+  unsigned __int16 v26; 
   DObjCamoParams *camoParams; 
   DObjCamoParams outLocalParams; 
 
-  v28 = numModels;
+  v26 = numModels;
   if ( !dobjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 220, ASSERT_TYPE_ASSERT, "(dobjModels)", (const char *)&queryFormat, "dobjModels") )
     __debugbreak();
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 221, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
   if ( !outWeaponModelIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 222, ASSERT_TYPE_ASSERT, "(outWeaponModelIndex)", (const char *)&queryFormat, "outWeaponModelIndex") )
     __debugbreak();
-  v11 = BG_WeaponDef(stowedWeapon, 0);
+  v10 = BG_WeaponDef(stowedWeapon, 0);
   camoParams = BG_Camo_GetWeaponDObjCamoParams(stowedWeapon, 0, &outLocalParams);
-  _RDI = CG_Weapons_GetStowedOffsetModel(v11);
-  if ( _RDI )
+  StowedOffsetModel = CG_Weapons_GetStowedOffsetModel(v10);
+  if ( StowedOffsetModel )
   {
-    if ( v28 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 233, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
+    if ( v26 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 233, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
       __debugbreak();
-    stowOffsetAttachTag = v11->stowOffsetAttachTag;
+    stowOffsetAttachTag = v10->stowOffsetAttachTag;
     if ( !stowOffsetAttachTag || stowOffsetAttachTag == scr_const.none )
       stowOffsetAttachTag = scr_const.tag_stowed_back;
-    DObjInitModel(_RDI, stowOffsetAttachTag, 1, 1, camoParams, &dobjModels[v28]);
-    (*outModelTypes)[v28++] = CHAR_MODEL_STOW_OFFSET;
+    DObjInitModel(StowedOffsetModel, stowOffsetAttachTag, 1, 1, camoParams, &dobjModels[v26]);
+    (*outModelTypes)[v26++] = CHAR_MODEL_STOW_OFFSET;
   }
   WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, stowedWeapon, 0, !weaponModelLoaded, 0, 0, 0);
   if ( !WeaponModels )
-    return v28;
+    return v26;
   if ( BG_IsRiotShield(stowedWeapon, 0) )
   {
-    result = v28;
-    for ( i = 0; i < v28; ++i )
+    result = v26;
+    for ( i = 0; i < v26; ++i )
     {
       if ( BG_Weapons_IsRiotShieldModel(dobjModels[i].model) )
       {
-        if ( v28 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 255, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
+        if ( v26 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 255, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
           __debugbreak();
-        v17 = DVARBOOL_riotshield_fixstowedmodelinit;
+        v16 = DVARBOOL_riotshield_fixstowedmodelinit;
         if ( !DVARBOOL_riotshield_fixstowedmodelinit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "riotshield_fixstowedmodelinit") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v17);
-        v18 = &dobjModels[i];
-        ignoreCollision = v18->ignoreCollision;
-        boneName = v18->boneName;
-        if ( v17->current.enabled )
+        Dvar_CheckFrontendServerThread(v16);
+        v17 = &dobjModels[i];
+        ignoreCollision = v17->ignoreCollision;
+        boneName = v17->boneName;
+        if ( v16->current.enabled )
           DObjInitModel(WeaponModels, boneName, ignoreCollision, 1, camoParams, &dobjModels[i]);
         else
-          DObjInitModel(WeaponModels, boneName, ignoreCollision, 0, camoParams, &dobjModels[v28]);
+          DObjInitModel(WeaponModels, boneName, ignoreCollision, 0, camoParams, &dobjModels[v26]);
       }
-      result = v28;
+      result = v26;
     }
     return result;
   }
-  if ( _RDI )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi+28h]
-    }
-    return v28;
-  }
-  stowTag = v11->stowTag;
+  if ( StowedOffsetModel && StowedOffsetModel->radius != 0.0 )
+    return v26;
+  stowTag = v10->stowTag;
   if ( !stowTag || stowTag == scr_const.none )
     stowTag = scr_const.tag_stowed_back;
-  v23 = v28;
-  if ( v28 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 276, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
+  v21 = v26;
+  if ( v26 >= 0xFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 276, ASSERT_TYPE_ASSERT, "(numModels < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "numModels < DOBJ_MAX_SUBMODELS") )
     __debugbreak();
-  DObjInitModel(WeaponModels, stowTag, 1, 1, camoParams, &dobjModels[v28]);
-  v24 = v28;
-  *outWeaponModelIndex = v28;
-  v25 = v24 + 1;
-  v28 = v25;
+  DObjInitModel(WeaponModels, stowTag, 1, 1, camoParams, &dobjModels[v26]);
+  v22 = v26;
+  *outWeaponModelIndex = v26;
+  v23 = v22 + 1;
+  v26 = v23;
   if ( weaponModelLoaded )
   {
-    BG_AddWeaponAttachmentModels(stowedWeapon, WEAPON_HAND_DEFAULT, ci->dualWielding != 0, 0, 1, 1, dobjModels, 0xFEu, &v28, NULL, camoParams);
-    v25 = v28;
+    BG_AddWeaponAttachmentModels(stowedWeapon, WEAPON_HAND_DEFAULT, ci->dualWielding != 0, 0, 1, 1, dobjModels, 0xFEu, &v26, NULL, camoParams);
+    v23 = v26;
   }
-  if ( v25 <= v23 )
+  if ( v23 <= v21 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 287, ASSERT_TYPE_ASSERT, "(numModels > numModelsBeforeAdd)", (const char *)&queryFormat, "numModels > numModelsBeforeAdd") )
       __debugbreak();
-    v25 = v28;
+    v23 = v26;
   }
-  if ( v23 < (unsigned __int64)v25 )
+  if ( v21 < (unsigned __int64)v23 )
   {
-    v26 = &(*outModelTypes)[v23];
-    for ( j = v25 - (unsigned __int64)v23; j; --j )
-      *v26++ = CHAR_MODEL_WEAPON_STOWED;
+    v24 = &(*outModelTypes)[v21];
+    for ( j = v23 - (unsigned __int64)v21; j; --j )
+      *v24++ = CHAR_MODEL_WEAPON_STOWED;
   }
-  return v25;
+  return v23;
 }
 
 /*
@@ -1073,90 +1059,67 @@ DObj *CgStaticMP::CreateDObj(CgStaticMP *this, DObjModel *dobjModels, unsigned _
 {
   DObj *v10; 
   LocalClientNum_t m_localClientNum; 
+  CgEntitySystem *EntitySystem; 
+  unsigned int v13; 
+  unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
+  unsigned int *v16; 
   unsigned int v17; 
-  unsigned int *v20; 
-  unsigned int v21; 
-  unsigned int v22; 
-  unsigned int v23; 
-  __int64 v28; 
+  unsigned int v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  __int64 v22; 
   __int64 entnum; 
-  int v30[2]; 
-  int v31; 
-  int v32; 
-  int v33; 
+  int v24[2]; 
+  float v25; 
+  float v26; 
+  float v27; 
 
   v10 = Com_ClientDObjCreate(dobjModels, numModels, tree, handle, this->m_localClientNum, requiresIKPreCache, handle);
   if ( CG_Entity_ShouldCreatePhysicsOnInit(this->m_localClientNum, handle) )
     CG_Entity_CreatePhysics(this->m_localClientNum, handle, 1);
   if ( CG_Entity_ShouldCreateClothOnInit((const LocalClientNum_t)this->m_localClientNum, handle) )
     CG_Entity_CreateCloth((const LocalClientNum_t)this->m_localClientNum, handle);
-  __asm { vmovss  xmm0, cs:__real@48000000 }
   m_localClientNum = this->m_localClientNum;
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_60], xmm0
-    vmovss  [rsp+0A8h+var_5C], xmm0
-    vmovss  [rsp+0A8h+var_58], xmm0
-  }
-  _RBX = CgEntitySystem::GetEntitySystem(m_localClientNum);
+  v25 = FLOAT_131072_0;
+  v26 = FLOAT_131072_0;
+  v27 = FLOAT_131072_0;
+  EntitySystem = CgEntitySystem::GetEntitySystem(m_localClientNum);
   if ( (unsigned int)otherClientNum >= 0x800 )
   {
     LODWORD(entnum) = 2048;
-    LODWORD(v28) = otherClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v28, entnum) )
+    LODWORD(v22) = otherClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v22, entnum) )
       __debugbreak();
   }
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+0A8h+var_60] }
   if ( otherClientNum > (int)ComCharacterLimits::ms_gameData.m_clientCount )
   {
-    _RCX = 3i64 * otherClientNum + 389124;
-    __asm
-    {
-      vmovss  dword ptr [rbx+rcx*4], xmm0
-      vmovss  xmm1, [rsp+0A8h+var_5C]
-      vmovss  dword ptr [rbx+rcx*4+4], xmm1
-      vmovss  xmm0, [rsp+0A8h+var_58]
-      vmovss  dword ptr [rbx+rcx*4+8], xmm0
-    }
+    v20 = 3i64 * otherClientNum + 389124;
+    *((float *)&EntitySystem->__vftable + v20) = v25;
+    *((float *)&EntitySystem->__vftable + v20 + 1) = v26;
+    *((float *)&EntitySystem->m_localClientNum + v20) = v27;
   }
   else
   {
-    v15 = s_entity_aab_X;
-    v16 = s_entity_aab_Z;
-    __asm { vmovss  [rsp+0A8h+var_68], xmm0 }
-    v17 = s_entity_aab_Y;
-    if ( (v30[0] & 0x7F800000) == 2139095040 )
-      goto LABEL_22;
-    __asm
+    v13 = s_entity_aab_X;
+    v14 = s_entity_aab_Z;
+    *(float *)v24 = v25;
+    v15 = s_entity_aab_Y;
+    if ( (LODWORD(v25) & 0x7F800000) == 2139095040 || (*(float *)v24 = v26, (LODWORD(v26) & 0x7F800000) == 2139095040) || (*(float *)v24 = v27, (LODWORD(v27) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, [rsp+0A8h+var_5C]
-      vmovss  [rsp+0A8h+var_68], xmm0
-    }
-    if ( (v30[0] & 0x7F800000) == 2139095040 )
-      goto LABEL_22;
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_58]
-      vmovss  [rsp+0A8h+var_68], xmm0
-    }
-    if ( (v30[0] & 0x7F800000) == 2139095040 )
-    {
-LABEL_22:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
         __debugbreak();
     }
-    v20 = (unsigned int *)&_RBX->m_entityOrigin[otherClientNum];
-    v21 = v31 ^ (unsigned int)v20 ^ ~v15;
-    v22 = v33 ^ (unsigned int)v20;
-    v23 = v17 ^ v21 ^ v32 ^ (unsigned int)v20;
-    *v20 = v21;
-    v20[1] = v23;
-    v20[2] = v16 ^ v23 ^ v22;
-    memset(v30, 0, sizeof(v30));
+    v16 = (unsigned int *)&EntitySystem->m_entityOrigin[otherClientNum];
+    v17 = LODWORD(v25) ^ (unsigned int)v16 ^ ~v13;
+    v18 = LODWORD(v27) ^ (unsigned int)v16;
+    v19 = v15 ^ v17 ^ LODWORD(v26) ^ (unsigned int)v16;
+    *v16 = v17;
+    v16[1] = v19;
+    v16[2] = v14 ^ v19 ^ v18;
+    memset(v24, 0, sizeof(v24));
   }
   DObjSetCamoMaterialOverride(v10, dobjModels, numModels);
   return v10;
@@ -1348,15 +1311,16 @@ void CgStaticMP::GetPlayerWorldIkStatus(CgStaticMP *this, const int entNum, bool
 {
   centity_t *Entity; 
   LocalClientNum_t m_localClientNum; 
+  unsigned int v8; 
   unsigned int v9; 
-  unsigned int v10; 
-  const DObj *v11; 
+  const DObj *v10; 
   characterInfo_t *CharacterInfo; 
+  float *control; 
+  bool v13; 
+  bool v14; 
   bool v15; 
-  bool v16; 
-  bool v17; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v16; 
+  __int64 v17; 
   CEntPlayerInfo info; 
 
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 800, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
@@ -1368,69 +1332,46 @@ void CgStaticMP::GetPlayerWorldIkStatus(CgStaticMP *this, const int entNum, bool
     m_localClientNum = this->m_localClientNum;
     if ( (unsigned int)entNum > 0x9E4 )
     {
-      LODWORD(v19) = entNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v19) )
+      LODWORD(v17) = entNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v17) )
         __debugbreak();
     }
     if ( (unsigned int)m_localClientNum >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v19) = 2;
-      LODWORD(v18) = m_localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v18, v19) )
+      LODWORD(v17) = 2;
+      LODWORD(v16) = m_localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
-    v9 = entNum + 2533 * m_localClientNum;
-    if ( v9 >= 0x13CA )
+    v8 = entNum + 2533 * m_localClientNum;
+    if ( v8 >= 0x13CA )
     {
-      LODWORD(v19) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v19) )
+      LODWORD(v17) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v17) )
         __debugbreak();
     }
-    v10 = clientObjMap[v9];
-    if ( v10 )
+    v9 = clientObjMap[v8];
+    if ( v9 )
     {
-      if ( v10 >= (unsigned int)s_objCount )
+      if ( v9 >= (unsigned int)s_objCount )
       {
-        LODWORD(v19) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v19) )
+        LODWORD(v17) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v17) )
           __debugbreak();
       }
-      v11 = (const DObj *)s_objBuf[v10];
-      if ( v11 )
+      v10 = (const DObj *)s_objBuf[v9];
+      if ( v10 )
       {
         CharacterInfo = CgStatic::GetCharacterInfo(this, entNum);
         if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_static_mp.cpp", 822, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
           __debugbreak();
-        BG_Player_SetPlayerInfo(v11, &CharacterInfo->control, &info);
-        _RAX = info.control;
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        if ( info.IKHandBone[0] == 0xFE )
-        {
-          v15 = 0;
-        }
-        else
-        {
-          __asm { vucomiss xmm0, dword ptr [rax+48h] }
-          v15 = 1;
-        }
-        v16 = info.IKHandBone[1] == 0xFE;
-        (*outWorldIKEnabled)[0] = v15;
-        if ( v16 )
-        {
-          v17 = 0;
-        }
-        else
-        {
-          __asm { vucomiss xmm0, dword ptr [rax+54h] }
-          if ( v16 )
-          {
-            __asm { vucomiss xmm0, dword ptr [rax+58h] }
-            if ( v16 )
-              __asm { vucomiss xmm0, dword ptr [rax+5Ch] }
-          }
-          v17 = 1;
-        }
-        (*outWorldIKEnabled)[1] = v17;
+        BG_Player_SetPlayerInfo(v10, &CharacterInfo->control, &info);
+        control = (float *)info.control;
+        v13 = info.IKHandBone[0] != 0xFE && (info.control->hand_ik_local_pos[0].v[0] != 0.0 || info.control->hand_ik_local_pos[0].v[1] != 0.0 || info.control->hand_ik_local_pos[0].v[2] != 0.0);
+        v14 = info.IKHandBone[1] == 0xFE;
+        (*outWorldIKEnabled)[0] = v13;
+        v15 = !v14 && (control[21] != 0.0 || control[22] != 0.0 || control[23] != 0.0);
+        (*outWorldIKEnabled)[1] = v15;
       }
     }
   }

@@ -710,187 +710,185 @@ void R_StaticModelData_ResetWorld(void)
   unsigned int v1; 
   __int64 v2; 
   unsigned int v3; 
+  __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
   GfxStaticModel *models; 
-  unsigned __int8 numLods; 
-  unsigned __int16 numsurfs; 
-  __int64 v14; 
-  __int64 v15; 
+  const char **p_name; 
+  unsigned __int8 v8; 
+  __int64 v9; 
+  unsigned __int16 v10; 
+  __int64 v11; 
+  __int64 v12; 
   const XModelLodInfo *LodInfo; 
-  unsigned __int16 v17; 
-  const XModelLodInfo *v18; 
+  unsigned __int16 v14; 
+  const XModelLodInfo *v15; 
   unsigned __int16 surfIndex; 
-  unsigned __int64 v20; 
-  unsigned __int16 v21; 
-  unsigned __int16 v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
+  unsigned __int64 v17; 
+  unsigned __int16 v18; 
+  unsigned __int16 v19; 
+  unsigned int numsurfs; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
   __int64 i; 
-  __int64 v28; 
-  char v29; 
-  __int64 v30; 
-  unsigned __int8 v31; 
-  __int64 v32; 
+  __int64 v25; 
+  char v26; 
+  __int64 v27; 
+  unsigned __int8 v28; 
+  __int64 v29; 
+  unsigned __int8 v30; 
+  __int64 v31; 
+  unsigned __int8 v32; 
   unsigned __int8 v33; 
-  __int64 v34; 
+  unsigned __int8 v34; 
   unsigned __int8 v35; 
   unsigned __int8 v36; 
   unsigned __int8 v37; 
-  unsigned __int8 v38; 
-  unsigned __int8 v39; 
-  unsigned __int8 v40; 
+  const XModelLodInfo *v38; 
+  const XModelLodInfo *v40; 
   const XModelLodInfo *v41; 
-  const XModelLodInfo *v43; 
-  const XModelLodInfo *v44; 
+  __int64 v42; 
+  __m256i v43; 
   GfxWorld *world; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
-  __int64 v58; 
-  unsigned int v59; 
-  unsigned int v60; 
+  __int64 v45; 
+  __int64 v46; 
+  __int64 v47; 
+  __int64 v48; 
+  unsigned int v49; 
+  unsigned int v50; 
   unsigned int SModelMaterials; 
-  unsigned int v62; 
-  void *v63; 
-  __int64 v64; 
-  __int64 v65; 
-  void *v66; 
-  __int64 v67; 
-  void *v68; 
+  unsigned int v52; 
+  __m256i *v53; 
+  __int64 v54; 
+  __int64 v55; 
+  void *v56; 
+  __int64 v57; 
+  void *v58; 
   vec4_t outBoundingBoxData[2]; 
 
   if ( rgp.world && rgp.world->smodels.modelCount )
   {
     R_LockGfxImmediateContext();
     Sys_EnterCriticalSection(CRITSECT_RESET_SMODEL_DATA);
-    v63 = R_BeginWrappedBufferDataWrite(&modelDataGlob.smodelSurfDataBuffer);
-    v66 = R_BeginWrappedBufferDataWrite(&modelDataGlob.smodelSurfMatIndirectionBuffer);
-    v68 = R_BeginWrappedBufferDataWrite(&modelDataGlob.smodelExpansionDataBuffer);
-    v0 = v68;
-    memset_0(v63, 0, 0x200000ui64);
+    v53 = (__m256i *)R_BeginWrappedBufferDataWrite(&modelDataGlob.smodelSurfDataBuffer);
+    v56 = R_BeginWrappedBufferDataWrite(&modelDataGlob.smodelSurfMatIndirectionBuffer);
+    v58 = R_BeginWrappedBufferDataWrite(&modelDataGlob.smodelExpansionDataBuffer);
+    v0 = v58;
+    memset_0(v53, 0, 0x200000ui64);
     memset_0(modelDataGlob.smodelSurfaces, 0, sizeof(modelDataGlob.smodelSurfaces));
     memset_0(modelDataGlob.smodelMaterials, 0, sizeof(modelDataGlob.smodelMaterials));
-    memset_0(v66, 0, 0x40000ui64);
+    memset_0(v56, 0, 0x40000ui64);
     memset_0(modelDataGlob.smodelSurfMatIndirectionCPU, 0, sizeof(modelDataGlob.smodelSurfMatIndirectionCPU));
     memset_0(modelDataGlob.smodelExpansionData, 0, sizeof(modelDataGlob.smodelExpansionData));
     SModelMaterials = R_StaticModelData_GetSModelMaterials(modelDataGlob.smodelMaterials);
     memcpy_0(rgp.world->smodels.materials, modelDataGlob.smodelMaterials, 8i64 * SModelMaterials);
     v1 = 0;
     v2 = 0i64;
-    v59 = 0;
+    v49 = 0;
     rgp.world->smodels.materialCount = SModelMaterials;
     v3 = 0;
-    v60 = 0;
+    v50 = 0;
     if ( rgp.world->smodels.modelCount )
     {
-      _R15 = &modelDataGlob;
       do
       {
+        v4 = v3;
         v5 = v3;
-        v6 = v3;
         models = rgp.world->smodels.models;
-        v64 = v5 * 16;
-        _R13 = models[v5].model;
-        if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 404, ASSERT_TYPE_ASSERT, "(xmodel)", (const char *)&queryFormat, "xmodel") )
+        v54 = v4 * 16;
+        p_name = &models[v4].model->name;
+        if ( !p_name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 404, ASSERT_TYPE_ASSERT, "(xmodel)", (const char *)&queryFormat, "xmodel") )
           __debugbreak();
-        numLods = _R13->numLods;
-        if ( numLods > 6u )
+        v8 = *((_BYTE *)p_name + 10);
+        if ( v8 > 6u )
         {
-          LODWORD(v58) = 6;
-          LODWORD(v57) = numLods;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 406, ASSERT_TYPE_ASSERT, "( xmodel->numLods ) <= ( NUM_LODS )", "%s <= %s\n\t%i, %i", "xmodel->numLods", "NUM_LODS", v57, v58) )
+          LODWORD(v48) = 6;
+          LODWORD(v47) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 406, ASSERT_TYPE_ASSERT, "( xmodel->numLods ) <= ( NUM_LODS )", "%s <= %s\n\t%i, %i", "xmodel->numLods", "NUM_LODS", v47, v48) )
             __debugbreak();
         }
-        _RBX = v6 << 6;
-        *(unsigned __int16 *)((char *)&modelDataGlob.smodelExpansionData[0].firstStaticModelSurfaceIndex + _RBX) = models[v5].firstStaticModelSurfaceIndex;
-        *(&modelDataGlob.smodelExpansionData[0].numLods + _RBX) = _R13->numLods;
-        numsurfs = _R13->numsurfs;
-        if ( numsurfs > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)numsurfs, "unsigned", numsurfs) )
+        v9 = v5 << 6;
+        *(unsigned __int16 *)((char *)&modelDataGlob.smodelExpansionData[0].firstStaticModelSurfaceIndex + v9) = models[v4].firstStaticModelSurfaceIndex;
+        *(&modelDataGlob.smodelExpansionData[0].numLods + v9) = *((_BYTE *)p_name + 10);
+        v10 = *((_WORD *)p_name + 4);
+        if ( v10 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v10, "unsigned", v10) )
           __debugbreak();
-        *(&modelDataGlob.smodelExpansionData[0].numSurfs + _RBX) = numsurfs;
-        __asm
+        *(&modelDataGlob.smodelExpansionData[0].numSurfs + v9) = v10;
+        *(_OWORD *)((char *)modelDataGlob.smodelExpansionData[0].modelBounds.midPoint.v + v9) = *(_OWORD *)((char *)p_name + 44);
+        *(double *)((char *)&modelDataGlob.smodelExpansionData[0].modelBounds.halfSize.y + v9) = *(double *)((char *)p_name + 60);
+        v11 = 0i64;
+        if ( *((_BYTE *)p_name + 10) )
         {
-          vmovups xmm0, xmmword ptr [r13+2Ch]
-          vmovups xmmword ptr [rbx+r15+1A00ACh], xmm0
-          vmovsd  xmm1, qword ptr [r13+3Ch]
-          vmovsd  qword ptr [rbx+r15+1A00BCh], xmm1
-        }
-        v14 = 0i64;
-        if ( _R13->numLods )
-        {
-          v15 = 32 * v6;
-          v67 = v15;
+          v12 = 32 * v5;
+          v57 = v12;
           do
           {
-            LodInfo = XModelGetLodInfo(_R13, v14);
-            v17 = _R13->numsurfs;
-            v18 = LodInfo;
+            LodInfo = XModelGetLodInfo((const XModel *)p_name, v11);
+            v14 = *((_WORD *)p_name + 4);
+            v15 = LodInfo;
             surfIndex = LodInfo->surfIndex;
-            if ( surfIndex >= v17 )
+            if ( surfIndex >= v14 )
             {
-              LODWORD(v56) = v17;
-              LODWORD(v55) = surfIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 261, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v55, v56) )
+              LODWORD(v46) = v14;
+              LODWORD(v45) = surfIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 261, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v45, v46) )
                 __debugbreak();
             }
-            v65 = (__int64)&_R13->materialHandles[v18->surfIndex];
-            if ( (unsigned int)v14 >= _R13->numLods )
+            v55 = (__int64)&p_name[27][8 * v15->surfIndex];
+            if ( (unsigned int)v11 >= *((unsigned __int8 *)p_name + 10) )
             {
-              LODWORD(v56) = _R13->numLods;
-              LODWORD(v55) = v14;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 209, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( model->numLods )", "lod doesn't index model->numLods\n\t%i not in [0, %i)", v55, v56) )
+              LODWORD(v46) = *((unsigned __int8 *)p_name + 10);
+              LODWORD(v45) = v11;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 209, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( model->numLods )", "lod doesn't index model->numLods\n\t%i not in [0, %i)", v45, v46) )
                 __debugbreak();
             }
-            v20 = (unsigned __int64)(unsigned int)v14 << 6;
-            v21 = *(unsigned __int16 *)((char *)&_R13->lodInfo[0].surfIndex + v20);
-            if ( v21 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v21, "unsigned", v21) )
+            v17 = (unsigned __int64)(unsigned int)v11 << 6;
+            v18 = *(_WORD *)((char *)p_name + v17 + 246);
+            if ( v18 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v18, "unsigned", v18) )
               __debugbreak();
-            modelDataGlob.smodelExpansionData[0].lodInfo[v14 + v15].surfOffset = v21;
-            v22 = *(unsigned __int16 *)((char *)&_R13->lodInfo[0].numsurfs + v20);
-            if ( v22 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v22, "unsigned", v22) )
+            modelDataGlob.smodelExpansionData[0].lodInfo[v11 + v12].surfOffset = v18;
+            v19 = *(_WORD *)((char *)p_name + v17 + 244);
+            if ( v19 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v19, "unsigned", v19) )
               __debugbreak();
-            modelDataGlob.smodelExpansionData[0].lodInfo[v14 + v15].surfCount = v22;
-            modelDataGlob.smodelExpansionData[0].lodDist[(unsigned int)v14 + v64] = *(float *)((char *)&_R13->lodInfo[0].dist + v20);
-            v23 = XModelGetLodInfo(_R13, v14)->numsurfs;
-            v62 = v23;
-            if ( v23 > 0x10 )
+            modelDataGlob.smodelExpansionData[0].lodInfo[v11 + v12].surfCount = v19;
+            modelDataGlob.smodelExpansionData[0].lodDist[(unsigned int)v11 + v54] = *(float *)((char *)p_name + v17 + 240);
+            numsurfs = XModelGetLodInfo((const XModel *)p_name, v11)->numsurfs;
+            v52 = numsurfs;
+            if ( numsurfs > 0x10 )
             {
-              LODWORD(v58) = 16;
-              LODWORD(v57) = v23;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 424, ASSERT_TYPE_ASSERT, "( lodSurfCount ) <= ( 16 )", "%s <= %s\n\t%i, %i", "lodSurfCount", "R_SMODEL_MAX_SURFS_PER_LOD", v57, v58) )
+              LODWORD(v48) = 16;
+              LODWORD(v47) = numsurfs;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 424, ASSERT_TYPE_ASSERT, "( lodSurfCount ) <= ( 16 )", "%s <= %s\n\t%i, %i", "lodSurfCount", "R_SMODEL_MAX_SURFS_PER_LOD", v47, v48) )
                 __debugbreak();
             }
-            v1 = v59;
-            v24 = 0i64;
-            if ( v23 )
+            v1 = v49;
+            v21 = 0i64;
+            if ( numsurfs )
             {
               do
               {
                 if ( v1 >= 0x10000 )
                 {
-                  LODWORD(v58) = 0x10000;
-                  LODWORD(v57) = v1;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 427, ASSERT_TYPE_ASSERT, "( smodelSurfaceCount ) < ( 65536 )", "%s < %s\n\t%i, %i", "smodelSurfaceCount", "MAX_STATICMODEL_SURFACES", v57, v58) )
+                  LODWORD(v48) = 0x10000;
+                  LODWORD(v47) = v1;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 427, ASSERT_TYPE_ASSERT, "( smodelSurfaceCount ) < ( 65536 )", "%s < %s\n\t%i, %i", "smodelSurfaceCount", "MAX_STATICMODEL_SURFACES", v47, v48) )
                     __debugbreak();
                 }
-                v25 = 0i64;
-                v26 = v1;
-                modelDataGlob.smodelSurfaces[v1].smodelIndex = v60;
-                modelDataGlob.smodelSurfaces[v1].lodIndex = v14;
-                modelDataGlob.smodelSurfaces[v1].surfIndex = v24;
-                for ( i = *(_QWORD *)(v65 + 8 * v24); (unsigned int)v25 < SModelMaterials; v25 = (unsigned int)(v25 + 1) )
+                v22 = 0i64;
+                v23 = v1;
+                modelDataGlob.smodelSurfaces[v1].smodelIndex = v50;
+                modelDataGlob.smodelSurfaces[v1].lodIndex = v11;
+                modelDataGlob.smodelSurfaces[v1].surfIndex = v21;
+                for ( i = *(_QWORD *)(v55 + 8 * v21); (unsigned int)v22 < SModelMaterials; v22 = (unsigned int)(v22 + 1) )
                 {
-                  if ( modelDataGlob.smodelMaterials[v25] == (Material *)i )
+                  if ( modelDataGlob.smodelMaterials[v22] == (Material *)i )
                     break;
                 }
-                if ( (_DWORD)v25 == SModelMaterials && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 443, ASSERT_TYPE_ASSERT, "(matIndex != materialCount)", (const char *)&queryFormat, "matIndex != materialCount") )
+                if ( (_DWORD)v22 == SModelMaterials && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 443, ASSERT_TYPE_ASSERT, "(matIndex != materialCount)", (const char *)&queryFormat, "matIndex != materialCount") )
                   __debugbreak();
-                if ( (unsigned int)v25 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v25, "unsigned", (unsigned int)v25) )
+                if ( (unsigned int)v22 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v22, "unsigned", (unsigned int)v22) )
                   __debugbreak();
-                modelDataGlob.smodelSurfMatIndirectionCPU[v26].smodelMaterialIndex = v25;
+                modelDataGlob.smodelSurfMatIndirectionCPU[v23].smodelMaterialIndex = v22;
                 if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 455, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
                   __debugbreak();
                 if ( !*(_QWORD *)i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
@@ -899,136 +897,123 @@ void R_StaticModelData_ResetWorld(void)
                   __debugbreak();
                 if ( !*(_QWORD *)(i + 64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 663, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v28 = *(_QWORD *)(i + 64);
-                v29 = 95;
-                if ( (*(_DWORD *)(v28 + 8) & 0xE006i64) == 0 )
-                  v29 = 127;
-                if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 719, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
+                v25 = *(_QWORD *)(i + 64);
+                v26 = 95;
+                if ( (*(_DWORD *)(v25 + 8) & 0xE006i64) == 0 )
+                  v26 = 127;
+                if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 719, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v30 = *(_QWORD *)(i + 64);
-                v31 = v29 & 0xFE;
-                if ( (*(_BYTE *)(v30 + 8) & 1) == 0 )
-                  v31 = v29;
-                if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 706, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
+                v27 = *(_QWORD *)(i + 64);
+                v28 = v26 & 0xFE;
+                if ( (*(_BYTE *)(v27 + 8) & 1) == 0 )
+                  v28 = v26;
+                if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 706, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v32 = *(_QWORD *)(i + 64);
-                v33 = v31 & 0xB0;
-                if ( (*(_DWORD *)(v32 + 8) & 0x8000) == 0 )
-                  v33 = v31;
-                if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 757, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
+                v29 = *(_QWORD *)(i + 64);
+                v30 = v28 & 0xB0;
+                if ( (*(_DWORD *)(v29 + 8) & 0x8000) == 0 )
+                  v30 = v28;
+                if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 757, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v34 = *(_QWORD *)(i + 64);
-                v35 = v33 & 0xF7;
-                if ( (*(_QWORD *)(v34 + 8) & 0x1000000000i64) != 0 )
-                  v35 = v33;
-                if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 727, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
+                v31 = *(_QWORD *)(i + 64);
+                v32 = v30 & 0xF7;
+                if ( (*(_QWORD *)(v31 + 8) & 0x1000000000i64) != 0 )
+                  v32 = v30;
+                if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 727, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v36 = v35 & 0xEF;
+                v33 = v32 & 0xEF;
                 if ( (*(_DWORD *)(*(_QWORD *)(i + 64) + 8i64) & 0x10000) != 0 )
-                  v36 = v35;
-                v37 = v36 & 0xBF;
+                  v33 = v32;
+                v34 = v33 & 0xBF;
                 if ( (*(_DWORD *)(i + 20) & 0xA0000) != 655360 )
-                  v37 = v36;
-                modelDataGlob.smodelSurfMatIndirectionCPU[v26].cullType = v37;
+                  v34 = v33;
+                modelDataGlob.smodelSurfMatIndirectionCPU[v23].cullType = v34;
                 if ( !*(_QWORD *)i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
                   __debugbreak();
                 if ( !**(_BYTE **)i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 457, ASSERT_TYPE_ASSERT, "(handle->name[0])", (const char *)&queryFormat, "handle->name[0]") )
                   __debugbreak();
                 if ( !*(_QWORD *)(i + 64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 892, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v38 = ((*(_DWORD *)(i + 12) & 0x80) == 0) | 0xC;
+                v35 = ((*(_DWORD *)(i + 12) & 0x80) == 0) | 0xC;
                 if ( (*(_DWORD *)(i + 12) & 0x40000) == 0 )
-                  v38 = ((*(_DWORD *)(i + 12) & 0x80) == 0) | 0xE;
+                  v35 = ((*(_DWORD *)(i + 12) & 0x80) == 0) | 0xE;
                 if ( !*(_QWORD *)(i + 64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 655, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
                   __debugbreak();
-                v39 = v38 & 0xFB;
+                v36 = v35 & 0xFB;
                 if ( (*(_QWORD *)(*(_QWORD *)(i + 64) + 8i64) & 0x800000000i64) == 0 )
-                  v39 = v38;
-                v40 = v39 & 0xF7;
+                  v36 = v35;
+                v37 = v36 & 0xF7;
                 if ( (*(_DWORD *)(i + 20) & 0x88000) != 557056 )
-                  v40 = v39;
-                modelDataGlob.smodelSurfMatIndirectionCPU[v26].emitType = v40;
-                *((_DWORD *)v66 + v26) = modelDataGlob.smodelSurfMatIndirectionCPU[v26];
-                while ( modelDataGlob.ffsmodelSurfaces[v2].smodelIndex < v60 || modelDataGlob.ffsmodelSurfaces[v2].lodIndex < (unsigned int)v14 || modelDataGlob.ffsmodelSurfaces[v2].surfIndex < (unsigned int)v24 )
+                  v37 = v36;
+                modelDataGlob.smodelSurfMatIndirectionCPU[v23].emitType = v37;
+                *((_DWORD *)v56 + v23) = modelDataGlob.smodelSurfMatIndirectionCPU[v23];
+                while ( modelDataGlob.ffsmodelSurfaces[v2].smodelIndex < v50 || modelDataGlob.ffsmodelSurfaces[v2].lodIndex < (unsigned int)v11 || modelDataGlob.ffsmodelSurfaces[v2].surfIndex < (unsigned int)v21 )
                   v2 = (unsigned int)(v2 + 1);
-                v41 = XModelGetLodInfo(_R13, v14);
-                if ( v41->surfs && Stream_MeshIsSafeToUse(v41->modelSurfsStaging) )
+                v38 = XModelGetLodInfo((const XModel *)p_name, v11);
+                if ( v38->surfs && Stream_MeshIsSafeToUse(v38->modelSurfsStaging) )
                 {
-                  v43 = XModelGetLodInfo(_R13, v14);
-                  if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 286, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
+                  v40 = XModelGetLodInfo((const XModel *)p_name, v11);
+                  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 286, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
                     __debugbreak();
-                  if ( !v43->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 287, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
+                  if ( !v40->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 287, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
                     __debugbreak();
-                  if ( v43->modelSurfsStaging->surfs != v43->surfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 288, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging->surfs == lodInfo->surfs)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging->surfs == lodInfo->surfs") )
+                  if ( v40->modelSurfsStaging->surfs != v40->surfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 288, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging->surfs == lodInfo->surfs)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging->surfs == lodInfo->surfs") )
                     __debugbreak();
-                  if ( v43->modelSurfsStaging->numsurfs != v43->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 289, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging->numsurfs == lodInfo->numsurfs)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging->numsurfs == lodInfo->numsurfs") )
+                  if ( v40->modelSurfsStaging->numsurfs != v40->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 289, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging->numsurfs == lodInfo->numsurfs)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging->numsurfs == lodInfo->numsurfs") )
                     __debugbreak();
-                  v44 = XModelGetLodInfo(_R13, v14);
-                  if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 331, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
+                  v41 = XModelGetLodInfo((const XModel *)p_name, v11);
+                  if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 331, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
                     __debugbreak();
-                  if ( (unsigned int)v24 >= v44->numsurfs )
+                  if ( (unsigned int)v21 >= v41->numsurfs )
                   {
-                    LODWORD(v56) = v44->numsurfs;
-                    LODWORD(v55) = v24;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 332, ASSERT_TYPE_ASSERT, "(unsigned)( surfIndex ) < (unsigned)( lodInfo->numsurfs )", "surfIndex doesn't index lodInfo->numsurfs\n\t%i not in [0, %i)", v55, v56) )
+                    LODWORD(v46) = v41->numsurfs;
+                    LODWORD(v45) = v21;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 332, ASSERT_TYPE_ASSERT, "(unsigned)( surfIndex ) < (unsigned)( lodInfo->numsurfs )", "surfIndex doesn't index lodInfo->numsurfs\n\t%i not in [0, %i)", v45, v46) )
                       __debugbreak();
                   }
-                  if ( (unsigned int)v24 + v44->surfIndex >= _R13->numsurfs )
+                  if ( (unsigned int)v21 + v41->surfIndex >= *((unsigned __int16 *)p_name + 4) )
                   {
-                    LODWORD(v56) = _R13->numsurfs;
-                    LODWORD(v55) = v24 + v44->surfIndex;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 333, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex + surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex + surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v55, v56) )
+                    LODWORD(v46) = *((unsigned __int16 *)p_name + 4);
+                    LODWORD(v45) = v21 + v41->surfIndex;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 333, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex + surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex + surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v45, v46) )
                       __debugbreak();
                   }
-                  if ( !v44->surfs )
+                  if ( !v41->surfs )
                   {
-                    LODWORD(v57) = v14;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 340, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", _R13->name, v57) )
+                    LODWORD(v47) = v11;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 340, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", *p_name, v47) )
                       __debugbreak();
                   }
-                  if ( !v44->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 341, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
+                  if ( !v41->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 341, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
                     __debugbreak();
-                  _RBX = (const Bounds *)&v44->surfs[(int)v24];
-                  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 467, ASSERT_TYPE_ASSERT, "(surf)", (const char *)&queryFormat, "surf") )
+                  v42 = (__int64)&v41->surfs[(int)v21];
+                  if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model_data.cpp", 467, ASSERT_TYPE_ASSERT, "(surf)", (const char *)&queryFormat, "surf") )
                     __debugbreak();
-                  R_SetBoundingBoxData(_RBX + 6, outBoundingBoxData);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbx+9Ch]
-                    vmovss  dword ptr [rsp+0E8h+outBoundingBoxData+10h], xmm0
-                    vmovss  xmm1, dword ptr [rbx+0A0h]
-                    vmovss  dword ptr [rsp+0E8h+outBoundingBoxData+14h], xmm1
-                    vmovss  xmm0, dword ptr [rbx+0A4h]
-                    vmovss  dword ptr [rsp+0E8h+outBoundingBoxData+18h], xmm0
-                    vmovups ymm0, ymmword ptr [rsp+0E8h+outBoundingBoxData]
-                  }
+                  R_SetBoundingBoxData((const Bounds *)(v42 + 144), outBoundingBoxData);
+                  *(_QWORD *)outBoundingBoxData[1].v = *(_QWORD *)(v42 + 156);
+                  outBoundingBoxData[1].v[2] = *(float *)(v42 + 164);
+                  v43 = *(__m256i *)outBoundingBoxData[0].v;
                 }
                 else
                 {
-                  _RAX = modelDataGlob.ffsmodelSurfData;
-                  _RBX = 32i64 * (unsigned int)v2;
-                  __asm { vmovups ymm0, ymmword ptr [rbx+rax] }
+                  v43 = (__m256i)modelDataGlob.ffsmodelSurfData[(unsigned int)v2];
                 }
-                v24 = (unsigned int)(v24 + 1);
-                _RAX = v63;
-                v1 = v59 + 1;
-                _R14 = 32 * v26;
-                ++v59;
-                __asm { vmovups ymmword ptr [r14+rax], ymm0 }
+                v21 = (unsigned int)(v21 + 1);
+                v1 = ++v49;
+                v53[v23] = v43;
               }
-              while ( (unsigned int)v24 < v62 );
+              while ( (unsigned int)v21 < v52 );
             }
-            v14 = (unsigned int)(v14 + 1);
-            v15 = v67;
+            v11 = (unsigned int)(v11 + 1);
+            v12 = v57;
           }
-          while ( (unsigned int)v14 < _R13->numLods );
+          while ( (unsigned int)v11 < *((unsigned __int8 *)p_name + 10) );
         }
-        _R15 = &modelDataGlob;
-        v3 = v60 + 1;
-        v60 = v3;
+        v3 = v50 + 1;
+        v50 = v3;
       }
       while ( v3 < rgp.world->smodels.modelCount );
-      v0 = v68;
+      v0 = v58;
     }
     rgp.world->smodels.surfaceCount = v1;
     if ( modelDataGlob.smodelCollectionOrderChanged )

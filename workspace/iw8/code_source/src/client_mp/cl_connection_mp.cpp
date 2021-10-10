@@ -349,7 +349,7 @@ char ClConnectionMP::ConnectedPacketEvent(ClConnectionMP *this, netadr_t *from, 
 {
   char result; 
   int addrHandleIndex; 
-  const char *v10; 
+  const char *v9; 
   int incomingSequence; 
   int messageAcknowledge; 
   int reliableAcknowledge; 
@@ -357,17 +357,16 @@ char ClConnectionMP::ConnectedPacketEvent(ClConnectionMP *this, netadr_t *from, 
   int serverMessageConsecutiveValid; 
   int Long; 
   int reliableSent; 
+  int v17; 
   int v18; 
   int v19; 
   int v20; 
-  int v21; 
-  __int64 v22; 
+  __int64 v21; 
   __int64 reliableSequence; 
+  __int64 v23; 
   __int64 v24; 
-  __int64 v25; 
-  netadr_t v26; 
+  netadr_t v25; 
 
-  _RBX = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.cpp", 199, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
   if ( !Com_AreConnectedPacketsAllowed() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.cpp", 200, ASSERT_TYPE_ASSERT, "(Com_AreConnectedPacketsAllowed())", "%s\n\tShould not be receiving connected packet events while the server is starting", "Com_AreConnectedPacketsAllowed()") )
@@ -377,7 +376,7 @@ char ClConnectionMP::ConnectedPacketEvent(ClConnectionMP *this, netadr_t *from, 
     Com_Printf(14, "Received a packet when server connection not opened\n");
     return 0;
   }
-  if ( NetConnection::CompareAddr(&this->m_connectionData.serverConnection, _RBX) )
+  if ( NetConnection::CompareAddr(&this->m_connectionData.serverConnection, from) )
   {
     this->m_connectionData.lastPacketTime = cls.realtime;
     if ( !Netchan_Process(&this->m_connectionData.netchan, msg) )
@@ -397,34 +396,34 @@ char ClConnectionMP::ConnectedPacketEvent(ClConnectionMP *this, netadr_t *from, 
     this->m_connectionData.serverMessageSequence = incomingSequence;
     Long = MSG_ReadLong(msg);
     reliableSent = this->m_connectionData.reliableSent;
-    v18 = Long & 0x3FFFFFFF;
-    v19 = Long;
-    v20 = this->m_connectionData.reliableAcknowledge;
-    this->m_connectionData.messageAcknowledge = v18;
-    if ( v20 > reliableSent || reliableSent > this->m_connectionData.reliableSequence )
+    v17 = Long & 0x3FFFFFFF;
+    v18 = Long;
+    v19 = this->m_connectionData.reliableAcknowledge;
+    this->m_connectionData.messageAcknowledge = v17;
+    if ( v19 > reliableSent || reliableSent > this->m_connectionData.reliableSequence )
     {
-      LODWORD(v25) = v20;
-      LODWORD(v24) = reliableSent;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.cpp", 264, ASSERT_TYPE_ASSERT, "( clcData->reliableAcknowledge ) <= ( clcData->reliableSent ) && ( clcData->reliableSent ) <= ( clcData->reliableSequence )", "clcData->reliableSent not in [clcData->reliableAcknowledge, clcData->reliableSequence]\n\t%i not in [%i, %i]", v24, v25, this->m_connectionData.reliableSequence) )
+      LODWORD(v24) = v19;
+      LODWORD(v23) = reliableSent;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.cpp", 264, ASSERT_TYPE_ASSERT, "( clcData->reliableAcknowledge ) <= ( clcData->reliableSent ) && ( clcData->reliableSent ) <= ( clcData->reliableSequence )", "clcData->reliableSent not in [clcData->reliableAcknowledge, clcData->reliableSequence]\n\t%i not in [%i, %i]", v23, v24, this->m_connectionData.reliableSequence) )
         __debugbreak();
     }
-    v21 = this->m_connectionData.reliableSent;
-    v22 = (unsigned int)this->m_connectionData.reliableAcknowledge;
-    if ( v21 > (int)v22 )
+    v20 = this->m_connectionData.reliableSent;
+    v21 = (unsigned int)this->m_connectionData.reliableAcknowledge;
+    if ( v20 > (int)v21 )
     {
-      while ( this->m_connectionData.messageAcknowledge < this->m_connectionData.serverReliableCommandPacket[v21 & 0x7F] )
+      while ( this->m_connectionData.messageAcknowledge < this->m_connectionData.serverReliableCommandPacket[v20 & 0x7F] )
       {
-        if ( --v21 <= (int)v22 )
+        if ( --v20 <= (int)v21 )
           goto LABEL_28;
       }
-      this->m_connectionData.reliableAcknowledge = v21;
-      v22 = (unsigned int)v21;
+      this->m_connectionData.reliableAcknowledge = v20;
+      v21 = (unsigned int)v20;
     }
 LABEL_28:
     reliableSequence = (unsigned int)this->m_connectionData.reliableSequence;
-    if ( (int)v22 >= (int)reliableSequence - 128 )
+    if ( (int)v21 >= (int)reliableSequence - 128 )
     {
-      msg->compressionFlags = v19 & 0xC0000000;
+      msg->compressionFlags = v18 & 0xC0000000;
       Sys_ProfBeginNamedEvent(0xFFFFFFFF, "parse msg");
       CL_ParseMP_ParseServerMessage(this->m_localClientNum, msg);
       Sys_ProfEndNamedEvent();
@@ -444,7 +443,7 @@ LABEL_28:
     }
     else
     {
-      Com_PrintWarning(14, "CL_MainMP_PacketEvent - cannot decode message since lost command which generates the key - %i %i\n", v22, reliableSequence);
+      Com_PrintWarning(14, "CL_MainMP_PacketEvent - cannot decode message since lost command which generates the key - %i %i\n", v21, reliableSequence);
       this->m_connectionData.reliableAcknowledge = this->m_connectionData.reliableSequence;
       result = 0;
       this->m_connectionData.serverMessageSequence = serverMessageSequence;
@@ -454,12 +453,11 @@ LABEL_28:
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    addrHandleIndex = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+98h+var_58], xmm0 }
-    v26.addrHandleIndex = addrHandleIndex;
-    v10 = NET_AdrToString(&v26);
-    Com_Printf(14, "%s:sequenced packet without connection\n", v10);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v25.type = *(_OWORD *)&from->type;
+    v25.addrHandleIndex = addrHandleIndex;
+    v9 = NET_AdrToString(&v25);
+    Com_Printf(14, "%s:sequenced packet without connection\n", v9);
     return 0;
   }
   return result;

@@ -170,17 +170,12 @@ AD_EndpointClose
 */
 void AD_EndpointClose(AD_Endpoint *const endpoint)
 {
-  _RBX = endpoint;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 57, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
     __debugbreak();
-  AD_EndpointClose_Platform(_RBX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vmovups xmmword ptr [rbx+28h], xmm0
-  }
-  _RBX->active = 0;
-  _RBX->pendingAction = None;
+  AD_EndpointClose_Platform(endpoint);
+  endpoint->currentUserInfo = AD_InvalidUser;
+  endpoint->active = 0;
+  endpoint->pendingAction = None;
 }
 
 /*
@@ -204,7 +199,6 @@ AD_EndpointDestroy
 */
 void AD_EndpointDestroy(AD_Endpoint *const endpoint)
 {
-  _RBX = endpoint;
   if ( !endpoint )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 22, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
@@ -212,15 +206,11 @@ void AD_EndpointDestroy(AD_Endpoint *const endpoint)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 57, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
       __debugbreak();
   }
-  AD_EndpointClose_Platform(_RBX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vmovups xmmword ptr [rbx+28h], xmm0
-  }
-  _RBX->active = 0;
-  _RBX->pendingAction = None;
-  AD_EndpointDestroy_Platform(_RBX);
+  AD_EndpointClose_Platform(endpoint);
+  endpoint->currentUserInfo = AD_InvalidUser;
+  endpoint->active = 0;
+  endpoint->pendingAction = None;
+  AD_EndpointDestroy_Platform(endpoint);
 }
 
 /*
@@ -249,20 +239,15 @@ AD_EndpointInit
 */
 void AD_EndpointInit(AD_Endpoint *const endpoint, AD_Endpoint_Platform *const platformData)
 {
-  _RBX = endpoint;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 9, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
     __debugbreak();
   if ( !platformData && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 10, ASSERT_TYPE_ASSERT, "platformData != nullptr", "platformData != nullptr") )
     __debugbreak();
-  _RBX->active = 0;
-  _RBX->pendingAction = None;
-  _RBX->flaggedForReOpen = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vmovups xmmword ptr [rbx+28h], xmm0
-  }
-  _RBX->platformData = platformData;
+  endpoint->active = 0;
+  endpoint->pendingAction = None;
+  endpoint->flaggedForReOpen = 0;
+  endpoint->currentUserInfo = AD_InvalidUser;
+  endpoint->platformData = platformData;
 }
 
 /*
@@ -350,53 +335,32 @@ AD_EndpointProcessPendingActions
 */
 void AD_EndpointProcessPendingActions(AD_Endpoint *const endpoint)
 {
+  bool v2; 
   bool v3; 
-  bool v6; 
 
-  _RBX = endpoint;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 178, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
     __debugbreak();
-  switch ( _RBX->pendingAction )
+  switch ( endpoint->pendingAction )
   {
     case 1:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+18h]
-        vmovups xmmword ptr [rbx+28h], xmm0
-      }
-      v3 = AD_EndpointOpen_Platform(_RBX);
-      _RBX->active = v3;
-      if ( !v3 )
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-          vmovups xmmword ptr [rbx+28h], xmm0
-        }
-      }
-      _RBX->pendingAction = None;
+      endpoint->currentUserInfo = endpoint->pendingUserInfo;
+      v2 = AD_EndpointOpen_Platform(endpoint);
+      endpoint->active = v2;
+      if ( !v2 )
+        endpoint->currentUserInfo = AD_InvalidUser;
+      endpoint->pendingAction = None;
       break;
     case 2:
-      AD_EndpointClose(_RBX);
+      AD_EndpointClose(endpoint);
       break;
     case 3:
-      AD_EndpointClose_Platform(_RBX);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+18h]
-        vmovups xmmword ptr [rbx+28h], xmm0
-      }
-      v6 = AD_EndpointOpen_Platform(_RBX);
-      _RBX->active = v6;
-      if ( !v6 )
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-          vmovups xmmword ptr [rbx+28h], xmm0
-        }
-      }
-      _RBX->pendingAction = None;
+      AD_EndpointClose_Platform(endpoint);
+      endpoint->currentUserInfo = endpoint->pendingUserInfo;
+      v3 = AD_EndpointOpen_Platform(endpoint);
+      endpoint->active = v3;
+      if ( !v3 )
+        endpoint->currentUserInfo = AD_InvalidUser;
+      endpoint->pendingAction = None;
       break;
   }
 }
@@ -430,20 +394,14 @@ AD_EndpointScheduleOpen
 */
 void AD_EndpointScheduleOpen(AD_Endpoint *const endpoint, const AD_UserInfo *const userInfo)
 {
-  _RDI = userInfo;
-  _RBX = endpoint;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 128, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 129, ASSERT_TYPE_ASSERT, "userInfo != nullptr", "userInfo != nullptr") )
+  if ( !userInfo && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.cpp", 129, ASSERT_TYPE_ASSERT, "userInfo != nullptr", "userInfo != nullptr") )
     __debugbreak();
-  while ( _RBX->pendingAction )
+  while ( endpoint->pendingAction )
     AD_Sleep(1u);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rbx+18h], xmm0
-  }
-  _RBX->pendingAction = 1;
+  endpoint->pendingUserInfo = *userInfo;
+  endpoint->pendingAction = 1;
 }
 
 /*

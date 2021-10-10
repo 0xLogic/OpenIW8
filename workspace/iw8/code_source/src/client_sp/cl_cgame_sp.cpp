@@ -447,20 +447,14 @@ void CL_CGameSP_ClearSoundAliasCache(void)
 CL_CGameSP_CreateNextSnap
 ==============
 */
-
-void __fastcall CL_CGameSP_CreateNextSnap(double _XMM0_8)
+void CL_CGameSP_CreateNextSnap(void)
 {
   LocalClientNum_t OnlyLocalClientNum; 
+  float PartialFrametime; 
 
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-  SV_GetPartialFrametime();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; dtime
-  }
-  CG_SnapshotSP_CreateNextSnap(OnlyLocalClientNum, *(float *)&_XMM1, 1);
+  PartialFrametime = (float)SV_GetPartialFrametime();
+  CG_SnapshotSP_CreateNextSnap(OnlyLocalClientNum, PartialFrametime * 0.001, 1);
 }
 
 /*
@@ -566,58 +560,50 @@ void CL_CGameSP_GetSnapshotCommon(CgSnapshotSP *snapshot)
   int SnapshotEntities; 
   int SnapshotFxEntities; 
   int SnapshotSoundInfos; 
-  __int64 v8; 
-  __int64 v9; 
+  __int64 v5; 
+  __int64 v6; 
   bitarray<384> result; 
 
-  _RBX = snapshot;
   *(ClSnapshotHeader *)&snapshot->snapFlags = cls.snap;
   SnapshotEntities = SV_GetSnapshotEntities(snapshot->entityNums);
-  _RBX->numEntities = SnapshotEntities;
+  snapshot->numEntities = SnapshotEntities;
   if ( SnapshotEntities > 2048 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 85, ASSERT_TYPE_ASSERT, "( snapshot->numEntities ) <= ( 2048 )", "%s <= %s\n\t%i, %i", "snapshot->numEntities", "CL_MAX_ENTITIES_IN_SNAPSHOT_SP", SnapshotEntities, 2048) )
     __debugbreak();
-  SnapshotFxEntities = SV_GetSnapshotFxEntities(_RBX->fxEntityNums);
-  _RBX->numFxEntities = SnapshotFxEntities;
+  SnapshotFxEntities = SV_GetSnapshotFxEntities(snapshot->fxEntityNums);
+  snapshot->numFxEntities = SnapshotFxEntities;
   if ( SnapshotFxEntities > 1280 )
   {
-    LODWORD(v9) = 1280;
-    LODWORD(v8) = SnapshotFxEntities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 88, ASSERT_TYPE_ASSERT, "( snapshot->numFxEntities ) <= ( 1280 )", "%s <= %s\n\t%i, %i", "snapshot->numFxEntities", "FX_ENTITY_MAX", v8, v9) )
+    LODWORD(v6) = 1280;
+    LODWORD(v5) = SnapshotFxEntities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 88, ASSERT_TYPE_ASSERT, "( snapshot->numFxEntities ) <= ( 1280 )", "%s <= %s\n\t%i, %i", "snapshot->numFxEntities", "FX_ENTITY_MAX", v5, v6) )
       __debugbreak();
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_SERVER_CULL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_SERVER_CULL )") )
     __debugbreak();
-  SnapshotSoundInfos = SV_GetSnapshotSoundInfos(_RBX->soundInfoNums);
-  _RBX->numSounds = SnapshotSoundInfos;
+  SnapshotSoundInfos = SV_GetSnapshotSoundInfos(snapshot->soundInfoNums);
+  snapshot->numSounds = SnapshotSoundInfos;
   if ( SnapshotSoundInfos > 1024 )
   {
-    LODWORD(v9) = 1024;
-    LODWORD(v8) = SnapshotSoundInfos;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 93, ASSERT_TYPE_ASSERT, "( snapshot->numSounds ) <= ( 1024 )", "%s <= %s\n\t%i, %i", "snapshot->numSounds", "MAX_SERVER_CULLED_SOUNDS", v8, v9) )
+    LODWORD(v6) = 1024;
+    LODWORD(v5) = SnapshotSoundInfos;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 93, ASSERT_TYPE_ASSERT, "( snapshot->numSounds ) <= ( 1024 )", "%s <= %s\n\t%i, %i", "snapshot->numSounds", "MAX_SERVER_CULLED_SOUNDS", v5, v6) )
       __debugbreak();
   }
-  _RBX->numWeapons = SV_GetSnapshotWeapons(_RBX->weaponNums);
+  snapshot->numWeapons = SV_GetSnapshotWeapons(snapshot->weaponNums);
   if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
     __debugbreak();
-  if ( _RBX->numWeapons > BgWeaponMap::ms_runtimeSize )
+  if ( snapshot->numWeapons > BgWeaponMap::ms_runtimeSize )
   {
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    LODWORD(v9) = BgWeaponMap::ms_runtimeSize;
-    LODWORD(v8) = _RBX->numWeapons;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 97, ASSERT_TYPE_ASSERT, "( snapshot->numWeapons ) <= ( BgWeaponMap::GetRuntimeSize() )", "%s <= %s\n\t%i, %i", "snapshot->numWeapons", "BgWeaponMap::GetRuntimeSize()", v8, v9) )
+    LODWORD(v6) = BgWeaponMap::ms_runtimeSize;
+    LODWORD(v5) = snapshot->numWeapons;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 97, ASSERT_TYPE_ASSERT, "( snapshot->numWeapons ) <= ( BgWeaponMap::GetRuntimeSize() )", "%s <= %s\n\t%i, %i", "snapshot->numWeapons", "BgWeaponMap::GetRuntimeSize()", v5, v6) )
       __debugbreak();
   }
-  SV_GetSnapshotOmnvars(&_RBX->gameOmnvars);
-  SV_GetSnapshotHudElems(_RBX->m_hudElem);
-  _RAX = SV_GetSnapshotUmbraGateStates(&result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+12324h], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+12344h], xmm1
-  }
+  SV_GetSnapshotOmnvars(&snapshot->gameOmnvars);
+  SV_GetSnapshotHudElems(snapshot->m_hudElem);
+  snapshot->umbraGateStates = *SV_GetSnapshotUmbraGateStates(&result);
 }
 
 /*
@@ -660,14 +646,14 @@ void CL_CGameSP_Init_Internal(const char *mapname, const bool savegame)
 {
   __int64 OnlyLocalClientNum; 
   char *m_activeGameMapName; 
-  __int64 v7; 
-  signed __int64 v8; 
-  char v9; 
-  __int64 v10; 
-  char v11; 
+  __int64 v6; 
+  signed __int64 v7; 
+  char v8; 
+  __int64 v9; 
+  char v10; 
   unsigned __int8 ActiveGameMode; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v14; 
+  __int64 v15; 
 
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
   Sys_Milliseconds();
@@ -683,29 +669,29 @@ void CL_CGameSP_Init_Internal(const char *mapname, const bool savegame)
   if ( !cls.m_activeGameMapName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 295, ASSERT_TYPE_ASSERT, "(m_activeGameMapName[0])", "%s\n\tRequested mapname before it was set", "m_activeGameMapName[0]") )
     __debugbreak();
   m_activeGameMapName = cls.m_activeGameMapName;
-  v7 = 0x7FFFFFFFi64;
-  v8 = mapname - cls.m_activeGameMapName;
+  v6 = 0x7FFFFFFFi64;
+  v7 = mapname - cls.m_activeGameMapName;
   do
   {
-    v9 = m_activeGameMapName[v8];
-    v10 = v7;
-    v11 = *m_activeGameMapName++;
-    --v7;
-    if ( !v10 )
+    v8 = m_activeGameMapName[v7];
+    v9 = v6;
+    v10 = *m_activeGameMapName++;
+    --v6;
+    if ( !v9 )
       break;
-    if ( v9 != v11 )
+    if ( v8 != v10 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 431, ASSERT_TYPE_ASSERT, "(0 == I_strcmp( mapname, cls.GetGameMapName() ))", (const char *)&queryFormat, "0 == I_strcmp( mapname, cls.GetGameMapName() )") )
         __debugbreak();
       break;
     }
   }
-  while ( v9 );
+  while ( v8 );
   cls.isLoadComplete = 1;
   if ( (unsigned int)OnlyLocalClientNum >= 2 )
   {
-    LODWORD(v17) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, 2) )
+    LODWORD(v14) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, 2) )
       __debugbreak();
   }
   if ( clientUIActives[OnlyLocalClientNum].connectionState != CA_LOADING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 435, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientAnyConnectionState( localClientNum ) == CA_LOADING)", (const char *)&queryFormat, "CL_GetLocalClientAnyConnectionState( localClientNum ) == CA_LOADING") )
@@ -714,9 +700,9 @@ void CL_CGameSP_Init_Internal(const char *mapname, const bool savegame)
     __debugbreak();
   if ( (unsigned int)OnlyLocalClientNum >= LODWORD(cl_maxLocalClients) )
   {
-    *(float *)&v18 = cl_maxLocalClients;
-    LODWORD(v17) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_connection_sp.h", 49, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v18) )
+    *(float *)&v15 = cl_maxLocalClients;
+    LODWORD(v14) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_connection_sp.h", 49, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
   if ( (_BYTE)ClConnection::ms_activeConnectionType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_connection_sp.h", 50, ASSERT_TYPE_ASSERT, "(ms_activeConnectionType == GameModeType::SP)", (const char *)&queryFormat, "ms_activeConnectionType == GameModeType::SP") )
@@ -727,22 +713,17 @@ void CL_CGameSP_Init_Internal(const char *mapname, const bool savegame)
     __debugbreak();
   if ( (unsigned int)OnlyLocalClientNum >= 2 )
   {
-    LODWORD(v18) = 2;
-    LODWORD(v17) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v15) = 2;
+    LODWORD(v14) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
   clientUIActives[OnlyLocalClientNum].cgameInitCalled = 1;
   CG_MainSP_Init(savegame);
   Sys_Milliseconds();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, eax
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(14, "CL_CGameSP_Init: %5.2f seconds\n", *(double *)&_XMM2);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, eax }
+  Com_Printf(14, "CL_CGameSP_Init: %5.2f seconds\n", *(double *)&_XMM0 * 0.001);
   R_EndRegistration();
   Con_ClearNotify((LocalClientNum_t)OnlyLocalClientNum);
   Con_InitConfig((const LocalClientNum_t)OnlyLocalClientNum, "console_sp.cfg");
@@ -850,12 +831,22 @@ CL_CGameSP_RestoreSettings
 */
 void CL_CGameSP_RestoreSettings(MemoryFile *memFile, LocalClientNum_t localClientNum)
 {
+  ClActiveClientSP *ClientSP; 
+  cg_t *LocalClientGlobals; 
   const char *CString; 
+  Weapon *WeaponForName; 
+  __m256i v8; 
+  __int128 v9; 
+  double v10; 
   int v11; 
-  const char *v13; 
-  int v18; 
-  unsigned int v19; 
-  int v20; 
+  const char *v12; 
+  Weapon *v13; 
+  __m256i v14; 
+  __int128 v15; 
+  double v16; 
+  int v17; 
+  unsigned int v18; 
+  int v19; 
   char p[8]; 
   Weapon result; 
   char outHexString[128]; 
@@ -864,94 +855,69 @@ void CL_CGameSP_RestoreSettings(MemoryFile *memFile, LocalClientNum_t localClien
     __debugbreak();
   if ( MemFile_IsWriting(memFile) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 658, ASSERT_TYPE_ASSERT, "(!MemFile_IsWriting( memFile ))", (const char *)&queryFormat, "!MemFile_IsWriting( memFile )") )
     __debugbreak();
-  _RSI = ClActiveClientSP::GetClientSP(localClientNum);
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
+  ClientSP = ClActiveClientSP::GetClientSP(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 642, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   CString = MemFile_ReadCString(memFile);
   if ( CString && *CString )
   {
-    _RAX = CG_Weapons_GetWeaponForName(&result, CString);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm3, qword ptr [rax+30h]
-    }
-    v11 = *(_DWORD *)&_RAX->weaponCamo;
+    WeaponForName = CG_Weapons_GetWeaponForName(&result, CString);
+    v8 = *(__m256i *)&WeaponForName->weaponIdx;
+    v9 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+    v10 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+    v11 = *(_DWORD *)&WeaponForName->weaponCamo;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm1, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm2, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovsd  xmm3, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
+    v8 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v9 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v10 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
     v11 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   }
-  _RCX = &_RDI->weaponSelect;
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm1
-    vmovups xmmword ptr [rcx+20h], xmm2
-    vmovsd  qword ptr [rcx+30h], xmm3
-  }
-  *(_DWORD *)&_RDI->weaponSelect.weaponCamo = v11;
-  __asm
-  {
-    vmovups ymmword ptr [rsi+90h], ymm1
-    vmovups xmmword ptr [rsi+0B0h], xmm2
-    vmovsd  qword ptr [rsi+0C0h], xmm3
-  }
-  *(_DWORD *)&_RSI->cgameUserCmdWeapon.weaponCamo = v11;
-  BG_ConvertWeaponToHexString(&_RDI->weaponSelect, outHexString, 121);
+  *(__m256i *)&LocalClientGlobals->weaponSelect.weaponIdx = v8;
+  *(_OWORD *)&LocalClientGlobals->weaponSelect.attachmentVariationIndices[5] = v9;
+  *(double *)&LocalClientGlobals->weaponSelect.attachmentVariationIndices[21] = v10;
+  *(_DWORD *)&LocalClientGlobals->weaponSelect.weaponCamo = v11;
+  *(__m256i *)&ClientSP->cgameUserCmdWeapon.weaponIdx = v8;
+  *(_OWORD *)&ClientSP->cgameUserCmdWeapon.attachmentVariationIndices[5] = v9;
+  *(double *)&ClientSP->cgameUserCmdWeapon.attachmentVariationIndices[21] = v10;
+  *(_DWORD *)&ClientSP->cgameUserCmdWeapon.weaponCamo = v11;
+  BG_ConvertWeaponToHexString(&LocalClientGlobals->weaponSelect, outHexString, 121);
   Com_Printf(17, "CL_CGameSP_RestoreSettings: Read selected weapon %s.\n", outHexString);
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_cgame_sp.cpp", 642, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
-  v13 = MemFile_ReadCString(memFile);
-  if ( v13 && *v13 )
+  v12 = MemFile_ReadCString(memFile);
+  if ( v12 && *v12 )
   {
-    _RAX = CG_Weapons_GetWeaponForName(&result, v13);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm3, qword ptr [rax+30h]
-    }
-    v18 = *(_DWORD *)&_RAX->weaponCamo;
+    v13 = CG_Weapons_GetWeaponForName(&result, v12);
+    v14 = *(__m256i *)&v13->weaponIdx;
+    v15 = *(_OWORD *)&v13->attachmentVariationIndices[5];
+    v16 = *(double *)&v13->attachmentVariationIndices[21];
+    v17 = *(_DWORD *)&v13->weaponCamo;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm1, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm2, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovsd  xmm3, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
-    v18 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    v14 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v15 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v16 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+    v17 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   }
-  __asm
-  {
-    vmovups ymmword ptr [rdi+499C8h], ymm1
-    vmovups xmmword ptr [rdi+499E8h], xmm2
-    vmovsd  qword ptr [rdi+499F8h], xmm3
-  }
-  *(_DWORD *)&_RDI->equippedOffHand.weaponCamo = v18;
-  __asm
-  {
-    vmovups ymmword ptr [rsi+0CCh], ymm1
-    vmovups xmmword ptr [rsi+0ECh], xmm2
-    vmovsd  qword ptr [rsi+0FCh], xmm3
-  }
-  *(_DWORD *)&_RSI->cgameUserCmdOffHand.weaponCamo = v18;
+  *(__m256i *)&LocalClientGlobals->equippedOffHand.weaponIdx = v14;
+  *(_OWORD *)&LocalClientGlobals->equippedOffHand.attachmentVariationIndices[5] = v15;
+  *(double *)&LocalClientGlobals->equippedOffHand.attachmentVariationIndices[21] = v16;
+  *(_DWORD *)&LocalClientGlobals->equippedOffHand.weaponCamo = v17;
+  *(__m256i *)&ClientSP->cgameUserCmdOffHand.weaponIdx = v14;
+  *(_OWORD *)&ClientSP->cgameUserCmdOffHand.attachmentVariationIndices[5] = v15;
+  *(double *)&ClientSP->cgameUserCmdOffHand.attachmentVariationIndices[21] = v16;
+  *(_DWORD *)&ClientSP->cgameUserCmdOffHand.weaponCamo = v17;
   MemFile_ReadData(memFile, 1ui64, p);
-  v19 = (unsigned __int8)p[0];
-  _RSI->usingAds = p[0] & 1;
-  v20 = (v19 >> 1) & 1;
-  _RDI->weaponSelectInAlt = v20;
-  _RDI->equipSelectInAlt = (v19 & 4) != 0;
-  _RSI->cgameUserCmdAlternate = v20;
+  v18 = (unsigned __int8)p[0];
+  ClientSP->usingAds = p[0] & 1;
+  v19 = (v18 >> 1) & 1;
+  LocalClientGlobals->weaponSelectInAlt = v19;
+  LocalClientGlobals->equipSelectInAlt = (v18 & 4) != 0;
+  ClientSP->cgameUserCmdAlternate = v19;
 }
 
 /*
@@ -980,32 +946,16 @@ void CL_CGameSP_SetActive(void)
 CL_CGameSP_SetUserCmdAimValues
 ==============
 */
-
-void __fastcall CL_CGameSP_SetUserCmdAimValues(LocalClientNum_t localClientNum, double gunPitch, double gunYaw, double gunXOfs, float gunYOfs, float gunZOfs)
+void CL_CGameSP_SetUserCmdAimValues(LocalClientNum_t localClientNum, float gunPitch, float gunYaw, float gunXOfs, float gunYOfs, float gunZOfs)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
-  _RAX = ClActiveClientSP::GetClientSP(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+gunYOfs]
-    vmovss  xmm1, [rsp+58h+gunZOfs]
-    vmovss  dword ptr [rax+8720h], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rax+8724h], xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rax+8728h], xmm8
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovss  dword ptr [rax+872Ch], xmm0
-    vmovss  dword ptr [rax+8730h], xmm1
-  }
+  ClActiveClientSP *ClientSP; 
+
+  ClientSP = ClActiveClientSP::GetClientSP(localClientNum);
+  ClientSP->cgameUserCmdGunPitch = gunPitch;
+  ClientSP->cgameUserCmdGunYaw = gunYaw;
+  ClientSP->cgameUserCmdGunXOfs = gunXOfs;
+  ClientSP->cgameUserCmdGunYOfs = gunYOfs;
+  ClientSP->cgameUserCmdGunZOfs = gunZOfs;
 }
 
 /*

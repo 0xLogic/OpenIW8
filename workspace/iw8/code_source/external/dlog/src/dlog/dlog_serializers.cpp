@@ -93,9 +93,11 @@ unsigned __int64 DLog_Serialize_Protobuf(DLogReadContext *context, DLogEventInfo
   int arrayCount; 
   DLogType type; 
   int v11; 
-  __int64 v16; 
+  __int64 v12; 
+  unsigned __int8 *u8; 
+  __int64 v14; 
   unsigned __int64 protoGuid; 
-  DLogCmd v20; 
+  DLogCmd v18; 
   DLogCmd cmd; 
   ProtobufSerializer s; 
 
@@ -114,37 +116,37 @@ unsigned __int64 DLog_Serialize_Protobuf(DLogReadContext *context, DLogEventInfo
   {
     do
     {
-      DLog_GetNextCmd(v5, &v20);
-      switch ( v20.type )
+      DLog_GetNextCmd(v5, &v18);
+      switch ( v18.type )
       {
         case DLOG_CMD_ROW_ARRAY:
           while ( !DLog_GetNextCmdType(v5, DLOG_CMD_ROW_ARRAY_END) )
             DLog_Serialize_ProtobufValue(v5, &s, 0);
           break;
         case DLOG_CMD_ROW:
-          ProtobufSerializer::BeginMessage(&s, v20.event.index + 1);
+          ProtobufSerializer::BeginMessage(&s, v18.event.index + 1);
           while ( !DLog_GetNextCmdType(v5, DLOG_CMD_ROW_END) )
             DLog_Serialize_ProtobufValue(v5, &s, 0);
           ProtobufSerializer::EndMessage(&s);
           break;
         case DLOG_CMD_COLUMN:
           v8 = 1;
-          arrayCount = v20.column.arrayCount;
-          type = v20.column.type;
-          v11 = v20.event.index + rowCount + 1;
-          if ( v20.column.arrayCount >= 0 )
+          arrayCount = v18.column.arrayCount;
+          type = v18.column.type;
+          v11 = v18.event.index + rowCount + 1;
+          if ( v18.column.arrayCount >= 0 )
           {
-            v8 = v20.column.arrayCount;
-            if ( (unsigned __int8)(v20.column.type - 15) > 1u )
+            v8 = v18.column.arrayCount;
+            if ( (unsigned __int8)(v18.column.type - 15) > 1u )
             {
               ProtobufSerializer::BeginPacked(&s, v11);
-              arrayCount = v20.column.arrayCount;
+              arrayCount = v18.column.arrayCount;
             }
           }
-          _RBX = 0i64;
+          v12 = 0i64;
           if ( v8 > 0 )
           {
-            _R8 = v20.column.u8;
+            u8 = v18.column.u8;
             while ( 2 )
             {
               switch ( type )
@@ -152,66 +154,64 @@ unsigned __int64 DLog_Serialize_Protobuf(DLogReadContext *context, DLogEventInfo
                 case DLOG_TYPE_NULL:
                   goto LABEL_36;
                 case DLOG_TYPE_BOOL:
-                  ProtobufSerializer::Bool(&s, v11, _R8[_RBX] != 0);
+                  ProtobufSerializer::Bool(&s, v11, u8[v12] != 0);
                   goto LABEL_35;
                 case DLOG_TYPE_FLOAT32:
-                  __asm { vmovss  xmm2, dword ptr [r8+rbx*4]; jumptable 000000014377B9BD case 2 }
-                  ProtobufSerializer::Float32(&s, v11, *(float *)&_XMM2);
+                  ProtobufSerializer::Float32(&s, v11, *(float *)&u8[4 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_FLOAT64:
-                  __asm { vmovsd  xmm2, qword ptr [r8+rbx*8]; jumptable 000000014377B9BD case 3 }
-                  ProtobufSerializer::Float64(&s, v11, *(long double *)&_XMM2);
+                  ProtobufSerializer::Float64(&s, v11, *(long double *)&u8[8 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_INT8:
-                  ProtobufSerializer::Int32(&s, v11, (char)_R8[_RBX]);
+                  ProtobufSerializer::Int32(&s, v11, (char)u8[v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_INT16:
-                  ProtobufSerializer::Int32(&s, v11, *(__int16 *)&_R8[2 * _RBX]);
+                  ProtobufSerializer::Int32(&s, v11, *(__int16 *)&u8[2 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_INT32:
-                  ProtobufSerializer::Int32(&s, v11, *(_DWORD *)&_R8[4 * _RBX]);
+                  ProtobufSerializer::Int32(&s, v11, *(_DWORD *)&u8[4 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_INT64:
-                  ProtobufSerializer::Int64(&s, v11, *(_QWORD *)&_R8[8 * _RBX]);
+                  ProtobufSerializer::Int64(&s, v11, *(_QWORD *)&u8[8 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_UINT8:
-                  ProtobufSerializer::UInt32(&s, v11, _R8[_RBX]);
+                  ProtobufSerializer::UInt32(&s, v11, u8[v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_UINT16:
-                  ProtobufSerializer::UInt32(&s, v11, *(unsigned __int16 *)&_R8[2 * _RBX]);
+                  ProtobufSerializer::UInt32(&s, v11, *(unsigned __int16 *)&u8[2 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_UINT32:
-                  ProtobufSerializer::UInt32(&s, v11, *(_DWORD *)&_R8[4 * _RBX]);
+                  ProtobufSerializer::UInt32(&s, v11, *(_DWORD *)&u8[4 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_UINT64:
-                  ProtobufSerializer::UInt64(&s, v11, *(_QWORD *)&_R8[8 * _RBX]);
+                  ProtobufSerializer::UInt64(&s, v11, *(_QWORD *)&u8[8 * v12]);
                   goto LABEL_35;
                 case DLOG_TYPE_STRING:
-                  ProtobufSerializer::String(&s, v11, (const char *)_R8);
-                  v16 = -1i64;
-                  while ( v20.column.u8[++v16] != 0 )
+                  ProtobufSerializer::String(&s, v11, (const char *)u8);
+                  v14 = -1i64;
+                  while ( v18.column.u8[++v14] != 0 )
                     ;
-                  _R8 = &v20.column.u8[v16 + 1];
-                  v20.column.u8 = _R8;
+                  u8 = &v18.column.u8[v14 + 1];
+                  v18.column.u8 = u8;
                   goto LABEL_36;
                 case DLOG_TYPE_BYTES:
-                  ProtobufSerializer::Bytes(&s, v11, _R8 + 4, *(unsigned int *)_R8);
+                  ProtobufSerializer::Bytes(&s, v11, u8 + 4, *(unsigned int *)u8);
                   goto LABEL_35;
                 default:
                   DLog_Assert(0, "false", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_ProtobufValue", 252);
 LABEL_35:
-                  _R8 = v20.column.u8;
+                  u8 = v18.column.u8;
 LABEL_36:
-                  if ( ++_RBX < v8 )
+                  if ( ++v12 < v8 )
                     continue;
-                  arrayCount = v20.column.arrayCount;
+                  arrayCount = v18.column.arrayCount;
                   v5 = context;
                   break;
               }
               break;
             }
           }
-          if ( arrayCount >= 0 && (unsigned __int8)(v20.column.type - 15) > 1u )
+          if ( arrayCount >= 0 && (unsigned __int8)(v18.column.type - 15) > 1u )
             ProtobufSerializer::EndPacked(&s);
           break;
       }
@@ -269,130 +269,125 @@ DLog_Serialize_MessageEnvelope
 unsigned __int64 DLog_Serialize_MessageEnvelope(DLogReadContext *context, DLogEventInfo *eventInfo, void *buffer, int bufferSize)
 {
   unsigned __int64 userId; 
-  unsigned __int64 v9; 
+  unsigned __int64 v7; 
   const DLogGluttonInfo *GluttonInfo; 
-  const DLogGluttonInfo *v11; 
+  const DLogGluttonInfo *v9; 
   unsigned __int64 UnoIdFromUserId; 
   unsigned __int64 FirstPartyUserIdFromUserId; 
   __int64 ticks_0; 
   __int64 perf_frequency_0; 
   __int64 perf_counter_0; 
-  __int64 v17; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned __int64 v17; 
   __int64 v18; 
-  unsigned __int64 v19; 
+  __int64 v19; 
   __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  bool v24; 
+  bool v22; 
   __int64 firstPartyAccountType; 
-  int v26; 
-  unsigned __int64 v28; 
-  char v29; 
+  int v24; 
+  unsigned __int64 v25; 
+  char v26; 
   DLogEnv Env; 
   DLogSample EventChannelSample; 
-  DLogSampleType v32; 
   DLogSampleType EventSampleType; 
-  unsigned __int64 result; 
-  unsigned __int64 v41; 
-  ProtobufSerializer v44; 
-  __m256i v45; 
-  int v46; 
-  int v47; 
+  float v30; 
+  double EventSampleRate; 
+  unsigned __int64 v34; 
+  ProtobufSerializer v37; 
+  __m256i v38; 
+  int v39; 
+  int v40; 
   __int64 value; 
-  __int16 v49; 
-  int v50; 
-  __int16 v51; 
+  __int16 v42; 
+  int v43; 
+  __int16 v44; 
   char dest[33]; 
 
   DLog_sprintf<33>((char (*)[33])dest, "%016llx", eventInfo->guid);
   userId = context->userId;
-  v9 = userId;
+  v7 = userId;
   if ( !userId )
   {
     GluttonInfo = DLog_GetGluttonInfo();
-    v9 = 0i64;
+    v7 = 0i64;
     if ( GluttonInfo )
     {
       userId = GluttonInfo->userId;
-      v9 = userId;
+      v7 = userId;
     }
   }
-  __asm { vmovaps [rsp+240h+var_50], xmm6 }
+  if ( !v7 )
+    return 0i64;
+  v9 = DLog_GetGluttonInfo();
   if ( !v9 )
-    goto LABEL_50;
-  v11 = DLog_GetGluttonInfo();
-  if ( !v11 )
-    goto LABEL_50;
+    return 0i64;
   UnoIdFromUserId = DLog_GetUnoIdFromUserId(userId);
   if ( !UnoIdFromUserId )
-    UnoIdFromUserId = v11->unoId;
+    UnoIdFromUserId = v9->unoId;
   FirstPartyUserIdFromUserId = DLog_GetFirstPartyUserIdFromUserId(userId);
   if ( !FirstPartyUserIdFromUserId )
-    FirstPartyUserIdFromUserId = v11->firstPartyUserId;
+    FirstPartyUserIdFromUserId = v9->firstPartyUserId;
   ticks_0 = Xtime_get_ticks_0();
   perf_frequency_0 = Query_perf_frequency_0();
   perf_counter_0 = Query_perf_counter_0();
-  v17 = (1000000000 * (perf_counter_0 % perf_frequency_0) / perf_frequency_0 + 1000000000 * (perf_counter_0 / perf_frequency_0)) / 1000;
-  v18 = qword_1565EFF98;
-  v19 = v17 + 1000000 * (ticks_0 / 10000000 - v17 / 1000000);
-  v41 = v19;
+  v15 = (1000000000 * (perf_counter_0 % perf_frequency_0) / perf_frequency_0 + 1000000000 * (perf_counter_0 / perf_frequency_0)) / 1000;
+  v16 = qword_1565EFF98;
+  v17 = v15 + 1000000 * (ticks_0 / 10000000 - v15 / 1000000);
+  v34 = v17;
   if ( !qword_1565EFF98 )
   {
-    v20 = Xtime_get_ticks_0();
-    v21 = Query_perf_frequency_0();
-    v22 = Query_perf_counter_0();
-    v23 = (1000000000 * (v22 % v21) / v21 + 1000000000 * (v22 / v21)) / 1000;
-    qword_1565EFF98 = v23 + 1000000 * (v20 / 10000000 - v23 / 1000000);
+    v18 = Xtime_get_ticks_0();
+    v19 = Query_perf_frequency_0();
+    v20 = Query_perf_counter_0();
+    v21 = (1000000000 * (v20 % v19) / v19 + 1000000000 * (v20 / v19)) / 1000;
+    qword_1565EFF98 = v21 + 1000000 * (v18 / 10000000 - v21 / 1000000);
     DLog_GetTrulyRandom(&dword_1565EFFA8, 8ui64);
-    v18 = qword_1565EFF98;
-    v19 = v41;
+    v16 = qword_1565EFF98;
+    v17 = v34;
   }
-  value = v18 + 1;
-  qword_1565EFF98 = v18 + 1;
-  v50 = dword_1565EFFA8;
-  v51 = word_1565EFFAC;
+  value = v16 + 1;
+  qword_1565EFF98 = v16 + 1;
+  v43 = dword_1565EFFA8;
+  v44 = word_1565EFFAC;
   LOBYTE(userId) = userId | 7;
-  HIBYTE(value) = ((unsigned __int64)(v18 + 1) >> 56) & 0xF0 | 1;
-  v49 = userId;
-  ProtobufSerializer::ProtobufSerializer(&v44, buffer, bufferSize);
-  v24 = ProtobufSerializer::BeginMessage(&v44, 1ui64) && ProtobufSerializer::Bytes(&v44, 2ui64, &value, 0x10ui64) && ProtobufSerializer::UInt64(&v44, 3ui64, v19) && ProtobufSerializer::UInt64(&v44, 8ui64, v11->titleId) && ProtobufSerializer::BeginMessage(&v44, 0xBui64);
-  firstPartyAccountType = v11->firstPartyAccountType;
-  v26 = 0;
+  HIBYTE(value) = ((unsigned __int64)(v16 + 1) >> 56) & 0xF0 | 1;
+  v42 = userId;
+  ProtobufSerializer::ProtobufSerializer(&v37, buffer, bufferSize);
+  v22 = ProtobufSerializer::BeginMessage(&v37, 1ui64) && ProtobufSerializer::Bytes(&v37, 2ui64, &value, 0x10ui64) && ProtobufSerializer::UInt64(&v37, 3ui64, v17) && ProtobufSerializer::UInt64(&v37, 8ui64, v9->titleId) && ProtobufSerializer::BeginMessage(&v37, 0xBui64);
+  firstPartyAccountType = v9->firstPartyAccountType;
+  v24 = 0;
   if ( (unsigned int)firstPartyAccountType <= 9 )
   {
-    __asm
-    {
-      vmovdqu ymm0, cs:__ymm@00000000000000090000001c000000120000001d000000060000001300000000
-      vmovdqu [rbp+140h+var_C0], ymm0
-    }
-    v46 = 25;
-    v47 = 4;
-    v26 = v45.m256i_i32[firstPartyAccountType];
+    v38 = _ymm;
+    v39 = 25;
+    v40 = 4;
+    v24 = v38.m256i_i32[firstPartyAccountType];
   }
-  if ( !v24 )
+  if ( !v22 )
     goto LABEL_37;
-  if ( !ProtobufSerializer::UInt64(&v44, 3ui64, (unsigned __int8)v11->platform) )
+  if ( !ProtobufSerializer::UInt64(&v37, 3ui64, (unsigned __int8)v9->platform) )
     goto LABEL_37;
-  if ( !ProtobufSerializer::UInt64(&v44, 4ui64, v26) )
+  if ( !ProtobufSerializer::UInt64(&v37, 4ui64, v24) )
     goto LABEL_37;
-  if ( !ProtobufSerializer::UInt64(&v44, 5ui64, FirstPartyUserIdFromUserId) )
+  if ( !ProtobufSerializer::UInt64(&v37, 5ui64, FirstPartyUserIdFromUserId) )
     goto LABEL_37;
-  if ( !ProtobufSerializer::UInt64(&v44, 6ui64, UnoIdFromUserId) )
+  if ( !ProtobufSerializer::UInt64(&v37, 6ui64, UnoIdFromUserId) )
     goto LABEL_37;
-  if ( !ProtobufSerializer::EndMessage(&v44) )
+  if ( !ProtobufSerializer::EndMessage(&v37) )
     goto LABEL_37;
-  if ( !ProtobufSerializer::BeginMessage(&v44, 0xCui64) )
+  if ( !ProtobufSerializer::BeginMessage(&v37, 0xCui64) )
     goto LABEL_37;
-  v28 = -1i64;
+  v25 = -1i64;
   do
-    ++v28;
-  while ( dest[v28] );
-  if ( ProtobufSerializer::Bytes(&v44, 1ui64, dest, v28) && ProtobufSerializer::EndMessage(&v44) && ProtobufSerializer::String(&v44, 0xDui64, eventInfo->categoryName) && ProtobufSerializer::UInt64(&v44, 0xEui64, eventInfo->serializationFormat) && ProtobufSerializer::UInt64(&v44, 0xFui64, eventInfo->compressionType) && ProtobufSerializer::BeginMessage(&v44, 0x10ui64) )
-    v29 = 1;
+    ++v25;
+  while ( dest[v25] );
+  if ( ProtobufSerializer::Bytes(&v37, 1ui64, dest, v25) && ProtobufSerializer::EndMessage(&v37) && ProtobufSerializer::String(&v37, 0xDui64, eventInfo->categoryName) && ProtobufSerializer::UInt64(&v37, 0xEui64, eventInfo->serializationFormat) && ProtobufSerializer::UInt64(&v37, 0xFui64, eventInfo->compressionType) && ProtobufSerializer::BeginMessage(&v37, 0x10ui64) )
+    v26 = 1;
   else
 LABEL_37:
-    v29 = 0;
+    v26 = 0;
   DLog_Assert(eventInfo->event != NULL, "eventInfo->event", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_MessageEnvelope", 665);
   DLog_Assert(eventInfo->channelRef != NULL, "eventInfo->channelRef", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_MessageEnvelope", 666);
   Env = DLog_GetEnv();
@@ -400,34 +395,18 @@ LABEL_37:
   if ( EventChannelSample == DLOG_SAMPLE_GROUP )
   {
     EventSampleType = DLog_GetEventSampleType(eventInfo->event->name, eventInfo->event->sampleGroup.type);
-    _RCX = eventInfo->event;
-    v32 = EventSampleType;
-    __asm { vmovss  xmm1, dword ptr [rcx+5Ch]; sampleRate }
-    *(double *)&_XMM0 = DLog_GetEventSampleRate(eventInfo->event->name, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
+    EventSampleRate = DLog_GetEventSampleRate(eventInfo->event->name, eventInfo->event->sampleGroup.rate);
+    v30 = *(float *)&EventSampleRate;
   }
   else
   {
-    v32 = DLOG_SAMPLE_TYPE_NONE;
-    if ( EventChannelSample == DLOG_SAMPLE_ALL )
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-    else
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+    EventSampleType = DLOG_SAMPLE_TYPE_NONE;
+    v30 = EventChannelSample == DLOG_SAMPLE_ALL ? FLOAT_1_0 : 0.0;
   }
-  if ( !v29 )
-    goto LABEL_50;
-  if ( !ProtobufSerializer::UInt64(&v44, 1ui64, (unsigned __int8)v32) )
-    goto LABEL_50;
-  __asm { vmovaps xmm2, xmm6; value }
-  if ( !ProtobufSerializer::Float32(&v44, 2ui64, *(float *)&_XMM2) )
-    goto LABEL_50;
-  if ( ProtobufSerializer::EndMessage(&v44) && ProtobufSerializer::Bytes(&v44, 0x64ui64, context->buffer, context->bufferSize) && ProtobufSerializer::EndMessage(&v44) )
-    result = ProtobufSerializer::Size(&v44);
+  if ( v26 && ProtobufSerializer::UInt64(&v37, 1ui64, (unsigned __int8)EventSampleType) && ProtobufSerializer::Float32(&v37, 2ui64, v30) && ProtobufSerializer::EndMessage(&v37) && ProtobufSerializer::Bytes(&v37, 0x64ui64, context->buffer, context->bufferSize) && ProtobufSerializer::EndMessage(&v37) )
+    return ProtobufSerializer::Size(&v37);
   else
-LABEL_50:
-    result = 0i64;
-  __asm { vmovaps xmm6, [rsp+240h+var_50] }
-  return result;
+    return 0i64;
 }
 
 /*
@@ -457,10 +436,10 @@ unsigned __int64 DLog_Serialize_InfluxDBPacked(DLogReadContext *context, DLogEve
   int v13; 
   int v14; 
   __int64 v15; 
-  unsigned int v18; 
+  unsigned int v16; 
   DLogCmd cmd; 
-  MsgPackSerializer v20; 
-  char v21[2][8]; 
+  MsgPackSerializer v18; 
+  char v19[2][8]; 
   char dest[385]; 
 
   v4 = bufferSize;
@@ -471,19 +450,19 @@ unsigned __int64 DLog_Serialize_InfluxDBPacked(DLogReadContext *context, DLogEve
     return 0i64;
   }
   timestamp = cmd.event.timestamp;
-  MsgPackSerializer::MsgPackSerializer(&v20, buffer, v4);
-  MsgPackSerializer::BeginArray(&v20);
+  MsgPackSerializer::MsgPackSerializer(&v18, buffer, v4);
+  MsgPackSerializer::BeginArray(&v18);
   v9 = DLogDictionary_Add(&s_influxDictionary, cmd.event.name);
-  MsgPackSerializer::Int(&v20, v9);
-  MsgPackSerializer::BeginMap(&v20);
+  MsgPackSerializer::Int(&v18, v9);
+  MsgPackSerializer::BeginMap(&v18);
   v10 = 0;
   if ( DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END) )
   {
 LABEL_32:
-    MsgPackSerializer::EndMap(&v20);
-    MsgPackSerializer::UInt(&v20, timestamp);
-    MsgPackSerializer::EndArray(&v20);
-    return MsgPackSerializer::Size(&v20);
+    MsgPackSerializer::EndMap(&v18);
+    MsgPackSerializer::UInt(&v18, timestamp);
+    MsgPackSerializer::EndArray(&v18);
+    return MsgPackSerializer::Size(&v18);
   }
   while ( 1 )
   {
@@ -498,8 +477,8 @@ LABEL_32:
     if ( !v10 )
     {
       v10 = 1;
-      MsgPackSerializer::EndMap(&v20);
-      MsgPackSerializer::BeginMap(&v20);
+      MsgPackSerializer::EndMap(&v18);
+      MsgPackSerializer::BeginMap(&v18);
     }
 LABEL_31:
     if ( DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END) )
@@ -544,7 +523,7 @@ LABEL_11:
     }
     v12 = DLogDictionary_Add(&s_influxDictionary, cmd.event.name);
     v13 = DLogDictionary_Add(&s_influxDictionary, dest);
-    MsgPackSerializer::Int(&v20, v12, v13);
+    MsgPackSerializer::Int(&v18, v12, v13);
     goto LABEL_31;
   }
   v14 = DLogDictionary_Add(&s_influxDictionary, cmd.event.name);
@@ -552,32 +531,30 @@ LABEL_11:
   switch ( cmd.column.type )
   {
     case DLOG_TYPE_BOOL:
-      MsgPackSerializer::Bool(&v20, v14, *cmd.column.u8);
+      MsgPackSerializer::Bool(&v18, v14, *cmd.column.u8);
       goto LABEL_31;
     case DLOG_TYPE_FLOAT32:
-      _RAX = cmd.column.u8;
-      __asm { vmovss  xmm2, dword ptr [rax]; value }
-      MsgPackSerializer::Float32(&v20, v15, *(float *)&_XMM2);
+      MsgPackSerializer::Float32(&v18, v14, *cmd.column.f32);
       goto LABEL_31;
     case DLOG_TYPE_INT32:
-      MsgPackSerializer::Int(&v20, v14, (int)*cmd.column.u32);
+      MsgPackSerializer::Int(&v18, v14, (int)*cmd.column.u32);
       goto LABEL_31;
     case DLOG_TYPE_UINT8:
-      MsgPackSerializer::UInt(&v20, v14, *cmd.column.u8);
+      MsgPackSerializer::UInt(&v18, v14, *cmd.column.u8);
       goto LABEL_31;
     case DLOG_TYPE_UINT16:
-      MsgPackSerializer::UInt(&v20, v14, *cmd.column.u16);
+      MsgPackSerializer::UInt(&v18, v14, *cmd.column.u16);
       goto LABEL_31;
     case DLOG_TYPE_UINT32:
-      MsgPackSerializer::UInt(&v20, v14, *cmd.column.u32);
+      MsgPackSerializer::UInt(&v18, v14, *cmd.column.u32);
       goto LABEL_31;
     case DLOG_TYPE_UINT64:
-      MsgPackSerializer::UInt(&v20, v14, *cmd.column.u64);
+      MsgPackSerializer::UInt(&v18, v14, *cmd.column.u64);
       goto LABEL_31;
     case DLOG_TYPE_STRING:
-      v18 = DLogDictionary_Add(&s_influxDictionary, cmd.column.i8);
-      DLog_sprintf<8>(v21, "%d", v18);
-      MsgPackSerializer::String(&v20, v15, v21[0]);
+      v16 = DLogDictionary_Add(&s_influxDictionary, cmd.column.i8);
+      DLog_sprintf<8>(v19, "%d", v16);
+      MsgPackSerializer::String(&v18, v15, v19[0]);
       goto LABEL_31;
     default:
       DLog_Assert(0, "0 && \"Unsupported field type\"", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_InfluxDBPacked", 1051);
@@ -803,176 +780,153 @@ DLog_Serialize_CmdStreamValue
 */
 __int64 DLog_Serialize_CmdStreamValue(DLogReadContext *context, int indent, char *output, const char *end)
 {
-  char *v10; 
+  char *v8; 
   char *i; 
-  char *v12; 
+  char *v10; 
   char *j; 
-  char *v15; 
+  char *v13; 
   char *k; 
-  char *v17; 
-  char *v18; 
+  char *v15; 
+  char *v16; 
   DLogType type; 
   int arrayCount; 
-  char *v21; 
-  __int64 v22; 
-  const char *v24; 
-  __int64 v32; 
-  unsigned __int64 v33; 
-  __int64 v34; 
-  char *v36; 
+  char *v19; 
+  __int64 v20; 
+  __int64 v21; 
+  const char *v22; 
+  __int64 v23; 
+  unsigned __int64 v24; 
+  __int64 v25; 
+  char *v27; 
   DLogCmd cmd; 
-  char *v38; 
-  __int64 v39[18]; 
-  _BYTE v40[64]; 
-  char v41; 
+  char *v29; 
+  __int64 v30[18]; 
+  char v31[80]; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:asc_14471DD60; "                                       "...
-    vmovups ymm1, ymmword ptr cs:asc_14471DD60+20h; "                                "
-  }
-  v41 = asc_14471DD60[64];
-  __asm
-  {
-    vmovups [rbp+0A0h+var_A0], ymm0
-    vmovups [rbp+0A0h+var_80], ymm1
-  }
-  v38 = output;
-  v10 = output;
+  strcpy(v31, "                                                                ");
+  v29 = output;
+  v8 = output;
   DLog_GetNextCmd(context, &cmd);
   switch ( cmd.type )
   {
     case DLOG_CMD_EVENT:
-      for ( i = &output[DLog_sprintf(v10, end - v10, "%*.sEVENT %s\n", indent, v40, cmd.event.name)]; !DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END); i += DLog_Serialize_CmdStreamValue(context, indent + 4, i, end) )
+      for ( i = &output[DLog_sprintf(v8, end - v8, "%*.sEVENT %s\n", indent, v31, cmd.event.name)]; !DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END); i += DLog_Serialize_CmdStreamValue(context, indent + 4, i, end) )
         ;
-      v12 = &i[DLog_sprintf(i, end - i, "%*.sEVENT_END\n", indent, v40)];
-      *v12 = 0;
-      return (unsigned int)((_DWORD)v12 - (_DWORD)v10);
+      v10 = &i[DLog_sprintf(i, end - i, "%*.sEVENT_END\n", indent, v31)];
+      *v10 = 0;
+      return (unsigned int)((_DWORD)v10 - (_DWORD)v8);
     case DLOG_CMD_ROW_ARRAY:
-      for ( j = &output[DLog_sprintf(output, end - output, "%*.sARRAY %s\n", indent, v40, cmd.event.name)]; !DLog_GetNextCmdType(context, DLOG_CMD_ROW_ARRAY_END); j += DLog_Serialize_CmdStreamValue(context, indent + 4, j, end) )
+      for ( j = &output[DLog_sprintf(output, end - output, "%*.sARRAY %s\n", indent, v31, cmd.event.name)]; !DLog_GetNextCmdType(context, DLOG_CMD_ROW_ARRAY_END); j += DLog_Serialize_CmdStreamValue(context, indent + 4, j, end) )
         ;
-      v15 = &j[DLog_sprintf(j, end - j, "%*.sArrayEnd\n", indent, v40)];
-      *v15 = 0;
-      return (unsigned int)((_DWORD)v15 - (_DWORD)v10);
+      v13 = &j[DLog_sprintf(j, end - j, "%*.sArrayEnd\n", indent, v31)];
+      *v13 = 0;
+      return (unsigned int)((_DWORD)v13 - (_DWORD)v8);
     case DLOG_CMD_ROW:
-      for ( k = &output[DLog_sprintf(output, end - output, "%*.sROW %s\n", indent, v40, cmd.event.name)]; !DLog_GetNextCmdType(context, DLOG_CMD_ROW_END); k += DLog_Serialize_CmdStreamValue(context, indent + 4, k, end) )
+      for ( k = &output[DLog_sprintf(output, end - output, "%*.sROW %s\n", indent, v31, cmd.event.name)]; !DLog_GetNextCmdType(context, DLOG_CMD_ROW_END); k += DLog_Serialize_CmdStreamValue(context, indent + 4, k, end) )
         ;
-      v17 = &k[DLog_sprintf(k, end - k, "%*.sROW_END\n", indent, v40)];
-      *v17 = 0;
-      return (unsigned int)((_DWORD)v17 - (_DWORD)v10);
+      v15 = &k[DLog_sprintf(k, end - k, "%*.sROW_END\n", indent, v31)];
+      *v15 = 0;
+      return (unsigned int)((_DWORD)v15 - (_DWORD)v8);
     case DLOG_CMD_BREAK:
-      v18 = &output[DLog_sprintf(output, end - output, "%*.sBREAK\n", indent, v40)];
-      *v18 = 0;
-      return (unsigned int)((_DWORD)v18 - (_DWORD)v10);
+      v16 = &output[DLog_sprintf(output, end - output, "%*.sBREAK\n", indent, v31)];
+      *v16 = 0;
+      return (unsigned int)((_DWORD)v16 - (_DWORD)v8);
     case DLOG_CMD_COLUMN:
       type = cmd.column.type;
       arrayCount = 1;
       if ( cmd.column.arrayCount >= 0 )
         arrayCount = cmd.column.arrayCount;
-      v39[0] = (__int64)"INVALID";
-      v39[1] = (__int64)"OBJECT";
-      v39[2] = (__int64)"ARRAY";
-      v39[3] = (__int64)"NULL";
-      v39[4] = (__int64)"BOOL";
-      v39[5] = (__int64)"FLOAT32";
-      v39[6] = (__int64)"FLOAT64";
-      v39[7] = (__int64)"INT8";
-      v39[8] = (__int64)"INT16";
-      v39[9] = (__int64)"INT32";
-      v39[10] = (__int64)"INT64";
-      v39[11] = (__int64)"UINT8";
-      v39[12] = (__int64)"UINT16";
-      v39[13] = (__int64)"UINT32";
-      v39[14] = (__int64)"UINT64";
-      v39[15] = (__int64)"STRING";
-      v39[16] = (__int64)"BYTES";
-      v21 = &output[DLog_sprintf(output, end - output, "%*.s%s %s ", (unsigned int)indent, v40, v39[(unsigned __int8)cmd.column.type], cmd.event.name)];
-      v22 = arrayCount;
+      v30[0] = (__int64)"INVALID";
+      v30[1] = (__int64)"OBJECT";
+      v30[2] = (__int64)"ARRAY";
+      v30[3] = (__int64)"NULL";
+      v30[4] = (__int64)"BOOL";
+      v30[5] = (__int64)"FLOAT32";
+      v30[6] = (__int64)"FLOAT64";
+      v30[7] = (__int64)"INT8";
+      v30[8] = (__int64)"INT16";
+      v30[9] = (__int64)"INT32";
+      v30[10] = (__int64)"INT64";
+      v30[11] = (__int64)"UINT8";
+      v30[12] = (__int64)"UINT16";
+      v30[13] = (__int64)"UINT32";
+      v30[14] = (__int64)"UINT64";
+      v30[15] = (__int64)"STRING";
+      v30[16] = (__int64)"BYTES";
+      v19 = &output[DLog_sprintf(output, end - output, "%*.s%s %s ", (unsigned int)indent, v31, v30[(unsigned __int8)cmd.column.type], cmd.event.name)];
+      v20 = arrayCount;
       if ( arrayCount > 0 )
       {
-        _RBX = 0i64;
+        v21 = 0i64;
         do
         {
           switch ( type )
           {
             case DLOG_TYPE_NULL:
-              v21 += DLog_sprintf(v21, end - v21, "NULL ");
+              v19 += DLog_sprintf(v19, end - v19, "NULL ");
               break;
             case DLOG_TYPE_BOOL:
-              v24 = "false";
-              if ( cmd.column.u8[_RBX] )
-                v24 = "true";
-              v21 += DLog_sprintf(v21, end - v21, "%s ", v24);
+              v22 = "false";
+              if ( cmd.column.u8[v21] )
+                v22 = "true";
+              v19 += DLog_sprintf(v19, end - v19, "%s ", v22);
               break;
             case DLOG_TYPE_FLOAT32:
-              _RAX = cmd.column.u8;
-              __asm
-              {
-                vmovss  xmm3, dword ptr [rax+rbx*4]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovq   r9, xmm3
-              }
-              v21 += DLog_sprintf(v21, end - v21, "%f ", *(double *)&_XMM3);
+              v19 += DLog_sprintf(v19, end - v19, "%f ", *(float *)&cmd.column.u8[4 * v21]);
               break;
             case DLOG_TYPE_FLOAT64:
-              _RAX = cmd.column.u8;
-              __asm
-              {
-                vmovsd  xmm3, qword ptr [rax+rbx*8]
-                vmovq   r9, xmm3
-              }
-              v21 += DLog_sprintf(v21, end - v21, "%f ", *(double *)&_XMM3);
+              v19 += DLog_sprintf(v19, end - v19, "%f ", *(double *)&cmd.column.u8[8 * v21]);
               break;
             case DLOG_TYPE_INT8:
-              v32 = (unsigned int)(char)cmd.column.u8[_RBX];
+              v23 = (unsigned int)(char)cmd.column.u8[v21];
               goto LABEL_28;
             case DLOG_TYPE_INT16:
-              v32 = (unsigned int)*(__int16 *)&cmd.column.u8[2 * _RBX];
+              v23 = (unsigned int)*(__int16 *)&cmd.column.u8[2 * v21];
               goto LABEL_28;
             case DLOG_TYPE_INT32:
-              v32 = *(unsigned int *)&cmd.column.u8[4 * _RBX];
+              v23 = *(unsigned int *)&cmd.column.u8[4 * v21];
 LABEL_28:
-              v33 = DLog_sprintf(v21, end - v21, "%d ", v32);
+              v24 = DLog_sprintf(v19, end - v19, "%d ", v23);
               goto LABEL_29;
             case DLOG_TYPE_INT64:
-              v21 += DLog_sprintf(v21, end - v21, "%lli ", *(_QWORD *)&cmd.column.u8[8 * _RBX]);
+              v19 += DLog_sprintf(v19, end - v19, "%lli ", *(_QWORD *)&cmd.column.u8[8 * v21]);
               break;
             case DLOG_TYPE_UINT8:
-              v33 = DLog_sprintf(v21, end - v21, "%u ", cmd.column.u8[_RBX]);
+              v24 = DLog_sprintf(v19, end - v19, "%u ", cmd.column.u8[v21]);
               goto LABEL_29;
             case DLOG_TYPE_UINT16:
-              v33 = DLog_sprintf(v21, end - v21, "%u ", *(unsigned __int16 *)&cmd.column.u8[2 * _RBX]);
+              v24 = DLog_sprintf(v19, end - v19, "%u ", *(unsigned __int16 *)&cmd.column.u8[2 * v21]);
               goto LABEL_29;
             case DLOG_TYPE_UINT32:
-              v33 = DLog_sprintf(v21, end - v21, "%u ", *(unsigned int *)&cmd.column.u8[4 * _RBX]);
+              v24 = DLog_sprintf(v19, end - v19, "%u ", *(unsigned int *)&cmd.column.u8[4 * v21]);
               goto LABEL_29;
             case DLOG_TYPE_UINT64:
-              v21 += DLog_sprintf(v21, end - v21, "%llu ", *(_QWORD *)&cmd.column.u8[8 * _RBX]);
+              v19 += DLog_sprintf(v19, end - v19, "%llu ", *(_QWORD *)&cmd.column.u8[8 * v21]);
               break;
             case DLOG_TYPE_STRING:
-              v21 += DLog_sprintf(v21, end - v21, "%s ", cmd.column.i8);
-              v34 = -1i64;
-              while ( cmd.column.u8[++v34] != 0 )
+              v19 += DLog_sprintf(v19, end - v19, "%s ", cmd.column.i8);
+              v25 = -1i64;
+              while ( cmd.column.u8[++v25] != 0 )
                 ;
-              cmd.column.u8 += v34 + 1;
+              cmd.column.u8 += v25 + 1;
               break;
             case DLOG_TYPE_BYTES:
-              v33 = DLog_sprintf(v21, end - v21, "[%u] ", *cmd.column.u32);
+              v24 = DLog_sprintf(v19, end - v19, "[%u] ", *cmd.column.u32);
 LABEL_29:
-              v21 += v33;
+              v19 += v24;
               break;
             default:
               DLog_Assert(0, "false", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_CmdStreamValue", 831);
               break;
           }
-          ++_RBX;
+          ++v21;
         }
-        while ( _RBX < v22 );
-        LODWORD(v10) = (_DWORD)v38;
+        while ( v21 < v20 );
+        LODWORD(v8) = (_DWORD)v29;
       }
-      v36 = &v21[DLog_sprintf(v21, end - v21, "\n")];
-      *v36 = 0;
-      return (unsigned int)((_DWORD)v36 - (_DWORD)v10);
+      v27 = &v19[DLog_sprintf(v19, end - v19, "\n")];
+      *v27 = 0;
+      return (unsigned int)((_DWORD)v27 - (_DWORD)v8);
     default:
       DLog_Assert(1, "\"Unhandled cmd.type\"", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_CmdStreamValue", 840);
       return 0i64;
@@ -987,12 +941,13 @@ DLog_Serialize_JsonValue
 char DLog_Serialize_JsonValue(DLogReadContext *context, JsonSerializer *s)
 {
   int arrayCount; 
+  __int64 v6; 
   int v7; 
   const char *name; 
   DLogType type; 
   __int64 v10; 
   int v11; 
-  __int64 v17; 
+  __int64 v12; 
   DLogCmd cmd; 
 
   DLog_GetNextCmd(context, &cmd);
@@ -1022,7 +977,7 @@ LABEL_15:
       return 1;
     case DLOG_CMD_COLUMN:
       arrayCount = cmd.column.arrayCount;
-      _RBX = 0i64;
+      v6 = 0i64;
       v7 = 1;
       name = cmd.event.name;
       type = cmd.column.type;
@@ -1045,52 +1000,44 @@ LABEL_15:
               JsonSerializer::Null(s, name);
               break;
             case 1:
-              JsonSerializer::Bool(s, name, cmd.column.u8[_RBX] != 0);
+              JsonSerializer::Bool(s, name, cmd.column.u8[v6] != 0);
               break;
             case 2:
-              _RAX = cmd.column.u8;
-              __asm
-              {
-                vmovss  xmm2, dword ptr [rax+rbx*4]
-                vcvtss2sd xmm2, xmm2, xmm2; value
-              }
-              JsonSerializer::Float(s, name, *(long double *)&_XMM2);
+              JsonSerializer::Float(s, name, *(float *)&cmd.column.u8[4 * v6]);
               break;
             case 3:
-              _RAX = cmd.column.u8;
-              __asm { vmovsd  xmm2, qword ptr [rax+rbx*8]; value }
-              JsonSerializer::Float(s, name, *(long double *)&_XMM2);
+              JsonSerializer::Float(s, name, *(long double *)&cmd.column.u8[8 * v6]);
               break;
             case 4:
-              JsonSerializer::Int(s, name, (char)cmd.column.u8[_RBX]);
+              JsonSerializer::Int(s, name, (char)cmd.column.u8[v6]);
               break;
             case 5:
-              JsonSerializer::Int(s, name, *(__int16 *)&cmd.column.u8[2 * _RBX]);
+              JsonSerializer::Int(s, name, *(__int16 *)&cmd.column.u8[2 * v6]);
               break;
             case 6:
-              JsonSerializer::Int(s, name, *(int *)&cmd.column.u8[4 * _RBX]);
+              JsonSerializer::Int(s, name, *(int *)&cmd.column.u8[4 * v6]);
               break;
             case 7:
-              JsonSerializer::Int(s, name, *(_QWORD *)&cmd.column.u8[8 * _RBX]);
+              JsonSerializer::Int(s, name, *(_QWORD *)&cmd.column.u8[8 * v6]);
               break;
             case 8:
-              JsonSerializer::UInt(s, name, cmd.column.u8[_RBX]);
+              JsonSerializer::UInt(s, name, cmd.column.u8[v6]);
               break;
             case 9:
-              JsonSerializer::UInt(s, name, *(unsigned __int16 *)&cmd.column.u8[2 * _RBX]);
+              JsonSerializer::UInt(s, name, *(unsigned __int16 *)&cmd.column.u8[2 * v6]);
               break;
             case 10:
-              JsonSerializer::UInt(s, name, *(unsigned int *)&cmd.column.u8[4 * _RBX]);
+              JsonSerializer::UInt(s, name, *(unsigned int *)&cmd.column.u8[4 * v6]);
               break;
             case 11:
-              JsonSerializer::UInt(s, name, *(_QWORD *)&cmd.column.u8[8 * _RBX]);
+              JsonSerializer::UInt(s, name, *(_QWORD *)&cmd.column.u8[8 * v6]);
               break;
             case 12:
               JsonSerializer::String(s, name, cmd.column.i8);
-              v17 = -1i64;
-              while ( cmd.column.u8[++v17] != 0 )
+              v12 = -1i64;
+              while ( cmd.column.u8[++v12] != 0 )
                 ;
-              cmd.column.u8 += v17 + 1;
+              cmd.column.u8 += v12 + 1;
               break;
             case 13:
               JsonSerializer::Bytes(s, name, cmd.column.u8 + 4, *cmd.column.u32);
@@ -1099,9 +1046,9 @@ LABEL_15:
               DLog_Assert(0, "false", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_JsonValue", 129);
               break;
           }
-          ++_RBX;
+          ++v6;
         }
-        while ( _RBX < v10 );
+        while ( v6 < v10 );
         arrayCount = cmd.column.arrayCount;
       }
       if ( arrayCount < 0 )
@@ -1122,12 +1069,13 @@ DLog_Serialize_MsgPackValue
 char DLog_Serialize_MsgPackValue(DLogReadContext *context, MsgPackSerializer *s)
 {
   int arrayCount; 
+  __int64 v6; 
   int v7; 
   const char *name; 
   DLogType type; 
   __int64 v10; 
   int v11; 
-  __int64 v16; 
+  __int64 v12; 
   DLogCmd cmd; 
 
   DLog_GetNextCmd(context, &cmd);
@@ -1157,7 +1105,7 @@ LABEL_15:
       return 1;
     case DLOG_CMD_COLUMN:
       arrayCount = cmd.column.arrayCount;
-      _RBX = 0i64;
+      v6 = 0i64;
       v7 = 1;
       name = cmd.event.name;
       type = cmd.column.type;
@@ -1180,48 +1128,44 @@ LABEL_15:
               MsgPackSerializer::Null(s, name);
               break;
             case 1:
-              MsgPackSerializer::Bool(s, name, cmd.column.u8[_RBX] != 0);
+              MsgPackSerializer::Bool(s, name, cmd.column.u8[v6] != 0);
               break;
             case 2:
-              _RAX = cmd.column.u8;
-              __asm { vmovss  xmm2, dword ptr [rax+rbx*4]; value }
-              MsgPackSerializer::Float32(s, name, *(float *)&_XMM2);
+              MsgPackSerializer::Float32(s, name, *(float *)&cmd.column.u8[4 * v6]);
               break;
             case 3:
-              _RAX = cmd.column.u8;
-              __asm { vmovsd  xmm2, qword ptr [rax+rbx*8]; value }
-              MsgPackSerializer::Float64(s, name, *(long double *)&_XMM2);
+              MsgPackSerializer::Float64(s, name, *(long double *)&cmd.column.u8[8 * v6]);
               break;
             case 4:
-              MsgPackSerializer::Int(s, name, (char)cmd.column.u8[_RBX]);
+              MsgPackSerializer::Int(s, name, (char)cmd.column.u8[v6]);
               break;
             case 5:
-              MsgPackSerializer::Int(s, name, *(__int16 *)&cmd.column.u8[2 * _RBX]);
+              MsgPackSerializer::Int(s, name, *(__int16 *)&cmd.column.u8[2 * v6]);
               break;
             case 6:
-              MsgPackSerializer::Int(s, name, *(int *)&cmd.column.u8[4 * _RBX]);
+              MsgPackSerializer::Int(s, name, *(int *)&cmd.column.u8[4 * v6]);
               break;
             case 7:
-              MsgPackSerializer::Int(s, name, *(_QWORD *)&cmd.column.u8[8 * _RBX]);
+              MsgPackSerializer::Int(s, name, *(_QWORD *)&cmd.column.u8[8 * v6]);
               break;
             case 8:
-              MsgPackSerializer::UInt(s, name, cmd.column.u8[_RBX]);
+              MsgPackSerializer::UInt(s, name, cmd.column.u8[v6]);
               break;
             case 9:
-              MsgPackSerializer::UInt(s, name, *(unsigned __int16 *)&cmd.column.u8[2 * _RBX]);
+              MsgPackSerializer::UInt(s, name, *(unsigned __int16 *)&cmd.column.u8[2 * v6]);
               break;
             case 10:
-              MsgPackSerializer::UInt(s, name, *(unsigned int *)&cmd.column.u8[4 * _RBX]);
+              MsgPackSerializer::UInt(s, name, *(unsigned int *)&cmd.column.u8[4 * v6]);
               break;
             case 11:
-              MsgPackSerializer::UInt(s, name, *(_QWORD *)&cmd.column.u8[8 * _RBX]);
+              MsgPackSerializer::UInt(s, name, *(_QWORD *)&cmd.column.u8[8 * v6]);
               break;
             case 12:
               MsgPackSerializer::String(s, name, cmd.column.i8);
-              v16 = -1i64;
-              while ( cmd.column.u8[++v16] != 0 )
+              v12 = -1i64;
+              while ( cmd.column.u8[++v12] != 0 )
                 ;
-              cmd.column.u8 += v16 + 1;
+              cmd.column.u8 += v12 + 1;
               break;
             case 13:
               MsgPackSerializer::Bytes(s, name, cmd.column.u8 + 4, *cmd.column.u32);
@@ -1230,9 +1174,9 @@ LABEL_15:
               DLog_Assert(0, "false", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_MsgPackValue", 408);
               break;
           }
-          ++_RBX;
+          ++v6;
         }
-        while ( _RBX < v10 );
+        while ( v6 < v10 );
         arrayCount = cmd.column.arrayCount;
       }
       if ( arrayCount < 0 )
@@ -1257,8 +1201,10 @@ unsigned __int64 DLog_Serialize_ProtobufValue(DLogReadContext *context, Protobuf
   DLogType type; 
   int v9; 
   __int64 v10; 
+  unsigned __int8 *u8; 
+  __int64 v12; 
   int v13; 
-  __int64 v16; 
+  __int64 v14; 
   DLogCmd cmd; 
 
   DLog_GetNextCmd(context, &cmd);
@@ -1291,8 +1237,8 @@ unsigned __int64 DLog_Serialize_ProtobufValue(DLogReadContext *context, Protobuf
       v10 = v6;
       if ( v6 > 0 )
       {
-        _R8 = cmd.column.u8;
-        _RBX = 0i64;
+        u8 = cmd.column.u8;
+        v12 = 0i64;
         v13 = (unsigned __int8)type - 3;
         while ( 2 )
         {
@@ -1301,57 +1247,55 @@ unsigned __int64 DLog_Serialize_ProtobufValue(DLogReadContext *context, Protobuf
             case 0:
               goto $LN6_293;
             case 1:
-              ProtobufSerializer::Bool(s, v9, _R8[_RBX] != 0);
+              ProtobufSerializer::Bool(s, v9, u8[v12] != 0);
               goto LABEL_32;
             case 2:
-              __asm { vmovss  xmm2, dword ptr [r8+rbx*4]; jumptable 000000014377EACF case 2 }
-              ProtobufSerializer::Float32(s, v9, *(float *)&_XMM2);
+              ProtobufSerializer::Float32(s, v9, *(float *)&u8[4 * v12]);
               goto LABEL_32;
             case 3:
-              __asm { vmovsd  xmm2, qword ptr [r8+rbx*8]; jumptable 000000014377EACF case 3 }
-              ProtobufSerializer::Float64(s, v9, *(long double *)&_XMM2);
+              ProtobufSerializer::Float64(s, v9, *(long double *)&u8[8 * v12]);
               goto LABEL_32;
             case 4:
-              ProtobufSerializer::Int32(s, v9, (char)_R8[_RBX]);
+              ProtobufSerializer::Int32(s, v9, (char)u8[v12]);
               goto LABEL_32;
             case 5:
-              ProtobufSerializer::Int32(s, v9, *(__int16 *)&_R8[2 * _RBX]);
+              ProtobufSerializer::Int32(s, v9, *(__int16 *)&u8[2 * v12]);
               goto LABEL_32;
             case 6:
-              ProtobufSerializer::Int32(s, v9, *(_DWORD *)&_R8[4 * _RBX]);
+              ProtobufSerializer::Int32(s, v9, *(_DWORD *)&u8[4 * v12]);
               goto LABEL_32;
             case 7:
-              ProtobufSerializer::Int64(s, v9, *(_QWORD *)&_R8[8 * _RBX]);
+              ProtobufSerializer::Int64(s, v9, *(_QWORD *)&u8[8 * v12]);
               goto LABEL_32;
             case 8:
-              ProtobufSerializer::UInt32(s, v9, _R8[_RBX]);
+              ProtobufSerializer::UInt32(s, v9, u8[v12]);
               goto LABEL_32;
             case 9:
-              ProtobufSerializer::UInt32(s, v9, *(unsigned __int16 *)&_R8[2 * _RBX]);
+              ProtobufSerializer::UInt32(s, v9, *(unsigned __int16 *)&u8[2 * v12]);
               goto LABEL_32;
             case 10:
-              ProtobufSerializer::UInt32(s, v9, *(_DWORD *)&_R8[4 * _RBX]);
+              ProtobufSerializer::UInt32(s, v9, *(_DWORD *)&u8[4 * v12]);
               goto LABEL_32;
             case 11:
-              ProtobufSerializer::UInt64(s, v9, *(_QWORD *)&_R8[8 * _RBX]);
+              ProtobufSerializer::UInt64(s, v9, *(_QWORD *)&u8[8 * v12]);
               goto LABEL_32;
             case 12:
-              ProtobufSerializer::String(s, v9, (const char *)_R8);
-              v16 = -1i64;
-              while ( cmd.column.u8[++v16] != 0 )
+              ProtobufSerializer::String(s, v9, (const char *)u8);
+              v14 = -1i64;
+              while ( cmd.column.u8[++v14] != 0 )
                 ;
-              _R8 = &cmd.column.u8[v16 + 1];
-              cmd.column.u8 = _R8;
+              u8 = &cmd.column.u8[v14 + 1];
+              cmd.column.u8 = u8;
               goto $LN6_293;
             case 13:
-              ProtobufSerializer::Bytes(s, v9, _R8 + 4, *(unsigned int *)_R8);
+              ProtobufSerializer::Bytes(s, v9, u8 + 4, *(unsigned int *)u8);
               goto LABEL_32;
             default:
               DLog_Assert(0, "false", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_serializers.cpp", "DLog_Serialize_ProtobufValue", 252);
 LABEL_32:
-              _R8 = cmd.column.u8;
+              u8 = cmd.column.u8;
 $LN6_293:
-              if ( ++_RBX < v10 )
+              if ( ++v12 < v10 )
                 continue;
               arrayCount = cmd.column.arrayCount;
               break;

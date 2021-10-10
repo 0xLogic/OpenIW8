@@ -1008,73 +1008,70 @@ Online_InvitationManager::AddUserToRecentlyInvitedList
 */
 void Online_InvitationManager::AddUserToRecentlyInvitedList(Online_InvitationManager *this, const InvitedUserData::InvitedUser *user)
 {
-  int v3; 
+  int v2; 
   InvitedUserData *recentlyInvitedUsers; 
-  int v5; 
-  __int64 v6; 
-  InvitedUserData *v7; 
-  const InvitedUserData::InvitedUser *v8; 
+  int v4; 
+  __int64 v5; 
+  InvitedUserData *v6; 
   unsigned __int64 m_platformId; 
+  int v10; 
   int v11; 
   int v12; 
   int v13; 
-  int v14; 
   XUID xuid[2]; 
 
-  __asm { vmovups xmm0, xmmword ptr [rdx] }
-  v3 = 0;
+  v2 = 0;
   recentlyInvitedUsers = this->recentlyInvitedUsers;
-  __asm { vmovups xmmword ptr [rsp+68h+xuid.m_id], xmm0 }
-  v5 = 0;
-  v6 = 0i64;
-  v7 = this->recentlyInvitedUsers;
-  v8 = user;
-  while ( !XUID::IsValid(&v7->m_user.m_xuid) || !XUID::operator==(&v7->m_user.m_xuid, xuid) )
+  *(InvitedUserData::InvitedUser *)&xuid[0].m_id = *user;
+  v4 = 0;
+  v5 = 0i64;
+  v6 = this->recentlyInvitedUsers;
+  while ( !XUID::IsValid(&v6->m_user.m_xuid) || !XUID::operator==(&v6->m_user.m_xuid, xuid) )
   {
-    m_platformId = v7->m_user.m_platformId;
+    m_platformId = v6->m_user.m_platformId;
     if ( m_platformId )
     {
       if ( m_platformId == xuid[1].m_id )
         break;
     }
+    ++v4;
     ++v5;
     ++v6;
-    ++v7;
-    if ( v6 >= 32 )
+    if ( v5 >= 32 )
       goto LABEL_9;
   }
-  if ( v5 != -1 )
+  if ( v4 != -1 )
     goto LABEL_20;
 LABEL_9:
-  v11 = -1;
-  v12 = Sys_Milliseconds();
-  v5 = 0;
+  v10 = -1;
+  v11 = Sys_Milliseconds();
+  v4 = 0;
   while ( !XUID::IsNull(&recentlyInvitedUsers->m_user.m_xuid) || recentlyInvitedUsers->m_user.m_platformId )
   {
-    v13 = v5;
-    v14 = v12 - recentlyInvitedUsers->m_timeSent;
-    if ( v14 <= v3 )
-      v13 = v11;
-    ++v5;
+    v12 = v4;
+    v13 = v11 - recentlyInvitedUsers->m_timeSent;
+    if ( v13 <= v2 )
+      v12 = v10;
+    ++v4;
     ++recentlyInvitedUsers;
-    v11 = v13;
-    if ( v14 <= v3 )
-      v14 = v3;
-    v3 = v14;
-    if ( v5 >= 32 )
+    v10 = v12;
+    if ( v13 <= v2 )
+      v13 = v2;
+    v2 = v13;
+    if ( v4 >= 32 )
     {
-      v5 = v13;
-      if ( v13 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitation_manager.cpp", 521, ASSERT_TYPE_ASSERT, "(slotWithEarliestInvitedUser >= 0)", (const char *)&queryFormat, "slotWithEarliestInvitedUser >= 0", xuid[0].m_id) )
+      v4 = v12;
+      if ( v12 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitation_manager.cpp", 521, ASSERT_TYPE_ASSERT, "(slotWithEarliestInvitedUser >= 0)", (const char *)&queryFormat, "slotWithEarliestInvitedUser >= 0", xuid[0].m_id) )
         __debugbreak();
       break;
     }
   }
 LABEL_20:
-  if ( v5 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitation_manager.cpp", 549, ASSERT_TYPE_ASSERT, "(slotToInsertInvitedUser >= 0)", (const char *)&queryFormat, "slotToInsertInvitedUser >= 0") )
+  if ( v4 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitation_manager.cpp", 549, ASSERT_TYPE_ASSERT, "(slotToInsertInvitedUser >= 0)", (const char *)&queryFormat, "slotToInsertInvitedUser >= 0") )
     __debugbreak();
-  XUID::operator=(&this->recentlyInvitedUsers[v5].m_user.m_xuid, &v8->m_xuid);
-  this->recentlyInvitedUsers[v5].m_user.m_platformId = v8->m_platformId;
-  this->recentlyInvitedUsers[v5].m_timeSent = Sys_Milliseconds();
+  XUID::operator=(&this->recentlyInvitedUsers[v4].m_user.m_xuid, &user->m_xuid);
+  this->recentlyInvitedUsers[v4].m_user.m_platformId = user->m_platformId;
+  this->recentlyInvitedUsers[v4].m_timeSent = Sys_Milliseconds();
 }
 
 /*
@@ -1530,15 +1527,15 @@ bool Online_InvitationManager::IsUserInvitable(Online_InvitationManager *this, c
   Online_BlockList *Instance; 
   InvitedUserData *recentlyInvitedUsers; 
   unsigned __int64 m_platformId; 
-  Online_Friends *v28; 
-  Online_Friends *v30; 
-  Online_MetPlayer *v31; 
+  Online_Friends *v27; 
+  Online_Friends *v29; 
+  Online_MetPlayer *v30; 
+  Online_Friends *v31; 
   Online_Friends *v32; 
-  Online_Friends *v33; 
+  OnlineClansManager *v33; 
   OnlineClansManager *v34; 
-  OnlineClansManager *v35; 
   OnlineClan *ClanById; 
-  __int64 v37; 
+  __int64 v36; 
   XUID result; 
   XUID xuida[2]; 
 
@@ -1550,8 +1547,8 @@ bool Online_InvitationManager::IsUserInvitable(Online_InvitationManager *this, c
     __debugbreak();
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    LODWORD(v37) = controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitation_manager.cpp", 1081, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v37, 8) )
+    LODWORD(v36) = controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitation_manager.cpp", 1081, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v36, 8) )
       __debugbreak();
   }
   v12 = Sys_Milliseconds();
@@ -1622,11 +1619,6 @@ LABEL_58:
   }
   xuida[0] = xuid;
   xuida[1].m_id = platformId;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+98h+xuid.m_id]
-    vmovdqa xmmword ptr [rsp+98h+xuid.m_id], xmm0
-  }
   if ( !XUID::IsNull(xuida) || xuida[1].m_id )
   {
     recentlyInvitedUsers = this->recentlyInvitedUsers;
@@ -1653,28 +1645,28 @@ LABEL_42:
   switch ( userType )
   {
     case FRIENDS_POPUP_TAB_ONLINE_FRIENDS:
-      v28 = Online_Friends::GetInstance();
-      return Online_Friends::IsPlatformFriendInvitable(v28, v20, platformId, v7, v11);
+      v27 = Online_Friends::GetInstance();
+      return Online_Friends::IsPlatformFriendInvitable(v27, v20, platformId, v7, v11);
     case FRIENDS_POPUP_TAB_CROSSPLAY_FRIENDS:
-      v30 = Online_Friends::GetInstance();
-      return Online_Friends::Crossplay_FriendInvitable(v30, v20, xuid, v7, v11);
+      v29 = Online_Friends::GetInstance();
+      return Online_Friends::Crossplay_FriendInvitable(v29, v20, xuid, v7, v11);
     case FRIENDS_POPUP_TAB_RECENT_PLAYERS:
-      v31 = Online_MetPlayer::GetInstance();
-      return Online_MetPlayer::IsPlayerInvitable(v31, v20, xuid, v7, v11);
+      v30 = Online_MetPlayer::GetInstance();
+      return Online_MetPlayer::IsPlayerInvitable(v30, v20, xuid, v7, v11);
     case FRIENDS_POPUP_TAB_FAVORITE_FRIENDS:
-      v32 = Online_Friends::GetInstance();
-      if ( Online_Friends::FavoriteFriends_IsEnabled(v32) )
+      v31 = Online_Friends::GetInstance();
+      if ( Online_Friends::FavoriteFriends_IsEnabled(v31) )
       {
-        v33 = Online_Friends::GetInstance();
-        return Online_Friends::FavoriteFriends_IsFriendsInvitable(v33, v20, xuid, v7, v11);
+        v32 = Online_Friends::GetInstance();
+        return Online_Friends::FavoriteFriends_IsFriendsInvitable(v32, v20, xuid, v7, v11);
       }
       return 0;
     case FRIENDS_POPUP_TAB_REGIMENTS:
-      v34 = OnlineClansManager::GetInstance();
-      if ( OnlineClansManager::GetActiveClan(v34, v20, (unsigned __int64 *)&devErrorString) )
+      v33 = OnlineClansManager::GetInstance();
+      if ( OnlineClansManager::GetActiveClan(v33, v20, (unsigned __int64 *)&devErrorString) )
       {
-        v35 = OnlineClansManager::GetInstance();
-        ClanById = OnlineClansManager::GetClanById(v35, v20, (const unsigned __int64)devErrorString);
+        v34 = OnlineClansManager::GetInstance();
+        ClanById = OnlineClansManager::GetClanById(v34, v20, (const unsigned __int64)devErrorString);
         if ( ClanById )
           return OnlineClan::IsMemberInvitable(ClanById, xuid, v7, v11);
         *v7 = "ONLINE/CANT_INVITE_REGIMENT_NOT_ACTIVE";
@@ -2265,21 +2257,21 @@ __int64 Online_InvitationManager::SendDWInvite(Online_InvitationManager *this, c
   TaskManager *v20; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   unsigned int msgSize; 
-  bdReference<bdRemoteTask> v24; 
+  bdReference<bdRemoteTask> v23; 
   TaskCreateRequest pTaskCreateRequest; 
-  Online_InvitationManager *v26; 
-  __int128 m_id; 
-  __int64 v28; 
+  Online_InvitationManager *v25; 
+  InvitedUserData::InvitedUser m_id; 
+  __int64 v27; 
   XUID result; 
-  InvitedUserData::InvitedUser v30; 
+  InvitedUserData::InvitedUser v29; 
   TaskCreateResult pTaskCreateResult; 
-  Online_Invitation v32; 
+  Online_Invitation v31; 
   char dest[256]; 
 
-  v28 = -2i64;
+  v27 = -2i64;
   v4 = userCount;
-  v26 = this;
-  Online_Invitation::Online_Invitation(&v32);
+  v25 = this;
+  Online_Invitation::Online_Invitation(&v31);
   v7 = 0;
   Com_Printf(25, "Online_InvitationManager::SendDWInvite: Sending invite to %d users\n", (unsigned int)v4);
   if ( Party_GetActiveParty()->inParty )
@@ -2294,11 +2286,11 @@ __int64 Online_InvitationManager::SendDWInvite(Online_InvitationManager *this, c
       __debugbreak();
     dest[(unsigned int)v10] = 2;
     v11 = Live_GetXuid(&result, controllerIndex);
-    XUID::operator=(&v32.m_inviterXUID, v11);
+    XUID::operator=(&v31.m_inviterXUID, v11);
     LocalClientName = Live_GetLocalClientName(controllerIndex);
-    Core_strcpy(v32.m_inviterName, 0x24ui64, LocalClientName);
-    v32.m_timeSentUTC = LiveStorage_GetUTC();
-    msgSize = Online_Invitation::Serialize(&v32, (unsigned __int8 *)&dest[(unsigned int)(v10 + 1)], 256 - (v10 + 1)) + v10 + 1;
+    Core_strcpy(v31.m_inviterName, 0x24ui64, LocalClientName);
+    v31.m_timeSentUTC = LiveStorage_GetUTC();
+    msgSize = Online_Invitation::Serialize(&v31, (unsigned __int8 *)&dest[(unsigned int)(v10 + 1)], 256 - (v10 + 1)) + v10 + 1;
     v13 = 0;
     if ( v4 > 0 )
     {
@@ -2311,7 +2303,7 @@ __int64 Online_InvitationManager::SendDWInvite(Online_InvitationManager *this, c
         UniversalId = XUID::GetUniversalId((XUID *)&xuid[v13]);
         Instance = DWServicesAccess::GetInstance();
         Messaging = DWServicesAccess::GetMessaging(Instance, controllerIndex);
-        v18 = (TaskCreateRequest *)DWMessaging::sendGlobalInstantMessage(Messaging, &v24, UniversalId, dest, msgSize);
+        v18 = (TaskCreateRequest *)DWMessaging::sendGlobalInstantMessage(Messaging, &v23, UniversalId, dest, msgSize);
         if ( v18 != (TaskCreateRequest *)&pTaskCreateRequest.m_remoteDemonwareTask )
         {
           if ( pTaskCreateRequest.m_remoteDemonwareTask.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&pTaskCreateRequest.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && pTaskCreateRequest.m_remoteDemonwareTask.m_ptr )
@@ -2321,11 +2313,11 @@ __int64 Online_InvitationManager::SendDWInvite(Online_InvitationManager *this, c
           if ( v19 )
             _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
         }
-        if ( v24.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v24.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        if ( v23.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v23.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v24.m_ptr )
-            ((void (__fastcall *)(bdRemoteTask *, __int64))v24.m_ptr->~bdReferencable)(v24.m_ptr, 1i64);
-          v24.m_ptr = NULL;
+          if ( v23.m_ptr )
+            ((void (__fastcall *)(bdRemoteTask *, __int64))v23.m_ptr->~bdReferencable)(v23.m_ptr, 1i64);
+          v23.m_ptr = NULL;
         }
         pTaskCreateResult.m_localTaskId = 0;
         pTaskCreateResult.m_task = NULL;
@@ -2335,13 +2327,9 @@ __int64 Online_InvitationManager::SendDWInvite(Online_InvitationManager *this, c
         if ( TaskManager::CreateTask(v20, &pTaskCreateRequest, &pTaskCreateResult) )
         {
           ++v7;
-          m_id = xuid[i].m_id;
-          __asm
-          {
-            vmovups xmm0, [rbp+1A0h+var_1F0]
-            vmovdqa [rbp+1A0h+var_1D0], xmm0
-          }
-          Online_InvitationManager::AddUserToRecentlyInvitedList(v26, &v30);
+          m_id = (InvitedUserData::InvitedUser)xuid[i].m_id;
+          v29 = m_id;
+          Online_InvitationManager::AddUserToRecentlyInvitedList(v25, &v29);
           Com_Printf(25, "Online_InvitationManager::SendDWInvite started\n");
         }
         else
@@ -2407,15 +2395,15 @@ void Online_InvitationManager::SendInvitation(Online_InvitationManager *this, co
   const XUID *v19; 
   __int64 v20; 
   Online_InvitationManager *v21; 
-  Online_InvitationManager *v26[2]; 
+  Online_InvitationManager *v25[2]; 
   unsigned __int64 platformIdOut[2]; 
-  XUID v28[16]; 
+  XUID v27[16]; 
   XUID xuida[16]; 
   unsigned __int64 userID[16]; 
 
-  v5 = v28;
+  v5 = v27;
   v6 = 16i64;
-  v26[0] = this;
+  v25[0] = this;
   do
   {
     XUID::XUID(v5++);
@@ -2454,12 +2442,12 @@ void Online_InvitationManager::SendInvitation(Online_InvitationManager *this, co
         v19 = &xuid[v13];
         if ( !v18 )
           goto LABEL_15;
-        XUID::operator=(&v28[v10++], v17);
+        XUID::operator=(&v27[v10++], v17);
         *v15++ = platformIdOut[0];
       }
       else
       {
-        XUID::operator=(&v28[v10++], v17);
+        XUID::operator=(&v27[v10++], v17);
         *v15++ = platformId[v14];
       }
 LABEL_16:
@@ -2467,19 +2455,15 @@ LABEL_16:
       if ( ++v14 >= v12 )
       {
         v20 = 0i64;
-        v21 = v26[0];
-        if ( v10 > 0 && Online_InvitationManager::SendPlatformInvitation(v26[0], controllerIndex, userID, v10) )
+        v21 = v25[0];
+        if ( v10 > 0 && Online_InvitationManager::SendPlatformInvitation(v25[0], controllerIndex, userID, v10) )
         {
           do
           {
-            platformIdOut[0] = (unsigned __int64)v28[v20];
+            platformIdOut[0] = (unsigned __int64)v27[v20];
             platformIdOut[1] = userID[v20];
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+238h+platformIdOut]
-              vmovdqa xmmword ptr [rsp+238h+var_1F8], xmm0
-            }
-            Online_InvitationManager::AddUserToRecentlyInvitedList(v21, (const InvitedUserData::InvitedUser *)v26);
+            *(_OWORD *)v25 = *(_OWORD *)platformIdOut;
+            Online_InvitationManager::AddUserToRecentlyInvitedList(v21, (const InvitedUserData::InvitedUser *)v25);
             ++v20;
           }
           while ( v20 < v10 );
@@ -2758,24 +2742,21 @@ _BOOL8 Online_InvitationManager::SendPlatformInvitation(Online_InvitationManager
   wchar_t *v12; 
   unsigned __int64 v13; 
   wchar_t *Ptr; 
-  bool v16; 
-  unsigned __int64 v17; 
-  wchar_t *v18; 
+  bool v15; 
+  unsigned __int64 v16; 
+  wchar_t *v17; 
   char *Myfirst; 
-  unsigned __int64 v20; 
+  unsigned __int64 v19; 
   std::vector<std::wstring> usersToInvite; 
-  __int64 v23; 
+  __int64 v22; 
   std::wstring _Right; 
-  std::wstring v25; 
-  char v26[6]; 
+  std::wstring v24; 
+  char v25[6]; 
 
-  v23 = -2i64;
+  v22 = -2i64;
   usersToInvite._Mypair._Myval2._Myfirst = NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+usersToInvite.baseclass_0._Mypair._Myval2._Mylast], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&usersToInvite._Mypair._Myval2._Mylast = _XMM0;
   _Right._Mypair._Myval2._Mysize = 0i64;
   Myres = 7i64;
   _Right._Mypair._Myval2._Myres = 7i64;
@@ -2787,18 +2768,18 @@ _BOOL8 Online_InvitationManager::SendPlatformInvitation(Online_InvitationManager
     do
     {
       v11 = userID[v10];
-      v12 = (wchar_t *)v26;
+      v12 = (wchar_t *)v25;
       do
       {
         *--v12 = v11 % 0xA + 48;
         v11 /= 0xAui64;
       }
       while ( v11 );
-      v25._Mypair._Myval2._Mysize = 0i64;
-      v25._Mypair._Myval2._Myres = 7i64;
-      v25._Mypair._Myval2._Bx._Buf[0] = 0;
-      if ( v12 != (wchar_t *)v26 )
-        std::wstring::assign(&v25, v12, (v26 - (char *)v12) >> 1);
+      v24._Mypair._Myval2._Mysize = 0i64;
+      v24._Mypair._Myval2._Myres = 7i64;
+      v24._Mypair._Myval2._Bx._Buf[0] = 0;
+      if ( v12 != (wchar_t *)v25 )
+        std::wstring::assign(&v24, v12, (v25 - (char *)v12) >> 1);
       if ( Myres >= 8 )
       {
         v13 = 2 * Myres + 2;
@@ -2812,11 +2793,7 @@ _BOOL8 Online_InvitationManager::SendPlatformInvitation(Online_InvitationManager
         }
         operator delete(Ptr, v13);
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+57h+var_80.baseclass_0._Mypair._Myval2._Bx]
-        vmovups ymmword ptr [rbp+57h+_Right.baseclass_0._Mypair._Myval2._Bx], ymm0
-      }
+      _Right = v24;
       if ( usersToInvite._Mypair._Myval2._Myend == usersToInvite._Mypair._Myval2._Mylast )
         std::vector<std::wstring>::_Emplace_reallocate<std::wstring const &>(&usersToInvite, usersToInvite._Mypair._Myval2._Mylast, &_Right);
       else
@@ -2826,35 +2803,35 @@ _BOOL8 Online_InvitationManager::SendPlatformInvitation(Online_InvitationManager
     }
     while ( v10 < v9 );
   }
-  v16 = Xb3MultiplayerManager::InviteUsers(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, controllerIndex, &usersToInvite);
+  v15 = Xb3MultiplayerManager::InviteUsers(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, controllerIndex, &usersToInvite);
   if ( Myres >= 8 )
   {
-    v17 = 2 * Myres + 2;
-    v18 = _Right._Mypair._Myval2._Bx._Ptr;
-    if ( v17 >= 0x1000 )
+    v16 = 2 * Myres + 2;
+    v17 = _Right._Mypair._Myval2._Bx._Ptr;
+    if ( v16 >= 0x1000 )
     {
-      v17 = 2 * Myres + 41;
-      v18 = (wchar_t *)*((_QWORD *)_Right._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)_Right._Mypair._Myval2._Bx._Ptr - (char *)v18 - 8) > 0x1F )
+      v16 = 2 * Myres + 41;
+      v17 = (wchar_t *)*((_QWORD *)_Right._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)_Right._Mypair._Myval2._Bx._Ptr - (char *)v17 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v18, v17);
+    operator delete(v17, v16);
   }
   if ( usersToInvite._Mypair._Myval2._Myfirst )
   {
     std::_Destroy_range<std::allocator<std::wstring>>(usersToInvite._Mypair._Myval2._Myfirst, usersToInvite._Mypair._Myval2._Mylast, (std::allocator<std::wstring > *)&usersToInvite);
     Myfirst = (char *)usersToInvite._Mypair._Myval2._Myfirst;
-    v20 = ((char *)usersToInvite._Mypair._Myval2._Myend - (char *)usersToInvite._Mypair._Myval2._Myfirst) & 0xFFFFFFFFFFFFFFE0ui64;
-    if ( v20 >= 0x1000 )
+    v19 = ((char *)usersToInvite._Mypair._Myval2._Myend - (char *)usersToInvite._Mypair._Myval2._Myfirst) & 0xFFFFFFFFFFFFFFE0ui64;
+    if ( v19 >= 0x1000 )
     {
-      v20 += 39i64;
+      v19 += 39i64;
       Myfirst = (char *)usersToInvite._Mypair._Myval2._Myfirst[-1]._Mypair._Myval2._Myres;
       if ( (unsigned __int64)((char *)usersToInvite._Mypair._Myval2._Myfirst - Myfirst - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(Myfirst, v20);
+    operator delete(Myfirst, v19);
   }
-  return v16;
+  return v15;
 }
 
 /*

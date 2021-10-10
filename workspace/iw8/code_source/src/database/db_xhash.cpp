@@ -296,14 +296,13 @@ DB_InitHashLookupMem
 void __fastcall DB_InitHashLookupMem(double _XMM0_8)
 {
   bool v1; 
-  void *v2; 
-  XHashLookupList *v6; 
-  const char *v7; 
-  XHashLookupEntry *v8; 
-  XHashLookupList *v9; 
-  __int128 v10; 
-  __int128 v11; 
-  __int128 v12; 
+  char *v2; 
+  XHashLookupList *v4; 
+  const char *v5; 
+  XHashLookupEntry *v6; 
+  XHashLookupList *v7; 
+  ntl::solitary_buffer_allocator v8; 
+  ntl::internal::buffer_memory_block<char> v9; 
 
   if ( !s_hashLookupFullyInitialized )
   {
@@ -317,16 +316,12 @@ void __fastcall DB_InitHashLookupMem(double _XMM0_8)
     if ( v1 )
       PMem_PushAuxAllocations();
     PMem_EndAlloc("xhashlookup", PMEM_STACK_GAME);
-    v2 = s_DBHashMapHeapBuffer;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+48h+var_18], xmm0
-    }
-    if ( !s_DBHashMapHeapBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", (_DWORD)s_DBHashMapHeapBuffer + 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v10) )
+    v2 = (char *)s_DBHashMapHeapBuffer;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    if ( !s_DBHashMapHeapBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", (_DWORD)s_DBHashMapHeapBuffer + 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
       __debugbreak();
-    *(_QWORD *)&v11 = v2;
-    *((_QWORD *)&v11 + 1) = 0x1000000i64;
+    v8.m_data.m_buffer = v2;
+    v8.m_data.m_size = 0x1000000i64;
     ntl::nxheap::shutdown(&s_DBHashMapHeap.m_heap);
     ntl::nxheap_region::shutdown(&s_DBHashMapHeap.m_region);
     if ( s_DBHashMapHeap.m_data.m_buffer )
@@ -336,11 +331,7 @@ void __fastcall DB_InitHashLookupMem(double _XMM0_8)
       s_DBHashMapHeap.m_data.m_buffer = NULL;
       s_DBHashMapHeap.m_data.m_size = 0i64;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:s_DBHashMapHeap.m_allocator.m_data.m_buffer, xmm0
-    }
+    s_DBHashMapHeap.m_allocator = v8;
     ntl::nxheap::shutdown(&s_DBHashMapHeap.m_heap);
     ntl::nxheap_region::shutdown(&s_DBHashMapHeap.m_region);
     if ( s_DBHashMapHeap.m_data.m_buffer )
@@ -352,36 +343,32 @@ void __fastcall DB_InitHashLookupMem(double _XMM0_8)
     }
     if ( s_DBHashMapHeap.m_allocator.m_data.m_size < 0x1000000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
       __debugbreak();
-    *(_QWORD *)&v12 = s_DBHashMapHeap.m_allocator.m_data.m_buffer;
-    *((_QWORD *)&v12 + 1) = 0x1000000i64;
-    __asm
-    {
-      vmovups xmm0, [rsp+48h+var_18]
-      vmovups xmmword ptr cs:s_DBHashMapHeap.baseclass_0.m_data.m_buffer, xmm0
-    }
+    v9.m_buffer = s_DBHashMapHeap.m_allocator.m_data.m_buffer;
+    v9.m_size = 0x1000000i64;
+    s_DBHashMapHeap.m_data = v9;
     if ( s_DBHashMapHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
       __debugbreak();
     ntl::nxheap_region::init(&s_DBHashMapHeap.m_region, s_DBHashMapHeap.m_data.m_buffer, s_DBHashMapHeap.m_data.m_size);
     if ( s_DBHashMapHeap.m_heap.mp_parent_region && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 209, ASSERT_TYPE_ASSERT, "( !heap().is_inited() )", (const char *)&queryFormat, "!heap().is_inited()") )
       __debugbreak();
     ntl::nxheap::init(&s_DBHashMapHeap.m_heap, &s_DBHashMapHeap.m_region, DIR_BOTTOM_UP);
-    v6 = (XHashLookupList *)ntl::nxheap::allocate(&s_DBHashMapHeap.m_heap, 0x20ui64, 8ui64, 0);
-    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 192, ASSERT_TYPE_ASSERT, "( list != nullptr )", "Failed to allocate memory for XHash list.  DB_XHASH_LOOKUP_SIZE needs to be increased.") )
+    v4 = (XHashLookupList *)ntl::nxheap::allocate(&s_DBHashMapHeap.m_heap, 0x20ui64, 8ui64, 0);
+    if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 192, ASSERT_TYPE_ASSERT, "( list != nullptr )", "Failed to allocate memory for XHash list.  DB_XHASH_LOOKUP_SIZE needs to be increased.") )
       __debugbreak();
-    v7 = (const char *)ntl::nxheap::allocate(&s_DBHashMapHeap.m_heap, 8ui64, 4ui64, 0);
-    v6->name = v7;
-    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 195, ASSERT_TYPE_ASSERT, "( list->name != nullptr )", "Failed to allocate memory for XHash list name.  DB_XHASH_LOOKUP_SIZE needs to be increased.") )
+    v5 = (const char *)ntl::nxheap::allocate(&s_DBHashMapHeap.m_heap, 8ui64, 4ui64, 0);
+    v4->name = v5;
+    if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 195, ASSERT_TYPE_ASSERT, "( list->name != nullptr )", "Failed to allocate memory for XHash list name.  DB_XHASH_LOOKUP_SIZE needs to be increased.") )
       __debugbreak();
-    Core_strcpy((char *)v6->name, 8ui64, "runtime");
+    Core_strcpy((char *)v4->name, 8ui64, "runtime");
     s_DBHashRuntimeLookupSize = 1024;
-    v8 = (XHashLookupEntry *)ntl::nxheap::allocate(&s_DBHashMapHeap.m_heap, 0x4000ui64, 8ui64, 0);
-    v6->hashEntryList = v8;
-    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 199, ASSERT_TYPE_ASSERT, "( list->hashEntryList != nullptr )", "Failed to allocate memory for XHash entry list.  DB_XHASH_LOOKUP_SIZE needs to be increased.") )
+    v6 = (XHashLookupEntry *)ntl::nxheap::allocate(&s_DBHashMapHeap.m_heap, 0x4000ui64, 8ui64, 0);
+    v4->hashEntryList = v6;
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 199, ASSERT_TYPE_ASSERT, "( list->hashEntryList != nullptr )", "Failed to allocate memory for XHash entry list.  DB_XHASH_LOOKUP_SIZE needs to be increased.") )
       __debugbreak();
-    v9 = s_DBHashEnum;
-    v6->hashEntryCount = 0;
-    v6->next = v9;
-    s_DBHashEnum = v6;
+    v7 = s_DBHashEnum;
+    v4->hashEntryCount = 0;
+    v4->next = v7;
+    s_DBHashEnum = v4;
   }
   s_hashLookupFullyInitialized = 1;
 }
@@ -653,11 +640,8 @@ void __fastcall DB_ShutdownHashLookupMem(double _XMM0_8)
   {
     if ( s_DBHashMapHeap.m_data.m_buffer != s_DBHashMapHeap.m_allocator.m_data.m_buffer && s_DBHashMapHeap.m_allocator.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 64, ASSERT_TYPE_ASSERT, "( ( p_ptr == m_data.begin() ) || ( p_ptr == 0 ) || ( m_data.begin() == 0 ) )", (const char *)&queryFormat, "( p_ptr == m_data.begin() ) || ( p_ptr == NULL ) || ( m_data.begin() == NULL )") )
       __debugbreak();
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:s_DBHashMapHeap.baseclass_0.m_data.m_buffer, xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    s_DBHashMapHeap.m_data = _XMM0;
   }
   if ( !s_DBHashMapHeapBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_xhash.cpp", 214, ASSERT_TYPE_ASSERT, "(s_DBHashMapHeapBuffer)", (const char *)&queryFormat, "s_DBHashMapHeapBuffer") )
     __debugbreak();

@@ -538,29 +538,26 @@ FX_ApplyScaleModifier
 void FX_ApplyScaleModifier(LocalClientNum_t localClientNum, ParticleSystemHandle particleSystemHandle, const float4 *scaleModMin, const float4 *scaleModMax)
 {
   __int64 v4; 
+  ParticleSystem *v6; 
   unsigned __int32 v7; 
   __int64 v8; 
+  __m128 v; 
 
   v4 = (__int64)(int)localClientNum << 12;
-  _RBX = scaleModMin;
-  _R8 = NULL;
+  v6 = NULL;
   v7 = 0;
   if ( g_particleSystemsGeneration[v4 + (particleSystemHandle & 0xFFF)].__all32 == particleSystemHandle )
     v7 = particleSystemHandle & 0xFFF;
   v8 = v4 + v7;
   if ( g_particleSystems[0][v8] >= (ParticleSystem *)0x1000 )
-    _R8 = g_particleSystems[0][v8];
-  if ( _R8 )
+    v6 = g_particleSystems[0][v8];
+  if ( v6 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [r8+0D0h], xmm0
-      vmovups xmm1, xmmword ptr [r9]
-    }
-    _R8->m_scaleOptions = PARTICLE_USE_SCALE_OPTION_MULT;
-    __asm { vmovups xmmword ptr [r8+0E0h], xmm1 }
-    _R8->m_flags |= 0x140000000ui64;
+    v6->m_scaleMod.min = (float4)scaleModMin->v;
+    v = scaleModMax->v;
+    v6->m_scaleOptions = PARTICLE_USE_SCALE_OPTION_MULT;
+    v6->m_scaleMod.max.v = v;
+    v6->m_flags |= 0x140000000ui64;
   }
 }
 
@@ -572,29 +569,26 @@ FX_ApplyVelocityModifier
 void FX_ApplyVelocityModifier(LocalClientNum_t localClientNum, ParticleSystemHandle particleSystemHandle, const float4 *velocityModifierMin, const float4 *velocityModifierMax)
 {
   __int64 v4; 
+  ParticleSystem *v6; 
   unsigned __int32 v7; 
   __int64 v8; 
+  __m128 v; 
 
   v4 = (__int64)(int)localClientNum << 12;
-  _RBX = velocityModifierMin;
-  _R8 = NULL;
+  v6 = NULL;
   v7 = 0;
   if ( g_particleSystemsGeneration[v4 + (particleSystemHandle & 0xFFF)].__all32 == particleSystemHandle )
     v7 = particleSystemHandle & 0xFFF;
   v8 = v4 + v7;
   if ( g_particleSystems[0][v8] >= (ParticleSystem *)0x1000 )
-    _R8 = g_particleSystems[0][v8];
-  if ( _R8 )
+    v6 = g_particleSystems[0][v8];
+  if ( v6 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [r8+0B0h], xmm0
-      vmovups xmm1, xmmword ptr [r9]
-    }
-    _R8->m_velocityOptions = PARTICLE_USE_VELOCITY_OPTION_MULT;
-    __asm { vmovups xmmword ptr [r8+0C0h], xmm1 }
-    _R8->m_flags |= 0x140000000ui64;
+    v6->m_velocityMod.min = (float4)velocityModifierMin->v;
+    v = velocityModifierMax->v;
+    v6->m_velocityOptions = PARTICLE_USE_VELOCITY_OPTION_MULT;
+    v6->m_velocityMod.max.v = v;
+    v6->m_flags |= 0x140000000ui64;
   }
 }
 
@@ -1168,6 +1162,7 @@ void FX_Update2(LocalClientNum_t localClientNum, const refdef_t *refdef, const R
 {
   FxSystem *System; 
   FxCamera *p_camera; 
+  double FarPlaneDist; 
 
   if ( !(_BYTE)inPip )
   {
@@ -1176,9 +1171,8 @@ void FX_Update2(LocalClientNum_t localClientNum, const refdef_t *refdef, const R
     if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_update_api.cpp", 579, ASSERT_TYPE_ASSERT, "(system)", (const char *)&queryFormat, "system", -2i64) )
       __debugbreak();
     p_camera = &System->command->camera;
-    *(double *)&_XMM0 = R_GetFarPlaneDist();
-    __asm { vmovaps xmm1, xmm0; zfar }
-    FX_SetUpdateCamera(refdef, *(float *)&_XMM1, isThermalVision, isZeroG, p_camera, localClientNum);
+    FarPlaneDist = R_GetFarPlaneDist();
+    FX_SetUpdateCamera(refdef, *(float *)&FarPlaneDist, isThermalVision, isZeroG, p_camera, localClientNum);
     inPip = localClientNum;
     Sys_AddWorkerCmd(WRKCMD_UPDATE_FX_BONE_MAP_CACHE_AND_SPAWN_PASS_2, &inPip);
     Sys_ProfEndNamedEvent();

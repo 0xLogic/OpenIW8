@@ -609,54 +609,50 @@ ScriptableMsg_CheckEntityConstantData
 void ScriptableMsg_CheckEntityConstantData(const ScriptableReplicatedInstance *instance)
 {
   signed __int64 m_data; 
+  __int128 v4; 
+  double v5; 
   __int16 m_pitch; 
   __int16 m_yaw; 
   __int16 m_roll; 
   unsigned __int16 defIndex; 
   unsigned __int16 extraPayload; 
-  __int64 v13; 
-  double v14; 
-  double v15; 
+  __int64 v12; 
 
   m_data = instance->origin.m_data;
   if ( m_data )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
+    v4 = 0i64;
+    *(float *)&v4 = (float)m_data;
+    _XMM0 = v4;
     if ( m_data < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
     {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+48h+var_18], xmm0
-      vmovsd  [rsp+48h+var_20], xmm1
+      *(float *)&v4 = *(float *)&v4 + 1.8446744e19;
+      _XMM0 = v4;
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 544, ASSERT_TYPE_ASSERT, "( instance.origin.m_data ) == ( 0u )", "instance.origin.m_data == 0u\n\t%g, %g", v14, v15) )
+    v5 = *(float *)&_XMM0;
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 544, ASSERT_TYPE_ASSERT, "( instance.origin.m_data ) == ( 0u )", "instance.origin.m_data == 0u\n\t%g, %g", v5, *(double *)&_XMM0) )
       __debugbreak();
   }
   m_pitch = instance->angles.m_pitch;
   if ( m_pitch )
   {
-    LODWORD(v13) = m_pitch;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 545, ASSERT_TYPE_ASSERT, "( instance.angles.m_pitch ) == ( 0u )", "instance.angles.m_pitch == 0u\n\t%i, %i", v13, 0i64) )
+    LODWORD(v12) = m_pitch;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 545, ASSERT_TYPE_ASSERT, "( instance.angles.m_pitch ) == ( 0u )", "instance.angles.m_pitch == 0u\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
   m_yaw = instance->angles.m_yaw;
   if ( m_yaw )
   {
-    LODWORD(v13) = m_yaw;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 546, ASSERT_TYPE_ASSERT, "( instance.angles.m_yaw ) == ( 0u )", "instance.angles.m_yaw == 0u\n\t%i, %i", v13, 0i64) )
+    LODWORD(v12) = m_yaw;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 546, ASSERT_TYPE_ASSERT, "( instance.angles.m_yaw ) == ( 0u )", "instance.angles.m_yaw == 0u\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
   m_roll = instance->angles.m_roll;
   if ( m_roll )
   {
-    LODWORD(v13) = m_roll;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 547, ASSERT_TYPE_ASSERT, "( instance.angles.m_roll ) == ( 0u )", "instance.angles.m_roll == 0u\n\t%i, %i", v13, 0i64) )
+    LODWORD(v12) = m_roll;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 547, ASSERT_TYPE_ASSERT, "( instance.angles.m_roll ) == ( 0u )", "instance.angles.m_roll == 0u\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
   if ( instance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 548, ASSERT_TYPE_ASSERT, "( !instance.parent.HasEntity() )", (const char *)&queryFormat, "!instance.parent.HasEntity()") )
@@ -664,15 +660,15 @@ void ScriptableMsg_CheckEntityConstantData(const ScriptableReplicatedInstance *i
   defIndex = instance->defIndex;
   if ( defIndex )
   {
-    LODWORD(v13) = defIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 549, ASSERT_TYPE_ASSERT, "( instance.defIndex ) == ( SCRIPTABLE_ENTITY_DEF_INDEX )", "instance.defIndex == SCRIPTABLE_ENTITY_DEF_INDEX\n\t%i, %i", v13, 0i64) )
+    LODWORD(v12) = defIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 549, ASSERT_TYPE_ASSERT, "( instance.defIndex ) == ( SCRIPTABLE_ENTITY_DEF_INDEX )", "instance.defIndex == SCRIPTABLE_ENTITY_DEF_INDEX\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
   extraPayload = instance->extraPayload;
   if ( extraPayload )
   {
-    LODWORD(v13) = extraPayload;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 550, ASSERT_TYPE_ASSERT, "( instance.extraPayload ) == ( SCRIPTABLE_STANDALONE_DEFAULT_EXTRA_PAYLOAD )", "instance.extraPayload == SCRIPTABLE_STANDALONE_DEFAULT_EXTRA_PAYLOAD\n\t%i, %i", v13, 0i64) )
+    LODWORD(v12) = extraPayload;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 550, ASSERT_TYPE_ASSERT, "( instance.extraPayload ) == ( SCRIPTABLE_STANDALONE_DEFAULT_EXTRA_PAYLOAD )", "instance.extraPayload == SCRIPTABLE_STANDALONE_DEFAULT_EXTRA_PAYLOAD\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
 }
@@ -1371,21 +1367,21 @@ void ScriptableMsg_WriteChangedParts(ScriptableMsgWriteInfo *writeInfo, Scriptab
   unsigned __int8 data; 
   char *fmt; 
   int *inOutLastIndex; 
-  __int64 v25; 
-  unsigned int v26; 
-  int v27; 
+  __int64 v23; 
+  unsigned int v24; 
+  int v25; 
   unsigned int bitOffset; 
-  __int64 v29; 
+  __int64 v27; 
   MSG_Mark mark; 
   MSG_Mark result; 
-  unsigned int v32; 
+  unsigned int v30; 
   char toPartCounta; 
 
   if ( !changedPartBits->partBitsArray && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1073, ASSERT_TYPE_ASSERT, "( changedPartBits.partBitsArray )", (const char *)&queryFormat, "changedPartBits.partBitsArray") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFC0CB, "ScriptableMsg_WriteChangedParts");
   v9 = (toPartCount + 31) >> 5;
-  v32 = v9;
+  v30 = v9;
   if ( v9 > s_scriptableMsgWrite.changeBitsetArraySize )
   {
     LODWORD(inOutLastIndex) = (toPartCount + 31) >> 5;
@@ -1399,11 +1395,11 @@ void ScriptableMsg_WriteChangedParts(ScriptableMsgWriteInfo *writeInfo, Scriptab
   MSG_WriteBits(writeInfo->msg, 0i64, partChangeBits);
   writeInfo->lastPartIndex = -1;
   v12 = 0;
-  v26 = 0;
+  v24 = 0;
   if ( v9 )
   {
     v13 = 0i64;
-    v29 = 0i64;
+    v27 = 0i64;
     v14 = v9;
     do
     {
@@ -1414,14 +1410,14 @@ void ScriptableMsg_WriteChangedParts(ScriptableMsgWriteInfo *writeInfo, Scriptab
       if ( *v15 )
       {
         v17 = 32 * v12;
-        v27 = v17;
+        v25 = v17;
         while ( 1 )
         {
           __asm { tzcnt   edi, eax }
           if ( _EDI >= 0x20 )
           {
-            LODWORD(v25) = _EDI;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1099, ASSERT_TYPE_ASSERT, "( ( indexLow < 32 ) )", "%s\n\t( indexLow ) = %i", "( indexLow < 32 )", v25) )
+            LODWORD(v23) = _EDI;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1099, ASSERT_TYPE_ASSERT, "( ( indexLow < 32 ) )", "%s\n\t( indexLow ) = %i", "( indexLow < 32 )", v23) )
               __debugbreak();
           }
           if ( ((1 << _EDI) & *v15) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1103, ASSERT_TYPE_ASSERT, "( bits & bit )", (const char *)&queryFormat, "bits & bit") )
@@ -1430,25 +1426,20 @@ void ScriptableMsg_WriteChangedParts(ScriptableMsgWriteInfo *writeInfo, Scriptab
           v19 = v17 + _EDI;
           if ( (unsigned int)v19 >= toPartCount )
           {
-            LODWORD(v25) = toPartCount;
+            LODWORD(v23) = toPartCount;
             LODWORD(inOutLastIndex) = v19;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1107, ASSERT_TYPE_ASSERT, "(unsigned)( partWorldIndex ) < (unsigned)( toPartCount )", "partWorldIndex doesn't index toPartCount\n\t%i not in [0, %i)", inOutLastIndex, v25) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1107, ASSERT_TYPE_ASSERT, "(unsigned)( partWorldIndex ) < (unsigned)( toPartCount )", "partWorldIndex doesn't index toPartCount\n\t%i not in [0, %i)", inOutLastIndex, v23) )
               __debugbreak();
           }
           data = toParts[v19].data;
           if ( writeInfo->printDebug )
           {
-            LODWORD(v25) = data >> 7;
+            LODWORD(v23) = data >> 7;
             LODWORD(inOutLastIndex) = data & 0x7F;
             LODWORD(fmt) = v19;
-            Com_Printf(6, "[%i] [%i] Queuing part %i (value %i event %i).\n", (unsigned int)writeInfo->snapInfo->clientNum, (unsigned int)writeInfo->snapInfo->serverTime, fmt, inOutLastIndex, v25);
+            Com_Printf(6, "[%i] [%i] Queuing part %i (value %i event %i).\n", (unsigned int)writeInfo->snapInfo->clientNum, (unsigned int)writeInfo->snapInfo->serverTime, fmt, inOutLastIndex, v23);
           }
-          _RAX = MSG_MarkWrite(&result, writeInfo->msg);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+0C8h+mark.bit], xmm0
-          }
+          mark = *MSG_MarkWrite(&result, writeInfo->msg);
           ScriptableMsg_WriteDeltaIndex(writeInfo->msg, v19, writeInfo->fixedPartBitCount, writeInfo->fixedPartDeltaBitCount, writeInfo->fixedPartDdeltaThreshold, &writeInfo->lastPartIndex);
           MSG_WriteByte(writeInfo->msg, data);
           if ( ScriptableMsg_IsWriteLimitReached(writeInfo->msg, v10) )
@@ -1457,16 +1448,16 @@ void ScriptableMsg_WriteChangedParts(ScriptableMsgWriteInfo *writeInfo, Scriptab
           {
             if ( (unsigned int)v19 >= s_scriptableMsgWrite.baselinePartCount )
             {
-              LODWORD(v25) = s_scriptableMsgWrite.baselinePartCount;
+              LODWORD(v23) = s_scriptableMsgWrite.baselinePartCount;
               LODWORD(inOutLastIndex) = v19;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1129, ASSERT_TYPE_ASSERT, "(unsigned)( partWorldIndex ) < (unsigned)( s_scriptableMsgWrite.baselinePartCount )", "partWorldIndex doesn't index s_scriptableMsgWrite.baselinePartCount\n\t%i not in [0, %i)", inOutLastIndex, v25) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1129, ASSERT_TYPE_ASSERT, "(unsigned)( partWorldIndex ) < (unsigned)( s_scriptableMsgWrite.baselinePartCount )", "partWorldIndex doesn't index s_scriptableMsgWrite.baselinePartCount\n\t%i not in [0, %i)", inOutLastIndex, v23) )
                 __debugbreak();
             }
             baseline->partData[v19].data = data;
           }
           ++v10;
           _EAX = *v15;
-          v17 = v27;
+          v17 = v25;
           if ( !*v15 )
           {
             v11 = toPartCounta;
@@ -1477,21 +1468,21 @@ void ScriptableMsg_WriteChangedParts(ScriptableMsgWriteInfo *writeInfo, Scriptab
         v11 = 1;
         toPartCounta = 1;
 LABEL_32:
-        v14 = v32;
+        v14 = v30;
       }
-      ++v26;
-      v13 = v29 + 4;
-      v29 += 4i64;
-      v12 = v26;
+      ++v24;
+      v13 = v27 + 4;
+      v27 += 4i64;
+      v12 = v24;
     }
-    while ( v26 < v14 );
+    while ( v24 < v14 );
     if ( v10 )
     {
       if ( v10 >= 1 << partChangeBits )
       {
-        LODWORD(v25) = 1 << partChangeBits;
+        LODWORD(v23) = 1 << partChangeBits;
         LODWORD(inOutLastIndex) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1139, ASSERT_TYPE_ASSERT, "( writtenChangeCount ) < ( ( 1u << partChangeBits ) )", "writtenChangeCount < ( 1u << partChangeBits )\n\t%i, %i", inOutLastIndex, v25) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1139, ASSERT_TYPE_ASSERT, "( writtenChangeCount ) < ( ( 1u << partChangeBits ) )", "writtenChangeCount < ( 1u << partChangeBits )\n\t%i, %i", inOutLastIndex, v23) )
           __debugbreak();
       }
       MSG_WriteBitsAtOffset(writeInfo->msg, bitOffset, v10, partChangeBits);
@@ -1680,6 +1671,7 @@ void ScriptableMsg_WriteInstancesDelta(ScriptableMsgWriteInfo *writeInfo, Script
   unsigned __int64 v18; 
   unsigned int instanceIndex; 
   const ScriptableReplicatedInstance *v20; 
+  const ScriptableReplicatedInstance *v21; 
   unsigned int v22; 
   char v23; 
   unsigned int partIndex; 
@@ -1691,57 +1683,60 @@ void ScriptableMsg_WriteInstancesDelta(ScriptableMsgWriteInfo *writeInfo, Script
   const ScriptablePartData *v30; 
   const ScriptablePartData *v31; 
   bool HaveInstanceFieldsChanged; 
+  MSG_Mark *v33; 
   bool v34; 
-  const char *v36; 
-  unsigned __int16 v40; 
-  unsigned __int16 v41; 
-  unsigned int v42; 
+  const char *v35; 
+  unsigned __int16 v36; 
+  unsigned __int16 v37; 
+  unsigned int v38; 
+  unsigned int v39; 
+  int v40; 
+  __int64 v41; 
+  __int64 v42; 
   unsigned int v43; 
-  int v44; 
-  __int64 v45; 
+  ScriptableReplicatedInstance *v44; 
+  unsigned int v45; 
+  unsigned int v46; 
   __int64 v47; 
-  unsigned int v49; 
-  ScriptableReplicatedInstance *v50; 
-  unsigned int v51; 
-  unsigned int v52; 
-  __int64 v53; 
-  int v60; 
-  char v61; 
+  __int64 v48; 
+  const ScriptableReplicatedInstance *v49; 
+  int v50; 
+  char v51; 
   char *fmt; 
   ScriptablePartData *toInstPartData; 
-  __int64 v64; 
-  __int64 v65; 
-  __int64 v66; 
-  char v67; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  char v57; 
   unsigned int writtenChanges; 
-  int v70; 
+  int v60; 
   MSG_Mark mark; 
-  ScriptablePartData *v74; 
-  __int64 v75; 
+  ScriptablePartData *v64; 
+  unsigned __int64 v65; 
   MSG_Mark result; 
-  __int16 v77[2048]; 
-  unsigned int v78; 
-  __int16 v79[2048]; 
-  unsigned int v80; 
+  __int16 v67[2048]; 
+  unsigned int v68; 
+  __int16 v69[2048]; 
+  unsigned int v70; 
 
   v11 = 0;
   v12 = 0;
   v13 = fromInstanceCount;
-  v74 = (ScriptablePartData *)fromWorldParts;
+  v64 = (ScriptablePartData *)fromWorldParts;
   v14 = fromInstances;
   v16 = 0;
+  v60 = 0;
+  v68 = 0;
   v70 = 0;
-  v78 = 0;
-  v80 = 0;
   writtenChanges = 0;
-  v67 = 0;
+  v57 = 0;
   if ( fromInstanceCount != toInstanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 875, ASSERT_TYPE_ASSERT, "( fromInstanceCount ) == ( toInstanceCount )", "fromInstanceCount == toInstanceCount\n\t%i, %i", fromInstanceCount, toInstanceCount) )
     __debugbreak();
   if ( v13 > 0xFFFF )
   {
-    LODWORD(v64) = 0xFFFF;
+    LODWORD(v54) = 0xFFFF;
     LODWORD(toInstPartData) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 876, ASSERT_TYPE_ASSERT, "( fromInstanceCount ) <= ( 0xffff )", "fromInstanceCount <= USHRT_MAX\n\t%i, %i", toInstPartData, v64) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 876, ASSERT_TYPE_ASSERT, "( fromInstanceCount ) <= ( 0xffff )", "fromInstanceCount <= USHRT_MAX\n\t%i, %i", toInstPartData, v54) )
       __debugbreak();
   }
   writeInfo->lastInstanceIndex = -1;
@@ -1753,8 +1748,8 @@ void ScriptableMsg_WriteInstancesDelta(ScriptableMsgWriteInfo *writeInfo, Script
     v18 = v11;
     instanceIndex = v14[v18].instanceIndex;
     v20 = &v14[v18];
-    _R15 = &toInstances[v18];
-    v75 = v18 * 32;
+    v21 = &toInstances[v18];
+    v65 = v18 * 32;
     v22 = toInstances[v18].instanceIndex;
     if ( instanceIndex != v22 )
     {
@@ -1762,50 +1757,50 @@ void ScriptableMsg_WriteInstancesDelta(ScriptableMsgWriteInfo *writeInfo, Script
       {
         if ( v22 != v11 )
         {
-          LODWORD(v64) = v11;
+          LODWORD(v54) = v11;
           LODWORD(toInstPartData) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 891, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( instanceIndex )", "newInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 891, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( instanceIndex )", "newInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
             __debugbreak();
         }
         if ( v11 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v11, "unsigned", v11) )
           __debugbreak();
         if ( v12 >= 0x800 )
         {
-          LODWORD(v64) = 2048;
+          LODWORD(v54) = 2048;
           LODWORD(toInstPartData) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v64) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v54) )
             __debugbreak();
         }
-        v79[v12] = v11;
-        v12 = ++v80;
+        v69[v12] = v11;
+        v12 = ++v70;
       }
       else
       {
         if ( v22 != -1 )
         {
-          LODWORD(v64) = -1;
+          LODWORD(v54) = -1;
           LODWORD(toInstPartData) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 896, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "newInstance.instanceIndex == SCRIPTABLE_INVALID_INSTANCE_INDEX\n\t%i, %i", toInstPartData, v64) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 896, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "newInstance.instanceIndex == SCRIPTABLE_INVALID_INSTANCE_INDEX\n\t%i, %i", toInstPartData, v54) )
             __debugbreak();
         }
         if ( v20->instanceIndex != v11 )
         {
-          LODWORD(v64) = v11;
+          LODWORD(v54) = v11;
           LODWORD(toInstPartData) = v20->instanceIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 897, ASSERT_TYPE_ASSERT, "( oldInstance.instanceIndex ) == ( instanceIndex )", "oldInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 897, ASSERT_TYPE_ASSERT, "( oldInstance.instanceIndex ) == ( instanceIndex )", "oldInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
             __debugbreak();
         }
         if ( v11 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v11, "unsigned", v11) )
           __debugbreak();
         if ( v16 >= 0x800 )
         {
-          LODWORD(v64) = 2048;
+          LODWORD(v54) = 2048;
           LODWORD(toInstPartData) = v16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v64) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v54) )
             __debugbreak();
         }
-        v77[v16] = v11;
-        v16 = ++v78;
+        v67[v16] = v11;
+        v16 = ++v68;
       }
       goto LABEL_73;
     }
@@ -1813,9 +1808,9 @@ void ScriptableMsg_WriteInstancesDelta(ScriptableMsgWriteInfo *writeInfo, Script
       break;
     if ( v22 != -1 )
     {
-      LODWORD(v64) = -1;
+      LODWORD(v54) = -1;
       LODWORD(toInstPartData) = v22;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 962, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "newInstance.instanceIndex == SCRIPTABLE_INVALID_INSTANCE_INDEX\n\t%i, %i", toInstPartData, v64) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 962, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "newInstance.instanceIndex == SCRIPTABLE_INVALID_INSTANCE_INDEX\n\t%i, %i", toInstPartData, v54) )
         __debugbreak();
     }
 LABEL_73:
@@ -1826,36 +1821,36 @@ LABEL_73:
   }
   if ( v22 != v11 )
   {
-    LODWORD(v64) = v11;
+    LODWORD(v54) = v11;
     LODWORD(toInstPartData) = v22;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 903, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( instanceIndex )", "newInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 903, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( instanceIndex )", "newInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
       __debugbreak();
   }
   if ( v20->instanceIndex != v11 )
   {
-    LODWORD(v64) = v11;
+    LODWORD(v54) = v11;
     LODWORD(toInstPartData) = v20->instanceIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 904, ASSERT_TYPE_ASSERT, "( oldInstance.instanceIndex ) == ( instanceIndex )", "oldInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 904, ASSERT_TYPE_ASSERT, "( oldInstance.instanceIndex ) == ( instanceIndex )", "oldInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
       __debugbreak();
   }
-  if ( v20->instanceIndex != _R15->instanceIndex )
+  if ( v20->instanceIndex != v21->instanceIndex )
   {
-    LODWORD(v66) = _R15->instanceIndex;
-    LODWORD(v65) = v20->instanceIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 151, ASSERT_TYPE_ASSERT, "( fromInstance.instanceIndex ) == ( toInstance.instanceIndex )", "%s == %s\n\t%i, %i", "fromInstance.instanceIndex", "toInstance.instanceIndex", v65, v66) )
+    LODWORD(v56) = v21->instanceIndex;
+    LODWORD(v55) = v20->instanceIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 151, ASSERT_TYPE_ASSERT, "( fromInstance.instanceIndex ) == ( toInstance.instanceIndex )", "%s == %s\n\t%i, %i", "fromInstance.instanceIndex", "toInstance.instanceIndex", v55, v56) )
       __debugbreak();
   }
   v23 = v20->replicatedType[0];
-  if ( v23 != _R15->replicatedType[0] )
+  if ( v23 != v21->replicatedType[0] )
     goto LABEL_75;
-  if ( v20->partCount != _R15->partCount )
+  if ( v20->partCount != v21->partCount )
     goto LABEL_75;
   partIndex = v20->partIndex;
-  v25 = _R15->partIndex;
+  v25 = v21->partIndex;
   if ( partIndex != v25 )
     goto LABEL_75;
   defIndex = v20->defIndex;
-  v27 = _R15->defIndex;
+  v27 = v21->defIndex;
   if ( v23 )
   {
     if ( defIndex == v27 )
@@ -1864,244 +1859,222 @@ LABEL_73:
   }
   if ( defIndex != v27 )
   {
-    LODWORD(v66) = v27;
-    LODWORD(v65) = defIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 171, ASSERT_TYPE_ASSERT, "( fromInstance.defIndex ) == ( toInstance.defIndex )", "%s == %s\n\t%i, %i", "fromInstance.defIndex", "toInstance.defIndex", v65, v66) )
+    LODWORD(v56) = v27;
+    LODWORD(v55) = defIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 171, ASSERT_TYPE_ASSERT, "( fromInstance.defIndex ) == ( toInstance.defIndex )", "%s == %s\n\t%i, %i", "fromInstance.defIndex", "toInstance.defIndex", v55, v56) )
       __debugbreak();
   }
-  if ( v20->payload != _R15->payload )
+  if ( v20->payload != v21->payload )
   {
 LABEL_75:
-    v40 = truncate_cast<unsigned short,unsigned int>(v11);
+    v36 = truncate_cast<unsigned short,unsigned int>(v11);
     if ( v16 >= 0x800 )
     {
-      LODWORD(v64) = 2048;
+      LODWORD(v54) = 2048;
       LODWORD(toInstPartData) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v64) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v54) )
         __debugbreak();
     }
-    v77[v16] = v40;
-    v16 = ++v78;
-    v41 = truncate_cast<unsigned short,unsigned int>(v11);
+    v67[v16] = v36;
+    v16 = ++v68;
+    v37 = truncate_cast<unsigned short,unsigned int>(v11);
     if ( v12 >= 0x800 )
     {
-      LODWORD(v64) = 2048;
+      LODWORD(v54) = 2048;
       LODWORD(toInstPartData) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v64) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( m_count ) < (unsigned)( ARRAY_SIZE )", "m_count doesn't index ARRAY_SIZE\n\t%i not in [0, %i)", toInstPartData, v54) )
         __debugbreak();
     }
-    v79[v12] = v41;
-    v12 = ++v80;
+    v69[v12] = v37;
+    v12 = ++v70;
     goto LABEL_73;
   }
   partIndex = v20->partIndex;
-  v25 = _R15->partIndex;
+  v25 = v21->partIndex;
 LABEL_53:
   if ( partIndex != v25 )
   {
-    LODWORD(v64) = v25;
+    LODWORD(v54) = v25;
     LODWORD(toInstPartData) = partIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 918, ASSERT_TYPE_ASSERT, "( oldInstance.partIndex ) == ( newInstance.partIndex )", "oldInstance.partIndex == newInstance.partIndex\n\t%i, %i", toInstPartData, v64) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 918, ASSERT_TYPE_ASSERT, "( oldInstance.partIndex ) == ( newInstance.partIndex )", "oldInstance.partIndex == newInstance.partIndex\n\t%i, %i", toInstPartData, v54) )
       __debugbreak();
   }
   partCount = v20->partCount;
-  v29 = _R15->partCount;
+  v29 = v21->partCount;
   if ( partCount != v29 )
   {
-    LODWORD(v64) = v29;
+    LODWORD(v54) = v29;
     LODWORD(toInstPartData) = partCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 919, ASSERT_TYPE_ASSERT, "( oldInstance.partCount ) == ( newInstance.partCount )", "oldInstance.partCount == newInstance.partCount\n\t%i, %i", toInstPartData, v64) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 919, ASSERT_TYPE_ASSERT, "( oldInstance.partCount ) == ( newInstance.partCount )", "oldInstance.partCount == newInstance.partCount\n\t%i, %i", toInstPartData, v54) )
       __debugbreak();
   }
-  v30 = ScriptableMsg_Write_GetPartDataForInstance(_R15, reservedPartOffset, toWorldParts, toWorldPartCount);
-  v31 = ScriptableMsg_Write_GetPartDataForInstance(v20, reservedPartOffset, v74, fromWorldPartCount);
-  HaveInstanceFieldsChanged = ScriptableCommon_HaveInstanceFieldsChanged(v20, _R15);
-  if ( !HaveInstanceFieldsChanged && !memcmp_0(v31, v30, _R15->partCount) )
+  v30 = ScriptableMsg_Write_GetPartDataForInstance(v21, reservedPartOffset, toWorldParts, toWorldPartCount);
+  v31 = ScriptableMsg_Write_GetPartDataForInstance(v20, reservedPartOffset, v64, fromWorldPartCount);
+  HaveInstanceFieldsChanged = ScriptableCommon_HaveInstanceFieldsChanged(v20, v21);
+  if ( !HaveInstanceFieldsChanged && !memcmp_0(v31, v30, v21->partCount) )
   {
 LABEL_72:
-    v12 = v80;
-    v16 = v78;
+    v12 = v70;
+    v16 = v68;
     goto LABEL_73;
   }
-  _RAX = MSG_MarkWrite(&result, writeInfo->msg);
+  v33 = MSG_MarkWrite(&result, writeInfo->msg);
   v34 = !writeInfo->printDebug;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbp+2030h+mark.bit], xmm0
-  }
+  mark = *v33;
   if ( !v34 )
   {
-    v36 = "Parts";
+    v35 = "Parts";
     if ( HaveInstanceFieldsChanged )
-      v36 = "Fields";
+      v35 = "Fields";
     LODWORD(fmt) = v11;
-    Com_Printf(6, "[%i] [%i] Queuing Instance %i (%s).\n", (unsigned int)writeInfo->snapInfo->clientNum, (unsigned int)writeInfo->snapInfo->serverTime, fmt, v36);
+    Com_Printf(6, "[%i] [%i] Queuing Instance %i (%s).\n", (unsigned int)writeInfo->snapInfo->clientNum, (unsigned int)writeInfo->snapInfo->serverTime, fmt, v35);
   }
-  ScriptableMsg_WriteChangedInstance(writeInfo, HaveInstanceFieldsChanged, v20, _R15, v31, v30);
+  ScriptableMsg_WriteChangedInstance(writeInfo, HaveInstanceFieldsChanged, v20, v21, v31, v30);
   if ( !ScriptableMsg_IsWriteLimitReached(writeInfo->msg, writtenChanges) )
   {
     if ( baseline )
     {
-      _RBX = v75;
-      if ( *(unsigned int *)((char *)&baseline->instanceData->instanceIndex + v75) != v11 )
+      if ( *(unsigned int *)((char *)&baseline->instanceData->instanceIndex + v65) != v11 )
       {
-        LODWORD(v64) = v11;
-        LODWORD(toInstPartData) = *(unsigned int *)((char *)&baseline->instanceData->instanceIndex + v75);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 949, ASSERT_TYPE_ASSERT, "( baseline->instanceData[instanceIndex].instanceIndex ) == ( instanceIndex )", "baseline->instanceData[instanceIndex].instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+        LODWORD(v54) = v11;
+        LODWORD(toInstPartData) = *(unsigned int *)((char *)&baseline->instanceData->instanceIndex + v65);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 949, ASSERT_TYPE_ASSERT, "( baseline->instanceData[instanceIndex].instanceIndex ) == ( instanceIndex )", "baseline->instanceData[instanceIndex].instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
           __debugbreak();
       }
-      _RAX = baseline->instanceData;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r15]
-        vmovups ymmword ptr [rax+rbx], ymm0
-      }
-      ScriptableMsg_UpdateInstancePartsBaseline(baseline, _R15, reservedPartOffset, toWorldParts, toWorldPartCount);
+      *(ScriptableReplicatedInstance *)((char *)baseline->instanceData + v65) = *v21;
+      ScriptableMsg_UpdateInstancePartsBaseline(baseline, v21, reservedPartOffset, toWorldParts, toWorldPartCount);
     }
     ++writtenChanges;
     goto LABEL_72;
   }
   MSG_RollbackWrite(writeInfo->msg, &mark);
   v13 = fromInstanceCount;
-  v67 = 1;
+  v57 = 1;
 LABEL_86:
   p_lastInstanceIndex = &writeInfo->lastInstanceIndex;
 LABEL_87:
   MSG_WriteBit0(writeInfo->msg);
-  v42 = writtenChanges;
-  if ( !v67 )
+  v38 = writtenChanges;
+  if ( !v57 )
   {
-    v43 = v78;
-    v44 = 0;
+    v39 = v68;
+    v40 = 0;
     *p_lastInstanceIndex = -1;
-    if ( v43 )
+    if ( v39 )
     {
       while ( 1 )
       {
-        v45 = (unsigned __int16)v77[v44];
-        if ( (unsigned int)v45 >= v13 )
+        v41 = (unsigned __int16)v67[v40];
+        if ( (unsigned int)v41 >= v13 )
         {
-          LODWORD(v64) = v13;
-          LODWORD(toInstPartData) = (unsigned __int16)v77[v44];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 978, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( fromInstanceCount )", "instanceIndex doesn't index fromInstanceCount\n\t%i not in [0, %i)", toInstPartData, v64) )
+          LODWORD(v54) = v13;
+          LODWORD(toInstPartData) = (unsigned __int16)v67[v40];
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 978, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( fromInstanceCount )", "instanceIndex doesn't index fromInstanceCount\n\t%i not in [0, %i)", toInstPartData, v54) )
             __debugbreak();
         }
         if ( writeInfo->printDebug )
         {
-          LODWORD(fmt) = v45;
+          LODWORD(fmt) = v41;
           Com_Printf(6, "[%i] [%i] Queuing Instance %i (Removed).\n", (unsigned int)writeInfo->snapInfo->clientNum, (unsigned int)writeInfo->snapInfo->serverTime, fmt);
         }
-        _RAX = MSG_MarkWrite(&result, writeInfo->msg);
-        v47 = v45;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+2030h+mark.bit], xmm0
-        }
-        if ( fromInstances[v45].instanceIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 825, ASSERT_TYPE_ASSERT, "( instance.instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX )", (const char *)&queryFormat, "instance.instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX") )
+        v42 = v41;
+        mark = *MSG_MarkWrite(&result, writeInfo->msg);
+        if ( fromInstances[v41].instanceIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 825, ASSERT_TYPE_ASSERT, "( instance.instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX )", (const char *)&queryFormat, "instance.instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX") )
           __debugbreak();
         MSG_WriteBit1(writeInfo->msg);
         MSG_WriteByte(writeInfo->msg, 17i64);
-        v49 = fromInstances[v47].instanceIndex;
-        if ( v49 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 631, ASSERT_TYPE_ASSERT, "( instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX )", (const char *)&queryFormat, "instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX") )
+        v43 = fromInstances[v42].instanceIndex;
+        if ( v43 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 631, ASSERT_TYPE_ASSERT, "( instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX )", (const char *)&queryFormat, "instanceIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX") )
           __debugbreak();
-        ScriptableMsg_WriteDeltaIndex(writeInfo->msg, v49, writeInfo->instanceBitCount, writeInfo->instanceDeltaBitCount, writeInfo->instanceDeltaThreshold, &writeInfo->lastInstanceIndex);
-        if ( ScriptableMsg_IsWriteLimitReached(writeInfo->msg, v42) )
+        ScriptableMsg_WriteDeltaIndex(writeInfo->msg, v43, writeInfo->instanceBitCount, writeInfo->instanceDeltaBitCount, writeInfo->instanceDeltaThreshold, &writeInfo->lastInstanceIndex);
+        if ( ScriptableMsg_IsWriteLimitReached(writeInfo->msg, v38) )
           break;
         if ( baseline )
         {
-          v50 = &baseline->instanceData[v47];
-          if ( v50->instanceIndex != (_DWORD)v45 )
+          v44 = &baseline->instanceData[v42];
+          if ( v44->instanceIndex != (_DWORD)v41 )
           {
-            LODWORD(v64) = v45;
-            LODWORD(toInstPartData) = v50->instanceIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1001, ASSERT_TYPE_ASSERT, "( baseInstance.instanceIndex ) == ( instanceIndex )", "baseInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+            LODWORD(v54) = v41;
+            LODWORD(toInstPartData) = v44->instanceIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1001, ASSERT_TYPE_ASSERT, "( baseInstance.instanceIndex ) == ( instanceIndex )", "baseInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
               __debugbreak();
           }
-          ScriptableCommon_ClearReplicatedInstance(v50);
+          ScriptableCommon_ClearReplicatedInstance(v44);
         }
         v13 = fromInstanceCount;
-        ++v42;
-        if ( ++v44 >= v43 )
+        ++v38;
+        if ( ++v40 >= v39 )
           goto LABEL_109;
       }
       MSG_RollbackWrite(writeInfo->msg, &mark);
-      v67 = 1;
+      v57 = 1;
     }
   }
 LABEL_109:
   MSG_WriteBit0(writeInfo->msg);
-  if ( v67 || (v51 = v80, writeInfo->lastInstanceIndex = -1, !v51) )
+  if ( v57 || (v45 = v70, writeInfo->lastInstanceIndex = -1, !v45) )
   {
 LABEL_127:
-    v61 = v67;
+    v51 = v57;
   }
   else
   {
-    v52 = 0;
+    v46 = 0;
     while ( 1 )
     {
-      v53 = (unsigned __int16)v79[v52];
-      if ( (unsigned int)v53 >= toInstanceCount )
+      v47 = (unsigned __int16)v69[v46];
+      if ( (unsigned int)v47 >= toInstanceCount )
       {
-        LODWORD(v64) = toInstanceCount;
-        LODWORD(toInstPartData) = v53;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1019, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( toInstanceCount )", "instanceIndex doesn't index toInstanceCount\n\t%i not in [0, %i)", toInstPartData, v64) )
+        LODWORD(v54) = toInstanceCount;
+        LODWORD(toInstPartData) = v47;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1019, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( toInstanceCount )", "instanceIndex doesn't index toInstanceCount\n\t%i not in [0, %i)", toInstPartData, v54) )
           __debugbreak();
       }
       if ( writeInfo->printDebug )
       {
-        LODWORD(fmt) = v53;
+        LODWORD(fmt) = v47;
         Com_Printf(6, "[%i] [%i] Queuing Instance %i (Added).\n", (unsigned int)writeInfo->snapInfo->clientNum, (unsigned int)writeInfo->snapInfo->serverTime, fmt);
       }
-      _RAX = MSG_MarkWrite(&result, writeInfo->msg);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RDI = v53;
-      _RSI = &toInstances[v53];
-      __asm { vmovups xmmword ptr [rbp+2030h+mark.bit], xmm0 }
-      ScriptableMsg_WriteAddedInstance(writeInfo, _RSI, reservedPartOffset, toWorldParts, toWorldPartCount);
-      if ( ScriptableMsg_IsWriteLimitReached(writeInfo->msg, v42) )
+      v48 = v47;
+      v49 = &toInstances[v47];
+      mark = *MSG_MarkWrite(&result, writeInfo->msg);
+      ScriptableMsg_WriteAddedInstance(writeInfo, v49, reservedPartOffset, toWorldParts, toWorldPartCount);
+      if ( ScriptableMsg_IsWriteLimitReached(writeInfo->msg, v38) )
         break;
       if ( baseline )
       {
-        if ( baseline->instanceData[_RDI].instanceIndex != -1 )
+        if ( baseline->instanceData[v48].instanceIndex != -1 )
         {
-          LODWORD(v64) = -1;
-          LODWORD(toInstPartData) = baseline->instanceData[_RDI].instanceIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1041, ASSERT_TYPE_ASSERT, "( baseline->instanceData[instanceIndex].instanceIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "baseline->instanceData[instanceIndex].instanceIndex == SCRIPTABLE_INVALID_INSTANCE_INDEX\n\t%i, %i", toInstPartData, v64) )
+          LODWORD(v54) = -1;
+          LODWORD(toInstPartData) = baseline->instanceData[v48].instanceIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1041, ASSERT_TYPE_ASSERT, "( baseline->instanceData[instanceIndex].instanceIndex ) == ( SCRIPTABLE_INVALID_INSTANCE_INDEX )", "baseline->instanceData[instanceIndex].instanceIndex == SCRIPTABLE_INVALID_INSTANCE_INDEX\n\t%i, %i", toInstPartData, v54) )
             __debugbreak();
         }
-        if ( _RSI->instanceIndex != (_DWORD)v53 )
+        if ( v49->instanceIndex != (_DWORD)v47 )
         {
-          LODWORD(v64) = v53;
-          LODWORD(toInstPartData) = _RSI->instanceIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1042, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( instanceIndex )", "newInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v64) )
+          LODWORD(v54) = v47;
+          LODWORD(toInstPartData) = v49->instanceIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_msg_write.cpp", 1042, ASSERT_TYPE_ASSERT, "( newInstance.instanceIndex ) == ( instanceIndex )", "newInstance.instanceIndex == instanceIndex\n\t%i, %i", toInstPartData, v54) )
             __debugbreak();
         }
-        _RAX = baseline->instanceData;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi]
-          vmovups ymmword ptr [rdi+rax], ymm0
-        }
-        ScriptableMsg_UpdateInstancePartsBaseline(baseline, _RSI, reservedPartOffset, toWorldParts, toWorldPartCount);
+        baseline->instanceData[v48] = *v49;
+        ScriptableMsg_UpdateInstancePartsBaseline(baseline, v49, reservedPartOffset, toWorldParts, toWorldPartCount);
       }
-      HIWORD(v60) = HIWORD(v70);
-      LOWORD(v60) = v70 + 1;
-      ++v42;
-      v52 = (unsigned __int16)(v70 + 1);
-      v70 = v60;
-      if ( v52 >= v51 )
+      HIWORD(v50) = HIWORD(v60);
+      LOWORD(v50) = v60 + 1;
+      ++v38;
+      v46 = (unsigned __int16)(v60 + 1);
+      v60 = v50;
+      if ( v46 >= v45 )
         goto LABEL_127;
     }
     MSG_RollbackWrite(writeInfo->msg, &mark);
-    v61 = 1;
+    v51 = 1;
   }
   MSG_WriteBit0(writeInfo->msg);
-  if ( v42 )
+  if ( v38 )
     writeInfo->outAnyChanges = 1;
-  if ( v61 )
+  if ( v51 )
     writeInfo->outTruncated = 1;
 }
 

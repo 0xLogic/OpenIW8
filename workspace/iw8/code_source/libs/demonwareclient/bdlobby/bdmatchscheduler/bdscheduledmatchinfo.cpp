@@ -146,23 +146,26 @@ _BOOL8 bdScheduledMatchInfo::deserialize(bdScheduledMatchInfo *this, bdReference
   unsigned int v15; 
   unsigned int m_size; 
   unsigned int j; 
-  __int64 v21; 
-  unsigned int v23; 
-  unsigned int v24; 
-  bdUserAccountID *v25; 
-  __int64 v26; 
-  __int64 v27; 
+  __int64 v18; 
+  __int64 v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  bdUserAccountID *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  bdUserAccountID *m_data; 
   unsigned int numElements; 
   unsigned int u; 
-  unsigned int v36; 
-  unsigned __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
+  unsigned int v30; 
+  unsigned __int64 v31; 
+  __int64 v32; 
+  __int64 v33; 
   bdByteBuffer *m_ptr; 
-  bdUserAccountID v41; 
+  bdUserAccountID v35; 
   char s[16]; 
 
-  v39 = -2i64;
+  v33 = -2i64;
   m_ptr = buffer.m_ptr;
   v4 = bdByteBuffer::readUInt64((bdByteBuffer *)buffer.m_ptr->__vftable, (unsigned __int64 *)&this->__vftable + 2) && bdByteBuffer::readUInt32((bdByteBuffer *)buffer.m_ptr->__vftable, (unsigned int *)&this->__vftable + 6) && bdByteBuffer::readUInt32((bdByteBuffer *)buffer.m_ptr->__vftable, (unsigned int *)&this->__vftable + 7);
   p_m_matchMetadataLength = &this->m_matchMetadataLength;
@@ -200,7 +203,7 @@ LABEL_20:
     {
       if ( !String )
         break;
-      String = bdByteBuffer::readUInt64((bdByteBuffer *)buffer.m_ptr->__vftable, &v37);
+      String = bdByteBuffer::readUInt64((bdByteBuffer *)buffer.m_ptr->__vftable, &v31);
       m_capacity = this->m_userIDs.m_capacity;
       if ( this->m_userIDs.m_size == m_capacity )
       {
@@ -220,21 +223,14 @@ LABEL_20:
         this->m_userIDs.m_data = (unsigned __int64 *)v14;
         this->m_userIDs.m_capacity = v15;
       }
-      _RCX = this->m_userIDs.m_size;
-      _RAX = this->m_userIDs.m_data;
-      __asm
-      {
-        vmovsd  xmm0, [rbp+57h+var_C0]
-        vmovsd  qword ptr [rax+rcx*8], xmm0
-      }
-      ++this->m_userIDs.m_size;
+      this->m_userIDs.m_data[this->m_userIDs.m_size++] = v31;
     }
   }
   bdByteBuffer::readArrayEnd((bdByteBuffer *)buffer.m_ptr->__vftable);
-  v36 = 0;
-  bdByteBuffer::readArrayStart((bdByteBuffer *)buffer.m_ptr->__vftable, 0x10u, &v36);
-  bdHandleAssert(numElements == v36, "numUserIDs == numAccountTypes", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdmatchscheduler\\bdscheduledmatchinfo.cpp", "bdScheduledMatchInfo::deserialize", 0x4Au, "Mismatched userIDs and accountTypes");
-  if ( v36 )
+  v30 = 0;
+  bdByteBuffer::readArrayStart((bdByteBuffer *)buffer.m_ptr->__vftable, 0x10u, &v30);
+  bdHandleAssert(numElements == v30, "numUserIDs == numAccountTypes", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdmatchscheduler\\bdscheduledmatchinfo.cpp", "bdScheduledMatchInfo::deserialize", 0x4Au, "Mismatched userIDs and accountTypes");
+  if ( v30 )
   {
     for ( j = 0; j < numElements; ++j )
     {
@@ -242,43 +238,37 @@ LABEL_20:
         break;
       String = bdByteBuffer::readString((bdByteBuffer *)buffer.m_ptr->__vftable, s, 9ui64);
       bdHandleAssert(j < this->m_userIDs.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfastarray.inl", "bdFastArray<unsigned __int64>::operator []", 0x50u, "bdFastArray<T>::operator[], rangecheck failed");
-      bdUserAccountID::bdUserAccountID(&v41, &this->m_userIDs.m_data[j], s);
-      _R8 = v21;
-      v38 = v21;
-      v23 = this->m_userAccountIDs.m_capacity;
-      if ( this->m_userAccountIDs.m_size == v23 )
+      bdUserAccountID::bdUserAccountID(&v35, &this->m_userIDs.m_data[j], s);
+      v19 = v18;
+      v32 = v18;
+      v20 = this->m_userAccountIDs.m_capacity;
+      if ( this->m_userAccountIDs.m_size == v20 )
       {
-        v24 = this->m_userAccountIDs.m_capacity;
-        if ( !v23 )
-          v24 = 1;
-        v25 = NULL;
-        v26 = v23 + v24;
-        if ( (_DWORD)v26 )
+        v21 = this->m_userAccountIDs.m_capacity;
+        if ( !v20 )
+          v21 = 1;
+        v22 = NULL;
+        v23 = v20 + v21;
+        if ( (_DWORD)v23 )
         {
-          v25 = (bdUserAccountID *)bdMemory::allocate(72 * v26);
-          v27 = this->m_userAccountIDs.m_size;
-          if ( (_DWORD)v27 )
-            memcpy_0(v25, this->m_userAccountIDs.m_data, 72 * v27);
+          v22 = (bdUserAccountID *)bdMemory::allocate(72 * v23);
+          v24 = this->m_userAccountIDs.m_size;
+          if ( (_DWORD)v24 )
+            memcpy_0(v22, this->m_userAccountIDs.m_data, 72 * v24);
         }
         bdMemory::deallocate(this->m_userAccountIDs.m_data);
-        this->m_userAccountIDs.m_data = v25;
-        this->m_userAccountIDs.m_capacity = v26;
-        _R8 = v38;
+        this->m_userAccountIDs.m_data = v22;
+        this->m_userAccountIDs.m_capacity = v23;
+        v19 = v32;
       }
-      _RCX = 9i64 * this->m_userAccountIDs.m_size;
-      _RAX = this->m_userAccountIDs.m_data;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r8]
-        vmovups ymmword ptr [rax+rcx*8], ymm0
-        vmovups ymm1, ymmword ptr [r8+20h]
-        vmovups ymmword ptr [rax+rcx*8+20h], ymm1
-        vmovsd  xmm0, qword ptr [r8+40h]
-        vmovsd  qword ptr [rax+rcx*8+40h], xmm0
-      }
+      v25 = this->m_userAccountIDs.m_size;
+      m_data = this->m_userAccountIDs.m_data;
+      m_data[v25].bdTaskResult = *(bdTaskResult *)v19;
+      *(__m256i *)m_data[v25]._bytes_20 = *(__m256i *)(v19 + 32);
+      *(double *)&m_data[v25].gap38[8] = *(double *)(v19 + 64);
       ++this->m_userAccountIDs.m_size;
-      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v41.gap38);
-      bdReferencable::~bdReferencable((bdReferencable *)v41.gap38);
+      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v35.gap38);
+      bdReferencable::~bdReferencable((bdReferencable *)v35.gap38);
     }
   }
   bdByteBuffer::readArrayEnd((bdByteBuffer *)buffer.m_ptr->__vftable);

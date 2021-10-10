@@ -86,39 +86,23 @@ R_GetVec3FromByteArray
 void R_GetVec3FromByteArray(const unsigned __int8 *color, vec3_t *outVec)
 {
   unsigned int i; 
-  __int64 v13; 
-  __int64 v14; 
+  float v5; 
+  __int64 v6; 
+  __int64 v7; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RDI = outVec;
-  __asm { vmovss  xmm7, cs:__real@3b808081 }
   for ( i = 0; i != 3; ++i )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm6, xmm0, xmm7
-    }
+    v5 = (float)*color * 0.0039215689;
     if ( i >= 3 )
     {
-      LODWORD(v14) = 3;
-      LODWORD(v13) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v7) = 3;
+      LODWORD(v6) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v6, v7) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
+    outVec->v[0] = v5;
+    outVec = (vec3_t *)((char *)outVec + 4);
     ++color;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
   }
 }
 
@@ -127,61 +111,16 @@ void R_GetVec3FromByteArray(const unsigned __int8 *color, vec3_t *outVec)
 R_LightTweak_AngleChanged
 ==============
 */
-
-bool __fastcall R_LightTweak_AngleChanged(double tolerance)
+bool R_LightTweak_AngleChanged(const float tolerance)
 {
-  bool result; 
-
-  __asm
-  {
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovaps xmm5, xmm0
-  }
   if ( !r_lightTweakEnable->current.enabled )
-    goto LABEL_5;
-  _RAX = r_lightTweakSunPitch;
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3b360b61
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  xmm1, dword ptr [rax+28h]
-    vsubss  xmm2, xmm1, dword ptr [rax+48h]
-    vmulss  xmm3, xmm2, xmm4
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-    vroundss xmm2, xmm6, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, xmm5
-  }
-  if ( r_lightTweakEnable->current.enabled )
-    goto LABEL_4;
-  _RAX = r_lightTweakSunHeading;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vsubss  xmm1, xmm0, dword ptr [rax+48h]
-    vmulss  xmm4, xmm1, xmm4
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vroundss xmm3, xmm6, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, xmm5
-  }
-  if ( r_lightTweakEnable->current.enabled )
-  {
-LABEL_4:
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
-  }
-  else
-  {
-LABEL_5:
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
     return 0;
-  }
-  return result;
+  _XMM6 = 0i64;
+  __asm { vroundss xmm2, xmm6, xmm1, 1 }
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(r_lightTweakSunPitch->current.value - r_lightTweakSunPitch->reset.value) * 0.0027777778) - *(float *)&_XMM2) * 360.0) & _xmm) > tolerance )
+    return 1;
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  return COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(r_lightTweakSunHeading->current.value - r_lightTweakSunHeading->reset.value) * 0.0027777778) - *(float *)&_XMM3) * 360.0) & _xmm) > tolerance;
 }
 
 /*
@@ -211,9 +150,7 @@ R_LightTweak_GetSunGameIntensity
 */
 float R_LightTweak_GetSunGameIntensity()
 {
-  _RAX = r_lightTweakSunLight;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+  return r_lightTweakSunLight->current.value;
 }
 
 /*
@@ -231,67 +168,14 @@ void R_LightTweak_Init(void)
 R_LightTweak_InitDvars
 ==============
 */
-
-void __fastcall R_LightTweak_InitDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void R_LightTweak_InitDvars(void)
 {
-  const dvar_t *v12; 
-  float flags; 
-  float flagsa; 
-  float description; 
-
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@43960000; max
-  }
   r_lightTweakEnable = Dvar_RegisterBool("NPRKOOLRPL", 0, 0x44u, "Apply sun tweaks to the active sun");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  r_lightTweakSunLight = Dvar_RegisterFloat("LMPKPQPRMK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x4044u, "Sunlight illuminance in kilo-lux");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; b
-    vmovaps xmm2, xmm6; g
-    vxorps  xmm1, xmm1, xmm1; r
-    vmovss  [rsp+68h+flags], xmm6
-  }
-  v12 = Dvar_RegisterColor("NQQQKTMONT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, 0x4044u, "Sun color in gamma sRGB");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42b40000; max
-    vmovss  xmm2, cs:__real@c2b40000; min
-  }
-  r_lightTweakSunColor = v12;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  xmm6, cs:__real@43340000
-    vmovss  xmm7, cs:__real@c3340000
-  }
-  r_lightTweakSunPitch = Dvar_RegisterFloat("NTTSPKPRPQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x4044u, "Sun pitch in degrees -90 is noon.");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm7; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  r_lightTweakSunHeading = Dvar_RegisterFloat("NNNMKNQNTK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x4044u, "Sun heading in degrees");
-  __asm
-  {
-    vmovss  dword ptr [rsp+68h+description], xmm6
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+68h+flags], xmm7
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  r_lightTweakSkyRotationAngles = Dvar_RegisterVec3("LQRNQTTST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, description, 0x4045u, "Rotation angles to apply to the sky (pitch, yaw, roll).  These can be copied to spawnarg of \"skyrotation\" for either worldspawn or light stages.");
+  r_lightTweakSunLight = Dvar_RegisterFloat("LMPKPQPRMK", 1.0, 0.0, 300.0, 0x4044u, "Sunlight illuminance in kilo-lux");
+  r_lightTweakSunColor = Dvar_RegisterColor("NQQQKTMONT", 0.0, 1.0, 0.0, 1.0, 0x4044u, "Sun color in gamma sRGB");
+  r_lightTweakSunPitch = Dvar_RegisterFloat("NTTSPKPRPQ", 0.0, -90.0, 90.0, 0x4044u, "Sun pitch in degrees -90 is noon.");
+  r_lightTweakSunHeading = Dvar_RegisterFloat("NNNMKNQNTK", 0.0, -180.0, 180.0, 0x4044u, "Sun heading in degrees");
+  r_lightTweakSkyRotationAngles = Dvar_RegisterVec3("LQRNQTTST", 0.0, 0.0, 0.0, -180.0, 180.0, 0x4045u, "Rotation angles to apply to the sky (pitch, yaw, roll).  These can be copied to spawnarg of \"skyrotation\" for either worldspawn or light stages.");
 }
 
 /*
@@ -301,88 +185,43 @@ R_LightTweak_Update
 */
 void R_LightTweak_Update(GfxLight *primaryLights, GfxStageInfo *stageInfo)
 {
-  bool v7; 
-  bool v8; 
-  DvarValue v34; 
+  const dvar_t *v4; 
+  float v5; 
+  float v6; 
+  float v9; 
+  DvarValue current; 
 
-  _RBX = stageInfo;
   if ( !stageInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 218, ASSERT_TYPE_ASSERT, "(stageInfo)", (const char *)&queryFormat, "stageInfo") )
     __debugbreak();
-  R_LightTweak_UpdateSun(primaryLights, _RBX);
-  _RCX = r_lightTweakSkyRotationAngles;
-  v7 = r_lightTweakSkyRotationAngles == NULL;
+  R_LightTweak_UpdateSun(primaryLights, stageInfo);
+  v4 = r_lightTweakSkyRotationAngles;
   if ( !r_lightTweakSkyRotationAngles )
   {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 201, ASSERT_TYPE_ASSERT, "(r_lightTweakSkyRotationAngles)", (const char *)&queryFormat, "r_lightTweakSkyRotationAngles");
-    v7 = !v8;
-    if ( v8 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 201, ASSERT_TYPE_ASSERT, "(r_lightTweakSkyRotationAngles)", (const char *)&queryFormat, "r_lightTweakSkyRotationAngles") )
       __debugbreak();
-    _RCX = r_lightTweakSkyRotationAngles;
+    v4 = r_lightTweakSkyRotationAngles;
   }
-  __asm
+  v5 = stageInfo->activeStage.skyRotationAngles.v[0];
+  if ( v5 != v4->reset.value || v4->reset.vector.v[1] != stageInfo->activeStage.skyRotationAngles.v[1] || v4->reset.vector.v[2] != stageInfo->activeStage.skyRotationAngles.v[2] )
   {
-    vmovss  xmm2, dword ptr [rbx+1Ch]
-    vucomiss xmm2, dword ptr [rcx+48h]
-  }
-  if ( !v7 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4Ch]
-    vucomiss xmm0, dword ptr [rbx+20h]
-  }
-  if ( !v7 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+50h]
-    vucomiss xmm0, dword ptr [rbx+24h]
-  }
-  if ( !v7 )
-  {
-LABEL_11:
+    v6 = v5 * 0.0027777778;
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v9 = (float)((float)(0.0027777778 * stageInfo->activeStage.skyRotationAngles.v[2]) - *(float *)&_XMM2) * 360.0;
     __asm
     {
-      vmovss  xmm1, cs:__real@3b360b61
-      vmulss  xmm3, xmm1, dword ptr [rbx+24h]
-      vmulss  xmm4, xmm1, dword ptr [rbx+20h]
-      vmovss  xmm5, cs:__real@3f000000
-      vmovaps [rsp+68h+var_18], xmm7
-      vmulss  xmm7, xmm2, xmm1
-      vaddss  xmm1, xmm3, xmm5
-      vmovaps [rsp+68h+var_28], xmm8
-      vxorps  xmm8, xmm8, xmm8
       vroundss xmm2, xmm8, xmm1, 1
-      vaddss  xmm1, xmm4, xmm5
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm3, xmm0, cs:__real@43b40000; z
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm4, xmm2
-      vmulss  xmm2, xmm0, cs:__real@43b40000; y
-      vaddss  xmm4, xmm7, xmm5
       vroundss xmm5, xmm8, xmm4, 1
-      vsubss  xmm1, xmm7, xmm5
-      vmulss  xmm1, xmm1, cs:__real@43b40000; x
     }
-    Dvar_SetVec3_Internal(_RCX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    _RCX = r_lightTweakSkyRotationAngles;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx+28h]
-      vmovups [rsp+68h+var_38], xmm0
-    }
-    Dvar_ChangeResetValue(r_lightTweakSkyRotationAngles, &v34);
+    Dvar_SetVec3_Internal(v4, (float)(v6 - *(float *)&_XMM5) * 360.0, (float)((float)(0.0027777778 * stageInfo->activeStage.skyRotationAngles.v[1]) - *(float *)&_XMM2) * 360.0, v9);
+    current = r_lightTweakSkyRotationAngles->current;
+    Dvar_ChangeResetValue(r_lightTweakSkyRotationAngles, &current);
     Dvar_ClearModified(r_lightTweakSkyRotationAngles);
-    _RCX = r_lightTweakSkyRotationAngles;
-    __asm
-    {
-      vmovaps xmm8, [rsp+68h+var_28]
-      vmovaps xmm7, [rsp+68h+var_18]
-    }
+    v4 = r_lightTweakSkyRotationAngles;
   }
-  LODWORD(_RBX->activeStage.skyRotationAngles.v[0]) = _RCX->current.integer;
-  _RBX->activeStage.skyRotationAngles.v[1] = _RCX->current.vector.v[1];
-  _RBX->activeStage.skyRotationAngles.v[2] = _RCX->current.vector.v[2];
+  LODWORD(stageInfo->activeStage.skyRotationAngles.v[0]) = v4->current.integer;
+  stageInfo->activeStage.skyRotationAngles.v[1] = v4->current.vector.v[1];
+  stageInfo->activeStage.skyRotationAngles.v[2] = v4->current.vector.v[2];
 }
 
 /*
@@ -392,196 +231,108 @@ R_LightTweak_UpdateSun
 */
 void R_LightTweak_UpdateSun(GfxLight *primaryLights, GfxStageInfo *stageInfo)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   __int64 ActivePrimarySunLight; 
+  GfxLight *v9; 
   GfxLight *v10; 
-  char v14; 
-  char v15; 
-  bool v59; 
-  bool v60; 
-  bool v61; 
-  float fmt; 
-  DvarValue v74; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  bool v24; 
+  bool v25; 
+  bool v26; 
+  GfxLight *v27; 
+  const dvar_t *v28; 
+  DvarValue current; 
   vec3_t angles; 
-  char v81; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v34; 
 
-  __asm { vmovaps [rsp+0D8h+var_58], xmm14 }
   ActivePrimarySunLight = R_GetActivePrimarySunLight(stageInfo);
-  __asm { vxorps  xmm14, xmm14, xmm14 }
+  _XMM14 = 0i64;
   if ( g_tweakPrimaryLightIndex != (_DWORD)ActivePrimarySunLight )
   {
     if ( g_tweakPrimaryLightIndex )
     {
-      v10 = &primaryLights[g_tweakPrimaryLightIndex];
-      if ( v10->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 128, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
+      v9 = &primaryLights[g_tweakPrimaryLightIndex];
+      if ( v9->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 128, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
         __debugbreak();
       Dvar_Reset(r_lightTweakSunLight, DVAR_SOURCE_INTERNAL);
       Dvar_Reset(r_lightTweakSunColor, DVAR_SOURCE_INTERNAL);
       Dvar_Reset(r_lightTweakSunPitch, DVAR_SOURCE_INTERNAL);
       Dvar_Reset(r_lightTweakSunHeading, DVAR_SOURCE_INTERNAL);
-      R_SetSunLightFromDvars(v10);
+      R_SetSunLightFromDvars(v9);
     }
     if ( (_DWORD)ActivePrimarySunLight )
     {
-      __asm
-      {
-        vmovaps [rsp+0D8h+var_28], xmm6
-        vmovaps [rsp+0D8h+var_38], xmm7
-        vmovaps [rsp+0D8h+var_48], xmm13
-        vmovaps [rsp+0D8h+var_68], xmm15
-      }
-      _RBX = &primaryLights[ActivePrimarySunLight];
-      if ( _RBX->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 142, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
+      v34 = v2;
+      v33 = v3;
+      v32 = v4;
+      v31 = v5;
+      v10 = &primaryLights[ActivePrimarySunLight];
+      if ( v10->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 142, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
         __debugbreak();
       Dvar_SetBool_Internal(r_lightTweakEnable, 0);
+      Dvar_SetFloat_Internal(r_lightTweakSunLight, v10->intensity * 3.1415927);
+      _XMM3 = LODWORD(v10->colorLinearSrgb.v[1]);
+      _XMM5 = LODWORD(v10->colorLinearSrgb.v[2]);
       __asm
       {
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vmulss  xmm1, xmm0, cs:__real@40490fdb; value
-      }
-      Dvar_SetFloat_Internal(r_lightTweakSunLight, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+18h]
-        vmovss  xmm4, dword ptr [rbx+14h]
-        vmovss  xmm5, dword ptr [rbx+1Ch]
-        vmovss  xmm15, cs:__real@3f800000
-        vsubss  xmm0, xmm4, xmm3
         vcmpless xmm1, xmm14, xmm0
         vblendvps xmm2, xmm3, xmm4, xmm1
-        vsubss  xmm0, xmm2, xmm5
         vcmpless xmm1, xmm14, xmm0
         vblendvps xmm0, xmm5, xmm2, xmm1
-        vcomiss xmm0, xmm14
-        vmovss  [rsp+0D8h+var_A8], xmm2
-        vmovss  [rsp+0D8h+var_A8], xmm0
       }
-      if ( v14 | v15 )
+      if ( *(float *)&_XMM0 <= 0.0 )
       {
-        __asm
-        {
-          vmovss  xmm2, [rsp+0D8h+var_A8]
-          vmovss  xmm7, [rsp+0D8h+var_A8]
-          vmovss  xmm6, [rsp+0D8h+var_A8]
-        }
+        v18 = *(float *)&_XMM0;
+        v20 = *(float *)&_XMM0;
+        v19 = *(float *)&_XMM0;
       }
       else
       {
-        __asm
-        {
-          vdivss  xmm0, xmm15, xmm0
-          vmulss  xmm2, xmm4, xmm0
-          vmulss  xmm6, xmm3, xmm0
-          vmulss  xmm7, xmm5, xmm0
-        }
+        v17 = 1.0 / *(float *)&_XMM0;
+        v18 = v10->colorLinearSrgb.v[0] * v17;
+        v19 = *(float *)&_XMM3 * v17;
+        v20 = *(float *)&_XMM5 * v17;
       }
-      __asm { vcomiss xmm2, cs:__real@3b4d2e1c }
-      if ( v14 | v15 )
-      {
-        __asm { vmulss  xmm13, xmm2, cs:__real@414eb852 }
-      }
+      if ( v18 > 0.0031308001 )
+        v21 = (float)(powf_0(v18, 0.41666666) * 1.0549999) - 0.055;
       else
-      {
-        __asm
-        {
-          vmovss  xmm1, cs:__real@3ed55555; Y
-          vmovaps xmm0, xmm2; X
-        }
-        *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3f870a3d
-          vsubss  xmm13, xmm1, cs:__real@3d6147ae
-        }
-      }
-      __asm { vcomiss xmm6, cs:__real@3b4d2e1c }
-      if ( v14 | v15 )
-      {
-        __asm { vmulss  xmm6, xmm6, cs:__real@414eb852 }
-      }
+        v21 = v18 * 12.92;
+      if ( v19 > 0.0031308001 )
+        v22 = (float)(powf_0(v19, 0.41666666) * 1.0549999) - 0.055;
       else
-      {
-        __asm
-        {
-          vmovss  xmm1, cs:__real@3ed55555; Y
-          vmovaps xmm0, xmm6; X
-        }
-        *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3f870a3d
-          vsubss  xmm6, xmm1, cs:__real@3d6147ae
-        }
-      }
-      __asm { vcomiss xmm7, cs:__real@3b4d2e1c }
-      if ( v14 | v15 )
-      {
-        __asm { vmulss  xmm3, xmm7, cs:__real@414eb852 }
-      }
+        v22 = v19 * 12.92;
+      if ( v20 > 0.0031308001 )
+        v23 = (float)(powf_0(v20, 0.41666666) * 1.0549999) - 0.055;
       else
-      {
-        __asm
-        {
-          vmovss  xmm1, cs:__real@3ed55555; Y
-          vmovaps xmm0, xmm7; X
-        }
-        *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3f870a3d
-          vsubss  xmm3, xmm1, cs:__real@3d6147ae; b
-        }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm6; g
-        vmovaps xmm1, xmm13; r
-        vmovss  dword ptr [rsp+0D8h+fmt], xmm15
-      }
-      Dvar_SetColor_Internal(r_lightTweakSunColor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-      vectosignedangles(&_RBX->dir, &angles);
-      __asm { vmovss  xmm1, dword ptr [rsp+0D8h+angles]; value }
-      Dvar_SetFloat_Internal(r_lightTweakSunPitch, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsp+0D8h+angles+4]; value }
-      Dvar_SetFloat_Internal(r_lightTweakSunHeading, *(float *)&_XMM1);
-      _RCX = r_lightTweakSunLight;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+28h]
-        vmovups [rsp+0D8h+var_98], xmm0
-      }
-      Dvar_ChangeResetValue(r_lightTweakSunLight, &v74);
-      _RCX = r_lightTweakSunColor;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+28h]
-        vmovups [rsp+0D8h+var_98], xmm0
-      }
-      Dvar_ChangeResetValue(r_lightTweakSunColor, &v74);
-      _RCX = r_lightTweakSunPitch;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+28h]
-        vmovups [rsp+0D8h+var_98], xmm0
-      }
-      Dvar_ChangeResetValue(r_lightTweakSunPitch, &v74);
-      _RCX = r_lightTweakSunHeading;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+28h]
-        vmovups [rsp+0D8h+var_98], xmm0
-      }
-      Dvar_ChangeResetValue(r_lightTweakSunHeading, &v74);
+        v23 = v20 * 12.92;
+      Dvar_SetColor_Internal(r_lightTweakSunColor, v21, v22, v23, 1.0);
+      vectosignedangles(&v10->dir, &angles);
+      Dvar_SetFloat_Internal(r_lightTweakSunPitch, angles.v[0]);
+      Dvar_SetFloat_Internal(r_lightTweakSunHeading, angles.v[1]);
+      current = r_lightTweakSunLight->current;
+      Dvar_ChangeResetValue(r_lightTweakSunLight, &current);
+      current = r_lightTweakSunColor->current;
+      Dvar_ChangeResetValue(r_lightTweakSunColor, &current);
+      current = r_lightTweakSunPitch->current;
+      Dvar_ChangeResetValue(r_lightTweakSunPitch, &current);
+      current = r_lightTweakSunHeading->current;
+      Dvar_ChangeResetValue(r_lightTweakSunHeading, &current);
       Dvar_ClearModified(r_lightTweakSunLight);
       Dvar_ClearModified(r_lightTweakSunColor);
       Dvar_ClearModified(r_lightTweakSunPitch);
       Dvar_ClearModified(r_lightTweakSunHeading);
-      __asm
-      {
-        vmovaps xmm15, [rsp+0D8h+var_68]
-        vmovaps xmm13, [rsp+0D8h+var_48]
-        vmovaps xmm7, [rsp+0D8h+var_38]
-        vmovaps xmm6, [rsp+0D8h+var_28]
-      }
     }
     g_tweakPrimaryLightIndex = ActivePrimarySunLight;
     g_tweakLightsReset = 1;
@@ -598,10 +349,10 @@ void R_LightTweak_UpdateSun(GfxLight *primaryLights, GfxStageInfo *stageInfo)
       __debugbreak();
     if ( !r_lightTweakSunHeading && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 90, ASSERT_TYPE_ASSERT, "(r_lightTweakSunHeading)", (const char *)&queryFormat, "r_lightTweakSunHeading") )
       __debugbreak();
-    v59 = R_CheckDvarModified(r_lightTweakSunLight);
-    v60 = R_CheckDvarModified(r_lightTweakSunColor) || v59;
-    v61 = R_CheckDvarModified(r_lightTweakSunPitch) || v60;
-    if ( v61 | R_CheckDvarModified(r_lightTweakSunHeading) )
+    v24 = R_CheckDvarModified(r_lightTweakSunLight);
+    v25 = R_CheckDvarModified(r_lightTweakSunColor) || v24;
+    v26 = R_CheckDvarModified(r_lightTweakSunPitch) || v25;
+    if ( v26 | R_CheckDvarModified(r_lightTweakSunHeading) )
       Dvar_SetBool_Internal(r_lightTweakEnable, 1);
     if ( r_lightTweakEnable->current.enabled )
     {
@@ -610,38 +361,21 @@ void R_LightTweak_UpdateSun(GfxLight *primaryLights, GfxStageInfo *stageInfo)
     }
     else if ( !g_tweakLightsReset )
     {
-      _RDI = &primaryLights[ActivePrimarySunLight];
-      if ( _RDI->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 70, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
+      v27 = &primaryLights[ActivePrimarySunLight];
+      if ( v27->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 70, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
         __debugbreak();
-      R_GetVec3FromByteArray((const unsigned __int8 *)&r_lightTweakSunColor->reset, &_RDI->colorLinearSrgb);
-      GammaToLinearColor_Srgb(&_RDI->colorLinearSrgb);
-      ColorNormalizeLuminance(&_RDI->colorLinearSrgb);
-      _RAX = r_lightTweakSunLight;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0D8h+var_98+8], xmm14
-        vmovss  xmm0, dword ptr [rax+48h]
-        vmulss  xmm1, xmm0, cs:__real@3ea2f983
-      }
-      _RAX = r_lightTweakSunPitch;
-      __asm
-      {
-        vmovss  dword ptr [rdi+10h], xmm1
-        vmovss  xmm0, dword ptr [rax+48h]
-      }
-      _RAX = r_lightTweakSunHeading;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0D8h+var_98], xmm0
-        vmovss  xmm1, dword ptr [rax+48h]
-        vmovss  dword ptr [rsp+0D8h+var_98+4], xmm1
-      }
-      AngleVectors((const vec3_t *)&v74, &_RDI->dir, NULL, NULL);
+      R_GetVec3FromByteArray((const unsigned __int8 *)&r_lightTweakSunColor->reset, &v27->colorLinearSrgb);
+      GammaToLinearColor_Srgb(&v27->colorLinearSrgb);
+      ColorNormalizeLuminance(&v27->colorLinearSrgb);
+      current.vector.v[2] = 0.0;
+      v28 = r_lightTweakSunPitch;
+      v27->intensity = r_lightTweakSunLight->reset.value * 0.31830987;
+      current.integer = v28->reset.integer;
+      LODWORD(current.vector.v[1]) = r_lightTweakSunHeading->reset.integer;
+      AngleVectors((const vec3_t *)&current, &v27->dir, NULL, NULL);
       g_tweakLightsReset = 1;
     }
   }
-  _R11 = &v81;
-  __asm { vmovaps xmm14, xmmword ptr [r11-40h] }
 }
 
 /*
@@ -651,35 +385,19 @@ R_SetSunLightFromDvars
 */
 void R_SetSunLightFromDvars(GfxLight *primaryLight)
 {
+  const dvar_t *v2; 
   vec3_t angles; 
 
-  _RDI = primaryLight;
   if ( primaryLight->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light_tweak.cpp", 56, ASSERT_TYPE_ASSERT, "(primaryLight->type == 1)", (const char *)&queryFormat, "primaryLight->type == GFX_LIGHT_TYPE_DIR") )
     __debugbreak();
-  R_GetVec3FromByteArray((const unsigned __int8 *)&r_lightTweakSunColor->current, &_RDI->colorLinearSrgb);
-  GammaToLinearColor_Srgb(&_RDI->colorLinearSrgb);
-  ColorNormalizeLuminance(&_RDI->colorLinearSrgb);
-  _RAX = r_lightTweakSunLight;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm1, xmm0, cs:__real@3ea2f983
-  }
-  _RAX = r_lightTweakSunPitch;
-  __asm
-  {
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmovss  xmm0, dword ptr [rax+28h]
-  }
-  _RAX = r_lightTweakSunHeading;
-  __asm
-  {
-    vmovss  dword ptr [rsp+58h+angles], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+58h+angles+8], xmm0
-    vmovss  xmm1, dword ptr [rax+28h]
-    vmovss  dword ptr [rsp+58h+angles+4], xmm1
-  }
-  AngleVectors(&angles, &_RDI->dir, NULL, NULL);
+  R_GetVec3FromByteArray((const unsigned __int8 *)&r_lightTweakSunColor->current, &primaryLight->colorLinearSrgb);
+  GammaToLinearColor_Srgb(&primaryLight->colorLinearSrgb);
+  ColorNormalizeLuminance(&primaryLight->colorLinearSrgb);
+  v2 = r_lightTweakSunPitch;
+  primaryLight->intensity = r_lightTweakSunLight->current.value * 0.31830987;
+  LODWORD(angles.v[0]) = v2->current.integer;
+  angles.v[2] = 0.0;
+  LODWORD(angles.v[1]) = r_lightTweakSunHeading->current.integer;
+  AngleVectors(&angles, &primaryLight->dir, NULL, NULL);
 }
 

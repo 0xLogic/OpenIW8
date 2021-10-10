@@ -743,44 +743,19 @@ DLog_RecordEvent<4096,char const *,int,char const *,int,char const *,char const 
 bool DLog_RecordEvent<4096,char const *,int,char const *,int,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,int>(unsigned __int64 userId, const char *name, const char *<args_0>, int <args_1>, const char *<args_2>, int <args_3>, const char *<args_4>, const char *<args_5>, const char *<args_6>, float <args_7>, const char *<args_8>, float <args_9>, const char *<args_10>, float <args_11>, const char *<args_12>, float <args_13>, const char *<args_14>, float <args_15>, const char *<args_16>, float <args_17>, const char *<args_18>, int <args_19>)
 {
   bool v26; 
+  bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  if ( !DLog_IsActive() )
-    return 0;
-  v26 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v26 )
-    return 0;
-  if ( !DLog_Int32(&context, <args_0>, <args_1>) )
-    return 0;
-  if ( !DLog_Int32(&context, <args_2>, <args_3>) )
-    return 0;
-  if ( !DLog_String(&context, <args_4>, <args_5>, 0) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_48]; value }
-  if ( !DLog_Float32(&context, <args_6>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_58]; value }
-  if ( !DLog_Float32(&context, <args_8>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_68]; value }
-  if ( !DLog_Float32(&context, <args_10>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_78]; value }
-  if ( !DLog_Float32(&context, <args_12>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_88]; value }
-  if ( !DLog_Float32(&context, <args_14>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_98]; value }
-  if ( !DLog_Float32(&context, <args_16>, *(float *)&_XMM2) )
-    return 0;
-  return DLog_Int32(&context, <args_18>, <args_19>) && DLog_RecordContext(&context);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
+  {
+    v26 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v26 && DLog_Int32(&context, <args_0>, <args_1>) && DLog_Int32(&context, <args_2>, <args_3>) && DLog_String(&context, <args_4>, <args_5>, 0) && DLog_Float32(&context, <args_6>, <args_7>) && DLog_Float32(&context, <args_8>, <args_9>) && DLog_Float32(&context, <args_10>, <args_11>) && DLog_Float32(&context, <args_12>, <args_13>) && DLog_Float32(&context, <args_14>, <args_15>) && DLog_Float32(&context, <args_16>, <args_17>) && DLog_Int32(&context, <args_18>, <args_19>) && DLog_RecordContext(&context) )
+      return 1;
+  }
+  return result;
 }
 
 /*
@@ -790,31 +765,7 @@ DLog_RecordEvent<char const *,int,char const *,int,char const *,char const *,cha
 */
 bool DLog_RecordEvent<char const *,int,char const *,int,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,int>(unsigned __int64 userId, const char *name, const char *<args_0>, int <args_1>, const char *<args_2>, int <args_3>, const char *<args_4>, const char *<args_5>, const char *<args_6>, float <args_7>, const char *<args_8>, float <args_9>, const char *<args_10>, float <args_11>, const char *<args_12>, float <args_13>, const char *<args_14>, float <args_15>, const char *<args_16>, float <args_17>, const char *<args_18>, int <args_19>)
 {
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  void *retaddr; 
-
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0B8h+arg_98]
-    vmovss  dword ptr [r11-20h], xmm0
-    vmovss  xmm0, [rsp+0B8h+arg_88]
-    vmovss  dword ptr [r11-30h], xmm0
-    vmovss  xmm0, [rsp+0B8h+arg_78]
-    vmovss  [rsp+0B8h+var_40], xmm0
-    vmovss  xmm0, [rsp+0B8h+arg_68]
-    vmovss  [rsp+0B8h+var_50], xmm0
-    vmovss  xmm0, [rsp+0B8h+arg_58]
-    vmovss  [rsp+0B8h+var_60], xmm0
-    vmovss  xmm0, [rsp+0B8h+arg_48]
-    vmovss  [rsp+0B8h+var_70], xmm0
-  }
-  return DLog_RecordEvent<4096,char const *,int,char const *,int,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,int>(userId, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, v30, <args_8>, v31, <args_10>, v32, <args_12>, v33, <args_14>, v34, <args_16>, v35, <args_18>, <args_19>);
+  return DLog_RecordEvent<4096,char const *,int,char const *,int,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,int>(userId, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, <args_13>, <args_14>, <args_15>, <args_16>, <args_17>, <args_18>, <args_19>);
 }
 
 /*
@@ -825,32 +776,19 @@ DLog_RecordEvent<4096,char const *,char const *,char const *,char *,char const *
 bool DLog_RecordEvent<4096,char const *,char const *,char const *,char *,char const *,float,char const *,unsigned __int64,char const *,float,char const *,char const *,char const *,char const *,char const *,int>(unsigned __int64 userId, const char *name, const char *<args_0>, const char *<args_1>, const char *<args_2>, char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, unsigned __int64 <args_7>, const char *<args_8>, float <args_9>, const char *<args_10>, const char *<args_11>, const char *<args_12>, const char *<args_13>, const char *<args_14>, int <args_15>)
 {
   bool v22; 
+  bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  if ( !DLog_IsActive() )
-    return 0;
-  v22 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v22 )
-    return 0;
-  if ( !DLog_String(&context, <args_0>, <args_1>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_38]; value }
-  if ( !DLog_Float32(&context, <args_4>, *(float *)&_XMM2) )
-    return 0;
-  if ( !DLog_UInt64(&context, <args_6>, <args_7>) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_58]; value }
-  if ( !DLog_Float32(&context, <args_8>, *(float *)&_XMM2) )
-    return 0;
-  return DLog_String(&context, <args_10>, <args_11>, 0) && DLog_String(&context, <args_12>, <args_13>, 0) && DLog_Int32(&context, <args_14>, <args_15>) && DLog_RecordContext(&context);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
+  {
+    v22 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v22 && DLog_String(&context, <args_0>, <args_1>, 0) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_Float32(&context, <args_4>, <args_5>) && DLog_UInt64(&context, <args_6>, <args_7>) && DLog_Float32(&context, <args_8>, <args_9>) && DLog_String(&context, <args_10>, <args_11>, 0) && DLog_String(&context, <args_12>, <args_13>, 0) && DLog_Int32(&context, <args_14>, <args_15>) && DLog_RecordContext(&context) )
+      return 1;
+  }
+  return result;
 }
 
 /*
@@ -861,32 +799,19 @@ DLog_RecordEvent<char const *,char const *,char const *,char *,char const *,floa
 bool DLog_RecordEvent<char const *,char const *,char const *,char *,char const *,float,char const *,unsigned __int64,char const *,float,char const *,char const *,char const *,char const *,char const *,int>(unsigned __int64 userId, const char *name, const char *<args_0>, const char *<args_1>, const char *<args_2>, char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, unsigned __int64 <args_7>, const char *<args_8>, float <args_9>, const char *<args_10>, const char *<args_11>, const char *<args_12>, const char *<args_13>, const char *<args_14>, int <args_15>)
 {
   bool v22; 
+  bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  if ( !DLog_IsActive() )
-    return 0;
-  v22 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v22 )
-    return 0;
-  if ( !DLog_String(&context, <args_0>, <args_1>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_38]; value }
-  if ( !DLog_Float32(&context, <args_4>, *(float *)&_XMM2) )
-    return 0;
-  if ( !DLog_UInt64(&context, <args_6>, <args_7>) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_58]; value }
-  if ( !DLog_Float32(&context, <args_8>, *(float *)&_XMM2) )
-    return 0;
-  return DLog_String(&context, <args_10>, <args_11>, 0) && DLog_String(&context, <args_12>, <args_13>, 0) && DLog_Int32(&context, <args_14>, <args_15>) && DLog_RecordContext(&context);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
+  {
+    v22 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v22 && DLog_String(&context, <args_0>, <args_1>, 0) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_Float32(&context, <args_4>, <args_5>) && DLog_UInt64(&context, <args_6>, <args_7>) && DLog_Float32(&context, <args_8>, <args_9>) && DLog_String(&context, <args_10>, <args_11>, 0) && DLog_String(&context, <args_12>, <args_13>, 0) && DLog_Int32(&context, <args_14>, <args_15>) && DLog_RecordContext(&context) )
+      return 1;
+  }
+  return result;
 }
 
 /*
@@ -1248,28 +1173,10 @@ DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,ch
 */
 bool DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(unsigned __int64 userId, const char *name, const char *<args_0>, __int16 <args_1>, const char *<args_2>, __int16 <args_3>, const char *<args_4>, __int16 <args_5>, const char *<args_6>, __int16 <args_7>, const char *<args_8>, __int16 <args_9>, const char *<args_10>, __int16 <args_11>, const char *<args_12>, float <args_13>, const char *<args_14>, float <args_15>, const char *<args_16>, float <args_17>, const char *<args_18>, __int16 <args_19>, const char *<args_20>, __int16 <args_21>, const char *<args_22>, __int16 <args_23>, const char *<args_24>, __int16 <args_25>, const char *<args_26>, __int16 <args_27>, const char *<args_28>, __int16 <args_29>, const char *<args_30>, __int16 <args_31>, const char *<args_32>, __int16 <args_33>, const char *<args_34>, __int16 <args_35>, const char *<args_36>, __int16 <args_37>, const char *<args_38>, __int16 <args_39>, const char *<args_40>, __int16 <args_41>, const char *<args_42>, __int16 <args_43>, const char *<args_44>, __int16 <args_45>, const char *<args_46>, __int16 <args_47>, const char *<args_48>, __int16 <args_49>, const char *<args_50>, __int16 <args_51>, const char *<args_52>, __int16 <args_53>, const char *<args_54>, __int16 <args_55>, const char *<args_56>, __int16 <args_57>, const char *<args_58>, __int16 <args_59>, const char *<args_60>)
 {
-  float v71; 
-  float v72; 
-  float v73; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, [rbp+12F0h+arg_98]
-    vmovss  xmm1, [rbp+12F0h+arg_88]
-    vmovss  [rsp+15E0h+var_1548], xmm0
-    vmovss  xmm0, [rbp+12F0h+arg_78]
-    vmovss  [rsp+15E0h+var_1558], xmm1
-    vmovss  [rsp+15E0h+var_1568], xmm0
-  }
-  if ( !DLog_Event<char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(&context, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, v71, <args_14>, v72, <args_16>, v73, <args_18>, <args_19>, <args_20>, <args_21>, <args_22>, <args_23>, <args_24>, <args_25>, <args_26>, <args_27>, <args_28>, <args_29>, <args_30>, <args_31>, <args_32>, <args_33>, <args_34>, <args_35>, <args_36>, <args_37>, <args_38>, <args_39>, <args_40>, <args_41>, <args_42>, <args_43>, <args_44>, <args_45>, <args_46>, <args_47>, <args_48>, <args_49>, <args_50>, <args_51>, <args_52>, <args_53>, <args_54>, <args_55>, <args_56>, <args_57>, <args_58>, <args_59>, <args_60>) )
-    return 0;
-  return DLog_RecordContext(&context);
+  return DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_Event<char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(&context, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, <args_13>, <args_14>, <args_15>, <args_16>, <args_17>, <args_18>, <args_19>, <args_20>, <args_21>, <args_22>, <args_23>, <args_24>, <args_25>, <args_26>, <args_27>, <args_28>, <args_29>, <args_30>, <args_31>, <args_32>, <args_33>, <args_34>, <args_35>, <args_36>, <args_37>, <args_38>, <args_39>, <args_40>, <args_41>, <args_42>, <args_43>, <args_44>, <args_45>, <args_46>, <args_47>, <args_48>, <args_49>, <args_50>, <args_51>, <args_52>, <args_53>, <args_54>, <args_55>, <args_56>, <args_57>, <args_58>, <args_59>, <args_60>) && DLog_RecordContext(&context);
 }
 
 /*
@@ -1279,20 +1186,7 @@ DLog_RecordEvent<char const *,std::nullptr_t,char const *,std::nullptr_t,char co
 */
 bool DLog_RecordEvent<char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(unsigned __int64 userId, const char *name, const char *<args_0>, __int16 <args_1>, const char *<args_2>, __int16 <args_3>, const char *<args_4>, __int16 <args_5>, const char *<args_6>, __int16 <args_7>, const char *<args_8>, __int16 <args_9>, const char *<args_10>, __int16 <args_11>, const char *<args_12>, float <args_13>, const char *<args_14>, float <args_15>, const char *<args_16>, float <args_17>, const char *<args_18>, __int16 <args_19>, const char *<args_20>, __int16 <args_21>, const char *<args_22>, __int16 <args_23>, const char *<args_24>, __int16 <args_25>, const char *<args_26>, __int16 <args_27>, const char *<args_28>, __int16 <args_29>, const char *<args_30>, __int16 <args_31>, const char *<args_32>, __int16 <args_33>, const char *<args_34>, __int16 <args_35>, const char *<args_36>, __int16 <args_37>, const char *<args_38>, __int16 <args_39>, const char *<args_40>, __int16 <args_41>, const char *<args_42>, __int16 <args_43>, const char *<args_44>, __int16 <args_45>, const char *<args_46>, __int16 <args_47>, const char *<args_48>, __int16 <args_49>, const char *<args_50>, __int16 <args_51>, const char *<args_52>, __int16 <args_53>, const char *<args_54>, __int16 <args_55>, const char *<args_56>, __int16 <args_57>, const char *<args_58>, __int16 <args_59>, const char *<args_60>)
 {
-  float v67; 
-  float v68; 
-  float v69; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+278h+arg_98]
-    vmovss  [rsp+278h+var_1E0], xmm0
-    vmovss  xmm0, [rsp+278h+arg_88]
-    vmovss  [rsp+278h+var_1F0], xmm0
-    vmovss  xmm0, [rsp+278h+arg_78]
-    vmovss  [rsp+278h+var_200], xmm0
-  }
-  return DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(userId, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, v67, <args_14>, v68, <args_16>, v69, <args_18>, <args_19>, <args_20>, <args_21>, <args_22>, <args_23>, <args_24>, <args_25>, <args_26>, <args_27>, <args_28>, <args_29>, <args_30>, <args_31>, <args_32>, <args_33>, <args_34>, <args_35>, <args_36>, <args_37>, <args_38>, <args_39>, <args_40>, <args_41>, <args_42>, <args_43>, <args_44>, <args_45>, <args_46>, <args_47>, <args_48>, <args_49>, <args_50>, <args_51>, <args_52>, <args_53>, <args_54>, <args_55>, <args_56>, <args_57>, <args_58>, <args_59>, <args_60>);
+  return DLog_RecordEvent<4096,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,float,char const *,float,char const *,float,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t,char const *,std::nullptr_t>(userId, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, <args_13>, <args_14>, <args_15>, <args_16>, <args_17>, <args_18>, <args_19>, <args_20>, <args_21>, <args_22>, <args_23>, <args_24>, <args_25>, <args_26>, <args_27>, <args_28>, <args_29>, <args_30>, <args_31>, <args_32>, <args_33>, <args_34>, <args_35>, <args_36>, <args_37>, <args_38>, <args_39>, <args_40>, <args_41>, <args_42>, <args_43>, <args_44>, <args_45>, <args_46>, <args_47>, <args_48>, <args_49>, <args_50>, <args_51>, <args_52>, <args_53>, <args_54>, <args_55>, <args_56>, <args_57>, <args_58>, <args_59>, <args_60>);
 }
 
 /*
@@ -1303,41 +1197,19 @@ DLog_RecordEvent<4096,char const *,int,char const *,char const *,char const *,ch
 bool DLog_RecordEvent<4096,char const *,int,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,bool,char const *,int,char const *,int,char const *,int,char const *,float,char const *,bool>(unsigned __int64 userId, const char *name, const char *<args_0>, int <args_1>, const char *<args_2>, const char *<args_3>, const char *<args_4>, const char *<args_5>, const char *<args_6>, const char *<args_7>, const char *<args_8>, const char *<args_9>, const char *<args_10>, bool <args_11>, const char *<args_12>, int <args_13>, const char *<args_14>, int <args_15>, const char *<args_16>, int <args_17>, const char *<args_18>, float <args_19>, const char *<args_20>, bool <args_21>)
 {
   bool v28; 
+  bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  if ( !DLog_IsActive() )
-    return 0;
-  v28 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v28 )
-    return 0;
-  if ( !DLog_Int32(&context, <args_0>, <args_1>) )
-    return 0;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_4>, <args_5>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_6>, <args_7>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_8>, <args_9>, 0) )
-    return 0;
-  if ( !DLog_Bool(&context, <args_10>, <args_11>) )
-    return 0;
-  if ( !DLog_Int32(&context, <args_12>, <args_13>) )
-    return 0;
-  if ( !DLog_Int32(&context, <args_14>, <args_15>) )
-    return 0;
-  if ( !DLog_Int32(&context, <args_16>, <args_17>) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1228h+arg_A8]; value }
-  if ( !DLog_Float32(&context, <args_18>, *(float *)&_XMM2) )
-    return 0;
-  return DLog_Bool(&context, <args_20>, <args_21>) && DLog_RecordContext(&context);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
+  {
+    v28 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v28 && DLog_Int32(&context, <args_0>, <args_1>) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_String(&context, <args_4>, <args_5>, 0) && DLog_String(&context, <args_6>, <args_7>, 0) && DLog_String(&context, <args_8>, <args_9>, 0) && DLog_Bool(&context, <args_10>, <args_11>) && DLog_Int32(&context, <args_12>, <args_13>) && DLog_Int32(&context, <args_14>, <args_15>) && DLog_Int32(&context, <args_16>, <args_17>) && DLog_Float32(&context, <args_18>, <args_19>) && DLog_Bool(&context, <args_20>, <args_21>) && DLog_RecordContext(&context) )
+      return 1;
+  }
+  return result;
 }
 
 /*
@@ -1347,16 +1219,7 @@ DLog_RecordEvent<char const *,int,char const *,char const *,char const *,char co
 */
 bool DLog_RecordEvent<char const *,int,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,bool,char const *,int,char const *,int,char const *,int,char const *,float,char const *,bool>(unsigned __int64 userId, const char *name, const char *<args_0>, int <args_1>, const char *<args_2>, const char *<args_3>, const char *<args_4>, const char *<args_5>, const char *<args_6>, const char *<args_7>, const char *<args_8>, const char *<args_9>, const char *<args_10>, bool <args_11>, const char *<args_12>, int <args_13>, const char *<args_14>, int <args_15>, const char *<args_16>, int <args_17>, const char *<args_18>, float <args_19>, const char *<args_20>, bool <args_21>)
 {
-  float v27; 
-  void *retaddr; 
-
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+arg_A8]
-    vmovss  dword ptr [r11-20h], xmm0
-  }
-  return DLog_RecordEvent<4096,char const *,int,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,bool,char const *,int,char const *,int,char const *,int,char const *,float,char const *,bool>(userId, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, <args_13>, <args_14>, <args_15>, <args_16>, <args_17>, <args_18>, v27, <args_20>, <args_21>);
+  return DLog_RecordEvent<4096,char const *,int,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,char const *,bool,char const *,int,char const *,int,char const *,int,char const *,float,char const *,bool>(userId, name, <args_0>, <args_1>, <args_2>, <args_3>, <args_4>, <args_5>, <args_6>, <args_7>, <args_8>, <args_9>, <args_10>, <args_11>, <args_12>, <args_13>, <args_14>, <args_15>, <args_16>, <args_17>, <args_18>, <args_19>, <args_20>, <args_21>);
 }
 
 /*
@@ -1456,49 +1319,24 @@ bool DLog_RecordEvent<char const *,char const *,char const *,long>(unsigned __in
 DLog_RecordEvent<4096,char const *,float,char const *,char *,char const *,float,char const *,float>
 ==============
 */
-
-bool __fastcall DLog_RecordEvent<4096,char const *,float,char const *,char *,char const *,float,char const *,float>(unsigned __int64 userId, const char *name, const char *<args_0>, double <args_1>, const char *<args_2>, char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, float <args_7>)
+bool DLog_RecordEvent<4096,char const *,float,char const *,char *,char const *,float,char const *,float>(unsigned __int64 userId, const char *name, const char *<args_0>, float <args_1>, const char *<args_2>, char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, float <args_7>)
 {
   signed __int64 v10; 
-  void *v12; 
-  bool v17; 
+  void *v11; 
+  bool v15; 
   bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  v12 = alloca(v10);
-  __asm
+  v11 = alloca(v10);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
   {
-    vmovaps [rsp+11D8h+var_48], xmm6
-    vmovaps xmm6, xmm3
+    v15 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v15 && DLog_Float32(&context, <args_0>, <args_1>) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_Float32(&context, <args_4>, <args_5>) && DLog_Float32(&context, <args_6>, <args_7>) && DLog_RecordContext(&context) )
+      return 1;
   }
-  if ( !DLog_IsActive() )
-    goto LABEL_11;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    goto LABEL_11;
-  if ( !DLog_IsActive() )
-    goto LABEL_11;
-  v17 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v17 )
-    goto LABEL_11;
-  __asm { vmovaps xmm2, xmm6; value }
-  if ( !DLog_Float32(&context, <args_0>, *(float *)&_XMM2) )
-    goto LABEL_11;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    goto LABEL_11;
-  __asm { vmovss  xmm2, [rsp+11D8h+arg_38]; value }
-  if ( !DLog_Float32(&context, <args_4>, *(float *)&_XMM2) )
-    goto LABEL_11;
-  __asm { vmovss  xmm2, [rsp+11D8h+arg_48]; value }
-  if ( !DLog_Float32(&context, <args_6>, *(float *)&_XMM2) )
-    goto LABEL_11;
-  if ( DLog_RecordContext(&context) )
-    result = 1;
-  else
-LABEL_11:
-    result = 0;
-  __asm { vmovaps xmm6, [rsp+11D8h+var_48] }
   return result;
 }
 
@@ -1507,49 +1345,24 @@ LABEL_11:
 DLog_RecordEvent<char const *,float,char const *,char *,char const *,float,char const *,float>
 ==============
 */
-
-bool __fastcall DLog_RecordEvent<char const *,float,char const *,char *,char const *,float,char const *,float>(unsigned __int64 userId, const char *name, const char *<args_0>, double <args_1>, const char *<args_2>, char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, float <args_7>)
+bool DLog_RecordEvent<char const *,float,char const *,char *,char const *,float,char const *,float>(unsigned __int64 userId, const char *name, const char *<args_0>, float <args_1>, const char *<args_2>, char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, float <args_7>)
 {
   signed __int64 v10; 
-  void *v12; 
-  bool v17; 
+  void *v11; 
+  bool v15; 
   bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  v12 = alloca(v10);
-  __asm
+  v11 = alloca(v10);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
   {
-    vmovaps [rsp+11D8h+var_48], xmm6
-    vmovaps xmm6, xmm3
+    v15 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v15 && DLog_Float32(&context, <args_0>, <args_1>) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_Float32(&context, <args_4>, <args_5>) && DLog_Float32(&context, <args_6>, <args_7>) && DLog_RecordContext(&context) )
+      return 1;
   }
-  if ( !DLog_IsActive() )
-    goto LABEL_11;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    goto LABEL_11;
-  if ( !DLog_IsActive() )
-    goto LABEL_11;
-  v17 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v17 )
-    goto LABEL_11;
-  __asm { vmovaps xmm2, xmm6; value }
-  if ( !DLog_Float32(&context, <args_0>, *(float *)&_XMM2) )
-    goto LABEL_11;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    goto LABEL_11;
-  __asm { vmovss  xmm2, [rsp+11D8h+arg_38]; value }
-  if ( !DLog_Float32(&context, <args_4>, *(float *)&_XMM2) )
-    goto LABEL_11;
-  __asm { vmovss  xmm2, [rsp+11D8h+arg_48]; value }
-  if ( !DLog_Float32(&context, <args_6>, *(float *)&_XMM2) )
-    goto LABEL_11;
-  if ( DLog_RecordContext(&context) )
-    result = 1;
-  else
-LABEL_11:
-    result = 0;
-  __asm { vmovaps xmm6, [rsp+11D8h+var_48] }
   return result;
 }
 
@@ -1630,45 +1443,19 @@ DLog_RecordEvent<4096,char const *,char const *,char const *,char const *,char c
 bool DLog_RecordEvent<4096,char const *,char const *,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float>(unsigned __int64 userId, const char *name, const char *<args_0>, const char *<args_1>, const char *<args_2>, const char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, float <args_7>, const char *<args_8>, float <args_9>, const char *<args_10>, float <args_11>, const char *<args_12>, float <args_13>, const char *<args_14>, float <args_15>, const char *<args_16>, float <args_17>)
 {
   bool v24; 
+  bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  if ( !DLog_IsActive() )
-    return 0;
-  v24 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v24 )
-    return 0;
-  if ( !DLog_String(&context, <args_0>, <args_1>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_38]; value }
-  if ( !DLog_Float32(&context, <args_4>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_48]; value }
-  if ( !DLog_Float32(&context, <args_6>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_58]; value }
-  if ( !DLog_Float32(&context, <args_8>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_68]; value }
-  if ( !DLog_Float32(&context, <args_10>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_78]; value }
-  if ( !DLog_Float32(&context, <args_12>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_88]; value }
-  if ( !DLog_Float32(&context, <args_14>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_98]; value }
-  if ( !DLog_Float32(&context, <args_16>, *(float *)&_XMM2) )
-    return 0;
-  return DLog_RecordContext(&context);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
+  {
+    v24 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v24 && DLog_String(&context, <args_0>, <args_1>, 0) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_Float32(&context, <args_4>, <args_5>) && DLog_Float32(&context, <args_6>, <args_7>) && DLog_Float32(&context, <args_8>, <args_9>) && DLog_Float32(&context, <args_10>, <args_11>) && DLog_Float32(&context, <args_12>, <args_13>) && DLog_Float32(&context, <args_14>, <args_15>) && DLog_Float32(&context, <args_16>, <args_17>) && DLog_RecordContext(&context) )
+      return 1;
+  }
+  return result;
 }
 
 /*
@@ -1712,45 +1499,19 @@ DLog_RecordEvent<char const *,char const *,char const *,char const *,char const 
 bool DLog_RecordEvent<char const *,char const *,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float>(unsigned __int64 userId, const char *name, const char *<args_0>, const char *<args_1>, const char *<args_2>, const char *<args_3>, const char *<args_4>, float <args_5>, const char *<args_6>, float <args_7>, const char *<args_8>, float <args_9>, const char *<args_10>, float <args_11>, const char *<args_12>, float <args_13>, const char *<args_14>, float <args_15>, const char *<args_16>, float <args_17>)
 {
   bool v24; 
+  bool result; 
   DLogContext context; 
   char buffer[4096]; 
 
-  if ( !DLog_IsActive() )
-    return 0;
-  if ( !DLog_CreateContext(&context, userId, buffer, 4096) )
-    return 0;
-  if ( !DLog_IsActive() )
-    return 0;
-  v24 = DLog_BeginEvent(&context, name);
-  context.autoEndEvent = 1;
-  if ( !v24 )
-    return 0;
-  if ( !DLog_String(&context, <args_0>, <args_1>, 0) )
-    return 0;
-  if ( !DLog_String(&context, <args_2>, <args_3>, 0) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_38]; value }
-  if ( !DLog_Float32(&context, <args_4>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_48]; value }
-  if ( !DLog_Float32(&context, <args_6>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_58]; value }
-  if ( !DLog_Float32(&context, <args_8>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_68]; value }
-  if ( !DLog_Float32(&context, <args_10>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_78]; value }
-  if ( !DLog_Float32(&context, <args_12>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_88]; value }
-  if ( !DLog_Float32(&context, <args_14>, *(float *)&_XMM2) )
-    return 0;
-  __asm { vmovss  xmm2, [rsp+1208h+arg_98]; value }
-  if ( !DLog_Float32(&context, <args_16>, *(float *)&_XMM2) )
-    return 0;
-  return DLog_RecordContext(&context);
+  result = 0;
+  if ( DLog_IsActive() && DLog_CreateContext(&context, userId, buffer, 4096) && DLog_IsActive() )
+  {
+    v24 = DLog_BeginEvent(&context, name);
+    context.autoEndEvent = 1;
+    if ( v24 && DLog_String(&context, <args_0>, <args_1>, 0) && DLog_String(&context, <args_2>, <args_3>, 0) && DLog_Float32(&context, <args_4>, <args_5>) && DLog_Float32(&context, <args_6>, <args_7>) && DLog_Float32(&context, <args_8>, <args_9>) && DLog_Float32(&context, <args_10>, <args_11>) && DLog_Float32(&context, <args_12>, <args_13>) && DLog_Float32(&context, <args_14>, <args_15>) && DLog_Float32(&context, <args_16>, <args_17>) && DLog_RecordContext(&context) )
+      return 1;
+  }
+  return result;
 }
 
 /*

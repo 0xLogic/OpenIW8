@@ -319,150 +319,123 @@ Stream_SortMeshesCmd
 */
 void Stream_SortMeshesCmd(const void *const data)
 {
-  __int64 v5; 
-  const dvar_t *v6; 
-  unsigned int v7; 
-  char v12; 
+  __int64 v2; 
+  const dvar_t *v3; 
+  unsigned int v4; 
+  const dvar_t *v5; 
+  float value; 
   unsigned int lastTopMeshPriority; 
-  const dvar_t *v14; 
-  unsigned int v19; 
+  const dvar_t *v8; 
+  __int64 unsignedInt; 
+  float v10; 
+  float v11; 
+  unsigned int v12; 
+  const dvar_t *v13; 
+  unsigned int v14; 
+  const dvar_t *v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  float v18; 
+  float v19; 
   const dvar_t *v20; 
-  unsigned int unsignedInt; 
+  float v21; 
   const dvar_t *v22; 
-  unsigned int v23; 
-  const dvar_t *v31; 
   StreamSortKeyPacked midKey; 
-  FastCriticalSectionScopeWrite v41; 
-  __int64 v42; 
+  FastCriticalSectionScopeWrite v24; 
+  __int64 v25; 
   Stream_SortMeshesCmd::__l6::<lambda_919d14694420cc98c316348b65cc57a7> keyBuilder; 
-  unsigned int v46; 
-  int v47; 
-  __int64 v48; 
+  unsigned int v27; 
+  int v28; 
+  __int64 v29; 
 
-  v42 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps [rsp+0B8h+var_58], xmm7
-  }
+  v25 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_SortMeshesCmd");
-  v48 = 0x80000000000i64;
-  v5 = *((_QWORD *)data + 1);
-  v47 = *(_DWORD *)data;
+  v29 = 0x80000000000i64;
+  v2 = *((_QWORD *)data + 1);
+  v28 = *(_DWORD *)data;
   if ( *((_BYTE *)data + 16) )
     Stream_ReleaseAboveLimitLOD();
   Sys_ProfBeginNamedEvent(0xFF808080, "Build mesh sort list");
   LOBYTE(keyBuilder.currentFrame) = 0;
-  midKey.0 = ($FD3C46332B1196AF8F5C8C522E71774D)&v47;
-  v41.cs = (FastCriticalSection *)(v5 + 4380224);
-  if ( v5 == -4380224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 228, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
+  midKey.0 = ($FD3C46332B1196AF8F5C8C522E71774D)&v28;
+  v24.cs = (FastCriticalSection *)(v2 + 4380224);
+  if ( v2 == -4380224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 228, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
     __debugbreak();
-  Sys_LockWrite((FastCriticalSection *)(v5 + 4380224));
-  StreamSortList_45056_::UpdateNoLock__lambda_dca539cadf9f074841cf35cf16e753ad___lambda_919d14694420cc98c316348b65cc57a7___((const Stream_SortMeshesCmd::__l6::<lambda_dca539cadf9f074841cf35cf16e753ad> *)(v5 + 4014128), &keyBuilder, &midKey);
-  FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v41);
+  Sys_LockWrite((FastCriticalSection *)(v2 + 4380224));
+  StreamSortList_45056_::UpdateNoLock__lambda_dca539cadf9f074841cf35cf16e753ad___lambda_919d14694420cc98c316348b65cc57a7___((const Stream_SortMeshesCmd::__l6::<lambda_dca539cadf9f074841cf35cf16e753ad> *)(v2 + 4014128), &keyBuilder, &midKey);
+  FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v24);
   Sys_ProfEndNamedEvent();
-  v6 = DCONST_DVARINT_stream_meshFreePresort;
+  v3 = DCONST_DVARINT_stream_meshFreePresort;
   if ( !DCONST_DVARINT_stream_meshFreePresort && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshFreePresort") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  SortStreamItems_StreamMeshLoadingPredicate_45056_((StreamSortList<45056> *)(v5 + 4014128), v6->current.integer);
-  v7 = 0;
-  v46 = 0;
-  keyBuilder.currentFrame = &v46;
-  StreamSortList_45056_::PresortedIterateReverseOffset__lambda_b73f40c0b7b09a5c746a9648f6283983___(v5 + 4014128, (const Stream_SortMeshesCmd::__l2::<lambda_b73f40c0b7b09a5c746a9648f6283983> *)(unsigned int)(*(_DWORD *)(v5 + 4380208) - 1));
-  _RDI = DCONST_DVARFLT_stream_meshFixedPrioPercentage;
+  Dvar_CheckFrontendServerThread(v3);
+  SortStreamItems_StreamMeshLoadingPredicate_45056_((StreamSortList<45056> *)(v2 + 4014128), v3->current.integer);
+  v4 = 0;
+  v27 = 0;
+  keyBuilder.currentFrame = &v27;
+  StreamSortList_45056_::PresortedIterateReverseOffset__lambda_b73f40c0b7b09a5c746a9648f6283983___(v2 + 4014128, (const Stream_SortMeshesCmd::__l2::<lambda_b73f40c0b7b09a5c746a9648f6283983> *)(unsigned int)(*(_DWORD *)(v2 + 4380208) - 1));
+  v5 = DCONST_DVARFLT_stream_meshFixedPrioPercentage;
   if ( !DCONST_DVARFLT_stream_meshFixedPrioPercentage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshFixedPrioPercentage") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vxorps  xmm0, xmm0, xmm0
-  }
-  _RAX = streamFrontendGlob;
-  __asm { vucomiss xmm1, xmm0 }
-  if ( v12 )
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  if ( value == 0.0 )
   {
     lastTopMeshPriority = streamFrontendGlob->lastTopMeshPriority;
-    v14 = DCONST_DVARINT_stream_meshAutoPrioStepRatio;
+    v8 = DCONST_DVARINT_stream_meshAutoPrioStepRatio;
     if ( !DCONST_DVARINT_stream_meshAutoPrioStepRatio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshAutoPrioStepRatio") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    if ( v46 <= lastTopMeshPriority )
+    Dvar_CheckFrontendServerThread(v8);
+    unsignedInt = v8->current.unsignedInt;
+    if ( v27 <= lastTopMeshPriority )
     {
-      v19 = (lastTopMeshPriority - v46) / v14->current.integer;
-      if ( v19 < lastTopMeshPriority )
-        v7 = lastTopMeshPriority - v19;
+      v12 = (lastTopMeshPriority - v27) / (unsigned int)unsignedInt;
+      if ( v12 < lastTopMeshPriority )
+        v4 = lastTopMeshPriority - v12;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r8
-        vdivss  xmm1, xmm1, xmm0
-        vcvttss2si rbx, xmm1
-      }
-      v7 = lastTopMeshPriority + _RBX;
+      v10 = (float)(v27 - lastTopMeshPriority);
+      v11 = (float)unsignedInt;
+      v4 = lastTopMeshPriority + (int)(float)(v10 / v11);
     }
-    v20 = DCONST_DVARINT_stream_meshAutoPrioStepUpStart;
+    v13 = DCONST_DVARINT_stream_meshAutoPrioStepUpStart;
     if ( !DCONST_DVARINT_stream_meshAutoPrioStepUpStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshAutoPrioStepUpStart") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    unsignedInt = v20->current.unsignedInt;
-    v22 = DCONST_DVARINT_stream_meshAutoPrioStepUpEnd;
+    Dvar_CheckFrontendServerThread(v13);
+    v14 = v13->current.unsignedInt;
+    v15 = DCONST_DVARINT_stream_meshAutoPrioStepUpEnd;
     if ( !DCONST_DVARINT_stream_meshAutoPrioStepUpEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshAutoPrioStepUpEnd") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    v23 = v22->current.unsignedInt;
-    if ( unsignedInt > v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+    Dvar_CheckFrontendServerThread(v15);
+    v16 = v15->current.unsignedInt;
+    if ( v14 > v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
       __debugbreak();
-    if ( v23 < v7 )
-      v7 = v23;
-    if ( unsignedInt > v7 )
-      v7 = unsignedInt;
-    if ( v23 == unsignedInt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sort.cpp", 365, ASSERT_TYPE_ASSERT, "(autoPrioRange > 0)", (const char *)&queryFormat, "autoPrioRange > 0") )
+    if ( v16 < v4 )
+      v4 = v16;
+    if ( v14 > v4 )
+      v4 = v14;
+    v17 = v16 - v14;
+    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sort.cpp", 365, ASSERT_TYPE_ASSERT, "(autoPrioRange > 0)", (const char *)&queryFormat, "autoPrioRange > 0") )
       __debugbreak();
-    streamFrontendGlob->lastTopMeshPriority = v7;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm6, xmm1, xmm0
-    }
-    _RBX = DCONST_DVARFLT_stream_meshAutoPrioPercentageMax;
+    streamFrontendGlob->lastTopMeshPriority = v4;
+    v18 = (float)(v4 - v14);
+    v20 = DCONST_DVARFLT_stream_meshAutoPrioPercentageMax;
     if ( !DCONST_DVARFLT_stream_meshAutoPrioPercentageMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshAutoPrioPercentageMax") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    v31 = DCONST_DVARFLT_stream_meshAutoPrioPercentageMin;
+    Dvar_CheckFrontendServerThread(v20);
+    v21 = v20->current.value;
+    v22 = DCONST_DVARFLT_stream_meshAutoPrioPercentageMin;
     if ( !DCONST_DVARFLT_stream_meshAutoPrioPercentageMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_meshAutoPrioPercentageMin") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v31);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm6
-      vmulss  xmm3, xmm1, dword ptr [rbx+28h]
-      vmulss  xmm2, xmm7, xmm6
-      vaddss  xmm0, xmm3, xmm2
-    }
-    _RAX = streamFrontendGlob;
-    __asm { vmovss  dword ptr [rax+0B96B34h], xmm0 }
+    Dvar_CheckFrontendServerThread(v22);
+    v19 = (float)v17;
+    streamFrontendGlob->meshBoost = (float)((float)(1.0 - (float)(v18 / v19)) * v22->current.value) + (float)(v21 * (float)(v18 / v19));
   }
   else
   {
-    __asm { vmovss  dword ptr [rax+0B96B34h], xmm1 }
+    streamFrontendGlob->meshBoost = value;
   }
   Sys_ProfEndNamedEvent();
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-  }
 }
 

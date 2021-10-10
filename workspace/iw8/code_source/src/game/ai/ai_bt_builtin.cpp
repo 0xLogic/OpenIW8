@@ -330,19 +330,12 @@ __int64 BT_ReturnFailure(BehaviorTree *pTree, int entNum, int taskID, int params
 BT_CoinToss
 ==============
 */
-__int64 BT_CoinToss(BehaviorTree *pTree, int entNum, int taskID, int paramsID)
+_BOOL8 BT_CoinToss(BehaviorTree *pTree, int entNum, int taskID, int paramsID)
 {
-  __int64 result; 
+  double v4; 
 
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  result = 0i64;
-  __asm { vcomiss xmm0, cs:__real@3f000000 }
-  return result;
+  v4 = G_flrand(0.0, 1.0);
+  return *(float *)&v4 < 0.5;
 }
 
 /*
@@ -479,27 +472,34 @@ BT_ShouldReacquire
 */
 _BOOL8 BT_ShouldReacquire(BehaviorTree *pTree, int entNum, int taskID, int paramsID)
 {
+  __int128 v4; 
+  gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
   __int64 v7; 
   sentient_s *TargetSentient; 
   const Weapon *v9; 
   weapClass_t WeaponClass; 
-  pathnode_t *CoverNode; 
-  bool v12; 
-  int v13; 
-  char v34; 
-  int v35; 
-  const gentity_s *ent; 
+  float *p_number; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
+  char v17; 
+  int v18; 
+  const gentity_s *v20; 
   playerState_s *p_ps; 
+  ai_common_t *v22; 
   sentient_info_t *SentientInfo; 
   int lastKnownPosTime; 
-  AIWrapper v43; 
-  AIWrapper v44; 
+  AIWrapper v25; 
+  AIWrapper v26; 
+  __int128 v27; 
 
-  _RBX = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v43, _RBX);
-  m_pAI = v43.m_pAI;
-  if ( !v43.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 166, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  Ent = BT_GetEnt(entNum);
+  AIWrapper::AIWrapper(&v25, Ent);
+  m_pAI = v25.m_pAI;
+  if ( !v25.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 166, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   v7 = m_pAI->GetAI(m_pAI);
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 168, ASSERT_TYPE_ASSERT, "(pScripted)", (const char *)&queryFormat, "pScripted") )
@@ -546,59 +546,29 @@ _BOOL8 BT_ShouldReacquire(BehaviorTree *pTree, int entNum, int taskID, int param
     if ( WeaponClass == WEAPCLASS_ROCKETLAUNCHER || WeaponClass == WEAPCLASS_MG )
       return 0i64;
   }
-  CoverNode = AIScriptedInterface::GetCoverNode(m_pAI);
-  v12 = 0;
-  if ( CoverNode )
-  {
-    v13 = *(_DWORD *)(v7 + 1540) + 4000;
-    v12 = level.time < (unsigned int)v13;
-    if ( level.time < v13 )
-      return 0i64;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vmovss  xmm1, dword ptr [rbx+134h]
-    vmovaps [rsp+0F8h+var_28], xmm6
-    vsubss  xmm3, xmm0, dword ptr [rax+130h]
-    vmovss  xmm0, dword ptr [rbx+138h]
-    vsubss  xmm2, xmm1, dword ptr [rax+134h]
-    vsubss  xmm4, xmm0, dword ptr [rax+138h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-    vcomiss xmm6, cs:__real@43800000
-  }
-  _EBX = 5000;
-  if ( v12 && !AIScriptedInterface::GetCoverNode(m_pAI) )
-  {
-    __asm
-    {
-      vmulss  xmm2, xmm6, cs:__real@3b800000
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm2
-      vmulss  xmm3, xmm1, cs:__real@447a0000
-      vmulss  xmm2, xmm2, cs:__real@459c4000
-      vaddss  xmm0, xmm3, xmm2
-      vcvttss2si ebx, xmm0
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+0F8h+var_28] }
-  if ( level.time < _EBX + *(_DWORD *)(v7 + 596) || *(_BYTE *)(v7 + 1753) )
+  if ( AIScriptedInterface::GetCoverNode(m_pAI) && level.time < *(_DWORD *)(v7 + 1540) + 4000 )
     return 0i64;
-  v34 = *(_BYTE *)(v7 + 3484);
-  v35 = AICommonInterface::RecentlySeeSentient(m_pAI, TargetSentient, 1000);
-  if ( v34 )
+  p_number = (float *)&TargetSentient->ent->s.number;
+  v12 = Ent->r.currentOrigin.v[0];
+  v13 = Ent->r.currentOrigin.v[1];
+  v27 = v4;
+  v14 = Ent->r.currentOrigin.v[2] - p_number[78];
+  v15 = fsqrt((float)((float)((float)(v13 - p_number[77]) * (float)(v13 - p_number[77])) + (float)((float)(v12 - p_number[76]) * (float)(v12 - p_number[76]))) + (float)(v14 * v14));
+  v16 = 5000;
+  if ( v15 < 256.0 && !AIScriptedInterface::GetCoverNode(m_pAI) )
+    v16 = (int)(float)((float)((float)(1.0 - (float)(v15 * 0.00390625)) * 1000.0) + (float)((float)(v15 * 0.00390625) * 5000.0));
+  if ( level.time < v16 + *(_DWORD *)(v7 + 596) || *(_BYTE *)(v7 + 1753) )
+    return 0i64;
+  v17 = *(_BYTE *)(v7 + 3484);
+  v18 = AICommonInterface::RecentlySeeSentient(m_pAI, TargetSentient, 1000);
+  if ( v17 )
   {
-    if ( v35 && AIScriptedInterface::CanShootEnemyFromNodeStepOut(m_pAI, 250, 0) )
+    if ( v18 && AIScriptedInterface::CanShootEnemyFromNodeStepOut(m_pAI, 250, 0) )
       return 0i64;
   }
   else
   {
-    if ( v35 )
+    if ( v18 )
       return 0i64;
     if ( *(_BYTE *)(v7 + 1648) )
       return 1i64;
@@ -607,27 +577,22 @@ _BOOL8 BT_ShouldReacquire(BehaviorTree *pTree, int entNum, int taskID, int param
   }
   if ( *(_BYTE *)(v7 + 1648) )
     return 1i64;
-  ent = TargetSentient->ent;
+  v20 = TargetSentient->ent;
   if ( !TargetSentient->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 247, ASSERT_TYPE_ASSERT, "(pEnemy)", (const char *)&queryFormat, "pEnemy") )
     __debugbreak();
-  p_ps = &ent->client->ps;
+  p_ps = &v20->client->ps;
   if ( p_ps )
   {
-    if ( ent->health < ent->maxHealth || G_Combat_IsClientFlashbanged(p_ps) )
+    if ( v20->health < v20->maxHealth || G_Combat_IsClientFlashbanged(p_ps) )
       return 1i64;
   }
   else
   {
-    AIWrapper::AIWrapper(&v44, ent);
-    if ( v44.m_pAI )
+    AIWrapper::AIWrapper(&v26, v20);
+    if ( v26.m_pAI )
     {
-      _RAX = v44.m_pAI->GetAI(v44.m_pAI);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f000000
-        vcomiss xmm0, dword ptr [rax+53Ch]
-      }
-      if ( v12 || BYTE1(_RAX[1].threat.highlyAwareRadius) )
+      v22 = v26.m_pAI->GetAI(v26.m_pAI);
+      if ( v22[2].orientation.vLookUp.v[2] > 0.5 || BYTE1(v22[1].threat.highlyAwareRadius) )
         return 1i64;
     }
   }
@@ -647,22 +612,24 @@ __int64 BT_IsMeleeValid(BehaviorTree *pTree, int entNum, int taskID, int paramsI
 {
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
-  __int64 v9; 
+  unsigned __int16 *v9; 
   gentity_s *v10; 
   const gentity_s *v11; 
-  char v19; 
-  unsigned int v23; 
-  AIScriptedInterface *v30; 
-  __int64 v31; 
-  AIWrapper v33; 
-  AIWrapper v34; 
+  float v12; 
+  float v13; 
+  float v14; 
+  int v15; 
+  AIScriptedInterface *v16; 
+  __int64 v17; 
+  AIWrapper v19; 
+  AIWrapper v20; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v33, Ent);
-  m_pAI = v33.m_pAI;
-  if ( !v33.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 286, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v19, Ent);
+  m_pAI = v19.m_pAI;
+  if ( !v19.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 286, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v9 = m_pAI->GetAI(m_pAI);
+  v9 = (unsigned __int16 *)m_pAI->GetAI(m_pAI);
   if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 288, ASSERT_TYPE_ASSERT, "(pScripted)", (const char *)&queryFormat, "pScripted") )
     __debugbreak();
   if ( m_pAI->InScriptedState(m_pAI) || m_pAI->IsInPain(m_pAI) || m_pAI->IsInExecution(m_pAI) )
@@ -675,40 +642,19 @@ __int64 BT_IsMeleeValid(BehaviorTree *pTree, int entNum, int taskID, int paramsI
     return 0i64;
   if ( G_EntIsLinked(v11) )
     return 0i64;
-  _RAX = *(_QWORD *)v9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+130h]
-    vsubss  xmm3, xmm0, dword ptr [rbx+130h]
-    vmovss  xmm0, dword ptr [rax+138h]
-    vmovss  xmm1, dword ptr [rax+134h]
-    vsubss  xmm2, xmm0, dword ptr [rbx+138h]
-    vsubss  xmm4, xmm1, dword ptr [rbx+134h]
-    vxorps  xmm0, xmm0, xmm0
-    vmulss  xmm5, xmm2, xmm2
-    vcvtsi2ss xmm0, xmm0, eax
-    vcomiss xmm5, xmm0
-  }
-  if ( !(((*(unsigned __int16 *)(v9 + 1544) * (unsigned __int64)*(unsigned __int16 *)(v9 + 1544)) >> 32 != 0) | v19) )
+  v13 = *(float *)(*(_QWORD *)v9 + 312i64) - v11->r.currentOrigin.v[2];
+  if ( (float)(v13 * v13) > (float)(v9[772] * v9[772]) )
     return 0i64;
-  v23 = *(unsigned __int16 *)(v9 + 1546);
+  v15 = v9[773];
   if ( v11->client )
-    v23 = *(unsigned __int16 *)(v9 + 1548);
-  __asm
-  {
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm1, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm2, xmm1, xmm5
-    vcomiss xmm2, xmm0
-  }
-  if ( is_mul_ok(v23, v23) )
+    v15 = v9[774];
+  v12 = *(float *)(*(_QWORD *)v9 + 304i64) - v11->r.currentOrigin.v[0];
+  v14 = *(float *)(*(_QWORD *)v9 + 308i64) - v11->r.currentOrigin.v[1];
+  if ( (float)((float)((float)(v14 * v14) + (float)(v12 * v12)) + (float)(v13 * v13)) >= (float)(v15 * v15) )
     return 0i64;
-  AIWrapper::AIWrapper(&v34, v11);
-  v30 = v34.m_pAI;
-  if ( v34.m_pAI && (v34.m_pAI->InScriptedState(v34.m_pAI) || v30->IsInExecution(v30) || (v31 = v30->GetAI(v30), *(_BYTE *)(v31 + 567)) || *(_BYTE *)(v31 + 568)) )
+  AIWrapper::AIWrapper(&v20, v11);
+  v16 = v20.m_pAI;
+  if ( v20.m_pAI && (v20.m_pAI->InScriptedState(v20.m_pAI) || v16->IsInExecution(v16) || (v17 = v16->GetAI(v16), *(_BYTE *)(v17 + 567)) || *(_BYTE *)(v17 + 568)) )
     return 0i64;
   else
     return 1i64;
@@ -853,34 +799,22 @@ __int64 BT_BlockingMove(BehaviorTree *pTree, int entNum, int taskID, int paramsI
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
   ai_bt_instance_data *InstanceData; 
-  AIWrapper v15; 
-  int v16[4]; 
+  AIWrapper v9; 
+  float v10; 
+  float v11; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v15, Ent);
-  m_pAI = v15.m_pAI;
-  if ( !v15.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 452, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v9, Ent);
+  m_pAI = v9.m_pAI;
+  if ( !v9.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 452, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   InstanceData = BT_GetInstanceData(*pInOutInstIndex);
   if ( !InstanceData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 455, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  if ( AIScriptedInterface::IsCurrentlyBlockingOtherAI(m_pAI) )
-  {
-    m_pAI->GetVelocity(m_pAI, (vec3_t *)v16);
-    if ( level.time <= InstanceData->m_TimeStarted || AICommonInterface::HasPath(m_pAI) || AIScriptedInterface::PathPending(m_pAI) )
-      return 2i64;
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_28]
-      vmovss  xmm1, [rsp+0A8h+var_24]
-      vmulss  xmm3, xmm0, xmm0
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm0, xmm3, xmm2
-      vsqrtss xmm3, xmm0, xmm0
-      vcomiss xmm3, cs:__real@3c23d70a
-    }
-  }
-  return 0i64;
+  if ( AIScriptedInterface::IsCurrentlyBlockingOtherAI(m_pAI) && ((m_pAI->GetVelocity(m_pAI, (vec3_t *)&v10), level.time <= InstanceData->m_TimeStarted) || AICommonInterface::HasPath(m_pAI) || AIScriptedInterface::PathPending(m_pAI) || fsqrt((float)(v10 * v10) + (float)(v11 * v11)) > 0.0099999998) )
+    return 2i64;
+  else
+    return 0i64;
 }
 
 /*
@@ -971,37 +905,23 @@ __int64 BT_RetreatMove(BehaviorTree *pTree, int entNum, int taskID, int paramsID
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
   ai_bt_instance_data *InstanceData; 
-  AIWrapper v18; 
-  int v19[4]; 
+  AIWrapper v9; 
+  float v10; 
+  float v11; 
+  float v12; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v18, Ent);
-  m_pAI = v18.m_pAI;
-  if ( !v18.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 375, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v9, Ent);
+  m_pAI = v9.m_pAI;
+  if ( !v9.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 375, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   InstanceData = BT_GetInstanceData(*pInOutInstIndex);
   if ( !InstanceData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin.cpp", 378, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  if ( AIScriptedInterface::IsRetreatNeeded(m_pAI) )
-  {
-    m_pAI->GetVelocity(m_pAI, (vec3_t *)v19);
-    if ( level.time <= InstanceData->m_TimeStarted || AICommonInterface::HasPath(m_pAI) || AIScriptedInterface::PathPending(m_pAI) )
-      return 2i64;
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_28]
-      vmovss  xmm1, [rsp+0A8h+var_24]
-      vmulss  xmm3, xmm0, xmm0
-      vmovss  xmm0, [rsp+0A8h+var_20]
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm0
-      vaddss  xmm2, xmm4, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vcomiss xmm3, cs:__real@3c23d70a
-    }
-  }
-  return 0i64;
+  if ( AIScriptedInterface::IsRetreatNeeded(m_pAI) && ((m_pAI->GetVelocity(m_pAI, (vec3_t *)&v10), level.time <= InstanceData->m_TimeStarted) || AICommonInterface::HasPath(m_pAI) || AIScriptedInterface::PathPending(m_pAI) || fsqrt((float)((float)(v10 * v10) + (float)(v11 * v11)) + (float)(v12 * v12)) > 0.0099999998) )
+    return 2i64;
+  else
+    return 0i64;
 }
 
 /*

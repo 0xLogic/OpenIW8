@@ -137,186 +137,119 @@ CG_DebugVectorFieldBox
 */
 void CG_DebugVectorFieldBox(const orientation_t *orient, const Bounds *box, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v18; 
-  bool v72; 
-  char v73; 
-  char v76; 
-  char v82; 
-  char v85; 
-  const int *v86; 
-  __int64 v87; 
-  char v101[32]; 
-  char v102; 
-  char v103; 
-  void *retaddr; 
+  char *v6; 
+  unsigned int v7; 
+  float v15; 
+  float v20; 
+  float v25; 
+  float v26; 
+  float v27; 
+  int v30; 
+  bool v31; 
+  char v32; 
+  int v33; 
+  char v34; 
+  int v36; 
+  char v37; 
+  int v39; 
+  char v40; 
+  const int *v41; 
+  __int64 v42; 
+  __int64 v43; 
+  char v45[32]; 
+  char v46; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm11, cs:__real@437f0000
-    vmovss  xmm12, cs:__real@3f000000
-  }
-  _ER13 = 0;
-  _RBX = &v102;
-  v18 = 0;
-  _RDI = box;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
+  v6 = &v46;
+  v7 = 0;
+  _XMM10 = 0i64;
   do
   {
+    _XMM4 = LODWORD(box->halfSize.v[0]);
+    _XMM0 = v7 & 1;
     __asm
     {
-      vmovss  xmm4, dword ptr [rdi+0Ch]
-      vxorps  xmm3, xmm4, xmm9
-      vmovd   xmm1, r13d
-    }
-    _RSI = _RBX - 8;
-    _EAX = v18 & 1;
-    __asm
-    {
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm7, xmm1, dword ptr [rdi]
-      vmovss  xmm4, dword ptr [rdi+10h]
-      vmovd   xmm1, r13d
-      vxorps  xmm3, xmm4, xmm9
     }
-    _EAX = v18 & 2;
+    v15 = *(float *)&_XMM1 + box->midPoint.v[0];
+    _XMM4 = LODWORD(box->halfSize.v[1]);
+    _XMM0 = v7 & 2;
     __asm
     {
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm6, xmm1, dword ptr [rdi+4]
-      vmovss  xmm4, dword ptr [rdi+14h]
     }
-    _EAX = v18 & 4;
+    v20 = *(float *)&_XMM1 + box->midPoint.v[1];
+    _XMM4 = LODWORD(box->halfSize.v[2]);
+    _XMM0 = v7 & 4;
     __asm
     {
-      vmovd   xmm1, r13d
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
-      vxorps  xmm3, xmm4, xmm9
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm8, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx], xmm8
-      vmovss  dword ptr [rsi], xmm7
-      vmovss  dword ptr [rbx-4], xmm6
     }
-    if ( _RBX - 8 == v101 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
+    v25 = *(float *)&_XMM1 + box->midPoint.v[2];
+    *(float *)v6 = v25;
+    *((float *)v6 - 2) = v15;
+    *((float *)v6 - 1) = v20;
+    if ( v6 - 8 == v45 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
       __debugbreak();
+    v26 = (float)((float)((float)(v20 * orient->axis.m[0].v[1]) + (float)(v15 * orient->axis.m[0].v[0])) + (float)(v25 * orient->axis.m[0].v[2])) + orient->origin.v[0];
+    v27 = (float)((float)(v20 * orient->axis.m[2].v[1]) + (float)(v15 * orient->axis.m[2].v[0])) + (float)(v25 * orient->axis.m[2].v[2]);
+    *((float *)v6 - 1) = (float)((float)((float)(v20 * orient->axis.m[1].v[1]) + (float)(v15 * orient->axis.m[1].v[0])) + (float)(v25 * orient->axis.m[1].v[2])) + orient->origin.v[1];
+    *((float *)v6 - 2) = v26;
+    *(float *)v6 = v27 + orient->origin.v[2];
     __asm
     {
-      vmulss  xmm1, xmm6, dword ptr [r12+10h]
-      vmulss  xmm0, xmm7, dword ptr [r12+0Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, dword ptr [r12+14h]
-      vmulss  xmm0, xmm7, dword ptr [r12+18h]
-      vaddss  xmm5, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [r12+1Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, dword ptr [r12+20h]
-      vmulss  xmm0, xmm7, dword ptr [r12+24h]
-      vaddss  xmm4, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [r12+28h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, dword ptr [r12+2Ch]
-      vaddss  xmm0, xmm5, dword ptr [r12]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm11, dword ptr [r14]
-      vaddss  xmm1, xmm4, dword ptr [r12+4]
-      vmovss  dword ptr [rbx-4], xmm1
-      vmulss  xmm1, xmm11, dword ptr [r14+4]
-      vmovss  dword ptr [rsi], xmm0
-      vaddss  xmm0, xmm3, dword ptr [r12+8]
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm3, xmm2, xmm12
       vroundss xmm2, xmm10, xmm3, 1
-      vaddss  xmm3, xmm1, xmm12
       vroundss xmm1, xmm10, xmm3, 1
-      vcvttss2si ecx, xmm2
     }
-    if ( _ECX > 255 )
-      _ECX = 255;
-    v72 = _ECX < 0;
-    v73 = _ECX;
-    __asm
-    {
-      vcvttss2si ecx, xmm1
-      vmulss  xmm1, xmm11, dword ptr [r14+8]
-    }
-    if ( v72 )
-      v73 = 0;
-    _RBX[4] = v73;
-    if ( _ECX > 255 )
-      _ECX = 255;
-    v76 = _ECX;
-    __asm { vaddss  xmm3, xmm1, xmm12 }
-    if ( _ECX < 0 )
-      v76 = 0;
-    _RBX[5] = v76;
-    __asm
-    {
-      vroundss xmm1, xmm10, xmm3, 1
-      vcvttss2si ecx, xmm1
-      vmulss  xmm1, xmm11, dword ptr [r14+0Ch]
-      vaddss  xmm3, xmm1, xmm12
-    }
-    if ( _ECX > 255 )
-      _ECX = 255;
-    v82 = _ECX;
+    v30 = (int)*(float *)&_XMM2;
+    if ( (int)*(float *)&_XMM2 > 255 )
+      v30 = 255;
+    v31 = v30 < 0;
+    v32 = v30;
+    v33 = (int)*(float *)&_XMM1;
+    if ( v31 )
+      v32 = 0;
+    v6[4] = v32;
+    if ( v33 > 255 )
+      v33 = 255;
+    v34 = v33;
+    if ( v33 < 0 )
+      v34 = 0;
+    v6[5] = v34;
     __asm { vroundss xmm1, xmm10, xmm3, 1 }
-    if ( _ECX < 0 )
-      v82 = 0;
-    __asm { vcvttss2si ecx, xmm1 }
-    _RBX[6] = v82;
-    if ( _ECX > 255 )
-      _ECX = 255;
-    v85 = _ECX;
-    if ( _ECX < 0 )
-      v85 = 0;
-    ++v18;
-    _RBX[7] = v85;
-    _RBX += 16;
+    v36 = (int)*(float *)&_XMM1;
+    if ( (int)*(float *)&_XMM1 > 255 )
+      v36 = 255;
+    v37 = v36;
+    __asm { vroundss xmm1, xmm10, xmm3, 1 }
+    if ( v36 < 0 )
+      v37 = 0;
+    v39 = (int)*(float *)&_XMM1;
+    v6[6] = v37;
+    if ( (int)*(float *)&_XMM1 > 255 )
+      v39 = 255;
+    v40 = v39;
+    if ( v39 < 0 )
+      v40 = 0;
+    ++v7;
+    v6[7] = v40;
+    v6 += 16;
   }
-  while ( v18 < 8 );
-  v86 = &iEdgePairs_4[0][1];
-  v87 = 12i64;
+  while ( v7 < 8 );
+  v41 = &iEdgePairs_4[0][1];
+  v42 = 12i64;
   do
   {
-    _RAX = 2i64 * *(v86 - 1);
-    __asm { vmovups xmm0, xmmword ptr [rsp+rax*8+50h] }
-    _RAX = 2i64 * *v86;
-    __asm
-    {
-      vmovups xmmword ptr cs:debugEdge, xmm0
-      vmovups xmm0, xmmword ptr [rsp+rax*8+50h]
-      vmovups xmmword ptr cs:stru_1512E3C68, xmm0
-    }
+    v43 = 2i64 * *v41;
+    *(_OWORD *)debugEdge.v = *(_OWORD *)&v45[16 * *(v41 - 1) + 24];
+    *(_OWORD *)stru_1512E3C68.v = *(_OWORD *)&v45[8 * v43 + 24];
     CG_DebugLine(&debugEdge, &stru_1512E3C68, color, depthTest, duration);
-    v86 += 2;
-    --v87;
+    v41 += 2;
+    --v42;
   }
-  while ( v87 );
-  _R11 = &v103;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  while ( v42 );
 }
 
 /*
@@ -371,6 +304,7 @@ CG_VectorField_DrawActiveFields
 */
 void CG_VectorField_DrawActiveFields(void)
 {
+  float *p_strengthScale; 
   __int64 v1; 
   const dvar_t *v2; 
   __int64 v3; 
@@ -378,17 +312,17 @@ void CG_VectorField_DrawActiveFields(void)
   __int64 v5; 
   int v6; 
 
-  _RBX = &s_vectorFieldInstancePool[0].strengthScale;
+  p_strengthScale = &s_vectorFieldInstancePool[0].strengthScale;
   v1 = 255i64;
   do
   {
-    if ( *((_DWORD *)_RBX + 2) )
+    if ( *((_DWORD *)p_strengthScale + 2) )
     {
       v2 = DVARINT_cg_vectorFieldsDraw;
       if ( !DVARINT_cg_vectorFieldsDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsDraw") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v2);
-      v3 = *((_QWORD *)_RBX - 7);
+      v3 = *((_QWORD *)p_strengthScale - 7);
       integer = v2->current.integer;
       v5 = 0i64;
       if ( *(_DWORD *)(v3 + 52) )
@@ -396,19 +330,14 @@ void CG_VectorField_DrawActiveFields(void)
         v6 = integer > 1;
         do
         {
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbx]; strengthScale
-            vmovss  xmm1, dword ptr [rbx+4]; sizeScale
-          }
-          CG_VectorField_DrawSubField((const orientation_t *)_RBX - 1, *(float *)&_XMM1, *(float *)&_XMM2, (const VectorSubField *)(*(_QWORD *)(v3 + 8) + 80 * v5), v6);
-          v3 = *((_QWORD *)_RBX - 7);
+          CG_VectorField_DrawSubField((const orientation_t *)p_strengthScale - 1, p_strengthScale[1], *p_strengthScale, (const VectorSubField *)(*(_QWORD *)(v3 + 8) + 80 * v5), v6);
+          v3 = *((_QWORD *)p_strengthScale - 7);
           v5 = (unsigned int)(v5 + 1);
         }
         while ( (unsigned int)v5 < *(_DWORD *)(v3 + 52) );
       }
     }
-    _RBX += 20;
+    p_strengthScale += 20;
     --v1;
   }
   while ( v1 );
@@ -424,23 +353,17 @@ void CG_VectorField_DrawField(const VectorFieldInstance *vfi, int depthTest)
   __int64 v3; 
   const VectorField *vf; 
 
-  _RBX = vfi;
   v3 = 0i64;
   vf = vfi->vf;
   if ( vf->numSubFields )
   {
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+38h]; strengthScale
-        vmovss  xmm1, dword ptr [rbx+3Ch]; sizeScale
-      }
-      CG_VectorField_DrawSubField(&_RBX->orient, *(float *)&_XMM1, *(float *)&_XMM2, &vf->subFields[v3], depthTest);
-      vf = _RBX->vf;
+      CG_VectorField_DrawSubField(&vfi->orient, vfi->sizeScale, vfi->strengthScale, &vf->subFields[v3], depthTest);
+      vf = vfi->vf;
       v3 = (unsigned int)(v3 + 1);
     }
-    while ( (unsigned int)v3 < _RBX->vf->numSubFields );
+    while ( (unsigned int)v3 < vfi->vf->numSubFields );
   }
 }
 
@@ -450,707 +373,509 @@ CG_VectorField_DrawSubField
 ==============
 */
 
-void __fastcall CG_VectorField_DrawSubField(const orientation_t *orient, double sizeScale, double strengthScale, const VectorSubField *vf, int depthTest)
+void __fastcall CG_VectorField_DrawSubField(const orientation_t *orient, double sizeScale, float strengthScale, const VectorSubField *vf, int depthTest)
 {
-  const char *v21; 
+  float v7; 
+  const dvar_t *v8; 
+  const char *v9; 
   VectorFieldType type; 
-  unsigned int v24; 
-  unsigned int v25; 
-  int v26; 
+  int v11; 
+  int v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int128 v27; 
+  __int128 v30; 
+  __int128 v32; 
+  float v34; 
+  float v35; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v38; 
+  float v39; 
+  float v40; 
+  const dvar_t *v41; 
+  int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  unsigned int v46; 
+  int v47; 
+  int v48; 
+  unsigned int v49; 
+  vec4_t *v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  int v66; 
+  bool v67; 
+  char v68; 
+  int v69; 
+  char v70; 
+  int v72; 
+  char v73; 
+  int v75; 
+  char v76; 
+  float v77; 
+  int v80; 
+  char v81; 
+  int v82; 
+  char v83; 
+  int v85; 
   char v86; 
-  char v87; 
-  int v89; 
-  int v90; 
-  int v92; 
-  int v93; 
-  unsigned int v94; 
-  unsigned int v95; 
-  int v96; 
-  unsigned int v97; 
-  bool v139; 
-  char v140; 
-  char v143; 
-  char v149; 
-  char v152; 
-  char v188; 
-  char v192; 
-  char v197; 
-  char v202; 
-  char v207; 
-  char v212; 
-  char v217; 
-  char v221; 
-  int v231; 
-  char v233; 
-  int v241; 
-  char v242; 
-  int v243; 
-  char v244; 
-  int v249; 
-  char v250; 
-  char v251; 
-  char v253; 
-  char v255; 
-  char v256; 
-  __int64 v272; 
-  __int64 v273; 
-  int v274; 
-  int v275; 
-  int v276; 
-  unsigned int v287; 
-  unsigned int v292; 
-  unsigned int v293; 
+  int v88; 
+  char v89; 
+  int v91; 
+  char v92; 
+  int v94; 
+  char v95; 
+  int v97; 
+  char v98; 
+  int v100; 
+  char v101; 
+  __int128 v103; 
+  int v107; 
+  int v108; 
+  char v109; 
+  int v111; 
+  int v113; 
+  int v114; 
+  char v115; 
+  int v116; 
+  char v117; 
+  int v119; 
+  int v120; 
+  char v121; 
+  char v122; 
+  char v123; 
+  char v124; 
+  char v125; 
+  __int64 v126; 
+  __int64 v127; 
+  unsigned int v128; 
+  int v129; 
+  int v130; 
+  float v131; 
+  float v132; 
+  unsigned int v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  float v137; 
+  int v138; 
+  unsigned int v139; 
+  float v140; 
   vec4_t color; 
-  __int128 v296; 
+  __int128 v142; 
   Bounds box; 
-  char v298; 
-  __int128 v299; 
-  __int128 v300; 
-  char v303; 
-  void *retaddr; 
+  char v144; 
+  __int128 v145; 
+  __int128 v146; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  v287 = vf->numEntries[0];
-  v293 = vf->numEntries[1];
-  __asm
-  {
-    vmovaps xmm6, xmm2
-    vmovaps xmm9, xmm1
-  }
+  v133 = vf->numEntries[0];
+  v139 = vf->numEntries[1];
+  v7 = *(float *)&sizeScale;
   if ( vf->type == VECTOR_FIELD_TYPE_VELOCITY )
   {
-    _R15 = DVARFLT_cg_vectorFieldsDrawVelocityScale;
+    v8 = DVARFLT_cg_vectorFieldsDrawVelocityScale;
     if ( DVARFLT_cg_vectorFieldsDrawVelocityScale )
       goto LABEL_8;
-    v21 = "cg_vectorFieldsDrawVelocityScale";
+    v9 = "cg_vectorFieldsDrawVelocityScale";
   }
   else
   {
-    _R15 = DVARFLT_cg_vectorFieldsDrawForceScale;
+    v8 = DVARFLT_cg_vectorFieldsDrawForceScale;
     if ( DVARFLT_cg_vectorFieldsDrawForceScale )
       goto LABEL_8;
-    v21 = "cg_vectorFieldsDrawForceScale";
+    v9 = "cg_vectorFieldsDrawForceScale";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v21) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v9) )
     __debugbreak();
 LABEL_8:
-  Dvar_CheckFrontendServerThread(_R15);
-  __asm { vmovss  xmm0, dword ptr [r15+28h] }
+  Dvar_CheckFrontendServerThread(v8);
   type = vf->type;
-  v24 = vf->numEntries[0];
-  v25 = vf->numEntries[1];
-  v26 = vf->numEntries[2];
-  __asm
-  {
-    vmovaps xmmword ptr [rsp+1C0h+var_88+8], xmm10
-    vmovaps xmmword ptr [rsp+1C0h+var_B8+8], xmm13
-  }
-  v275 = v24;
-  v274 = v25;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  [rsp+1C0h+var_148], xmm1
-  }
+  v11 = vf->numEntries[0];
+  v12 = vf->numEntries[2];
+  v129 = v11;
+  v128 = vf->numEntries[1];
+  v140 = v8->current.value * strengthScale;
   if ( type == VECTOR_FIELD_TYPE_FORCE )
   {
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3f800000
-      vmovups xmm0, cs:__xmm@3f8000003f800000000000003f800000
-      vmovss  [rsp+1C0h+var_170], xmm10
-      vmovss  [rsp+1C0h+var_16C], xmm10
-      vmovss  [rsp+1C0h+var_168], xmm10
-      vmovups xmmword ptr [rbp+0C0h+color], xmm0
-    }
+    v132 = FLOAT_1_0;
+    color = (vec4_t)_xmm;
   }
   else if ( type == VECTOR_FIELD_TYPE_VELOCITY )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vmovups xmm0, cs:__xmm@3f800000000000003f8000003f800000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vdivss  xmm10, xmm2, xmm1
-      vmovups xmmword ptr [rbp+0C0h+color], xmm0
-      vmovss  [rsp+1C0h+var_170], xmm10
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm10, xmm2, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, r13d
-      vmovss  [rsp+1C0h+var_16C], xmm10
-      vdivss  xmm10, xmm2, xmm1
-      vmovss  [rsp+1C0h+var_168], xmm10
-    }
+    color = (vec4_t)_xmm;
+    v132 = 1.0 / (float)v11;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 123, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported vf type") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, [rsp+1C0h+var_174]
-      vmovss  [rsp+1C0h+var_170], xmm0
-      vmovss  xmm0, [rsp+1C0h+var_174]
-      vmovss  [rsp+1C0h+var_168], xmm0
-      vmovss  xmm0, [rsp+1C0h+var_174]
-      vmovss  [rsp+1C0h+var_16C], xmm0
-    }
+    v132 = v131;
   }
-  __asm
-  {
-    vmulss  xmm2, xmm9, dword ptr [rsi+14h]
-    vmulss  xmm6, xmm9, dword ptr [rsi+18h]
-    vmulss  xmm7, xmm9, dword ptr [rsi+1Ch]
-    vmulss  xmm11, xmm9, dword ptr [rsi+8]
-    vmovss  xmm8, cs:__real@3f000000
-    vmulss  xmm15, xmm9, dword ptr [rsi+0Ch]
-    vmulss  xmm14, xmm9, dword ptr [rsi+10h]
-    vmulss  xmm12, xmm9, dword ptr [rsi+20h]
-    vaddss  xmm0, xmm11, xmm2
-    vmulss  xmm3, xmm0, xmm8
-    vaddss  xmm0, xmm15, xmm6
-    vmulss  xmm4, xmm0, xmm8
-    vmovss  dword ptr [rbp+0C0h+box.halfSize], xmm2
-    vaddss  xmm1, xmm7, xmm14
-    vmulss  xmm5, xmm1, xmm8
-    vsubss  xmm0, xmm3, xmm11
-    vsubss  xmm2, xmm2, xmm3
-    vmaxss  xmm1, xmm2, xmm0
-    vsubss  xmm0, xmm4, xmm15
-    vmovss  dword ptr [rbp+0C0h+box.halfSize], xmm1
-    vsubss  xmm2, xmm7, xmm5
-    vmovss  dword ptr [rbp+0C0h+box.midPoint], xmm3
-    vsubss  xmm3, xmm6, xmm4
-    vmaxss  xmm1, xmm3, xmm0
-    vsubss  xmm0, xmm5, xmm14
-    vmovss  dword ptr [rbp+0C0h+box.halfSize+4], xmm6
-    vmulss  xmm6, xmm9, dword ptr [rsi+28h]
-    vmovss  dword ptr [rbp+0C0h+box.halfSize+4], xmm1
-    vmovss  dword ptr [rbp+0C0h+box.halfSize+8], xmm7
-    vmulss  xmm7, xmm9, dword ptr [rsi+24h]
-    vmaxss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rbp+0C0h+box.halfSize+8], xmm1
-    vmovss  [rsp+1C0h+var_158], xmm11
-    vmovss  dword ptr [rbp+0C0h+box.midPoint+4], xmm4
-    vmovss  dword ptr [rbp+0C0h+box.midPoint+8], xmm5
-    vmovss  [rsp+1C0h+var_154], xmm12
-    vmovss  [rsp+1C0h+var_15C], xmm7
-    vmovss  [rsp+1C0h+var_160], xmm6
-  }
-  _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-  _R15 = DVARFLT_cg_vectorFieldsDrawBoxDist;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+38h]
-    vsubss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rax+3Ch]
-    vsubss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rax+40h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm9, xmm2, xmm2
-  }
+  v14 = *(_OWORD *)&sizeScale;
+  *(float *)&v14 = *(float *)&sizeScale * vf->worldBounds.maxs.v[0];
+  v13 = v14;
+  v16 = *(_OWORD *)&sizeScale;
+  *(float *)&v16 = *(float *)&sizeScale * vf->worldBounds.maxs.v[1];
+  v15 = v16;
+  v18 = *(_OWORD *)&sizeScale;
+  *(float *)&v18 = *(float *)&sizeScale * vf->worldBounds.maxs.v[2];
+  v17 = v18;
+  v19 = *(float *)&sizeScale * vf->worldBounds.mins.v[0];
+  v20 = *(float *)&sizeScale * vf->worldBounds.mins.v[1];
+  v21 = *(float *)&sizeScale * vf->worldBounds.mins.v[2];
+  v22 = *(float *)&sizeScale * vf->ds.v[0];
+  v23 = (float)(v19 + *(float *)&v13) * 0.5;
+  v24 = (float)(v20 + *(float *)&v15) * 0.5;
+  v25 = (float)(*(float *)&v18 + v21) * 0.5;
+  v27 = v13;
+  *(float *)&v27 = *(float *)&v13 - v23;
+  _XMM2 = v27;
+  __asm { vmaxss  xmm1, xmm2, xmm0 }
+  box.halfSize.v[0] = *(float *)&_XMM1;
+  v30 = v17;
+  *(float *)&v30 = *(float *)&v17 - v25;
+  _XMM2 = v30;
+  box.midPoint.v[0] = v23;
+  v32 = v15;
+  *(float *)&v32 = *(float *)&v15 - v24;
+  _XMM3 = v32;
+  __asm { vmaxss  xmm1, xmm3, xmm0 }
+  box.halfSize.v[1] = *(float *)&v15;
+  v34 = v7 * vf->ds.v[2];
+  box.halfSize.v[1] = *(float *)&_XMM1;
+  box.halfSize.v[2] = *(float *)&v17;
+  v35 = v7 * vf->ds.v[1];
+  __asm { vmaxss  xmm1, xmm2, xmm0 }
+  box.halfSize.v[2] = *(float *)&_XMM1;
+  v136 = v19;
+  box.midPoint.v[1] = v24;
+  box.midPoint.v[2] = v25;
+  v137 = v22;
+  v135 = v35;
+  v134 = v34;
+  LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+  v38 = DVARFLT_cg_vectorFieldsDrawBoxDist;
+  *(float *)&_XMM2 = LocalClientGlobals->predictedPlayerState.origin.v[1] - orient->origin.v[1];
+  v39 = LocalClientGlobals->predictedPlayerState.origin.v[2] - orient->origin.v[2];
+  v40 = fsqrt((float)((float)(*(float *)&_XMM2 * *(float *)&_XMM2) + (float)((float)(LocalClientGlobals->predictedPlayerState.origin.v[0] - orient->origin.v[0]) * (float)(LocalClientGlobals->predictedPlayerState.origin.v[0] - orient->origin.v[0]))) + (float)(v39 * v39));
   if ( !DVARFLT_cg_vectorFieldsDrawBoxDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsDrawBoxDist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R15);
-  __asm { vcomiss xmm9, dword ptr [r15+28h] }
-  if ( v86 | v87 )
+  Dvar_CheckFrontendServerThread(v38);
+  if ( v40 <= v38->current.value )
     CG_DebugVectorFieldBox(orient, &box, &color, depthTest, 2);
-  _R15 = DVARFLT_cg_vectorFieldsDrawEntryDist;
+  v41 = DVARFLT_cg_vectorFieldsDrawEntryDist;
   if ( !DVARFLT_cg_vectorFieldsDrawEntryDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsDrawEntryDist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R15);
-  __asm { vcomiss xmm9, dword ptr [r15+28h] }
-  if ( v86 | v87 )
+  Dvar_CheckFrontendServerThread(v41);
+  if ( v40 <= v41->current.value )
   {
-    v89 = v275;
-    v90 = 0;
-    v276 = 0;
-    if ( v275 > 0 )
+    v42 = v129;
+    v43 = 0;
+    v130 = 0;
+    if ( v129 > 0 )
     {
-      __asm { vmovss  xmm10, cs:__real@437f0000 }
-      v92 = v274;
+      v44 = v128;
       do
       {
-        v93 = 0;
-        if ( v92 > 0 )
+        v45 = 0;
+        if ( v44 > 0 )
         {
-          v94 = v287;
-          v95 = v90;
-          v292 = v90;
+          v46 = v133;
+          v47 = v43;
+          v138 = v43;
           do
           {
-            v96 = 0;
-            if ( v26 > 0 )
+            v48 = 0;
+            if ( v12 > 0 )
             {
-              v97 = v95;
-              __asm { vxorps  xmm9, xmm9, xmm9 }
+              v49 = v47;
+              _XMM9 = 0i64;
               do
               {
-                if ( v97 >= vf->numEntries[0] * vf->numEntries[2] * vf->numEntries[1] )
+                if ( v49 >= vf->numEntries[0] * vf->numEntries[2] * vf->numEntries[1] )
                 {
-                  LODWORD(v273) = vf->numEntries[0] * vf->numEntries[2] * vf->numEntries[1];
-                  LODWORD(v272) = v97;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 27, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( vf->numEntries[0] * vf->numEntries[1] * vf->numEntries[2] )", "index doesn't index vf->numEntries[0] * vf->numEntries[1] * vf->numEntries[2]\n\t%i not in [0, %i)", v272, v273) )
+                  LODWORD(v127) = vf->numEntries[0] * vf->numEntries[2] * vf->numEntries[1];
+                  LODWORD(v126) = v49;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 27, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( vf->numEntries[0] * vf->numEntries[1] * vf->numEntries[2] )", "index doesn't index vf->numEntries[0] * vf->numEntries[1] * vf->numEntries[2]\n\t%i not in [0, %i)", v126, v127) )
                     __debugbreak();
-                  v89 = v275;
-                  v92 = v274;
+                  v42 = v129;
+                  v43 = v130;
+                  v44 = v128;
                 }
-                _RDI = (char *)&vf->linearData[v97];
-                if ( v26 == 1 )
-                {
-                  __asm { vmovaps xmm0, xmm8 }
-                }
+                v51 = &vf->linearData[v49];
+                if ( v12 == 1 )
+                  v52 = FLOAT_0_5;
                 else
-                {
-                  __asm
-                  {
-                    vxorps  xmm0, xmm0, xmm0
-                    vcvtsi2ss xmm0, xmm0, r12d
-                  }
-                }
+                  v52 = (float)v48;
+                v53 = (float)(v34 * v52) + v21;
+                if ( v44 == 1 )
+                  v54 = FLOAT_0_5;
+                else
+                  v54 = (float)v45;
+                v56 = (float)(v35 * v54) + v20;
+                v55 = v56;
+                if ( v42 == 1 )
+                  v57 = FLOAT_0_5;
+                else
+                  v57 = (float)v43;
+                v58 = v56 * orient->axis.m[0].v[1];
+                v59 = (float)(v22 * v57) + v19;
+                v60 = (float)((float)(v58 + (float)(v59 * orient->axis.m[0].v[0])) + (float)(v53 * orient->axis.m[0].v[2])) + orient->origin.v[0];
+                v61 = (float)((float)((float)(v59 * orient->axis.m[1].v[0]) + (float)(v55 * orient->axis.m[1].v[1])) + (float)(v53 * orient->axis.m[1].v[2])) + orient->origin.v[1];
+                v63 = (float)((float)((float)(v59 * orient->axis.m[2].v[0]) + (float)(v55 * orient->axis.m[2].v[1])) + (float)(v53 * orient->axis.m[2].v[2])) + orient->origin.v[2];
+                v62 = v63;
                 __asm
                 {
-                  vmulss  xmm0, xmm6, xmm0
-                  vaddss  xmm5, xmm0, xmm14
-                }
-                if ( v92 == 1 )
-                {
-                  __asm { vmovaps xmm0, xmm8 }
-                }
-                else
-                {
-                  __asm
-                  {
-                    vxorps  xmm0, xmm0, xmm0
-                    vcvtsi2ss xmm0, xmm0, r15d
-                  }
-                }
-                __asm
-                {
-                  vmulss  xmm0, xmm7, xmm0
-                  vaddss  xmm4, xmm0, xmm15
-                }
-                if ( v89 == 1 )
-                {
-                  __asm { vmovaps xmm0, xmm8 }
-                }
-                else
-                {
-                  __asm
-                  {
-                    vxorps  xmm0, xmm0, xmm0
-                    vcvtsi2ss xmm0, xmm0, edx
-                  }
-                }
-                __asm
-                {
-                  vmulss  xmm1, xmm4, dword ptr [rbx+10h]
-                  vmulss  xmm0, xmm12, xmm0
-                  vaddss  xmm3, xmm0, xmm11
-                  vmulss  xmm0, xmm3, dword ptr [rbx+0Ch]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, dword ptr [rbx+14h]
-                  vaddss  xmm0, xmm2, xmm1
-                  vaddss  xmm11, xmm0, dword ptr [rbx]
-                  vmulss  xmm1, xmm3, dword ptr [rbx+18h]
-                  vmulss  xmm0, xmm4, dword ptr [rbx+1Ch]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, dword ptr [rbx+20h]
-                  vaddss  xmm0, xmm2, xmm1
-                  vmulss  xmm1, xmm3, dword ptr [rbx+24h]
-                  vaddss  xmm12, xmm0, dword ptr [rbx+4]
-                  vmulss  xmm0, xmm4, dword ptr [rbx+28h]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, dword ptr [rbx+2Ch]
-                  vaddss  xmm0, xmm2, xmm1
-                  vaddss  xmm13, xmm0, dword ptr [rbx+8]
-                  vmulss  xmm0, xmm10, dword ptr [rbp+0C0h+color]
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color+4]
-                  vaddss  xmm3, xmm0, xmm8
                   vroundss xmm0, xmm9, xmm3, 1
-                  vaddss  xmm3, xmm1, xmm8
                   vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si ecx, xmm0
-                  vmovss  dword ptr [rbp+0C0h+var_130], xmm11
                 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v139 = _ECX < 0;
-                v140 = _ECX;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color+8]
-                }
-                if ( v139 )
-                  v140 = 0;
-                BYTE12(v296) = v140;
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v143 = _ECX;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ECX < 0 )
-                  v143 = 0;
-                BYTE13(v296) = v143;
-                __asm
-                {
-                  vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color+0Ch]
-                  vaddss  xmm3, xmm1, xmm8
-                }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v149 = _ECX;
+                v66 = (int)*(float *)&_XMM0;
+                *(float *)&v142 = v60;
+                if ( (int)*(float *)&_XMM0 > 255 )
+                  v66 = 255;
+                v67 = v66 < 0;
+                v68 = v66;
+                v69 = (int)*(float *)&_XMM1;
+                if ( v67 )
+                  v68 = 0;
+                BYTE12(v142) = v68;
+                if ( v69 > 255 )
+                  v69 = 255;
+                v70 = v69;
+                if ( v69 < 0 )
+                  v70 = 0;
+                BYTE13(v142) = v70;
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                if ( _ECX < 0 )
-                  v149 = 0;
-                BYTE14(v296) = v149;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmovss  dword ptr [rbp+0C0h+var_130+4], xmm12
-                }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v152 = _ECX;
-                __asm { vmovss  dword ptr [rbp+0C0h+var_130+8], xmm13 }
-                if ( _ECX < 0 )
-                  v152 = 0;
-                HIBYTE(v296) = v152;
-                if ( _RDI == &v298 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
+                v72 = (int)*(float *)&_XMM1;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v72 = 255;
+                v73 = v72;
+                __asm { vroundss xmm1, xmm9, xmm3, 1 }
+                if ( v72 < 0 )
+                  v73 = 0;
+                BYTE14(v142) = v73;
+                v75 = (int)*(float *)&_XMM1;
+                *((float *)&v142 + 1) = v61;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v75 = 255;
+                v76 = v75;
+                *((float *)&v142 + 2) = v63;
+                if ( v75 < 0 )
+                  v76 = 0;
+                HIBYTE(v142) = v76;
+                if ( v51 == (vec4_t *)&v144 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
                   __debugbreak();
+                v77 = (float)((float)((float)((float)((float)(v51->v[1] * orient->axis.m[0].v[1]) + (float)(v51->v[0] * orient->axis.m[0].v[0])) + (float)(v51->v[2] * orient->axis.m[0].v[2])) * v132) * v140) + v60;
                 __asm
                 {
-                  vmovss  xmm6, dword ptr [rdi+4]
-                  vmovss  xmm3, dword ptr [rdi]
-                  vmulss  xmm0, xmm3, dword ptr [rbx+0Ch]
-                  vmulss  xmm1, xmm6, dword ptr [rbx+10h]
-                  vmovss  xmm7, dword ptr [rdi+8]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm7, dword ptr [rbx+14h]
-                  vaddss  xmm0, xmm2, xmm1
-                  vmulss  xmm1, xmm3, dword ptr [rbx+18h]
-                  vmulss  xmm5, xmm0, [rsp+1C0h+var_170]
-                  vmulss  xmm0, xmm6, dword ptr [rbx+1Ch]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm7, dword ptr [rbx+20h]
-                  vaddss  xmm0, xmm2, xmm1
-                  vmulss  xmm1, xmm3, dword ptr [rbx+24h]
-                  vmulss  xmm4, xmm0, [rsp+1C0h+var_16C]
-                  vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm7, dword ptr [rbx+2Ch]
-                  vaddss  xmm0, xmm2, xmm1
-                  vmovss  xmm2, [rsp+1C0h+var_148]
-                  vmulss  xmm3, xmm0, [rsp+1C0h+var_168]
-                  vmulss  xmm1, xmm5, xmm2
-                  vaddss  xmm5, xmm1, xmm11
-                  vmulss  xmm1, xmm3, xmm2
-                  vaddss  xmm6, xmm1, xmm13
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorRed@@3Tvec4_t@@B+4; vec4_t const colorRed
-                  vmulss  xmm0, xmm4, xmm2
-                  vmulss  xmm2, xmm10, dword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vaddss  xmm3, xmm2, xmm8
                   vroundss xmm2, xmm9, xmm3, 1
-                  vaddss  xmm3, xmm1, xmm8
                   vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si ecx, xmm2
-                  vaddss  xmm4, xmm0, xmm12
                 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v139 = _ECX < 0;
-                v188 = _ECX;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorRed@@3Tvec4_t@@B+8; vec4_t const colorRed
-                }
-                if ( v139 )
-                  v188 = 0;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                LOBYTE(box.halfSize.v[0]) = v188;
-                v192 = _ECX;
+                v80 = (int)*(float *)&_XMM2;
+                if ( (int)*(float *)&_XMM2 > 255 )
+                  v80 = 255;
+                v67 = v80 < 0;
+                v81 = v80;
+                v82 = (int)*(float *)&_XMM1;
+                if ( v67 )
+                  v81 = 0;
+                if ( v82 > 255 )
+                  v82 = 255;
+                LOBYTE(box.halfSize.v[0]) = v81;
+                v83 = v82;
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                if ( _ECX < 0 )
-                  v192 = 0;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorRed@@3Tvec4_t@@B+0Ch; vec4_t const colorRed
-                }
-                BYTE1(box.halfSize.v[0]) = v192;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v197 = _ECX;
+                if ( v82 < 0 )
+                  v83 = 0;
+                v85 = (int)*(float *)&_XMM1;
+                BYTE1(box.halfSize.v[0]) = v83;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v85 = 255;
+                v86 = v85;
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                if ( _ECX < 0 )
-                  v197 = 0;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-                }
-                BYTE2(box.halfSize.x) = v197;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v202 = _ECX;
+                if ( v85 < 0 )
+                  v86 = 0;
+                v88 = (int)*(float *)&_XMM1;
+                BYTE2(box.halfSize.x) = v86;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v88 = 255;
+                v89 = v88;
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                if ( _ECX < 0 )
-                  v202 = 0;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorGreen@@3Tvec4_t@@B+4; vec4_t const colorGreen
-                }
-                HIBYTE(box.halfSize.x) = v202;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v207 = _ECX;
+                if ( v88 < 0 )
+                  v89 = 0;
+                v91 = (int)*(float *)&_XMM1;
+                HIBYTE(box.halfSize.x) = v89;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v91 = 255;
+                v92 = v91;
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                if ( _ECX < 0 )
-                  v207 = 0;
-                BYTE12(v296) = v207;
-                __asm
-                {
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorGreen@@3Tvec4_t@@B+8; vec4_t const colorGreen
-                  vaddss  xmm3, xmm1, xmm8
-                }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v139 = _ECX < 0;
-                v212 = _ECX;
-                __asm
-                {
-                  vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si ecx, xmm1
-                  vmulss  xmm1, xmm10, dword ptr cs:?colorGreen@@3Tvec4_t@@B+0Ch; vec4_t const colorGreen
-                }
-                if ( v139 )
-                  v212 = 0;
-                BYTE13(v296) = v212;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v139 = _ECX < 0;
-                v217 = _ECX;
-                __asm
-                {
-                  vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si ecx, xmm1
-                  vmovups xmm1, xmmword ptr [rbp+0C0h+box.midPoint]
-                }
-                if ( v139 )
-                  v217 = 0;
-                BYTE14(v296) = v217;
-                if ( _ECX > 255 )
-                  _ECX = 255;
-                v221 = _ECX;
-                __asm { vmovss  xmm1, xmm1, xmm5 }
-                if ( _ECX < 0 )
-                  v221 = 0;
+                if ( v91 < 0 )
+                  v92 = 0;
+                BYTE12(v142) = v92;
+                v94 = (int)*(float *)&_XMM1;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v94 = 255;
+                v67 = v94 < 0;
+                v95 = v94;
+                __asm { vroundss xmm1, xmm9, xmm3, 1 }
+                v97 = (int)*(float *)&_XMM1;
+                if ( v67 )
+                  v95 = 0;
+                BYTE13(v142) = v95;
+                if ( v97 > 255 )
+                  v97 = 255;
+                v67 = v97 < 0;
+                v98 = v97;
+                __asm { vroundss xmm1, xmm9, xmm3, 1 }
+                v100 = (int)*(float *)&_XMM1;
+                if ( v67 )
+                  v98 = 0;
+                BYTE14(v142) = v98;
+                if ( v100 > 255 )
+                  v100 = 255;
+                v101 = v100;
+                v103 = *(_OWORD *)box.midPoint.v;
+                *(float *)&v103 = v77;
+                _XMM1 = v103;
+                if ( v100 < 0 )
+                  v101 = 0;
                 __asm
                 {
                   vinsertps xmm1, xmm1, xmm4, 10h
                   vinsertps xmm1, xmm1, xmm6, 20h ; ' '
                 }
-                HIBYTE(v296) = v221;
-                __asm
-                {
-                  vmovups xmm0, [rbp+0C0h+var_130]
-                  vmovups [rbp+0C0h+var_F8], xmm0
-                  vmovups xmmword ptr [rbp+0C0h+box.midPoint], xmm1
-                  vmovups [rbp+0C0h+var_E8], xmm1
-                }
-                CG_DebugLine((const vec3_t *)&v299, (const vec3_t *)&v300, &color, depthTest, 2);
-                __asm
-                {
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color]
-                  vaddss  xmm3, xmm1, xmm8
-                  vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si r10d, xmm1
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color+4]
-                }
-                v231 = _ER10;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( _ER10 > 255 )
-                  v231 = 255;
-                v233 = v231;
+                HIBYTE(v142) = v101;
+                v145 = v142;
+                *(_OWORD *)box.midPoint.v = _XMM1;
+                v146 = _XMM1;
+                CG_DebugLine((const vec3_t *)&v145, (const vec3_t *)&v146, &color, depthTest, 2);
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                if ( v231 < 0 )
-                  v233 = 0;
-                __asm
-                {
-                  vcvttss2si r9d, xmm1
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color+8]
-                }
-                BYTE12(v299) = v233;
-                __asm
-                {
-                  vaddss  xmm3, xmm1, xmm8
-                  vroundss xmm1, xmm9, xmm3, 1
-                  vcvttss2si r8d, xmm1
-                  vmulss  xmm1, xmm10, dword ptr [rbp+0C0h+color+0Ch]
-                }
-                v241 = _ER9;
-                if ( _ER9 > 255 )
-                  v241 = 255;
-                v139 = v241 < 0;
-                v242 = v241;
-                v243 = _ER8;
-                if ( v139 )
-                  v242 = 0;
-                BYTE13(v299) = v242;
-                if ( _ER8 > 255 )
-                  v243 = 255;
-                v244 = v243;
-                __asm { vaddss  xmm3, xmm1, xmm8 }
-                if ( v243 < 0 )
-                  v244 = 0;
+                v107 = (int)*(float *)&_XMM1;
+                v108 = (int)*(float *)&_XMM1;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v108 = 255;
+                v109 = v108;
                 __asm { vroundss xmm1, xmm9, xmm3, 1 }
-                BYTE14(v299) = v244;
-                __asm
-                {
-                  vcvttss2si edx, xmm1
-                  vmovss  xmm6, cs:__real@40a00000
-                }
-                v249 = _EDX;
-                if ( _EDX > 255 )
-                  v249 = 255;
-                v250 = v249;
-                if ( v249 < 0 )
-                  v250 = 0;
-                HIBYTE(v299) = v250;
-                if ( _ER10 > 255 )
-                  _ER10 = 255;
-                v251 = _ER10;
-                __asm { vsubss  xmm0, xmm11, xmm6 }
-                if ( _ER10 < 0 )
-                  v251 = 0;
-                BYTE12(v300) = v251;
-                if ( _ER9 > 255 )
-                  _ER9 = 255;
-                v253 = _ER9;
-                __asm { vmovss  dword ptr [rbp+0C0h+var_F8], xmm0 }
-                if ( _ER9 < 0 )
-                  v253 = 0;
-                BYTE13(v300) = v253;
-                __asm { vaddss  xmm0, xmm11, xmm6 }
-                if ( _ER8 > 255 )
-                  _ER8 = 255;
-                v255 = _ER8;
-                if ( _ER8 < 0 )
-                  v255 = 0;
-                BYTE14(v300) = v255;
-                if ( _EDX > 255 )
-                  _EDX = 255;
-                v256 = _EDX;
-                if ( _EDX < 0 )
-                  v256 = 0;
-                HIBYTE(v300) = v256;
-                __asm
-                {
-                  vmovss  dword ptr [rbp+0C0h+var_F8+4], xmm12
-                  vmovss  dword ptr [rbp+0C0h+var_F8+8], xmm13
-                  vmovss  dword ptr [rbp+0C0h+var_E8], xmm0
-                  vmovss  dword ptr [rbp+0C0h+var_E8+4], xmm12
-                  vmovss  dword ptr [rbp+0C0h+var_E8+8], xmm13
-                }
-                CG_DebugLine((const vec3_t *)&v299, (const vec3_t *)&v300, &color, depthTest, 2);
-                __asm
-                {
-                  vsubss  xmm0, xmm12, xmm6
-                  vmovss  dword ptr [rbp+0C0h+var_F8+4], xmm0
-                  vaddss  xmm0, xmm12, xmm6
-                  vmovss  dword ptr [rbp+0C0h+var_E8+4], xmm0
-                  vmovss  dword ptr [rbp+0C0h+var_F8], xmm11
-                  vmovss  dword ptr [rbp+0C0h+var_F8+8], xmm13
-                  vmovss  dword ptr [rbp+0C0h+var_E8], xmm11
-                  vmovss  dword ptr [rbp+0C0h+var_E8+8], xmm13
-                }
-                CG_DebugLine((const vec3_t *)&v299, (const vec3_t *)&v300, &color, depthTest, 2);
-                __asm
-                {
-                  vsubss  xmm0, xmm13, xmm6
-                  vmovss  dword ptr [rbp+0C0h+var_F8+8], xmm0
-                  vaddss  xmm0, xmm13, xmm6
-                  vmovss  dword ptr [rbp+0C0h+var_E8+8], xmm0
-                  vmovss  dword ptr [rbp+0C0h+var_F8], xmm11
-                  vmovss  dword ptr [rbp+0C0h+var_F8+4], xmm12
-                  vmovss  dword ptr [rbp+0C0h+var_E8], xmm11
-                  vmovss  dword ptr [rbp+0C0h+var_E8+4], xmm12
-                }
-                CG_DebugLine((const vec3_t *)&v299, (const vec3_t *)&v300, &color, depthTest, 2);
-                v97 += v287 * v293;
-                ++v96;
-                __asm
-                {
-                  vmovss  xmm6, [rsp+1C0h+var_160]
-                  vmovss  xmm7, [rsp+1C0h+var_15C]
-                  vmovss  xmm11, [rsp+1C0h+var_158]
-                  vmovss  xmm12, [rsp+1C0h+var_154]
-                }
-                v92 = v274;
-                v90 = v276;
-                v89 = v275;
+                if ( v108 < 0 )
+                  v109 = 0;
+                v111 = (int)*(float *)&_XMM1;
+                BYTE12(v145) = v109;
+                __asm { vroundss xmm1, xmm9, xmm3, 1 }
+                v113 = (int)*(float *)&_XMM1;
+                v114 = v111;
+                if ( v111 > 255 )
+                  v114 = 255;
+                v67 = v114 < 0;
+                v115 = v114;
+                v116 = (int)*(float *)&_XMM1;
+                if ( v67 )
+                  v115 = 0;
+                BYTE13(v145) = v115;
+                if ( v113 > 255 )
+                  v116 = 255;
+                v117 = v116;
+                if ( v116 < 0 )
+                  v117 = 0;
+                __asm { vroundss xmm1, xmm9, xmm3, 1 }
+                BYTE14(v145) = v117;
+                v119 = (int)*(float *)&_XMM1;
+                v120 = (int)*(float *)&_XMM1;
+                if ( (int)*(float *)&_XMM1 > 255 )
+                  v120 = 255;
+                v121 = v120;
+                if ( v120 < 0 )
+                  v121 = 0;
+                HIBYTE(v145) = v121;
+                if ( v107 > 255 )
+                  v107 = 255;
+                v122 = v107;
+                if ( v107 < 0 )
+                  v122 = 0;
+                BYTE12(v146) = v122;
+                if ( v111 > 255 )
+                  v111 = 255;
+                v123 = v111;
+                *(float *)&v145 = v60 - 5.0;
+                if ( v111 < 0 )
+                  v123 = 0;
+                BYTE13(v146) = v123;
+                if ( v113 > 255 )
+                  v113 = 255;
+                v124 = v113;
+                if ( v113 < 0 )
+                  v124 = 0;
+                BYTE14(v146) = v124;
+                if ( v119 > 255 )
+                  v119 = 255;
+                v125 = v119;
+                if ( v119 < 0 )
+                  v125 = 0;
+                HIBYTE(v146) = v125;
+                *((float *)&v145 + 1) = v61;
+                *((float *)&v145 + 2) = v62;
+                *(float *)&v146 = v60 + 5.0;
+                *((float *)&v146 + 1) = v61;
+                *((float *)&v146 + 2) = v62;
+                CG_DebugLine((const vec3_t *)&v145, (const vec3_t *)&v146, &color, depthTest, 2);
+                *((float *)&v145 + 1) = v61 - 5.0;
+                *((float *)&v146 + 1) = v61 + 5.0;
+                *(float *)&v145 = v60;
+                *((float *)&v145 + 2) = v62;
+                *(float *)&v146 = v60;
+                *((float *)&v146 + 2) = v62;
+                CG_DebugLine((const vec3_t *)&v145, (const vec3_t *)&v146, &color, depthTest, 2);
+                *((float *)&v145 + 2) = v62 - 5.0;
+                *((float *)&v146 + 2) = v62 + 5.0;
+                *(float *)&v145 = v60;
+                *((float *)&v145 + 1) = v61;
+                *(float *)&v146 = v60;
+                *((float *)&v146 + 1) = v61;
+                CG_DebugLine((const vec3_t *)&v145, (const vec3_t *)&v146, &color, depthTest, 2);
+                v49 += v133 * v139;
+                ++v48;
+                v34 = v134;
+                v35 = v135;
+                v19 = v136;
+                v22 = v137;
+                v44 = v128;
+                v43 = v130;
+                v42 = v129;
               }
-              while ( v96 < v26 );
-              v95 = v292;
-              v94 = v287;
+              while ( v48 < v12 );
+              v47 = v138;
+              v46 = v133;
             }
-            v95 += v94;
-            ++v93;
-            v292 = v95;
+            v47 += v46;
+            ++v45;
+            v138 = v47;
           }
-          while ( v93 < v92 );
+          while ( v45 < v44 );
         }
-        v276 = ++v90;
+        v130 = ++v43;
       }
-      while ( v90 < v89 );
+      while ( v43 < v42 );
     }
-  }
-  __asm
-  {
-    vmovaps xmm13, xmmword ptr [rsp+1C0h+var_B8+8]
-    vmovaps xmm10, xmmword ptr [rsp+1C0h+var_88+8]
-  }
-  _R11 = &v303;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -1253,76 +978,42 @@ VectorFieldInstance *CG_VectorField_GetInstancePool()
 CG_VectorField_GetIntersectingInstances
 ==============
 */
-
-__int64 __fastcall CG_VectorField_GetIntersectingInstances(const vec3_t *pos, double radius, unsigned __int8 *destInstances, unsigned int maxDestInstances)
+__int64 CG_VectorField_GetIntersectingInstances(const vec3_t *pos, float radius, unsigned __int8 *destInstances, unsigned int maxDestInstances)
 {
+  __int64 v4; 
   unsigned int i; 
-  __int64 result; 
-  char v54; 
-  void *retaddr; 
+  VectorFieldInstance *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float sizeScale; 
+  float v14; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmm7, xmm1
-  }
-  _R14 = pos;
+  v4 = 0i64;
   for ( i = 0; i < 0xFF; ++i )
   {
-    _RCX = &s_vectorFieldInstancePool[i];
-    if ( _RCX->inUse )
+    v7 = &s_vectorFieldInstancePool[i];
+    if ( v7->inUse )
     {
-      __asm
+      v8 = pos->v[0] - v7->orient.origin.v[0];
+      v9 = pos->v[1] - v7->orient.origin.v[1];
+      v10 = pos->v[2] - v7->orient.origin.v[2];
+      v11 = (float)((float)(v9 * v7->orient.axis.m[1].v[0]) + (float)(v8 * v7->orient.axis.m[0].v[0])) + (float)(v10 * v7->orient.axis.m[2].v[0]);
+      v12 = (float)((float)(v9 * v7->orient.axis.m[1].v[1]) + (float)(v8 * v7->orient.axis.m[0].v[1])) + (float)(v10 * v7->orient.axis.m[2].v[1]);
+      sizeScale = v7->sizeScale;
+      v14 = (float)((float)(v9 * v7->orient.axis.m[1].v[2]) + (float)(v8 * v7->orient.axis.m[0].v[2])) + (float)(v10 * v7->orient.axis.m[2].v[2]);
+      if ( v11 < (float)((float)(sizeScale * v7->vf->worldBounds.maxs.v[0]) + radius) && v12 < (float)((float)(sizeScale * v7->vf->worldBounds.maxs.v[1]) + radius) && v14 < (float)((float)(sizeScale * v7->vf->worldBounds.maxs.v[2]) + radius) && v11 > (float)((float)(sizeScale * v7->vf->worldBounds.mins.v[0]) - radius) && v12 > (float)((float)(sizeScale * v7->vf->worldBounds.mins.v[1]) - radius) && v14 > (float)((float)(sizeScale * v7->vf->worldBounds.mins.v[2]) - radius) )
       {
-        vmovss  xmm0, dword ptr [r14]
-        vsubss  xmm6, xmm0, dword ptr [rcx+8]
-        vmovss  xmm1, dword ptr [r14+4]
-        vsubss  xmm4, xmm1, dword ptr [rcx+0Ch]
-        vmulss  xmm1, xmm4, dword ptr [rcx+20h]
-        vmulss  xmm3, xmm4, dword ptr [rcx+24h]
-        vmovss  xmm0, dword ptr [r14+8]
-        vsubss  xmm5, xmm0, dword ptr [rcx+10h]
-        vmulss  xmm0, xmm6, dword ptr [rcx+14h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rcx+2Ch]
-        vmulss  xmm0, xmm6, dword ptr [rcx+18h]
-        vaddss  xmm9, xmm2, xmm1
-        vmulss  xmm1, xmm5, dword ptr [rcx+30h]
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm3, xmm4, dword ptr [rcx+28h]
-        vmulss  xmm0, xmm6, dword ptr [rcx+1Ch]
-        vaddss  xmm8, xmm2, xmm1
-        vmulss  xmm1, xmm5, dword ptr [rcx+34h]
-        vaddss  xmm2, xmm3, xmm0
-        vmovss  xmm0, dword ptr [rcx+3Ch]
-        vmulss  xmm4, xmm0, dword ptr [rax+24h]
-        vmulss  xmm5, xmm0, dword ptr [rax+10h]
-        vmulss  xmm6, xmm0, dword ptr [rax+14h]
-        vmulss  xmm10, xmm0, dword ptr [rax+18h]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm0, dword ptr [rax+20h]
-        vmulss  xmm0, xmm0, dword ptr [rax+1Ch]
-        vaddss  xmm1, xmm0, xmm7
-        vcomiss xmm9, xmm1
+        if ( (unsigned int)v4 >= maxDestInstances )
+          return (unsigned int)v4;
+        destInstances[v4] = i;
+        v4 = (unsigned int)(v4 + 1);
       }
     }
   }
-  __asm { vmovaps xmm10, [rsp+0C8h+var_78] }
-  _R11 = &v54;
-  result = 0i64;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, [rsp+0C8h+var_68]
-    vmovaps xmm8, [rsp+0C8h+var_58]
-    vmovaps xmm6, [rsp+0C8h+var_38]
-  }
-  return result;
+  return (unsigned int)v4;
 }
 
 /*
@@ -1332,105 +1023,108 @@ CG_VectorField_SampleFoliagePosAgainstInstancesWithRadius
 */
 __int64 CG_VectorField_SampleFoliagePosAgainstInstancesWithRadius(const CapsuleBounds *const cpBounds, vec3_t *outSample, const unsigned int numInstances, const unsigned __int8 *const samplers, VectorFieldType filterType)
 {
-  __int64 v11; 
-  const unsigned __int8 *v12; 
-  unsigned int v15; 
-  __int64 v16; 
-  bool v61; 
-  int v66; 
+  __int64 v5; 
+  const unsigned __int8 *v6; 
+  unsigned int v9; 
+  __int64 v10; 
+  VectorFieldInstance *v11; 
+  float v13; 
+  __m128 v17; 
+  float v18; 
+  __m128 v22; 
+  float v23; 
+  __m128 v27; 
+  __int128 v29; 
+  __m128 v34; 
+  __m128 v35; 
+  bool v46; 
+  int v50; 
   vec3_t pos; 
-  __int128 v75; 
-  __int128 v76; 
-  __int128 v77; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
 
-  v11 = numInstances;
-  v12 = samplers;
+  v5 = numInstances;
+  v6 = samplers;
   _R12 = cpBounds;
   if ( !samplers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 793, ASSERT_TYPE_ASSERT, "(samplers)", (const char *)&queryFormat, "samplers") )
     __debugbreak();
-  v15 = 0;
+  v9 = 0;
   *(_QWORD *)outSample->v = 0i64;
   outSample->v[2] = 0.0;
-  if ( (_DWORD)v11 )
+  if ( (_DWORD)v5 )
   {
-    v16 = v11;
-    __asm
-    {
-      vmovaps [rsp+118h+var_98], xmm11
-      vmovss  xmm11, cs:__real@3f000000
-      vmovaps [rsp+118h+var_48], xmm6
-      vmovaps [rsp+118h+var_58], xmm7
-      vmovaps [rsp+118h+var_68], xmm8
-      vmovaps [rsp+118h+var_78], xmm9
-      vmovaps [rsp+118h+var_88], xmm10
-    }
+    v10 = v5;
     do
     {
-      _RBX = &s_vectorFieldInstancePool[*v12];
-      if ( _RBX->inUse )
+      v11 = &s_vectorFieldInstancePool[*v6];
+      if ( v11->inUse )
       {
-        _RAX = _RBX->vf;
+        _RAX = v11->vf;
+        v13 = _R12->start.v[0];
         __asm
         {
-          vmovss  xmm0, dword ptr [r12]
           vbroadcastss xmm6, dword ptr [r12+1Ch]
           vbroadcastss xmm7, dword ptr [r12+18h]
-          vmovss  xmm1, dword ptr [rax+1Ch]
-          vsubss  xmm2, xmm1, dword ptr [rax+10h]
         }
-        HIDWORD(v75) = 0;
+        v53.m128_i32[3] = 0;
+        v17 = v53;
+        v17.m128_f32[0] = v13;
+        _XMM10 = v17;
+        v18 = _R12->segTangent.v[0];
         __asm
         {
-          vmovups xmm10, xmmword ptr [rsp+40h]
-          vmovss  xmm10, xmm10, xmm0
-          vmovss  xmm0, dword ptr [r12+0Ch]
           vinsertps xmm10, xmm10, dword ptr [r12+4], 10h
           vinsertps xmm10, xmm10, dword ptr [r12+8], 20h ; ' '
         }
-        HIDWORD(v76) = 0;
+        v54.m128_i32[3] = 0;
+        v22 = v54;
+        v22.m128_f32[0] = v18;
+        _XMM9 = v22;
+        v23 = v11->orient.origin.v[0];
         __asm
         {
-          vmovups xmm9, xmmword ptr [rsp+50h]
-          vmovss  xmm9, xmm9, xmm0
-          vmovss  xmm0, dword ptr [rbx+8]
           vinsertps xmm9, xmm9, dword ptr [r12+10h], 10h
           vinsertps xmm9, xmm9, dword ptr [r12+14h], 20h ; ' '
         }
-        HIDWORD(v77) = 0;
+        v55.m128_i32[3] = 0;
+        v27 = v55;
+        v27.m128_f32[0] = v23;
+        _XMM5 = v27;
+        v29 = LODWORD(_RAX->worldBounds.maxs.v[1]);
+        *(float *)&v29 = _RAX->worldBounds.maxs.v[1] - _RAX->worldBounds.mins.v[1];
+        _XMM3 = v29;
         __asm
         {
-          vmovups xmm5, xmmword ptr [rsp+60h]
-          vmovss  xmm5, xmm5, xmm0
-          vmovss  xmm0, dword ptr [rax+20h]
-          vsubss  xmm3, xmm0, dword ptr [rax+14h]
-          vmovss  xmm0, dword ptr [rax+24h]
-          vsubss  xmm1, xmm0, dword ptr [rax+18h]
           vinsertps xmm5, xmm5, dword ptr [rbx+0Ch], 10h
           vinsertps xmm5, xmm5, dword ptr [rbx+10h], 20h ; ' '
           vmaxss  xmm4, xmm3, xmm2
           vmaxss  xmm2, xmm4, xmm1
-          vmulss  xmm3, xmm2, dword ptr [rbx+3Ch]
-          vmulss  xmm0, xmm3, xmm11
-          vshufps xmm0, xmm0, xmm0, 0
-          vaddps  xmm4, xmm0, xmm6
-          vsubps  xmm0, xmm5, xmm10
-          vmulps  xmm1, xmm0, xmm9
+        }
+        v34 = _XMM2;
+        v34.m128_f32[0] = (float)(_XMM2.m128_f32[0] * v11->sizeScale) * 0.5;
+        v35 = _mm128_add_ps(_mm_shuffle_ps(v34, v34, 0), _XMM6);
+        _XMM1 = _mm128_mul_ps(_mm128_sub_ps(_XMM5, _XMM10), _XMM9);
+        __asm
+        {
           vinsertps xmm2, xmm1, xmm1, 8
           vhaddps xmm0, xmm2, xmm2
           vhaddps xmm6, xmm0, xmm0
-          vxorps  xmm8, xmm8, xmm8
-          vsubps  xmm0, xmm8, xmm4
+        }
+        _mm128_sub_ps((__m128)0i64, v35);
+        __asm
+        {
           vcmpltps xmm1, xmm6, xmm0
           vmovmskps eax, xmm1
-          vmovups xmmword ptr [rsp+40h], xmm10
-          vmovups xmmword ptr [rsp+50h], xmm9
-          vmovups xmmword ptr [rsp+60h], xmm5
         }
+        v53 = _XMM10;
+        v54 = _XMM9;
+        v55 = _XMM5;
         if ( ((unsigned __int8)_RAX & 0xF) != 15 )
         {
+          _XMM0 = _mm128_add_ps(_XMM7, v35);
           __asm
           {
-            vaddps  xmm0, xmm7, xmm4
             vcmpltps xmm1, xmm0, xmm6
             vmovmskps eax, xmm1
           }
@@ -1443,40 +1137,33 @@ __int64 CG_VectorField_SampleFoliagePosAgainstInstancesWithRadius(const CapsuleB
             }
             if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
               __debugbreak();
-            v61 = _RBX->isRotated == 0;
+            v46 = v11->isRotated == 0;
             __asm
             {
               vmaxps  xmm0, xmm6, xmm8
               vminps  xmm1, xmm0, xmm7
-              vmulps  xmm2, xmm1, xmm9
-              vaddps  xmm3, xmm2, xmm10
-              vmovss  dword ptr [rsp+118h+pos], xmm3
+            }
+            _XMM3 = _mm128_add_ps(_mm128_mul_ps(_XMM1, _XMM9), _XMM10);
+            pos.v[0] = _XMM3.m128_f32[0];
+            __asm
+            {
               vextractps dword ptr [rsp+118h+pos+4], xmm3, 1
               vextractps dword ptr [rsp+118h+pos+8], xmm3, 2
             }
-            if ( v61 )
-              v66 = CG_VectorField_SamplePosAgainstSubFields_0_(_RBX, &pos, outSample, filterType);
+            if ( v46 )
+              v50 = CG_VectorField_SamplePosAgainstSubFields_0_(v11, &pos, outSample, filterType);
             else
-              v66 = CG_VectorField_SamplePosAgainstSubFields_1_(_RBX, &pos, outSample, filterType);
-            v15 |= v66;
+              v50 = CG_VectorField_SamplePosAgainstSubFields_1_(v11, &pos, outSample, filterType);
+            v9 |= v50;
           }
         }
       }
-      ++v12;
-      --v16;
+      ++v6;
+      --v10;
     }
-    while ( v16 );
-    __asm
-    {
-      vmovaps xmm11, [rsp+118h+var_98]
-      vmovaps xmm10, [rsp+118h+var_88]
-      vmovaps xmm9, [rsp+118h+var_78]
-      vmovaps xmm8, [rsp+118h+var_68]
-      vmovaps xmm7, [rsp+118h+var_58]
-      vmovaps xmm6, [rsp+118h+var_48]
-    }
+    while ( v10 );
   }
-  return v15;
+  return v9;
 }
 
 /*
@@ -1486,235 +1173,155 @@ CG_VectorField_SamplePosAgainstInstances
 */
 __int64 CG_VectorField_SamplePosAgainstInstances(const vec3_t *pos, vec3_t *outSample, unsigned int numInstances, unsigned __int8 *samplers, VectorFieldType filterType)
 {
-  unsigned int v13; 
-  unsigned __int8 v14; 
-  __int64 v16; 
+  unsigned int v8; 
+  unsigned __int8 v9; 
+  __int64 v10; 
+  VectorFieldInstance *v11; 
   const VectorField *vf; 
-  int v19; 
-  __int64 v20; 
-  __int64 v21; 
-  const dvar_t *v22; 
+  int v13; 
+  __int64 v14; 
+  float **v15; 
+  const dvar_t *v16; 
+  float sizeScale; 
   const orientation_t *p_orient; 
-  int v25; 
-  char v81; 
-  unsigned int v82; 
-  unsigned __int8 *v84; 
+  int v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float *v32; 
+  float v33; 
+  float strengthScale; 
+  float v35; 
+  float v36; 
+  char v38; 
+  unsigned int v39; 
+  unsigned __int8 *v41; 
   vec3_t outSamplea; 
 
-  v84 = samplers;
-  _R15 = outSample;
-  _R12 = pos;
+  v41 = samplers;
   if ( !samplers )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 718, ASSERT_TYPE_ASSERT, "(samplers)", (const char *)&queryFormat, "samplers") )
       __debugbreak();
     samplers = NULL;
   }
-  v13 = 0;
-  v14 = 0;
-  v82 = 0;
-  *(_QWORD *)_R15->v = 0i64;
-  _R15->v[2] = 0.0;
-  v81 = 0;
-  if ( numInstances )
+  v8 = 0;
+  v9 = 0;
+  v39 = 0;
+  *(_QWORD *)outSample->v = 0i64;
+  outSample->v[2] = 0.0;
+  v38 = 0;
+  if ( !numInstances )
+    return v8;
+  do
   {
-    __asm
+    v10 = samplers[v9];
+    v11 = &s_vectorFieldInstancePool[v10];
+    if ( !v11->inUse )
+      goto LABEL_40;
+    if ( !v11->isRotated )
     {
-      vmovaps [rsp+120h+var_40], xmm6
-      vmovaps [rsp+120h+var_50], xmm7
-      vmovaps [rsp+120h+var_60], xmm8
-      vmovaps [rsp+120h+var_70], xmm9
-      vmovaps [rsp+120h+var_80], xmm10
-      vxorps  xmm8, xmm8, xmm8
+      v8 |= CG_VectorField_SamplePosAgainstSubFields_0_(&s_vectorFieldInstancePool[v10], pos, outSample, filterType);
+      goto LABEL_39;
     }
-    while ( 1 )
+    vf = v11->vf;
+    v13 = 0;
+    v14 = 0i64;
+    if ( !v11->vf->numSubFields )
+      goto LABEL_37;
+    do
     {
-      v16 = samplers[v14];
-      _RDI = &s_vectorFieldInstancePool[v16];
-      if ( !_RDI->inUse )
+      v15 = (float **)&vf->subFields[v14];
+      if ( *((_DWORD *)v15 + 15) != filterType )
         goto LABEL_35;
-      if ( !_RDI->isRotated )
+      if ( ((_BYTE)v15[7] & 1) == 0 )
       {
-        v13 |= CG_VectorField_SamplePosAgainstSubFields_0_(&s_vectorFieldInstancePool[v16], _R12, _R15, filterType);
-        goto LABEL_34;
+        v16 = DVARBOOL_cg_vectorFieldsForceUniform;
+        if ( !DVARBOOL_cg_vectorFieldsForceUniform && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsForceUniform") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v16);
+        if ( !v16->current.enabled )
+        {
+          sizeScale = v11->sizeScale;
+          p_orient = &v11->orient;
+          if ( v11->isRotated )
+            v19 = CG_VectorField_SamplePosFromSubField_1_(p_orient, sizeScale, (const VectorSubField *)v15, pos, &outSamplea);
+          else
+            v19 = CG_VectorField_SamplePosFromSubField_0_(p_orient, sizeScale, (const VectorSubField *)v15, pos, &outSamplea);
+          goto LABEL_34;
+        }
       }
-      vf = _RDI->vf;
-      v19 = 0;
-      v20 = 0i64;
-      if ( !_RDI->vf->numSubFields )
-        goto LABEL_32;
-      do
+      v20 = v11->sizeScale;
+      v21 = pos->v[0];
+      v22 = pos->v[2];
+      if ( v11->isRotated )
       {
-        v21 = (__int64)&vf->subFields[v20];
-        if ( *(_DWORD *)(v21 + 60) != filterType )
-          goto LABEL_30;
-        if ( (*(_BYTE *)(v21 + 56) & 1) == 0 )
-        {
-          v22 = DVARBOOL_cg_vectorFieldsForceUniform;
-          if ( !DVARBOOL_cg_vectorFieldsForceUniform && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsForceUniform") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v22);
-          if ( !v22->current.enabled )
-          {
-            __asm { vmovss  xmm1, dword ptr [rdi+3Ch]; sizeScale }
-            p_orient = &_RDI->orient;
-            if ( _RDI->isRotated )
-              v25 = CG_VectorField_SamplePosFromSubField_1_(p_orient, *(float *)&_XMM1, (const VectorSubField *)v21, _R12, &outSamplea);
-            else
-              v25 = CG_VectorField_SamplePosFromSubField_0_(p_orient, *(float *)&_XMM1, (const VectorSubField *)v21, _R12, &outSamplea);
-            goto LABEL_29;
-          }
-        }
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rdi+3Ch]
-          vmovss  xmm0, dword ptr [r12]
-          vmovss  xmm1, dword ptr [r12+8]
-        }
-        if ( _RDI->isRotated )
-        {
-          __asm
-          {
-            vsubss  xmm4, xmm0, dword ptr [rdi+8]
-            vsubss  xmm6, xmm1, dword ptr [rdi+10h]
-            vmovss  xmm0, dword ptr [r12+4]
-            vsubss  xmm5, xmm0, dword ptr [rdi+0Ch]
-            vmulss  xmm1, xmm5, dword ptr [rdx+0Ch]
-            vmulss  xmm0, xmm4, dword ptr [rdx]
-            vmulss  xmm3, xmm4, dword ptr [rdx+4]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, dword ptr [rdx+18h]
-            vmulss  xmm0, xmm5, dword ptr [rdx+10h]
-            vaddss  xmm10, xmm2, xmm1
-            vmulss  xmm1, xmm6, dword ptr [rdx+1Ch]
-            vaddss  xmm2, xmm3, xmm0
-            vmulss  xmm3, xmm4, dword ptr [rdx+8]
-            vmulss  xmm0, xmm5, dword ptr [rdx+14h]
-            vmulss  xmm4, xmm7, dword ptr [rbx+8]
-            vmulss  xmm5, xmm7, dword ptr [rbx+0Ch]
-            vaddss  xmm9, xmm2, xmm1
-            vmulss  xmm1, xmm6, dword ptr [rdx+20h]
-            vmulss  xmm6, xmm7, dword ptr [rbx+10h]
-            vaddss  xmm2, xmm3, xmm0
-            vmulss  xmm0, xmm7, dword ptr [rbx+14h]
-            vcomiss xmm10, xmm0
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm7, dword ptr [rbx+18h]
-            vmulss  xmm2, xmm7, dword ptr [rbx+1Ch]
-          }
-          if ( _RDI->isRotated )
-            goto LABEL_28;
-          __asm { vcomiss xmm9, xmm1 }
-          if ( _RDI->isRotated )
-            goto LABEL_28;
-          __asm { vcomiss xmm3, xmm2 }
-          if ( _RDI->isRotated )
-            goto LABEL_28;
-          __asm
-          {
-            vcomiss xmm10, xmm4
-            vcomiss xmm9, xmm5
-            vcomiss xmm3, xmm6
-          }
-          Vec3Rotate(*(const vec3_t **)v21, &_RDI->orient.axis, &outSamplea);
-          v25 = 1;
-        }
-        else
-        {
-          __asm
-          {
-            vsubss  xmm5, xmm0, dword ptr [rdi+8]
-            vmovss  xmm0, dword ptr [r12+4]
-            vsubss  xmm2, xmm0, dword ptr [rdi+0Ch]
-            vmulss  xmm0, xmm7, dword ptr [rbx+14h]
-            vcomiss xmm5, xmm0
-            vsubss  xmm3, xmm1, dword ptr [rdi+10h]
-            vmulss  xmm6, xmm7, dword ptr [rbx+8]
-            vmulss  xmm9, xmm7, dword ptr [rbx+0Ch]
-            vmulss  xmm10, xmm7, dword ptr [rbx+10h]
-            vmulss  xmm1, xmm7, dword ptr [rbx+18h]
-            vmulss  xmm4, xmm7, dword ptr [rbx+1Ch]
-          }
-          if ( _RDI->isRotated )
-            goto LABEL_28;
-          __asm { vcomiss xmm2, xmm1 }
-          if ( _RDI->isRotated )
-            goto LABEL_28;
-          __asm { vcomiss xmm3, xmm4 }
-          if ( _RDI->isRotated )
-          {
-LABEL_28:
-            __asm
-            {
-              vmovss  dword ptr [rbp+4Fh+outSample], xmm8
-              vmovss  dword ptr [rbp+4Fh+outSample+8], xmm8
-              vmovss  dword ptr [rbp+4Fh+outSample+4], xmm8
-            }
-            v25 = 0;
-            goto LABEL_29;
-          }
-          __asm
-          {
-            vcomiss xmm5, xmm6
-            vcomiss xmm2, xmm9
-            vcomiss xmm3, xmm10
-          }
-          _RAX = *(const vec3_t **)v21;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vmovss  xmm1, dword ptr [rax+4]
-            vmovss  dword ptr [rbp+4Fh+outSample], xmm0
-            vmovss  xmm0, dword ptr [rax+8]
-            vmovss  dword ptr [rbp+4Fh+outSample+8], xmm0
-            vmovss  dword ptr [rbp+4Fh+outSample+4], xmm1
-          }
-          v25 = 1;
-        }
-LABEL_29:
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rdi+38h]
-          vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+outSample]
-          vaddss  xmm2, xmm1, dword ptr [r15]
-          vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+outSample+4]
-          vmovss  dword ptr [r15], xmm2
-          vaddss  xmm2, xmm1, dword ptr [r15+4]
-          vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+outSample+8]
-          vmovss  dword ptr [r15+4], xmm2
-          vaddss  xmm2, xmm1, dword ptr [r15+8]
-          vmovss  dword ptr [r15+8], xmm2
-        }
-        v19 |= v25;
-LABEL_30:
-        vf = _RDI->vf;
-        v20 = (unsigned int)(v20 + 1);
+        v23 = v21 - v11->orient.origin.v[0];
+        v24 = v22 - v11->orient.origin.v[2];
+        v25 = pos->v[1] - v11->orient.origin.v[1];
+        v26 = (float)((float)(v25 * v11->orient.axis.m[1].v[0]) + (float)(v23 * v11->orient.axis.m[0].v[0])) + (float)(v24 * v11->orient.axis.m[2].v[0]);
+        v27 = (float)((float)(v23 * v11->orient.axis.m[0].v[1]) + (float)(v25 * v11->orient.axis.m[1].v[1])) + (float)(v24 * v11->orient.axis.m[2].v[1]);
+        v28 = (float)((float)(v23 * v11->orient.axis.m[0].v[2]) + (float)(v25 * v11->orient.axis.m[1].v[2])) + (float)(v24 * v11->orient.axis.m[2].v[2]);
+        if ( v26 > (float)(v20 * *((float *)v15 + 5)) || v27 > (float)(v20 * *((float *)v15 + 6)) || v28 > (float)(v20 * *((float *)v15 + 7)) || v26 < (float)(v20 * *((float *)v15 + 2)) || v27 < (float)(v20 * *((float *)v15 + 3)) || v28 < (float)(v20 * *((float *)v15 + 4)) )
+          goto LABEL_33;
+        Vec3Rotate((const vec3_t *)*v15, &v11->orient.axis, &outSamplea);
+        v19 = 1;
       }
-      while ( (unsigned int)v20 < _RDI->vf->numSubFields );
-      v13 = v82;
-      v14 = v81;
-LABEL_32:
-      v13 |= v19;
+      else
+      {
+        v29 = v21 - v11->orient.origin.v[0];
+        v30 = pos->v[1] - v11->orient.origin.v[1];
+        v31 = v22 - v11->orient.origin.v[2];
+        if ( v29 > (float)(v20 * *((float *)v15 + 5)) || v30 > (float)(v20 * *((float *)v15 + 6)) || v31 > (float)(v20 * *((float *)v15 + 7)) || v29 < (float)(v20 * *((float *)v15 + 2)) || v30 < (float)(v20 * *((float *)v15 + 3)) || v31 < (float)(v20 * *((float *)v15 + 4)) )
+        {
+LABEL_33:
+          outSamplea.v[0] = 0.0;
+          outSamplea.v[2] = 0.0;
+          outSamplea.v[1] = 0.0;
+          v19 = 0;
+          goto LABEL_34;
+        }
+        v32 = *v15;
+        v33 = (*v15)[1];
+        outSamplea.v[0] = **v15;
+        outSamplea.v[2] = v32[2];
+        outSamplea.v[1] = v33;
+        v19 = 1;
+      }
 LABEL_34:
-      v82 = v13;
+      strengthScale = v11->strengthScale;
+      v35 = strengthScale * outSamplea.v[1];
+      outSample->v[0] = (float)(strengthScale * outSamplea.v[0]) + outSample->v[0];
+      v36 = strengthScale * outSamplea.v[2];
+      outSample->v[1] = v35 + outSample->v[1];
+      outSample->v[2] = v36 + outSample->v[2];
+      v13 |= v19;
 LABEL_35:
-      samplers = v84;
-      v81 = ++v14;
-      if ( v14 >= numInstances )
-      {
-        __asm
-        {
-          vmovaps xmm10, [rsp+120h+var_80]
-          vmovaps xmm9, [rsp+120h+var_70]
-          vmovaps xmm8, [rsp+120h+var_60]
-          vmovaps xmm7, [rsp+120h+var_50]
-          vmovaps xmm6, [rsp+120h+var_40]
-        }
-        return v13;
-      }
+      vf = v11->vf;
+      v14 = (unsigned int)(v14 + 1);
     }
+    while ( (unsigned int)v14 < v11->vf->numSubFields );
+    v8 = v39;
+    v9 = v38;
+LABEL_37:
+    v8 |= v13;
+LABEL_39:
+    v39 = v8;
+LABEL_40:
+    samplers = v41;
+    v38 = ++v9;
   }
-  return v13;
+  while ( v9 < numInstances );
+  return v8;
 }
 
 /*
@@ -1722,22 +1329,9 @@ LABEL_35:
 CG_VectorField_TransformUpdated
 ==============
 */
-
-__int64 __fastcall CG_VectorField_TransformUpdated(double vf_sizesScale, const orientation_t *vf_orient, float fx_sizesScale, const orientation_t *fx_orient)
+_BOOL8 CG_VectorField_TransformUpdated(float vf_sizesScale, const orientation_t *vf_orient, float fx_sizesScale, const orientation_t *fx_orient)
 {
-  __int64 result; 
-
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm2
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3a83126f
-    vcomiss xmm1, xmm6
-  }
-  result = 1i64;
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+  return COERCE_FLOAT(COERCE_UNSIGNED_INT(vf_sizesScale - fx_sizesScale) & _xmm) >= 0.001 || !VecNCompareCustomEpsilon(vf_orient->origin.v, fx_orient->origin.v, 0.001, 3) || !VecNCompareCustomEpsilon((const float *)&vf_orient->axis, (const float *)&fx_orient->axis, 0.001, 3) || !VecNCompareCustomEpsilon(vf_orient->axis.m[1].v, fx_orient->axis.m[1].v, 0.001, 3) || !VecNCompareCustomEpsilon(vf_orient->axis.m[2].v, fx_orient->axis.m[2].v, 0.001, 3);
 }
 
 /*
@@ -1745,112 +1339,78 @@ __int64 __fastcall CG_VectorField_TransformUpdated(double vf_sizesScale, const o
 CG_VectorField_UpdateInstanceForFxWithEffectHandle
 ==============
 */
-
-void __fastcall CG_VectorField_UpdateInstanceForFxWithEffectHandle(unsigned int effectHandle, const orientation_t *orient, double strengthScale, double sizeScale, int isRotated)
+void CG_VectorField_UpdateInstanceForFxWithEffectHandle(unsigned int effectHandle, const orientation_t *orient, float strengthScale, float sizeScale, int isRotated)
 {
+  float *v7; 
   unsigned int i; 
-  int v27; 
-  unsigned __int8 v28; 
-  unsigned __int8 v30; 
-  const dvar_t *v31; 
-  const dvar_t *v32; 
-  char v40; 
+  float *v9; 
+  BOOL v10; 
+  unsigned __int8 v11; 
+  float v12; 
+  unsigned __int8 v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  _RBP = orient;
-  __asm
-  {
-    vmovaps [rsp+98h+var_48], xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm3, xmm0
-    vmovaps [rsp+98h+var_58], xmm8
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  _RBX = &s_vectorFieldInstancePool[0].orient.axis.m[0].v[1];
-  __asm { vmovss  xmm8, cs:__real@3f800000 }
+  if ( sizeScale == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 377, ASSERT_TYPE_ASSERT, "(sizeScale)", (const char *)&queryFormat, "sizeScale") )
+    __debugbreak();
+  v7 = &s_vectorFieldInstancePool[0].orient.axis.m[0].v[1];
   for ( i = 0; i < 0xFF; ++i )
   {
-    _RAX = *((_QWORD *)_RBX - 3);
-    _RDX = (const orientation_t *)(_RBX - 4);
-    __asm
+    v9 = (float *)*((_QWORD *)v7 - 3);
+    *(v7 - 4) = orient->origin.v[0] + v9[10];
+    *(v7 - 3) = v9[11] + orient->origin.v[1];
+    *(v7 - 2) = v9[12] + orient->origin.v[2];
+    if ( *((_DWORD *)v7 + 12) == effectHandle && *((_DWORD *)v7 + 10) )
     {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vaddss  xmm1, xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rdx], xmm1
-      vmovss  xmm0, dword ptr [rax+2Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbp+4]
-      vmovss  dword ptr [rbx-0Ch], xmm1
-      vmovss  xmm2, dword ptr [rax+30h]
-      vaddss  xmm0, xmm2, dword ptr [rbp+8]
-      vmovss  dword ptr [rbx-8], xmm0
-    }
-    if ( *((_DWORD *)_RBX + 12) == effectHandle && *((_DWORD *)_RBX + 10) )
-    {
-      __asm
+      v10 = CG_VectorField_TransformUpdated(v7[9], (const orientation_t *)(v7 - 4), sizeScale, orient);
+      if ( v10 )
       {
-        vmovss  xmm0, dword ptr [rbx+24h]; vf_sizesScale
-        vmovaps xmm2, xmm6; fx_sizesScale
+        v11 = truncate_cast<unsigned char,unsigned int>(i);
+        CG_Wind_RemoveVectorField(v11);
       }
-      v27 = CG_VectorField_TransformUpdated(*(double *)&_XMM0, _RDX, *(float *)&_XMM2, _RBP);
-      if ( v27 )
-      {
-        v28 = truncate_cast<unsigned char,unsigned int>(i);
-        CG_Wind_RemoveVectorField(v28);
-      }
-      *((_DWORD *)_RBX + 11) = isRotated;
+      *((_DWORD *)v7 + 11) = isRotated;
       if ( isRotated )
       {
-        *(_RBX - 1) = _RBP->axis.m[0].v[0];
-        *_RBX = _RBP->axis.m[0].v[1];
-        _RBX[1] = _RBP->axis.m[0].v[2];
-        _RBX[2] = _RBP->axis.m[1].v[0];
-        _RBX[3] = _RBP->axis.m[1].v[1];
-        _RBX[4] = _RBP->axis.m[1].v[2];
-        _RBX[5] = _RBP->axis.m[2].v[0];
-        _RBX[6] = _RBP->axis.m[2].v[1];
-        __asm { vmovss  xmm0, dword ptr [rbp+2Ch] }
+        *(v7 - 1) = orient->axis.m[0].v[0];
+        *v7 = orient->axis.m[0].v[1];
+        v7[1] = orient->axis.m[0].v[2];
+        v7[2] = orient->axis.m[1].v[0];
+        v7[3] = orient->axis.m[1].v[1];
+        v7[4] = orient->axis.m[1].v[2];
+        v7[5] = orient->axis.m[2].v[0];
+        v7[6] = orient->axis.m[2].v[1];
+        v12 = orient->axis.m[2].v[2];
       }
       else
       {
-        *(_QWORD *)(_RBX - 1) = 1065353216i64;
-        *(_QWORD *)(_RBX + 1) = 0i64;
-        *(_QWORD *)(_RBX + 3) = 1065353216i64;
-        *(_QWORD *)(_RBX + 5) = 0i64;
-        __asm { vmovaps xmm0, xmm8 }
+        *(_QWORD *)(v7 - 1) = 1065353216i64;
+        *(_QWORD *)(v7 + 1) = 0i64;
+        *(_QWORD *)(v7 + 3) = 1065353216i64;
+        *(_QWORD *)(v7 + 5) = 0i64;
+        v12 = FLOAT_1_0;
       }
-      __asm
+      v7[7] = v12;
+      v7[8] = strengthScale;
+      v7[9] = sizeScale;
+      if ( v10 )
       {
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  dword ptr [rbx+20h], xmm7
-        vmovss  dword ptr [rbx+24h], xmm6
+        v13 = truncate_cast<unsigned char,unsigned int>(i);
+        CG_Wind_AddVectorField(v13);
       }
-      if ( v27 )
-      {
-        v30 = truncate_cast<unsigned char,unsigned int>(i);
-        CG_Wind_AddVectorField(v30);
-      }
-      v31 = DVARINT_cg_vectorFieldsDraw;
+      v14 = DVARINT_cg_vectorFieldsDraw;
       if ( !DVARINT_cg_vectorFieldsDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsDraw") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      if ( v31->current.integer )
+      Dvar_CheckFrontendServerThread(v14);
+      if ( v14->current.integer )
       {
-        v32 = DVARINT_cg_vectorFieldsDraw;
+        v15 = DVARINT_cg_vectorFieldsDraw;
         if ( !DVARINT_cg_vectorFieldsDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_vectorFieldsDraw") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v32);
-        CG_VectorField_DrawField((const VectorFieldInstance *)(_RBX - 6), v32->current.integer > 1);
+        Dvar_CheckFrontendServerThread(v15);
+        CG_VectorField_DrawField((const VectorFieldInstance *)(v7 - 6), v15->current.integer > 1);
       }
     }
-    _RBX += 20;
-  }
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm6, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_48]
+    v7 += 20;
   }
 }
 
@@ -1859,57 +1419,36 @@ void __fastcall CG_VectorField_UpdateInstanceForFxWithEffectHandle(unsigned int 
 CG_VectorField_UpdateInstanceForFxWithHandle
 ==============
 */
-
-void __fastcall CG_VectorField_UpdateInstanceForFxWithHandle(unsigned __int8 vfHandle, const orientation_t *orient, double strengthScale, double sizeScale, bool isRotated)
+void CG_VectorField_UpdateInstanceForFxWithHandle(unsigned __int8 vfHandle, const orientation_t *orient, float strengthScale, float sizeScale, bool isRotated)
 {
-  int v16; 
+  BOOL v8; 
+  const VectorField *vf; 
+  float v11; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  _RSI = orient;
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
   if ( vfHandle == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 331, ASSERT_TYPE_ASSERT, "(unsigned)( vfHandle ) < (unsigned)( ( sizeof( *array_counter( s_vectorFieldInstancePool ) ) + 0 ) )", "vfHandle doesn't index ARRAY_COUNT( s_vectorFieldInstancePool )\n\t%i not in [0, %i)", 255, 255) )
     __debugbreak();
-  _R15 = s_vectorFieldInstancePool;
-  _RBX = 10i64 * vfHandle;
   if ( !s_vectorFieldInstancePool[vfHandle].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vectorfield.cpp", 332, ASSERT_TYPE_ASSERT, "(s_vectorFieldInstancePool[vfHandle].inUse)", (const char *)&queryFormat, "s_vectorFieldInstancePool[vfHandle].inUse") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [r15+rbx*8+3Ch]; vf_sizesScale }
-  _RBP = &s_vectorFieldInstancePool[vfHandle].orient;
-  __asm { vmovaps xmm2, xmm6; fx_sizesScale }
-  v16 = CG_VectorField_TransformUpdated(*(double *)&_XMM0, _RBP, *(float *)&_XMM2, _RSI);
-  if ( v16 )
+  v8 = CG_VectorField_TransformUpdated(s_vectorFieldInstancePool[vfHandle].sizeScale, &s_vectorFieldInstancePool[vfHandle].orient, sizeScale, orient);
+  if ( v8 )
     CG_Wind_RemoveVectorField(vfHandle);
-  __asm { vmovss  xmm3, cs:__real@3f800000 }
+  _XMM3 = LODWORD(FLOAT_1_0);
   s_vectorFieldInstancePool[vfHandle].isRotated = isRotated;
-  _RCX = s_vectorFieldInstancePool[vfHandle].vf;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vaddss  xmm1, xmm0, dword ptr [rcx+28h]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  xmm2, dword ptr [rcx+2Ch]
-    vaddss  xmm0, xmm2, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+4], xmm0
-    vmovss  xmm1, dword ptr [rcx+30h]
-    vaddss  xmm2, xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+8], xmm2
-  }
+  vf = s_vectorFieldInstancePool[vfHandle].vf;
+  s_vectorFieldInstancePool[vfHandle].orient.origin.v[0] = orient->origin.v[0] + vf->localOrigin.v[0];
+  s_vectorFieldInstancePool[vfHandle].orient.origin.v[1] = vf->localOrigin.v[1] + orient->origin.v[1];
+  s_vectorFieldInstancePool[vfHandle].orient.origin.v[2] = vf->localOrigin.v[2] + orient->origin.v[2];
   if ( s_vectorFieldInstancePool[vfHandle].isRotated )
   {
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[0].v[0] = _RSI->axis.m[0].v[0];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[0].v[1] = _RSI->axis.m[0].v[1];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[0].v[2] = _RSI->axis.m[0].v[2];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[1].v[0] = _RSI->axis.m[1].v[0];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[1].v[1] = _RSI->axis.m[1].v[1];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[1].v[2] = _RSI->axis.m[1].v[2];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[2].v[0] = _RSI->axis.m[2].v[0];
-    s_vectorFieldInstancePool[vfHandle].orient.axis.m[2].v[1] = _RSI->axis.m[2].v[1];
-    __asm { vmovss  xmm0, dword ptr [rsi+2Ch] }
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[0].v[0] = orient->axis.m[0].v[0];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[0].v[1] = orient->axis.m[0].v[1];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[0].v[2] = orient->axis.m[0].v[2];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[1].v[0] = orient->axis.m[1].v[0];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[1].v[1] = orient->axis.m[1].v[1];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[1].v[2] = orient->axis.m[1].v[2];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[2].v[0] = orient->axis.m[2].v[0];
+    s_vectorFieldInstancePool[vfHandle].orient.axis.m[2].v[1] = orient->axis.m[2].v[1];
+    v11 = orient->axis.m[2].v[2];
   }
   else
   {
@@ -1917,25 +1456,18 @@ void __fastcall CG_VectorField_UpdateInstanceForFxWithHandle(unsigned __int8 vfH
     *(_QWORD *)&s_vectorFieldInstancePool[vfHandle].orient.axis.row0.z = 0i64;
     *(_QWORD *)&s_vectorFieldInstancePool[vfHandle].orient.axis.row1.y = 1065353216i64;
     *(_QWORD *)s_vectorFieldInstancePool[vfHandle].orient.axis.row2.v = 0i64;
-    __asm { vmovaps xmm0, xmm3 }
+    v11 = FLOAT_1_0;
   }
+  s_vectorFieldInstancePool[vfHandle].orient.axis.m[2].v[2] = v11;
+  _XMM0 = *(unsigned __int64 *)&DOUBLE_0_000001;
   __asm
   {
-    vmovss  dword ptr [r15+rbx*8+34h], xmm0
-    vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  xmm0, cs:__real@3eb0c6f7a0b5ed8d
     vcmpltsd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm6, xmm2
-    vmovss  dword ptr [r15+rbx*8+3Ch], xmm0
-    vmovss  dword ptr [r15+rbx*8+38h], xmm7
   }
-  if ( v16 )
+  s_vectorFieldInstancePool[vfHandle].sizeScale = *(float *)&_XMM0;
+  s_vectorFieldInstancePool[vfHandle].strengthScale = strengthScale;
+  if ( v8 )
     CG_Wind_AddVectorField(vfHandle);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
 }
 

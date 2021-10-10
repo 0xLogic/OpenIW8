@@ -1338,341 +1338,322 @@ HttpRequest::Open
 __int64 HttpRequest::Open(HttpRequest *this, const wchar_t *verb, const wchar_t *url, const char *data, unsigned int dataLength, bool ignoreCacheAndETag, Windows::Xbox::System::User *currentUser)
 {
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v13; 
-  int v16; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v17; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v18; 
+  int v14; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v15; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v16; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *Ptr; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v18; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v19; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v20; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v21; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *Myhead; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *Left; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v28; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v29; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v30; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v31; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v23; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v24; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v25; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v26; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *Right; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *i; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *j; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v35; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v36; 
-  HSTRING v37; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v38; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v39; 
-  HSTRING v40; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v30; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v31; 
+  HSTRING v32; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v33; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v34; 
+  HSTRING v35; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v36; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v37; 
+  HSTRING v38; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v39; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v40; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v41; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v42; 
-  HSTRING v43; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v44; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v45; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v46; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v47; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v48; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v42; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v43; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *p_p_addr; 
-  _DWORD *v50; 
-  _DWORD *v51; 
-  __int64 v52; 
-  unsigned int v53; 
-  char *v54; 
-  __int64 v55; 
-  __int64 v56; 
+  _DWORD *v45; 
+  _DWORD *v46; 
+  __int64 v47; 
+  unsigned int v48; 
+  char *v49; 
+  __int64 v50; 
+  __int64 v51; 
   std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *_Newnode; 
-  std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> >,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> >,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > >,0> > v69; 
-  std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > > v70; 
-  Windows::Xbox::System::User *v71; 
-  std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > > v72; 
-  __int64 v73; 
-  __int64 v74; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v75; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v76; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v77; 
-  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v78; 
+  std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> >,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> >,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > >,0> > v54; 
+  std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > > v55; 
+  Windows::Xbox::System::User *v56; 
+  std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > > v57; 
+  __int64 v58; 
+  __int64 v59; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v60; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v61; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v62; 
+  std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *v63; 
   std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> result; 
-  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v80; 
-  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v81; 
-  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v82; 
-  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v83; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v84; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v85; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v86; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v87; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v88; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v89; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v90; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v91; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v92; 
+  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v65; 
+  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v66; 
+  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v67; 
+  std::pair<std::_Tree_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >,bool> v68; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v69; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v70; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v71; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v72; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v73; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v74; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v75; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v76; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v77; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > p_addr; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > _Right; 
   wchar_t *_Ptr; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v96; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > v81; 
   char pDestBuffer[40]; 
   wchar_t _Buffer[32]; 
-  char v99[512]; 
-  char v100[512]; 
+  char v84[512]; 
+  char v85[512]; 
 
-  v74 = -2i64;
-  v71 = currentUser;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+730h+var_6F0.baseclass_0._Mypair._Myval2._Myval2._Myhead], xmm0
-  }
+  v59 = -2i64;
+  v56 = currentUser;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v54._Mypair._Myval2._Myval2._Mysize = *((_QWORD *)&_XMM0 + 1);
   v13 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
-  v75 = v13;
+  v60 = v13;
   v13->_Left = v13;
   v13->_Parent = v13;
   v13->_Right = v13;
   *(_WORD *)&v13->_Color = 257;
-  v69._Mypair._Myval2._Myval2._Myhead = v13;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+630h+var_5E8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v87._Mypair._Myval2._Bx._Buf[0] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+630h+var_5A8.baseclass_0._Mypair._Myval2._Mysize], xmm0 }
-  v89._Mypair._Myval2._Bx._Buf[0] = 0;
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v89, url);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu [rbp+630h+var_510], xmm0
-  }
+  v54._Mypair._Myval2._Myval2._Myhead = v13;
+  *(_OWORD *)&v72._Mypair._Myval2._Mysize = _xmm;
+  v72._Mypair._Myval2._Bx._Buf[0] = 0;
+  *(_OWORD *)&v74._Mypair._Myval2._Mysize = _xmm;
+  v74._Mypair._Myval2._Bx._Buf[0] = 0;
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v74, url);
+  *(_OWORD *)&p_addr._Mypair._Myval2._Mysize = _xmm;
   p_addr._Mypair._Myval2._Bx._Buf[0] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+630h+_Right.baseclass_0._Mypair._Myval2._Mysize], xmm0 }
+  *(_OWORD *)&_Right._Mypair._Myval2._Mysize = _xmm;
   _Right._Mypair._Myval2._Bx._Buf[0] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+630h+var_540.baseclass_0._Mypair._Myval2._Mysize], xmm0 }
-  v92._Mypair._Myval2._Bx._Buf[0] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+630h+var_5C8.baseclass_0._Mypair._Myval2._Mysize], xmm0 }
-  v88._Mypair._Myval2._Bx._Buf[0] = 0;
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v88, verb);
-  v16 = (*(__int64 (__fastcall **)(_QWORD, const wchar_t *, const wchar_t *, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD))(**(_QWORD **)&this->id + 24i64))(*(_QWORD *)&this->id, verb, url, *(_QWORD *)&this->method[4], 0i64, 0i64, 0i64, 0i64);
-  if ( v16 >= 0 )
+  *(_OWORD *)&v77._Mypair._Myval2._Mysize = _xmm;
+  v77._Mypair._Myval2._Bx._Buf[0] = 0;
+  *(_OWORD *)&v73._Mypair._Myval2._Mysize = _xmm;
+  v73._Mypair._Myval2._Bx._Buf[0] = 0;
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v73, verb);
+  v14 = (*(__int64 (__fastcall **)(_QWORD, const wchar_t *, const wchar_t *, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD))(**(_QWORD **)&this->id + 24i64))(*(_QWORD *)&this->id, verb, url, *(_QWORD *)&this->method[4], 0i64, 0i64, 0i64, 0i64);
+  if ( v14 >= 0 )
   {
-    v17 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
-    v17->_Left = v69._Mypair._Myval2._Myval2._Myhead;
-    v17->_Parent = v69._Mypair._Myval2._Myval2._Myhead;
-    v17->_Right = v69._Mypair._Myval2._Myval2._Myhead;
-    *(_WORD *)&v17->_Color = 0;
-    v17->_Myval.first._Mypair._Myval2._Mysize = 0i64;
-    v17->_Myval.first._Mypair._Myval2._Myres = 7i64;
-    v17->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v17->_Myval.first, L"User-Agent");
-    v17->_Myval.second._Mypair._Myval2._Mysize = 0i64;
-    v17->_Myval.second._Mypair._Myval2._Myres = 7i64;
-    v17->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v17->_Myval.second, USER_AGENT);
-    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v69, &result, 0, &v17->_Myval, v17);
+    v15 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
+    v15->_Left = v54._Mypair._Myval2._Myval2._Myhead;
+    v15->_Parent = v54._Mypair._Myval2._Myval2._Myhead;
+    v15->_Right = v54._Mypair._Myval2._Myval2._Myhead;
+    *(_WORD *)&v15->_Color = 0;
+    v15->_Myval.first._Mypair._Myval2._Mysize = 0i64;
+    v15->_Myval.first._Mypair._Myval2._Myres = 7i64;
+    v15->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v15->_Myval.first, L"User-Agent");
+    v15->_Myval.second._Mypair._Myval2._Mysize = 0i64;
+    v15->_Myval.second._Mypair._Myval2._Myres = 7i64;
+    v15->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v15->_Myval.second, USER_AGENT);
+    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v54, &result, 0, &v15->_Myval, v15);
+    v16 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
+    v16->_Left = v54._Mypair._Myval2._Myval2._Myhead;
+    v16->_Parent = v54._Mypair._Myval2._Myval2._Myhead;
+    v16->_Right = v54._Mypair._Myval2._Myval2._Myhead;
+    *(_WORD *)&v16->_Color = 0;
+    v16->_Myval.first._Mypair._Myval2._Mysize = 0i64;
+    v16->_Myval.first._Mypair._Myval2._Myres = 7i64;
+    v16->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v16->_Myval.first, L"Content-Type");
+    v16->_Myval.second._Mypair._Myval2._Mysize = 0i64;
+    v16->_Myval.second._Mypair._Myval2._Myres = 7i64;
+    v16->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v16->_Myval.second, L"application/json\r\n");
+    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v54, &v65, 0, &v16->_Myval, v16);
+    j_swprintf(_Buffer, 0x20ui64, L"%d\r\n", *(unsigned int *)&this->url[28]);
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v77, _Buffer);
+    Ptr = &v77;
+    if ( v77._Mypair._Myval2._Myres >= 8 )
+      Ptr = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v77._Mypair._Myval2._Bx._Ptr;
+    v61 = Ptr;
     v18 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
-    v18->_Left = v69._Mypair._Myval2._Myval2._Myhead;
-    v18->_Parent = v69._Mypair._Myval2._Myval2._Myhead;
-    v18->_Right = v69._Mypair._Myval2._Myval2._Myhead;
+    v18->_Left = v54._Mypair._Myval2._Myval2._Myhead;
+    v18->_Parent = v54._Mypair._Myval2._Myval2._Myhead;
+    v18->_Right = v54._Mypair._Myval2._Myval2._Myhead;
     *(_WORD *)&v18->_Color = 0;
     v18->_Myval.first._Mypair._Myval2._Mysize = 0i64;
     v18->_Myval.first._Mypair._Myval2._Myres = 7i64;
     v18->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v18->_Myval.first, L"Content-Type");
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v18->_Myval.first, L"x-xbl-contract-version");
     v18->_Myval.second._Mypair._Myval2._Mysize = 0i64;
     v18->_Myval.second._Mypair._Myval2._Myres = 7i64;
     v18->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v18->_Myval.second, L"application/json\r\n");
-    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v69, &v80, 0, &v18->_Myval, v18);
-    j_swprintf(_Buffer, 0x20ui64, L"%d\r\n", *(unsigned int *)&this->url[28]);
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v92, _Buffer);
-    Ptr = &v92;
-    if ( v92._Mypair._Myval2._Myres >= 8 )
-      Ptr = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v92._Mypair._Myval2._Bx._Ptr;
-    v76 = Ptr;
-    v20 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
-    v20->_Left = v69._Mypair._Myval2._Myval2._Myhead;
-    v20->_Parent = v69._Mypair._Myval2._Myval2._Myhead;
-    v20->_Right = v69._Mypair._Myval2._Myval2._Myhead;
-    *(_WORD *)&v20->_Color = 0;
-    v20->_Myval.first._Mypair._Myval2._Mysize = 0i64;
-    v20->_Myval.first._Mypair._Myval2._Myres = 7i64;
-    v20->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v20->_Myval.first, L"x-xbl-contract-version");
-    v20->_Myval.second._Mypair._Myval2._Mysize = 0i64;
-    v20->_Myval.second._Mypair._Myval2._Myres = 7i64;
-    v20->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v20->_Myval.second, Ptr->_Mypair._Myval2._Bx._Buf);
-    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v69, &v81, 0, &v20->_Myval, v20);
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v18->_Myval.second, Ptr->_Mypair._Myval2._Bx._Buf);
+    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v54, &v66, 0, &v18->_Myval, v18);
     if ( ignoreCacheAndETag )
     {
-      v21 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
-      v21->_Left = v69._Mypair._Myval2._Myval2._Myhead;
-      v21->_Parent = v69._Mypair._Myval2._Myval2._Myhead;
-      v21->_Right = v69._Mypair._Myval2._Myval2._Myhead;
-      *(_WORD *)&v21->_Color = 0;
-      v21->_Myval.first._Mypair._Myval2._Mysize = 0i64;
-      v21->_Myval.first._Mypair._Myval2._Myres = 7i64;
-      v21->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
-      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v21->_Myval.first, L"If-Modified-Since");
-      v21->_Myval.second._Mypair._Myval2._Mysize = 0i64;
-      v21->_Myval.second._Mypair._Myval2._Myres = 7i64;
-      v21->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
-      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v21->_Myval.second, L"Sat, 29 Oct 1994 19:43:31 GMT\r\n");
-      std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v69, &v82, 0, &v21->_Myval, v21);
+      v19 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
+      v19->_Left = v54._Mypair._Myval2._Myval2._Myhead;
+      v19->_Parent = v54._Mypair._Myval2._Myval2._Myhead;
+      v19->_Right = v54._Mypair._Myval2._Myval2._Myhead;
+      *(_WORD *)&v19->_Color = 0;
+      v19->_Myval.first._Mypair._Myval2._Mysize = 0i64;
+      v19->_Myval.first._Mypair._Myval2._Myres = 7i64;
+      v19->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
+      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v19->_Myval.first, L"If-Modified-Since");
+      v19->_Myval.second._Mypair._Myval2._Mysize = 0i64;
+      v19->_Myval.second._Mypair._Myval2._Myres = 7i64;
+      v19->_Myval.second._Mypair._Myval2._Bx._Buf[0] = 0;
+      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&v19->_Myval.second, L"Sat, 29 Oct 1994 19:43:31 GMT\r\n");
+      std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v54, &v67, 0, &v19->_Myval, v19);
     }
     j_swprintf(_Buffer, 0x20ui64, L"%d", dataLength);
     std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign(&_Right, _Buffer);
     _Ptr = (wchar_t *)L"Content-Length";
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v96, &_Right);
-    _RDI = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
-    _RDI->_Left = v69._Mypair._Myval2._Myval2._Myhead;
-    _RDI->_Parent = v69._Mypair._Myval2._Myval2._Myhead;
-    _RDI->_Right = v69._Mypair._Myval2._Myval2._Myhead;
-    *(_WORD *)&_RDI->_Color = 0;
-    _RDI->_Myval.first._Mypair._Myval2._Mysize = 0i64;
-    _RDI->_Myval.first._Mypair._Myval2._Myres = 7i64;
-    _RDI->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&_RDI->_Myval.first, _Ptr);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+630h+var_4D8.baseclass_0._Mypair._Myval2._Bx]
-      vmovups ymmword ptr [rdi+40h], ymm0
-      vmovdqu xmm1, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+630h+var_4D8.baseclass_0._Mypair._Myval2._Mysize], xmm1
-    }
-    v96._Mypair._Myval2._Bx._Buf[0] = 0;
-    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v69, &v83, 0, &_RDI->_Myval, _RDI);
-    __asm
-    {
-      vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-      vmovdqu xmmword ptr [rbp+630h+var_4D8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-    }
-    v96._Mypair._Myval2._Bx._Buf[0] = 0;
-    Myhead = v69._Mypair._Myval2._Myval2._Myhead;
-    v77 = v69._Mypair._Myval2._Myval2._Myhead;
-    Left = v69._Mypair._Myval2._Myval2._Myhead->_Left;
-    v78 = Left;
-    if ( Left == v69._Mypair._Myval2._Myval2._Myhead )
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v81, &_Right);
+    v20 = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)HttpHeapMalloc(0x60ui64);
+    v20->_Left = v54._Mypair._Myval2._Myval2._Myhead;
+    v20->_Parent = v54._Mypair._Myval2._Myval2._Myhead;
+    v20->_Right = v54._Mypair._Myval2._Myval2._Myhead;
+    *(_WORD *)&v20->_Color = 0;
+    v20->_Myval.first._Mypair._Myval2._Mysize = 0i64;
+    v20->_Myval.first._Mypair._Myval2._Myres = 7i64;
+    v20->_Myval.first._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::assign((std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)&v20->_Myval.first, _Ptr);
+    v20->_Myval.second = v81;
+    *(_OWORD *)&v81._Mypair._Myval2._Mysize = _xmm;
+    v81._Mypair._Myval2._Bx._Buf[0] = 0;
+    std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::_Insert_nohint<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>> &,std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>,void *> *>(&v54, &v68, 0, &v20->_Myval, v20);
+    *(_OWORD *)&v81._Mypair._Myval2._Mysize = _xmm;
+    v81._Mypair._Myval2._Bx._Buf[0] = 0;
+    Myhead = v54._Mypair._Myval2._Myval2._Myhead;
+    v62 = v54._Mypair._Myval2._Myval2._Myhead;
+    Left = v54._Mypair._Myval2._Myval2._Myhead->_Left;
+    v63 = Left;
+    if ( Left == v54._Mypair._Myval2._Myval2._Myhead )
     {
 LABEL_28:
-      v70._Ptr = NULL;
-      v35 = &v88;
-      if ( v88._Mypair._Myval2._Myres >= 8 )
-        v35 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v88._Mypair._Myval2._Bx._Ptr;
-      Platform::String::String(NULL, v35->_Mypair._Myval2._Bx._Buf);
-      v37 = (HSTRING)v36;
-      v70._Ptr = v36;
-      ConvertPlatformStringToCharArray((Platform::String *)v36, pDestBuffer, 0x20ui64);
-      WindowsDeleteString_0(v37);
-      v70._Ptr = NULL;
-      v38 = &v89;
-      if ( v89._Mypair._Myval2._Myres >= 8 )
-        v38 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v89._Mypair._Myval2._Bx._Ptr;
-      Platform::String::String(NULL, v38->_Mypair._Myval2._Bx._Buf);
-      v40 = (HSTRING)v39;
-      v70._Ptr = v39;
-      ConvertPlatformStringToCharArray((Platform::String *)v39, v100, 0x200ui64);
-      WindowsDeleteString_0(v40);
-      v70._Ptr = NULL;
-      v41 = &v87;
-      if ( v87._Mypair._Myval2._Myres >= 8 )
-        v41 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v87._Mypair._Myval2._Bx._Ptr;
-      Platform::String::String(NULL, v41->_Mypair._Myval2._Bx._Buf);
-      v43 = (HSTRING)v42;
-      v70._Ptr = v42;
-      ConvertPlatformStringToCharArray((Platform::String *)v42, v99, 0x200ui64);
-      WindowsDeleteString_0(v43);
-      Com_Printf(25, "HttpRequest::Open - making %s request to URL [%s]\nheaders=[%s]\n", pDestBuffer, v100, v99);
-      v70._Ptr = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)&v84;
-      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v84, &v87);
-      v45 = v44;
-      v72._Ptr = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)&v85;
-      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v85, &v89);
-      v47 = v46;
-      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v86, &v88);
-      v16 = HttpRequest::RequestAuthToken(this, v48, v47, v45, data, dataLength, &p_addr, v71);
-      if ( v16 < 0 )
+      v55._Ptr = NULL;
+      v30 = &v73;
+      if ( v73._Mypair._Myval2._Myres >= 8 )
+        v30 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v73._Mypair._Myval2._Bx._Ptr;
+      Platform::String::String(NULL, v30->_Mypair._Myval2._Bx._Buf);
+      v32 = (HSTRING)v31;
+      v55._Ptr = v31;
+      ConvertPlatformStringToCharArray((Platform::String *)v31, pDestBuffer, 0x20ui64);
+      WindowsDeleteString_0(v32);
+      v55._Ptr = NULL;
+      v33 = &v74;
+      if ( v74._Mypair._Myval2._Myres >= 8 )
+        v33 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v74._Mypair._Myval2._Bx._Ptr;
+      Platform::String::String(NULL, v33->_Mypair._Myval2._Bx._Buf);
+      v35 = (HSTRING)v34;
+      v55._Ptr = v34;
+      ConvertPlatformStringToCharArray((Platform::String *)v34, v85, 0x200ui64);
+      WindowsDeleteString_0(v35);
+      v55._Ptr = NULL;
+      v36 = &v72;
+      if ( v72._Mypair._Myval2._Myres >= 8 )
+        v36 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v72._Mypair._Myval2._Bx._Ptr;
+      Platform::String::String(NULL, v36->_Mypair._Myval2._Bx._Buf);
+      v38 = (HSTRING)v37;
+      v55._Ptr = v37;
+      ConvertPlatformStringToCharArray((Platform::String *)v37, v84, 0x200ui64);
+      WindowsDeleteString_0(v38);
+      Com_Printf(25, "HttpRequest::Open - making %s request to URL [%s]\nheaders=[%s]\n", pDestBuffer, v85, v84);
+      v55._Ptr = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)&v69;
+      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v69, &v72);
+      v40 = v39;
+      v57._Ptr = (std::_Tree_node<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > >,void *> *)&v70;
+      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v70, &v74);
+      v42 = v41;
+      std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v71, &v73);
+      v14 = HttpRequest::RequestAuthToken(this, v43, v42, v40, data, dataLength, &p_addr, v56);
+      if ( v14 < 0 )
         goto LABEL_71;
       p_p_addr = &p_addr;
       if ( p_addr._Mypair._Myval2._Myres >= 8 )
         p_p_addr = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)p_addr._Mypair._Myval2._Bx._Ptr;
-      v16 = (*(__int64 (__fastcall **)(_QWORD, const wchar_t *, std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *))(**(_QWORD **)&this->id + 72i64))(*(_QWORD *)&this->id, L"Authorization", p_p_addr);
-      if ( v16 < 0 )
+      v14 = (*(__int64 (__fastcall **)(_QWORD, const wchar_t *, std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *))(**(_QWORD **)&this->id + 72i64))(*(_QWORD *)&this->id, L"Authorization", p_p_addr);
+      if ( v14 < 0 )
         goto LABEL_71;
       if ( data )
       {
-        v73 = 0i64;
-        v50 = HttpHeapMalloc(0x38ui64);
-        v51 = v50;
-        if ( v50 )
+        v58 = 0i64;
+        v45 = HttpHeapMalloc(0x38ui64);
+        v46 = v45;
+        if ( v45 )
         {
-          v50[5] = 1;
-          *(_QWORD *)v50 = &Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<2>,ISequentialStream,IDispatch,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil>::`vftable'{for `ISequentialStream'};
-          *((_QWORD *)v50 + 1) = &Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<2>,ISequentialStream,IDispatch,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil>::`vftable'{for `Microsoft::WRL::Details::ImplementsHelper<Microsoft::WRL::RuntimeClassFlags<2>,Microsoft::WRL::Details::InterfaceList<IDispatch,Microsoft::WRL::Details::Nil>,1,0>'};
+          v45[5] = 1;
+          *(_QWORD *)v45 = &Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<2>,ISequentialStream,IDispatch,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil>::`vftable'{for `ISequentialStream'};
+          *((_QWORD *)v45 + 1) = &Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<2>,ISequentialStream,IDispatch,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil,Microsoft::WRL::Details::Nil>::`vftable'{for `Microsoft::WRL::Details::ImplementsHelper<Microsoft::WRL::RuntimeClassFlags<2>,Microsoft::WRL::Details::InterfaceList<IDispatch,Microsoft::WRL::Details::Nil>,1,0>'};
           if ( Microsoft::WRL::Details::ModuleBase::module_ )
             Microsoft::WRL::Details::ModuleBase::module_->IncrementObjectCount(Microsoft::WRL::Details::ModuleBase::module_);
-          *(_QWORD *)v51 = &RequestStream::`vftable'{for `ISequentialStream'};
-          *((_QWORD *)v51 + 1) = &RequestStream::`vftable'{for `Microsoft::WRL::Details::ImplementsHelper<Microsoft::WRL::RuntimeClassFlags<2>,Microsoft::WRL::Details::InterfaceList<IDispatch,Microsoft::WRL::Details::Nil>,1,0>'};
-          v51[6] = 1;
-          *((_QWORD *)v51 + 4) = 0i64;
-          *((_QWORD *)v51 + 5) = 0i64;
-          *((_QWORD *)v51 + 6) = 0i64;
+          *(_QWORD *)v46 = &RequestStream::`vftable'{for `ISequentialStream'};
+          *((_QWORD *)v46 + 1) = &RequestStream::`vftable'{for `Microsoft::WRL::Details::ImplementsHelper<Microsoft::WRL::RuntimeClassFlags<2>,Microsoft::WRL::Details::InterfaceList<IDispatch,Microsoft::WRL::Details::Nil>,1,0>'};
+          v46[6] = 1;
+          *((_QWORD *)v46 + 4) = 0i64;
+          *((_QWORD *)v46 + 5) = 0i64;
+          *((_QWORD *)v46 + 6) = 0i64;
         }
         else
         {
-          v51 = NULL;
+          v46 = NULL;
         }
-        v52 = *(_QWORD *)&this->url[12];
-        *(_QWORD *)&this->url[12] = v51;
-        if ( v52 )
+        v47 = *(_QWORD *)&this->url[12];
+        *(_QWORD *)&this->url[12] = v46;
+        if ( v47 )
         {
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v52 + 16i64))(v52);
-          v51 = *(_DWORD **)&this->url[12];
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v47 + 16i64))(v47);
+          v46 = *(_DWORD **)&this->url[12];
         }
-        v53 = strnlen(data, 0x200ui64);
-        if ( v53 < 0x200 )
+        v48 = strnlen(data, 0x200ui64);
+        if ( v48 < 0x200 )
         {
-          *((_QWORD *)v51 + 5) = v53;
-          *((_QWORD *)v51 + 6) = 0i64;
-          v54 = (char *)HttpHeapMalloc(v53 + 1);
-          *((_QWORD *)v51 + 4) = v54;
-          if ( v54 )
-            strncpy_s(v54, *((_QWORD *)v51 + 5) + 1i64, data, *((_QWORD *)v51 + 5));
+          *((_QWORD *)v46 + 5) = v48;
+          *((_QWORD *)v46 + 6) = 0i64;
+          v49 = (char *)HttpHeapMalloc(v48 + 1);
+          *((_QWORD *)v46 + 4) = v49;
+          if ( v49 )
+            strncpy_s(v49, *((_QWORD *)v46 + 5) + 1i64, data, *((_QWORD *)v46 + 5));
         }
-        v55 = *(_QWORD *)&this->url[12];
-        v56 = *(_QWORD *)(v55 + 40);
+        v50 = *(_QWORD *)&this->url[12];
+        v51 = *(_QWORD *)(v50 + 40);
       }
       else
       {
-        v56 = 0i64;
-        v55 = 0i64;
+        v51 = 0i64;
+        v50 = 0i64;
       }
-      v16 = (*(__int64 (__fastcall **)(_QWORD, __int64, __int64))(**(_QWORD **)&this->id + 32i64))(*(_QWORD *)&this->id, v55, v56);
+      v14 = (*(__int64 (__fastcall **)(_QWORD, __int64, __int64))(**(_QWORD **)&this->id + 32i64))(*(_QWORD *)&this->id, v50, v51);
     }
     else
     {
       while ( 1 )
       {
-        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v90, &Left->_Myval.first);
-        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v91, &Left->_Myval.second);
-        v28 = &v90;
-        if ( v90._Mypair._Myval2._Myres >= 8 )
-          v28 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v90._Mypair._Myval2._Bx._Ptr;
-        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(&v87, v28->_Mypair._Myval2._Bx._Buf, v90._Mypair._Myval2._Mysize);
-        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(&v87, L": ", 2ui64);
-        v29 = &v91;
-        if ( v91._Mypair._Myval2._Myres >= 8 )
-          v29 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v91._Mypair._Myval2._Bx._Ptr;
-        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(&v87, v29->_Mypair._Myval2._Bx._Buf, v91._Mypair._Myval2._Mysize);
-        v30 = &v91;
-        if ( v91._Mypair._Myval2._Myres >= 8 )
-          v30 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v91._Mypair._Myval2._Bx._Ptr;
-        v31 = &v90;
-        if ( v90._Mypair._Myval2._Myres >= 8 )
-          v31 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v90._Mypair._Myval2._Bx._Ptr;
-        v16 = (*(__int64 (__fastcall **)(_QWORD, std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *, std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *))(**(_QWORD **)&this->id + 72i64))(*(_QWORD *)&this->id, v31, v30);
-        if ( v16 < 0 )
+        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v75, &Left->_Myval.first);
+        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>(&v76, &Left->_Myval.second);
+        v23 = &v75;
+        if ( v75._Mypair._Myval2._Myres >= 8 )
+          v23 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v75._Mypair._Myval2._Bx._Ptr;
+        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(&v72, v23->_Mypair._Myval2._Bx._Buf, v75._Mypair._Myval2._Mysize);
+        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(&v72, L": ", 2ui64);
+        v24 = &v76;
+        if ( v76._Mypair._Myval2._Myres >= 8 )
+          v24 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v76._Mypair._Myval2._Bx._Ptr;
+        std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(&v72, v24->_Mypair._Myval2._Bx._Buf, v76._Mypair._Myval2._Mysize);
+        v25 = &v76;
+        if ( v76._Mypair._Myval2._Myres >= 8 )
+          v25 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v76._Mypair._Myval2._Bx._Ptr;
+        v26 = &v75;
+        if ( v75._Mypair._Myval2._Myres >= 8 )
+          v26 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)v75._Mypair._Myval2._Bx._Ptr;
+        v14 = (*(__int64 (__fastcall **)(_QWORD, std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *, std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *))(**(_QWORD **)&this->id + 72i64))(*(_QWORD *)&this->id, v26, v25);
+        if ( v14 < 0 )
           break;
-        if ( v91._Mypair._Myval2._Myres >= 8 )
-          HttpHeapFree(v91._Mypair._Myval2._Bx._Ptr);
-        v91._Mypair._Myval2._Mysize = 0i64;
-        v91._Mypair._Myval2._Myres = 7i64;
-        v91._Mypair._Myval2._Bx._Buf[0] = 0;
-        if ( v90._Mypair._Myval2._Myres >= 8 )
-          HttpHeapFree(v90._Mypair._Myval2._Bx._Ptr);
+        if ( v76._Mypair._Myval2._Myres >= 8 )
+          HttpHeapFree(v76._Mypair._Myval2._Bx._Ptr);
+        v76._Mypair._Myval2._Mysize = 0i64;
+        v76._Mypair._Myval2._Myres = 7i64;
+        v76._Mypair._Myval2._Bx._Buf[0] = 0;
+        if ( v75._Mypair._Myval2._Myres >= 8 )
+          HttpHeapFree(v75._Mypair._Myval2._Bx._Ptr);
         Right = Left->_Right;
         if ( Right->_Isnil )
         {
@@ -1693,114 +1674,74 @@ LABEL_28:
         if ( Left == Myhead )
           goto LABEL_28;
       }
-      if ( v91._Mypair._Myval2._Myres >= 8 )
-        HttpHeapFree(v91._Mypair._Myval2._Bx._Ptr);
-      v91._Mypair._Myval2._Mysize = 0i64;
-      v91._Mypair._Myval2._Myres = 7i64;
-      v91._Mypair._Myval2._Bx._Buf[0] = 0;
-      if ( v90._Mypair._Myval2._Myres >= 8 )
-        HttpHeapFree(v90._Mypair._Myval2._Bx._Ptr);
+      if ( v76._Mypair._Myval2._Myres >= 8 )
+        HttpHeapFree(v76._Mypair._Myval2._Bx._Ptr);
+      v76._Mypair._Myval2._Mysize = 0i64;
+      v76._Mypair._Myval2._Myres = 7i64;
+      v76._Mypair._Myval2._Bx._Buf[0] = 0;
+      if ( v75._Mypair._Myval2._Myres >= 8 )
+        HttpHeapFree(v75._Mypair._Myval2._Bx._Ptr);
     }
-    if ( v16 >= 0 )
+    if ( v14 >= 0 )
     {
-      LODWORD(_Newnode) = v16;
+      LODWORD(_Newnode) = v14;
       Com_Printf(25, "IXMLHTTP: Opened request [%S] for \"%S\", result: %x\n", verb, url, _Newnode);
-      if ( v88._Mypair._Myval2._Myres >= 8 )
-        HttpHeapFree(v88._Mypair._Myval2._Bx._Ptr);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+630h+var_5C8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v88._Mypair._Myval2._Bx._Buf[0] = 0;
-      if ( v92._Mypair._Myval2._Myres >= 8 )
-        HttpHeapFree(v92._Mypair._Myval2._Bx._Ptr);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+630h+var_540.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v92._Mypair._Myval2._Bx._Buf[0] = 0;
+      if ( v73._Mypair._Myval2._Myres >= 8 )
+        HttpHeapFree(v73._Mypair._Myval2._Bx._Ptr);
+      *(_OWORD *)&v73._Mypair._Myval2._Mysize = _xmm;
+      v73._Mypair._Myval2._Bx._Buf[0] = 0;
+      if ( v77._Mypair._Myval2._Myres >= 8 )
+        HttpHeapFree(v77._Mypair._Myval2._Bx._Ptr);
+      *(_OWORD *)&v77._Mypair._Myval2._Mysize = _xmm;
+      v77._Mypair._Myval2._Bx._Buf[0] = 0;
       if ( _Right._Mypair._Myval2._Myres >= 8 )
         HttpHeapFree(_Right._Mypair._Myval2._Bx._Ptr);
       if ( p_addr._Mypair._Myval2._Myres >= 8 )
         HttpHeapFree(p_addr._Mypair._Myval2._Bx._Ptr);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu [rbp+630h+var_510], xmm0
-      }
+      *(_OWORD *)&p_addr._Mypair._Myval2._Mysize = _xmm;
       p_addr._Mypair._Myval2._Bx._Buf[0] = 0;
-      if ( v89._Mypair._Myval2._Myres >= 8 )
-        HttpHeapFree(v89._Mypair._Myval2._Bx._Ptr);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+630h+var_5A8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v89._Mypair._Myval2._Bx._Buf[0] = 0;
-      if ( v87._Mypair._Myval2._Myres >= 8 )
-        HttpHeapFree(v87._Mypair._Myval2._Bx._Ptr);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-        vmovdqu xmmword ptr [rbp+630h+var_5E8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-      }
-      v87._Mypair._Myval2._Bx._Buf[0] = 0;
-      std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::erase(&v69, &v72, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v69._Mypair._Myval2._Myval2._Myhead->_Left, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v69._Mypair._Myval2._Myval2._Myhead);
-      HttpHeapFree(v69._Mypair._Myval2._Myval2._Myhead);
-      return (unsigned int)v16;
+      if ( v74._Mypair._Myval2._Myres >= 8 )
+        HttpHeapFree(v74._Mypair._Myval2._Bx._Ptr);
+      *(_OWORD *)&v74._Mypair._Myval2._Mysize = _xmm;
+      v74._Mypair._Myval2._Bx._Buf[0] = 0;
+      if ( v72._Mypair._Myval2._Myres >= 8 )
+        HttpHeapFree(v72._Mypair._Myval2._Bx._Ptr);
+      *(_OWORD *)&v72._Mypair._Myval2._Mysize = _xmm;
+      v72._Mypair._Myval2._Bx._Buf[0] = 0;
+      std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::erase(&v54, &v57, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v54._Mypair._Myval2._Myval2._Myhead->_Left, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v54._Mypair._Myval2._Myval2._Myhead);
+      HttpHeapFree(v54._Mypair._Myval2._Myval2._Myhead);
+      return (unsigned int)v14;
     }
   }
 LABEL_71:
   (*(void (__fastcall **)(_QWORD))(**(_QWORD **)&this->id + 40i64))(*(_QWORD *)&this->id);
-  LODWORD(_Newnode) = v16;
+  LODWORD(_Newnode) = v14;
   Com_Printf(25, "IXMLHTTP: Failed to open request [%S] for \"%S\", result: %x\n", verb, url, _Newnode);
-  if ( v88._Mypair._Myval2._Myres >= 8 )
-    HttpHeapFree(v88._Mypair._Myval2._Bx._Ptr);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+630h+var_5C8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v88._Mypair._Myval2._Bx._Buf[0] = 0;
-  if ( v92._Mypair._Myval2._Myres >= 8 )
-    HttpHeapFree(v92._Mypair._Myval2._Bx._Ptr);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+630h+var_540.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v92._Mypair._Myval2._Bx._Buf[0] = 0;
+  if ( v73._Mypair._Myval2._Myres >= 8 )
+    HttpHeapFree(v73._Mypair._Myval2._Bx._Ptr);
+  *(_OWORD *)&v73._Mypair._Myval2._Mysize = _xmm;
+  v73._Mypair._Myval2._Bx._Buf[0] = 0;
+  if ( v77._Mypair._Myval2._Myres >= 8 )
+    HttpHeapFree(v77._Mypair._Myval2._Bx._Ptr);
+  *(_OWORD *)&v77._Mypair._Myval2._Mysize = _xmm;
+  v77._Mypair._Myval2._Bx._Buf[0] = 0;
   if ( _Right._Mypair._Myval2._Myres >= 8 )
     HttpHeapFree(_Right._Mypair._Myval2._Bx._Ptr);
   if ( p_addr._Mypair._Myval2._Myres >= 8 )
     HttpHeapFree(p_addr._Mypair._Myval2._Bx._Ptr);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu [rbp+630h+var_510], xmm0
-  }
+  *(_OWORD *)&p_addr._Mypair._Myval2._Mysize = _xmm;
   p_addr._Mypair._Myval2._Bx._Buf[0] = 0;
-  if ( v89._Mypair._Myval2._Myres >= 8 )
-    HttpHeapFree(v89._Mypair._Myval2._Bx._Ptr);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+630h+var_5A8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v89._Mypair._Myval2._Bx._Buf[0] = 0;
-  if ( v87._Mypair._Myval2._Myres >= 8 )
-    HttpHeapFree(v87._Mypair._Myval2._Bx._Ptr);
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rbp+630h+var_5E8.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v87._Mypair._Myval2._Bx._Buf[0] = 0;
-  std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::erase(&v69, &v70, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v69._Mypair._Myval2._Myval2._Myhead->_Left, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v69._Mypair._Myval2._Myval2._Myhead);
-  HttpHeapFree(v69._Mypair._Myval2._Myval2._Myhead);
-  return (unsigned int)v16;
+  if ( v74._Mypair._Myval2._Myres >= 8 )
+    HttpHeapFree(v74._Mypair._Myval2._Bx._Ptr);
+  *(_OWORD *)&v74._Mypair._Myval2._Mysize = _xmm;
+  v74._Mypair._Myval2._Bx._Buf[0] = 0;
+  if ( v72._Mypair._Myval2._Myres >= 8 )
+    HttpHeapFree(v72._Mypair._Myval2._Bx._Ptr);
+  *(_OWORD *)&v72._Mypair._Myval2._Mysize = _xmm;
+  v72._Mypair._Myval2._Bx._Buf[0] = 0;
+  std::_Tree<std::_Tmap_traits<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>,ltstr,STLHeapAllocator<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>> const,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>>>,0>>::erase(&v54, &v55, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v54._Mypair._Myval2._Myval2._Myhead->_Left, (std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<std::pair<std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > const ,std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > > > > >)v54._Mypair._Myval2._Myval2._Myhead);
+  HttpHeapFree(v54._Mypair._Myval2._Myval2._Myhead);
+  return (unsigned int)v14;
 }
 
 /*
@@ -2001,7 +1942,7 @@ __int64 HttpRequest::RequestAuthToken(HttpRequest *this, std::basic_string<wchar
   HSTRING v21; 
   Platform::String *v22; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v23; 
-  __int64 v24; 
+  HSTRING v24; 
   HSTRING v25; 
   const wchar_t *v26; 
   HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v27; 
@@ -2011,61 +1952,55 @@ __int64 HttpRequest::RequestAuthToken(HttpRequest *this, std::basic_string<wchar
   int v31; 
   __int64 v32; 
   __int64 v33; 
+  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v34; 
   HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v35; 
-  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v36; 
-  int v37; 
-  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v38; 
+  int v36; 
+  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v37; 
+  int v38; 
   int v39; 
   int v40; 
-  int v41; 
-  bool v42; 
-  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v43; 
+  bool v41; 
+  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v42; 
+  int v43; 
   int v44; 
-  int v45; 
+  __int64 v45; 
   __int64 v46; 
-  __int64 v47; 
-  unsigned int v48; 
-  char v50; 
-  _BYTE *v51; 
-  Windows::Xbox::System::User *v52; 
-  unsigned int v53; 
+  unsigned int v47; 
+  char v49; 
+  _BYTE *v50; 
+  Windows::Xbox::System::User *v51; 
+  unsigned int v52; 
   HSTRING string; 
-  HttpRequest *v55; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v56; 
-  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v57; 
-  __int64 v58; 
+  HttpRequest *v54; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v55; 
+  HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *v56; 
+  __int64 v57; 
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v58; 
   std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v59; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v60; 
-  __int64 v61; 
-  __m256i v62; 
-  __int64 v63; 
-  HSTRING v64; 
-  __int64 v65; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v66; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v67; 
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *v68; 
+  __int64 v60; 
+  _QWORD v61[11]; 
 
-  v63 = -2i64;
-  v60 = url;
-  v59 = httpMethod;
-  v55 = this;
-  v66 = httpMethod;
-  v68 = url;
-  v67 = authTokenHeaderString;
-  v56 = AuthTokenOut;
-  v52 = currentUser;
+  v61[4] = -2i64;
+  v59 = url;
+  v58 = httpMethod;
+  v54 = this;
+  v61[8] = httpMethod;
+  v61[10] = url;
+  v61[9] = authTokenHeaderString;
+  v55 = AuthTokenOut;
+  v51 = currentUser;
   v10 = 0;
   LODWORD(string) = 0;
-  v53 = -2147467259;
-  v50 = 1;
+  v52 = -2147467259;
+  v49 = 1;
   v11 = 0i64;
-  v58 = 0i64;
+  v57 = 0i64;
   v12 = (Platform::Array<unsigned char,1> *)Platform::Details::Heap::Allocate(0x58ui64, 0x88ui64);
   if ( data )
   {
     Platform::Array<unsigned char,1>::Array<unsigned char,1>(v12, (unsigned __int8 *)data, dataLength);
     v14 = v13;
-    v51 = v13;
+    v50 = v13;
     v15 = (__int64)v13;
     if ( v13 )
     {
@@ -2080,7 +2015,7 @@ __int64 HttpRequest::RequestAuthToken(HttpRequest *this, std::basic_string<wchar
         (*(void (__fastcall **)(_BYTE *))(*(_QWORD *)v13 + 8i64))(v13);
       }
       v11 = v15;
-      v58 = v15;
+      v57 = v15;
     }
     if ( v14 )
 LABEL_15:
@@ -2090,7 +2025,7 @@ LABEL_15:
   {
     Platform::Array<unsigned char,1>::Array<unsigned char,1>(v12, (unsigned __int8 *)&_dataArg, 1u);
     v14 = v17;
-    v51 = v17;
+    v50 = v17;
     v18 = (__int64)v17;
     if ( v17 )
     {
@@ -2105,34 +2040,34 @@ LABEL_15:
         (*(void (__fastcall **)(_BYTE *))(*(_QWORD *)v17 + 8i64))(v17);
       }
       v11 = v18;
-      v58 = v18;
+      v57 = v18;
     }
     if ( v14 )
       goto LABEL_15;
   }
-  v51 = NULL;
+  v50 = NULL;
   Ptr = authTokenHeaderString;
   if ( authTokenHeaderString->_Mypair._Myval2._Myres >= 8 )
     Ptr = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)authTokenHeaderString->_Mypair._Myval2._Bx._Ptr;
   Platform::String::String(NULL, Ptr->_Mypair._Myval2._Bx._Buf);
   v22 = (Platform::String *)v21;
   string = v21;
-  v64 = v21;
-  v51 = NULL;
+  v61[5] = v21;
+  v50 = NULL;
   v23 = url;
   if ( url->_Mypair._Myval2._Myres >= 8 )
     v23 = (std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t> > *)url->_Mypair._Myval2._Bx._Ptr;
   Platform::String::String(NULL, v23->_Mypair._Myval2._Bx._Buf);
-  v25 = (HSTRING)v24;
-  v65 = v24;
-  v51 = NULL;
-  v26 = (const wchar_t *)v59;
-  if ( v59->_Mypair._Myval2._Myres >= 8 )
-    v26 = v59->_Mypair._Myval2._Bx._Ptr;
+  v25 = v24;
+  v61[6] = v24;
+  v50 = NULL;
+  v26 = (const wchar_t *)v58;
+  if ( v58->_Mypair._Myval2._Myres >= 8 )
+    v26 = v58->_Mypair._Myval2._Bx._Ptr;
   Platform::String::String(NULL, v26);
   v28 = (HSTRING)v27;
-  v57 = v27;
-  v51 = NULL;
+  v56 = v27;
+  v50 = NULL;
   if ( v11 )
   {
     v29 = *(unsigned __int8 **)(v11 + 80);
@@ -2143,109 +2078,104 @@ LABEL_15:
     v29 = NULL;
     v30 = 0;
   }
-  v31 = v52->__abi___GetTokenAndSignatureAsync__2(v52, (Platform::String *)v28, (Platform::String *)v25, v22, v30, v29, (Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> **)&v51);
+  v31 = v51->__abi___GetTokenAndSignatureAsync__2(v51, (Platform::String *)v28, (Platform::String *)v25, v22, v30, v29, (Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> **)&v50);
   if ( v31 < 0 )
     __abi_WinRTraiseException(v31);
-  v32 = (__int64)v51;
-  v33 = (__int64)v51;
-  if ( v51 )
+  v32 = (__int64)v50;
+  v33 = (__int64)v50;
+  if ( v50 )
   {
-    (*(void (__fastcall **)(_BYTE *))(*(_QWORD *)v51 + 8i64))(v51);
-    v32 = (__int64)v51;
+    (*(void (__fastcall **)(_BYTE *))(*(_QWORD *)v50 + 8i64))(v50);
+    v32 = (__int64)v50;
   }
   if ( v32 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v32 + 16i64))(v32);
-  v52 = (Windows::Xbox::System::User *)v33;
+  v51 = (Windows::Xbox::System::User *)v33;
   if ( v33 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 8i64))(v33);
-  v61 = v33;
+  v60 = v33;
   if ( v33 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 16i64))(v33);
   WindowsDeleteString_0(v28);
   WindowsDeleteString_0(v25);
   WindowsDeleteString_0(string);
-  v57 = (HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *)Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
-  v62.m256i_i64[0] = (__int64)v55;
-  v62.m256i_i64[1] = (__int64)&v56;
-  v62.m256i_i64[2] = (__int64)&v53;
-  v62.m256i_i64[3] = (__int64)&v50;
-  __asm
-  {
-    vmovups ymm0, [rsp+138h+var_98]
-    vmovups [rsp+138h+var_98], ymm0
-  }
-  Windows::Foundation::AsyncOperationCompletedHandler_Windows::Xbox::System::GetTokenAndSignatureResult___::AsyncOperationCompletedHandler_Windows::Xbox::System::GetTokenAndSignatureResult_____lambda_d739ad2abf72538a023998f430cc57bb___(v57, (Platform::CallbackContext)&v62, 2);
-  v36 = v35;
-  v57 = v35;
-  v37 = (*(__int64 (__fastcall **)(__int64, HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))(*(_QWORD *)v33 + 48i64))(v33, v35);
-  if ( v37 < 0 )
-    __abi_WinRTraiseException(v37);
-  if ( v36 )
-    (*(void (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v36->__this->url[4])(v36);
+  v56 = (HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *)Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
+  v61[0] = v54;
+  v61[1] = &v55;
+  v61[2] = &v52;
+  v61[3] = &v49;
+  Windows::Foundation::AsyncOperationCompletedHandler_Windows::Xbox::System::GetTokenAndSignatureResult___::AsyncOperationCompletedHandler_Windows::Xbox::System::GetTokenAndSignatureResult_____lambda_d739ad2abf72538a023998f430cc57bb___(v56, (Platform::CallbackContext)v61, 2);
+  v35 = v34;
+  v56 = v34;
+  v36 = (*(__int64 (__fastcall **)(__int64, HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))(*(_QWORD *)v33 + 48i64))(v33, v34);
+  if ( v36 < 0 )
+    __abi_WinRTraiseException(v36);
+  if ( v35 )
+    (*(void (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v35->__this->url[4])(v35);
   while ( 1 )
   {
-    v38 = NULL;
-    v52 = NULL;
+    v37 = NULL;
+    v51 = NULL;
     if ( v33 )
     {
-      v39 = (**(__int64 (__fastcall ***)(__int64, void *, Windows::Xbox::System::User **))v33)(v33, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v52);
-      if ( v39 < 0 )
-        __abi_WinRTraiseException(v39);
-      v38 = (HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *)v52;
+      v38 = (**(__int64 (__fastcall ***)(__int64, void *, Windows::Xbox::System::User **))v33)(v33, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v51);
+      if ( v38 < 0 )
+        __abi_WinRTraiseException(v38);
+      v37 = (HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *)v51;
     }
-    v57 = v38;
-    v40 = v10 | 1;
-    LODWORD(string) = v40;
-    LODWORD(v55) = 0;
-    v41 = (*(__int64 (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *, HttpRequest **))&v38->__this->url[44])(v38, &v55);
-    if ( v41 < 0 )
-      __abi_WinRTraiseException(v41);
-    v42 = !(_DWORD)v55 || v50 == 1;
-    v10 = v40 & 0xFFFFFFFE;
-    (*(void (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v38->__this->url[4])(v38);
-    if ( !v42 )
+    v56 = v37;
+    v39 = v10 | 1;
+    LODWORD(string) = v39;
+    LODWORD(v54) = 0;
+    v40 = (*(__int64 (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *, HttpRequest **))&v37->__this->url[44])(v37, &v54);
+    if ( v40 < 0 )
+      __abi_WinRTraiseException(v40);
+    v41 = !(_DWORD)v54 || v49 == 1;
+    v10 = v39 & 0xFFFFFFFE;
+    (*(void (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v37->__this->url[4])(v37);
+    if ( !v41 )
       break;
     Sleep(1u);
   }
-  v43 = NULL;
-  v52 = NULL;
+  v42 = NULL;
+  v51 = NULL;
   if ( v33 )
   {
-    v44 = (**(__int64 (__fastcall ***)(__int64, void *, Windows::Xbox::System::User **))v33)(v33, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v52);
-    if ( v44 < 0 )
-      __abi_WinRTraiseException(v44);
-    v43 = (HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *)v52;
+    v43 = (**(__int64 (__fastcall ***)(__int64, void *, Windows::Xbox::System::User **))v33)(v33, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v51);
+    if ( v43 < 0 )
+      __abi_WinRTraiseException(v43);
+    v42 = (HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *)v51;
   }
-  v57 = v43;
-  v45 = (*(__int64 (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v43->__this->url[68])(v43);
-  if ( v45 < 0 )
-    __abi_WinRTraiseException(v45);
-  (*(void (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v43->__this->url[4])(v43);
-  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(v56, L"\r\n", 2ui64);
-  Com_Printf(25, "Authtoken length: %d\n", v56->_Mypair._Myval2._Mysize);
+  v56 = v42;
+  v44 = (*(__int64 (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v42->__this->url[68])(v42);
+  if ( v44 < 0 )
+    __abi_WinRTraiseException(v44);
+  (*(void (__fastcall **)(HttpRequest::RequestAuthToken::__l3::<lambda_d739ad2abf72538a023998f430cc57bb> *))&v42->__this->url[4])(v42);
+  std::basic_string<wchar_t,std::char_traits<wchar_t>,STLHeapAllocator<wchar_t>>::append(v55, L"\r\n", 2ui64);
+  Com_Printf(25, "Authtoken length: %d\n", v55->_Mypair._Myval2._Mysize);
   if ( v33 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 16i64))(v33);
-  v46 = (__int64)v60;
-  v47 = (__int64)v59;
-  v48 = v53;
+  v45 = (__int64)v59;
+  v46 = (__int64)v58;
+  v47 = v52;
   if ( v11 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 16i64))(v11);
-  if ( *(_QWORD *)(v47 + 24) >= 8ui64 )
-    HttpHeapFree(*(void **)v47);
-  *(_QWORD *)(v47 + 16) = 0i64;
-  *(_QWORD *)(v47 + 24) = 7i64;
-  *(_WORD *)v47 = 0;
   if ( *(_QWORD *)(v46 + 24) >= 8ui64 )
     HttpHeapFree(*(void **)v46);
   *(_QWORD *)(v46 + 16) = 0i64;
   *(_QWORD *)(v46 + 24) = 7i64;
   *(_WORD *)v46 = 0;
+  if ( *(_QWORD *)(v45 + 24) >= 8ui64 )
+    HttpHeapFree(*(void **)v45);
+  *(_QWORD *)(v45 + 16) = 0i64;
+  *(_QWORD *)(v45 + 24) = 7i64;
+  *(_WORD *)v45 = 0;
   if ( authTokenHeaderString->_Mypair._Myval2._Myres >= 8 )
     HttpHeapFree(authTokenHeaderString->_Mypair._Myval2._Bx._Ptr);
   authTokenHeaderString->_Mypair._Myval2._Mysize = 0i64;
   authTokenHeaderString->_Mypair._Myval2._Myres = 7i64;
   authTokenHeaderString->_Mypair._Myval2._Bx._Buf[0] = 0;
-  return v48;
+  return v47;
 }
 
 /*

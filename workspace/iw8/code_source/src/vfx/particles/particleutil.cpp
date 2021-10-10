@@ -154,50 +154,32 @@ Particle_DebugAxis
 */
 void Particle_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, const vec4_t *colorX, const vec4_t *colorY, const vec4_t *colorZ, float length, const bool depthTest, int duration)
 {
+  float v8; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   vec3_t end; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovss  xmm6, [rsp+88h+length]
-    vmulss  xmm0, xmm6, dword ptr [rcx]
-    vaddss  xmm1, xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm6, dword ptr [rcx+4]
-    vmovss  dword ptr [rsp+88h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdx+4]
-    vmulss  xmm0, xmm6, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+88h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+88h+end+8], xmm1
-  }
+  v8 = length * axes->m[0].v[1];
+  end.v[0] = (float)(length * axes->m[0].v[0]) + pos->v[0];
+  v12 = length * axes->m[0].v[2];
+  end.v[1] = v8 + pos->v[1];
+  end.v[2] = v12 + pos->v[2];
   Particle_DebugLine(pos, &end, colorX, depthTest, duration);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbp+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [r15]
-    vmulss  xmm0, xmm6, dword ptr [rbp+10h]
-    vmovss  dword ptr [rsp+88h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [r15+4]
-    vmulss  xmm0, xmm6, dword ptr [rbp+14h]
-    vmovss  dword ptr [rsp+88h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [r15+8]
-    vmovss  dword ptr [rsp+88h+end+8], xmm1
-  }
+  v13 = length * axes->m[1].v[1];
+  end.v[0] = (float)(length * axes->m[1].v[0]) + pos->v[0];
+  v14 = length * axes->m[1].v[2];
+  end.v[1] = v13 + pos->v[1];
+  end.v[2] = v14 + pos->v[2];
   Particle_DebugLine(pos, &end, colorY, depthTest, duration);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbp+18h]
-    vaddss  xmm1, xmm0, dword ptr [r15]
-    vmulss  xmm0, xmm6, dword ptr [rbp+1Ch]
-    vmovss  dword ptr [rsp+88h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [r15+4]
-    vmulss  xmm0, xmm6, dword ptr [rbp+20h]
-    vmovss  dword ptr [rsp+88h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [r15+8]
-    vmovss  dword ptr [rsp+88h+end+8], xmm1
-  }
+  v15 = length * axes->m[2].v[1];
+  end.v[0] = (float)(length * axes->m[2].v[0]) + pos->v[0];
+  v16 = length * axes->m[2].v[2];
+  end.v[1] = v15 + pos->v[1];
+  end.v[2] = v16 + pos->v[2];
   Particle_DebugLine(pos, &end, colorZ, depthTest, duration);
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
 }
 
 /*
@@ -205,52 +187,33 @@ void Particle_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, const v
 Particle_DebugAxis
 ==============
 */
-
-void __fastcall Particle_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, double length, const bool depthTest, int duration)
+void Particle_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, float length, const bool depthTest, int duration)
 {
+  float v5; 
+  float v6; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t end; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmulss  xmm0, xmm2, dword ptr [rcx]
-    vaddss  xmm1, xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm2, dword ptr [rcx+4]
-    vmovss  dword ptr [rsp+78h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdx+4]
-    vmulss  xmm0, xmm2, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+78h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+78h+end+8], xmm1
-    vmovaps xmm6, xmm2
-  }
+  v5 = length * axes->m[0].v[1];
+  end.v[0] = (float)(length * axes->m[0].v[0]) + pos->v[0];
+  v6 = length * axes->m[0].v[2];
+  end.v[1] = v5 + pos->v[1];
+  end.v[2] = v6 + pos->v[2];
   Particle_DebugLine(pos, &end, &colorRed, depthTest, duration);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rdi+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmulss  xmm0, xmm6, dword ptr [rdi+10h]
-    vmovss  dword ptr [rsp+78h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+4]
-    vmulss  xmm0, xmm6, dword ptr [rdi+14h]
-    vmovss  dword ptr [rsp+78h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rsp+78h+end+8], xmm1
-  }
+  v10 = length * axes->m[1].v[1];
+  end.v[0] = (float)(length * axes->m[1].v[0]) + pos->v[0];
+  v11 = length * axes->m[1].v[2];
+  end.v[1] = v10 + pos->v[1];
+  end.v[2] = v11 + pos->v[2];
   Particle_DebugLine(pos, &end, &colorGreen, depthTest, duration);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rdi+18h]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmulss  xmm0, xmm6, dword ptr [rdi+1Ch]
-    vmovss  dword ptr [rsp+78h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+4]
-    vmulss  xmm0, xmm6, dword ptr [rdi+20h]
-    vmovss  dword ptr [rsp+78h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rsp+78h+end+8], xmm1
-  }
+  v12 = length * axes->m[2].v[1];
+  end.v[0] = (float)(length * axes->m[2].v[0]) + pos->v[0];
+  v13 = length * axes->m[2].v[2];
+  end.v[1] = v12 + pos->v[1];
+  end.v[2] = v13 + pos->v[2];
   Particle_DebugLine(pos, &end, &colorBlue, depthTest, duration);
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 

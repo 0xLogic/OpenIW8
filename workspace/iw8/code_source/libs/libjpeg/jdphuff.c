@@ -449,9 +449,11 @@ decode_mcu_DC_first
 */
 unsigned __int8 decode_mcu_DC_first(jpeg_decompress_struct *cinfo, __int16 (**MCU_data)[64])
 {
+  jpeg_entropy_decoder *entropy; 
   jpeg_source_mgr *src; 
   int v6; 
   const unsigned __int8 *next_input_byte; 
+  __int128 v8; 
   int start_pass; 
   int get_buffer; 
   int start_pass_high; 
@@ -470,11 +472,11 @@ unsigned __int8 decode_mcu_DC_first(jpeg_decompress_struct *cinfo, __int16 (**MC
   __int128 v25; 
   int v26; 
 
-  _RSI = cinfo->entropy;
+  entropy = cinfo->entropy;
   Al = cinfo->Al;
-  if ( cinfo->restart_interval && !HIDWORD(_RSI[2].start_pass) && !process_restart(cinfo) )
+  if ( cinfo->restart_interval && !HIDWORD(entropy[2].start_pass) && !process_restart(cinfo) )
     return 0;
-  if ( _RSI->insufficient_data )
+  if ( entropy->insufficient_data )
     goto LABEL_26;
   src = cinfo->src;
   v6 = 0;
@@ -482,11 +484,11 @@ unsigned __int8 decode_mcu_DC_first(jpeg_decompress_struct *cinfo, __int16 (**MC
   next_input_byte = src->next_input_byte;
   state.next_input_byte = src->next_input_byte;
   state.bytes_in_buffer = src->bytes_in_buffer;
-  __asm { vmovups xmm0, xmmword ptr [rsi+20h] }
-  start_pass = (int)_RSI[2].start_pass;
-  get_buffer = (int)_RSI[1].start_pass;
-  start_pass_high = HIDWORD(_RSI[1].start_pass);
-  __asm { vmovups [rsp+0B8h+var_60], xmm0 }
+  v8 = *(_OWORD *)&entropy[1].decode_mcu;
+  start_pass = (int)entropy[2].start_pass;
+  get_buffer = (int)entropy[1].start_pass;
+  start_pass_high = HIDWORD(entropy[1].start_pass);
+  v25 = v8;
   v26 = start_pass;
   if ( cinfo->blocks_in_MCU <= 0 )
     goto LABEL_25;
@@ -495,7 +497,7 @@ unsigned __int8 decode_mcu_DC_first(jpeg_decompress_struct *cinfo, __int16 (**MC
   {
     v13 = *MCU_membership;
     v14 = *MCU_data;
-    v15 = (d_derived_tbl *)*((_QWORD *)&_RSI[2].decode_mcu + cinfo->cur_comp_info[v13]->dc_tbl_no);
+    v15 = (d_derived_tbl *)*((_QWORD *)&entropy[2].decode_mcu + cinfo->cur_comp_info[v13]->dc_tbl_no);
     if ( start_pass_high >= 8 )
       goto LABEL_11;
     if ( !j_jpeg_fill_bit_buffer(&state, get_buffer, start_pass_high, 0) )
@@ -552,16 +554,16 @@ LABEL_16:
   src = cinfo->src;
   next_input_byte = state.next_input_byte;
   start_pass = v26;
-  __asm { vmovups xmm0, [rsp+0B8h+var_60] }
+  v8 = v25;
 LABEL_25:
   src->next_input_byte = next_input_byte;
   cinfo->src->bytes_in_buffer = state.bytes_in_buffer;
-  __asm { vmovups xmmword ptr [rsi+20h], xmm0 }
-  LODWORD(_RSI[2].start_pass) = start_pass;
-  LODWORD(_RSI[1].start_pass) = get_buffer;
-  HIDWORD(_RSI[1].start_pass) = start_pass_high;
+  *(_OWORD *)&entropy[1].decode_mcu = v8;
+  LODWORD(entropy[2].start_pass) = start_pass;
+  LODWORD(entropy[1].start_pass) = get_buffer;
+  HIDWORD(entropy[1].start_pass) = start_pass_high;
 LABEL_26:
-  --HIDWORD(_RSI[2].start_pass);
+  --HIDWORD(entropy[2].start_pass);
   return 1;
 }
 

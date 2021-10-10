@@ -253,32 +253,18 @@ __int64 LUIElement_Anchored_GetTagOffsets(lua_State *const luaVM)
 {
   unsigned int v2; 
   LUIElement *v3; 
-  unsigned int v11; 
+  LUIAnchor *AnchorData; 
+  unsigned int v5; 
 
   v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetTagOffsets()");
-  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v3 = LUI_ToElement(luaVM, 1), (_RSI = LUIElement_Anchored_GetAnchorData(v3, luaVM)) != NULL) )
+  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v3 = LUI_ToElement(luaVM, 1), (AnchorData = LUIElement_Anchored_GetAnchorData(v3, luaVM)) != NULL) )
   {
     j_lua_createtable(luaVM, 0, 3);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+84h]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("x", *(long double *)&_XMM1, LUI_luaVM);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+88h]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("y", *(long double *)&_XMM1, LUI_luaVM);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+8Ch]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("z", *(long double *)&_XMM1, LUI_luaVM);
+    LUI_SetTableNumber("x", AnchorData->tagOffset.v[0], LUI_luaVM);
+    LUI_SetTableNumber("y", AnchorData->tagOffset.v[1], LUI_luaVM);
+    LUI_SetTableNumber("z", AnchorData->tagOffset.v[2], LUI_luaVM);
   }
   else
   {
@@ -286,8 +272,8 @@ __int64 LUIElement_Anchored_GetTagOffsets(lua_State *const luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v11);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v5);
   }
   return v2;
 }
@@ -299,41 +285,34 @@ LUIElement_Anchored_SetTagOffsets
 */
 __int64 LUIElement_Anchored_SetTagOffsets(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  unsigned int v14; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  LUIAnchor *AnchorData; 
+  unsigned int v9; 
 
   if ( j_lua_gettop(luaVM) != 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetTagOffsets( x, y, z )");
   if ( j_lua_gettop(luaVM) == 4 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
-    v6 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Anchored_GetAnchorData(v6, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+84h], xmm8
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovss  dword ptr [rax+88h], xmm7
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovss  dword ptr [rax+8Ch], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    v6 = *(float *)&v5;
+    v7 = lui_tonumber32(luaVM, 4);
+    AnchorData = LUIElement_Anchored_GetAnchorData(v2, luaVM);
+    AnchorData->tagOffset.v[0] = v4;
+    AnchorData->tagOffset.v[1] = v6;
+    AnchorData->tagOffset.v[2] = *(float *)&v7;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v14 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v14);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v9);
   }
   return 0i64;
 }
@@ -345,41 +324,34 @@ LUIElement_Anchored_SetWorldSpacePosition
 */
 __int64 LUIElement_Anchored_SetWorldSpacePosition(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  unsigned int v14; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  LUIAnchor *AnchorData; 
+  unsigned int v9; 
 
   if ( j_lua_gettop(luaVM) != 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetWorldSpacePosition( x, y, z )");
   if ( j_lua_gettop(luaVM) == 4 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
-    v6 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Anchored_GetAnchorData(v6, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+78h], xmm8
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovss  dword ptr [rax+7Ch], xmm7
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovss  dword ptr [rax+80h], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    v6 = *(float *)&v5;
+    v7 = lui_tonumber32(luaVM, 4);
+    AnchorData = LUIElement_Anchored_GetAnchorData(v2, luaVM);
+    AnchorData->worldOffset.v[0] = v4;
+    AnchorData->worldOffset.v[1] = v6;
+    AnchorData->worldOffset.v[2] = *(float *)&v7;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v14 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v14);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v9);
   }
   return 0i64;
 }
@@ -393,26 +365,17 @@ __int64 LUIElement_Anchored_GetScreenOffsets(lua_State *const luaVM)
 {
   unsigned int v2; 
   LUIElement *v3; 
-  unsigned int v9; 
+  LUIAnchor *AnchorData; 
+  unsigned int v5; 
 
   v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetScreenOffsets()");
-  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v3 = LUI_ToElement(luaVM, 1), (_RSI = LUIElement_Anchored_GetAnchorData(v3, luaVM)) != NULL) )
+  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v3 = LUI_ToElement(luaVM, 1), (AnchorData = LUIElement_Anchored_GetAnchorData(v3, luaVM)) != NULL) )
   {
     j_lua_createtable(luaVM, 0, 2);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+0A8h]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("x", *(long double *)&_XMM1, LUI_luaVM);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+0ACh]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("y", *(long double *)&_XMM1, LUI_luaVM);
+    LUI_SetTableNumber("x", AnchorData->screenOffset.v[0], LUI_luaVM);
+    LUI_SetTableNumber("y", AnchorData->screenOffset.v[1], LUI_luaVM);
   }
   else
   {
@@ -420,8 +383,8 @@ __int64 LUIElement_Anchored_GetScreenOffsets(lua_State *const luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v9 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v9);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v5);
   }
   return v2;
 }
@@ -433,36 +396,29 @@ LUIElement_Anchored_SetScreenOffsets
 */
 __int64 LUIElement_Anchored_SetScreenOffsets(lua_State *const luaVM)
 {
-  LUIElement *v5; 
-  unsigned int v11; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  LUIAnchor *AnchorData; 
+  unsigned int v7; 
 
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: element:SetScreenOffsets( x, y )");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-    }
-    v5 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Anchored_GetAnchorData(v5, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+0A8h], xmm7
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovss  dword ptr [rax+0ACh], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    AnchorData = LUIElement_Anchored_GetAnchorData(v2, luaVM);
+    AnchorData->screenOffset.v[0] = v4;
+    AnchorData->screenOffset.v[1] = *(float *)&v5;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v11);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
   }
   return 0i64;
 }
@@ -474,36 +430,29 @@ LUIElement_Anchored_SetScreenSnapOffsets
 */
 __int64 LUIElement_Anchored_SetScreenSnapOffsets(lua_State *const luaVM)
 {
-  LUIElement *v5; 
-  unsigned int v11; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  LUIAnchor *AnchorData; 
+  unsigned int v7; 
 
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: element:SetScreenSnapOffsets( x, y )");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-    }
-    v5 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Anchored_GetAnchorData(v5, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+0B0h], xmm7
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovss  dword ptr [rax+0B4h], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    AnchorData = LUIElement_Anchored_GetAnchorData(v2, luaVM);
+    AnchorData->screenSnapOffset.v[0] = v4;
+    AnchorData->screenSnapOffset.v[1] = *(float *)&v5;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v11);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
   }
   return 0i64;
 }
@@ -540,35 +489,24 @@ __int64 LUIElement_Anchored_SetSnapToLocation(lua_State *const luaVM)
 LUIElement_Anchored_SetScreenCenterFadeRadius
 ==============
 */
-
-__int64 __fastcall LUIElement_Anchored_SetScreenCenterFadeRadius(lua_State *const luaVM, double _XMM1_8)
+__int64 LUIElement_Anchored_SetScreenCenterFadeRadius(lua_State *const luaVM)
 {
-  LUIElement *v5; 
-  unsigned int v10; 
+  LUIElement *v3; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetScreenCenterFadeRadius( radius )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v5 = LUI_ToElement(luaVM, 1);
+    v3 = LUI_ToElement(luaVM, 1);
     *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmaxss  xmm6, xmm0, xmm1
-    }
-    _RAX = LUIElement_Anchored_GetAnchorData(v5, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+74h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    __asm { vmaxss  xmm6, xmm0, xmm1 }
+    LUIElement_Anchored_GetAnchorData(v3, luaVM)->screenCenterFadeRadius = *(float *)&_XMM6;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v10);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -607,35 +545,24 @@ __int64 LUIElement_Anchored_Reset(lua_State *const luaVM)
 LUIElement_Anchored_SetSnapRadius
 ==============
 */
-
-__int64 __fastcall LUIElement_Anchored_SetSnapRadius(lua_State *const luaVM, double _XMM1_8)
+__int64 LUIElement_Anchored_SetSnapRadius(lua_State *const luaVM)
 {
-  LUIElement *v5; 
-  unsigned int v10; 
+  LUIElement *v3; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetSnapRadius( snapRadius )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v5 = LUI_ToElement(luaVM, 1);
+    v3 = LUI_ToElement(luaVM, 1);
     *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmaxss  xmm6, xmm0, xmm1
-    }
-    _RAX = LUIElement_Anchored_GetAnchorData(v5, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+64h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    __asm { vmaxss  xmm6, xmm0, xmm1 }
+    LUIElement_Anchored_GetAnchorData(v3, luaVM)->snapRadius = *(float *)&_XMM6;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v10);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -689,111 +616,66 @@ LUIElement_Anchored_GetDistanceBasedFadeAlpha
 float LUIElement_Anchored_GetDistanceBasedFadeAlpha(LocalClientNum_t localClientNum, const LUIAnchor *const anchorData, const vec3_t *worldPosition)
 {
   cg_t *LocalClientGlobals; 
-  char v12; 
-  char v25; 
-  __int64 v44; 
-  int v45; 
+  const dvar_t *v6; 
+  float value; 
+  const dvar_t *v8; 
+  float v9; 
+  __int128 v11; 
+  float v15; 
+  __int64 v17; 
+  int v18; 
   vec3_t outOrg; 
-  __int64 v47; 
-  void *retaddr; 
+  __int64 v20; 
 
-  _RAX = &retaddr;
-  v47 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
+  v20 = -2i64;
   if ( !LUIElement_Anchored_UseDistanceBasedFading(localClientNum, anchorData) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 854, ASSERT_TYPE_ASSERT, "(LUIElement_Anchored_UseDistanceBasedFading( localClientNum, anchorData ))", (const char *)&queryFormat, "LUIElement_Anchored_UseDistanceBasedFading( localClientNum, anchorData )") )
     __debugbreak();
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v45 = 2;
-    LODWORD(v44) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v44, v45) )
+    v18 = 2;
+    LODWORD(v17) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v18) )
       __debugbreak();
   }
   if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 855, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RDI = DVARFLT_lui_objective_fadeStart;
+  v6 = DVARFLT_lui_objective_fadeStart;
   if ( !DVARFLT_lui_objective_fadeStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_objective_fadeStart") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  _RDI = DVARFLT_lui_objective_fadeEnd;
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  v8 = DVARFLT_lui_objective_fadeEnd;
   if ( !DVARFLT_lui_objective_fadeEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_objective_fadeEnd") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = v8->current.value;
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  __asm
+  v11 = LODWORD(outOrg.v[1]);
+  *(float *)&v11 = fsqrt((float)((float)((float)(outOrg.v[1] - worldPosition->v[1]) * (float)(outOrg.v[1] - worldPosition->v[1])) + (float)((float)(outOrg.v[0] - worldPosition->v[0]) * (float)(outOrg.v[0] - worldPosition->v[0]))) + (float)((float)(outOrg.v[2] - worldPosition->v[2]) * (float)(outOrg.v[2] - worldPosition->v[2])));
+  _XMM1 = v11;
+  if ( v9 > value )
   {
-    vmovss  xmm0, dword ptr [rsp+98h+outOrg]
-    vsubss  xmm3, xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsp+98h+outOrg+4]
-    vsubss  xmm2, xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rsp+98h+outOrg+8]
-    vsubss  xmm4, xmm0, dword ptr [rsi+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcomiss xmm7, xmm6
-  }
-  if ( v12 | v25 )
-  {
-    __asm
+    if ( *(float *)&v11 >= value )
     {
-      vcmpltss xmm2, xmm1, xmm7
-      vmovss  xmm1, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vblendvps xmm0, xmm0, xmm1, xmm2
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm5, cs:__real@3f800000
-      vcomiss xmm1, xmm6
-    }
-    if ( v12 )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      if ( *(float *)&v11 < v9 )
+        v15 = (float)(3.0 - (float)((float)((float)(*(float *)&v11 - value) / (float)(v9 - value)) * 2.0)) * (float)((float)((float)(*(float *)&v11 - value) / (float)(v9 - value)) * (float)((float)(*(float *)&v11 - value) / (float)(v9 - value)));
+      else
+        v15 = FLOAT_1_0;
     }
     else
     {
-      __asm { vcomiss xmm1, xmm7 }
-      if ( v12 )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm1, xmm6
-          vsubss  xmm0, xmm7, xmm6
-          vdivss  xmm4, xmm1, xmm0
-          vmulss  xmm2, xmm4, cs:__real@40000000
-          vmovss  xmm1, cs:__real@40400000
-          vsubss  xmm3, xmm1, xmm2
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm0, xmm3, xmm0
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm0, xmm5 }
-      }
+      v15 = 0.0;
     }
-    __asm { vsubss  xmm0, xmm5, xmm0 }
+    *(float *)&_XMM0 = 1.0 - v15;
+  }
+  else
+  {
+    __asm { vcmpltss xmm2, xmm1, xmm7 }
+    _XMM0 = 0i64;
+    __asm { vblendvps xmm0, xmm0, xmm1, xmm2 }
   }
   memset(&outOrg, 0, sizeof(outOrg));
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
   return *(float *)&_XMM0;
 }
 
@@ -835,133 +717,53 @@ LUIElement_Anchored_GetScale
 */
 float LUIElement_Anchored_GetScale(const LocalClientNum_t localClientNum, const LUIAnchor *const anchorData, const vec3_t *worldPosition)
 {
-  cg_t *v9; 
-  double v47; 
-  int v52; 
+  cg_t *LocalClientGlobals; 
+  cg_t *v7; 
+  float v8; 
+  int naturalFOV; 
+  float v10; 
+  float perspectiveScaleLerpDistance; 
+  float v12; 
+  float maxScale; 
+  double v14; 
   vec3_t outOrg; 
-  __int64 v54; 
-  void *retaddr; 
+  __int64 v17; 
 
-  _RAX = &retaddr;
-  v54 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RDI = anchorData;
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v52 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v52) )
-      __debugbreak();
-  }
+  v17 = -2i64;
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
+    __debugbreak();
   if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 762, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
     __debugbreak();
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  v9 = _RAX;
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  if ( _RDI->naturalFOV )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v7 = LocalClientGlobals;
+  v8 = FLOAT_1_0;
+  naturalFOV = anchorData->naturalFOV;
+  if ( naturalFOV )
+    v8 = (float)(0.0087266471 / atanf_0(LocalClientGlobals->refdef.view.fov.tanHalfFovY * 1.3333334)) * (float)naturalFOV;
+  RefdefView_GetOrg(&v7->refdef.view, &outOrg);
+  v10 = fsqrt((float)((float)((float)(outOrg.v[0] - worldPosition->v[0]) * (float)(outOrg.v[0] - worldPosition->v[0])) + (float)((float)(outOrg.v[1] - worldPosition->v[1]) * (float)(outOrg.v[1] - worldPosition->v[1]))) + (float)((float)(outOrg.v[2] - worldPosition->v[2]) * (float)(outOrg.v[2] - worldPosition->v[2])));
+  if ( !anchorData->perspectiveScalingEnabled || v10 == 0.0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+6934h]
-      vmulss  xmm0, xmm0, cs:__real@3faaaaab; X
-    }
-    *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3c0efa36
-      vdivss  xmm2, xmm1, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm7, xmm2, xmm0
-    }
-  }
-  RefdefView_GetOrg(&v9->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+outOrg]
-    vsubss  xmm2, xmm0, dword ptr [rbp+0]
-    vmovss  xmm1, dword ptr [rsp+98h+outOrg+4]
-    vsubss  xmm3, xmm1, dword ptr [rbp+4]
-    vmovss  xmm0, dword ptr [rsp+98h+outOrg+8]
-    vsubss  xmm4, xmm0, dword ptr [rbp+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-  }
-  if ( !_RDI->perspectiveScalingEnabled )
-    goto LABEL_15;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( _RDI->perspectiveScalingEnabled )
-  {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi+4Ch]
-      vucomiss xmm2, xmm0
-    }
-    if ( !_RDI->perspectiveScalingEnabled )
-      goto LABEL_14;
-    __asm { vcomiss xmm2, xmm0 }
-    if ( _RDI->perspectiveScalingEnabled )
-    {
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rdi+58h]
-        vmovss  xmm4, dword ptr [rdi+54h]
-        vdivss  xmm0, xmm5, xmm2
-        vmulss  xmm1, xmm0, xmm6
-        vsubss  xmm3, xmm5, xmm1
-        vdivss  xmm2, xmm4, xmm2
-        vmulss  xmm0, xmm2, xmm6
-        vsubss  xmm1, xmm4, xmm0
-        vsubss  xmm3, xmm3, xmm1
-        vaddss  xmm2, xmm3, xmm4
-      }
-    }
-    else
-    {
-LABEL_14:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+44h]
-        vdivss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, dword ptr [rdi+50h]
-        vmovss  xmm5, dword ptr [rdi+58h]
-      }
-    }
+    maxScale = anchorData->maxScale;
+    v12 = maxScale;
   }
   else
   {
-LABEL_15:
-    __asm
+    perspectiveScaleLerpDistance = anchorData->perspectiveScaleLerpDistance;
+    if ( perspectiveScaleLerpDistance == 0.0 || perspectiveScaleLerpDistance <= 0.0 )
     {
-      vmovss  xmm2, dword ptr [rdi+58h]
-      vmovaps xmm5, xmm2
+      maxScale = (float)(anchorData->naturalDistance / v10) * anchorData->defaultPerspectiveScale;
+      v12 = anchorData->maxScale;
+    }
+    else
+    {
+      v12 = anchorData->maxScale;
+      maxScale = (float)((float)(v12 - (float)((float)(v12 / perspectiveScaleLerpDistance) * v10)) - (float)(anchorData->minScale - (float)((float)(anchorData->minScale / perspectiveScaleLerpDistance) * v10))) + anchorData->minScale;
     }
   }
-  __asm
-  {
-    vmulss  xmm0, xmm2, xmm7; val
-    vmovaps xmm2, xmm5; max
-    vmovss  xmm1, dword ptr [rdi+54h]; min
-  }
-  v47 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  v14 = I_fclamp(maxScale * v8, anchorData->minScale, v12);
   memset(&outOrg, 0, sizeof(outOrg));
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
-  return *(float *)&v47;
+  return *(float *)&v14;
 }
 
 /*
@@ -969,161 +771,98 @@ LABEL_15:
 LUIElement_Anchored_GetScreenPosition
 ==============
 */
-
-__int64 __fastcall LUIElement_Anchored_GetScreenPosition(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, lua_State *luaVM, const dvec3_t *hiPrecisionWorldPosition, const vec3_t *lowPrecisionWorldPosition, float scale, bool roundScreenPos, vec2_t *outAnchorPoint, vec2_t *outTopLeft, vec2_t *outBottomRight)
+_BOOL8 LUIElement_Anchored_GetScreenPosition(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, lua_State *luaVM, const dvec3_t *hiPrecisionWorldPosition, const vec3_t *lowPrecisionWorldPosition, float scale, bool roundScreenPos, vec2_t *outAnchorPoint, vec2_t *outTopLeft, vec2_t *outBottomRight)
 {
+  void *customElementData; 
+  float v16; 
+  float v17; 
   const ScreenPlacement *ActivePlacement; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   const GfxViewInfo *ViewInfo; 
-  char v61; 
-  char v62; 
-  char v63; 
-  char v68; 
-  char v69; 
-  const char *v70; 
-  _BYTE *customElementData; 
-  char v73; 
-  bool v74; 
-  char v75; 
-  const char *v83; 
-  unsigned __int8 v107; 
-  const ObjectiveSettings *ObjectiveSettings; 
+  char v25; 
+  const ScreenPlacement *v26; 
+  bool v27; 
+  char v28; 
+  const char *v29; 
   cg_t *LocalClientGlobals; 
-  char v145; 
-  char v146; 
-  __int64 result; 
-  float fmt; 
+  _BYTE *v31; 
+  char v32; 
+  char v33; 
+  const char *v34; 
+  cg_t *v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  bool v39; 
+  const ObjectiveSettings *ObjectiveSettings; 
+  cg_t *v41; 
+  float v42; 
+  const dvar_t *v43; 
+  bool v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  const ScreenPlacement *v49; 
+  float v50; 
+  float v51; 
   vec2_t *screenPosition; 
   vec2_t *outSnappedScreenPosition; 
   bool snapToLocation[8]; 
   vec3_t luaVMa; 
-  LUIElementAxisPosition v181; 
-  __int64 v182; 
+  LUIElementAxisPosition x; 
+  __int64 v58; 
   vec2_t outScreenPos; 
   dvec3_t *worldPos; 
-  char v185; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v182 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
+  v58 = -2i64;
   *(_QWORD *)luaVMa.v = luaVM;
-  __asm { vmovaps xmm11, xmm2 }
-  _R15 = element;
   worldPos = (dvec3_t *)hiPrecisionWorldPosition;
-  _R13 = outAnchorPoint;
-  _R14 = outTopLeft;
-  _R12 = outBottomRight;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 662, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
     __debugbreak();
-  if ( !_R15->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RSI = (const LUIAnchor *)_R15->customElementData;
-  if ( (_R15->currentAnimationState.flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 665, ASSERT_TYPE_ASSERT, "(element->currentAnimationState.flags & ( 1 << 0 ))", (const char *)&queryFormat, "element->currentAnimationState.flags & LUI_ANIMSTATE_INITIALIZED") )
+  customElementData = element->customElementData;
+  if ( (element->currentAnimationState.flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 665, ASSERT_TYPE_ASSERT, "(element->currentAnimationState.flags & ( 1 << 0 ))", (const char *)&queryFormat, "element->currentAnimationState.flags & LUI_ANIMSTATE_INITIALIZED") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rsp+170h+var_108.global], xmm0
-    vmovsd  xmm1, qword ptr [r15+10h]
-    vmovsd  [rbp+70h+var_F0], xmm1
-  }
-  *(float *)&_XMM0 = LUI_Measure(&v181);
-  __asm
-  {
-    vmulss  xmm13, xmm0, xmm11
-    vmovups xmm0, xmmword ptr [r15+18h]
-    vmovups xmmword ptr [rsp+170h+var_108.global], xmm0
-    vmovsd  xmm1, qword ptr [r15+28h]
-    vmovsd  [rbp+70h+var_F0], xmm1
-  }
-  *(float *)&_XMM0 = LUI_Measure(&v181);
-  __asm { vmulss  xmm14, xmm0, xmm11 }
+  x = element->currentAnimationState.position.x;
+  v16 = LUI_Measure(&x) * unitScale;
+  x = element->currentAnimationState.position.y;
+  v17 = LUI_Measure(&x) * unitScale;
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  CG_WorldPosToScreenPosRealForScenePrecise(localClientNum, ActivePlacement, worldPos, _RSI->attachType == ATTACH_VIEWMODEL_RETICLE, &outScreenPos);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+70h+outScreenPos]
-    vmovss  dword ptr [r13+0], xmm2
-    vmovss  xmm3, dword ptr [rbp+70h+outScreenPos+4]
-    vmovss  dword ptr [r13+4], xmm3
-    vmovss  xmm10, [rbp+70h+scale]
-    vmulss  xmm0, xmm10, dword ptr [rsi+0A8h]
-    vmulss  xmm1, xmm10, dword ptr [rsi+0ACh]
-    vmulss  xmm0, xmm0, xmm11
-    vaddss  xmm6, xmm0, xmm2
-    vmulss  xmm1, xmm1, xmm11
-    vaddss  xmm7, xmm1, xmm3
-    vmovss  xmm0, dword ptr [r15+0Ch]
-    vaddss  xmm2, xmm0, dword ptr [r15+8]
-    vmovss  xmm12, cs:__real@3f000000
-    vmulss  xmm1, xmm2, xmm12
-    vmulss  xmm4, xmm1, xmm11
-    vmovss  xmm0, dword ptr [r15+24h]
-    vaddss  xmm2, xmm0, dword ptr [r15+20h]
-    vmulss  xmm1, xmm2, xmm12
-    vmulss  xmm5, xmm1, xmm11
-    vsubss  xmm0, xmm6, xmm4
-    vmulss  xmm1, xmm0, dword ptr [r15+48h]
-    vaddss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [rbp+70h+outScreenPos], xmm2
-    vsubss  xmm0, xmm7, xmm5
-    vmulss  xmm1, xmm0, dword ptr [r15+48h]
-    vaddss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rbp+70h+outScreenPos+4], xmm2
-  }
-  if ( _RSI->applyLensDistortion )
+  CG_WorldPosToScreenPosRealForScenePrecise(localClientNum, ActivePlacement, worldPos, *((_BYTE *)customElementData + 312) == 3, &outScreenPos);
+  v19 = outScreenPos.v[0];
+  outAnchorPoint->v[0] = outScreenPos.v[0];
+  v20 = outScreenPos.v[1];
+  outAnchorPoint->v[1] = outScreenPos.v[1];
+  v21 = (float)((float)(scale * *((float *)customElementData + 43)) * unitScale) + v20;
+  v22 = (float)((float)(element->currentAnimationState.position.x.global[1] + element->currentAnimationState.position.x.global[0]) * 0.5) * unitScale;
+  v23 = (float)((float)(element->currentAnimationState.position.y.global[1] + element->currentAnimationState.position.y.global[0]) * 0.5) * unitScale;
+  outScreenPos.v[0] = (float)((float)((float)((float)((float)(scale * *((float *)customElementData + 42)) * unitScale) + v19) - v22) * element->currentAnimationState.userData) + v22;
+  outScreenPos.v[1] = (float)((float)(v21 - v23) * element->currentAnimationState.userData) + v23;
+  if ( *((_BYTE *)customElementData + 324) )
   {
     ViewInfo = LUI_GetViewInfo();
     if ( ViewInfo )
       R_ScopeDistortionTransform(ViewInfo, &outScreenPos, &outScreenPos);
   }
-  v61 = _RSI->onScreenStatus[0];
-  _RAX = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
+  v25 = *((_BYTE *)customElementData + 104);
+  v26 = ScrPlace_GetActivePlacement(localClientNum);
+  v27 = outScreenPos.v[0] < v26->realViewportSize.v[0] && outScreenPos.v[1] < v26->realViewportSize.v[1] && outScreenPos.v[0] > 0.0 && outScreenPos.v[1] > 0.0;
+  v28 = !v27 + 1;
+  *((_BYTE *)customElementData + 104) = v28;
+  if ( *((_BYTE *)customElementData + 331) && v25 != v28 )
   {
-    vxorps  xmm9, xmm9, xmm9
-    vmovss  xmm1, dword ptr [rbp+70h+outScreenPos]
-    vcomiss xmm1, dword ptr [rax+20h]
-  }
-  if ( !v62 )
-    goto LABEL_21;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+70h+outScreenPos+4]
-    vcomiss xmm0, dword ptr [rax+24h]
-  }
-  if ( !v62 )
-    goto LABEL_21;
-  __asm { vcomiss xmm1, xmm9 }
-  if ( v62 | v63 )
-    goto LABEL_21;
-  __asm { vcomiss xmm0, xmm9 }
-  if ( v62 | v63 )
-LABEL_21:
-    v68 = 0;
-  else
-    v68 = 1;
-  v69 = (v68 ^ 1) + 1;
-  _RSI->onScreenStatus[0] = v69;
-  if ( _RSI->sendScreenEvents && v61 != v69 )
-  {
-    v70 = "anchor_off_screen";
-    if ( v68 )
-      v70 = "anchor_on_screen";
-    if ( LUI_BeginEventWithElement(localClientNum, _R15, v70, luaVM) )
+    v29 = "anchor_off_screen";
+    if ( v27 )
+      v29 = "anchor_on_screen";
+    if ( LUI_BeginEventWithElement(localClientNum, element, v29, luaVM) )
       LUI_EndEventWithElement(luaVM);
   }
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
@@ -1135,71 +874,58 @@ LABEL_21:
   }
   if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 248, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
     __debugbreak();
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_R15->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  customElementData = _R15->customElementData;
-  v73 = customElementData[310];
-  snapToLocation[0] = v73;
-  if ( _RDI->dualViewScope )
+  v31 = element->customElementData;
+  v32 = v31[310];
+  snapToLocation[0] = v32;
+  if ( LocalClientGlobals->dualViewScope )
   {
-    v74 = !_RDI->scopeBoundingCircleValid;
-    if ( _RDI->scopeBoundingCircleValid )
+    if ( LocalClientGlobals->scopeBoundingCircleValid )
       goto LABEL_42;
-    _RDI->scopeBoundingCircleValid = CG_FetchScreenSpaceScopeBoundingCircle(localClientNum, &_RDI->scopeBoundingCircle);
-    v73 = snapToLocation[0];
+    LocalClientGlobals->scopeBoundingCircleValid = CG_FetchScreenSpaceScopeBoundingCircle(localClientNum, &LocalClientGlobals->scopeBoundingCircle);
+    v32 = snapToLocation[0];
   }
-  v74 = !_RDI->scopeBoundingCircleValid;
-  if ( !_RDI->scopeBoundingCircleValid )
+  if ( !LocalClientGlobals->scopeBoundingCircleValid )
   {
-    customElementData[310] = 1;
-    v75 = 1;
+    v31[310] = 1;
+    v33 = 1;
     goto LABEL_45;
   }
 LABEL_42:
-  __asm
+  if ( (float)((float)((float)(LocalClientGlobals->scopeBoundingCircle.v[1] - outScreenPos.v[1]) * (float)(LocalClientGlobals->scopeBoundingCircle.v[1] - outScreenPos.v[1])) + (float)((float)(LocalClientGlobals->scopeBoundingCircle.v[0] - outScreenPos.v[0]) * (float)(LocalClientGlobals->scopeBoundingCircle.v[0] - outScreenPos.v[0]))) <= LocalClientGlobals->scopeBoundingCircle.v[2] )
   {
-    vmovss  xmm0, dword ptr [rdi+0B535Ch]
-    vsubss  xmm4, xmm0, dword ptr [rbp+70h+outScreenPos]
-    vmovss  xmm1, dword ptr [rdi+0B5360h]
-    vsubss  xmm2, xmm1, dword ptr [rbp+70h+outScreenPos+4]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vcomiss xmm1, dword ptr [rdi+0B5364h]
-  }
-  if ( v74 )
-  {
-    customElementData[310] = 2;
-    v75 = 2;
+    v31[310] = 2;
+    v33 = 2;
   }
   else
   {
-    customElementData[310] = 3;
-    v75 = 3;
+    v31[310] = 3;
+    v33 = 3;
   }
 LABEL_45:
-  if ( customElementData[311] == 1 && v73 != v75 )
+  if ( v31[311] == 1 && v32 != v33 )
   {
-    switch ( v75 )
+    switch ( v33 )
     {
       case 1:
-        v83 = "anchor_scope_off";
+        v34 = "anchor_scope_off";
         break;
       case 2:
-        v83 = "anchor_within_scope_frame";
+        v34 = "anchor_within_scope_frame";
         break;
       case 3:
-        v83 = "anchor_outside_scope_frame";
+        v34 = "anchor_outside_scope_frame";
         break;
       default:
         goto LABEL_55;
     }
-    if ( LUI_BeginEventWithElement(localClientNum, _R15, v83, *(lua_State **)luaVMa.v) )
+    if ( LUI_BeginEventWithElement(localClientNum, element, v34, *(lua_State **)luaVMa.v) )
       LUI_EndEventWithElement(*(lua_State **)luaVMa.v);
   }
 LABEL_55:
-  if ( _RSI->snapToScopeEdges && _RSI->scopeStatus[0] == 3 )
+  if ( *((_BYTE *)customElementData + 327) && *((_BYTE *)customElementData + 310) == 3 )
   {
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
@@ -1210,210 +936,76 @@ LABEL_55:
     }
     if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 287, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
       __debugbreak();
-    _RDI = CG_GetLocalClientGlobals(localClientNum);
-    if ( !_RDI->scopeBoundingCircleValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 289, ASSERT_TYPE_ASSERT, "(cgameGlob->scopeBoundingCircleValid)", (const char *)&queryFormat, "cgameGlob->scopeBoundingCircleValid") )
+    v35 = CG_GetLocalClientGlobals(localClientNum);
+    if ( !v35->scopeBoundingCircleValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 289, ASSERT_TYPE_ASSERT, "(cgameGlob->scopeBoundingCircleValid)", (const char *)&queryFormat, "cgameGlob->scopeBoundingCircleValid") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rdi+0B535Ch]
-      vmovss  xmm7, dword ptr [rbp+70h+outScreenPos]
-      vsubss  xmm1, xmm4, xmm7
-      vmovss  xmm5, dword ptr [rdi+0B5360h]
-      vmovss  xmm6, dword ptr [rbp+70h+outScreenPos+4]
-      vsubss  xmm0, xmm5, xmm6
-      vmulss  xmm1, xmm1, xmm1
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm1, dword ptr [rdi+0B5364h]
-      vdivss  xmm2, xmm1, xmm2
-      vsqrtss xmm3, xmm2, xmm2
-      vsubss  xmm0, xmm7, xmm4
-      vsubss  xmm1, xmm6, xmm5
-      vmulss  xmm2, xmm0, xmm3
-      vmulss  xmm3, xmm1, xmm3
-      vaddss  xmm4, xmm2, xmm4
-      vaddss  xmm0, xmm3, xmm5
-      vsubss  xmm1, xmm4, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vaddss  xmm0, xmm7, xmm1
-      vmovss  dword ptr [rbp+70h+outScreenPos], xmm0
-      vaddss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rbp+70h+outScreenPos+4], xmm1
-    }
-    v107 = 1;
+    v36 = v35->scopeBoundingCircle.v[0];
+    v37 = v35->scopeBoundingCircle.v[1];
+    v38 = fsqrt(v35->scopeBoundingCircle.v[2] / (float)((float)((float)(v36 - outScreenPos.v[0]) * (float)(v36 - outScreenPos.v[0])) + (float)((float)(v37 - outScreenPos.v[1]) * (float)(v37 - outScreenPos.v[1]))));
+    outScreenPos.v[0] = outScreenPos.v[0] + (float)((float)((float)((float)(outScreenPos.v[0] - v36) * v38) + v36) - outScreenPos.v[0]);
+    outScreenPos.v[1] = outScreenPos.v[1] + (float)((float)((float)((float)(outScreenPos.v[1] - v37) * v38) + v37) - outScreenPos.v[1]);
+    v39 = 1;
   }
   else
   {
-    if ( !_RSI->snapToScreenEdges )
+    if ( !*((_BYTE *)customElementData + 326) )
       goto LABEL_76;
-    if ( !_RSI->enableDistanceBasedSnapCheck )
+    if ( !*((_BYTE *)customElementData + 112) )
       goto LABEL_75;
-    ObjectiveSettings = LUIElement_Anchored_GetObjectiveSettings(localClientNum, _RSI);
+    ObjectiveSettings = LUIElement_Anchored_GetObjectiveSettings(localClientNum, (const LUIAnchor *const)customElementData);
     if ( ObjectiveSettings )
     {
       if ( ObjectiveSettings->alwaysSnapToScreenEdge )
         goto LABEL_75;
     }
-    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &luaVMa);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+170h+luaVM]
-      vsubss  xmm3, xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rsp+170h+luaVM+4]
-      vsubss  xmm2, xmm1, dword ptr [rax+4]
-      vmovss  xmm0, [rsp+170h+var_110]
-      vsubss  xmm4, xmm0, dword ptr [rax+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm6, xmm2, xmm2
-    }
-    _RDI = DVARFLT_lui_objective_stopSnapDistance;
+    v41 = CG_GetLocalClientGlobals(localClientNum);
+    RefdefView_GetOrg(&v41->refdef.view, &luaVMa);
+    v42 = fsqrt((float)((float)((float)(luaVMa.v[1] - lowPrecisionWorldPosition->v[1]) * (float)(luaVMa.v[1] - lowPrecisionWorldPosition->v[1])) + (float)((float)(luaVMa.v[0] - lowPrecisionWorldPosition->v[0]) * (float)(luaVMa.v[0] - lowPrecisionWorldPosition->v[0]))) + (float)((float)(luaVMa.v[2] - lowPrecisionWorldPosition->v[2]) * (float)(luaVMa.v[2] - lowPrecisionWorldPosition->v[2])));
+    v43 = DVARFLT_lui_objective_stopSnapDistance;
     if ( !DVARFLT_lui_objective_stopSnapDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_objective_stopSnapDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, xmm6
-    }
+    Dvar_CheckFrontendServerThread(v43);
+    v44 = v43->current.value > v42;
     memset(&luaVMa, 0, sizeof(luaVMa));
-    if ( !(v62 | v63) )
+    if ( v44 )
     {
 LABEL_75:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmovups xmmword ptr [rsp+170h+var_108.global], xmm0
-        vmovsd  xmm1, qword ptr [r15+10h]
-        vmovsd  [rbp+70h+var_F0], xmm1
-        vmulss  xmm6, xmm11, xmm10
-      }
-      *(float *)&_XMM0 = LUI_Measure(&v181);
-      __asm
-      {
-        vmulss  xmm7, xmm0, xmm6
-        vmovups xmm1, xmmword ptr [r15+18h]
-        vmovups xmmword ptr [rsp+170h+var_108.global], xmm1
-        vmovsd  xmm0, qword ptr [r15+28h]
-        vmovsd  [rbp+70h+var_F0], xmm0
-      }
-      *(float *)&_XMM0 = LUI_Measure(&v181);
-      __asm { vmulss  xmm3, xmm0, xmm6; elementHeight }
-      snapToLocation[0] = _RSI->snapToLocation;
-      __asm
-      {
-        vmulss  xmm0, xmm11, dword ptr [rsi+0B0h]
-        vmovss  dword ptr [rbp+70h+worldPos], xmm0
-        vmulss  xmm1, xmm11, dword ptr [rsi+0B4h]
-        vmovss  dword ptr [rbp+70h+worldPos+4], xmm1
-        vmulss  xmm1, xmm11, dword ptr [rsi+64h]; snapRadius
-        vmovss  xmm0, dword ptr [rsi+6Ch]
-        vmovss  dword ptr [rsp+170h+fmt], xmm0
-        vmovaps xmm2, xmm7; elementwWidth
-      }
-      LUIElement_Anchored_SnapScreenPositionToEdges(localClientNum, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, &outScreenPos, &outScreenPos, snapToLocation, (const vec2_t *)&worldPos);
-      v107 = 1;
+      x = element->currentAnimationState.position.x;
+      v45 = LUI_Measure(&x) * (float)(unitScale * scale);
+      x = element->currentAnimationState.position.y;
+      v46 = LUI_Measure(&x);
+      snapToLocation[0] = *((_BYTE *)customElementData + 328);
+      *(float *)&worldPos = unitScale * *((float *)customElementData + 44);
+      *((float *)&worldPos + 1) = unitScale * *((float *)customElementData + 45);
+      LUIElement_Anchored_SnapScreenPositionToEdges(localClientNum, unitScale * *((float *)customElementData + 25), v45, v46 * (float)(unitScale * scale), *((const float *)customElementData + 27), &outScreenPos, &outScreenPos, snapToLocation, (const vec2_t *)&worldPos);
+      v39 = 1;
     }
     else
     {
 LABEL_76:
-      __asm
-      {
-        vmulss  xmm7, xmm13, xmm10
-        vmulss  xmm1, xmm7, xmm12
-        vmovss  xmm0, dword ptr [rbp+70h+outScreenPos]
-        vsubss  xmm8, xmm0, xmm1
-        vmulss  xmm2, xmm14, xmm10
-        vmulss  xmm1, xmm2, xmm12
-        vmovss  xmm0, dword ptr [rbp+70h+outScreenPos+4]
-        vsubss  xmm6, xmm0, xmm1
-        vaddss  xmm10, xmm6, xmm2
-      }
-      _RAX = ScrPlace_GetActivePlacement(localClientNum);
-      __asm { vcomiss xmm8, dword ptr [rax+20h] }
-      if ( !v145 )
-        goto LABEL_81;
-      __asm { vcomiss xmm6, dword ptr [rax+24h] }
-      if ( !v145 )
-        goto LABEL_81;
-      __asm
-      {
-        vaddss  xmm0, xmm8, xmm7
-        vcomiss xmm0, xmm9
-      }
-      if ( v145 | v146 )
-        goto LABEL_81;
-      __asm { vcomiss xmm10, xmm9 }
-      if ( v145 | v146 )
-LABEL_81:
-        v107 = 0;
-      else
-        v107 = 1;
+      v47 = outScreenPos.v[0] - (float)((float)(v16 * scale) * 0.5);
+      v48 = outScreenPos.v[1] - (float)((float)(v17 * scale) * 0.5);
+      v49 = ScrPlace_GetActivePlacement(localClientNum);
+      v39 = v47 < v49->realViewportSize.v[0] && v48 < v49->realViewportSize.v[1] && (float)(v47 + (float)(v16 * scale)) > 0.0 && (float)(v48 + (float)(v17 * scale)) > 0.0;
     }
   }
-  __asm
-  {
-    vmulss  xmm1, xmm13, xmm12
-    vmovss  xmm0, dword ptr [rbp+70h+outScreenPos]
-    vsubss  xmm3, xmm0, xmm1
-    vmovss  dword ptr [r14], xmm3
-    vmulss  xmm2, xmm14, xmm12
-    vmovss  xmm1, dword ptr [rbp+70h+outScreenPos+4]
-    vsubss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r14+4], xmm2
-  }
+  v51 = outScreenPos.v[0] - (float)(v16 * 0.5);
+  v50 = v51;
+  outTopLeft->v[0] = v51;
+  outTopLeft->v[1] = outScreenPos.v[1] - (float)(v17 * 0.5);
   if ( roundScreenPos )
   {
-    __asm { vmovaps xmm0, xmm3; X }
-    *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm0, dword ptr [r14+4]; X
-    }
-    *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [r14+4], xmm0
-      vmovss  xmm3, dword ptr [r14]
-    }
+    outTopLeft->v[0] = roundf(v51);
+    outTopLeft->v[1] = roundf(outTopLeft->v[1]);
+    v50 = outTopLeft->v[0];
   }
-  __asm
-  {
-    vaddss  xmm0, xmm3, xmm13
-    vmovss  dword ptr [r12], xmm0
-    vaddss  xmm0, xmm14, dword ptr [r14+4]
-    vmovss  dword ptr [r12+4], xmm0
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm2, xmm1, xmm11
-    vmulss  xmm0, xmm2, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r14+4]
-    vmovss  dword ptr [r14+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r12]
-    vmovss  dword ptr [r12], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r12+4]
-    vmovss  dword ptr [r12+4], xmm1
-  }
-  result = v107;
-  _R11 = &v185;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
-  return result;
+  outBottomRight->v[0] = v50 + v16;
+  outBottomRight->v[1] = v17 + outTopLeft->v[1];
+  outTopLeft->v[0] = (float)(1.0 / unitScale) * outTopLeft->v[0];
+  outTopLeft->v[1] = (float)(1.0 / unitScale) * outTopLeft->v[1];
+  outBottomRight->v[0] = (float)(1.0 / unitScale) * outBottomRight->v[0];
+  outBottomRight->v[1] = (float)(1.0 / unitScale) * outBottomRight->v[1];
+  return v39;
 }
 
 /*
@@ -1427,18 +1019,24 @@ bool LUIElement_Anchored_GetWorldPosition(const LocalClientNum_t localClientNum,
   int entityNum; 
   int v7; 
   unsigned int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   bool result; 
   centity_t *Entity; 
   cg_t *LocalClientGlobals; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v19; 
+  float v29; 
+  float v30; 
+  float v31; 
   int worldOffset; 
   int outOffset; 
-  vec3_t v40; 
-  vec3_t v41; 
+  vec3_t v34; 
+  vec3_t v35; 
   tmat33_t<vec3_t> outLocalAxis; 
   tmat33_t<vec3_t> dst; 
 
-  _RBX = outWorldPosition;
   v4 = localClientNum;
   if ( Sys_IsRenderThread() && R_IsInRemoteScreenUpdate() || !Sys_IsMainThread() )
     goto LABEL_28;
@@ -1463,20 +1061,14 @@ bool LUIElement_Anchored_GetWorldPosition(const LocalClientNum_t localClientNum,
       __debugbreak();
     if ( ScriptableCl_GetInstanceInUse((const LocalClientNum_t)v4, v7) && ScriptableCl_GetPartIsUsable((const LocalClientNum_t)v4, v7, (unsigned __int8)v8) )
     {
-      ScriptableCl_GetPartUsePosition((const LocalClientNum_t)v4, v7, (unsigned __int8)v8, _RBX);
-      LUI_ComputeWorldOffset((const LocalClientNum_t)v4, anchorData->entityNum, &dst, &anchorData->tagOffset, &anchorData->entityOffset, &anchorData->worldOffset, &v40);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0E8h+var_A8]
-        vaddss  xmm1, xmm0, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rsp+0E8h+var_A8+4]
-        vmovss  dword ptr [rbx], xmm1
-        vaddss  xmm1, xmm0, dword ptr [rbx+4]
-        vmovss  xmm0, dword ptr [rsp+0E8h+var_A8+8]
-        vmovss  dword ptr [rbx+4], xmm1
-        vaddss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx+8], xmm1
-      }
+      ScriptableCl_GetPartUsePosition((const LocalClientNum_t)v4, v7, (unsigned __int8)v8, outWorldPosition);
+      LUI_ComputeWorldOffset((const LocalClientNum_t)v4, anchorData->entityNum, &dst, &anchorData->tagOffset, &anchorData->entityOffset, &anchorData->worldOffset, &v34);
+      v9 = v34.v[1];
+      outWorldPosition->v[0] = v34.v[0] + outWorldPosition->v[0];
+      v10 = v9 + outWorldPosition->v[1];
+      v11 = v34.v[2];
+      outWorldPosition->v[1] = v10;
+      outWorldPosition->v[2] = v11 + outWorldPosition->v[2];
       return 1;
     }
     goto LABEL_28;
@@ -1486,53 +1078,52 @@ bool LUIElement_Anchored_GetWorldPosition(const LocalClientNum_t localClientNum,
   {
 LABEL_28:
     result = 0;
-    *(_QWORD *)_RBX->v = 0i64;
-    _RBX->v[2] = 0.0;
+    *(_QWORD *)outWorldPosition->v = 0i64;
+    outWorldPosition->v[2] = 0.0;
     return result;
   }
-  if ( !anchorData->tagName[0] || !LUI_GetEntityTagPositionAndAxis((const LocalClientNum_t)v4, anchorData->entityNum, anchorData->tagName, &outLocalAxis, _RBX) )
+  if ( !anchorData->tagName[0] || !LUI_GetEntityTagPositionAndAxis((const LocalClientNum_t)v4, anchorData->entityNum, anchorData->tagName, &outLocalAxis, outWorldPosition) )
   {
     MatrixClear33(&outLocalAxis);
     if ( !Entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
       __debugbreak();
     FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(Entity->pose.origin.Get_origin, &Entity->pose);
-    FunctionPointer_origin(&Entity->pose.origin.origin.origin, _RBX);
+    FunctionPointer_origin(&Entity->pose.origin.origin.origin, outWorldPosition);
     if ( Entity->pose.isPosePrecise )
     {
+      _XMM0 = LODWORD(outWorldPosition->v[0]);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v19 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM0 = v19;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      _XMM0 = LODWORD(outWorldPosition->v[1]);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      outWorldPosition->v[0] = *(float *)&_XMM1;
+      *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v19 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v19;
+      _XMM0 = LODWORD(outWorldPosition->v[2]);
       __asm
       {
-        vmovsd  xmm3, cs:__real@3f30000000000000
-        vmovd   xmm0, dword ptr [rbx]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm0, xmm0, xmm3
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovd   xmm0, dword ptr [rbx+4]
-        vcvtdq2pd xmm0, xmm0
-        vmovss  dword ptr [rbx], xmm1
-        vmulsd  xmm1, xmm0, xmm3
-        vmovd   xmm0, dword ptr [rbx+8]
         vcvtsd2ss xmm2, xmm1, xmm1
         vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rbx+4], xmm2
-        vcvtsd2ss xmm2, xmm1, xmm1
-        vmovss  dword ptr [rbx+8], xmm2
       }
+      *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v19 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v19;
+      outWorldPosition->v[1] = *(float *)&_XMM2;
+      __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+      outWorldPosition->v[2] = *(float *)&_XMM2;
     }
   }
-  LUI_ComputeWorldOffset((const LocalClientNum_t)v4, anchorData->entityNum, &outLocalAxis, &anchorData->tagOffset, &anchorData->entityOffset, &anchorData->worldOffset, &v41);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_98]
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_98+4]
-    vmovss  dword ptr [rbx], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_98+8]
-    vmovss  dword ptr [rbx+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm1
-  }
+  LUI_ComputeWorldOffset((const LocalClientNum_t)v4, anchorData->entityNum, &outLocalAxis, &anchorData->tagOffset, &anchorData->entityOffset, &anchorData->worldOffset, &v35);
+  v29 = v35.v[1];
+  outWorldPosition->v[0] = v35.v[0] + outWorldPosition->v[0];
+  v30 = v29 + outWorldPosition->v[1];
+  v31 = v35.v[2];
+  outWorldPosition->v[1] = v30;
+  outWorldPosition->v[2] = v31 + outWorldPosition->v[2];
   return 1;
 }
 
@@ -1541,498 +1132,419 @@ LABEL_28:
 LUIElement_Anchored_Layout
 ==============
 */
-
-void __fastcall LUIElement_Anchored_Layout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_Anchored_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  bool v16; 
-  int v18; 
-  bool v22; 
+  bool v5; 
+  int v7; 
+  LUIAnchor *customElementData; 
+  bool v11; 
   LUIAnchorAttachType attachType; 
   PlayerHandIndex PlayerHandIndexToUseForWidget; 
   cg_t *LocalClientGlobals; 
-  cg_t *v38; 
-  PlayerHandIndex v39; 
+  float v15; 
+  float v16; 
+  float v17; 
+  cg_t *v24; 
+  PlayerHandIndex v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v36; 
+  double v38; 
+  __m128 v40; 
+  double v42; 
+  __m128 v44; 
+  float v46; 
+  cg_t *v50; 
+  __int64 entityNum; 
+  __int128 v53; 
+  float v54; 
+  float v55; 
   bool WorldPosition; 
-  bool v107; 
-  char v109; 
-  bool v111; 
+  float Scale; 
+  bool v58; 
+  float alpha; 
+  bool v60; 
+  bool v61; 
   LUITraceRequest *activeTraceRequest; 
-  _BYTE *v113; 
+  _BYTE *v63; 
   LUIAnchorTagType currentTraceTag; 
-  __int64 v115; 
-  __int64 v116; 
-  __int64 v117; 
-  const vec3_t *v118; 
-  LUITraceRequest *v119; 
-  char v120; 
-  const char *v121; 
+  __int64 v65; 
+  __int64 v66; 
+  __int64 v67; 
+  const vec3_t *v68; 
+  LUITraceRequest *v69; 
+  char v70; 
+  const char *v71; 
+  __int128 v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  const ScreenPlacement *ActivePlacement; 
+  float v78; 
+  __int128 v79; 
+  float v80; 
+  cg_t *v83; 
+  float v84; 
+  float v85; 
+  float v86; 
   LUIElement *firstChild; 
-  dvec3_t *v163; 
+  dvec3_t *v88; 
   __int64 ignoreOffsetsForTraces; 
-  float ignoreOffsetsForTracesa; 
+  bool v90; 
   bool outHit; 
   bool outTriviallyNotInSight; 
-  char v168; 
-  int v169; 
+  char v93; 
+  int v94; 
   vec3_t outOrigin; 
   dvec3_t outWorldPosition; 
   vec2_t screenSpaceBottomRight; 
   vec2_t screenSpaceTopLeft; 
   tmat33_t<vec3_t> in1; 
   vec3_t angles; 
-  __int128 v176; 
+  __int128 v101; 
   vec2_t inOutAnchorPoint; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> outLocalAxis; 
-  tmat33_t<vec3_t> v181; 
+  tmat33_t<vec3_t> v106; 
   tmat33_t<vec3_t> in; 
   tmat33_t<vec3_t> in2; 
-  tmat33_t<vec3_t> v184; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v109; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm8
-  }
-  v16 = element->customElementData == NULL;
-  _RDI = element;
-  v18 = deltaTime;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-0C8h], xmm14
-    vmovaps xmmword ptr [r11-0D8h], xmm15
-  }
-  v169 = deltaTime;
-  __asm { vmovaps xmm8, xmm2 }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  v5 = element->customElementData == NULL;
+  v7 = deltaTime;
+  v94 = deltaTime;
+  if ( v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RBX = (LUIAnchor *)_RDI->customElementData;
-  v22 = 1;
-  __asm { vxorps  xmm14, xmm14, xmm14 }
-  attachType = _RBX->attachType;
+  customElementData = (LUIAnchor *)element->customElementData;
+  v11 = 1;
+  attachType = customElementData->attachType;
   if ( attachType == ATTACH_VIEWMODEL )
   {
-    PlayerHandIndexToUseForWidget = LUI_GetPlayerHandIndexToUseForWidget(localClientNum, _RBX->useLeftHandIfAkimbo);
-    if ( LUI_GetViewModelTransform(localClientNum, PlayerHandIndexToUseForWidget, _RBX->tagName, &outLocalAxis, &outWorldPosition) )
+    PlayerHandIndexToUseForWidget = LUI_GetPlayerHandIndexToUseForWidget(localClientNum, customElementData->useLeftHandIfAkimbo);
+    if ( LUI_GetViewModelTransform(localClientNum, PlayerHandIndexToUseForWidget, customElementData->tagName, &outLocalAxis, &outWorldPosition) )
     {
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
       AnglesToAxis(&LocalClientGlobals->refdefViewAngles, &axis);
       MatrixInverse(&axis, &out);
-      MatrixMultiply(&outLocalAxis, &out, &v181);
-      v22 = 1;
+      MatrixMultiply(&outLocalAxis, &out, &v106);
+      v11 = 1;
     }
     else
     {
-      v22 = 0;
+      v11 = 0;
     }
-    AxisToAngles(&v181, &angles);
+    AxisToAngles(&v106, &angles);
+    v15 = angles.v[2];
+    v16 = angles.v[1];
+    element->xRot = COERCE_FLOAT(LODWORD(angles.v[0]) ^ _xmm);
+    LODWORD(v17) = LODWORD(v15) ^ _xmm;
+    _XMM0 = *(unsigned __int64 *)&outWorldPosition.y;
+    element->currentAnimationState.zRot = v17;
+    _XMM1 = *(unsigned __int64 *)&outWorldPosition.z;
+    element->yRot = v16;
+    _XMM2 = *(unsigned __int64 *)&outWorldPosition.x;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsp+2E8h+angles]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rsp+2E8h+angles+8]
-      vmovss  xmm2, dword ptr [rsp+2E8h+angles+4]
-      vmovss  dword ptr [rdi+0E0h], xmm1
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovsd  xmm0, qword ptr [rsp+2E8h+outWorldPosition+8]
-      vmovss  dword ptr [rdi+30h], xmm1
-      vmovsd  xmm1, qword ptr [rsp+2E8h+outWorldPosition+10h]
-      vmovss  dword ptr [rdi+0E4h], xmm2
-      vmovsd  xmm2, qword ptr [rsp+2E8h+outWorldPosition]
       vcvtpd2ps xmm1, xmm1
       vcvtpd2ps xmm2, xmm2
       vcvtpd2ps xmm0, xmm0
-      vmovss  dword ptr [rsp+2E8h+outOrigin+8], xmm1
-      vmovss  dword ptr [rsp+2E8h+outOrigin], xmm2
-      vmovss  dword ptr [rsp+2E8h+outOrigin+4], xmm0
     }
-    goto LABEL_26;
+    outOrigin.v[2] = *(float *)&_XMM1;
+    outOrigin.v[0] = *(float *)&_XMM2;
+    outOrigin.v[1] = *(float *)&_XMM0;
+    goto LABEL_30;
   }
   if ( attachType != ATTACH_VIEWMODEL_RETICLE )
   {
     switch ( attachType )
     {
       case ATTACH_WORLD:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+78h]
-          vmovss  dword ptr [rsp+2E8h+outOrigin], xmm1
-          vmovss  xmm0, dword ptr [rbx+7Ch]
-          vmovss  dword ptr [rsp+2E8h+outOrigin+4], xmm0
-          vmovss  xmm3, dword ptr [rbx+80h]
-          vunpcklps xmm0, xmm1, xmm0
-        }
+        _XMM1 = LODWORD(customElementData->worldOffset.v[0]);
+        *(_QWORD *)outOrigin.v = *(_QWORD *)customElementData->worldOffset.v;
+        v36 = customElementData->worldOffset.v[2];
+        __asm { vunpcklps xmm0, xmm1, xmm0 }
         break;
       case ATTACH_SCRIPTABLE:
-        ScriptableCl_GetInstanceOrigin(localClientNum, _RBX->entityNum, &outOrigin);
+        ScriptableCl_GetInstanceOrigin(localClientNum, customElementData->entityNum, &outOrigin);
+        v44 = (__m128)LODWORD(outOrigin.v[0]);
+        v44.m128_f32[0] = outOrigin.v[0] + customElementData->worldOffset.v[0];
+        _XMM3 = v44;
+        _XMM0 = LODWORD(outOrigin.v[2]);
+        outOrigin.v[0] = v44.m128_f32[0];
+        outOrigin.v[1] = outOrigin.v[1] + customElementData->worldOffset.v[1];
+        v46 = outOrigin.v[2] + customElementData->worldOffset.v[2];
         __asm
         {
-          vmovss  xmm1, dword ptr [rsp+2E8h+outOrigin+4]
-          vmovss  xmm0, dword ptr [rsp+2E8h+outOrigin]
-          vaddss  xmm3, xmm0, dword ptr [rbx+78h]
-          vmovss  xmm0, dword ptr [rsp+2E8h+outOrigin+8]
-          vmovss  dword ptr [rsp+2E8h+outOrigin], xmm3
-          vaddss  xmm2, xmm1, dword ptr [rbx+7Ch]
-          vmovss  dword ptr [rsp+2E8h+outOrigin+4], xmm2
-          vaddss  xmm4, xmm0, dword ptr [rbx+80h]
           vunpcklps xmm1, xmm3, xmm2
-          vmovaps xmm2, xmm1
           vxorpd  xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+2E8h+outOrigin], xmm1
-          vmovsd  xmm1, xmm0, xmm2
-          vcvtps2pd xmm2, xmm1
-          vmovupd xmmword ptr [rsp+2E8h+outWorldPosition], xmm2
-          vmovss  dword ptr [rsp+2E8h+outOrigin+8], xmm4
-          vcvtss2sd xmm0, xmm4, xmm4
         }
-        goto LABEL_25;
+        *(double *)outOrigin.v = *(double *)&_XMM1;
+        v44.m128_u64[1] = *((_QWORD *)&_XMM0 + 1);
+        v44.m128_u64[0] = *(unsigned __int64 *)&_XMM1;
+        _XMM2 = _mm_cvtps_pd(v44);
+        __asm { vmovupd xmmword ptr [rsp+2E8h+outWorldPosition], xmm2 }
+        outOrigin.v[2] = v46;
+        v42 = v46;
+        goto LABEL_29;
       case ATTACH_OBJECTIVE:
-        _RAX = CG_GetLocalClientGlobals(localClientNum);
-        __asm { vmovss  xmm0, dword ptr [rbx+78h] }
-        _RDX = 172i64 * _RBX->entityNum;
-        __asm
-        {
-          vaddss  xmm2, xmm0, dword ptr [rdx+rax+1298h]
-          vmovss  xmm1, dword ptr [rdx+rax+129Ch]
-          vmovss  xmm3, dword ptr [rdx+rax+12A0h]
-          vmovss  dword ptr [rsp+2E8h+outOrigin], xmm2
-          vaddss  xmm0, xmm1, dword ptr [rbx+7Ch]
-          vmovss  dword ptr [rsp+2E8h+outOrigin+4], xmm0
-          vaddss  xmm3, xmm3, dword ptr [rbx+80h]
-          vunpcklps xmm0, xmm2, xmm0
-        }
+        v50 = CG_GetLocalClientGlobals(localClientNum);
+        entityNum = customElementData->entityNum;
+        v53 = LODWORD(customElementData->worldOffset.v[0]);
+        *(float *)&v53 = customElementData->worldOffset.v[0] + v50->predictedPlayerState.objectives[entityNum].origin[0].v[0];
+        _XMM2 = v53;
+        v54 = v50->predictedPlayerState.objectives[entityNum].origin[0].v[1];
+        v55 = v50->predictedPlayerState.objectives[entityNum].origin[0].v[2];
+        outOrigin.v[0] = *(float *)&v53;
+        outOrigin.v[1] = v54 + customElementData->worldOffset.v[1];
+        v36 = v55 + customElementData->worldOffset.v[2];
+        __asm { vunpcklps xmm0, xmm2, xmm0 }
         break;
       default:
         if ( attachType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 1153, ASSERT_TYPE_ASSERT, "(anchorData->attachType == LUIAnchorAttachType::ATTACH_ENTITY)", (const char *)&queryFormat, "anchorData->attachType == LUIAnchorAttachType::ATTACH_ENTITY") )
           __debugbreak();
-        WorldPosition = LUIElement_Anchored_GetWorldPosition(localClientNum, _RBX, &outOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+2E8h+outOrigin]
-          vmovss  xmm1, dword ptr [rsp+2E8h+outOrigin+4]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+2E8h+outWorldPosition], xmm0
-          vmovss  xmm0, dword ptr [rsp+2E8h+outOrigin+8]
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+2E8h+outWorldPosition+8], xmm1
-        }
-        v22 = WorldPosition;
-        goto LABEL_25;
+        WorldPosition = LUIElement_Anchored_GetWorldPosition(localClientNum, customElementData, &outOrigin);
+        outWorldPosition.x = outOrigin.v[0];
+        v42 = outOrigin.v[2];
+        outWorldPosition.y = outOrigin.v[1];
+        v11 = WorldPosition;
+        goto LABEL_29;
     }
-    __asm
-    {
-      vmovaps xmm2, xmm0
-      vmovsd  qword ptr [rsp+2E8h+outOrigin], xmm0
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  xmm1, xmm0, xmm2
-      vcvtps2pd xmm2, xmm1
-      vmovupd xmmword ptr [rsp+2E8h+outWorldPosition], xmm2
-      vmovss  dword ptr [rsp+2E8h+outOrigin+8], xmm3
-      vcvtss2sd xmm0, xmm3, xmm3
-    }
-LABEL_25:
-    __asm { vmovsd  qword ptr [rsp+2E8h+outWorldPosition+10h], xmm0 }
-    goto LABEL_26;
+    v38 = *(double *)&_XMM0;
+    *(double *)outOrigin.v = *(double *)&_XMM0;
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    v40.m128_u64[1] = *((_QWORD *)&_XMM0 + 1);
+    *(double *)v40.m128_u64 = v38;
+    _XMM2 = _mm_cvtps_pd(v40);
+    __asm { vmovupd xmmword ptr [rsp+2E8h+outWorldPosition], xmm2 }
+    outOrigin.v[2] = v36;
+    v42 = v36;
+LABEL_29:
+    outWorldPosition.z = v42;
+    goto LABEL_30;
   }
-  v38 = CG_GetLocalClientGlobals(localClientNum);
-  v39 = LUI_GetPlayerHandIndexToUseForWidget(localClientNum, _RBX->useLeftHandIfAkimbo);
-  if ( LUI_GetViewModelReticleTransform(localClientNum, v39, _RBX->tagName, _RBX->isLockedToTag, &in1, &outWorldPosition) )
+  v24 = CG_GetLocalClientGlobals(localClientNum);
+  v25 = LUI_GetPlayerHandIndexToUseForWidget(localClientNum, customElementData->useLeftHandIfAkimbo);
+  if ( LUI_GetViewModelReticleTransform(localClientNum, v25, customElementData->tagName, customElementData->isLockedToTag, &in1, &outWorldPosition) )
   {
-    __asm
+    v26 = customElementData->tagOffset.v[0];
+    if ( v26 != 0.0 || customElementData->tagOffset.v[1] != 0.0 || customElementData->tagOffset.v[2] != 0.0 )
     {
-      vmovss  xmm7, dword ptr [rbx+84h]
-      vucomiss xmm7, xmm14
-      vmovss  xmm5, dword ptr [rbx+88h]
-      vmovss  xmm6, dword ptr [rbx+8Ch]
-      vmulss  xmm2, xmm5, dword ptr [rsp+2E8h+in1+0Ch]
-      vmulss  xmm3, xmm7, dword ptr [rsp+2E8h+in1]
-      vmulss  xmm1, xmm6, dword ptr [rsp+2E8h+in1+18h]
-      vmulss  xmm0, xmm6, dword ptr [rsp+2E8h+in1+1Ch]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vcvtss2sd xmm3, xmm2, xmm2
-      vaddsd  xmm1, xmm3, qword ptr [rsp+2E8h+outWorldPosition]
-      vmulss  xmm3, xmm7, dword ptr [rsp+2E8h+in1+4]
-      vmulss  xmm2, xmm5, dword ptr [rsp+2E8h+in1+14h]
-      vmovsd  qword ptr [rsp+2E8h+outWorldPosition], xmm1
-      vmulss  xmm1, xmm5, dword ptr [rsp+2E8h+in1+10h]
-      vaddss  xmm4, xmm3, xmm1
-      vaddss  xmm1, xmm4, xmm0
-      vcvtss2sd xmm3, xmm1, xmm1
-      vaddsd  xmm0, xmm3, qword ptr [rsp+2E8h+outWorldPosition+8]
-      vmulss  xmm3, xmm7, dword ptr [rsp+2E8h+in1+8]
-      vmovsd  qword ptr [rsp+2E8h+outWorldPosition+8], xmm0
-      vmulss  xmm0, xmm6, dword ptr [rsp+2E8h+in1+20h]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm0
-      vcvtss2sd xmm3, xmm2, xmm2
-      vaddsd  xmm0, xmm3, qword ptr [rsp+2E8h+outWorldPosition+10h]
-      vmovsd  qword ptr [rsp+2E8h+outWorldPosition+10h], xmm0
+      v27 = customElementData->tagOffset.v[1];
+      v28 = customElementData->tagOffset.v[2];
+      outWorldPosition.x = (float)((float)((float)(v26 * in1.m[0].v[0]) + (float)(v27 * in1.m[1].v[0])) + (float)(v28 * in1.m[2].v[0])) + outWorldPosition.x;
+      outWorldPosition.y = (float)((float)((float)(v26 * in1.m[0].v[1]) + (float)(v27 * in1.m[1].v[1])) + (float)(v28 * in1.m[2].v[1])) + outWorldPosition.y;
+      outWorldPosition.z = (float)((float)((float)(v26 * in1.m[0].v[2]) + (float)(v27 * in1.m[1].v[2])) + (float)(v28 * in1.m[2].v[2])) + outWorldPosition.z;
     }
-    AnglesToAxis(&v38->refdefViewAngles, &in);
+    AnglesToAxis(&v24->refdefViewAngles, &in);
     MatrixInverse(&in, &in2);
-    MatrixMultiply(&in1, &in2, &v184);
-    v22 = 1;
+    MatrixMultiply(&in1, &in2, &v109);
+    v11 = 1;
   }
   else
   {
-    v22 = 0;
+    v11 = 0;
   }
+  _XMM0 = *(unsigned __int64 *)&outWorldPosition.x;
+  _XMM1 = *(unsigned __int64 *)&outWorldPosition.y;
+  __asm { vcvtpd2ps xmm0, xmm0 }
+  outOrigin.v[0] = *(float *)&_XMM0;
+  _XMM0 = *(unsigned __int64 *)&outWorldPosition.z;
   __asm
   {
-    vmovsd  xmm0, qword ptr [rsp+2E8h+outWorldPosition]
-    vmovsd  xmm1, qword ptr [rsp+2E8h+outWorldPosition+8]
-    vcvtpd2ps xmm0, xmm0
-    vmovss  dword ptr [rsp+2E8h+outOrigin], xmm0
-    vmovsd  xmm0, qword ptr [rsp+2E8h+outWorldPosition+10h]
     vcvtpd2ps xmm0, xmm0
     vcvtpd2ps xmm1, xmm1
-    vmovss  dword ptr [rsp+2E8h+outOrigin+8], xmm0
-    vmovss  dword ptr [rsp+2E8h+outOrigin+4], xmm1
   }
-  AxisToAngles(&v184, (vec3_t *)&v176);
-  __asm
+  outOrigin.v[2] = *(float *)&_XMM0;
+  outOrigin.v[1] = *(float *)&_XMM1;
+  AxisToAngles(&v109, (vec3_t *)&v101);
+  element->currentAnimationState.zRot = COERCE_FLOAT(DWORD2(v101) ^ _xmm);
+LABEL_30:
+  LUIElement_UpdateLayout(element, unitScale, v7, luaVM);
+  Scale = 0.0;
+  v58 = LUIElement_Anchored_UseDistanceBasedFading(localClientNum, customElementData);
+  alpha = FLOAT_1_0;
+  v60 = !v58;
+  v90 = !v58;
+  if ( !v58 )
+    alpha = element->currentAnimationState.alpha;
+  if ( v11 )
   {
-    vmovss  xmm0, dword ptr [rsp+2E8h+var_210+8]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rdi+30h], xmm1
-  }
-LABEL_26:
-  __asm { vmovaps xmm1, xmm8; unitScale }
-  LUIElement_UpdateLayout(_RDI, *(float *)&_XMM1, v18, luaVM);
-  __asm { vxorps  xmm15, xmm15, xmm15 }
-  v107 = LUIElement_Anchored_UseDistanceBasedFading(localClientNum, _RBX);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  if ( !v107 )
-    __asm { vmovss  xmm7, dword ptr [rdi+44h] }
-  if ( v22 )
-  {
-    if ( v107 )
+    if ( v58 )
     {
-      LUIElement_Anchored_GetDistanceBasedFadeAlpha(localClientNum, _RBX, &outOrigin);
-      __asm
-      {
-        vmulss  xmm7, xmm7, xmm0
-        vcomiss xmm7, xmm14
-      }
-      v22 = !(v109 | v16);
+      alpha = alpha * LUIElement_Anchored_GetDistanceBasedFadeAlpha(localClientNum, customElementData, &outOrigin);
+      v11 = alpha > 0.0;
     }
-    if ( v22 )
+    if ( v11 )
     {
-      *(float *)&_XMM0 = LUIElement_Anchored_GetScale(localClientNum, _RBX, &outOrigin);
-      __asm
-      {
-        vmovss  dword ptr [rsp+2E8h+ignoreOffsetsForTraces], xmm0
-        vmovaps xmm2, xmm8; unitScale
-        vmovaps xmm15, xmm0
-      }
-      if ( !(unsigned __int8)LUIElement_Anchored_GetScreenPosition(localClientNum, _RDI, *(double *)&_XMM2, luaVM, &outWorldPosition, &outOrigin, ignoreOffsetsForTracesa, _RBX->roundScreenPosition, &inOutAnchorPoint, &screenSpaceTopLeft, &screenSpaceBottomRight) )
-        v22 = 0;
+      Scale = LUIElement_Anchored_GetScale(localClientNum, customElementData, &outOrigin);
+      if ( !LUIElement_Anchored_GetScreenPosition(localClientNum, element, unitScale, luaVM, &outWorldPosition, &outOrigin, Scale, customElementData->roundScreenPosition, &inOutAnchorPoint, &screenSpaceTopLeft, &screenSpaceBottomRight) )
+        v11 = 0;
     }
   }
-  if ( _RBX->scopeStatus[0] == 3 && !_RBX->snapToScopeEdges && _RBX->onScope == 2 )
-    v22 = 0;
-  if ( _RBX->onObstruction )
+  if ( customElementData->scopeStatus[0] == 3 && !customElementData->snapToScopeEdges && customElementData->onScope == 2 )
+    v11 = 0;
+  if ( customElementData->onObstruction )
   {
-    v111 = 0;
-    if ( _RBX->alwaysShowUnderCrosshair )
+    v61 = 0;
+    if ( customElementData->alwaysShowUnderCrosshair )
     {
       if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
       {
         LODWORD(ignoreOffsetsForTraces) = 2;
-        LODWORD(v163) = localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v163, ignoreOffsetsForTraces) )
+        LODWORD(v88) = localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v88, ignoreOffsetsForTraces) )
           __debugbreak();
       }
       if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 1201, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
         __debugbreak();
-      v111 = CG_GetLocalClientGlobals(localClientNum)->crosshairClientNum == _RBX->entityNum;
+      v61 = CG_GetLocalClientGlobals(localClientNum)->crosshairClientNum == customElementData->entityNum;
     }
-    activeTraceRequest = _RBX->activeTraceRequest;
-    v168 = _RBX->finalObstruction[0];
+    activeTraceRequest = customElementData->activeTraceRequest;
+    v93 = customElementData->finalObstruction[0];
     if ( activeTraceRequest )
     {
-      v113 = &_RBX->primaryObstruction[_RBX->currentTraceTag == SECONDARY];
+      v63 = &customElementData->primaryObstruction[customElementData->currentTraceTag == SECONDARY];
       if ( LUITraceRunner::GetTraceResult(localClientNum, activeTraceRequest, &outHit) )
       {
-        v16 = outHit;
-        _RBX->activeTraceRequest = NULL;
-        *v113 = !v16 + 1;
+        v5 = outHit;
+        customElementData->activeTraceRequest = NULL;
+        *v63 = !v5 + 1;
       }
     }
-    if ( !_RBX->activeTraceRequest )
+    if ( !customElementData->activeTraceRequest )
     {
-      currentTraceTag = _RBX->currentTraceTag;
-      if ( _RBX->secondaryObstructionTagName[0] )
+      currentTraceTag = customElementData->currentTraceTag;
+      if ( customElementData->secondaryObstructionTagName[0] )
       {
         currentTraceTag = currentTraceTag == PRIMARY;
-        _RBX->currentTraceTag = currentTraceTag;
+        customElementData->currentTraceTag = currentTraceTag;
       }
-      v115 = (currentTraceTag == SECONDARY) + 305i64;
-      v116 = 144i64;
+      v65 = (currentTraceTag == SECONDARY) + 305i64;
+      v66 = 144i64;
       if ( currentTraceTag != SECONDARY )
-        v116 = 132i64;
-      v117 = 240i64;
-      v118 = (const vec3_t *)((char *)_RBX + v116);
+        v66 = 132i64;
+      v67 = 240i64;
+      v68 = (const vec3_t *)((char *)customElementData + v66);
       if ( currentTraceTag != SECONDARY )
-        v117 = 4i64;
-      v119 = LUITraceRunner::RequestTraceToEntityOffset(localClientNum, _RBX->entityNum, (const char *)_RBX + v117, v118, &_RBX->entityOffset, &_RBX->worldOffset, _RBX->ignoreOffsetsForTraces, *((_BYTE *)&_RBX->entityNum + v115) == 0, &outTriviallyNotInSight, _RBX->useClientDetailWorld);
-      _RBX->activeTraceRequest = v119;
-      if ( !v119 )
+        v67 = 4i64;
+      v69 = LUITraceRunner::RequestTraceToEntityOffset(localClientNum, customElementData->entityNum, (const char *)customElementData + v67, v68, &customElementData->entityOffset, &customElementData->worldOffset, customElementData->ignoreOffsetsForTraces, *((_BYTE *)&customElementData->entityNum + v65) == 0, &outTriviallyNotInSight, customElementData->useClientDetailWorld);
+      customElementData->activeTraceRequest = v69;
+      if ( !v69 )
       {
         if ( outTriviallyNotInSight )
-          *((_BYTE *)&_RBX->entityNum + v115) = 1;
+          *((_BYTE *)&customElementData->entityNum + v65) = 1;
         else
           Com_PrintWarning(13, "LUI_Traces queue is full");
       }
     }
-    v120 = _RBX->primaryObstruction[0];
-    if ( _RBX->secondaryObstructionTagName[0] && (char)_RBX->secondaryObstruction[0] > v120 )
-      v120 = _RBX->secondaryObstruction[0];
-    _RBX->finalObstruction[0] = v120;
-    if ( v111 )
+    v70 = customElementData->primaryObstruction[0];
+    if ( customElementData->secondaryObstructionTagName[0] && (char)customElementData->secondaryObstruction[0] > v70 )
+      v70 = customElementData->secondaryObstruction[0];
+    customElementData->finalObstruction[0] = v70;
+    if ( v61 )
     {
-      _RBX->finalObstruction[0] = 2;
-      v120 = 2;
+      customElementData->finalObstruction[0] = 2;
+      v70 = 2;
     }
-    if ( !v120 && !_RBX->displayOnObstructionUnknown )
-      v22 = 0;
-    if ( v120 == v168 || _RBX->onObstruction != SHOW )
-      goto LABEL_77;
-    if ( v120 == 1 )
+    if ( !v70 && !customElementData->displayOnObstructionUnknown )
+      v11 = 0;
+    if ( v70 == v93 || customElementData->onObstruction != SHOW )
+      goto LABEL_81;
+    if ( v70 == 1 )
     {
-      v121 = "anchor_sight_obstructed";
+      v71 = "anchor_sight_obstructed";
     }
     else
     {
-      if ( v120 != 2 )
+      if ( v70 != 2 )
       {
-LABEL_77:
-        v18 = v169;
-        if ( _RBX->onObstruction == 2 && _RBX->finalObstruction[0] != 2 )
-          v22 = 0;
-        goto LABEL_80;
+LABEL_81:
+        v7 = v94;
+        v60 = v90;
+        if ( customElementData->onObstruction == 2 && customElementData->finalObstruction[0] != 2 )
+          v11 = 0;
+        goto LABEL_84;
       }
-      v121 = "anchor_sight_clear";
+      v71 = "anchor_sight_clear";
     }
-    if ( LUI_BeginEventWithElement(localClientNum, _RDI, v121, luaVM) )
+    if ( LUI_BeginEventWithElement(localClientNum, element, v71, luaVM) )
       LUI_EndEventWithElement(luaVM);
-    goto LABEL_77;
+    goto LABEL_81;
   }
-LABEL_80:
-  __asm
+LABEL_84:
+  v72 = *(_OWORD *)element->currentAnimationState.position.y.global;
+  *(__m256i *)in1.m[0].v = *(__m256i *)element->currentAnimationState.position.x.offsets;
+  v101 = v72;
+  if ( v11 )
   {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups xmm6, xmmword ptr [rdi+20h]
-    vmovups ymmword ptr [rsp+2E8h+in1], ymm0
-    vmovups [rsp+2E8h+var_210], xmm6
-  }
-  if ( v22 )
-  {
-    __asm
+    v73 = screenSpaceTopLeft.v[1];
+    v74 = screenSpaceTopLeft.v[0];
+    v75 = screenSpaceBottomRight.v[1];
+    v76 = screenSpaceBottomRight.v[0];
+    if ( customElementData->screenCenterFadeRadius <= 0.0 )
     {
-      vcomiss xmm14, dword ptr [rbx+74h]
-      vmovaps [rsp+2E8h+var_78], xmm9
-      vmovss  xmm9, dword ptr [rsp+2E8h+screenSpaceTopLeft+4]
-      vmovaps [rsp+2E8h+var_88], xmm10
-      vmovss  xmm10, dword ptr [rsp+2E8h+screenSpaceTopLeft]
-      vmovaps [rsp+2E8h+var_98], xmm11
-      vmovss  xmm11, dword ptr [rsp+2E8h+screenSpaceBottomRight+4]
-      vmovaps [rsp+2E8h+var_A8], xmm12
-      vmovss  xmm12, dword ptr [rsp+2E8h+screenSpaceBottomRight]
-      vmovaps [rsp+2E8h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@3f000000
-      vmovss  xmm14, cs:__real@3f800000
-    }
-    if ( _RBX->scaleUsingLayout )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm12, xmm10
-        vmulss  xmm1, xmm0, xmm13
-        vaddss  xmm2, xmm1, xmm10
-        vsubss  xmm3, xmm14, xmm15
-        vmulss  xmm4, xmm2, xmm3
-        vmulss  xmm0, xmm10, xmm15
-        vaddss  xmm1, xmm0, xmm4
-        vmovss  dword ptr [rdi+8], xmm1
-        vsubss  xmm2, xmm11, xmm9
-        vmulss  xmm0, xmm2, xmm13
-        vaddss  xmm1, xmm0, xmm9
-        vmulss  xmm3, xmm1, xmm3
-        vmulss  xmm2, xmm9, xmm15
-        vaddss  xmm0, xmm2, xmm3
-        vmulss  xmm1, xmm12, xmm15
-        vaddss  xmm2, xmm1, xmm4
-        vmovss  dword ptr [rdi+20h], xmm0
-        vmulss  xmm0, xmm11, xmm15
-        vaddss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rdi+24h], xmm1
-        vmovss  dword ptr [rdi+0Ch], xmm2
-      }
+      v78 = FLOAT_1_0;
     }
     else
     {
-      __asm
+      if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
       {
-        vsubss  xmm0, xmm15, xmm14
-        vmovss  dword ptr [rdi+8], xmm10
-        vmovss  dword ptr [rdi+20h], xmm9
-        vmovss  dword ptr [rdi+0Ch], xmm12
-        vmovss  dword ptr [rdi+24h], xmm11
-        vmovss  dword ptr [rdi+34h], xmm0
+        LODWORD(ignoreOffsetsForTraces) = 2;
+        LODWORD(v88) = localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v88, ignoreOffsetsForTraces) )
+          __debugbreak();
       }
+      if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 812, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
+        __debugbreak();
+      ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+      v78 = FLOAT_1_0;
+      v79 = LODWORD(FLOAT_0_5);
+      v80 = (float)(0.5 * ActivePlacement->realViewportSize.v[0]) - (float)((float)((float)(v76 + v74) * 0.5) * unitScale);
+      *(float *)&v79 = (float)((float)((float)((float)(0.5 * ActivePlacement->realViewportSize.v[1]) - (float)((float)((float)(v75 + v73) * 0.5) * unitScale)) * (float)((float)(0.5 * ActivePlacement->realViewportSize.v[1]) - (float)((float)((float)(v75 + v73) * 0.5) * unitScale))) + (float)(v80 * v80)) / (float)((float)(unitScale * customElementData->screenCenterFadeRadius) * (float)(unitScale * customElementData->screenCenterFadeRadius));
+      _XMM2 = v79;
+      __asm { vminss  xmm6, xmm2, xmm14 }
+      v83 = CG_GetLocalClientGlobals(localClientNum);
+      v84 = (float)((float)((float)((float)(1.0 - v83->predictedPlayerState.weapCommon.fWeaponPosFrac) * customElementData->minAlpha) + (float)(v83->predictedPlayerState.weapCommon.fWeaponPosFrac * customElementData->minAlphaADS)) * (float)(1.0 - *(float *)&_XMM6)) + *(float *)&_XMM6;
+      v72 = v101;
+      if ( v60 )
+        alpha = v84;
+      else
+        alpha = alpha * v84;
     }
-    __asm { vmovaps xmm1, xmm8; unitScale }
-    LUIElement_SetDimensions(_RDI, *(float *)&_XMM1);
-    __asm
+    if ( customElementData->scaleUsingLayout )
     {
-      vmovaps xmm13, [rsp+2E8h+var_B8]
-      vmovaps xmm12, [rsp+2E8h+var_A8]
-      vmovaps xmm11, [rsp+2E8h+var_98]
-      vmovaps xmm10, [rsp+2E8h+var_88]
-      vmovaps xmm9, [rsp+2E8h+var_78]
+      v85 = (float)((float)((float)(v76 - v74) * 0.5) + v74) * (float)(v78 - Scale);
+      element->currentAnimationState.position.x.global[0] = (float)(v74 * Scale) + v85;
+      v86 = (float)((float)((float)(v75 - v73) * 0.5) + v73) * (float)(v78 - Scale);
+      element->currentAnimationState.position.y.global[0] = (float)(v73 * Scale) + v86;
+      element->currentAnimationState.position.y.global[1] = (float)(v75 * Scale) + v86;
+      element->currentAnimationState.position.x.global[1] = (float)(v76 * Scale) + v85;
     }
+    else
+    {
+      element->currentAnimationState.position.x.global[0] = v74;
+      element->currentAnimationState.position.y.global[0] = v73;
+      element->currentAnimationState.position.x.global[1] = v76;
+      element->currentAnimationState.position.y.global[1] = v75;
+      element->currentAnimationState.scale = Scale - v78;
+    }
+    LUIElement_SetDimensions(element, unitScale);
   }
   else
   {
-    _RDI->currentAnimationState.flags &= ~1u;
+    element->currentAnimationState.flags &= ~1u;
   }
-  firstChild = _RDI->firstChild;
-  __asm
-  {
-    vmovaps xmm15, [rsp+2E8h+var_D8]
-    vmovaps xmm14, [rsp+2E8h+var_C8]
-  }
-  _RDI->layoutCached = !v22;
-  __asm
-  {
-    vmovss  dword ptr [rdi+44h], xmm7
-    vmovaps xmm7, [rsp+2E8h+var_58]
-  }
-  for ( ; firstChild; firstChild = firstChild->nextSibling )
-  {
-    __asm { vmovaps xmm2, xmm8; unitScale }
-    LUIElement_Layout(localClientNum, firstChild, *(float *)&_XMM2, v18, luaVM);
-  }
-  if ( v22 && _RBX->rotateElementCount > 0 )
-  {
-    __asm { vmovaps xmm0, xmm8; unitScale }
-    LUIElement_Anchored_UpdateRotatedElements(*(float *)&_XMM0, _RBX, &inOutAnchorPoint, &screenSpaceTopLeft, &screenSpaceBottomRight);
-  }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+2E8h+in1]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmmword ptr [rdi+20h], xmm6
-    vmovaps xmm6, [rsp+2E8h+var_48]
-    vmovaps xmm8, [rsp+2E8h+var_68]
-  }
+  firstChild = element->firstChild;
+  element->layoutCached = !v11;
+  for ( element->currentAnimationState.alpha = alpha; firstChild; firstChild = firstChild->nextSibling )
+    LUIElement_Layout(localClientNum, firstChild, unitScale, v7, luaVM);
+  if ( v11 && customElementData->rotateElementCount > 0 )
+    LUIElement_Anchored_UpdateRotatedElements(unitScale, customElementData, &inOutAnchorPoint, &screenSpaceTopLeft, &screenSpaceBottomRight);
+  *(__m256i *)element->currentAnimationState.position.x.offsets = *(__m256i *)in1.m[0].v;
+  *(_OWORD *)element->currentAnimationState.position.y.global = v72;
 }
 
 /*
@@ -2042,44 +1554,39 @@ LUIElement_Anchored_SetAnchoringAmount_impl
 */
 __int64 LUIElement_Anchored_SetAnchoringAmount_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetAnchoringAmount( lerpFactor, duration, easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_29;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_29;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_29;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lui_tointeger32(luaVM, 3), v7 <= 0) )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lui_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 51;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+48h], xmm6 }
-LABEL_29:
-    result = 0i64;
-    goto LABEL_30;
+    LOBYTE(v4) = 51;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->currentAnimationState.userData = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 51;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = _RDI->currentAnimationState.userDataInt;
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_30:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v6->easing = lui_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 51;
+  v6->duration = v5;
+  v6->startValue.intValue = v2->currentAnimationState.userDataInt;
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -2173,251 +1680,246 @@ LABEL_34:
 LUIElement_Anchored_SnapScreenPositionToEdges
 ==============
 */
-
-__int64 __fastcall LUIElement_Anchored_SnapScreenPositionToEdges(const LocalClientNum_t localClientNum, double snapRadius, double elementwWidth, double elementHeight, const float snapToEdgesSmoothingRadius, const vec2_t *screenPosition, vec2_t *outSnappedScreenPosition, const bool *snapToLocation, const vec2_t *screenSnapOffset)
+__int64 LUIElement_Anchored_SnapScreenPositionToEdges(const LocalClientNum_t localClientNum, const float snapRadius, const float elementwWidth, const float elementHeight, const float snapToEdgesSmoothingRadius, const vec2_t *screenPosition, vec2_t *outSnappedScreenPosition, const bool *snapToLocation, const vec2_t *screenSnapOffset)
 {
-  int v57; 
-  bool v58; 
-  char v94; 
-  char v95; 
+  const ScreenPlacement *ActivePlacement; 
+  unsigned __int8 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  int v36; 
+  __int128 v37; 
+  float v38; 
+  float v39; 
+  float v42; 
+  unsigned int v43; 
+  int v44; 
+  __int64 v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  __int128 v51; 
+  __int64 v52; 
+  __int128 v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  char v57; 
+  char v58; 
+  float v59; 
+  __int128 v60; 
   __int64 result; 
-  char v133; 
-  void *retaddr; 
+  float v65; 
+  float v66; 
 
-  _RAX = &retaddr;
-  _RBX = outSnappedScreenPosition;
-  __asm
+  ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+  v12 = 0;
+  v13 = 0.5 * ActivePlacement->realViewportSize.v[0];
+  v14 = 0.5 * ActivePlacement->realViewportSize.v[1];
+  v15 = elementwWidth * 0.5;
+  v16 = elementHeight * 0.5;
+  v17 = screenPosition->v[0];
+  outSnappedScreenPosition->v[0] = screenPosition->v[0];
+  v18 = screenPosition->v[1] - v14;
+  v20 = v17 - v13;
+  v19 = v17 - v13;
+  outSnappedScreenPosition->v[1] = v18;
+  outSnappedScreenPosition->v[0] = v17 - v13;
+  v21 = ActivePlacement->realAdjustableMin.v[0] - v13;
+  v22 = v13 - (float)(ActivePlacement->realViewportSize.v[0] - ActivePlacement->realAdjustableMax.v[0]);
+  v23 = ActivePlacement->realAdjustableMin.v[1] - v14;
+  v24 = v14 - (float)(ActivePlacement->realViewportSize.v[1] - ActivePlacement->realAdjustableMax.v[1]);
+  v66 = v13;
+  v65 = v14;
+  v25 = v17 - v13;
+  v26 = v18;
+  if ( snapRadius > 0.0 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovaps [rsp+0D8h+var_98], xmm14
-    vmovaps [rsp+0D8h+var_A8], xmm15
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-    vmovaps xmm8, xmm1
-    vmovss  xmm12, cs:__real@3f000000
-    vmovss  xmm13, cs:__real@3f800000
+    v27 = fsqrt((float)(v18 * v18) + (float)(v20 * v20));
+    if ( v27 > snapRadius )
+    {
+      v25 = (float)(v19 * snapRadius) * (float)(1.0 / v27);
+      v26 = (float)(v18 * snapRadius) * (float)(1.0 / v27);
+      outSnappedScreenPosition->v[1] = v26;
+      outSnappedScreenPosition->v[0] = v25;
+      v12 = 1;
+    }
   }
-  _R10 = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
+  v28 = v25 + v15;
+  if ( (float)(v25 - v15) < v21 && v28 <= v22 )
   {
-    vmulss  xmm2, xmm12, dword ptr [rax+20h]
-    vmulss  xmm3, xmm12, dword ptr [rax+24h]
+    v29 = v21 + v15;
+LABEL_10:
+    v30 = v26 * (float)(v29 / v25);
+    v31 = v25 * (float)(v29 / v25);
+    outSnappedScreenPosition->v[1] = v30;
+    outSnappedScreenPosition->v[0] = v31;
+    v12 = 1;
+    goto LABEL_11;
   }
-  _RAX = screenPosition;
-  __asm
+  v30 = v26;
+  v31 = v25;
+  if ( v28 > v22 && (float)(v25 - v15) >= v21 )
   {
-    vmulss  xmm15, xmm6, xmm12
-    vmulss  xmm14, xmm7, xmm12
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm8, xmm7
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vsubss  xmm5, xmm1, xmm3
-    vsubss  xmm4, xmm0, xmm2
-    vmovss  dword ptr [rbx+4], xmm5
-    vmovss  dword ptr [rbx], xmm4
-    vmovss  xmm0, dword ptr [r10+58h]
-    vmovss  xmm1, dword ptr [r10+20h]
-    vsubss  xmm6, xmm0, xmm2
-    vsubss  xmm0, xmm1, dword ptr [r10+60h]
-    vmovss  xmm1, dword ptr [r10+5Ch]
-    vsubss  xmm9, xmm2, xmm0
-    vmovss  xmm0, dword ptr [r10+24h]
-    vsubss  xmm10, xmm1, xmm3
-    vsubss  xmm1, xmm0, dword ptr [r10+64h]
-    vsubss  xmm11, xmm3, xmm1
-    vmovss  [rsp+0D8h+var_B4], xmm2
-    vmovss  [rsp+0D8h+var_B8], xmm3
-    vmovaps xmm3, xmm4
-    vmovaps xmm2, xmm5
-    vsubss  xmm1, xmm3, xmm15
-    vcomiss xmm1, xmm6
-    vaddss  xmm0, xmm3, xmm15
-    vcomiss xmm0, xmm9
-    vmovaps xmm4, xmm2
-    vmovaps xmm5, xmm3
-    vsubss  xmm1, xmm4, xmm14
-    vcomiss xmm1, xmm10
-    vaddss  xmm0, xmm4, xmm14
-    vcomiss xmm0, xmm11
-    vmovaps xmm2, xmm5
-    vmovaps xmm3, xmm4
+    v29 = v22 - v15;
+    goto LABEL_10;
   }
-  v57 = 0;
-  v58 = !*snapToLocation;
+LABEL_11:
+  v32 = v30 + v16;
+  if ( (float)(v30 - v16) < v23 && v32 <= v24 )
+  {
+    v33 = v23 + v16;
+LABEL_17:
+    v35 = v30 * (float)(v33 / v30);
+    v34 = v31 * (float)(v33 / v30);
+    outSnappedScreenPosition->v[1] = v35;
+    outSnappedScreenPosition->v[0] = v34;
+    v12 = 1;
+    goto LABEL_18;
+  }
+  v34 = v31;
+  v35 = v30;
+  if ( v32 > v24 && (float)(v30 - v16) >= v23 )
+  {
+    v33 = v24 - v16;
+    goto LABEL_17;
+  }
+LABEL_18:
+  v36 = 0;
   if ( *snapToLocation )
   {
-    _RAX = screenSnapOffset;
     *outSnappedScreenPosition = 0i64;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax]
-      vmovss  dword ptr [rbx], xmm2
-      vmovss  xmm3, dword ptr [rax+4]
-      vmovss  dword ptr [rbx+4], xmm3
-    }
+    v34 = screenSnapOffset->v[0];
+    outSnappedScreenPosition->v[0] = screenSnapOffset->v[0];
+    v35 = screenSnapOffset->v[1];
+    outSnappedScreenPosition->v[1] = v35;
   }
-  __asm
+  if ( snapToEdgesSmoothingRadius != 0.0 )
   {
-    vmovss  xmm4, [rsp+0D8h+snapToEdgesSmoothingRadius]
-    vucomiss xmm4, xmm7
-  }
-  if ( !v58 )
-  {
-    __asm
+    v37 = LODWORD(ActivePlacement->realAdjustableMax.v[1]);
+    v38 = v65;
+    v39 = v65;
+    *(float *)&v37 = (float)(ActivePlacement->realAdjustableMax.v[1] - ActivePlacement->realAdjustableMin.v[1]) * 0.5;
+    _XMM3 = v37;
+    __asm { vminss  xmm3, xmm3, xmm1 }
+    v42 = *(float *)&_XMM3 * snapToEdgesSmoothingRadius;
+    v43 = -1;
+    while ( 1 )
     {
-      vmovss  xmm0, dword ptr [r10+64h]
-      vsubss  xmm1, xmm0, dword ptr [r10+5Ch]
-      vmovss  xmm2, dword ptr [r10+60h]
-      vsubss  xmm0, xmm2, dword ptr [r10+58h]
-      vmovss  xmm10, [rsp+0D8h+var_B8]
-      vmovss  xmm11, [rsp+0D8h+var_B8]
-      vmulss  xmm3, xmm1, xmm12
-      vmulss  xmm1, xmm0, xmm12
-      vmovss  xmm12, cs:__real@80000000
-      vminss  xmm3, xmm3, xmm1
-      vmulss  xmm8, xmm3, xmm4
-    }
-    _ER9 = -1;
-    do
-    {
-      _ECX = -1;
+      v44 = -1;
       do
       {
-        if ( _ER9 && _ECX )
+        if ( !v43 || !v44 )
+          goto LABEL_40;
+        if ( v36 > 1 )
+          break;
+        v45 = 22i64;
+        v46 = _mm_cvtepi32_ps((__m128i)v43).m128_f32[0];
+        v47 = (float)(v46 * v15) + outSnappedScreenPosition->v[0];
+        if ( v43 != -1 )
+          v45 = 24i64;
+        v48 = _mm_cvtepi32_ps((__m128i)(unsigned int)v44).m128_f32[0];
+        v49 = (float)(v48 * v16) + outSnappedScreenPosition->v[1];
+        v51 = LODWORD(ActivePlacement->scaleVirtualToReal.v[v45]);
+        *(float *)&v51 = (float)(*(float *)&v51 - (float)(v46 * v42)) - v66;
+        v50 = *(float *)&v51;
+        v52 = 23i64;
+        if ( v44 != -1 )
+          v52 = 25i64;
+        *(float *)&v51 = *(float *)&v51 - v47;
+        v53 = v51;
+        v54 = (float)(ActivePlacement->scaleVirtualToReal.v[v52] - (float)(v48 * v42)) - v65;
+        v56 = v54 - v49;
+        v55 = v54 - v49;
+        if ( v43 == -1 )
         {
-          if ( v57 > 1 )
-            break;
-          _RAX = 88i64;
-          __asm
+          if ( *(float *)&v53 <= 0.0 )
+            goto LABEL_32;
+        }
+        else if ( *(float *)&v53 >= 0.0 )
+        {
+LABEL_32:
+          v57 = 0;
+          goto LABEL_33;
+        }
+        v57 = 1;
+LABEL_33:
+        if ( v44 == -1 )
+        {
+          if ( v56 > 0.0 )
+            goto LABEL_48;
+        }
+        else if ( v56 < 0.0 )
+        {
+LABEL_48:
+          v58 = 1;
+          goto LABEL_36;
+        }
+        v58 = 0;
+LABEL_36:
+        if ( v57 )
+        {
+          if ( v58 )
           {
-            vmovd   xmm1, r9d
-            vcvtdq2ps xmm1, xmm1
-            vmulss  xmm0, xmm1, xmm15
-            vaddss  xmm3, xmm0, dword ptr [rbx]
-          }
-          if ( _ER9 != -1 )
-            _RAX = 96i64;
-          __asm
-          {
-            vmulss  xmm1, xmm1, xmm8
-            vmovd   xmm2, ecx
-            vcvtdq2ps xmm2, xmm2
-            vmulss  xmm0, xmm2, xmm14
-            vaddss  xmm6, xmm0, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [rax+r10]
-            vsubss  xmm1, xmm0, xmm1
-            vsubss  xmm9, xmm1, [rsp+0D8h+var_B4]
-            vmulss  xmm1, xmm2, xmm8
-          }
-          _RAX = 92i64;
-          if ( _ECX != -1 )
-            _RAX = 100i64;
-          __asm
-          {
-            vsubss  xmm4, xmm9, xmm3
-            vmovss  xmm0, dword ptr [rax+r10]
-            vsubss  xmm1, xmm0, xmm1
-            vsubss  xmm2, xmm1, [rsp+0D8h+var_B8]
-            vsubss  xmm5, xmm2, xmm6
-          }
-          if ( _ER9 == -1 )
-          {
-            __asm { vcomiss xmm4, xmm7 }
-            v94 = 0;
-          }
-          else
-          {
-            __asm { vcomiss xmm4, xmm7 }
-            v94 = 1;
-          }
-          if ( _ECX == -1 )
-          {
-            __asm { vcomiss xmm5, xmm7 }
-            v95 = 0;
-          }
-          else
-          {
-            __asm { vcomiss xmm5, xmm7 }
-            v95 = 1;
-          }
-          if ( v94 && v95 )
-          {
+            v59 = fsqrt((float)((float)(v49 - v54) * (float)(v49 - v54)) + (float)((float)(v47 - v50) * (float)(v47 - v50)));
+            v60 = v53;
+            *(float *)&v60 = fsqrt((float)(*(float *)&v53 * *(float *)&v53) + (float)(v55 * v55));
+            _XMM2 = v60;
             __asm
             {
-              vsubss  xmm0, xmm6, xmm2
-              vmulss  xmm2, xmm0, xmm0
-              vsubss  xmm1, xmm3, xmm9
-              vmulss  xmm1, xmm1, xmm1
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm6, xmm2, xmm2
-              vcomiss xmm6, xmm8
-              vmulss  xmm0, xmm5, xmm5
-              vmulss  xmm3, xmm4, xmm4
-              vaddss  xmm1, xmm3, xmm0
-              vsqrtss xmm2, xmm1, xmm1
               vcmpless xmm0, xmm2, xmm12
               vblendvps xmm0, xmm2, xmm13, xmm0
-              vdivss  xmm3, xmm13, xmm0
-              vmulss  xmm2, xmm3, xmm5
-              vsubss  xmm1, xmm6, xmm8
-              vmulss  xmm0, xmm4, xmm3
-              vmulss  xmm11, xmm0, xmm1
-              vmulss  xmm10, xmm1, xmm2
             }
-            ++v57;
+            if ( v59 > v42 )
+            {
+              v39 = (float)(*(float *)&v53 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v59 - v42);
+              v38 = (float)(v59 - v42) * (float)((float)(1.0 / *(float *)&_XMM0) * v55);
+              ++v36;
+            }
           }
         }
-        ++_ECX;
+LABEL_40:
+        ++v44;
       }
-      while ( _ECX < 2 );
-      ++_ER9;
-    }
-    while ( _ER9 < 2 );
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]
-      vmovss  xmm3, dword ptr [rbx+4]
-    }
-    if ( v57 == 1 )
-    {
-      __asm
+      while ( v44 < 2 );
+      if ( (int)++v43 >= 2 )
       {
-        vaddss  xmm2, xmm2, xmm11
-        vaddss  xmm3, xmm3, xmm10
+        v34 = outSnappedScreenPosition->v[0];
+        v35 = outSnappedScreenPosition->v[1];
+        if ( v36 == 1 )
+        {
+          v34 = v34 + v39;
+          v35 = v35 + v38;
+        }
+        break;
       }
     }
   }
-  __asm
-  {
-    vaddss  xmm0, xmm2, [rsp+0D8h+var_B4]
-    vaddss  xmm1, xmm3, [rsp+0D8h+var_B8]
-    vmovaps xmm14, [rsp+0D8h+var_98]
-  }
-  result = 0i64;
-  __asm { vmovaps xmm15, [rsp+0D8h+var_A8] }
-  _R11 = &v133;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-  }
+  result = v12;
+  outSnappedScreenPosition->v[0] = v34 + v66;
+  outSnappedScreenPosition->v[1] = v35 + v65;
   return result;
 }
 
@@ -2426,249 +1928,204 @@ __int64 __fastcall LUIElement_Anchored_SnapScreenPositionToEdges(const LocalClie
 LUIElement_Anchored_UpdateRotatedElements
 ==============
 */
-
-void __fastcall LUIElement_Anchored_UpdateRotatedElements(double unitScale, LUIAnchor *anchorData, vec2_t *inOutAnchorPoint, const vec2_t *screenSpaceTopLeft, const vec2_t *screenSpaceBottomRight)
+void LUIElement_Anchored_UpdateRotatedElements(float unitScale, LUIAnchor *anchorData, vec2_t *inOutAnchorPoint, const vec2_t *screenSpaceTopLeft, const vec2_t *screenSpaceBottomRight)
 {
-  char v72; 
-  char v78; 
-  char v79; 
-  int v83; 
+  __int128 v5; 
+  __int128 v6; 
+  float v7; 
+  float v9; 
+  __int128 v10; 
+  __int128 v11; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v27; 
+  __int128 v29; 
+  __int128 v34; 
+  float v41; 
+  LUIElement *pinRotateToEdgeElement; 
+  double v43; 
+  float v44; 
+  LUIElement *v45; 
+  float v46; 
+  double v47; 
+  float v48; 
+  __int128 v49; 
+  __int128 v50; 
+  float v51; 
+  float v52; 
+  int v53; 
   LUIElement **rotateElements; 
-  LUIElementAxisPosition v110[2]; 
-  LUIElementAxisPosition v111; 
-  char v114; 
-  void *retaddr; 
+  LUIElement *v55; 
+  double v56; 
+  float v57; 
+  __int128 v58; 
+  float v59; 
+  LUIElementAxisPosition v60[2]; 
+  LUIElementAxisPosition v61; 
+  __int128 v62; 
+  __int128 v63; 
 
-  _RAX = &retaddr;
-  __asm
+  v7 = screenSpaceTopLeft->v[0];
+  v9 = screenSpaceTopLeft->v[1];
+  v11 = LODWORD(FLOAT_1_0);
+  *(float *)&v11 = 1.0 / unitScale;
+  v10 = v11;
+  *(float *)&v11 = (float)(1.0 / unitScale) * inOutAnchorPoint->v[0];
+  v62 = v6;
+  v13 = 0.0;
+  v14 = screenSpaceBottomRight->v[1];
+  v15 = screenSpaceBottomRight->v[0];
+  inOutAnchorPoint->v[0] = *(float *)&v11;
+  v17 = v10;
+  *(float *)&v17 = *(float *)&v10 * inOutAnchorPoint->v[1];
+  v16 = v17;
+  inOutAnchorPoint->v[1] = *(float *)&v17;
+  v18 = LODWORD(inOutAnchorPoint->v[0]);
+  *(float *)&v18 = inOutAnchorPoint->v[0] - (float)((float)(v15 + v7) * 0.5);
+  v19 = v18 & _xmm;
+  v21 = v16;
+  *(float *)&v21 = *(float *)&v16 - (float)((float)(v14 + v9) * 0.5);
+  v20 = v21;
+  _XMM7 = 0i64;
+  v23 = 0i64;
+  if ( *(float *)&v19 >= 0.001 && COERCE_FLOAT(v21 & _xmm) >= 0.001 )
   {
-    vmovss  xmm5, dword ptr [r9]
-    vmovss  xmm1, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovss  xmm7, dword ptr [r9+4]
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vdivss  xmm11, xmm1, xmm0
-    vmulss  xmm2, xmm11, dword ptr [r8]
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovss  xmm12, cs:__real@3f000000
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovaps xmm15, xmm0
-    vmovaps xmmword ptr [rax-78h], xmm10
+    v25 = v19;
+    *(float *)&v25 = *(float *)&v19 + 1.0e-10;
+    v24 = v25;
+    v27 = v20;
+    *(float *)&v27 = *(float *)&v20 + *(float *)&v24;
+    _XMM4 = v27;
+    v29 = v24;
+    *(float *)&v29 = *(float *)&v24 - *(float *)&v20;
+    _XMM2 = v29;
+    __asm
+    {
+      vcmpless xmm0, xmm7, xmm5
+      vblendvps xmm3, xmm4, xmm1, xmm0
+      vcmpless xmm0, xmm7, xmm5
+      vblendvps xmm0, xmm2, xmm4, xmm0
+    }
+    v34 = _XMM3;
+    *(float *)&v34 = (float)((float)((float)((float)(*(float *)&_XMM3 / *(float *)&_XMM0) * 0.1963) * (float)(*(float *)&_XMM3 / *(float *)&_XMM0)) - 0.9817) * (float)(*(float *)&_XMM3 / *(float *)&_XMM0);
+    _XMM0 = LODWORD(FLOAT_2_3561945);
+    __asm
+    {
+      vcmpless xmm2, xmm7, xmm5
+      vblendvps xmm1, xmm0, xmm1, xmm2
+    }
+    *(float *)&v34 = *(float *)&v34 + *(float *)&_XMM1;
+    _XMM2 = v34 ^ (unsigned int)_xmm;
+    __asm
+    {
+      vcmpless xmm0, xmm7, xmm8
+      vblendvps xmm1, xmm2, xmm3, xmm0
+    }
+    v13 = *(float *)&_XMM1 * 57.295776;
+    v23 = _XMM1;
   }
-  _RAX = screenSpaceBottomRight;
-  __asm
-  {
-    vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm14, xmm14, xmm14
-    vmovss  xmm6, dword ptr [rax+4]
-    vmovss  xmm3, dword ptr [rax]
-    vmovss  dword ptr [r8], xmm2
-    vmulss  xmm4, xmm11, dword ptr [r8+4]
-    vaddss  xmm0, xmm3, xmm5
-    vmulss  xmm1, xmm0, xmm12
-    vmovss  dword ptr [r8+4], xmm4
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm8, xmm0, xmm1
-    vandps  xmm2, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm1, xmm6, xmm7
-    vmulss  xmm0, xmm1, xmm12
-    vmovss  xmm1, cs:__real@3a83126f
-    vcomiss xmm2, xmm1
-    vsubss  xmm5, xmm4, xmm0
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vandps  xmm0, xmm5, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, xmm1
-    vaddss  xmm2, xmm2, cs:__real@2edbe6ff
-    vaddss  xmm4, xmm5, xmm2
-    vsubss  xmm1, xmm5, xmm2
-    vsubss  xmm2, xmm2, xmm5
-    vcmpless xmm0, xmm7, xmm5
-    vblendvps xmm3, xmm4, xmm1, xmm0
-    vcmpless xmm0, xmm7, xmm5
-    vblendvps xmm0, xmm2, xmm4, xmm0
-    vdivss  xmm3, xmm3, xmm0
-    vmulss  xmm1, xmm3, cs:__real@3e4902de
-    vmulss  xmm2, xmm1, xmm3
-    vsubss  xmm0, xmm2, cs:__real@3f7b50b1
-    vmovss  xmm1, cs:__real@3f490fdb
-    vmulss  xmm4, xmm0, xmm3
-    vmovss  xmm0, cs:__real@4016cbe4
-    vcmpless xmm2, xmm7, xmm5
-    vblendvps xmm1, xmm0, xmm1, xmm2
-    vaddss  xmm3, xmm4, xmm1
-    vxorps  xmm2, xmm3, xmm10
-    vcmpless xmm0, xmm7, xmm8
-    vblendvps xmm1, xmm2, xmm3, xmm0
-    vmulss  xmm14, xmm1, cs:__real@42652ee0
-    vmovaps xmm6, xmm1
-    vxorps  xmm8, xmm8, xmm8
-  }
+  v41 = 0.0;
   if ( anchorData->pinRotateElementsToEdge )
   {
-    _RAX = anchorData->pinRotateToEdgeElement;
-    __asm
+    pinRotateToEdgeElement = anchorData->pinRotateToEdgeElement;
+    v63 = v5;
+    v43 = *(double *)pinRotateToEdgeElement->currentAnimationState.position.x.anchors;
+    *(_OWORD *)v60[0].offsets = *(_OWORD *)pinRotateToEdgeElement->currentAnimationState.position.x.offsets;
+    *(double *)v60[0].anchors = v43;
+    v44 = LUI_Measure(v60);
+    v45 = anchorData->pinRotateToEdgeElement;
+    v46 = v44 * unitScale;
+    v47 = *(double *)v45->currentAnimationState.position.y.anchors;
+    *(_OWORD *)v60[0].offsets = *(_OWORD *)v45->currentAnimationState.position.y.offsets;
+    *(double *)v60[0].anchors = v47;
+    v48 = LUI_Measure(v60) * unitScale;
+    if ( *(float *)&v23 >= 6.2831855 )
     {
-      vmovaps [rsp+138h+var_68], xmm9
-      vmovups xmm0, xmmword ptr [rax]
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovups [rsp+138h+var_108], xmm0
-      vmovsd  [rsp+138h+var_F8], xmm1
-    }
-    *(float *)&_XMM0 = LUI_Measure(v110);
-    _RAX = anchorData->pinRotateToEdgeElement;
-    __asm
-    {
-      vmulss  xmm8, xmm0, xmm15
-      vmovups xmm0, xmmword ptr [rax+18h]
-      vmovsd  xmm1, qword ptr [rax+28h]
-      vmovups [rsp+138h+var_108], xmm0
-      vmovsd  [rsp+138h+var_F8], xmm1
-    }
-    *(float *)&_XMM0 = LUI_Measure(v110);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@40c90fdb
-      vcomiss xmm6, xmm1
-      vmulss  xmm2, xmm0, xmm15
-    }
-    if ( !v72 )
-    {
-      __asm { vmovss  xmm0, cs:__real@c0c90fdb }
       do
       {
-        __asm
-        {
-          vaddss  xmm6, xmm6, xmm0
-          vcomiss xmm6, xmm1
-        }
+        v49 = v23;
+        *(float *)&v49 = *(float *)&v23 + -6.2831855;
+        v23 = v49;
       }
-      while ( !v72 );
+      while ( *(float *)&v49 >= 6.2831855 );
     }
-    __asm { vcomiss xmm6, xmm7 }
-    while ( v72 )
+    if ( *(float *)&v23 < 0.0 )
     {
-      __asm
+      do
       {
-        vaddss  xmm6, xmm6, xmm1
-        vcomiss xmm6, xmm7
+        v50 = v23;
+        *(float *)&v50 = *(float *)&v23 + 6.2831855;
+        v23 = v50;
       }
+      while ( *(float *)&v50 < 0.0 );
     }
-    __asm
+    *(float *)&_XMM7 = v48 * 0.5;
+    v51 = v46 * 0.5;
+    v52 = tanf_0(*(float *)&v23);
+    v41 = v52 * (float)(v48 * 0.5);
+    if ( COERCE_FLOAT(LODWORD(v41) & _xmm) > v51 )
     {
-      vmovaps xmm0, xmm6; X
-      vmulss  xmm7, xmm2, xmm12
-      vmulss  xmm9, xmm8, xmm12
-    }
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm8, xmm0, xmm7
-      vandps  xmm1, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, xmm9
-    }
-    if ( v78 | v79 )
-    {
-      __asm { vcomiss xmm6, cs:__real@3fc90fdb }
-      if ( v78 )
-        goto LABEL_15;
-      __asm { vcomiss xmm6, cs:__real@4096cbe4 }
-      if ( !(v78 | v79) )
-        goto LABEL_15;
-      __asm { vxorps  xmm8, xmm8, xmm10 }
-    }
-    else
-    {
-      __asm
+      *(float *)&_XMM7 = v51 / v52;
+      if ( *(float *)&v23 < 3.1415927 )
       {
-        vcomiss xmm6, cs:__real@40490fdb
-        vdivss  xmm7, xmm9, xmm0
+        v41 = v51;
+        goto LABEL_17;
       }
-      if ( v78 )
-      {
-        __asm { vmovaps xmm8, xmm9 }
-LABEL_15:
-        __asm { vmovaps xmm9, [rsp+138h+var_68] }
-        goto LABEL_16;
-      }
-      __asm { vxorps  xmm8, xmm9, xmm10 }
+      LODWORD(v41) = LODWORD(v51) ^ _xmm;
+      goto LABEL_16;
     }
-    __asm { vxorps  xmm7, xmm7, xmm10 }
-    goto LABEL_15;
-  }
+    if ( *(float *)&v23 >= 1.5707964 && *(float *)&v23 <= 4.712389 )
+    {
+      LODWORD(v41) = COERCE_UNSIGNED_INT(v52 * *(float *)&_XMM7) ^ _xmm;
 LABEL_16:
-  __asm { vmovaps xmm10, [rsp+138h+var_78] }
-  v83 = 0;
+      LODWORD(_XMM7) = _XMM7 ^ _xmm;
+    }
+  }
+LABEL_17:
+  v53 = 0;
   if ( anchorData->rotateElementCount > 0 )
   {
     rotateElements = anchorData->rotateElements;
     do
     {
-      _RBX = *rotateElements;
+      v55 = *rotateElements;
       if ( *rotateElements )
       {
-        __asm { vmovss  dword ptr [rbx+30h], xmm14 }
+        v55->currentAnimationState.zRot = v13;
         if ( anchorData->pinRotateElementsToEdge )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovsd  xmm1, qword ptr [rbx+10h]
-            vmovups [rsp+138h+var_108], xmm0
-            vmovsd  [rsp+138h+var_F8], xmm1
-          }
-          *(float *)&_XMM0 = LUI_Measure(v110);
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm15
-            vmovups xmm0, xmmword ptr [rbx+18h]
-            vmulss  xmm6, xmm1, xmm12
-            vmovsd  xmm1, qword ptr [rbx+28h]
-            vmovsd  [rsp+138h+var_C8], xmm1
-            vmovups [rsp+138h+var_D8], xmm0
-          }
-          *(float *)&_XMM0 = LUI_Measure(&v111);
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm15
-            vmulss  xmm3, xmm1, xmm12
-            vsubss  xmm2, xmm8, xmm6
-            vmulss  xmm0, xmm2, xmm11
-            vsubss  xmm1, xmm7, xmm3
-            vmulss  xmm2, xmm1, xmm11
-            vmovss  dword ptr [rbx], xmm0
-            vaddss  xmm0, xmm8, xmm6
-            vmulss  xmm1, xmm0, xmm11
-            vmovss  dword ptr [rbx+18h], xmm2
-            vaddss  xmm2, xmm7, xmm3
-            vmulss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rbx+1Ch], xmm0
-            vmovss  dword ptr [rbx+4], xmm1
-          }
+          v56 = *(double *)v55->currentAnimationState.position.x.anchors;
+          *(_OWORD *)v60[0].offsets = *(_OWORD *)v55->currentAnimationState.position.x.offsets;
+          *(double *)v60[0].anchors = v56;
+          v57 = LUI_Measure(v60) * unitScale;
+          v58 = *(_OWORD *)v55->currentAnimationState.position.y.offsets;
+          *(_QWORD *)v61.anchors = *(_QWORD *)v55->currentAnimationState.position.y.anchors;
+          *(_OWORD *)v61.offsets = v58;
+          v59 = (float)(LUI_Measure(&v61) * unitScale) * 0.5;
+          v55->currentAnimationState.position.x.offsets[0] = (float)(v41 - (float)(v57 * 0.5)) * *(float *)&v10;
+          v55->currentAnimationState.position.y.offsets[0] = (float)(*(float *)&_XMM7 - v59) * *(float *)&v10;
+          v55->currentAnimationState.position.y.offsets[1] = (float)(*(float *)&_XMM7 + v59) * *(float *)&v10;
+          v55->currentAnimationState.position.x.offsets[1] = (float)(v41 + (float)(v57 * 0.5)) * *(float *)&v10;
         }
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 1064, ASSERT_TYPE_ASSERT, "(rotateElement)", (const char *)&queryFormat, "rotateElement") )
       {
         __debugbreak();
       }
-      ++v83;
+      ++v53;
       ++rotateElements;
     }
-    while ( v83 < anchorData->rotateElementCount );
-  }
-  _R11 = &v114;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm11, xmmword ptr [r11-78h]
-    vmovaps xmm12, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
+    while ( v53 < anchorData->rotateElementCount );
   }
 }
 
@@ -2679,26 +2136,21 @@ LUIElement_Anchored_UseDistanceBasedFading
 */
 bool LUIElement_Anchored_UseDistanceBasedFading(const LocalClientNum_t localClientNum, const LUIAnchor *const anchorData)
 {
-  const dvar_t *v3; 
-  char v8; 
+  const dvar_t *v2; 
+  const dvar_t *v5; 
   const ObjectiveSettings *ObjectiveSettings; 
 
-  v3 = DVARBOOL_lui_objective_fade_enabled;
+  v2 = DVARBOOL_lui_objective_fade_enabled;
   if ( !DVARBOOL_lui_objective_fade_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_objective_fade_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( !v3->current.enabled || !anchorData->useDistanceBasedFading )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.enabled || !anchorData->useDistanceBasedFading )
     return 0;
-  _RBX = DVARFLT_lui_objective_fadeEnd;
+  v5 = DVARFLT_lui_objective_fadeEnd;
   if ( !DVARFLT_lui_objective_fadeEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_objective_fadeEnd") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( !v8 )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.value <= 0.0 )
     return 0;
   ObjectiveSettings = LUIElement_Anchored_GetObjectiveSettings(localClientNum, anchorData);
   return !ObjectiveSettings || !ObjectiveSettings->alwaysShowInWorld;
@@ -2730,206 +2182,216 @@ LUI_LuaCall_LUIElement_SetupAnchoredElement_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
 {
-  LUIElement *v7; 
+  LUIElement *v3; 
   LUIElementUsageFlag *p_usageFlags; 
-  int v10; 
-  const char *v11; 
+  LUIAnchor *CustomElement; 
+  int v6; 
+  const char *v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
   bool v12; 
-  bool v16; 
-  int v18; 
-  bool v24; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
   bool v27; 
-  bool v29; 
-  LUIAnchorOnObstruction v30; 
-  const char *v31; 
-  LUIAnchorOnScope v32; 
-  bool v33; 
-  bool v34; 
-  int v35; 
-  bool v36; 
+  int v28; 
+  int v29; 
+  bool v35; 
   bool v37; 
-  bool v38; 
   bool v39; 
-  bool v40; 
-  bool v41; 
-  bool v42; 
+  LUIAnchorOnObstruction v40; 
+  const char *v41; 
+  LUIAnchorOnScope v42; 
   bool v43; 
   bool v44; 
-  void *retaddr; 
+  int v45; 
+  bool v46; 
+  bool v47; 
+  bool v48; 
+  bool v49; 
+  bool v50; 
+  double v51; 
+  bool v52; 
+  bool v53; 
+  bool v54; 
+  bool v55; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 2");
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   if ( j_lua_type(luaVM, 2) != 5 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_istable( luaVM, 2 )");
-  v7 = LUI_ToElement(luaVM, 1);
-  v7->layoutFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, float, int, lua_State *))LUIElement_Anchored_Layout;
-  p_usageFlags = &v7->usageFlags;
-  v7->usageFlags |= 3u;
-  LUI_LUIElement_RegisterMethods(v7, luaVM, s_anchoredMethods);
-  if ( v7->customElementData )
+  v3 = LUI_ToElement(luaVM, 1);
+  v3->layoutFunction = LUIElement_Anchored_Layout;
+  p_usageFlags = &v3->usageFlags;
+  v3->usageFlags |= 3u;
+  LUI_LUIElement_RegisterMethods(v3, luaVM, s_anchoredMethods);
+  if ( v3->customElementData )
   {
-    _RDI = LUI_LUIElement_RetrieveCustomElementData<LUIAnchor>(v7, luaVM);
+    CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIAnchor>(v3, luaVM);
   }
   else
   {
-    if ( !LUI_ElementHasWeakTableEntry(v7, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
+    if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
       __debugbreak();
-    LUI_PutElementOnTopOfStack(v7, luaVM);
-    _RDI = (LUIAnchor *)j_lua_newuserdata(luaVM, 0x150ui64);
+    LUI_PutElementOnTopOfStack(v3, luaVM);
+    CustomElement = (LUIAnchor *)j_lua_newuserdata(luaVM, 0x150ui64);
     j_lua_setfield(luaVM, -2, "_customElementData");
     j_lua_settop(luaVM, -2);
-    if ( v7->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
+    if ( v3->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
       __debugbreak();
-    v7->customElementData = _RDI;
-    memset_0(_RDI, 0, sizeof(LUIAnchor));
+    v3->customElementData = CustomElement;
+    memset_0(CustomElement, 0, sizeof(LUIAnchor));
   }
-  _RDI->attachType = ATTACH_ENTITY;
-  v7->currentAnimationState.userDataInt = 1065353216;
+  CustomElement->attachType = ATTACH_ENTITY;
+  v3->currentAnimationState.userDataInt = 1065353216;
   j_lua_getfield(luaVM, 2, "entityNum");
   if ( j_lua_isnumber(luaVM, -1) )
-    v10 = lui_tointeger32(luaVM, -1);
+    v6 = lui_tointeger32(luaVM, -1);
   else
-    v10 = 2047;
-  _RDI->entityNum = v10;
+    v6 = 2047;
+  CustomElement->entityNum = v6;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "entityTag");
   if ( j_lua_isstring(luaVM, -1) )
   {
-    v11 = j_lua_tolstring(luaVM, -1, NULL);
-    Core_strcpy(_RDI->tagName, 0x40ui64, v11);
+    v7 = j_lua_tolstring(luaVM, -1, NULL);
+    Core_strcpy(CustomElement->tagName, 0x40ui64, v7);
   }
   else
   {
-    _RDI->tagName[0] = 0;
+    CustomElement->tagName[0] = 0;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "screenOffsetX");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+0A8h], xmm0 }
+    v8 = lui_tonumber32(luaVM, -1);
+    CustomElement->screenOffset.v[0] = *(float *)&v8;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "screenOffsetY");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+0ACh], xmm0 }
+    v9 = lui_tonumber32(luaVM, -1);
+    CustomElement->screenOffset.v[1] = *(float *)&v9;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "screenSnapOffsetX");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+0B0h], xmm0 }
+    v10 = lui_tonumber32(luaVM, -1);
+    CustomElement->screenSnapOffset.v[0] = *(float *)&v10;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "screenSnapOffsetY");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+0B4h], xmm0 }
+    v11 = lui_tonumber32(luaVM, -1);
+    CustomElement->screenSnapOffset.v[1] = *(float *)&v11;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "snapToLocation");
   v12 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->snapToLocation = v12;
+  CustomElement->snapToLocation = v12;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "worldOffsetX");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+78h], xmm0 }
+    v13 = lui_tonumber32(luaVM, -1);
+    CustomElement->worldOffset.v[0] = *(float *)&v13;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "worldOffsetY");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+7Ch], xmm0 }
+    v14 = lui_tonumber32(luaVM, -1);
+    CustomElement->worldOffset.v[1] = *(float *)&v14;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "worldOffsetZ");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+80h], xmm0 }
+    v15 = lui_tonumber32(luaVM, -1);
+    CustomElement->worldOffset.v[2] = *(float *)&v15;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "entityOffsetX");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+9Ch], xmm0 }
+    v16 = lui_tonumber32(luaVM, -1);
+    CustomElement->entityOffset.v[0] = *(float *)&v16;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "entityOffsetY");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+0A0h], xmm0 }
+    v17 = lui_tonumber32(luaVM, -1);
+    CustomElement->entityOffset.v[1] = *(float *)&v17;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "entityOffsetZ");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+0A4h], xmm0 }
+    v18 = lui_tonumber32(luaVM, -1);
+    CustomElement->entityOffset.v[2] = *(float *)&v18;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "tagOffsetX");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+84h], xmm0 }
+    v19 = lui_tonumber32(luaVM, -1);
+    CustomElement->tagOffset.v[0] = *(float *)&v19;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "tagOffsetY");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+88h], xmm0 }
+    v20 = lui_tonumber32(luaVM, -1);
+    CustomElement->tagOffset.v[1] = *(float *)&v20;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "tagOffsetZ");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+8Ch], xmm0 }
+    v21 = lui_tonumber32(luaVM, -1);
+    CustomElement->tagOffset.v[2] = *(float *)&v21;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "secondaryTagOffsetX");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+90h], xmm0 }
+    v22 = lui_tonumber32(luaVM, -1);
+    CustomElement->secondaryTagOffset.v[0] = *(float *)&v22;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "secondaryTagOffsetY");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+94h], xmm0 }
+    v23 = lui_tonumber32(luaVM, -1);
+    CustomElement->secondaryTagOffset.v[1] = *(float *)&v23;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "secondaryTagOffsetZ");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovss  dword ptr [rdi+98h], xmm0 }
+    v24 = lui_tonumber32(luaVM, -1);
+    CustomElement->secondaryTagOffset.v[2] = *(float *)&v24;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "naturalDistance");
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
   if ( j_lua_isnumber(luaVM, -1) )
   {
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
@@ -2937,9 +2399,9 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@43960000 }
+    *(float *)&_XMM1 = FLOAT_300_0;
   }
-  __asm { vmovss  dword ptr [rdi+44h], xmm1 }
+  CustomElement->naturalDistance = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "perspectiveScaleLerpDistance");
   if ( j_lua_isnumber(luaVM, -1) )
@@ -2949,24 +2411,24 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@bf800000 }
+    *(float *)&_XMM1 = FLOAT_N1_0;
   }
-  __asm { vmovss  dword ptr [rdi+4Ch], xmm1 }
+  CustomElement->perspectiveScaleLerpDistance = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "perspectiveScalingEnabled");
-  v16 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->perspectiveScalingEnabled = v16;
+  v27 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->perspectiveScalingEnabled = v27;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "naturalFOV");
-  _ER14 = 0;
+  v28 = 0;
   if ( j_lua_isnumber(luaVM, -1) )
-    v18 = lui_tointeger32(luaVM, -1);
+    v29 = lui_tointeger32(luaVM, -1);
   else
-    v18 = 0;
-  _RDI->naturalFOV = v18;
+    v29 = 0;
+  CustomElement->naturalFOV = v29;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "defaultScale");
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  LODWORD(_XMM7) = 0;
   if ( j_lua_isnumber(luaVM, -1) )
   {
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
@@ -2974,12 +2436,12 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vmovaps xmm1, xmm6 }
+    *(float *)&_XMM1 = FLOAT_1_0;
   }
-  __asm { vmovss  dword ptr [rdi+50h], xmm1 }
+  CustomElement->defaultPerspectiveScale = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "minScale");
-  __asm { vmovss  xmm8, cs:__real@3e4ccccd }
+  *(float *)&_XMM8 = FLOAT_0_2;
   if ( j_lua_isnumber(luaVM, -1) )
   {
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
@@ -2987,9 +2449,9 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vmovaps xmm1, xmm8 }
+    *(float *)&_XMM1 = FLOAT_0_2;
   }
-  __asm { vmovss  dword ptr [rdi+54h], xmm1 }
+  CustomElement->minScale = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "maxScale");
   if ( j_lua_isnumber(luaVM, -1) )
@@ -2999,20 +2461,20 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vmovaps xmm1, xmm6 }
+    *(float *)&_XMM1 = FLOAT_1_0;
   }
-  __asm { vmovss  dword ptr [rdi+58h], xmm1 }
+  CustomElement->maxScale = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "snapToScreenEdges");
-  v24 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->snapToScreenEdges = v24;
+  v35 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->snapToScreenEdges = v35;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "snapRadius");
   if ( j_lua_isnumber(luaVM, -1) )
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  __asm { vmovss  dword ptr [rdi+64h], xmm0 }
+    _XMM0 = 0i64;
+  CustomElement->snapRadius = *(float *)&_XMM0;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "snapSmoothing");
   if ( j_lua_isnumber(luaVM, -1) )
@@ -3026,14 +2488,13 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@3f000000 }
+    *(float *)&_XMM1 = FLOAT_0_5;
   }
-  __asm { vmovss  dword ptr [rdi+6Ch], xmm1 }
+  CustomElement->snapToEdgesSmoothingRadius = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "enableDistanceBasedSnapCheck");
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  v27 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
-  _RDI->enableDistanceBasedSnapCheck = v27;
+  v37 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
+  CustomElement->enableDistanceBasedSnapCheck = v37;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "screenCenterFadeRadius");
   if ( j_lua_isnumber(luaVM, -1) )
@@ -3043,72 +2504,72 @@ __int64 LUI_LuaCall_LUIElement_SetupAnchoredElement_impl(lua_State *const luaVM)
   }
   else
   {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
+    LODWORD(_XMM1) = 0;
   }
-  __asm { vmovss  dword ptr [rdi+74h], xmm1 }
+  CustomElement->screenCenterFadeRadius = *(float *)&_XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "useDistanceBasedFading");
-  v29 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
-  _RDI->useDistanceBasedFading = v29;
+  v39 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
+  CustomElement->useDistanceBasedFading = v39;
   j_lua_settop(luaVM, -2);
-  _RDI->onObstruction = HIDE;
+  CustomElement->onObstruction = HIDE;
   j_lua_getfield(luaVM, 2, "onObstruction");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    v30 = (unsigned __int8)lui_tointeger32(luaVM, -1);
-    if ( (unsigned __int8)v30 <= 2u )
-      _RDI->onObstruction = v30;
+    v40 = (unsigned __int8)lui_tointeger32(luaVM, -1);
+    if ( (unsigned __int8)v40 <= 2u )
+      CustomElement->onObstruction = v40;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "obstructionEntityTag");
   if ( j_lua_isstring(luaVM, -1) )
   {
-    v31 = j_lua_tolstring(luaVM, -1, NULL);
-    Core_strcpy(_RDI->secondaryObstructionTagName, 0x40ui64, v31);
+    v41 = j_lua_tolstring(luaVM, -1, NULL);
+    Core_strcpy(CustomElement->secondaryObstructionTagName, 0x40ui64, v41);
   }
   else
   {
-    _RDI->secondaryObstructionTagName[0] = 0;
+    CustomElement->secondaryObstructionTagName[0] = 0;
   }
   j_lua_settop(luaVM, -2);
-  _RDI->onScope = HIDE;
+  CustomElement->onScope = HIDE;
   j_lua_getfield(luaVM, 2, "onScope");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    v32 = (unsigned __int8)lui_tointeger32(luaVM, -1);
-    if ( (unsigned __int8)v32 <= 2u )
-      _RDI->onScope = v32;
+    v42 = (unsigned __int8)lui_tointeger32(luaVM, -1);
+    if ( (unsigned __int8)v42 <= 2u )
+      CustomElement->onScope = v42;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "snapToScopeEdges");
-  v33 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->snapToScopeEdges = v33;
+  v43 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->snapToScopeEdges = v43;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "sendVisibilityEvents");
-  v34 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->sendScreenEvents = v34;
+  v44 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->sendScreenEvents = v44;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "rotateElements");
-  _RDI->rotateElementCount = 0;
-  _RDI->rotateElements[0] = NULL;
-  _RDI->rotateElements[1] = NULL;
-  _RDI->rotateElements[2] = NULL;
-  _RDI->rotateElements[3] = NULL;
+  CustomElement->rotateElementCount = 0;
+  CustomElement->rotateElements[0] = NULL;
+  CustomElement->rotateElements[1] = NULL;
+  CustomElement->rotateElements[2] = NULL;
+  CustomElement->rotateElements[3] = NULL;
   if ( j_lua_type(luaVM, -1) == 5 )
   {
-    v35 = 0;
+    v45 = 0;
     while ( 1 )
     {
-      j_lua_pushinteger(luaVM, ++v35);
+      j_lua_pushinteger(luaVM, ++v45);
       j_lua_gettable(luaVM, -2);
       if ( !j_lua_isuserdata(luaVM, -1) )
         break;
-      _RDI->rotateElements[_RDI->rotateElementCount] = LUI_ToElement(luaVM, -1);
-      if ( !_RDI->rotateElements[_RDI->rotateElementCount] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 2212, ASSERT_TYPE_ASSERT, "(anchorData->rotateElements[anchorData->rotateElementCount])", (const char *)&queryFormat, "anchorData->rotateElements[anchorData->rotateElementCount]") )
+      CustomElement->rotateElements[CustomElement->rotateElementCount] = LUI_ToElement(luaVM, -1);
+      if ( !CustomElement->rotateElements[CustomElement->rotateElementCount] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_anchored.cpp", 2212, ASSERT_TYPE_ASSERT, "(anchorData->rotateElements[anchorData->rotateElementCount])", (const char *)&queryFormat, "anchorData->rotateElements[anchorData->rotateElementCount]") )
         __debugbreak();
-      ++_RDI->rotateElementCount;
+      ++CustomElement->rotateElementCount;
       j_lua_settop(luaVM, -2);
-      if ( v35 >= 4 )
+      if ( v45 >= 4 )
         goto LABEL_120;
     }
     j_lua_settop(luaVM, -2);
@@ -3117,56 +2578,56 @@ LABEL_120:
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "pinRotateToEdgeElement");
   if ( j_lua_isuserdata(luaVM, -1) )
-    v7 = LUI_ToElement(luaVM, -1);
-  _RDI->pinRotateToEdgeElement = v7;
+    v3 = LUI_ToElement(luaVM, -1);
+  CustomElement->pinRotateToEdgeElement = v3;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "pinRotateElementsToEdge");
-  v36 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->pinRotateElementsToEdge = v36;
+  v46 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->pinRotateElementsToEdge = v46;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "roundScreenPosition");
-  v37 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->roundScreenPosition = v37;
+  v47 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->roundScreenPosition = v47;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "useClientDetailWorld");
-  v38 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->useClientDetailWorld = v38;
+  v48 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->useClientDetailWorld = v48;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "scaleUsingLayout");
-  v39 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->scaleUsingLayout = v39;
+  v49 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->scaleUsingLayout = v49;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "displayOnObstructionUnknown");
-  v40 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->displayOnObstructionUnknown = v40;
+  v50 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->displayOnObstructionUnknown = v50;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "ignoreOffsetsForTraces");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vcvttss2si r14d, xmm0 }
+    v51 = lui_tonumber32(luaVM, -1);
+    v28 = (int)*(float *)&v51;
   }
-  _RDI->ignoreOffsetsForTraces = _ER14;
+  CustomElement->ignoreOffsetsForTraces = v28;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "alwaysShowUnderCrosshair");
-  v41 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->alwaysShowUnderCrosshair = v41;
+  v52 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->alwaysShowUnderCrosshair = v52;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "isLockedToTag");
-  v42 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->isLockedToTag = v42;
+  v53 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->isLockedToTag = v53;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "useLeftHandIfAkimbo");
-  v43 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->useLeftHandIfAkimbo = v43;
+  v54 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->useLeftHandIfAkimbo = v54;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "useScopeStencil");
   if ( j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0 )
     *p_usageFlags |= 8u;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "applyLensDistortion");
-  v44 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  _RDI->applyLensDistortion = v44;
+  v55 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  CustomElement->applyLensDistortion = v55;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "minAlpha");
   if ( j_lua_isnumber(luaVM, -1) )
@@ -3174,18 +2635,16 @@ LABEL_120:
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
     __asm { vmaxss  xmm8, xmm0, xmm7 }
   }
-  __asm { vmovss  dword ptr [rdi+5Ch], xmm8 }
+  CustomElement->minAlpha = *(float *)&_XMM8;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "minAlphaADS");
-  __asm { vmovaps xmm8, [rsp+88h+var_58] }
   if ( j_lua_isnumber(luaVM, -1) )
   {
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
     __asm { vmaxss  xmm7, xmm0, xmm7 }
   }
-  __asm { vmovss  dword ptr [rdi+60h], xmm7 }
+  CustomElement->minAlphaADS = *(float *)&_XMM7;
   j_lua_settop(luaVM, -2);
-  __asm { vmovaps xmm7, [rsp+88h+var_48] }
   return 0i64;
 }
 

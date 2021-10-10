@@ -71,27 +71,65 @@ RB_DrawPrimHistogramOverlay
 */
 void RB_DrawPrimHistogramOverlay(GfxCmdBufContext *gfxContext, unsigned int trackFrameIndex)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
   const RB_Stats_Buffer *LockEldest; 
-  __int64 v16; 
-  volatile int v17; 
+  __int64 v15; 
+  int v16; 
   volatile int *drawPrimHistogram; 
-  __int64 v19; 
-  volatile int *v20; 
-  __int64 v21; 
-  const char **v34; 
-  const char *v36; 
-  unsigned int v43; 
-  __int64 v44; 
-  unsigned int v51; 
-  int *v52; 
-  char *v53; 
-  __int64 *v54; 
-  char *v55; 
-  unsigned int *v56; 
-  unsigned int v57; 
+  __int64 v18; 
+  volatile int *v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  __int128 v24; 
+  float v25; 
+  const char **v26; 
+  const char *v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  unsigned int v32; 
+  __int64 v33; 
+  float v34; 
+  __int128 v35; 
+  unsigned int v36; 
+  int *v37; 
+  char *v38; 
+  __int64 *v39; 
+  char *v40; 
+  int *v41; 
+  int v42; 
+  __int128 v43; 
+  int v44; 
+  int *v45; 
+  __int64 v46; 
+  int v47; 
+  int v48; 
+  int v49; 
+  int v50; 
+  int v51; 
+  int v52; 
+  int v53; 
+  int v54; 
+  int v55; 
+  int v56; 
+  int v57; 
+  int v58; 
+  int v59; 
   int v60; 
-  int *v61; 
-  __int64 v62; 
+  int v61; 
+  int v62; 
   int v63; 
   int v64; 
   int v65; 
@@ -107,592 +145,407 @@ void RB_DrawPrimHistogramOverlay(GfxCmdBufContext *gfxContext, unsigned int trac
   int v75; 
   int v76; 
   int v77; 
-  int v78; 
-  int v79; 
-  int v80; 
-  int v81; 
-  int v82; 
-  int v83; 
-  int v84; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  __int128 v82; 
+  __int64 v83; 
+  __int64 v84; 
   int v85; 
-  int v86; 
-  int v87; 
-  int v88; 
-  int v89; 
-  int v90; 
-  int v91; 
-  int v92; 
-  int v93; 
-  __int64 v120; 
-  __int64 v121; 
-  unsigned int *v132; 
-  __int64 v133; 
+  __int128 v86; 
+  __int128 v87; 
+  float v88; 
+  float v89; 
+  unsigned int *v90; 
+  __int64 v91; 
+  float v92; 
+  __int128 v93; 
   materialCommands_t *Tess; 
-  materialCommands_t *v145; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  GfxColor v164; 
-  float v165; 
-  float v166; 
-  float v167; 
-  float v168; 
-  float v169; 
-  float v170; 
-  float v171; 
-  float v172; 
-  float v173; 
-  float v174; 
-  float v175; 
-  float v176; 
-  float v177; 
-  float v178; 
-  float v179; 
-  float v180; 
-  float v181; 
-  float v182; 
-  float v183; 
-  float v184; 
-  float v185; 
-  float v186; 
-  float v187; 
-  float v188; 
-  float v189; 
-  unsigned int v190; 
+  materialCommands_t *v95; 
+  GfxColor v96; 
+  unsigned int v97; 
   unsigned int packed; 
-  unsigned int v192; 
-  unsigned int v195; 
-  GfxColor *v197; 
-  const RB_Stats_Buffer *v198; 
-  int *v201; 
-  __int64 v202; 
-  __int64 v203; 
-  __int64 v204; 
-  GfxCmdBufContext v205; 
-  GfxCmdBufContext v206; 
-  GfxCmdBufContext v207; 
-  GfxCmdBufContext v208; 
-  GfxCmdBufContext v209; 
-  GfxCmdBufContext v210; 
-  GfxCmdBufContext v211; 
-  GfxCmdBufContext v212; 
-  GfxCmdBufContext v213; 
-  GfxCmdBufContext v214; 
-  int v215; 
-  int v216; 
-  int v217; 
-  int v218; 
-  int v219; 
-  int v220; 
-  __int64 v221[6]; 
-  char v222[4]; 
-  char v223; 
-  char v224; 
+  unsigned int v99; 
+  float v100; 
+  float v101; 
+  unsigned int v102; 
+  float v103; 
+  GfxColor *v104; 
+  const RB_Stats_Buffer *v105; 
+  float v106; 
+  float v107; 
+  int *v108; 
+  __int64 v109; 
+  __int64 v110; 
+  __int64 v111; 
+  GfxCmdBufContext v112; 
+  GfxCmdBufContext v113; 
+  GfxCmdBufContext v114; 
+  GfxCmdBufContext v115; 
+  GfxCmdBufContext v116; 
+  GfxCmdBufContext v117; 
+  GfxCmdBufContext v118; 
+  GfxCmdBufContext v119; 
+  GfxCmdBufContext v120; 
+  GfxCmdBufContext v121; 
+  int v122; 
+  int v123; 
+  int v124; 
+  int v125; 
+  int v126; 
+  int v127; 
+  __int64 v128[6]; 
+  char v129[4]; 
+  char v130; 
+  char v131; 
   char dest[32]; 
+  __int128 v133; 
+  __int128 v134; 
+  __int128 v135; 
+  __int128 v136; 
+  __int128 v137; 
+  __int128 v138; 
+  __int128 v139; 
+  __int128 v140; 
+  __int128 v141; 
+  __int128 v142; 
 
-  _RDI = gfxContext;
   LockEldest = &g_RB_Stats_Internal.buffers[trackFrameIndex & 3];
-  v198 = LockEldest;
+  v105 = LockEldest;
   RB_Stats_ReadLockBuffer(LockEldest);
   if ( LockEldest->frameIndex != trackFrameIndex )
   {
     RB_Stats_ReadUnlockBuffer(LockEldest);
     LockEldest = RB_Stats_ReadLockEldest();
-    v198 = LockEldest;
+    v105 = LockEldest;
   }
-  v16 = LockEldest->frameIndex & 0x8000003F;
+  v15 = LockEldest->frameIndex & 0x8000003F;
   if ( LockEldest->frameIndex < 0 )
-    v16 = ((unsigned __int8)((LockEldest->frameIndex & 0x3F) - 1) | 0xFFFFFFC0) + 1;
-  v17 = 0;
+    v15 = ((unsigned __int8)((LockEldest->frameIndex & 0x3F) - 1) | 0xFFFFFFC0) + 1;
+  v16 = 0;
   drawPrimHistogram = backEnd.frameStatsMax.viewStats[0].drawPrimHistogram;
-  v19 = 16i64;
+  v18 = 16i64;
   do
   {
-    v20 = drawPrimHistogram;
-    v21 = 10i64;
+    v19 = drawPrimHistogram;
+    v20 = 10i64;
     do
     {
-      if ( v17 < *v20 )
-        v17 = *v20;
-      v20 += 56;
-      --v21;
+      if ( v16 < *v19 )
+        v16 = *v19;
+      v19 += 56;
+      --v20;
     }
-    while ( v21 );
+    while ( v20 );
     ++drawPrimHistogram;
-    --v19;
+    --v18;
   }
-  while ( v19 );
-  if ( v17 )
+  while ( v18 );
+  if ( v16 )
   {
-    __asm
-    {
-      vmovaps [rsp+320h+var_48+8], xmm6
-      vmovaps [rsp+320h+var_58+8], xmm7
-      vmovaps [rsp+320h+var_68+8], xmm8
-      vmovaps [rsp+320h+var_78+8], xmm9
-      vmovaps [rsp+320h+var_88+8], xmm10
-      vmovaps [rsp+320h+var_98+8], xmm11
-      vmovaps [rsp+320h+var_A8+8], xmm12
-      vmovaps [rsp+320h+var_B8+8], xmm13
-      vmovaps [rsp+320h+var_C8+8], xmm14
-      vmovaps [rsp+320h+var_D8+8], xmm15
-    }
-    R_TextHeight(backEnd.debugFont);
-    __asm
-    {
-      vxorps  xmm11, xmm11, xmm11
-      vcvtsi2ss xmm11, xmm11, eax
-      vmovss  [rsp+320h+var_2BC], xmm11
-    }
-    R_TextWidth("8888 ", 5, backEnd.debugFont);
-    __asm
-    {
-      vxorps  xmm10, xmm10, xmm10
-      vcvtsi2ss xmm10, xmm10, eax
-      vmovss  [rsp+320h+var_2C0], xmm10
-    }
-    R_TextWidth("8888:", 5, backEnd.debugFont);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@41d9999a
-      vaddss  xmm7, xmm11, cs:__real@423c0000
-      vmovss  xmm8, cs:__real@41f9999a
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm0, xmm0, cs:__real@42500000
-      vmovss  dword ptr [rsp+320h+var_2B8+4], xmm0
-      vmovaps xmm6, xmm0
-      vsubss  xmm14, xmm1, xmm10
-    }
-    v34 = s_viewStatsHeader;
+    v142 = v2;
+    v141 = v3;
+    v140 = v4;
+    v139 = v5;
+    v138 = v6;
+    v137 = v7;
+    v136 = v8;
+    v135 = v9;
+    v134 = v10;
+    v133 = v11;
+    v21 = (float)R_TextHeight(backEnd.debugFont);
+    v101 = v21;
+    v22 = (float)R_TextWidth("8888 ", 5, backEnd.debugFont);
+    v100 = v22;
+    v23 = 0i64;
+    *(float *)&v23 = (float)R_TextWidth("8888:", 5, backEnd.debugFont) + 52.0;
+    v103 = *(float *)&v23;
+    v24 = v23;
+    v25 = 27.200001 - v22;
+    v26 = s_viewStatsHeader;
     do
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v36 = *v34;
-      __asm
-      {
-        vmovaps xmm3, xmm6
-        vmovups [rbp+220h+var_270], xmm0
-        vmovss  dword ptr [rsp+320h+fmt], xmm7
-      }
-      RB_DrawText(&v205, v36, backEnd.debugFont, *(float *)&_XMM3, fmt, (const GfxColor)-1);
-      ++v34;
-      __asm { vaddss  xmm6, xmm6, xmm8 }
+      v27 = *v26;
+      v112 = *gfxContext;
+      RB_DrawText(&v112, v27, backEnd.debugFont, *(float *)&v24, v21 + 47.0, (const GfxColor)-1);
+      ++v26;
+      v28 = v24;
+      *(float *)&v28 = *(float *)&v24 + 31.200001;
+      v24 = v28;
     }
-    while ( (__int64)v34 < (__int64)primStatsLabel );
-    __asm { vmovss  xmm6, cs:__real@42400000 }
-    v215 = -12566273;
-    v218 = -16777056;
-    v216 = -12517377;
-    __asm { vaddss  xmm15, xmm11, xmm6 }
-    v219 = -16736096;
-    v217 = -12517568;
-    v220 = -16736256;
-    memset(v221, 0, 40);
-    memset_0(v222, 0, 0x78ui64);
-    __asm
-    {
-      vmovss  xmm13, cs:__real@40800000
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  xmm12, cs:__real@40000000
-    }
-    v43 = 0;
-    v44 = 0i64;
-    v195 = 0;
-    v203 = 0i64;
-    v204 = (5 * v16 - 10) << 7;
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    while ( (__int64)v26 < (__int64)primStatsLabel );
+    v29 = FLOAT_48_0;
+    v122 = -12566273;
+    v125 = -16777056;
+    v123 = -12517377;
+    v30 = v21 + 48.0;
+    v126 = -16736096;
+    v124 = -12517568;
+    v127 = -16736256;
+    memset(v128, 0, 40);
+    memset_0(v129, 0, 0x78ui64);
+    v31 = FLOAT_2_0;
+    v32 = 0;
+    v33 = 0i64;
+    v102 = 0;
+    v110 = 0i64;
+    v111 = (5 * v15 - 10) << 7;
     do
     {
-      if ( v43 >= 0xF )
+      if ( v32 >= 0xF )
         Core_strcpy(dest, 0x20ui64, "more:");
       else
-        Com_sprintf<32>((char (*)[32])dest, "%4i: ", *(const unsigned int *)((char *)drawPrimHistogramLimit + v44));
-      __asm
+        Com_sprintf<32>((char (*)[32])dest, "%4i: ", *(const unsigned int *)((char *)drawPrimHistogramLimit + v33));
+      v113 = *gfxContext;
+      v34 = (float)(v30 + v21) - 1.0;
+      v106 = v34;
+      v107 = v30 + v21;
+      RB_DrawText(&v113, dest, backEnd.debugFont, v29, v34, (const GfxColor)-1);
+      v35 = LODWORD(v103);
+      if ( v32 == 15 || (v36 = *(const unsigned int *)((char *)drawPrimHistogramLimit + v33), v36 > 0x12C) )
       {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups [rbp+220h+var_260], xmm0
-        vaddss  xmm0, xmm15, xmm11
-        vsubss  xmm9, xmm0, xmm7
-        vmovaps xmm3, xmm6
-        vmovss  [rbp+220h+var_2A0], xmm9
-        vmovss  dword ptr [rsp+320h+fmt], xmm9
-        vmovss  [rbp+220h+var_29C], xmm0
+        v108 = &v127;
+        v38 = &v131;
+        v37 = &v124;
       }
-      RB_DrawText(&v206, dest, backEnd.debugFont, *(float *)&_XMM3, fmta, (const GfxColor)-1);
-      __asm { vmovss  xmm6, dword ptr [rsp+320h+var_2B8+4] }
-      if ( v43 == 15 || (v51 = *(const unsigned int *)((char *)drawPrimHistogramLimit + v44), v51 > 0x12C) )
+      else if ( v36 <= 0x32 )
       {
-        v201 = &v220;
-        v53 = &v224;
-        v52 = &v217;
-      }
-      else if ( v51 <= 0x32 )
-      {
-        v201 = &v218;
-        v52 = &v215;
-        v53 = v222;
+        v108 = &v125;
+        v37 = &v122;
+        v38 = v129;
       }
       else
       {
-        v201 = &v219;
-        v52 = &v216;
-        v53 = &v223;
+        v108 = &v126;
+        v37 = &v123;
+        v38 = &v130;
       }
-      v197 = (GfxColor *)v52;
-      v54 = v221;
-      v55 = (char *)g_RB_Stats_Internal.histogramHistory[2] + v44;
-      v202 = 10i64;
-      v56 = (unsigned int *)((char *)LockEldest->frame.viewStats[0].drawPrimHistogram + v44);
+      v104 = (GfxColor *)v37;
+      v39 = v128;
+      v40 = (char *)g_RB_Stats_Internal.histogramHistory[2] + v33;
+      v109 = 10i64;
+      v41 = (int *)((char *)LockEldest->frame.viewStats[0].drawPrimHistogram + v33);
       do
       {
-        v57 = *v56;
-        *(_DWORD *)v53 += *v56;
-        *(_DWORD *)v54 += v57;
-        if ( v57 )
+        v42 = *v41;
+        *(_DWORD *)v38 += *v41;
+        *(_DWORD *)v39 += v42;
+        if ( v42 )
         {
-          Com_sprintf<32>((char (*)[32])dest, "%4i", v57);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovaps xmm3, xmm6
-          }
-          v164 = *v197;
-          __asm
-          {
-            vmovss  dword ptr [rsp+320h+fmt], xmm9
-            vmovups [rbp+220h+var_250], xmm0
-          }
-          RB_DrawText(&v207, dest, backEnd.debugFont, *(float *)&_XMM3, fmtb, v164);
+          Com_sprintf<32>((char (*)[32])dest, "%4i", (unsigned int)v42);
+          v96 = *v104;
+          v114 = *gfxContext;
+          RB_DrawText(&v114, dest, backEnd.debugFont, *(float *)&v35, v34, v96);
         }
-        __asm { vaddss  xmm9, xmm6, xmm10 }
-        v60 = v57;
-        v61 = (int *)v55;
-        v62 = 2i64;
+        v43 = v35;
+        *(float *)&v43 = *(float *)&v35 + v22;
+        v44 = v42;
+        v45 = (int *)v40;
+        v46 = 2i64;
         do
         {
-          v63 = *(v61 - 320);
-          if ( v60 >= v63 )
-            v63 = v60;
-          v64 = *(v61 - 160);
+          v47 = *(v45 - 320);
+          if ( v44 >= v47 )
+            v47 = v44;
+          v48 = *(v45 - 160);
+          if ( v47 >= v48 )
+            v48 = v47;
+          v49 = *v45;
+          if ( v48 >= *v45 )
+            v49 = v48;
+          v50 = v45[160];
+          if ( v49 >= v50 )
+            v50 = v49;
+          v51 = v45[320];
+          if ( v50 >= v51 )
+            v51 = v50;
+          v52 = v45[480];
+          if ( v51 >= v52 )
+            v52 = v51;
+          v53 = v45[640];
+          if ( v52 >= v53 )
+            v53 = v52;
+          v54 = v45[800];
+          if ( v53 >= v54 )
+            v54 = v53;
+          v55 = v45[960];
+          if ( v54 >= v55 )
+            v55 = v54;
+          v56 = v45[1120];
+          if ( v55 >= v56 )
+            v56 = v55;
+          v57 = v45[1280];
+          if ( v56 >= v57 )
+            v57 = v56;
+          v58 = v45[1440];
+          if ( v57 >= v58 )
+            v58 = v57;
+          v59 = v45[1600];
+          if ( v58 >= v59 )
+            v59 = v58;
+          v60 = v45[1760];
+          if ( v59 >= v60 )
+            v60 = v59;
+          v61 = v45[1920];
+          if ( v60 >= v61 )
+            v61 = v60;
+          v62 = v45[2080];
+          if ( v61 >= v62 )
+            v62 = v61;
+          v63 = v45[2240];
+          if ( v62 >= v63 )
+            v63 = v62;
+          v64 = v45[2400];
           if ( v63 >= v64 )
             v64 = v63;
-          v65 = *v61;
-          if ( v64 >= *v61 )
+          v65 = v45[2560];
+          if ( v64 >= v65 )
             v65 = v64;
-          v66 = v61[160];
+          v66 = v45[2720];
           if ( v65 >= v66 )
             v66 = v65;
-          v67 = v61[320];
+          v67 = v45[2880];
           if ( v66 >= v67 )
             v67 = v66;
-          v68 = v61[480];
+          v68 = v45[3040];
           if ( v67 >= v68 )
             v68 = v67;
-          v69 = v61[640];
+          v69 = v45[3200];
           if ( v68 >= v69 )
             v69 = v68;
-          v70 = v61[800];
+          v70 = v45[3360];
           if ( v69 >= v70 )
             v70 = v69;
-          v71 = v61[960];
+          v71 = v45[3520];
           if ( v70 >= v71 )
             v71 = v70;
-          v72 = v61[1120];
+          v72 = v45[3680];
           if ( v71 >= v72 )
             v72 = v71;
-          v73 = v61[1280];
+          v73 = v45[3840];
           if ( v72 >= v73 )
             v73 = v72;
-          v74 = v61[1440];
+          v74 = v45[4000];
+          v45 += 5120;
           if ( v73 >= v74 )
             v74 = v73;
-          v75 = v61[1600];
+          v75 = *(v45 - 960);
           if ( v74 >= v75 )
             v75 = v74;
-          v76 = v61[1760];
+          v76 = *(v45 - 800);
           if ( v75 >= v76 )
             v76 = v75;
-          v77 = v61[1920];
+          v77 = *(v45 - 640);
           if ( v76 >= v77 )
             v77 = v76;
-          v78 = v61[2080];
-          if ( v77 >= v78 )
-            v78 = v77;
-          v79 = v61[2240];
-          if ( v78 >= v79 )
-            v79 = v78;
-          v80 = v61[2400];
-          if ( v79 >= v80 )
-            v80 = v79;
-          v81 = v61[2560];
-          if ( v80 >= v81 )
-            v81 = v80;
-          v82 = v61[2720];
-          if ( v81 >= v82 )
-            v82 = v81;
-          v83 = v61[2880];
-          if ( v82 >= v83 )
-            v83 = v82;
-          v84 = v61[3040];
-          if ( v83 >= v84 )
-            v84 = v83;
-          v85 = v61[3200];
-          if ( v84 >= v85 )
-            v85 = v84;
-          v86 = v61[3360];
-          if ( v85 >= v86 )
-            v86 = v85;
-          v87 = v61[3520];
-          if ( v86 >= v87 )
-            v87 = v86;
-          v88 = v61[3680];
-          if ( v87 >= v88 )
-            v88 = v87;
-          v89 = v61[3840];
-          if ( v88 >= v89 )
-            v89 = v88;
-          v90 = v61[4000];
-          v61 += 5120;
-          if ( v89 >= v90 )
-            v90 = v89;
-          v91 = *(v61 - 960);
-          if ( v90 >= v91 )
-            v91 = v90;
-          v92 = *(v61 - 800);
-          if ( v91 >= v92 )
-            v92 = v91;
-          v93 = *(v61 - 640);
-          if ( v92 >= v93 )
-            v93 = v92;
-          v60 = *(v61 - 480);
-          if ( v93 >= v60 )
-            v60 = v93;
-          --v62;
+          v44 = *(v45 - 480);
+          if ( v77 >= v44 )
+            v44 = v77;
+          --v46;
         }
-        while ( v62 );
-        if ( v60 )
+        while ( v46 );
+        if ( v44 )
         {
-          __asm
+          v78 = 1.0 / (float)v16;
+          v79 = (float)((float)v44 * v25) * v78;
+          v115 = *gfxContext;
+          RB_DrawStretchPic(&v115, rgp.whiteMaterial, *(float *)&v43 - v31, v30 + v31, v79 + 4.0, v21 - 4.0, 0.0, 0.0, 1.0, 1.0, 0xFF000000, GFX_PRIM_STATS_DEBUG);
+          v80 = v21 - 8.0;
+          v97 = *v108;
+          v116 = *gfxContext;
+          RB_DrawStretchPic(&v116, rgp.whiteMaterial, *(float *)&v43, v30 + 4.0, v79, v80, 0.0, 0.0, 1.0, 1.0, v97, GFX_PRIM_STATS_DEBUG);
+          if ( v42 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, r12d
-            vdivss  xmm10, xmm7, xmm0
-            vmovss  [rsp+320h+var_2D8], xmm7
-            vmovss  [rsp+320h+var_2E0], xmm7
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vmulss  xmm1, xmm0, xmm14
-            vmovups xmm0, xmmword ptr [rdi]
-            vmulss  xmm6, xmm1, xmm10
-            vmovss  [rsp+320h+var_2E8], xmm8
-            vsubss  xmm1, xmm11, xmm13
-            vaddss  xmm4, xmm6, xmm13
-            vmovss  [rsp+320h+var_2F0], xmm8
-            vmovss  [rsp+320h+var_2F8], xmm1
-            vaddss  xmm3, xmm15, xmm12
-            vsubss  xmm2, xmm9, xmm12
-            vmovss  dword ptr [rsp+320h+fmt], xmm4
-            vmovups [rbp+220h+var_240], xmm0
+            packed = v104->packed;
+            v117 = *gfxContext;
+            RB_DrawStretchPic(&v117, rgp.whiteMaterial, *(float *)&v43, v30 + 4.0, (float)((float)v42 * v25) * v78, v80, 0.0, 0.0, 1.0, 1.0, packed, GFX_PRIM_STATS_DEBUG);
           }
-          RB_DrawStretchPic(&v208, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v165, v170, v175, v180, v185, 0xFF000000, GFX_PRIM_STATS_DEBUG);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vsubss  xmm11, xmm11, cs:__real@41000000
-          }
-          v190 = *v201;
-          __asm
-          {
-            vmovss  [rsp+320h+var_2D8], xmm7
-            vmovss  [rsp+320h+var_2E0], xmm7
-            vmovss  [rsp+320h+var_2E8], xmm8
-            vmovss  [rsp+320h+var_2F0], xmm8
-            vaddss  xmm12, xmm15, xmm13
-            vmovss  [rsp+320h+var_2F8], xmm11
-            vmovaps xmm3, xmm12
-            vmovaps xmm2, xmm9
-            vmovss  dword ptr [rsp+320h+fmt], xmm6
-            vmovups [rbp+220h+var_230], xmm0
-          }
-          RB_DrawStretchPic(&v209, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v166, v171, v176, v181, v186, v190, GFX_PRIM_STATS_DEBUG);
-          if ( v57 )
-          {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rdi]
-              vxorps  xmm1, xmm1, xmm1
-            }
-            packed = v197->packed;
-            __asm
-            {
-              vmovss  [rsp+320h+var_2D8], xmm7
-              vmovss  [rsp+320h+var_2E0], xmm7
-              vmovss  [rsp+320h+var_2E8], xmm8
-              vcvtsi2ss xmm1, xmm1, ebx
-              vmulss  xmm2, xmm1, xmm14
-              vmovups [rbp+220h+var_220], xmm0
-              vmulss  xmm0, xmm2, xmm10
-              vmovss  [rsp+320h+var_2F0], xmm8
-              vmovss  [rsp+320h+var_2F8], xmm11
-              vmovaps xmm3, xmm12
-              vmovaps xmm2, xmm9
-              vmovss  dword ptr [rsp+320h+fmt], xmm0
-            }
-            RB_DrawStretchPic(&v210, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v167, v172, v177, v182, v187, packed, GFX_PRIM_STATS_DEBUG);
-          }
-          __asm
-          {
-            vmovss  xmm10, [rsp+320h+var_2C0]
-            vmovss  xmm12, cs:__real@40000000
-            vmovss  xmm11, [rsp+320h+var_2BC]
-          }
+          v22 = v100;
+          v31 = FLOAT_2_0;
+          v21 = v101;
         }
-        v56 += 56;
-        __asm { vaddss  xmm4, xmm14, xmm13 }
-        v53 += 12;
-        v54 = (__int64 *)((char *)v54 + 4);
-        __asm
-        {
-          vaddss  xmm6, xmm9, xmm4
-          vmovss  xmm9, [rbp+220h+var_2A0]
-        }
-        *(_DWORD *)&v55[v204] = v57;
-        v55 += 64;
-        --v202;
+        v41 += 56;
+        v81 = v25 + 4.0;
+        v38 += 12;
+        v39 = (__int64 *)((char *)v39 + 4);
+        *(float *)&v43 = *(float *)&v43 + (float)(v25 + 4.0);
+        v35 = v43;
+        v34 = v106;
+        *(_DWORD *)&v40[v111] = v42;
+        v40 += 64;
+        --v109;
       }
-      while ( v202 );
-      __asm
-      {
-        vmovss  xmm15, [rbp+220h+var_29C]
-        vmovss  xmm6, cs:__real@42400000
-      }
-      LockEldest = v198;
-      v43 = v195 + 1;
-      v44 = v203 + 4;
-      v195 = v43;
-      v203 += 4i64;
+      while ( v109 );
+      v30 = v107;
+      v29 = FLOAT_48_0;
+      LockEldest = v105;
+      v32 = v102 + 1;
+      v33 = v110 + 4;
+      v102 = v32;
+      v110 += 4i64;
     }
-    while ( v43 < 0x10 );
-    __asm { vmovss  xmm0, dword ptr [rsp+320h+var_2B8+4] }
-    v120 = 0i64;
-    v121 = 80i64;
+    while ( v32 < 0x10 );
+    v82 = LODWORD(v103);
+    v83 = 0i64;
+    v84 = 20i64;
     do
     {
-      __asm { vaddss  xmm9, xmm0, xmm10 }
-      if ( *((_DWORD *)v221 + v120) )
+      v85 = *((_DWORD *)v128 + v83);
+      v87 = v82;
+      *(float *)&v87 = *(float *)&v82 + v22;
+      v86 = v87;
+      if ( v85 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovss  [rsp+320h+var_2D8], xmm7
-          vmovss  [rsp+320h+var_2E0], xmm7
-          vmovss  [rsp+320h+var_2E8], xmm8
-          vsubss  xmm1, xmm11, xmm13
-          vmovss  [rsp+320h+var_2F0], xmm8
-          vmovss  [rsp+320h+var_2F8], xmm1
-          vaddss  xmm3, xmm15, xmm12
-          vsubss  xmm2, xmm9, xmm12
-          vmovss  dword ptr [rsp+320h+fmt], xmm4
-          vmovups [rbp+220h+var_210], xmm0
-        }
-        RB_DrawStretchPic(&v211, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, v168, v173, v178, v183, v188, 0xFF000000, GFX_PRIM_STATS_DEBUG);
-        __asm
-        {
-          vsubss  xmm11, xmm11, cs:__real@41000000
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-          vdivss  xmm10, xmm7, xmm0
-          vaddss  xmm12, xmm15, xmm13
-        }
-        v132 = (unsigned int *)&v215;
-        v133 = 3i64;
+        v118 = *gfxContext;
+        RB_DrawStretchPic(&v118, rgp.whiteMaterial, *(float *)&v87 - v31, v107 + v31, v81, v21 - 4.0, 0.0, 0.0, 1.0, 1.0, 0xFF000000, GFX_PRIM_STATS_DEBUG);
+        v88 = v21 - 8.0;
+        v89 = 1.0 / (float)v85;
+        v90 = (unsigned int *)&v122;
+        v91 = 3i64;
         do
         {
-          v192 = *v132;
-          __asm
-          {
-            vmovss  [rsp+320h+var_2D8], xmm7
-            vmovss  [rsp+320h+var_2E0], xmm7
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [r14+rbx]
-            vmulss  xmm1, xmm0, xmm14
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovss  [rsp+320h+var_2E8], xmm8
-            vmulss  xmm6, xmm1, xmm10
-            vmovss  [rsp+320h+var_2F0], xmm8
-            vmovss  [rsp+320h+var_2F8], xmm11
-            vmovaps xmm3, xmm12
-            vmovaps xmm2, xmm9
-            vmovss  dword ptr [rsp+320h+fmt], xmm6
-            vmovups [rbp+220h+var_200], xmm0
-          }
-          RB_DrawStretchPic(&v212, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, v169, v174, v179, v184, v189, v192, GFX_PRIM_STATS_DEBUG);
-          ++v132;
-          __asm { vaddss  xmm9, xmm9, xmm6 }
-          --v133;
+          v99 = *v90;
+          v92 = (float)((float)(int)v90[v84] * v25) * v89;
+          v119 = *gfxContext;
+          RB_DrawStretchPic(&v119, rgp.whiteMaterial, *(float *)&v86, v107 + 4.0, v92, v88, 0.0, 0.0, 1.0, 1.0, v99, GFX_PRIM_STATS_DEBUG);
+          ++v90;
+          v93 = v86;
+          *(float *)&v93 = *(float *)&v86 + v92;
+          v86 = v93;
+          --v91;
         }
-        while ( v133 );
-        __asm
-        {
-          vmovss  xmm10, [rsp+320h+var_2C0]
-          vaddss  xmm0, xmm9, xmm13
-          vaddss  xmm4, xmm14, xmm13
-        }
+        while ( v91 );
+        v22 = v100;
+        *(float *)&v93 = *(float *)&v93 + 4.0;
+        v82 = v93;
+        v81 = v25 + 4.0;
       }
       else
       {
-        __asm { vaddss  xmm0, xmm9, xmm4 }
+        *(float *)&v87 = *(float *)&v87 + v81;
+        v82 = v87;
       }
-      __asm
-      {
-        vmovss  xmm11, [rsp+320h+var_2BC]
-        vmovss  xmm12, cs:__real@40000000
-      }
-      ++v120;
-      v121 += 12i64;
+      v21 = v101;
+      v31 = FLOAT_2_0;
+      ++v83;
+      v84 += 3i64;
     }
-    while ( v120 < 10 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rbp+220h+var_1F0], xmm0
-    }
-    Tess = R_GetTess(&v213);
-    __asm { vmovaps xmm15, [rsp+320h+var_D8+8] }
-    v145 = Tess;
-    __asm
-    {
-      vmovaps xmm14, [rsp+320h+var_C8+8]
-      vmovaps xmm13, [rsp+320h+var_B8+8]
-      vmovaps xmm12, [rsp+320h+var_A8+8]
-      vmovaps xmm11, [rsp+320h+var_98+8]
-      vmovaps xmm10, [rsp+320h+var_88+8]
-      vmovaps xmm9, [rsp+320h+var_78+8]
-      vmovaps xmm8, [rsp+320h+var_68+8]
-      vmovaps xmm7, [rsp+320h+var_58+8]
-      vmovaps xmm6, [rsp+320h+var_48+8]
-    }
+    while ( v83 < 10 );
+    v120 = *gfxContext;
+    Tess = R_GetTess(&v120);
+    v95 = Tess;
     if ( Tess->vertexCount )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups [rbp+220h+var_1E0], xmm0
-      }
-      RB_EndTessSurfaceInternal(&v214, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
+      v121 = *gfxContext;
+      RB_EndTessSurfaceInternal(&v121, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
     }
     else
     {
       if ( Tess->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
         __debugbreak();
-      v145->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-      v145->primStatsTarget = GFX_PRIM_STATS_INVALID;
+      v95->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+      v95->primStatsTarget = GFX_PRIM_STATS_INVALID;
     }
   }
   if ( LockEldest->readWriteLockCount != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_stats.cpp", 147, ASSERT_TYPE_ASSERT, "(buffer->readWriteLockCount == -1)", (const char *)&queryFormat, "buffer->readWriteLockCount == -1") )
@@ -950,145 +803,131 @@ RB_Stats_Summarize
 */
 void RB_Stats_Summarize(const char *label, const GfxViewStats *viewStats, int useHistogram)
 {
-  unsigned int v6; 
+  unsigned int v3; 
   volatile int *triCount; 
-  int v11; 
+  int v8; 
+  __int64 v9; 
+  int v10; 
+  volatile int *v11; 
   __int64 v12; 
   int v13; 
-  volatile int *v14; 
-  __int64 v15; 
-  int v16; 
-  const char **v17; 
-  const GfxViewStats *v18; 
-  volatile int *v19; 
-  volatile int *v20; 
-  __int64 v21; 
-  int v22; 
-  int v23; 
+  const char **v14; 
+  const GfxViewStats *v15; 
+  volatile int *v16; 
+  volatile int *v17; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
   volatile int *drawPrimHistogram; 
-  volatile int v25; 
-  volatile int *v26; 
-  __int64 v27; 
-  signed __int64 v29; 
-  __int64 v30; 
-  const char *v31; 
-  int v38; 
-  __int64 v39; 
+  volatile int v22; 
+  volatile int *v23; 
+  __int64 v24; 
+  signed __int64 v25; 
+  __int64 v26; 
+  const char *v27; 
+  int v28; 
+  __int64 v29; 
   GfxPrimStats primStats; 
 
-  v6 = 0;
+  v3 = 0;
   triCount = viewStats->primStats[0].triCount;
-  v11 = 0;
-  v12 = 10i64;
+  v8 = 0;
+  v9 = 10i64;
   do
   {
-    v13 = 0;
-    v14 = triCount;
-    v15 = 3i64;
+    v10 = 0;
+    v11 = triCount;
+    v12 = 3i64;
     do
     {
-      v16 = *v14++;
-      v13 += v16;
-      --v15;
+      v13 = *v11++;
+      v10 += v13;
+      --v12;
     }
-    while ( v15 );
+    while ( v12 );
     triCount += 4;
-    v11 += v13 + 2 * v13;
-    --v12;
+    v8 += v10 + 2 * v10;
+    --v9;
   }
-  while ( v12 );
-  if ( v11 )
+  while ( v9 );
+  if ( v8 )
   {
     Com_Printf(8, "\n=== %s Geometry ===\n", label);
     Com_Printf(8, "|--------------|-----|-------|-------|-------|-------|\n");
     Com_Printf(8, "|geometry type |prims|   tris| static|dynamic|   tess|\n");
     Com_Printf(8, "|--------------|-----|-------|-------|-------|-------|\n");
-    v17 = primStatsLabel;
+    v14 = primStatsLabel;
     *(_QWORD *)&primStats.primCount = 0i64;
     *(_QWORD *)&primStats.triCount[1] = 0i64;
-    v18 = viewStats;
+    v15 = viewStats;
     do
     {
-      RB_Stats_SummarizePrimStats(*v17, v18->primStats);
-      v19 = primStats.triCount;
-      v20 = primStats.triCount;
-      primStats.primCount += v18->primStats[0].primCount;
-      v21 = 3i64;
+      RB_Stats_SummarizePrimStats(*v14, v15->primStats);
+      v16 = primStats.triCount;
+      v17 = primStats.triCount;
+      primStats.primCount += v15->primStats[0].primCount;
+      v18 = 3i64;
       do
       {
-        v22 = *(volatile int *)((char *)v19 + (char *)v18 - (char *)&primStats);
-        ++v20;
-        v23 = *v19++;
-        *((_DWORD *)v20 - 1) = v23 + v22;
-        --v21;
+        v19 = *(volatile int *)((char *)v16 + (char *)v15 - (char *)&primStats);
+        ++v17;
+        v20 = *v16++;
+        *((_DWORD *)v17 - 1) = v20 + v19;
+        --v18;
       }
-      while ( v21 );
-      v18 = (const GfxViewStats *)((char *)v18 + 16);
-      ++v17;
+      while ( v18 );
+      v15 = (const GfxViewStats *)((char *)v15 + 16);
+      ++v14;
     }
-    while ( (__int64)v17 < (__int64)&unk_1482E03A0 );
+    while ( (__int64)v14 < (__int64)&unk_1482E03A0 );
     Com_Printf(8, "|--------------|-----|-------|-------|-------|-------|\n");
     RB_Stats_SummarizePrimStats("total", &primStats);
     Com_Printf(8, "|--------------|-----|-------|-------|-------|-------|\n");
     if ( useHistogram )
     {
       drawPrimHistogram = viewStats->drawPrimHistogram;
-      v25 = 0;
-      v26 = viewStats->drawPrimHistogram;
-      v27 = 16i64;
+      v22 = 0;
+      v23 = viewStats->drawPrimHistogram;
+      v24 = 16i64;
       do
       {
-        if ( v25 < *v26 )
-          v25 = *v26;
-        ++v26;
-        --v27;
+        if ( v22 < *v23 )
+          v22 = *v23;
+        ++v23;
+        --v24;
       }
-      while ( v27 );
-      if ( v25 )
+      while ( v24 );
+      if ( v22 )
       {
-        __asm { vmovaps [rsp+78h+var_38], xmm6 }
         Com_Printf(8, "\nTriangles Per Primitive Histogram:\n");
-        __asm { vmovss  xmm6, cs:__real@42c80000 }
-        v29 = (char *)drawPrimHistogramLimit - (char *)viewStats;
+        v25 = (char *)drawPrimHistogramLimit - (char *)viewStats;
         do
         {
-          if ( v6 >= 0xF )
-            v30 = *(unsigned int *)((char *)drawPrimHistogram + v29 - 164);
+          if ( v3 >= 0xF )
+            v26 = *(unsigned int *)((char *)drawPrimHistogram + v25 - 164);
           else
-            v30 = *(unsigned int *)((char *)drawPrimHistogram + v29 - 160);
-          v31 = "<= %4i: ";
-          if ( v6 >= 0xF )
-            v31 = " > %4i: ";
-          Com_Printf(8, v31, v30);
-          __asm
+            v26 = *(unsigned int *)((char *)drawPrimHistogram + v25 - 160);
+          v27 = "<= %4i: ";
+          if ( v3 >= 0xF )
+            v27 = " > %4i: ";
+          Com_Printf(8, v27, v26);
+          Com_Printf(8, "%4i (%4.1f%%) ", *(unsigned int *)drawPrimHistogram, (float)((float)((float)*(int *)drawPrimHistogram * 100.0) / (float)primStats.primCount));
+          v28 = (v22 / 2 + 40 * *drawPrimHistogram) / v22;
+          if ( v28 > 0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vxorps  xmm1, xmm1, xmm1
-            vmulss  xmm2, xmm0, xmm6
-            vcvtsi2ss xmm1, xmm1, eax
-            vdivss  xmm0, xmm2, xmm1
-            vcvtss2sd xmm3, xmm0, xmm0
-            vmovq   r9, xmm3
-          }
-          Com_Printf(8, "%4i (%4.1f%%) ", *(unsigned int *)drawPrimHistogram, *(double *)&_XMM3);
-          v38 = (v25 / 2 + 40 * *drawPrimHistogram) / v25;
-          if ( v38 > 0 )
-          {
-            v39 = (unsigned int)v38;
+            v29 = (unsigned int)v28;
             do
             {
               Com_Printf(8, "#");
-              --v39;
+              --v29;
             }
-            while ( v39 );
+            while ( v29 );
           }
           Com_Printf(8, "\n");
-          ++v6;
+          ++v3;
           ++drawPrimHistogram;
         }
-        while ( v6 < 0x10 );
-        __asm { vmovaps xmm6, [rsp+78h+var_38] }
+        while ( v3 < 0x10 );
       }
     }
   }

@@ -1138,56 +1138,42 @@ ASM_ShouldEnterStairsState
 */
 bool ASM_ShouldEnterStairsState(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams, ASM_Function_Param *pParams)
 {
-  __int64 v8; 
+  __int64 v7; 
   AIScriptedInterface *m_pAI; 
-  __int64 v10; 
+  __int64 v9; 
   scr_string_t StringParam; 
-  AI_STAIRS_STATE v12; 
-  __int64 v13; 
-  int v14; 
-  AIWrapper v23; 
-  char v24[16]; 
+  AI_STAIRS_STATE v11; 
+  __int64 v12; 
+  int v13; 
+  AIWrapper v18; 
+  char v19[16]; 
 
-  v8 = entNum;
+  v7 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 138, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  AIWrapper::AIWrapper(&v23, &g_entities[v8]);
-  m_pAI = v23.m_pAI;
-  if ( !v23.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 141, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v18, &g_entities[v7]);
+  m_pAI = v18.m_pAI;
+  if ( !v18.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 141, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v10 = m_pAI->GetAI(m_pAI);
+  v9 = m_pAI->GetAI(m_pAI);
   StringParam = ASM_Builtin_GetStringParam(0, pParams, numParams);
-  v12 = m_pAI->GetStairsState(m_pAI);
-  if ( v12 == AI_STAIRS_NONE )
+  v11 = m_pAI->GetStairsState(m_pAI);
+  if ( v11 == AI_STAIRS_NONE )
   {
-    v14 = *(_DWORD *)(v10 + 480);
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_28], xmm6
-      vmovss  xmm6, cs:__real@42100000
-    }
-    if ( v14 == scr_const.casual )
-    {
-      __asm { vmovss  xmm1, cs:__real@41b80000 }
-    }
-    else if ( v14 == scr_const.casual_gun )
-    {
-      __asm { vmovss  xmm1, cs:__real@41880000 }
-    }
-    else
+    v13 = *(_DWORD *)(v9 + 480);
+    _XMM6 = LODWORD(FLOAT_36_0);
+    if ( v13 != scr_const.casual && v13 != scr_const.casual_gun )
     {
       *(double *)&_XMM0 = AIScriptedInterface::GetDefaultSpeed(m_pAI);
       __asm
       {
         vcmpltss xmm2, xmm0, cs:__real@42f00000
-        vmovss  xmm1, cs:__real@41a00000
         vblendvps xmm1, xmm6, xmm1, xmm2
       }
     }
-    v12 = (*(unsigned int (__fastcall **)(_QWORD, __int64, char *))(**(_QWORD **)(v10 + 392) + 328i64))(*(_QWORD *)(v10 + 392), v13, v24);
-    __asm { vmovaps xmm6, [rsp+0E8h+var_28] }
+    v11 = (*(unsigned int (__fastcall **)(_QWORD, __int64, char *))(**(_QWORD **)(v9 + 392) + 328i64))(*(_QWORD *)(v9 + 392), v12, v19);
   }
-  return StringParam == scr_const.up && v12 == AI_STAIRS_UP || StringParam == scr_const.down && v12 == AI_STAIRS_DOWN;
+  return StringParam == scr_const.up && v11 == AI_STAIRS_UP || StringParam == scr_const.down && v11 == AI_STAIRS_DOWN;
 }
 
 /*
@@ -1473,25 +1459,23 @@ bool ASM_MoveRequested(int entNum, const scr_string_t asmName, const scr_string_
   __int64 v6; 
   AIScriptedInterface *m_pAI; 
   __int64 v8; 
-  AIWrapper v12; 
+  AIWrapper v10; 
   vec3_t vFinalGoal; 
 
   v6 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 293, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  AIWrapper::AIWrapper(&v12, &g_entities[v6]);
-  m_pAI = v12.m_pAI;
-  if ( !v12.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 294, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v10, &g_entities[v6]);
+  m_pAI = v10.m_pAI;
+  if ( !v10.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 294, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   v8 = m_pAI->GetAI(m_pAI);
   if ( numParams > 0 && *(_DWORD *)(v8 + 480) != ASM_Builtin_GetStringParam(0, pParams, numParams) || !m_pAI->IsCodeMoveRequested(m_pAI) )
     return 0;
-  __asm { vmovss  xmm1, cs:__real@40800000 }
   if ( (*(unsigned __int8 (__fastcall **)(_QWORD))(**(_QWORD **)(v8 + 392) + 216i64))(*(_QWORD *)(v8 + 392)) )
     return 1;
   AICommonInterface::GetPathFinalGoal(m_pAI, &vFinalGoal);
-  __asm { vmovss  xmm3, cs:__real@40800000; bufferSq }
-  return !AICommonInterface::PointNearPointSqDist(m_pAI, (const vec3_t *)(*(_QWORD *)v8 + 304i64), &vFinalGoal, *(float *)&_XMM3);
+  return !AICommonInterface::PointNearPointSqDist(m_pAI, (const vec3_t *)(*(_QWORD *)v8 + 304i64), &vFinalGoal, 4.0);
 }
 
 /*
@@ -1612,22 +1596,21 @@ ASM_ShouldAimDown
 bool ASM_ShouldAimDown(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
   AIScriptedInterface *m_pAI; 
-  Ai_Asm *v7; 
+  Ai_Asm *v6; 
   ASM_Instance *Instance; 
   bool result; 
-  char v10; 
-  AIWrapper v11; 
+  double PitchToTarget; 
+  AIWrapper v10; 
 
-  AIWrapper::AIWrapper(&v11, &g_entities[entNum]);
-  m_pAI = v11.m_pAI;
-  v7 = Ai_Asm::Singleton();
-  Instance = Ai_Asm::GetInstance(v7, NULL, entNum);
+  AIWrapper::AIWrapper(&v10, &g_entities[entNum]);
+  m_pAI = v10.m_pAI;
+  v6 = Ai_Asm::Singleton();
+  Instance = Ai_Asm::GetInstance(v6, NULL, entNum);
   result = AIScriptedInterface::IsCurrentEnemyValid(m_pAI);
   if ( result )
   {
-    *(double *)&_XMM0 = AIScriptedInterface::GetPitchToTarget(m_pAI, Instance->m_pScrContext);
-    __asm { vcomiss xmm0, cs:__real@c2340000 }
-    return v10;
+    PitchToTarget = AIScriptedInterface::GetPitchToTarget(m_pAI, Instance->m_pScrContext);
+    return *(float *)&PitchToTarget < -45.0;
   }
   return result;
 }
@@ -1640,21 +1623,19 @@ ASM_ShouldStopAimDown
 bool ASM_ShouldStopAimDown(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
   AIScriptedInterface *m_pAI; 
-  Ai_Asm *v7; 
+  Ai_Asm *v6; 
   ASM_Instance *Instance; 
-  char v10; 
-  char v11; 
-  AIWrapper v12; 
+  double PitchToTarget; 
+  AIWrapper v10; 
 
-  AIWrapper::AIWrapper(&v12, &g_entities[entNum]);
-  m_pAI = v12.m_pAI;
-  v7 = Ai_Asm::Singleton();
-  Instance = Ai_Asm::GetInstance(v7, NULL, entNum);
+  AIWrapper::AIWrapper(&v10, &g_entities[entNum]);
+  m_pAI = v10.m_pAI;
+  v6 = Ai_Asm::Singleton();
+  Instance = Ai_Asm::GetInstance(v6, NULL, entNum);
   if ( !AIScriptedInterface::IsCurrentEnemyValid(m_pAI) )
     return 1;
-  *(double *)&_XMM0 = AIScriptedInterface::GetPitchToTarget(m_pAI, Instance->m_pScrContext);
-  __asm { vcomiss xmm0, cs:__real@c20c0000 }
-  return !(v10 | v11);
+  PitchToTarget = AIScriptedInterface::GetPitchToTarget(m_pAI, Instance->m_pScrContext);
+  return *(float *)&PitchToTarget > -35.0;
 }
 
 /*
@@ -1664,42 +1645,32 @@ ASM_FaceMotionAndOriented
 */
 bool ASM_FaceMotionAndOriented(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
-  __int64 v6; 
+  __int64 v4; 
   AIScriptedInterface *m_pAI; 
-  __int64 v8; 
-  char v21; 
-  char v22; 
-  AIWrapper v23; 
+  __int64 v6; 
+  float *v7; 
+  double v9; 
+  float v10; 
+  AIWrapper v13; 
   vec3_t outLookaheadDir; 
 
-  v6 = entNum;
+  v4 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 870, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  AIWrapper::AIWrapper(&v23, &g_entities[v6]);
-  m_pAI = v23.m_pAI;
-  if ( !v23.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 871, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v13, &g_entities[v4]);
+  m_pAI = v13.m_pAI;
+  if ( !v13.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 871, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v8 = m_pAI->GetAI(m_pAI);
-  _RBX = v8;
-  if ( !*(_BYTE *)(v8 + 330) )
+  v6 = m_pAI->GetAI(m_pAI);
+  v7 = (float *)v6;
+  if ( !*(_BYTE *)(v6 + 330) )
     return 0;
-  Nav_GetLookaheadDir(*(const AINavigator **)(v8 + 392), &outLookaheadDir);
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)&outLookaheadDir);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vsubss  xmm0, xmm0, dword ptr [rax+140h]
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm3, xmm1, xmm2
-    vroundss xmm4, xmm0, xmm3, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, dword ptr [rbx+0B3Ch]
-  }
-  return v21 | v22;
+  Nav_GetLookaheadDir(*(const AINavigator **)(v6 + 392), &outLookaheadDir);
+  v9 = vectoyaw((const vec2_t *)&outLookaheadDir);
+  v10 = (float)(*(float *)&v9 - *(float *)(*(_QWORD *)v7 + 320i64)) * 0.0027777778;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  return COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v10 - *(float *)&_XMM4) * 360.0) & _xmm) <= v7[719];
 }
 
 /*
@@ -1757,26 +1728,24 @@ ASM_ShouldStrafeStart
 */
 bool ASM_ShouldStrafeStart(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
-  __int64 v5; 
+  __int64 v4; 
   AIScriptedInterface *m_pAI; 
-  __int64 v7; 
-  char v8; 
-  char v9; 
-  AIWrapper v11; 
+  __int64 v6; 
+  double PathDistToGoal; 
+  AIWrapper v9; 
 
-  v5 = entNum;
+  v4 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 910, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  AIWrapper::AIWrapper(&v11, &g_entities[v5]);
-  m_pAI = v11.m_pAI;
-  if ( !v11.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 911, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v9, &g_entities[v4]);
+  m_pAI = v9.m_pAI;
+  if ( !v9.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 911, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v7 = m_pAI->GetAI(m_pAI);
-  if ( *(_BYTE *)(v7 + 330) || !AICommonInterface::HasPath(m_pAI) )
+  v6 = m_pAI->GetAI(m_pAI);
+  if ( *(_BYTE *)(v6 + 330) || !AICommonInterface::HasPath(m_pAI) )
     return 0;
-  *(double *)&_XMM0 = Nav_GetPathDistToGoal(*(const AINavigator **)(v7 + 392));
-  __asm { vcomiss xmm0, cs:__real@42100000 }
-  return !(v8 | v9);
+  PathDistToGoal = Nav_GetPathDistToGoal(*(const AINavigator **)(v6 + 392));
+  return *(float *)&PathDistToGoal > 36.0;
 }
 
 /*
@@ -1786,58 +1755,55 @@ ASM_ShouldStrafeReverse
 */
 bool ASM_ShouldStrafeReverse(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
-  __int64 v12; 
-  const gentity_s *v14; 
+  __int64 v4; 
+  const gentity_s *v6; 
   AIScriptedInterface *m_pAI; 
-  AIScriptedInterface_vtbl *v16; 
-  __int64 v17; 
+  _BYTE *v8; 
   int number; 
-  Ai_Asm *v19; 
+  Ai_Asm *v10; 
   ASM_Instance *Instance; 
   const ASM *m_pASM; 
   int frameDuration; 
   scr_string_t sharp_turn; 
-  Ai_Asm *v24; 
-  Ai_Asm *v25; 
-  scrContext_t *v26; 
+  Ai_Asm *v15; 
+  Ai_Asm *v16; 
+  scrContext_t *v17; 
   unsigned int ArrayVariable; 
   unsigned int Object; 
-  unsigned int v29; 
-  bool result; 
-  AIScriptedInterface_vtbl *v49; 
-  bool v80; 
+  unsigned int v20; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  float v32; 
+  __int128 v33; 
   int *outParamId; 
-  __int64 v82; 
+  __int64 v38; 
   int intValue; 
   unsigned int outVar; 
   VariableValue out; 
-  AIWrapper v86; 
-  int v87[4]; 
+  AIWrapper v42; 
+  float v43; 
+  float v44; 
+  float v45; 
 
-  v12 = entNum;
+  v4 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 974, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  v14 = &g_entities[v12];
-  AIWrapper::AIWrapper(&v86, v14);
-  m_pAI = v86.m_pAI;
-  if ( !v86.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 976, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  v6 = &g_entities[v4];
+  AIWrapper::AIWrapper(&v42, v6);
+  m_pAI = v42.m_pAI;
+  if ( !v42.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 976, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v16 = m_pAI->__vftable;
-  __asm
+  v8 = (_BYTE *)m_pAI->GetAI(m_pAI);
+  if ( !v8[330] )
   {
-    vmovaps [rsp+178h+var_38], xmm6
-    vmovaps [rsp+178h+var_48], xmm7
-    vmovaps [rsp+178h+var_58], xmm8
-    vmovaps [rsp+178h+var_88], xmm11
-    vmovaps [rsp+178h+var_98], xmm12
-    vmovaps [rsp+178h+var_A8], xmm13
-  }
-  v17 = (__int64)v16->GetAI(m_pAI);
-  if ( !*(_BYTE *)(v17 + 330) )
-  {
-    number = v14->s.number;
-    v19 = Ai_Asm::Singleton();
-    Instance = Ai_Asm::GetInstance(v19, NULL, number);
+    number = v6->s.number;
+    v10 = Ai_Asm::Singleton();
+    Instance = Ai_Asm::GetInstance(v10, NULL, number);
     if ( !Instance->m_pASM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 984, ASSERT_TYPE_ASSERT, "( pInst->m_pASM )", (const char *)&queryFormat, "pInst->m_pASM") )
       __debugbreak();
     m_pASM = Instance->m_pASM;
@@ -1848,120 +1814,73 @@ bool ASM_ShouldStrafeReverse(int entNum, const scr_string_t asmName, const scr_s
     }
     if ( Instance->m_CurState >= (unsigned int)m_pASM->m_NumStates )
     {
-      LODWORD(v82) = m_pASM->m_NumStates;
+      LODWORD(v38) = m_pASM->m_NumStates;
       LODWORD(outParamId) = Instance->m_CurState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 988, ASSERT_TYPE_ASSERT, "(unsigned)( pInst->m_CurState ) < (unsigned)( pInst->m_pASM->m_NumStates )", "pInst->m_CurState doesn't index pInst->m_pASM->m_NumStates\n\t%i not in [0, %i)", outParamId, v82) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 988, ASSERT_TYPE_ASSERT, "(unsigned)( pInst->m_CurState ) < (unsigned)( pInst->m_pASM->m_NumStates )", "pInst->m_CurState doesn't index pInst->m_pASM->m_NumStates\n\t%i not in [0, %i)", outParamId, v38) )
         __debugbreak();
     }
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
     frameDuration = level.frameDuration;
     sharp_turn = scr_const.sharp_turn;
-    v24 = Ai_Asm::Singleton();
-    if ( Common_Asm::EventFiredWithin(v24, Instance, sharp_turn, frameDuration) )
+    v15 = Ai_Asm::Singleton();
+    if ( Common_Asm::EventFiredWithin(v15, Instance, sharp_turn, frameDuration) )
     {
-      v25 = Ai_Asm::Singleton();
-      if ( Ai_Asm::GetEventData(v25, v14->s.number, Instance, scr_const.sharp_turn, &outVar, &intValue) )
+      v16 = Ai_Asm::Singleton();
+      if ( Ai_Asm::GetEventData(v16, v6->s.number, Instance, scr_const.sharp_turn, &outVar, &intValue) )
       {
-        v26 = ScriptContext_Server();
-        ArrayVariable = FindArrayVariable(v26, outVar, intValue);
+        v17 = ScriptContext_Server();
+        ArrayVariable = FindArrayVariable(v17, outVar, intValue);
         if ( ArrayVariable )
         {
-          Object = FindObject(v26, ArrayVariable);
-          v29 = FindArrayVariable(v26, Object, 1);
-          if ( v29 )
+          Object = FindObject(v17, ArrayVariable);
+          v20 = FindArrayVariable(v17, Object, 1);
+          if ( v20 )
           {
-            Scr_EvalVariable_Out(v26, v29, &out);
-            _R8 = out.u;
+            Scr_EvalVariable_Out(v17, v20, &out);
             if ( out.type == VAR_VECTOR )
             {
-              __asm
+              v22 = *out.u.vectorValue;
+              v23 = *(unsigned int *)(out.u.scriptCodePosValue + 4);
+              v24 = *(float *)(out.u.scriptCodePosValue + 8);
+              RemoveRefToValue(v17, 4, out.u);
+              v25 = v22 - *(float *)(*(_QWORD *)v8 + 304i64);
+              v28 = v23;
+              v26 = *(float *)&v23 - *(float *)(*(_QWORD *)v8 + 308i64);
+              v27 = v24 - *(float *)(*(_QWORD *)v8 + 312i64);
+              *(float *)&v28 = (float)((float)(v26 * v26) + (float)(v25 * v25)) + (float)(v27 * v27);
+              if ( *(float *)&v28 >= 2304.0 )
               {
-                vmovss  xmm8, dword ptr [r8]
-                vmovss  xmm7, dword ptr [r8+4]
-                vmovss  xmm6, dword ptr [r8+8]
-              }
-              RemoveRefToValue(v26, 4, out.u);
-              __asm
-              {
-                vsubss  xmm11, xmm8, dword ptr [rax]
-                vsubss  xmm12, xmm7, dword ptr [rax+4]
-                vsubss  xmm13, xmm6, dword ptr [rax+8]
-                vmulss  xmm1, xmm12, xmm12
-                vmulss  xmm0, xmm11, xmm11
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm13, xmm13
-                vaddss  xmm3, xmm2, xmm1
-                vcomiss xmm3, cs:__real@45100000
-              }
-              if ( *(_QWORD *)v17 < 0xFFFFFFFFFFFFFED0ui64 )
-              {
-                v49 = m_pAI->__vftable;
+                *(float *)&v28 = fsqrt(*(float *)&v28);
+                _XMM1 = v28;
                 __asm
                 {
-                  vsqrtss xmm1, xmm3, xmm3
                   vcmpless xmm0, xmm1, cs:__real@80000000
-                  vmovaps [rsp+178h+var_68], xmm9
-                  vmovss  xmm9, cs:__real@3f800000
                   vblendvps xmm0, xmm1, xmm9, xmm0
-                  vmovaps [rsp+178h+var_78], xmm10
-                  vdivss  xmm10, xmm9, xmm0
                 }
-                v49->GetVelocity(m_pAI, (vec3_t *)v87);
+                v32 = 1.0 / *(float *)&_XMM0;
+                m_pAI->GetVelocity(m_pAI, (vec3_t *)&v43);
+                v33 = LODWORD(v43);
+                *(float *)&v33 = fsqrt((float)((float)(*(float *)&v33 * *(float *)&v33) + (float)(v44 * v44)) + (float)(v45 * v45));
+                _XMM3 = v33;
                 __asm
                 {
-                  vmovss  xmm4, [rsp+178h+var_C4]
-                  vmovss  xmm7, [rsp+178h+var_C8]
-                  vmovss  xmm6, [rsp+178h+var_C0]
-                  vmulss  xmm0, xmm4, xmm4
-                  vmulss  xmm1, xmm7, xmm7
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm6, xmm6
-                  vaddss  xmm0, xmm2, xmm1
-                  vsqrtss xmm3, xmm0, xmm0
                   vcmpless xmm0, xmm3, cs:__real@80000000
                   vblendvps xmm0, xmm3, xmm9, xmm0
-                  vdivss  xmm5, xmm9, xmm0
-                  vmovaps xmm9, [rsp+178h+var_68]
-                  vmulss  xmm0, xmm4, xmm5
-                  vmulss  xmm1, xmm12, xmm10
-                  vmulss  xmm3, xmm1, xmm0
-                  vmulss  xmm2, xmm11, xmm10
-                  vmulss  xmm1, xmm7, xmm5
-                  vmulss  xmm0, xmm2, xmm1
-                  vaddss  xmm4, xmm3, xmm0
-                  vmulss  xmm1, xmm10, xmm13
-                  vmovaps xmm10, [rsp+178h+var_78]
-                  vmulss  xmm3, xmm6, xmm5
-                  vmulss  xmm0, xmm3, xmm1
-                  vaddss  xmm2, xmm4, xmm0
-                  vcomiss xmm2, cs:__real@bf000000
                 }
-                result = v80;
-                goto LABEL_26;
+                return (float)((float)((float)((float)(v26 * v32) * (float)(v44 * (float)(1.0 / *(float *)&_XMM0))) + (float)((float)(v25 * v32) * (float)(v43 * (float)(1.0 / *(float *)&_XMM0)))) + (float)((float)(v45 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v32 * v27))) < -0.5;
               }
             }
             else
             {
-              RemoveRefToValue(v26, (unsigned __int8)out.type, out.u);
+              RemoveRefToValue(v17, (unsigned __int8)out.type, out.u);
             }
           }
         }
       }
     }
   }
-  result = 0;
-LABEL_26:
-  __asm
-  {
-    vmovaps xmm13, [rsp+178h+var_A8]
-    vmovaps xmm12, [rsp+178h+var_98]
-    vmovaps xmm11, [rsp+178h+var_88]
-    vmovaps xmm8, [rsp+178h+var_58]
-    vmovaps xmm7, [rsp+178h+var_48]
-    vmovaps xmm6, [rsp+178h+var_38]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -2156,15 +2075,14 @@ char ASM_PlayAnim(int entNum, const scr_string_t asmName, const scr_string_t toS
   const Animset *v17; 
   const char *name; 
   const char *v19; 
-  int v21; 
-  Ai_Asm *v22; 
+  int v20; 
+  Ai_Asm *v21; 
   ASM_Instance *Instance; 
-  AIScriptedInterface *v24; 
-  int fmt; 
+  AIScriptedInterface *v23; 
   int entryIndex; 
   AnimsetState *outState; 
-  AIWrapper v29; 
-  AIWrapper v30; 
+  AIWrapper v27; 
+  AIWrapper v28; 
   Ai_Asm::ChooseAnimReturnMode m_ChooseAnimReturnMode; 
   int pOutStateIndex; 
 
@@ -2172,9 +2090,9 @@ char ASM_PlayAnim(int entNum, const scr_string_t asmName, const scr_string_t toS
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1176, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
   v7 = v4;
-  AIWrapper::AIWrapper(&v29, &g_entities[v4]);
-  m_pAI = v29.m_pAI;
-  if ( !v29.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1177, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v27, &g_entities[v4]);
+  m_pAI = v27.m_pAI;
+  if ( !v27.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1177, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   v9 = Ai_Asm::Singleton();
   m_ChooseAnimReturnMode = v9->m_ChooseAnimReturnMode;
@@ -2203,22 +2121,17 @@ char ASM_PlayAnim(int entNum, const scr_string_t asmName, const scr_string_t toS
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1187, ASSERT_TYPE_ASSERT, "( pState )", "unable to find state %s in animset %s", v19, name) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rsp+128h+fmt], xmm0
-  }
-  ((void (__fastcall *)(AIScriptedInterface *, const Animset *, _QWORD, _QWORD, int))m_pAI->SetAnim)(m_pAI, v17, (unsigned int)pOutStateIndex, v14, fmt);
-  v21 = pOutStateIndex;
-  v22 = Ai_Asm::Singleton();
-  Instance = Ai_Asm::GetInstance(v22, NULL, v4);
+  ((void (__fastcall *)(AIScriptedInterface *, const Animset *, _QWORD, _QWORD, _DWORD))m_pAI->SetAnim)(m_pAI, v17, (unsigned int)pOutStateIndex, v14, LODWORD(FLOAT_1_0));
+  v20 = pOutStateIndex;
+  v21 = Ai_Asm::Singleton();
+  Instance = Ai_Asm::GetInstance(v21, NULL, v4);
   if ( Instance->m_pASM->m_Name == asmName )
   {
-    AIWrapper::AIWrapper(&v30, &g_entities[v7]);
-    v24 = v30.m_pAI;
-    if ( !v30.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1170, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+    AIWrapper::AIWrapper(&v28, &g_entities[v7]);
+    v23 = v28.m_pAI;
+    if ( !v28.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1170, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
       __debugbreak();
-    AIScriptedInterface::SetFacialIndexFromASM(v24, Instance, v17, v21, v14);
+    AIScriptedInterface::SetFacialIndexFromASM(v23, Instance, v17, v20, v14);
   }
   return 1;
 }
@@ -3000,42 +2913,41 @@ char ASM_PlayAnim_ShootFire_Cleanup(int entNum, const scr_string_t asmName, cons
   const char *v18; 
   const char *v19; 
   XAnimTree *EntAnimTree; 
-  float fmt; 
   XAnimSubTreeID *pOutAnimSubtreeID; 
   XAnimCurveID *pOutAnimCurveID; 
-  XAnimSubTreeID v26[2]; 
+  XAnimSubTreeID v24[2]; 
   int pOutStateIndex; 
   unsigned int pOutAnimIndex; 
   unsigned int pOutGraftNode; 
   AnimsetState *outState; 
-  AIAgentInterface v31; 
-  AIAgentInterface *v32; 
-  AIWrapper v33; 
-  XAnimCurveID v34; 
+  AIAgentInterface v29; 
+  AIAgentInterface *v30; 
+  AIWrapper v31; 
+  XAnimCurveID v32; 
 
   v4 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1565, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
   v6 = &g_entities[v4];
-  AIWrapper::AIWrapper(&v33, v6);
-  m_pAI = v33.m_pAI;
-  if ( !v33.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1569, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v31, v6);
+  m_pAI = v31.m_pAI;
+  if ( !v31.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1569, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   AIScriptedInterface::Shoot_StopSound(m_pAI);
   AIScriptedInterface::ClearShootStyleAdditive(m_pAI);
-  AIAgentInterface::AIAgentInterface(&v31);
-  v31.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-  v32 = NULL;
+  AIAgentInterface::AIAgentInterface(&v29);
+  v29.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+  v30 = NULL;
   if ( SV_IsAgentScripted(v6) )
   {
     ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v6);
     if ( ScriptedAgentInfo )
     {
-      v32 = &v31;
-      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v31, ScriptedAgentInfo);
+      v30 = &v29;
+      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v29, ScriptedAgentInfo);
     }
   }
-  if ( !v32 )
+  if ( !v30 )
   {
     number = v6->s.number;
     v10 = Ai_Asm::Singleton();
@@ -3070,14 +2982,9 @@ char ASM_PlayAnim_ShootFire_Cleanup(int entNum, const scr_string_t asmName, cons
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1591, ASSERT_TYPE_ASSERT, "( pState )", "Unable to find state %s in animset %s", v19, v18) )
         __debugbreak();
     }
-    BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, v17, &pOutAnimIndex, &pOutGraftNode, v26, &v34);
+    BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, v17, &pOutAnimIndex, &pOutGraftNode, v24, &v32);
     EntAnimTree = GScr_GetEntAnimTree(v6);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e4ccccd
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm0
-    }
-    XAnimClearTreeGoalWeights(EntAnimTree, pOutGraftNode, v26[0], pOutAnimIndex, fmt, 0, NULL, LINEAR);
+    XAnimClearTreeGoalWeights(EntAnimTree, pOutGraftNode, v24[0], pOutAnimIndex, 0.2, 0, NULL, LINEAR);
   }
   return 1;
 }
@@ -3105,42 +3012,41 @@ char ASM_PlayAnim_ShootIdle_Cleanup(int entNum, const scr_string_t asmName, cons
   const char *v18; 
   const char *v19; 
   XAnimTree *EntAnimTree; 
-  float fmt; 
   XAnimSubTreeID *pOutAnimSubtreeID; 
   XAnimCurveID *pOutAnimCurveID; 
-  XAnimSubTreeID v26[2]; 
+  XAnimSubTreeID v24[2]; 
   int pOutStateIndex; 
   unsigned int pOutAnimIndex; 
   unsigned int pOutGraftNode; 
   AnimsetState *outState; 
-  AIAgentInterface v31; 
-  AIAgentInterface *v32; 
-  AIWrapper v33; 
-  XAnimCurveID v34; 
+  AIAgentInterface v29; 
+  AIAgentInterface *v30; 
+  AIWrapper v31; 
+  XAnimCurveID v32; 
 
   v4 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1607, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
   v6 = &g_entities[v4];
-  AIWrapper::AIWrapper(&v33, v6);
-  m_pAI = v33.m_pAI;
-  if ( !v33.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1611, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v31, v6);
+  m_pAI = v31.m_pAI;
+  if ( !v31.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1611, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   AIScriptedInterface::Shoot_StopSound(m_pAI);
   AIScriptedInterface::ClearShootStyleAdditive(m_pAI);
-  AIAgentInterface::AIAgentInterface(&v31);
-  v31.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-  v32 = NULL;
+  AIAgentInterface::AIAgentInterface(&v29);
+  v29.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+  v30 = NULL;
   if ( SV_IsAgentScripted(v6) )
   {
     ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v6);
     if ( ScriptedAgentInfo )
     {
-      v32 = &v31;
-      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v31, ScriptedAgentInfo);
+      v30 = &v29;
+      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v29, ScriptedAgentInfo);
     }
   }
-  if ( !v32 )
+  if ( !v30 )
   {
     number = v6->s.number;
     v10 = Ai_Asm::Singleton();
@@ -3175,14 +3081,9 @@ char ASM_PlayAnim_ShootIdle_Cleanup(int entNum, const scr_string_t asmName, cons
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1633, ASSERT_TYPE_ASSERT, "( pState )", "Unable to find state %s in animset %s", v19, v18) )
         __debugbreak();
     }
-    BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, v17, &pOutAnimIndex, &pOutGraftNode, v26, &v34);
+    BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, v17, &pOutAnimIndex, &pOutGraftNode, v24, &v32);
     EntAnimTree = GScr_GetEntAnimTree(v6);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e4ccccd
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm0
-    }
-    XAnimClearTreeGoalWeights(EntAnimTree, pOutGraftNode, v26[0], pOutAnimIndex, fmt, 0, NULL, LINEAR);
+    XAnimClearTreeGoalWeights(EntAnimTree, pOutGraftNode, v24[0], pOutAnimIndex, 0.2, 0, NULL, LINEAR);
   }
   return 1;
 }
@@ -3251,30 +3152,22 @@ ASM_HasTraversalWithin
 */
 __int64 ASM_HasTraversalWithin(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams, ASM_Function_Param *pParams, void *pOutValue)
 {
-  const gentity_s *v9; 
+  const gentity_s *v7; 
   AINavigator *Navigator; 
-  __int64 v15; 
+  __int64 v10; 
 
-  _RBX = pParams;
-  v9 = &g_entities[entNum];
+  v7 = &g_entities[entNum];
   if ( !pParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 357, ASSERT_TYPE_ASSERT, "(pParams)", (const char *)&queryFormat, "pParams") )
     __debugbreak();
   if ( !numParams )
   {
-    LODWORD(v15) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 358, ASSERT_TYPE_ASSERT, "(unsigned)( iParam ) < (unsigned)( numParams )", "iParam doesn't index numParams\n\t%i not in [0, %i)", v15, 0) )
+    LODWORD(v10) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 358, ASSERT_TYPE_ASSERT, "(unsigned)( iParam ) < (unsigned)( numParams )", "iParam doesn't index numParams\n\t%i not in [0, %i)", v10, 0) )
       __debugbreak();
   }
   if ( (unsigned int)(pParams->m_Type - 3) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 359, ASSERT_TYPE_ASSERT, "(pParams[ iParam ].m_Type == ParamType_Int || pParams[ iParam ].m_Type == ParamType_Float)", (const char *)&queryFormat, "pParams[ iParam ].m_Type == ParamType_Int || pParams[ iParam ].m_Type == ParamType_Float") )
     __debugbreak();
-  if ( pParams->m_Type != ParamType_Int )
-    __asm { vcvttss2si ebx, dword ptr [rbx] }
-  Navigator = Nav_GetNavigator(v9);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ebx
-  }
+  Navigator = Nav_GetNavigator(v7);
   return ((__int64 (__fastcall *)(AINavigator *))Navigator->HasTraversalWithin)(Navigator);
 }
 
@@ -3653,18 +3546,16 @@ bool ASM_HasShuffleNodeOfType(int entNum, const scr_string_t asmName, const scr_
   __int64 v7; 
   pathnode_t *v8; 
   pathnode_t *v9; 
-  char v21; 
-  char v22; 
   scr_string_t StringParam; 
-  const char *v24; 
+  const char *v11; 
   unsigned __int16 type; 
-  AIWrapper v27; 
-  vec3_t v28; 
+  AIWrapper v14; 
+  vec3_t v15; 
   vec3_t pos; 
 
-  AIWrapper::AIWrapper(&v27, &g_entities[entNum]);
-  m_pAI = v27.m_pAI;
-  if ( !v27.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1972, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v14, &g_entities[entNum]);
+  m_pAI = v14.m_pAI;
+  if ( !v14.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1972, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   v7 = m_pAI->GetAI(m_pAI);
   if ( numParams <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1975, ASSERT_TYPE_ASSERT, "( numParams > 0 )", "HasShuffleNodeOfType missing arg - must be provided with type.") )
@@ -3678,30 +3569,15 @@ bool ASM_HasShuffleNodeOfType(int entNum, const scr_string_t asmName, const scr_
   if ( v8 != v9 )
     return 0;
   pathnode_t::GetPos(v8, &pos);
-  pathnode_t::GetPos(v9, &v28);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+var_48]
-    vsubss  xmm3, xmm0, dword ptr [rsp+0C8h+pos]
-    vmovss  xmm1, dword ptr [rsp+0C8h+var_48+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+0C8h+pos+4]
-    vmovss  xmm0, dword ptr [rsp+0C8h+var_48+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0C8h+pos+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, cs:__real@40800000
-  }
-  if ( !(v21 | v22) )
+  pathnode_t::GetPos(v9, &v15);
+  if ( (float)((float)((float)((float)(v15.v[1] - pos.v[1]) * (float)(v15.v[1] - pos.v[1])) + (float)((float)(v15.v[0] - pos.v[0]) * (float)(v15.v[0] - pos.v[0]))) + (float)((float)(v15.v[2] - pos.v[2]) * (float)(v15.v[2] - pos.v[2]))) > 4.0 )
     return 0;
   StringParam = ASM_Builtin_GetStringParam(0, pParams, numParams);
-  v24 = SL_ConvertToString(StringParam);
+  v11 = SL_ConvertToString(StringParam);
   type = v8->constant.type;
   if ( type == 31 )
     type = v8->dynamic.coverMultiType;
-  return I_stricmp(v24, nodeStringTable[type]) == 0;
+  return I_stricmp(v11, nodeStringTable[type]) == 0;
 }
 
 /*
@@ -3744,43 +3620,30 @@ ASM_StairsWithinDistance
 */
 __int64 ASM_StairsWithinDistance(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams, ASM_Function_Param *pParams)
 {
-  __int64 v6; 
+  __int64 v5; 
   AIScriptedInterface *m_pAI; 
-  __int64 v14; 
-  __int64 v15; 
-  AIWrapper v16; 
+  __int64 v9; 
+  __int64 v10; 
+  AIWrapper v11; 
 
-  v6 = entNum;
+  v5 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 171, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  AIWrapper::AIWrapper(&v16, &g_entities[v6]);
-  m_pAI = v16.m_pAI;
-  if ( !v16.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 174, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v11, &g_entities[v5]);
+  m_pAI = v11.m_pAI;
+  if ( !v11.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 174, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  _RBX = pParams;
   if ( !pParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 368, ASSERT_TYPE_ASSERT, "(pParams)", (const char *)&queryFormat, "pParams") )
     __debugbreak();
   if ( !numParams )
   {
-    LODWORD(v15) = 0;
-    LODWORD(v14) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 369, ASSERT_TYPE_ASSERT, "(unsigned)( iParam ) < (unsigned)( numParams )", "iParam doesn't index numParams\n\t%i not in [0, %i)", v14, v15) )
+    LODWORD(v10) = 0;
+    LODWORD(v9) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 369, ASSERT_TYPE_ASSERT, "(unsigned)( iParam ) < (unsigned)( numParams )", "iParam doesn't index numParams\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
   if ( (unsigned int)(pParams->m_Type - 3) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.h", 370, ASSERT_TYPE_ASSERT, "(pParams[ iParam ].m_Type == ParamType_Int || pParams[ iParam ].m_Type == ParamType_Float)", (const char *)&queryFormat, "pParams[ iParam ].m_Type == ParamType_Int || pParams[ iParam ].m_Type == ParamType_Float") )
     __debugbreak();
-  if ( pParams->m_Type == ParamType_Int )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rbx]
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm1, dword ptr [rbx] }
-  }
   return ((__int64 (__fastcall *)(AIScriptedInterface *))m_pAI->GetStairsWithinDist)(m_pAI);
 }
 
@@ -3859,46 +3722,30 @@ ASM_ShouldReloadWhileMoving
 */
 bool ASM_ShouldReloadWhileMoving(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
+  __int128 v4; 
   AIScriptedInterface *m_pAI; 
-  __int64 v8; 
-  __int64 v9; 
-  bool result; 
-  AIWrapper v19; 
+  __int64 v6; 
+  __int64 v7; 
+  AIWrapper v13; 
 
-  AIWrapper::AIWrapper(&v19, &g_entities[entNum]);
-  m_pAI = v19.m_pAI;
-  if ( !v19.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 2193, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v13, &g_entities[entNum]);
+  m_pAI = v13.m_pAI;
+  if ( !v13.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 2193, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v8 = m_pAI->GetAI(m_pAI);
-  v9 = v8;
-  if ( !*(_BYTE *)(v8 + 569) || !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(v8 + 3464), scr_const.fast) || !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(v9 + 3464), scr_const.jog) )
+  v6 = m_pAI->GetAI(m_pAI);
+  v7 = v6;
+  if ( !*(_BYTE *)(v6 + 569) || !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(v6 + 3464), scr_const.fast) || !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(v7 + 3464), scr_const.jog) )
     return 0;
+  *(double *)&v4 = AIScriptedInterface::GetDefaultSpeed(m_pAI);
+  _XMM7 = LODWORD(FLOAT_600_0);
+  _XMM6 = v4;
+  GetAnimSpeedBetweenThresholdEntries(*(scr_string_t *)(v7 + 3464), scr_const.fast, scr_const.jog, 0.1);
   __asm
   {
-    vmovaps [rsp+0A8h+var_18], xmm6
-    vmovaps [rsp+0A8h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = AIScriptedInterface::GetDefaultSpeed(m_pAI);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3dcccccd; fractionValue
-    vmovss  xmm7, cs:__real@44160000
-    vmovaps xmm6, xmm0
-  }
-  GetAnimSpeedBetweenThresholdEntries(*(scr_string_t *)(v9 + 3464), scr_const.fast, scr_const.jog, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43fa0000
     vcmpltss xmm2, xmm6, xmm0
     vblendvps xmm1, xmm7, xmm1, xmm2
   }
-  result = (*(__int64 (__fastcall **)(_QWORD))(**(_QWORD **)(v9 + 392) + 216i64))(*(_QWORD *)(v9 + 392));
-  __asm
-  {
-    vmovaps xmm7, [rsp+0A8h+var_28]
-    vmovaps xmm6, [rsp+0A8h+var_18]
-  }
-  return result;
+  return (*(__int64 (__fastcall **)(_QWORD))(**(_QWORD **)(v7 + 392) + 216i64))(*(_QWORD *)(v7 + 392));
 }
 
 /*
@@ -3908,53 +3755,27 @@ ASM_ShouldPainExposedFromCover
 */
 bool ASM_ShouldPainExposedFromCover(int entNum, const scr_string_t asmName, const scr_string_t toStateName, int numParams)
 {
+  gentity_s *v4; 
   AIScriptedInterface *m_pAI; 
   __int64 v6; 
   const pathnode_t *CoverNode; 
   __int64 v8; 
-  char v20; 
   gentity_s *TargetEntity; 
-  EntHandle *v22; 
-  gentity_s *v23; 
-  AIWrapper v25; 
+  EntHandle *v10; 
+  gentity_s *v11; 
+  bool result; 
+  AIWrapper v13; 
   vec3_t pos; 
 
-  _RSI = &g_entities[entNum];
-  AIWrapper::AIWrapper(&v25, _RSI);
-  m_pAI = v25.m_pAI;
-  if ( !v25.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 2216, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  v4 = &g_entities[entNum];
+  AIWrapper::AIWrapper(&v13, v4);
+  m_pAI = v13.m_pAI;
+  if ( !v13.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 2216, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   v6 = m_pAI->GetAI(m_pAI);
   CoverNode = AIScriptedInterface::GetCoverNode(m_pAI);
-  if ( !CoverNode )
-  {
-    v8 = *(_QWORD *)(v6 + 8);
-    CoverNode = *(const pathnode_t **)(v8 + 112);
-    if ( !CoverNode )
-      return 0;
-    pathnode_t::GetPos(*(pathnode_t **)(v8 + 112), &pos);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+130h]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0B8h+pos]
-      vmovss  xmm1, dword ptr [rsi+134h]
-      vsubss  xmm2, xmm1, dword ptr [rsp+0B8h+pos+4]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0B8h+pos+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@41c80000
-    }
-    if ( !v20 )
-      return 0;
-  }
-  TargetEntity = AICommonInterface::GetTargetEntity(m_pAI);
-  v22 = *(EntHandle **)(v6 + 8);
-  v23 = TargetEntity;
-  return EntHandle::isDefined(v22 + 16) && EntHandle::ent(v22 + 16) == v23 && !AIScriptedInterface::Cover_IsValidAgainstEnemy(m_pAI, CoverNode, 1);
+  result = (CoverNode || (v8 = *(_QWORD *)(v6 + 8), (CoverNode = *(const pathnode_t **)(v8 + 112)) != NULL) && (pathnode_t::GetPos(*(pathnode_t **)(v8 + 112), &pos), (float)((float)((float)((float)(v4->r.currentOrigin.v[1] - pos.v[1]) * (float)(v4->r.currentOrigin.v[1] - pos.v[1])) + (float)((float)(v4->r.currentOrigin.v[0] - pos.v[0]) * (float)(v4->r.currentOrigin.v[0] - pos.v[0]))) + (float)((float)(v4->r.currentOrigin.v[2] - pos.v[2]) * (float)(v4->r.currentOrigin.v[2] - pos.v[2]))) < 25.0)) && (TargetEntity = AICommonInterface::GetTargetEntity(m_pAI), v10 = *(EntHandle **)(v6 + 8), v11 = TargetEntity, EntHandle::isDefined(v10 + 16)) && EntHandle::ent(v10 + 16) == v11 && !AIScriptedInterface::Cover_IsValidAgainstEnemy(m_pAI, CoverNode, 1);
+  return result;
 }
 
 /*
@@ -4200,144 +4021,121 @@ ChooseNumShotsPerBurst
 */
 unsigned __int8 ChooseNumShotsPerBurst(AIScriptedInterface *pAI)
 {
-  const Weapon *v3; 
-  weapFireType_t WeaponFireType; 
-  int v17; 
-  bool v18; 
+  const Weapon *v2; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  int v8; 
   int WeaponBurstCount; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  char v25; 
-  char v26; 
-  unsigned __int16 v28; 
-  __int16 v29; 
-  int v30; 
-  unsigned int v34; 
-  scrContext_t *v35; 
+  int v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  int v15; 
+  unsigned __int16 v16; 
+  __int16 v17; 
+  int v18; 
+  double v19; 
+  unsigned int v20; 
+  scrContext_t *v21; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  v3 = pAI->GetEquippedWeapon(pAI);
-  _RSI = pAI->GetAI(pAI);
-  if ( !*(_BYTE *)(_RSI + 525) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 604, ASSERT_TYPE_ASSERT, "(pScripted->blackboard.m_ShootParams.m_bPosValid)", (const char *)&queryFormat, "pScripted->blackboard.m_ShootParams.m_bPosValid") )
+  v2 = pAI->GetEquippedWeapon(pAI);
+  v3 = pAI->GetAI(pAI);
+  if ( !*(_BYTE *)(v3 + 525) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 604, ASSERT_TYPE_ASSERT, "(pScripted->blackboard.m_ShootParams.m_bPosValid)", (const char *)&queryFormat, "pScripted->blackboard.m_ShootParams.m_bPosValid") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+1F0h]
-    vmovss  xmm1, dword ptr [rsi+1F4h]
-    vsubss  xmm3, xmm0, dword ptr [rax+130h]
-    vsubss  xmm2, xmm1, dword ptr [rax+134h]
-    vmovss  xmm0, dword ptr [rsi+1F8h]
-    vsubss  xmm4, xmm0, dword ptr [rax+138h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm6, xmm3, xmm0
-  }
-  switch ( *(_BYTE *)(_RSI + 521) )
+  v4 = *(float *)(v3 + 496) - *(float *)(*(_QWORD *)v3 + 304i64);
+  v5 = *(float *)(v3 + 500) - *(float *)(*(_QWORD *)v3 + 308i64);
+  v6 = *(float *)(v3 + 504) - *(float *)(*(_QWORD *)v3 + 312i64);
+  v7 = (float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v6 * v6);
+  switch ( *(_BYTE *)(v3 + 521) )
   {
     case 0:
       goto $LN9_9;
     case 1:
     case 2:
-      WeaponFireType = BG_GetWeaponFireType(v3, 0);
-      v17 = 5;
-      v18 = (unsigned int)WeaponFireType <= WEAPON_FIRETYPE_BURST;
-      if ( WeaponFireType == WEAPON_FIRETYPE_BURST )
+      v8 = 5;
+      if ( BG_GetWeaponFireType(v2, 0) == WEAPON_FIRETYPE_BURST )
       {
-        WeaponBurstCount = BG_GetWeaponBurstCount(v3, 0);
+        WeaponBurstCount = BG_GetWeaponBurstCount(v2, 0);
       }
       else
       {
-        __asm { vcomiss xmm6, cs:__real@4a1c4000 }
-        v20 = 5;
-        if ( (unsigned int)WeaponFireType > WEAPON_FIRETYPE_BURST )
-          v20 = 4;
-        __asm { vcomiss xmm6, cs:__real@49bebc20 }
-        v21 = v20 - 1;
-        if ( v18 )
-          v21 = v20;
-        __asm { vcomiss xmm6, cs:__real@4945c100 }
-        v22 = v21 - 1;
-        if ( v18 )
-          v22 = v21;
-        __asm { vcomiss xmm6, cs:__real@47742400 }
-        v23 = G_irand(-2, 3);
-        v24 = v22 - 1;
-        if ( v25 | v26 )
-          v24 = v22;
-        WeaponBurstCount = v24 + v23;
+        v10 = 5;
+        if ( v7 > 2560000.0 )
+          v10 = 4;
+        v11 = v10 - 1;
+        if ( v7 <= 1562500.0 )
+          v11 = v10;
+        v12 = v11 - 1;
+        if ( v7 <= 810000.0 )
+          v12 = v11;
+        v13 = G_irand(-2, 3);
+        v14 = v12 - 1;
+        if ( v7 <= 62500.0 )
+          v14 = v12;
+        WeaponBurstCount = v14 + v13;
       }
-      if ( BG_GetWeaponClass(v3, 0) == WEAPCLASS_PISTOL )
+      if ( BG_GetWeaponClass(v2, 0) == WEAPCLASS_PISTOL )
       {
         if ( WeaponBurstCount < 5 )
-          v17 = WeaponBurstCount;
-        WeaponBurstCount = v17;
+          v8 = WeaponBurstCount;
+        WeaponBurstCount = v8;
       }
       if ( WeaponBurstCount >= 1 )
       {
-        v28 = *(_WORD *)(_RSI + 1168);
-        if ( v28 && WeaponBurstCount > v28 )
-          LOBYTE(WeaponBurstCount) = *(_WORD *)(_RSI + 1168);
-        LOBYTE(_EAX) = WeaponBurstCount;
+        v16 = *(_WORD *)(v3 + 1168);
+        if ( v16 && WeaponBurstCount > v16 )
+          LOBYTE(WeaponBurstCount) = *(_WORD *)(v3 + 1168);
+        LOBYTE(v15) = WeaponBurstCount;
       }
       else
       {
-        LOBYTE(_EAX) = 1;
+        LOBYTE(v15) = 1;
       }
-      goto LABEL_40;
+      return v15;
     case 4:
-      v29 = *(_WORD *)(_RSI + 1168);
-      if ( !v29 )
-        LOBYTE(v29) = 1;
-      if ( BG_GetWeaponClass(v3, 0) != WEAPCLASS_MG )
+      v17 = *(_WORD *)(v3 + 1168);
+      if ( !v17 )
+        LOBYTE(v17) = 1;
+      if ( BG_GetWeaponClass(v2, 0) != WEAPCLASS_MG )
         goto LABEL_34;
-      v30 = G_irand(0, 10);
-      if ( v30 >= 3 )
+      v18 = G_irand(0, 10);
+      if ( v18 >= 3 )
       {
-        if ( v30 >= 8 )
+        if ( v18 >= 8 )
         {
-          LOBYTE(v29) = G_irand(12, 20);
+          LOBYTE(v17) = G_irand(12, 20);
 LABEL_34:
-          LOBYTE(_EAX) = v29;
+          LOBYTE(v15) = v17;
         }
         else
         {
-          LOBYTE(_EAX) = G_irand(6, 12);
+          LOBYTE(v15) = G_irand(6, 12);
         }
       }
       else
       {
-        LOBYTE(_EAX) = G_irand(2, 6);
+        LOBYTE(v15) = G_irand(2, 6);
       }
-LABEL_40:
-      __asm { vmovaps xmm6, [rsp+58h+var_28] }
-      return _EAX;
+      return v15;
     case 5:
-      *(double *)&_XMM0 = G_random();
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3fc00000
-        vaddss  xmm2, xmm1, cs:__real@3f000000
-        vmulss  xmm3, xmm2, cs:__real@41200000
-        vcvttss2si eax, xmm3
-      }
-      goto LABEL_40;
+      v19 = G_random();
+      return (int)(float)((float)((float)(*(float *)&v19 * 1.5) + 0.5) * 10.0);
     case 6:
-      v34 = *(unsigned __int8 *)(_RSI + 522);
-      LOBYTE(_EAX) = G_irand(1, 3);
-      if ( (unsigned __int8)_EAX == v34 )
-        LOBYTE(_EAX) = v34 % 3 + 1;
-      goto LABEL_40;
+      v20 = *(unsigned __int8 *)(v3 + 522);
+      LOBYTE(v15) = G_irand(1, 3);
+      if ( (unsigned __int8)v15 == v20 )
+        LOBYTE(v15) = v20 % 3 + 1;
+      return v15;
     default:
-      v35 = ScriptContext_Server();
-      Scr_Error(COM_ERR_2446, v35, "Unknown shoot style");
+      v21 = ScriptContext_Server();
+      Scr_Error(COM_ERR_2446, v21, "Unknown shoot style");
 $LN9_9:
-      LOBYTE(_EAX) = 1;
-      goto LABEL_40;
+      LOBYTE(v15) = 1;
+      return v15;
   }
 }
 
@@ -4348,211 +4146,195 @@ ChooseShootStyle
 */
 void ChooseShootStyle(AIScriptedInterface *pAI)
 {
-  char v6; 
-  AIScriptedInterface_vtbl *v7; 
-  __int64 v8; 
-  const Weapon *v9; 
+  __int64 v2; 
+  char v3; 
+  AIScriptedInterface_vtbl *v4; 
+  __int64 v5; 
+  const Weapon *v6; 
   weapClass_t WeaponClass; 
   weapFireType_t WeaponFireType; 
   bool IsUsingTurret; 
-  EntHandle *v13; 
-  const gentity_s *v14; 
-  AIScriptedInterface *v15; 
-  __int64 v16; 
+  EntHandle *v10; 
+  const gentity_s *v11; 
+  AIScriptedInterface *v12; 
+  __int64 v13; 
+  float v14; 
+  EntHandle *v15; 
+  char v16; 
+  const gentity_s *v17; 
+  int v18; 
+  double v19; 
+  __int64 v20; 
+  char v21; 
+  int v22; 
+  bool v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  EntHandle *v28; 
+  char v29; 
+  __int64 v30; 
+  __int64 v31; 
   __int64 v32; 
-  int v41; 
-  bool v42; 
-  __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  bool v46; 
-  int WeaponBurstCount; 
-  __int64 v48; 
-  EntHandle *v49; 
-  char v50; 
-  const gentity_s *v51; 
-  char v52; 
-  __int64 v54; 
-  bool v56; 
-  char v57; 
-  __int64 v58; 
-  __int64 v59; 
-  AIWrapper v60; 
+  AIWrapper v33; 
   vec3_t outEyePos; 
 
-  _RBX = pAI->GetAI(pAI);
-  v6 = *(_BYTE *)(_RBX + 1644);
-  v7 = pAI->__vftable;
-  if ( v6 != 7 )
+  v2 = pAI->GetAI(pAI);
+  v3 = *(_BYTE *)(v2 + 1644);
+  v4 = pAI->__vftable;
+  if ( v3 != 7 )
   {
-    v8 = (__int64)v7->GetAI(pAI);
-    *(_BYTE *)(v8 + 521) = v6;
-    *(_BYTE *)(v8 + 526) = 0;
+    v5 = (__int64)v4->GetAI(pAI);
+    *(_BYTE *)(v5 + 521) = v3;
+    *(_BYTE *)(v5 + 526) = 0;
     return;
   }
-  v9 = v7->GetEquippedWeapon(pAI);
-  WeaponClass = BG_GetWeaponClass(v9, 0);
-  WeaponFireType = BG_GetWeaponFireType(v9, 0);
+  v6 = v4->GetEquippedWeapon(pAI);
+  WeaponClass = BG_GetWeaponClass(v6, 0);
+  WeaponFireType = BG_GetWeaponFireType(v6, 0);
   IsUsingTurret = AICommonInterface::IsUsingTurret(pAI);
-  if ( WeaponClass != WEAPCLASS_MG && !IsUsingTurret )
+  if ( WeaponClass == WEAPCLASS_MG || IsUsingTurret )
   {
-    v13 = (EntHandle *)(_RBX + 508);
-    if ( EntHandle::isDefined((EntHandle *)(_RBX + 508)) )
+    v32 = pAI->GetAI(pAI);
+    *(_BYTE *)(v32 + 521) = 5;
+    *(_BYTE *)(v32 + 526) = 0;
+  }
+  else
+  {
+    v10 = (EntHandle *)(v2 + 508);
+    if ( EntHandle::isDefined((EntHandle *)(v2 + 508)) )
     {
-      v14 = EntHandle::ent((EntHandle *)(_RBX + 508));
-      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 456, ASSERT_TYPE_ASSERT, "(pTargetEnt)", (const char *)&queryFormat, "pTargetEnt") )
+      v11 = EntHandle::ent((EntHandle *)(v2 + 508));
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 456, ASSERT_TYPE_ASSERT, "(pTargetEnt)", (const char *)&queryFormat, "pTargetEnt") )
         __debugbreak();
-      AIWrapper::AIWrapper(&v60, v14);
-      if ( v60.m_pAI )
+      AIWrapper::AIWrapper(&v33, v11);
+      if ( v33.m_pAI )
       {
-        if ( *(_BYTE *)((__int64)v60.m_pAI->GetAI(v60.m_pAI) + 567) )
+        if ( *(_BYTE *)((__int64)v33.m_pAI->GetAI(v33.m_pAI) + 567) )
         {
-          v15 = pAI;
+          v12 = pAI;
 LABEL_14:
-          v16 = pAI->GetAI(v15);
-          *(_BYTE *)(v16 + 521) = 0;
-          *(_BYTE *)(v16 + 526) = 0;
+          v13 = pAI->GetAI(v12);
+          *(_BYTE *)(v13 + 521) = 0;
+          *(_BYTE *)(v13 + 526) = 0;
           return;
         }
       }
     }
-    v15 = pAI;
+    v12 = pAI;
     if ( WeaponClass == WEAPCLASS_SNIPER || WeaponClass == WEAPCLASS_ROCKETLAUNCHER )
       goto LABEL_14;
-    __asm { vmovaps [rsp+0F8h+var_58], xmm8 }
     AIScriptedInterface::GetApproxEyePos(pAI, &outEyePos, 1);
-    if ( !*(_BYTE *)(_RBX + 525) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 487, ASSERT_TYPE_ASSERT, "(pScripted->blackboard.m_ShootParams.m_bPosValid)", (const char *)&queryFormat, "pScripted->blackboard.m_ShootParams.m_bPosValid") )
+    if ( !*(_BYTE *)(v2 + 525) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 487, ASSERT_TYPE_ASSERT, "(pScripted->blackboard.m_ShootParams.m_bPosValid)", (const char *)&queryFormat, "pScripted->blackboard.m_ShootParams.m_bPosValid") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1F0h]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0F8h+outEyePos]
-      vmovss  xmm1, dword ptr [rbx+1F4h]
-      vmovss  xmm0, dword ptr [rbx+1F8h]
-      vsubss  xmm2, xmm1, dword ptr [rsp+0F8h+outEyePos+4]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0F8h+outEyePos+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm8, xmm3, xmm0
-    }
+    v14 = (float)((float)((float)(*(float *)(v2 + 500) - outEyePos.v[1]) * (float)(*(float *)(v2 + 500) - outEyePos.v[1])) + (float)((float)(*(float *)(v2 + 496) - outEyePos.v[0]) * (float)(*(float *)(v2 + 496) - outEyePos.v[0]))) + (float)((float)(*(float *)(v2 + 504) - outEyePos.v[2]) * (float)(*(float *)(v2 + 504) - outEyePos.v[2]));
     switch ( WeaponClass )
     {
       case WEAPCLASS_PISTOL:
-        __asm
+        if ( v14 < 62500.0 )
         {
-          vmovss  xmm0, cs:__real@47742400
-          vcomiss xmm8, xmm0
-          vsubss  xmm0, xmm8, xmm0
-          vmovaps [rsp+0F8h+var_38], xmm6
-          vmulss  xmm6, xmm0, cs:__real@35b38e35
-          vmovaps [rsp+0F8h+var_48], xmm7
+          v15 = (EntHandle *)(v2 + 508);
+          v16 = 2;
+          if ( EntHandle::isDefined(v15) )
+          {
+            v17 = EntHandle::ent(v10);
+            if ( !v17 )
+            {
+              v18 = 502;
+              goto LABEL_44;
+            }
+            goto LABEL_46;
+          }
+          goto LABEL_60;
         }
-        *(double *)&_XMM0 = G_random();
-        __asm { vmovaps xmm7, xmm0 }
-        v32 = pAI->GetAI(pAI);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmulss  xmm2, xmm6, cs:__real@3e4ccccd
-          vsubss  xmm1, xmm0, xmm6
-          vmulss  xmm3, xmm1, cs:__real@3f000000
-          vmovaps xmm6, [rsp+0F8h+var_38]
-          vaddss  xmm0, xmm3, xmm2
-          vcomiss xmm0, xmm7
-          vmovaps xmm7, [rsp+0F8h+var_48]
-          vcomiss xmm8, cs:__real@4945c100
-        }
-        *(_BYTE *)(v32 + 521) = 0;
-        *(_BYTE *)(v32 + 526) = 1;
+        v19 = G_random();
+        v20 = pAI->GetAI(pAI);
+        v21 = 0;
+        if ( (float)((float)((float)(1.0 - (float)((float)(v14 - 62500.0) * 0.0000013377927)) * 0.5) + (float)((float)((float)(v14 - 62500.0) * 0.0000013377927) * 0.2)) > *(float *)&v19 )
+          v21 = 2;
+        *(_BYTE *)(v20 + 521) = v21;
+        *(_BYTE *)(v20 + 526) = v14 >= 810000.0;
         break;
       case WEAPCLASS_SPREAD:
-        if ( BG_IsBoltAction(v9, 0) )
+        if ( BG_IsBoltAction(v6, 0) )
         {
-          v41 = *(_DWORD *)(_RBX + 488);
-          v42 = (v41 == scr_const.exposed || v41 == scr_const.none) && *(_DWORD *)(_RBX + 492) != scr_const.lean;
-          v43 = pAI->GetAI(pAI);
-          *(_BYTE *)(v43 + 521) = v42 ? 6 : 0;
-          *(_BYTE *)(v43 + 526) = 0;
+          v22 = *(_DWORD *)(v2 + 488);
+          v23 = (v22 == scr_const.exposed || v22 == scr_const.none) && *(_DWORD *)(v2 + 492) != scr_const.lean;
+          v24 = pAI->GetAI(pAI);
+          *(_BYTE *)(v24 + 521) = v23 ? 6 : 0;
+          *(_BYTE *)(v24 + 526) = 0;
         }
         else
         {
-          v44 = pAI->GetAI(pAI);
-          *(_BYTE *)(v44 + 521) = 2;
-          *(_BYTE *)(v44 + 526) = 0;
+          v25 = pAI->GetAI(pAI);
+          *(_BYTE *)(v25 + 521) = 2;
+          *(_BYTE *)(v25 + 526) = 0;
         }
         break;
       case WEAPCLASS_GRENADE:
-        v45 = pAI->GetAI(pAI);
-        *(_BYTE *)(v45 + 521) = 0;
-        *(_BYTE *)(v45 + 526) = 0;
-        break;
+        v26 = pAI->GetAI(pAI);
+        *(_BYTE *)(v26 + 521) = 0;
+        *(_BYTE *)(v26 + 526) = 0;
+        return;
       default:
-        v46 = (unsigned int)WeaponFireType < WEAPON_FIRETYPE_BURST;
-        if ( WeaponFireType == WEAPON_FIRETYPE_BURST && (WeaponBurstCount = BG_GetWeaponBurstCount(v9, 0), v46 = 0, WeaponBurstCount > 0) )
+        if ( WeaponFireType == WEAPON_FIRETYPE_BURST && BG_GetWeaponBurstCount(v6, 0) > 0 )
         {
-          v48 = pAI->GetAI(pAI);
-          *(_BYTE *)(v48 + 521) = 1;
-          *(_BYTE *)(v48 + 526) = 0;
+          v27 = pAI->GetAI(pAI);
+          *(_BYTE *)(v27 + 521) = 1;
+          *(_BYTE *)(v27 + 526) = 0;
+          return;
         }
-        else
+        if ( v14 < 62500.0 )
         {
-          __asm { vcomiss xmm8, cs:__real@47742400 }
-          if ( v46 )
+          v28 = (EntHandle *)(v2 + 508);
+          v16 = 4;
+          if ( EntHandle::isDefined(v28) )
           {
-            v49 = (EntHandle *)(_RBX + 508);
-            v50 = 4;
-            if ( EntHandle::isDefined(v49) )
+            v17 = EntHandle::ent(v10);
+            if ( !v17 )
             {
-              v51 = EntHandle::ent(v13);
-              if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 558, ASSERT_TYPE_ASSERT, "(pTarget)", (const char *)&queryFormat, "pTarget") )
+              v18 = 558;
+LABEL_44:
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", v18, ASSERT_TYPE_ASSERT, "(pTarget)", (const char *)&queryFormat, "pTarget") )
                 __debugbreak();
-              AIWrapper::AIWrapper(&v60, v51);
-              if ( v60.m_pAI && *(_BYTE *)((__int64)v60.m_pAI->GetAI(v60.m_pAI) + 1645) )
-                v50 = 0;
             }
-          }
-          else
-          {
-            __asm { vcomiss xmm8, cs:__real@4945c100 }
-            if ( v46 )
+LABEL_46:
+            AIWrapper::AIWrapper(&v33, v17);
+            if ( v33.m_pAI )
             {
-              v52 = 1;
-              if ( BG_GetWeaponType(v9, 0) == WEAPTYPE_BULLET && ((WeaponFireType - 1) & 0xFFFFFFFC) == 0 )
-              {
-                v52 = 1;
-                if ( WeaponFireType != WEAPON_FIRETYPE_BURST )
-                  v52 = 2;
-              }
-              __asm { vmovaps xmm0, xmm8; distSq }
-              if ( ShouldDoSemiForVariety(*(float *)&_XMM0) )
-                v52 = 2;
-              v54 = pAI->GetAI(pAI);
-              *(_BYTE *)(v54 + 521) = v52;
-              *(_BYTE *)(v54 + 526) = 1;
-              break;
+              if ( *(_BYTE *)((__int64)v33.m_pAI->GetAI(v33.m_pAI) + 1645) )
+                v16 = 0;
             }
-            __asm { vmovaps xmm0, xmm8; distSq }
-            v56 = ShouldDoSemiForVariety(*(float *)&_XMM0);
-            __asm { vcomiss xmm8, cs:__real@4a1c4000 }
-            v57 = v46;
-            v50 = v57;
-            if ( v56 )
-              v50 = 2;
           }
-          v58 = pAI->GetAI(pAI);
-          *(_BYTE *)(v58 + 521) = v50;
-          *(_BYTE *)(v58 + 526) = 0;
+LABEL_60:
+          v31 = pAI->GetAI(pAI);
+          *(_BYTE *)(v31 + 521) = v16;
+          *(_BYTE *)(v31 + 526) = 0;
+          return;
         }
+        if ( v14 >= 810000.0 )
+        {
+          v16 = v14 < 2560000.0;
+          if ( ShouldDoSemiForVariety(v14) )
+            v16 = 2;
+          goto LABEL_60;
+        }
+        v29 = 1;
+        if ( BG_GetWeaponType(v6, 0) == WEAPTYPE_BULLET && ((WeaponFireType - 1) & 0xFFFFFFFC) == 0 )
+        {
+          v29 = 1;
+          if ( WeaponFireType != WEAPON_FIRETYPE_BURST )
+            v29 = 2;
+        }
+        if ( ShouldDoSemiForVariety(v14) )
+          v29 = 2;
+        v30 = pAI->GetAI(pAI);
+        *(_BYTE *)(v30 + 521) = v29;
+        *(_BYTE *)(v30 + 526) = 1;
         break;
     }
-    __asm { vmovaps xmm8, [rsp+0F8h+var_58] }
-    return;
   }
-  v59 = pAI->GetAI(pAI);
-  *(_BYTE *)(v59 + 521) = 5;
-  *(_BYTE *)(v59 + 526) = 0;
 }
 
 /*
@@ -4599,11 +4381,11 @@ char HasShuffleNode(int entNum)
   const pathnode_t *v3; 
   unsigned __int16 v4; 
   __int64 v5; 
-  AIWrapper v8; 
+  AIWrapper v7; 
 
-  AIWrapper::AIWrapper(&v8, &g_entities[entNum]);
-  m_pAI = v8.m_pAI;
-  if ( !v8.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1855, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v7, &g_entities[entNum]);
+  m_pAI = v7.m_pAI;
+  if ( !v7.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm_builtin.cpp", 1855, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   v2 = m_pAI->GetAI(m_pAI);
   v3 = *(const pathnode_t **)(v2 + 544);
@@ -4617,12 +4399,8 @@ char HasShuffleNode(int entNum)
       v5 = *(_QWORD *)(*(_QWORD *)(v2 + 8) + 112i64);
       if ( v5 )
       {
-        if ( v5 == *(_QWORD *)(v2 + 544) )
-        {
-          __asm { vmovss  xmm1, cs:__real@41800000; dist }
-          if ( !AICommonInterface::NearClaimNode(m_pAI, *(float *)&_XMM1) )
-            return 1;
-        }
+        if ( v5 == *(_QWORD *)(v2 + 544) && !AICommonInterface::NearClaimNode(m_pAI, 16.0) )
+          return 1;
       }
     }
     *(_QWORD *)(v2 + 544) = 0i64;
@@ -4637,71 +4415,37 @@ IsShuffleNodeInDir
 */
 bool IsShuffleNodeInDir(const vec3_t *origin, const pathnode_t *pShuffleNode, const scr_string_t dir)
 {
-  bool v25; 
-  char v30; 
-  bool result; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v12; 
+  bool v13; 
   vec3_t pos; 
   vec3_t forward; 
   vec3_t vector; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
   pathnode_t::GetPos((pathnode_t *)pShuffleNode, &pos);
+  v6 = pos.v[0] - origin->v[0];
+  v8 = LODWORD(pos.v[1]);
+  v7 = pos.v[1] - origin->v[1];
+  *(float *)&v8 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)((float)(pos.v[2] - origin->v[2]) * (float)(pos.v[2] - origin->v[2])));
+  _XMM5 = v8;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+88h+pos]
-    vsubss  xmm7, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rsp+88h+pos+4]
-    vsubss  xmm6, xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rsp+88h+pos+8]
-    vsubss  xmm4, xmm0, dword ptr [rbx+8]
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm5, xmm2, xmm2
     vcmpless xmm0, xmm5, cs:__real@80000000
     vblendvps xmm0, xmm5, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm7, xmm7, xmm1
-    vmulss  xmm6, xmm6, xmm1
   }
   pathnode_t::GetAngles((pathnode_t *)pShuffleNode, &vector);
   AngleVectors(&vector, &forward, NULL, NULL);
-  __asm
+  v12 = (float)((float)(v7 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[0]) - (float)((float)(v6 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[1]);
+  v13 = v12 < 0.0;
+  if ( v12 > 0.0 )
   {
-    vmulss  xmm2, xmm6, dword ptr [rsp+88h+forward]
-    vmulss  xmm1, xmm7, dword ptr [rsp+88h+forward+4]
-    vsubss  xmm3, xmm2, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm3, xmm0
-  }
-  if ( !(v25 | v30) )
-  {
-    v25 = (unsigned int)dir < scr_const.left;
     if ( dir == scr_const.left )
-      goto LABEL_6;
-    __asm { vcomiss xmm3, xmm0 }
+      return 1;
+    v13 = v12 < 0.0;
   }
-  if ( !v25 || dir != scr_const.right )
-  {
-    result = 0;
-    goto LABEL_8;
-  }
-LABEL_6:
-  result = 1;
-LABEL_8:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return result;
+  return v13 && dir == scr_const.right;
 }
 
 /*
@@ -4736,100 +4480,32 @@ SetupMotionWarp
 */
 void SetupMotionWarp(int entNum, const vec3_t *animDelta, const vec4_t *qAnimRot, const vec3_t *targetPos, const vec3_t *targetAngles, int animDuration)
 {
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   vec3_t out; 
-  vec4_t v73; 
+  vec4_t v16; 
   vec4_t quat; 
   vec3_t animStartAngles; 
-  char v76; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
-  _R14 = targetPos;
-  _RBX = qAnimRot;
   AnglesToQuat(targetAngles, &quat);
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm8, dword ptr [rsp+118h+quat+0Ch]
-    vmovss  xmm7, dword ptr [rsp+118h+quat]
-    vmovss  xmm6, dword ptr [rsp+118h+quat+4]
-    vmovss  xmm5, dword ptr [rsp+118h+quat+8]
-    vmovss  xmm9, dword ptr [rbx+0Ch]
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+8]
-    vxorps  xmm10, xmm0, xmm2
-    vmovss  xmm0, dword ptr [rbx+4]
-    vxorps  xmm12, xmm1, xmm2
-    vxorps  xmm11, xmm0, xmm2
-    vmulss  xmm0, xmm7, xmm9
-    vmulss  xmm1, xmm8, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm12
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm11
-    vsubss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rsp+118h+var_D8], xmm1
-    vmulss  xmm0, xmm7, xmm12
-    vmulss  xmm2, xmm8, xmm11
-    vsubss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm6, xmm9
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm5, xmm10
-    vaddss  xmm2, xmm4, xmm0
-    vmovss  dword ptr [rsp+118h+var_D8+4], xmm2
-    vmulss  xmm0, xmm8, xmm12
-    vmulss  xmm1, xmm7, xmm11
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm10
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm9
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm7, xmm10
-    vmulss  xmm1, xmm8, xmm9
-    vmovss  dword ptr [rsp+118h+var_D8+8], xmm2
-    vsubss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm11
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm12
-    vsubss  xmm2, xmm3, xmm0
-    vmovss  dword ptr [rsp+118h+var_D8+0Ch], xmm2
-  }
-  QuatTransform(&v73, animDelta, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vsubss  xmm1, xmm0, dword ptr [rsp+118h+out]
-    vmovss  xmm2, dword ptr [r14+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+118h+out+4]
-    vmovss  dword ptr [rsp+118h+out], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+118h+out+8]
-    vmovss  dword ptr [rsp+118h+out+8], xmm2
-    vmovss  dword ptr [rsp+118h+out+4], xmm0
-  }
-  QuatToAngles(&v73, &animStartAngles);
-  G_MotionWarp_StartWithAnim(entNum, &out, &animStartAngles, _R14, targetAngles, animDuration);
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  v10 = qAnimRot->v[3];
+  LODWORD(v11) = LODWORD(qAnimRot->v[0]) ^ _xmm;
+  LODWORD(v12) = LODWORD(qAnimRot->v[2]) ^ _xmm;
+  LODWORD(v13) = LODWORD(qAnimRot->v[1]) ^ _xmm;
+  v16.v[0] = (float)((float)((float)(quat.v[3] * v11) + (float)(quat.v[0] * v10)) + (float)(quat.v[1] * v12)) - (float)(quat.v[2] * v13);
+  v16.v[1] = (float)((float)((float)(quat.v[3] * v13) - (float)(quat.v[0] * v12)) + (float)(quat.v[1] * v10)) + (float)(quat.v[2] * v11);
+  v16.v[2] = (float)((float)((float)(quat.v[0] * v13) + (float)(quat.v[3] * v12)) - (float)(quat.v[1] * v11)) + (float)(quat.v[2] * v10);
+  v16.v[3] = (float)((float)((float)(quat.v[3] * v10) - (float)(quat.v[0] * v11)) - (float)(quat.v[1] * v13)) - (float)(quat.v[2] * v12);
+  QuatTransform(&v16, animDelta, &out);
+  v14 = targetPos->v[1] - out.v[1];
+  out.v[0] = targetPos->v[0] - out.v[0];
+  out.v[2] = targetPos->v[2] - out.v[2];
+  out.v[1] = v14;
+  QuatToAngles(&v16, &animStartAngles);
+  G_MotionWarp_StartWithAnim(entNum, &out, &animStartAngles, targetPos, targetAngles, animDuration);
 }
 
 /*
@@ -4839,118 +4515,41 @@ SetupMotionWarp
 */
 void SetupMotionWarp(int entNum, const vec3_t *animDelta, const vec4_t *qAnimRot, const vec3_t *targetPos, const vec3_t *targetAngles, float animDuration)
 {
-  int duration; 
+  __m128 v7; 
+  double v8; 
+  vec4_t v9; 
+  float v11; 
+  unsigned __int128 v12; 
+  unsigned __int128 v13; 
   vec3_t angles; 
   vec3_t targetPosa; 
   vec3_t out; 
-  vec4_t v80; 
+  vec4_t v17; 
   vec4_t quat; 
   vec3_t animStartAngles; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-  }
-  _RAX = targetAngles;
-  __asm
-  {
-    vmovss  xmm0, [rbp+30h+arg_28]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vmovsd  xmm13, qword ptr [r9]
-    vmovsd  xmm0, qword ptr [rax]
-    vmovups xmm12, xmmword ptr [r8]
-  }
+  v7 = (__m128)*(unsigned __int64 *)targetPos->v;
+  v8 = *(double *)targetAngles->v;
+  v9 = *qAnimRot;
   angles.v[2] = targetAngles->v[2];
   targetPosa.v[2] = targetPos->v[2];
-  __asm
-  {
-    vcvttss2si edi, xmm1
-    vmovsd  qword ptr [rsp+130h+angles], xmm0
-  }
+  *(double *)angles.v = v8;
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm8, dword ptr [rsp+130h+quat]
-    vmovss  xmm6, dword ptr [rsp+130h+quat+0Ch]
-    vmovss  xmm7, dword ptr [rsp+130h+quat+4]
-    vmovss  xmm5, dword ptr [rsp+130h+quat+8]
-    vxorps  xmm11, xmm12, xmm2
-    vshufps xmm0, xmm12, xmm12, 55h ; 'U'
-    vxorps  xmm10, xmm0, xmm2
-    vshufps xmm1, xmm12, xmm12, 0AAh ; 'ª'
-    vxorps  xmm9, xmm1, xmm2
-    vshufps xmm12, xmm12, xmm12, 0FFh
-    vmulss  xmm1, xmm8, xmm12
-    vmulss  xmm0, xmm6, xmm11
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm10
-    vsubss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rsp+130h+var_D0], xmm1
-    vmulss  xmm0, xmm8, xmm9
-    vmulss  xmm2, xmm6, xmm10
-    vsubss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm7, xmm12
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm5, xmm11
-    vaddss  xmm2, xmm4, xmm0
-    vmovss  dword ptr [rsp+130h+var_D0+4], xmm2
-    vmulss  xmm0, xmm6, xmm9
-    vmulss  xmm1, xmm8, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm11
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm12
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm8, xmm11
-    vmulss  xmm1, xmm6, xmm12
-    vmovss  dword ptr [rsp+130h+var_D0+8], xmm2
-    vsubss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm10
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm9
-    vsubss  xmm2, xmm3, xmm0
-    vmovss  dword ptr [rsp+130h+var_D0+0Ch], xmm2
-  }
-  QuatTransform(&v80, animDelta, &out);
-  __asm
-  {
-    vsubss  xmm0, xmm13, dword ptr [rsp+130h+out]
-    vshufps xmm1, xmm13, xmm13, 55h ; 'U'
-    vmovss  dword ptr [rsp+130h+out], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rsp+130h+out+4]
-    vmovss  xmm1, dword ptr [rsp+130h+targetPos+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+130h+out+8]
-    vmovss  dword ptr [rsp+130h+out+8], xmm2
-    vmovss  dword ptr [rsp+130h+out+4], xmm0
-    vmovsd  qword ptr [rsp+130h+targetPos], xmm13
-  }
-  QuatToAngles(&v80, &animStartAngles);
-  G_MotionWarp_StartWithAnim(entNum, &out, &animStartAngles, &targetPosa, &angles, duration);
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  LODWORD(v11) = LODWORD(v9.v[0]) ^ _xmm;
+  v12 = *(unsigned __int128 *)&_mm_shuffle_ps((__m128)v9, (__m128)v9, 85) ^ (unsigned int)_xmm;
+  v13 = *(unsigned __int128 *)&_mm_shuffle_ps((__m128)v9, (__m128)v9, 170) ^ (unsigned int)_xmm;
+  v9.v[0] = _mm_shuffle_ps((__m128)v9, (__m128)v9, 255).m128_f32[0];
+  v17.v[0] = (float)((float)((float)(quat.v[0] * v9.v[0]) + (float)(quat.v[3] * v11)) + (float)(quat.v[1] * *(float *)&v13)) - (float)(quat.v[2] * *(float *)&v12);
+  v17.v[1] = (float)((float)((float)(quat.v[3] * *(float *)&v12) - (float)(quat.v[0] * *(float *)&v13)) + (float)(quat.v[1] * v9.v[0])) + (float)(quat.v[2] * v11);
+  v17.v[2] = (float)((float)((float)(quat.v[0] * *(float *)&v12) + (float)(quat.v[3] * *(float *)&v13)) - (float)(quat.v[1] * v11)) + (float)(quat.v[2] * v9.v[0]);
+  v17.v[3] = (float)((float)((float)(quat.v[3] * v9.v[0]) - (float)(quat.v[0] * v11)) - (float)(quat.v[1] * *(float *)&v12)) - (float)(quat.v[2] * *(float *)&v13);
+  QuatTransform(&v17, animDelta, &out);
+  out.v[0] = v7.m128_f32[0] - out.v[0];
+  out.v[2] = targetPosa.v[2] - out.v[2];
+  out.v[1] = _mm_shuffle_ps(v7, v7, 85).m128_f32[0] - out.v[1];
+  *(double *)targetPosa.v = *(double *)v7.m128_u64;
+  QuatToAngles(&v17, &animStartAngles);
+  G_MotionWarp_StartWithAnim(entNum, &out, &animStartAngles, &targetPosa, &angles, (int)(float)(animDuration * 1000.0));
 }
 
 /*
@@ -4958,32 +4557,16 @@ void SetupMotionWarp(int entNum, const vec3_t *animDelta, const vec4_t *qAnimRot
 ShouldDoSemiForVariety
 ==============
 */
-
-bool __fastcall ShouldDoSemiForVariety(double distSq)
+bool ShouldDoSemiForVariety(float distSq)
 {
-  char v11; 
-  char v12; 
+  float v2; 
+  double v3; 
 
-  __asm
-  {
-    vmovss  xmm1, cs:__real@4a1c4000
-    vcomiss xmm0, xmm1
-    vsubss  xmm0, xmm0, xmm1
-    vmovaps [rsp+38h+var_18], xmm6
-    vmulss  xmm6, xmm0, cs:__real@3426bae8
-  }
-  *(double *)&_XMM0 = G_random();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm3, xmm6, cs:__real@3e4ccccd
-    vsubss  xmm2, xmm1, xmm6
-    vmulss  xmm4, xmm2, cs:__real@3f000000
-    vmovaps xmm6, [rsp+38h+var_18]
-    vaddss  xmm1, xmm4, xmm3
-    vcomiss xmm1, xmm0
-  }
-  return !(v11 | v12);
+  if ( distSq < 2560000.0 )
+    return 0;
+  v2 = (float)(distSq - 2560000.0) * 0.00000015527951;
+  v3 = G_random();
+  return (float)((float)((float)(1.0 - v2) * 0.5) + (float)(v2 * 0.2)) > *(float *)&v3;
 }
 
 /*
@@ -4991,100 +4574,84 @@ bool __fastcall ShouldDoSemiForVariety(double distSq)
 ShouldRunNGun
 ==============
 */
-bool ShouldRunNGun(const AIScriptedInterface *pAI)
+char ShouldRunNGun(const AIScriptedInterface *pAI)
 {
-  int v4; 
-  bool result; 
-  const Weapon *v7; 
+  __int64 v2; 
+  int v3; 
+  const Weapon *v5; 
   weapClass_t WeaponClass; 
-  unsigned __int8 v10; 
-  char v19; 
+  float v7; 
+  unsigned __int8 v8; 
   const sentient_s *TargetSentient; 
-  const sentient_s *v28; 
+  const sentient_s *v18; 
   const tacpoint_t *LastKnownEnemyTacPoint; 
-  const tacpoint_t *v30; 
+  const tacpoint_t *v20; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RBX = pAI->GetAI(&pAI->AICommonInterface);
-  if ( *(_BYTE *)(_RBX + 1748) || !AICommonInterface::HasPath(&pAI->AICommonInterface) || *(_DWORD *)(*(_QWORD *)(_RBX + 8) + 16i64) == 2 && AIScriptedInterface::IsOnStairs((AIScriptedInterface *)pAI) || AIScriptedInterface::IsDoingReacquire((AIScriptedInterface *)pAI) || !*(_BYTE *)(_RBX + 330) || *(_BYTE *)(_RBX + 1750) || *(_DWORD *)(_RBX + 480) != scr_const.combat )
-    goto LABEL_11;
-  v4 = *(_DWORD *)(_RBX + 1736);
-  if ( *(_BYTE *)(_RBX + 1747) )
+  v2 = pAI->GetAI(&pAI->AICommonInterface);
+  if ( *(_BYTE *)(v2 + 1748) || !AICommonInterface::HasPath(&pAI->AICommonInterface) || *(_DWORD *)(*(_QWORD *)(v2 + 8) + 16i64) == 2 && AIScriptedInterface::IsOnStairs((AIScriptedInterface *)pAI) || AIScriptedInterface::IsDoingReacquire((AIScriptedInterface *)pAI) || !*(_BYTE *)(v2 + 330) || *(_BYTE *)(v2 + 1750) || *(_DWORD *)(v2 + 480) != scr_const.combat )
+    return 0;
+  v3 = *(_DWORD *)(v2 + 1736);
+  if ( *(_BYTE *)(v2 + 1747) )
   {
-    if ( v4 < level.time )
-      goto LABEL_11;
+    if ( v3 < level.time )
+      return 0;
   }
-  else if ( v4 > level.time || *(_BYTE *)(_RBX + 2908) )
+  else if ( v3 > level.time || *(_BYTE *)(v2 + 2908) )
   {
-    goto LABEL_11;
+    return 0;
   }
-  v7 = pAI->GetEquippedWeapon(pAI);
-  if ( v7->weaponIdx )
+  v5 = pAI->GetEquippedWeapon(pAI);
+  if ( v5->weaponIdx )
   {
-    WeaponClass = BG_GetWeaponClass(v7, 0);
+    WeaponClass = BG_GetWeaponClass(v5, 0);
     if ( WeaponClass == WEAPCLASS_RIFLE || (unsigned int)(WeaponClass - 2) <= 2 )
     {
-      __asm { vmovss  xmm6, dword ptr [rbx+0D4Ch] }
-      v10 = *(_BYTE *)(_RBX + 1747);
-      _EBP = 0;
-      if ( !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(_RBX + 3464), scr_const.fast) )
+      v7 = *(float *)(v2 + 3404);
+      v8 = *(_BYTE *)(v2 + 1747);
+      if ( !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(v2 + 3464), scr_const.fast) )
         goto LABEL_31;
-      if ( !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(_RBX + 3464), scr_const.jog) )
+      if ( !HasAnimSpeedThresholdEntryForArchetype(*(scr_string_t *)(v2 + 3464), scr_const.jog) )
         goto LABEL_31;
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f666666
-        vmovd   xmm1, ebp
-      }
-      _EAX = v10;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3f4ccccd
-        vblendvps xmm3, xmm1, xmm2, xmm3; fractionValue
-      }
-      *(double *)&_XMM0 = GetAnimSpeedBetweenThresholdEntries((scr_string_t)*(_DWORD *)(_RBX + 3464), scr_const.fast, scr_const.jog, *(float *)&_XMM3);
-      __asm { vcomiss xmm6, xmm0 }
-      if ( !v19 )
+      _XMM0 = v8;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_0_80000001);
+      __asm { vblendvps xmm3, xmm1, xmm2, xmm3; fractionValue }
+      *(double *)&_XMM0 = GetAnimSpeedBetweenThresholdEntries((scr_string_t)*(_DWORD *)(v2 + 3464), scr_const.fast, scr_const.jog, *(float *)&_XMM3);
+      if ( v7 >= *(float *)&_XMM0 )
       {
 LABEL_31:
-        _EAX = *(unsigned __int8 *)(_RBX + 1747);
-        __asm
-        {
-          vmovss  xmm2, cs:__real@43480000
-          vmovd   xmm1, ebp
-          vmovd   xmm0, eax
-          vpcmpeqd xmm3, xmm0, xmm1
-          vmovss  xmm1, cs:__real@42c80000
-          vblendvps xmm6, xmm1, xmm2, xmm3
-        }
-        *(double *)&_XMM0 = Nav_GetPathDistToGoal(*(const AINavigator **)(_RBX + 392));
-        __asm
-        {
-          vcomiss xmm0, xmm6
-          vmovss  [rsp+38h+arg_0], xmm6
-        }
-        if ( !v19 )
+        _XMM0 = *(unsigned __int8 *)(v2 + 1747);
+        __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+        _XMM1 = LODWORD(FLOAT_100_0);
+        __asm { vblendvps xmm6, xmm1, xmm2, xmm3 }
+        *(double *)&_XMM0 = Nav_GetPathDistToGoal(*(const AINavigator **)(v2 + 392));
+        if ( *(float *)&_XMM0 >= *(float *)&_XMM6 )
         {
           TargetSentient = AICommonInterface::GetTargetSentient(&pAI->AICommonInterface);
           if ( TargetSentient )
           {
-            if ( *(_BYTE *)(_RBX + 1747) && (v28 = pAI->GetSentient(pAI), level.time - Sentient_GetSentientInfo(v28, TargetSentient)->lastKnownPosTime < 2000) || (LastKnownEnemyTacPoint = AICommonInterface::GetLastKnownEnemyTacPoint(&pAI->AICommonInterface, TargetSentient->ent)) != NULL && (v30 = Sentient_NearestTacPoint(*(sentient_s **)(_RBX + 8))) != NULL && TacVisGraph_HasVis(v30, LastKnownEnemyTacPoint) )
+            if ( *(_BYTE *)(v2 + 1747) )
             {
-              result = 1;
-              goto LABEL_12;
+              v18 = pAI->GetSentient(pAI);
+              if ( level.time - Sentient_GetSentientInfo(v18, TargetSentient)->lastKnownPosTime < 2000 )
+                return 1;
+            }
+            LastKnownEnemyTacPoint = AICommonInterface::GetLastKnownEnemyTacPoint(&pAI->AICommonInterface, TargetSentient->ent);
+            if ( LastKnownEnemyTacPoint )
+            {
+              v20 = Sentient_NearestTacPoint(*(sentient_s **)(v2 + 8));
+              if ( v20 )
+              {
+                if ( TacVisGraph_HasVis(v20, LastKnownEnemyTacPoint) )
+                  return 1;
+              }
             }
           }
         }
       }
     }
   }
-LABEL_11:
-  result = 0;
-LABEL_12:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+  return 0;
 }
 
 /*
@@ -5094,81 +4661,41 @@ ShouldRunNGunForward
 */
 bool ShouldRunNGunForward(const AIScriptedInterface *pAI)
 {
-  bool result; 
-  __int64 v17; 
-  __int64 v19; 
-  char v38; 
-  char v39; 
-  char v41; 
+  gentity_s *TargetEntity; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
+  double v7; 
+  float v8; 
+  char v11; 
   vec2_t vec; 
-  int v44; 
-  bfx::AreaHandle v45; 
-  bfx::LinkHandle v46; 
-  void *retaddr; 
+  float v13; 
+  int v14[5]; 
+  bfx::AreaHandle v15; 
+  bfx::LinkHandle v16; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  if ( AICommonInterface::HasPath(&pAI->AICommonInterface) && (_RDI = AICommonInterface::GetTargetEntity(&pAI->AICommonInterface)) != NULL )
-  {
-    _RBX = pAI->GetAI(&pAI->AICommonInterface);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+83Ch]
-      vmovss  xmm0, dword ptr [rax+838h]
-      vmovss  xmm3, dword ptr [rax+840h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmulss  xmm6, xmm0, cs:__real@3e4ccccd
-    }
-    bfx::AreaHandle::AreaHandle(&v45);
-    bfx::LinkHandle::LinkHandle(&v46);
-    v41 = 0;
-    LOBYTE(v17) = 1;
-    __asm { vmovaps xmm1, xmm6 }
-    (*(void (__fastcall **)(_QWORD, __int64, __int64, int *, char))(**(_QWORD **)(_RBX + 392) + 416i64))(*(_QWORD *)(_RBX + 392), v19, v17, &v44, v41);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+130h]
-      vsubss  xmm1, xmm0, [rsp+0A8h+var_60]
-      vmovss  dword ptr [rsp+0A8h+vec], xmm1
-      vmovss  xmm2, dword ptr [rdi+134h]
-      vsubss  xmm0, xmm2, [rsp+0A8h+var_5C]
-      vmovss  dword ptr [rsp+0A8h+vec+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+138h]
-      vsubss  xmm2, xmm1, [rsp+0A8h+var_58]
-      vmovss  [rsp+0A8h+var_68], xmm2
-    }
-    *(double *)&_XMM0 = vectoyaw(&vec);
-    __asm
-    {
-      vsubss  xmm0, xmm0, dword ptr [rax+140h]
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm3, xmm1, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm3, 1
-      vsubss  xmm0, xmm4, xmm1
-      vmovss  xmm3, dword ptr [rbx+6C4h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm2, xmm0, cs:__real@47fd2000
-      vmulss  xmm1, xmm3, xmm3
-      vcomiss xmm1, xmm2
-    }
-    LOBYTE(_RBX) = !(v38 | v39);
-    bfx::LinkHandle::~LinkHandle(&v46);
-    bfx::AreaHandle::~AreaHandle(&v45);
-    result = _RBX;
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
-  return result;
+  if ( !AICommonInterface::HasPath(&pAI->AICommonInterface) )
+    return 0;
+  TargetEntity = AICommonInterface::GetTargetEntity(&pAI->AICommonInterface);
+  if ( !TargetEntity )
+    return 0;
+  v4 = pAI->GetAI(&pAI->AICommonInterface);
+  fsqrt((float)((float)(*(float *)(v4 + 2104) * *(float *)(v4 + 2104)) + (float)(*(float *)(v4 + 2108) * *(float *)(v4 + 2108))) + (float)(*(float *)(v4 + 2112) * *(float *)(v4 + 2112)));
+  bfx::AreaHandle::AreaHandle(&v15);
+  bfx::LinkHandle::LinkHandle(&v16);
+  v11 = 0;
+  LOBYTE(v5) = 1;
+  (*(void (__fastcall **)(_QWORD, __int64, __int64, int *, char))(**(_QWORD **)(v4 + 392) + 416i64))(*(_QWORD *)(v4 + 392), v6, v5, v14, v11);
+  vec.v[0] = TargetEntity->r.currentOrigin.v[0] - *(float *)v14;
+  vec.v[1] = TargetEntity->r.currentOrigin.v[1] - *(float *)&v14[1];
+  v13 = TargetEntity->r.currentOrigin.v[2] - *(float *)&v14[2];
+  v7 = vectoyaw(&vec);
+  v8 = (float)(*(float *)&v7 - *(float *)(*(_QWORD *)v4 + 320i64)) * 0.0027777778;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  LOBYTE(v4) = (float)(*(float *)(v4 + 1732) * *(float *)(v4 + 1732)) > (float)((float)((float)(v8 - *(float *)&_XMM1) * (float)(v8 - *(float *)&_XMM1)) * 129600.0);
+  bfx::LinkHandle::~LinkHandle(&v16);
+  bfx::AreaHandle::~AreaHandle(&v15);
+  return v4;
 }
 

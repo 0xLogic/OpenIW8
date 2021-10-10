@@ -81,277 +81,187 @@ LUIElement_ChyronBlock_Render
 */
 void LUIElement_ChyronBlock_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
-  bool v20; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  char v27; 
-  int v30; 
-  int v32; 
-  int v33; 
+  int *customElementData; 
+  int v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  double CurrentUnitScale; 
+  char v15; 
+  int v16; 
+  float v17; 
+  int v18; 
+  int v19; 
   const char *ColumnValueForRow; 
-  int v35; 
-  unsigned __int64 v36; 
-  int v37; 
-  const StringTable *v39; 
-  int v41; 
-  __int64 v52; 
-  int v53; 
-  bool v54; 
-  const int *v55; 
+  int v21; 
+  unsigned __int64 v22; 
+  int v23; 
+  const StringTable *v24; 
+  int v25; 
+  __int128 v27; 
+  float v29; 
+  __int128 v30; 
+  __int128 v32; 
+  __int64 v33; 
+  int v34; 
+  const int *v35; 
   const char *text; 
-  int v60; 
-  bool v71; 
-  __int64 v79; 
-  int *v80; 
+  int v37; 
+  int v39; 
+  __int64 v40; 
+  int *v41; 
   __int64 i; 
-  float fmt; 
-  float v86; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
-  float v91; 
-  int v92; 
+  int v43; 
   FontDecodeStyle fontDecodeStyle; 
-  char v104; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-  }
-  v20 = element->customElementData == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-0C8h], xmm14
-  }
-  if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RBX = (int *)element->customElementData;
-  v23 = Sys_Milliseconds();
-  v24 = _RBX[9];
-  v25 = v23;
-  v26 = _RBX[39];
-  v92 = v24;
-  *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-  v27 = *((_BYTE *)_RBX + 176);
-  __asm
+  customElementData = (int *)element->customElementData;
+  v10 = Sys_Milliseconds();
+  v11 = customElementData[9];
+  v12 = v10;
+  v13 = customElementData[39];
+  v43 = v11;
+  CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+  v15 = *((_BYTE *)customElementData + 176);
+  v16 = 0;
+  v17 = (float)customElementData[14] * *(float *)&CurrentUnitScale;
+  if ( v12 - v13 > v11 || !v13 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+38h]
-  }
-  v30 = 0;
-  __asm { vmulss  xmm14, xmm1, xmm0 }
-  if ( v25 - v26 > v24 || !v26 )
-  {
-    v32 = _RBX[43];
+    v18 = customElementData[43];
     do
     {
-      v33 = v32;
-      ColumnValueForRow = StringTable_GetColumnValueForRow(*(const StringTable **)_RBX, v32, 1);
-      v32 = ++_RBX[43];
-      v35 = _RBX[42];
-      if ( v32 > v35 )
+      v19 = v18;
+      ColumnValueForRow = StringTable_GetColumnValueForRow(*(const StringTable **)customElementData, v18, 1);
+      v18 = ++customElementData[43];
+      v21 = customElementData[42];
+      if ( v18 > v21 )
       {
-        _RBX[43] = 0;
-        v32 = 0;
+        customElementData[43] = 0;
+        v18 = 0;
       }
-      v36 = -1i64;
+      v22 = -1i64;
       do
-        ++v36;
-      while ( ColumnValueForRow[v36] );
+        ++v22;
+      while ( ColumnValueForRow[v22] );
     }
-    while ( v36 > _RBX[3] && v32 < v35 );
-    AddIndexToLinesArray((LUIChyronBlockOptions *)_RBX, v33);
-    _RBX[38] = v25;
-    v26 = v25;
-    _RBX[39] = v25;
-    if ( v27 )
+    while ( v22 > customElementData[3] && v18 < v21 );
+    AddIndexToLinesArray((LUIChyronBlockOptions *)customElementData, v19);
+    customElementData[38] = v12;
+    v13 = v12;
+    customElementData[39] = v12;
+    if ( v15 )
     {
-      if ( !*((_BYTE *)_RBX + 177) )
+      if ( !*((_BYTE *)customElementData + 177) )
         goto LABEL_17;
-      _RBX[41] = v25;
+      customElementData[41] = v12;
     }
-    *((_BYTE *)_RBX + 179) = 1;
+    *((_BYTE *)customElementData + 179) = 1;
   }
 LABEL_17:
-  v37 = _RBX[2];
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  v39 = *(const StringTable **)_RBX;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v41 = 2 * v37;
-  if ( !v27 )
-    v41 = v37 + 2;
-  __asm
+  v23 = customElementData[2];
+  v24 = *(const StringTable **)customElementData;
+  v25 = 2 * v23;
+  if ( !v15 )
+    v25 = v23 + 2;
+  v27 = 0i64;
+  *(float *)&v27 = (float)(v12 - customElementData[38]);
+  _XMM0 = v27;
+  __asm { vminss  xmm1, xmm0, cs:__real@437a0000 }
+  v30 = LODWORD(FLOAT_1_0);
+  *(float *)&v30 = 1.0 - (float)(*(float *)&_XMM1 * 0.0040000002);
+  v29 = *(float *)&v30;
+  _XMM10 = v30;
+  if ( v15 )
   {
-    vcvtsi2ss xmm0, xmm0, eax
-    vminss  xmm1, xmm0, cs:__real@437a0000
-    vmulss  xmm2, xmm1, cs:__real@3b83126f
-    vsubss  xmm8, xmm7, xmm2
-    vmovaps xmm10, xmm8
-    vxorps  xmm9, xmm9, xmm9
+    v32 = LODWORD(FLOAT_1_0);
+    *(float *)&v32 = 1.0 - (float)((float)(v12 - customElementData[41]) / (float)customElementData[10]);
+    _XMM10 = v32;
+    v29 = 0.0;
   }
-  if ( v27 )
+  v33 = v25;
+  v34 = 0;
+  if ( v25 > 0 )
   {
-    __asm
+    v35 = customElementData + 16;
+    while ( *v35 < 0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vcvtsi2ss xmm1, xmm1, esi
-      vdivss  xmm2, xmm1, xmm0
-      vsubss  xmm10, xmm7, xmm2
-      vxorps  xmm8, xmm8, xmm8
+LABEL_41:
+      ++v34;
+      ++v35;
+      if ( !--v33 )
+        goto LABEL_42;
     }
-  }
-  v52 = v41;
-  v53 = 0;
-  v54 = v41 == 0;
-  if ( v41 > 0 )
-  {
-    __asm { vmovaps [rsp+1A8h+var_98], xmm11 }
-    v55 = _RBX + 16;
-    __asm
+    text = StringTable_GetColumnValueForRow(v24, *v35, 1);
+    v37 = customElementData[8];
+    *(_OWORD *)&fontDecodeStyle.lastTextSet = *((_OWORD *)customElementData + 1);
+    *(_DWORD *)&fontDecodeStyle.useGameTime = v37;
+    if ( *((_BYTE *)customElementData + 177) )
     {
-      vmovss  xmm11, [rsp+1A8h+blue]
-      vmovaps [rsp+1A8h+var_A8], xmm12
-      vmovss  xmm12, [rsp+1A8h+green]
-      vmovaps [rsp+1A8h+var_B8], xmm13
-      vmovss  xmm13, [rsp+1A8h+red]
-      vmovaps [rsp+1A8h+var_48], xmm6
-    }
-    while ( *v55 < 0 )
-    {
-LABEL_38:
-      ++v53;
-      ++v55;
-      v71 = v52-- == 0;
-      v54 = v71 || v52 == 0;
-      if ( !v52 )
-      {
-        __asm
-        {
-          vmovaps xmm13, [rsp+1A8h+var_B8]
-          vmovaps xmm12, [rsp+1A8h+var_A8]
-          vmovaps xmm11, [rsp+1A8h+var_98]
-          vmovaps xmm6, [rsp+1A8h+var_48]
-        }
-        goto LABEL_40;
-      }
-    }
-    text = StringTable_GetColumnValueForRow(v39, *v55, 1);
-    v60 = _RBX[8];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rsp+1A8h+var_E8.lastTextSet], xmm0
-    }
-    *(_DWORD *)&fontDecodeStyle.useGameTime = v60;
-    if ( *((_BYTE *)_RBX + 177) )
-    {
-      fontDecodeStyle.lastTextSet = v26 + v92 * (v53 - _RBX[2]);
+      fontDecodeStyle.lastTextSet = v13 + v43 * (v34 - customElementData[2]);
     }
     else
     {
-      __asm { vmovaps xmm8, xmm9 }
-      fontDecodeStyle.lastTextSet = v26 + v92 * (v53 - _RBX[40]);
+      v29 = 0.0;
+      fontDecodeStyle.lastTextSet = v13 + v43 * (v34 - customElementData[40]);
     }
-    if ( v27 )
+    if ( v15 )
     {
-      if ( *((_BYTE *)_RBX + 179) )
+      if ( *((_BYTE *)customElementData + 179) )
       {
-        if ( !*((_BYTE *)_RBX + 178) )
+        if ( !*((_BYTE *)customElementData + 178) )
         {
-          if ( v53 >= _RBX[2] )
+          if ( v34 >= customElementData[2] )
             goto LABEL_36;
           goto LABEL_33;
         }
-        if ( v53 >= _RBX[2] )
+        if ( v34 >= customElementData[2] )
         {
 LABEL_33:
           fontDecodeStyle.lastTextSet = 0;
           __asm { vminss  xmm6, xmm10, xmm7 }
 LABEL_37:
-          _RCX = element;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+0D4h]
-            vmovss  xmm3, dword ptr [rcx+0CCh]; x
-            vsubss  xmm4, xmm0, xmm3
-            vmovss  [rsp+1A8h+var_148], xmm4
-            vmovss  [rsp+1A8h+var_150], xmm14
-            vmovss  [rsp+1A8h+var_168], xmm6
-            vmovss  [rsp+1A8h+var_170], xmm11
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, edx
-            vaddss  xmm2, xmm1, xmm8
-            vmulss  xmm0, xmm2, xmm14
-            vaddss  xmm5, xmm0, dword ptr [rcx+0D0h]
-            vmovss  [rsp+1A8h+var_178], xmm12
-            vmovss  [rsp+1A8h+var_180], xmm13
-            vmovss  dword ptr [rsp+1A8h+fmt], xmm5
-          }
-          LUI_Interface_DrawText(localClientNum, root, element, *(float *)&_XMM3, fmt, v86, v87, v88, v89, text, *((GfxFont **)_RBX + 6), v90, v91, 0, 0, *((_BYTE *)_RBX + 60), &fontDecodeStyle, NULL, NULL, luaVM);
-          goto LABEL_38;
+          if ( v15 )
+            v39 = v34 % customElementData[2];
+          else
+            v39 = v34;
+          LUI_Interface_DrawText(localClientNum, root, element, element->left, (float)((float)((float)v39 + v29) * v17) + element->top, red, green, blue, *(float *)&_XMM6, text, *((GfxFont **)customElementData + 6), v17, element->right - element->left, 0, 0, *((_BYTE *)customElementData + 60), &fontDecodeStyle, NULL, NULL, luaVM);
+          goto LABEL_41;
         }
       }
     }
-    else if ( !v53 )
+    else if ( !v34 )
     {
       __asm { vminss  xmm6, xmm10, xmm7 }
       goto LABEL_37;
     }
 LABEL_36:
-    __asm { vmovaps xmm6, xmm7 }
+    *(float *)&_XMM6 = FLOAT_1_0;
     goto LABEL_37;
   }
-LABEL_40:
-  __asm
+LABEL_42:
+  if ( v29 <= 0.0 && *((_BYTE *)customElementData + 179) && *(float *)&_XMM10 <= 0.0 )
   {
-    vmovaps xmm14, [rsp+1A8h+var_C8]
-    vmovaps xmm7, [rsp+1A8h+var_58]
-    vcomiss xmm8, xmm9
-    vmovaps xmm8, [rsp+1A8h+var_68]
-  }
-  if ( v54 )
-  {
-    if ( *((_BYTE *)_RBX + 179) )
+    *((_BYTE *)customElementData + 179) = 0;
+    if ( !v15 )
     {
-      __asm { vcomiss xmm10, xmm9 }
-      if ( !*((_BYTE *)_RBX + 179) )
-      {
-        *((_BYTE *)_RBX + 179) = 0;
-        if ( !v27 )
-        {
-          _RBX[16] = -1;
-          goto LABEL_53;
-        }
-        if ( *((_BYTE *)_RBX + 178) )
-          v30 = _RBX[2];
-        v79 = _RBX[2] + v30;
-        if ( v30 < v79 )
-        {
-          v80 = &_RBX[v30 + 16];
-          for ( i = v79 - v30; i; --i )
-            *v80++ = -1;
-        }
-      }
+      customElementData[16] = -1;
+      return;
+    }
+    if ( *((_BYTE *)customElementData + 178) )
+      v16 = customElementData[2];
+    v40 = customElementData[2] + v16;
+    if ( v16 < v40 )
+    {
+      v41 = &customElementData[v16 + 16];
+      for ( i = v40 - v16; i; --i )
+        *v41++ = -1;
     }
   }
-  if ( v27 && *((_BYTE *)_RBX + 177) )
-    *((_BYTE *)_RBX + 177) = 0;
-LABEL_53:
-  _R11 = &v104;
-  __asm
+  if ( v15 )
   {
-    vmovaps xmm9, xmmword ptr [r11-58h]
-    vmovaps xmm10, xmmword ptr [r11-68h]
+    if ( *((_BYTE *)customElementData + 177) )
+      *((_BYTE *)customElementData + 177) = 0;
   }
 }
 

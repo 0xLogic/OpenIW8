@@ -540,85 +540,62 @@ R_ST_DebugGetLightmapDensityStatsUnitPerPixel
 void R_ST_DebugGetLightmapDensityStatsUnitPerPixel(float *outMin, float *outMax, float *outAvg)
 {
   const StTerrain *terrain; 
-  int v10; 
-  unsigned int v11; 
-  __int64 v13; 
-  unsigned int v14; 
-  __int64 v27; 
-  __int64 v28; 
+  unsigned int v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  unsigned int v10; 
+  float v11; 
+  float v16; 
+  __int64 v17; 
+  __int64 v18; 
 
-  _R15 = outMin;
-  _R14 = outAvg;
-  _R12 = outMax;
   if ( !s_stGlob.terrain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_debug.cpp", 732, ASSERT_TYPE_ASSERT, "(s_stGlob.terrain)", (const char *)&queryFormat, "s_stGlob.terrain") )
     __debugbreak();
   terrain = s_stGlob.terrain;
-  *_R15 = 3.4028235e38;
-  v10 = 0;
-  *_R12 = 0.0;
-  v11 = 0;
-  *_R14 = 0.0;
+  *outMin = 3.4028235e38;
+  v7 = 0;
+  *outMax = 0.0;
+  v8 = 0;
+  *outAvg = 0.0;
   if ( !terrain->surfaceCount )
-    goto LABEL_17;
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovss  xmm6, cs:__real@40000000
-  }
+    goto LABEL_16;
   do
   {
-    v13 = (__int64)&terrain->surfaces[v11];
-    v14 = *(_DWORD *)(v13 + 372);
-    if ( v14 != 510 )
+    v9 = (__int64)&terrain->surfaces[v8];
+    v10 = *(_DWORD *)(v9 + 372);
+    if ( v10 != 510 )
     {
-      if ( v14 >= terrain->lightmapCount )
+      if ( v10 >= terrain->lightmapCount )
       {
-        LODWORD(v28) = terrain->lightmapCount;
-        LODWORD(v27) = *(_DWORD *)(v13 + 372);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_debug.cpp", 750, ASSERT_TYPE_ASSERT, "(unsigned)( surface.lightmapIndex ) < (unsigned)( terrain.lightmapCount )", "surface.lightmapIndex doesn't index terrain.lightmapCount\n\t%i not in [0, %i)", v27, v28) )
+        LODWORD(v18) = terrain->lightmapCount;
+        LODWORD(v17) = *(_DWORD *)(v9 + 372);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_debug.cpp", 750, ASSERT_TYPE_ASSERT, "(unsigned)( surface.lightmapIndex ) < (unsigned)( terrain.lightmapCount )", "surface.lightmapIndex doesn't index terrain.lightmapCount\n\t%i not in [0, %i)", v17, v18) )
           __debugbreak();
       }
-      if ( !terrain->lightmaps[*(unsigned int *)(v13 + 372)].images[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_debug.cpp", 751, ASSERT_TYPE_ASSERT, "(terrain.lightmaps[surface.lightmapIndex].images[0])", (const char *)&queryFormat, "terrain.lightmaps[surface.lightmapIndex].images[0]") )
+      if ( !terrain->lightmaps[*(unsigned int *)(v9 + 372)].images[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_debug.cpp", 751, ASSERT_TYPE_ASSERT, "(terrain.lightmaps[surface.lightmapIndex].images[0])", (const char *)&queryFormat, "terrain.lightmaps[surface.lightmapIndex].images[0]") )
         __debugbreak();
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rdi+50h]
-        vxorps  xmm0, xmm0, xmm0
-      }
-      ++v10;
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm3, xmm1, xmm0
-        vmovss  xmm1, dword ptr [r15]
-        vminss  xmm2, xmm1, xmm3
-        vmovss  dword ptr [r15], xmm2
-        vmovss  xmm0, dword ptr [r12]
-        vmaxss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [r12], xmm1
-        vaddss  xmm0, xmm3, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm0
-      }
+      ++v7;
+      v11 = (float)(2.0 * *(float *)(v9 + 80)) / (float)terrain->lightmaps[*(unsigned int *)(v9 + 372)].images[0]->width;
+      _XMM1 = *(unsigned int *)outMin;
+      __asm { vminss  xmm2, xmm1, xmm3 }
+      *outMin = *(float *)&_XMM2;
+      _XMM0 = *(unsigned int *)outMax;
+      __asm { vmaxss  xmm1, xmm0, xmm3 }
+      *outMax = *(float *)&_XMM1;
+      *outAvg = v11 + *outAvg;
     }
-    ++v11;
+    ++v8;
   }
-  while ( v11 < terrain->surfaceCount );
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  if ( v10 )
+  while ( v8 < terrain->surfaceCount );
+  if ( v7 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm1, xmm0, xmm1
-      vmovss  dword ptr [r14], xmm1
-    }
+    v16 = (float)v7;
+    *outAvg = *outAvg / v16;
   }
   else
   {
-LABEL_17:
-    *_R15 = 0.0;
+LABEL_16:
+    *outMin = 0.0;
   }
 }
 

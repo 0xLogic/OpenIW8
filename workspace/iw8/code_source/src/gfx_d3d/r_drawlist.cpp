@@ -110,247 +110,222 @@ R_SplitDepthHackCodeSurfs
 */
 void R_SplitDepthHackCodeSurfs(GfxDrawList *drawListSrc, GfxDrawList *drawListDst, GfxDrawList *drawListPostBlurDst, GfxDrawList *drawListPostBlurDepthHackDst)
 {
-  GfxCodeSurf *v8; 
+  __m256i *v4; 
+  __m256i *v5; 
+  __m256i *v6; 
+  __m256i *v7; 
+  __m256i *v8; 
+  __m256i *v9; 
   bool v10; 
-  GfxDrawGroupSetup v11; 
+  int v11; 
   Material *MaterialAtIndex; 
-  bool v16; 
-  GfxDrawGroupSetup v17; 
-  Material *v18; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  unsigned int v34; 
-  __int64 v35; 
-  __int64 v36; 
-  GfxCodeSurf *v37; 
-  GfxCodeSurf *v38; 
-  GfxCodeSurf *v39; 
-  GfxCodeSurf *v40; 
-  GfxCodeSurf *v41; 
-  GfxCodeSurf *v42; 
+  GfxCodeSurf *v13; 
+  bool v14; 
+  int v15; 
+  Material *v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  __int64 v22; 
+  GfxCodeSurf *v23; 
+  GfxCodeSurf *v24; 
+  GfxCodeSurf *v25; 
+  GfxCodeSurf *v26; 
+  GfxCodeSurf *v27; 
+  GfxCodeSurf *v28; 
   GfxCodeSurf *surfs; 
 
-  v39 = &frontEndDataOut->codeEmissivePostBlurDepthHackSurfs[frontEndDataOut->codeSurfEmissivePostBlurDepthHackCount];
-  _R15 = v39;
-  v41 = &frontEndDataOut->codeEmissiveDepthHackSurfs[1023];
-  v38 = &frontEndDataOut->codeEmissivePostBlurSurfs[frontEndDataOut->codeSurfEmissivePostBlurCount];
-  v42 = &frontEndDataOut->codeEmissivePostBlurSurfs[159];
-  _R12 = v38;
+  v25 = &frontEndDataOut->codeEmissivePostBlurDepthHackSurfs[frontEndDataOut->codeSurfEmissivePostBlurDepthHackCount];
+  v4 = (__m256i *)v25;
+  v27 = &frontEndDataOut->codeEmissiveDepthHackSurfs[1023];
+  v24 = &frontEndDataOut->codeEmissivePostBlurSurfs[frontEndDataOut->codeSurfEmissivePostBlurCount];
+  v28 = &frontEndDataOut->codeEmissivePostBlurSurfs[159];
+  v5 = (__m256i *)v24;
   surfs = drawListSrc->codeSurfList.surfs;
-  _R13 = surfs;
-  _RDI = surfs;
-  v37 = &frontEndDataOut->codeEmissiveDepthHackSurfs[frontEndDataOut->codeSurfEmissiveDepthHackCount];
-  v8 = &surfs[(unsigned __int64)drawListSrc->codeSurfList.count];
-  v40 = &frontEndDataOut->codeEmissivePostBlurDepthHackSurfs[31];
-  _R14 = v37;
+  v6 = (__m256i *)surfs;
+  v7 = (__m256i *)surfs;
+  v23 = &frontEndDataOut->codeEmissiveDepthHackSurfs[frontEndDataOut->codeSurfEmissiveDepthHackCount];
+  v8 = (__m256i *)&surfs[(unsigned __int64)drawListSrc->codeSurfList.count];
+  v26 = &frontEndDataOut->codeEmissivePostBlurDepthHackSurfs[31];
+  v9 = (__m256i *)v23;
 LABEL_2:
-  v10 = _RDI == v8;
-  if ( _RDI > v8 )
+  v10 = v7 == v8;
+  if ( v7 > v8 )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _RDI, v8) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v7, v8) )
       __debugbreak();
-    v10 = _RDI == v8;
+    v10 = v7 == v8;
   }
   while ( 1 )
   {
     if ( v10 )
       goto LABEL_24;
-    v11.fields = (GfxDrawGroupSetupFields)_RDI->drawGroup;
-    if ( (unsigned __int16)_RDI->drawGroup.packed >= rgp.materialCount )
+    v11 = v7->m256i_i32[0];
+    if ( (unsigned __int16)v7->m256i_i32[0] >= rgp.materialCount )
     {
-      LODWORD(v36) = rgp.materialCount;
-      LODWORD(v35) = LOWORD(v11.packed);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v35, v36) )
+      LODWORD(v22) = rgp.materialCount;
+      LODWORD(v21) = (unsigned __int16)v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    MaterialAtIndex = DB_GetMaterialAtIndex(rgp.sortedMaterials[LOWORD(v11.packed)]);
+    MaterialAtIndex = DB_GetMaterialAtIndex(rgp.sortedMaterials[(unsigned __int16)v11]);
     if ( !MaterialAtIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlist.cpp", 319, ASSERT_TYPE_ASSERT, "(sortedMaterial)", (const char *)&queryFormat, "sortedMaterial") )
       __debugbreak();
-    if ( (v11.packed & 0x2000000) != 0 )
+    if ( (v11 & 0x2000000) != 0 )
       break;
     if ( (MaterialAtIndex->runtimeFlags & 0x20) != 0 )
     {
-      if ( v38 > v42 )
+      if ( v24 > v28 )
       {
         R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_SplitDepthHackCodeSurfs EMPB");
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [r12], ymm0
-          vmovups ymm1, ymmword ptr [rdi+20h]
-          vmovups ymmword ptr [r12+20h], ymm1
-        }
-        _R12 = v38 + 1;
+        *(__m256i *)&v24->drawGroup.fields = *v7;
+        *(__m256i *)v24->bounds.midPoint.v = v7[1];
+        v5 = (__m256i *)&v24[1];
       }
-      if ( ++_RDI > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _RDI, v8) )
+      v7 += 2;
+      if ( v7 > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v7, v8) )
         __debugbreak();
 LABEL_24:
-      _RBX = v37;
+      v13 = v23;
       goto LABEL_25;
     }
-    ++_R13;
-    v10 = ++_RDI == v8;
-    if ( _RDI > v8 )
+    v6 += 2;
+    v7 += 2;
+    v10 = v7 == v8;
+    if ( v7 > v8 )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _RDI, v8) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v7, v8) )
         __debugbreak();
       goto LABEL_2;
     }
   }
   if ( (MaterialAtIndex->runtimeFlags & 0x20) != 0 )
   {
-    if ( v39 > v40 )
+    if ( v25 > v26 )
     {
       R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_SplitDepthHackCodeSurfs PBDH");
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymmword ptr [r15], ymm0
-        vmovups ymm1, ymmword ptr [rdi+20h]
-        vmovups ymmword ptr [r15+20h], ymm1
-      }
-      _R15 = v39 + 1;
+      *(__m256i *)&v25->drawGroup.fields = *v7;
+      *(__m256i *)v25->bounds.midPoint.v = v7[1];
+      v4 = (__m256i *)&v25[1];
     }
-    _RBX = v37;
+    v13 = v23;
   }
   else
   {
-    _RBX = v37;
-    if ( v37 > v41 )
+    v13 = v23;
+    if ( v23 > v27 )
     {
       R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_SplitDepthHackCodeSurfs EMDH");
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups ymm1, ymmword ptr [rdi+20h]
-        vmovups ymmword ptr [rbx+20h], ymm1
-      }
-      _R14 = v37 + 1;
+      *(__m256i *)&v23->drawGroup.fields = *v7;
+      *(__m256i *)v23->bounds.midPoint.v = v7[1];
+      v9 = (__m256i *)&v23[1];
     }
   }
-  v16 = ++_RDI == v8;
-  if ( _RDI <= v8 )
+  v7 += 2;
+  v14 = v7 == v8;
+  if ( v7 <= v8 )
     goto LABEL_29;
 LABEL_64:
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _RDI, v8) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v7, v8) )
     __debugbreak();
 LABEL_25:
-  v16 = _RDI == v8;
-  if ( _RDI > v8 )
+  v14 = v7 == v8;
+  if ( v7 > v8 )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _RDI, v8) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v7, v8) )
       __debugbreak();
-    v16 = _RDI == v8;
+    v14 = v7 == v8;
   }
 LABEL_29:
-  while ( !v16 )
+  while ( !v14 )
   {
-    v17.fields = (GfxDrawGroupSetupFields)_RDI->drawGroup;
-    if ( (unsigned __int16)_RDI->drawGroup.packed >= rgp.materialCount )
+    v15 = v7->m256i_i32[0];
+    if ( (unsigned __int16)v7->m256i_i32[0] >= rgp.materialCount )
     {
-      LODWORD(v36) = rgp.materialCount;
-      LODWORD(v35) = LOWORD(v17.packed);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v35, v36) )
+      LODWORD(v22) = rgp.materialCount;
+      LODWORD(v21) = (unsigned __int16)v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    v18 = DB_GetMaterialAtIndex(rgp.sortedMaterials[LOWORD(v17.packed)]);
-    if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlist.cpp", 382, ASSERT_TYPE_ASSERT, "(sortedMaterial)", (const char *)&queryFormat, "sortedMaterial") )
+    v16 = DB_GetMaterialAtIndex(rgp.sortedMaterials[(unsigned __int16)v15]);
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlist.cpp", 382, ASSERT_TYPE_ASSERT, "(sortedMaterial)", (const char *)&queryFormat, "sortedMaterial") )
       __debugbreak();
-    if ( (v17.packed & 0x2000000) != 0 )
+    if ( (v15 & 0x2000000) != 0 )
     {
-      if ( (v18->runtimeFlags & 0x20) == 0 )
+      if ( (v16->runtimeFlags & 0x20) == 0 )
       {
-        _RBX = v37;
-        if ( _R14 < v37 || _R14 > v41 )
+        v13 = v23;
+        if ( v9 < (__m256i *)v23 || v9 > (__m256i *)v27 )
         {
           R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_SplitDepthHackCodeSurfs EMDH");
         }
         else
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi]
-            vmovups ymmword ptr [r14], ymm0
-            vmovups ymm1, ymmword ptr [rdi+20h]
-            vmovups ymmword ptr [r14+20h], ymm1
-          }
-          ++_R14;
+          *v9 = *v7;
+          v9[1] = v7[1];
+          v9 += 2;
         }
         goto LABEL_63;
       }
-      if ( _R15 < v39 || _R15 > v40 )
+      if ( v4 < (__m256i *)v25 || v4 > (__m256i *)v26 )
       {
         R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_SplitDepthHackCodeSurfs PBDH");
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [r15], ymm0
-          vmovups ymm1, ymmword ptr [rdi+20h]
-          vmovups ymmword ptr [r15+20h], ymm1
-        }
-        ++_R15;
+        *v4 = *v7;
+        v4[1] = v7[1];
+        v4 += 2;
       }
     }
-    else if ( (v18->runtimeFlags & 0x20) != 0 )
+    else if ( (v16->runtimeFlags & 0x20) != 0 )
     {
-      if ( _R12 < v38 || _R12 > v42 )
+      if ( v5 < (__m256i *)v24 || v5 > (__m256i *)v28 )
       {
         R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_SplitDepthHackCodeSurfs EMPB");
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi]
-          vmovups ymmword ptr [r12], ymm0
-          vmovups ymm1, ymmword ptr [rdi+20h]
-          vmovups ymmword ptr [r12+20h], ymm1
-        }
-        ++_R12;
+        *v5 = *v7;
+        v5[1] = v7[1];
+        v5 += 2;
       }
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymmword ptr [r13+0], ymm0
-        vmovups ymm1, ymmword ptr [rdi+20h]
-        vmovups ymmword ptr [r13+20h], ymm1
-      }
-      ++_R13;
+      *v6 = *v7;
+      v6[1] = v7[1];
+      v6 += 2;
     }
-    _RBX = v37;
+    v13 = v23;
 LABEL_63:
-    v16 = ++_RDI == v8;
-    if ( _RDI > v8 )
+    v7 += 2;
+    v14 = v7 == v8;
+    if ( v7 > v8 )
       goto LABEL_64;
   }
-  v31 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)_R14 - (char *)_RBX) >> 6);
-  v32 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)_R12 - (char *)v38) >> 6);
-  v33 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)_R15 - (char *)v39) >> 6);
-  v34 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)_R13 - (char *)surfs) >> 6);
-  drawListDst->codeSurfList.surfs = v37;
-  drawListDst->codeSurfList.count = v31;
-  drawListPostBlurDst->codeSurfList.count = v32;
-  drawListPostBlurDst->codeSurfList.surfs = v38;
-  drawListPostBlurDepthHackDst->codeSurfList.count = v33;
-  drawListPostBlurDepthHackDst->codeSurfList.surfs = v39;
-  drawListSrc->codeSurfList.count = v34;
+  v17 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)v9 - (char *)v13) >> 6);
+  v18 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)v5 - (char *)v24) >> 6);
+  v19 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)v4 - (char *)v25) >> 6);
+  v20 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)((char *)v6 - (char *)surfs) >> 6);
+  drawListDst->codeSurfList.surfs = v23;
+  drawListDst->codeSurfList.count = v17;
+  drawListPostBlurDst->codeSurfList.count = v18;
+  drawListPostBlurDst->codeSurfList.surfs = v24;
+  drawListPostBlurDepthHackDst->codeSurfList.count = v19;
+  drawListPostBlurDepthHackDst->codeSurfList.surfs = v25;
+  drawListSrc->codeSurfList.count = v20;
   frontEndDataOut->codeSurfEmissiveDepthHackCount += drawListDst->codeSurfList.count;
   frontEndDataOut->codeSurfEmissivePostBlurCount += drawListPostBlurDst->codeSurfList.count;
   frontEndDataOut->codeSurfEmissivePostBlurDepthHackCount += drawListPostBlurDepthHackDst->codeSurfList.count;
@@ -370,110 +345,113 @@ void R_SplitSurfs(unsigned int splitKey, GfxDrawList *drawListSrc, GfxDrawList *
   unsigned __int64 v10; 
   __int64 v11; 
   GfxBrushModel *models; 
-  char v17; 
+  char v15; 
   GfxCodeSurf *surfs; 
   GfxCodeSurfListType listType; 
-  GfxCodeSurf *v20; 
+  GfxCodeSurf *v18; 
+  bool v19; 
+  GfxDrawGroupSetup v20; 
   bool v21; 
-  GfxDrawGroupSetup v22; 
-  bool v23; 
-  char v24; 
-  GfxGlassSurf *v25; 
-  GfxGlassSurf *v26; 
-  bool v27; 
+  char v22; 
+  GfxGlassSurf *v23; 
+  GfxGlassSurf *v24; 
+  bool v25; 
   __int64 materialSortedIndex; 
-  int v29; 
-  bool v30; 
-  __int64 v31; 
-  char v32; 
-  GfxCodeSurfListType v33; 
-  GfxCodeSurfListType v34; 
-  const GfxDrawSurf *v36; 
-  bool v37; 
-  int v40; 
-  int v41; 
-  bool v42; 
-  int v45; 
-  int v46; 
+  int v27; 
+  bool v28; 
+  __int64 v29; 
+  char v30; 
+  GfxCodeSurfListType v31; 
+  GfxCodeSurfListType v32; 
+  const GfxDrawSurf *array; 
+  const GfxDrawSurf *v34; 
+  bool v35; 
+  int v38; 
+  int v39; 
+  bool v40; 
+  int v43; 
+  int v44; 
   const unsigned __int8 *surfData; 
-  char v48; 
+  char v46; 
   const unsigned __int8 *visData; 
-  const unsigned __int8 *v50; 
-  unsigned int v51; 
-  unsigned int v52; 
-  bool v53; 
-  const unsigned __int8 *v54; 
-  char v55; 
-  unsigned int v56; 
-  unsigned int v57; 
+  const unsigned __int8 *v48; 
+  unsigned int v49; 
+  unsigned int v50; 
+  bool v51; 
+  const unsigned __int8 *v52; 
+  char v53; 
+  unsigned int v54; 
+  unsigned int v55; 
+  const unsigned __int8 *v56; 
+  const unsigned __int8 *v57; 
   const unsigned __int8 *v58; 
-  const unsigned __int8 *v59; 
+  bool v59; 
   const unsigned __int8 *v60; 
-  bool v61; 
-  const unsigned __int8 *v62; 
-  char v63; 
-  unsigned int v64; 
-  unsigned int v65; 
+  char v61; 
+  unsigned int v62; 
+  unsigned int v63; 
+  const unsigned __int8 *v64; 
+  const unsigned __int8 *v65; 
   const unsigned __int8 *v66; 
-  const unsigned __int8 *v67; 
+  bool v67; 
   const unsigned __int8 *v68; 
-  bool v69; 
-  const unsigned __int8 *v70; 
-  char v71; 
-  char v72; 
-  GfxStDrawSurf *v73; 
+  char v69; 
+  char v70; 
+  GfxStDrawSurf *v71; 
   __int64 count; 
-  GfxStDrawSurf *v75; 
+  GfxStDrawSurf *v73; 
+  bool v74; 
+  GfxDrawGroupSetup v75; 
   bool v76; 
-  GfxDrawGroupSetup v77; 
-  bool v78; 
   const unsigned __int64 *mark; 
-  const unsigned __int64 *v80; 
-  const unsigned __int64 *v81; 
-  GfxCodeSurf *v82; 
-  GfxCodeSurf *v83; 
-  GfxGlassSurf *v84; 
-  GfxGlassSurf *v85; 
+  const unsigned __int64 *v78; 
+  const unsigned __int64 *v79; 
+  GfxCodeSurf *v80; 
+  GfxCodeSurf *v81; 
+  GfxGlassSurf *v82; 
+  GfxGlassSurf *v83; 
+  unsigned int v84; 
+  const GfxDrawSurf *v85; 
   unsigned int v86; 
   const GfxDrawSurf *v87; 
   unsigned int v88; 
-  const GfxDrawSurf *v89; 
+  const unsigned __int8 *v89; 
   unsigned int v90; 
   const unsigned __int8 *v91; 
-  unsigned int v92; 
-  const unsigned __int8 *v93; 
+  const unsigned __int8 *v92; 
+  unsigned int v93; 
   const unsigned __int8 *v94; 
   unsigned int v95; 
   const unsigned __int8 *v96; 
-  unsigned int v97; 
-  const unsigned __int8 *v98; 
+  const unsigned __int8 *v97; 
+  unsigned int v98; 
   const unsigned __int8 *v99; 
   unsigned int v100; 
   const unsigned __int8 *v101; 
-  unsigned int v102; 
-  const unsigned __int8 *v103; 
-  const unsigned __int8 *v104; 
-  unsigned int v105; 
-  GfxStDrawSurf *v106; 
-  __int64 v107; 
-  __int64 v108; 
-  char v109; 
-  GfxCodeSurfListType v110; 
+  const unsigned __int8 *v102; 
+  unsigned int v103; 
+  GfxStDrawSurf *v104; 
+  __int64 v105; 
+  __int64 v106; 
+  char v107; 
+  GfxCodeSurfListType v108; 
+  const unsigned __int64 *v112; 
+  GfxCodeSurf *v113; 
   const unsigned __int64 *v114; 
-  GfxCodeSurf *v115; 
-  const unsigned __int64 *v116; 
-  const GfxDrawSurf *v117; 
-  const unsigned __int8 *v118; 
-  GfxCodeSurf *v119; 
-  GfxGlassSurf *v120; 
-  const unsigned __int8 *v121; 
-  const unsigned __int8 *v122; 
-  GfxGlassSurf *v123; 
-  GfxBspSurfIter v124; 
-  GfxCodeSurf *v125; 
-  GfxGlassSurf *v126; 
-  const GfxDrawSurf *v127; 
-  const GfxDrawSurf *v128; 
+  const GfxDrawSurf *v115; 
+  const unsigned __int8 *v116; 
+  GfxCodeSurf *v117; 
+  GfxGlassSurf *v118; 
+  const unsigned __int8 *v119; 
+  const unsigned __int8 *v120; 
+  GfxGlassSurf *v121; 
+  GfxBspSurfIter v122; 
+  GfxCodeSurf *v123; 
+  GfxGlassSurf *v124; 
+  const GfxDrawSurf *v125; 
+  const GfxDrawSurf *v126; 
+  const unsigned __int8 *v127; 
+  const unsigned __int8 *v128; 
   const unsigned __int8 *v129; 
   const unsigned __int8 *v130; 
   const unsigned __int8 *v131; 
@@ -481,21 +459,19 @@ void R_SplitSurfs(unsigned int splitKey, GfxDrawList *drawListSrc, GfxDrawList *
   const unsigned __int8 *v133; 
   const unsigned __int8 *v134; 
   const unsigned __int8 *v135; 
-  const unsigned __int8 *v136; 
-  const unsigned __int8 *v137; 
-  GfxStDrawSurf *v138; 
+  GfxStDrawSurf *v136; 
 
-  v109 = 0;
+  v107 = 0;
   v5 = 0;
   if ( (*renderFeatures & renderFeatureSplitPredicate) != 0 )
   {
     stream = drawListSrc->bspSurfList.stream;
     end = &stream[drawListSrc->bspSurfList.count];
-    v124.current = stream;
-    v124.end = end;
-    v124.mark = stream;
+    v122.current = stream;
+    v122.end = end;
+    v122.mark = stream;
 LABEL_3:
-    v114 = stream;
+    v112 = stream;
     while ( 1 )
     {
       v9 = stream < end;
@@ -514,503 +490,492 @@ LABEL_3:
       models = rgp.world->models;
       if ( (unsigned int)v11 >= models->surfaceCount )
       {
-        LODWORD(v108) = models->surfaceCount;
-        LODWORD(v107) = v11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bspsurfiter.h", 65, ASSERT_TYPE_ASSERT, "(unsigned)( firstSurfIndex ) < (unsigned)( rgp.world->models[0].surfaceCount )", "firstSurfIndex doesn't index rgp.world->models[0].surfaceCount\n\t%i not in [0, %i)", v107, v108) )
+        LODWORD(v106) = models->surfaceCount;
+        LODWORD(v105) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bspsurfiter.h", 65, ASSERT_TYPE_ASSERT, "(unsigned)( firstSurfIndex ) < (unsigned)( rgp.world->models[0].surfaceCount )", "firstSurfIndex doesn't index rgp.world->models[0].surfaceCount\n\t%i not in [0, %i)", v105, v106) )
           __debugbreak();
       }
-      _RDX = 2i64 * (unsigned int)v11;
-      _RCX = rgp.world->surfaces.surfaceMaterials;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+rdx*8]
-        vpextrq rax, xmm0, 1
-      }
+      _XMM0.fields = (GfxDrawSurfFields)rgp.world->surfaces.surfaceMaterials[(unsigned int)v11];
+      __asm { vpextrq rax, xmm0, 1 }
       if ( ((_RAX >> 27) & 0x3F) < splitKey )
       {
-        GfxBspSurfIter::SkipToNextDrawGroup(&v124);
-        end = v124.end;
-        stream = v124.current;
+        GfxBspSurfIter::SkipToNextDrawGroup(&v122);
+        end = v122.end;
+        stream = v122.current;
         goto LABEL_3;
       }
-      stream = v114;
+      stream = v112;
       v5 = 1;
-      v109 = 1;
+      v107 = 1;
     }
-    v17 = 0;
-    v116 = end;
+    v15 = 0;
+    v114 = end;
     surfs = drawListSrc->codeSurfList.surfs;
     listType = drawListSrc->codeSurfList.listType;
-    v20 = &surfs[(unsigned __int64)drawListSrc->codeSurfList.count];
-    v115 = surfs;
-    v125 = v20;
-    v110 = listType;
-    v119 = surfs;
+    v18 = &surfs[(unsigned __int64)drawListSrc->codeSurfList.count];
+    v113 = surfs;
+    v123 = v18;
+    v108 = listType;
+    v117 = surfs;
     while ( 1 )
     {
-      v21 = surfs == v20;
-      if ( surfs > v20 )
+      v19 = surfs == v18;
+      if ( surfs > v18 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfs, v20) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfs, v18) )
           __debugbreak();
-        v21 = surfs == v20;
+        v19 = surfs == v18;
       }
-      if ( v21 || v17 )
+      if ( v19 || v15 )
         break;
       if ( g_drawConsts.sortedMaterialKeys[LOWORD(surfs->drawGroup.packed)] < splitKey )
       {
-        if ( surfs > v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfs, v20) )
+        if ( surfs > v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfs, v18) )
           __debugbreak();
-        v22.fields = (GfxDrawGroupSetupFields)surfs->drawGroup;
+        v20.fields = (GfxDrawGroupSetupFields)surfs->drawGroup;
         do
         {
-          v115 = ++surfs;
-          v23 = surfs == v20;
-          if ( surfs > v20 )
+          v113 = ++surfs;
+          v21 = surfs == v18;
+          if ( surfs > v18 )
           {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfs, v20) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfs, v18) )
               __debugbreak();
-            v23 = surfs == v20;
+            v21 = surfs == v18;
           }
         }
-        while ( !v23 && surfs->drawGroup.packed == v22.packed );
+        while ( !v21 && surfs->drawGroup.packed == v20.packed );
       }
       else
       {
-        v17 = 1;
-        v109 = 1;
+        v15 = 1;
+        v107 = 1;
       }
     }
-    v24 = 0;
-    v25 = drawListSrc->glassSurfList.surfs;
-    v123 = v25;
-    v120 = v25;
-    v26 = &v25[drawListSrc->glassSurfList.count];
-    v126 = v26;
+    v22 = 0;
+    v23 = drawListSrc->glassSurfList.surfs;
+    v121 = v23;
+    v118 = v23;
+    v24 = &v23[drawListSrc->glassSurfList.count];
+    v124 = v24;
     while ( 1 )
     {
-      v27 = v25 == v26;
-      if ( v25 > v26 )
+      v25 = v23 == v24;
+      if ( v23 > v24 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v25, v26) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v23, v24) )
           __debugbreak();
-        v27 = v25 == v26;
+        v25 = v23 == v24;
       }
-      if ( v27 || v24 )
+      if ( v25 || v22 )
         break;
-      if ( g_drawConsts.sortedMaterialKeys[v25->materialSortedIndex] < splitKey )
+      if ( g_drawConsts.sortedMaterialKeys[v23->materialSortedIndex] < splitKey )
       {
-        if ( v25 > v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v25, v26) )
+        if ( v23 > v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v23, v24) )
           __debugbreak();
-        materialSortedIndex = v25->materialSortedIndex;
+        materialSortedIndex = v23->materialSortedIndex;
         if ( (unsigned int)materialSortedIndex >= rgp.materialCount )
         {
-          LODWORD(v108) = rgp.materialCount;
-          LODWORD(v107) = v25->materialSortedIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 45, ASSERT_TYPE_ASSERT, "(unsigned)( drawGroup.fields.materialSortedIndex ) < (unsigned)( rgp.materialCount )", "drawGroup.fields.materialSortedIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v107, v108) )
+          LODWORD(v106) = rgp.materialCount;
+          LODWORD(v105) = v23->materialSortedIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 45, ASSERT_TYPE_ASSERT, "(unsigned)( drawGroup.fields.materialSortedIndex ) < (unsigned)( rgp.materialCount )", "drawGroup.fields.materialSortedIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v105, v106) )
             __debugbreak();
           if ( (unsigned int)materialSortedIndex >= rgp.materialCount )
           {
-            LODWORD(v108) = rgp.materialCount;
-            LODWORD(v107) = materialSortedIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v107, v108) )
+            LODWORD(v106) = rgp.materialCount;
+            LODWORD(v105) = materialSortedIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v105, v106) )
               __debugbreak();
           }
         }
-        v29 = materialSortedIndex | (((LODWORD(DB_GetMaterialAtIndex(rgp.sortedMaterials[materialSortedIndex])->drawSurf.packed.p1) >> 22) & 1 | 0x1C) << 17);
+        v27 = materialSortedIndex | (((LODWORD(DB_GetMaterialAtIndex(rgp.sortedMaterials[materialSortedIndex])->drawSurf.packed.p1) >> 22) & 1 | 0x1C) << 17);
         do
         {
-          v123 = ++v25;
-          v30 = v25 == v26;
-          if ( v25 > v26 )
+          v121 = ++v23;
+          v28 = v23 == v24;
+          if ( v23 > v24 )
           {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v25, v26) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v23, v24) )
               __debugbreak();
-            v30 = v25 == v26;
+            v28 = v23 == v24;
           }
-          if ( v30 )
+          if ( v28 )
             break;
-          v31 = v25->materialSortedIndex;
-          if ( (unsigned int)v31 >= rgp.materialCount )
+          v29 = v23->materialSortedIndex;
+          if ( (unsigned int)v29 >= rgp.materialCount )
           {
-            LODWORD(v108) = rgp.materialCount;
-            LODWORD(v107) = v25->materialSortedIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 45, ASSERT_TYPE_ASSERT, "(unsigned)( drawGroup.fields.materialSortedIndex ) < (unsigned)( rgp.materialCount )", "drawGroup.fields.materialSortedIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v107, v108) )
+            LODWORD(v106) = rgp.materialCount;
+            LODWORD(v105) = v23->materialSortedIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 45, ASSERT_TYPE_ASSERT, "(unsigned)( drawGroup.fields.materialSortedIndex ) < (unsigned)( rgp.materialCount )", "drawGroup.fields.materialSortedIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v105, v106) )
               __debugbreak();
-            if ( (unsigned int)v31 >= rgp.materialCount )
+            if ( (unsigned int)v29 >= rgp.materialCount )
             {
-              LODWORD(v108) = rgp.materialCount;
-              LODWORD(v107) = v31;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v107, v108) )
+              LODWORD(v106) = rgp.materialCount;
+              LODWORD(v105) = v29;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v105, v106) )
                 __debugbreak();
             }
           }
         }
-        while ( ((unsigned int)v31 | (((LODWORD(DB_GetMaterialAtIndex(rgp.sortedMaterials[v31])->drawSurf.packed.p1) >> 22) & 1 | 0x1C) << 17)) == v29 );
+        while ( ((unsigned int)v29 | (((LODWORD(DB_GetMaterialAtIndex(rgp.sortedMaterials[v29])->drawSurf.packed.p1) >> 22) & 1 | 0x1C) << 17)) == v27 );
       }
       else
       {
-        v24 = 1;
-        v109 = 1;
+        v22 = 1;
+        v107 = 1;
       }
     }
-    v32 = 0;
-    v33 = v110;
-    v34 = v110;
-    _R13 = drawListSrc->drawSurfList.array;
-    v36 = &_R13[drawListSrc->drawSurfList.count];
-    v117 = _R13;
-    v128 = v36;
-    v127 = _R13;
+    v30 = 0;
+    v31 = v108;
+    v32 = v108;
+    array = drawListSrc->drawSurfList.array;
+    v34 = &array[drawListSrc->drawSurfList.count];
+    v115 = array;
+    v126 = v34;
+    v125 = array;
     while ( 1 )
     {
-      v37 = _R13 == v36;
-      if ( _R13 > v36 )
+      v35 = array == v34;
+      if ( array > v34 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _R13, v36) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", array, v34) )
           __debugbreak();
-        v37 = _R13 == v36;
+        v35 = array == v34;
       }
-      if ( v37 || v32 )
+      if ( v35 || v30 )
         break;
-      if ( ((_R13->packed.p1 >> 27) & 0x3F) < splitKey )
+      if ( ((array->packed.p1 >> 27) & 0x3F) < splitKey )
       {
-        if ( _R13 > v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _R13, v36) )
+        if ( array > v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", array, v34) )
           __debugbreak();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r13+0]
-          vpextrq r8, xmm0, 1
-        }
-        v40 = 0x10000;
-        v41 = (unsigned __int16)(v33 ^ _R8) ^ v33;
+        _XMM0 = array->fields;
+        __asm { vpextrq r8, xmm0, 1 }
+        v38 = 0x10000;
+        v39 = (unsigned __int16)(v31 ^ _R8) ^ v31;
         if ( ((((_R8 >> 16) & 7) - 1) & 0xFFFFFFFFFFFFFFFDui64) != 0 )
-          v40 = 0;
-        v33 = v40 | v41 & 0xFC00FFFF | (((_R8 >> 22) & 1 | (2 * ((_R8 >> 23) & 0xF | (((unsigned int)(_R8 >> 21) & 1) << 7)))) << 17);
+          v38 = 0;
+        v31 = v38 | v39 & 0xFC00FFFF | (((_R8 >> 22) & 1 | (2 * ((_R8 >> 23) & 0xF | (((unsigned int)(_R8 >> 21) & 1) << 7)))) << 17);
         do
         {
-          v117 = ++_R13;
-          v42 = _R13 == v36;
-          if ( _R13 > v36 )
+          v115 = ++array;
+          v40 = array == v34;
+          if ( array > v34 )
           {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", _R13, v36) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", array, v34) )
               __debugbreak();
-            v42 = _R13 == v36;
+            v40 = array == v34;
           }
-          if ( v42 )
+          if ( v40 )
             break;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r13+0]
-            vpextrq r8, xmm0, 1
-          }
-          v45 = 0x10000;
-          v46 = (unsigned __int16)(v34 ^ _R8) ^ v34;
+          _XMM0 = array->fields;
+          __asm { vpextrq r8, xmm0, 1 }
+          v43 = 0x10000;
+          v44 = (unsigned __int16)(v32 ^ _R8) ^ v32;
           if ( ((((_R8 >> 16) & 7) - 1) & 0xFFFFFFFFFFFFFFFDui64) != 0 )
-            v45 = 0;
-          v34 = v45 | v46 & 0xFC00FFFF | (((_R8 >> 22) & 1 | (2 * ((_R8 >> 23) & 0xF | (((unsigned int)(_R8 >> 21) & 1) << 7)))) << 17);
+            v43 = 0;
+          v32 = v43 | v44 & 0xFC00FFFF | (((_R8 >> 22) & 1 | (2 * ((_R8 >> 23) & 0xF | (((unsigned int)(_R8 >> 21) & 1) << 7)))) << 17);
         }
-        while ( v34 == v33 );
+        while ( v32 == v31 );
       }
       else
       {
-        v32 = 1;
-        v109 = 1;
+        v30 = 1;
+        v107 = 1;
       }
     }
     surfData = drawListSrc->smodelSurfList[0].surfData;
-    v48 = 0;
+    v46 = 0;
     visData = drawListSrc->smodelSurfList[0].visData;
-    v50 = &surfData[drawListSrc->smodelSurfList[0].surfDataBytes];
-    v51 = v110;
-    v52 = v110;
-    v131 = v50;
-    v118 = surfData;
-    v130 = visData;
-    v129 = surfData;
+    v48 = &surfData[drawListSrc->smodelSurfList[0].surfDataBytes];
+    v49 = v108;
+    v50 = v108;
+    v129 = v48;
+    v116 = surfData;
+    v128 = visData;
+    v127 = surfData;
     while ( 1 )
     {
 LABEL_94:
-      v53 = surfData == v50;
-      if ( surfData > v50 )
+      v51 = surfData == v48;
+      if ( surfData > v48 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfData, v50) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfData, v48) )
           __debugbreak();
-        v53 = surfData == v50;
+        v51 = surfData == v48;
       }
-      if ( v53 || v48 )
+      if ( v51 || v46 )
         break;
       if ( g_drawConsts.sortedMaterialKeys[*((unsigned __int16 *)surfData + 3)] < splitKey )
       {
-        if ( surfData > v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfData, v50) )
+        if ( surfData > v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", surfData, v48) )
           __debugbreak();
-        v51 = ((*((_WORD *)surfData + 2) & 1) << 17) | *((unsigned __int16 *)surfData + 3) | v51 & 0xFC000000;
+        v49 = ((*((_WORD *)surfData + 2) & 1) << 17) | *((unsigned __int16 *)surfData + 3) | v49 & 0xFC000000;
         while ( 1 )
         {
-          v54 = &surfData[4 * *(unsigned __int16 *)surfData + 12];
-          v118 = v54;
-          surfData = v54;
-          if ( v54 > v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v54, v50) )
+          v52 = &surfData[4 * *(unsigned __int16 *)surfData + 12];
+          v116 = v52;
+          surfData = v52;
+          if ( v52 > v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v52, v48) )
             __debugbreak();
-          if ( surfData == v50 )
+          if ( surfData == v48 )
             goto LABEL_112;
-          v52 = ((*((_WORD *)surfData + 2) & 1) << 17) | *((unsigned __int16 *)surfData + 3) | v52 & 0xFC000000;
-          if ( v52 != v51 )
+          v50 = ((*((_WORD *)surfData + 2) & 1) << 17) | *((unsigned __int16 *)surfData + 3) | v50 & 0xFC000000;
+          if ( v50 != v49 )
             goto LABEL_94;
         }
       }
-      v48 = 1;
-      v109 = 1;
+      v46 = 1;
+      v107 = 1;
     }
 LABEL_112:
-    v55 = 0;
-    v56 = v110;
-    v57 = v110;
-    v58 = drawListSrc->smodelSurfList[1].surfData;
-    v59 = drawListSrc->smodelSurfList[1].visData;
-    v60 = &v58[drawListSrc->smodelSurfList[1].surfDataBytes];
-    v134 = v60;
-    v122 = v58;
-    v133 = v59;
+    v53 = 0;
+    v54 = v108;
+    v55 = v108;
+    v56 = drawListSrc->smodelSurfList[1].surfData;
+    v57 = drawListSrc->smodelSurfList[1].visData;
+    v58 = &v56[drawListSrc->smodelSurfList[1].surfDataBytes];
     v132 = v58;
+    v120 = v56;
+    v131 = v57;
+    v130 = v56;
     while ( 1 )
     {
 LABEL_113:
-      v61 = v58 == v60;
-      if ( v58 > v60 )
+      v59 = v56 == v58;
+      if ( v56 > v58 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v58, v60) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v56, v58) )
           __debugbreak();
-        v61 = v58 == v60;
+        v59 = v56 == v58;
       }
-      if ( v61 || v55 )
+      if ( v59 || v53 )
         break;
-      if ( g_drawConsts.sortedMaterialKeys[*((unsigned __int16 *)v58 + 3)] < splitKey )
+      if ( g_drawConsts.sortedMaterialKeys[*((unsigned __int16 *)v56 + 3)] < splitKey )
       {
-        if ( v58 > v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v58, v60) )
+        if ( v56 > v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v56, v58) )
           __debugbreak();
-        v56 = ((*((_WORD *)v58 + 2) & 1) << 17) | *((unsigned __int16 *)v58 + 3) | v56 & 0xFC000000;
+        v54 = ((*((_WORD *)v56 + 2) & 1) << 17) | *((unsigned __int16 *)v56 + 3) | v54 & 0xFC000000;
         while ( 1 )
         {
-          v62 = &v58[4 * *(unsigned __int16 *)v58 + 12];
-          v122 = v62;
-          v58 = v62;
-          if ( v62 > v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v62, v60) )
+          v60 = &v56[4 * *(unsigned __int16 *)v56 + 12];
+          v120 = v60;
+          v56 = v60;
+          if ( v60 > v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v60, v58) )
             __debugbreak();
-          if ( v58 == v60 )
+          if ( v56 == v58 )
             goto LABEL_131;
-          v57 = ((*((_WORD *)v58 + 2) & 1) << 17) | *((unsigned __int16 *)v58 + 3) | v57 & 0xFC000000;
-          if ( v57 != v56 )
+          v55 = ((*((_WORD *)v56 + 2) & 1) << 17) | *((unsigned __int16 *)v56 + 3) | v55 & 0xFC000000;
+          if ( v55 != v54 )
             goto LABEL_113;
         }
       }
-      v55 = 1;
-      v109 = 1;
+      v53 = 1;
+      v107 = 1;
     }
 LABEL_131:
-    v63 = 0;
-    v64 = v110;
-    v65 = v110;
-    v66 = drawListSrc->smodelSurfList[2].surfData;
-    v67 = drawListSrc->smodelSurfList[2].visData;
-    v68 = &v66[drawListSrc->smodelSurfList[2].surfDataBytes];
-    v137 = v68;
-    v121 = v66;
-    v136 = v67;
+    v61 = 0;
+    v62 = v108;
+    v63 = v108;
+    v64 = drawListSrc->smodelSurfList[2].surfData;
+    v65 = drawListSrc->smodelSurfList[2].visData;
+    v66 = &v64[drawListSrc->smodelSurfList[2].surfDataBytes];
     v135 = v66;
+    v119 = v64;
+    v134 = v65;
+    v133 = v64;
     while ( 1 )
     {
 LABEL_132:
-      v69 = v66 == v68;
-      if ( v66 > v68 )
+      v67 = v64 == v66;
+      if ( v64 > v66 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v66, v68) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v64, v66) )
           __debugbreak();
-        v69 = v66 == v68;
+        v67 = v64 == v66;
       }
-      if ( v69 || v63 )
+      if ( v67 || v61 )
         break;
-      if ( g_drawConsts.sortedMaterialKeys[*((unsigned __int16 *)v66 + 3)] < splitKey )
+      if ( g_drawConsts.sortedMaterialKeys[*((unsigned __int16 *)v64 + 3)] < splitKey )
       {
-        if ( v66 > v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v66, v68) )
+        if ( v64 > v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v64, v66) )
           __debugbreak();
-        v64 = ((*((_WORD *)v66 + 2) & 1) << 17) | *((unsigned __int16 *)v66 + 3) | v64 & 0xFC000000;
+        v62 = ((*((_WORD *)v64 + 2) & 1) << 17) | *((unsigned __int16 *)v64 + 3) | v62 & 0xFC000000;
         while ( 1 )
         {
-          v70 = &v66[4 * *(unsigned __int16 *)v66 + 12];
-          v121 = v70;
-          v66 = v70;
-          if ( v70 > v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v70, v68) )
+          v68 = &v64[4 * *(unsigned __int16 *)v64 + 12];
+          v119 = v68;
+          v64 = v68;
+          if ( v68 > v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v68, v66) )
             __debugbreak();
-          if ( v66 == v68 )
+          if ( v64 == v66 )
             goto LABEL_150;
-          v65 = ((*((_WORD *)v66 + 2) & 1) << 17) | *((unsigned __int16 *)v66 + 3) | v65 & 0xFC000000;
-          if ( v65 != v64 )
+          v63 = ((*((_WORD *)v64 + 2) & 1) << 17) | *((unsigned __int16 *)v64 + 3) | v63 & 0xFC000000;
+          if ( v63 != v62 )
             goto LABEL_132;
         }
       }
-      v63 = 1;
-      v109 = 1;
+      v61 = 1;
+      v107 = 1;
     }
 LABEL_150:
-    v71 = 0;
-    v72 = v109;
-    v73 = drawListSrc->superTerrainSurfList.surfs;
+    v69 = 0;
+    v70 = v107;
+    v71 = drawListSrc->superTerrainSurfList.surfs;
     count = drawListSrc->superTerrainSurfList.count;
-    v138 = v73;
-    v75 = &v73[count];
+    v136 = v71;
+    v73 = &v71[count];
     while ( 1 )
     {
-      v76 = v73 == v75;
-      if ( v73 > v75 )
+      v74 = v71 == v73;
+      if ( v71 > v73 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v73, v75) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v71, v73) )
           __debugbreak();
-        v76 = v73 == v75;
+        v74 = v71 == v73;
       }
-      if ( v76 || v71 )
+      if ( v74 || v69 )
         break;
-      if ( g_drawConsts.sortedMaterialKeys[LOWORD(v73->drawGroup.packed)] < splitKey )
+      if ( g_drawConsts.sortedMaterialKeys[LOWORD(v71->drawGroup.packed)] < splitKey )
       {
-        if ( v73 > v75 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v73, v75) )
+        if ( v71 > v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v71, v73) )
           __debugbreak();
-        v77.fields = (GfxDrawGroupSetupFields)v73->drawGroup;
+        v75.fields = (GfxDrawGroupSetupFields)v71->drawGroup;
         do
         {
-          v78 = ++v73 == v75;
-          if ( v73 > v75 )
+          v76 = ++v71 == v73;
+          if ( v71 > v73 )
           {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v73, v75) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_surfiter.h", 48, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v71, v73) )
               __debugbreak();
-            v78 = v73 == v75;
+            v76 = v71 == v73;
           }
         }
-        while ( !v78 && v73->drawGroup.packed == v77.packed );
+        while ( !v76 && v71->drawGroup.packed == v75.packed );
       }
       else
       {
-        v71 = 1;
-        v72 = 1;
+        v69 = 1;
+        v70 = 1;
       }
     }
-    if ( v72 )
+    if ( v70 )
     {
-      mark = v124.mark;
-      v80 = v114;
-      if ( v124.mark > v114 )
+      mark = v122.mark;
+      v78 = v112;
+      if ( v122.mark > v112 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bspsurfiter.h", 29, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v124.mark, v114) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bspsurfiter.h", 29, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v122.mark, v112) )
           __debugbreak();
-        v80 = v114;
+        v78 = v112;
       }
       drawListSrc->bspSurfList.stream = mark;
-      drawListSrc->bspSurfList.count = truncate_cast<unsigned int,__int64>(v80 - mark);
-      v81 = v116;
-      if ( v114 > v116 )
+      drawListSrc->bspSurfList.count = truncate_cast<unsigned int,__int64>(v78 - mark);
+      v79 = v114;
+      if ( v112 > v114 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bspsurfiter.h", 36, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v114, v116) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bspsurfiter.h", 36, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v112, v114) )
           __debugbreak();
-        v81 = v116;
+        v79 = v114;
       }
-      drawListDst->bspSurfList.stream = v114;
-      drawListDst->bspSurfList.count = truncate_cast<unsigned int,__int64>(v81 - v114);
-      v82 = v119;
-      if ( v119 > v115 )
+      drawListDst->bspSurfList.stream = v112;
+      drawListDst->bspSurfList.count = truncate_cast<unsigned int,__int64>(v79 - v112);
+      v80 = v117;
+      if ( v117 > v113 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurfiter.h", 29, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v119, v115) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurfiter.h", 29, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v117, v113) )
           __debugbreak();
-        v82 = v119;
+        v80 = v117;
       }
-      drawListSrc->codeSurfList.surfs = v82;
-      drawListSrc->codeSurfList.count = truncate_cast<unsigned int,__int64>(v115 - v82);
-      drawListSrc->codeSurfList.listType = v110;
-      v83 = v125;
-      if ( v115 > v125 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurfiter.h", 37, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v115, v125) )
+      drawListSrc->codeSurfList.surfs = v80;
+      drawListSrc->codeSurfList.count = truncate_cast<unsigned int,__int64>(v113 - v80);
+      drawListSrc->codeSurfList.listType = v108;
+      v81 = v123;
+      if ( v113 > v123 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurfiter.h", 37, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v113, v123) )
         __debugbreak();
-      drawListDst->codeSurfList.surfs = v115;
-      drawListDst->codeSurfList.count = truncate_cast<unsigned int,__int64>(v83 - v115);
-      drawListDst->codeSurfList.listType = v110;
-      v84 = v120;
-      if ( v120 > v123 )
+      drawListDst->codeSurfList.surfs = v113;
+      drawListDst->codeSurfList.count = truncate_cast<unsigned int,__int64>(v81 - v113);
+      drawListDst->codeSurfList.listType = v108;
+      v82 = v118;
+      if ( v118 > v121 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 27, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v120, v123) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 27, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v118, v121) )
           __debugbreak();
-        v84 = v120;
+        v82 = v118;
       }
-      drawListSrc->glassSurfList.surfs = v84;
-      drawListSrc->glassSurfList.count = truncate_cast<unsigned int,__int64>(v123 - v84);
-      v85 = v126;
-      if ( v123 > v126 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 34, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v123, v126) )
+      drawListSrc->glassSurfList.surfs = v82;
+      drawListSrc->glassSurfList.count = truncate_cast<unsigned int,__int64>(v121 - v82);
+      v83 = v124;
+      if ( v121 > v124 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 34, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v121, v124) )
         __debugbreak();
-      drawListDst->glassSurfList.surfs = v123;
-      v86 = truncate_cast<unsigned int,__int64>(v85 - v123);
-      v87 = v127;
-      drawListDst->glassSurfList.count = v86;
-      if ( v87 > v117 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurfiter.h", 23, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v87, v117) )
+      drawListDst->glassSurfList.surfs = v121;
+      v84 = truncate_cast<unsigned int,__int64>(v83 - v121);
+      v85 = v125;
+      drawListDst->glassSurfList.count = v84;
+      if ( v85 > v115 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurfiter.h", 23, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v85, v115) )
         __debugbreak();
-      drawListSrc->drawSurfList.array = v87;
-      v88 = truncate_cast<unsigned int,__int64>(v117 - v87);
-      v89 = v128;
-      drawListSrc->drawSurfList.count = v88;
-      if ( v117 > v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurfiter.h", 30, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v117, v89) )
+      drawListSrc->drawSurfList.array = v85;
+      v86 = truncate_cast<unsigned int,__int64>(v115 - v85);
+      v87 = v126;
+      drawListSrc->drawSurfList.count = v86;
+      if ( v115 > v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurfiter.h", 30, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v115, v87) )
         __debugbreak();
-      drawListDst->drawSurfList.array = v117;
-      v90 = truncate_cast<unsigned int,__int64>(v89 - v117);
+      drawListDst->drawSurfList.array = v115;
+      v88 = truncate_cast<unsigned int,__int64>(v87 - v115);
+      v89 = v127;
+      drawListDst->drawSurfList.count = v88;
+      if ( v89 > v116 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 31, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v89, v116) )
+        __debugbreak();
+      drawListSrc->smodelSurfList[0].surfData = v89;
+      v90 = truncate_cast<unsigned int,__int64>(v116 - v89);
       v91 = v129;
-      drawListDst->drawSurfList.count = v90;
-      if ( v91 > v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 31, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v91, v118) )
+      v92 = v128;
+      drawListSrc->smodelSurfList[0].surfDataBytes = v90;
+      drawListSrc->smodelSurfList[0].visData = v92;
+      if ( v116 > v91 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 39, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v116, v91) )
         __debugbreak();
-      drawListSrc->smodelSurfList[0].surfData = v91;
-      v92 = truncate_cast<unsigned int,__int64>(v118 - v91);
-      v93 = v131;
+      drawListDst->smodelSurfList[0].surfData = v116;
+      v93 = truncate_cast<unsigned int,__int64>(v91 - v116);
       v94 = v130;
-      drawListSrc->smodelSurfList[0].surfDataBytes = v92;
-      drawListSrc->smodelSurfList[0].visData = v94;
-      if ( v118 > v93 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 39, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v118, v93) )
+      drawListDst->smodelSurfList[0].visData = v92;
+      drawListDst->smodelSurfList[0].surfDataBytes = v93;
+      if ( v94 > v120 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 31, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v94, v120) )
         __debugbreak();
-      drawListDst->smodelSurfList[0].surfData = v118;
-      v95 = truncate_cast<unsigned int,__int64>(v93 - v118);
+      drawListSrc->smodelSurfList[1].surfData = v94;
+      v95 = truncate_cast<unsigned int,__int64>(v120 - v94);
       v96 = v132;
-      drawListDst->smodelSurfList[0].visData = v94;
-      drawListDst->smodelSurfList[0].surfDataBytes = v95;
-      if ( v96 > v122 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 31, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v96, v122) )
+      v97 = v131;
+      drawListSrc->smodelSurfList[1].surfDataBytes = v95;
+      drawListSrc->smodelSurfList[1].visData = v97;
+      if ( v120 > v96 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 39, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v120, v96) )
         __debugbreak();
-      drawListSrc->smodelSurfList[1].surfData = v96;
-      v97 = truncate_cast<unsigned int,__int64>(v122 - v96);
-      v98 = v134;
+      drawListDst->smodelSurfList[1].surfData = v120;
+      v98 = truncate_cast<unsigned int,__int64>(v96 - v120);
       v99 = v133;
-      drawListSrc->smodelSurfList[1].surfDataBytes = v97;
-      drawListSrc->smodelSurfList[1].visData = v99;
-      if ( v122 > v98 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 39, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v122, v98) )
+      drawListDst->smodelSurfList[1].visData = v97;
+      drawListDst->smodelSurfList[1].surfDataBytes = v98;
+      if ( v99 > v119 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 31, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v99, v119) )
         __debugbreak();
-      drawListDst->smodelSurfList[1].surfData = v122;
-      v100 = truncate_cast<unsigned int,__int64>(v98 - v122);
+      drawListSrc->smodelSurfList[2].surfData = v99;
+      v100 = truncate_cast<unsigned int,__int64>(v119 - v99);
       v101 = v135;
-      drawListDst->smodelSurfList[1].visData = v99;
-      drawListDst->smodelSurfList[1].surfDataBytes = v100;
-      if ( v101 > v121 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 31, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v101, v121) )
+      v102 = v134;
+      drawListSrc->smodelSurfList[2].surfDataBytes = v100;
+      drawListSrc->smodelSurfList[2].visData = v102;
+      if ( v119 > v101 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 39, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v119, v101) )
         __debugbreak();
-      drawListSrc->smodelSurfList[2].surfData = v101;
-      v102 = truncate_cast<unsigned int,__int64>(v121 - v101);
-      v103 = v137;
+      drawListDst->smodelSurfList[2].surfData = v119;
+      v103 = truncate_cast<unsigned int,__int64>(v101 - v119);
       v104 = v136;
-      drawListSrc->smodelSurfList[2].surfDataBytes = v102;
-      drawListSrc->smodelSurfList[2].visData = v104;
-      if ( v121 > v103 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_smodelsurfiter.h", 39, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v121, v103) )
+      drawListDst->smodelSurfList[2].visData = v102;
+      drawListDst->smodelSurfList[2].surfDataBytes = v103;
+      if ( v104 > v71 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_drawsurfiter.h", 27, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v104, v71) )
         __debugbreak();
-      drawListDst->smodelSurfList[2].surfData = v121;
-      v105 = truncate_cast<unsigned int,__int64>(v103 - v121);
-      v106 = v138;
-      drawListDst->smodelSurfList[2].visData = v104;
-      drawListDst->smodelSurfList[2].surfDataBytes = v105;
-      if ( v106 > v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_drawsurfiter.h", 27, ASSERT_TYPE_ASSERT, "( mark ) <= ( current )", "%s <= %s\n\t%p, %p", "mark", "current", v106, v73) )
+      drawListSrc->superTerrainSurfList.surfs = v104;
+      drawListSrc->superTerrainSurfList.count = truncate_cast<unsigned int,__int64>(v71 - v104);
+      if ( v71 > v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_drawsurfiter.h", 34, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v71, v73) )
         __debugbreak();
-      drawListSrc->superTerrainSurfList.surfs = v106;
-      drawListSrc->superTerrainSurfList.count = truncate_cast<unsigned int,__int64>(v73 - v106);
-      if ( v73 > v75 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_st_drawsurfiter.h", 34, ASSERT_TYPE_ASSERT, "( current ) <= ( end )", "%s <= %s\n\t%p, %p", "current", "end", v73, v75) )
-        __debugbreak();
-      drawListDst->superTerrainSurfList.surfs = v73;
-      drawListDst->superTerrainSurfList.count = truncate_cast<unsigned int,__int64>(v75 - v73);
+      drawListDst->superTerrainSurfList.surfs = v71;
+      drawListDst->superTerrainSurfList.count = truncate_cast<unsigned int,__int64>(v73 - v71);
     }
   }
 }

@@ -720,38 +720,38 @@ __int64 PlayercardCache_CompressToBuffer(const PlayerProfileData *playerProfile,
 {
   int v4; 
   unsigned int RawHash; 
-  unsigned int v12; 
-  int v14; 
-  int v15; 
+  unsigned int v10; 
+  int v12; 
+  int v13; 
+  unsigned int v14; 
+  unsigned __int16 v15; 
   unsigned int v16; 
-  unsigned __int16 v17; 
+  unsigned __int8 v17; 
   unsigned int v18; 
-  unsigned __int8 v19; 
+  unsigned __int16 v19; 
   unsigned int v20; 
-  unsigned __int16 v21; 
+  unsigned __int8 v21; 
   unsigned int v22; 
-  unsigned __int8 v23; 
+  unsigned int v23; 
   unsigned int v24; 
   unsigned int v25; 
   unsigned int v26; 
-  unsigned int v27; 
-  unsigned int v28; 
   int *p_bodyModelIndex; 
+  unsigned int v28; 
+  unsigned int v29; 
   unsigned int v30; 
-  unsigned int v31; 
-  unsigned int v32; 
+  int v31; 
+  int v32; 
   int v33; 
   int v34; 
-  int v35; 
-  int v36; 
-  unsigned int v37; 
-  unsigned int v38; 
+  unsigned int v35; 
+  unsigned int v36; 
   DDLState toState; 
   DDLState fromState; 
   DDLState state; 
   DDLContext ddlContext; 
-  DDLState v44; 
-  DDLState v45; 
+  DDLState v42; 
+  DDLState v43; 
   DDLState result; 
 
   v4 = 0;
@@ -760,140 +760,129 @@ __int64 PlayercardCache_CompressToBuffer(const PlayerProfileData *playerProfile,
   fromState.offset = 0;
   fromState.arrayIndex = -1;
   toState.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rbp+60h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+160h+toState.member], xmm0 }
-  v44.isValid = 0;
-  v44.offset = 0;
-  v44.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+60h+var_80.member], xmm0 }
-  v45.isValid = 0;
-  v45.offset = 0;
-  v45.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+60h+var_60.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
+  v42.isValid = 0;
+  v42.offset = 0;
+  v42.arrayIndex = -1;
+  *(_OWORD *)&v42.member = _XMM0;
+  v43.isValid = 0;
+  v43.offset = 0;
+  v43.arrayIndex = -1;
+  *(_OWORD *)&v43.member = _XMM0;
   if ( !s_playerProfileDDLDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1138, ASSERT_TYPE_ASSERT, "(s_playerProfileDDLDef != nullptr)", (const char *)&queryFormat, "s_playerProfileDDLDef != nullptr") )
     __debugbreak();
   if ( s_playerProfileDDLDef->byteSize > bufferLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1139, ASSERT_TYPE_ASSERT, "(s_playerProfileDDLDef->byteSize <= bufferLen)", (const char *)&queryFormat, "s_playerProfileDDLDef->byteSize <= bufferLen") )
     __debugbreak();
   DDL_ResetContext(buffer, bufferLen, s_playerProfileDDLDef, &ddlContext, NULL, NULL);
-  _RAX = DDL_GetRootState(&result, s_playerProfileDDLDef);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+160h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, s_playerProfileDDLDef);
   RawHash = j_SL_GetRawHash(scr_const.customization_patch);
   DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL);
-  v12 = j_SL_GetRawHash(scr_const.customization_background);
-  DDL_MoveToNameByHash(&fromState, &v44, v12, NULL);
+  v10 = j_SL_GetRawHash(scr_const.customization_background);
+  DDL_MoveToNameByHash(&fromState, &v42, v10, NULL);
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+60h+state.member], xmm0
-    vmovdqu xmmword ptr [rbp+60h+result.member], xmm0
-  }
+  *(_OWORD *)&state.member = _XMM0;
+  *(_OWORD *)&result.member = _XMM0;
   result.isValid = 0;
   result.offset = 0;
   result.arrayIndex = -1;
   DDL_MoveToIndex(&toState, &state, 0);
-  v14 = playerProfile->customization_patch[0];
-  if ( (unsigned int)(v14 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v14, "signed", playerProfile->customization_patch[0]) )
+  v12 = playerProfile->customization_patch[0];
+  if ( (unsigned int)(v12 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v12, "signed", playerProfile->customization_patch[0]) )
     __debugbreak();
-  DDL_SetShort(&state, &ddlContext, v14);
-  DDL_MoveToIndex(&v44, &result, 0);
-  v15 = playerProfile->customization_background[0];
-  if ( (unsigned int)(v15 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v15, "signed", playerProfile->customization_background[0]) )
+  DDL_SetShort(&state, &ddlContext, v12);
+  DDL_MoveToIndex(&v42, &result, 0);
+  v13 = playerProfile->customization_background[0];
+  if ( (unsigned int)(v13 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v13, "signed", playerProfile->customization_background[0]) )
     __debugbreak();
-  DDL_SetShort(&result, &ddlContext, v15);
-  v16 = j_SL_GetRawHash(scr_const.rank_mp);
+  DDL_SetShort(&result, &ddlContext, v13);
+  v14 = j_SL_GetRawHash(scr_const.rank_mp);
+  DDL_MoveToNameByHash(&fromState, &toState, v14, NULL);
+  v15 = truncate_cast<short,int>(playerProfile->rank_mp);
+  DDL_SetShort(&toState, &ddlContext, v15);
+  v16 = j_SL_GetRawHash(scr_const.prestige_mp);
   DDL_MoveToNameByHash(&fromState, &toState, v16, NULL);
-  v17 = truncate_cast<short,int>(playerProfile->rank_mp);
-  DDL_SetShort(&toState, &ddlContext, v17);
-  v18 = j_SL_GetRawHash(scr_const.prestige_mp);
+  v17 = truncate_cast<unsigned char,int>(playerProfile->prestige_mp);
+  DDL_SetByte(&toState, &ddlContext, v17);
+  v18 = j_SL_GetRawHash(scr_const.rank_alien);
   DDL_MoveToNameByHash(&fromState, &toState, v18, NULL);
-  v19 = truncate_cast<unsigned char,int>(playerProfile->prestige_mp);
-  DDL_SetByte(&toState, &ddlContext, v19);
-  v20 = j_SL_GetRawHash(scr_const.rank_alien);
+  v19 = truncate_cast<short,int>(playerProfile->rank_alien);
+  DDL_SetShort(&toState, &ddlContext, v19);
+  v20 = j_SL_GetRawHash(scr_const.prestige_alien);
   DDL_MoveToNameByHash(&fromState, &toState, v20, NULL);
-  v21 = truncate_cast<short,int>(playerProfile->rank_alien);
-  DDL_SetShort(&toState, &ddlContext, v21);
-  v22 = j_SL_GetRawHash(scr_const.prestige_alien);
+  v21 = truncate_cast<unsigned char,int>(playerProfile->prestige_alien);
+  DDL_SetByte(&toState, &ddlContext, v21);
+  v22 = j_SL_GetRawHash(scr_const.name);
   DDL_MoveToNameByHash(&fromState, &toState, v22, NULL);
-  v23 = truncate_cast<unsigned char,int>(playerProfile->prestige_alien);
-  DDL_SetByte(&toState, &ddlContext, v23);
-  v24 = j_SL_GetRawHash(scr_const.name);
-  DDL_MoveToNameByHash(&fromState, &toState, v24, NULL);
   DDL_SetString(&toState, &ddlContext, playerProfile->name);
-  v25 = j_SL_GetRawHash(scr_const.clanAbbrev);
-  DDL_MoveToNameByHash(&fromState, &toState, v25, NULL);
+  v23 = j_SL_GetRawHash(scr_const.clanAbbrev);
+  DDL_MoveToNameByHash(&fromState, &toState, v23, NULL);
   DDL_SetString(&toState, &ddlContext, playerProfile->clanAbbrev);
-  v26 = j_SL_GetRawHash(scr_const.clanTagType);
-  DDL_MoveToNameByHash(&fromState, &toState, v26, NULL);
+  v24 = j_SL_GetRawHash(scr_const.clanTagType);
+  DDL_MoveToNameByHash(&fromState, &toState, v24, NULL);
   DDL_SetByte(&toState, &ddlContext, playerProfile->clanTagType);
-  v27 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPublic);
-  DDL_MoveToNameByHash(&fromState, &toState, v27, NULL);
+  v25 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPublic);
+  DDL_MoveToNameByHash(&fromState, &toState, v25, NULL);
   DDL_SetBool(&toState, &ddlContext, playerProfile->selectedOperatorIndexPublic);
-  v28 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPrivate);
-  DDL_MoveToNameByHash(&fromState, &toState, v28, NULL);
+  v26 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPrivate);
+  DDL_MoveToNameByHash(&fromState, &toState, v26, NULL);
   DDL_SetBool(&toState, &ddlContext, playerProfile->selectedOperatorIndexPrivate);
   p_bodyModelIndex = &playerProfile->customizationSets[0].customizationMPPrivate.bodyModelIndex;
   do
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+60h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
-    v30 = j_SL_GetRawHash(scr_const.customizationSets);
-    DDL_MoveToNameByHash(&fromState, &toState, v30, NULL);
+    v28 = j_SL_GetRawHash(scr_const.customizationSets);
+    DDL_MoveToNameByHash(&fromState, &toState, v28, NULL);
     DDL_MoveToIndex(&toState, &toState, v4);
-    v31 = j_SL_GetRawHash(scr_const.customization_mp_private);
-    DDL_MoveToNameByHash(&toState, &v44, v31, NULL);
-    v32 = j_SL_GetRawHash(scr_const.customization_mp_public);
-    DDL_MoveToNameByHash(&toState, &v45, v32, NULL);
-    if ( v44.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1200, ASSERT_TYPE_ASSERT, "(currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
+    v29 = j_SL_GetRawHash(scr_const.customization_mp_private);
+    DDL_MoveToNameByHash(&toState, &v42, v29, NULL);
+    v30 = j_SL_GetRawHash(scr_const.customization_mp_public);
+    DDL_MoveToNameByHash(&toState, &v43, v30, NULL);
+    if ( v42.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1200, ASSERT_TYPE_ASSERT, "(currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
       __debugbreak();
-    if ( v45.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1201, ASSERT_TYPE_ASSERT, "(currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
+    if ( v43.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1201, ASSERT_TYPE_ASSERT, "(currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
       __debugbreak();
-    DDL_MoveToIndex(&v44, &state, 0);
-    v33 = *(p_bodyModelIndex - 1);
-    if ( (unsigned int)(v33 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v33, "signed", *(p_bodyModelIndex - 1)) )
+    DDL_MoveToIndex(&v42, &state, 0);
+    v31 = *(p_bodyModelIndex - 1);
+    if ( (unsigned int)(v31 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v31, "signed", *(p_bodyModelIndex - 1)) )
+      __debugbreak();
+    DDL_SetShort(&state, &ddlContext, v31);
+    DDL_MoveToIndex(&v42, &state, 1);
+    v32 = *p_bodyModelIndex;
+    if ( (unsigned int)(*p_bodyModelIndex + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v32, "signed", *p_bodyModelIndex) )
+      __debugbreak();
+    DDL_SetShort(&state, &ddlContext, v32);
+    DDL_MoveToIndex(&v43, &state, 0);
+    v33 = *(p_bodyModelIndex - 4);
+    if ( (unsigned int)(v33 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v33, "signed", *(p_bodyModelIndex - 4)) )
       __debugbreak();
     DDL_SetShort(&state, &ddlContext, v33);
-    DDL_MoveToIndex(&v44, &state, 1);
-    v34 = *p_bodyModelIndex;
-    if ( (unsigned int)(*p_bodyModelIndex + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v34, "signed", *p_bodyModelIndex) )
+    DDL_MoveToIndex(&v43, &state, 1);
+    v34 = *(p_bodyModelIndex - 3);
+    if ( (unsigned int)(v34 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v34, "signed", *(p_bodyModelIndex - 3)) )
       __debugbreak();
     DDL_SetShort(&state, &ddlContext, v34);
-    DDL_MoveToIndex(&v45, &state, 0);
-    v35 = *(p_bodyModelIndex - 4);
-    if ( (unsigned int)(v35 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v35, "signed", *(p_bodyModelIndex - 4)) )
-      __debugbreak();
-    DDL_SetShort(&state, &ddlContext, v35);
-    DDL_MoveToIndex(&v45, &state, 1);
-    v36 = *(p_bodyModelIndex - 3);
-    if ( (unsigned int)(v36 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v36, "signed", *(p_bodyModelIndex - 3)) )
-      __debugbreak();
-    DDL_SetShort(&state, &ddlContext, v36);
-    v37 = j_SL_GetRawHash(scr_const.execution);
-    DDL_MoveToNameByHash(&toState, &v44, v37, NULL);
-    DDL_MoveToIndex(&v44, &v45, 0);
-    DDL_SetInt(&v45, &ddlContext, p_bodyModelIndex[1]);
-    DDL_MoveToIndex(&v44, &v45, 1);
-    DDL_SetInt(&v45, &ddlContext, *(p_bodyModelIndex - 2));
+    v35 = j_SL_GetRawHash(scr_const.execution);
+    DDL_MoveToNameByHash(&toState, &v42, v35, NULL);
+    DDL_MoveToIndex(&v42, &v43, 0);
+    DDL_SetInt(&v43, &ddlContext, p_bodyModelIndex[1]);
+    DDL_MoveToIndex(&v42, &v43, 1);
+    DDL_SetInt(&v43, &ddlContext, *(p_bodyModelIndex - 2));
     ++v4;
     p_bodyModelIndex += 6;
   }
   while ( v4 < 2 );
-  v38 = j_SL_GetRawHash(scr_const.ucdID);
-  DDL_MoveToNameByHash(&fromState, &toState, v38, NULL);
+  v36 = j_SL_GetRawHash(scr_const.ucdID);
+  DDL_MoveToNameByHash(&fromState, &toState, v36, NULL);
   DDL_SetUInt64(&toState, &ddlContext, playerProfile->ucdID);
   PlayercardCache_CompressToBuffer_WeaponSetup(&ddlContext, &fromState, playerProfile->weaponCustomizationPublic, &scr_const.weaponCustomizationPublic);
   PlayercardCache_CompressToBuffer_WeaponSetup(&ddlContext, &fromState, playerProfile->weaponCustomizationPrivate, &scr_const.weaponCustomizationPrivate);
@@ -945,13 +934,13 @@ void PlayercardCache_CompressToBuffer_WeaponSetup(DDLContext *context, DDLState 
   toState.offset = 0;
   v7 = *customization;
   v8 = weaponCustomizationSet;
-  __asm { vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   toState.arrayIndex = -1;
   fromState.arrayIndex = -1;
   state.arrayIndex = -1;
@@ -997,7 +986,7 @@ void PlayercardCache_CompressToBuffer_WeaponSetup(DDLContext *context, DDLState 
           v36.isValid = 0;
           v36.offset = 0;
           v36.arrayIndex = -1;
-          __asm { vmovdqu xmmword ptr [rbp+57h+var_A0.member], xmm0 }
+          *(_OWORD *)&v36.member = _XMM0;
           DDL_MoveToIndex(&state, &v36, v23);
           DDL_SetEnum(&v36, context, v24);
           ++v23;
@@ -1023,11 +1012,8 @@ void PlayercardCache_CompressToBuffer_WeaponSetup(DDLContext *context, DDLState 
           v36.isValid = 0;
           v36.offset = 0;
           v36.arrayIndex = -1;
-          __asm
-          {
-            vmovdqu xmmword ptr [rbp+57h+var_A0.member], xmm0
-            vmovdqu xmmword ptr [rbp+57h+var_60.member], xmm0
-          }
+          *(_OWORD *)&v36.member = _XMM0;
+          *(_OWORD *)&v38.member = _XMM0;
           v38.isValid = 0;
           v38.offset = 0;
           v38.arrayIndex = -1;
@@ -1117,28 +1103,25 @@ PlayercardCache_GetMPPrivateCustomizationData
 */
 char PlayercardCache_GetMPPrivateCustomizationData(XUID xuid, const char *name, bool *selectedOperatorIndex, CustomizationModels *customizationWest, CustomizationModels *customizationEast)
 {
+  double v9; 
   int executionId; 
-  int v13; 
+  double v11; 
+  int v12; 
   PlayerProfileData profileData; 
 
-  _RSI = customizationEast;
-  _RDI = customizationWest;
   if ( !selectedOperatorIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 2327, ASSERT_TYPE_ASSERT, "(selectedOperatorIndex)", (const char *)&queryFormat, "selectedOperatorIndex") )
     __debugbreak();
   if ( !PlayercardCache_GetPlayercard(xuid, name, &profileData) )
     return 0;
-  __asm { vmovsd  xmm0, qword ptr [rsp+0B128h+profileData.customizationSets.customizationMPPrivate.headModelIndex] }
+  v9 = *(double *)&profileData.customizationSets[0].customizationMPPrivate.headModelIndex;
   *selectedOperatorIndex = profileData.selectedOperatorIndexPrivate;
   executionId = profileData.customizationSets[0].customizationMPPrivate.executionId;
-  __asm
-  {
-    vmovsd  qword ptr [rdi], xmm0
-    vmovsd  xmm0, qword ptr [rsp+0B128h+profileData.customizationSets.customizationMPPrivate.headModelIndex+18h]
-  }
-  _RDI->executionId = executionId;
-  v13 = profileData.customizationSets[1].customizationMPPrivate.executionId;
-  __asm { vmovsd  qword ptr [rsi], xmm0 }
-  customizationEast->executionId = v13;
+  *(double *)&customizationWest->headModelIndex = v9;
+  v11 = *(double *)&profileData.customizationSets[1].customizationMPPrivate.headModelIndex;
+  customizationWest->executionId = executionId;
+  v12 = profileData.customizationSets[1].customizationMPPrivate.executionId;
+  *(double *)&customizationEast->headModelIndex = v11;
+  customizationEast->executionId = v12;
   return 1;
 }
 
@@ -1149,28 +1132,25 @@ PlayercardCache_GetMPPublicCustomizationData
 */
 char PlayercardCache_GetMPPublicCustomizationData(XUID xuid, const char *name, bool *selectedOperatorIndex, CustomizationModels *customizationWest, CustomizationModels *customizationEast)
 {
+  double v9; 
   int executionId; 
-  int v13; 
+  double v11; 
+  int v12; 
   PlayerProfileData profileData; 
 
-  _RSI = customizationEast;
-  _RDI = customizationWest;
   if ( !selectedOperatorIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 2345, ASSERT_TYPE_ASSERT, "(selectedOperatorIndex)", (const char *)&queryFormat, "selectedOperatorIndex") )
     __debugbreak();
   if ( !PlayercardCache_GetPlayercard(xuid, name, &profileData) )
     return 0;
-  __asm { vmovsd  xmm0, qword ptr [rsp+0B128h+profileData.customizationSets.customizationMPPublic.headModelIndex] }
+  v9 = *(double *)&profileData.customizationSets[0].customizationMPPublic.headModelIndex;
   *selectedOperatorIndex = profileData.selectedOperatorIndexPublic;
   executionId = profileData.customizationSets[0].customizationMPPublic.executionId;
-  __asm
-  {
-    vmovsd  qword ptr [rdi], xmm0
-    vmovsd  xmm0, qword ptr [rsp+0B128h+profileData.customizationSets.customizationMPPublic.headModelIndex+18h]
-  }
-  _RDI->executionId = executionId;
-  v13 = profileData.customizationSets[1].customizationMPPublic.executionId;
-  __asm { vmovsd  qword ptr [rsi], xmm0 }
-  customizationEast->executionId = v13;
+  *(double *)&customizationWest->headModelIndex = v9;
+  v11 = *(double *)&profileData.customizationSets[1].customizationMPPublic.headModelIndex;
+  customizationWest->executionId = executionId;
+  v12 = profileData.customizationSets[1].customizationMPPublic.executionId;
+  *(double *)&customizationEast->headModelIndex = v11;
+  customizationEast->executionId = v12;
   return 1;
 }
 
@@ -1261,30 +1241,30 @@ char PlayercardCache_GetPlayercard_Patch_Backing(XUID userID, const char *name, 
   const dvar_t *v13; 
   __int64 v15; 
   unsigned int RawHash; 
-  unsigned int v20; 
-  int v23; 
+  unsigned int v18; 
+  int v21; 
   DDLState fromState; 
   DDLState toState; 
-  DDLState v26; 
+  DDLState v24; 
   DDLState state; 
-  DDLState v28; 
+  DDLState v26; 
   DDLContext ddlContext; 
   DDLState result; 
-  int v31; 
+  int v29; 
   int out_patcha; 
   XUID xuid; 
 
   if ( mode )
   {
-    v23 = 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1762, ASSERT_TYPE_ASSERT, "(unsigned)( mode ) < (unsigned)( PLAYERCARDCACHE_COUNT )", "mode doesn't index PLAYERCARDCACHE_COUNT\n\t%i not in [0, %i)", mode, v23) )
+    v21 = 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1762, ASSERT_TYPE_ASSERT, "(unsigned)( mode ) < (unsigned)( PLAYERCARDCACHE_COUNT )", "mode doesn't index PLAYERCARDCACHE_COUNT\n\t%i not in [0, %i)", mode, v21) )
       __debugbreak();
   }
   Short = 0;
   xuid.m_id = userID.m_id;
   v11 = 0;
   out_patcha = 0;
-  v31 = 0;
+  v29 = 0;
   v12 = 0;
   while ( !XUID::operator==(&s_cached_playercards[v12].userID, &xuid) )
   {
@@ -1300,48 +1280,37 @@ char PlayercardCache_GetPlayercard_Patch_Backing(XUID userID, const char *name, 
         __debugbreak();
       if ( Com_DDL_CreateContext(&s_cached_playercards[v15].profile[1], 255, s_playerProfileDDLDef, &ddlContext, NULL, NULL) )
       {
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+160h+fromState.member], xmm0
-          vmovdqu xmmword ptr [rsp+160h+toState.member], xmm0
-          vmovdqu xmmword ptr [rbp+60h+var_E0.member], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&fromState.member = _XMM0;
+        *(_OWORD *)&toState.member = _XMM0;
+        *(_OWORD *)&v24.member = _XMM0;
         fromState.isValid = 0;
         fromState.offset = 0;
         fromState.arrayIndex = -1;
         toState.isValid = 0;
         toState.offset = 0;
         toState.arrayIndex = -1;
-        v26.isValid = 0;
-        v26.offset = 0;
-        v26.arrayIndex = -1;
-        _RAX = DDL_GetRootState(&result, s_playerProfileDDLDef);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+160h+fromState.isValid], ymm0
-        }
+        v24.isValid = 0;
+        v24.offset = 0;
+        v24.arrayIndex = -1;
+        fromState = *DDL_GetRootState(&result, s_playerProfileDDLDef);
         RawHash = j_SL_GetRawHash(scr_const.customization_patch);
         DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL);
-        v20 = j_SL_GetRawHash(scr_const.customization_background);
-        DDL_MoveToNameByHash(&fromState, &v26, v20, NULL);
+        v18 = j_SL_GetRawHash(scr_const.customization_background);
+        DDL_MoveToNameByHash(&fromState, &v24, v18, NULL);
         __asm { vpxor   xmm0, xmm0, xmm0 }
         state.isValid = 0;
         state.offset = 0;
         state.arrayIndex = -1;
-        __asm
-        {
-          vmovdqu xmmword ptr [rbp+60h+state.member], xmm0
-          vmovdqu xmmword ptr [rbp+60h+var_A0.member], xmm0
-        }
-        v28.isValid = 0;
-        v28.offset = 0;
-        v28.arrayIndex = -1;
+        *(_OWORD *)&state.member = _XMM0;
+        *(_OWORD *)&v26.member = _XMM0;
+        v26.isValid = 0;
+        v26.offset = 0;
+        v26.arrayIndex = -1;
         DDL_MoveToIndex(&toState, &state, mode);
-        DDL_MoveToIndex(&v26, &v28, mode);
+        DDL_MoveToIndex(&v24, &v26, mode);
         Short = DDL_GetShort(&state, &ddlContext);
-        v11 = DDL_GetShort(&v28, &ddlContext);
+        v11 = DDL_GetShort(&v26, &ddlContext);
         goto LABEL_13;
       }
     }
@@ -1353,9 +1322,9 @@ LABEL_7:
   Dvar_CheckFrontendServerThread(v13);
   if ( v13->current.enabled && Com_GameMode_SupportsFeature(WEAPON_STUNNED_LOOP|0x80) )
   {
-    RandomizePatchBacking(name, mode, &out_patcha, &v31);
+    RandomizePatchBacking(name, mode, &out_patcha, &v29);
     Short = out_patcha;
-    v11 = v31;
+    v11 = v29;
   }
 LABEL_13:
   if ( Short >= 4096 )
@@ -1843,49 +1812,51 @@ void PlayercardCache_SetFavoriteLoadout(const int controllerIndex, const int loa
   StatsGroup LoadoutStatsGroupForGameMode; 
   StatsSource ActiveStatsSource; 
   unsigned int RawHash; 
+  unsigned int v11; 
   unsigned int v13; 
   unsigned int v15; 
-  unsigned int v17; 
-  unsigned int v20; 
+  unsigned int v18; 
   WeaponCustomizationSet *weaponCustomizationPrivate; 
-  int v22; 
+  int v20; 
   char *cosmeticAttachment; 
-  unsigned int v26; 
+  unsigned int v24; 
   const char *Enum; 
-  unsigned int v29; 
+  unsigned int v27; 
   unsigned int Int; 
-  const char *v31; 
-  unsigned int v33; 
-  int v34; 
+  const char *v29; 
+  unsigned int v31; 
+  int v32; 
   scr_string_t camo; 
-  unsigned int v37; 
-  const char *v38; 
-  unsigned int v40; 
-  const char *v41; 
-  unsigned int v43; 
+  unsigned int v35; 
+  const char *v36; 
+  unsigned int v38; 
+  const char *v39; 
+  unsigned int v41; 
   int ArraySize; 
-  int v45; 
-  int v46; 
-  char *v47; 
-  const char *v48; 
-  unsigned int v49; 
+  int v43; 
+  int v44; 
+  char *v45; 
+  const char *v46; 
+  unsigned int v47; 
+  int v48; 
+  int v49; 
   int v50; 
-  int v51; 
-  int v52; 
   unsigned __int8 *p_variantID; 
-  char *v54; 
+  char *v52; 
+  unsigned int v55; 
+  const char *v56; 
   unsigned int v57; 
-  const char *v58; 
-  unsigned int v59; 
-  DDLState v60; 
-  DDLState v61; 
+  DDLState v58; 
+  DDLState v59; 
   StringTable *tablePtr; 
   DDLState fromState; 
-  DDLState v64; 
-  DDLState v65; 
+  DDLState v62; 
+  DDLState v63; 
   DDLContext context; 
   DDLState toState; 
   DDLState state; 
+  DDLState v67; 
+  DDLState v68; 
   DDLState v69; 
   DDLState v70; 
   DDLState v71; 
@@ -1894,8 +1865,6 @@ void PlayercardCache_SetFavoriteLoadout(const int controllerIndex, const int loa
   DDLState v74; 
   DDLState v75; 
   DDLState v76; 
-  DDLState v77; 
-  DDLState v78; 
   DDLState result; 
   char dest[256]; 
   char src[256]; 
@@ -1910,242 +1879,198 @@ void PlayercardCache_SetFavoriteLoadout(const int controllerIndex, const int loa
     fromState.offset = 0;
     fromState.isValid = 0;
     fromState.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+3F0h+fromState.member], xmm0 }
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+4F0h+fromState.isValid], ymm0
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+3F0h+toState.member], xmm0
-    }
+    *(_OWORD *)&fromState.member = _XMM0;
+    fromState = *DDL_GetRootState(&result, context.def);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&toState.member = _XMM0;
     toState.isValid = 0;
     toState.offset = 0;
     toState.arrayIndex = -1;
     RawHash = j_SL_GetRawHash(scr_const.customizationFavorites);
     DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+3F0h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
-    v13 = j_SL_GetRawHash(scr_const.favoriteLoadoutIndex);
-    DDL_MoveToNameByHash(&toState, &state, v13, NULL);
+    v11 = j_SL_GetRawHash(scr_const.favoriteLoadoutIndex);
+    DDL_MoveToNameByHash(&toState, &state, v11, NULL);
     DDL_SetInt(&state, &context, loadoutIndex);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+3F0h+var_3A8.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v67.member = _XMM0;
+    v67.isValid = 0;
+    v67.offset = 0;
+    v67.arrayIndex = -1;
+    v13 = j_SL_GetRawHash(scr_const.squadMembers);
+    DDL_MoveToNameByHash(&fromState, &v67, v13, NULL);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v68.member = _XMM0;
+    v68.isValid = 0;
+    v68.offset = 0;
+    v68.arrayIndex = -1;
+    v15 = j_SL_GetRawHash(scr_const.loadouts);
+    DDL_MoveToNameByHash(&v67, &v68, v15, NULL);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
     v69.isValid = 0;
     v69.offset = 0;
     v69.arrayIndex = -1;
-    v15 = j_SL_GetRawHash(scr_const.squadMembers);
-    DDL_MoveToNameByHash(&fromState, &v69, v15, NULL);
-    __asm
+    *(_OWORD *)&v69.member = _XMM0;
+    if ( DDL_MoveToIndex(&v68, &v69, loadoutIndex) )
     {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+3F0h+var_388.member], xmm0
-    }
-    v70.isValid = 0;
-    v70.offset = 0;
-    v70.arrayIndex = -1;
-    v17 = j_SL_GetRawHash(scr_const.loadouts);
-    DDL_MoveToNameByHash(&v69, &v70, v17, NULL);
-    __asm { vpxor   xmm0, xmm0, xmm0 }
-    v71.isValid = 0;
-    v71.offset = 0;
-    v71.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+3F0h+var_368.member], xmm0 }
-    if ( DDL_MoveToIndex(&v70, &v71, loadoutIndex) )
-    {
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+3F0h+var_348.member], xmm0
-      }
-      v72.isValid = 0;
-      v72.offset = 0;
-      v72.arrayIndex = -1;
-      v20 = j_SL_GetRawHash(scr_const.weaponSetups);
-      DDL_MoveToNameByHash(&v71, &v72, v20, NULL);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v70.member = _XMM0;
+      v70.isValid = 0;
+      v70.offset = 0;
+      v70.arrayIndex = -1;
+      v18 = j_SL_GetRawHash(scr_const.weaponSetups);
+      DDL_MoveToNameByHash(&v69, &v70, v18, NULL);
       weaponCustomizationPrivate = g_CachedPlayerProfileForEdit.weaponCustomizationPrivate;
       if ( LoadoutStatsGroupForGameMode != STATSGROUP_PRIVATELOADOUTS )
         weaponCustomizationPrivate = g_CachedPlayerProfileForEdit.weaponCustomizationPublic;
       StringTable_GetAsset("loot/weapon_ids.csv", (const StringTable **)&tablePtr);
-      v22 = 0;
+      v20 = 0;
       cosmeticAttachment = weaponCustomizationPrivate->cosmeticAttachment;
       do
       {
         __asm { vpxor   xmm0, xmm0, xmm0 }
-        v61.isValid = 0;
-        v61.offset = 0;
-        v61.arrayIndex = -1;
-        __asm { vmovdqu xmmword ptr [rsp+4F0h+var_4A0.member], xmm0 }
-        DDL_MoveToIndex(&v72, &v61, v22);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+var_328.member], xmm0
-        }
-        v73.isValid = 0;
-        v73.offset = 0;
-        v73.arrayIndex = -1;
-        v26 = j_SL_GetRawHash(scr_const.weapon);
-        DDL_MoveToNameByHash(&v61, &v73, v26, NULL);
-        Enum = DDL_GetEnum(&v73, &context);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+var_308.member], xmm0
-        }
-        v74.isValid = 0;
-        v74.offset = 0;
-        v74.arrayIndex = -1;
-        v29 = j_SL_GetRawHash(scr_const.variantID);
-        DDL_MoveToNameByHash(&v61, &v74, v29, NULL);
-        Int = DDL_GetInt(&v74, &context);
+        v59.isValid = 0;
+        v59.offset = 0;
+        v59.arrayIndex = -1;
+        *(_OWORD *)&v59.member = _XMM0;
+        DDL_MoveToIndex(&v70, &v59, v20);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v71.member = _XMM0;
+        v71.isValid = 0;
+        v71.offset = 0;
+        v71.arrayIndex = -1;
+        v24 = j_SL_GetRawHash(scr_const.weapon);
+        DDL_MoveToNameByHash(&v59, &v71, v24, NULL);
+        Enum = DDL_GetEnum(&v71, &context);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v72.member = _XMM0;
+        v72.isValid = 0;
+        v72.offset = 0;
+        v72.arrayIndex = -1;
+        v27 = j_SL_GetRawHash(scr_const.variantID);
+        DDL_MoveToNameByHash(&v59, &v72, v27, NULL);
+        Int = DDL_GetInt(&v72, &context);
         memset_0(dest, 0, sizeof(dest));
         I_strcat(dest, 0x100ui64, Enum);
         I_strcat(dest, 0x100ui64, "_variant_");
         memset_0(src, 0, sizeof(src));
         Com_sprintf(src, 0x100ui64, "%i", Int);
         I_strcat(dest, 0x100ui64, src);
-        v31 = StringTable_Lookup(tablePtr, 6, dest, 0);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+result.member], xmm0
-        }
+        v29 = StringTable_Lookup(tablePtr, 6, dest, 0);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&result.member = _XMM0;
         result.isValid = 0;
         result.offset = 0;
         result.arrayIndex = -1;
-        v33 = j_SL_GetRawHash(scr_const.lootItemID);
-        DDL_MoveToNameByHash(&v61, &result, v33, NULL);
-        v34 = atoi(v31);
+        v31 = j_SL_GetRawHash(scr_const.lootItemID);
+        DDL_MoveToNameByHash(&v59, &result, v31, NULL);
+        v32 = atoi(v29);
         camo = scr_const.camo;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+var_2E8.member], xmm0
-        }
-        weaponCustomizationPrivate->weapon = v34;
-        v75.isValid = 0;
-        v75.offset = 0;
-        v75.arrayIndex = -1;
-        v37 = j_SL_GetRawHash(camo);
-        DDL_MoveToNameByHash(&v61, &v75, v37, NULL);
-        v38 = DDL_GetEnum(&v75, &context);
-        Core_strcpy(cosmeticAttachment - 10245, 0x400ui64, v38);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+var_2C8.member], xmm0
-        }
-        v76.isValid = 0;
-        v76.offset = 0;
-        v76.arrayIndex = -1;
-        v40 = j_SL_GetRawHash(scr_const.cosmeticAttachment);
-        DDL_MoveToNameByHash(&v61, &v76, v40, NULL);
-        v41 = DDL_GetEnum(&v76, &context);
-        Core_strcpy(cosmeticAttachment, 0x400ui64, v41);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+var_458.member], xmm0
-        }
-        v64.isValid = 0;
-        v64.offset = 0;
-        v64.arrayIndex = -1;
-        v43 = j_SL_GetRawHash(scr_const.sticker);
-        DDL_MoveToNameByHash(&v61, &v64, v43, NULL);
-        ArraySize = DDL_StateGetArraySize(&v64);
-        v45 = 4;
-        v46 = 0;
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v73.member = _XMM0;
+        weaponCustomizationPrivate->weapon = v32;
+        v73.isValid = 0;
+        v73.offset = 0;
+        v73.arrayIndex = -1;
+        v35 = j_SL_GetRawHash(camo);
+        DDL_MoveToNameByHash(&v59, &v73, v35, NULL);
+        v36 = DDL_GetEnum(&v73, &context);
+        Core_strcpy(cosmeticAttachment - 10245, 0x400ui64, v36);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v74.member = _XMM0;
+        v74.isValid = 0;
+        v74.offset = 0;
+        v74.arrayIndex = -1;
+        v38 = j_SL_GetRawHash(scr_const.cosmeticAttachment);
+        DDL_MoveToNameByHash(&v59, &v74, v38, NULL);
+        v39 = DDL_GetEnum(&v74, &context);
+        Core_strcpy(cosmeticAttachment, 0x400ui64, v39);
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v62.member = _XMM0;
+        v62.isValid = 0;
+        v62.offset = 0;
+        v62.arrayIndex = -1;
+        v41 = j_SL_GetRawHash(scr_const.sticker);
+        DDL_MoveToNameByHash(&v59, &v62, v41, NULL);
+        ArraySize = DDL_StateGetArraySize(&v62);
+        v43 = 4;
+        v44 = 0;
         if ( ArraySize < 4 )
-          v45 = ArraySize;
-        if ( v45 > 0 )
+          v43 = ArraySize;
+        if ( v43 > 0 )
         {
-          v47 = cosmeticAttachment - 4096;
+          v45 = cosmeticAttachment - 4096;
           do
           {
             __asm { vpxor   xmm0, xmm0, xmm0 }
-            v60.isValid = 0;
-            v60.offset = 0;
-            v60.arrayIndex = -1;
-            __asm { vmovdqu xmmword ptr [rsp+4F0h+var_4C0.member], xmm0 }
-            DDL_MoveToIndex(&v64, &v60, v46);
-            v48 = DDL_GetEnum(&v60, &context);
-            Core_strcpy(v47, 0x400ui64, v48);
-            ++v46;
-            v47 += 1024;
+            v58.isValid = 0;
+            v58.offset = 0;
+            v58.arrayIndex = -1;
+            *(_OWORD *)&v58.member = _XMM0;
+            DDL_MoveToIndex(&v62, &v58, v44);
+            v46 = DDL_GetEnum(&v58, &context);
+            Core_strcpy(v45, 0x400ui64, v46);
+            ++v44;
+            v45 += 1024;
           }
-          while ( v46 < v45 );
+          while ( v44 < v43 );
         }
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+3F0h+var_438.member], xmm0
-        }
-        v65.isValid = 0;
-        v65.offset = 0;
-        v65.arrayIndex = -1;
-        v49 = j_SL_GetRawHash(scr_const.attachmentSetup);
-        DDL_MoveToNameByHash(&v61, &v65, v49, NULL);
-        v50 = DDL_StateGetArraySize(&v65);
-        v51 = 5;
-        if ( v50 < 5 )
-          v51 = v50;
-        v52 = 0;
-        if ( v51 > 0 )
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v63.member = _XMM0;
+        v63.isValid = 0;
+        v63.offset = 0;
+        v63.arrayIndex = -1;
+        v47 = j_SL_GetRawHash(scr_const.attachmentSetup);
+        DDL_MoveToNameByHash(&v59, &v63, v47, NULL);
+        v48 = DDL_StateGetArraySize(&v63);
+        v49 = 5;
+        if ( v48 < 5 )
+          v49 = v48;
+        v50 = 0;
+        if ( v49 > 0 )
         {
           p_variantID = &weaponCustomizationPrivate->attachmentSetup[0].variantID;
-          v54 = cosmeticAttachment - 9221;
+          v52 = cosmeticAttachment - 9221;
           do
           {
             __asm { vpxor   xmm0, xmm0, xmm0 }
-            v60.isValid = 0;
-            v60.offset = 0;
-            v60.arrayIndex = -1;
-            __asm { vmovdqu xmmword ptr [rsp+4F0h+var_4C0.member], xmm0 }
-            DDL_MoveToIndex(&v65, &v60, v52);
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr [rbp+3F0h+var_2A8.member], xmm0
-            }
-            v77.isValid = 0;
-            v77.offset = 0;
-            v77.arrayIndex = -1;
-            v57 = j_SL_GetRawHash(scr_const.attachment);
-            DDL_MoveToNameByHash(&v60, &v77, v57, NULL);
-            v58 = DDL_GetEnum(&v77, &context);
-            Core_strcpy(v54, 0x400ui64, v58);
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr [rbp+3F0h+var_288.member], xmm0
-            }
-            v78.isValid = 0;
-            v78.offset = 0;
-            v78.arrayIndex = -1;
-            v59 = j_SL_GetRawHash(scr_const.variantID);
-            DDL_MoveToNameByHash(&v60, &v78, v59, NULL);
-            ++v52;
-            *p_variantID = DDL_GetByte(&v78, &context);
-            v54 += 1025;
+            v58.isValid = 0;
+            v58.offset = 0;
+            v58.arrayIndex = -1;
+            *(_OWORD *)&v58.member = _XMM0;
+            DDL_MoveToIndex(&v63, &v58, v50);
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            *(_OWORD *)&v75.member = _XMM0;
+            v75.isValid = 0;
+            v75.offset = 0;
+            v75.arrayIndex = -1;
+            v55 = j_SL_GetRawHash(scr_const.attachment);
+            DDL_MoveToNameByHash(&v58, &v75, v55, NULL);
+            v56 = DDL_GetEnum(&v75, &context);
+            Core_strcpy(v52, 0x400ui64, v56);
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            *(_OWORD *)&v76.member = _XMM0;
+            v76.isValid = 0;
+            v76.offset = 0;
+            v76.arrayIndex = -1;
+            v57 = j_SL_GetRawHash(scr_const.variantID);
+            DDL_MoveToNameByHash(&v58, &v76, v57, NULL);
+            ++v50;
+            *p_variantID = DDL_GetByte(&v76, &context);
+            v52 += 1025;
             p_variantID += 1025;
           }
-          while ( v52 < v51 );
+          while ( v50 < v49 );
         }
-        ++v22;
+        ++v20;
         cosmeticAttachment += 11276;
         ++weaponCustomizationPrivate;
       }
-      while ( v22 < 2 );
+      while ( v20 < 2 );
     }
     else
     {
@@ -3332,8 +3257,11 @@ char PlayercardCache_Upload(const int controllerIndex)
   const XUID *Xuid; 
   int Playercard; 
   __int64 v10; 
+  char *v11; 
   char v12; 
   __int64 v13; 
+  unsigned __int8 *profile; 
+  __int128 v15; 
   XUID userID; 
   XUID result; 
   char dest[40]; 
@@ -3374,30 +3302,23 @@ char PlayercardCache_Upload(const int controllerIndex)
     v10 = Playercard;
     if ( !s_cached_playercards[v10].has_data || memcmp_0(&s_cached_playercards[v10].profile[1], &g_PlayerProfileCacheStore[0].publicProfile._bytes_20[65944 * v2 + 13], 0xFFui64) )
     {
-      _RAX = &g_PlayerProfileCacheStore[0].publicProfile._bytes_20[v6 + 12];
+      v11 = &g_PlayerProfileCacheStore[0].publicProfile._bytes_20[v6 + 12];
       v12 = g_PlayerProfileCacheStore[0].publicProfile._bytes_20[v6 + 12] + 1;
       if ( g_PlayerProfileCacheStore[0].publicProfile._bytes_20[v6 + 12] == 0xFF )
         v12 = 1;
       v13 = 2i64;
-      *_RAX = v12;
-      _RCX = s_cached_playercards[v10].profile;
+      *v11 = v12;
+      profile = s_cached_playercards[v10].profile;
       do
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm0, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rcx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rax+40h]
-          vmovups ymmword ptr [rcx+40h], ymm0
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-        }
-        _RAX += 128;
-        _RCX += 128;
-        __asm { vmovups xmmword ptr [rcx-10h], xmm1 }
+        v15 = *((_OWORD *)v11 + 7);
+        *(__m256i *)profile = *(__m256i *)v11;
+        *((__m256i *)profile + 1) = *((__m256i *)v11 + 1);
+        *((__m256i *)profile + 2) = *((__m256i *)v11 + 2);
+        *((_OWORD *)profile + 6) = *((_OWORD *)v11 + 6);
+        v11 += 128;
+        profile += 128;
+        *((_OWORD *)profile - 1) = v15;
         --v13;
       }
       while ( v13 );
@@ -3469,16 +3390,17 @@ void Playercard_AddToCache(const int controllerIndex, XUID userID, unsigned __in
   int *p_time; 
   const char *v10; 
   __int64 v11; 
+  unsigned __int8 *profile; 
   __int64 v13; 
+  __int128 v14; 
   void *userData; 
   DDLContext ddlContext; 
   XUID xuid; 
-  XUID v25; 
+  XUID v18; 
   XUID result; 
 
   xuid.m_id = userID.m_id;
-  _RDI = buffer;
-  XUID::XUID(&v25);
+  XUID::XUID(&v18);
   v5 = 0x7FFFFFFF;
   v6 = -1;
   if ( !s_playerProfileDDLDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 334, ASSERT_TYPE_ASSERT, "(s_playerProfileDDLDef != nullptr)", (const char *)&queryFormat, "s_playerProfileDDLDef != nullptr") )
@@ -3486,12 +3408,12 @@ void Playercard_AddToCache(const int controllerIndex, XUID userID, unsigned __in
   if ( !Live_IsSignedIn(controllerIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 335, ASSERT_TYPE_ASSERT, "(Live_IsSignedIn( controllerIndex ))", (const char *)&queryFormat, "Live_IsSignedIn( controllerIndex )") )
     __debugbreak();
   v7 = Live_GetXuid(&result, controllerIndex);
-  XUID::operator=(&v25, v7);
+  XUID::operator=(&v18, v7);
   v8 = 0;
   p_time = &s_cached_playercards[0].time;
   while ( !XUID::operator==(&xuid, &s_cached_playercards[v8].userID) )
   {
-    if ( XUID::operator==(&v25, &s_cached_playercards[v8].userID) || *p_time > v5 || (v5 = *p_time, v6 = v8, *p_time) )
+    if ( XUID::operator==(&v18, &s_cached_playercards[v8].userID) || *p_time > v5 || (v5 = *p_time, v6 = v8, *p_time) )
     {
       ++v8;
       p_time += 70;
@@ -3513,41 +3435,31 @@ LABEL_15:
   v11 = (int)v6;
   s_cached_playercards[v11].time = Sys_Milliseconds();
   XUID::operator=(&s_cached_playercards[v11].userID, &xuid);
-  _RCX = s_cached_playercards[v11].profile;
-  if ( _RDI )
+  profile = s_cached_playercards[v11].profile;
+  if ( buffer )
   {
     s_cached_playercards[v11].has_data = 1;
     v13 = 2i64;
     do
     {
-      _RCX += 128;
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      _RDI += 128;
-      __asm
-      {
-        vmovups xmmword ptr [rcx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-70h]
-        vmovups xmmword ptr [rcx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rdi-60h]
-        vmovups xmmword ptr [rcx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-50h]
-        vmovups xmmword ptr [rcx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rdi-40h]
-        vmovups xmmword ptr [rcx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-30h]
-        vmovups xmmword ptr [rcx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rdi-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-10h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      profile += 128;
+      v14 = *(_OWORD *)buffer;
+      buffer += 128;
+      *((_OWORD *)profile - 8) = v14;
+      *((_OWORD *)profile - 7) = *((_OWORD *)buffer - 7);
+      *((_OWORD *)profile - 6) = *((_OWORD *)buffer - 6);
+      *((_OWORD *)profile - 5) = *((_OWORD *)buffer - 5);
+      *((_OWORD *)profile - 4) = *((_OWORD *)buffer - 4);
+      *((_OWORD *)profile - 3) = *((_OWORD *)buffer - 3);
+      *((_OWORD *)profile - 2) = *((_OWORD *)buffer - 2);
+      *((_OWORD *)profile - 1) = *((_OWORD *)buffer - 1);
       --v13;
     }
     while ( v13 );
   }
   else
   {
-    DDL_ResetContext(_RCX, 256, s_playerProfileDDLDef, &ddlContext, NULL, NULL);
+    DDL_ResetContext(profile, 256, s_playerProfileDDLDef, &ddlContext, NULL, NULL);
     s_cached_playercards[v11].has_data = 1;
   }
 }
@@ -3718,33 +3630,33 @@ ReadPlayerProfileFromDDL
 char ReadPlayerProfileFromDDL(unsigned __int8 *buffer, PlayerProfileData *playerProfile)
 {
   unsigned int RawHash; 
-  unsigned int v9; 
+  unsigned int v7; 
   unsigned __int16 Short; 
-  unsigned __int16 v12; 
+  unsigned __int16 v10; 
+  unsigned int v11; 
+  unsigned int v12; 
   unsigned int v13; 
   unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
-  unsigned int v17; 
   const char *String; 
+  unsigned int v17; 
+  const char *v18; 
   unsigned int v19; 
-  const char *v20; 
+  unsigned int v20; 
   unsigned int v21; 
-  unsigned int v22; 
-  unsigned int v23; 
   int *p_bodyModelIndex; 
   int i; 
+  unsigned int v24; 
+  unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
   unsigned int v28; 
-  unsigned int v29; 
-  unsigned int v30; 
   DDLState toState; 
   DDLState fromState; 
   DDLState state; 
   DDLContext ddlContext; 
-  DDLState v36; 
-  DDLState v37; 
+  DDLState v34; 
+  DDLState v35; 
   DDLState result; 
 
   if ( !s_playerProfileDDLDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1450, ASSERT_TYPE_ASSERT, "(s_playerProfileDDLDef != nullptr)", (const char *)&queryFormat, "s_playerProfileDDLDef != nullptr") )
@@ -3755,120 +3667,109 @@ char ReadPlayerProfileFromDDL(unsigned __int8 *buffer, PlayerProfileData *player
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+140h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+140h+toState.member], xmm0 }
-  v36.isValid = 0;
-  v36.offset = 0;
-  v36.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+40h+var_80.member], xmm0 }
-  v37.isValid = 0;
-  v37.offset = 0;
-  v37.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+40h+var_60.member], xmm0 }
-  _RAX = DDL_GetRootState(&result, s_playerProfileDDLDef);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+140h+fromState.isValid], ymm0
-  }
+  *(_OWORD *)&toState.member = _XMM0;
+  v34.isValid = 0;
+  v34.offset = 0;
+  v34.arrayIndex = -1;
+  *(_OWORD *)&v34.member = _XMM0;
+  v35.isValid = 0;
+  v35.offset = 0;
+  v35.arrayIndex = -1;
+  *(_OWORD *)&v35.member = _XMM0;
+  fromState = *DDL_GetRootState(&result, s_playerProfileDDLDef);
   RawHash = j_SL_GetRawHash(scr_const.customization_patch);
   DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL);
-  v9 = j_SL_GetRawHash(scr_const.customization_background);
-  DDL_MoveToNameByHash(&fromState, &v36, v9, NULL);
+  v7 = j_SL_GetRawHash(scr_const.customization_background);
+  DDL_MoveToNameByHash(&fromState, &v34, v7, NULL);
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+40h+state.member], xmm0
-    vmovdqu xmmword ptr [rbp+40h+result.member], xmm0
-  }
+  *(_OWORD *)&state.member = _XMM0;
+  *(_OWORD *)&result.member = _XMM0;
   result.isValid = 0;
   result.offset = 0;
   result.arrayIndex = -1;
   DDL_MoveToIndex(&toState, &state, 0);
-  DDL_MoveToIndex(&v36, &result, 0);
+  DDL_MoveToIndex(&v34, &result, 0);
   Short = DDL_GetShort(&state, &ddlContext);
   playerProfile->customization_patch[0] = Short;
   if ( Short >= 0x1000u )
     playerProfile->customization_patch[0] = 0;
-  v12 = DDL_GetShort(&result, &ddlContext);
-  playerProfile->customization_background[0] = v12;
-  if ( v12 >= 0x8000u )
+  v10 = DDL_GetShort(&result, &ddlContext);
+  playerProfile->customization_background[0] = v10;
+  if ( v10 >= 0x8000u )
     playerProfile->customization_background[0] = 0;
-  v13 = j_SL_GetRawHash(scr_const.rank_mp);
-  DDL_MoveToNameByHash(&fromState, &toState, v13, NULL);
+  v11 = j_SL_GetRawHash(scr_const.rank_mp);
+  DDL_MoveToNameByHash(&fromState, &toState, v11, NULL);
   playerProfile->rank_mp = DDL_GetShort(&toState, &ddlContext);
-  v14 = j_SL_GetRawHash(scr_const.prestige_mp);
-  DDL_MoveToNameByHash(&fromState, &toState, v14, NULL);
+  v12 = j_SL_GetRawHash(scr_const.prestige_mp);
+  DDL_MoveToNameByHash(&fromState, &toState, v12, NULL);
   playerProfile->prestige_mp = DDL_GetByte(&toState, &ddlContext);
-  v15 = j_SL_GetRawHash(scr_const.rank_alien);
-  DDL_MoveToNameByHash(&fromState, &toState, v15, NULL);
+  v13 = j_SL_GetRawHash(scr_const.rank_alien);
+  DDL_MoveToNameByHash(&fromState, &toState, v13, NULL);
   playerProfile->rank_alien = DDL_GetShort(&toState, &ddlContext);
-  v16 = j_SL_GetRawHash(scr_const.prestige_alien);
-  DDL_MoveToNameByHash(&fromState, &toState, v16, NULL);
+  v14 = j_SL_GetRawHash(scr_const.prestige_alien);
+  DDL_MoveToNameByHash(&fromState, &toState, v14, NULL);
   playerProfile->prestige_alien = DDL_GetByte(&toState, &ddlContext);
-  v17 = j_SL_GetRawHash(scr_const.name);
-  DDL_MoveToNameByHash(&fromState, &toState, v17, NULL);
+  v15 = j_SL_GetRawHash(scr_const.name);
+  DDL_MoveToNameByHash(&fromState, &toState, v15, NULL);
   String = DDL_GetString(&toState, &ddlContext);
   Core_strcpy(playerProfile->name, 0x24ui64, String);
-  v19 = j_SL_GetRawHash(scr_const.clanAbbrev);
+  v17 = j_SL_GetRawHash(scr_const.clanAbbrev);
+  DDL_MoveToNameByHash(&fromState, &toState, v17, NULL);
+  v18 = DDL_GetString(&toState, &ddlContext);
+  Core_strcpy(playerProfile->clanAbbrev, 6ui64, v18);
+  v19 = j_SL_GetRawHash(scr_const.clanTagType);
   DDL_MoveToNameByHash(&fromState, &toState, v19, NULL);
-  v20 = DDL_GetString(&toState, &ddlContext);
-  Core_strcpy(playerProfile->clanAbbrev, 6ui64, v20);
-  v21 = j_SL_GetRawHash(scr_const.clanTagType);
-  DDL_MoveToNameByHash(&fromState, &toState, v21, NULL);
   playerProfile->clanTagType = DDL_GetByte(&toState, &ddlContext);
-  v22 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPublic);
-  DDL_MoveToNameByHash(&fromState, &toState, v22, NULL);
+  v20 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPublic);
+  DDL_MoveToNameByHash(&fromState, &toState, v20, NULL);
   playerProfile->selectedOperatorIndexPublic = DDL_GetBool(&toState, &ddlContext);
-  v23 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPrivate);
-  DDL_MoveToNameByHash(&fromState, &toState, v23, NULL);
+  v21 = j_SL_GetRawHash(scr_const.selectedOperatorIndexPrivate);
+  DDL_MoveToNameByHash(&fromState, &toState, v21, NULL);
   playerProfile->selectedOperatorIndexPrivate = DDL_GetBool(&toState, &ddlContext);
   p_bodyModelIndex = &playerProfile->customizationSets[0].customizationMPPrivate.bodyModelIndex;
   for ( i = 0; i < 2; ++i )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+40h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
-    v26 = j_SL_GetRawHash(scr_const.customizationSets);
-    DDL_MoveToNameByHash(&fromState, &toState, v26, NULL);
+    v24 = j_SL_GetRawHash(scr_const.customizationSets);
+    DDL_MoveToNameByHash(&fromState, &toState, v24, NULL);
     DDL_MoveToIndex(&toState, &toState, i);
-    v27 = j_SL_GetRawHash(scr_const.customization_mp_private);
-    DDL_MoveToNameByHash(&toState, &v36, v27, NULL);
-    v28 = j_SL_GetRawHash(scr_const.customization_mp_public);
-    DDL_MoveToNameByHash(&toState, &v37, v28, NULL);
-    if ( v36.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1522, ASSERT_TYPE_ASSERT, "(currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
+    v25 = j_SL_GetRawHash(scr_const.customization_mp_private);
+    DDL_MoveToNameByHash(&toState, &v34, v25, NULL);
+    v26 = j_SL_GetRawHash(scr_const.customization_mp_public);
+    DDL_MoveToNameByHash(&toState, &v35, v26, NULL);
+    if ( v34.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1522, ASSERT_TYPE_ASSERT, "(currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState2.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
       __debugbreak();
-    if ( v37.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1523, ASSERT_TYPE_ASSERT, "(currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
+    if ( v35.member->arraySize != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\playercard_cache.cpp", 1523, ASSERT_TYPE_ASSERT, "(currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT)", "%s\n\tDDL def doesnt match the customization struct def", "currState3.member->arraySize == CUSTOMIZATION_TYPE_COUNT") )
       __debugbreak();
-    DDL_MoveToIndex(&v36, &state, 0);
+    DDL_MoveToIndex(&v34, &state, 0);
     *(p_bodyModelIndex - 1) = DDL_GetShort(&state, &ddlContext);
-    DDL_MoveToIndex(&v36, &state, 1);
+    DDL_MoveToIndex(&v34, &state, 1);
     *p_bodyModelIndex = DDL_GetShort(&state, &ddlContext);
-    DDL_MoveToIndex(&v37, &state, 0);
+    DDL_MoveToIndex(&v35, &state, 0);
     *(p_bodyModelIndex - 4) = DDL_GetShort(&state, &ddlContext);
-    DDL_MoveToIndex(&v37, &state, 1);
+    DDL_MoveToIndex(&v35, &state, 1);
     *(p_bodyModelIndex - 3) = DDL_GetShort(&state, &ddlContext);
-    v29 = j_SL_GetRawHash(scr_const.execution);
-    DDL_MoveToNameByHash(&toState, &v36, v29, NULL);
-    DDL_MoveToIndex(&v36, &v37, 0);
-    p_bodyModelIndex[1] = DDL_GetInt(&v37, &ddlContext);
-    DDL_MoveToIndex(&v36, &v37, 1);
-    *(p_bodyModelIndex - 2) = DDL_GetInt(&v37, &ddlContext);
+    v27 = j_SL_GetRawHash(scr_const.execution);
+    DDL_MoveToNameByHash(&toState, &v34, v27, NULL);
+    DDL_MoveToIndex(&v34, &v35, 0);
+    p_bodyModelIndex[1] = DDL_GetInt(&v35, &ddlContext);
+    DDL_MoveToIndex(&v34, &v35, 1);
+    *(p_bodyModelIndex - 2) = DDL_GetInt(&v35, &ddlContext);
     p_bodyModelIndex += 6;
   }
-  v30 = j_SL_GetRawHash(scr_const.ucdID);
-  DDL_MoveToNameByHash(&fromState, &toState, v30, NULL);
+  v28 = j_SL_GetRawHash(scr_const.ucdID);
+  DDL_MoveToNameByHash(&fromState, &toState, v28, NULL);
   playerProfile->ucdID = DDL_GetUInt64(&toState, &ddlContext);
   ReadPlayerProfileFromDDL_WeaponSetup(&ddlContext, &fromState, playerProfile->weaponCustomizationPublic, &scr_const.weaponCustomizationPublic);
   ReadPlayerProfileFromDDL_WeaponSetup(&ddlContext, &fromState, playerProfile->weaponCustomizationPrivate, &scr_const.weaponCustomizationPrivate);
@@ -3924,13 +3825,13 @@ char ReadPlayerProfileFromDDL_WeaponSetup(DDLContext *context, DDLState *rootSta
   toState.offset = 0;
   v7 = *customization;
   v8 = weaponCustomizationSet;
-  __asm { vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   toState.arrayIndex = -1;
   fromState.arrayIndex = -1;
   state.arrayIndex = -1;
@@ -3978,7 +3879,7 @@ char ReadPlayerProfileFromDDL_WeaponSetup(DDLContext *context, DDLState *rootSta
           v41.isValid = 0;
           v41.offset = 0;
           v41.arrayIndex = -1;
-          __asm { vmovdqu xmmword ptr [rbp+57h+var_A0.member], xmm0 }
+          *(_OWORD *)&v41.member = _XMM0;
           DDL_MoveToIndex(&state, &v41, v25);
           v27 = DDL_GetEnum(&v41, context);
           Core_strcpy(v26, 0x400ui64, v27);
@@ -4005,11 +3906,8 @@ char ReadPlayerProfileFromDDL_WeaponSetup(DDLContext *context, DDLState *rootSta
           v41.isValid = 0;
           v41.offset = 0;
           v41.arrayIndex = -1;
-          __asm
-          {
-            vmovdqu xmmword ptr [rbp+57h+var_A0.member], xmm0
-            vmovdqu xmmword ptr [rbp+57h+var_60.member], xmm0
-          }
+          *(_OWORD *)&v41.member = _XMM0;
+          *(_OWORD *)&v43.member = _XMM0;
           v43.isValid = 0;
           v43.offset = 0;
           v43.arrayIndex = -1;

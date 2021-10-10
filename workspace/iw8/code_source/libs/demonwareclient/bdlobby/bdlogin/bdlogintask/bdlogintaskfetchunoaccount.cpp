@@ -214,28 +214,23 @@ bdLoginTaskFetchUnoAccount::abortTask
 */
 void bdLoginTaskFetchUnoAccount::abortTask(bdLoginTaskFetchUnoAccount *this)
 {
+  double ElapsedTimeInSeconds; 
   bdHTTP *m_httpInterface; 
-  bdHTTP *v5; 
+  bdHTTP *v4; 
   char *m_httpUnoRequest; 
-  double v7; 
 
   bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
   this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
   bdStrlcpy(this->m_unoStatusMessage, "UnoAccount task aborted", 0x400ui64);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", v7);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   m_httpInterface = this->m_httpInterface;
   if ( m_httpInterface )
   {
     m_httpInterface->abortOperation(m_httpInterface);
-    v5 = this->m_httpInterface;
-    if ( v5 )
-      ((void (__fastcall *)(bdHTTP *, __int64))v5->~bdHTTP)(v5, 1i64);
+    v4 = this->m_httpInterface;
+    if ( v4 )
+      ((void (__fastcall *)(bdHTTP *, __int64))v4->~bdHTTP)(v4, 1i64);
     this->m_httpInterface = NULL;
   }
   m_httpUnoRequest = this->m_httpUnoRequest;
@@ -278,98 +273,98 @@ void bdLoginTaskFetchUnoAccount::fetchAccount(bdLoginTaskFetchUnoAccount *this)
 {
   const char *Region; 
   bdEnvironment Environment; 
-  const char *v5; 
-  __int64 v6; 
-  unsigned __int64 v7; 
-  size_t v8; 
-  const char *v9; 
+  const char *v4; 
+  __int64 v5; 
+  unsigned __int64 v6; 
+  size_t v7; 
+  const char *v8; 
   bdLoginResult *m_loginResult; 
   const char *m_clientID; 
   unsigned __int64 UnoID; 
   char *m_httpUnoRequest; 
-  char *v14; 
-  bdHTTP *v15; 
+  char *v13; 
+  bdHTTP *v14; 
   bdHTTP *m_httpInterface; 
   bool (__fastcall *setHeader)(bdHTTP *, const char *, const unsigned __int64); 
   unsigned __int64 TransactionID; 
   const char *DWToken; 
-  unsigned __int64 v21; 
-  __int64 v22; 
-  bdJSONSerializer v23; 
+  double ElapsedTimeInSeconds; 
+  unsigned __int64 v20; 
+  bdJSONSerializer v21; 
   char buf[512]; 
-  char v25[512]; 
-  char v26[6784]; 
+  char v23[512]; 
+  char v24[6784]; 
   char buffer[6784]; 
 
   memset_0(buffer, 0, sizeof(buffer));
-  bdJSONSerializer::bdJSONSerializer(&v23, buffer, 0x1A80u);
+  bdJSONSerializer::bdJSONSerializer(&v21, buffer, 0x1A80u);
   Region = bdLoginConfig::getRegion((bdLoginConfig *)this->m_loginConfig);
   Environment = bdLoginResult::getEnvironment(this->m_loginResult);
   if ( *(_WORD *)Region == *(_WORD *)"cn" && Region[2] == aCn[2] )
   {
     bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-    v5 = "https:
+    v4 = "https:
+    v5 = -1i64;
     v6 = -1i64;
-    v7 = -1i64;
     do
-      ++v7;
-    while ( aHttpsUnoSCodQq[v7] );
+      ++v6;
+    while ( aHttpsUnoSCodQq[v6] );
   }
   else
   {
     bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-    v5 = "https:
+    v4 = "https:
+    v5 = -1i64;
     v6 = -1i64;
-    v7 = -1i64;
     do
-      ++v7;
-    while ( aHttpsSUnoDemon[v7] );
+      ++v6;
+    while ( aHttpsSUnoDemon[v6] );
   }
-  v8 = 511i64;
-  if ( v7 < 0x1FF )
-    v8 = v7;
-  memcpy_0(v26, v5, v8);
-  v26[v8] = 0;
+  v7 = 511i64;
+  if ( v6 < 0x1FF )
+    v7 = v6;
+  memcpy_0(v24, v4, v7);
+  v24[v7] = 0;
   if ( Environment )
   {
     if ( Environment == BD_ENVIRONMENT_CERT )
     {
-      v9 = "cert";
+      v8 = "cert";
       goto LABEL_15;
     }
     if ( Environment == BD_ENVIRONMENT_PROD )
     {
-      v9 = "prod";
+      v8 = "prod";
       goto LABEL_15;
     }
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\helpers\\bdloginutils.h", "bdLoginUtils::getUnoUrl", 0xA6u, "Unknown environment (%u): Defaulting to DEV Uno URL", Environment);
   }
-  v9 = "dev";
+  v8 = "dev";
 LABEL_15:
-  bdSnprintf(buf, 0x200ui64, v26, v9);
+  bdSnprintf(buf, 0x200ui64, v24, v8);
   m_loginResult = this->m_loginResult;
   m_clientID = m_loginResult->m_clientID;
   UnoID = bdLoginResult::getUnoID(m_loginResult);
-  bdSnprintf(v25, 0x200ui64, "%s/users/%I64u/?client=%s", buf, UnoID, m_clientID);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::fetchAccount", 0x61u, "Fetch Uno Account URL : %s", v25);
+  bdSnprintf(v23, 0x200ui64, "%s/users/%I64u/?client=%s", buf, UnoID, m_clientID);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::fetchAccount", 0x61u, "Fetch Uno Account URL : %s", v23);
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   do
-    ++v6;
-  while ( buffer[v6] );
+    ++v5;
+  while ( buffer[v5] );
   m_httpUnoRequest = this->m_httpUnoRequest;
   if ( m_httpUnoRequest )
   {
     bdMemory::deallocate(m_httpUnoRequest);
     this->m_httpUnoRequest = NULL;
   }
-  this->m_httpUnoRequestLength = v6 + 1;
-  v14 = (char *)bdMemory::allocate((unsigned int)(v6 + 1));
-  this->m_httpUnoRequest = v14;
-  if ( v14 )
+  this->m_httpUnoRequestLength = v5 + 1;
+  v13 = (char *)bdMemory::allocate((unsigned int)(v5 + 1));
+  this->m_httpUnoRequest = v13;
+  if ( v13 )
   {
-    v15 = bdHTTPUtility::newHTTP(0, 0);
-    this->m_httpInterface = v15;
-    ((void (__fastcall *)(bdHTTP *, __int64, char *))v15->initRequest)(v15, 1i64, v25);
+    v14 = bdHTTPUtility::newHTTP(0, 0);
+    this->m_httpInterface = v14;
+    ((void (__fastcall *)(bdHTTP *, __int64, char *))v14->initRequest)(v14, 1i64, v23);
     bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpUnoResponse, 0x1000u);
     m_httpInterface = this->m_httpInterface;
     setHeader = m_httpInterface->setHeader;
@@ -377,14 +372,14 @@ LABEL_15:
     setHeader(m_httpInterface, "X-TransactionID", TransactionID);
     this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json");
     DWToken = bdLoginResult::getDWToken(this->m_loginResult);
-    bdSnprintf(v26, 0x1A80ui64, "Bearer %s", DWToken);
-    this->m_httpInterface->setHeader(this->m_httpInterface, "Authorization", v26);
+    bdSnprintf(v24, 0x1A80ui64, "Bearer %s", DWToken);
+    this->m_httpInterface->setHeader(this->m_httpInterface, "Authorization", v24);
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::fetchAccount", 0x72u, "Setting state to FETCHING_UNO_ACCOUNT");
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
     this->m_unoStatusCode = NOT_CONNECTED;
     bdStrlcpy(this->m_unoStatusMessage, "Fetching Uno account", 0x400ui64);
-    v21 = bdLoginResult::getTransactionID(this->m_loginResult);
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::fetchAccount", 0x77u, "Started call to bdLoginTaskFetchUnoAccount::fetchAccount. TransactionID: (%I64u)", v21);
+    v20 = bdLoginResult::getTransactionID(this->m_loginResult);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::fetchAccount", 0x77u, "Started call to bdLoginTaskFetchUnoAccount::fetchAccount. TransactionID: (%I64u)", v20);
   }
   else
   {
@@ -392,15 +387,10 @@ LABEL_15:
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
     this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
     bdStrlcpy(this->m_unoStatusMessage, "Failed to create task buffer", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+3A98h+var_3A60], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", v22);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
-  bdJSONSerializer::~bdJSONSerializer(&v23);
+  bdJSONSerializer::~bdJSONSerializer(&v21);
 }
 
 /*
@@ -430,20 +420,15 @@ bdLoginTaskFetchUnoAccount::processUnoJSON
 */
 void bdLoginTaskFetchUnoAccount::processUnoJSON(bdLoginTaskFetchUnoAccount *this, bdJSONDeserializer *responseJSON)
 {
-  double v5; 
+  double ElapsedTimeInSeconds; 
 
   bdCrossPlatformAccountInfo::deserializeFromJSON(&this->m_unoAccount, responseJSON);
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::processUnoJSON", 0x83u, "Successfully deserialized Uno Account, setting state to COMPLETED");
   bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
   this->m_unoStatusCode = CONNECTED;
   bdStrlcpy(this->m_unoStatusMessage, "Successfully deserialized Uno Account", 0x400ui64);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", v5);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   bdLoginResult::setCrossPlatformAccountInfo(this->m_loginResult, &this->m_unoAccount);
 }
 
@@ -454,41 +439,41 @@ bdLoginTaskFetchUnoAccount::processUnoReply
 */
 void bdLoginTaskFetchUnoAccount::processUnoReply(bdLoginTaskFetchUnoAccount *this)
 {
+  unsigned int v2; 
   unsigned int v3; 
-  unsigned int v4; 
+  double ElapsedTimeInSeconds; 
+  double v5; 
   bdJSONDeserializer *p_json; 
-  unsigned int v8; 
+  unsigned int v7; 
   bool Object; 
   unsigned int m_count; 
   unsigned int i; 
-  bdLobbyErrorCode v12; 
-  double v13; 
-  double v14; 
-  __int64 v15; 
+  bdLobbyErrorCode v11; 
+  __int64 v12; 
   bdJSONDeserializer json; 
   bdJSONDeserializer value; 
-  bdJSONDeserializer v18; 
-  bdJSONDeserializer v19; 
-  __int64 v20; 
+  bdJSONDeserializer v15; 
+  bdJSONDeserializer v16; 
+  __int64 v17; 
   bdLoginTaskFetchUnoAccount::FetchUnoAccountStatusCode code; 
 
-  v20 = -2i64;
+  v17 = -2i64;
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::processUnoReply", 0x20u, "Processing bdLogin Uno Account Creation task reply");
-  v3 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
-  v4 = v3;
-  if ( v3 != 200 )
+  v2 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
+  v3 = v2;
+  if ( v2 != 200 )
   {
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::processUnoReply", 0x35u, "Uno task failed with HTTP code [%u]", v3);
-    bdJSONDeserializer::bdJSONDeserializer(&v19);
-    v8 = 0;
-    if ( !bdJSONDeserializer::parse(&v19, this->m_httpUnoResponse) || !bdJSONDeserializer::isObject(&v19) )
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::processUnoReply", 0x35u, "Uno task failed with HTTP code [%u]", v2);
+    bdJSONDeserializer::bdJSONDeserializer(&v16);
+    v7 = 0;
+    if ( !bdJSONDeserializer::parse(&v16, this->m_httpUnoResponse) || !bdJSONDeserializer::isObject(&v16) )
       goto LABEL_26;
     bdJSONDeserializer::bdJSONDeserializer(&value);
-    Object = bdJSONDeserializer::getObject(&v19, "error", &value);
+    Object = bdJSONDeserializer::getObject(&v16, "error", &value);
     bdHandleAssert(1, "errCode != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\helpers\\bdloginutils.h", "bdLoginUtils::parseErrorJSON", 0x1DFu, "No errcode provided to parseErrorJson");
     if ( Object && value.m_type == BD_JSON_OBJECT )
     {
-      v8 = bdLoginUtils::parseSingleError(&value);
+      v7 = bdLoginUtils::parseSingleError(&value);
       if ( bdJSONDeserializer::hasKey(&value, "context") )
       {
         bdJSONDeserializer::bdJSONDeserializer(&json);
@@ -498,113 +483,113 @@ void bdLoginTaskFetchUnoAccount::processUnoReply(bdLoginTaskFetchUnoAccount *thi
           m_count = json.m_count;
           for ( i = 0; i < m_count; ++i )
           {
-            bdJSONDeserializer::bdJSONDeserializer(&v18);
-            bdJSONDeserializer::getObject(&json, i, &v18);
-            if ( v18.m_type == BD_JSON_OBJECT )
-              v8 = bdLoginUtils::parseSingleError(&v18);
-            bdJSONDeserializer::~bdJSONDeserializer(&v18);
+            bdJSONDeserializer::bdJSONDeserializer(&v15);
+            bdJSONDeserializer::getObject(&json, i, &v15);
+            if ( v15.m_type == BD_JSON_OBJECT )
+              v7 = bdLoginUtils::parseSingleError(&v15);
+            bdJSONDeserializer::~bdJSONDeserializer(&v15);
           }
         }
         bdJSONDeserializer::~bdJSONDeserializer(&json);
       }
     }
     bdJSONDeserializer::~bdJSONDeserializer(&value);
-    if ( !v8 )
+    if ( !v7 )
       goto LABEL_26;
-    if ( v8 > 0x346AC )
+    if ( v7 > 0x346AC )
     {
-      if ( v8 > 0x38E8C )
+      if ( v7 > 0x38E8C )
       {
-        switch ( v8 )
+        switch ( v7 )
         {
           case 0x3AD68u:
-            v12 = BD_UNO_TOS_ALREADY_ACCEPTED;
+            v11 = BD_UNO_TOS_ALREADY_ACCEPTED;
             goto LABEL_27;
           case 0x3B920u:
-            v12 = BD_UNO_EMAIL_ALREADY_EXISTS;
+            v11 = BD_UNO_EMAIL_ALREADY_EXISTS;
             goto LABEL_27;
           case 0x3D860u:
-            v12 = BD_UNO_NO_RENAME_TOKENS;
+            v11 = BD_UNO_NO_RENAME_TOKENS;
             goto LABEL_27;
         }
       }
       else
       {
-        switch ( v8 )
+        switch ( v7 )
         {
           case 0x38E8Cu:
-            v12 = BD_UNO_TOS_CONTENT_NOT_FOUND;
+            v11 = BD_UNO_TOS_CONTENT_NOT_FOUND;
             goto LABEL_27;
           case 0x35B60u:
-            v12 = BD_UNO_UNAUTHORIZED_ACCESS;
+            v11 = BD_UNO_UNAUTHORIZED_ACCESS;
             goto LABEL_27;
           case 0x36330u:
-            v12 = BD_UNO_INVALID_TOKEN;
+            v11 = BD_UNO_INVALID_TOKEN;
             goto LABEL_27;
           case 0x36394u:
-            v12 = BD_UMBRELLA_EXPIRED_TOKEN;
+            v11 = BD_UMBRELLA_EXPIRED_TOKEN;
             goto LABEL_27;
           case 0x38E28u:
-            v12 = BD_UNO_TOS_VERSION_NOT_FOUND;
+            v11 = BD_UNO_TOS_VERSION_NOT_FOUND;
             goto LABEL_27;
         }
       }
     }
     else
     {
-      if ( v8 == 214700 )
+      if ( v7 == 214700 )
       {
-        v12 = BD_UNO_INVALID_DATE_OF_BIRTH;
+        v11 = BD_UNO_INVALID_DATE_OF_BIRTH;
         goto LABEL_27;
       }
-      if ( v8 > 0x34008 )
+      if ( v7 > 0x34008 )
       {
-        switch ( v8 )
+        switch ( v7 )
         {
           case 0x343F0u:
-            v12 = BD_UNO_FIELD_INVALID;
+            v11 = BD_UNO_FIELD_INVALID;
             goto LABEL_27;
           case 0x34454u:
-            v12 = BD_UNO_MISSING_FIELD;
+            v11 = BD_UNO_MISSING_FIELD;
             goto LABEL_27;
           case 0x345E4u:
-            v12 = BD_UNO_INVALID_USERNAME;
+            v11 = BD_UNO_INVALID_USERNAME;
             goto LABEL_27;
           case 0x34648u:
-            v12 = BD_UNO_INVALID_PASSWORD;
+            v11 = BD_UNO_INVALID_PASSWORD;
             goto LABEL_27;
         }
       }
       else
       {
-        switch ( v8 )
+        switch ( v7 )
         {
           case 0x34008u:
-            v12 = BD_UNO_INVALID_DATA;
+            v11 = BD_UNO_INVALID_DATA;
             goto LABEL_27;
           case 1u:
 LABEL_55:
-            v12 = BD_LOGIN_UNKOWN_ERROR;
+            v11 = BD_LOGIN_UNKOWN_ERROR;
             goto LABEL_27;
           case 0x21340u:
-            v12 = BD_UNO_MARKETPLACE_ERROR;
+            v11 = BD_UNO_MARKETPLACE_ERROR;
             goto LABEL_27;
           case 0x30D40u:
 LABEL_26:
-            v12 = BD_UNO_ERROR;
+            v11 = BD_UNO_ERROR;
 LABEL_27:
-            this->m_loginResult->m_taskErrorCode = v12;
-            bdSnprintf(this->m_unoStatusMessage, 0x400ui64, "Uno fetch account task failed with HTTP code [%u]", v4);
+            this->m_loginResult->m_taskErrorCode = v11;
+            bdSnprintf(this->m_unoStatusMessage, 0x400ui64, "Uno fetch account task failed with HTTP code [%u]", v3);
             bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::processUnoReply", 0x4Du, this->m_unoStatusMessage);
             code = WAITING_FOR_REPORT_CONSOLE_DETAILS;
             bdLoginTaskFetchUnoAccount::updateUnoStatus(this, this->m_unoStatusMessage, &code);
-            p_json = &v19;
+            p_json = &v16;
             goto LABEL_28;
         }
       }
     }
-    LODWORD(v15) = v8;
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\helpers\\bdloginutils.h", "bdLoginUtils::convertUnoErrorCode", 0x1BAu, "Got unexpected code: [%u] during mapping of login error code to lobbyErrorCode in bdLoginUtils.", v15);
+    LODWORD(v12) = v7;
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\helpers\\bdloginutils.h", "bdLoginUtils::convertUnoErrorCode", 0x1BAu, "Got unexpected code: [%u] during mapping of login error code to lobbyErrorCode in bdLoginUtils.", v12);
     goto LABEL_55;
   }
   bdJSONDeserializer::bdJSONDeserializer(&json);
@@ -615,13 +600,8 @@ LABEL_27:
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
     this->m_unoStatusCode = CONNECTED;
     bdStrlcpy(this->m_unoStatusMessage, "Successfully deserialized Uno Account", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0F0h+var_B8], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", v13);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     bdLoginResult::setCrossPlatformAccountInfo(this->m_loginResult, &this->m_unoAccount);
   }
   else
@@ -630,13 +610,8 @@ LABEL_27:
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
     this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
     bdStrlcpy(this->m_unoStatusMessage, "Failed to parse Uno response json", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0F0h+var_B8], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", v14);
+    v5 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", *(float *)&v5);
   }
   p_json = &json;
 LABEL_28:
@@ -791,20 +766,15 @@ bdLoginTaskFetchUnoAccount::updateUnoStatus
 */
 void bdLoginTaskFetchUnoAccount::updateUnoStatus(bdLoginTaskFetchUnoAccount *this, const char *messageInfo, const bdLoginTaskFetchUnoAccount::FetchUnoAccountStatusCode *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0x9Bu, "Must provide valid message to update uno task status!");
   this->m_unoStatusCode = *code;
   bdStrlcpy(this->m_unoStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(*code - 3) <= 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchunoaccount.cpp", "bdLoginTaskFetchUnoAccount::updateUnoStatus", 0xA3u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

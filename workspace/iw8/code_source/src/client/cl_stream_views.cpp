@@ -413,19 +413,10 @@ CL_StreamViewsSP_CopyAutoView
 */
 void CL_StreamViewsSP_CopyAutoView(StreamAutoViewType fromType, StreamAutoViewType toType, unsigned int clientIndex)
 {
-  _RSI = CL_StreamViews_GetAutoView(fromType, clientIndex);
-  _RAX = CL_StreamViews_GetAutoView(toType, clientIndex);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups ymm0, ymmword ptr [rsi+40h]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovsd  xmm1, qword ptr [rsi+60h]
-    vmovsd  qword ptr [rax+60h], xmm1
-  }
+  ClientStreamAutoView *AutoView; 
+
+  AutoView = CL_StreamViews_GetAutoView(fromType, clientIndex);
+  *CL_StreamViews_GetAutoView(toType, clientIndex) = *AutoView;
 }
 
 /*
@@ -454,19 +445,16 @@ CL_StreamViewsSP_GetAutoViewCosFovLimit
 */
 float CL_StreamViewsSP_GetAutoViewCosFovLimit(StreamAutoViewType type, unsigned int clientIndex)
 {
-  _RAX = CL_StreamViews_GetAutoView(type, clientIndex);
-  _RBX = _RAX;
-  if ( _RAX->isSet )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+24h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 306, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+24h] }
-  }
-  return *(float *)&_XMM0;
+  ClientStreamAutoView *AutoView; 
+  ClientStreamAutoView *v3; 
+
+  AutoView = CL_StreamViews_GetAutoView(type, clientIndex);
+  v3 = AutoView;
+  if ( AutoView->isSet )
+    return AutoView->cosFovLimit;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 306, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
+    __debugbreak();
+  return v3->cosFovLimit;
 }
 
 /*
@@ -533,19 +521,16 @@ CL_StreamViewsSP_GetAutoViewZoomFactor
 */
 float CL_StreamViewsSP_GetAutoViewZoomFactor(StreamAutoViewType type, unsigned int clientIndex)
 {
-  _RAX = CL_StreamViews_GetAutoView(type, clientIndex);
-  _RBX = _RAX;
-  if ( _RAX->isSet )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+20h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 298, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+20h] }
-  }
-  return *(float *)&_XMM0;
+  ClientStreamAutoView *AutoView; 
+  ClientStreamAutoView *v3; 
+
+  AutoView = CL_StreamViews_GetAutoView(type, clientIndex);
+  v3 = AutoView;
+  if ( AutoView->isSet )
+    return AutoView->zoomFactor;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 298, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
+    __debugbreak();
+  return v3->zoomFactor;
 }
 
 /*
@@ -565,45 +550,19 @@ CL_StreamViewsSP_SetAutoView
 */
 void CL_StreamViewsSP_SetAutoView(StreamAutoViewType type, unsigned int clientIndex, const vec3_t *origin, const vec3_t *angles, float zoomFactor, float cosFovLimit, const Weapon *weapon, const XModel *handModel)
 {
-  float v15; 
+  ClientStreamAutoView *AutoView; 
+  float v11; 
 
-  _RDI = angles;
-  _RBX = origin;
-  _RAX = CL_StreamViews_GetAutoView(type, clientIndex);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovss  xmm1, [rsp+28h+cosFovLimit]
-  }
-  _RDX = _RAX;
-  __asm { vmovsd  qword ptr [rax+8], xmm0 }
-  _RAX->origin.v[2] = _RBX->v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovsd  qword ptr [rax+14h], xmm0
-  }
-  v15 = _RDI->v[2];
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+zoomFactor]
-    vmovss  dword ptr [rax+20h], xmm0
-    vmovss  dword ptr [rax+24h], xmm1
-  }
-  _RAX->angles.v[2] = v15;
-  _RAX = weapon;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdx+28h], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rdx+48h], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rdx+58h], xmm0
-  }
-  *(_DWORD *)&_RDX->weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
-  _RDX->handModel = handModel;
-  _RDX->isSet = 1;
+  AutoView = CL_StreamViews_GetAutoView(type, clientIndex);
+  AutoView->origin = *origin;
+  *(double *)AutoView->angles.v = *(double *)angles->v;
+  v11 = angles->v[2];
+  AutoView->zoomFactor = zoomFactor;
+  AutoView->cosFovLimit = cosFovLimit;
+  AutoView->angles.v[2] = v11;
+  AutoView->weapon = *weapon;
+  AutoView->handModel = handModel;
+  AutoView->isSet = 1;
 }
 
 /*
@@ -611,37 +570,18 @@ void CL_StreamViewsSP_SetAutoView(StreamAutoViewType type, unsigned int clientIn
 CL_StreamViews_CalculateZoomFactorAndCosFovLimit
 ==============
 */
-
-void __fastcall CL_StreamViews_CalculateZoomFactorAndCosFovLimit(double currentTanHalfFovY, float defaultTanHalfFovY, float *outZoomFactor, float *outCosFovLimit)
+void CL_StreamViews_CalculateZoomFactorAndCosFovLimit(float currentTanHalfFovY, float defaultTanHalfFovY, float *outZoomFactor, float *outCosFovLimit)
 {
-  const dvar_t *v9; 
+  double v6; 
+  const dvar_t *v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = outCosFovLimit;
-  _RBX = outZoomFactor;
-  currentTanHalfFovY = AngleFromTanHalfFovY(*(float *)&currentTanHalfFovY);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm2, xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  dword ptr [rbx], xmm2
-  }
-  v9 = DCONST_DVARFLT_stream_zoomFovScaler;
-  __asm { vmovaps xmm6, xmm0 }
+  v6 = AngleFromTanHalfFovY(currentTanHalfFovY);
+  *outZoomFactor = 1.0 / rg.correctedLodParms.invFovScale;
+  v7 = DCONST_DVARFLT_stream_zoomFovScaler;
   if ( !DCONST_DVARFLT_stream_zoomFovScaler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_zoomFovScaler") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c0efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rdi], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  *outCosFovLimit = cosf_0((float)(*(float *)&v6 * v7->current.value) * 0.0087266462);
 }
 
 /*
@@ -781,19 +721,16 @@ CL_StreamViews_GetManualViewCosFovLimit
 */
 float CL_StreamViews_GetManualViewCosFovLimit(StreamManualViewType type, LocalClientNum_t localClientNum)
 {
-  _RAX = CL_StreamViews_GetManualView(type, localClientNum);
-  _RBX = _RAX;
-  if ( _RAX->isSet )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+2Ch] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 204, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+2Ch] }
-  }
-  return *(float *)&_XMM0;
+  ClientStreamManualView *ManualView; 
+  ClientStreamManualView *v3; 
+
+  ManualView = CL_StreamViews_GetManualView(type, localClientNum);
+  v3 = ManualView;
+  if ( ManualView->isSet )
+    return ManualView->cosFovLimit;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 204, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
+    __debugbreak();
+  return v3->cosFovLimit;
 }
 
 /*
@@ -881,19 +818,16 @@ CL_StreamViews_GetManualViewZoomFactor
 */
 float CL_StreamViews_GetManualViewZoomFactor(StreamManualViewType type, LocalClientNum_t localClientNum)
 {
-  _RAX = CL_StreamViews_GetManualView(type, localClientNum);
-  _RBX = _RAX;
-  if ( _RAX->isSet )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 196, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  }
-  return *(float *)&_XMM0;
+  ClientStreamManualView *ManualView; 
+  ClientStreamManualView *v3; 
+
+  ManualView = CL_StreamViews_GetManualView(type, localClientNum);
+  v3 = ManualView;
+  if ( ManualView->isSet )
+    return ManualView->zoomFactor;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 196, ASSERT_TYPE_ASSERT, "(view.isSet)", (const char *)&queryFormat, "view.isSet") )
+    __debugbreak();
+  return v3->zoomFactor;
 }
 
 /*
@@ -901,52 +835,37 @@ float CL_StreamViews_GetManualViewZoomFactor(StreamManualViewType type, LocalCli
 CL_StreamViews_GetMaxLocalClientVelocity
 ==============
 */
-
-float __fastcall CL_StreamViews_GetMaxLocalClientVelocity(double _XMM0_8)
+float CL_StreamViews_GetMaxLocalClientVelocity()
 {
-  int v1; 
-  __int64 v14; 
-  __int64 v15; 
+  int v0; 
+  float *v1; 
+  float v2; 
+  float v3; 
+  float v4; 
+  __int64 v6; 
+  __int64 v7; 
 
-  v1 = 0;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v0 = 0;
   if ( SLODWORD(cl_maxLocalClients) <= 0 )
+    return fsqrt(0.0);
+  v1 = &s_streamerInfo[0].viewVelocity.v[2];
+  do
   {
-    __asm { vsqrtss xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    _RDI = &s_streamerInfo[0].viewVelocity.v[2];
-    do
+    if ( (unsigned int)v0 >= 2 )
     {
-      if ( (unsigned int)v1 >= 2 )
-      {
-        LODWORD(v15) = 2;
-        LODWORD(v14) = v1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", v14, v15) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi-8]
-        vmovss  xmm2, dword ptr [rdi-4]
-        vmovss  xmm3, dword ptr [rdi]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-      }
-      ++v1;
-      _RDI += 490;
-      __asm
-      {
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm4, xmm2, xmm1
-      }
+      LODWORD(v7) = 2;
+      LODWORD(v6) = v0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", v6, v7) )
+        __debugbreak();
     }
-    while ( v1 < SLODWORD(cl_maxLocalClients) );
-    __asm { vsqrtss xmm0, xmm4, xmm4 }
+    v2 = *v1;
+    v3 = (float)(*(v1 - 2) * *(v1 - 2)) + (float)(*(v1 - 1) * *(v1 - 1));
+    ++v0;
+    v1 += 490;
+    v4 = v3 + (float)(v2 * v2);
   }
-  return *(float *)&_XMM0;
+  while ( v0 < SLODWORD(cl_maxLocalClients) );
+  return fsqrt(v4);
 }
 
 /*
@@ -1144,88 +1063,42 @@ LABEL_18:
 CL_StreamViews_MaxParametricVelocity
 ==============
 */
-
-float __fastcall CL_StreamViews_MaxParametricVelocity(double _XMM0_8)
+float CL_StreamViews_MaxParametricVelocity()
 {
-  int v5; 
-  const dvar_t *v12; 
-  __int64 v29; 
-  __int64 v30; 
-  void *retaddr; 
+  int v0; 
+  float *v1; 
+  const dvar_t *v2; 
+  __int128 v3; 
+  __int64 v7; 
+  __int64 v8; 
 
-  _RAX = &retaddr;
-  v5 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v0 = 0;
   if ( SLODWORD(cl_maxLocalClients) <= 0 )
+    return 0.0;
+  v1 = &s_streamerInfo[0].viewVelocity.v[2];
+  do
   {
-    __asm
+    if ( (unsigned int)v0 >= 2 )
     {
-      vmovaps xmm6, [rsp+88h+var_28]
-      vxorps  xmm0, xmm0, xmm0
-    }
-  }
-  else
-  {
-    _RDI = &s_streamerInfo[0].viewVelocity.v[2];
-    __asm
-    {
-      vmovaps xmmword ptr [rax-38h], xmm7
-      vmovaps xmmword ptr [rax-48h], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-    }
-    do
-    {
-      if ( (unsigned int)v5 >= 2 )
-      {
-        LODWORD(v30) = 2;
-        LODWORD(v29) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", v29, v30) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi-8]
-        vmovss  xmm2, dword ptr [rdi-4]
-        vmovss  xmm3, dword ptr [rdi]
-      }
-      v12 = DVARFLT_stream_maxAnticipatedVelocity;
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm7, xmm2, xmm2
-      }
-      if ( !DVARFLT_stream_maxAnticipatedVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_maxAnticipatedVelocity") )
+      LODWORD(v8) = 2;
+      LODWORD(v7) = v0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", v7, v8) )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v12);
-      __asm
-      {
-        vdivss  xmm0, xmm7, dword ptr [rsi+28h]; val
-        vmovaps xmm2, xmm8; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      ++v5;
-      _RDI += 490;
-      __asm { vmaxss  xmm6, xmm0, xmm6 }
     }
-    while ( v5 < SLODWORD(cl_maxLocalClients) );
-    __asm
-    {
-      vmovaps xmm8, [rsp+88h+var_48]
-      vmovaps xmm7, [rsp+88h+var_38]
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+88h+var_28]
-    }
+    v2 = DVARFLT_stream_maxAnticipatedVelocity;
+    v3 = *((unsigned int *)v1 - 2);
+    *(float *)&v3 = fsqrt((float)((float)(*(v1 - 2) * *(v1 - 2)) + (float)(*(v1 - 1) * *(v1 - 1))) + (float)(*v1 * *v1));
+    if ( !DVARFLT_stream_maxAnticipatedVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_maxAnticipatedVelocity") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v2);
+    *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&v3 + 1);
+    *(double *)&_XMM0 = I_fclamp(*(float *)&v3 / v2->current.value, 0.0, 1.0);
+    ++v0;
+    v1 += 490;
+    __asm { vmaxss  xmm6, xmm0, xmm6 }
   }
-  return *(float *)&_XMM0;
+  while ( v0 < SLODWORD(cl_maxLocalClients) );
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -1235,36 +1108,15 @@ CL_StreamViews_ParametricVelocity
 */
 double CL_StreamViews_ParametricVelocity(const vec3_t *velocity)
 {
-  const dvar_t *v5; 
+  const dvar_t *v1; 
+  float v2; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-  }
-  v5 = DVARFLT_stream_maxAnticipatedVelocity;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-  }
+  v1 = DVARFLT_stream_maxAnticipatedVelocity;
+  v2 = fsqrt((float)((float)(velocity->v[0] * velocity->v[0]) + (float)(velocity->v[1] * velocity->v[1])) + (float)(velocity->v[2] * velocity->v[2]));
   if ( !DVARFLT_stream_maxAnticipatedVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_maxAnticipatedVelocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  __asm
-  {
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  Dvar_CheckFrontendServerThread(v1);
+  return I_fclamp(v2 / v1->current.value, 0.0, 1.0);
 }
 
 /*
@@ -1274,44 +1126,26 @@ CL_StreamViews_ParametricVelocity
 */
 double CL_StreamViews_ParametricVelocity(const LocalClientNum_t localClientNum)
 {
+  __int64 v1; 
   __int64 v2; 
-  const dvar_t *v4; 
-  int v21; 
+  const dvar_t *v3; 
+  float v4; 
+  int v7; 
 
-  v2 = localClientNum;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v21 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", localClientNum, v21) )
+    v7 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", localClientNum, v7) )
       __debugbreak();
   }
-  _RCX = 1960 * v2;
-  v4 = DVARFLT_stream_maxAnticipatedVelocity;
-  _RAX = &s_streamerInfo[0].viewVelocity;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+rax]
-    vmovss  xmm2, dword ptr [rcx+rax+4]
-    vmovss  xmm3, dword ptr [rcx+rax+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-  }
+  v2 = v1;
+  v3 = DVARFLT_stream_maxAnticipatedVelocity;
+  v4 = fsqrt((float)((float)(s_streamerInfo[v2].viewVelocity.v[0] * s_streamerInfo[v2].viewVelocity.v[0]) + (float)(s_streamerInfo[v2].viewVelocity.v[1] * s_streamerInfo[v2].viewVelocity.v[1])) + (float)(s_streamerInfo[v2].viewVelocity.v[2] * s_streamerInfo[v2].viewVelocity.v[2]));
   if ( !DVARFLT_stream_maxAnticipatedVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_maxAnticipatedVelocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  __asm
-  {
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  Dvar_CheckFrontendServerThread(v3);
+  return I_fclamp(v4 / v3->current.value, 0.0, 1.0);
 }
 
 /*
@@ -1346,39 +1180,17 @@ CL_StreamViews_SetManualView
 */
 void CL_StreamViews_SetManualView(StreamManualViewType type, LocalClientNum_t localClientNum, const vec3_t *origin, const vec3_t *angles, const vec3_t *velocity, float zoomFactor, float cosFovLimit, bool streamRender)
 {
-  _RDI = angles;
-  _RBX = origin;
-  _RAX = CL_StreamViews_GetManualView(type, localClientNum);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovss  xmm1, [rsp+28h+cosFovLimit]
-  }
-  _RDX = _RAX;
-  __asm { vmovsd  qword ptr [rax], xmm0 }
-  _RAX->origin.v[2] = _RBX->v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovsd  qword ptr [rax+10h], xmm0
-  }
-  _RAX->angles.v[2] = _RDI->v[2];
-  _RCX = velocity;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rax+1Ch], xmm0
-    vmovss  xmm0, [rsp+28h+zoomFactor]
-  }
-  _RAX->velocity.v[2] = velocity->v[2];
-  _RAX->streamRender = streamRender;
-  __asm
-  {
-    vmovss  dword ptr [rdx+28h], xmm0
-    vmovss  dword ptr [rdx+2Ch], xmm1
-  }
-  _RAX->isSet = 1;
-  _RAX->viewMode = LINEAR;
+  ClientStreamManualView *ManualView; 
+
+  ManualView = CL_StreamViews_GetManualView(type, localClientNum);
+  ManualView->origin = *origin;
+  ManualView->angles = *angles;
+  ManualView->velocity = *velocity;
+  ManualView->streamRender = streamRender;
+  ManualView->zoomFactor = zoomFactor;
+  ManualView->cosFovLimit = cosFovLimit;
+  ManualView->isSet = 1;
+  ManualView->viewMode = LINEAR;
 }
 
 /*
@@ -1388,41 +1200,19 @@ CL_StreamViews_SetManualView
 */
 void CL_StreamViews_SetManualView(StreamManualViewType type, LocalClientNum_t localClientNum, const vec3_t *origin, const tmat33_t<vec3_t> *axis, const vec3_t *velocity, float zoomFactor, float cosFovLimit, bool streamRender)
 {
+  ClientStreamManualView *ManualView; 
   vec3_t angles; 
 
-  _RSI = origin;
   AxisToAngles(axis, &angles);
-  _RAX = CL_StreamViews_GetManualView(type, localClientNum);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi]
-    vmovss  xmm1, [rsp+58h+cosFovLimit]
-  }
-  _RDX = _RAX;
-  __asm { vmovsd  qword ptr [rax], xmm0 }
-  _RAX->origin.v[2] = _RSI->v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+58h+angles]
-    vmovsd  qword ptr [rax+10h], xmm0
-  }
-  _RAX->angles.v[2] = angles.v[2];
-  _RCX = velocity;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rax+1Ch], xmm0
-    vmovss  xmm0, [rsp+58h+zoomFactor]
-  }
-  _RAX->velocity.v[2] = velocity->v[2];
-  _RAX->streamRender = streamRender;
-  __asm
-  {
-    vmovss  dword ptr [rdx+28h], xmm0
-    vmovss  dword ptr [rdx+2Ch], xmm1
-  }
-  _RAX->isSet = 1;
-  _RAX->viewMode = LINEAR;
+  ManualView = CL_StreamViews_GetManualView(type, localClientNum);
+  ManualView->origin = *origin;
+  ManualView->angles = angles;
+  ManualView->velocity = *velocity;
+  ManualView->streamRender = streamRender;
+  ManualView->zoomFactor = zoomFactor;
+  ManualView->cosFovLimit = cosFovLimit;
+  ManualView->isSet = 1;
+  ManualView->viewMode = LINEAR;
 }
 
 /*
@@ -1432,39 +1222,17 @@ CL_StreamViews_SetManualViewAndMode
 */
 void CL_StreamViews_SetManualViewAndMode(StreamManualViewType type, LocalClientNum_t localClientNum, const BgWorldStreamingViewMode viewMode, const vec3_t *origin, const vec3_t *angles, const vec3_t *velocity, float zoomFactor, float cosFovLimit, bool streamRender)
 {
-  _RBX = origin;
-  _RAX = CL_StreamViews_GetManualView(type, localClientNum);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovss  xmm1, [rsp+28h+cosFovLimit]
-  }
-  _RDX = _RAX;
-  __asm { vmovsd  qword ptr [rax], xmm0 }
-  _RAX->origin.v[2] = _RBX->v[2];
-  _RCX = angles;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rax+10h], xmm0
-  }
-  _RAX->angles.v[2] = angles->v[2];
-  _RCX = velocity;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rax+1Ch], xmm0
-    vmovss  xmm0, [rsp+28h+zoomFactor]
-  }
-  _RAX->velocity.v[2] = velocity->v[2];
-  _RAX->streamRender = streamRender;
-  __asm
-  {
-    vmovss  dword ptr [rdx+28h], xmm0
-    vmovss  dword ptr [rdx+2Ch], xmm1
-  }
-  _RAX->isSet = 1;
-  _RAX->viewMode = viewMode;
+  ClientStreamManualView *ManualView; 
+
+  ManualView = CL_StreamViews_GetManualView(type, localClientNum);
+  ManualView->origin = *origin;
+  ManualView->angles = *angles;
+  ManualView->velocity = *velocity;
+  ManualView->streamRender = streamRender;
+  ManualView->zoomFactor = zoomFactor;
+  ManualView->cosFovLimit = cosFovLimit;
+  ManualView->isSet = 1;
+  ManualView->viewMode = viewMode;
 }
 
 /*
@@ -1474,254 +1242,171 @@ CL_StreamViews_UpdateVelocity
 */
 void CL_StreamViews_UpdateVelocity(const LocalClientNum_t localClientNum, const vec3_t *cameraOrigin, const int time, const int frameTime)
 {
-  __int64 v6; 
-  float v11; 
-  unsigned __int64 v14; 
+  __int64 v4; 
+  double v8; 
+  __int64 v9; 
+  unsigned __int64 v10; 
+  StreamerInfo *v11; 
   unsigned __int64 mWriteOffset; 
-  char v32; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
   unsigned __int64 mCurSize; 
-  unsigned __int64 v34; 
-  char v73; 
-  unsigned __int64 v78; 
-  unsigned __int64 v81; 
+  unsigned __int64 v20; 
+  int v23; 
+  const dvar_t *v24; 
+  __int128 v25; 
+  int v26; 
+  float v27; 
+  float v28; 
+  const dvar_t *v29; 
+  float v30; 
+  unsigned __int64 v31; 
+  unsigned __int64 v32; 
   unsigned __int64 mMaxSize; 
-  unsigned __int64 v86; 
-  int v87; 
-  int v88; 
-  int v89; 
-  __int128 *v90; 
-  int *v91; 
-  int *v92; 
-  __int128 *v93; 
-  int *v94; 
-  int *v95; 
-  int v96; 
-  __int128 v99; 
-  __int128 v100; 
+  unsigned __int64 v34; 
+  float v35; 
+  float value; 
+  float v37; 
+  __int128 *v38; 
+  float *p_value; 
+  float *v40; 
+  __int128 *v41; 
+  float *v42; 
+  float *v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  StreamerInfo::ViewPosSample v47; 
+  __int128 v48; 
 
-  v6 = localClientNum;
-  _RSI = cameraOrigin;
+  v4 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_stream_views.cpp", 65, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_streamerInfo ) ) + 0 ) )", "localClientNum doesn't index s_streamerInfo\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rsi] }
-  v11 = _RSI->v[2];
-  _R12 = s_streamerInfo;
-  _RDI = v6;
-  __asm { vmovaps [rsp+0F0h+var_30], xmm6 }
-  v14 = 0i64;
-  *((_QWORD *)&v99 + 1) = __PAIR64__(time, LODWORD(v11));
-  __asm { vmovsd  qword ptr [rbp+57h+var_58], xmm0 }
-  _RSI = &s_streamerInfo[_RDI];
-  if ( s_streamerInfo[_RDI].viewPosHistory.mCurSize )
+  v8 = *(double *)cameraOrigin->v;
+  v9 = v4;
+  v10 = 0i64;
+  v47.viewPos.v[2] = cameraOrigin->v[2];
+  *(double *)v47.viewPos.v = v8;
+  v47.time = time;
+  v11 = &s_streamerInfo[v9];
+  if ( s_streamerInfo[v9].viewPosHistory.mCurSize )
   {
-    mWriteOffset = s_streamerInfo[_RDI].viewPosHistory.mWriteOffset;
-    __asm { vmovss  xmm0, dword ptr [rbp+57h+var_58] }
+    mWriteOffset = s_streamerInfo[v9].viewPosHistory.mWriteOffset;
     if ( !mWriteOffset )
-      mWriteOffset = s_streamerInfo[_RDI].viewPosHistory.mCurSize;
-    _RAX = 2 * mWriteOffset;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rsi+rax*8-10h]
-      vsubss  xmm4, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rbp+57h+var_58+4]
-      vshufps xmm1, xmm3, xmm3, 55h ; 'U'
-      vpextrq rax, xmm3, 1
-      vsubss  xmm5, xmm0, xmm1
-      vmovss  xmm0, dword ptr [rbp+57h+var_58+8]
-      vshufps xmm2, xmm3, xmm3, 0AAh ; 'ª'
-      vsubss  xmm6, xmm0, xmm2
-    }
+      mWriteOffset = s_streamerInfo[v9].viewPosHistory.mCurSize;
+    _XMM3 = (__m128)v11->viewPosHistory.mValues[mWriteOffset - 1];
+    __asm { vpextrq rax, xmm3, 1 }
+    v15 = v47.viewPos.v[1] - _mm_shuffle_ps(_XMM3, _XMM3, 85).m128_f32[0];
+    v16 = v47.viewPos.v[2] - _mm_shuffle_ps(_XMM3, _XMM3, 170).m128_f32[0];
     if ( time < SHIDWORD(_RAX) )
       goto LABEL_12;
-    _R14 = DVARFLT_stream_cameraCutDetectionDeltaPosThreshold;
-    __asm
-    {
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm6, xmm2, xmm1
-    }
+    v17 = DVARFLT_stream_cameraCutDetectionDeltaPosThreshold;
+    v18 = (float)((float)(v15 * v15) + (float)((float)(v47.viewPos.v[0] - _XMM3.m128_f32[0]) * (float)(v47.viewPos.v[0] - _XMM3.m128_f32[0]))) + (float)(v16 * v16);
     if ( !DVARFLT_stream_cameraCutDetectionDeltaPosThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_cameraCutDetectionDeltaPosThreshold") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm6, xmm1
-    }
-    if ( !(v73 | v32) )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v18 > (float)(v17->current.value * v17->current.value) )
     {
 LABEL_12:
-      s_streamerInfo[_RDI].viewPosHistory.mWriteOffset = 0i64;
-      s_streamerInfo[_RDI].viewPosHistory.mCurSize = 0i64;
-      *(_QWORD *)s_streamerInfo[_RDI].viewVelocity.v = 0i64;
-      s_streamerInfo[_RDI].viewVelocity.v[2] = 0.0;
+      s_streamerInfo[v9].viewPosHistory.mWriteOffset = 0i64;
+      s_streamerInfo[v9].viewPosHistory.mCurSize = 0i64;
+      *(_QWORD *)s_streamerInfo[v9].viewVelocity.v = 0i64;
+      s_streamerInfo[v9].viewVelocity.v[2] = 0.0;
     }
   }
   if ( frameTime )
   {
-    mCurSize = s_streamerInfo[_RDI].viewPosHistory.mCurSize;
+    mCurSize = s_streamerInfo[v9].viewPosHistory.mCurSize;
     if ( mCurSize )
     {
-      if ( s_streamerInfo[_RDI].viewPosHistory.mMaxSize == mCurSize )
-        v34 = s_streamerInfo[_RDI].viewPosHistory.mWriteOffset;
+      if ( s_streamerInfo[v9].viewPosHistory.mMaxSize == mCurSize )
+        v20 = s_streamerInfo[v9].viewPosHistory.mWriteOffset;
       else
-        v34 = 0i64;
-      _RAX = 2 * v34;
-      __asm
+        v20 = 0i64;
+      _XMM0 = v11->viewPosHistory.mValues[v20];
+      __asm { vpextrq rax, xmm0, 1 }
+      v23 = v47.time - HIDWORD(_RAX);
+      if ( v47.time - HIDWORD(_RAX) <= 100 )
       {
-        vmovups xmm0, xmmword ptr [rsi+rax*8]
-        vpextrq rax, xmm0, 1
-      }
-      if ( HIDWORD(v99) - HIDWORD(_RAX) <= 100 )
-      {
-        *(_QWORD *)s_streamerInfo[_RDI].viewVelocity.v = 0i64;
-        s_streamerInfo[_RDI].viewVelocity.v[2] = 0.0;
+        *(_QWORD *)s_streamerInfo[v9].viewVelocity.v = 0i64;
+        s_streamerInfo[v9].viewVelocity.v[2] = 0.0;
       }
       else
       {
-        _R15 = DVARFLT_stream_cameraVelocityGaussianSigma;
+        v24 = DVARFLT_stream_cameraVelocityGaussianSigma;
         if ( !DVARFLT_stream_cameraVelocityGaussianSigma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_cameraVelocityGaussianSigma") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R15);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+28h]
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  [rbp+57h+var_A8], xmm0
-          vmovss  xmm0, cs:__real@40400000
-          vmovss  [rbp+57h+var_A0], xmm0
-          vmovss  [rbp+57h+var_68], xmm6
-          vmovss  [rbp+57h+var_64], xmm6
-          vmovss  [rbp+57h+var_60], xmm6
-          vmovss  [rbp+57h+var_B0], xmm6
-        }
-        if ( !s_streamerInfo[_RDI].viewPosHistory.mCurSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\valuehistory.h", 147, ASSERT_TYPE_SANITY, "( !Empty() )", (const char *)&queryFormat, "!Empty()") )
+        Dvar_CheckFrontendServerThread(v24);
+        value = v24->current.value;
+        v37 = FLOAT_3_0;
+        v44 = 0.0;
+        v45 = 0.0;
+        v46 = 0.0;
+        v35 = 0.0;
+        if ( !s_streamerInfo[v9].viewPosHistory.mCurSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\valuehistory.h", 147, ASSERT_TYPE_SANITY, "( !Empty() )", (const char *)&queryFormat, "!Empty()") )
           __debugbreak();
-        if ( s_streamerInfo[_RDI].viewPosHistory.mMaxSize == s_streamerInfo[_RDI].viewPosHistory.mCurSize )
-          v14 = s_streamerInfo[_RDI].viewPosHistory.mWriteOffset;
-        _RBX = 2 * v14;
-        v90 = &v100;
-        v91 = &v88;
-        __asm { vmovups xmm0, xmmword ptr [rsi+rbx*8] }
-        v92 = &v89;
-        v93 = &v99;
-        v94 = &v96;
-        v95 = &v87;
-        __asm { vmovups [rbp+57h+var_48], xmm0 }
-        ValueHistory_StreamerInfo::ViewPosSample_120_::IterateUntil__lambda_058032d0ff02bf129f6c27a143db9757___((const CL_StreamViews_GetFilteredCameraVelocity::__l2::<lambda_058032d0ff02bf129f6c27a143db9757> *)&s_streamerInfo[_RDI]);
-        __asm
-        {
-          vmovss  xmm1, [rbp+57h+var_A8]; sigma
-          vxorps  xmm0, xmm0, xmm0; x
-        }
-        *(double *)&_XMM0 = GaussianWeight1D(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        __asm
-        {
-          vmovss  xmm1, cs:__real@447a0000
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, ebx
-          vdivss  xmm5, xmm1, xmm2
-          vmovss  xmm2, dword ptr [rbp+57h+var_58]
-          vsubss  xmm3, xmm2, dword ptr [rbp+57h+var_48]
-          vmulss  xmm1, xmm3, xmm5
-          vmulss  xmm4, xmm1, xmm0
-          vaddss  xmm3, xmm4, [rbp+57h+var_68]
-          vmovss  xmm1, dword ptr [rbp+57h+var_58+4]
-          vsubss  xmm2, xmm1, dword ptr [rbp+57h+var_48+4]
-          vmovaps xmm6, xmm0
-          vmovss  [rbp+57h+var_68], xmm3
-          vmulss  xmm3, xmm2, xmm5
-          vmovss  xmm2, dword ptr [rbp+57h+var_58+8]
-          vmulss  xmm4, xmm3, xmm0
-          vsubss  xmm0, xmm2, dword ptr [rbp+57h+var_48+8]
-          vaddss  xmm1, xmm4, [rbp+57h+var_64]
-          vaddss  xmm2, xmm6, [rbp+57h+var_B0]
-        }
-        v90 = &v99;
-        v91 = &v88;
-        v92 = &v89;
-        v93 = &v100;
-        __asm
-        {
-          vmovss  [rbp+57h+var_64], xmm1
-          vmulss  xmm1, xmm0, xmm5
-          vmulss  xmm3, xmm1, xmm6
-          vaddss  xmm0, xmm3, [rbp+57h+var_60]
-        }
-        v94 = &v96;
-        __asm
-        {
-          vmovss  [rbp+57h+var_60], xmm0
-          vmovss  [rbp+57h+var_B0], xmm2
-        }
-        v95 = &v87;
-        ValueHistory_StreamerInfo::ViewPosSample_120_::ReverseIterateUntil__lambda_7c04ed67a48dfa49e5bac266a6e8e8a2___((const CL_StreamViews_GetFilteredCameraVelocity::__l2::<lambda_7c04ed67a48dfa49e5bac266a6e8e8a2> *)&s_streamerInfo[_RDI]);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vdivss  xmm2, xmm0, [rbp+57h+var_B0]
-          vmulss  xmm1, xmm2, [rbp+57h+var_68]
-        }
-        _RBX = DVARFLT_stream_cameraVelocityWindowDuration;
-        __asm
-        {
-          vmulss  xmm0, xmm2, [rbp+57h+var_64]
-          vmovss  dword ptr [rdi+r12+798h], xmm1
-          vmulss  xmm1, xmm2, [rbp+57h+var_60]
-          vmovss  dword ptr [rdi+r12+7A0h], xmm1
-          vmovss  dword ptr [rdi+r12+79Ch], xmm0
-        }
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_cameraVelocityWindowDuration") )
+        if ( s_streamerInfo[v9].viewPosHistory.mMaxSize == s_streamerInfo[v9].viewPosHistory.mCurSize )
+          v10 = s_streamerInfo[v9].viewPosHistory.mWriteOffset;
+        v38 = &v48;
+        p_value = &value;
+        v25 = (__int128)v11->viewPosHistory.mValues[v10];
+        v40 = &v37;
+        v41 = (__int128 *)&v47;
+        v42 = &v44;
+        v43 = &v35;
+        v48 = v25;
+        ValueHistory_StreamerInfo::ViewPosSample_120_::IterateUntil__lambda_058032d0ff02bf129f6c27a143db9757___((const CL_StreamViews_GetFilteredCameraVelocity::__l2::<lambda_058032d0ff02bf129f6c27a143db9757> *)&s_streamerInfo[v9]);
+        v26 = v47.time - HIDWORD(v48);
+        *(double *)&v25 = GaussianWeight1D(0.0, value);
+        v27 = 1000.0 / (float)v26;
+        v44 = (float)((float)((float)(v47.viewPos.v[0] - *(float *)&v48) * v27) * *(float *)&v25) + v44;
+        v38 = (__int128 *)&v47;
+        p_value = &value;
+        v40 = &v37;
+        v41 = &v48;
+        v45 = (float)((float)((float)(v47.viewPos.v[1] - *((float *)&v48 + 1)) * v27) * *(float *)&v25) + v45;
+        v42 = &v44;
+        v46 = (float)((float)((float)(v47.viewPos.v[2] - *((float *)&v48 + 2)) * v27) * *(float *)&v25) + v46;
+        v35 = *(float *)&v25 + v35;
+        v43 = &v35;
+        ValueHistory_StreamerInfo::ViewPosSample_120_::ReverseIterateUntil__lambda_7c04ed67a48dfa49e5bac266a6e8e8a2___((const CL_StreamViews_GetFilteredCameraVelocity::__l2::<lambda_7c04ed67a48dfa49e5bac266a6e8e8a2> *)&s_streamerInfo[v9]);
+        v28 = 1.0 / v35;
+        v29 = DVARFLT_stream_cameraVelocityWindowDuration;
+        *(float *)&v25 = (float)(1.0 / v35) * v45;
+        s_streamerInfo[v9].viewVelocity.v[0] = (float)(1.0 / v35) * v44;
+        s_streamerInfo[v9].viewVelocity.v[2] = v28 * v46;
+        s_streamerInfo[v9].viewVelocity.v[1] = *(float *)&v25;
+        if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_cameraVelocityWindowDuration") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
+        Dvar_CheckFrontendServerThread(v29);
+        v30 = v29->current.value;
+        if ( (float)v23 <= (float)(v30 * 1.2) )
         {
-          vmovss  xmm1, dword ptr [rbx+28h]
-          vmulss  xmm0, xmm1, cs:__real@3f99999a
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, r14d
-          vcomiss xmm2, xmm0
-        }
-        if ( v73 | v32 )
-        {
-          __asm
+          if ( (float)v23 < (float)(v30 - (float)(v30 * 0.2)) )
           {
-            vmulss  xmm0, xmm1, cs:__real@3e4ccccd
-            vsubss  xmm1, xmm1, xmm0
-            vcomiss xmm2, xmm1
-          }
-          if ( v73 )
-          {
-            v81 = s_streamerInfo[_RDI].viewPosHistory.mCurSize;
-            if ( v81 == s_streamerInfo[_RDI].viewPosHistory.mMaxSize && v81 < 0x78 )
-              ValueHistory<StreamerInfo::ViewPosSample,120>::Resize(&s_streamerInfo[_RDI].viewPosHistory, v81 + 1);
+            v32 = s_streamerInfo[v9].viewPosHistory.mCurSize;
+            if ( v32 == s_streamerInfo[v9].viewPosHistory.mMaxSize && v32 < 0x78 )
+              ValueHistory<StreamerInfo::ViewPosSample,120>::Resize(&s_streamerInfo[v9].viewPosHistory, v32 + 1);
           }
         }
         else
         {
-          v78 = s_streamerInfo[_RDI].viewPosHistory.mCurSize - 1;
-          if ( v78 < 0x14 )
-            v78 = 20i64;
-          ValueHistory<StreamerInfo::ViewPosSample,120>::Resize(&s_streamerInfo[_RDI].viewPosHistory, v78);
+          v31 = s_streamerInfo[v9].viewPosHistory.mCurSize - 1;
+          if ( v31 < 0x14 )
+            v31 = 20i64;
+          ValueHistory<StreamerInfo::ViewPosSample,120>::Resize(&s_streamerInfo[v9].viewPosHistory, v31);
         }
       }
     }
   }
-  __asm
-  {
-    vmovups xmm0, [rbp+57h+var_58]
-    vmovaps xmm6, [rsp+0F0h+var_30]
-  }
-  _RAX = 2 * s_streamerInfo[_RDI].viewPosHistory.mWriteOffset;
-  __asm { vmovups xmmword ptr [rsi+rax*8], xmm0 }
-  mMaxSize = s_streamerInfo[_RDI].viewPosHistory.mMaxSize;
-  v86 = s_streamerInfo[_RDI].viewPosHistory.mCurSize + 1;
-  s_streamerInfo[_RDI].viewPosHistory.mWriteOffset = (s_streamerInfo[_RDI].viewPosHistory.mWriteOffset + 1) % mMaxSize;
-  if ( mMaxSize > v86 )
-    mMaxSize = v86;
-  s_streamerInfo[_RDI].viewPosHistory.mCurSize = mMaxSize;
+  v11->viewPosHistory.mValues[s_streamerInfo[v9].viewPosHistory.mWriteOffset] = v47;
+  mMaxSize = s_streamerInfo[v9].viewPosHistory.mMaxSize;
+  v34 = s_streamerInfo[v9].viewPosHistory.mCurSize + 1;
+  s_streamerInfo[v9].viewPosHistory.mWriteOffset = (s_streamerInfo[v9].viewPosHistory.mWriteOffset + 1) % mMaxSize;
+  if ( mMaxSize > v34 )
+    mMaxSize = v34;
+  s_streamerInfo[v9].viewPosHistory.mCurSize = mMaxSize;
 }
 

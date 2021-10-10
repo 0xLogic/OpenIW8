@@ -160,12 +160,10 @@ Dvar_GetFloat_Internal_DebugName
 */
 float Dvar_GetFloat_Internal_DebugName(const dvar_t *dvar, const char *dvarName)
 {
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", dvarName) )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(dvar);
+  return dvar->current.value;
 }
 
 /*
@@ -221,12 +219,10 @@ Dvar_GetFloat_Internal
 */
 float Dvar_GetFloat_Internal(const dvar_t *dvar)
 {
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(dvar);
+  return dvar->current.value;
 }
 
 /*

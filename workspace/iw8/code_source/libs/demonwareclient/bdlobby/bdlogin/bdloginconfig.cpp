@@ -979,43 +979,36 @@ void bdLoginConfig::setPushMessageHandler(bdLoginConfig *this, bdPushMessageHand
 {
   unsigned int m_capacity; 
   int v4; 
+  bdPushMessageHandler **m_data; 
   unsigned int v6; 
   unsigned int m_size; 
-  bdPushMessageHandler *v10; 
 
-  if ( handler )
+  if ( *(double *)&handler != 0.0 )
   {
-    v10 = handler;
     m_capacity = this->m_pushHandlers.m_capacity;
     if ( this->m_pushHandlers.m_size == m_capacity )
     {
       v4 = m_capacity;
       if ( !m_capacity )
         v4 = 1;
-      _RDI = NULL;
+      m_data = NULL;
       v6 = m_capacity + v4;
       if ( v6 )
       {
-        _RDI = (bdPushMessageHandler **)bdMemory::allocate(8i64 * v6);
+        m_data = (bdPushMessageHandler **)bdMemory::allocate(8i64 * v6);
         m_size = this->m_pushHandlers.m_size;
         if ( m_size )
-          memcpy_0(_RDI, this->m_pushHandlers.m_data, 8i64 * m_size);
+          memcpy_0(m_data, this->m_pushHandlers.m_data, 8i64 * m_size);
       }
       bdMemory::deallocate(this->m_pushHandlers.m_data);
       this->m_pushHandlers.m_capacity = v6;
-      this->m_pushHandlers.m_data = _RDI;
+      this->m_pushHandlers.m_data = m_data;
     }
     else
     {
-      _RDI = this->m_pushHandlers.m_data;
+      m_data = this->m_pushHandlers.m_data;
     }
-    _RAX = this->m_pushHandlers.m_size;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+28h+arg_8]
-      vmovsd  qword ptr [rdi+rax*8], xmm0
-    }
-    ++this->m_pushHandlers.m_size;
+    m_data[this->m_pushHandlers.m_size++] = handler;
   }
 }
 
@@ -1135,167 +1128,120 @@ bdLoginConfig::bdLoginConfig
 void bdLoginConfig::bdLoginConfig(bdLoginConfig *this, const bdLoginConfig *__that)
 {
   bdWinRTPtr *m_ptr; 
+  char *m_authAddress; 
+  char *v6; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
-  __int64 v20; 
-  bdPushMessageHandler **v41; 
+  char *m_lsgAddress; 
+  char *v10; 
+  __int64 v11; 
+  char *m_loginQueueAddress; 
+  char *v13; 
+  bdPushMessageHandler **v14; 
   __int64 m_capacity; 
-  bdPushMessageHandler **v43; 
+  bdPushMessageHandler **v16; 
   unsigned int m_size; 
 
-  _RDI = __that;
-  _RBX = this;
   this->__vftable = (bdLoginConfig_vtbl *)&bdLoginConfig::`vftable';
   this->m_environment = __that->m_environment;
   m_ptr = __that->m_user.m_user.m_ptr;
-  _RBX->m_user.m_user.m_ptr = m_ptr;
+  this->m_user.m_user.m_ptr = m_ptr;
   if ( m_ptr )
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdx+18h]
-    vmovsd  qword ptr [rbx+18h], xmm0
-  }
-  _RBX->m_titleIDs[2] = __that->m_titleIDs[2];
-  _RAX = _RBX->m_authAddress;
-  _RCX = __that->m_authAddress;
+  *(double *)this->m_titleIDs = *(double *)__that->m_titleIDs;
+  this->m_titleIDs[2] = __that->m_titleIDs[2];
+  m_authAddress = this->m_authAddress;
+  v6 = __that->m_authAddress;
+  v7 = 8i64;
   v8 = 8i64;
-  v9 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rax+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rax+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rax+30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+50h]
-      vmovups xmmword ptr [rax+50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 128;
-    --v9;
-  }
-  while ( v9 );
-  _RBX->m_authPort = _RDI->m_authPort;
-  _RAX = _RBX->m_lsgAddress;
-  _RCX = _RDI->m_lsgAddress;
-  v20 = 8i64;
-  do
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rax+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rax+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rax+30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+50h]
-      vmovups xmmword ptr [rax+50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 128;
-    --v20;
-  }
-  while ( v20 );
-  _RBX->m_lsgPort = _RDI->m_lsgPort;
-  _RCX = _RBX->m_loginQueueAddress;
-  _RAX = _RDI->m_loginQueueAddress;
-  do
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
+    *(_OWORD *)m_authAddress = *(_OWORD *)v6;
+    *((_OWORD *)m_authAddress + 1) = *((_OWORD *)v6 + 1);
+    *((_OWORD *)m_authAddress + 2) = *((_OWORD *)v6 + 2);
+    *((_OWORD *)m_authAddress + 3) = *((_OWORD *)v6 + 3);
+    *((_OWORD *)m_authAddress + 4) = *((_OWORD *)v6 + 4);
+    *((_OWORD *)m_authAddress + 5) = *((_OWORD *)v6 + 5);
+    *((_OWORD *)m_authAddress + 6) = *((_OWORD *)v6 + 6);
+    m_authAddress += 128;
+    *((_OWORD *)m_authAddress - 1) = *((_OWORD *)v6 + 7);
+    v6 += 128;
     --v8;
   }
   while ( v8 );
-  _RBX->m_loginQueuePort = _RDI->m_loginQueuePort;
-  _RBX->m_titleVersion = _RDI->m_titleVersion;
-  _RBX->m_loginType = _RDI->m_loginType;
-  *(_DWORD *)_RBX->m_macAddr.m_data = *(_DWORD *)_RDI->m_macAddr.m_data;
-  *(_WORD *)&_RBX->m_macAddr.m_data[4] = *(_WORD *)&_RDI->m_macAddr.m_data[4];
-  _RBX->m_gameMode = _RDI->m_gameMode;
-  _RBX->m_internalAddr = _RDI->m_internalAddr;
-  _RBX->m_shouldCreateAnonymousAccount = _RDI->m_shouldCreateAnonymousAccount;
-  memcpy_0(_RBX->m_thunderpantsToken, _RDI->m_thunderpantsToken, sizeof(_RBX->m_thunderpantsToken));
-  _RBX->m_dediLogin = _RDI->m_dediLogin;
-  _RBX->m_shouldPauseFlow = _RDI->m_shouldPauseFlow;
-  __asm
+  this->m_authPort = __that->m_authPort;
+  m_lsgAddress = this->m_lsgAddress;
+  v10 = __that->m_lsgAddress;
+  v11 = 8i64;
+  do
   {
-    vmovups ymm0, ymmword ptr [rdi+1447h]
-    vmovups ymmword ptr [rbx+1447h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+1467h]
-    vmovups ymmword ptr [rbx+1467h], ymm1
+    *(_OWORD *)m_lsgAddress = *(_OWORD *)v10;
+    *((_OWORD *)m_lsgAddress + 1) = *((_OWORD *)v10 + 1);
+    *((_OWORD *)m_lsgAddress + 2) = *((_OWORD *)v10 + 2);
+    *((_OWORD *)m_lsgAddress + 3) = *((_OWORD *)v10 + 3);
+    *((_OWORD *)m_lsgAddress + 4) = *((_OWORD *)v10 + 4);
+    *((_OWORD *)m_lsgAddress + 5) = *((_OWORD *)v10 + 5);
+    *((_OWORD *)m_lsgAddress + 6) = *((_OWORD *)v10 + 6);
+    m_lsgAddress += 128;
+    *((_OWORD *)m_lsgAddress - 1) = *((_OWORD *)v10 + 7);
+    v10 += 128;
+    --v11;
   }
-  _RBX->m_desiredUserName[64] = _RDI->m_desiredUserName[64];
-  _RBX->m_lobbyEventHandler = _RDI->m_lobbyEventHandler;
-  _RBX->m_pushHandlers.m_capacity = _RDI->m_pushHandlers.m_capacity;
-  _RBX->m_pushHandlers.m_size = _RDI->m_pushHandlers.m_size;
-  v41 = NULL;
-  m_capacity = _RDI->m_pushHandlers.m_capacity;
+  while ( v11 );
+  this->m_lsgPort = __that->m_lsgPort;
+  m_loginQueueAddress = this->m_loginQueueAddress;
+  v13 = __that->m_loginQueueAddress;
+  do
+  {
+    *(_OWORD *)m_loginQueueAddress = *(_OWORD *)v13;
+    *((_OWORD *)m_loginQueueAddress + 1) = *((_OWORD *)v13 + 1);
+    *((_OWORD *)m_loginQueueAddress + 2) = *((_OWORD *)v13 + 2);
+    *((_OWORD *)m_loginQueueAddress + 3) = *((_OWORD *)v13 + 3);
+    *((_OWORD *)m_loginQueueAddress + 4) = *((_OWORD *)v13 + 4);
+    *((_OWORD *)m_loginQueueAddress + 5) = *((_OWORD *)v13 + 5);
+    *((_OWORD *)m_loginQueueAddress + 6) = *((_OWORD *)v13 + 6);
+    m_loginQueueAddress += 128;
+    *((_OWORD *)m_loginQueueAddress - 1) = *((_OWORD *)v13 + 7);
+    v13 += 128;
+    --v7;
+  }
+  while ( v7 );
+  this->m_loginQueuePort = __that->m_loginQueuePort;
+  this->m_titleVersion = __that->m_titleVersion;
+  this->m_loginType = __that->m_loginType;
+  *(_DWORD *)this->m_macAddr.m_data = *(_DWORD *)__that->m_macAddr.m_data;
+  *(_WORD *)&this->m_macAddr.m_data[4] = *(_WORD *)&__that->m_macAddr.m_data[4];
+  this->m_gameMode = __that->m_gameMode;
+  this->m_internalAddr = __that->m_internalAddr;
+  this->m_shouldCreateAnonymousAccount = __that->m_shouldCreateAnonymousAccount;
+  memcpy_0(this->m_thunderpantsToken, __that->m_thunderpantsToken, sizeof(this->m_thunderpantsToken));
+  this->m_dediLogin = __that->m_dediLogin;
+  this->m_shouldPauseFlow = __that->m_shouldPauseFlow;
+  *(__m256i *)this->m_desiredUserName = *(__m256i *)__that->m_desiredUserName;
+  *(__m256i *)&this->m_desiredUserName[32] = *(__m256i *)&__that->m_desiredUserName[32];
+  this->m_desiredUserName[64] = __that->m_desiredUserName[64];
+  this->m_lobbyEventHandler = __that->m_lobbyEventHandler;
+  this->m_pushHandlers.m_capacity = __that->m_pushHandlers.m_capacity;
+  this->m_pushHandlers.m_size = __that->m_pushHandlers.m_size;
+  v14 = NULL;
+  m_capacity = __that->m_pushHandlers.m_capacity;
   if ( (_DWORD)m_capacity )
   {
-    v43 = (bdPushMessageHandler **)bdMemory::allocate(8 * m_capacity);
-    v41 = v43;
-    m_size = _RDI->m_pushHandlers.m_size;
+    v16 = (bdPushMessageHandler **)bdMemory::allocate(8 * m_capacity);
+    v14 = v16;
+    m_size = __that->m_pushHandlers.m_size;
     if ( m_size )
-      memcpy_0(v43, _RDI->m_pushHandlers.m_data, 8i64 * m_size);
+      memcpy_0(v16, __that->m_pushHandlers.m_data, 8i64 * m_size);
   }
-  _RBX->m_pushHandlers.m_data = v41;
-  *(_DWORD *)_RBX->m_serviceLevel = *(_DWORD *)_RDI->m_serviceLevel;
-  _RBX->m_serviceLevel[4] = _RDI->m_serviceLevel[4];
-  _RBX->m_maxInitialLoginDelayMS = _RDI->m_maxInitialLoginDelayMS;
-  _RBX->m_clientSetQueueID = _RDI->m_clientSetQueueID;
-  _RBX->m_queueID = _RDI->m_queueID;
-  *(_DWORD *)_RBX->m_gameID = *(_DWORD *)_RDI->m_gameID;
-  *(_DWORD *)_RBX->m_region = *(_DWORD *)_RDI->m_region;
-  *(_WORD *)&_RBX->m_region[4] = *(_WORD *)&_RDI->m_region[4];
-  _RBX->m_region[6] = _RDI->m_region[6];
+  this->m_pushHandlers.m_data = v14;
+  *(_DWORD *)this->m_serviceLevel = *(_DWORD *)__that->m_serviceLevel;
+  this->m_serviceLevel[4] = __that->m_serviceLevel[4];
+  this->m_maxInitialLoginDelayMS = __that->m_maxInitialLoginDelayMS;
+  this->m_clientSetQueueID = __that->m_clientSetQueueID;
+  this->m_queueID = __that->m_queueID;
+  *(_DWORD *)this->m_gameID = *(_DWORD *)__that->m_gameID;
+  *(_DWORD *)this->m_region = *(_DWORD *)__that->m_region;
+  *(_WORD *)&this->m_region[4] = *(_WORD *)&__that->m_region[4];
+  this->m_region[6] = __that->m_region[6];
 }
 

@@ -119,39 +119,15 @@ _BOOL8 bdDMLInfo::deserialize(bdDMLInfo *this, bdReference<bdByteBuffer> buffer)
 bdDMLInfo::get2DCartesianLocation
 ==============
 */
-
-void __fastcall bdDMLInfo::get2DCartesianLocation(bdDMLInfo *this, float *x, float *y, double standardLatitudeDegrees)
+void bdDMLInfo::get2DCartesianLocation(bdDMLInfo *this, float *x, float *y, float standardLatitudeDegrees)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+120h]
-    vmovaps [rsp+48h+var_18], xmm7
-  }
-  _RSI = y;
-  __asm
-  {
-    vmulss  xmm7, xmm0, cs:__real@3c8efa35
-    vmulss  xmm0, xmm3, cs:__real@3c8efa35; X
-    vmovaps [rsp+48h+var_28], xmm8
-  }
-  _RDI = x;
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rbx+124h]
-    vmulss  xmm2, xmm1, cs:__real@3c8efa35
-    vmovaps xmm8, xmm0
-    vmovaps xmm0, xmm7; X
-    vmovss  dword ptr [rdi], xmm2
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm7, [rsp+48h+var_18]
-    vdivss  xmm1, xmm0, xmm8
-    vmovaps xmm8, [rsp+48h+var_28]
-    vmovss  dword ptr [rsi], xmm1
-  }
+  float v5; 
+  float v8; 
+
+  v5 = this->m_latitude * 0.017453292;
+  v8 = cosf_0(standardLatitudeDegrees * 0.017453292);
+  *x = (float)(v8 * this->m_longitude) * 0.017453292;
+  *y = sinf_0(v5) / v8;
 }
 
 /*

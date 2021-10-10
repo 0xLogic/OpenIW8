@@ -60,96 +60,72 @@ G_Animset_GetIndexOfRandomAnimFromAlias
 */
 __int64 G_Animset_GetIndexOfRandomAnimFromAlias(const Animset *pAnimset, const AnimsetState *pState, const scr_string_t aliasName)
 {
-  int v8; 
-  __int64 v9; 
+  int v6; 
+  __int64 i; 
   AnimsetAlias *animAliases; 
-  unsigned __int64 numAnims; 
-  int v14; 
-  unsigned __int64 v15; 
-  AnimsetAnim *anims; 
-  bool v18; 
+  __int64 numAnims; 
+  double v10; 
+  int v11; 
+  __int64 v12; 
+  __int128 v13; 
   float *p_weight; 
-  const char *v20; 
-  const char *v21; 
-  const char *v22; 
-  const char *v23; 
-  __int64 result; 
+  __int128 v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
   if ( pAnimset )
   {
     if ( pState )
     {
-      v8 = 0;
-      v9 = 0i64;
-      if ( pState->numAnimAliases )
+      v6 = 0;
+      for ( i = 0i64; (unsigned int)i < pState->numAnimAliases; i = (unsigned int)(i + 1) )
       {
-        __asm { vmovss  xmm6, cs:__real@3f800000 }
-        do
+        animAliases = pState->animAliases;
+        if ( animAliases[i].name == aliasName )
         {
-          animAliases = pState->animAliases;
-          if ( animAliases[v9].name == aliasName )
+          numAnims = (int)animAliases[i].numAnims;
+          v10 = G_flrand(0.0, 1.0);
+          v11 = 0;
+          v12 = 0i64;
+          v13 = 0i64;
+          if ( (int)numAnims > 0 )
           {
-            numAnims = (int)animAliases[v9].numAnims;
-            __asm
+            p_weight = &animAliases[i].anims->weight;
+            do
             {
-              vmovaps xmm1, xmm6; max
-              vxorps  xmm0, xmm0, xmm0; min
+              v15 = v13;
+              *(float *)&v15 = *(float *)&v13 + *p_weight;
+              v13 = v15;
+              if ( *(float *)&v15 >= *(float *)&v10 )
+                return (unsigned int)(v11 + v6);
+              ++v11;
+              ++v12;
+              p_weight += 6;
             }
-            *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-            v14 = 0;
-            v15 = 0i64;
-            __asm { vxorps  xmm1, xmm1, xmm1 }
+            while ( v12 < numAnims );
             if ( (int)numAnims > 0 )
-            {
-              anims = animAliases[v9].anims;
-              v18 = __CFADD__(anims, 4i64);
-              p_weight = &anims->weight;
-              do
-              {
-                __asm
-                {
-                  vaddss  xmm1, xmm1, dword ptr [rax]
-                  vcomiss xmm1, xmm0
-                }
-                if ( !v18 )
-                {
-                  result = (unsigned int)(v14 + v8);
-                  goto LABEL_18;
-                }
-                ++v14;
-                ++v15;
-                p_weight += 6;
-                v18 = v15 < numAnims;
-              }
-              while ( (__int64)v15 < (__int64)numAnims );
-              if ( (int)numAnims > 0 )
-                goto LABEL_13;
-            }
-            v20 = SL_ConvertToString(aliasName);
-            v21 = SL_ConvertToString(pState->name);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 87, ASSERT_TYPE_ASSERT, "(numAnims > 0)", "%s\n\tanimset %s state %s alias %s has no anims!", "numAnims > 0", pAnimset->name, v21, v20) )
-              __debugbreak();
-LABEL_13:
-            v22 = SL_ConvertToString(aliasName);
-            v23 = SL_ConvertToString(pState->name);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 88, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "animset %s state %s alias %s has bad weights!", pAnimset->name, v23, v22) )
-              __debugbreak();
+              goto LABEL_12;
           }
-          else
-          {
-            v8 += animAliases[v9].numAnims;
-          }
-          v9 = (unsigned int)(v9 + 1);
+          v16 = SL_ConvertToString(aliasName);
+          v17 = SL_ConvertToString(pState->name);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 87, ASSERT_TYPE_ASSERT, "(numAnims > 0)", "%s\n\tanimset %s state %s alias %s has no anims!", "numAnims > 0", pAnimset->name, v17, v16) )
+            __debugbreak();
+LABEL_12:
+          v18 = SL_ConvertToString(aliasName);
+          v19 = SL_ConvertToString(pState->name);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 88, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "animset %s state %s alias %s has bad weights!", pAnimset->name, v19, v18) )
+            __debugbreak();
         }
-        while ( (unsigned int)v9 < pState->numAnimAliases );
+        else
+        {
+          v6 += animAliases[i].numAnims;
+        }
       }
     }
   }
-  result = 0xFFFFFFFFi64;
-LABEL_18:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  return result;
+  return 0xFFFFFFFFi64;
 }
 
 /*
@@ -226,95 +202,70 @@ G_Animset_GetRandomAlias
 */
 scr_anim_t G_Animset_GetRandomAlias(scr_string_t assetName, scr_string_t stateName, scr_string_t aliasName, bool frantic)
 {
-  unsigned int v8; 
-  Animset *v11; 
+  int v5; 
+  __int128 v7; 
+  Animset *v8; 
   _DWORD *m_AIAnimsetAlias; 
-  scr_anim_t result; 
-  unsigned int v16; 
-  AnimsetAlias_Union v18; 
+  double v11; 
+  int v12; 
+  __int128 v13; 
+  AnimsetAlias_Union v14; 
   unsigned int numRedAnims; 
-  bool v20; 
   AnimsetAnim *redAnims; 
+  __int128 v17; 
+  double v18; 
   unsigned int numAnims; 
-  bool v25; 
-  AnimsetAlias *v27; 
-  void *retaddr; 
+  AnimsetAnim *anims; 
+  __int128 v21; 
+  AnimsetAlias *v22; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v8 = 0;
-  v27 = NULL;
-  if ( !BG_Animset_GetCompleteAliasInfo(assetName, stateName, aliasName, &v27) )
-    goto LABEL_28;
-  if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 11, ASSERT_TYPE_ASSERT, "(alias)", (const char *)&queryFormat, "alias") )
+  v5 = 0;
+  v22 = NULL;
+  if ( !BG_Animset_GetCompleteAliasInfo(assetName, stateName, aliasName, &v22) )
+    return UNDEFINED_ANIM_1;
+  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 11, ASSERT_TYPE_ASSERT, "(alias)", (const char *)&queryFormat, "alias") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v7 = 0i64;
   if ( !frantic )
     goto LABEL_19;
-  v11 = Animset_Find(assetName);
-  if ( (!v11 || v11->mode) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 18, ASSERT_TYPE_ASSERT, "(animset && animset->mode == ASM_MODE_AI)", (const char *)&queryFormat, "animset && animset->mode == ASM_MODE_AI") )
+  v8 = Animset_Find(assetName);
+  if ( (!v8 || v8->mode) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 18, ASSERT_TYPE_ASSERT, "(animset && animset->mode == ASM_MODE_AI)", (const char *)&queryFormat, "animset && animset->mode == ASM_MODE_AI") )
     __debugbreak();
-  m_AIAnimsetAlias = v27->u.m_AIAnimsetAlias;
+  m_AIAnimsetAlias = v22->u.m_AIAnimsetAlias;
   if ( m_AIAnimsetAlias[2] == 1 )
-  {
-    result = *(scr_anim_t *)(*(_QWORD *)m_AIAnimsetAlias + 16i64);
-    goto LABEL_29;
-  }
+    return *(scr_anim_t *)(*(_QWORD *)m_AIAnimsetAlias + 16i64);
   if ( m_AIAnimsetAlias[2] <= 1u )
   {
 LABEL_19:
-    if ( v27->numAnims == 1 )
+    if ( v22->numAnims == 1 )
+      return (scr_anim_t)v22->anims->anim.linkPointer;
+    if ( v22->numAnims > 1 )
     {
-      result = (scr_anim_t)v27->anims->anim.linkPointer;
-      goto LABEL_29;
-    }
-    if ( v27->numAnims > 1 )
-    {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000; max
-        vmovaps xmm0, xmm6; min
-      }
-      *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      numAnims = v27->numAnims;
-      v25 = 0;
+      v18 = G_flrand(0.0, 1.0);
+      numAnims = v22->numAnims;
       if ( numAnims )
       {
-        while ( 1 )
+        anims = v22->anims;
+        do
         {
-          __asm
-          {
-            vaddss  xmm6, xmm6, dword ptr [rcx+rax*8+4]
-            vcomiss xmm6, xmm0
-          }
-          if ( !v25 )
-            break;
-          v25 = ++v8 < numAnims;
-          if ( v8 >= numAnims )
-            goto LABEL_26;
+          v21 = v7;
+          *(float *)&v21 = *(float *)&v7 + anims[v5].weight;
+          v7 = v21;
+          if ( *(float *)&v21 >= *(float *)&v18 )
+            return (scr_anim_t)anims[v5].anim.linkPointer;
         }
-        result = (scr_anim_t)v27->anims[v8].anim.linkPointer;
-        goto LABEL_29;
+        while ( ++v5 < numAnims );
       }
-LABEL_26:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animset_util.cpp", 61, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Should have returned before here, animset has bad weights.") )
         __debugbreak();
     }
-LABEL_28:
-    result = UNDEFINED_ANIM_1;
-    goto LABEL_29;
+    return UNDEFINED_ANIM_1;
   }
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  v16 = 0;
-  __asm { vxorps  xmm1, xmm1, xmm1 }
-  v18.m_AIAnimsetAlias = (AIAnimsetAlias *)v27->u;
-  numRedAnims = v18.m_AIAnimsetAlias->numRedAnims;
-  v20 = 0;
+  v11 = G_flrand(0.0, 1.0);
+  v12 = 0;
+  v13 = 0i64;
+  v14.m_AIAnimsetAlias = (AIAnimsetAlias *)v22->u;
+  numRedAnims = v14.m_AIAnimsetAlias->numRedAnims;
   if ( !numRedAnims )
   {
 LABEL_17:
@@ -322,23 +273,16 @@ LABEL_17:
       __debugbreak();
     goto LABEL_19;
   }
-  redAnims = v18.m_AIAnimsetAlias->redAnims;
+  redAnims = v14.m_AIAnimsetAlias->redAnims;
   while ( 1 )
   {
-    __asm
-    {
-      vaddss  xmm1, xmm1, dword ptr [rdx+rax*8+4]
-      vcomiss xmm1, xmm0
-    }
-    if ( !v20 )
-      break;
-    v20 = ++v16 < numRedAnims;
-    if ( v16 >= numRedAnims )
+    v17 = v13;
+    *(float *)&v17 = *(float *)&v13 + redAnims[v12].weight;
+    v13 = v17;
+    if ( *(float *)&v17 >= *(float *)&v11 )
+      return (scr_anim_t)redAnims[v12].anim.linkPointer;
+    if ( ++v12 >= numRedAnims )
       goto LABEL_17;
   }
-  result = (scr_anim_t)redAnims[v16].anim.linkPointer;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
 }
 

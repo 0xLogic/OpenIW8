@@ -278,6 +278,7 @@ ASM_Function_Param *AI_ASM_TranslateFunctionParams(ASM_Mode mode, const ASM_Func
   __int64 m_FuncID; 
   unsigned int v15; 
   unsigned int v16; 
+  ASM_Function_Param_Type *p_m_Type; 
   const char *v18; 
   const char *v19; 
   __int64 *v20; 
@@ -326,7 +327,7 @@ ASM_Function_Param *AI_ASM_TranslateFunctionParams(ASM_Mode mode, const ASM_Func
   v39 = 0;
   if ( *numParams > 0 )
   {
-    _R15 = &result->m_Type;
+    p_m_Type = &result->m_Type;
     v18 = &paramBuf[80 * v11];
     v19 = "undefined";
     do
@@ -387,7 +388,7 @@ ASM_Function_Param *AI_ASM_TranslateFunctionParams(ASM_Mode mode, const ASM_Func
           if ( !v27 )
           {
 LABEL_39:
-            *_R15 = ParamType_Undefined;
+            *p_m_Type = ParamType_Undefined;
             goto LABEL_40;
           }
           if ( v26 != v28 )
@@ -412,38 +413,35 @@ LABEL_39:
             v34 = *v18;
             if ( (unsigned __int8)(*v18 - 48) > 9u && (((v34 - 43) & 0xFC) != 0 || v34 == 44) )
             {
-              *_R15 = ParamType_String;
+              *p_m_Type = ParamType_String;
               if ( *v18 )
-                *((_DWORD *)_R15 - 1) = SL_GetString(v18, 0);
+                *((_DWORD *)p_m_Type - 1) = SL_GetString(v18, 0);
               else
-                *((_DWORD *)_R15 - 1) = 0;
+                *((_DWORD *)p_m_Type - 1) = 0;
             }
             else if ( I_stristr(v18, ".") )
             {
-              *_R15 = ParamType_Float;
+              *p_m_Type = ParamType_Float;
               *(double *)&_XMM0 = atof(v18);
-              __asm
-              {
-                vcvtsd2ss xmm1, xmm0, xmm0
-                vmovss  dword ptr [r15-4], xmm1
-              }
+              __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+              *(p_m_Type - 1) = _XMM1;
             }
             else
             {
-              *_R15 = ParamType_Int;
-              *((_DWORD *)_R15 - 1) = atoi(v18);
+              *p_m_Type = ParamType_Int;
+              *((_DWORD *)p_m_Type - 1) = atoi(v18);
             }
           }
           else
           {
-            *_R15 = ParamType_Bool;
-            *((_BYTE *)_R15 - 4) = 0;
+            *p_m_Type = ParamType_Bool;
+            *((_BYTE *)p_m_Type - 4) = 0;
           }
         }
         else
         {
-          *_R15 = ParamType_Bool;
-          *((_BYTE *)_R15 - 4) = 1;
+          *p_m_Type = ParamType_Bool;
+          *((_BYTE *)p_m_Type - 4) = 1;
         }
       }
 LABEL_40:
@@ -473,7 +471,7 @@ LABEL_40:
       v19 = "undefined";
       v18 += 80;
       v39 = v16;
-      _R15 += 2;
+      p_m_Type += 2;
     }
     while ( (int)v16 < *v8 );
     result = v41;

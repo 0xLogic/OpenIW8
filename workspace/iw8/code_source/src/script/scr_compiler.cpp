@@ -4074,152 +4074,146 @@ EmitValue
 void EmitValue(scrContext_t *scrContext, VariableCompileValue *constValue)
 {
   sval_u sourcePos; 
-  unsigned int v5; 
-  int v6; 
+  unsigned int v4; 
+  int v5; 
+  unsigned __int8 *v6; 
   unsigned __int8 *v7; 
   unsigned __int8 *v8; 
   unsigned __int8 *v9; 
-  unsigned __int8 *v10; 
-  sval_u v11; 
-  unsigned __int8 *v13; 
-  sval_u v15; 
+  sval_u v10; 
+  int v11; 
+  unsigned __int8 *v12; 
+  sval_u v13; 
   int intValue; 
-  unsigned int v17; 
-  unsigned __int8 *v18; 
-  sval_u v19; 
+  unsigned int v15; 
+  unsigned __int8 *v16; 
+  sval_u v17; 
   const float *scriptCodePosValue; 
-  const float *v21; 
-  __int64 v22; 
-  unsigned __int8 *v23; 
+  const float *v19; 
+  __int64 v20; 
+  unsigned __int8 *v21; 
+  int v22; 
+  sval_u v23; 
   int v24; 
-  sval_u v25; 
-  int v26; 
-  unsigned __int8 *v27; 
-  int v29; 
+  unsigned __int8 *v25; 
 
   switch ( constValue->value.type )
   {
     case VAR_UNDEFINED:
       sourcePos = constValue->sourcePos;
-      v5 = 26;
+      v4 = 26;
       goto LABEL_6;
     case VAR_STRING:
-      v15 = constValue->sourcePos;
+      v13 = constValue->sourcePos;
       intValue = constValue->value.u.intValue;
-      v17 = 122;
+      v15 = 122;
       goto LABEL_19;
     case VAR_ISTRING:
-      v15 = constValue->sourcePos;
+      v13 = constValue->sourcePos;
       intValue = constValue->value.u.intValue;
-      v17 = 95;
+      v15 = 95;
 LABEL_19:
-      EmitOpcode(scrContext, v17, 1, 0);
-      AddOpcodePos(scrContext, v15.canonicalString, SOURCE_TYPE_BREAKPOINT);
-      v18 = (unsigned __int8 *)TempMalloc(4ui64);
-      scrContext->m_compileGlob.codePos = v18;
-      *(_DWORD *)v18 = intValue;
+      EmitOpcode(scrContext, v15, 1, 0);
+      AddOpcodePos(scrContext, v13.canonicalString, SOURCE_TYPE_BREAKPOINT);
+      v16 = (unsigned __int8 *)TempMalloc(4ui64);
+      scrContext->m_compileGlob.codePos = v16;
+      *(_DWORD *)v16 = intValue;
       CompileTransferRefToString(scrContext, (scr_string_t)intValue, 1u);
       return;
     case VAR_VECTOR:
-      v19 = constValue->sourcePos;
+      v17 = constValue->sourcePos;
       scriptCodePosValue = (const float *)constValue->value.u.scriptCodePosValue;
       EmitOpcode(scrContext, 0x13u, 1, 0);
-      AddOpcodePos(scrContext, v19.canonicalString, SOURCE_TYPE_BREAKPOINT);
-      v21 = scriptCodePosValue;
-      v22 = 3i64;
+      AddOpcodePos(scrContext, v17.canonicalString, SOURCE_TYPE_BREAKPOINT);
+      v19 = scriptCodePosValue;
+      v20 = 3i64;
       do
       {
-        v23 = (unsigned __int8 *)TempMallocAlignStrict(4ui64);
-        v24 = *(_DWORD *)v21++;
-        scrContext->m_compileGlob.codePos = v23;
-        *(_DWORD *)v23 = v24;
-        --v22;
+        v21 = (unsigned __int8 *)TempMallocAlignStrict(4ui64);
+        v22 = *(_DWORD *)v19++;
+        scrContext->m_compileGlob.codePos = v21;
+        *(_DWORD *)v21 = v22;
+        --v20;
       }
-      while ( v22 );
+      while ( v20 );
       RemoveRefToVector(scrContext, scriptCodePosValue);
       return;
     case VAR_FLOAT:
-      v11 = constValue->sourcePos;
-      __asm
-      {
-        vmovaps [rsp+38h+var_18], xmm6
-        vmovss  xmm6, dword ptr [rdx]
-      }
+      v10 = constValue->sourcePos;
+      v11 = constValue->value.u.intValue;
       EmitOpcode(scrContext, 0x70u, 1, 0);
-      AddOpcodePos(scrContext, v11.canonicalString, SOURCE_TYPE_BREAKPOINT);
-      __asm { vmovss  [rsp+38h+arg_8], xmm6 }
-      v13 = (unsigned __int8 *)TempMalloc(4ui64);
-      __asm { vmovaps xmm6, [rsp+38h+var_18] }
-      scrContext->m_compileGlob.codePos = v13;
-      *(_DWORD *)v13 = v29;
+      AddOpcodePos(scrContext, v10.canonicalString, SOURCE_TYPE_BREAKPOINT);
+      v12 = (unsigned __int8 *)TempMalloc(4ui64);
+      scrContext->m_compileGlob.codePos = v12;
+      *(_DWORD *)v12 = v11;
       return;
     case VAR_INTEGER:
-      v6 = constValue->value.u.intValue;
+      v5 = constValue->value.u.intValue;
       sourcePos = constValue->sourcePos;
       if ( constValue->value.u.intValue < 0 )
       {
-        if ( v6 > -256 )
+        if ( v5 > -256 )
         {
           EmitOpcode(scrContext, 0x51u, 1, 0);
           AddOpcodePos(scrContext, sourcePos.canonicalString, SOURCE_TYPE_BREAKPOINT);
-          v8 = (unsigned __int8 *)TempMalloc(1ui64);
-          scrContext->m_compileGlob.codePos = v8;
-          *v8 = -(char)v6;
+          v7 = (unsigned __int8 *)TempMalloc(1ui64);
+          scrContext->m_compileGlob.codePos = v7;
+          *v7 = -(char)v5;
           return;
         }
-        if ( v6 > -65536 )
+        if ( v5 > -65536 )
         {
           EmitOpcode(scrContext, 0x50u, 1, 0);
           AddOpcodePos(scrContext, sourcePos.canonicalString, SOURCE_TYPE_BREAKPOINT);
-          v9 = (unsigned __int8 *)TempMalloc(2ui64);
-          scrContext->m_compileGlob.codePos = v9;
-          *(_WORD *)v9 = -(__int16)v6;
+          v8 = (unsigned __int8 *)TempMalloc(2ui64);
+          scrContext->m_compileGlob.codePos = v8;
+          *(_WORD *)v8 = -(__int16)v5;
           return;
         }
         goto LABEL_15;
       }
-      if ( v6 )
+      if ( v5 )
       {
-        if ( v6 < 256 )
+        if ( v5 < 256 )
         {
           EmitOpcode(scrContext, 0x16u, 1, 0);
           AddOpcodePos(scrContext, sourcePos.canonicalString, SOURCE_TYPE_BREAKPOINT);
-          v7 = (unsigned __int8 *)TempMalloc(1ui64);
-          scrContext->m_compileGlob.codePos = v7;
-          *v7 = v6;
+          v6 = (unsigned __int8 *)TempMalloc(1ui64);
+          scrContext->m_compileGlob.codePos = v6;
+          *v6 = v5;
           return;
         }
-        if ( v6 < 0x10000 )
+        if ( v5 < 0x10000 )
         {
           EmitOpcode(scrContext, 0x66u, 1, 0);
           AddOpcodePos(scrContext, sourcePos.canonicalString, SOURCE_TYPE_BREAKPOINT);
-          EmitUnsignedShort(scrContext, v6);
+          EmitUnsignedShort(scrContext, v5);
           return;
         }
 LABEL_15:
         EmitOpcode(scrContext, 0x49u, 1, 0);
         AddOpcodePos(scrContext, sourcePos.canonicalString, SOURCE_TYPE_BREAKPOINT);
-        v10 = (unsigned __int8 *)TempMalloc(4ui64);
-        scrContext->m_compileGlob.codePos = v10;
-        *(_DWORD *)v10 = v6;
+        v9 = (unsigned __int8 *)TempMalloc(4ui64);
+        scrContext->m_compileGlob.codePos = v9;
+        *(_DWORD *)v9 = v5;
         return;
       }
-      v5 = 92;
+      v4 = 92;
 LABEL_6:
-      EmitOpcode(scrContext, v5, 1, 0);
+      EmitOpcode(scrContext, v4, 1, 0);
       AddOpcodePos(scrContext, sourcePos.canonicalString, SOURCE_TYPE_BREAKPOINT);
       return;
     case VAR_PRE_ANIMATION:
-      v25 = constValue->sourcePos;
-      v26 = constValue->value.u.intValue;
+      v23 = constValue->sourcePos;
+      v24 = constValue->value.u.intValue;
       EmitOpcode(scrContext, 0x91u, 1, 0);
-      AddOpcodePos(scrContext, v25.canonicalString, SOURCE_TYPE_BREAKPOINT);
-      v27 = (unsigned __int8 *)TempMalloc(8ui64);
-      scrContext->m_compileGlob.codePos = v27;
-      *(_QWORD *)v27 = -1i64;
+      AddOpcodePos(scrContext, v23.canonicalString, SOURCE_TYPE_BREAKPOINT);
+      v25 = (unsigned __int8 *)TempMalloc(8ui64);
+      scrContext->m_compileGlob.codePos = v25;
+      *(_QWORD *)v25 = -1i64;
       if ( scrContext->m_compilePub.developer_statement != 2 )
-        Scr_EmitAnimation(scrContext, (const char *)scrContext->m_compileGlob.codePos, v26, v25.canonicalString);
-      Scr_CompileRemoveRefToString(scrContext, (scr_string_t)v26);
+        Scr_EmitAnimation(scrContext, (const char *)scrContext->m_compileGlob.codePos, v24, v23.canonicalString);
+      Scr_CompileRemoveRefToString(scrContext, (scr_string_t)v24);
       return;
     default:
       return;

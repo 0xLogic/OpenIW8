@@ -83,20 +83,14 @@ __int64 s_LUI_DataBinding_Get_MaxCmdReceived(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_MaxExtrapolation
 ==============
 */
-int s_LUI_DataBinding_Get_MaxExtrapolation(LocalClientNum_t localClientNum)
+__int64 s_LUI_DataBinding_Get_MaxExtrapolation(LocalClientNum_t localClientNum)
 {
-  int result; 
+  playerState_s *PredictedPlayerState; 
 
-  if ( !CG_GetPredictedPlayerState(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_netperf.cpp", 31, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  PredictedPlayerState = CG_GetPredictedPlayerState(localClientNum);
+  if ( !PredictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_netperf.cpp", 31, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+52D0h]
-    vmulss  xmm1, xmm0, cs:__real@407afafb
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)PredictedPlayerState->netPerf.maxExtrapolationMs * 3.9215686);
 }
 
 /*
@@ -104,20 +98,14 @@ int s_LUI_DataBinding_Get_MaxExtrapolation(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_MaxInterpolation
 ==============
 */
-int s_LUI_DataBinding_Get_MaxInterpolation(LocalClientNum_t localClientNum)
+__int64 s_LUI_DataBinding_Get_MaxInterpolation(LocalClientNum_t localClientNum)
 {
-  int result; 
+  playerState_s *PredictedPlayerState; 
 
-  if ( !CG_GetPredictedPlayerState(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_netperf.cpp", 40, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  PredictedPlayerState = CG_GetPredictedPlayerState(localClientNum);
+  if ( !PredictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_netperf.cpp", 40, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+52CCh]
-    vmulss  xmm1, xmm0, cs:__real@407afafb
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)PredictedPlayerState->netPerf.maxInterpolationMs * 3.9215686);
 }
 
 /*
@@ -136,19 +124,13 @@ bool __fastcall s_LUI_DataBinding_Get_NetPerfIsEnabled()
 s_LUI_DataBinding_Get_Ping
 ==============
 */
-int s_LUI_DataBinding_Get_Ping(LocalClientNum_t localClientNum)
+__int64 s_LUI_DataBinding_Get_Ping(LocalClientNum_t localClientNum)
 {
-  int result; 
+  playerState_s *PredictedPlayerState; 
 
-  if ( !CG_GetPredictedPlayerState(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_netperf.cpp", 23, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  PredictedPlayerState = CG_GetPredictedPlayerState(localClientNum);
+  if ( !PredictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_netperf.cpp", 23, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+52C8h]
-    vmulss  xmm1, xmm0, cs:__real@407afafb
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)PredictedPlayerState->netPerf.pingMs * 3.9215686);
 }
 

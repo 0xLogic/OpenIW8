@@ -110,99 +110,68 @@ UI_JPEGDecompress
 */
 bool UI_JPEGDecompress(const char *imageName, unsigned __int8 *buffer, unsigned int jpegSize, unsigned __int8 *decompressBuffer, unsigned int decompressSize)
 {
-  GfxImage *v9; 
+  GfxImage *v8; 
   const GfxTexture *Resident; 
-  const GfxTexture *v11; 
-  HRESULT v13; 
-  const char *v14; 
+  const GfxTexture *v10; 
+  HRESULT v11; 
+  const char *v12; 
   unsigned int pitch; 
-  unsigned int v19; 
-  char v33; 
-  int v37; 
+  unsigned int v14; 
+  signed int height; 
+  signed int width; 
+  float v17; 
+  int v18; 
   unsigned __int8 *jpeg_from_memory_swizzle; 
   __int64 outputXOffset; 
   int y; 
   int x; 
   unsigned __int8 *output; 
   int comp; 
-  unsigned int v45[2]; 
-  __int128 v46; 
-  __m256i v47; 
-  __m256i v50; 
+  unsigned int v26[2]; 
+  __int128 v27; 
+  __m256i v28; 
+  __int128 v29; 
+  __int64 v30; 
+  __m256i v31; 
+  __int128 v32; 
+  __int64 v33; 
 
-  v9 = Image_Register(imageName, IMAGE_TRACK_UI);
-  if ( (v9->flags & 0x40) != 0 || !j_stbi_load_jpeg_info_from_memory(buffer, jpegSize, &x, &y, &comp) || x > v9->width || y > v9->height )
+  v8 = Image_Register(imageName, IMAGE_TRACK_UI);
+  if ( (v8->flags & 0x40) != 0 || !j_stbi_load_jpeg_info_from_memory(buffer, jpegSize, &x, &y, &comp) || x > v8->width || y > v8->height )
     return 0;
-  Resident = R_Texture_GetResident(v9->textureId);
-  v46 = 0ui64;
-  v11 = Resident;
-  __asm
+  Resident = R_Texture_GetResident(v8->textureId);
+  v27 = 0ui64;
+  v10 = Resident;
+  v11 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, __int128 *, unsigned __int8 **))Resident->basemap->m_pFunction[2].Release)(Resident->basemap, 0i64, &v27, &output);
+  if ( v11 < 0 )
   {
-    vmovups xmm0, [rbp+60h+var_D0]
-    vmovdqa [rbp+60h+var_D0], xmm0
+    v12 = R_ErrorDescription(v11);
+    Sys_Error((const ObfuscateErrorText)&stru_1444F8C30, 267i64, v12);
   }
-  v13 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, __int128 *, unsigned __int8 **))Resident->basemap->m_pFunction[2].Release)(Resident->basemap, 0i64, &v46, &output);
-  if ( v13 < 0 )
-  {
-    v14 = R_ErrorDescription(v13);
-    Sys_Error((const ObfuscateErrorText)&stru_1444F8C30, 267i64, v14);
-  }
-  ((void (__fastcall *)(ID3D12Resource *, __m256i *))v11->basemap->m_pFunction[3].AddRef)(v11->basemap, &v47);
-  __asm
-  {
-    vmovups ymm0, [rbp+60h+var_C0]
-    vmovups xmm1, [rbp+60h+var_A0]
-    vmovups [rbp+60h+var_88], ymm0
-    vmovsd  xmm0, [rbp+60h+var_90]
-    vmovsd  [rbp+60h+var_58], xmm0
-    vmovups [rbp+60h+var_68], xmm1
-  }
-  ((void (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, __int64, _QWORD, _QWORD, _QWORD, unsigned int *, _QWORD))g_dx.d3d12device->m_pFunction[12].Release)(g_dx.d3d12device, &v50, 0i64, 1i64, 0i64, 0i64, 0i64, v45, 0i64);
-  pitch = v45[0];
-  if ( *(_QWORD *)v45 > 0xFFFFFFFFui64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", v45[0], "unsigned", *(intmax_t *)v45) )
+  ((void (__fastcall *)(ID3D12Resource *, __m256i *))v10->basemap->m_pFunction[3].AddRef)(v10->basemap, &v28);
+  v31 = v28;
+  v33 = v30;
+  v32 = v29;
+  ((void (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, __int64, _QWORD, _QWORD, _QWORD, unsigned int *, _QWORD))g_dx.d3d12device->m_pFunction[12].Release)(g_dx.d3d12device, &v31, 0i64, 1i64, 0i64, 0i64, 0i64, v26, 0i64);
+  pitch = v26[0];
+  if ( *(_QWORD *)v26 > 0xFFFFFFFFui64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", v26[0], "unsigned", *(intmax_t *)v26) )
     __debugbreak();
-  v19 = pitch * v9->height;
-  if ( !v19 || v19 > v9->totalSize )
+  v14 = pitch * v8->height;
+  if ( !v14 || v14 > v8->totalSize )
   {
-    LODWORD(outputXOffset) = pitch * v9->height;
+    LODWORD(outputXOffset) = pitch * v8->height;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_screenshot.cpp", 289, ASSERT_TYPE_ASSERT, "( ( memSize > 0 && memSize <= image->totalSize ) )", "( memSize ) = %u", outputXOffset) )
       __debugbreak();
   }
-  memset_0(output, 0, v19);
+  memset_0(output, 0, v14);
   j_stbi_set_memglob(decompressBuffer, decompressSize);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r8d
-    vdivss  xmm4, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm5, xmm5, xmm5
-    vcvtsi2ss xmm5, xmm5, [rsp+160h+y]
-    vcvtsi2ss xmm0, xmm0, ecx
-    vcvtsi2ss xmm3, xmm3, r9d
-    vdivss  xmm1, xmm0, xmm5
-    vmulss  xmm2, xmm4, xmm3
-    vucomiss xmm2, xmm1
-  }
-  if ( v33 )
-  {
-    v37 = 0;
-  }
-  else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm4, xmm5
-      vmulss  xmm1, xmm0, xmm3
-      vcvttss2si eax, xmm1
-    }
-    v37 = (_EAX - x) / 2;
-  }
-  jpeg_from_memory_swizzle = j_stbi_load_jpeg_from_memory_swizzle(buffer, jpegSize, output, v9->width, v9->height, v37, 0, 4, pitch, 1u, NULL, UI_GetOffsetForTextureCoords, UI_CopyRGBToOutputBuffer);
+  height = v8->height;
+  width = v8->width;
+  v17 = 1.0 / (float)height;
+  v18 = (float)(v17 * (float)width) == (float)((float)x / (float)y) ? 0 : ((int)(float)((float)(v17 * (float)y) * (float)width) - x) / 2;
+  jpeg_from_memory_swizzle = j_stbi_load_jpeg_from_memory_swizzle(buffer, jpegSize, output, width, height, v18, 0, 4, pitch, 1u, NULL, UI_GetOffsetForTextureCoords, UI_CopyRGBToOutputBuffer);
   j_stbi_clear_memglob();
-  v11->basemap->m_pFunction[3].QueryInterface(v11->basemap, NULL, NULL);
+  v10->basemap->m_pFunction[3].QueryInterface(v10->basemap, NULL, NULL);
   return jpeg_from_memory_swizzle != NULL;
 }
 

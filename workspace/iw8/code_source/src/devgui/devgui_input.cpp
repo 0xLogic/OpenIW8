@@ -221,469 +221,343 @@ void DevGui_InputShutdown(void)
 DevGui_InputUpdate
 ==============
 */
-
-bool __fastcall DevGui_InputUpdate(LocalClientNum_t localClientNum, double deltaTime, bool disableMouseNavigation)
+char DevGui_InputUpdate(LocalClientNum_t localClientNum, float deltaTime, bool disableMouseNavigation)
 {
-  int selectedGamePadIndex; 
-  __int64 v19; 
-  bool v54; 
-  __int64 v83; 
-  int v88; 
-  int v89; 
-  __int64 v93; 
-  int v95; 
-  int v96; 
-  bool v99; 
-  __int16 v104; 
-  bool v105; 
-  bool v106; 
-  bool v116; 
-  bool v117; 
-  bool v118; 
-  bool result; 
-  char v142; 
-  void *retaddr; 
+  __int16 v5; 
+  __int16 v7; 
+  __int64 v8; 
+  double Button; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  __int128 v32; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int64 v40; 
+  float *digitalTimes; 
+  float v42; 
+  int v43; 
+  int v44; 
+  float v45; 
+  float *analogTimes; 
+  __int64 v47; 
+  float v48; 
+  int v49; 
+  int v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  __int16 v54; 
+  bool v55; 
+  bool v56; 
+  float v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int16 v60; 
+  __int128 v61; 
+  bool v62; 
+  bool v63; 
+  float v64; 
+  __int128 v65; 
+  __int128 v66; 
+  __int128 v67; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  selectedGamePadIndex = s_input.selectedGamePadIndex;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0D8h+var_88], xmm12
-    vmovaps [rsp+0D8h+var_98], xmm13
-  }
-  s_input.gamePadIndex = selectedGamePadIndex;
-  __asm { vmovaps xmm8, xmm1 }
-  if ( selectedGamePadIndex < 0 || !GPad_IsActive(selectedGamePadIndex) )
+  v5 = -1;
+  s_input.gamePadIndex = s_input.selectedGamePadIndex;
+  if ( s_input.selectedGamePadIndex < 0 || !GPad_IsActive(s_input.selectedGamePadIndex) )
     s_input.gamePadIndex = -1;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42c80000
-    vmovss  xmm1, cs:__real@3e99999a
-  }
-  _EBX = 0;
-  __asm
-  {
-    vmovss  cs:s_input.sliderScrollTime, xmm0
-    vmovss  cs:s_input.sliderScrollMaxTimeStep, xmm1
-  }
-  v19 = 0i64;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v7 = 0;
+  s_input.sliderScrollTime = FLOAT_100_0;
+  s_input.sliderScrollMaxTimeStep = FLOAT_0_30000001;
+  v8 = 0i64;
+  _XMM7 = 0i64;
   do
   {
-    s_input.prevButtonDown[v19] = s_input.buttonDown[v19];
-    s_input.buttonDown[v19] = 0;
+    s_input.prevButtonDown[v8] = s_input.buttonDown[v8];
+    s_input.buttonDown[v8] = 0;
     if ( s_input.gamePadIndex >= 0 )
     {
-      *(double *)&_XMM0 = GPad_GetButton(s_input.gamePadIndex, s_butMapsGamepad_0[v19]);
-      __asm { vcomiss xmm0, xmm7 }
-      s_input.buttonDown[v19] = !v99 && !v54;
+      Button = GPad_GetButton(s_input.gamePadIndex, s_butMapsGamepad_0[v8]);
+      s_input.buttonDown[v8] = *(float *)&Button > 0.0;
     }
-    s_input.buttonDown[v19] |= CL_Keys_IsKeyDown(localClientNum, s_butMapsKey_0[v19]) != 0;
-    ++v19;
+    s_input.buttonDown[v8] |= CL_Keys_IsKeyDown(localClientNum, s_butMapsKey_0[v8]) != 0;
+    ++v8;
   }
-  while ( v19 < 11 );
+  while ( v8 < 11 );
   if ( !disableMouseNavigation )
   {
     s_input.buttonDown[4] |= CL_Keys_IsKeyDown(localClientNum, 187) != 0;
     s_input.buttonDown[5] |= CL_Keys_IsKeyDown(localClientNum, 188) != 0;
   }
-  __asm { vmovss  xmm11, cs:__real@3f800000 }
-  _EAX = s_input.buttonDown[3];
-  __asm { vmovd   xmm0, eax }
-  _EAX = s_input.buttonDown[2];
+  _XMM11 = LODWORD(FLOAT_1_0);
+  _XMM0 = s_input.buttonDown[3];
   __asm
   {
-    vmovd   xmm1, ebx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm11, xmm7, xmm2
-    vmovss  [rsp+0D8h+var_A8], xmm0
-    vmovd   xmm0, eax
   }
-  _EAX = s_input.buttonDown[0];
+  v73 = *(float *)&_XMM0;
+  _XMM0 = s_input.buttonDown[2];
   __asm
   {
-    vmovd   xmm1, ebx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm11, xmm7, xmm2
-    vmovss  [rsp+0D8h+var_AC], xmm0
-    vmovd   xmm0, eax
   }
-  _EAX = s_input.buttonDown[1];
+  v72 = *(float *)&_XMM0;
+  _XMM0 = s_input.buttonDown[0];
   __asm
   {
-    vmovd   xmm1, ebx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm11, xmm7, xmm2
-    vmovss  [rsp+0D8h+var_B4], xmm0
-    vmovd   xmm0, eax
-    vmovd   xmm1, ebx
-    vpcmpeqd xmm2, xmm0, xmm1
-    vblendvps xmm0, xmm11, xmm7, xmm2
-    vmovss  [rsp+0D8h+var_B0], xmm0
-    vmovaps xmm9, xmm7
-    vmovaps xmm6, xmm7
-    vmovaps xmm12, xmm7
-    vmovaps xmm13, xmm7
   }
+  v70 = *(float *)&_XMM0;
+  _XMM0 = s_input.buttonDown[1];
+  __asm
+  {
+    vpcmpeqd xmm2, xmm0, xmm1
+    vblendvps xmm0, xmm11, xmm7, xmm2
+  }
+  v71 = *(float *)&_XMM0;
+  v24 = 0.0;
+  v25 = 0.0;
+  v26 = 0.0;
+  v27 = 0.0;
   if ( s_input.gamePadIndex < 0 )
-    goto LABEL_15;
+    goto LABEL_90;
   *(double *)&_XMM0 = GPad_GetStick(s_input.gamePadIndex, GPAD_LX);
+  v28 = _XMM0;
+  *(float *)&v28 = *(float *)&_XMM0 * *(float *)&_XMM0;
+  _XMM1 = v28 ^ _xmm;
   __asm
   {
-    vmulss  xmm2, xmm0, xmm0
-    vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
     vcmpless xmm0, xmm7, xmm0
     vblendvps xmm0, xmm1, xmm2, xmm0
-    vmovss  [rsp+0D8h+var_B8], xmm0
   }
+  v69 = *(float *)&_XMM0;
   *(double *)&_XMM0 = GPad_GetStick(s_input.gamePadIndex, GPAD_LY);
+  v32 = _XMM0;
+  *(float *)&v32 = *(float *)&_XMM0 * *(float *)&_XMM0;
+  _XMM1 = v32 ^ _xmm;
   __asm
   {
-    vmulss  xmm2, xmm0, xmm0
-    vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
     vcmpless xmm0, xmm7, xmm0
     vblendvps xmm0, xmm1, xmm2, xmm0
-    vmovss  [rsp+0D8h+arg_18], xmm0
   }
+  v74 = *(float *)&_XMM0;
   *(double *)&_XMM0 = GPad_GetButton(s_input.gamePadIndex, GPAD_R_TRIG);
-  __asm { vmovaps xmm12, xmm0 }
+  v26 = *(float *)&_XMM0;
   *(double *)&_XMM0 = GPad_GetButton(s_input.gamePadIndex, GPAD_L_TRIG);
-  v54 = s_input.gamePadIndex == 0;
-  __asm
+  v24 = v69;
+  v25 = v74;
+  v27 = *(float *)&_XMM0;
+  if ( s_input.gamePadIndex < 0 || v69 == 0.0 && v74 == 0.0 )
   {
-    vmovss  xmm9, [rsp+0D8h+var_B8]
-    vmovss  xmm6, [rsp+0D8h+arg_18]
-    vmovaps xmm13, xmm0
-  }
-  if ( s_input.gamePadIndex < 0 )
-    goto LABEL_15;
-  __asm { vucomiss xmm9, xmm7 }
-  if ( !s_input.gamePadIndex )
-  {
-    __asm { vucomiss xmm6, xmm7 }
-    if ( !s_input.gamePadIndex )
+LABEL_90:
+    if ( !disableMouseNavigation && devgui_allowMouse->current.enabled )
     {
-LABEL_15:
-      v54 = !disableMouseNavigation;
-      if ( !disableMouseNavigation )
-      {
-        v54 = !devgui_allowMouse->current.enabled;
-        if ( devgui_allowMouse->current.enabled )
-        {
-          __asm
-          {
-            vmovss  xmm5, cs:__real@3eaaaaab
-            vmulss  xmm3, xmm5, cs:s_input.mousePos+4
-            vmulss  xmm2, xmm5, cs:s_input.mousePos
-            vmulss  xmm1, xmm5, cs:s_input.mousePos+8
-            vsubss  xmm0, xmm6, cs:s_input.mousePos+0Ch
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vsubss  xmm1, xmm0, cs:s_input.mousePos+10h
-            vaddss  xmm3, xmm9, xmm2
-            vsubss  xmm2, xmm1, cs:s_input.mousePos+14h
-            vmulss  xmm6, xmm2, xmm5
-            vmulss  xmm9, xmm3, xmm5
-          }
-        }
-      }
+      v25 = (float)((float)((float)(v25 - s_input.mousePos[1][0]) - s_input.mousePos[1][1]) - s_input.mousePos[1][2]) * 0.33333334;
+      v24 = (float)(v24 + (float)((float)((float)(0.33333334 * s_input.mousePos[0][1]) + (float)(0.33333334 * s_input.mousePos[0][0])) + (float)(0.33333334 * s_input.mousePos[0][2]))) * 0.33333334;
     }
   }
-  __asm
+  v36 = v73;
+  v37 = v72;
+  s_input.mousePos[0][2] = s_input.mousePos[0][1];
+  s_input.mousePos[1][2] = s_input.mousePos[1][1];
+  s_input.mousePos[0][1] = s_input.mousePos[0][0];
+  s_input.mousePos[1][1] = s_input.mousePos[1][0];
+  s_input.mousePos[0][0] = 0.0;
+  s_input.mousePos[1][0] = 0.0;
+  if ( v73 == 0.0 && v72 == 0.0 )
   {
-    vmovss  xmm0, cs:s_input.mousePos+4
-    vmovss  xmm1, cs:s_input.mousePos+10h
-    vmovss  xmm10, [rsp+0D8h+var_A8]
-    vucomiss xmm10, xmm7
-    vmovss  xmm5, [rsp+0D8h+var_AC]
-    vmovss  cs:s_input.mousePos+8, xmm0
-    vmovss  xmm0, cs:s_input.mousePos
-    vmovss  cs:s_input.mousePos+14h, xmm1
-    vmovss  xmm1, cs:s_input.mousePos+0Ch
-    vmovss  cs:s_input.mousePos+4, xmm0
-    vmovss  cs:s_input.mousePos+10h, xmm1
-    vmovss  cs:s_input.mousePos, xmm7
-    vmovss  cs:s_input.mousePos+0Ch, xmm7
-  }
-  if ( !v54 )
-    goto LABEL_20;
-  __asm { vucomiss xmm5, xmm7 }
-  if ( v54 )
-  {
-    __asm
-    {
-      vmovss  xmm3, [rsp+0D8h+var_B4]
-      vmovss  xmm4, [rsp+0D8h+var_B0]
-    }
+    v38 = v70;
+    v39 = v71;
   }
   else
   {
-LABEL_20:
-    __asm
+    v38 = v70;
+    if ( v70 != 0.0 || (v39 = v71, v71 != 0.0) )
     {
-      vmovss  xmm3, [rsp+0D8h+var_B4]
-      vucomiss xmm3, xmm7
-    }
-    if ( !v54 )
-      goto LABEL_22;
-    __asm
-    {
-      vmovss  xmm4, [rsp+0D8h+var_B0]
-      vucomiss xmm4, xmm7
-    }
-    if ( !v54 )
-    {
-LABEL_22:
-      __asm
-      {
-        vmovaps xmm10, xmm7
-        vmovaps xmm5, xmm7
-        vmovaps xmm3, xmm7
-        vmovaps xmm4, xmm7
-      }
+      v36 = 0.0;
+      v37 = 0.0;
+      v38 = 0.0;
+      v39 = 0.0;
     }
   }
-  __asm
-  {
-    vmulss  xmm0, xmm12, cs:__real@40800000
-    vaddss  xmm2, xmm0, xmm11
-    vaddss  xmm1, xmm13, xmm11
-    vmulss  xmm2, xmm2, xmm1
-    vsubss  xmm1, xmm3, xmm4
-    vsubss  xmm0, xmm10, xmm5
-    vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v83 = 2i64;
-  _RCX = s_input.digitalTimes;
-  __asm
-  {
-    vmovss  cs:s_input.digitalAxis+4, xmm1
-    vmovss  xmm1, cs:__real@3e800000
-    vmovss  cs:s_input.scrollScale, xmm2
-    vmovss  xmm2, cs:__real@3ecccccd
-    vmovss  cs:s_input.digitalAxis, xmm0
-    vmovss  cs:s_input.analogAxis, xmm9
-    vmovss  cs:s_input.analogAxis+4, xmm6
-  }
+  v40 = 2i64;
+  digitalTimes = s_input.digitalTimes;
+  s_input.digitalAxis[1] = v38 - v39;
+  s_input.scrollScale = (float)((float)(v26 * 4.0) + 1.0) * (float)(v27 + 1.0);
+  s_input.digitalAxis[0] = v36 - v37;
+  s_input.analogAxis[0] = v24;
+  s_input.analogAxis[1] = v25;
   do
   {
-    __asm
+    v42 = *(digitalTimes - 2);
+    if ( v42 == 0.0 )
     {
-      vmovss  xmm0, dword ptr [rcx-8]
-      vucomiss xmm0, xmm7
-    }
-    if ( v54 )
-    {
-      *(_RCX - 4) = 0.0;
-      *_RCX = 0.0;
+      *(digitalTimes - 4) = 0.0;
+      *digitalTimes = 0.0;
     }
     else
     {
-      v88 = *((_DWORD *)_RCX - 4);
-      if ( v88 )
+      v43 = *((_DWORD *)digitalTimes - 4);
+      if ( v43 )
       {
-        v89 = v88 - 1;
-        if ( v89 )
+        v44 = v43 - 1;
+        if ( v44 )
         {
-          __asm
+          v45 = deltaTime + *digitalTimes;
+          *digitalTimes = v45;
+          if ( v44 == 1 && v45 > 0.25 )
           {
-            vaddss  xmm0, xmm8, dword ptr [rcx]
-            vmovss  dword ptr [rcx], xmm0
+            *((_DWORD *)digitalTimes - 4) = 3;
+            *digitalTimes = 0.0;
           }
-          if ( v89 == 1 )
-            __asm { vcomiss xmm0, xmm1 }
         }
         else
         {
-          *((_DWORD *)_RCX - 4) = 2;
-          *_RCX = 0.0;
+          *((_DWORD *)digitalTimes - 4) = 2;
+          *digitalTimes = 0.0;
         }
       }
-      else
+      else if ( COERCE_FLOAT(LODWORD(v42) & _xmm) > 0.40000001 )
       {
-        __asm
-        {
-          vandps  xmm0, xmm0, xmm5
-          vcomiss xmm0, xmm2
-        }
+        *((_DWORD *)digitalTimes - 4) = 1;
       }
     }
-    ++_RCX;
-    v54 = --v83 == 0;
+    ++digitalTimes;
+    --v40;
   }
-  while ( v83 );
-  _RCX = s_input.analogTimes;
-  v93 = 2i64;
+  while ( v40 );
+  analogTimes = s_input.analogTimes;
+  v47 = 2i64;
   do
   {
-    __asm
+    v48 = *(analogTimes - 2);
+    if ( v48 == 0.0 )
     {
-      vmovss  xmm0, dword ptr [rcx-8]
-      vucomiss xmm0, xmm7
-    }
-    if ( v54 )
-    {
-      *(_RCX - 4) = 0.0;
-      *_RCX = 0.0;
+      *(analogTimes - 4) = 0.0;
+      *analogTimes = 0.0;
     }
     else
     {
-      v95 = *((_DWORD *)_RCX - 4);
-      if ( v95 )
+      v49 = *((_DWORD *)analogTimes - 4);
+      if ( v49 )
       {
-        v96 = v95 - 1;
-        if ( v96 )
+        v50 = v49 - 1;
+        if ( v50 )
         {
-          __asm
+          v51 = deltaTime + *analogTimes;
+          *analogTimes = v51;
+          if ( v50 == 1 && v51 > 0.25 )
           {
-            vaddss  xmm0, xmm8, dword ptr [rcx]
-            vmovss  dword ptr [rcx], xmm0
+            *((_DWORD *)analogTimes - 4) = 3;
+            *analogTimes = 0.0;
           }
-          if ( v96 == 1 )
-            __asm { vcomiss xmm0, xmm1 }
         }
         else
         {
-          *((_DWORD *)_RCX - 4) = 2;
-          *_RCX = 0.0;
+          *((_DWORD *)analogTimes - 4) = 2;
+          *analogTimes = 0.0;
         }
       }
-      else
+      else if ( COERCE_FLOAT(LODWORD(v48) & _xmm) > 0.40000001 )
       {
-        __asm
-        {
-          vandps  xmm0, xmm0, xmm5
-          vcomiss xmm0, xmm2
-        }
+        *((_DWORD *)analogTimes - 4) = 1;
       }
     }
-    ++_RCX;
-    v99 = v93-- == 0;
-    v54 = v93 == 0;
+    ++analogTimes;
+    --v47;
   }
-  while ( v93 );
-  __asm
-  {
-    vmovss  xmm2, cs:s_input.analogAxis
-    vmovss  xmm9, cs:s_input.analogAxis+4
-    vandps  xmm1, xmm2, xmm5
-    vandps  xmm0, xmm9, xmm5
-    vcomiss xmm1, xmm0
-  }
-  if ( v99 || (unsigned __int8)v93 == 0i64 )
-    __asm { vmovaps xmm2, xmm7 }
+  while ( v47 );
+  v52 = s_input.analogAxis[0];
+  v53 = s_input.analogAxis[1];
+  if ( COERCE_FLOAT(LODWORD(s_input.analogAxis[0]) & _xmm) <= COERCE_FLOAT(LODWORD(s_input.analogAxis[1]) & _xmm) )
+    v52 = 0.0;
   else
-    __asm { vmovaps xmm9, xmm7 }
-  v104 = 0;
+    v53 = 0.0;
+  v54 = 0;
   s_input.menuScroll[0] = 0;
-  v105 = s_input.digitalStates[0] == SCROLL_HELD || s_input.analogStates[0] == SCROLL_HELD;
-  v106 = s_input.digitalStates[0] == SCROLL_PRESSED || s_input.analogStates[0] == SCROLL_PRESSED;
-  __asm
+  v55 = s_input.digitalStates[0] == SCROLL_HELD || s_input.analogStates[0] == SCROLL_HELD;
+  v56 = s_input.digitalStates[0] == SCROLL_PRESSED || s_input.analogStates[0] == SCROLL_PRESSED;
+  v57 = (float)(v52 + s_input.digitalAxis[0]) * s_input.scrollScale;
+  if ( v55 )
   {
-    vaddss  xmm1, xmm2, cs:s_input.digitalAxis
-    vmovss  xmm10, cs:s_input.scrollScale
-    vmovss  xmm3, cs:__real@3dcccccd
-    vmovss  xmm4, cs:__real@bdcccccd
-    vmulss  xmm6, xmm1, xmm10
-  }
-  if ( v105 )
-  {
-    __asm
+    v59 = LODWORD(s_input.menuScrollTime[0]);
+    *(float *)&v59 = s_input.menuScrollTime[0] + (float)(COERCE_FLOAT(LODWORD(v57) & _xmm) * deltaTime);
+    v58 = v59;
+    s_input.menuScrollTime[0] = *(float *)&v59;
+    if ( *(float *)&v59 > 0.1 )
     {
-      vandps  xmm0, xmm6, xmm5
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  xmm0, cs:s_input.menuScrollTime
-      vaddss  xmm2, xmm0, xmm1
-      vcomiss xmm2, xmm3
-      vmovss  cs:s_input.menuScrollTime, xmm2
-      vcomiss xmm6, xmm7
-    }
-    do
-    {
-      v116 = __CFADD__(v104, 1) || v104 == -1;
-      ++v104;
-      __asm
+      v60 = -1;
+      if ( v57 >= 0.0 )
+        v60 = 1;
+      do
       {
-        vaddss  xmm2, xmm2, xmm4
-        vcomiss xmm2, xmm3
+        v54 += v60;
+        v61 = v58;
+        *(float *)&v61 = *(float *)&v58 + -0.1;
+        v58 = v61;
       }
+      while ( *(float *)&v61 > 0.1 );
+      s_input.menuScrollTime[0] = *(float *)&v61;
+LABEL_68:
+      s_input.menuScroll[0] = v54;
     }
-    while ( !v116 );
-    __asm { vmovss  cs:s_input.menuScrollTime, xmm2 }
-    goto LABEL_60;
   }
-  if ( v106 )
+  else if ( v56 )
   {
-    __asm { vcomiss xmm6, xmm7 }
-    v104 = 1;
-    __asm { vmovss  cs:s_input.menuScrollTime, xmm7 }
-LABEL_60:
-    s_input.menuScroll[0] = v104;
+    v54 = -1;
+    if ( (float)((float)(v52 + s_input.digitalAxis[0]) * s_input.scrollScale) >= 0.0 )
+      v54 = 1;
+    s_input.menuScrollTime[0] = 0.0;
+    goto LABEL_68;
   }
   s_input.menuScroll[1] = 0;
-  v117 = s_input.digitalStates[1] == SCROLL_HELD || s_input.analogStates[1] == SCROLL_HELD;
-  v118 = s_input.digitalStates[1] == SCROLL_PRESSED || s_input.analogStates[1] == SCROLL_PRESSED;
-  __asm
+  v62 = s_input.digitalStates[1] == SCROLL_HELD || s_input.analogStates[1] == SCROLL_HELD;
+  v63 = s_input.digitalStates[1] == SCROLL_PRESSED || s_input.analogStates[1] == SCROLL_PRESSED;
+  v64 = (float)(v53 + s_input.digitalAxis[1]) * s_input.scrollScale;
+  if ( v62 )
   {
-    vaddss  xmm1, xmm9, cs:s_input.digitalAxis+4
-    vmulss  xmm6, xmm1, xmm10
-  }
-  if ( v117 )
-  {
-    __asm
+    v66 = LODWORD(s_input.menuScrollTime[1]);
+    *(float *)&v66 = s_input.menuScrollTime[1] + (float)(COERCE_FLOAT(LODWORD(v64) & _xmm) * deltaTime);
+    v65 = v66;
+    s_input.menuScrollTime[1] = *(float *)&v66;
+    if ( *(float *)&v66 > 0.1 )
     {
-      vandps  xmm0, xmm6, xmm5
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  xmm0, cs:s_input.menuScrollTime+4
-      vaddss  xmm2, xmm0, xmm1
-      vcomiss xmm2, xmm3
-      vmovss  cs:s_input.menuScrollTime+4, xmm2
-      vcomiss xmm6, xmm7
-    }
-    do
-    {
-      v116 = __CFADD__((_WORD)_EBX, 1) || (_WORD)_EBX == 0xFFFF;
-      LOWORD(_EBX) = _EBX + 1;
-      __asm
+      if ( v64 >= 0.0 )
+        v5 = 1;
+      do
       {
-        vaddss  xmm2, xmm2, xmm4
-        vcomiss xmm2, xmm3
+        v7 += v5;
+        v67 = v65;
+        *(float *)&v67 = *(float *)&v65 + -0.1;
+        v65 = v67;
+        s_input.menuScroll[1] = v7;
       }
-      s_input.menuScroll[1] = _EBX;
+      while ( *(float *)&v67 > 0.1 );
+      s_input.menuScrollTime[1] = *(float *)&v67;
     }
-    while ( !v116 );
-    __asm { vmovss  cs:s_input.menuScrollTime+4, xmm2 }
   }
-  else if ( v118 )
+  else if ( v63 )
   {
-    __asm
-    {
-      vcomiss xmm6, xmm7
-      vmovss  cs:s_input.menuScrollTime+4, xmm7
-    }
-    s_input.menuScroll[1] = 1;
+    s_input.menuScrollTime[1] = 0.0;
+    if ( (float)((float)(v53 + s_input.digitalAxis[1]) * s_input.scrollScale) >= 0.0 )
+      v5 = 1;
+    s_input.menuScroll[1] = v5;
   }
   CL_Input_ClearKeys(localClientNum);
-  _R11 = &v142;
-  result = 1;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -723,15 +597,8 @@ DevGui_MouseEvent
 */
 void DevGui_MouseEvent(int x, int y, int dx, int dy)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm0, xmm0, r8d
-    vcvtsi2ss xmm1, xmm1, r9d
-    vmovss  cs:s_input.mousePos, xmm0
-    vmovss  cs:s_input.mousePos+0Ch, xmm1
-  }
+  s_input.mousePos[0][0] = (float)dx;
+  s_input.mousePos[1][0] = (float)dy;
   s_input.mouseX = x;
   s_input.mouseY = y;
 }
@@ -752,119 +619,82 @@ DevGui_UpdateFloatScroll
 ==============
 */
 
-float __fastcall DevGui_UpdateFloatScroll(double deltaTime, double value, double min, double max, float step, DevGuiInputAxis axis, float minChange)
+float __fastcall DevGui_UpdateFloatScroll(float deltaTime, double value, float min, double max, float step, DevGuiInputAxis axis, float minChange)
 {
-  DevGuiInputState v25; 
-  bool v28; 
-  bool v29; 
-  char v51; 
-  void *retaddr; 
+  __int128 v8; 
+  DevGuiInputState v9; 
+  __int128 scrollScale_low; 
+  __int128 v13; 
+  __int128 v15; 
+  __int128 digitalSliderTime_low; 
+  float v17; 
+  __int128 v18; 
+  __int128 v19; 
+  bool v20; 
+  __int128 v23; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vsubss  xmm10, xmm3, xmm2
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm10, xmm7
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm9, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm12, xmm1
-    vmovaps xmm11, xmm0
-    vmovss  xmm6, [rsp+0A8h+step]
-    vucomiss xmm6, xmm7
-  }
+  _XMM9 = *(_OWORD *)&max;
+  v8 = *(_OWORD *)&value;
+  if ( (float)(*(float *)&max - min) < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui_input.cpp", 609, ASSERT_TYPE_ASSERT, "(range >= 0)", (const char *)&queryFormat, "range >= 0") )
+    __debugbreak();
+  if ( step == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui_input.cpp", 610, ASSERT_TYPE_ASSERT, "(step)", (const char *)&queryFormat, "step") )
+    __debugbreak();
   if ( (unsigned int)axis > SCROLL_YAXIS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui_input.cpp", 611, ASSERT_TYPE_ASSERT, "(axis >= SCROLL_XAXIS && axis < SCROLL_AXIS_COUNT)", (const char *)&queryFormat, "axis >= SCROLL_XAXIS && axis < SCROLL_AXIS_COUNT") )
     __debugbreak();
-  __asm
+  scrollScale_low = LODWORD(s_input.scrollScale);
+  v9 = s_input.digitalStates[axis];
+  *(float *)&scrollScale_low = (float)((float)((float)(s_input.scrollScale * s_input.analogAxis[axis]) / s_input.sliderScrollTime) * (float)(*(float *)&max - min)) * deltaTime;
+  _XMM3 = scrollScale_low;
+  if ( v9 == SCROLL_HELD )
   {
-    vmovss  xmm4, cs:s_input.scrollScale
-    vmulss  xmm0, xmm4, dword ptr [rdx+rax*4+64h]
-    vdivss  xmm1, xmm0, cs:s_input.sliderScrollTime
-  }
-  v25 = s_input.digitalStates[axis];
-  __asm
-  {
-    vmulss  xmm2, xmm1, xmm10
-    vmulss  xmm3, xmm2, xmm11
-  }
-  v28 = (unsigned int)v25 < SCROLL_HELD;
-  v29 = (unsigned int)v25 <= SCROLL_HELD;
-  if ( v25 == SCROLL_HELD )
-  {
-    __asm
+    v13 = LODWORD(FLOAT_0_1);
+    *(float *)&v13 = 0.1 / s_input.scrollScale;
+    _XMM1 = v13;
+    __asm { vminss  xmm5, xmm1, cs:s_input.sliderScrollMaxTimeStep }
+    digitalSliderTime_low = LODWORD(s_input.digitalSliderTime);
+    *(float *)&digitalSliderTime_low = s_input.digitalSliderTime + deltaTime;
+    v15 = digitalSliderTime_low;
+    s_input.digitalSliderTime = s_input.digitalSliderTime + deltaTime;
+    if ( s_input.digitalSliderTime > *(float *)&_XMM5 )
     {
-      vmovss  xmm2, cs:s_input.digitalSliderTime
-      vmovss  xmm0, cs:__real@3dcccccd
-      vdivss  xmm1, xmm0, xmm4
-      vminss  xmm5, xmm1, cs:s_input.sliderScrollMaxTimeStep
-      vaddss  xmm4, xmm2, xmm11
-      vcomiss xmm4, xmm5
-      vmovss  cs:s_input.digitalSliderTime, xmm4
-    }
-  }
-  else
-  {
-    v28 = v25 == SCROLL_NONE;
-    v29 = (unsigned int)v25 <= SCROLL_PRESSED;
-    if ( v25 == SCROLL_PRESSED )
-    {
-      __asm
+      do
       {
-        vmulss  xmm0, xmm6, dword ptr [rdx+rax*4+4Ch]
-        vaddss  xmm3, xmm3, xmm0
+        v17 = step * s_input.digitalAxis[axis];
+        v18 = v15;
+        *(float *)&v18 = *(float *)&v15 - *(float *)&_XMM5;
+        v15 = v18;
+        v20 = *(float *)&v18 <= *(float *)&_XMM5;
+        s_input.digitalSliderTime = *(float *)&v18;
+        v19 = _XMM3;
+        *(float *)&v19 = *(float *)&_XMM3 + v17;
+        _XMM3 = v19;
       }
+      while ( !v20 );
     }
   }
-  __asm
+  else if ( v9 == SCROLL_PRESSED )
   {
-    vcomiss xmm3, xmm7
-    vmovss  xmm1, [rsp+0A8h+minChange]
+    *(float *)&scrollScale_low = *(float *)&scrollScale_low + (float)(step * s_input.digitalAxis[axis]);
+    _XMM3 = scrollScale_low;
   }
-  if ( v28 )
+  v20 = *(float *)&_XMM3 <= 0.0;
+  if ( *(float *)&_XMM3 < 0.0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-      vminss  xmm3, xmm0, xmm3
-      vcomiss xmm3, xmm7
-    }
+    _XMM0 = LODWORD(minChange) ^ (unsigned __int128)_xmm;
+    __asm { vminss  xmm3, xmm0, xmm3 }
+    v20 = *(float *)&_XMM3 <= 0.0;
   }
-  if ( !v29 )
+  if ( !v20 )
     __asm { vmaxss  xmm3, xmm3, xmm1 }
+  v23 = v8;
+  *(float *)&v23 = *(float *)&v8 + *(float *)&_XMM3;
+  _XMM1 = v23;
+  if ( (float)(*(float *)&v8 + *(float *)&_XMM3) <= min )
+    return min;
   __asm
   {
-    vaddss  xmm1, xmm12, xmm3
-    vcomiss xmm1, xmm8
-  }
-  if ( v29 )
-  {
-    __asm { vmovaps xmm0, xmm8 }
-  }
-  else
-  {
-    __asm
-    {
-      vcmpless xmm0, xmm9, xmm1
-      vblendvps xmm0, xmm1, xmm9, xmm0
-    }
-  }
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
+    vcmpless xmm0, xmm9, xmm1
+    vblendvps xmm0, xmm1, xmm9, xmm0
   }
   return *(float *)&_XMM0;
 }
@@ -895,147 +725,115 @@ __int64 DevGui_UpdateIntScroll(float deltaTime, int value, int min, int max, Dev
 DevGui_UpdateIntScroll_Internal
 ==============
 */
-
-__int64 __fastcall DevGui_UpdateIntScroll_Internal(double deltaTime, __int64 value, __int64 min, __int64 max, DevGuiInputAxis axis)
+__int64 DevGui_UpdateIntScroll_Internal(float deltaTime, __int64 value, __int64 min, __int64 max, DevGuiInputAxis axis)
 {
-  __int64 v11; 
-  __int64 result; 
-  DevGuiInputState v21; 
-  DevGuiInputState v31; 
-  bool v32; 
-  int v45; 
-  __int64 v50; 
-  char v55; 
-  void *retaddr; 
+  __int64 v5; 
+  int v11; 
+  DevGuiInputState v12; 
+  __int128 v13; 
+  __int128 digitalSliderTime_low; 
+  __int128 v16; 
+  __int128 v19; 
+  DevGuiInputState v23; 
+  float v24; 
+  __int128 sliderScrollTime_low; 
+  __int128 v28; 
+  __int128 analogSliderTime_low; 
+  int v30; 
+  __int128 v31; 
+  int v32; 
+  __int64 v33; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm10 }
-  v11 = max - min;
-  __asm { vmovaps xmm10, xmm0 }
+  v5 = max - min;
   if ( max - min < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui_input.cpp", 501, ASSERT_TYPE_ASSERT, "(range >= 0)", (const char *)&queryFormat, "range >= 0") )
     __debugbreak();
   if ( (unsigned int)axis > SCROLL_YAXIS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui_input.cpp", 502, ASSERT_TYPE_ASSERT, "(axis >= SCROLL_XAXIS && axis < SCROLL_AXIS_COUNT)", (const char *)&queryFormat, "axis >= SCROLL_XAXIS && axis < SCROLL_AXIS_COUNT") )
     __debugbreak();
-  if ( v11 )
+  if ( !v5 )
+    return 0i64;
+  v11 = 0;
+  v12 = s_input.digitalStates[axis];
+  if ( v12 == SCROLL_HELD )
   {
-    _RDX = axis;
-    _R11 = &s_input;
-    _ECX = 0;
-    __asm
+    digitalSliderTime_low = LODWORD(s_input.digitalSliderTime);
+    *(float *)&digitalSliderTime_low = s_input.digitalSliderTime + deltaTime;
+    v13 = digitalSliderTime_low;
+    v16 = LODWORD(FLOAT_0_1);
+    *(float *)&v16 = 0.1 / s_input.scrollScale;
+    _XMM1 = v16;
+    __asm { vminss  xmm4, xmm1, cs:s_input.sliderScrollMaxTimeStep }
+    s_input.digitalSliderTime = *(float *)&v13;
+    if ( *(float *)&v13 > *(float *)&_XMM4 )
     {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_38], xmm9
-      vmovss  xmm9, cs:s_input.scrollScale
-    }
-    v21 = s_input.digitalStates[axis];
-    __asm { vxorps  xmm5, xmm5, xmm5 }
-    if ( v21 == SCROLL_HELD )
-    {
-      __asm
+      _XMM6 = 0i64;
+      do
       {
-        vmovss  xmm2, cs:s_input.digitalSliderTime
-        vmovss  xmm0, cs:__real@3dcccccd
-        vaddss  xmm3, xmm2, xmm10
-        vdivss  xmm1, xmm0, xmm9
-        vminss  xmm4, xmm1, cs:s_input.sliderScrollMaxTimeStep
-        vcomiss xmm3, xmm4
-        vmovss  cs:s_input.digitalSliderTime, xmm3
+        v19 = v13;
+        *(float *)&v19 = *(float *)&v13 - *(float *)&_XMM4;
+        v13 = v19;
+        __asm { vroundss xmm0, xmm6, xmm2, 1 }
+        v11 += (int)*(float *)&_XMM0;
+        s_input.digitalSliderTime = *(float *)&v19;
       }
+      while ( *(float *)&v19 > *(float *)&_XMM4 );
     }
-    else if ( v21 == SCROLL_PRESSED )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r11+rdx*4+4Ch]
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si ecx, xmm4
-      }
-    }
-    else
-    {
-      __asm { vmovss  cs:s_input.digitalSliderTime, xmm5 }
-    }
-    v31 = s_input.analogStates[axis];
-    v32 = (unsigned int)v31 <= SCROLL_HELD;
-    if ( v31 == SCROLL_HELD )
-    {
-      __asm
-      {
-        vmulss  xmm2, xmm9, dword ptr [r11+rdx*4+64h]
-        vmovss  xmm0, cs:s_input.sliderScrollTime
-        vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rsi
-        vdivss  xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:s_input.analogSliderTime
-        vandps  xmm2, xmm2, xmm6
-        vdivss  xmm0, xmm3, xmm2
-        vminss  xmm4, xmm0, cs:s_input.sliderScrollMaxTimeStep
-        vaddss  xmm2, xmm1, xmm10
-        vcomiss xmm2, xmm4
-        vmovss  cs:s_input.analogSliderTime, xmm2
-        vmovss  xmm1, cs:__real@40000000
-      }
-      while ( 1 )
-      {
-        __asm { vcomiss xmm5, dword ptr [r11+rdx*4+64h] }
-        v45 = -1;
-        if ( v32 )
-          v45 = 1;
-        _ECX += v45;
-        __asm
-        {
-          vsubss  xmm2, xmm2, xmm4
-          vmovss  cs:s_input.analogSliderTime, xmm2
-        }
-        v32 = s_input.gamePadIndex == 0;
-        if ( s_input.gamePadIndex < 0 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r11+rdx*4+64h]
-            vandps  xmm0, xmm0, xmm6
-            vcomiss xmm0, xmm1
-          }
-        }
-        __asm { vcomiss xmm2, xmm4 }
-      }
-    }
-    if ( v31 == SCROLL_PRESSED )
-    {
-      __asm { vcomiss xmm5, dword ptr [r11+rdx*4+64h] }
-      ++_ECX;
-    }
-    else
-    {
-      __asm { vmovss  cs:s_input.analogSliderTime, xmm5 }
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+78h+var_38]
-      vmovaps xmm6, [rsp+78h+var_18]
-    }
-    v50 = _ECX + value;
-    if ( v50 > min )
-    {
-      if ( v50 >= max )
-        v50 = max;
-      result = v50;
-    }
-    else
-    {
-      result = min;
-    }
+  }
+  else if ( v12 == SCROLL_PRESSED )
+  {
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm2, 1 }
+    v11 = (int)*(float *)&_XMM4;
   }
   else
   {
-    result = 0i64;
+    s_input.digitalSliderTime = 0.0;
   }
-  _R11 = &v55;
-  __asm { vmovaps xmm10, xmmword ptr [r11-40h] }
-  return result;
+  v23 = s_input.analogStates[axis];
+  if ( v23 == SCROLL_HELD )
+  {
+    v24 = (float)v5;
+    sliderScrollTime_low = LODWORD(s_input.sliderScrollTime);
+    *(float *)&sliderScrollTime_low = (float)(s_input.sliderScrollTime / v24) / COERCE_FLOAT(COERCE_UNSIGNED_INT(s_input.scrollScale * s_input.analogAxis[axis]) & _xmm);
+    _XMM0 = sliderScrollTime_low;
+    __asm { vminss  xmm4, xmm0, cs:s_input.sliderScrollMaxTimeStep }
+    analogSliderTime_low = LODWORD(s_input.analogSliderTime);
+    *(float *)&analogSliderTime_low = s_input.analogSliderTime + deltaTime;
+    v28 = analogSliderTime_low;
+    s_input.analogSliderTime = s_input.analogSliderTime + deltaTime;
+    if ( s_input.analogSliderTime < *(float *)&_XMM4 )
+      goto LABEL_30;
+    while ( 1 )
+    {
+      v30 = -1;
+      if ( s_input.analogAxis[axis] >= 0.0 )
+        v30 = 1;
+      v11 += v30;
+      v31 = v28;
+      *(float *)&v31 = *(float *)&v28 - *(float *)&_XMM4;
+      v28 = v31;
+      s_input.analogSliderTime = *(float *)&v31;
+      if ( s_input.gamePadIndex < 0 && COERCE_FLOAT(LODWORD(s_input.analogAxis[axis]) & _xmm) <= 2.0 )
+        break;
+      if ( *(float *)&v31 < *(float *)&_XMM4 )
+        goto LABEL_30;
+    }
+  }
+  else if ( v23 == SCROLL_PRESSED )
+  {
+    v32 = -1;
+    if ( s_input.analogAxis[axis] >= 0.0 )
+      v32 = 1;
+    v11 += v32;
+    goto LABEL_30;
+  }
+  s_input.analogSliderTime = 0.0;
+LABEL_30:
+  v33 = v11 + value;
+  if ( v33 <= min )
+    return min;
+  if ( v33 >= max )
+    return max;
+  return v33;
 }
 
 /*
@@ -1044,7 +842,7 @@ DevGui_UpdateUInt64Scroll
 ==============
 */
 
-__int64 __fastcall DevGui_UpdateUInt64Scroll(double deltaTime, unsigned __int64 value, unsigned __int64 min, unsigned __int64 max, DevGuiInputAxis axis)
+__int64 __fastcall DevGui_UpdateUInt64Scroll(float deltaTime, unsigned __int64 value, unsigned __int64 min, unsigned __int64 max, DevGuiInputAxis axis)
 {
   return DevGui_UpdateIntScroll_Internal(deltaTime, value, min, max, axis);
 }

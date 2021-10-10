@@ -3253,10 +3253,14 @@ BG_Animset_GetNodeHideYawOffset
 */
 float BG_Animset_GetNodeHideYawOffset(const scr_string_t animsetName, const scr_string_t nodeType)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( BG_Animset_GetNodeOffset(animsetName, nodeType) )
-    __asm { vcvtsi2ss xmm0, xmm0, dword ptr [rax] }
-  return *(float *)&_XMM0;
+  const AIAnimsetNodeOffset *NodeOffset; 
+  float result; 
+
+  NodeOffset = BG_Animset_GetNodeOffset(animsetName, nodeType);
+  result = 0.0;
+  if ( NodeOffset )
+    return (float)NodeOffset->hideYaw;
+  return result;
 }
 
 /*
@@ -3266,10 +3270,14 @@ BG_Animset_GetNodeLeanAimPitchOffset
 */
 float BG_Animset_GetNodeLeanAimPitchOffset(const scr_string_t animsetName, const scr_string_t nodeType)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( BG_Animset_GetNodeOffset(animsetName, nodeType) )
-    __asm { vcvtsi2ss xmm0, xmm0, dword ptr [rax+0Ch] }
-  return *(float *)&_XMM0;
+  const AIAnimsetNodeOffset *NodeOffset; 
+  float result; 
+
+  NodeOffset = BG_Animset_GetNodeOffset(animsetName, nodeType);
+  result = 0.0;
+  if ( NodeOffset )
+    return (float)NodeOffset->leanPitch;
+  return result;
 }
 
 /*
@@ -3279,10 +3287,14 @@ BG_Animset_GetNodeLeanAimYawOffset
 */
 float BG_Animset_GetNodeLeanAimYawOffset(const scr_string_t animsetName, const scr_string_t nodeType)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( BG_Animset_GetNodeOffset(animsetName, nodeType) )
-    __asm { vcvtsi2ss xmm0, xmm0, dword ptr [rax+8] }
-  return *(float *)&_XMM0;
+  const AIAnimsetNodeOffset *NodeOffset; 
+  float result; 
+
+  NodeOffset = BG_Animset_GetNodeOffset(animsetName, nodeType);
+  result = 0.0;
+  if ( NodeOffset )
+    return (float)NodeOffset->leanYaw;
+  return result;
 }
 
 /*
@@ -3344,10 +3356,14 @@ BG_Animset_GetNodeSnapYawOffset
 */
 float BG_Animset_GetNodeSnapYawOffset(const scr_string_t animsetName, const scr_string_t nodeType)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( BG_Animset_GetNodeOffset(animsetName, nodeType) )
-    __asm { vcvtsi2ss xmm0, xmm0, dword ptr [rax+4] }
-  return *(float *)&_XMM0;
+  ntl::red_black_tree_node_base *NodeOffset; 
+  float result; 
+
+  NodeOffset = BG_Animset_GetNodeOffset(animsetName, nodeType);
+  result = 0.0;
+  if ( NodeOffset )
+    return (float)*((int *)&NodeOffset->m_color + 1);
+  return result;
 }
 
 /*
@@ -3359,6 +3375,7 @@ BG_Animset_GetNumEntriesForState
 __int64 __fastcall BG_Animset_GetNumEntriesForState(const scr_string_t animsetName, const scr_string_t stateName, double _XMM2_8)
 {
   int v4; 
+  unsigned int v6; 
   unsigned int RawHash; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
@@ -3367,15 +3384,17 @@ __int64 __fastcall BG_Animset_GetNumEntriesForState(const scr_string_t animsetNa
   unsigned int numAnimAliases; 
   unsigned int v13; 
   int v14; 
-  __int64 v18; 
-  int v36; 
   AnimsetAlias *animAliases; 
-  __int64 v38; 
-  unsigned int v39; 
-  __int64 v40; 
+  __int64 v18; 
+  __int64 v24; 
+  int v35; 
+  AnimsetAlias *v36; 
+  __int64 v37; 
+  unsigned int v38; 
+  __int64 v39; 
 
   v4 = 0;
-  _EBX = 0;
+  v6 = 0;
   RawHash = j_SL_GetRawHash(animsetName);
   mp_parent = g_animsetCache.m_endNodeBase.mp_parent;
   p_m_endNodeBase = &g_animsetCache.m_endNodeBase;
@@ -3403,13 +3422,13 @@ __int64 __fastcall BG_Animset_GetNumEntriesForState(const scr_string_t animsetNa
     return 0i64;
   State = Animset_FindState(v10, stateName);
   if ( !State )
-    return _EBX;
+    return v6;
   numAnimAliases = State->numAnimAliases;
   v13 = 0;
   if ( numAnimAliases >= 8 )
   {
     v14 = 2;
-    _R14 = State->animAliases;
+    animAliases = State->animAliases;
     __asm
     {
       vpxor   xmm1, xmm1, xmm1
@@ -3419,21 +3438,19 @@ __int64 __fastcall BG_Animset_GetNumEntriesForState(const scr_string_t animsetNa
     {
       v18 = v13;
       v13 += 8;
-      _RAX = 10 * v18;
+      _XMM0 = animAliases[v18].numAnims;
       __asm
       {
-        vmovd   xmm0, dword ptr [r14+rax*8+10h]
         vpinsrd xmm0, xmm0, dword ptr [r14+rdx*8+10h], 1
         vpinsrd xmm0, xmm0, dword ptr [r14+r8*8+10h], 2
         vpinsrd xmm0, xmm0, dword ptr [r14+r10*8+10h], 3
         vpaddd  xmm1, xmm0, xmm1
       }
-      _RAX = 5i64 * (unsigned int)(v14 + 2);
+      v24 = (unsigned int)(v14 + 2);
       v14 += 8;
-      _RAX *= 2i64;
+      _XMM0 = animAliases[v24].numAnims;
       __asm
       {
-        vmovd   xmm0, dword ptr [r14+rax*8+10h]
         vpinsrd xmm0, xmm0, dword ptr [r14+rdx*8+10h], 1
         vpinsrd xmm0, xmm0, dword ptr [r14+r8*8+10h], 2
         vpinsrd xmm0, xmm0, dword ptr [r14+r9*8+10h], 3
@@ -3448,31 +3465,31 @@ __int64 __fastcall BG_Animset_GetNumEntriesForState(const scr_string_t animsetNa
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   ebx, xmm0
     }
+    v6 = _XMM0;
   }
-  v36 = 0;
+  v35 = 0;
   if ( v13 >= numAnimAliases )
-    return _EBX;
+    return v6;
   if ( numAnimAliases - v13 >= 2 )
   {
-    animAliases = State->animAliases;
-    v38 = v13;
-    v39 = ((numAnimAliases - v13 - 2) >> 1) + 1;
-    v40 = v39;
-    v13 += 2 * v39;
+    v36 = State->animAliases;
+    v37 = v13;
+    v38 = ((numAnimAliases - v13 - 2) >> 1) + 1;
+    v39 = v38;
+    v13 += 2 * v38;
     do
     {
-      v4 += animAliases[v38].numAnims;
-      v36 += animAliases[v38 + 1].numAnims;
-      v38 += 2i64;
-      --v40;
+      v4 += v36[v37].numAnims;
+      v35 += v36[v37 + 1].numAnims;
+      v37 += 2i64;
+      --v39;
     }
-    while ( v40 );
+    while ( v39 );
   }
   if ( v13 < numAnimAliases )
-    _EBX += State->animAliases[v13].numAnims;
-  return _EBX + v36 + v4;
+    v6 += State->animAliases[v13].numAnims;
+  return v6 + v35 + v4;
 }
 
 /*
@@ -4181,56 +4198,58 @@ PlayerAnimset_PatchAlias
 */
 void PlayerAnimset_PatchAlias(const Animset *toAnimset, const Animset *fromAnimset, AnimsetAlias *toAlias, const AnimsetAlias *fromAliasC)
 {
-  const char *v10; 
-  const char *v11; 
+  const char *v8; 
+  const char *v9; 
   scr_string_t animAlias; 
+  const char *v11; 
+  const char *v12; 
   const char *v13; 
   const char *v14; 
-  const char *v15; 
-  const char *v16; 
-  __int64 v17; 
-  unsigned int v18; 
+  unsigned __int64 v15; 
+  unsigned int v16; 
+  __int128 v17; 
   AnimsetAnim *anims; 
-  __int64 v22; 
+  unsigned __int64 v19; 
   scr_string_t aimsetName; 
-  const char *v24; 
-  __int64 v25; 
-  AnimsetAnim *v26; 
+  const char *v21; 
+  __int64 v22; 
+  AnimsetAnim *v23; 
   scr_string_t name; 
-  const char *v28; 
-  __int64 v29; 
-  __int64 v30; 
-  bool i; 
+  const char *v25; 
+  __int64 v26; 
+  __int128 v27; 
+  __int64 i; 
+  AnimsetAnim *v29; 
   unsigned int numFuncs; 
-  unsigned int v39; 
+  unsigned int v31; 
   ASM_Function *funcs; 
-  __int64 v41; 
-  int v42; 
-  __int64 v43; 
-  ASM_Function *v44; 
+  __int64 v33; 
+  int v34; 
+  __int64 v35; 
+  ASM_Function *v36; 
   ASM_Function_Param *m_Params; 
   scr_string_t m_String; 
-  ASM_Function_Param *v47; 
+  ASM_Function_Param *v39; 
+  const char *v40; 
+  __int64 v41; 
+  AnimsetAlias_Union v42; 
+  scr_string_t redAnims; 
+  const char *v44; 
+  __int64 v45; 
+  AnimsetAlias_Union v46; 
+  scr_string_t redAnims_high; 
   const char *v48; 
   __int64 v49; 
-  AnimsetAlias_Union v53; 
-  scr_string_t redAnims; 
-  const char *v55; 
-  __int64 v56; 
-  AnimsetAlias_Union v57; 
-  scr_string_t redAnims_high; 
-  const char *v59; 
-  __int64 v60; 
-  AnimsetAlias_Union v61; 
+  AnimsetAlias_Union v50; 
   signed int numRedAnims; 
-  const char *v63; 
-  __int64 v64; 
-  AnimsetAlias_Union v65; 
-  scr_string_t v66; 
-  const char *v67; 
+  const char *v52; 
+  __int64 v53; 
+  AnimsetAlias_Union v54; 
+  scr_string_t v55; 
+  const char *v56; 
   char *fmt; 
-  __int64 v69; 
-  __int64 v70; 
+  __int64 v58; 
+  __int64 v59; 
   unsigned int inoutStringRefCount; 
 
   if ( !fromAliasC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 427, ASSERT_TYPE_ASSERT, "(fromAliasC)", (const char *)&queryFormat, "fromAliasC") )
@@ -4243,126 +4262,102 @@ void PlayerAnimset_PatchAlias(const Animset *toAnimset, const Animset *fromAnims
     __debugbreak();
   if ( fromAnimset->animTree != toAnimset->animTree )
   {
-    v10 = SL_ConvertToString(fromAnimset->constName);
-    v11 = SL_ConvertToString(toAnimset->constName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AD70, 1349i64, v11, v10);
+    v8 = SL_ConvertToString(fromAnimset->constName);
+    v9 = SL_ConvertToString(toAnimset->constName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AD70, 1349i64, v9, v8);
   }
   if ( fromAliasC->numAnims )
   {
     animAlias = fromAliasC->animAlias;
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-    }
     inoutStringRefCount = 0;
     PlayerAnimSet_SetString(toAlias, &toAlias->animAlias, animAlias, &inoutStringRefCount);
     toAlias->blendtime = fromAliasC->blendtime;
     if ( fromAliasC->numAddons )
     {
-      v13 = SL_ConvertToString(fromAnimset->constName);
-      v14 = SL_ConvertToString(toAnimset->constName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9ADE0, 5783i64, v14, v13);
+      v11 = SL_ConvertToString(fromAnimset->constName);
+      v12 = SL_ConvertToString(toAnimset->constName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9ADE0, 5783i64, v12, v11);
     }
     if ( LODWORD(fromAliasC->u.m_AIAnimsetAlias[6].redAnims) )
     {
-      v15 = SL_ConvertToString(fromAnimset->constName);
-      v16 = SL_ConvertToString(toAnimset->constName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AE40, 5784i64, v16, v15);
+      v13 = SL_ConvertToString(fromAnimset->constName);
+      v14 = SL_ConvertToString(toAnimset->constName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AE40, 5784i64, v14, v13);
     }
     PlayerAnimSet_SetString(toAlias, &toAlias->curveName, fromAliasC->curveName, &inoutStringRefCount);
     if ( fromAliasC->numAnims > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 464, ASSERT_TYPE_ASSERT, "( fromAlias->numAnims ) <= ( (1) )", "%s <= %s\n\t%i, %i", "fromAlias->numAnims", "PLAYERASM_MAX_NUM_PATCHABLE_ANIMS_PER_ALIAS", fromAliasC->numAnims, 1) )
       __debugbreak();
     if ( toAlias->numAnims != 1 )
     {
-      LODWORD(v70) = 1;
-      LODWORD(v69) = toAlias->numAnims;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 465, ASSERT_TYPE_ASSERT, "( toAlias->numAnims ) == ( (1) )", "%s == %s\n\t%i, %i", "toAlias->numAnims", "PLAYERASM_MAX_NUM_PATCHABLE_ANIMS_PER_ALIAS", v69, v70) )
+      LODWORD(v59) = 1;
+      LODWORD(v58) = toAlias->numAnims;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 465, ASSERT_TYPE_ASSERT, "( toAlias->numAnims ) == ( (1) )", "%s == %s\n\t%i, %i", "toAlias->numAnims", "PLAYERASM_MAX_NUM_PATCHABLE_ANIMS_PER_ALIAS", v58, v59) )
         __debugbreak();
     }
+    v15 = 0i64;
+    v16 = inoutStringRefCount;
     v17 = 0i64;
-    v18 = inoutStringRefCount;
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( fromAliasC->numAnims )
     {
       anims = toAlias->anims;
       do
       {
-        v22 = v17;
-        aimsetName = fromAliasC->anims[v17].aimsetName;
-        if ( aimsetName && anims[v17].aimsetName != aimsetName )
+        v19 = v15;
+        aimsetName = fromAliasC->anims[v15].aimsetName;
+        if ( aimsetName && anims[v15].aimsetName != aimsetName )
         {
-          if ( v18 >= 0x24 )
+          if ( v16 >= 0x24 )
           {
-            v24 = SL_ConvertToString(toAlias->name);
+            v21 = SL_ConvertToString(toAlias->name);
             LODWORD(fmt) = 36;
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v24, fmt);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v21, fmt);
           }
           SL_AddRefToString(aimsetName);
-          anims[v17].aimsetName = aimsetName;
-          v25 = v18++;
-          *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v25) = aimsetName;
+          anims[v15].aimsetName = aimsetName;
+          v22 = v16++;
+          *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v22) = aimsetName;
         }
-        v26 = toAlias->anims;
-        name = fromAliasC->anims[v17].name;
-        if ( name && v26[v17].name != name )
+        v23 = toAlias->anims;
+        name = fromAliasC->anims[v15].name;
+        if ( name && v23[v15].name != name )
         {
-          if ( v18 >= 0x24 )
+          if ( v16 >= 0x24 )
           {
-            v28 = SL_ConvertToString(toAlias->name);
+            v25 = SL_ConvertToString(toAlias->name);
             LODWORD(fmt) = 36;
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v28, fmt);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v25, fmt);
           }
           SL_AddRefToString(name);
-          v26[v17].name = name;
-          v29 = v18++;
-          *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v29) = name;
+          v23[v15].name = name;
+          v26 = v16++;
+          *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v26) = name;
         }
-        v17 = (unsigned int)(v17 + 1);
-        toAlias->anims[v22].weight = fromAliasC->anims[v22].weight;
+        v15 = (unsigned int)(v15 + 1);
+        toAlias->anims[v19].weight = fromAliasC->anims[v19].weight;
         anims = toAlias->anims;
-        __asm { vaddss  xmm6, xmm6, dword ptr [rbp+rbx*8+4] }
+        v27 = v17;
+        *(float *)&v27 = *(float *)&v17 + anims[v19].weight;
+        v17 = v27;
       }
-      while ( (unsigned int)v17 < fromAliasC->numAnims );
+      while ( (unsigned int)v15 < fromAliasC->numAnims );
     }
-    v30 = 0i64;
-    for ( i = toAlias->numAnims == 0; (unsigned int)v30 < toAlias->numAnims; i = (_DWORD)v30 == toAlias->numAnims )
+    for ( i = 0i64; (unsigned int)i < toAlias->numAnims; i = (unsigned int)(i + 1) )
     {
-      __asm { vucomiss xmm6, xmm7 }
-      _RCX = toAlias->anims;
-      if ( i || (_R8 = 3 * v30, !_RCX[v30].name) )
-      {
-        _RCX[v30].weight = 0.0;
-      }
+      v29 = toAlias->anims;
+      if ( *(float *)&v17 == 0.0 || !v29[i].name )
+        v29[i].weight = 0.0;
       else
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+r8*8+4]
-          vdivss  xmm1, xmm0, xmm6
-          vmovss  dword ptr [rcx+r8*8+4], xmm1
-        }
-      }
-      v30 = (unsigned int)(v30 + 1);
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
+        v29[i].weight = v29[i].weight / *(float *)&v17;
     }
     if ( fromAliasC->numFuncs > 3 )
     {
-      LODWORD(v70) = 3;
-      LODWORD(v69) = fromAliasC->numFuncs;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 492, ASSERT_TYPE_ASSERT, "( fromAlias->numFuncs ) <= ( (3) )", "%s <= %s\n\t%i, %i", "fromAlias->numFuncs", "PLAYERASM_MAX_NUM_PATCHABLE_CONDITIONS_PER_ALIAS", v69, v70) )
+      LODWORD(v59) = 3;
+      LODWORD(v58) = fromAliasC->numFuncs;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 492, ASSERT_TYPE_ASSERT, "( fromAlias->numFuncs ) <= ( (3) )", "%s <= %s\n\t%i, %i", "fromAlias->numFuncs", "PLAYERASM_MAX_NUM_PATCHABLE_CONDITIONS_PER_ALIAS", v58, v59) )
         __debugbreak();
     }
     numFuncs = fromAliasC->numFuncs;
-    v39 = 0;
+    v31 = 0;
     toAlias->numFuncs = numFuncs;
     inoutStringRefCount = 0;
     if ( numFuncs )
@@ -4370,125 +4365,119 @@ void PlayerAnimset_PatchAlias(const Animset *toAnimset, const Animset *fromAnims
       funcs = toAlias->funcs;
       do
       {
-        v41 = v39;
-        funcs[v41].m_bBuiltin = fromAliasC->funcs[v41].m_bBuiltin;
-        toAlias->funcs[v41].m_bNegate = fromAliasC->funcs[v41].m_bNegate;
-        toAlias->funcs[v41].m_Flags = fromAliasC->funcs[v41].m_Flags;
-        toAlias->funcs[v41].m_FuncID = fromAliasC->funcs[v41].m_FuncID;
-        if ( toAlias->funcs[v41].m_NumParams > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 502, ASSERT_TYPE_ASSERT, "(toAlias->funcs[funcIndex].m_NumParams <= (8))", (const char *)&queryFormat, "toAlias->funcs[funcIndex].m_NumParams <= PLAYERASM_MAX_NUM_PATCHABLE_PARAMETERS_PER_CONDITION") )
+        v33 = v31;
+        funcs[v33].m_bBuiltin = fromAliasC->funcs[v33].m_bBuiltin;
+        toAlias->funcs[v33].m_bNegate = fromAliasC->funcs[v33].m_bNegate;
+        toAlias->funcs[v33].m_Flags = fromAliasC->funcs[v33].m_Flags;
+        toAlias->funcs[v33].m_FuncID = fromAliasC->funcs[v33].m_FuncID;
+        if ( toAlias->funcs[v33].m_NumParams > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animset_util.cpp", 502, ASSERT_TYPE_ASSERT, "(toAlias->funcs[funcIndex].m_NumParams <= (8))", (const char *)&queryFormat, "toAlias->funcs[funcIndex].m_NumParams <= PLAYERASM_MAX_NUM_PATCHABLE_PARAMETERS_PER_CONDITION") )
           __debugbreak();
-        v42 = 0;
-        toAlias->funcs[v41].m_NumParams = fromAliasC->funcs[v41].m_NumParams;
+        v34 = 0;
+        toAlias->funcs[v33].m_NumParams = fromAliasC->funcs[v33].m_NumParams;
         funcs = toAlias->funcs;
-        if ( funcs[v41].m_NumParams > 0 )
+        if ( funcs[v33].m_NumParams > 0 )
         {
-          v43 = 0i64;
+          v35 = 0i64;
           do
           {
-            funcs[v41].m_Params[v43].m_Type = fromAliasC->funcs[v41].m_Params[v43].m_Type;
-            v44 = toAlias->funcs;
-            m_Params = fromAliasC->funcs[v41].m_Params;
-            if ( v44[v41].m_Params[v43].m_Type == ParamType_String )
+            funcs[v33].m_Params[v35].m_Type = fromAliasC->funcs[v33].m_Params[v35].m_Type;
+            v36 = toAlias->funcs;
+            m_Params = fromAliasC->funcs[v33].m_Params;
+            if ( v36[v33].m_Params[v35].m_Type == ParamType_String )
             {
-              m_String = m_Params[v43].u.m_String;
-              v47 = v44[v41].m_Params;
-              if ( m_String && v47[v43].u.m_Int != m_String )
+              m_String = m_Params[v35].u.m_String;
+              v39 = v36[v33].m_Params;
+              if ( m_String && v39[v35].u.m_Int != m_String )
               {
-                if ( v18 >= 0x24 )
+                if ( v16 >= 0x24 )
                 {
-                  v48 = SL_ConvertToString(toAlias->name);
+                  v40 = SL_ConvertToString(toAlias->name);
                   LODWORD(fmt) = 36;
-                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v48, fmt);
+                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v40, fmt);
                 }
                 SL_AddRefToString(m_String);
-                v47[v43].u.m_Int = m_String;
-                v49 = v18++;
-                *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v49) = m_String;
+                v39[v35].u.m_Int = m_String;
+                v41 = v16++;
+                *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v41) = m_String;
               }
             }
             else
             {
-              v44[v41].m_Params[v43].u.m_Int = m_Params[v43].u.m_Int;
+              v36[v33].m_Params[v35].u.m_Int = m_Params[v35].u.m_Int;
             }
             funcs = toAlias->funcs;
-            ++v42;
-            ++v43;
+            ++v34;
+            ++v35;
           }
-          while ( v42 < funcs[v41].m_NumParams );
+          while ( v34 < funcs[v33].m_NumParams );
         }
-        v39 = inoutStringRefCount + 1;
-        inoutStringRefCount = v39;
+        v31 = inoutStringRefCount + 1;
+        inoutStringRefCount = v31;
       }
-      while ( v39 < toAlias->numFuncs );
+      while ( v31 < toAlias->numFuncs );
     }
     LODWORD(toAlias->u.m_AIAnimsetAlias->redAnims) = fromAliasC->u.m_AIAnimsetAlias->redAnims;
     HIDWORD(toAlias->u.m_AIAnimsetAlias->redAnims) = HIDWORD(fromAliasC->u.m_AIAnimsetAlias->redAnims);
     *(_QWORD *)&toAlias->u.m_AIAnimsetAlias->numRedAnims = *(_QWORD *)&fromAliasC->u.m_AIAnimsetAlias->numRedAnims;
-    _RCX.m_AIAnimsetAlias = (AIAnimsetAlias *)fromAliasC->u;
-    _RAX.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+10h]
-      vmovups ymmword ptr [rax+10h], ymm0
-    }
-    v53.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
+    *(__m256i *)&toAlias->u.m_AIAnimsetAlias[1].redAnims = *(__m256i *)&fromAliasC->u.m_AIAnimsetAlias[1].redAnims;
+    v42.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
     redAnims = (scr_string_t)fromAliasC->u.m_AIAnimsetAlias[3].redAnims;
-    if ( redAnims && LODWORD(v53.m_AIAnimsetAlias[3].redAnims) != redAnims )
+    if ( redAnims && LODWORD(v42.m_AIAnimsetAlias[3].redAnims) != redAnims )
     {
-      if ( v18 >= 0x24 )
+      if ( v16 >= 0x24 )
       {
-        v55 = SL_ConvertToString(toAlias->name);
+        v44 = SL_ConvertToString(toAlias->name);
         LODWORD(fmt) = 36;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v55, fmt);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v44, fmt);
       }
       SL_AddRefToString(redAnims);
-      LODWORD(v53.m_AIAnimsetAlias[3].redAnims) = redAnims;
-      v56 = v18++;
-      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v56) = redAnims;
+      LODWORD(v42.m_AIAnimsetAlias[3].redAnims) = redAnims;
+      v45 = v16++;
+      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v45) = redAnims;
     }
-    v57.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
+    v46.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
     redAnims_high = HIDWORD(fromAliasC->u.m_AIAnimsetAlias[3].redAnims);
-    if ( redAnims_high && HIDWORD(v57.m_AIAnimsetAlias[3].redAnims) != redAnims_high )
+    if ( redAnims_high && HIDWORD(v46.m_AIAnimsetAlias[3].redAnims) != redAnims_high )
     {
-      if ( v18 >= 0x24 )
+      if ( v16 >= 0x24 )
       {
-        v59 = SL_ConvertToString(toAlias->name);
+        v48 = SL_ConvertToString(toAlias->name);
         LODWORD(fmt) = 36;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v59, fmt);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v48, fmt);
       }
       SL_AddRefToString(redAnims_high);
-      HIDWORD(v57.m_AIAnimsetAlias[3].redAnims) = redAnims_high;
-      v60 = v18++;
-      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v60) = redAnims_high;
+      HIDWORD(v46.m_AIAnimsetAlias[3].redAnims) = redAnims_high;
+      v49 = v16++;
+      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v49) = redAnims_high;
     }
-    v61.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
+    v50.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
     numRedAnims = fromAliasC->u.m_AIAnimsetAlias[3].numRedAnims;
-    if ( numRedAnims && v61.m_AIAnimsetAlias[3].numRedAnims != numRedAnims )
+    if ( numRedAnims && v50.m_AIAnimsetAlias[3].numRedAnims != numRedAnims )
     {
-      if ( v18 >= 0x24 )
+      if ( v16 >= 0x24 )
       {
-        v63 = SL_ConvertToString(toAlias->name);
+        v52 = SL_ConvertToString(toAlias->name);
         LODWORD(fmt) = 36;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v63, fmt);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v52, fmt);
       }
       SL_AddRefToString((scr_string_t)numRedAnims);
-      v61.m_AIAnimsetAlias[3].numRedAnims = numRedAnims;
-      v64 = v18++;
-      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v64) = numRedAnims;
+      v50.m_AIAnimsetAlias[3].numRedAnims = numRedAnims;
+      v53 = v16++;
+      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v53) = numRedAnims;
     }
-    v65.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
-    v66 = *(&fromAliasC->u.m_AIAnimsetAlias[3].numRedAnims + 1);
-    if ( v66 && *(&v65.m_AIAnimsetAlias[3].numRedAnims + 1) != v66 )
+    v54.m_AIAnimsetAlias = (AIAnimsetAlias *)toAlias->u;
+    v55 = *(&fromAliasC->u.m_AIAnimsetAlias[3].numRedAnims + 1);
+    if ( v55 && *(&v54.m_AIAnimsetAlias[3].numRedAnims + 1) != v55 )
     {
-      if ( v18 >= 0x24 )
+      if ( v16 >= 0x24 )
       {
-        v67 = SL_ConvertToString(toAlias->name);
+        v56 = SL_ConvertToString(toAlias->name);
         LODWORD(fmt) = 36;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v67, fmt);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143C9AC60, 1348i64, v56, fmt);
       }
-      SL_AddRefToString(v66);
-      *(&v65.m_AIAnimsetAlias[3].numRedAnims + 1) = v66;
-      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v18) = v66;
+      SL_AddRefToString(v55);
+      *(&v54.m_AIAnimsetAlias[3].numRedAnims + 1) = v55;
+      *((_DWORD *)&toAlias->u.m_AIAnimsetAlias[7].redAnims->name + v16) = v55;
     }
     LODWORD(toAlias->u.m_AIAnimsetAlias[4].redAnims) = fromAliasC->u.m_AIAnimsetAlias[4].redAnims;
     HIDWORD(toAlias->u.m_AIAnimsetAlias[4].redAnims) = HIDWORD(fromAliasC->u.m_AIAnimsetAlias[4].redAnims);

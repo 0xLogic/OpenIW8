@@ -310,6 +310,7 @@ Image_CreatePlacementTexture1D_XB3
 */
 void Image_CreatePlacementTexture1D_XB3(const GfxTexture_CreateParams *textureParams, GfxTexture *texture, unsigned int mostDetailedMip)
 {
+  __m256i v4; 
   unsigned int v8; 
   unsigned int maxLevelCount; 
   int width; 
@@ -409,18 +410,15 @@ void Image_CreatePlacementTexture1D_XB3(const GfxTexture_CreateParams *texturePa
   else
   {
     v22 = textureParams->params.format;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu ymmword ptr [rbp+57h+viewDesc.Shader4ComponentMapping], ymm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(__m256i *)&viewDesc.Shader4ComponentMapping = v4;
     viewDesc.Format = TypelessFormat;
     viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
     v24 = Image_ShaderComponentMapping(v22);
     basemap = texture->basemap;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    _XMM0 = 0i64;
     viewDesc.Shader4ComponentMapping = v24;
-    __asm { vmovss  dword ptr [rbp+57h+viewDesc.___u3+8], xmm0 }
+    viewDesc.Texture1D.ResourceMinLODClamp = 0.0;
     viewDesc.Buffer.FirstElement = mostDetailedMip | 0xFFFFFFFF00000000ui64;
     R_HW_CreateShaderResourceView(basemap, &viewDesc, &texture->shaderView);
   }
@@ -429,7 +427,7 @@ void Image_CreatePlacementTexture1D_XB3(const GfxTexture_CreateParams *texturePa
     __asm { vpxor   xmm0, xmm0, xmm0 }
     *(_QWORD *)&viewDesc.TextureCubeArray.NumCubes = 0i64;
     v27 = texture->basemap;
-    __asm { vmovdqu xmmword ptr [rbp+57h+viewDesc+0Ch], xmm0 }
+    *(_OWORD *)(&viewDesc.Shader4ComponentMapping + 1) = _XMM0;
     viewDesc.Texture2DArray.ResourceMinLODClamp = 0.0;
     viewDesc.Format = TypelessFormat;
     *(_QWORD *)&viewDesc.ViewDimension = 2i64;
@@ -449,56 +447,56 @@ Image_CreatePlacementTexture2D_XB3
 void Image_CreatePlacementTexture2D_XB3(const GfxTexture_CreateParams *textureParams, GfxTexture *texture, unsigned int mostDetailedMip)
 {
   MapType MapTypeFromImageFlags; 
-  unsigned int v8; 
+  unsigned int v7; 
   unsigned int maxLevelCount; 
   int width; 
-  unsigned __int16 v11; 
+  unsigned __int16 v10; 
   unsigned int numElements; 
   unsigned int ArraySize; 
-  unsigned __int16 v14; 
+  unsigned __int16 v13; 
   GfxPixelFormat format; 
   GfxImageFlags flags; 
   D3D12_TEXTURE_LAYOUT LayoutMode; 
-  bool v18; 
+  bool v17; 
   const unsigned __int8 *pixels; 
   const char *name; 
-  int v21; 
-  HRESULT v22; 
-  const char *v23; 
-  ID3D12DeviceChild *v24; 
-  GfxPixelFormat v25; 
+  int v20; 
+  HRESULT v21; 
+  const char *v22; 
+  ID3D12DeviceChild *v23; 
+  GfxPixelFormat v24; 
   DXGI_FORMAT DXGIFormatForPixelFormat; 
-  GfxPixelFormat v27; 
+  GfxPixelFormat v26; 
+  unsigned int v27; 
   unsigned int v28; 
-  unsigned int v30; 
-  GfxPixelFormat v34; 
-  __int64 v35; 
+  GfxPixelFormat v29; 
+  __int64 v30; 
   D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc; 
   ID3D12DeviceChild *resource; 
-  int v38; 
-  __int64 v39; 
-  int v40; 
+  int v33; 
+  __int64 v34; 
+  int v35; 
   __int64 BCValidatedDimension; 
-  int v42; 
-  unsigned __int16 v43; 
-  unsigned __int16 v44; 
+  int v37; 
+  unsigned __int16 v38; 
+  unsigned __int16 v39; 
   DXGI_FORMAT TypelessFormat; 
-  __int64 v46; 
-  D3D12_TEXTURE_LAYOUT v47; 
-  int v48; 
-  int v49; 
+  __int64 v41; 
+  D3D12_TEXTURE_LAYOUT v42; 
+  int v43; 
+  int v44; 
 
   MapTypeFromImageFlags = Image_GetMapTypeFromImageFlags(textureParams->params.flags);
   if ( (textureParams->params.flags & 2) != 0 || textureParams->params.maxLevelCount == 1 )
   {
-    v8 = 1;
+    v7 = 1;
   }
   else
   {
-    v8 = Image_CountMipmaps(textureParams->params.width, textureParams->params.height, textureParams->params.depth);
+    v7 = Image_CountMipmaps(textureParams->params.width, textureParams->params.height, textureParams->params.depth);
     maxLevelCount = textureParams->params.maxLevelCount;
-    if ( maxLevelCount && v8 > maxLevelCount )
-      v8 = textureParams->params.maxLevelCount;
+    if ( maxLevelCount && v7 > maxLevelCount )
+      v7 = textureParams->params.maxLevelCount;
   }
   if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1297, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
@@ -508,105 +506,89 @@ void Image_CreatePlacementTexture2D_XB3(const GfxTexture_CreateParams *texturePa
     __debugbreak();
   if ( (MapTypeFromImageFlags & 0xFA) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1300, ASSERT_TYPE_ASSERT, "(mapType == MAPTYPE_2D || mapType == MAPTYPE_CUBE || mapType == MAPTYPE_ARRAY || mapType == MAPTYPE_CUBE_ARRAY)", (const char *)&queryFormat, "mapType == MAPTYPE_2D || mapType == MAPTYPE_CUBE || mapType == MAPTYPE_ARRAY || mapType == MAPTYPE_CUBE_ARRAY") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1301, ASSERT_TYPE_ASSERT, "(mipLevelCount > 0)", (const char *)&queryFormat, "mipLevelCount > 0") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1301, ASSERT_TYPE_ASSERT, "(mipLevelCount > 0)", (const char *)&queryFormat, "mipLevelCount > 0") )
     __debugbreak();
-  if ( mostDetailedMip >= v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1302, ASSERT_TYPE_ASSERT, "( mostDetailedMip ) < ( mipLevelCount )", "%s < %s\n\t%u, %u", "mostDetailedMip", "mipLevelCount", mostDetailedMip, v8) )
+  if ( mostDetailedMip >= v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1302, ASSERT_TYPE_ASSERT, "( mostDetailedMip ) < ( mipLevelCount )", "%s < %s\n\t%u, %u", "mostDetailedMip", "mipLevelCount", mostDetailedMip, v7) )
     __debugbreak();
   if ( !textureParams->pixels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1303, ASSERT_TYPE_ASSERT, "(textureParams.pixels)", (const char *)&queryFormat, "textureParams.pixels") )
     __debugbreak();
   width = textureParams->params.width;
-  v39 = 0i64;
-  v40 = 0;
-  v49 = 0;
-  v38 = 3;
+  v34 = 0i64;
+  v35 = 0;
+  v44 = 0;
+  v33 = 3;
   BCValidatedDimension = Image_GetBCValidatedDimension(&textureParams->params, width);
-  v42 = Image_GetBCValidatedDimension(&textureParams->params, textureParams->params.height);
-  v11 = truncate_cast<unsigned short,unsigned int>(v8);
+  v37 = Image_GetBCValidatedDimension(&textureParams->params, textureParams->params.height);
+  v10 = truncate_cast<unsigned short,unsigned int>(v7);
   numElements = textureParams->params.numElements;
-  v44 = v11;
+  v39 = v10;
   ArraySize = Image_GetArraySize(MapTypeFromImageFlags, numElements);
-  v14 = truncate_cast<unsigned short,unsigned int>(ArraySize);
+  v13 = truncate_cast<unsigned short,unsigned int>(ArraySize);
   format = textureParams->params.format;
   flags = textureParams->params.flags;
-  v43 = v14;
-  v46 = 1i64;
+  v38 = v13;
+  v41 = 1i64;
   TypelessFormat = Image_ConditionallyMakeTypelessFormat(flags, format);
   LayoutMode = Image_GetLayoutMode(&textureParams->params);
-  v18 = (textureParams->params.flags & 0x800000) == 0;
+  v17 = (textureParams->params.flags & 0x800000) == 0;
   pixels = textureParams->pixels;
   name = textureParams->name;
-  v47 = LayoutMode;
-  v21 = 0;
-  if ( !v18 )
-    v21 = 4;
-  v48 = v21;
-  v22 = ((__int64 (__fastcall *)(ID3D12Device *, const unsigned __int8 *, int *, __int64, _QWORD, GUID *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[14].Release)(g_dx.d3d12device, pixels, &v38, 2243i64, 0i64, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &resource);
-  if ( v22 < 0 )
+  v42 = LayoutMode;
+  v20 = 0;
+  if ( !v17 )
+    v20 = 4;
+  v43 = v20;
+  v21 = ((__int64 (__fastcall *)(ID3D12Device *, const unsigned __int8 *, int *, __int64, _QWORD, GUID *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[14].Release)(g_dx.d3d12device, pixels, &v33, 2243i64, 0i64, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &resource);
+  if ( v21 < 0 )
   {
-    v23 = R_ErrorDescription(v22);
-    Sys_Error((const ObfuscateErrorText)&stru_14436DF60, 307i64, v23);
+    v22 = R_ErrorDescription(v21);
+    Sys_Error((const ObfuscateErrorText)&stru_14436DF60, 307i64, v22);
   }
   PIXSetDebugName(resource, name);
-  v24 = resource;
+  v23 = resource;
   texture->basemap = (ID3D12Resource *)resource;
-  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1326, ASSERT_TYPE_ASSERT, "(texture->map)", (const char *)&queryFormat, "texture->map") )
+  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1326, ASSERT_TYPE_ASSERT, "(texture->map)", (const char *)&queryFormat, "texture->map") )
     __debugbreak();
   if ( (textureParams->params.flags & 0x20000000) == 0 )
   {
-    v25 = textureParams->params.format;
+    v24 = textureParams->params.format;
     memset(&viewDesc, 0, sizeof(viewDesc));
-    DXGIFormatForPixelFormat = R_D3D_GetDXGIFormatForPixelFormat(v25);
-    v27 = textureParams->params.format;
+    DXGIFormatForPixelFormat = R_D3D_GetDXGIFormatForPixelFormat(v24);
+    v26 = textureParams->params.format;
     viewDesc.Format = DXGIFormatForPixelFormat;
-    viewDesc.Shader4ComponentMapping = Image_ShaderComponentMapping(v27);
+    viewDesc.Shader4ComponentMapping = Image_ShaderComponentMapping(v26);
     if ( MapTypeFromImageFlags )
     {
       switch ( MapTypeFromImageFlags )
       {
         case MAPTYPE_CUBE:
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rbp+57h+viewDesc.___u3+8], xmm0
-          }
+          viewDesc.Texture1D.ResourceMinLODClamp = 0.0;
           viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
           break;
         case MAPTYPE_ARRAY:
-          v30 = textureParams->params.numElements;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rbp+57h+viewDesc.___u3+14h], xmm0
-          }
-          viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-          viewDesc.Buffer.NumElements = 0;
-          viewDesc.Buffer.StructureByteStride = v30;
-          break;
-        case MAPTYPE_CUBE_ARRAY:
           v28 = textureParams->params.numElements;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rbp+57h+viewDesc.___u3+10h], xmm0
-          }
-          viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+          viewDesc.Texture2DArray.ResourceMinLODClamp = 0.0;
+          viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
           viewDesc.Buffer.NumElements = 0;
           viewDesc.Buffer.StructureByteStride = v28;
           break;
+        case MAPTYPE_CUBE_ARRAY:
+          v27 = textureParams->params.numElements;
+          viewDesc.Texture1DArray.ResourceMinLODClamp = 0.0;
+          viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+          viewDesc.Buffer.NumElements = 0;
+          viewDesc.Buffer.StructureByteStride = v27;
+          break;
         default:
-          LODWORD(v35) = (unsigned __int8)MapTypeFromImageFlags;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1368, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported map type %d", v35) )
+          LODWORD(v30) = (unsigned __int8)MapTypeFromImageFlags;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1368, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported map type %d", v30) )
             __debugbreak();
           goto LABEL_48;
       }
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rbp+57h+viewDesc.___u3+0Ch], xmm0
-      }
+      viewDesc.Texture2D.ResourceMinLODClamp = 0.0;
       viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     }
     viewDesc.Buffer.FirstElement = mostDetailedMip | 0xFFFFFFFF00000000ui64;
@@ -620,9 +602,9 @@ LABEL_50:
   {
     if ( ((MapTypeFromImageFlags - 1) & 0xFB) != 0 )
     {
-      v34 = textureParams->params.format;
+      v29 = textureParams->params.format;
       memset(&viewDesc, 0, sizeof(viewDesc));
-      viewDesc.Format = R_D3D_GetDXGIFormatForPixelFormat(v34);
+      viewDesc.Format = R_D3D_GetDXGIFormatForPixelFormat(v29);
       if ( MapTypeFromImageFlags )
       {
         if ( MapTypeFromImageFlags == MAPTYPE_ARRAY )
@@ -632,8 +614,8 @@ LABEL_50:
         }
         else
         {
-          LODWORD(v35) = (unsigned __int8)MapTypeFromImageFlags;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1405, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported map type %d", v35) )
+          LODWORD(v30) = (unsigned __int8)MapTypeFromImageFlags;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1405, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported map type %d", v30) )
             __debugbreak();
         }
       }
@@ -764,11 +746,11 @@ void Image_CreatePlacementTexture3D_XB3(const GfxTexture_CreateParams *texturePa
     v22 = textureParams->params.format;
     memset(&viewDesc.Shader4ComponentMapping + 1, 0, 28);
     viewDesc.Format = TypelessFormat;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    _XMM0 = 0i64;
     viewDesc.Shader4ComponentMapping = Image_ShaderComponentMapping(v22);
     viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
     viewDesc.Buffer.FirstElement = mostDetailedMip | 0xFFFFFFFF00000000ui64;
-    __asm { vmovss  dword ptr [rbp+57h+viewDesc.___u3+8], xmm0 }
+    viewDesc.Texture1D.ResourceMinLODClamp = 0.0;
     R_HW_CreateShaderResourceView(v21, &viewDesc, &texture->shaderView);
   }
   if ( (textureParams->params.flags & 0x800000) != 0 )
@@ -776,7 +758,7 @@ void Image_CreatePlacementTexture3D_XB3(const GfxTexture_CreateParams *texturePa
     viewDesc.Format = TypelessFormat;
     __asm { vpxor   xmm0, xmm0, xmm0 }
     viewDesc.Texture1D.MostDetailedMip = textureParams->params.depth;
-    __asm { vmovdqu xmmword ptr [rbp+57h+viewDesc.___u3+4], xmm0 }
+    *(_OWORD *)&viewDesc.Texture2D.MipLevels = _XMM0;
     viewDesc.Texture2DArray.ResourceMinLODClamp = 0.0;
     *(_QWORD *)&viewDesc.ViewDimension = 8i64;
     *(&viewDesc.Shader4ComponentMapping + 1) = 0;
@@ -889,105 +871,60 @@ Image_Process2DTextureCoordsForAtlasing
 */
 void Image_Process2DTextureCoordsForAtlasing(const GfxImage *image, float *outS0, float *outS1, float *outT0, float *outT1)
 {
+  float *v8; 
   unsigned __int8 colCount; 
   unsigned __int8 rowCount; 
+  float integer; 
   unsigned int textureAtlasTime; 
-  unsigned int v16; 
-  double v39; 
+  unsigned int v13; 
+  float v14; 
+  unsigned int v15; 
+  float v16; 
+  unsigned int v17; 
+  float v18; 
+  float v19; 
   float s0; 
-  float *v42; 
+  float *v21; 
   float dt; 
   float t0; 
 
-  v42 = outS0;
-  _R12 = outT0;
-  _R13 = outS1;
-  _RBX = image;
+  v21 = outS0;
   if ( !outS0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2473, ASSERT_TYPE_ASSERT, "(outS0)", (const char *)&queryFormat, "outS0") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2474, ASSERT_TYPE_ASSERT, "(outS1)", (const char *)&queryFormat, "outS1") )
+  if ( !outS1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2474, ASSERT_TYPE_ASSERT, "(outS1)", (const char *)&queryFormat, "outS1") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2475, ASSERT_TYPE_ASSERT, "(outT0)", (const char *)&queryFormat, "outT0") )
+  if ( !outT0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2475, ASSERT_TYPE_ASSERT, "(outT0)", (const char *)&queryFormat, "outT0") )
     __debugbreak();
-  _R15 = outT1;
+  v8 = outT1;
   if ( !outT1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2476, ASSERT_TYPE_ASSERT, "(outT1)", (const char *)&queryFormat, "outT1") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2478, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
+  if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2478, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
     __debugbreak();
-  colCount = _RBX->atlasInfo.atlasSize.colCount;
-  rowCount = _RBX->atlasInfo.atlasSize.rowCount;
+  colCount = image->atlasInfo.atlasSize.colCount;
+  rowCount = image->atlasInfo.atlasSize.rowCount;
   if ( colCount > 1u || rowCount > 1u )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_58], xmm6
-      vxorps  xmm0, xmm0, xmm0
-    }
-    if ( _RBX->semantic )
-      goto LABEL_20;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+20h]
-      vucomiss xmm6, xmm0
-    }
-    if ( _RBX->semantic == TS_2D )
-    {
-LABEL_20:
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, dword ptr [rax+28h]
-      }
-    }
-    __asm { vcomiss xmm6, xmm0 }
-    if ( _RBX->semantic == TS_2D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2487, ASSERT_TYPE_ASSERT, "(fps > 0.f)", (const char *)&queryFormat, "fps > 0.f") )
+    if ( image->semantic || (integer = image->semanticSpecific.atlasFps, integer == 0.0) )
+      integer = (float)r_atlasAnimFPS->current.integer;
+    if ( integer <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2487, ASSERT_TYPE_ASSERT, "(fps > 0.f)", (const char *)&queryFormat, "fps > 0.f") )
       __debugbreak();
     textureAtlasTime = rg.textureAtlasTime;
-    v16 = colCount * rowCount;
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2497, ASSERT_TYPE_ASSERT, "(frameCount)", (const char *)&queryFormat, "frameCount") )
+    v13 = colCount * rowCount;
+    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2497, ASSERT_TYPE_ASSERT, "(frameCount)", (const char *)&queryFormat, "frameCount") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vdivss  xmm1, xmm0, xmm6
-      vcvttss2si r8, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm1, cs:__real@3a83126f
-      vcvttss2si r14, xmm2
-    }
-    if ( (unsigned int)_R14 >= v16 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0B8h+var_78], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2502, ASSERT_TYPE_ASSERT, "(( frame < frameCount ))", "%s\n\tframe:%i  ms:%i  fps:%f  fc:%i  msTtP:%i  msSLB:%i\n", "( frame < frameCount )", _R14, textureAtlasTime, v39, colCount * rowCount, _R8, textureAtlasTime % (unsigned int)_R8) )
-        __debugbreak();
-    }
-    TextureAtlas_GetCoords_ByIndex(_R14, colCount, rowCount, &s0, (float *)&outT1, &t0, &dt);
-    __asm { vmovss  xmm1, dword ptr [rsp+0B8h+outT1] }
-    _RAX = v42;
-    __asm
-    {
-      vmovss  xmm3, [rsp+0B8h+arg_10]
-      vmovaps xmm6, [rsp+0B8h+var_58]
-      vmulss  xmm0, xmm1, dword ptr [rax]
-      vaddss  xmm0, xmm0, [rsp+0B8h+s0]
-      vmovss  dword ptr [rax], xmm0
-      vmulss  xmm1, xmm1, dword ptr [r13+0]
-      vaddss  xmm0, xmm1, [rsp+0B8h+s0]
-      vmovss  dword ptr [r13+0], xmm0
-      vmulss  xmm0, xmm3, dword ptr [r12]
-      vaddss  xmm0, xmm0, [rsp+0B8h+arg_18]
-      vmovss  dword ptr [r12], xmm0
-      vmulss  xmm1, xmm3, dword ptr [r15]
-      vaddss  xmm0, xmm1, [rsp+0B8h+arg_18]
-      vmovss  dword ptr [r15], xmm0
-    }
+    v14 = (float)(1000 * v13);
+    v15 = (int)(float)(v14 / integer);
+    v16 = (float)(textureAtlasTime % v15);
+    v17 = (int)(float)((float)(v16 * integer) * 0.001);
+    if ( v17 >= v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2502, ASSERT_TYPE_ASSERT, "(( frame < frameCount ))", "%s\n\tframe:%i  ms:%i  fps:%f  fc:%i  msTtP:%i  msSLB:%i\n", "( frame < frameCount )", (int)(float)((float)(v16 * integer) * 0.001), textureAtlasTime, integer, colCount * rowCount, (int)(float)(v14 / integer), textureAtlasTime % v15) )
+      __debugbreak();
+    TextureAtlas_GetCoords_ByIndex(v17, colCount, rowCount, &s0, (float *)&outT1, &t0, &dt);
+    v18 = *(float *)&outT1;
+    v19 = dt;
+    *v21 = (float)(*(float *)&outT1 * *v21) + s0;
+    *outS1 = (float)(v18 * *outS1) + s0;
+    *outT0 = (float)(v19 * *outT0) + t0;
+    *v8 = (float)(v19 * *v8) + t0;
   }
 }
 
@@ -1057,9 +994,8 @@ void Load_ImagePixelsRaw(unsigned __int8 **pixelsPtr, GfxImageRaw *image)
 {
   unsigned __int8 *v5; 
   int levelCount; 
-  unsigned int v8; 
-  __m256i v11; 
-  __m256i v12; 
+  __m256i v8; 
+  __m256i v9; 
   GfxTexture_CreateParams params; 
 
   if ( !pixelsPtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1533, ASSERT_TYPE_ASSERT, "(pixelsPtr)", (const char *)&queryFormat, "pixelsPtr") )
@@ -1071,27 +1007,21 @@ void Load_ImagePixelsRaw(unsigned __int8 **pixelsPtr, GfxImageRaw *image)
     __debugbreak();
   levelCount = image->desc.levelCount;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v12.m256i_i64[0] = 0i64;
-  __asm { vmovdqu xmmword ptr [rsp+0C8h+var_78+8], xmm0 }
-  v11.m256i_i32[0] = image->desc.width;
-  v11.m256i_i32[1] = image->desc.height;
-  v11.m256i_i32[2] = image->desc.depth;
-  v11.m256i_i32[3] = image->desc.numElements;
-  v12.m256i_i32[6] = -1;
-  v8 = Image_CountMipmaps(v11.m256i_u32[0], v11.m256i_u32[1], v11.m256i_u32[2]);
-  __asm { vmovups ymm1, [rsp+0C8h+var_78] }
+  v9.m256i_i64[0] = 0i64;
+  *(_OWORD *)&v9.m256i_u64[1] = _XMM0;
+  v8.m256i_i32[0] = image->desc.width;
+  v8.m256i_i32[1] = image->desc.height;
+  v8.m256i_i32[2] = image->desc.depth;
+  v8.m256i_i32[3] = image->desc.numElements;
+  v9.m256i_i32[6] = -1;
   params.pixels = v5;
-  v11.m256i_i32[5] = image->desc.flags;
-  if ( v8 == levelCount )
+  if ( Image_CountMipmaps(v8.m256i_u32[0], v8.m256i_u32[1], v8.m256i_u32[2]) == levelCount )
     levelCount = 0;
-  v11.m256i_i32[6] = image->desc.format;
-  v11.m256i_i32[4] = levelCount;
-  __asm
-  {
-    vmovups ymm0, [rsp+0C8h+var_98]
-    vmovups ymmword ptr [rsp+0C8h+params.params.width], ymm0
-    vmovups ymmword ptr [rsp+0C8h+params.params.customAllocFunc], ymm1
-  }
+  v8.m256i_i32[6] = image->desc.format;
+  v8.m256i_i32[4] = levelCount;
+  v8.m256i_i32[5] = image->desc.flags;
+  *(__m256i *)&params.params.width = v8;
+  *(__m256i *)&params.params.customAllocFunc = v9;
   params.name = "<raw img>";
   image->textureId = R_Texture_CreateWithTiledPixelsData(&params);
 }
@@ -1145,55 +1075,42 @@ void R_ImageList_f(void)
 R_InitDefaultFogLightmapImage
 ==============
 */
-
-void __fastcall R_InitDefaultFogLightmapImage(double _XMM0_8)
+void R_InitDefaultFogLightmapImage()
 {
-  __int64 v6; 
-  __m256i v7; 
-  __m256i v8; 
+  __int64 v2; 
+  __m256i v3; 
+  __m256i v4; 
   Image_SetupParams params; 
   vec3_t vec; 
-  vec3_t v11; 
+  vec3_t v7; 
   Image_SetupData data; 
 
   if ( s_defaultFogLightmapImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2065, ASSERT_TYPE_SANITY, "( !s_defaultFogLightmapImage )", (const char *)&queryFormat, "!s_defaultFogLightmapImage") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+2FFF0h+vec], xmm0
-    vmovss  dword ptr [rbp+2FFF0h+vec+4], xmm0
-    vmovss  dword ptr [rbp+2FFF0h+vec+8], xmm0
-    vmovss  dword ptr [rbp+2FFF0h+var_30020], xmm1
-    vmovss  dword ptr [rbp+2FFF0h+var_30020+4], xmm1
-    vmovss  dword ptr [rbp+2FFF0h+var_30020+8], xmm1
-  }
-  LODWORD(v6) = Vec3PackR11G11B10F(&vec);
-  HIDWORD(v6) = Vec3PackR11G11B10F(&v11);
-  if ( g_R_RT_renderTargetFmts[50] != GFX_PF_R11G11B10F && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2074, ASSERT_TYPE_ASSERT, "(R_RT_PixelFormatFromRenderTargetFormat( GFX_RENDERTARGET_FORMAT_EFFECT_LIGHTING_FOG ) == GFX_PF_R11G11B10F)", (const char *)&queryFormat, "R_RT_PixelFormatFromRenderTargetFormat( GFX_RENDERTARGET_FORMAT_EFFECT_LIGHTING_FOG ) == GFX_PF_R11G11B10F", v6) )
+  _XMM0 = 0i64;
+  vec.v[0] = 0.0;
+  vec.v[1] = 0.0;
+  vec.v[2] = 0.0;
+  v7.v[0] = FLOAT_1_0;
+  v7.v[1] = FLOAT_1_0;
+  v7.v[2] = FLOAT_1_0;
+  LODWORD(v2) = Vec3PackR11G11B10F(&vec);
+  HIDWORD(v2) = Vec3PackR11G11B10F(&v7);
+  if ( g_R_RT_renderTargetFmts[50] != GFX_PF_R11G11B10F && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2074, ASSERT_TYPE_ASSERT, "(R_RT_PixelFormatFromRenderTargetFormat( GFX_RENDERTARGET_FORMAT_EFFECT_LIGHTING_FOG ) == GFX_PF_R11G11B10F)", (const char *)&queryFormat, "R_RT_PixelFormatFromRenderTargetFormat( GFX_RENDERTARGET_FORMAT_EFFECT_LIGHTING_FOG ) == GFX_PF_R11G11B10F", v2) )
     __debugbreak();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+300F0h+var_30098+8], xmm0
-  }
-  data.data[0][0] = (const unsigned __int8 *)&v6;
-  *(__int64 *)((char *)&v7.m256i_i64[1] + 4) = 2i64;
-  data.data[0][1] = (const unsigned __int8 *)&v6 + 4;
-  v8.m256i_i32[6] = -1;
-  v8.m256i_i64[0] = 0i64;
-  __asm { vmovups ymm1, ymmword ptr [rsp+300F0h+var_30098] }
-  v7.m256i_i32[6] = g_R_RT_renderTargetFmts[50];
-  v7.m256i_i32[0] = 1;
-  *(__int64 *)((char *)v7.m256i_i64 + 4) = 0x100000001i64;
-  v7.m256i_i32[5] = 131075;
-  __asm
-  {
-    vmovups ymm0, [rsp+300F0h+var_300B8]
-    vmovups ymmword ptr [rbp+2FFF0h+params.width], ymm0
-    vmovups ymmword ptr [rbp+2FFF0h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v4.m256i_u64[1] = _XMM0;
+  data.data[0][0] = (const unsigned __int8 *)&v2;
+  *(__int64 *)((char *)&v3.m256i_i64[1] + 4) = 2i64;
+  data.data[0][1] = (const unsigned __int8 *)&v2 + 4;
+  v4.m256i_i32[6] = -1;
+  v4.m256i_i64[0] = 0i64;
+  v3.m256i_i32[6] = g_R_RT_renderTargetFmts[50];
+  v3.m256i_i32[0] = 1;
+  *(__int64 *)((char *)v3.m256i_i64 + 4) = 0x100000001i64;
+  v3.m256i_i32[5] = 131075;
+  *(__m256i *)&params.width = v3;
+  *(__m256i *)&params.customAllocFunc = v4;
   s_defaultFogLightmapImage = Image_AllocProg(IMAGE_PROG_DEFAULT_FOG_LIGHTMAP, IMG_CATEGORY_RAW, TS_FUNCTION);
   Image_SetupWithData(s_defaultFogLightmapImage, &params, &data);
 }
@@ -1206,179 +1123,125 @@ R_InitDefaultImages
 
 void __fastcall R_InitDefaultImages(double _XMM0_8)
 {
-  _DWORD *v10; 
-  __int64 v11; 
-  char *v15; 
-  __int64 v16; 
-  int v24[4]; 
-  Image_SetupParams v25; 
-  Image_SetupParams v26; 
-  _OWORD v27[4]; 
+  int *p_depth; 
+  __int64 v5; 
+  char *v7; 
+  __int64 v8; 
+  int v12[4]; 
+  Image_SetupParams v13; 
+  Image_SetupParams v14; 
+  Image_SetupParams v15; 
 
   if ( s_default2DImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1975, ASSERT_TYPE_SANITY, "( !s_default2DImage )", (const char *)&queryFormat, "!s_default2DImage") )
     __debugbreak();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+10h+var_30+8], xmm0
-  }
-  *(_QWORD *)&v27[2] = 0i64;
-  *(_QWORD *)((char *)v27 + 12) = 1i64;
-  DWORD2(v27[3]) = -1;
-  __asm { vmovups ymm1, [rbp+10h+var_30] }
-  LODWORD(v27[0]) = 1;
-  *(_QWORD *)((char *)v27 + 4) = 0x100000001i64;
-  *(_QWORD *)((char *)&v27[1] + 4) = 0x600000003i64;
-  __asm
-  {
-    vmovups ymm0, [rbp+10h+var_50]
-    vmovups [rsp+110h+var_D0], ymm0
-    vmovups [rsp+110h+var_B0], ymm1
-  }
-  v24[0] = 0;
-  s_default2DImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_2D, &v25, v24);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v15.customAllocUserData = _XMM0;
+  v15.customAllocFunc = NULL;
+  *(_QWORD *)&v15.numElements = 1i64;
+  v15.textureLayoutOverride = -1;
+  v15.width = 1;
+  *(_QWORD *)&v15.height = 0x100000001i64;
+  *(_QWORD *)&v15.flags = 0x600000003i64;
+  v13 = v15;
+  v12[0] = 0;
+  s_default2DImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_2D, &v13, v12);
   if ( s_default1DImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1962, ASSERT_TYPE_SANITY, "( !s_default1DImage )", (const char *)&queryFormat, "!s_default1DImage") )
     __debugbreak();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+var_B0+8], xmm0
-  }
-  v25.height = 1;
-  v25.depth = 1;
-  *(_QWORD *)&v25.numElements = 1i64;
-  v25.customAllocFunc = NULL;
-  v25.textureLayoutOverride = -1;
-  __asm { vmovups ymm1, [rsp+110h+var_B0] }
-  v25.width = 4;
-  v25.flags = IMG_DISK_FLAG_MAPTYPE_1D|IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
-  v25.format = GFX_PF_R8G8B8A8;
-  __asm
-  {
-    vmovups ymm0, [rsp+110h+var_D0]
-    vmovups [rbp+10h+var_90], ymm0
-    vmovups [rbp+10h+var_70], ymm1
-  }
-  v27[0] = 0ui64;
-  s_default1DImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_1D, &v26, v27);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.customAllocUserData = _XMM0;
+  v13.height = 1;
+  v13.depth = 1;
+  *(_QWORD *)&v13.numElements = 1i64;
+  v13.customAllocFunc = NULL;
+  v13.textureLayoutOverride = -1;
+  v13.width = 4;
+  v13.flags = IMG_DISK_FLAG_MAPTYPE_1D|IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
+  v13.format = GFX_PF_R8G8B8A8;
+  v14 = v13;
+  *(_OWORD *)&v15.width = 0ui64;
+  s_default1DImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_1D, &v14, &v15);
   if ( s_defaultUIntImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 1988, ASSERT_TYPE_SANITY, "( !s_defaultUIntImage )", (const char *)&queryFormat, "!s_defaultUIntImage") )
     __debugbreak();
-  v25.depth = 1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+var_B0+8], xmm0
-  }
-  *(_QWORD *)&v25.numElements = 1i64;
-  v25.customAllocFunc = NULL;
-  v25.textureLayoutOverride = -1;
-  __asm { vmovups ymm1, [rsp+110h+var_B0] }
-  v25.width = 4;
-  v25.height = 4;
-  v25.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
-  v25.format = GFX_PF_R32_UINT;
-  __asm
-  {
-    vmovups ymm0, [rsp+110h+var_D0]
-    vmovups [rbp+10h+var_90], ymm0
-    vmovups [rbp+10h+var_70], ymm1
-  }
-  memset(v27, 0, sizeof(v27));
-  s_defaultUIntImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_UINT, &v26, v27);
+  v13.depth = 1;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.customAllocUserData = _XMM0;
+  *(_QWORD *)&v13.numElements = 1i64;
+  v13.customAllocFunc = NULL;
+  v13.textureLayoutOverride = -1;
+  v13.width = 4;
+  v13.height = 4;
+  v13.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
+  v13.format = GFX_PF_R32_UINT;
+  v14 = v13;
+  memset(&v15, 0, sizeof(v15));
+  s_defaultUIntImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_UINT, &v14, &v15);
   if ( s_defaultVelocityImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2002, ASSERT_TYPE_SANITY, "( !s_defaultVelocityImage )", (const char *)&queryFormat, "!s_defaultVelocityImage") )
     __debugbreak();
-  v10 = (_DWORD *)v27 + 2;
-  v11 = 4i64;
+  p_depth = &v15.depth;
+  v5 = 4i64;
   do
   {
-    *(v10 - 2) = -136315905;
-    *(v10 - 1) = -136315905;
-    *v10 = -136315905;
-    v10[1] = -136315905;
-    v10 += 4;
-    --v11;
+    *(p_depth - 2) = -136315905;
+    *(p_depth - 1) = -136315905;
+    *p_depth = -136315905;
+    p_depth[1] = -136315905;
+    p_depth += 4;
+    --v5;
   }
-  while ( v11 );
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+var_B0+8], xmm0
-  }
-  v25.format = g_R_RT_renderTargetFmts[35];
-  v25.depth = 1;
-  *(_QWORD *)&v25.numElements = 1i64;
-  v25.customAllocFunc = NULL;
-  v25.textureLayoutOverride = -1;
-  __asm { vmovups ymm1, [rsp+110h+var_B0] }
-  v25.width = 4;
-  v25.height = 4;
-  v25.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
-  __asm
-  {
-    vmovups ymm0, [rsp+110h+var_D0]
-    vmovups [rbp+10h+var_90], ymm0
-    vmovups [rbp+10h+var_70], ymm1
-  }
-  s_defaultVelocityImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_VELOCITY, &v26, v27);
+  while ( v5 );
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.customAllocUserData = _XMM0;
+  v13.format = g_R_RT_renderTargetFmts[35];
+  v13.depth = 1;
+  *(_QWORD *)&v13.numElements = 1i64;
+  v13.customAllocFunc = NULL;
+  v13.textureLayoutOverride = -1;
+  v13.width = 4;
+  v13.height = 4;
+  v13.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
+  v14 = v13;
+  s_defaultVelocityImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_VELOCITY, &v14, &v15);
   if ( s_defaultGtaoImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2027, ASSERT_TYPE_SANITY, "( !s_defaultGtaoImage )", (const char *)&queryFormat, "!s_defaultGtaoImage") )
     __debugbreak();
-  v15 = (char *)v27 + 3;
-  v16 = 4i64;
+  v7 = (char *)&v15.width + 3;
+  v8 = 4i64;
   do
   {
-    *(_DWORD *)(v15 - 3) = 8913032;
-    *(_DWORD *)(v15 + 1) = 8913032;
-    v15 += 8;
-    --v16;
+    *(_DWORD *)(v7 - 3) = 8913032;
+    *(_DWORD *)(v7 + 1) = 8913032;
+    v7 += 8;
+    --v8;
   }
-  while ( v16 );
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+var_B0+8], xmm0
-  }
-  v25.format = g_R_RT_renderTargetFmts[39];
-  v25.depth = 1;
-  *(_QWORD *)&v25.numElements = 1i64;
-  v25.customAllocFunc = NULL;
-  v25.textureLayoutOverride = -1;
-  __asm { vmovups ymm1, [rsp+110h+var_B0] }
-  v25.width = 4;
-  v25.height = 4;
-  v25.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
-  __asm
-  {
-    vmovups ymm0, [rsp+110h+var_D0]
-    vmovups [rbp+10h+var_90], ymm0
-    vmovups [rbp+10h+var_70], ymm1
-  }
-  s_defaultGtaoImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_GTAO, &v26, v27);
+  while ( v8 );
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.customAllocUserData = _XMM0;
+  v13.format = g_R_RT_renderTargetFmts[39];
+  v13.depth = 1;
+  *(_QWORD *)&v13.numElements = 1i64;
+  v13.customAllocFunc = NULL;
+  v13.textureLayoutOverride = -1;
+  v13.width = 4;
+  v13.height = 4;
+  v13.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
+  v14 = v13;
+  s_defaultGtaoImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_GTAO, &v14, &v15);
   if ( s_defaultWaveWaterFloatZImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image.cpp", 2050, ASSERT_TYPE_SANITY, "( !s_defaultWaveWaterFloatZImage )", (const char *)&queryFormat, "!s_defaultWaveWaterFloatZImage") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@4cbbc130
-    vmovss  [rsp+110h+var_E0], xmm0
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+var_B0+8], xmm0
-  }
-  v25.format = g_R_RT_renderTargetFmts[41];
-  v25.depth = 1;
-  *(_QWORD *)&v25.numElements = 1i64;
-  v25.customAllocFunc = NULL;
-  v25.textureLayoutOverride = -1;
-  __asm { vmovups ymm1, [rsp+110h+var_B0] }
-  v25.width = 1;
-  v25.height = 1;
-  v25.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
-  __asm
-  {
-    vmovups ymm0, [rsp+110h+var_D0]
-    vmovups [rbp+10h+var_90], ymm0
-    vmovups [rbp+10h+var_70], ymm1
-  }
-  s_defaultWaveWaterFloatZImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_WAVE_WATER_FLOATZ, &v26, v24);
-  R_InitDefaultFogLightmapImage(*(double *)&_XMM0);
+  _XMM0 = LODWORD(FLOAT_9_8437504e7);
+  *(float *)v12 = FLOAT_9_8437504e7;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.customAllocUserData = _XMM0;
+  v13.format = g_R_RT_renderTargetFmts[41];
+  v13.depth = 1;
+  *(_QWORD *)&v13.numElements = 1i64;
+  v13.customAllocFunc = NULL;
+  v13.textureLayoutOverride = -1;
+  v13.width = 1;
+  v13.height = 1;
+  v13.flags = IMG_DISK_FLAG_NOMIPMAPS|IMG_DISK_FLAG_NOPICMIP;
+  v14 = v13;
+  s_defaultWaveWaterFloatZImage = R_CreateDefaultProgImage(IMAGE_PROG_DEFAULT_WAVE_WATER_FLOATZ, &v14, v12);
+  R_InitDefaultFogLightmapImage();
 }
 
 /*

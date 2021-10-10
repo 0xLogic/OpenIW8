@@ -299,19 +299,18 @@ void GAntiLag::AntiLagSceneEnt(GAntiLag *this, int entIndex, int gameTime, unsig
   const BgAntiLagEntityHistory *EntityDataFromIndex; 
   const BgAntiLagEntityHistory *v12; 
   BgAntiLagRewindEntity *v13; 
+  bool v14; 
   bool v15; 
-  bool v16; 
   __int64 m_numPhysicsCharacterRestoreStates; 
   unsigned int m_numPhysicsObjectRestoreStates; 
-  float fmt; 
   __int64 entIndexa; 
   __int64 contextFlagsa; 
   vec3_t outOrigin; 
   vec3_t destPosition; 
-  __int64 v24; 
+  __int64 v22; 
   BgAntiLagEntityInfo outData; 
 
-  v24 = -2i64;
+  v22 = -2i64;
   v8 = entIndex;
   if ( !startFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 70, ASSERT_TYPE_ASSERT, "( startFrame )", (const char *)&queryFormat, "startFrame") )
     __debugbreak();
@@ -346,27 +345,22 @@ LABEL_18:
         v13 = this->AllocNewRewindEnt(this, (unsigned int)v8);
         outData.boneInfo.boneList.m_usedSize = 0;
         outData.boneInfo.boneList.m_maxSize = 0;
-        __asm
-        {
-          vmovss  xmm0, [rsp+148h+progress]
-          vmovss  dword ptr [rsp+148h+fmt], xmm0
-        }
-        BgAntiLag::BlendEntity(this, startFrame, endFrame, NULL, fmt, v8, contextFlags, &outData);
+        BgAntiLag::BlendEntity(this, startFrame, endFrame, NULL, progress, v8, contextFlags, &outData);
         BgAntiLag::CopyPosition(this, v8, &v10->r.currentOrigin, &v10->r.currentAngles, &destPosition, &v13->angles);
         BgAntiLagEntity_SetOrigin(v13, &destPosition);
         BgAntiLagEntity_GetOrigin(&outData, &outOrigin);
         BgAntiLag::CopyPosition(this, v8, &outOrigin, &outData.angles, &v10->r.currentOrigin, &v10->r.currentAngles);
         if ( v10->r.isInUse && (contextFlags & 0x400) != 0 )
         {
-          v15 = (contextFlags & 0x800) != 0;
-          v16 = (contextFlags & 0x1000) != 0;
+          v14 = (contextFlags & 0x800) != 0;
+          v15 = (contextFlags & 0x1000) != 0;
           if ( BG_IsCharacterEntity(&v10->s) )
           {
             if ( this->m_numPhysicsCharacterRestoreStates + 2 >= 0x1F0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 822, ASSERT_TYPE_ASSERT, "( m_numPhysicsCharacterRestoreStates + 2 < PHYSICS_CHARACTERPROXY_MAXNUMCHARACTERS_RESTORE_STATES )", "Too many physics characters being anti-lagged at once; either don't rewind both detail and world or bump the limit.") )
               __debugbreak();
             m_numPhysicsCharacterRestoreStates = this->m_numPhysicsCharacterRestoreStates;
             if ( (unsigned int)(m_numPhysicsCharacterRestoreStates + 2) < 0x1F0 )
-              this->m_numPhysicsCharacterRestoreStates += G_PhysicsCharacterProxy_AntilagTeleport(v10, v15, v16, &this->m_physicsCharacterRestoreStates[m_numPhysicsCharacterRestoreStates]);
+              this->m_numPhysicsCharacterRestoreStates += G_PhysicsCharacterProxy_AntilagTeleport(v10, v14, v15, &this->m_physicsCharacterRestoreStates[m_numPhysicsCharacterRestoreStates]);
           }
           else
           {
@@ -374,7 +368,7 @@ LABEL_18:
               __debugbreak();
             m_numPhysicsObjectRestoreStates = this->m_numPhysicsObjectRestoreStates;
             if ( m_numPhysicsObjectRestoreStates + 2 < 0x800 )
-              this->m_numPhysicsObjectRestoreStates += G_PhysicsObject_AntilagWarp(v10, v15, v16, &this->m_physicsObjectRestoreStates[(unsigned __int64)m_numPhysicsObjectRestoreStates]);
+              this->m_numPhysicsObjectRestoreStates += G_PhysicsObject_AntilagWarp(v10, v14, v15, &this->m_physicsObjectRestoreStates[(unsigned __int64)m_numPhysicsObjectRestoreStates]);
           }
           SV_LinkEntity(v10);
         }
@@ -510,181 +504,141 @@ GAntiLag::EntityStateToAntiLagEntity
 */
 __int64 GAntiLag::EntityStateToAntiLagEntity(GAntiLag *this, int entityIndex, BgAntiLagEntity *entData, bool allowPSAccess)
 {
+  gentity_s *v8; 
   unsigned __int8 v9; 
   const playerState_s *EntityPlayerStateConst; 
   const playerState_s *v11; 
   unsigned int v12; 
+  float *p_commandTime; 
+  vec3_t *p_angles; 
+  float v15; 
   GHandler *Handler; 
-  float v24; 
-  float v25; 
+  gclient_s *client; 
+  float v18; 
+  trajectory_t_secure *p_pos; 
+  float v20; 
+  float v21; 
   int suitIndex; 
-  _DWORD *doorAngle; 
-  DoorMoveType *p_moveType; 
-  __int64 v40; 
-  __int64 v41; 
+  float *doorAngle; 
+  float *p_moveType; 
+  __int64 v26; 
+  __int64 v27; 
   vec3_t origin; 
-  __int64 v43[2]; 
-  WorldUpReferenceFrame v44; 
+  __int64 v29[2]; 
+  WorldUpReferenceFrame v30; 
 
-  v43[1] = -2i64;
-  _RBX = entData;
+  v29[1] = -2i64;
   if ( !entData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 495, ASSERT_TYPE_ASSERT, "(entData)", (const char *)&queryFormat, "entData") )
     __debugbreak();
   if ( (unsigned int)entityIndex >= 0x800 )
   {
-    LODWORD(v40) = entityIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 496, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v40, 2048) )
+    LODWORD(v26) = entityIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 496, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v26, 2048) )
       __debugbreak();
   }
-  *(_QWORD *)_RBX->origin.origin.v = 0i64;
-  *(_QWORD *)&_RBX->origin.origin.z = 0i64;
-  *(_QWORD *)&_RBX->angles.y = 0i64;
-  *(_QWORD *)&_RBX->flags = 0i64;
-  *(_QWORD *)&_RBX->doorAngle[1] = 0i64;
-  *(_QWORD *)&_RBX->doorIndex[1] = 0i64;
-  _RDI = &g_entities[entityIndex];
-  if ( _RDI->r.isInUse )
+  *(_QWORD *)entData->origin.origin.v = 0i64;
+  *(_QWORD *)&entData->origin.origin.z = 0i64;
+  *(_QWORD *)&entData->angles.y = 0i64;
+  *(_QWORD *)&entData->flags = 0i64;
+  *(_QWORD *)&entData->doorAngle[1] = 0i64;
+  *(_QWORD *)&entData->doorIndex[1] = 0i64;
+  v8 = &g_entities[entityIndex];
+  if ( v8->r.isInUse )
   {
-    BgAntiLag::EntityStateToAntiLagEntityInternal(this, &g_entities[entityIndex].s, _RBX);
+    BgAntiLag::EntityStateToAntiLagEntityInternal(this, &g_entities[entityIndex].s, entData);
     if ( (entityIndex < 0 || (unsigned int)entityIndex > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)entityIndex, "signed", entityIndex) )
       __debugbreak();
-    _RBX->entityIndex = entityIndex;
-    if ( G_Weapon_EntityHasShield(_RDI) )
-      _RBX->flags |= 4u;
-    if ( !allowPSAccess || (EntityPlayerStateConst = G_GetEntityPlayerStateConst(_RDI), (v11 = EntityPlayerStateConst) == NULL) )
+    entData->entityIndex = entityIndex;
+    if ( G_Weapon_EntityHasShield(v8) )
+      entData->flags |= 4u;
+    if ( !allowPSAccess || (EntityPlayerStateConst = G_GetEntityPlayerStateConst(v8), (v11 = EntityPlayerStateConst) == NULL) )
     {
-      _RBX->angles.v[0] = _RDI->r.currentAngles.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+140h]
-        vmovss  dword ptr [rbx+10h], xmm0
-        vmovss  xmm1, dword ptr [rdi+144h]
-        vmovss  dword ptr [rbx+14h], xmm1
-        vmovss  xmm0, dword ptr [rdi+130h]
-        vmovss  dword ptr [rsp+0D8h+origin], xmm0
-        vmovss  xmm1, dword ptr [rdi+134h]
-        vmovss  dword ptr [rsp+0D8h+origin+4], xmm1
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vmovss  dword ptr [rsp+0D8h+origin+8], xmm0
-      }
+      entData->angles.v[0] = v8->r.currentAngles.v[0];
+      entData->angles.v[1] = v8->r.currentAngles.v[1];
+      entData->angles.v[2] = v8->r.currentAngles.v[2];
+      origin = v8->r.currentOrigin;
 LABEL_54:
-      BgAntiLagEntity_SetOrigin(_RBX, &origin);
+      BgAntiLagEntity_SetOrigin(entData, &origin);
       v9 = 1;
       goto LABEL_55;
     }
     v12 = 0;
-    if ( BG_IsPlayerLinked(EntityPlayerStateConst) && (_RCX = _RDI->client) != NULL )
+    if ( BG_IsPlayerLinked(EntityPlayerStateConst) && (p_commandTime = (float *)&v8->client->ps.commandTime) != NULL )
     {
-      _R14 = &_RBX->angles;
-      _RBX->angles.v[0] = _RCX->linkModelAngles.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+0FA34h]
-        vmovss  dword ptr [r14+4], xmm0
-        vmovss  xmm1, dword ptr [rcx+0FA38h]
-        vmovss  dword ptr [r14+8], xmm1
-      }
+      p_angles = &entData->angles;
+      entData->angles.v[0] = p_commandTime[16012];
+      entData->angles.v[1] = p_commandTime[16013];
+      entData->angles.v[2] = p_commandTime[16014];
     }
     else
     {
       if ( !BG_IsTurretActive(v11) || BG_Turret_IsUsingNonRemoteTurretAndUnlinked(v11) )
-        __asm { vmovss  xmm0, dword ptr [rdi+44h] }
+        v15 = v8->s.lerp.apos.trBase.v[1];
       else
-        __asm { vmovss  xmm0, dword ptr [rdi+140h] }
-      _R14 = &_RBX->angles;
-      _RBX->angles.v[2] = 0.0;
-      __asm { vmovss  dword ptr [r14+4], xmm0 }
-      _RBX->angles.v[0] = 0.0;
+        v15 = v8->r.currentAngles.v[1];
+      p_angles = &entData->angles;
+      entData->angles.v[2] = 0.0;
+      entData->angles.v[1] = v15;
+      entData->angles.v[0] = 0.0;
     }
     Handler = GHandler::getHandler();
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v44, v11, Handler);
-    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v44, _R14);
-    if ( BG_IsPlayerLinked(v11) && (_RAX = _RDI->client) != NULL )
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v30, v11, Handler);
+    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v30, p_angles);
+    if ( BG_IsPlayerLinked(v11) && (client = v8->client) != NULL )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+0FA24h]
-        vmovss  dword ptr [rsp+0D8h+origin], xmm0
-        vmovss  xmm1, dword ptr [rax+0FA28h]
-        vmovss  dword ptr [rsp+0D8h+origin+4], xmm1
-        vmovss  xmm0, dword ptr [rax+0FA2Ch]
-      }
+      *(_QWORD *)origin.v = *(_QWORD *)client->linkModelOrigin.v;
+      v18 = client->linkModelOrigin.v[2];
     }
     else
     {
-      _RDI = &_RDI->s.lerp.pos;
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+      p_pos = &v8->s.lerp.pos;
+      if ( !p_pos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
         __debugbreak();
-      if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+      if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
       {
-        v43[0] = (__int64)&origin;
-        v24 = _RDI->trBase.v[0];
-        v25 = _RDI->trBase.v[1];
-        LODWORD(origin.v[2]) = s_trbase_aab_Z ^ LODWORD(v25) ^ LODWORD(_RDI->trBase.v[2]);
-        LODWORD(origin.v[1]) = s_trbase_aab_Y ^ LODWORD(v24) ^ LODWORD(v25);
-        LODWORD(origin.v[0]) = LODWORD(v24) ^ ~s_trbase_aab_X;
-        memset(v43, 0, 8ui64);
-        __asm
+        v29[0] = (__int64)&origin;
+        v20 = p_pos->trBase.v[0];
+        v21 = p_pos->trBase.v[1];
+        LODWORD(origin.v[2]) = s_trbase_aab_Z ^ LODWORD(v21) ^ LODWORD(p_pos->trBase.v[2]);
+        LODWORD(origin.v[1]) = s_trbase_aab_Y ^ LODWORD(v20) ^ LODWORD(v21);
+        LODWORD(origin.v[0]) = LODWORD(v20) ^ ~s_trbase_aab_X;
+        memset(v29, 0, 8ui64);
+        *(float *)v29 = origin.v[0];
+        if ( (LODWORD(origin.v[0]) & 0x7F800000) == 2139095040 || (*(float *)v29 = origin.v[1], (LODWORD(origin.v[1]) & 0x7F800000) == 2139095040) || (*(float *)v29 = origin.v[2], (LODWORD(origin.v[2]) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rsp+0D8h+origin]
-          vmovss  dword ptr [rsp+0D8h+var_78], xmm0
-        }
-        if ( (v43[0] & 0x7F800000) == 2139095040 )
-          goto LABEL_58;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0D8h+origin+4]
-          vmovss  dword ptr [rsp+0D8h+var_78], xmm0
-        }
-        if ( (v43[0] & 0x7F800000) == 2139095040 )
-          goto LABEL_58;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0D8h+origin+8]
-          vmovss  dword ptr [rsp+0D8h+var_78], xmm0
-        }
-        if ( (v43[0] & 0x7F800000) == 2139095040 )
-        {
-LABEL_58:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
             __debugbreak();
         }
         goto LABEL_39;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  dword ptr [rsp+0D8h+origin], xmm0
-        vmovss  xmm1, dword ptr [rdi+10h]
-        vmovss  dword ptr [rsp+0D8h+origin+4], xmm1
-        vmovss  xmm0, dword ptr [rdi+14h]
-      }
+      *(_QWORD *)origin.v = *(_QWORD *)p_pos->trBase.v;
+      v18 = p_pos->trBase.v[2];
     }
-    __asm { vmovss  dword ptr [rsp+0D8h+origin+8], xmm0 }
+    origin.v[2] = v18;
 LABEL_39:
     if ( NetConstStrings_GetCountForType(NETCONSTSTRINGTYPE_SUIT) > 0xFF )
     {
-      LODWORD(v41) = 255;
-      LODWORD(v40) = NetConstStrings_GetCountForType(NETCONSTSTRINGTYPE_SUIT);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 546, ASSERT_TYPE_ASSERT, "( NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) ) <= ( 0xffui8 )", "NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) not in [0, UINT8_MAX]\n\t%u not in [0, %u]", v40, v41) )
+      LODWORD(v27) = 255;
+      LODWORD(v26) = NetConstStrings_GetCountForType(NETCONSTSTRINGTYPE_SUIT);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 546, ASSERT_TYPE_ASSERT, "( NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) ) <= ( 0xffui8 )", "NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) not in [0, UINT8_MAX]\n\t%u not in [0, %u]", v26, v27) )
         __debugbreak();
     }
     suitIndex = v11->suitIndex;
     if ( (suitIndex < 0 || (unsigned int)suitIndex > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)suitIndex, "signed", suitIndex) )
       __debugbreak();
-    _RBX->suitIndex = suitIndex;
-    doorAngle = (_DWORD *)_RBX->doorAngle;
-    p_moveType = &v11->doorState[0].moveType;
+    entData->suitIndex = suitIndex;
+    doorAngle = entData->doorAngle;
+    p_moveType = (float *)&v11->doorState[0].moveType;
     do
     {
-      doorAngle[2] = *((_DWORD *)p_moveType - 3);
-      *doorAngle = *((_DWORD *)p_moveType - 2);
-      if ( *p_moveType )
+      doorAngle[2] = *(p_moveType - 3);
+      *doorAngle = *(p_moveType - 2);
+      if ( *(_DWORD *)p_moveType )
       {
         if ( v12 )
-          _RBX->flags |= 0x40u;
+          entData->flags |= 0x40u;
         else
-          _RBX->flags |= 0x20u;
+          entData->flags |= 0x20u;
       }
       ++v12;
       ++doorAngle;
@@ -856,169 +810,161 @@ GAntiLag::MarkEntitiesForArchiving
 */
 void GAntiLag::MarkEntitiesForArchiving(GAntiLag *this, BgAntiLagFrameHistory *frame)
 {
-  const char *v6; 
-  __int64 v7; 
-  __int64 v8; 
+  const char *v3; 
+  __int64 v4; 
+  __int64 v5; 
   const char *MapName; 
+  char v7; 
+  __int64 v8; 
+  char v9; 
   char v10; 
-  __int64 v11; 
-  char v12; 
-  char v13; 
   unsigned int i; 
-  gentity_s *v15; 
+  gentity_s *v12; 
   playerState_s *EntityPlayerState; 
-  const char *v17; 
-  __int64 v18; 
-  char v19; 
-  __int64 v20; 
-  char v21; 
-  const char *v22; 
-  char v23; 
+  const char *v14; 
+  __int64 v15; 
+  char v16; 
+  __int64 v17; 
+  char v18; 
+  const char *v19; 
+  char v20; 
+  __int64 v21; 
+  char v22; 
+  const char *v23; 
   __int64 v24; 
   char v25; 
-  const char *v26; 
-  __int64 v27; 
-  char v28; 
-  __int64 v29; 
-  char v30; 
-  __int64 v31; 
-  unsigned int v33; 
-  __int64 v34; 
-  gentity_s *v36; 
+  __int64 v26; 
+  char v27; 
+  __int64 v28; 
+  unsigned int v29; 
+  __int64 v30; 
+  gentity_s *v31; 
   entityType_s eType; 
-  playerState_s *v38; 
+  playerState_s *v33; 
   int entity; 
   __int16 linkEnt; 
   gentity_s *GEntity; 
   bool IsVehicleEntity; 
-  int v43; 
+  int v38; 
   __int16 viewlocked_entNum; 
   unsigned __int16 number; 
+  __int64 v41; 
+  unsigned int v42; 
+  __int64 v43; 
+  unsigned __int16 v44; 
+  __int64 v45; 
   __int64 v46; 
-  unsigned int v47; 
-  __int64 v48; 
-  unsigned __int16 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  int v52; 
-  entityType_s v53; 
+  int v47; 
+  entityType_s v48; 
   const float *v; 
-  int v56; 
-  const dvar_t *v57; 
-  G_PhysicsObject *v58; 
-  unsigned int v59; 
-  unsigned int v60; 
+  int v50; 
+  const dvar_t *v51; 
+  G_PhysicsObject *v52; 
+  unsigned int v53; 
+  unsigned int v54; 
   int NumRigidBodys; 
   unsigned int m_serialAndIndex; 
   int RigidBodyContents; 
-  int v64; 
-  __int64 v68; 
-  __int64 v69; 
-  char v70; 
-  unsigned int v71; 
-  __int64 v72; 
+  int v58; 
+  __int64 v59; 
+  __int64 v60; 
+  char v61; 
+  unsigned int v62; 
+  __int64 v63; 
   int outIgnoreEntIndex; 
   hknpBodyId result; 
   BgAntiLagFrameHistory *framea; 
   float v1[4]; 
   vec3_t outOrigin; 
-  char v78; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
   framea = frame;
   if ( !frame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 577, ASSERT_TYPE_ASSERT, "(frame)", (const char *)&queryFormat, "frame") )
     __debugbreak();
-  v6 = "mp_donetsk";
-  v7 = 10i64;
-  v8 = 10i64;
+  v3 = "mp_donetsk";
+  v4 = 10i64;
+  v5 = 10i64;
   MapName = SV_Game_GetMapName();
   if ( !MapName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
   do
   {
-    v10 = v6[MapName - "mp_donetsk"];
-    v11 = v8;
-    v12 = *v6++;
-    --v8;
-    if ( !v11 )
+    v7 = v3[MapName - "mp_donetsk"];
+    v8 = v5;
+    v9 = *v3++;
+    --v5;
+    if ( !v8 )
       break;
-    if ( v10 != v12 )
+    if ( v7 != v9 )
     {
-      v17 = "mp_br_sector";
-      v18 = 12i64;
+      v14 = "mp_br_sector";
+      v15 = 12i64;
       if ( !MapName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       while ( 1 )
       {
-        v19 = v17[MapName - "mp_br_sector"];
-        v20 = v18;
-        v21 = *v17++;
-        --v18;
-        if ( !v20 )
+        v16 = v14[MapName - "mp_br_sector"];
+        v17 = v15;
+        v18 = *v14++;
+        --v15;
+        if ( !v17 )
           goto LABEL_10;
-        if ( v19 != v21 )
+        if ( v16 != v18 )
         {
-          v22 = "mp_kstenod";
+          v19 = "mp_kstenod";
           if ( !MapName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
             __debugbreak();
           while ( 1 )
           {
-            v23 = v22[MapName - "mp_kstenod"];
-            v24 = v7;
-            v25 = *v22++;
-            --v7;
-            if ( !v24 )
+            v20 = v19[MapName - "mp_kstenod"];
+            v21 = v4;
+            v22 = *v19++;
+            --v4;
+            if ( !v21 )
               goto LABEL_10;
-            if ( v23 != v25 )
+            if ( v20 != v22 )
             {
-              v26 = "mp_don";
-              v27 = 6i64;
+              v23 = "mp_don";
+              v24 = 6i64;
               if ( !MapName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                 __debugbreak();
               do
               {
-                v28 = v26[MapName - "mp_don"];
-                v29 = v27;
-                v30 = *v26++;
-                --v27;
-                if ( !v29 )
+                v25 = v23[MapName - "mp_don"];
+                v26 = v24;
+                v27 = *v23++;
+                --v24;
+                if ( !v26 )
                   break;
-                if ( v28 != v30 )
+                if ( v25 != v27 )
                   goto LABEL_48;
               }
-              while ( v28 );
-              v31 = -1i64;
+              while ( v25 );
+              v28 = -1i64;
               do
-                ++v31;
-              while ( MapName[v31] );
-              if ( (unsigned int)v31 <= 6 || (unsigned __int8)(MapName[6] - 48) > 9u )
+                ++v28;
+              while ( MapName[v28] );
+              if ( (unsigned int)v28 <= 6 || (unsigned __int8)(MapName[6] - 48) > 9u )
               {
 LABEL_48:
-                v13 = 0;
+                v10 = 0;
                 goto LABEL_11;
               }
               goto LABEL_10;
             }
-            if ( !v23 )
+            if ( !v20 )
               goto LABEL_10;
           }
         }
-        if ( !v19 )
+        if ( !v16 )
           goto LABEL_10;
       }
     }
   }
-  while ( v10 );
+  while ( v7 );
 LABEL_10:
-  v13 = 1;
+  v10 = 1;
 LABEL_11:
-  v70 = v13;
+  v61 = v10;
   if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT) )
   {
     for ( i = 0; ; ++i )
@@ -1027,10 +973,10 @@ LABEL_11:
         __debugbreak();
       if ( i >= ComCharacterLimits::ms_gameData.m_characterCount )
         break;
-      v15 = &g_entities[i];
-      if ( v15->r.isInUse )
+      v12 = &g_entities[i];
+      if ( v12->r.isInUse )
       {
-        EntityPlayerState = G_GetEntityPlayerState(v15);
+        EntityPlayerState = G_GetEntityPlayerState(v12);
         if ( EntityPlayerState )
         {
           if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 212, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
@@ -1039,173 +985,167 @@ LABEL_11:
         }
       }
     }
-    v13 = v70;
+    v10 = v61;
   }
-  __asm { vmovss  xmm7, cs:__real@3a83126f }
-  v33 = 0;
-  v71 = 0;
-  v34 = 0i64;
-  v72 = 0i64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v29 = 0;
+  v62 = 0;
+  v30 = 0i64;
+  v63 = 0i64;
   do
   {
-    v36 = &g_entities[v34];
-    if ( !v36->r.isInUse )
+    v31 = &g_entities[v30];
+    if ( !v31->r.isInUse )
       goto LABEL_148;
-    eType = v36->s.eType;
+    eType = v31->s.eType;
     if ( ((eType - 1) & 0xFFED) == 0 && eType != ET_ITEM )
     {
-      BgAntiLag::MarkPreArchiveFlag(this, v36->s.number, 3);
-      if ( v36->client )
+      BgAntiLag::MarkPreArchiveFlag(this, v31->s.number, 3);
+      if ( v31->client )
       {
-        v38 = G_GetEntityPlayerState(v36);
-        if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 638, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+        v33 = G_GetEntityPlayerState(v31);
+        if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 638, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        entity = v38->vehicleState.entity;
+        entity = v33->vehicleState.entity;
         if ( entity && entity != 2047 )
           BgAntiLag::MarkPreArchiveFlag(this, entity, 3);
-        linkEnt = v38->linkEnt;
+        linkEnt = v33->linkEnt;
         if ( linkEnt && linkEnt != 2047 )
         {
           GEntity = G_GetGEntity(linkEnt);
           IsVehicleEntity = BG_IsVehicleEntity(&GEntity->s);
-          v43 = 3;
+          v38 = 3;
           if ( !IsVehicleEntity )
-            v43 = 6;
-          BgAntiLag::MarkPreArchiveFlag(this, v38->linkEnt, v43);
+            v38 = 6;
+          BgAntiLag::MarkPreArchiveFlag(this, v33->linkEnt, v38);
         }
-        if ( BG_IsTurretActiveFlags(&v38->eFlags) )
+        if ( BG_IsTurretActiveFlags(&v33->eFlags) )
         {
-          viewlocked_entNum = v38->viewlocked_entNum;
+          viewlocked_entNum = v33->viewlocked_entNum;
           if ( viewlocked_entNum != 2047 )
             BgAntiLag::MarkPreArchiveFlag(this, viewlocked_entNum, 1);
         }
-        if ( BGMovingPlatforms::IsOnMovingPlatform(v38) )
-          BgAntiLag::MarkPreArchiveFlag(this, v38->movingPlatforms.m_movingPlatformEntity, 6);
-        BgAntiLag::GetAntilagPlayerOrigin(v38, &outIgnoreEntIndex, &outOrigin);
-        BgAntiLag::MarkBroadPhaseEntsForUpdate(this, framea, v38, &outOrigin, &v36->client->nearEntities);
+        if ( BGMovingPlatforms::IsOnMovingPlatform(v33) )
+          BgAntiLag::MarkPreArchiveFlag(this, v33->movingPlatforms.m_movingPlatformEntity, 6);
+        BgAntiLag::GetAntilagPlayerOrigin(v33, &outIgnoreEntIndex, &outOrigin);
+        BgAntiLag::MarkBroadPhaseEntsForUpdate(this, framea, v33, &outOrigin, &v31->client->nearEntities);
       }
       goto LABEL_148;
     }
-    if ( BG_IsTurretActiveFlags(&v36->s.lerp.eFlags) )
+    if ( BG_IsTurretActiveFlags(&v31->s.lerp.eFlags) )
     {
-      number = v36->r.ownerNum.number;
+      number = v31->r.ownerNum.number;
       if ( number )
       {
-        v46 = number;
-        v47 = number - 1;
-        if ( v47 >= 0x800 )
+        v41 = number;
+        v42 = number - 1;
+        if ( v42 >= 0x800 )
         {
-          LODWORD(v69) = 2048;
-          LODWORD(v68) = v47;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v68, v69) )
+          LODWORD(v60) = 2048;
+          LODWORD(v59) = v42;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v59, v60) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v48 = v46 - 1;
-        if ( g_entities[v48].r.isInUse != g_entityIsInUse[v48] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v43 = v41 - 1;
+        if ( g_entities[v43].r.isInUse != g_entityIsInUse[v43] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v48] )
+        if ( !g_entityIsInUse[v43] )
         {
-          LODWORD(v69) = v36->r.ownerNum.number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v69) )
+          LODWORD(v60) = v31->r.ownerNum.number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v60) )
             __debugbreak();
         }
-        v49 = v36->r.ownerNum.number;
-        if ( v49 )
+        v44 = v31->r.ownerNum.number;
+        if ( v44 )
         {
-          if ( (unsigned int)v49 - 1 >= 0x7FF )
+          if ( (unsigned int)v44 - 1 >= 0x7FF )
           {
-            LODWORD(v69) = 2047;
-            LODWORD(v68) = v49 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v68, v69) )
+            LODWORD(v60) = 2047;
+            LODWORD(v59) = v44 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v59, v60) )
               __debugbreak();
           }
-          v50 = v36->r.ownerNum.number;
-          if ( (unsigned int)(v50 - 1) >= 0x800 )
+          v45 = v31->r.ownerNum.number;
+          if ( (unsigned int)(v45 - 1) >= 0x800 )
           {
-            LODWORD(v69) = 2048;
-            LODWORD(v68) = v50 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v68, v69) )
+            LODWORD(v60) = 2048;
+            LODWORD(v59) = v45 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v59, v60) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          v51 = v50 - 1;
-          if ( g_entities[v51].r.isInUse != g_entityIsInUse[v51] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          v46 = v45 - 1;
+          if ( g_entities[v46].r.isInUse != g_entityIsInUse[v46] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[v51] )
+          if ( !g_entityIsInUse[v46] )
           {
-            LODWORD(v69) = v36->r.ownerNum.number - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v69) )
+            LODWORD(v60) = v31->r.ownerNum.number - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v60) )
               __debugbreak();
           }
-          if ( g_entities[v36->r.ownerNum.number - 1].client )
+          if ( g_entities[v31->r.ownerNum.number - 1].client )
           {
-            v52 = 4;
+            v47 = 4;
 LABEL_147:
-            BgAntiLag::MarkPreArchiveFlag(this, v36->s.number, v52);
+            BgAntiLag::MarkPreArchiveFlag(this, v31->s.number, v47);
             goto LABEL_148;
           }
         }
       }
       goto LABEL_148;
     }
-    v53 = v36->s.eType;
-    if ( v53 == ET_SCRIPTMOVER && v36->s.un.scriptMoverType == 1 )
+    v48 = v31->s.eType;
+    if ( v48 == ET_SCRIPTMOVER && v31->s.un.scriptMoverType == 1 )
     {
-      BgAntiLag::MarkPreArchiveFlag(this, v36->s.number, 11);
+      BgAntiLag::MarkPreArchiveFlag(this, v31->s.number, 11);
       goto LABEL_148;
     }
-    if ( ((v53 - 12) & 0xFFFD) == 0 )
+    if ( ((v48 - 12) & 0xFFFD) == 0 )
     {
-      if ( !v36->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 722, ASSERT_TYPE_ASSERT, "(ent->vehicle)", (const char *)&queryFormat, "ent->vehicle") )
+      if ( !v31->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 722, ASSERT_TYPE_ASSERT, "(ent->vehicle)", (const char *)&queryFormat, "ent->vehicle") )
         __debugbreak();
-      v = v36->vehicle->phys.vel.v;
-      __asm
+      v = v31->vehicle->phys.vel.v;
+      v1[0] = 0.0;
+      v1[1] = 0.0;
+      v1[2] = 0.0;
+      if ( !VecNCompareCustomEpsilon(v, v1, 0.001, 3) )
       {
-        vmovaps xmm2, xmm7; epsilon
-        vmovss  [rsp+0E8h+v1], xmm6
-        vmovss  [rsp+0E8h+var_84], xmm6
-        vmovss  [rsp+0E8h+var_80], xmm6
-      }
-      if ( !VecNCompareCustomEpsilon(v, v1, *(float *)&_XMM2, 3) )
-      {
-        v56 = v36->s.number;
-        if ( v13 )
-          BgAntiLag::MarkPreArchiveFlag(this, v56, 6);
+        v50 = v31->s.number;
+        if ( v10 )
+          BgAntiLag::MarkPreArchiveFlag(this, v50, 6);
         else
-          BgAntiLag::MarkPreArchiveFlag(this, v56, 3);
+          BgAntiLag::MarkPreArchiveFlag(this, v50, 3);
       }
       goto LABEL_148;
     }
-    if ( v53 == ET_SCRIPTMOVER && (v36->s.staticState.vehiclePlayer.playerIndex & 0x40) != 0 )
+    if ( v48 == ET_SCRIPTMOVER && (v31->s.staticState.vehiclePlayer.playerIndex & 0x40) != 0 )
     {
-      BgAntiLag::MarkPreArchiveFlag(this, v36->s.number, 3);
+      BgAntiLag::MarkPreArchiveFlag(this, v31->s.number, 3);
       goto LABEL_148;
     }
-    v57 = DCONST_DVARMPBOOL_antilagAutoIncludeMovers;
+    v51 = DCONST_DVARMPBOOL_antilagAutoIncludeMovers;
     if ( !DCONST_DVARMPBOOL_antilagAutoIncludeMovers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "antilagAutoIncludeMovers") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v57);
-    if ( v57->current.enabled )
+    Dvar_CheckFrontendServerThread(v51);
+    if ( v51->current.enabled )
     {
-      if ( v36->s.eType != ET_SCRIPTMOVER )
+      if ( v31->s.eType != ET_SCRIPTMOVER )
       {
-        if ( !BG_IsVehicleEntity(&v36->s) )
+        if ( !BG_IsVehicleEntity(&v31->s) )
           goto LABEL_148;
-        v52 = 6;
+        v47 = 6;
         goto LABEL_147;
       }
-      v58 = G_PhysicsObject_Get(v36);
-      if ( !v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 760, ASSERT_TYPE_ASSERT, "(physicsObj)", (const char *)&queryFormat, "physicsObj") )
+      v52 = G_PhysicsObject_Get(v31);
+      if ( !v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 760, ASSERT_TYPE_ASSERT, "(physicsObj)", (const char *)&queryFormat, "physicsObj") )
         __debugbreak();
-      v59 = v58->physicsInstances[0];
-      if ( v59 != -1 )
+      v53 = v52->physicsInstances[0];
+      if ( v53 != -1 )
       {
-        v60 = 0;
-        NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v59);
+        v54 = 0;
+        NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v53);
         if ( NumRigidBodys > 0 )
         {
           while ( 1 )
@@ -1214,11 +1154,11 @@ LABEL_147:
               __debugbreak();
             if ( !g_physicsServerWorldsCreated )
             {
-              LODWORD(v69) = 0;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v69) )
+              LODWORD(v60) = 0;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v60) )
                 __debugbreak();
             }
-            m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v59, v60)->m_serialAndIndex;
+            m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v53, v54)->m_serialAndIndex;
             if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 768, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
               __debugbreak();
             RigidBodyContents = Physics_GetRigidBodyContents(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex);
@@ -1226,38 +1166,32 @@ LABEL_147:
               break;
             if ( (RigidBodyContents & 0x2806931) != 0 )
             {
-              v64 = 4;
+              v58 = 4;
               goto LABEL_141;
             }
 LABEL_142:
-            if ( (int)++v60 >= NumRigidBodys )
+            if ( (int)++v54 >= NumRigidBodys )
             {
-              v34 = v72;
-              v33 = v71;
+              v30 = v63;
+              v29 = v62;
               goto LABEL_148;
             }
           }
-          v64 = 6;
+          v58 = 6;
 LABEL_141:
-          BgAntiLag::MarkPreArchiveFlag(this, v36->s.number, v64);
+          BgAntiLag::MarkPreArchiveFlag(this, v31->s.number, v58);
           goto LABEL_142;
         }
       }
     }
 LABEL_148:
-    v13 = v70;
-    ++v33;
-    ++v34;
-    v71 = v33;
-    v72 = v34;
+    v10 = v61;
+    ++v29;
+    ++v30;
+    v62 = v29;
+    v63 = v30;
   }
-  while ( v33 < 0x800 );
-  _R11 = &v78;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  while ( v29 < 0x800 );
 }
 
 /*
@@ -1393,26 +1327,25 @@ void GAntiLag::RewindPlayerMuzzleTrace(GAntiLag *this, const int gameTime, int e
   const playerState_s *EntityPlayerStateConst; 
   EntityTagInfo *tagInfo; 
   int number; 
-  vec3_t v16; 
+  vec3_t v13; 
   vec3_t origina; 
   vec3_t outOrigin; 
-  __int64 v19; 
-  tmat43_t<vec3_t> v20; 
+  __int64 v16; 
+  tmat43_t<vec3_t> v17; 
   tmat43_t<vec3_t> in; 
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> result; 
-  tmat43_t<vec3_t> v24; 
+  tmat43_t<vec3_t> v21; 
   tmat43_t<vec3_t> in2; 
-  tmat43_t<vec3_t> v26; 
+  tmat43_t<vec3_t> v23; 
   tmat43_t<vec3_t> in1; 
-  tmat43_t<vec3_t> v28; 
-  tmat43_t<vec3_t> v29; 
+  tmat43_t<vec3_t> v25; 
+  tmat43_t<vec3_t> v26; 
   BgAntiLagEntityInfo outInfo; 
-  BgAntiLagEntityInfo v31; 
-  BgAntiLagEntityInfo v32; 
+  BgAntiLagEntityInfo v28; 
+  BgAntiLagEntityInfo v29; 
 
-  v19 = -2i64;
-  _RSI = origin;
+  v16 = -2i64;
   v6 = entIndex;
   if ( (unsigned int)entIndex >= 0xF8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( entIndex ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "entIndex doesn't index MAX_ANTILAG_CLIENT_AGENTS\n\t%i not in [0, %i)", entIndex, 248) )
     __debugbreak();
@@ -1434,37 +1367,29 @@ void GAntiLag::RewindPlayerMuzzleTrace(GAntiLag *this, const int gameTime, int e
   outInfo.boneInfo.boneList.m_usedSize = 0;
   outInfo.boneInfo.boneList.m_maxSize = 0;
   BgAntiLag::GetEntityInfoAtTime(this, EntityPlayerStateConst->clientNum, v6, 3u, level.time, &outInfo);
-  v31.boneInfo.boneList.m_usedSize = 0;
-  v31.boneInfo.boneList.m_maxSize = 0;
-  BgAntiLag::GetEntityInfoAtTime(this, EntityPlayerStateConst->clientNum, number, 3u, level.time, &v31);
-  v32.boneInfo.boneList.m_usedSize = 0;
-  v32.boneInfo.boneList.m_maxSize = 0;
-  BgAntiLag::GetEntityInfoAtTime(this, EntityPlayerStateConst->clientNum, number, 3u, gameTime, &v32);
-  AnglesAndOriginToMatrix43(angles, _RSI, &result);
+  v28.boneInfo.boneList.m_usedSize = 0;
+  v28.boneInfo.boneList.m_maxSize = 0;
+  BgAntiLag::GetEntityInfoAtTime(this, EntityPlayerStateConst->clientNum, number, 3u, level.time, &v28);
+  v29.boneInfo.boneList.m_usedSize = 0;
+  v29.boneInfo.boneList.m_maxSize = 0;
+  BgAntiLag::GetEntityInfoAtTime(this, EntityPlayerStateConst->clientNum, number, 3u, gameTime, &v29);
+  AnglesAndOriginToMatrix43(angles, origin, &result);
   BgAntiLagEntity_GetOrigin(&outInfo, &outOrigin);
   AnglesAndOriginToMatrix43(&outInfo.angles, &outOrigin, &in);
   MatrixInverseOrthogonal43(&in, &out);
   MatrixMultiply43(&result, &out, &in1);
-  BgAntiLagEntity_GetOrigin(&v31, &origina);
-  AnglesAndOriginToMatrix43(&v31.angles, &origina, &v24);
-  MatrixInverseOrthogonal43(&v24, &in2);
-  MatrixMultiply43(&in, &in2, &v26);
-  BgAntiLagEntity_GetOrigin(&v32, &v16);
-  AnglesAndOriginToMatrix43(&v32.angles, &v16, &v28);
-  MatrixMultiply43(&in1, &v26, &v29);
-  MatrixMultiply43(&v29, &v28, &v20);
+  BgAntiLagEntity_GetOrigin(&v28, &origina);
+  AnglesAndOriginToMatrix43(&v28.angles, &origina, &v21);
+  MatrixInverseOrthogonal43(&v21, &in2);
+  MatrixMultiply43(&in, &in2, &v23);
+  BgAntiLagEntity_GetOrigin(&v29, &v13);
+  AnglesAndOriginToMatrix43(&v29.angles, &v13, &v25);
+  MatrixMultiply43(&in1, &v23, &v26);
+  MatrixMultiply43(&v26, &v25, &v17);
   if ( this->ShouldApplyMuzzleRewindAngles(this) )
-    AxisToAngles((const tmat33_t<vec3_t> *)&v20, angles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+360h+var_3E8+24h]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm1, dword ptr [rbp+360h+var_3E8+28h]
-    vmovss  dword ptr [rsi+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+360h+var_3E8+2Ch]
-    vmovss  dword ptr [rsi+8], xmm0
-  }
-  memset(&v16, 0, sizeof(v16));
+    AxisToAngles((const tmat33_t<vec3_t> *)&v17, angles);
+  *origin = v17.m[3];
+  memset(&v13, 0, sizeof(v13));
   memset(&origina, 0, sizeof(origina));
   memset(&outOrigin, 0, sizeof(outOrigin));
 }

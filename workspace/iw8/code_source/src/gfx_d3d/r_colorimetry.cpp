@@ -339,12 +339,12 @@ R_DisplayMappingGetAdjustedHDRMinLum
 
 float __fastcall R_DisplayMappingGetAdjustedHDRMinLum(double calibratedMinLuminance)
 {
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@3d4ccccd
-    vxorps  xmm0, xmm0, xmm0
-    vmaxss  xmm0, xmm1, xmm0
-  }
+  __int128 v2; 
+
+  v2 = *(_OWORD *)&calibratedMinLuminance;
+  *(float *)&v2 = *(float *)&calibratedMinLuminance - 0.050000001;
+  _XMM1 = v2;
+  __asm { vmaxss  xmm0, xmm1, xmm0 }
   return *(float *)&_XMM0;
 }
 
@@ -355,13 +355,14 @@ R_DisplayMapping_GetGamma
 */
 float R_DisplayMapping_GetGamma()
 {
+  const dvar_t *v0; 
+
   if ( g_dx.features.displayColorimetry >= GFX_COLORIMETRY_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_colorimetry.cpp", 31, ASSERT_TYPE_ASSERT, "(g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT)", (const char *)&queryFormat, "g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT") )
     __debugbreak();
-  _RAX = r_displayMappingHdrGamma;
+  v0 = r_displayMappingHdrGamma;
   if ( g_dx.features.displayColorimetry != GFX_COLORIMETRY_BT2020_PQ )
-    _RAX = r_displayMappingSdrGamma;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+    v0 = r_displayMappingSdrGamma;
+  return v0->current.value;
 }
 
 /*
@@ -371,9 +372,7 @@ R_DisplayMapping_GetHdrGamma
 */
 float R_DisplayMapping_GetHdrGamma()
 {
-  _RAX = r_displayMappingHdrGamma;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+  return r_displayMappingHdrGamma->current.value;
 }
 
 /*
@@ -383,9 +382,7 @@ R_DisplayMapping_GetHdrMaxLum
 */
 float R_DisplayMapping_GetHdrMaxLum()
 {
-  _RAX = r_displayMappingHdrMaxLum;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+  return r_displayMappingHdrMaxLum->current.value;
 }
 
 /*
@@ -395,9 +392,7 @@ R_DisplayMapping_GetHdrMinLum
 */
 float R_DisplayMapping_GetHdrMinLum()
 {
-  _RAX = r_displayMappingHdrMinLum;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+  return r_displayMappingHdrMinLum->current.value;
 }
 
 /*
@@ -410,20 +405,10 @@ float R_DisplayMapping_GetMaxLum()
   if ( g_dx.features.displayColorimetry >= GFX_COLORIMETRY_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_colorimetry.cpp", 31, ASSERT_TYPE_ASSERT, "(g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT)", (const char *)&queryFormat, "g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT") )
     __debugbreak();
   if ( g_dx.features.displayColorimetry == GFX_COLORIMETRY_BT2020_PQ )
-  {
-    _RAX = r_displayMappingHdrMaxLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  else if ( r_displayMappingSdrUseBlacklevel->current.enabled )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  else
-  {
-    _RAX = r_displayMappingSdrMaxLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  return *(float *)&_XMM0;
+    return r_displayMappingHdrMaxLum->current.value;
+  if ( r_displayMappingSdrUseBlacklevel->current.enabled )
+    return FLOAT_1_0;
+  return r_displayMappingSdrMaxLum->current.value;
 }
 
 /*
@@ -431,34 +416,17 @@ float R_DisplayMapping_GetMaxLum()
 R_DisplayMapping_GetMinLum
 ==============
 */
-
-float __fastcall R_DisplayMapping_GetMinLum(double _XMM0_8)
+float R_DisplayMapping_GetMinLum()
 {
   if ( g_dx.features.displayColorimetry >= GFX_COLORIMETRY_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_colorimetry.cpp", 31, ASSERT_TYPE_ASSERT, "(g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT)", (const char *)&queryFormat, "g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT") )
     __debugbreak();
   if ( g_dx.features.displayColorimetry == GFX_COLORIMETRY_BT2020_PQ )
-  {
-    _RAX = r_displayMappingHdrMinLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  else if ( r_displayMappingSdrUseBlacklevel->current.enabled )
-  {
-    if ( r_blacklevelDisable->current.enabled )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-    }
-    else
-    {
-      _RAX = r_blacklevel;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-  }
-  else
-  {
-    _RAX = r_displayMappingSdrMinLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  return *(float *)&_XMM0;
+    return r_displayMappingHdrMinLum->current.value;
+  if ( !r_displayMappingSdrUseBlacklevel->current.enabled )
+    return r_displayMappingSdrMinLum->current.value;
+  if ( r_blacklevelDisable->current.enabled )
+    return 0.0;
+  return r_blacklevel->current.value;
 }
 
 /*
@@ -468,9 +436,7 @@ R_DisplayMapping_GetSdrGamma
 */
 float R_DisplayMapping_GetSdrGamma()
 {
-  _RAX = r_displayMappingSdrGamma;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+  return r_displayMappingSdrGamma->current.value;
 }
 
 /*
@@ -481,15 +447,9 @@ R_DisplayMapping_GetSdrMaxLum
 float R_DisplayMapping_GetSdrMaxLum()
 {
   if ( r_displayMappingSdrUseBlacklevel->current.enabled )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
+    return FLOAT_1_0;
   else
-  {
-    _RAX = r_displayMappingSdrMaxLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  return *(float *)&_XMM0;
+    return r_displayMappingSdrMaxLum->current.value;
 }
 
 /*
@@ -497,27 +457,13 @@ float R_DisplayMapping_GetSdrMaxLum()
 R_DisplayMapping_GetSdrMinLum
 ==============
 */
-
-float __fastcall R_DisplayMapping_GetSdrMinLum(double _XMM0_8)
+float R_DisplayMapping_GetSdrMinLum()
 {
-  if ( r_displayMappingSdrUseBlacklevel->current.enabled )
-  {
-    if ( r_blacklevelDisable->current.enabled )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-    }
-    else
-    {
-      _RAX = r_blacklevel;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-  }
-  else
-  {
-    _RAX = r_displayMappingSdrMinLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  return *(float *)&_XMM0;
+  if ( !r_displayMappingSdrUseBlacklevel->current.enabled )
+    return r_displayMappingSdrMinLum->current.value;
+  if ( r_blacklevelDisable->current.enabled )
+    return 0.0;
+  return r_blacklevel->current.value;
 }
 
 /*
@@ -566,15 +512,9 @@ R_GetDisplayBlacklevel
 float R_GetDisplayBlacklevel(bool apply)
 {
   if ( !apply || r_blacklevelDisable->current.enabled )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+    return 0.0;
   else
-  {
-    _RAX = r_blacklevel;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  return *(float *)&_XMM0;
+    return r_blacklevel->current.value;
 }
 
 /*
@@ -603,9 +543,7 @@ R_GetDisplayHdrUiMaxLuminance
 */
 float R_GetDisplayHdrUiMaxLuminance()
 {
-  _RAX = r_hdrUIMaxLum;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  return *(float *)&_XMM0;
+  return r_hdrUIMaxLum->current.value;
 }
 
 /*
@@ -613,66 +551,32 @@ float R_GetDisplayHdrUiMaxLuminance()
 R_GetDisplayMappingParams
 ==============
 */
-
-GfxDisplayMappingParams *__fastcall R_GetDisplayMappingParams(GfxDisplayMappingParams *result, double _XMM1_8)
+GfxDisplayMappingParams *R_GetDisplayMappingParams(GfxDisplayMappingParams *result)
 {
-  bool enabled; 
-  float v19; 
+  float v5; 
+  float value; 
 
-  _RBX = result;
   if ( g_dx.features.displayColorimetry >= GFX_COLORIMETRY_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_colorimetry.cpp", 31, ASSERT_TYPE_ASSERT, "(g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT)", (const char *)&queryFormat, "g_dx.features.displayColorimetry < GFX_COLORIMETRY_COUNT") )
     __debugbreak();
-  if ( g_dx.features.displayColorimetry != GFX_COLORIMETRY_BT2020_PQ )
+  if ( g_dx.features.displayColorimetry == GFX_COLORIMETRY_BT2020_PQ )
   {
-    enabled = r_displayMappingSdrUseBlacklevel->current.enabled;
-    if ( enabled )
-    {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-    }
-    else
-    {
-      _RAX = r_displayMappingSdrMaxLum;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-    __asm { vmovss  [rsp+48h+var_10], xmm0 }
-    if ( enabled )
-    {
-      if ( r_blacklevelDisable->current.enabled )
-      {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
-LABEL_15:
-        _RAX = r_displayMappingSdrGamma;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+28h]
-          vunpcklps xmm0, xmm0, xmm1
-        }
-        goto LABEL_16;
-      }
-      _RAX = r_blacklevel;
-    }
-    else
-    {
-      _RAX = r_displayMappingSdrMinLum;
-    }
-    __asm { vmovss  xmm1, dword ptr [rax+28h] }
-    goto LABEL_15;
+    value = r_displayMappingHdrMaxLum->current.value;
+    _XMM1 = r_displayMappingHdrGamma->current.unsignedInt;
+    __asm { vunpcklps xmm0, xmm1, xmm2 }
   }
-  _RAX = r_displayMappingHdrMinLum;
-  __asm { vmovss  xmm2, dword ptr [rax+28h] }
-  _RAX = r_displayMappingHdrMaxLum;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  _RAX = r_displayMappingHdrGamma;
-  __asm
+  else
   {
-    vmovss  [rsp+48h+var_10], xmm0
-    vmovss  xmm1, dword ptr [rax+28h]
-    vunpcklps xmm0, xmm1, xmm2
+    if ( r_displayMappingSdrUseBlacklevel->current.enabled )
+      v5 = FLOAT_1_0;
+    else
+      v5 = r_displayMappingSdrMaxLum->current.value;
+    value = v5;
+    _XMM0 = r_displayMappingSdrGamma->current.unsignedInt;
+    __asm { vunpcklps xmm0, xmm0, xmm1 }
   }
-LABEL_16:
-  __asm { vmovsd  qword ptr [rbx], xmm0 }
-  _RBX->maxLuminance = v19;
-  return _RBX;
+  *(double *)&result->gamma = *(double *)&_XMM0;
+  result->maxLuminance = value;
+  return result;
 }
 
 /*
@@ -744,42 +648,39 @@ R_GetSdrDisplayMappingParams
 GfxDisplayMappingParams *R_GetSdrDisplayMappingParams(GfxDisplayMappingParams *result)
 {
   bool enabled; 
-  const dvar_t *v7; 
-  int integer; 
-  GfxDisplayMappingParams *v9; 
+  float value; 
+  const dvar_t *v4; 
+  float v5; 
+  const dvar_t *v6; 
+  float v7; 
+  GfxDisplayMappingParams *v8; 
 
-  _RDX = result;
   enabled = r_displayMappingSdrUseBlacklevel->current.enabled;
   if ( enabled )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
+    value = FLOAT_1_0;
   else
-  {
-    _RAX = r_displayMappingSdrMaxLum;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
-  __asm { vmovss  dword ptr [rdx+8], xmm0 }
+    value = r_displayMappingSdrMaxLum->current.value;
+  result->maxLuminance = value;
   if ( !enabled )
   {
-    _RAX = r_displayMappingSdrMinLum;
+    v4 = r_displayMappingSdrMinLum;
     goto LABEL_9;
   }
   if ( !r_blacklevelDisable->current.enabled )
   {
-    _RAX = r_blacklevel;
+    v4 = r_blacklevel;
 LABEL_9:
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
+    v5 = v4->current.value;
     goto LABEL_10;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v5 = 0.0;
 LABEL_10:
-  v7 = r_displayMappingSdrGamma;
-  __asm { vmovss  dword ptr [rdx+4], xmm0 }
-  integer = v7->current.integer;
-  v9 = _RDX;
-  LODWORD(_RDX->gamma) = integer;
-  return v9;
+  v6 = r_displayMappingSdrGamma;
+  result->minLuminance = v5;
+  v7 = v6->current.value;
+  v8 = result;
+  result->gamma = v7;
+  return v8;
 }
 
 /*

@@ -76,21 +76,28 @@ void Algo_Merge<XPakWorkData::ItemInfo,205313,XPak_CompareItemOffset>(XPakWorkDa
   __int64 v8; 
   int v9; 
   __int64 v10; 
-  signed int v14; 
-  int v15; 
-  __int64 v17; 
-  __int64 v18; 
-  __int64 v21; 
-  unsigned __int64 v22; 
-  unsigned __int64 v23; 
-  __int64 v28; 
+  XPakWorkData::ItemInfo (*v11)[205313]; 
+  signed int v12; 
+  int v13; 
+  unsigned int *p_entryInfoLow; 
+  __int64 v15; 
+  __int64 v16; 
+  XPakWorkData::ItemInfo *v17; 
+  unsigned int *v18; 
+  __int64 v19; 
+  unsigned __int64 v20; 
+  unsigned __int64 v21; 
+  XPakWorkData::ItemInfo v22; 
+  XPakWorkData::ItemInfo *v23; 
+  XPakWorkData::ItemInfo *v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  int v28; 
   __int64 v29; 
-  __int64 v30; 
-  int v31; 
-  __int64 v32; 
-  int v33; 
-  __int64 v34; 
-  int v37; 
+  int v30; 
+  __int64 v31; 
+  int v34; 
 
   v5 = pArray;
   v7 = scratchBuffer;
@@ -98,9 +105,9 @@ void Algo_Merge<XPakWorkData::ItemInfo,205313,XPak_CompareItemOffset>(XPakWorkDa
   v9 = pivot - low;
   if ( (unsigned int)(pivot - low) >= 0x32201 )
   {
-    v33 = 205313;
-    v31 = pivot - low;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 22, ASSERT_TYPE_ASSERT, "( pivot - low ) < ( SCRATCH_SIZE )", "%s < %s\n\t%i, %i", "pivot - low", "SCRATCH_SIZE", v31, v33) )
+    v30 = 205313;
+    v28 = pivot - low;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 22, ASSERT_TYPE_ASSERT, "( pivot - low ) < ( SCRATCH_SIZE )", "%s < %s\n\t%i, %i", "pivot - low", "SCRATCH_SIZE", v28, v30) )
       __debugbreak();
     v5 = pArray;
     v7 = scratchBuffer;
@@ -108,127 +115,116 @@ void Algo_Merge<XPakWorkData::ItemInfo,205313,XPak_CompareItemOffset>(XPakWorkDa
   if ( v9 >= 0 )
   {
     v10 = v9 + 1i64;
-    _RCX = v7;
-    _RDX = (char *)v5 + 16 * v8 - (_QWORD)v7;
+    v11 = v7;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-      }
-      _RCX = (XPakWorkData::ItemInfo (*)[205313])((char *)_RCX + 16);
+      *(XPakWorkData::ItemInfo *)v11 = *(XPakWorkData::ItemInfo *)((char *)&(*v11)[0] + (_QWORD)v5 + 16 * v8 - (_QWORD)v7);
+      v11 = (XPakWorkData::ItemInfo (*)[205313])((char *)v11 + 16);
       --v10;
     }
     while ( v10 );
   }
-  v14 = 0;
-  v15 = pivot + 1;
-  v37 = pivot + 1;
+  v12 = 0;
+  v13 = pivot + 1;
+  v34 = pivot + 1;
   if ( v9 >= 0 )
   {
-    _RBP = &(*v7)[0].entryInfoLow;
-    v17 = v15;
-    v18 = high;
-    _R12 = &v5[v8];
-    v34 = v15;
-    _R15 = &v5[v15].entryInfoLow;
+    p_entryInfoLow = &(*v7)[0].entryInfoLow;
+    v15 = v13;
+    v16 = high;
+    v17 = &v5[v8];
+    v31 = v13;
+    v18 = &v5[v13].entryInfoLow;
     do
     {
-      if ( v17 > v18 )
+      if ( v15 > v16 )
       {
-        if ( v14 <= v9 )
+        if ( v12 <= v9 )
         {
-          _RBP = &pArray[(int)v8];
-          _RSI = &(*scratchBuffer)[v14];
+          v23 = &pArray[(int)v8];
+          v24 = &(*scratchBuffer)[v12];
           do
           {
             if ( (int)v8 > high )
             {
-              LODWORD(v32) = high;
-              LODWORD(v30) = v8;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 49, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v30, v32) )
+              LODWORD(v29) = high;
+              LODWORD(v27) = v8;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 49, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v27, v29) )
                 __debugbreak();
             }
-            if ( (unsigned int)v14 >= 0x32201 )
+            if ( (unsigned int)v12 >= 0x32201 )
             {
-              LODWORD(v29) = 205313;
-              LODWORD(v28) = v14;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v28, v29) )
+              LODWORD(v26) = 205313;
+              LODWORD(v25) = v12;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v25, v26) )
                 __debugbreak();
             }
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsi]
-              vmovups xmmword ptr [rbp+0], xmm0
-            }
-            ++_RBP;
-            ++v14;
-            ++_RSI;
+            *v23++ = *v24;
+            ++v12;
+            ++v24;
             LODWORD(v8) = v8 + 1;
           }
-          while ( v14 <= v9 );
-          v15 = v37;
+          while ( v12 <= v9 );
+          v13 = v34;
         }
         break;
       }
       if ( (int)v8 > high )
       {
-        LODWORD(v32) = high;
-        LODWORD(v30) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 35, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v30, v32) )
+        LODWORD(v29) = high;
+        LODWORD(v27) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 35, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v27, v29) )
           __debugbreak();
       }
-      if ( (unsigned int)v14 >= 0x32201 )
+      if ( (unsigned int)v12 >= 0x32201 )
       {
-        LODWORD(v29) = 205313;
-        LODWORD(v28) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 36, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v28, v29) )
+        LODWORD(v26) = 205313;
+        LODWORD(v25) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 36, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v25, v26) )
           __debugbreak();
       }
-      if ( !*_RBP && !_RBP[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
+      if ( !*p_entryInfoLow && !p_entryInfoLow[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
         __debugbreak();
-      v21 = *(_QWORD *)_RBP;
-      if ( !*_R15 && !_R15[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
+      v19 = *(_QWORD *)p_entryInfoLow;
+      if ( !*v18 && !v18[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
         __debugbreak();
-      v22 = (unsigned __int8)*(_QWORD *)(v21 + 24);
-      v23 = (unsigned __int8)*(_QWORD *)(*(_QWORD *)_R15 + 24i64);
-      if ( v22 == v23 )
+      v20 = (unsigned __int8)*(_QWORD *)(v19 + 24);
+      v21 = (unsigned __int8)*(_QWORD *)(*(_QWORD *)v18 + 24i64);
+      if ( v20 == v21 )
       {
-        if ( *(_QWORD *)(v21 + 8) > *(_QWORD *)(*(_QWORD *)_R15 + 8i64) )
+        if ( *(_QWORD *)(v19 + 8) > *(_QWORD *)(*(_QWORD *)v18 + 8i64) )
         {
 LABEL_31:
-          v15 = v37 + 1;
-          __asm { vmovups xmm0, xmmword ptr [r15-4] }
-          v17 = v34 + 1;
-          ++v37;
+          v13 = v34 + 1;
+          v22 = *(XPakWorkData::ItemInfo *)(v18 - 1);
+          v15 = v31 + 1;
           ++v34;
-          _R15 += 4;
+          ++v31;
+          v18 += 4;
           goto LABEL_28;
         }
       }
-      else if ( v22 >= v23 )
+      else if ( v20 >= v21 )
       {
         goto LABEL_31;
       }
-      __asm { vmovups xmm0, xmmword ptr [rbp-4] }
-      v17 = v34;
-      ++v14;
-      v15 = v37;
-      _RBP += 4;
+      v22 = *(XPakWorkData::ItemInfo *)(p_entryInfoLow - 1);
+      v15 = v31;
+      ++v12;
+      v13 = v34;
+      p_entryInfoLow += 4;
 LABEL_28:
-      __asm { vmovups xmmword ptr [r12], xmm0 }
-      ++_R12;
+      *v17++ = v22;
       LODWORD(v8) = v8 + 1;
-      v18 = high;
+      v16 = high;
     }
-    while ( v14 <= v9 );
+    while ( v12 <= v9 );
   }
-  if ( (_DWORD)v8 != v15 )
+  if ( (_DWORD)v8 != v13 )
   {
-    LODWORD(v32) = v15;
-    LODWORD(v30) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 54, ASSERT_TYPE_ASSERT, "( arrayIndex ) == ( rightIndex )", "%s == %s\n\t%i, %i", "arrayIndex", "rightIndex", v30, v32) )
+    LODWORD(v29) = v13;
+    LODWORD(v27) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 54, ASSERT_TYPE_ASSERT, "( arrayIndex ) == ( rightIndex )", "%s == %s\n\t%i, %i", "arrayIndex", "rightIndex", v27, v29) )
       __debugbreak();
   }
 }
@@ -245,19 +241,26 @@ void Algo_Merge<XPakWorkData::ItemInfo,205313,XPak_CompareItemPartHashes>(XPakWo
   __int64 v8; 
   int v9; 
   __int64 v10; 
-  signed int v14; 
-  int v15; 
-  __int64 v17; 
-  __int64 v18; 
-  unsigned __int64 v21; 
-  __int64 v26; 
+  XPakWorkData::ItemInfo (*v11)[205313]; 
+  signed int v12; 
+  int v13; 
+  unsigned int *p_entryInfoLow; 
+  __int64 v15; 
+  __int64 v16; 
+  XPakWorkData::ItemInfo *v17; 
+  unsigned int *v18; 
+  unsigned __int64 v19; 
+  XPakWorkData::ItemInfo v20; 
+  XPakWorkData::ItemInfo *v21; 
+  XPakWorkData::ItemInfo *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  int v26; 
   __int64 v27; 
-  __int64 v28; 
-  int v29; 
-  __int64 v30; 
-  int v31; 
-  __int64 v32; 
-  int v35; 
+  int v28; 
+  __int64 v29; 
+  int v32; 
 
   v5 = pArray;
   v7 = scratchBuffer;
@@ -265,9 +268,9 @@ void Algo_Merge<XPakWorkData::ItemInfo,205313,XPak_CompareItemPartHashes>(XPakWo
   v9 = pivot - low;
   if ( (unsigned int)(pivot - low) >= 0x32201 )
   {
-    v31 = 205313;
-    v29 = pivot - low;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 22, ASSERT_TYPE_ASSERT, "( pivot - low ) < ( SCRATCH_SIZE )", "%s < %s\n\t%i, %i", "pivot - low", "SCRATCH_SIZE", v29, v31) )
+    v28 = 205313;
+    v26 = pivot - low;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 22, ASSERT_TYPE_ASSERT, "( pivot - low ) < ( SCRATCH_SIZE )", "%s < %s\n\t%i, %i", "pivot - low", "SCRATCH_SIZE", v26, v28) )
       __debugbreak();
     v5 = pArray;
     v7 = scratchBuffer;
@@ -275,116 +278,105 @@ void Algo_Merge<XPakWorkData::ItemInfo,205313,XPak_CompareItemPartHashes>(XPakWo
   if ( v9 >= 0 )
   {
     v10 = v9 + 1i64;
-    _RCX = v7;
-    _RDX = (char *)v5 + 16 * v8 - (_QWORD)v7;
+    v11 = v7;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+rcx]
-        vmovups xmmword ptr [rcx], xmm0
-      }
-      _RCX = (XPakWorkData::ItemInfo (*)[205313])((char *)_RCX + 16);
+      *(XPakWorkData::ItemInfo *)v11 = *(XPakWorkData::ItemInfo *)((char *)&(*v11)[0] + (_QWORD)v5 + 16 * v8 - (_QWORD)v7);
+      v11 = (XPakWorkData::ItemInfo (*)[205313])((char *)v11 + 16);
       --v10;
     }
     while ( v10 );
   }
-  v14 = 0;
-  v15 = pivot + 1;
-  v35 = pivot + 1;
+  v12 = 0;
+  v13 = pivot + 1;
+  v32 = pivot + 1;
   if ( v9 >= 0 )
   {
-    _RBP = &(*v7)[0].entryInfoLow;
-    v17 = v15;
-    v18 = high;
-    _R12 = &v5[v8];
-    v32 = v15;
-    _R14 = &v5[v15].entryInfoLow;
-    while ( v17 <= v18 )
+    p_entryInfoLow = &(*v7)[0].entryInfoLow;
+    v15 = v13;
+    v16 = high;
+    v17 = &v5[v8];
+    v29 = v13;
+    v18 = &v5[v13].entryInfoLow;
+    while ( v15 <= v16 )
     {
       if ( (int)v8 > high )
       {
-        LODWORD(v30) = high;
-        LODWORD(v28) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 35, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v28, v30) )
+        LODWORD(v27) = high;
+        LODWORD(v25) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 35, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v25, v27) )
           __debugbreak();
       }
-      if ( (unsigned int)v14 >= 0x32201 )
+      if ( (unsigned int)v12 >= 0x32201 )
       {
-        LODWORD(v27) = 205313;
-        LODWORD(v26) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 36, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v26, v27) )
+        LODWORD(v24) = 205313;
+        LODWORD(v23) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 36, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v23, v24) )
           __debugbreak();
       }
-      if ( !*_RBP && !_RBP[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
+      if ( !*p_entryInfoLow && !p_entryInfoLow[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
         __debugbreak();
-      v21 = **(_QWORD **)_RBP;
-      if ( !*_R14 && !_R14[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
+      v19 = **(_QWORD **)p_entryInfoLow;
+      if ( !*v18 && !v18[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1149, ASSERT_TYPE_ASSERT, "(info->entryInfoLow || info->entryInfoHigh)", (const char *)&queryFormat, "info->entryInfoLow || info->entryInfoHigh") )
         __debugbreak();
-      v15 = v35;
-      v17 = v32;
-      if ( v21 <= **(_QWORD **)_R14 )
+      v13 = v32;
+      v15 = v29;
+      if ( v19 <= **(_QWORD **)v18 )
       {
-        __asm { vmovups xmm0, xmmword ptr [rbp-4] }
-        ++v14;
-        _RBP += 4;
+        v20 = *(XPakWorkData::ItemInfo *)(p_entryInfoLow - 1);
+        ++v12;
+        p_entryInfoLow += 4;
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [r14-4] }
-        v15 = v35 + 1;
-        v17 = v32 + 1;
-        ++v35;
-        _R14 += 4;
+        v20 = *(XPakWorkData::ItemInfo *)(v18 - 1);
+        v13 = v32 + 1;
+        v15 = v29 + 1;
         ++v32;
+        v18 += 4;
+        ++v29;
       }
-      __asm { vmovups xmmword ptr [r12], xmm0 }
-      ++_R12;
+      *v17++ = v20;
       LODWORD(v8) = v8 + 1;
-      v18 = high;
-      if ( v14 > v9 )
+      v16 = high;
+      if ( v12 > v9 )
         goto LABEL_40;
     }
-    if ( v14 <= v9 )
+    if ( v12 <= v9 )
     {
-      _RBP = &pArray[(int)v8];
-      _RSI = &(*scratchBuffer)[v14];
+      v21 = &pArray[(int)v8];
+      v22 = &(*scratchBuffer)[v12];
       do
       {
         if ( (int)v8 > high )
         {
-          LODWORD(v30) = high;
-          LODWORD(v28) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 49, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v28, v30) )
+          LODWORD(v27) = high;
+          LODWORD(v25) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 49, ASSERT_TYPE_ASSERT, "( arrayIndex ) <= ( high )", "%s <= %s\n\t%i, %i", "arrayIndex", "high", v25, v27) )
             __debugbreak();
         }
-        if ( (unsigned int)v14 >= 0x32201 )
+        if ( (unsigned int)v12 >= 0x32201 )
         {
-          LODWORD(v27) = 205313;
-          LODWORD(v26) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v26, v27) )
+          LODWORD(v24) = 205313;
+          LODWORD(v23) = v12;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( scratchIndex ) < (unsigned)( ( sizeof( *array_counter( scratchBuffer ) ) + 0 ) )", "scratchIndex doesn't index scratchBuffer\n\t%i not in [0, %i)", v23, v24) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rbp+0], xmm0
-        }
-        ++_RBP;
-        ++v14;
-        ++_RSI;
+        *v21++ = *v22;
+        ++v12;
+        ++v22;
         LODWORD(v8) = v8 + 1;
       }
-      while ( v14 <= v9 );
-      v15 = v35;
+      while ( v12 <= v9 );
+      v13 = v32;
     }
   }
 LABEL_40:
-  if ( (_DWORD)v8 != v15 )
+  if ( (_DWORD)v8 != v13 )
   {
-    LODWORD(v30) = v15;
-    LODWORD(v28) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 54, ASSERT_TYPE_ASSERT, "( arrayIndex ) == ( rightIndex )", "%s == %s\n\t%i, %i", "arrayIndex", "rightIndex", v28, v30) )
+    LODWORD(v27) = v13;
+    LODWORD(v25) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\algo.h", 54, ASSERT_TYPE_ASSERT, "( arrayIndex ) == ( rightIndex )", "%s == %s\n\t%i, %i", "arrayIndex", "rightIndex", v25, v27) )
       __debugbreak();
   }
 }

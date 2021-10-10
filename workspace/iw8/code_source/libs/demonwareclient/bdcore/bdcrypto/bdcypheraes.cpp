@@ -114,12 +114,12 @@ bdCypherAES::decrypt
 */
 bool bdCypherAES::decrypt(bdCypherAES *this, const unsigned __int8 *iv, const unsigned __int8 *cypherText, unsigned __int8 *plainText, unsigned int size)
 {
+  __int128 v9; 
   void *m_cypherKey; 
   NTSTATUS v11; 
   ULONG pcbResult; 
   unsigned __int8 pbIV[16]; 
 
-  _R14 = iv;
   if ( !iv )
   {
     bdHandleAssert(0, "\"(iv != BD_NULL)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraes.cpp", "bdCypherAES::decrypt", 0x13Bu, "bdCypherAES: IV cannot be NULL");
@@ -140,12 +140,12 @@ bool bdCypherAES::decrypt(bdCypherAES *this, const unsigned __int8 *iv, const un
     bdHandleAssert(0, "\"(size % BD_AES_BLOCK_SIZE == 0)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraes.cpp", "bdCypherAES::decrypt", 0x13Eu, "bdCypherAES: Data size must be a multiple of 16 bytes for AES-CBC");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraes.cpp", "bdCypherAES::decrypt", 0x13Eu, "bdCypherAES: Data size must be a multiple of 16 bytes for AES-CBC");
   }
-  if ( _R14 && cypherText && plainText && (size & 0xF) == 0 )
+  if ( iv && cypherText && plainText && (size & 0xF) == 0 )
   {
-    __asm { vmovups xmm0, xmmword ptr [r14] }
+    v9 = *(_OWORD *)iv;
     m_cypherKey = this->m_cypherKey;
     pcbResult = 0;
-    __asm { vmovups xmmword ptr [rsp+0B8h+pbIV], xmm0 }
+    *(_OWORD *)pbIV = v9;
     v11 = BCryptDecrypt_0(m_cypherKey, (PUCHAR)cypherText, size, NULL, pbIV, 0x10u, plainText, size, &pcbResult, 0);
     if ( v11 < 0 )
     {
@@ -168,12 +168,12 @@ bdCypherAES::encrypt
 */
 bool bdCypherAES::encrypt(bdCypherAES *this, const unsigned __int8 *iv, const unsigned __int8 *plainText, unsigned __int8 *cypherText, unsigned int size)
 {
+  __int128 v9; 
   void *m_cypherKey; 
   NTSTATUS v11; 
   ULONG pcbResult; 
   unsigned __int8 pbIV[16]; 
 
-  _R14 = iv;
   if ( !iv )
   {
     bdHandleAssert(0, "\"(iv != BD_NULL)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraes.cpp", "bdCypherAES::encrypt", 0x106u, "bdCypherAES: IV cannot be NULL");
@@ -194,12 +194,12 @@ bool bdCypherAES::encrypt(bdCypherAES *this, const unsigned __int8 *iv, const un
     bdHandleAssert(0, "\"(size % BD_AES_BLOCK_SIZE == 0)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraes.cpp", "bdCypherAES::encrypt", 0x109u, "bdCypherAES: Data size must be a multiple of 16 bytes for AES-CBC");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraes.cpp", "bdCypherAES::encrypt", 0x109u, "bdCypherAES: Data size must be a multiple of 16 bytes for AES-CBC");
   }
-  if ( _R14 && plainText && cypherText && (size & 0xF) == 0 )
+  if ( iv && plainText && cypherText && (size & 0xF) == 0 )
   {
-    __asm { vmovups xmm0, xmmword ptr [r14] }
+    v9 = *(_OWORD *)iv;
     m_cypherKey = this->m_cypherKey;
     pcbResult = 0;
-    __asm { vmovups xmmword ptr [rsp+0B8h+pbIV], xmm0 }
+    *(_OWORD *)pbIV = v9;
     v11 = BCryptEncrypt_0(m_cypherKey, (PUCHAR)plainText, size, NULL, pbIV, 0x10u, cypherText, size, &pcbResult, 0);
     if ( v11 < 0 )
     {

@@ -47,177 +47,36 @@ void __fastcall R_SetupNightAndThermalVision(GfxViewInfo *viewInfo)
 R_RegisterThermalDvars
 ==============
 */
-void R_RegisterThermalDvars()
+void R_RegisterThermalDvars(void)
 {
-  const dvar_t *v10; 
-  const dvar_t *v15; 
-  const dvar_t *v19; 
-  const dvar_t *v26; 
-  const dvar_t *v35; 
-  const dvar_t *v39; 
-  const dvar_t *v43; 
-  const dvar_t *v54; 
   vec3_t value; 
-  vec3_t v70; 
-  void *retaddr; 
+  vec3_t v1; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm10
-  }
   r_nightAndThermalVisionTweak = Dvar_RegisterBool("LKQMMNNQ", 0, 4u, "enable night/thermal vision tweak");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@447a0000
-    vmovss  xmm7, cs:__real@c3e5d5c2
-    vmovss  xmm1, cs:__real@428c0000; value
-  }
   r_nightAndThermalVision = Dvar_RegisterBool("LMQTPSLMPM", 0, 4u, "enable night/thermal vision");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm7; min
-  }
-  v10 = Dvar_RegisterFloat("MKRLKQQSTL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ambient temperature");
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3f4ccccd; value
-  }
-  r_thermalAmbient = v10;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v15 = Dvar_RegisterFloat("LLKMPSPPSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "average world emissivity for computing thermal ambient reflection");
-  __asm { vmovss  xmm1, cs:__real@c2200000; value }
-  r_thermalAmbientReflection = v15;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm7; min
-  }
-  v19 = Dvar_RegisterFloat("LPMPRMNQRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "thermal vision lowest temperature");
-  __asm { vmovss  xmm1, cs:__real@43160000; value }
-  r_thermalRadiationMin = v19;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm7; min
-  }
-  r_thermalRadiationMax = Dvar_RegisterFloat("MKNTPMPOQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "thermal vision highest temperature");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm7; min
-    vmovaps xmm1, xmm7; value
-  }
-  v26 = Dvar_RegisterFloat("LNRMORRPSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "for night/thermal vision hybrid mode. temperature above cutoff show up in night/thermal vision goggle");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@40000000; value
-  }
-  r_thermalCutoff = v26;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm8, cs:__real@3e4ccccd
-  }
-  r_thermalSurfaceNormalStrength = Dvar_RegisterFloat("OKPKTRQOMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "surface normal affect thermal radiation slightly");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0A8h+value], xmm8
-    vmovss  dword ptr [rsp+0A8h+value+4], xmm8
-    vmovss  dword ptr [rsp+0A8h+value+8], xmm8
-    vmovss  dword ptr [rsp+0A8h+var_68], xmm10
-    vmovss  dword ptr [rsp+0A8h+var_68+4], xmm10
-    vmovss  dword ptr [rsp+0A8h+var_68+8], xmm10
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  r_thermalColdColor = Dvar_RegisterVec3("LTTSSORRTK", &value, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "thermal vision false color for lowest temperature");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v35 = Dvar_RegisterVec3("OMLONPSMQP", &v70, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "thermal vision false color for highest temperature");
-  __asm { vmovss  xmm3, cs:__real@43800000; max }
-  r_thermalHotColor = v35;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-  }
-  v39 = Dvar_RegisterFloat("MQMLNPSQSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "thermal vision color scale");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vmovss  xmm2, cs:__real@c0a00000; min
-  }
-  r_thermalColorScale = v39;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v43 = Dvar_RegisterFloat("TLLNPKNSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "exposure adjustment for vision vision");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vmovss  xmm2, cs:__real@c0a00000; min
-  }
-  r_nightVisionExposureAdjustment = v43;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  r_nightVisionMinExposureBias = Dvar_RegisterFloat("NPOTLLLTKK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "min exposure bias for vision vision");
+  r_thermalAmbient = Dvar_RegisterFloat("MKRLKQQSTL", 70.0, -459.66998, 1000.0, 4u, "ambient temperature");
+  r_thermalAmbientReflection = Dvar_RegisterFloat("LLKMPSPPSS", 0.80000001, 0.0, 1.0, 4u, "average world emissivity for computing thermal ambient reflection");
+  r_thermalRadiationMin = Dvar_RegisterFloat("LPMPRMNQRO", -40.0, -459.66998, 1000.0, 4u, "thermal vision lowest temperature");
+  r_thermalRadiationMax = Dvar_RegisterFloat("MKNTPMPOQK", 150.0, -459.66998, 1000.0, 4u, "thermal vision highest temperature");
+  r_thermalCutoff = Dvar_RegisterFloat("LNRMORRPSM", -459.66998, -459.66998, 1000.0, 4u, "for night/thermal vision hybrid mode. temperature above cutoff show up in night/thermal vision goggle");
+  r_thermalSurfaceNormalStrength = Dvar_RegisterFloat("OKPKTRQOMO", 2.0, 0.0, 100.0, 4u, "surface normal affect thermal radiation slightly");
+  value.v[0] = FLOAT_0_2;
+  value.v[1] = FLOAT_0_2;
+  value.v[2] = FLOAT_0_2;
+  v1.v[0] = FLOAT_1_0;
+  v1.v[1] = FLOAT_1_0;
+  v1.v[2] = FLOAT_1_0;
+  r_thermalColdColor = Dvar_RegisterVec3("LTTSSORRTK", &value, 0.0, 1.0, 4u, "thermal vision false color for lowest temperature");
+  r_thermalHotColor = Dvar_RegisterVec3("OMLONPSMQP", &v1, 0.0, 1.0, 4u, "thermal vision false color for highest temperature");
+  r_thermalColorScale = Dvar_RegisterFloat("MQMLNPSQSM", 1.0, 0.0, 256.0, 4u, "thermal vision color scale");
+  r_nightVisionExposureAdjustment = Dvar_RegisterFloat("TLLNPKNSS", 0.0, -5.0, 5.0, 4u, "exposure adjustment for vision vision");
+  r_nightVisionMinExposureBias = Dvar_RegisterFloat("NPOTLLLTKK", 0.0, -5.0, 5.0, 4u, "min exposure bias for vision vision");
   r_nvgScopeForce = Dvar_RegisterBool("OKTNRPMPOS", 0, 4u, "Force NVG Scope");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-    vmovss  xmm6, cs:__real@44800000
-  }
-  r_thermalSurfaceNormalStrengthMul = Dvar_RegisterFloat("MOLOPNLRPM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "surface normal affect thermal radiation global scale");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v54 = Dvar_RegisterFloat("NRSQQSPLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ambient infrared light");
-  __asm { vmovss  xmm1, cs:__real@43160000; value }
-  r_nightVisionIrAmbient = v54;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  r_nightVisionIrDirect = Dvar_RegisterFloat("NPQTMORRNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ir direct lighting coeff");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-  }
-  r_nightVisionIr2ndDiffuse = Dvar_RegisterFloat("LNRTSPSMTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ir patch secondary diffuse lighting coeff");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-  }
-  r_nightVisionIr2ndSpecular = Dvar_RegisterFloat("LROLRKTLMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ir patch secondary specular lighting coeff");
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm10, xmmword ptr [r11-48h]
-  }
+  r_thermalSurfaceNormalStrengthMul = Dvar_RegisterFloat("MOLOPNLRPM", 0.2, 0.0, 1.0, 4u, "surface normal affect thermal radiation global scale");
+  r_nightVisionIrAmbient = Dvar_RegisterFloat("NRSQQSPLL", 0.0, 0.0, 1024.0, 4u, "ambient infrared light");
+  r_nightVisionIrDirect = Dvar_RegisterFloat("NPQTMORRNS", 150.0, 0.0, 1024.0, 4u, "ir direct lighting coeff");
+  r_nightVisionIr2ndDiffuse = Dvar_RegisterFloat("LNRTSPSMTN", 1.0, 0.0, 1024.0, 4u, "ir patch secondary diffuse lighting coeff");
+  r_nightVisionIr2ndSpecular = Dvar_RegisterFloat("LROLRKTLMS", 1.0, 0.0, 1024.0, 4u, "ir patch secondary specular lighting coeff");
 }
 
 /*
@@ -227,210 +86,174 @@ R_SetupNightAndThermalVision
 */
 void R_SetupNightAndThermalVision(GfxViewInfo *viewInfo)
 {
-  unsigned int v46; 
-  bool v66; 
-  GfxImage *thermalRadiationLut; 
+  __int128 thermalAmbientTemperature_low; 
+  float value; 
+  __int128 thermalRadiationMin_low; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 thermalRadiationMax_low; 
+  __int128 v12; 
+  __int128 v13; 
+  float v18; 
+  __int128 thermalCutoff_low; 
+  GfxCmdBufInput *p_input; 
+  unsigned int v23; 
+  __int128 thermalFog_low; 
+  __int128 v30; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v39; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float thermalColorScale; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  const GfxImage *thermalRadiationLut; 
   GfxImage *blackImage; 
-  char v97; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = viewInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0C8h+var_88], xmm13
-  }
   if ( (unsigned int)(r_debugShaderMaterial->current.integer - 38) <= 1 )
     viewInfo->thermalParams.useNightAndThermalVisionCombo = 0;
+  _XMM13 = LODWORD(FLOAT_1_0);
+  thermalAmbientTemperature_low = LODWORD(viewInfo->thermalParams.thermalAmbientTemperature);
+  *(float *)&thermalAmbientTemperature_low = (float)((float)(viewInfo->thermalParams.thermalAmbientTemperature - 32.0) * 0.55555558) + 273.14999;
+  _XMM0 = thermalAmbientTemperature_low;
+  value = 0.0;
+  __asm { vmaxss  xmm4, xmm0, xmm8 }
+  thermalRadiationMin_low = LODWORD(viewInfo->thermalParams.thermalRadiationMin);
+  *(float *)&thermalRadiationMin_low = (float)(viewInfo->thermalParams.thermalRadiationMin - 32.0) * 0.55555558;
+  v8 = thermalRadiationMin_low;
+  thermalRadiationMax_low = LODWORD(viewInfo->thermalParams.thermalRadiationMax);
+  *(float *)&thermalRadiationMax_low = viewInfo->thermalParams.thermalRadiationMax - 32.0;
+  v9 = thermalRadiationMax_low;
+  v12 = v8;
+  *(float *)&v12 = *(float *)&v8 + 273.14999;
+  _XMM3 = v12;
+  v13 = v9;
+  __asm { vmaxss  xmm10, xmm3, xmm8 }
+  *(float *)&v13 = (float)(*(float *)&v9 * 0.55555558) + 273.14999;
+  _XMM3 = v13;
   __asm
   {
-    vmovss  xmm0, dword ptr [rcx+5DCh]
-    vmovss  xmm5, cs:__real@42000000
-    vmovss  xmm6, cs:__real@3f0e38e4
-    vmovss  xmm7, cs:__real@43889333
-    vmovss  xmm13, cs:__real@3f800000
-    vsubss  xmm1, xmm0, xmm5
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm0, xmm2, xmm7
-    vxorps  xmm8, xmm8, xmm8
-    vmaxss  xmm4, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rcx+5E4h]
-    vsubss  xmm1, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rcx+5E8h]
-    vmulss  xmm2, xmm1, xmm6
-    vsubss  xmm1, xmm0, xmm5
-    vaddss  xmm3, xmm2, xmm7
-    vmulss  xmm2, xmm1, xmm6
-    vmaxss  xmm10, xmm3, xmm8
-    vaddss  xmm0, xmm10, cs:__real@41000000
-    vaddss  xmm3, xmm2, xmm7
     vmaxss  xmm1, xmm3, xmm8
     vmaxss  xmm12, xmm1, xmm0
-    vmulss  xmm0, xmm4, dword ptr [rcx+5E0h]
-    vmovss  dword ptr [rcx+1970h], xmm4
-    vmovss  dword ptr [rcx+1974h], xmm10
-    vmovss  dword ptr [rcx+197Ch], xmm0
-    vsubss  xmm2, xmm12, xmm10
-    vdivss  xmm11, xmm13, xmm2
-    vmovss  dword ptr [rcx+1978h], xmm11
-    vmovss  xmm0, dword ptr [rcx+618h]
-    vsubss  xmm1, xmm0, xmm5
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.thermalSurfaceNormalStrengthMul; r_globals_t rg
-    vmulss  xmm2, xmm1, xmm6
-    vmulss  xmm1, xmm0, dword ptr [rcx+5F4h]
-    vaddss  xmm3, xmm2, xmm7
-    vmovss  xmm2, dword ptr [rcx+5F8h]
   }
-  _RSI = 0i64;
-  _RDI = &viewInfo->input;
-  __asm
-  {
-    vmaxss  xmm9, xmm3, xmm8
-    vmovss  dword ptr [rcx+1988h], xmm9
-    vmovss  dword ptr [rcx+1984h], xmm1
-    vmovss  dword ptr [rcx+198Ch], xmm2
-  }
-  v46 = 0;
+  *(float *)&_XMM0 = *(float *)&_XMM4 * viewInfo->thermalParams.thermalAmbientReflection;
+  viewInfo->input.sceneConstants.thermalAmbient.v[0] = *(float *)&_XMM4;
+  viewInfo->input.sceneConstants.thermalAmbient.v[1] = *(float *)&_XMM10;
+  viewInfo->input.sceneConstants.thermalAmbient.v[3] = *(float *)&_XMM0;
+  v18 = 1.0 / (float)(*(float *)&_XMM12 - *(float *)&_XMM10);
+  viewInfo->input.sceneConstants.thermalAmbient.v[2] = v18;
+  thermalCutoff_low = LODWORD(viewInfo->thermalParams.thermalCutoff);
+  *(float *)&_XMM1 = rg.thermalSurfaceNormalStrengthMul * viewInfo->thermalParams.thermalSurfaceNormalStrength;
+  *(float *)&thermalCutoff_low = (float)((float)(viewInfo->thermalParams.thermalCutoff - 32.0) * 0.55555558) + 273.14999;
+  _XMM3 = thermalCutoff_low;
+  *(float *)&v8 = viewInfo->thermalParams.thermalAOStrength;
+  p_input = &viewInfo->input;
+  __asm { vmaxss  xmm9, xmm3, xmm8 }
+  viewInfo->input.sceneConstants.thermalStrength.v[1] = *(float *)&_XMM9;
+  viewInfo->input.sceneConstants.thermalStrength.v[0] = *(float *)&_XMM1;
+  viewInfo->input.sceneConstants.thermalStrength.v[2] = *(float *)&v8;
+  v23 = 0;
   if ( viewInfo->thermalParams.useNightAndThermalVisionCombo )
   {
-    LOBYTE(v46) = viewInfo->thermalParams.useScopedNVG;
-    ++v46;
+    LOBYTE(v23) = viewInfo->thermalParams.useScopedNVG;
+    ++v23;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+61Ch]
-    vsubss  xmm1, xmm0, xmm5
-    vmovq   xmm0, qword ptr [rcx+620h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, xmm7
-    vmovq   xmm1, rsi
-    vpcmpeqq xmm2, xmm0, xmm1
-  }
-  viewInfo->input.sceneConstants.thermalMode = v46;
+  thermalFog_low = LODWORD(viewInfo->thermalParams.thermalFog);
+  _XMM0 = (unsigned __int64)viewInfo->thermalParams.thermalRadiationLut;
+  *(float *)&thermalFog_low = (float)((float)(viewInfo->thermalParams.thermalFog - 32.0) * 0.55555558) + 273.14999;
+  _XMM3 = thermalFog_low;
+  __asm { vpcmpeqq xmm2, xmm0, xmm1 }
+  viewInfo->input.sceneConstants.thermalMode = v23;
   __asm
   {
     vblendvps xmm6, xmm13, xmm8, xmm2
     vmaxss  xmm7, xmm3, xmm8
   }
   *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_r_thermalEmissivityDefault, "r_thermalEmissivityDefault");
+  viewInfo->input.sceneConstants.thermalEmissivity.v[1] = *(float *)&_XMM0;
+  v30 = _XMM7;
+  *(float *)&v30 = (float)(*(float *)&_XMM7 - *(float *)&_XMM10) * v18;
+  _XMM1 = v30;
   __asm
   {
-    vmovss  dword ptr [rbx+1994h], xmm0
-    vsubss  xmm0, xmm7, xmm10
-    vmulss  xmm1, xmm0, xmm11
     vminss  xmm2, xmm1, xmm13
     vmaxss  xmm0, xmm2, xmm8
-    vmovss  dword ptr [rbx+199Ch], xmm0
-    vmovss  dword ptr [rbx+1990h], xmm7
-    vmovss  dword ptr [rbx+1998h], xmm6
   }
+  viewInfo->input.sceneConstants.thermalEmissivity.v[3] = *(float *)&_XMM0;
+  viewInfo->input.sceneConstants.thermalEmissivity.v[0] = *(float *)&_XMM7;
+  viewInfo->input.sceneConstants.thermalEmissivity.v[2] = *(float *)&_XMM6;
   *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_r_thermalEmissivity_Decal, "r_thermalEmissivity_Decal");
-  __asm
+  v35 = _XMM0;
+  *(float *)&v35 = *(float *)&_XMM0 * 0.75;
+  v34 = v35;
+  *(float *)&v35 = (float)(*(float *)&_XMM0 * 0.75) + 0.15625;
+  _XMM1 = v35;
+  __asm { vmaxss  xmm3, xmm1, cs:__real@3dcccccd }
+  v39 = v34;
+  *(float *)&v39 = *(float *)&v34 + 0.34375;
+  _XMM0 = v39;
+  __asm { vminss  xmm1, xmm0, xmm13 }
+  viewInfo->input.sceneConstants.thermalParamDecalVolume.v[1] = *(float *)&_XMM1 - *(float *)&_XMM3;
+  viewInfo->input.sceneConstants.thermalParamDecalVolume.v[0] = *(float *)&_XMM3;
+  *(_QWORD *)&viewInfo->input.sceneConstants.thermalParamDecalVolume.xyz.z = 0i64;
+  if ( viewInfo->thermalParams.useNightAndThermalVisionCombo )
   {
-    vmulss  xmm2, xmm0, cs:__real@3f400000
-    vaddss  xmm1, xmm2, cs:__real@3e200000
-    vmaxss  xmm3, xmm1, cs:__real@3dcccccd
-    vaddss  xmm0, xmm2, cs:__real@3eb00000
-    vminss  xmm1, xmm0, xmm13
-    vsubss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rbx+19B4h], xmm2
-    vmovss  dword ptr [rbx+19B0h], xmm3
-  }
-  *(_QWORD *)&_RBX->input.sceneConstants.thermalParamDecalVolume.xyz.z = 0i64;
-  v66 = !_RBX->thermalParams.useNightAndThermalVisionCombo;
-  if ( _RBX->thermalParams.useNightAndThermalVisionCombo )
-  {
-    _RAX = r_nightVisionIrDirect;
-    __asm { vmovss  xmm8, dword ptr [rax+28h] }
-    _RAX = r_nightVisionIr2ndSpecular;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    _RAX = r_nightVisionIr2ndDiffuse;
-    __asm { vmovss  xmm1, dword ptr [rax+28h] }
-    _RAX = r_nightVisionIrAmbient;
-    __asm { vmovss  xmm2, dword ptr [rax+28h] }
+    value = r_nightVisionIrDirect->current.value;
+    v41 = r_nightVisionIr2ndSpecular->current.value;
+    v42 = r_nightVisionIr2ndDiffuse->current.value;
+    v43 = r_nightVisionIrAmbient->current.value;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm2, xmm2, xmm2
-    }
+    v41 = 0.0;
+    v42 = 0.0;
+    v43 = 0.0;
   }
-  __asm
+  viewInfo->input.sceneConstants.infrared.v[0] = v43;
+  viewInfo->input.sceneConstants.infrared.v[1] = v42;
+  viewInfo->input.sceneConstants.infrared.v[2] = v41;
+  viewInfo->input.sceneConstants.infrared.v[3] = value;
+  if ( *(float *)&_XMM9 >= *(float *)&_XMM10 )
   {
-    vcomiss xmm9, xmm10
-    vmovss  dword ptr [rbx+19A0h], xmm2
-    vmovss  dword ptr [rbx+19A4h], xmm1
-    vmovss  dword ptr [rbx+19A8h], xmm0
-    vmovss  dword ptr [rbx+19ACh], xmm8
-    vcomiss xmm9, xmm12
-  }
-  if ( v66 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm9, xmm10
-      vmulss  xmm1, xmm0, xmm11
-    }
+    if ( *(float *)&_XMM9 <= *(float *)&_XMM12 )
+      v44 = (float)(*(float *)&_XMM9 - *(float *)&_XMM10) * v18;
+    else
+      v44 = FLOAT_1048576_0;
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@49800000 }
+    v44 = FLOAT_N1048576_0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+5F0h]
-    vmovss  dword ptr [rdi+14D4h], xmm0
-    vmovss  dword ptr [rdi+14D0h], xmm1
-  }
-  *(_QWORD *)&_RDI->sceneConstants.nightThermalVisionWeight.xyz.z = 0i64;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+614h]
-    vmulss  xmm2, xmm3, dword ptr [rbx+5FCh]
-    vmulss  xmm1, xmm3, dword ptr [rbx+600h]
-    vmulss  xmm0, xmm3, dword ptr [rbx+604h]
-    vmovss  dword ptr [rdi+14E0h], xmm2
-    vmovss  dword ptr [rdi+14E4h], xmm1
-    vmovss  dword ptr [rdi+14E8h], xmm0
-    vmovss  dword ptr [rdi+14ECh], xmm3
-    vmovss  xmm4, dword ptr [rbx+614h]
-    vmulss  xmm2, xmm4, dword ptr [rbx+608h]
-    vmulss  xmm1, xmm4, dword ptr [rbx+60Ch]
-    vmulss  xmm0, xmm4, dword ptr [rbx+610h]
-    vmovss  dword ptr [rdi+14F0h], xmm2
-    vmovss  dword ptr [rdi+14F4h], xmm1
-    vmovss  dword ptr [rdi+14F8h], xmm0
-    vmovss  dword ptr [rdi+14FCh], xmm4
-  }
-  thermalRadiationLut = (GfxImage *)_RBX->thermalParams.thermalRadiationLut;
+  p_input->sceneConstants.nightThermalVisionWeight.v[1] = viewInfo->thermalParams.thermalFogExtinctionWeight;
+  p_input->sceneConstants.nightThermalVisionWeight.v[0] = v44;
+  *(_QWORD *)&p_input->sceneConstants.nightThermalVisionWeight.xyz.z = 0i64;
+  thermalColorScale = viewInfo->thermalParams.thermalColorScale;
+  v46 = thermalColorScale * viewInfo->thermalParams.thermalColdColor.v[1];
+  v47 = thermalColorScale * viewInfo->thermalParams.thermalColdColor.v[2];
+  p_input->sceneConstants.thermalColdColor.v[0] = thermalColorScale * viewInfo->thermalParams.thermalColdColor.v[0];
+  p_input->sceneConstants.thermalColdColor.v[1] = v46;
+  p_input->sceneConstants.thermalColdColor.v[2] = v47;
+  p_input->sceneConstants.thermalColdColor.v[3] = thermalColorScale;
+  v48 = viewInfo->thermalParams.thermalColorScale;
+  v49 = v48 * viewInfo->thermalParams.thermalHotColor.v[1];
+  v50 = v48 * viewInfo->thermalParams.thermalHotColor.v[2];
+  p_input->sceneConstants.thermalHotColor.v[0] = v48 * viewInfo->thermalParams.thermalHotColor.v[0];
+  p_input->sceneConstants.thermalHotColor.v[1] = v49;
+  p_input->sceneConstants.thermalHotColor.v[2] = v50;
+  p_input->sceneConstants.thermalHotColor.v[3] = v48;
+  thermalRadiationLut = viewInfo->thermalParams.thermalRadiationLut;
   blackImage = rgp.blackImage;
   if ( thermalRadiationLut )
-    blackImage = thermalRadiationLut;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    blackImage = (GfxImage *)thermalRadiationLut;
+  if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _R11 = &v97;
-  _RDI->codeImages[54] = blackImage;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  p_input->codeImages[54] = blackImage;
 }
 
 /*
@@ -441,43 +264,19 @@ R_ThermalParamsFromDvars
 void R_ThermalParamsFromDvars(GfxViewInfo *viewInfo)
 {
   *(_WORD *)&viewInfo->thermalParams.useNightAndThermalVisionCombo = rg.useNightAndThermalVisionCombo;
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.nightVisionExposureAdjustment; r_globals_t rg
-    vmovss  dword ptr [rcx+5D4h], xmm0
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.nightVisionMinExposureBias; r_globals_t rg
-    vmovss  dword ptr [rcx+5D8h], xmm1
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.thermalAmbient; r_globals_t rg
-    vmovss  dword ptr [rcx+5DCh], xmm0
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.thermalAmbientReflection; r_globals_t rg
-    vmovss  dword ptr [rcx+5E0h], xmm1
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.thermalRadiationMin; r_globals_t rg
-    vmovss  dword ptr [rcx+5E4h], xmm0
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.thermalRadiationMax; r_globals_t rg
-    vmovss  dword ptr [rcx+5E8h], xmm1
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.lightIntensityScopeScreen; r_globals_t rg
-    vmovss  dword ptr [rcx+5ECh], xmm0
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.thermalSurfaceNormalStrength; r_globals_t rg
-    vmovss  dword ptr [rcx+5F4h], xmm1
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.thermalCutoff; r_globals_t rg
-    vmovss  dword ptr [rcx+618h], xmm0
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.thermalFog; r_globals_t rg
-    vmovss  dword ptr [rcx+61Ch], xmm1
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.thermalColdColor; r_globals_t rg
-    vmovss  dword ptr [rcx+5FCh], xmm0
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.thermalColdColor+4; r_globals_t rg
-    vmovss  dword ptr [rcx+600h], xmm1
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.thermalColdColor+8; r_globals_t rg
-    vmovss  dword ptr [rcx+604h], xmm0
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.thermalHotColor; r_globals_t rg
-    vmovss  dword ptr [rcx+608h], xmm1
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.thermalHotColor+4; r_globals_t rg
-    vmovss  dword ptr [rcx+60Ch], xmm0
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.thermalHotColor+8; r_globals_t rg
-    vmovss  dword ptr [rcx+610h], xmm1
-    vmovss  xmm0, dword ptr [rcx+614h]
-    vmovss  cs:?rg@@3Ur_globals_t@@A.thermalColorScale, xmm0; r_globals_t rg
-  }
+  viewInfo->thermalParams.nightVisionExposureAdjustment = rg.nightVisionExposureAdjustment;
+  viewInfo->thermalParams.nightVisionMinExposureBias = rg.nightVisionMinExposureBias;
+  viewInfo->thermalParams.thermalAmbientTemperature = rg.thermalAmbient;
+  viewInfo->thermalParams.thermalAmbientReflection = rg.thermalAmbientReflection;
+  viewInfo->thermalParams.thermalRadiationMin = rg.thermalRadiationMin;
+  viewInfo->thermalParams.thermalRadiationMax = rg.thermalRadiationMax;
+  viewInfo->thermalParams.lightIntensityScreen = rg.lightIntensityScopeScreen;
+  viewInfo->thermalParams.thermalSurfaceNormalStrength = rg.thermalSurfaceNormalStrength;
+  viewInfo->thermalParams.thermalCutoff = rg.thermalCutoff;
+  viewInfo->thermalParams.thermalFog = rg.thermalFog;
+  viewInfo->thermalParams.thermalColdColor = rg.thermalColdColor;
+  viewInfo->thermalParams.thermalHotColor = rg.thermalHotColor;
+  rg.thermalColorScale = viewInfo->thermalParams.thermalColorScale;
   viewInfo->thermalParams.thermalRadiationLut = NULL;
 }
 

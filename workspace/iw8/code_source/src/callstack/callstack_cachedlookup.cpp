@@ -121,11 +121,8 @@ void __fastcall Callstack_CachedLookup_Pop(double _XMM0_8)
   {
     PMem_Free(&result, "Callstack_CachedLookup", PMEM_STACK_GAME);
     StreamerMemLoan::~StreamerMemLoan(&result);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:s_cachedLookupGlob.lookup, xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&s_cachedLookupGlob.lookup = _XMM0;
   }
 }
 

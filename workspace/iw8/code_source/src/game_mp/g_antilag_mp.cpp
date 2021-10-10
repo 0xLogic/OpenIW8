@@ -336,39 +336,31 @@ void GAntiLagMP::AntiLagRestoreSceneHandlePoseRewind(GAntiLagMP *this)
 GAntiLagMP::AntiLagSceneHandlePoseRewind
 ==============
 */
-
-void __fastcall GAntiLagMP::AntiLagSceneHandlePoseRewind(GAntiLagMP *this, BgAntiLagFrameHistory *startFrame, BgAntiLagFrameHistory *endFrame, double progress)
+void GAntiLagMP::AntiLagSceneHandlePoseRewind(GAntiLagMP *this, BgAntiLagFrameHistory *startFrame, BgAntiLagFrameHistory *endFrame, float progress)
 {
-  __int64 v9; 
+  __int64 v7; 
   XAnimTree **savedTree; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
-  _RSI = this;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !startFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 350, ASSERT_TYPE_ASSERT, "(startFrame)", (const char *)&queryFormat, "startFrame") )
     __debugbreak();
   if ( !endFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 351, ASSERT_TYPE_ASSERT, "(endFrame)", (const char *)&queryFormat, "endFrame") )
     __debugbreak();
-  v9 = 0i64;
-  savedTree = _RSI->m_rewindSceneInst.poseRewind.savedTree;
+  v7 = 0i64;
+  savedTree = this->m_rewindSceneInst.poseRewind.savedTree;
   do
   {
-    if ( _RSI->m_rewindSceneInst.poseRewind.hasAntilagPose[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 360, ASSERT_TYPE_ASSERT, "( !m_rewindSceneInst.poseRewind.hasAntilagPose[characterIndex] )", (const char *)&queryFormat, "!m_rewindSceneInst.poseRewind.hasAntilagPose[characterIndex]") )
+    if ( this->m_rewindSceneInst.poseRewind.hasAntilagPose[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 360, ASSERT_TYPE_ASSERT, "( !m_rewindSceneInst.poseRewind.hasAntilagPose[characterIndex] )", (const char *)&queryFormat, "!m_rewindSceneInst.poseRewind.hasAntilagPose[characterIndex]") )
       __debugbreak();
     if ( *savedTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 361, ASSERT_TYPE_ASSERT, "( !m_rewindSceneInst.poseRewind.savedTree[characterIndex] )", (const char *)&queryFormat, "!m_rewindSceneInst.poseRewind.savedTree[characterIndex]") )
       __debugbreak();
-    ++v9;
+    ++v7;
     ++savedTree;
   }
-  while ( v9 < 248 );
-  _RSI->m_rewindSceneInst.poseRewind.fromFrame = (SvAntilagArchiveFrame *)&startFrame[1].entityDataExtended.m_data[17].boneInfo.boneList.m_data[1].dataValid;
-  __asm
-  {
-    vmovss  dword ptr [rsi+432790h], xmm6
-    vmovaps xmm6, [rsp+68h+var_38]
-  }
-  _RSI->m_rewindSceneInst.poseRewind.toFrame = (SvAntilagArchiveFrame *)&endFrame[1].entityDataExtended.m_data[17].boneInfo.boneList.m_data[1].dataValid;
-  _RSI->m_rewindSceneInst.poseValid = 1;
+  while ( v7 < 248 );
+  this->m_rewindSceneInst.poseRewind.fromFrame = (SvAntilagArchiveFrame *)&startFrame[1].entityDataExtended.m_data[17].boneInfo.boneList.m_data[1].dataValid;
+  this->m_rewindSceneInst.poseRewind.progress = progress;
+  this->m_rewindSceneInst.poseRewind.toFrame = (SvAntilagArchiveFrame *)&endFrame[1].entityDataExtended.m_data[17].boneInfo.boneList.m_data[1].dataValid;
+  this->m_rewindSceneInst.poseValid = 1;
 }
 
 /*
@@ -459,82 +451,51 @@ GAntiLagMP::DrawDebug
 */
 void GAntiLagMP::DrawDebug(GAntiLagMP *this)
 {
-  const dvar_t *v3; 
-  GAntilagDebugStoreType v4; 
-  const dvar_t *v5; 
+  const dvar_t *v2; 
+  GAntilagDebugStoreType v3; 
+  const dvar_t *v4; 
   BgAntiLagFrameHistory *CurrentHistoryFrame; 
-  const char *v16; 
-  const char *v25; 
+  __int64 v6; 
+  float v7; 
+  const char *v8; 
+  float v9; 
+  const char *v10; 
 
-  v3 = DVARINT_bg_debugRewindPositions;
+  v2 = DVARINT_bg_debugRewindPositions;
   if ( !DVARINT_bg_debugRewindPositions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugRewindPositions") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  switch ( v3->current.integer )
+  Dvar_CheckFrontendServerThread(v2);
+  switch ( v2->current.integer )
   {
     case 3:
-      v4 = ANTILAG_DEBUG_STORE_CURRENT;
+      v3 = ANTILAG_DEBUG_STORE_CURRENT;
       goto LABEL_10;
     case 4:
-      v4 = ANTILAG_DEBUG_STORE_REWIND;
+      v3 = ANTILAG_DEBUG_STORE_REWIND;
       goto LABEL_10;
     case 5:
-      v4 = ANTILAG_DEBUG_STORE_ARCHIVED_POSE;
+      v3 = ANTILAG_DEBUG_STORE_ARCHIVED_POSE;
 LABEL_10:
-      GAntiLagMP::DrawDebugCharacterPoses(this, v4);
+      GAntiLagMP::DrawDebugCharacterPoses(this, v3);
       break;
   }
-  v5 = DVARBOOL_bg_debugPoseRewindMemory;
+  v4 = DVARBOOL_bg_debugPoseRewindMemory;
   if ( !DVARBOOL_bg_debugPoseRewindMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugPoseRewindMemory") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
     CurrentHistoryFrame = BgAntiLag::GetCurrentHistoryFrame(this);
     if ( CurrentHistoryFrame )
     {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3fa00000; scale
-        vmovaps [rsp+58h+var_18], xmm7
-        vmovss  xmm7, cs:__real@42c80000
-        vmovaps xmm1, xmm7; y
-        vmovaps xmm0, xmm7; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, "AntiLag Pose Memory Usage");
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rdx
-        vmulss  xmm1, xmm0, cs:__real@3dcccccd
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      v16 = j_va("Anim Info: %d/%lu (%.1f%%, %lu/%lu bytes)", CurrentHistoryFrame[2].entityDataExtended.m_data[51].boneInfo.boneList.m_data[1].origin.v[2], 1000i64, _R9, 16i64 * LODWORD(CurrentHistoryFrame[2].entityDataExtended.m_data[51].boneInfo.boneList.m_data[1].origin.v[2]), 16000i64);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3fa00000; scale
-        vmovss  xmm1, cs:__real@42fa0000; y
-        vmovaps xmm0, xmm7; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorWhite, *(float *)&_XMM3, v16);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vmulss  xmm2, xmm1, cs:__real@3be49249
-        vcvtss2sd xmm3, xmm2, xmm2
-        vmovq   r9, xmm3
-      }
-      v25 = j_va("Custom Node Data: %d/%lu bytes (%.1f%%)", CurrentHistoryFrame[2].otherEntList.m_data[199], 14336i64, _R9);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3fa00000; scale
-        vmovss  xmm1, cs:__real@43160000; y
-        vmovaps xmm0, xmm7; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorWhite, *(float *)&_XMM3, v25);
-      __asm { vmovaps xmm7, [rsp+58h+var_18] }
+      G_Main_AddDebugString2D(100.0, 100.0, &colorYellow, 1.25, "AntiLag Pose Memory Usage");
+      v6 = LODWORD(CurrentHistoryFrame[2].entityDataExtended.m_data[51].boneInfo.boneList.m_data[1].origin.v[2]);
+      v7 = (float)v6;
+      v8 = j_va("Anim Info: %d/%lu (%.1f%%, %lu/%lu bytes)", v6, 1000i64, (float)(v7 * 0.1), 16 * v6, 16000i64);
+      G_Main_AddDebugString2D(100.0, 125.0, &colorWhite, 1.25, v8);
+      v9 = (float)CurrentHistoryFrame[2].otherEntList.m_data[199];
+      v10 = j_va("Custom Node Data: %d/%lu bytes (%.1f%%)", CurrentHistoryFrame[2].otherEntList.m_data[199], 14336i64, (float)(v9 * 0.0069754464));
+      G_Main_AddDebugString2D(100.0, 150.0, &colorWhite, 1.25, v10);
     }
   }
 }
@@ -546,47 +507,40 @@ GAntiLagMP::DrawDebugCharacterPoses
 */
 void GAntiLagMP::DrawDebugCharacterPoses(GAntiLagMP *this, GAntilagDebugStoreType storeType)
 {
-  __int64 v4; 
-  const dvar_t *v6; 
-  const dvar_t *v7; 
+  __int64 v2; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
   int integer; 
-  AntilagDebugCharacterInfo *v9; 
+  AntilagDebugCharacterInfo *v7; 
   int i; 
   AntilagDebugCharacterInfo *AntilagDebugCharacterInfo; 
-  __int64 v12; 
-  __int64 v13; 
+  __int64 v10; 
+  __int64 v11; 
   vec4_t color[2]; 
+  __int128 v13; 
 
-  __asm
-  {
-    vmovups ymm0, cs:__ymm@3f8000003f80000000000000000000003f80000000000000000000003f800000
-    vmovups xmm1, cs:__xmm@3f8000003f8000003f8000003f800000
-  }
-  v4 = storeType;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+98h+color], ymm0
-    vmovups [rsp+98h+var_38], xmm1
-  }
+  v2 = storeType;
+  *(__m256i *)color[0].v = _ymm;
+  v13 = _xmm;
   if ( storeType != ANTILAG_DEBUG_STORE_ARCHIVED_POSE )
     goto LABEL_6;
-  v6 = DVARBOOL_sv_rewindPoseArchive;
+  v4 = DVARBOOL_sv_rewindPoseArchive;
   if ( !DVARBOOL_sv_rewindPoseArchive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_rewindPoseArchive") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
 LABEL_6:
-    v7 = DVARINT_bg_debugRewindCharacter;
+    v5 = DVARINT_bg_debugRewindCharacter;
     if ( !DVARINT_bg_debugRewindCharacter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugRewindCharacter") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    integer = v7->current.integer;
+    Dvar_CheckFrontendServerThread(v5);
+    integer = v5->current.integer;
     if ( integer < -1 || integer > this->m_antilagDebugCharacterCount )
     {
-      LODWORD(v13) = -1;
-      LODWORD(v12) = integer;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 580, ASSERT_TYPE_ASSERT, "( -1 ) <= ( debugCharacterIndex ) && ( debugCharacterIndex ) <= ( m_antilagDebugCharacterCount )", "debugCharacterIndex not in [-1, m_antilagDebugCharacterCount]\n\t%i not in [%i, %i]", v12, v13, this->m_antilagDebugCharacterCount) )
+      LODWORD(v11) = -1;
+      LODWORD(v10) = integer;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 580, ASSERT_TYPE_ASSERT, "( -1 ) <= ( debugCharacterIndex ) && ( debugCharacterIndex ) <= ( m_antilagDebugCharacterCount )", "debugCharacterIndex not in [-1, m_antilagDebugCharacterCount]\n\t%i not in [%i, %i]", v10, v11, this->m_antilagDebugCharacterCount) )
         __debugbreak();
     }
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -595,9 +549,9 @@ LABEL_6:
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v13) = ComCharacterLimits::ms_gameData.m_characterCount;
-      LODWORD(v12) = this->m_antilagDebugCharacterCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 581, ASSERT_TYPE_ASSERT, "( m_antilagDebugCharacterCount ) >= ( ComCharacterLimits::GetCharacterMaxCount() )", "m_antilagDebugCharacterCount >= ComCharacterLimits::GetCharacterMaxCount()\n\t%i, %i", v12, v13) )
+      LODWORD(v11) = ComCharacterLimits::ms_gameData.m_characterCount;
+      LODWORD(v10) = this->m_antilagDebugCharacterCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 581, ASSERT_TYPE_ASSERT, "( m_antilagDebugCharacterCount ) >= ( ComCharacterLimits::GetCharacterMaxCount() )", "m_antilagDebugCharacterCount >= ComCharacterLimits::GetCharacterMaxCount()\n\t%i, %i", v10, v11) )
         __debugbreak();
     }
     if ( integer < 0 )
@@ -608,14 +562,14 @@ LABEL_6:
           __debugbreak();
         if ( i >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
           break;
-        AntilagDebugCharacterInfo = GAntiLagMP::GetAntilagDebugCharacterInfo(this, (GAntilagDebugStoreType)v4, i);
-        G_AntilagMP_DrawDebugCharacterPose(&color[v4], AntilagDebugCharacterInfo);
+        AntilagDebugCharacterInfo = GAntiLagMP::GetAntilagDebugCharacterInfo(this, (GAntilagDebugStoreType)v2, i);
+        G_AntilagMP_DrawDebugCharacterPose(&color[v2], AntilagDebugCharacterInfo);
       }
     }
     else
     {
-      v9 = GAntiLagMP::GetAntilagDebugCharacterInfo(this, (GAntilagDebugStoreType)v4, integer);
-      G_AntilagMP_DrawDebugCharacterPose(&color[v4], v9);
+      v7 = GAntiLagMP::GetAntilagDebugCharacterInfo(this, (GAntilagDebugStoreType)v2, integer);
+      G_AntilagMP_DrawDebugCharacterPose(&color[v2], v7);
     }
   }
 }
@@ -630,11 +584,12 @@ void G_AntiLag_ArchiveCharacterController(const int characterIndex, const gentit
   __int64 v4; 
   const dvar_t *v6; 
   __int64 v7; 
-  clientControllers_t *p_control; 
+  __int64 v8; 
+  clientControllers_t *v9; 
   __int16 v10; 
-  __int64 v17; 
+  __int64 v11; 
+  __int64 v12; 
 
-  _R14 = archiveCtrl;
   v4 = characterIndex;
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
@@ -642,13 +597,13 @@ void G_AntiLag_ArchiveCharacterController(const int characterIndex, const gentit
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v17) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 227, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "characterIndex doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v17, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v12) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 227, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "characterIndex doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v12, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 228, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 229, ASSERT_TYPE_ASSERT, "( archiveCtrl )", (const char *)&queryFormat, "archiveCtrl") )
+  if ( !archiveCtrl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 229, ASSERT_TYPE_ASSERT, "( archiveCtrl )", (const char *)&queryFormat, "archiveCtrl") )
     __debugbreak();
   v6 = DVARBOOL_sv_rewindPoseArchive;
   if ( !DVARBOOL_sv_rewindPoseArchive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_rewindPoseArchive") )
@@ -659,40 +614,32 @@ void G_AntiLag_ArchiveCharacterController(const int characterIndex, const gentit
     if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
       __debugbreak();
     v7 = (*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)v4);
-    _RBX = (const characterInfo_t *)v7;
+    v8 = v7;
     if ( (!v7 || !*(_DWORD *)(v7 + 4)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 236, ASSERT_TYPE_ASSERT, "( ci && ci->infoValid )", (const char *)&queryFormat, "ci && ci->infoValid") )
       __debugbreak();
     Profile_Begin(398);
-    p_control = &_RBX->control;
-    if ( _RBX->usingAnimState )
+    v9 = (clientControllers_t *)(v8 + 2812);
+    if ( *(_DWORD *)(v8 + 2568) )
     {
-      if ( !BG_AnimationState_UpdateControllers(&ent->s, _RBX, p_control) )
-        memset_0(&_RBX->control, 0, sizeof(_RBX->control));
+      if ( !BG_AnimationState_UpdateControllers(&ent->s, (const characterInfo_t *)v8, v9) )
+        memset_0((void *)(v8 + 2812), 0, 0x78ui64);
     }
     else
     {
-      BG_Player_DoControllersInternal(&ent->s, _RBX, p_control);
+      BG_Player_DoControllersInternal(&ent->s, (const characterInfo_t *)v8, v9);
     }
     Profile_EndInternal(NULL);
-    if ( _RBX->usingAnimState )
+    if ( *(_DWORD *)(v8 + 2568) )
       v10 = truncate_cast<short,unsigned int>((ent->s.animInfo.animData >> 18) & 0x3F);
     else
       v10 = -1;
-    _R14->animClass[v4] = v10;
-    __asm { vmovups ymm0, ymmword ptr [rbx+0AFCh] }
-    _RAX = 120 * v4;
-    __asm
-    {
-      vmovups ymmword ptr [rax+r14+1F0h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+0B1Ch]
-      vmovups ymmword ptr [rax+r14+210h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+0B3Ch]
-      vmovups ymmword ptr [rax+r14+230h], ymm0
-      vmovups xmm1, xmmword ptr [rbx+0B5Ch]
-      vmovups xmmword ptr [rax+r14+250h], xmm1
-      vmovsd  xmm0, qword ptr [rbx+0B6Ch]
-      vmovsd  qword ptr [rax+r14+260h], xmm0
-    }
+    archiveCtrl->animClass[v4] = v10;
+    v11 = v4;
+    *(__m256i *)archiveCtrl->controllers[v11].angles[0].v = *(__m256i *)(v8 + 2812);
+    *(__m256i *)&archiveCtrl->controllers[v11].angles[2].z = *(__m256i *)(v8 + 2844);
+    *(__m256i *)&archiveCtrl->controllers[v11].tag_origin_offset.y = *(__m256i *)(v8 + 2876);
+    *(_OWORD *)archiveCtrl->controllers[v11].hand_ik_local_ang[0].v = *(_OWORD *)(v8 + 2908);
+    *(double *)&archiveCtrl->controllers[v11].hand_ik_local_ang[1].y = *(double *)(v8 + 2924);
   }
 }
 
@@ -790,209 +737,202 @@ G_AntilagMP_SaveDebugCharacterPose
 */
 void G_AntilagMP_SaveDebugCharacterPose(const int characterIndex, AntilagDebugCharacterInfo *outCharacterInfo)
 {
-  const gentity_s *v6; 
-  const DObj *v7; 
-  __int64 v8; 
-  const characterInfo_t *v9; 
-  const BgAnimStatic *v10; 
+  AntilagDebugCharacterInfo *v2; 
+  const gentity_s *v4; 
+  const DObj *v5; 
+  __int64 v6; 
+  const characterInfo_t *v7; 
+  const BgAnimStatic *v8; 
+  double Time; 
   unsigned int XAnimIndex; 
   SuitAnimType SuitAnimIndexFromCharacter; 
-  unsigned int v14; 
+  unsigned int v12; 
+  double Rate; 
+  int v14; 
   int v15; 
-  int v16; 
+  __int64 v16; 
   __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
-  unsigned __int8 v20; 
-  unsigned int v21; 
+  unsigned __int8 v19; 
+  unsigned int v20; 
+  XBoneInfo *v21; 
   __int64 boneCount; 
-  int v25; 
+  int v24; 
+  __int64 v25; 
+  double v26; 
   __int64 p_y; 
-  int v32; 
-  __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
+  int v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
   unsigned __int8 inOutIndex[8]; 
-  __int64 v39; 
-  int v40; 
+  __int64 v34; 
+  int v35; 
   int NumModels; 
   int modelIndex; 
-  AntilagDebugCharacterInfo *v43; 
+  AntilagDebugCharacterInfo *v38; 
   const XModel *Model; 
   DObj *ServerDObjForEnt; 
-  const gentity_s *v46; 
+  const gentity_s *v41; 
   tmat43_t<vec3_t> outTagMat; 
   XBoneInfo *boneInfo[254]; 
 
-  _RSI = outCharacterInfo;
-  v43 = outCharacterInfo;
+  v2 = outCharacterInfo;
+  v38 = outCharacterInfo;
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
   if ( characterIndex >= ComCharacterLimits::ms_gameData.m_characterCount )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v34) = characterIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 460, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "characterIndex doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v34, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v29) = characterIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 460, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "characterIndex doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v29, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
-  v46 = SV_GentityNum(characterIndex);
-  v6 = v46;
-  ServerDObjForEnt = Com_GetServerDObjForEnt(v46);
-  v7 = ServerDObjForEnt;
+  v41 = SV_GentityNum(characterIndex);
+  v4 = v41;
+  ServerDObjForEnt = Com_GetServerDObjForEnt(v41);
+  v5 = ServerDObjForEnt;
   if ( ServerDObjForEnt )
   {
-    __asm { vmovaps [rsp+8F8h+var_48], xmm6 }
     if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
       __debugbreak();
-    v8 = *(_QWORD *)&GStatic::ms_gameStatics;
-    v9 = (const characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)characterIndex);
-    v10 = (const BgAnimStatic *)(*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v8 + 8i64))(v8);
-    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 471, ASSERT_TYPE_ASSERT, "(bgameAnim)", (const char *)&queryFormat, "bgameAnim") )
+    v6 = *(_QWORD *)&GStatic::ms_gameStatics;
+    v7 = (const characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)characterIndex);
+    v8 = (const BgAnimStatic *)(*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v6 + 8i64))(v6);
+    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 471, ASSERT_TYPE_ASSERT, "(bgameAnim)", (const char *)&queryFormat, "bgameAnim") )
       __debugbreak();
-    _RSI->boneCount = 0;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( v9->usingAnimState )
+    v2->boneCount = 0;
+    if ( v7->usingAnimState )
     {
-      _RSI->legsAnimIndex = 0;
-      _RSI->legsAnimRate = 0.0;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      v2->legsAnimIndex = 0;
+      v2->legsAnimRate = 0.0;
+      LODWORD(Time) = 0;
     }
     else
     {
       if ( PlayerASM_IsEnabled() )
       {
-        XAnimIndex = BG_PlayerASM_GetXAnimIndex(v9->legs.animsetIndex, v9->legs.animationNumber);
+        XAnimIndex = BG_PlayerASM_GetXAnimIndex(v7->legs.animsetIndex, v7->legs.animationNumber);
       }
       else
       {
-        SuitAnimIndexFromCharacter = BG_GetSuitAnimIndexFromCharacter(v9);
-        XAnimIndex = BG_AnimationMP_GetXAnimIndex(v10, SuitAnimIndexFromCharacter, v9->legs.animationNumber & 0xFFFFEFFF);
+        SuitAnimIndexFromCharacter = BG_GetSuitAnimIndexFromCharacter(v7);
+        XAnimIndex = BG_AnimationMP_GetXAnimIndex(v8, SuitAnimIndexFromCharacter, v7->legs.animationNumber & 0xFFFFEFFF);
       }
-      _RSI->legsAnimIndex = XAnimIndex;
-      v14 = XAnimIndex;
-      *(double *)&_XMM0 = XAnimGetRate(v7->tree, 0, XANIM_SUBTREE_DEFAULT, XAnimIndex);
-      __asm { vmovss  dword ptr [rsi+8], xmm0 }
-      *(double *)&_XMM0 = XAnimGetTime(v7->tree, 0, XANIM_SUBTREE_DEFAULT, v14);
+      v2->legsAnimIndex = XAnimIndex;
+      v12 = XAnimIndex;
+      Rate = XAnimGetRate(v5->tree, 0, XANIM_SUBTREE_DEFAULT, XAnimIndex);
+      v2->legsAnimRate = *(float *)&Rate;
+      Time = XAnimGetTime(v5->tree, 0, XANIM_SUBTREE_DEFAULT, v12);
     }
-    __asm { vmovss  dword ptr [rsi+4], xmm0 }
-    DObjGetBoneInfo(v7, boneInfo);
-    NumModels = DObjGetNumModels(v7);
-    v15 = NumModels;
+    v2->legsAnimTime = *(float *)&Time;
+    DObjGetBoneInfo(v5, boneInfo);
+    NumModels = DObjGetNumModels(v5);
+    v14 = NumModels;
     if ( NumModels <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 504, ASSERT_TYPE_ASSERT, "( modelCount > 0 )", (const char *)&queryFormat, "modelCount > 0") )
       __debugbreak();
-    v16 = 0;
-    v40 = 0;
+    v15 = 0;
+    v35 = 0;
     if ( NumModels > 0 )
     {
       do
       {
-        Model = DObjGetModel(v7, v16);
-        v17 = (__int64)Model;
+        Model = DObjGetModel(v5, v15);
+        v16 = (__int64)Model;
         if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 509, ASSERT_TYPE_ASSERT, "( model )", (const char *)&queryFormat, "model") )
           __debugbreak();
+        v17 = 0i64;
         v18 = 0i64;
-        v19 = 0i64;
-        v39 = 0i64;
-        if ( *(_BYTE *)(v17 + 20) )
+        v34 = 0i64;
+        if ( *(_BYTE *)(v16 + 20) )
         {
           do
           {
-            v20 = *(_BYTE *)(v18 + *(_QWORD *)(v17 + 184));
-            if ( v20 >= 0x16u )
+            v19 = *(_BYTE *)(v17 + *(_QWORD *)(v16 + 184));
+            if ( v19 >= 0x16u )
             {
-              LODWORD(v36) = 22;
-              LODWORD(v34) = v20;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 515, ASSERT_TYPE_ASSERT, "(unsigned)( modelBonePartClassification ) < (unsigned)( HITLOC_NUM )", "modelBonePartClassification doesn't index HITLOC_NUM\n\t%i not in [0, %i)", v34, v36) )
+              LODWORD(v31) = 22;
+              LODWORD(v29) = v19;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 515, ASSERT_TYPE_ASSERT, "(unsigned)( modelBonePartClassification ) < (unsigned)( HITLOC_NUM )", "modelBonePartClassification doesn't index HITLOC_NUM\n\t%i not in [0, %i)", v29, v31) )
                 __debugbreak();
-              v18 = v39;
+              v17 = v34;
             }
-            if ( v20 )
+            if ( v19 )
             {
-              v21 = *(unsigned __int8 *)(v17 + 20);
+              v20 = *(unsigned __int8 *)(v16 + 20);
               inOutIndex[0] = -2;
-              if ( (unsigned int)v19 >= v21 )
+              if ( (unsigned int)v18 >= v20 )
               {
-                LODWORD(v36) = v21;
-                LODWORD(v34) = v19;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 173, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex ) < (unsigned)( model->numBones )", "boneIndex doesn't index model->numBones\n\t%i not in [0, %i)", v34, v36) )
+                LODWORD(v31) = v20;
+                LODWORD(v29) = v18;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 173, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex ) < (unsigned)( model->numBones )", "boneIndex doesn't index model->numBones\n\t%i not in [0, %i)", v29, v31) )
                   __debugbreak();
               }
-              if ( !*(_QWORD *)(v17 + 152) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 174, ASSERT_TYPE_ASSERT, "(model->boneNames)", (const char *)&queryFormat, "model->boneNames") )
+              if ( !*(_QWORD *)(v16 + 152) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 174, ASSERT_TYPE_ASSERT, "(model->boneNames)", (const char *)&queryFormat, "model->boneNames") )
                 __debugbreak();
-              if ( DObjGetBoneIndexInternal_13(v7, *(scr_string_t *)(*(_QWORD *)(v17 + 152) + 4 * v19), inOutIndex, &modelIndex) )
+              if ( DObjGetBoneIndexInternal_13(v5, *(scr_string_t *)(*(_QWORD *)(v16 + 152) + 4 * v18), inOutIndex, &modelIndex) )
               {
-                _RBX = boneInfo[inOutIndex[0]];
-                __asm { vucomiss xmm6, dword ptr [rbx+0Ch] }
-                G_Utils_DObjGetWorldBoneIndexMatrix(v6, inOutIndex[0], &outTagMat);
-                if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 440, ASSERT_TYPE_ASSERT, "( bounds )", (const char *)&queryFormat, "bounds") )
-                  __debugbreak();
-                boneCount = _RSI->boneCount;
-                if ( (unsigned int)boneCount < 0x80 )
+                v21 = boneInfo[inOutIndex[0]];
+                if ( v21->bounds.halfSize.v[0] != 0.0 || v21->bounds.halfSize.v[1] != 0.0 || v21->bounds.halfSize.v[2] != 0.0 )
                 {
-                  __asm { vmovups xmm0, xmmword ptr [rbx] }
-                  v25 = 0;
-                  _R15 = (__int64)&_RSI->bones[boneCount];
-                  __asm
+                  G_Utils_DObjGetWorldBoneIndexMatrix(v4, inOutIndex[0], &outTagMat);
+                  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 440, ASSERT_TYPE_ASSERT, "( bounds )", (const char *)&queryFormat, "bounds") )
+                    __debugbreak();
+                  boneCount = v2->boneCount;
+                  if ( (unsigned int)boneCount < 0x80 )
                   {
-                    vmovups xmmword ptr [r15], xmm0
-                    vmovsd  xmm1, qword ptr [rbx+10h]
-                  }
-                  p_y = (__int64)&_RSI->bones[boneCount].worldRot.row0.y;
-                  __asm { vmovsd  qword ptr [r15+10h], xmm1 }
-                  do
-                  {
-                    if ( (unsigned int)v25 >= 4 )
+                    v24 = 0;
+                    v25 = (__int64)&v2->bones[boneCount];
+                    *(_OWORD *)v25 = *(_OWORD *)v21->bounds.midPoint.v;
+                    v26 = *(double *)&v21->bounds.halfSize.y;
+                    p_y = (__int64)&v2->bones[boneCount].worldRot.row0.y;
+                    *(double *)(v25 + 16) = v26;
+                    do
                     {
-                      LODWORD(v36) = 4;
-                      LODWORD(v34) = v25;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v34, v36) )
-                        __debugbreak();
-                      LODWORD(v37) = 4;
-                      LODWORD(v35) = v25;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v37) )
-                        __debugbreak();
+                      if ( (unsigned int)v24 >= 4 )
+                      {
+                        LODWORD(v31) = 4;
+                        LODWORD(v29) = v24;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v29, v31) )
+                          __debugbreak();
+                        LODWORD(v32) = 4;
+                        LODWORD(v30) = v24;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v30, v32) )
+                          __debugbreak();
+                      }
+                      ++v24;
+                      *(_DWORD *)(p_y - 4) = *(_DWORD *)((char *)&outTagMat.m[-3] + p_y - v25 - 4);
+                      *(float *)p_y = *(float *)((char *)outTagMat.m[-3].v + p_y - v25);
+                      *(_DWORD *)(p_y + 4) = *(_DWORD *)((char *)&outTagMat.m[-2] + p_y - v25 - 8);
+                      p_y += 12i64;
                     }
-                    ++v25;
-                    *(_DWORD *)(p_y - 4) = *(_DWORD *)((char *)&outTagMat.m[-3] + p_y - _R15 - 4);
-                    *(float *)p_y = *(float *)((char *)outTagMat.m[-3].v + p_y - _R15);
-                    *(_DWORD *)(p_y + 4) = *(_DWORD *)((char *)&outTagMat.m[-2] + p_y - _R15 - 8);
-                    p_y += 12i64;
+                    while ( v24 < 3 );
+                    v2 = v38;
+                    v16 = (__int64)Model;
+                    v5 = ServerDObjForEnt;
+                    v4 = v41;
+                    *(vec3_t *)(v25 + 24) = outTagMat.m[3];
+                    ++v2->boneCount;
                   }
-                  while ( v25 < 3 );
-                  __asm { vmovss  xmm0, dword ptr [rsp+8F8h+outTagMat+24h] }
-                  _RSI = v43;
-                  v17 = (__int64)Model;
-                  v7 = ServerDObjForEnt;
-                  v6 = v46;
-                  __asm
-                  {
-                    vmovss  dword ptr [r15+18h], xmm0
-                    vmovss  xmm1, dword ptr [rsp+8F8h+outTagMat+28h]
-                    vmovss  dword ptr [r15+1Ch], xmm1
-                    vmovss  xmm0, dword ptr [rsp+8F8h+outTagMat+2Ch]
-                    vmovss  dword ptr [r15+20h], xmm0
-                  }
-                  ++_RSI->boneCount;
                 }
               }
-              v18 = v39;
+              v17 = v34;
             }
-            v32 = *(unsigned __int8 *)(v17 + 20);
-            ++v18;
-            v19 = (unsigned int)(v19 + 1);
-            v39 = v18;
+            v28 = *(unsigned __int8 *)(v16 + 20);
+            ++v17;
+            v18 = (unsigned int)(v18 + 1);
+            v34 = v17;
           }
-          while ( (int)v19 < v32 );
-          v15 = NumModels;
+          while ( (int)v18 < v28 );
+          v14 = NumModels;
         }
-        v16 = v40 + 1;
-        v40 = v16;
+        v15 = v35 + 1;
+        v35 = v15;
       }
-      while ( v16 < v15 );
+      while ( v15 < v14 );
     }
-    __asm { vmovaps xmm6, [rsp+8F8h+var_48] }
   }
 }
 
@@ -1144,61 +1084,50 @@ GAntiLagMP::OnBroadphaseCollection
 */
 void GAntiLagMP::OnBroadphaseCollection(GAntiLagMP *this, int entIndex, playerState_s *playerPs)
 {
-  __int64 v5; 
+  __int64 v4; 
+  const dvar_t *v5; 
+  float value; 
   playerState_s *EntityPlayerState; 
-  playerState_s *v9; 
-  __int64 v23; 
+  playerState_s *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int64 v12; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RBX = playerPs;
-  v5 = entIndex;
+  v4 = entIndex;
   if ( !playerPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 414, ASSERT_TYPE_ASSERT, "(playerPs)", (const char *)&queryFormat, "playerPs") )
     __debugbreak();
-  if ( (unsigned int)v5 >= 0x800 )
+  if ( (unsigned int)v4 >= 0x800 )
   {
-    LODWORD(v23) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 415, ASSERT_TYPE_ASSERT, "(unsigned)( entIndex ) < (unsigned)( ( 2048 ) )", "entIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v23, 2048) )
+    LODWORD(v12) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_antilag_mp.cpp", 415, ASSERT_TYPE_ASSERT, "(unsigned)( entIndex ) < (unsigned)( ( 2048 ) )", "entIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v12, 2048) )
       __debugbreak();
   }
-  _RDI = DCONST_DVARFLT_playerCharacterCollisionQuantizationRange;
+  v5 = DCONST_DVARFLT_playerCharacterCollisionQuantizationRange;
   if ( !DCONST_DVARFLT_playerCharacterCollisionQuantizationRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionQuantizationRange") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  EntityPlayerState = G_GetEntityPlayerState(&g_entities[v5]);
-  v9 = EntityPlayerState;
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  EntityPlayerState = G_GetEntityPlayerState(&g_entities[v4]);
+  v8 = EntityPlayerState;
   if ( EntityPlayerState )
   {
-    if ( EntityPlayerState != _RBX )
+    if ( EntityPlayerState != playerPs )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vsubss  xmm3, xmm0, dword ptr [rax+30h]
-        vmovss  xmm1, dword ptr [rbx+34h]
-        vsubss  xmm2, xmm1, dword ptr [rax+34h]
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vsubss  xmm4, xmm0, dword ptr [rax+38h]
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm2, xmm2, xmm2
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm4, xmm3, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vcomiss xmm4, xmm1
-      }
-      if ( EntityPlayerState < _RBX )
+      v9 = playerPs->origin.v[0] - EntityPlayerState->origin.v[0];
+      v10 = playerPs->origin.v[1] - EntityPlayerState->origin.v[1];
+      v11 = playerPs->origin.v[2] - EntityPlayerState->origin.v[2];
+      if ( (float)((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v11 * v11)) < (float)(value * value) )
       {
         if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 201, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
           __debugbreak();
-        v9->pm_flags.m_flags[1] |= 0x4000000u;
+        v8->pm_flags.m_flags[1] |= 0x4000000u;
         if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 201, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
           __debugbreak();
-        _RBX->pm_flags.m_flags[1] |= 0x4000000u;
+        playerPs->pm_flags.m_flags[1] |= 0x4000000u;
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*

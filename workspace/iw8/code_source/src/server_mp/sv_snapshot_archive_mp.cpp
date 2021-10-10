@@ -93,7 +93,7 @@ SV_SnapshotArchiveMP_EncodeCachedPlayerState
 */
 _BOOL8 SV_SnapshotArchiveMP_EncodeCachedPlayerState(msg_t *const msg, const unsigned int clientIndex, const int serverTime, const cachedPlayerState_t *const fromCachedPs, const cachedPlayerState_t *const toCachedPs)
 {
-  bool v12; 
+  bool v8; 
   SnapshotInfo snapInfo; 
 
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 158, ASSERT_TYPE_ASSERT, "( msg != nullptr )", (const char *)&queryFormat, "msg != nullptr", -2i64) )
@@ -104,25 +104,16 @@ _BOOL8 SV_SnapshotArchiveMP_EncodeCachedPlayerState(msg_t *const msg, const unsi
   SnapshotInfo::reset(&snapInfo);
   snapInfo.archived = 1;
   snapInfo.entJustUnlinked = 0;
-  _RAX = SV_GameMP_GetMapCenter();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rsp+2D8h+snapInfo.mapCenter], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  dword ptr [rsp+2D8h+snapInfo.mapCenter+4], xmm1
-    vmovss  xmm0, dword ptr [rax+8]
-    vmovss  dword ptr [rsp+2D8h+snapInfo.mapCenter+8], xmm0
-  }
+  snapInfo.mapCenter = *SV_GameMP_GetMapCenter();
   snapInfo.serverTime = serverTime;
   G_ActiveMP_ValidateSpectateOtherFlags(&toCachedPs->ps.otherFlags);
   MSG_WriteByte(msg, toCachedPs->team);
   if ( !fromCachedPs )
     fromCachedPs = NULL;
   MSG_WriteDeltaPlayerstate(&snapInfo, msg, serverTime, &fromCachedPs->ps, &toCachedPs->ps);
-  v12 = msg->overflowed == 0;
+  v8 = msg->overflowed == 0;
   Profile_EndInternal(NULL);
-  return v12;
+  return v8;
 }
 
 /*
@@ -204,35 +195,15 @@ SV_SnapshotArchiveMP_IsEntityRelevant
 */
 bool SV_SnapshotArchiveMP_IsEntityRelevant(const gentity_s *ent, int entNum)
 {
-  double v11; 
-  double v12; 
-  double v13; 
-
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1027, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RBX->r.isLinked )
+  if ( !ent->r.isLinked )
     return 0;
-  if ( _RBX->s.number != entNum )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovss  xmm2, dword ptr [rbx+130h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+68h+var_10], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+68h+var_18], xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+68h+var_20], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1034, ASSERT_TYPE_ASSERT, "(ent->s.number == entNum)", "%s\n\tentnum: %d vs %d, eType: %d, origin: %f %f %f", "ent->s.number == entNum", _RBX->s.number, entNum, _RBX->s.eType, v11, v12, v13) )
-      __debugbreak();
-  }
+  if ( ent->s.number != entNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1034, ASSERT_TYPE_ASSERT, "(ent->s.number == entNum)", "%s\n\tentnum: %d vs %d, eType: %d, origin: %f %f %f", "ent->s.number == entNum", ent->s.number, entNum, ent->s.eType, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2]) )
+    __debugbreak();
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
     __debugbreak();
-  return !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->s.lerp.eFlags, ACTIVE, 0x1Eu) && (_RBX->r.svFlags & 1) == 0;
+  return !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ent->s.lerp.eFlags, ACTIVE, 0x1Eu) && (ent->r.svFlags & 1) == 0;
 }
 
 /*
@@ -324,162 +295,107 @@ SV_SnapshotArchiveMP_WriteCachedPlayerStateTransforms
 */
 char SV_SnapshotArchiveMP_WriteCachedPlayerStateTransforms(const unsigned int clientIndex, const cachedPlayerState_t *const cachedPs, vec3_t *outOrigin, vec3_t *outAngles)
 {
-  const dvar_t *v14; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  unsigned int v11; 
+  int v12; 
+  int v13; 
+  int *v14; 
   const dvar_t *v15; 
-  const dvar_t *v16; 
+  __int64 v16; 
   unsigned int v17; 
-  int v19; 
-  int *v20; 
-  const dvar_t *v21; 
-  __int64 v22; 
-  int v33; 
+  float v18; 
+  int v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v26; 
+  float v28; 
   vec3_t outOrigina; 
   vec3_t outAnglesa; 
   vec3_t angles; 
   vec3_t origin; 
   int archiveFrameNum[20]; 
 
-  _R13 = outAngles;
-  _R12 = outOrigin;
   if ( !cachedPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 66, ASSERT_TYPE_ASSERT, "( cachedPs != nullptr )", (const char *)&queryFormat, "cachedPs != nullptr") )
     __debugbreak();
-  _R12->v[0] = cachedPs->origin.v[0];
-  _R12->v[1] = cachedPs->origin.v[1];
-  _R12->v[2] = cachedPs->origin.v[2];
-  _R13->v[0] = cachedPs->angles.v[0];
-  _R13->v[1] = cachedPs->angles.v[1];
-  _R13->v[2] = cachedPs->angles.v[2];
-  v14 = DVARBOOL_sv_archive_smooth_transform_origin;
+  outOrigin->v[0] = cachedPs->origin.v[0];
+  outOrigin->v[1] = cachedPs->origin.v[1];
+  outOrigin->v[2] = cachedPs->origin.v[2];
+  outAngles->v[0] = cachedPs->angles.v[0];
+  outAngles->v[1] = cachedPs->angles.v[1];
+  outAngles->v[2] = cachedPs->angles.v[2];
+  v8 = DVARBOOL_sv_archive_smooth_transform_origin;
   if ( !DVARBOOL_sv_archive_smooth_transform_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_archive_smooth_transform_origin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( !v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
   {
-    v15 = DVARBOOL_sv_archive_smooth_transform_angles;
+    v9 = DVARBOOL_sv_archive_smooth_transform_angles;
     if ( !DVARBOOL_sv_archive_smooth_transform_angles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_archive_smooth_transform_angles") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( !v15->current.enabled )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( !v9->current.enabled )
       return 0;
   }
-  v16 = DVARBOOL_sv_virtual_archive_enabled;
+  v10 = DVARBOOL_sv_virtual_archive_enabled;
   if ( !DVARBOOL_sv_virtual_archive_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_virtual_archive_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( v16->current.enabled || SvClientMP::GetMpClient(clientIndex)->cumulThinkTime <= 0 )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled || SvClientMP::GetMpClient(clientIndex)->cumulThinkTime <= 0 )
     return 0;
-  v17 = 0;
-  _EBP = 0;
-  v19 = g_svSnapshotData.archive.nextArchivedSnapshotFrames - 1;
+  v11 = 0;
+  v12 = 0;
+  v13 = g_svSnapshotData.archive.nextArchivedSnapshotFrames - 1;
   if ( g_svSnapshotData.archive.nextArchivedSnapshotFrames - 1 >= 0 )
   {
-    v20 = archiveFrameNum;
-    while ( !SV_SnapshotMP_GetArchivedPlayerTransform(clientIndex, v19, &g_svSnapshotData.archive, &outOrigina, &outAnglesa) )
+    v14 = archiveFrameNum;
+    while ( !SV_SnapshotMP_GetArchivedPlayerTransform(clientIndex, v13, &g_svSnapshotData.archive, &outOrigina, &outAnglesa) )
     {
-      _EBP += g_svSnapshotData.archive.archivedFrameDuration;
-      ++v17;
-      v21 = DVARINT_sv_cmdMaxExtrapTime;
-      *v20++ = v19;
-      if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdMaxExtrapTime") )
+      v12 += g_svSnapshotData.archive.archivedFrameDuration;
+      ++v11;
+      v15 = DVARINT_sv_cmdMaxExtrapTime;
+      *v14++ = v13;
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdMaxExtrapTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      if ( _EBP <= v21->current.integer && v17 < 0x14 && --v19 >= 0 )
+      Dvar_CheckFrontendServerThread(v15);
+      if ( v12 <= v15->current.integer && v11 < 0x14 && --v13 >= 0 )
         continue;
       return 1;
     }
-    v22 = (int)(v17 - 1);
-    if ( (int)(v17 - 1) >= 0 )
+    v16 = (int)(v11 - 1);
+    if ( (int)(v11 - 1) >= 0 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovaps [rsp+178h+var_48], xmm6
-        vmovaps [rsp+178h+var_58], xmm7
-      }
-      _EDI = 0;
-      __asm
-      {
-        vmovaps [rsp+178h+var_68], xmm8
-        vmovss  xmm8, cs:__real@3b360b61
-        vmovaps [rsp+178h+var_78], xmm9
-        vmovss  xmm9, cs:__real@3f000000
-        vmovd   xmm1, ebp
-        vmovaps [rsp+178h+var_88], xmm10
-        vmovss  xmm10, cs:__real@43b40000
-        vcvtdq2ps xmm1, xmm1
-        vmovaps [rsp+178h+var_98], xmm11
-        vdivss  xmm11, xmm0, xmm1
-        vxorps  xmm7, xmm7, xmm7
-      }
+      v17 = 0;
+      v18 = 1.0 / _mm_cvtepi32_ps((__m128i)(unsigned int)v12).m128_f32[0];
+      _XMM7 = 0i64;
       do
       {
-        __asm { vmovss  xmm1, dword ptr [r12] }
-        _EDI += g_svSnapshotData.archive.archivedFrameDuration;
-        v33 = archiveFrameNum[v22];
-        __asm
-        {
-          vmovd   xmm0, edi
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm6, xmm0, xmm11
-          vsubss  xmm0, xmm1, dword ptr [rsp+178h+outOrigin]
-          vmulss  xmm1, xmm0, xmm6
-          vaddss  xmm2, xmm1, dword ptr [rsp+178h+outOrigin]
-          vmovss  xmm0, dword ptr [r12+4]
-          vsubss  xmm0, xmm0, dword ptr [rsp+178h+outOrigin+4]
-          vmulss  xmm1, xmm0, xmm6
-          vmovss  xmm0, dword ptr [r12+8]
-          vsubss  xmm0, xmm0, dword ptr [rsp+178h+outOrigin+8]
-          vmovss  dword ptr [rsp+178h+origin], xmm2
-          vaddss  xmm2, xmm1, dword ptr [rsp+178h+outOrigin+4]
-          vmulss  xmm1, xmm0, xmm6
-          vmovss  xmm0, dword ptr [r13+0]
-          vsubss  xmm0, xmm0, dword ptr [rsp+178h+outAngles]
-          vmulss  xmm4, xmm0, xmm8
-          vmovss  dword ptr [rsp+178h+origin+4], xmm2
-          vaddss  xmm2, xmm1, dword ptr [rsp+178h+outOrigin+8]
-          vmovss  dword ptr [rsp+178h+origin+8], xmm2
-          vaddss  xmm2, xmm4, xmm9
-          vroundss xmm3, xmm7, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm10
-          vmulss  xmm2, xmm0, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rsp+178h+outAngles]
-          vmovss  xmm0, dword ptr [r13+4]
-          vsubss  xmm0, xmm0, dword ptr [rsp+178h+outAngles+4]
-          vmulss  xmm4, xmm0, xmm8
-          vmovss  dword ptr [rsp+178h+angles], xmm3
-          vaddss  xmm2, xmm4, xmm9
-          vroundss xmm3, xmm7, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm10
-          vmulss  xmm2, xmm0, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rsp+178h+outAngles+4]
-          vmovss  xmm0, dword ptr [r13+8]
-          vsubss  xmm0, xmm0, dword ptr [rsp+178h+outAngles+8]
-          vmulss  xmm4, xmm0, xmm8
-          vaddss  xmm2, xmm4, xmm9
-          vmovss  dword ptr [rsp+178h+angles+4], xmm3
-          vroundss xmm3, xmm7, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm10
-          vmulss  xmm2, xmm0, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rsp+178h+outAngles+8]
-          vmovss  dword ptr [rsp+178h+angles+8], xmm3
-        }
-        if ( !SV_SnapshotMP_SetArchivedPlayerTransform(clientIndex, v33, &g_svSnapshotData.archive, &origin, &angles) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 141, ASSERT_TYPE_ASSERT, "(SV_SnapshotMP_SetArchivedPlayerTransform( clientIndex, interpFrames[interpFrameIndex], &g_svSnapshotData.archive, interpOrigin, interpAngles ))", (const char *)&queryFormat, "SV_SnapshotMP_SetArchivedPlayerTransform( clientIndex, interpFrames[interpFrameIndex], &g_svSnapshotData.archive, interpOrigin, interpAngles )") )
+        v17 += g_svSnapshotData.archive.archivedFrameDuration;
+        v20 = archiveFrameNum[v16];
+        v21 = _mm_cvtepi32_ps((__m128i)v17).m128_f32[0] * v18;
+        v22 = (float)(outOrigin->v[1] - outOrigina.v[1]) * v21;
+        v23 = outOrigin->v[2] - outOrigina.v[2];
+        origin.v[0] = (float)((float)(outOrigin->v[0] - outOrigina.v[0]) * v21) + outOrigina.v[0];
+        v24 = (float)(outAngles->v[0] - outAnglesa.v[0]) * 0.0027777778;
+        origin.v[1] = v22 + outOrigina.v[1];
+        origin.v[2] = (float)(v23 * v21) + outOrigina.v[2];
+        __asm { vroundss xmm3, xmm7, xmm2, 1 }
+        *(float *)&_XMM3 = (float)((float)((float)(v24 - *(float *)&_XMM3) * 360.0) * v21) + outAnglesa.v[0];
+        v26 = (float)(outAngles->v[1] - outAnglesa.v[1]) * 0.0027777778;
+        angles.v[0] = *(float *)&_XMM3;
+        __asm { vroundss xmm3, xmm7, xmm2, 1 }
+        v28 = (float)(outAngles->v[2] - outAnglesa.v[2]) * 0.0027777778;
+        angles.v[1] = (float)((float)((float)(v26 - *(float *)&_XMM3) * 360.0) * v21) + outAnglesa.v[1];
+        __asm { vroundss xmm3, xmm7, xmm2, 1 }
+        angles.v[2] = (float)((float)((float)(v28 - *(float *)&_XMM3) * 360.0) * v21) + outAnglesa.v[2];
+        if ( !SV_SnapshotMP_SetArchivedPlayerTransform(clientIndex, v20, &g_svSnapshotData.archive, &origin, &angles) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 141, ASSERT_TYPE_ASSERT, "(SV_SnapshotMP_SetArchivedPlayerTransform( clientIndex, interpFrames[interpFrameIndex], &g_svSnapshotData.archive, interpOrigin, interpAngles ))", (const char *)&queryFormat, "SV_SnapshotMP_SetArchivedPlayerTransform( clientIndex, interpFrames[interpFrameIndex], &g_svSnapshotData.archive, interpOrigin, interpAngles )") )
           __debugbreak();
-        --v22;
+        --v16;
       }
-      while ( v22 >= 0 );
-      __asm
-      {
-        vmovaps xmm11, [rsp+178h+var_98]
-        vmovaps xmm10, [rsp+178h+var_88]
-        vmovaps xmm9, [rsp+178h+var_78]
-        vmovaps xmm8, [rsp+178h+var_68]
-        vmovaps xmm7, [rsp+178h+var_58]
-        vmovaps xmm6, [rsp+178h+var_48]
-      }
+      while ( v16 >= 0 );
     }
   }
   return 1;
@@ -570,14 +486,15 @@ SV_SnapshotMP_ArchiveSnapshotEncodeWeaponMap
 */
 void SV_SnapshotMP_ArchiveSnapshotEncodeWeaponMap(msg_t *msgWeaponMap, bool *isDeltaEncoded)
 {
+  SvPersistentGlobalsMP *PersistentGlobalsMP; 
   int MinArchiveFrameIndex; 
+  int v6; 
+  int v7; 
+  int v8; 
   int v9; 
-  int v10; 
-  int v11; 
-  int v12; 
-  cachedSnapshotWeaponMap_t *v13; 
-  cachedSnapshotWeaponMap_t *v14; 
-  bool v15; 
+  cachedSnapshotWeaponMap_t *v10; 
+  cachedSnapshotWeaponMap_t *v11; 
+  bool v12; 
   SnapshotInfo snapInfo; 
 
   if ( !msgWeaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1516, ASSERT_TYPE_ASSERT, "( msgWeaponMap )", (const char *)&queryFormat, "msgWeaponMap") )
@@ -592,61 +509,53 @@ void SV_SnapshotMP_ArchiveSnapshotEncodeWeaponMap(msg_t *msgWeaponMap, bool *isD
   snapInfo.archived = 1;
   snapInfo.entJustUnlinked = 0;
   Profile_Begin(330);
-  _RSI = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+4Ch]
-    vmovss  dword ptr [rsp+2C8h+snapInfo.mapCenter], xmm0
-    vmovss  xmm1, dword ptr [rax+50h]
-    vmovss  dword ptr [rsp+2C8h+snapInfo.mapCenter+4], xmm1
-    vmovss  xmm0, dword ptr [rax+54h]
-    vmovss  dword ptr [rsp+2C8h+snapInfo.mapCenter+8], xmm0
-  }
-  snapInfo.serverTime = _RSI->time;
+  PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+  snapInfo.mapCenter = PersistentGlobalsMP->mapCenter;
+  snapInfo.serverTime = PersistentGlobalsMP->time;
   MinArchiveFrameIndex = SV_SnapshotArchive_GetMinArchiveFrameIndex();
-  v9 = 0;
-  v10 = MinArchiveFrameIndex;
+  v6 = 0;
+  v7 = MinArchiveFrameIndex;
   if ( g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 512 > 0 )
-    v9 = g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 512;
-  v11 = g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 1;
-  if ( g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 1 < v9 )
+    v6 = g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 512;
+  v8 = g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 1;
+  if ( g_svSnapshotData.nextCachedSnapshotWeaponMapFrames - 1 < v6 )
     goto LABEL_19;
   while ( 1 )
   {
-    v12 = v11 % 512;
-    v13 = &g_svSnapshotData.cachedSnapshotWeaponMapFrames[v11 % 512];
-    if ( g_svSnapshotData.cachedSnapshotWeaponMapFrames[v11 % 512].archivedFrame > v10 && !g_svSnapshotData.cachedSnapshotWeaponMapFrames[v12].usesDelta )
+    v9 = v8 % 512;
+    v10 = &g_svSnapshotData.cachedSnapshotWeaponMapFrames[v8 % 512];
+    if ( g_svSnapshotData.cachedSnapshotWeaponMapFrames[v8 % 512].archivedFrame > v7 && !g_svSnapshotData.cachedSnapshotWeaponMapFrames[v9].usesDelta )
       break;
-    if ( --v11 < v9 )
+    if ( --v8 < v6 )
       goto LABEL_19;
   }
-  if ( g_svSnapshotData.cachedSnapshotWeaponMapFrames[v12].first_weapon < g_svSnapshotData.nextCachedSnapshotWeapon - g_svSnapshotData.numCachedSnapshotWeapons )
+  if ( g_svSnapshotData.cachedSnapshotWeaponMapFrames[v9].first_weapon < g_svSnapshotData.nextCachedSnapshotWeapon - g_svSnapshotData.numCachedSnapshotWeapons )
   {
 LABEL_19:
     MSG_WriteBit1(msgWeaponMap);
-    MSG_WriteLong(msgWeaponMap, _RSI->time);
-    v14 = &g_svSnapshotData.cachedSnapshotWeaponMapFrames[g_svSnapshotData.nextCachedSnapshotWeaponMapFrames % 512];
-    v14->archivedFrame = g_svSnapshotData.archive.nextArchivedSnapshotFrames;
-    v14->usesDelta = 0;
-    v14->time = _RSI->time;
-    SV_WriteCachedWeapons(msgWeaponMap, v14, &snapInfo);
+    MSG_WriteLong(msgWeaponMap, PersistentGlobalsMP->time);
+    v11 = &g_svSnapshotData.cachedSnapshotWeaponMapFrames[g_svSnapshotData.nextCachedSnapshotWeaponMapFrames % 512];
+    v11->archivedFrame = g_svSnapshotData.archive.nextArchivedSnapshotFrames;
+    v11->usesDelta = 0;
+    v11->time = PersistentGlobalsMP->time;
+    SV_WriteCachedWeapons(msgWeaponMap, v11, &snapInfo);
     if ( ++g_svSnapshotData.nextCachedSnapshotWeaponMapFrames >= 2147483646 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1575, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "g_svSnapshotData.nextCachedSnapshotWeaponMapFrames wrapped\n") )
         __debugbreak();
       g_svSnapshotData.snapArchiveEncodeError = 1;
     }
-    v15 = 0;
+    v12 = 0;
   }
   else
   {
     MSG_WriteBit0(msgWeaponMap);
-    MSG_WriteLong(msgWeaponMap, v13->archivedFrame);
-    MSG_WriteLong(msgWeaponMap, _RSI->time);
-    SV_WriteDeltaCachedWeapons(msgWeaponMap, v13, &snapInfo);
-    v15 = 1;
+    MSG_WriteLong(msgWeaponMap, v10->archivedFrame);
+    MSG_WriteLong(msgWeaponMap, PersistentGlobalsMP->time);
+    SV_WriteDeltaCachedWeapons(msgWeaponMap, v10, &snapInfo);
+    v12 = 1;
   }
-  *isDeltaEncoded = v15;
+  *isDeltaEncoded = v12;
   Profile_EndInternal(NULL);
 }
 
@@ -661,14 +570,18 @@ void SV_SnapshotMP_ArchiveSnapshotEncodeWorldState(msg_t *msgWorldState, bool *i
   __int64 v5; 
   EntityLoDs *p_newEntitiesLoD; 
   EntityLoDs *p_oldEntitiesLoD; 
-  cachedSnapshotWorldState_t *v12; 
+  SvPersistentGlobalsMP *PersistentGlobalsMP; 
+  cachedSnapshotWorldState_t *v9; 
   int cursize; 
-  const dvar_t *v14; 
-  bool v15; 
-  cachedSnapshotWorldState_t *v16; 
+  const dvar_t *v11; 
+  bool v12; 
+  cachedSnapshotWorldState_t *v13; 
   int nextCachedSnapshotUmbraGateStatesIndex; 
-  int v22; 
-  const dvar_t *v23; 
+  __m256i v15; 
+  __int64 v16; 
+  bitarray<384> *cachedSnapshotUmbraGateStates; 
+  int v18; 
+  const dvar_t *v19; 
   cachedSnapshotWorldState_t *outCachedSnapshotWorldState; 
   SnapshotInfo snapInfo; 
 
@@ -721,89 +634,77 @@ void SV_SnapshotMP_ArchiveSnapshotEncodeWorldState(msg_t *msgWorldState, bool *i
   }
   while ( v4 );
   Profile_Begin(331);
-  _RSI = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+4Ch]
-    vmovss  dword ptr [rsp+2D8h+snapInfo.mapCenter], xmm0
-    vmovss  xmm1, dword ptr [rax+50h]
-    vmovss  dword ptr [rsp+2D8h+snapInfo.mapCenter+4], xmm1
-    vmovss  xmm0, dword ptr [rax+54h]
-    vmovss  dword ptr [rsp+2D8h+snapInfo.mapCenter+8], xmm0
-  }
-  snapInfo.serverTime = _RSI->time;
+  PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+  snapInfo.mapCenter = PersistentGlobalsMP->mapCenter;
+  snapInfo.serverTime = PersistentGlobalsMP->time;
   if ( SV_SnapshotArchive_FindCachedFrameForDeltaWorldState((const cachedSnapshotWorldState_t **)&outCachedSnapshotWorldState) )
   {
-    v12 = outCachedSnapshotWorldState;
+    v9 = outCachedSnapshotWorldState;
     if ( !outCachedSnapshotWorldState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1633, ASSERT_TYPE_ASSERT, "( baseCachedWorldStateFrame )", (const char *)&queryFormat, "baseCachedWorldStateFrame") )
       __debugbreak();
     MSG_WriteBit0(msgWorldState);
-    MSG_WriteLong(msgWorldState, v12->archivedFrame);
-    MSG_WriteLong(msgWorldState, _RSI->time);
+    MSG_WriteLong(msgWorldState, v9->archivedFrame);
+    MSG_WriteLong(msgWorldState, PersistentGlobalsMP->time);
     if ( !msgWorldState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1311, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
       __debugbreak();
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1312, ASSERT_TYPE_ASSERT, "( cachedFrame )", (const char *)&queryFormat, "cachedFrame") )
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1312, ASSERT_TYPE_ASSERT, "( cachedFrame )", (const char *)&queryFormat, "cachedFrame") )
       __debugbreak();
     cursize = msgWorldState->cursize;
-    MSG_WriteDeltaUmbraGateState(msgWorldState, &g_svSnapshotData.cachedSnapshotUmbraGateStates[v12->umbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates], &level.umbraGateStates);
-    v14 = DVARINT_sv_printArchiveDetails;
+    MSG_WriteDeltaUmbraGateState(msgWorldState, &g_svSnapshotData.cachedSnapshotUmbraGateStates[v9->umbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates], &level.umbraGateStates);
+    v11 = DVARINT_sv_printArchiveDetails;
     if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    if ( v14->current.integer )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v11->current.integer )
       Com_Printf(15, "[Snapshot] Archived delta snapshot umbra gate states: %d bytes\n", (unsigned int)(msgWorldState->cursize - cursize));
-    SV_WriteDeltaCachedClientStates(msgWorldState, v12, &snapInfo);
-    SV_WriteDeltaCachedAgents(msgWorldState, v12, &snapInfo);
-    SV_WriteDeltaCachedEntityLoD(msgWorldState, v12, &snapInfo);
-    SV_WriteDeltaCachedScriptables(msgWorldState, v12, &snapInfo);
-    SV_WriteDeltaCachedEntities(msgWorldState, v12, &snapInfo);
-    v15 = 1;
+    SV_WriteDeltaCachedClientStates(msgWorldState, v9, &snapInfo);
+    SV_WriteDeltaCachedAgents(msgWorldState, v9, &snapInfo);
+    SV_WriteDeltaCachedEntityLoD(msgWorldState, v9, &snapInfo);
+    SV_WriteDeltaCachedScriptables(msgWorldState, v9, &snapInfo);
+    SV_WriteDeltaCachedEntities(msgWorldState, v9, &snapInfo);
+    v12 = 1;
   }
   else
   {
     MSG_WriteBit1(msgWorldState);
-    MSG_WriteLong(msgWorldState, _RSI->time);
-    v16 = &g_svSnapshotData.cachedSnapshotWorldStateFrames[g_svSnapshotData.nextCachedSnapshotWorldStateFrames % 512];
-    v16->archivedFrame = g_svSnapshotData.archive.nextArchivedSnapshotFrames;
-    v16->usesDelta = 0;
-    v16->time = _RSI->time;
+    MSG_WriteLong(msgWorldState, PersistentGlobalsMP->time);
+    v13 = &g_svSnapshotData.cachedSnapshotWorldStateFrames[g_svSnapshotData.nextCachedSnapshotWorldStateFrames % 512];
+    v13->archivedFrame = g_svSnapshotData.archive.nextArchivedSnapshotFrames;
+    v13->usesDelta = 0;
+    v13->time = PersistentGlobalsMP->time;
     if ( !msgWorldState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1332, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
       __debugbreak();
     nextCachedSnapshotUmbraGateStatesIndex = g_svSnapshotData.nextCachedSnapshotUmbraGateStatesIndex;
-    __asm { vmovups ymm0, ymmword ptr cs:?level@@3Ulevel_locals_t@@A.umbraGateStates.array; level_locals_t level }
-    v16->umbraGateStatesIndex = g_svSnapshotData.nextCachedSnapshotUmbraGateStatesIndex;
-    _RCX = 3i64 * (nextCachedSnapshotUmbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates);
-    _RAX = g_svSnapshotData.cachedSnapshotUmbraGateStates;
-    _RCX *= 2i64;
-    __asm
-    {
-      vmovups ymmword ptr [rax+rcx*8], ymm0
-      vmovups xmm1, xmmword ptr cs:?level@@3Ulevel_locals_t@@A.umbraGateStates.array+20h; level_locals_t level
-      vmovups xmmword ptr [rax+rcx*8+20h], xmm1
-    }
+    v15 = *(__m256i *)level.umbraGateStates.array;
+    v13->umbraGateStatesIndex = g_svSnapshotData.nextCachedSnapshotUmbraGateStatesIndex;
+    v16 = 3i64 * (nextCachedSnapshotUmbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates);
+    cachedSnapshotUmbraGateStates = g_svSnapshotData.cachedSnapshotUmbraGateStates;
+    v16 *= 2i64;
+    *(__m256i *)&g_svSnapshotData.cachedSnapshotUmbraGateStates->array[2 * v16] = v15;
+    *(_OWORD *)&cachedSnapshotUmbraGateStates->array[2 * v16 + 8] = *(_OWORD *)&level.umbraGateStates.array[8];
     ++g_svSnapshotData.nextCachedSnapshotUmbraGateStatesIndex;
-    v22 = msgWorldState->cursize;
+    v18 = msgWorldState->cursize;
     MSG_WriteDeltaUmbraGateState(msgWorldState, NULL, &level.umbraGateStates);
-    v23 = DVARINT_sv_printArchiveDetails;
+    v19 = DVARINT_sv_printArchiveDetails;
     if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v23);
-    if ( v23->current.integer )
-      Com_Printf(15, "[Snapshot] Archived delta snapshot umbra gate states: %d bytes\n", (unsigned int)(msgWorldState->cursize - v22));
-    SV_WriteCachedClientStates(msgWorldState, v16, &snapInfo);
-    SV_WriteCachedAgents(msgWorldState, v16, &snapInfo);
-    SV_WriteCachedEntityLoD(msgWorldState, v16, &snapInfo);
-    SV_WriteCachedScriptables(msgWorldState, v16, &snapInfo);
-    SV_WriteCachedEntities(msgWorldState, v16, &snapInfo);
+    Dvar_CheckFrontendServerThread(v19);
+    if ( v19->current.integer )
+      Com_Printf(15, "[Snapshot] Archived delta snapshot umbra gate states: %d bytes\n", (unsigned int)(msgWorldState->cursize - v18));
+    SV_WriteCachedClientStates(msgWorldState, v13, &snapInfo);
+    SV_WriteCachedAgents(msgWorldState, v13, &snapInfo);
+    SV_WriteCachedEntityLoD(msgWorldState, v13, &snapInfo);
+    SV_WriteCachedScriptables(msgWorldState, v13, &snapInfo);
+    SV_WriteCachedEntities(msgWorldState, v13, &snapInfo);
     if ( ++g_svSnapshotData.nextCachedSnapshotWorldStateFrames >= 2147483646 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1681, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "g_svSnapshotData.nextCachedSnapshotWorldStateFrames wrapped\n") )
         __debugbreak();
       g_svSnapshotData.snapArchiveEncodeError = 1;
     }
-    v15 = 0;
+    v12 = 0;
   }
-  *isDeltaEncoded = v15;
+  *isDeltaEncoded = v12;
   Profile_EndInternal(NULL);
 }
 
@@ -818,7 +719,8 @@ void SV_WriteCachedAgents(msg_t *msg, cachedSnapshotWorldState_t *cachedFrame, S
   int v7; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
   __int64 v9; 
-  const dvar_t *v27; 
+  cachedAgent_s *v10; 
+  const dvar_t *v11; 
 
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 439, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
     __debugbreak();
@@ -846,44 +748,9 @@ void SV_WriteCachedAgents(msg_t *msg, cachedSnapshotWorldState_t *cachedFrame, S
           g_svSnapshotData.snapArchiveEncodeError = 1;
           break;
         }
-        _RDI = &g_svSnapshotData.cachedSnapshotAgents[(__int64)(g_svSnapshotData.nextCachedSnapshotAgents % g_svSnapshotData.numCachedSnapshotAgents)];
-        _RAX = G_MainMP_GetAgentState(v7);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rdi], xmm0
-          vmovups xmm1, xmmword ptr [rax+10h]
-          vmovups xmmword ptr [rdi+10h], xmm1
-          vmovups xmm0, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rdi+20h], xmm0
-          vmovups xmm1, xmmword ptr [rax+30h]
-          vmovups xmmword ptr [rdi+30h], xmm1
-          vmovups xmm0, xmmword ptr [rax+40h]
-          vmovups xmmword ptr [rdi+40h], xmm0
-          vmovups xmm1, xmmword ptr [rax+50h]
-          vmovups xmmword ptr [rdi+50h], xmm1
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rdi+60h], xmm0
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rdi+70h], xmm1
-          vmovups xmm0, xmmword ptr [rax+80h]
-          vmovups xmmword ptr [rdi+80h], xmm0
-          vmovups xmm1, xmmword ptr [rax+90h]
-          vmovups xmmword ptr [rdi+90h], xmm1
-          vmovups xmm0, xmmword ptr [rax+0A0h]
-          vmovups xmmword ptr [rdi+0A0h], xmm0
-          vmovups xmm1, xmmword ptr [rax+0B0h]
-          vmovups xmmword ptr [rdi+0B0h], xmm1
-          vmovups xmm0, xmmword ptr [rax+0C0h]
-          vmovups xmmword ptr [rdi+0C0h], xmm0
-          vmovups xmm1, xmmword ptr [rax+0D0h]
-          vmovups xmmword ptr [rdi+0D0h], xmm1
-          vmovups xmm0, xmmword ptr [rax+0E0h]
-          vmovups xmmword ptr [rdi+0E0h], xmm0
-        }
-        *(_QWORD *)&_RDI->agentState.serverDobjHeldWeapon.m_mapEntryId = *(_QWORD *)&_RAX->serverDobjHeldWeapon.m_mapEntryId;
-        *(_DWORD *)&_RDI->agentState.serverDobjHideWeapon = *(_DWORD *)&_RAX->serverDobjHideWeapon;
-        MSG_WriteDeltaAgent(snapInfo, msg, PersistentGlobalsMP->time, NULL, &_RDI->agentState, 1, 1);
+        v10 = &g_svSnapshotData.cachedSnapshotAgents[(__int64)(g_svSnapshotData.nextCachedSnapshotAgents % g_svSnapshotData.numCachedSnapshotAgents)];
+        v10->agentState = *G_MainMP_GetAgentState(v7);
+        MSG_WriteDeltaAgent(snapInfo, msg, PersistentGlobalsMP->time, NULL, &v10->agentState, 1, 1);
         ++g_svSnapshotData.nextCachedSnapshotAgents;
         ++cachedFrame->num_agents;
       }
@@ -893,11 +760,11 @@ void SV_WriteCachedAgents(msg_t *msg, cachedSnapshotWorldState_t *cachedFrame, S
     while ( v7 < PersistentGlobalsMP->agentCount );
   }
   MSG_WriteBit0(msg);
-  v27 = DVARINT_sv_printArchiveDetails;
+  v11 = DVARINT_sv_printArchiveDetails;
   if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v27);
-  if ( v27->current.integer )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.integer )
     Com_Printf(15, "[Snapshot] Archived snapshot agents: %d bytes\n", (unsigned int)(msg->cursize - cursize));
 }
 
@@ -911,9 +778,12 @@ void SV_WriteCachedClientStates(msg_t *msg, cachedSnapshotWorldState_t *cachedFr
   int cursize; 
   signed int v7; 
   cachedClientState_t *v8; 
+  clientState_t *ClientState; 
+  cachedClientState_t *v10; 
   __int64 v11; 
+  __int128 v12; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  const dvar_t *v22; 
+  const dvar_t *v14; 
 
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 303, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
     __debugbreak();
@@ -940,41 +810,27 @@ void SV_WriteCachedClientStates(msg_t *msg, cachedSnapshotWorldState_t *cachedFr
           break;
         }
         v8 = &g_svSnapshotData.cachedSnapshotClientStates[(__int64)(g_svSnapshotData.nextCachedSnapshotClientStates % g_svSnapshotData.numCachedSnapshotClientStates)];
-        _RAX = G_MainMP_GetClientState(v7);
-        _RDX = v8;
+        ClientState = G_MainMP_GetClientState(v7);
+        v10 = v8;
         v11 = 3i64;
         do
         {
-          _RDX = (cachedClientState_t *)((char *)_RDX + 128);
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          _RAX = (clientState_t *)((char *)_RAX + 128);
-          __asm
-          {
-            vmovups xmmword ptr [rdx-80h], xmm0
-            vmovups xmm1, xmmword ptr [rax-70h]
-            vmovups xmmword ptr [rdx-70h], xmm1
-            vmovups xmm0, xmmword ptr [rax-60h]
-            vmovups xmmword ptr [rdx-60h], xmm0
-            vmovups xmm1, xmmword ptr [rax-50h]
-            vmovups xmmword ptr [rdx-50h], xmm1
-            vmovups xmm0, xmmword ptr [rax-40h]
-            vmovups xmmword ptr [rdx-40h], xmm0
-            vmovups xmm1, xmmword ptr [rax-30h]
-            vmovups xmmword ptr [rdx-30h], xmm1
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [rdx-20h], xmm0
-            vmovups xmm1, xmmword ptr [rax-10h]
-            vmovups xmmword ptr [rdx-10h], xmm1
-          }
+          v10 = (cachedClientState_t *)((char *)v10 + 128);
+          v12 = *(_OWORD *)&ClientState->clientIndex;
+          ClientState = (clientState_t *)((char *)ClientState + 128);
+          *(_OWORD *)&v10[-1].cs.carryObjectFlags = v12;
+          *(_OWORD *)&v10[-1].cs.serverDobjTurretWeapon.m_mapEntryId = *(_OWORD *)&ClientState[-1].perkIconName;
+          *(_OWORD *)&v10[-1].pad.buf[8] = *(_OWORD *)&ClientState[-1].doorState[0].angle;
+          *(_OWORD *)&v10[-1].pad.buf[24] = *(_OWORD *)&ClientState[-1].doorState[1].owner;
+          *(_OWORD *)&v10[-1].pad.buf[40] = *(_OWORD *)&ClientState[-1].footstepActionType;
+          *(_OWORD *)&v10[-1].pad.buf[56] = *(_OWORD *)&ClientState[-1].playerASM_scripted_anim_start_time;
+          *(_OWORD *)&v10[-1].pad.buf[72] = *(_OWORD *)&ClientState[-1].vehicleAnimStateSeat;
+          *(_OWORD *)&v10[-1].pad.buf[88] = *(_OWORD *)&ClientState[-1].movingPlatform;
           --v11;
         }
         while ( v11 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rdx], xmm0
-        }
-        *(_QWORD *)&_RDX->cs.doNotSimulateTracers = *(_QWORD *)&_RAX->doNotSimulateTracers;
+        *(_OWORD *)&v10->cs.clientIndex = *(_OWORD *)&ClientState->clientIndex;
+        *(_QWORD *)&v10->cs.doNotSimulateTracers = *(_QWORD *)&ClientState->doNotSimulateTracers;
         PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
         MSG_WriteDeltaClient(snapInfo, msg, PersistentGlobalsMP->time, NULL, &v8->cs, 1, 1);
         ++g_svSnapshotData.nextCachedSnapshotClientStates;
@@ -985,11 +841,11 @@ void SV_WriteCachedClientStates(msg_t *msg, cachedSnapshotWorldState_t *cachedFr
     while ( v7 < (int)SvClient::ms_clientCount );
   }
   MSG_WriteBit0(msg);
-  v22 = DVARINT_sv_printArchiveDetails;
+  v14 = DVARINT_sv_printArchiveDetails;
   if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  if ( v22->current.integer )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.integer )
     Com_Printf(15, "[Snapshot] Archived snapshot clients: %d bytes\n", (unsigned int)(msg->cursize - cursize));
 }
 
@@ -1005,28 +861,29 @@ void SV_WriteCachedEntities(msg_t *msg, cachedSnapshotWorldState_t *cachedFrame,
   int v7; 
   SvGameGlobalsMP *SvGameGlobalsMP; 
   __int64 v9; 
-  const dvar_t *v26; 
-  const char *v27; 
-  const char *v28; 
+  const gentity_s *v10; 
+  const dvar_t *v11; 
+  const char *v12; 
+  const char *v13; 
   __int16 number; 
   unsigned int clientMaskSize; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  bool v32; 
-  const dvar_t *v33; 
+  bool v17; 
+  const dvar_t *v18; 
   __int64 num_entities; 
   char *fmt; 
   char *fromClientMask; 
   char *toClientMask; 
-  int v38; 
-  char *v40; 
+  int v23; 
+  char *v25; 
   entityState_t *to; 
-  char v42[8]; 
-  __int64 v43; 
-  __int64 v44; 
-  int v45; 
+  char v27[8]; 
+  __int64 v28; 
+  __int64 v29; 
+  int v30; 
   entityState_t from; 
-  int v47[29]; 
-  int v48; 
+  int v32[29]; 
+  int v33; 
 
   v5 = msg;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1198, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
@@ -1041,92 +898,74 @@ void SV_WriteCachedEntities(msg_t *msg, cachedSnapshotWorldState_t *cachedFrame,
   cachedFrame->first_entity = g_svSnapshotData.nextCachedSnapshotEntities;
   cachedFrame->num_entityClientMask = 0;
   cachedFrame->first_entityClientMask = g_svSnapshotData.nextCachedSnapshotEntityClientMask;
-  v38 = cursize;
+  v23 = cursize;
   MSG_ClearLastReferencedEntity(v5);
-  memset_0(v47, 0, 0x78ui64);
+  memset_0(v32, 0, 0x78ui64);
   memset_0(&from, 0, sizeof(from));
-  *(_QWORD *)v42 = 0i64;
-  v43 = 0i64;
-  v44 = 0i64;
-  v45 = 0;
+  *(_QWORD *)v27 = 0i64;
+  v28 = 0i64;
+  v29 = 0i64;
+  v30 = 0;
   SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
   if ( SvGameGlobalsMP->num_entities <= 0 )
     goto LABEL_32;
   v9 = 0i64;
   while ( 1 )
   {
-    _RBX = &SvGameGlobalsMP->gentities[v9];
-    if ( !SV_SnapshotArchiveMP_IsEntityRelevant(_RBX, v7) )
+    v10 = &SvGameGlobalsMP->gentities[v9];
+    if ( !SV_SnapshotArchiveMP_IsEntityRelevant(v10, v7) )
       goto LABEL_24;
     if ( g_svSnapshotData.nextCachedSnapshotEntities >= 2147483646 )
       break;
     if ( g_svSnapshotData.nextCachedSnapshotEntityClientMask >= 2147483646 )
     {
-      v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1244, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "g_svSnapshotData.nextCachedSnapshotEntityClientMask wrapped\n");
+      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1244, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "g_svSnapshotData.nextCachedSnapshotEntityClientMask wrapped\n");
       goto LABEL_28;
     }
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
     to = &g_svSnapshotData.cachedSnapshotEntities[g_svSnapshotData.nextCachedSnapshotEntities % 10800];
-    __asm
+    *(_OWORD *)&to->number = *(_OWORD *)&v10->s.number;
+    *(_OWORD *)&to->lerp.pos.trType = *(_OWORD *)&v10->s.lerp.pos.trType;
+    *(_OWORD *)&to->lerp.pos.trBase.y = *(_OWORD *)&v10->s.lerp.pos.trBase.y;
+    *(_OWORD *)&to->lerp.pos.trDelta.z = *(_OWORD *)&v10->s.lerp.pos.trDelta.z;
+    *(_OWORD *)to->lerp.apos.trBase.v = *(_OWORD *)v10->s.lerp.apos.trBase.v;
+    *(_OWORD *)&to->lerp.apos.trDelta.y = *(_OWORD *)&v10->s.lerp.apos.trDelta.y;
+    *(_OWORD *)&to->lerp.u.vehicle.bodyPitch = *(_OWORD *)&v10->s.lerp.u.vehicle.bodyPitch;
+    *(LerpEntityStateInfoVolumeGrapple *)((char *)&to->lerp.u.infoVolumeGrapple + 24) = *(LerpEntityStateInfoVolumeGrapple *)((char *)&v10->s.lerp.u.infoVolumeGrapple + 24);
+    *(_OWORD *)&to->staticState.turret.carrierEntNum = *(_OWORD *)&v10->s.staticState.turret.carrierEntNum;
+    *(_OWORD *)&to->clientNum = *(_OWORD *)&v10->s.clientNum;
+    *(_OWORD *)&to->events[0].eventType = *(_OWORD *)&v10->s.events[0].eventType;
+    *(_OWORD *)&to->events[2].eventType = *(_OWORD *)&v10->s.events[2].eventType;
+    *(_OWORD *)&to->index.brushModel = *(_OWORD *)&v10->s.index.brushModel;
+    *(_OWORD *)&to->animInfo.selectAnim = *(_OWORD *)&v10->s.animInfo.selectAnim;
+    *(_OWORD *)&to->partBits.array[2] = *(_OWORD *)&v10->s.partBits.array[2];
+    *(_QWORD *)&to->partBits.array[6] = *(_QWORD *)&v10->s.partBits.array[6];
+    v25 = (char *)g_svSnapshotData.cachedSnapshotEntityClientMask + g_svSnapshotData.clientMaskSize * (g_svSnapshotData.nextCachedSnapshotEntityClientMask % 10800);
+    memcpy_0(v25, &v10->clientMask, g_svSnapshotData.clientMaskSize);
+    if ( v10->s.eType >= ET_EVENTS )
     {
-      vmovups xmmword ptr [rax], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rax+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rax+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rax+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups xmmword ptr [rax+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rax+70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+80h]
-      vmovups xmmword ptr [rax+80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+90h]
-      vmovups xmmword ptr [rax+90h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+0A0h]
-      vmovups xmmword ptr [rax+0A0h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+0B0h]
-      vmovups xmmword ptr [rax+0B0h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+0C0h]
-      vmovups xmmword ptr [rax+0C0h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+0D0h]
-      vmovups xmmword ptr [rax+0D0h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+0E0h]
-      vmovups xmmword ptr [rax+0E0h], xmm0
-    }
-    *(_QWORD *)&to->partBits.array[6] = *(_QWORD *)&_RBX->s.partBits.array[6];
-    v40 = (char *)g_svSnapshotData.cachedSnapshotEntityClientMask + g_svSnapshotData.clientMaskSize * (g_svSnapshotData.nextCachedSnapshotEntityClientMask % 10800);
-    memcpy_0(v40, &_RBX->clientMask, g_svSnapshotData.clientMaskSize);
-    if ( _RBX->s.eType >= ET_EVENTS )
-    {
-      ++v48;
+      ++v33;
     }
     else
     {
-      v26 = DVARINT_sv_printArchiveDetails;
+      v11 = DVARINT_sv_printArchiveDetails;
       if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v26);
-      if ( v26->current.integer > 1 )
+      Dvar_CheckFrontendServerThread(v11);
+      if ( v11->current.integer > 1 )
       {
-        v27 = SL_ConvertToString(_RBX->targetname);
-        v28 = SL_ConvertToString(_RBX->classname);
-        Com_Printf(25, "[Snapshot] Ent %i - eType %i - classname %s, targetname %s\n", (unsigned int)_RBX->s.number, (unsigned int)_RBX->s.eType, v28, v27);
+        v12 = SL_ConvertToString(v10->targetname);
+        v13 = SL_ConvertToString(v10->classname);
+        Com_Printf(25, "[Snapshot] Ent %i - eType %i - classname %s, targetname %s\n", (unsigned int)v10->s.number, (unsigned int)v10->s.eType, v13, v12);
       }
       v5 = msg;
-      ++v47[_RBX->s.eType];
+      ++v32[v10->s.eType];
     }
-    number = _RBX->s.number;
+    number = v10->s.number;
     snapInfo->fromBaseline = 1;
     clientMaskSize = g_svSnapshotData.clientMaskSize;
     from.number = number;
     PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-    MSG_WriteDeltaArchivedEntity(snapInfo, v5, PersistentGlobalsMP->time, &from, to, v42, v40, clientMaskSize);
+    MSG_WriteDeltaArchivedEntity(snapInfo, v5, PersistentGlobalsMP->time, &from, to, v27, v25, clientMaskSize);
     snapInfo->fromBaseline = 0;
     ++g_svSnapshotData.nextCachedSnapshotEntities;
     ++g_svSnapshotData.nextCachedSnapshotEntityClientMask;
@@ -1138,20 +977,20 @@ LABEL_24:
     if ( v7 >= SvGameGlobalsMP->num_entities )
       goto LABEL_31;
   }
-  v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1237, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "g_svSnapshotData.nextCachedSnapshotEntities wrapped\n");
+  v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1237, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "g_svSnapshotData.nextCachedSnapshotEntities wrapped\n");
 LABEL_28:
-  if ( v32 )
+  if ( v17 )
     __debugbreak();
   g_svSnapshotData.snapArchiveEncodeError = 1;
 LABEL_31:
-  cursize = v38;
+  cursize = v23;
 LABEL_32:
   MSG_WriteEntityIndex(snapInfo, v5, 2047, 11);
-  v33 = DVARINT_sv_printArchiveDetails;
+  v18 = DVARINT_sv_printArchiveDetails;
   if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v33);
-  if ( v33->current.integer )
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v18->current.integer )
   {
     Com_Printf(15, "[Snapshot] Archived snapshot entities: %d bytes (%d entities)\n", (unsigned int)(v5->cursize - cursize), (unsigned int)cachedFrame->num_entities);
     num_entities = (unsigned int)cachedFrame->num_entities;
@@ -1389,7 +1228,9 @@ void SV_WriteCachedWeapons(msg_t *msg, cachedSnapshotWeaponMap_t *cachedFrame, S
   unsigned __int16 v8; 
   unsigned __int16 i; 
   unsigned __int16 v10; 
-  const dvar_t *v16; 
+  WeaponMapEntry *v11; 
+  const WeaponMapEntry *WeaponEntry; 
+  const dvar_t *v13; 
 
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 752, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
     __debugbreak();
@@ -1423,30 +1264,20 @@ void SV_WriteCachedWeapons(msg_t *msg, cachedSnapshotWeaponMap_t *cachedFrame, S
         g_svSnapshotData.snapArchiveEncodeError = 1;
         break;
       }
-      _RBX = &g_svSnapshotData.cachedSnapshotWeapons[g_svSnapshotData.nextCachedSnapshotWeapon % g_svSnapshotData.numCachedSnapshotWeapons];
-      _RAX = BgWeaponMap::GetWeaponEntry(Instance, i);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rbx+30h], xmm0
-      }
-      *(_DWORD *)&_RBX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RAX->weapon.attachmentVariationIndices[27];
-      *(_WORD *)&_RBX->weapon.scopeVariation = *(_WORD *)&_RAX->weapon.scopeVariation;
-      MSG_WriteDeltaArchivedWeaponMapEntry(snapInfo, msg, i, NULL, _RAX);
+      v11 = &g_svSnapshotData.cachedSnapshotWeapons[g_svSnapshotData.nextCachedSnapshotWeapon % g_svSnapshotData.numCachedSnapshotWeapons];
+      WeaponEntry = BgWeaponMap::GetWeaponEntry(Instance, i);
+      *v11 = *WeaponEntry;
+      MSG_WriteDeltaArchivedWeaponMapEntry(snapInfo, msg, i, NULL, WeaponEntry);
       ++g_svSnapshotData.nextCachedSnapshotWeapon;
       ++cachedFrame->num_weapons;
     }
   }
   MSG_WriteWeaponMapEntry_Index(msg, v8);
-  v16 = DVARINT_sv_printArchiveDetails;
+  v13 = DVARINT_sv_printArchiveDetails;
   if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( v16->current.integer )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.integer )
     Com_Printf(15, "[Snapshot] Archived snapshot weapons: %d bytes\n", (unsigned int)(msg->cursize - cursize));
 }
 
@@ -1655,32 +1486,33 @@ void SV_WriteDeltaCachedEntities(msg_t *msg, const cachedSnapshotWorldState_t *o
   int v10; 
   SvGameGlobalsMP *SvGameGlobalsMP; 
   __int64 v12; 
-  unsigned int v30; 
+  const gentity_s *v13; 
+  unsigned int v14; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  unsigned int v32; 
-  SvPersistentGlobalsMP *v33; 
-  const dvar_t *v34; 
+  unsigned int v16; 
+  SvPersistentGlobalsMP *v17; 
+  const dvar_t *v18; 
   char *toClientMask; 
   __int64 clientMaskSize; 
   unsigned int clientMaskSizea; 
   unsigned int clientMaskSizeb; 
-  int v39; 
-  unsigned int v40; 
-  int v41; 
+  int v23; 
+  unsigned int v24; 
+  int v25; 
   int cursize; 
-  __int64 v45; 
-  SvGameGlobalsMP *v46; 
-  char v47[4]; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  int v52; 
-  int v53; 
-  char v54[8]; 
-  __int64 v55; 
-  __int64 v56; 
-  int v57; 
+  __int64 v29; 
+  SvGameGlobalsMP *v30; 
+  char v31[4]; 
+  unsigned int v32; 
+  unsigned int v33; 
+  unsigned int v34; 
+  unsigned int v35; 
+  unsigned int v36; 
+  unsigned int v37; 
+  char v38[8]; 
+  __int64 v39; 
+  __int64 v40; 
+  int v41; 
   entityState_t to; 
   entityState_t from; 
 
@@ -1692,7 +1524,7 @@ void SV_WriteDeltaCachedEntities(msg_t *msg, const cachedSnapshotWorldState_t *o
   cursize = v4->cursize;
   MSG_ClearLastReferencedEntity(v4);
   v5 = 0;
-  v41 = -1;
+  v25 = -1;
   v6 = 0;
   if ( oldCachedFrame->first_entity < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1090, ASSERT_TYPE_ASSERT, "( ( oldCachedFrame->first_entity >= 0 ) )", "%s\n\t( oldCachedFrame->first_entity ) = %i", "( oldCachedFrame->first_entity >= 0 )", oldCachedFrame->first_entity) )
     __debugbreak();
@@ -1700,23 +1532,23 @@ void SV_WriteDeltaCachedEntities(msg_t *msg, const cachedSnapshotWorldState_t *o
   number = v7->number;
   fromClientMask = (char *)g_svSnapshotData.cachedSnapshotEntityClientMask + g_svSnapshotData.clientMaskSize * (oldCachedFrame->first_entityClientMask % 10800);
   memset_0(&from, 0, sizeof(from));
-  *(_QWORD *)v54 = 0i64;
+  *(_QWORD *)v38 = 0i64;
   v10 = 0;
-  v55 = 0i64;
-  v56 = 0i64;
-  v57 = 0;
-  v40 = 0;
-  v39 = 0;
+  v39 = 0i64;
+  v40 = 0i64;
+  v41 = 0;
+  v24 = 0;
+  v23 = 0;
   SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
-  v46 = SvGameGlobalsMP;
+  v30 = SvGameGlobalsMP;
   if ( SvGameGlobalsMP->num_entities > 0 )
   {
     v12 = 0i64;
-    v45 = 0i64;
+    v29 = 0i64;
     do
     {
-      _R13 = (__int16 *)((char *)&SvGameGlobalsMP->gentities->s.number + v12);
-      if ( SV_SnapshotArchiveMP_IsEntityRelevant((const gentity_s *)_R13, v5) )
+      v13 = (gentity_s *)((char *)SvGameGlobalsMP->gentities + v12);
+      if ( SV_SnapshotArchiveMP_IsEntityRelevant(v13, v5) )
       {
         while ( v5 > number )
         {
@@ -1752,93 +1584,59 @@ void SV_WriteDeltaCachedEntities(msg_t *msg, const cachedSnapshotWorldState_t *o
             fromClientMask = NULL;
           }
         }
-        __asm { vmovups xmm0, xmmword ptr [r13+0] }
-        _RCX = &to;
-        __asm
+        to = v13->s;
+        *(_DWORD *)v31 = v13->clientMask.array[0];
+        v32 = v13->clientMask.array[1];
+        v33 = v13->clientMask.array[2];
+        v34 = v13->clientMask.array[3];
+        v35 = v13->clientMask.array[4];
+        v36 = v13->clientMask.array[5];
+        v37 = v13->clientMask.array[6];
+        if ( v25 == v13->s.number )
         {
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [r13+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [r13+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [r13+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [r13+40h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [r13+50h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [r13+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-          vmovups xmm1, xmmword ptr [r13+70h]
-          vmovups xmmword ptr [rcx+70h], xmm1
-          vmovups xmm0, xmmword ptr [r13+80h]
-          vmovups xmmword ptr [rcx+80h], xmm0
-          vmovups xmm1, xmmword ptr [r13+90h]
-          vmovups xmmword ptr [rcx+90h], xmm1
-          vmovups xmm0, xmmword ptr [r13+0A0h]
-          vmovups xmmword ptr [rcx+0A0h], xmm0
-          vmovups xmm1, xmmword ptr [r13+0B0h]
-          vmovups xmmword ptr [rcx+0B0h], xmm1
-          vmovups xmm0, xmmword ptr [r13+0C0h]
-          vmovups xmmword ptr [rcx+0C0h], xmm0
-          vmovups xmm1, xmmword ptr [r13+0D0h]
-          vmovups xmmword ptr [rcx+0D0h], xmm1
-          vmovups xmm0, xmmword ptr [r13+0E0h]
-          vmovups xmmword ptr [rcx+0E0h], xmm0
-        }
-        *(_QWORD *)&to.partBits.array[6] = *((_QWORD *)_R13 + 30);
-        *(_DWORD *)v47 = *((_DWORD *)_R13 + 279);
-        v48 = *((_DWORD *)_R13 + 280);
-        v49 = *((_DWORD *)_R13 + 281);
-        v50 = *((_DWORD *)_R13 + 282);
-        v51 = *((_DWORD *)_R13 + 283);
-        v52 = *((_DWORD *)_R13 + 284);
-        v53 = *((_DWORD *)_R13 + 285);
-        if ( v41 == *_R13 )
-        {
-          LODWORD(clientMaskSize) = *_R13;
-          LODWORD(toClientMask) = v41;
+          LODWORD(clientMaskSize) = v13->s.number;
+          LODWORD(toClientMask) = v25;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_archive_mp.cpp", 1146, ASSERT_TYPE_ASSERT, "(lastEntityNum != ent->s.number)", "%s\n\tlastEntityNum is %i, cur entnum is %i", "lastEntityNum != ent->s.number", toClientMask, clientMaskSize) )
             __debugbreak();
         }
-        from.number = *_R13;
+        from.number = v13->s.number;
         if ( number == v5 )
         {
-          v30 = g_svSnapshotData.clientMaskSize;
+          v14 = g_svSnapshotData.clientMaskSize;
           PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-          clientMaskSizea = v30;
+          clientMaskSizea = v14;
           v4 = msg;
-          MSG_WriteDeltaArchivedEntity(snapInfo, msg, PersistentGlobalsMP->time, v7, &to, fromClientMask, v47, clientMaskSizea);
+          MSG_WriteDeltaArchivedEntity(snapInfo, msg, PersistentGlobalsMP->time, v7, &to, fromClientMask, v31, clientMaskSizea);
         }
         else
         {
           snapInfo->fromBaseline = 1;
-          v32 = g_svSnapshotData.clientMaskSize;
-          v33 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-          clientMaskSizeb = v32;
+          v16 = g_svSnapshotData.clientMaskSize;
+          v17 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+          clientMaskSizeb = v16;
           v4 = msg;
-          MSG_WriteDeltaArchivedEntity(snapInfo, msg, v33->time, &from, &to, v54, v47, clientMaskSizeb);
+          MSG_WriteDeltaArchivedEntity(snapInfo, msg, v17->time, &from, &to, v38, v31, clientMaskSizeb);
           snapInfo->fromBaseline = 0;
         }
-        ++v39;
-        ++v40;
-        v41 = *_R13;
+        ++v23;
+        ++v24;
+        v25 = v13->s.number;
       }
       ++v5;
-      SvGameGlobalsMP = v46;
-      v12 = v45 + 1456;
-      v45 += 1456i64;
+      SvGameGlobalsMP = v30;
+      v12 = v29 + 1456;
+      v29 += 1456i64;
     }
-    while ( v5 < v46->num_entities );
-    v10 = v39;
+    while ( v5 < v30->num_entities );
+    v10 = v23;
   }
   MSG_WriteEntityIndex(snapInfo, v4, 2047, 11);
-  v34 = DVARINT_sv_printArchiveDetails;
+  v18 = DVARINT_sv_printArchiveDetails;
   if ( !DVARINT_sv_printArchiveDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printArchiveDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  if ( v34->current.integer )
-    Com_Printf(15, "[Snapshot] Archived delta'ed snapshot entities: %d bytes (%d entities)\n", (unsigned int)(v4->cursize - cursize), v40);
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v18->current.integer )
+    Com_Printf(15, "[Snapshot] Archived delta'ed snapshot entities: %d bytes (%d entities)\n", (unsigned int)(v4->cursize - cursize), v24);
   g_svSnapshotData.archivedEntityCountWorkerAsync = v10;
 }
 

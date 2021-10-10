@@ -1114,30 +1114,17 @@ LABEL_29:
 AIAgentInterface::GetScarinessForDistance
 ==============
 */
-
-double __fastcall AIAgentInterface::GetScarinessForDistance(AIAgentInterface *this, sentient_s *enemy, double fDist)
+double AIAgentInterface::GetScarinessForDistance(AIAgentInterface *this, sentient_s *enemy, float fDist)
 {
-  const scrContext_t *v7; 
+  const scrContext_t *v5; 
   const Weapon *Weapon; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  v7 = ScriptContext_Server();
-  Weapon = GScr_Weapon_GetWeapon(v7, (const scr_weapon_t)this->m_pAI->currentWeapon);
-  __asm { vmovaps xmm1, xmm6; dist }
+  v5 = ScriptContext_Server();
+  Weapon = GScr_Weapon_GetWeapon(v5, (const scr_weapon_t)this->m_pAI->currentWeapon);
   if ( Weapon->weaponIdx )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return AICommonInterface::GetAccuracyFraction(this->m_pAI, *(float *)&_XMM1, Weapon, WEAP_ACCURACY_AI_VS_AI);
-  }
+    return AICommonInterface::GetAccuracyFraction(this->m_pAI, fDist, Weapon, WEAP_ACCURACY_AI_VS_AI);
   else
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return AICommonInterface::GetDefaultScarinessForDistance(enemy, *(float *)&_XMM1);
-  }
+    return AICommonInterface::GetDefaultScarinessForDistance(enemy, fDist);
 }
 
 /*
@@ -1178,24 +1165,19 @@ __int64 AIAgentInterface::GetStairsWithinDist(AIAgentInterface *this, float dist
 AIAgentInterface::GetThreatSharedEnemy
 ==============
 */
-int AIAgentInterface::GetThreatSharedEnemy(AIAgentInterface *this)
+__int64 AIAgentInterface::GetThreatSharedEnemy(AIAgentInterface *this)
 {
+  int ThreatSharedEnemy; 
   const dvar_t *v2; 
-  int result; 
+  int v3; 
 
-  AICommonInterface::GetThreatSharedEnemy(this);
+  ThreatSharedEnemy = AICommonInterface::GetThreatSharedEnemy(this);
   v2 = DCONST_DVARFLT_agent_threatSharedEnemyScale;
+  v3 = ThreatSharedEnemy;
   if ( !DCONST_DVARFLT_agent_threatSharedEnemyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "agent_threatSharedEnemyScale") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm0, xmm0, dword ptr [rbx+28h]
-    vcvttss2si eax, xmm0
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)v3 * v2->current.value);
 }
 
 /*
@@ -1203,24 +1185,19 @@ int AIAgentInterface::GetThreatSharedEnemy(AIAgentInterface *this)
 AIAgentInterface::GetThreatSharedEnemyCap
 ==============
 */
-int AIAgentInterface::GetThreatSharedEnemyCap(AIAgentInterface *this)
+__int64 AIAgentInterface::GetThreatSharedEnemyCap(AIAgentInterface *this)
 {
+  int ThreatSharedEnemyCap; 
   const dvar_t *v2; 
-  int result; 
+  int v3; 
 
-  AICommonInterface::GetThreatSharedEnemyCap(this);
+  ThreatSharedEnemyCap = AICommonInterface::GetThreatSharedEnemyCap(this);
   v2 = DCONST_DVARFLT_agent_threatSharedEnemyScale;
+  v3 = ThreatSharedEnemyCap;
   if ( !DCONST_DVARFLT_agent_threatSharedEnemyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "agent_threatSharedEnemyScale") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm0, xmm0, dword ptr [rbx+28h]
-    vcvttss2si eax, xmm0
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)v3 * v2->current.value);
 }
 
 /*
@@ -1422,59 +1399,59 @@ AIAgentInterface::OnScrCmd_AISetAnim
 */
 void AIAgentInterface::OnScrCmd_AISetAnim(AIAgentInterface *this, scrContext_t *scrContext)
 {
-  gentity_s *v6; 
-  const char *v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  float v6; 
   scr_string_t ConstString; 
   int IndexOfRandomAnimFromRandomAlias; 
   scr_string_t AnimsetName; 
+  const char *v10; 
+  const Animset *v11; 
   const char *v12; 
-  const Animset *v13; 
-  const char *v14; 
   const char *String; 
-  const char *v16; 
+  const char *v14; 
   VariableType Type; 
+  const char *v16; 
+  const char *v17; 
   const char *v18; 
-  const char *v19; 
-  const char *v20; 
-  ComErrorCode v21; 
-  scr_string_t v22; 
+  ComErrorCode v19; 
+  scr_string_t v20; 
+  const char *v21; 
+  const char *v22; 
   const char *v23; 
-  const char *v24; 
+  double Float; 
   const char *v25; 
   const char *v26; 
   const char *v27; 
-  const char *v28; 
-  int v30; 
   int pOutStateIndex; 
   AnimsetState *outState; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
-  v6 = this->GetEntity(this);
-  if ( !BG_IsCharacterEntity(&v6->s) )
+  v4 = this->GetEntity(this);
+  if ( !BG_IsCharacterEntity(&v4->s) )
   {
-    v7 = j_va("entity %i is not a player or agent", (unsigned int)v6->s.number);
-    Scr_ObjectError(COM_ERR_3525, scrContext, v7);
+    v5 = j_va("entity %i is not a player or agent", (unsigned int)v4->s.number);
+    Scr_ObjectError(COM_ERR_3525, scrContext, v5);
   }
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
+  v6 = FLOAT_1_0;
   ConstString = Scr_GetConstString(scrContext, 0);
   IndexOfRandomAnimFromRandomAlias = 0;
-  AnimsetName = BG_AnimationState_GetAnimsetName(&v6->s);
+  AnimsetName = BG_AnimationState_GetAnimsetName(&v4->s);
   if ( !AnimsetName )
   {
-    v12 = j_va("entity %i references an animset that has not been loaded", (unsigned int)v6->s.number);
-    Scr_ObjectError(COM_ERR_3526, scrContext, v12);
+    v10 = j_va("entity %i references an animset that has not been loaded", (unsigned int)v4->s.number);
+    Scr_ObjectError(COM_ERR_3526, scrContext, v10);
   }
-  v13 = Animset_Find(AnimsetName);
-  if ( !BG_Animset_GetStateInfoByName(v13, ConstString, &outState, &pOutStateIndex) )
+  v11 = Animset_Find(AnimsetName);
+  if ( !BG_Animset_GetStateInfoByName(v11, ConstString, &outState, &pOutStateIndex) )
   {
-    v14 = SL_ConvertToString(AnimsetName);
+    v12 = SL_ConvertToString(AnimsetName);
     String = Scr_GetString(scrContext, 0);
-    v16 = j_va("animation state %s does not exist in the animset for %s", String, v14);
-    Scr_ParamError(COM_ERR_3527, scrContext, 0, v16);
+    v14 = j_va("animation state %s does not exist in the animset for %s", String, v12);
+    Scr_ParamError(COM_ERR_3527, scrContext, 0, v14);
   }
   if ( Scr_GetNumParam(scrContext) <= 1 )
   {
-    IndexOfRandomAnimFromRandomAlias = G_Animset_GetIndexOfRandomAnimFromRandomAlias(v13, pOutStateIndex);
+    IndexOfRandomAnimFromRandomAlias = G_Animset_GetIndexOfRandomAnimFromRandomAlias(v11, pOutStateIndex);
     goto LABEL_22;
   }
   Type = Scr_GetType(scrContext, 1u);
@@ -1482,56 +1459,54 @@ void AIAgentInterface::OnScrCmd_AISetAnim(AIAgentInterface *this, scrContext_t *
   {
     if ( Type == VAR_STRING )
     {
-      v22 = Scr_GetConstString(scrContext, 1u);
-      IndexOfRandomAnimFromRandomAlias = G_Animset_GetIndexOfRandomAnimFromAlias(v13, outState, v22);
+      v20 = Scr_GetConstString(scrContext, 1u);
+      IndexOfRandomAnimFromRandomAlias = G_Animset_GetIndexOfRandomAnimFromAlias(v11, outState, v20);
       if ( IndexOfRandomAnimFromRandomAlias >= 0 )
         goto LABEL_19;
-      v23 = SL_ConvertToString(AnimsetName);
-      v24 = Scr_GetString(scrContext, 0);
-      v25 = Scr_GetString(scrContext, 1u);
-      v20 = j_va("animation entry %s is not a part of anim state %s in animset %s", v25, v24, v23);
-      v21 = COM_ERR_3529;
+      v21 = SL_ConvertToString(AnimsetName);
+      v22 = Scr_GetString(scrContext, 0);
+      v23 = Scr_GetString(scrContext, 1u);
+      v18 = j_va("animation entry %s is not a part of anim state %s in animset %s", v23, v22, v21);
+      v19 = COM_ERR_3529;
     }
     else
     {
       if ( Type == VAR_UNDEFINED )
       {
-        IndexOfRandomAnimFromRandomAlias = G_Animset_GetIndexOfRandomAnimFromRandomAlias(v13, pOutStateIndex);
+        IndexOfRandomAnimFromRandomAlias = G_Animset_GetIndexOfRandomAnimFromRandomAlias(v11, pOutStateIndex);
         goto LABEL_19;
       }
-      v20 = "entry must be either int, string, or undefined (to select at random)";
-      v21 = COM_ERR_3530;
+      v18 = "entry must be either int, string, or undefined (to select at random)";
+      v19 = COM_ERR_3530;
     }
     goto LABEL_18;
   }
   IndexOfRandomAnimFromRandomAlias = Scr_GetInt(scrContext, 1u);
-  if ( IndexOfRandomAnimFromRandomAlias < 0 || IndexOfRandomAnimFromRandomAlias >= BG_Animset_GetNumEntriesForStateIndex(v13, pOutStateIndex) )
+  if ( IndexOfRandomAnimFromRandomAlias < 0 || IndexOfRandomAnimFromRandomAlias >= BG_Animset_GetNumEntriesForStateIndex(v11, pOutStateIndex) )
   {
-    v18 = SL_ConvertToString(AnimsetName);
-    v19 = Scr_GetString(scrContext, 0);
-    v20 = j_va("animation entry %d is not a part of anim state %s in animset %s", (unsigned int)IndexOfRandomAnimFromRandomAlias, v19, v18);
-    v21 = COM_ERR_3528;
+    v16 = SL_ConvertToString(AnimsetName);
+    v17 = Scr_GetString(scrContext, 0);
+    v18 = j_va("animation entry %d is not a part of anim state %s in animset %s", (unsigned int)IndexOfRandomAnimFromRandomAlias, v17, v16);
+    v19 = COM_ERR_3528;
 LABEL_18:
-    Scr_ParamError(v21, scrContext, 1u, v20);
+    Scr_ParamError(v19, scrContext, 1u, v18);
   }
 LABEL_19:
   if ( Scr_GetNumParam(scrContext) > 2 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v6 = *(float *)&Float;
   }
 LABEL_22:
   if ( IndexOfRandomAnimFromRandomAlias < 0 )
   {
-    v26 = Scr_GetString(scrContext, 0);
-    v27 = SL_ConvertToString(AnimsetName);
-    v28 = j_va("invalid entry index %d for animset %s state %s", (unsigned int)IndexOfRandomAnimFromRandomAlias, v27, v26);
-    Scr_Error(COM_ERR_6170, scrContext, v28);
+    v25 = Scr_GetString(scrContext, 0);
+    v26 = SL_ConvertToString(AnimsetName);
+    v27 = j_va("invalid entry index %d for animset %s state %s", (unsigned int)IndexOfRandomAnimFromRandomAlias, v26, v25);
+    Scr_Error(COM_ERR_6170, scrContext, v27);
   }
-  __asm { vmovss  [rsp+68h+var_48], xmm6 }
-  ((void (__fastcall *)(AIAgentInterface *, const Animset *, _QWORD, _QWORD, int))this->SetAnim)(this, v13, (unsigned int)pOutStateIndex, (unsigned int)IndexOfRandomAnimFromRandomAlias, v30);
+  ((void (__fastcall *)(AIAgentInterface *, const Animset *, _QWORD, _QWORD, _DWORD))this->SetAnim)(this, v11, (unsigned int)pOutStateIndex, (unsigned int)IndexOfRandomAnimFromRandomAlias, LODWORD(v6));
   Scr_AddInt(scrContext, IndexOfRandomAnimFromRandomAlias);
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
 }
 
 /*
@@ -1585,14 +1560,9 @@ void AIAgentInterface::OnScrCmd_UseTurret(AIAgentInterface *this, scrContext_t *
 AIAgentInterface::ScrShouldTeleport_Reset
 ==============
 */
-
-bool __fastcall AIAgentInterface::ScrShouldTeleport_Reset(AIAgentInterface *this, const vec3_t *teleportPos, double distFromPosSq)
+bool AIAgentInterface::ScrShouldTeleport_Reset(AIAgentInterface *this, const vec3_t *teleportPos, float distFromPosSq)
 {
-  char v3; 
-  char v4; 
-
-  __asm { vcomiss xmm2, cs:__real@42c80000 }
-  return !(v3 | v4);
+  return distFromPosSq > 100.0;
 }
 
 /*
@@ -1623,11 +1593,12 @@ AIAgentInterface::SetAnim
 */
 void AIAgentInterface::SetAnim(AIAgentInterface *this, const Animset *pAnimset, int stateIndex, int entryIndex, float rate)
 {
-  _RBX = this->m_pAI->ent;
-  BG_AnimationState_SetState(stateIndex, entryIndex, &_RBX->s);
-  __asm { vmovss  xmm0, [rsp+28h+rate] }
-  _RBX->s.animInfo.animTime = level.time;
-  __asm { vmovss  dword ptr [rbx+0C8h], xmm0 }
+  gentity_s *ent; 
+
+  ent = this->m_pAI->ent;
+  BG_AnimationState_SetState(stateIndex, entryIndex, &ent->s);
+  ent->s.animInfo.animTime = level.time;
+  ent->s.un.animRate = rate;
   AIScriptedInterface::UpdateLookAtForNewAnim(this, pAnimset, stateIndex, entryIndex);
 }
 
@@ -1881,45 +1852,29 @@ AIAgentInterface::UpdateAnimGameParams
 */
 void AIAgentInterface::UpdateAnimGameParams(AIAgentInterface *this, bool bASMTransitioned)
 {
+  ai_agent_t *m_pAI; 
+  gentity_s *pAgentTurret; 
+
   AIScriptedInterface::UpdateAnimGameParams(this, bASMTransitioned);
-  _RAX = this->m_pAI;
-  if ( _RAX->turret.pAgentTurret )
+  m_pAI = this->m_pAI;
+  pAgentTurret = m_pAI->turret.pAgentTurret;
+  if ( pAgentTurret )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+58h]
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vmovaps [rsp+48h+var_18], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm2, xmm7, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vmovss  dword ptr [rax+0D60h], xmm0
-    }
+    _XMM7 = 0i64;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    m_pAI->animData.aimPitch = (float)((float)(pAgentTurret->s.lerp.u.turret.gunAngles.v[0] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
     this->m_pAI->animData.groundTurretEntNum = this->m_pAI->turret.pAgentTurret->s.number;
     if ( !this->m_pAI->ent->agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_agent_interface.cpp", 1166, ASSERT_TYPE_ASSERT, "(m_pAI->ent->agent)", (const char *)&queryFormat, "m_pAI->ent->agent") )
       __debugbreak();
     this->m_pAI->ent->agent->agentState.groundTurretEntNum = this->m_pAI->turret.pAgentTurret->s.number;
-    _RCX = this->m_pAI;
-    _RAX = _RCX->turret.pAgentTurret;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+5Ch]
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vroundss xmm3, xmm7, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  dword ptr [rcx+0D84h], xmm0
-    }
+    __asm { vroundss xmm3, xmm7, xmm2, 1 }
+    this->m_pAI->nonRepAnimData.groundTurretYaw = (float)((float)(this->m_pAI->turret.pAgentTurret->s.lerp.u.turret.gunAngles.v[1] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
     G_AIAnim_UpdateFieldByParam(this->m_pAI->ent, AGENT_ANIM_PARAM_AIMPITCH);
-    __asm { vmovaps xmm7, [rsp+48h+var_18] }
     G_AIAnim_UpdateFieldByParam(this->m_pAI->ent, AGENT_ANIM_PARAM_GROUND_TURRET_YAW);
   }
   else
   {
-    _RAX->animData.groundTurretEntNum = 2047;
+    m_pAI->animData.groundTurretEntNum = 2047;
   }
 }
 
@@ -1954,32 +1909,18 @@ AIAgentInterface::UpdateLookAt
 void AIAgentInterface::UpdateLookAt(AIAgentInterface *this)
 {
   gentity_s *v2; 
-  gentity_s *v4; 
+  double v3; 
+  double v4; 
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_eFlags; 
 
   v2 = this->GetEntity(this);
-  _RDX = this->m_pAI;
-  v4 = v2;
-  __asm
-  {
-    vmovss  xmm2, cs:__real@428c0000; max
-    vmovss  xmm1, cs:__real@c28c0000; min
-    vmovss  xmm0, dword ptr [rdx+478h]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@428c0000; max
-    vmovss  xmm1, cs:__real@c28c0000; min
-  }
-  v4->s.lerp.u.player.torsoPitchPacked = BG_AnimationMP_PackPitch(*(float *)&_XMM0);
-  _RCX = this->m_pAI;
-  __asm { vmovss  xmm0, dword ptr [rcx+474h]; val }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  v4->s.lerp.u.actor.lookAtEntityNum = BG_AnimationMP_PackPitch(*(float *)&_XMM0);
+  v3 = I_fclamp(this->m_pAI->aimAngles.v[1], -70.0, 70.0);
+  v2->s.lerp.u.player.torsoPitchPacked = BG_AnimationMP_PackPitch(*(float *)&v3);
+  v4 = I_fclamp(this->m_pAI->aimAngles.v[0], -70.0, 70.0);
+  v2->s.lerp.u.actor.lookAtEntityNum = BG_AnimationMP_PackPitch(*(float *)&v4);
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  p_eFlags = &v4->agent->playerState.eFlags;
+  p_eFlags = &v2->agent->playerState.eFlags;
   if ( level.time - this->m_pAI->shoot.lastShotTime > level.frameDuration )
     GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(p_eFlags, ACTIVE, 0xAu);
   else
@@ -2004,208 +1945,149 @@ AIAgentInterface::UpdateRetreat
 */
 void AIAgentInterface::UpdateRetreat(AIAgentInterface *this)
 {
-  const dvar_t *v5; 
+  const dvar_t *v2; 
+  int v3; 
+  const dvar_t *v4; 
+  int v5; 
+  float v6; 
+  __int64 v7; 
+  __int64 v8; 
   ai_agent_t *m_pAI; 
-  int v7; 
-  int v10; 
-  __int64 v13; 
-  ai_agent_t *v16; 
   team_t eTeam; 
-  bool v19; 
-  bool v20; 
-  sentient_s *sentient; 
-  int v37; 
-  AIIterator *v38; 
+  float *p_number; 
+  float v12; 
+  float v13; 
+  float v14; 
+  int v15; 
+  AIIterator *v16; 
+  const gentity_s *i; 
   ai_agent_t *ScriptedAgentInfo; 
-  AIActorInterface *v41; 
+  AIActorInterface *v19; 
   actor_s *actor; 
-  ai_agent_t *v43; 
-  sentient_s *v44; 
-  team_t v45; 
-  const dvar_t *v61; 
-  __int64 v65; 
-  __int64 v66; 
-  AIActorInterface v67; 
-  AIScriptedInterface v68; 
-  ai_agent_t *v69; 
-  AIActorInterface *v70; 
+  ai_agent_t *v21; 
+  float *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const dvar_t *v26; 
+  __int64 v27; 
+  __int64 v28; 
+  AIActorInterface v29; 
+  AIScriptedInterface v30; 
+  ai_agent_t *v31; 
+  AIActorInterface *v32; 
 
   if ( (this->m_pAI->postGoldPadding & 2) != 0 )
   {
-    v5 = DVARBOOL_ai_enableRetreat;
+    v2 = DVARBOOL_ai_enableRetreat;
     if ( !DVARBOOL_ai_enableRetreat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_enableRetreat") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v5);
-    if ( v5->current.enabled )
+    Dvar_CheckFrontendServerThread(v2);
+    if ( v2->current.enabled )
     {
-      m_pAI = this->m_pAI;
-      v7 = 0;
-      __asm { vmovaps [rsp+0F8h+var_58], xmm8 }
-      LOBYTE(m_pAI->postGoldPadding) &= ~1u;
-      _RBX = DVARFLT_ai_retreatProximity;
+      v3 = 0;
+      LOBYTE(this->m_pAI->postGoldPadding) &= ~1u;
+      v4 = DVARFLT_ai_retreatProximity;
       if ( !DVARFLT_ai_retreatProximity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_retreatProximity") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-      v10 = 0;
-      __asm { vmulss  xmm8, xmm0, xmm0 }
+      Dvar_CheckFrontendServerThread(v4);
+      v5 = 0;
+      v6 = v4->current.value * v4->current.value;
       if ( level.maxclients > 0 )
       {
-        __asm
-        {
-          vmovaps [rsp+0F8h+var_38], xmm6
-          vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        }
-        v13 = 0i64;
-        __asm
-        {
-          vmovaps [rsp+0F8h+var_48], xmm7
-          vmovss  xmm7, cs:__real@43800000
-        }
-        _RBX = 0i64;
+        v7 = 0i64;
+        v8 = 0i64;
         do
         {
-          if ( (unsigned int)v10 >= 0x800 )
+          if ( (unsigned int)v5 >= 0x800 )
           {
-            LODWORD(v66) = 2048;
-            LODWORD(v65) = v10;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v65, v66) )
+            LODWORD(v28) = 2048;
+            LODWORD(v27) = v5;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v27, v28) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          if ( g_entities[_RBX].r.isInUse != g_entityIsInUse[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          if ( g_entities[v8].r.isInUse != g_entityIsInUse[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( g_entityIsInUse[v13] )
+          if ( g_entityIsInUse[v7] )
           {
-            v16 = this->m_pAI;
-            _RCX = g_entities;
-            eTeam = v16->sentient->eTeam;
-            v19 = 0;
-            v20 = eTeam == TEAM_ZERO;
-            if ( eTeam == TEAM_ZERO || (sentient = g_entities[_RBX].sentient, v19 = (unsigned int)eTeam < sentient->eTeam, v20 = (unsigned int)eTeam <= sentient->eTeam, eTeam != sentient->eTeam) )
+            m_pAI = this->m_pAI;
+            eTeam = m_pAI->sentient->eTeam;
+            if ( eTeam == TEAM_ZERO || eTeam != g_entities[v8].sentient->eTeam )
             {
-              _RAX = v16->ent;
-              __asm
+              p_number = (float *)&m_pAI->ent->s.number;
+              if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(m_pAI->ent->r.currentOrigin.v[2] - g_entities[v8].r.currentOrigin.v[2]) & _xmm) <= 256.0 )
               {
-                vmovss  xmm0, dword ptr [rax+138h]
-                vsubss  xmm1, xmm0, dword ptr [rbx+rcx+138h]
-                vandps  xmm1, xmm1, xmm6
-                vcomiss xmm1, xmm7
-              }
-              if ( v20 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+rcx+130h]
-                  vsubss  xmm3, xmm0, dword ptr [rax+130h]
-                  vmovss  xmm1, dword ptr [rbx+rcx+134h]
-                  vsubss  xmm2, xmm1, dword ptr [rax+134h]
-                  vmovss  xmm0, dword ptr [rbx+rcx+138h]
-                  vsubss  xmm4, xmm0, dword ptr [rax+138h]
-                  vmulss  xmm2, xmm2, xmm2
-                  vmulss  xmm1, xmm3, xmm3
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm3, xmm2, xmm1
-                  vaddss  xmm2, xmm3, xmm0
-                  vcomiss xmm2, xmm8
-                }
-                if ( v19 )
-                  ++v7;
+                v12 = g_entities[v8].r.currentOrigin.v[0] - p_number[76];
+                v13 = g_entities[v8].r.currentOrigin.v[1] - p_number[77];
+                v14 = g_entities[v8].r.currentOrigin.v[2] - p_number[78];
+                if ( (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) < v6 )
+                  ++v3;
               }
             }
           }
-          ++v10;
-          ++v13;
-          ++_RBX;
+          ++v5;
+          ++v7;
+          ++v8;
         }
-        while ( v10 < level.maxclients );
-        if ( v7 )
+        while ( v5 < level.maxclients );
+        if ( v3 )
         {
-          v37 = 0;
-          v38 = this->GetAIIterator(this);
-          for ( _RBX = (const gentity_s *)v38->GetFirst(v38); _RBX; _RBX = v38->GetNext(v38) )
+          v15 = 0;
+          v16 = this->GetAIIterator(this);
+          for ( i = (const gentity_s *)v16->GetFirst(v16); i; i = v16->GetNext(v16) )
           {
-            AIActorInterface::AIActorInterface(&v67);
-            AIScriptedInterface::AIScriptedInterface(&v68);
-            v68.__vftable = (AIScriptedInterface_vtbl *)&AINewAgentInterface::`vftable';
-            v69 = NULL;
-            v70 = NULL;
-            if ( _RBX->agent && SV_Agent_IsScripted(_RBX->s.number) )
+            AIActorInterface::AIActorInterface(&v29);
+            AIScriptedInterface::AIScriptedInterface(&v30);
+            v30.__vftable = (AIScriptedInterface_vtbl *)&AINewAgentInterface::`vftable';
+            v31 = NULL;
+            v32 = NULL;
+            if ( i->agent && SV_Agent_IsScripted(i->s.number) )
             {
-              ScriptedAgentInfo = Agent_GetScriptedAgentInfo(_RBX);
+              ScriptedAgentInfo = Agent_GetScriptedAgentInfo(i);
               if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
                 __debugbreak();
               if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
                 __debugbreak();
-              v69 = ScriptedAgentInfo;
-              AIScriptedInterface::SetAI(&v68, ScriptedAgentInfo);
-              v41 = (AIActorInterface *)&v68;
+              v31 = ScriptedAgentInfo;
+              AIScriptedInterface::SetAI(&v30, ScriptedAgentInfo);
+              v19 = (AIActorInterface *)&v30;
             }
             else
             {
-              actor = _RBX->actor;
+              actor = i->actor;
               if ( !actor )
                 goto LABEL_44;
               if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
                 __debugbreak();
-              AIActorInterface::SetActor(&v67, _RBX->actor);
-              v41 = &v67;
+              AIActorInterface::SetActor(&v29, i->actor);
+              v19 = &v29;
             }
-            v70 = v41;
+            v32 = v19;
 LABEL_44:
-            v43 = this->m_pAI;
-            if ( (ai_agent_t *)v70->GetAI(v70) != v43 )
+            v21 = this->m_pAI;
+            if ( (ai_agent_t *)v32->GetAI(v32) != v21 && v21->sentient->eTeam == i->sentient->eTeam )
             {
-              v44 = v43->sentient;
-              v45 = _RBX->sentient->eTeam;
-              if ( v44->eTeam == v45 )
+              v22 = (float *)&v21->ent->s.number;
+              if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v21->ent->r.currentOrigin.v[2] - i->r.currentOrigin.v[2]) & _xmm) <= 256.0 )
               {
-                _RAX = v43->ent;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rax+138h]
-                  vsubss  xmm1, xmm0, dword ptr [rbx+138h]
-                  vandps  xmm1, xmm1, xmm6
-                  vcomiss xmm1, xmm7
-                }
-                if ( v44->eTeam <= (unsigned int)v45 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbx+130h]
-                    vsubss  xmm3, xmm0, dword ptr [rax+130h]
-                    vmovss  xmm1, dword ptr [rbx+134h]
-                    vsubss  xmm2, xmm1, dword ptr [rax+134h]
-                    vmovss  xmm0, dword ptr [rbx+138h]
-                    vsubss  xmm4, xmm0, dword ptr [rax+138h]
-                    vmulss  xmm2, xmm2, xmm2
-                    vmulss  xmm1, xmm3, xmm3
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm3, xmm2, xmm1
-                    vaddss  xmm2, xmm3, xmm0
-                    vcomiss xmm2, xmm8
-                  }
-                  if ( v44->eTeam < (unsigned int)v45 )
-                    ++v37;
-                }
+                v23 = i->r.currentOrigin.v[0] - v22[76];
+                v24 = i->r.currentOrigin.v[1] - v22[77];
+                v25 = i->r.currentOrigin.v[2] - v22[78];
+                if ( (float)((float)((float)(v24 * v24) + (float)(v23 * v23)) + (float)(v25 * v25)) < v6 )
+                  ++v15;
               }
             }
           }
-          v61 = DVARINT_ai_retreatMaxOvernumberAmount;
+          v26 = DVARINT_ai_retreatMaxOvernumberAmount;
           if ( !DVARINT_ai_retreatMaxOvernumberAmount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_retreatMaxOvernumberAmount") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v61);
-          if ( v7 > v37 + v61->current.integer )
+          Dvar_CheckFrontendServerThread(v26);
+          if ( v3 > v15 + v26->current.integer )
             LOBYTE(this->m_pAI->postGoldPadding) |= 1u;
         }
-        __asm
-        {
-          vmovaps xmm7, [rsp+0F8h+var_48]
-          vmovaps xmm6, [rsp+0F8h+var_38]
-        }
       }
-      __asm { vmovaps xmm8, [rsp+0F8h+var_58] }
     }
   }
 }

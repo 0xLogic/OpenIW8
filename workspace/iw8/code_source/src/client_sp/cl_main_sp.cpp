@@ -615,8 +615,7 @@ void CL_MainSP_CheckNotify(LocalClientNum_t localClientNum, int cmdIndex, int fo
 CL_MainSP_ClearState
 ==============
 */
-
-void __fastcall CL_MainSP_ClearState(__int64 a1, double _XMM1_8)
+void CL_MainSP_ClearState(void)
 {
   LocalClientNum_t OnlyLocalClientNum; 
   ClConfigStringsSP *ClConfigStringsSP; 
@@ -626,8 +625,7 @@ void __fastcall CL_MainSP_ClearState(__int64 a1, double _XMM1_8)
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
   Physics_WaitForAllCommandsToFinish();
   CL_Main_ResetSkeletonCache();
-  __asm { vxorps  xmm1, xmm1, xmm1; dtime }
-  CG_SnapshotSP_CreateNextSnap(OnlyLocalClientNum, *(float *)&_XMM1, 0);
+  CG_SnapshotSP_CreateNextSnap(OnlyLocalClientNum, 0.0, 0);
   CG_SnapshotSP_SetNextSnap(OnlyLocalClientNum);
   CL_CGameSP_ClearSoundAliasCache();
   ClConfigStringsSP = ClConfigStringsSP::GetClConfigStringsSP();
@@ -1036,22 +1034,15 @@ void CL_MainSP_GamePostMapMemoryAllocate(void)
 CL_MainSP_InitGameMode
 ==============
 */
-
-void __fastcall CL_MainSP_InitGameMode(__int64 a1, __int64 a2, double _XMM2_8)
+void CL_MainSP_InitGameMode(void)
 {
   Com_Printf(14, "----- SP All Clients Initialization -----\n");
   if ( !loc_language && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_main_sp.cpp", 1377, ASSERT_TYPE_ASSERT, "(loc_language)", (const char *)&queryFormat, "loc_language") )
     __debugbreak();
   if ( !loc_translate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_main_sp.cpp", 1378, ASSERT_TYPE_ASSERT, "(loc_translate)", (const char *)&queryFormat, "loc_translate") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
   DVARINT_cl_freemove = Dvar_RegisterInt("LTNQQOMQSO", 0, 0, 3, 4u, "Fly about the level");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_cl_freemoveScale = Dvar_RegisterFloat("NQTROKMNTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Scale how fast you move in cl_freemove mode");
+  DVARFLT_cl_freemoveScale = Dvar_RegisterFloat("NQTROKMNTM", 1.0, 0.0, 5.0, 4u, "Scale how fast you move in cl_freemove mode");
   DVARBOOL_cl_accessibilityAkimboEnabled = Dvar_RegisterBool("NTPPSKLPMP", 1, 0x40u, "True if accessibility configurations adjust input for akimbo weapons");
   DCONST_DVARINT_cl_defaultTransitionSettleTimeMs = Dvar_RegisterInt("cl_defaultTransitionSettleTimeMs", 50, 0, 10000, 0x40004u, "The default time for running the transition settle frames unless specified otherwise by LUA script.");
   R_RegisterNetworkDvars();
@@ -1179,69 +1170,67 @@ CL_MainSP_MapLoading
 void CL_MainSP_MapLoading(const char *mapname)
 {
   LocalClientNum_t OnlyLocalClientNum; 
+  __int64 v3; 
   __int64 v4; 
   __int64 v5; 
-  __int64 v8; 
-  LocalClientNum_t v9; 
-  __int64 v10; 
-  int v11; 
+  LocalClientNum_t v6; 
+  __int64 v7; 
+  int v8; 
 
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-  v4 = OnlyLocalClientNum;
+  v3 = OnlyLocalClientNum;
   if ( (unsigned int)OnlyLocalClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v11 = 2;
-    v9 = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v9, v11) )
+    v8 = 2;
+    v6 = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v8) )
       __debugbreak();
   }
-  v5 = v4;
-  if ( clientUIActives[v4].isRunning )
+  v4 = v3;
+  if ( clientUIActives[v3].isRunning )
   {
-    Con_Close((LocalClientNum_t)v4);
-    clientUIActives[v5].keyCatchers = 0;
+    Con_Close((LocalClientNum_t)v3);
+    clientUIActives[v4].keyCatchers = 0;
     Core_strcpy(cls.servername, 0x100ui64, "localhost");
-    if ( (unsigned int)v4 >= 2 )
+    if ( (unsigned int)v3 >= 2 )
     {
-      LODWORD(v10) = 2;
-      LODWORD(v8) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v8, v10) )
+      LODWORD(v7) = 2;
+      LODWORD(v5) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v5, v7) )
         __debugbreak();
     }
-    if ( clientUIActives[v5].connectionState != CA_MAP_RESTART )
+    if ( clientUIActives[v4].connectionState != CA_MAP_RESTART )
     {
-      if ( (unsigned int)v4 >= 2 )
+      if ( (unsigned int)v3 >= 2 )
       {
-        LODWORD(v10) = 2;
-        LODWORD(v8) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v8, v10) )
+        LODWORD(v7) = 2;
+        LODWORD(v5) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v5, v7) )
           __debugbreak();
       }
-      LODWORD(v8) = clientUIActives[v5].connectionState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_main_sp.cpp", 474, ASSERT_TYPE_ASSERT, "( ( CL_GetLocalClientAnyConnectionState( localClientNum ) == CA_MAP_RESTART ) )", "( CL_GetLocalClientAnyConnectionState( localClientNum ) ) = %i", v8) )
+      LODWORD(v5) = clientUIActives[v4].connectionState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_main_sp.cpp", 474, ASSERT_TYPE_ASSERT, "( ( CL_GetLocalClientAnyConnectionState( localClientNum ) == CA_MAP_RESTART ) )", "( CL_GetLocalClientAnyConnectionState( localClientNum ) ) = %i", v5) )
         __debugbreak();
     }
-    if ( CL_IsLocalClientActive((LocalClientNum_t)v4) )
+    if ( CL_IsLocalClientActive((LocalClientNum_t)v3) )
     {
-      if ( (unsigned int)v4 >= 2 )
+      if ( (unsigned int)v3 >= 2 )
       {
-        LODWORD(v10) = 2;
-        LODWORD(v8) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v8, v10) )
+        LODWORD(v7) = 2;
+        LODWORD(v5) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v5, v7) )
           __debugbreak();
       }
-      Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v5].connectionState, 7i64);
-      clientUIActives[v5].connectionState = CA_LOADING;
+      Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v4].connectionState, 7i64);
+      clientUIActives[v4].connectionState = CA_LOADING;
     }
     if ( !DB_IsDoingSPHotLoad() )
     {
       if ( DB_IsDoingSPHotLoadBinkTransition() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_main_sp.cpp", 482, ASSERT_TYPE_ASSERT, "(!DB_IsDoingSPHotLoadBinkTransition())", (const char *)&queryFormat, "!DB_IsDoingSPHotLoadBinkTransition()") )
         __debugbreak();
-      __asm { vxorps  xmm0, xmm0, xmm0; volume }
-      SND_SetLevelFadeIn(*(float *)&_XMM0, 0);
+      SND_SetLevelFadeIn(0.0, 0);
       SND_StopSounds(SND_STOP_ALL);
-      __asm { vmovss  xmm0, cs:__real@3f800000; volume }
-      SND_FadeAllSounds(*(float *)&_XMM0, 0);
+      SND_FadeAllSounds(1.0, 0);
     }
     if ( SND_ExistsPendingRestore() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_main_sp.cpp", 488, ASSERT_TYPE_ASSERT, "(!SND_ExistsPendingRestore())", (const char *)&queryFormat, "!SND_ExistsPendingRestore()") )
       __debugbreak();

@@ -662,65 +662,64 @@ Live_OnlineServicesFence_Frame
 */
 void Live_OnlineServicesFence_Frame(const int controllerIndex)
 {
-  __int64 v2; 
+  __int64 v1; 
+  Online_AccountRegistration *v2; 
   Online_AccountRegistration *v3; 
-  Online_AccountRegistration *v4; 
-  DWServicesAccess *v5; 
+  DWServicesAccess *v4; 
   DWLogin *Login; 
   bdLoginFailure *Failure; 
   bdLoginResult *Result; 
   bdLobbyErrorCode TaskErrorCode; 
-  int v10; 
   bool HasNetConnection; 
-  int v16; 
+  int v10; 
   bool IsFenceFailed; 
   int ErrorCode; 
-  OnlinePlayFailureReason v19; 
-  OnlinePlayFailureReason v20; 
+  OnlinePlayFailureReason v13; 
+  OnlinePlayFailureReason v14; 
   BanType PlayerBannedType; 
-  PublisherVariableManager *v22; 
-  OnlinePlayFailureReason v23; 
-  __int64 v24; 
+  PublisherVariableManager *v16; 
+  OnlinePlayFailureReason v17; 
+  __int64 v18; 
   PublisherVariableManager *Instance; 
   OnlinePlayFailureReason failureReason; 
 
-  v2 = controllerIndex;
+  v1 = controllerIndex;
   if ( Com_FrontEnd_IsInFrontEnd() )
   {
-    switch ( s_OnlineServicesFenceData[v2].state[0] )
+    switch ( s_OnlineServicesFenceData[v1].state[0] )
     {
       case 0:
       case 4:
         return;
       case 1:
-        Live_OnlineServicesFence_Activate(v2);
+        Live_OnlineServicesFence_Activate(v1);
         goto $LN21_25;
       case 2:
         goto $LN26_23;
       case 3:
-        if ( !Live_CanUserPlayOnline(v2, &failureReason) && (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+        if ( !Live_CanUserPlayOnline(v1, &failureReason) && (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
         {
-          v24 = (unsigned int)failureReason;
+          v18 = (unsigned int)failureReason;
           if ( failureReason == OPFR_CONNECTING )
           {
-            s_OnlineServicesFenceData[v2].state[0] = 1;
+            s_OnlineServicesFenceData[v1].state[0] = 1;
           }
           else
           {
-            s_OnlineServicesFenceData[v2].state[0] = 4;
-            s_OnlineServicesFenceData[v2].errorCode = v24;
-            Com_Printf(25, "Live_OnlineServicesFence_Frame setting error code %d from state OCDSState::SUCCESS\n", v24);
+            s_OnlineServicesFenceData[v1].state[0] = 4;
+            s_OnlineServicesFenceData[v1].errorCode = v18;
+            Com_Printf(25, "Live_OnlineServicesFence_Frame setting error code %d from state OCDSState::SUCCESS\n", v18);
           }
         }
         if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_online_anticheat_should_main_menu_fence_fail_if_mp_banned, "online_anticheat_should_main_menu_fence_fail_if_mp_banned") && LiveStorage_IsTimeSynced() && Dvar_GetBool_Internal_DebugName(DVARBOOL_onlinegame, "onlinegame") )
         {
           Instance = PublisherVariableManager::GetInstance();
-          if ( PublisherVariableManager::HasRetrievedVariables(Instance) && LiveAntiCheat_FeatureIsBanned(v2, 1) )
+          if ( PublisherVariableManager::HasRetrievedVariables(Instance) && LiveAntiCheat_FeatureIsBanned(v1, 1) )
           {
-            s_OnlineServicesFenceData[v2].state[0] = 4;
-            s_OnlineServicesFenceData[v2].errorCode = OPFR_ACCOUNT_IS_MP_OR_CP_FEATURE_BANNED;
-            DW_DisableLogon(v2);
-            Live_DemonwareDisconnectCleanup(v2);
+            s_OnlineServicesFenceData[v1].state[0] = 4;
+            s_OnlineServicesFenceData[v1].errorCode = OPFR_ACCOUNT_IS_MP_OR_CP_FEATURE_BANNED;
+            DW_DisableLogon(v1);
+            Live_DemonwareDisconnectCleanup(v1);
           }
         }
         return;
@@ -728,35 +727,35 @@ void Live_OnlineServicesFence_Frame(const int controllerIndex)
         goto $LN22_22;
       case 6:
 $LN21_25:
-        v3 = Online_AccountRegistration::GetInstance();
-        if ( !Online_AccountRegistration::IsRegistering(v3) )
-          Live_OnlineServicesFence_Activate(v2);
+        v2 = Online_AccountRegistration::GetInstance();
+        if ( !Online_AccountRegistration::IsRegistering(v2) )
+          Live_OnlineServicesFence_Activate(v1);
 $LN22_22:
-        if ( !Live_IsInQueue(v2) )
-          Live_OnlineServicesFence_Activate(v2);
+        if ( !Live_IsInQueue(v1) )
+          Live_OnlineServicesFence_Activate(v1);
         goto $LN24_25;
       case 7:
 $LN24_25:
         if ( Sys_Milliseconds() >= s_nextQueuedRetry )
         {
-          DW_EnableLogon(v2);
-          Live_OnlineServicesFence_Activate(v2);
+          DW_EnableLogon(v1);
+          Live_OnlineServicesFence_Activate(v1);
         }
 $LN26_23:
-        v4 = Online_AccountRegistration::GetInstance();
-        if ( Online_AccountRegistration::IsRegistering(v4) )
+        v3 = Online_AccountRegistration::GetInstance();
+        if ( Online_AccountRegistration::IsRegistering(v3) )
         {
-          s_OnlineServicesFenceData[v2].state[0] = 6;
+          s_OnlineServicesFenceData[v1].state[0] = 6;
           return;
         }
-        if ( Live_IsInQueue(v2) )
+        if ( Live_IsInQueue(v1) )
         {
-          s_OnlineServicesFenceData[v2].state[0] = 5;
+          s_OnlineServicesFenceData[v1].state[0] = 5;
         }
         else
         {
-          v5 = DWServicesAccess::GetInstance();
-          Login = DWServicesAccess::GetLogin(v5, v2);
+          v4 = DWServicesAccess::GetInstance();
+          Login = DWServicesAccess::GetLogin(v4, v1);
           if ( DWLogin::failed(Login) )
           {
             Failure = (bdLoginFailure *)DWLogin::getFailure(Login);
@@ -766,111 +765,103 @@ $LN26_23:
               TaskErrorCode = bdLoginResult::getTaskErrorCode(Result);
               if ( TaskErrorCode == BD_LOGIN_QUEUE_CLOSED_QUEUE )
               {
-                s_OnlineServicesFenceData[v2].state[0] = 4;
-                s_OnlineServicesFenceData[v2].errorCode = OPFR_LOGIN_QUEUE_CLOSED;
-                DW_DisableLogon(v2);
-                Live_DemonwareDisconnectCleanup(v2);
+                s_OnlineServicesFenceData[v1].state[0] = 4;
+                s_OnlineServicesFenceData[v1].errorCode = OPFR_LOGIN_QUEUE_CLOSED;
+                DW_DisableLogon(v1);
+                Live_DemonwareDisconnectCleanup(v1);
               }
               else if ( (unsigned int)(TaskErrorCode - 8912) <= 0x257 )
               {
-                v10 = Sys_Milliseconds();
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, esi
-                  vmulss  xmm1, xmm0, cs:__real@c47a0000
-                  vcvttss2si ecx, xmm1
-                }
-                s_nextQueuedRetry = v10 - _ECX;
-                DW_DisableLogon(v2);
-                s_OnlineServicesFenceData[v2].state[0] = 7;
+                s_nextQueuedRetry = Sys_Milliseconds() - (int)(float)((float)(TaskErrorCode - 8912) * -1000.0);
+                DW_DisableLogon(v1);
+                s_OnlineServicesFenceData[v1].state[0] = 7;
               }
             }
           }
         }
         HasNetConnection = Live_HasNetConnection();
-        v16 = v2;
+        v10 = v1;
         if ( !HasNetConnection )
         {
-          s_OnlineServicesFenceData[v2].state[0] = 4;
-          s_OnlineServicesFenceData[v2].errorCode = OPFR_NETWORK_CONNECTION;
+          s_OnlineServicesFenceData[v1].state[0] = 4;
+          s_OnlineServicesFenceData[v1].errorCode = OPFR_NETWORK_CONNECTION;
 LABEL_31:
-          DW_DisableLogon(v16);
-          Live_DemonwareDisconnectCleanup(v2);
+          DW_DisableLogon(v10);
+          Live_DemonwareDisconnectCleanup(v1);
           return;
         }
-        IsFenceFailed = FenceManager_IsFenceFailed(v2, FENCE_SIGNED_IN_TO_LIVE);
-        v16 = v2;
+        IsFenceFailed = FenceManager_IsFenceFailed(v1, FENCE_SIGNED_IN_TO_LIVE);
+        v10 = v1;
         if ( IsFenceFailed )
         {
-          s_OnlineServicesFenceData[v2].state[0] = 4;
-          s_OnlineServicesFenceData[v2].errorCode = OPFR_XBOXLIVE_SIGNEDOUTOFLIVE;
+          s_OnlineServicesFenceData[v1].state[0] = 4;
+          s_OnlineServicesFenceData[v1].errorCode = OPFR_XBOXLIVE_SIGNEDOUTOFLIVE;
           goto LABEL_31;
         }
-        if ( FenceManager_IsFenceFailed(v2, FENCE_ONLINE_PERMISSIONS) && (ErrorCode = FenceManager_GetErrorCode(v2, FENCE_ONLINE_PERMISSIONS), (v19 = ErrorCode) != OPFR_NONE) )
+        if ( FenceManager_IsFenceFailed(v1, FENCE_ONLINE_PERMISSIONS) && (ErrorCode = FenceManager_GetErrorCode(v1, FENCE_ONLINE_PERMISSIONS), (v13 = ErrorCode) != OPFR_NONE) )
         {
           if ( ErrorCode == 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\live_fences.cpp", 213, ASSERT_TYPE_ASSERT, "(failureReason != OPFR_CONNECTING)", (const char *)&queryFormat, "failureReason != OPFR_CONNECTING") )
             __debugbreak();
-          s_OnlineServicesFenceData[v2].state[0] = 4;
-          s_OnlineServicesFenceData[v2].errorCode = v19;
-          if ( v19 != OPFR_PLATFORM_PSPLUS_REQUIRED )
+          s_OnlineServicesFenceData[v1].state[0] = 4;
+          s_OnlineServicesFenceData[v1].errorCode = v13;
+          if ( v13 != OPFR_PLATFORM_PSPLUS_REQUIRED )
             goto LABEL_30;
         }
-        else if ( FenceManager_IsFenceComplete(v2, FENCE_ONLINE) )
+        else if ( FenceManager_IsFenceComplete(v1, FENCE_ONLINE) )
         {
-          if ( FenceManager_IsFenceFailed(v2, FENCE_ONLINE) )
+          if ( FenceManager_IsFenceFailed(v1, FENCE_ONLINE) )
           {
-            v20 = OPFR_ONLINE_SERVICES_ERROR;
-            PlayerBannedType = dwGetPlayerBannedType(v2);
+            v14 = OPFR_ONLINE_SERVICES_ERROR;
+            PlayerBannedType = dwGetPlayerBannedType(v1);
             if ( PlayerBannedType == BanType_TemporaryRepBan )
             {
-              v20 = OPFR_ACCOUNT_IS_TEMP_BANNED;
+              v14 = OPFR_ACCOUNT_IS_TEMP_BANNED;
             }
             else if ( PlayerBannedType == BanType_MaintenanceRepBan )
             {
-              v20 = OPFR_ACCOUNT_IS_IN_MAINTENANCE;
+              v14 = OPFR_ACCOUNT_IS_IN_MAINTENANCE;
             }
             else if ( (unsigned int)(PlayerBannedType - 3) <= 1 )
             {
-              v20 = OPFR_ACCOUNT_IS_BANNED;
+              v14 = OPFR_ACCOUNT_IS_BANNED;
             }
-            s_OnlineServicesFenceData[v2].state[0] = 4;
-            s_OnlineServicesFenceData[v2].errorCode = v20;
+            s_OnlineServicesFenceData[v1].state[0] = 4;
+            s_OnlineServicesFenceData[v1].errorCode = v14;
             goto LABEL_30;
           }
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_online_anticheat_should_main_menu_fence_fail_if_mp_banned, "online_anticheat_should_main_menu_fence_fail_if_mp_banned") && LiveStorage_IsTimeSynced() && Dvar_GetBool_Internal_DebugName(DVARBOOL_onlinegame, "onlinegame") )
           {
-            v22 = PublisherVariableManager::GetInstance();
-            if ( PublisherVariableManager::HasRetrievedVariables(v22) && LiveAntiCheat_FeatureIsBanned(v2, 1) )
+            v16 = PublisherVariableManager::GetInstance();
+            if ( PublisherVariableManager::HasRetrievedVariables(v16) && LiveAntiCheat_FeatureIsBanned(v1, 1) )
             {
-              s_OnlineServicesFenceData[v2].state[0] = 4;
-              s_OnlineServicesFenceData[v2].errorCode = OPFR_ACCOUNT_IS_MP_OR_CP_FEATURE_BANNED;
+              s_OnlineServicesFenceData[v1].state[0] = 4;
+              s_OnlineServicesFenceData[v1].errorCode = OPFR_ACCOUNT_IS_MP_OR_CP_FEATURE_BANNED;
 LABEL_30:
-              v16 = v2;
+              v10 = v1;
               goto LABEL_31;
             }
           }
-          if ( Live_CanUserPlayOnline(v2, &failureReason) || (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
+          if ( Live_CanUserPlayOnline(v1, &failureReason) || (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
           {
-            s_OnlineServicesFenceData[v2].state[0] = 3;
+            s_OnlineServicesFenceData[v1].state[0] = 3;
           }
           else
           {
-            v23 = failureReason;
+            v17 = failureReason;
             if ( failureReason == OPFR_CONNECTING )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\live_fences.cpp", 269, ASSERT_TYPE_ASSERT, "(failureReason != OPFR_CONNECTING)", (const char *)&queryFormat, "failureReason != OPFR_CONNECTING") )
                 __debugbreak();
-              v23 = failureReason;
+              v17 = failureReason;
             }
-            s_OnlineServicesFenceData[v2].state[0] = 4;
-            s_OnlineServicesFenceData[v2].errorCode = v23;
-            if ( v23 != OPFR_PLATFORM_PSPLUS_REQUIRED )
+            s_OnlineServicesFenceData[v1].state[0] = 4;
+            s_OnlineServicesFenceData[v1].errorCode = v17;
+            if ( v17 != OPFR_PLATFORM_PSPLUS_REQUIRED )
             {
-              DW_DisableLogon(v2);
-              Live_DemonwareDisconnectCleanup(v2);
+              DW_DisableLogon(v1);
+              Live_DemonwareDisconnectCleanup(v1);
             }
-            if ( !Live_IsUserSignedInToLive(v2) )
+            if ( !Live_IsUserSignedInToLive(v1) )
               Live_ForcePlatformSignInStateRefresh();
           }
         }

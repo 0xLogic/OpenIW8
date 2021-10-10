@@ -319,11 +319,6 @@ void HavokPhysicsShapeViewer::HavokPhysicsShapeViewer(HavokPhysicsShapeViewer *t
   m_size = contexts->m_size;
   contextsa.m_begin = contexts->m_data;
   contextsa.m_end = &contextsa.m_begin[m_size];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+48h+contexts.m_begin]
-    vmovdqa xmmword ptr [rsp+48h+contexts.m_begin], xmm0
-  }
   hknpShapeViewer::hknpShapeViewer(this, &contextsa, HavokPhysicsShapeViewer::s_tag);
   this->hknpShapeViewer::hknpViewer::hkReferencedObject::hkBaseObject::__vftable = (HavokPhysicsShapeViewer_vtbl *)&HavokPhysicsShapeViewer::`vftable'{for `hkReferencedObject'};
   this->hknpShapeViewer::hknpViewer::hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsShapeViewer::`vftable'{for `hkProcess'};
@@ -593,7 +588,7 @@ void HavokPhysicsShapeViewer::addWorld(HavokPhysicsShapeViewer *this, hknpWorld 
   unsigned int m_serialAndIndex; 
   hkMemoryAllocator *v23; 
   int v24; 
-  __int128 v28[3]; 
+  __int128 v25[3]; 
 
   m_ptr = this->m_context.m_ptr;
   if ( m_ptr->m_colorModifiers.m_size )
@@ -721,30 +716,15 @@ LABEL_41:
     }
   }
 LABEL_42:
-  DWORD2(v28[0]) = 0;
-  *(_QWORD *)&v28[0] = HavokPhysicsShapeViewer::onBodiesAddedSignal;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_38]
-    vmovdqa [rsp+58h+var_38], xmm0
-  }
-  hkSignal3<hknpWorld *,hknpBodyId const *,int>::subscribe<HavokPhysicsShapeViewer,void (HavokPhysicsShapeViewer::*)(hknpWorld *,hknpBodyId const *,int)>(&world->m_signals.m_bodiesAdded, this, v28, NULL);
-  DWORD2(v28[0]) = 0;
-  *(_QWORD *)&v28[0] = HavokPhysicsShapeViewer::onBodiesRemovedSignal;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_38]
-    vmovdqa [rsp+58h+var_38], xmm0
-  }
-  hkSignal3<hknpWorld *,hknpBodyId const *,int>::subscribe<HavokPhysicsShapeViewer,void (HavokPhysicsShapeViewer::*)(hknpWorld *,hknpBodyId const *,int)>(&world->m_signals.m_bodiesRemoved, this, v28, NULL);
-  DWORD2(v28[0]) = 0;
-  *(_QWORD *)&v28[0] = HavokPhysicsShapeViewer::onBodyShapeChangedSignal;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_38]
-    vmovdqa [rsp+58h+var_38], xmm0
-  }
-  hkSignal3<hknpWorld *,hknpBodyId,hkRefPtr<hknpShape const> &>::subscribe<HavokPhysicsShapeViewer,void (HavokPhysicsShapeViewer::*)(hknpWorld *,hknpBodyId,hkRefPtr<hknpShape const> &)>(&world->m_signals.m_bodyShapeChanged, this, v28, NULL);
+  DWORD2(v25[0]) = 0;
+  *(_QWORD *)&v25[0] = HavokPhysicsShapeViewer::onBodiesAddedSignal;
+  hkSignal3<hknpWorld *,hknpBodyId const *,int>::subscribe<HavokPhysicsShapeViewer,void (HavokPhysicsShapeViewer::*)(hknpWorld *,hknpBodyId const *,int)>(&world->m_signals.m_bodiesAdded, this, v25, NULL);
+  DWORD2(v25[0]) = 0;
+  *(_QWORD *)&v25[0] = HavokPhysicsShapeViewer::onBodiesRemovedSignal;
+  hkSignal3<hknpWorld *,hknpBodyId const *,int>::subscribe<HavokPhysicsShapeViewer,void (HavokPhysicsShapeViewer::*)(hknpWorld *,hknpBodyId const *,int)>(&world->m_signals.m_bodiesRemoved, this, v25, NULL);
+  DWORD2(v25[0]) = 0;
+  *(_QWORD *)&v25[0] = HavokPhysicsShapeViewer::onBodyShapeChangedSignal;
+  hkSignal3<hknpWorld *,hknpBodyId,hkRefPtr<hknpShape const> &>::subscribe<HavokPhysicsShapeViewer,void (HavokPhysicsShapeViewer::*)(hknpWorld *,hknpBodyId,hkRefPtr<hknpShape const> &)>(&world->m_signals.m_bodyShapeChanged, this, v25, NULL);
 }
 
 /*
@@ -780,11 +760,6 @@ hkProcess *HavokPhysicsShapeViewer::create(const hkArray<hkProcessContext *,hkCo
     m_size = contexts->m_size;
     contextsa.m_begin = contexts->m_data;
     contextsa.m_end = &contextsa.m_begin[m_size];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+contexts.m_begin]
-      vmovdqa xmmword ptr [rsp+48h+contexts.m_begin], xmm0
-    }
     hknpShapeViewer::hknpShapeViewer(v3, &contextsa, HavokPhysicsShapeViewer::s_tag);
     v4->hknpViewer::hkReferencedObject::hkBaseObject::__vftable = (hknpShapeViewer_vtbl *)&HavokPhysicsShapeViewer::`vftable'{for `hkReferencedObject'};
     v4->hknpViewer::hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsShapeViewer::`vftable'{for `hkProcess'};
@@ -820,163 +795,180 @@ HavokPhysicsShapeViewer::createDisplayObject
 void HavokPhysicsShapeViewer::createDisplayObject(HavokPhysicsShapeViewer *this, int worldIndex, hknpBodyId bodyId, bool useInstancing)
 {
   signed __int64 v4; 
-  void *v11; 
-  __int64 v13; 
+  void *v6; 
+  __int64 v8; 
   hkMonitorStream *Value; 
+  __int64 v11; 
+  hknpWorld *m_world; 
+  char v13; 
+  unsigned __int64 v14; 
+  int v15; 
   __int64 v16; 
-  char v18; 
-  unsigned __int64 v19; 
-  int v20; 
-  char v22; 
-  unsigned __int64 v50; 
-  unsigned __int64 v51; 
+  char v17; 
+  __m128 v25; 
+  __m128 m_quad; 
+  __m128 v27; 
+  unsigned __int64 v40; 
+  unsigned __int64 v41; 
   int m_hashMod; 
-  __int64 v53; 
-  int v54; 
+  __int64 v43; 
+  int v44; 
   hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *m_elem; 
-  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v56; 
+  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v46; 
   int val; 
-  hkMemoryAllocator *v58; 
-  int v59; 
+  hkMemoryAllocator *v48; 
+  int v49; 
+  int v50; 
+  HavokPhysicsShapeViewer::Group *v51; 
+  int v52; 
+  int v53; 
+  int v54; 
+  __int64 v55; 
+  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v56; 
+  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v57; 
+  __int64 v58; 
+  hkArray<hkDisplayGeometry *,hkContainerHeapAllocator> *v59; 
   int v60; 
-  __int64 v61; 
-  int v62; 
+  HavokPhysicsShapeViewer::Group *v61; 
+  hkMemoryAllocator *v62; 
   int v63; 
   int v64; 
-  __int64 v65; 
-  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v66; 
-  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v67; 
-  __int64 v68; 
-  int v71; 
-  HavokPhysicsShapeViewer::Group *v72; 
-  hkMemoryAllocator *v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  int v77; 
-  unsigned __int32 v78; 
-  unsigned __int32 v79; 
-  unsigned int v80; 
-  hkMapBase<unsigned __int64,int,hkMapOperations<unsigned __int64> >::Pair *v81; 
+  int v65; 
+  int v66; 
+  unsigned __int32 v67; 
+  unsigned __int32 v68; 
+  unsigned int v69; 
+  hkMapBase<unsigned __int64,int,hkMapOperations<unsigned __int64> >::Pair *v70; 
   unsigned __int64 key; 
-  __int64 v83; 
-  int v84; 
-  hkMonitorStream *v147; 
-  hkMemoryAllocator_vtbl *v148; 
+  __int64 v72; 
+  int v73; 
+  hkVector4f v80; 
+  hkVector4f v81; 
+  __m128 v82; 
+  __m128 v83; 
+  __m128 v94; 
+  __m128 v103; 
+  hkMonitorStream *v108; 
+  hkMemoryAllocator_vtbl *v109; 
   hknpShape *m_shape; 
-  __int64 v158; 
+  hkVector4f v113; 
+  hkVector4f v114; 
+  hkVector4f v115; 
+  hkVector4f v116; 
+  hkVector4f v117; 
+  __int64 v118; 
   int i; 
   const hknpTriangleShape *TriangleShape; 
-  hkMemoryAllocator *v162; 
-  int v163; 
-  __int64 v164; 
-  hkMemoryAllocator *v165; 
+  hkMemoryAllocator *v121; 
+  int v122; 
+  __int64 v123; 
+  hkMemoryAllocator *v124; 
   int m_size; 
-  bool v174; 
+  bool v126; 
   hkArray<hkDisplayGeometry *,hkContainerHeapAllocator> dst; 
   hkMemoryAllocator alloc; 
-  unsigned int v177; 
-  __int64 v178; 
-  __int64 v179; 
+  unsigned int v129; 
+  __int64 v130; 
+  __int64 v131; 
   hknpCollisionQueryDispatcher *m_collisionQueryDispatcher; 
-  hkReferencedObject *v181; 
-  hkReferencedObject *v182; 
-  int v184; 
-  unsigned __int64 v185; 
-  hkMonitorStream *v186; 
-  hkReferencedObject v187; 
-  char v188; 
-  hkErrStream v189; 
-  __int128 v190; 
-  __int64 v191; 
-  __int64 v192[2]; 
-  __int16 v193; 
-  int v194; 
-  __int64 v195; 
-  int v196; 
-  char v197; 
-  hkAabb v198; 
-  __int128 v199; 
-  __int64 v200; 
-  int v201; 
-  int v202; 
-  char v204; 
-  int v205; 
-  __int128 v209; 
-  __int64 v210; 
-  int v211; 
-  int v212; 
-  char v214; 
-  int v215; 
-  hkBaseObject v219; 
-  char v220; 
-  int v221; 
-  char v223; 
+  hkReferencedObject *v133; 
+  hkReferencedObject *v134; 
+  float v135; 
+  int v136; 
+  unsigned __int64 v137; 
+  hkMonitorStream *v138; 
+  hkReferencedObject v139; 
+  char v140; 
+  hkErrStream v141; 
+  __int128 v142; 
+  __int64 v143; 
+  __int64 v144[2]; 
+  __int16 v145; 
+  int v146; 
+  __int64 v147; 
+  int v148; 
+  char v149; 
+  hkAabb v150; 
+  __int128 v151; 
+  __int64 v152; 
+  int v153; 
+  int v154; 
+  __int128 v155; 
+  char v156; 
+  int v157; 
+  float v158; 
+  __int128 v159; 
+  __int128 v160; 
+  __int128 v161; 
+  __int64 v162; 
+  int v163; 
+  int v164; 
+  __int128 v165; 
+  char v166; 
+  int v167; 
+  float v168; 
+  __int128 v169; 
+  __int128 v170; 
+  hkBaseObject v171; 
+  char v172; 
+  int v173; 
+  __m128 v174; 
+  char v175; 
   void *p; 
-  int v225; 
-  int v226; 
-  char v227; 
-  hknpInplaceTriangleShape v228; 
-  hknpShapeCollector v229; 
+  int v177; 
+  int v178; 
+  char v179; 
+  hknpInplaceTriangleShape v180; 
+  hknpShapeCollector v181; 
   char buf[512]; 
-  char v237; 
+  __int128 v183; 
 
-  v11 = alloca(v4);
-  v191 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+16C0h+var_40], xmm6
-    vmovaps [rsp+16C0h+var_50], xmm7
-    vmovaps [rsp+16C0h+var_60], xmm8
-    vmovaps [rsp+16C0h+var_70], xmm9
-    vmovaps [rsp+16C0h+var_80], xmm10
-    vmovaps [rsp+16C0h+var_90], xmm11
-  }
-  v174 = useInstancing;
-  v13 = worldIndex;
-  _R13 = this;
+  v6 = alloca(v4);
+  v143 = -2i64;
+  v183 = _XMM9;
+  v126 = useInstancing;
+  v8 = worldIndex;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v16 = (__int64)Value;
-  v186 = Value;
+  v11 = (__int64)Value;
+  v138 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtCreateDisplayObject");
-  v179 = v16;
-  _R12 = _R13->m_worldDatas.m_data[v13]->m_world;
-  v178 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))_R12->getBody)(&_R12->hknpWorldReader, bodyId.m_serialAndIndex);
-  v18 = (v179 ^ _R13->hknpShapeViewer::m_tag) & 0x7F ^ v179;
-  v19 = ((unsigned __int64)hkServerObjectSerializer::getOrCreateTypeStreamId(_R13->m_objectHandler.m_ptr->m_serializer.m_ptr, &hknpVdbShapeDisplayMarker::typeData) << 38) + ((unsigned __int64)(v18 & 0x7F) << 26) + ((((unsigned int)v179 ^ bodyId.m_serialAndIndex & 0xFFFFFF) & 0x3FFFF ^ (unsigned int)v179) & 0x3FFFF) + ((unsigned __int64)HIBYTE(bodyId.m_serialAndIndex) << 18) + ((unsigned __int64)(v13 & 0xF) << 34);
-  v185 = v19;
-  v20 = ((__int64 (__fastcall *)(const hknpViewerColorScheme *, hknpWorld *, _QWORD, _QWORD))_R13->m_colorScheme->getBodyColor)(_R13->m_colorScheme, _R12, bodyId.m_serialAndIndex, 0i64);
-  v177 = v20;
-  _R14 = v178;
-  if ( (!HavokPhysicsShapeViewer::ms_ignoreQuery || (*(_DWORD *)(v178 + 68) & 0x100) == 0) && (*(_DWORD *)(v178 + 108) & HavokPhysicsShapeViewer::ms_contents) != 0 )
+  v131 = v11;
+  m_world = this->m_worldDatas.m_data[v8]->m_world;
+  v130 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))m_world->getBody)(&m_world->hknpWorldReader, bodyId.m_serialAndIndex);
+  v13 = (v131 ^ this->hknpShapeViewer::m_tag) & 0x7F ^ v131;
+  v14 = ((unsigned __int64)hkServerObjectSerializer::getOrCreateTypeStreamId(this->m_objectHandler.m_ptr->m_serializer.m_ptr, &hknpVdbShapeDisplayMarker::typeData) << 38) + ((unsigned __int64)(v13 & 0x7F) << 26) + ((((unsigned int)v131 ^ bodyId.m_serialAndIndex & 0xFFFFFF) & 0x3FFFF ^ (unsigned int)v131) & 0x3FFFF) + ((unsigned __int64)HIBYTE(bodyId.m_serialAndIndex) << 18) + ((unsigned __int64)(v8 & 0xF) << 34);
+  v137 = v14;
+  v15 = ((__int64 (__fastcall *)(const hknpViewerColorScheme *, hknpWorld *, _QWORD, _QWORD))this->m_colorScheme->getBodyColor)(this->m_colorScheme, m_world, bodyId.m_serialAndIndex, 0i64);
+  v129 = v15;
+  v16 = v130;
+  if ( (!HavokPhysicsShapeViewer::ms_ignoreQuery || (*(_DWORD *)(v130 + 68) & 0x100) == 0) && (*(_DWORD *)(v130 + 108) & HavokPhysicsShapeViewer::ms_contents) != 0 )
   {
-    v22 = 0;
-    if ( !_R13->m_useAabb )
+    v17 = 0;
+    if ( !this->m_useAabb )
       goto LABEL_8;
+    _XMM2 = *(_OWORD *)(v130 + 80);
     __asm
     {
-      vmovdqu xmm2, xmmword ptr [r14+50h]
-      vmovdqu xmm3, xmmword ptr [r12+5B0h]
       vpshufb xmm0, xmm2, xmmword ptr [r12+590h]
       vpand   xmm1, xmm0, xmm3
       vpaddd  xmm4, xmm1, xmmword ptr [r12+600h]
       vpshufb xmm0, xmm2, xmmword ptr [r12+5A0h]
       vpand   xmm1, xmm0, xmm3
       vpaddd  xmm2, xmm1, xmmword ptr [r12+5F0h]
-      vcvtdq2ps xmm6, xmm4
-      vcvtdq2ps xmm0, xmm2
-      vmovups xmm4, xmmword ptr [r12+560h]
-      vmovups xmm5, xmmword ptr [r12+540h]
-      vmulps  xmm0, xmm0, xmm4
-      vsubps  xmm2, xmm0, xmm5
-      vmovups xmm1, xmmword ptr [r13+0D0h]
-      vcmpleps xmm3, xmm1, xmm2
-      vmulps  xmm0, xmm6, xmm4
-      vsubps  xmm1, xmm0, xmm5
-      vcmpleps xmm2, xmm1, xmmword ptr [r13+0E0h]
-      vandps  xmm5, xmm3, xmm2
-      vxorps  xmm4, xmm4, xmm4
+    }
+    v25 = _mm_cvtepi32_ps(_XMM4);
+    m_quad = m_world->m_intSpaceUtil.m_bitScale24Inv.m_quad;
+    v27 = m_world->m_intSpaceUtil.m_bitOffset24.m_quad;
+    _mm128_sub_ps(_mm128_mul_ps(_mm_cvtepi32_ps(_XMM2), m_quad), v27);
+    _XMM1.m_quad = (__m128)this->m_aabb.m_min;
+    __asm { vcmpleps xmm3, xmm1, xmm2 }
+    _XMM0 = _mm128_mul_ps(v25, m_quad);
+    _XMM1 = _mm128_sub_ps(_XMM0, v27);
+    __asm { vcmpleps xmm2, xmm1, xmmword ptr [r13+0E0h] }
+    _XMM4 = 0i64;
+    __asm
+    {
       vpxor   xmm0, xmm0, xmm0
       vpcmpeqd xmm1, xmm0, xmm0
       vblendps xmm2, xmm4, xmm1, 7
@@ -986,464 +978,388 @@ void HavokPhysicsShapeViewer::createDisplayObject(HavokPhysicsShapeViewer *this,
     if ( _CF )
     {
 LABEL_8:
-      v50 = *(_QWORD *)(v178 + 96);
-      v51 = v50;
-      if ( (*(_BYTE *)(v50 + 24) & 1) == 0 )
-        v51 = 0i64;
-      if ( _R13->m_instancingEnabled.m_bool )
-        v22 = v174;
-      if ( ((unsigned __int8)v22 & (v51 != 0)) == 0 )
+      v40 = *(_QWORD *)(v130 + 96);
+      v41 = v40;
+      if ( (*(_BYTE *)(v40 + 24) & 1) == 0 )
+        v41 = 0i64;
+      if ( this->m_instancingEnabled.m_bool )
+        v17 = v126;
+      if ( ((unsigned __int8)v17 & (v41 != 0)) == 0 )
         goto LABEL_48;
       hkString::memSet(&dst, 0, 16);
-      dst.m_data = (hkDisplayGeometry **)v50;
-      dst.m_capacityAndFlags = v20;
-      m_hashMod = _R13->m_keyToGroupMap.m_hashMod;
+      dst.m_data = (hkDisplayGeometry **)v40;
+      dst.m_capacityAndFlags = v15;
+      m_hashMod = this->m_keyToGroupMap.m_hashMod;
       if ( m_hashMod <= 0 )
         goto LABEL_18;
-      v53 = m_hashMod & (-1640531535 * (unsigned int)(v50 >> 4));
-      v54 = m_hashMod & (-1640531535 * (v50 >> 4));
-      m_elem = _R13->m_keyToGroupMap.m_elem;
-      v56 = &m_elem[v53];
-      if ( v56->key.m_shape )
+      v43 = m_hashMod & (-1640531535 * (unsigned int)(v40 >> 4));
+      v44 = m_hashMod & (-1640531535 * (v40 >> 4));
+      m_elem = this->m_keyToGroupMap.m_elem;
+      v46 = &m_elem[v43];
+      if ( v46->key.m_shape )
       {
-        while ( v56->key.m_shape != (const hknpShape *)v50 || v56->key.m_color != v20 )
+        while ( v46->key.m_shape != (const hknpShape *)v40 || v46->key.m_color != v15 )
         {
-          v53 = m_hashMod & (unsigned int)(v53 + 1);
-          v54 = v53;
-          v56 = &m_elem[v53];
-          if ( !v56->key.m_shape )
+          v43 = m_hashMod & (unsigned int)(v43 + 1);
+          v44 = v43;
+          v46 = &m_elem[v43];
+          if ( !v46->key.m_shape )
             goto LABEL_18;
         }
       }
       else
       {
 LABEL_18:
-        v54 = m_hashMod + 1;
+        v44 = m_hashMod + 1;
       }
-      if ( v54 > m_hashMod )
+      if ( v44 > m_hashMod )
       {
-        m_size = _R13->m_groups.m_size;
-        v58 = hkMemHeapAllocator();
-        v59 = _R13->m_groups.m_size;
-        v60 = v59;
-        if ( v59 == (_R13->m_groups.m_capacityAndFlags & 0x3FFFFFFF) )
+        m_size = this->m_groups.m_size;
+        v48 = hkMemHeapAllocator();
+        v49 = this->m_groups.m_size;
+        v50 = v49;
+        if ( v49 == (this->m_groups.m_capacityAndFlags & 0x3FFFFFFF) )
         {
-          hkArrayUtil::_reserveMore(v58, &_R13->m_groups, 16);
-          v59 = _R13->m_groups.m_size;
-          v60 = v59;
+          hkArrayUtil::_reserveMore(v48, &this->m_groups, 16);
+          v49 = this->m_groups.m_size;
+          v50 = v49;
         }
-        v61 = (__int64)&_R13->m_groups.m_data[v59];
-        if ( v61 )
+        v51 = &this->m_groups.m_data[v49];
+        if ( v51 )
         {
-          *(_QWORD *)v61 = 0i64;
-          *(_DWORD *)(v61 + 8) = 0;
-          *(_DWORD *)(v61 + 12) = 0x80000000;
-          v60 = _R13->m_groups.m_size;
+          v51->m_displayIds.m_data = NULL;
+          v51->m_displayIds.m_size = 0;
+          v51->m_displayIds.m_capacityAndFlags = 0x80000000;
+          v50 = this->m_groups.m_size;
         }
-        _R13->m_groups.m_size = v60 + 1;
-        v62 = (unsigned int)hkMemHeapAllocator();
-        v63 = _R13->m_keyToGroupMap.m_hashMod;
-        if ( 2 * _R13->m_keyToGroupMap.m_numElems > v63 )
+        this->m_groups.m_size = v50 + 1;
+        v52 = (unsigned int)hkMemHeapAllocator();
+        v53 = this->m_keyToGroupMap.m_hashMod;
+        if ( 2 * this->m_keyToGroupMap.m_numElems > v53 )
         {
-          hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::resizeTable(&_R13->m_keyToGroupMap, &alloc, v62);
-          v63 = _R13->m_keyToGroupMap.m_hashMod;
+          hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::resizeTable(&this->m_keyToGroupMap, &alloc, v52);
+          v53 = this->m_keyToGroupMap.m_hashMod;
         }
-        v64 = 1;
-        v65 = v63 & (-1640531535 * (unsigned int)((unsigned __int64)dst.m_data >> 4));
-        v66 = _R13->m_keyToGroupMap.m_elem;
+        v54 = 1;
+        v55 = v53 & (-1640531535 * (unsigned int)((unsigned __int64)dst.m_data >> 4));
+        v56 = this->m_keyToGroupMap.m_elem;
         while ( 1 )
         {
-          v67 = &v66[v65];
-          if ( !v67->key.m_shape )
+          v57 = &v56[v55];
+          if ( !v57->key.m_shape )
             break;
-          if ( v67->key.m_shape == (const hknpShape *)dst.m_data && v67->key.m_color == dst.m_capacityAndFlags )
+          if ( v57->key.m_shape == (const hknpShape *)dst.m_data && v57->key.m_color == dst.m_capacityAndFlags )
           {
-            v64 = 0;
+            v54 = 0;
             break;
           }
-          v65 = _R13->m_keyToGroupMap.m_hashMod & (unsigned int)(v65 + 1);
+          v55 = this->m_keyToGroupMap.m_hashMod & (unsigned int)(v55 + 1);
         }
-        _R13->m_keyToGroupMap.m_numElems += v64;
-        v68 = (int)v65;
-        if ( &v66[(int)v65] )
-        {
-          __asm
-          {
-            vmovups xmm0, [rsp+16C0h+dst]
-            vmovups xmmword ptr [rax], xmm0
-          }
-        }
-        v71 = m_size;
-        _R13->m_keyToGroupMap.m_elem[v68].val = m_size;
-        val = v71;
+        this->m_keyToGroupMap.m_numElems += v54;
+        v58 = (int)v55;
+        v59 = (hkArray<hkDisplayGeometry *,hkContainerHeapAllocator> *)&v56[(int)v55];
+        if ( v59 )
+          *v59 = dst;
+        v60 = m_size;
+        this->m_keyToGroupMap.m_elem[v58].val = m_size;
+        val = v60;
       }
       else
       {
-        val = _R13->m_keyToGroupMap.m_elem[v54].val;
+        val = this->m_keyToGroupMap.m_elem[v44].val;
         m_size = val;
       }
-      v72 = &_R13->m_groups.m_data[val];
-      v73 = hkMemHeapAllocator();
-      v74 = v72->m_displayIds.m_size;
-      if ( v74 == (v72->m_displayIds.m_capacityAndFlags & 0x3FFFFFFF) )
+      v61 = &this->m_groups.m_data[val];
+      v62 = hkMemHeapAllocator();
+      v63 = v61->m_displayIds.m_size;
+      if ( v63 == (v61->m_displayIds.m_capacityAndFlags & 0x3FFFFFFF) )
       {
-        hkArrayUtil::_reserveMore(v73, v72, 8);
-        v74 = v72->m_displayIds.m_size;
+        hkArrayUtil::_reserveMore(v62, v61, 8);
+        v63 = v61->m_displayIds.m_size;
       }
-      v72->m_displayIds.m_data[v74] = v19;
-      ++v72->m_displayIds.m_size;
-      v75 = (unsigned int)hkMemHeapAllocator();
-      v76 = _R13->m_displayIdToGroupMap.m_hashMod;
-      if ( 2 * _R13->m_displayIdToGroupMap.m_numElems > v76 )
+      v61->m_displayIds.m_data[v63] = v14;
+      ++v61->m_displayIds.m_size;
+      v64 = (unsigned int)hkMemHeapAllocator();
+      v65 = this->m_displayIdToGroupMap.m_hashMod;
+      if ( 2 * this->m_displayIdToGroupMap.m_numElems > v65 )
       {
-        hkMapBase<unsigned __int64,int,hkMapOperations<unsigned __int64>>::resizeTable(&_R13->m_displayIdToGroupMap, &alloc, v75);
-        v76 = _R13->m_displayIdToGroupMap.m_hashMod;
+        hkMapBase<unsigned __int64,int,hkMapOperations<unsigned __int64>>::resizeTable(&this->m_displayIdToGroupMap, &alloc, v64);
+        v65 = this->m_displayIdToGroupMap.m_hashMod;
       }
-      v77 = 1;
-      v78 = _byteswap_ulong(-1640531535 * v19);
-      v79 = _byteswap_ulong(-1640531535 * HIDWORD(v19));
-      v80 = v76 & (v79 ^ ((v78 >> 2) + v78 + (v79 << 6) - 1640531527));
-      v81 = _R13->m_displayIdToGroupMap.m_elem;
-      key = v81[v80].key;
+      v66 = 1;
+      v67 = _byteswap_ulong(-1640531535 * v14);
+      v68 = _byteswap_ulong(-1640531535 * HIDWORD(v14));
+      v69 = v65 & (v68 ^ ((v67 >> 2) + v67 + (v68 << 6) - 1640531527));
+      v70 = this->m_displayIdToGroupMap.m_elem;
+      key = v70[v69].key;
       if ( key != -1i64 )
       {
-        while ( key != v19 )
+        while ( key != v14 )
         {
-          v80 = _R13->m_displayIdToGroupMap.m_hashMod & (v80 + 1);
-          key = v81[v80].key;
+          v69 = this->m_displayIdToGroupMap.m_hashMod & (v69 + 1);
+          key = v70[v69].key;
           if ( key == -1i64 )
             goto LABEL_45;
         }
-        v77 = 0;
+        v66 = 0;
       }
 LABEL_45:
-      _R13->m_displayIdToGroupMap.m_numElems += v77;
-      v83 = (int)v80;
-      v81[v83].key = v19;
-      _R13->m_displayIdToGroupMap.m_elem[v83].val = m_size;
-      if ( v72->m_displayIds.m_size > 1 && (((void (__fastcall *)(hkDebugDisplayHandler *, int *, unsigned __int64, unsigned __int64, __int64, int))_R13->m_displayHandler.m_ptr->addGeometryInstance)(_R13->m_displayHandler.m_ptr, &m_size, v19, *v72->m_displayIds.m_data, _R14, _R13->m_tag), m_size >= 0) )
+      this->m_displayIdToGroupMap.m_numElems += v66;
+      v72 = (int)v69;
+      v70[v72].key = v14;
+      this->m_displayIdToGroupMap.m_elem[v72].val = m_size;
+      if ( v61->m_displayIds.m_size > 1 && (((void (__fastcall *)(hkDebugDisplayHandler *, int *, unsigned __int64, unsigned __int64, __int64, int))this->m_displayHandler.m_ptr->addGeometryInstance)(this->m_displayHandler.m_ptr, &m_size, v14, *v61->m_displayIds.m_data, v16, this->m_tag), m_size >= 0) )
       {
-        ((void (__fastcall *)(hkDebugDisplayHandler *, hkMemoryAllocator *, unsigned __int64, __int64))_R13->m_displayHandler.m_ptr->setGeometryFlagBits)(_R13->m_displayHandler.m_ptr, &alloc, v19, 1i64);
+        ((void (__fastcall *)(hkDebugDisplayHandler *, hkMemoryAllocator *, unsigned __int64, __int64))this->m_displayHandler.m_ptr->setGeometryFlagBits)(this->m_displayHandler.m_ptr, &alloc, v14, 1i64);
       }
       else
       {
 LABEL_48:
-        v84 = 0;
+        v73 = 0;
         dst.m_data = NULL;
         *(_QWORD *)&dst.m_size = 0x8000000000000000ui64;
-        if ( !_R13->m_useAabb )
+        if ( !this->m_useAabb )
           goto LABEL_79;
-        if ( (*(_BYTE *)(_R14 + 68) & 1) == 0 )
+        if ( (*(_BYTE *)(v16 + 68) & 1) == 0 )
           goto LABEL_79;
+        _XMM0 = *(_OWORD *)(v16 + 48);
         __asm
         {
-          vmovups xmm0, xmmword ptr [r14+30h]
           vdpps   xmm4, xmm0, xmm0, 7Fh
-          vxorps  xmm11, xmm11, xmm11
           vcmpleps xmm3, xmm4, xmm11
           vrsqrtps xmm1, xmm4
-          vmulps  xmm2, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-          vmulps  xmm0, xmm1, xmm4
-          vmulps  xmm1, xmm0, xmm1
-          vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-          vsubps  xmm1, xmm0, xmm1
-          vmulps  xmm2, xmm1, xmm2
-          vmulps  xmm0, xmm2, xmm4
-          vandnps xmm1, xmm3, xmm0
-          vxorps  xmm10, xmm10, xmm10
-          vucomiss xmm1, xmm10
         }
-        if ( (*(_BYTE *)(_R14 + 68) & 1) == 0 )
+        _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM4), _XMM1)), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM4);
+        __asm { vandnps xmm1, xmm3, xmm0 }
+        if ( *(float *)&_XMM1 == 0.0 )
         {
-          v187.m_propertyBag.m_bag = NULL;
-          *(_DWORD *)&v187.m_memSizeAndFlags = 0x1FFFF;
-          v188 = 5;
-          v187.__vftable = (hkReferencedObject_vtbl *)&HavokPhysicsShapeViewerCollisionFilter::`vftable';
-          __asm { vxorps  xmm1, xmm1, xmm1; radius }
-          hknpInplaceTriangleShape::hknpInplaceTriangleShape(&v228, *(float *)&_XMM1);
-          v181 = (hkReferencedObject *)&v228;
-          v182 = (hkReferencedObject *)&v228;
-          __asm { vmovss  [rbp+15C0h+var_1630], xmm10 }
-          v184 = 1;
-          m_collisionQueryDispatcher = _R12->m_collisionQueryDispatcher;
-          v193 = -1;
-          v195 = 0i64;
-          v196 = 2;
-          v197 = -5;
+          v139.m_propertyBag.m_bag = NULL;
+          *(_DWORD *)&v139.m_memSizeAndFlags = 0x1FFFF;
+          v140 = 5;
+          v139.__vftable = (hkReferencedObject_vtbl *)&HavokPhysicsShapeViewerCollisionFilter::`vftable';
+          hknpInplaceTriangleShape::hknpInplaceTriangleShape(&v180, 0.0);
+          v133 = (hkReferencedObject *)&v180;
+          v134 = (hkReferencedObject *)&v180;
+          v135 = 0.0;
+          v136 = 1;
+          m_collisionQueryDispatcher = m_world->m_collisionQueryDispatcher;
+          v145 = -1;
+          v147 = 0i64;
+          v148 = 2;
+          v149 = -5;
+          v150.m_min.m_quad = g_vectorfConstants[36];
+          __asm { vpxor   xmm9, xmm9, xmm9 }
+          v144[1] = (__int64)&v139;
+          v146 = HavokPhysicsShapeViewer::ms_contents;
+          v144[0] = (__int64)m_world->getShapeTagCodec(&m_world->hknpWorldReader);
+          v80.m_quad = (__m128)this->m_aabb.m_max;
+          v81.m_quad = (__m128)this->m_aabb.m_min;
+          v82 = _mm128_mul_ps(_mm128_add_ps(v81.m_quad, v80.m_quad), g_vectorfConstants[21]);
+          v83 = _mm128_mul_ps(_mm128_sub_ps(v80.m_quad, v81.m_quad), g_vectorfConstants[21]);
+          _XMM1 = *(_OWORD *)v16;
           __asm
           {
-            vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+240h; __m128 const near * const g_vectorfConstants
-            vmovups xmmword ptr [rbp+15C0h+var_1580.m_min.m_quad], xmm0
-            vpxor   xmm9, xmm9, xmm9
-          }
-          v192[1] = (__int64)&v187;
-          v194 = HavokPhysicsShapeViewer::ms_contents;
-          v192[0] = (__int64)_R12->getShapeTagCodec(&_R12->hknpWorldReader);
-          __asm
-          {
-            vmovups xmm3, xmmword ptr [r13+0E0h]
-            vmovups xmm2, xmmword ptr [r13+0D0h]
-            vaddps  xmm0, xmm2, xmm3
-            vmulps  xmm8, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+150h; __m128 const near * const g_vectorfConstants
-            vsubps  xmm0, xmm3, xmm2
-            vmulps  xmm5, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+150h; __m128 const near * const g_vectorfConstants
-            vmovups xmm1, xmmword ptr [r14]
-            vmovups xmm0, xmmword ptr [r14+10h]
-            vmovups xmm3, xmmword ptr [r14+20h]
             vunpcklps xmm2, xmm1, xmm0
             vunpckhps xmm0, xmm1, xmm0
             vblendps xmm7, xmm0, xmm3, 0Ch
             vmovlhps xmm4, xmm2, xmm3
             vmovhlps xmm0, xmm4, xmm2
-            vshufps xmm6, xmm0, xmm3, 0D4h ; 'Ô'
-            vshufps xmm1, xmm5, xmm5, 0
-            vshufps xmm3, xmm5, xmm5, 55h ; 'U'
-            vshufps xmm5, xmm5, xmm5, 0AAh ; 'ª'
-            vmulps  xmm0, xmm4, xmm1
-            vmovups xmm2, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
-            vandnps xmm4, xmm2, xmm0
-            vmulps  xmm0, xmm3, xmm6
-            vandnps xmm3, xmm2, xmm0
-            vmulps  xmm1, xmm5, xmm7
-            vandnps xmm2, xmm2, xmm1
-            vaddps  xmm0, xmm3, xmm4
-            vaddps  xmm7, xmm0, xmm2
+          }
+          _mm128_mul_ps(_XMM4, _mm_shuffle_ps(v83, v83, 0));
+          _XMM2 = *(_OWORD *)hkMath::hkSse_signMask;
+          __asm { vandnps xmm4, xmm2, xmm0 }
+          _mm128_mul_ps(_mm_shuffle_ps(v83, v83, 85), _mm_shuffle_ps(_XMM0, *(__m128 *)(v16 + 32), 212));
+          __asm { vandnps xmm3, xmm2, xmm0 }
+          _mm128_mul_ps(_mm_shuffle_ps(v83, v83, 170), _XMM7);
+          __asm { vandnps xmm2, xmm2, xmm1 }
+          v94 = _mm128_add_ps(_mm128_add_ps(_XMM3, _XMM4), _XMM2);
+          __asm
+          {
             vpinsrw xmm0, xmm9, eax, 1
             vpshufd xmm6, xmm0, 0
-            vsubps  xmm5, xmm8, xmmword ptr [r14+30h]
-            vmovups xmm0, xmmword ptr [r14]
-            vmovups xmm1, xmmword ptr [r14+10h]
-            vmovups xmm3, xmmword ptr [r14+20h]
+          }
+          _mm128_sub_ps(v82, *(__m128 *)(v16 + 48));
+          _XMM0 = *(_OWORD *)v16;
+          _XMM1 = *(_OWORD *)(v16 + 16);
+          _XMM3 = *(_OWORD *)(v16 + 32);
+          __asm
+          {
             vdpps   xmm4, xmm0, xmm5, 71h ; 'q'
             vdpps   xmm2, xmm1, xmm5, 72h ; 'r'
             vdpps   xmm3, xmm3, xmm5, 74h ; 't'
-            vorps   xmm0, xmm2, xmm4
-            vorps   xmm1, xmm0, xmm3
-            vxorps  xmm0, xmm7, xmm6
-            vaddps  xmm2, xmm0, xmm1
-            vaddps  xmm1, xmm1, xmm7
-            vmovups xmmword ptr [rbp+15C0h+var_1580.m_max.m_quad], xmm1
-            vmovups xmmword ptr [rbp+15C0h+var_1580.m_min.m_quad], xmm2
           }
-          LOWORD(v189.__vftable) = -1;
-          HIDWORD(v189.__vftable) = 0;
-          v189.m_propertyBag.m_bag = NULL;
-          v201 = -1;
-          v202 = 0;
-          __asm
+          v103 = (__m128)(_XMM2 | _XMM4 | _XMM3);
+          _XMM0 = *(_OWORD *)&v94 ^ _XMM6;
+          v150.m_max.m_quad = _mm128_add_ps(v103, v94);
+          v150.m_min.m_quad = _mm128_add_ps((__m128)(*(_OWORD *)&v94 ^ _XMM6), v103);
+          LOWORD(v141.__vftable) = -1;
+          HIDWORD(v141.__vftable) = 0;
+          v141.m_propertyBag.m_bag = NULL;
+          v153 = -1;
+          v154 = 0;
+          __asm { vpxor   xmm0, xmm0, xmm0 }
+          v151 = _XMM0;
+          v152 = 0i64;
+          __asm { vpxor   xmm1, xmm1, xmm1 }
+          v155 = _XMM1;
+          v156 = 0;
+          v159 = _xmm;
+          v157 = 0;
+          v160 = 0i64;
+          v158 = 0.0;
+          v171.__vftable = (hkBaseObject_vtbl *)hknpAllHitsCollector::`vftable';
+          p = &v179;
+          v178 = -2147483638;
+          v173 = 0;
+          _XMM0 = g_vectorfConstants[37];
+          v174 = g_vectorfConstants[37];
+          v175 = 0;
+          v177 = 0;
+          v172 = 64;
+          v108 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
+          v109 = (hkMemoryAllocator_vtbl *)v108;
+          if ( v108 )
+            hkMonitorStream::timerBegin(v108, "TtQueryAabb");
+          alloc.__vftable = v109;
+          if ( hkAabb::isValid(&v150) )
           {
-            vpxor   xmm0, xmm0, xmm0
-            vmovdqu [rbp+15C0h+var_1560], xmm0
-          }
-          v200 = 0i64;
-          __asm
-          {
-            vpxor   xmm1, xmm1, xmm1
-            vmovdqu [rbp+15C0h+var_1540], xmm1
-          }
-          v204 = 0;
-          __asm
-          {
-            vmovups xmm6, cs:__xmm@3f8000003f8000003f8000003f800000
-            vmovups [rbp+15C0h+var_1520], xmm6
-          }
-          v205 = 0;
-          __asm
-          {
-            vmovups [rbp+15C0h+var_1510], xmm11
-            vmovss  [rbp+15C0h+var_1528], xmm10
-          }
-          v219.__vftable = (hkBaseObject_vtbl *)hknpAllHitsCollector::`vftable';
-          p = &v227;
-          v226 = -2147483638;
-          v221 = 0;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-            vmovups [rbp+15C0h+var_1490], xmm0
-          }
-          v223 = 0;
-          v225 = 0;
-          v220 = 64;
-          v147 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-          v148 = (hkMemoryAllocator_vtbl *)v147;
-          if ( v147 )
-            hkMonitorStream::timerBegin(v147, "TtQueryAabb");
-          alloc.__vftable = v148;
-          if ( hkAabb::isValid(&v198) )
-          {
-            v211 = -1;
-            v212 = 0;
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu [rbp+15C0h+var_1500], xmm0
-            }
-            v210 = 0i64;
-            __asm
-            {
-              vpxor   xmm1, xmm1, xmm1
-              vmovdqu [rbp+15C0h+var_14E0], xmm1
-            }
-            v214 = 0;
-            __asm { vmovups [rbp+15C0h+var_14C0], xmm6 }
-            v215 = 0;
-            __asm
-            {
-              vmovups [rbp+15C0h+var_14B0], xmm11
-              vmovss  [rbp+15C0h+var_14C8], xmm10
-              vmovups xmm0, xmmword ptr [rbp+15C0h+var_15F0.baseclass_0.baseclass_0.baseclass_0.__vftable]
-              vmovdqa [rbp+15C0h+var_15D0], xmm0
-            }
-            if ( v192[0] && (*(_BYTE *)(v192[0] + 24) & 1) != 0 )
-              (*(void (__fastcall **)(__int64, __int64, _QWORD, unsigned __int64, __int128 *))(*(_QWORD *)v192[0] + 24i64))(v192[0], 5i64, v199, v50, &v190);
-            (*(void (__fastcall **)(unsigned __int64, hknpCollisionQueryDispatcher **, __int64 *, __int128 *, __int128 *, __int128 *, hkBaseObject *, _QWORD))(*(_QWORD *)v50 + 200i64))(v50, &m_collisionQueryDispatcher, v192, &v209, &v190, &v199, &v219, 0i64);
-            if ( v148 )
-              hkMonitorStream::timerEnd((hkMonitorStream *)v148, "Et");
+            v163 = -1;
+            v164 = 0;
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            v161 = _XMM0;
+            v162 = 0i64;
+            __asm { vpxor   xmm1, xmm1, xmm1 }
+            v165 = _XMM1;
+            v166 = 0;
+            v169 = _xmm;
+            v167 = 0;
+            v170 = 0i64;
+            v168 = 0.0;
+            v142 = *(_OWORD *)&v141.__vftable;
+            if ( v144[0] && (*(_BYTE *)(v144[0] + 24) & 1) != 0 )
+              (*(void (__fastcall **)(__int64, __int64, _QWORD, unsigned __int64, __int128 *))(*(_QWORD *)v144[0] + 24i64))(v144[0], 5i64, v151, v40, &v142);
+            (*(void (__fastcall **)(unsigned __int64, hknpCollisionQueryDispatcher **, __int64 *, __int128 *, __int128 *, __int128 *, hkBaseObject *, _QWORD))(*(_QWORD *)v40 + 200i64))(v40, &m_collisionQueryDispatcher, v144, &v161, &v142, &v151, &v171, 0i64);
+            if ( v109 )
+              hkMonitorStream::timerEnd((hkMonitorStream *)v109, "Et");
           }
           else
           {
-            hkErrStream::hkErrStream(&v189, buf, 512);
-            hkOstream::operator<<(&v189, "Invalid AABB query. Please check your input AABB.");
+            hkErrStream::hkErrStream(&v141, buf, 512);
+            hkOstream::operator<<(&v141, "Invalid AABB query. Please check your input AABB.");
             hkErrorFwd::messageWarning(-1357677090, buf, "c:\\workspace\\iw8\\shared\\codware\\sdk\\havok\\hk2018_2_0_r1\\source\\physics\\physics\\collide\\shape\\hknpshapequeryinterface.inl", 215);
-            hkErrStream::~hkErrStream(&v189);
-            if ( v148 )
-              hkMonitorStream::timerEnd((hkMonitorStream *)v148, "Et");
+            hkErrStream::~hkErrStream(&v141);
+            if ( v109 )
+              hkMonitorStream::timerEnd((hkMonitorStream *)v109, "Et");
           }
           m_shape = NULL;
-          v229.m_internal.m_shapeBuffer.m_shape = NULL;
-          v229.m_internal.m_shapeBuffer.m_buffer = v229.m_internal.m_shapeBuffer.m_storage;
-          v229.m_internal.m_shapeBuffer.m_bufferSize = 2048;
-          v229.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpInplaceShapeBuffer<2048>::`vftable';
-          v229.m_internal.m_shape = NULL;
-          v229.m_parentShape = NULL;
-          v229.m_shapeTagPath.m_size = 0;
-          *(_QWORD *)&v229.m_internal.m_flags.m_storage = 13i64;
-          __asm
+          v181.m_internal.m_shapeBuffer.m_shape = NULL;
+          v181.m_internal.m_shapeBuffer.m_buffer = v181.m_internal.m_shapeBuffer.m_storage;
+          v181.m_internal.m_shapeBuffer.m_bufferSize = 2048;
+          v181.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpInplaceShapeBuffer<2048>::`vftable';
+          v181.m_internal.m_shape = NULL;
+          v181.m_parentShape = NULL;
+          v181.m_shapeTagPath.m_size = 0;
+          *(_QWORD *)&v181.m_internal.m_flags.m_storage = 13i64;
+          v113.m_quad = g_vectorfConstants[32];
+          v181.m_transform.m_rotation = *(hkRotationImpl<float> *)g_vectorfConstants[32].m128_f32;
+          v114.m_quad = g_vectorfConstants[33];
+          v115.m_quad = g_vectorfConstants[34];
+          v116.m_quad = g_vectorfConstants[35];
+          v181.m_transform.m_translation.m_quad = g_vectorfConstants[35];
+          v117.m_quad = g_vectorfConstants[6];
+          v181.m_internal.m_scale.m_quad = g_vectorfConstants[6];
+          v181.m_internal.m_shapeTags[0] = -1;
+          if ( v173 > 0 )
           {
-            vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-            vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_rotation.baseclass_0.m_col0.m_quad], xmm0
-            vmovups xmm1, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+210h; __m128 const near * const g_vectorfConstants
-            vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_rotation.baseclass_0.m_col1.m_quad], xmm1
-            vmovups xmm2, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-            vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_rotation.baseclass_0.m_col2.m_quad], xmm2
-            vmovups xmm3, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+230h; __m128 const near * const g_vectorfConstants
-            vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_translation.m_quad], xmm3
-            vmovups xmm4, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-            vmovups xmmword ptr [rbp+15C0h+var_EF0.m_internal.m_scale.m_quad], xmm4
-          }
-          v229.m_internal.m_shapeTags[0] = -1;
-          if ( v221 > 0 )
-          {
-            v158 = 0i64;
+            v118 = 0i64;
             while ( 1 )
             {
-              m_size = *(_DWORD *)((char *)p + v158 + 76);
-              v229.m_internal.m_shape = NULL;
-              v229.m_parentShape = NULL;
-              v229.m_shapeTagPath.m_size = 0;
-              *(_QWORD *)&v229.m_internal.m_flags.m_storage = 13i64;
-              __asm
+              m_size = *(_DWORD *)((char *)p + v118 + 76);
+              v181.m_internal.m_shape = NULL;
+              v181.m_parentShape = NULL;
+              v181.m_shapeTagPath.m_size = 0;
+              *(_QWORD *)&v181.m_internal.m_flags.m_storage = 13i64;
+              v181.m_transform.m_rotation.m_col0 = (hkVector4f)v113.m_quad;
+              v181.m_transform.m_rotation.m_col1 = (hkVector4f)v114.m_quad;
+              v181.m_transform.m_rotation.m_col2 = (hkVector4f)v115.m_quad;
+              v181.m_transform.m_translation = (hkVector4f)v116.m_quad;
+              v181.m_internal.m_scale = (hkVector4f)v117.m_quad;
+              v181.m_internal.m_shapeTags[0] = -1;
+              (*(void (__fastcall **)(unsigned __int64, int *, __int64, hknpShapeCollector *))(*(_QWORD *)v40 + 176i64))(v40, &m_size, 1i64, &v181);
+              for ( i = 0; i < v181.m_internal.m_numShapesStored; ++i )
               {
-                vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_rotation.baseclass_0.m_col0.m_quad], xmm0
-                vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_rotation.baseclass_0.m_col1.m_quad], xmm1
-                vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_rotation.baseclass_0.m_col2.m_quad], xmm2
-                vmovups xmmword ptr [rbp+15C0h+var_EF0.m_transform.m_translation.m_quad], xmm3
-                vmovups xmmword ptr [rbp+15C0h+var_EF0.m_internal.m_scale.m_quad], xmm4
-              }
-              v229.m_internal.m_shapeTags[0] = -1;
-              (*(void (__fastcall **)(unsigned __int64, int *, __int64, hknpShapeCollector *))(*(_QWORD *)v50 + 176i64))(v50, &m_size, 1i64, &v229);
-              for ( i = 0; i < v229.m_internal.m_numShapesStored; ++i )
-              {
-                if ( (v229.m_internal.m_flags.m_storage & 0x10) != 0 )
-                  TriangleShape = hknpShapeCollector::getTriangleShape(&v229, i, (hknpTriangleShape *)&v228);
+                if ( (v181.m_internal.m_flags.m_storage & 0x10) != 0 )
+                  TriangleShape = hknpShapeCollector::getTriangleShape(&v181, i, (hknpTriangleShape *)&v180);
                 else
-                  TriangleShape = (const hknpTriangleShape *)v229.m_internal.m_shape;
-                hknpShapeUtil::buildShapeDisplayGeometries(TriangleShape, &v229.m_transform, _R13->m_radiusDisplayMode, &dst, 0);
+                  TriangleShape = (const hknpTriangleShape *)v181.m_internal.m_shape;
+                hknpShapeUtil::buildShapeDisplayGeometries(TriangleShape, &v181.m_transform, this->m_radiusDisplayMode, &dst, 0);
               }
-              ++v84;
-              v158 += 112i64;
-              if ( v84 >= v221 )
+              ++v73;
+              v118 += 112i64;
+              if ( v73 >= v173 )
                 break;
-              __asm
-              {
-                vmovups xmm3, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+230h; __m128 const near * const g_vectorfConstants
-                vmovups xmm2, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-                vmovups xmm1, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+210h; __m128 const near * const g_vectorfConstants
-                vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-                vmovups xmm4, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-              }
+              v116.m_quad = g_vectorfConstants[35];
+              v115.m_quad = g_vectorfConstants[34];
+              v114.m_quad = g_vectorfConstants[33];
+              v113.m_quad = g_vectorfConstants[32];
+              v117.m_quad = g_vectorfConstants[6];
             }
-            m_shape = v229.m_internal.m_shapeBuffer.m_shape;
-            v19 = v185;
-            _R14 = v178;
+            m_shape = v181.m_internal.m_shapeBuffer.m_shape;
+            v14 = v137;
+            v16 = v130;
           }
-          v229.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpShapeBuffer::`vftable';
+          v181.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpShapeBuffer::`vftable';
           if ( m_shape )
             ((void (__fastcall *)(hknpShape *, _QWORD))m_shape->~hkBaseObject)(m_shape, 0i64);
-          v219.__vftable = (hkBaseObject_vtbl *)hknpAllHitsCollector::`vftable';
-          v221 = 0;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-            vmovups [rbp+15C0h+var_1490], xmm0
-          }
-          v223 = 0;
-          v225 = 0;
-          v162 = hkMemHeapAllocator();
-          v225 = 0;
-          if ( v226 >= 0 )
-            hkMemoryAllocator::bufFree2(v162, p, 112, v226 & 0x3FFFFFFF);
+          v171.__vftable = (hkBaseObject_vtbl *)hknpAllHitsCollector::`vftable';
+          v173 = 0;
+          v174 = g_vectorfConstants[37];
+          v175 = 0;
+          v177 = 0;
+          v121 = hkMemHeapAllocator();
+          v177 = 0;
+          if ( v178 >= 0 )
+            hkMemoryAllocator::bufFree2(v121, p, 112, v178 & 0x3FFFFFFF);
           p = NULL;
-          v226 = 0x80000000;
-          v219.__vftable = (hkBaseObject_vtbl *)hknpCollisionQueryCollector::`vftable';
-          hkBaseObject::~hkBaseObject(&v219);
-          if ( !v184 )
+          v178 = 0x80000000;
+          v171.__vftable = (hkBaseObject_vtbl *)hknpCollisionQueryCollector::`vftable';
+          hkBaseObject::~hkBaseObject(&v171);
+          if ( !v136 )
           {
-            hkReferencedObject::removeReference(v181);
-            hkReferencedObject::removeReference(v182);
+            hkReferencedObject::removeReference(v133);
+            hkReferencedObject::removeReference(v134);
           }
-          v187.__vftable = (hkReferencedObject_vtbl *)hknpCollisionFilter::`vftable';
-          hkReferencedObject::~hkReferencedObject(&v187);
+          v139.__vftable = (hkReferencedObject_vtbl *)hknpCollisionFilter::`vftable';
+          hkReferencedObject::~hkReferencedObject(&v139);
         }
         else
         {
 LABEL_79:
-          hknpShapeUtil::buildShapeDisplayGeometries((const hknpShape *)v50, _R13->m_radiusDisplayMode, &dst, 0);
+          hknpShapeUtil::buildShapeDisplayGeometries((const hknpShape *)v40, this->m_radiusDisplayMode, &dst, 0);
         }
-        ((void (__fastcall *)(hkDebugDisplayHandler *, hkMemoryAllocator *, unsigned __int64, hkArray<hkDisplayGeometry *,hkContainerHeapAllocator> *, __int64, int))_R13->m_displayHandler.m_ptr->addGeometry)(_R13->m_displayHandler.m_ptr, &alloc, v19, &dst, _R14, _R13->m_tag);
-        ((void (__fastcall *)(hkDebugDisplayHandler *, hkMemoryAllocator *, unsigned __int64, _QWORD))_R13->m_displayHandler.m_ptr->setGeometryColor)(_R13->m_displayHandler.m_ptr, &alloc, v19, v177);
-        v163 = 0;
+        ((void (__fastcall *)(hkDebugDisplayHandler *, hkMemoryAllocator *, unsigned __int64, hkArray<hkDisplayGeometry *,hkContainerHeapAllocator> *, __int64, int))this->m_displayHandler.m_ptr->addGeometry)(this->m_displayHandler.m_ptr, &alloc, v14, &dst, v16, this->m_tag);
+        ((void (__fastcall *)(hkDebugDisplayHandler *, hkMemoryAllocator *, unsigned __int64, _QWORD))this->m_displayHandler.m_ptr->setGeometryColor)(this->m_displayHandler.m_ptr, &alloc, v14, v129);
+        v122 = 0;
         if ( dst.m_size > 0 )
         {
-          v164 = 0i64;
+          v123 = 0i64;
           do
           {
-            hkReferencedObject::removeReference(dst.m_data[v164]);
-            ++v163;
-            ++v164;
+            hkReferencedObject::removeReference(dst.m_data[v123]);
+            ++v122;
+            ++v123;
           }
-          while ( v163 < dst.m_size );
+          while ( v122 < dst.m_size );
         }
-        v165 = hkMemHeapAllocator();
+        v124 = hkMemHeapAllocator();
         dst.m_size = 0;
         if ( dst.m_capacityAndFlags >= 0 )
-          hkMemoryAllocator::bufFree2(v165, dst.m_data, 8, dst.m_capacityAndFlags & 0x3FFFFFFF);
+          hkMemoryAllocator::bufFree2(v124, dst.m_data, 8, dst.m_capacityAndFlags & 0x3FFFFFFF);
       }
     }
   }
-  if ( v186 )
-    hkMonitorStream::timerEnd(v186, "Et");
-  _R11 = &v237;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  if ( v138 )
+    hkMonitorStream::timerEnd(v138, "Et");
 }
 
 /*

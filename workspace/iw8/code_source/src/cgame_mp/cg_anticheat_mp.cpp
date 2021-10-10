@@ -269,50 +269,39 @@ CG_ClientAntiCheatMP_CalculateDeltaDeltas
 */
 void CG_ClientAntiCheatMP_CalculateDeltaDeltas(const CgClientAntiCheatMP_LogViewValuesWorkCmd *const cmd, const CgGlobalsMP *const cgameGlob, CgClientAntiCheatData *r_data)
 {
-  volatile signed __int32 *p_deltaDeltasDebugLock; 
+  volatile int *p_deltaDeltasDebugLock; 
+  float v9; 
+  float v10; 
+  float v12; 
   unsigned __int64 nextAimTrackingIndex; 
-  CgClientAntiCheatData::IdealToActualTargetAngles *v49; 
+  CgClientAntiCheatData::IdealToActualTargetAngles *v14; 
   int clientNum; 
   unsigned int m_clientCount; 
-  unsigned int v52; 
-  __int64 v53; 
-  unsigned int v54; 
+  unsigned int v17; 
+  __int64 v18; 
+  unsigned int v19; 
   __int64 localClientNum; 
-  CgEntitySystem *v56; 
-  __int64 v57; 
+  CgEntitySystem *v21; 
+  __int64 v22; 
   team_t team; 
-  team_t v59; 
-  __int64 v104; 
-  __int64 v105; 
-  __int64 v106; 
-  __int64 v107; 
-  __int64 v108; 
+  team_t v24; 
+  float v26; 
+  float v27; 
+  float v29; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
   const characterInfo_t *CharacterInfo; 
-  volatile int *v110; 
-  __int64 v111; 
+  volatile int *v36; 
+  __int64 v37; 
   vec3_t vec; 
   vec3_t outEyePos; 
   vec3_t angles; 
-  char v115; 
-  void *retaddr; 
-  unsigned int v117; 
-  int v118; 
+  unsigned int v41; 
+  int v42; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _RBX = r_data;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 438, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
   if ( !cmd->dlogOnly )
@@ -322,217 +311,139 @@ void CG_ClientAntiCheatMP_CalculateDeltaDeltas(const CgClientAntiCheatMP_LogView
     Sys_ProfBeginNamedEvent(0xFF008080, "CG_ClientAntiCheatMP_CalculateDeltaDeltas");
     if ( cmd->deltaTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 447, ASSERT_TYPE_ASSERT, "( cmd->deltaTime ) > ( 0 )", "%s > %s\n\t%i, %i", "cmd->deltaTime", "0", cmd->deltaTime, 0i64) )
       __debugbreak();
-    p_deltaDeltasDebugLock = &_RBX->deltaDeltasDebugLock;
-    v110 = &_RBX->deltaDeltasDebugLock;
-    v111 = ((_BYTE)_RBX - 24) & 3;
-    if ( (((_BYTE)_RBX - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &_RBX->deltaDeltasDebugLock) )
+    p_deltaDeltasDebugLock = &r_data->deltaDeltasDebugLock;
+    v36 = &r_data->deltaDeltasDebugLock;
+    v37 = ((_BYTE)r_data - 24) & 3;
+    if ( (((_BYTE)r_data - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &r_data->deltaDeltasDebugLock) )
       __debugbreak();
     if ( _InterlockedCompareExchange(p_deltaDeltasDebugLock, 1, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 449, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 1, 0 ) == 0)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 1, 0 ) == 0") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4Ch]
-      vsubss  xmm1, xmm0, dword ptr [r14+8]
-      vmovss  xmm8, cs:__real@3b360b61
-      vmulss  xmm3, xmm1, xmm8
-      vmovss  xmm9, cs:__real@3f000000
-      vaddss  xmm2, xmm3, xmm9
-      vxorps  xmm10, xmm10, xmm10
-      vroundss xmm0, xmm10, xmm2, 1
-      vsubss  xmm0, xmm3, xmm0
-      vmovss  xmm11, cs:__real@43b40000
-      vmulss  xmm1, xmm0, xmm11
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm1, xmm1, xmm7
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r14+10h]
-      vmovss  xmm13, cs:__real@3f800000
-      vdivss  xmm5, xmm13, xmm0
-      vmovss  xmm12, cs:__real@447a0000
-      vmulss  xmm0, xmm1, xmm12
-      vmulss  xmm14, xmm0, xmm5
-      vmovss  xmm1, dword ptr [rbx+50h]
-      vsubss  xmm0, xmm1, dword ptr [r14+0Ch]
-      vmulss  xmm4, xmm0, xmm8
-      vaddss  xmm2, xmm4, xmm9
-      vroundss xmm3, xmm10, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm11
-      vandps  xmm1, xmm1, xmm7
-      vmulss  xmm0, xmm1, xmm12
-      vmulss  xmm15, xmm0, xmm5
-    }
-    nextAimTrackingIndex = _RBX->nextAimTrackingIndex;
-    v49 = &_RBX->deltaDeltas[nextAimTrackingIndex % 0xC7];
-    _RBX->nextAimTrackingIndex = nextAimTrackingIndex + 1;
-    *(_QWORD *)v49->validClients.array = 0i64;
-    *(_QWORD *)&v49->validClients.array[2] = 0i64;
-    *(_QWORD *)&v49->validClients.array[4] = 0i64;
-    v49->validClients.array[6] = 0;
-    v49->hasTimeJump = cmd->hasTimeJump;
-    v49->time = _RBX->lastRecordedAnglesTime;
+    _XMM10 = 0i64;
+    __asm { vroundss xmm0, xmm10, xmm2, 1 }
+    v9 = 1.0 / (float)cmd->deltaTime;
+    v10 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(r_data->lastRecordedPitch - cmd->prevPitch) * 0.0027777778) - *(float *)&_XMM0) * 360.0) & _xmm) * 1000.0) * v9;
+    __asm { vroundss xmm3, xmm10, xmm2, 1 }
+    v12 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(r_data->lastRecordedYaw - cmd->prevYaw) * 0.0027777778) - *(float *)&_XMM3) * 360.0) & _xmm) * 1000.0) * v9;
+    nextAimTrackingIndex = r_data->nextAimTrackingIndex;
+    v14 = &r_data->deltaDeltas[nextAimTrackingIndex % 0xC7];
+    r_data->nextAimTrackingIndex = nextAimTrackingIndex + 1;
+    *(_QWORD *)v14->validClients.array = 0i64;
+    *(_QWORD *)&v14->validClients.array[2] = 0i64;
+    *(_QWORD *)&v14->validClients.array[4] = 0i64;
+    v14->validClients.array[6] = 0;
+    v14->hasTimeJump = cmd->hasTimeJump;
+    v14->time = r_data->lastRecordedAnglesTime;
     if ( cgameGlob->clientNum != cgameGlob->predictedPlayerState.clientNum )
     {
-      LODWORD(v107) = cgameGlob->predictedPlayerState.clientNum;
-      LODWORD(v106) = cgameGlob->clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 462, ASSERT_TYPE_ASSERT, "( cgameGlob->clientNum ) == ( cgameGlob->predictedPlayerState.clientNum )", "%s == %s\n\t%i, %i", "cgameGlob->clientNum", "cgameGlob->predictedPlayerState.clientNum", v106, v107) )
+      LODWORD(v33) = cgameGlob->predictedPlayerState.clientNum;
+      LODWORD(v32) = cgameGlob->clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 462, ASSERT_TYPE_ASSERT, "( cgameGlob->clientNum ) == ( cgameGlob->predictedPlayerState.clientNum )", "%s == %s\n\t%i, %i", "cgameGlob->clientNum", "cgameGlob->predictedPlayerState.clientNum", v32, v33) )
         __debugbreak();
     }
     clientNum = cgameGlob->predictedPlayerState.clientNum;
-    v118 = clientNum;
+    v42 = clientNum;
     CharacterInfo = CgGlobalsMP::GetCharacterInfo((CgGlobalsMP *)cgameGlob, clientNum);
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
     m_clientCount = ComCharacterLimits::ms_gameData.m_clientCount;
-    v117 = ComCharacterLimits::ms_gameData.m_clientCount;
-    if ( ComCharacterLimits::ms_gameData.m_clientCount > _RBX->maxClientCount )
+    v41 = ComCharacterLimits::ms_gameData.m_clientCount;
+    if ( ComCharacterLimits::ms_gameData.m_clientCount > r_data->maxClientCount )
     {
-      LODWORD(v107) = _RBX->maxClientCount;
-      LODWORD(v106) = ComCharacterLimits::ms_gameData.m_clientCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 467, ASSERT_TYPE_ASSERT, "( maxClients ) <= ( r_data.maxClientCount )", "%s <= %s\n\t%u, %u", "maxClients", "r_data.maxClientCount", v106, v107) )
+      LODWORD(v33) = r_data->maxClientCount;
+      LODWORD(v32) = ComCharacterLimits::ms_gameData.m_clientCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 467, ASSERT_TYPE_ASSERT, "( maxClients ) <= ( r_data.maxClientCount )", "%s <= %s\n\t%u, %u", "maxClients", "r_data.maxClientCount", v32, v33) )
         __debugbreak();
     }
-    v52 = 0;
+    v17 = 0;
     if ( m_clientCount )
     {
-      v53 = 0i64;
-      v108 = 0i64;
-      v54 = v117;
+      v18 = 0i64;
+      v34 = 0i64;
+      v19 = v41;
       do
       {
-        if ( v52 != clientNum )
+        if ( v17 != clientNum )
         {
           localClientNum = cmd->localClientNum;
           if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
           {
-            LODWORD(v105) = cmd->localClientNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v105) )
+            LODWORD(v31) = cmd->localClientNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v31) )
               __debugbreak();
           }
           if ( (unsigned int)localClientNum >= CgEntitySystem::ms_allocatedCount )
           {
-            LODWORD(v105) = CgEntitySystem::ms_allocatedCount;
-            LODWORD(v104) = localClientNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v104, v105) )
+            LODWORD(v31) = CgEntitySystem::ms_allocatedCount;
+            LODWORD(v30) = localClientNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v30, v31) )
               __debugbreak();
           }
           if ( !CgEntitySystem::ms_entitySystemArray[localClientNum] )
           {
-            LODWORD(v105) = localClientNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v105) )
+            LODWORD(v31) = localClientNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v31) )
               __debugbreak();
           }
-          v56 = CgEntitySystem::ms_entitySystemArray[localClientNum];
-          if ( v52 >= 0x800 )
+          v21 = CgEntitySystem::ms_entitySystemArray[localClientNum];
+          if ( v17 >= 0x800 )
           {
-            LODWORD(v105) = 2048;
-            LODWORD(v104) = v52;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v104, v105) )
+            LODWORD(v31) = 2048;
+            LODWORD(v30) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v30, v31) )
               __debugbreak();
           }
-          v57 = (__int64)&v56->m_entities[v52];
-          if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 476, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
+          v22 = (__int64)&v21->m_entities[v17];
+          if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 476, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
             __debugbreak();
-          if ( (*(_BYTE *)(v57 + 648) & 1) != 0 && *(_WORD *)(v57 + 408) == 1 && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal((GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)(v57 + 412), ACTIVE, 0x11u) )
+          if ( (*(_BYTE *)(v22 + 648) & 1) != 0 && *(_WORD *)(v22 + 408) == 1 && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal((GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)(v22 + 412), ACTIVE, 0x11u) )
           {
-            team = CgGlobalsMP::GetCharacterInfo((CgGlobalsMP *)cgameGlob, v52)->team;
-            v59 = CharacterInfo->team;
+            team = CgGlobalsMP::GetCharacterInfo((CgGlobalsMP *)cgameGlob, v17)->team;
+            v24 = CharacterInfo->team;
             if ( cgameGlob == (const CgGlobalsMP *const)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 163, ASSERT_TYPE_ASSERT, "(playerState)", (const char *)&queryFormat, "playerState") )
               __debugbreak();
-            if ( v57 == -400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 164, ASSERT_TYPE_ASSERT, "(otherEntityState)", (const char *)&queryFormat, "otherEntityState") )
+            if ( v22 == -400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 164, ASSERT_TYPE_ASSERT, "(otherEntityState)", (const char *)&queryFormat, "otherEntityState") )
               __debugbreak();
-            if ( v59 && v59 == team )
+            if ( v24 && v24 == team )
             {
-              v53 = v108;
+              v18 = v34;
             }
             else
             {
-              CG_CalcEyePoint(cmd->localClientNum, v52, &outEyePos);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsp+188h+outEyePos]
-                vsubss  xmm1, xmm0, dword ptr [r14+14h]
-                vmovss  dword ptr [rsp+188h+vec], xmm1
-                vmovss  xmm2, dword ptr [rsp+188h+outEyePos+4]
-                vsubss  xmm0, xmm2, dword ptr [r14+18h]
-                vmovss  dword ptr [rsp+188h+vec+4], xmm0
-                vmovss  xmm1, dword ptr [rsp+188h+outEyePos+8]
-                vsubss  xmm2, xmm1, dword ptr [r14+1Ch]
-                vmovss  dword ptr [rsp+188h+vec+8], xmm2
-              }
+              CG_CalcEyePoint(cmd->localClientNum, v17, &outEyePos);
+              vec.v[0] = outEyePos.v[0] - cmd->viewOrigin.x;
+              vec.v[1] = outEyePos.v[1] - cmd->viewOrigin.y;
+              vec.v[2] = outEyePos.v[2] - cmd->viewOrigin.z;
               vectosignedangles(&vec, &angles);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsp+188h+angles]
-                vsubss  xmm1, xmm0, dword ptr [r14+8]
-                vmulss  xmm4, xmm1, xmm8
-                vaddss  xmm2, xmm4, xmm9
-                vroundss xmm3, xmm10, xmm2, 1
-                vsubss  xmm0, xmm4, xmm3
-                vmulss  xmm1, xmm0, xmm11
-                vandps  xmm1, xmm1, xmm7
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, dword ptr [r14+10h]
-                vdivss  xmm6, xmm13, xmm0
-                vmulss  xmm0, xmm1, xmm12
-                vmulss  xmm5, xmm0, xmm6
-                vmovss  xmm1, dword ptr [rsp+188h+angles+4]
-                vsubss  xmm2, xmm1, dword ptr [r14+0Ch]
-                vmulss  xmm4, xmm2, xmm8
-                vaddss  xmm3, xmm4, xmm9
-                vroundss xmm2, xmm10, xmm3, 1
-                vsubss  xmm0, xmm4, xmm2
-                vmulss  xmm1, xmm0, xmm11
-                vandps  xmm1, xmm1, xmm7
-                vmulss  xmm0, xmm1, xmm12
-                vmulss  xmm6, xmm0, xmm6
-                vsubss  xmm0, xmm14, xmm5
-                vandps  xmm0, xmm0, xmm7; f
-              }
-              v53 = v108;
-              *(unsigned __int16 *)((char *)&v49->clientDeltas->deltaDeltaPitch + v108) = HalfFromFloat(*(float *)&_XMM0);
-              __asm
-              {
-                vsubss  xmm0, xmm15, xmm6
-                vandps  xmm0, xmm0, xmm7; f
-              }
-              *(unsigned __int16 *)((char *)&v49->clientDeltas->deltaDeltaYaw + v108) = HalfFromFloat(*(float *)&_XMM0);
-              bitarray_base<bitarray<224>>::setBit(&v49->validClients, v52);
+              __asm { vroundss xmm3, xmm10, xmm2, 1 }
+              v26 = 1.0 / (float)cmd->deltaTime;
+              v27 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(angles.v[0] - cmd->prevPitch) * 0.0027777778) - *(float *)&_XMM3) * 360.0) & _xmm) * 1000.0) * v26;
+              __asm { vroundss xmm2, xmm10, xmm3, 1 }
+              v29 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(angles.v[1] - cmd->prevYaw) * 0.0027777778) - *(float *)&_XMM2) * 360.0) & _xmm) * 1000.0) * v26;
+              v18 = v34;
+              *(unsigned __int16 *)((char *)&v14->clientDeltas->deltaDeltaPitch + v34) = HalfFromFloat(COERCE_FLOAT(COERCE_UNSIGNED_INT(v10 - v27) & _xmm));
+              *(unsigned __int16 *)((char *)&v14->clientDeltas->deltaDeltaYaw + v34) = HalfFromFloat(COERCE_FLOAT(COERCE_UNSIGNED_INT(v12 - v29) & _xmm));
+              bitarray_base<bitarray<224>>::setBit(&v14->validClients, v17);
               memset(&angles, 0, sizeof(angles));
               memset(&vec, 0, sizeof(vec));
               memset(&outEyePos, 0, sizeof(outEyePos));
             }
           }
-          v54 = v117;
-          clientNum = v118;
+          v19 = v41;
+          clientNum = v42;
         }
-        ++v52;
-        v53 += 4i64;
-        v108 = v53;
+        ++v17;
+        v18 += 4i64;
+        v34 = v18;
       }
-      while ( v52 < v54 );
-      p_deltaDeltasDebugLock = v110;
+      while ( v17 < v19 );
+      p_deltaDeltasDebugLock = v36;
     }
-    v49->dataValid = 1;
-    if ( v111 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_deltaDeltasDebugLock) )
+    v14->dataValid = 1;
+    if ( v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_deltaDeltasDebugLock) )
       __debugbreak();
     if ( _InterlockedCompareExchange(p_deltaDeltasDebugLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 511, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1") )
       __debugbreak();
     Sys_ProfEndNamedEvent();
-  }
-  _R11 = &v115;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -624,28 +535,30 @@ CG_ClientAntiCheatMP_DLogRecordTargetDeltas
 char CG_ClientAntiCheatMP_DLogRecordTargetDeltas(const LocalClientNum_t localClientNum, const CgClientAntiCheatData *r_data)
 {
   CgClientAntiCheatMP_RecordTargetDeltasQueue *InitializedRecordTargetDeltasQueue; 
-  CgClientAntiCheatMP_RecordTargetDeltasQueue *v5; 
+  CgClientAntiCheatMP_RecordTargetDeltasQueue *v4; 
   volatile signed __int32 *p_singleReaderLock; 
-  __int64 v7; 
+  __int64 v6; 
   __int64 readIndex; 
   volatile int *p_deltaDeltasDebugLock; 
-  __int64 v11; 
+  __int64 v10; 
   __int64 otherClientNum; 
+  int v12; 
   int v13; 
-  int v14; 
-  char v15; 
-  const CgClientAntiCheatData *v16; 
+  char v14; 
+  const CgClientAntiCheatData *v15; 
   int nextAimTrackingIndex; 
+  int v17; 
   int v18; 
   int v19; 
-  int v20; 
-  __int64 v21; 
-  CgClientAntiCheatData::IdealToActualTargetAngles *v22; 
-  int v23; 
+  __int64 v20; 
+  CgClientAntiCheatData::IdealToActualTargetAngles *v21; 
+  int v22; 
   int lastRecordedAnglesTime; 
   __int64 endTime; 
-  const char *v26; 
-  unsigned __int64 v27; 
+  const char *v25; 
+  unsigned __int64 v26; 
+  double v27; 
+  double v28; 
   int v29; 
   int ControllerFromClient; 
   unsigned __int64 UserId; 
@@ -666,47 +579,47 @@ char CG_ClientAntiCheatMP_DLogRecordTargetDeltas(const LocalClientNum_t localCli
   char buffer[2056]; 
 
   InitializedRecordTargetDeltasQueue = CG_AntiCheatMP_GetInitializedRecordTargetDeltasQueue(localClientNum);
-  v5 = InitializedRecordTargetDeltasQueue;
+  v4 = InitializedRecordTargetDeltasQueue;
   p_singleReaderLock = &InitializedRecordTargetDeltasQueue->singleReaderLock;
-  v7 = ((_BYTE)InitializedRecordTargetDeltasQueue + 16) & 3;
+  v6 = ((_BYTE)InitializedRecordTargetDeltasQueue + 16) & 3;
   if ( (((_BYTE)InitializedRecordTargetDeltasQueue + 16) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &InitializedRecordTargetDeltasQueue->singleReaderLock) )
     __debugbreak();
   if ( _InterlockedCompareExchange(p_singleReaderLock, 1, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 282, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_queue.singleReaderLock, 1, 0 ) == 0)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_queue.singleReaderLock, 1, 0 ) == 0") )
     __debugbreak();
-  if ( (((_BYTE)v5 + 12) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", &v5->pendingCount) )
+  if ( (((_BYTE)v4 + 12) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", &v4->pendingCount) )
     __debugbreak();
-  if ( !v5->pendingCount )
+  if ( !v4->pendingCount )
   {
-    if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_singleReaderLock) )
+    if ( v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_singleReaderLock) )
       __debugbreak();
     if ( _InterlockedCompareExchange(p_singleReaderLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 286, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_queue.singleReaderLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_queue.singleReaderLock, 0, 1 ) == 1") )
       __debugbreak();
     return 0;
   }
-  if ( v5->readIndex >= 0x20 )
+  if ( v4->readIndex >= 0x20 )
   {
-    LODWORD(v37) = v5->readIndex;
+    LODWORD(v37) = v4->readIndex;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 290, ASSERT_TYPE_ASSERT, "(unsigned)( r_queue.readIndex ) < (unsigned)( ( sizeof( *array_counter( r_queue.data ) ) + 0 ) )", "r_queue.readIndex doesn't index r_queue.data\n\t%i not in [0, %i)", v37, 32) )
       __debugbreak();
   }
-  readIndex = v5->readIndex;
-  if ( !v5->data[v5->readIndex].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 292, ASSERT_TYPE_ASSERT, "(cmdData->inUse)", (const char *)&queryFormat, "cmdData->inUse") )
+  readIndex = v4->readIndex;
+  if ( !v4->data[v4->readIndex].inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 292, ASSERT_TYPE_ASSERT, "(cmdData->inUse)", (const char *)&queryFormat, "cmdData->inUse") )
     __debugbreak();
   p_deltaDeltasDebugLock = &r_data->deltaDeltasDebugLock;
   v44 = &r_data->deltaDeltasDebugLock;
-  v11 = ((_BYTE)r_data - 24) & 3;
-  v45 = v11;
+  v10 = ((_BYTE)r_data - 24) & 3;
+  v45 = v10;
   if ( (((_BYTE)r_data - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &r_data->deltaDeltasDebugLock) )
     __debugbreak();
   if ( _InterlockedCompareExchange(p_deltaDeltasDebugLock, 1, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 294, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 1, 0 ) == 0)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 1, 0 ) == 0") )
     __debugbreak();
   if ( r_data->nextAimTrackingIndex )
   {
-    otherClientNum = (unsigned int)v5->data[readIndex].otherClientNum;
+    otherClientNum = (unsigned int)v4->data[readIndex].otherClientNum;
     if ( (unsigned int)otherClientNum >= r_data->maxClientCount )
     {
       Com_PrintWarning(15, "ClientNum %i is beyond the delta delta max client count. Dropping requested dlog record.\n", otherClientNum);
-      CG_ClientAntiCheatMP_DLogRecordTargetDeltas_Finalize(v5);
+      CG_ClientAntiCheatMP_DLogRecordTargetDeltas_Finalize(v4);
       if ( (((_BYTE)r_data - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &r_data->deltaDeltasDebugLock) )
         __debugbreak();
       if ( _InterlockedCompareExchange(p_deltaDeltasDebugLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 313, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1") )
@@ -718,144 +631,143 @@ char CG_ClientAntiCheatMP_DLogRecordTargetDeltas(const LocalClientNum_t localCli
       return 1;
     }
     Sys_ProfBeginNamedEvent(0xFF008080, "CG_ClientAntiCheatMP_DLogRecordTargetDeltas");
-    v13 = 127;
+    v12 = 127;
+    v13 = 0;
     v14 = 0;
-    v15 = 0;
     v39 = 0;
-    v16 = r_data;
+    v15 = r_data;
     nextAimTrackingIndex = r_data->nextAimTrackingIndex;
-    v18 = 0;
+    v17 = 0;
     if ( nextAimTrackingIndex - 200 > 0 )
-      v18 = nextAimTrackingIndex - 200;
-    v41 = v18;
-    v19 = nextAimTrackingIndex - 1;
-    if ( v19 >= v18 )
+      v17 = nextAimTrackingIndex - 200;
+    v41 = v17;
+    v18 = nextAimTrackingIndex - 1;
+    if ( v18 >= v17 )
     {
       v40 = 127i64;
-      v20 = v19;
+      v19 = v18;
       while ( 1 )
       {
-        if ( v13 < 0 )
+        if ( v12 < 0 )
         {
 LABEL_68:
-          p_singleReaderLock = &v5->singleReaderLock;
+          p_singleReaderLock = &v4->singleReaderLock;
           p_deltaDeltasDebugLock = v44;
-          v11 = v45;
+          v10 = v45;
           break;
         }
-        v21 = ((unsigned __int64)v20 * (unsigned __int128)0x49539E3B2D066EA3ui64) >> 64;
-        v22 = &v16->deltaDeltas[v20 - 199 * ((v21 + ((unsigned __int64)(v20 - v21) >> 1)) >> 7)];
-        if ( v22->time <= v5->data[readIndex].endTime + 15 )
+        v20 = ((unsigned __int64)v19 * (unsigned __int128)0x49539E3B2D066EA3ui64) >> 64;
+        v21 = &v15->deltaDeltas[v19 - 199 * ((v20 + ((unsigned __int64)(v19 - v20) >> 1)) >> 7)];
+        if ( v21->time <= v4->data[readIndex].endTime + 15 )
         {
-          v27 = (unsigned int)v5->data[readIndex].otherClientNum;
-          if ( (unsigned int)v27 >= 0xE0 )
+          v26 = (unsigned int)v4->data[readIndex].otherClientNum;
+          if ( (unsigned int)v26 >= 0xE0 )
           {
             LODWORD(v38) = 224;
-            LODWORD(v37) = v5->data[readIndex].otherClientNum;
+            LODWORD(v37) = v4->data[readIndex].otherClientNum;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v37, v38) )
               __debugbreak();
-            v15 = v39;
+            v14 = v39;
           }
-          if ( ((0x80000000 >> (v27 & 0x1F)) & v22->validClients.array[v27 >> 5]) != 0 )
+          if ( ((0x80000000 >> (v26 & 0x1F)) & v21->validClients.array[v26 >> 5]) != 0 )
           {
             v39 = 1;
-            v14 = v5->data[readIndex].endTime - v22->time;
-            if ( (unsigned int)v13 >= 0x80 )
+            v13 = v4->data[readIndex].endTime - v21->time;
+            if ( (unsigned int)v12 >= 0x80 )
             {
               LODWORD(v38) = 128;
-              LODWORD(v37) = v13;
+              LODWORD(v37) = v12;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 350, ASSERT_TYPE_ASSERT, "(unsigned)( outArrayIndex ) < (unsigned)( ( sizeof( *array_counter( deltaDeltaPitch ) ) + 0 ) )", "outArrayIndex doesn't index deltaDeltaPitch\n\t%i not in [0, %i)", v37, v38) )
                 __debugbreak();
             }
-            *(double *)&_XMM0 = FloatFromHalf(v22->clientDeltas[v5->data[readIndex].otherClientNum].deltaDeltaPitch);
-            _R15 = v40;
-            __asm { vmovss  [rsp+r15*4+0E28h+values], xmm0 }
-            *(double *)&_XMM0 = FloatFromHalf(v22->clientDeltas[v5->data[readIndex].otherClientNum].deltaDeltaYaw);
-            __asm { vmovss  [rsp+r15*4+0E28h+var_A48], xmm0 }
-            --v13;
+            v27 = FloatFromHalf(v21->clientDeltas[v4->data[readIndex].otherClientNum].deltaDeltaPitch);
+            values[v40] = *(float *)&v27;
+            v28 = FloatFromHalf(v21->clientDeltas[v4->data[readIndex].otherClientNum].deltaDeltaYaw);
+            values[v40 + 128] = *(float *)&v28;
+            --v12;
             --v40;
-            if ( !v22->hasTimeJump )
+            if ( !v21->hasTimeJump )
             {
-              if ( v14 >= 2000 )
+              if ( v13 >= 2000 )
                 goto LABEL_68;
               goto LABEL_66;
             }
-            if ( v22->time <= v5->data[readIndex].endTime - 15 )
+            if ( v21->time <= v4->data[readIndex].endTime - 15 )
               goto LABEL_68;
-            v15 = 0;
-            v39 = 0;
             v14 = 0;
-            v13 = 127;
+            v39 = 0;
+            v13 = 0;
+            v12 = 127;
             v40 = 127i64;
           }
-          else if ( v15 )
+          else if ( v14 )
           {
-            if ( v22->time <= v5->data[readIndex].endTime - 15 )
+            if ( v21->time <= v4->data[readIndex].endTime - 15 )
               goto LABEL_68;
-            v15 = 0;
-            v39 = 0;
             v14 = 0;
-            v13 = 127;
+            v39 = 0;
+            v13 = 0;
+            v12 = 127;
             v40 = 127i64;
           }
         }
-        else if ( v15 )
+        else if ( v14 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 342, ASSERT_TYPE_ASSERT, "(!hasStartedRecording)", (const char *)&queryFormat, "!hasStartedRecording") )
             __debugbreak();
 LABEL_66:
-          v15 = v39;
+          v14 = v39;
         }
-        --v20;
-        v16 = r_data;
-        if ( v20 < v41 )
+        --v19;
+        v15 = r_data;
+        if ( v19 < v41 )
           goto LABEL_68;
       }
     }
-    if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_deltaDeltasDebugLock) )
+    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_deltaDeltasDebugLock) )
       __debugbreak();
     if ( _InterlockedCompareExchange(p_deltaDeltasDebugLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 394, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1") )
       __debugbreak();
-    CG_ClientAntiCheatMP_DLogRecordTargetDeltas_Finalize(v5);
+    CG_ClientAntiCheatMP_DLogRecordTargetDeltas_Finalize(v4);
     if ( ((unsigned __int8)p_singleReaderLock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_singleReaderLock) )
       __debugbreak();
     if ( _InterlockedCompareExchange(p_singleReaderLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 400, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_queue.singleReaderLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_queue.singleReaderLock, 0, 1 ) == 1") )
       __debugbreak();
-    v23 = v13 + 1;
-    if ( (unsigned int)(v13 + 1) >= 0x80 )
+    v22 = v12 + 1;
+    if ( (unsigned int)(v12 + 1) >= 0x80 )
     {
       lastRecordedAnglesTime = r_data->lastRecordedAnglesTime;
-      endTime = (unsigned int)v5->data[readIndex].endTime;
-      v26 = "No delta delta data found for otherClientNum %i and eventTime %i (last recorded event time %i)\n";
+      endTime = (unsigned int)v4->data[readIndex].endTime;
+      v25 = "No delta delta data found for otherClientNum %i and eventTime %i (last recorded event time %i)\n";
       goto LABEL_112;
     }
-    v29 = 128 - v23;
+    v29 = 128 - v22;
     ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
     UserId = DLog_GetUserId(ControllerFromClient);
     v32 = DLog_CreateContext(&context, UserId, buffer, 2048);
-    eventNum = v5->data[readIndex].eventNum;
+    eventNum = v4->data[readIndex].eventNum;
     if ( DLog_IsActive() )
     {
       v35 = DLog_BeginEvent(&context, "client_delta_delta_samples");
       context.autoEndEvent = 1;
-      if ( v35 && DLog_Int32(&context, "event_index", eventNum) && DLog_Int32(&context, "window", v14) && DLog_Float32Array(&context, "delta_delta_0", &values[v23], v29) && DLog_Float32Array(&context, "delta_delta_1", &values[v23 + 128], v29) )
+      if ( v35 && DLog_Int32(&context, "event_index", eventNum) && DLog_Int32(&context, "window", v13) && DLog_Float32Array(&context, "delta_delta_0", &values[v22], v29) && DLog_Float32Array(&context, "delta_delta_1", &values[v22 + 128], v29) )
       {
         v34 = 1;
 LABEL_102:
         if ( ((unsigned __int8)v34 & v32) != 0 && DLog_RecordContext(&context) )
         {
-          LODWORD(fmt) = v5->data[readIndex].endTime;
-          Com_Printf(15, "Sent delta delta dlog event for eventIndex %i, otherClientNum %i, and eventTime %i\n", (unsigned int)v5->data[readIndex].otherClientNum, (unsigned int)v5->data[readIndex].eventNum, fmt);
+          LODWORD(fmt) = v4->data[readIndex].endTime;
+          Com_Printf(15, "Sent delta delta dlog event for eventIndex %i, otherClientNum %i, and eventTime %i\n", (unsigned int)v4->data[readIndex].otherClientNum, (unsigned int)v4->data[readIndex].eventNum, fmt);
 LABEL_113:
           Sys_ProfEndNamedEvent();
           return 1;
         }
-        lastRecordedAnglesTime = v5->data[readIndex].endTime;
-        endTime = (unsigned int)v5->data[readIndex].eventNum;
-        v26 = "Failed to send delta delta dlog event for eventIndex %i, otherClientNum %i, and eventTime %i. See log for details.\n";
+        lastRecordedAnglesTime = v4->data[readIndex].endTime;
+        endTime = (unsigned int)v4->data[readIndex].eventNum;
+        v25 = "Failed to send delta delta dlog event for eventIndex %i, otherClientNum %i, and eventTime %i. See log for details.\n";
 LABEL_112:
         LODWORD(fmt) = lastRecordedAnglesTime;
-        Com_PrintWarning(15, v26, (unsigned int)v5->data[readIndex].otherClientNum, endTime, fmt);
+        Com_PrintWarning(15, v25, (unsigned int)v4->data[readIndex].otherClientNum, endTime, fmt);
         goto LABEL_113;
       }
     }
@@ -867,7 +779,7 @@ LABEL_112:
     goto LABEL_102;
   }
   Com_PrintWarning(15, "No delta delta data. Dropping requested dlog record.\n");
-  CG_ClientAntiCheatMP_DLogRecordTargetDeltas_Finalize(v5);
+  CG_ClientAntiCheatMP_DLogRecordTargetDeltas_Finalize(v4);
   if ( (((_BYTE)r_data - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &r_data->deltaDeltasDebugLock) )
     __debugbreak();
   if ( _InterlockedCompareExchange(p_deltaDeltasDebugLock, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 302, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1") )
@@ -1135,17 +1047,19 @@ void CG_ClientAntiCheatMP_LogViewValues(const LocalClientNum_t localClientNum, c
   volatile signed __int32 *p_deltaDeltasDebugLock; 
   __int64 v12; 
   CgClientAntiCheatData *v13; 
+  CgClientAntiCheatData *v14; 
   volatile signed __int32 *v15; 
   __int64 v16; 
   int lastRecordedAnglesTime; 
   int v18; 
   LocalClientNum_t data; 
-  char v25; 
+  char v20; 
   bool nextAimTrackingRecordIsTimeJump; 
-  int v29; 
-  int v30[3]; 
+  float lastRecordedPitch; 
+  float lastRecordedYaw; 
+  int v24; 
+  int v25[3]; 
 
-  _R12 = viewOrigin;
   if ( CG_AntiCheatMP_CollectionEnabled(localClientNum) )
   {
     if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 184, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()", -2i64) )
@@ -1173,21 +1087,21 @@ void CG_ClientAntiCheatMP_LogViewValues(const LocalClientNum_t localClientNum, c
       CG_ClientAntiCheatMP_LogViewValues_QueueDLogOnlyCmd(localClientNum);
     }
     v13 = CG_AntiCheatMP_GetInitializedClientData(localClientNum);
-    _RBX = v13;
+    v14 = v13;
     v15 = &v13->deltaDeltasDebugLock;
     v16 = ((_BYTE)v13 - 24) & 3;
     if ( (((_BYTE)v13 - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &v13->deltaDeltasDebugLock) )
       __debugbreak();
     if ( _InterlockedCompareExchange(v15, 1, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 197, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 1, 0 ) == 0)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 1, 0 ) == 0") )
       __debugbreak();
-    lastRecordedAnglesTime = _RBX->lastRecordedAnglesTime;
+    lastRecordedAnglesTime = v14->lastRecordedAnglesTime;
     v18 = time - lastRecordedAnglesTime;
     if ( lastRecordedAnglesTime < 0 || v18 > 400 )
     {
-      _RBX->nextAimTrackingRecordIsTimeJump = 1;
-      _RBX->lastRecordedAnglesTime = time;
-      _RBX->lastRecordedPitch = viewAngles->v[0];
-      _RBX->lastRecordedYaw = viewAngles->v[1];
+      v14->nextAimTrackingRecordIsTimeJump = 1;
+      v14->lastRecordedAnglesTime = time;
+      v14->lastRecordedPitch = viewAngles->v[0];
+      v14->lastRecordedYaw = viewAngles->v[1];
       if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)v15) )
         __debugbreak();
       if ( _InterlockedCompareExchange(v15, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 212, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1") )
@@ -1204,35 +1118,24 @@ void CG_ClientAntiCheatMP_LogViewValues(const LocalClientNum_t localClientNum, c
     else
     {
       data = localClientNum;
-      v25 = 0;
-      nextAimTrackingRecordIsTimeJump = _RBX->nextAimTrackingRecordIsTimeJump;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4Ch]
-        vmovss  [rsp+88h+var_48], xmm0
-        vmovss  xmm1, dword ptr [rbx+50h]
-        vmovss  [rsp+88h+var_44], xmm1
-      }
-      v29 = time - lastRecordedAnglesTime;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12]
-        vmovss  [rsp+88h+var_3C], xmm0
-        vmovss  xmm1, dword ptr [r12+4]
-        vmovss  [rsp+88h+var_38], xmm1
-        vmovss  xmm0, dword ptr [r12+8]
-        vmovss  [rsp+88h+var_34], xmm0
-      }
-      _RBX->nextAimTrackingRecordIsTimeJump = 0;
-      _RBX->lastRecordedAnglesTime = time;
-      _RBX->lastRecordedPitch = viewAngles->v[0];
-      _RBX->lastRecordedYaw = viewAngles->v[1];
+      v20 = 0;
+      nextAimTrackingRecordIsTimeJump = v14->nextAimTrackingRecordIsTimeJump;
+      lastRecordedPitch = v14->lastRecordedPitch;
+      lastRecordedYaw = v14->lastRecordedYaw;
+      v24 = time - lastRecordedAnglesTime;
+      v25[0] = LODWORD(viewOrigin->v[0]);
+      v25[1] = LODWORD(viewOrigin->v[1]);
+      v25[2] = LODWORD(viewOrigin->v[2]);
+      v14->nextAimTrackingRecordIsTimeJump = 0;
+      v14->lastRecordedAnglesTime = time;
+      v14->lastRecordedPitch = viewAngles->v[0];
+      v14->lastRecordedYaw = viewAngles->v[1];
       if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)v15) )
         __debugbreak();
       if ( _InterlockedCompareExchange(v15, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_anticheat_mp.cpp", 234, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &r_data.deltaDeltasDebugLock, 0, 1 ) == 1") )
         __debugbreak();
       Sys_AddWorkerCmd(WRKCMD_CG_CLIENT_ANTICHEAT_CALCULATE_TARGET_DELTAS, &data);
-      memset(v30, 0, sizeof(v30));
+      memset(v25, 0, sizeof(v25));
     }
   }
 }
@@ -1275,11 +1178,8 @@ void CG_ClientAntiCheatMP_QueueTargetThroughWallsWorker(const LocalClientNum_t l
   CgClientAntiCheatData *InitializedClientData; 
   CgClientAntiCheatData *v4; 
   int frametime; 
-  float fmt; 
-  float extendedPitchAngle; 
-  float v10; 
   LocalClientNum_t data; 
-  int v12; 
+  int v7; 
 
   if ( CG_AntiCheatMP_CollectionEnabled(localClientNum) )
   {
@@ -1292,15 +1192,7 @@ void CG_ClientAntiCheatMP_QueueTargetThroughWallsWorker(const LocalClientNum_t l
     v4 = InitializedClientData;
     if ( InitializedClientData->enemyUnderCrosshairsTestId.id == 0xFF )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f000000
-        vmovss  dword ptr [rsp+58h+var_28], xmm0
-        vmovss  [rsp+58h+extendedPitchAngle], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+58h+fmt], xmm0
-      }
-      InitializedClientData->enemyUnderCrosshairsTestId = CG_PlayerVisibilityMP_UpdateCrosshairsTest(localClientNum, InitializedClientData->enemyUnderCrosshairsTestId, 0, 1, fmt, extendedPitchAngle, v10);
+      InitializedClientData->enemyUnderCrosshairsTestId = CG_PlayerVisibilityMP_UpdateCrosshairsTest(localClientNum, InitializedClientData->enemyUnderCrosshairsTestId, 0, 1, 0.0, 0.5, 0.5);
 LABEL_10:
       *(_QWORD *)v4->lastCrosshairsSightedPlayers.array = 0i64;
       *(_QWORD *)&v4->lastCrosshairsSightedPlayers.array[2] = 0i64;
@@ -1321,7 +1213,7 @@ LABEL_10:
         __debugbreak();
       frametime = cls.frametime;
     }
-    v12 = frametime;
+    v7 = frametime;
     Sys_AddWorkerCmd(WRKCMD_CG_CLIENT_ANTICHEAT_DETECT_TARGET_THROUGH_WALLS, &data);
   }
 }

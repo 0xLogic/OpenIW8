@@ -11,17 +11,6 @@ bool __fastcall HavokPhysicsShapeList::_Auto::isValid_m_shapes(const void *value
 
 /*
 ==============
-HavokPhysicsShapeList::_Auto::isValid_m_shapes
-==============
-*/
-
-bool __fastcall HavokPhysicsShapeList::_Auto::isValid_m_shapes(const void *valuePtr)
-{
-  return ?isValid_m_shapes@_Auto@HavokPhysicsShapeList@@SA_NPEBX@Z(valuePtr);
-}
-
-/*
-==============
 HavokPhysicsShapeList::_Auto::isValid_m_shapeNames
 ==============
 */

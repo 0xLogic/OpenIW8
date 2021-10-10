@@ -789,28 +789,21 @@ void R_RT_Tracking_AddImageRefRecord_Input(R_RT_Tracking_ImageAppendix *appendix
 {
   unsigned __int16 v8; 
   unsigned int m_recordCount; 
-  unsigned int v12; 
-  __int128 v13; 
-  const void *v14; 
+  unsigned int v10; 
+  __int128 v11; 
   R_RT_Tracking_ImageRefRecord addRecord; 
 
   if ( !location && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1564, ASSERT_TYPE_ASSERT, "(location)", (const char *)&queryFormat, "location") )
     __debugbreak();
-  LODWORD(v13) = 0x10000;
+  LODWORD(v11) = 0x10000;
   v8 = truncate_cast<unsigned short,unsigned int>(codeTexture);
   m_recordCount = appendix->m_recordCount;
-  DWORD1(v13) = v8;
-  *((_QWORD *)&v13 + 1) = location;
-  __asm { vmovups xmm0, [rsp+68h+var_38] }
-  v14 = refAddr;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+68h+var_28]
-    vmovups xmmword ptr [rsp+68h+addRecord.m_refType], xmm0
-    vmovsd  [rsp+68h+addRecord.m_refAddr], xmm1
-  }
-  v12 = R_RT_Tracking_AddRefRecord_R_RT_Tracking_ImageRefRecord_32_(m_recordCount, (R_RT_Tracking_ImageRefRecord (*)[32])appendix->m_records, &addRecord);
-  truncate_store<unsigned char,unsigned int>(&appendix->m_recordCount, v12);
+  DWORD1(v11) = v8;
+  *((_QWORD *)&v11 + 1) = location;
+  *(_OWORD *)&addRecord.m_refType = v11;
+  addRecord.m_refAddr = refAddr;
+  v10 = R_RT_Tracking_AddRefRecord_R_RT_Tracking_ImageRefRecord_32_(m_recordCount, (R_RT_Tracking_ImageRefRecord (*)[32])appendix->m_records, &addRecord);
+  truncate_store<unsigned char,unsigned int>(&appendix->m_recordCount, v10);
 }
 
 /*
@@ -924,23 +917,14 @@ R_RT_Tracking_AsyncGetDebugDrawStats
 */
 char R_RT_Tracking_AsyncGetDebugDrawStats(R_RT_Tracking_DebugDrawStats *outDebugDrawStats)
 {
+  R_RT_Tracking_DebugDrawStats *v1; 
+
   if ( !s_R_RT_Tracking.r_rtStats->current.enabled )
     return 0;
-  _RDX = &s_R_RT_Tracking.m_debugDrawStats[s_R_RT_Tracking.m_debugDrawStatsFrameIndex & 1];
-  if ( !_RDX->m_committedMB.m_val )
+  v1 = &s_R_RT_Tracking.m_debugDrawStats[s_R_RT_Tracking.m_debugDrawStatsFrameIndex & 1];
+  if ( !v1->m_committedMB.m_val )
     return 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+60h]
-    vmovups ymmword ptr [rcx+60h], ymm1
-  }
-  outDebugDrawStats->m_esramSuccesses.m_avg = _RDX->m_esramSuccesses.m_avg;
+  *outDebugDrawStats = *v1;
   return 1;
 }
 
@@ -964,7 +948,12 @@ void R_RT_Tracking_BackendFrameEnd(void)
   unsigned __int16 size; 
   R_RT_Tracking_Totals *v1; 
   __int32 v2; 
-  unsigned int m_avg; 
+  __m256i *v3; 
+  __m256i v4; 
+  __m256i v5; 
+  __m256i v6; 
+  unsigned int v7; 
+  __int64 v8; 
   R_RT_Tracking_DebugDrawStats result; 
 
   Profile_Begin(121);
@@ -991,25 +980,17 @@ void R_RT_Tracking_BackendFrameEnd(void)
   v1 = IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
   R_RT_Tracking_GetTotals(v1);
   v2 = s_R_RT_Tracking.m_debugDrawStatsFrameIndex + 1;
-  _RAX = R_RT_Tracking_GenerateDebugDrawStats(&result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymm2, ymmword ptr [rax+40h]
-    vmovups ymm3, ymmword ptr [rax+60h]
-  }
-  m_avg = _RAX->m_esramSuccesses.m_avg;
-  _RCX = v2 & 1;
-  _RAX = &s_R_RT_Tracking;
-  __asm
-  {
-    vmovups ymmword ptr [rcx+rax+8EE60h], ymm0
-    vmovups ymmword ptr [rcx+rax+8EE80h], ymm1
-    vmovups ymmword ptr [rcx+rax+8EEA0h], ymm2
-    vmovups ymmword ptr [rcx+rax+8EEC0h], ymm3
-  }
-  s_R_RT_Tracking.m_debugDrawStats[_RCX].m_esramSuccesses.m_avg = m_avg;
+  v3 = (__m256i *)R_RT_Tracking_GenerateDebugDrawStats(&result);
+  v4 = v3[1];
+  v5 = v3[2];
+  v6 = v3[3];
+  v7 = v3[4].m256i_u32[0];
+  v8 = v2 & 1;
+  *(__m256i *)&s_R_RT_Tracking.m_debugDrawStats[v8].m_surfaces.m_val = *v3;
+  *(__m256i *)&s_R_RT_Tracking.m_debugDrawStats[v8].m_heapCommittedMB.m_val = v4;
+  *(__m256i *)&s_R_RT_Tracking.m_debugDrawStats[v8].m_deadCommittedMB.m_elems[3] = v5;
+  *(__m256i *)&s_R_RT_Tracking.m_debugDrawStats[v8].m_esramSuccessMB.m_elems[3] = v6;
+  s_R_RT_Tracking.m_debugDrawStats[v8].m_esramSuccesses.m_avg = v7;
   if ( ((unsigned __int8)&s_R_RT_Tracking.m_debugDrawStatsFrameIndex & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_R_RT_Tracking.m_debugDrawStatsFrameIndex) )
     __debugbreak();
   _InterlockedExchange(&s_R_RT_Tracking.m_debugDrawStatsFrameIndex, v2);
@@ -1255,66 +1236,52 @@ void R_RT_Tracking_BindSurfaceInfo(R_RT_Tracking_SurfaceInfo *surfaceInfo, unsig
 R_RT_Tracking_Dump
 ==============
 */
-
-void __fastcall R_RT_Tracking_Dump(double _XMM0_8, double _XMM1_8, __int64 a3, double _XMM3_8)
+void R_RT_Tracking_Dump()
 {
-  R_RT_Tracking_Totals *v4; 
-  int v21; 
+  R_RT_Tracking_Totals *v0; 
+  __int64 m_requestKB; 
+  float v2; 
+  float v3; 
+  float m_successKB; 
+  float v5; 
+  __int64 m_requests; 
+  float m_successes; 
+  float v8; 
+  int v9; 
   int i; 
-  R_RT_AllocationLockSentry v23; 
+  R_RT_AllocationLockSentry v11; 
 
-  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v23);
-  v4 = IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
+  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v11);
+  v0 = IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
   Com_Printf(8, "\n------------ Surface Totals ------------\n");
-  R_RT_Tracking_DumpSurfaceTotals(&v4->m_allSurfaceTotals, (const R_RT_Tracking_SurfaceTotals (*)[5])v4->m_surfaceTotals);
+  R_RT_Tracking_DumpSurfaceTotals(&v0->m_allSurfaceTotals, (const R_RT_Tracking_SurfaceTotals (*)[5])v0->m_surfaceTotals);
   Com_Printf(8, "\n");
   Com_Printf(8, "\n------------ Memory Totals ------------\n");
-  R_RT_Tracking_DumpMemTotals((const R_RT_Tracking_MemTotals (*)[6])v4->m_memTotals);
+  R_RT_Tracking_DumpMemTotals((const R_RT_Tracking_MemTotals (*)[6])v0->m_memTotals);
   Com_Printf(8, "\n");
   Com_Printf(8, "\n------------ ESRAM Frame Totals ------------\n");
-  Com_Printf(8, "%3d Requests:  %3dMB\n", v4->m_esramFrameTotals.m_requests, (v4->m_esramFrameTotals.m_requestKB + 1023) >> 10);
-  Com_Printf(8, "%3d Successes: %3dMB\n", v4->m_esramFrameTotals.m_successes, (v4->m_esramFrameTotals.m_successKB + 1023) >> 10);
-  __asm
+  Com_Printf(8, "%3d Requests:  %3dMB\n", v0->m_esramFrameTotals.m_requests, (v0->m_esramFrameTotals.m_requestKB + 1023) >> 10);
+  Com_Printf(8, "%3d Successes: %3dMB\n", v0->m_esramFrameTotals.m_successes, (v0->m_esramFrameTotals.m_successKB + 1023) >> 10);
+  m_requestKB = v0->m_esramFrameTotals.m_requestKB;
+  v2 = 0.0;
+  v3 = 0.0;
+  if ( (_DWORD)m_requestKB )
   {
-    vxorps  xmm3, xmm3, xmm3
-    vmovss  xmm4, cs:__real@42c80000
-    vxorps  xmm0, xmm0, xmm0
+    m_successKB = (float)v0->m_esramFrameTotals.m_successKB;
+    v5 = (float)m_requestKB;
+    v3 = (float)(m_successKB * 100.0) / v5;
   }
-  if ( v4->m_esramFrameTotals.m_requestKB )
+  m_requests = v0->m_esramFrameTotals.m_requests;
+  if ( (_DWORD)m_requests )
   {
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm2, xmm0, xmm4
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rcx
-      vdivss  xmm0, xmm2, xmm1
-    }
+    m_successes = (float)v0->m_esramFrameTotals.m_successes;
+    v8 = (float)m_requests;
+    v2 = (float)(m_successes * 100.0) / v8;
   }
-  __asm { vcvtss2sd xmm5, xmm0, xmm0 }
-  if ( v4->m_esramFrameTotals.m_requests )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm2, xmm0, xmm4
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rcx
-      vdivss  xmm3, xmm2, xmm1
-    }
-  }
-  __asm
-  {
-    vcvtss2sd xmm2, xmm3, xmm3
-    vmovaps xmm3, xmm5
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-  }
-  Com_Printf(8, "%3.0f%% Success-Rate (%3.0f%% by size)\n", *(double *)&_XMM2, *(double *)&_XMM3);
+  Com_Printf(8, "%3.0f%% Success-Rate (%3.0f%% by size)\n", v2, v3);
   Com_Printf(8, "\n");
   Com_Printf(8, "\n------------ Surface Records ------------\n\n");
-  v21 = 0;
+  v9 = 0;
   for ( i = 0; i != 5; ++i )
   {
     R_RT_Tracking_DumpSurfacePool(8, (R_RT_Tracking_SurfacePoolID)i);
@@ -1323,12 +1290,12 @@ void __fastcall R_RT_Tracking_Dump(double _XMM0_8, double _XMM1_8, __int64 a3, d
   Com_Printf(8, "\n------------ Heap Allocations ------------\n\n");
   do
   {
-    R_RT_Tracking_DumpHeapPool((R_RT_Heap_PoolID)v21);
+    R_RT_Tracking_DumpHeapPool((R_RT_Heap_PoolID)v9);
     Com_Printf(8, "\n");
-    ++v21;
+    ++v9;
   }
-  while ( v21 != 4 );
-  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v23);
+  while ( v9 != 4 );
+  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v11);
 }
 
 /*
@@ -1356,9 +1323,14 @@ R_RT_Tracking_DumpAllocRecords
 void R_RT_Tracking_DumpAllocRecords(const R_RT_Tracking_AllocRecord *allocRecords, unsigned int allocRecordCount)
 {
   __int64 rowCount; 
-  std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess> v23; 
+  __int64 v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v16; 
+  std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess> v20; 
   R_RT_Tracking_AllocRecordIndexLess _Val; 
   IWString_FormatTable_Config formatTableConfig; 
+  R_RT_Tracking_AllocRecordIndexLess v23; 
   unsigned int outColumnWidths[8]; 
   unsigned int _First[4]; 
   char tempRowText[4096]; 
@@ -1370,58 +1342,55 @@ void R_RT_Tracking_DumpAllocRecords(const R_RT_Tracking_AllocRecord *allocRecord
     formatTableConfig.lineSuffix = (char *)&queryFormat.fmt + 3;
     formatTableConfig.linePrefix = "    ";
     formatTableConfig.EmitLine = R_RT_Tracking_DumpAllocRecords_EmitLine;
-    _RAX = 0i64;
+    v4 = 0i64;
     *(_DWORD *)&formatTableConfig.printHeader = 2949377;
     if ( allocRecordCount >= 0x10 )
     {
-      __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-      _EDX = 8;
+      v5 = 8;
       do
       {
-        _RCX = _EDX - 4;
+        v6 = v5 - 4;
+        _XMM0 = (unsigned int)v4;
         __asm
         {
-          vmovd   xmm0, eax
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rax*4+4FE0h+_First], xmm1
-          vmovd   xmm0, ecx
-          vpshufd xmm0, xmm0, 0
-          vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rcx*4+4FE0h+_First], xmm1
         }
-        _RCX = _EDX;
-        _RAX = (unsigned int)(_RAX + 16);
+        *(_OWORD *)&_First[v4] = _XMM1;
+        _XMM0 = (unsigned int)v6;
         __asm
         {
-          vmovd   xmm0, edx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rcx*4+4FE0h+_First], xmm1
         }
-        _RCX = _EDX + 4;
-        _EDX += 16;
+        *(_OWORD *)&_First[v6] = _XMM1;
+        v4 = (unsigned int)(v4 + 16);
+        _XMM0 = v5;
         __asm
         {
-          vmovd   xmm0, ecx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rcx*4+4FE0h+_First], xmm1
         }
+        *(_OWORD *)&_First[v5] = _XMM1;
+        v16 = v5 + 4;
+        v5 += 16;
+        _XMM0 = (unsigned int)v16;
+        __asm
+        {
+          vpshufd xmm0, xmm0, 0
+          vpaddd  xmm1, xmm0, xmm2
+        }
+        *(_OWORD *)&_First[v16] = _XMM1;
       }
-      while ( (_DWORD)_RAX != (rowCount & 0xFFFFFFF0) );
+      while ( (_DWORD)v4 != (rowCount & 0xFFFFFFF0) );
     }
-    for ( ; (_DWORD)_RAX != (_DWORD)rowCount; _RAX = (unsigned int)(_RAX + 1) )
-      _First[_RAX] = _RAX;
+    for ( ; (_DWORD)v4 != (_DWORD)rowCount; v4 = (unsigned int)(v4 + 1) )
+      _First[v4] = v4;
     _Val.m_allocRecords = allocRecords;
     _Val.m_AllocRecordIndexLess = s_R_RT_Tracking_allocOrderingLessCBs[s_R_RT_Tracking.r_rtAllocOrder->current.integer];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+50E0h+_Val.m_allocRecords]
-      vmovdqa [rbp+4FE0h+var_5050], xmm0
-    }
-    v23._Fn = std::_Pass_fn<R_RT_Tracking_AllocRecordIndexLess,0>(&_Val)._Fn;
-    std::_Sort_unchecked<unsigned int *,std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess>>(_First, &_First[rowCount], rowCount, (std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess>)v23._Fn->m_allocRecords);
+    v23 = _Val;
+    v20._Fn = std::_Pass_fn<R_RT_Tracking_AllocRecordIndexLess,0>(&_Val)._Fn;
+    std::_Sort_unchecked<unsigned int *,std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess>>(_First, &_First[rowCount], rowCount, (std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess>)v20._Fn->m_allocRecords);
     IWString_FormatTable_GetColumnWidths(outColumnWidths, tempRowText, 0x1000ui64, s_R_RT_Tracking_dumpAllocColumns, 5u, rowCount, allocRecords, formatTableConfig.printHeader);
     IWString_FormatTable(tempRowText, 0x1000ui64, s_R_RT_Tracking_dumpAllocColumns, 5u, rowCount, allocRecords, &formatTableConfig, outColumnWidths, _First);
   }
@@ -1528,177 +1497,133 @@ R_RT_Tracking_DumpMemTotals
 */
 void R_RT_Tracking_DumpMemTotals(const R_RT_Tracking_MemTotals (*memTotals)[6])
 {
+  char *v2; 
   const unsigned int *v3; 
   __int64 v4; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  _QWORD *v15; 
+  unsigned __int16 *p_m_allocLimit; 
+  const char **v17; 
+  __int64 v18; 
+  _DWORD *v19; 
+  const char **v20; 
+  __int64 v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  const char *v24; 
+  int v25; 
+  __int64 v26; 
+  char *fmt; 
+  __int64 v28; 
   __int64 v29; 
   __int64 v30; 
   __int64 v31; 
   __int64 v32; 
-  _QWORD *v33; 
-  unsigned __int16 *p_m_allocLimit; 
-  const char **v35; 
-  __int64 v36; 
-  _DWORD *v37; 
-  const char **v38; 
-  __int64 v39; 
-  unsigned int v40; 
-  __int64 v41; 
-  const char *v42; 
-  int v43; 
-  __int64 v44; 
-  char *fmt; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v50; 
-  __int128 v51; 
-  __int128 v52; 
-  __int128 v53; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
+  __int128 v38; 
   R_RT_Tracking_TotalStat result; 
-  R_RT_Tracking_TotalStat v58; 
-  R_RT_Tracking_TotalStat v59; 
-  R_RT_Tracking_TotalStat v60; 
-  R_RT_Tracking_TotalStat v61; 
-  R_RT_Tracking_TotalStat v62; 
-  char v63; 
+  R_RT_Tracking_TotalStat v40; 
+  R_RT_Tracking_TotalStat v41; 
+  R_RT_Tracking_TotalStat v42; 
+  R_RT_Tracking_TotalStat v43; 
+  R_RT_Tracking_TotalStat v44; 
+  char v45; 
 
-  _RSI = &v63;
+  v2 = &v45;
   v3 = &(*memTotals)[0].m_committedKB[1];
   v4 = 6i64;
   do
   {
-    _RAX = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&result, v3 - 1, v3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+388h+var_308], xmm0
-    }
-    _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&v58, v3 - 1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+388h+var_2F8], xmm0
-    }
-    _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&v59, v3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+388h+var_2E8], xmm0
-    }
-    _RAX = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_short_(&v60, (const unsigned __int16 *)v3 - 6, (const unsigned __int16 *)v3 - 5);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsi-20h], xmm0
-      vmovups xmm0, [rsp+388h+var_308]
-      vmovq   rcx, xmm0
-    }
-    LODWORD(_RAX) = _RCX + 1023;
-    DWORD1(v52) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+    v36 = (__int128)*R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&result, v3 - 1, v3);
+    v37 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&v40, v3 - 1);
+    v38 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&v41, v3);
+    *((R_RT_Tracking_TotalStat *)v2 - 2) = *R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_short_(&v42, (const unsigned __int16 *)v3 - 6, (const unsigned __int16 *)v3 - 5);
+    _XMM0 = v36;
+    DWORD1(v34) = (unsigned int)(DWORD1(v36) + 1023) >> 10;
     __asm { vpextrq rcx, xmm0, 1 }
-    LODWORD(v52) = (unsigned int)_RAX >> 10;
-    HIDWORD(v52) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
-    DWORD2(v52) = (unsigned int)(_RCX + 1023) >> 10;
-    __asm
-    {
-      vmovups xmm0, [rsp+388h+var_328]
-      vmovups xmmword ptr [rsi-10h], xmm0
-    }
-    _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&v61, (const unsigned __int16 *)v3 - 6);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsi], xmm0
-      vmovups xmm0, [rsp+388h+var_2F8]
-      vmovq   rcx, xmm0
-    }
-    LODWORD(_RAX) = _RCX + 1023;
-    DWORD1(v51) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+    LODWORD(v34) = (unsigned int)(v36 + 1023) >> 10;
+    HIDWORD(v34) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+    DWORD2(v34) = (unsigned int)(_RCX + 1023) >> 10;
+    *((_OWORD *)v2 - 1) = v34;
+    *(R_RT_Tracking_TotalStat *)v2 = *R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&v43, (const unsigned __int16 *)v3 - 6);
+    _XMM0 = v37;
+    DWORD1(v33) = (unsigned int)(DWORD1(v37) + 1023) >> 10;
     __asm { vpextrq rcx, xmm0, 1 }
-    LODWORD(v51) = (unsigned int)_RAX >> 10;
-    HIDWORD(v51) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
-    DWORD2(v51) = (unsigned int)(_RCX + 1023) >> 10;
-    __asm
-    {
-      vmovups xmm0, [rsp+388h+var_338]
-      vmovups xmmword ptr [rsi+10h], xmm0
-    }
-    _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&v62, (const unsigned __int16 *)v3 - 5);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsi+20h], xmm0
-      vmovups xmm0, [rsp+388h+var_2E8]
-      vmovq   rcx, xmm0
-    }
-    LODWORD(_RAX) = _RCX + 1023;
-    DWORD1(v53) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+    LODWORD(v33) = (unsigned int)(v37 + 1023) >> 10;
+    HIDWORD(v33) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+    DWORD2(v33) = (unsigned int)(_RCX + 1023) >> 10;
+    *((_OWORD *)v2 + 1) = v33;
+    *((R_RT_Tracking_TotalStat *)v2 + 2) = *R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&v44, (const unsigned __int16 *)v3 - 5);
+    _XMM0 = v38;
+    DWORD1(v35) = (unsigned int)(DWORD1(v38) + 1023) >> 10;
     __asm { vpextrq rcx, xmm0, 1 }
-    LODWORD(v53) = (unsigned int)_RAX >> 10;
-    _RSI += 96;
+    LODWORD(v35) = (unsigned int)(v38 + 1023) >> 10;
+    v2 += 96;
     v3 += 5;
-    HIDWORD(v53) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
-    DWORD2(v53) = (unsigned int)(_RCX + 1023) >> 10;
-    __asm
-    {
-      vmovups xmm0, [rsp+388h+var_318]
-      vmovups xmmword ptr [rsi-30h], xmm0
-    }
+    HIDWORD(v35) = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+    DWORD2(v35) = (unsigned int)(_RCX + 1023) >> 10;
+    *((_OWORD *)v2 - 3) = v35;
     --v4;
   }
   while ( v4 );
-  v29 = 4i64;
-  v30 = 4i64;
-  v31 = 0i64;
+  v11 = 4i64;
+  v12 = 4i64;
+  v13 = 0i64;
   do
   {
-    Com_Printf(8, s_poolSizeFormats[v31], g_R_RT_Heap_poolConfigs[v31].m_blockSize >> 20);
-    ++v31;
-    --v30;
+    Com_Printf(8, s_poolSizeFormats[v13], g_R_RT_Heap_poolConfigs[v13].m_blockSize >> 20);
+    ++v13;
+    --v12;
   }
-  while ( v30 );
-  v32 = 64i64;
-  v33 = &v44 + 32;
+  while ( v12 );
+  v14 = 64i64;
+  v15 = &v26 + 32;
   p_m_allocLimit = &(*memTotals)[0].m_allocLimit;
-  *(_QWORD *)&v51 = v33;
-  v35 = (const char **)s_elemHeaderFormats;
-  *(_QWORD *)&v52 = &(*memTotals)[0].m_allocLimit;
+  *(_QWORD *)&v33 = v15;
+  v17 = (const char **)s_elemHeaderFormats;
+  *(_QWORD *)&v34 = &(*memTotals)[0].m_allocLimit;
   do
   {
     if ( !s_R_RT_Tracking.m_totalsQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 36, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
       __debugbreak();
-    Com_Printf(8, *v35, s_R_RT_Tracking.m_totalsQueue.size);
-    v36 = 6i64;
-    v37 = (_DWORD *)((char *)v33 + v32 + 16);
-    v38 = (const char **)s_memFilterLineFormats;
+    Com_Printf(8, *v17, s_R_RT_Tracking.m_totalsQueue.size);
+    v18 = 6i64;
+    v19 = (_DWORD *)((char *)v15 + v14 + 16);
+    v20 = (const char **)s_memFilterLineFormats;
     do
     {
-      v39 = *p_m_allocLimit;
-      v40 = *((_DWORD *)p_m_allocLimit + 3) + 1023;
-      v41 = (unsigned int)*(v37 - 16);
-      v42 = *v38;
-      LODWORD(v50) = v37[4];
-      LODWORD(v49) = *v37;
-      LODWORD(v48) = *(v37 - 4);
-      LODWORD(v47) = *(v37 - 8);
-      v43 = *(v37 - 12);
-      LODWORD(v46) = v40 >> 10;
-      LODWORD(fmt) = v43;
-      Com_Printf(8, v42, v41, v39, fmt, v46, v47, v48, v49, v50);
-      v37 += 24;
+      v21 = *p_m_allocLimit;
+      v22 = *((_DWORD *)p_m_allocLimit + 3) + 1023;
+      v23 = (unsigned int)*(v19 - 16);
+      v24 = *v20;
+      LODWORD(v32) = v19[4];
+      LODWORD(v31) = *v19;
+      LODWORD(v30) = *(v19 - 4);
+      LODWORD(v29) = *(v19 - 8);
+      v25 = *(v19 - 12);
+      LODWORD(v28) = v22 >> 10;
+      LODWORD(fmt) = v25;
+      Com_Printf(8, v24, v23, v21, fmt, v28, v29, v30, v31, v32);
+      v19 += 24;
       p_m_allocLimit += 10;
-      ++v38;
-      --v36;
+      ++v20;
+      --v18;
     }
-    while ( v36 );
-    v33 = (_QWORD *)v51;
-    p_m_allocLimit = (unsigned __int16 *)v52;
-    ++v35;
-    v32 += 4i64;
-    --v29;
+    while ( v18 );
+    v15 = (_QWORD *)v33;
+    p_m_allocLimit = (unsigned __int16 *)v34;
+    ++v17;
+    v14 += 4i64;
+    --v11;
   }
-  while ( v29 );
+  while ( v11 );
 }
 
 /*
@@ -1710,11 +1635,16 @@ void R_RT_Tracking_DumpSurfacePool(int conChannel, R_RT_Tracking_SurfacePoolID s
 {
   const R_RT_Tracking_SurfacePool *v3; 
   __int64 rowCount; 
-  std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess> v24; 
+  __int64 v5; 
+  unsigned int v6; 
+  __int64 v7; 
+  __int64 v17; 
+  std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess> v21; 
   R_RT_Tracking_SurfaceRecordIndexLess _Val; 
   const R_RT_Tracking_SurfacePool *userContext; 
-  int v27; 
+  int v24; 
   IWString_FormatTable_Config formatTableConfig; 
+  R_RT_Tracking_SurfaceRecordIndexLess v26; 
   unsigned int outColumnWidths[8]; 
   unsigned int _First[4]; 
   char tempRowText[4096]; 
@@ -1729,59 +1659,56 @@ void R_RT_Tracking_DumpSurfacePool(int conChannel, R_RT_Tracking_SurfacePoolID s
     formatTableConfig.lineSuffix = (char *)&queryFormat.fmt + 3;
     formatTableConfig.linePrefix = "    ";
     formatTableConfig.EmitLine = R_RT_Tracking_DumpSurfacePool_EmitLine;
-    _RAX = 0i64;
+    v5 = 0i64;
     userContext = v3;
-    v27 = conChannel;
+    v24 = conChannel;
     if ( (unsigned int)rowCount >= 0x10 )
     {
-      __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-      _EDX = 8;
+      v6 = 8;
       do
       {
-        _RCX = _EDX - 4;
+        v7 = v6 - 4;
+        _XMM0 = (unsigned int)v5;
         __asm
         {
-          vmovd   xmm0, eax
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rax*4+4FF0h+_First], xmm1
-          vmovd   xmm0, ecx
-          vpshufd xmm0, xmm0, 0
-          vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rcx*4+4FF0h+_First], xmm1
         }
-        _RCX = _EDX;
-        _RAX = (unsigned int)(_RAX + 16);
+        *(_OWORD *)&_First[v5] = _XMM1;
+        _XMM0 = (unsigned int)v7;
         __asm
         {
-          vmovd   xmm0, edx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rcx*4+4FF0h+_First], xmm1
         }
-        _RCX = _EDX + 4;
-        _EDX += 16;
+        *(_OWORD *)&_First[v7] = _XMM1;
+        v5 = (unsigned int)(v5 + 16);
+        _XMM0 = v6;
         __asm
         {
-          vmovd   xmm0, ecx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rbp+rcx*4+4FF0h+_First], xmm1
         }
+        *(_OWORD *)&_First[v6] = _XMM1;
+        v17 = v6 + 4;
+        v6 += 16;
+        _XMM0 = (unsigned int)v17;
+        __asm
+        {
+          vpshufd xmm0, xmm0, 0
+          vpaddd  xmm1, xmm0, xmm2
+        }
+        *(_OWORD *)&_First[v17] = _XMM1;
       }
-      while ( (_DWORD)_RAX != (rowCount & 0xFFFFFFF0) );
+      while ( (_DWORD)v5 != (rowCount & 0xFFFFFFF0) );
     }
-    for ( ; (_DWORD)_RAX != (_DWORD)rowCount; _RAX = (unsigned int)(_RAX + 1) )
-      _First[_RAX] = _RAX;
+    for ( ; (_DWORD)v5 != (_DWORD)rowCount; v5 = (unsigned int)(v5 + 1) )
+      _First[v5] = v5;
     _Val.m_surfacePool = v3;
     _Val.m_SurfaceIDLess = s_R_RT_Tracking_surfaceOrderingLessCBs[s_R_RT_Tracking.r_rtSurfaceOrder->current.integer];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+50F0h+_Val.m_surfacePool]
-      vmovdqa [rbp+4FF0h+var_5050], xmm0
-    }
-    v24._Fn = std::_Pass_fn<R_RT_Tracking_SurfaceRecordIndexLess,0>(&_Val)._Fn;
-    std::_Sort_unchecked<unsigned int *,std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess>>(_First, &_First[rowCount], rowCount, (std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess>)v24._Fn->m_surfacePool);
+    v26 = _Val;
+    v21._Fn = std::_Pass_fn<R_RT_Tracking_SurfaceRecordIndexLess,0>(&_Val)._Fn;
+    std::_Sort_unchecked<unsigned int *,std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess>>(_First, &_First[rowCount], rowCount, (std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess>)v21._Fn->m_surfacePool);
     IWString_FormatTable_GetColumnWidths(outColumnWidths, tempRowText, 0x1000ui64, s_R_RT_Tracking_dumpSurfaceColumns, 7u, rowCount, &userContext, formatTableConfig.printHeader);
     IWString_FormatTable(tempRowText, 0x1000ui64, s_R_RT_Tracking_dumpSurfaceColumns, 7u, rowCount, &userContext, &formatTableConfig, outColumnWidths, _First);
   }
@@ -1833,37 +1760,37 @@ R_RT_Tracking_DumpSurfaceTotals
 void R_RT_Tracking_DumpSurfaceTotals(const R_RT_Tracking_SurfaceTotals *allSurfaceTotals, const R_RT_Tracking_SurfaceTotals (*surfaceTotals)[5])
 {
   const R_RT_Tracking_SurfaceTotals *v3; 
+  unsigned int v4; 
+  unsigned int v5; 
+  unsigned int v6; 
+  unsigned __int64 size; 
   unsigned int v8; 
   unsigned int v9; 
   unsigned int v10; 
-  unsigned __int64 size; 
-  unsigned int v12; 
+  unsigned int v11; 
+  __int64 v12; 
   unsigned int v13; 
-  unsigned int v14; 
-  unsigned int v15; 
-  __int64 v16; 
+  __int64 v14; 
+  __int64 v15; 
+  R_RT_Tracking_Totals *v16; 
   unsigned int v17; 
-  __int64 v18; 
-  __int64 v19; 
-  R_RT_Tracking_Totals *v20; 
+  unsigned __int64 v18; 
+  unsigned __int64 v19; 
+  const unsigned int *v20; 
   unsigned int v21; 
-  unsigned __int64 v22; 
+  unsigned int v22; 
   unsigned __int64 v23; 
-  const unsigned int *v24; 
-  unsigned int v39; 
-  unsigned int v40; 
-  unsigned __int64 v41; 
-  unsigned int v42; 
+  unsigned int v24; 
+  __int64 v25; 
+  unsigned int v26; 
+  __int64 v27; 
+  __int64 v28; 
+  R_RT_Tracking_Totals *v29; 
+  unsigned int v30; 
+  R_RT_Tracking_TotalStat *TotalStat_Member_unsigned_int; 
+  __int64 v33; 
+  unsigned int v34; 
   __int64 v43; 
-  unsigned int v44; 
-  __int64 v45; 
-  __int64 v46; 
-  R_RT_Tracking_Totals *v47; 
-  unsigned int v48; 
-  __int64 v59; 
-  unsigned int v60; 
-  unsigned int v68; 
-  unsigned int v72; 
   char *fmt; 
   char *fmta; 
   char *fmtb; 
@@ -1872,368 +1799,287 @@ void R_RT_Tracking_DumpSurfaceTotals(const R_RT_Tracking_SurfaceTotals *allSurfa
   char *fmte; 
   char *fmtf; 
   char *fmtg; 
+  __int64 v53; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  __int64 v57; 
+  __int64 v58; 
+  __int64 v59; 
+  __int64 v60; 
+  __int64 v61; 
+  __int64 v62; 
+  __int64 v63; 
+  __int64 v64; 
+  __int64 v65; 
+  __int64 v66; 
+  __int64 v67; 
+  __int64 v68; 
+  __int64 v69; 
+  __int64 v70; 
+  __int64 v71; 
+  __int64 v72; 
+  __int64 v73; 
+  __int64 v74; 
+  __int64 v75; 
+  __int64 v76; 
+  __int64 v77; 
+  __int64 v78; 
+  __int64 v79; 
+  __int64 v80; 
+  __int64 v81; 
+  __int64 v82; 
+  __int64 v83; 
+  __int64 v84; 
   __int64 v85; 
   __int64 v86; 
   __int64 v87; 
   __int64 v88; 
-  __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  __int64 v92; 
-  __int64 v93; 
-  __int64 v94; 
-  __int64 v95; 
-  __int64 v96; 
-  __int64 v97; 
-  __int64 v98; 
-  __int64 v99; 
-  __int64 v100; 
-  __int64 v101; 
-  __int64 v102; 
-  __int64 v103; 
+  unsigned int v89; 
+  unsigned int v90; 
+  unsigned int v91; 
+  R_RT_Tracking_TotalStat result; 
+  unsigned int v93; 
+  unsigned int v94; 
+  unsigned int v95; 
+  unsigned int v96; 
+  unsigned int v97; 
+  unsigned int v98; 
+  unsigned int v99; 
+  unsigned int v100; 
+  unsigned __int64 v101; 
+  unsigned int v102; 
+  int v103; 
   __int64 v104; 
-  __int64 v105; 
-  __int64 v106; 
-  __int64 v107; 
-  __int64 v108; 
-  __int64 v109; 
-  __int64 v110; 
-  __int64 v111; 
-  __int64 v112; 
-  __int64 v113; 
+  __int128 v105; 
+  __int128 v106; 
+  __int128 v107; 
+  __int128 v108; 
+  __int128 v109; 
+  __int128 v110; 
+  __int128 v111; 
+  __int128 v112; 
+  __int128 v113; 
   __int64 v114; 
   __int64 v115; 
   __int64 v116; 
-  __int64 v117; 
+  unsigned __int64 v117; 
   __int64 v118; 
   __int64 v119; 
   __int64 v120; 
-  unsigned int v121; 
-  unsigned int v122; 
-  unsigned int v123; 
-  R_RT_Tracking_TotalStat result; 
-  unsigned int v125; 
+  __int128 v121; 
+  __int128 v122; 
+  __int128 v123; 
+  R_RT_Tracking_TotalStat v124; 
   unsigned int v126; 
   unsigned int v127; 
-  unsigned int v128; 
-  unsigned int v129; 
+  unsigned int memberLa; 
   unsigned int v130; 
   unsigned int v131; 
   unsigned int v132; 
-  unsigned __int64 v133; 
+  unsigned int v133; 
   unsigned int v134; 
-  int v135; 
-  __int64 v136; 
-  __int128 v137; 
-  __int128 v138; 
-  __int128 v139; 
-  __int128 v140; 
-  __int128 v141; 
-  __int128 v142; 
-  __int128 v143; 
-  __int128 v144; 
-  __int128 v145; 
-  __int64 v146; 
-  __int64 v147; 
-  __int64 v148; 
-  unsigned __int64 v149; 
-  __int64 v150; 
-  __int64 v151; 
-  __int64 v152; 
-  __int128 v153; 
-  R_RT_Tracking_TotalStat v156; 
-  unsigned int v158; 
-  unsigned int v159; 
-  unsigned int memberLa; 
-  unsigned int v162; 
-  unsigned int v163; 
-  unsigned int v164; 
-  unsigned int v165; 
-  unsigned int v166; 
 
   v3 = allSurfaceTotals;
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)allSurfaceTotals);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_130], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[3]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_120], xmm0
-  }
-  v8 = (unsigned int)IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
-  v9 = (_DWORD)surfaceTotals - v8 + 24;
-  v10 = (_DWORD)v3 - v8;
-  v162 = v9;
-  v165 = (_DWORD)v3 - v8;
+  v107 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)allSurfaceTotals);
+  v108 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[3]);
+  v4 = (unsigned int)IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
+  v5 = (_DWORD)surfaceTotals - v4 + 24;
+  v6 = (_DWORD)v3 - v4;
+  v130 = v5;
+  v133 = (_DWORD)v3 - v4;
   if ( !s_R_RT_Tracking.m_totalsQueue.cleared )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 36, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
       __debugbreak();
-    v10 = v165;
-    v9 = v162;
+    v6 = v133;
+    v5 = v130;
   }
   size = s_R_RT_Tracking.m_totalsQueue.size;
-  v12 = 0;
-  v121 = s_R_RT_Tracking.m_totalsQueue.size;
-  v13 = -1;
-  LODWORD(v136) = 0;
-  v14 = -1;
-  v125 = -1;
-  v15 = 0;
-  v166 = 0;
-  v16 = 0i64;
-  v17 = 0;
+  v8 = 0;
+  v89 = s_R_RT_Tracking.m_totalsQueue.size;
+  v9 = -1;
+  LODWORD(v104) = 0;
+  v10 = -1;
+  v93 = -1;
+  v11 = 0;
+  v134 = 0;
+  v12 = 0i64;
+  v13 = 0;
   if ( s_R_RT_Tracking.m_totalsQueue.size )
   {
-    v18 = v9;
-    v19 = v10;
+    v14 = v5;
+    v15 = v6;
     do
     {
       if ( !s_R_RT_Tracking.m_totalsQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 46, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
         __debugbreak();
-      if ( v17 >= s_R_RT_Tracking.m_totalsQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 47, ASSERT_TYPE_ASSERT, "(index < this->size)", (const char *)&queryFormat, "index < this->size") )
+      if ( v13 >= s_R_RT_Tracking.m_totalsQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 47, ASSERT_TYPE_ASSERT, "(index < this->size)", (const char *)&queryFormat, "index < this->size") )
         __debugbreak();
-      v20 = &s_R_RT_Tracking.m_totalsQueue.entries[((_BYTE)v17 + LOBYTE(s_R_RT_Tracking.m_totalsQueue.start)) & 0x3F];
-      v21 = *(unsigned __int16 *)((char *)&v20->m_allSurfaceTotals.m_insts + v19) - *(unsigned __int16 *)((char *)&v20->m_allSurfaceTotals.m_insts + v18);
-      size = v121;
-      v136 = v21;
-      if ( v21 < v14 )
-        v14 = v21;
-      if ( v15 < v21 )
-        v15 = v21;
-      v16 += v21;
-      ++v17;
+      v16 = &s_R_RT_Tracking.m_totalsQueue.entries[((_BYTE)v13 + LOBYTE(s_R_RT_Tracking.m_totalsQueue.start)) & 0x3F];
+      v17 = *(unsigned __int16 *)((char *)&v16->m_allSurfaceTotals.m_insts + v15) - *(unsigned __int16 *)((char *)&v16->m_allSurfaceTotals.m_insts + v14);
+      size = v89;
+      v104 = v17;
+      if ( v17 < v10 )
+        v10 = v17;
+      if ( v11 < v17 )
+        v11 = v17;
+      v12 += v17;
+      ++v13;
     }
-    while ( v17 != v121 );
+    while ( v13 != v89 );
     v3 = allSurfaceTotals;
-    v13 = -1;
-    v125 = v14;
-    v12 = 0;
-    v166 = v15;
+    v9 = -1;
+    v93 = v10;
+    v8 = 0;
+    v134 = v11;
   }
-  v22 = (unsigned int)size;
-  v23 = v16 + (size >> 1);
-  v24 = (const unsigned int *)surfaceTotals;
-  v149 = v23 / v22;
-  _RAX = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_short_(&result, (const unsigned __int16 *)surfaceTotals, (const unsigned __int16 *)&(*surfaceTotals)[1]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_110], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)surfaceTotals);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_100], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[1]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_F0], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[2]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_E0], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[4]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_D0], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, &v3->m_sizeKB);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_140], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, &(*surfaceTotals)[3].m_sizeKB);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_150], xmm0
-  }
-  v39 = (unsigned int)IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
-  v40 = (_DWORD)surfaceTotals - v39 + 28;
-  v158 = (_DWORD)v3 - v39 + 4;
-  v163 = v40;
+  v18 = (unsigned int)size;
+  v19 = v12 + (size >> 1);
+  v20 = (const unsigned int *)surfaceTotals;
+  v117 = v19 / v18;
+  v109 = (__int128)*R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_short_(&result, (const unsigned __int16 *)surfaceTotals, (const unsigned __int16 *)&(*surfaceTotals)[1]);
+  v110 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)surfaceTotals);
+  v111 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[1]);
+  v112 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[2]);
+  v113 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&result, (const unsigned __int16 *)&(*surfaceTotals)[4]);
+  v106 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, &v3->m_sizeKB);
+  v105 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, &(*surfaceTotals)[3].m_sizeKB);
+  v21 = (unsigned int)IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
+  v22 = (_DWORD)surfaceTotals - v21 + 28;
+  v126 = (_DWORD)v3 - v21 + 4;
+  v131 = v22;
   if ( !s_R_RT_Tracking.m_totalsQueue.cleared )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 36, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
       __debugbreak();
-    v40 = v163;
+    v22 = v131;
   }
-  v41 = s_R_RT_Tracking.m_totalsQueue.size;
-  v42 = 0;
-  v122 = s_R_RT_Tracking.m_totalsQueue.size;
-  v43 = 0i64;
-  v164 = 0;
-  v44 = 0;
-  LODWORD(v45) = 0;
+  v23 = s_R_RT_Tracking.m_totalsQueue.size;
+  v24 = 0;
+  v90 = s_R_RT_Tracking.m_totalsQueue.size;
+  v25 = 0i64;
+  v132 = 0;
+  v26 = 0;
+  LODWORD(v27) = 0;
   if ( s_R_RT_Tracking.m_totalsQueue.size )
   {
-    v46 = v40;
+    v28 = v22;
     do
     {
       if ( !s_R_RT_Tracking.m_totalsQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 46, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
         __debugbreak();
-      if ( v44 >= s_R_RT_Tracking.m_totalsQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 47, ASSERT_TYPE_ASSERT, "(index < this->size)", (const char *)&queryFormat, "index < this->size") )
+      if ( v26 >= s_R_RT_Tracking.m_totalsQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 47, ASSERT_TYPE_ASSERT, "(index < this->size)", (const char *)&queryFormat, "index < this->size") )
         __debugbreak();
-      v47 = &s_R_RT_Tracking.m_totalsQueue.entries[((_BYTE)v44 + LOBYTE(s_R_RT_Tracking.m_totalsQueue.start)) & 0x3F];
-      v48 = *(_DWORD *)((char *)&v47->m_allSurfaceTotals.m_insts + v158) - *(_DWORD *)((char *)&v47->m_allSurfaceTotals.m_insts + v46);
-      v45 = v48;
-      v12 = v48;
-      if ( v48 < v13 )
-        v13 = *(_DWORD *)((char *)&v47->m_allSurfaceTotals.m_insts + v158) - *(_DWORD *)((char *)&v47->m_allSurfaceTotals.m_insts + v46);
-      if ( v42 < v48 )
-        v42 = *(_DWORD *)((char *)&v47->m_allSurfaceTotals.m_insts + v158) - *(_DWORD *)((char *)&v47->m_allSurfaceTotals.m_insts + v46);
-      v41 = v122;
-      v43 += v45;
-      ++v44;
+      v29 = &s_R_RT_Tracking.m_totalsQueue.entries[((_BYTE)v26 + LOBYTE(s_R_RT_Tracking.m_totalsQueue.start)) & 0x3F];
+      v30 = *(_DWORD *)((char *)&v29->m_allSurfaceTotals.m_insts + v126) - *(_DWORD *)((char *)&v29->m_allSurfaceTotals.m_insts + v28);
+      v27 = v30;
+      v8 = v30;
+      if ( v30 < v9 )
+        v9 = *(_DWORD *)((char *)&v29->m_allSurfaceTotals.m_insts + v126) - *(_DWORD *)((char *)&v29->m_allSurfaceTotals.m_insts + v28);
+      if ( v24 < v30 )
+        v24 = *(_DWORD *)((char *)&v29->m_allSurfaceTotals.m_insts + v126) - *(_DWORD *)((char *)&v29->m_allSurfaceTotals.m_insts + v28);
+      v23 = v90;
+      v25 += v27;
+      ++v26;
     }
-    while ( v44 != v122 );
-    v24 = (const unsigned int *)surfaceTotals;
-    v164 = v42;
+    while ( v26 != v90 );
+    v20 = (const unsigned int *)surfaceTotals;
+    v132 = v24;
   }
-  v133 = __PAIR64__(v13, v12);
-  v135 = (v43 + (v41 >> 1)) / (unsigned int)v41;
-  v134 = v42;
-  _RAX = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&result, v24 + 1, v24 + 3);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_88], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, v24 + 1);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_78], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, v24 + 3);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+0F0h+var_68], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, v24 + 5);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+1F0h+result.___u0], xmm0
-  }
-  _RDX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&v156, v24 + 5);
-  __asm { vmovups xmm0, [rbp+0F0h+var_88] }
-  v59 = (unsigned int)(v138 + 1023) >> 10;
-  v147 = (unsigned int)(DWORD1(v137) + 1023) >> 10;
-  memberLa = (unsigned int)(v137 + 1023) >> 10;
-  v60 = (unsigned int)(DWORD1(v138) + 1023) >> 10;
-  v146 = (unsigned int)(HIDWORD(v137) + 1023) >> 10;
-  v123 = (unsigned int)(v45 + 1023) >> 10;
-  v150 = (unsigned int)(HIDWORD(v133) + 1023) >> 10;
-  v159 = (unsigned int)(DWORD2(v137) + 1023) >> 10;
-  v148 = (unsigned int)(v135 + 1023) >> 10;
-  __asm { vmovq   rax, xmm0 }
-  v152 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
-  v127 = (unsigned int)(_RAX + 1023) >> 10;
-  __asm
-  {
-    vpextrq rax, xmm0, 1
-    vmovups xmm0, [rbp+0F0h+var_78]
-  }
-  v151 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
-  v126 = (unsigned int)(_RAX + 1023) >> 10;
-  __asm { vmovq   rax, xmm0 }
-  *(_QWORD *)&v137 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
-  v129 = (unsigned int)(_RAX + 1023) >> 10;
-  __asm
-  {
-    vpextrq rax, xmm0, 1
-    vmovups xmm0, [rbp+0F0h+var_68]
-    vpextrq r13, xmm0, 1
-  }
-  v68 = _RAX + 1023;
-  *(_QWORD *)&v153 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
-  __asm
-  {
-    vmovq   rax, xmm0
-    vmovups xmm0, xmmword ptr [rsp+1F0h+result.___u0]
-  }
-  v128 = v68 >> 10;
+  v101 = __PAIR64__(v9, v8);
+  v103 = (v25 + (v23 >> 1)) / (unsigned int)v23;
+  v102 = v24;
+  v121 = (__int128)*R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&result, v20 + 1, v20 + 3);
+  v122 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, v20 + 1);
+  v123 = (__int128)*R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, v20 + 3);
+  result = *R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&result, v20 + 5);
+  TotalStat_Member_unsigned_int = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&v124, v20 + 5);
+  _XMM0 = v121;
+  v33 = (unsigned int)(v106 + 1023) >> 10;
+  v115 = (unsigned int)(DWORD1(v105) + 1023) >> 10;
+  memberLa = (unsigned int)(v105 + 1023) >> 10;
+  v34 = (unsigned int)(DWORD1(v106) + 1023) >> 10;
+  v114 = (unsigned int)(HIDWORD(v105) + 1023) >> 10;
+  v91 = (unsigned int)(v27 + 1023) >> 10;
+  v118 = (unsigned int)(HIDWORD(v101) + 1023) >> 10;
+  v127 = (unsigned int)(DWORD2(v105) + 1023) >> 10;
+  v116 = (unsigned int)(v103 + 1023) >> 10;
+  v120 = (unsigned int)(DWORD1(v121) + 1023) >> 10;
+  v95 = (unsigned int)(v121 + 1023) >> 10;
+  __asm { vpextrq rax, xmm0, 1 }
+  _XMM0 = v122;
+  v119 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
+  v94 = (unsigned int)(_RAX + 1023) >> 10;
+  *(_QWORD *)&v105 = (unsigned int)(DWORD1(v122) + 1023) >> 10;
+  v97 = (unsigned int)(v122 + 1023) >> 10;
+  __asm { vpextrq rax, xmm0, 1 }
+  _XMM0 = v123;
+  __asm { vpextrq r13, xmm0, 1 }
+  *(_QWORD *)&v121 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
+  _XMM0 = result;
+  v96 = (unsigned int)(_RAX + 1023) >> 10;
   __asm { vpextrq rsi, xmm0, 1 }
-  v72 = _RAX + 1023;
-  *(_QWORD *)&v138 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
-  v130 = (unsigned int)(_R13 + 1023) >> 10;
-  __asm
-  {
-    vmovq   rax, xmm0
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovq   r15, xmm0
-  }
-  v131 = v72 >> 10;
+  *(_QWORD *)&v106 = (unsigned int)(DWORD1(v123) + 1023) >> 10;
+  v98 = (unsigned int)(_R13 + 1023) >> 10;
+  _XMM0 = *TotalStat_Member_unsigned_int;
+  v43 = *(_QWORD *)&TotalStat_Member_unsigned_int->m_val;
+  v99 = (unsigned int)(v123 + 1023) >> 10;
   __asm { vpextrq rbx, xmm0, 1 }
-  v133 = (unsigned int)(HIDWORD(_RAX) + 1023) >> 10;
-  v132 = (unsigned int)(_RAX + 1023) >> 10;
-  LODWORD(v85) = v60;
-  LODWORD(fmt) = DWORD1(v139);
-  Com_Printf(8, "%3d Surfaces:            %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v139, v59, fmt, v85, DWORD2(v139), (unsigned int)(DWORD2(v138) + 1023) >> 10, HIDWORD(v139), (unsigned int)(HIDWORD(v138) + 1023) >> 10);
-  LODWORD(v114) = v146;
-  LODWORD(v107) = HIDWORD(v140);
-  LODWORD(v100) = v159;
-  LODWORD(v93) = DWORD2(v140);
-  LODWORD(v86) = v147;
-  LODWORD(fmta) = DWORD1(v140);
-  Com_Printf(8, "   %3d Dead:             %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v140, memberLa, fmta, v86, v93, v100, v107, v114);
-  LODWORD(v115) = v148;
-  LODWORD(v108) = v149;
-  LODWORD(v101) = (v164 + 1023) >> 10;
-  LODWORD(v94) = v166;
-  LODWORD(v87) = v150;
-  LODWORD(fmtb) = v125;
-  Com_Printf(8, "   %3d Live:             %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v136, v123, fmtb, v87, v94, v101, v108, v115);
-  LODWORD(v116) = v151;
-  LODWORD(v109) = HIDWORD(v141);
-  LODWORD(v102) = v126;
-  LODWORD(v95) = DWORD2(v141);
-  LODWORD(v88) = v152;
-  LODWORD(fmtc) = DWORD1(v141);
-  Com_Printf(8, "      %3d Heap:          %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v141, v127, fmtc, v88, v95, v102, v109, v116);
-  LODWORD(v117) = v153;
-  LODWORD(v110) = HIDWORD(v142);
-  LODWORD(v103) = v128;
-  LODWORD(v96) = DWORD2(v142);
-  LODWORD(v89) = v137;
-  LODWORD(fmtd) = DWORD1(v142);
-  Com_Printf(8, "         %3d MultiFrame: %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v142, v129, fmtd, v89, v96, v103, v110, v117);
-  LODWORD(v118) = (unsigned int)(HIDWORD(_R13) + 1023) >> 10;
-  LODWORD(v111) = HIDWORD(v143);
-  LODWORD(v104) = v130;
-  LODWORD(v97) = DWORD2(v143);
-  LODWORD(v90) = v138;
-  LODWORD(fmte) = DWORD1(v143);
-  Com_Printf(8, "         %3d InFrame:    %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v143, v131, fmte, v90, v97, v104, v111, v118);
-  LODWORD(v119) = (unsigned int)(HIDWORD(_RSI) + 1023) >> 10;
-  LODWORD(v112) = HIDWORD(v144);
-  LODWORD(v105) = (unsigned int)(_RSI + 1023) >> 10;
-  LODWORD(v98) = DWORD2(v144);
-  LODWORD(v91) = v133;
-  LODWORD(fmtf) = DWORD1(v144);
-  Com_Printf(8, "      %3d View:          %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v144, v132, fmtf, v91, v98, v105, v112, v119);
-  LODWORD(v120) = (unsigned int)(HIDWORD(_RBX) + 1023) >> 10;
-  LODWORD(v113) = HIDWORD(v145);
-  LODWORD(v106) = (unsigned int)(_RBX + 1023) >> 10;
-  LODWORD(v99) = DWORD2(v145);
-  LODWORD(v92) = (unsigned int)(HIDWORD(_R15) + 1023) >> 10;
-  LODWORD(fmtg) = DWORD1(v145);
-  Com_Printf(8, "      %3d PlacedResource:%3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v145, (unsigned int)(_R15 + 1023) >> 10, fmtg, v92, v99, v106, v113, v120);
+  v101 = (result.m_min + 1023) >> 10;
+  v100 = (result.m_val + 1023) >> 10;
+  LODWORD(v53) = v34;
+  LODWORD(fmt) = DWORD1(v107);
+  Com_Printf(8, "%3d Surfaces:            %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v107, v33, fmt, v53, DWORD2(v107), (unsigned int)(DWORD2(v106) + 1023) >> 10, HIDWORD(v107), (unsigned int)(HIDWORD(v106) + 1023) >> 10);
+  LODWORD(v82) = v114;
+  LODWORD(v75) = HIDWORD(v108);
+  LODWORD(v68) = v127;
+  LODWORD(v61) = DWORD2(v108);
+  LODWORD(v54) = v115;
+  LODWORD(fmta) = DWORD1(v108);
+  Com_Printf(8, "   %3d Dead:             %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v108, memberLa, fmta, v54, v61, v68, v75, v82);
+  LODWORD(v83) = v116;
+  LODWORD(v76) = v117;
+  LODWORD(v69) = (v132 + 1023) >> 10;
+  LODWORD(v62) = v134;
+  LODWORD(v55) = v118;
+  LODWORD(fmtb) = v93;
+  Com_Printf(8, "   %3d Live:             %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v104, v91, fmtb, v55, v62, v69, v76, v83);
+  LODWORD(v84) = v119;
+  LODWORD(v77) = HIDWORD(v109);
+  LODWORD(v70) = v94;
+  LODWORD(v63) = DWORD2(v109);
+  LODWORD(v56) = v120;
+  LODWORD(fmtc) = DWORD1(v109);
+  Com_Printf(8, "      %3d Heap:          %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v109, v95, fmtc, v56, v63, v70, v77, v84);
+  LODWORD(v85) = v121;
+  LODWORD(v78) = HIDWORD(v110);
+  LODWORD(v71) = v96;
+  LODWORD(v64) = DWORD2(v110);
+  LODWORD(v57) = v105;
+  LODWORD(fmtd) = DWORD1(v110);
+  Com_Printf(8, "         %3d MultiFrame: %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v110, v97, fmtd, v57, v64, v71, v78, v85);
+  LODWORD(v86) = (unsigned int)(HIDWORD(_R13) + 1023) >> 10;
+  LODWORD(v79) = HIDWORD(v111);
+  LODWORD(v72) = v98;
+  LODWORD(v65) = DWORD2(v111);
+  LODWORD(v58) = v106;
+  LODWORD(fmte) = DWORD1(v111);
+  Com_Printf(8, "         %3d InFrame:    %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v111, v99, fmte, v58, v65, v72, v79, v86);
+  LODWORD(v87) = (unsigned int)(HIDWORD(_RSI) + 1023) >> 10;
+  LODWORD(v80) = HIDWORD(v112);
+  LODWORD(v73) = (unsigned int)(_RSI + 1023) >> 10;
+  LODWORD(v66) = DWORD2(v112);
+  LODWORD(v59) = v101;
+  LODWORD(fmtf) = DWORD1(v112);
+  Com_Printf(8, "      %3d View:          %3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v112, v100, fmtf, v59, v66, v73, v80, v87);
+  LODWORD(v88) = (unsigned int)(HIDWORD(_RBX) + 1023) >> 10;
+  LODWORD(v81) = HIDWORD(v113);
+  LODWORD(v74) = (unsigned int)(_RBX + 1023) >> 10;
+  LODWORD(v67) = DWORD2(v113);
+  LODWORD(v60) = (unsigned int)(HIDWORD(v43) + 1023) >> 10;
+  LODWORD(fmtg) = DWORD1(v113);
+  Com_Printf(8, "      %3d PlacedResource:%3dMB | min=%3d,%3dMB | max=%3d,%3dMB | avg=%3d,%3dMB\n", (unsigned int)v113, (unsigned int)(v43 + 1023) >> 10, fmtg, v60, v67, v74, v81, v88);
 }
 
 /*
@@ -2244,112 +2090,76 @@ R_RT_Tracking_GenerateDebugDrawStats
 R_RT_Tracking_DebugDrawStats *R_RT_Tracking_GenerateDebugDrawStats(R_RT_Tracking_DebugDrawStats *result)
 {
   R_RT_Tracking_Totals *v2; 
+  R_RT_Tracking_TotalStat *TotalStat_MemberAdd_unsigned_int; 
+  __int64 v5; 
+  R_RT_Tracking_TotalStat *v7; 
+  __int64 v9; 
+  R_RT_Tracking_TotalStat v11; 
+  R_RT_Tracking_TotalStat *TotalStat_Member_unsigned_int; 
+  __int64 v14; 
+  R_RT_Tracking_TotalStat *v16; 
+  __int64 v18; 
+  R_RT_Tracking_TotalStat *v20; 
+  __int64 v22; 
   R_RT_Tracking_TotalStat resulta; 
 
-  _RSI = result;
   v2 = IWStaticCircularQueue<R_RT_Tracking_Totals,64,unsigned short>::Back(&s_R_RT_Tracking.m_totalsQueue);
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&resulta, (const unsigned __int16 *)&v2->m_allSurfaceTotals);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsi], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&resulta, v2->m_memTotals[0].m_committedKB, &v2->m_memTotals[0].m_committedKB[1]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rcx, xmm0
-  }
-  LODWORD(_RAX) = _RCX + 1023;
-  resulta.m_min = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+  result->m_surfaces = *R_RT_Tracking_GetTotalStat_Member_unsigned_short_(&resulta, (const unsigned __int16 *)&v2->m_allSurfaceTotals);
+  TotalStat_MemberAdd_unsigned_int = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&resulta, v2->m_memTotals[0].m_committedKB, &v2->m_memTotals[0].m_committedKB[1]);
+  _XMM0 = *TotalStat_MemberAdd_unsigned_int;
+  v5 = *(_QWORD *)&TotalStat_MemberAdd_unsigned_int->m_val;
+  LODWORD(TotalStat_MemberAdd_unsigned_int) = *(_QWORD *)&TotalStat_MemberAdd_unsigned_int->m_val + 1023;
+  resulta.m_min = (unsigned int)(HIDWORD(v5) + 1023) >> 10;
   __asm { vpextrq rcx, xmm0, 1 }
-  resulta.m_val = (unsigned int)_RAX >> 10;
+  resulta.m_val = (unsigned int)TotalStat_MemberAdd_unsigned_int >> 10;
   resulta.m_avg = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
   resulta.m_max = (unsigned int)(_RCX + 1023) >> 10;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+result.___u0]
-    vmovups xmmword ptr [rsi+10h], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&resulta, v2->m_memTotals[1].m_committedKB, &v2->m_memTotals[1].m_committedKB[1]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rcx, xmm0
-  }
-  resulta.m_min = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
-  resulta.m_val = (unsigned int)(_RCX + 1023) >> 10;
+  result->m_committedMB = resulta;
+  v7 = R_RT_Tracking_GetTotalStat_MemberAdd_unsigned_int_(&resulta, v2->m_memTotals[1].m_committedKB, &v2->m_memTotals[1].m_committedKB[1]);
+  _XMM0 = *v7;
+  v9 = *(_QWORD *)&v7->m_val;
+  resulta.m_min = (unsigned int)(HIDWORD(*(_QWORD *)&v7->m_val) + 1023) >> 10;
+  resulta.m_val = (unsigned int)(v9 + 1023) >> 10;
   __asm { vpextrq rcx, xmm0, 1 }
   resulta.m_max = (unsigned int)(_RCX + 1023) >> 10;
-  LODWORD(_RAX) = v2->m_memTotals[1].m_reservedKB + 1023;
+  LODWORD(v7) = v2->m_memTotals[1].m_reservedKB + 1023;
   resulta.m_avg = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
-  __asm { vmovups xmm0, xmmword ptr [rbp+result.___u0] }
-  _RSI->m_heapReservedMB = (unsigned int)_RAX >> 10;
-  __asm { vmovups xmmword ptr [rsi+20h], xmm0 }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_memTotals[0].m_committedKB[1]);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rcx, xmm0
-  }
-  LODWORD(_RAX) = _RCX + 1023;
-  resulta.m_min = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+  v11 = resulta;
+  result->m_heapReservedMB = (unsigned int)v7 >> 10;
+  result->m_heapCommittedMB = v11;
+  TotalStat_Member_unsigned_int = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_memTotals[0].m_committedKB[1]);
+  _XMM0 = *TotalStat_Member_unsigned_int;
+  v14 = *(_QWORD *)&TotalStat_Member_unsigned_int->m_val;
+  LODWORD(TotalStat_Member_unsigned_int) = *(_QWORD *)&TotalStat_Member_unsigned_int->m_val + 1023;
+  resulta.m_min = (unsigned int)(HIDWORD(v14) + 1023) >> 10;
   __asm { vpextrq rcx, xmm0, 1 }
-  resulta.m_val = (unsigned int)_RAX >> 10;
+  resulta.m_val = (unsigned int)TotalStat_Member_unsigned_int >> 10;
   resulta.m_avg = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
   resulta.m_max = (unsigned int)(_RCX + 1023) >> 10;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+result.___u0]
-    vmovups xmmword ptr [rsi+34h], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_requestKB);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rcx, xmm0
-  }
-  LODWORD(_RAX) = _RCX + 1023;
-  resulta.m_min = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+  result->m_deadCommittedMB = resulta;
+  v16 = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_requestKB);
+  _XMM0 = *v16;
+  v18 = *(_QWORD *)&v16->m_val;
+  LODWORD(v16) = *(_QWORD *)&v16->m_val + 1023;
+  resulta.m_min = (unsigned int)(HIDWORD(v18) + 1023) >> 10;
   __asm { vpextrq rcx, xmm0, 1 }
-  resulta.m_val = (unsigned int)_RAX >> 10;
+  resulta.m_val = (unsigned int)v16 >> 10;
   resulta.m_avg = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
   resulta.m_max = (unsigned int)(_RCX + 1023) >> 10;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+result.___u0]
-    vmovups xmmword ptr [rsi+44h], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_successKB);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rcx, xmm0
-  }
-  LODWORD(_RAX) = _RCX + 1023;
-  resulta.m_min = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
+  result->m_esramRequestMB = resulta;
+  v20 = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_successKB);
+  _XMM0 = *v20;
+  v22 = *(_QWORD *)&v20->m_val;
+  LODWORD(v20) = *(_QWORD *)&v20->m_val + 1023;
+  resulta.m_min = (unsigned int)(HIDWORD(v22) + 1023) >> 10;
   __asm { vpextrq rcx, xmm0, 1 }
-  resulta.m_val = (unsigned int)_RAX >> 10;
+  resulta.m_val = (unsigned int)v20 >> 10;
   resulta.m_avg = (unsigned int)(HIDWORD(_RCX) + 1023) >> 10;
   resulta.m_max = (unsigned int)(_RCX + 1023) >> 10;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+result.___u0]
-    vmovups xmmword ptr [rsi+54h], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_requests);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsi+64h], xmm0
-  }
-  _RAX = R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_successes);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsi+74h], xmm0
-  }
-  return _RSI;
+  result->m_esramSuccessMB = resulta;
+  result->m_esramRequests = *R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_requests);
+  result->m_esramSuccesses = *R_RT_Tracking_GetTotalStat_Member_unsigned_int_(&resulta, &v2->m_esramFrameTotals.m_successes);
+  return result;
 }
 
 /*
@@ -2412,6 +2222,7 @@ void R_RT_Tracking_GetTotals(R_RT_Tracking_Totals *outTotals)
   unsigned __int16 m_surfaceID; 
   unsigned int v11; 
   unsigned __int16 v12; 
+  R_RT_Tracking_Totals *v13; 
   int v14; 
   R_RT_Heap_PoolConfig *v15; 
   R_RT_Tracking_MemTotals *v16; 
@@ -2423,37 +2234,37 @@ void R_RT_Tracking_GetTotals(R_RT_Tracking_Totals *outTotals)
   __int16 v22; 
   __int64 v23; 
   __int64 v24; 
-  unsigned int v26; 
-  int v27; 
-  R_RT_AllocationLockSentry v28; 
-  int v29; 
-  unsigned int v30; 
-  R_RT_Tracking_SurfaceRecord *v31; 
-  R_RT_Tracking_SurfaceTotals *v32; 
-  __int64 v33; 
-  R_RT_Tracking_Totals *v34; 
-  __int64 v35; 
+  unsigned int v25; 
+  int v26; 
+  R_RT_AllocationLockSentry v27; 
+  int v28; 
+  unsigned int v29; 
+  R_RT_Tracking_SurfaceRecord *v30; 
+  R_RT_Tracking_SurfaceTotals *v31; 
+  __int64 v32; 
+  R_RT_Tracking_Totals *v33; 
+  __int64 v34; 
   R_RT_Tracking_AllocRecord outAllocRecords[4096]; 
 
-  v35 = -2i64;
-  v34 = outTotals;
-  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v28);
-  v29 = 0;
+  v34 = -2i64;
+  v33 = outTotals;
+  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v27);
+  v28 = 0;
   v2 = 0;
-  v26 = 0;
+  v25 = 0;
   m_surfaceTotals = outTotals->m_surfaceTotals;
-  v32 = outTotals->m_surfaceTotals;
+  v31 = outTotals->m_surfaceTotals;
   m_records = s_R_RT_Tracking.m_surfacePools[0].m_records;
-  v31 = s_R_RT_Tracking.m_surfacePools[0].m_records;
-  v33 = 5i64;
+  v30 = s_R_RT_Tracking.m_surfacePools[0].m_records;
+  v32 = 5i64;
   blocks = g_R_RT_ManagerSurfaceAllocator->blocks;
   do
   {
-    v30 = *(_DWORD *)&m_records[-1].m_surfaceID;
-    v6 = v30;
+    v29 = *(_DWORD *)&m_records[-1].m_surfaceID;
+    v6 = v29;
     v7 = 0;
     v8 = m_records;
-    v9 = &m_records[v30];
+    v9 = &m_records[v29];
     if ( m_records != v9 )
     {
       do
@@ -2465,38 +2276,38 @@ void R_RT_Tracking_GetTotals(R_RT_Tracking_Totals *outTotals)
         ++v8;
       }
       while ( v8 != v9 );
-      m_records = v31;
-      m_surfaceTotals = v32;
-      v6 = v30;
-      v2 = v26;
+      m_records = v30;
+      m_surfaceTotals = v31;
+      v6 = v29;
+      v2 = v25;
     }
     m_surfaceTotals->m_insts = truncate_cast<unsigned short,unsigned int>(v6);
     m_surfaceTotals->m_sizeKB = v7;
-    v11 = v6 + v29;
-    v29 += v6;
+    v11 = v6 + v28;
+    v28 += v6;
     v2 += v7;
-    v26 = v2;
+    v25 = v2;
     m_records = (R_RT_Tracking_SurfaceRecord *)((char *)m_records + 98312);
-    v31 = m_records;
-    v32 = ++m_surfaceTotals;
-    --v33;
+    v30 = m_records;
+    v31 = ++m_surfaceTotals;
+    --v32;
   }
-  while ( v33 );
+  while ( v32 );
   v12 = truncate_cast<unsigned short,unsigned int>(v11);
-  _R14 = v34;
-  v34->m_allSurfaceTotals.m_insts = v12;
-  _R14->m_allSurfaceTotals.m_sizeKB = v2;
-  *(_DWORD *)_R14->m_memTotals[0].m_allocs = 0;
-  _R14->m_memTotals[0].m_allocLimit = 0;
-  *(_QWORD *)_R14->m_memTotals[0].m_committedKB = 0i64;
-  *(_QWORD *)&_R14->m_memTotals[0].m_reservedKB = 0i64;
-  _R14->m_memTotals[1].m_allocLimit = 0;
-  *(_QWORD *)_R14->m_memTotals[1].m_committedKB = 0i64;
-  _R14->m_memTotals[1].m_reservedKB = 0;
+  v13 = v33;
+  v33->m_allSurfaceTotals.m_insts = v12;
+  v13->m_allSurfaceTotals.m_sizeKB = v2;
+  *(_DWORD *)v13->m_memTotals[0].m_allocs = 0;
+  v13->m_memTotals[0].m_allocLimit = 0;
+  *(_QWORD *)v13->m_memTotals[0].m_committedKB = 0i64;
+  *(_QWORD *)&v13->m_memTotals[0].m_reservedKB = 0i64;
+  v13->m_memTotals[1].m_allocLimit = 0;
+  *(_QWORD *)v13->m_memTotals[1].m_committedKB = 0i64;
+  v13->m_memTotals[1].m_reservedKB = 0;
   v14 = 0;
-  v27 = 0;
+  v26 = 0;
   v15 = g_R_RT_Heap_poolConfigs;
-  v16 = &_R14->m_memTotals[2];
+  v16 = &v13->m_memTotals[2];
   do
   {
     AllocRecords = R_RT_Heap_GetAllocRecords(outAllocRecords, (R_RT_Heap_PoolID)v14);
@@ -2524,32 +2335,28 @@ void R_RT_Tracking_GetTotals(R_RT_Tracking_Totals *outTotals)
         p_m_size += 8;
       }
       while ( p_m_size - 6 != (unsigned int *)v20 );
-      _R14 = v34;
-      v14 = v27;
+      v13 = v33;
+      v14 = v26;
     }
-    _R14->m_memTotals[1].m_allocs[0] += v16->m_allocs[0];
-    _R14->m_memTotals[1].m_allocs[1] += v16->m_allocs[1];
-    _R14->m_memTotals[1].m_allocLimit += v16->m_allocLimit;
-    _R14->m_memTotals[1].m_committedKB[0] += v16->m_committedKB[0];
-    _R14->m_memTotals[1].m_committedKB[1] += v16->m_committedKB[1];
-    _R14->m_memTotals[1].m_reservedKB += v16->m_reservedKB;
-    v27 = ++v14;
+    v13->m_memTotals[1].m_allocs[0] += v16->m_allocs[0];
+    v13->m_memTotals[1].m_allocs[1] += v16->m_allocs[1];
+    v13->m_memTotals[1].m_allocLimit += v16->m_allocLimit;
+    v13->m_memTotals[1].m_committedKB[0] += v16->m_committedKB[0];
+    v13->m_memTotals[1].m_committedKB[1] += v16->m_committedKB[1];
+    v13->m_memTotals[1].m_reservedKB += v16->m_reservedKB;
+    v26 = ++v14;
     ++v15;
     ++v16;
   }
   while ( v14 != 4 );
-  _R14->m_memTotals[0].m_allocs[0] += _R14->m_memTotals[1].m_allocs[0];
-  _R14->m_memTotals[0].m_allocs[1] += _R14->m_memTotals[1].m_allocs[1];
-  _R14->m_memTotals[0].m_allocLimit += _R14->m_memTotals[1].m_allocLimit;
-  _R14->m_memTotals[0].m_committedKB[0] += _R14->m_memTotals[1].m_committedKB[0];
-  _R14->m_memTotals[0].m_committedKB[1] += _R14->m_memTotals[1].m_committedKB[1];
-  _R14->m_memTotals[0].m_reservedKB += _R14->m_memTotals[1].m_reservedKB;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:s_R_RT_ESRAM_Internal.m_frameTotals.m_requestKB
-    vmovups xmmword ptr [r14+0A8h], xmm0
-  }
-  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v28);
+  v13->m_memTotals[0].m_allocs[0] += v13->m_memTotals[1].m_allocs[0];
+  v13->m_memTotals[0].m_allocs[1] += v13->m_memTotals[1].m_allocs[1];
+  v13->m_memTotals[0].m_allocLimit += v13->m_memTotals[1].m_allocLimit;
+  v13->m_memTotals[0].m_committedKB[0] += v13->m_memTotals[1].m_committedKB[0];
+  v13->m_memTotals[0].m_committedKB[1] += v13->m_memTotals[1].m_committedKB[1];
+  v13->m_memTotals[0].m_reservedKB += v13->m_memTotals[1].m_reservedKB;
+  v13->m_esramFrameTotals = s_R_RT_ESRAM_Internal.m_frameTotals;
+  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v27);
 }
 
 /*
@@ -2559,20 +2366,20 @@ R_RT_Tracking_GroupRefDecrement
 */
 void R_RT_Tracking_GroupRefDecrement(const R_RT_Group *rtGroup)
 {
+  __int16 v1; 
   unsigned int v3; 
   int m_colorRtCount; 
   __int64 v5; 
   unsigned __int16 m_surfaceID; 
-  __int64 v7; 
+  R_RT_ColorHandle *v7; 
   unsigned __int16 v8; 
   R_RT_Surface *v9; 
   R_RT_FlagsInternal m_rtFlagsInternal; 
   const R_RT_Surface *Surface; 
-  __int64 v14; 
-  __int64 v15; 
-  R_RT_Handle v16; 
+  __int64 v12; 
+  __int64 v13; 
+  R_RT_Handle m_depthRt; 
 
-  _RBP = rtGroup;
   v3 = 0;
   m_colorRtCount = rtGroup->m_colorRtCount;
   if ( rtGroup->m_colorRtCount )
@@ -2580,19 +2387,19 @@ void R_RT_Tracking_GroupRefDecrement(const R_RT_Group *rtGroup)
     do
     {
       v5 = v3;
-      m_surfaceID = _RBP->m_colorRts[v5].m_surfaceID;
-      v7 = (__int64)&_RBP->m_colorRts[v5];
+      m_surfaceID = rtGroup->m_colorRts[v5].m_surfaceID;
+      v7 = &rtGroup->m_colorRts[v5];
       if ( !m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
         __debugbreak();
       v8 = (m_surfaceID & 0x7FFF) - 1;
       if ( v8 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
         __debugbreak();
       v9 = &g_R_RT_ManagerSurfaceAllocator->blocks[v8];
-      if ( v9->m_tracking.m_allocCounter != *(_DWORD *)(v7 + 8) )
+      if ( v9->m_tracking.m_allocCounter != v7->m_tracking.m_allocCounter )
       {
-        LODWORD(v15) = *(_DWORD *)(v7 + 8);
-        LODWORD(v14) = v9->m_tracking.m_allocCounter;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", v14, v15, *(const char **)(v7 + 16), *(const char **)(v7 + 24)) )
+        LODWORD(v13) = v7->m_tracking.m_allocCounter;
+        LODWORD(v12) = v9->m_tracking.m_allocCounter;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", v12, v13, v7->m_tracking.m_name, v7->m_tracking.m_location) )
           __debugbreak();
       }
       m_rtFlagsInternal = v9->m_rtFlagsInternal;
@@ -2602,19 +2409,14 @@ void R_RT_Tracking_GroupRefDecrement(const R_RT_Group *rtGroup)
     }
     while ( v3 != m_colorRtCount );
   }
-  __asm
+  m_depthRt = (R_RT_Handle)rtGroup->m_depthRt;
+  if ( v1 )
   {
-    vmovups ymm0, ymmword ptr [rbp+88h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v16);
-    Surface = R_RT_Handle::GetSurface(&v16);
+    R_RT_Handle::GetSurface(&m_depthRt);
+    Surface = R_RT_Handle::GetSurface(&m_depthRt);
     R_RT_Tracking_SurfaceRefDecrement(Surface, -1);
   }
-  else if ( v16.m_tracking.m_allocCounter )
+  else if ( m_depthRt.m_tracking.m_allocCounter )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
@@ -2628,40 +2430,40 @@ R_RT_Tracking_GroupRefIncrement
 */
 void R_RT_Tracking_GroupRefIncrement(const R_RT_Group *rtGroup, const char *location)
 {
+  __int16 v2; 
   unsigned int v4; 
   int m_colorRtCount; 
   __int64 v7; 
   unsigned __int16 m_surfaceID; 
-  __int64 v9; 
+  R_RT_ColorHandle *v9; 
   unsigned __int16 v10; 
   R_RT_Surface *v11; 
   R_RT_FlagsInternal m_rtFlagsInternal; 
   const R_RT_Surface *Surface; 
-  __int64 v16; 
-  __int64 v17; 
-  R_RT_Handle v18; 
+  __int64 v14; 
+  __int64 v15; 
+  R_RT_Handle m_depthRt; 
 
   v4 = 0;
   m_colorRtCount = rtGroup->m_colorRtCount;
-  _RBP = rtGroup;
   if ( rtGroup->m_colorRtCount )
   {
     do
     {
       v7 = v4;
-      m_surfaceID = _RBP->m_colorRts[v7].m_surfaceID;
-      v9 = (__int64)&_RBP->m_colorRts[v7];
+      m_surfaceID = rtGroup->m_colorRts[v7].m_surfaceID;
+      v9 = &rtGroup->m_colorRts[v7];
       if ( !m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
         __debugbreak();
       v10 = (m_surfaceID & 0x7FFF) - 1;
       if ( v10 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
         __debugbreak();
       v11 = &g_R_RT_ManagerSurfaceAllocator->blocks[v10];
-      if ( v11->m_tracking.m_allocCounter != *(_DWORD *)(v9 + 8) )
+      if ( v11->m_tracking.m_allocCounter != v9->m_tracking.m_allocCounter )
       {
-        LODWORD(v17) = *(_DWORD *)(v9 + 8);
-        LODWORD(v16) = v11->m_tracking.m_allocCounter;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", v16, v17, *(const char **)(v9 + 16), *(const char **)(v9 + 24)) )
+        LODWORD(v15) = v9->m_tracking.m_allocCounter;
+        LODWORD(v14) = v11->m_tracking.m_allocCounter;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", v14, v15, v9->m_tracking.m_name, v9->m_tracking.m_location) )
           __debugbreak();
       }
       m_rtFlagsInternal = v11->m_rtFlagsInternal;
@@ -2671,19 +2473,14 @@ void R_RT_Tracking_GroupRefIncrement(const R_RT_Group *rtGroup, const char *loca
     }
     while ( v4 != m_colorRtCount );
   }
-  __asm
+  m_depthRt = (R_RT_Handle)rtGroup->m_depthRt;
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rbp+88h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v18);
-    Surface = R_RT_Handle::GetSurface(&v18);
+    R_RT_Handle::GetSurface(&m_depthRt);
+    Surface = R_RT_Handle::GetSurface(&m_depthRt);
     R_RT_Tracking_SurfaceRefIncrement(Surface, -1, location);
   }
-  else if ( v18.m_tracking.m_allocCounter )
+  else if ( m_depthRt.m_tracking.m_allocCounter )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
@@ -2769,11 +2566,11 @@ void R_RT_Tracking_ImageRefIncrement_GPU(const GfxImage *image, const void *refA
   R_RT_Tracking_ImageAppendix *ImageRefAppendix; 
   unsigned int v10; 
   unsigned int m_recordCount; 
-  unsigned int v14; 
-  __int64 v15; 
-  __int64 v16; 
+  unsigned int v12; 
+  __int64 v13; 
+  __int64 v14; 
   unsigned __int8 outValue[16]; 
-  const void *v18; 
+  const void *v16; 
   R_RT_Tracking_ImageRefRecord addRecord; 
 
   ImageRefAppendix = R_RT_Tracking_GetImageRefAppendix(image);
@@ -2787,9 +2584,9 @@ void R_RT_Tracking_ImageRefIncrement_GPU(const GfxImage *image, const void *refA
     v10 = ImageRefAppendix->m_refCounts[1] + 1;
     if ( v10 > 0x20 )
     {
-      LODWORD(v16) = resourceIndex;
-      LODWORD(v15) = 32;
-      Com_Printf(1, "Too many RT %simage \"%s\" %s-references (limit=%d) - probable leak.  resourceIndex=%d, location=%s, refAddr=0x%p\n", s_R_RT_Tracking_whichImagePrefixes[(unsigned __int8)ImageRefAppendix->m_which], image->name, s_R_RT_Tracking_imageRefShaderTypeNames[(unsigned __int8)shaderImageSetID], v15, v16, location, refAddr);
+      LODWORD(v14) = resourceIndex;
+      LODWORD(v13) = 32;
+      Com_Printf(1, "Too many RT %simage \"%s\" %s-references (limit=%d) - probable leak.  resourceIndex=%d, location=%s, refAddr=0x%p\n", s_R_RT_Tracking_whichImagePrefixes[(unsigned __int8)ImageRefAppendix->m_which], image->name, s_R_RT_Tracking_imageRefShaderTypeNames[(unsigned __int8)shaderImageSetID], v13, v14, location, refAddr);
       R_RT_Tracking_DumpImageRefRecords(ImageRefAppendix, image->name);
     }
     truncate_store<unsigned char,unsigned int>(&ImageRefAppendix->m_refCounts[1], v10);
@@ -2802,16 +2599,11 @@ void R_RT_Tracking_ImageRefIncrement_GPU(const GfxImage *image, const void *refA
     truncate_store<unsigned char,unsigned int>(&outValue[5], resourceIndex);
     m_recordCount = ImageRefAppendix->m_recordCount;
     *(_QWORD *)&outValue[8] = location;
-    __asm { vmovups xmm0, xmmword ptr [rsp+0A8h+outValue] }
-    v18 = refAddr;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+0A8h+var_48]
-      vmovups xmmword ptr [rsp+0A8h+addRecord.m_refType], xmm0
-      vmovsd  [rsp+0A8h+addRecord.m_refAddr], xmm1
-    }
-    v14 = R_RT_Tracking_AddRefRecord_R_RT_Tracking_ImageRefRecord_32_(m_recordCount, (R_RT_Tracking_ImageRefRecord (*)[32])ImageRefAppendix->m_records, &addRecord);
-    truncate_store<unsigned char,unsigned int>(&ImageRefAppendix->m_recordCount, v14);
+    v16 = refAddr;
+    *(_OWORD *)&addRecord.m_refType = *(_OWORD *)outValue;
+    addRecord.m_refAddr = refAddr;
+    v12 = R_RT_Tracking_AddRefRecord_R_RT_Tracking_ImageRefRecord_32_(m_recordCount, (R_RT_Tracking_ImageRefRecord (*)[32])ImageRefAppendix->m_records, &addRecord);
+    truncate_store<unsigned char,unsigned int>(&ImageRefAppendix->m_recordCount, v12);
     s_R_RT_Tracking.m_imageRefLock.writeThreadId = 0;
     ReleaseSRWLockExclusive((PSRWLOCK)&s_R_RT_Tracking.m_imageRefLock);
     Sys_CheckReleaseLock(&s_R_RT_Tracking.m_imageRefLock);
@@ -2947,39 +2739,36 @@ R_RT_Tracking_RemoveAllImageRefRecords
 void R_RT_Tracking_RemoveAllImageRefRecords(R_RT_Tracking_ImageAppendix *appendix, R_RT_Tracking_ImageRefType imageRefType)
 {
   __int64 m_recordCount; 
+  R_RT_Tracking_ImageRefRecord *m_records; 
+  R_RT_Tracking_ImageRefRecord *v5; 
   R_RT_Tracking_ImageAppendix *v6; 
-  __int64 v9; 
+  __int64 v7; 
 
   m_recordCount = appendix->m_recordCount;
-  _R10 = appendix->m_records;
-  _RAX = appendix->m_records;
+  m_records = appendix->m_records;
+  v5 = appendix->m_records;
   v6 = (R_RT_Tracking_ImageAppendix *)&appendix->m_records[m_recordCount];
   if ( appendix->m_records != (R_RT_Tracking_ImageRefRecord *)v6 )
   {
     do
     {
-      if ( _RAX->m_refType != imageRefType )
+      if ( v5->m_refType != imageRefType )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [r10], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vmovsd  qword ptr [r10+10h], xmm1
-        }
-        ++_R10;
+        *(_OWORD *)&m_records->m_refType = *(_OWORD *)&v5->m_refType;
+        m_records->m_refAddr = v5->m_refAddr;
+        ++m_records;
       }
-      ++_RAX;
+      ++v5;
     }
-    while ( _RAX != (R_RT_Tracking_ImageRefRecord *)v6 );
+    while ( v5 != (R_RT_Tracking_ImageRefRecord *)v6 );
   }
-  v9 = ((char *)_R10 - (char *)appendix - 8) / 24;
-  if ( (_DWORD)v9 != (_DWORD)m_recordCount )
+  v7 = ((char *)m_records - (char *)appendix - 8) / 24;
+  if ( (_DWORD)v7 != (_DWORD)m_recordCount )
   {
-    DebugWipe(_R10, 24i64 * (unsigned int)(m_recordCount - v9));
-    if ( (unsigned int)v9 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v9, "unsigned", (unsigned int)v9) )
+    DebugWipe(m_records, 24i64 * (unsigned int)(m_recordCount - v7));
+    if ( (unsigned int)v7 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v7, "unsigned", (unsigned int)v7) )
       __debugbreak();
-    appendix->m_recordCount = v9;
+    appendix->m_recordCount = v7;
   }
 }
 
@@ -2992,13 +2781,12 @@ void R_RT_Tracking_RemoveImageRefRecord(R_RT_Tracking_ImageAppendix *appendix, c
 {
   int m_recordCount; 
   int v5; 
-  unsigned int v6; 
-  __int64 v10; 
-  __int128 v15; 
-  const void *v16; 
+  int v6; 
+  __int64 v7; 
+  R_RT_Tracking_ImageRefRecord *v8; 
+  __int64 v9; 
 
   m_recordCount = appendix->m_recordCount;
-  _RSI = appendix;
   if ( keyRecord->m_location && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1363, ASSERT_TYPE_ASSERT, "(keyRecord->m_location == 0)", (const char *)&queryFormat, "keyRecord->m_location == NULL") )
     __debugbreak();
   v5 = -1;
@@ -3007,15 +2795,7 @@ void R_RT_Tracking_RemoveImageRefRecord(R_RT_Tracking_ImageAppendix *appendix, c
   {
     do
     {
-      _RCX = 3i64 * v6;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi+rcx*8+8]
-        vmovsd  xmm1, qword ptr [rsi+rcx*8+18h]
-        vmovups [rsp+58h+var_28], xmm0
-        vmovsd  [rsp+58h+var_18], xmm1
-      }
-      if ( !keyRecord->m_location && v16 == keyRecord->m_refAddr && WORD2(v15) == keyRecord->m_context.m_input.m_codeTexture )
+      if ( !keyRecord->m_location && appendix->m_records[v6].m_refAddr == keyRecord->m_refAddr && (unsigned __int16)WORD2(*(_QWORD *)&appendix->m_records[v6].m_refType) == keyRecord->m_context.m_input.m_codeTexture )
       {
         if ( v5 != -1 )
           return;
@@ -3026,21 +2806,16 @@ void R_RT_Tracking_RemoveImageRefRecord(R_RT_Tracking_ImageAppendix *appendix, c
     while ( v6 != m_recordCount );
     if ( v5 >= 0 )
     {
-      v10 = (unsigned int)(m_recordCount - 1);
-      _RCX = &_RSI->m_records[v10];
-      if ( v5 != (_DWORD)v10 )
+      v7 = (unsigned int)(m_recordCount - 1);
+      v8 = &appendix->m_records[v7];
+      if ( v5 != (_DWORD)v7 )
       {
-        __asm { vmovups xmm0, xmmword ptr [rcx] }
-        _R8 = 3i64 * v5;
-        __asm
-        {
-          vmovups xmmword ptr [rsi+r8*8+8], xmm0
-          vmovsd  xmm1, qword ptr [rcx+10h]
-          vmovsd  qword ptr [rsi+r8*8+18h], xmm1
-        }
+        v9 = v5;
+        *(_OWORD *)&appendix->m_records[v9].m_refType = *(_OWORD *)&v8->m_refType;
+        appendix->m_records[v9].m_refAddr = appendix->m_records[v7].m_refAddr;
       }
-      DebugWipe(_RCX, 0x18ui64);
-      truncate_store<unsigned char,unsigned int>(&_RSI->m_recordCount, v10);
+      DebugWipe(v8, 0x18ui64);
+      truncate_store<unsigned char,unsigned int>(&appendix->m_recordCount, v7);
     }
   }
 }
@@ -3052,24 +2827,18 @@ R_RT_Tracking_RemoveImageRefRecord_GPU
 */
 void R_RT_Tracking_RemoveImageRefRecord_GPU(R_RT_Tracking_ImageAppendix *appendix, const void *refAddr, GfxShaderImageSetStage shaderImageSetID, unsigned int resourceIndex)
 {
-  __int128 v8; 
-  const void *v9; 
+  _QWORD v6[3]; 
   R_RT_Tracking_ImageRefRecord keyRecord; 
 
-  LODWORD(v8) = 65537;
-  BYTE4(v8) = shaderImageSetID;
-  *(_WORD *)((char *)&v8 + 5) = 0;
-  BYTE7(v8) = 0;
-  truncate_store<unsigned char,unsigned int>((unsigned __int8 *)&v8 + 5, resourceIndex);
-  *((_QWORD *)&v8 + 1) = 0i64;
-  __asm { vmovups xmm0, xmmword ptr [rsp+20h] }
-  v9 = refAddr;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+58h+var_28]
-    vmovups xmmword ptr [rsp+58h+keyRecord.m_refType], xmm0
-    vmovsd  [rsp+58h+keyRecord.m_refAddr], xmm1
-  }
+  LODWORD(v6[0]) = 65537;
+  BYTE4(v6[0]) = shaderImageSetID;
+  *(_WORD *)((char *)v6 + 5) = 0;
+  HIBYTE(v6[0]) = 0;
+  truncate_store<unsigned char,unsigned int>((unsigned __int8 *)v6 + 5, resourceIndex);
+  v6[1] = 0i64;
+  v6[2] = refAddr;
+  *(_OWORD *)&keyRecord.m_refType = v6[0];
+  keyRecord.m_refAddr = refAddr;
   R_RT_Tracking_RemoveImageRefRecord(appendix, &keyRecord);
 }
 
@@ -3080,21 +2849,13 @@ R_RT_Tracking_RemoveImageRefRecord_Input
 */
 void R_RT_Tracking_RemoveImageRefRecord_Input(R_RT_Tracking_ImageAppendix *appendix, const void *refAddr, unsigned int codeTexture)
 {
-  __int128 v7; 
-  const void *v8; 
+  unsigned __int64 v5; 
   R_RT_Tracking_ImageRefRecord keyRecord; 
 
-  LODWORD(v7) = 0x10000;
-  DWORD1(v7) = truncate_cast<unsigned short,unsigned int>(codeTexture);
-  *((_QWORD *)&v7 + 1) = 0i64;
-  __asm { vmovups xmm0, [rsp+58h+var_38] }
-  v8 = refAddr;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+58h+var_28]
-    vmovups xmmword ptr [rsp+58h+keyRecord.m_refType], xmm0
-    vmovsd  [rsp+58h+keyRecord.m_refAddr], xmm1
-  }
+  LODWORD(v5) = 0x10000;
+  HIDWORD(v5) = truncate_cast<unsigned short,unsigned int>(codeTexture);
+  *(_OWORD *)&keyRecord.m_refType = v5;
+  keyRecord.m_refAddr = refAddr;
   R_RT_Tracking_RemoveImageRefRecord(appendix, &keyRecord);
 }
 
@@ -3107,8 +2868,11 @@ void R_RT_Tracking_RemoveSurfaceRecord(R_RT_Tracking_SurfaceInfo *surfaceInfo, u
 {
   R_RT_Tracking_SurfacePoolID m_surfacePoolID; 
   __int64 m_surfaceRecordIndex; 
+  R_RT_Tracking_SurfacePool *v7; 
+  __int64 v8; 
   unsigned int m_recordCount; 
   __int64 v10; 
+  R_RT_Tracking_SurfaceRecord *v11; 
   unsigned __int16 v12; 
   IWIndexedBlockAllocatorN<R_RT_Surface,unsigned short,4096,IWIndexedBlockAllocator_DefaultNextAccessor<R_RT_Surface,unsigned short> > *v13; 
   __int64 v14; 
@@ -3118,22 +2882,22 @@ void R_RT_Tracking_RemoveSurfaceRecord(R_RT_Tracking_SurfaceInfo *surfaceInfo, u
   m_surfaceRecordIndex = surfaceInfo->m_surfaceRecordIndex;
   if ( m_surfacePoolID == R_RT_Tracking_SurfacePoolID_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1274, ASSERT_TYPE_ASSERT, "(surfacePoolID != R_RT_Tracking_SurfacePoolID_INVALID)", (const char *)&queryFormat, "surfacePoolID != R_RT_Tracking_SurfacePoolID_INVALID") )
     __debugbreak();
-  _RDI = &s_R_RT_Tracking.m_surfacePools[m_surfacePoolID];
-  if ( (unsigned int)m_surfaceRecordIndex >= _RDI->m_recordCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1278, ASSERT_TYPE_ASSERT, "(surfaceRecordIndex < surfaceRecordCount)", (const char *)&queryFormat, "surfaceRecordIndex < surfaceRecordCount") )
+  v7 = &s_R_RT_Tracking.m_surfacePools[m_surfacePoolID];
+  if ( (unsigned int)m_surfaceRecordIndex >= v7->m_recordCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1278, ASSERT_TYPE_ASSERT, "(surfaceRecordIndex < surfaceRecordCount)", (const char *)&queryFormat, "surfaceRecordIndex < surfaceRecordCount") )
     __debugbreak();
-  _R13 = 24 * m_surfaceRecordIndex;
-  if ( _RDI->m_records[m_surfaceRecordIndex].m_surfaceID != surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1280, ASSERT_TYPE_ASSERT, "(surfaceRecord->m_surfaceID == surfaceID)", (const char *)&queryFormat, "surfaceRecord->m_surfaceID == surfaceID") )
+  v8 = m_surfaceRecordIndex;
+  if ( v7->m_records[m_surfaceRecordIndex].m_surfaceID != surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1280, ASSERT_TYPE_ASSERT, "(surfaceRecord->m_surfaceID == surfaceID)", (const char *)&queryFormat, "surfaceRecord->m_surfaceID == surfaceID") )
     __debugbreak();
   surfaceInfo->m_surfacePoolID = R_RT_Tracking_SurfacePoolID_INVALID;
   surfaceInfo->m_surfaceRecordIndex = 0;
-  m_recordCount = _RDI->m_recordCount;
-  if ( (unsigned int)m_surfaceRecordIndex >= _RDI->m_recordCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 240, ASSERT_TYPE_ASSERT, "(surfaceRecordIndex < oldSurfaceRecordCount)", (const char *)&queryFormat, "surfaceRecordIndex < oldSurfaceRecordCount") )
+  m_recordCount = v7->m_recordCount;
+  if ( (unsigned int)m_surfaceRecordIndex >= v7->m_recordCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 240, ASSERT_TYPE_ASSERT, "(surfaceRecordIndex < oldSurfaceRecordCount)", (const char *)&queryFormat, "surfaceRecordIndex < oldSurfaceRecordCount") )
     __debugbreak();
   v10 = m_recordCount - 1;
-  _RBX = &_RDI->m_records[v10];
+  v11 = &v7->m_records[v10];
   if ( (_DWORD)m_surfaceRecordIndex != (_DWORD)v10 )
   {
-    v12 = R_RT_WritableSurfaceIDToIndex(_RDI->m_records[v10].m_surfaceID);
+    v12 = R_RT_WritableSurfaceIDToIndex(v7->m_records[v10].m_surfaceID);
     v13 = g_R_RT_ManagerSurfaceAllocator;
     v14 = v12;
     if ( v12 >= 0x1000ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 51, ASSERT_TYPE_ASSERT, "(index < blockCount)", (const char *)&queryFormat, "index < blockCount") )
@@ -3144,18 +2908,13 @@ void R_RT_Tracking_RemoveSurfaceRecord(R_RT_Tracking_SurfaceInfo *surfaceInfo, u
     if ( v13->blocks[v15].m_tracking.m_surfaceRecordIndex != (_DWORD)v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 247, ASSERT_TYPE_ASSERT, "(lastSurface->m_tracking.m_surfaceRecordIndex == lastSurfaceRecordIndex)", (const char *)&queryFormat, "lastSurface->m_tracking.m_surfaceRecordIndex == lastSurfaceRecordIndex") )
       __debugbreak();
     v13->blocks[v15].m_tracking.m_surfaceRecordIndex = m_surfaceRecordIndex;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rdi+r13+8], xmm0
-      vmovsd  xmm1, qword ptr [rbx+10h]
-      vmovsd  qword ptr [rdi+r13+18h], xmm1
-    }
+    *(_OWORD *)&v7->m_records[v8].m_name = *(_OWORD *)&v11->m_name;
+    *(double *)&v7->m_records[v8].m_surfaceID = *(double *)&v7->m_records[v10].m_surfaceID;
   }
-  _RBX->m_name = NULL;
-  _RDI->m_records[v10].m_mem = NULL;
-  _RDI->m_records[v10].m_surfaceID = 0;
-  _RDI->m_recordCount = v10;
+  v11->m_name = NULL;
+  v7->m_records[v10].m_mem = NULL;
+  v7->m_records[v10].m_surfaceID = 0;
+  v7->m_recordCount = v10;
 }
 
 /*
@@ -3313,6 +3072,7 @@ void R_RT_Tracking_SurfaceRefIncrement(const R_RT_Surface *surface, int colorRtI
   unsigned int v6; 
   unsigned int v7; 
   unsigned int m_refRecordCount; 
+  R_RT_Tracking_SurfaceRefRecord *m_refRecords; 
   unsigned int v10; 
   char v11; 
   __int64 v12; 
@@ -3322,8 +3082,8 @@ void R_RT_Tracking_SurfaceRefIncrement(const R_RT_Surface *surface, int colorRtI
   unsigned int v16; 
   unsigned int v17; 
   char *fmt; 
-  int v21; 
-  __int128 v22; 
+  int v19; 
+  R_RT_Tracking_SurfaceRefRecord v20; 
 
   v4 = colorRtIndex;
   Sys_CheckAcquireLock(&s_R_RT_Tracking.m_surfaceRefLock);
@@ -3331,8 +3091,8 @@ void R_RT_Tracking_SurfaceRefIncrement(const R_RT_Surface *surface, int colorRtI
   s_R_RT_Tracking.m_surfaceRefLock.writeThreadId = Sys_GetCurrentThreadId();
   if ( !s_R_RT_Tracking.m_surfaceRefLock.writeThreadId )
   {
-    v21 = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v21, 0i64) )
+    v19 = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v19, 0i64) )
       __debugbreak();
   }
   if ( surface->m_tracking.m_refRecordCount > 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_tracking_impl.h", 1400, ASSERT_TYPE_ASSERT, "(surfaceInfo->m_refRecordCount <= ( sizeof( *array_counter( surfaceInfo->m_refRecords ) ) + 0 ))", (const char *)&queryFormat, "surfaceInfo->m_refRecordCount <= ARRAY_COUNT( surfaceInfo->m_refRecords )") )
@@ -3348,25 +3108,25 @@ void R_RT_Tracking_SurfaceRefIncrement(const R_RT_Surface *surface, int colorRtI
   truncate_store<unsigned char,unsigned int>(&surface->m_tracking.m_refCount, v7);
   if ( location )
   {
-    DWORD1(v22) = 0;
+    *(_DWORD *)(&v20.m_useCount + 1) = 0;
     if ( (unsigned int)(v4 + 128) > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "char __cdecl truncate_cast_impl<char,int>(int)", "signed", (char)v4, "signed", v4) )
       __debugbreak();
     m_refRecordCount = surface->m_tracking.m_refRecordCount;
-    _R9 = surface->m_tracking.m_refRecords;
+    m_refRecords = surface->m_tracking.m_refRecords;
     v10 = 0;
-    LOWORD(v22) = (unsigned __int8)v4;
-    WORD1(v22) = 1;
-    *((_QWORD *)&v22 + 1) = location;
+    *(_WORD *)&v20.m_colorRtIndex = (unsigned __int8)v4;
+    v20.m_useCount = 1;
+    v20.m_location = location;
     if ( surface->m_tracking.m_refRecordCount )
     {
       do
       {
         v11 = -1;
         v12 = v10;
-        if ( (unsigned int)_R9[v10].m_lastUsed + 1 < 0xFF )
-          v11 = _R9[v10].m_lastUsed + 1;
+        if ( (unsigned int)m_refRecords[v10].m_lastUsed + 1 < 0xFF )
+          v11 = m_refRecords[v10].m_lastUsed + 1;
         ++v10;
-        _R9[v12].m_lastUsed = v11;
+        m_refRecords[v12].m_lastUsed = v11;
       }
       while ( v10 != m_refRecordCount );
     }
@@ -3375,7 +3135,7 @@ void R_RT_Tracking_SurfaceRefIncrement(const R_RT_Surface *surface, int colorRtI
     {
       while ( 1 )
       {
-        v14 = &_R9[v13];
+        v14 = &m_refRecords[v13];
         if ( v14->m_location == location && v14->m_colorRtIndex == (_BYTE)v4 )
           break;
         if ( ++v13 == m_refRecordCount )
@@ -3394,7 +3154,7 @@ LABEL_21:
         do
         {
           v17 = v6;
-          if ( _R9[v6].m_lastUsed <= _R9[v15].m_lastUsed )
+          if ( m_refRecords[v6].m_lastUsed <= m_refRecords[v15].m_lastUsed )
             v17 = v15;
           ++v6;
           v15 = v17;
@@ -3405,9 +3165,7 @@ LABEL_21:
       {
         v15 = m_refRecordCount++;
       }
-      __asm { vmovups xmm0, [rsp+88h+var_38] }
-      _RAX = 2i64 * v15;
-      __asm { vmovups xmmword ptr [r9+rax*8], xmm0 }
+      m_refRecords[v15] = v20;
     }
     truncate_store<unsigned char,unsigned int>(&surface->m_tracking.m_refRecordCount, m_refRecordCount);
   }

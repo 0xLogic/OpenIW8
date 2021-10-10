@@ -2733,66 +2733,36 @@ void Sys_InitCmdEvents(void)
 Sys_InitMainThread
 ==============
 */
-void Sys_InitMainThread()
+void Sys_InitMainThread(void)
 {
-  __int64 v11; 
+  __int64 v0; 
   HANDLE CurrentProcess; 
   HANDLE CurrentThread; 
-  void *v14; 
-  char v29; 
-  void *retaddr; 
-  int v31; 
-  int v32; 
+  void *v3; 
+  int v4; 
+  int v5; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0E8h+var_88], xmm13
-    vmovaps [rsp+0E8h+var_98], xmm14
-    vmovaps [rsp+0E8h+var_A8], xmm15
-  }
   threadId[0] = Sys_GetCurrentThreadId();
-  v11 = 8i64 * tls_index;
-  *(_DWORD *)(*(_QWORD *)((char *)NtCurrentTeb()->Reserved1[11] + v11) + 1000i64) = 0;
+  v0 = 8i64 * tls_index;
+  *(_DWORD *)(*(_QWORD *)((char *)NtCurrentTeb()->Reserved1[11] + v0) + 1000i64) = 0;
   CurrentProcess = GetCurrentProcess();
   CurrentThread = GetCurrentThread();
   DuplicateHandle(CurrentProcess, CurrentThread, CurrentProcess, threadHandle, 0, 0, 2u);
-  v14 = threadHandle[0];
+  v3 = threadHandle[0];
   SetThreadAffinityMask(threadHandle[0], 1ui64);
-  Sys_MarkAffinitySetBool(v14);
-  Sys_MarkAffinitySetBool(v14);
+  Sys_MarkAffinitySetBool(v3);
+  Sys_MarkAffinitySetBool(v3);
   Sys_SetThreadName(threadHandle[0], s_threadNames[0]);
   __asm { vstmxcsr [rsp+0E8h+arg_0] }
-  v31 |= 0x40u;
+  v4 |= 0x40u;
   __asm
   {
     vldmxcsr [rsp+0E8h+arg_0]
     vstmxcsr [rsp+0E8h+arg_0]
   }
-  v32 |= 0x8000u;
+  v5 |= 0x8000u;
   __asm { vldmxcsr [rsp+0E8h+arg_0] }
-  *(_QWORD *)(*(_QWORD *)((char *)NtCurrentTeb()->Reserved1[11] + v11) + 1016i64) = g_threadValues;
-  __asm { vmovaps xmm14, [rsp+0E8h+var_98] }
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0E8h+var_A8]
-  }
+  *(_QWORD *)(*(_QWORD *)((char *)NtCurrentTeb()->Reserved1[11] + v0) + 1016i64) = g_threadValues;
   Com_InitThreadData(THREAD_CONTEXT_MAIN);
 }
 
@@ -4681,72 +4651,38 @@ Sys_ThreadMain
 */
 __int64 Sys_ThreadMain(void *parameter)
 {
-  _QWORD *v12; 
-  signed int v13; 
-  __int64 v14; 
-  __int64 result; 
-  int v27; 
-  int v28; 
-  char v32; 
-  void *retaddr; 
-  int v34; 
-  int v35; 
+  signed int v1; 
+  __int64 v2; 
+  int v4; 
+  int v5; 
+  int v6; 
+  int v7; 
 
-  _RAX = &retaddr;
-  v12 = NtCurrentTeb()->Reserved1[11];
-  v13 = (int)parameter;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0E8h+var_88], xmm13
-    vmovaps [rsp+0E8h+var_98], xmm14
-    vmovaps [rsp+0E8h+var_A8], xmm15
-  }
-  *(_DWORD *)(v12[tls_index] + 1000i64) = (_DWORD)parameter;
+  v1 = (int)parameter;
+  *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1000i64) = (_DWORD)parameter;
   if ( (unsigned int)parameter >= 0x1C )
   {
-    v28 = 28;
-    v27 = (int)parameter;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads.cpp", 1877, ASSERT_TYPE_ASSERT, "(unsigned)( threadContext ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadContext doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    v5 = 28;
+    v4 = (int)parameter;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads.cpp", 1877, ASSERT_TYPE_ASSERT, "(unsigned)( threadContext ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadContext doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v4, v5) )
       __debugbreak();
   }
-  v14 = v13;
-  if ( !threadFunc[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads.cpp", 1878, ASSERT_TYPE_ASSERT, "(threadFunc[threadContext])", (const char *)&queryFormat, "threadFunc[threadContext]") )
+  v2 = v1;
+  if ( !threadFunc[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads.cpp", 1878, ASSERT_TYPE_ASSERT, "(threadFunc[threadContext])", (const char *)&queryFormat, "threadFunc[threadContext]") )
     __debugbreak();
-  Sys_SetThreadName(threadHandle[v14], s_threadNames[v14]);
+  Sys_SetThreadName(threadHandle[v2], s_threadNames[v2]);
   __asm { vstmxcsr [rsp+0E8h+arg_0] }
-  v34 |= 0x40u;
+  v6 |= 0x40u;
   __asm
   {
     vldmxcsr [rsp+0E8h+arg_0]
     vstmxcsr [rsp+0E8h+arg_0]
   }
-  v35 |= 0x8000u;
+  v7 |= 0x8000u;
   __asm { vldmxcsr [rsp+0E8h+arg_0] }
-  Sys_InitThread((ThreadContext)v13);
-  threadFunc[v13](v13);
-  __asm { vmovaps xmm14, [rsp+0E8h+var_98] }
-  _R11 = &v32;
-  result = 0i64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0E8h+var_A8]
-  }
-  return result;
+  Sys_InitThread((ThreadContext)v1);
+  threadFunc[v1](v1);
+  return 0i64;
 }
 
 /*

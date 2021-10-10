@@ -136,56 +136,52 @@ ScriptableSv_GetAbsBoundsCallback
 void ScriptableSv_GetAbsBoundsCallback(const ScriptableContext context, const unsigned int scriptableIndex, Bounds *bounds)
 {
   ScriptableInstanceContext *InstanceCommonContext; 
+  const XModel *ScriptableModel; 
   const gentity_s *Entity; 
   DObj *ServerDObjForEnt; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t out; 
   vec4_t quat; 
 
-  _RBX = bounds;
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 617, ASSERT_TYPE_ASSERT, "( bounds )", (const char *)&queryFormat, "bounds") )
     __debugbreak();
   InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-  _RSI = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
-  if ( !_RSI )
+  ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
+  if ( !ScriptableModel )
   {
     Entity = ScriptableSv_GetEntity(scriptableIndex);
     ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
     if ( ServerDObjForEnt )
     {
       if ( ServerDObjForEnt->numModels )
-        _RSI = *ServerDObjForEnt->models;
+        ScriptableModel = *ServerDObjForEnt->models;
     }
   }
-  if ( _RSI )
+  if ( ScriptableModel )
   {
     AnglesToQuat(&InstanceCommonContext->angles, &quat);
-    QuatTransform(&quat, &_RSI->bounds.midPoint, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+out]
-      vaddss  xmm1, xmm0, dword ptr [rdi+20h]
-      vmovss  xmm2, dword ptr [rsp+78h+out+4]
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdi+24h]
-      vmovss  xmm1, dword ptr [rsp+78h+out+8]
-      vmovss  dword ptr [rbx+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rdi+28h]
-      vmovss  dword ptr [rbx+8], xmm2
-    }
-    _RBX->halfSize.v[0] = _RSI->bounds.halfSize.v[0];
-    _RBX->halfSize.v[1] = _RSI->bounds.halfSize.v[1];
-    __asm { vmovss  xmm0, dword ptr [rsi+40h] }
+    QuatTransform(&quat, &ScriptableModel->bounds.midPoint, &out);
+    v9 = out.v[1];
+    bounds->midPoint.v[0] = out.v[0] + InstanceCommonContext->origin.v[0];
+    v10 = out.v[2];
+    bounds->midPoint.v[1] = v9 + InstanceCommonContext->origin.v[1];
+    bounds->midPoint.v[2] = v10 + InstanceCommonContext->origin.v[2];
+    bounds->halfSize.v[0] = ScriptableModel->bounds.halfSize.v[0];
+    bounds->halfSize.v[1] = ScriptableModel->bounds.halfSize.v[1];
+    v11 = ScriptableModel->bounds.halfSize.v[2];
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    _RBX->midPoint.v[0] = InstanceCommonContext->origin.v[0];
-    _RBX->midPoint.v[1] = InstanceCommonContext->origin.v[1];
-    _RBX->midPoint.v[2] = InstanceCommonContext->origin.v[2];
-    _RBX->halfSize.v[0] = 1.0;
-    _RBX->halfSize.v[1] = 1.0;
+    v11 = FLOAT_1_0;
+    bounds->midPoint.v[0] = InstanceCommonContext->origin.v[0];
+    bounds->midPoint.v[1] = InstanceCommonContext->origin.v[1];
+    bounds->midPoint.v[2] = InstanceCommonContext->origin.v[2];
+    bounds->halfSize.v[0] = 1.0;
+    bounds->halfSize.v[1] = 1.0;
   }
-  __asm { vmovss  dword ptr [rbx+14h], xmm0 }
+  bounds->halfSize.v[2] = v11;
 }
 
 /*
@@ -195,45 +191,50 @@ ScriptableSv_RadiusDamageCallback
 */
 void ScriptableSv_RadiusDamageCallback(const ScriptableContext context, const unsigned int scriptableIndex, const unsigned int inflictorEntNum, const unsigned int attackerEntNum, const vec3_t *startPos, const vec3_t *hitPos, const int mod, const Weapon *weapon, const int isAlternate, const int damagePoints, const float explosionOuterDamage, const float explosionInnerDamage, const float explosionRadius)
 {
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
+  gentity_s *v16; 
   gentity_s *v17; 
-  gentity_s *v18; 
   unsigned int runtimeInstanceCount; 
   entityType_s eType; 
   const ScriptableDef *def; 
-  const ScriptableDef *v22; 
-  __int64 v37; 
-  __int64 v38; 
+  const ScriptableDef *v21; 
+  float v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  __int128 v26; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
   unsigned int scriptableIndexa[4]; 
   ScriptableDamageEvent damageEvent; 
 
-  _R13 = weapon;
-  v15 = attackerEntNum;
-  v16 = inflictorEntNum;
+  v14 = attackerEntNum;
+  v15 = inflictorEntNum;
   if ( inflictorEntNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 655, ASSERT_TYPE_ASSERT, "(unsigned)( inflictorEntNum ) < (unsigned)( ( 2048 ) )", "inflictorEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", inflictorEntNum, 2048) )
     __debugbreak();
-  if ( (unsigned int)v15 >= 0x800 )
+  if ( (unsigned int)v14 >= 0x800 )
   {
-    LODWORD(v38) = 2048;
-    LODWORD(v37) = v15;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 656, ASSERT_TYPE_ASSERT, "(unsigned)( attackerEntNum ) < (unsigned)( ( 2048 ) )", "attackerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v37, v38) )
+    LODWORD(v29) = 2048;
+    LODWORD(v28) = v14;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 656, ASSERT_TYPE_ASSERT, "(unsigned)( attackerEntNum ) < (unsigned)( ( 2048 ) )", "attackerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, v29) )
       __debugbreak();
   }
-  v17 = &g_entities[v16];
-  v18 = &g_entities[v15];
-  if ( ScriptableSv_GetScriptableIndexForEntity(v17) == -1 )
+  v16 = &g_entities[v15];
+  v17 = &g_entities[v14];
+  if ( ScriptableSv_GetScriptableIndexForEntity(v16) == -1 )
     goto LABEL_27;
   ScriptableCommon_AssertCountsInitialized();
   runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
-  if ( ScriptableSv_GetScriptableIndexForEntity(v17) < runtimeInstanceCount )
+  if ( ScriptableSv_GetScriptableIndexForEntity(v16) < runtimeInstanceCount )
     goto LABEL_27;
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = v17->s.eType;
+  eType = v16->s.eType;
   if ( ((eType - 1) & 0xFFED) == 0 && eType != ET_ITEM )
     goto LABEL_27;
-  if ( !ScriptableSv_TryGetIndexForEntity(v17, scriptableIndexa) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 666, ASSERT_TYPE_ASSERT, "(ScriptableSv_TryGetIndexForEntity( inflictor, &inflictorScriptableIndex ))", (const char *)&queryFormat, "ScriptableSv_TryGetIndexForEntity( inflictor, &inflictorScriptableIndex )") )
+  if ( !ScriptableSv_TryGetIndexForEntity(v16, scriptableIndexa) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 666, ASSERT_TYPE_ASSERT, "(ScriptableSv_TryGetIndexForEntity( inflictor, &inflictorScriptableIndex ))", (const char *)&queryFormat, "ScriptableSv_TryGetIndexForEntity( inflictor, &inflictorScriptableIndex )") )
     __debugbreak();
   def = ScriptableSv_GetInstanceCommonContext(scriptableIndexa[0])->def;
   if ( !def )
@@ -245,73 +246,46 @@ void ScriptableSv_RadiusDamageCallback(const ScriptableContext context, const un
   }
   if ( (def->flags & 0x1000) != 0 )
     goto LABEL_27;
-  v22 = ScriptableSv_GetInstanceCommonContext(scriptableIndex)->def;
-  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 678, ASSERT_TYPE_ASSERT, "( def )", (const char *)&queryFormat, "def") )
+  v21 = ScriptableSv_GetInstanceCommonContext(scriptableIndex)->def;
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 678, ASSERT_TYPE_ASSERT, "( def )", (const char *)&queryFormat, "def") )
     __debugbreak();
-  if ( (v22->flags & 0x400) == 0 )
+  if ( (v21->flags & 0x400) == 0 )
   {
 LABEL_27:
     damageEvent.context = SBL_CONTEXT_SERVER;
     damageEvent.callbacks = ScriptableSv_GetCallbackTable();
     damageEvent.def = ScriptableSv_GetInstanceCommonContext(scriptableIndex)->def;
     damageEvent.scriptableIndex = scriptableIndex;
-    damageEvent.inflictorEntNum = v16;
-    ScriptableSv_TryGetIndexForEntity(v17, &damageEvent.inflictorScriptableIndex);
-    _RAX = startPos;
-    damageEvent.inflictorEntState = &v17->s;
-    damageEvent.attackerEntNum = v15;
-    damageEvent.attackerEntState = &v18->s;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  dword ptr [rbp+40h+damageEvent.start], xmm0
-      vmovss  xmm0, dword ptr [rax+8]
-    }
-    _RAX = hitPos;
-    __asm
-    {
-      vmovss  dword ptr [rbp+40h+damageEvent.start+8], xmm0
-      vmovss  dword ptr [rbp+40h+damageEvent.start+4], xmm1
-    }
+    damageEvent.inflictorEntNum = v15;
+    ScriptableSv_TryGetIndexForEntity(v16, &damageEvent.inflictorScriptableIndex);
+    damageEvent.inflictorEntState = &v16->s;
+    damageEvent.attackerEntNum = v14;
+    damageEvent.attackerEntState = &v17->s;
+    v22 = startPos->v[1];
+    damageEvent.start.v[0] = startPos->v[0];
+    damageEvent.start.v[2] = startPos->v[2];
+    damageEvent.start.v[1] = v22;
     damageEvent.partName = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+4]
-      vmovss  xmm1, dword ptr [rax]
-      vmovss  dword ptr [rbp+40h+damageEvent.end+4], xmm0
-      vmovups ymm0, ymmword ptr [r13+0]
-      vmovups ymmword ptr [rbp+40h+damageEvent.weapon.weaponIdx], ymm0
-      vmovsd  xmm0, qword ptr [r13+30h]
-      vmovss  dword ptr [rbp+40h+damageEvent.end], xmm1
-      vmovss  xmm1, dword ptr [rax+8]
-    }
+    v23 = hitPos->v[0];
+    damageEvent.end.v[1] = hitPos->v[1];
+    *(__m256i *)&damageEvent.weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+    v24 = *(double *)&weapon->attachmentVariationIndices[21];
+    damageEvent.end.v[0] = v23;
+    v25 = hitPos->v[2];
     damageEvent.mod = mod;
-    __asm
-    {
-      vmovsd  qword ptr [rbp+40h+damageEvent.weapon.attachmentVariationIndices+15h], xmm0
-      vmovss  xmm0, [rbp+40h+explosionOuterDamage]
-      vmovss  dword ptr [rbp+40h+damageEvent.end+8], xmm1
-      vmovups xmm1, xmmword ptr [r13+20h]
-    }
+    *(double *)&damageEvent.weapon.attachmentVariationIndices[21] = v24;
+    damageEvent.end.v[2] = v25;
+    v26 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
     damageEvent.damage = damagePoints;
-    LODWORD(_RAX) = *(_DWORD *)&weapon->weaponCamo;
-    __asm
-    {
-      vmovss  [rbp+40h+damageEvent.explosionOuterDamage], xmm0
-      vmovss  xmm0, [rbp+40h+explosionRadius]
-      vmovups xmmword ptr [rbp+40h+damageEvent.weapon.attachmentVariationIndices+5], xmm1
-      vmovss  xmm1, [rbp+40h+explosionInnerDamage]
-    }
-    *(_DWORD *)&damageEvent.weapon.weaponCamo = (_DWORD)_RAX;
-    __asm
-    {
-      vmovss  [rbp+40h+damageEvent.explosionRadius], xmm0
-      vmovss  [rbp+40h+damageEvent.explosionInnerDamage], xmm1
-    }
+    v27 = *(_DWORD *)&weapon->weaponCamo;
+    damageEvent.explosionOuterDamage = explosionOuterDamage;
+    *(_OWORD *)&damageEvent.weapon.attachmentVariationIndices[5] = v26;
+    *(_DWORD *)&damageEvent.weapon.weaponCamo = v27;
+    damageEvent.explosionRadius = explosionRadius;
+    damageEvent.explosionInnerDamage = explosionInnerDamage;
     *(_QWORD *)&damageEvent.dFlags = 5i64;
     damageEvent.isAlternate = isAlternate;
-    ScriptableSv_UpdateDamageOwner(scriptableIndex, v18);
+    ScriptableSv_UpdateDamageOwner(scriptableIndex, v17);
     ScriptableBg_ProcessDamageEvent(&damageEvent);
   }
 }
@@ -323,55 +297,42 @@ ScriptableSv_AreaScriptables
 */
 __int64 ScriptableSv_AreaScriptables(const ScriptableContext context, const Bounds *bounds, unsigned int *objectIdList, ScriptableLinkType *typeList, vec3_t *closestPoints, unsigned int maxcount)
 {
-  const Bounds *v10; 
   hknpShape *ShapeSphere; 
   HavokPhysics_CollisionQueryResult *CollisionQueryResult; 
-  unsigned int v15; 
+  unsigned int v11; 
   unsigned int i; 
   unsigned int ClosestPointHitBodyId; 
   int Ref; 
   Physics_RefSystem RefSystem; 
   unsigned __int16 RefId; 
-  int v21; 
-  __int64 v22; 
-  unsigned int v23; 
-  const gentity_s *v24; 
-  hkMemoryAllocator *v25; 
-  hkMemoryAllocator *v26; 
-  __int64 result; 
-  float fmt; 
-  HavokPhysics_IgnoreBodies v30; 
+  int v17; 
+  __int64 v18; 
+  unsigned int v19; 
+  const gentity_s *v20; 
+  hkMemoryAllocator *v21; 
+  hkMemoryAllocator *v22; 
+  HavokPhysics_IgnoreBodies v24; 
   Physics_GetClosestPointsExtendedData extendedData; 
-  __int64 v32; 
+  __int64 v26; 
   char optionalInplaceBuffer[432]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v32 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v10 = bounds;
-  __asm { vmovss  xmm1, dword ptr [rdx+0Ch]; radius }
-  ShapeSphere = Physics_CreateShapeSphere(&vec3_origin, *(float *)&_XMM1, optionalInplaceBuffer, 432);
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v30, 0, 0);
-  HavokPhysics_IgnoreBodies::SetIgnoreRefs(&v30, -261);
+  v26 = -2i64;
+  ShapeSphere = Physics_CreateShapeSphere(&vec3_origin, bounds->halfSize.v[0], optionalInplaceBuffer, 432);
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v24, 0, 0);
+  HavokPhysics_IgnoreBodies::SetIgnoreRefs(&v24, -261);
   extendedData.contents = -1;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+2B8h+var_240.collisionBuffer], xmm6
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.nonBrushShape = NULL;
   extendedData.phaseSelection = All;
   extendedData.simplify = 1;
-  extendedData.ignoreBodies = &v30;
+  extendedData.ignoreBodies = &v24;
   CollisionQueryResult = Physics_AllocateCollisionQueryResult(PHYSICS_WORLD_ID_FIRST, PHYSICS_COLLISIONQUERY_COLLECTION_TYPE_ALL);
-  __asm { vmovss  dword ptr [rsp+2B8h+fmt], xmm6 }
-  Physics_GetClosestPoints(PHYSICS_WORLD_ID_FIRST, ShapeSphere, &v10->midPoint, &quat_identity, fmt, &extendedData, CollisionQueryResult);
+  Physics_GetClosestPoints(PHYSICS_WORLD_ID_FIRST, ShapeSphere, &bounds->midPoint, &quat_identity, 0.0, &extendedData, CollisionQueryResult);
   HavokPhysics_CollisionQueryResult::SortResults(CollisionQueryResult);
-  v15 = 0;
+  v11 = 0;
   for ( i = 0; i < HavokPhysics_CollisionQueryResult::GetNumHits(CollisionQueryResult); ++i )
   {
-    if ( v15 >= maxcount )
+    if ( v11 >= maxcount )
       break;
     ClosestPointHitBodyId = HavokPhysics_CollisionQueryResult::GetClosestPointHitBodyId(CollisionQueryResult, i);
     if ( (ClosestPointHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 761, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
@@ -381,44 +342,42 @@ __int64 ScriptableSv_AreaScriptables(const ScriptableContext context, const Boun
     RefId = Physics_GetRefId(Ref);
     if ( RefSystem == Physics_RefSystem_GEntities )
     {
-      v23 = RefId;
-      v24 = &g_entities[RefId];
-      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 777, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+      v19 = RefId;
+      v20 = &g_entities[RefId];
+      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 777, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
         __debugbreak();
-      if ( ScriptableSv_GetScriptableIndexForEntity(v24) == -1 )
+      if ( ScriptableSv_GetScriptableIndexForEntity(v20) == -1 )
         continue;
-      v22 = v15;
-      typeList[v15] = SCRIPTABLE_LINK_ENTITY;
-      objectIdList[v15] = v23;
+      v18 = v11;
+      typeList[v11] = SCRIPTABLE_LINK_ENTITY;
+      objectIdList[v11] = v19;
     }
     else
     {
       if ( RefSystem != Physics_RefSystem_Scriptable )
         continue;
-      v21 = Ref & 0x3FFFFF;
-      if ( ScriptableSv_GetInstanceCommonContext(v21)->linkedObjectType )
+      v17 = Ref & 0x3FFFFF;
+      if ( ScriptableSv_GetInstanceCommonContext(v17)->linkedObjectType )
         continue;
-      v22 = v15;
-      typeList[v15] = SCRIPTABLE_LINK_NONE;
-      objectIdList[v15] = v21;
+      v18 = v11;
+      typeList[v11] = SCRIPTABLE_LINK_NONE;
+      objectIdList[v11] = v17;
     }
-    HavokPhysics_CollisionQueryResult::GetClosestPointHitHitPosition(CollisionQueryResult, i, &closestPoints[v22]);
-    ++v15;
+    HavokPhysics_CollisionQueryResult::GetClosestPointHitHitPosition(CollisionQueryResult, i, &closestPoints[v18]);
+    ++v11;
   }
   Physics_FreeCollisionQueryResult(CollisionQueryResult);
-  v25 = hkMemHeapAllocator();
-  v30.m_ignoreBodies.m_size = 0;
-  if ( v30.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v25, v30.m_ignoreBodies.m_data, 4, v30.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v30.m_ignoreBodies.m_data = NULL;
-  v30.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v26 = hkMemHeapAllocator();
-  v30.m_ignoreEntities.m_size = 0;
-  if ( v30.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v26, v30.m_ignoreEntities.m_data, 8, v30.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  result = v15;
-  __asm { vmovaps xmm6, [rsp+2B8h+var_48] }
-  return result;
+  v21 = hkMemHeapAllocator();
+  v24.m_ignoreBodies.m_size = 0;
+  if ( v24.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v21, v24.m_ignoreBodies.m_data, 4, v24.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v24.m_ignoreBodies.m_data = NULL;
+  v24.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v22 = hkMemHeapAllocator();
+  v24.m_ignoreEntities.m_size = 0;
+  if ( v24.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v22, v24.m_ignoreEntities.m_data, 8, v24.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  return v11;
 }
 
 /*
@@ -431,11 +390,19 @@ void ScriptableSv_Damage(const gentity_s *inflictor, gentity_s *attacker, const 
   const dvar_t *v12; 
   const ScriptableDef *def; 
   unsigned int number; 
+  const vec3_t *v19; 
+  const vec3_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   int DamageForWeapon; 
+  float v25; 
+  __m256i v26; 
+  __int128 v27; 
+  double v28; 
   ScriptableDamageEvent damageEvent; 
 
   v12 = DCONST_DVARBOOL_scriptable_enable;
-  _RDI = weapon;
   if ( !DCONST_DVARBOOL_scriptable_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_enable") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v12);
@@ -457,54 +424,40 @@ void ScriptableSv_Damage(const gentity_s *inflictor, gentity_s *attacker, const 
       damageEvent.scriptableIndex = scriptableIndex;
       damageEvent.inflictorEntNum = number;
       ScriptableSv_TryGetIndexForEntity(inflictor, &damageEvent.inflictorScriptableIndex);
+      v19 = &vec3_origin;
       damageEvent.attackerEntNum = attacker->s.number;
-      _RAX = &vec3_origin;
+      v20 = &vec3_origin;
       damageEvent.inflictorEntState = &inflictor->s;
       if ( hitPos )
-        _RAX = hitPos;
+        v20 = hitPos;
       damageEvent.attackerEntState = &attacker->s;
       damageEvent.mod = mod;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  xmm1, dword ptr [rax+4]
-        vmovss  xmm2, dword ptr [rax+8]
-        vmovss  dword ptr [rbp+37h+damageEvent.end], xmm0
-        vmovss  dword ptr [rbp+37h+damageEvent.end+4], xmm1
-      }
+      v21 = v20->v[0];
+      v22 = v20->v[1];
+      v23 = v20->v[2];
+      damageEvent.end.v[0] = v20->v[0];
+      if ( hitDir )
+        v19 = hitDir;
+      damageEvent.end.v[1] = v22;
       damageEvent.partName = partName;
       DamageForWeapon = providedDmg;
-      __asm
-      {
-        vsubss  xmm0, xmm0, dword ptr [rcx]
-        vsubss  xmm1, xmm1, dword ptr [rcx+4]
-        vmovss  dword ptr [rsp+130h+damageEvent.start], xmm0
-        vsubss  xmm0, xmm2, dword ptr [rcx+8]
-        vmovss  dword ptr [rbp+37h+damageEvent.start+8], xmm0
-        vmovss  dword ptr [rbp+37h+damageEvent.end+8], xmm2
-        vmovss  dword ptr [rbp+37h+damageEvent.start+4], xmm1
-      }
+      v25 = v22 - v19->v[1];
+      damageEvent.start.v[0] = v21 - v19->v[0];
+      damageEvent.start.v[2] = v23 - v19->v[2];
+      damageEvent.end.v[2] = v23;
+      damageEvent.start.v[1] = v25;
       if ( providedDmg <= 0 )
         DamageForWeapon = ScriptableBg_GetDamageForWeapon(weapon, isAlternate, mod);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups xmm1, xmmword ptr [rdi+20h]
-      }
+      v26 = *(__m256i *)&weapon->weaponIdx;
+      v27 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
       damageEvent.damage = DamageForWeapon;
       damageEvent.dFlags = dFlags;
-      __asm
-      {
-        vmovups ymmword ptr [rbp+37h+damageEvent.weapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr [rdi+30h]
-      }
+      *(__m256i *)&damageEvent.weapon.weaponIdx = v26;
+      v28 = *(double *)&weapon->attachmentVariationIndices[21];
       damageEvent.modelIndex = modelIndex;
       *(_DWORD *)&damageEvent.weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
-      __asm
-      {
-        vmovups xmmword ptr [rbp+37h+damageEvent.weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  qword ptr [rbp+37h+damageEvent.weapon.attachmentVariationIndices+15h], xmm0
-      }
+      *(_OWORD *)&damageEvent.weapon.attachmentVariationIndices[5] = v27;
+      *(double *)&damageEvent.weapon.attachmentVariationIndices[21] = v28;
       damageEvent.isAlternate = isAlternate;
       ScriptableSv_UpdateDamageOwner(scriptableIndex, attacker);
       ScriptableBg_ProcessDamageEvent(&damageEvent);
@@ -524,8 +477,9 @@ void ScriptableSv_DamageNotify(ScriptableEventParams *eventParams, const unsigne
   unsigned int v8; 
   __int64 v9; 
   gentity_s *Entity; 
+  const ScriptableDamageEvent *damageEvent; 
   gentity_s *v12; 
-  __int64 v13; 
+  __int64 inflictorEntNum; 
   const gentity_s *v14; 
   const gentity_s *v15; 
   int mod; 
@@ -533,9 +487,10 @@ void ScriptableSv_DamageNotify(ScriptableEventParams *eventParams, const unsigne
   unsigned int modelIndex; 
   scr_string_t partName; 
   bool isAlternate; 
+  vec3_t *InstanceOrigin; 
   vec3_t *point; 
   __int64 damage; 
-  vec3_t v43; 
+  vec3_t end; 
   vec3_t dir; 
   Weapon r_weapon; 
 
@@ -574,92 +529,53 @@ void ScriptableSv_DamageNotify(ScriptableEventParams *eventParams, const unsigne
       if ( ScriptableSv_GetInstanceCommonContext(scriptableIndex)->linkedObjectType == SCRIPTABLE_LINK_ENTITY )
       {
         Entity = ScriptableSv_GetEntity(scriptableIndex);
-        _RDI = (unsigned int *)eventParams->damageEvent;
+        damageEvent = eventParams->damageEvent;
         v12 = Entity;
-        if ( _RDI )
+        if ( damageEvent )
         {
-          if ( _RDI[10] >= 0x800 )
+          if ( damageEvent->attackerEntNum >= 0x800 )
           {
             LODWORD(damage) = 2048;
-            LODWORD(point) = _RDI[10];
+            LODWORD(point) = damageEvent->attackerEntNum;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 281, ASSERT_TYPE_ASSERT, "(unsigned)( damageEvt->attackerEntNum ) < (unsigned)( ( 2048 ) )", "damageEvt->attackerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", point, damage) )
               __debugbreak();
           }
-          v13 = _RDI[6];
-          v14 = &g_entities[_RDI[10]];
-          if ( (unsigned int)v13 > 0x7FE )
+          inflictorEntNum = damageEvent->inflictorEntNum;
+          v14 = &g_entities[damageEvent->attackerEntNum];
+          if ( (unsigned int)inflictorEntNum > 0x7FE )
             v15 = NULL;
           else
-            v15 = &g_entities[v13];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+44h]
-            vmovss  dword ptr [rsp+108h+var_98], xmm0
-            vmovss  xmm1, dword ptr [rdi+48h]
-            vmovss  dword ptr [rsp+108h+var_98+4], xmm1
-            vmovss  xmm0, dword ptr [rdi+4Ch]
-            vmovss  dword ptr [rsp+108h+var_98+8], xmm0
-            vmovss  xmm0, dword ptr [rdi+44h]
-            vsubss  xmm1, xmm0, dword ptr [rdi+38h]
-            vmovss  dword ptr [rsp+108h+dir], xmm1
-            vmovss  xmm2, dword ptr [rdi+48h]
-            vsubss  xmm0, xmm2, dword ptr [rdi+3Ch]
-            vmovss  dword ptr [rsp+108h+dir+4], xmm0
-            vmovss  xmm1, dword ptr [rdi+4Ch]
-            vsubss  xmm2, xmm1, dword ptr [rdi+40h]
-            vmovss  dword ptr [rsp+108h+dir+8], xmm2
-            vmovups ymm0, ymmword ptr [rdi+64h]
-          }
-          mod = _RDI[21];
-          dFlags = _RDI[23];
-          modelIndex = _RDI[24];
-          partName = _RDI[20];
-          __asm
-          {
-            vmovups ymmword ptr [rsp+108h+var_78.weaponIdx], ymm0
-            vmovups xmm1, xmmword ptr [rdi+84h]
-            vmovups xmmword ptr [rsp+108h+var_78.attachmentVariationIndices+5], xmm1
-            vmovsd  xmm0, qword ptr [rdi+94h]
-            vmovsd  qword ptr [rsp+108h+var_78.attachmentVariationIndices+15h], xmm0
-          }
-          *(_DWORD *)&r_weapon.weaponCamo = _RDI[39];
-          isAlternate = _RDI[40] == 1;
+            v15 = &g_entities[inflictorEntNum];
+          end = damageEvent->end;
+          dir.v[0] = damageEvent->end.v[0] - damageEvent->start.v[0];
+          dir.v[1] = damageEvent->end.v[1] - damageEvent->start.v[1];
+          dir.v[2] = damageEvent->end.v[2] - damageEvent->start.v[2];
+          mod = damageEvent->mod;
+          dFlags = damageEvent->dFlags;
+          modelIndex = damageEvent->modelIndex;
+          partName = damageEvent->partName;
+          r_weapon = damageEvent->weapon;
+          isAlternate = damageEvent->isAlternate == 1;
         }
         else
         {
           v14 = Entity;
           v15 = Entity;
-          _RAX = ScriptableSv_GetInstanceOrigin(scriptableIndex);
+          InstanceOrigin = (vec3_t *)ScriptableSv_GetInstanceOrigin(scriptableIndex);
           mod = 0;
           dFlags = 0;
           modelIndex = 0;
           partName = 0;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vmovss  dword ptr [rsp+108h+var_98], xmm0
-            vmovss  xmm1, dword ptr [rax+4]
-            vmovss  dword ptr [rsp+108h+var_98+4], xmm1
-            vmovss  xmm0, dword ptr [rax+8]
-            vxorps  xmm1, xmm1, xmm1
-            vmovss  dword ptr [rsp+108h+var_98+8], xmm0
-            vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-            vmovups ymmword ptr [rsp+108h+var_78.weaponIdx], ymm0
-            vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-            vmovss  dword ptr [rsp+108h+dir], xmm1
-            vmovss  dword ptr [rsp+108h+dir+4], xmm1
-            vmovss  dword ptr [rsp+108h+dir+8], xmm1
-            vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-          }
+          end = *InstanceOrigin;
+          memset(&r_weapon, 0, 48);
+          dir.v[0] = 0.0;
+          dir.v[1] = 0.0;
+          dir.v[2] = 0.0;
           *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
           isAlternate = 0;
-          __asm
-          {
-            vmovsd  qword ptr [rsp+108h+var_78.attachmentVariationIndices+15h], xmm0
-            vmovups xmmword ptr [rsp+108h+var_78.attachmentVariationIndices+5], xmm1
-          }
+          *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
         }
-        G_Combat_DamageNotify(scr_const.damage, v12, v14, v15, &dir, &v43, damageDone, mod, dFlags, modelIndex, partName, &r_weapon, isAlternate, NULL);
+        G_Combat_DamageNotify(scr_const.damage, v12, v14, v15, &dir, &end, damageDone, mod, dFlags, modelIndex, partName, &r_weapon, isAlternate, NULL);
       }
       else
       {
@@ -676,66 +592,98 @@ ScriptableSv_DamagePart
 */
 void ScriptableSv_DamagePart(const ScriptableEventParams *eventParams, const ScriptablePartDef *def, const ScriptablePartDef *parentDef, const ScriptablePartDef *childDef, const unsigned int damageTypeFlags, const unsigned int damage)
 {
-  const ScriptablePartDef *v19; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  const ScriptablePartDef *v14; 
   unsigned int scriptableIndex; 
   ScriptablePartRuntime *PartRuntime; 
   unsigned int stateId; 
-  unsigned int v24; 
-  unsigned int v25; 
-  unsigned int v26; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  __int128 v22; 
+  __int128 v23; 
+  ScriptableStateDef *v24; 
   ScriptableInstanceContext *InstanceCommonContext; 
+  float damagePropagationFromParent; 
   const ScriptableDamageEvent *damageEvent; 
-  bool v35; 
-  int IsSplashDamage; 
+  float v28; 
+  const ScriptableDamageEvent *v29; 
+  float explosionRadius; 
+  float explosionOuterDamage; 
+  float explosionInnerDamage; 
   const gentity_s *Entity; 
   const DObj *ServerDObjForEnt; 
-  ScriptableInstanceContext *v44; 
+  ScriptableInstanceContext *v35; 
   const char *name; 
   scr_string_t scrTagName; 
   const XModel *ScriptableModel; 
-  const char *v48; 
+  const char *v39; 
   const char *tagName; 
-  ScriptableInstanceContext *v50; 
-  const char *v51; 
-  char v52; 
-  char v53; 
-  const char *v54; 
-  ScriptableInstanceContext *v55; 
-  const char *v56; 
-  unsigned int v100; 
-  unsigned int v113; 
-  bool v130; 
+  ScriptableInstanceContext *v41; 
+  const char *v42; 
+  const char *v43; 
+  ScriptableInstanceContext *v44; 
+  const char *v45; 
+  const ScriptableDamageEvent *v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  unsigned int v54; 
+  float v55; 
+  unsigned int v56; 
+  float v57; 
+  __int64 eventStreamBufferOffsetServer; 
+  unsigned __int8 *eventStreamBuffer; 
+  __int128 v60; 
+  __int128 v62; 
+  unsigned int v64; 
+  float v65; 
+  float v66; 
+  unsigned int v67; 
+  __int128 v68; 
+  __int128 v69; 
+  float v70; 
   ScriptablePartDef *parentPart; 
-  unsigned int v133; 
-  ScriptablePartDef *v137; 
-  bool IsDoor; 
+  unsigned int v72; 
+  ScriptablePartDef *v73; 
   unsigned __int8 inOutIndex[8]; 
-  const ScriptablePartDef *v142; 
-  unsigned int v143; 
+  const ScriptablePartDef *v75; 
+  unsigned int v76; 
   unsigned int finalStateIndex; 
   unsigned int victimOwnerEntNum; 
   unsigned int entityNumOut; 
   team_t victimTeam; 
-  team_t teamOut[4]; 
-  unsigned int initialStateIndex_4; 
+  team_t teamOut; 
+  float v82; 
+  float v83; 
+  unsigned int initialStateIndex[2]; 
   ScriptableInstanceContextSecure *instanceContext; 
-  const ScriptablePartDef *v151; 
+  const ScriptablePartDef *v86; 
   int modelIndex; 
   ScriptableEventParams outParams; 
   tmat43_t<vec3_t> outTagMat; 
-  void *retaddr; 
+  __int128 v90; 
+  __int128 v91; 
+  __int128 v92; 
+  __int128 v93; 
+  __int128 v94; 
+  __int128 v95; 
+  __int128 v96; 
 
-  _R11 = &retaddr;
-  v19 = childDef;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-0B8h], xmm13
-    vmovaps xmmword ptr [r11-0C8h], xmm14
-    vmovaps xmmword ptr [r11-0D8h], xmm15
-  }
-  v142 = childDef;
-  v151 = parentDef;
+  v14 = childDef;
+  v93 = v9;
+  v75 = childDef;
+  v86 = parentDef;
   if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 328, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
     __debugbreak();
   scriptableIndex = eventParams->scriptableIndex;
@@ -745,344 +693,211 @@ void ScriptableSv_DamagePart(const ScriptableEventParams *eventParams, const Scr
   if ( !PartRuntime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 336, ASSERT_TYPE_ASSERT, "( partRuntime )", (const char *)&queryFormat, "partRuntime") )
     __debugbreak();
   stateId = PartRuntime->stateId;
-  v24 = 0;
-  v25 = 0;
+  v19 = 0;
+  v20 = 0;
   *(_DWORD *)inOutIndex = 0;
-  v26 = stateId;
-  initialStateIndex_4 = stateId;
-  v143 = damage;
+  v21 = stateId;
+  initialStateIndex[1] = stateId;
+  v76 = damage;
   finalStateIndex = stateId;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3f800000
-    vxorps  xmm15, xmm15, xmm15
-    vxorps  xmm13, xmm13, xmm13
-  }
+  v22 = 0i64;
+  v23 = 0i64;
   if ( damage )
   {
-    __asm
-    {
-      vmovaps [rsp+1B0h+var_48+8], xmm6
-      vmovaps [rsp+1B0h+var_58+8], xmm7
-      vmovaps [rsp+1B0h+var_68+8], xmm8
-      vmovaps [rsp+1B0h+var_88+8], xmm10
-      vmovaps [rsp+1B0h+var_98+8], xmm11
-      vmovaps [rsp+1B0h+var_A8+8], xmm12
-    }
+    v96 = v6;
+    v95 = v7;
+    v94 = v8;
+    v92 = v10;
+    v91 = v11;
+    v90 = v12;
     do
     {
-      if ( v26 >= def->numStates )
+      if ( v21 >= def->numStates )
         break;
-      _RBX = &def->states[v26];
-      if ( SLOBYTE(_RBX->base.flags) >= 0 )
+      v24 = &def->states[v21];
+      if ( SLOBYTE(v24->base.flags) >= 0 )
         break;
-      if ( _RBX->type != Scriptable_StateType_Health && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 351, ASSERT_TYPE_ASSERT, "( stateDef->type == Scriptable_StateType_Health )", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
+      if ( v24->type != Scriptable_StateType_Health && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 351, ASSERT_TYPE_ASSERT, "( stateDef->type == Scriptable_StateType_Health )", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
         __debugbreak();
-      if ( !ScriptableBg_IsValidAttacker(damageTypeFlags, _RBX->data.health.validAttackers) )
+      if ( !ScriptableBg_IsValidAttacker(damageTypeFlags, v24->data.health.validAttackers) )
         break;
-      if ( _RBX->data.health.validAttackerTeams )
+      if ( v24->data.health.validAttackerTeams )
       {
         if ( !eventParams->damageEvent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 360, ASSERT_TYPE_ASSERT, "( eventParams->damageEvent )", (const char *)&queryFormat, "eventParams->damageEvent") )
           __debugbreak();
         if ( ScriptableSv_GetInstanceCommonContext(scriptableIndex)->linkedObjectType != SCRIPTABLE_LINK_ENTITY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 361, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetLinkTypeEquals( scriptableIndex, SCRIPTABLE_LINK_ENTITY ) )", (const char *)&queryFormat, "ScriptableSv_GetLinkTypeEquals( scriptableIndex, SCRIPTABLE_LINK_ENTITY )") )
           __debugbreak();
-        ScriptableSv_GetTeam(eventParams->damageEvent->attackerEntNum, teamOut, &entityNumOut);
+        ScriptableSv_GetTeam(eventParams->damageEvent->attackerEntNum, &teamOut, &entityNumOut);
         InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
         ScriptableSv_GetTeam(InstanceCommonContext->linkedObjectIndex, &victimTeam, &victimOwnerEntNum);
-        if ( !ScriptableBg_IsValidAttackerTeam(_RBX->data.health.validAttackerTeams, teamOut[0], victimTeam, entityNumOut, victimOwnerEntNum) )
+        if ( !ScriptableBg_IsValidAttackerTeam(v24->data.health.validAttackerTeams, teamOut, victimTeam, entityNumOut, victimOwnerEntNum) )
           break;
       }
-      if ( !ScriptableBg_IsValidDamageCause(damageTypeFlags, _RBX->data.health.validDamageCause) || _RBX->data.health.numWeaponClasses && !ScriptableBg_IsValidWeaponClass(eventParams, _RBX) || _RBX->data.health.numWeapons && !ScriptableBg_IsValidWeapon(eventParams, _RBX) )
+      if ( !ScriptableBg_IsValidDamageCause(damageTypeFlags, v24->data.health.validDamageCause) || v24->data.health.numWeaponClasses && !ScriptableBg_IsValidWeaponClass(eventParams, v24) || v24->data.health.numWeapons && !ScriptableBg_IsValidWeapon(eventParams, v24) )
         break;
-      __asm { vmovaps xmm9, xmm14 }
-      if ( v151 )
+      damagePropagationFromParent = FLOAT_1_0;
+      if ( v86 )
       {
-        __asm { vmovss  xmm9, dword ptr [rbx+64h] }
+        damagePropagationFromParent = v24->data.health.damagePropagationFromParent;
       }
-      else if ( v142 )
+      else if ( v75 )
       {
-        __asm { vmovss  xmm9, dword ptr [rbx+68h] }
+        damagePropagationFromParent = v24->data.health.damagePropagationFromChild;
       }
       damageEvent = eventParams->damageEvent;
-      __asm { vmovaps xmm11, xmm14 }
-      v35 = damageEvent == NULL;
-      if ( damageEvent )
+      v28 = FLOAT_1_0;
+      if ( damageEvent && ScriptableBg_IsSplashDamage(damageEvent->mod) && v24->data.health.localizeSplashDamage )
       {
-        IsSplashDamage = ScriptableBg_IsSplashDamage(damageEvent->mod);
-        v35 = IsSplashDamage == 0;
-        if ( IsSplashDamage )
+        v29 = eventParams->damageEvent;
+        explosionRadius = v29->explosionRadius;
+        explosionOuterDamage = v29->explosionOuterDamage;
+        explosionInnerDamage = v29->explosionInnerDamage;
+        Entity = ScriptableSv_GetEntity(scriptableIndex);
+        if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 414, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+          __debugbreak();
+        ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
+        if ( !ServerDObjForEnt )
         {
-          v35 = !_RBX->data.health.localizeSplashDamage;
-          if ( _RBX->data.health.localizeSplashDamage )
+          v35 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+          if ( v35->def )
+            name = v35->def->name;
+          else
+            name = "<Unknown>";
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408EF50, 902i64, name);
+        }
+        scrTagName = def->scrTagName;
+        inOutIndex[4] = -2;
+        if ( DObjGetBoneIndexInternal_26(ServerDObjForEnt, scrTagName, &inOutIndex[4], &modelIndex) )
+        {
+          G_Utils_DObjGetWorldBoneIndexMatrix(Entity, inOutIndex[4], &outTagMat);
+          v82 = outTagMat.m[3].v[0];
+          v83 = outTagMat.m[3].v[1];
+          initialStateIndex[0] = LODWORD(outTagMat.m[3].v[2]);
+        }
+        else
+        {
+          ScriptableModel = BG_XCompositeModel_GetScriptableModel(instanceContext);
+          if ( ScriptableModel )
           {
-            _RAX = eventParams->damageEvent;
-            __asm
-            {
-              vmovss  xmm7, dword ptr [rax+0ACh]
-              vmovss  xmm10, dword ptr [rax+0A4h]
-              vmovss  xmm12, dword ptr [rax+0A8h]
-              vmulss  xmm8, xmm7, xmm7
-            }
-            Entity = ScriptableSv_GetEntity(scriptableIndex);
-            if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 414, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
-              __debugbreak();
-            ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
-            if ( !ServerDObjForEnt )
-            {
-              v44 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-              if ( v44->def )
-                name = v44->def->name;
-              else
-                name = "<Unknown>";
-              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408EF50, 902i64, name);
-            }
-            scrTagName = def->scrTagName;
-            inOutIndex[4] = -2;
-            if ( DObjGetBoneIndexInternal_26(ServerDObjForEnt, scrTagName, &inOutIndex[4], &modelIndex) )
-            {
-              G_Utils_DObjGetWorldBoneIndexMatrix(Entity, inOutIndex[4], &outTagMat);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+0B0h+outTagMat+24h]
-                vmovss  [rsp+1B0h+var_158], xmm0
-                vmovss  xmm0, dword ptr [rbp+0B0h+outTagMat+28h]
-                vmovss  [rsp+1B0h+var_154], xmm0
-                vmovss  xmm0, dword ptr [rbp+0B0h+outTagMat+2Ch]
-                vmovss  [rsp+1B0h+initialStateIndex], xmm0
-              }
-            }
+            v39 = ScriptableModel->name;
+            tagName = def->tagName;
+            v41 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+            if ( v41->def )
+              v42 = v41->def->name;
             else
-            {
-              ScriptableModel = BG_XCompositeModel_GetScriptableModel(instanceContext);
-              if ( ScriptableModel )
-              {
-                v48 = ScriptableModel->name;
-                tagName = def->tagName;
-                v50 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-                if ( v50->def )
-                  v51 = v50->def->name;
-                else
-                  v51 = "<Unknown>";
-                Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408EFC0, 903i64, v51, tagName, v48);
-              }
-              else
-              {
-                v54 = def->tagName;
-                v55 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-                if ( v55->def )
-                  v56 = v55->def->name;
-                else
-                  v56 = "<Unknown>";
-                Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408F020, 904i64, v56, v54);
-              }
-            }
-            _RAX = eventParams->damageEvent;
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rax+3Ch]
-              vsubss  xmm0, xmm5, [rsp+1B0h+var_154]
-              vmovss  xmm4, dword ptr [rax+38h]
-              vsubss  xmm2, xmm4, [rsp+1B0h+var_158]
-              vmovss  xmm6, dword ptr [rax+40h]
-              vsubss  xmm3, xmm6, [rsp+1B0h+initialStateIndex]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vcomiss xmm3, xmm8
-            }
-            if ( !(v52 | v53) )
-              break;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+44h]
-              vmovss  xmm1, dword ptr [rax+48h]
-            }
-            v26 = finalStateIndex;
-            __asm
-            {
-              vsubss  xmm4, xmm0, xmm4
-              vmovss  xmm0, dword ptr [rax+4Ch]
-              vsubss  xmm6, xmm0, xmm6
-              vsqrtss xmm0, xmm3, xmm3
-              vsubss  xmm5, xmm1, xmm5
-              vdivss  xmm7, xmm14, xmm7
-              vmulss  xmm1, xmm0, xmm7
-              vsubss  xmm1, xmm14, xmm1
-              vsubss  xmm8, xmm12, xmm10
-              vmulss  xmm0, xmm1, xmm8
-              vaddss  xmm2, xmm0, xmm10
-              vcvttss2si ecx, xmm2
-            }
-            v35 = _ECX == 0;
-            if ( _ECX )
-            {
-              __asm
-              {
-                vmulss  xmm1, xmm5, xmm5
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm6, xmm6
-                vaddss  xmm2, xmm2, xmm1
-                vsqrtss xmm0, xmm2, xmm2
-                vmulss  xmm3, xmm0, xmm7
-                vsubss  xmm1, xmm14, xmm3
-                vmulss  xmm0, xmm1, xmm8
-                vaddss  xmm2, xmm0, xmm10
-                vcvttss2si eax, xmm2
-                vmovd   xmm1, eax
-                vmovd   xmm0, ecx
-                vcvtdq2ps xmm1, xmm1
-                vcvtdq2ps xmm0, xmm0
-                vdivss  xmm11, xmm1, xmm0
-              }
-            }
+              v42 = "<Unknown>";
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408EFC0, 903i64, v42, tagName, v39);
+          }
+          else
+          {
+            v43 = def->tagName;
+            v44 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+            if ( v44->def )
+              v45 = v44->def->name;
+            else
+              v45 = "<Unknown>";
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408F020, 904i64, v45, v43);
           }
         }
+        v46 = eventParams->damageEvent;
+        v47 = v46->start.v[1];
+        v48 = v46->start.v[0];
+        v49 = v46->start.v[2];
+        v50 = (float)((float)((float)(v47 - v83) * (float)(v47 - v83)) + (float)((float)(v48 - v82) * (float)(v48 - v82))) + (float)((float)(v49 - *(float *)initialStateIndex) * (float)(v49 - *(float *)initialStateIndex));
+        if ( v50 > (float)(explosionRadius * explosionRadius) )
+          break;
+        v21 = finalStateIndex;
+        v51 = v46->end.v[0] - v48;
+        v52 = v46->end.v[2] - v49;
+        v53 = 1.0 / explosionRadius;
+        v54 = (int)(float)((float)((float)(1.0 - (float)(fsqrt(v50) * v53)) * (float)(explosionInnerDamage - explosionOuterDamage)) + explosionOuterDamage);
+        if ( v54 )
+          v28 = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)(float)((float)((float)(1.0 - (float)(fsqrt((float)((float)((float)(v46->end.v[1] - v47) * (float)(v46->end.v[1] - v47)) + (float)(v51 * v51)) + (float)(v52 * v52)) * v53)) * (float)(explosionInnerDamage - explosionOuterDamage)) + explosionOuterDamage)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)v54).m128_f32[0];
       }
-      __asm
-      {
-        vmulss  xmm6, xmm11, xmm9
-        vxorps  xmm9, xmm9, xmm9
-        vcomiss xmm6, xmm9
-      }
-      if ( v35 )
+      v55 = v28 * damagePropagationFromParent;
+      if ( (float)(v28 * damagePropagationFromParent) <= 0.0 )
         break;
-      v100 = v143;
-      __asm
-      {
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, rdx
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx+58h]
-        vmulss  xmm1, xmm7, xmm6
-        vcomiss xmm1, xmm0
-      }
-      _RSI = def->eventStreamBufferOffsetServer;
-      if ( _RSI + 4 > (unsigned __int64)instanceContext->eventStreamBufferSize )
+      v56 = v76;
+      v57 = (float)v76;
+      if ( (float)(v57 * v55) < (float)v24->data.health.minimumDamage )
+        break;
+      eventStreamBufferOffsetServer = def->eventStreamBufferOffsetServer;
+      if ( eventStreamBufferOffsetServer + 4 > (unsigned __int64)instanceContext->eventStreamBufferSize )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 483, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
           __debugbreak();
-        v100 = v143;
+        v56 = v76;
       }
-      _RCX = instanceContext->eventStreamBuffer;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+rcx]
-        vdivss  xmm0, xmm2, xmm6
-        vminss  xmm1, xmm0, xmm7
-        vcvttss2si rax, xmm1
-      }
-      *(_DWORD *)inOutIndex += _RAX;
-      __asm
-      {
-        vmulss  xmm3, xmm1, xmm6
-        vsubss  xmm0, xmm2, xmm3
-        vcomiss xmm0, xmm9
-        vmovss  dword ptr [rsi+rcx], xmm0
-      }
-      v143 = v100 - _RAX;
-      if ( v100 > (unsigned int)_RAX )
+      eventStreamBuffer = instanceContext->eventStreamBuffer;
+      v60 = *(unsigned int *)&eventStreamBuffer[eventStreamBufferOffsetServer];
+      v62 = v60;
+      *(float *)&v62 = *(float *)&v60 / v55;
+      _XMM0 = v62;
+      __asm { vminss  xmm1, xmm0, xmm7 }
+      *(_DWORD *)inOutIndex += (int)*(float *)&_XMM1;
+      v64 = v56 - (int)*(float *)&_XMM1;
+      v65 = *(float *)&_XMM1 * v55;
+      v66 = *(float *)&v60 - (float)(*(float *)&_XMM1 * v55);
+      *(float *)&eventStreamBuffer[eventStreamBufferOffsetServer] = v66;
+      v76 = v64;
+      if ( v66 > 0.0 )
         goto LABEL_70;
-      v113 = v26 + 1;
-      if ( v26 + 1 >= def->numStates )
+      v67 = v21 + 1;
+      if ( v21 + 1 >= def->numStates )
       {
-        __asm { vcomiss xmm0, xmm9 }
-        if ( v113 <= def->numStates && v26 + 1 == def->numStates )
+        if ( v66 <= 0.0 && v21 + 1 == def->numStates )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm2, xmm0, xmm6
-            vmulss  xmm1, xmm2, dword ptr [rbx+5Ch]
-            vmulss  xmm0, xmm2, dword ptr [rbx+60h]
-            vaddss  xmm15, xmm15, xmm1
-            vaddss  xmm13, xmm13, xmm0
-          }
+          v70 = (float)v64;
+          *(float *)&v22 = *(float *)&v22 + (float)((float)(v70 * v55) * v24->data.health.damagePropagationToParent);
+          *(float *)&v23 = *(float *)&v23 + (float)((float)(v70 * v55) * v24->data.health.damagePropagationToChild);
           break;
         }
 LABEL_70:
-        __asm
-        {
-          vmulss  xmm1, xmm3, xmm6
-          vmulss  xmm0, xmm1, dword ptr [rbx+5Ch]
-          vmulss  xmm1, xmm1, dword ptr [rbx+60h]
-          vaddss  xmm13, xmm13, xmm1
-          vaddss  xmm15, xmm15, xmm0
-        }
+        *(float *)&v23 = *(float *)&v23 + (float)((float)(v65 * v55) * v24->data.health.damagePropagationToChild);
+        *(float *)&v22 = *(float *)&v22 + (float)((float)(v65 * v55) * v24->data.health.damagePropagationToParent);
         break;
       }
-      __asm
-      {
-        vmulss  xmm1, xmm3, xmm6
-        vmulss  xmm0, xmm1, dword ptr [rbx+5Ch]
-        vmulss  xmm1, xmm1, dword ptr [rbx+60h]
-        vaddss  xmm13, xmm13, xmm1
-        vaddss  xmm15, xmm15, xmm0
-      }
+      v68 = v23;
+      *(float *)&v68 = *(float *)&v23 + (float)((float)(v65 * v55) * v24->data.health.damagePropagationToChild);
+      v23 = v68;
+      v69 = v22;
+      *(float *)&v69 = *(float *)&v22 + (float)((float)(v65 * v55) * v24->data.health.damagePropagationToParent);
+      v22 = v69;
       ScriptableSv_InitEventParams((ScriptableEventParams *)&outTagMat, scriptableIndex, def);
       *(_QWORD *)outTagMat.row2.v = eventParams->damageEvent;
-      finalStateIndex = ++v26;
-      ScriptableBg_ChangePartState((ScriptableEventParams *)&outTagMat, v113, 1);
+      finalStateIndex = ++v21;
+      ScriptableBg_ChangePartState((ScriptableEventParams *)&outTagMat, v67, 1);
     }
     while ( *(_DWORD *)inOutIndex < damage );
-    v19 = v142;
-    v25 = *(_DWORD *)inOutIndex;
-    __asm
-    {
-      vmovaps xmm11, [rsp+1B0h+var_98+8]
-      vmovaps xmm10, [rsp+1B0h+var_88+8]
-      vmovaps xmm8, [rsp+1B0h+var_68+8]
-      vmovaps xmm7, [rsp+1B0h+var_58+8]
-      vmovaps xmm6, [rsp+1B0h+var_48+8]
-      vmovaps xmm12, [rsp+1B0h+var_A8+8]
-    }
+    v14 = v75;
+    v20 = *(_DWORD *)inOutIndex;
   }
   ScriptableSv_InitEventParams(&outParams, scriptableIndex, def);
   outParams.damageEvent = eventParams->damageEvent;
-  ScriptableSv_DamageNotify(&outParams, v25, initialStateIndex_4, finalStateIndex);
-  __asm
+  ScriptableSv_DamageNotify(&outParams, v20, initialStateIndex[1], finalStateIndex);
+  if ( *(float *)&v22 < 1.0 || (parentPart = def->parentPart) == NULL || v86 == parentPart )
   {
-    vcomiss xmm15, xmm14
-    vmovaps xmm9, [rsp+1B0h+var_78+8]
-  }
-  if ( v130 || (parentPart = def->parentPart, v130 = 0, !parentPart) || (v130 = v151 < parentPart, v151 == parentPart) )
-  {
-    v133 = damageTypeFlags;
+    v72 = damageTypeFlags;
   }
   else
   {
     if ( (parentPart->flags & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_damage.cpp", 540, ASSERT_TYPE_ASSERT, "(def->parentPart->flags & (1 << 1))", (const char *)&queryFormat, "def->parentPart->flags & SCRIPTABLE_DEFFLAG_SERVER_INSTANCE") )
       __debugbreak();
-    v133 = damageTypeFlags;
-    __asm { vcvttss2si rax, xmm15 }
-    ScriptableSv_DamagePart(eventParams, def->parentPart, NULL, def, damageTypeFlags, _RAX);
+    v72 = damageTypeFlags;
+    ScriptableSv_DamagePart(eventParams, def->parentPart, NULL, def, damageTypeFlags, (int)*(float *)&v22);
   }
-  __asm
-  {
-    vmovaps xmm15, [rsp+1B0h+var_D8+8]
-    vcomiss xmm13, xmm14
-    vmovaps xmm14, [rsp+1B0h+var_C8+8]
-  }
-  if ( !v130 && def->numChildParts )
+  if ( *(float *)&v23 >= 1.0 && def->numChildParts )
   {
     do
     {
-      v137 = &def->childParts[v24];
-      if ( v137 != v19 && (v137->flags & 2) != 0 )
-      {
-        __asm { vcvttss2si rax, xmm13 }
-        ScriptableSv_DamagePart(eventParams, v137, def, NULL, v133, _RAX);
-      }
-      ++v24;
+      v73 = &def->childParts[v19];
+      if ( v73 != v14 && (v73->flags & 2) != 0 )
+        ScriptableSv_DamagePart(eventParams, v73, def, NULL, v72, (int)*(float *)&v23);
+      ++v19;
     }
-    while ( v24 < def->numChildParts );
+    while ( v19 < def->numChildParts );
   }
-  IsDoor = G_Door_ScriptableIsDoor(scriptableIndex);
-  __asm { vmovaps xmm13, [rsp+1B0h+var_B8+8] }
-  if ( IsDoor )
+  if ( G_Door_ScriptableIsDoor(scriptableIndex) )
     G_Door_ProcessDamageEvent(eventParams->damageEvent);
   g_damageProcessingScriptable = -1;
 }
@@ -1214,9 +1029,6 @@ void ScriptableSv_RadiusDamage(const gentity_s *inflictor, const gentity_s *atta
   const dvar_t *v10; 
   unsigned int v15; 
   unsigned int number; 
-  float v20; 
-  float v21; 
-  float v22; 
 
   v10 = DCONST_DVARBOOL_scriptable_enable;
   if ( !DCONST_DVARBOOL_scriptable_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_enable") )
@@ -1231,16 +1043,7 @@ void ScriptableSv_RadiusDamage(const gentity_s *inflictor, const gentity_s *atta
       number = 2046;
     if ( attacker )
       v15 = attacker->s.number;
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+explosionOuterDamage]
-      vmovss  xmm1, [rsp+68h+explosionInnerDamage]
-      vmovss  [rsp+68h+var_20], xmm0
-      vmovss  xmm0, [rsp+68h+outerRadius]
-      vmovss  [rsp+68h+var_28], xmm1
-      vmovss  [rsp+68h+var_30], xmm0
-    }
-    ScriptableBg_RadiusDamageEvent(SBL_CONTEXT_SERVER, &s_svRadiusCallbackTable, number, v15, weapon, isAlternate, position, v20, v21, v22, mod, runOcclusionTraces);
+    ScriptableBg_RadiusDamageEvent(SBL_CONTEXT_SERVER, &s_svRadiusCallbackTable, number, v15, weapon, isAlternate, position, outerRadius, explosionInnerDamage, explosionOuterDamage, mod, runOcclusionTraces);
   }
 }
 

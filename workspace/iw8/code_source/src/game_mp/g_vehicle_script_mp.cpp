@@ -333,42 +333,47 @@ G_VehicleScriptMP_SetDroneTurnParams
 */
 void G_VehicleScriptMP_SetDroneTurnParams(scrContext_t *scrContext, scr_entref_t entref)
 {
+  Vehicle *vehicle; 
   unsigned int NumParam; 
+  double Float; 
+  double v7; 
+  double v8; 
+  double v9; 
 
   if ( !G_VehicleScript_CheckVehicleSuspended(scrContext, entref) )
   {
-    _RBX = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
+    vehicle = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
     NumParam = Scr_GetNumParam(scrContext);
-    if ( !_RBX )
+    if ( !vehicle )
       Scr_Error(COM_ERR_1784, scrContext, "SetDroneTurnParams: entity not a vehicle!");
     if ( !NumParam )
     {
-      _RBX->heliPathPos.dronePathMaxSlowTargetSpeed = 20.0;
-      _RBX->heliPathPos.dronePathSlowThreshold = 1.3;
-      _RBX->heliPathPos.dronePathMaxDistToSlow = 24.0;
+      vehicle->heliPathPos.dronePathMaxSlowTargetSpeed = 20.0;
+      vehicle->heliPathPos.dronePathSlowThreshold = 1.3;
+      vehicle->heliPathPos.dronePathMaxDistToSlow = 24.0;
 LABEL_6:
-      _RBX->heliPathPos.dronePathMinSpeedToSlow = 20.0;
+      vehicle->heliPathPos.dronePathMinSpeedToSlow = 20.0;
       return;
     }
     if ( Scr_GetType(scrContext, 0) )
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
+      Float = Scr_GetFloat(scrContext, 0);
     else
-      __asm { vmovss  xmm0, cs:__real@41a00000 }
-    __asm { vmovss  dword ptr [rbx+52Ch], xmm0 }
+      *(float *)&Float = FLOAT_20_0;
+    vehicle->heliPathPos.dronePathMaxSlowTargetSpeed = *(float *)&Float;
     if ( Scr_GetType(scrContext, 1u) )
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
+      v7 = Scr_GetFloat(scrContext, 1u);
     else
-      __asm { vmovss  xmm0, cs:__real@3fa66666 }
-    __asm { vmovss  dword ptr [rbx+530h], xmm0 }
+      *(float *)&v7 = FLOAT_1_3;
+    vehicle->heliPathPos.dronePathSlowThreshold = *(float *)&v7;
     if ( Scr_GetType(scrContext, 2u) )
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
+      v8 = Scr_GetFloat(scrContext, 2u);
     else
-      __asm { vmovss  xmm0, cs:__real@41c00000 }
-    __asm { vmovss  dword ptr [rbx+524h], xmm0 }
+      *(float *)&v8 = FLOAT_24_0;
+    vehicle->heliPathPos.dronePathMaxDistToSlow = *(float *)&v8;
     if ( Scr_GetType(scrContext, 3u) == VAR_UNDEFINED )
       goto LABEL_6;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovss  dword ptr [rbx+528h], xmm0 }
+    v9 = Scr_GetFloat(scrContext, 3u);
+    vehicle->heliPathPos.dronePathMinSpeedToSlow = *(float *)&v9;
   }
 }
 
@@ -379,28 +384,25 @@ G_VehicleScriptMPCmd_SetDroneGoalEnt
 */
 void G_VehicleScriptMPCmd_SetDroneGoalEnt(scrContext_t *scrContext, scr_entref_t entref)
 {
+  float v4; 
+  float autoRecalcDestinationAngle; 
+  Vehicle *vehicle; 
   int NumParam; 
   gentity_s *Entity; 
-  char v12; 
-  float fmt; 
-  float autoRecalcDestinationAngle; 
+  double Float; 
+  double v10; 
   vec3_t vectorValue; 
 
   if ( !G_VehicleScript_CheckVehicleSuspended(scrContext, entref) )
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_28], xmm6
-      vmovaps [rsp+88h+var_38], xmm7
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
-    _RBX = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
+    v4 = 0.0;
+    autoRecalcDestinationAngle = 0.0;
+    vehicle = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
     if ( !Nav_AnyVolumesLoaded() )
       Scr_Error(COM_ERR_1785, scrContext, "SetDroneGoalPos: There are no nav volumes loaded.  Drones now require NavVolumes.");
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_script_mp.cpp", 226, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
+    if ( !vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_script_mp.cpp", 226, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
       __debugbreak();
-    if ( G_Vehicle_GetServerDef(_RBX->defIndex)->type != VEH_HELICOPTER )
+    if ( G_Vehicle_GetServerDef(vehicle->defIndex)->type != VEH_HELICOPTER )
       Scr_ObjectError(COM_ERR_1786, scrContext, "VehCmd_SetDroneGoalPos: Vehicle must be a helicoptor.");
     NumParam = Scr_GetNumParam(scrContext);
     if ( NumParam < 2 )
@@ -409,40 +411,21 @@ void G_VehicleScriptMPCmd_SetDroneGoalEnt(scrContext_t *scrContext, scr_entref_t
     if ( !Entity->client )
       Scr_ParamError(COM_ERR_1788, scrContext, 0, "VehCmd_SetDroneGoalPos: Owner entity is not a player");
     Scr_GetVector(scrContext, 1u, &vectorValue);
-    __asm { vucomiss xmm6, dword ptr [rbx+61Ch] }
-    if ( v12 )
-      goto LABEL_16;
-    __asm
-    {
-      vucomiss xmm6, dword ptr [rbx+620h]
-      vucomiss xmm6, dword ptr [rbx+624h]
-    }
-    if ( v12 )
-LABEL_16:
+    if ( vehicle->manualSpeed == 0.0 || vehicle->manualAccel == 0.0 || vehicle->manualDecel == 0.0 )
       Scr_Error(COM_ERR_1789, scrContext, "VehCmd_SetDroneGoalPos: Speed and acceleration must not be zero before setting goal pos");
-    _RBX->manualMode = VEH_MANUAL_ON;
-    _RBX->drivingState = VEH_DRIVE_AI;
+    vehicle->manualMode = VEH_MANUAL_ON;
+    vehicle->drivingState = VEH_DRIVE_AI;
     if ( NumParam >= 3 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm { vmovaps xmm6, xmm0 }
+      Float = Scr_GetFloat(scrContext, 2u);
+      v4 = *(float *)&Float;
     }
     if ( NumParam >= 4 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm { vmovaps xmm7, xmm0 }
+      v10 = Scr_GetFloat(scrContext, 3u);
+      autoRecalcDestinationAngle = *(float *)&v10;
     }
-    __asm
-    {
-      vmovss  [rsp+88h+autoRecalcDestinationAngle], xmm7
-      vmovss  dword ptr [rsp+88h+fmt], xmm6
-    }
-    G_VehicleHeliMP_DroneSetGoalEnt(_RBX, &_RBX->heliPathPos, Entity, &vectorValue, fmt, autoRecalcDestinationAngle);
-    __asm
-    {
-      vmovaps xmm7, [rsp+88h+var_38]
-      vmovaps xmm6, [rsp+88h+var_28]
-    }
+    G_VehicleHeliMP_DroneSetGoalEnt(vehicle, &vehicle->heliPathPos, Entity, &vectorValue, v4, autoRecalcDestinationAngle);
   }
 }
 
@@ -453,46 +436,32 @@ G_VehicleScriptMPCmd_SetDroneGoalPos
 */
 void G_VehicleScriptMPCmd_SetDroneGoalPos(scrContext_t *scrContext, scr_entref_t entref)
 {
-  bool v5; 
+  bool v4; 
+  Vehicle *vehicle; 
   int NumParam; 
-  bool v8; 
   vec3_t vectorValue; 
 
   if ( !G_VehicleScript_CheckVehicleSuspended(scrContext, entref) )
   {
-    v5 = 1;
-    _RBX = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
+    v4 = 1;
+    vehicle = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
     if ( !Nav_AnyVolumesLoaded() )
       Scr_Error(COM_ERR_1790, scrContext, "SetDroneGoalPos: There are no nav volumes loaded.  Drones now require NavVolumes.");
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_script_mp.cpp", 292, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
+    if ( !vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_script_mp.cpp", 292, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
       __debugbreak();
-    if ( G_Vehicle_GetServerDef(_RBX->defIndex)->type != VEH_HELICOPTER )
+    if ( G_Vehicle_GetServerDef(vehicle->defIndex)->type != VEH_HELICOPTER )
       Scr_ObjectError(COM_ERR_1791, scrContext, "VehCmd_SetDroneGoalPos: Vehicle must be a helicoptor.");
     NumParam = Scr_GetNumParam(scrContext);
-    v8 = NumParam == 1;
     if ( NumParam < 1 )
       Scr_Error(COM_ERR_1792, scrContext, "Usage: VehCmd_SetDroneGoalPos ( position, bStopAtGoal ).");
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+61Ch]
-    }
-    if ( v8 )
-      goto LABEL_13;
-    __asm
-    {
-      vucomiss xmm0, dword ptr [rbx+620h]
-      vucomiss xmm0, dword ptr [rbx+624h]
-    }
-    if ( v8 )
-LABEL_13:
+    if ( vehicle->manualSpeed == 0.0 || vehicle->manualAccel == 0.0 || vehicle->manualDecel == 0.0 )
       Scr_Error(COM_ERR_1793, scrContext, "VehCmd_SetDroneGoalPos: Speed and acceleration must not be zero before setting goal pos");
     Scr_GetVector(scrContext, 0, &vectorValue);
     if ( NumParam > 1 )
-      v5 = Scr_GetInt(scrContext, 1u) != 0;
-    _RBX->manualMode = VEH_MANUAL_ON;
-    _RBX->drivingState = VEH_DRIVE_AI;
-    G_VehicleHeliMP_DroneSetGoalPos(_RBX, &_RBX->heliPathPos, &vectorValue, v5);
+      v4 = Scr_GetInt(scrContext, 1u) != 0;
+    vehicle->manualMode = VEH_MANUAL_ON;
+    vehicle->drivingState = VEH_DRIVE_AI;
+    G_VehicleHeliMP_DroneSetGoalPos(vehicle, &vehicle->heliPathPos, &vectorValue, v4);
   }
 }
 
@@ -503,52 +472,34 @@ G_VehicleScriptMPCmd_ApplyImpulseToDrone
 */
 void G_VehicleScriptMPCmd_ApplyImpulseToDrone(scrContext_t *scrContext, scr_entref_t entref)
 {
+  Vehicle *vehicle; 
   int NumParam; 
-  int v8; 
-  bool v10; 
-  bool v11; 
-  float fmt; 
+  int v7; 
+  bool v9; 
   vec3_t vectorValue; 
 
   if ( !G_VehicleScript_CheckVehicleSuspended(scrContext, entref) )
   {
-    __asm { vmovaps [rsp+78h+var_28], xmm6 }
-    _RBX = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_script_mp.cpp", 349, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
+    vehicle = G_VehicleScript_GetVehicleEntity(scrContext, entref)->vehicle;
+    if ( !vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_script_mp.cpp", 349, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
       __debugbreak();
-    if ( G_Vehicle_GetServerDef(_RBX->defIndex)->type != VEH_HELICOPTER )
+    if ( G_Vehicle_GetServerDef(vehicle->defIndex)->type != VEH_HELICOPTER )
       Scr_ObjectError(COM_ERR_1794, scrContext, "G_VehicleScriptMPCmd_ApplyImpulseToDrone: Vehicle must be a helicopter.");
     NumParam = Scr_GetNumParam(scrContext);
-    v8 = NumParam;
+    v7 = NumParam;
     if ( !NumParam || NumParam > 3 )
       Scr_Error(COM_ERR_1795, scrContext, "Usage: G_VehicleScriptMPCmd_ApplyImpulseToDrone ( velocity [, accumulates] [,decel_speed] ).");
     Scr_GetVector(scrContext, 0, &vectorValue);
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    v10 = Scr_GetInt(scrContext, 1u) != 0;
-    v11 = v8 == 1;
-    if ( v8 > 1 )
+    *(float *)&_XMM6 = FLOAT_1_0;
+    v9 = Scr_GetInt(scrContext, 1u) != 0;
+    if ( v7 > 1 )
     {
       *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
       __asm { vmaxss  xmm6, xmm0, cs:__real@3c23d70a }
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+61Ch]
-    }
-    if ( v11 )
-      goto LABEL_15;
-    __asm
-    {
-      vucomiss xmm0, dword ptr [rbx+620h]
-      vucomiss xmm0, dword ptr [rbx+624h]
-    }
-    if ( v11 )
-LABEL_15:
+    if ( vehicle->manualSpeed == 0.0 || vehicle->manualAccel == 0.0 || vehicle->manualDecel == 0.0 )
       Scr_Error(COM_ERR_1796, scrContext, "G_VehicleScriptMPCmd_ApplyImpulseToDrone: Speed and acceleration must not be zero before setting goal pos");
-    __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
-    G_VehicleHeliMP_DroneApplyVelocityImpulse(_RBX, &_RBX->heliPathPos, &vectorValue, v10, fmt);
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
+    G_VehicleHeliMP_DroneApplyVelocityImpulse(vehicle, &vehicle->heliPathPos, &vectorValue, v9, *(float *)&_XMM6);
   }
 }
 

@@ -238,28 +238,15 @@ void bdRelayJoinData::bdRelayJoinData(bdRelayJoinData *this, const unsigned __in
 {
   this->m_version = 1;
   *(_QWORD *)this->m_secret = 0i64;
-  _RBX = verification;
-  _RDI = this;
   *(_QWORD *)&this->m_secret[8] = 0i64;
-  _RSI = secret;
   this->m_routingID = routingID;
   this->m_joinID = joinID;
   this->m_relayID = relayID;
   bdAddr::bdAddr(&this->m_relayAddr, relayAddr);
-  bdHandleAssert(_RBX != NULL, "verification != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelaytypes\\bdrelayjoindata.cpp", "bdRelayJoinData::bdRelayJoinData", 0x24u, "Verification cannot be NULL.");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi+118h], xmm0
-  }
-  if ( _RSI )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rdi+57h], xmm0
-    }
-  }
+  bdHandleAssert(verification != NULL, "verification != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelaytypes\\bdrelayjoindata.cpp", "bdRelayJoinData::bdRelayJoinData", 0x24u, "Verification cannot be NULL.");
+  *(_OWORD *)this->m_verification = *(_OWORD *)verification;
+  if ( secret )
+    *(_OWORD *)this->m_secret = *(_OWORD *)secret;
 }
 
 /*
@@ -287,44 +274,19 @@ bdRelayJoinData *bdRelayJoinData::operator=(bdRelayJoinData *this, const bdRelay
 {
   bdRelayJoinData *result; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-  }
+  *(__m256i *)this->m_encrypted = *(__m256i *)other->m_encrypted;
+  *(__m256i *)&this->m_encrypted[32] = *(__m256i *)&other->m_encrypted[32];
+  *(_OWORD *)&this->m_encrypted[64] = *(_OWORD *)&other->m_encrypted[64];
   *(_DWORD *)&this->m_encrypted[80] = *(_DWORD *)&other->m_encrypted[80];
   *(_WORD *)&this->m_encrypted[84] = *(_WORD *)&other->m_encrypted[84];
   this->m_version = other->m_version;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+57h]
-    vmovups xmmword ptr [rcx+57h], xmm0
-    vmovups xmm0, xmmword ptr [rdx+118h]
-    vmovups xmmword ptr [rcx+118h], xmm0
-  }
+  *(_OWORD *)this->m_secret = *(_OWORD *)other->m_secret;
+  *(_OWORD *)this->m_verification = *(_OWORD *)other->m_verification;
   this->m_relayID = other->m_relayID;
   this->m_routingID = other->m_routingID;
   this->m_joinID = other->m_joinID;
   result = this;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+0C0h]
-    vmovups ymmword ptr [rcx+0C0h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+0E0h]
-    vmovups ymmword ptr [rcx+0E0h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+100h]
-    vmovups xmmword ptr [rcx+100h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+110h]
-    vmovsd  qword ptr [rcx+110h], xmm1
-  }
+  this->m_relayAddr = other->m_relayAddr;
   return result;
 }
 
@@ -355,35 +317,36 @@ bdRelayJoinData::decrypt
 */
 __int64 bdRelayJoinData::decrypt(bdRelayJoinData *this, const unsigned __int8 *relaySecret)
 {
+  __int64 v4; 
   unsigned int v5; 
   unsigned int v6; 
+  unsigned int v7; 
   unsigned int v8; 
   unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
-  unsigned __int8 v14; 
+  unsigned __int8 v11; 
   unsigned int newOffset[2]; 
-  unsigned __int64 v17; 
-  __int64 v18; 
+  unsigned __int64 v14; 
+  __int64 v15; 
   bdAuthenticationTag authTag; 
-  bdCypherAESGCM v20; 
+  bdCypherAESGCM v17; 
   unsigned __int8 plainText[8]; 
 
-  v18 = -2i64;
-  bdCypherAESGCM::bdCypherAESGCM(&v20);
-  LOBYTE(relaySecret) = bdCypherAESGCM::init(&v20, relaySecret, 0x10u);
+  v15 = -2i64;
+  bdCypherAESGCM::bdCypherAESGCM(&v17);
+  LOBYTE(relaySecret) = bdCypherAESGCM::init(&v17, relaySecret, 0x10u);
   bdAuthenticationTag::bdAuthenticationTag(&authTag);
-  if ( !(_BYTE)relaySecret || !bdAuthenticationTag::setTag(&authTag, &this->m_encrypted[70], 0x10u) || !bdCypherAESGCM::setAuthenticationTag(&v20, &authTag) || !bdCypherAESGCM::decrypt(&v20, this->m_encrypted, &this->m_encrypted[12], plainText, 0x3Au) )
+  if ( !(_BYTE)relaySecret || !bdAuthenticationTag::setTag(&authTag, &this->m_encrypted[70], 0x10u) || !bdCypherAESGCM::setAuthenticationTag(&v17, &authTag) || !bdCypherAESGCM::decrypt(&v17, this->m_encrypted, &this->m_encrypted[12], plainText, 0x3Au) )
   {
     newOffset[0] = 0;
 LABEL_22:
-    v14 = 0;
+    v11 = 0;
     goto LABEL_23;
   }
   newOffset[0] = 0;
   if ( !bdBytePacker::removeBuffer(plainText, 0x3Au, 0, newOffset, this->m_secret, 0x10u) || !bdBytePacker::removeBuffer(plainText, 0x3Au, newOffset[0], newOffset, this->m_verification, 0x10u) )
     goto LABEL_22;
-  _RAX = newOffset[0];
+  v4 = newOffset[0];
   v5 = newOffset[0] + 8;
   v6 = v5;
   newOffset[0] += 8;
@@ -394,54 +357,45 @@ LABEL_22:
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+rax+30h+plainText]
-      vmovsd  [rsp+130h+var_E8], xmm0
-    }
-    this->m_relayID = v17;
+    v14 = *(_QWORD *)&plainText[v4];
+    this->m_relayID = v14;
   }
   if ( v5 > 0x3A )
     goto LABEL_22;
+  v7 = v6 + 4;
   v8 = v6 + 4;
-  v9 = v6 + 4;
   newOffset[0] = v6 + 4;
   if ( v6 + 4 > 0x3A )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 4i64);
-    v9 = newOffset[0];
+    v8 = newOffset[0];
   }
   else
   {
     this->m_routingID = *(_DWORD *)&plainText[v6];
   }
-  if ( v8 > 0x3A )
+  if ( v7 > 0x3A )
     goto LABEL_22;
-  v10 = v9 + 8;
-  v11 = v9 + 8;
-  newOffset[0] = v9 + 8;
-  if ( v9 + 8 > 0x3A )
+  v9 = v8 + 8;
+  v10 = v8 + 8;
+  newOffset[0] = v8 + 8;
+  if ( v8 + 8 > 0x3A )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 8i64);
-    v11 = newOffset[0];
+    v10 = newOffset[0];
   }
   else
   {
-    _RAX = v9;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+rax+30h+plainText]
-      vmovsd  [rsp+130h+var_E8], xmm0
-    }
-    this->m_joinID = v17;
+    v14 = *(_QWORD *)&plainText[v8];
+    this->m_joinID = v14;
   }
-  if ( v10 > 0x3A || !bdAddr::deserialize(&this->m_relayAddr, plainText, 0x3Au, v11, newOffset) )
+  if ( v9 > 0x3A || !bdAddr::deserialize(&this->m_relayAddr, plainText, 0x3Au, v10, newOffset) )
     goto LABEL_22;
-  v14 = 1;
+  v11 = 1;
 LABEL_23:
   bdAuthenticationTag::~bdAuthenticationTag(&authTag);
-  bdCypherAESGCM::~bdCypherAESGCM(&v20);
-  return v14;
+  bdCypherAESGCM::~bdCypherAESGCM(&v17);
+  return v11;
 }
 
 /*
@@ -517,80 +471,70 @@ bdRelayJoinData::encrypt
 */
 _BOOL8 bdRelayJoinData::encrypt(bdRelayJoinData *this, const unsigned __int8 *relaySecret)
 {
+  __int64 v4; 
   unsigned int v5; 
-  __int64 v7; 
-  unsigned int v8; 
-  unsigned int v10; 
-  char v12; 
-  bdTrulyRandomImpl *v13; 
-  bdTrulyRandomImpl *v14; 
+  __int64 v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  unsigned int v9; 
+  char v10; 
+  bdTrulyRandomImpl *v11; 
+  bdTrulyRandomImpl *v12; 
   bdSingletonRegistryImpl *Instance; 
-  bool v16; 
-  bool v17; 
+  bool v14; 
+  bool v15; 
   unsigned int TagLength; 
   unsigned __int8 *Tag; 
   unsigned int newOffset; 
   unsigned __int64 m_relayID; 
-  __int64 v23; 
+  __int64 v21; 
   bdAuthenticationTag authTag; 
-  bdCypherAESGCM v25; 
+  bdCypherAESGCM v23; 
   unsigned __int8 dest[64]; 
 
-  v23 = -2i64;
-  bdCypherAESGCM::bdCypherAESGCM(&v25);
+  v21 = -2i64;
+  bdCypherAESGCM::bdCypherAESGCM(&v23);
   newOffset = 0;
-  if ( !bdCypherAESGCM::init(&v25, relaySecret, 0x10u) )
+  if ( !bdCypherAESGCM::init(&v23, relaySecret, 0x10u) )
     goto LABEL_9;
   if ( !bdBytePacker::appendBuffer(dest, 0x3Au, 0, &newOffset, this->m_secret, 0x10u) )
     goto LABEL_9;
   if ( !bdBytePacker::appendBuffer(dest, 0x3Au, newOffset, &newOffset, this->m_verification, 0x10u) )
     goto LABEL_9;
-  _R14 = newOffset;
+  v4 = newOffset;
   v5 = newOffset + 8;
   newOffset = v5;
   bdHandleAssert(v5 <= 0x3A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 8i64);
   if ( v5 > 0x3A )
     goto LABEL_9;
   m_relayID = this->m_relayID;
-  __asm
-  {
-    vmovsd  xmm0, [rsp+140h+var_F8]
-    vmovsd  qword ptr [rbp+r14+40h+dest], xmm0
-  }
-  v7 = newOffset;
-  v8 = newOffset + 4;
-  newOffset = v8;
-  bdHandleAssert(v8 <= 0x3A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
-  if ( v8 > 0x3A )
+  *(double *)&dest[v4] = *(double *)&m_relayID;
+  v6 = newOffset;
+  v7 = newOffset + 4;
+  newOffset = v7;
+  bdHandleAssert(v7 <= 0x3A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
+  if ( v7 > 0x3A )
     goto LABEL_9;
-  *(_DWORD *)&dest[v7] = this->m_routingID;
-  _R14 = newOffset;
-  v10 = newOffset + 8;
-  newOffset = v10;
-  bdHandleAssert(v10 <= 0x3A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 8i64);
-  if ( v10 > 0x3A )
-    goto LABEL_9;
-  m_relayID = this->m_joinID;
-  __asm
-  {
-    vmovsd  xmm0, [rsp+140h+var_F8]
-    vmovsd  qword ptr [rbp+r14+40h+dest], xmm0
-  }
-  if ( bdAddr::serialize(&this->m_relayAddr, dest, 0x3Au, newOffset, &newOffset) )
-    v12 = 1;
+  *(_DWORD *)&dest[v6] = this->m_routingID;
+  v8 = newOffset;
+  v9 = newOffset + 8;
+  newOffset = v9;
+  bdHandleAssert(v9 <= 0x3A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 8i64);
+  if ( v9 <= 0x3A && (m_relayID = this->m_joinID, *(double *)&dest[v8] = *(double *)&m_relayID, bdAddr::serialize(&this->m_relayAddr, dest, 0x3Au, newOffset, &newOffset)) )
+    v10 = 1;
   else
 LABEL_9:
-    v12 = 0;
+    v10 = 0;
   if ( !bdSingleton<bdTrulyRandomImpl>::m_instance )
   {
-    v13 = (bdTrulyRandomImpl *)bdMemory::allocate(1ui64);
-    m_relayID = (unsigned __int64)v13;
-    if ( v13 )
-      bdTrulyRandomImpl::bdTrulyRandomImpl(v13);
+    v11 = (bdTrulyRandomImpl *)bdMemory::allocate(1ui64);
+    m_relayID = (unsigned __int64)v11;
+    if ( v11 )
+      bdTrulyRandomImpl::bdTrulyRandomImpl(v11);
     else
-      v14 = NULL;
-    bdSingleton<bdTrulyRandomImpl>::m_instance = v14;
-    if ( !v14 )
+      v12 = NULL;
+    bdSingleton<bdTrulyRandomImpl>::m_instance = v12;
+    if ( !v12 )
       goto LABEL_17;
     Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
     if ( !bdSingletonRegistryImpl::add(Instance, bdSingleton<bdTrulyRandomImpl>::destroyInstance) )
@@ -602,15 +546,15 @@ LABEL_17:
     }
   }
   bdTrulyRandomImpl::getRandomUByte8(bdSingleton<bdTrulyRandomImpl>::m_instance, this->m_encrypted, 0xCu);
-  v16 = v12 && bdCypherAESGCM::encrypt(&v25, this->m_encrypted, dest, &this->m_encrypted[12], 0x3Au);
+  v14 = v10 && bdCypherAESGCM::encrypt(&v23, this->m_encrypted, dest, &this->m_encrypted[12], 0x3Au);
   bdAuthenticationTag::bdAuthenticationTag(&authTag);
-  v17 = v16 && bdCypherAESGCM::getAuthenticationTag(&v25, &authTag, 0x10u);
+  v15 = v14 && bdCypherAESGCM::getAuthenticationTag(&v23, &authTag, 0x10u);
   TagLength = bdAuthenticationTag::getTagLength(&authTag);
   Tag = bdAuthenticationTag::getTag(&authTag);
   memcpy_0(&this->m_encrypted[70], Tag, TagLength);
   bdAuthenticationTag::~bdAuthenticationTag(&authTag);
-  bdCypherAESGCM::~bdCypherAESGCM(&v25);
-  return v17;
+  bdCypherAESGCM::~bdCypherAESGCM(&v23);
+  return v15;
 }
 
 /*

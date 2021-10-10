@@ -342,44 +342,32 @@ CgEntitySystem::CacheEntityData
 void CgEntitySystem::CacheEntityData(CgEntitySystem *this, const centity_t *ent)
 {
   __int16 number; 
-  __int64 v14; 
+  __int64 v5; 
+  __int64 v6; 
 
-  _RBX = ent;
-  _RDI = this;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 79, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( _RBX->nextState.eType == ET_VEHICLE )
+  if ( ent->nextState.eType == ET_VEHICLE )
   {
-    number = _RBX->nextState.number;
+    number = ent->nextState.number;
     if ( (unsigned __int16)number >= 0x800u )
     {
-      LODWORD(v14) = number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 91, ASSERT_TYPE_ASSERT, "(unsigned)( ent->nextState.number ) < (unsigned)( (( 2048 ) + 0) )", "ent->nextState.number doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v14, 2048) )
+      LODWORD(v6) = number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 91, ASSERT_TYPE_ASSERT, "(unsigned)( ent->nextState.number ) < (unsigned)( (( 2048 ) + 0) )", "ent->nextState.number doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v6, 2048) )
         __debugbreak();
     }
-    __asm { vmovups ymm0, ymmword ptr [rbx+19Ch] }
-    _RCX = _RBX->nextState.number;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rdi+195F60h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+1BCh]
-      vmovups ymmword ptr [rcx+rdi+195F80h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+1DCh]
-      vmovups ymmword ptr [rcx+rdi+195FA0h], ymm0
-      vmovups xmm1, xmmword ptr [rbx+1FCh]
-      vmovups xmmword ptr [rcx+rdi+195FC0h], xmm1
-      vmovups ymm0, ymmword ptr [rbx+120h]
-      vmovups ymmword ptr [rcx+rdi+195FD0h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+140h]
-      vmovups ymmword ptr [rcx+rdi+195FF0h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+160h]
-      vmovups ymmword ptr [rcx+rdi+196010h], ymm0
-      vmovups xmm1, xmmword ptr [rbx+180h]
-      vmovups xmmword ptr [rcx+rdi+196030h], xmm1
-    }
-    _RDI->m_entityDataCache.m_entData[_RCX].nextServerTime = CgEntityCache::s_nextServerTime;
-    _RDI->m_entityDataCache.m_entData[_RCX].prevServerTime = CgEntityCache::s_prevServerTime;
-    _RDI->m_entityDataCache.m_dataValid[_RBX->nextState.number] = 1;
+    v5 = ent->nextState.number;
+    *(__m256i *)this->m_entityDataCache.m_entData[v5].nextState.eFlags.m_flags = *(__m256i *)ent->nextState.lerp.eFlags.m_flags;
+    *(__m256i *)&this->m_entityDataCache.m_entData[v5].nextState.pos.trDelta.y = *(__m256i *)&ent->nextState.lerp.pos.trDelta.y;
+    *(__m256i *)this->m_entityDataCache.m_entData[v5].nextState.apos.trDelta.v = *(__m256i *)ent->nextState.lerp.apos.trDelta.v;
+    *(LerpEntityStateInfoVolumeGrapple *)((char *)&this->m_entityDataCache.m_entData[v5].nextState.u.infoVolumeGrapple + 20) = *(LerpEntityStateInfoVolumeGrapple *)((char *)&ent->nextState.lerp.u.infoVolumeGrapple + 20);
+    *(__m256i *)this->m_entityDataCache.m_entData[v5].prevState.eFlags.m_flags = *(__m256i *)ent->prevState.eFlags.m_flags;
+    *(__m256i *)&this->m_entityDataCache.m_entData[v5].prevState.pos.trDelta.y = *(__m256i *)&ent->prevState.pos.trDelta.y;
+    *(__m256i *)this->m_entityDataCache.m_entData[v5].prevState.apos.trDelta.v = *(__m256i *)ent->prevState.apos.trDelta.v;
+    *(LerpEntityStateInfoVolumeGrapple *)((char *)&this->m_entityDataCache.m_entData[v5].prevState.u.infoVolumeGrapple + 20) = *(LerpEntityStateInfoVolumeGrapple *)((char *)&ent->prevState.u.infoVolumeGrapple + 20);
+    this->m_entityDataCache.m_entData[v5].nextServerTime = CgEntityCache::s_nextServerTime;
+    this->m_entityDataCache.m_entData[v5].prevServerTime = CgEntityCache::s_prevServerTime;
+    this->m_entityDataCache.m_dataValid[ent->nextState.number] = 1;
   }
 }
 
@@ -437,32 +425,18 @@ GetOrigin_Vec3Copy
 */
 void GetOrigin_Vec3Copy(const vec4_t *from, vec3_t *to)
 {
-  int v5; 
-  int v6; 
-  int v7; 
+  float v2; 
+  float v3; 
+  float v4; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  dword ptr [rdx], xmm0
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-    vmovss  dword ptr [rdx+4], xmm2
-    vmovss  xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rdx+8], xmm1
-  }
-  if ( (v5 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm2 }
-  if ( (v6 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm1 }
-  if ( (v7 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 347, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-      __debugbreak();
-  }
+  v2 = from->v[0];
+  to->v[0] = from->v[0];
+  v3 = from->v[1];
+  to->v[1] = v3;
+  v4 = from->v[2];
+  to->v[2] = v4;
+  if ( ((LODWORD(v2) & 0x7F800000) == 2139095040 || (LODWORD(v3) & 0x7F800000) == 2139095040 || (LODWORD(v4) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 347, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -566,23 +540,25 @@ CgEntitySystem::ResetEntityDataCacheForFrame
 void CgEntitySystem::ResetEntityDataCacheForFrame(CgEntitySystem *this)
 {
   cg_t *LocalClientGlobals; 
+  cg_t *v3; 
   const snapshot_t *snap; 
+  float frameInterpolation; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  _RDX = LocalClientGlobals;
-  if ( LocalClientGlobals && (snap = LocalClientGlobals->snap) != NULL && _RDX->nextSnap )
+  v3 = LocalClientGlobals;
+  if ( LocalClientGlobals && (snap = LocalClientGlobals->snap) != NULL && v3->nextSnap )
   {
     CgEntityCache::s_prevServerTime = snap->serverTime;
-    CgEntityCache::s_nextServerTime = _RDX->nextSnap->serverTime;
-    __asm { vmovss  xmm0, dword ptr [rdx+65E0h] }
+    CgEntityCache::s_nextServerTime = v3->nextSnap->serverTime;
+    frameInterpolation = v3->frameInterpolation;
   }
   else
   {
     CgEntityCache::s_prevServerTime = 0;
     CgEntityCache::s_nextServerTime = 0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    frameInterpolation = 0.0;
   }
-  __asm { vmovss  cs:?s_frameInterpolation@CgEntityCache@@2MA, xmm0; float CgEntityCache::s_frameInterpolation }
+  CgEntityCache::s_frameInterpolation = frameInterpolation;
   memset_0(this->m_entityDataCache.m_dataValid, 0, sizeof(this->m_entityDataCache.m_dataValid));
 }
 
@@ -593,290 +569,240 @@ CgEntitySystem::ResetEntitySystemObufscation
 */
 void CgEntitySystem::ResetEntitySystemObufscation(const LocalClientNum_t localClientNum)
 {
-  LocalClientNum_t v3; 
+  LocalClientNum_t v1; 
+  __int64 v2; 
+  int v3; 
   __int64 v4; 
-  int v5; 
-  __int64 v6; 
-  bool v7; 
-  __int16 v8; 
-  __int64 v10; 
+  bool v5; 
+  __int16 v6; 
+  __int64 v7; 
   CgEntitySystem *EntitySystem; 
+  cpose_t *p_pose; 
   unsigned __int64 p_origin; 
   unsigned __int64 p_Get_origin; 
   unsigned __int64 p_prevOrigin; 
   unsigned __int64 p_Get_prevOrigin; 
-  signed int v23; 
-  int v24; 
-  __int64 v25; 
-  __int64 v26; 
-  signed int v27; 
-  __int64 v28; 
-  bool v29; 
-  const vec3_t *v30; 
-  unsigned __int64 v31; 
-  void (__fastcall *v32)(const vec4_t *, vec3_t *); 
-  unsigned __int64 v33; 
-  void (__fastcall *v34)(const vec3_t *, vec4_t *); 
-  unsigned __int64 v35; 
-  void (__fastcall *v36)(const vec4_t *, vec3_t *); 
-  unsigned __int64 v37; 
-  void (__fastcall *v38)(const vec3_t *, vec4_t *); 
-  CgEntitySystem *v39; 
-  unsigned int v42; 
-  unsigned int v43; 
-  unsigned int v44; 
-  unsigned int *v47; 
-  unsigned int v48; 
-  unsigned int v49; 
+  signed int v14; 
+  int v15; 
+  __int64 v16; 
+  __int64 v17; 
+  signed int v18; 
+  __int64 v19; 
+  bool v20; 
+  const vec3_t *v21; 
+  unsigned __int64 v22; 
+  void (__fastcall *v23)(const vec4_t *, vec3_t *); 
+  unsigned __int64 v24; 
+  void (__fastcall *v25)(const vec3_t *, vec4_t *); 
+  unsigned __int64 v26; 
+  void (__fastcall *v27)(const vec4_t *, vec3_t *); 
+  unsigned __int64 v28; 
+  void (__fastcall *v29)(const vec3_t *, vec4_t *); 
+  CgEntitySystem *v30; 
+  float *v31; 
+  unsigned int v32; 
+  unsigned int v33; 
+  unsigned int v34; 
+  unsigned int *v35; 
+  unsigned int v36; 
+  unsigned int v37; 
   __int64 randomIntSet; 
   __int64 randomIntSeta; 
   __int64 randomIntGet; 
   __int64 randomIntGeta; 
-  __int16 v58; 
+  __int16 v42; 
   LocalClientNum_t localClientNuma[2]; 
-  bdRandom v60; 
-  bdRandom v61; 
-  __int64 v62; 
+  bdRandom v44; 
+  bdRandom v45; 
+  __int64 v46; 
   vec3_t inOrigin; 
-  int v64[14]; 
-  char v65; 
-  void *retaddr; 
+  int v48[14]; 
 
-  _RAX = &retaddr;
-  v62 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v3 = localClientNum;
+  v46 = -2i64;
+  v1 = localClientNum;
   localClientNuma[0] = localClientNum;
-  bdRandom::bdRandom(&v61);
-  v5 = 0;
-  v6 = 0i64;
-  v7 = 1;
+  bdRandom::bdRandom(&v45);
+  v3 = 0;
+  v4 = 0i64;
+  v5 = 1;
   do
   {
-    if ( !v7 )
+    if ( !v5 )
       goto LABEL_73;
-    *((_BYTE *)&v64[4] + v6++) = 0;
-    v7 = (unsigned __int64)v6 < 0x22;
+    *((_BYTE *)&v48[4] + v4++) = 0;
+    v5 = (unsigned __int64)v4 < 0x22;
   }
-  while ( v6 < 34 );
-  v8 = 0;
-  v58 = 0;
-  __asm { vmovss  xmm6, cs:__real@4f800000 }
+  while ( v4 < 34 );
+  v6 = 0;
+  v42 = 0;
   while ( 1 )
   {
-    v10 = v8;
-    EntitySystem = CgEntitySystem::GetEntitySystem(v3);
-    if ( (unsigned int)v10 >= 0x800 )
+    v7 = v6;
+    EntitySystem = CgEntitySystem::GetEntitySystem(v1);
+    if ( (unsigned int)v7 >= 0x800 )
     {
       LODWORD(randomIntGet) = 2048;
-      LODWORD(randomIntSet) = v10;
+      LODWORD(randomIntSet) = v7;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", randomIntSet, randomIntGet) )
         __debugbreak();
     }
-    _R13 = &EntitySystem->m_entities[v10].pose;
-    p_origin = (unsigned __int64)&EntitySystem->m_entities[v10].pose.origin;
+    p_pose = &EntitySystem->m_entities[v7].pose;
+    p_origin = (unsigned __int64)&EntitySystem->m_entities[v7].pose.origin;
     *(_QWORD *)p_origin = 0i64;
-    p_Get_origin = (unsigned __int64)&EntitySystem->m_entities[v10].pose.origin.Get_origin;
+    p_Get_origin = (unsigned __int64)&EntitySystem->m_entities[v7].pose.origin.Get_origin;
     *(_QWORD *)p_Get_origin = 0i64;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [r13+48h], xmm0
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  dword ptr [r13+4Ch], xmm1
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-      vmovss  dword ptr [r13+50h], xmm0
-    }
-    p_prevOrigin = (unsigned __int64)&EntitySystem->m_entities[v10].pose.prevOrigin;
+    p_pose->angles = vec3_origin;
+    p_prevOrigin = (unsigned __int64)&EntitySystem->m_entities[v7].pose.prevOrigin;
     *(_QWORD *)p_prevOrigin = 0i64;
-    p_Get_prevOrigin = (unsigned __int64)&EntitySystem->m_entities[v10].pose.prevOrigin.Get_prevOrigin;
+    p_Get_prevOrigin = (unsigned __int64)&EntitySystem->m_entities[v7].pose.prevOrigin.Get_prevOrigin;
     *(_QWORD *)p_Get_prevOrigin = 0i64;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [r13+78h], xmm0
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  dword ptr [r13+7Ch], xmm1
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-      vmovss  dword ptr [r13+80h], xmm0
-    }
-    bdRandom::bdRandom(&v60);
-    v23 = bdRandom::nextUInt(&v60) % 0x22;
-    bdRandom::~bdRandom(&v60);
+    p_pose->prevAngles = vec3_origin;
+    bdRandom::bdRandom(&v44);
+    v14 = bdRandom::nextUInt(&v44) % 0x22;
+    bdRandom::~bdRandom(&v44);
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( (int)v10 >= (int)ComCharacterLimits::ms_gameData.m_clientCount )
+    if ( (int)v7 >= (int)ComCharacterLimits::ms_gameData.m_clientCount )
     {
-      v31 = (unsigned __int64)GetOrigin_Vec3Copy ^ p_origin ^ s_aab_get_pointer_origin;
-      v32 = *(void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_origin;
-      if ( *(_QWORD *)p_Get_origin && v32 != GetOrigin_Vec3Copy && v32 != (void (__fastcall *)(const vec4_t *, vec3_t *))v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 371, ASSERT_TYPE_ASSERT, "(( pose->origin.Get_origin == 0 ) || ( pose->origin.Get_origin == functionPointer ) || ( pose->origin.Get_origin == getFunc ))", (const char *)&queryFormat, "( pose->origin.Get_origin == NULL ) || ( pose->origin.Get_origin == functionPointer ) || ( pose->origin.Get_origin == getFunc )") )
+      v22 = (unsigned __int64)GetOrigin_Vec3Copy ^ p_origin ^ s_aab_get_pointer_origin;
+      v23 = *(void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_origin;
+      if ( *(_QWORD *)p_Get_origin && v23 != GetOrigin_Vec3Copy && v23 != (void (__fastcall *)(const vec4_t *, vec3_t *))v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 371, ASSERT_TYPE_ASSERT, "(( pose->origin.Get_origin == 0 ) || ( pose->origin.Get_origin == functionPointer ) || ( pose->origin.Get_origin == getFunc ))", (const char *)&queryFormat, "( pose->origin.Get_origin == NULL ) || ( pose->origin.Get_origin == functionPointer ) || ( pose->origin.Get_origin == getFunc )") )
         __debugbreak();
-      *(_QWORD *)p_Get_origin = v31;
-      v33 = (unsigned __int64)SetOrigin_Vec3Copy ^ p_Get_origin ^ s_aab_set_pointer_origin;
-      v34 = *(void (__fastcall **)(const vec3_t *, vec4_t *))p_origin;
-      if ( *(_QWORD *)p_origin && v34 != SetOrigin_Vec3Copy && v34 != (void (__fastcall *)(const vec3_t *, vec4_t *))v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 371, ASSERT_TYPE_ASSERT, "(( pose->origin.Set_origin == 0 ) || ( pose->origin.Set_origin == functionPointer ) || ( pose->origin.Set_origin == setFunc ))", (const char *)&queryFormat, "( pose->origin.Set_origin == NULL ) || ( pose->origin.Set_origin == functionPointer ) || ( pose->origin.Set_origin == setFunc )") )
+      *(_QWORD *)p_Get_origin = v22;
+      v24 = (unsigned __int64)SetOrigin_Vec3Copy ^ p_Get_origin ^ s_aab_set_pointer_origin;
+      v25 = *(void (__fastcall **)(const vec3_t *, vec4_t *))p_origin;
+      if ( *(_QWORD *)p_origin && v25 != SetOrigin_Vec3Copy && v25 != (void (__fastcall *)(const vec3_t *, vec4_t *))v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 371, ASSERT_TYPE_ASSERT, "(( pose->origin.Set_origin == 0 ) || ( pose->origin.Set_origin == functionPointer ) || ( pose->origin.Set_origin == setFunc ))", (const char *)&queryFormat, "( pose->origin.Set_origin == NULL ) || ( pose->origin.Set_origin == functionPointer ) || ( pose->origin.Set_origin == setFunc )") )
         __debugbreak();
-      *(_QWORD *)p_origin = v33;
-      CG_SetPoseOrigin(_R13, &vec3_origin);
-      v35 = (unsigned __int64)GetOrigin_Vec3Copy ^ p_prevOrigin ^ s_aab_get_pointer_prevorigin;
-      v36 = *(void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_prevOrigin;
-      if ( *(_QWORD *)p_Get_prevOrigin && v36 != GetOrigin_Vec3Copy && v36 != (void (__fastcall *)(const vec4_t *, vec3_t *))v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 374, ASSERT_TYPE_ASSERT, "(( pose->prevOrigin.Get_prevOrigin == 0 ) || ( pose->prevOrigin.Get_prevOrigin == functionPointer ) || ( pose->prevOrigin.Get_prevOrigin == getFunc ))", (const char *)&queryFormat, "( pose->prevOrigin.Get_prevOrigin == NULL ) || ( pose->prevOrigin.Get_prevOrigin == functionPointer ) || ( pose->prevOrigin.Get_prevOrigin == getFunc )") )
+      *(_QWORD *)p_origin = v24;
+      CG_SetPoseOrigin(p_pose, &vec3_origin);
+      v26 = (unsigned __int64)GetOrigin_Vec3Copy ^ p_prevOrigin ^ s_aab_get_pointer_prevorigin;
+      v27 = *(void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_prevOrigin;
+      if ( *(_QWORD *)p_Get_prevOrigin && v27 != GetOrigin_Vec3Copy && v27 != (void (__fastcall *)(const vec4_t *, vec3_t *))v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 374, ASSERT_TYPE_ASSERT, "(( pose->prevOrigin.Get_prevOrigin == 0 ) || ( pose->prevOrigin.Get_prevOrigin == functionPointer ) || ( pose->prevOrigin.Get_prevOrigin == getFunc ))", (const char *)&queryFormat, "( pose->prevOrigin.Get_prevOrigin == NULL ) || ( pose->prevOrigin.Get_prevOrigin == functionPointer ) || ( pose->prevOrigin.Get_prevOrigin == getFunc )") )
         __debugbreak();
-      *(_QWORD *)p_Get_prevOrigin = v35;
-      v37 = (unsigned __int64)SetOrigin_Vec3Copy ^ p_Get_prevOrigin ^ s_aab_set_pointer_prevorigin;
-      v38 = *(void (__fastcall **)(const vec3_t *, vec4_t *))p_prevOrigin;
-      if ( *(_QWORD *)p_prevOrigin && v38 != SetOrigin_Vec3Copy && v38 != (void (__fastcall *)(const vec3_t *, vec4_t *))v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 374, ASSERT_TYPE_ASSERT, "(( pose->prevOrigin.Set_prevOrigin == 0 ) || ( pose->prevOrigin.Set_prevOrigin == functionPointer ) || ( pose->prevOrigin.Set_prevOrigin == setFunc ))", (const char *)&queryFormat, "( pose->prevOrigin.Set_prevOrigin == NULL ) || ( pose->prevOrigin.Set_prevOrigin == functionPointer ) || ( pose->prevOrigin.Set_prevOrigin == setFunc )") )
+      *(_QWORD *)p_Get_prevOrigin = v26;
+      v28 = (unsigned __int64)SetOrigin_Vec3Copy ^ p_Get_prevOrigin ^ s_aab_set_pointer_prevorigin;
+      v29 = *(void (__fastcall **)(const vec3_t *, vec4_t *))p_prevOrigin;
+      if ( *(_QWORD *)p_prevOrigin && v29 != SetOrigin_Vec3Copy && v29 != (void (__fastcall *)(const vec3_t *, vec4_t *))v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 374, ASSERT_TYPE_ASSERT, "(( pose->prevOrigin.Set_prevOrigin == 0 ) || ( pose->prevOrigin.Set_prevOrigin == functionPointer ) || ( pose->prevOrigin.Set_prevOrigin == setFunc ))", (const char *)&queryFormat, "( pose->prevOrigin.Set_prevOrigin == NULL ) || ( pose->prevOrigin.Set_prevOrigin == functionPointer ) || ( pose->prevOrigin.Set_prevOrigin == setFunc )") )
         __debugbreak();
-      *(_QWORD *)p_prevOrigin = v37;
-      v30 = &vec3_origin;
+      *(_QWORD *)p_prevOrigin = v28;
+      v21 = &vec3_origin;
     }
     else
     {
-      v24 = 0;
-      v25 = v23;
-      if ( *((_BYTE *)&v64[4] + v23) )
+      v15 = 0;
+      v16 = v14;
+      if ( *((_BYTE *)&v48[4] + v14) )
       {
         while ( 1 )
         {
-          v26 = 0i64;
-          if ( v25 != 33 )
-            v26 = v25 + 1;
-          v27 = v23 + 1;
-          v23 = 0;
-          if ( v25 != 33 )
-            v23 = v27;
-          if ( ++v24 == 34 )
+          v17 = 0i64;
+          if ( v16 != 33 )
+            v17 = v16 + 1;
+          v18 = v14 + 1;
+          v14 = 0;
+          if ( v16 != 33 )
+            v14 = v18;
+          if ( ++v15 == 34 )
             break;
 LABEL_21:
-          v25 = v26;
-          if ( !*((_BYTE *)&v64[4] + v26) )
+          v16 = v17;
+          if ( !*((_BYTE *)&v48[4] + v17) )
             goto LABEL_22;
         }
-        v28 = 0i64;
-        v29 = 1;
-        while ( v29 )
+        v19 = 0i64;
+        v20 = 1;
+        while ( v20 )
         {
-          *((_BYTE *)&v64[4] + v28++) = 0;
-          v29 = (unsigned __int64)v28 < 0x22;
-          if ( v28 >= 34 )
+          *((_BYTE *)&v48[4] + v19++) = 0;
+          v20 = (unsigned __int64)v19 < 0x22;
+          if ( v19 >= 34 )
             goto LABEL_21;
         }
-        j___report_rangecheckfailure(v25);
+        j___report_rangecheckfailure(v16);
 LABEL_73:
-        j___report_rangecheckfailure(v4);
+        j___report_rangecheckfailure(v2);
         JUMPOUT(0x141CAB3EBi64);
       }
 LABEL_22:
-      *((_BYTE *)&v64[4] + v23) = 1;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0E8h+inOrigin], xmm6
-        vmovss  dword ptr [rsp+0E8h+inOrigin+4], xmm6
-        vmovss  dword ptr [rsp+0E8h+inOrigin+8], xmm6
-      }
-      if ( (unsigned int)v23 >= 0x22 )
+      *((_BYTE *)&v48[4] + v14) = 1;
+      inOrigin.v[0] = FLOAT_4_2949673e9;
+      inOrigin.v[1] = FLOAT_4_2949673e9;
+      inOrigin.v[2] = FLOAT_4_2949673e9;
+      if ( (unsigned int)v14 >= 0x22 )
       {
         LODWORD(randomIntGet) = 34;
-        LODWORD(randomIntSet) = v23;
+        LODWORD(randomIntSet) = v14;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 544, ASSERT_TYPE_ASSERT, "(unsigned)( randVal ) < (unsigned)( NUM_AAB_FUNCTIONS )", "randVal doesn't index NUM_AAB_FUNCTIONS\n\t%i not in [0, %i)", randomIntSet, randomIntGet) )
           __debugbreak();
       }
-      SetObfuscatedFunction(v23, p_Get_origin, p_origin, (void (__fastcall **)(const vec3_t *, vec4_t *))p_origin, (void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_origin, s_aab_set_pointer_origin, s_aab_get_pointer_origin);
-      CG_SetPoseOrigin(_R13, &inOrigin);
-      __asm
-      {
-        vmovss  [rsp+0E8h+var_78], xmm6
-        vmovss  [rsp+0E8h+var_74], xmm6
-        vmovss  [rsp+0E8h+var_70], xmm6
-      }
-      if ( (unsigned int)v23 >= 0x22 )
+      SetObfuscatedFunction(v14, p_Get_origin, p_origin, (void (__fastcall **)(const vec3_t *, vec4_t *))p_origin, (void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_origin, s_aab_set_pointer_origin, s_aab_get_pointer_origin);
+      CG_SetPoseOrigin(p_pose, &inOrigin);
+      *(float *)v48 = FLOAT_4_2949673e9;
+      *(float *)&v48[1] = FLOAT_4_2949673e9;
+      *(float *)&v48[2] = FLOAT_4_2949673e9;
+      if ( (unsigned int)v14 >= 0x22 )
       {
         LODWORD(randomIntGeta) = 34;
-        LODWORD(randomIntSeta) = v23;
+        LODWORD(randomIntSeta) = v14;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 628, ASSERT_TYPE_ASSERT, "(unsigned)( randVal ) < (unsigned)( NUM_AAB_FUNCTIONS )", "randVal doesn't index NUM_AAB_FUNCTIONS\n\t%i not in [0, %i)", randomIntSeta, randomIntGeta) )
           __debugbreak();
       }
-      SetObfuscatedFunction(v23, p_Get_prevOrigin, p_prevOrigin, (void (__fastcall **)(const vec3_t *, vec4_t *))p_prevOrigin, (void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_prevOrigin, s_aab_set_pointer_prevorigin, s_aab_get_pointer_prevorigin);
-      v30 = (const vec3_t *)v64;
+      SetObfuscatedFunction(v14, p_Get_prevOrigin, p_prevOrigin, (void (__fastcall **)(const vec3_t *, vec4_t *))p_prevOrigin, (void (__fastcall **)(const vec4_t *, vec3_t *))p_Get_prevOrigin, s_aab_set_pointer_prevorigin, s_aab_get_pointer_prevorigin);
+      v21 = (const vec3_t *)v48;
     }
-    CG_SetPrevPoseOrigin(_R13, v30);
-    v8 = v58 + 1;
-    v58 = v8;
-    if ( v8 >= 2048 )
+    CG_SetPrevPoseOrigin(p_pose, v21);
+    v6 = v42 + 1;
+    v42 = v6;
+    if ( v6 >= 2048 )
       break;
-    v3 = localClientNuma[0];
+    v1 = localClientNuma[0];
   }
-  v39 = CgEntitySystem::GetEntitySystem(localClientNuma[0]);
-  _RBX = &v39->m_entityOrigin[0].v[2];
+  v30 = CgEntitySystem::GetEntitySystem(localClientNuma[0]);
+  v31 = &v30->m_entityOrigin[0].v[2];
   while ( 1 )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( v5 > (int)ComCharacterLimits::ms_gameData.m_clientCount )
+    if ( v3 > (int)ComCharacterLimits::ms_gameData.m_clientCount )
       break;
-    if ( (unsigned int)v5 >= 0x800 )
+    if ( (unsigned int)v3 >= 0x800 )
     {
       LODWORD(randomIntGet) = 2048;
-      LODWORD(randomIntSet) = v5;
+      LODWORD(randomIntSet) = v3;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", randomIntSet, randomIntGet) )
         __debugbreak();
     }
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin }
-    if ( v5 > (int)ComCharacterLimits::ms_gameData.m_clientCount )
+    if ( v3 > (int)ComCharacterLimits::ms_gameData.m_clientCount )
     {
-      __asm
-      {
-        vmovss  dword ptr [rbx-8], xmm0
-        vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-        vmovss  dword ptr [rbx-4], xmm1
-        vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-        vmovss  dword ptr [rbx], xmm0
-      }
-      ++v5;
-      _RBX += 3;
+      *(vec3_t *)(v31 - 2) = vec3_origin;
+      ++v3;
+      v31 += 3;
     }
     else
     {
-      v42 = s_entity_aab_Z;
-      v43 = s_entity_aab_Y;
-      v44 = s_entity_aab_X;
-      __asm { vmovss  [rsp+0E8h+localClientNum], xmm0 }
-      if ( (localClientNuma[0] & 0x7F800000) == 2139095040 )
-        goto LABEL_77;
-      __asm
+      v32 = s_entity_aab_Z;
+      v33 = s_entity_aab_Y;
+      v34 = s_entity_aab_X;
+      localClientNuma[0] = SLODWORD(vec3_origin.v[0]);
+      if ( (LODWORD(vec3_origin.v[0]) & 0x7F800000) == 2139095040 || (localClientNuma[0] = SLODWORD(vec3_origin.v[1]), (LODWORD(vec3_origin.v[1]) & 0x7F800000) == 2139095040) || (localClientNuma[0] = SLODWORD(vec3_origin.v[2]), (LODWORD(vec3_origin.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-        vmovss  [rsp+0E8h+localClientNum], xmm0
-      }
-      if ( (localClientNuma[0] & 0x7F800000) == 2139095040 )
-        goto LABEL_77;
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-        vmovss  [rsp+0E8h+localClientNum], xmm0
-      }
-      if ( (localClientNuma[0] & 0x7F800000) == 2139095040 )
-      {
-LABEL_77:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
           __debugbreak();
       }
-      v47 = (unsigned int *)&v39->m_entityOrigin[v5];
-      v48 = LODWORD(vec3_origin.v[0]) ^ (unsigned int)v47 ^ ~v44;
-      v49 = v43 ^ LODWORD(vec3_origin.v[1]) ^ v48 ^ ((_DWORD)v39 + 4 * (3 * v5 + 389124));
-      *v47 = v48;
-      v47[1] = v49;
-      v47[2] = v42 ^ LODWORD(vec3_origin.v[2]) ^ v49 ^ ((_DWORD)v39 + 4 * (3 * v5 + 389124));
+      v35 = (unsigned int *)&v30->m_entityOrigin[v3];
+      v36 = LODWORD(vec3_origin.v[0]) ^ (unsigned int)v35 ^ ~v34;
+      v37 = v33 ^ LODWORD(vec3_origin.v[1]) ^ v36 ^ ((_DWORD)v30 + 4 * (3 * v3 + 389124));
+      *v35 = v36;
+      v35[1] = v37;
+      v35[2] = v32 ^ LODWORD(vec3_origin.v[2]) ^ v37 ^ ((_DWORD)v30 + 4 * (3 * v3 + 389124));
       memset(localClientNuma, 0, sizeof(localClientNuma));
-      ++v5;
-      _RBX += 3;
+      ++v3;
+      v31 += 3;
     }
   }
-  bdRandom::~bdRandom(&v61);
-  _R11 = &v65;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  bdRandom::~bdRandom(&v45);
 }
 
 /*
@@ -886,40 +812,11 @@ SetOrigin_Vec3Copy
 */
 void SetOrigin_Vec3Copy(const vec3_t *from, vec4_t *to)
 {
-  const vec3_t *v4; 
-  int v7; 
-  int v8; 
-  int v9; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  v4 = from;
-  if ( (v7 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 331, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
-      __debugbreak();
-  }
-  to->v[0] = v4->v[0];
-  to->v[1] = v4->v[1];
-  *(_QWORD *)&to->xyz.z = LODWORD(v4->v[2]);
+  if ( ((LODWORD(from->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(from->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(from->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.cpp", 331, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
+    __debugbreak();
+  to->v[0] = from->v[0];
+  to->v[1] = from->v[1];
+  *(_QWORD *)&to->xyz.z = LODWORD(from->v[2]);
 }
 
 /*

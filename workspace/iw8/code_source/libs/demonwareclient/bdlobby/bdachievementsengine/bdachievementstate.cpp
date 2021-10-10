@@ -883,66 +883,56 @@ void bdAchievementState::bdAchievementState(bdAchievementState *this, const bdAc
 {
   unsigned int v5; 
   bdStructFixedSizeArray<bdAchievementProgress,4> *p_m_multiProgress; 
-  bdStructFixedSizeArray<bdAchievementProgress,4> *v10; 
+  bdStructFixedSizeArray<bdAchievementProgress,4> *v7; 
   unsigned int m_size; 
-  __int64 v12; 
+  __int64 v9; 
+  char *v10; 
+  char *v11; 
 
-  _RDI = __that;
-  _R14 = this;
   v5 = 0;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdAchievementState::`vbtable';
     bdReferencable::bdReferencable((bdReferencable *)this->gap218, (const bdReferencable *)((char *)&__that->__vftable + *(int *)(*((_QWORD *)&__that->__vftable + 1) + 4i64) + 8));
   }
-  bdStructBufferSerializable::bdStructBufferSerializable(_R14, _RDI);
-  _R14->__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
-  *(bdAchievementState_vtbl **)((char *)&_R14->__vftable + *(int *)(*((_QWORD *)&_R14->__vftable + 1) + 4i64) + 8) = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdReferencable'};
-  *((_QWORD *)&_R14->__vftable + 2) = *((_QWORD *)&_RDI->__vftable + 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+18h]
-    vmovups ymmword ptr [r14+18h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+38h]
-    vmovups ymmword ptr [r14+38h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+58h]
-    vmovups ymmword ptr [r14+58h], ymm0
-  }
-  *(_DWORD *)&_R14->m_name[88] = *(_DWORD *)&_RDI->m_name[88];
-  _R14->m_name[92] = _RDI->m_name[92];
-  _R14->m_kind = _RDI->m_kind;
-  _R14->m_progress = _RDI->m_progress;
-  _R14->m_progressTarget = _RDI->m_progressTarget;
-  _R14->m_status = _RDI->m_status;
-  _R14->m_completionTimestamp = _RDI->m_completionTimestamp;
-  _R14->m_activationTimestamp = _RDI->m_activationTimestamp;
-  _R14->m_expirationTimestamp = _RDI->m_expirationTimestamp;
-  _R14->m_completionCount = _RDI->m_completionCount;
-  p_m_multiProgress = &_R14->m_multiProgress;
-  v10 = &_RDI->m_multiProgress;
-  `eh vector vbase constructor iterator'(&_R14->m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-  _R14->m_multiProgress.m_size = 0;
-  m_size = _RDI->m_multiProgress.m_size;
-  _R14->m_multiProgress.m_size = m_size;
+  bdStructBufferSerializable::bdStructBufferSerializable(this, __that);
+  this->__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
+  *(bdAchievementState_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdReferencable'};
+  *((_QWORD *)&this->__vftable + 2) = *((_QWORD *)&__that->__vftable + 2);
+  *(bdStructBufferSerializable *)((char *)&this->bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&__that->bdStructBufferSerializable + 24);
+  *(__m256i *)&this->m_name[24] = *(__m256i *)&__that->m_name[24];
+  *(__m256i *)&this->m_name[56] = *(__m256i *)&__that->m_name[56];
+  *(_DWORD *)&this->m_name[88] = *(_DWORD *)&__that->m_name[88];
+  this->m_name[92] = __that->m_name[92];
+  this->m_kind = __that->m_kind;
+  this->m_progress = __that->m_progress;
+  this->m_progressTarget = __that->m_progressTarget;
+  this->m_status = __that->m_status;
+  this->m_completionTimestamp = __that->m_completionTimestamp;
+  this->m_activationTimestamp = __that->m_activationTimestamp;
+  this->m_expirationTimestamp = __that->m_expirationTimestamp;
+  this->m_completionCount = __that->m_completionCount;
+  p_m_multiProgress = &this->m_multiProgress;
+  v7 = &__that->m_multiProgress;
+  `eh vector vbase constructor iterator'(&this->m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
+  this->m_multiProgress.m_size = 0;
+  m_size = __that->m_multiProgress.m_size;
+  this->m_multiProgress.m_size = m_size;
   if ( m_size )
   {
     do
     {
-      v12 = v5;
-      _RDI = (char *)v10 + v12 * 88;
-      _RSI = (char *)p_m_multiProgress + v12 * 88;
-      bdReferencable::operator=((bdReferencable *)((char *)&p_m_multiProgress->m_elements[v12].__vftable + *(int *)(*((_QWORD *)&p_m_multiProgress->m_elements[v12].__vftable + 1) + 4i64) + 8), (const bdReferencable *)&_RDI[*(int *)(*((_QWORD *)_RDI + 1) + 4i64) + 8]);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+10h]
-        vmovups ymmword ptr [rsi+10h], ymm0
-      }
-      _RSI[48] = _RDI[48];
-      *((_QWORD *)_RSI + 7) = *((_QWORD *)_RDI + 7);
-      *((_QWORD *)_RSI + 8) = *((_QWORD *)_RDI + 8);
+      v9 = v5;
+      v10 = (char *)v7 + v9 * 88;
+      v11 = (char *)p_m_multiProgress + v9 * 88;
+      bdReferencable::operator=((bdReferencable *)((char *)&p_m_multiProgress->m_elements[v9].__vftable + *(int *)(*((_QWORD *)&p_m_multiProgress->m_elements[v9].__vftable + 1) + 4i64) + 8), (const bdReferencable *)&v10[*(int *)(*((_QWORD *)v10 + 1) + 4i64) + 8]);
+      *(__m256i *)(v11 + 16) = *(__m256i *)(v10 + 16);
+      v11[48] = v10[48];
+      *((_QWORD *)v11 + 7) = *((_QWORD *)v10 + 7);
+      *((_QWORD *)v11 + 8) = *((_QWORD *)v10 + 8);
       ++v5;
     }
-    while ( v5 < _R14->m_multiProgress.m_size );
+    while ( v5 < this->m_multiProgress.m_size );
   }
 }
 

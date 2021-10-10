@@ -147,77 +147,59 @@ void R_AddAllBspDrawSurfacesCamera(const void *const cmd)
   __int64 v2; 
   GfxWorld *world; 
   int integer; 
-  const dvar_t *v8; 
-  int v9; 
-  int v13; 
-  GfxBspSurfListOut v17; 
-  __m256i v18; 
-  __m256i v19; 
+  const dvar_t *v5; 
+  int v6; 
+  int v7; 
+  GfxBspSurfListOut v8; 
+  __m256i v9; 
+  __m256i v10; 
   unsigned int *surfaceCastsSunShadow; 
-  GfxGetBspSurfListCameraLitData v21; 
-  __int64 v22; 
+  GfxGetBspSurfListCameraLitData v12; 
+  __int64 v13; 
 
-  v22 = -2i64;
+  v13 = -2i64;
   Profile_Begin(545);
   v2 = *(_QWORD *)cmd;
   world = rgp.world;
-  v18.m256i_i64[0] = (__int64)rgp.world->dpvs.surfaceVisData[0];
-  v19.m256i_i32[6] = sm_debugFastSunShadow->current.color[0];
+  v9.m256i_i64[0] = (__int64)rgp.world->dpvs.surfaceVisData[0];
+  v10.m256i_i32[6] = sm_debugFastSunShadow->current.color[0];
   surfaceCastsSunShadow = g_worldDpvs->surfaceCastsSunShadow;
   integer = r_drawOpaqueSurfs->current.integer;
   if ( integer != 1 && integer != 4 )
   {
-    *(_QWORD *)&v17.missingTransient = 0i64;
-    v17.bspSurfList = (GfxBspSurfList *)(v2 + 16208);
-    v17.drawlistType = DRAWLIST_LIT_OPAQUE;
-    __asm
-    {
-      vmovups ymm0, [rbp+57h+var_B0]
-      vmovups [rbp+57h+var_60], ymm0
-      vmovups ymm0, ymmword ptr [rbp-39h]
-      vmovups [rbp+57h+var_40], ymm0
-      vmovsd  xmm0, [rbp+57h+var_70]
-      vmovsd  [rbp+57h+var_20], xmm0
-    }
-    R_AddBspSurfaces_GfxGetBspSurfListCameraLitInterface_GfxGetBspSurfListCameraLitData_1_1_(&v21, rgp.world->surfaces.litOpaqueSurfsBegin, rgp.world->surfaces.litOpaqueSurfsEnd, &v17);
+    *(_QWORD *)&v8.missingTransient = 0i64;
+    v8.bspSurfList = (GfxBspSurfList *)(v2 + 16208);
+    v8.drawlistType = DRAWLIST_LIT_OPAQUE;
+    *(__m256i *)&v12.surfaceVisData = v9;
+    *(__m256i *)&v12.bspSurfIter.bits = v10;
+    v12.surfaceCastsSunShadow = surfaceCastsSunShadow;
+    R_AddBspSurfaces_GfxGetBspSurfListCameraLitInterface_GfxGetBspSurfListCameraLitData_1_1_(&v12, rgp.world->surfaces.litOpaqueSurfsBegin, rgp.world->surfaces.litOpaqueSurfsEnd, &v8);
     world = rgp.world;
   }
-  v8 = r_drawTransDecalSurfs;
-  v9 = r_drawTransDecalSurfs->current.integer;
-  if ( v9 != 1 && v9 != 4 )
+  v5 = r_drawTransDecalSurfs;
+  v6 = r_drawTransDecalSurfs->current.integer;
+  if ( v6 != 1 && v6 != 4 )
   {
-    *(_QWORD *)&v17.missingTransient = 0i64;
-    v17.bspSurfList = (GfxBspSurfList *)(v2 + 17424);
-    v17.drawlistType = DRAWLIST_LIT_DECAL;
-    __asm
-    {
-      vmovups ymm0, [rbp+57h+var_B0]
-      vmovups [rbp+57h+var_60], ymm0
-      vmovups ymm0, ymmword ptr [rbp-39h]
-      vmovups [rbp+57h+var_40], ymm0
-      vmovsd  xmm0, [rbp+57h+var_70]
-      vmovsd  [rbp+57h+var_20], xmm0
-    }
-    R_AddBspSurfaces_GfxGetBspSurfListCameraLitInterface_GfxGetBspSurfListCameraLitData_1_0_(&v21, world->surfaces.litDecalSurfsBegin, world->surfaces.litDecalSurfsEnd, &v17);
+    *(_QWORD *)&v8.missingTransient = 0i64;
+    v8.bspSurfList = (GfxBspSurfList *)(v2 + 17424);
+    v8.drawlistType = DRAWLIST_LIT_DECAL;
+    *(__m256i *)&v12.surfaceVisData = v9;
+    *(__m256i *)&v12.bspSurfIter.bits = v10;
+    v12.surfaceCastsSunShadow = surfaceCastsSunShadow;
+    R_AddBspSurfaces_GfxGetBspSurfListCameraLitInterface_GfxGetBspSurfListCameraLitData_1_0_(&v12, world->surfaces.litDecalSurfsBegin, world->surfaces.litDecalSurfsEnd, &v8);
     world = rgp.world;
-    v8 = r_drawTransDecalSurfs;
+    v5 = r_drawTransDecalSurfs;
   }
-  v13 = v8->current.integer;
-  if ( v13 != 1 && v13 != 4 )
+  v7 = v5->current.integer;
+  if ( v7 != 1 && v7 != 4 )
   {
-    *(_QWORD *)&v17.missingTransient = 0i64;
-    v17.bspSurfList = (GfxBspSurfList *)(v2 + 17576);
-    v17.drawlistType = DRAWLIST_LIT_TRANS;
-    __asm
-    {
-      vmovups ymm0, [rbp+57h+var_B0]
-      vmovups [rbp+57h+var_60], ymm0
-      vmovups ymm0, ymmword ptr [rbp-39h]
-      vmovups [rbp+57h+var_40], ymm0
-      vmovsd  xmm0, [rbp+57h+var_70]
-      vmovsd  [rbp+57h+var_20], xmm0
-    }
-    R_AddBspSurfaces_GfxGetBspSurfListCameraLitInterface_GfxGetBspSurfListCameraLitData_1_0_(&v21, world->surfaces.litTransSurfsBegin, world->surfaces.litTransSurfsEnd, &v17);
+    *(_QWORD *)&v8.missingTransient = 0i64;
+    v8.bspSurfList = (GfxBspSurfList *)(v2 + 17576);
+    v8.drawlistType = DRAWLIST_LIT_TRANS;
+    *(__m256i *)&v12.surfaceVisData = v9;
+    *(__m256i *)&v12.bspSurfIter.bits = v10;
+    v12.surfaceCastsSunShadow = surfaceCastsSunShadow;
+    R_AddBspSurfaces_GfxGetBspSurfListCameraLitInterface_GfxGetBspSurfListCameraLitData_1_0_(&v12, world->surfaces.litTransSurfsBegin, world->surfaces.litTransSurfsEnd, &v8);
   }
   Profile_EndInternal(NULL);
 }
@@ -244,55 +226,42 @@ void R_AddAllBspDrawSurfacesSpotShadow(GfxViewInfo *viewInfo, unsigned int spotS
 {
   __int64 v3; 
   GfxShadowGeometry *shadowGeomOptimized; 
-  GfxShadowGeometry *v6; 
+  const GfxShadowGeometry *v6; 
   GfxSpotShadowUpdate *v7; 
   unsigned int surfaceCount; 
-  unsigned int v12; 
-  GfxBspSurfListOut v14; 
-  __int128 v15; 
-  __int64 v16; 
-  GfxGetSpotShadowBspSurfListData v17; 
+  unsigned int v9; 
+  GfxBspSurfListOut v10; 
+  GfxGetSpotShadowBspSurfListData v11; 
+  GfxGetSpotShadowBspSurfListData v12; 
 
   v3 = spotShadowUpdateIndex;
-  *(_QWORD *)&v14.missingTransient = 0i64;
-  v14.bspSurfList = NULL;
-  v14.drawlistType = DRAWLIST_BACKEND_COUNT;
+  *(_QWORD *)&v10.missingTransient = 0i64;
+  v10.bspSurfList = NULL;
+  v10.drawlistType = DRAWLIST_BACKEND_COUNT;
   shadowGeomOptimized = rgp.world->shadowGeomOptimized;
   if ( shadowGeomOptimized )
   {
     v6 = &shadowGeomOptimized[primaryLightIndex];
-    *((_QWORD *)&v15 + 1) = v6;
-    LODWORD(v16) = v3 + 4;
+    v11.shadowGeom = v6;
+    v11.sceneViewType = v3 + 4;
     v7 = &frontEndDataOut->spotShadowUpdates[v3];
     if ( frontEndDataOut->spotShadowUpdates[v3].needsDynamicShadows )
     {
-      __asm { vmovups xmm0, [rsp+78h+var_40] }
       surfaceCount = v6->surfaceCount;
-      __asm
-      {
-        vmovups [rsp+78h+var_28], xmm0
-        vmovsd  xmm0, [rsp+78h+var_30]
-        vmovsd  [rsp+78h+var_18], xmm0
-      }
-      v14.bspSurfList = &viewInfo->drawList[(int)v3 + 37].bspSurfList;
-      v14.drawlistType = v3 + 37;
-      R_AddBspSurfaces_GfxGetSpotShadowBspSurfListInterface_AnimatedVerts_GfxGetSpotShadowBspSurfListData_0_0_(&v17, 0, surfaceCount, &v14);
+      v12 = v11;
+      v10.bspSurfList = &viewInfo->drawList[(int)v3 + 37].bspSurfList;
+      v10.drawlistType = v3 + 37;
+      R_AddBspSurfaces_GfxGetSpotShadowBspSurfListInterface_AnimatedVerts_GfxGetSpotShadowBspSurfListData_0_0_(&v12, 0, surfaceCount, &v10);
     }
     if ( R_SpotShadow_NeedsBSPSurfs(v7) )
     {
-      __asm { vmovups xmm0, [rsp+78h+var_40] }
-      v12 = v6->surfaceCount;
-      __asm
-      {
-        vmovups [rsp+78h+var_28], xmm0
-        vmovsd  xmm0, [rsp+78h+var_30]
-      }
-      v14.drawlistType = v3 + 29;
-      __asm { vmovsd  [rsp+78h+var_18], xmm0 }
-      v14.bspSurfList = &viewInfo->drawList[(int)v3 + 29].bspSurfList;
-      R_AddBspSurfaces_GfxGetSpotShadowBspSurfListInterface_NonAnimatedVerts_GfxGetSpotShadowBspSurfListData_0_0_(&v17, 0, v12, &v14);
+      v9 = v6->surfaceCount;
+      v12 = v11;
+      v10.drawlistType = v3 + 29;
+      v10.bspSurfList = &viewInfo->drawList[(int)v3 + 29].bspSurfList;
+      R_AddBspSurfaces_GfxGetSpotShadowBspSurfListInterface_NonAnimatedVerts_GfxGetSpotShadowBspSurfListData_0_0_(&v12, 0, v9, &v10);
     }
-    v7->missingTransientBSP = v14.missingTransient;
+    v7->missingTransientBSP = v10.missingTransient;
   }
 }
 
@@ -597,19 +566,14 @@ R_GetSortedBspSurfListIndirect
 void R_GetSortedBspSurfListIndirect(GfxSurface **surfArray, unsigned int surfArraySize, GfxBspSurfListOut *out)
 {
   __int64 v3; 
-  GfxGetSortedBspSurfListData v7; 
-  std::less<void> v8; 
+  GfxGetSortedBspSurfListData v6; 
+  std::less<void> v7; 
 
   v3 = surfArraySize;
   Sys_ProfBeginNamedEvent(0xFF708090, "bsp surf list indirect");
-  v7.surfArray = surfArray;
-  std::_Sort_unchecked<GfxSurface * *,std::less<void>>(surfArray, &surfArray[v3], (unsigned int)v3, v8);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+20h]
-    vmovdqa xmmword ptr [rsp+38h+var_18.baseclass_0.iter], xmm0
-  }
-  R_AddBspSurfaces_GfxGetSortedBspSurfListInterface_GfxGetSortedBspSurfListData_0_0_(&v7, 0, v3, out);
+  v6.surfArray = surfArray;
+  std::_Sort_unchecked<GfxSurface * *,std::less<void>>(surfArray, &surfArray[v3], (unsigned int)v3, v7);
+  R_AddBspSurfaces_GfxGetSortedBspSurfListInterface_GfxGetSortedBspSurfListData_0_0_(&v6, 0, v3, out);
   Sys_ProfEndNamedEvent();
 }
 
@@ -672,61 +636,67 @@ char R_ShouldDrawTransientZoneSurface(const unsigned int surfIndex, unsigned int
 R_SurfaceHasTessellationCutoff
 ==============
 */
-__int64 R_SurfaceHasTessellationCutoff(GfxSceneViewType sceneViewType, unsigned int surfIndex)
+_BOOL8 R_SurfaceHasTessellationCutoff(GfxSceneViewType sceneViewType, unsigned int surfIndex)
 {
   __int64 v2; 
-  __int128 v31; 
-  __int128 v32; 
-  __int128 v33; 
+  GfxSurfaceBounds *surfaceBounds; 
+  __int128 v6; 
+  __m128 v10; 
+  __m128 v14; 
+  __int128 v25; 
+  __m128 v26; 
+  __m128 v27; 
 
   v2 = surfIndex;
   if ( !rg.tessellation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_bsp.cpp", 267, ASSERT_TYPE_ASSERT, "(rg.tessellation != R_TESSELLATION_OFF)", (const char *)&queryFormat, "rg.tessellation != R_TESSELLATION_OFF") )
     __debugbreak();
   if ( rg.enableNoTessBuckets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_bsp.cpp", 271, ASSERT_TYPE_ASSERT, "(!rg.enableNoTessBuckets)", (const char *)&queryFormat, "!rg.enableNoTessBuckets") )
     __debugbreak();
-  if ( sceneViewType || rg.tessellation != 1 )
+  if ( sceneViewType )
     return 0i64;
-  _RDX = 3 * v2;
-  __asm { vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg; r_globals_t rg }
-  _RCX = rgp.world->surfaces.surfaceBounds;
-  HIDWORD(v31) = 0;
+  if ( rg.tessellation != 1 )
+    return 0i64;
+  surfaceBounds = rgp.world->surfaces.surfaceBounds;
+  HIDWORD(v25) = 0;
+  v6 = v25;
+  *(float *)&v6 = rg.viewOrg.v[0];
+  _XMM5 = v6;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp+30h]
-    vmovss  xmm5, xmm5, xmm0
-    vmovss  xmm0, dword ptr [rcx+rdx*8]
     vinsertps xmm5, xmm5, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+4, 10h; r_globals_t rg
     vinsertps xmm5, xmm5, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+8, 20h ; ' '; r_globals_t rg
-    vmovups xmmword ptr [rsp+30h], xmm5
   }
-  HIDWORD(v32) = 0;
+  v26 = _XMM5;
+  v26.m128_i32[3] = 0;
+  v10 = v26;
+  v10.m128_f32[0] = surfaceBounds[v2].bounds.midPoint.v[0];
+  _XMM4 = v10;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+30h]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rcx+rdx*8+0Ch]
     vinsertps xmm4, xmm4, dword ptr [rcx+rdx*8+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rcx+rdx*8+8], 20h ; ' '
-    vmovups xmmword ptr [rsp+30h], xmm4
-    vsubps  xmm1, xmm5, xmm4
   }
-  HIDWORD(v33) = 0;
+  v27 = _XMM4;
+  _mm128_sub_ps(_XMM5, _XMM4);
+  v27.m128_i32[3] = 0;
+  v14 = v27;
+  v14.m128_f32[0] = surfaceBounds[v2].bounds.halfSize.v[0];
+  _XMM3 = v14;
+  __asm { vinsertps xmm3, xmm3, dword ptr [rcx+rdx*8+10h], 10h }
+  _XMM0 = g_negativeZero.v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+30h]
-    vmovss  xmm3, xmm3, xmm0
-    vinsertps xmm3, xmm3, dword ptr [rcx+rdx*8+10h], 10h
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
     vinsertps xmm3, xmm3, dword ptr [rcx+rdx*8+14h], 20h ; ' '
     vandnps xmm2, xmm0, xmm1
-    vsubps  xmm3, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vmaxps  xmm1, xmm3, xmm0
-    vmulps  xmm2, xmm1, xmm1
+  }
+  _XMM3 = _mm128_sub_ps(_XMM2, _XMM3);
+  __asm { vmaxps  xmm1, xmm3, xmm0 }
+  _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
+  __asm
+  {
     vhaddps xmm0, xmm2, xmm2
     vhaddps xmm1, xmm0, xmm0
-    vcomiss xmm1, cs:?rg@@3Ur_globals_t@@A.tessellationCutoffDistanceSq; r_globals_t rg
   }
-  return 1i64;
+  return *(float *)&_XMM1 >= rg.tessellationCutoffDistanceSq;
 }
 

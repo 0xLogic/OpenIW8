@@ -124,6 +124,7 @@ void G_HudElemMP_UpdateClient(gclient_s *client, int clientNum, hudelem_update_t
   __int64 v3; 
   char v4; 
   int v6; 
+  int *p_clientNum; 
   int v8; 
   __int64 v9; 
   unsigned __int8 v10; 
@@ -131,17 +132,18 @@ void G_HudElemMP_UpdateClient(gclient_s *client, int clientNum, hudelem_update_t
   team_t team; 
   int v13; 
   __int64 v14; 
+  hudelem_t *v15; 
   __int64 v16; 
-  hudelem_t *v28; 
-  __int64 v29; 
-  __int64 v30; 
-  hudelem_t *v31; 
+  hudelem_t *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  hudelem_t *v20; 
   hudelem_t *i; 
-  __int64 v33; 
-  hudelem_t *v34; 
-  __int64 v35; 
-  int v36; 
-  int v37; 
+  __int64 v22; 
+  hudelem_t *v23; 
+  __int64 v24; 
+  int v25; 
+  int v26; 
 
   v3 = clientNum;
   v4 = which;
@@ -149,8 +151,8 @@ void G_HudElemMP_UpdateClient(gclient_s *client, int clientNum, hudelem_update_t
     __debugbreak();
   if ( (unsigned int)v3 >= 0x800 )
   {
-    LODWORD(v35) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v35, 2048) )
+    LODWORD(v24) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v24, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -162,18 +164,18 @@ void G_HudElemMP_UpdateClient(gclient_s *client, int clientNum, hudelem_update_t
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 51, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
     __debugbreak();
   v6 = 0;
-  _R14 = &g_hudelems[0].clientNum;
+  p_clientNum = &g_hudelems[0].clientNum;
   v8 = 0;
-  v36 = 0;
-  v37 = 0;
+  v25 = 0;
+  v26 = 0;
   v9 = 1080i64;
   do
   {
-    if ( !*(_R14 - 46) )
+    if ( !*(p_clientNum - 46) )
       goto LABEL_44;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 64, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ))", "%s\n\tTEAM_SPECTATOR is not supported in SP", "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER )") )
       __debugbreak();
-    v10 = *((_BYTE *)_R14 + 4);
+    v10 = *((_BYTE *)p_clientNum + 4);
     if ( v10 )
     {
       v11 = v10;
@@ -181,65 +183,51 @@ void G_HudElemMP_UpdateClient(gclient_s *client, int clientNum, hudelem_update_t
       if ( v11 != team && (!client->sess.cs.isMLGSpectator || (unsigned int)(team - 201) > 1 || v11 != client->sess.mlgSpectatingTeam) )
         goto LABEL_44;
     }
-    if ( *_R14 != 2047 && *_R14 != (_DWORD)v3 )
+    if ( *p_clientNum != 2047 && *p_clientNum != (_DWORD)v3 )
       goto LABEL_44;
-    if ( *((_BYTE *)_R14 + 5) )
+    if ( *((_BYTE *)p_clientNum + 5) )
     {
       if ( (v4 & 1) != 0 )
       {
         if ( v6 >= 15 )
         {
           v13 = 1;
-          v36 = 1;
+          v25 = 1;
           goto LABEL_45;
         }
         v14 = v6++;
-        _RDX = &client->ps.hud.archival[v14];
+        v15 = &client->ps.hud.archival[v14];
 LABEL_43:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14-0B8h]
-          vmovups xmmword ptr [rdx], xmm0
-          vmovups xmm1, xmmword ptr [r14-0A8h]
-          vmovups xmmword ptr [rdx+10h], xmm1
-          vmovups xmm0, xmmword ptr [r14-98h]
-          vmovups xmmword ptr [rdx+20h], xmm0
-          vmovups xmm1, xmmword ptr [r14-88h]
-          vmovups xmmword ptr [rdx+30h], xmm1
-          vmovups xmm0, xmmword ptr [r14-78h]
-          vmovups xmmword ptr [rdx+40h], xmm0
-          vmovups xmm1, xmmword ptr [r14-68h]
-          vmovups xmmword ptr [rdx+50h], xmm1
-          vmovups xmm0, xmmword ptr [r14-58h]
-          vmovups xmmword ptr [rdx+60h], xmm0
-          vmovups xmm1, xmmword ptr [r14-48h]
-          vmovups xmmword ptr [rdx+70h], xmm1
-          vmovups xmm0, xmmword ptr [r14-38h]
-          vmovups xmmword ptr [rdx+80h], xmm0
-          vmovups xmm1, xmmword ptr [r14-28h]
-          vmovups xmmword ptr [rdx+90h], xmm1
-          vmovups xmm0, xmmword ptr [r14-18h]
-          vmovups xmmword ptr [rdx+0A0h], xmm0
-        }
-        *(_QWORD *)&_RDX->soundID = *((_QWORD *)_R14 - 1);
+        *(_OWORD *)&v15->type = *(_OWORD *)(p_clientNum - 46);
+        *(_OWORD *)&v15->targetEntNum = *(_OWORD *)(p_clientNum - 42);
+        *(_OWORD *)&v15->rotationTime = *(_OWORD *)(p_clientNum - 38);
+        *(_OWORD *)&v15->fontScaleTime = *(_OWORD *)(p_clientNum - 34);
+        *(_OWORD *)&v15->color.r = *(_OWORD *)(p_clientNum - 30);
+        *(_OWORD *)&v15->label = *(_OWORD *)(p_clientNum - 26);
+        *(_OWORD *)&v15->fromWidth = *(_OWORD *)(p_clientNum - 22);
+        *(_OWORD *)&v15->fromX = *(_OWORD *)(p_clientNum - 18);
+        *(_OWORD *)&v15->moveStartTime = *(_OWORD *)(p_clientNum - 14);
+        *(_OWORD *)&v15->value = *(_OWORD *)(p_clientNum - 10);
+        *(_OWORD *)&v15->fxBirthTime = *(_OWORD *)(p_clientNum - 6);
+        *(_QWORD *)&v15->soundID = *((_QWORD *)p_clientNum - 1);
       }
     }
     else if ( (v4 & 2) != 0 )
     {
       if ( v8 < 30 )
       {
-        if ( client->sess.isInKillcam && !*((_BYTE *)_R14 + 6) )
+        if ( client->sess.isInKillcam && !*((_BYTE *)p_clientNum + 6) )
           goto LABEL_44;
         v16 = v8++;
-        _RDX = &client->ps.hud.current[v16];
+        v15 = &client->ps.hud.current[v16];
         goto LABEL_43;
       }
-      v37 = 1;
+      v26 = 1;
     }
 LABEL_44:
-    v13 = v36;
+    v13 = v25;
 LABEL_45:
-    _R14 += 48;
+    p_clientNum += 48;
     --v9;
   }
   while ( v9 );
@@ -250,7 +238,7 @@ LABEL_45:
     if ( level.time % 1000 < level.frameDuration )
       Com_PrintWarning(0, "MAX_HUDELEMS_ARCHIVAL exceeded, skipping hudelem update.\n");
   }
-  if ( v37 == 1 )
+  if ( v26 == 1 )
   {
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
@@ -259,28 +247,28 @@ LABEL_45:
   }
   if ( (v4 & 1) != 0 && v6 < 15 )
   {
-    v28 = &client->ps.hud.archival[v6];
-    while ( v28->type )
+    v17 = &client->ps.hud.archival[v6];
+    while ( v17->type )
     {
       memset_0(&client->ps.hud.archival[v6], 0, sizeof(client->ps.hud.archival[v6]));
-      if ( v28->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 120, ASSERT_TYPE_ASSERT, "(client->ps.hud.archival[archivalCount].type == HE_TYPE_FREE)", (const char *)&queryFormat, "client->ps.hud.archival[archivalCount].type == HE_TYPE_FREE") )
+      if ( v17->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 120, ASSERT_TYPE_ASSERT, "(client->ps.hud.archival[archivalCount].type == HE_TYPE_FREE)", (const char *)&queryFormat, "client->ps.hud.archival[archivalCount].type == HE_TYPE_FREE") )
         __debugbreak();
       ++v6;
-      ++v28;
+      ++v17;
       if ( v6 >= 15 )
         goto LABEL_72;
     }
-    v29 = v6;
-    v30 = (unsigned int)(15 - v6);
-    v31 = &client->ps.hud.archival[v29];
+    v18 = v6;
+    v19 = (unsigned int)(15 - v6);
+    v20 = &client->ps.hud.archival[v18];
     do
     {
-      if ( memcmp_0(v31, &g_dummyHudZero, 0xB8ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 127, ASSERT_TYPE_ASSERT, "(!I_memcmp( &client->ps.hud.archival[archivalCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) ))", (const char *)&queryFormat, "!I_memcmp( &client->ps.hud.archival[archivalCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) )") )
+      if ( memcmp_0(v20, &g_dummyHudZero, 0xB8ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 127, ASSERT_TYPE_ASSERT, "(!I_memcmp( &client->ps.hud.archival[archivalCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) ))", (const char *)&queryFormat, "!I_memcmp( &client->ps.hud.archival[archivalCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) )") )
         __debugbreak();
-      ++v31;
-      --v30;
+      ++v20;
+      --v19;
     }
-    while ( v30 );
+    while ( v19 );
   }
 LABEL_72:
   if ( (v4 & 2) != 0 && v8 < 30 )
@@ -296,16 +284,16 @@ LABEL_72:
       if ( ++v8 >= 30 )
         return;
     }
-    v33 = (unsigned int)(30 - v8);
-    v34 = &client->ps.hud.current[v8];
+    v22 = (unsigned int)(30 - v8);
+    v23 = &client->ps.hud.current[v8];
     do
     {
-      if ( memcmp_0(v34, &g_dummyHudZero, 0xB8ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 145, ASSERT_TYPE_ASSERT, "(!I_memcmp( &client->ps.hud.current[currentCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) ))", (const char *)&queryFormat, "!I_memcmp( &client->ps.hud.current[currentCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) )") )
+      if ( memcmp_0(v23, &g_dummyHudZero, 0xB8ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_hudelem_mp.cpp", 145, ASSERT_TYPE_ASSERT, "(!I_memcmp( &client->ps.hud.current[currentCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) ))", (const char *)&queryFormat, "!I_memcmp( &client->ps.hud.current[currentCount], &g_dummyHudZero, sizeof( g_dummyHudZero ) )") )
         __debugbreak();
-      ++v34;
-      --v33;
+      ++v23;
+      --v22;
     }
-    while ( v33 );
+    while ( v22 );
   }
 }
 

@@ -392,151 +392,85 @@ void __fastcall SND_SubmixStopFromVoice(SndVoice *voice)
 SND_SubmixAddFromSource
 ==============
 */
-
-void __fastcall SND_SubmixAddFromSource(SndSubmixType source, unsigned int id, double fadeTimeSec, double scale)
+void SND_SubmixAddFromSource(SndSubmixType source, unsigned int id, float fadeTimeSec, float scale)
 {
-  __int64 v11; 
-  bool v14; 
-  bool v15; 
-  const dvar_t *v21; 
-  const dvar_t *v22; 
-  const SndDuck *v24; 
-  unsigned int v26; 
-  SndSubmixReq *requests; 
+  __int64 v6; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  const SndDuck *DuckById; 
+  const SndDuck *v11; 
+  float length; 
+  int v13; 
+  int v14; 
+  SndSubmixReq *i; 
   SndSubmixReq *Available; 
   char *fmt; 
-  float fmta; 
   __int64 fadeTimeSeca; 
-  double fadeTimeSecb; 
-  float fadeTimeSecc; 
   __int64 scalea; 
-  double scaleb; 
-  float scalec; 
-  double v45; 
-  char v48; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v6 = source;
+  if ( !id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 498, ASSERT_TYPE_ASSERT, "(id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "id != SND_INVALID_HASH") )
+    __debugbreak();
+  if ( fadeTimeSec < 0.0 && fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 499, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f || fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec >= 0.0f || fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
+    __debugbreak();
+  if ( scale < 0.0 || scale > 1.0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  v11 = source;
-  __asm
-  {
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm3
-  }
-  v14 = id == 0;
-  if ( !id )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 498, ASSERT_TYPE_ASSERT, "(id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "id != SND_INVALID_HASH");
-    v14 = !v15;
-    if ( v15 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 500, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( scale ) && ( scale ) <= ( 1.0f )", "scale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", scale, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm8, xmm7
-    vcomiss xmm6, xmm7
-    vmovss  xmm9, cs:__real@3f800000
-    vcomiss xmm6, xmm9
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+98h+var_60], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  qword ptr [rsp+98h+scale], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  qword ptr [rsp+98h+fadeTimeSec], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 500, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( scale ) && ( scale ) <= ( 1.0f )", "scale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", fadeTimeSecb, scaleb, v45) )
-      __debugbreak();
-  }
-  if ( (unsigned int)v11 >= 7 )
+  if ( (unsigned int)v6 >= 7 )
   {
     LODWORD(scalea) = 7;
-    LODWORD(fadeTimeSeca) = v11;
+    LODWORD(fadeTimeSeca) = v6;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 501, ASSERT_TYPE_ASSERT, "(unsigned)( source ) < (unsigned)( SND_SUBMIX_TYPE_COUNT )", "source doesn't index SND_SUBMIX_TYPE_COUNT\n\t%i not in [0, %i)", fadeTimeSeca, scalea) )
       __debugbreak();
   }
-  v21 = DCONST_DVARBOOL_snd_submix_dev_cutout;
+  v8 = DCONST_DVARBOOL_snd_submix_dev_cutout;
   if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  if ( !v21->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
   {
-    v22 = DCONST_DVARBOOL_snd_submix_disable_script;
+    v9 = DCONST_DVARBOOL_snd_submix_disable_script;
     if ( !DCONST_DVARBOOL_snd_submix_disable_script && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_script") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( !v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( !v9->current.enabled )
     {
-      if ( id && (_RAX = SND_GetDuckById(id), (v24 = _RAX) != NULL) )
+      if ( id && (DuckById = SND_GetDuckById(id), (v11 = DuckById) != NULL) )
       {
-        __asm { vmovss  xmm0, dword ptr [rax+58h] }
-        v26 = 0;
-        __asm
+        length = DuckById->length;
+        v13 = 0;
+        v14 = 0;
+        if ( length >= 0.0000152879 )
+          v14 = (int)(float)(length * 1000.0);
+        for ( i = s_sndSubmix.requests; i->id != id; ++i )
         {
-          vcomiss xmm0, cs:__real@37803e84
-          vmulss  xmm0, xmm0, cs:__real@447a0000
-          vcvttss2si r14d, xmm0
-        }
-        requests = s_sndSubmix.requests;
-        while ( requests->id != id )
-        {
-          ++v26;
-          ++requests;
-          if ( v26 >= 0x8D )
+          if ( (unsigned int)++v13 >= 0x8D )
           {
             Available = SND_SubmixFindAvailable();
             if ( Available )
             {
-              __asm
-              {
-                vmovss  [rsp+98h+scale], xmm9
-                vmovss  [rsp+98h+fadeTimeSec], xmm8
-              }
-              SND_SubmixAddNew(Available, v24, NULL, v11, _ER14, fadeTimeSecc, scalec);
+              SND_SubmixAddNew(Available, v11, NULL, v6, v14, fadeTimeSec, 1.0);
             }
             else
             {
               LODWORD(fmt) = id;
-              Com_PrintError(9, "SOUND: no free submix for %s request def \"%s\" %x.\n", s_sndSubmixSourceNames[v11], v24->name, fmt);
+              Com_PrintError(9, "SOUND: no free submix for %s request def \"%s\" %x.\n", s_sndSubmixSourceNames[v6], v11->name, fmt);
             }
-            goto LABEL_31;
+            return;
           }
         }
-        if ( !SND_SubmixAssert(requests, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 382, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
+        if ( !SND_SubmixAssert(i, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 382, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
           __debugbreak();
-        __asm
-        {
-          vmovaps xmm3, xmm8; fadeTimeSec
-          vmovss  dword ptr [rsp+98h+fmt], xmm9
-        }
-        SND_SubmixAdjustRequest(requests, v11, _ER14, *(const float *)&_XMM3, fmta);
+        SND_SubmixAdjustRequest(i, v6, v14, fadeTimeSec, 1.0);
       }
       else
       {
-        Com_PrintError(9, "SOUND: did not find def %x for %s submix.\n", id, s_sndSubmixSourceNames[v11]);
+        Com_PrintError(9, "SOUND: did not find def %x for %s submix.\n", id, s_sndSubmixSourceNames[v6]);
       }
     }
-  }
-LABEL_31:
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+98h+var_38]
   }
 }
 
@@ -547,14 +481,13 @@ SND_SubmixAddFromVoiceAlias
 */
 SndSubmixReq *SND_SubmixAddFromVoiceAlias(SndVoice *voice)
 {
+  const dvar_t *v2; 
   const dvar_t *v3; 
-  const dvar_t *v4; 
-  int v6; 
-  int SoundFileLengthMS; 
+  const SndDuck *submixDef; 
+  int v5; 
+  float length; 
   SndSubmixReq *Available; 
-  SndSubmixReq *v14; 
-  float fadeTimeSec; 
-  float scale; 
+  SndSubmixReq *v8; 
 
   if ( !voice && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 438, ASSERT_TYPE_ASSERT, "(voice)", (const char *)&queryFormat, "voice") )
     __debugbreak();
@@ -562,53 +495,39 @@ SndSubmixReq *SND_SubmixAddFromVoiceAlias(SndVoice *voice)
     __debugbreak();
   if ( !voice->submixDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 440, ASSERT_TYPE_ASSERT, "(voice->submixDef != nullptr)", (const char *)&queryFormat, "voice->submixDef != nullptr") )
     __debugbreak();
-  v3 = DCONST_DVARBOOL_snd_submix_dev_cutout;
+  v2 = DCONST_DVARBOOL_snd_submix_dev_cutout;
   if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
+    return 0i64;
+  v3 = DCONST_DVARBOOL_snd_submix_disable_alias;
+  if ( !DCONST_DVARBOOL_snd_submix_disable_alias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_alias") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v3);
   if ( v3->current.enabled )
     return 0i64;
-  v4 = DCONST_DVARBOOL_snd_submix_disable_alias;
-  if ( !DCONST_DVARBOOL_snd_submix_disable_alias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_alias") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
-    return 0i64;
-  _RDI = voice->submixDef;
-  v6 = 0;
-  __asm
+  submixDef = voice->submixDef;
+  v5 = 0;
+  length = submixDef->length;
+  if ( length <= 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rdi+58h]
-    vcomiss xmm1, xmm0
+    if ( (voice->alias->flags & 1) == 0 )
+      v5 = SND_GetSoundFileLengthMS(voice->assetEntry) + (int)(float)(submixDef->fadeOut * 1000.0);
   }
-  if ( (voice->alias->flags & 1) == 0 )
+  else
   {
-    SoundFileLengthMS = SND_GetSoundFileLengthMS(voice->assetEntry);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+48h]
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si esi, xmm1
-    }
-    v6 = SoundFileLengthMS + _ESI;
+    v5 = (int)(float)(length * 1000.0);
   }
   Available = SND_SubmixFindAvailable();
-  v14 = Available;
+  v8 = Available;
   if ( !Available )
   {
-    Com_PrintError(9, "SOUND: no free submix for ALIAS request def \"%s\" %x.\n", _RDI->name, _RDI->id);
+    Com_PrintError(9, "SOUND: no free submix for ALIAS request def \"%s\" %x.\n", submixDef->name, submixDef->id);
     return 0i64;
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@bf800000
-    vmovss  [rsp+48h+scale], xmm0
-    vmovss  [rsp+48h+fadeTimeSec], xmm1
-  }
-  SND_SubmixAddNew(Available, _RDI, voice, 3, v6, fadeTimeSec, scale);
-  return v14;
+  SND_SubmixAddNew(Available, submixDef, voice, 3, v5, -1.0, 1.0);
+  return v8;
 }
 
 /*
@@ -618,13 +537,11 @@ SND_SubmixAddNew
 */
 void SND_SubmixAddNew(SndSubmixReq *submix, const SndDuck *const def, SndVoice *voice, const int type, const int endTime, const float fadeTimeSec, const float scale)
 {
-  int v15; 
+  int v11; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  _RBX = submix;
   if ( !submix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 410, ASSERT_TYPE_ASSERT, "(submix)", (const char *)&queryFormat, "submix") )
     __debugbreak();
-  if ( _RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 411, ASSERT_TYPE_ASSERT, "(submix->def == nullptr)", (const char *)&queryFormat, "submix->def == nullptr") )
+  if ( submix->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 411, ASSERT_TYPE_ASSERT, "(submix->def == nullptr)", (const char *)&queryFormat, "submix->def == nullptr") )
     __debugbreak();
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 412, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
@@ -632,38 +549,27 @@ void SND_SubmixAddNew(SndSubmixReq *submix, const SndDuck *const def, SndVoice *
     __debugbreak();
   if ( endTime < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 414, ASSERT_TYPE_ASSERT, "(endTime >= 0)", (const char *)&queryFormat, "endTime >= 0") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, [rsp+58h+fadeTimeSec]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  _RBX->id = def->id;
-  _RBX->def = def;
-  _RBX->startTime = g_snd.time;
+  if ( fadeTimeSec < 0.0 && fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 415, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f || fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec >= 0.0f || fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
+    __debugbreak();
+  submix->id = def->id;
+  submix->def = def;
+  submix->startTime = g_snd.time;
   if ( endTime )
-    v15 = endTime + g_snd.time;
+    v11 = endTime + g_snd.time;
   else
-    v15 = 0;
-  __asm { vmovss  xmm0, [rsp+58h+scale] }
-  _RBX->endTime = v15;
-  __asm
-  {
-    vmovaps xmm1, xmm6; fadeTimeSec
-    vmovss  dword ptr [rbx+20h], xmm0
-  }
-  *(float *)&_XMM0 = SND_SubmixCaculateFadeInTime(def, *(float *)&_XMM1);
-  __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-  _RBX->fadeOutTimeSec = def->fadeOut;
-  _RBX->voice = voice;
+    v11 = 0;
+  submix->endTime = v11;
+  submix->scale = scale;
+  submix->fadeInTimeSec = SND_SubmixCaculateFadeInTime(def, fadeTimeSec);
+  submix->fadeOutTimeSec = def->fadeOut;
+  submix->voice = voice;
   if ( voice )
-    voice->submixRef = _RBX;
-  if ( (((_BYTE)_RBX + 4) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &_RBX->type) )
+    voice->submixRef = submix;
+  if ( (((_BYTE)submix + 4) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &submix->type) )
     __debugbreak();
-  _InterlockedExchange(&_RBX->type, type);
-  if ( !SND_SubmixAssert(_RBX, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 432, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( submix, true ))", (const char *)&queryFormat, "SND_SubmixAssert( submix, true )") )
+  _InterlockedExchange(&submix->type, type);
+  if ( !SND_SubmixAssert(submix, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 432, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( submix, true ))", (const char *)&queryFormat, "SND_SubmixAssert( submix, true )") )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*
@@ -671,41 +577,30 @@ void SND_SubmixAddNew(SndSubmixReq *submix, const SndDuck *const def, SndVoice *
 SND_SubmixAdjustRequest
 ==============
 */
-
-void __fastcall SND_SubmixAdjustRequest(SndSubmixReq *submix, const int type, const int endTime, double fadeTimeSec, const float scale)
+void SND_SubmixAdjustRequest(SndSubmixReq *submix, const int type, const int endTime, const float fadeTimeSec, const float scale)
 {
-  int v12; 
+  int v7; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = submix;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !submix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 553, ASSERT_TYPE_ASSERT, "(submix)", (const char *)&queryFormat, "submix") )
     __debugbreak();
-  if ( !_RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 554, ASSERT_TYPE_ASSERT, "(submix->def != nullptr)", (const char *)&queryFormat, "submix->def != nullptr") )
+  if ( !submix->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 554, ASSERT_TYPE_ASSERT, "(submix->def != nullptr)", (const char *)&queryFormat, "submix->def != nullptr") )
     __debugbreak();
-  if ( !_RBX->def->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 555, ASSERT_TYPE_ASSERT, "(submix->def->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "submix->def->id != SND_INVALID_HASH") )
+  if ( !submix->def->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 555, ASSERT_TYPE_ASSERT, "(submix->def->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "submix->def->id != SND_INVALID_HASH") )
     __debugbreak();
   if ( endTime < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 556, ASSERT_TYPE_ASSERT, "(endTime >= 0)", (const char *)&queryFormat, "endTime >= 0") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmovss  xmm0, [rsp+48h+scale]
-    vmovss  dword ptr [rbx+20h], xmm0
-  }
-  _RBX->startTime = g_snd.time;
-  if ( endTime )
-    v12 = endTime + g_snd.time;
-  else
-    v12 = 0;
-  _RBX->endTime = v12;
-  __asm { vmovaps xmm1, xmm6; fadeTimeSec }
-  *(float *)&_XMM0 = SND_SubmixCaculateFadeInTime(_RBX->def, *(float *)&_XMM1);
-  __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-  if ( !SND_SubmixAssert(_RBX, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 564, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( submix, true ))", (const char *)&queryFormat, "SND_SubmixAssert( submix, true )") )
+  if ( fadeTimeSec < 0.0 && fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 557, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f || fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec >= 0.0f || fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  submix->scale = scale;
+  submix->startTime = g_snd.time;
+  if ( endTime )
+    v7 = endTime + g_snd.time;
+  else
+    v7 = 0;
+  submix->endTime = v7;
+  submix->fadeInTimeSec = SND_SubmixCaculateFadeInTime(submix->def, fadeTimeSec);
+  if ( !SND_SubmixAssert(submix, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 564, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( submix, true ))", (const char *)&queryFormat, "SND_SubmixAssert( submix, true )") )
+    __debugbreak();
 }
 
 /*
@@ -715,123 +610,95 @@ SND_SubmixAssert
 */
 char SND_SubmixAssert(const SndSubmixReq *const req, const bool assertVoice)
 {
-  unsigned int type; 
-  bool v6; 
-  bool v7; 
-  bool v9; 
   int endTime; 
   SndVoice *voice; 
   SndFileLoadingState loadingState; 
-  const char *v14; 
-  int v15; 
-  const char *v16; 
+  const char *v7; 
+  int v8; 
+  const char *v9; 
   SndSubmixReq *submixRef; 
 
-  _RBX = req;
   if ( !req && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 114, ASSERT_TYPE_ASSERT, "(req)", (const char *)&queryFormat, "req") )
     __debugbreak();
-  if ( _RBX->type < -1 )
+  if ( req->type < -1 )
   {
-    if ( _RBX->type != -3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 149, ASSERT_TYPE_ASSERT, "(req->type == SND_SUBMIX_TYPE_EXPIRED)", (const char *)&queryFormat, "req->type == SND_SUBMIX_TYPE_EXPIRED") )
+    if ( req->type != -3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 149, ASSERT_TYPE_ASSERT, "(req->type == SND_SUBMIX_TYPE_EXPIRED)", (const char *)&queryFormat, "req->type == SND_SUBMIX_TYPE_EXPIRED") )
       __debugbreak();
-    if ( _RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 150, ASSERT_TYPE_ASSERT, "(req->def == nullptr)", (const char *)&queryFormat, "req->def == nullptr") )
+    if ( req->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 150, ASSERT_TYPE_ASSERT, "(req->def == nullptr)", (const char *)&queryFormat, "req->def == nullptr") )
       __debugbreak();
-    if ( _RBX->voice && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 151, ASSERT_TYPE_ASSERT, "(req->voice == nullptr)", (const char *)&queryFormat, "req->voice == nullptr") )
+    if ( req->voice && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 151, ASSERT_TYPE_ASSERT, "(req->voice == nullptr)", (const char *)&queryFormat, "req->voice == nullptr") )
       __debugbreak();
-    if ( !_RBX->id )
+    if ( !req->id )
       return 1;
-    v14 = "req->id == SND_INVALID_HASH";
-    v15 = 152;
-    v16 = "(req->id == static_cast< SndStringHash >( 0 ))";
+    v7 = "req->id == SND_INVALID_HASH";
+    v8 = 152;
+    v9 = "(req->id == static_cast< SndStringHash >( 0 ))";
 LABEL_73:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", v15, ASSERT_TYPE_ASSERT, v16, (const char *)&queryFormat, v14) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", v8, ASSERT_TYPE_ASSERT, v9, (const char *)&queryFormat, v7) )
       __debugbreak();
     return 1;
   }
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  if ( !_RBX->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 117, ASSERT_TYPE_ASSERT, "(req->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "req->id != SND_INVALID_HASH") )
+  if ( !req->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 117, ASSERT_TYPE_ASSERT, "(req->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "req->id != SND_INVALID_HASH") )
     __debugbreak();
-  if ( !_RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 118, ASSERT_TYPE_ASSERT, "(req->def != nullptr)", (const char *)&queryFormat, "req->def != nullptr") )
+  if ( !req->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 118, ASSERT_TYPE_ASSERT, "(req->def != nullptr)", (const char *)&queryFormat, "req->def != nullptr") )
     __debugbreak();
-  if ( _RBX->def->id != _RBX->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 119, ASSERT_TYPE_ASSERT, "(req->def->id == req->id)", (const char *)&queryFormat, "req->def->id == req->id") )
+  if ( req->def->id != req->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 119, ASSERT_TYPE_ASSERT, "(req->def->id == req->id)", (const char *)&queryFormat, "req->def->id == req->id") )
     __debugbreak();
-  if ( _RBX->id != _RBX->def->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 120, ASSERT_TYPE_ASSERT, "(req->id == req->def->id)", (const char *)&queryFormat, "req->id == req->def->id") )
+  if ( req->id != req->def->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 120, ASSERT_TYPE_ASSERT, "(req->id == req->def->id)", (const char *)&queryFormat, "req->id == req->def->id") )
     __debugbreak();
-  type = _RBX->type;
-  v6 = type <= 0xFFFFFFFD;
-  if ( type == -3 )
-  {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 121, ASSERT_TYPE_ASSERT, "(req->type != SND_SUBMIX_TYPE_EXPIRED)", (const char *)&queryFormat, "req->type != SND_SUBMIX_TYPE_EXPIRED");
-    v6 = !v7;
-    if ( v7 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+18h]
-  }
-  if ( !v6 )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 122, ASSERT_TYPE_ASSERT, "(req->fadeInTimeSec >= 0.0f)", (const char *)&queryFormat, "req->fadeInTimeSec >= 0.0f");
-    v6 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rbx+1Ch]
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 123, ASSERT_TYPE_ASSERT, "(req->fadeOutTimeSec >= 0.0f)", (const char *)&queryFormat, "req->fadeOutTimeSec >= 0.0f") )
+  if ( req->type == -3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 121, ASSERT_TYPE_ASSERT, "(req->type != SND_SUBMIX_TYPE_EXPIRED)", (const char *)&queryFormat, "req->type != SND_SUBMIX_TYPE_EXPIRED") )
     __debugbreak();
-  endTime = _RBX->endTime;
-  if ( endTime < _RBX->startTime && endTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 124, ASSERT_TYPE_ASSERT, "(req->endTime >= req->startTime || req->endTime == 0)", (const char *)&queryFormat, "req->endTime >= req->startTime || req->endTime == 0") )
+  if ( req->fadeInTimeSec < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 122, ASSERT_TYPE_ASSERT, "(req->fadeInTimeSec >= 0.0f)", (const char *)&queryFormat, "req->fadeInTimeSec >= 0.0f") )
     __debugbreak();
-  if ( !_RBX->voice || !assertVoice )
+  if ( req->fadeOutTimeSec < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 123, ASSERT_TYPE_ASSERT, "(req->fadeOutTimeSec >= 0.0f)", (const char *)&queryFormat, "req->fadeOutTimeSec >= 0.0f") )
+    __debugbreak();
+  endTime = req->endTime;
+  if ( endTime < req->startTime && endTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 124, ASSERT_TYPE_ASSERT, "(req->endTime >= req->startTime || req->endTime == 0)", (const char *)&queryFormat, "req->endTime >= req->startTime || req->endTime == 0") )
+    __debugbreak();
+  if ( !req->voice || !assertVoice )
     return 1;
-  if ( _RBX->type != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 127, ASSERT_TYPE_ASSERT, "(req->type == SND_SUBMIX_TYPE_ALIAS)", (const char *)&queryFormat, "req->type == SND_SUBMIX_TYPE_ALIAS") )
+  if ( req->type != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 127, ASSERT_TYPE_ASSERT, "(req->type == SND_SUBMIX_TYPE_ALIAS)", (const char *)&queryFormat, "req->type == SND_SUBMIX_TYPE_ALIAS") )
     __debugbreak();
-  voice = _RBX->voice;
+  voice = req->voice;
   loadingState = voice->soundFileInfo.loadingState;
   if ( voice->soundFileInfo.loadingState )
   {
     if ( loadingState == SFLS_LOADED )
     {
-      if ( voice->submixRef != _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 135, ASSERT_TYPE_ASSERT, "(req->voice->submixRef == req)", (const char *)&queryFormat, "req->voice->submixRef == req") )
+      if ( voice->submixRef != req && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 135, ASSERT_TYPE_ASSERT, "(req->voice->submixRef == req)", (const char *)&queryFormat, "req->voice->submixRef == req") )
         __debugbreak();
-      if ( _RBX->voice->submixDef != _RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 136, ASSERT_TYPE_ASSERT, "(req->voice->submixDef == req->def)", (const char *)&queryFormat, "req->voice->submixDef == req->def") )
+      if ( req->voice->submixDef != req->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 136, ASSERT_TYPE_ASSERT, "(req->voice->submixDef == req->def)", (const char *)&queryFormat, "req->voice->submixDef == req->def") )
         __debugbreak();
-      if ( _RBX->voice->submixDef->id == _RBX->id )
+      if ( req->voice->submixDef->id == req->id )
         return 1;
-      v14 = "req->voice->submixDef->id == req->id";
-      v15 = 137;
-      v16 = "(req->voice->submixDef->id == req->id)";
+      v7 = "req->voice->submixDef->id == req->id";
+      v8 = 137;
+      v9 = "(req->voice->submixDef->id == req->id)";
     }
     else
     {
       if ( loadingState != SFLS_LOADING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 141, ASSERT_TYPE_ASSERT, "(req->voice->soundFileInfo.loadingState == SFLS_LOADING)", (const char *)&queryFormat, "req->voice->soundFileInfo.loadingState == SFLS_LOADING") )
         __debugbreak();
-      submixRef = _RBX->voice->submixRef;
-      if ( submixRef != _RBX && submixRef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 142, ASSERT_TYPE_ASSERT, "(req->voice->submixRef == req || req->voice->submixRef == nullptr)", (const char *)&queryFormat, "req->voice->submixRef == req || req->voice->submixRef == nullptr") )
+      submixRef = req->voice->submixRef;
+      if ( submixRef != req && submixRef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 142, ASSERT_TYPE_ASSERT, "(req->voice->submixRef == req || req->voice->submixRef == nullptr)", (const char *)&queryFormat, "req->voice->submixRef == req || req->voice->submixRef == nullptr") )
         __debugbreak();
-      if ( _RBX->voice->submixDef != _RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 143, ASSERT_TYPE_ASSERT, "(req->voice->submixDef == req->def)", (const char *)&queryFormat, "req->voice->submixDef == req->def") )
+      if ( req->voice->submixDef != req->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 143, ASSERT_TYPE_ASSERT, "(req->voice->submixDef == req->def)", (const char *)&queryFormat, "req->voice->submixDef == req->def") )
         __debugbreak();
-      if ( _RBX->voice->submixDef->id == _RBX->id )
+      if ( req->voice->submixDef->id == req->id )
         return 1;
-      v14 = "req->voice->submixDef->id == req->id";
-      v15 = 144;
-      v16 = "(req->voice->submixDef->id == req->id)";
+      v7 = "req->voice->submixDef->id == req->id";
+      v8 = 144;
+      v9 = "(req->voice->submixDef->id == req->id)";
     }
     goto LABEL_73;
   }
   if ( voice->submixRef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 130, ASSERT_TYPE_ASSERT, "(req->voice->submixRef == nullptr)", (const char *)&queryFormat, "req->voice->submixRef == nullptr") )
     __debugbreak();
-  if ( _RBX->voice->submixDef )
+  if ( req->voice->submixDef )
   {
-    v14 = "req->voice->submixDef == nullptr";
-    v15 = 131;
-    v16 = "(req->voice->submixDef == nullptr)";
+    v7 = "req->voice->submixDef == nullptr";
+    v8 = 131;
+    v9 = "(req->voice->submixDef == nullptr)";
     goto LABEL_73;
   }
   return 1;
@@ -842,26 +709,22 @@ LABEL_73:
 SND_SubmixCaculateFadeInTime
 ==============
 */
-
-float __fastcall SND_SubmixCaculateFadeInTime(const SndDuck *def, double fadeTimeSec)
+float SND_SubmixCaculateFadeInTime(const SndDuck *def, float fadeTimeSec)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm6, xmm1
-  }
+  float fadeIn; 
+
+  fadeIn = fadeTimeSec;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1556, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
-  __asm
+  if ( fadeTimeSec < 0.0 )
   {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
+    if ( fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1560, ASSERT_TYPE_ASSERT, "(fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
+      __debugbreak();
+    fadeIn = def->fadeIn;
+    if ( fadeIn < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1563, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f)", (const char *)&queryFormat, "fadeTimeSec >= 0.0f") )
+      __debugbreak();
   }
-  return *(float *)&_XMM0;
+  return fadeIn;
 }
 
 /*
@@ -871,31 +734,53 @@ SND_SubmixCalculateAmplitudeFromVoiceAsset
 */
 float SND_SubmixCalculateAmplitudeFromVoiceAsset(const SndVoice *const voice)
 {
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _R13 = voice;
+  float v2; 
+  const SndAssetBankEntry *assetEntry; 
+  unsigned __int16 i2; 
+  unsigned __int8 e3; 
+  unsigned __int8 EnvelopeLoudness2; 
+  unsigned __int16 i1; 
+  int frameCount; 
+  unsigned __int8 EnvelopeLoudness1; 
+  unsigned __int8 EnvelopeLoudness0; 
+  int v11; 
+  double v12; 
+
   if ( !voice && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1522, ASSERT_TYPE_ASSERT, "(voice)", (const char *)&queryFormat, "voice") )
     __debugbreak();
-  if ( !_R13->alias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1523, ASSERT_TYPE_ASSERT, "(voice->alias)", (const char *)&queryFormat, "voice->alias") )
+  if ( !voice->alias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1523, ASSERT_TYPE_ASSERT, "(voice->alias)", (const char *)&queryFormat, "voice->alias") )
     __debugbreak();
-  if ( !_R13->submixDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1524, ASSERT_TYPE_ASSERT, "(voice->submixDef)", (const char *)&queryFormat, "voice->submixDef") )
+  if ( !voice->submixDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1524, ASSERT_TYPE_ASSERT, "(voice->submixDef)", (const char *)&queryFormat, "voice->submixDef") )
     __debugbreak();
-  if ( !_R13->submixRef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1525, ASSERT_TYPE_ASSERT, "(voice->submixRef)", (const char *)&queryFormat, "voice->submixRef") )
+  if ( !voice->submixRef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1525, ASSERT_TYPE_ASSERT, "(voice->submixRef)", (const char *)&queryFormat, "voice->submixRef") )
     __debugbreak();
-  if ( !_R13->submixRef->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1526, ASSERT_TYPE_ASSERT, "(voice->submixRef->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "voice->submixRef->id != SND_INVALID_HASH") )
+  if ( !voice->submixRef->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1526, ASSERT_TYPE_ASSERT, "(voice->submixRef->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "voice->submixRef->id != SND_INVALID_HASH") )
     __debugbreak();
-  if ( _R13->submixRef->id != _R13->submixDef->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1527, ASSERT_TYPE_ASSERT, "(voice->submixRef->id == voice->submixDef->id)", (const char *)&queryFormat, "voice->submixRef->id == voice->submixDef->id") )
+  if ( voice->submixRef->id != voice->submixDef->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1527, ASSERT_TYPE_ASSERT, "(voice->submixRef->id == voice->submixDef->id)", (const char *)&queryFormat, "voice->submixRef->id == voice->submixDef->id") )
     __debugbreak();
-  if ( !_R13->assetEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1529, ASSERT_TYPE_ASSERT, "(voice->assetEntry)", (const char *)&queryFormat, "voice->assetEntry") )
+  if ( !voice->assetEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1529, ASSERT_TYPE_ASSERT, "(voice->assetEntry)", (const char *)&queryFormat, "voice->assetEntry") )
     __debugbreak();
-  __asm
+  v2 = FLOAT_1_0;
+  if ( voice->priorityVolume > 0.0 )
   {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [r13+2Ch]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+78h+var_38]
+    if ( (voice->alias->flags & 1) == 0 )
+    {
+      assetEntry = voice->assetEntry;
+      i2 = assetEntry->EnvelopeTime2;
+      e3 = assetEntry->EnvelopeLoudness3;
+      EnvelopeLoudness2 = assetEntry->EnvelopeLoudness2;
+      i1 = assetEntry->EnvelopeTime1;
+      frameCount = assetEntry->frameCount;
+      EnvelopeLoudness1 = assetEntry->EnvelopeLoudness1;
+      EnvelopeLoudness0 = assetEntry->EnvelopeLoudness0;
+      v11 = truncate_cast<int,unsigned __int64>(voice->framesPlayed);
+      v12 = SND_AssetEnvelope(v11, frameCount, EnvelopeLoudness0, EnvelopeLoudness1, EnvelopeLoudness2, e3, i1, i2);
+      v2 = *(float *)&v12;
+    }
+    if ( (LODWORD(v2) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1547, ASSERT_TYPE_ASSERT, "(!IS_NAN( amplitude ))", (const char *)&queryFormat, "!IS_NAN( amplitude )") )
+      __debugbreak();
   }
-  return *(float *)&_XMM0;
+  return v2;
 }
 
 /*
@@ -905,10 +790,9 @@ SND_SubmixCalculateDistanceFromVoicePosition
 */
 float SND_SubmixCalculateDistanceFromVoicePosition(const SndVoice *const voice)
 {
-  int v7; 
+  double v2; 
   vec3_t to; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
   if ( !voice && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1644, ASSERT_TYPE_ASSERT, "(voice)", (const char *)&queryFormat, "voice") )
     __debugbreak();
   if ( !voice->submixDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1645, ASSERT_TYPE_ASSERT, "(voice->submixDef)", (const char *)&queryFormat, "voice->submixDef") )
@@ -924,20 +808,10 @@ float SND_SubmixCalculateDistanceFromVoicePosition(const SndVoice *const voice)
   if ( !SND_IsAliasSpatial(voice->alias) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1651, ASSERT_TYPE_ASSERT, "(SND_IsAliasSpatial( voice->alias ))", (const char *)&queryFormat, "SND_IsAliasSpatial( voice->alias )") )
     __debugbreak();
   GetSecureSndVec3(&voice->org.origin, &to, s_soundvoiceorg_aab_X, s_soundvoiceorg_aab_Y, s_soundvoiceorg_aab_Z);
-  *(double *)&_XMM0 = SND_DistSqToNearestListener(&to);
-  __asm
-  {
-    vmovss  [rsp+68h+var_38], xmm0
-    vmovaps xmm6, xmm0
-  }
-  if ( (v7 & 0x7F800000) == 2139095040 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1657, ASSERT_TYPE_ASSERT, "(!IS_NAN( distance ))", (const char *)&queryFormat, "!IS_NAN( distance )") )
-      __debugbreak();
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  return *(float *)&_XMM0;
+  v2 = SND_DistSqToNearestListener(&to);
+  if ( (LODWORD(v2) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1657, ASSERT_TYPE_ASSERT, "(!IS_NAN( distance ))", (const char *)&queryFormat, "!IS_NAN( distance )", LODWORD(v2)) )
+    __debugbreak();
+  return *(float *)&v2;
 }
 
 /*
@@ -945,368 +819,172 @@ float SND_SubmixCalculateDistanceFromVoicePosition(const SndVoice *const voice)
 SND_SubmixCalculateEffectIfAny
 ==============
 */
-bool SND_SubmixCalculateEffectIfAny(const SndSubmixReq *const req, float *effect)
+char SND_SubmixCalculateEffectIfAny(const SndSubmixReq *const req, float *effect)
 {
-  bool result; 
-  unsigned int endTime; 
-  bool v25; 
-  bool v26; 
-  bool v31; 
-  bool v32; 
-  unsigned int fadeOutCurve; 
-  char v43; 
-  char v44; 
-  char v48; 
-  char v49; 
-  char v54; 
-  char v55; 
-  const SndVoice *voice; 
-  bool v62; 
-  bool v63; 
-  bool v64; 
   const SndDuck *def; 
-  char v77; 
-  bool v78; 
-  double v90; 
-  double v91; 
-  double v92; 
-  double v93; 
-  double v94; 
-  double v95; 
-  double v96; 
-  double v97; 
-  double v98; 
-  double v99; 
-  double v100; 
-  double v101; 
-  double v102; 
-  double v103; 
-  double v104; 
-  int v113; 
+  int endTime; 
+  float v8; 
+  float v11; 
+  float v12; 
+  float fadeOutTimeSec; 
+  float fadeInTimeSec; 
+  unsigned int fadeOutCurve; 
+  __int128 v17; 
+  double v20; 
+  float v21; 
+  double v22; 
+  SndVoice *voice; 
+  float v24; 
+  float v25; 
+  int v26; 
+  __int128 distance_low; 
+  float v28; 
+  const SndDuck *v29; 
+  float distance; 
+  __int128 v31; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  float v36; 
 
-  _RDI = effect;
-  _RBX = req;
   if ( !req && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1259, ASSERT_TYPE_ASSERT, "(req)", (const char *)&queryFormat, "req") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1260, ASSERT_TYPE_ASSERT, "(effect)", (const char *)&queryFormat, "effect") )
+  if ( !effect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1260, ASSERT_TYPE_ASSERT, "(effect)", (const char *)&queryFormat, "effect") )
     __debugbreak();
-  if ( _RBX->type == -3 )
+  if ( req->type == -3 )
   {
-    *_RDI = 1.0;
+    *effect = 1.0;
     return 0;
   }
-  __asm
+  def = req->def;
+  endTime = req->endTime;
+  v8 = (float)((float)(g_snd.time - req->startTime) * 0.001) - def->startDelay;
+  _XMM9 = LODWORD(FLOAT_1_0);
+  __asm { vxorpd  xmm13, xmm13, xmm13 }
+  if ( endTime && (v12 = (float)(g_snd.time - endTime) * 0.001, v11 = v12, v12 > 0.0) )
   {
-    vmovss  xmm1, cs:__real@3a83126f
-    vmovaps [rsp+0C8h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps [rsp+0C8h+var_28], xmm7
-    vmovaps [rsp+0C8h+var_38], xmm8
-    vmovaps [rsp+0C8h+var_48], xmm9
-    vmovaps [rsp+0C8h+var_58], xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  endTime = _RBX->endTime;
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_68], xmm11
-    vmovaps [rsp+0C8h+var_78], xmm12
-    vmovaps [rsp+0C8h+var_88], xmm13
-    vmovsd  xmm12, cs:__real@3ff0000000000000
-    vmulss  xmm0, xmm0, xmm1
-    vsubss  xmm7, xmm0, dword ptr [rdx+4Ch]
-    vmovaps xmm9, xmm6
-    vxorpd  xmm13, xmm13, xmm13
-    vxorps  xmm8, xmm8, xmm8
-  }
-  v25 = 0;
-  if ( !endTime )
-    goto LABEL_29;
-  v25 = g_snd.time < endTime;
-  v26 = g_snd.time <= endTime;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm11, xmm0, xmm1
-    vcomiss xmm11, xmm8
-  }
-  if ( g_snd.time <= endTime )
-  {
-LABEL_29:
-    __asm { vcomiss xmm7, xmm8 }
-    if ( v25 )
-    {
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-LABEL_37:
-      voice = _RBX->voice;
-      if ( voice )
-      {
-        _RAX = _RBX->def;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+54h]
-          vcomiss xmm0, cs:__real@37803e84
-        }
-        *(float *)&_XMM0 = SND_SubmixCalculateDistanceFromVoicePosition(voice);
-        __asm
-        {
-          vmovss  [rsp+0C8h+arg_0], xmm0
-          vmovaps xmm9, xmm0
-        }
-        v62 = (v113 & 0x7F800000u) < 0x7F800000;
-        v63 = (v113 & 0x7F800000u) <= 0x7F800000;
-        if ( (v113 & 0x7F800000) == 2139095040 )
-        {
-          v64 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1332, ASSERT_TYPE_ASSERT, "(!IS_NAN( distance ))", (const char *)&queryFormat, "!IS_NAN( distance )");
-          v62 = 0;
-          v63 = !v64;
-          if ( v64 )
-            __debugbreak();
-        }
-        _RAX = _RBX->def;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+50h]
-          vmovss  xmm2, dword ptr [rax+54h]
-          vmulss  xmm0, xmm0, xmm0
-          vcomiss xmm9, xmm0
-        }
-        if ( v62 )
-        {
-          __asm { vmovaps xmm9, xmm6 }
-        }
-        else
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm2, xmm2
-            vcomiss xmm9, xmm0
-          }
-          if ( v62 )
-          {
-            __asm
-            {
-              vsqrtss xmm1, xmm9, xmm9
-              vdivss  xmm0, xmm6, xmm2
-              vmulss  xmm1, xmm1, xmm0
-              vsubss  xmm9, xmm6, xmm1
-              vcomiss xmm9, xmm8
-              vcomiss xmm9, xmm6
-            }
-            if ( !v63 )
-            {
-              __asm
-              {
-                vmovsd  [rsp+0C8h+var_90], xmm12
-                vcvtss2sd xmm0, xmm9, xmm9
-                vmovsd  [rsp+0C8h+var_98], xmm13
-                vmovsd  [rsp+0C8h+var_A0], xmm0
-              }
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1350, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( distanceEffect ) && ( distanceEffect ) <= ( 1.0f )", "distanceEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v93, v98, v103) )
-                __debugbreak();
-            }
-          }
-          else
-          {
-            __asm { vxorps  xmm9, xmm9, xmm9 }
-          }
-        }
-        def = _RBX->def;
-        __asm { vmovaps xmm0, xmm6 }
-        v77 = 0;
-        v78 = !def->trackAmplitude;
-        if ( def->trackAmplitude )
-          SND_SubmixCalculateAmplitudeFromVoiceAsset(_RBX->voice);
-        __asm
-        {
-          vminss  xmm1, xmm9, xmm7
-          vmulss  xmm2, xmm1, dword ptr [rbx+20h]
-          vmulss  xmm7, xmm2, xmm0
-          vcomiss xmm7, xmm8
-        }
-        if ( v77 )
-          goto LABEL_53;
-        __asm { vcomiss xmm7, xmm6 }
-        if ( !(v77 | v78) )
-        {
-LABEL_53:
-          __asm
-          {
-            vmovsd  [rsp+0C8h+var_90], xmm12
-            vcvtss2sd xmm0, xmm7, xmm7
-            vmovsd  [rsp+0C8h+var_98], xmm13
-            vmovsd  [rsp+0C8h+var_A0], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1382, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( finalEffect ) && ( finalEffect ) <= ( 1.0f )", "finalEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v94, v99, v104) )
-            __debugbreak();
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm7, xmm7, dword ptr [rbx+20h]
-          vcomiss xmm7, xmm8
-          vcomiss xmm7, xmm6
-        }
-      }
-      __asm { vmovss  dword ptr [rdi], xmm7 }
-      result = 1;
-      goto LABEL_56;
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vcomiss xmm7, xmm0
-    }
-    if ( !v25 )
-    {
-      __asm { vmovaps xmm7, xmm6 }
-      goto LABEL_37;
-    }
-    __asm { vdivss  xmm1, xmm7, xmm0; t }
-    *(double *)&_XMM0 = SND_SubmixFade(_RBX->def->fadeInCurve, *(float *)&_XMM1);
-    __asm
-    {
-      vcomiss xmm0, xmm8
-      vmovaps xmm7, xmm0
-    }
-    if ( !v54 )
-    {
-      __asm { vcomiss xmm0, xmm6 }
-      if ( v54 | v55 )
-        goto LABEL_37;
-    }
-    __asm
-    {
-      vmovsd  [rsp+0C8h+var_90], xmm12
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm13
-      vmovsd  [rsp+0C8h+var_A0], xmm0
-    }
-    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1314, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( timeEffect ) && ( timeEffect ) <= ( 1.0f )", "timeEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v92, v97, v102) )
-      goto LABEL_37;
-LABEL_35:
-    __debugbreak();
-    goto LABEL_37;
-  }
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rbx+1Ch]
-    vcomiss xmm10, xmm8
-  }
-  if ( g_snd.time < endTime )
-  {
-    v31 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1278, ASSERT_TYPE_ASSERT, "(fadeOut >= 0.0f)", (const char *)&queryFormat, "fadeOut >= 0.0f");
-    v25 = 0;
-    v26 = !v31;
-    if ( v31 )
+    fadeOutTimeSec = req->fadeOutTimeSec;
+    if ( fadeOutTimeSec < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1278, ASSERT_TYPE_ASSERT, "(fadeOut >= 0.0f)", (const char *)&queryFormat, "fadeOut >= 0.0f") )
       __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v25 )
-  {
-    __asm { vcomiss xmm11, xmm10 }
-    if ( v26 )
+    if ( v8 < 0.0 || v12 > fadeOutTimeSec )
     {
-      __asm { vcomiss xmm10, xmm8 }
-      if ( v26 )
-      {
-        v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1287, ASSERT_TYPE_ASSERT, "(fadeOut > 0.0f)", (const char *)&queryFormat, "fadeOut > 0.0f");
-        v25 = 0;
-        if ( v32 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vcomiss xmm7, xmm0
-        vdivss  xmm3, xmm6, xmm10
-      }
-      fadeOutCurve = _RBX->def->fadeOutCurve;
-      if ( v25 )
-      {
-        __asm
-        {
-          vdivss  xmm0, xmm7, xmm0
-          vsubss  xmm0, xmm6, xmm0
-          vmulss  xmm1, xmm0, xmm10
-          vaddss  xmm2, xmm1, xmm11
-          vmulss  xmm3, xmm2, xmm3
-          vsubss  xmm0, xmm6, xmm3
-          vmaxss  xmm1, xmm0, xmm8; t
-        }
-        *(double *)&_XMM0 = SND_SubmixFade(fadeOutCurve, *(float *)&_XMM1);
-        __asm
-        {
-          vmaxss  xmm7, xmm0, xmm8
-          vcomiss xmm7, xmm8
-        }
-        if ( !v43 )
-        {
-          __asm { vcomiss xmm7, xmm6 }
-          if ( v43 | v44 )
-            goto LABEL_37;
-        }
-        __asm
-        {
-          vmovsd  [rsp+0C8h+var_90], xmm12
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+0C8h+var_98], xmm13
-          vmovsd  [rsp+0C8h+var_A0], xmm0
-        }
-        if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1299, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( timeEffect ) && ( timeEffect ) <= ( 1.0f )", "timeEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v90, v95, v100) )
-          goto LABEL_37;
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm3, xmm11
-          vsubss  xmm1, xmm6, xmm0; t
-        }
-        *(double *)&_XMM0 = SND_SubmixFade(fadeOutCurve, *(float *)&_XMM1);
-        __asm
-        {
-          vcomiss xmm0, xmm8
-          vmovaps xmm7, xmm0
-        }
-        if ( !v48 )
-        {
-          __asm { vcomiss xmm0, xmm6 }
-          if ( v48 | v49 )
-            goto LABEL_37;
-        }
-        __asm
-        {
-          vmovsd  [rsp+0C8h+var_90], xmm12
-          vcvtss2sd xmm1, xmm7, xmm7
-          vmovsd  [rsp+0C8h+var_98], xmm13
-          vmovsd  [rsp+0C8h+var_A0], xmm1
-        }
-        if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1304, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( timeEffect ) && ( timeEffect ) <= ( 1.0f )", "timeEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v91, v96, v101) )
-          goto LABEL_37;
-      }
-      goto LABEL_35;
+      *effect = 0.0;
+      return 0;
+    }
+    if ( fadeOutTimeSec <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1287, ASSERT_TYPE_ASSERT, "(fadeOut > 0.0f)", (const char *)&queryFormat, "fadeOut > 0.0f") )
+      __debugbreak();
+    fadeInTimeSec = req->fadeInTimeSec;
+    fadeOutCurve = req->def->fadeOutCurve;
+    if ( v8 >= fadeInTimeSec )
+    {
+      v20 = SND_SubmixFade(fadeOutCurve, 1.0 - (float)((float)(1.0 / fadeOutTimeSec) * v12));
+      LODWORD(_XMM7) = LODWORD(v20);
+      if ( (*(float *)&v20 < 0.0 || *(float *)&v20 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1304, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( timeEffect ) && ( timeEffect ) <= ( 1.0f )", "timeEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v20, *(double *)&_XMM13, DOUBLE_1_0) )
+        goto LABEL_35;
+    }
+    else
+    {
+      v17 = LODWORD(FLOAT_1_0);
+      *(float *)&v17 = 1.0 - (float)((float)((float)((float)(1.0 - (float)(v8 / fadeInTimeSec)) * fadeOutTimeSec) + v11) * (float)(1.0 / fadeOutTimeSec));
+      _XMM0 = v17;
+      __asm { vmaxss  xmm1, xmm0, xmm8; t }
+      *(double *)&_XMM0 = SND_SubmixFade(fadeOutCurve, *(float *)&_XMM1);
+      __asm { vmaxss  xmm7, xmm0, xmm8 }
+      if ( (*(float *)&_XMM7 < 0.0 || *(float *)&_XMM7 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1299, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( timeEffect ) && ( timeEffect ) <= ( 1.0f )", "timeEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&_XMM7, *(double *)&_XMM13, DOUBLE_1_0) )
+LABEL_35:
+        __debugbreak();
     }
   }
-  *_RDI = 0.0;
-  result = 0;
-LABEL_56:
-  __asm
+  else
   {
-    vmovaps xmm12, [rsp+0C8h+var_78]
-    vmovaps xmm11, [rsp+0C8h+var_68]
-    vmovaps xmm10, [rsp+0C8h+var_58]
-    vmovaps xmm9, [rsp+0C8h+var_48]
-    vmovaps xmm8, [rsp+0C8h+var_38]
-    vmovaps xmm7, [rsp+0C8h+var_28]
-    vmovaps xmm6, [rsp+0C8h+var_18]
-    vmovaps xmm13, [rsp+0C8h+var_88]
+    if ( v8 < 0.0 )
+    {
+      LODWORD(_XMM7) = 0;
+      goto LABEL_37;
+    }
+    v21 = req->fadeInTimeSec;
+    if ( v8 >= v21 )
+    {
+      *(float *)&_XMM7 = FLOAT_1_0;
+    }
+    else
+    {
+      v22 = SND_SubmixFade(def->fadeInCurve, v8 / v21);
+      LODWORD(_XMM7) = LODWORD(v22);
+      if ( (*(float *)&v22 < 0.0 || *(float *)&v22 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1314, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( timeEffect ) && ( timeEffect ) <= ( 1.0f )", "timeEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v22, *(double *)&_XMM13, DOUBLE_1_0) )
+        goto LABEL_35;
+    }
   }
-  return result;
+LABEL_37:
+  voice = req->voice;
+  if ( voice )
+  {
+    distance_low = LODWORD(req->def->distance);
+    if ( *(float *)&distance_low <= 0.0000152879 )
+    {
+      if ( *(float *)&distance_low >= -0.0000152879 )
+        goto LABEL_62;
+      *(float *)&distance_low = SND_SubmixCalculateDistanceFromVoicePosition(voice);
+      if ( (distance_low & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1362, ASSERT_TYPE_ASSERT, "(!IS_NAN( distance ))", (const char *)&queryFormat, "!IS_NAN( distance )") )
+        __debugbreak();
+      v32 = req->def->distance * req->def->distance;
+      if ( *(float *)&distance_low < v32 )
+      {
+        v33 = distance_low;
+        *(float *)&v33 = *(float *)&distance_low / v32;
+        _XMM9 = v33;
+        if ( ((float)(*(float *)&distance_low / v32) < 0.0 || *(float *)&v33 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1366, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( distanceEffect ) && ( distanceEffect ) <= ( 1.0f )", "distanceEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v33, *(double *)&_XMM13, DOUBLE_1_0) )
+LABEL_50:
+          __debugbreak();
+LABEL_62:
+        v34 = FLOAT_1_0;
+        if ( req->def->trackAmplitude )
+          v34 = SND_SubmixCalculateAmplitudeFromVoiceAsset(req->voice);
+        __asm { vminss  xmm1, xmm9, xmm7 }
+        v36 = (float)(*(float *)&_XMM1 * req->scale) * v34;
+        v24 = v36;
+        if ( v36 >= 0.0 && v36 <= 1.0 )
+          goto LABEL_69;
+        v26 = 1382;
+        goto LABEL_67;
+      }
+    }
+    else
+    {
+      v28 = SND_SubmixCalculateDistanceFromVoicePosition(voice);
+      if ( (LODWORD(v28) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1332, ASSERT_TYPE_ASSERT, "(!IS_NAN( distance ))", (const char *)&queryFormat, "!IS_NAN( distance )") )
+        __debugbreak();
+      v29 = req->def;
+      distance = v29->distance;
+      if ( v28 >= (float)(v29->minDistance * v29->minDistance) )
+      {
+        if ( v28 >= (float)(distance * distance) )
+        {
+          _XMM9 = 0i64;
+          goto LABEL_62;
+        }
+        v31 = LODWORD(FLOAT_1_0);
+        *(float *)&v31 = 1.0 - (float)(fsqrt(v28) * (float)(1.0 / distance));
+        _XMM9 = v31;
+        if ( (*(float *)&v31 < 0.0 || *(float *)&v31 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1350, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( distanceEffect ) && ( distanceEffect ) <= ( 1.0f )", "distanceEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v31, *(double *)&_XMM13, DOUBLE_1_0) )
+          goto LABEL_50;
+        goto LABEL_62;
+      }
+    }
+    _XMM9 = LODWORD(FLOAT_1_0);
+    goto LABEL_62;
+  }
+  v25 = *(float *)&_XMM7 * req->scale;
+  v24 = v25;
+  if ( v25 >= 0.0 && v25 <= 1.0 )
+    goto LABEL_69;
+  v26 = 1324;
+LABEL_67:
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", v26, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( finalEffect ) && ( finalEffect ) <= ( 1.0f )", "finalEffect not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v24, *(double *)&_XMM13, DOUBLE_1_0) )
+    __debugbreak();
+LABEL_69:
+  *effect = v24;
+  return 1;
 }
 
 /*
@@ -1314,24 +992,12 @@ LABEL_56:
 SND_SubmixClearAll
 ==============
 */
-
-void __fastcall SND_SubmixClearAll(double fadeTimeSec)
+void SND_SubmixClearAll(float fadeTimeSec)
 {
-  unsigned int v2; 
+  unsigned int i; 
 
-  v2 = 0;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
-  do
-  {
-    __asm { vmovaps xmm1, xmm6; fadeTimeSec }
-    SND_SubmixClearForFade(&s_sndSubmix.requests[v2++], *(const float *)&_XMM1);
-  }
-  while ( v2 < 0x8D );
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  for ( i = 0; i < 0x8D; ++i )
+    SND_SubmixClearForFade(&s_sndSubmix.requests[i], fadeTimeSec);
 }
 
 /*
@@ -1339,40 +1005,32 @@ void __fastcall SND_SubmixClearAll(double fadeTimeSec)
 SND_SubmixClearAllFromSource
 ==============
 */
-
-void __fastcall SND_SubmixClearAllFromSource(SndSubmixType source, double fadeTimeSec)
+void SND_SubmixClearAllFromSource(SndSubmixType source, float fadeTimeSec)
 {
-  unsigned int v7; 
+  unsigned int v3; 
   volatile int *p_type; 
-  int v12; 
+  __int64 v5; 
+  int v6; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  if ( fadeTimeSec < 0.0 && fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 593, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f || fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec >= 0.0f || fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
+    __debugbreak();
   if ( (unsigned int)source >= SND_SUBMIX_TYPE_COUNT )
   {
-    v12 = 7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 594, ASSERT_TYPE_ASSERT, "(unsigned)( source ) < (unsigned)( SND_SUBMIX_TYPE_COUNT )", "source doesn't index SND_SUBMIX_TYPE_COUNT\n\t%i not in [0, %i)", source, v12) )
+    v6 = 7;
+    LODWORD(v5) = source;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 594, ASSERT_TYPE_ASSERT, "(unsigned)( source ) < (unsigned)( SND_SUBMIX_TYPE_COUNT )", "source doesn't index SND_SUBMIX_TYPE_COUNT\n\t%i not in [0, %i)", v5, v6) )
       __debugbreak();
   }
-  v7 = 0;
+  v3 = 0;
   p_type = &s_sndSubmix.requests[0].type;
   do
   {
     if ( *p_type == source )
-    {
-      __asm { vmovaps xmm1, xmm6; fadeTimeSec }
-      SND_SubmixClearForFade((SndSubmixReq *)(p_type - 1), *(const float *)&_XMM1);
-    }
-    ++v7;
+      SND_SubmixClearForFade((SndSubmixReq *)(p_type - 1), fadeTimeSec);
+    ++v3;
     p_type += 12;
   }
-  while ( v7 < 0x8D );
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  while ( v3 < 0x8D );
 }
 
 /*
@@ -1380,35 +1038,32 @@ void __fastcall SND_SubmixClearAllFromSource(SndSubmixType source, double fadeTi
 SND_SubmixClearForFade
 ==============
 */
-
-void __fastcall SND_SubmixClearForFade(SndSubmixReq *req, double fadeTimeSec)
+void SND_SubmixClearForFade(SndSubmixReq *req, const float fadeTimeSec)
 {
+  float fadeOut; 
   const SndDuck *def; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = req;
-  __asm { vmovaps xmm6, xmm1 }
+  fadeOut = fadeTimeSec;
   if ( !req && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 570, ASSERT_TYPE_ASSERT, "(req)", (const char *)&queryFormat, "req") )
     __debugbreak();
-  if ( _RBX->type != -3 )
+  if ( req->type != -3 )
   {
-    def = _RBX->def;
-    __asm { vmovaps [rsp+58h+var_28], xmm7 }
-    _RBX->endTime = g_snd.time;
+    def = req->def;
+    req->endTime = g_snd.time;
     if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1570, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
       __debugbreak();
-    __asm
+    if ( fadeTimeSec < 0.0 )
     {
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm6, xmm7
-      vcomiss xmm6, xmm7
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovss  dword ptr [rbx+1Ch], xmm6
+      if ( fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1574, ASSERT_TYPE_ASSERT, "(fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
+        __debugbreak();
+      fadeOut = def->fadeOut;
     }
-    if ( !SND_SubmixAssert(_RBX, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 577, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
+    if ( fadeOut < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1577, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f)", (const char *)&queryFormat, "fadeTimeSec >= 0.0f") )
+      __debugbreak();
+    req->fadeOutTimeSec = fadeOut;
+    if ( !SND_SubmixAssert(req, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 577, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -1416,51 +1071,36 @@ void __fastcall SND_SubmixClearForFade(SndSubmixReq *req, double fadeTimeSec)
 SND_SubmixClearFromSource
 ==============
 */
-
-void __fastcall SND_SubmixClearFromSource(SndSubmixType source, unsigned int id, double fadeTimeSec)
+void SND_SubmixClearFromSource(SndSubmixType source, unsigned int id, float fadeTimeSec)
 {
-  unsigned int v9; 
-  volatile int *p_type; 
-  __int64 v13; 
+  int v5; 
+  volatile int *i; 
+  __int64 v7; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 635, ASSERT_TYPE_ASSERT, "(id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "id != SND_INVALID_HASH") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
+  if ( fadeTimeSec < 0.0 && fadeTimeSec != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 636, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f || fadeTimeSec== (-1.0f))", (const char *)&queryFormat, "fadeTimeSec >= 0.0f || fadeTimeSec== SND_SUBMIX_USE_DEF_FADE") )
+    __debugbreak();
   if ( (unsigned int)source >= SND_SUBMIX_TYPE_COUNT )
   {
-    LODWORD(v13) = source;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 637, ASSERT_TYPE_ASSERT, "(unsigned)( source ) < (unsigned)( SND_SUBMIX_TYPE_COUNT )", "source doesn't index SND_SUBMIX_TYPE_COUNT\n\t%i not in [0, %i)", v13, 7) )
+    LODWORD(v7) = source;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 637, ASSERT_TYPE_ASSERT, "(unsigned)( source ) < (unsigned)( SND_SUBMIX_TYPE_COUNT )", "source doesn't index SND_SUBMIX_TYPE_COUNT\n\t%i not in [0, %i)", v7, 7) )
       __debugbreak();
   }
-  v9 = 0;
-  p_type = &s_sndSubmix.requests[0].type;
-  while ( 1 )
+  v5 = 0;
+  for ( i = &s_sndSubmix.requests[0].type; ; i += 12 )
   {
-    if ( *p_type == source )
+    if ( *i == source )
     {
-      if ( *p_type == -3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 646, ASSERT_TYPE_ASSERT, "(!SND_SubmixIsExpired( req ))", (const char *)&queryFormat, "!SND_SubmixIsExpired( req )") )
+      if ( *i == -3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 646, ASSERT_TYPE_ASSERT, "(!SND_SubmixIsExpired( req ))", (const char *)&queryFormat, "!SND_SubmixIsExpired( req )") )
         __debugbreak();
-      if ( *(_DWORD *)(*(_QWORD *)(p_type + 1) + 64i64) == id )
+      if ( *(_DWORD *)(*(_QWORD *)(i + 1) + 64i64) == id )
         break;
     }
-    ++v9;
-    p_type += 12;
-    if ( v9 >= 0x8D )
-      goto LABEL_16;
+    if ( (unsigned int)++v5 >= 0x8D )
+      return;
   }
-  __asm { vmovaps xmm1, xmm6; fadeTimeSec }
-  SND_SubmixClearForFade((SndSubmixReq *)(p_type - 1), *(double *)&_XMM1);
-LABEL_16:
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  SND_SubmixClearForFade((SndSubmixReq *)(i - 1), fadeTimeSec);
 }
 
 /*
@@ -1470,14 +1110,12 @@ SND_SubmixClearFromVoiceAlias
 */
 void SND_SubmixClearFromVoiceAlias(unsigned int id)
 {
-  unsigned int v4; 
+  unsigned int v2; 
   volatile int *p_type; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
   if ( !id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 614, ASSERT_TYPE_ASSERT, "(id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "id != SND_INVALID_HASH") )
     __debugbreak();
-  __asm { vmovss  xmm6, cs:__real@bf800000 }
-  v4 = 0;
+  v2 = 0;
   p_type = &s_sndSubmix.requests[0].type;
   do
   {
@@ -1486,16 +1124,12 @@ void SND_SubmixClearFromVoiceAlias(unsigned int id)
       if ( *p_type == -3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 623, ASSERT_TYPE_ASSERT, "(!SND_SubmixIsExpired( req ))", (const char *)&queryFormat, "!SND_SubmixIsExpired( req )") )
         __debugbreak();
       if ( *(_DWORD *)(*(_QWORD *)(p_type + 1) + 64i64) == id )
-      {
-        __asm { vmovaps xmm1, xmm6; fadeTimeSec }
-        SND_SubmixClearForFade((SndSubmixReq *)(p_type - 1), *(double *)&_XMM1);
-      }
+        SND_SubmixClearForFade((SndSubmixReq *)(p_type - 1), -1.0);
     }
-    ++v4;
+    ++v2;
     p_type += 12;
   }
-  while ( v4 < 0x8D );
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  while ( v2 < 0x8D );
 }
 
 /*
@@ -1606,52 +1240,56 @@ SND_SubmixDebugGetData
 char SND_SubmixDebugGetData(const int idx, int *type, unsigned int *id, float *effect, float *maxAttnLinear, float *minCutoffLpfHz, float *maxCutoffHpfHz)
 {
   SndSubmixReq *Request; 
-  SndSubmixReq *v14; 
-  __int64 v17; 
-  int v18; 
-  __int64 v21; 
-  unsigned __int64 v28; 
-  int v37; 
-  __int64 v41; 
-  unsigned __int64 v48; 
-  int v60; 
-  unsigned __int64 v70; 
+  SndSubmixReq *v11; 
+  __int64 v13; 
+  int v14; 
+  float *attenuation; 
+  __int64 v19; 
+  __int64 v23; 
+  __int64 v24; 
+  unsigned __int64 v25; 
+  int v34; 
+  float *lpf; 
+  __int64 v38; 
+  __int64 v42; 
+  __int64 v43; 
+  unsigned __int64 v44; 
+  int v53; 
+  float *hpf; 
+  __int64 v60; 
+  float *v61; 
+  unsigned __int64 v62; 
 
   if ( idx < 0 )
     return 0;
   if ( (unsigned int)idx >= 0x8D )
     return 0;
   Request = SND_SubmixGetRequest(idx);
-  v14 = Request;
+  v11 = Request;
   if ( !Request || Request->type == -3 )
     return 0;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( type )
     *type = Request->type;
   if ( id )
     *id = Request->id;
   if ( effect )
     *effect = Request->effect;
-  _RSI = maxAttnLinear;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  v17 = 0i64;
+  *(float *)&_XMM6 = FLOAT_1_0;
+  v13 = 0i64;
   if ( maxAttnLinear )
   {
     if ( !Request->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1941, ASSERT_TYPE_ASSERT, "(req->def)", (const char *)&queryFormat, "req->def") )
       __debugbreak();
-    if ( !v14->def->attenuation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1942, ASSERT_TYPE_ASSERT, "(req->def->attenuation)", (const char *)&queryFormat, "req->def->attenuation") )
+    if ( !v11->def->attenuation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1942, ASSERT_TYPE_ASSERT, "(req->def->attenuation)", (const char *)&queryFormat, "req->def->attenuation") )
       __debugbreak();
-    v18 = 0;
-    __asm { vmovaps xmm1, xmm6 }
-    _R9 = v14->def->attenuation;
+    v14 = 0;
+    *(float *)&_XMM1 = FLOAT_1_0;
+    attenuation = v11->def->attenuation;
     if ( s_sndSubmix.volmod_groupcount > 0 && s_sndSubmix.volmod_groupcount >= 8u )
     {
-      __asm
-      {
-        vmovups xmm2, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmm1, xmm2
-      }
-      v21 = 0i64;
+      _XMM2 = _xmm;
+      _XMM1 = _xmm;
+      v19 = 0i64;
       do
       {
         __asm
@@ -1659,71 +1297,66 @@ char SND_SubmixDebugGetData(const int idx, int *type, unsigned int *id, float *e
           vminps  xmm2, xmm2, xmmword ptr [r9+rax*4]
           vminps  xmm1, xmm1, xmmword ptr [r9+rax*4+10h]
         }
-        v21 += 8i64;
-        v18 += 8;
+        v19 += 8i64;
+        v14 += 8;
       }
-      while ( v21 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
+      while ( v19 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
       __asm
       {
         vminps  xmm1, xmm2, xmm1
         vmovhlps xmm0, xmm1, xmm1
         vminps  xmm1, xmm0, xmm1
-        vshufps xmm0, xmm1, xmm1, 0F5h ; 'õ'
-        vminss  xmm1, xmm1, xmm0
       }
+      _mm_shuffle_ps(_XMM1, _XMM1, 245);
+      __asm { vminss  xmm1, xmm1, xmm0 }
     }
-    _RCX = v18;
-    if ( v18 < (__int64)s_sndSubmix.volmod_groupcount )
+    v23 = v14;
+    if ( v14 < (__int64)s_sndSubmix.volmod_groupcount )
     {
-      if ( s_sndSubmix.volmod_groupcount - (__int64)v18 >= 4 )
+      if ( s_sndSubmix.volmod_groupcount - (__int64)v14 >= 4 )
       {
-        _R8 = (__int64)&_R9[v18 + 2];
-        v28 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v18 - 4) >> 2) + 1;
-        _RCX = v18 + 4 * v28;
+        v24 = (__int64)&attenuation[v14 + 2];
+        v25 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v14 - 4) >> 2) + 1;
+        v23 = v14 + 4 * v25;
         do
         {
-          __asm { vmovss  xmm0, dword ptr [r8-8] }
-          _R8 += 16i64;
+          _XMM0 = *(unsigned int *)(v24 - 8);
+          v24 += 16i64;
+          __asm { vminss  xmm2, xmm0, xmm1 }
+          _XMM1 = *(unsigned int *)(v24 - 20);
+          _XMM0 = *(unsigned int *)(v24 - 16);
+          __asm { vminss  xmm3, xmm1, xmm2 }
+          _XMM1 = *(unsigned int *)(v24 - 12);
           __asm
           {
-            vminss  xmm2, xmm0, xmm1
-            vmovss  xmm1, dword ptr [r8-14h]
-            vmovss  xmm0, dword ptr [r8-10h]
-            vminss  xmm3, xmm1, xmm2
-            vmovss  xmm1, dword ptr [r8-0Ch]
             vminss  xmm2, xmm0, xmm3
             vminss  xmm1, xmm1, xmm2
           }
-          --v28;
+          --v25;
         }
-        while ( v28 );
+        while ( v25 );
       }
-      while ( _RCX < s_sndSubmix.volmod_groupcount )
+      while ( v23 < s_sndSubmix.volmod_groupcount )
       {
-        __asm { vmovss  xmm0, dword ptr [r9+rcx*4] }
-        ++_RCX;
+        _XMM0 = LODWORD(attenuation[v23++]);
         __asm { vminss  xmm1, xmm0, xmm1 }
       }
     }
-    __asm { vmovss  dword ptr [rsi], xmm1 }
+    *maxAttnLinear = *(float *)&_XMM1;
   }
-  _RSI = minCutoffLpfHz;
   if ( minCutoffLpfHz )
   {
-    if ( !v14->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1954, ASSERT_TYPE_ASSERT, "(req->def)", (const char *)&queryFormat, "req->def") )
+    if ( !v11->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1954, ASSERT_TYPE_ASSERT, "(req->def)", (const char *)&queryFormat, "req->def") )
       __debugbreak();
-    if ( !v14->def->lpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1955, ASSERT_TYPE_ASSERT, "(req->def->lpf)", (const char *)&queryFormat, "req->def->lpf") )
+    if ( !v11->def->lpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1955, ASSERT_TYPE_ASSERT, "(req->def->lpf)", (const char *)&queryFormat, "req->def->lpf") )
       __debugbreak();
-    v37 = 0;
-    _R9 = v14->def->lpf;
+    v34 = 0;
+    lpf = v11->def->lpf;
     if ( s_sndSubmix.volmod_groupcount > 0 && s_sndSubmix.volmod_groupcount >= 8u )
     {
-      __asm
-      {
-        vmovups xmm1, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmm2, xmm1
-      }
-      v41 = 0i64;
+      _XMM1 = _xmm;
+      _XMM2 = _xmm;
+      v38 = 0i64;
       do
       {
         __asm
@@ -1731,77 +1364,65 @@ char SND_SubmixDebugGetData(const int idx, int *type, unsigned int *id, float *e
           vminps  xmm1, xmm1, xmmword ptr [r9+rax*4]
           vminps  xmm2, xmm2, xmmword ptr [r9+rax*4+10h]
         }
-        v41 += 8i64;
-        v37 += 8;
+        v38 += 8i64;
+        v34 += 8;
       }
-      while ( v41 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
+      while ( v38 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
       __asm
       {
         vminps  xmm1, xmm1, xmm2
         vmovhlps xmm0, xmm1, xmm1
         vminps  xmm6, xmm0, xmm1
-        vshufps xmm0, xmm6, xmm6, 0F5h ; 'õ'
-        vminss  xmm6, xmm6, xmm0
       }
+      _mm_shuffle_ps(_XMM6, _XMM6, 245);
+      __asm { vminss  xmm6, xmm6, xmm0 }
     }
-    _RCX = v37;
-    if ( v37 < (__int64)s_sndSubmix.volmod_groupcount )
+    v42 = v34;
+    if ( v34 < (__int64)s_sndSubmix.volmod_groupcount )
     {
-      if ( s_sndSubmix.volmod_groupcount - (__int64)v37 >= 4 )
+      if ( s_sndSubmix.volmod_groupcount - (__int64)v34 >= 4 )
       {
-        _R8 = (__int64)&_R9[v37 + 2];
-        v48 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v37 - 4) >> 2) + 1;
-        _RCX = v37 + 4 * v48;
+        v43 = (__int64)&lpf[v34 + 2];
+        v44 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v34 - 4) >> 2) + 1;
+        v42 = v34 + 4 * v44;
         do
         {
+          _XMM0 = *(unsigned int *)(v43 - 8);
+          _XMM1 = *(unsigned int *)(v43 - 4);
+          v43 += 16i64;
+          __asm { vminss  xmm2, xmm0, xmm6 }
+          _XMM0 = *(unsigned int *)(v43 - 16);
+          __asm { vminss  xmm3, xmm1, xmm2 }
+          _XMM1 = *(unsigned int *)(v43 - 12);
           __asm
           {
-            vmovss  xmm0, dword ptr [r8-8]
-            vmovss  xmm1, dword ptr [r8-4]
-          }
-          _R8 += 16i64;
-          __asm
-          {
-            vminss  xmm2, xmm0, xmm6
-            vmovss  xmm0, dword ptr [r8-10h]
-            vminss  xmm3, xmm1, xmm2
-            vmovss  xmm1, dword ptr [r8-0Ch]
             vminss  xmm2, xmm0, xmm3
             vminss  xmm6, xmm1, xmm2
           }
-          --v48;
+          --v44;
         }
-        while ( v48 );
+        while ( v44 );
       }
-      while ( _RCX < s_sndSubmix.volmod_groupcount )
+      while ( v42 < s_sndSubmix.volmod_groupcount )
       {
-        __asm { vmovss  xmm0, dword ptr [r9+rcx*4] }
-        ++_RCX;
+        _XMM0 = LODWORD(lpf[v42++]);
         __asm { vminss  xmm6, xmm0, xmm6 }
       }
     }
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm1, cs:__real@46bb8000
-      vmovss  dword ptr [rsi], xmm2
-    }
+    *minCutoffLpfHz = (float)((float)(*(float *)&_XMM6 * *(float *)&_XMM6) * *(float *)&_XMM6) * 24000.0;
   }
-  _RSI = maxCutoffHpfHz;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   if ( maxCutoffHpfHz )
   {
-    if ( !v14->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1971, ASSERT_TYPE_ASSERT, "(req->def)", (const char *)&queryFormat, "req->def") )
+    if ( !v11->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1971, ASSERT_TYPE_ASSERT, "(req->def)", (const char *)&queryFormat, "req->def") )
       __debugbreak();
-    if ( !v14->def->hpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1972, ASSERT_TYPE_ASSERT, "(req->def->hpf)", (const char *)&queryFormat, "req->def->hpf") )
+    if ( !v11->def->hpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1972, ASSERT_TYPE_ASSERT, "(req->def->hpf)", (const char *)&queryFormat, "req->def->hpf") )
       __debugbreak();
-    v60 = 0;
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    _R8 = v14->def->hpf;
+    v53 = 0;
+    _XMM1 = 0i64;
+    hpf = v11->def->hpf;
     if ( s_sndSubmix.volmod_groupcount > 0 && s_sndSubmix.volmod_groupcount >= 8u )
     {
-      __asm { vxorps  xmm2, xmm2, xmm2 }
+      _XMM2 = 0i64;
       do
       {
         __asm
@@ -1809,60 +1430,52 @@ char SND_SubmixDebugGetData(const int idx, int *type, unsigned int *id, float *e
           vmaxps  xmm2, xmm2, xmmword ptr [r8+rbx*4]
           vmaxps  xmm1, xmm1, xmmword ptr [r8+rbx*4+10h]
         }
-        v17 += 8i64;
-        v60 += 8;
+        v13 += 8i64;
+        v53 += 8;
       }
-      while ( v17 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
+      while ( v13 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
       __asm
       {
         vmaxps  xmm1, xmm2, xmm1
         vmovhlps xmm0, xmm1, xmm1
         vmaxps  xmm1, xmm0, xmm1
-        vshufps xmm0, xmm1, xmm1, 0F5h ; 'õ'
-        vmaxss  xmm1, xmm1, xmm0
       }
+      _mm_shuffle_ps(_XMM1, _XMM1, 245);
+      __asm { vmaxss  xmm1, xmm1, xmm0 }
     }
-    _RCX = v60;
-    if ( v60 < (__int64)s_sndSubmix.volmod_groupcount )
+    v60 = v53;
+    if ( v53 < (__int64)s_sndSubmix.volmod_groupcount )
     {
-      if ( s_sndSubmix.volmod_groupcount - (__int64)v60 >= 4 )
+      if ( s_sndSubmix.volmod_groupcount - (__int64)v53 >= 4 )
       {
-        _RAX = (__int64)&_R8[v60 + 2];
-        v70 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v60 - 4) >> 2) + 1;
-        _RCX += 4 * v70;
+        v61 = &hpf[v53 + 2];
+        v62 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v53 - 4) >> 2) + 1;
+        v60 += 4 * v62;
         do
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax-8]
-            vmaxss  xmm2, xmm0, xmm1
-            vmovss  xmm1, dword ptr [rax-4]
-            vmovss  xmm0, dword ptr [rax]
-            vmaxss  xmm3, xmm1, xmm2
-            vmovss  xmm1, dword ptr [rax+4]
-          }
-          _RAX += 16i64;
+          _XMM0 = *((unsigned int *)v61 - 2);
+          __asm { vmaxss  xmm2, xmm0, xmm1 }
+          _XMM1 = *((unsigned int *)v61 - 1);
+          _XMM0 = *(unsigned int *)v61;
+          __asm { vmaxss  xmm3, xmm1, xmm2 }
+          _XMM1 = *((unsigned int *)v61 + 1);
+          v61 += 4;
           __asm
           {
             vmaxss  xmm2, xmm0, xmm3
             vmaxss  xmm1, xmm1, xmm2
           }
-          --v70;
+          --v62;
         }
-        while ( v70 );
+        while ( v62 );
       }
-      while ( _RCX < s_sndSubmix.volmod_groupcount )
+      while ( v60 < s_sndSubmix.volmod_groupcount )
       {
-        __asm { vmovss  xmm0, dword ptr [r8+rcx*4] }
-        ++_RCX;
+        _XMM0 = LODWORD(hpf[v60++]);
         __asm { vmaxss  xmm1, xmm0, xmm1 }
       }
     }
-    __asm
-    {
-      vmulss  xmm0, xmm1, cs:__real@46bb8000
-      vmovss  dword ptr [rsi], xmm0
-    }
+    *maxCutoffHpfHz = *(float *)&_XMM1 * 24000.0;
   }
   return 1;
 }
@@ -1874,21 +1487,30 @@ SND_SubmixDebugGetDataUnique
 */
 char SND_SubmixDebugGetDataUnique(const int idx, int *type, unsigned int *id, float *effect, float *maxAttnLinear, float *minCutoffLpfHz, float *maxCutoffHpfHz)
 {
-  __int64 v10; 
+  __int64 v7; 
   const SndDuck *def; 
-  __int64 v12; 
-  int v15; 
-  __int64 v18; 
-  unsigned __int64 v25; 
-  int v33; 
-  __int64 v37; 
-  unsigned __int64 v44; 
-  int v56; 
-  unsigned __int64 v66; 
+  __int64 v9; 
+  int v11; 
+  float *attenuation; 
+  __int64 v16; 
+  __int64 v20; 
+  __int64 v21; 
+  unsigned __int64 v22; 
+  int v30; 
+  float *lpf; 
+  __int64 v34; 
+  __int64 v38; 
+  __int64 v39; 
+  unsigned __int64 v40; 
+  int v49; 
+  float *hpf; 
+  __int64 v56; 
+  float *v57; 
+  unsigned __int64 v58; 
 
   if ( idx < 0 || (unsigned int)idx >= 0x8D )
     return 0;
-  v10 = idx;
+  v7 = idx;
   if ( type )
     *type = 8;
   if ( id )
@@ -1898,28 +1520,20 @@ char SND_SubmixDebugGetDataUnique(const int idx, int *type, unsigned int *id, fl
   def = s_sndSubmix.uniques[idx].def;
   if ( !def )
     return 0;
-  v12 = 0i64;
-  _RSI = maxAttnLinear;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  v9 = 0i64;
+  *(float *)&_XMM6 = FLOAT_1_0;
   if ( maxAttnLinear )
   {
     if ( !def->attenuation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2015, ASSERT_TYPE_ASSERT, "(sub->def->attenuation)", (const char *)&queryFormat, "sub->def->attenuation") )
       __debugbreak();
-    v15 = 0;
-    __asm { vmovaps xmm1, xmm6 }
-    _R9 = s_sndSubmix.uniques[v10].def->attenuation;
+    v11 = 0;
+    *(float *)&_XMM1 = FLOAT_1_0;
+    attenuation = s_sndSubmix.uniques[v7].def->attenuation;
     if ( s_sndSubmix.volmod_groupcount > 0 && s_sndSubmix.volmod_groupcount >= 8u )
     {
-      __asm
-      {
-        vmovups xmm2, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmm1, xmm2
-      }
-      v18 = 0i64;
+      _XMM2 = _xmm;
+      _XMM1 = _xmm;
+      v16 = 0i64;
       do
       {
         __asm
@@ -1927,70 +1541,65 @@ char SND_SubmixDebugGetDataUnique(const int idx, int *type, unsigned int *id, fl
           vminps  xmm2, xmm2, xmmword ptr [r9+rax*4]
           vminps  xmm1, xmm1, xmmword ptr [r9+rax*4+10h]
         }
-        v18 += 8i64;
-        v15 += 8;
+        v16 += 8i64;
+        v11 += 8;
       }
-      while ( v18 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
+      while ( v16 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
       __asm
       {
         vminps  xmm1, xmm2, xmm1
         vmovhlps xmm0, xmm1, xmm1
         vminps  xmm1, xmm0, xmm1
-        vshufps xmm0, xmm1, xmm1, 0F5h ; 'õ'
-        vminss  xmm1, xmm1, xmm0
       }
+      _mm_shuffle_ps(_XMM1, _XMM1, 245);
+      __asm { vminss  xmm1, xmm1, xmm0 }
     }
-    _RCX = v15;
-    if ( v15 < (__int64)s_sndSubmix.volmod_groupcount )
+    v20 = v11;
+    if ( v11 < (__int64)s_sndSubmix.volmod_groupcount )
     {
-      if ( s_sndSubmix.volmod_groupcount - (__int64)v15 >= 4 )
+      if ( s_sndSubmix.volmod_groupcount - (__int64)v11 >= 4 )
       {
-        _RDX = (__int64)&_R9[v15 + 2];
-        v25 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - _RCX - 4) >> 2) + 1;
-        _RCX += 4 * v25;
+        v21 = (__int64)&attenuation[v11 + 2];
+        v22 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - v20 - 4) >> 2) + 1;
+        v20 += 4 * v22;
         do
         {
-          __asm { vmovss  xmm0, dword ptr [rdx-8] }
-          _RDX += 16i64;
+          _XMM0 = *(unsigned int *)(v21 - 8);
+          v21 += 16i64;
+          __asm { vminss  xmm2, xmm0, xmm1 }
+          _XMM1 = *(unsigned int *)(v21 - 20);
           __asm
           {
-            vminss  xmm2, xmm0, xmm1
-            vmovss  xmm1, dword ptr [rdx-14h]
             vminss  xmm0, xmm1, xmm2
             vminss  xmm3, xmm0, dword ptr [rdx-10h]
-            vmovss  xmm0, dword ptr [rdx-0Ch]
-            vminss  xmm1, xmm0, xmm3
           }
-          --v25;
+          _XMM0 = *(unsigned int *)(v21 - 12);
+          __asm { vminss  xmm1, xmm0, xmm3 }
+          --v22;
         }
-        while ( v25 );
+        while ( v22 );
       }
-      while ( _RCX < s_sndSubmix.volmod_groupcount )
+      while ( v20 < s_sndSubmix.volmod_groupcount )
       {
-        __asm { vmovss  xmm0, dword ptr [r9+rcx*4] }
-        ++_RCX;
+        _XMM0 = LODWORD(attenuation[v20++]);
         __asm { vminss  xmm1, xmm0, xmm1 }
       }
     }
-    __asm { vmovss  dword ptr [rsi], xmm1 }
+    *maxAttnLinear = *(float *)&_XMM1;
   }
-  _RSI = minCutoffLpfHz;
   if ( minCutoffLpfHz )
   {
-    if ( !s_sndSubmix.uniques[v10].def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2027, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
+    if ( !s_sndSubmix.uniques[v7].def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2027, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
       __debugbreak();
-    if ( !s_sndSubmix.uniques[v10].def->lpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2028, ASSERT_TYPE_ASSERT, "(sub->def->lpf)", (const char *)&queryFormat, "sub->def->lpf") )
+    if ( !s_sndSubmix.uniques[v7].def->lpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2028, ASSERT_TYPE_ASSERT, "(sub->def->lpf)", (const char *)&queryFormat, "sub->def->lpf") )
       __debugbreak();
-    v33 = 0;
-    _R9 = s_sndSubmix.uniques[v10].def->lpf;
+    v30 = 0;
+    lpf = s_sndSubmix.uniques[v7].def->lpf;
     if ( s_sndSubmix.volmod_groupcount > 0 && s_sndSubmix.volmod_groupcount >= 8u )
     {
-      __asm
-      {
-        vmovups xmm1, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmm2, xmm1
-      }
-      v37 = 0i64;
+      _XMM1 = _xmm;
+      _XMM2 = _xmm;
+      v34 = 0i64;
       do
       {
         __asm
@@ -1998,77 +1607,65 @@ char SND_SubmixDebugGetDataUnique(const int idx, int *type, unsigned int *id, fl
           vminps  xmm1, xmm1, xmmword ptr [r9+rax*4]
           vminps  xmm2, xmm2, xmmword ptr [r9+rax*4+10h]
         }
-        v37 += 8i64;
-        v33 += 8;
+        v34 += 8i64;
+        v30 += 8;
       }
-      while ( v37 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
+      while ( v34 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
       __asm
       {
         vminps  xmm1, xmm1, xmm2
         vmovhlps xmm0, xmm1, xmm1
         vminps  xmm6, xmm0, xmm1
-        vshufps xmm0, xmm6, xmm6, 0F5h ; 'õ'
-        vminss  xmm6, xmm6, xmm0
       }
+      _mm_shuffle_ps(_XMM6, _XMM6, 245);
+      __asm { vminss  xmm6, xmm6, xmm0 }
     }
-    _RCX = v33;
-    if ( v33 < (__int64)s_sndSubmix.volmod_groupcount )
+    v38 = v30;
+    if ( v30 < (__int64)s_sndSubmix.volmod_groupcount )
     {
-      if ( s_sndSubmix.volmod_groupcount - (__int64)v33 >= 4 )
+      if ( s_sndSubmix.volmod_groupcount - (__int64)v30 >= 4 )
       {
-        _R8 = (__int64)&_R9[v33 + 2];
-        v44 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v33 - 4) >> 2) + 1;
-        _RCX = v33 + 4 * v44;
+        v39 = (__int64)&lpf[v30 + 2];
+        v40 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v30 - 4) >> 2) + 1;
+        v38 = v30 + 4 * v40;
         do
         {
+          _XMM0 = *(unsigned int *)(v39 - 8);
+          _XMM1 = *(unsigned int *)(v39 - 4);
+          v39 += 16i64;
+          __asm { vminss  xmm2, xmm0, xmm6 }
+          _XMM0 = *(unsigned int *)(v39 - 16);
+          __asm { vminss  xmm3, xmm1, xmm2 }
+          _XMM1 = *(unsigned int *)(v39 - 12);
           __asm
           {
-            vmovss  xmm0, dword ptr [r8-8]
-            vmovss  xmm1, dword ptr [r8-4]
-          }
-          _R8 += 16i64;
-          __asm
-          {
-            vminss  xmm2, xmm0, xmm6
-            vmovss  xmm0, dword ptr [r8-10h]
-            vminss  xmm3, xmm1, xmm2
-            vmovss  xmm1, dword ptr [r8-0Ch]
             vminss  xmm2, xmm0, xmm3
             vminss  xmm6, xmm1, xmm2
           }
-          --v44;
+          --v40;
         }
-        while ( v44 );
+        while ( v40 );
       }
-      while ( _RCX < s_sndSubmix.volmod_groupcount )
+      while ( v38 < s_sndSubmix.volmod_groupcount )
       {
-        __asm { vmovss  xmm0, dword ptr [r9+rcx*4] }
-        ++_RCX;
+        _XMM0 = LODWORD(lpf[v38++]);
         __asm { vminss  xmm6, xmm0, xmm6 }
       }
     }
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm1, cs:__real@46bb8000
-      vmovss  dword ptr [rsi], xmm2
-    }
+    *minCutoffLpfHz = (float)((float)(*(float *)&_XMM6 * *(float *)&_XMM6) * *(float *)&_XMM6) * 24000.0;
   }
-  _RSI = maxCutoffHpfHz;
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
   if ( maxCutoffHpfHz )
   {
-    if ( !s_sndSubmix.uniques[v10].def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2044, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
+    if ( !s_sndSubmix.uniques[v7].def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2044, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
       __debugbreak();
-    if ( !s_sndSubmix.uniques[v10].def->hpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2045, ASSERT_TYPE_ASSERT, "(sub->def->hpf)", (const char *)&queryFormat, "sub->def->hpf") )
+    if ( !s_sndSubmix.uniques[v7].def->hpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 2045, ASSERT_TYPE_ASSERT, "(sub->def->hpf)", (const char *)&queryFormat, "sub->def->hpf") )
       __debugbreak();
-    v56 = 0;
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    _R8 = s_sndSubmix.uniques[v10].def->hpf;
+    v49 = 0;
+    _XMM1 = 0i64;
+    hpf = s_sndSubmix.uniques[v7].def->hpf;
     if ( s_sndSubmix.volmod_groupcount > 0 && s_sndSubmix.volmod_groupcount >= 8u )
     {
-      __asm { vxorps  xmm2, xmm2, xmm2 }
+      _XMM2 = 0i64;
       do
       {
         __asm
@@ -2076,60 +1673,52 @@ char SND_SubmixDebugGetDataUnique(const int idx, int *type, unsigned int *id, fl
           vmaxps  xmm2, xmm2, xmmword ptr [r8+rbx*4]
           vmaxps  xmm1, xmm1, xmmword ptr [r8+rbx*4+10h]
         }
-        v12 += 8i64;
-        v56 += 8;
+        v9 += 8i64;
+        v49 += 8;
       }
-      while ( v12 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
+      while ( v9 < s_sndSubmix.volmod_groupcount - s_sndSubmix.volmod_groupcount % 8 );
       __asm
       {
         vmaxps  xmm1, xmm2, xmm1
         vmovhlps xmm0, xmm1, xmm1
         vmaxps  xmm1, xmm0, xmm1
-        vshufps xmm0, xmm1, xmm1, 0F5h ; 'õ'
-        vmaxss  xmm1, xmm1, xmm0
       }
+      _mm_shuffle_ps(_XMM1, _XMM1, 245);
+      __asm { vmaxss  xmm1, xmm1, xmm0 }
     }
-    _RCX = v56;
-    if ( v56 < (__int64)s_sndSubmix.volmod_groupcount )
+    v56 = v49;
+    if ( v49 < (__int64)s_sndSubmix.volmod_groupcount )
     {
-      if ( s_sndSubmix.volmod_groupcount - (__int64)v56 >= 4 )
+      if ( s_sndSubmix.volmod_groupcount - (__int64)v49 >= 4 )
       {
-        _RAX = (__int64)&_R8[v56 + 2];
-        v66 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v56 - 4) >> 2) + 1;
-        _RCX += 4 * v66;
+        v57 = &hpf[v49 + 2];
+        v58 = ((unsigned __int64)(s_sndSubmix.volmod_groupcount - (__int64)v49 - 4) >> 2) + 1;
+        v56 += 4 * v58;
         do
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax-8]
-            vmaxss  xmm2, xmm0, xmm1
-            vmovss  xmm1, dword ptr [rax-4]
-            vmovss  xmm0, dword ptr [rax]
-            vmaxss  xmm3, xmm1, xmm2
-            vmovss  xmm1, dword ptr [rax+4]
-          }
-          _RAX += 16i64;
+          _XMM0 = *((unsigned int *)v57 - 2);
+          __asm { vmaxss  xmm2, xmm0, xmm1 }
+          _XMM1 = *((unsigned int *)v57 - 1);
+          _XMM0 = *(unsigned int *)v57;
+          __asm { vmaxss  xmm3, xmm1, xmm2 }
+          _XMM1 = *((unsigned int *)v57 + 1);
+          v57 += 4;
           __asm
           {
             vmaxss  xmm2, xmm0, xmm3
             vmaxss  xmm1, xmm1, xmm2
           }
-          --v66;
+          --v58;
         }
-        while ( v66 );
+        while ( v58 );
       }
-      while ( _RCX < s_sndSubmix.volmod_groupcount )
+      while ( v56 < s_sndSubmix.volmod_groupcount )
       {
-        __asm { vmovss  xmm0, dword ptr [r8+rcx*4] }
-        ++_RCX;
+        _XMM0 = LODWORD(hpf[v56++]);
         __asm { vmaxss  xmm1, xmm0, xmm1 }
       }
     }
-    __asm
-    {
-      vmulss  xmm0, xmm1, cs:__real@46bb8000
-      vmovss  dword ptr [rsi], xmm0
-    }
+    *maxCutoffHpfHz = *(float *)&_XMM1 * 24000.0;
   }
   return 1;
 }
@@ -2181,10 +1770,12 @@ SND_SubmixDebugGetZones
 */
 void SND_SubmixDebugGetZones(unsigned int *zoneA, float *lerpA, unsigned int *zoneB, float *lerpB)
 {
-  unsigned int v6; 
+  unsigned int v4; 
   unsigned int id; 
+  float v6; 
+  float scale; 
 
-  v6 = 0;
+  v4 = 0;
   if ( zoneA )
   {
     if ( s_sndSubmix.requestsForZones[0] )
@@ -2196,41 +1787,29 @@ void SND_SubmixDebugGetZones(unsigned int *zoneA, float *lerpA, unsigned int *zo
   if ( zoneB )
   {
     if ( s_sndSubmix.requestsForZones[1] )
-      v6 = s_sndSubmix.requestsForZones[1]->id;
-    *zoneB = v6;
+      v4 = s_sndSubmix.requestsForZones[1]->id;
+    *zoneB = v4;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v6 = 0.0;
   if ( lerpA )
   {
-    _RAX = s_sndSubmix.requestsForZones[0];
     if ( s_sndSubmix.requestsForZones[0] )
-      __asm { vmovss  xmm1, dword ptr [rax+20h] }
+      scale = s_sndSubmix.requestsForZones[0]->scale;
     else
-      __asm { vxorps  xmm1, xmm1, xmm1 }
-    __asm { vmovss  dword ptr [rdx], xmm1 }
+      scale = 0.0;
+    *lerpA = scale;
   }
   if ( lerpB )
   {
-    _RAX = s_sndSubmix.requestsForZones[1];
     if ( s_sndSubmix.requestsForZones[1] )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+20h]
-        vmovss  dword ptr [r9], xmm0
-      }
+      *lerpB = s_sndSubmix.requestsForZones[1]->scale;
     }
     else
     {
       if ( s_sndSubmix.requestsForZones[0] )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vsubss  xmm0, xmm0, dword ptr [rax+20h]
-        }
-      }
-      __asm { vmovss  dword ptr [r9], xmm0 }
+        v6 = 1.0 - s_sndSubmix.requestsForZones[0]->scale;
+      *lerpB = v6;
     }
   }
 }
@@ -2240,75 +1819,19 @@ void SND_SubmixDebugGetZones(unsigned int *zoneA, float *lerpA, unsigned int *zo
 SND_SubmixFade
 ==============
 */
-
-float __fastcall SND_SubmixFade(unsigned int fadeType, double t)
+float SND_SubmixFade(unsigned int fadeType, float t)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  if ( t < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 328, ASSERT_TYPE_ASSERT, "(t>= 0.0f)", (const char *)&queryFormat, "t>= 0.0f") )
+    __debugbreak();
   if ( fadeType == g_snd.logFastHash )
-  {
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3f800000
-      vsubss  xmm1, xmm3, xmm6
-      vmulss  xmm0, xmm1, xmm1
-      vmulss  xmm2, xmm0, xmm1
-      vsubss  xmm0, xmm3, xmm2
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  else if ( fadeType == g_snd.logSlowHash )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm0, xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  else if ( fadeType == g_snd.flatEndedHash )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm2, xmm0, xmm6
-      vmulss  xmm4, xmm6, xmm6
-      vmulss  xmm1, xmm4, cs:__real@40400000
-      vmulss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm6
-      vaddss  xmm0, xmm3, xmm0
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  else if ( fadeType == g_snd.flatMiddleHash )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmulss  xmm2, xmm6, cs:__real@40400000
-      vsubss  xmm1, xmm0, xmm6
-      vmulss  xmm3, xmm1, xmm1
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm0, xmm4, xmm1
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+    return 1.0 - (float)((float)((float)(1.0 - t) * (float)(1.0 - t)) * (float)(1.0 - t));
+  if ( fadeType == g_snd.logSlowHash )
+    return (float)(t * t) * t;
+  if ( fadeType == g_snd.flatEndedHash )
+    return (float)((float)(1.0 - t) * (float)((float)(t * t) * 3.0)) + (float)((float)(t * t) * t);
+  if ( fadeType == g_snd.flatMiddleHash )
+    return (float)((float)((float)(1.0 - t) * (float)(1.0 - t)) * (float)(t * 3.0)) + (float)((float)(t * t) * t);
+  return t;
 }
 
 /*
@@ -2372,27 +1895,26 @@ SND_SubmixGetHpFilterValue
 */
 float SND_SubmixGetHpFilterValue(const int volmodIndex)
 {
-  __int64 v5; 
-  int v7; 
+  __int64 v1; 
+  __int64 v3; 
+  int v5; 
   int volmod_groupcount; 
 
-  _RBX = volmodIndex;
+  v1 = volmodIndex;
   if ( (unsigned int)volmodIndex >= 0x80 )
   {
-    v7 = 128;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.hpfFilterValue ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.hpfFilterValue\n\t%i not in [0, %i)", volmodIndex, v7) )
+    v5 = 128;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.hpfFilterValue ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.hpfFilterValue\n\t%i not in [0, %i)", volmodIndex, v5) )
       __debugbreak();
   }
-  if ( (int)_RBX < 0 || (int)_RBX > s_sndSubmix.volmod_groupcount )
+  if ( (int)v1 < 0 || (int)v1 > s_sndSubmix.volmod_groupcount )
   {
     volmod_groupcount = s_sndSubmix.volmod_groupcount;
-    LODWORD(v5) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 274, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v5, 0i64, volmod_groupcount) )
+    LODWORD(v3) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 274, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v3, 0i64, volmod_groupcount) )
       __debugbreak();
   }
-  _RCX = s_sndSubmix.hpfFilterValue;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_sndSubmix.hpfFilterValue[v1];
 }
 
 /*
@@ -2402,27 +1924,26 @@ SND_SubmixGetLpFilterValue
 */
 float SND_SubmixGetLpFilterValue(const int volmodIndex)
 {
-  __int64 v5; 
-  int v7; 
+  __int64 v1; 
+  __int64 v3; 
+  int v5; 
   int volmod_groupcount; 
 
-  _RBX = volmodIndex;
+  v1 = volmodIndex;
   if ( (unsigned int)volmodIndex >= 0x80 )
   {
-    v7 = 128;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 265, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.lpfFilterValue ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.lpfFilterValue\n\t%i not in [0, %i)", volmodIndex, v7) )
+    v5 = 128;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 265, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.lpfFilterValue ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.lpfFilterValue\n\t%i not in [0, %i)", volmodIndex, v5) )
       __debugbreak();
   }
-  if ( (int)_RBX < 0 || (int)_RBX > s_sndSubmix.volmod_groupcount )
+  if ( (int)v1 < 0 || (int)v1 > s_sndSubmix.volmod_groupcount )
   {
     volmod_groupcount = s_sndSubmix.volmod_groupcount;
-    LODWORD(v5) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 266, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v5, 0i64, volmod_groupcount) )
+    LODWORD(v3) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 266, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v3, 0i64, volmod_groupcount) )
       __debugbreak();
   }
-  _RCX = s_sndSubmix.lpfFilterValue;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_sndSubmix.lpfFilterValue[v1];
 }
 
 /*
@@ -2462,27 +1983,26 @@ SND_SubmixGetVolmodAttenuation
 */
 float SND_SubmixGetVolmodAttenuation(const int volmodIndex)
 {
-  __int64 v5; 
-  int v7; 
+  __int64 v1; 
+  __int64 v3; 
+  int v5; 
   int volmod_groupcount; 
 
-  _RBX = volmodIndex;
+  v1 = volmodIndex;
   if ( (unsigned int)volmodIndex >= 0x80 )
   {
-    v7 = 128;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 281, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.attenuationValue ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.attenuationValue\n\t%i not in [0, %i)", volmodIndex, v7) )
+    v5 = 128;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 281, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.attenuationValue ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.attenuationValue\n\t%i not in [0, %i)", volmodIndex, v5) )
       __debugbreak();
   }
-  if ( (int)_RBX < 0 || (int)_RBX > s_sndSubmix.volmod_groupcount )
+  if ( (int)v1 < 0 || (int)v1 > s_sndSubmix.volmod_groupcount )
   {
     volmod_groupcount = s_sndSubmix.volmod_groupcount;
-    LODWORD(v5) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 282, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v5, 0i64, volmod_groupcount) )
+    LODWORD(v3) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 282, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v3, 0i64, volmod_groupcount) )
       __debugbreak();
   }
-  _RCX = s_sndSubmix.attenuationValue;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_sndSubmix.lpfFilterValue[v1 - 128];
 }
 
 /*
@@ -2492,27 +2012,26 @@ SND_SubmixGetVolmodFocusAmount
 */
 float SND_SubmixGetVolmodFocusAmount(const int volmodIndex)
 {
-  __int64 v5; 
-  int v7; 
+  __int64 v1; 
+  __int64 v3; 
+  int v5; 
   int volmod_groupcount; 
 
-  _RBX = volmodIndex;
+  v1 = volmodIndex;
   if ( (unsigned int)volmodIndex >= 0x80 )
   {
-    v7 = 128;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 289, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.focusAmount ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.focusAmount\n\t%i not in [0, %i)", volmodIndex, v7) )
+    v5 = 128;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 289, ASSERT_TYPE_ASSERT, "(unsigned)( volmodIndex ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.focusAmount ) ) + 0 ) )", "volmodIndex doesn't index s_sndSubmix.focusAmount\n\t%i not in [0, %i)", volmodIndex, v5) )
       __debugbreak();
   }
-  if ( (int)_RBX < 0 || (int)_RBX > s_sndSubmix.volmod_groupcount )
+  if ( (int)v1 < 0 || (int)v1 > s_sndSubmix.volmod_groupcount )
   {
     volmod_groupcount = s_sndSubmix.volmod_groupcount;
-    LODWORD(v5) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 290, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v5, 0i64, volmod_groupcount) )
+    LODWORD(v3) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 290, ASSERT_TYPE_ASSERT, "( 0 ) <= ( volmodIndex ) && ( volmodIndex ) <= ( s_sndSubmix.volmod_groupcount )", "volmodIndex not in [0, s_sndSubmix.volmod_groupcount]\n\t%i not in [%i, %i]", v3, 0i64, volmod_groupcount) )
       __debugbreak();
   }
-  _RCX = s_sndSubmix.focusAmount;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_sndSubmix.focusAmount[v1];
 }
 
 /*
@@ -2591,226 +2110,106 @@ SND_SubmixRateLimit
 */
 void SND_SubmixRateLimit(unsigned int count, const float *rate, const float *negrate, const float *target, float *delta, float *value, const float rangeMin, const float rangeMax)
 {
-  const float **v11; 
-  const float *v13; 
-  __int64 v14; 
-  float *v15; 
-  float *v16; 
-  bool v19; 
-  __int64 v22; 
-  bool v27; 
-  bool v32; 
-  __int64 v33; 
-  bool v38; 
-  __int64 v40; 
-  bool v45; 
-  double v53; 
-  double v54; 
-  double v55; 
-  double v56; 
-  double v57; 
-  double v58; 
-  double v59; 
-  double v60; 
-  double v61; 
-  double v62; 
-  double v63; 
-  double v64; 
-  _BYTE v65[48]; 
-  char v66; 
-  void *retaddr; 
+  const float **v8; 
+  const float *v10; 
+  __int64 v11; 
+  float *v12; 
+  __m256 *v13; 
+  const float *v14; 
+  __int64 v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  __m256 *v19; 
+  __m256 *v20; 
+  signed __int64 v21; 
+  __m256 v22; 
+  signed __int64 v23; 
+  __int64 v24; 
+  float v25; 
+  float v26; 
+  _BYTE v27[16]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v11 = (const float **)((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFE0ui64);
-  *v11 = negrate;
-  _RBX = (float *)target;
-  v11[1] = rate;
-  v13 = negrate;
-  v14 = count;
+  v8 = (const float **)((unsigned __int64)v27 & 0xFFFFFFFFFFFFFFE0ui64);
+  *v8 = negrate;
+  v8[1] = rate;
+  v10 = negrate;
+  v11 = count;
   if ( ((unsigned __int8)rate & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 889, ASSERT_TYPE_ASSERT, "((((intptr_t)rate) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)rate) & 15) == 0") )
     __debugbreak();
-  if ( ((unsigned __int8)v13 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 890, ASSERT_TYPE_ASSERT, "((((intptr_t)negrate) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)negrate) & 15) == 0") )
+  if ( ((unsigned __int8)v10 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 890, ASSERT_TYPE_ASSERT, "((((intptr_t)negrate) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)negrate) & 15) == 0") )
     __debugbreak();
-  if ( ((unsigned __int8)_RBX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 891, ASSERT_TYPE_ASSERT, "((((intptr_t)target) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)target) & 15) == 0") )
+  if ( ((unsigned __int8)target & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 891, ASSERT_TYPE_ASSERT, "((((intptr_t)target) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)target) & 15) == 0") )
     __debugbreak();
-  v15 = delta;
+  v12 = delta;
   if ( ((unsigned __int8)delta & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 892, ASSERT_TYPE_ASSERT, "((((intptr_t)delta) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)delta) & 15) == 0") )
     __debugbreak();
-  v16 = value;
+  v13 = (__m256 *)value;
   if ( ((unsigned __int8)value & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 893, ASSERT_TYPE_ASSERT, "((((intptr_t)value) & 15) == 0)", (const char *)&queryFormat, "(((intptr_t)value) & 15) == 0") )
     __debugbreak();
-  __asm
+  if ( (_DWORD)v11 )
   {
-    vmovss  xmm6, [rsp+0B8h+rangeMax]
-    vmovss  xmm7, [rsp+0B8h+rangeMin]
-  }
-  if ( (_DWORD)v14 )
-  {
-    _R13 = (char *)((char *)value - (char *)_RBX);
-    v19 = value <= _RBX;
-    _RDI = _RBX;
-    v22 = v14;
+    v14 = target;
+    v15 = v11;
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi+r13]
-        vcomiss xmm7, xmm2
-      }
-      if ( !v19 )
-        goto LABEL_57;
-      __asm { vcomiss xmm2, xmm6 }
-      if ( !v19 )
-      {
-LABEL_57:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+0B8h+var_80], xmm0
-          vcvtss2sd xmm1, xmm7, xmm7
-          vmovsd  [rsp+0B8h+var_88], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0B8h+var_90], xmm2
-        }
-        v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 898, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( value[i] ) && ( value[i] ) <= ( rangeMax )", "value[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v53, v57, v61);
-        v19 = !v27;
-        if ( v27 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]
-        vcomiss xmm7, xmm2
-      }
-      if ( !v19 )
-        goto LABEL_58;
-      __asm { vcomiss xmm2, xmm6 }
-      if ( !v19 )
-      {
-LABEL_58:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+0B8h+var_80], xmm0
-          vcvtss2sd xmm1, xmm7, xmm7
-          vmovsd  [rsp+0B8h+var_88], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0B8h+var_90], xmm2
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 899, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( target[i] ) && ( target[i] ) <= ( rangeMax )", "target[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v54, v58, v62) )
-          __debugbreak();
-      }
-      ++_RDI;
-      v32 = v22-- == 0;
-      v19 = v32 || v22 == 0;
+      v16 = *(const float *)((char *)v14 + (char *)value - (char *)target);
+      if ( (rangeMin > v16 || v16 > rangeMax) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 898, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( value[i] ) && ( value[i] ) <= ( rangeMax )", "value[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v16, rangeMin, rangeMax) )
+        __debugbreak();
+      v17 = *v14;
+      if ( (rangeMin > *v14 || v17 > rangeMax) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 899, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( target[i] ) && ( target[i] ) <= ( rangeMax )", "target[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v17, rangeMin, rangeMax) )
+        __debugbreak();
+      ++v14;
+      --v15;
     }
-    while ( v22 );
-    v16 = value;
-    v15 = delta;
-    v13 = *v11;
+    while ( v15 );
+    v13 = (__m256 *)value;
+    v12 = delta;
+    v10 = *v8;
   }
-  SND_DspSub(v14, _RBX, v16, v15);
-  SND_DspMin(v14, v15, *(const float **)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFE0ui64) + 8), v15);
-  SND_DspMax(v14, v15, v13, v15);
-  if ( ((unsigned __int8)v16 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 349, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v16) )
+  SND_DspSub(v11, target, v13->m256_f32, v12);
+  SND_DspMin(v11, v12, *(const float **)(((unsigned __int64)v27 & 0xFFFFFFFFFFFFFFE0ui64) + 8), v12);
+  SND_DspMax(v11, v12, v10, v12);
+  if ( ((unsigned __int8)v13 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 349, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v13) )
     __debugbreak();
-  if ( ((unsigned __int8)v15 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 350, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v15) )
+  if ( ((unsigned __int8)v12 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 350, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v12) )
     __debugbreak();
-  if ( ((unsigned __int8)v16 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 351, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v16) )
+  if ( ((unsigned __int8)v13 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 351, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v13) )
     __debugbreak();
-  if ( (v14 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 352, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v14) )
+  if ( (v11 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 352, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v11) )
     __debugbreak();
-  v33 = (unsigned int)v14 >> 3;
-  if ( (unsigned int)v14 >> 3 )
+  v18 = (unsigned int)v11 >> 3;
+  if ( (unsigned int)v11 >> 3 )
   {
-    _RCX = v16;
-    _RAX = v16;
+    v19 = v13;
+    v20 = v13;
+    v21 = (char *)v12 - (char *)v13;
     do
     {
-      _RCX += 8;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vaddps  ymm0, ymm0, ymmword ptr [r14+rax]
-      }
-      _RAX += 8;
-      __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-      --v33;
+      ++v19;
+      v22 = _mm256_add_ps(*v20, *(__m256 *)((char *)v20 + v21));
+      ++v20;
+      v19[-1] = v22;
+      --v18;
     }
-    while ( v33 );
+    while ( v18 );
   }
-  if ( (_DWORD)v14 )
+  if ( (_DWORD)v11 )
   {
-    v32 = v16 < _RBX;
-    _RSI = (char *)v16 - (char *)_RBX;
-    v38 = v32 || _RSI == 0;
-    v40 = v14;
+    v23 = (char *)v13 - (char *)target;
+    v24 = v11;
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+rsi]
-        vcomiss xmm7, xmm2
-      }
-      if ( !v38 )
-        goto LABEL_59;
-      __asm { vcomiss xmm2, xmm6 }
-      if ( !v38 )
-      {
-LABEL_59:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+0B8h+var_80], xmm0
-          vcvtss2sd xmm1, xmm7, xmm7
-          vmovsd  [rsp+0B8h+var_88], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0B8h+var_90], xmm2
-        }
-        v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 914, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( value[i] ) && ( value[i] ) <= ( rangeMax )", "value[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v55, v59, v63);
-        v38 = !v45;
-        if ( v45 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]
-        vcomiss xmm7, xmm2
-      }
-      if ( !v38 )
-        goto LABEL_51;
-      __asm { vcomiss xmm2, xmm6 }
-      if ( !v38 )
-      {
-LABEL_51:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+0B8h+var_80], xmm0
-          vcvtss2sd xmm1, xmm7, xmm7
-          vmovsd  [rsp+0B8h+var_88], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0B8h+var_90], xmm2
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 915, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( target[i] ) && ( target[i] ) <= ( rangeMax )", "target[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v56, v60, v64) )
-          __debugbreak();
-      }
-      ++_RBX;
-      v32 = v40-- == 0;
-      v38 = v32 || v40 == 0;
+      v25 = *(const float *)((char *)target + v23);
+      if ( (rangeMin > v25 || v25 > rangeMax) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 914, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( value[i] ) && ( value[i] ) <= ( rangeMax )", "value[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v25, rangeMin, rangeMax) )
+        __debugbreak();
+      v26 = *target;
+      if ( (rangeMin > *target || v26 > rangeMax) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 915, ASSERT_TYPE_ASSERT, "( rangeMin ) <= ( target[i] ) && ( target[i] ) <= ( rangeMax )", "target[i] not in [rangeMin, rangeMax]\n\t%g not in [%g, %g]", v26, rangeMin, rangeMax) )
+        __debugbreak();
+      ++target;
+      --v24;
     }
-    while ( v40 );
-  }
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
+    while ( v24 );
   }
 }
 
@@ -2853,19 +2252,19 @@ float *SND_SubmixResetGlobalState()
 {
   unsigned int *v0; 
   unsigned int i; 
-  unsigned int v3; 
-  SndSubmixReq **v4; 
-  unsigned int v5; 
+  unsigned int v2; 
+  SndSubmixReq **v3; 
+  unsigned int v4; 
   SndSubmixReq *requests; 
-  __int64 v7; 
+  __int64 v6; 
   volatile __int32 *p_type; 
-  unsigned int v9; 
+  unsigned int v8; 
   SndSubmix *uniques; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
   const FocusCone **focusCone; 
   float *result; 
-  int v15; 
+  int v14; 
 
   v0 = &s_sndSubmix.idsForZones[1];
   for ( i = 0; i < 2; i += 2 )
@@ -2873,64 +2272,60 @@ float *SND_SubmixResetGlobalState()
     *(_QWORD *)(v0 - 1) = 0i64;
     v0 += 2;
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@bf800000
-    vmovss  cs:s_sndSubmix.lerpForZones, xmm0
-  }
-  v3 = 0;
-  v4 = &s_sndSubmix.requestsForZones[1];
+  s_sndSubmix.lerpForZones = FLOAT_N1_0;
+  v2 = 0;
+  v3 = &s_sndSubmix.requestsForZones[1];
   do
   {
+    v2 += 2;
+    *(v3 - 1) = NULL;
+    *v3 = NULL;
     v3 += 2;
-    *(v4 - 1) = NULL;
-    *v4 = NULL;
-    v4 += 2;
   }
-  while ( v3 < 2 );
-  v5 = 0;
+  while ( v2 < 2 );
+  v4 = 0;
   requests = s_sndSubmix.requests;
   do
   {
-    v7 = (int)v5;
-    *(_QWORD *)&s_sndSubmix.requests[v7].id = 0i64;
-    p_type = &s_sndSubmix.requests[v5].type;
-    s_sndSubmix.requests[v7].def = NULL;
-    *(_QWORD *)&s_sndSubmix.requests[v7].startTime = 0i64;
-    *(_QWORD *)&s_sndSubmix.requests[v7].fadeInTimeSec = 0i64;
-    *(_QWORD *)&s_sndSubmix.requests[v7].scale = 0i64;
-    s_sndSubmix.requests[v7].voice = NULL;
+    v6 = (int)v4;
+    *(_QWORD *)&s_sndSubmix.requests[v6].id = 0i64;
+    p_type = &s_sndSubmix.requests[v4].type;
+    s_sndSubmix.requests[v6].def = NULL;
+    *(_QWORD *)&s_sndSubmix.requests[v6].startTime = 0i64;
+    *(_QWORD *)&s_sndSubmix.requests[v6].fadeInTimeSec = 0i64;
+    *(_QWORD *)&s_sndSubmix.requests[v6].scale = 0i64;
+    s_sndSubmix.requests[v6].voice = NULL;
     requests->id = 0;
-    if ( ((unsigned __int8)p_type & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_sndSubmix.requests[v5].type) )
+    if ( ((unsigned __int8)p_type & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_sndSubmix.requests[v4].type) )
       __debugbreak();
-    ++v5;
+    ++v4;
     ++requests;
     _InterlockedExchange(p_type, -3);
   }
-  while ( v5 < 0x8D );
-  v9 = 0;
+  while ( v4 < 0x8D );
+  v8 = 0;
   uniques = s_sndSubmix.uniques;
   do
   {
-    v11 = (int)v9;
+    v10 = (int)v8;
     ++uniques;
-    ++v9;
-    v12 = v11;
-    *(_QWORD *)&s_sndSubmix.uniques[v12].id = 0i64;
-    *(_QWORD *)&s_sndSubmix.uniques[v12].effect = 0i64;
-    s_sndSubmix.uniques[v12].def = NULL;
+    ++v8;
+    v11 = v10;
+    *(_QWORD *)&s_sndSubmix.uniques[v11].id = 0i64;
+    *(_QWORD *)&s_sndSubmix.uniques[v11].effect = 0i64;
+    s_sndSubmix.uniques[v11].def = NULL;
     uniques[-1].id = 0;
   }
-  while ( v9 < 0x8D );
+  while ( v8 < 0x8D );
   s_sndSubmix.unique_count = 0;
   focusCone = s_sndSubmix.focusCone;
   s_sndSubmix.volmod_groupcount = 128;
   result = s_sndSubmix.hpfFilterValue;
-  v15 = 0;
+  v14 = 0;
   do
   {
     *(result - 256) = 1.0;
-    ++v15;
+    ++v14;
     *result = 0.0;
     ++focusCone;
     *(result - 128) = 1.0;
@@ -2939,7 +2334,7 @@ float *SND_SubmixResetGlobalState()
     ++result;
     *(focusCone - 1) = NULL;
   }
-  while ( v15 < s_sndSubmix.volmod_groupcount );
+  while ( v14 < s_sndSubmix.volmod_groupcount );
   return result;
 }
 
@@ -2950,101 +2345,105 @@ SND_SubmixRestore
 */
 void SND_SubmixRestore(MemoryFile *memFile)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  unsigned int v6; 
-  SndSubmixReq *v8; 
-  int v9; 
+  unsigned int v4; 
+  __int64 v5; 
+  SndSubmixReq *v6; 
+  int v7; 
   const SndDuck *DuckById; 
+  int v9; 
+  SndVoice *v10; 
   int v11; 
-  SndVoice *v12; 
-  int v13; 
-  const dvar_t *v14; 
+  double Float; 
+  double v13; 
+  double v14; 
+  double v15; 
+  const dvar_t *v16; 
   unsigned int *focusConeId; 
   const FocusCone **focusCone; 
   const FocusCone *FocusConeById; 
-  __int64 v18; 
-  __int64 v19; 
-  int v20; 
-  int v21[3]; 
-  char v22; 
+  __int64 v20; 
+  __int64 v21; 
+  int v22; 
+  int v23[3]; 
+  char v24; 
   unsigned int p; 
-  unsigned int v24; 
+  unsigned int v26; 
 
   SND_SubmixResetGlobalState();
   MemFile_ReadData(memFile, 4ui64, &p);
+  v2 = p;
   v3 = p;
-  v4 = p;
   if ( p != 0x7FFFFFFF )
   {
-    _RBP = &s_sndSubmix;
-    v6 = p;
+    v4 = p;
     while ( 1 )
     {
-      if ( v6 >= 0x8D )
+      if ( v4 >= 0x8D )
       {
-        LODWORD(v19) = 141;
-        LODWORD(v18) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 194, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.requests ) ) + 0 ) )", "idx doesn't index s_sndSubmix.requests\n\t%i not in [0, %i)", v18, v19) )
+        LODWORD(v21) = 141;
+        LODWORD(v20) = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 194, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( s_sndSubmix.requests ) ) + 0 ) )", "idx doesn't index s_sndSubmix.requests\n\t%i not in [0, %i)", v20, v21) )
           __debugbreak();
       }
-      _RBX = v4;
-      v8 = &s_sndSubmix.requests[_RBX];
-      MemFile_ReadData(memFile, 4ui64, &v24);
-      v9 = v24;
-      v8->id = v24;
-      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 992, ASSERT_TYPE_ASSERT, "(sub->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "sub->id != SND_INVALID_HASH") )
+      v5 = v3;
+      v6 = &s_sndSubmix.requests[v5];
+      MemFile_ReadData(memFile, 4ui64, &v26);
+      v7 = v26;
+      v6->id = v26;
+      if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 992, ASSERT_TYPE_ASSERT, "(sub->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "sub->id != SND_INVALID_HASH") )
         __debugbreak();
-      if ( !v8->id )
+      if ( !v6->id )
         break;
-      DuckById = SND_GetDuckById(v8->id);
-      s_sndSubmix.requests[_RBX].def = DuckById;
+      DuckById = SND_GetDuckById(v6->id);
+      s_sndSubmix.requests[v5].def = DuckById;
       if ( !DuckById )
         goto LABEL_12;
 LABEL_14:
-      MemFile_ReadData(memFile, 1ui64, &v22);
-      s_sndSubmix.requests[_RBX].type = v22;
-      v11 = SND_RestoreVoiceIndex(memFile);
-      if ( v11 < 0 || (unsigned __int64)v11 >= 0x63 )
+      MemFile_ReadData(memFile, 1ui64, &v24);
+      s_sndSubmix.requests[v5].type = v24;
+      v9 = SND_RestoreVoiceIndex(memFile);
+      if ( v9 < 0 || (unsigned __int64)v9 >= 0x63 )
       {
-        if ( v11 != 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1003, ASSERT_TYPE_ASSERT, "(voiceIndex == int(2147483647))", (const char *)&queryFormat, "voiceIndex == SND_SUBMIX_NO_VOICE") )
+        if ( v9 != 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1003, ASSERT_TYPE_ASSERT, "(voiceIndex == int(2147483647))", (const char *)&queryFormat, "voiceIndex == SND_SUBMIX_NO_VOICE") )
           __debugbreak();
-        v12 = NULL;
+        v10 = NULL;
       }
       else
       {
-        v12 = &g_snd.voices[v11];
+        v10 = &g_snd.voices[v9];
       }
-      s_sndSubmix.requests[_RBX].voice = v12;
-      MemFile_ReadData(memFile, 4ui64, &v20);
-      s_sndSubmix.requests[_RBX].startTime = v20 + g_snd.time;
-      MemFile_ReadData(memFile, 4ui64, v21);
-      v13 = v21[0];
-      s_sndSubmix.requests[_RBX].endTime = v21[0];
-      if ( v13 )
-        s_sndSubmix.requests[_RBX].endTime = g_snd.time + v13;
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+rbx*8+38h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+rbx*8+3Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+rbx*8+40h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      v14 = DVARBOOL_snd_submix_restore_workaround_enable;
-      __asm { vmovss  dword ptr [rbp+rbx*8+44h], xmm0 }
-      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_restore_workaround_enable") )
+      s_sndSubmix.requests[v5].voice = v10;
+      MemFile_ReadData(memFile, 4ui64, &v22);
+      s_sndSubmix.requests[v5].startTime = v22 + g_snd.time;
+      MemFile_ReadData(memFile, 4ui64, v23);
+      v11 = v23[0];
+      s_sndSubmix.requests[v5].endTime = v23[0];
+      if ( v11 )
+        s_sndSubmix.requests[v5].endTime = g_snd.time + v11;
+      Float = MemFile_ReadFloat(memFile);
+      s_sndSubmix.requests[v5].fadeInTimeSec = *(float *)&Float;
+      v13 = MemFile_ReadFloat(memFile);
+      s_sndSubmix.requests[v5].fadeOutTimeSec = *(float *)&v13;
+      v14 = MemFile_ReadFloat(memFile);
+      s_sndSubmix.requests[v5].scale = *(float *)&v14;
+      v15 = MemFile_ReadFloat(memFile);
+      v16 = DVARBOOL_snd_submix_restore_workaround_enable;
+      s_sndSubmix.requests[v5].effect = *(float *)&v15;
+      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_restore_workaround_enable") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v14);
-      if ( v14->current.enabled && !s_sndSubmix.requests[_RBX].def )
-        SND_SubmixReclaim(&s_sndSubmix.requests[_RBX]);
+      Dvar_CheckFrontendServerThread(v16);
+      if ( v16->current.enabled && !s_sndSubmix.requests[v5].def )
+        SND_SubmixReclaim(&s_sndSubmix.requests[v5]);
       MemFile_ReadData(memFile, 4ui64, &p);
+      v2 = p;
       v3 = p;
       v4 = p;
-      v6 = p;
       if ( p == 0x7FFFFFFF )
         goto LABEL_30;
     }
-    s_sndSubmix.requests[_RBX].def = NULL;
+    s_sndSubmix.requests[v5].def = NULL;
 LABEL_12:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 994, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
       __debugbreak();
@@ -3074,73 +2473,70 @@ SND_SubmixSave
 void SND_SubmixSave(MemoryFile *memFile)
 {
   unsigned int v1; 
+  volatile int *p_type; 
   const SndVoice *v4; 
   int v5; 
-  __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
-  int v13; 
-  int v14; 
-  int v15; 
-  int v16[16]; 
-  char v17; 
+  __int64 v6; 
+  __int64 v7; 
+  __int64 v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  int v12[16]; 
+  char v13; 
   unsigned int p; 
-  int v19; 
+  int v15; 
 
   v1 = 0;
-  _RBX = &s_sndSubmix.requests[0].type;
+  p_type = &s_sndSubmix.requests[0].type;
   do
   {
-    if ( !SND_SubmixAssert((const SndSubmixReq *const)(_RBX - 1), 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1050, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( sub, true ))", (const char *)&queryFormat, "SND_SubmixAssert( sub, true )") )
+    if ( !SND_SubmixAssert((const SndSubmixReq *const)(p_type - 1), 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1050, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( sub, true ))", (const char *)&queryFormat, "SND_SubmixAssert( sub, true )") )
       __debugbreak();
-    if ( *_RBX != -3 && *_RBX != 1 )
+    if ( *p_type != -3 && *p_type != 1 )
     {
       p = v1;
       MemFile_WriteData(memFile, 4ui64, &p);
-      v19 = *((_DWORD *)_RBX - 1);
-      MemFile_WriteData(memFile, 4ui64, &v19);
-      if ( *(int *)_RBX < -128 || *(int *)_RBX > 127 )
+      v15 = *((_DWORD *)p_type - 1);
+      MemFile_WriteData(memFile, 4ui64, &v15);
+      if ( *(int *)p_type < -128 || *(int *)p_type > 127 )
       {
-        LODWORD(v12) = 127;
-        LODWORD(v11) = -128;
-        LODWORD(v10) = *_RBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1066, ASSERT_TYPE_ASSERT, "( (-128) ) <= ( sub->type ) && ( sub->type ) <= ( 127 )", "sub->type not in [SCHAR_MIN, SCHAR_MAX]\n\t%i not in [%i, %i]", v10, v11, v12) )
+        LODWORD(v8) = 127;
+        LODWORD(v7) = -128;
+        LODWORD(v6) = *p_type;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1066, ASSERT_TYPE_ASSERT, "( (-128) ) <= ( sub->type ) && ( sub->type ) <= ( 127 )", "sub->type not in [SCHAR_MIN, SCHAR_MAX]\n\t%i not in [%i, %i]", v6, v7, v8) )
           __debugbreak();
       }
-      v17 = *_RBX;
-      MemFile_WriteData(memFile, 1ui64, &v17);
-      v4 = *(const SndVoice **)(_RBX + 9);
+      v13 = *p_type;
+      MemFile_WriteData(memFile, 1ui64, &v13);
+      v4 = *(const SndVoice **)(p_type + 9);
       if ( v4 )
       {
         SND_SaveVoiceIndex(memFile, v4);
       }
       else
       {
-        v13 = 0x7FFFFFFF;
-        MemFile_WriteData(memFile, 4ui64, &v13);
+        v9 = 0x7FFFFFFF;
+        MemFile_WriteData(memFile, 4ui64, &v9);
       }
-      v14 = *((_DWORD *)_RBX + 3) - g_snd.time;
-      MemFile_WriteData(memFile, 4ui64, &v14);
+      v10 = *((_DWORD *)p_type + 3) - g_snd.time;
+      MemFile_WriteData(memFile, 4ui64, &v10);
       v5 = 0;
-      if ( *((_DWORD *)_RBX + 4) )
-        v5 = *((_DWORD *)_RBX + 4) - g_snd.time;
-      v15 = v5;
-      MemFile_WriteData(memFile, 4ui64, &v15);
-      __asm { vmovss  xmm1, dword ptr [rbx+14h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rbx+18h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rbx+1Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rbx+20h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+      if ( *((_DWORD *)p_type + 4) )
+        v5 = *((_DWORD *)p_type + 4) - g_snd.time;
+      v11 = v5;
+      MemFile_WriteData(memFile, 4ui64, &v11);
+      MemFile_WriteFloat(memFile, *((float *)p_type + 5));
+      MemFile_WriteFloat(memFile, *((float *)p_type + 6));
+      MemFile_WriteFloat(memFile, *((float *)p_type + 7));
+      MemFile_WriteFloat(memFile, *((float *)p_type + 8));
     }
     ++v1;
-    _RBX += 12;
+    p_type += 12;
   }
   while ( v1 < 0x8D );
-  v16[0] = 0x7FFFFFFF;
-  MemFile_WriteData(memFile, 4ui64, v16);
+  v12[0] = 0x7FFFFFFF;
+  MemFile_WriteData(memFile, 4ui64, v12);
   MemFile_WriteData(memFile, 0x200ui64, s_sndSubmix.attenuationValue);
   MemFile_WriteData(memFile, 0x200ui64, s_sndSubmix.hpfFilterValue);
   MemFile_WriteData(memFile, 0x200ui64, s_sndSubmix.lpfFilterValue);
@@ -3153,87 +2549,67 @@ void SND_SubmixSave(MemoryFile *memFile)
 SND_SubmixSetOnVoiceStart
 ==============
 */
-
-void __fastcall SND_SubmixSetOnVoiceStart(SndVoice *voice, double dt)
+void SND_SubmixSetOnVoiceStart(SndVoice *voice, float dt)
 {
-  const dvar_t *v7; 
+  const dvar_t *v3; 
+  const SndDuck *submixDef; 
   SndSubmixReq *submixRef; 
-  const char *v10; 
-  int v11; 
-  const char *v12; 
-  SndSubmixReq *v15; 
+  const char *v6; 
+  int v7; 
+  const char *v8; 
+  float distance; 
+  SndSubmixReq *v10; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  SND_FaderUpdate(&voice->submixAttenuation, *(float *)&dt);
-  __asm { vmovaps xmm1, xmm6; dt }
-  SND_FaderUpdate(&voice->submixHpf, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm6; dt }
-  SND_FaderUpdate(&voice->submixLpf, *(float *)&_XMM1);
-  v7 = DCONST_DVARBOOL_snd_submix_dev_cutout;
+  SND_FaderUpdate(&voice->submixAttenuation, dt);
+  SND_FaderUpdate(&voice->submixHpf, dt);
+  SND_FaderUpdate(&voice->submixLpf, dt);
+  v3 = DCONST_DVARBOOL_snd_submix_dev_cutout;
   if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
     goto LABEL_14;
-  _RCX = voice->submixDef;
+  submixDef = voice->submixDef;
   submixRef = voice->submixRef;
-  if ( !_RCX )
+  if ( !submixDef )
   {
-    if ( submixRef )
-    {
-      v10 = "voice->submixRef == nullptr";
-      v11 = 1818;
-      v12 = "(voice->submixRef == nullptr)";
-      goto LABEL_20;
-    }
-    goto LABEL_22;
-  }
-  if ( submixRef || voice->soundFileInfo.loadingState != SFLS_LOADED )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+54h]
-    vcomiss xmm0, cs:__real@37803e84
-  }
-  if ( voice->soundFileInfo.loadingState > (unsigned int)SFLS_LOADED )
-    goto LABEL_25;
-  __asm { vcomiss xmm0, cs:__real@b7803e84 }
-  if ( voice->soundFileInfo.loadingState < (unsigned int)SFLS_LOADED )
-  {
-LABEL_25:
-    if ( !SND_IsAliasSpatial(voice->alias) )
-    {
-      Com_PrintError(9, "SOUND: cannot use a submix duck with distance \"%s\" on a 2d alias \"%s\"\n", voice->submixDef, voice->alias->aliasName);
-      goto LABEL_14;
-    }
-  }
-  v15 = SND_SubmixAddFromVoiceAlias(voice);
-  if ( !v15 )
-  {
-    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_snd_submix_disable_alias, "snd_submix_disable_alias") )
-      goto LABEL_22;
-    Com_PrintError(9, "SOUND: failed to get submix for duck \"%s\" on alias \"%s\"\n", voice->submixDef, voice->alias->aliasName);
-LABEL_14:
-    voice->submixDef = NULL;
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    if ( !submixRef )
+      return;
+    v6 = "voice->submixRef == nullptr";
+    v7 = 1818;
+    v8 = "(voice->submixRef == nullptr)";
+LABEL_20:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", v7, ASSERT_TYPE_ASSERT, v8, (const char *)&queryFormat, v6) )
+      __debugbreak();
     return;
   }
-  voice->submixRef = v15;
-  if ( !SND_SubmixAssert(v15, 1) )
+  if ( !submixRef && voice->soundFileInfo.loadingState == SFLS_LOADED )
   {
-    v10 = "SND_SubmixAssert( req, true )";
-    v11 = 1855;
-    v12 = "(SND_SubmixAssert( req, true ))";
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", v11, ASSERT_TYPE_ASSERT, v12, (const char *)&queryFormat, v10) )
-      __debugbreak();
+    distance = submixDef->distance;
+    if ( distance <= 0.0000152879 && distance >= -0.0000152879 || SND_IsAliasSpatial(voice->alias) )
+    {
+      v10 = SND_SubmixAddFromVoiceAlias(voice);
+      if ( v10 )
+      {
+        voice->submixRef = v10;
+        if ( SND_SubmixAssert(v10, 1) )
+          return;
+        v6 = "SND_SubmixAssert( req, true )";
+        v7 = 1855;
+        v8 = "(SND_SubmixAssert( req, true ))";
+        goto LABEL_20;
+      }
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_snd_submix_disable_alias, "snd_submix_disable_alias") )
+        return;
+      Com_PrintError(9, "SOUND: failed to get submix for duck \"%s\" on alias \"%s\"\n", voice->submixDef, voice->alias->aliasName);
+    }
+    else
+    {
+      Com_PrintError(9, "SOUND: cannot use a submix duck with distance \"%s\" on a 2d alias \"%s\"\n", voice->submixDef, voice->alias->aliasName);
+    }
+LABEL_14:
+    voice->submixDef = NULL;
   }
-LABEL_22:
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -3247,10 +2623,8 @@ void SND_SubmixSetSlotFromLUA(const char *name)
   const dvar_t *v3; 
   SndSubmixReq *Slot; 
   SndSubmixReq *v5; 
-  unsigned int v7; 
+  unsigned int v6; 
   const SndDuck *DuckById; 
-  float fadeTimeSec; 
-  float scale; 
 
   v1 = DCONST_DVARBOOL_snd_submix_dev_cutout;
   if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
@@ -3270,24 +2644,15 @@ void SND_SubmixSetSlotFromLUA(const char *name)
       {
         if ( !*name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 693, ASSERT_TYPE_ASSERT, "(name[0])", (const char *)&queryFormat, "name[0]") )
           __debugbreak();
-        v7 = SND_HashName(name);
-        if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 695, ASSERT_TYPE_ASSERT, "(id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "id != SND_INVALID_HASH") )
+        v6 = SND_HashName(name);
+        if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 695, ASSERT_TYPE_ASSERT, "(id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "id != SND_INVALID_HASH") )
           __debugbreak();
-        if ( v5->def->id != v7 )
+        if ( v5->def->id != v6 )
         {
-          if ( v7 && (DuckById = SND_GetDuckById(v7)) != NULL )
+          if ( v6 && (DuckById = SND_GetDuckById(v6)) != NULL )
           {
             if ( !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_snd_submix_disable_lua, "snd_submix_disable_lua") )
-            {
-              __asm
-              {
-                vmovss  xmm0, cs:__real@3f800000
-                vmovss  xmm1, cs:__real@bf800000
-                vmovss  [rsp+48h+scale], xmm0
-                vmovss  [rsp+48h+fadeTimeSec], xmm1
-              }
-              SND_SubmixAddNew(v5, DuckById, NULL, 0, 0, fadeTimeSec, scale);
-            }
+              SND_SubmixAddNew(v5, DuckById, NULL, 0, 0, -1.0, 1.0);
           }
           else
           {
@@ -3297,8 +2662,7 @@ void SND_SubmixSetSlotFromLUA(const char *name)
       }
       else
       {
-        __asm { vmovss  xmm1, cs:__real@bf800000; fadeTimeSec }
-        SND_SubmixClearForFade(Slot, *(double *)&_XMM1);
+        SND_SubmixClearForFade(Slot, -1.0);
       }
     }
   }
@@ -3309,46 +2673,38 @@ void SND_SubmixSetSlotFromLUA(const char *name)
 SND_SubmixSetSlotsFromZones
 ==============
 */
-
-void __fastcall SND_SubmixSetSlotsFromZones(unsigned int idA, unsigned int idB, double lerp)
+void SND_SubmixSetSlotsFromZones(unsigned int idA, unsigned int idB, const float lerp)
 {
-  const dvar_t *v4; 
-  const dvar_t *v8; 
+  const dvar_t *v3; 
+  const dvar_t *v6; 
   unsigned int zoneB; 
   unsigned int id; 
 
-  v4 = DCONST_DVARBOOL_snd_submix_dev_cutout;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v3 = DCONST_DVARBOOL_snd_submix_dev_cutout;
   if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( !v3->current.enabled )
   {
-    v8 = DCONST_DVARBOOL_snd_submix_disable_zone;
+    v6 = DCONST_DVARBOOL_snd_submix_disable_zone;
     if ( !DCONST_DVARBOOL_snd_submix_disable_zone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_zone") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( !v8->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( !v6->current.enabled )
     {
       zoneB = 0;
       s_sndSubmix.idsForZones[0] = idA;
       s_sndSubmix.idsForZones[1] = idB;
-      __asm { vmovss  cs:s_sndSubmix.lerpForZones, xmm6 }
+      s_sndSubmix.lerpForZones = lerp;
       if ( s_sndSubmix.requestsForZones[0] )
         id = s_sndSubmix.requestsForZones[0]->id;
       else
         id = 0;
       if ( s_sndSubmix.requestsForZones[1] )
         zoneB = s_sndSubmix.requestsForZones[1]->id;
-      __asm { vmovaps xmm3, xmm6; lerp }
-      SND_SubmixDebugRecordZones(g_snd.time, idA, idB, *(float *)&_XMM3, id, zoneB);
+      SND_SubmixDebugRecordZones(g_snd.time, idA, idB, lerp, id, zoneB);
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -3385,25 +2741,21 @@ void SND_SubmixStopAllByBank(const SndDuck *const ducks, const int duckCount)
 SND_SubmixStopAllFromVoiceAlias
 ==============
 */
-
-void __fastcall SND_SubmixStopAllFromVoiceAlias(__int64 a1, double _XMM1_8)
+void SND_SubmixStopAllFromVoiceAlias(void)
 {
-  unsigned int v2; 
+  unsigned int v0; 
   SndSubmixReq *requests; 
 
-  v2 = 0;
+  v0 = 0;
   requests = s_sndSubmix.requests;
   do
   {
     if ( requests->type == 99 )
-    {
-      __asm { vxorps  xmm1, xmm1, xmm1; fadeTimeSec }
-      SND_SubmixClearForFade(requests, _XMM1_8);
-    }
-    ++v2;
+      SND_SubmixClearForFade(requests, 0.0);
+    ++v0;
     ++requests;
   }
-  while ( v2 < 0x8D );
+  while ( v0 < 0x8D );
 }
 
 /*
@@ -3413,45 +2765,32 @@ SND_SubmixStopFromVoice
 */
 void SND_SubmixStopFromVoice(SndVoice *voice)
 {
+  SndSubmixReq *submixRef; 
   int endTime; 
 
   if ( !voice && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 853, ASSERT_TYPE_ASSERT, "(voice)", (const char *)&queryFormat, "voice") )
     __debugbreak();
-  _RBX = voice->submixRef;
-  if ( _RBX )
+  submixRef = voice->submixRef;
+  if ( submixRef )
   {
-    if ( !SND_SubmixAssert(_RBX, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 860, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
+    if ( !SND_SubmixAssert(submixRef, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 860, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
       __debugbreak();
-    if ( voice->paused )
-      goto LABEL_17;
-    __asm
+    if ( voice->paused || submixRef->effect < 0.0000152879 )
     {
-      vmovss  xmm0, cs:__real@37803e84
-      vcomiss xmm0, dword ptr [rbx+24h]
-    }
-    if ( voice->paused )
-    {
-LABEL_17:
-      SND_SubmixReclaim(_RBX);
+      SND_SubmixReclaim(submixRef);
     }
     else
     {
-      _RAX = _RBX->def;
-      __asm
+      if ( submixRef->def->length == 0.0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm0, dword ptr [rax+58h]
-      }
-      if ( !voice->paused )
-      {
-        endTime = _RBX->endTime;
+        endTime = submixRef->endTime;
         if ( !endTime || g_snd.time < endTime )
-          _RBX->endTime = g_snd.time;
+          submixRef->endTime = g_snd.time;
       }
-      _RBX->voice = NULL;
+      submixRef->voice = NULL;
       voice->submixRef = NULL;
       voice->submixDef = NULL;
-      if ( !SND_SubmixAssert(_RBX, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 875, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
+      if ( !SND_SubmixAssert(submixRef, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 875, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
         __debugbreak();
     }
   }
@@ -3462,129 +2801,90 @@ LABEL_17:
 SND_SubmixUpdate
 ==============
 */
-
-void __fastcall SND_SubmixUpdate(double dt, const bool isSplitscreen)
+void SND_SubmixUpdate(float dt, const bool isSplitscreen)
 {
-  const dvar_t *v10; 
-  int v12; 
+  const dvar_t *v5; 
   float *attenuationValue; 
   __int64 i; 
-  int v16; 
   float *hpfFilterValue; 
   __int64 j; 
   float *lpfFilterValue; 
   __int64 k; 
   float *focusAmount; 
   __int64 m; 
-  __int64 v23; 
+  __int64 v14; 
   unsigned int *focusConeId; 
   const FocusCone **focusCone; 
-  __int64 v26; 
-  const dvar_t *v27; 
+  __int64 v17; 
+  const dvar_t *v18; 
   const char *string; 
   SndSubmixReq *Slot; 
   SndSubmixReq *Available; 
-  unsigned int v32; 
+  unsigned int v22; 
   const SndDuck *DuckById; 
-  int v35; 
-  unsigned int v36; 
-  unsigned int v37; 
-  SndSubmixReq *updated; 
+  int v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  float lerpForZones; 
+  unsigned int *p_rate; 
   unsigned int n; 
-  int v65; 
+  __int128 v32; 
+  int v44; 
   const SndDuck **p_def; 
-  char v69; 
-  const dvar_t *v71; 
-  int v72; 
-  float *v73; 
+  char v46; 
+  const dvar_t *v47; 
+  float *v48; 
   __int64 ii; 
-  int v75; 
-  float *v76; 
+  float *v50; 
   __int64 jj; 
-  float *v78; 
+  float *v52; 
   __int64 kk; 
-  float *v80; 
+  float *v54; 
   __int64 mm; 
-  __int64 v82; 
-  unsigned int *v83; 
-  const FocusCone **v84; 
-  __int64 v85; 
-  const dvar_t *v86; 
-  float *v87; 
+  __int64 v56; 
+  unsigned int *v57; 
+  const FocusCone **v58; 
+  __int64 v59; 
+  const dvar_t *v60; 
+  float *v61; 
   __int64 nn; 
-  const dvar_t *v89; 
-  float *v90; 
+  const dvar_t *v63; 
+  float *v64; 
   __int64 i1; 
-  const dvar_t *v92; 
-  float *v93; 
+  const dvar_t *v66; 
+  float *v67; 
   __int64 i2; 
-  const dvar_t *v95; 
-  float *v96; 
+  const dvar_t *v69; 
+  float *v70; 
   __int64 i3; 
-  __int64 v98; 
-  unsigned int *v99; 
-  const FocusCone **v100; 
-  __int64 v101; 
-  float fadeTimeSec; 
-  double fadeTimeSeca; 
-  float scale; 
-  double scalea; 
-  double v109; 
-  int v115; 
-  int v116; 
-  int v117; 
-  int v118; 
-  int v119; 
-  int v120; 
-  int v121; 
-  int v122; 
-  int v123; 
-  int v124; 
-  int v125; 
-  int v126; 
+  __int64 v72; 
+  unsigned int *v73; 
+  const FocusCone **v74; 
+  __int64 v75; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_78], xmm10
-    vmovaps xmm10, xmm0
-  }
   if ( Sys_ExistsWorkerCmdsOfType(WRKCMD_SOUND_OCCLUSION) && SND_CanDoPhysicsQuery() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1395, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_SOUND_OCCLUSION ) || !SND_CanDoPhysicsQuery())", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_SOUND_OCCLUSION ) || !SND_CanDoPhysicsQuery()") )
     __debugbreak();
   if ( Sys_ExistsWorkerCmdsOfType(WRKCMD_SOUND_VOICE_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1396, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_SOUND_VOICE_UPDATE ))", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_SOUND_VOICE_UPDATE )") )
     __debugbreak();
-  v10 = DCONST_DVARBOOL_snd_submix_dev_cutout;
+  v5 = DCONST_DVARBOOL_snd_submix_dev_cutout;
   if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  [rsp+0B8h+arg_10], xmm1
-    }
-    v12 = v115;
     attenuationValue = s_sndSubmix.attenuationValue;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+0B8h+arg_10], xmm0
-    }
     for ( i = 128i64; i; --i )
-      *(_DWORD *)attenuationValue++ = v12;
-    v16 = v116;
+      *attenuationValue++ = FLOAT_1_0;
     hpfFilterValue = s_sndSubmix.hpfFilterValue;
-    __asm { vmovss  [rsp+0B8h+arg_10], xmm1 }
     for ( j = 128i64; j; --j )
-      *(_DWORD *)hpfFilterValue++ = v16;
+      *hpfFilterValue++ = 0.0;
     lpfFilterValue = s_sndSubmix.lpfFilterValue;
     for ( k = 128i64; k; --k )
-      *(_DWORD *)lpfFilterValue++ = v117;
-    __asm { vmovss  [rsp+0B8h+arg_10], xmm0 }
+      *lpfFilterValue++ = FLOAT_1_0;
     focusAmount = s_sndSubmix.focusAmount;
     for ( m = 128i64; m; --m )
-      *(_DWORD *)focusAmount++ = v118;
-    v23 = 8i64;
+      *focusAmount++ = 0.0;
+    v14 = 8i64;
     focusConeId = s_sndSubmix.focusConeId;
     do
     {
@@ -3597,11 +2897,11 @@ void __fastcall SND_SubmixUpdate(double dt, const bool isSplitscreen)
       *((_QWORD *)focusConeId - 3) = 0i64;
       *((_QWORD *)focusConeId - 2) = 0i64;
       *((_QWORD *)focusConeId - 1) = 0i64;
-      --v23;
+      --v14;
     }
-    while ( v23 );
+    while ( v14 );
     focusCone = s_sndSubmix.focusCone;
-    v26 = 16i64;
+    v17 = 16i64;
     do
     {
       *focusCone = NULL;
@@ -3613,46 +2913,33 @@ void __fastcall SND_SubmixUpdate(double dt, const bool isSplitscreen)
       *(focusCone - 3) = NULL;
       *(focusCone - 2) = NULL;
       *(focusCone - 1) = NULL;
-      --v26;
+      --v17;
     }
-    while ( v26 );
+    while ( v17 );
   }
   else
   {
-    v27 = DCONST_DVARSTR_snd_submix_debug;
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_38], xmm6
-      vmovaps [rsp+0B8h+var_58], xmm8
-      vmovaps [rsp+0B8h+var_68], xmm9
-    }
+    v18 = DCONST_DVARSTR_snd_submix_debug;
     if ( !DCONST_DVARSTR_snd_submix_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    string = v27->current.string;
+    Dvar_CheckFrontendServerThread(v18);
+    string = v18->current.string;
     Slot = SND_SubmixFindSlot(1);
     Available = Slot;
-    __asm { vmovss  xmm8, cs:__real@3f800000 }
     if ( string && *string )
     {
-      v32 = SND_HashName(string);
-      if ( v32 )
+      v22 = SND_HashName(string);
+      if ( v22 )
       {
-        if ( !Available || Available->id != v32 )
+        if ( !Available || Available->id != v22 )
         {
-          DuckById = SND_GetDuckById(v32);
+          DuckById = SND_GetDuckById(v22);
           if ( DuckById )
           {
             if ( Available || (Available = SND_SubmixFindAvailable()) != NULL )
             {
               Com_Printf(0, "SOUND: setting submix slot for def \"%s\" requested from DEBUG dvar\n", string);
-              __asm
-              {
-                vmovss  xmm0, cs:__real@bf800000
-                vmovss  [rsp+0B8h+scale], xmm8
-                vmovss  [rsp+0B8h+fadeTimeSec], xmm0
-              }
-              SND_SubmixAddNew(Available, DuckById, NULL, 1, 0, fadeTimeSec, scale);
+              SND_SubmixAddNew(Available, DuckById, NULL, 1, 0, -1.0, 1.0);
             }
             else
             {
@@ -3672,108 +2959,69 @@ void __fastcall SND_SubmixUpdate(double dt, const bool isSplitscreen)
     }
     else if ( Slot )
     {
-      __asm { vmovss  xmm1, cs:__real@bf800000; fadeTimeSec }
-      SND_SubmixClearForFade(Slot, *(double *)&_XMM1);
+      _XMM1 = LODWORD(FLOAT_N1_0);
+      SND_SubmixClearForFade(Slot, -1.0);
     }
-    __asm { vmovaps [rsp+0B8h+var_48], xmm7 }
-    v35 = Sys_Microseconds();
+    v24 = Sys_Microseconds();
     Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_SubmixUpdate");
-    v36 = s_sndSubmix.idsForZones[1];
-    v37 = s_sndSubmix.idsForZones[0];
-    __asm
-    {
-      vmovss  xmm6, cs:s_sndSubmix.lerpForZones
-      vxorps  xmm7, xmm7, xmm7
-    }
+    v25 = s_sndSubmix.idsForZones[1];
+    v26 = s_sndSubmix.idsForZones[0];
+    lerpForZones = s_sndSubmix.lerpForZones;
     if ( s_sndSubmix.idsForZones[1] )
     {
       if ( s_sndSubmix.idsForZones[0] == s_sndSubmix.idsForZones[1] )
       {
-        v36 = 0;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v25 = 0;
+        lerpForZones = 0.0;
       }
-      else
+      else if ( s_sndSubmix.lerpForZones < 0.0 || s_sndSubmix.lerpForZones > 1.0 )
       {
-        __asm { vcomiss xmm6, xmm7 }
-        if ( s_sndSubmix.idsForZones[0] < s_sndSubmix.idsForZones[1] )
-          goto LABEL_127;
-        __asm { vcomiss xmm6, xmm8 }
-        if ( s_sndSubmix.idsForZones[0] > s_sndSubmix.idsForZones[1] )
-        {
-LABEL_127:
-          __asm
-          {
-            vmovsd  xmm0, cs:__real@3ff0000000000000
-            vmovsd  [rsp+0B8h+var_80], xmm0
-            vxorpd  xmm1, xmm1, xmm1
-            vmovsd  qword ptr [rsp+0B8h+scale], xmm1
-            vcvtss2sd xmm2, xmm6, xmm6
-            vmovsd  qword ptr [rsp+0B8h+fadeTimeSec], xmm2
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1711, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", fadeTimeSeca, scalea, v109) )
-            __debugbreak();
-        }
+        __asm { vxorpd  xmm1, xmm1, xmm1 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1711, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( lerp ) && ( lerp ) <= ( 1.0f )", "lerp not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", s_sndSubmix.lerpForZones, *(double *)&_XMM1, DOUBLE_1_0) )
+          __debugbreak();
       }
     }
     else
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+      lerpForZones = 0.0;
     }
-    __asm { vsubss  xmm2, xmm8, xmm6; lerp }
-    updated = SND_SubmixUpdateSlotFromZone(s_sndSubmix.requestsForZones[0], v37, *(float *)&_XMM2);
-    __asm { vmovaps xmm2, xmm6; lerp }
-    s_sndSubmix.requestsForZones[0] = updated;
-    __asm
-    {
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm9, cs:__real@80000000
-    }
-    s_sndSubmix.requestsForZones[1] = SND_SubmixUpdateSlotFromZone(s_sndSubmix.requestsForZones[1], v36, *(float *)&_XMM2);
-    _RDI = &g_snd.voices[0].submixAttenuation.rate;
+    s_sndSubmix.requestsForZones[0] = SND_SubmixUpdateSlotFromZone(s_sndSubmix.requestsForZones[0], v26, 1.0 - lerpForZones);
+    s_sndSubmix.requestsForZones[1] = SND_SubmixUpdateSlotFromZone(s_sndSubmix.requestsForZones[1], v25, lerpForZones);
+    p_rate = (unsigned int *)&g_snd.voices[0].submixAttenuation.rate;
     for ( n = 0; n < 0x63; ++n )
     {
       if ( !SND_IsVoiceFree(n) )
       {
+        _XMM2 = *(p_rate - 2);
+        v32 = *p_rate;
+        *(p_rate - 1) = 1065353216;
+        _XMM0 = v32 & (unsigned int)_xmm;
         __asm
         {
-          vmovss  xmm2, dword ptr [rdi-8]
-          vmovss  xmm0, dword ptr [rdi]
+          vcmpless xmm1, xmm0, xmm9
+          vblendvps xmm0, xmm2, xmm8, xmm1
         }
-        *(_RDI - 1) = 1.0;
+        *(p_rate - 2) = _XMM0;
+        _XMM2 = p_rate[4];
+        _XMM0 = p_rate[6] & (unsigned __int128)(unsigned int)_xmm;
+        __asm { vcmpless xmm1, xmm0, xmm9 }
+        p_rate[5] = 1065353216;
+        __asm { vblendvps xmm0, xmm2, xmm8, xmm1 }
+        p_rate[4] = _XMM0;
+        _XMM2 = p_rate[1];
+        _XMM0 = p_rate[3] & (unsigned __int128)(unsigned int)_xmm;
         __asm
         {
-          vandps  xmm0, xmm0, xmm6
           vcmpless xmm1, xmm0, xmm9
           vblendvps xmm0, xmm2, xmm8, xmm1
-          vmovss  dword ptr [rdi-8], xmm0
-          vmovss  xmm2, dword ptr [rdi+10h]
-          vmovss  xmm0, dword ptr [rdi+18h]
-          vandps  xmm0, xmm0, xmm6
-          vcmpless xmm1, xmm0, xmm9
         }
-        _RDI[5] = 1.0;
-        __asm
-        {
-          vblendvps xmm0, xmm2, xmm8, xmm1
-          vmovss  dword ptr [rdi+10h], xmm0
-          vmovss  xmm2, dword ptr [rdi+4]
-          vmovss  xmm0, dword ptr [rdi+0Ch]
-          vandps  xmm0, xmm0, xmm6
-          vcmpless xmm1, xmm0, xmm9
-          vblendvps xmm0, xmm2, xmm8, xmm1
-          vmovss  dword ptr [rdi+4], xmm0
-        }
-        _RDI[2] = 1.0;
+        p_rate[1] = _XMM0;
+        p_rate[2] = 1065353216;
       }
-      _RDI += 492;
+      p_rate += 492;
     }
     SND_SubmixUpdateCollateUniques();
-    v65 = 0;
-    __asm
-    {
-      vmovaps xmm9, [rsp+0B8h+var_68]
-      vmovaps xmm6, [rsp+0B8h+var_38]
-    }
+    v44 = 0;
     if ( s_sndSubmix.unique_count > 0 )
     {
       p_def = &s_sndSubmix.uniques[0].def;
@@ -3781,161 +3029,144 @@ LABEL_127:
       {
         if ( !*((_DWORD *)p_def - 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1454, ASSERT_TYPE_ASSERT, "(sub->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "sub->id != SND_INVALID_HASH") )
           __debugbreak();
-        v69 = *((_BYTE *)p_def - 12);
-        if ( ((v69 & 1) == 0 || !isSplitscreen) && (!g_snd.paused || (v69 & 2) != 0) && (v69 & 4) != 0 )
+        v46 = *((_BYTE *)p_def - 12);
+        if ( ((v46 & 1) == 0 || !isSplitscreen) && (!g_snd.paused || (v46 & 2) != 0) && (v46 & 4) != 0 )
           SND_SubmixUpdateVoiceFaders(*p_def);
-        ++v65;
+        ++v44;
         p_def += 3;
       }
-      while ( v65 < s_sndSubmix.unique_count );
+      while ( v44 < s_sndSubmix.unique_count );
     }
-    __asm { vmovaps xmm0, xmm10; dt }
-    s_sndSubmix.volmod_groupcount = SND_SubmixUpdateBuffers(*(const float *)&_XMM0);
-    g_snd.updateDuckUsec = Sys_Microseconds() - v35;
+    s_sndSubmix.volmod_groupcount = SND_SubmixUpdateBuffers(dt);
+    g_snd.updateDuckUsec = Sys_Microseconds() - v24;
     Sys_ProfEndNamedEvent();
-    v71 = DCONST_DVARBOOL_snd_submix_disable;
+    v47 = DCONST_DVARBOOL_snd_submix_disable;
     if ( !DCONST_DVARBOOL_snd_submix_disable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v71);
-    if ( v71->current.enabled )
+    Dvar_CheckFrontendServerThread(v47);
+    if ( v47->current.enabled )
     {
-      __asm { vmovss  [rsp+0B8h+arg_10], xmm8 }
-      v72 = v119;
-      v73 = s_sndSubmix.attenuationValue;
-      __asm { vmovss  [rsp+0B8h+arg_10], xmm7 }
+      v48 = s_sndSubmix.attenuationValue;
       for ( ii = 128i64; ii; --ii )
-        *(_DWORD *)v73++ = v72;
-      v75 = v120;
-      v76 = s_sndSubmix.hpfFilterValue;
-      __asm { vmovss  [rsp+0B8h+arg_10], xmm8 }
+        *v48++ = FLOAT_1_0;
+      v50 = s_sndSubmix.hpfFilterValue;
       for ( jj = 128i64; jj; --jj )
-        *(_DWORD *)v76++ = v75;
-      v78 = s_sndSubmix.lpfFilterValue;
+        *v50++ = 0.0;
+      v52 = s_sndSubmix.lpfFilterValue;
       for ( kk = 128i64; kk; --kk )
-        *(_DWORD *)v78++ = v121;
-      __asm { vmovss  [rsp+0B8h+arg_10], xmm7 }
-      v80 = s_sndSubmix.focusAmount;
+        *v52++ = FLOAT_1_0;
+      v54 = s_sndSubmix.focusAmount;
       for ( mm = 128i64; mm; --mm )
-        *(_DWORD *)v80++ = v122;
-      v82 = 8i64;
-      v83 = s_sndSubmix.focusConeId;
+        *v54++ = 0.0;
+      v56 = 8i64;
+      v57 = s_sndSubmix.focusConeId;
       do
       {
-        *(_QWORD *)v83 = 0i64;
-        *((_QWORD *)v83 + 1) = 0i64;
-        *((_QWORD *)v83 + 2) = 0i64;
-        v83 += 16;
-        *((_QWORD *)v83 - 5) = 0i64;
-        *((_QWORD *)v83 - 4) = 0i64;
-        *((_QWORD *)v83 - 3) = 0i64;
-        *((_QWORD *)v83 - 2) = 0i64;
-        *((_QWORD *)v83 - 1) = 0i64;
-        --v82;
+        *(_QWORD *)v57 = 0i64;
+        *((_QWORD *)v57 + 1) = 0i64;
+        *((_QWORD *)v57 + 2) = 0i64;
+        v57 += 16;
+        *((_QWORD *)v57 - 5) = 0i64;
+        *((_QWORD *)v57 - 4) = 0i64;
+        *((_QWORD *)v57 - 3) = 0i64;
+        *((_QWORD *)v57 - 2) = 0i64;
+        *((_QWORD *)v57 - 1) = 0i64;
+        --v56;
       }
-      while ( v82 );
-      v84 = s_sndSubmix.focusCone;
-      v85 = 16i64;
+      while ( v56 );
+      v58 = s_sndSubmix.focusCone;
+      v59 = 16i64;
       do
       {
-        *v84 = NULL;
-        v84[1] = NULL;
-        v84[2] = NULL;
-        v84 += 8;
-        *(v84 - 5) = NULL;
-        *(v84 - 4) = NULL;
-        *(v84 - 3) = NULL;
-        *(v84 - 2) = NULL;
-        *(v84 - 1) = NULL;
-        --v85;
+        *v58 = NULL;
+        v58[1] = NULL;
+        v58[2] = NULL;
+        v58 += 8;
+        *(v58 - 5) = NULL;
+        *(v58 - 4) = NULL;
+        *(v58 - 3) = NULL;
+        *(v58 - 2) = NULL;
+        *(v58 - 1) = NULL;
+        --v59;
       }
-      while ( v85 );
+      while ( v59 );
     }
     else
     {
-      v86 = DCONST_DVARBOOL_snd_submix_disable_att;
+      v60 = DCONST_DVARBOOL_snd_submix_disable_att;
       if ( !DCONST_DVARBOOL_snd_submix_disable_att && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_att") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v86);
-      if ( v86->current.enabled )
+      Dvar_CheckFrontendServerThread(v60);
+      if ( v60->current.enabled )
       {
-        __asm { vmovss  [rsp+0B8h+arg_10], xmm8 }
-        v87 = s_sndSubmix.attenuationValue;
+        v61 = s_sndSubmix.attenuationValue;
         for ( nn = 128i64; nn; --nn )
-          *(_DWORD *)v87++ = v123;
+          *v61++ = FLOAT_1_0;
       }
-      v89 = DCONST_DVARBOOL_snd_submix_disable_hpf;
+      v63 = DCONST_DVARBOOL_snd_submix_disable_hpf;
       if ( !DCONST_DVARBOOL_snd_submix_disable_hpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_hpf") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v89);
-      if ( v89->current.enabled )
+      Dvar_CheckFrontendServerThread(v63);
+      if ( v63->current.enabled )
       {
-        __asm { vmovss  [rsp+0B8h+arg_10], xmm7 }
-        v90 = s_sndSubmix.hpfFilterValue;
+        v64 = s_sndSubmix.hpfFilterValue;
         for ( i1 = 128i64; i1; --i1 )
-          *(_DWORD *)v90++ = v124;
+          *v64++ = 0.0;
       }
-      v92 = DCONST_DVARBOOL_snd_submix_disable_lpf;
+      v66 = DCONST_DVARBOOL_snd_submix_disable_lpf;
       if ( !DCONST_DVARBOOL_snd_submix_disable_lpf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_lpf") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v92);
-      if ( v92->current.enabled )
+      Dvar_CheckFrontendServerThread(v66);
+      if ( v66->current.enabled )
       {
-        __asm { vmovss  [rsp+0B8h+arg_10], xmm8 }
-        v93 = s_sndSubmix.lpfFilterValue;
+        v67 = s_sndSubmix.lpfFilterValue;
         for ( i2 = 128i64; i2; --i2 )
-          *(_DWORD *)v93++ = v125;
+          *v67++ = FLOAT_1_0;
       }
-      v95 = DCONST_DVARBOOL_snd_submix_disable_focuscone;
+      v69 = DCONST_DVARBOOL_snd_submix_disable_focuscone;
       if ( !DCONST_DVARBOOL_snd_submix_disable_focuscone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable_focuscone") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v95);
-      if ( v95->current.enabled )
+      Dvar_CheckFrontendServerThread(v69);
+      if ( v69->current.enabled )
       {
-        __asm { vmovss  [rsp+0B8h+arg_10], xmm7 }
-        v96 = s_sndSubmix.focusAmount;
+        v70 = s_sndSubmix.focusAmount;
         for ( i3 = 128i64; i3; --i3 )
-          *(_DWORD *)v96++ = v126;
-        v98 = 8i64;
-        v99 = s_sndSubmix.focusConeId;
+          *v70++ = 0.0;
+        v72 = 8i64;
+        v73 = s_sndSubmix.focusConeId;
         do
         {
-          *(_QWORD *)v99 = 0i64;
-          *((_QWORD *)v99 + 1) = 0i64;
-          *((_QWORD *)v99 + 2) = 0i64;
-          v99 += 16;
-          *((_QWORD *)v99 - 5) = 0i64;
-          *((_QWORD *)v99 - 4) = 0i64;
-          *((_QWORD *)v99 - 3) = 0i64;
-          *((_QWORD *)v99 - 2) = 0i64;
-          *((_QWORD *)v99 - 1) = 0i64;
-          --v98;
+          *(_QWORD *)v73 = 0i64;
+          *((_QWORD *)v73 + 1) = 0i64;
+          *((_QWORD *)v73 + 2) = 0i64;
+          v73 += 16;
+          *((_QWORD *)v73 - 5) = 0i64;
+          *((_QWORD *)v73 - 4) = 0i64;
+          *((_QWORD *)v73 - 3) = 0i64;
+          *((_QWORD *)v73 - 2) = 0i64;
+          *((_QWORD *)v73 - 1) = 0i64;
+          --v72;
         }
-        while ( v98 );
-        v100 = s_sndSubmix.focusCone;
-        v101 = 16i64;
+        while ( v72 );
+        v74 = s_sndSubmix.focusCone;
+        v75 = 16i64;
         do
         {
-          *v100 = NULL;
-          v100[1] = NULL;
-          v100[2] = NULL;
-          v100 += 8;
-          *(v100 - 5) = NULL;
-          *(v100 - 4) = NULL;
-          *(v100 - 3) = NULL;
-          *(v100 - 2) = NULL;
-          *(v100 - 1) = NULL;
-          --v101;
+          *v74 = NULL;
+          v74[1] = NULL;
+          v74[2] = NULL;
+          v74 += 8;
+          *(v74 - 5) = NULL;
+          *(v74 - 4) = NULL;
+          *(v74 - 3) = NULL;
+          *(v74 - 2) = NULL;
+          *(v74 - 1) = NULL;
+          --v75;
         }
-        while ( v101 );
+        while ( v75 );
       }
     }
-    __asm
-    {
-      vmovaps xmm8, [rsp+0B8h+var_58]
-      vmovaps xmm7, [rsp+0B8h+var_48]
-    }
   }
-  __asm { vmovaps xmm10, [rsp+0B8h+var_78] }
 }
 
 /*
@@ -3947,220 +3178,248 @@ SND_SubmixUpdateBuffers
 __int64 __fastcall SND_SubmixUpdateBuffers(double dt)
 {
   signed __int64 v1; 
-  void *v11; 
+  void *v3; 
+  unsigned __int64 v4; 
+  __int128 v5; 
   signed int volmodinfoCount; 
-  __int64 v15; 
-  __int64 v16; 
-  int v17; 
-  int v20; 
-  int *v21; 
+  __int64 v7; 
+  __int64 v8; 
+  int v9; 
+  float v10; 
+  float *v11; 
   __int64 i; 
-  int v23; 
-  int *v24; 
+  float v13; 
+  float *v14; 
   __int64 j; 
-  int v26; 
-  int *v27; 
+  float v16; 
+  float *v17; 
   __int64 k; 
-  int v29; 
-  int *v30; 
+  float v19; 
+  float *v20; 
   __int64 m; 
-  int v32; 
-  int *v33; 
+  float v22; 
+  float *v23; 
   __int64 n; 
-  int v35; 
-  int *v36; 
+  float v25; 
+  float *v26; 
   __int64 ii; 
-  int v38; 
-  int *v39; 
+  float v28; 
+  float *v29; 
   __int64 jj; 
-  __int64 v41; 
+  __int64 v31; 
   unsigned int *focusConeId; 
-  unsigned int *v43; 
-  __int64 v48; 
-  int v49; 
+  unsigned int *v33; 
+  bool v34; 
+  __int64 v36; 
+  float v37; 
+  __int64 v38; 
   const SndDuck *def; 
-  bool v52; 
-  bool v53; 
+  __int64 kk; 
+  float v41; 
+  unsigned __int64 mm; 
   unsigned int *focusCone; 
+  unsigned int v44; 
+  float v45; 
+  unsigned int v46; 
+  float v47; 
+  unsigned int v48; 
+  float v49; 
+  unsigned int v50; 
+  float v51; 
+  unsigned int v52; 
+  float v53; 
+  unsigned int v54; 
+  float v55; 
+  unsigned int v56; 
+  float v57; 
+  unsigned int v58; 
+  float v59; 
   unsigned int v60; 
-  unsigned int v63; 
+  float v61; 
+  unsigned int v62; 
+  float v63; 
+  unsigned int v64; 
+  float v65; 
   unsigned int v66; 
-  unsigned int v69; 
+  float v67; 
+  unsigned int v68; 
+  float v69; 
+  unsigned int v70; 
+  float v71; 
   unsigned int v72; 
-  unsigned int v75; 
-  unsigned int v78; 
-  unsigned int v81; 
-  unsigned int v84; 
-  unsigned int v87; 
-  unsigned int v90; 
-  unsigned int v93; 
-  unsigned int v96; 
-  unsigned int v99; 
-  unsigned int v102; 
-  unsigned int v105; 
+  float v73; 
+  unsigned int v74; 
+  float v75; 
   float *attenuation; 
+  __m128 effect_low; 
   const float *hpf; 
   float *lpf; 
   const float *focusAmount; 
+  const float *v81; 
+  __int64 v82; 
+  unsigned int v84; 
+  unsigned __int64 v86; 
+  __int64 v87; 
+  __m256 *v88; 
+  __m256i v89; 
+  unsigned __int64 v90; 
+  __int64 v91; 
+  __int64 v92; 
+  __m256i v93; 
+  unsigned __int64 v94; 
+  __int64 v95; 
+  __int64 v96; 
+  __m256i v97; 
+  __int64 v98; 
+  __m256 v99; 
+  unsigned __int64 v100; 
+  __int64 v101; 
+  __m256 *v102; 
+  __m256i v103; 
+  unsigned __int64 v104; 
+  __int64 v105; 
+  __int64 v106; 
+  __m256i v107; 
+  __int64 v108; 
+  unsigned __int64 v109; 
+  __int64 v110; 
+  __int64 v111; 
   const float *v114; 
-  __int64 v115; 
-  unsigned int v118; 
+  unsigned __int64 v115; 
+  __int64 v116; 
+  unsigned __int64 v117; 
+  int v118; 
+  unsigned __int64 v119; 
   __int64 v120; 
-  unsigned __int64 v121; 
+  __int64 v121; 
+  __m256i v122; 
+  unsigned __int64 v123; 
   __int64 v124; 
-  __int64 v128; 
-  __int64 v131; 
-  __int64 v134; 
-  unsigned __int64 v135; 
+  __int64 v125; 
+  unsigned __int64 v128; 
+  __int64 v129; 
+  unsigned __int64 v130; 
+  unsigned __int64 v131; 
+  __int64 v132; 
+  __int64 v133; 
+  __m256i v134; 
+  __int64 v135; 
+  unsigned __int64 v136; 
   __int64 v137; 
-  __int64 v140; 
-  __int64 v142; 
-  const float *v145; 
-  __int64 v147; 
-  unsigned __int64 v148; 
-  int v150; 
-  __int64 v152; 
-  __int64 v156; 
-  __int64 v160; 
-  unsigned __int64 v161; 
-  __int64 v164; 
-  __int64 v169; 
-  bool v172; 
-  bool v173; 
-  __int64 v174; 
-  bool v182; 
-  bool v185; 
-  bool v188; 
-  int v194; 
-  _DWORD *v195; 
-  __int64 kk; 
-  int v199; 
-  _DWORD *v200; 
-  __int64 mm; 
-  const FocusCone **v203; 
+  __int64 v138; 
+  __int64 v141; 
+  float v142; 
+  float v143; 
+  float v144; 
+  float v145; 
+  __int128 v147; 
+  int v149; 
+  _DWORD *v150; 
+  __int64 nn; 
+  int v152; 
+  _DWORD *v153; 
+  __int64 i1; 
+  float *hpfFilterValue; 
+  const FocusCone **v156; 
   const FocusCone *FocusConeById; 
-  bool v205; 
-  bool v206; 
-  bool v214; 
-  bool v217; 
-  bool v220; 
-  __int64 result; 
-  __int64 v233; 
-  float *value; 
-  double v235; 
-  double v236; 
-  char v237[5232]; 
-  char v246; 
+  float v158; 
+  float v159; 
+  float v160; 
+  float v161; 
+  __int64 v163; 
+  __int64 v164; 
+  __int64 v165; 
+  char v166[5232]; 
+  __int128 v167; 
 
-  v11 = alloca(v1);
-  __asm
-  {
-    vmovaps [rsp+1578h+var_38], xmm6
-    vmovaps [rsp+1578h+var_48], xmm7
-    vmovaps [rsp+1578h+var_58], xmm8
-    vmovaps [rsp+1578h+var_68], xmm9
-    vmovaps [rsp+1578h+var_78], xmm10
-    vmovaps [rsp+1578h+var_88], xmm11
-    vmovaps [rsp+1578h+var_98], xmm12
-    vmovaps [rsp+1578h+var_A8], xmm13
-  }
-  _RBP = (unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1460) = (unsigned __int64)&v233 ^ _security_cookie;
-  __asm { vmovaps xmm13, xmm0 }
+  v3 = alloca(v1);
+  v167 = _XMM9;
+  v4 = (unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1460) = (unsigned __int64)&v163 ^ _security_cookie;
+  v5 = *(_OWORD *)&dt;
   if ( !g_snd.globals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1141, ASSERT_TYPE_ASSERT, "(g_snd.globals)", (const char *)&queryFormat, "g_snd.globals") )
     __debugbreak();
   volmodinfoCount = g_snd.globals->volmodinfoCount;
-  *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = volmodinfoCount;
+  *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = volmodinfoCount;
   if ( volmodinfoCount > 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1143, ASSERT_TYPE_ASSERT, "(groupCountActual <= 128)", (const char *)&queryFormat, "groupCountActual <= SND_MAX_VOLMOD") )
     __debugbreak();
-  v15 = 8i64;
-  LODWORD(v16) = volmodinfoCount + (8 - volmodinfoCount % 8) % 8;
-  *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v16;
-  v17 = v16 & 7;
-  *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v17;
-  if ( (v16 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1146, ASSERT_TYPE_ASSERT, "((groupCount & 7) == 0)", (const char *)&queryFormat, "(groupCount & 7) == 0") )
+  v7 = 8i64;
+  LODWORD(v8) = volmodinfoCount + (8 - volmodinfoCount % 8) % 8;
+  *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v8;
+  v9 = v8 & 7;
+  *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v9;
+  if ( (v8 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1146, ASSERT_TYPE_ASSERT, "((groupCount & 7) == 0)", (const char *)&queryFormat, "(groupCount & 7) == 0") )
     __debugbreak();
-  if ( (int)v16 > 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1147, ASSERT_TYPE_ASSERT, "(groupCount <= 128)", (const char *)&queryFormat, "groupCount <= SND_MAX_VOLMOD") )
+  if ( (int)v8 > 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1147, ASSERT_TYPE_ASSERT, "(groupCount <= 128)", (const char *)&queryFormat, "groupCount <= SND_MAX_VOLMOD") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  dword ptr [rbp+0], xmm8
-  }
-  v20 = *(_DWORD *)_RBP;
-  v21 = (int *)(_RBP + 2144);
-  __asm { vmovss  dword ptr [rbp+0], xmm7 }
-  for ( i = (unsigned int)v16; i; --i )
-    *v21++ = v20;
-  v23 = *(_DWORD *)_RBP;
-  v24 = (int *)(_RBP + 2656);
-  __asm { vmovss  dword ptr [rbp+0], xmm8 }
-  for ( j = (unsigned int)v16; j; --j )
-    *v24++ = v23;
-  v26 = *(_DWORD *)_RBP;
-  v27 = (int *)(_RBP + 3168);
-  __asm { vmovss  dword ptr [rbp+0], xmm7 }
-  for ( k = (unsigned int)v16; k; --k )
-    *v27++ = v26;
-  v29 = *(_DWORD *)_RBP;
-  v30 = (int *)(_RBP + 3680);
-  __asm { vmovss  dword ptr [rbp+0], xmm8 }
-  for ( m = (unsigned int)v16; m; --m )
-    *v30++ = v29;
-  v32 = *(_DWORD *)_RBP;
-  v33 = (int *)(_RBP + 1120);
-  __asm { vmovss  dword ptr [rbp+0], xmm7 }
-  for ( n = (unsigned int)v16; n; --n )
-    *v33++ = v32;
-  v35 = *(_DWORD *)_RBP;
-  v36 = (int *)(_RBP + 1632);
-  for ( ii = (unsigned int)v16; ii; --ii )
-    *v36++ = v35;
-  __asm { vmovss  dword ptr [rbp+0], xmm7 }
-  v38 = *(_DWORD *)_RBP;
-  v39 = (int *)(_RBP + 96);
-  for ( jj = (unsigned int)v16; jj; --jj )
-    *v39++ = v38;
-  v41 = (unsigned int)v16;
-  *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = (unsigned int)v16;
-  memset_0((void *)(_RBP + 608), 0, 0x200ui64);
+  *(const float *)v4 = FLOAT_1_0;
+  v10 = *(float *)v4;
+  v11 = (float *)(v4 + 2144);
+  *(float *)v4 = 0;
+  for ( i = (unsigned int)v8; i; --i )
+    *v11++ = v10;
+  v13 = *(float *)v4;
+  v14 = (float *)(v4 + 2656);
+  *(const float *)v4 = FLOAT_1_0;
+  for ( j = (unsigned int)v8; j; --j )
+    *v14++ = v13;
+  v16 = *(float *)v4;
+  v17 = (float *)(v4 + 3168);
+  *(float *)v4 = 0;
+  for ( k = (unsigned int)v8; k; --k )
+    *v17++ = v16;
+  v19 = *(float *)v4;
+  v20 = (float *)(v4 + 3680);
+  *(const float *)v4 = FLOAT_1_0;
+  for ( m = (unsigned int)v8; m; --m )
+    *v20++ = v19;
+  v22 = *(float *)v4;
+  v23 = (float *)(v4 + 1120);
+  *(float *)v4 = 0;
+  for ( n = (unsigned int)v8; n; --n )
+    *v23++ = v22;
+  v25 = *(float *)v4;
+  v26 = (float *)(v4 + 1632);
+  for ( ii = (unsigned int)v8; ii; --ii )
+    *v26++ = v25;
+  *(float *)v4 = 0;
+  v28 = *(float *)v4;
+  v29 = (float *)(v4 + 96);
+  for ( jj = (unsigned int)v8; jj; --jj )
+    *v29++ = v28;
+  v31 = (unsigned int)v8;
+  *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = (unsigned int)v8;
+  memset_0((void *)(v4 + 608), 0, 0x200ui64);
   focusConeId = s_sndSubmix.focusConeId;
-  v43 = s_sndSubmix.focusConeId;
+  v33 = s_sndSubmix.focusConeId;
   do
   {
-    *(_QWORD *)v43 = 0i64;
-    *((_QWORD *)v43 + 1) = 0i64;
-    *((_QWORD *)v43 + 2) = 0i64;
-    v43 += 16;
-    *((_QWORD *)v43 - 5) = 0i64;
-    *((_QWORD *)v43 - 4) = 0i64;
-    *((_QWORD *)v43 - 3) = 0i64;
-    *((_QWORD *)v43 - 2) = 0i64;
-    *((_QWORD *)v43 - 1) = 0i64;
-    --v15;
+    *(_QWORD *)v33 = 0i64;
+    *((_QWORD *)v33 + 1) = 0i64;
+    *((_QWORD *)v33 + 2) = 0i64;
+    v33 += 16;
+    *((_QWORD *)v33 - 5) = 0i64;
+    *((_QWORD *)v33 - 4) = 0i64;
+    *((_QWORD *)v33 - 3) = 0i64;
+    *((_QWORD *)v33 - 2) = 0i64;
+    *((_QWORD *)v33 - 1) = 0i64;
+    --v7;
   }
-  while ( v15 );
-  v53 = s_sndSubmix.unique_count <= 0;
-  __asm { vmovsd  xmm10, cs:__real@3ff0000000000000 }
-  *(_DWORD *)_RBP = 0;
+  while ( v7 );
+  v34 = s_sndSubmix.unique_count <= 0;
+  *(_DWORD *)v4 = 0;
   __asm { vxorpd  xmm9, xmm9, xmm9 }
-  if ( !v53 )
+  if ( !v34 )
   {
-    __asm
-    {
-      vmovss  xmm11, cs:__real@49742403
-      vmovsd  xmm12, cs:__real@412e848069676bfd
-    }
-    v48 = 0i64;
-    *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) = 0i64;
-    v49 = 0;
+    v36 = 0i64;
+    *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) = 0i64;
+    v37 = 0.0;
     do
     {
-      _R14 = v48;
-      if ( s_sndSubmix.uniques[_R14].id )
+      v38 = v36;
+      if ( s_sndSubmix.uniques[v38].id )
       {
-        def = s_sndSubmix.uniques[_R14].def;
+        def = s_sndSubmix.uniques[v38].def;
         if ( !def )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1188, ASSERT_TYPE_ASSERT, "(submixDef)", (const char *)&queryFormat, "submixDef") )
@@ -4168,904 +3427,602 @@ __int64 __fastcall SND_SubmixUpdateBuffers(double dt)
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 172, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
             __debugbreak();
         }
-        v52 = 0;
-        v53 = 1;
-        for ( _RBX = 0i64; _RBX < 512; v53 = (unsigned __int64)_RBX <= 0x200 )
+        for ( kk = 0i64; kk < 128; ++kk )
         {
-          _RAX = def->attenuation;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+rax]
-            vcomiss xmm0, xmm7
-          }
-          if ( v52 )
-            goto LABEL_294;
-          __asm { vcomiss xmm0, xmm11 }
-          if ( !v53 )
-          {
-LABEL_294:
-            __asm
-            {
-              vmovsd  [rsp+1578h+var_1540], xmm12
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+1578h+var_1548], xmm9
-              vmovsd  [rsp+1578h+value], xmm0
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 176, ASSERT_TYPE_ASSERT, "( SND_dBToLinear((-100.0f)) ) <= ( val ) && ( val ) <= ( SND_dBToLinear( (120.0f) ) )", "val not in [SND_dBToLinear(SND_SUBMIX_ATTENUATION_MAX_DB), SND_dBToLinear( SND_SUBMIX_AMPLIFICATION_MAX_DB )]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236) )
-              __debugbreak();
-          }
-          _RBX += 4i64;
-          v52 = (unsigned __int64)_RBX < 0x200;
+          v41 = def->attenuation[kk];
+          if ( (v41 < 0.0 || v41 > 1000000.2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 176, ASSERT_TYPE_ASSERT, "( SND_dBToLinear((-100.0f)) ) <= ( val ) && ( val ) <= ( SND_dBToLinear( (120.0f) ) )", "val not in [SND_dBToLinear(SND_SUBMIX_ATTENUATION_MAX_DB), SND_dBToLinear( SND_SUBMIX_AMPLIFICATION_MAX_DB )]\n\t%g not in [%g, %g]", v41, *(double *)&_XMM9, DOUBLE_1000000_205867171) )
+            __debugbreak();
         }
-        for ( _RCX = 0i64; _RCX < 128; _RCX += 16i64 )
+        for ( mm = 0i64; (__int64)mm < 128; mm += 16i64 )
         {
           focusCone = def->focusCone;
-          v60 = focusCone[_RCX];
+          v44 = focusCone[mm];
+          if ( v44 )
+          {
+            v45 = def->focusAmount[mm];
+            if ( v45 > *(float *)(v4 + mm * 4 + 608) )
+            {
+              s_sndSubmix.focusConeId[mm] = v44;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 608) = v45;
+            }
+          }
+          v46 = focusCone[mm + 1];
+          if ( v46 )
+          {
+            v47 = def->focusAmount[mm + 1];
+            if ( v47 > *(float *)(v4 + mm * 4 + 612) )
+            {
+              s_sndSubmix.focusConeId[mm + 1] = v46;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 612) = v47;
+            }
+          }
+          v48 = focusCone[mm + 2];
+          if ( v48 )
+          {
+            v49 = def->focusAmount[mm + 2];
+            if ( v49 > *(float *)(v4 + mm * 4 + 616) )
+            {
+              s_sndSubmix.focusConeId[mm + 2] = v48;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 616) = v49;
+            }
+          }
+          v50 = focusCone[mm + 3];
+          if ( v50 )
+          {
+            v51 = def->focusAmount[mm + 3];
+            if ( v51 > *(float *)(v4 + mm * 4 + 620) )
+            {
+              s_sndSubmix.focusConeId[mm + 3] = v50;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 620) = v51;
+            }
+          }
+          v52 = focusCone[mm + 4];
+          if ( v52 )
+          {
+            v53 = def->focusAmount[mm + 4];
+            if ( v53 > *(float *)(v4 + mm * 4 + 624) )
+            {
+              s_sndSubmix.focusConeId[mm + 4] = v52;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 624) = v53;
+            }
+          }
+          v54 = focusCone[mm + 5];
+          if ( v54 )
+          {
+            v55 = def->focusAmount[mm + 5];
+            if ( v55 > *(float *)(v4 + mm * 4 + 628) )
+            {
+              s_sndSubmix.focusConeId[mm + 5] = v54;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 628) = v55;
+            }
+          }
+          v56 = focusCone[mm + 6];
+          if ( v56 )
+          {
+            v57 = def->focusAmount[mm + 6];
+            if ( v57 > *(float *)(v4 + mm * 4 + 632) )
+            {
+              s_sndSubmix.focusConeId[mm + 6] = v56;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 632) = v57;
+            }
+          }
+          v58 = focusCone[mm + 7];
+          if ( v58 )
+          {
+            v59 = def->focusAmount[mm + 7];
+            if ( v59 > *(float *)(v4 + mm * 4 + 636) )
+            {
+              s_sndSubmix.focusConeId[mm + 7] = v58;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 636) = v59;
+            }
+          }
+          v60 = focusCone[mm + 8];
           if ( v60 )
           {
-            _RAX = def->focusAmount;
-            __asm
+            v61 = def->focusAmount[mm + 8];
+            if ( v61 > *(float *)(v4 + mm * 4 + 640) )
             {
-              vmovss  xmm0, dword ptr [rcx+rax]
-              vcomiss xmm0, dword ptr [rbp+rcx+260h]
+              s_sndSubmix.focusConeId[mm + 8] = v60;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 640) = v61;
             }
-            s_sndSubmix.focusConeId[_RCX] = v60;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+260h], xmm0 }
           }
-          v63 = focusCone[_RCX + 1];
-          if ( v63 )
+          v62 = focusCone[mm + 9];
+          if ( v62 )
           {
-            _RAX = def->focusAmount;
-            __asm
+            v63 = def->focusAmount[mm + 9];
+            if ( v63 > *(float *)(v4 + mm * 4 + 644) )
             {
-              vmovss  xmm0, dword ptr [rcx+rax+4]
-              vcomiss xmm0, dword ptr [rbp+rcx+264h]
+              s_sndSubmix.focusConeId[mm + 9] = v62;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 644) = v63;
             }
-            s_sndSubmix.focusConeId[_RCX + 1] = v63;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+264h], xmm0 }
           }
-          v66 = focusCone[_RCX + 2];
+          v64 = focusCone[mm + 10];
+          if ( v64 )
+          {
+            v65 = def->focusAmount[mm + 10];
+            if ( v65 > *(float *)(v4 + mm * 4 + 648) )
+            {
+              s_sndSubmix.focusConeId[mm + 10] = v64;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 648) = v65;
+            }
+          }
+          v66 = focusCone[mm + 11];
           if ( v66 )
           {
-            _RAX = def->focusAmount;
-            __asm
+            v67 = def->focusAmount[mm + 11];
+            if ( v67 > *(float *)(v4 + mm * 4 + 652) )
             {
-              vmovss  xmm0, dword ptr [rcx+rax+8]
-              vcomiss xmm0, dword ptr [rbp+rcx+268h]
+              s_sndSubmix.focusConeId[mm + 11] = v66;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 652) = v67;
             }
-            s_sndSubmix.focusConeId[_RCX + 2] = v66;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+268h], xmm0 }
           }
-          v69 = focusCone[_RCX + 3];
-          if ( v69 )
+          v68 = focusCone[mm + 12];
+          if ( v68 )
           {
-            _RAX = def->focusAmount;
-            __asm
+            v69 = def->focusAmount[mm + 12];
+            if ( v69 > *(float *)(v4 + mm * 4 + 656) )
             {
-              vmovss  xmm0, dword ptr [rcx+rax+0Ch]
-              vcomiss xmm0, dword ptr [rbp+rcx+26Ch]
+              s_sndSubmix.focusConeId[mm + 12] = v68;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 656) = v69;
             }
-            s_sndSubmix.focusConeId[_RCX + 3] = v69;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+26Ch], xmm0 }
           }
-          v72 = focusCone[_RCX + 4];
+          v70 = focusCone[mm + 13];
+          if ( v70 )
+          {
+            v71 = def->focusAmount[mm + 13];
+            if ( v71 > *(float *)(v4 + mm * 4 + 660) )
+            {
+              s_sndSubmix.focusConeId[mm + 13] = v70;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 660) = v71;
+            }
+          }
+          v72 = focusCone[mm + 14];
           if ( v72 )
           {
-            _RAX = def->focusAmount;
-            __asm
+            v73 = def->focusAmount[mm + 14];
+            if ( v73 > *(float *)(v4 + mm * 4 + 664) )
             {
-              vmovss  xmm0, dword ptr [rcx+rax+10h]
-              vcomiss xmm0, dword ptr [rbp+rcx+270h]
+              s_sndSubmix.focusConeId[mm + 14] = v72;
+              focusCone = def->focusCone;
+              *(float *)(v4 + mm * 4 + 664) = v73;
             }
-            s_sndSubmix.focusConeId[_RCX + 4] = v72;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+270h], xmm0 }
           }
-          v75 = focusCone[_RCX + 5];
-          if ( v75 )
+          v74 = focusCone[mm + 15];
+          if ( v74 )
           {
-            _RAX = def->focusAmount;
-            __asm
+            v75 = def->focusAmount[mm + 15];
+            if ( v75 > *(float *)(v4 + mm * 4 + 668) )
             {
-              vmovss  xmm0, dword ptr [rcx+rax+14h]
-              vcomiss xmm0, dword ptr [rbp+rcx+274h]
+              *(float *)(v4 + mm * 4 + 668) = v75;
+              s_sndSubmix.focusConeId[mm + 15] = v74;
             }
-            s_sndSubmix.focusConeId[_RCX + 5] = v75;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+274h], xmm0 }
-          }
-          v78 = focusCone[_RCX + 6];
-          if ( v78 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+18h]
-              vcomiss xmm0, dword ptr [rbp+rcx+278h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 6] = v78;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+278h], xmm0 }
-          }
-          v81 = focusCone[_RCX + 7];
-          if ( v81 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+1Ch]
-              vcomiss xmm0, dword ptr [rbp+rcx+27Ch]
-            }
-            s_sndSubmix.focusConeId[_RCX + 7] = v81;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+27Ch], xmm0 }
-          }
-          v84 = focusCone[_RCX + 8];
-          if ( v84 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+20h]
-              vcomiss xmm0, dword ptr [rbp+rcx+280h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 8] = v84;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+280h], xmm0 }
-          }
-          v87 = focusCone[_RCX + 9];
-          if ( v87 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+24h]
-              vcomiss xmm0, dword ptr [rbp+rcx+284h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 9] = v87;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+284h], xmm0 }
-          }
-          v90 = focusCone[_RCX + 10];
-          if ( v90 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+28h]
-              vcomiss xmm0, dword ptr [rbp+rcx+288h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 10] = v90;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+288h], xmm0 }
-          }
-          v93 = focusCone[_RCX + 11];
-          if ( v93 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+2Ch]
-              vcomiss xmm0, dword ptr [rbp+rcx+28Ch]
-            }
-            s_sndSubmix.focusConeId[_RCX + 11] = v93;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+28Ch], xmm0 }
-          }
-          v96 = focusCone[_RCX + 12];
-          if ( v96 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+30h]
-              vcomiss xmm0, dword ptr [rbp+rcx+290h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 12] = v96;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+290h], xmm0 }
-          }
-          v99 = focusCone[_RCX + 13];
-          if ( v99 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+34h]
-              vcomiss xmm0, dword ptr [rbp+rcx+294h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 13] = v99;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+294h], xmm0 }
-          }
-          v102 = focusCone[_RCX + 14];
-          if ( v102 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+38h]
-              vcomiss xmm0, dword ptr [rbp+rcx+298h]
-            }
-            s_sndSubmix.focusConeId[_RCX + 14] = v102;
-            focusCone = def->focusCone;
-            __asm { vmovss  dword ptr [rbp+rcx+298h], xmm0 }
-          }
-          v105 = focusCone[_RCX + 15];
-          if ( v105 )
-          {
-            _RAX = def->focusAmount;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+rax+3Ch]
-              vcomiss xmm0, dword ptr [rbp+rcx+29Ch]
-              vmovss  dword ptr [rbp+rcx+29Ch], xmm0
-            }
-            s_sndSubmix.focusConeId[_RCX + 15] = v105;
           }
         }
         attenuation = def->attenuation;
-        _RAX = &s_sndSubmix;
-        __asm { vmovss  xmm6, dword ptr [rax+r14*8+1AA0h] }
+        effect_low = (__m128)LODWORD(s_sndSubmix.uniques[v38].effect);
         hpf = def->hpf;
         lpf = def->lpf;
         focusAmount = def->focusAmount;
-        __asm { vmovss  dword ptr [rbp+10h], xmm6 }
-        if ( (*(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1208, ASSERT_TYPE_ASSERT, "(!IS_NAN(effect))", (const char *)&queryFormat, "!IS_NAN(effect)") )
+        *(float *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = effect_low.m128_f32[0];
+        if ( (*(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1208, ASSERT_TYPE_ASSERT, "(!IS_NAN(effect))", (const char *)&queryFormat, "!IS_NAN(effect)") )
           __debugbreak();
-        v114 = attenuation;
-        v115 = *(unsigned int *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-        SND_DspSub(*(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC), (const float *)(_RBP + 1120), v114, (float *)(_RBP + 96));
-        *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = ((_BYTE)_RBP + 96) & 0x1F;
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 )
+        v81 = attenuation;
+        v82 = *(unsigned int *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+        SND_DspSub(*(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC), (const float *)(v4 + 1120), v81, (float *)(v4 + 96));
+        *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = ((_BYTE)v4 + 96) & 0x1F;
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 )
         {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 96) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 96) )
             __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
             __debugbreak();
         }
-        if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v115) )
+        if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v82) )
           __debugbreak();
-        __asm
+        _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(effect_low, effect_low, 0);
+        v84 = (unsigned int)v82 >> 3;
+        __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+        *(__m256 *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40) = _YMM0;
+        if ( (unsigned int)v82 >> 3 )
         {
-          vmovaps xmm0, xmm6
-          vshufps xmm0, xmm0, xmm0, 0
-        }
-        v118 = (unsigned int)v115 >> 3;
-        __asm
-        {
-          vinsertf128 ymm0, ymm0, xmm0, 1
-          vmovups ymmword ptr [rbp+40h], ymm0
-        }
-        if ( (unsigned int)v115 >> 3 )
-        {
-          _RAX = _RBP + 96;
-          v120 = v118;
-          v121 = _RBP + 96;
+          v86 = v4 + 96;
+          v87 = v84;
+          v88 = (__m256 *)(v4 + 96);
           do
           {
-            _RAX += 32i64;
-            __asm { vmulps  ymm0, ymm0, ymmword ptr [rcx] }
+            v86 += 32i64;
+            v89 = (__m256i)_mm256_mul_ps(_YMM0, *v88++);
+            *(__m256i *)(v86 - 32) = v89;
+            _YMM0 = *(__m256 *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+            --v87;
+          }
+          while ( v87 );
+        }
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 1120) )
+          __debugbreak();
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+        }
+        if ( *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v82) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v90 = v4 + 96;
+          v91 = v84;
+          v92 = 0i64;
+          do
+          {
+            v90 += 32i64;
+            v93 = (__m256i)_mm256_sub_ps(*(__m256 *)(v4 + v92 + 1120), *(__m256 *)(v4 + v92 + 96));
+            v92 += 32i64;
+            *(__m256i *)(v90 - 32) = v93;
+            --v91;
+          }
+          while ( v91 );
+        }
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 371, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 96) )
+          __debugbreak();
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 372, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 2144) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 373, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 2144) )
+            __debugbreak();
+        }
+        if ( *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 374, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v82) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v94 = v4 + 2144;
+          v95 = v84;
+          v96 = 0i64;
+          do
+          {
+            v94 += 32i64;
+            v97 = (__m256i)_mm256_mul_ps(*(__m256 *)(v4 + v96 + 96), *(__m256 *)(v4 + v96 + 2144));
+            v96 += 32i64;
+            *(__m256i *)(v94 - 32) = v97;
+            --v95;
+          }
+          while ( v95 );
+        }
+        SND_DspSub(v82, (const float *)(v4 + 1632), hpf, (float *)(v4 + 96));
+        v98 = *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+        if ( v98 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+        }
+        if ( *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v82) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v99 = *(__m256 *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+          v100 = v4 + 96;
+          v101 = v84;
+          v102 = (__m256 *)(v4 + 96);
+          do
+          {
+            v100 += 32i64;
+            v103 = (__m256i)_mm256_mul_ps(v99, *v102++);
+            *(__m256i *)(v100 - 32) = v103;
+            --v101;
+          }
+          while ( v101 );
+        }
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 1632) )
+          __debugbreak();
+        if ( v98 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+        }
+        if ( *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v82) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v104 = v4 + 96;
+          v105 = v84;
+          v106 = 0i64;
+          do
+          {
+            v104 += 32i64;
+            v107 = (__m256i)_mm256_sub_ps(*(__m256 *)(v4 + v106 + 1632), *(__m256 *)(v4 + v106 + 96));
+            v106 += 32i64;
+            *(__m256i *)(v104 - 32) = v107;
+            --v105;
+          }
+          while ( v105 );
+        }
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 437, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 2656) )
+          __debugbreak();
+        if ( v98 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 438, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
+          __debugbreak();
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 439, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 2656) )
+          __debugbreak();
+        v108 = *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+        if ( *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 440, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18)) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v109 = v4 + 2656;
+          v110 = v84;
+          v111 = 0i64;
+          do
+          {
+            v109 += 32i64;
+            _YMM0 = *(__m256i *)(v4 + v111 + 2656);
+            __asm { vmaxps  ymm0, ymm0, ymmword ptr [rbp+rax+60h] }
+            v111 += 32i64;
+            *(__m256i *)(v109 - 32) = _YMM0;
+            --v110;
+          }
+          while ( v110 );
+        }
+        v114 = lpf;
+        v8 = *(unsigned int *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+        SND_DspSub(*(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC), (const float *)(v4 + 1120), v114, (float *)(v4 + 96));
+        if ( v98 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+        }
+        if ( *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v108) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v115 = v4 + 96;
+          v116 = v84;
+          v117 = v4 + 96;
+          do
+          {
+            v115 += 32i64;
+            v117 += 32i64;
+            *(__m256 *)(v115 - 32) = _mm256_mul_ps(*(__m256 *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40), *(__m256 *)(v117 - 32));
+            --v116;
+          }
+          while ( v116 );
+        }
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 1120) )
+          __debugbreak();
+        if ( v98 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+        }
+        v118 = *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+        if ( v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v108) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v119 = v4 + 96;
+          v120 = v84;
+          v121 = 0i64;
+          do
+          {
+            v119 += 32i64;
+            v122 = (__m256i)_mm256_sub_ps(*(__m256 *)(v4 + v121 + 1120), *(__m256 *)(v4 + v121 + 96));
             v121 += 32i64;
-            __asm
-            {
-              vmovups ymmword ptr [rax-20h], ymm0
-              vmovups ymm0, ymmword ptr [rbp+40h]
-            }
+            *(__m256i *)(v119 - 32) = v122;
             --v120;
           }
           while ( v120 );
         }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 1120) )
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 415, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 3168) )
           __debugbreak();
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        if ( *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v115) )
+        if ( v98 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 416, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
           __debugbreak();
-        if ( v118 )
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 417, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 3168) )
+          __debugbreak();
+        if ( v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 418, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v8) )
+          __debugbreak();
+        if ( v84 )
         {
-          _RCX = _RBP + 96;
-          v124 = v118;
-          _RAX = 0i64;
+          v123 = v4 + 3168;
+          v124 = v84;
+          v125 = 0i64;
           do
           {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+460h]
-              vsubps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
+            v123 += 32i64;
+            _YMM0 = *(__m256i *)(v4 + v125 + 3168);
+            __asm { vminps  ymm0, ymm0, ymmword ptr [rbp+rax+60h] }
+            v125 += 32i64;
+            *(__m256i *)(v123 - 32) = _YMM0;
             --v124;
           }
           while ( v124 );
         }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 371, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 96) )
-          __debugbreak();
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 )
+        SND_DspSub(v8, (const float *)(v4 + 1632), focusAmount, (float *)(v4 + 96));
+        if ( v98 )
         {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 372, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 2144) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 96) )
             __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 373, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 2144) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
             __debugbreak();
         }
-        if ( *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 374, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v115) )
+        v31 = v8;
+        if ( v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v8) )
           __debugbreak();
-        if ( v118 )
+        if ( v84 )
         {
-          _RCX = _RBP + 2144;
-          v128 = v118;
-          _RAX = 0i64;
+          v128 = v4 + 96;
+          v129 = v84;
+          v130 = v4 + 96;
           do
           {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+60h]
-              vmulps  ymm0, ymm0, ymmword ptr [rbp+rax+860h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-            --v128;
+            v128 += 32i64;
+            v130 += 32i64;
+            *(__m256 *)(v128 - 32) = _mm256_mul_ps(*(__m256 *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40), *(__m256 *)(v130 - 32));
+            --v129;
           }
-          while ( v128 );
+          while ( v129 );
         }
-        SND_DspSub(v115, (const float *)(_RBP + 1632), hpf, (float *)(_RBP + 96));
-        v131 = *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-        if ( v131 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        if ( *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v115) )
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 1632) )
           __debugbreak();
-        if ( v118 )
+        if ( v98 )
         {
-          __asm { vmovups ymm1, ymmword ptr [rbp+40h] }
-          _RAX = _RBP + 96;
-          v134 = v118;
-          v135 = _RBP + 96;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 96) )
+            __debugbreak();
+        }
+        if ( v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v8) )
+          __debugbreak();
+        if ( v84 )
+        {
+          v131 = v4 + 96;
+          v132 = v84;
+          v133 = 0i64;
           do
           {
-            _RAX += 32i64;
-            __asm { vmulps  ymm0, ymm1, ymmword ptr [rcx] }
-            v135 += 32i64;
-            __asm { vmovups ymmword ptr [rax-20h], ymm0 }
-            --v134;
+            v131 += 32i64;
+            v134 = (__m256i)_mm256_sub_ps(*(__m256 *)(v4 + v133 + 1632), *(__m256 *)(v4 + v133 + 96));
+            v133 += 32i64;
+            *(__m256i *)(v131 - 32) = v134;
+            --v132;
           }
-          while ( v134 );
+          while ( v132 );
         }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 1632) )
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 437, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", v4 + 3680) )
           __debugbreak();
-        if ( v131 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        if ( *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v115) )
+        if ( v98 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 438, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", v4 + 96) )
           __debugbreak();
-        if ( v118 )
+        if ( (((_BYTE)v4 + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 439, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", v4 + 3680) )
+          __debugbreak();
+        if ( v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 440, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v8) )
+          __debugbreak();
+        v135 = 0i64;
+        if ( v84 )
         {
-          _RCX = _RBP + 96;
-          v137 = v118;
-          _RAX = 0i64;
+          v136 = v4 + 3680;
+          v137 = v84;
+          v138 = 0i64;
           do
           {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+660h]
-              vsubps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
+            v136 += 32i64;
+            _YMM0 = *(__m256i *)(v4 + v138 + 3680);
+            __asm { vmaxps  ymm0, ymm0, ymmword ptr [rbp+rax+60h] }
+            v138 += 32i64;
+            *(__m256i *)(v136 - 32) = _YMM0;
             --v137;
           }
           while ( v137 );
         }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 437, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 2656) )
-          __debugbreak();
-        if ( v131 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 438, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-          __debugbreak();
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 439, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 2656) )
-          __debugbreak();
-        v140 = *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-        if ( *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 440, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18)) )
-          __debugbreak();
-        if ( v118 )
+        if ( (int)v8 > 0 )
         {
-          _RCX = _RBP + 2656;
-          v142 = v118;
-          _RAX = 0i64;
+          v141 = v8;
           do
           {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+0A60h]
-              vmaxps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-            --v142;
+            v142 = *(float *)(v4 + v135 + 2144);
+            if ( (SND_SUBMIX_ATTENUATION_MAX > v142 || v142 > SND_SUBMIX_AMPLIFICATION_MAX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1219, ASSERT_TYPE_ASSERT, "( SND_SUBMIX_ATTENUATION_MAX ) <= ( vAttenuationTarget[j] ) && ( vAttenuationTarget[j] ) <= ( SND_SUBMIX_AMPLIFICATION_MAX )", "vAttenuationTarget[j] not in [SND_SUBMIX_ATTENUATION_MAX, SND_SUBMIX_AMPLIFICATION_MAX]\n\t%g not in [%g, %g]", v142, SND_SUBMIX_ATTENUATION_MAX, SND_SUBMIX_AMPLIFICATION_MAX) )
+              __debugbreak();
+            v143 = *(float *)(v4 + v135 + 2656);
+            if ( (v143 < 0.0 || v143 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1220, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( vHpfFilterTarget[j] ) && ( vHpfFilterTarget[j] ) <= ( 1.0f )", "vHpfFilterTarget[j] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v143, *(double *)&_XMM9, DOUBLE_1_0) )
+              __debugbreak();
+            v144 = *(float *)(v4 + v135 + 3168);
+            if ( (v144 < 0.0 || v144 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1221, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( vLpfFilterTarget[j] ) && ( vLpfFilterTarget[j] ) <= ( 1.0f )", "vLpfFilterTarget[j] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v144, *(double *)&_XMM9, DOUBLE_1_0) )
+              __debugbreak();
+            v145 = *(float *)(v4 + v135 + 3680);
+            if ( (v145 < 0.0 || v145 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1222, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( vFocusAmountTarget[j] ) && ( vFocusAmountTarget[j] ) <= ( 1.0f )", "vFocusAmountTarget[j] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v145, *(double *)&_XMM9, DOUBLE_1_0) )
+              __debugbreak();
+            v135 += 4i64;
+            --v141;
           }
-          while ( v142 );
+          while ( v141 );
+          LODWORD(v8) = *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+          v31 = *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
         }
-        v145 = lpf;
-        v16 = *(unsigned int *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-        SND_DspSub(*(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC), (const float *)(_RBP + 1120), v145, (float *)(_RBP + 96));
-        if ( v131 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        if ( *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v140) )
-          __debugbreak();
-        if ( v118 )
-        {
-          _RAX = _RBP + 96;
-          v147 = v118;
-          v148 = _RBP + 96;
-          do
-          {
-            _RAX += 32i64;
-            v148 += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+40h]
-              vmulps  ymm0, ymm0, ymmword ptr [rcx-20h]
-              vmovups ymmword ptr [rax-20h], ymm0
-            }
-            --v147;
-          }
-          while ( v147 );
-        }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 1120) )
-          __debugbreak();
-        if ( v131 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        v150 = *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
-        if ( v150 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v140) )
-          __debugbreak();
-        if ( v118 )
-        {
-          _RCX = _RBP + 96;
-          v152 = v118;
-          _RAX = 0i64;
-          do
-          {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+460h]
-              vsubps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-            --v152;
-          }
-          while ( v152 );
-        }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 415, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 3168) )
-          __debugbreak();
-        if ( v131 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 416, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-          __debugbreak();
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 417, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 3168) )
-          __debugbreak();
-        if ( v150 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 418, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v16) )
-          __debugbreak();
-        if ( v118 )
-        {
-          _RCX = _RBP + 3168;
-          v156 = v118;
-          _RAX = 0i64;
-          do
-          {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+0C60h]
-              vminps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-            --v156;
-          }
-          while ( v156 );
-        }
-        SND_DspSub(v16, (const float *)(_RBP + 1632), focusAmount, (float *)(_RBP + 96));
-        if ( v131 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 328, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 329, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        v41 = v16;
-        if ( v150 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 330, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v16) )
-          __debugbreak();
-        if ( v118 )
-        {
-          _RAX = _RBP + 96;
-          v160 = v118;
-          v161 = _RBP + 96;
-          do
-          {
-            _RAX += 32i64;
-            v161 += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+40h]
-              vmulps  ymm0, ymm0, ymmword ptr [rcx-20h]
-              vmovups ymmword ptr [rax-20h], ymm0
-            }
-            --v160;
-          }
-          while ( v160 );
-        }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 393, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 1632) )
-          __debugbreak();
-        if ( v131 )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 394, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 395, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 96) )
-            __debugbreak();
-        }
-        if ( v150 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 396, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v16) )
-          __debugbreak();
-        if ( v118 )
-        {
-          _RCX = _RBP + 96;
-          v164 = v118;
-          _RAX = 0i64;
-          do
-          {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+660h]
-              vsubps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-            --v164;
-          }
-          while ( v164 );
-        }
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 437, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in1 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in1 ) ) = 0x%llx", _RBP + 3680) )
-          __debugbreak();
-        if ( v131 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 438, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in2 ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in2 ) ) = 0x%llx", _RBP + 96) )
-          __debugbreak();
-        if ( (((_BYTE)_RBP + 96) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 439, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RBP + 3680) )
-          __debugbreak();
-        if ( v150 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 440, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v16) )
-          __debugbreak();
-        _RDI = 0i64;
-        if ( v118 )
-        {
-          _RCX = _RBP + 3680;
-          v169 = v118;
-          _RAX = 0i64;
-          do
-          {
-            _RCX += 32i64;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rax+0E60h]
-              vmaxps  ymm0, ymm0, ymmword ptr [rbp+rax+60h]
-            }
-            _RAX += 32i64;
-            __asm { vmovups ymmword ptr [rcx-20h], ymm0 }
-            --v169;
-          }
-          while ( v169 );
-        }
-        v172 = 0;
-        v173 = (_DWORD)v16 == 0;
-        if ( (int)v16 > 0 )
-        {
-          v174 = v16;
-          do
-          {
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbp+rdi+860h]
-              vmovss  xmm0, cs:SND_SUBMIX_ATTENUATION_MAX
-              vcomiss xmm0, xmm2
-            }
-            if ( !v173 )
-              goto LABEL_295;
-            __asm { vcomiss xmm2, cs:SND_SUBMIX_AMPLIFICATION_MAX }
-            if ( !v173 )
-            {
-LABEL_295:
-              __asm
-              {
-                vmovss  xmm0, cs:SND_SUBMIX_AMPLIFICATION_MAX
-                vmovss  xmm1, cs:SND_SUBMIX_ATTENUATION_MAX
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+1578h+var_1540], xmm0
-                vcvtss2sd xmm1, xmm1, xmm1
-                vmovsd  [rsp+1578h+var_1548], xmm1
-                vcvtss2sd xmm2, xmm2, xmm2
-                vmovsd  [rsp+1578h+value], xmm2
-              }
-              v182 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1219, ASSERT_TYPE_ASSERT, "( SND_SUBMIX_ATTENUATION_MAX ) <= ( vAttenuationTarget[j] ) && ( vAttenuationTarget[j] ) <= ( SND_SUBMIX_AMPLIFICATION_MAX )", "vAttenuationTarget[j] not in [SND_SUBMIX_ATTENUATION_MAX, SND_SUBMIX_AMPLIFICATION_MAX]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236);
-              v172 = 0;
-              v173 = !v182;
-              if ( v182 )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+rdi+0A60h]
-              vcomiss xmm0, xmm7
-            }
-            if ( v172 )
-              goto LABEL_296;
-            __asm { vcomiss xmm0, xmm8 }
-            if ( !v173 )
-            {
-LABEL_296:
-              __asm
-              {
-                vmovsd  [rsp+1578h+var_1540], xmm10
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+1578h+var_1548], xmm9
-                vmovsd  [rsp+1578h+value], xmm0
-              }
-              v185 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1220, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( vHpfFilterTarget[j] ) && ( vHpfFilterTarget[j] ) <= ( 1.0f )", "vHpfFilterTarget[j] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236);
-              v173 = !v185;
-              if ( v185 )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+rdi+0C60h]
-              vcomiss xmm0, xmm7
-              vcomiss xmm0, xmm8
-            }
-            if ( !v173 )
-            {
-              __asm
-              {
-                vmovsd  [rsp+1578h+var_1540], xmm10
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+1578h+var_1548], xmm9
-                vmovsd  [rsp+1578h+value], xmm0
-              }
-              v188 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1221, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( vLpfFilterTarget[j] ) && ( vLpfFilterTarget[j] ) <= ( 1.0f )", "vLpfFilterTarget[j] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236);
-              v173 = !v188;
-              if ( v188 )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+rdi+0E60h]
-              vcomiss xmm0, xmm7
-              vcomiss xmm0, xmm8
-            }
-            if ( !v173 )
-            {
-              __asm
-              {
-                vmovsd  [rsp+1578h+var_1540], xmm10
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+1578h+var_1548], xmm9
-                vmovsd  [rsp+1578h+value], xmm0
-              }
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1222, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( vFocusAmountTarget[j] ) && ( vFocusAmountTarget[j] ) <= ( 1.0f )", "vFocusAmountTarget[j] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236) )
-                __debugbreak();
-            }
-            _RDI += 4i64;
-            v172 = v174-- == 0;
-            v173 = v172 || v174 == 0;
-          }
-          while ( v174 );
-          LODWORD(v16) = *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-          v41 = *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-        }
-        v49 = *(_DWORD *)_RBP;
-        v17 = v150;
+        v37 = *(float *)v4;
+        v9 = v118;
       }
-      ++v49;
-      v48 = *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) + 1i64;
-      *(_DWORD *)_RBP = v49;
-      v53 = v49 < s_sndSubmix.unique_count;
-      *(_QWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) = v48;
+      ++LODWORD(v37);
+      v36 = *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) + 1i64;
+      *(float *)v4 = v37;
+      v34 = SLODWORD(v37) < s_sndSubmix.unique_count;
+      *(_QWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) = v36;
     }
-    while ( v53 );
-    volmodinfoCount = *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+    while ( v34 );
+    volmodinfoCount = *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
     focusConeId = s_sndSubmix.focusConeId;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm13, cs:__real@41200000
-    vminss  xmm1, xmm0, cs:__real@3dcccccd
-    vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rbp+8], xmm1
-  }
-  v194 = *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-  v195 = (_DWORD *)(_RBP + 4192);
-  __asm
-  {
-    vmovss  xmm1, cs:SND_SUBMIX_ATTENUATION_MAX
-    vmovss  dword ptr [rbp+8], xmm0
-    vmovss  xmm0, cs:SND_SUBMIX_AMPLIFICATION_MAX
-    vmovss  dword ptr [rsp+1578h+var_1540], xmm0
-    vmovss  dword ptr [rsp+1578h+var_1548], xmm1
-  }
-  for ( kk = v41; kk; --kk )
-    *v195++ = v194;
-  v199 = *(_DWORD *)(((unsigned __int64)v237 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-  v200 = (_DWORD *)(_RBP + 608);
-  for ( mm = v41; mm; --mm )
-    *v200++ = v199;
-  SND_SubmixRateLimit(v16, (const float *)(_RBP + 4192), (const float *)(_RBP + 608), (const float *)(_RBP + 2144), (float *)(_RBP + 4704), s_sndSubmix.attenuationValue, *(const float *)&v235, *(const float *)&v236);
-  __asm
-  {
-    vmovss  dword ptr [rsp+1578h+var_1540], xmm8
-    vmovss  dword ptr [rsp+1578h+var_1548], xmm7
-  }
-  _RDI = s_sndSubmix.hpfFilterValue;
-  SND_SubmixRateLimit(v16, (const float *)(_RBP + 4192), (const float *)(_RBP + 608), (const float *)(_RBP + 2656), (float *)(_RBP + 4704), s_sndSubmix.hpfFilterValue, *(const float *)&v235, *(const float *)&v236);
-  __asm
-  {
-    vmovss  dword ptr [rsp+1578h+var_1540], xmm8
-    vmovss  dword ptr [rsp+1578h+var_1548], xmm7
-  }
-  SND_SubmixRateLimit(v16, (const float *)(_RBP + 4192), (const float *)(_RBP + 608), (const float *)(_RBP + 3168), (float *)(_RBP + 4704), s_sndSubmix.lpfFilterValue, *(const float *)&v235, *(const float *)&v236);
-  __asm
-  {
-    vmovss  dword ptr [rsp+1578h+var_1540], xmm8
-    vmovss  dword ptr [rsp+1578h+var_1548], xmm7
-  }
-  SND_SubmixRateLimit(v16, (const float *)(_RBP + 4192), (const float *)(_RBP + 608), (const float *)(_RBP + 3680), (float *)(_RBP + 4704), s_sndSubmix.focusAmount, *(const float *)&v235, *(const float *)&v236);
-  v203 = s_sndSubmix.focusCone;
+  v147 = v5;
+  *(float *)&v147 = *(float *)&v5 * 10.0;
+  _XMM0 = v147;
+  __asm { vminss  xmm1, xmm0, cs:__real@3dcccccd }
+  LODWORD(_XMM0) = _XMM1 ^ _xmm;
+  *(float *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = *(float *)&_XMM1;
+  v149 = *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+  v150 = (_DWORD *)(v4 + 4192);
+  *(float *)&_XMM1 = SND_SUBMIX_ATTENUATION_MAX;
+  *(float *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = *(float *)&_XMM0;
+  *(float *)&v165 = SND_SUBMIX_AMPLIFICATION_MAX;
+  *(float *)&v164 = *(float *)&_XMM1;
+  for ( nn = v31; nn; --nn )
+    *v150++ = v149;
+  v152 = *(_DWORD *)(((unsigned __int64)v166 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+  v153 = (_DWORD *)(v4 + 608);
+  for ( i1 = v31; i1; --i1 )
+    *v153++ = v152;
+  SND_SubmixRateLimit(v8, (const float *)(v4 + 4192), (const float *)(v4 + 608), (const float *)(v4 + 2144), (float *)(v4 + 4704), s_sndSubmix.attenuationValue, *(const float *)&v164, *(const float *)&v165);
+  hpfFilterValue = s_sndSubmix.hpfFilterValue;
+  SND_SubmixRateLimit(v8, (const float *)(v4 + 4192), (const float *)(v4 + 608), (const float *)(v4 + 2656), (float *)(v4 + 4704), s_sndSubmix.hpfFilterValue, 0.0, 1.0);
+  SND_SubmixRateLimit(v8, (const float *)(v4 + 4192), (const float *)(v4 + 608), (const float *)(v4 + 3168), (float *)(v4 + 4704), s_sndSubmix.lpfFilterValue, 0.0, 1.0);
+  SND_SubmixRateLimit(v8, (const float *)(v4 + 4192), (const float *)(v4 + 608), (const float *)(v4 + 3680), (float *)(v4 + 4704), s_sndSubmix.focusAmount, 0.0, 1.0);
+  v156 = s_sndSubmix.focusCone;
   do
   {
     FocusConeById = SND_GetFocusConeById(*focusConeId++);
-    *v203++ = FocusConeById;
+    *v156++ = FocusConeById;
   }
   while ( (__int64)focusConeId < (__int64)s_sndSubmix.focusCone );
-  v205 = 0;
-  v206 = (_DWORD)v16 == 0;
-  if ( (int)v16 > 0 )
+  if ( (int)v8 > 0 )
   {
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi-400h]
-        vmovss  xmm0, cs:SND_SUBMIX_ATTENUATION_MAX
-        vcomiss xmm0, xmm2
-      }
-      if ( !v206 )
-        goto LABEL_297;
-      __asm { vcomiss xmm2, cs:SND_SUBMIX_AMPLIFICATION_MAX }
-      if ( !v206 )
-      {
-LABEL_297:
-        __asm
-        {
-          vmovss  xmm0, cs:SND_SUBMIX_AMPLIFICATION_MAX
-          vmovss  xmm1, cs:SND_SUBMIX_ATTENUATION_MAX
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+1578h+var_1540], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+1578h+var_1548], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+1578h+value], xmm2
-        }
-        v214 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1246, ASSERT_TYPE_ASSERT, "( SND_SUBMIX_ATTENUATION_MAX ) <= ( s_sndSubmix.attenuationValue[i] ) && ( s_sndSubmix.attenuationValue[i] ) <= ( SND_SUBMIX_AMPLIFICATION_MAX )", "s_sndSubmix.attenuationValue[i] not in [SND_SUBMIX_ATTENUATION_MAX, SND_SUBMIX_AMPLIFICATION_MAX]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236);
-        v205 = 0;
-        v206 = !v214;
-        if ( v214 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vcomiss xmm0, xmm7
-      }
-      if ( v205 )
-        goto LABEL_298;
-      __asm { vcomiss xmm0, xmm8 }
-      if ( !v206 )
-      {
-LABEL_298:
-        __asm
-        {
-          vmovsd  [rsp+1578h+var_1540], xmm10
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+1578h+var_1548], xmm9
-          vmovsd  [rsp+1578h+value], xmm0
-        }
-        v217 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1247, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( s_sndSubmix.hpfFilterValue[i] ) && ( s_sndSubmix.hpfFilterValue[i] ) <= ( 1.0f )", "s_sndSubmix.hpfFilterValue[i] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236);
-        v206 = !v217;
-        if ( v217 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi-200h]
-        vcomiss xmm0, xmm7
-        vcomiss xmm0, xmm8
-      }
-      if ( !v206 )
-      {
-        __asm
-        {
-          vmovsd  [rsp+1578h+var_1540], xmm10
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+1578h+var_1548], xmm9
-          vmovsd  [rsp+1578h+value], xmm0
-        }
-        v220 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1248, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( s_sndSubmix.lpfFilterValue[i] ) && ( s_sndSubmix.lpfFilterValue[i] ) <= ( 1.0f )", "s_sndSubmix.lpfFilterValue[i] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236);
-        v206 = !v220;
-        if ( v220 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+200h]
-        vcomiss xmm0, xmm7
-        vcomiss xmm0, xmm8
-      }
-      if ( !v206 )
-      {
-        __asm
-        {
-          vmovsd  [rsp+1578h+var_1540], xmm10
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+1578h+var_1548], xmm9
-          vmovsd  [rsp+1578h+value], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1249, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( s_sndSubmix.focusAmount[i] ) && ( s_sndSubmix.focusAmount[i] ) <= ( 1.0f )", "s_sndSubmix.focusAmount[i] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&value, v235, v236) )
-          __debugbreak();
-      }
-      ++_RDI;
-      v205 = v41-- == 0;
-      v206 = v205 || v41 == 0;
+      v158 = *(hpfFilterValue - 256);
+      if ( (SND_SUBMIX_ATTENUATION_MAX > v158 || v158 > SND_SUBMIX_AMPLIFICATION_MAX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1246, ASSERT_TYPE_ASSERT, "( SND_SUBMIX_ATTENUATION_MAX ) <= ( s_sndSubmix.attenuationValue[i] ) && ( s_sndSubmix.attenuationValue[i] ) <= ( SND_SUBMIX_AMPLIFICATION_MAX )", "s_sndSubmix.attenuationValue[i] not in [SND_SUBMIX_ATTENUATION_MAX, SND_SUBMIX_AMPLIFICATION_MAX]\n\t%g not in [%g, %g]", v158, SND_SUBMIX_ATTENUATION_MAX, SND_SUBMIX_AMPLIFICATION_MAX) )
+        __debugbreak();
+      v159 = *hpfFilterValue;
+      if ( (*hpfFilterValue < 0.0 || v159 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1247, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( s_sndSubmix.hpfFilterValue[i] ) && ( s_sndSubmix.hpfFilterValue[i] ) <= ( 1.0f )", "s_sndSubmix.hpfFilterValue[i] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v159, *(double *)&_XMM9, DOUBLE_1_0) )
+        __debugbreak();
+      v160 = *(hpfFilterValue - 128);
+      if ( (v160 < 0.0 || v160 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1248, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( s_sndSubmix.lpfFilterValue[i] ) && ( s_sndSubmix.lpfFilterValue[i] ) <= ( 1.0f )", "s_sndSubmix.lpfFilterValue[i] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v160, *(double *)&_XMM9, DOUBLE_1_0) )
+        __debugbreak();
+      v161 = hpfFilterValue[128];
+      if ( (v161 < 0.0 || v161 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1249, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( s_sndSubmix.focusAmount[i] ) && ( s_sndSubmix.focusAmount[i] ) <= ( 1.0f )", "s_sndSubmix.focusAmount[i] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v161, *(double *)&_XMM9, DOUBLE_1_0) )
+        __debugbreak();
+      ++hpfFilterValue;
+      --v31;
     }
-    while ( v41 );
+    while ( v31 );
   }
-  result = (unsigned int)volmodinfoCount;
-  _R11 = &v246;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
-  return result;
+  return (unsigned int)volmodinfoCount;
 }
 
 /*
@@ -5075,7 +4032,9 @@ SND_SubmixUpdateCollateUniques
 */
 void SND_SubmixUpdateCollateUniques()
 {
+  SndSubmix *uniques; 
   int v1; 
+  SndSubmixReq *requests; 
   unsigned int i; 
   int v4; 
   __int64 v5; 
@@ -5085,19 +4044,19 @@ void SND_SubmixUpdateCollateUniques()
   __int64 v11; 
   __int64 v12; 
 
-  _RBX = s_sndSubmix.uniques;
+  uniques = s_sndSubmix.uniques;
   memset_0(s_sndSubmix.uniques, 0, sizeof(s_sndSubmix.uniques));
   v1 = 0;
-  _RSI = s_sndSubmix.requests;
+  requests = s_sndSubmix.requests;
   for ( i = 0; i < 0x8D; ++i )
   {
     if ( v1 > (int)i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1592, ASSERT_TYPE_ASSERT, "(uniqueCount <= i)", (const char *)&queryFormat, "uniqueCount <= i") )
       __debugbreak();
-    if ( !SND_SubmixAssert(_RSI, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1596, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
+    if ( !SND_SubmixAssert(requests, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1596, ASSERT_TYPE_ASSERT, "(SND_SubmixAssert( req, true ))", (const char *)&queryFormat, "SND_SubmixAssert( req, true )") )
       __debugbreak();
-    if ( _RSI->type != -3 )
+    if ( requests->type != -3 )
     {
-      if ( SND_SubmixCalculateEffectIfAny(_RSI, &_RSI->effect) )
+      if ( SND_SubmixCalculateEffectIfAny(requests, &requests->effect) )
       {
         v4 = 0;
         v5 = 0i64;
@@ -5105,42 +4064,39 @@ void SND_SubmixUpdateCollateUniques()
         {
           while ( 1 )
           {
-            if ( !_RBX->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1613, ASSERT_TYPE_ASSERT, "(sub->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "sub->id != SND_INVALID_HASH") )
+            if ( !uniques->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1613, ASSERT_TYPE_ASSERT, "(sub->id != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "sub->id != SND_INVALID_HASH") )
               __debugbreak();
-            if ( !_RBX->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1614, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
+            if ( !uniques->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1614, ASSERT_TYPE_ASSERT, "(sub->def)", (const char *)&queryFormat, "sub->def") )
               __debugbreak();
-            if ( _RSI->id == _RBX->id )
+            if ( requests->id == uniques->id )
               break;
             ++v4;
             ++v5;
-            ++_RBX;
+            ++uniques;
             if ( v5 >= v1 )
               goto LABEL_22;
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+24h]
-            vmaxss  xmm1, xmm0, dword ptr [rbx+8]
-            vmovss  dword ptr [rbx+8], xmm1
-          }
+          _XMM0 = LODWORD(requests->effect);
+          __asm { vmaxss  xmm1, xmm0, dword ptr [rbx+8] }
+          uniques->effect = *(float *)&_XMM1;
         }
 LABEL_22:
         if ( v4 == v1 )
         {
           if ( s_sndSubmix.uniques[v5].id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1625, ASSERT_TYPE_ASSERT, "(sub->id == static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "sub->id == SND_INVALID_HASH") )
             __debugbreak();
-          s_sndSubmix.uniques[v5].id = _RSI->id;
-          s_sndSubmix.uniques[v5].effect = _RSI->effect;
-          *((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^= (*((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^ _RSI->def->disableInSplitscreen) & 1;
-          v8 = *((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^ (*((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^ (2 * _RSI->def->updateWhilePaused)) & 2;
+          s_sndSubmix.uniques[v5].id = requests->id;
+          s_sndSubmix.uniques[v5].effect = requests->effect;
+          *((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^= (*((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^ requests->def->disableInSplitscreen) & 1;
+          v8 = *((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^ (*((_BYTE *)&s_sndSubmix.uniques[v5] + 4) ^ (2 * requests->def->updateWhilePaused)) & 2;
           *((_BYTE *)&s_sndSubmix.uniques[v5] + 4) = v8;
-          v9 = v8 & 0xFB | (_RSI->def->duckAlias != 0 ? 4 : 0);
+          v9 = v8 & 0xFB | (requests->def->duckAlias != 0 ? 4 : 0);
           def = s_sndSubmix.uniques[v5].def;
           *((_BYTE *)&s_sndSubmix.uniques[v5] + 4) = v9;
-          if ( def && def->id != _RSI->def->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1631, ASSERT_TYPE_ASSERT, "(sub->def == nullptr || sub->def->id == req->def->id)", (const char *)&queryFormat, "sub->def == nullptr || sub->def->id == req->def->id") )
+          if ( def && def->id != requests->def->id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1631, ASSERT_TYPE_ASSERT, "(sub->def == nullptr || sub->def->id == req->def->id)", (const char *)&queryFormat, "sub->def == nullptr || sub->def->id == req->def->id") )
             __debugbreak();
           ++v1;
-          s_sndSubmix.uniques[v5].def = _RSI->def;
+          s_sndSubmix.uniques[v5].def = requests->def;
           if ( (unsigned int)v1 >= 0x8D )
           {
             LODWORD(v12) = 141;
@@ -5149,14 +4105,14 @@ LABEL_22:
               __debugbreak();
           }
         }
-        _RBX = s_sndSubmix.uniques;
+        uniques = s_sndSubmix.uniques;
       }
       else
       {
-        SND_SubmixReclaim(_RSI);
+        SND_SubmixReclaim(requests);
       }
     }
-    ++_RSI;
+    ++requests;
   }
   s_sndSubmix.unique_count = v1;
 }
@@ -5166,90 +4122,46 @@ LABEL_22:
 SND_SubmixUpdateSlotFromZone
 ==============
 */
-
-SndSubmixReq *__fastcall SND_SubmixUpdateSlotFromZone(SndSubmixReq *req, unsigned int id, double lerp)
+SndSubmixReq *SND_SubmixUpdateSlotFromZone(SndSubmixReq *req, unsigned int id, float lerp)
 {
-  SndSubmixReq *result; 
   const SndDuck *DuckById; 
   SndSubmixReq *Available; 
-  SndSubmixReq *v23; 
-  float fmt; 
-  double v25; 
-  float v26; 
-  double v27; 
-  float v28; 
-  double v29; 
+  SndSubmixReq *v10; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm2
-  }
   if ( id )
   {
-    __asm
+    if ( lerp < 0.0 || lerp > 1.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-      vcomiss xmm6, cs:__real@3f800000
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+68h+var_30], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+68h+var_38], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+68h+var_40], xmm2
+      __asm { vxorpd  xmm1, xmm1, xmm1 }
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 742, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( scale ) && ( scale ) <= ( 1.0f )", "scale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", lerp, *(double *)&_XMM1, DOUBLE_1_0) )
+        __debugbreak();
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 742, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( scale ) && ( scale ) <= ( 1.0f )", "scale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v25, v27, v29) )
-      __debugbreak();
-    __asm { vmovss  xmm7, cs:__real@bf800000 }
     if ( req && req->type != -3 )
     {
       if ( req->id == id )
       {
-        __asm
-        {
-          vmovaps xmm3, xmm7; fadeTimeSec
-          vmovss  dword ptr [rsp+68h+fmt], xmm6
-        }
-        SND_SubmixAdjustRequest(req, 6, 0, *(double *)&_XMM3, fmt);
-        result = req;
-        goto LABEL_5;
+        SND_SubmixAdjustRequest(req, 6, 0, -1.0, lerp);
+        return req;
       }
-      __asm { vmovaps xmm1, xmm7; fadeTimeSec }
-      SND_SubmixClearForFade(req, *(double *)&_XMM1);
+      SND_SubmixClearForFade(req, -1.0);
     }
     DuckById = SND_GetDuckById(id);
     if ( DuckById )
     {
       Available = SND_SubmixFindAvailable();
-      v23 = Available;
+      v10 = Available;
       if ( Available )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsp+68h+var_38], xmm6
-          vmovss  dword ptr [rsp+68h+var_40], xmm7
-        }
-        SND_SubmixAddNew(Available, DuckById, NULL, 6, 0, v26, v28);
-        result = v23;
-        goto LABEL_5;
+        SND_SubmixAddNew(Available, DuckById, NULL, 6, 0, -1.0, lerp);
+        return v10;
       }
     }
   }
   else if ( req )
   {
-    __asm { vmovss  xmm1, cs:__real@bf800000; fadeTimeSec }
-    SND_SubmixClearForFade(req, *(double *)&_XMM1);
+    SND_SubmixClearForFade(req, -1.0);
   }
-  result = NULL;
-LABEL_5:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -5259,92 +4171,63 @@ SND_SubmixUpdateVoiceFaders
 */
 void SND_SubmixUpdateVoiceFaders(const SndDuck *const submixDef)
 {
-  int v7; 
-  __int128 v34; 
-  char v37; 
-  int v38; 
-  int v39; 
-  int v40; 
+  int v2; 
+  float *p_rate; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm7 }
-  _RSI = submixDef;
-  __asm { vmovaps [rsp+78h+var_48], xmm8 }
-  if ( !submixDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1665, ASSERT_TYPE_ASSERT, "(submixDef)", (const char *)&queryFormat, "submixDef", v34) )
+  if ( !submixDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1665, ASSERT_TYPE_ASSERT, "(submixDef)", (const char *)&queryFormat, "submixDef") )
     __debugbreak();
-  if ( !_RSI->duckAlias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1666, ASSERT_TYPE_ASSERT, "(submixDef->duckAlias != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "submixDef->duckAlias != SND_INVALID_HASH") )
+  if ( !submixDef->duckAlias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_submix.cpp", 1666, ASSERT_TYPE_ASSERT, "(submixDef->duckAlias != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "submixDef->duckAlias != SND_INVALID_HASH") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm8, cs:__real@80000000
-  }
-  v7 = 0;
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  _RBX = &g_snd.voices[0].submixAttenuation.rate;
+  v2 = 0;
+  p_rate = &g_snd.voices[0].submixAttenuation.rate;
   do
   {
-    if ( !SND_IsVoiceFree(v7) && _RSI->duckAlias == *(_DWORD *)(*((_QWORD *)_RBX - 26) + 32i64) )
+    if ( !SND_IsVoiceFree(v2) && submixDef->duckAlias == *(_DWORD *)(*((_QWORD *)p_rate - 26) + 32i64) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+94h]
-        vminss  xmm6, xmm0, dword ptr [rbx-4]
-        vmovss  [rsp+78h+arg_0], xmm6
-      }
-      if ( (v38 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_utils.h", 89, ASSERT_TYPE_ASSERT, "(!IS_NAN(g))", (const char *)&queryFormat, "!IS_NAN(g)") )
+      _XMM0 = LODWORD(submixDef->aliasAttenuation);
+      __asm { vminss  xmm6, xmm0, dword ptr [rbx-4] }
+      if ( (_XMM6 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_utils.h", 89, ASSERT_TYPE_ASSERT, "(!IS_NAN(g))", (const char *)&queryFormat, "!IS_NAN(g)") )
         __debugbreak();
+      _XMM2 = *((unsigned int *)p_rate - 2);
+      _XMM0 = *(unsigned int *)p_rate & (unsigned __int128)(unsigned int)_xmm;
       __asm
       {
-        vmovss  xmm2, dword ptr [rbx-8]
-        vmovss  xmm0, dword ptr [rbx]
-        vandps  xmm0, xmm0, xmm7
         vcmpless xmm1, xmm0, xmm8
         vblendvps xmm0, xmm2, xmm6, xmm1
-        vmovss  dword ptr [rbx-8], xmm0
-        vmovss  dword ptr [rbx-4], xmm6
-        vmovss  xmm1, dword ptr [rsi+98h]
-        vmaxss  xmm6, xmm1, dword ptr [rbx+14h]
-        vmovss  [rsp+78h+arg_0], xmm6
       }
-      if ( (v39 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_utils.h", 89, ASSERT_TYPE_ASSERT, "(!IS_NAN(g))", (const char *)&queryFormat, "!IS_NAN(g)") )
+      *(p_rate - 2) = *(float *)&_XMM0;
+      *(p_rate - 1) = *(float *)&_XMM6;
+      _XMM1 = LODWORD(submixDef->aliasHpf);
+      __asm { vmaxss  xmm6, xmm1, dword ptr [rbx+14h] }
+      if ( (_XMM6 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_utils.h", 89, ASSERT_TYPE_ASSERT, "(!IS_NAN(g))", (const char *)&queryFormat, "!IS_NAN(g)") )
         __debugbreak();
+      _XMM2 = *((unsigned int *)p_rate + 4);
+      _XMM0 = (unsigned int)p_rate[6] & (unsigned __int128)(unsigned int)_xmm;
       __asm
       {
-        vmovss  xmm2, dword ptr [rbx+10h]
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vandps  xmm0, xmm0, xmm7
         vcmpless xmm1, xmm0, xmm8
         vblendvps xmm0, xmm2, xmm6, xmm1
-        vmovss  dword ptr [rbx+10h], xmm0
-        vmovss  dword ptr [rbx+14h], xmm6
-        vmovss  xmm1, dword ptr [rsi+9Ch]
-        vminss  xmm6, xmm1, dword ptr [rbx+8]
-        vmovss  [rsp+78h+arg_0], xmm6
       }
-      if ( (v40 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_utils.h", 89, ASSERT_TYPE_ASSERT, "(!IS_NAN(g))", (const char *)&queryFormat, "!IS_NAN(g)") )
+      p_rate[4] = *(float *)&_XMM0;
+      p_rate[5] = *(float *)&_XMM6;
+      _XMM1 = LODWORD(submixDef->aliasLpf);
+      __asm { vminss  xmm6, xmm1, dword ptr [rbx+8] }
+      if ( (_XMM6 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_utils.h", 89, ASSERT_TYPE_ASSERT, "(!IS_NAN(g))", (const char *)&queryFormat, "!IS_NAN(g)") )
         __debugbreak();
+      _XMM2 = *((unsigned int *)p_rate + 1);
+      _XMM0 = (unsigned int)p_rate[3] & (unsigned __int128)(unsigned int)_xmm;
       __asm
       {
-        vmovss  xmm2, dword ptr [rbx+4]
-        vmovss  xmm0, dword ptr [rbx+0Ch]
-        vandps  xmm0, xmm0, xmm7
         vcmpless xmm1, xmm0, xmm8
         vblendvps xmm0, xmm2, xmm6, xmm1
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovss  dword ptr [rbx+8], xmm6
       }
+      p_rate[1] = *(float *)&_XMM0;
+      p_rate[2] = *(float *)&_XMM6;
     }
-    ++v7;
-    _RBX += 492;
+    ++v2;
+    p_rate += 492;
   }
-  while ( v7 < 99 );
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
+  while ( v2 < 99 );
 }
 
 /*

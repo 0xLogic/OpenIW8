@@ -167,6 +167,10 @@ G_LoadLevelState
 */
 void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   OmnvarGameData *gameOmnvars; 
   unsigned int v8; 
   GWeaponMap *Instance; 
@@ -190,51 +194,56 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
   GAntiLagMP *AntiLagMP; 
   signed int v29; 
-  OmnvarClientData *v34; 
-  unsigned int v36; 
-  unsigned int v37; 
+  OmnvarClientData *v30; 
+  gclient_s *v31; 
+  unsigned int v32; 
+  unsigned int v33; 
   SvClient *CommonClient; 
-  __int64 v39; 
-  SvClient *v40; 
-  __int64 v41; 
-  int v42; 
-  SvServerInitSettings *v43; 
+  __int64 v35; 
+  SvClient *v36; 
+  __int64 v37; 
+  int v38; 
+  SvServerInitSettings *v39; 
   int k; 
-  gagent_s *v88; 
-  unsigned int v89; 
+  gagent_s *v48; 
+  unsigned int v49; 
   __int64 entityNum; 
-  __int64 v91; 
-  __int64 v92; 
-  __int64 v93; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
   SvGameGlobals *SvGameGlobalsCommon; 
-  unsigned int v95; 
-  SvClientMP *v96; 
+  unsigned int v55; 
+  SvClientMP *v56; 
   bot_data_t *ClientData; 
-  Ai_Asm *v98; 
+  Ai_Asm *v58; 
   PartyData *PartyData; 
-  unsigned int v100; 
-  int v101; 
-  gentity_s *v102; 
+  unsigned int v60; 
+  int v61; 
+  gentity_s *v62; 
   unsigned int eType; 
   DObj *ServerDObjForEntnum; 
   XAnimTree *EntAnimTree; 
-  const char *v106; 
+  const char *v66; 
   DObjPartBits *p_partBits; 
-  __int64 v108; 
-  entityType_s v109; 
+  __int64 v68; 
+  entityType_s v69; 
   char *fmt; 
-  __int64 v111; 
-  __int64 v112; 
+  __int64 v71; 
+  __int64 v72; 
   char p[4]; 
   unsigned int clientNum; 
   unsigned __int8 buffer; 
-  char v116[3]; 
-  int v117; 
+  char v76[3]; 
+  int v77; 
   MemoryFile *memFile; 
   SvServerInitSettings *initSettingsa; 
   SaveGame *savea; 
-  GUtils *v121; 
+  GUtils *v81; 
   DObjPartBits partBits; 
+  __int128 v83; 
+  __int128 v84; 
+  __int128 v85; 
+  __int128 v86; 
 
   initSettingsa = (SvServerInitSettings *)initSettings;
   savea = save;
@@ -272,8 +281,8 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
     __debugbreak();
   if ( level.maxSentients != 272 )
   {
-    LODWORD(v111) = level.maxSentients;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1732, ASSERT_TYPE_ASSERT, "( level.maxSentients ) == ( (200 + 48 + 24) )", "level.maxSentients == MAX_SENTIENTS_MP\n\t%i, %i", v111, 272) )
+    LODWORD(v71) = level.maxSentients;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1732, ASSERT_TYPE_ASSERT, "( level.maxSentients ) == ( (200 + 48 + 24) )", "level.maxSentients == MAX_SENTIENTS_MP\n\t%i, %i", v71, 272) )
       __debugbreak();
   }
   clientNum = 0;
@@ -314,8 +323,8 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
     MemFile_ReadData(v14, 1ui64, p);
     if ( p[0] )
     {
-      MemFile_ReadData(v14, 4ui64, &v117);
-      v16->refCount = v117;
+      MemFile_ReadData(v14, 4ui64, &v77);
+      v16->refCount = v77;
       MemFile_ReadData(v14, 0x1Cui64, &v16->enabledForClientMask);
       v16->lastUsed = 0;
       MemFile_ReadData(v14, 0x320ui64, v16);
@@ -332,9 +341,9 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
   {
     if ( !v18 )
     {
-      LODWORD(v112) = 2048;
-      LODWORD(v111) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v111, v112) )
+      LODWORD(v72) = 2048;
+      LODWORD(v71) = v17;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v71, v72) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -352,7 +361,7 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
   v20 = savea;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v121 = GUtils::ms_gUtils;
+  v81 = GUtils::ms_gUtils;
   GUtils::DisableCreateEntityPhysicsOnInit(GUtils::ms_gUtils, 1);
   G_LoadWeaponCue(v20);
   MemFile_ReadData(v19, 4ui64, &clientNum);
@@ -410,17 +419,10 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
   v29 = clientNum;
   if ( (clientNum & 0x80000000) == 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+100h+var_30], xmm6
-      vmovss  xmm6, cs:__real@3f000000
-      vmovaps [rsp+100h+var_40], xmm7
-      vmovss  xmm7, cs:__real@43360b61
-      vmovaps [rsp+100h+var_50], xmm8
-      vmovss  xmm8, cs:__real@37800000
-      vmovaps [rsp+100h+var_60], xmm9
-      vmovss  xmm9, cs:__real@43b40000
-    }
+    v86 = v2;
+    v85 = v3;
+    v84 = v4;
+    v83 = v5;
     do
     {
       if ( v29 >= (int)SvClient::ms_clientCount )
@@ -428,55 +430,55 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FC8420);
         v29 = clientNum;
       }
-      v34 = &level.clientOmnvars[v29];
-      _R14 = &level.clients[v29];
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 443, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
+      v30 = &level.clientOmnvars[v29];
+      v31 = &level.clients[v29];
+      if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 443, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
         __debugbreak();
-      if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 444, ASSERT_TYPE_ASSERT, "(clientOmnvars)", (const char *)&queryFormat, "clientOmnvars") )
+      if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 444, ASSERT_TYPE_ASSERT, "(clientOmnvars)", (const char *)&queryFormat, "clientOmnvars") )
         __debugbreak();
       if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 445, ASSERT_TYPE_ASSERT, "(save)", (const char *)&queryFormat, "save") )
         __debugbreak();
-      G_SaveFieldMP_ReadStruct(s_saveMP_gclientFields, (unsigned __int8 *)_R14, 64592, v20);
-      if ( _R14->sess.connected == CON_CONNECTED )
+      G_SaveFieldMP_ReadStruct(s_saveMP_gclientFields, (unsigned __int8 *)v31, 64592, v20);
+      if ( v31->sess.connected == CON_CONNECTED )
       {
-        _R14->sess.omnvars = (OmnvarData *)v34;
-        v36 = BG_Omnvar_PerClientCount();
-        MemFile_ReadData(&v20->memFile, 8i64 * v36, v34);
+        v31->sess.omnvars = (OmnvarData *)v30;
+        v32 = BG_Omnvar_PerClientCount();
+        MemFile_ReadData(&v20->memFile, 8i64 * v32, v30);
       }
       else
       {
-        _R14->sess.omnvars = NULL;
+        v31->sess.omnvars = NULL;
       }
-      if ( _R14->sess.cs.clientIndex != clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1838, ASSERT_TYPE_ASSERT, "(gcl->sess.cs.clientIndex == i)", (const char *)&queryFormat, "gcl->sess.cs.clientIndex == i") )
+      if ( v31->sess.cs.clientIndex != clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1838, ASSERT_TYPE_ASSERT, "(gcl->sess.cs.clientIndex == i)", (const char *)&queryFormat, "gcl->sess.cs.clientIndex == i") )
         __debugbreak();
-      v37 = clientNum;
+      v33 = clientNum;
       if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
         __debugbreak();
-      CommonClient = SvClient::GetCommonClient(v37);
-      v39 = (int)clientNum;
-      v40 = CommonClient;
-      CommonClient->gentity = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[v39];
-      v41 = (int)clientNum;
+      CommonClient = SvClient::GetCommonClient(v33);
+      v35 = (int)clientNum;
+      v36 = CommonClient;
+      CommonClient->gentity = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[v35];
+      v37 = (int)clientNum;
       if ( clientNum >= 0x800 )
       {
-        LODWORD(v112) = 2048;
-        LODWORD(v111) = clientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v111, v112) )
+        LODWORD(v72) = 2048;
+        LODWORD(v71) = clientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v71, v72) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v41].r.isInUse != g_entityIsInUse[v41] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v37].r.isInUse != g_entityIsInUse[v37] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v41] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1843, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( i ))", (const char *)&queryFormat, "G_IsEntityInUse( i )") )
+      if ( !g_entityIsInUse[v37] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1843, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( i ))", (const char *)&queryFormat, "G_IsEntityInUse( i )") )
         __debugbreak();
-      _R14->sess.scriptPersId = (unsigned int)v40[854].gentity;
+      v31->sess.scriptPersId = (unsigned int)v36[854].gentity;
       MemFile_ReadData(v19, 1ui64, p);
-      v42 = (unsigned __int8)p[0];
-      v43 = initSettingsa;
-      LODWORD(v40[855].__vftable) = (unsigned __int8)p[0];
-      if ( v42 )
-        G_SaveMP_ReadTestClientInfo(v43, v19, (SvClientMP *)v40);
+      v38 = (unsigned __int8)p[0];
+      v39 = initSettingsa;
+      LODWORD(v36[855].__vftable) = (unsigned __int8)p[0];
+      if ( v38 )
+        G_SaveMP_ReadTestClientInfo(v39, v19, (SvClientMP *)v36);
       ReadCharacterInfo(v19, clientNum);
       GAntiLagMP::ArchiveStateForCharacter(AntiLagMP, v19, clientNum);
       if ( v20->header.demoPlayback )
@@ -485,83 +487,39 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
       }
       else
       {
-        LOBYTE(v40[1].__vftable) = v40->state;
-        __asm { vxorps  xmm5, xmm5, xmm5 }
-        v40->state = v43->isDevMigration + 2;
-        HIDWORD(v40[855].__vftable) = sv_serverId_value;
-        *(_DWORD *)&v40[782].lastUsercmd.scriptedMeleeTarget = PersistentGlobalsMP->time;
-        v40[782].lastUsercmd.sightedClientsMask.data[0] = PersistentGlobalsMP->time;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+1D8h]
-          vmovss  dword ptr [r14+0B4h], xmm0
-          vmulss  xmm0, xmm0, xmm7
-          vaddss  xmm2, xmm0, xmm6
-        }
-        _R14->ps.delta_angles.v[1] = _R14->ps.viewangles.v[1];
-        _R14->ps.delta_angles.v[2] = _R14->ps.viewangles.v[2];
+        LOBYTE(v36[1].__vftable) = v36->state;
+        _XMM5 = 0i64;
+        v36->state = v39->isDevMigration + 2;
+        HIDWORD(v36[855].__vftable) = sv_serverId_value;
+        *(_DWORD *)&v36[782].lastUsercmd.scriptedMeleeTarget = PersistentGlobalsMP->time;
+        v36[782].lastUsercmd.sightedClientsMask.data[0] = PersistentGlobalsMP->time;
+        v31->ps.delta_angles.v[0] = v31->ps.viewangles.v[0];
+        v31->ps.delta_angles.v[1] = v31->ps.viewangles.v[1];
+        v31->ps.delta_angles.v[2] = v31->ps.viewangles.v[2];
         __asm
         {
           vroundss xmm0, xmm5, xmm2, 1
-          vcvttss2si eax, xmm0
+          vroundss xmm3, xmm5, xmm2, 1
         }
-        _ECX = (unsigned __int16)_EAX;
+        v31->ps.delta_angles.v[0] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
         __asm
         {
-          vmovd   xmm0, ecx
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm4, xmm0, xmm8
-          vaddss  xmm2, xmm4, xmm6
-          vroundss xmm3, xmm5, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm9
-          vmovss  dword ptr [r14+0B4h], xmm0
-          vmulss  xmm0, xmm7, dword ptr [r14+0B8h]
-          vaddss  xmm3, xmm0, xmm6
           vroundss xmm0, xmm5, xmm3, 1
-          vcvttss2si eax, xmm0
+          vroundss xmm3, xmm5, xmm2, 1
         }
-        _ECX = (unsigned __int16)_EAX;
+        v31->ps.delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
         __asm
         {
-          vmovd   xmm0, ecx
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm4, xmm0, xmm8
-          vaddss  xmm2, xmm4, xmm6
-          vroundss xmm3, xmm5, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm9
-          vmovss  dword ptr [r14+0B8h], xmm0
-          vmulss  xmm0, xmm7, dword ptr [r14+0BCh]
-          vaddss  xmm3, xmm0, xmm6
           vroundss xmm0, xmm5, xmm3, 1
-          vcvttss2si eax, xmm0
-        }
-        _ECX = (unsigned __int16)_EAX;
-        __asm
-        {
-          vmovd   xmm0, ecx
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm4, xmm0, xmm8
-          vaddss  xmm2, xmm4, xmm6
           vroundss xmm3, xmm5, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm9
-          vmovss  dword ptr [r14+0BCh], xmm0
         }
-        SV_ClientMP_SetAssignedTeam(clientNum, _R14->sess.cs.team);
+        v31->ps.delta_angles.v[2] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+        SV_ClientMP_SetAssignedTeam(clientNum, v31->sess.cs.team);
       }
       MemFile_ReadData(v19, 4ui64, &clientNum);
       v29 = clientNum;
     }
     while ( (clientNum & 0x80000000) == 0 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+100h+var_60]
-      vmovaps xmm8, [rsp+100h+var_50]
-      vmovaps xmm7, [rsp+100h+var_40]
-      vmovaps xmm6, [rsp+100h+var_30]
-    }
   }
   MemFile_ReadData(v19, 4ui64, &clientNum);
   for ( k = clientNum; (clientNum & 0x80000000) == 0; k = clientNum )
@@ -571,47 +529,47 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FC8500);
       k = clientNum;
     }
-    v88 = &level.agents[k];
-    G_SaveMP_ReadAgent(v88, v20);
-    v89 = clientNum;
+    v48 = &level.agents[k];
+    G_SaveMP_ReadAgent(v48, v20);
+    v49 = clientNum;
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( v89 >= ComCharacterLimits::ms_gameData.m_agentCount )
+    if ( v49 >= ComCharacterLimits::ms_gameData.m_agentCount )
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v112) = ComCharacterLimits::ms_gameData.m_agentCount;
-      LODWORD(v111) = v89;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v111, v112) )
+      LODWORD(v72) = ComCharacterLimits::ms_gameData.m_agentCount;
+      LODWORD(v71) = v49;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v71, v72) )
         __debugbreak();
     }
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( v88->agentState.entityNum != v89 + ComCharacterLimits::ms_gameData.m_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1899, ASSERT_TYPE_ASSERT, "(gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i ))", (const char *)&queryFormat, "gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i )") )
+    if ( v48->agentState.entityNum != v49 + ComCharacterLimits::ms_gameData.m_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1899, ASSERT_TYPE_ASSERT, "(gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i ))", (const char *)&queryFormat, "gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i )") )
       __debugbreak();
-    entityNum = v88->agentState.entityNum;
-    v91 = (__int64)&PersistentGlobalsMP->agents[clientNum];
-    *(_QWORD *)(v91 + 8) = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[entityNum];
-    v92 = v88->agentState.entityNum;
-    if ( (unsigned int)v92 >= 0x800 )
+    entityNum = v48->agentState.entityNum;
+    v51 = (__int64)&PersistentGlobalsMP->agents[clientNum];
+    *(_QWORD *)(v51 + 8) = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[entityNum];
+    v52 = v48->agentState.entityNum;
+    if ( (unsigned int)v52 >= 0x800 )
     {
-      LODWORD(v112) = 2048;
-      LODWORD(v111) = v88->agentState.entityNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v111, v112) )
+      LODWORD(v72) = 2048;
+      LODWORD(v71) = v48->agentState.entityNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v71, v72) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    if ( g_entities[v92].r.isInUse != g_entityIsInUse[v92] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    if ( g_entities[v52].r.isInUse != g_entityIsInUse[v52] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( !g_entityIsInUse[v92] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1903, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( gagent->agentState.entityNum ))", (const char *)&queryFormat, "G_IsEntityInUse( gagent->agentState.entityNum )") )
+    if ( !g_entityIsInUse[v52] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1903, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( gagent->agentState.entityNum ))", (const char *)&queryFormat, "G_IsEntityInUse( gagent->agentState.entityNum )") )
       __debugbreak();
-    MemFile_ReadData(v19, 0x108ui64, (void *)(v91 + 16));
-    ReadCharacterInfo(v19, v88->agentState.entityNum);
-    GAntiLagMP::ArchiveStateForCharacter(AntiLagMP, v19, v88->agentState.entityNum);
-    v93 = v88->agentState.entityNum;
+    MemFile_ReadData(v19, 0x108ui64, (void *)(v51 + 16));
+    ReadCharacterInfo(v19, v48->agentState.entityNum);
+    GAntiLagMP::ArchiveStateForCharacter(AntiLagMP, v19, v48->agentState.entityNum);
+    v53 = v48->agentState.entityNum;
     SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
-    SV_AgentInitScriptable(&SvGameGlobalsCommon->gentities[v93]);
+    SV_AgentInitScriptable(&SvGameGlobalsCommon->gentities[v53]);
     MemFile_ReadData(v19, 4ui64, &clientNum);
   }
   ScriptableSv_ArchiveState(v19);
@@ -627,12 +585,12 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
       SaveMemory_LoadRead(&buffer, 1, v20);
       if ( buffer == 0xFF )
         break;
-      v95 = buffer;
+      v55 = buffer;
       if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
         __debugbreak();
-      v96 = (SvClientMP *)SvClient::GetCommonClient(v95);
-      SV_BotInit(v96, 0);
-      ClientData = Bot_GetClientData(v96);
+      v56 = (SvClientMP *)SvClient::GetCommonClient(v55);
+      SV_BotInit(v56, 0);
+      ClientData = Bot_GetClientData(v56);
       if ( !ClientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1242, ASSERT_TYPE_ASSERT, "(botData)", (const char *)&queryFormat, "botData") )
         __debugbreak();
       G_SaveMP_ReadBotData(v20, ClientData);
@@ -647,8 +605,8 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
   if ( p[0] )
     SV_BotStaticStateRead(v20);
   AI_BT_Load(v19);
-  v98 = Ai_Asm::Singleton();
-  Ai_Asm::ReadInstances(v98, v19);
+  v58 = Ai_Asm::Singleton();
+  Ai_Asm::ReadInstances(v58, v19);
   MemFile_ReadSentinel(v19, 0x9624F492);
   NavData_NavigatorLoadComplete();
   TacGraph_Read(v19);
@@ -666,37 +624,37 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
   GMissile::ClearMissileEventRegistry();
   ScriptableSv_DisableLinking(1);
   MemFile_ReadData(v19, 4ui64, &clientNum);
-  v100 = clientNum;
+  v60 = clientNum;
   if ( (clientNum & 0x80000000) == 0 )
   {
-    v101 = 2359300;
+    v61 = 2359300;
     do
     {
-      if ( (int)v100 > 2048 )
+      if ( (int)v60 > 2048 )
       {
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FC86B0, 100i64, v100);
-        v100 = clientNum;
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FC86B0, 100i64, v60);
+        v60 = clientNum;
       }
-      v102 = &g_entities[v100];
-      if ( v100 >= 0x800 )
+      v62 = &g_entities[v60];
+      if ( v60 >= 0x800 )
       {
-        LODWORD(v112) = 2048;
-        LODWORD(v111) = v100;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v111, v112) )
+        LODWORD(v72) = 2048;
+        LODWORD(v71) = v60;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v71, v72) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v100].r.isInUse != g_entityIsInUse[v100] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v60].r.isInUse != g_entityIsInUse[v60] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v100] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1957, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( i ))", (const char *)&queryFormat, "G_IsEntityInUse( i )") )
+      if ( !g_entityIsInUse[v60] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1957, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( i ))", (const char *)&queryFormat, "G_IsEntityInUse( i )") )
         __debugbreak();
-      if ( !v102 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      if ( !v62 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      eType = (unsigned __int16)v102->s.eType;
-      if ( (unsigned __int16)eType <= 0x15u && _bittest(&v101, eType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1959, ASSERT_TYPE_ASSERT, "(!BG_IsCorpseEntity( &ent->s ))", "%s\n\tShould not have written corpses in the dobj array", "!BG_IsCorpseEntity( &ent->s )") )
+      eType = (unsigned __int16)v62->s.eType;
+      if ( (unsigned __int16)eType <= 0x15u && _bittest(&v61, eType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1959, ASSERT_TYPE_ASSERT, "(!BG_IsCorpseEntity( &ent->s ))", "%s\n\tShould not have written corpses in the dobj array", "!BG_IsCorpseEntity( &ent->s )") )
         __debugbreak();
-      G_UtilsMP_DObjLoad(v102);
+      G_UtilsMP_DObjLoad(v62);
       ServerDObjForEntnum = Com_GetServerDObjForEntnum(clientNum);
       if ( !ServerDObjForEntnum )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FC8790, 101i64, clientNum);
@@ -711,49 +669,49 @@ void G_LoadLevelState(const SvServerInitSettings *initSettings, SaveGame *save)
       }
       else
       {
-        EntAnimTree = G_Utils_GetEntAnimTree(v102);
+        EntAnimTree = G_Utils_GetEntAnimTree(v62);
         if ( EntAnimTree )
           DObjSetTree(ServerDObjForEntnum, EntAnimTree);
-        MemFile_ReadData(v19, 1ui64, v116);
-        if ( v116[0] != (ServerDObjForEntnum->tree != NULL) )
+        MemFile_ReadData(v19, 1ui64, v76);
+        if ( v76[0] != (ServerDObjForEntnum->tree != NULL) )
         {
-          v106 = "did not have";
-          if ( v116[0] )
-            v106 = "had";
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1989, ASSERT_TYPE_ASSERT, "(hadTree == ( obj->tree != nullptr ))", "%s\n\tLoading this saved game will crash, because when saving, a server dobj %s a tree, but we haven't replicated this when loading.", "hadTree == ( obj->tree != nullptr )", v106) )
+          v66 = "did not have";
+          if ( v76[0] )
+            v66 = "had";
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1989, ASSERT_TYPE_ASSERT, "(hadTree == ( obj->tree != nullptr ))", "%s\n\tLoading this saved game will crash, because when saving, a server dobj %s a tree, but we haven't replicated this when loading.", "hadTree == ( obj->tree != nullptr )", v66) )
             __debugbreak();
         }
       }
       XAnimLoadAnimTree(ServerDObjForEntnum, v19);
       p_partBits = &partBits;
-      v108 = 8i64;
+      v68 = 8i64;
       do
       {
-        MemFile_ReadData(v19, 4ui64, &v117);
-        p_partBits->array[0] = v117;
+        MemFile_ReadData(v19, 4ui64, &v77);
+        p_partBits->array[0] = v77;
         p_partBits = (DObjPartBits *)((char *)p_partBits + 4);
-        --v108;
+        --v68;
       }
-      while ( v108 );
+      while ( v68 );
       DObjSetHidePartBits(ServerDObjForEntnum, &partBits);
-      v109 = v102->s.eType;
-      if ( v109 == ET_MISSILE )
+      v69 = v62->s.eType;
+      if ( v69 == ET_MISSILE )
       {
-        GMissile::RegisterMissileEntity(v102->s.number);
+        GMissile::RegisterMissileEntity(v62->s.number);
       }
-      else if ( GMissile::IsMissileEventType(v109) )
+      else if ( GMissile::IsMissileEventType(v69) )
       {
-        GMissile::RegisterMissileEventEntity(v102->s.number);
+        GMissile::RegisterMissileEventEntity(v62->s.number);
       }
       MemFile_ReadData(v19, 4ui64, &clientNum);
-      v100 = clientNum;
+      v60 = clientNum;
     }
     while ( (clientNum & 0x80000000) == 0 );
     v20 = savea;
   }
   ScriptableSv_DisableLinking(0);
   MemFile_ReadSentinel(v19, 0xBEA426A5);
-  GUtils::DisableCreateEntityPhysicsOnInit(v121, 0);
+  GUtils::DisableCreateEntityPhysicsOnInit(v81, 0);
   WorldCollision_Load(v20);
   StaticModels_Load(v20);
   PatchCollision_Load(v20);
@@ -839,144 +797,153 @@ void G_SaveLevelState(MemoryFile *memFile, bool demoSave)
   unsigned __int64 v14; 
   int v15; 
   int i; 
-  __int64 v19; 
-  DamageParts *v26; 
-  unsigned __int64 v27; 
-  unsigned __int64 v28; 
+  sentient_s *v17; 
+  __int64 v18; 
+  DamageParts *v19; 
+  unsigned __int64 v20; 
+  unsigned __int64 v21; 
   pathnode_t *Node; 
   __int64 totalLinkCount; 
-  int v34; 
-  __int64 v35; 
-  unsigned __int16 v36; 
-  unsigned __int64 v37; 
+  int v24; 
+  __int64 v25; 
+  unsigned __int16 v26; 
+  unsigned __int64 v27; 
+  unsigned __int64 v28; 
+  unsigned __int64 v29; 
+  unsigned __int64 v30; 
+  unsigned __int64 v31; 
+  unsigned __int64 v32; 
+  int v33; 
+  outline_data_t *v34; 
+  unsigned int v35; 
+  ClientBits *p_enabledForClientMask; 
+  char v37; 
   unsigned __int64 v38; 
   unsigned __int64 v39; 
   unsigned __int64 v40; 
   unsigned __int64 v41; 
-  unsigned __int64 v42; 
-  int v43; 
-  outline_data_t *v44; 
-  unsigned int v45; 
-  ClientBits *p_enabledForClientMask; 
-  char v47; 
+  char v42; 
+  bool v43; 
+  int j; 
+  const gentity_s *v45; 
+  unsigned __int64 v46; 
+  unsigned __int64 v47; 
   unsigned __int64 v48; 
   unsigned __int64 v49; 
   unsigned __int64 v50; 
   unsigned __int64 v51; 
-  char v52; 
-  bool v53; 
-  int j; 
-  const gentity_s *v55; 
+  unsigned __int64 v52; 
+  unsigned __int64 v53; 
+  unsigned __int64 v54; 
+  unsigned __int64 v55; 
   unsigned __int64 v56; 
   unsigned __int64 v57; 
   unsigned __int64 v58; 
   unsigned __int64 v59; 
-  unsigned __int64 v60; 
-  unsigned __int64 v61; 
-  unsigned __int64 v62; 
-  unsigned __int64 v63; 
+  badplace_t *v60; 
+  __int64 v61; 
+  const unsigned __int8 *v62; 
+  __int128 v63; 
   unsigned __int64 v64; 
   unsigned __int64 v65; 
   unsigned __int64 v66; 
-  unsigned __int64 v67; 
-  unsigned __int64 v68; 
+  __int64 v67; 
+  GAntiLagMP *v68; 
   unsigned __int64 v69; 
-  __int64 v71; 
-  const unsigned __int8 *v72; 
-  unsigned __int64 v75; 
-  unsigned __int64 v76; 
-  unsigned __int64 v77; 
-  __int64 v78; 
-  GAntiLagMP *v79; 
-  unsigned __int64 v80; 
-  signed int v81; 
-  gclient_s *v82; 
+  signed int v70; 
+  gclient_s *v71; 
   const PartyData *ServerLobby; 
-  __int64 v84; 
-  int v85; 
+  __int64 v73; 
+  int v74; 
   SvClient *CommonClient; 
-  __int64 v87; 
+  __int64 v76; 
   int NetId; 
-  __int16 v89; 
-  const characterInfo_t *v90; 
+  __int16 v78; 
+  const characterInfo_t *v79; 
+  unsigned __int64 v80; 
+  unsigned __int64 v81; 
+  int maxagents; 
+  int v83; 
+  __int64 v84; 
+  unsigned int v85; 
+  gagent_s *v86; 
+  unsigned int v87; 
+  unsigned int v88; 
+  const characterInfo_t *v89; 
+  unsigned int v90; 
   unsigned __int64 v91; 
   unsigned __int64 v92; 
-  int maxagents; 
-  int v94; 
-  __int64 v95; 
-  unsigned int v96; 
-  gagent_s *v97; 
-  unsigned int v98; 
-  unsigned int v99; 
-  const characterInfo_t *v100; 
-  unsigned int v101; 
-  unsigned __int64 v102; 
+  unsigned __int64 v93; 
+  unsigned __int64 v94; 
+  char v95; 
+  signed int k; 
+  SvClientMP *v97; 
+  bot_data_t *ClientData; 
+  bot_data_t *v99; 
+  unsigned __int64 v100; 
+  unsigned __int64 v101; 
+  char v102; 
   unsigned __int64 v103; 
   unsigned __int64 v104; 
   unsigned __int64 v105; 
-  char v106; 
-  signed int k; 
-  SvClientMP *v108; 
-  bot_data_t *ClientData; 
-  bot_data_t *v110; 
+  unsigned __int64 v106; 
+  Ai_Asm *v107; 
+  unsigned __int64 v108; 
+  unsigned __int64 v109; 
+  unsigned __int64 v110; 
   unsigned __int64 v111; 
   unsigned __int64 v112; 
-  char v113; 
+  unsigned __int64 v113; 
   unsigned __int64 v114; 
   unsigned __int64 v115; 
-  unsigned __int64 v116; 
-  unsigned __int64 v117; 
-  Ai_Asm *v118; 
-  unsigned __int64 v119; 
-  unsigned __int64 v120; 
-  unsigned __int64 v121; 
-  unsigned __int64 v122; 
-  unsigned __int64 v123; 
-  unsigned __int64 v124; 
-  unsigned __int64 v125; 
-  unsigned __int64 v126; 
-  int v127; 
-  bool v128; 
-  gentity_s *v129; 
+  int v116; 
+  bool v117; 
+  gentity_s *v118; 
   unsigned int eType; 
   DObj *ServerDObjForEntnum; 
-  bool v132; 
+  bool v121; 
   XAnimTree *EntAnimTree; 
   XAnimTree *tree; 
-  entityType_s v135; 
+  entityType_s v124; 
+  unsigned __int64 v125; 
+  unsigned __int64 v126; 
+  DObjPartBits *p_partBits; 
+  __int64 v128; 
+  unsigned __int64 v129; 
+  unsigned __int64 v130; 
+  unsigned __int64 v131; 
+  unsigned __int64 v132; 
+  unsigned __int64 v133; 
+  unsigned __int64 v134; 
+  unsigned __int64 v135; 
   unsigned __int64 v136; 
   unsigned __int64 v137; 
-  DObjPartBits *p_partBits; 
-  __int64 v139; 
+  unsigned __int64 v138; 
+  unsigned __int64 v139; 
   unsigned __int64 v140; 
-  unsigned __int64 v141; 
-  unsigned __int64 v142; 
-  unsigned __int64 v143; 
-  unsigned __int64 v144; 
-  unsigned __int64 v145; 
-  unsigned __int64 v146; 
-  unsigned __int64 v147; 
-  unsigned __int64 v148; 
-  unsigned __int64 v149; 
-  unsigned __int64 v150; 
-  unsigned __int64 v151; 
-  __int64 v152; 
-  __int64 v153; 
-  __int64 v154; 
+  __int64 v141; 
+  __int64 v142; 
+  __int64 v143; 
   int clientNum; 
-  char v156[4]; 
+  char v145[4]; 
   unsigned int p; 
   GAntiLagMP *AntiLagMP; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  unsigned __int8 v160[32]; 
+  unsigned __int8 v149[32]; 
+  __int128 v150; 
   int inPlayerLOSTime; 
   DObjPartBits partBits; 
-  char dest[176]; 
-  __int64 v165; 
-  int v166; 
-  DamageParts v167; 
+  __m256i dest; 
+  __m256i v154; 
+  __m256i v155; 
+  __m256i v156; 
+  __m256i v157; 
+  __int128 v158; 
+  __int64 v159; 
+  int v160; 
+  DamageParts v161; 
 
-  v156[0] = demoSave;
+  v145[0] = demoSave;
   if ( !MemFile_IsWriting(memFile) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2061, ASSERT_TYPE_ASSERT, "(MemFile_IsWriting( memFile ))", (const char *)&queryFormat, "MemFile_IsWriting( memFile )") )
     __debugbreak();
   UsedSize = MemFile_GetUsedSize(memFile);
@@ -1027,8 +994,8 @@ void G_SaveLevelState(MemoryFile *memFile, bool demoSave)
     __debugbreak();
   if ( level.maxSentients != 272 )
   {
-    LODWORD(v152) = level.maxSentients;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2113, ASSERT_TYPE_ASSERT, "( level.maxSentients ) == ( (200 + 48 + 24) )", "level.maxSentients == MAX_SENTIENTS_MP\n\t%i, %i", v152, 272) )
+    LODWORD(v141) = level.maxSentients;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2113, ASSERT_TYPE_ASSERT, "( level.maxSentients ) == ( (200 + 48 + 24) )", "level.maxSentients == MAX_SENTIENTS_MP\n\t%i, %i", v141, 272) )
       __debugbreak();
   }
   v14 = MemFile_GetUsedSize(memFile);
@@ -1037,45 +1004,35 @@ void G_SaveLevelState(MemoryFile *memFile, bool demoSave)
   clientNum = 0;
   for ( i = 0; i < 272; clientNum = i )
   {
-    _RSI = &level.sentients[i];
+    v17 = &level.sentients[i];
     if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 714, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
       __debugbreak();
-    MemFile_WriteData(memFile, 1ui64, &_RSI->inuse);
-    if ( _RSI->inuse )
+    MemFile_WriteData(memFile, 1ui64, &v17->inuse);
+    if ( v17->inuse )
     {
-      __asm { vmovups ymm0, ymmword ptr [rsi] }
-      v19 = *(_QWORD *)&_RSI->lastNavObstacleTime;
-      _RCX = (unsigned __int8 *)dest;
-      __asm
+      v18 = *(_QWORD *)&v17->lastNavObstacleTime;
+      dest = *(__m256i *)&v17->ent;
+      v154 = *(__m256i *)&v17->bIgnoreMe;
+      v155 = *(__m256i *)&v17->lastAttacker.number;
+      v156 = *(__m256i *)&v17->meleeAttackerSpot[3];
+      v157 = *(__m256i *)&v17->timeOfNodeClaim;
+      v158 = *(_OWORD *)&v17->banNodeTime;
+      v159 = v18;
+      G_SaveFieldMP_WriteStruct(s_saveMP_sentientFields, (const unsigned __int8 *)v17, (unsigned __int8 *)&dest, 184, memFile);
+      if ( v17->iDamageParts != -1 )
       {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+60h]
-        vmovups ymmword ptr [rcx+60h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+80h]
-        vmovups ymmword ptr [rcx+80h], ymm0
-        vmovups xmm0, xmmword ptr [rsi+0A0h]
-        vmovups xmmword ptr [rcx+0A0h], xmm0
-      }
-      v165 = v19;
-      G_SaveFieldMP_WriteStruct(s_saveMP_sentientFields, (const unsigned __int8 *)_RSI, (unsigned __int8 *)dest, 184, memFile);
-      if ( _RSI->iDamageParts != -1 )
-      {
-        DamageParts::DamageParts(&v167);
-        v26 = DamageParts_Get(_RSI->iDamageParts);
-        memcpy_0(&v167, v26, sizeof(v167));
-        G_SaveFieldMP_WriteStruct(g_saveMP_damagePartsField, (const unsigned __int8 *)v26, (unsigned __int8 *)&v167, 5852, memFile);
+        DamageParts::DamageParts(&v161);
+        v19 = DamageParts_Get(v17->iDamageParts);
+        memcpy_0(&v161, v19, sizeof(v161));
+        G_SaveFieldMP_WriteStruct(g_saveMP_damagePartsField, (const unsigned __int8 *)v19, (unsigned __int8 *)&v161, 5852, memFile);
       }
     }
     i = clientNum + 1;
   }
-  v27 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v27);
-  v28 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("pathnodes", v28);
+  v20 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v20);
+  v21 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("pathnodes", v21);
   WriteSpawnedPathNodes(memFile);
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 771, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
@@ -1084,119 +1041,113 @@ void G_SaveLevelState(MemoryFile *memFile, bool demoSave)
   {
     do
     {
-      _RDX = &Node->dynamic;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx]
-        vmovups ymmword ptr [rsp+2160h+var_20F0], ymm0
-        vmovups xmm1, xmmword ptr [rdx+20h]
-        vmovups [rbp+2060h+var_20D0], xmm1
-      }
+      *(__m256i *)v149 = *(__m256i *)&Node->dynamic.pOwners[0].number;
+      v150 = *(_OWORD *)&Node->dynamic.bInactive;
       inPlayerLOSTime = Node->dynamic.actors.inPlayerLOSTime;
-      G_SaveFieldMP_WriteStruct(pathnodeFields, (const unsigned __int8 *)&Node->dynamic, v160, 52, memFile);
+      G_SaveFieldMP_WriteStruct(pathnodeFields, (const unsigned __int8 *)&Node->dynamic, v149, 52, memFile);
       totalLinkCount = Node->constant.totalLinkCount;
-      v34 = totalLinkCount - 1;
+      v24 = totalLinkCount - 1;
       if ( (int)totalLinkCount - 1 >= Node->dynamic.wLinkCount )
       {
-        v35 = 12 * totalLinkCount - 12;
+        v25 = 12 * totalLinkCount - 12;
         do
         {
-          LOWORD(p) = *(unsigned __int16 *)((char *)&Node->constant.Links->nodeNum + v35);
-          v36 = Path_ConvertNodeToIndex(Node);
-          if ( v36 == (_WORD)p )
+          LOWORD(p) = *(unsigned __int16 *)((char *)&Node->constant.Links->nodeNum + v25);
+          v26 = Path_ConvertNodeToIndex(Node);
+          if ( v26 == (_WORD)p )
           {
-            LODWORD(v154) = (unsigned __int16)p;
-            LODWORD(v153) = Path_ConvertNodeToIndex(Node);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 780, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( node ) != index)", "%s\n\tnodeIndex %d index %d", "Path_ConvertNodeToIndex( node ) != index", v153, v154) )
+            LODWORD(v143) = (unsigned __int16)p;
+            LODWORD(v142) = Path_ConvertNodeToIndex(Node);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 780, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( node ) != index)", "%s\n\tnodeIndex %d index %d", "Path_ConvertNodeToIndex( node ) != index", v142, v143) )
               __debugbreak();
           }
           MemFile_WriteData(memFile, 2ui64, &p);
-          --v34;
-          v35 -= 12i64;
+          --v24;
+          v25 -= 12i64;
         }
-        while ( v34 >= Node->dynamic.wLinkCount );
+        while ( v24 >= Node->dynamic.wLinkCount );
       }
       Node = Path_NextNode(Node, -1);
     }
     while ( Node );
     v15 = 0;
   }
-  v37 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v37);
-  v38 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("threatbias", v38);
-  memcpy_0(dest, &g_threatBias, 0x964ui64);
+  v27 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v27);
+  v28 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("threatbias", v28);
+  memcpy_0(&dest, &g_threatBias, 0x964ui64);
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 890, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
-  G_SaveFieldMP_WriteStruct(threatGroupFields, (const unsigned __int8 *)&g_threatBias, (unsigned __int8 *)dest, 2404, memFile);
-  v39 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v39);
-  v40 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("moving platforms", v40);
+  G_SaveFieldMP_WriteStruct(threatGroupFields, (const unsigned __int8 *)&g_threatBias, (unsigned __int8 *)&dest, 2404, memFile);
+  v29 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v29);
+  v30 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("moving platforms", v30);
   GMovingPlatformsMP::SaveMP_Write(memFile);
-  v41 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v41);
-  v42 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("outlines", v42);
-  v43 = 0;
+  v31 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v31);
+  v32 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("outlines", v32);
+  v33 = 0;
   clientNum = 0;
   do
   {
-    v44 = &level.outlineData[v43];
-    if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 473, ASSERT_TYPE_ASSERT, "(outlineData)", (const char *)&queryFormat, "outlineData") )
+    v34 = &level.outlineData[v33];
+    if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 473, ASSERT_TYPE_ASSERT, "(outlineData)", (const char *)&queryFormat, "outlineData") )
       __debugbreak();
     if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 474, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
       __debugbreak();
-    v45 = 0;
-    p_enabledForClientMask = &v44->enabledForClientMask;
+    v35 = 0;
+    p_enabledForClientMask = &v34->enabledForClientMask;
     while ( !p_enabledForClientMask->array[0] )
     {
-      ++v45;
+      ++v35;
       p_enabledForClientMask = (ClientBits *)((char *)p_enabledForClientMask + 4);
-      if ( v45 >= 7 )
+      if ( v35 >= 7 )
         goto LABEL_46;
     }
-    if ( v44->refCount <= 0 )
+    if ( v34->refCount <= 0 )
     {
 LABEL_46:
-      v47 = 0;
+      v37 = 0;
       goto LABEL_47;
     }
-    v47 = 1;
+    v37 = 1;
 LABEL_47:
-    LOBYTE(p) = v47;
+    LOBYTE(p) = v37;
     MemFile_WriteData(memFile, 1ui64, &p);
-    if ( v47 )
+    if ( v37 )
     {
-      p = v44->refCount;
+      p = v34->refCount;
       MemFile_WriteData(memFile, 4ui64, &p);
-      MemFile_WriteData(memFile, 0x1Cui64, &v44->enabledForClientMask);
-      MemFile_WriteData(memFile, 0x320ui64, v44);
+      MemFile_WriteData(memFile, 0x1Cui64, &v34->enabledForClientMask);
+      MemFile_WriteData(memFile, 0x320ui64, v34);
     }
-    v43 = clientNum + 1;
-    clientNum = v43;
+    v33 = clientNum + 1;
+    clientNum = v33;
   }
-  while ( v43 < 63 );
-  v48 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v48);
-  v49 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("objectives", v49);
+  while ( v33 < 63 );
+  v38 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v38);
+  v39 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("objectives", v39);
   G_Objectives_Save(memFile);
-  v50 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v50);
+  v40 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v40);
   G_SaveWeaponCue(memFile);
-  v51 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("entities", v51);
-  v52 = v156[0];
+  v41 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("entities", v41);
+  v42 = v145[0];
   clientNum = 0;
-  v53 = 1;
-  for ( j = 0; j < 2048; v53 = (unsigned int)j < 0x800 )
+  v43 = 1;
+  for ( j = 0; j < 2048; v43 = (unsigned int)j < 0x800 )
   {
-    if ( !v53 )
+    if ( !v43 )
     {
-      LODWORD(v153) = 2048;
-      LODWORD(v152) = j;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v152, v153) )
+      LODWORD(v142) = 2048;
+      LODWORD(v141) = j;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v141, v142) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1205,281 +1156,277 @@ LABEL_47:
       __debugbreak();
     if ( g_entityIsInUse[j] )
     {
-      v55 = &g_entities[clientNum];
+      v45 = &g_entities[clientNum];
       MemFile_WriteData(memFile, 4ui64, &clientNum);
-      G_SaveMP_CheckSavedEntity(v55);
-      v166 = 0;
+      G_SaveMP_CheckSavedEntity(v45);
+      v160 = 0;
       if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 360, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
         __debugbreak();
-      memcpy_0(dest, v55, 0x5B0ui64);
-      G_SaveFieldMP_WriteStruct(s_saveMP_gentityFields, (const unsigned __int8 *)v55, (unsigned __int8 *)dest, 1456, memFile);
+      memcpy_0(&dest, v45, 0x5B0ui64);
+      G_SaveFieldMP_WriteStruct(s_saveMP_gentityFields, (const unsigned __int8 *)v45, (unsigned __int8 *)&dest, 1456, memFile);
     }
     j = clientNum + 1;
     clientNum = j;
   }
   clientNum = -1;
   MemFile_WriteData(memFile, 4ui64, &clientNum);
+  v46 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v46);
+  v47 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("vo3", v47);
+  VelocityObstacle3Manager::Save(memFile);
+  v48 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v48);
+  v49 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("vehicles", v49);
+  G_VehicleMP_WriteSaveGame(memFile);
+  v50 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v50);
+  v51 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("covarWalls", v51);
+  G_CoverWall_WriteSaveGame(memFile);
+  v52 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v52);
+  v53 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("playerUse", v53);
+  G_PlayerUse_Write(memFile);
+  v54 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v54);
+  v55 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("trigger", v55);
+  G_Trigger_Write(memFile);
   v56 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v56);
   v57 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("vo3", v57);
-  VelocityObstacle3Manager::Save(memFile);
+  ProfMem_Begin("turrets", v57);
+  GTurretMP::SaveMP_WriteTurrets(memFile);
   v58 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v58);
   v59 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("vehicles", v59);
-  G_VehicleMP_WriteSaveGame(memFile);
-  v60 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v60);
-  v61 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("covarWalls", v61);
-  G_CoverWall_WriteSaveGame(memFile);
-  v62 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v62);
-  v63 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("playerUse", v63);
-  G_PlayerUse_Write(memFile);
+  ProfMem_Begin("aibadplaces", v59);
+  if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 918, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
+    __debugbreak();
+  v60 = g_badplaces;
+  v61 = 16i64;
+  v62 = (const unsigned __int8 *)g_badplaces;
+  do
+  {
+    v63 = *(_OWORD *)&v60->teamflags.array[4];
+    *(__m256i *)v149 = *(__m256i *)&v60->endtime;
+    v150 = v63;
+    G_SaveFieldMP_WriteStruct(badplaceFields, v62, v149, 48, memFile);
+    v62 += 48;
+    ++v60;
+    --v61;
+  }
+  while ( v61 );
   v64 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v64);
   v65 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("trigger", v65);
-  G_Trigger_Write(memFile);
+  ProfMem_Begin("MotionWarp", v65);
+  G_MotionWarp_Save(memFile);
   v66 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v66);
-  v67 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("turrets", v67);
-  GTurretMP::SaveMP_WriteTurrets(memFile);
-  v68 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v68);
-  v69 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("aibadplaces", v69);
-  if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 918, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
-    __debugbreak();
-  _RDI = g_badplaces;
-  v71 = 16i64;
-  v72 = (const unsigned __int8 *)g_badplaces;
-  do
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups ymmword ptr [rsp+2160h+var_20F0], ymm0
-      vmovups [rbp+2060h+var_20D0], xmm1
-    }
-    G_SaveFieldMP_WriteStruct(badplaceFields, v72, v160, 48, memFile);
-    v72 += 48;
-    ++_RDI;
-    --v71;
-  }
-  while ( v71 );
-  v75 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v75);
-  v76 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("MotionWarp", v76);
-  G_MotionWarp_Save(memFile);
-  v77 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v77);
   SpeedThresholdSave(memFile);
   NavData_Write(memFile);
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  v78 = *(_QWORD *)&GStatic::ms_gameStatics;
+  v67 = *(_QWORD *)&GStatic::ms_gameStatics;
   AntiLagMP = GAntiLagMP::GetAntiLagMP();
-  v79 = AntiLagMP;
-  v80 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("clients", v80);
+  v68 = AntiLagMP;
+  v69 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("clients", v69);
   clientNum = 0;
   if ( level.maxclients > 0 )
   {
-    v81 = 0;
+    v70 = 0;
     do
     {
-      v82 = &level.clients[v81];
-      if ( Session_IsValid(&g_serverSession) && !SV_IsDemoPlaying() && (v81 >= (int)SvClient::ms_clientCount || !SV_ClientMP_IsTestClient(v81) && (v81 >= (int)SvClient::ms_clientCount || !SV_BotIsBot(v81))) )
+      v71 = &level.clients[v70];
+      if ( Session_IsValid(&g_serverSession) && !SV_IsDemoPlaying() && (v70 >= (int)SvClient::ms_clientCount || !SV_ClientMP_IsTestClient(v70) && (v70 >= (int)SvClient::ms_clientCount || !SV_BotIsBot(v70))) )
       {
         ServerLobby = SV_MainMP_GetServerLobby();
-        if ( Party_IsMemberRegistered(ServerLobby, v81) != (v82->sess.connected != CON_DISCONNECTED) )
+        if ( Party_IsMemberRegistered(ServerLobby, v70) != (v71->sess.connected != CON_DISCONNECTED) )
         {
-          LODWORD(v154) = v82->sess.connected;
-          LODWORD(v153) = v81;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2047, ASSERT_TYPE_ASSERT, "(Party_IsMemberRegistered( SV_MainMP_GetServerLobby(), clientIndex ) == ( cl->sess.connected != CON_DISCONNECTED ))", "%s\n\t%i cl->sess.connected = %i\n", "Party_IsMemberRegistered( SV_MainMP_GetServerLobby(), clientIndex ) == ( cl->sess.connected != CON_DISCONNECTED )", v153, v154) )
+          LODWORD(v143) = v71->sess.connected;
+          LODWORD(v142) = v70;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2047, ASSERT_TYPE_ASSERT, "(Party_IsMemberRegistered( SV_MainMP_GetServerLobby(), clientIndex ) == ( cl->sess.connected != CON_DISCONNECTED ))", "%s\n\t%i cl->sess.connected = %i\n", "Party_IsMemberRegistered( SV_MainMP_GetServerLobby(), clientIndex ) == ( cl->sess.connected != CON_DISCONNECTED )", v142, v143) )
             __debugbreak();
         }
       }
-      if ( v82->sess.connected )
+      if ( v71->sess.connected )
       {
-        v84 = clientNum;
+        v73 = clientNum;
         if ( (unsigned int)clientNum >= 0x800 )
         {
-          LODWORD(v153) = 2048;
-          LODWORD(v152) = clientNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v152, v153) )
+          LODWORD(v142) = 2048;
+          LODWORD(v141) = clientNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v141, v142) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( g_entities[v84].r.isInUse != g_entityIsInUse[v84] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        if ( g_entities[v73].r.isInUse != g_entityIsInUse[v73] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v84] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2225, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( i ))", (const char *)&queryFormat, "G_IsEntityInUse( i )") )
+        if ( !g_entityIsInUse[v73] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2225, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( i ))", (const char *)&queryFormat, "G_IsEntityInUse( i )") )
           __debugbreak();
         MemFile_WriteData(memFile, 4ui64, &clientNum);
-        G_SaveMP_WriteClient(clientNum, v82, memFile, v52);
-        v85 = clientNum;
+        G_SaveMP_WriteClient(clientNum, v71, memFile, v42);
+        v74 = clientNum;
         if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
           __debugbreak();
-        CommonClient = SvClient::GetCommonClient(v85);
+        CommonClient = SvClient::GetCommonClient(v74);
         LOBYTE(p) = CommonClient[855].__vftable;
         MemFile_WriteData(memFile, 1ui64, &p);
         if ( LODWORD(CommonClient[855].__vftable) )
         {
           if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1529, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
             __debugbreak();
-          memset_0(dest, 0, 0x400ui64);
-          Info_CopyValues(dest, (const char *)&CommonClient[1].lastUsercmd.buttons + 4, s_testClientSendFields, 4);
-          v87 = -1i64;
+          memset_0(&dest, 0, 0x400ui64);
+          Info_CopyValues(dest.m256i_i8, (const char *)&CommonClient[1].lastUsercmd.buttons + 4, s_testClientSendFields, 4);
+          v76 = -1i64;
           do
-            ++v87;
-          while ( dest[v87] );
-          p = v87;
+            ++v76;
+          while ( dest.m256i_i8[v76] );
+          p = v76;
           MemFile_WriteData(memFile, 4ui64, &p);
-          MemFile_WriteData(memFile, (int)v87, dest);
+          MemFile_WriteData(memFile, (int)v76, &dest);
           NetId = NetConnection::GetNetId((NetConnection *)&CommonClient[642].lastUsercmd.sightedClientsMask.data[6]);
-          v89 = NetId;
+          v78 = NetId;
           if ( (NetId < 0 || (unsigned int)NetId > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,netsrc_t>(netsrc_t)", "unsigned", (unsigned __int16)NetId, "signed", NetId) )
             __debugbreak();
-          LOWORD(p) = v89;
+          LOWORD(p) = v78;
           MemFile_WriteData(memFile, 2ui64, &p);
         }
-        v90 = (const characterInfo_t *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v78 + 224i64))(v78, (unsigned int)clientNum);
-        if ( !v90 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2240, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+        v79 = (const characterInfo_t *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v67 + 224i64))(v67, (unsigned int)clientNum);
+        if ( !v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2240, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
           __debugbreak();
-        WriteCharacterInfo(memFile, v90);
-        if ( v82->sess.cs.clientIndex != clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2243, ASSERT_TYPE_ASSERT, "(cl->sess.cs.clientIndex == i)", (const char *)&queryFormat, "cl->sess.cs.clientIndex == i") )
+        WriteCharacterInfo(memFile, v79);
+        if ( v71->sess.cs.clientIndex != clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2243, ASSERT_TYPE_ASSERT, "(cl->sess.cs.clientIndex == i)", (const char *)&queryFormat, "cl->sess.cs.clientIndex == i") )
           __debugbreak();
-        v79 = AntiLagMP;
+        v68 = AntiLagMP;
         GAntiLagMP::ArchiveStateForCharacter(AntiLagMP, memFile, clientNum);
       }
       else
       {
-        v79 = AntiLagMP;
+        v68 = AntiLagMP;
       }
-      v81 = ++clientNum;
+      v70 = ++clientNum;
     }
     while ( clientNum < level.maxclients );
+  }
+  clientNum = -1;
+  MemFile_WriteData(memFile, 4ui64, &clientNum);
+  v80 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v80);
+  v81 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("agents", v81);
+  maxagents = level.maxagents;
+  v83 = 0;
+  clientNum = 0;
+  if ( level.maxagents > 0 )
+  {
+    v84 = (__int64)PersistentGlobalsMP;
+    v85 = 0;
+    do
+    {
+      v86 = &level.agents[v85];
+      if ( v86->agentState.entityNum != 2047 )
+      {
+        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+          __debugbreak();
+        if ( v85 >= ComCharacterLimits::ms_gameData.m_agentCount )
+        {
+          if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+            __debugbreak();
+          LODWORD(v142) = ComCharacterLimits::ms_gameData.m_agentCount;
+          LODWORD(v141) = v85;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v141, v142) )
+            __debugbreak();
+        }
+        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+          __debugbreak();
+        v87 = ComCharacterLimits::ms_gameData.m_clientCount + v85;
+        if ( v87 >= 0x800 )
+        {
+          LODWORD(v142) = 2048;
+          LODWORD(v141) = v87;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v141, v142) )
+            __debugbreak();
+        }
+        if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+          __debugbreak();
+        if ( g_entities[v87].r.isInUse != g_entityIsInUse[v87] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          __debugbreak();
+        if ( !g_entityIsInUse[v87] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2263, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( ComCharacterLimits::GetEntityIndexFromAgentIndex( i ) ))", (const char *)&queryFormat, "G_IsEntityInUse( ComCharacterLimits::GetEntityIndexFromAgentIndex( i ) )") )
+          __debugbreak();
+        MemFile_WriteData(memFile, 4ui64, &clientNum);
+        G_SaveMP_WriteAgent(v86, memFile);
+        v88 = clientNum;
+        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+          __debugbreak();
+        if ( v88 >= ComCharacterLimits::ms_gameData.m_agentCount )
+        {
+          if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+            __debugbreak();
+          LODWORD(v142) = ComCharacterLimits::ms_gameData.m_agentCount;
+          LODWORD(v141) = v88;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v141, v142) )
+            __debugbreak();
+        }
+        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+          __debugbreak();
+        if ( v86->agentState.entityNum != v88 + ComCharacterLimits::ms_gameData.m_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2268, ASSERT_TYPE_ASSERT, "(gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i ))", (const char *)&queryFormat, "gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i )") )
+          __debugbreak();
+        MemFile_WriteData(memFile, 0x108ui64, (const void *)(280i64 * clientNum + *(_QWORD *)(v84 + 64) + 16));
+        v89 = (const characterInfo_t *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v67 + 224i64))(v67, (unsigned int)v86->agentState.entityNum);
+        if ( !v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2273, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+          __debugbreak();
+        WriteCharacterInfo(memFile, v89);
+        v90 = clientNum;
+        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+          __debugbreak();
+        if ( v90 >= ComCharacterLimits::ms_gameData.m_agentCount )
+        {
+          if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+            __debugbreak();
+          LODWORD(v142) = ComCharacterLimits::ms_gameData.m_agentCount;
+          LODWORD(v141) = v90;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v141, v142) )
+            __debugbreak();
+        }
+        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+          __debugbreak();
+        if ( v86->agentState.entityNum != v90 + ComCharacterLimits::ms_gameData.m_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2276, ASSERT_TYPE_ASSERT, "(gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i ))", (const char *)&queryFormat, "gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i )") )
+          __debugbreak();
+        GAntiLagMP::ArchiveStateForCharacter(v68, memFile, v86->agentState.entityNum);
+        v83 = clientNum;
+        maxagents = level.maxagents;
+      }
+      clientNum = ++v83;
+      v85 = v83;
+    }
+    while ( v83 < maxagents );
+    v15 = 0;
   }
   clientNum = -1;
   MemFile_WriteData(memFile, 4ui64, &clientNum);
   v91 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v91);
   v92 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("agents", v92);
-  maxagents = level.maxagents;
-  v94 = 0;
-  clientNum = 0;
-  if ( level.maxagents > 0 )
-  {
-    v95 = (__int64)PersistentGlobalsMP;
-    v96 = 0;
-    do
-    {
-      v97 = &level.agents[v96];
-      if ( v97->agentState.entityNum != 2047 )
-      {
-        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-          __debugbreak();
-        if ( v96 >= ComCharacterLimits::ms_gameData.m_agentCount )
-        {
-          if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-            __debugbreak();
-          LODWORD(v153) = ComCharacterLimits::ms_gameData.m_agentCount;
-          LODWORD(v152) = v96;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v152, v153) )
-            __debugbreak();
-        }
-        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-          __debugbreak();
-        v98 = ComCharacterLimits::ms_gameData.m_clientCount + v96;
-        if ( v98 >= 0x800 )
-        {
-          LODWORD(v153) = 2048;
-          LODWORD(v152) = v98;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v152, v153) )
-            __debugbreak();
-        }
-        if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
-          __debugbreak();
-        if ( g_entities[v98].r.isInUse != g_entityIsInUse[v98] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
-          __debugbreak();
-        if ( !g_entityIsInUse[v98] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2263, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( ComCharacterLimits::GetEntityIndexFromAgentIndex( i ) ))", (const char *)&queryFormat, "G_IsEntityInUse( ComCharacterLimits::GetEntityIndexFromAgentIndex( i ) )") )
-          __debugbreak();
-        MemFile_WriteData(memFile, 4ui64, &clientNum);
-        G_SaveMP_WriteAgent(v97, memFile);
-        v99 = clientNum;
-        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-          __debugbreak();
-        if ( v99 >= ComCharacterLimits::ms_gameData.m_agentCount )
-        {
-          if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-            __debugbreak();
-          LODWORD(v153) = ComCharacterLimits::ms_gameData.m_agentCount;
-          LODWORD(v152) = v99;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v152, v153) )
-            __debugbreak();
-        }
-        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-          __debugbreak();
-        if ( v97->agentState.entityNum != v99 + ComCharacterLimits::ms_gameData.m_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2268, ASSERT_TYPE_ASSERT, "(gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i ))", (const char *)&queryFormat, "gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i )") )
-          __debugbreak();
-        MemFile_WriteData(memFile, 0x108ui64, (const void *)(280i64 * clientNum + *(_QWORD *)(v95 + 64) + 16));
-        v100 = (const characterInfo_t *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v78 + 224i64))(v78, (unsigned int)v97->agentState.entityNum);
-        if ( !v100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2273, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
-          __debugbreak();
-        WriteCharacterInfo(memFile, v100);
-        v101 = clientNum;
-        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-          __debugbreak();
-        if ( v101 >= ComCharacterLimits::ms_gameData.m_agentCount )
-        {
-          if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-            __debugbreak();
-          LODWORD(v153) = ComCharacterLimits::ms_gameData.m_agentCount;
-          LODWORD(v152) = v101;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v152, v153) )
-            __debugbreak();
-        }
-        if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-          __debugbreak();
-        if ( v97->agentState.entityNum != v101 + ComCharacterLimits::ms_gameData.m_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2276, ASSERT_TYPE_ASSERT, "(gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i ))", (const char *)&queryFormat, "gagent->agentState.entityNum == ComCharacterLimits::GetEntityIndexFromAgentIndex( i )") )
-          __debugbreak();
-        GAntiLagMP::ArchiveStateForCharacter(v79, memFile, v97->agentState.entityNum);
-        v94 = clientNum;
-        maxagents = level.maxagents;
-      }
-      clientNum = ++v94;
-      v96 = v94;
-    }
-    while ( v94 < maxagents );
-    v15 = 0;
-  }
-  clientNum = -1;
-  MemFile_WriteData(memFile, 4ui64, &clientNum);
-  v102 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v102);
-  v103 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("scriptables", v103);
+  ProfMem_Begin("scriptables", v92);
   ScriptableSv_ArchiveState(memFile);
-  v104 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v104);
-  v105 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("bots", v105);
+  v93 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v93);
+  v94 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("bots", v94);
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1105, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
-  v106 = BG_BotSystemEnabled();
-  LOBYTE(p) = v106;
+  v95 = BG_BotSystemEnabled();
+  LOBYTE(p) = v95;
   MemFile_WriteData(memFile, 1ui64, &p);
-  if ( v106 )
+  if ( v95 )
   {
     for ( k = 0; k < (int)SvClient::ms_clientCount; ++k )
     {
@@ -1487,74 +1434,74 @@ LABEL_47:
       {
         if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
           __debugbreak();
-        v108 = (SvClientMP *)SvClient::GetCommonClient(k);
-        ClientData = Bot_GetClientData(v108);
-        v156[0] = k;
-        v110 = ClientData;
+        v97 = (SvClientMP *)SvClient::GetCommonClient(k);
+        ClientData = Bot_GetClientData(v97);
+        v145[0] = k;
+        v99 = ClientData;
         if ( !ClientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1122, ASSERT_TYPE_ASSERT, "(botData)", (const char *)&queryFormat, "botData") )
           __debugbreak();
-        MemFile_WriteData(memFile, 1ui64, v156);
-        G_SaveMP_WriteBotData(memFile, v110);
+        MemFile_WriteData(memFile, 1ui64, v145);
+        G_SaveMP_WriteBotData(memFile, v99);
       }
     }
-    v156[0] = -1;
-    MemFile_WriteData(memFile, 1ui64, v156);
+    v145[0] = -1;
+    MemFile_WriteData(memFile, 1ui64, v145);
   }
-  v111 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v111);
-  v112 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("ai", v112);
+  v100 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v100);
+  v101 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("ai", v101);
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 1077, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
-  v113 = BG_AISystemEnabled();
-  LOBYTE(p) = v113;
+  v102 = BG_AISystemEnabled();
+  LOBYTE(p) = v102;
   MemFile_WriteData(memFile, 1ui64, &p);
-  if ( v113 )
+  if ( v102 )
     SV_BotStaticStateWrite(memFile);
+  v103 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v103);
+  v104 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("behaviour tree", v104);
+  AI_BT_Save(memFile);
+  v105 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v105);
+  v106 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("ai asm", v106);
+  v107 = Ai_Asm::Singleton();
+  Ai_Asm::WriteInstances(v107, memFile);
+  MemFile_WriteSentinel(memFile, 0x9624F492);
+  v108 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v108);
+  v109 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("tacgraph", v109);
+  TacGraph_Write(memFile);
+  MemFile_WriteSentinel(memFile, 0x42FE2416u);
+  v110 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v110);
+  v111 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("ai scheduler", v111);
+  AIScheduler::Write(memFile);
+  MemFile_WriteSentinel(memFile, 0x47195735u);
+  v112 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v112);
+  v113 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("lightsampler", v113);
+  G_LightSampler_Write(memFile);
+  MemFile_WriteSentinel(memFile, 0x589DE242u);
   v114 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v114);
   v115 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("behaviour tree", v115);
-  AI_BT_Save(memFile);
-  v116 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v116);
-  v117 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("ai asm", v117);
-  v118 = Ai_Asm::Singleton();
-  Ai_Asm::WriteInstances(v118, memFile);
-  MemFile_WriteSentinel(memFile, 0x9624F492);
-  v119 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v119);
-  v120 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("tacgraph", v120);
-  TacGraph_Write(memFile);
-  MemFile_WriteSentinel(memFile, 0x42FE2416u);
-  v121 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v121);
-  v122 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("ai scheduler", v122);
-  AIScheduler::Write(memFile);
-  MemFile_WriteSentinel(memFile, 0x47195735u);
-  v123 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v123);
-  v124 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("lightsampler", v124);
-  G_LightSampler_Write(memFile);
-  MemFile_WriteSentinel(memFile, 0x589DE242u);
-  v125 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v125);
-  v126 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("xanim info", v126);
+  ProfMem_Begin("xanim info", v115);
   clientNum = 0;
-  v127 = 2359300;
-  v128 = 1;
+  v116 = 2359300;
+  v117 = 1;
   do
   {
-    if ( !v128 )
+    if ( !v117 )
     {
-      LODWORD(v153) = 2048;
-      LODWORD(v152) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v152, v153) )
+      LODWORD(v142) = 2048;
+      LODWORD(v141) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v141, v142) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1563,20 +1510,20 @@ LABEL_47:
       __debugbreak();
     if ( g_entityIsInUse[v15] )
     {
-      v129 = &g_entities[clientNum];
-      if ( !v129 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      v118 = &g_entities[clientNum];
+      if ( !v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      eType = (unsigned __int16)v129->s.eType;
-      if ( (unsigned __int16)eType <= 0x15u && _bittest(&v127, eType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2329, ASSERT_TYPE_ASSERT, "(!BG_IsCorpseEntity( &ent->s ))", "%s\n\tShouldn't have corpses in the migration save", "!BG_IsCorpseEntity( &ent->s )") )
+      eType = (unsigned __int16)v118->s.eType;
+      if ( (unsigned __int16)eType <= 0x15u && _bittest(&v116, eType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2329, ASSERT_TYPE_ASSERT, "(!BG_IsCorpseEntity( &ent->s ))", "%s\n\tShouldn't have corpses in the migration save", "!BG_IsCorpseEntity( &ent->s )") )
         __debugbreak();
       ServerDObjForEntnum = Com_GetServerDObjForEntnum(clientNum);
       if ( ServerDObjForEntnum )
       {
         MemFile_WriteData(memFile, 4ui64, &clientNum);
-        v132 = ServerDObjForEntnum->tree && XAnimIsSimpleTree(ServerDObjForEntnum->tree);
-        LOBYTE(p) = v132;
+        v121 = ServerDObjForEntnum->tree && XAnimIsSimpleTree(ServerDObjForEntnum->tree);
+        LOBYTE(p) = v121;
         MemFile_WriteData(memFile, 1ui64, &p);
-        if ( v132 )
+        if ( v121 )
         {
           if ( XAnimIsSimpleBlendTree(ServerDObjForEntnum->tree) )
           {
@@ -1593,27 +1540,27 @@ LABEL_47:
         }
         else
         {
-          EntAnimTree = G_Utils_GetEntAnimTree(v129);
+          EntAnimTree = G_Utils_GetEntAnimTree(v118);
           tree = ServerDObjForEntnum->tree;
           if ( ServerDObjForEntnum->tree != EntAnimTree )
           {
-            v135 = v129->s.eType;
-            if ( v135 != ET_AGENT && (v135 != ET_INVISIBLE || EntAnimTree || !ServerDObjForEntnum->tree) )
+            v124 = v118->s.eType;
+            if ( v124 != ET_AGENT && (v124 != ET_INVISIBLE || EntAnimTree || !ServerDObjForEntnum->tree) )
             {
               G_Debug_PrintEntityDebugInfoToConsole(0, -1);
               if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
                 __debugbreak();
-              v136 = (__int64)((unsigned __int128)(((char *)v129 - (char *)g_entities) * (__int128)0x2D02D02D02D02D03i64) >> 64) >> 8;
-              v137 = (v136 >> 63) + v136;
-              if ( (unsigned int)v137 >= 0x800 )
+              v125 = (__int64)((unsigned __int128)(((char *)v118 - (char *)g_entities) * (__int128)0x2D02D02D02D02D03i64) >> 64) >> 8;
+              v126 = (v125 >> 63) + v125;
+              if ( (unsigned int)v126 >= 0x800 )
               {
-                LODWORD(v153) = 2048;
-                LODWORD(v152) = v137;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v152, v153) )
+                LODWORD(v142) = 2048;
+                LODWORD(v141) = v126;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v141, v142) )
                   __debugbreak();
               }
-              LODWORD(v153) = (__int16)v137;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2367, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tServer dobj for entity %d had non-simple animtree that doesn't match ent->pAnimTree, which we don't know how to serialize.", "false", v153) )
+              LODWORD(v142) = (__int16)v126;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 2367, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tServer dobj for entity %d had non-simple animtree that doesn't match ent->pAnimTree, which we don't know how to serialize.", "false", v142) )
                 __debugbreak();
               tree = ServerDObjForEntnum->tree;
             }
@@ -1624,54 +1571,54 @@ LABEL_47:
         XAnimSaveAnimTree(ServerDObjForEntnum, memFile);
         DObjGetHidePartBits(ServerDObjForEntnum, &partBits);
         p_partBits = &partBits;
-        v139 = 8i64;
+        v128 = 8i64;
         do
         {
           p = p_partBits->array[0];
           MemFile_WriteData(memFile, 4ui64, &p);
           p_partBits = (DObjPartBits *)((char *)p_partBits + 4);
-          --v139;
+          --v128;
         }
-        while ( v139 );
+        while ( v128 );
       }
     }
     v15 = clientNum + 1;
     clientNum = v15;
-    v128 = (unsigned int)v15 < 0x800;
+    v117 = (unsigned int)v15 < 0x800;
   }
   while ( v15 < 2048 );
   clientNum = -1;
   MemFile_WriteData(memFile, 4ui64, &clientNum);
   MemFile_WriteSentinel(memFile, 0xBEA426A5);
+  v129 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v129);
+  v130 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("WorldCollision_Write", v130);
+  WorldCollision_Write(memFile);
+  v131 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v131);
+  v132 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("StaticModels_Write", v132);
+  StaticModels_Write(memFile);
+  v133 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v133);
+  v134 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("PatchCollision_Write", v134);
+  PatchCollision_Write(memFile);
+  v135 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v135);
+  v136 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("Physics_Write", v136);
+  Physics_Write(memFile);
+  v137 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v137);
+  v138 = MemFile_GetUsedSize(memFile);
+  ProfMem_Begin("PlayerSpawns_Save", v138);
+  G_PlayerSpawns_Save(memFile);
+  v139 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v139);
   v140 = MemFile_GetUsedSize(memFile);
   ProfMem_End(v140);
-  v141 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("WorldCollision_Write", v141);
-  WorldCollision_Write(memFile);
-  v142 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v142);
-  v143 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("StaticModels_Write", v143);
-  StaticModels_Write(memFile);
-  v144 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v144);
-  v145 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("PatchCollision_Write", v145);
-  PatchCollision_Write(memFile);
-  v146 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v146);
-  v147 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("Physics_Write", v147);
-  Physics_Write(memFile);
-  v148 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v148);
-  v149 = MemFile_GetUsedSize(memFile);
-  ProfMem_Begin("PlayerSpawns_Save", v149);
-  G_PlayerSpawns_Save(memFile);
-  v150 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v150);
-  v151 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v151);
 }
 
 /*
@@ -3020,38 +2967,40 @@ G_SaveMP_WriteClient
 */
 void G_SaveMP_WriteClient(const int clientNum, gclient_s *client, MemoryFile *memFile, bool demoSave)
 {
-  WeaponOffsetPatternCache *v9; 
-  __int64 v10; 
+  WeaponOffsetPatternCache *v8; 
+  __int64 v9; 
   bool HasAssignedTeam_Internal; 
-  const dvar_t *v25; 
-  bool v26; 
+  const dvar_t *v14; 
+  bool v15; 
   OmnvarData *omnvars; 
-  unsigned int v28; 
+  unsigned int v17; 
   unsigned __int8 dest[188]; 
-  int v32; 
+  float v19; 
+  float v20; 
+  int v21; 
   int AssignedTeam_Internal; 
-  int v34; 
-  char v35[22460]; 
-  BSplineRelaxedCBezier v36; 
-  BSplineRelaxedCBezier v37; 
-  BSplineRelaxedCBezier v38; 
-  BSplineRelaxedCBezier v39; 
-  WeaponOffsetPatternCache v40; 
+  int v23; 
+  char v24[22460]; 
+  BSplineRelaxedCBezier v25; 
+  BSplineRelaxedCBezier v26; 
+  BSplineRelaxedCBezier v27; 
+  BSplineRelaxedCBezier v28; 
+  WeaponOffsetPatternCache v29; 
 
-  v32 = 0;
-  v34 = 0;
-  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v36);
-  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v37);
-  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v38);
-  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v39);
-  v9 = &v40;
-  v10 = 12i64;
+  v21 = 0;
+  v23 = 0;
+  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v25);
+  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v26);
+  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v27);
+  BSplineRelaxedCBezier::BSplineRelaxedCBezier(&v28);
+  v8 = &v29;
+  v9 = 12i64;
   do
   {
-    WeaponOffsetPatternCache::WeaponOffsetPatternCache(v9++);
-    --v10;
+    WeaponOffsetPatternCache::WeaponOffsetPatternCache(v8++);
+    --v9;
   }
-  while ( v10 );
+  while ( v9 );
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 396, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 397, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
@@ -3059,45 +3008,36 @@ void G_SaveMP_WriteClient(const int clientNum, gclient_s *client, MemoryFile *me
   memcpy_0(dest, client, 0xFC50ui64);
   if ( !demoSave )
   {
+    v20 = 0.0;
+    _XMM5 = 0i64;
     __asm
     {
-      vmovss  xmm1, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+0FCD8h+var_FAB8], xmm0
-      vxorps  xmm5, xmm5, xmm5
       vroundss xmm2, xmm5, xmm1, 1
-      vcvttss2si eax, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm4, xmm0, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm1
       vroundss xmm3, xmm5, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  [rsp+0FCD8h+var_FBDC], xmm0
     }
+    v19 = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM2 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
     HasAssignedTeam_Internal = SV_ClientMP_HasAssignedTeam_Internal(clientNum);
-    v25 = DVARBOOL_team_consistency_fix;
-    v26 = HasAssignedTeam_Internal;
+    v14 = DVARBOOL_team_consistency_fix;
+    v15 = HasAssignedTeam_Internal;
     if ( !DVARBOOL_team_consistency_fix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "team_consistency_fix") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    if ( v26 && (!v25->current.enabled || (unsigned int)(AssignedTeam_Internal - 201) <= 1) )
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v15 && (!v14->current.enabled || (unsigned int)(AssignedTeam_Internal - 201) <= 1) )
     {
       AssignedTeam_Internal = SV_ClientMP_GetAssignedTeam_Internal(clientNum);
       if ( !AssignedTeam_Internal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 422, ASSERT_TYPE_ASSERT, "(tempClient.sess.cs.team != TEAM_FREE)", (const char *)&queryFormat, "tempClient.sess.cs.team != TEAM_FREE") )
         __debugbreak();
     }
   }
-  memset_0(v35, 0, 0x4160ui64);
+  memset_0(v24, 0, 0x4160ui64);
   G_SaveFieldMP_WriteStruct(s_saveMP_gclientFields, (const unsigned __int8 *)client, dest, 64592, memFile);
   if ( client->sess.connected == CON_CONNECTED )
   {
     if ( !client->sess.omnvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 434, ASSERT_TYPE_ASSERT, "(client->sess.omnvars != nullptr)", (const char *)&queryFormat, "client->sess.omnvars != nullptr") )
       __debugbreak();
     omnvars = client->sess.omnvars;
-    v28 = BG_Omnvar_PerClientCount();
-    MemFile_WriteData(memFile, 8i64 * v28, omnvars);
+    v17 = BG_Omnvar_PerClientCount();
+    MemFile_WriteData(memFile, 8i64 * v17, omnvars);
   }
 }
 
@@ -3109,31 +3049,30 @@ G_SaveMP_WriteSentientInfoArray
 void G_SaveMP_WriteSentientInfoArray(MemoryFile *memFile, sentient_info_t *sentientInfoArray, const unsigned int sentientInfoCount)
 {
   __int64 v3; 
+  __m256i *v4; 
   const unsigned __int8 *v6; 
+  __m256i v7; 
   int p[4]; 
   unsigned __int8 dest[32]; 
+  __m256i v10; 
 
   v3 = sentientInfoCount;
-  _RBX = sentientInfoArray;
+  v4 = (__m256i *)sentientInfoArray;
   if ( !sentientInfoArray && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 997, ASSERT_TYPE_ASSERT, "( sentientInfoArray )", (const char *)&queryFormat, "sentientInfoArray") )
     __debugbreak();
   p[0] = v3;
   MemFile_WriteData(memFile, 4ui64, p);
   if ( (_DWORD)v3 )
   {
-    v6 = (const unsigned __int8 *)_RBX;
+    v6 = (const unsigned __int8 *)v4;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rsp+0A8h+dest], ymm0
-        vmovups [rsp+0A8h+var_48], ymm1
-      }
+      v7 = v4[1];
+      *(__m256i *)dest = *v4;
+      v10 = v7;
       G_SaveFieldMP_WriteStruct(s_saveMP_sentientInfoFields, v6, dest, 64, memFile);
       v6 += 64;
-      ++_RBX;
+      v4 += 2;
       --v3;
     }
     while ( v3 );
@@ -3151,21 +3090,24 @@ void ReadPathNodes(SaveGame *save)
   pathnode_t *i; 
   unsigned int j; 
   __int64 k; 
+  __int64 v5; 
   int v6; 
+  double v7; 
   _DWORD *v8; 
   __int64 v9; 
   _DWORD *p_fDist; 
   unsigned __int64 v11; 
   unsigned __int64 m; 
   unsigned int v13; 
-  int v16; 
+  __int64 v14; 
+  int v15; 
+  __int64 v16; 
   __int64 v17; 
   __int64 v18; 
   __int64 v19; 
   __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
+  double v22; 
   unsigned __int16 buffer; 
 
   v1 = save;
@@ -3181,57 +3123,53 @@ void ReadPathNodes(SaveGame *save)
       {
         if ( (unsigned int)k > j )
         {
-          LODWORD(v22) = i->dynamic.wLinkCount;
-          LODWORD(v21) = i->constant.totalLinkCount;
-          LODWORD(v20) = j;
-          LODWORD(v19) = k;
-          LODWORD(v18) = buffer;
-          LODWORD(v17) = Path_ConvertNodeToIndex(i);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 814, ASSERT_TYPE_ASSERT, "(linkIndex <= (uint)i)", "%s\n\tunable to find path link from node %d to node %d. linkIndex %d, i %d, totalLinkCount %d, dynamicLinkCount %d.", "linkIndex <= (uint)i", v17, v18, v19, v20, v21, v22) )
+          LODWORD(v21) = i->dynamic.wLinkCount;
+          LODWORD(v20) = i->constant.totalLinkCount;
+          LODWORD(v19) = j;
+          LODWORD(v18) = k;
+          LODWORD(v17) = buffer;
+          LODWORD(v16) = Path_ConvertNodeToIndex(i);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_save_mp.cpp", 814, ASSERT_TYPE_ASSERT, "(linkIndex <= (uint)i)", "%s\n\tunable to find path link from node %d to node %d. linkIndex %d, i %d, totalLinkCount %d, dynamicLinkCount %d.", "linkIndex <= (uint)i", v16, v17, v18, v19, v20, v21) )
             __debugbreak();
         }
-        _R8 = (__int64)&i->constant.Links[k];
-        if ( *(_WORD *)(_R8 + 4) == buffer )
+        v5 = (__int64)&i->constant.Links[k];
+        if ( *(_WORD *)(v5 + 4) == buffer )
           break;
       }
-      v6 = *(_DWORD *)(_R8 + 8);
+      v6 = *(_DWORD *)(v5 + 8);
       v1 = save;
-      __asm
-      {
-        vmovsd  xmm1, qword ptr [r8]
-        vmovsd  [rsp+0A8h+var_48], xmm1
-      }
+      v7 = *(double *)v5;
+      v22 = *(double *)v5;
       if ( (unsigned int)k < j )
       {
-        v8 = (_DWORD *)(_R8 + 12);
+        v8 = (_DWORD *)(v5 + 12);
         v9 = j - (unsigned int)k;
         p_fDist = (_DWORD *)&i->constant.Links[k].fDist;
         LODWORD(k) = j;
         v11 = 12 * v9;
         for ( m = v11 >> 2; m; --m )
           *p_fDist++ = *v8++;
-        _R8 += v11;
+        v5 += v11;
       }
       v13 = i->constant.totalLinkCount - 1;
       if ( (unsigned int)k < v13 )
       {
-        _RCX = _R8 + 12;
+        v14 = v5 + 12;
         do
         {
-          if ( *(_WORD *)(_RCX + 4) > WORD2(v23) )
+          if ( *(_WORD *)(v14 + 4) > WORD2(v22) )
             break;
-          __asm { vmovsd  xmm0, qword ptr [rcx] }
-          v16 = *(_DWORD *)(_RCX + 8);
+          v15 = *(_DWORD *)(v14 + 8);
           LODWORD(k) = k + 1;
-          __asm { vmovsd  qword ptr [r8], xmm0 }
-          *(_DWORD *)(_R8 + 8) = v16;
-          _RCX += 12i64;
-          _R8 += 12i64;
+          *(double *)v5 = *(double *)v14;
+          *(_DWORD *)(v5 + 8) = v15;
+          v14 += 12i64;
+          v5 += 12i64;
         }
         while ( (unsigned int)k < v13 );
       }
-      __asm { vmovsd  qword ptr [r8], xmm1 }
-      *(_DWORD *)(_R8 + 8) = v6;
+      *(double *)v5 = v7;
+      *(_DWORD *)(v5 + 8) = v6;
     }
   }
 }

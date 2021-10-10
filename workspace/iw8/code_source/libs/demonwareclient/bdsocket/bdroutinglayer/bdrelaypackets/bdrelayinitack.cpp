@@ -71,28 +71,13 @@ bdRelayInitAck::bdRelayInitAck
 */
 void bdRelayInitAck::bdRelayInitAck(bdRelayInitAck *this, bdRelayJoinData *relayJoinData, const unsigned __int8 *clientRandom, const unsigned __int8 *serverRandom)
 {
-  _RBP = clientRandom;
-  _RSI = serverRandom;
-  _RDI = this;
   bdRelayBasePacket::bdRelayBasePacket(this, BD_RELAY_PACKET_INIT_ACK, 0x10u);
-  _RDI->m_joinData = relayJoinData;
-  _RDI->__vftable = (bdRelayInitAck_vtbl *)&bdRelayInitAck::`vftable';
-  if ( _RBP )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups xmmword ptr [rdi+20h], xmm0
-    }
-  }
-  if ( _RSI )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rdi+30h], xmm0
-    }
-  }
+  this->m_joinData = relayJoinData;
+  this->__vftable = (bdRelayInitAck_vtbl *)&bdRelayInitAck::`vftable';
+  if ( clientRandom )
+    *(_OWORD *)this->m_clientRandom = *(_OWORD *)clientRandom;
+  if ( serverRandom )
+    *(_OWORD *)this->m_serverRandom = *(_OWORD *)serverRandom;
 }
 
 /*

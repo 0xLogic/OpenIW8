@@ -196,97 +196,54 @@ bool NetchanTelemetry::Dlog(NetchanTelemetry *this, DLogContext *context, const 
 NetchanTelemetry::Frame
 ==============
 */
-
-void __fastcall NetchanTelemetry::Frame(NetchanTelemetry *this, double _XMM1_8)
+void NetchanTelemetry::Frame(NetchanTelemetry *this)
 {
-  unsigned int v6; 
-  unsigned int v7; 
-  bool v8; 
-  bool v9; 
+  int v3; 
 
-  _RBX = this;
-  v6 = Sys_Milliseconds();
-  v7 = _RBX->m_lastAccumFrame + 1000;
-  v8 = v6 < v7;
-  v9 = v6 == v7;
-  if ( (int)v6 > (int)v7 )
+  v3 = Sys_Milliseconds();
+  if ( v3 > this->m_lastAccumFrame + 1000 )
   {
+    _XMM1 = 0i64;
     __asm
     {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-      vxorps  xmm1, xmm1, xmm1
       vcvtsi2sd xmm1, xmm1, rdx
       vxorpd  xmm6, xmm6, xmm6
-      vcomisd xmm1, xmm6
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2sd xmm7, xmm7, rdx
     }
-    if ( v6 > v7 )
+    _XMM7 = 0i64;
+    __asm { vcvtsi2sd xmm7, xmm7, rdx }
+    if ( *(double *)&_XMM1 > *(double *)&_XMM6 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vdivsd  xmm2, xmm0, xmm1; value
-      }
-      NetchanTelemetry::Track(_RBX, STAT_MESSAGE_LOSS, *(long double *)&_XMM2);
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      NetchanTelemetry::Track(this, STAT_MESSAGE_LOSS, *(double *)&_XMM0 / *(double *)&_XMM1);
     }
-    __asm { vcomisd xmm7, xmm6 }
-    if ( !v8 && !v9 )
+    if ( *(double *)&_XMM7 > *(double *)&_XMM6 )
     {
-      __asm
-      {
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vxorps  xmm1, xmm1, xmm1
-        vdivsd  xmm6, xmm0, xmm7
-        vcvtsi2sd xmm1, xmm1, rax
-        vmulsd  xmm2, xmm1, xmm6; value
-      }
-      NetchanTelemetry::Track(_RBX, STAT_PACKET_LOSS, *(long double *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vmulsd  xmm2, xmm0, xmm6; value
-      }
-      NetchanTelemetry::Track(_RBX, STAT_PACKET_OOO, *(long double *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vmulsd  xmm2, xmm0, xmm6; value
-      }
-      NetchanTelemetry::Track(_RBX, STAT_PACKET_DUPLICATE, *(long double *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vmulsd  xmm2, xmm0, xmm6; value
-      }
-      NetchanTelemetry::Track(_RBX, STAT_PACKET_INVALID, *(long double *)&_XMM2);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbx+7F60h]
-        vmulsd  xmm1, xmm0, cs:__real@4059000000000000
-        vcvttsd2si edx, xmm1
-      }
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, rax }
+      NetchanTelemetry::Track(this, STAT_PACKET_LOSS, *(double *)&_XMM1 * (1.0 / *(double *)&_XMM7));
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      NetchanTelemetry::Track(this, STAT_PACKET_OOO, *(double *)&_XMM0 * (1.0 / *(double *)&_XMM7));
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      NetchanTelemetry::Track(this, STAT_PACKET_DUPLICATE, *(double *)&_XMM0 * (1.0 / *(double *)&_XMM7));
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      NetchanTelemetry::Track(this, STAT_PACKET_INVALID, *(double *)&_XMM0 * (1.0 / *(double *)&_XMM7));
+      _XMM1 = COERCE_UNSIGNED_INT64(this->m_currStats[5] * 100.0);
+      __asm { vcvttsd2si edx, xmm1 }
       if ( _EDX > 100 )
         _EDX = 100;
       if ( _EDX < 0 )
         _EDX = 0;
       NetStats_LogStat(NETSTATS_PACKETLOSS, _EDX);
     }
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-    *(_QWORD *)_RBX->m_frameAccums = 0i64;
-    *(_QWORD *)&_RBX->m_frameAccums[2] = 0i64;
-    *(_QWORD *)&_RBX->m_frameAccums[4] = 0i64;
-    *(_QWORD *)&_RBX->m_frameAccums[6] = 0i64;
-    _RBX->m_lastAccumFrame = v6;
+    *(_QWORD *)this->m_frameAccums = 0i64;
+    *(_QWORD *)&this->m_frameAccums[2] = 0i64;
+    *(_QWORD *)&this->m_frameAccums[4] = 0i64;
+    *(_QWORD *)&this->m_frameAccums[6] = 0i64;
+    this->m_lastAccumFrame = v3;
   }
 }
 
@@ -297,22 +254,16 @@ NetchanTelemetry::GetStat
 */
 long double NetchanTelemetry::GetStat(NetchanTelemetry *this, NetchanTelemetry::StatType stat)
 {
-  int v7; 
+  __int64 v2; 
+  int v6; 
 
-  _RBX = stat;
-  _RDI = this;
+  v2 = stat;
   if ( (unsigned int)stat < STAT_COUNT )
-  {
-    __asm { vmovsd  xmm0, qword ptr [rcx+rbx*8+7F38h] }
-  }
-  else
-  {
-    v7 = 11;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_telemetry.cpp", 182, ASSERT_TYPE_ASSERT, "(unsigned)( stat ) < (unsigned)( STAT_COUNT )", "stat doesn't index STAT_COUNT\n\t%i not in [0, %i)", stat, v7) )
-      __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [rdi+rbx*8+7F38h] }
-  }
-  return *(double *)&_XMM0;
+    return this->m_currStats[stat];
+  v6 = 11;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_telemetry.cpp", 182, ASSERT_TYPE_ASSERT, "(unsigned)( stat ) < (unsigned)( STAT_COUNT )", "stat doesn't index STAT_COUNT\n\t%i not in [0, %i)", stat, v6) )
+    __debugbreak();
+  return this->m_currStats[v2];
 }
 
 /*
@@ -480,21 +431,28 @@ NetchanTelemetry::Print
 */
 void NetchanTelemetry::Print(NetchanTelemetry *this, unsigned int *percentiles, const int percentileCount, const char *name)
 {
-  unsigned int v7; 
-  const char **v8; 
+  unsigned int v6; 
+  const char **v7; 
   unsigned int *m_totalAccums; 
-  const char *v10; 
+  const char *v9; 
+  double m_sum; 
+  double *v11; 
+  __int128 v12; 
   unsigned int i; 
-  int v20; 
-  const char **v21; 
-  const char **v22; 
-  unsigned int v23; 
-  const char *v25; 
+  int v16; 
+  const char **v17; 
+  const char **v18; 
+  unsigned int v19; 
+  unsigned int *p_m_count; 
+  const char *v21; 
+  double v22; 
+  double *v23; 
+  __int128 v24; 
   unsigned int j; 
-  const char *v34; 
-  unsigned int v35; 
+  const char *v28; 
+  unsigned int v29; 
   DLogTDigest<20,8> *p_digest; 
-  const char *v37; 
+  const char *v31; 
   int headerColWidtha; 
   __int64 headerColWidth; 
   int dataColWidtha; 
@@ -503,132 +461,109 @@ void NetchanTelemetry::Print(NetchanTelemetry *this, unsigned int *percentiles, 
   unsigned int *percentilesa; 
   int percentileCountb; 
   __int64 percentileCounta; 
-  __int128 v50; 
+  __int128 v44; 
+  double v45; 
+  double v46; 
   char rowTitle[32]; 
-  char v54[64]; 
+  char v48[64]; 
   char dest[32]; 
-  char v56[65]; 
-  char v57[65]; 
-  char v58[65]; 
-  char v59[65]; 
-  char v60[77]; 
+  char v50[65]; 
+  char v51[65]; 
+  char v52[65]; 
+  char v53[65]; 
+  char v54[77]; 
   char buffer[1024]; 
 
-  _R15 = this;
   Com_Printf(131097, "TOTALS\n");
   Com_sprintf<32>((char (*)[32])dest, "%%-%us%%u\n", 25i64);
-  v7 = 0;
-  v8 = s_accumNames;
-  m_totalAccums = _R15->m_totalAccums;
+  v6 = 0;
+  v7 = s_accumNames;
+  m_totalAccums = this->m_totalAccums;
   do
   {
-    Com_Printf(131097, dest, *v8, *m_totalAccums);
-    ++v7;
+    Com_Printf(131097, dest, *v7, *m_totalAccums);
+    ++v6;
     ++m_totalAccums;
-    ++v8;
+    ++v7;
   }
-  while ( v7 < 8 );
+  while ( v6 < 8 );
   Com_Printf(131097, "------------------\n");
-  v10 = j_va("%s_%s", name, s_statNames_0[0]);
-  Core_strcpy(rowTitle, 0x20ui64, v10);
-  __asm { vmovsd  xmm3, qword ptr [r15+8] }
-  _RDI = &v50;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [r15+10h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vdivsd  xmm2, xmm3, xmm0
-    vmovsd  [rbp+5B0h+var_630], xmm2
-    vmovsd  [rbp+5B0h+var_628], xmm3
-    vmovups [rsp+6B0h+var_640], xmm1
-  }
+  v9 = j_va("%s_%s", name, s_statNames_0[0]);
+  Core_strcpy(rowTitle, 0x20ui64, v9);
+  m_sum = this->m_stats[0].counter.m_sum;
+  v11 = (double *)&v44;
+  v12 = *(_OWORD *)&this->m_stats[0].counter.m_min;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  v45 = m_sum / *(double *)&_XMM0;
+  v46 = m_sum;
+  v44 = v12;
   for ( i = 0; i < 4; ++i )
-  {
-    __asm
-    {
-      vmovsd  xmm2, qword ptr [rdi]
-      vmovq   r8, xmm2
-    }
-    Com_sprintf_truncate<65>((char (*)[65])&v57[65 * i], "%.1f", *(double *)&_XMM2);
-    _RDI = (__int128 *)((char *)_RDI + 8);
-  }
-  Com_sprintf<65>((char (*)[65])v56, "%u", _R15->m_stats[0].counter.m_count);
+    Com_sprintf_truncate<65>((char (*)[65])&v51[65 * i], "%.1f", *v11++);
+  Com_sprintf<65>((char (*)[65])v50, "%u", this->m_stats[0].counter.m_count);
   percentileCountb = 10;
   percentilesb = 10;
   dataColWidtha = 10;
   headerColWidtha = 10;
-  Com_sprintf<64>((char (*)[64])v54, "%%-%us%%-%us%%-%us%%-%us%%-%us%%-%us\n", 25i64, 10i64, headerColWidtha, dataColWidtha, percentilesb, percentileCountb);
-  v20 = Com_sprintf(buffer, 0x400ui64, v54, "COUNTERS", "min", "max", "avg", "total", "count");
-  Com_sprintf(&buffer[v20], 1024 - v20, v54, rowTitle, v57, v58, v59, v60, v56);
+  Com_sprintf<64>((char (*)[64])v48, "%%-%us%%-%us%%-%us%%-%us%%-%us%%-%us\n", 25i64, 10i64, headerColWidtha, dataColWidtha, percentilesb, percentileCountb);
+  v16 = Com_sprintf(buffer, 0x400ui64, v48, "COUNTERS", "min", "max", "avg", "total", "count");
+  Com_sprintf(&buffer[v16], 1024 - v16, v48, rowTitle, v51, v52, v53, v54, v50);
   Com_Printf(131097, (const char *)&queryFormat, buffer);
-  v21 = &s_statNames_0[1];
-  v22 = &s_statNames_0[1];
-  v23 = 1;
-  _RSI = &this->m_stats[1].counter.m_count;
+  v17 = &s_statNames_0[1];
+  v18 = &s_statNames_0[1];
+  v19 = 1;
+  p_m_count = &this->m_stats[1].counter.m_count;
   do
   {
-    if ( *_RSI )
+    if ( *p_m_count )
     {
-      v25 = j_va("%s_%s", name, *v22);
-      Core_strcpy(rowTitle, 0x20ui64, v25);
-      __asm { vmovsd  xmm3, qword ptr [rsi-18h] }
-      _RDI = &v50;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rsi-10h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vdivsd  xmm2, xmm3, xmm0
-        vmovsd  [rbp+5B0h+var_630], xmm2
-        vmovsd  [rbp+5B0h+var_628], xmm3
-        vmovups [rsp+6B0h+var_640], xmm1
-      }
+      v21 = j_va("%s_%s", name, *v18);
+      Core_strcpy(rowTitle, 0x20ui64, v21);
+      v22 = *((double *)p_m_count - 3);
+      v23 = (double *)&v44;
+      v24 = *((_OWORD *)p_m_count - 1);
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      v45 = v22 / *(double *)&_XMM0;
+      v46 = v22;
+      v44 = v24;
       for ( j = 0; j < 4; ++j )
-      {
-        __asm
-        {
-          vmovsd  xmm2, qword ptr [rdi]
-          vmovq   r8, xmm2
-        }
-        Com_sprintf_truncate<65>((char (*)[65])&v57[65 * j], "%.1f", *(double *)&_XMM2);
-        _RDI = (__int128 *)((char *)_RDI + 8);
-      }
-      Com_sprintf<65>((char (*)[65])v56, "%u", *_RSI);
+        Com_sprintf_truncate<65>((char (*)[65])&v51[65 * j], "%.1f", *v23++);
+      Com_sprintf<65>((char (*)[65])v50, "%u", *p_m_count);
       LODWORD(percentileCounta) = 10;
       LODWORD(percentilesa) = 10;
       LODWORD(dataColWidth) = 10;
       LODWORD(headerColWidth) = 10;
-      Com_sprintf<64>((char (*)[64])v54, "%%-%us%%-%us%%-%us%%-%us%%-%us%%-%us\n", 25i64, 10i64, headerColWidth, dataColWidth, percentilesa, percentileCounta);
-      Com_sprintf(buffer, 0x400ui64, v54, rowTitle, v57, v58, v59, v60, v56);
+      Com_sprintf<64>((char (*)[64])v48, "%%-%us%%-%us%%-%us%%-%us%%-%us%%-%us\n", 25i64, 10i64, headerColWidth, dataColWidth, percentilesa, percentileCounta);
+      Com_sprintf(buffer, 0x400ui64, v48, rowTitle, v51, v52, v53, v54, v50);
       Com_Printf(131097, (const char *)&queryFormat, buffer);
     }
-    ++v23;
-    _RSI += 740;
-    ++v22;
+    ++v19;
+    p_m_count += 740;
+    ++v18;
   }
-  while ( v23 < 0xB );
+  while ( v19 < 0xB );
   Com_Printf(131097, "------------------\n");
-  v34 = j_va("%s_%s", name, s_statNames_0[0]);
-  Core_strcpy(rowTitle, 0x20ui64, v34);
+  v28 = j_va("%s_%s", name, s_statNames_0[0]);
+  Core_strcpy(rowTitle, 0x20ui64, v28);
   DLogTDigest<20,8>::GetString<double>(&this->m_stats[0].digest, "PERCENTILE", rowTitle, "%.1f", 25, 10, percentiles, percentileCount, buffer, 0x400ui64);
   Com_Printf(131097, (const char *)&queryFormat, buffer);
-  v35 = 1;
+  v29 = 1;
   p_digest = &this->m_stats[1].digest;
   do
   {
     if ( LODWORD(p_digest[-1].m_unprocessedCentroidBuffer[159].m_weight) )
     {
-      v37 = j_va("%s_%s", name, *v21);
-      Core_strcpy(rowTitle, 0x20ui64, v37);
+      v31 = j_va("%s_%s", name, *v17);
+      Core_strcpy(rowTitle, 0x20ui64, v31);
       DLogTDigest<20,8>::GetString<double>(p_digest, NULL, rowTitle, "%.1f", 25, 10, percentiles, percentileCount, buffer, 0x400ui64);
       Com_Printf(131097, (const char *)&queryFormat, buffer);
     }
-    ++v35;
+    ++v29;
     p_digest = (DLogTDigest<20,8> *)((char *)p_digest + 2960);
-    ++v21;
+    ++v17;
   }
-  while ( v35 < 0xB );
+  while ( v29 < 0xB );
 }
 
 /*
@@ -639,73 +574,55 @@ NetchanTelemetry::Track
 
 void __fastcall NetchanTelemetry::Track(NetchanTelemetry *this, NetchanTelemetry::StatType stat, double value)
 {
-  unsigned int m_unprocessedCentroidBufferIndex; 
-  int v24; 
+  __int64 v3; 
+  __int64 v6; 
+  long double v7; 
+  int m_unprocessedCentroidBufferIndex; 
+  DLogTDigest<20,8> *p_digest; 
+  __int64 v17; 
+  int v19; 
 
-  _RDI = stat;
-  _RBX = this;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v3 = stat;
+  _XMM6 = *(_OWORD *)&value;
   if ( (unsigned int)stat >= STAT_COUNT )
   {
-    v24 = 11;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_telemetry.cpp", 235, ASSERT_TYPE_ASSERT, "(unsigned)( stat ) < (unsigned)( STAT_COUNT )", "stat doesn't index STAT_COUNT\n\t%i not in [0, %i)", stat, v24) )
+    v19 = 11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_telemetry.cpp", 235, ASSERT_TYPE_ASSERT, "(unsigned)( stat ) < (unsigned)( STAT_COUNT )", "stat doesn't index STAT_COUNT\n\t%i not in [0, %i)", stat, v19) )
       __debugbreak();
   }
-  _RCX = _RDI;
-  __asm
-  {
-    vmovsd  qword ptr [rbx+rdi*8+7F38h], xmm6
-    vaddsd  xmm0, xmm6, qword ptr [rcx+rbx+8]
-  }
-  ++_RBX->m_stats[_RCX].counter.m_count;
-  __asm
-  {
-    vmovsd  qword ptr [rcx+rbx+8], xmm0
-    vmovsd  xmm0, qword ptr [rcx+rbx+10h]
-    vminsd  xmm1, xmm0, xmm6
-    vmovsd  xmm0, qword ptr [rcx+rbx+18h]
-    vmovsd  qword ptr [rcx+rbx+10h], xmm1
-    vmaxsd  xmm1, xmm0, xmm6
-    vmovsd  qword ptr [rcx+rbx+18h], xmm1
-  }
-  m_unprocessedCentroidBufferIndex = _RBX->m_stats[_RDI].digest.m_unprocessedCentroidBufferIndex;
-  _RBX = &_RBX->m_stats[_RDI].digest;
-  if ( m_unprocessedCentroidBufferIndex < 0x8C )
+  v6 = v3;
+  this->m_currStats[v3] = value;
+  v7 = value + this->m_stats[v3].counter.m_sum;
+  ++this->m_stats[v6].counter.m_count;
+  this->m_stats[v6].counter.m_sum = v7;
+  _XMM0 = *(unsigned __int64 *)&this->m_stats[v3].counter.m_min;
+  __asm { vminsd  xmm1, xmm0, xmm6 }
+  _XMM0 = *(unsigned __int64 *)&this->m_stats[v3].counter.m_max;
+  this->m_stats[v6].counter.m_min = *(double *)&_XMM1;
+  __asm { vmaxsd  xmm1, xmm0, xmm6 }
+  this->m_stats[v6].counter.m_max = *(double *)&_XMM1;
+  m_unprocessedCentroidBufferIndex = this->m_stats[v3].digest.m_unprocessedCentroidBufferIndex;
+  p_digest = &this->m_stats[v3].digest;
+  if ( (unsigned int)m_unprocessedCentroidBufferIndex < 0x8C )
     goto LABEL_7;
-  if ( !_RBX->m_disableAutoMerge )
+  if ( !p_digest->m_disableAutoMerge )
   {
-    DLogTDigest<20,8>::ProcessBufferedCentroids(_RBX);
-    m_unprocessedCentroidBufferIndex = _RBX->m_unprocessedCentroidBufferIndex;
+    DLogTDigest<20,8>::ProcessBufferedCentroids(p_digest);
+    m_unprocessedCentroidBufferIndex = p_digest->m_unprocessedCentroidBufferIndex;
 LABEL_7:
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx]
-      vminsd  xmm1, xmm0, xmm6
-      vmovsd  qword ptr [rbx], xmm1
-      vmaxsd  xmm0, xmm6, qword ptr [rbx+8]
-      vmovsd  qword ptr [rbx+8], xmm0
-    }
-    _RAX = 2 * ((int)m_unprocessedCentroidBufferIndex + 23i64);
-    __asm { vmovsd  qword ptr [rbx+rax*8], xmm6 }
-    *((_QWORD *)&_RBX->m_max + _RAX) = 0x3FF0000000000000i64;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+20h]
-      vaddsd  xmm1, xmm0, cs:__real@3ff0000000000000
-    }
-    ++_RBX->m_unprocessedCentroidBufferIndex;
-    __asm
-    {
-      vmovsd  qword ptr [rbx+20h], xmm1
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    _XMM0 = *(unsigned __int64 *)&p_digest->m_min;
+    __asm { vminsd  xmm1, xmm0, xmm6 }
+    p_digest->m_min = *(double *)&_XMM1;
+    __asm { vmaxsd  xmm0, xmm6, qword ptr [rbx+8] }
+    p_digest->m_max = *(double *)&_XMM0;
+    v17 = 2 * (m_unprocessedCentroidBufferIndex + 23i64);
+    *((double *)&p_digest->m_min + v17) = value;
+    *((_QWORD *)&p_digest->m_max + v17) = 0x3FF0000000000000i64;
+    *(long double *)&_XMM0 = p_digest->m_unprocessedWeightTotal;
+    ++p_digest->m_unprocessedCentroidBufferIndex;
+    p_digest->m_unprocessedWeightTotal = *(double *)&_XMM0 + 1.0;
     return;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
   DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
 }
 
@@ -722,23 +639,12 @@ void NetchanTelemetry::TrackMessageRx(NetchanTelemetry *this, int size, int drop
   this->m_totalAccums[1] += dropCount;
   this->m_frameAccums[2] += fragmented;
   this->m_totalAccums[2] += fragmented;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Stopwatch::Restart(&this->m_lastMessageRx) & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; value }
-  NetchanTelemetry::Track(this, STAT_MESSAGE_INTERVAL_RX, *(long double *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm1, xmm0, cs:__real@3a800000
-    vcvtss2sd xmm2, xmm1, xmm1; value
-  }
-  NetchanTelemetry::Track(this, STAT_MESSAGE_SIZE_RX, *(long double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  NetchanTelemetry::Track(this, STAT_MESSAGE_INTERVAL_RX, *(double *)&_XMM0 * msecPerRawTimerTick);
+  NetchanTelemetry::Track(this, STAT_MESSAGE_SIZE_RX, (float)((float)size * 0.0009765625));
 }
 
 /*
@@ -748,23 +654,12 @@ NetchanTelemetry::TrackMessageTx
 */
 void NetchanTelemetry::TrackMessageTx(NetchanTelemetry *this, int size)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Stopwatch::Restart(&this->m_lastMessageTx) & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; value }
-  NetchanTelemetry::Track(this, STAT_MESSAGE_INTERVAL_TX, *(long double *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm1, xmm0, cs:__real@3a800000
-    vcvtss2sd xmm2, xmm1, xmm1; value
-  }
-  NetchanTelemetry::Track(this, STAT_MESSAGE_SIZE_TX, *(long double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  NetchanTelemetry::Track(this, STAT_MESSAGE_INTERVAL_TX, *(double *)&_XMM0 * msecPerRawTimerTick);
+  NetchanTelemetry::Track(this, STAT_MESSAGE_SIZE_TX, (float)((float)size * 0.0009765625));
 }
 
 /*
@@ -780,15 +675,11 @@ void NetchanTelemetry::TrackPacketRx(NetchanTelemetry *this, int size, int dropC
   this->m_totalAccums[4] += dropCount;
   this->m_frameAccums[5] += oooCount;
   this->m_totalAccums[5] += oooCount;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Stopwatch::Restart(&this->m_lastPacketRx) & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; value }
-  NetchanTelemetry::Track(this, STAT_PACKET_INTERVAL_RX, *(long double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  NetchanTelemetry::Track(this, STAT_PACKET_INTERVAL_RX, *(double *)&_XMM0 * msecPerRawTimerTick);
 }
 
 /*
@@ -798,14 +689,10 @@ NetchanTelemetry::TrackPacketTx
 */
 void NetchanTelemetry::TrackPacketTx(NetchanTelemetry *this, int size, bool success)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Stopwatch::Restart(&this->m_lastPacketTx) & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; value }
-  NetchanTelemetry::Track(this, STAT_PACKET_INTERVAL_TX, *(long double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  NetchanTelemetry::Track(this, STAT_PACKET_INTERVAL_TX, *(double *)&_XMM0 * msecPerRawTimerTick);
 }
 

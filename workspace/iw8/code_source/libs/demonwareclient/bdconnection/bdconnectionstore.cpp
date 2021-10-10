@@ -183,7 +183,8 @@ void bdConnectionStore::bdConnectionStore(bdConnectionStore *this)
 {
   bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper> *p_m_connectionMap; 
   unsigned int PowerOf2; 
-  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v9; 
+  float v4; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v5; 
 
   this->m_socket = NULL;
   p_m_connectionMap = &this->m_connectionMap;
@@ -193,17 +194,11 @@ void bdConnectionStore::bdConnectionStore(bdConnectionStore *this)
   PowerOf2 = bdBitOperations::nextPowerOf2(4u);
   p_m_connectionMap->m_capacity = PowerOf2;
   p_m_connectionMap->m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@3f400000
-    vcvttss2si rcx, xmm1
-  }
-  p_m_connectionMap->m_threshold = _RCX;
-  v9 = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-  p_m_connectionMap->m_map = v9;
-  memset_0(v9, 0, 8i64 * p_m_connectionMap->m_capacity);
+  v4 = (float)PowerOf2;
+  p_m_connectionMap->m_threshold = (int)(float)(v4 * 0.75);
+  v5 = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  p_m_connectionMap->m_map = v5;
+  memset_0(v5, 0, 8i64 * p_m_connectionMap->m_capacity);
   this->m_status = BD_CONNECTION_STORE_UNINITIALIZED;
   bdDispatcher::bdDispatcher(&this->m_dispatcher);
   bdStopwatch::bdStopwatch(&this->m_shutdownTimer);
@@ -737,76 +732,71 @@ _BOOL8 bdConnectionStore::flushAll(bdConnectionStore *this)
   bdAddrHandleRefWrapper *v33; 
   bdAddrHandleRefWrapper *v34; 
   __int64 v35; 
-  bdAddrHandleRefWrapper *v36; 
-  bdAddrHandleRefWrapper *v37; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v36; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v37; 
   char v38; 
-  bdAddrHandle *v39; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v39; 
   bdAddrHandle *v40; 
   bdAddrHandle *v41; 
   bdLinkedList<bdReference<bdConnection> >::Node *v42; 
   bdLinkedList<bdReference<bdConnection> >::Node *v43; 
-  char v44; 
-  char v45; 
-  char v47; 
+  double ElapsedTimeInSeconds; 
+  char v46; 
   bdReference<bdConnection> item; 
-  bdReference<bdAddrHandle> v49; 
-  bdQueue<bdReference<bdConnection> > v50; 
+  bdReference<bdAddrHandle> v48; 
+  bdQueue<bdReference<bdConnection> > v49; 
   bdReference<bdAddrHandle> addrHandle; 
+  bdReference<bdAddrHandle> v51; 
   bdReference<bdAddrHandle> v52; 
-  bdReference<bdAddrHandle> v53; 
-  bdConnection *v54; 
+  bdConnection *v53; 
   bdReference<bdCommonAddr> result; 
-  bdAddrHandleRefWrapper v56; 
-  bdLoopbackConnection **v57; 
-  bdAddrHandle *v58; 
+  bdAddrHandleRefWrapper v55; 
+  bdLoopbackConnection **v56; 
+  bdAddrHandle *v57; 
   bdReference<bdAddrHandle> handle; 
-  int v60; 
+  int v59; 
   bdMutex *p_m_mutex; 
-  __int64 v62; 
+  __int64 v61; 
   char str[24]; 
+  char v63[24]; 
   char v64[24]; 
   char v65[24]; 
   char v66[24]; 
-  char v67[24]; 
 
-  v62 = -2i64;
-  _R14 = this;
+  v61 = -2i64;
   p_m_mutex = &this->m_mutex;
   bdMutex::lock(&this->m_mutex);
   started = 0;
-  if ( (unsigned int)(_R14->m_status - 1) > 1 )
+  if ( (unsigned int)(this->m_status - 1) > 1 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xEAu, "Cannot call flushAll unless class is initialized.");
     goto LABEL_133;
   }
   started = 1;
-  v47 = 1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+180h+var_128.m_list.m_head], xmm0
-  }
-  v50.m_list.m_size = 0;
-  _R14->m_socket->pump(_R14->m_socket);
-  if ( !_R14->m_connectionMap.m_size )
+  v46 = 1;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v49.m_list.m_head = _XMM0;
+  v49.m_list.m_size = 0;
+  this->m_socket->pump(this->m_socket);
+  if ( !this->m_connectionMap.m_size )
     goto LABEL_128;
   v5 = 0;
-  m_capacity = _R14->m_connectionMap.m_capacity;
+  m_capacity = this->m_connectionMap.m_capacity;
   if ( m_capacity )
   {
     do
     {
-      if ( _R14->m_connectionMap.m_map[v5] )
+      if ( this->m_connectionMap.m_map[v5] )
         break;
       ++v5;
     }
     while ( v5 < m_capacity );
   }
-  m_map = _R14->m_connectionMap.m_map;
+  m_map = this->m_connectionMap.m_map;
   if ( m_map[v5] )
   {
-    _InterlockedExchangeAdd((volatile signed __int32 *)&_R14->m_connectionMap.m_numIterators, 1u);
-    m_map = _R14->m_connectionMap.m_map;
+    _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_connectionMap.m_numIterators, 1u);
+    m_map = this->m_connectionMap.m_map;
   }
   v8 = m_map[v5];
   if ( !v8 )
@@ -847,7 +837,7 @@ _BOOL8 bdConnectionStore::flushAll(bdConnectionStore *this)
       {
         v22 = (bdLoopbackConnection **)bdMemory::allocate(0x18ui64);
         v23 = (bdLinkedList<bdReference<bdConnection> >::Node *)v22;
-        v57 = v22;
+        v56 = v22;
         if ( v22 )
         {
           *v22 = v10;
@@ -858,10 +848,10 @@ _BOOL8 bdConnectionStore::flushAll(bdConnectionStore *this)
         {
           v23 = NULL;
         }
-        m_tail = v50.m_list.m_tail;
-        if ( v50.m_list.m_tail )
+        m_tail = v49.m_list.m_tail;
+        if ( v49.m_list.m_tail )
         {
-          v23->m_next = v50.m_list.m_tail->m_next;
+          v23->m_next = v49.m_list.m_tail->m_next;
           v23->m_prev = m_tail;
           m_next = m_tail->m_next;
           if ( m_next )
@@ -871,7 +861,7 @@ _BOOL8 bdConnectionStore::flushAll(bdConnectionStore *this)
           else
           {
             bdHandleAssert(1, "node == m_tail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdReference<class bdConnection> >::insertAfter", 0x176u, "bdLinkedList::insertAfter, node has no next entry, but is not the tail.");
-            v50.m_list.m_tail = v23;
+            v49.m_list.m_tail = v23;
           }
           m_tail->m_next = v23;
         }
@@ -879,44 +869,44 @@ _BOOL8 bdConnectionStore::flushAll(bdConnectionStore *this)
         {
           v23->m_next = NULL;
           v23->m_prev = NULL;
-          v50.m_list.m_head = v23;
-          v50.m_list.m_tail = v23;
+          v49.m_list.m_head = v23;
+          v49.m_list.m_tail = v23;
         }
-        ++v50.m_list.m_size;
+        ++v49.m_list.m_size;
       }
     }
     else
     {
-      m_socket = _R14->m_socket;
-      getStatus = _R14->m_socket->getStatus;
+      m_socket = this->m_socket;
+      getStatus = this->m_socket->getStatus;
       v14 = bdConnection::getAddressHandle(v10)->m_ptr;
-      v58 = v14;
+      v57 = v14;
       if ( v14 )
       {
         _InterlockedExchangeAdd((volatile signed __int32 *)&v14->m_refCount, 1u);
         v10 = (bdLoopbackConnection *)item.m_ptr;
       }
-      v15 = ((__int64 (__fastcall *)(bdSocketRouter *, bdAddrHandle **))getStatus)(m_socket, &v58);
-      v60 = v15;
+      v15 = ((__int64 (__fastcall *)(bdSocketRouter *, bdAddrHandle **))getStatus)(m_socket, &v57);
+      v59 = v15;
       v16 = 0;
       if ( !v15 )
       {
         v20 = bdConnection::getAddressHandle(v10)->m_ptr;
-        v53.m_ptr = v20;
+        v52.m_ptr = v20;
         if ( v20 )
         {
           _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 1u);
           v10 = (bdLoopbackConnection *)item.m_ptr;
         }
-        bdAddressMap::addrToString(&v53, v65, 0x16ui64);
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xA3u, "Socket router reports socket idle. Disconnecting %s.", v65);
-        if ( !v53.m_ptr )
+        bdAddressMap::addrToString(&v52, v64, 0x16ui64);
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xA3u, "Socket router reports socket idle. Disconnecting %s.", v64);
+        if ( !v52.m_ptr )
           goto LABEL_50;
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v53.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v52.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v53.m_ptr )
-            ((void (__fastcall *)(bdAddrHandle *, __int64))v53.m_ptr->~bdReferencable)(v53.m_ptr, 1i64);
-          v53.m_ptr = NULL;
+          if ( v52.m_ptr )
+            ((void (__fastcall *)(bdAddrHandle *, __int64))v52.m_ptr->~bdReferencable)(v52.m_ptr, 1i64);
+          v52.m_ptr = NULL;
         }
         goto LABEL_49;
       }
@@ -944,39 +934,39 @@ _BOOL8 bdConnectionStore::flushAll(bdConnectionStore *this)
         }
         goto LABEL_49;
       }
-      if ( _R14->m_config.m_maxFlushIterations )
+      if ( this->m_config.m_maxFlushIterations )
       {
         do
         {
-          if ( !bdConnectionStore::flush(_R14, v10) )
+          if ( !bdConnectionStore::flush(this, v10) )
             break;
           ++v16;
         }
-        while ( v16 < _R14->m_config.m_maxFlushIterations );
+        while ( v16 < this->m_config.m_maxFlushIterations );
       }
       if ( v10->getStatus(v10) == BD_HANDLE_TASK_FAILED )
       {
         v19 = bdConnection::getAddressHandle(v10)->m_ptr;
-        v52.m_ptr = v19;
+        v51.m_ptr = v19;
         if ( v19 )
         {
           _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
           v10 = (bdLoopbackConnection *)item.m_ptr;
         }
-        bdAddressMap::addrToString(&v52, v64, 0x16ui64);
-        bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0x8Au, "Connection state disconnected. Disconnecting %s.", v64);
-        if ( !v52.m_ptr )
+        bdAddressMap::addrToString(&v51, v63, 0x16ui64);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0x8Au, "Connection state disconnected. Disconnecting %s.", v63);
+        if ( !v51.m_ptr )
           goto LABEL_50;
-        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v52.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v51.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v52.m_ptr )
-            ((void (__fastcall *)(bdAddrHandle *, __int64))v52.m_ptr->~bdReferencable)(v52.m_ptr, 1i64);
-          v52.m_ptr = NULL;
+          if ( v51.m_ptr )
+            ((void (__fastcall *)(bdAddrHandle *, __int64))v51.m_ptr->~bdReferencable)(v51.m_ptr, 1i64);
+          v51.m_ptr = NULL;
         }
 LABEL_49:
         v10 = (bdLoopbackConnection *)item.m_ptr;
 LABEL_50:
-        bdQueue<bdReference<bdConnection>>::enqueue(&v50, &item);
+        bdQueue<bdReference<bdConnection>>::enqueue(&v49, &item);
       }
     }
 LABEL_65:
@@ -986,21 +976,21 @@ LABEL_65:
     }
     else
     {
-      Hash = bdAddrHandleRefWrapper::getHash(&_R14->m_connectionMap.m_hashClass, &v8->m_key);
-      v27 = _R14->m_connectionMap.m_capacity;
+      Hash = bdAddrHandleRefWrapper::getHash(&this->m_connectionMap.m_hashClass, &v8->m_key);
+      v27 = this->m_connectionMap.m_capacity;
       v28 = (Hash & (v27 - 1)) + 1;
       if ( (unsigned int)v28 >= v27 )
       {
 LABEL_70:
         v8 = NULL;
-        _InterlockedExchangeAdd((volatile signed __int32 *)&_R14->m_connectionMap.m_numIterators, 0xFFFFFFFF);
+        _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_connectionMap.m_numIterators, 0xFFFFFFFF);
         v10 = (bdLoopbackConnection *)item.m_ptr;
       }
       else
       {
         while ( 1 )
         {
-          v8 = _R14->m_connectionMap.m_map[v28];
+          v8 = this->m_connectionMap.m_map[v28];
           if ( v8 )
             break;
           v28 = (unsigned int)(v28 + 1);
@@ -1013,68 +1003,68 @@ LABEL_70:
       ((void (__fastcall *)(bdConnection *, __int64))item.m_ptr->~bdReferencable)(item.m_ptr, 1i64);
   }
   while ( v8 );
-  if ( v50.m_list.m_size )
+  if ( v49.m_list.m_size )
   {
     do
     {
-      v29 = v50.m_list.m_size != 0;
-      bdHandleAssert(v50.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdReference<class bdConnection> >::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
-      m_head = v50.m_list.m_head;
-      bdHandleAssert(v50.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdReference<class bdConnection> >::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
+      v29 = v49.m_list.m_size != 0;
+      bdHandleAssert(v49.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdReference<class bdConnection> >::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
+      m_head = v49.m_list.m_head;
+      bdHandleAssert(v49.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdReference<class bdConnection> >::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
       v31 = m_head->m_data.m_ptr;
-      v54 = v31;
+      v53 = v31;
       if ( v31 )
       {
         _InterlockedExchangeAdd((volatile signed __int32 *)&v31->m_refCount, 1u);
-        v31 = v54;
+        v31 = v53;
       }
       v32 = bdConnection::getAddressHandle(v31)->m_ptr;
-      v49.m_ptr = v32;
+      v48.m_ptr = v32;
       if ( v32 )
       {
         _InterlockedExchangeAdd((volatile signed __int32 *)&v32->m_refCount, 1u);
-        v31 = v54;
+        v31 = v53;
       }
       v31->close(v31);
-      handle.m_ptr = v49.m_ptr;
-      if ( v49.m_ptr )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v49.m_ptr->m_refCount, 1u);
-      bdAddrHandleRefWrapper::bdAddrHandleRefWrapper(&v56, (bdReference<bdAddrHandle>)&handle);
+      handle.m_ptr = v48.m_ptr;
+      if ( v48.m_ptr )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v48.m_ptr->m_refCount, 1u);
+      bdAddrHandleRefWrapper::bdAddrHandleRefWrapper(&v55, (bdReference<bdAddrHandle>)&handle);
       v34 = v33;
-      bdHandleAssert(_R14->m_connectionMap.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddrHandleRefWrapper,class bdReference<class bdConnection>,class bdAddrHandleRefWrapper>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
-      v35 = bdAddrHandleRefWrapper::getHash(&_R14->m_connectionMap.m_hashClass, v34) & (_R14->m_connectionMap.m_capacity - 1);
-      v36 = (bdAddrHandleRefWrapper *)_R14->m_connectionMap.m_map[v35];
+      bdHandleAssert(this->m_connectionMap.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddrHandleRefWrapper,class bdReference<class bdConnection>,class bdAddrHandleRefWrapper>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
+      v35 = bdAddrHandleRefWrapper::getHash(&this->m_connectionMap.m_hashClass, v34) & (this->m_connectionMap.m_capacity - 1);
+      v36 = this->m_connectionMap.m_map[v35];
       v37 = NULL;
       if ( v36 )
       {
-        while ( !bdAddrHandleRefWrapper::operator==(v34, v36 + 1) )
+        while ( !bdAddrHandleRefWrapper::operator==(v34, &v36->m_key) )
         {
           v37 = v36;
-          v36 = (bdAddrHandleRefWrapper *)v36[2].m_handle.m_ptr;
+          v36 = v36->m_next;
           if ( !v36 )
             goto LABEL_85;
         }
-        v39 = v36[2].m_handle.m_ptr;
+        v39 = v36->m_next;
         if ( v37 )
-          v37[2].m_handle.m_ptr = v39;
+          v37->m_next = v39;
         else
-          _R14->m_connectionMap.m_map[v35] = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *)v39;
-        v40 = v36[1].m_handle.m_ptr;
+          this->m_connectionMap.m_map[v35] = v39;
+        v40 = v36->m_key.m_handle.m_ptr;
         if ( v40 && _InterlockedExchangeAdd((volatile signed __int32 *)&v40->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          v41 = v36[1].m_handle.m_ptr;
+          v41 = v36->m_key.m_handle.m_ptr;
           if ( v41 )
             ((void (__fastcall *)(bdAddrHandle *, __int64))v41->~bdReferencable)(v41, 1i64);
-          v36[1].m_handle.m_ptr = NULL;
+          v36->m_key.m_handle.m_ptr = NULL;
         }
-        if ( v36->m_handle.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v36->m_handle.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        if ( v36->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v36->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v36->m_handle.m_ptr )
-            ((void (__fastcall *)(bdAddrHandle *, __int64))v36->m_handle.m_ptr->~bdReferencable)(v36->m_handle.m_ptr, 1i64);
-          v36->m_handle.m_ptr = NULL;
+          if ( v36->m_data.m_ptr )
+            ((void (__fastcall *)(bdConnection *, __int64))v36->m_data.m_ptr->~bdReferencable)(v36->m_data.m_ptr, 1i64);
+          v36->m_data.m_ptr = NULL;
         }
         bdMemory::deallocate(v36);
-        --_R14->m_connectionMap.m_size;
+        --this->m_connectionMap.m_size;
         v38 = 1;
       }
       else
@@ -1082,36 +1072,36 @@ LABEL_70:
 LABEL_85:
         v38 = 0;
       }
-      if ( v56.m_handle.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v56.m_handle.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+      if ( v55.m_handle.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v55.m_handle.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
       {
-        if ( v56.m_handle.m_ptr )
-          ((void (__fastcall *)(bdAddrHandle *, __int64))v56.m_handle.m_ptr->~bdReferencable)(v56.m_handle.m_ptr, 1i64);
-        v56.m_handle.m_ptr = NULL;
+        if ( v55.m_handle.m_ptr )
+          ((void (__fastcall *)(bdAddrHandle *, __int64))v55.m_handle.m_ptr->~bdReferencable)(v55.m_handle.m_ptr, 1i64);
+        v55.m_handle.m_ptr = NULL;
       }
       if ( v38 )
       {
-        started = v47;
+        started = v46;
       }
       else
       {
-        bdAddressMap::addrToString(&v49, v66, 0x16ui64);
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xC6u, "Failed to remove addr [%s] from connection map", v66);
+        bdAddressMap::addrToString(&v48, v65, 0x16ui64);
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xC6u, "Failed to remove addr [%s] from connection map", v65);
         started = 0;
-        v47 = 0;
+        v46 = 0;
       }
-      if ( !_R14->m_socket->disconnect(_R14->m_socket, &v49) )
+      if ( !this->m_socket->disconnect(this->m_socket, &v48) )
       {
-        bdAddressMap::addrToString(&v49, v67, 0x16ui64);
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xD3u, "Failed to disconnect secure association for addr [%s]", v67);
+        bdAddressMap::addrToString(&v48, v66, 0x16ui64);
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::flushAll", 0xD3u, "Failed to disconnect secure association for addr [%s]", v66);
         started = 0;
-        v47 = 0;
+        v46 = 0;
       }
       bdHandleAssert(v29, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdReference<class bdConnection> >::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
-      v42 = v50.m_list.m_head;
-      v43 = v50.m_list.m_head->m_next;
-      v50.m_list.m_head = v43;
-      if ( v42 == v50.m_list.m_tail )
-        v50.m_list.m_tail = v42->m_prev;
+      v42 = v49.m_list.m_head;
+      v43 = v49.m_list.m_head->m_next;
+      v49.m_list.m_head = v43;
+      if ( v42 == v49.m_list.m_tail )
+        v49.m_list.m_tail = v42->m_prev;
       else
         v43->m_prev = v42->m_prev;
       if ( v42->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v42->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
@@ -1121,34 +1111,29 @@ LABEL_85:
         v42->m_data.m_ptr = NULL;
       }
       bdMemory::deallocate(v42);
-      --v50.m_list.m_size;
-      if ( v49.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v49.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+      --v49.m_list.m_size;
+      if ( v48.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v48.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
       {
-        if ( v49.m_ptr )
-          ((void (__fastcall *)(bdAddrHandle *, __int64))v49.m_ptr->~bdReferencable)(v49.m_ptr, 1i64);
-        v49.m_ptr = NULL;
+        if ( v48.m_ptr )
+          ((void (__fastcall *)(bdAddrHandle *, __int64))v48.m_ptr->~bdReferencable)(v48.m_ptr, 1i64);
+        v48.m_ptr = NULL;
       }
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v54->m_refCount, 0xFFFFFFFF) == 1 )
-        ((void (__fastcall *)(bdConnection *, __int64))v54->~bdReferencable)(v54, 1i64);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v53->m_refCount, 0xFFFFFFFF) == 1 )
+        ((void (__fastcall *)(bdConnection *, __int64))v53->~bdReferencable)(v53, 1i64);
     }
-    while ( v50.m_list.m_size );
+    while ( v49.m_list.m_size );
   }
   else
   {
     started = 1;
   }
 LABEL_128:
-  if ( _R14->m_status == BD_CONNECTION_STORE_SHUTTING_DOWN )
+  if ( this->m_status == BD_CONNECTION_STORE_SHUTTING_DOWN )
   {
-    if ( !_R14->m_connectionMap.m_size )
-      goto LABEL_131;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_R14->m_shutdownTimer);
-    __asm { vcomiss xmm0, dword ptr [r14+5Ch] }
-    if ( !(v44 | v45) )
-LABEL_131:
-      started = bdConnectionStore::startShutdown(_R14, BD_CONNECTION_STORE_SHUTDOWN_IMMEDIATE);
+    if ( !this->m_connectionMap.m_size || (ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_shutdownTimer), *(float *)&ElapsedTimeInSeconds > this->m_config.m_maxShutdownDuration) )
+      started = bdConnectionStore::startShutdown(this, BD_CONNECTION_STORE_SHUTDOWN_IMMEDIATE);
   }
-  bdLinkedList<bdReference<bdConnection>>::~bdLinkedList<bdReference<bdConnection>>(&v50.m_list);
+  bdLinkedList<bdReference<bdConnection>>::~bdLinkedList<bdReference<bdConnection>>(&v49.m_list);
 LABEL_133:
   bdMutex::unlock(p_m_mutex);
   return started;
@@ -1197,11 +1182,7 @@ bdConnectionStore::getConfig
 */
 void bdConnectionStore::getConfig(bdConnectionStore *this, bdConnectionStoreConfig *config)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+58h]
-    vmovups xmmword ptr [rdx], xmm0
-  }
+  *config = this->m_config;
 }
 
 /*
@@ -1224,26 +1205,20 @@ __int64 bdConnectionStore::init(bdConnectionStore *this, bdSocketRouter *socket,
   bdMutex *p_m_mutex; 
   unsigned __int8 v7; 
 
-  _R14 = config;
-  _RDI = this;
   p_m_mutex = &this->m_mutex;
   bdMutex::lock(&this->m_mutex);
   v7 = 1;
-  if ( _RDI->m_status )
+  if ( this->m_status )
   {
     v7 = 0;
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connectionstore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdconnectionstore.cpp", "bdConnectionStore::init", 0x31u, "init() called multiple times.");
   }
   else if ( socket )
   {
-    _RDI->m_socket = socket;
-    _RDI->m_addrMap = bdSocketRouter::getAddressMap(socket);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmmword ptr [rdi+58h], xmm0
-    }
-    _RDI->m_status = BD_CONNECTION_STORE_INITIALIZED;
+    this->m_socket = socket;
+    this->m_addrMap = bdSocketRouter::getAddressMap(socket);
+    this->m_config = *config;
+    this->m_status = BD_CONNECTION_STORE_INITIALIZED;
   }
   else
   {
@@ -1522,11 +1497,7 @@ bdConnectionStore::setConfig
 */
 void bdConnectionStore::setConfig(bdConnectionStore *this, bdConnectionStoreConfig *config)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+58h], xmm0
-  }
+  this->m_config = *config;
 }
 
 /*

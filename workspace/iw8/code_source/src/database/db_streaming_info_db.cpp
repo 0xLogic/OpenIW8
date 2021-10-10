@@ -227,19 +227,18 @@ void DB_StreamingInfo_Copy(const StreamingInfo *from, StreamingInfo *to, const c
   unsigned __int64 v10; 
   unsigned int v11; 
   unsigned __int64 v12; 
-  unsigned __int16 v25; 
-  __int64 v26; 
-  __int64 v27; 
+  unsigned __int16 v13; 
+  __int64 v14; 
+  __int64 v15; 
 
-  _RSI = from;
   if ( !toNewAssetName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 230, ASSERT_TYPE_ASSERT, "(toNewAssetName)", (const char *)&queryFormat, "toNewAssetName") )
     __debugbreak();
-  StreamingInfoIndex = DB_GetStreamingInfoIndex(_RSI);
+  StreamingInfoIndex = DB_GetStreamingInfoIndex(from);
   v6 = StreamingInfoIndex;
   if ( StreamingInfoIndex >= 0x940 )
   {
-    LODWORD(v26) = StreamingInfoIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, 2368) )
+    LODWORD(v14) = StreamingInfoIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, 2368) )
       __debugbreak();
   }
   v7 = 0x80000000 >> (v6 & 0x1F);
@@ -250,9 +249,9 @@ void DB_StreamingInfo_Copy(const StreamingInfo *from, StreamingInfo *to, const c
   v10 = v9;
   if ( v9 >= 0x940 )
   {
-    LODWORD(v27) = 2368;
-    LODWORD(v26) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, v27) )
+    LODWORD(v15) = 2368;
+    LODWORD(v14) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
       __debugbreak();
   }
   v11 = 0x80000000 >> (v10 & 0x1F);
@@ -261,70 +260,55 @@ void DB_StreamingInfo_Copy(const StreamingInfo *from, StreamingInfo *to, const c
     __debugbreak();
   if ( (unsigned int)v6 >= 0x940 )
   {
-    LODWORD(v27) = 2368;
-    LODWORD(v26) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, v27) )
+    LODWORD(v15) = 2368;
+    LODWORD(v14) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
       __debugbreak();
   }
   if ( (v7 & s_streamingInfoTransientLoaded.array[v8]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 240, ASSERT_TYPE_ASSERT, "(!s_streamingInfoTransientLoaded.testBit( fromIndex ))", (const char *)&queryFormat, "!s_streamingInfoTransientLoaded.testBit( fromIndex )") )
     __debugbreak();
   if ( (unsigned int)v10 >= 0x940 )
   {
-    LODWORD(v27) = 2368;
-    LODWORD(v26) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, v27) )
+    LODWORD(v15) = 2368;
+    LODWORD(v14) = v10;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
       __debugbreak();
   }
   if ( (v11 & s_streamingInfoTransientLoaded.array[v12]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 241, ASSERT_TYPE_ASSERT, "(!s_streamingInfoTransientLoaded.testBit( toIndex ))", (const char *)&queryFormat, "!s_streamingInfoTransientLoaded.testBit( toIndex )") )
     __debugbreak();
   if ( (unsigned int)v6 >= 0x940 )
   {
-    LODWORD(v27) = 2368;
-    LODWORD(v26) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, v27) )
+    LODWORD(v15) = 2368;
+    LODWORD(v14) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
       __debugbreak();
   }
   if ( (v7 & s_streamingInfoTransientRegistered.array[v8]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 242, ASSERT_TYPE_ASSERT, "(!s_streamingInfoTransientRegistered.testBit( fromIndex ))", (const char *)&queryFormat, "!s_streamingInfoTransientRegistered.testBit( fromIndex )") )
     __debugbreak();
   if ( (unsigned int)v10 >= 0x940 )
   {
-    LODWORD(v27) = 2368;
-    LODWORD(v26) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, v27) )
+    LODWORD(v15) = 2368;
+    LODWORD(v14) = v10;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
       __debugbreak();
   }
   if ( (v11 & s_streamingInfoTransientRegistered.array[v12]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 243, ASSERT_TYPE_ASSERT, "(!s_streamingInfoTransientRegistered.testBit( toIndex ))", (const char *)&queryFormat, "!s_streamingInfoTransientRegistered.testBit( toIndex )") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  _RDX = to;
-  __asm
-  {
-    vmovups xmmword ptr [rdx], xmm0
-    vmovups xmm1, xmmword ptr [rsi+10h]
-    vmovups xmmword ptr [rdx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+30h]
-    vmovups xmmword ptr [rdx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vmovups xmmword ptr [rdx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+50h]
-    vmovups xmmword ptr [rdx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+60h]
-    vmovups xmmword ptr [rdx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+70h]
-    vmovups xmmword ptr [rdx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+80h]
-    vmovups xmmword ptr [rdx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+90h]
-    vmovups xmmword ptr [rdx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+0A0h]
-    vmovups xmmword ptr [rdx+0A0h], xmm1
-  }
-  to->transientInfo = _RSI->transientInfo;
+  *(_OWORD *)&to->name = *(_OWORD *)&from->name;
+  *(_OWORD *)&to->alwaysloadedFlagSets[0].globalFlags.imageFlags = *(_OWORD *)&from->alwaysloadedFlagSets[0].globalFlags.imageFlags;
+  *(_OWORD *)&to->alwaysloadedFlagSets[0].modelCount = *(_OWORD *)&from->alwaysloadedFlagSets[0].modelCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[0].modelSurfCount = *(_OWORD *)&from->alwaysloadedFlagSets[0].modelSurfCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].globalFlags.images = *(_OWORD *)&from->alwaysloadedFlagSets[1].globalFlags.images;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].globalFlags.imageCount = *(_OWORD *)&from->alwaysloadedFlagSets[1].globalFlags.imageCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].perModelFlags = *(_OWORD *)&from->alwaysloadedFlagSets[1].perModelFlags;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].modelSurfs = *(_OWORD *)&from->alwaysloadedFlagSets[1].modelSurfs;
+  *(_OWORD *)&to->alwaysloadedFlagSets[2].globalFlags.imageFlags = *(_OWORD *)&from->alwaysloadedFlagSets[2].globalFlags.imageFlags;
+  *(_OWORD *)&to->alwaysloadedFlagSets[2].modelCount = *(_OWORD *)&from->alwaysloadedFlagSets[2].modelCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[2].modelSurfCount = *(_OWORD *)&from->alwaysloadedFlagSets[2].modelSurfCount;
+  to->transientInfo = from->transientInfo;
   to->name = toNewAssetName;
-  v25 = s_streamingInfoZoneIndices[v6];
-  if ( v25 != 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 248, ASSERT_TYPE_ASSERT, "( s_streamingInfoZoneIndices[fromIndex] ) == ( INVALID_ZONE_INDEX )", "%s == %s\n\t%u, %u", "s_streamingInfoZoneIndices[fromIndex]", "INVALID_ZONE_INDEX", v25, 0xFFFF) )
+  v13 = s_streamingInfoZoneIndices[v6];
+  if ( v13 != 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 248, ASSERT_TYPE_ASSERT, "( s_streamingInfoZoneIndices[fromIndex] ) == ( INVALID_ZONE_INDEX )", "%s == %s\n\t%u, %u", "s_streamingInfoZoneIndices[fromIndex]", "INVALID_ZONE_INDEX", v13, 0xFFFF) )
     __debugbreak();
   s_streamingInfoZoneIndices[v10] = -1;
 }
@@ -402,21 +386,22 @@ char DB_StreamingInfo_ForEachAlwaysloaded(bool (*callback)(const StreamingInfo *
   unsigned int PoolSize; 
   unsigned int v3; 
   __int64 v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  __int64 v8; 
-  unsigned __int64 v9; 
-  unsigned int v10; 
-  unsigned __int16 *v11; 
-  __int64 v13; 
-  __int64 v22; 
+  __int64 v7; 
+  unsigned __int64 v8; 
+  unsigned int v9; 
+  unsigned __int16 *v10; 
+  unsigned __int64 v11; 
+  __int64 v12; 
+  __int64 v21; 
   unsigned int images; 
-  unsigned int v24; 
+  unsigned int v23; 
   unsigned int modelSurfs; 
-  unsigned int v26; 
+  unsigned int v25; 
+  __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
-  SortStreamingInfo v30; 
+  SortStreamingInfo v29; 
   StreamingInfo *pool; 
   AlwaysloadedTotals totals; 
   unsigned __int16 _Last[2368]; 
@@ -434,35 +419,32 @@ char DB_StreamingInfo_ForEachAlwaysloaded(bool (*callback)(const StreamingInfo *
   }
   v3 = s_streamingInfoValidEntries.array[0];
   LODWORD(v4) = 0;
-  while ( 1 )
+  while ( v3 )
   {
-    _R14 = 0x140000000ui64;
-    if ( !v3 )
-      break;
 LABEL_11:
-    v6 = __lzcnt(v3);
-    v7 = v6 + 32 * v4;
-    if ( v6 >= 0x20 )
+    v5 = __lzcnt(v3);
+    v6 = v5 + 32 * v4;
+    if ( v5 >= 0x20 )
     {
-      LODWORD(v29) = 32;
-      LODWORD(v28) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v28, v29) )
+      LODWORD(v28) = 32;
+      LODWORD(v27) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
         __debugbreak();
     }
-    if ( (v3 & (0x80000000 >> v6)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v3 & (0x80000000 >> v5)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v3 &= ~(0x80000000 >> v6);
+    v3 &= ~(0x80000000 >> v5);
     if ( v1 >= 0x940 )
     {
-      LODWORD(v29) = 2368;
-      LODWORD(v28) = v1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 339, ASSERT_TYPE_ASSERT, "(unsigned)( sortedInfoSize ) < (unsigned)( ( sizeof( *array_counter( sortedInfo ) ) + 0 ) )", "sortedInfoSize doesn't index ARRAY_COUNT( sortedInfo )\n\t%i not in [0, %i)", v28, v29) )
+      LODWORD(v28) = 2368;
+      LODWORD(v27) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 339, ASSERT_TYPE_ASSERT, "(unsigned)( sortedInfoSize ) < (unsigned)( ( sizeof( *array_counter( sortedInfo ) ) + 0 ) )", "sortedInfoSize doesn't index ARRAY_COUNT( sortedInfo )\n\t%i not in [0, %i)", v27, v28) )
         __debugbreak();
     }
-    if ( v7 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v6 + 32 * v4), "unsigned", v7) )
+    if ( v6 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v5 + 32 * v4), "unsigned", v6) )
       __debugbreak();
-    v8 = v1++;
-    _Last[v8] = v7;
+    v7 = v1++;
+    _Last[v7] = v6;
   }
   while ( 1 )
   {
@@ -473,17 +455,17 @@ LABEL_11:
     if ( v3 )
       goto LABEL_11;
   }
-  std::_Sort_unchecked<unsigned short *,SortStreamingInfo>(_Last, &_Last[v1], v1, v30);
-  v9 = 0i64;
-  v10 = 0;
+  std::_Sort_unchecked<unsigned short *,SortStreamingInfo>(_Last, &_Last[v1], v1, v29);
+  v8 = 0i64;
+  v9 = 0;
   if ( v1 )
   {
-    v11 = _Last;
-    while ( DB_ProcessStreamingInfoAtIndex(*v11, pool, &totals, callback) )
+    v10 = _Last;
+    while ( DB_ProcessStreamingInfoAtIndex(*v10, pool, &totals, callback) )
     {
+      ++v9;
       ++v10;
-      ++v11;
-      if ( v10 >= v1 )
+      if ( v9 >= v1 )
         goto LABEL_28;
     }
     return 0;
@@ -493,46 +475,43 @@ LABEL_11:
 LABEL_28:
     Sys_LockWrite(&s_lastAlwaysloadedTotalsLock);
     memcpy_0(&s_lastAlwaysloadedTotalLoadReq, &totals, sizeof(s_lastAlwaysloadedTotalLoadReq));
-    _RAX = 0i64;
-    v13 = 2i64;
+    v11 = 0i64;
+    v12 = 2i64;
     do
     {
-      __asm
-      {
-        vmovdqu xmm1, xmmword ptr [rsp+rax+50C8h+totals.flagTotals]
-        vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA720h]
-        vmovdqu xmmword ptr [rax+r14+8DAA720h], xmm1
-        vmovdqu xmm1, xmmword ptr [rsp+rax+50C8h+totals.flagTotals+10h]
-        vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA730h]
-        vmovdqu xmmword ptr [rax+r14+8DAA730h], xmm1
-        vmovdqu xmm1, xmmword ptr [rsp+rax+50C8h+totals.flagTotals+20h]
-        vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA740h]
-        vmovdqu xmmword ptr [rax+r14+8DAA740h], xmm1
-        vmovdqu xmm1, xmmword ptr [rsp+rax+50C8h+totals.flagTotals+30h]
-        vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA750h]
-        vmovdqu xmmword ptr [rax+r14+8DAA750h], xmm1
-      }
-      _RAX += 64i64;
-      --v13;
+      _XMM1 = *(_OWORD *)&totals.flagTotals[v11 / 4];
+      __asm { vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA720h] }
+      *(_OWORD *)&s_lastAlwaysloadedTotalLastGood.flagTotals[v11 / 4] = _XMM1;
+      _XMM1 = *(_OWORD *)&totals.zoneTotals[v11 / 8 - 14].images;
+      __asm { vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA730h] }
+      *(_OWORD *)&s_lastAlwaysloadedTotalLastGood.zoneTotals[v11 / 8 - 14].images = _XMM1;
+      _XMM1 = *(_OWORD *)&totals.zoneTotals[v11 / 8 - 12].images;
+      __asm { vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA740h] }
+      *(_OWORD *)&s_lastAlwaysloadedTotalLastGood.zoneTotals[v11 / 8 - 12].images = _XMM1;
+      _XMM1 = *(_OWORD *)&totals.zoneTotals[v11 / 8 - 10].images;
+      __asm { vpminud xmm1, xmm1, xmmword ptr [rax+r14+8DAA750h] }
+      *(_OWORD *)&s_lastAlwaysloadedTotalLastGood.zoneTotals[v11 / 8 - 10].images = _XMM1;
+      v11 += 64i64;
+      --v12;
     }
-    while ( v13 );
-    v22 = 1956i64;
+    while ( v12 );
+    v21 = 1956i64;
     do
     {
-      images = s_lastAlwaysloadedTotalLastGood.zoneTotals[v9 / 8].images;
-      v24 = totals.zoneTotals[v9 / 8].images;
-      modelSurfs = totals.zoneTotals[v9 / 8].modelSurfs;
-      v9 += 8i64;
-      if ( v24 > images )
-        v24 = images;
-      v26 = s_lastAlwaysloadedTotalLastGood.flagTotals[v9 / 4 + 31];
-      s_lastAlwaysloadedTotalLastGood.zoneTotals[v9 / 8 - 1].images = v24;
-      if ( modelSurfs > v26 )
-        modelSurfs = v26;
-      s_lastAlwaysloadedTotalLastGood.flagTotals[v9 / 4 + 31] = modelSurfs;
-      --v22;
+      images = s_lastAlwaysloadedTotalLastGood.zoneTotals[v8 / 8].images;
+      v23 = totals.zoneTotals[v8 / 8].images;
+      modelSurfs = totals.zoneTotals[v8 / 8].modelSurfs;
+      v8 += 8i64;
+      if ( v23 > images )
+        v23 = images;
+      v25 = s_lastAlwaysloadedTotalLastGood.flagTotals[v8 / 4 + 31];
+      s_lastAlwaysloadedTotalLastGood.zoneTotals[v8 / 8 - 1].images = v23;
+      if ( modelSurfs > v25 )
+        modelSurfs = v25;
+      s_lastAlwaysloadedTotalLastGood.flagTotals[v8 / 4 + 31] = modelSurfs;
+      --v21;
     }
-    while ( v22 );
+    while ( v21 );
     Sys_UnlockWrite(&s_lastAlwaysloadedTotalsLock);
     return 1;
   }
@@ -611,24 +590,22 @@ void DB_StreamingInfo_Move(StreamingInfo *from, StreamingInfo *to)
   unsigned __int64 v9; 
   unsigned __int64 v10; 
   __int64 v11; 
-  __int64 v23; 
-  int v24; 
-  __int64 v25; 
-  int v26; 
-  __int64 v27; 
-  int v28; 
-  __int64 v29; 
-  int v30; 
+  __int64 v12; 
+  int v13; 
+  __int64 v14; 
+  int v15; 
+  __int64 v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
 
-  _RBX = to;
-  _RDI = from;
   StreamingInfoIndex = DB_GetStreamingInfoIndex(from);
-  v5 = DB_GetStreamingInfoIndex(_RBX);
+  v5 = DB_GetStreamingInfoIndex(to);
   if ( (unsigned int)StreamingInfoIndex >= 0x940 )
   {
-    v26 = 2368;
-    v24 = StreamingInfoIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v24, v26) )
+    v15 = 2368;
+    v13 = StreamingInfoIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v13, v15) )
       __debugbreak();
   }
   v6 = 0x80000000 >> (StreamingInfoIndex & 0x1F);
@@ -637,9 +614,9 @@ void DB_StreamingInfo_Move(StreamingInfo *from, StreamingInfo *to)
     __debugbreak();
   if ( (unsigned int)v5 >= 0x940 )
   {
-    LODWORD(v25) = 2368;
-    LODWORD(v23) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v23, v25) )
+    LODWORD(v14) = 2368;
+    LODWORD(v12) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v14) )
       __debugbreak();
   }
   v8 = 0x80000000 >> (v5 & 0x1F);
@@ -648,36 +625,36 @@ void DB_StreamingInfo_Move(StreamingInfo *from, StreamingInfo *to)
     __debugbreak();
   if ( (unsigned int)StreamingInfoIndex >= 0x940 )
   {
-    LODWORD(v25) = 2368;
-    LODWORD(v23) = StreamingInfoIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v23, v25) )
+    LODWORD(v14) = 2368;
+    LODWORD(v12) = StreamingInfoIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v14) )
       __debugbreak();
   }
   if ( (v6 & s_streamingInfoTransientRegistered.array[v7]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 211, ASSERT_TYPE_ASSERT, "(!s_streamingInfoTransientRegistered.testBit( fromIndex ))", (const char *)&queryFormat, "!s_streamingInfoTransientRegistered.testBit( fromIndex )") )
     __debugbreak();
   if ( (unsigned int)v5 >= 0x940 )
   {
-    LODWORD(v25) = 2368;
-    LODWORD(v23) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v23, v25) )
+    LODWORD(v14) = 2368;
+    LODWORD(v12) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v14) )
       __debugbreak();
   }
   if ( (v8 & s_streamingInfoTransientRegistered.array[v9]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 212, ASSERT_TYPE_ASSERT, "(!s_streamingInfoTransientRegistered.testBit( toIndex ))", (const char *)&queryFormat, "!s_streamingInfoTransientRegistered.testBit( toIndex )") )
     __debugbreak();
   if ( (unsigned int)v5 >= 0x940 )
   {
-    LODWORD(v25) = 2368;
-    LODWORD(v23) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v23, v25) )
+    LODWORD(v14) = 2368;
+    LODWORD(v12) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v14) )
       __debugbreak();
   }
   if ( (v8 & s_streamingInfoValidEntries.array[v9]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_streaming_info_db.cpp", 214, ASSERT_TYPE_ASSERT, "(!s_streamingInfoValidEntries.testBit( toIndex ))", (const char *)&queryFormat, "!s_streamingInfoValidEntries.testBit( toIndex )") )
     __debugbreak();
   if ( (unsigned int)StreamingInfoIndex >= 0x940 )
   {
-    v30 = 2368;
-    v28 = StreamingInfoIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v30) )
+    v19 = 2368;
+    v17 = StreamingInfoIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v17, v19) )
       __debugbreak();
   }
   s_streamingInfoValidEntries.array[v7] &= ~v6;
@@ -687,41 +664,27 @@ void DB_StreamingInfo_Move(StreamingInfo *from, StreamingInfo *to)
   {
     if ( (unsigned int)v5 >= 0x940 )
     {
-      LODWORD(v29) = 2368;
-      LODWORD(v27) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v27, v29) )
+      LODWORD(v18) = 2368;
+      LODWORD(v16) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v18) )
         __debugbreak();
     }
     s_streamingInfoValidEntries.array[v9] |= v8;
     v11 = s_streamingInfoZoneIndices[v10];
   }
   s_streamingInfoZoneIndices[v5] = v11;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+30h]
-    vmovups xmmword ptr [rbx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+50h]
-    vmovups xmmword ptr [rbx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rbx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rdi+70h]
-    vmovups xmmword ptr [rbx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rbx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+90h]
-    vmovups xmmword ptr [rbx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0A0h]
-    vmovups xmmword ptr [rbx+0A0h], xmm1
-  }
-  _RBX->transientInfo = _RDI->transientInfo;
+  *(_OWORD *)&to->name = *(_OWORD *)&from->name;
+  *(_OWORD *)&to->alwaysloadedFlagSets[0].globalFlags.imageFlags = *(_OWORD *)&from->alwaysloadedFlagSets[0].globalFlags.imageFlags;
+  *(_OWORD *)&to->alwaysloadedFlagSets[0].modelCount = *(_OWORD *)&from->alwaysloadedFlagSets[0].modelCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[0].modelSurfCount = *(_OWORD *)&from->alwaysloadedFlagSets[0].modelSurfCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].globalFlags.images = *(_OWORD *)&from->alwaysloadedFlagSets[1].globalFlags.images;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].globalFlags.imageCount = *(_OWORD *)&from->alwaysloadedFlagSets[1].globalFlags.imageCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].perModelFlags = *(_OWORD *)&from->alwaysloadedFlagSets[1].perModelFlags;
+  *(_OWORD *)&to->alwaysloadedFlagSets[1].modelSurfs = *(_OWORD *)&from->alwaysloadedFlagSets[1].modelSurfs;
+  *(_OWORD *)&to->alwaysloadedFlagSets[2].globalFlags.imageFlags = *(_OWORD *)&from->alwaysloadedFlagSets[2].globalFlags.imageFlags;
+  *(_OWORD *)&to->alwaysloadedFlagSets[2].modelCount = *(_OWORD *)&from->alwaysloadedFlagSets[2].modelCount;
+  *(_OWORD *)&to->alwaysloadedFlagSets[2].modelSurfCount = *(_OWORD *)&from->alwaysloadedFlagSets[2].modelSurfCount;
+  to->transientInfo = from->transientInfo;
   if ( v10 >= 2368 )
   {
     j___report_rangecheckfailure(v11);

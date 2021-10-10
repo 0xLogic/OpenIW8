@@ -281,15 +281,14 @@ Scr_EvalPrimitiveExpression
 bool Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, VariableCompileValue *constValue)
 {
   bool result; 
-  sval_u v9; 
+  sval_u v5; 
   int type; 
+  sval_u v7; 
+  int v8; 
+  sval_u v9; 
+  sval_u v10; 
   sval_u v11; 
-  int v12; 
-  sval_u v13; 
-  sval_u v14; 
-  sval_u v15; 
 
-  _RAX = expr;
   switch ( expr.node->type )
   {
     case 9:
@@ -297,8 +296,7 @@ bool Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, Variable
       result = 1;
       break;
     case 0xA:
-      __asm { vmovss  xmm0, dword ptr [rax+8]; value }
-      Scr_EvalFloat(*(double *)&_XMM0, expr.node[2], constValue);
+      Scr_EvalFloat(expr.node[1].floatValue, expr.node[2], constValue);
       result = 1;
       break;
     case 0xB:
@@ -306,16 +304,11 @@ bool Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, Variable
       result = 1;
       break;
     case 0xC:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+8]; jumptable 0000000141457CA6 case 12
-        vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000; value
-      }
-      Scr_EvalFloat(*(double *)&_XMM0, expr.node[2], constValue);
+      Scr_EvalFloat(COERCE_FLOAT(expr.node[1].type ^ _xmm), expr.node[2], constValue);
       result = 1;
       break;
     case 0xD:
-      v9 = expr.node[2];
+      v5 = expr.node[2];
       type = expr.node[1].type;
       if ( !constValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 365, ASSERT_TYPE_ASSERT, "( constValue )", (const char *)&queryFormat, "constValue") )
         __debugbreak();
@@ -324,42 +317,42 @@ bool Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, Variable
       constValue->value.type = VAR_STRING;
       result = 1;
       constValue->value.u.intValue = type;
-      constValue->sourcePos = v9;
+      constValue->sourcePos = v5;
       break;
     case 0xE:
-      v11 = expr.node[2];
-      v12 = expr.node[1].type;
+      v7 = expr.node[2];
+      v8 = expr.node[1].type;
       if ( !constValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 376, ASSERT_TYPE_ASSERT, "( constValue )", (const char *)&queryFormat, "constValue") )
         __debugbreak();
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 377, ASSERT_TYPE_ASSERT, "( value != ( static_cast< scr_string_t >( 0 ) ) )", (const char *)&queryFormat, "value != NULL_SCR_STRING") )
+      if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 377, ASSERT_TYPE_ASSERT, "( value != ( static_cast< scr_string_t >( 0 ) ) )", (const char *)&queryFormat, "value != NULL_SCR_STRING") )
         __debugbreak();
       constValue->value.type = VAR_ISTRING;
       result = 1;
-      constValue->value.u.intValue = v12;
-      constValue->sourcePos = v11;
+      constValue->value.u.intValue = v8;
+      constValue->sourcePos = v7;
       break;
     case 0x26:
-      v13 = expr.node[1];
+      v9 = expr.node[1];
       if ( !constValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 356, ASSERT_TYPE_ASSERT, "( constValue )", (const char *)&queryFormat, "constValue") )
         __debugbreak();
       constValue->value.type = VAR_UNDEFINED;
       result = 1;
-      constValue->sourcePos = v13;
+      constValue->sourcePos = v9;
       break;
     case 0x36:
       result = Scr_EvalPrimitiveExpressionList(scrContext, expr.node[1], expr.node[2], constValue);
       break;
     case 0x4C:
-      v14 = expr.node[2];
-      v15 = expr.node[1];
+      v10 = expr.node[2];
+      v11 = expr.node[1];
       if ( !constValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 387, ASSERT_TYPE_ASSERT, "( constValue )", (const char *)&queryFormat, "constValue") )
         __debugbreak();
-      if ( !v15.type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 388, ASSERT_TYPE_ASSERT, "( anim.stringValue != ( static_cast< scr_string_t >( 0 ) ) )", (const char *)&queryFormat, "anim.stringValue != NULL_SCR_STRING") )
+      if ( !v11.type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 388, ASSERT_TYPE_ASSERT, "( anim.stringValue != ( static_cast< scr_string_t >( 0 ) ) )", (const char *)&queryFormat, "anim.stringValue != NULL_SCR_STRING") )
         __debugbreak();
       constValue->value.type = VAR_PRE_ANIMATION;
       result = 1;
-      constValue->value.u.intValue = v15.type;
-      constValue->sourcePos = v14;
+      constValue->value.u.intValue = v11.type;
+      constValue->sourcePos = v10;
       break;
     case 0x51:
       Scr_EvalInteger(0, expr.node[1], constValue);
@@ -1483,20 +1476,17 @@ Scr_EvalPrimitiveExpression
 */
 void Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, unsigned int localId, VariableValue *value)
 {
-  VariableValue *v4; 
   unsigned int canonicalString; 
   unsigned int String; 
   unsigned int Self; 
-  int v12; 
-  unsigned int v13; 
-  VariableType type; 
+  int v10; 
+  int type; 
+  VariableType v12; 
   VariableUnion u; 
-  VariableValue v16; 
+  VariableValue v14; 
   VariableValue valuea; 
 
-  v4 = value;
   canonicalString = localId;
-  _RBX = expr.node;
   switch ( expr.node->type )
   {
     case 9:
@@ -1513,12 +1503,7 @@ void Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, unsigned
       break;
     case 0xC:
       value->type = VAR_FLOAT;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  dword ptr [r9], xmm1
-      }
+      value->u.floatValue = COERCE_FLOAT(expr.node[1].type ^ _xmm);
       break;
     case 0xD:
       value->type = VAR_STRING;
@@ -1527,7 +1512,7 @@ void Scr_EvalPrimitiveExpression(scrContext_t *scrContext, sval_u expr, unsigned
       value->type = VAR_ISTRING;
 LABEL_8:
       String = j_SL_GetString_(expr.node[1].codePosValue, 0, 21);
-      Scr_SetStringValue(v4, String);
+      Scr_SetStringValue(value, String);
       break;
     case 0x14:
       Scr_EvalVariableExpression(scrContext, expr.node[1], localId, value);
@@ -1537,11 +1522,11 @@ LABEL_8:
       break;
     case 0x24:
       Scr_EvalExpression_0(scrContext, expr.node[1], localId, value);
-      Scr_IsDefined(scrContext, v4);
+      Scr_IsDefined(scrContext, value);
       break;
     case 0x25:
       Scr_EvalExpression_0(scrContext, expr.node[1], localId, value);
-      Scr_IsTrueOpcode(scrContext, v4);
+      Scr_IsTrueOpcode(scrContext, value);
       break;
     case 0x26:
       value->type = VAR_UNDEFINED;
@@ -1552,36 +1537,36 @@ LABEL_8:
       if ( canonicalString && Scr_IsThreadAlive(scrContext, canonicalString) )
       {
         Self = Scr_GetSelf(scrContext, canonicalString);
-        v4->type = VAR_POINTER;
-        v4->u.intValue = Self;
-        v12 = Self;
+        value->type = VAR_POINTER;
+        value->u.intValue = Self;
+        v10 = Self;
         AddRefToObject(scrContext, Self);
       }
       else
       {
         canonicalString = 0;
-        v4->type = VAR_UNDEFINED;
-        v12 = 0;
+        value->type = VAR_UNDEFINED;
+        v10 = 0;
         Scr_Error(COM_ERR_1921, scrContext, "thread not active");
       }
       if ( scrContext->m_evaluateGlob.freezeObjects )
       {
-        if ( _RBX[1].type != canonicalString || _RBX[2].type != v12 )
+        if ( expr.node[1].type != canonicalString || expr.node[2].type != v10 )
           scrContext->m_evaluateGlob.objectChanged = 1;
       }
       else
       {
-        _RBX[1].type = canonicalString;
-        _RBX[2].type = v12;
+        expr.node[1].type = canonicalString;
+        expr.node[2].type = v10;
       }
       break;
     case 0x28:
       if ( !expr.node[2].type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_evaluate.cpp", 1271, ASSERT_TYPE_ASSERT, "( expr.node[2].objectIdValue != NULL_OBJECT_VARIABLE_ID )", (const char *)&queryFormat, "expr.node[2].objectIdValue != NULL_OBJECT_VARIABLE_ID") )
         __debugbreak();
-      v4->type = VAR_POINTER;
-      v13 = _RBX[2].canonicalString;
-      v4->u.intValue = v13;
-      AddRefToObject(scrContext, v13);
+      value->type = VAR_POINTER;
+      type = expr.node[2].type;
+      value->u.intValue = type;
+      AddRefToObject(scrContext, type);
       break;
     case 0x2A:
       value->type = VAR_POINTER;
@@ -1601,7 +1586,7 @@ LABEL_8:
       break;
     case 0x3C:
       Scr_EvalPrimitiveExpression(scrContext, expr.node[1], localId, value);
-      Scr_EvalSizeValue(scrContext, v4);
+      Scr_EvalSizeValue(scrContext, value);
       break;
     case 0x4B:
       value->type = VAR_UNDEFINED;
@@ -1617,18 +1602,18 @@ LABEL_8:
       break;
     case 0x54:
       Scr_EvalPrimitiveExpression(scrContext, expr.node[1], localId, &valuea);
-      Scr_EvalExpression_0(scrContext, _RBX[2], canonicalString, &v16);
-      type = valuea.type;
+      Scr_EvalExpression_0(scrContext, expr.node[2], canonicalString, &v14);
+      v12 = valuea.type;
       u = valuea.u;
-      if ( valuea.type == VAR_POINTER && v16.type == VAR_STRING && scrContext->m_evaluateGlob.m_breakonObject == valuea.u.intValue && scrContext->m_evaluateGlob.m_breakonString == v16.u.intValue )
+      if ( valuea.type == VAR_POINTER && v14.type == VAR_STRING && scrContext->m_evaluateGlob.m_breakonObject == valuea.u.intValue && scrContext->m_evaluateGlob.m_breakonString == v14.u.intValue )
       {
         scrContext->m_evaluateGlob.m_breakonHit = 1;
-        ++_RBX[3].type;
+        ++expr.node[3].type;
       }
-      RemoveRefToValue(scrContext, (unsigned __int8)type, u);
-      RemoveRefToValue(scrContext, (unsigned __int8)v16.type, v16.u);
-      v4->type = VAR_INTEGER;
-      v4->u.intValue = _RBX[3].type;
+      RemoveRefToValue(scrContext, (unsigned __int8)v12, u);
+      RemoveRefToValue(scrContext, (unsigned __int8)v14.type, v14.u);
+      value->type = VAR_INTEGER;
+      value->u.intValue = expr.node[3].type;
       break;
     case 0x5F:
       value->type = VAR_UNDEFINED;
@@ -2314,13 +2299,13 @@ Scr_GetValueString
 void Scr_GetValueString(scrContext_t *scrContext, unsigned int localId, VariableValue *value, int len, char *s)
 {
   unsigned __int64 v5; 
-  const char *v12; 
-  const char *v13; 
+  const char *v9; 
+  const char *v10; 
   VariableUnion u; 
   unsigned int scriptCodePosValue; 
   const XAnim_s *Anims; 
   const char *AnimDebugName; 
-  __int64 v26; 
+  __int64 v15; 
   const char **m_pFuncNames; 
   unsigned int intValue; 
   VariableType ObjectType; 
@@ -2328,23 +2313,20 @@ void Scr_GetValueString(scrContext_t *scrContext, unsigned int localId, Variable
   char EntClassId; 
   __int64 ArraySize; 
   const char *NameForType; 
-  const char *v34; 
+  const char *v23; 
   char *fmt; 
-  char *fmta; 
-  double v37; 
 
   v5 = len;
-  _RBX = value;
   if ( value->type >= VAR_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_evaluate.cpp", 356, ASSERT_TYPE_ASSERT, "( (unsigned)value->type < VAR_COUNT )", (const char *)&queryFormat, "(unsigned)value->type < VAR_COUNT") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( value->type )
   {
     case VAR_UNDEFINED:
       Core_strcpy(s, v5, "undefined");
       return;
     case VAR_POINTER:
-      intValue = _RBX->u.intValue;
-      ObjectType = GetObjectType(scrContext, _RBX->u.intValue);
+      intValue = value->u.intValue;
+      ObjectType = GetObjectType(scrContext, value->u.intValue);
       if ( ObjectType == VAR_ENTITY )
       {
         EntNum = Scr_GetEntNum(scrContext, intValue);
@@ -2393,67 +2375,48 @@ LABEL_37:
       }
       return;
     case VAR_STRING:
-      v12 = SL_ConvertToString((scr_string_t)_RBX->u.intValue);
-      Com_sprintf(s, v5, "\"%s\"", v12);
+      v9 = SL_ConvertToString((scr_string_t)value->u.intValue);
+      Com_sprintf(s, v5, "\"%s\"", v9);
       return;
     case VAR_ISTRING:
-      v13 = SL_ConvertToString((scr_string_t)_RBX->u.intValue);
-      Com_sprintf(s, v5, "&\"%s\"", v13);
+      v10 = SL_ConvertToString((scr_string_t)value->u.intValue);
+      Com_sprintf(s, v5, "&\"%s\"", v10);
       return;
     case VAR_VECTOR:
-      _RAX = _RBX->u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+8]
-        vmovss  xmm3, dword ptr [rax]
-        vmovss  xmm1, dword ptr [rax+4]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+48h+var_20], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+48h+fmt], xmm1
-      }
-      Com_sprintf(s, v5, "(%g, %g, %g)", *(double *)&_XMM3, *(double *)&fmta, v37);
+      Com_sprintf(s, v5, "(%g, %g, %g)", *value->u.vectorValue, *(float *)(value->u.scriptCodePosValue + 4), *(float *)(value->u.scriptCodePosValue + 8));
       return;
     case VAR_FLOAT:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx]; jumptable 00000001415386ED case 5
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(s, v5, "%g", *(double *)&_XMM3);
+      Com_sprintf(s, v5, "%g", value->u.floatValue);
       return;
     case VAR_INTEGER:
-      Com_sprintf(s, v5, "%i", _RBX->u.uintValue);
+      Com_sprintf(s, v5, "%i", value->u.uintValue);
       return;
     case VAR_FUNCTION:
-      if ( ScriptCodePos::IsScriptPos_Generic(_RBX->u.scriptCodePosValue) )
-        Scr_GetCodePos(scrContext, (const char *)(_RBX->u.scriptCodePosValue - 1), 1u, s, v5);
+      if ( ScriptCodePos::IsScriptPos_Generic(value->u.scriptCodePosValue) )
+        Scr_GetCodePos(scrContext, (const char *)(value->u.scriptCodePosValue - 1), 1u, s, v5);
       else
         Com_sprintf(s, v5, "native.");
       return;
     case VAR_BUILTIN_FUNCTION:
-      v26 = _RBX->u.intValue - scrContext->m_funcBegin;
+      v15 = value->u.intValue - scrContext->m_funcBegin;
       m_pFuncNames = scrContext->m_pFuncNames;
       goto LABEL_16;
     case VAR_BUILTIN_METHOD:
-      v26 = _RBX->u.intValue - scrContext->m_methBegin;
+      v15 = value->u.intValue - scrContext->m_methBegin;
       m_pFuncNames = scrContext->m_pMethNames;
 LABEL_16:
-      Com_sprintf(s, v5, "::%s", m_pFuncNames[v26]);
+      Com_sprintf(s, v5, "::%s", m_pFuncNames[v15]);
       return;
     case VAR_ANIMATION:
-      u = _RBX->u;
-      scriptCodePosValue = (unsigned __int16)_RBX->u.scriptCodePosValue;
+      u = value->u;
+      scriptCodePosValue = (unsigned __int16)value->u.scriptCodePosValue;
       Anims = Scr_GetAnims(scrContext, HIWORD(u.uintValue));
       AnimDebugName = XAnimGetAnimDebugName(Anims, scriptCodePosValue);
       Com_sprintf(s, v5, "%%%s", AnimDebugName);
       return;
     default:
-      v34 = Scr_GetNameForType(_RBX->type);
-      Com_sprintf(s, v5, "<%s>", v34);
+      v23 = Scr_GetNameForType(value->type);
+      Com_sprintf(s, v5, "<%s>", v23);
       return;
   }
 }
@@ -2465,11 +2428,8 @@ Scr_InitEvaluate
 */
 void Scr_InitEvaluate(scrContext_t *scrContext)
 {
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:s_scrEvaluateStringGlob.archivedCanonicalStrings, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  s_scrEvaluateStringGlob = _XMM0;
   g_canonicalStrCount = 0;
   g_lastSortedCanonicalStrCount = 0;
   Scr_InitParseTreeMemory(scrContext);

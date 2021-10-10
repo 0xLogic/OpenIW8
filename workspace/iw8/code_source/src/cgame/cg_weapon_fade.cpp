@@ -114,6 +114,7 @@ void CG_WeaponFade_InitFadedWeaponForEntity(const LocalClientNum_t localClientNu
 {
   CGWeaponFadeClientData *ClientData; 
   bool v4; 
+  const dvar_t *v5; 
 
   ClientData = CG_WeaponFade_GetClientData(localClientNum);
   if ( entNum == 2047 )
@@ -130,17 +131,11 @@ void CG_WeaponFade_InitFadedWeaponForEntity(const LocalClientNum_t localClientNu
     __debugbreak();
 LABEL_7:
   ClientData->gfxData.entNum = entNum;
-  _RDI = DCONST_DVARFLT_cg_weaponFade_startTransitionFactor;
+  v5 = DCONST_DVARFLT_cg_weaponFade_startTransitionFactor;
   if ( !DCONST_DVARFLT_cg_weaponFade_startTransitionFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponFade_startTransitionFactor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm0, cs:__real@437f0000
-    vcvttss2si eax, xmm1
-  }
-  ClientData->gfxData.transitionFactor = _EAX;
+  Dvar_CheckFrontendServerThread(v5);
+  ClientData->gfxData.transitionFactor = (int)(float)(v5->current.value * 255.0);
   ClientData->gfxData.applyTransitionFactor = 1;
   ClientData->animating = 0;
 }
@@ -214,58 +209,33 @@ CG_WeaponFade_UpdateFadeAnimations
 */
 void CG_WeaponFade_UpdateFadeAnimations(const LocalClientNum_t localClientNum, CGWeaponFadeClientData *clientData)
 {
-  const dvar_t *v6; 
+  const dvar_t *v3; 
   int integer; 
-  char v11; 
-  char v12; 
+  const dvar_t *v7; 
+  float value; 
   cg_t *LocalClientGlobals; 
   int time; 
-  __int64 v30; 
-  double v31; 
-  __int64 v32; 
-  double v33; 
-  __int64 v34; 
-  double v35; 
+  int v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
 
-  v6 = DCONST_DVARINT_cg_weaponFade_transitionTime;
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
+  v3 = DCONST_DVARINT_cg_weaponFade_transitionTime;
   if ( !DCONST_DVARINT_cg_weaponFade_transitionTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponFade_transitionTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  integer = v6->current.integer;
+  Dvar_CheckFrontendServerThread(v3);
+  integer = v3->current.integer;
   if ( integer < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 46, ASSERT_TYPE_ASSERT, "(transitionTimeMs >= 0)", (const char *)&queryFormat, "transitionTimeMs >= 0") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_cg_weaponFade_startTransitionFactor;
+  v7 = DCONST_DVARFLT_cg_weaponFade_startTransitionFactor;
   if ( !DCONST_DVARFLT_cg_weaponFade_startTransitionFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponFade_startTransitionFactor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  if ( value < 0.0 || value > 1.0 )
   {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v11 )
-    goto LABEL_30;
-  __asm { vcomiss xmm6, xmm7 }
-  if ( !(v11 | v12) )
-  {
-LABEL_30:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+88h+var_50], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+88h+var_58], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+88h+var_60], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 49, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( startTransitionFactorNormalized ) && ( startTransitionFactorNormalized ) <= ( 1.f )", "startTransitionFactorNormalized not in [0.f, 1.f]\n\t%g not in [%g, %g]", v31, v33, v35) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 49, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( startTransitionFactorNormalized ) && ( startTransitionFactorNormalized ) <= ( 1.f )", "startTransitionFactorNormalized not in [0.f, 1.f]\n\t%g not in [%g, %g]", value, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
@@ -276,43 +246,27 @@ LABEL_30:
   {
     if ( clientData->gfxData.entNum == 2047 )
     {
-      LODWORD(v34) = 2047;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 58, ASSERT_TYPE_ASSERT, "( clientData.gfxData.entNum ) != ( ENTITYNUM_NONE )", "%s != %s\n\t%u, %u", "clientData.gfxData.entNum", "ENTITYNUM_NONE", v34, 2047) )
+      LODWORD(v15) = 2047;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 58, ASSERT_TYPE_ASSERT, "( clientData.gfxData.entNum ) != ( ENTITYNUM_NONE )", "%s != %s\n\t%u, %u", "clientData.gfxData.entNum", "ENTITYNUM_NONE", v15, 2047) )
         __debugbreak();
     }
     if ( clientData->gfxData.entNum > 0x9C5 )
     {
-      LODWORD(v32) = 2501;
-      LODWORD(v30) = clientData->gfxData.entNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 59, ASSERT_TYPE_ASSERT, "( clientData.gfxData.entNum ) <= ( ENTITYNUM_CLIENTMODEL_END )", "clientData.gfxData.entNum not in [0, ENTITYNUM_CLIENTMODEL_END]\n\t%u not in [0, %u]", v30, v32) )
+      LODWORD(v14) = 2501;
+      LODWORD(v13) = clientData->gfxData.entNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_fade.cpp", 59, ASSERT_TYPE_ASSERT, "( clientData.gfxData.entNum ) <= ( ENTITYNUM_CLIENTMODEL_END )", "clientData.gfxData.entNum not in [0, ENTITYNUM_CLIENTMODEL_END]\n\t%u not in [0, %u]", v13, v14) )
         __debugbreak();
     }
-    if ( time - clientData->transitionStartTimeMs < integer )
+    v12 = time - clientData->transitionStartTimeMs;
+    if ( v12 < integer )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, edi
-        vcvtsi2ss xmm0, xmm0, esi
-        vdivss  xmm2, xmm1, xmm0
-        vsubss  xmm1, xmm7, xmm2
-        vmulss  xmm0, xmm1, xmm6
-        vmulss  xmm2, xmm0, cs:__real@437f0000
-        vcvttss2si eax, xmm2
-      }
-      clientData->gfxData.transitionFactor = _EAX;
+      clientData->gfxData.transitionFactor = (int)(float)((float)((float)(1.0 - (float)((float)v12 / (float)integer)) * value) * 255.0);
     }
     else
     {
       clientData->gfxData.applyTransitionFactor = 0;
       clientData->animating = 0;
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
   }
 }
 

@@ -210,31 +210,23 @@ SV_SetupMPBotData
 */
 void SV_SetupMPBotData(void)
 {
+  bool *p_sv_isInUse; 
   unsigned int v1; 
+  MPBotPlayerDataContainer *BotMember; 
 
   if ( Com_FrontEndScene_IsActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_gamedata_mp.cpp", 16, ASSERT_TYPE_ASSERT, "(!Com_FrontEndScene_IsActive())", "%s\n\tThis looks up some dvars (e.g. onlinegame) directly, and cannot be used in the front-end", "!Com_FrontEndScene_IsActive()") )
     __debugbreak();
   Com_Printf(131087, "SV_SetupMPBotData: setting up bot data for MP bots.\n");
   if ( BG_Bots_IsBotMatchMakingAllowedForPlaylist() && BG_GameStateInfo_IsBotMatchMakingDataInitialized() )
   {
-    _RBX = &g_svMPBotData[0].sv_isInUse;
+    p_sv_isInUse = &g_svMPBotData[0].sv_isInUse;
     v1 = 0;
     do
     {
-      _RAX = BG_GameStateInfo_GetBotMember(v1++);
-      _RBX += 88;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbx-0ADh], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbx-8Dh], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rbx-6Dh], xmm0
-        vmovsd  xmm1, qword ptr [rax+50h]
-        vmovsd  qword ptr [rbx-5Dh], xmm1
-      }
-      *((_WORD *)_RBX - 44) = -256;
+      BotMember = BG_GameStateInfo_GetBotMember(v1++);
+      p_sv_isInUse += 88;
+      *(MPBotPlayerDataContainer *)(p_sv_isInUse - 173) = *BotMember;
+      *((_WORD *)p_sv_isInUse - 44) = -256;
     }
     while ( v1 < 0xC8 );
   }

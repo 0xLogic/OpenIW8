@@ -137,16 +137,7 @@ XNADDR::operator=
 */
 XNADDR *XNADDR::operator=(XNADDR *this, const XNADDR *other)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-  }
-  *(_DWORD *)&this->addrBuff[80] = *(_DWORD *)&other->addrBuff[80];
+  *this = *other;
   return this;
 }
 
@@ -177,16 +168,7 @@ XNADDR::Clear
 */
 void XNADDR::Clear(XNADDR *this)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:NULL_ADDR.addrBuff
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr cs:NULL_ADDR.addrBuff+20h
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups xmm0, xmmword ptr cs:NULL_ADDR.addrBuff+40h
-    vmovups xmmword ptr [rcx+40h], xmm0
-  }
-  *(_DWORD *)&this->addrBuff[80] = *(_DWORD *)&NULL_ADDR.addrBuff[80];
+  *this = NULL_ADDR;
 }
 
 /*

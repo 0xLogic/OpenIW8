@@ -826,7 +826,8 @@ void cacheRangeToSnapshotRange(const hkArray<hknpCollisionCacheRange,hkContainer
   hkMemoryAllocator *v9; 
   int m_size; 
   int v11; 
-  __int64 v14; 
+  hkSnapShotRange *v12; 
+  double v13; 
 
   v2 = 0;
   if ( ranges->m_size > 0 )
@@ -842,7 +843,7 @@ void cacheRangeToSnapshotRange(const hkArray<hknpCollisionCacheRange,hkContainer
         if ( v6->m_startBlockNumElements )
         {
           if ( (hkBlockStream::Block *)((char *)v6->m_startBlock + m_startByteOffset) != (hkBlockStream::Block *)-32i64 )
-            v14 = *(_QWORD *)&v6->m_startBlock->m_data[m_startByteOffset];
+            v13 = *(double *)&v6->m_startBlock->m_data[m_startByteOffset];
         }
       }
       v9 = hkMemHeapAllocator();
@@ -854,15 +855,11 @@ void cacheRangeToSnapshotRange(const hkArray<hknpCollisionCacheRange,hkContainer
         m_size = rangesOut->m_size;
         v11 = m_size;
       }
-      _RDX = &rangesOut->m_data[m_size];
-      if ( _RDX )
+      v12 = &rangesOut->m_data[m_size];
+      if ( v12 )
       {
-        __asm
-        {
-          vmovsd  xmm0, [rsp+38h+var_18]
-          vmovsd  qword ptr [rdx], xmm0
-        }
-        _RDX->m_numElements = m_numElements;
+        *(double *)&v12->m_firstPair = v13;
+        v12->m_numElements = m_numElements;
         v11 = rangesOut->m_size;
       }
       ++v2;
@@ -887,31 +884,33 @@ __int64 exportBodiesAndBroadphase(hknpWorld *world, hkStreamWriter *writer)
   unsigned int v8; 
   unsigned int v9; 
   const hknpBody *p_m_pod; 
-  __int64 v13; 
+  __int128 *v11; 
+  __int64 v12; 
   hknpBodyId *p_m_id; 
-  hkMemoryAllocator *v15; 
-  __int64 v16; 
+  hkMemoryAllocator *v14; 
+  __int64 v15; 
   int *p_m_capacityAndFlags; 
-  hkMemoryAllocator *v18; 
-  char v20[4]; 
-  int v21; 
-  __int64 v22; 
-  int v23[3]; 
+  hkMemoryAllocator *v17; 
+  char v19[4]; 
+  int v20; 
+  __int64 v21; 
+  int v22[3]; 
   unsigned int m_size; 
-  hknpBody v25; 
+  hknpBody v24; 
+  __int128 v25; 
   hkInplaceArray<hkArray<hknpBodyId,hkContainerHeapAllocator>,32,hkContainerHeapAllocator> bodyIdsPerTreeOut; 
 
-  v22 = -2i64;
+  v21 = -2i64;
   world->commitAddBodies(&world->hknpWorldWriter);
-  v23[0] = world->m_bodyManager.m_bodies.m_objects.m_size;
-  v23[1] = world->m_bodyManager.m_bodies.m_numAllocated;
-  v23[2] = world->m_bodyManager.m_activeBodyIds.m_size;
+  v22[0] = world->m_bodyManager.m_bodies.m_objects.m_size;
+  v22[1] = world->m_bodyManager.m_bodies.m_numAllocated;
+  v22[2] = world->m_bodyManager.m_activeBodyIds.m_size;
   m_size = world->m_bodyManager.m_scheduledBodyChanges.m_size;
-  writer->write(writer, v23, 16);
+  writer->write(writer, v22, 16);
   for ( i = 0; i < m_size; ++i )
     writer->write(writer, &world->m_bodyManager.m_scheduledBodyChanges.m_data[i], 12);
   v5 = 0;
-  v21 = 0;
+  v20 = 0;
   if ( world->m_bodyManager.m_scheduledBodyChangeIndices.m_size > 0 )
   {
     v6 = 0;
@@ -919,11 +918,11 @@ __int64 exportBodiesAndBroadphase(hknpWorld *world, hkStreamWriter *writer)
     {
       if ( world->m_bodyManager.m_scheduledBodyChangeIndices.m_data[v6] != -1 )
       {
-        writer->write(writer, &v21, 4);
-        writer->write(writer, &world->m_bodyManager.m_scheduledBodyChangeIndices.m_data[v21], 4);
-        v5 = v21;
+        writer->write(writer, &v20, 4);
+        writer->write(writer, &world->m_bodyManager.m_scheduledBodyChangeIndices.m_data[v20], 4);
+        v5 = v20;
       }
-      v21 = ++v5;
+      v20 = ++v5;
       v6 = v5;
     }
     while ( v5 < world->m_bodyManager.m_scheduledBodyChangeIndices.m_size );
@@ -949,17 +948,13 @@ LABEL_22:
         do
         {
           p_m_pod = &m_data[v9].m_pod;
-          _RDI = &world->m_bodyManager.m_previousAabbs.m_data[p_m_pod->m_id.m_serialAndIndex & 0xFFFFFF];
-          v25.m_shape = NULL;
-          hknpBody::operator=(&v25, p_m_pod);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovdqa [rbp+250h+var_260], xmm0
-          }
-          writer->write(writer, &v25, 192);
-          if ( hknpBody::s_isShapeReferenceCountingEnabled && v25.m_shape )
-            hkReferencedObject::removeReference(&v25.m_shape->hkReferencedObject);
+          v11 = (__int128 *)&world->m_bodyManager.m_previousAabbs.m_data[p_m_pod->m_id.m_serialAndIndex & 0xFFFFFF];
+          v24.m_shape = NULL;
+          hknpBody::operator=(&v24, p_m_pod);
+          v25 = *v11;
+          writer->write(writer, &v24, 192);
+          if ( hknpBody::s_isShapeReferenceCountingEnabled && v24.m_shape )
+            hkReferencedObject::removeReference(&v24.m_shape->hkReferencedObject);
           if ( ++v9 >= v8 )
           {
 LABEL_21:
@@ -980,45 +975,45 @@ LABEL_21:
   }
 LABEL_23:
   hknpBodyManager::rebuildFreeList(&world->m_bodyManager);
-  v13 = world->m_bodyManager.m_bodies.m_objects.m_size;
-  if ( v13 > 0 )
+  v12 = world->m_bodyManager.m_bodies.m_objects.m_size;
+  if ( v12 > 0 )
   {
     p_m_id = &world->m_bodyManager.m_bodies.m_objects.m_data->m_pod.m_id;
     do
     {
-      v20[0] = HIBYTE(p_m_id->m_serialAndIndex);
-      writer->write(writer, v20, 1);
+      v19[0] = HIBYTE(p_m_id->m_serialAndIndex);
+      writer->write(writer, v19, 1);
       p_m_id += 44;
-      --v13;
+      --v12;
     }
-    while ( v13 );
+    while ( v12 );
   }
   bodyIdsPerTreeOut.m_data = (hkArray<hknpBodyId,hkContainerHeapAllocator> *)&bodyIdsPerTreeOut.m_storage;
   bodyIdsPerTreeOut.m_size = 0;
   bodyIdsPerTreeOut.m_capacityAndFlags = -2147483616;
   getBodyIdsPerTree(world, &bodyIdsPerTreeOut);
   resetBroadphase<hkStreamWriter>(world, writer, &bodyIdsPerTreeOut);
-  v15 = hkMemHeapAllocator();
-  v16 = bodyIdsPerTreeOut.m_size - 1;
+  v14 = hkMemHeapAllocator();
+  v15 = bodyIdsPerTreeOut.m_size - 1;
   if ( bodyIdsPerTreeOut.m_size - 1 >= 0 )
   {
-    p_m_capacityAndFlags = &bodyIdsPerTreeOut.m_data[v16].m_capacityAndFlags;
+    p_m_capacityAndFlags = &bodyIdsPerTreeOut.m_data[v15].m_capacityAndFlags;
     do
     {
-      v18 = hkMemHeapAllocator();
+      v17 = hkMemHeapAllocator();
       *(p_m_capacityAndFlags - 1) = 0;
       if ( *p_m_capacityAndFlags >= 0 )
-        hkMemoryAllocator::bufFree2(v18, *(void **)(p_m_capacityAndFlags - 3), 4, *p_m_capacityAndFlags & 0x3FFFFFFF);
+        hkMemoryAllocator::bufFree2(v17, *(void **)(p_m_capacityAndFlags - 3), 4, *p_m_capacityAndFlags & 0x3FFFFFFF);
       *(_QWORD *)(p_m_capacityAndFlags - 3) = 0i64;
       *p_m_capacityAndFlags = 0x80000000;
       p_m_capacityAndFlags -= 4;
-      --v16;
+      --v15;
     }
-    while ( v16 >= 0 );
+    while ( v15 >= 0 );
   }
   bodyIdsPerTreeOut.m_size = 0;
   if ( bodyIdsPerTreeOut.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v15, bodyIdsPerTreeOut.m_data, 16, bodyIdsPerTreeOut.m_capacityAndFlags & 0x3FFFFFFF);
+    hkMemoryAllocator::bufFree2(v14, bodyIdsPerTreeOut.m_data, 16, bodyIdsPerTreeOut.m_capacityAndFlags & 0x3FFFFFFF);
   return 0i64;
 }
 
@@ -1667,16 +1662,18 @@ __int64 exportMotions(hknpWorld *world, hkStreamWriter *writer)
   hknpThreadSafeObjectPoolElement<hknpMotion> *m_data; 
   unsigned int v6; 
   unsigned int v7; 
-  hkStreamWriter_vtbl *v17; 
-  unsigned int v19; 
-  int v20; 
-  __int128 v21[8]; 
-  unsigned int v22; 
+  __int128 *v8; 
+  __int128 v9; 
+  hkStreamWriter_vtbl *v10; 
+  unsigned int v12; 
+  int v13; 
+  __int128 v14[8]; 
+  unsigned int v15; 
 
   p_m_motionManager = &world->m_motionManager;
-  v19 = world->m_motionManager.m_motions.m_numAllocated - 1;
-  v20 = world->m_motionManager.m_activeMotionsPerCell[0].m_size - 1;
-  writer->write(writer, &v19, 8);
+  v12 = world->m_motionManager.m_motions.m_numAllocated - 1;
+  v13 = world->m_motionManager.m_activeMotionsPerCell[0].m_size - 1;
+  writer->write(writer, &v12, 8);
   v4 = 0;
   m_data = p_m_motionManager->m_motions.m_objects.m_data;
   v6 = p_m_motionManager->m_motions.m_peakIndex + 1;
@@ -1709,29 +1706,19 @@ LABEL_7:
     }
     while ( v7 != -1 )
     {
-      _RAX = &m_data[(unsigned __int64)v7];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups [rsp+0E8h+var_B8], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups [rsp+0E8h+var_A8], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups [rsp+0E8h+var_98], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups [rsp+0E8h+var_88], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups [rsp+0E8h+var_78], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups [rsp+0E8h+var_68], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups [rsp+0E8h+var_58], xmm0
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      v17 = writer->__vftable;
-      __asm { vmovups [rsp+0E8h+var_48], xmm1 }
-      v22 = v7;
-      v17->write(writer, v21, 144);
+      v8 = (__int128 *)&m_data[(unsigned __int64)v7];
+      v14[0] = *v8;
+      v14[1] = v8[1];
+      v14[2] = v8[2];
+      v14[3] = v8[3];
+      v14[4] = v8[4];
+      v14[5] = v8[5];
+      v14[6] = v8[6];
+      v9 = v8[7];
+      v10 = writer->__vftable;
+      v14[7] = v9;
+      v15 = v7;
+      v10->write(writer, v14, 144);
       if ( ++v7 >= v6 )
       {
 LABEL_15:
@@ -1748,8 +1735,8 @@ LABEL_15:
     }
   }
 LABEL_17:
-  if ( v20 )
-    writer->write(writer, &p_m_motionManager->m_activeMotionsPerCell[0].m_data[1], 4 * v20);
+  if ( v13 )
+    writer->write(writer, &p_m_motionManager->m_activeMotionsPerCell[0].m_data[1], 4 * v13);
   hknpMotionManager::rebuildFreeList(p_m_motionManager);
   return 0i64;
 }
@@ -2107,54 +2094,60 @@ __int64 importBodiesAndBroadphase(hknpWorld *worldIn, hkStreamReader *reader, Np
   int v51; 
   unsigned __int8 v52; 
   int v53; 
-  const hknpShape *v69; 
-  int v70; 
-  hkArray<hknpBodyId,hkContainerHeapAllocator> *v71; 
+  hknpThreadSafeObjectPoolElement<hknpBody> *v54; 
+  const hknpShape *v55; 
+  int v56; 
+  hkArray<hknpBodyId,hkContainerHeapAllocator> *v57; 
   const hknpShape *m_shape; 
-  __int64 v73; 
-  __int64 v74; 
-  __int64 v75; 
-  __int64 v76; 
+  __int64 v59; 
+  __int64 v60; 
+  __int64 v61; 
+  __int64 v62; 
   hknpThreadSafeObjectPoolElement<hknpBody> *m_data; 
-  unsigned int v78; 
-  __int64 v79; 
-  hkMemoryAllocator *v80; 
-  __int64 v81; 
-  int *v82; 
-  hkMemoryAllocator *v83; 
-  hkMemoryAllocator *v84; 
-  char v85[8]; 
+  unsigned int v64; 
+  __int64 v65; 
+  hkMemoryAllocator *v66; 
+  __int64 v67; 
+  int *v68; 
+  hkMemoryAllocator *v69; 
+  hkMemoryAllocator *v70; 
+  char v71[8]; 
   int numInOut; 
   hknpBodyId desiredId[2]; 
   _DWORD *array; 
-  int v89; 
-  int v90; 
-  unsigned int v91; 
-  __int64 v92; 
-  NpSimulationSnapshot::PostImportPatch *v93; 
-  __int64 v94; 
-  unsigned int v95; 
-  unsigned int v96; 
-  int v97; 
-  unsigned int v98; 
-  __int128 v99[4]; 
-  __int128 v100; 
-  hkReferencedObject *v102[2]; 
-  __int128 v103; 
+  int v75; 
+  int v76; 
+  unsigned int v77; 
+  __int64 v78; 
+  NpSimulationSnapshot::PostImportPatch *v79; 
+  __int64 v80; 
+  unsigned int v81; 
+  unsigned int v82; 
+  int v83; 
+  unsigned int v84; 
+  __int128 v85[4]; 
+  __int128 v86; 
+  hkAabb24_16_24 v87; 
+  hkReferencedObject *v88[2]; 
+  __int128 v89; 
+  hkQuaternionf v90; 
+  __int128 v91; 
+  __int128 v92; 
+  hkAabb24_16_24 v93; 
   hkInplaceArray<hkArray<hknpBodyId,hkContainerHeapAllocator>,32,hkContainerHeapAllocator> bodyIdsPerTree; 
-  hknpDeactivationStepInfo v109; 
+  hknpDeactivationStepInfo v95; 
 
-  v94 = -2i64;
-  v93 = fixupUtil;
-  if ( reader->read(reader, &v95, 16) != 16 )
+  v80 = -2i64;
+  v79 = fixupUtil;
+  if ( reader->read(reader, &v81, 16) != 16 )
     return 2147746304i64;
-  hknpDeactivationStepInfo::hknpDeactivationStepInfo(&v109, worldIn->m_motionManager.m_motions.m_peakIndex + 1, 1);
-  v6 = v96;
+  hknpDeactivationStepInfo::hknpDeactivationStepInfo(&v95, worldIn->m_motionManager.m_motions.m_peakIndex + 1, 1);
+  v6 = v82;
   *(_QWORD *)&desiredId[0].m_serialAndIndex = &array;
   array = NULL;
-  v89 = 0;
-  v90 = 0x80000000;
-  v7 = (int)(v96 + 31) >> 5;
+  v75 = 0;
+  v76 = 0x80000000;
+  v7 = (int)(v82 + 31) >> 5;
   numInOut = v7;
   v8 = hkMemHeapAllocator();
   v9 = v7;
@@ -2171,13 +2164,13 @@ __int64 importBodiesAndBroadphase(hknpWorld *worldIn, hkStreamReader *reader, Np
   if ( v9 )
     v11 = v9;
   array = v10;
-  v89 = v7;
-  v90 = v11;
-  v91 = v6;
+  v75 = v7;
+  v76 = v11;
+  v77 = v6;
   v12 = hkMemHeapAllocator();
-  if ( (v90 & 0x3FFFFFFF) < v7 )
+  if ( (v76 & 0x3FFFFFFF) < v7 )
   {
-    v13 = 2 * (v90 & 0x3FFFFFFF);
+    v13 = 2 * (v76 & 0x3FFFFFFF);
     if ( (unsigned int)v13 >= 0x3FFFFFFF )
       v13 = 1073741822;
     v14 = v7;
@@ -2185,7 +2178,7 @@ __int64 importBodiesAndBroadphase(hknpWorld *worldIn, hkStreamReader *reader, Np
       v14 = v13;
     hkArrayUtil::_reserve(v12, &array, v14, 4);
   }
-  v89 = v7;
+  v75 = v7;
   if ( v7 > 0 )
   {
     v15 = (unsigned int)v7;
@@ -2198,7 +2191,7 @@ __int64 importBodiesAndBroadphase(hknpWorld *worldIn, hkStreamReader *reader, Np
   }
   p_m_bodyManager = &worldIn->m_bodyManager;
   hknpBodyManager::clearAllScheduledBodyChanges(&worldIn->m_bodyManager);
-  v18 = v98;
+  v18 = v84;
   v19 = hkMemHeapAllocator();
   v20 = worldIn->m_bodyManager.m_scheduledBodyChanges.m_capacityAndFlags & 0x3FFFFFFF;
   if ( v20 < v18 )
@@ -2213,14 +2206,14 @@ __int64 importBodiesAndBroadphase(hknpWorld *worldIn, hkStreamReader *reader, Np
   }
   worldIn->m_bodyManager.m_scheduledBodyChanges.m_size = v18;
   v23 = 0;
-  v24 = v98;
-  if ( v98 )
+  v24 = v84;
+  if ( v84 )
   {
     while ( reader->read(reader, &worldIn->m_bodyManager.m_scheduledBodyChanges.m_data[v23], 12) == 12 )
     {
       ++v23;
-      v24 = v98;
-      if ( v23 >= v98 )
+      v24 = v84;
+      if ( v23 >= v84 )
         goto LABEL_27;
     }
     goto LABEL_43;
@@ -2231,7 +2224,7 @@ LABEL_27:
   {
 LABEL_31:
     worldIn->m_bodyManager.m_activeBodyIds.m_size = 0;
-    v26 = v97;
+    v26 = v83;
     v27 = hkMemHeapAllocator();
     v28 = worldIn->m_bodyManager.m_activeBodyIds.m_capacityAndFlags & 0x3FFFFFFF;
     if ( v28 < v26 )
@@ -2274,7 +2267,7 @@ LABEL_31:
     }
     v37 = bodyIdsPerTree.m_size;
     v38 = m_size;
-    v92 = m_size;
+    v78 = m_size;
     v39 = bodyIdsPerTree.m_size - m_size - 1;
     if ( bodyIdsPerTree.m_size - m_size - 1 >= 0 )
     {
@@ -2320,7 +2313,7 @@ LABEL_31:
       do
       {
         v47 = &bodyIdsPerTree.m_data[v45];
-        v48 = v96;
+        v48 = v82;
         v49 = hkMemHeapAllocator();
         v50 = v47->m_capacityAndFlags & 0x3FFFFFFF;
         if ( v50 < v48 )
@@ -2340,82 +2333,62 @@ LABEL_31:
       p_m_bodyManager = &worldIn->m_bodyManager;
     }
     v52 = hknpBody::s_isShapeReferenceCountingEnabled;
-    v85[0] = hknpBody::s_isShapeReferenceCountingEnabled;
+    v71[0] = hknpBody::s_isShapeReferenceCountingEnabled;
     hknpBody::s_isShapeReferenceCountingEnabled = 0;
     v53 = 0;
-    if ( v96 )
+    if ( v82 )
     {
       while ( 1 )
       {
-        v102[0] = NULL;
-        if ( reader->read(reader, v99, 192) != 192 )
+        v88[0] = NULL;
+        if ( reader->read(reader, v85, 192) != 192 )
           break;
         hknpBodyManager::allocateBody(p_m_bodyManager, (hknpBodyId)desiredId);
-        _RBX = &p_m_bodyManager->m_bodies.m_objects.m_data[v103 & 0xFFFFFF].m_pod;
-        __asm
+        v54 = &p_m_bodyManager->m_bodies.m_objects.m_data[v89 & 0xFFFFFF];
+        v54->m_pod.m_transform.m_rotation.m_col0 = (hkVector4f)v85[0];
+        v54->m_pod.m_transform.m_rotation.m_col1 = (hkVector4f)v85[1];
+        v54->m_pod.m_transform.m_rotation.m_col2 = (hkVector4f)v85[2];
+        v54->m_pod.m_transform.m_translation = (hkVector4f)v85[3];
+        *(_OWORD *)&v54->m_pod.m_motionId.m_value = v86;
+        v54->m_pod.m_aabb = v87;
+        *(_OWORD *)&v54->m_pod.m_shape = *(_OWORD *)v88;
+        *(_OWORD *)&v54->m_pod.m_id.m_serialAndIndex = v89;
+        v54->m_pod.m_motionToBodyRotation = (hkQuaternionf)v90.m_vec.m_quad;
+        *(_OWORD *)&v54->m_pod.m_lodTypeToVariant[0].m_data = v91;
+        *(_OWORD *)&v54->m_pod.m_userData = v92;
+        p_m_bodyManager->m_previousAabbs.m_data[v89 & 0xFFFFFF] = v93;
+        if ( (BYTE4(v86) & 8) != 0 )
+          p_m_bodyManager->m_bodyIndexToCellIndexMap.m_data[v54->m_pod.m_id.m_serialAndIndex & 0xFFFFFF] = *(_BYTE *)(((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))worldIn->getMotion)(&worldIn->hknpWorldReader, v54->m_pod.m_motionId.m_value) + 62);
+        if ( v79 )
         {
-          vmovups xmm0, [rbp+3D0h+var_450]
-          vmovups xmmword ptr [rbx], xmm0
-          vmovups xmm1, [rbp+3D0h+var_440]
-          vmovups xmmword ptr [rbx+10h], xmm1
-          vmovups xmm0, [rbp+3D0h+var_430]
-          vmovups xmmword ptr [rbx+20h], xmm0
-          vmovups xmm1, [rbp+3D0h+var_420]
-          vmovups xmmword ptr [rbx+30h], xmm1
-          vmovups xmm0, [rbp+3D0h+var_410]
-          vmovups xmmword ptr [rbx+40h], xmm0
-          vmovups xmm1, [rbp+3D0h+var_400]
-          vmovups xmmword ptr [rbx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rbp+3D0h+var_3F0]
-          vmovups xmmword ptr [rbx+60h], xmm0
-          vmovups xmm1, [rbp+3D0h+var_3E0]
-          vmovups xmmword ptr [rbx+70h], xmm1
-          vmovups xmm0, [rbp+3D0h+var_3D0]
-          vmovups xmmword ptr [rbx+80h], xmm0
-          vmovups xmm1, [rbp+3D0h+var_3C0]
-          vmovups xmmword ptr [rbx+90h], xmm1
-          vmovups xmm0, [rbp+3D0h+var_3B0]
-          vmovups xmmword ptr [rbx+0A0h], xmm0
+          v55 = (const hknpShape *)v79->getShapeForBody(v79, &v54->m_pod);
+          hknpBody::setShape(&v54->m_pod, v55);
         }
-        _RCX = 2 * (v103 & 0xFFFFFF);
-        _RAX = p_m_bodyManager->m_previousAabbs.m_data;
-        __asm
-        {
-          vmovups xmm0, [rbp+3D0h+var_3A0]
-          vmovdqu xmmword ptr [rax+rcx*8], xmm0
-        }
-        if ( (BYTE4(v100) & 8) != 0 )
-          p_m_bodyManager->m_bodyIndexToCellIndexMap.m_data[_RBX->m_id.m_serialAndIndex & 0xFFFFFF] = *(_BYTE *)(((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))worldIn->getMotion)(&worldIn->hknpWorldReader, _RBX->m_motionId.m_value) + 62);
-        if ( v93 )
-        {
-          v69 = (const hknpShape *)v93->getShapeForBody(v93, _RBX);
-          hknpBody::setShape(_RBX, v69);
-        }
-        if ( _RBX->m_broadPhaseId != -1 )
+        if ( v54->m_pod.m_broadPhaseId != -1 )
         {
           if ( ((unsigned int (__fastcall *)(hknpBroadPhase *))UndecoratedBroadPhase->getType)(UndecoratedBroadPhase) == 1 )
-            v70 = _RBX->m_broadPhaseId >> 29;
+            v56 = v54->m_pod.m_broadPhaseId >> 29;
           else
-            v70 = ((unsigned int (__fastcall *)(hknpBroadPhase *))UndecoratedBroadPhase->getType)(UndecoratedBroadPhase) == 2 ? _RBX->m_broadPhaseId & 0x1F : -1;
-          v71 = &bodyIdsPerTree.m_data[v70];
-          v71->m_data[v71->m_size++].m_serialAndIndex = _RBX->m_id.m_serialAndIndex;
-          m_shape = _RBX->m_shape;
+            v56 = ((unsigned int (__fastcall *)(hknpBroadPhase *))UndecoratedBroadPhase->getType)(UndecoratedBroadPhase) == 2 ? v54->m_pod.m_broadPhaseId & 0x1F : -1;
+          v57 = &bodyIdsPerTree.m_data[v56];
+          v57->m_data[v57->m_size++].m_serialAndIndex = v54->m_pod.m_id.m_serialAndIndex;
+          m_shape = v54->m_pod.m_shape;
           if ( m_shape )
           {
             if ( m_shape->getMutationSignals(m_shape) )
-              hknpShapeManager::registerBodyWithMutableShape(worldIn->m_shapeManager.m_ptr, _RBX);
+              hknpShapeManager::registerBodyWithMutableShape(worldIn->m_shapeManager.m_ptr, &v54->m_pod);
           }
         }
-        if ( hknpBody::s_isShapeReferenceCountingEnabled && v102[0] )
-          hkReferencedObject::removeReference(v102[0]);
-        if ( ++v53 >= v96 )
+        if ( hknpBody::s_isShapeReferenceCountingEnabled && v88[0] )
+          hkReferencedObject::removeReference(v88[0]);
+        if ( ++v53 >= v82 )
         {
-          v52 = v85[0];
+          v52 = v71[0];
           goto LABEL_87;
         }
       }
-      if ( hknpBody::s_isShapeReferenceCountingEnabled && v102[0] )
-        hkReferencedObject::removeReference(v102[0]);
+      if ( hknpBody::s_isShapeReferenceCountingEnabled && v88[0] )
+        hkReferencedObject::removeReference(v88[0]);
     }
     else
     {
@@ -2425,91 +2398,91 @@ LABEL_87:
       hknpBodyManager::rebuildFreeList(p_m_bodyManager);
       if ( ((unsigned __int64)worldIn->m_signals.m_bodiesAdded.m_slots.m_ptrAndInt & 0xFFFFFFFFFFFFFFFCui64) != 0 )
       {
-        v73 = v92;
-        if ( v92 > 0 )
+        v59 = v78;
+        if ( v78 > 0 )
         {
-          v74 = 0i64;
+          v60 = 0i64;
           do
           {
-            v75 = 0i64;
-            v76 = bodyIdsPerTree.m_data[v74].m_size;
-            if ( v76 > 0 )
+            v61 = 0i64;
+            v62 = bodyIdsPerTree.m_data[v60].m_size;
+            if ( v62 > 0 )
             {
               do
               {
-                desiredId[0] = bodyIdsPerTree.m_data[v74].m_data[v75];
+                desiredId[0] = bodyIdsPerTree.m_data[v60].m_data[v61];
                 hkSignal3<hknpWorld *,hknpBodyId const *,int>::fire(&worldIn->m_signals.m_bodiesAdded, worldIn, desiredId, 1);
-                ++v75;
+                ++v61;
               }
-              while ( v75 < v76 );
+              while ( v61 < v62 );
             }
-            ++v74;
-            --v73;
+            ++v60;
+            --v59;
           }
-          while ( v73 );
+          while ( v59 );
         }
       }
       m_data = worldIn->m_bodyManager.m_bodies.m_objects.m_data;
-      v78 = 0;
-      if ( !v95 )
+      v64 = 0;
+      if ( !v81 )
       {
 LABEL_96:
         resetBroadphase<hkStreamReader>(worldIn, reader, &bodyIdsPerTree);
         v36 = 0;
 LABEL_97:
-        v80 = hkMemHeapAllocator();
-        v81 = bodyIdsPerTree.m_size - 1;
+        v66 = hkMemHeapAllocator();
+        v67 = bodyIdsPerTree.m_size - 1;
         if ( bodyIdsPerTree.m_size - 1 >= 0 )
         {
-          v82 = &bodyIdsPerTree.m_data[v81].m_capacityAndFlags;
+          v68 = &bodyIdsPerTree.m_data[v67].m_capacityAndFlags;
           do
           {
-            v83 = hkMemHeapAllocator();
-            *(v82 - 1) = 0;
-            if ( *v82 >= 0 )
-              hkMemoryAllocator::bufFree2(v83, *(void **)(v82 - 3), 4, *v82 & 0x3FFFFFFF);
-            *(_QWORD *)(v82 - 3) = 0i64;
-            *v82 = 0x80000000;
-            v82 -= 4;
-            --v81;
+            v69 = hkMemHeapAllocator();
+            *(v68 - 1) = 0;
+            if ( *v68 >= 0 )
+              hkMemoryAllocator::bufFree2(v69, *(void **)(v68 - 3), 4, *v68 & 0x3FFFFFFF);
+            *(_QWORD *)(v68 - 3) = 0i64;
+            *v68 = 0x80000000;
+            v68 -= 4;
+            --v67;
           }
-          while ( v81 >= 0 );
+          while ( v67 >= 0 );
         }
         bodyIdsPerTree.m_size = 0;
         if ( bodyIdsPerTree.m_capacityAndFlags >= 0 )
-          hkMemoryAllocator::bufFree2(v80, bodyIdsPerTree.m_data, 16, bodyIdsPerTree.m_capacityAndFlags & 0x3FFFFFFF);
+          hkMemoryAllocator::bufFree2(v66, bodyIdsPerTree.m_data, 16, bodyIdsPerTree.m_capacityAndFlags & 0x3FFFFFFF);
         bodyIdsPerTree.m_data = NULL;
         bodyIdsPerTree.m_capacityAndFlags = 0x80000000;
         goto LABEL_105;
       }
-      while ( reader->read(reader, v85, 1) == 1 )
+      while ( reader->read(reader, v71, 1) == 1 )
       {
-        v79 = v78;
-        m_data[v79].m_pod.m_id.m_serialAndIndex &= 0xFFFFFFu;
-        m_data[v79].m_pod.m_id.m_serialAndIndex |= (unsigned __int8)v85[0] << 24;
-        if ( ++v78 >= v95 )
+        v65 = v64;
+        m_data[v65].m_pod.m_id.m_serialAndIndex &= 0xFFFFFFu;
+        m_data[v65].m_pod.m_id.m_serialAndIndex |= (unsigned __int8)v71[0] << 24;
+        if ( ++v64 >= v81 )
           goto LABEL_96;
       }
     }
     v36 = -2147220992;
     goto LABEL_97;
   }
-  while ( reader->read(reader, &v92, 4) == 4 && reader->read(reader, desiredId, 4) == 4 )
+  while ( reader->read(reader, &v78, 4) == 4 && reader->read(reader, desiredId, 4) == 4 )
   {
-    worldIn->m_bodyManager.m_scheduledBodyChangeIndices.m_data[(int)v92] = (int)desiredId[0];
-    if ( ++v25 >= v98 )
+    worldIn->m_bodyManager.m_scheduledBodyChangeIndices.m_data[(int)v78] = (int)desiredId[0];
+    if ( ++v25 >= v84 )
       goto LABEL_31;
   }
 LABEL_43:
   v36 = -2147220992;
 LABEL_105:
-  v84 = hkMemHeapAllocator();
-  v89 = 0;
-  if ( v90 >= 0 )
-    hkMemoryAllocator::bufFree2(v84, array, 4, v90 & 0x3FFFFFFF);
+  v70 = hkMemHeapAllocator();
+  v75 = 0;
+  if ( v76 >= 0 )
+    hkMemoryAllocator::bufFree2(v70, array, 4, v76 & 0x3FFFFFFF);
   array = NULL;
-  v90 = 0x80000000;
-  hknpDeactivationStepInfo::~hknpDeactivationStepInfo(&v109);
+  v76 = 0x80000000;
+  hknpDeactivationStepInfo::~hknpDeactivationStepInfo(&v95);
   return v36;
 }
 
@@ -2547,43 +2520,40 @@ __int64 importCollisionCacheStream(hknpCollisionCacheWriter *cacheWriter, hknpCo
 {
   unsigned int i; 
   __int64 m_currentByteOffset; 
-  unsigned __int8 v10; 
+  unsigned __int8 *v8; 
+  unsigned __int8 v9; 
   __int16 m_currentBlockNumElems; 
-  __int16 v12; 
+  __int16 v11; 
   hkBlockStream::Block *m_currentBlock; 
-  __int128 v15; 
+  __int128 v14; 
 
-  reader->read(reader, &v15, 16);
-  for ( i = 16 * BYTE9(v15); i; i = 16 * BYTE9(v15) )
+  reader->read(reader, &v14, 16);
+  for ( i = 16 * BYTE9(v14); i; i = 16 * BYTE9(v14) )
   {
     m_currentByteOffset = cacheWriter->m_currentByteOffset;
     if ( (int)(m_currentByteOffset + i) > 3808 )
-      _RSI = (unsigned __int8 *)hkBlockStream::Writer::allocateAndAccessNewBlock(cacheWriter);
+      v8 = (unsigned __int8 *)hkBlockStream::Writer::allocateAndAccessNewBlock(cacheWriter);
     else
-      _RSI = &cacheWriter->m_currentBlock->m_data[m_currentByteOffset];
-    __asm
-    {
-      vmovups xmm0, [rsp+38h+var_18]
-      vmovups xmmword ptr [rsi], xmm0
-    }
+      v8 = &cacheWriter->m_currentBlock->m_data[m_currentByteOffset];
+    *(_OWORD *)v8 = v14;
     if ( i > 0x10 )
-      reader->read(reader, _RSI + 16, i - 16);
+      reader->read(reader, v8 + 16, i - 16);
     cacheWriter->m_currentByteOffset += i;
     ++cacheWriter->m_currentBlockNumElems;
-    v10 = _RSI[8];
-    if ( v10 >= 4u && v10 <= 6u )
+    v9 = v8[8];
+    if ( v9 >= 4u && v9 <= 6u )
     {
       m_currentBlockNumElems = childCacheWriter->m_currentBlockNumElems;
-      v12 = childCacheWriter->m_currentByteOffset;
+      v11 = childCacheWriter->m_currentByteOffset;
       m_currentBlock = childCacheWriter->m_currentBlock;
-      *((_DWORD *)_RSI + 11) = -(childCacheWriter->m_currentBlockNumElems + childCacheWriter->m_blockStream->m_numTotalElements);
-      *((_WORD *)_RSI + 21) = m_currentBlockNumElems;
-      *((_QWORD *)_RSI + 4) = m_currentBlock;
-      *((_WORD *)_RSI + 20) = v12;
+      *((_DWORD *)v8 + 11) = -(childCacheWriter->m_currentBlockNumElems + childCacheWriter->m_blockStream->m_numTotalElements);
+      *((_WORD *)v8 + 21) = m_currentBlockNumElems;
+      *((_QWORD *)v8 + 4) = m_currentBlock;
+      *((_WORD *)v8 + 20) = v11;
       importCollisionCacheStream(childCacheWriter, NULL, reader);
-      hkBlockStream::Range::setEndPoint((hkBlockStream::Range *)_RSI + 2, childCacheWriter);
+      hkBlockStream::Range::setEndPoint((hkBlockStream::Range *)v8 + 2, childCacheWriter);
     }
-    reader->read(reader, &v15, 16);
+    reader->read(reader, &v14, 16);
   }
   return 0i64;
 }
@@ -3135,71 +3105,72 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
   hkMemoryAllocator *v46; 
   int v47; 
   int v48; 
-  int v51; 
-  hkMemoryAllocator *v52; 
+  hknpBodyActivationCommand *v49; 
+  int v50; 
+  hkMemoryAllocator *v51; 
+  int v52; 
   int v53; 
   int v54; 
-  int v55; 
-  hkResult v56; 
-  int v57; 
-  hkMemoryAllocator *v58; 
+  hkResult v55; 
+  int v56; 
+  hkMemoryAllocator *v57; 
+  int v58; 
   int v59; 
   int v60; 
-  int v61; 
-  hkResult v62; 
-  int v63; 
-  hkMemoryAllocator *v64; 
+  hkResult v61; 
+  int v62; 
+  hkMemoryAllocator *v63; 
+  int v64; 
   int v65; 
   int v66; 
-  int v67; 
-  hkResult v68; 
+  hkResult v67; 
+  unsigned int v68; 
   unsigned int v69; 
-  unsigned int v70; 
-  hkBlockStream::Range *v71; 
-  char v72; 
+  hkBlockStream::Range *v70; 
+  char v71; 
   unsigned __int16 m_currentByteOffset; 
   unsigned __int16 m_currentBlockNumElems; 
-  int v75; 
-  hknpDeactivatedIsland *v76; 
-  __int64 v77; 
-  hknpDeactivatedIsland *v78; 
+  int v74; 
+  hknpDeactivatedIsland *v75; 
+  __int64 v76; 
+  hknpDeactivatedIsland *v77; 
+  int v78; 
   int v79; 
   int v80; 
-  int v81; 
+  __int64 v81; 
   __int64 v82; 
-  __int64 v83; 
   hknpDeactivatedIsland::InactiveCacheHeader **m_data; 
-  hknpDeactivatedIsland::InactiveCacheHeader *v85; 
-  int v86; 
+  hknpDeactivatedIsland::InactiveCacheHeader *v84; 
+  int v85; 
+  __int64 v87; 
   __int64 v88; 
-  __int64 v89; 
-  hkBlockStream::Writer v90; 
+  hkBlockStream::Writer v89; 
   hkBlockStream::Writer it; 
-  hkArray<hknpDeactivatedIsland *,hkContainerHeapAllocator> *v92; 
-  __int64 v93; 
+  hkArray<hknpDeactivatedIsland *,hkContainerHeapAllocator> *v91; 
+  __int64 v92; 
   hkThreadLocalBlockStreamAllocator tlAllocator; 
-  int v95[2]; 
-  int v96; 
+  int v94[2]; 
+  int v95; 
+  bool v96; 
   bool v97; 
-  bool v98; 
-  __int128 v99; 
+  hknpBodyActivationCommand v98; 
   int src; 
-  int v101; 
-  char v102[8]; 
-  char v103; 
-  unsigned __int8 v104; 
-  char v105[368]; 
+  int v100; 
+  char v101[8]; 
+  char v102; 
+  unsigned __int8 v103; 
+  char v104[368]; 
 
-  v93 = -2i64;
+  v92 = -2i64;
   m_deactivationManager = world->m_deactivationManager;
-  reader->read(reader, v95, 16);
-  m_deactivationManager->m_numBlocksToDefragmentPerStep = v95[1];
-  m_deactivationManager->m_nopCachesAllowedPerBlock = v95[0];
-  m_deactivationManager->m_defragmentationInProgress = v98;
-  m_deactivationManager->m_movingActivatedCaches = v97;
+  reader->read(reader, v94, 16);
+  m_deactivationManager->m_numBlocksToDefragmentPerStep = v94[1];
+  m_deactivationManager->m_nopCachesAllowedPerBlock = v94[0];
+  m_deactivationManager->m_defragmentationInProgress = v97;
+  m_deactivationManager->m_movingActivatedCaches = v96;
   p_m_deactivatedIslands = &m_deactivationManager->m_deactivatedIslands;
-  v92 = &m_deactivationManager->m_deactivatedIslands;
-  v7 = v96;
+  v91 = &m_deactivationManager->m_deactivatedIslands;
+  v7 = v95;
   v8 = hkMemHeapAllocator();
   v9 = m_deactivationManager->m_deactivatedIslands.m_capacityAndFlags & 0x3FFFFFFF;
   if ( v9 >= v7 )
@@ -3215,7 +3186,7 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
       v7 = v10;
     v11.m_code = hkArrayUtil::_reserve(v8, &m_deactivationManager->m_deactivatedIslands, v7, 8).m_code;
   }
-  LODWORD(v88) = v11;
+  LODWORD(v87) = v11;
   hkThreadLocalBlockStreamAllocator::hkThreadLocalBlockStreamAllocator(&tlAllocator, world->m_blockStreamAllocator.m_ptr);
   importCollisionCachePairParentChildren(&m_deactivationManager->m_narrowphaseOutputCaches, reader, &tlAllocator);
   m_size = m_deactivationManager->m_deactivatedIslands.m_size;
@@ -3263,7 +3234,7 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
     }
   }
   m_deactivationManager->m_deactivatedIslands.m_size = 0;
-  v25 = v96;
+  v25 = v95;
   v26 = hkMemHeapAllocator();
   v27 = m_deactivationManager->m_deactivatedIslands.m_capacityAndFlags & 0x3FFFFFFF;
   if ( v27 >= v25 )
@@ -3280,13 +3251,13 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
       v29 = v28;
     v30.m_code = hkArrayUtil::_reserve(v26, &m_deactivationManager->m_deactivatedIslands, v29, 8).m_code;
   }
-  LODWORD(v88) = v30;
+  LODWORD(v87) = v30;
   v31 = v25 - m_deactivationManager->m_deactivatedIslands.m_size;
   if ( v31 > 0 )
     memset(&p_m_deactivatedIslands->m_data[m_deactivationManager->m_deactivatedIslands.m_size], 0, 8i64 * v31);
   m_deactivationManager->m_deactivatedIslands.m_size = v25;
-  v32 = v96;
-  if ( v96 > 0 )
+  v32 = v95;
+  if ( v95 > 0 )
   {
     v33 = 0i64;
     do
@@ -3294,8 +3265,8 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
     while ( v33 < v32 );
   }
   m_deactivationManager->m_deactivationStates.m_size = 0;
-  reader->read(reader, &v88, 4);
-  v34 = v88;
+  reader->read(reader, &v87, 4);
+  v34 = v87;
   v35 = hkMemHeapAllocator();
   v36 = m_deactivationManager->m_deactivationStates.m_capacityAndFlags & 0x3FFFFFFF;
   if ( v36 >= v34 )
@@ -3312,14 +3283,14 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
       v38 = v37;
     v39.m_code = hkArrayUtil::_reserve(v35, &m_deactivationManager->m_deactivationStates, v38, 32).m_code;
   }
-  LODWORD(v89) = v39;
+  LODWORD(v88) = v39;
   m_deactivationManager->m_deactivationStates.m_size = v34;
-  reader->read(reader, m_deactivationManager->m_deactivationStates.m_data, 32 * v88);
-  LODWORD(v88) = 0;
-  reader->read(reader, &v88, 4);
+  reader->read(reader, m_deactivationManager->m_deactivationStates.m_data, 32 * v87);
+  LODWORD(v87) = 0;
+  reader->read(reader, &v87, 4);
   m_deactivationManager->m_midStepActivationEvents.m_size = 0;
-  v40 = v88;
-  if ( (int)v88 > 0 )
+  v40 = v87;
+  if ( (int)v87 > 0 )
   {
     v41 = hkMemHeapAllocator();
     v42 = m_deactivationManager->m_midStepActivationEvents.m_capacityAndFlags & 0x3FFFFFFF;
@@ -3336,10 +3307,10 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
         v40 = v43;
       v44.m_code = hkArrayUtil::_reserve(v41, &m_deactivationManager->m_midStepActivationEvents, v40, 16).m_code;
     }
-    LODWORD(v89) = v44;
-    for ( j = 0; j < (int)v88; ++j )
+    LODWORD(v88) = v44;
+    for ( j = 0; j < (int)v87; ++j )
     {
-      reader->read(reader, &v99, 16);
+      reader->read(reader, &v98, 16);
       v46 = hkMemHeapAllocator();
       v47 = m_deactivationManager->m_midStepActivationEvents.m_size;
       v48 = v47;
@@ -3349,177 +3320,174 @@ __int64 importDeactivation(hknpWorld *world, hkStreamReader *reader, NpSimulatio
         v47 = m_deactivationManager->m_midStepActivationEvents.m_size;
         v48 = v47;
       }
-      if ( &m_deactivationManager->m_midStepActivationEvents.m_data[v47] )
+      v49 = &m_deactivationManager->m_midStepActivationEvents.m_data[v47];
+      if ( v49 )
       {
-        __asm
-        {
-          vmovups xmm0, [rbp+1E0h+var_1E0]
-          vmovups xmmword ptr [rax], xmm0
-        }
+        *v49 = v98;
         v48 = m_deactivationManager->m_midStepActivationEvents.m_size;
       }
       m_deactivationManager->m_midStepActivationEvents.m_size = v48 + 1;
     }
   }
   m_deactivationManager->m_freeIslandIds.m_size = 0;
-  reader->read(reader, &v88, 4);
-  v51 = v88;
-  v52 = hkMemHeapAllocator();
-  v53 = m_deactivationManager->m_freeIslandIds.m_capacityAndFlags & 0x3FFFFFFF;
-  if ( v53 >= v51 )
+  reader->read(reader, &v87, 4);
+  v50 = v87;
+  v51 = hkMemHeapAllocator();
+  v52 = m_deactivationManager->m_freeIslandIds.m_capacityAndFlags & 0x3FFFFFFF;
+  if ( v52 >= v50 )
   {
-    v56.m_code = 0;
+    v55.m_code = 0;
   }
   else
   {
-    v54 = 2 * v53;
-    if ( (unsigned int)v54 >= 0x3FFFFFFF )
-      v54 = 1073741822;
-    v55 = v51;
-    if ( v51 < v54 )
-      v55 = v54;
-    v56.m_code = hkArrayUtil::_reserve(v52, &m_deactivationManager->m_freeIslandIds, v55, 4).m_code;
+    v53 = 2 * v52;
+    if ( (unsigned int)v53 >= 0x3FFFFFFF )
+      v53 = 1073741822;
+    v54 = v50;
+    if ( v50 < v53 )
+      v54 = v53;
+    v55.m_code = hkArrayUtil::_reserve(v51, &m_deactivationManager->m_freeIslandIds, v54, 4).m_code;
   }
-  LODWORD(v89) = v56;
-  m_deactivationManager->m_freeIslandIds.m_size = v51;
-  reader->read(reader, m_deactivationManager->m_freeIslandIds.m_data, 4 * v88);
+  LODWORD(v88) = v55;
+  m_deactivationManager->m_freeIslandIds.m_size = v50;
+  reader->read(reader, m_deactivationManager->m_freeIslandIds.m_data, 4 * v87);
   m_deactivationManager->m_dirtyIslands.m_size = 0;
-  reader->read(reader, &v88, 4);
-  v57 = v88;
-  v58 = hkMemHeapAllocator();
-  v59 = m_deactivationManager->m_dirtyIslands.m_capacityAndFlags & 0x3FFFFFFF;
-  if ( v59 >= v57 )
+  reader->read(reader, &v87, 4);
+  v56 = v87;
+  v57 = hkMemHeapAllocator();
+  v58 = m_deactivationManager->m_dirtyIslands.m_capacityAndFlags & 0x3FFFFFFF;
+  if ( v58 >= v56 )
   {
-    v62.m_code = 0;
+    v61.m_code = 0;
   }
   else
   {
-    v60 = 2 * v59;
-    if ( (unsigned int)v60 >= 0x3FFFFFFF )
-      v60 = 1073741822;
-    v61 = v57;
-    if ( v57 < v60 )
-      v61 = v60;
-    v62.m_code = hkArrayUtil::_reserve(v58, &m_deactivationManager->m_dirtyIslands, v61, 4).m_code;
+    v59 = 2 * v58;
+    if ( (unsigned int)v59 >= 0x3FFFFFFF )
+      v59 = 1073741822;
+    v60 = v56;
+    if ( v56 < v59 )
+      v60 = v59;
+    v61.m_code = hkArrayUtil::_reserve(v57, &m_deactivationManager->m_dirtyIslands, v60, 4).m_code;
   }
-  LODWORD(v89) = v62;
-  m_deactivationManager->m_dirtyIslands.m_size = v57;
-  reader->read(reader, m_deactivationManager->m_dirtyIslands.m_data, 4 * v88);
+  LODWORD(v88) = v61;
+  m_deactivationManager->m_dirtyIslands.m_size = v56;
+  reader->read(reader, m_deactivationManager->m_dirtyIslands.m_data, 4 * v87);
   m_deactivationManager->m_dirtyInactiveBodies.m_size = 0;
-  reader->read(reader, &v88, 4);
-  v63 = v88;
-  v64 = hkMemHeapAllocator();
-  v65 = m_deactivationManager->m_dirtyInactiveBodies.m_capacityAndFlags & 0x3FFFFFFF;
-  if ( v65 >= v63 )
+  reader->read(reader, &v87, 4);
+  v62 = v87;
+  v63 = hkMemHeapAllocator();
+  v64 = m_deactivationManager->m_dirtyInactiveBodies.m_capacityAndFlags & 0x3FFFFFFF;
+  if ( v64 >= v62 )
   {
-    v68.m_code = 0;
+    v67.m_code = 0;
   }
   else
   {
-    v66 = 2 * v65;
-    if ( (unsigned int)v66 >= 0x3FFFFFFF )
-      v66 = 1073741822;
-    v67 = v63;
-    if ( v63 < v66 )
-      v67 = v66;
-    v68.m_code = hkArrayUtil::_reserve(v64, &m_deactivationManager->m_dirtyInactiveBodies, v67, 4).m_code;
+    v65 = 2 * v64;
+    if ( (unsigned int)v65 >= 0x3FFFFFFF )
+      v65 = 1073741822;
+    v66 = v62;
+    if ( v62 < v65 )
+      v66 = v65;
+    v67.m_code = hkArrayUtil::_reserve(v63, &m_deactivationManager->m_dirtyInactiveBodies, v66, 4).m_code;
   }
-  LODWORD(v89) = v68;
-  m_deactivationManager->m_dirtyInactiveBodies.m_size = v63;
-  reader->read(reader, m_deactivationManager->m_dirtyInactiveBodies.m_data, 4 * v88);
+  LODWORD(v88) = v67;
+  m_deactivationManager->m_dirtyInactiveBodies.m_size = v62;
+  reader->read(reader, m_deactivationManager->m_dirtyInactiveBodies.m_data, 4 * v87);
   hkBlockStream::reset(&m_deactivationManager->m_inactiveParentCaches, &tlAllocator);
   hkBlockStream::reset(&m_deactivationManager->m_reactivatedCaches.m_children, &tlAllocator);
-  v90.m_accessSize.member = 0;
-  v90.m_blockStream = NULL;
-  hkBlockStream::Writer::setToStartOfStream(&v90, &tlAllocator, &m_deactivationManager->m_inactiveParentCaches);
+  v89.m_accessSize.member = 0;
+  v89.m_blockStream = NULL;
+  hkBlockStream::Writer::setToStartOfStream(&v89, &tlAllocator, &m_deactivationManager->m_inactiveParentCaches);
   it.m_accessSize.member = 0;
   it.m_blockStream = NULL;
   hkBlockStream::Writer::setToStartOfStream(&it, &tlAllocator, &m_deactivationManager->m_reactivatedCaches.m_children);
   while ( 1 )
   {
     reader->read(reader, &src, 16);
-    if ( src == -1 && v101 == -1 )
+    if ( src == -1 && v100 == -1 )
       break;
-    reader->read(reader, v102, 16);
-    v69 = 16 * v104;
-    if ( v69 > 0x10 )
-      reader->read(reader, v105, v69 - 16);
-    v70 = v69 + 16;
-    if ( (int)(v90.m_currentByteOffset + v70) > 3808 )
-      v71 = (hkBlockStream::Range *)hkBlockStream::Writer::allocateAndAccessNewBlock(&v90);
+    reader->read(reader, v101, 16);
+    v68 = 16 * v103;
+    if ( v68 > 0x10 )
+      reader->read(reader, v104, v68 - 16);
+    v69 = v68 + 16;
+    if ( (int)(v89.m_currentByteOffset + v69) > 3808 )
+      v70 = (hkBlockStream::Range *)hkBlockStream::Writer::allocateAndAccessNewBlock(&v89);
     else
-      v71 = (hkBlockStream::Range *)&v90.m_currentBlock->m_data[v90.m_currentByteOffset];
-    hkString::memCpy(v71, &src, v70);
-    v90.m_currentByteOffset += v70;
-    ++v90.m_currentBlockNumElems;
-    v72 = v103;
-    if ( (unsigned __int8)(v103 - 4) <= 2u )
+      v70 = (hkBlockStream::Range *)&v89.m_currentBlock->m_data[v89.m_currentByteOffset];
+    hkString::memCpy(v70, &src, v69);
+    v89.m_currentByteOffset += v69;
+    ++v89.m_currentBlockNumElems;
+    v71 = v102;
+    if ( (unsigned __int8)(v102 - 4) <= 2u )
     {
       m_currentByteOffset = it.m_currentByteOffset;
       m_currentBlockNumElems = it.m_currentBlockNumElems;
-      v75 = -(it.m_currentBlockNumElems + it.m_blockStream->m_numTotalElements);
-      v71[3].m_startBlock = it.m_currentBlock;
-      v71[3].m_startByteOffset = m_currentByteOffset;
-      v71[3].m_startBlockNumElements = m_currentBlockNumElems;
-      v71[3].m_numElements = v75;
+      v74 = -(it.m_currentBlockNumElems + it.m_blockStream->m_numTotalElements);
+      v70[3].m_startBlock = it.m_currentBlock;
+      v70[3].m_startByteOffset = m_currentByteOffset;
+      v70[3].m_startBlockNumElements = m_currentBlockNumElems;
+      v70[3].m_numElements = v74;
       importCollisionCacheStream((hknpCollisionCacheWriter *)&it, NULL, reader);
-      hkBlockStream::Range::setEndPoint(v71 + 3, &it);
-      v72 = v103;
+      hkBlockStream::Range::setEndPoint(v70 + 3, &it);
+      v71 = v102;
     }
-    v76 = p_m_deactivatedIslands->m_data[src];
-    if ( v76 )
+    v75 = p_m_deactivatedIslands->m_data[src];
+    if ( v75 )
     {
-      if ( v72 )
-        v76->m_cacheInfos.m_data[v101] = (hknpDeactivatedIsland::InactiveCacheHeader *)v71;
+      if ( v71 )
+        v75->m_cacheInfos.m_data[v100] = (hknpDeactivatedIsland::InactiveCacheHeader *)v70;
     }
   }
-  v77 = v96;
-  v88 = v96;
-  if ( v96 > 0 )
+  v76 = v95;
+  v87 = v95;
+  if ( v95 > 0 )
   {
-    v89 = 0i64;
+    v88 = 0i64;
     do
     {
-      v78 = p_m_deactivatedIslands->m_data[v13];
-      if ( v78 )
+      v77 = p_m_deactivatedIslands->m_data[v13];
+      if ( v77 )
       {
+        v78 = 0;
         v79 = 0;
-        v80 = 0;
-        v81 = v78->m_cacheInfos.m_size;
-        if ( v81 > 0 )
+        v80 = v77->m_cacheInfos.m_size;
+        if ( v80 > 0 )
         {
+          v81 = 0i64;
           v82 = 0i64;
-          v83 = 0i64;
           do
           {
-            m_data = v78->m_cacheInfos.m_data;
-            v85 = m_data[v83];
-            if ( v85 )
+            m_data = v77->m_cacheInfos.m_data;
+            v84 = m_data[v82];
+            if ( v84 )
             {
-              m_data[v83] = NULL;
-              if ( v78->m_cacheInfos.m_data[v82] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssimulationsnapshotutil.cpp", 1440, ASSERT_TYPE_ASSERT, "( island->m_cacheInfos[cacheSize] == nullptr )", "Should not be stomping valid cache info") )
+              m_data[v82] = NULL;
+              if ( v77->m_cacheInfos.m_data[v81] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssimulationsnapshotutil.cpp", 1440, ASSERT_TYPE_ASSERT, "( island->m_cacheInfos[cacheSize] == nullptr )", "Should not be stomping valid cache info") )
                 __debugbreak();
-              v78->m_cacheInfos.m_data[v82] = v85;
-              v78->m_cacheInfos.m_data[v82++]->m_cacheInIslandIndex = v79++;
+              v77->m_cacheInfos.m_data[v81] = v84;
+              v77->m_cacheInfos.m_data[v81++]->m_cacheInIslandIndex = v78++;
             }
-            ++v80;
-            ++v83;
-            v81 = v78->m_cacheInfos.m_size;
+            ++v79;
+            ++v82;
+            v80 = v77->m_cacheInfos.m_size;
           }
-          while ( v80 < v81 );
-          v13 = v89;
-          v77 = v88;
-          p_m_deactivatedIslands = v92;
+          while ( v79 < v80 );
+          v13 = v88;
+          v76 = v87;
+          p_m_deactivatedIslands = v91;
         }
-        v86 = v80 - v79;
-        if ( v86 > 0 )
-          v78->m_cacheInfos.m_size = v81 - v86;
+        v85 = v79 - v78;
+        if ( v85 > 0 )
+          v77->m_cacheInfos.m_size = v80 - v85;
       }
-      v89 = ++v13;
+      v88 = ++v13;
     }
-    while ( v13 < v77 );
+    while ( v13 < v76 );
   }
-  hkBlockStream::Writer::finalize(&v90);
+  hkBlockStream::Writer::finalize(&v89);
   hkBlockStream::Writer::finalize(&it);
   hkThreadLocalBlockStreamAllocator::~hkThreadLocalBlockStreamAllocator(&tlAllocator);
   return 0i64;
@@ -3533,122 +3501,108 @@ importMotions
 __int64 importMotions(hknpWorld *world, hkStreamReader *reader, NpSimulationSnapshot::PostImportPatch *__formal)
 {
   unsigned int v5; 
-  int *m_activeMotionsPerCell; 
-  __int64 v20; 
-  int *v21; 
-  hkMemoryAllocator *v22; 
-  __int64 v23; 
-  int v24; 
-  _DWORD *v25; 
-  __int64 v26; 
-  int v27; 
+  hknpThreadSafeObjectPoolElement<hknpMotion> *v6; 
+  __int128 v9; 
+  hkInplaceArray<hknpMotionId,1,hkContainerHeapAllocator> *m_activeMotionsPerCell; 
+  __int64 v11; 
+  hkInplaceArray<hknpMotionId,1,hkContainerHeapAllocator> *v12; 
+  hkMemoryAllocator *v13; 
+  __int64 m_size; 
+  int v15; 
+  hknpMotionId *v16; 
+  __int64 v17; 
+  int v18; 
   int (__fastcall *read)(hkStreamReader *, void *, int); 
-  hkMemoryAllocator *v29; 
-  __int64 v30; 
+  hkMemoryAllocator *v20; 
+  __int64 v21; 
+  int v22; 
+  int v23; 
+  int v24; 
+  int v25; 
+  int v26; 
+  unsigned int v28; 
+  int v29; 
+  __int128 v30[8]; 
   int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  unsigned int v37; 
-  int v38; 
-  __int128 v39[8]; 
-  int v40; 
 
-  _RDI = world;
-  if ( reader->read(reader, &v37, 8) != 8 )
+  if ( reader->read(reader, &v28, 8) != 8 )
     return 2147746304i64;
   v5 = 0;
-  if ( v37 )
+  if ( v28 )
   {
-    while ( reader->read(reader, v39, 144) == 144 )
+    while ( reader->read(reader, v30, 144) == 144 )
     {
-      _EAX = v40;
       ++v5;
-      _RCX = (__int64)&_RDI->m_motionManager.m_motions.m_objects.m_data[(__int64)v40];
-      __asm { vmovd   xmm1, eax }
-      *(_BYTE *)(_RCX + 63) = 1;
-      __asm
-      {
-        vmovd   xmm0, dword ptr [rdi+190h]
-        vpmaxud xmm1, xmm0, xmm1
-        vmovups xmm0, [rsp+0F8h+var_C8]
-        vmovd   dword ptr [rdi+190h], xmm1
-      }
-      ++_RDI->m_motionManager.m_motions.m_numAllocated;
-      __asm
-      {
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, [rsp+0F8h+var_B8]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, [rsp+0F8h+var_A8]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, [rsp+0F8h+var_98]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, [rsp+0F8h+var_88]
-        vmovups xmmword ptr [rcx+40h], xmm0
-        vmovups xmm1, [rsp+0F8h+var_78]
-        vmovups xmmword ptr [rcx+50h], xmm1
-        vmovups xmm0, [rsp+0F8h+var_68]
-        vmovups xmmword ptr [rcx+60h], xmm0
-        vmovups xmm1, [rsp+0F8h+var_58]
-        vmovups xmmword ptr [rcx+70h], xmm1
-      }
-      if ( v5 >= v37 )
+      v6 = &world->m_motionManager.m_motions.m_objects.m_data[(__int64)v31];
+      v6->m_pod.m_spaceSplitterWeight = 1;
+      _XMM0 = world->m_motionManager.m_motions.m_peakIndex;
+      __asm { vpmaxud xmm1, xmm0, xmm1 }
+      v9 = v30[0];
+      world->m_motionManager.m_motions.m_peakIndex = _XMM1;
+      ++world->m_motionManager.m_motions.m_numAllocated;
+      v6->m_pod.m_centerOfMass = (hkVector4f)v9;
+      v6->m_pod.m_orientation = (hkQuaternionf)v30[1];
+      *(_OWORD *)&v6->m_pod.m_inverseInertia[0].m_value = v30[2];
+      *(_OWORD *)&v6->m_pod.m_linearVelocityCage[0].m_value = v30[3];
+      v6->m_pod.m_linearVelocityAndSpeedLimit = (hkVector4f)v30[4];
+      v6->m_pod.m_angularVelocityLocalAndSpeedLimit = (hkVector4f)v30[5];
+      v6->m_pod.m_previousStepLinearVelocity = (hkVector4f)v30[6];
+      v6->m_pod.m_previousStepAngularVelocityLocal = (hkVector4f)v30[7];
+      if ( v5 >= v28 )
         goto LABEL_5;
     }
     return 2147746304i64;
   }
 LABEL_5:
-  hknpMotionManager::rebuildFreeList(&_RDI->m_motionManager);
-  m_activeMotionsPerCell = (int *)_RDI->m_motionManager.m_activeMotionsPerCell;
-  v20 = 32i64;
-  v21 = (int *)_RDI->m_motionManager.m_activeMotionsPerCell;
+  hknpMotionManager::rebuildFreeList(&world->m_motionManager);
+  m_activeMotionsPerCell = world->m_motionManager.m_activeMotionsPerCell;
+  v11 = 32i64;
+  v12 = world->m_motionManager.m_activeMotionsPerCell;
   do
   {
-    v22 = hkMemHeapAllocator();
-    if ( (v21[3] & 0x3FFFFFFF) == 0 )
-      hkArrayUtil::_reserve(v22, v21, 1, 4);
-    v23 = v21[2];
-    v24 = 1 - v23;
-    v25 = (_DWORD *)(*(_QWORD *)v21 + 4 * v23);
-    v26 = 1 - (int)v23;
-    if ( v24 > 0 )
+    v13 = hkMemHeapAllocator();
+    if ( (v12->m_capacityAndFlags & 0x3FFFFFFF) == 0 )
+      hkArrayUtil::_reserve(v13, v12, 1, 4);
+    m_size = v12->m_size;
+    v15 = 1 - m_size;
+    v16 = &v12->m_data[m_size];
+    v17 = 1 - (int)m_size;
+    if ( v15 > 0 )
     {
       do
       {
-        if ( v25 )
-          *v25 = 0;
-        ++v25;
-        --v26;
+        if ( v16 )
+          v16->m_value = 0;
+        ++v16;
+        --v17;
       }
-      while ( v26 );
+      while ( v17 );
     }
-    v21[2] = 1;
-    v21 += 6;
-    --v20;
+    v12->m_size = 1;
+    ++v12;
+    --v11;
   }
-  while ( v20 );
-  v27 = v38;
+  while ( v11 );
+  v18 = v29;
   read = reader->read;
-  v29 = hkMemHeapAllocator();
-  v30 = m_activeMotionsPerCell[2];
-  v31 = v30;
-  v32 = m_activeMotionsPerCell[3] & 0x3FFFFFFF;
-  v33 = v30 + v27;
-  if ( v32 < (int)v30 + v27 )
+  v20 = hkMemHeapAllocator();
+  v21 = m_activeMotionsPerCell->m_size;
+  v22 = v21;
+  v23 = m_activeMotionsPerCell->m_capacityAndFlags & 0x3FFFFFFF;
+  v24 = v21 + v18;
+  if ( v23 < (int)v21 + v18 )
   {
-    v34 = 2 * v32;
-    if ( (unsigned int)v34 >= 0x3FFFFFFF )
-      v34 = 1073741822;
-    if ( v33 < v34 )
-      v33 = v34;
-    hkArrayUtil::_reserve(v29, m_activeMotionsPerCell, v33, 4);
-    v31 = m_activeMotionsPerCell[2];
+    v25 = 2 * v23;
+    if ( (unsigned int)v25 >= 0x3FFFFFFF )
+      v25 = 1073741822;
+    if ( v24 < v25 )
+      v24 = v25;
+    hkArrayUtil::_reserve(v20, m_activeMotionsPerCell, v24, 4);
+    v22 = m_activeMotionsPerCell->m_size;
   }
-  v35 = v38;
-  m_activeMotionsPerCell[2] = v31 + v27;
-  read(reader, (void *)(*(_QWORD *)m_activeMotionsPerCell + 4 * v30), 4 * v35);
+  v26 = v29;
+  m_activeMotionsPerCell->m_size = v22 + v18;
+  read(reader, &m_activeMotionsPerCell->m_data[v21], 4 * v26);
   return 0i64;
 }
 

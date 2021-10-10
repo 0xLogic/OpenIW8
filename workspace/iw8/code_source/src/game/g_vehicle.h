@@ -364,8 +364,7 @@ GVehicles::PhysicsGetLastStepTime
 */
 float GVehicles::PhysicsGetLastStepTime(GVehicles *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+109634h] }
-  return *(float *)&_XMM0;
+  return this->m_lastPhysicsStepTime;
 }
 
 /*

@@ -64,22 +64,15 @@ __int64 indyfs_time_now_ms()
 indyfs_time_now_us
 ==============
 */
-
-long double __fastcall indyfs_time_now_us(__int64 a1, double _XMM1_8, double _XMM2_8)
+double indyfs_time_now_us()
 {
   LARGE_INTEGER PerformanceCount; 
 
   QueryPerformanceCounter(&PerformanceCount);
-  __asm
-  {
-    vmovsd  xmm0, cs:__real@412e848000000000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, cs:g_frequency
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2sd xmm2, xmm2, rax
-    vdivsd  xmm1, xmm0, xmm1
-    vmulsd  xmm0, xmm2, xmm1
-  }
-  return *(double *)&_XMM0;
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, cs:g_frequency }
+  _XMM2 = 0i64;
+  __asm { vcvtsi2sd xmm2, xmm2, rax }
+  return *(double *)&_XMM2 * (1000000.0 / *(double *)&_XMM1);
 }
 

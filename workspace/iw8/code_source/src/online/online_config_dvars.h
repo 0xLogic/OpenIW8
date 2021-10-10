@@ -14,14 +14,8 @@ void OnlineConfig_CreateAllDVars(void)
 OnlineConfig_CreateAllDVars
 ==============
 */
-
-void __fastcall OnlineConfig_CreateAllDVars(__int64 a1, __int64 a2, double _XMM2_8)
+void OnlineConfig_CreateAllDVars(void)
 {
-  const dvar_t *v8; 
-  const dvar_t *v12; 
-  const dvar_t *v16; 
-
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
   Dvar_BeginPermanentRegistration();
   netinfo_logging = Dvar_RegisterInt("MPQLLMPSOK", 0, 0, 1, 0, "netinfo_logging enabler (default = off)");
   mapvote_logging = Dvar_RegisterInt("MTOOQQTNPN", 0, 0, 1, 0, "mapvote_logging enabler (default = off)");
@@ -74,42 +68,11 @@ void __fastcall OnlineConfig_CreateAllDVars(__int64 a1, __int64 a2, double _XMM2
   motd_store_link = Dvar_RegisterInt("MOSOSMRSOO", 0, 0, 1, 0, "Add a link to the in-game store in the MOTD popup");
   lsp_enumertion_max_retry_time = Dvar_RegisterInt("SKTTMMOKN", 300000, 0, 3600000, 0, "Max time that the LSP enumeration can retry");
   lsp_enumertion_retry_step = Dvar_RegisterInt("PNQROTTTL", 1000, 0, 3600000, 0, "Step in m/s for the LSP enumeration retry");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3d4ccccd; value
-  }
   reset_mm_data = Dvar_RegisterInt("QLKRSPMQS", 1, 0, 1, 0, "reset data with dlc popup");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v8 = Dvar_RegisterFloat("OSOLPOMLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The % chance of sending match making telemetry");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
-  match_making_telemetry_chance = v8;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v12 = Dvar_RegisterFloat("MKRRPQOOKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The % chance of sending map vote telemetry");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
-  log_mapvote_chance = v12;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v16 = Dvar_RegisterFloat("NTLRQSRMSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The % chance of team balance results telemetry");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  log_teambalance_chance = v16;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  log_host_migration_chance = Dvar_RegisterFloat("NOTMKQPPOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The % chance of host migration results telemetry");
+  match_making_telemetry_chance = Dvar_RegisterFloat("OSOLPOMLL", 0.050000001, 0.0, 1.0, 0, "The % chance of sending match making telemetry");
+  log_mapvote_chance = Dvar_RegisterFloat("MKRRPQOOKN", 0.0099999998, 0.0, 1.0, 0, "The % chance of sending map vote telemetry");
+  log_teambalance_chance = Dvar_RegisterFloat("NTLRQSRMSS", 0.0099999998, 0.0, 1.0, 0, "The % chance of team balance results telemetry");
+  log_host_migration_chance = Dvar_RegisterFloat("NOTMKQPPOS", 0.1, 0.0, 1.0, 0, "The % chance of host migration results telemetry");
   anti_cheat_infraction = Dvar_RegisterInt("TNLNQMRPK", 63, 0, 0xFFFF, 0, (const char *)&queryFormat.fmt + 3);
   speech_active = Dvar_RegisterInt("LRMLMOSKM", 1, 0, 1, 0, "Are we allowed to enable Speech or not");
   gamedvr_active = Dvar_RegisterInt("MOSNQTOMPM", 1, 0, 1, 0, "Are we allowed to enable GameDVR or not");
@@ -134,7 +97,6 @@ void __fastcall OnlineConfig_CreateAllDVars(__int64 a1, __int64 a2, double _XMM2
   dw_nat_trav_timeout = Dvar_RegisterInt("NRLMQSNOOO", 0, 0, 0x7FFFFFFF, 0, "Nat traversal timeout in msec.");
   dw_nat_trav_interleave = Dvar_RegisterInt("NPRQSSLOO", 1, 0, 1, 0, "Nat traversal interleave.");
   dw_nat_trav_usage_report_interval = Dvar_RegisterInt("NSKOOPNOKN", 10, 0, 0x7FFFFFFF, 0, "Nat usage report interval in seconds.");
-  __asm { vmovaps xmm7, [rsp+48h+var_18] }
   Dvar_EndPermanentRegistration();
 }
 

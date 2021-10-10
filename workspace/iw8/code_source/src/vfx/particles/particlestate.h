@@ -204,8 +204,11 @@ void ParticleState::CopyImpactDataToAnotherState(ParticleState *this, ParticleSt
 {
   __int64 v4; 
   __int64 v6; 
-  __int64 v15; 
-  __int64 v16; 
+  Particle_OnImpactData *m_onImpactDataList; 
+  Particle_OnImpactData *v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
 
   v4 = toIndex;
   v6 = fromIndex;
@@ -221,30 +224,23 @@ void ParticleState::CopyImpactDataToAnotherState(ParticleState *this, ParticleSt
     __debugbreak();
   if ( (unsigned int)v6 >= this->m_particleCountMax )
   {
-    LODWORD(v15) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 450, ASSERT_TYPE_ASSERT, "(unsigned)( fromIndex ) < (unsigned)( m_particleCountMax )", "fromIndex doesn't index m_particleCountMax\n\t%i not in [0, %i)", v15, this->m_particleCountMax) )
+    LODWORD(v11) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 450, ASSERT_TYPE_ASSERT, "(unsigned)( fromIndex ) < (unsigned)( m_particleCountMax )", "fromIndex doesn't index m_particleCountMax\n\t%i not in [0, %i)", v11, this->m_particleCountMax) )
       __debugbreak();
   }
   if ( (unsigned int)v4 >= pParticleState->m_particleCountMax )
   {
-    LODWORD(v16) = pParticleState->m_particleCountMax;
-    LODWORD(v15) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 451, ASSERT_TYPE_ASSERT, "(unsigned)( toIndex ) < (unsigned)( pParticleState->m_particleCountMax )", "toIndex doesn't index pParticleState->m_particleCountMax\n\t%i not in [0, %i)", v15, v16) )
+    LODWORD(v12) = pParticleState->m_particleCountMax;
+    LODWORD(v11) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 451, ASSERT_TYPE_ASSERT, "(unsigned)( toIndex ) < (unsigned)( pParticleState->m_particleCountMax )", "toIndex doesn't index pParticleState->m_particleCountMax\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
-  _RDX = this->m_onImpactDataList;
-  _RAX = pParticleState->m_onImpactDataList;
-  _R8 = 10 * v6;
-  _RCX = 10 * v4;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+r8*8]
-    vmovups ymmword ptr [rax+rcx*8], ymm0
-    vmovups ymm1, ymmword ptr [rdx+r8*8+20h]
-    vmovups ymmword ptr [rax+rcx*8+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+r8*8+40h]
-    vmovups xmmword ptr [rax+rcx*8+40h], xmm0
-  }
+  m_onImpactDataList = this->m_onImpactDataList;
+  v9 = pParticleState->m_onImpactDataList;
+  v10 = v4;
+  *(__m256i *)v9[v10].pos.v.m128_f32 = *(__m256i *)m_onImpactDataList[v6].pos.v.m128_f32;
+  *(__m256i *)v9[v10].incomingVelocity.v.m128_f32 = *(__m256i *)m_onImpactDataList[v6].incomingVelocity.v.m128_f32;
+  *(_OWORD *)&v9[v10].surfaceFlags = *(_OWORD *)&m_onImpactDataList[v6].surfaceFlags;
 }
 
 /*
@@ -300,8 +296,10 @@ void ParticleState::CopyPhysicsInstanceIDToAnotherState(ParticleState *this, Par
 {
   __int64 v4; 
   __int64 v6; 
-  __int64 v12; 
-  __int64 v13; 
+  FxPhysics *m_physicsInstanceIDList; 
+  FxPhysics *v9; 
+  __int64 v10; 
+  __int64 v11; 
 
   v4 = toIndex;
   v6 = fromIndex;
@@ -321,23 +319,21 @@ void ParticleState::CopyPhysicsInstanceIDToAnotherState(ParticleState *this, Par
     __debugbreak();
   if ( (unsigned int)v6 >= this->m_particleCountMax )
   {
-    LODWORD(v12) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 598, ASSERT_TYPE_ASSERT, "(unsigned)( fromIndex ) < (unsigned)( m_particleCountMax )", "fromIndex doesn't index m_particleCountMax\n\t%i not in [0, %i)", v12, this->m_particleCountMax) )
+    LODWORD(v10) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 598, ASSERT_TYPE_ASSERT, "(unsigned)( fromIndex ) < (unsigned)( m_particleCountMax )", "fromIndex doesn't index m_particleCountMax\n\t%i not in [0, %i)", v10, this->m_particleCountMax) )
       __debugbreak();
   }
   if ( (unsigned int)v4 >= pParticleState->m_particleCountMax )
   {
-    LODWORD(v13) = pParticleState->m_particleCountMax;
-    LODWORD(v12) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 599, ASSERT_TYPE_ASSERT, "(unsigned)( toIndex ) < (unsigned)( pParticleState->m_particleCountMax )", "toIndex doesn't index pParticleState->m_particleCountMax\n\t%i not in [0, %i)", v12, v13) )
+    LODWORD(v11) = pParticleState->m_particleCountMax;
+    LODWORD(v10) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 599, ASSERT_TYPE_ASSERT, "(unsigned)( toIndex ) < (unsigned)( pParticleState->m_particleCountMax )", "toIndex doesn't index pParticleState->m_particleCountMax\n\t%i not in [0, %i)", v10, v11) )
       __debugbreak();
   }
-  _RDX = this->m_physicsInstanceIDList;
-  _R9 = 3 * v6;
-  __asm { vmovsd  xmm0, qword ptr [rdx+r9*4] }
-  _R8 = &pParticleState->m_physicsInstanceIDList[v4];
-  __asm { vmovsd  qword ptr [r8], xmm0 }
-  _R8->createListIndex = _RDX[v6].createListIndex;
+  m_physicsInstanceIDList = this->m_physicsInstanceIDList;
+  v9 = &pParticleState->m_physicsInstanceIDList[v4];
+  *(double *)&v9->instanceId = *(double *)&m_physicsInstanceIDList[v6].instanceId;
+  v9->createListIndex = m_physicsInstanceIDList[v6].createListIndex;
 }
 
 /*
@@ -350,27 +346,19 @@ void Particle_TrailData::CopyTrailData(Particle_TrailData *this, Particle_TrailD
   Particle_TrailPoint *pointList; 
   ParticleData *pParticleData; 
 
-  _RBX = pDstTrailData;
-  _RDI = this;
   if ( !pDstTrailData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 92, ASSERT_TYPE_ASSERT, "(pDstTrailData)", (const char *)&queryFormat, "pDstTrailData") )
     __debugbreak();
-  if ( _RBX == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 93, ASSERT_TYPE_ASSERT, "(pDstTrailData != this)", (const char *)&queryFormat, "pDstTrailData != this") )
+  if ( pDstTrailData == this && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 93, ASSERT_TYPE_ASSERT, "(pDstTrailData != this)", (const char *)&queryFormat, "pDstTrailData != this") )
     __debugbreak();
-  if ( _RDI->numPointsMax != _RBX->numPointsMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 97, ASSERT_TYPE_ASSERT, "(numPointsMax == pDstTrailData->numPointsMax)", (const char *)&queryFormat, "numPointsMax == pDstTrailData->numPointsMax") )
+  if ( this->numPointsMax != pDstTrailData->numPointsMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 97, ASSERT_TYPE_ASSERT, "(numPointsMax == pDstTrailData->numPointsMax)", (const char *)&queryFormat, "numPointsMax == pDstTrailData->numPointsMax") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rdi] }
-  pointList = _RBX->pointList;
-  pParticleData = _RBX->pParticleData;
-  __asm
-  {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rbx+40h], ymm0
-  }
-  _RDI->pointList = pointList;
-  _RDI->pParticleData = pParticleData;
+  pointList = pDstTrailData->pointList;
+  pParticleData = pDstTrailData->pParticleData;
+  *(__m256i *)&pDstTrailData->PARTICLE_TRAIL_MIN_SPLIT_ANGLE_DISTANCE_SQ = *(__m256i *)&this->PARTICLE_TRAIL_MIN_SPLIT_ANGLE_DISTANCE_SQ;
+  *(__m256i *)pDstTrailData->splitDistanceSq.v.m128_f32 = *(__m256i *)this->splitDistanceSq.v.m128_f32;
+  *(__m256i *)&pDstTrailData->firstPointIndex = *(__m256i *)&this->firstPointIndex;
+  this->pointList = pointList;
+  this->pParticleData = pParticleData;
 }
 
 /*

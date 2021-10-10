@@ -197,15 +197,14 @@ _BOOL8 BT_AttemptGrenadeReturn(BehaviorTree *pTree, int entNum, int taskID, int 
 {
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
-  AIWrapper v8; 
+  AIWrapper v7; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v8, Ent);
-  m_pAI = v8.m_pAI;
-  if ( !v8.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 57, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v7, Ent);
+  m_pAI = v7.m_pAI;
+  if ( !v7.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 57, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@46afc800; maxDistSq }
-  return AIScriptedInterface::Grenade_AttemptReturn(m_pAI, *(float *)&_XMM1);
+  return AIScriptedInterface::Grenade_AttemptReturn(m_pAI, 22500.0);
 }
 
 /*
@@ -366,41 +365,23 @@ __int64 BT_GrenadeEscape(BehaviorTree *pTree, int entNum, int taskID, int params
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
   ai_bt_instance_data *InstanceData; 
-  char v17; 
-  AIWrapper v19; 
-  int v20[4]; 
+  bool v8; 
+  AIWrapper v10; 
+  float v11; 
+  float v12; 
+  float v13; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v19, Ent);
-  m_pAI = v19.m_pAI;
-  if ( !v19.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 247, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v10, Ent);
+  m_pAI = v10.m_pAI;
+  if ( !v10.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 247, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   InstanceData = BT_GetInstanceData(*pInOutInstIndex);
   if ( !InstanceData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 250, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  m_pAI->GetVelocity(m_pAI, (vec3_t *)v20);
-  if ( level.time <= InstanceData->m_TimeStarted || AICommonInterface::HasPath(m_pAI) || AIScriptedInterface::PathPending(m_pAI) )
-  {
-    v17 = 0;
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_28]
-      vmovss  xmm1, [rsp+0A8h+var_24]
-      vmulss  xmm3, xmm0, xmm0
-      vmovss  xmm0, [rsp+0A8h+var_20]
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm0
-      vaddss  xmm2, xmm4, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vcomiss xmm3, cs:__real@3c23d70a
-    }
-    v17 = 1;
-  }
-  if ( !AIScriptedInterface::HasGrenadeValid(m_pAI) || v17 )
+  m_pAI->GetVelocity(m_pAI, (vec3_t *)&v11);
+  v8 = level.time > InstanceData->m_TimeStarted && !AICommonInterface::HasPath(m_pAI) && !AIScriptedInterface::PathPending(m_pAI) && fsqrt((float)((float)(v11 * v11) + (float)(v12 * v12)) + (float)(v13 * v13)) <= 0.0099999998;
+  if ( !AIScriptedInterface::HasGrenadeValid(m_pAI) || v8 )
     return 0i64;
   else
     return 2i64;
@@ -601,13 +582,17 @@ __int64 AIScriptedInterface::Grenade_Acquire(AIScriptedInterface *this, int time
   int v10; 
   __int64 v11; 
   __int64 v12; 
-  bool v16; 
-  int v22; 
-  AINavigator2D *v32; 
-  char v42; 
+  gentity_s *v13; 
+  ai_scripted_t *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  ai_scripted_t *v18; 
+  float v19; 
+  float v20; 
+  AINavigator2D *v21; 
   vec3_t *outClosestPos; 
   bfx::AreaHandle *pOutArea; 
-  int pOutAreaa; 
   vec3_t endPos; 
   vec3_t outUp; 
   bfx::PathSpec pPathSpec; 
@@ -622,9 +607,8 @@ __int64 AIScriptedInterface::Grenade_Acquire(AIScriptedInterface *this, int time
   v7 = number - 1;
   if ( v7 >= 0x800 )
   {
-    pOutAreaa = 2048;
     LODWORD(outClosestPos) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, pOutAreaa) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -674,52 +658,19 @@ LABEL_61:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", pOutArea) )
       __debugbreak();
   }
-  _RSI = &g_entities[v9->grenade.pGrenade.number - 1];
-  __asm
+  v13 = &g_entities[v9->grenade.pGrenade.number - 1];
+  v14 = this->m_pAI;
+  v15 = v13->r.currentOrigin.v[1] - v14->ent->r.currentOrigin.v[1];
+  v16 = v13->r.currentOrigin.v[0] - v14->ent->r.currentOrigin.v[0];
+  v17 = (float)(v15 * v15) + (float)(v16 * v16);
+  if ( v14->combat.damageShield && v13->nextthink - level.time < 2000 && v17 < AI_GRENADE_RETURN_SANITY_DIST_SQ )
+    v13->nextthink = level.time + 2000;
+  if ( v17 >= AI_GRENADE_PICKUP_DIST_SQ )
   {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vmovss  xmm1, dword ptr [rsi+134h]
-  }
-  v16 = 0;
-  __asm
-  {
-    vsubss  xmm2, xmm1, dword ptr [rax+134h]
-    vsubss  xmm4, xmm0, dword ptr [rax+130h]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-  }
-  if ( this->m_pAI->combat.damageShield )
-  {
-    v22 = _RSI->nextthink - level.time;
-    v16 = (unsigned int)v22 < 0x7D0;
-    if ( v22 < 2000 )
-    {
-      __asm { vcomiss xmm1, cs:?AI_GRENADE_RETURN_SANITY_DIST_SQ@@3MB; float const AI_GRENADE_RETURN_SANITY_DIST_SQ }
-      if ( (unsigned int)v22 < 0x7D0 )
-        _RSI->nextthink = level.time + 2000;
-    }
-  }
-  __asm
-  {
-    vmovss  xmm5, cs:?AI_GRENADE_PICKUP_DIST_SQ@@3MB; float const AI_GRENADE_PICKUP_DIST_SQ
-    vcomiss xmm1, xmm5
-  }
-  if ( !v16 )
-  {
-    _RCX = this->m_pAI;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+4DCh]
-      vmovss  xmm1, dword ptr [rcx+4E0h]
-      vsubss  xmm2, xmm1, dword ptr [rax+134h]
-      vsubss  xmm4, xmm0, dword ptr [rax+130h]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm1, xmm5
-    }
-    if ( !v16 )
+    v18 = this->m_pAI;
+    v19 = v18->grenade.pickupPos.v[1] - v18->ent->r.currentOrigin.v[1];
+    v20 = v18->grenade.pickupPos.v[0] - v18->ent->r.currentOrigin.v[0];
+    if ( (float)((float)(v19 * v19) + (float)(v20 * v20)) >= AI_GRENADE_PICKUP_DIST_SQ )
       goto LABEL_62;
   }
   if ( AICommonInterface::HasPath(this) )
@@ -728,19 +679,10 @@ LABEL_61:
       __debugbreak();
     if ( !AICommonInterface::Use3DPathing(this) )
     {
-      v32 = this->m_pAI->pNavigator->Get2DNavigator(this->m_pAI->pNavigator);
-      _RAX = AINavigator2D::GetPathSpec(v32);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0E8h+pPathSpec.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0E8h+pPathSpec.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rsp+0E8h+pPathSpec.m_penaltyTable.m_perFlagPenalties+18h], xmm0
-      }
-      AINavigator::GetUpVector(v32, &outUp);
-      Nav_GetClosestVerticalPos(&this->m_pAI->grenade.pickupPos, &outUp, v32->m_Layer, &v32->m_pSpace->hSpace, &pPathSpec, &endPos, NULL);
+      v21 = this->m_pAI->pNavigator->Get2DNavigator(this->m_pAI->pNavigator);
+      pPathSpec = *AINavigator2D::GetPathSpec(v21);
+      AINavigator::GetUpVector(v21, &outUp);
+      Nav_GetClosestVerticalPos(&this->m_pAI->grenade.pickupPos, &outUp, v21->m_Layer, &v21->m_pSpace->hSpace, &pPathSpec, &endPos, NULL);
       if ( !AINavigator::IsStraightLineReachable(this->m_pAI->pNavigator, &endPos) )
       {
 LABEL_62:
@@ -753,20 +695,12 @@ LABEL_62:
   if ( AICommonInterface::HasPath(this) )
   {
     AICommonInterface::GetPathFinalGoal(this, &endPos);
-    _RCX = this->m_pAI->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+138h]
-      vsubss  xmm1, xmm0, dword ptr [rsp+0E8h+endPos+8]
-      vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, cs:?AI_GRENADE_PICKUP_HEIGHT@@3MB; float const AI_GRENADE_PICKUP_HEIGHT
-    }
-    if ( !(v16 | v42) )
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(this->m_pAI->ent->r.currentOrigin.v[2] - endPos.v[2]) & _xmm) > 32.0 )
       return 0i64;
   }
-  if ( !G_Missile_IsGrenade(_RSI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 167, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
+  if ( !G_Missile_IsGrenade(v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_grenade.cpp", 167, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
     __debugbreak();
-  _RSI->c.missile.flags |= 0x800u;
+  v13->c.missile.flags |= 0x800u;
   return 1i64;
 }
 

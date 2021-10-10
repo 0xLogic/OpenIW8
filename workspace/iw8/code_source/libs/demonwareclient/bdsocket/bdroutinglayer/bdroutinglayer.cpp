@@ -232,24 +232,19 @@ bdRoutingLayer::bdRoutingLayer
 void bdRoutingLayer::bdRoutingLayer(bdRoutingLayer *this)
 {
   unsigned int PowerOf2; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v8; 
+  float v3; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v4; 
 
   this->m_associations.m_numIterators.m_value._My_val = 0;
   this->m_associations.m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(4u);
   this->m_associations.m_capacity = PowerOf2;
   this->m_associations.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, cs:__real@3f400000
-    vcvttss2si rcx, xmm1
-  }
-  this->m_associations.m_threshold = _RCX;
-  v8 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-  this->m_associations.m_map = v8;
-  memset_0(v8, 0, 8i64 * this->m_associations.m_capacity);
+  v3 = (float)PowerOf2;
+  this->m_associations.m_threshold = (int)(float)(v3 * 0.75);
+  v4 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  this->m_associations.m_map = v4;
+  memset_0(v4, 0, 8i64 * this->m_associations.m_capacity);
   this->m_boundAssociation.m_ptr = NULL;
   this->m_socket = NULL;
   bdClientAuthToken::bdClientAuthToken(&this->m_clientAuthToken);
@@ -915,25 +910,21 @@ bdRoutingLayer::getRelayPing
 float bdRoutingLayer::getRelayPing(bdRoutingLayer *this)
 {
   bdSharedMutex *p_m_mutex; 
+  float v3; 
   bdRelayAssociation *m_ptr; 
+  double LastPing; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   p_m_mutex = &this->m_mutex;
   bdSharedMutex::lock_shared(&this->m_mutex);
-  __asm { vmovss  xmm6, cs:__real@bf800000 }
+  v3 = FLOAT_N1_0;
   m_ptr = this->m_boundAssociation.m_ptr;
   if ( m_ptr )
   {
-    *(double *)&_XMM0 = bdRelayAssociation::getLastPing(m_ptr);
-    __asm { vmovaps xmm6, xmm0 }
+    LastPing = bdRelayAssociation::getLastPing(m_ptr);
+    v3 = *(float *)&LastPing;
   }
   bdSharedMutex::unlock_shared(p_m_mutex);
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return v3;
 }
 
 /*

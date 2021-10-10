@@ -450,456 +450,326 @@ SpatialPartition_PopulationSort_DebugDrawOverlay
 
 void __fastcall SpatialPartition_PopulationSort_DebugDrawOverlay(SpatialPartition_PopulationSort_ClientData *clientData, const SpatialPartition_PopulationSort_Callbacks *callbacks, const vec3_t *lastViewPos, double overlayWorldSize, SpatialPartition_Population_Node *extraList)
 {
-  SpatialPartition_Population_Node *v19; 
+  SpatialPartition_Population_Node *v9; 
+  bool v10; 
+  ExtentBounds *extents; 
+  __m128 v12; 
+  __int128 v13; 
+  __m128 v14; 
+  __m128 v16; 
+  __int128 v18; 
+  __int128 v20; 
+  bool v27; 
+  const ScreenPlacement *v28; 
+  unsigned int v29; 
   SpatialPartition_Population *population; 
-  bool v22; 
-  bool v52; 
-  const ScreenPlacement *v53; 
-  unsigned int v55; 
-  SpatialPartition_Population *v56; 
-  SpatialPartition_Population *v57; 
-  unsigned int v59; 
+  SpatialPartition_Population *v31; 
+  unsigned int v32; 
   unsigned int sortedPartitionCount; 
   SpatialPartition_PopulationSort_Entry *sortedPartitions; 
-  const vec4_t *v62; 
-  float v63; 
-  SpatialPartition_PopulationSort_Entry *v68; 
-  const vec3_t *p_mins; 
+  const vec4_t *v35; 
+  float v36; 
+  SpatialPartition_PopulationSort_Entry *v37; 
+  ExtentBounds *v38; 
+  float v42; 
   SpatialPartition_Population_Node *m_curNode; 
-  bool v80; 
-  unsigned int v81; 
-  const vec4_t *v82; 
-  SpatialPartition_Population_Node *v84; 
-  bool v85; 
-  const vec4_t *v86; 
-  float v88; 
-  SpatialPartition_PopulationSort_Entry *v90; 
-  int v99; 
-  int v100; 
-  const vec4_t *v112; 
+  bool v45; 
+  unsigned int v46; 
+  const vec4_t *v47; 
+  SpatialPartition_Population_Node *v48; 
+  bool v49; 
+  const vec4_t *v50; 
+  unsigned int v51; 
+  SpatialPartition_PopulationSort_Entry *v52; 
+  float v56; 
+  int v57; 
+  int v58; 
+  const vec4_t *v60; 
   unsigned int i; 
-  unsigned int v116; 
-  bool v117; 
-  __int64 v133; 
-  __int64 v134; 
-  const vec3_t *v135; 
+  int v62; 
+  __int64 v63; 
+  __int64 v64; 
+  ExtentBounds *v65; 
   vec2_t minPos; 
   vec4_t color; 
-  vec3_t v139; 
-  SpatialPartition_Population_NodeIterator v140; 
+  double v69; 
+  vec3_t v70; 
+  SpatialPartition_Population_NodeIterator v71; 
   vec2_t m_screenBoundsMax; 
-  vec2_t v142; 
-  vec2_t v143; 
-  CL_DebugMapOverlay v144; 
-  Bounds v145; 
+  vec2_t v73; 
+  vec2_t v74; 
+  CL_DebugMapOverlay v75; 
+  Bounds v76; 
   vec2_t screenBoundsMax; 
-  vec2_t v147[20]; 
-  char v148; 
-  void *retaddr; 
+  vec2_t v78[20]; 
 
-  if ( clientData )
+  if ( !clientData )
+    return;
+  _XMM12 = *(_OWORD *)&overlayWorldSize;
+  v9 = extraList;
+  if ( clientData->population->partitionCount <= 2 )
+    return;
+  v10 = *(float *)&overlayWorldSize == 0.0;
+  CL_DebugMapOverlay::CL_DebugMapOverlay(&v75);
+  CL_DebugMapOverlay::GetDefaultScreenBounds(&v75, clientData->localClientNum, *(float *)&overlayWorldSize == 0.0, v78, &screenBoundsMax);
+  extents = clientData->population->tree->extents;
+  v12 = *(__m128 *)extents->mins.v;
+  v13 = *(unsigned __int64 *)&extents->maxs.y;
+  v14 = _mm_shuffle_ps(v12, v12, 255);
+  color.v[0] = (float)(v14.m128_f32[0] + COERCE_FLOAT(*(_OWORD *)extents->mins.v)) * 0.5;
+  *(double *)&v71.m_curIndex = *(double *)&v13;
+  color.v[1] = (float)(*(float *)&v13 + _mm_shuffle_ps(v12, v12, 85).m128_f32[0]) * 0.5;
+  color.v[2] = (float)(_mm_shuffle_ps(v12, v12, 170).m128_f32[0] + *((float *)&v13 + 1)) * 0.5;
+  v16 = v14;
+  v16.m128_f32[0] = v14.m128_f32[0] - color.v[0];
+  _XMM0 = v16;
+  v18 = v13;
+  *(float *)&v18 = *(float *)&v13 - color.v[1];
+  _XMM1 = v18;
+  v20 = *(&v71.m_curIndex + 1);
+  *(float *)&v20 = *((float *)&v71.m_curIndex + 1) - color.v[2];
+  _XMM2 = v20;
+  __asm { vmaxss  xmm3, xmm0, xmm3 }
+  color.v[3] = *(float *)&_XMM3;
+  __asm { vmaxss  xmm1, xmm1, xmm4 }
+  *(float *)&v69 = *(float *)&_XMM1;
+  __asm { vmaxss  xmm0, xmm2, xmm5 }
+  *((float *)&v69 + 1) = *(float *)&_XMM0;
+  if ( v10 )
   {
-    _RAX = &retaddr;
-    _RBP = &v144.m_uniformScale;
+    *(vec4_t *)v76.midPoint.v = color;
+    *(double *)&v76.halfSize.y = v69;
+  }
+  else
+  {
     __asm
     {
-      vmovaps xmmword ptr [rax-58h], xmm6
-      vmovaps xmmword ptr [rax-68h], xmm7
-      vmovaps xmmword ptr [rax-78h], xmm8
-      vmovaps xmmword ptr [rax-88h], xmm9
-      vmovaps xmmword ptr [rax-98h], xmm10
-      vmovaps xmmword ptr [rax-0A8h], xmm11
-      vmovaps xmmword ptr [rax-0B8h], xmm12
-      vmovaps xmmword ptr [rax-0C8h], xmm13
-      vmovaps xmm12, xmm3
+      vmaxss  xmm0, xmm1, xmm3
+      vminss  xmm1, xmm12, xmm0
     }
-    _RSI = lastViewPos;
-    _RDI = clientData;
-    v19 = extraList;
+    *(double *)v76.midPoint.v = *(double *)lastViewPos->v;
+    v76.midPoint.v[2] = lastViewPos->v[2];
+    color.v[2] = *(float *)&_XMM1;
+    __asm { vunpcklps xmm0, xmm1, xmm1 }
+    *(double *)v76.halfSize.v = *(double *)&_XMM0;
+    LODWORD(v76.halfSize.v[2]) = _XMM1;
+  }
+  if ( activeScreenPlacementMode )
+  {
+    if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
+    {
+      v28 = scrPlaceViewDisplay;
+      goto LABEL_13;
+    }
+    if ( activeScreenPlacementMode == SCRMODE_INVALID )
+      v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+    else
+      v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v27 )
+      __debugbreak();
+  }
+  v28 = &scrPlaceFull;
+LABEL_13:
+  CL_DebugMapOverlay::Init(&v75, v28, v78, &screenBoundsMax, &v76);
+  if ( !v10 || clientData->localClientNum == LOCAL_CLIENT_0 )
+  {
+    color = (vec4_t)_xmm;
+    m_screenBoundsMax = v75.m_screenBoundsMax;
+    minPos = v75.m_screenBoundsMin;
+    CL_DebugMapOverlay::DrawRect2D(&v75, &minPos, &m_screenBoundsMax, &color, Unclipped);
+    v29 = 0;
     population = clientData->population;
-    if ( population->partitionCount <= 2 )
+    if ( population->partitionCount )
     {
-LABEL_74:
-      _R11 = &v148;
-      __asm
+      v31 = clientData->population;
+      do
       {
-        vmovaps xmm6, xmmword ptr [r11-18h]
-        vmovaps xmm7, xmmword ptr [r11-28h]
-        vmovaps xmm8, xmmword ptr [r11-38h]
-        vmovaps xmm9, xmmword ptr [r11-48h]
-        vmovaps xmm10, xmmword ptr [r11-58h]
-        vmovaps xmm11, xmmword ptr [r11-68h]
-        vmovaps xmm12, xmmword ptr [r11-78h]
-        vmovaps xmm13, xmmword ptr [r11-88h]
+        if ( population->buckets[v29].spatialNodeNext != -1 )
+        {
+          color = (vec4_t)_xmm;
+          CL_DebugMapOverlay::DrawExtBox(&v75, &v31->tree->extents[v29], 0, &color, Clipped);
+          v31 = clientData->population;
+        }
+        population = v31;
+        ++v29;
       }
-      return;
+      while ( v29 < v31->partitionCount );
     }
-    __asm
+  }
+  v32 = 0;
+  sortedPartitionCount = clientData->sortedPartitionCount;
+  if ( sortedPartitionCount )
+  {
+    do
     {
-      vxorps  xmm11, xmm11, xmm11
-      vucomiss xmm3, xmm11
+      sortedPartitions = clientData->sortedPartitions;
+      v35 = &colorNearby;
+      if ( sortedPartitions[v32].anyActiveMask )
+        v35 = &colorActive;
+      CL_DebugMapOverlay::DrawExtBox(&v75, &clientData->population->tree->extents[sortedPartitions[v32++].partitionIndex], -1, v35, Clipped);
+      sortedPartitionCount = clientData->sortedPartitionCount;
     }
-    v22 = population->partitionCount == 2;
-    CL_DebugMapOverlay::CL_DebugMapOverlay(&v144);
-    CL_DebugMapOverlay::GetDefaultScreenBounds(&v144, _RDI->localClientNum, v22, v147, &screenBoundsMax);
-    _RAX = _RDI->population->tree->extents;
-    __asm
+    while ( v32 < sortedPartitionCount );
+    v9 = extraList;
+  }
+  v36 = 0.0;
+  minPos.v[0] = 0.0;
+  if ( sortedPartitionCount )
+  {
+    do
     {
-      vmovups xmm3, xmmword ptr [rax]
-      vmovsd  xmm10, qword ptr [rax+10h]
-      vshufps xmm9, xmm3, xmm3, 0FFh
-      vaddss  xmm0, xmm9, xmm3
-      vmovss  xmm13, cs:__real@3f000000
-      vmulss  xmm8, xmm0, xmm13
-      vmovss  dword ptr [rsp+208h+color], xmm8
-      vmovsd  qword ptr [rbp-50h], xmm10
-      vshufps xmm4, xmm3, xmm3, 55h ; 'U'
-      vaddss  xmm0, xmm10, xmm4
-      vmulss  xmm7, xmm0, xmm13
-      vmovss  dword ptr [rsp+208h+color+4], xmm7
-      vmovss  xmm6, dword ptr [rbp-4Ch]
-      vshufps xmm1, xmm3, xmm3, 0AAh ; 'ª'
-      vaddss  xmm0, xmm1, xmm6
-      vmulss  xmm2, xmm0, xmm13
-      vmovss  dword ptr [rbp-80h], xmm2
-      vsubss  xmm3, xmm8, xmm3
-      vsubss  xmm4, xmm7, xmm4
-      vsubss  xmm5, xmm2, xmm1
-      vsubss  xmm0, xmm9, xmm8
-      vsubss  xmm1, xmm10, xmm7
-      vsubss  xmm2, xmm6, xmm2
-      vmaxss  xmm3, xmm0, xmm3
-      vmovss  dword ptr [rbp-7Ch], xmm3
-      vmaxss  xmm1, xmm1, xmm4
-      vmovss  dword ptr [rbp-78h], xmm1
-      vmaxss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rbp-74h], xmm0
-    }
-    if ( v22 )
-    {
+      v37 = clientData->sortedPartitions;
+      v38 = &clientData->population->tree->extents[v37[LODWORD(v36)].partitionIndex];
+      CL_DebugMapOverlay::TransformBox(&v75, &v38->mins, &v38->maxs, &v74, &v73);
+      *((_QWORD *)&_XMM0 + 1) = 0i64;
+      *(double *)&_XMM0 = I_fclamp((float)(v73.v[0] - v74.v[0]) * 0.050000001, 0.0, 1.0);
       __asm
       {
-        vmovups xmm0, xmmword ptr [rsp+208h+color]
-        vmovups xmmword ptr [rbp+8], xmm0
-        vmovsd  xmm1, qword ptr [rbp-78h]
-        vmovsd  qword ptr [rbp+18h], xmm1
+        vcmpltss xmm1, xmm0, xmm10
+        vblendvps xmm0, xmm0, xmm11, xmm1
+      }
+      v42 = *(float *)&_XMM0 * 4.0;
+      if ( v37[LODWORD(v36)].anyActiveMask )
+      {
+        if ( v42 > 0.0 )
+        {
+          __asm { vpxor   xmm0, xmm0, xmm0 }
+          *(_OWORD *)&v71.m_population = _XMM0;
+          v71.m_curIndex = -1;
+          SpatialPartition_Population_NodeIterator::Init(&v71, clientData->population, v37[LODWORD(v36)].partitionIndex);
+          if ( SpatialPartition_Population_NodeIterator::Advance(&v71) )
+          {
+            do
+            {
+              m_curNode = v71.m_curNode;
+              if ( !v71.m_curNode )
+              {
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
+                  __debugbreak();
+                m_curNode = v71.m_curNode;
+              }
+              v45 = callbacks->isActive(clientData, m_curNode);
+              v46 = callbacks->getPriority(clientData, m_curNode);
+              callbacks->getPosition(clientData, m_curNode, (vec3_t *)&color);
+              if ( v45 )
+              {
+                v47 = &colorActive;
+                if ( v46 )
+                  v47 = &colorPriority;
+              }
+              else
+              {
+                v47 = &colorNearby;
+              }
+              v70.v[0] = 0.0;
+              v70.v[1] = 0.0;
+              v70.v[2] = 0.0;
+              CL_DebugMapOverlay::DrawImage(&v75, (const vec3_t *)&color, &v70, v42, v47, Clipped, cgMedia.objectiveMaterials[0]);
+            }
+            while ( SpatialPartition_Population_NodeIterator::Advance(&v71) );
+            v36 = minPos.v[0];
+          }
+        }
+      }
+      ++LODWORD(v36);
+      minPos.v[0] = v36;
+      sortedPartitionCount = clientData->sortedPartitionCount;
+    }
+    while ( LODWORD(v36) < sortedPartitionCount );
+    v9 = extraList;
+  }
+  if ( v9 && v9->spatialNodeNext != -1 )
+  {
+    do
+    {
+      v48 = (SpatialPartition_Population_Node *)((__int64 (*)(void))clientData->population->getNodeFromIndex)();
+      if ( !v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 1318, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+        __debugbreak();
+      v49 = callbacks->isActive(clientData, v48);
+      callbacks->getPosition(clientData, v48, (vec3_t *)&color);
+      v50 = &colorNoSpatialDeactivated;
+      if ( v49 )
+        v50 = &colorAlways;
+      v70.v[0] = 0.0;
+      v70.v[1] = 0.0;
+      v70.v[2] = 0.0;
+      CL_DebugMapOverlay::DrawImage(&v75, (const vec3_t *)&color, &v70, 4.0, v50, Clipped, cgMedia.objectiveMaterials[0]);
+    }
+    while ( v48->spatialNodeNext != -1 );
+    sortedPartitionCount = clientData->sortedPartitionCount;
+  }
+  v51 = 0;
+  minPos.v[0] = 0.0;
+  if ( sortedPartitionCount )
+  {
+    do
+    {
+      v52 = clientData->sortedPartitions;
+      v65 = &clientData->population->tree->extents[v52[v51].partitionIndex];
+      CL_DebugMapOverlay::TransformBox(&v75, &v65->mins, &v65->maxs, &v73, &v74);
+      *((_QWORD *)&_XMM0 + 1) = 0i64;
+      *(double *)&_XMM0 = I_fclamp((float)(v74.v[0] - v73.v[0]) * 0.050000001, 0.0, 1.0);
+      __asm
+      {
+        vcmpltss xmm1, xmm0, xmm10
+        vblendvps xmm0, xmm0, xmm11, xmm1
+      }
+      v56 = *(float *)&_XMM0 * 0.2;
+      if ( (float)(*(float *)&_XMM0 * 0.2) != 0.0 )
+      {
+        v57 = 0;
+        v58 = 0;
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v71.m_population = _XMM0;
+        v71.m_curIndex = -1;
+        SpatialPartition_Population_NodeIterator::Init(&v71, clientData->population, v52[v51].partitionIndex);
+        if ( SpatialPartition_Population_NodeIterator::Advance(&v71) )
+        {
+          do
+          {
+            if ( !v71.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
+              __debugbreak();
+            ++v57;
+            v58 += callbacks->isActive(clientData, v71.m_curNode);
+          }
+          while ( SpatialPartition_Population_NodeIterator::Advance(&v71) );
+          v51 = LODWORD(minPos.v[0]);
+        }
+        color.v[0] = (float)(v65->maxs.v[0] + v65->mins.v[0]) * 0.5;
+        color.v[1] = (float)(v65->maxs.v[1] + v65->mins.v[1]) * 0.5;
+        color.v[2] = (float)(v65->maxs.v[2] + v65->mins.v[2]) * 0.5;
+        CL_DebugMapOverlay::TransformPos(&v75, (const vec3_t *)&color, (vec2_t *)&v70);
+        v60 = &colorNearby;
+        if ( v58 )
+          v60 = &colorActive;
+        LODWORD(v64) = v57;
+        LODWORD(v63) = v58;
+        CL_DebugMapOverlay::DrawTextf2D(&v75, (const vec2_t *)&v70, &CL_DebugMapOverlay::TEXT_ANCHOR_CENTRE, v56, v60, Clipped, "%u/%u", v63, v64);
+      }
+      LODWORD(minPos.v[0]) = ++v51;
+    }
+    while ( v51 < clientData->sortedPartitionCount );
+  }
+  CL_DebugMapOverlay::DrawPlayerArrow(&v75, clientData->localClientNum, Unclipped);
+  for ( i = 0; i < clientData->priorityCount; ++i )
+  {
+    v62 = 0;
+    if ( i )
+    {
+      while ( clientData->settings.maxDistanceForPriority[i] != clientData->settings.maxDistanceForPriority[v62] )
+      {
+        if ( ++v62 >= i )
+          goto LABEL_69;
       }
     }
     else
     {
-      __asm
-      {
-        vmaxss  xmm0, xmm1, xmm3
-        vminss  xmm1, xmm12, xmm0
-        vmovsd  xmm0, qword ptr [rsi]
-        vmovsd  qword ptr [rbp+8], xmm0
-      }
-      v145.midPoint.v[2] = _RSI->v[2];
-      __asm
-      {
-        vmovss  dword ptr [rbp-80h], xmm1
-        vunpcklps xmm0, xmm1, xmm1
-        vmovsd  qword ptr [rbp+14h], xmm0
-      }
-      v145.halfSize.v[2] = color.v[2];
+LABEL_69:
+      color = (vec4_t)_xmm;
+      CL_DebugMapOverlay::DrawCircle(&v75, lastViewPos, clientData->settings.maxDistanceForPriority[i], &color, Clipped);
     }
-    if ( activeScreenPlacementMode )
-    {
-      if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
-      {
-        v53 = scrPlaceViewDisplay;
-        goto LABEL_13;
-      }
-      if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v52 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
-      else
-        v52 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v52 )
-        __debugbreak();
-    }
-    v53 = &scrPlaceFull;
-LABEL_13:
-    CL_DebugMapOverlay::Init(&v144, v53, v147, &screenBoundsMax, &v145);
-    if ( !v22 || _RDI->localClientNum == LOCAL_CLIENT_0 )
-    {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmmword ptr [rsp+208h+color], xmm0
-      }
-      m_screenBoundsMax = v144.m_screenBoundsMax;
-      minPos = v144.m_screenBoundsMin;
-      CL_DebugMapOverlay::DrawRect2D(&v144, &minPos, &m_screenBoundsMax, &color, Unclipped);
-      v55 = 0;
-      v56 = _RDI->population;
-      if ( v56->partitionCount )
-      {
-        v57 = _RDI->population;
-        do
-        {
-          if ( v56->buckets[v55].spatialNodeNext != -1 )
-          {
-            __asm
-            {
-              vmovups xmm0, cs:__xmm@3f3333333f3333333f3333333f333333
-              vmovups xmmword ptr [rsp+208h+color], xmm0
-            }
-            CL_DebugMapOverlay::DrawExtBox(&v144, &v57->tree->extents[v55], 0, &color, Clipped);
-            v57 = _RDI->population;
-          }
-          v56 = v57;
-          ++v55;
-        }
-        while ( v55 < v57->partitionCount );
-      }
-    }
-    v59 = 0;
-    sortedPartitionCount = _RDI->sortedPartitionCount;
-    if ( sortedPartitionCount )
-    {
-      do
-      {
-        sortedPartitions = _RDI->sortedPartitions;
-        v62 = &colorNearby;
-        if ( sortedPartitions[v59].anyActiveMask )
-          v62 = &colorActive;
-        CL_DebugMapOverlay::DrawExtBox(&v144, &_RDI->population->tree->extents[sortedPartitions[v59++].partitionIndex], -1, v62, Clipped);
-        sortedPartitionCount = _RDI->sortedPartitionCount;
-      }
-      while ( v59 < sortedPartitionCount );
-      v19 = extraList;
-    }
-    v63 = 0.0;
-    minPos.v[0] = 0.0;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3d4ccccd
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm10, cs:__real@3e800000
-      vmovss  xmm7, cs:__real@40800000
-    }
-    if ( sortedPartitionCount )
-    {
-      do
-      {
-        v68 = _RDI->sortedPartitions;
-        p_mins = &_RDI->population->tree->extents[v68[LODWORD(v63)].partitionIndex].mins;
-        CL_DebugMapOverlay::TransformBox(&v144, p_mins, p_mins + 1, &v143, &v142);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp-40h]
-          vsubss  xmm1, xmm0, dword ptr [rbp-38h]
-          vmulss  xmm0, xmm1, xmm8; val
-          vmovaps xmm2, xmm9; max
-          vmovaps xmm1, xmm11; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vcmpltss xmm1, xmm0, xmm10
-          vblendvps xmm0, xmm0, xmm11, xmm1
-          vmulss  xmm6, xmm0, xmm7
-        }
-        if ( v68[LODWORD(v63)].anyActiveMask )
-        {
-          __asm { vcomiss xmm6, xmm11 }
-          if ( v68[LODWORD(v63)].anyActiveMask )
-          {
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr [rbp-60h], xmm0
-            }
-            v140.m_curIndex = -1;
-            SpatialPartition_Population_NodeIterator::Init(&v140, _RDI->population, v68[LODWORD(v63)].partitionIndex);
-            if ( SpatialPartition_Population_NodeIterator::Advance(&v140) )
-            {
-              do
-              {
-                m_curNode = v140.m_curNode;
-                if ( !v140.m_curNode )
-                {
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
-                    __debugbreak();
-                  m_curNode = v140.m_curNode;
-                }
-                v80 = callbacks->isActive(_RDI, m_curNode);
-                v81 = callbacks->getPriority(_RDI, m_curNode);
-                callbacks->getPosition(_RDI, m_curNode, (vec3_t *)&color);
-                if ( v80 )
-                {
-                  v82 = &colorActive;
-                  if ( v81 )
-                    v82 = &colorPriority;
-                }
-                else
-                {
-                  v82 = &colorNearby;
-                }
-                __asm
-                {
-                  vmovss  dword ptr [rbp-70h], xmm11
-                  vmovss  dword ptr [rbp-6Ch], xmm11
-                  vmovss  dword ptr [rbp-68h], xmm11
-                  vmovaps xmm3, xmm6; size2D
-                }
-                CL_DebugMapOverlay::DrawImage(&v144, (const vec3_t *)&color, &v139, *(float *)&_XMM3, v82, Clipped, cgMedia.objectiveMaterials[0]);
-              }
-              while ( SpatialPartition_Population_NodeIterator::Advance(&v140) );
-              v63 = minPos.v[0];
-            }
-          }
-        }
-        ++LODWORD(v63);
-        minPos.v[0] = v63;
-        sortedPartitionCount = _RDI->sortedPartitionCount;
-      }
-      while ( LODWORD(v63) < sortedPartitionCount );
-      v19 = extraList;
-    }
-    if ( v19 && v19->spatialNodeNext != -1 )
-    {
-      do
-      {
-        v84 = (SpatialPartition_Population_Node *)((__int64 (*)(void))_RDI->population->getNodeFromIndex)();
-        if ( !v84 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 1318, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
-          __debugbreak();
-        v85 = callbacks->isActive(_RDI, v84);
-        callbacks->getPosition(_RDI, v84, (vec3_t *)&color);
-        v86 = &colorNoSpatialDeactivated;
-        if ( v85 )
-          v86 = &colorAlways;
-        __asm
-        {
-          vmovss  dword ptr [rbp-70h], xmm11
-          vmovss  dword ptr [rbp-6Ch], xmm11
-          vmovss  dword ptr [rbp-68h], xmm11
-          vmovaps xmm3, xmm7; size2D
-        }
-        CL_DebugMapOverlay::DrawImage(&v144, (const vec3_t *)&color, &v139, *(float *)&_XMM3, v86, Clipped, cgMedia.objectiveMaterials[0]);
-      }
-      while ( v84->spatialNodeNext != -1 );
-      sortedPartitionCount = _RDI->sortedPartitionCount;
-    }
-    v88 = 0.0;
-    minPos.v[0] = 0.0;
-    if ( sortedPartitionCount )
-    {
-      __asm { vmovss  xmm7, cs:__real@3e4ccccd }
-      do
-      {
-        v90 = _RDI->sortedPartitions;
-        v135 = &_RDI->population->tree->extents[v90[LODWORD(v88)].partitionIndex].mins;
-        CL_DebugMapOverlay::TransformBox(&v144, v135, v135 + 1, &v142, &v143);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp-38h]
-          vsubss  xmm1, xmm0, dword ptr [rbp-40h]
-          vmulss  xmm0, xmm1, xmm8; val
-          vmovaps xmm2, xmm9; max
-          vmovaps xmm1, xmm11; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vcmpltss xmm1, xmm0, xmm10
-          vblendvps xmm0, xmm0, xmm11, xmm1
-          vmulss  xmm6, xmm0, xmm7
-          vucomiss xmm6, xmm11
-        }
-        if ( !v117 )
-        {
-          v99 = 0;
-          v100 = 0;
-          __asm
-          {
-            vpxor   xmm0, xmm0, xmm0
-            vmovdqu xmmword ptr [rbp-60h], xmm0
-          }
-          v140.m_curIndex = -1;
-          SpatialPartition_Population_NodeIterator::Init(&v140, _RDI->population, v90[LODWORD(v88)].partitionIndex);
-          if ( SpatialPartition_Population_NodeIterator::Advance(&v140) )
-          {
-            do
-            {
-              if ( !v140.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
-                __debugbreak();
-              ++v99;
-              v100 += callbacks->isActive(_RDI, v140.m_curNode);
-            }
-            while ( SpatialPartition_Population_NodeIterator::Advance(&v140) );
-            v88 = minPos.v[0];
-          }
-          _RCX = v135 + 1;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx]
-            vaddss  xmm1, xmm0, dword ptr [rax]
-            vmulss  xmm2, xmm1, xmm13
-            vmovss  dword ptr [rsp+208h+color], xmm2
-            vmovss  xmm0, dword ptr [rcx+4]
-            vaddss  xmm1, xmm0, dword ptr [rax+4]
-            vmulss  xmm2, xmm1, xmm13
-            vmovss  dword ptr [rsp+208h+color+4], xmm2
-            vmovss  xmm0, dword ptr [rcx+8]
-            vaddss  xmm1, xmm0, dword ptr [rax+8]
-            vmulss  xmm2, xmm1, xmm13
-            vmovss  dword ptr [rbp-80h], xmm2
-          }
-          CL_DebugMapOverlay::TransformPos(&v144, (const vec3_t *)&color, (vec2_t *)&v139);
-          v112 = &colorNearby;
-          if ( v100 )
-            v112 = &colorActive;
-          LODWORD(v134) = v99;
-          LODWORD(v133) = v100;
-          __asm
-          {
-            vmovaps xmm3, xmm6; fontScale
-            vmovd   r9d, xmm6
-          }
-          CL_DebugMapOverlay::DrawTextf2D(&v144, (const vec2_t *)&v139, &CL_DebugMapOverlay::TEXT_ANCHOR_CENTRE, *(float *)&_XMM3, v112, Clipped, "%u/%u", v133, v134);
-        }
-        ++LODWORD(v88);
-        minPos.v[0] = v88;
-      }
-      while ( LODWORD(v88) < _RDI->sortedPartitionCount );
-    }
-    CL_DebugMapOverlay::DrawPlayerArrow(&v144, _RDI->localClientNum, Unclipped);
-    for ( i = 0; i < _RDI->priorityCount; ++i )
-    {
-      v116 = 0;
-      v117 = i == 0;
-      if ( i )
-      {
-        _RAX = i;
-        __asm { vmovss  xmm0, dword ptr [rdi+rax*4+20h] }
-        while ( 1 )
-        {
-          _RAX = v116;
-          __asm { vucomiss xmm0, dword ptr [rdi+rax*4+20h] }
-          if ( v117 )
-            break;
-          v117 = ++v116 == i;
-          if ( v116 >= i )
-            goto LABEL_71;
-        }
-      }
-      else
-      {
-LABEL_71:
-        __asm
-        {
-          vmovups xmm0, cs:__xmm@3f8000003f0000003f0000003f000000
-          vmovups xmmword ptr [rsp+208h+color], xmm0
-        }
-        _RAX = i;
-        __asm { vmovss  xmm2, dword ptr [rdi+rax*4+20h]; radius }
-        CL_DebugMapOverlay::DrawCircle(&v144, lastViewPos, *(float *)&_XMM2, &color, Clipped);
-      }
-    }
-    CL_DebugMapOverlay::~CL_DebugMapOverlay(&v144);
-    goto LABEL_74;
   }
+  CL_DebugMapOverlay::~CL_DebugMapOverlay(&v75);
 }
 
 /*
@@ -909,333 +779,309 @@ SpatialPartition_PopulationSort_DebugDrawWorld
 */
 void SpatialPartition_PopulationSort_DebugDrawWorld(SpatialPartition_PopulationSort_ClientData *clientData, const SpatialPartition_PopulationSort_Callbacks *callbacks, const vec3_t *lastViewPos)
 {
+  __int128 v4; 
+  __int128 v5; 
   SpatialPartition_Population *population; 
   unsigned int priorityCount; 
-  const SpatialPartition_PopulationSort_Callbacks *v14; 
+  const SpatialPartition_PopulationSort_Callbacks *v9; 
   const SpatialPartition_Population_Tree *tree; 
-  unsigned int v17; 
-  unsigned int v22; 
-  __int64 v23; 
-  __int64 v32; 
-  unsigned int v34; 
-  SpatialPartition_Population *v37; 
+  unsigned int v12; 
+  ExtentBounds *extents; 
+  float *v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  float *v24; 
+  __int64 v25; 
+  unsigned int v27; 
+  SpatialPartition_Population *v28; 
   unsigned int sortedPartitionCount; 
-  int v39; 
-  unsigned int v40; 
-  bool v41; 
-  unsigned int partitionIndex; 
-  const SpatialPartition_Population_Tree *v77; 
-  unsigned int v103; 
+  int v30; 
+  int v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v35; 
+  __int128 v38; 
+  __int128 v41; 
+  double v43; 
+  __int128 v45; 
+  __int128 v47; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v51; 
+  __int128 v53; 
+  __int128 v55; 
+  float v59; 
+  vec4_t *v60; 
+  vec4_t v61; 
+  const SpatialPartition_Population_Tree *v62; 
+  ExtentBounds *v63; 
+  __int128 v64; 
+  __int128 v65; 
+  __int128 v67; 
+  __int128 v70; 
+  __int128 v72; 
+  unsigned int v75; 
   SpatialPartition_PopulationSort_Entry *sortedPartitions; 
-  __int64 v108; 
-  SpatialPartition_Population *v109; 
+  __int64 partitionIndex; 
+  SpatialPartition_Population *v78; 
+  ExtentBounds *v79; 
+  __int128 v80; 
+  __int128 v81; 
+  __int128 v82; 
+  __int128 v83; 
+  __int128 v84; 
+  __int128 v85; 
+  __int128 v87; 
+  float v88; 
+  float v89; 
+  __int128 v92; 
+  __int128 v94; 
   bool (__fastcall *isActive)(SpatialPartition_PopulationSort_ClientData *, SpatialPartition_Population_Node *); 
-  bool v137; 
+  bool v99; 
   void (__fastcall *getPosition)(SpatialPartition_PopulationSort_ClientData *, SpatialPartition_Population_Node *, vec3_t *); 
-  const vec4_t *v139; 
-  unsigned int v146; 
+  const vec4_t *v101; 
+  unsigned int i; 
   Bounds bounds; 
   SpatialPartition_Population_NodeIterator color; 
   vec3_t origin; 
+  __int128 v107; 
+  __int128 v108; 
+  __int128 v109; 
 
-  __asm { vmovaps [rsp+130h+var_B0], xmm13 }
   population = clientData->population;
   priorityCount = clientData->priorityCount;
-  _R12 = lastViewPos;
-  __asm { vmovaps [rsp+130h+var_80], xmm10 }
-  v14 = callbacks;
-  __asm { vmovaps [rsp+130h+var_90], xmm11 }
+  v109 = _XMM10;
+  v9 = callbacks;
+  v108 = v4;
   tree = population->tree;
-  v17 = 0;
-  __asm
-  {
-    vmovaps [rsp+130h+var_A0], xmm12
-    vxorps  xmm11, xmm11, xmm11
-  }
-  _R15 = tree->extents;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
+  v12 = 0;
+  v107 = v5;
+  extents = tree->extents;
+  LODWORD(_XMM10) = 0;
   if ( priorityCount >= 4 )
   {
-    _RCX = &clientData->settings.maxDistanceForPriority[1];
-    v22 = ((priorityCount - 4) >> 2) + 1;
-    v23 = v22;
-    v17 = 4 * v22;
+    v14 = &clientData->settings.maxDistanceForPriority[1];
+    v15 = ((priorityCount - 4) >> 2) + 1;
+    v16 = v15;
+    v12 = 4 * v15;
     do
     {
+      _XMM0 = *((unsigned int *)v14 - 1);
+      _XMM1 = *(unsigned int *)v14;
+      v14 += 4;
+      __asm { vmaxss  xmm2, xmm0, xmm10 }
+      _XMM0 = *((unsigned int *)v14 - 3);
+      __asm { vmaxss  xmm3, xmm1, xmm2 }
+      _XMM1 = *((unsigned int *)v14 - 2);
       __asm
       {
-        vmovss  xmm0, dword ptr [rcx-4]
-        vmovss  xmm1, dword ptr [rcx]
-      }
-      _RCX += 4;
-      __asm
-      {
-        vmaxss  xmm2, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rcx-0Ch]
-        vmaxss  xmm3, xmm1, xmm2
-        vmovss  xmm1, dword ptr [rcx-8]
         vmaxss  xmm2, xmm0, xmm3
         vmaxss  xmm10, xmm1, xmm2
       }
-      --v23;
+      --v16;
     }
-    while ( v23 );
+    while ( v16 );
   }
-  if ( v17 < priorityCount )
+  if ( v12 < priorityCount )
   {
-    _RCX = &clientData->settings.maxDistanceForPriority[v17];
-    v32 = priorityCount - v17;
+    v24 = &clientData->settings.maxDistanceForPriority[v12];
+    v25 = priorityCount - v12;
     do
     {
-      __asm { vmovss  xmm0, dword ptr [rcx] }
-      ++_RCX;
+      _XMM0 = *(unsigned int *)v24++;
       __asm { vmaxss  xmm10, xmm0, xmm10 }
-      --v32;
+      --v25;
     }
-    while ( v32 );
+    while ( v25 );
   }
-  v34 = 0;
-  __asm
-  {
-    vaddss  xmm12, xmm10, cs:__real@459c4000
-    vmovss  xmm13, cs:__real@3f000000
-    vmovaps [rsp+130h+var_40], xmm6
-    vmovaps [rsp+130h+var_50], xmm7
-    vmovaps [rsp+130h+var_60], xmm8
-    vmovaps [rsp+130h+var_70], xmm9
-  }
+  v27 = 0;
   if ( population->partitionCount )
   {
-    v37 = population;
+    v28 = population;
     while ( 1 )
     {
-      if ( v37->buckets[v34].spatialNodeNext != -1 )
+      if ( v28->buckets[v27].spatialNodeNext != -1 )
       {
         sortedPartitionCount = clientData->sortedPartitionCount;
-        v39 = -1;
-        v40 = 0;
-        v41 = 0;
+        v30 = -1;
+        v31 = 0;
         if ( sortedPartitionCount )
         {
-          while ( 1 )
+          while ( v27 != clientData->sortedPartitions[v31].partitionIndex )
           {
-            partitionIndex = clientData->sortedPartitions[v40].partitionIndex;
-            v41 = v34 < partitionIndex;
-            if ( v34 == partitionIndex )
-              break;
-            v41 = ++v40 < sortedPartitionCount;
-            if ( v40 >= sortedPartitionCount )
+            if ( ++v31 >= sortedPartitionCount )
               goto LABEL_15;
           }
-          v39 = v40;
+          v30 = v31;
         }
 LABEL_15:
-        __asm
+        v32 = LODWORD(lastViewPos->v[1]);
+        v33 = LODWORD(lastViewPos->v[0]);
+        v35 = v33;
+        *(float *)&v35 = *(float *)&v33 - extents[v27].maxs.v[0];
+        _XMM0 = v35;
+        __asm { vmaxss  xmm2, xmm0, xmm11 }
+        v38 = LODWORD(extents[v27].mins.v[0]);
+        *(float *)&v38 = extents[v27].mins.v[0] - *(float *)&v33;
+        _XMM1 = v38;
+        __asm { vmaxss  xmm1, xmm1, xmm11 }
+        *(float *)&_XMM0 = *(float *)&_XMM2 + *(float *)&_XMM1;
+        v41 = v32;
+        *(float *)&v41 = *(float *)&v32 - extents[v27].maxs.v[1];
+        _XMM1 = v41;
+        __asm { vmaxss  xmm4, xmm1, xmm11 }
+        v43 = *(float *)&_XMM0;
+        v45 = LODWORD(extents[v27].mins.v[1]);
+        *(float *)&v45 = extents[v27].mins.v[1] - *(float *)&v32;
+        _XMM2 = v45;
+        __asm { vmaxss  xmm1, xmm2, xmm11 }
+        v47 = LODWORD(lastViewPos->v[2]);
+        v49 = _XMM4;
+        *(float *)&v49 = *(float *)&_XMM4 + *(float *)&_XMM1;
+        v48 = v49;
+        v51 = v47;
+        *(float *)&v51 = *(float *)&v47 - extents[v27].maxs.v[2];
+        _XMM1 = v51;
+        __asm { vmaxss  xmm3, xmm1, xmm11 }
+        *((_QWORD *)&v51 + 1) = *((_QWORD *)&v48 + 1);
+        *(double *)&v51 = *(float *)&v48;
+        v53 = v51;
+        v55 = LODWORD(extents[v27].mins.v[2]);
+        *(float *)&v55 = extents[v27].mins.v[2] - *(float *)&v47;
+        _XMM2 = v55;
+        __asm { vmaxss  xmm1, xmm2, xmm11 }
+        *((_QWORD *)&v55 + 1) = *((_QWORD *)&v53 + 1);
+        *(double *)&v55 = *(double *)&v53 * *(double *)&v53 + v43 * v43 + (float)(*(float *)&_XMM3 + *(float *)&_XMM1) * (float)(*(float *)&_XMM3 + *(float *)&_XMM1);
+        _XMM2 = v55;
+        __asm { vcvtsd2ss xmm1, xmm2, xmm2 }
+        v59 = fsqrt(*(float *)&_XMM1);
+        if ( v59 < (float)(*(float *)&_XMM10 + 5000.0) )
         {
-          vmovss  xmm3, dword ptr [r12+4]
-          vmovss  xmm1, dword ptr [r12]
-        }
-        _R8 = 3i64 * v34;
-        __asm
-        {
-          vsubss  xmm0, xmm1, dword ptr [r15+r8*8+0Ch]
-          vmaxss  xmm2, xmm0, xmm11
-          vmovss  xmm0, dword ptr [r15+r8*8]
-          vsubss  xmm1, xmm0, xmm1
-          vmaxss  xmm1, xmm1, xmm11
-          vaddss  xmm0, xmm2, xmm1
-          vsubss  xmm1, xmm3, dword ptr [r15+r8*8+10h]
-          vmaxss  xmm4, xmm1, xmm11
-          vcvtss2sd xmm6, xmm0, xmm0
-          vmovss  xmm0, dword ptr [r15+r8*8+4]
-          vsubss  xmm2, xmm0, xmm3
-          vmaxss  xmm1, xmm2, xmm11
-          vmovss  xmm2, dword ptr [r12+8]
-          vaddss  xmm0, xmm4, xmm1
-          vsubss  xmm1, xmm2, dword ptr [r15+r8*8+14h]
-          vmaxss  xmm3, xmm1, xmm11
-          vcvtss2sd xmm5, xmm0, xmm0
-          vmovss  xmm0, dword ptr [r15+r8*8+8]
-          vsubss  xmm2, xmm0, xmm2
-          vmaxss  xmm1, xmm2, xmm11
-          vaddss  xmm0, xmm3, xmm1
-          vcvtss2sd xmm4, xmm0, xmm0
-          vmulsd  xmm2, xmm5, xmm5
-          vmulsd  xmm1, xmm6, xmm6
-          vmulsd  xmm0, xmm4, xmm4
-          vaddsd  xmm3, xmm2, xmm1
-          vaddsd  xmm2, xmm3, xmm0
-          vcvtsd2ss xmm1, xmm2, xmm2
-          vsqrtss xmm4, xmm1, xmm1
-          vcomiss xmm4, xmm12
-        }
-        if ( v41 )
-        {
-          if ( v39 == -1 )
+          if ( v30 == -1 )
           {
-            __asm
-            {
-              vcomiss xmm4, xmm10
-              vmovups xmm0, xmmword ptr cs:colorPartitionBad
-            }
+            if ( v59 > *(float *)&_XMM10 )
+              v61 = colorPartitionFar;
+            else
+              v61 = colorPartitionBad;
           }
           else
           {
 LABEL_19:
-            _RDX = &colorPartitionInactive_0;
-            if ( clientData->sortedPartitions[v39].anyActiveMask )
-              _RDX = &colorPartitionActive_0;
-            __asm { vmovups xmm0, xmmword ptr [rdx] }
+            v60 = &colorPartitionInactive_0;
+            if ( clientData->sortedPartitions[v30].anyActiveMask )
+              v60 = &colorPartitionActive_0;
+            v61 = *v60;
           }
-          __asm { vmovups xmmword ptr [rsp+130h+color], xmm0 }
-          v77 = population->tree;
-          __asm
-          {
-            vmovss  dword ptr [rbp+57h+origin], xmm11
-            vmovss  dword ptr [rbp+57h+origin+4], xmm11
-          }
-          _RCX = v77->extents;
-          __asm
-          {
-            vmovss  dword ptr [rbp+57h+origin+8], xmm11
-            vmovss  xmm0, dword ptr [rcx+r8*8]
-            vaddss  xmm1, xmm0, dword ptr [rcx+r8*8+0Ch]
-            vmulss  xmm9, xmm1, xmm13
-            vmovss  dword ptr [rsp+130h+bounds.midPoint], xmm9
-            vmovss  xmm0, dword ptr [rcx+r8*8+10h]
-            vaddss  xmm1, xmm0, dword ptr [rcx+r8*8+4]
-            vmulss  xmm8, xmm1, xmm13
-            vmovss  dword ptr [rsp+130h+bounds.midPoint+4], xmm8
-            vmovss  xmm0, dword ptr [rcx+r8*8+14h]
-            vaddss  xmm1, xmm0, dword ptr [rcx+r8*8+8]
-            vmulss  xmm7, xmm1, xmm13
-            vmovss  dword ptr [rsp+130h+bounds.midPoint+8], xmm7
-            vmovss  xmm0, dword ptr [rcx+r8*8+0Ch]
-            vsubss  xmm1, xmm9, dword ptr [rcx+r8*8]
-            vmovss  xmm5, dword ptr [rcx+r8*8+4]
-            vmovss  xmm3, dword ptr [rcx+r8*8+10h]
-            vmovss  xmm6, dword ptr [rcx+r8*8+8]
-            vmovss  xmm4, dword ptr [rcx+r8*8+14h]
-            vsubss  xmm2, xmm0, xmm9
-            vmaxss  xmm2, xmm2, xmm1
-            vsubss  xmm0, xmm8, xmm5
-            vmovss  dword ptr [rsp+130h+bounds.halfSize], xmm2
-            vsubss  xmm2, xmm4, xmm7
-            vsubss  xmm3, xmm3, xmm8
-            vmaxss  xmm1, xmm3, xmm0
-            vsubss  xmm0, xmm7, xmm6
-            vmovss  dword ptr [rsp+130h+bounds.halfSize+4], xmm1
-            vmaxss  xmm1, xmm2, xmm0
-            vmovaps xmm2, xmm11; yaw
-            vmovss  dword ptr [rsp+130h+bounds.halfSize+8], xmm1
-          }
-          CG_DebugBox(&origin, &bounds, *(float *)&_XMM2, (const vec4_t *)&color, 0, 0);
-          goto LABEL_24;
+          *(vec4_t *)&color.m_population = v61;
+          v62 = population->tree;
+          origin.v[0] = 0.0;
+          origin.v[1] = 0.0;
+          v63 = v62->extents;
+          origin.v[2] = 0.0;
+          bounds.midPoint.v[0] = (float)(v63[v27].mins.v[0] + v63[v27].maxs.v[0]) * 0.5;
+          bounds.midPoint.v[1] = (float)(v63[v27].maxs.v[1] + v63[v27].mins.v[1]) * 0.5;
+          bounds.midPoint.v[2] = (float)(v63[v27].maxs.v[2] + v63[v27].mins.v[2]) * 0.5;
+          v64 = LODWORD(v63[v27].maxs.v[1]);
+          v65 = LODWORD(v63[v27].maxs.v[2]);
+          v67 = LODWORD(v63[v27].maxs.v[0]);
+          *(float *)&v67 = v63[v27].maxs.v[0] - bounds.midPoint.v[0];
+          _XMM2 = v67;
+          __asm { vmaxss  xmm2, xmm2, xmm1 }
+          bounds.halfSize.v[0] = *(float *)&_XMM2;
+          v70 = v65;
+          *(float *)&v70 = *(float *)&v65 - bounds.midPoint.v[2];
+          _XMM2 = v70;
+          v72 = v64;
+          *(float *)&v72 = *(float *)&v64 - bounds.midPoint.v[1];
+          _XMM3 = v72;
+          __asm { vmaxss  xmm1, xmm3, xmm0 }
+          bounds.halfSize.v[1] = *(float *)&_XMM1;
+          __asm { vmaxss  xmm1, xmm2, xmm0 }
+          bounds.halfSize.v[2] = *(float *)&_XMM1;
+          CG_DebugBox(&origin, &bounds, 0.0, (const vec4_t *)&color, 0, 0);
+          goto LABEL_26;
         }
-        if ( v39 != -1 )
+        if ( v30 != -1 )
           goto LABEL_19;
       }
-LABEL_24:
+LABEL_26:
       population = clientData->population;
-      ++v34;
-      v37 = population;
-      if ( v34 >= population->partitionCount )
+      ++v27;
+      v28 = population;
+      if ( v27 >= population->partitionCount )
       {
-        v14 = callbacks;
+        v9 = callbacks;
         break;
       }
     }
   }
-  v103 = 0;
-  __asm
+  v75 = 0;
+  for ( i = 0; v75 < clientData->sortedPartitionCount; i = v75 )
   {
-    vmovaps xmm12, [rsp+130h+var_A0]
-    vmovaps xmm11, [rsp+130h+var_90]
-    vmovaps xmm10, [rsp+130h+var_80]
-  }
-  v146 = 0;
-  if ( clientData->sortedPartitionCount )
-  {
-    do
+    sortedPartitions = clientData->sortedPartitions;
+    if ( sortedPartitions[v75].anyActiveMask )
     {
-      sortedPartitions = clientData->sortedPartitions;
-      if ( sortedPartitions[v103].anyActiveMask )
+      partitionIndex = sortedPartitions[v75].partitionIndex;
+      v78 = clientData->population;
+      v79 = v78->tree->extents;
+      v80 = LODWORD(v79[partitionIndex].maxs.v[0]);
+      *(float *)&v80 = (float)(v79[partitionIndex].maxs.v[0] + v79[partitionIndex].mins.v[0]) * 0.5;
+      v81 = v80;
+      bounds.midPoint.v[0] = *(float *)&v80;
+      v82 = LODWORD(v79[partitionIndex].maxs.v[1]);
+      *(float *)&v82 = (float)(v79[partitionIndex].maxs.v[1] + v79[partitionIndex].mins.v[1]) * 0.5;
+      v83 = v82;
+      bounds.midPoint.v[1] = *(float *)&v82;
+      v84 = LODWORD(v79[partitionIndex].maxs.v[2]);
+      *(float *)&v84 = (float)(v79[partitionIndex].maxs.v[2] + v79[partitionIndex].mins.v[2]) * 0.5;
+      v85 = v84;
+      bounds.midPoint.v[2] = *(float *)&v84;
+      v87 = v81;
+      *(float *)&v87 = *(float *)&v81 - v79[partitionIndex].mins.v[0];
+      _XMM2 = v87;
+      v88 = v79[partitionIndex].mins.v[1];
+      v89 = v79[partitionIndex].mins.v[2];
+      __asm { vmaxss  xmm2, xmm2, xmm1 }
+      bounds.halfSize.v[0] = *(float *)&_XMM2;
+      v92 = v85;
+      *(float *)&v92 = *(float *)&v85 - v89;
+      _XMM2 = v92;
+      v94 = v83;
+      *(float *)&v94 = *(float *)&v83 - v88;
+      _XMM3 = v94;
+      __asm { vmaxss  xmm1, xmm3, xmm0 }
+      bounds.halfSize.v[1] = *(float *)&_XMM1;
+      __asm
       {
-        v108 = sortedPartitions[v103].partitionIndex;
-        v109 = clientData->population;
-        _RDX = 3 * v108;
-        _RCX = v109->tree->extents;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rdx*8+0Ch]
-          vaddss  xmm1, xmm0, dword ptr [rcx+rdx*8]
-          vmulss  xmm9, xmm1, xmm13
-          vmovss  dword ptr [rsp+130h+bounds.midPoint], xmm9
-          vmovss  xmm0, dword ptr [rcx+rdx*8+10h]
-          vaddss  xmm1, xmm0, dword ptr [rcx+rdx*8+4]
-          vmulss  xmm8, xmm1, xmm13
-          vmovss  dword ptr [rsp+130h+bounds.midPoint+4], xmm8
-          vmovss  xmm0, dword ptr [rcx+rdx*8+14h]
-          vaddss  xmm1, xmm0, dword ptr [rcx+rdx*8+8]
-          vmulss  xmm7, xmm1, xmm13
-          vmovss  dword ptr [rsp+130h+bounds.midPoint+8], xmm7
-          vmovss  xmm0, dword ptr [rcx+rdx*8+0Ch]
-          vsubss  xmm2, xmm9, dword ptr [rcx+rdx*8]
-          vmovss  xmm3, dword ptr [rcx+rdx*8+4]
-          vmovss  xmm4, dword ptr [rcx+rdx*8+10h]
-          vmovss  xmm6, dword ptr [rcx+rdx*8+8]
-          vmovss  xmm5, dword ptr [rcx+rdx*8+14h]
-          vsubss  xmm1, xmm0, xmm9
-          vmaxss  xmm2, xmm2, xmm1
-          vsubss  xmm0, xmm4, xmm8
-          vmovss  dword ptr [rsp+130h+bounds.halfSize], xmm2
-          vsubss  xmm2, xmm7, xmm6
-          vsubss  xmm3, xmm8, xmm3
-          vmaxss  xmm1, xmm3, xmm0
-          vsubss  xmm0, xmm5, xmm7
-          vmovss  dword ptr [rsp+130h+bounds.halfSize+4], xmm1
-          vmaxss  xmm1, xmm2, xmm0
-          vpxor   xmm2, xmm2, xmm2
-        }
-        color.m_curIndex = -1;
-        __asm
-        {
-          vmovdqu xmmword ptr [rsp+130h+color], xmm2
-          vmovss  dword ptr [rsp+130h+bounds.halfSize+8], xmm1
-        }
-        SpatialPartition_Population_NodeIterator::Init(&color, v109, v108);
-        if ( SpatialPartition_Population_NodeIterator::Advance(&color) )
-        {
-          do
-          {
-            isActive = v14->isActive;
-            if ( !color.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
-              __debugbreak();
-            v137 = isActive(clientData, color.m_curNode);
-            getPosition = v14->getPosition;
-            if ( !color.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
-              __debugbreak();
-            getPosition(clientData, color.m_curNode, &origin);
-            v139 = &colorObjectInactive;
-            if ( v137 )
-              v139 = &colorObjectActive;
-            CG_DebugLine(&origin, &bounds.midPoint, v139, 0, 0);
-          }
-          while ( SpatialPartition_Population_NodeIterator::Advance(&color) );
-          v103 = v146;
-        }
+        vmaxss  xmm1, xmm2, xmm0
+        vpxor   xmm2, xmm2, xmm2
       }
-      v146 = ++v103;
+      color.m_curIndex = -1;
+      *(_OWORD *)&color.m_population = _XMM2;
+      bounds.halfSize.v[2] = *(float *)&_XMM1;
+      SpatialPartition_Population_NodeIterator::Init(&color, v78, partitionIndex);
+      if ( SpatialPartition_Population_NodeIterator::Advance(&color) )
+      {
+        do
+        {
+          isActive = v9->isActive;
+          if ( !color.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
+            __debugbreak();
+          v99 = isActive(clientData, color.m_curNode);
+          getPosition = v9->getPosition;
+          if ( !color.m_curNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
+            __debugbreak();
+          getPosition(clientData, color.m_curNode, &origin);
+          v101 = &colorObjectInactive;
+          if ( v99 )
+            v101 = &colorObjectActive;
+          CG_DebugLine(&origin, &bounds.midPoint, v101, 0, 0);
+        }
+        while ( SpatialPartition_Population_NodeIterator::Advance(&color) );
+        v75 = i;
+      }
     }
-    while ( v103 < clientData->sortedPartitionCount );
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+130h+var_70]
-    vmovaps xmm8, [rsp+130h+var_60]
-    vmovaps xmm7, [rsp+130h+var_50]
-    vmovaps xmm6, [rsp+130h+var_40]
-    vmovaps xmm13, [rsp+130h+var_B0]
+    ++v75;
   }
 }
 
@@ -1246,14 +1092,7 @@ SpatialPartition_PopulationSort_Entry_LessThan
 */
 bool SpatialPartition_PopulationSort_Entry_LessThan(const SpatialPartition_PopulationSort_Entry *lhs, const SpatialPartition_PopulationSort_Entry *rhs)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vcomiss xmm0, dword ptr [rdx+4]
-  }
-  return v2;
+  return lhs->distanceSq < rhs->distanceSq;
 }
 
 /*
@@ -1430,7 +1269,7 @@ void SpatialPartition_PopulationSort_PostLoad(SpatialPartition_PopulationSort_Cl
   {
     __asm { vpxor   xmm0, xmm0, xmm0 }
     v20.m_curIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+98h+var_48.m_population], xmm0 }
+    *(_OWORD *)&v20.m_population = _XMM0;
     v7 = 0;
     LOBYTE(v8) = 0;
     SpatialPartition_Population_NodeIterator::Init(&v20, population, i);
@@ -1574,7 +1413,7 @@ void SpatialPartition_PopulationSort_PostTransientPopulationRemoved(SpatialParti
         {
           __asm { vpxor   xmm0, xmm0, xmm0 }
           *(_QWORD *)&v20.m_curIndex = -1i64;
-          __asm { vmovdqu xmmword ptr [rsp+0A8h+var_58.m_population], xmm0 }
+          *(_OWORD *)&v20.m_population = _XMM0;
           SpatialPartition_TransientPopulation_NodeIterator::Init(&v20, v6, v9);
           if ( SpatialPartition_TransientPopulation_NodeIterator::Advance(&v20) )
           {
@@ -1716,7 +1555,7 @@ void SpatialPartition_PopulationSort_RemoveAll(SpatialPartition_PopulationSort_C
       __asm { vpxor   xmm0, xmm0, xmm0 }
       v11 = sortedPartitions[v6].partitionIndex;
       v26.m_curIndex = -1;
-      __asm { vmovdqu xmmword ptr [rsp+98h+var_48.m_population], xmm0 }
+      *(_OWORD *)&v26.m_population = _XMM0;
       SpatialPartition_Population_NodeIterator::Init(&v26, population, v11);
       if ( SpatialPartition_Population_NodeIterator::Advance(&v26) )
       {
@@ -1790,27 +1629,77 @@ void SpatialPartition_PopulationSort_RemoveAll(SpatialPartition_PopulationSort_C
 SpatialPartition_PopulationSort_RemoveEmptyPartitions
 ==============
 */
-
-void __fastcall SpatialPartition_PopulationSort_RemoveEmptyPartitions(SpatialPartition_PopulationSort_ClientData *clientData, double partitionDistanceSq)
+void SpatialPartition_PopulationSort_RemoveEmptyPartitions(SpatialPartition_PopulationSort_ClientData *clientData, const float partitionDistanceSq)
 {
-  unsigned int sortedPartitionCount; 
+  unsigned int i; 
+  SpatialPartition_PopulationSort_Entry *sortedPartitions; 
+  __int64 v5; 
+  __int64 v6; 
+  unsigned __int64 partitionIndex; 
+  unsigned __int64 v8; 
+  unsigned __int64 v9; 
+  unsigned __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 141, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
     __debugbreak();
-  sortedPartitionCount = clientData->sortedPartitionCount;
-  if ( sortedPartitionCount )
+  for ( i = clientData->sortedPartitionCount; i; clientData->sortedPartitionCount = i )
   {
-    _RBP = clientData->sortedPartitions;
-    _RAX = sortedPartitionCount - 1;
-    if ( !_RBP[_RAX].anyActiveMask )
-      __asm { vcomiss xmm6, dword ptr [rbp+rax*8+4] }
+    sortedPartitions = clientData->sortedPartitions;
+    v5 = i - 1;
+    v6 = (unsigned int)v5;
+    if ( sortedPartitions[v5].anyActiveMask || partitionDistanceSq >= sortedPartitions[v5].distanceSq )
+      break;
+    if ( sortedPartitions[v5].partitionIndex >= clientData->population->partitionCount )
+    {
+      LODWORD(v12) = clientData->population->partitionCount;
+      LODWORD(v11) = sortedPartitions[v5].partitionIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 149, ASSERT_TYPE_ASSERT, "(unsigned)( entry.partitionIndex ) < (unsigned)( clientData->population->partitionCount )", "entry.partitionIndex doesn't index clientData->population->partitionCount\n\t%i not in [0, %i)", v11, v12) )
+        __debugbreak();
+    }
+    partitionIndex = sortedPartitions[v6].partitionIndex;
+    if ( (unsigned int)partitionIndex >= clientData->partitionCandidateBitfield.bitCount )
+    {
+      LODWORD(v12) = clientData->partitionCandidateBitfield.bitCount;
+      LODWORD(v11) = sortedPartitions[v6].partitionIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v11, v12) )
+        __debugbreak();
+    }
+    if ( ((0x80000000 >> (partitionIndex & 0x1F)) & clientData->partitionCandidateBitfield.array[partitionIndex >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 150, ASSERT_TYPE_ASSERT, "(!clientData->partitionCandidateBitfield.testBit( entry.partitionIndex ))", (const char *)&queryFormat, "!clientData->partitionCandidateBitfield.testBit( entry.partitionIndex )") )
+      __debugbreak();
+    v8 = sortedPartitions[v6].partitionIndex;
+    if ( (unsigned int)v8 >= clientData->sortedPartitionBitfield.bitCount )
+    {
+      LODWORD(v12) = clientData->sortedPartitionBitfield.bitCount;
+      LODWORD(v11) = sortedPartitions[v6].partitionIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v11, v12) )
+        __debugbreak();
+    }
+    if ( ((0x80000000 >> (v8 & 0x1F)) & clientData->sortedPartitionBitfield.array[v8 >> 5]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 151, ASSERT_TYPE_ASSERT, "(clientData->sortedPartitionBitfield.testBit( entry.partitionIndex ))", (const char *)&queryFormat, "clientData->sortedPartitionBitfield.testBit( entry.partitionIndex )") )
+      __debugbreak();
+    v9 = sortedPartitions[v6].partitionIndex;
+    if ( (unsigned int)v9 >= clientData->partitionCandidateBitfield.bitCount )
+    {
+      LODWORD(v14) = clientData->partitionCandidateBitfield.bitCount;
+      LODWORD(v13) = sortedPartitions[v6].partitionIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v13, v14) )
+        __debugbreak();
+    }
+    clientData->partitionCandidateBitfield.array[v9 >> 5] |= 0x80000000 >> (v9 & 0x1F);
+    v10 = sortedPartitions[v6].partitionIndex;
+    if ( (unsigned int)v10 >= clientData->sortedPartitionBitfield.bitCount )
+    {
+      LODWORD(v14) = clientData->sortedPartitionBitfield.bitCount;
+      LODWORD(v13) = sortedPartitions[v6].partitionIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v13, v14) )
+        __debugbreak();
+    }
+    clientData->sortedPartitionBitfield.array[v10 >> 5] &= ~(0x80000000 >> (v10 & 0x1F));
+    i = clientData->sortedPartitionCount - 1;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
 }
 
 /*
@@ -1822,92 +1711,78 @@ void SpatialPartition_PopulationSort_SortByDistance(SpatialPartition_PopulationS
 {
   unsigned int priorityCount; 
   SpatialPartition_Population *population; 
-  unsigned int v7; 
-  unsigned int v10; 
-  __int64 v11; 
-  __int64 v20; 
-  float v23; 
+  unsigned int v6; 
+  float *v8; 
+  unsigned int v9; 
+  __int64 v10; 
+  float *v18; 
+  __int64 v19; 
+  float v21; 
+  double v22; 
   SpatialPartition_PopulationSort_SortByDistanceIntersector extentIntersect; 
   Bounds bounds; 
   SpatialPartition_Population_Tree_AABBPartitionIterator treeIter; 
-  char v32; 
 
-  __asm { vmovaps [rsp+2B8h+var_18], xmm6 }
-  _RDI = viewPos;
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 183, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
     __debugbreak();
   if ( clientData->jobInProgress && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 184, ASSERT_TYPE_ASSERT, "(!clientData->jobInProgress)", (const char *)&queryFormat, "!clientData->jobInProgress") )
     __debugbreak();
   priorityCount = clientData->priorityCount;
   population = clientData->population;
-  v7 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v6 = 0;
+  LODWORD(_XMM6) = 0;
   if ( priorityCount >= 4 )
   {
-    _RCX = &clientData->settings.maxDistanceForPriority[1];
-    v10 = ((priorityCount - 4) >> 2) + 1;
-    v11 = v10;
-    v7 = 4 * v10;
+    v8 = &clientData->settings.maxDistanceForPriority[1];
+    v9 = ((priorityCount - 4) >> 2) + 1;
+    v10 = v9;
+    v6 = 4 * v9;
     do
     {
+      _XMM0 = *((unsigned int *)v8 - 1);
+      _XMM1 = *(unsigned int *)v8;
+      v8 += 4;
+      __asm { vmaxss  xmm2, xmm0, xmm6 }
+      _XMM0 = *((unsigned int *)v8 - 3);
+      __asm { vmaxss  xmm3, xmm1, xmm2 }
+      _XMM1 = *((unsigned int *)v8 - 2);
       __asm
       {
-        vmovss  xmm0, dword ptr [rcx-4]
-        vmovss  xmm1, dword ptr [rcx]
-      }
-      _RCX += 4;
-      __asm
-      {
-        vmaxss  xmm2, xmm0, xmm6
-        vmovss  xmm0, dword ptr [rcx-0Ch]
-        vmaxss  xmm3, xmm1, xmm2
-        vmovss  xmm1, dword ptr [rcx-8]
         vmaxss  xmm2, xmm0, xmm3
         vmaxss  xmm6, xmm1, xmm2
       }
-      --v11;
+      --v10;
     }
-    while ( v11 );
+    while ( v10 );
   }
-  if ( v7 < priorityCount )
+  if ( v6 < priorityCount )
   {
-    _RCX = &clientData->settings.maxDistanceForPriority[v7];
-    v20 = priorityCount - v7;
+    v18 = &clientData->settings.maxDistanceForPriority[v6];
+    v19 = priorityCount - v6;
     do
     {
-      __asm { vmovss  xmm0, dword ptr [rcx] }
-      ++_RCX;
+      _XMM0 = *(unsigned int *)v18++;
       __asm { vmaxss  xmm6, xmm0, xmm6 }
-      --v20;
+      --v19;
     }
-    while ( v20 );
+    while ( v19 );
   }
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  v23 = _RDI->v[2];
-  __asm
-  {
-    vmovsd  qword ptr [rsp+2B8h+bounds.midPoint], xmm0
-    vmovss  dword ptr [rsp+2B8h+bounds.halfSize], xmm6
-    vmovss  dword ptr [rsp+2B8h+bounds.halfSize+4], xmm6
-    vmovss  dword ptr [rsp+2B8h+bounds.halfSize+8], xmm6
-  }
-  bounds.midPoint.v[2] = v23;
+  v21 = viewPos->v[2];
+  *(_QWORD *)bounds.midPoint.v = *(_QWORD *)viewPos->v;
+  bounds.halfSize.v[0] = *(float *)&_XMM6;
+  bounds.halfSize.v[1] = *(float *)&_XMM6;
+  bounds.halfSize.v[2] = *(float *)&_XMM6;
+  bounds.midPoint.v[2] = v21;
   treeIter.m_tree = NULL;
   *(_QWORD *)&treeIter.m_curPartition = 0i64;
   SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&treeIter, population->tree, &bounds);
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  extentIntersect.viewPos.v[2] = _RDI->v[2];
-  __asm
-  {
-    vmovsd  qword ptr [rsp+2B8h+extentIntersect.viewPos], xmm0
-    vmovss  [rsp+2B8h+extentIntersect.partitionDistance], xmm6
-  }
+  v22 = *(double *)viewPos->v;
+  extentIntersect.viewPos.v[2] = viewPos->v[2];
+  *(double *)extentIntersect.viewPos.v = v22;
+  extentIntersect.partitionDistance = *(float *)&_XMM6;
   SpatialPartition_PopulationSort_GatherPartitions_SpatialPartition_Population_Tree_AABBPartitionIterator_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, &treeIter, &extentIntersect);
-  SpatialPartition_PopulationSort_SortPartitions_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, _RDI, &extentIntersect);
-  __asm { vmulss  xmm1, xmm6, xmm6; partitionDistanceSq }
-  SpatialPartition_PopulationSort_RemoveEmptyPartitions(clientData, *(double *)&_XMM1);
-  _R11 = &v32;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  SpatialPartition_PopulationSort_SortPartitions_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, viewPos, &extentIntersect);
+  SpatialPartition_PopulationSort_RemoveEmptyPartitions(clientData, *(float *)&_XMM6 * *(float *)&_XMM6);
 }
 
 /*
@@ -1915,262 +1790,215 @@ void SpatialPartition_PopulationSort_SortByDistance(SpatialPartition_PopulationS
 SpatialPartition_PopulationSort_SortByDistanceWithViewAngle
 ==============
 */
-
-void __fastcall SpatialPartition_PopulationSort_SortByDistanceWithViewAngle(SpatialPartition_PopulationSort_ClientData *clientData, const vec3_t *viewPos, double minViewAngleDistance, const vec3_t *lookAtDir, float fovInDegrees)
+void SpatialPartition_PopulationSort_SortByDistanceWithViewAngle(SpatialPartition_PopulationSort_ClientData *clientData, const vec3_t *viewPos, const float minViewAngleDistance, const vec3_t *lookAtDir, float fovInDegrees)
 {
-  bool v15; 
-  bool v16; 
+  float v9; 
   SpatialPartition_Population *population; 
+  float v11; 
+  unsigned int v12; 
+  SpatialPartition_Population *v13; 
+  unsigned int v14; 
+  float *v16; 
+  unsigned int v17; 
+  __int64 v18; 
+  float *v26; 
+  __int64 v27; 
+  float v28; 
+  double v29; 
   unsigned int priorityCount; 
-  SpatialPartition_Population *v25; 
-  unsigned int v26; 
-  unsigned int v29; 
-  __int64 v30; 
-  float *v38; 
-  __int64 v39; 
-  float v41; 
-  unsigned int v44; 
-  unsigned int v45; 
-  unsigned int v53; 
-  __int64 v54; 
-  float *v61; 
-  __int64 v62; 
-  float v64; 
+  unsigned int v31; 
+  __int128 v32; 
+  __int128 v33; 
+  float *v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  float *v44; 
+  __int64 v45; 
+  float v46; 
+  float v47; 
+  SpatialPartition_PopulationSort_SortByDistanceIntersector v49; 
+  float v58; 
+  __int128 v61; 
   SpatialPartition_PopulationSort_SortByDistanceIntersector extentIntersect; 
   Bounds bounds; 
-  Bounds v101; 
-  SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector v102; 
+  Bounds v67; 
+  SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector v68; 
   SpatialPartition_Population_Tree_AABBPartitionIterator treeIter; 
-  SpatialPartition_Population_Tree_AABBPartitionIterator v104; 
+  SpatialPartition_Population_Tree_AABBPartitionIterator v70; 
 
-  __asm { vmovaps [rsp+5C0h+var_80], xmm11 }
-  _RSI = lookAtDir;
-  _RDI = viewPos;
-  __asm { vmovaps xmm11, xmm2 }
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 344, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
     __debugbreak();
-  v15 = !clientData->jobInProgress;
-  if ( clientData->jobInProgress )
-  {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 345, ASSERT_TYPE_ASSERT, "(!clientData->jobInProgress)", (const char *)&queryFormat, "!clientData->jobInProgress");
-    v15 = !v16;
-    if ( v16 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi]
-    vmovss  xmm3, dword ptr [rsi+4]
-  }
+  if ( clientData->jobInProgress && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 345, ASSERT_TYPE_ASSERT, "(!clientData->jobInProgress)", (const char *)&queryFormat, "!clientData->jobInProgress") )
+    __debugbreak();
+  v9 = lookAtDir->v[0];
   population = clientData->population;
-  __asm
+  v11 = fsqrt((float)(lookAtDir->v[1] * lookAtDir->v[1]) + (float)(v9 * v9));
+  if ( v11 > -0.0 )
   {
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm4, xmm1, xmm1
-    vcomiss xmm4, cs:__real@80000000
-    vmovaps [rsp+5C0h+var_30], xmm6
-  }
-  if ( v15 )
-  {
-    if ( clientData->jobInProgress && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 184, ASSERT_TYPE_ASSERT, "(!clientData->jobInProgress)", (const char *)&queryFormat, "!clientData->jobInProgress") )
-      __debugbreak();
     priorityCount = clientData->priorityCount;
-    v25 = clientData->population;
-    v26 = 0;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v31 = 0;
+    v32 = LODWORD(FLOAT_1_0);
+    *(float *)&v32 = (float)(1.0 / v11) * v9;
+    v33 = v32;
+    _XMM6 = 0i64;
     if ( priorityCount >= 4 )
     {
-      _RCX = &clientData->settings.maxDistanceForPriority[1];
-      v29 = ((priorityCount - 4) >> 2) + 1;
-      v30 = v29;
-      v26 = 4 * v29;
+      v35 = &clientData->settings.maxDistanceForPriority[1];
+      v36 = ((priorityCount - 4) >> 2) + 1;
+      v37 = v36;
+      v31 = 4 * v36;
       do
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx-4]
-          vmovss  xmm1, dword ptr [rcx]
-        }
-        _RCX += 4;
-        __asm
-        {
-          vmaxss  xmm2, xmm0, xmm6
-          vmovss  xmm0, dword ptr [rcx-0Ch]
-          vmaxss  xmm3, xmm1, xmm2
-          vmovss  xmm1, dword ptr [rcx-8]
-          vmaxss  xmm2, xmm0, xmm3
-          vmaxss  xmm6, xmm1, xmm2
-        }
-        --v30;
-      }
-      while ( v30 );
-    }
-    if ( v26 < priorityCount )
-    {
-      v38 = &clientData->settings.maxDistanceForPriority[v26];
-      v39 = priorityCount - v26;
-      do
-      {
-        __asm { vmaxss  xmm6, xmm6, dword ptr [rcx] }
-        ++v38;
-        --v39;
-      }
-      while ( v39 );
-    }
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
-    v41 = _RDI->v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+5C0h+bounds.midPoint], xmm0
-      vmovss  dword ptr [rsp+5C0h+bounds.halfSize], xmm6
-      vmovss  dword ptr [rsp+5C0h+bounds.halfSize+4], xmm6
-      vmovss  dword ptr [rsp+5C0h+bounds.halfSize+8], xmm6
-    }
-    bounds.midPoint.v[2] = v41;
-    treeIter.m_tree = NULL;
-    *(_QWORD *)&treeIter.m_curPartition = 0i64;
-    SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&treeIter, v25->tree, &bounds);
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
-    extentIntersect.viewPos.v[2] = _RDI->v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+5C0h+extentIntersect.viewPos], xmm0
-      vmovss  [rsp+5C0h+extentIntersect.partitionDistance], xmm6
-    }
-    SpatialPartition_PopulationSort_GatherPartitions_SpatialPartition_Population_Tree_AABBPartitionIterator_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, &treeIter, &extentIntersect);
-    SpatialPartition_PopulationSort_SortPartitions_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, _RDI, &extentIntersect);
-    __asm { vmulss  xmm1, xmm6, xmm6; partitionDistanceSq }
-    SpatialPartition_PopulationSort_RemoveEmptyPartitions(clientData, *(double *)&_XMM1);
-  }
-  else
-  {
-    v44 = clientData->priorityCount;
-    __asm { vmovaps [rsp+5C0h+var_40], xmm7 }
-    v45 = 0;
-    __asm
-    {
-      vmovaps [rsp+5C0h+var_50], xmm8
-      vmovaps [rsp+5C0h+var_60], xmm9
-      vmovaps [rsp+5C0h+var_70], xmm10
-      vmovss  xmm7, cs:__real@3f800000
-      vdivss  xmm0, xmm7, xmm4
-      vmulss  xmm8, xmm0, xmm2
-      vmulss  xmm10, xmm0, xmm3
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( v44 >= 4 )
-    {
-      _RCX = &clientData->settings.maxDistanceForPriority[1];
-      v53 = ((v44 - 4) >> 2) + 1;
-      v54 = v53;
-      v45 = 4 * v53;
-      do
-      {
-        __asm { vmovss  xmm0, dword ptr [rcx-4] }
-        _RCX += 4;
+        _XMM0 = *((unsigned int *)v35 - 1);
+        v35 += 4;
         __asm
         {
           vmaxss  xmm1, xmm0, xmm6
           vmaxss  xmm2, xmm1, dword ptr [rcx-10h]
-          vmovss  xmm0, dword ptr [rcx-0Ch]
-          vmovss  xmm1, dword ptr [rcx-8]
+        }
+        _XMM0 = *((unsigned int *)v35 - 3);
+        _XMM1 = *((unsigned int *)v35 - 2);
+        __asm
+        {
           vmaxss  xmm3, xmm0, xmm2
           vmaxss  xmm6, xmm1, xmm3
         }
-        --v54;
+        --v37;
       }
-      while ( v54 );
+      while ( v37 );
     }
-    if ( v45 < v44 )
+    if ( v31 < priorityCount )
     {
-      v61 = &clientData->settings.maxDistanceForPriority[v45];
-      v62 = v44 - v45;
+      v44 = &clientData->settings.maxDistanceForPriority[v31];
+      v45 = priorityCount - v31;
       do
       {
         __asm { vmaxss  xmm6, xmm6, dword ptr [rcx] }
-        ++v61;
-        --v62;
+        ++v44;
+        --v45;
       }
-      while ( v62 );
+      while ( v45 );
     }
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
-    v64 = _RDI->v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+5C0h+var_568.midPoint], xmm0
-      vmovss  dword ptr [rsp+5C0h+var_568.halfSize], xmm6
-      vmovss  dword ptr [rsp+5C0h+var_568.halfSize+4], xmm6
-      vmovss  dword ptr [rsp+5C0h+var_568.halfSize+8], xmm6
-    }
-    v101.midPoint.v[2] = v64;
-    v104.m_tree = NULL;
-    *(_QWORD *)&v104.m_curPartition = 0i64;
-    SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&v104, population->tree, &v101);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vucomiss xmm10, xmm9
-    }
+    v46 = viewPos->v[2];
+    *(_QWORD *)v67.midPoint.v = *(_QWORD *)viewPos->v;
+    v67.halfSize.v[0] = *(float *)&_XMM6;
+    v67.halfSize.v[1] = *(float *)&_XMM6;
+    v67.halfSize.v[2] = *(float *)&_XMM6;
+    v67.midPoint.v[2] = v46;
+    v70.m_tree = NULL;
+    *(_QWORD *)&v70.m_curPartition = 0i64;
+    SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&v70, population->tree, &v67);
+    v47 = viewPos->v[0];
     extentIntersect.partitionDistance = 0.0;
+    v49 = extentIntersect;
+    v49.viewPos.v[0] = v47;
+    _XMM3 = v49;
     __asm
     {
-      vmovups xmm3, xmmword ptr [rsp+5C0h+extentIntersect.viewPos]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [rdi+4], 10h
       vinsertps xmm3, xmm3, dword ptr [rdi+8], 20h ; ' '
-      vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-      vshufps xmm1, xmm3, xmm3, 0AAh ; 'ª'
-      vshufps xmm2, xmm3, xmm3, 0FFh
+    }
+    _mm_shuffle_ps(_XMM3, _XMM3, 85);
+    _mm_shuffle_ps(_XMM3, _XMM3, 170);
+    _mm_shuffle_ps(_XMM3, _XMM3, 255);
+    __asm
+    {
       vinsertps xmm3, xmm3, xmm0, 10h
       vinsertps xmm3, xmm3, xmm1, 20h ; ' '
       vinsertps xmm3, xmm3, xmm2, 30h ; '0'
-      vshufps xmm0, xmm3, xmm3, 44h ; 'D'
-      vmovups xmmword ptr [rbp+4C0h+var_550.m_viewPosXYXY.v], xmm0
-      vmulss  xmm0, xmm11, xmm11
-      vmovaps xmm1, xmm8
+    }
+    v68.m_viewPosXYXY.v = _mm_shuffle_ps(_XMM3.v, _XMM3.v, 68);
+    _XMM1 = v33;
+    __asm
+    {
       vinsertps xmm1, xmm1, xmm10, 10h
       vinsertps xmm1, xmm1, xmm8, 20h ; ' '
-      vmulss  xmm6, xmm6, xmm6
-      vinsertps xmm1, xmm1, xmm10, 30h ; '0'
-      vmovss  [rbp+4C0h+var_550.m_minViewAngleDistanceSq], xmm0
-      vmovss  xmm0, cs:__real@7f7fffff
-      vmovss  [rbp+4C0h+var_550.m_partitionDistanceSq], xmm6
-      vmovups xmmword ptr [rsp+5C0h+var_550.m_viewPos.v], xmm3
-      vmovups xmmword ptr [rbp+4C0h+var_550.m_lookAtDirXYXY.v], xmm1
-      vmovaps xmm3, xmm0
-      vucomiss xmm8, xmm9
-      vmovaps xmm2, xmm0
-      vucomiss xmm10, xmm9
-      vmovaps xmm1, xmm0
-      vmovaps xmm10, [rsp+5C0h+var_70]
-      vucomiss xmm8, xmm9
-      vmovaps xmm9, [rsp+5C0h+var_60]
+    }
+    v58 = *(float *)&_XMM6 * *(float *)&_XMM6;
+    __asm { vinsertps xmm1, xmm1, xmm10, 30h ; '0' }
+    v68.m_minViewAngleDistanceSq = minViewAngleDistance * minViewAngleDistance;
+    _XMM0 = LODWORD(FLOAT_3_4028235e38);
+    v68.m_partitionDistanceSq = v58;
+    v68.m_viewPos = (float4)_XMM3.v;
+    v68.m_lookAtDirXYXY = (float4)_XMM1.v;
+    if ( *(float *)&v33 != 0.0 )
+    {
+      v61 = LODWORD(FLOAT_1_0);
+      *(float *)&v61 = 1.0 / *(float *)&v33;
+      _XMM0 = v61;
+    }
+    __asm
+    {
       vinsertps xmm0, xmm0, xmm1, 10h
       vinsertps xmm0, xmm0, xmm2, 20h ; ' '
       vinsertps xmm0, xmm0, xmm3, 30h ; '0'
-      vmovups xmmword ptr [rbp+4C0h+var_550.m_lookAtDirInv_XYXY.v], xmm0
-      vmovss  xmm0, [rbp+4C0h+fovInDegrees]
-      vmulss  xmm0, xmm0, cs:__real@3c0efa35; X
     }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm { vmovss  [rbp+4C0h+var_550.m_cos_halfFOV], xmm0 }
-    SpatialPartition_PopulationSort_GatherPartitions_SpatialPartition_Population_Tree_AABBPartitionIterator_SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector_(clientData, &v104, &v102);
-    SpatialPartition_PopulationSort_SortPartitions_SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector_(clientData, _RDI, &v102);
-    __asm { vmovaps xmm1, xmm6; partitionDistanceSq }
-    SpatialPartition_PopulationSort_RemoveEmptyPartitions(clientData, *(double *)&_XMM1);
-    __asm
-    {
-      vmovaps xmm8, [rsp+5C0h+var_50]
-      vmovaps xmm7, [rsp+5C0h+var_40]
-    }
+    v68.m_lookAtDirInv_XYXY = (float4)_XMM0.v;
+    v68.m_cos_halfFOV = cosf_0(fovInDegrees * 0.0087266462);
+    SpatialPartition_PopulationSort_GatherPartitions_SpatialPartition_Population_Tree_AABBPartitionIterator_SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector_(clientData, &v70, &v68);
+    SpatialPartition_PopulationSort_SortPartitions_SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector_(clientData, viewPos, &v68);
+    SpatialPartition_PopulationSort_RemoveEmptyPartitions(clientData, v58);
   }
-  __asm
+  else
   {
-    vmovaps xmm6, [rsp+5C0h+var_30]
-    vmovaps xmm11, [rsp+5C0h+var_80]
+    if ( clientData->jobInProgress && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 184, ASSERT_TYPE_ASSERT, "(!clientData->jobInProgress)", (const char *)&queryFormat, "!clientData->jobInProgress") )
+      __debugbreak();
+    v12 = clientData->priorityCount;
+    v13 = clientData->population;
+    v14 = 0;
+    _XMM6 = 0i64;
+    if ( v12 >= 4 )
+    {
+      v16 = &clientData->settings.maxDistanceForPriority[1];
+      v17 = ((v12 - 4) >> 2) + 1;
+      v18 = v17;
+      v14 = 4 * v17;
+      do
+      {
+        _XMM0 = *((unsigned int *)v16 - 1);
+        _XMM1 = *(unsigned int *)v16;
+        v16 += 4;
+        __asm { vmaxss  xmm2, xmm0, xmm6 }
+        _XMM0 = *((unsigned int *)v16 - 3);
+        __asm { vmaxss  xmm3, xmm1, xmm2 }
+        _XMM1 = *((unsigned int *)v16 - 2);
+        __asm
+        {
+          vmaxss  xmm2, xmm0, xmm3
+          vmaxss  xmm6, xmm1, xmm2
+        }
+        --v18;
+      }
+      while ( v18 );
+    }
+    if ( v14 < v12 )
+    {
+      v26 = &clientData->settings.maxDistanceForPriority[v14];
+      v27 = v12 - v14;
+      do
+      {
+        __asm { vmaxss  xmm6, xmm6, dword ptr [rcx] }
+        ++v26;
+        --v27;
+      }
+      while ( v27 );
+    }
+    v28 = viewPos->v[2];
+    *(_QWORD *)bounds.midPoint.v = *(_QWORD *)viewPos->v;
+    bounds.halfSize.v[0] = *(float *)&_XMM6;
+    bounds.halfSize.v[1] = *(float *)&_XMM6;
+    bounds.halfSize.v[2] = *(float *)&_XMM6;
+    bounds.midPoint.v[2] = v28;
+    treeIter.m_tree = NULL;
+    *(_QWORD *)&treeIter.m_curPartition = 0i64;
+    SpatialPartition_Population_Tree_AABBPartitionIterator::Init(&treeIter, v13->tree, &bounds);
+    v29 = *(double *)viewPos->v;
+    extentIntersect.viewPos.v[2] = viewPos->v[2];
+    *(double *)extentIntersect.viewPos.v = v29;
+    extentIntersect.partitionDistance = *(float *)&_XMM6;
+    SpatialPartition_PopulationSort_GatherPartitions_SpatialPartition_Population_Tree_AABBPartitionIterator_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, &treeIter, &extentIntersect);
+    SpatialPartition_PopulationSort_SortPartitions_SpatialPartition_PopulationSort_SortByDistanceIntersector_(clientData, viewPos, &extentIntersect);
+    SpatialPartition_PopulationSort_RemoveEmptyPartitions(clientData, *(float *)&_XMM6 * *(float *)&_XMM6);
   }
 }
 
@@ -2189,7 +2017,9 @@ void SpatialPartition_PopulationSort_Update(SpatialPartition_PopulationSort_Clie
   unsigned __int64 v9; 
   char v10; 
   __int64 priorityCount; 
-  bool v16; 
+  int *maxActivatedForPriority; 
+  float v13; 
+  bool v14; 
   int *out_numToEvictAcrossPriorities; 
   int *out_lastAddSortedIndex; 
   int lastAddPriority; 
@@ -2266,24 +2096,19 @@ LABEL_35:
   priorityCount = clientData->priorityCount;
   if ( (_DWORD)priorityCount )
   {
-    _RDX = (char *)cutoffDistancesSq - (char *)clientData;
-    _RAX = clientData->settings.maxActivatedForPriority;
+    maxActivatedForPriority = clientData->settings.maxActivatedForPriority;
     do
     {
-      __asm { vmovss  xmm0, dword ptr [rax-10h] }
-      v4 += *_RAX++;
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vmovss  dword ptr [rdx+rax-34h], xmm1
-      }
+      v13 = *((float *)maxActivatedForPriority - 4);
+      v4 += *maxActivatedForPriority++;
+      *(float *)((char *)maxActivatedForPriority + (char *)cutoffDistancesSq - (char *)clientData - 52) = v13 * v13;
       --priorityCount;
     }
     while ( priorityCount );
   }
-  v16 = clientData->settings.maxActivatedTotal >= v4;
-  UpdateAddObjects(clientData, callbacks, cutoffDistancesSq, v16, out_numToEvictForPrio, &requestedNumToEvictAcrossPriorities, lastAddSortIndex, &lastAddPriority);
-  UpdateRemoveObjects(clientData, callbacks, cutoffDistancesSq, v16, out_numToEvictForPrio, requestedNumToEvictAcrossPriorities, lastAddSortIndex, lastAddPriority);
+  v14 = clientData->settings.maxActivatedTotal >= v4;
+  UpdateAddObjects(clientData, callbacks, cutoffDistancesSq, v14, out_numToEvictForPrio, &requestedNumToEvictAcrossPriorities, lastAddSortIndex, &lastAddPriority);
+  UpdateRemoveObjects(clientData, callbacks, cutoffDistancesSq, v14, out_numToEvictForPrio, requestedNumToEvictAcrossPriorities, lastAddSortIndex, lastAddPriority);
 }
 
 /*
@@ -2298,54 +2123,58 @@ char SpatialPartition_PopulationSort_UpdateNeeded(SpatialPartition_PopulationSor
   SpatialPartition_PopulationSort_Entry *sortedPartitions; 
   int v5; 
   unsigned int v6; 
-  unsigned int v12; 
+  float *v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float *v12; 
   __int64 v13; 
-  __int64 v24; 
-  unsigned __int8 v27; 
-  unsigned __int8 v28; 
-  unsigned int v29; 
-  unsigned __int8 v31; 
-  char v32; 
+  unsigned __int8 v14; 
+  unsigned __int8 v15; 
+  unsigned int v16; 
+  float *p_distanceSq; 
+  unsigned __int8 v18; 
+  char v19; 
+  int v20; 
+  int v21; 
+  unsigned int v22; 
+  float v23; 
+  float *v24; 
+  unsigned int v25; 
+  __int64 v26; 
+  int v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  int v31; 
+  int v32; 
   int v33; 
   int v34; 
-  unsigned int v35; 
-  bool v37; 
-  unsigned int v39; 
-  __int64 v40; 
-  int v41; 
-  int v42; 
-  bool v43; 
-  int v44; 
+  int v35; 
+  int v36; 
+  char v37; 
+  float v38; 
+  __int64 v39; 
+  float *v40; 
+  char v41; 
+  char v42; 
+  char v43; 
+  unsigned int v44; 
   int v45; 
   int v46; 
-  bool v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  bool v51; 
-  int v52; 
-  int v53; 
-  char v54; 
-  bool v56; 
-  __int64 v57; 
-  char v59; 
-  char v60; 
-  char v61; 
-  unsigned int v62; 
-  int v63; 
-  int v64; 
-  unsigned int v65; 
+  unsigned int v47; 
   int *maxActivatedForPriority; 
   int maxActivatedTotal; 
-  char v68; 
-  unsigned __int8 v70; 
-  unsigned __int8 v71; 
-  int v72; 
-  unsigned int v73; 
-  char v74[4]; 
-  char v75[4]; 
-  char v76; 
-  char v77; 
+  char v50; 
+  unsigned __int8 v52; 
+  unsigned __int8 v53; 
+  int v54; 
+  unsigned int v55; 
+  char v56[4]; 
+  char v57[4]; 
+  char v58; 
+  char v59; 
 
   if ( !clientData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 459, ASSERT_TYPE_ASSERT, "(clientData)", (const char *)&queryFormat, "clientData") )
     __debugbreak();
@@ -2356,180 +2185,151 @@ char SpatialPartition_PopulationSort_UpdateNeeded(SpatialPartition_PopulationSor
     priorityCount = clientData->priorityCount;
     sortedPartitionCount = clientData->sortedPartitionCount;
     sortedPartitions = clientData->sortedPartitions;
-    v73 = sortedPartitionCount;
+    v55 = sortedPartitionCount;
     if ( priorityCount > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 472, ASSERT_TYPE_ASSERT, "(priorityCount <= SPATIAL_PARTITION_POPULATION_MAX_PRIORITY)", (const char *)&queryFormat, "priorityCount <= SPATIAL_PARTITION_POPULATION_MAX_PRIORITY") )
       __debugbreak();
     v5 = 0;
     v6 = 0;
     if ( priorityCount >= 4 )
     {
-      _R8 = v74 - (char *)clientData;
-      _R10 = v75 - (char *)clientData;
-      _R11 = &v76 - (char *)clientData;
-      _RBX = &v77 - (char *)clientData;
-      _RCX = &clientData->settings.maxDistanceForPriority[1];
-      v12 = ((priorityCount - 4) >> 2) + 1;
-      v13 = v12;
-      v6 = 4 * v12;
+      v7 = &clientData->settings.maxDistanceForPriority[1];
+      v8 = ((priorityCount - 4) >> 2) + 1;
+      v9 = v8;
+      v6 = 4 * v8;
       do
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx-4]
-          vmovss  xmm2, dword ptr [rcx]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vmovss  dword ptr [r8+rcx-24h], xmm1
-          vmovss  xmm1, dword ptr [rcx+4]
-          vmovss  dword ptr [r10+rcx-24h], xmm0
-          vmovss  xmm0, dword ptr [rcx+8]
-          vmulss  xmm2, xmm1, xmm1
-          vmulss  xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbx+rcx-24h], xmm1
-          vmovss  dword ptr [r11+rcx-24h], xmm2
-        }
-        _RCX += 4;
+        v10 = *v7 * *v7;
+        *(float *)((char *)v7 + v56 - (char *)clientData - 36) = *(v7 - 1) * *(v7 - 1);
+        v11 = v7[1];
+        *(float *)((char *)v7 + v57 - (char *)clientData - 36) = v10;
+        *(float *)((char *)v7 + &v59 - (char *)clientData - 36) = v7[2] * v7[2];
+        *(float *)((char *)v7 + &v58 - (char *)clientData - 36) = v11 * v11;
+        v7 += 4;
+        --v9;
+      }
+      while ( v9 );
+    }
+    if ( v6 < priorityCount )
+    {
+      v12 = (float *)&v56[4 * v6];
+      v13 = priorityCount - v6;
+      do
+      {
+        *v12 = *(float *)((char *)v12 + (char *)clientData - v56 + 32) * *(float *)((char *)v12 + (char *)clientData - v56 + 32);
+        ++v12;
         --v13;
       }
       while ( v13 );
     }
-    if ( v6 < priorityCount )
-    {
-      _RCX = &v74[4 * v6];
-      _R8 = (char *)clientData - v74;
-      v24 = priorityCount - v6;
-      do
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r8+rcx+20h]
-          vmulss  xmm1, xmm0, xmm0
-          vmovss  dword ptr [rcx], xmm1
-        }
-        _RCX += 4;
-        --v24;
-      }
-      while ( v24 );
-    }
-    v27 = 0;
-    v72 = 0;
-    v28 = 0;
-    v70 = 0;
-    v71 = 0;
-    v29 = 1;
+    v14 = 0;
+    v54 = 0;
+    v15 = 0;
+    v52 = 0;
+    v53 = 0;
+    v16 = 1;
     if ( sortedPartitionCount )
     {
-      _R14 = &sortedPartitions->distanceSq;
+      p_distanceSq = &sortedPartitions->distanceSq;
       while ( 1 )
       {
-        v31 = *((_BYTE *)_R14 - 2);
-        if ( (v31 & v27) != 0 )
+        v18 = *((_BYTE *)p_distanceSq - 2);
+        if ( (v18 & v14) != 0 )
           break;
-        v32 = 0;
-        v33 = 0;
-        v34 = 1;
-        v35 = 0;
+        v19 = 0;
+        v20 = 0;
+        v21 = 1;
+        v22 = 0;
         if ( priorityCount >= 4 )
         {
-          __asm { vmovss  xmm0, dword ptr [r14] }
-          v37 = __CFSHR__(priorityCount - 4, 2);
-          _R8 = v75;
-          v39 = ((priorityCount - 4) >> 2) + 1;
-          v40 = v39;
-          v35 = 4 * v39;
+          v23 = *p_distanceSq;
+          v24 = (float *)v57;
+          v25 = ((priorityCount - 4) >> 2) + 1;
+          v26 = v25;
+          v22 = 4 * v25;
           do
           {
-            __asm { vcomiss xmm0, dword ptr [r8-4] }
-            v41 = 0;
-            if ( v37 )
-              v41 = v34;
-            v42 = v41 | v33;
-            if ( (*((_BYTE *)_R14 - 2) & (unsigned __int8)v34) != 0 && !v37 )
-              v32 = 1;
-            v43 = __CFADD__(v34, v34);
-            v44 = 2 * v34;
-            v45 = 0;
-            __asm { vcomiss xmm0, dword ptr [r8] }
-            if ( v43 )
-              v45 = v44;
-            v46 = v45 | v42;
-            if ( (*((_BYTE *)_R14 - 2) & (unsigned __int8)v44) != 0 && !v43 )
-              v32 = 1;
-            v47 = __CFADD__(v44, v44);
-            v48 = 2 * v44;
-            v49 = 0;
-            __asm { vcomiss xmm0, dword ptr [r8+4] }
-            if ( v47 )
-              v49 = v48;
-            v50 = v49 | v46;
-            if ( (*((_BYTE *)_R14 - 2) & (unsigned __int8)v48) != 0 && !v47 )
-              v32 = 1;
-            v51 = __CFADD__(v48, v48);
-            v52 = 2 * v48;
-            v53 = 0;
-            __asm { vcomiss xmm0, dword ptr [r8+8] }
-            if ( v51 )
-              v53 = v52;
-            v33 = v53 | v50;
-            if ( (*((_BYTE *)_R14 - 2) & (unsigned __int8)v52) != 0 )
+            v27 = 0;
+            if ( v23 < *(v24 - 1) )
+              v27 = v21;
+            v28 = v27 | v20;
+            if ( (*((_BYTE *)p_distanceSq - 2) & (unsigned __int8)v21) != 0 && v23 >= *(v24 - 1) )
+              v19 = 1;
+            v29 = 2 * v21;
+            v30 = 0;
+            if ( v23 < *v24 )
+              v30 = v29;
+            v31 = v30 | v28;
+            if ( (*((_BYTE *)p_distanceSq - 2) & (unsigned __int8)v29) != 0 && v23 >= *v24 )
+              v19 = 1;
+            v32 = 2 * v29;
+            v33 = 0;
+            if ( v23 < v24[1] )
+              v33 = v32;
+            v34 = v33 | v31;
+            if ( (*((_BYTE *)p_distanceSq - 2) & (unsigned __int8)v32) != 0 && v23 >= v24[1] )
+              v19 = 1;
+            v35 = 2 * v32;
+            v36 = 0;
+            if ( v23 < v24[2] )
+              v36 = v35;
+            v20 = v36 | v34;
+            if ( (*((_BYTE *)p_distanceSq - 2) & (unsigned __int8)v35) != 0 )
             {
-              v54 = v32;
-              if ( !v51 )
-                v54 = 1;
-              v32 = v54;
+              v37 = v19;
+              if ( v23 >= v24[2] )
+                v37 = 1;
+              v19 = v37;
             }
-            v34 = 2 * v52;
-            _R8 += 16;
-            v37 = v40-- == 0;
+            v21 = 2 * v35;
+            v24 += 4;
+            --v26;
           }
-          while ( v40 );
+          while ( v26 );
         }
-        if ( v35 < priorityCount )
+        if ( v22 < priorityCount )
         {
-          __asm { vmovss  xmm0, dword ptr [r14] }
-          v56 = priorityCount < v35;
-          v57 = priorityCount - v35;
-          _R8 = &v74[4 * v35];
+          v38 = *p_distanceSq;
+          v39 = priorityCount - v22;
+          v40 = (float *)&v56[4 * v22];
           do
           {
-            __asm { vcomiss xmm0, dword ptr [r8] }
-            v59 = 0;
-            if ( v56 )
-              v59 = v34;
-            LOBYTE(v33) = v59 | v33;
-            if ( (*((_BYTE *)_R14 - 2) & (unsigned __int8)v34) != 0 )
+            v41 = 0;
+            if ( v38 < *v40 )
+              v41 = v21;
+            LOBYTE(v20) = v41 | v20;
+            if ( (*((_BYTE *)p_distanceSq - 2) & (unsigned __int8)v21) != 0 )
             {
-              v60 = v32;
-              if ( !v56 )
-                v60 = 1;
-              v32 = v60;
+              v42 = v19;
+              if ( v38 >= *v40 )
+                v42 = 1;
+              v19 = v42;
             }
-            LOBYTE(v34) = 2 * v34;
-            _R8 += 4;
-            v56 = v57-- == 0;
+            LOBYTE(v21) = 2 * v21;
+            ++v40;
+            --v39;
           }
-          while ( v57 );
+          while ( v39 );
         }
-        if ( v32 )
+        if ( v19 )
           break;
-        v61 = *((_BYTE *)_R14 - 1);
-        _R14 += 2;
-        v27 = v33 & v61 | v70;
-        v28 = v31 | v71;
-        v70 = v27;
-        v71 |= v31;
-        if ( ++v72 >= v73 )
+        v43 = *((_BYTE *)p_distanceSq - 1);
+        p_distanceSq += 2;
+        v14 = v20 & v43 | v52;
+        v15 = v18 | v53;
+        v52 = v14;
+        v53 |= v18;
+        if ( ++v54 >= v55 )
           goto LABEL_57;
       }
     }
     else
     {
 LABEL_57:
-      v62 = clientData->priorityCount;
-      LOBYTE(v63) = 0;
-      LOBYTE(v64) = 0;
-      v65 = 0;
-      if ( v62 )
+      v44 = clientData->priorityCount;
+      LOBYTE(v45) = 0;
+      LOBYTE(v46) = 0;
+      v47 = 0;
+      if ( v44 )
       {
         maxActivatedForPriority = clientData->settings.maxActivatedForPriority;
         do
@@ -2538,30 +2338,30 @@ LABEL_57:
           if ( maxActivatedForPriority[4] >= *maxActivatedForPriority )
           {
             if ( maxActivatedForPriority[4] > *maxActivatedForPriority )
-              v64 = (unsigned __int8)v64 | (1 << v65);
+              v46 = (unsigned __int8)v46 | (1 << v47);
           }
           else
           {
-            v63 = (unsigned __int8)v63 | (1 << v65);
+            v45 = (unsigned __int8)v45 | (1 << v47);
           }
-          ++v65;
+          ++v47;
           ++maxActivatedForPriority;
         }
-        while ( v65 < v62 );
-        v27 = v70;
-        v28 = v71;
+        while ( v47 < v44 );
+        v14 = v52;
+        v15 = v53;
       }
       maxActivatedTotal = clientData->settings.maxActivatedTotal;
-      if ( (!(_BYTE)v63 || v5 >= maxActivatedTotal || !v27) && !(_BYTE)v64 && v5 <= maxActivatedTotal )
+      if ( (!(_BYTE)v45 || v5 >= maxActivatedTotal || !v14) && !(_BYTE)v46 && v5 <= maxActivatedTotal )
       {
-        v68 = 2;
-        if ( v62 <= 1 )
+        v50 = 2;
+        if ( v44 <= 1 )
           return 0;
-        while ( (v27 & (unsigned __int8)v68) == 0 || ((unsigned __int8)v63 & (unsigned __int8)v68) == 0 || (v28 & (unsigned __int8)(v68 - 1)) == 0 )
+        while ( (v14 & (unsigned __int8)v50) == 0 || ((unsigned __int8)v45 & (unsigned __int8)v50) == 0 || (v15 & (unsigned __int8)(v50 - 1)) == 0 )
         {
-          ++v29;
-          v68 *= 2;
-          if ( v29 >= v62 )
+          ++v16;
+          v50 *= 2;
+          if ( v16 >= v44 )
             return 0;
         }
       }
@@ -2595,52 +2395,54 @@ void UpdateAddObjects(SpatialPartition_PopulationSort_ClientData *clientData, co
   int v25; 
   int v26; 
   signed __int64 v27; 
+  signed __int64 v28; 
   int v29; 
+  int *v30; 
   int v31; 
-  bool v32; 
-  unsigned int v33; 
-  int *v36; 
+  unsigned int v32; 
+  SpatialPartition_PopulationSort_Entry *sortedPartitions; 
+  int *v35; 
   unsigned int partitionIndex; 
-  unsigned __int8 v38; 
+  unsigned __int8 v37; 
   SpatialPartition_Population *population; 
-  char v41; 
-  int v42; 
+  char v40; 
+  int v41; 
   SpatialPartition_Population_Node *m_curNode; 
-  char v44; 
+  char v43; 
+  unsigned int v44; 
   unsigned int v45; 
-  unsigned int v46; 
-  bool v47; 
+  bool v46; 
+  int v47; 
   int v48; 
-  int v49; 
-  char v50; 
+  char v49; 
+  __int64 v50; 
   __int64 v51; 
-  __int64 v52; 
-  signed __int64 v53; 
+  signed __int64 v52; 
+  int v53; 
   int v54; 
   int v55; 
-  int v56; 
+  __int64 v56; 
   __int64 v57; 
   __int64 v58; 
-  __int64 v59; 
-  unsigned __int8 v60; 
-  char v61; 
-  unsigned int v63; 
+  unsigned __int8 v59; 
+  char v60; 
+  unsigned int v62; 
+  int v63; 
   int v64; 
-  int v65; 
-  unsigned int v66; 
+  unsigned int v65; 
+  int v66; 
   int v67; 
-  int v68; 
-  signed __int64 v70; 
-  signed __int64 v72; 
-  int v73; 
+  signed __int64 v69; 
+  signed __int64 v71; 
+  int v72; 
+  signed __int64 v73; 
   signed __int64 v74; 
-  signed __int64 v75; 
-  SpatialPartition_Population_NodeIterator v76; 
-  int *v77; 
-  __int64 v78; 
-  SpatialPartition_PopulationSort_Entry *v79; 
-  int *v80; 
-  int v81[4]; 
+  SpatialPartition_Population_NodeIterator v75; 
+  int *v76; 
+  __int64 v77; 
+  SpatialPartition_PopulationSort_Entry *v78; 
+  int *v79; 
+  int v80[4]; 
 
   v8 = 0;
   v10 = callbacks;
@@ -2650,10 +2452,10 @@ void UpdateAddObjects(SpatialPartition_PopulationSort_ClientData *clientData, co
   *out_numToEvictAcrossPriorities = 0;
   v14 = 0;
   v15 = 0;
-  v80 = out_numToEvictAcrossPriorities;
-  v77 = out_lastAddPriority;
-  v67 = 0;
-  v73 = 0;
+  v79 = out_numToEvictAcrossPriorities;
+  v76 = out_lastAddPriority;
+  v66 = 0;
+  v72 = 0;
   if ( clientData->priorityCount )
   {
     do
@@ -2669,8 +2471,8 @@ void UpdateAddObjects(SpatialPartition_PopulationSort_ClientData *clientData, co
       out_numToEvictForPrio[v16] = v17;
     }
     while ( v15 < clientData->priorityCount );
-    v73 = v13;
-    v67 = v14;
+    v72 = v13;
+    v66 = v14;
   }
   maxActivatedTotal = clientData->settings.maxActivatedTotal;
   if ( v14 > maxActivatedTotal )
@@ -2691,7 +2493,7 @@ void UpdateAddObjects(SpatialPartition_PopulationSort_ClientData *clientData, co
     v21 = maxAddPerUpdate;
   if ( v21 < 0 )
     v21 = 0;
-  v65 = v21;
+  v64 = v21;
   if ( clientData->priorityCount > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 693, ASSERT_TYPE_ASSERT, "( clientData->priorityCount ) <= ( SPATIAL_PARTITION_POPULATION_MAX_PRIORITY )", "%s <= %s\n\t%i, %i", "clientData->priorityCount", "SPATIAL_PARTITION_POPULATION_MAX_PRIORITY", clientData->priorityCount, 4) )
     __debugbreak();
   priorityCount = clientData->priorityCount;
@@ -2704,9 +2506,9 @@ void UpdateAddObjects(SpatialPartition_PopulationSort_ClientData *clientData, co
       v25 = clientData->settings.maxActivatedForPriority[v23] - clientData->numActivatedForPriority[v23];
       if ( maxAddPerUpdate < 0 )
       {
-        LODWORD(v58) = maxAddPerUpdate;
-        LODWORD(v57) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v57, v58) )
+        LODWORD(v57) = maxAddPerUpdate;
+        LODWORD(v56) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v56, v57) )
           __debugbreak();
       }
       priorityCount = clientData->priorityCount;
@@ -2715,192 +2517,189 @@ void UpdateAddObjects(SpatialPartition_PopulationSort_ClientData *clientData, co
       if ( v25 < 0 )
         v25 = 0;
       ++v23;
-      v81[v24] = v25;
+      v80[v24] = v25;
     }
     while ( v23 < priorityCount );
     v10 = callbacks;
     v11 = out_lastAddSortedIndex;
   }
   v26 = priorityCount - 1;
-  v63 = priorityCount - 1;
+  v62 = priorityCount - 1;
   if ( (int)(priorityCount - 1) >= 0 )
   {
     v27 = (char *)v11 - (char *)clientData;
-    v74 = (char *)out_numToEvictForPrio - (char *)clientData;
-    _R10 = (char *)cutoffDistancesSq - (char *)clientData;
-    v70 = (char *)cutoffDistancesSq - (char *)clientData;
+    v73 = (char *)out_numToEvictForPrio - (char *)clientData;
+    v28 = (char *)cutoffDistancesSq - (char *)clientData;
+    v69 = (char *)cutoffDistancesSq - (char *)clientData;
     v29 = __ROL4__(1, v26);
-    v64 = v29;
-    _R12 = &clientData->numActivatedForPriority[v26];
-    v75 = v27;
-    v72 = (char *)v81 - (char *)clientData;
+    v63 = v29;
+    v30 = &clientData->numActivatedForPriority[v26];
+    v74 = v27;
+    v71 = (char *)v80 - (char *)clientData;
     v31 = 0;
     while ( 1 )
     {
-      v32 = clientData->sortedPartitionCount == 0;
-      v33 = 0;
-      v66 = 0;
+      v32 = 0;
+      v65 = 0;
       if ( clientData->sortedPartitionCount )
         break;
 LABEL_101:
-      v27 = v75;
+      v27 = v74;
       --v26;
       v29 = __ROR4__(v29, 1);
-      --_R12;
-      v63 = v26;
-      v64 = v29;
+      --v30;
+      v62 = v26;
+      v63 = v29;
       if ( v26 < 0 )
         return;
     }
 LABEL_36:
-    _RDX = clientData->sortedPartitions;
-    __asm { vmovss  xmm0, dword ptr [r10+r12-40h] }
-    v78 = v33;
-    v79 = _RDX;
-    __asm { vcomiss xmm0, dword ptr [rdx+rcx*8+4] }
-    if ( v32 )
+    sortedPartitions = clientData->sortedPartitions;
+    _XMM0 = *(unsigned int *)((char *)v30 + v28 - 64);
+    v77 = v32;
+    v78 = sortedPartitions;
+    if ( *(float *)&_XMM0 <= sortedPartitions[v32].distanceSq )
       goto LABEL_101;
-    v36 = v77;
-    *(int *)((char *)_R12 + v27 - 64) = v33;
-    *v36 = v26;
-    if ( ((unsigned __int8)v29 & _RDX[v33].anyAvailableMask) == 0 )
+    v35 = v76;
+    *(int *)((char *)v30 + v27 - 64) = v32;
+    *v35 = v26;
+    if ( ((unsigned __int8)v29 & sortedPartitions[v32].anyAvailableMask) == 0 )
       goto LABEL_78;
-    partitionIndex = _RDX[v33].partitionIndex;
-    v38 = 0;
+    partitionIndex = sortedPartitions[v32].partitionIndex;
+    v37 = 0;
     population = clientData->population;
     __asm { vpxor   xmm0, xmm0, xmm0 }
-    v41 = 0;
+    v40 = 0;
+    v59 = 0;
     v60 = 0;
-    v61 = 0;
-    v42 = 0;
-    __asm { vmovdqu xmmword ptr [rsp+128h+var_90.m_population], xmm0 }
-    v68 = 0;
-    v76.m_curIndex = -1;
-    SpatialPartition_Population_NodeIterator::Init(&v76, population, partitionIndex);
-    if ( !SpatialPartition_Population_NodeIterator::Advance(&v76) )
+    v41 = 0;
+    *(_OWORD *)&v75.m_population = _XMM0;
+    v67 = 0;
+    v75.m_curIndex = -1;
+    SpatialPartition_Population_NodeIterator::Init(&v75, population, partitionIndex);
+    if ( !SpatialPartition_Population_NodeIterator::Advance(&v75) )
       goto LABEL_73;
     while ( 1 )
     {
-      m_curNode = v76.m_curNode;
-      if ( !v76.m_curNode )
+      m_curNode = v75.m_curNode;
+      if ( !v75.m_curNode )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
           __debugbreak();
-        m_curNode = v76.m_curNode;
+        m_curNode = v75.m_curNode;
       }
-      v44 = v10->isActive(clientData, m_curNode);
-      v45 = v10->getPriority(clientData, m_curNode);
-      if ( v45 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 731, ASSERT_TYPE_ASSERT, "(nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY)", (const char *)&queryFormat, "nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY") )
+      v43 = v10->isActive(clientData, m_curNode);
+      v44 = v10->getPriority(clientData, m_curNode);
+      if ( v44 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 731, ASSERT_TYPE_ASSERT, "(nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY)", (const char *)&queryFormat, "nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY") )
         __debugbreak();
-      v46 = v10->getTransient(clientData, m_curNode);
-      if ( v44 )
+      v45 = v10->getTransient(clientData, m_curNode);
+      if ( v43 )
       {
-        if ( v46 && !bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v46) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 578, ASSERT_TYPE_ASSERT, "(GetTransientLoaded( clientData, node, getTransient ))", (const char *)&queryFormat, "GetTransientLoaded( clientData, node, getTransient )") )
+        if ( v45 && !bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v45) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 578, ASSERT_TYPE_ASSERT, "(GetTransientLoaded( clientData, node, getTransient ))", (const char *)&queryFormat, "GetTransientLoaded( clientData, node, getTransient )") )
           __debugbreak();
-        v47 = 1;
+        v46 = 1;
       }
       else
       {
-        if ( v46 )
-          v47 = bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v46);
+        if ( v45 )
+          v46 = bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v45);
         else
-          v47 = 1;
-        if ( v47 && v45 == v63 && v10->canActivate(clientData, m_curNode) )
+          v46 = 1;
+        if ( v46 && v44 == v62 && v10->canActivate(clientData, m_curNode) )
         {
-          if ( v65 > 0 )
+          if ( v64 > 0 )
           {
-            v48 = *(int *)((char *)_R12 + v72 - 64);
-            if ( v48 > 0 )
+            v47 = *(int *)((char *)v30 + v71 - 64);
+            if ( v47 > 0 )
             {
-              v10->activate(clientData, m_curNode, v66);
+              v10->activate(clientData, m_curNode, v65);
               if ( !v10->isActive(clientData, m_curNode) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 740, ASSERT_TYPE_ASSERT, "(callbacks.isActive( clientData, node ))", (const char *)&queryFormat, "callbacks.isActive( clientData, node )") )
               {
                 __debugbreak();
-                v48 = *(int *)((char *)_R12 + v72 - 64);
+                v47 = *(int *)((char *)v30 + v71 - 64);
               }
-              ++*_R12;
-              v44 = 1;
-              --v65;
-              ++v67;
-              *(int *)((char *)_R12 + v72 - 64) = v48 - 1;
+              ++*v30;
+              v43 = 1;
+              --v64;
+              ++v66;
+              *(int *)((char *)v30 + v71 - 64) = v47 - 1;
               v31 = 0;
               goto LABEL_66;
             }
             v31 = 0;
           }
-          ++v68;
+          ++v67;
         }
       }
 LABEL_66:
-      v49 = 1 << v45;
-      v50 = 1 << v45;
-      if ( !v44 )
-        v50 = 0;
-      v60 |= v50;
-      if ( v44 || !v47 )
-        LOBYTE(v49) = 0;
-      v41 = v49 | v61;
-      v61 |= v49;
-      if ( !SpatialPartition_Population_NodeIterator::Advance(&v76) )
+      v48 = 1 << v44;
+      v49 = 1 << v44;
+      if ( !v43 )
+        v49 = 0;
+      v59 |= v49;
+      if ( v43 || !v46 )
+        LOBYTE(v48) = 0;
+      v40 = v48 | v60;
+      v60 |= v48;
+      if ( !SpatialPartition_Population_NodeIterator::Advance(&v75) )
       {
-        v21 = v65;
-        v42 = v68;
-        v38 = v60;
+        v21 = v64;
+        v41 = v67;
+        v37 = v59;
 LABEL_73:
-        v51 = v78;
-        v52 = (__int64)v79;
-        v79[v78].anyActiveMask = v38;
-        *(_BYTE *)(v52 + 8 * v51 + 3) = v41;
-        if ( *(int *)((char *)_R12 + v72 - 64) && v21 || !treatPrioritiesSeparately && !v42 )
+        v50 = v77;
+        v51 = (__int64)v78;
+        v78[v77].anyActiveMask = v37;
+        *(_BYTE *)(v51 + 8 * v50 + 3) = v40;
+        if ( *(int *)((char *)v30 + v71 - 64) && v21 || !treatPrioritiesSeparately && !v41 )
         {
-          v27 = v75;
-          v29 = v64;
-          v26 = v63;
-          v33 = v66;
+          v27 = v74;
+          v29 = v63;
+          v26 = v62;
+          v32 = v65;
 LABEL_78:
-          _R10 = v70;
-          v66 = ++v33;
-          v32 = v33 <= clientData->sortedPartitionCount;
-          if ( v33 >= clientData->sortedPartitionCount )
+          v28 = v69;
+          v65 = ++v32;
+          if ( v32 >= clientData->sortedPartitionCount )
             goto LABEL_101;
           goto LABEL_36;
         }
-        v53 = (char *)out_numToEvictForPrio - (char *)clientData;
-        if ( v42 + *_R12 - *(_R12 - 4) > 0 )
-          v31 = v42 + *_R12 - *(_R12 - 4);
-        v54 = v67 + v42 - clientData->settings.maxActivatedTotal;
-        v55 = 0;
-        if ( v54 > 0 )
-          v55 = v54;
-        if ( *(int *)((char *)_R12 + v74 - 64) )
+        v52 = (char *)out_numToEvictForPrio - (char *)clientData;
+        if ( v41 + *v30 - *(v30 - 4) > 0 )
+          v31 = v41 + *v30 - *(v30 - 4);
+        v53 = v66 + v41 - clientData->settings.maxActivatedTotal;
+        v54 = 0;
+        if ( v53 > 0 )
+          v54 = v53;
+        if ( *(int *)((char *)v30 + v73 - 64) )
         {
-          LODWORD(v59) = *(int *)((char *)_R12 + v74 - 64);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 765, ASSERT_TYPE_ASSERT, "( out_numToEvictForPrio[addPrio] ) == ( 0 )", "%s == %s\n\t%i, %i", "out_numToEvictForPrio[addPrio]", "0", v59, 0i64) )
+          LODWORD(v58) = *(int *)((char *)v30 + v73 - 64);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 765, ASSERT_TYPE_ASSERT, "( out_numToEvictForPrio[addPrio] ) == ( 0 )", "%s == %s\n\t%i, %i", "out_numToEvictForPrio[addPrio]", "0", v58, 0i64) )
             __debugbreak();
-          v53 = (char *)out_numToEvictForPrio - (char *)clientData;
+          v52 = (char *)out_numToEvictForPrio - (char *)clientData;
         }
         if ( treatPrioritiesSeparately )
         {
-          *(int *)((char *)_R12 + v53 - 64) = v31;
-          if ( !v31 && v55 && !v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 770, ASSERT_TYPE_ASSERT, "(numEvictForPriority || numEvictForTotal == 0 || totalNumToEvictForPrios)", (const char *)&queryFormat, "numEvictForPriority || numEvictForTotal == 0 || totalNumToEvictForPrios") )
+          *(int *)((char *)v30 + v52 - 64) = v31;
+          if ( !v31 && v54 && !v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 770, ASSERT_TYPE_ASSERT, "(numEvictForPriority || numEvictForTotal == 0 || totalNumToEvictForPrios)", (const char *)&queryFormat, "numEvictForPriority || numEvictForTotal == 0 || totalNumToEvictForPrios") )
             __debugbreak();
           if ( v21 )
           {
 LABEL_100:
-            _R10 = v70;
+            v28 = v69;
             v31 = 0;
-            v29 = v64;
-            v26 = v63;
+            v29 = v63;
+            v26 = v62;
             goto LABEL_101;
           }
         }
         else
         {
-          if ( v31 > v55 )
-            v55 = v31;
-          v56 = v55 + *v80;
-          *v80 = v56;
-          if ( v21 || v56 <= 0 )
+          if ( v31 > v54 )
+            v54 = v31;
+          v55 = v54 + *v79;
+          *v79 = v55;
+          if ( v21 || v55 <= 0 )
             goto LABEL_100;
         }
         return;
@@ -2916,6 +2715,8 @@ UpdateRemoveObjects
 */
 void UpdateRemoveObjects(SpatialPartition_PopulationSort_ClientData *clientData, const SpatialPartition_PopulationSort_Callbacks *callbacks, const float *cutoffDistancesSq, const bool treatPrioritiesSeparately, const int *requestedNumToEvictForPrio, const int requestedNumToEvictAcrossPriorities, const int *lastAddSortIndex, const int lastAddPriority)
 {
+  __int128 v8; 
+  int maxRemovePerUpdate; 
   const float *v10; 
   int v11; 
   unsigned int priorityCount; 
@@ -2923,64 +2724,64 @@ void UpdateRemoveObjects(SpatialPartition_PopulationSort_ClientData *clientData,
   __int64 v17; 
   unsigned int v18; 
   unsigned int v19; 
-  int *v28; 
-  signed __int64 v29; 
-  __int64 v30; 
-  int v31; 
-  int v33; 
-  __int64 v34; 
-  const int *v35; 
+  __int64 v20; 
+  __int64 v24; 
+  __int128 *v26; 
+  signed __int64 v27; 
+  __int64 v28; 
+  int v29; 
+  int v30; 
+  __int64 v31; 
+  const int *v32; 
+  __int64 v33; 
+  int v34; 
+  signed int v35; 
   __int64 v36; 
-  int v37; 
-  signed int v38; 
-  bool v41; 
-  bool v42; 
-  bool v45; 
-  int v46; 
+  const float *v37; 
+  SpatialPartition_PopulationSort_Entry *sortedPartitions; 
+  bool v40; 
+  int v41; 
   unsigned int partitionIndex; 
-  unsigned __int8 v48; 
+  unsigned __int8 v43; 
   SpatialPartition_Population *population; 
-  unsigned __int8 v51; 
+  unsigned __int8 v46; 
   SpatialPartition_Population_Node *m_curNode; 
-  bool v53; 
-  unsigned int v54; 
-  __int64 v55; 
-  unsigned int v56; 
+  bool v48; 
+  unsigned int v49; 
+  __int64 v50; 
+  unsigned int v51; 
+  bool v52; 
+  int v53; 
+  char v54; 
+  int v55; 
+  int v56; 
   bool v57; 
-  int v58; 
-  char v59; 
-  int v60; 
+  int v59; 
+  __int64 v60; 
   int v61; 
-  bool v62; 
-  int v64; 
-  __int64 v65; 
+  int v62; 
+  signed int v63; 
   int v66; 
-  int v67; 
-  signed int v68; 
-  int v71; 
-  __int64 v72; 
-  __int64 v73; 
-  SpatialPartition_Population_NodeIterator v74; 
-  SpatialPartition_PopulationSort_Entry *v75; 
-  __int64 v76; 
-  __int128 v77; 
+  __int64 v67; 
+  __int64 v68; 
+  SpatialPartition_Population_NodeIterator v69; 
+  SpatialPartition_PopulationSort_Entry *v70; 
+  const float *v71; 
+  __int128 v72[6]; 
   const int *lastAddSortIndexa; 
 
-  _ESI = clientData->settings.maxRemovePerUpdate;
+  maxRemovePerUpdate = clientData->settings.maxRemovePerUpdate;
   v10 = cutoffDistancesSq;
-  v11 = _ESI;
+  v11 = maxRemovePerUpdate;
   priorityCount = clientData->priorityCount;
   v13 = callbacks;
-  if ( requestedNumToEvictAcrossPriorities < _ESI )
+  if ( requestedNumToEvictAcrossPriorities < maxRemovePerUpdate )
     v11 = requestedNumToEvictAcrossPriorities;
-  __asm { vmovaps [rsp+128h+var_48], xmm6 }
-  v67 = v11;
-  v66 = _ESI;
-  __asm
-  {
-    vmovd   xmm6, esi
-    vpshufd xmm6, xmm6, 0
-  }
+  v72[2] = v8;
+  v62 = v11;
+  v61 = maxRemovePerUpdate;
+  _XMM6 = (unsigned int)maxRemovePerUpdate;
+  __asm { vpshufd xmm6, xmm6, 0 }
   if ( priorityCount > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 813, ASSERT_TYPE_ASSERT, "( clientData->priorityCount ) <= ( SPATIAL_PARTITION_POPULATION_MAX_PRIORITY )", "%s <= %s\n\t%i, %i", "clientData->priorityCount", "SPATIAL_PARTITION_POPULATION_MAX_PRIORITY", priorityCount, 4) )
     __debugbreak();
   v17 = (int)clientData->priorityCount;
@@ -2989,222 +2790,200 @@ void UpdateRemoveObjects(SpatialPartition_PopulationSort_ClientData *clientData,
   {
     if ( (unsigned int)v17 >= 0x10 )
     {
-      v19 = 8;
+      v19 = 2;
       do
       {
-        _RAX = v18;
+        v20 = v18;
         v18 += 16;
-        __asm
-        {
-          vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4]
-          vmovdqu [rsp+rax*4+128h+var_68], xmm1
-        }
-        _RAX = v19 - 4;
-        __asm
-        {
-          vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4]
-          vmovdqu [rsp+rax*4+128h+var_68], xmm1
-        }
-        _RAX = v19;
-        __asm
-        {
-          vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4]
-          vmovdqu [rsp+rax*4+128h+var_68], xmm1
-        }
-        _RAX = v19 + 4;
-        v19 += 16;
-        __asm
-        {
-          vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4]
-          vmovdqu [rsp+rax*4+128h+var_68], xmm1
-        }
+        __asm { vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4] }
+        *(__int128 *)((char *)v72 + 4 * v20) = _XMM1;
+        __asm { vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4] }
+        v72[v19 - 1] = _XMM1;
+        __asm { vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4] }
+        v72[v19] = _XMM1;
+        v24 = v19 * 4 + 4;
+        v19 += 4;
+        __asm { vpminsd xmm1, xmm6, xmmword ptr [r8+rax*4] }
+        *(__int128 *)((char *)v72 + 4 * v24) = _XMM1;
       }
       while ( v18 < ((unsigned int)v17 & 0xFFFFFFF0) );
     }
     if ( v18 < (unsigned int)v17 )
     {
-      v28 = (int *)&v77 + v18;
-      v29 = (char *)requestedNumToEvictForPrio - (char *)&v77;
-      v30 = (unsigned int)v17 - v18;
+      v26 = &v72[v18 / 4];
+      v27 = (char *)requestedNumToEvictForPrio - (char *)v72;
+      v28 = (unsigned int)v17 - v18;
       do
       {
-        v31 = _ESI;
-        if ( *(int *)((char *)v28 + v29) < _ESI )
-          v31 = *(int *)((char *)v28 + v29);
-        *v28++ = v31;
-        --v30;
+        v29 = maxRemovePerUpdate;
+        if ( *(_DWORD *)((char *)v26 + v27) < maxRemovePerUpdate )
+          v29 = *(_DWORD *)((char *)v26 + v27);
+        *(_DWORD *)v26 = v29;
+        v26 = (__int128 *)((char *)v26 + 4);
+        --v28;
       }
-      while ( v30 );
+      while ( v28 );
     }
   }
-  __asm { vmovaps xmm6, [rsp+128h+var_48] }
-  v33 = 0;
-  v64 = 0;
-  v65 = v17;
+  v30 = 0;
+  v59 = 0;
+  v60 = v17;
   if ( (int)v17 > 0 )
   {
-    v34 = 0i64;
-    v35 = (const int *)((char *)lastAddSortIndex - (char *)v10);
+    v31 = 0i64;
+    v32 = (const int *)((char *)lastAddSortIndex - (char *)v10);
     lastAddSortIndexa = (const int *)((char *)lastAddSortIndex - (char *)v10);
-    v36 = v17;
-    v73 = 0i64;
+    v33 = v17;
+    v68 = 0i64;
     while ( 1 )
     {
-      v37 = 1 << v33;
-      v38 = clientData->sortedPartitionCount - 1;
-      v71 = 1 << v33;
-      _RCX = v38;
-      v72 = v38;
-      v68 = v38;
-      if ( v38 >= 0 )
+      v34 = 1 << v30;
+      v35 = clientData->sortedPartitionCount - 1;
+      v66 = 1 << v30;
+      v36 = v35;
+      v67 = v35;
+      v63 = v35;
+      if ( v35 >= 0 )
         break;
 LABEL_70:
-      ++v33;
-      ++v34;
-      v64 = v33;
-      v73 = v34;
-      if ( v34 >= v36 )
+      ++v30;
+      ++v31;
+      v59 = v30;
+      v68 = v31;
+      if ( v31 >= v33 )
         return;
     }
-    _RAX = (__int64)&v10[v34];
-    v76 = _RAX;
-    while ( 1 )
+    v37 = &v10[v31];
+    v71 = v37;
+    while ( v35 != *(const int *)((char *)v32 + (_QWORD)v37) )
     {
-      v41 = (unsigned int)v38 < *(const int *)((char *)v35 + _RAX);
-      v42 = v38 == *(const int *)((char *)v35 + _RAX);
-      if ( v38 == *(const int *)((char *)v35 + _RAX) )
-        break;
-      _RBX = clientData->sortedPartitions;
-      __asm { vmovss  xmm0, dword ptr [rax] }
-      v75 = _RBX;
-      __asm { vcomiss xmm0, dword ptr [rbx+rcx*8+4] }
-      v45 = v41 || v42;
-      v62 = v41 || v42;
-      if ( v41 || v42 )
+      sortedPartitions = clientData->sortedPartitions;
+      _XMM0 = *(unsigned int *)v37;
+      v70 = sortedPartitions;
+      v40 = *(float *)&_XMM0 <= sortedPartitions[v36].distanceSq;
+      v57 = v40;
+      if ( *(float *)&_XMM0 > sortedPartitions[v36].distanceSq )
       {
-        if ( !_ESI )
-          return;
-        v46 = _ESI;
+        v41 = v11 + *((_DWORD *)v72 + v31);
+        if ( !v41 )
+          goto LABEL_68;
       }
       else
       {
-        v46 = v11 + *((_DWORD *)&v77 + v34);
-        if ( !v46 )
-          goto LABEL_68;
+        if ( !maxRemovePerUpdate )
+          return;
+        v41 = maxRemovePerUpdate;
       }
-      if ( ((unsigned __int8)v37 & _RBX[_RCX].anyActiveMask) != 0 )
+      if ( ((unsigned __int8)v34 & sortedPartitions[v36].anyActiveMask) != 0 )
       {
-        partitionIndex = _RBX[_RCX].partitionIndex;
-        v48 = 0;
+        partitionIndex = sortedPartitions[v36].partitionIndex;
+        v43 = 0;
         population = clientData->population;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+128h+var_90.m_population], xmm0
-        }
-        v51 = 0;
-        v74.m_curIndex = -1;
-        SpatialPartition_Population_NodeIterator::Init(&v74, population, partitionIndex);
-        if ( SpatialPartition_Population_NodeIterator::Advance(&v74) )
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v69.m_population = _XMM0;
+        v46 = 0;
+        v69.m_curIndex = -1;
+        SpatialPartition_Population_NodeIterator::Init(&v69, population, partitionIndex);
+        if ( SpatialPartition_Population_NodeIterator::Advance(&v69) )
         {
           do
           {
-            m_curNode = v74.m_curNode;
-            if ( !v74.m_curNode )
+            m_curNode = v69.m_curNode;
+            if ( !v69.m_curNode )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.h", 99, ASSERT_TYPE_ASSERT, "(m_curNode != nullptr)", (const char *)&queryFormat, "m_curNode != nullptr") )
                 __debugbreak();
-              m_curNode = v74.m_curNode;
+              m_curNode = v69.m_curNode;
             }
-            v53 = v13->isActive(clientData, m_curNode);
-            v54 = v13->getPriority(clientData, m_curNode);
-            v55 = v54;
-            if ( v54 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 875, ASSERT_TYPE_ASSERT, "(nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY)", (const char *)&queryFormat, "nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY") )
+            v48 = v13->isActive(clientData, m_curNode);
+            v49 = v13->getPriority(clientData, m_curNode);
+            v50 = v49;
+            if ( v49 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 875, ASSERT_TYPE_ASSERT, "(nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY)", (const char *)&queryFormat, "nodePrio < SPATIAL_PARTITION_POPULATION_MAX_PRIORITY") )
               __debugbreak();
-            v56 = v13->getTransient(clientData, m_curNode);
-            if ( v53 )
+            v51 = v13->getTransient(clientData, m_curNode);
+            if ( v48 )
             {
-              if ( v56 && !bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v56) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 578, ASSERT_TYPE_ASSERT, "(GetTransientLoaded( clientData, node, getTransient ))", (const char *)&queryFormat, "GetTransientLoaded( clientData, node, getTransient )") )
+              if ( v51 && !bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v51) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 578, ASSERT_TYPE_ASSERT, "(GetTransientLoaded( clientData, node, getTransient ))", (const char *)&queryFormat, "GetTransientLoaded( clientData, node, getTransient )") )
                 __debugbreak();
-              v57 = 1;
+              v52 = 1;
             }
-            else if ( v56 )
+            else if ( v51 )
             {
-              v57 = bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v56);
+              v52 = bitarray_base<bitarray_dynamic>::testBit(&clientData->transientLoadedBitfield[clientData->transientFrameNum], v51);
             }
             else
             {
-              v57 = 1;
+              v52 = 1;
             }
-            if ( v46 > 0 && v53 && (_DWORD)v55 == v64 )
+            if ( v41 > 0 && v48 && (_DWORD)v50 == v59 )
             {
               callbacks->deactivate(clientData, m_curNode);
-              v53 = 0;
+              v48 = 0;
               if ( callbacks->isActive(clientData, m_curNode) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 884, ASSERT_TYPE_ASSERT, "(!callbacks.isActive( clientData, node ))", (const char *)&queryFormat, "!callbacks.isActive( clientData, node )") )
                 __debugbreak();
-              if ( clientData->numActivatedForPriority[v55] <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 886, ASSERT_TYPE_ASSERT, "(clientData->numActivatedForPriority[nodePrio] > 0)", (const char *)&queryFormat, "clientData->numActivatedForPriority[nodePrio] > 0") )
+              if ( clientData->numActivatedForPriority[v50] <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_populationsort.cpp", 886, ASSERT_TYPE_ASSERT, "(clientData->numActivatedForPriority[nodePrio] > 0)", (const char *)&queryFormat, "clientData->numActivatedForPriority[nodePrio] > 0") )
                 __debugbreak();
-              --clientData->numActivatedForPriority[v55];
-              --v46;
+              --clientData->numActivatedForPriority[v50];
+              --v41;
             }
-            v58 = 1 << v55;
-            v59 = 1 << v55;
-            if ( !v53 )
-              v59 = 0;
-            v48 |= v59;
-            if ( v53 || !v57 )
-              LOBYTE(v58) = 0;
-            v51 |= v58;
+            v53 = 1 << v50;
+            v54 = 1 << v50;
+            if ( !v48 )
+              v54 = 0;
+            v43 |= v54;
+            if ( v48 || !v52 )
+              LOBYTE(v53) = 0;
+            v46 |= v53;
             v13 = callbacks;
           }
-          while ( SpatialPartition_Population_NodeIterator::Advance(&v74) );
-          _RBX = v75;
-          _ESI = v66;
-          v45 = v62;
+          while ( SpatialPartition_Population_NodeIterator::Advance(&v69) );
+          sortedPartitions = v70;
+          maxRemovePerUpdate = v61;
+          v40 = v57;
         }
-        _RCX = v72;
-        v38 = v68;
-        v34 = v73;
-        LOBYTE(v37) = v71;
-        v35 = lastAddSortIndexa;
-        _RBX[v72].anyActiveMask = v48;
-        _RBX[v72].anyAvailableMask = v51;
-        v11 = v67;
+        v36 = v67;
+        v35 = v63;
+        v31 = v68;
+        LOBYTE(v34) = v66;
+        v32 = lastAddSortIndexa;
+        sortedPartitions[v67].anyActiveMask = v43;
+        sortedPartitions[v67].anyAvailableMask = v46;
+        v11 = v62;
       }
-      if ( v45 )
+      if ( v40 )
       {
-        _ESI = v46;
-        v66 = v46;
+        maxRemovePerUpdate = v41;
+        v61 = v41;
       }
       else
       {
         v11 = 0;
-        if ( v46 - *((_DWORD *)&v77 + v34) > 0 )
-          v11 = v46 - *((_DWORD *)&v77 + v34);
-        v60 = 0;
-        v61 = v46 - v11;
-        v67 = v11;
-        if ( v61 > 0 )
-          v60 = v61;
-        *((_DWORD *)&v77 + v34) = v60;
+        if ( v41 - *((_DWORD *)v72 + v31) > 0 )
+          v11 = v41 - *((_DWORD *)v72 + v31);
+        v55 = 0;
+        v56 = v41 - v11;
+        v62 = v11;
+        if ( v56 > 0 )
+          v55 = v56;
+        *((_DWORD *)v72 + v31) = v55;
       }
-      _RAX = v76;
-      --v38;
-      --_RCX;
-      v68 = v38;
-      v72 = _RCX;
-      if ( _RCX < 0 )
+      v37 = v71;
+      --v35;
+      --v36;
+      v63 = v35;
+      v67 = v36;
+      if ( v36 < 0 )
       {
 LABEL_68:
-        v33 = v64;
+        v30 = v59;
 LABEL_69:
-        v36 = v65;
+        v33 = v60;
         v10 = cutoffDistancesSq;
         goto LABEL_70;
       }
     }
-    v33 = v64;
-    if ( treatPrioritiesSeparately || requestedNumToEvictAcrossPriorities <= 0 || v64 != lastAddPriority )
+    v30 = v59;
+    if ( treatPrioritiesSeparately || requestedNumToEvictAcrossPriorities <= 0 || v59 != lastAddPriority )
       goto LABEL_69;
   }
 }
@@ -3304,11 +3083,8 @@ LABEL_26:
       v13 = v6->partitionIndex;
       population = clientData->population;
       v15 = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+98h+var_50.m_population], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v29.m_population = _XMM0;
       v16 = 0;
       v29.m_curIndex = -1;
       SpatialPartition_Population_NodeIterator::Init(&v29, population, v13);
@@ -3376,63 +3152,46 @@ LABEL_26:
 SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector::isExtentsInViewAngle
 ==============
 */
-
-bool __fastcall SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector::isExtentsInViewAngle(SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector *this, const float4 *boxMinExtent, const float4 *boxMaxExtent, double _XMM3_8)
+bool SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector::isExtentsInViewAngle(SpatialPartition_PopulationSort_SortByDistanceWithViewAngleIntersector *this, const float4 *boxMinExtent, const float4 *boxMaxExtent)
 {
-  bool result; 
-  __int64 v36; 
+  __m128 v5; 
+  float4 v6; 
+  __m128 v12; 
+  __m128 v14; 
 
+  _XMM1 = boxMinExtent->v;
+  __asm { vmovlhps xmm2, xmm1, xmm0 }
+  v5 = _mm128_sub_ps(_XMM2, this->m_viewPosXYXY.v);
+  v6.v = (__m128)this->m_lookAtDirXYXY;
+  _XMM1 = _mm128_mul_ps(v5, this->m_lookAtDirInv_XYXY.v);
+  if ( _mm_shuffle_ps(v6.v, v6.v, 85).m128_f32[0] >= 0.0 )
+    _mm_shuffle_ps(_XMM1, _XMM1, 85);
+  else
+    _mm_shuffle_ps(_XMM1, _XMM1, 255);
+  if ( v6.v.m128_f32[0] >= 0.0 )
+    _XMM0 = _XMM1;
+  else
+    _XMM0 = _mm_shuffle_ps(_XMM1, _XMM1, 170);
+  __asm { vmaxss  xmm5, xmm0, xmm4 }
+  if ( _mm_shuffle_ps(v6.v, v6.v, 85).m128_f32[0] >= 0.0 )
+    _mm_shuffle_ps(_XMM1, _XMM1, 255);
+  else
+    _mm_shuffle_ps(_XMM1, _XMM1, 85);
+  if ( v6.v.m128_f32[0] >= 0.0 )
+    _XMM1 = _mm_shuffle_ps(_XMM1, _XMM1, 170);
+  __asm { vminss  xmm0, xmm1, xmm4 }
+  if ( *(float *)&_XMM5 <= *(float *)&_XMM0 && *(float *)&_XMM0 >= 0.0 )
+    return 1;
+  v12 = _mm128_mul_ps(v5, v6.v);
+  __asm { vbroadcastss xmm2, dword ptr [rcx+50h] }
+  v14 = _mm128_mul_ps(v5, v5);
+  _mm128_mul_ps(_mm_sqrt_ps(_mm128_add_ps(_mm_shuffle_ps(v14, v14, 57), v14)), _XMM2);
+  _XMM1 = _mm128_add_ps(_mm_shuffle_ps(v12, v12, 57), v12);
   __asm
   {
-    vmovaps [rsp+28h+var_18], xmm6
-    vmovups xmm1, xmmword ptr [rdx]
-    vmovups xmm0, xmmword ptr [r8]
-    vmovlhps xmm2, xmm1, xmm0
-    vsubps  xmm6, xmm2, xmmword ptr [rcx+10h]
-    vmovups xmm2, xmmword ptr [rcx+30h]
-    vmulps  xmm1, xmm6, xmmword ptr [rcx+40h]
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vxorps  xmm3, xmm3, xmm3
-    vcomiss xmm0, xmm3
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovaps xmm4, xmm0
-    vcomiss xmm2, xmm3
-    vmovaps xmm0, xmm1
-    vmaxss  xmm5, xmm0, xmm4
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vcomiss xmm0, xmm3
-    vshufps xmm4, xmm1, xmm1, 0FFh
-    vmovaps xmm4, xmm4
-    vcomiss xmm2, xmm3
-    vshufps xmm1, xmm1, xmm1, 0AAh ; 'ª'
-    vmovaps xmm1, xmm1
-    vminss  xmm0, xmm1, xmm4
-    vcomiss xmm5, xmm0
+    vcmpltps xmm2, xmm1, xmm4
+    vmovmskps eax, xmm2
   }
-  if ( (unsigned __int64)&v36 != _security_cookie )
-  {
-    __asm
-    {
-      vmulps  xmm5, xmm6, xmm2
-      vbroadcastss xmm2, dword ptr [rcx+50h]
-      vmulps  xmm1, xmm6, xmm6
-      vshufps xmm0, xmm1, xmm1, 39h ; '9'
-      vaddps  xmm1, xmm0, xmm1
-      vsqrtps xmm3, xmm1
-      vshufps xmm0, xmm5, xmm5, 39h ; '9'
-      vmulps  xmm4, xmm3, xmm2
-      vaddps  xmm1, xmm0, xmm5
-      vcmpltps xmm2, xmm1, xmm4
-      vmovmskps eax, xmm2
-    }
-    result = (_EAX & 0xF) != 15;
-  }
-  else
-  {
-    __asm { vcomiss xmm0, xmm3 }
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+28h+var_18] }
-  return result;
+  return (_EAX & 0xF) != 15;
 }
 

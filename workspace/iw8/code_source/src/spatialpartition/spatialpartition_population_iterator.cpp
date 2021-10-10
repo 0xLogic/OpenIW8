@@ -141,69 +141,50 @@ SpatialPartition_Population_Tree_AABBPartitionIterator::Advance
 bool SpatialPartition_Population_Tree_AABBPartitionIterator::Advance(SpatialPartition_Population_Tree_AABBPartitionIterator *this)
 {
   unsigned int m_stackDepth; 
-  unsigned int v5; 
-  int v8; 
-  bool v11; 
-  char v16; 
-  bool v17; 
+  unsigned int v3; 
+  __int64 v4; 
+  SpatialPartition_Population_Partition *partitions; 
+  int v6; 
+  float v7; 
+  float *v8; 
+  float dist; 
+  float v10; 
   bool result; 
 
   m_stackDepth = this->m_stackDepth;
   if ( !m_stackDepth )
     return 0;
-  v5 = m_stackDepth - 1;
-  this->m_stackDepth = v5;
-  _RDI = this->m_stack[v5];
-  if ( (unsigned int)_RDI >= this->m_tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 29, ASSERT_TYPE_ASSERT, "(partitionIndex < m_tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < m_tree->partitionCount") )
+  v3 = m_stackDepth - 1;
+  this->m_stackDepth = v3;
+  v4 = this->m_stack[v3];
+  if ( (unsigned int)v4 >= this->m_tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 29, ASSERT_TYPE_ASSERT, "(partitionIndex < m_tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < m_tree->partitionCount") )
     __debugbreak();
-  _RBP = this->m_tree->partitions;
-  v8 = *((_DWORD *)&_RBP[_RDI] + 1);
-  if ( (v8 & 0x7FFFFFFC) != 0 )
+  partitions = this->m_tree->partitions;
+  v6 = *((_DWORD *)&partitions[v4] + 1);
+  if ( (v6 & 0x7FFFFFFC) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+68h+var_28], xmm6
-      vmovaps [rsp+68h+var_38], xmm7
-    }
-    if ( (v8 & 3) == 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 33, ASSERT_TYPE_ASSERT, "(partition.axis < 3)", (const char *)&queryFormat, "partition.axis < 3") )
+    if ( (v6 & 3) == 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 33, ASSERT_TYPE_ASSERT, "(partition.axis < 3)", (const char *)&queryFormat, "partition.axis < 3") )
       __debugbreak();
-    _RAX = vec3_t::operator[](&this->m_extents.mins, *((_DWORD *)&_RBP[_RDI] + 1) & 3);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&this->m_extents.maxs, *((_DWORD *)&_RBP[_RDI] + 1) & 3);
-    __asm
+    v7 = *vec3_t::operator[](&this->m_extents.mins, *((_DWORD *)&partitions[v4] + 1) & 3);
+    v8 = vec3_t::operator[](&this->m_extents.maxs, *((_DWORD *)&partitions[v4] + 1) & 3);
+    dist = partitions[v4].dist;
+    v10 = *v8;
+    if ( v7 <= dist )
     {
-      vmovss  xmm0, dword ptr [rbp+rdi*8+0]
-      vcomiss xmm6, xmm0
-      vmovaps xmm6, [rsp+68h+var_28]
-      vmovss  xmm7, dword ptr [rax]
+      if ( this->m_stackDepth >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 38, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH") )
+        __debugbreak();
+      this->m_stack[this->m_stackDepth++] = v4 + 1;
+      dist = partitions[v4].dist;
     }
-    if ( v11 | v16 )
-    {
-      v11 = this->m_stackDepth < 0x80;
-      if ( this->m_stackDepth >= 0x80 )
-      {
-        v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 38, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH");
-        v11 = 0;
-        if ( v17 )
-          __debugbreak();
-      }
-      this->m_stack[this->m_stackDepth++] = _RDI + 1;
-      __asm { vmovss  xmm0, dword ptr [rbp+rdi*8+0] }
-    }
-    __asm
-    {
-      vcomiss xmm7, xmm0
-      vmovaps xmm7, [rsp+68h+var_38]
-    }
-    if ( !v11 )
+    if ( v10 >= dist )
     {
       if ( this->m_stackDepth >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 44, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH") )
         __debugbreak();
-      this->m_stack[this->m_stackDepth++] = (*((_DWORD *)&_RBP[_RDI] + 1) >> 2) & 0x1FFFFFFF;
+      this->m_stack[this->m_stackDepth++] = (*((_DWORD *)&partitions[v4] + 1) >> 2) & 0x1FFFFFFF;
     }
   }
   result = 1;
-  this->m_curPartition = _RDI;
+  this->m_curPartition = v4;
   return result;
 }
 
@@ -270,121 +251,117 @@ SpatialPartition_Population_Tree_SpherePartitionIterator::Advance
 bool SpatialPartition_Population_Tree_SpherePartitionIterator::Advance(SpatialPartition_Population_Tree_SpherePartitionIterator *this)
 {
   unsigned int m_stackDepth; 
-  unsigned int v6; 
-  __int64 v7; 
+  unsigned int v3; 
+  __int64 v4; 
   SpatialPartition_Population_Partition *partitions; 
-  int v9; 
-  __int64 v10; 
-  __int64 v14; 
+  int v6; 
+  const SpatialPartition_Population_Tree *m_tree; 
+  __int64 v8; 
+  float m_sphereRadiusSq; 
+  ExtentBounds *extents; 
+  __int64 v11; 
+  __int128 v13; 
+  __int128 v15; 
+  __m128 v22; 
+  ExtentBounds *v27; 
+  __int128 v29; 
+  __int128 v31; 
+  __m128 v38; 
   bool result; 
-  __int128 v64; 
-  __int128 v65; 
-  __int128 v66; 
-  __int128 v67; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
+  __int128 v47; 
 
   m_stackDepth = this->m_stackDepth;
-  _RBX = this;
   if ( !m_stackDepth )
     return 0;
-  v6 = m_stackDepth - 1;
-  this->m_stackDepth = v6;
-  v7 = this->m_stack[v6];
-  if ( (unsigned int)v7 >= this->m_tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 98, ASSERT_TYPE_ASSERT, "(partitionIndex < m_tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < m_tree->partitionCount") )
+  v3 = m_stackDepth - 1;
+  this->m_stackDepth = v3;
+  v4 = this->m_stack[v3];
+  if ( (unsigned int)v4 >= this->m_tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 98, ASSERT_TYPE_ASSERT, "(partitionIndex < m_tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < m_tree->partitionCount") )
     __debugbreak();
-  partitions = _RBX->m_tree->partitions;
-  v9 = *((_DWORD *)&partitions[v7] + 1);
-  if ( (v9 & 0x7FFFFFFC) != 0 )
+  partitions = this->m_tree->partitions;
+  v6 = *((_DWORD *)&partitions[v4] + 1);
+  if ( (v6 & 0x7FFFFFFC) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-      vmovaps [rsp+0A8h+var_48], xmm8
-    }
-    if ( (v9 & 3) == 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 102, ASSERT_TYPE_ASSERT, "(partition.axis < 3)", (const char *)&queryFormat, "partition.axis < 3") )
+    if ( (v6 & 3) == 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 102, ASSERT_TYPE_ASSERT, "(partition.axis < 3)", (const char *)&queryFormat, "partition.axis < 3") )
       __debugbreak();
-    v10 = (unsigned int)(v7 + 1);
-    _RCX = 3 * v10;
-    __asm { vmovss  xmm8, dword ptr [rbx+10h] }
-    _RAX = _RBX->m_tree->extents;
-    HIDWORD(v66) = 0;
-    v14 = (*((_DWORD *)&partitions[v7] + 1) >> 2) & 0x1FFFFFFF;
+    m_tree = this->m_tree;
+    v8 = (unsigned int)(v4 + 1);
+    m_sphereRadiusSq = this->m_sphereRadiusSq;
+    extents = m_tree->extents;
+    HIDWORD(v46) = 0;
+    v11 = (*((_DWORD *)&partitions[v4] + 1) >> 2) & 0x1FFFFFFF;
+    HIDWORD(v44) = 0;
+    v13 = v44;
+    *(float *)&v13 = extents[v8].maxs.v[0];
+    _XMM3 = v13;
+    v15 = v46;
+    *(float *)&v15 = extents[v8].mins.v[0];
+    _XMM0 = v15;
     __asm
     {
-      vmovss  xmm0, dword ptr [rax+rcx*8+0Ch]
-      vmovss  xmm1, dword ptr [rax+rcx*8+10h]
-      vmovss  xmm2, dword ptr [rax+rcx*8+14h]
-      vmovss  xmm4, dword ptr [rax+rcx*8]
-      vmovss  xmm5, dword ptr [rax+rcx*8+4]
-      vmovss  xmm6, dword ptr [rax+rcx*8+8]
-    }
-    HIDWORD(v64) = 0;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rsp+30h]
-      vmovss  xmm3, xmm3, xmm0
-      vmovups xmm0, xmmword ptr [rsp+40h]
-      vmovss  xmm0, xmm0, xmm4
       vinsertps xmm3, xmm3, xmm1, 10h
       vinsertps xmm0, xmm0, xmm5, 10h
       vinsertps xmm0, xmm0, xmm6, 20h ; ' '
       vinsertps xmm3, xmm3, xmm2, 20h ; ' '
       vminps  xmm1, xmm3, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+40h], xmm0
-      vmaxps  xmm0, xmm0, xmm1
-      vsubps  xmm1, xmm0, xmmword ptr [rbx]
-      vmulps  xmm2, xmm1, xmm1
+    }
+    v47 = _XMM0;
+    __asm { vmaxps  xmm0, xmm0, xmm1 }
+    v22 = _mm128_sub_ps(_XMM0, this->m_sphereCenter.v);
+    _XMM2 = _mm128_mul_ps(v22, v22);
+    __asm
+    {
       vinsertps xmm0, xmm2, xmm2, 8
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm0, xmm1, xmm1
-      vcomiss xmm0, xmm8
-      vmovups xmmword ptr [rsp+30h], xmm3
     }
-    if ( _RBX->m_stackDepth >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 108, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH") )
-      __debugbreak();
-    _RBX->m_stack[_RBX->m_stackDepth++] = v10;
-    __asm { vmovss  xmm8, dword ptr [rbx+10h] }
-    _RAX = _RBX->m_tree->extents;
-    _RCX = 3 * v14;
-    __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-    HIDWORD(v65) = 0;
+    v45 = _XMM3;
+    if ( *(float *)&_XMM0 <= m_sphereRadiusSq )
+    {
+      if ( this->m_stackDepth >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 108, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH") )
+        __debugbreak();
+      this->m_stack[this->m_stackDepth++] = v8;
+      m_tree = this->m_tree;
+      m_sphereRadiusSq = this->m_sphereRadiusSq;
+    }
+    v27 = m_tree->extents;
+    HIDWORD(v45) = 0;
+    HIDWORD(v47) = 0;
+    v29 = v47;
+    *(float *)&v29 = v27[v11].maxs.v[0];
+    _XMM3 = v29;
+    v31 = v45;
+    *(float *)&v31 = v27[v11].mins.v[0];
+    _XMM0 = v31;
     __asm
     {
-      vmovss  xmm6, dword ptr [rax+rcx*8+8]
-      vmovss  xmm0, dword ptr [rax+rcx*8+0Ch]
-      vmovss  xmm1, dword ptr [rax+rcx*8+10h]
-      vmovss  xmm2, dword ptr [rax+rcx*8+14h]
-      vmovss  xmm4, dword ptr [rax+rcx*8]
-      vmovss  xmm5, dword ptr [rax+rcx*8+4]
-    }
-    HIDWORD(v67) = 0;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rsp+40h]
-      vmovss  xmm3, xmm3, xmm0
-      vmovups xmm0, xmmword ptr [rsp+30h]
-      vmovss  xmm0, xmm0, xmm4
       vinsertps xmm3, xmm3, xmm1, 10h
       vinsertps xmm0, xmm0, xmm5, 10h
       vinsertps xmm3, xmm3, xmm2, 20h ; ' '
       vminps  xmm1, xmm3, xmmword ptr [rbx]
       vinsertps xmm0, xmm0, xmm6, 20h ; ' '
-      vmovaps xmm6, [rsp+0A8h+var_28]
       vmaxps  xmm0, xmm0, xmm1
-      vsubps  xmm1, xmm0, xmmword ptr [rbx]
-      vmulps  xmm2, xmm1, xmm1
+    }
+    v38 = _mm128_sub_ps(_XMM0, this->m_sphereCenter.v);
+    _XMM2 = _mm128_mul_ps(v38, v38);
+    __asm
+    {
       vinsertps xmm0, xmm2, xmm2, 8
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm2, xmm1, xmm1
-      vcomiss xmm2, xmm8
-      vmovaps xmm8, [rsp+0A8h+var_48]
     }
-    if ( _RBX->m_stackDepth >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 114, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH") )
-      __debugbreak();
-    _RBX->m_stack[_RBX->m_stackDepth++] = v14;
+    if ( *(float *)&_XMM2 <= m_sphereRadiusSq )
+    {
+      if ( this->m_stackDepth >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 114, ASSERT_TYPE_ASSERT, "(m_stackDepth < MAX_STACK_DEPTH)", (const char *)&queryFormat, "m_stackDepth < MAX_STACK_DEPTH") )
+        __debugbreak();
+      this->m_stack[this->m_stackDepth++] = v11;
+    }
   }
   result = 1;
-  _RBX->m_curPartition = v7;
+  this->m_curPartition = v4;
   return result;
 }
 
@@ -424,128 +401,75 @@ FrustumVsAABB
 */
 void FrustumVsAABB(const SpatialPartition_Population_Tree_FrustumPartitionIterator::Plane4 *planes4, unsigned int numPlanes4, const ExtentBounds *leftBox, const ExtentBounds *rightBox, bool *leftResult, bool *rightResult)
 {
-  __int64 v39; 
-  void *retaddr; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v13; 
+  __m128 v14; 
+  float4 *p_m_planeZ; 
+  __int64 v17; 
+  __m128 v; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-    vmovups xmm1, xmmword ptr [r8+0Ch]
-    vsubps  xmm5, xmm1, xmmword ptr [r8]
-    vaddps  xmm3, xmm1, xmmword ptr [r8]
-    vmovups xmm0, xmmword ptr [r9+0Ch]
-    vaddps  xmm1, xmm0, xmmword ptr [r9]
-    vsubps  xmm4, xmm0, xmmword ptr [r9]
-    vmovups xmm12, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmm14, cs:__xmm@80000000800000008000000080000000
-    vshufps xmm2, xmm5, xmm5, 55h ; 'U'
-    vmovups [rsp+168h+var_168], xmm2
-    vshufps xmm2, xmm5, xmm5, 0AAh ; 'ª'
-    vmovups [rsp+168h+var_148], xmm2
-    vshufps xmm2, xmm1, xmm1, 0
-    vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-    vmovups [rsp+168h+var_158], xmm0
-    vshufps xmm0, xmm3, xmm3, 0AAh ; 'ª'
-    vmovups [rsp+168h+var_118], xmm2
-    vshufps xmm2, xmm1, xmm1, 55h ; 'U'
-    vshufps xmm1, xmm1, xmm1, 0AAh ; 'ª'
-    vmovups [rsp+168h+var_D8], xmm1
-    vshufps xmm1, xmm4, xmm4, 0
-    vmovups [rsp+168h+var_128], xmm1
-    vshufps xmm1, xmm4, xmm4, 55h ; 'U'
-    vmovups [rsp+168h+var_108], xmm1
-    vmovups [rsp+168h+var_138], xmm0
-    vshufps xmm1, xmm4, xmm4, 0AAh ; 'ª'
-    vshufps xmm0, xmm5, xmm5, 0
-    vmovups [rsp+168h+var_E8], xmm1
-    vshufps xmm15, xmm3, xmm3, 0
-    vmovups [rsp+168h+var_C8], xmm0
-    vmovups [rsp+168h+var_F8], xmm2
-    vmovups xmm13, xmm12
-  }
+  v6 = *(__m128 *)leftBox->maxs.v;
+  v7 = _mm128_sub_ps(v6, *(__m128 *)leftBox->mins.v);
+  v8 = _mm128_add_ps(v6, *(__m128 *)leftBox->mins.v);
+  v9 = *(__m128 *)rightBox->maxs.v;
+  v10 = _mm128_add_ps(v9, *(__m128 *)rightBox->mins.v);
+  v11 = _mm128_sub_ps(v9, *(__m128 *)rightBox->mins.v);
+  _XMM12 = _xmm;
+  v23 = _mm_shuffle_ps(v7, v7, 85);
+  v25 = _mm_shuffle_ps(v7, v7, 170);
+  v24 = _mm_shuffle_ps(v8, v8, 85);
+  v28 = _mm_shuffle_ps(v10, v10, 0);
+  v32 = _mm_shuffle_ps(v10, v10, 170);
+  v27 = _mm_shuffle_ps(v11, v11, 0);
+  v29 = _mm_shuffle_ps(v11, v11, 85);
+  v26 = _mm_shuffle_ps(v8, v8, 170);
+  v13 = _mm_shuffle_ps(v7, v7, 0);
+  v31 = _mm_shuffle_ps(v11, v11, 170);
+  v14 = _mm_shuffle_ps(v8, v8, 0);
+  v33 = v13;
+  v30 = _mm_shuffle_ps(v10, v10, 85);
+  _XMM13 = _xmm;
   if ( numPlanes4 )
   {
-    __asm { vmovaps [rsp+168h+var_18], xmm6 }
-    _RAX = &planes4->m_planeZ;
-    __asm
-    {
-      vmovaps [rsp+168h+var_28], xmm7
-      vmovaps [rsp+168h+var_38], xmm8
-      vmovaps [rsp+168h+var_48], xmm9
-      vmovaps [rsp+168h+var_58], xmm10
-      vmovaps [rsp+168h+var_68], xmm11
-    }
-    v39 = numPlanes4;
+    p_m_planeZ = &planes4->m_planeZ;
+    v17 = numPlanes4;
     do
     {
-      __asm
-      {
-        vmovups xmm9, xmmword ptr [rax-20h]
-        vmovups xmm10, xmmword ptr [rax-10h]
-        vmovups xmm11, xmmword ptr [rax]
-      }
-      _RAX += 4;
-      __asm
-      {
-        vandps  xmm5, xmm9, xmm14
-        vxorps  xmm0, xmm0, xmm5
-        vaddps  xmm1, xmm0, xmm15
-        vmulps  xmm2, xmm1, xmm9
-        vaddps  xmm3, xmm2, xmmword ptr [rax-30h]
-        vandps  xmm6, xmm10, xmm14
-        vxorps  xmm0, xmm6, [rsp+168h+var_168]
-        vaddps  xmm1, xmm0, [rsp+168h+var_158]
-        vmulps  xmm2, xmm1, xmm10
-        vaddps  xmm4, xmm3, xmm2
-        vandps  xmm7, xmm11, xmm14
-        vxorps  xmm0, xmm7, [rsp+168h+var_148]
-        vaddps  xmm1, xmm0, [rsp+168h+var_138]
-        vxorps  xmm0, xmm5, [rsp+168h+var_128]
-        vmulps  xmm2, xmm1, xmm11
-        vaddps  xmm1, xmm0, [rsp+168h+var_118]
-        vxorps  xmm0, xmm6, [rsp+168h+var_108]
-        vaddps  xmm3, xmm4, xmm2
-        vmulps  xmm2, xmm1, xmm9
-        vaddps  xmm1, xmm0, [rsp+168h+var_F8]
-        vxorps  xmm0, xmm7, [rsp+168h+var_E8]
-        vminps  xmm12, xmm12, xmm3
-        vaddps  xmm3, xmm2, xmmword ptr [rax-30h]
-        vmulps  xmm2, xmm1, xmm10
-        vaddps  xmm1, xmm0, [rsp+168h+var_D8]
-        vmovups xmm0, [rsp+168h+var_C8]
-        vaddps  xmm4, xmm3, xmm2
-        vmulps  xmm2, xmm1, xmm11
-        vaddps  xmm3, xmm4, xmm2
-        vminps  xmm13, xmm13, xmm3
-      }
-      --v39;
+      v = p_m_planeZ[-2].v;
+      v19 = p_m_planeZ[-1].v;
+      v20 = p_m_planeZ->v;
+      p_m_planeZ += 4;
+      _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v13 ^ *(_OWORD *)&v & _xmm), v14), v), p_m_planeZ[-3].v), _mm128_mul_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v19 & _xmm ^ *(_OWORD *)&v23), v24), v19)), _mm128_mul_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v20 & _xmm ^ *(_OWORD *)&v25), v26), v20));
+      __asm { vminps  xmm12, xmm12, xmm3 }
+      v13 = v33;
+      _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v & _xmm ^ *(_OWORD *)&v27), v28), v), p_m_planeZ[-3].v), _mm128_mul_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v19 & _xmm ^ *(_OWORD *)&v29), v30), v19)), _mm128_mul_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v20 & _xmm ^ *(_OWORD *)&v31), v32), v20));
+      __asm { vminps  xmm13, xmm13, xmm3 }
+      --v17;
     }
-    while ( v39 );
-    __asm
-    {
-      vmovaps xmm11, [rsp+168h+var_68]
-      vmovaps xmm10, [rsp+168h+var_58]
-      vmovaps xmm9, [rsp+168h+var_48]
-      vmovaps xmm8, [rsp+168h+var_38]
-      vmovaps xmm7, [rsp+168h+var_28]
-      vmovaps xmm6, [rsp+168h+var_18]
-    }
+    while ( v17 );
   }
   __asm { vtestps xmm12, xmm12 }
   *leftResult = _ZF;
   __asm { vtestps xmm13, xmm13 }
   *rightResult = _ZF;
-  __asm
-  {
-    vmovaps xmm12, [rsp+168h+var_78]
-    vmovaps xmm13, [rsp+168h+var_88]
-    vmovaps xmm14, [rsp+168h+var_98]
-    vmovaps xmm15, [rsp+168h+var_A8]
-  }
 }
 
 /*
@@ -579,27 +503,12 @@ SpatialPartition_Population_Tree_AABBPartitionIterator::Init
 */
 void SpatialPartition_Population_Tree_AABBPartitionIterator::Init(SpatialPartition_Population_Tree_AABBPartitionIterator *this, const SpatialPartition_Population_Tree *tree, const Bounds *bounds)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm1, xmm0, dword ptr [r8+0Ch]
-    vmovss  dword ptr [rcx], xmm1
-    vmovss  xmm0, dword ptr [r8+4]
-    vsubss  xmm1, xmm0, dword ptr [r8+10h]
-    vmovss  dword ptr [rcx+4], xmm1
-    vmovss  xmm0, dword ptr [r8+8]
-    vsubss  xmm1, xmm0, dword ptr [r8+14h]
-    vmovss  dword ptr [rcx+8], xmm1
-    vmovss  xmm0, dword ptr [r8]
-    vaddss  xmm1, xmm0, dword ptr [r8+0Ch]
-    vmovss  dword ptr [rcx+0Ch], xmm1
-    vmovss  xmm2, dword ptr [r8+10h]
-    vaddss  xmm0, xmm2, dword ptr [r8+4]
-    vmovss  dword ptr [rcx+10h], xmm0
-    vmovss  xmm1, dword ptr [r8+14h]
-    vaddss  xmm2, xmm1, dword ptr [r8+8]
-    vmovss  dword ptr [rcx+14h], xmm2
-  }
+  this->m_extents.mins.v[0] = bounds->midPoint.v[0] - bounds->halfSize.v[0];
+  this->m_extents.mins.v[1] = bounds->midPoint.v[1] - bounds->halfSize.v[1];
+  this->m_extents.mins.v[2] = bounds->midPoint.v[2] - bounds->halfSize.v[2];
+  this->m_extents.maxs.v[0] = bounds->midPoint.v[0] + bounds->halfSize.v[0];
+  this->m_extents.maxs.v[1] = bounds->halfSize.v[1] + bounds->midPoint.v[1];
+  this->m_extents.maxs.v[2] = bounds->halfSize.v[2] + bounds->midPoint.v[2];
   this->m_tree = tree;
   this->m_curPartition = -1;
   if ( tree )
@@ -613,123 +522,60 @@ SpatialPartition_Population_Tree_FrustumPartitionIterator::Init
 */
 void SpatialPartition_Population_Tree_FrustumPartitionIterator::Init(SpatialPartition_Population_Tree_FrustumPartitionIterator *this, const SpatialPartition_Population_Tree *tree, const vec4_t *planes, unsigned int numPlanes)
 {
-  unsigned int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  __int64 v21; 
-  unsigned int v22; 
-  __int64 v23; 
-  __int64 v24; 
-  unsigned int v25; 
+  unsigned int v8; 
+  unsigned int v9; 
+  __int64 v10; 
+  unsigned int *v11; 
+  __int64 v25; 
 
-  _RBX = this;
   if ( !numPlanes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_iterator.cpp", 202, ASSERT_TYPE_ASSERT, "(numPlanes > 0)", (const char *)&queryFormat, "numPlanes > 0") )
     __debugbreak();
-  v18 = 0;
-  _RBX->m_numPlanes4 = (numPlanes + 3) >> 2;
+  v8 = 0;
+  this->m_numPlanes4 = (numPlanes + 3) >> 2;
   if ( (numPlanes + 3) >> 2 )
   {
-    __asm { vmovaps [rsp+0F8h+var_18], xmm6 }
-    v19 = numPlanes - 1;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_28], xmm7
-      vmovaps [rsp+0F8h+var_38], xmm8
-      vmovaps [rsp+0F8h+var_48], xmm9
-      vmovaps [rsp+0F8h+var_58], xmm10
-      vmovaps [rsp+0F8h+var_68], xmm11
-      vmovaps [rsp+0F8h+var_78], xmm12
-      vmovaps [rsp+0F8h+var_88], xmm13
-      vmovaps [rsp+0F8h+var_98], xmm14
-      vmovaps [rsp+0F8h+var_A8], xmm15
-    }
+    v9 = numPlanes - 1;
     do
     {
-      v20 = 4 * v18;
-      v21 = v19;
-      v22 = 4 * v18 + 1;
-      v23 = v19;
-      v24 = v19;
-      if ( v19 > 4 * v18 )
-        v21 = v20;
-      v25 = v19;
-      _R10 = &planes[v21];
-      if ( v19 > v22 )
-        v23 = v22;
-      __asm
-      {
-        vmovss  xmm4, dword ptr [r10]
-        vmovss  xmm15, dword ptr [r10+0Ch]
-        vmovss  xmm8, dword ptr [r10+4]
-        vmovss  xmm12, dword ptr [r10+8]
-      }
-      _R9 = &planes[v23];
-      if ( v19 > v20 + 2 )
-        v24 = v20 + 2;
+      v10 = v9;
+      if ( v9 > 4 * v8 )
+        v10 = 4 * v8;
+      v11 = (unsigned int *)&planes[v10];
+      _XMM4 = *v11;
+      _XMM15 = v11[3];
+      _XMM8 = v11[1];
+      _XMM12 = v11[2];
       __asm
       {
         vinsertps xmm4, xmm4, dword ptr [r9], 10h
-        vmovss  xmm11, dword ptr [r9+0Ch]
-        vmovss  xmm3, dword ptr [r9+4]
-        vmovss  xmm7, dword ptr [r9+8]
-      }
-      _RDX = &planes[v24];
-      __asm { vinsertps xmm15, xmm15, xmm11, 10h }
-      if ( v19 > v20 + 3 )
-        v25 = v20 + 3;
-      __asm
-      {
+        vinsertps xmm15, xmm15, xmm11, 10h
         vinsertps xmm4, xmm4, dword ptr [rdx], 20h ; ' '
-        vmovss  xmm13, dword ptr [rdx+0Ch]
-        vmovss  xmm5, dword ptr [rdx+4]
-        vmovss  xmm9, dword ptr [rdx+8]
         vinsertps xmm8, xmm8, xmm3, 10h
         vinsertps xmm12, xmm12, xmm7, 10h
-      }
-      _RAX = &planes[v25];
-      __asm
-      {
         vinsertps xmm15, xmm15, xmm13, 20h ; ' '
         vinsertps xmm8, xmm8, xmm5, 20h ; ' '
         vinsertps xmm12, xmm12, xmm9, 20h ; ' '
-        vmovss  xmm6, dword ptr [rax+4]
-        vmovss  xmm10, dword ptr [rax+8]
-        vmovss  xmm14, dword ptr [rax+0Ch]
         vinsertps xmm4, xmm4, dword ptr [rax], 30h ; '0'
       }
-      _RAX = v18++;
-      _RAX <<= 6;
+      v25 = v8++;
+      v25 <<= 6;
       __asm
       {
         vinsertps xmm15, xmm15, xmm14, 30h ; '0'
-        vmulps  xmm0, xmm15, cs:__xmm@40000000400000004000000040000000
         vinsertps xmm8, xmm8, xmm6, 30h ; '0'
         vinsertps xmm12, xmm12, xmm10, 30h ; '0'
-        vmovups xmmword ptr [rax+rbx], xmm4
-        vmovups xmmword ptr [rax+rbx+10h], xmm8
-        vmovups xmmword ptr [rax+rbx+20h], xmm12
-        vmovups xmmword ptr [rax+rbx+30h], xmm0
       }
+      *(float4 *)((char *)&this->m_planes4[0].m_planeX + v25) = (float4)_XMM4.v;
+      *(float4 *)((char *)&this->m_planes4[0].m_planeY + v25) = (float4)_XMM8.v;
+      *(float4 *)((char *)&this->m_planes4[0].m_planeZ + v25) = (float4)_XMM12.v;
+      *(__m128 *)((char *)&this->m_planes4[0].m_planeW2.v + v25) = _mm128_mul_ps(_XMM15, (__m128)_xmm);
     }
-    while ( v18 < _RBX->m_numPlanes4 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+0F8h+var_A8]
-      vmovaps xmm14, [rsp+0F8h+var_98]
-      vmovaps xmm13, [rsp+0F8h+var_88]
-      vmovaps xmm12, [rsp+0F8h+var_78]
-      vmovaps xmm11, [rsp+0F8h+var_68]
-      vmovaps xmm10, [rsp+0F8h+var_58]
-      vmovaps xmm9, [rsp+0F8h+var_48]
-      vmovaps xmm8, [rsp+0F8h+var_38]
-      vmovaps xmm7, [rsp+0F8h+var_28]
-      vmovaps xmm6, [rsp+0F8h+var_18]
-    }
+    while ( v8 < this->m_numPlanes4 );
   }
-  _RBX->m_tree = tree;
-  _RBX->m_curPartition = -1;
+  this->m_tree = tree;
+  this->m_curPartition = -1;
   if ( tree )
-    *(_QWORD *)&_RBX->m_stackDepth = 1i64;
+    *(_QWORD *)&this->m_stackDepth = 1i64;
 }
 
 /*
@@ -737,28 +583,24 @@ void SpatialPartition_Population_Tree_FrustumPartitionIterator::Init(SpatialPart
 SpatialPartition_Population_Tree_SpherePartitionIterator::Init
 ==============
 */
-
-void __fastcall SpatialPartition_Population_Tree_SpherePartitionIterator::Init(SpatialPartition_Population_Tree_SpherePartitionIterator *this, const SpatialPartition_Population_Tree *tree, const vec3_t *sphereCentre, double sphereRadius)
+void SpatialPartition_Population_Tree_SpherePartitionIterator::Init(SpatialPartition_Population_Tree_SpherePartitionIterator *this, const SpatialPartition_Population_Tree *tree, const vec3_t *sphereCentre, float sphereRadius)
 {
-  __int128 v10; 
+  __int128 v5; 
+  __int128 v8; 
 
-  __asm { vmovss  xmm0, dword ptr [r8] }
-  HIDWORD(v10) = 0;
+  HIDWORD(v8) = 0;
+  v5 = v8;
+  *(float *)&v5 = sphereCentre->v[0];
+  _XMM4 = v5;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp]
-    vmovss  xmm4, xmm4, xmm0
     vinsertps xmm4, xmm4, dword ptr [r8+4], 10h
     vinsertps xmm4, xmm4, dword ptr [r8+8], 20h ; ' '
   }
   this->m_tree = tree;
   this->m_curPartition = -1;
-  __asm
-  {
-    vmulss  xmm0, xmm3, xmm3
-    vmovups xmmword ptr [rcx], xmm4
-    vmovss  dword ptr [rcx+10h], xmm0
-  }
+  this->m_sphereCenter = (float4)_XMM4.v;
+  this->m_sphereRadiusSq = sphereRadius * sphereRadius;
   if ( tree )
     *(_QWORD *)&this->m_stackDepth = 1i64;
 }

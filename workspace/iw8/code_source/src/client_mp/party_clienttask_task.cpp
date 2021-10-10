@@ -397,17 +397,12 @@ PartyClientTask::HandleCreateSessionXbox
 */
 char PartyClientTask::HandleCreateSessionXbox(PartyClientTask *this, PartyData *const party, const void *payload, const int payloadSize)
 {
-  _GUID v8; 
+  _GUID v7; 
 
-  _RBX = payload;
   if ( payloadSize != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_clienttask_task.cpp", 331, ASSERT_TYPE_ASSERT, "(payloadSize == sizeof( MPSDID ))", (const char *)&queryFormat, "payloadSize == sizeof( MPSDID )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovdqa xmmword ptr [rsp+48h+var_18.Data1], xmm0
-  }
-  PartyHost_SetXb3SessionId(party, &v8);
+  v7 = *(_GUID *)payload;
+  PartyHost_SetXb3SessionId(party, &v7);
   return 1;
 }
 
@@ -425,23 +420,23 @@ void PartyClientTask::HandleMessage(PartyClientTask *this, PartyData *const part
   __int64 v10; 
   int v11; 
   unsigned int v12; 
-  MatchRulesReturnCode v14; 
-  PartyPrivacySetting v15; 
+  MatchRulesReturnCode v13; 
+  PartyPrivacySetting v14; 
   __int64 m_id; 
-  char v17; 
+  char v16; 
   unsigned __int64 UniversalId; 
   unsigned __int64 m_lobbyId; 
   unsigned __int8 partyId; 
-  unsigned __int64 v21; 
+  unsigned __int64 v20; 
   XUID *HostXuid; 
-  unsigned __int64 v23; 
-  bool v24; 
-  XUID v25; 
+  unsigned __int64 v22; 
+  bool v23; 
+  XUID v24; 
   msg_t msga; 
   DLogContext context; 
   msg_t buf; 
   SceNpSessionId buffer[25]; 
-  char v30[4096]; 
+  char v29[4096]; 
 
   m_state = (unsigned int)this->m_state;
   if ( (_DWORD)m_state != 1 )
@@ -495,11 +490,7 @@ LABEL_29:
       case PARTY_CLIENT_TASK_CREATE_SESSION_XB3:
         if ( v12 != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_clienttask_task.cpp", 331, ASSERT_TYPE_ASSERT, "(payloadSize == sizeof( MPSDID ))", (const char *)&queryFormat, "payloadSize == sizeof( MPSDID )") )
           __debugbreak();
-        __asm
-        {
-          vmovups xmm0, [rbp+1610h+buffer]
-          vmovdqa xmmword ptr [rbp+1610h+buf.overflowed], xmm0
-        }
+        *(_OWORD *)&buf.overflowed = *(_OWORD *)buffer[0].data;
         PartyHost_SetXb3SessionId(party, (const _GUID *)&buf);
         this->m_state = STATE_PENDING;
         break;
@@ -510,10 +501,10 @@ LABEL_29:
       case PARTY_CLIENT_TASK_REQUEST_MATCH_RULES:
         MSG_InitReadOnly(&buf, (unsigned __int8 *)buffer, v12);
         MSG_BeginReading(&buf);
-        v14 = BG_IngestGameStateInfoMessage(&buf, &this->m_multiPacketCount);
-        if ( ((v14 + 3) & 0xFFFFFFFD) == 0 )
+        v13 = BG_IngestGameStateInfoMessage(&buf, &this->m_multiPacketCount);
+        if ( ((v13 + 3) & 0xFFFFFFFD) == 0 )
           goto LABEL_29;
-        if ( v14 == MR_RETCODE_TRUE )
+        if ( v13 == MR_RETCODE_TRUE )
 LABEL_23:
           this->m_state = STATE_PENDING;
         break;
@@ -527,8 +518,8 @@ LABEL_23:
       case PARTY_CLIENT_TASK_REQUEST_PARTY_PRIVACY:
         MSG_InitReadOnly(&msga, (unsigned __int8 *)buffer, v12);
         MSG_BeginReading(&msga);
-        v15 = MSG_ReadByte(&msga);
-        Party_SetPrivacySetting(party, v15);
+        v14 = MSG_ReadByte(&msga);
+        Party_SetPrivacySetting(party, v14);
         this->m_state = STATE_PENDING;
         break;
       default:
@@ -537,19 +528,19 @@ LABEL_23:
         break;
     }
   }
-  v17 = this->m_id;
-  v25.m_id = this->m_hostXuid.m_id;
-  UniversalId = XUID::GetUniversalId(&v25);
+  v16 = this->m_id;
+  v24.m_id = this->m_hostXuid.m_id;
+  UniversalId = XUID::GetUniversalId(&v24);
   m_lobbyId = party->m_lobbyId;
   partyId = party->partyId;
-  v21 = UniversalId;
+  v20 = UniversalId;
   HostXuid = Party_GetHostXuid((XUID *)&buf, party);
-  v23 = XUID::GetUniversalId(HostXuid);
-  if ( DLog_IsActive() && DLog_CreateContext(&context, v23, v30, 4096) && DLog_IsActive() )
+  v22 = XUID::GetUniversalId(HostXuid);
+  if ( DLog_IsActive() && DLog_CreateContext(&context, v22, v29, 4096) && DLog_IsActive() )
   {
-    v24 = DLog_BeginEvent(&context, "dlog_event_clienttask_host_receive");
+    v23 = DLog_BeginEvent(&context, "dlog_event_clienttask_host_receive");
     context.autoEndEvent = 1;
-    if ( v24 && DLog_UInt8(&context, "party_type", partyId) && DLog_UInt64(&context, "lobby_id", m_lobbyId) && DLog_UInt64(&context, "client_xuid", v21) && DLog_Int8(&context, "task_type", v17) && DLog_UInt8(&context, "result", v9) )
+    if ( v23 && DLog_UInt8(&context, "party_type", partyId) && DLog_UInt64(&context, "lobby_id", m_lobbyId) && DLog_UInt64(&context, "client_xuid", v20) && DLog_Int8(&context, "task_type", v16) && DLog_UInt8(&context, "result", v9) )
       DLog_RecordContext(&context);
   }
 }
@@ -681,16 +672,10 @@ PartyClientTask::SetPayload
 */
 void PartyClientTask::SetPayload(PartyClientTask *this, const void *payload, const int payloadSize)
 {
-  _RSI = payload;
-  _RDI = this;
   if ( (unsigned int)payloadSize >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_clienttask_task.cpp", 216, ASSERT_TYPE_ASSERT, "(payloadSize < sizeof( m_payload ))", (const char *)&queryFormat, "payloadSize < sizeof( m_payload )") )
     __debugbreak();
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi]
-    vmovsd  qword ptr [rdi+1Ch], xmm0
-  }
-  _RDI->m_payloadSize = payloadSize;
+  *(double *)this->m_payload = *(double *)payload;
+  this->m_payloadSize = payloadSize;
 }
 
 /*

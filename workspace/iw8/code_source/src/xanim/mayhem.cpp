@@ -423,41 +423,51 @@ void Copy_MayhemObj(MayhemObj *out, const MayhemObj *in)
 {
   cpose_t *v4; 
   __int64 v5; 
+  char *v6; 
+  cpose_t *v7; 
   __int64 v8; 
-  unsigned int v15; 
-  unsigned int v16; 
-  MayhemObj *v17; 
+  unsigned int v9; 
+  unsigned int v10; 
+  MayhemObj *v11; 
   void (__fastcall **p_Get_origin)(const vec4_t *, vec3_t *); 
-  char *v19; 
-  void (__fastcall *v20)(const vec3_t *, vec4_t *); 
-  const cpose_t *v21; 
+  char *v13; 
+  void (__fastcall *v14)(const vec3_t *, vec4_t *); 
+  const cpose_t *v15; 
+  void (__fastcall **v16)(const vec4_t *, vec3_t *); 
+  _OWORD *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  void (__fastcall *v20)(const vec4_t *, vec3_t *); 
+  __int64 v21; 
+  __int64 v22; 
+  cpose_t *v23; 
   __int64 v24; 
-  __int64 v35; 
-  void (__fastcall *v36)(const vec4_t *, vec3_t *); 
-  __int64 v37; 
-  __int64 v40; 
-  __int64 v48; 
-  MayhemObj *v56; 
-  __int64 v57; 
-  __int64 v60; 
+  char *v25; 
+  __int64 v26; 
+  cpose_t *v27; 
+  MayhemObj *v28; 
+  __int64 v29; 
+  cpose_t *v30; 
+  __int64 v31; 
+  __int64 v32; 
   vec3_t outOrigin; 
-  MayhemObj *v68; 
+  MayhemObj *v34; 
   void (__fastcall *functionPointer)(const vec4_t *, vec3_t *); 
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
   void (__fastcall *FunctionPointer_prevOrigin)(const vec4_t *, vec3_t *); 
-  __int64 v72; 
-  __int64 v73; 
-  char *v74; 
+  __int64 v38; 
+  __int64 v39; 
+  char *v40; 
   void *Src; 
   cpose_t *p_prePostPose; 
-  __int64 v77; 
-  char v78[288]; 
-  cpose_t v79[16]; 
+  __int64 v43; 
+  char v44[288]; 
+  cpose_t v45[16]; 
 
-  v77 = -2i64;
+  v43 = -2i64;
   Src = (void *)in;
-  v68 = out;
-  v4 = v79;
+  v34 = out;
+  v4 = v45;
   v5 = 16i64;
   do
   {
@@ -467,215 +477,136 @@ void Copy_MayhemObj(MayhemObj *out, const MayhemObj *in)
   while ( v5 );
   p_prePostPose = &out->prePostPose;
   Copy_CPose(&out->prePostPose, &in->prePostPose);
-  _RAX = v78;
-  _RCX = &out->prePostPose;
+  v6 = v44;
+  v7 = &out->prePostPose;
   v8 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX = (cpose_t *)((char *)_RCX + 128);
+    *(__m256i *)v6 = *(__m256i *)&v7->eType;
+    *((__m256i *)v6 + 1) = *(__m256i *)&v7->actualOrigin.y;
+    *((__m256i *)v6 + 2) = *(__m256i *)&v7->origin.origin.secureOrigin.xyz.z;
+    *((_OWORD *)v6 + 6) = *(_OWORD *)&v7->prevOrigin.Get_prevOrigin;
+    v6 += 128;
+    *((_OWORD *)v6 - 1) = *(vec4_t *)((char *)&v7->prevOrigin.prevOrigin + 8);
+    v7 = (cpose_t *)((char *)v7 + 128);
     --v8;
   }
   while ( v8 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr [rax], ymm0
-  }
-  v15 = 0;
-  v16 = 0;
-  v17 = out;
+  *(__m256i *)v6 = *(__m256i *)&v7->eType;
+  v9 = 0;
+  v10 = 0;
+  v11 = out;
   p_Get_origin = &out->pose[0].origin.Get_origin;
-  v72 = (char *)in - (char *)v17 + 48;
-  v73 = (char *)in - (char *)v17 + 56;
-  v19 = (char *)((char *)in - (char *)v17 - 48);
-  v74 = v19;
+  v38 = (char *)in - (char *)v11 + 48;
+  v39 = (char *)in - (char *)v11 + 56;
+  v13 = (char *)((char *)in - (char *)v11 - 48);
+  v40 = v13;
   do
   {
-    v20 = ObfuscateSetFunctionPointer_origin((void (__fastcall *const)(const vec3_t *, vec4_t *))*(p_Get_origin - 1), (const cpose_t *)(p_Get_origin - 6));
+    v14 = ObfuscateSetFunctionPointer_origin((void (__fastcall *const)(const vec3_t *, vec4_t *))*(p_Get_origin - 1), (const cpose_t *)(p_Get_origin - 6));
     functionPointer = ObfuscateGetFunctionPointer_origin(*p_Get_origin, (const cpose_t *)(p_Get_origin - 6));
     Origin = ObfuscateSetFunctionPointer_prevOrigin((void (__fastcall *const)(const vec3_t *, vec4_t *))p_Get_origin[5], (const cpose_t *)(p_Get_origin - 6));
     FunctionPointer_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(p_Get_origin[6], (const cpose_t *)(p_Get_origin - 6));
-    v21 = (const cpose_t *)((char *)p_Get_origin + (_QWORD)v19);
-    _RCX = p_Get_origin - 6;
-    _RDX = (char *)p_Get_origin + (_QWORD)v19;
-    v24 = 2i64;
+    v15 = (const cpose_t *)((char *)p_Get_origin + (_QWORD)v13);
+    v16 = p_Get_origin - 6;
+    v17 = (_OWORD *)((char *)p_Get_origin + (_QWORD)v13);
+    v18 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rdx+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdx+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdx+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rdx+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-        vmovups xmm1, xmmword ptr [rdx+50h]
-        vmovups xmmword ptr [rcx+50h], xmm1
-        vmovups xmm0, xmmword ptr [rdx+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      _RCX += 16;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rdx+70h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      _RDX += 128;
-      --v24;
+      *(_OWORD *)v16 = *v17;
+      *((_OWORD *)v16 + 1) = v17[1];
+      *((_OWORD *)v16 + 2) = v17[2];
+      *((_OWORD *)v16 + 3) = v17[3];
+      *((_OWORD *)v16 + 4) = v17[4];
+      *((_OWORD *)v16 + 5) = v17[5];
+      *((_OWORD *)v16 + 6) = v17[6];
+      v16 += 16;
+      *((_OWORD *)v16 - 1) = v17[7];
+      v17 += 8;
+      --v18;
     }
-    while ( v24 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rdx+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-    }
+    while ( v18 );
+    *(_OWORD *)v16 = *v17;
+    *((_OWORD *)v16 + 1) = v17[1];
     *(p_Get_origin - 1) = NULL;
     *p_Get_origin = NULL;
     p_Get_origin[5] = NULL;
     p_Get_origin[6] = NULL;
-    *(p_Get_origin - 1) = (void (__fastcall *)(const vec4_t *, vec3_t *))ObfuscateSetFunctionPointer_origin(v20, (const cpose_t *)(p_Get_origin - 6));
+    *(p_Get_origin - 1) = (void (__fastcall *)(const vec4_t *, vec3_t *))ObfuscateSetFunctionPointer_origin(v14, (const cpose_t *)(p_Get_origin - 6));
     *p_Get_origin = ObfuscateGetFunctionPointer_origin(functionPointer, (const cpose_t *)(p_Get_origin - 6));
     p_Get_origin[5] = (void (__fastcall *)(const vec4_t *, vec3_t *))ObfuscateSetFunctionPointer_prevOrigin(Origin, (const cpose_t *)(p_Get_origin - 6));
     p_Get_origin[6] = ObfuscateGetFunctionPointer_prevOrigin(FunctionPointer_prevOrigin, (const cpose_t *)(p_Get_origin - 6));
-    CG_GetPoseOrigin(v21, &outOrigin);
+    CG_GetPoseOrigin(v15, &outOrigin);
     CG_SetPoseOrigin((cpose_t *)(p_Get_origin - 6), &outOrigin);
-    v35 = v72;
-    if ( !*(void (__fastcall **)(const vec4_t *, vec3_t *))((char *)p_Get_origin + v72) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 568, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Get_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Get_prevOrigin") )
+    v19 = v38;
+    if ( !*(void (__fastcall **)(const vec4_t *, vec3_t *))((char *)p_Get_origin + v38) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 568, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Get_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Get_prevOrigin") )
       __debugbreak();
-    v36 = ObfuscateGetFunctionPointer_prevOrigin(*(void (__fastcall **)(const vec4_t *, vec3_t *))((char *)p_Get_origin + v35), v21);
-    v36((const vec4_t *)((char *)p_Get_origin + v73), &outOrigin);
+    v20 = ObfuscateGetFunctionPointer_prevOrigin(*(void (__fastcall **)(const vec4_t *, vec3_t *))((char *)p_Get_origin + v19), v15);
+    v20((const vec4_t *)((char *)p_Get_origin + v39), &outOrigin);
     CG_SetPrevPoseOrigin((cpose_t *)(p_Get_origin - 6), &outOrigin);
     memset(&outOrigin, 0, sizeof(outOrigin));
-    v37 = (int)v16;
-    _RAX = (__int64)&v17->pose[v37];
-    _RDI = &v79[v37];
-    v40 = 2i64;
+    v21 = (int)v10;
+    v22 = (__int64)&v11->pose[v21];
+    v23 = &v45[v21];
+    v24 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rdi+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rdi+40h], ymm0
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rdi+60h], xmm0
-      }
-      _RDI = (cpose_t *)((char *)_RDI + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rdi-10h], xmm1
-      }
-      _RAX += 128i64;
-      --v40;
+      *(__m256i *)&v23->eType = *(__m256i *)v22;
+      *(__m256i *)&v23->actualOrigin.y = *(__m256i *)(v22 + 32);
+      *(__m256i *)&v23->origin.origin.secureOrigin.xyz.z = *(__m256i *)(v22 + 64);
+      *(_OWORD *)&v23->prevOrigin.Get_prevOrigin = *(_OWORD *)(v22 + 96);
+      v23 = (cpose_t *)((char *)v23 + 128);
+      *((_OWORD *)&v23[-1].moverFx + 7) = *(_OWORD *)(v22 + 112);
+      v22 += 128i64;
+      --v24;
     }
-    while ( v40 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi], ymm0
-    }
-    ++v16;
+    while ( v24 );
+    *(__m256i *)&v23->eType = *(__m256i *)v22;
+    ++v10;
     p_Get_origin += 36;
-    v19 = v74;
+    v13 = v40;
   }
-  while ( v16 < 0x10 );
-  memcpy_0(v17, Src, sizeof(MayhemObj));
-  _RAX = v78;
-  v48 = 2i64;
-  _RBX = p_prePostPose;
+  while ( v10 < 0x10 );
+  memcpy_0(v11, Src, sizeof(MayhemObj));
+  v25 = v44;
+  v26 = 2i64;
+  v27 = p_prePostPose;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rbx+60h], xmm0
-    }
-    _RBX = (cpose_t *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
-    _RAX += 128;
-    --v48;
+    *(__m256i *)&v27->eType = *(__m256i *)v25;
+    *(__m256i *)&v27->actualOrigin.y = *((__m256i *)v25 + 1);
+    *(__m256i *)&v27->origin.origin.secureOrigin.xyz.z = *((__m256i *)v25 + 2);
+    *(_OWORD *)&v27->prevOrigin.Get_prevOrigin = *((_OWORD *)v25 + 6);
+    v27 = (cpose_t *)((char *)v27 + 128);
+    *((_OWORD *)&v27[-1].moverFx + 7) = *((_OWORD *)v25 + 7);
+    v25 += 128;
+    --v26;
   }
-  while ( v48 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx], ymm0
-  }
-  v56 = v68;
+  while ( v26 );
+  *(__m256i *)&v27->eType = *(__m256i *)v25;
+  v28 = v34;
   do
   {
-    v57 = (int)v15;
-    _RDX = &v79[v57];
-    _RAX = (__int64)&v56->pose[v57];
-    v60 = 2i64;
+    v29 = (int)v9;
+    v30 = &v45[v29];
+    v31 = (__int64)&v28->pose[v29];
+    v32 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rdx+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rdx+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups xmm0, xmmword ptr [rdx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 128i64;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rdx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RDX = (cpose_t *)((char *)_RDX + 128);
-      --v60;
+      *(__m256i *)v31 = *(__m256i *)&v30->eType;
+      *(__m256i *)(v31 + 32) = *(__m256i *)&v30->actualOrigin.y;
+      *(__m256i *)(v31 + 64) = *(__m256i *)&v30->origin.origin.secureOrigin.xyz.z;
+      *(_OWORD *)(v31 + 96) = *(_OWORD *)&v30->prevOrigin.Get_prevOrigin;
+      v31 += 128i64;
+      *(vec4_t *)(v31 - 16) = *(vec4_t *)((char *)&v30->prevOrigin.prevOrigin + 8);
+      v30 = (cpose_t *)((char *)v30 + 128);
+      --v32;
     }
-    while ( v60 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups ymmword ptr [rax], ymm0
-    }
-    ++v15;
+    while ( v32 );
+    *(__m256i *)v31 = *(__m256i *)&v30->eType;
+    ++v9;
   }
-  while ( v15 < 0x10 );
+  while ( v9 < 0x10 );
 }
 
 /*
@@ -683,120 +614,81 @@ void Copy_MayhemObj(MayhemObj *out, const MayhemObj *in)
 Mayhem_AddClientNotify
 ==============
 */
-
-void __fastcall Mayhem_AddClientNotify(scr_string_t notetrackName, unsigned int subObjIndex, double frac, unsigned __int16 notifyType)
+void Mayhem_AddClientNotify(scr_string_t notetrackName, unsigned int subObjIndex, float frac, unsigned __int16 notifyType)
 {
-  int v9; 
-  int v10; 
-  __int64 v11; 
-  bool v12; 
-  bool v18; 
+  int v7; 
+  int v8; 
+  __int64 v9; 
+  char *v10; 
+  __m256i *v11; 
+  MayhemNotify *v12; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( s_notifyListSize >= 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 876, ASSERT_TYPE_ASSERT, "(s_notifyListSize < 128)", (const char *)&queryFormat, "s_notifyListSize < MAX_NOTIFYLIST") )
     __debugbreak();
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 877, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v9 = s_notifyListSize;
-  v10 = s_notifyListSize - 1;
-  v11 = s_notifyListSize - 1;
+  v7 = s_notifyListSize;
+  v8 = s_notifyListSize - 1;
+  v9 = s_notifyListSize - 1;
   if ( s_notifyListSize - 1 >= 0 )
   {
-    if ( v10 < 3i64 )
+    if ( v8 < 3i64 )
     {
 LABEL_15:
-      if ( v11 >= 0 )
+      if ( v9 >= 0 )
       {
-        v18 = __CFADD__(&s_notifyList[1], 32 * v11);
-        _RAX = &s_notifyList[v11 + 1];
+        v11 = (__m256i *)&s_notifyList[v9 + 1];
         do
         {
-          __asm { vcomiss xmm6, dword ptr [rax-14h] }
-          if ( !v18 )
+          if ( frac >= *(float *)&v11[-1].m256i_i32[3] )
             break;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax-20h]
-            vmovups ymmword ptr [rax], ymm0
-          }
-          --_RAX;
-          --v10;
-          v18 = v11-- == 0;
+          *v11 = v11[-1];
+          --v11;
+          --v8;
+          --v9;
         }
-        while ( v11 >= 0 );
+        while ( v9 >= 0 );
       }
     }
     else
     {
-      v12 = __CFSHL__(v10, 5);
-      _RCX = (char *)&s_notifyList[v10 - 1] - 20;
-      while ( 1 )
+      v10 = (char *)&s_notifyList[v8 - 1] - 20;
+      while ( frac < *((float *)v10 + 16) )
       {
-        __asm { vcomiss xmm6, dword ptr [rcx+40h] }
-        if ( !v12 )
-          break;
-        __asm
+        *(__m256i *)(v10 + 84) = *(__m256i *)(v10 + 52);
+        if ( frac >= *((float *)v10 + 8) )
         {
-          vmovups ymm0, ymmword ptr [rcx+34h]
-          vmovups ymmword ptr [rcx+54h], ymm0
-          vcomiss xmm6, dword ptr [rcx+20h]
-        }
-        if ( !v12 )
-        {
-          --v10;
+          --v8;
           break;
         }
-        __asm
+        *(__m256i *)(v10 + 52) = *(__m256i *)(v10 + 20);
+        if ( frac >= *(float *)v10 )
         {
-          vmovups ymm0, ymmword ptr [rcx+14h]
-          vmovups ymmword ptr [rcx+34h], ymm0
-          vcomiss xmm6, dword ptr [rcx]
-        }
-        if ( !v12 )
-        {
-          v10 -= 2;
+          v8 -= 2;
           break;
         }
-        __asm
+        *(__m256i *)(v10 + 20) = *(__m256i *)(v10 - 12);
+        if ( frac >= *((float *)v10 - 8) )
         {
-          vmovups ymm0, ymmword ptr [rcx-0Ch]
-          vmovups ymmword ptr [rcx+14h], ymm0
-          vcomiss xmm6, dword ptr [rcx-20h]
-        }
-        if ( !v12 )
-        {
-          v10 -= 3;
+          v8 -= 3;
           break;
         }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx-2Ch]
-          vmovups ymmword ptr [rcx-0Ch], ymm0
-        }
-        _RCX -= 128;
-        v10 -= 4;
-        v11 -= 4i64;
-        v12 = (unsigned __int64)v11 < 3;
-        if ( v11 < 3 )
+        *(__m256i *)(v10 - 12) = *(__m256i *)(v10 - 44);
+        v10 -= 128;
+        v8 -= 4;
+        v9 -= 4i64;
+        if ( v9 < 3 )
           goto LABEL_15;
       }
     }
   }
-  _RAX = &s_notifyList[v10 + 1];
-  s_notifyListSize = v9 + 1;
-  __asm
-  {
-    vmovss  dword ptr [rax+0Ch], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  _RAX->noteName = notetrackName;
-  _RAX->notifyType = notifyType;
-  _RAX->notifyName = 0;
-  _RAX->subObjIdx = subObjIndex;
+  v12 = &s_notifyList[v8 + 1];
+  s_notifyListSize = v7 + 1;
+  v12->timeFrac = frac;
+  v12->noteName = notetrackName;
+  v12->notifyType = notifyType;
+  v12->notifyName = 0;
+  v12->subObjIdx = subObjIndex;
 }
 
 /*
@@ -806,186 +698,125 @@ Mayhem_AddDobj
 */
 void Mayhem_AddDobj(LocalClientNum_t localClientNum, unsigned int mayhemEntId, DObj *dobj, cpose_t *pose, int dobjHandle, bool isActive)
 {
-  __int64 v14; 
-  signed int v16; 
-  unsigned int v22; 
-  unsigned int v23; 
+  __int64 v8; 
+  signed int v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  double v15; 
+  unsigned int v16; 
+  unsigned int v17; 
   MayhemInstance *Instance; 
-  MayhemInstance *v25; 
-  unsigned int v36; 
-  const dvar_t *v38; 
-  const dvar_t *v46; 
-  const char *v47; 
-  const char *v48; 
-  float fmt; 
-  float materialTime; 
-  bdRandom v58; 
+  MayhemInstance *v19; 
+  float v20; 
+  unsigned int v21; 
+  const dvar_t *v22; 
+  DObjAnimMat *mat; 
+  __m128 v24; 
+  float v25; 
+  const dvar_t *v26; 
+  const char *v27; 
+  const char *v28; 
+  bdRandom v29; 
   vec3_t origin; 
   vec3_t outOrigin; 
   vec3_t lightingOrigin; 
-  __int64 v62; 
+  __int64 v33; 
   vec3_t xyz; 
   vec4_t color; 
   GfxSceneEntityMutableShaderData entityMutableShaderData; 
-  char v66; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v62 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-  }
-  _RSI = pose;
-  _R13 = dobj;
-  v14 = mayhemEntId;
+  v33 = -2i64;
+  v8 = mayhemEntId;
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1026, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
     __debugbreak();
-  v16 = s_curFreeMayhemClientEntNum++;
-  if ( v16 >= 2560 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 310, ASSERT_TYPE_ASSERT, "(id < ( ( 2048 ) + ( 96 + ( 32 ) + CLIENT_MODEL_MAX_COUNT + 0 ) ))", (const char *)&queryFormat, "id < MAX_GFXENTITIES") )
+  v10 = s_curFreeMayhemClientEntNum++;
+  if ( v10 >= 2560 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 310, ASSERT_TYPE_ASSERT, "(id < ( ( 2048 ) + ( 96 + ( 32 ) + CLIENT_MODEL_MAX_COUNT + 0 ) ))", (const char *)&queryFormat, "id < MAX_GFXENTITIES") )
     __debugbreak();
-  CG_GetPoseOrigin(_RSI, &outOrigin);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsi+48h]
-    vmovss  xmm7, dword ptr [rsi+4Ch]
-    vmovss  xmm8, dword ptr [rsi+50h]
-    vmovups xmm9, xmmword ptr [rsi+84h]
-    vmovsd  xmm10, qword ptr [rsi+94h]
-  }
-  memset_0(_RSI, 0, sizeof(cpose_t));
-  bdRandom::bdRandom(&v58);
-  v22 = bdRandom::nextUInt(&v58) % 0x22;
-  bdRandom::~bdRandom(&v58);
-  bdRandom::bdRandom(&v58);
-  v23 = bdRandom::nextUInt(&v58) % 0x22;
-  bdRandom::~bdRandom(&v58);
-  CG_ResetPoseZero(_RSI, v23, v22);
-  _RSI->isMayhem = isActive;
-  if ( (unsigned int)v14 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v14, "unsigned", v14) )
+  CG_GetPoseOrigin(pose, &outOrigin);
+  v11 = pose->angles.v[0];
+  v12 = pose->angles.v[1];
+  v13 = pose->angles.v[2];
+  v14 = *(_OWORD *)&pose->skinCacheEntry.frameCount;
+  v15 = *(double *)&pose->skinCacheEntry.subdivCacheOffset;
+  memset_0(pose, 0, sizeof(cpose_t));
+  bdRandom::bdRandom(&v29);
+  v16 = bdRandom::nextUInt(&v29) % 0x22;
+  bdRandom::~bdRandom(&v29);
+  bdRandom::bdRandom(&v29);
+  v17 = bdRandom::nextUInt(&v29) % 0x22;
+  bdRandom::~bdRandom(&v29);
+  CG_ResetPoseZero(pose, v17, v16);
+  pose->isMayhem = isActive;
+  if ( (unsigned int)v8 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v8, "unsigned", v8) )
     __debugbreak();
-  _RSI->mayhemInstanceId = v14;
-  CG_SetPrevPoseOrigin(_RSI, &outOrigin);
-  __asm
-  {
-    vmovss  dword ptr [rsi+78h], xmm6
-    vmovss  dword ptr [rsi+7Ch], xmm7
-    vmovss  dword ptr [rsi+80h], xmm8
-    vmovups xmmword ptr [rsi+84h], xmm9
-    vmovsd  qword ptr [rsi+94h], xmm10
-  }
-  Instance = Mayhem_GetInstance(v14);
-  v25 = Instance;
+  pose->mayhemInstanceId = v8;
+  CG_SetPrevPoseOrigin(pose, &outOrigin);
+  pose->prevAngles.v[0] = v11;
+  pose->prevAngles.v[1] = v12;
+  pose->prevAngles.v[2] = v13;
+  *(_OWORD *)&pose->skinCacheEntry.frameCount = v14;
+  *(double *)&pose->skinCacheEntry.subdivCacheOffset = v15;
+  Instance = Mayhem_GetInstance(v8);
+  v19 = Instance;
   if ( Instance->linkTo )
   {
-    Mayhem_UpdateFromLink(localClientNum, Instance, _RSI);
+    Mayhem_UpdateFromLink(localClientNum, Instance, pose);
   }
   else
   {
-    CG_SetPoseOrigin(_RSI, &Instance->initialPose.origin);
-    UnitQuatToAngles(&v25->initialPose.quat, &_RSI->angles);
+    CG_SetPoseOrigin(pose, &Instance->initialPose.origin);
+    UnitQuatToAngles(&v19->initialPose.quat, &pose->angles);
   }
-  CG_GetPoseOrigin(_RSI, &lightingOrigin);
-  _RCX = &entityMutableShaderData;
-  _RAX = &NULL_SCENE_ENTITY_MUTABLE_SHADER_DATA;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rcx+0A0h], xmm1
-  }
-  entityMutableShaderData.hudOutlineInfo.mapEntLookup = v25->mapEntLookup;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+200h+materialTime], xmm6
-  }
-  R_AddDObjToScene(_R13, _RSI, v16, isActive << 12, &entityMutableShaderData, &lightingOrigin, materialTime);
-  CG_GetPoseOrigin(_RSI, &origin);
-  __asm { vmovss  xmm3, dword ptr [r13+0C8h]; radius }
-  v36 = R_LinkDObjEntity(localClientNum, v16, &origin, *(float *)&_XMM3);
-  if ( (_R13->flags & 4) != 0 )
-    R_EntityHasSkinningAnimation(localClientNum, v16);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0C8h]
-    vmovss  dword ptr [rsp+200h+fmt], xmm0
-  }
-  CG_Entity_CheckLightCount(v16, _R13, v36, &origin, fmt);
-  v38 = DVARBOOL_mayhem_entInfo;
+  CG_GetPoseOrigin(pose, &lightingOrigin);
+  memset(&entityMutableShaderData, 0, sizeof(entityMutableShaderData));
+  entityMutableShaderData.hudOutlineInfo.mapEntLookup = v19->mapEntLookup;
+  v20 = 0.0;
+  R_AddDObjToScene(dobj, pose, v10, isActive << 12, &entityMutableShaderData, &lightingOrigin, 0.0);
+  CG_GetPoseOrigin(pose, &origin);
+  v21 = R_LinkDObjEntity(localClientNum, v10, &origin, dobj->radius);
+  if ( (dobj->flags & 4) != 0 )
+    R_EntityHasSkinningAnimation(localClientNum, v10);
+  CG_Entity_CheckLightCount(v10, dobj, v21, &origin, dobj->radius);
+  v22 = DVARBOOL_mayhem_entInfo;
   if ( !DVARBOOL_mayhem_entInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mayhem_entInfo") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v38);
-  if ( v38->current.enabled )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
   {
-    CG_GetPoseOrigin(_RSI, &origin);
-    _RAX = _R13->skel.mat;
-    if ( _RAX )
+    CG_GetPoseOrigin(pose, &origin);
+    mat = dobj->skel.mat;
+    if ( mat )
     {
-      __asm { vmovsd  xmm1, qword ptr [rax+10h] }
-      xyz.v[2] = _RAX->trans.v[2];
-      __asm
-      {
-        vshufps xmm6, xmm1, xmm1, 55h ; 'U'
-        vmovsd  qword ptr [rbp+100h+xyz], xmm1
-        vmovss  xmm3, dword ptr [rbp+100h+xyz+8]
-      }
+      v24 = (__m128)*(unsigned __int64 *)mat->trans.v;
+      xyz.v[2] = mat->trans.v[2];
+      LODWORD(v20) = _mm_shuffle_ps(v24, v24, 85).m128_u32[0];
+      *(double *)xyz.v = *(double *)v24.m128_u64;
+      v25 = xyz.v[2];
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm3, xmm3, xmm3
-      }
+      v24.m128_i32[0] = 0;
+      v25 = 0.0;
     }
-    __asm
-    {
-      vaddss  xmm1, xmm1, dword ptr [rsp+200h+origin]
-      vmovss  dword ptr [rbp+100h+xyz], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rsp+200h+origin+4]
-      vmovss  dword ptr [rbp+100h+xyz+4], xmm0
-      vaddss  xmm2, xmm3, dword ptr [rsp+200h+origin+8]
-      vmovss  dword ptr [rbp+100h+xyz+8], xmm2
-      vmovups xmm0, cs:__xmm@3f8000003f0000003f0000003f800000
-      vmovups xmmword ptr [rbp+100h+color], xmm0
-    }
-    v46 = DVARINT_mayhem_debugEnt;
+    xyz.v[0] = v24.m128_f32[0] + origin.v[0];
+    xyz.v[1] = v20 + origin.v[1];
+    xyz.v[2] = v25 + origin.v[2];
+    color = (vec4_t)_xmm;
+    v26 = DVARINT_mayhem_debugEnt;
     if ( !DVARINT_mayhem_debugEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mayhem_debugEnt") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v46);
-    v47 = (char *)&queryFormat.fmt + 3;
-    if ( v46->current.integer == (_DWORD)v14 )
-      v47 = "*";
-    v48 = j_va("%sMayhem %d GfxEnt %d", v47, (unsigned int)v14, (unsigned int)dobjHandle);
-    __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-    CL_AddDebugString(&xyz, &color, *(float *)&_XMM2, v48, 0, 1);
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = (char *)&queryFormat.fmt + 3;
+    if ( v26->current.integer == (_DWORD)v8 )
+      v27 = "*";
+    v28 = j_va("%sMayhem %d GfxEnt %d", v27, (unsigned int)v8, (unsigned int)dobjHandle);
+    CL_AddDebugString(&xyz, &color, 1.0, v28, 0, 1);
   }
   memset(&origin, 0, sizeof(origin));
   memset(&outOrigin, 0, sizeof(outOrigin));
   memset(&lightingOrigin, 0, sizeof(lightingOrigin));
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-  }
 }
 
 /*
@@ -1148,97 +979,77 @@ _BOOL8 Mayhem_DoesInstanceExist(scr_string_t mayhemName)
 Mayhem_DumpEntInfo
 ==============
 */
-void Mayhem_DumpEntInfo()
+void Mayhem_DumpEntInfo(void)
 {
-  __int64 v1; 
+  __int64 i; 
   unsigned int numMayhemScenes; 
-  const MayhemInstance *v5; 
-  __int64 v8; 
-  bool v9; 
-  MayhemObj *v10; 
-  BOOL v11; 
-  BOOL v12; 
-  int v13; 
-  int v14; 
-  char v15; 
+  MayhemInstance *v2; 
+  const MayhemInstance *v3; 
+  float curTime; 
+  MayhemData *mayhem; 
+  BOOL v6; 
+  BOOL v7; 
+  int v8; 
+  int v9; 
+  char v10; 
   unsigned int numSubObjects; 
-  const char *v17; 
-  const char *v18; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
+  const char *v12; 
+  const char *v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
 
   Com_Printf(19, "===BEGIN MAYHEM ENTS===\n");
-  v1 = 0i64;
-  if ( s_numMayhemObjs )
+  for ( i = 0i64; (unsigned int)i < s_numMayhemObjs; i = (unsigned int)(i + 1) )
   {
-    __asm
+    if ( cm.mapEnts )
     {
-      vmovaps [rsp+98h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    while ( 1 )
-    {
-      if ( cm.mapEnts )
+      numMayhemScenes = cm.mapEnts->numMayhemScenes;
+      if ( (unsigned int)i < numMayhemScenes )
       {
-        numMayhemScenes = cm.mapEnts->numMayhemScenes;
-        if ( (unsigned int)v1 < numMayhemScenes )
-        {
-          _RDI = &cm.mapEnts->mayhemScenes[v1];
-          goto LABEL_9;
-        }
-      }
-      else
-      {
-        numMayhemScenes = 0;
-      }
-      v5 = &s_spawnedMayhems[(unsigned int)v1 - numMayhemScenes];
-      _RDI = NULL;
-      if ( Mayhem_IsSpawnedInstanceActive(v5) )
-        _RDI = (MayhemInstance *)v5;
-LABEL_9:
-      __asm { vmovss  xmm0, dword ptr [rdi+34h] }
-      _RCX = _RDI->mayhem;
-      v8 = (unsigned int)v1;
-      v9 = &s_mayhemObjs[v8] == NULL;
-      v10 = &s_mayhemObjs[v8];
-      __asm { vucomiss xmm0, xmm6 }
-      v11 = v9 && _RCX->preModel;
-      __asm { vcomiss xmm0, dword ptr [rcx+48h] }
-      v12 = _RCX->postModel != NULL;
-      v13 = (_RDI->flags >> 1) & 1;
-      if ( (_RDI->flags & 1) != 0 || !_RCX->numObjects )
-      {
-        v14 = 1;
-LABEL_20:
-        v15 = 0;
-        goto LABEL_21;
-      }
-      v14 = 0;
-      if ( !v13 || v11 || _RCX->postModel )
-        goto LABEL_20;
-      v15 = 1;
-LABEL_21:
-      numSubObjects = v10->numSubObjects;
-      v17 = SL_ConvertToString(_RDI->scriptName);
-      LODWORD(v24) = numSubObjects;
-      v18 = (char *)&queryFormat.fmt + 3;
-      LODWORD(v23) = v12;
-      LODWORD(v22) = v11;
-      LODWORD(v21) = v14;
-      if ( v15 )
-        v18 = " - CONSUMING PERF";
-      LODWORD(v20) = v13;
-      Com_Printf(19, "Mayhem[%d]%s: Asset=%s Name=%s IsActive=%d IsHidden=%d IsPreModel=%d IsPostModel=%d, has %d sub-objects\n", (unsigned int)v1, v18, _RDI->mayhem->name, v17, v20, v21, v22, v23, v24);
-      v1 = (unsigned int)(v1 + 1);
-      if ( (unsigned int)v1 >= s_numMayhemObjs )
-      {
-        __asm { vmovaps xmm6, [rsp+98h+var_38] }
-        break;
+        v2 = &cm.mapEnts->mayhemScenes[i];
+        goto LABEL_8;
       }
     }
+    else
+    {
+      numMayhemScenes = 0;
+    }
+    v3 = &s_spawnedMayhems[(unsigned int)i - numMayhemScenes];
+    v2 = NULL;
+    if ( Mayhem_IsSpawnedInstanceActive(v3) )
+      v2 = (MayhemInstance *)v3;
+LABEL_8:
+    curTime = v2->curTime;
+    mayhem = v2->mayhem;
+    v6 = curTime == 0.0 && mayhem->preModel;
+    v7 = curTime >= mayhem->length && mayhem->postModel;
+    v8 = (v2->flags >> 1) & 1;
+    if ( (v2->flags & 1) != 0 || !mayhem->numObjects )
+    {
+      v9 = 1;
+LABEL_23:
+      v10 = 0;
+      goto LABEL_24;
+    }
+    v9 = 0;
+    if ( !v8 || v6 || v7 )
+      goto LABEL_23;
+    v10 = 1;
+LABEL_24:
+    numSubObjects = s_mayhemObjs[(unsigned int)i].numSubObjects;
+    v12 = SL_ConvertToString(v2->scriptName);
+    LODWORD(v18) = numSubObjects;
+    v13 = (char *)&queryFormat.fmt + 3;
+    LODWORD(v17) = v7;
+    LODWORD(v16) = v6;
+    LODWORD(v15) = v9;
+    if ( v10 )
+      v13 = " - CONSUMING PERF";
+    LODWORD(v14) = v8;
+    Com_Printf(19, "Mayhem[%d]%s: Asset=%s Name=%s IsActive=%d IsHidden=%d IsPreModel=%d IsPostModel=%d, has %d sub-objects\n", (unsigned int)i, v13, v2->mayhem->name, v12, v14, v15, v16, v17, v18);
   }
   Com_Printf(19, "===END MAYHEM ENTS===\n");
 }
@@ -1327,10 +1138,10 @@ Mayhem_GetAnimationFrameRate
 float Mayhem_GetAnimationFrameRate(scr_string_t mayhemName)
 {
   MayhemInstance *InstanceByName; 
-  scr_string_t v3; 
-  const char *v4; 
+  scr_string_t v2; 
+  const char *v3; 
   MayhemData *mayhem; 
-  const char *v7; 
+  const char *v6; 
 
   InstanceByName = Mayhem_GetInstanceByName(mayhemName);
   if ( InstanceByName )
@@ -1338,23 +1149,21 @@ float Mayhem_GetAnimationFrameRate(scr_string_t mayhemName)
     mayhem = InstanceByName->mayhem;
     if ( mayhem->numAnims )
     {
-      _RAX = mayhem->anims;
-      __asm { vmovss  xmm0, dword ptr [rax+10h] }
+      return mayhem->anims->framerate;
     }
     else
     {
-      v7 = SL_ConvertToString(v3);
-      Com_PrintError(19, "Mayhem Entity (name = %s) doesn't have any animations!\n", v7);
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      v6 = SL_ConvertToString(v2);
+      Com_PrintError(19, "Mayhem Entity (name = %s) doesn't have any animations!\n", v6);
+      return 0.0;
     }
   }
   else
   {
-    v4 = SL_ConvertToString(v3);
-    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v4);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v3 = SL_ConvertToString(v2);
+    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v3);
+    return 0.0;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -1398,52 +1207,45 @@ __int64 Mayhem_GetAnimationNumFrames(scr_string_t mayhemName)
 Mayhem_GetAnimationTime
 ==============
 */
-
-float __fastcall Mayhem_GetAnimationTime(scr_string_t mayhemName, double _XMM1_8)
+float Mayhem_GetAnimationTime(scr_string_t mayhemName)
 {
   MayhemInstance *InstanceByName; 
-  scr_string_t v4; 
-  const char *v6; 
+  scr_string_t v2; 
+  MayhemInstance *v3; 
+  const char *v4; 
+  MayhemData *mayhem; 
+  MayhemAnim *anims; 
+  float v8; 
+  double v9; 
+  MayhemAnim *v10; 
+  float numFrames; 
 
   InstanceByName = Mayhem_GetInstanceByName(mayhemName);
-  _RBX = InstanceByName;
+  v3 = InstanceByName;
   if ( InstanceByName )
   {
-    __asm
+    mayhem = InstanceByName->mayhem;
+    anims = mayhem->anims;
+    v8 = v3->curTime * anims->frequency;
+    if ( anims->isLooping )
     {
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vmulss  xmm0, xmm0, dword ptr [rax+14h]; X
-    }
-    if ( InstanceByName->mayhem->anims->isLooping )
-    {
-      __asm { vmovss  xmm1, cs:__real@3f800000; Y }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+      *(float *)&v9 = fmodf_0(v8, 1.0);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      v9 = I_fclamp(v8, 0.0, 1.0);
+      mayhem = v3->mayhem;
     }
-    __asm
-    {
-      vmovaps xmm2, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm0, dword ptr [rcx+10h]
-      vmulss  xmm0, xmm1, xmm2
-    }
+    v10 = mayhem->anims;
+    numFrames = (float)v10->numFrames;
+    return (float)(numFrames / v10->framerate) * *(float *)&v9;
   }
   else
   {
-    v6 = SL_ConvertToString(v4);
-    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v6);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v4 = SL_ConvertToString(v2);
+    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v4);
+    return 0.0;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -1451,55 +1253,46 @@ float __fastcall Mayhem_GetAnimationTime(scr_string_t mayhemName, double _XMM1_8
 Mayhem_GetAnimationTimeNormalized
 ==============
 */
-
-double __fastcall Mayhem_GetAnimationTimeNormalized(scr_string_t mayhemName, double _XMM1_8)
+double Mayhem_GetAnimationTimeNormalized(scr_string_t mayhemName)
 {
   MayhemInstance *InstanceByName; 
-  const char *v6; 
+  MayhemInstance *v3; 
+  const char *v4; 
+  double result; 
   MayhemData *mayhem; 
-  const char *v9; 
+  const char *v7; 
+  MayhemAnim *anims; 
+  float v9; 
 
   InstanceByName = Mayhem_GetInstanceByName(mayhemName);
-  _R11 = InstanceByName;
+  v3 = InstanceByName;
   if ( InstanceByName )
   {
     mayhem = InstanceByName->mayhem;
     if ( mayhem->numAnims )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r11+34h]
-        vmulss  xmm0, xmm0, dword ptr [rax+14h]; X
-      }
-      if ( mayhem->anims->isLooping )
-      {
-        __asm { vmovss  xmm1, cs:__real@3f800000; Y }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      }
+      anims = mayhem->anims;
+      v9 = v3->curTime * anims->frequency;
+      HIDWORD(result) = 0;
+      if ( anims->isLooping )
+        *(float *)&result = fmodf_0(v9, 1.0);
       else
-      {
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3f800000; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      }
+        return I_fclamp(v9, 0.0, 1.0);
     }
     else
     {
-      v9 = SL_ConvertToString(mayhemName);
-      Com_PrintError(19, "Mayhem Entity (name = %s) doesn't have any animations!\n", v9);
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      v7 = SL_ConvertToString(mayhemName);
+      Com_PrintError(19, "Mayhem Entity (name = %s) doesn't have any animations!\n", v7);
+      return 0.0;
     }
   }
   else
   {
-    v6 = SL_ConvertToString(mayhemName);
-    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v6);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v4 = SL_ConvertToString(mayhemName);
+    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v4);
+    return 0.0;
   }
-  return *(double *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1771,116 +1564,55 @@ MapEnts *Mayhem_GetMapEntityCount()
 Mayhem_GetNextNotifyIndex
 ==============
 */
-
-__int64 __fastcall Mayhem_GetNextNotifyIndex(const MayhemAnim *anim, double time)
+__int64 Mayhem_GetNextNotifyIndex(const MayhemAnim *anim, float time)
 {
-  bool v9; 
-  bool v10; 
-  unsigned int v16; 
-  bool v17; 
-  bool v19; 
-  __int64 v25; 
-  double v27; 
-  void *retaddr; 
+  XAnimNotifyInfo *notify; 
+  XAnimNotifyInfo *v4; 
+  float v5; 
+  unsigned int v6; 
+  float v7; 
+  __int64 v8; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmm7, xmm1
-  }
-  v9 = anim == NULL;
-  if ( !anim )
-  {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 839, ASSERT_TYPE_ASSERT, "(anim)", (const char *)&queryFormat, "anim");
-    v9 = !v10;
-    if ( v10 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm7, xmm9
-    vcomiss xmm7, cs:__real@3f800000
-  }
-  if ( !v9 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0A8h+var_80], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 842, ASSERT_TYPE_ASSERT, "( ( time <= 1.0f ) )", "( time ) = %g", v27) )
-      __debugbreak();
-  }
-  _RDI = anim->notify;
-  _RBX = NULL;
-  __asm { vmovss  xmm8, cs:__real@40000000 }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 848, ASSERT_TYPE_ASSERT, "(notifyInfo)", (const char *)&queryFormat, "notifyInfo") )
+  if ( !anim && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 839, ASSERT_TYPE_ASSERT, "(anim)", (const char *)&queryFormat, "anim") )
     __debugbreak();
-  v16 = 0;
-  v17 = 0;
+  if ( time < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 841, ASSERT_TYPE_ASSERT, "( ( !( time < 0.0f ) ) )", "( time ) = %g", time) )
+    __debugbreak();
+  if ( time > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 842, ASSERT_TYPE_ASSERT, "( ( time <= 1.0f ) )", "( time ) = %g", time) )
+    __debugbreak();
+  notify = anim->notify;
+  v4 = NULL;
+  v5 = FLOAT_2_0;
+  if ( !notify && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 848, ASSERT_TYPE_ASSERT, "(notifyInfo)", (const char *)&queryFormat, "notifyInfo") )
+    __debugbreak();
+  v6 = 0;
   if ( !anim->notifyCount )
-    goto LABEL_32;
-  __asm { vmovaps [rsp+0A8h+var_28], xmm6 }
+    goto LABEL_34;
   do
   {
-    __asm
+    v7 = notify->time;
+    if ( v7 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 852, ASSERT_TYPE_ASSERT, "(testTime >= 0)", (const char *)&queryFormat, "testTime >= 0") )
+      __debugbreak();
+    if ( v7 >= time && v7 < v5 )
     {
-      vmovss  xmm6, dword ptr [rdi+4]
-      vcomiss xmm6, xmm9
+      v5 = v7;
+      v4 = notify;
     }
-    if ( v17 )
-    {
-      v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 852, ASSERT_TYPE_ASSERT, "(testTime >= 0)", (const char *)&queryFormat, "testTime >= 0");
-      v17 = 0;
-      if ( v19 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm6, xmm7 }
-    if ( !v17 )
-    {
-      __asm { vcomiss xmm6, xmm8 }
-      if ( v17 )
-      {
-        __asm { vmovaps xmm8, xmm6 }
-        _RBX = _RDI;
-      }
-    }
-    ++v16;
-    ++_RDI;
-    v17 = v16 < anim->notifyCount;
+    ++v6;
+    ++notify;
   }
-  while ( v16 < anim->notifyCount );
-  __asm { vmovaps xmm6, [rsp+0A8h+var_28] }
-  if ( !_RBX )
+  while ( v6 < anim->notifyCount );
+  if ( !v4 )
   {
-LABEL_32:
+LABEL_34:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 864, ASSERT_TYPE_ASSERT, "(bestNotifyInfo)", (const char *)&queryFormat, "bestNotifyInfo") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0A8h+var_58]
-    vmovaps xmm8, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_38]
-  }
-  if ( _RBX != anim->notify )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx-4]
-      vcomiss xmm0, dword ptr [rbx+4]
-    }
-    if ( _RBX >= anim->notify && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 865, ASSERT_TYPE_ASSERT, "(bestNotifyInfo == anim->notify || bestNotifyInfo->time > ( bestNotifyInfo - 1 )->time)", (const char *)&queryFormat, "bestNotifyInfo == anim->notify || bestNotifyInfo->time > ( bestNotifyInfo - 1 )->time") )
-      __debugbreak();
-  }
-  v25 = _RBX - anim->notify;
-  if ( (unsigned __int64)(v25 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,__int64>(__int64)", "signed", (__int16)v25, "signed", v25) )
+  if ( v4 != anim->notify && v4[-1].time >= v4->time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 865, ASSERT_TYPE_ASSERT, "(bestNotifyInfo == anim->notify || bestNotifyInfo->time > ( bestNotifyInfo - 1 )->time)", (const char *)&queryFormat, "bestNotifyInfo == anim->notify || bestNotifyInfo->time > ( bestNotifyInfo - 1 )->time") )
     __debugbreak();
-  return (unsigned __int16)v25;
+  v8 = v4 - anim->notify;
+  if ( (unsigned __int64)(v8 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,__int64>(__int64)", "signed", (__int16)v8, "signed", v8) )
+    __debugbreak();
+  return (unsigned __int16)v8;
 }
 
 /*
@@ -1890,57 +1622,46 @@ Mayhem_GetPose
 */
 cpose_t *Mayhem_GetPose(LocalClientNum_t localClientNum, int dobjHandle)
 {
-  __int64 v3; 
+  __int64 v2; 
   int *i; 
-  unsigned int v5; 
-  __int64 v6; 
-  int *v7; 
-  char v9; 
-  char v13; 
+  unsigned int v4; 
+  __int64 v5; 
+  int *v6; 
+  MayhemInstance *Instance; 
+  float curTime; 
+  MayhemData *mayhem; 
 
-  v3 = 0i64;
+  v2 = 0i64;
   if ( !s_numMayhemObjs )
     return 0i64;
   for ( i = s_mayhemObjs[0].dobjHandle; ; i += 1296 )
   {
-    v5 = *(i - 1202);
-    v6 = 0i64;
-    if ( v5 )
+    v4 = *(i - 1202);
+    v5 = 0i64;
+    if ( v4 )
       break;
 LABEL_7:
-    v3 = (unsigned int)(v3 + 1);
-    if ( (unsigned int)v3 >= s_numMayhemObjs )
+    v2 = (unsigned int)(v2 + 1);
+    if ( (unsigned int)v2 >= s_numMayhemObjs )
       return 0i64;
   }
-  v7 = i;
-  while ( *v7 != dobjHandle )
+  v6 = i;
+  while ( *v6 != dobjHandle )
   {
-    v6 = (unsigned int)(v6 + 1);
-    ++v7;
-    if ( (unsigned int)v6 >= v5 )
+    v5 = (unsigned int)(v5 + 1);
+    ++v6;
+    if ( (unsigned int)v5 >= v4 )
       goto LABEL_7;
   }
-  _RAX = Mayhem_GetInstance(v3);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rax+34h]
-    vucomiss xmm1, xmm0
-  }
-  if ( v13 )
-  {
-    v9 = 0;
-    if ( _RAX->mayhem->preModel )
-      return &s_mayhemObjs[(unsigned int)v3].prePostPose;
-  }
-  _RCX = _RAX->mayhem;
-  __asm { vcomiss xmm1, dword ptr [rcx+48h] }
-  if ( v9 )
-    return &s_mayhemObjs[v3].pose[v6];
-  if ( _RCX->postModel )
-    return &s_mayhemObjs[(unsigned int)v3].prePostPose;
+  Instance = Mayhem_GetInstance(v2);
+  curTime = Instance->curTime;
+  if ( curTime == 0.0 && Instance->mayhem->preModel )
+    return &s_mayhemObjs[(unsigned int)v2].prePostPose;
+  mayhem = Instance->mayhem;
+  if ( curTime >= mayhem->length && mayhem->postModel )
+    return &s_mayhemObjs[(unsigned int)v2].prePostPose;
   else
-    return &s_mayhemObjs[v3].pose[v6];
+    return &s_mayhemObjs[v2].pose[v5];
 }
 
 /*
@@ -2428,111 +2149,107 @@ LABEL_25:
 Mayhem_MyChanges
 ==============
 */
-
-void __fastcall Mayhem_MyChanges(double _XMM0_8)
+void Mayhem_MyChanges(void)
 {
-  float *v2; 
-  __int64 v3; 
-  char *v4; 
-  const char **v5; 
-  const char *v6; 
-  scr_string_t *v7; 
-  __int64 v8; 
-  unsigned int v9; 
+  float *v0; 
+  __int64 v1; 
+  char *v2; 
+  const char **v3; 
+  const char *v4; 
+  scr_string_t *v5; 
+  __int64 v6; 
+  unsigned int v7; 
   unsigned int numMayhemScenes; 
-  const MayhemInstance *v11; 
-  const MayhemInstance *v12; 
-  __int64 v13; 
+  const MayhemInstance *v9; 
+  const MayhemInstance *v10; 
+  __int64 v11; 
   float *p_oldTime; 
-  char *v15; 
-  scr_string_t v16; 
-  __int64 v17; 
-  unsigned int v18; 
+  char *v13; 
+  scr_string_t v14; 
+  __int64 v15; 
+  unsigned int v16; 
   MayhemInstance *mayhemScenes; 
   scr_string_t *p_scriptName; 
-  __int64 v21; 
-  scr_string_t *v22; 
-  unsigned int v23; 
-  MayhemInstance *v24; 
+  __int64 v19; 
+  scr_string_t *v20; 
+  unsigned int v21; 
+  MayhemInstance *v22; 
+  MayhemInstance *v23; 
+  const char *v24; 
   MayhemInstance *v25; 
   const char *v26; 
-  MayhemInstance *v27; 
-  const char *v28; 
-  float v29; 
-  scr_string_t v30; 
-  const char *v31; 
-  XAssetHeader v32; 
-  char v34[20]; 
-  char v35; 
-  char v36; 
+  float v27; 
+  scr_string_t v28; 
+  const char *v29; 
+  XAssetHeader v30; 
+  float v31; 
+  char v32[20]; 
+  char v33; 
+  char v34; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+3C8h+var_378], xmm0
-  }
-  memset_0(v34, 0, 0x33Cui64);
-  v2 = &s_spawnedMayhems[0].initialPose.origin.v[2];
-  v3 = 16i64;
-  v4 = &v35;
+  v31 = 0.0;
+  memset_0(v32, 0, 0x33Cui64);
+  v0 = &s_spawnedMayhems[0].initialPose.origin.v[2];
+  v1 = 16i64;
+  v2 = &v33;
   do
   {
-    if ( *((_DWORD *)v2 + 6) )
+    if ( *((_DWORD *)v0 + 6) )
     {
-      v5 = (const char **)*((_QWORD *)v2 + 1);
-      *((float *)v4 - 2) = *(v2 - 2);
-      *((float *)v4 - 1) = *(v2 - 1);
-      v6 = *v5;
-      *(float *)v4 = *v2;
-      *((float *)v4 - 6) = *(v2 - 6);
-      *((float *)v4 - 5) = *(v2 - 5);
-      *((float *)v4 - 4) = *(v2 - 4);
-      *((float *)v4 - 3) = *(v2 - 3);
-      *((_DWORD *)v4 + 1) = SL_GetString(v6, 0);
-      *((float *)v4 + 2) = v2[6];
-      *((float *)v4 + 3) = v2[7];
-      *((float *)v4 + 4) = v2[8];
-      *((float *)v4 + 5) = v2[9];
-      *((float *)v4 + 6) = v2[10];
+      v3 = (const char **)*((_QWORD *)v0 + 1);
+      *((float *)v2 - 2) = *(v0 - 2);
+      *((float *)v2 - 1) = *(v0 - 1);
+      v4 = *v3;
+      *(float *)v2 = *v0;
+      *((float *)v2 - 6) = *(v0 - 6);
+      *((float *)v2 - 5) = *(v0 - 5);
+      *((float *)v2 - 4) = *(v0 - 4);
+      *((float *)v2 - 3) = *(v0 - 3);
+      *((_DWORD *)v2 + 1) = SL_GetString(v4, 0);
+      *((float *)v2 + 2) = v0[6];
+      *((float *)v2 + 3) = v0[7];
+      *((float *)v2 + 4) = v0[8];
+      *((float *)v2 + 5) = v0[9];
+      *((float *)v2 + 6) = v0[10];
     }
-    v4 += 52;
-    v2 += 20;
-    --v3;
+    v2 += 52;
+    v0 += 20;
+    --v1;
   }
-  while ( v3 );
-  v7 = (scr_string_t *)&v36;
-  v8 = 16i64;
+  while ( v1 );
+  v5 = (scr_string_t *)&v34;
+  v6 = 16i64;
   do
   {
-    if ( *v7 )
-      Mayhem_KillInstance(*v7);
-    v7 += 13;
-    --v8;
+    if ( *v5 )
+      Mayhem_KillInstance(*v5);
+    v5 += 13;
+    --v6;
   }
-  while ( v8 );
-  v9 = 0;
+  while ( v6 );
+  v7 = 0;
   if ( s_numMayhemObjs )
   {
     while ( 1 )
     {
-      Mayhem_DestroyObj(&s_mayhemObjs[v9]);
+      Mayhem_DestroyObj(&s_mayhemObjs[v7]);
       if ( !cm.mapEnts )
         break;
       numMayhemScenes = cm.mapEnts->numMayhemScenes;
-      if ( v9 >= numMayhemScenes )
+      if ( v7 >= numMayhemScenes )
         goto LABEL_14;
 LABEL_17:
-      if ( ++v9 >= s_numMayhemObjs )
+      if ( ++v7 >= s_numMayhemObjs )
         goto LABEL_18;
     }
     numMayhemScenes = 0;
 LABEL_14:
-    v11 = &s_spawnedMayhems[v9 - numMayhemScenes];
-    v12 = NULL;
-    if ( Mayhem_IsSpawnedInstanceActive(v11) )
-      v12 = v11;
-    SL_RemoveRefToString(v12->scriptName);
-    v12->scriptName = 0;
+    v9 = &s_spawnedMayhems[v7 - numMayhemScenes];
+    v10 = NULL;
+    if ( Mayhem_IsSpawnedInstanceActive(v9) )
+      v10 = v9;
+    SL_RemoveRefToString(v10->scriptName);
+    v10->scriptName = 0;
     goto LABEL_17;
   }
 LABEL_18:
@@ -2540,104 +2257,104 @@ LABEL_18:
   s_numMayhemObjs = 0;
   s_isInitialized = 0;
   Mayhem_Init();
-  v13 = 16i64;
+  v11 = 16i64;
   p_oldTime = &s_spawnedMayhems[0].oldTime;
-  v15 = &v35;
+  v13 = &v33;
   do
   {
-    v16 = *((_DWORD *)v15 + 2);
-    if ( v16 )
+    v14 = *((_DWORD *)v13 + 2);
+    if ( v14 )
     {
-      v17 = 0i64;
-      v18 = cm.mapEnts->numMayhemScenes;
-      if ( v18 )
+      v15 = 0i64;
+      v16 = cm.mapEnts->numMayhemScenes;
+      if ( v16 )
       {
         mayhemScenes = cm.mapEnts->mayhemScenes;
         p_scriptName = &mayhemScenes->scriptName;
-        while ( *p_scriptName != v16 )
+        while ( *p_scriptName != v14 )
         {
-          v17 = (unsigned int)(v17 + 1);
+          v15 = (unsigned int)(v15 + 1);
           p_scriptName += 20;
-          if ( (unsigned int)v17 >= v18 )
+          if ( (unsigned int)v15 >= v16 )
             goto LABEL_24;
         }
-        v25 = &mayhemScenes[v17];
+        v23 = &mayhemScenes[v15];
       }
       else
       {
 LABEL_24:
-        v21 = 0i64;
-        v22 = &s_spawnedMayhems[0].scriptName;
-        while ( *v22 != v16 )
+        v19 = 0i64;
+        v20 = &s_spawnedMayhems[0].scriptName;
+        while ( *v20 != v14 )
         {
-          v21 = (unsigned int)(v21 + 1);
-          v22 += 20;
-          if ( (unsigned int)v21 >= 0x10 )
+          v19 = (unsigned int)(v19 + 1);
+          v20 += 20;
+          if ( (unsigned int)v19 >= 0x10 )
             goto LABEL_27;
         }
-        v25 = &s_spawnedMayhems[v21];
+        v23 = &s_spawnedMayhems[v19];
       }
-      if ( v25 )
+      if ( v23 )
       {
-        v26 = SL_ConvertToString(v16);
-        Com_PrintError(19, "Attempting to spawn a Mayhem entity that already exists (name = %s).\n", v26);
+        v24 = SL_ConvertToString(v14);
+        Com_PrintError(19, "Attempting to spawn a Mayhem entity that already exists (name = %s).\n", v24);
       }
       else
       {
 LABEL_27:
-        v23 = 0;
-        v24 = s_spawnedMayhems;
+        v21 = 0;
+        v22 = s_spawnedMayhems;
         while ( 1 )
         {
-          if ( (s_spawnedMayhems > v24 || v24 > &s_spawnedMayhems[15]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 110, ASSERT_TYPE_ASSERT, "(&s_spawnedMayhems[0]) <= (mayhem) && (mayhem) <= (&s_spawnedMayhems[( sizeof( *array_counter( s_spawnedMayhems ) ) + 0 ) - 1])", "%s\n\t0x%p not in [0x%p, 0x%p]", "mayhem not in [&s_spawnedMayhems[0], &s_spawnedMayhems[ARRAY_COUNT( s_spawnedMayhems ) - 1]]", v24, s_spawnedMayhems, &s_spawnedMayhems[15]) )
+          if ( (s_spawnedMayhems > v22 || v22 > &s_spawnedMayhems[15]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 110, ASSERT_TYPE_ASSERT, "(&s_spawnedMayhems[0]) <= (mayhem) && (mayhem) <= (&s_spawnedMayhems[( sizeof( *array_counter( s_spawnedMayhems ) ) + 0 ) - 1])", "%s\n\t0x%p not in [0x%p, 0x%p]", "mayhem not in [&s_spawnedMayhems[0], &s_spawnedMayhems[ARRAY_COUNT( s_spawnedMayhems ) - 1]]", v22, s_spawnedMayhems, &s_spawnedMayhems[15]) )
             __debugbreak();
-          if ( !v24->scriptName )
+          if ( !v22->scriptName )
             break;
-          ++v23;
-          ++v24;
-          if ( v23 >= 0x10 )
+          ++v21;
+          ++v22;
+          if ( v21 >= 0x10 )
             goto LABEL_40;
         }
-        v27 = &s_spawnedMayhems[v23];
-        if ( !v27 )
+        v25 = &s_spawnedMayhems[v21];
+        if ( !v25 )
         {
 LABEL_40:
-          v28 = SL_ConvertToString(v16);
-          Com_PrintError(19, "Could not find empty slot to spawn Mayhem Entity (name = %s).  Slot count = %zu.\n", v28, 0x10ui64);
+          v26 = SL_ConvertToString(v14);
+          Com_PrintError(19, "Could not find empty slot to spawn Mayhem Entity (name = %s).  Slot count = %zu.\n", v26, 0x10ui64);
           goto LABEL_44;
         }
-        SL_AddRefToString(v16);
-        v29 = *((float *)v15 - 2);
-        v30 = *((_DWORD *)v15 + 1);
-        v27->scriptName = v16;
-        *(_QWORD *)&v27->curTime = 0i64;
-        *(_QWORD *)&v27->initialFlags = 2i64;
-        v27->linkTo = NULL;
-        v27->initialPose.origin.v[0] = v29;
-        v27->initialPose.origin.v[1] = *((float *)v15 - 1);
-        v27->initialPose.origin.v[2] = *(float *)v15;
-        v27->initialPose.quat.v[0] = *((float *)v15 - 6);
-        v27->initialPose.quat.v[1] = *((float *)v15 - 5);
-        v27->initialPose.quat.v[2] = *((float *)v15 - 4);
-        v27->initialPose.quat.v[3] = *((float *)v15 - 3);
-        v31 = SL_ConvertToString(v30);
-        v32.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_MAYHEM, v31, 1).physicsLibrary;
-        if ( !v32.physicsLibrary )
-          Com_PrintError(19, "Failed to find mayhem asset '%s'\n", v31);
-        v27->mayhem = v32.mayhem;
-        Mayhem_InitEntity(v27, 1, LOCAL_CLIENT_0);
+        SL_AddRefToString(v14);
+        v27 = *((float *)v13 - 2);
+        v28 = *((_DWORD *)v13 + 1);
+        v25->scriptName = v14;
+        *(_QWORD *)&v25->curTime = 0i64;
+        *(_QWORD *)&v25->initialFlags = 2i64;
+        v25->linkTo = NULL;
+        v25->initialPose.origin.v[0] = v27;
+        v25->initialPose.origin.v[1] = *((float *)v13 - 1);
+        v25->initialPose.origin.v[2] = *(float *)v13;
+        v25->initialPose.quat.v[0] = *((float *)v13 - 6);
+        v25->initialPose.quat.v[1] = *((float *)v13 - 5);
+        v25->initialPose.quat.v[2] = *((float *)v13 - 4);
+        v25->initialPose.quat.v[3] = *((float *)v13 - 3);
+        v29 = SL_ConvertToString(v28);
+        v30.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_MAYHEM, v29, 1).physicsLibrary;
+        if ( !v30.physicsLibrary )
+          Com_PrintError(19, "Failed to find mayhem asset '%s'\n", v29);
+        v25->mayhem = v30.mayhem;
+        Mayhem_InitEntity(v25, 1, LOCAL_CLIENT_0);
       }
 LABEL_44:
-      *(p_oldTime - 1) = *((float *)v15 + 3);
-      *p_oldTime = *((float *)v15 + 4);
-      p_oldTime[1] = *((float *)v15 + 5);
-      p_oldTime[2] = *((float *)v15 + 6);
+      *(p_oldTime - 1) = *((float *)v13 + 3);
+      *p_oldTime = *((float *)v13 + 4);
+      p_oldTime[1] = *((float *)v13 + 5);
+      p_oldTime[2] = *((float *)v13 + 6);
     }
-    v15 += 52;
+    v13 += 52;
     p_oldTime += 20;
-    --v13;
+    --v11;
   }
-  while ( v13 );
+  while ( v11 );
 }
 
 /*
@@ -2695,6 +2412,7 @@ void Mayhem_ProcessNotetracks(unsigned int mayhemEntId, LocalClientNum_t localCl
 {
   int v2; 
   __int64 v3; 
+  scr_string_t *p_noteName; 
   __int64 v6; 
   const char *v7; 
   const char *v8; 
@@ -2718,12 +2436,12 @@ void Mayhem_ProcessNotetracks(unsigned int mayhemEntId, LocalClientNum_t localCl
   }
   else
   {
-    _R14 = &s_notifyList[0].noteName;
+    p_noteName = &s_notifyList[0].noteName;
     do
     {
       v6 = 0x7FFFFFFFi64;
       v7 = "end";
-      v8 = SL_ConvertToString(*_R14);
+      v8 = SL_ConvertToString(*p_noteName);
       if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       v9 = v8 - "end";
@@ -2747,22 +2465,16 @@ void Mayhem_ProcessNotetracks(unsigned int mayhemEntId, LocalClientNum_t localCl
           if ( v10 != v14 )
           {
             v15 = DVARBOOL_mayhem_debugNotetracks;
-            subObjIdx = *((unsigned int *)_R14 + 5);
+            subObjIdx = *((unsigned int *)p_noteName + 5);
             if ( !DVARBOOL_mayhem_debugNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mayhem_debugNotetracks") )
               __debugbreak();
             Dvar_CheckFrontendServerThread(v15);
             if ( v15->current.enabled )
             {
-              v17 = SL_ConvertToString(*_R14);
-              __asm
-              {
-                vmovss  xmm2, dword ptr [r14+8]
-                vcvtss2sd xmm2, xmm2, xmm2
-                vmovq   r8, xmm2
-              }
+              v17 = SL_ConvertToString(*p_noteName);
               LODWORD(isViewmodel) = subObjIdx;
               LODWORD(fmt) = v3;
-              Com_Printf(14, "Mayhem note at %.2f - \"%s\" for ent %d, subObj %d\n", *(double *)&_XMM2, v17, fmt, isViewmodel);
+              Com_Printf(14, "Mayhem note at %.2f - \"%s\" for ent %d, subObj %d\n", *((float *)p_noteName + 2), v17, fmt, isViewmodel);
             }
             CG_Utils_ProcessNotetracks(localClientNum, s_mayhemObjs[v3].dobjHandle[subObjIdx], s_mayhemObjs[v3].dobj[subObjIdx], &s_mayhemObjs[v3].pose[subObjIdx], &s_notifyList[v2], 0, 1, v3, subObjIdx, 1);
             break;
@@ -2771,7 +2483,7 @@ void Mayhem_ProcessNotetracks(unsigned int mayhemEntId, LocalClientNum_t localCl
       }
       while ( v10 );
       ++v2;
-      _R14 += 8;
+      p_noteName += 8;
     }
     while ( v2 < s_notifyListSize );
     s_notifyListSize = 0;
@@ -2786,241 +2498,120 @@ Mayhem_ProcessNotetracksForEnt
 void Mayhem_ProcessNotetracksForEnt(const MayhemInstance *mayhemInst, const DObj *obj, unsigned int subObjIdx, const MayhemObj *curObj)
 {
   MayhemData *mayhem; 
-  const DObj *v11; 
+  const DObj *v6; 
   int DObjBasePartOffset; 
-  unsigned int v14; 
+  unsigned int v10; 
   __int64 animIndex; 
   MayhemAnim *anims; 
   bool isLooping; 
-  char v31; 
-  bool v32; 
-  bool v37; 
-  bool v39; 
-  bool v41; 
-  bool v42; 
-  bool v49; 
-  bool v50; 
-  double v62; 
-  double v63; 
-  double v64; 
-  double v65; 
-  double v66; 
-  double v67; 
-  MayhemData *v68; 
-  int v75; 
+  const MayhemAnim *v15; 
+  float frequency; 
+  float v17; 
+  double v18; 
+  float v19; 
+  float v20; 
+  double v21; 
+  float v22; 
+  __int64 NextNotifyIndex; 
+  XAnimNotifyInfo *notify; 
+  float time; 
+  XAnimNotifyInfo *v26; 
+  __int64 v27; 
+  XAnimNotifyInfo *v28; 
+  float v29; 
+  XAnimNotifyInfo *v30; 
+  MayhemData *v31; 
+  int v32; 
 
   mayhem = mayhemInst->mayhem;
-  v11 = obj;
-  v68 = mayhem;
+  v6 = obj;
+  v31 = mayhem;
   DObjBasePartOffset = Mayhem_GetDObjBasePartOffset(obj, curObj);
-  v14 = 0;
-  v75 = DObjBasePartOffset;
-  if ( v11->numModels )
+  v10 = 0;
+  v32 = DObjBasePartOffset;
+  if ( v6->numModels )
   {
-    __asm
+    __asm { vxorpd  xmm11, xmm11, xmm11 }
+    do
     {
-      vmovaps [rsp+0E8h+var_48], xmm6
-      vmovaps [rsp+0E8h+var_58], xmm7
-      vmovaps [rsp+0E8h+var_68], xmm8
-      vmovaps [rsp+0E8h+var_78], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps [rsp+0E8h+var_88], xmm10
-      vmovsd  xmm10, cs:__real@3ff0000000000000
-      vmovaps [rsp+0E8h+var_98], xmm11
-      vxorpd  xmm11, xmm11, xmm11
-      vxorps  xmm8, xmm8, xmm8
-    }
-    while ( 1 )
-    {
-      animIndex = mayhem->objects[v14 + DObjBasePartOffset].animIndex;
+      animIndex = mayhem->objects[v10 + DObjBasePartOffset].animIndex;
       anims = mayhem->anims;
       isLooping = anims[animIndex].isLooping;
-      _RSI = &anims[animIndex];
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rsi+14h]
-        vmulss  xmm0, xmm7, dword ptr [r13+38h]; X
-      }
+      v15 = &anims[animIndex];
+      frequency = v15->frequency;
+      v17 = frequency * mayhemInst->oldTime;
       if ( isLooping )
       {
-        __asm { vmovaps xmm1, xmm9; Y }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+        *(float *)&v18 = fmodf_0(v17, 1.0);
       }
       else
       {
-        __asm
-        {
-          vmovaps xmm2, xmm9; max
-          vmovaps xmm1, xmm8; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        isLooping = _RSI->isLooping;
-        __asm { vmovss  xmm7, dword ptr [rsi+14h] }
+        v18 = I_fclamp(v17, 0.0, 1.0);
+        isLooping = v15->isLooping;
+        frequency = v15->frequency;
       }
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmulss  xmm0, xmm7, dword ptr [r13+34h]; X
-      }
+      v19 = *(float *)&v18;
+      v20 = frequency * mayhemInst->curTime;
       if ( isLooping )
-      {
-        __asm { vmovaps xmm1, xmm9; Y }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      }
+        *(float *)&v21 = fmodf_0(v20, 1.0);
       else
+        v21 = I_fclamp(v20, 0.0, 1.0);
+      v22 = *(float *)&v21;
+      if ( (v19 < 0.0 || v19 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 923, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t0 ) && ( t0 ) <= ( 1.0f )", "t0 not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v19, *(double *)&_XMM11, DOUBLE_1_0) )
+        __debugbreak();
+      if ( (*(float *)&v21 < 0.0 || *(float *)&v21 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 924, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t1 ) && ( t1 ) <= ( 1.0f )", "t1 not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v21, *(double *)&_XMM11, DOUBLE_1_0) )
+        __debugbreak();
+      if ( v19 > *(float *)&v21 )
       {
-        __asm
-        {
-          vmovaps xmm2, xmm9; max
-          vmovaps xmm1, xmm8; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      }
-      __asm
-      {
-        vcomiss xmm6, xmm8
-        vmovaps xmm7, xmm0
-      }
-      if ( v31 )
-        goto LABEL_41;
-      __asm { vcomiss xmm6, xmm9 }
-      if ( !(v31 | v32) )
-      {
-LABEL_41:
-        __asm
-        {
-          vmovsd  [rsp+0E8h+var_B0], xmm10
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+0E8h+var_B8], xmm11
-          vmovsd  [rsp+0E8h+var_C0], xmm0
-        }
-        v37 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 923, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t0 ) && ( t0 ) <= ( 1.0f )", "t0 not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v62, v64, v66);
-        v31 = 0;
-        v32 = !v37;
-        if ( v37 )
+        if ( !v15->isLooping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 928, ASSERT_TYPE_ASSERT, "(anim->isLooping)", (const char *)&queryFormat, "anim->isLooping") )
           __debugbreak();
-      }
-      __asm
-      {
-        vcomiss xmm7, xmm8
-        vcomiss xmm7, xmm9
-      }
-      if ( !(v31 | v32) )
-      {
-        __asm
-        {
-          vmovsd  [rsp+0E8h+var_B0], xmm10
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+0E8h+var_B8], xmm11
-          vmovsd  [rsp+0E8h+var_C0], xmm0
-        }
-        v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 924, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t1 ) && ( t1 ) <= ( 1.0f )", "t1 not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v63, v65, v67);
-        v31 = 0;
-        v32 = !v39;
-        if ( v39 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm6, xmm7 }
-      if ( !(v31 | v32) )
-      {
-        if ( !_RSI->isLooping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 928, ASSERT_TYPE_ASSERT, "(anim->isLooping)", (const char *)&queryFormat, "anim->isLooping") )
-          __debugbreak();
-        __asm { vmovaps xmm1, xmm8; time }
-        _RDI = (unsigned __int16)Mayhem_GetNextNotifyIndex(_RSI, *(double *)&_XMM1);
-        _RAX = _RSI->notify;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rdi*8+4]
-          vucomiss xmm0, xmm9
-        }
-        _RBX = (scr_string_t *)&_RAX[_RDI];
-        if ( v42 )
-          goto LABEL_37;
-        __asm { vcomiss xmm7, xmm0 }
-        if ( v41 )
-          goto LABEL_37;
+        NextNotifyIndex = (unsigned __int16)Mayhem_GetNextNotifyIndex(v15, 0.0);
+        notify = v15->notify;
+        time = notify[NextNotifyIndex].time;
+        v26 = &notify[NextNotifyIndex];
+        if ( time == 1.0 || v22 < time )
+          goto LABEL_38;
         do
         {
-          __asm { vcomiss xmm6, xmm0 }
-          if ( (v41 || v42) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 946, ASSERT_TYPE_ASSERT, "(t0 > notifyInfo->time)", (const char *)&queryFormat, "t0 > notifyInfo->time") )
+          if ( v19 <= time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 946, ASSERT_TYPE_ASSERT, "(t0 > notifyInfo->time)", (const char *)&queryFormat, "t0 > notifyInfo->time") )
             __debugbreak();
-          __asm { vmovaps xmm2, xmm8; frac }
-          Mayhem_AddClientNotify(*_RBX, subObjIdx, *(double *)&_XMM2, 0);
-          _RBX += 2;
-          LODWORD(_RDI) = _RDI + 1;
-          v41 = (unsigned int)_RDI < _RSI->notifyCount;
-          v42 = (_DWORD)_RDI == _RSI->notifyCount;
-          if ( (unsigned int)_RDI >= _RSI->notifyCount )
+          Mayhem_AddClientNotify(v26->name, subObjIdx, 0.0, 0);
+          ++v26;
+          LODWORD(NextNotifyIndex) = NextNotifyIndex + 1;
+          if ( (unsigned int)NextNotifyIndex >= v15->notifyCount )
             break;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+4]
-            vcomiss xmm7, xmm0
-          }
+          time = v26->time;
         }
-        while ( (unsigned int)_RDI > _RSI->notifyCount );
-        v11 = obj;
-        mayhem = v68;
+        while ( v22 > time );
+        v6 = obj;
+        mayhem = v31;
       }
-      __asm { vmovaps xmm1, xmm6; time }
-      _RDI = (unsigned __int16)Mayhem_GetNextNotifyIndex(_RSI, *(double *)&_XMM1);
-      _RAX = _RSI->notify;
-      __asm
+      v27 = (unsigned __int16)Mayhem_GetNextNotifyIndex(v15, v19);
+      v28 = v15->notify;
+      v29 = v28[v27].time;
+      v30 = &v28[v27];
+      if ( v29 != 1.0 && v19 <= v29 && v22 >= v29 )
       {
-        vmovss  xmm0, dword ptr [rax+rdi*8+4]
-        vucomiss xmm0, xmm9
-      }
-      _RBX = (scr_string_t *)&_RAX[_RDI];
-      if ( !v50 )
-      {
-        __asm { vcomiss xmm6, xmm0 }
-        if ( v49 || v50 )
+        do
         {
-          __asm { vcomiss xmm7, xmm0 }
-          if ( !v49 )
-          {
-            do
-            {
-              __asm { vcomiss xmm6, xmm0 }
-              if ( !v49 && !v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 969, ASSERT_TYPE_ASSERT, "(t0 <= notifyInfo->time)", (const char *)&queryFormat, "t0 <= notifyInfo->time") )
-                __debugbreak();
-              __asm { vmovaps xmm2, xmm6; frac }
-              Mayhem_AddClientNotify(*_RBX, subObjIdx, *(double *)&_XMM2, 0);
-              _RBX += 2;
-              LODWORD(_RDI) = _RDI + 1;
-              v49 = (unsigned int)_RDI < _RSI->notifyCount;
-              v50 = (_DWORD)_RDI == _RSI->notifyCount;
-              if ( (unsigned int)_RDI >= _RSI->notifyCount )
-                break;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+4]
-                vcomiss xmm7, xmm0
-              }
-            }
-            while ( (unsigned int)_RDI > _RSI->notifyCount );
-            v11 = obj;
-            mayhem = v68;
-          }
+          if ( v19 > v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 969, ASSERT_TYPE_ASSERT, "(t0 <= notifyInfo->time)", (const char *)&queryFormat, "t0 <= notifyInfo->time") )
+            __debugbreak();
+          Mayhem_AddClientNotify(v30->name, subObjIdx, v19, 0);
+          ++v30;
+          LODWORD(v27) = v27 + 1;
+          if ( (unsigned int)v27 >= v15->notifyCount )
+            break;
+          v29 = v30->time;
         }
+        while ( v22 > v29 );
+        v6 = obj;
+        mayhem = v31;
       }
-LABEL_37:
-      ++v14;
-      DObjBasePartOffset = v75;
-      if ( v14 >= v11->numModels )
-      {
-        __asm
-        {
-          vmovaps xmm11, [rsp+0E8h+var_98]
-          vmovaps xmm10, [rsp+0E8h+var_88]
-          vmovaps xmm9, [rsp+0E8h+var_78]
-          vmovaps xmm8, [rsp+0E8h+var_68]
-          vmovaps xmm7, [rsp+0E8h+var_58]
-          vmovaps xmm6, [rsp+0E8h+var_48]
-        }
-        return;
-      }
+LABEL_38:
+      ++v10;
+      DObjBasePartOffset = v32;
     }
+    while ( v10 < v6->numModels );
   }
 }
 
@@ -3277,31 +2868,22 @@ void Mayhem_ReleaseResources(MayhemData *mayhem)
 Mayhem_SetAnimationTime
 ==============
 */
-
-void __fastcall Mayhem_SetAnimationTime(scr_string_t mayhemName, double curTime)
+void Mayhem_SetAnimationTime(scr_string_t mayhemName, float curTime)
 {
-  scr_string_t v5; 
-  const char *v6; 
+  MayhemInstance *InstanceByName; 
+  scr_string_t v3; 
+  const char *v4; 
 
-  __asm
+  InstanceByName = Mayhem_GetInstanceByName(mayhemName);
+  if ( InstanceByName )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  if ( Mayhem_GetInstanceByName(mayhemName) )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rax+34h], xmm6
-      vmovss  dword ptr [rax+38h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    InstanceByName->curTime = curTime;
+    InstanceByName->oldTime = curTime;
   }
   else
   {
-    v6 = SL_ConvertToString(v5);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v6);
+    v4 = SL_ConvertToString(v3);
+    Com_PrintError(19, "Could not find spawned Mayhem Entity (name = %s)!\n", v4);
   }
 }
 
@@ -3726,106 +3308,88 @@ Mayhem_Update
 */
 void Mayhem_Update(LocalClientNum_t localClientNum, MayhemUpdateType updateType)
 {
-  int v7; 
-  const dvar_t *v17; 
+  __int128 v2; 
+  __int128 v3; 
+  int v4; 
+  float v7; 
+  const dvar_t *v8; 
+  float value; 
+  const dvar_t *v10; 
   unsigned int unsignedInt; 
-  char v21; 
-  char v22; 
-  unsigned int i; 
+  const dvar_t *v12; 
+  __int128 v13; 
   MayhemInstance *Instance; 
-  unsigned int v36; 
-  MayhemSoundInstance *v37; 
-  MayhemObj *v38; 
+  float curTime; 
+  __int128 v16; 
+  __int128 curTime_low; 
+  unsigned int i; 
+  MayhemInstance *v22; 
+  unsigned int v23; 
+  MayhemSoundInstance *v24; 
+  MayhemObj *v25; 
   vec3_t outOrigin; 
-  void *retaddr; 
+  __int128 v27; 
+  __int128 v28; 
 
-  _R11 = &retaddr;
-  v7 = s_curFreeMayhemClientEntNum;
-  __asm { vmovaps xmmword ptr [r11-28h], xmm6 }
+  v4 = s_curFreeMayhemClientEntNum;
+  v28 = v2;
   if ( (updateType & 0xFFFFFFFD) == 0 )
-    v7 = 2050;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm8 }
-  s_curFreeMayhemClientEntNum = v7;
-  CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+65E4h]
-    vmulss  xmm8, xmm0, cs:__real@3a83126f
-  }
+    v4 = 2050;
+  s_curFreeMayhemClientEntNum = v4;
+  v7 = (float)CG_GetLocalClientGlobals(localClientNum)->frametime * 0.001;
   if ( DVARINT_mayhem_debugEnt->modified )
   {
-    __asm { vmovss  xmm1, cs:__real@bf800000; value }
-    Dvar_SetFloat_Internal(DVARFLT_mayhem_debugEntTime, *(float *)&_XMM1);
+    Dvar_SetFloat_Internal(DVARFLT_mayhem_debugEntTime, -1.0);
     Dvar_ClearModified(DVARINT_mayhem_debugEnt);
   }
-  _RBX = DVARFLT_mayhem_debugEntTime;
+  v8 = DVARFLT_mayhem_debugEntTime;
   if ( !DVARFLT_mayhem_debugEntTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mayhem_debugEntTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v8);
+  value = v8->current.value;
+  if ( value >= 0.0 )
   {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !v21 )
-  {
-    v17 = DVARINT_mayhem_debugEnt;
+    v10 = DVARINT_mayhem_debugEnt;
     if ( !DVARINT_mayhem_debugEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mayhem_debugEnt") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    unsignedInt = v17->current.unsignedInt;
+    Dvar_CheckFrontendServerThread(v10);
+    unsignedInt = v10->current.unsignedInt;
     if ( unsignedInt < s_numMayhemObjs )
     {
-      _RBX = DVARFLT_mayhem_debugEntTimeScale;
-      __asm { vmovaps [rsp+0A8h+var_38], xmm7 }
+      v12 = DVARFLT_mayhem_debugEntTimeScale;
+      v27 = v3;
       if ( !DVARFLT_mayhem_debugEntTimeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mayhem_debugEntTimeScale") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      _RAX = Mayhem_GetInstance(unsignedInt);
-      __asm
+      Dvar_CheckFrontendServerThread(v12);
+      v13 = v12->current.unsignedInt;
+      Instance = Mayhem_GetInstance(unsignedInt);
+      curTime = Instance->curTime;
+      if ( curTime >= value )
       {
-        vmovss  xmm1, dword ptr [rax+34h]
-        vcomiss xmm1, xmm6
-      }
-      if ( v21 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm7, xmm8
-          vaddss  xmm1, xmm0, xmm1
-          vminss  xmm2, xmm1, xmm6
-        }
+        if ( curTime <= value )
+          goto LABEL_21;
+        curTime_low = LODWORD(Instance->curTime);
+        *(float *)&curTime_low = curTime - (float)(*(float *)&v13 * v7);
+        _XMM1 = curTime_low;
+        __asm { vmaxss  xmm2, xmm1, xmm6 }
       }
       else
       {
-        if ( v21 | v22 )
-        {
-LABEL_21:
-          __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-          goto LABEL_22;
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm7, xmm8
-          vsubss  xmm1, xmm1, xmm0
-          vmaxss  xmm2, xmm1, xmm6
-        }
+        v16 = v13;
+        *(float *)&v16 = (float)(*(float *)&v13 * v7) + curTime;
+        _XMM1 = v16;
+        __asm { vminss  xmm2, xmm1, xmm6 }
       }
-      __asm { vmovss  dword ptr [rax+34h], xmm2 }
-      goto LABEL_21;
+      Instance->curTime = *(float *)&_XMM2;
     }
   }
-LABEL_22:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_28] }
+LABEL_21:
   for ( i = 0; i < s_numMayhemObjs; ++i )
   {
-    Instance = Mayhem_GetInstance(i);
+    v22 = Mayhem_GetInstance(i);
     if ( updateType == MAYHEM_UPDATE_DELAYED )
     {
-      if ( (Instance->flags & 4) == 0 )
+      if ( (v22->flags & 4) == 0 )
         continue;
     }
     else if ( updateType )
@@ -3833,32 +3397,30 @@ LABEL_22:
       if ( updateType != MAYHEM_UPDATE_ALL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 219, ASSERT_TYPE_ASSERT, "(updateType == MAYHEM_UPDATE_ALL)", (const char *)&queryFormat, "updateType == MAYHEM_UPDATE_ALL") )
         __debugbreak();
     }
-    else if ( (Instance->flags & 4) != 0 )
+    else if ( (v22->flags & 4) != 0 )
     {
       continue;
     }
-    __asm { vmovaps xmm1, xmm8; dT }
-    Mayhem_UpdateEntity(i, *(float *)&_XMM1, localClientNum);
+    Mayhem_UpdateEntity(i, v7, localClientNum);
     Mayhem_ProcessNotetracks(i, localClientNum);
   }
-  __asm { vmovaps xmm8, [rsp+0A8h+var_48] }
   if ( (unsigned int)(updateType - 1) <= 1 )
   {
-    v36 = 0;
-    v37 = s_mayhemSounds;
+    v23 = 0;
+    v24 = s_mayhemSounds;
     do
     {
-      if ( v37->sndId )
+      if ( v24->sndId )
       {
-        v38 = &s_mayhemObjs[v37->mayhemEntId];
-        CG_DObjGetWorldBonePos(&v38->pose[v37->subObjIdx], v38->dobj[v37->subObjIdx], v37->boneIndex, &outOrigin);
-        if ( !SND_SetWorldPosition(v37->sndId, &outOrigin) )
-          v37->sndId = 0;
+        v25 = &s_mayhemObjs[v24->mayhemEntId];
+        CG_DObjGetWorldBonePos(&v25->pose[v24->subObjIdx], v25->dobj[v24->subObjIdx], v24->boneIndex, &outOrigin);
+        if ( !SND_SetWorldPosition(v24->sndId, &outOrigin) )
+          v24->sndId = 0;
       }
-      ++v36;
-      ++v37;
+      ++v23;
+      ++v24;
     }
-    while ( v36 < 0x10 );
+    while ( v23 < 0x10 );
   }
 }
 
@@ -3867,98 +3429,88 @@ LABEL_22:
 Mayhem_UpdateEntity
 ==============
 */
-
-void __fastcall Mayhem_UpdateEntity(unsigned int mayhemEntId, double dT, LocalClientNum_t localClientNum)
+void Mayhem_UpdateEntity(unsigned int mayhemEntId, float dT, LocalClientNum_t localClientNum)
 {
-  __int64 v6; 
-  __int64 v7; 
+  __int64 v4; 
+  __int64 v5; 
+  MayhemInstance *Instance; 
   unsigned int flags; 
-  MayhemObj *v12; 
-  __int64 v14; 
+  MayhemData *mayhem; 
+  float curTime; 
+  MayhemObj *v10; 
+  __int64 v11; 
+  int v12; 
   unsigned int numSubObjects; 
   __int64 isActive; 
-  __int64 v18; 
+  __int64 v15; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = localClientNum;
-  v7 = mayhemEntId;
-  _RBP = Mayhem_GetInstance(mayhemEntId);
-  flags = _RBP->flags;
+  v4 = localClientNum;
+  v5 = mayhemEntId;
+  Instance = Mayhem_GetInstance(mayhemEntId);
+  flags = Instance->flags;
   if ( (flags & 1) == 0 )
   {
-    _RDX = _RBP->mayhem;
-    if ( _RDX->numObjects )
+    mayhem = Instance->mayhem;
+    if ( mayhem->numObjects )
     {
-      __asm { vmovss  xmm1, dword ptr [rbp+34h] }
+      curTime = Instance->curTime;
       if ( (flags & 2) != 0 )
       {
-        __asm
-        {
-          vmovss  dword ptr [rbp+38h], xmm1
-          vaddss  xmm1, xmm1, xmm6
-          vmovss  dword ptr [rbp+34h], xmm1
-        }
+        Instance->oldTime = curTime;
+        curTime = curTime + dT;
+        Instance->curTime = curTime;
       }
-      v12 = &s_mayhemObjs[v7];
-      __asm
+      v10 = &s_mayhemObjs[v5];
+      if ( curTime == 0.0 && mayhem->preModel )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm1, xmm0
+        Mayhem_AddDobj((LocalClientNum_t)v4, v5, v10->preDobj, &v10->prePostPose, v10->preDobjHandle, 0);
       }
-      if ( v12 || !_RDX->preModel )
+      else
       {
-        v14 = 0i64;
-        __asm { vcomiss xmm1, dword ptr [rdx+48h] }
-        numSubObjects = v12->numSubObjects;
-        if ( _RDX->postModel )
+        v11 = 0i64;
+        if ( curTime < mayhem->length || (v12 = 1, !mayhem->postModel) )
+          v12 = 0;
+        numSubObjects = v10->numSubObjects;
+        if ( v12 )
         {
           if ( numSubObjects )
           {
             do
             {
-              if ( v12->pose[v14].isMayhem )
+              if ( v10->pose[v11].isMayhem )
               {
-                if ( (unsigned int)v6 >= 2 )
+                if ( (unsigned int)v4 >= 2 )
                 {
-                  LODWORD(v18) = 2;
-                  LODWORD(isActive) = v6;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", isActive, v18) )
+                  LODWORD(v15) = 2;
+                  LODWORD(isActive) = v4;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", isActive, v15) )
                     __debugbreak();
                 }
-                if ( !&g_particleManager[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1109, ASSERT_TYPE_ASSERT, "(particleManager)", (const char *)&queryFormat, "particleManager") )
+                if ( !&g_particleManager[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1109, ASSERT_TYPE_ASSERT, "(particleManager)", (const char *)&queryFormat, "particleManager") )
                   __debugbreak();
-                ParticleManager::KillAllSystemsOnDObjImmediate(&g_particleManager[v6], v12->dobjHandle[v14], 1);
-                Mayhem_ClearSoundEntries(v7);
-                v12->pose[v14].isMayhem = 0;
+                ParticleManager::KillAllSystemsOnDObjImmediate(&g_particleManager[v4], v10->dobjHandle[v11], 1);
+                Mayhem_ClearSoundEntries(v5);
+                v10->pose[v11].isMayhem = 0;
               }
-              v14 = (unsigned int)(v14 + 1);
+              v11 = (unsigned int)(v11 + 1);
             }
-            while ( (unsigned int)v14 < v12->numSubObjects );
+            while ( (unsigned int)v11 < v10->numSubObjects );
           }
-          Mayhem_AddDobj((LocalClientNum_t)v6, v7, v12->postDobj, &v12->prePostPose, v12->postDobjHandle, 0);
+          Mayhem_AddDobj((LocalClientNum_t)v4, v5, v10->postDobj, &v10->prePostPose, v10->postDobjHandle, 0);
         }
         else if ( numSubObjects )
         {
           do
           {
-            Mayhem_AddDobj((LocalClientNum_t)v6, v7, v12->dobj[v14], &v12->pose[v14], v12->dobjHandle[v14], 1);
-            Mayhem_ProcessNotetracksForEnt(_RBP, v12->dobj[v14], v14, &s_mayhemObjs[v7]);
-            v14 = (unsigned int)(v14 + 1);
+            Mayhem_AddDobj((LocalClientNum_t)v4, v5, v10->dobj[v11], &v10->pose[v11], v10->dobjHandle[v11], 1);
+            Mayhem_ProcessNotetracksForEnt(Instance, v10->dobj[v11], v11, &s_mayhemObjs[v5]);
+            v11 = (unsigned int)(v11 + 1);
           }
-          while ( (unsigned int)v14 < v12->numSubObjects );
+          while ( (unsigned int)v11 < v10->numSubObjects );
         }
-      }
-      else
-      {
-        Mayhem_AddDobj((LocalClientNum_t)v6, v7, MEMORY[0x1308], (cpose_t *)0x1318, MEMORY[0x1438], 0);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -3968,40 +3520,34 @@ Mayhem_UpdateFromLink
 */
 void Mayhem_UpdateFromLink(LocalClientNum_t localClientNum, const MayhemInstance *mayhemInst, cpose_t *mayhemPose)
 {
-  __int64 v9; 
+  __int64 v5; 
   unsigned int anchorIndex; 
   int AnchorEntNum; 
-  __int64 v12; 
-  CgEntitySystem *v13; 
+  __int64 v8; 
+  CgEntitySystem *v9; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   __int64 v14; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v15; 
   vec3_t outOrigin; 
-  __int64 v25; 
+  __int64 v17; 
   vec4_t quat; 
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> result; 
   tmat43_t<vec3_t> in1; 
-  char v30; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v25 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  v9 = localClientNum;
+  v17 = -2i64;
+  v5 = localClientNum;
   if ( !mayhemInst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 759, ASSERT_TYPE_ASSERT, "(mayhemInst)", (const char *)&queryFormat, "mayhemInst") )
     __debugbreak();
   if ( !mayhemInst->linkTo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 760, ASSERT_TYPE_ASSERT, "(mayhemInst->linkTo)", (const char *)&queryFormat, "mayhemInst->linkTo") )
     __debugbreak();
   if ( mayhemInst->linkTo->anchorIndex >= 0x100u )
   {
-    LODWORD(v22) = mayhemInst->linkTo->anchorIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 761, ASSERT_TYPE_ASSERT, "(unsigned)( mayhemInst->linkTo->anchorIndex ) < (unsigned)( 256 )", "mayhemInst->linkTo->anchorIndex doesn't index CLIENTENT_MAX_ANCHORS\n\t%i not in [0, %i)", v22, 256) )
+    LODWORD(v14) = mayhemInst->linkTo->anchorIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 761, ASSERT_TYPE_ASSERT, "(unsigned)( mayhemInst->linkTo->anchorIndex ) < (unsigned)( 256 )", "mayhemInst->linkTo->anchorIndex doesn't index CLIENTENT_MAX_ANCHORS\n\t%i not in [0, %i)", v14, 256) )
       __debugbreak();
   }
   if ( !mayhemPose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 762, ASSERT_TYPE_ASSERT, "(mayhemPose)", (const char *)&queryFormat, "mayhemPose") )
@@ -4009,76 +3555,66 @@ void Mayhem_UpdateFromLink(LocalClientNum_t localClientNum, const MayhemInstance
   anchorIndex = mayhemInst->linkTo->anchorIndex;
   if ( anchorIndex >= CM_ClientAnchorCount() )
   {
-    LODWORD(v23) = CM_ClientAnchorCount();
-    LODWORD(v22) = anchorIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 744, ASSERT_TYPE_ASSERT, "(unsigned)( anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", v22, v23) )
+    LODWORD(v15) = CM_ClientAnchorCount();
+    LODWORD(v14) = anchorIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 744, ASSERT_TYPE_ASSERT, "(unsigned)( anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
   AnchorEntNum = CM_GetAnchorEntNum(anchorIndex);
-  v12 = AnchorEntNum;
+  v8 = AnchorEntNum;
   if ( (unsigned int)AnchorEntNum > 0x7FF )
   {
-    LODWORD(v22) = AnchorEntNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 748, ASSERT_TYPE_ASSERT, "( 0 ) <= ( entIndex ) && ( entIndex ) <= ( ( 2048 )-1 )", "entIndex not in [0, MAX_GENTITIES-1]\n\t%i not in [%i, %i]", v22, 0i64, 2047) )
+    LODWORD(v14) = AnchorEntNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 748, ASSERT_TYPE_ASSERT, "( 0 ) <= ( entIndex ) && ( entIndex ) <= ( ( 2048 )-1 )", "entIndex not in [0, MAX_GENTITIES-1]\n\t%i not in [%i, %i]", v14, 0i64, 2047) )
       __debugbreak();
   }
   if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
   {
-    LODWORD(v23) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v23) )
+    LODWORD(v15) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v15) )
       __debugbreak();
   }
-  if ( (unsigned int)v9 >= CgEntitySystem::ms_allocatedCount )
+  if ( (unsigned int)v5 >= CgEntitySystem::ms_allocatedCount )
   {
-    LODWORD(v23) = CgEntitySystem::ms_allocatedCount;
-    LODWORD(v22) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v22, v23) )
+    LODWORD(v15) = CgEntitySystem::ms_allocatedCount;
+    LODWORD(v14) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
-  if ( !CgEntitySystem::ms_entitySystemArray[v9] )
+  if ( !CgEntitySystem::ms_entitySystemArray[v5] )
   {
-    LODWORD(v23) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v23) )
+    LODWORD(v15) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v15) )
       __debugbreak();
   }
-  v13 = CgEntitySystem::ms_entitySystemArray[v9];
-  if ( (unsigned int)v12 >= 0x800 )
+  v9 = CgEntitySystem::ms_entitySystemArray[v5];
+  if ( (unsigned int)v8 >= 0x800 )
   {
-    LODWORD(v23) = 2048;
-    LODWORD(v22) = v12;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v22, v23) )
+    LODWORD(v15) = 2048;
+    LODWORD(v14) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
-  v14 = (__int64)&v13->m_entities[v12];
-  if ( v14 && (*(_BYTE *)(v14 + 648) & 1) != 0 )
+  v10 = (__int64)&v9->m_entities[v8];
+  if ( v10 )
   {
-    CG_GetPoseOrigin((const cpose_t *)v14, &outOrigin);
-    AnglesAndOriginToMatrix43((const vec3_t *)(v14 + 72), &outOrigin, &result);
-    AnglesAndOriginToMatrix43(&mayhemInst->linkTo->angleOffset, &mayhemInst->linkTo->originOffset, &in1);
-    MatrixMultiply43(&in1, &result, &out);
-    __asm
+    if ( (*(_BYTE *)(v10 + 648) & 1) != 0 )
     {
-      vmovss  xmm6, dword ptr [rsp+158h+out+24h]
-      vmovss  xmm7, dword ptr [rsp+158h+out+28h]
-      vmovss  xmm8, dword ptr [rsp+158h+out+2Ch]
+      CG_GetPoseOrigin((const cpose_t *)v10, &outOrigin);
+      AnglesAndOriginToMatrix43((const vec3_t *)(v10 + 72), &outOrigin, &result);
+      AnglesAndOriginToMatrix43(&mayhemInst->linkTo->angleOffset, &mayhemInst->linkTo->originOffset, &in1);
+      MatrixMultiply43(&in1, &result, &out);
+      v11 = out.m[3].v[0];
+      v12 = out.m[3].v[1];
+      v13 = out.m[3].v[2];
+      Axis43ToQuat(&out, &quat);
+      CG_GetPoseOrigin(mayhemPose, &outOrigin);
+      outOrigin.v[0] = v11;
+      outOrigin.v[1] = v12;
+      outOrigin.v[2] = v13;
+      UnitQuatToAngles(&quat, &mayhemPose->angles);
+      memset(&outOrigin, 0, sizeof(outOrigin));
     }
-    Axis43ToQuat(&out, &quat);
-    CG_GetPoseOrigin(mayhemPose, &outOrigin);
-    __asm
-    {
-      vmovss  dword ptr [rsp+158h+outOrigin], xmm6
-      vmovss  dword ptr [rsp+158h+outOrigin+4], xmm7
-      vmovss  dword ptr [rsp+158h+outOrigin+8], xmm8
-    }
-    UnitQuatToAngles(&quat, &mayhemPose->angles);
-    memset(&outOrigin, 0, sizeof(outOrigin));
-  }
-  _R11 = &v30;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -4117,92 +3653,73 @@ Mayhem_UpdatePose
 */
 void Mayhem_UpdatePose(const cpose_t *pose, const DObj *obj, DObjPartBits *partBits, int mayhemInstanceId)
 {
-  __int64 v6; 
-  unsigned int numModels; 
+  __int64 v5; 
+  MayhemInstance *Instance; 
+  DObjAnimMat *RotTransArray; 
   MayhemData *mayhem; 
   int DObjBasePartOffset; 
-  unsigned int v20; 
-  unsigned int v21; 
-  int v22; 
+  unsigned int v11; 
+  unsigned int v12; 
+  int v13; 
   MayhemObject *objects; 
-  __int64 v24; 
+  __int64 v15; 
   __int64 animIndex; 
   const XModel *model; 
   unsigned __int16 BoneOffset; 
-  __int64 v28; 
-  unsigned int v30; 
+  __int64 v19; 
+  unsigned int v20; 
+  DObjPartBits *p_skel; 
   vec3_t placementPos; 
   vec4_t placementQuat; 
 
-  v6 = mayhemInstanceId;
+  v5 = mayhemInstanceId;
   if ( DObjNumClientOnlyBones(obj) )
   {
     if ( !pose->isMayhem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1443, ASSERT_TYPE_ASSERT, "(pose->isMayhem)", (const char *)&queryFormat, "pose->isMayhem") )
       __debugbreak();
-    _R13 = Mayhem_GetInstance(v6);
-    if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1445, ASSERT_TYPE_ASSERT, "(mayhemInst)", (const char *)&queryFormat, "mayhemInst") )
+    Instance = Mayhem_GetInstance(v5);
+    if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1445, ASSERT_TYPE_ASSERT, "(mayhemInst)", (const char *)&queryFormat, "mayhemInst") )
       __debugbreak();
-    _R12 = DObjGetRotTransArray(obj);
-    if ( _R12 )
+    RotTransArray = DObjGetRotTransArray(obj);
+    if ( RotTransArray )
     {
-      numModels = obj->numModels;
-      mayhem = _R13->mayhem;
-      __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-      if ( numModels > mayhem->numObjects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1455, ASSERT_TYPE_ASSERT, "(obj->numModels <= mayhemData->numObjects)", (const char *)&queryFormat, "obj->numModels <= mayhemData->numObjects") )
+      mayhem = Instance->mayhem;
+      if ( obj->numModels > mayhem->numObjects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1455, ASSERT_TYPE_ASSERT, "(obj->numModels <= mayhemData->numObjects)", (const char *)&queryFormat, "obj->numModels <= mayhemData->numObjects") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12+10h]
-        vmovss  dword ptr [rsp+0B8h+placementPos], xmm0
-        vmovss  xmm1, dword ptr [r12+14h]
-        vmovss  dword ptr [rsp+0B8h+placementPos+4], xmm1
-        vmovss  xmm0, dword ptr [r12+18h]
-        vmovss  dword ptr [rsp+0B8h+placementPos+8], xmm0
-        vmovss  xmm1, dword ptr [r12]
-        vmovss  dword ptr [rsp+0B8h+placementQuat], xmm1
-        vmovss  xmm0, dword ptr [r12+4]
-        vmovss  dword ptr [rsp+0B8h+placementQuat+4], xmm0
-        vmovss  xmm1, dword ptr [r12+8]
-        vmovss  dword ptr [rsp+0B8h+placementQuat+8], xmm1
-        vmovss  xmm0, dword ptr [r12+0Ch]
-        vmovss  dword ptr [rsp+0B8h+placementQuat+0Ch], xmm0
-      }
-      DObjBasePartOffset = Mayhem_GetDObjBasePartOffset(obj, &s_mayhemObjs[v6]);
-      v20 = 0;
-      v21 = 0;
+      placementPos = RotTransArray->trans;
+      placementQuat = RotTransArray->quat;
+      DObjBasePartOffset = Mayhem_GetDObjBasePartOffset(obj, &s_mayhemObjs[v5]);
+      v11 = 0;
+      v12 = 0;
       if ( obj->numModels )
       {
-        v22 = DObjBasePartOffset;
+        v13 = DObjBasePartOffset;
         do
         {
           objects = mayhem->objects;
-          v24 = v21 + v22;
-          animIndex = objects[v24].animIndex;
-          model = mayhem->models[objects[v24].modelIndex].model;
-          if ( obj->models[v21] != model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1473, ASSERT_TYPE_ASSERT, "(obj->models[subObjectIdx] == curModel)", (const char *)&queryFormat, "obj->models[subObjectIdx] == curModel") )
+          v15 = v12 + v13;
+          animIndex = objects[v15].animIndex;
+          model = mayhem->models[objects[v15].modelIndex].model;
+          if ( obj->models[v12] != model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\mayhem.cpp", 1473, ASSERT_TYPE_ASSERT, "(obj->models[subObjectIdx] == curModel)", (const char *)&queryFormat, "obj->models[subObjectIdx] == curModel") )
             __debugbreak();
-          BoneOffset = Mayhem_GetBoneOffset(obj, model, v21);
-          v28 = animIndex;
-          __asm { vmovss  xmm1, dword ptr [r13+34h]; t }
-          v30 = BoneOffset;
-          R_Mayhem_ProcessAnim(&mayhem->anims[v28], *(float *)&_XMM1, &_R12[BoneOffset], &placementPos, &placementQuat);
-          __asm { vmovss  xmm2, dword ptr [r13+34h]; t }
-          R_Mayhem_RegisterCustomDataChannels(&mayhem->anims[v28], obj, *(float *)&_XMM2, v30);
-          ++v21;
+          BoneOffset = Mayhem_GetBoneOffset(obj, model, v12);
+          v19 = animIndex;
+          v20 = BoneOffset;
+          R_Mayhem_ProcessAnim(&mayhem->anims[v19], Instance->curTime, &RotTransArray[BoneOffset], &placementPos, &placementQuat);
+          R_Mayhem_RegisterCustomDataChannels(&mayhem->anims[v19], obj, Instance->curTime, v20);
+          ++v12;
         }
-        while ( v21 < obj->numModels );
-        v20 = 0;
+        while ( v12 < obj->numModels );
+        v11 = 0;
       }
-      _RBX = &obj->skel.partBits.skel;
-      __asm { vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff }
+      p_skel = &obj->skel.partBits.skel;
       do
       {
-        __asm { vmovdqu xmmword ptr [rbx], xmm6 }
-        _RBX = (DObjPartBits *)((char *)_RBX + 16);
-        ++v20;
+        *(_OWORD *)p_skel->array = _xmm_ffffffffffffffffffffffffffffffff;
+        p_skel = (DObjPartBits *)((char *)p_skel + 16);
+        ++v11;
       }
-      while ( v20 < 2 );
-      __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
+      while ( v11 < 2 );
     }
   }
 }

@@ -189,32 +189,32 @@ CG_PlayerVisibilityMP_CalcCrosshairsTestPlayerData
 void CG_PlayerVisibilityMP_CalcCrosshairsTestPlayerData(const CgPlayerCrosshairsVisibilityParsedCmdData *parsedCmd, const centity_t *const entity, const characterInfo_t *const entityCharacterInfo, const bool isSameTeam, CgPlayerCrosshairsVisibilityPlayerData *outData)
 {
   unsigned __int8 friendlyTestsCount; 
-  __int64 v14; 
+  __int64 v11; 
   const SuitDef *SuitDef; 
-  bool v16; 
-  bool v17; 
-  char v26; 
-  char v27; 
-  unsigned int bounds_radius; 
-  bool v30; 
-  bool v31; 
-  char v34; 
-  char v35; 
-  bool v37; 
+  int bounds_height_prone; 
+  float v14; 
+  float bounds_radius; 
+  int v17; 
+  bool v18; 
+  bool v19; 
+  int v20; 
+  float radius; 
+  bool v22; 
+  bool v23; 
+  float v24; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  __int64 v77; 
-  double v78; 
-  double v79; 
-  double v80; 
-  __int64 v81; 
-  double v82; 
-  CgPlayerCrosshairsVisibilityPlayerData *outDataa; 
+  __int128 v29; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int64 v43; 
+  __int64 v44; 
 
   if ( !entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 507, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
     __debugbreak();
   if ( !entityCharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 508, ASSERT_TYPE_ASSERT, "(entityCharacterInfo)", (const char *)&queryFormat, "entityCharacterInfo") )
     __debugbreak();
-  _RBX = outData;
   DebugWipe(outData, 0x48ui64);
   if ( isSameTeam )
     friendlyTestsCount = parsedCmd->friendlyTestsCount;
@@ -223,130 +223,55 @@ void CG_PlayerVisibilityMP_CalcCrosshairsTestPlayerData(const CgPlayerCrosshairs
   outData->testCount = friendlyTestsCount;
   if ( friendlyTestsCount )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm10
-      vmovaps [rsp+98h+var_48], xmm11
-    }
     if ( friendlyTestsCount > 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 519, ASSERT_TYPE_ASSERT, "( outData.testCount ) <= ( isSameTeam ? ( sizeof( *array_counter( parsedCmd.friendlyTests ) ) + 0 ) : ( sizeof( *array_counter( parsedCmd.friendlyTests ) ) + 0 ) )", "%s <= %s\n\t%u, %u", "outData.testCount", "isSameTeam ? ARRAY_COUNT( parsedCmd.friendlyTests ) : ARRAY_COUNT( parsedCmd.friendlyTests )", friendlyTestsCount, 8) )
       __debugbreak();
-    v14 = 216i64;
+    v11 = 216i64;
     if ( !isSameTeam )
-      v14 = 52i64;
-    outData->tests = (const CgPlayerCrosshairsVisibilityParsedCmdData::TestData *)((char *)parsedCmd + v14);
+      v11 = 52i64;
+    outData->tests = (const CgPlayerCrosshairsVisibilityParsedCmdData::TestData *)((char *)parsedCmd + v11);
     SuitDef = BG_GetSuitDef(entityCharacterInfo->suitIndex);
     if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 523, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    v16 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->nextState.lerp.eFlags, ACTIVE, 4u);
-    v17 = !v16;
-    if ( !v16 )
-      v17 = !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->nextState.lerp.eFlags, ACTIVE, 3u);
-    __asm
+    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->nextState.lerp.eFlags, ACTIVE, 4u) )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm10, xmm10, xmm10
-      vcomiss xmm1, xmm10
-      vmovss  dword ptr [rbx+20h], xmm1
-      vxorpd  xmm11, xmm11, xmm11
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+220h]
-      vcomiss xmm0, cs:__real@cb800000
-      vmovss  dword ptr [rbx+1Ch], xmm0
-      vcvttss2si r14d, xmm0
-      vcomiss xmm0, cs:__real@4b800000
+      bounds_height_prone = SuitDef->bounds_height_prone;
     }
-    if ( v17 )
+    else if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->nextState.lerp.eFlags, ACTIVE, 3u) )
     {
-      v26 = 1;
+      bounds_height_prone = SuitDef->bounds_height_crouch;
     }
     else
     {
-      v26 = 0;
-      v17 = 1;
+      bounds_height_prone = SuitDef->bounds_height_stand;
     }
-    __asm
+    v14 = (float)bounds_height_prone * 0.5;
+    outData->halfBoundsHeight = v14;
+    __asm { vxorpd  xmm11, xmm11, xmm11 }
+    if ( v14 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 537, ASSERT_TYPE_ASSERT, "( outData.halfBoundsHeight ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "outData.halfBoundsHeight", "0.0f", v14, *(double *)&_XMM11) )
+      __debugbreak();
+    bounds_radius = (float)SuitDef->bounds_radius;
+    outData->radius = bounds_radius;
+    v17 = (int)bounds_radius;
+    v18 = bounds_radius >= -16777216.0 && bounds_radius <= 16777216.0;
+    v19 = bounds_radius >= -2147483600.0 && bounds_radius <= 2147483600.0;
+    if ( (!v18 || !v19) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "int __cdecl float_to_integral_cast<int,float>(float)", v17, bounds_radius) )
+      __debugbreak();
+    v20 = SuitDef->bounds_radius;
+    if ( v17 != v20 )
     {
-      vcomiss xmm0, cs:__real@cf000000
-      vcomiss xmm0, cs:__real@4f000000
-    }
-    v27 = v17;
-    if ( !v26 || !v27 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+98h+var_60], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "int __cdecl float_to_integral_cast<int,float>(float)", (int)_ER14, v78) )
+      radius = outData->radius;
+      v22 = radius >= -16777216.0 && radius <= 16777216.0;
+      v23 = radius >= -2147483600.0 && radius <= 2147483600.0;
+      if ( (!v22 || !v23) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "int __cdecl float_to_integral_cast<int,float>(float)", (int)radius, radius) )
+        __debugbreak();
+      LODWORD(v44) = v20;
+      LODWORD(v43) = (int)radius;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 540, ASSERT_TYPE_ASSERT, "( float_to_integral_cast<int>(outData.radius) ) == ( suitDef->bounds_radius )", "%s == %s\n\t%i, %i", "float_to_integral_cast<int>(outData.radius)", "suitDef->bounds_radius", v43, v44) )
         __debugbreak();
     }
-    bounds_radius = SuitDef->bounds_radius;
-    v30 = _ER14 < bounds_radius;
-    v31 = _ER14 <= bounds_radius;
-    if ( _ER14 != bounds_radius )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1Ch]
-        vcomiss xmm0, cs:__real@cb800000
-        vcvttss2si r14d, xmm0
-      }
-      if ( v30 )
-        goto LABEL_35;
-      __asm { vcomiss xmm0, cs:__real@4b800000 }
-      if ( !v31 )
-      {
-LABEL_35:
-        v34 = 0;
-        v31 = 1;
-      }
-      else
-      {
-        v34 = 1;
-      }
-      __asm
-      {
-        vcomiss xmm0, cs:__real@cf000000
-        vcomiss xmm0, cs:__real@4f000000
-      }
-      v35 = v31;
-      if ( !v34 || !v35 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+98h+var_60], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "int __cdecl float_to_integral_cast<int,float>(float)", _ER14, v79) )
-          __debugbreak();
-      }
-      LODWORD(v81) = bounds_radius;
-      LODWORD(v77) = _ER14;
-      v37 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 540, ASSERT_TYPE_ASSERT, "( float_to_integral_cast<int>(outData.radius) ) == ( suitDef->bounds_radius )", "%s == %s\n\t%i, %i", "float_to_integral_cast<int>(outData.radius)", "suitDef->bounds_radius", v77, v81);
-      v30 = 0;
-      if ( v37 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vcomiss xmm0, xmm10
-      vmovaps xmm10, [rsp+98h+var_38]
-    }
-    if ( v30 )
-    {
-      __asm
-      {
-        vmovsd  [rsp+98h+var_58], xmm11
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+98h+var_60], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 541, ASSERT_TYPE_ASSERT, "( outData.radius ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "outData.radius", "0.0f", v80, v82) )
-        __debugbreak();
-    }
-    __asm { vmovaps xmm11, [rsp+98h+var_48] }
+    v24 = outData->radius;
+    if ( v24 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 541, ASSERT_TYPE_ASSERT, "( outData.radius ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "outData.radius", "0.0f", v24, *(double *)&_XMM11) )
+      __debugbreak();
     if ( !entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
       __debugbreak();
     if ( !entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
@@ -355,66 +280,46 @@ LABEL_35:
     FunctionPointer_origin(&entity->pose.origin.origin.origin, (vec3_t *)&outData->center);
     if ( entity->pose.isPosePrecise )
     {
+      _XMM0 = LODWORD(outData->center.x);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM0 = v29;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      _XMM0 = LODWORD(outData->center.y);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      outData->center.x = *(float *)&_XMM1;
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v29;
+      _XMM0 = LODWORD(outData->center.z);
       __asm
       {
-        vmovsd  xmm3, cs:__real@3f30000000000000
-        vmovd   xmm0, dword ptr [rbx+10h]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm0, xmm0, xmm3
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovd   xmm0, dword ptr [rbx+14h]
-        vcvtdq2pd xmm0, xmm0
-        vmovss  dword ptr [rbx+10h], xmm1
-        vmulsd  xmm1, xmm0, xmm3
-        vmovd   xmm0, dword ptr [rbx+18h]
         vcvtsd2ss xmm2, xmm1, xmm1
         vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rbx+14h], xmm2
-        vcvtsd2ss xmm2, xmm1, xmm1
-        vmovss  dword ptr [rbx+18h], xmm2
       }
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v29;
+      outData->center.y = *(float *)&_XMM2;
+      __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+      outData->center.z = *(float *)&_XMM2;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+18h]
-      vmovss  dword ptr [rbx+18h], xmm1
-      vmovss  xmm0, dword ptr [rbx+10h]
-      vsubss  xmm3, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rbx+24h], xmm3
-      vmovss  xmm1, dword ptr [rbx+14h]
-      vsubss  xmm0, xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rbx+28h], xmm0
-      vmovss  xmm2, dword ptr [rbx+18h]
-      vsubss  xmm1, xmm2, dword ptr [rsi+8]
-      vmovss  dword ptr [rbx+2Ch], xmm1
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  dword ptr [rbx+34h], xmm2
-      vsqrtss xmm4, xmm2, xmm2
-      vmovss  dword ptr [rbx+30h], xmm4
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vmovss  xmm1, dword ptr [rbx+28h]
-      vmovss  dword ptr [rsp+98h+outData], xmm0
-      vmovss  dword ptr [rsp+98h+outData+4], xmm1
-    }
-    _RBX->viewToEntityXY = (vec2_t)outDataa;
+    outData->center.z = outData->halfBoundsHeight + outData->center.z;
+    v39 = outData->center.x - parsedCmd->viewOrigin.x;
+    outData->viewToEntity.x = v39;
+    v40 = outData->center.y - parsedCmd->viewOrigin.y;
+    outData->viewToEntity.y = v40;
+    outData->viewToEntity.z = outData->center.z - parsedCmd->viewOrigin.z;
+    v41 = (float)(v39 * v39) + (float)(v40 * v40);
+    outData->entityXYDistSq = v41;
+    v42 = fsqrt(v41);
+    outData->entityXYDist = v42;
+    outData->viewToEntityXY = *(vec2_t *)&outData->viewToEntity.x;
     if ( parsedCmd->viewDirXYIsValid )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+3Ch]
-        vmovss  xmm1, dword ptr [rbx+38h]
-        vmulss  xmm3, xmm0, dword ptr [rsi+28h]
-        vmulss  xmm2, xmm1, dword ptr [rsi+24h]
-        vaddss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [rbx+40h], xmm0
-        vmulss  xmm1, xmm4, dword ptr [rsi+18h]
-        vdivss  xmm0, xmm1, dword ptr [rsi+1Ch]
-        vmovss  dword ptr [rbx+44h], xmm0
-      }
+      outData->entityXYDistTimesCosYaw = (float)(outData->viewToEntityXY.v[1] * parsedCmd->viewDirXY.v[1]) + (float)(outData->viewToEntityXY.v[0] * parsedCmd->viewDirXY.v[0]);
+      outData->zViewDirHeightAtEntity = (float)(v42 * parsedCmd->viewDir.v[2]) / parsedCmd->viewDirXYLen;
     }
   }
 }
@@ -486,97 +391,50 @@ CG_PlayerVisibilityMP_CreateConfigData
 
 CgPlayerCrosshairsVisibilityTest::ConfigData *__fastcall CG_PlayerVisibilityMP_CreateConfigData(CgPlayerCrosshairsVisibilityTest::ConfigData *result, const bool testSameTeam, const bool testEnemyTeam, double worldSpacePadding, const float extendedPitchAngle, const float extendedYawAngle)
 {
-  CgPlayerCrosshairsVisibilityTest::ConfigData *v41; 
-  char v48; 
-  void *retaddr; 
+  double v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  double v13; 
+  float v14; 
+  CgPlayerCrosshairsVisibilityTest::ConfigData *v19; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm7
-    vmovaps xmmword ptr [r11-28h], xmm9
-    vmovaps xmmword ptr [r11-38h], xmm10
-  }
   _RSI = result;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm11
-    vmovaps xmm11, xmm3
-  }
   if ( !testSameTeam && !testEnemyTeam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 218, ASSERT_TYPE_ASSERT, "(testSameTeam || testEnemyTeam)", (const char *)&queryFormat, "testSameTeam || testEnemyTeam") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000; step
-    vmovss  xmm0, [rsp+78h+extendedPitchAngle]; f
-  }
-  *(double *)&_XMM0 = I_snap(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; val
-    vmovss  xmm2, cs:__real@3fc90fdb; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm10, xmm10, xmm10
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000; step
-    vmovaps xmm7, xmm0
-    vmovss  xmm0, [rsp+78h+extendedYawAngle]; f
-  }
-  *(double *)&_XMM0 = I_snap(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; val
-    vmovss  xmm2, cs:__real@40490fdb; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000; step
-    vmovaps xmm9, xmm0
-    vmovaps xmm0, xmm11; f
-  }
+  v9 = I_snap(extendedPitchAngle, 0.5);
+  v10 = I_fclamp(*(float *)&v9 * 0.017453292, 0.0, 1.5707964);
+  v11 = *(float *)&v10;
+  v12 = I_snap(extendedYawAngle, 0.5);
+  v13 = I_fclamp(*(float *)&v12 * 0.017453292, 0.0, 3.1415927);
+  v14 = *(float *)&v13;
+  *((double *)&_XMM0 + 1) = *(&worldSpacePadding + 1);
   _RSI->testSameTeam = testSameTeam;
   _RSI->testEnemyTeam = testEnemyTeam;
-  *(double *)&_XMM0 = I_snap(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmaxss  xmm1, xmm0, xmm10
-    vmovss  dword ptr [rsi+4], xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vmovaps xmm2, xmm7
-    vmovss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rsi+8], xmm7
-  }
+  *(double *)&_XMM0 = I_snap(*(float *)&worldSpacePadding, 0.5);
+  __asm { vmaxss  xmm1, xmm0, xmm10 }
+  _RSI->worldSpacePadding = *(float *)&_XMM1;
+  *((_QWORD *)&_XMM0 + 1) = 0i64;
+  _RSI->extendedPitchAngle = v11;
   *(double *)&_XMM0 = j___libm_sse2_sincosf_();
   __asm
   {
     vmaxss  xmm0, xmm0, xmm10
     vminss  xmm0, xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rsi+10h], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps xmm1, xmm9
-    vmovss  xmm0, xmm0, xmm1
-    vmovss  dword ptr [rsi+14h], xmm9
   }
+  _RSI->extendedPitchCosAngle = *(float *)&_XMM0;
+  *((_QWORD *)&_XMM0 + 1) = 0i64;
+  _RSI->extendedYawAngle = v14;
   *(double *)&_XMM0 = j___libm_sse2_sincosf_();
-  __asm { vmovaps xmm7, [rsp+78h+var_18] }
-  _R11 = &v48;
-  v41 = _RSI;
+  v19 = _RSI;
   __asm
   {
-    vmovaps xmm9, xmmword ptr [r11-20h]
-    vmovaps xmm11, xmmword ptr [r11-40h]
     vextractps dword ptr [rsi+1Ch], xmm0, 1
     vmaxss  xmm0, xmm0, xmm10
     vminss  xmm1, xmm0, cs:__real@3f800000
-    vmovaps xmm10, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rsi+18h], xmm1
   }
-  return v41;
+  _RSI->extendedYawSinAngle = *(float *)&_XMM1;
+  return v19;
 }
 
 /*
@@ -725,153 +583,131 @@ CG_PlayerVisibilityMP_CrosshairsTestForPlayer
 */
 void CG_PlayerVisibilityMP_CrosshairsTestForPlayer(const unsigned int clientNum, CgPlayerCrosshairsVisibilityTestGlob *testGlob, const CgPlayerCrosshairsVisibilityParsedCmdData *parsedCmd, const CgPlayerCrosshairsVisibilityPlayerData *playerData)
 {
-  unsigned __int8 v11; 
-  unsigned __int64 v12; 
+  unsigned __int8 v5; 
+  unsigned __int64 v6; 
   unsigned __int8 testId; 
-  bool v21; 
-  char *v55; 
-  __int64 v62; 
-  __int64 v63; 
-  __int64 v64; 
-  __int64 v65; 
-  void *retaddr; 
+  __int64 v13; 
+  CgPlayerCrosshairsVisibilityTest *v14; 
+  float worldSpacePadding; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  bool v23; 
+  float entityXYDistTimesCosYaw; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float z; 
+  const CgPlayerCrosshairsVisibilityParsedCmdData::TestData *tests; 
+  float cosViewPitchPlusExtended; 
+  bool v32; 
+  float cosViewPitchMinusExtended; 
+  char *v37; 
+  __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
+  __int64 v41; 
 
-  _RAX = &retaddr;
-  v11 = 0;
-  v12 = clientNum;
-  _RBX = playerData;
+  v5 = 0;
+  v6 = clientNum;
   if ( playerData->testCount )
   {
-    __asm
+    _XMM9 = 0i64;
+    __asm { vxorpd  xmm10, xmm10, xmm10 }
+    while ( 1 )
     {
-      vmovaps xmmword ptr [rax-58h], xmm8
-      vmovaps xmmword ptr [rax-68h], xmm9
-      vmovaps xmmword ptr [rax-78h], xmm10
-      vmovaps [rsp+0D8h+var_88], xmm11
-      vmovss  xmm11, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps xmmword ptr [rax-38h], xmm6
-      vmovaps xmmword ptr [rax-48h], xmm7
-      vxorps  xmm9, xmm9, xmm9
-      vxorpd  xmm10, xmm10, xmm10
-    }
-    do
-    {
-      _RDI = 5i64 * v11;
-      testId = _RBX->tests[v11].testId;
+      testId = playerData->tests[v5].testId;
       if ( testId >= 8u )
       {
-        LODWORD(v63) = 8;
-        LODWORD(v62) = testId;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 566, ASSERT_TYPE_ASSERT, "(unsigned)( playerData.tests[playerTestIdx].testId ) < (unsigned)( ( sizeof( *array_counter( testGlob.tests ) ) + 0 ) )", "playerData.tests[playerTestIdx].testId doesn't index testGlob.tests\n\t%i not in [0, %i)", v62, v63) )
+        LODWORD(v39) = 8;
+        LODWORD(v38) = testId;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 566, ASSERT_TYPE_ASSERT, "(unsigned)( playerData.tests[playerTestIdx].testId ) < (unsigned)( ( sizeof( *array_counter( testGlob.tests ) ) + 0 ) )", "playerData.tests[playerTestIdx].testId doesn't index testGlob.tests\n\t%i not in [0, %i)", v38, v39) )
           __debugbreak();
       }
-      v21 = !parsedCmd->viewDirXYIsValid;
-      _RSI = &testGlob->tests[_RBX->tests[v11].testId];
-      __asm
+      v13 = playerData->tests[v5].testId;
+      v14 = &testGlob->tests[v13];
+      worldSpacePadding = testGlob->tests[v13].config.worldSpacePadding;
+      v16 = worldSpacePadding + playerData->radius;
+      v18 = LODWORD(worldSpacePadding);
+      *(float *)&v18 = worldSpacePadding + playerData->halfBoundsHeight;
+      v17 = *(float *)&v18;
+      if ( !parsedCmd->viewDirXYIsValid )
       {
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vaddss  xmm3, xmm0, dword ptr [rbx+1Ch]
-        vaddss  xmm8, xmm0, dword ptr [rbx+20h]
+        *(float *)&v18 = *(float *)&v18 - playerData->viewToEntity.z;
+        _XMM2 = v18;
+        __asm
+        {
+          vcmpltss xmm0, xmm9, dword ptr [r12+0Ch]
+          vblendvps xmm4, xmm2, xmm1, xmm0
+        }
+        if ( *(float *)&_XMM4 >= 0.0 && (float)((float)(*(float *)&_XMM4 * testGlob->tests[v13].config.extendedPitchSinAngle) + (float)(testGlob->tests[v13].config.extendedPitchCosAngle * v16)) >= (float)(testGlob->tests[v13].config.extendedPitchCosAngle * playerData->entityXYDist) )
+        {
+          v37 = (char *)v14 + 28 * testGlob->nextWriteIndex;
+          if ( (unsigned int)v6 >= 0xE0 )
+          {
+            LODWORD(v41) = 224;
+            LODWORD(v40) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v40, v41) )
+              __debugbreak();
+          }
+          *(_DWORD *)&v37[4 * (v6 >> 5) + 40] |= 0x80000000 >> (v6 & 0x1F);
+        }
+        goto LABEL_32;
       }
-      if ( parsedCmd->viewDirXYIsValid )
+      LODWORD(v19) = LODWORD(v16) ^ _xmm;
+      if ( testGlob->tests[v13].config.extendedYawCosAngle >= 0.0 )
+        break;
+      entityXYDistTimesCosYaw = playerData->entityXYDistTimesCosYaw;
+      v26 = entityXYDistTimesCosYaw * testGlob->tests[v13].config.extendedYawSinAngle;
+      v25 = v26;
+      if ( v26 < v19 )
       {
-        __asm
-        {
-          vcomiss xmm9, dword ptr [rsi+24h]
-          vxorps  xmm0, xmm3, xmm11
-        }
-        if ( parsedCmd->viewDirXYIsValid )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+40h]
-            vmulss  xmm2, xmm1, dword ptr [rsi+20h]
-            vcomiss xmm2, xmm0
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbx+40h]
-            vcomiss xmm2, xmm0
-            vmovss  xmm0, dword ptr [rbx+34h]
-            vmulss  xmm1, xmm2, xmm2
-            vsubss  xmm7, xmm0, xmm1
-            vmulss  xmm1, xmm2, dword ptr [rsi+20h]
-            vaddss  xmm6, xmm1, xmm3
-            vcomiss xmm6, xmm9
-            vmovss  xmm0, dword ptr [rsi+24h]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm7
-            vmulss  xmm2, xmm6, xmm6
-            vcomiss xmm2, xmm3
-          }
-          v21 = 0;
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+2Ch]
-          vcomiss xmm0, dword ptr [rbx+44h]
-        }
-        _RAX = _RBX->tests;
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rax+rdi*4+8]
-          vcomiss xmm2, xmm9
-        }
-        if ( !v21 )
-        {
-          __asm
-          {
-            vsubss  xmm3, xmm0, xmm8
-            vmovss  xmm0, dword ptr [rax+rdi*4+4]
-            vmulss  xmm1, xmm0, dword ptr [rbx+30h]
-            vdivss  xmm2, xmm1, xmm2
-            vcomiss xmm2, xmm3
-          }
-        }
-        bitarray_base<bitarray<224>>::setBit(&_RSI->results[testGlob->nextWriteIndex], v12);
+        v27 = v26 + v16;
+        v28 = playerData->entityXYDistSq - (float)(entityXYDistTimesCosYaw * entityXYDistTimesCosYaw);
+        if ( (float)(v25 + v16) > 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 647, ASSERT_TYPE_ASSERT, "( discriminant ) <= ( 0.0f )", "%s <= %s\n\t%g, %g", "discriminant", "0.0f", v27, *(double *)&_XMM10) )
+          __debugbreak();
+        v23 = (float)((float)(v14->config.extendedYawCosAngle * v14->config.extendedYawCosAngle) * v28) < (float)(v27 * v27);
+LABEL_18:
+        if ( v23 )
+          goto LABEL_32;
+      }
+      z = playerData->viewToEntity.z;
+      tests = playerData->tests;
+      if ( z < playerData->zViewDirHeightAtEntity )
+      {
+        cosViewPitchMinusExtended = tests[v5].cosViewPitchMinusExtended;
+        if ( cosViewPitchMinusExtended <= 0.0 )
+          goto LABEL_25;
+        v32 = (float)(z + v17) < (float)((float)(tests[v5].sinViewPitchMinusExtended * playerData->entityXYDist) / cosViewPitchMinusExtended);
       }
       else
       {
-        __asm
-        {
-          vsubss  xmm2, xmm8, dword ptr [rbx+2Ch]
-          vaddss  xmm1, xmm8, dword ptr [rbx+2Ch]
-          vcmpltss xmm0, xmm9, dword ptr [r12+0Ch]
-          vblendvps xmm4, xmm2, xmm1, xmm0
-          vcomiss xmm4, xmm9
-          vmovss  [rsp+0D8h+arg_18], xmm4
-          vmovss  xmm0, dword ptr [rsi+18h]
-          vmulss  xmm2, xmm0, dword ptr [rbx+30h]
-          vmulss  xmm1, xmm4, dword ptr [rsi+14h]
-          vmulss  xmm0, xmm0, xmm3
-          vaddss  xmm1, xmm1, xmm0
-          vcomiss xmm1, xmm2
-        }
-        v55 = (char *)_RSI + 28 * testGlob->nextWriteIndex;
-        if ( (unsigned int)v12 >= 0xE0 )
-        {
-          LODWORD(v65) = 224;
-          LODWORD(v64) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v64, v65) )
-            __debugbreak();
-        }
-        *(_DWORD *)&v55[4 * (v12 >> 5) + 40] |= 0x80000000 >> (v12 & 0x1F);
+        cosViewPitchPlusExtended = tests[v5].cosViewPitchPlusExtended;
+        if ( cosViewPitchPlusExtended <= 0.0 )
+          goto LABEL_25;
+        v32 = (float)((float)(tests[v5].sinViewPitchPlusExtended * playerData->entityXYDist) / cosViewPitchPlusExtended) < (float)(z - v17);
       }
-      ++v11;
+      if ( !v32 )
+LABEL_25:
+        bitarray_base<bitarray<224>>::setBit(&v14->results[testGlob->nextWriteIndex], v6);
+LABEL_32:
+      if ( ++v5 >= playerData->testCount )
+        return;
     }
-    while ( v11 < _RBX->testCount );
-    __asm
-    {
-      vmovaps xmm11, [rsp+0D8h+var_88]
-      vmovaps xmm10, [rsp+0D8h+var_78]
-      vmovaps xmm9, [rsp+0D8h+var_68]
-      vmovaps xmm8, [rsp+0D8h+var_58]
-      vmovaps xmm7, [rsp+0D8h+var_48]
-      vmovaps xmm6, [rsp+0D8h+var_38]
-    }
+    v20 = playerData->entityXYDistTimesCosYaw;
+    if ( v20 < v19 )
+      goto LABEL_32;
+    v21 = playerData->entityXYDistSq - (float)(v20 * v20);
+    v22 = (float)(v20 * testGlob->tests[v13].config.extendedYawSinAngle) + v16;
+    if ( v22 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 610, ASSERT_TYPE_ASSERT, "( discriminant ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "discriminant", "0.0f", v22, *(double *)&_XMM10) )
+      __debugbreak();
+    v23 = (float)(v22 * v22) < (float)((float)(v14->config.extendedYawCosAngle * v14->config.extendedYawCosAngle) * v21);
+    goto LABEL_18;
   }
 }
 
@@ -882,149 +718,143 @@ CG_PlayerVisibilityMP_DebugTest
 */
 void CG_PlayerVisibilityMP_DebugTest(const LocalClientNum_t localClientNum)
 {
+  __int64 v1; 
+  __int64 v2; 
+  const dvar_t *v3; 
   __int64 v4; 
   __int64 v5; 
-  const dvar_t *v6; 
-  __int64 v7; 
-  __int64 v8; 
-  CgPlayerVisibilityTestRefId *v9; 
-  unsigned int v10; 
+  CgPlayerVisibilityTestRefId *v6; 
+  unsigned int v7; 
+  CgPlayerVisibilityTestRefId v8; 
+  const dvar_t *v9; 
+  CgPlayerVisibilityTestRefId v10; 
   CgPlayerVisibilityTestRefId v11; 
-  const dvar_t *v12; 
-  CgPlayerVisibilityTestRefId v13; 
-  CgPlayerVisibilityTestRefId v14; 
   const ClientBits *CrosshairsTestResult; 
-  const ClientBits *v16; 
+  const ClientBits *v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  unsigned int v16; 
   unsigned int v17; 
-  __int64 v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  CgEntitySystem *v21; 
-  __int64 v22; 
+  CgEntitySystem *v18; 
+  __int64 v19; 
+  const dvar_t *v20; 
+  float value; 
+  const dvar_t *v22; 
+  float v23; 
+  const dvar_t *v24; 
+  float v25; 
   CgPlayerVisibilityTestRefId updated; 
-  CgPlayerVisibilityTestRefId v30; 
-  __int64 v34; 
-  __int64 v35; 
-  float fmt; 
-  float fmta; 
+  CgPlayerVisibilityTestRefId v27; 
+  __int64 v28; 
+  __int64 v29; 
   __int64 extendedPitchAngle; 
-  float extendedPitchAnglea; 
-  float extendedPitchAngleb; 
   __int64 extendedYawAngle; 
-  float extendedYawAnglea; 
-  float extendedYawAngleb; 
   bool enabled; 
-  unsigned int v48; 
-  CgPlayerVisibilityTestRefId *v49; 
+  unsigned int v33; 
+  CgPlayerVisibilityTestRefId *v34; 
 
-  v4 = localClientNum;
-  v5 = 2i64;
+  v1 = localClientNum;
+  v2 = 2i64;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 874, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_testId ) ) + 0 ) )", "localClientNum doesn't index s_testId\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  v6 = DCONST_DVARBOOL_cg_player_visibility_test_active;
+  v3 = DCONST_DVARBOOL_cg_player_visibility_test_active;
   if ( !DCONST_DVARBOOL_cg_player_visibility_test_active && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_player_visibility_test_active") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  v7 = v4;
-  v8 = v4;
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  v4 = v1;
+  v5 = v1;
+  if ( v3->current.enabled )
   {
-    v9 = s_testId[v4];
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_58], xmm6
-      vmovaps [rsp+0B8h+var_68], xmm7
-    }
-    v10 = 0;
-    __asm { vmovaps [rsp+0B8h+var_78], xmm8 }
-    v48 = 0;
-    v49 = v9;
+    v6 = s_testId[v1];
+    v7 = 0;
+    v33 = 0;
+    v34 = v6;
     do
     {
-      v11 = *v9;
-      if ( v9->id != 0xFF )
+      v8 = *v6;
+      if ( v6->id != 0xFF )
       {
-        if ( v11.id >= 8u )
+        if ( v8.id >= 8u )
         {
           LODWORD(extendedYawAngle) = 8;
-          LODWORD(extendedPitchAngle) = v11.id;
+          LODWORD(extendedPitchAngle) = v8.id;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 175, ASSERT_TYPE_ASSERT, "(unsigned)( testId.id ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests[localClientNum].tests ) ) + 0 ) )", "testId.id doesn't index s_crosshairsVisibilityTests[localClientNum].tests\n\t%i not in [0, %i)", extendedPitchAngle, extendedYawAngle) )
             __debugbreak();
-          v10 = v48;
+          v7 = v33;
         }
-        if ( s_crosshairsVisibilityTests[v8].tests[v11.id].generation == v11.generation )
+        if ( s_crosshairsVisibilityTests[v5].tests[v8.id].generation == v8.generation )
         {
-          v12 = DCONST_DVARBOOL_cg_player_visibility_test_getResultWithWait;
+          v9 = DCONST_DVARBOOL_cg_player_visibility_test_getResultWithWait;
           if ( !DCONST_DVARBOOL_cg_player_visibility_test_getResultWithWait && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_player_visibility_test_getResultWithWait") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v12);
-          enabled = v12->current.enabled;
+          Dvar_CheckFrontendServerThread(v9);
+          enabled = v9->current.enabled;
           if ( enabled )
           {
-            v13 = *v9;
+            v10 = *v6;
             if ( Sys_IsAnyWorkerContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 857, ASSERT_TYPE_ASSERT, "(!Sys_IsAnyWorkerContext())", (const char *)&queryFormat, "!Sys_IsAnyWorkerContext()") )
               __debugbreak();
             Sys_WaitWorkerCmdsOnlyOfType(WRKCMD_PLAYER_VISIBILITY_CROSSHAIRS_TEST);
-            v14 = v13;
+            v11 = v10;
           }
           else
           {
-            v14 = s_testId[v7][v48];
+            v11 = s_testId[v4][v33];
           }
-          CrosshairsTestResult = CG_PlayerVisibilityMP_GetCrosshairsTestResult((const LocalClientNum_t)v4, v14);
-          v16 = CrosshairsTestResult;
+          CrosshairsTestResult = CG_PlayerVisibilityMP_GetCrosshairsTestResult((const LocalClientNum_t)v1, v11);
+          v13 = CrosshairsTestResult;
           if ( CrosshairsTestResult )
           {
-            v17 = CrosshairsTestResult->array[0];
-            LODWORD(v18) = 0;
-            while ( v17 )
+            v14 = CrosshairsTestResult->array[0];
+            LODWORD(v15) = 0;
+            while ( v14 )
             {
 LABEL_29:
-              v19 = __lzcnt(v17);
-              v20 = v19 + 32 * v18;
-              if ( v19 >= 0x20 )
+              v16 = __lzcnt(v14);
+              v17 = v16 + 32 * v15;
+              if ( v16 >= 0x20 )
               {
                 LODWORD(extendedYawAngle) = 32;
-                LODWORD(extendedPitchAngle) = v19;
+                LODWORD(extendedPitchAngle) = v16;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", extendedPitchAngle, extendedYawAngle) )
                   __debugbreak();
               }
-              if ( (v17 & (0x80000000 >> v19)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+              if ( (v14 & (0x80000000 >> v16)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
                 __debugbreak();
-              v17 &= ~(0x80000000 >> v19);
+              v14 &= ~(0x80000000 >> v16);
               if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
               {
-                LODWORD(extendedYawAngle) = v4;
+                LODWORD(extendedYawAngle) = v1;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", extendedYawAngle) )
                   __debugbreak();
               }
-              if ( (unsigned int)v4 >= CgEntitySystem::ms_allocatedCount )
+              if ( (unsigned int)v1 >= CgEntitySystem::ms_allocatedCount )
               {
                 LODWORD(extendedYawAngle) = CgEntitySystem::ms_allocatedCount;
-                LODWORD(extendedPitchAngle) = v4;
+                LODWORD(extendedPitchAngle) = v1;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", extendedPitchAngle, extendedYawAngle) )
                   __debugbreak();
               }
-              if ( !CgEntitySystem::ms_entitySystemArray[v4] )
+              if ( !CgEntitySystem::ms_entitySystemArray[v1] )
               {
-                LODWORD(extendedYawAngle) = v4;
+                LODWORD(extendedYawAngle) = v1;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", extendedYawAngle) )
                   __debugbreak();
               }
-              v21 = CgEntitySystem::ms_entitySystemArray[v4];
-              if ( v20 >= 0x800 )
+              v18 = CgEntitySystem::ms_entitySystemArray[v1];
+              if ( v17 >= 0x800 )
               {
                 LODWORD(extendedYawAngle) = 2048;
-                LODWORD(extendedPitchAngle) = v19 + 32 * v18;
+                LODWORD(extendedPitchAngle) = v16 + 32 * v15;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", extendedPitchAngle, extendedYawAngle) )
                   __debugbreak();
               }
-              v22 = (__int64)&v21->m_entities[v20];
-              if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 895, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
+              v19 = (__int64)&v18->m_entities[v17];
+              if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 895, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
                 __debugbreak();
-              if ( (*(_BYTE *)(v22 + 648) & 1) != 0 && *(_WORD *)(v22 + 408) == 1 )
+              if ( (*(_BYTE *)(v19 + 648) & 1) != 0 && *(_WORD *)(v19 + 408) == 1 )
               {
-                CG_DrawDebugMP_DrawBoxAroundPlayer((const LocalClientNum_t)v4, (const centity_t *const)v22, &colorRed, 0, 0);
+                CG_DrawDebugMP_DrawBoxAroundPlayer((const LocalClientNum_t)v1, (const centity_t *const)v19, &colorRed, 0, 0);
               }
               else if ( enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 898, ASSERT_TYPE_ASSERT, "(!waitForResult)", (const char *)&queryFormat, "!waitForResult") )
               {
@@ -1033,76 +863,58 @@ LABEL_29:
             }
             while ( 1 )
             {
-              v18 = (unsigned int)(v18 + 1);
-              if ( (unsigned int)v18 >= 7 )
+              v15 = (unsigned int)(v15 + 1);
+              if ( (unsigned int)v15 >= 7 )
                 break;
-              v17 = v16->array[v18];
-              if ( v17 )
+              v14 = v13->array[v15];
+              if ( v14 )
                 goto LABEL_29;
             }
-            v7 = v4;
-            v8 = v4;
-            v9 = v49;
+            v4 = v1;
+            v5 = v1;
+            v6 = v34;
           }
-          v10 = v48;
+          v7 = v33;
         }
       }
-      ++v10;
-      ++v9;
-      v48 = v10;
-      v49 = v9;
+      ++v7;
+      ++v6;
+      v33 = v7;
+      v34 = v6;
     }
-    while ( v10 < 2 );
-    _RBX = DCONST_DVARFLT_cg_player_visibility_test_worldspacePadding;
+    while ( v7 < 2 );
+    v20 = DCONST_DVARFLT_cg_player_visibility_test_worldspacePadding;
     if ( !DCONST_DVARFLT_cg_player_visibility_test_worldspacePadding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_player_visibility_test_worldspacePadding") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm8, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARFLT_cg_player_visibility_test_extendedPitchAngle;
+    Dvar_CheckFrontendServerThread(v20);
+    value = v20->current.value;
+    v22 = DCONST_DVARFLT_cg_player_visibility_test_extendedPitchAngle;
     if ( !DCONST_DVARFLT_cg_player_visibility_test_extendedPitchAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_player_visibility_test_extendedPitchAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARFLT_cg_player_visibility_test_extendedYawAngle;
+    Dvar_CheckFrontendServerThread(v22);
+    v23 = v22->current.value;
+    v24 = DCONST_DVARFLT_cg_player_visibility_test_extendedYawAngle;
     if ( !DCONST_DVARFLT_cg_player_visibility_test_extendedYawAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_player_visibility_test_extendedYawAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vmovss  [rsp+0B8h+extendedYawAngle], xmm6
-      vmovss  [rsp+0B8h+extendedPitchAngle], xmm7
-      vmovss  dword ptr [rsp+0B8h+fmt], xmm8
-    }
-    updated = CG_PlayerVisibilityMP_UpdateCrosshairsTest((const LocalClientNum_t)v4, s_testId[v8][0], 0, 1, fmt, extendedPitchAnglea, extendedYawAnglea);
-    v30 = s_testId[v8][1];
-    __asm
-    {
-      vmovss  [rsp+0B8h+extendedYawAngle], xmm6
-      vmovss  [rsp+0B8h+extendedPitchAngle], xmm7
-    }
-    s_testId[v8][0] = updated;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0B8h+fmt], xmm8
-      vmovaps xmm8, [rsp+0B8h+var_78]
-      vmovaps xmm7, [rsp+0B8h+var_68]
-      vmovaps xmm6, [rsp+0B8h+var_58]
-    }
-    s_testId[v8][1] = CG_PlayerVisibilityMP_UpdateCrosshairsTest((const LocalClientNum_t)v4, v30, 1, 0, fmta, extendedPitchAngleb, extendedYawAngleb);
+    Dvar_CheckFrontendServerThread(v24);
+    v25 = v24->current.value;
+    updated = CG_PlayerVisibilityMP_UpdateCrosshairsTest((const LocalClientNum_t)v1, s_testId[v5][0], 0, 1, value, v23, v25);
+    v27 = s_testId[v5][1];
+    s_testId[v5][0] = updated;
+    s_testId[v5][1] = CG_PlayerVisibilityMP_UpdateCrosshairsTest((const LocalClientNum_t)v1, v27, 1, 0, value, v23, v25);
   }
   else
   {
-    v34 = 0i64;
-    v35 = 0i64;
+    v28 = 0i64;
+    v29 = 0i64;
     do
     {
-      s_testId[v7][v34] = CG_PlayerVisibilityMP_DeregisterCrosshairsTest((const LocalClientNum_t)v4, s_testId[0][v35 + v7 * 2]);
-      ++v35;
-      ++v34;
-      --v5;
+      s_testId[v4][v28] = CG_PlayerVisibilityMP_DeregisterCrosshairsTest((const LocalClientNum_t)v1, s_testId[0][v29 + v4 * 2]);
+      ++v29;
+      ++v28;
+      --v2;
     }
-    while ( v5 );
+    while ( v2 );
   }
 }
 
@@ -1364,200 +1176,149 @@ CG_PlayerVisibilityMP_ParseTestCmd
 */
 void CG_PlayerVisibilityMP_ParseTestCmd(const CgPlayerVisibilityCrossHairsTestCmd *cmd, CgPlayerCrosshairsVisibilityParsedCmdData *parsedCmd)
 {
-  bool v8; 
   __int64 localClientNum; 
-  unsigned __int8 v28; 
-  const char *v29; 
+  float x; 
+  float v6; 
+  __int128 v7; 
+  float v10; 
+  unsigned __int8 v11; 
+  const char *v12; 
   CgPlayerCrosshairsVisibilityTest::ConfigData *p_config; 
-  const ObfuscateErrorText *v31; 
+  const ObfuscateErrorText *v14; 
+  __int64 v15; 
+  CgPlayerVisibilityTestRefId v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int128 viewPitch_low; 
+  CgPlayerCrosshairsVisibilityTest::ConfigData *v20; 
+  unsigned __int64 v21; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  unsigned __int8 enemyTestsCount; 
   __int64 v32; 
-  CgPlayerVisibilityTestRefId v33; 
+  unsigned __int8 friendlyTestsCount; 
   __int64 v34; 
   __int64 v35; 
-  __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  unsigned __int8 enemyTestsCount; 
-  unsigned __int8 friendlyTestsCount; 
-  __int64 v59; 
-  __int64 v60; 
-  __int128 v61; 
-  float v62; 
-  __int64 v63; 
-  int v64; 
+  __int64 v36; 
+  __int128 v37; 
+  float v38; 
+  double v39; 
 
-  _RDI = parsedCmd;
-  _RSI = cmd;
   DebugWipe(parsedCmd, 0x178ui64);
-  if ( _RSI->localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 463, ASSERT_TYPE_ASSERT, "(unsigned)( cmd.localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests ) ) + 0 ) )", "cmd.localClientNum doesn't index s_crosshairsVisibilityTests\n\t%i not in [0, %i)", _RSI->localClientNum, 2) )
+  if ( cmd->localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 463, ASSERT_TYPE_ASSERT, "(unsigned)( cmd.localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests ) ) + 0 ) )", "cmd.localClientNum doesn't index s_crosshairsVisibilityTests\n\t%i not in [0, %i)", cmd->localClientNum, 2) )
     __debugbreak();
-  localClientNum = _RSI->localClientNum;
-  v8 = (unsigned __int128)(776 * (__int128)(int)_RSI->localClientNum) >> 64 != 0;
-  _RDI->viewOrigin.x = _RSI->viewOrigin.x;
-  _RDI->viewOrigin.y = _RSI->viewOrigin.y;
-  _RDI->viewOrigin.z = _RSI->viewOrigin.z;
-  __asm
+  localClientNum = cmd->localClientNum;
+  parsedCmd->viewOrigin.x = cmd->viewOrigin.x;
+  parsedCmd->viewOrigin.y = cmd->viewOrigin.y;
+  parsedCmd->viewOrigin.z = cmd->viewOrigin.z;
+  x = cmd->viewDir.x;
+  parsedCmd->viewDir.v[0] = x;
+  parsedCmd->viewDir.v[1] = cmd->viewDir.y;
+  parsedCmd->viewDir.v[2] = cmd->viewDir.z;
+  v6 = fsqrt((float)(x * x) + (float)(parsedCmd->viewDir.v[1] * parsedCmd->viewDir.v[1]));
+  parsedCmd->viewDirXYLen = v6;
+  parsedCmd->viewDirXYIsValid = v6 >= 0.000001;
+  if ( v6 < 0.000001 )
   {
-    vmovss  xmm1, dword ptr [rsi+10h]
-    vmovss  dword ptr [rdi+10h], xmm1
-  }
-  _RDI->viewDir.v[1] = _RSI->viewDir.y;
-  _RDI->viewDir.v[2] = _RSI->viewDir.z;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm4, xmm1, xmm1
-    vcvtss2sd xmm0, xmm4, xmm4
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    vmovss  dword ptr [rdi+1Ch], xmm4
-  }
-  _RDI->viewDirXYIsValid = !v8;
-  if ( v8 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0F8h+var_98], xmm0
-      vmovss  dword ptr [rsp+0F8h+var_98+4], xmm0
-      vmovss  [rsp+0F8h+var_90], xmm0
-    }
+    v39 = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm1, xmm0, xmm4
-      vmulss  xmm3, xmm1, dword ptr [rdi+10h]
-      vmulss  xmm2, xmm1, dword ptr [rdi+14h]
-      vxorps  xmm0, xmm0, xmm0
-      vunpcklps xmm1, xmm3, xmm2
-      vmovss  dword ptr [rsp+0F8h+var_B0+8], xmm0
-      vmovsd  [rsp+0F8h+var_98], xmm1
-    }
-    v64 = DWORD2(v61);
+    v7 = LODWORD(FLOAT_1_0);
+    *(float *)&v7 = (float)(1.0 / v6) * parsedCmd->viewDir.v[0];
+    _XMM3 = v7;
+    __asm { vunpcklps xmm1, xmm3, xmm2 }
+    *((float *)&v37 + 2) = 0.0;
+    v39 = *(double *)&_XMM1;
   }
-  _RAX = &v63;
-  __asm { vmovsd  xmm0, qword ptr [rax] }
-  LODWORD(_RAX) = v64;
-  __asm { vmovsd  qword ptr [rdi+24h], xmm0 }
-  LODWORD(_RDI->viewDirXY.v[2]) = (_DWORD)_RAX;
-  __asm
+  *(double *)parsedCmd->viewDirXY.v = v39;
+  parsedCmd->viewDirXY.v[2] = 0.0;
+  v10 = atan2f_0(parsedCmd->viewDir.v[2], v6);
+  v11 = 0;
+  parsedCmd->enemyTestsCount = 0;
+  parsedCmd->viewPitch = v10;
+  parsedCmd->friendlyTestsCount = 0;
+  if ( cmd->testCount )
   {
-    vmovss  xmm0, dword ptr [rdi+18h]; Y
-    vmovaps xmm1, xmm4; X
-  }
-  *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  v28 = 0;
-  _RDI->enemyTestsCount = 0;
-  __asm { vmovss  dword ptr [rdi+0Ch], xmm0 }
-  _RDI->friendlyTestsCount = 0;
-  if ( _RSI->testCount )
-  {
-    v29 = "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )";
+    v12 = "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )";
     p_config = &s_crosshairsVisibilityTests[localClientNum].tests[0].config;
-    __asm { vmovaps [rsp+0F8h+var_48], xmm6 }
-    v31 = &queryFormat;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_58], xmm7
-      vmovaps [rsp+0F8h+var_68], xmm8
-      vmovaps [rsp+0F8h+var_78], xmm9
-    }
+    v14 = &queryFormat;
     do
     {
-      v32 = _RSI->localClientNum;
-      v33 = _RSI->tests[v28];
-      if ( v33.id == 0xFF )
-        goto LABEL_31;
-      if ( v33.id >= 8u )
+      v15 = cmd->localClientNum;
+      v16 = cmd->tests[v11];
+      if ( v16.id == 0xFF )
+        goto LABEL_30;
+      if ( v16.id >= 8u )
       {
-        LODWORD(v60) = 8;
-        LODWORD(v59) = v33.id;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 175, ASSERT_TYPE_ASSERT, "(unsigned)( testId.id ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests[localClientNum].tests ) ) + 0 ) )", "testId.id doesn't index s_crosshairsVisibilityTests[localClientNum].tests\n\t%i not in [0, %i)", v59, v60) )
+        LODWORD(v36) = 8;
+        LODWORD(v35) = v16.id;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 175, ASSERT_TYPE_ASSERT, "(unsigned)( testId.id ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests[localClientNum].tests ) ) + 0 ) )", "testId.id doesn't index s_crosshairsVisibilityTests[localClientNum].tests\n\t%i not in [0, %i)", v35, v36) )
           __debugbreak();
-        v31 = &queryFormat;
-        v29 = "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )";
+        v14 = &queryFormat;
+        v12 = "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )";
       }
-      v34 = 96i64 * v33.id;
-      v35 = v34 + 776 * v32;
-      if ( *(&s_crosshairsVisibilityTests[0].tests[0].generation + v35) != v33.generation )
+      v17 = 96i64 * v16.id;
+      v18 = v17 + 776 * v15;
+      if ( *(&s_crosshairsVisibilityTests[0].tests[0].generation + v18) != v16.generation )
       {
-LABEL_31:
+LABEL_30:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 479, ASSERT_TYPE_ASSERT, "(CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] ))", (const char *)&queryFormat, "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )") )
           __debugbreak();
       }
-      __asm { vmovss  xmm7, dword ptr [rdi+0Ch] }
-      LOBYTE(v61) = _RSI->tests[v28].id;
-      _RBX = &p_config[3 * (unsigned __int8)v61];
+      viewPitch_low = LODWORD(parsedCmd->viewPitch);
+      LOBYTE(v37) = cmd->tests[v11].id;
+      v20 = &p_config[3 * (unsigned __int8)v37];
+      *(double *)&v21 = j___libm_sse2_sincosf_(v17, v18, v12, v14);
+      _mm_shuffle_ps((__m128)v21, (__m128)v21, 1);
+      *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&viewPitch_low + 1);
+      *(double *)&_XMM0 = j___libm_sse2_sincosf_(v24, v23, v25, v26);
+      _XMM6 = v37;
       __asm
       {
-        vmovss  xmm6, dword ptr [rbx+8]
-        vaddss  xmm0, xmm6, xmm7
-      }
-      *(double *)&_XMM0 = j___libm_sse2_sincosf_(v34, v35, v29, v31);
-      __asm
-      {
-        vmovups xmm8, xmm0
-        vshufps xmm9, xmm0, xmm0, 1
-        vsubss  xmm0, xmm7, xmm6
-      }
-      *(double *)&_XMM0 = j___libm_sse2_sincosf_(v44, v43, v45, v46);
-      __asm
-      {
-        vmovups xmm6, [rsp+0F8h+var_B0]
         vinsertps xmm6, xmm6, xmm8, 10h
         vinsertps xmm6, xmm6, xmm9, 20h ; ' '
         vinsertps xmm6, xmm6, xmm0, 30h ; '0'
         vextractps [rsp+0F8h+var_A0], xmm0, 1
-        vmovups [rsp+0F8h+var_B0], xmm6
       }
-      if ( _RBX->testEnemyTeam )
+      v37 = _XMM6;
+      if ( v20->testEnemyTeam )
       {
-        enemyTestsCount = _RDI->enemyTestsCount;
+        enemyTestsCount = parsedCmd->enemyTestsCount;
         if ( enemyTestsCount >= 8u )
         {
-          LODWORD(v60) = 8;
-          LODWORD(v59) = enemyTestsCount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 491, ASSERT_TYPE_ASSERT, "(unsigned)( parsedCmd.enemyTestsCount ) < (unsigned)( ( sizeof( *array_counter( parsedCmd.enemyTests ) ) + 0 ) )", "parsedCmd.enemyTestsCount doesn't index parsedCmd.enemyTests\n\t%i not in [0, %i)", v59, v60) )
+          LODWORD(v36) = 8;
+          LODWORD(v35) = enemyTestsCount;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 491, ASSERT_TYPE_ASSERT, "(unsigned)( parsedCmd.enemyTestsCount ) < (unsigned)( ( sizeof( *array_counter( parsedCmd.enemyTests ) ) + 0 ) )", "parsedCmd.enemyTestsCount doesn't index parsedCmd.enemyTests\n\t%i not in [0, %i)", v35, v36) )
             __debugbreak();
         }
-        _RCX = _RDI->enemyTestsCount;
-        __asm { vmovups xmmword ptr [rdi+rcx*4+34h], xmm6 }
-        _RDI->enemyTests[_RCX].cosViewPitchMinusExtended = v62;
-        ++_RDI->enemyTestsCount;
+        v32 = parsedCmd->enemyTestsCount;
+        *(_OWORD *)&parsedCmd->enemyTests[v32].testId = _XMM6;
+        parsedCmd->enemyTests[v32].cosViewPitchMinusExtended = v38;
+        ++parsedCmd->enemyTestsCount;
       }
-      if ( _RBX->testSameTeam )
+      if ( v20->testSameTeam )
       {
-        friendlyTestsCount = _RDI->friendlyTestsCount;
+        friendlyTestsCount = parsedCmd->friendlyTestsCount;
         if ( friendlyTestsCount >= 8u )
         {
-          LODWORD(v60) = 8;
-          LODWORD(v59) = friendlyTestsCount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 497, ASSERT_TYPE_ASSERT, "(unsigned)( parsedCmd.friendlyTestsCount ) < (unsigned)( ( sizeof( *array_counter( parsedCmd.friendlyTests ) ) + 0 ) )", "parsedCmd.friendlyTestsCount doesn't index parsedCmd.friendlyTests\n\t%i not in [0, %i)", v59, v60) )
+          LODWORD(v36) = 8;
+          LODWORD(v35) = friendlyTestsCount;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 497, ASSERT_TYPE_ASSERT, "(unsigned)( parsedCmd.friendlyTestsCount ) < (unsigned)( ( sizeof( *array_counter( parsedCmd.friendlyTests ) ) + 0 ) )", "parsedCmd.friendlyTestsCount doesn't index parsedCmd.friendlyTests\n\t%i not in [0, %i)", v35, v36) )
             __debugbreak();
         }
-        _RCX = _RDI->friendlyTestsCount;
-        __asm { vmovups xmmword ptr [rdi+rcx*4+0D8h], xmm6 }
-        _RDI->friendlyTests[_RCX].cosViewPitchMinusExtended = v62;
-        ++_RDI->friendlyTestsCount;
+        v34 = parsedCmd->friendlyTestsCount;
+        *(_OWORD *)&parsedCmd->friendlyTests[v34].testId = _XMM6;
+        parsedCmd->friendlyTests[v34].cosViewPitchMinusExtended = v38;
+        ++parsedCmd->friendlyTestsCount;
       }
-      ++v28;
-      v29 = "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )";
-      v31 = &queryFormat;
+      ++v11;
+      v12 = "CG_PlayerVisibilityMP_TestIdIsValid( cmd.localClientNum, cmd.tests[cmdIndex] )";
+      v14 = &queryFormat;
     }
-    while ( v28 < _RSI->testCount );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0F8h+var_78]
-      vmovaps xmm8, [rsp+0F8h+var_68]
-      vmovaps xmm7, [rsp+0F8h+var_58]
-      vmovaps xmm6, [rsp+0F8h+var_48]
-    }
+    while ( v11 < cmd->testCount );
   }
 }
 
@@ -1572,22 +1333,23 @@ void CG_PlayerVisibilityMP_QueueVisibilityTests(const LocalClientNum_t localClie
   unsigned __int64 v2; 
   CgPlayerCrosshairsVisibilityTestGlob *v3; 
   volatile signed __int32 *p_addRemoveTestLock; 
+  CgGlobalsMP *LocalClientGlobals; 
   unsigned int refdefViewOrg_aab; 
-  char v10; 
-  unsigned __int8 v11; 
+  char v7; 
+  unsigned __int8 v8; 
   unsigned int *p_refCount; 
-  signed __int64 v13; 
-  char *v14; 
+  signed __int64 v10; 
+  char *v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
+  __int16 v16; 
   __int64 v17; 
-  __int64 v18; 
-  __int16 v19; 
-  __int64 v20; 
-  CgPlayerCrosshairsVisibilityTestGlob *v21; 
+  CgPlayerCrosshairsVisibilityTestGlob *v18; 
   int mem[7]; 
-  unsigned __int8 v23; 
-  __int16 v24[9]; 
+  unsigned __int8 v20; 
+  __int16 v21[9]; 
 
   v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 411, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests ) ) + 0 ) )", "localClientNum doesn't index s_crosshairsVisibilityTests\n\t%i not in [0, %i)", localClientNum, 2) )
@@ -1595,11 +1357,11 @@ void CG_PlayerVisibilityMP_QueueVisibilityTests(const LocalClientNum_t localClie
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 412, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   v2 = 776 * v1;
-  v20 = v1;
+  v17 = v1;
   v3 = &s_crosshairsVisibilityTests[v1];
   if ( !v3->isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 413, ASSERT_TYPE_ASSERT, "(s_crosshairsVisibilityTests[localClientNum].isInitialized)", (const char *)&queryFormat, "s_crosshairsVisibilityTests[localClientNum].isInitialized") )
     __debugbreak();
-  v21 = &s_crosshairsVisibilityTests[v1];
+  v18 = &s_crosshairsVisibilityTests[v1];
   p_addRemoveTestLock = &v3->addRemoveTestLock;
   while ( 1 )
   {
@@ -1616,80 +1378,74 @@ void CG_PlayerVisibilityMP_QueueVisibilityTests(const LocalClientNum_t localClie
   {
     if ( v3->nextWriteIndex == v3->readableResultIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 422, ASSERT_TYPE_ASSERT, "( r_testGlob.nextWriteIndex != r_testGlob.readableResultIndex )", "CG_PlayerVisibilityMP_CrosshairsTestCmd: invalid worker cmd management--trying to write to the current readIndex") )
       __debugbreak();
-    _R14 = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v1);
-    if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 425, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v1);
+    if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 425, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     DebugWipe(mem, 0x30ui64);
     mem[0] = v1;
-    if ( _R14 == (CgGlobalsMP *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+    if ( LocalClientGlobals == (CgGlobalsMP *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
-    refdefViewOrg_aab = _R14->refdef.view.refdefViewOrg_aab;
-    if ( _R14 == (CgGlobalsMP *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+    refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
+    if ( LocalClientGlobals == (CgGlobalsMP *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    mem[1] = LODWORD(_R14->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_R14 + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)_R14 + 26936)) + 2));
-    mem[2] = LODWORD(_R14->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_R14 + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)_R14 + 26940)) + 2));
-    mem[3] = ((refdefViewOrg_aab ^ ((_DWORD)_R14 + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)_R14 + 26944)) + 2)) ^ LODWORD(_R14->refdef.view.org.org.v[2]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+6944h]
-      vmovss  [rbp+57h+var_48], xmm0
-      vmovss  xmm1, dword ptr [r14+6948h]
-      vmovss  [rbp+57h+var_44], xmm1
-      vmovss  xmm0, dword ptr [r14+694Ch]
-      vmovss  [rbp+57h+var_40], xmm0
-    }
-    v10 = 0;
-    v23 = 0;
-    v11 = 0;
+    mem[1] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+    mem[2] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+    mem[3] = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
+    mem[4] = LODWORD(LocalClientGlobals->refdef.view.axis.m[0].v[0]);
+    mem[5] = LODWORD(LocalClientGlobals->refdef.view.axis.m[0].v[1]);
+    mem[6] = LODWORD(LocalClientGlobals->refdef.view.axis.m[0].v[2]);
+    v7 = 0;
+    v20 = 0;
+    v8 = 0;
     p_refCount = &s_crosshairsVisibilityTests[v2 / 0x308].tests[0].refCount;
-    v13 = (char *)&v3[v2 / 0xFFFFFFFFFFFFFCF8ui64] - (char *)&s_crosshairsVisibilityTests[0].tests[0].refCount;
+    v10 = (char *)&v3[v2 / 0xFFFFFFFFFFFFFCF8ui64] - (char *)&s_crosshairsVisibilityTests[0].tests[0].refCount;
     do
     {
-      if ( *(unsigned int *)((char *)p_refCount + v13 + 8) )
+      if ( *(unsigned int *)((char *)p_refCount + v10 + 8) )
       {
-        v14 = (char *)p_refCount + 28i64 * v3->nextWriteIndex - (_QWORD)&s_crosshairsVisibilityTests[v2 / 0x308].tests[0].refCount;
-        *(_QWORD *)((char *)v3->tests[0].results[0].array + (_QWORD)v14) = 0i64;
-        *(_QWORD *)((char *)&v3->tests[0].results[0].array[2] + (_QWORD)v14) = 0i64;
-        *(_QWORD *)((char *)&v3->tests[0].results[0].array[4] + (_QWORD)v14) = 0i64;
-        *(unsigned int *)((char *)&v3->tests[0].results[0].array[6] + (_QWORD)v14) = 0;
-        if ( v23 >= 8u )
+        v11 = (char *)p_refCount + 28i64 * v3->nextWriteIndex - (_QWORD)&s_crosshairsVisibilityTests[v2 / 0x308].tests[0].refCount;
+        *(_QWORD *)((char *)v3->tests[0].results[0].array + (_QWORD)v11) = 0i64;
+        *(_QWORD *)((char *)&v3->tests[0].results[0].array[2] + (_QWORD)v11) = 0i64;
+        *(_QWORD *)((char *)&v3->tests[0].results[0].array[4] + (_QWORD)v11) = 0i64;
+        *(unsigned int *)((char *)&v3->tests[0].results[0].array[6] + (_QWORD)v11) = 0;
+        if ( v20 >= 8u )
         {
-          LODWORD(v16) = 8;
-          LODWORD(v15) = v23;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 442, ASSERT_TYPE_ASSERT, "(unsigned)( cmd.testCount ) < (unsigned)( ( sizeof( *array_counter( cmd.tests ) ) + 0 ) )", "cmd.testCount doesn't index cmd.tests\n\t%i not in [0, %i)", v15, v16) )
+          LODWORD(v13) = 8;
+          LODWORD(v12) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 442, ASSERT_TYPE_ASSERT, "(unsigned)( cmd.testCount ) < (unsigned)( ( sizeof( *array_counter( cmd.tests ) ) + 0 ) )", "cmd.testCount doesn't index cmd.tests\n\t%i not in [0, %i)", v12, v13) )
             __debugbreak();
         }
-        if ( *(unsigned int *)((char *)p_refCount + v13 + 8) == -1 )
+        if ( *(unsigned int *)((char *)p_refCount + v10 + 8) == -1 )
         {
-          LODWORD(v18) = -1;
-          LODWORD(v17) = -1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 446, ASSERT_TYPE_ASSERT, "( r_testGlob.tests[testIndex].refCount ) < ( 0xffffffffui32 )", "%s < %s\n\t%u, %u", "r_testGlob.tests[testIndex].refCount", "UINT32_MAX", v17, v18) )
+          LODWORD(v15) = -1;
+          LODWORD(v14) = -1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 446, ASSERT_TYPE_ASSERT, "( r_testGlob.tests[testIndex].refCount ) < ( 0xffffffffui32 )", "%s < %s\n\t%u, %u", "r_testGlob.tests[testIndex].refCount", "UINT32_MAX", v14, v15) )
             __debugbreak();
         }
         ++*p_refCount;
-        LOBYTE(v19) = v11;
-        HIBYTE(v19) = *((_BYTE *)p_refCount + v13 + 4);
-        v24[v23] = v19;
-        v10 = ++v23;
+        LOBYTE(v16) = v8;
+        HIBYTE(v16) = *((_BYTE *)p_refCount + v10 + 4);
+        v21[v20] = v16;
+        v7 = ++v20;
       }
-      ++v11;
+      ++v8;
       p_refCount += 24;
     }
-    while ( v11 < 8u );
-    if ( !v10 )
+    while ( v8 < 8u );
+    if ( !v7 )
     {
-      LODWORD(v15) = s_crosshairsVisibilityTests[v20].registeredTestCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 454, ASSERT_TYPE_ASSERT, "( cmd.testCount > 0 )", "CG_PlayerVisibilityMP_QueueVisibilityTests: didn't find any valid tests, but expected to find %i", v15) )
+      LODWORD(v12) = s_crosshairsVisibilityTests[v17].registeredTestCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 454, ASSERT_TYPE_ASSERT, "( cmd.testCount > 0 )", "CG_PlayerVisibilityMP_QueueVisibilityTests: didn't find any valid tests, but expected to find %i", v12) )
         __debugbreak();
     }
     Sys_AddWorkerCmd(WRKCMD_PLAYER_VISIBILITY_CROSSHAIRS_TEST, mem);
     memset(&mem[1], 0, 24);
   }
-  if ( v21 )
+  if ( v18 )
   {
-    if ( !v21->addRemoveTestLock && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 189, ASSERT_TYPE_ASSERT, "(testGlob.addRemoveTestLock)", (const char *)&queryFormat, "testGlob.addRemoveTestLock") )
+    if ( !v18->addRemoveTestLock && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 189, ASSERT_TYPE_ASSERT, "(testGlob.addRemoveTestLock)", (const char *)&queryFormat, "testGlob.addRemoveTestLock") )
       __debugbreak();
-    v21->addRemoveTestLock = 0;
+    v18->addRemoveTestLock = 0;
   }
 }
 
@@ -1700,23 +1456,9 @@ CG_PlayerVisibilityMP_RegisterCrosshairsTest
 */
 CgPlayerVisibilityTestRefId CG_PlayerVisibilityMP_RegisterCrosshairsTest(const LocalClientNum_t localClientNum, const bool testSameTeam, const bool testEnemyTeam, double worldSpacePadding, const float extendedPitchAngle, const float extendedYawAngle)
 {
-  float v12; 
-  float v13; 
   CgPlayerCrosshairsVisibilityTest::ConfigData result; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+extendedYawAngle]
-    vmovss  xmm1, [rsp+58h+extendedPitchAngle]
-    vmovss  [rsp+58h+var_30], xmm0
-    vmovss  [rsp+58h+var_38], xmm1
-  }
-  _RAX = CG_PlayerVisibilityMP_CreateConfigData(&result, testSameTeam, testEnemyTeam, worldSpacePadding, v12, v13);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+58h+result.testSameTeam], ymm0
-  }
+  result = *CG_PlayerVisibilityMP_CreateConfigData(&result, testSameTeam, testEnemyTeam, worldSpacePadding, extendedPitchAngle, extendedYawAngle);
   return CG_PlayerVisibilityMP_RegisterCrosshairsTest_Internal(localClientNum, &result);
 }
 
@@ -1729,34 +1471,34 @@ __int64 CG_PlayerVisibilityMP_RegisterCrosshairsTest_Internal(const LocalClientN
 {
   __int64 v3; 
   __int64 v4; 
+  CgPlayerCrosshairsVisibilityTestGlob *v5; 
   volatile signed __int32 *p_addRemoveTestLock; 
   int v7; 
   unsigned int i; 
+  __int64 v9; 
   unsigned int refCount; 
   int v11; 
-  bool testEnemyTeam; 
-  CgPlayerVisibilityTestRefId v16; 
-  unsigned __int8 v17; 
-  __int64 v19; 
-  __int64 v21; 
-  CgPlayerVisibilityTestRefId v22; 
-  CgPlayerCrosshairsVisibilityTestGlob *v23; 
+  CgPlayerVisibilityTestRefId v12; 
+  unsigned __int8 v13; 
+  __int64 v14; 
+  __int64 v16; 
+  CgPlayerVisibilityTestRefId v17; 
+  CgPlayerCrosshairsVisibilityTestGlob *v18; 
 
-  _R14 = newConfigData;
   v3 = localClientNum;
   v4 = 2i64;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 271, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_crosshairsVisibilityTests ) ) + 0 ) )", "localClientNum doesn't index s_crosshairsVisibilityTests\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RDI = &s_crosshairsVisibilityTests[v3];
-  if ( !_RDI->isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 272, ASSERT_TYPE_ASSERT, "(s_crosshairsVisibilityTests[localClientNum].isInitialized)", (const char *)&queryFormat, "s_crosshairsVisibilityTests[localClientNum].isInitialized") )
+  v5 = &s_crosshairsVisibilityTests[v3];
+  if ( !v5->isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 272, ASSERT_TYPE_ASSERT, "(s_crosshairsVisibilityTests[localClientNum].isInitialized)", (const char *)&queryFormat, "s_crosshairsVisibilityTests[localClientNum].isInitialized") )
     __debugbreak();
-  v23 = &s_crosshairsVisibilityTests[v3];
-  p_addRemoveTestLock = &_RDI->addRemoveTestLock;
+  v18 = &s_crosshairsVisibilityTests[v3];
+  p_addRemoveTestLock = &v5->addRemoveTestLock;
   while ( 1 )
   {
     if ( !*p_addRemoveTestLock )
     {
-      if ( ((unsigned __int8)p_addRemoveTestLock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &_RDI->addRemoveTestLock) )
+      if ( ((unsigned __int8)p_addRemoveTestLock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &v5->addRemoveTestLock) )
         __debugbreak();
       if ( !_InterlockedCompareExchange(p_addRemoveTestLock, 1, 0) )
         break;
@@ -1766,45 +1508,17 @@ __int64 CG_PlayerVisibilityMP_RegisterCrosshairsTest_Internal(const LocalClientN
   v7 = -1;
   for ( i = 0; i < 8; ++i )
   {
-    _RBX = i;
-    refCount = _RDI->tests[_RBX].refCount;
+    v9 = i;
+    refCount = v5->tests[v9].refCount;
     if ( refCount )
     {
-      if ( _R14->testSameTeam == _RDI->tests[_RBX].config.testSameTeam )
+      if ( newConfigData->testSameTeam == v5->tests[v9].config.testSameTeam && newConfigData->testEnemyTeam == v5->tests[v9].config.testEnemyTeam && v5->tests[v9].config.worldSpacePadding == newConfigData->worldSpacePadding && v5->tests[v9].config.extendedPitchAngle == newConfigData->extendedPitchAngle && v5->tests[v9].config.extendedYawAngle == newConfigData->extendedYawAngle )
       {
-        testEnemyTeam = _RDI->tests[_RBX].config.testEnemyTeam;
-        if ( _R14->testEnemyTeam == testEnemyTeam )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+rdi+10h]
-            vucomiss xmm0, dword ptr [r14+4]
-          }
-          if ( _R14->testEnemyTeam == testEnemyTeam )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+rdi+14h]
-              vucomiss xmm0, dword ptr [r14+8]
-            }
-            if ( _R14->testEnemyTeam == testEnemyTeam )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+rdi+20h]
-                vucomiss xmm0, dword ptr [r14+14h]
-              }
-              if ( _R14->testEnemyTeam == testEnemyTeam )
-              {
-                if ( refCount == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 295, ASSERT_TYPE_ASSERT, "( r_test.refCount ) < ( 0xffffffffui32 )", "%s < %s\n\t%u, %u", "r_test.refCount", "UINT32_MAX", -1, -1) )
-                  __debugbreak();
-                ++_RDI->tests[_RBX].refCount;
-                v22.id = i;
-                goto LABEL_39;
-              }
-            }
-          }
-        }
+        if ( refCount == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 295, ASSERT_TYPE_ASSERT, "( r_test.refCount ) < ( 0xffffffffui32 )", "%s < %s\n\t%u, %u", "r_test.refCount", "UINT32_MAX", -1, -1) )
+          __debugbreak();
+        ++v5->tests[v9].refCount;
+        v17.id = i;
+        goto LABEL_39;
       }
     }
     else
@@ -1817,47 +1531,43 @@ __int64 CG_PlayerVisibilityMP_RegisterCrosshairsTest_Internal(const LocalClientN
   }
   if ( v7 != -1 )
   {
-    v17 = _RDI->registeredTestCount + 1;
-    _RDI->registeredTestCount = v17;
-    if ( v17 > 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 310, ASSERT_TYPE_ASSERT, "( r_testGlob.registeredTestCount ) <= ( ( sizeof( *array_counter( r_testGlob.tests ) ) + 0 ) )", "%s <= %s\n\t%u, %u", "r_testGlob.registeredTestCount", "ARRAY_COUNT( r_testGlob.tests )", v17, 8) )
+    v13 = v5->registeredTestCount + 1;
+    v5->registeredTestCount = v13;
+    if ( v13 > 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 310, ASSERT_TYPE_ASSERT, "( r_testGlob.registeredTestCount ) <= ( ( sizeof( *array_counter( r_testGlob.tests ) ) + 0 ) )", "%s <= %s\n\t%u, %u", "r_testGlob.registeredTestCount", "ARRAY_COUNT( r_testGlob.tests )", v13, 8) )
       __debugbreak();
-    _RBX = v7;
-    ++_RDI->tests[_RBX].generation;
-    _RDI->tests[_RBX].refCount = 1;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rbx+rdi+0Ch], ymm0
-    }
-    v19 = (__int64)&_RDI->tests[_RBX].results[0].array[2];
+    v9 = v7;
+    ++v5->tests[v9].generation;
+    v5->tests[v9].refCount = 1;
+    v5->tests[v9].config = *newConfigData;
+    v14 = (__int64)&v5->tests[v9].results[0].array[2];
     do
     {
-      *(_QWORD *)(v19 - 8) = 0i64;
-      *(_QWORD *)v19 = 0i64;
-      *(_QWORD *)(v19 + 8) = 0i64;
-      *(_DWORD *)(v19 + 16) = 0;
-      v19 += 28i64;
+      *(_QWORD *)(v14 - 8) = 0i64;
+      *(_QWORD *)v14 = 0i64;
+      *(_QWORD *)(v14 + 8) = 0i64;
+      *(_DWORD *)(v14 + 16) = 0;
+      v14 += 28i64;
       --v4;
     }
     while ( v4 );
-    v22.id = v7;
+    v17.id = v7;
 LABEL_39:
-    v22.generation = _RDI->tests[_RBX].generation;
-    v16 = v22;
+    v17.generation = v5->tests[v9].generation;
+    v12 = v17;
     goto LABEL_40;
   }
-  LODWORD(v21) = 8;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 304, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_PlayerVisibilityMP_RegisterCrosshairsTest: test limit (%i) reached. Failed to allocate a new test. Is someone leaking testIds?", v21) )
+  LODWORD(v16) = 8;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 304, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_PlayerVisibilityMP_RegisterCrosshairsTest: test limit (%i) reached. Failed to allocate a new test. Is someone leaking testIds?", v16) )
     __debugbreak();
-  v16 = CG_PLAYER_VISIBILITY_INVALID_ID_0;
+  v12 = CG_PLAYER_VISIBILITY_INVALID_ID_0;
 LABEL_40:
-  if ( v23 )
+  if ( v18 )
   {
-    if ( !v23->addRemoveTestLock && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 189, ASSERT_TYPE_ASSERT, "(testGlob.addRemoveTestLock)", (const char *)&queryFormat, "testGlob.addRemoveTestLock") )
+    if ( !v18->addRemoveTestLock && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 189, ASSERT_TYPE_ASSERT, "(testGlob.addRemoveTestLock)", (const char *)&queryFormat, "testGlob.addRemoveTestLock") )
       __debugbreak();
-    v23->addRemoveTestLock = 0;
+    v18->addRemoveTestLock = 0;
   }
-  return *(unsigned __int16 *)&v16;
+  return *(unsigned __int16 *)&v12;
 }
 
 /*
@@ -1912,9 +1622,7 @@ CG_PlayerVisibilityMP_UpdateCrosshairsTest
 __int64 CG_PlayerVisibilityMP_UpdateCrosshairsTest(const LocalClientNum_t localClientNum, const CgPlayerVisibilityTestRefId oldTestId, const bool testSameTeam, const bool testEnemyTeam, const float worldSpacePadding, const float extendedPitchAngle, const float extendedYawAngle)
 {
   __int64 v7; 
-  unsigned __int64 v20; 
-  float fmt; 
-  float v26; 
+  CgPlayerCrosshairsVisibilityTest::ConfigData *p_config; 
   CgPlayerCrosshairsVisibilityTest::ConfigData newConfigData; 
   CgPlayerCrosshairsVisibilityTest::ConfigData result; 
 
@@ -1925,64 +1633,17 @@ __int64 CG_PlayerVisibilityMP_UpdateCrosshairsTest(const LocalClientNum_t localC
     __debugbreak();
   if ( !testSameTeam && !testEnemyTeam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_player_visibility_mp.cpp", 371, ASSERT_TYPE_ASSERT, "(testSameTeam || testEnemyTeam)", (const char *)&queryFormat, "testSameTeam || testEnemyTeam") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+extendedYawAngle]
-    vmovss  xmm1, [rsp+98h+extendedPitchAngle]
-    vmovss  xmm3, [rsp+98h+worldSpacePadding]; worldSpacePadding
-    vmovss  [rsp+98h+var_70], xmm0
-    vmovss  dword ptr [rsp+98h+fmt], xmm1
-  }
   if ( CG_PlayerVisibilityMP_TestIdIsValid((const LocalClientNum_t)v7, oldTestId) )
   {
-    _RAX = CG_PlayerVisibilityMP_CreateConfigData(&result, testSameTeam, testEnemyTeam, *(double *)&_XMM3, fmt, v26);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+98h+newConfigData.testSameTeam], ymm0
-    }
-    _RCX = &s_crosshairsVisibilityTests[v7].tests[oldTestId.id].config;
-    __asm { vmovq   rax, xmm0 }
-    if ( (_BYTE)_RAX == _RCX->testSameTeam )
-    {
-      v20 = _RAX >> 8;
-      if ( (_BYTE)v20 == _RCX->testEnemyTeam )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rsp+98h+newConfigData.worldSpacePadding]
-          vucomiss xmm0, dword ptr [rcx+4]
-        }
-        if ( (_BYTE)v20 == _RCX->testEnemyTeam )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+98h+newConfigData.extendedPitchAngle]
-            vucomiss xmm0, dword ptr [rcx+8]
-          }
-          if ( (_BYTE)v20 == _RCX->testEnemyTeam )
-          {
-            __asm
-            {
-              vmovss  xmm0, [rsp+98h+newConfigData.extendedYawAngle]
-              vucomiss xmm0, dword ptr [rcx+14h]
-            }
-            if ( (_BYTE)v20 == _RCX->testEnemyTeam )
-              return *(unsigned __int16 *)&oldTestId;
-          }
-        }
-      }
-    }
+    newConfigData = *CG_PlayerVisibilityMP_CreateConfigData(&result, testSameTeam, testEnemyTeam, COERCE_DOUBLE((unsigned __int64)LODWORD(worldSpacePadding)), extendedPitchAngle, extendedYawAngle);
+    p_config = &s_crosshairsVisibilityTests[v7].tests[oldTestId.id].config;
+    if ( LOWORD(extendedYawAngle) == *(_WORD *)&p_config->testSameTeam && newConfigData.worldSpacePadding == p_config->worldSpacePadding && newConfigData.extendedPitchAngle == p_config->extendedPitchAngle && newConfigData.extendedYawAngle == p_config->extendedYawAngle )
+      return *(unsigned __int16 *)&oldTestId;
     CG_PlayerVisibilityMP_DeregisterCrosshairsTest((const LocalClientNum_t)v7, oldTestId);
   }
   else
   {
-    _RAX = CG_PlayerVisibilityMP_CreateConfigData(&result, testSameTeam, testEnemyTeam, *(double *)&_XMM3, fmt, v26);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+98h+newConfigData.testSameTeam], ymm0
-    }
+    newConfigData = *CG_PlayerVisibilityMP_CreateConfigData(&result, testSameTeam, testEnemyTeam, COERCE_DOUBLE((unsigned __int64)LODWORD(worldSpacePadding)), extendedPitchAngle, extendedYawAngle);
   }
   return CG_PlayerVisibilityMP_RegisterCrosshairsTest_Internal((const LocalClientNum_t)v7, &newConfigData);
 }

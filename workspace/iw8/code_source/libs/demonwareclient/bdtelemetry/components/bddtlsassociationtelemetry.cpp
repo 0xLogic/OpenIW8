@@ -339,13 +339,10 @@ bdDTLSAssociationTelemetry::setCookieAckStageTime
 */
 void bdDTLSAssociationTelemetry::setCookieAckStageTime(bdDTLSAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_stageCookieAckMsSinceStart = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_stageCookieAckMsSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -355,13 +352,10 @@ bdDTLSAssociationTelemetry::setCookieEchoStageTime
 */
 void bdDTLSAssociationTelemetry::setCookieEchoStageTime(bdDTLSAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_stageCookieEchoMsSinceStart = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_stageCookieEchoMsSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -381,13 +375,10 @@ bdDTLSAssociationTelemetry::setEstablishedTime
 */
 void bdDTLSAssociationTelemetry::setEstablishedTime(bdDTLSAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_establishedMsSinceStart = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_establishedMsSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -397,13 +388,10 @@ bdDTLSAssociationTelemetry::setInitAckStageTime
 */
 void bdDTLSAssociationTelemetry::setInitAckStageTime(bdDTLSAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_stageInitAckMsSinceStart = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_stageInitAckMsSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -423,13 +411,10 @@ bdDTLSAssociationTelemetry::setInitStageTime
 */
 void bdDTLSAssociationTelemetry::setInitStageTime(bdDTLSAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_stageInitMsSinceStart = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_stageInitMsSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -439,13 +424,10 @@ bdDTLSAssociationTelemetry::setLifetime
 */
 void bdDTLSAssociationTelemetry::setLifetime(bdDTLSAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_lifetimeMs = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_lifetimeMs = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -455,21 +437,7 @@ bdDTLSAssociationTelemetry::setPeerAddr
 */
 void bdDTLSAssociationTelemetry::setPeerAddr(bdDTLSAssociationTelemetry *this, const bdAddr *peerAddr)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+40h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+60h]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [rcx+0A0h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+90h]
-    vmovsd  qword ptr [rcx+0B0h], xmm1
-  }
+  this->m_peerAddr = *peerAddr;
 }
 
 /*
@@ -492,10 +460,10 @@ void bdDTLSAssociationTelemetry::setState(bdDTLSAssociationTelemetry *this, cons
 {
   __int64 v2; 
   const char *StateString; 
-  bdAddr v12; 
+  __int64 v5; 
+  bdAddr v6; 
 
   v2 = state;
-  _RBX = this;
   switch ( state )
   {
     case 0:
@@ -518,32 +486,23 @@ void bdDTLSAssociationTelemetry::setState(bdDTLSAssociationTelemetry *this, cons
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdtelemetry\\components\\bddtlsassociationtelemetry.cpp", "bdDTLSAssociationTelemetry::setState", 0xE0u, "DTLS telemetry event: %s\n", StateString);
       break;
   }
-  _RBX->m_lastState = v2;
+  this->m_lastState = v2;
   if ( !(_DWORD)v2 )
   {
-    *(_QWORD *)&_RBX->m_lifetimeMs = v2;
-    *(_QWORD *)&_RBX->m_stageInitAckMsSinceStart = v2;
-    *(_QWORD *)&_RBX->m_stageCookieAckMsSinceStart = v2;
-    bdAddr::bdAddr(&v12);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx+20h], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+40h], ymm1
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rbx+60h], ymm0
-      vmovups ymm1, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rbx+80h], ymm1
-      vmovups xmm0, xmmword ptr [rax+80h]
-      vmovups xmmword ptr [rbx+0A0h], xmm0
-      vmovsd  xmm1, qword ptr [rax+90h]
-      vmovsd  qword ptr [rbx+0B0h], xmm1
-    }
-    *(_WORD *)&_RBX->m_initResends = 0;
-    *(_QWORD *)&_RBX->m_sendSeqNum = v2;
-    _RBX->m_telemetryPending = 1;
-    bdStopwatch::start(&_RBX->m_age);
+    *(_QWORD *)&this->m_lifetimeMs = v2;
+    *(_QWORD *)&this->m_stageInitAckMsSinceStart = v2;
+    *(_QWORD *)&this->m_stageCookieAckMsSinceStart = v2;
+    bdAddr::bdAddr(&v6);
+    *(__m256i *)&this->m_peerAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)v5;
+    *((__m256i *)&this->m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 1) = *(__m256i *)(v5 + 32);
+    *((__m256i *)&this->m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 2) = *(__m256i *)(v5 + 64);
+    *((__m256i *)&this->m_peerAddr.m_address.inUn.m_ipv6Sockaddr + 3) = *(__m256i *)(v5 + 96);
+    this->m_peerAddr.m_relayRoute = *(bdRelayRoute *)(v5 + 128);
+    *(double *)&this->m_peerAddr.m_type = *(double *)(v5 + 144);
+    *(_WORD *)&this->m_initResends = 0;
+    *(_QWORD *)&this->m_sendSeqNum = v2;
+    this->m_telemetryPending = 1;
+    bdStopwatch::start(&this->m_age);
   }
 }
 

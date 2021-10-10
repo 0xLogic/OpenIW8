@@ -805,40 +805,41 @@ void DCache_DebugRecalcHash(void)
   unsigned int v3; 
   int i; 
   unsigned int v5; 
-  cccHashValueSHA256_t *v8; 
-  const char *v9; 
-  int v10; 
-  unsigned __int8 inByteBuffer[32]; 
+  dcacheFileInfo_t *m_fileInfo; 
+  cccHashValueSHA256_t *v7; 
+  const char *v8; 
+  int v9; 
+  __m256i inByteBuffer; 
   char outHexString[8]; 
+  __int64 v12; 
   __int64 v13; 
   __int64 v14; 
   __int64 v15; 
   __int64 v16; 
   __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
-  char v20; 
+  char v19; 
 
   *(_QWORD *)outHexString = 0i64;
+  v12 = 0i64;
   v13 = 0i64;
   v14 = 0i64;
   v15 = 0i64;
   v16 = 0i64;
   v17 = 0i64;
   v18 = 0i64;
-  v19 = 0i64;
-  v20 = 0;
-  memset(inByteBuffer, 0, sizeof(inByteBuffer));
+  v19 = 0;
+  memset(&inByteBuffer, 0, sizeof(inByteBuffer));
   if ( Cmd_Argc() >= 1 )
   {
     v0 = 1;
-    v10 = 1;
+    v9 = 1;
     v1 = Cmd_ArgInt(1);
     TOC = DCache_TOC_GetTOC(v1);
     if ( Cmd_Argc() > 2 )
     {
       v0 = Cmd_ArgInt(2);
-      v10 = v0;
+      v9 = v0;
     }
     v3 = 0;
     Com_Printf(16, "============== Hash Itegrity Start ===========\n");
@@ -847,33 +848,29 @@ void DCache_DebugRecalcHash(void)
       v5 = 0;
       if ( TOC->m_numFiles > 0 )
       {
-        _RBX = TOC->m_fileInfo;
+        m_fileInfo = TOC->m_fileInfo;
         do
         {
-          if ( _RBX->m_details.m_fileID )
+          if ( m_fileInfo->m_details.m_fileID )
           {
             Com_Printf(16, "============== %d ===========\n", (unsigned int)i);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbx+90h]
-              vmovups ymmword ptr [rsp+0E8h+inByteBuffer], ymm0
-            }
-            ByteBufferToHexString(inByteBuffer, 32, outHexString, 65);
-            v8 = (cccHashValueSHA256_t *)((char *)TOC + 472 * (int)v5);
-            v9 = (const char *)&v8[1].hashBytes[12];
-            Com_Printf(16, "dcache[%d] integrity: Old => %d. %s [%s] \n", (unsigned int)v1, v5, (const char *)&v8[1].hashBytes[12], outHexString);
-            v8 = (cccHashValueSHA256_t *)((char *)v8 + 176);
-            DCache_IO_CalculateHash(v1, _RBX->m_details.m_fileID, _RBX->m_details.m_location, v8);
-            ByteBufferToHexString(v8->hashBytes, 32, outHexString, 65);
-            Com_Printf(16, "dcache[%d] integrity: New => %d. %s [%s] \n", (unsigned int)v1, v5, v9, outHexString);
-            if ( memcmp_0(inByteBuffer, v8, 0x20ui64) )
+            inByteBuffer = (__m256i)m_fileInfo->m_details.m_computedHashValue;
+            ByteBufferToHexString((const unsigned __int8 *)&inByteBuffer, 32, outHexString, 65);
+            v7 = (cccHashValueSHA256_t *)((char *)TOC + 472 * (int)v5);
+            v8 = (const char *)&v7[1].hashBytes[12];
+            Com_Printf(16, "dcache[%d] integrity: Old => %d. %s [%s] \n", (unsigned int)v1, v5, (const char *)&v7[1].hashBytes[12], outHexString);
+            v7 = (cccHashValueSHA256_t *)((char *)v7 + 176);
+            DCache_IO_CalculateHash(v1, m_fileInfo->m_details.m_fileID, m_fileInfo->m_details.m_location, v7);
+            ByteBufferToHexString(v7->hashBytes, 32, outHexString, 65);
+            Com_Printf(16, "dcache[%d] integrity: New => %d. %s [%s] \n", (unsigned int)v1, v5, v8, outHexString);
+            if ( memcmp_0(&inByteBuffer, v7, 0x20ui64) )
               Com_Printf(16, "============== MISMATCH %d =========== \n", ++v3);
           }
           ++v5;
-          ++_RBX;
+          ++m_fileInfo;
         }
         while ( (signed int)v5 < TOC->m_numFiles );
-        v0 = v10;
+        v0 = v9;
       }
     }
     Com_Printf(16, "============== Hash Itegrity End. %d mismatches. ===========\n", v3);

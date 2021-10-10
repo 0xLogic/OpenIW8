@@ -49,20 +49,30 @@ R_InitSelectedPrimaryLights
 void R_InitSelectedPrimaryLights(unsigned int firstLight, unsigned int lastLight, GfxLight *primaryLights)
 {
   unsigned int primaryLightCount; 
-  char v30; 
-  unsigned __int8 type; 
-  char v38; 
-  bool v39; 
-  bool v46; 
-  bool v47; 
-  bool v48; 
+  GfxLight *v7; 
+  ComPrimaryLight *v8; 
+  float *v; 
+  float v15; 
+  float *v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  float cosHalfFovOuter; 
   const char *defName; 
-  GfxLightDef *v103; 
-  int v104; 
+  GfxLightDef *v33; 
+  int v34; 
   unsigned __int8 spawnFlags; 
-  __int64 v117; 
-  double v118; 
-  __int64 v119; 
+  float uvIntensity; 
+  __int64 v37; 
+  __int64 v38; 
   vec3_t vec; 
   tmat33_t<vec3_t> axis; 
   vec3_t angles; 
@@ -73,276 +83,157 @@ void R_InitSelectedPrimaryLights(unsigned int firstLight, unsigned int lastLight
   if ( (firstLight >= primaryLightCount || lastLight >= primaryLightCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp_load_obj.cpp", 14891, ASSERT_TYPE_ASSERT, "(firstLight < rgp.world->primaryLightCount && lastLight < rgp.world->primaryLightCount)", (const char *)&queryFormat, "firstLight < rgp.world->primaryLightCount && lastLight < rgp.world->primaryLightCount") )
     __debugbreak();
   if ( firstLight <= lastLight )
-    goto LABEL_12;
+    goto LABEL_49;
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp_load_obj.cpp", 14892, ASSERT_TYPE_ASSERT, "(firstLight >= 0 && firstLight <= lastLight)", (const char *)&queryFormat, "firstLight >= 0 && firstLight <= lastLight") )
     __debugbreak();
   if ( firstLight <= lastLight )
   {
-LABEL_12:
-    __asm
-    {
-      vmovaps [rsp+168h+var_48], xmm6
-      vmovss  xmm6, cs:__real@3dcccccd
-      vmovaps [rsp+168h+var_78], xmm9
-      vmovaps [rsp+168h+var_88], xmm10
-      vmovss  xmm10, cs:__real@3f800000
-      vmovaps [rsp+168h+var_98], xmm11
-      vmovss  xmm11, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+168h+var_A8], xmm12
-      vmovss  xmm12, cs:__real@3b808081
-      vmovaps [rsp+168h+var_B8], xmm13
-      vmovss  xmm13, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+168h+var_C8], xmm14
-      vmovss  xmm14, cs:__real@80000000
-      vmovaps [rsp+168h+var_D8], xmm15
-      vmovss  xmm15, cs:__real@3c23d70a
-      vmovaps [rsp+168h+var_58], xmm7
-      vmovaps [rsp+168h+var_68], xmm8
-      vxorps  xmm9, xmm9, xmm9
-    }
+LABEL_49:
     do
     {
       if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 49, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
         __debugbreak();
       if ( firstLight >= comWorld.primaryLightCount )
       {
-        LODWORD(v119) = comWorld.primaryLightCount;
-        LODWORD(v117) = firstLight;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( primaryLightIndex ) < (unsigned)( comWorld.primaryLightCount )", "primaryLightIndex doesn't index comWorld.primaryLightCount\n\t%i not in [0, %i)", v117, v119) )
+        LODWORD(v38) = comWorld.primaryLightCount;
+        LODWORD(v37) = firstLight;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( primaryLightIndex ) < (unsigned)( comWorld.primaryLightCount )", "primaryLightIndex doesn't index comWorld.primaryLightCount\n\t%i not in [0, %i)", v37, v38) )
           __debugbreak();
       }
-      _RDI = &primaryLights[firstLight];
-      _RBX = &comWorld.primaryLights[firstLight];
-      _RDI->type = _RBX->type;
-      _RDI->canUseShadowMap = _RBX->canUseShadowMap;
-      _RDI->needsDynamicShadows = _RBX->needsDynamicShadows;
-      _RDI->isVolumetric = _RBX->isVolumetric;
-      _RDI->entityId = _RBX->entityId;
-      _RDI->intensity = _RBX->intensity;
-      _RDI->uvIntensity = _RBX->uvIntensity;
-      _RDI->irIntensity = _RBX->irIntensity;
-      _RDI->heatIntensity = _RBX->heatIntensity;
-      _RDI->colorLinearSrgb.v[0] = _RBX->colorLinearSrgb.v[0];
-      _RDI->colorLinearSrgb.v[1] = _RBX->colorLinearSrgb.v[1];
-      _RDI->colorLinearSrgb.v[2] = _RBX->colorLinearSrgb.v[2];
-      _RDI->dir.v[0] = _RBX->dir.v[0];
-      _RDI->dir.v[1] = _RBX->dir.v[1];
-      _RDI->dir.v[2] = _RBX->dir.v[2];
-      _RDI->up.v[0] = _RBX->up.v[0];
-      _RDI->up.v[1] = _RBX->up.v[1];
-      _RDI->up.v[2] = _RBX->up.v[2];
-      _RDI->origin.v[0] = _RBX->origin.v[0];
-      _RDI->origin.v[1] = _RBX->origin.v[1];
-      _RDI->origin.v[2] = _RBX->origin.v[2];
-      _RDI->radius = _RBX->radius;
+      v7 = &primaryLights[firstLight];
+      v8 = &comWorld.primaryLights[firstLight];
+      v7->type = v8->type;
+      v7->canUseShadowMap = v8->canUseShadowMap;
+      v7->needsDynamicShadows = v8->needsDynamicShadows;
+      v7->isVolumetric = v8->isVolumetric;
+      v7->entityId = v8->entityId;
+      v7->intensity = v8->intensity;
+      v7->uvIntensity = v8->uvIntensity;
+      v7->irIntensity = v8->irIntensity;
+      v7->heatIntensity = v8->heatIntensity;
+      v7->colorLinearSrgb.v[0] = v8->colorLinearSrgb.v[0];
+      v7->colorLinearSrgb.v[1] = v8->colorLinearSrgb.v[1];
+      v7->colorLinearSrgb.v[2] = v8->colorLinearSrgb.v[2];
+      v7->dir.v[0] = v8->dir.v[0];
+      v7->dir.v[1] = v8->dir.v[1];
+      v7->dir.v[2] = v8->dir.v[2];
+      v7->up.v[0] = v8->up.v[0];
+      v7->up.v[1] = v8->up.v[1];
+      v7->up.v[2] = v8->up.v[2];
+      v7->origin.v[0] = v8->origin.v[0];
+      v7->origin.v[1] = v8->origin.v[1];
+      v7->origin.v[2] = v8->origin.v[2];
+      v7->radius = v8->radius;
+      _XMM0 = LODWORD(v8->distanceFalloff);
       __asm
       {
-        vmovss  xmm0, dword ptr [rbx+84h]
         vmaxss  xmm1, xmm0, xmm6
         vminss  xmm2, xmm1, xmm10
-        vmovss  dword ptr [rdi+84h], xmm2
       }
-      _RDI->fadeOffsetRt.v[0] = _RBX->fadeOffset.v[0];
-      _RDI->fadeOffsetRt.v[1] = _RBX->fadeOffset.v[1];
-      R_LightFadeOffsetRuntimeEncoding(&_RDI->fadeOffsetRt, _RBX->type);
-      __asm
+      v7->distanceFalloff = *(float *)&_XMM2;
+      v7->fadeOffsetRt.v[0] = v8->fadeOffset.v[0];
+      v7->fadeOffsetRt.v[1] = v8->fadeOffset.v[1];
+      R_LightFadeOffsetRuntimeEncoding(&v7->fadeOffsetRt, v8->type);
+      _XMM0 = LODWORD(v8->bulbRadius);
+      __asm { vmaxss  xmm1, xmm0, xmm10 }
+      v = v8->bulbLength.v;
+      v7->bulbRadius = *(float *)&_XMM1;
+      v15 = v8->bulbLength.v[0];
+      if ( v15 == 0.0 && v8->bulbLength.v[1] == 0.0 && v8->bulbLength.v[2] == 0.0 )
       {
-        vmovss  xmm0, dword ptr [rbx+5Ch]
-        vmaxss  xmm1, xmm0, xmm10
-      }
-      _R14 = &_RBX->bulbLength;
-      __asm
-      {
-        vmovss  dword ptr [rdi+50h], xmm1
-        vmovss  xmm0, dword ptr [r14]
-        vucomiss xmm0, xmm9
-      }
-      if ( !v30 )
-        goto LABEL_23;
-      __asm { vucomiss xmm9, dword ptr [rbx+64h] }
-      if ( !v30 )
-        goto LABEL_23;
-      __asm { vucomiss xmm9, dword ptr [rbx+68h] }
-      if ( v30 )
-      {
-        _RSI = &_RDI->bulbLength;
-        _RDI->bulbLength.v[0] = 0.0039215689;
-        _RDI->bulbLength.v[1] = 0.0039215689;
-        __asm { vmovaps xmm0, xmm12 }
+        v16 = v7->bulbLength.v;
+        v7->bulbLength.v[0] = 0.0039215689;
+        v7->bulbLength.v[1] = 0.0039215689;
+        v17 = FLOAT_0_0039215689;
       }
       else
       {
-LABEL_23:
-        _RSI = &_RDI->bulbLength;
-        __asm { vmovss  dword ptr [rsi], xmm0 }
-        _RDI->bulbLength.v[1] = _RBX->bulbLength.v[1];
-        __asm { vmovss  xmm0, dword ptr [rbx+68h] }
+        v16 = v7->bulbLength.v;
+        v7->bulbLength.v[0] = v15;
+        v7->bulbLength.v[1] = v8->bulbLength.v[1];
+        v17 = v8->bulbLength.v[2];
       }
-      __asm { vmovss  dword ptr [rsi+8], xmm0 }
-      type = _RBX->type;
-      v39 = type == 2;
-      v38 = type - 2;
-      if ( v39 || v38 == 1 )
+      v16[2] = v17;
+      if ( (unsigned __int8)(v8->type - 2) <= 1u && v8->rotationLimit < 1.0 )
       {
-        __asm { vcomiss xmm10, dword ptr [rbx+8Ch] }
-        if ( !v39 && v38 != 1 )
+        LODWORD(v18) = LODWORD(v8->dir.v[1]) ^ _xmm;
+        LODWORD(vec.v[0]) = LODWORD(v8->dir.v[0]) ^ _xmm;
+        LODWORD(vec.v[2]) = LODWORD(v8->dir.v[2]) ^ _xmm;
+        vec.v[1] = v18;
+        vectoangles(&vec, &angles);
+        AnglesToAxis(&angles, &axis);
+        if ( v == v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+          __debugbreak();
+        v19 = LODWORD(axis.m[0].v[0]);
+        v20 = axis.m[0].v[1];
+        *(float *)&v19 = (float)((float)(axis.m[0].v[0] * v8->bulbLength.v[0]) + (float)(axis.m[1].v[0] * v8->bulbLength.v[1])) + (float)(axis.m[2].v[0] * v8->bulbLength.v[2]);
+        v21 = v19;
+        v22 = axis.m[1].v[1];
+        *v16 = *(float *)&v19;
+        *(float *)&v19 = v20 * *v;
+        v23 = axis.m[0].v[2];
+        v24 = (float)(*(float *)&v19 + (float)(v22 * v8->bulbLength.v[1])) + (float)(axis.m[2].v[1] * v8->bulbLength.v[2]);
+        v25 = axis.m[1].v[2];
+        v16[1] = v24;
+        v26 = (float)((float)(v23 * v8->bulbLength.v[0]) + (float)(v25 * v8->bulbLength.v[1])) + (float)(axis.m[2].v[2] * v8->bulbLength.v[2]);
+        v16[2] = v26;
+        if ( (float)((float)((float)(*v * *v) + (float)(v8->bulbLength.v[1] * v8->bulbLength.v[1])) + (float)(v8->bulbLength.v[2] * v8->bulbLength.v[2])) > 1.0 )
         {
+          v27 = v21;
+          *(float *)&v27 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)(v24 * v24)) + (float)(v26 * v26));
+          _XMM3 = v27;
           __asm
           {
-            vmovss  xmm0, dword ptr [rbx+2Ch]
-            vmovss  xmm2, dword ptr [rbx+30h]
-            vxorps  xmm1, xmm0, xmm11
-            vxorps  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rsp+168h+vec], xmm1
-            vmovss  xmm1, dword ptr [rbx+34h]
-            vxorps  xmm2, xmm1, xmm11
-            vmovss  dword ptr [rsp+168h+vec+8], xmm2
-            vmovss  dword ptr [rsp+168h+vec+4], xmm0
+            vcmpless xmm0, xmm3, xmm14
+            vblendvps xmm0, xmm3, xmm10, xmm0
           }
-          vectoangles(&vec, &angles);
-          AnglesToAxis(&angles, &axis);
-          v46 = _R14 < _RSI;
-          v47 = _R14 <= _RSI;
-          if ( _R14 == _RSI )
-          {
-            v48 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out");
-            v46 = 0;
-            v47 = !v48;
-            if ( v48 )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+168h+axis]
-            vmulss  xmm3, xmm0, dword ptr [r14]
-            vmovss  xmm1, dword ptr [rsp+168h+axis+0Ch]
-            vmulss  xmm2, xmm1, dword ptr [r14+4]
-            vmovss  xmm0, dword ptr [rsp+168h+axis+18h]
-            vmulss  xmm1, xmm0, dword ptr [r14+8]
-            vmovss  xmm0, dword ptr [rsp+168h+axis+4]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm6, xmm4, xmm1
-            vmovss  xmm1, dword ptr [rsp+168h+axis+10h]
-            vmovss  dword ptr [rsi], xmm6
-            vmulss  xmm3, xmm0, dword ptr [r14]
-            vmulss  xmm2, xmm1, dword ptr [r14+4]
-            vmovss  xmm0, dword ptr [rsp+168h+axis+1Ch]
-            vmulss  xmm1, xmm0, dword ptr [r14+8]
-            vmovss  xmm0, dword ptr [rsp+168h+axis+8]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm7, xmm4, xmm1
-            vmovss  xmm1, dword ptr [rsp+168h+axis+14h]
-            vmovss  dword ptr [rsi+4], xmm7
-            vmulss  xmm3, xmm0, dword ptr [r14]
-            vmulss  xmm2, xmm1, dword ptr [r14+4]
-            vmovss  xmm0, dword ptr [rsp+168h+axis+20h]
-            vmulss  xmm1, xmm0, dword ptr [r14+8]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm8, xmm4, xmm1
-            vmovss  dword ptr [rsi+8], xmm8
-            vmovss  xmm0, dword ptr [r14]
-            vmovss  xmm2, dword ptr [r14+4]
-            vmovss  xmm3, dword ptr [r14+8]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm2, xmm2, xmm1
-            vcomiss xmm2, xmm10
-          }
-          if ( !v47 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm7, xmm7
-              vmulss  xmm1, xmm6, xmm6
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm8, xmm8
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm3, xmm2, xmm2
-              vcmpless xmm0, xmm3, xmm14
-              vblendvps xmm0, xmm3, xmm10, xmm0
-              vdivss  xmm5, xmm10, xmm0
-              vmulss  xmm0, xmm5, xmm7
-              vmulss  xmm3, xmm0, dword ptr [rdi+24h]
-              vmulss  xmm1, xmm6, xmm5
-              vmulss  xmm2, xmm1, dword ptr [rdi+20h]
-              vaddss  xmm4, xmm3, xmm2
-              vmulss  xmm0, xmm5, xmm8
-              vmulss  xmm1, xmm0, dword ptr [rdi+28h]
-              vaddss  xmm2, xmm4, xmm1
-              vandps  xmm2, xmm2, xmm13
-              vcomiss xmm2, xmm15
-            }
-            if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp_load_obj.cpp", 14958, ASSERT_TYPE_ASSERT, "(fdot < 0.01f)", (const char *)&queryFormat, "fdot < 0.01f") )
-              __debugbreak();
-          }
-          __asm { vmovss  xmm6, cs:__real@3dcccccd }
+          if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * v24) * v7->dir.v[1]) + (float)((float)(*(float *)&v21 * (float)(1.0 / *(float *)&_XMM0)) * v7->dir.v[0])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v26) * v7->dir.v[2])) & _xmm) >= 0.0099999998 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp_load_obj.cpp", 14958, ASSERT_TYPE_ASSERT, "(fdot < 0.01f)", (const char *)&queryFormat, "fdot < 0.01f") )
+            __debugbreak();
         }
       }
-      _RDI->cosHalfFovCollimation = _RBX->cosHalfFovCollimation;
-      if ( _RBX->canUseShadowMap )
+      v7->cosHalfFovCollimation = v8->cosHalfFovCollimation;
+      if ( v8->canUseShadowMap )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+6Ch]
-          vcomiss xmm0, xmm9
-        }
-        if ( _RBX->canUseShadowMap )
-          __asm { vcomiss xmm0, xmm10 }
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+168h+var_140], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp_load_obj.cpp", 14965, ASSERT_TYPE_ASSERT, "( ( !in->canUseShadowMap || in->cosHalfFovOuter > 0.0f && in->cosHalfFovOuter < 1.0f ) )", "( in->cosHalfFovOuter ) = %g", v118) )
+        cosHalfFovOuter = v8->cosHalfFovOuter;
+        if ( (cosHalfFovOuter <= 0.0 || cosHalfFovOuter >= 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp_load_obj.cpp", 14965, ASSERT_TYPE_ASSERT, "( ( !in->canUseShadowMap || in->cosHalfFovOuter > 0.0f && in->cosHalfFovOuter < 1.0f ) )", "( in->cosHalfFovOuter ) = %g", cosHalfFovOuter) )
           __debugbreak();
       }
-      _RDI->cosHalfFovOuter = _RBX->cosHalfFovOuter;
-      _RDI->cosHalfFovInner = _RBX->cosHalfFovInner;
-      _RDI->tonemappingScaleFactor = 0.0;
-      _RDI->shadowNearPlaneBias = _RBX->shadowNearPlaneBias;
-      _RDI->shadowSoftness = _RBX->shadowSoftness;
-      _RDI->shadowBias = _RBX->shadowBias;
-      _RDI->shadowArea = _RBX->shadowArea;
-      defName = _RBX->defName;
+      v7->cosHalfFovOuter = v8->cosHalfFovOuter;
+      v7->cosHalfFovInner = v8->cosHalfFovInner;
+      v7->tonemappingScaleFactor = 0.0;
+      v7->shadowNearPlaneBias = v8->shadowNearPlaneBias;
+      v7->shadowSoftness = v8->shadowSoftness;
+      v7->shadowBias = v8->shadowBias;
+      v7->shadowArea = v8->shadowArea;
+      defName = v8->defName;
       if ( defName )
-        v103 = R_RegisterLightDef(defName);
+        v33 = R_RegisterLightDef(defName);
       else
-        v103 = NULL;
-      _RDI->def = v103;
-      v104 = 1;
-      _RDI->flags = 1;
-      spawnFlags = _RBX->spawnFlags;
-      if ( (_RBX->spawnFlags & 0x84) != 0 )
+        v33 = NULL;
+      v7->def = v33;
+      v34 = 1;
+      v7->flags = 1;
+      spawnFlags = v8->spawnFlags;
+      if ( (v8->spawnFlags & 0x84) != 0 )
       {
-        _RDI->flags = 3;
-        v104 = 3;
-        spawnFlags = _RBX->spawnFlags;
+        v7->flags = 3;
+        v34 = 3;
+        spawnFlags = v8->spawnFlags;
       }
       if ( (spawnFlags & 0x10) != 0 )
-        _RDI->flags = v104 | 4;
-      __asm
       {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vcomiss xmm0, xmm9
+        v34 |= 4u;
+        v7->flags = v34;
+      }
+      uvIntensity = v7->uvIntensity;
+      if ( uvIntensity < 0.0 )
+      {
+        v7->uvIntensity = COERCE_FLOAT(LODWORD(uvIntensity) ^ _xmm);
+        v7->flags = v34 | 0x4000;
       }
       ++firstLight;
     }
     while ( firstLight <= lastLight );
-    __asm
-    {
-      vmovaps xmm15, [rsp+168h+var_D8]
-      vmovaps xmm14, [rsp+168h+var_C8]
-      vmovaps xmm13, [rsp+168h+var_B8]
-      vmovaps xmm12, [rsp+168h+var_A8]
-      vmovaps xmm11, [rsp+168h+var_98]
-      vmovaps xmm10, [rsp+168h+var_88]
-      vmovaps xmm9, [rsp+168h+var_78]
-      vmovaps xmm8, [rsp+168h+var_68]
-      vmovaps xmm7, [rsp+168h+var_58]
-      vmovaps xmm6, [rsp+168h+var_48]
-    }
   }
 }
 

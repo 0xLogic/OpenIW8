@@ -326,82 +326,65 @@ GScr_SetAnimTime
 void GScr_SetAnimTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
+  float v5; 
   XAnimTree *EntAnimTree; 
   unsigned int NumParam; 
-  char v12; 
-  char v13; 
-  const char *v14; 
-  ComErrorCode v15; 
-  int v16; 
+  double Float; 
+  const char *v9; 
+  ComErrorCode v10; 
+  int v11; 
   unsigned int index; 
-  unsigned int v18; 
+  unsigned int v13; 
   XAnimSubTreeID subTreeID; 
   unsigned __int64 linkPointer; 
   XAnim_s *Anims; 
   const XAnim_s *SubTreeAnims; 
-  int IsLeafNode; 
-  bool v24; 
-  const scrContext_t *v25; 
-  int v26; 
-  char *v27; 
+  const scrContext_t *v18; 
+  int v19; 
+  char *v20; 
   int time; 
   const char *AnimDebugName; 
-  float fmta; 
   char *fmt; 
   unsigned __int64 line; 
   char *filename; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_48], xmm6
-    vmovaps [rsp+98h+var_58], xmm7
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3501, scrContext, "AnimScripted entities are not supported in this game mode");
   Entity = GetEntity(entref);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v5 = 0.0;
   EntAnimTree = GScr_GetEntAnimTree(Entity);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 1 )
   {
     if ( NumParam - 2 > 2 )
       Scr_Error(COM_ERR_3502, scrContext, "too many parameters");
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 1u);
+    v5 = *(float *)&Float;
+    if ( *(float *)&Float < 0.0 )
     {
-      vcomiss xmm0, xmm7
-      vmovaps xmm6, xmm0
-    }
-    if ( v12 )
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      v14 = "must be > 0";
-      v15 = COM_ERR_3503;
+      v5 = 0.0;
+      v9 = "must be > 0";
+      v10 = COM_ERR_3503;
 LABEL_10:
-      Scr_ParamError(v15, scrContext, 1u, v14);
+      Scr_ParamError(v10, scrContext, 1u, v9);
       goto LABEL_11;
     }
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v12 | v13) )
+    if ( *(float *)&Float > 1.0 )
     {
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-      v14 = "must be < 1";
-      v15 = COM_ERR_3504;
+      v5 = FLOAT_1_0;
+      v9 = "must be < 1";
+      v10 = COM_ERR_3504;
       goto LABEL_10;
     }
   }
 LABEL_11:
-  v16 = 0;
+  v11 = 0;
   index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
-  v18 = 0;
+  v13 = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
   if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) == VAR_ANIMATION )
   {
-    v18 = index;
+    v13 = index;
     linkPointer = Scr_GetAnim(scrContext, 2u, NULL).linkPointer;
     line = linkPointer;
     if ( !WORD1(linkPointer) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
@@ -413,39 +396,25 @@ LABEL_11:
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v16 = 1;
+    v11 = 1;
   }
   SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, subTreeID);
-  IsLeafNode = XAnimIsLeafNode(SubTreeAnims, index);
-  v24 = IsLeafNode == 0;
-  if ( !IsLeafNode )
+  if ( !XAnimIsLeafNode(SubTreeAnims, index) )
     Scr_ParamError(COM_ERR_3505, scrContext, 0, "not a leaf animation");
-  __asm { vucomiss xmm6, cs:__real@3f800000 }
-  if ( v24 && XAnimIsLooped(SubTreeAnims, index) )
+  if ( v5 == 1.0 && XAnimIsLooped(SubTreeAnims, index) )
     Scr_ParamError(COM_ERR_3506, scrContext, 1u, "cannot set time 1 on looping animation");
-  __asm { vmovss  dword ptr [rsp+98h+fmt], xmm6 }
-  XAnimSetTime(EntAnimTree, v18, subTreeID, index, fmta);
+  XAnimSetTime(EntAnimTree, v13, subTreeID, index, v5);
   G_FlagAnimForUpdate(Entity);
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v16 + 2) )
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v11 + 2) )
   {
-    v25 = ScriptContext_Server();
-    Scr_GetLastScriptPlace(v25, (int *)&line, (const char **)&filename);
-    v26 = line;
-    v27 = filename;
+    v18 = ScriptContext_Server();
+    Scr_GetLastScriptPlace(v18, (int *)&line, (const char **)&filename);
+    v19 = line;
+    v20 = filename;
     time = level.time;
     AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, index);
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
     LODWORD(fmt) = time;
-    Com_Printf(19, "^3%s  ^7time=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, *(double *)&_XMM3, fmt, v27, v26, "SetAnimTime");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_48]
-    vmovaps xmm7, [rsp+98h+var_58]
+    Com_Printf(19, "^3%s  ^7time=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, v5, fmt, v20, v19, "SetAnimTime");
   }
 }
 
@@ -456,41 +425,39 @@ GScr_SetAnimRate
 */
 void GScr_SetAnimRate(scrContext_t *scrContext, scr_entref_t entref)
 {
+  double Float; 
   gentity_s *Entity; 
   XAnimTree *EntAnimTree; 
-  int v9; 
+  int v7; 
   unsigned int index; 
-  unsigned int v11; 
+  unsigned int v9; 
   XAnimSubTreeID subTreeID; 
   unsigned __int64 linkPointer; 
   XAnim_s *Anims; 
   const XAnim_s *SubTreeAnims; 
-  const scrContext_t *v16; 
-  int v17; 
-  char *v18; 
+  const scrContext_t *v14; 
+  int v15; 
+  char *v16; 
   int time; 
   const char *AnimDebugName; 
-  float fmta; 
   char *fmt; 
   unsigned __int64 line; 
   char *filename; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3507, scrContext, "AnimScripted entities are not supported in this game mode");
   if ( Scr_GetNumParam(scrContext) < 2 || Scr_GetNumParam(scrContext) > 4 )
     Scr_Error(COM_ERR_3508, scrContext, "incorrect number of parameters");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 1u);
   Entity = GetEntity(entref);
   EntAnimTree = GScr_GetEntAnimTree(Entity);
-  v9 = 0;
+  v7 = 0;
   index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
-  v11 = 0;
+  v9 = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
   if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) == VAR_ANIMATION )
   {
-    v11 = index;
+    v9 = index;
     linkPointer = Scr_GetAnim(scrContext, 2u, NULL).linkPointer;
     line = linkPointer;
     if ( !WORD1(linkPointer) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
@@ -502,28 +469,21 @@ void GScr_SetAnimRate(scrContext_t *scrContext, scr_entref_t entref)
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v9 = 1;
+    v7 = 1;
   }
-  __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
-  XAnimSetAnimRate(EntAnimTree, v11, subTreeID, index, fmta);
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v9 + 2) )
+  XAnimSetAnimRate(EntAnimTree, v9, subTreeID, index, *(float *)&Float);
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v7 + 2) )
   {
     SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, subTreeID);
-    v16 = ScriptContext_Server();
-    Scr_GetLastScriptPlace(v16, (int *)&line, (const char **)&filename);
-    v17 = line;
-    v18 = filename;
+    v14 = ScriptContext_Server();
+    Scr_GetLastScriptPlace(v14, (int *)&line, (const char **)&filename);
+    v15 = line;
+    v16 = filename;
     time = level.time;
     AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, index);
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
     LODWORD(fmt) = time;
-    Com_Printf(19, "^3%s  ^7rate=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, *(double *)&_XMM3, fmt, v18, v17, "SetAnimRate");
+    Com_Printf(19, "^3%s  ^7rate=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, *(float *)&Float, fmt, v16, v15, "SetAnimRate");
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -616,6 +576,7 @@ void GScr_SetCustomNodeGameParameter(scrContext_t *scrContext, scr_entref_t entr
   scr_string_t ConstLowercaseString; 
   VariableType Type; 
   DObj *ServerDObjForEnt; 
+  double Float; 
   vec3_t vectorValue; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
@@ -641,9 +602,8 @@ void GScr_SetCustomNodeGameParameter(scrContext_t *scrContext, scr_entref_t entr
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm2, xmm0; value }
-    XAnimSetFloatGameParameterByName(ServerDObjForEnt, ConstLowercaseString, *(float *)&_XMM2);
+    Float = Scr_GetFloat(scrContext, 1u);
+    XAnimSetFloatGameParameterByName(ServerDObjForEnt, ConstLowercaseString, *(float *)&Float);
   }
 }
 
@@ -772,36 +732,31 @@ void GScr_ClearAnim(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *Entity; 
   XAnimTree *EntAnimTree; 
   unsigned int index; 
-  int v11; 
+  double time; 
+  int v9; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v14; 
+  unsigned int v11; 
   int linkPointer; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v18; 
-  const char *v19; 
-  const char *v20; 
+  scr_string_t v15; 
+  const char *v16; 
+  const char *v17; 
   const XAnim_s *SubTreeAnims; 
-  DObj *ServerDObjForEnt; 
-  float fmt; 
-  float fmta; 
-  float time; 
-  float objID; 
+  DObj *objID; 
   unsigned int graftAnimIndex; 
 
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
   curveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3446, scrContext, "AnimScripted entities are not supported in this game mode");
   Entity = GetEntity(entref);
   EntAnimTree = GScr_GetEntAnimTree(Entity);
   index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  v11 = 0;
-  __asm { vmovaps xmm6, xmm0 }
+  time = Scr_GetFloat(scrContext, 1u);
+  v9 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v14 = 2;
+  v11 = 2;
   if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) == VAR_ANIMATION )
   {
     graftAnimIndex = index;
@@ -815,39 +770,29 @@ void GScr_ClearAnim(scrContext_t *scrContext, scr_entref_t entref)
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v11 = 1;
-    v14 = 3;
+    v9 = 1;
+    v11 = 3;
   }
-  if ( Scr_GetNumParam(scrContext) > v14 && Scr_GetType(scrContext, v14) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v11 && Scr_GetType(scrContext, v11) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v14);
+    ConstString = Scr_GetConstString(scrContext, v11);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v18 = Scr_GetConstString(scrContext, v14);
-      v19 = SL_ConvertToString(v18);
-      v20 = j_va("Invalid blend curve name '%s'", v19);
-      Scr_Error(COM_ERR_3437, scrContext, v20);
+      v15 = Scr_GetConstString(scrContext, v11);
+      v16 = SL_ConvertToString(v15);
+      v17 = j_va("Invalid blend curve name '%s'", v16);
+      Scr_Error(COM_ERR_3437, scrContext, v17);
     }
-    ++v11;
+    ++v9;
   }
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v11 + 2) )
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v9 + 2) )
   {
     SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, subTreeID);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rsp+88h+objID], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  [rsp+88h+time], xmm6
-      vmovss  dword ptr [rsp+88h+fmt], xmm1
-    }
-    DumpAnimCommandInternal("ClearAnim", SubTreeAnims, index, -1, fmt, time, objID);
+    DumpAnimCommandInternal("ClearAnim", SubTreeAnims, index, -1, 0.0, *(float *)&time, 1.0);
   }
-  ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
-  __asm { vmovss  dword ptr [rsp+88h+fmt], xmm6 }
-  XAnimClearTreeGoalWeights(EntAnimTree, graftAnimIndex, subTreeID, index, fmta, 1, ServerDObjForEnt, curveID);
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
+  objID = Com_GetServerDObjForEnt(Entity);
+  XAnimClearTreeGoalWeights(EntAnimTree, graftAnimIndex, subTreeID, index, *(float *)&time, 1, objID, curveID);
 }
 
 /*
@@ -955,68 +900,24 @@ void GScr_GetAnimTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   XAnimTree *EntAnimTree; 
-  unsigned int v7; 
+  unsigned int v6; 
   unsigned int index; 
   XAnimSubTreeID subTreeID; 
   XAnim_s *Anims; 
   const XAnim_s *SubTreeAnims; 
-  unsigned __int16 v13; 
+  double Time; 
+  unsigned __int16 v12; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3467, scrContext, "AnimScripted entities are not supported in this game mode");
   Entity = GetEntity(entref);
   EntAnimTree = GScr_GetEntAnimTree(Entity);
-  v7 = 0;
+  v6 = 0;
   index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
   subTreeID = XANIM_SUBTREE_DEFAULT;
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_ANIMATION )
   {
-    v7 = index;
-    index = Scr_GetAnim(scrContext, 1u, NULL).linkPointer;
-    v13 = HIWORD(index);
-    if ( !HIWORD(index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
-      __debugbreak();
-    index = (unsigned __int16)index;
-    Anims = Scr_GetAnims(scrContext, v13);
-    if ( (unsigned __int16)index >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
-      __debugbreak();
-    subTreeID = Anims->subTreeID;
-    if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
-      __debugbreak();
-  }
-  SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, subTreeID);
-  if ( !XAnimHasTime(SubTreeAnims, index) )
-    Scr_ParamError(COM_ERR_3468, scrContext, 0, "blended nonsynchronized animation has no concept of time");
-  *(double *)&_XMM0 = XAnimGetTime(EntAnimTree, v7, subTreeID, index);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-}
-
-/*
-==============
-GScr_GetAnimWeight
-==============
-*/
-void GScr_GetAnimWeight(scrContext_t *scrContext, scr_entref_t entref)
-{
-  gentity_s *Entity; 
-  XAnimTree *EntAnimTree; 
-  unsigned int v7; 
-  unsigned int index; 
-  XAnimSubTreeID subTreeID; 
-  XAnim_s *Anims; 
-  unsigned __int16 v12; 
-
-  if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
-    Scr_Error(COM_ERR_3469, scrContext, "AnimScripted entities are not supported in this game mode");
-  Entity = GetEntity(entref);
-  EntAnimTree = GScr_GetEntAnimTree(Entity);
-  v7 = 0;
-  index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
-  subTreeID = XANIM_SUBTREE_DEFAULT;
-  if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_ANIMATION )
-  {
-    v7 = index;
+    v6 = index;
     index = Scr_GetAnim(scrContext, 1u, NULL).linkPointer;
     v12 = HIWORD(index);
     if ( !HIWORD(index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
@@ -1029,9 +930,53 @@ void GScr_GetAnimWeight(scrContext_t *scrContext, scr_entref_t entref)
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
   }
-  *(double *)&_XMM0 = XAnimGetWeight(EntAnimTree, v7, subTreeID, index);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, subTreeID);
+  if ( !XAnimHasTime(SubTreeAnims, index) )
+    Scr_ParamError(COM_ERR_3468, scrContext, 0, "blended nonsynchronized animation has no concept of time");
+  Time = XAnimGetTime(EntAnimTree, v6, subTreeID, index);
+  Scr_AddFloat(scrContext, *(float *)&Time);
+}
+
+/*
+==============
+GScr_GetAnimWeight
+==============
+*/
+void GScr_GetAnimWeight(scrContext_t *scrContext, scr_entref_t entref)
+{
+  gentity_s *Entity; 
+  XAnimTree *EntAnimTree; 
+  unsigned int v6; 
+  unsigned int index; 
+  XAnimSubTreeID subTreeID; 
+  XAnim_s *Anims; 
+  double Weight; 
+  unsigned __int16 v11; 
+
+  if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
+    Scr_Error(COM_ERR_3469, scrContext, "AnimScripted entities are not supported in this game mode");
+  Entity = GetEntity(entref);
+  EntAnimTree = GScr_GetEntAnimTree(Entity);
+  v6 = 0;
+  index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
+  subTreeID = XANIM_SUBTREE_DEFAULT;
+  if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_ANIMATION )
+  {
+    v6 = index;
+    index = Scr_GetAnim(scrContext, 1u, NULL).linkPointer;
+    v11 = HIWORD(index);
+    if ( !HIWORD(index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
+      __debugbreak();
+    index = (unsigned __int16)index;
+    Anims = Scr_GetAnims(scrContext, v11);
+    if ( (unsigned __int16)index >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
+      __debugbreak();
+    subTreeID = Anims->subTreeID;
+    if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
+      __debugbreak();
+  }
+  Weight = XAnimGetWeight(EntAnimTree, v6, subTreeID, index);
+  Scr_AddFloat(scrContext, *(float *)&Weight);
 }
 
 /*
@@ -1045,10 +990,11 @@ void GScr_GetAnimIKWeights(scrContext_t *scrContext, scr_entref_t entref)
   XAnimTree *EntAnimTree; 
   int index; 
   const DObj *ServerDObjForEnt; 
+  __int64 i; 
   float ikWeights[2]; 
-  __int64 v11; 
+  __int64 v10; 
   float animWeights[2]; 
-  __int64 v13; 
+  __int64 v12; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3470, scrContext, "AnimScripted entities are not supported in this game mode");
@@ -1059,15 +1005,14 @@ void GScr_GetAnimIKWeights(scrContext_t *scrContext, scr_entref_t entref)
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3471, scrContext, "GetAnimIKWeights: No model exists.");
   *(_QWORD *)ikWeights = 0i64;
-  v11 = 0i64;
+  v10 = 0i64;
   *(_QWORD *)animWeights = 0i64;
-  v13 = 0i64;
+  v12 = 0i64;
   XAnimIKGetWeightsByAnimIndex(ServerDObjForEnt, index, ikWeights, animWeights);
   Scr_MakeArray(scrContext);
-  for ( _RBX = 0i64; _RBX < 4; ++_RBX )
+  for ( i = 0i64; i < 4; ++i )
   {
-    __asm { vmovss  xmm1, [rsp+rbx*4+58h+ikWeights]; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    Scr_AddFloat(scrContext, ikWeights[i]);
     Scr_AddArray(scrContext);
   }
 }
@@ -1081,29 +1026,30 @@ void GScr_GetAnimRate(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   XAnimTree *EntAnimTree; 
-  unsigned int v7; 
+  unsigned int v6; 
   unsigned int index; 
   XAnimSubTreeID subTreeID; 
   XAnim_s *Anims; 
   const XAnim_s *SubTreeAnims; 
-  unsigned __int16 v13; 
+  double Rate; 
+  unsigned __int16 v12; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3472, scrContext, "AnimScripted entities are not supported in this game mode");
   Entity = GetEntity(entref);
   EntAnimTree = GScr_GetEntAnimTree(Entity);
-  v7 = 0;
+  v6 = 0;
   index = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
   subTreeID = XANIM_SUBTREE_DEFAULT;
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_ANIMATION )
   {
-    v7 = index;
+    v6 = index;
     index = Scr_GetAnim(scrContext, 1u, NULL).linkPointer;
-    v13 = HIWORD(index);
+    v12 = HIWORD(index);
     if ( !HIWORD(index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
       __debugbreak();
     index = (unsigned __int16)index;
-    Anims = Scr_GetAnims(scrContext, v13);
+    Anims = Scr_GetAnims(scrContext, v12);
     if ( (unsigned __int16)index >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
       __debugbreak();
     subTreeID = Anims->subTreeID;
@@ -1113,9 +1059,8 @@ void GScr_GetAnimRate(scrContext_t *scrContext, scr_entref_t entref)
   SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, subTreeID);
   if ( !XAnimHasTime(SubTreeAnims, index) )
     Scr_ParamError(COM_ERR_3473, scrContext, 0, "blended nonsynchronized animation has no concept of rate");
-  *(double *)&_XMM0 = XAnimGetRate(EntAnimTree, v7, subTreeID, index);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Rate = XAnimGetRate(EntAnimTree, v6, subTreeID, index);
+  Scr_AddFloat(scrContext, *(float *)&Rate);
 }
 
 /*
@@ -1164,10 +1109,8 @@ void DumpAnimCommandInternal(const char *funcName, const XAnim_s *treeanims, uns
   char *v12; 
   int v13; 
   const char *AnimDebugName; 
-  double v22; 
-  double v23; 
-  int v24; 
-  int v25; 
+  int v15; 
+  int v16; 
   int line; 
   char *filename; 
 
@@ -1178,27 +1121,9 @@ void DumpAnimCommandInternal(const char *funcName, const XAnim_s *treeanims, uns
   v12 = filename;
   v13 = level.time;
   AnimDebugName = XAnimGetAnimDebugName(treeanims, anim);
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+rate]
-    vmovss  xmm3, [rsp+78h+weight]
-    vmovss  xmm1, [rsp+78h+time]
-  }
-  v25 = v11;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm1, xmm1, xmm1
-  }
-  v24 = v13;
-  __asm
-  {
-    vmovsd  [rsp+78h+var_50], xmm0
-    vmovq   r9, xmm3
-    vmovsd  [rsp+78h+var_58], xmm1
-  }
-  Com_Printf(19, "^3%s  ^7weight=^5%.3f ^7time=^5%.2f ^7rate=^5%.2f   ^7level time:%d  %s:%d   %s\n", AnimDebugName, *(double *)&_XMM3, v22, v23, v24, v12, v25, funcName);
+  v16 = v11;
+  v15 = v13;
+  Com_Printf(19, "^3%s  ^7weight=^5%.3f ^7time=^5%.2f ^7rate=^5%.2f   ^7level time:%d  %s:%d   %s\n", AnimDebugName, weight, time, rate, v15, v12, v16, funcName);
 }
 
 /*
@@ -1241,8 +1166,8 @@ void DumpAnimSetRateCommand(const char *funcName, const XAnim_s *treeanims, unsi
   char *v10; 
   int time; 
   const char *AnimDebugName; 
-  int v16; 
-  int v17; 
+  int v13; 
+  int v14; 
   int line; 
   char *filename; 
 
@@ -1252,15 +1177,9 @@ void DumpAnimSetRateCommand(const char *funcName, const XAnim_s *treeanims, unsi
   v10 = filename;
   time = level.time;
   AnimDebugName = XAnimGetAnimDebugName(treeanims, anim);
-  __asm
-  {
-    vmovss  xmm3, [rsp+68h+rate]
-    vcvtss2sd xmm3, xmm3, xmm3
-  }
-  v17 = v9;
-  __asm { vmovq   r9, xmm3 }
-  v16 = time;
-  Com_Printf(19, "^3%s  ^7rate=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, *(double *)&_XMM3, v16, v10, v17, funcName);
+  v14 = v9;
+  v13 = time;
+  Com_Printf(19, "^3%s  ^7rate=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, rate, v13, v10, v14, funcName);
 }
 
 /*
@@ -1275,8 +1194,8 @@ void DumpAnimSetTimeCommand(const char *funcName, const XAnim_s *treeanims, unsi
   char *v10; 
   int v11; 
   const char *AnimDebugName; 
-  int v16; 
-  int v17; 
+  int v13; 
+  int v14; 
   int line; 
   char *filename; 
 
@@ -1286,15 +1205,9 @@ void DumpAnimSetTimeCommand(const char *funcName, const XAnim_s *treeanims, unsi
   v10 = filename;
   v11 = level.time;
   AnimDebugName = XAnimGetAnimDebugName(treeanims, anim);
-  __asm
-  {
-    vmovss  xmm3, [rsp+68h+time]
-    vcvtss2sd xmm3, xmm3, xmm3
-  }
-  v17 = v9;
-  __asm { vmovq   r9, xmm3 }
-  v16 = v11;
-  Com_Printf(19, "^3%s  ^7time=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, *(double *)&_XMM3, v16, v10, v17, funcName);
+  v14 = v9;
+  v13 = v11;
+  Com_Printf(19, "^3%s  ^7time=^5%.2f  ^7level time:%d  %s:%d   %s\n", AnimDebugName, time, v13, v10, v14, funcName);
 }
 
 /*
@@ -1369,96 +1282,67 @@ GScr_SetAnimInternal
 void GScr_SetAnimInternal(scrContext_t *scrContext, scr_entref_t entref, unsigned int flags)
 {
   XAnimCurveID curveID; 
+  float v7; 
+  float time; 
   gentity_s *Entity; 
+  float v10; 
   unsigned int NumParam; 
-  char v19; 
+  double Float; 
+  double v13; 
+  double v14; 
   unsigned int index; 
-  int v22; 
+  int v16; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v24; 
+  unsigned int v18; 
   int linkPointer; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
+  scr_string_t v22; 
+  const char *v23; 
+  const char *v24; 
+  const char *v25; 
   const XAnim_s *SubTreeAnims; 
   const DObj *ServerDObjForEnt; 
   int bRestart; 
-  int v35; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float time; 
-  float timea; 
-  float timeb; 
-  float v45; 
-  float v46; 
-  float v47; 
+  int v29; 
   XAnimTree *tree; 
-  void *retaddr; 
   unsigned int graftAnimIndex; 
 
-  _RAX = &retaddr;
   curveID = LINEAR;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3517, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3e4ccccd
-  }
+  v7 = FLOAT_1_0;
+  time = FLOAT_0_2;
   Entity = GetEntity(entref);
-  __asm { vmovaps xmm7, xmm9 }
+  v10 = FLOAT_1_0;
   tree = GScr_GetEntAnimTree(Entity);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 1 )
   {
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_48], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( NumParam != 2 )
     {
       if ( NumParam != 3 )
       {
         if ( NumParam - 4 > 3 )
           Scr_Error(COM_ERR_3518, scrContext, "too many parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-        __asm { vmovaps xmm9, xmm0 }
+        Float = Scr_GetFloat(scrContext, 3u);
+        v7 = *(float *)&Float;
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm8, xmm0
-      }
-      if ( v19 )
+      v13 = Scr_GetFloat(scrContext, 2u);
+      time = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_3519, scrContext, 2u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+0E8h+var_48]
-      vmovaps xmm7, xmm0
-    }
-    if ( v19 )
+    v14 = Scr_GetFloat(scrContext, 1u);
+    v10 = *(float *)&v14;
+    if ( *(float *)&v14 < 0.0 )
       Scr_ParamError(COM_ERR_3520, scrContext, 1u, "must set nonnegative weight");
   }
   index = Scr_GetAnim(scrContext, 0, tree).index;
-  v22 = 0;
+  v16 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v24 = 4;
+  v18 = 4;
   if ( Scr_GetNumParam(scrContext) > 4 && Scr_GetType(scrContext, 4u) == VAR_ANIMATION )
   {
     graftAnimIndex = index;
@@ -1472,82 +1356,54 @@ void GScr_SetAnimInternal(scrContext_t *scrContext, scr_entref_t entref, unsigne
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v22 = 1;
-    v24 = 5;
+    v16 = 1;
+    v18 = 5;
   }
-  if ( Scr_GetNumParam(scrContext) > v24 && Scr_GetType(scrContext, v24) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v18 && Scr_GetType(scrContext, v18) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v24);
+    ConstString = Scr_GetConstString(scrContext, v18);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v28 = Scr_GetConstString(scrContext, v24);
-      v29 = SL_ConvertToString(v28);
-      v30 = j_va("Invalid blend curve name '%s'", v29);
-      Scr_Error(COM_ERR_3437, scrContext, v30);
+      v22 = Scr_GetConstString(scrContext, v18);
+      v23 = SL_ConvertToString(v22);
+      v24 = j_va("Invalid blend curve name '%s'", v23);
+      Scr_Error(COM_ERR_3437, scrContext, v24);
     }
-    ++v22;
+    ++v16;
   }
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v22 + 4) )
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v16 + 4) )
   {
     switch ( flags )
     {
       case 1u:
-        v31 = "SetAnim";
+        v25 = "SetAnim";
         break;
       case 2u:
-        v31 = "SetAnimLimitedRestart";
+        v25 = "SetAnimLimitedRestart";
         break;
       case 3u:
-        v31 = "SetAnimRestart";
+        v25 = "SetAnimRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 2318, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v31 = "SetAnimLimited";
+        v25 = "SetAnimLimited";
         break;
     }
     SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm9
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    DumpAnimCommandInternal(v31, SubTreeAnims, index, -1, fmt, time, v45);
+    DumpAnimCommandInternal(v25, SubTreeAnims, index, -1, v10, time, v7);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3521, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
   if ( (flags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm9
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    v35 = XAnimSetCompleteGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmta, timea, v46, (scr_string_t)0, 0, bRestart, curveID, NULL);
-  }
+    v29 = XAnimSetCompleteGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, (scr_string_t)0, 0, bRestart, curveID, NULL);
   else
-  {
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm9
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    v35 = XAnimSetGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmtb, timeb, v47, (scr_string_t)0, 0, bRestart, curveID, NULL);
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0E8h+var_78]
-    vmovaps xmm8, [rsp+0E8h+var_68]
-    vmovaps xmm7, [rsp+0E8h+var_58]
-  }
-  if ( v35 )
-    GScr_HandleAnimError(scrContext, v35);
+    v29 = XAnimSetGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, (scr_string_t)0, 0, bRestart, curveID, NULL);
+  if ( v29 )
+    GScr_HandleAnimError(scrContext, v29);
   else
     G_FlagAnimForUpdate(Entity);
 }
@@ -1559,199 +1415,142 @@ GScr_SetAnimKnobAllInternal
 */
 void GScr_SetAnimKnobAllInternal(scrContext_t *scrContext, scr_entref_t entref, unsigned int flags)
 {
+  float v5; 
+  float time; 
+  float v7; 
   unsigned int NumParam; 
-  char v16; 
-  unsigned int v18; 
-  int v19; 
+  double Float; 
+  double v10; 
+  double v11; 
+  unsigned int v12; 
+  int v13; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v21; 
-  int v22; 
+  unsigned int v15; 
+  int v16; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v25; 
-  const char *v26; 
-  const char *v27; 
-  XAnimSubTreeID v28; 
-  unsigned int v29; 
-  const char *v30; 
+  scr_string_t v19; 
+  const char *v20; 
+  const char *v21; 
+  XAnimSubTreeID v22; 
+  unsigned int v23; 
+  const char *v24; 
   const XAnim_s *SubTreeAnims; 
   const DObj *ServerDObjForEnt; 
-  int v33; 
-  float fmt; 
-  float time; 
-  float v39; 
-  float v40; 
-  float v41; 
-  float v42; 
-  float v43; 
-  float v44; 
-  float v45; 
+  int v27; 
   unsigned int bRestart; 
   unsigned int graftAnimIndex; 
-  int v48; 
+  int v30; 
   int linkPointer; 
   gentity_s *ent; 
   XAnimTree *tree; 
-  void *retaddr; 
   XAnimCurveID curveID; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
   curveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3461, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3e4ccccd
-  }
+  v5 = FLOAT_1_0;
+  time = FLOAT_0_2;
   ent = GetEntity(entref);
-  __asm { vmovaps xmm7, xmm9 }
+  v7 = FLOAT_1_0;
   tree = GScr_GetEntAnimTree(ent);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 2 )
   {
-    __asm
-    {
-      vmovaps [rsp+108h+var_48], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( NumParam != 3 )
     {
       if ( NumParam != 4 )
       {
         if ( NumParam - 5 > 3 )
           Scr_Error(COM_ERR_3462, scrContext, "incorrect number of parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-        __asm { vmovaps xmm9, xmm0 }
+        Float = Scr_GetFloat(scrContext, 4u);
+        v5 = *(float *)&Float;
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm8, xmm0
-      }
-      if ( v16 )
+      v10 = Scr_GetFloat(scrContext, 3u);
+      time = *(float *)&v10;
+      if ( *(float *)&v10 < 0.0 )
         Scr_ParamError(COM_ERR_3463, scrContext, 3u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+108h+var_48]
-      vmovaps xmm7, xmm0
-    }
-    if ( v16 )
+    v11 = Scr_GetFloat(scrContext, 2u);
+    v7 = *(float *)&v11;
+    if ( *(float *)&v11 < 0.0 )
       Scr_ParamError(COM_ERR_3464, scrContext, 2u, "must set nonnegative weight");
   }
   linkPointer = Scr_GetAnim(scrContext, 1u, tree).linkPointer;
-  v48 = Scr_GetAnim(scrContext, 0, tree).linkPointer;
-  v18 = (unsigned __int16)v48;
-  v19 = 0;
+  v30 = Scr_GetAnim(scrContext, 0, tree).linkPointer;
+  v12 = (unsigned __int16)v30;
+  v13 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v21 = 5;
+  v15 = 5;
   if ( Scr_GetNumParam(scrContext) > 5 && Scr_GetType(scrContext, 5u) == VAR_ANIMATION )
   {
-    graftAnimIndex = (unsigned __int16)v48;
-    v22 = Scr_GetAnim(scrContext, 5u, NULL).linkPointer;
-    if ( !HIWORD(v22) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
+    graftAnimIndex = (unsigned __int16)v30;
+    v16 = Scr_GetAnim(scrContext, 5u, NULL).linkPointer;
+    if ( !HIWORD(v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
       __debugbreak();
-    v18 = (unsigned __int16)v22;
-    Anims = Scr_GetAnims(scrContext, HIWORD(v22));
-    if ( v18 >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
+    v12 = (unsigned __int16)v16;
+    Anims = Scr_GetAnims(scrContext, HIWORD(v16));
+    if ( v12 >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
       __debugbreak();
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v21 = 6;
-    v19 = 1;
+    v15 = 6;
+    v13 = 1;
   }
-  if ( Scr_GetNumParam(scrContext) > v21 && Scr_GetType(scrContext, v21) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v15 && Scr_GetType(scrContext, v15) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v21);
+    ConstString = Scr_GetConstString(scrContext, v15);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v25 = Scr_GetConstString(scrContext, v21);
-      v26 = SL_ConvertToString(v25);
-      v27 = j_va("Invalid blend curve name '%s'", v26);
-      Scr_Error(COM_ERR_3437, scrContext, v27);
+      v19 = Scr_GetConstString(scrContext, v15);
+      v20 = SL_ConvertToString(v19);
+      v21 = j_va("Invalid blend curve name '%s'", v20);
+      Scr_Error(COM_ERR_3437, scrContext, v21);
     }
-    ++v19;
+    ++v13;
   }
-  v28 = XANIM_SUBTREE_DEFAULT;
-  if ( v19 && HIWORD(linkPointer) != HIWORD(v48) )
-    v28 = subTreeID;
-  v29 = (unsigned __int16)linkPointer;
-  if ( (unsigned __int16)linkPointer == v18 && v28 == subTreeID )
+  v22 = XANIM_SUBTREE_DEFAULT;
+  if ( v13 && HIWORD(linkPointer) != HIWORD(v30) )
+    v22 = subTreeID;
+  v23 = (unsigned __int16)linkPointer;
+  if ( (unsigned __int16)linkPointer == v12 && v22 == subTreeID )
     Scr_Error(COM_ERR_3465, scrContext, "root anim is not an ancestor of the anim");
-  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v19 + 5) )
+  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v13 + 5) )
   {
     switch ( flags )
     {
       case 1u:
-        v30 = "SetAnimKnobAll";
+        v24 = "SetAnimKnobAll";
         break;
       case 2u:
-        v30 = "SetAnimKnobAllLimitedRestart";
+        v24 = "SetAnimKnobAllLimitedRestart";
         break;
       case 3u:
-        v30 = "SetAnimKnobAllRestart";
+        v24 = "SetAnimKnobAllRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 880, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v30 = "SetAnimKnobAllLimited";
+        v24 = "SetAnimKnobAllLimited";
         break;
     }
     SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    __asm { vmovss  [rsp+108h+var_D8], xmm9 }
-    v29 = (unsigned __int16)linkPointer;
-    __asm
-    {
-      vmovss  [rsp+108h+time], xmm8
-      vmovss  dword ptr [rsp+108h+fmt], xmm7
-    }
-    DumpAnimCommandInternal(v30, SubTreeAnims, v18, (unsigned __int16)linkPointer, fmt, time, v39);
+    v23 = (unsigned __int16)linkPointer;
+    DumpAnimCommandInternal(v24, SubTreeAnims, v12, (unsigned __int16)linkPointer, v7, time, v5);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3466, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
   if ( (flags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+108h+var_C8], xmm9
-      vmovss  [rsp+108h+var_D0], xmm8
-      vmovss  [rsp+108h+var_D8], xmm7
-    }
-    v33 = XAnimSetCompleteGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v18, v28, v29, v40, v42, v44, (scr_string_t)0, bRestart, curveID);
-  }
+    v27 = XAnimSetCompleteGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v12, v22, v23, v7, time, v5, (scr_string_t)0, bRestart, curveID);
   else
-  {
-    __asm
-    {
-      vmovss  [rsp+108h+var_C8], xmm9
-      vmovss  [rsp+108h+var_D0], xmm8
-      vmovss  [rsp+108h+var_D8], xmm7
-    }
-    v33 = XAnimSetGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v18, v28, v29, v41, v43, v45, (scr_string_t)0, bRestart, curveID);
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+108h+var_78]
-    vmovaps xmm8, [rsp+108h+var_68]
-    vmovaps xmm7, [rsp+108h+var_58]
-  }
-  if ( v33 )
-    GScr_HandleAnimError(scrContext, v33);
+    v27 = XAnimSetGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v12, v22, v23, v7, time, v5, (scr_string_t)0, bRestart, curveID);
+  if ( v27 )
+    GScr_HandleAnimError(scrContext, v27);
   else
     G_FlagAnimForUpdate(ent);
 }
@@ -1764,96 +1563,67 @@ GScr_SetAnimKnobInternal
 void GScr_SetAnimKnobInternal(scrContext_t *scrContext, scr_entref_t entref, unsigned int flags)
 {
   XAnimCurveID curveID; 
+  float v7; 
+  float time; 
   gentity_s *Entity; 
+  float v10; 
   unsigned int NumParam; 
-  char v19; 
+  double Float; 
+  double v13; 
+  double v14; 
   unsigned int index; 
-  int v22; 
+  int v16; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v24; 
+  unsigned int v18; 
   int linkPointer; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
+  scr_string_t v22; 
+  const char *v23; 
+  const char *v24; 
+  const char *v25; 
   const XAnim_s *SubTreeAnims; 
   const DObj *ServerDObjForEnt; 
   int bRestart; 
-  int v35; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float time; 
-  float timea; 
-  float timeb; 
-  float v45; 
-  float v46; 
-  float v47; 
+  int v29; 
   XAnimTree *tree; 
-  void *retaddr; 
   unsigned int graftAnimIndex; 
 
-  _RAX = &retaddr;
   curveID = LINEAR;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3456, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3e4ccccd
-  }
+  v7 = FLOAT_1_0;
+  time = FLOAT_0_2;
   Entity = GetEntity(entref);
-  __asm { vmovaps xmm7, xmm9 }
+  v10 = FLOAT_1_0;
   tree = GScr_GetEntAnimTree(Entity);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 1 )
   {
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_48], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( NumParam != 2 )
     {
       if ( NumParam != 3 )
       {
         if ( NumParam - 4 > 3 )
           Scr_Error(COM_ERR_3457, scrContext, "too many parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-        __asm { vmovaps xmm9, xmm0 }
+        Float = Scr_GetFloat(scrContext, 3u);
+        v7 = *(float *)&Float;
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm8, xmm0
-      }
-      if ( v19 )
+      v13 = Scr_GetFloat(scrContext, 2u);
+      time = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_3458, scrContext, 2u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+0E8h+var_48]
-      vmovaps xmm7, xmm0
-    }
-    if ( v19 )
+    v14 = Scr_GetFloat(scrContext, 1u);
+    v10 = *(float *)&v14;
+    if ( *(float *)&v14 < 0.0 )
       Scr_ParamError(COM_ERR_3459, scrContext, 1u, "must set nonnegative weight");
   }
   index = Scr_GetAnim(scrContext, 0, tree).index;
-  v22 = 0;
+  v16 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v24 = 4;
+  v18 = 4;
   if ( Scr_GetNumParam(scrContext) > 4 && Scr_GetType(scrContext, 4u) == VAR_ANIMATION )
   {
     graftAnimIndex = index;
@@ -1867,82 +1637,54 @@ void GScr_SetAnimKnobInternal(scrContext_t *scrContext, scr_entref_t entref, uns
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v22 = 1;
-    v24 = 5;
+    v16 = 1;
+    v18 = 5;
   }
-  if ( Scr_GetNumParam(scrContext) > v24 && Scr_GetType(scrContext, v24) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v18 && Scr_GetType(scrContext, v18) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v24);
+    ConstString = Scr_GetConstString(scrContext, v18);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v28 = Scr_GetConstString(scrContext, v24);
-      v29 = SL_ConvertToString(v28);
-      v30 = j_va("Invalid blend curve name '%s'", v29);
-      Scr_Error(COM_ERR_3437, scrContext, v30);
+      v22 = Scr_GetConstString(scrContext, v18);
+      v23 = SL_ConvertToString(v22);
+      v24 = j_va("Invalid blend curve name '%s'", v23);
+      Scr_Error(COM_ERR_3437, scrContext, v24);
     }
-    ++v22;
+    ++v16;
   }
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v22 + 4) )
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v16 + 4) )
   {
     switch ( flags )
     {
       case 1u:
-        v31 = "SetAnimKnob";
+        v25 = "SetAnimKnob";
         break;
       case 2u:
-        v31 = "SetAnimKnobLimitedRestart";
+        v25 = "SetAnimKnobLimitedRestart";
         break;
       case 3u:
-        v31 = "SetAnimKnobRestart";
+        v25 = "SetAnimKnobRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 652, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v31 = "SetAnimKnobLimited";
+        v25 = "SetAnimKnobLimited";
         break;
     }
     SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm9
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    DumpAnimCommandInternal(v31, SubTreeAnims, index, -1, fmt, time, v45);
+    DumpAnimCommandInternal(v25, SubTreeAnims, index, -1, v10, time, v7);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3460, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
   if ( (flags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm9
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    v35 = XAnimSetCompleteGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmta, timea, v46, (scr_string_t)0, 0, bRestart, curveID);
-  }
+    v29 = XAnimSetCompleteGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, (scr_string_t)0, 0, bRestart, curveID);
   else
-  {
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm9
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    v35 = XAnimSetGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmtb, timeb, v47, (scr_string_t)0, bRestart, curveID);
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0E8h+var_78]
-    vmovaps xmm8, [rsp+0E8h+var_68]
-    vmovaps xmm7, [rsp+0E8h+var_58]
-  }
-  if ( v35 )
-    GScr_HandleAnimError(scrContext, v35);
+    v29 = XAnimSetGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, (scr_string_t)0, bRestart, curveID);
+  if ( v29 )
+    GScr_HandleAnimError(scrContext, v29);
   else
     G_FlagAnimForUpdate(Entity);
 }
@@ -1955,59 +1697,43 @@ GScr_SetFlaggedAnimInternal
 void GScr_SetFlaggedAnimInternal(scrContext_t *scrContext, scr_entref_t entref, unsigned int flags)
 {
   XAnimCurveID curveID; 
+  float v7; 
+  float time; 
   gentity_s *Entity; 
+  float v10; 
   unsigned int NumParam; 
-  char v19; 
+  double Float; 
+  double v13; 
+  double v14; 
   unsigned int index; 
-  int v21; 
+  int v16; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v23; 
+  unsigned int v18; 
   int linkPointer; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v27; 
-  const char *v28; 
-  const char *v29; 
+  scr_string_t v22; 
+  const char *v23; 
+  const char *v24; 
   const XAnim_s *SubTreeAnims; 
-  const char *v31; 
-  const XAnim_s *v32; 
+  const char *v26; 
+  const XAnim_s *v27; 
   const DObj *ServerDObjForEnt; 
-  bool v34; 
-  int v35; 
-  float fmta; 
-  float fmt; 
-  float timea; 
-  float time; 
-  float v45; 
-  float v46; 
+  int v29; 
   unsigned int bRestart; 
   XAnimTree *tree; 
-  char v49; 
-  void *retaddr; 
   scr_string_t notifyName; 
   unsigned int graftAnimIndex; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
   curveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3490, scrContext, "AnimScripted entities are not supported int this game mode");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3e4ccccd
-  }
+  v7 = FLOAT_1_0;
+  time = FLOAT_0_2;
   Entity = GetEntity(entref);
-  __asm { vmovaps xmm6, xmm7 }
+  v10 = FLOAT_1_0;
   tree = GScr_GetEntAnimTree(Entity);
   NumParam = Scr_GetNumParam(scrContext);
-  __asm { vxorps  xmm9, xmm9, xmm9 }
   if ( NumParam != 2 )
   {
     if ( NumParam != 3 )
@@ -2016,39 +1742,27 @@ void GScr_SetFlaggedAnimInternal(scrContext_t *scrContext, scr_entref_t entref, 
       {
         if ( NumParam - 5 > 3 )
           Scr_Error(COM_ERR_3491, scrContext, "incorrect number of parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-        __asm
-        {
-          vcomiss xmm0, xmm9
-          vmovaps xmm7, xmm0
-        }
-        if ( v19 )
+        Float = Scr_GetFloat(scrContext, 4u);
+        v7 = *(float *)&Float;
+        if ( *(float *)&Float < 0.0 )
           Scr_ParamError(COM_ERR_3492, scrContext, 4u, "must set nonnegative rate for flagged anims");
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm8, xmm0
-      }
-      if ( v19 )
+      v13 = Scr_GetFloat(scrContext, 3u);
+      time = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_3493, scrContext, 3u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vcomiss xmm0, xmm9
-      vmovaps xmm6, xmm0
-    }
-    if ( v19 | v34 )
+    v14 = Scr_GetFloat(scrContext, 2u);
+    v10 = *(float *)&v14;
+    if ( *(float *)&v14 <= 0.0 )
       Scr_ParamError(COM_ERR_3494, scrContext, 2u, "must set positive weight");
   }
   index = Scr_GetAnim(scrContext, 1u, tree).index;
   notifyName = Scr_GetConstString(scrContext, 0);
-  v21 = 0;
+  v16 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v23 = 5;
+  v18 = 5;
   if ( Scr_GetNumParam(scrContext) > 5 && Scr_GetType(scrContext, 5u) == VAR_ANIMATION )
   {
     graftAnimIndex = index;
@@ -2062,85 +1776,63 @@ void GScr_SetFlaggedAnimInternal(scrContext_t *scrContext, scr_entref_t entref, 
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v21 = 1;
-    v23 = 6;
+    v16 = 1;
+    v18 = 6;
   }
-  if ( Scr_GetNumParam(scrContext) > v23 && Scr_GetType(scrContext, v23) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v18 && Scr_GetType(scrContext, v18) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v23);
+    ConstString = Scr_GetConstString(scrContext, v18);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v27 = Scr_GetConstString(scrContext, v23);
-      v28 = SL_ConvertToString(v27);
-      v29 = j_va("Invalid blend curve name '%s'", v28);
-      Scr_Error(COM_ERR_3437, scrContext, v29);
+      v22 = Scr_GetConstString(scrContext, v18);
+      v23 = SL_ConvertToString(v22);
+      v24 = j_va("Invalid blend curve name '%s'", v23);
+      Scr_Error(COM_ERR_3437, scrContext, v24);
     }
-    ++v21;
+    ++v16;
   }
   if ( !notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1672, ASSERT_TYPE_ASSERT, "(notifyName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "notifyName != NULL_SCR_STRING") )
     __debugbreak();
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
   if ( !XAnimHasTime(SubTreeAnims, index) )
     Scr_ParamError(COM_ERR_3495, scrContext, 1u, "blended nonsynchronized animation has no concept of time");
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v21 + 5) )
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v16 + 5) )
   {
     switch ( flags )
     {
       case 1u:
-        v31 = "SetFlaggedAnim";
+        v26 = "SetFlaggedAnim";
         break;
       case 2u:
-        v31 = "SetFlaggedAnimLimitedRestart";
+        v26 = "SetFlaggedAnimLimitedRestart";
         break;
       case 3u:
-        v31 = "SetFlaggedAnimRestart";
+        v26 = "SetFlaggedAnimRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1696, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v31 = "SetFlaggedAnimLimited";
+        v26 = "SetFlaggedAnimLimited";
         break;
     }
-    v32 = XAnimGetSubTreeAnims(tree, subTreeID);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm7
-      vmovss  [rsp+0E8h+time], xmm8
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm6
-    }
-    DumpAnimCommandInternal(v31, v32, index, -1, fmta, timea, v45);
+    v27 = XAnimGetSubTreeAnims(tree, subTreeID);
+    DumpAnimCommandInternal(v26, v27, index, -1, v10, time, v7);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
-  v34 = ServerDObjForEnt == NULL;
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3496, scrContext, "No model exists.");
-  __asm { vucomiss xmm6, xmm9 }
-  if ( v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1709, ASSERT_TYPE_ASSERT, "(goalWeight)", (const char *)&queryFormat, "goalWeight") )
+  if ( v10 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1709, ASSERT_TYPE_ASSERT, "(goalWeight)", (const char *)&queryFormat, "goalWeight") )
     __debugbreak();
   bRestart = (flags >> 1) & 1;
-  __asm
-  {
-    vmovss  [rsp+0E8h+var_B8], xmm7
-    vmovss  [rsp+0E8h+time], xmm8
-    vmovss  dword ptr [rsp+0E8h+fmt], xmm6
-  }
   if ( (flags & 1) != 0 )
-    v35 = XAnimSetCompleteGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmt, time, v46, notifyName, 0, bRestart, curveID, NULL);
+    v29 = XAnimSetCompleteGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, notifyName, 0, bRestart, curveID, NULL);
   else
-    v35 = XAnimSetGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmt, time, v46, notifyName, 0, bRestart, curveID, NULL);
-  if ( v35 )
-    GScr_HandleAnimError(scrContext, v35);
+    v29 = XAnimSetGoalWeight(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, notifyName, 0, bRestart, curveID, NULL);
+  if ( v29 )
+    GScr_HandleAnimError(scrContext, v29);
   else
     G_FlagAnimForUpdate(Entity);
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -2150,201 +1842,152 @@ GScr_SetFlaggedAnimKnobAllInternal
 */
 void GScr_SetFlaggedAnimKnobAllInternal(scrContext_t *scrContext, scr_entref_t entref, unsigned int flags, const char *usage)
 {
+  float v8; 
+  float time; 
+  float v10; 
   unsigned int NumParam; 
-  char v19; 
-  char v21; 
-  XAnimSubTreeID v22; 
-  unsigned int v23; 
-  int v24; 
+  double Float; 
+  double v13; 
+  double v14; 
+  XAnimSubTreeID v15; 
+  unsigned int v16; 
+  int v17; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v26; 
-  int v27; 
+  unsigned int v19; 
+  int v20; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v30; 
-  const char *v31; 
-  const char *v32; 
+  scr_string_t v23; 
+  const char *v24; 
+  const char *v25; 
   const XAnim_s *SubTreeAnims; 
-  unsigned int v34; 
-  unsigned int v35; 
-  gentity_s *v36; 
-  const char *v37; 
-  const XAnim_s *v38; 
+  unsigned int v27; 
+  unsigned int v28; 
+  gentity_s *v29; 
+  const char *v30; 
+  const XAnim_s *v31; 
   const DObj *ServerDObjForEnt; 
-  int v40; 
-  float fmt; 
-  float time; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
+  int v33; 
   unsigned int bRestart; 
   scr_string_t notifyName; 
   unsigned int graftAnimIndex; 
   XAnimTree *tree; 
   gentity_s *ent; 
-  int v55; 
+  int v39; 
   int linkPointer; 
-  void *retaddr; 
   XAnimCurveID curveID; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
   curveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3482, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm9, cs:__real@3e4ccccd
-  }
+  v8 = FLOAT_1_0;
+  time = FLOAT_0_2;
   ent = GetEntity(entref);
-  __asm { vmovaps xmm8, xmm7 }
+  v10 = FLOAT_1_0;
   tree = GScr_GetEntAnimTree(ent);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 3 )
   {
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( NumParam != 4 )
     {
       if ( NumParam != 5 )
       {
         if ( NumParam - 6 > 3 )
           Scr_Error(COM_ERR_3483, scrContext, usage);
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 5u);
-        __asm
-        {
-          vcomiss xmm0, xmm6
-          vmovaps xmm7, xmm0
-        }
-        if ( v19 )
+        Float = Scr_GetFloat(scrContext, 5u);
+        v8 = *(float *)&Float;
+        if ( *(float *)&Float < 0.0 )
           Scr_ParamError(COM_ERR_3484, scrContext, 5u, "must set nonnegative rate for flagged anims");
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm9, xmm0
-      }
-      if ( v19 )
+      v13 = Scr_GetFloat(scrContext, 4u);
+      time = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_3485, scrContext, 4u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+0F8h+var_38]
-      vmovaps xmm8, xmm0
-    }
-    if ( v19 | v21 )
+    v14 = Scr_GetFloat(scrContext, 3u);
+    v10 = *(float *)&v14;
+    if ( *(float *)&v14 <= 0.0 )
       Scr_ParamError(COM_ERR_3486, scrContext, 3u, "must set positive weight");
   }
   linkPointer = Scr_GetAnim(scrContext, 2u, tree).linkPointer;
-  v55 = Scr_GetAnim(scrContext, 1u, tree).linkPointer;
-  v22 = XANIM_SUBTREE_DEFAULT;
-  v23 = (unsigned __int16)v55;
+  v39 = Scr_GetAnim(scrContext, 1u, tree).linkPointer;
+  v15 = XANIM_SUBTREE_DEFAULT;
+  v16 = (unsigned __int16)v39;
   notifyName = Scr_GetConstString(scrContext, 0);
-  v24 = 0;
+  v17 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v26 = 6;
+  v19 = 6;
   if ( Scr_GetNumParam(scrContext) > 6 && Scr_GetType(scrContext, 6u) == VAR_ANIMATION )
   {
-    graftAnimIndex = (unsigned __int16)v55;
-    v27 = Scr_GetAnim(scrContext, 6u, NULL).linkPointer;
-    if ( !HIWORD(v27) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
+    graftAnimIndex = (unsigned __int16)v39;
+    v20 = Scr_GetAnim(scrContext, 6u, NULL).linkPointer;
+    if ( !HIWORD(v20) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 68, ASSERT_TYPE_ASSERT, "(anim.tree)", (const char *)&queryFormat, "anim.tree") )
       __debugbreak();
-    v23 = (unsigned __int16)v27;
-    Anims = Scr_GetAnims(scrContext, HIWORD(v27));
-    if ( v23 >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
+    v16 = (unsigned __int16)v20;
+    Anims = Scr_GetAnims(scrContext, HIWORD(v20));
+    if ( v16 >= Anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 72, ASSERT_TYPE_ASSERT, "(anim.index < anims->size)", (const char *)&queryFormat, "anim.index < anims->size") )
       __debugbreak();
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v26 = 7;
-    v24 = 1;
+    v19 = 7;
+    v17 = 1;
   }
-  if ( Scr_GetNumParam(scrContext) > v26 && Scr_GetType(scrContext, v26) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v19 && Scr_GetType(scrContext, v19) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v26);
+    ConstString = Scr_GetConstString(scrContext, v19);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v30 = Scr_GetConstString(scrContext, v26);
-      v31 = SL_ConvertToString(v30);
-      v32 = j_va("Invalid blend curve name '%s'", v31);
-      Scr_Error(COM_ERR_3437, scrContext, v32);
+      v23 = Scr_GetConstString(scrContext, v19);
+      v24 = SL_ConvertToString(v23);
+      v25 = j_va("Invalid blend curve name '%s'", v24);
+      Scr_Error(COM_ERR_3437, scrContext, v25);
     }
-    ++v24;
+    ++v17;
   }
-  if ( v24 && HIWORD(linkPointer) != HIWORD(v55) )
-    v22 = subTreeID;
+  if ( v17 && HIWORD(linkPointer) != HIWORD(v39) )
+    v15 = subTreeID;
   if ( !notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1495, ASSERT_TYPE_ASSERT, "(notifyName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "notifyName != NULL_SCR_STRING") )
     __debugbreak();
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-  if ( !XAnimHasTime(SubTreeAnims, v23) )
+  if ( !XAnimHasTime(SubTreeAnims, v16) )
     Scr_ParamError(COM_ERR_3487, scrContext, 1u, "blended nonsynchronized animation has no concept of time");
-  v34 = (unsigned __int16)linkPointer;
-  if ( (unsigned __int16)linkPointer == v23 && v22 == subTreeID )
+  v27 = (unsigned __int16)linkPointer;
+  if ( (unsigned __int16)linkPointer == v16 && v15 == subTreeID )
     Scr_Error(COM_ERR_3488, scrContext, "root anim is not an ancestor of the anim");
-  v35 = v24 + 6;
-  v36 = ent;
-  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v35) )
+  v28 = v17 + 6;
+  v29 = ent;
+  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v28) )
   {
     if ( flags == 3 )
     {
-      v37 = "SetFlaggedAnimKnobAllRestart";
+      v30 = "SetFlaggedAnimKnobAllRestart";
     }
     else
     {
       if ( flags != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1523, ASSERT_TYPE_ASSERT, "(flags == (1 << 0))", (const char *)&queryFormat, "flags == ANIM_FLAG_COMPLETE") )
         __debugbreak();
-      v37 = "SetFlaggedAnimKnobAll";
+      v30 = "SetFlaggedAnimKnobAll";
     }
-    v38 = XAnimGetSubTreeAnims(tree, subTreeID);
-    __asm { vmovss  [rsp+0F8h+var_C8], xmm7 }
-    v34 = (unsigned __int16)linkPointer;
-    __asm
-    {
-      vmovss  [rsp+0F8h+time], xmm9
-      vmovss  dword ptr [rsp+0F8h+fmt], xmm8
-    }
-    DumpAnimCommandInternal(v37, v38, v23, (unsigned __int16)linkPointer, fmt, time, v46);
-    v36 = ent;
+    v31 = XAnimGetSubTreeAnims(tree, subTreeID);
+    v27 = (unsigned __int16)linkPointer;
+    DumpAnimCommandInternal(v30, v31, v16, (unsigned __int16)linkPointer, v10, time, v8);
+    v29 = ent;
   }
-  ServerDObjForEnt = Com_GetServerDObjForEnt(v36);
+  ServerDObjForEnt = Com_GetServerDObjForEnt(v29);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3489, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_B8], xmm7
-    vmovss  [rsp+0F8h+var_C0], xmm9
-    vmovss  [rsp+0F8h+var_C8], xmm8
-  }
   if ( (flags & 1) != 0 )
-    v40 = XAnimSetCompleteGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v23, v22, v34, v47, v48, v49, notifyName, bRestart, curveID);
+    v33 = XAnimSetCompleteGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v16, v15, v27, v10, time, v8, notifyName, bRestart, curveID);
   else
-    v40 = XAnimSetGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v23, v22, v34, v47, v48, v49, notifyName, bRestart, curveID);
-  __asm
-  {
-    vmovaps xmm9, [rsp+0F8h+var_68]
-    vmovaps xmm8, [rsp+0F8h+var_58]
-    vmovaps xmm7, [rsp+0F8h+var_48]
-  }
-  if ( v40 )
-    GScr_HandleAnimError(scrContext, v40);
+    v33 = XAnimSetGoalWeightKnobAll(ServerDObjForEnt, graftAnimIndex, subTreeID, v16, v15, v27, v10, time, v8, notifyName, bRestart, curveID);
+  if ( v33 )
+    GScr_HandleAnimError(scrContext, v33);
   else
-    G_FlagAnimForUpdate(v36);
+    G_FlagAnimForUpdate(v29);
 }
 
 /*
@@ -2355,106 +1998,72 @@ GScr_SetFlaggedAnimKnobInternal
 void GScr_SetFlaggedAnimKnobInternal(scrContext_t *scrContext, scr_entref_t entref, unsigned int flags)
 {
   XAnimCurveID curveID; 
+  float v7; 
+  float time; 
   gentity_s *Entity; 
+  float v10; 
   unsigned int NumParam; 
-  char v19; 
-  char v21; 
+  double Float; 
+  double v13; 
+  double v14; 
   unsigned int index; 
-  int v23; 
+  int v16; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v25; 
+  unsigned int v18; 
   int linkPointer; 
   XAnim_s *Anims; 
   scr_string_t ConstString; 
-  scr_string_t v29; 
-  const char *v30; 
-  const char *v31; 
+  scr_string_t v22; 
+  const char *v23; 
+  const char *v24; 
   const XAnim_s *SubTreeAnims; 
-  const char *v33; 
-  const XAnim_s *v34; 
+  const char *v26; 
+  const XAnim_s *v27; 
   const DObj *ServerDObjForEnt; 
   int bRestart; 
-  int v37; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float time; 
-  float timea; 
-  float timeb; 
-  float v47; 
-  float v48; 
-  float v49; 
+  int v30; 
   XAnimTree *tree; 
-  void *retaddr; 
   scr_string_t notifyName; 
   unsigned int graftAnimIndex; 
 
-  _RAX = &retaddr;
   curveID = LINEAR;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3475, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm9, cs:__real@3e4ccccd
-  }
+  v7 = FLOAT_1_0;
+  time = FLOAT_0_2;
   Entity = GetEntity(entref);
-  __asm { vmovaps xmm8, xmm7 }
+  v10 = FLOAT_1_0;
   tree = GScr_GetEntAnimTree(Entity);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 2 )
   {
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_48], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( NumParam != 3 )
     {
       if ( NumParam != 4 )
       {
         if ( NumParam - 5 > 3 )
           Scr_Error(COM_ERR_3476, scrContext, "too many parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-        __asm
-        {
-          vcomiss xmm0, xmm6
-          vmovaps xmm7, xmm0
-        }
-        if ( v19 )
+        Float = Scr_GetFloat(scrContext, 4u);
+        v7 = *(float *)&Float;
+        if ( *(float *)&Float < 0.0 )
           Scr_ParamError(COM_ERR_3477, scrContext, 4u, "must set nonnegative rate for flagged anims");
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm9, xmm0
-      }
-      if ( v19 )
+      v13 = Scr_GetFloat(scrContext, 3u);
+      time = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_3478, scrContext, 3u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+0E8h+var_48]
-      vmovaps xmm8, xmm0
-    }
-    if ( v19 | v21 )
+    v14 = Scr_GetFloat(scrContext, 2u);
+    v10 = *(float *)&v14;
+    if ( *(float *)&v14 <= 0.0 )
       Scr_ParamError(COM_ERR_3479, scrContext, 2u, "must set positive weight");
   }
   index = Scr_GetAnim(scrContext, 1u, tree).index;
   notifyName = Scr_GetConstString(scrContext, 0);
-  v23 = 0;
+  v16 = 0;
   graftAnimIndex = 0;
   subTreeID = XANIM_SUBTREE_DEFAULT;
-  v25 = 5;
+  v18 = 5;
   if ( Scr_GetNumParam(scrContext) > 5 && Scr_GetType(scrContext, 5u) == VAR_ANIMATION )
   {
     graftAnimIndex = index;
@@ -2468,87 +2077,59 @@ void GScr_SetFlaggedAnimKnobInternal(scrContext_t *scrContext, scr_entref_t entr
     subTreeID = Anims->subTreeID;
     if ( subTreeID == XANIM_SUBTREE_DEFAULT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 76, ASSERT_TYPE_ASSERT, "(*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT)", (const char *)&queryFormat, "*outSubTreeID != XAnimSubTreeID::XANIM_SUBTREE_DEFAULT") )
       __debugbreak();
-    v23 = 1;
-    v25 = 6;
+    v16 = 1;
+    v18 = 6;
   }
-  if ( Scr_GetNumParam(scrContext) > v25 && Scr_GetType(scrContext, v25) == VAR_STRING )
+  if ( Scr_GetNumParam(scrContext) > v18 && Scr_GetType(scrContext, v18) == VAR_STRING )
   {
-    ConstString = Scr_GetConstString(scrContext, v25);
+    ConstString = Scr_GetConstString(scrContext, v18);
     curveID = XAnimCurve_GetID(ConstString);
     if ( curveID == CURVE_ASSET_END )
     {
-      v29 = Scr_GetConstString(scrContext, v25);
-      v30 = SL_ConvertToString(v29);
-      v31 = j_va("Invalid blend curve name '%s'", v30);
-      Scr_Error(COM_ERR_3437, scrContext, v31);
+      v22 = Scr_GetConstString(scrContext, v18);
+      v23 = SL_ConvertToString(v22);
+      v24 = j_va("Invalid blend curve name '%s'", v23);
+      Scr_Error(COM_ERR_3437, scrContext, v24);
     }
-    ++v23;
+    ++v16;
   }
   if ( !notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1264, ASSERT_TYPE_ASSERT, "(notifyName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "notifyName != NULL_SCR_STRING") )
     __debugbreak();
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
   if ( !XAnimHasTime(SubTreeAnims, index) )
     Scr_ParamError(COM_ERR_3480, scrContext, 1u, "blended nonsynchronized animation has no concept of time");
-  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v23 + 5) )
+  if ( ShouldDumpAnimCommand(scrContext, Entity->s.number, v16 + 5) )
   {
     switch ( flags )
     {
       case 1u:
-        v33 = "SetFlaggedAnimKnob";
+        v26 = "SetFlaggedAnimKnob";
         break;
       case 2u:
-        v33 = "SetFlaggedAnimKnobLimitedRestart";
+        v26 = "SetFlaggedAnimKnobLimitedRestart";
         break;
       case 3u:
-        v33 = "SetFlaggedAnimKnobRestart";
+        v26 = "SetFlaggedAnimKnobRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 1294, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v33 = "SetFlaggedAnimKnobLimited";
+        v26 = "SetFlaggedAnimKnobLimited";
         break;
     }
-    v34 = XAnimGetSubTreeAnims(tree, subTreeID);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm7
-      vmovss  [rsp+0E8h+time], xmm9
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm8
-    }
-    DumpAnimCommandInternal(v33, v34, index, -1, fmt, time, v47);
+    v27 = XAnimGetSubTreeAnims(tree, subTreeID);
+    DumpAnimCommandInternal(v26, v27, index, -1, v10, time, v7);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_3481, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
   if ( (flags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm7
-      vmovss  [rsp+0E8h+time], xmm9
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm8
-    }
-    v37 = XAnimSetCompleteGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmta, timea, v48, notifyName, 0, bRestart, curveID);
-  }
+    v30 = XAnimSetCompleteGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, notifyName, 0, bRestart, curveID);
   else
-  {
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B8], xmm7
-      vmovss  [rsp+0E8h+time], xmm9
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm8
-    }
-    v37 = XAnimSetGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, fmtb, timeb, v49, notifyName, bRestart, curveID);
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0E8h+var_78]
-    vmovaps xmm8, [rsp+0E8h+var_68]
-    vmovaps xmm7, [rsp+0E8h+var_58]
-  }
-  if ( v37 )
-    GScr_HandleAnimError(scrContext, v37);
+    v30 = XAnimSetGoalWeightKnob(ServerDObjForEnt, graftAnimIndex, subTreeID, index, v10, time, v7, notifyName, bRestart, curveID);
+  if ( v30 )
+    GScr_HandleAnimError(scrContext, v30);
   else
     G_FlagAnimForUpdate(Entity);
 }
@@ -2563,29 +2144,23 @@ void G_StopAnimScripted(gentity_s *ent)
   actor_s *actor; 
   EntityAnimScript *scripted; 
   XAnimTree *EntAnimTree; 
-  const dvar_t *v8; 
+  const dvar_t *v5; 
   const DObj *ServerDObjForEnt; 
-  bool v16; 
-  float fmt; 
-  float fmta; 
-  float time; 
-  float timea; 
-  float rate; 
-  float ratea; 
-  AIActorInterface v23; 
-  AIActorInterface *v24; 
+  bool v7; 
+  AIActorInterface v8; 
+  AIActorInterface *v9; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_READY) )
   {
     actor = ent->actor;
     if ( actor )
     {
-      AIActorInterface::AIActorInterface(&v23);
-      v24 = NULL;
-      AIActorInterface::SetActor(&v23, actor);
-      v24 = &v23;
+      AIActorInterface::AIActorInterface(&v8);
+      v9 = NULL;
+      AIActorInterface::SetActor(&v8, actor);
+      v9 = &v8;
       if ( actor->eSimulatedState[actor->simulatedStateLevel] == AIS_SCRIPTEDANIM )
-        AIScriptedInterface::PopState(&v23);
+        AIScriptedInterface::PopState(&v8);
     }
   }
   scripted = ent->scripted;
@@ -2595,57 +2170,23 @@ void G_StopAnimScripted(gentity_s *ent)
       __debugbreak();
     if ( scripted->anim )
     {
-      __asm
-      {
-        vmovaps [rsp+0C8h+var_18], xmm6
-        vmovaps [rsp+0C8h+var_28], xmm7
-        vmovaps [rsp+0C8h+var_38], xmm8
-      }
       EntAnimTree = GScr_GetEntAnimTree(ent);
       if ( !EntAnimTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 358, ASSERT_TYPE_ASSERT, "(pAnimTree)", (const char *)&queryFormat, "pAnimTree") )
         __debugbreak();
-      v8 = DVARINT_g_dumpAnimsCommands;
+      v5 = DVARINT_g_dumpAnimsCommands;
       if ( !DVARINT_g_dumpAnimsCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnimsCommands") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v8);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vmovss  xmm7, cs:__real@3e4ccccd
-        vxorps  xmm8, xmm8, xmm8
-      }
-      if ( v8->current.integer == ent->s.number )
-      {
-        __asm
-        {
-          vmovss  [rsp+0C8h+rate], xmm6
-          vmovss  [rsp+0C8h+time], xmm7
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-        }
-        DumpAnimCommandInternal("stopanimscripted", EntAnimTree->anims, scripted->anim, -1, fmt, time, rate);
-      }
+      Dvar_CheckFrontendServerThread(v5);
+      if ( v5->current.integer == ent->s.number )
+        DumpAnimCommandInternal("stopanimscripted", EntAnimTree->anims, scripted->anim, -1, 0.0, 0.2, 1.0);
       ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
       if ( ServerDObjForEnt )
-      {
-        __asm
-        {
-          vmovss  [rsp+0C8h+rate], xmm6
-          vmovss  [rsp+0C8h+time], xmm7
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-        }
-        XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, scripted->anim, fmta, timea, ratea, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+0C8h+var_28]
-        vmovaps xmm6, [rsp+0C8h+var_18]
-        vmovaps xmm8, [rsp+0C8h+var_38]
-      }
+        XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, scripted->anim, 0.0, 0.2, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
     }
     MT_Free(scripted, 0x60ui64);
-    v16 = ent->s.eType == ET_SCRIPTMOVER;
+    v7 = ent->s.eType == ET_SCRIPTMOVER;
     ent->scripted = NULL;
-    if ( v16 )
+    if ( v7 )
       ent->s.lerp.u.anonymous.data[2] &= ~0x40u;
   }
 }
@@ -2657,63 +2198,76 @@ ScrCmd_animscriptedInternal
 */
 void ScrCmd_animscriptedInternal(scrContext_t *scrContext, gentity_s *ent, int bDelayForActor)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
   unsigned __int64 linkPointer; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   int NumParam; 
-  unsigned __int16 v20; 
-  scr_string_t v21; 
+  unsigned __int16 v18; 
+  scr_string_t v19; 
+  double Float; 
+  float time; 
+  double v22; 
+  float v23; 
   scr_string_t ConstString; 
+  const char *v25; 
   const char *v26; 
-  const char *v27; 
-  scr_anim_t v28; 
-  unsigned __int64 v29; 
+  scr_anim_t v27; 
+  unsigned __int64 v28; 
   actor_s *actor; 
-  const char *v31; 
+  const char *v30; 
   scr_string_t targetname; 
+  const char *v32; 
   const char *v33; 
   const char *v34; 
-  const char *v35; 
-  actor_s *v36; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  actor_s *v39; 
   EntityAnimScript *scripted; 
-  scr_string_t v44; 
-  unsigned int v45; 
+  scr_string_t v41; 
+  unsigned int v42; 
   EntityTagInfo *tagInfo; 
-  EntityTagInfo *v54; 
-  float fmt; 
-  float fmta; 
-  float time; 
-  float timea; 
-  float v59; 
-  float v60; 
-  float notifyType; 
-  int bRestart; 
-  unsigned __int64 v63; 
+  EntityTagInfo *v44; 
+  unsigned __int64 v45; 
   scr_string_t value; 
   const char *weight; 
   actor_s *pActor; 
   const char *goalTime; 
   XAnimTree *EntAnimTree; 
   DObj *obj; 
-  AIActorInterface v71; 
-  AIActorInterface *v72; 
+  AIActorInterface v53; 
+  AIActorInterface *v54; 
   vec3_t vectorValue; 
   vec3_t origin; 
   tmat43_t<vec3_t> parentAxis; 
-  void *retaddr; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
+  __int128 v64; 
 
-  _R11 = &retaddr;
   linkPointer = UNDEFINED_ANIM_2.linkPointer;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-    vxorps  xmm12, xmm12, xmm12
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm10, xmm10, xmm10
-    vxorps  xmm11, xmm11, xmm11
-  }
+  v62 = v5;
+  v61 = v6;
+  v60 = v7;
+  v59 = v8;
+  v58 = v9;
+  v13 = 0.0;
+  v14 = 0.0;
+  v15 = 0.0;
+  v16 = 0.0;
   NumParam = Scr_GetNumParam(scrContext);
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3438, scrContext, "AnimScripted entities are not supported in this game mode");
@@ -2725,59 +2279,55 @@ void ScrCmd_animscriptedInternal(scrContext_t *scrContext, gentity_s *ent, int b
   EntAnimTree = GScr_GetEntAnimTree(ent);
   if ( !EntAnimTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 131, ASSERT_TYPE_ASSERT, "( pAnimTree )", (const char *)&queryFormat, "pAnimTree") )
     __debugbreak();
-  __asm { vmovaps [rsp+1C8h+var_58], xmm7 }
-  LODWORD(v63) = 0;
-  v20 = 0;
-  v21 = 0;
+  v63 = v4;
+  LODWORD(v45) = 0;
+  v18 = 0;
+  v19 = 0;
   if ( NumParam <= 6 )
   {
-    __asm { vmovss  xmm7, cs:__real@3e4ccccd }
+    time = FLOAT_0_2;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 6u);
-    __asm { vmovaps xmm7, xmm0 }
+    Float = Scr_GetFloat(scrContext, 6u);
+    time = *(float *)&Float;
   }
-  __asm
-  {
-    vmovaps [rsp+1C8h+var_48], xmm6
-    vmovss  xmm9, cs:__real@3f800000
-  }
+  v64 = v3;
   if ( NumParam <= 7 )
   {
-    __asm { vmovaps xmm6, xmm9 }
+    v23 = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 7u);
-    __asm { vmovaps xmm6, xmm0 }
+    v22 = Scr_GetFloat(scrContext, 7u);
+    v23 = *(float *)&v22;
   }
   if ( NumParam <= 4 )
     goto LABEL_26;
   if ( Scr_GetType(scrContext, 4u) )
   {
     ConstString = Scr_GetConstString(scrContext, 4u);
-    v21 = ConstString;
+    v19 = ConstString;
     if ( ConstString != scr_const.normal && ConstString != scr_const.deathplant )
     {
-      v26 = SL_ConvertToString(ConstString);
-      v27 = j_va("Illegal mode %s for animScripted. Valid modes are normal and deathplant", v26);
-      Scr_Error(COM_ERR_3440, scrContext, v27);
+      v25 = SL_ConvertToString(ConstString);
+      v26 = j_va("Illegal mode %s for animScripted. Valid modes are normal and deathplant", v25);
+      Scr_Error(COM_ERR_3440, scrContext, v26);
     }
-    SL_AddRefToString(v21);
+    SL_AddRefToString(v19);
   }
   if ( NumParam > 5 && Scr_GetType(scrContext, 5u) )
   {
-    v63 = Scr_GetAnim(scrContext, 5u, EntAnimTree).linkPointer;
-    v28 = (scr_anim_t)v63;
-    v20 = v63;
+    v45 = Scr_GetAnim(scrContext, 5u, EntAnimTree).linkPointer;
+    v27 = (scr_anim_t)v45;
+    v18 = v45;
   }
   else
   {
 LABEL_26:
-    v28 = (scr_anim_t)v63;
+    v27 = (scr_anim_t)v45;
   }
-  v29 = Scr_GetAnim(scrContext, 3u, EntAnimTree).linkPointer;
+  v28 = Scr_GetAnim(scrContext, 3u, EntAnimTree).linkPointer;
   Scr_GetVector(scrContext, 2u, &vectorValue);
   Scr_GetVector(scrContext, 1u, &origin);
   value = Scr_GetConstString(scrContext, 0);
@@ -2788,59 +2338,45 @@ LABEL_26:
     goto LABEL_82;
   if ( !actor->Physics.bIsAlive )
   {
-    v31 = SL_ConvertToString(ent->classname);
+    v30 = SL_ConvertToString(ent->classname);
     targetname = ent->targetname;
-    goalTime = v31;
+    goalTime = v30;
     if ( targetname )
-      v33 = SL_ConvertToString(targetname);
+      v32 = SL_ConvertToString(targetname);
     else
-      v33 = "<undefined>";
-    weight = v33;
-    v34 = vtos(&ent->r.currentOrigin);
-    v35 = j_va("tried to play a scripted animation on a dead AI; entity %i team %i origin %s targetname %s classname %s\n", (unsigned int)ent->s.number, (unsigned int)ent->sentient->eTeam, v34, weight, goalTime);
-    Scr_Error(COM_ERR_3441, scrContext, v35);
+      v32 = "<undefined>";
+    weight = v32;
+    v33 = vtos(&ent->r.currentOrigin);
+    v34 = j_va("tried to play a scripted animation on a dead AI; entity %i team %i origin %s targetname %s classname %s\n", (unsigned int)ent->s.number, (unsigned int)ent->sentient->eTeam, v33, weight, goalTime);
+    Scr_Error(COM_ERR_3441, scrContext, v34);
   }
   if ( bDelayForActor )
   {
     if ( NumParam > 12 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 8u);
-      __asm { vmovaps xmm8, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 9u);
-      __asm { vmovaps xmm10, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0xAu);
-      __asm { vmovaps xmm11, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0xBu);
-      __asm { vmovaps xmm12, xmm0 }
+      v35 = Scr_GetFloat(scrContext, 8u);
+      v14 = *(float *)&v35;
+      v36 = Scr_GetFloat(scrContext, 9u);
+      v15 = *(float *)&v36;
+      v37 = Scr_GetFloat(scrContext, 0xAu);
+      v16 = *(float *)&v37;
+      v38 = Scr_GetFloat(scrContext, 0xBu);
+      v13 = *(float *)&v38;
       linkPointer = Scr_GetAnim(scrContext, 0xCu, NULL).linkPointer;
     }
-    AIActorInterface::AIActorInterface(&v71);
-    v36 = pActor;
-    v72 = NULL;
-    AIActorInterface::SetActor(&v71, pActor);
-    v72 = &v71;
-    AIScriptedInterface::PushState(&v71, AIS_SCRIPTEDANIM);
-    AIScriptedInterface::KillAnimScript(&v71);
+    AIActorInterface::AIActorInterface(&v53);
+    v39 = pActor;
+    v54 = NULL;
+    AIActorInterface::SetActor(&v53, pActor);
+    v54 = &v53;
+    AIScriptedInterface::PushState(&v53, AIS_SCRIPTEDANIM);
+    AIScriptedInterface::KillAnimScript(&v53);
     scripted = ent->scripted;
     if ( scripted && scripted->anim )
     {
       if ( Dvar_GetInt_Internal_DebugName(DVARINT_g_dumpAnimsCommands, "g_dumpAnimsCommands") == ent->s.number )
-      {
-        __asm
-        {
-          vmovss  [rsp+1C8h+var_198], xmm6
-          vmovss  [rsp+1C8h+time], xmm7
-          vmovss  dword ptr [rsp+1C8h+fmt], xmm9
-        }
-        DumpAnimCommandInternal("animscripted", EntAnimTree->anims, ent->scripted->anim, -1, fmt, time, v59);
-      }
-      __asm
-      {
-        vmovss  [rsp+1C8h+var_198], xmm6
-        vmovss  [rsp+1C8h+time], xmm7
-        vmovss  dword ptr [rsp+1C8h+fmt], xmm9
-      }
-      XAnimSetCompleteGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ent->scripted->anim, fmta, timea, v60, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        DumpAnimCommandInternal("animscripted", EntAnimTree->anims, ent->scripted->anim, -1, 1.0, time, v23);
+      XAnimSetCompleteGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ent->scripted->anim, 1.0, time, v23, (scr_string_t)0, 0, 0, LINEAR, NULL);
       G_FlagAnimForUpdate(ent);
     }
     if ( NumParam <= 12 )
@@ -2854,31 +2390,25 @@ LABEL_26:
     else
     {
       Scr_AddAnim(scrContext, (scr_anim_t)linkPointer);
-      __asm { vmovaps xmm1, xmm12; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
-      __asm { vmovaps xmm1, xmm11; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
-      __asm { vmovaps xmm1, xmm10; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
-      __asm { vmovaps xmm1, xmm8; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      Scr_AddFloat(scrContext, v13);
+      Scr_AddFloat(scrContext, v16);
+      Scr_AddFloat(scrContext, v15);
+      Scr_AddFloat(scrContext, v14);
     }
-    __asm { vmovaps xmm1, xmm6; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm7; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
-    if ( WORD1(v63) )
-      Scr_AddAnim(scrContext, v28);
+    Scr_AddFloat(scrContext, v23);
+    Scr_AddFloat(scrContext, time);
+    if ( WORD1(v45) )
+      Scr_AddAnim(scrContext, v27);
     else
       Scr_AddUndefined(scrContext);
-    if ( v21 )
-      Scr_AddConstString(scrContext, v21);
+    if ( v19 )
+      Scr_AddConstString(scrContext, v19);
     else
       Scr_AddUndefined(scrContext);
-    Scr_AddAnim(scrContext, (scr_anim_t)v29);
+    Scr_AddAnim(scrContext, (scr_anim_t)v28);
     Scr_AddVector(scrContext, vectorValue.v);
     Scr_AddVector(scrContext, origin.v);
-    v44 = value;
+    v41 = value;
     Scr_AddConstString(scrContext, value);
     if ( (_BYTE)GameScriptData::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_scr_data_sp.h", 97, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
       __debugbreak();
@@ -2886,41 +2416,26 @@ LABEL_26:
       __debugbreak();
     if ( !(_BYTE)GameScriptData::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_data.h", 79, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access game data outside of an active game context", "ms_allocatedType != GameModeType::NONE") )
       __debugbreak();
-    v45 = GScr_ExecEntThread(ent, GameScriptData::ms_gScriptData[1].levelscript, 0xDu);
-    Scr_FreeThread(scrContext, v45);
+    v42 = GScr_ExecEntThread(ent, GameScriptData::ms_gScriptData[1].levelscript, 0xDu);
+    Scr_FreeThread(scrContext, v42);
   }
   else
   {
 LABEL_82:
-    if ( !WORD1(v63) && v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 254, ASSERT_TYPE_ASSERT, "(root.tree || !root.index)", (const char *)&queryFormat, "root.tree || !root.index") )
+    if ( !WORD1(v45) && v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 254, ASSERT_TYPE_ASSERT, "(root.tree || !root.index)", (const char *)&queryFormat, "root.tree || !root.index") )
       __debugbreak();
-    v44 = value;
-    __asm
-    {
-      vmovss  [rsp+1C8h+bRestart], xmm6
-      vmovss  [rsp+1C8h+notifyType], xmm7
-    }
-    G_Animscripted(scrContext, ent, &origin, &vectorValue, (unsigned __int16)v29, v20, value, v21 == scr_const.deathplant, notifyType, *(float *)&bRestart);
-    v36 = pActor;
+    v41 = value;
+    G_Animscripted(scrContext, ent, &origin, &vectorValue, (unsigned __int16)v28, v18, value, v19 == scr_const.deathplant, time, v23);
+    v39 = pActor;
   }
-  SL_RemoveRefToString(v44);
-  __asm
-  {
-    vmovaps xmm12, [rsp+1C8h+var_A8]
-    vmovaps xmm11, [rsp+1C8h+var_98]
-    vmovaps xmm10, [rsp+1C8h+var_88]
-    vmovaps xmm9, [rsp+1C8h+var_78]
-    vmovaps xmm8, [rsp+1C8h+var_68]
-    vmovaps xmm7, [rsp+1C8h+var_58]
-    vmovaps xmm6, [rsp+1C8h+var_48]
-  }
-  if ( v21 )
-    SL_RemoveRefToString(v21);
+  SL_RemoveRefToString(v41);
+  if ( v19 )
+    SL_RemoveRefToString(v19);
   tagInfo = ent->tagInfo;
   if ( tagInfo )
   {
     tagInfo->animScriptedDataInUse = 1;
-    if ( !v36 || bDelayForActor )
+    if ( !v39 || bDelayForActor )
     {
       if ( !ent->tagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_tag.h", 48, ASSERT_TYPE_ASSERT, "( ent->tagInfo )", (const char *)&queryFormat, "ent->tagInfo") )
         __debugbreak();
@@ -2928,9 +2443,9 @@ LABEL_82:
         __debugbreak();
       if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_tag.h", 50, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ))", "%s\n\tScripted animation data is not available in this game mode", "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
         __debugbreak();
-      v54 = ent->tagInfo;
+      v44 = ent->tagInfo;
       G_CalcTagParentAxis(ent, &parentAxis);
-      MatrixInverseOrthogonal43(&parentAxis, (tmat43_t<vec3_t> *)&v54->extraDataUnion);
+      MatrixInverseOrthogonal43(&parentAxis, (tmat43_t<vec3_t> *)&v44->extraDataUnion);
     }
   }
 }
@@ -2942,6 +2457,7 @@ Scr_AnimRelative
 */
 void Scr_AnimRelative(scrContext_t *scrContext, scr_entref_t entref)
 {
+  gentity_s *Entity; 
   XAnimTree *EntAnimTree; 
   __int16 v6; 
   unsigned __int16 v7; 
@@ -2957,22 +2473,18 @@ void Scr_AnimRelative(scrContext_t *scrContext, scr_entref_t entref)
   scr_string_t targetname; 
   const char *v18; 
   const char *v19; 
-  const char *v27; 
-  actor_s *v30; 
-  char *fmt; 
-  __int64 root; 
-  float v33; 
-  float v34; 
+  const char *v20; 
+  actor_s *v21; 
   int linkPointer; 
   vec3_t vectorValue; 
   vec3_t origin; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_3447, scrContext, "AnimScripted entities are not supported in this game mode");
-  _RSI = GetEntity(entref);
-  if ( !Com_GetServerDObjForEnt(_RSI) )
+  Entity = GetEntity(entref);
+  if ( !Com_GetServerDObjForEnt(Entity) )
     Scr_ObjectError(COM_ERR_3448, scrContext, "No model exists.");
-  EntAnimTree = GScr_GetEntAnimTree(_RSI);
+  EntAnimTree = GScr_GetEntAnimTree(Entity);
   if ( !EntAnimTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 478, ASSERT_TYPE_ASSERT, "(pAnimTree)", (const char *)&queryFormat, "pAnimTree") )
     __debugbreak();
   v6 = 0;
@@ -2999,47 +2511,28 @@ void Scr_AnimRelative(scrContext_t *scrContext, scr_entref_t entref)
   Scr_GetVector(scrContext, 2u, &vectorValue);
   Scr_GetVector(scrContext, 1u, &origin);
   v13 = Scr_GetConstString(scrContext, 0);
-  actor = _RSI->actor;
+  actor = Entity->actor;
   notifyName = v13;
   if ( actor && !actor->Physics.bIsAlive )
   {
-    v16 = SL_ConvertToString(_RSI->classname);
-    targetname = _RSI->targetname;
+    v16 = SL_ConvertToString(Entity->classname);
+    targetname = Entity->targetname;
     v18 = v16;
     if ( targetname )
       v19 = SL_ConvertToString(targetname);
     else
       v19 = "<undefined>";
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vmovss  xmm3, dword ptr [rsi+130h]
-      vmovss  xmm1, dword ptr [rsi+134h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  qword ptr [rsp+0B8h+root], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+0B8h+fmt], xmm1
-    }
-    v27 = j_va("tried to play a scripted animation on a dead AI; entity %i team %i origin %.2f %.2f %.2f targetname %s classname %s\n", (unsigned int)_RSI->s.number, (unsigned int)_RSI->sentient->eTeam, _R9, fmt, root, v19, v18);
-    Scr_Error(COM_ERR_3450, scrContext, v27);
+    v20 = j_va("tried to play a scripted animation on a dead AI; entity %i team %i origin %.2f %.2f %.2f targetname %s classname %s\n", (unsigned int)Entity->s.number, (unsigned int)Entity->sentient->eTeam, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v19, v18);
+    Scr_Error(COM_ERR_3450, scrContext, v20);
   }
   if ( !v6 && v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_animation.cpp", 508, ASSERT_TYPE_ASSERT, "(root.tree || !root.index)", (const char *)&queryFormat, "root.tree || !root.index") )
     __debugbreak();
-  __asm
+  G_Animscripted(scrContext, Entity, &origin, &vectorValue, index, v7, notifyName, v8 == scr_const.deathplant, 0.2, 1.0);
+  v21 = Entity->actor;
+  if ( v21 )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3e4ccccd
-    vmovss  [rsp+0B8h+var_70], xmm0
-    vmovss  [rsp+0B8h+var_78], xmm1
-  }
-  G_Animscripted(scrContext, _RSI, &origin, &vectorValue, index, v7, notifyName, v8 == scr_const.deathplant, v33, v34);
-  v30 = _RSI->actor;
-  if ( v30 )
-  {
-    v30->eScriptSetAnimMode = AI_ANIM_POINT_RELATIVE;
-    _RSI->actor->eAnimMode = AI_ANIM_POINT_RELATIVE;
+    v21->eScriptSetAnimMode = AI_ANIM_POINT_RELATIVE;
+    Entity->actor->eAnimMode = AI_ANIM_POINT_RELATIVE;
   }
 }
 

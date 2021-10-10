@@ -194,7 +194,6 @@ void G_Nav_AddPlayerRepulsor(int entNum)
 {
   __int64 v1; 
   nav_space_s *DefaultSpace; 
-  float fmt; 
   int entNuma; 
   int usageFlags; 
 
@@ -209,12 +208,7 @@ void G_Nav_AddPlayerRepulsor(int entNum)
         __debugbreak();
     }
     DefaultSpace = Nav_GetDefaultSpace();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41700000
-      vmovss  dword ptr [rsp+58h+fmt], xmm0
-    }
-    Nav_CreateRepulsor(DefaultSpace, &vec3_origin, &vec3_origin, 0, fmt, v1, 30, (const scr_string_t)0, 0);
+    Nav_CreateRepulsor(DefaultSpace, &vec3_origin, &vec3_origin, 0, 15.0, v1, 30, (const scr_string_t)0, 0);
   }
 }
 
@@ -241,7 +235,6 @@ void Nav_AddPlayerRepulsor(int entNum)
 {
   __int64 v1; 
   nav_space_s *DefaultSpace; 
-  float fmt; 
   int entNuma; 
   int usageFlags; 
 
@@ -256,12 +249,7 @@ void Nav_AddPlayerRepulsor(int entNum)
         __debugbreak();
     }
     DefaultSpace = Nav_GetDefaultSpace();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41700000
-      vmovss  dword ptr [rsp+58h+fmt], xmm0
-    }
-    Nav_CreateRepulsor(DefaultSpace, &vec3_origin, &vec3_origin, 0, fmt, v1, 30, (const scr_string_t)0, 0);
+    Nav_CreateRepulsor(DefaultSpace, &vec3_origin, &vec3_origin, 0, 15.0, v1, 30, (const scr_string_t)0, 0);
   }
 }
 
@@ -307,31 +295,15 @@ Nav_CreateRepulsor
 */
 nav_repulsor_s *Nav_CreateRepulsor(nav_space_s *pSpace, const vec3_t *pos, const vec3_t *vel, int duration, float radius, int entNum, int usageFlags, const scr_string_t name, bool bBadplace)
 {
-  bool IsValid; 
-  bool v16; 
-  bool v17; 
   nav_repulsor_s *RepulsorByEntNum; 
   nav_repulsor_s *result; 
+  nav_repulsor_s *v15; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 93, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
-  IsValid = bfx::SpaceHandle::IsValid(&pSpace->hSpace);
-  v16 = !IsValid;
-  if ( !IsValid )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 94, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()");
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+58h+radius]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 96, ASSERT_TYPE_ASSERT, "( radius > 0.f )", (const char *)&queryFormat, "radius > 0.f") )
+  if ( !bfx::SpaceHandle::IsValid(&pSpace->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 94, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
+    __debugbreak();
+  if ( radius <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 96, ASSERT_TYPE_ASSERT, "( radius > 0.f )", (const char *)&queryFormat, "radius > 0.f") )
     __debugbreak();
   if ( entNum != 2047 )
   {
@@ -340,25 +312,24 @@ nav_repulsor_s *Nav_CreateRepulsor(nav_space_s *pSpace, const vec3_t *pos, const
       Nav_DestroyRepulsor(RepulsorByEntNum);
   }
   result = Nav_AllocRepulsor();
-  _RBX = result;
+  v15 = result;
   if ( result )
   {
     result->bBadplace = bBadplace;
     result->duration = duration;
     Scr_SetString(&result->name, name);
-    _RBX->usageFlags = usageFlags;
-    __asm { vmovss  dword ptr [rbx+30h], xmm6 }
-    _RBX->entNum = entNum;
-    _RBX->origin.v[0] = pos->v[0];
-    _RBX->origin.v[1] = pos->v[1];
-    _RBX->origin.v[2] = pos->v[2];
-    _RBX->velocity.v[0] = vel->v[0];
-    _RBX->velocity.v[1] = vel->v[1];
-    _RBX->velocity.v[2] = vel->v[2];
-    Nav_AddRepulsorToSpace(pSpace, _RBX);
-    result = _RBX;
+    v15->usageFlags = usageFlags;
+    v15->radius = radius;
+    v15->entNum = entNum;
+    v15->origin.v[0] = pos->v[0];
+    v15->origin.v[1] = pos->v[1];
+    v15->origin.v[2] = pos->v[2];
+    v15->velocity.v[0] = vel->v[0];
+    v15->velocity.v[1] = vel->v[1];
+    v15->velocity.v[2] = vel->v[2];
+    Nav_AddRepulsorToSpace(pSpace, v15);
+    return v15;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
   return result;
 }
 
@@ -566,7 +537,13 @@ void Nav_ReadRepulsor(MemoryFile *memFile, nav_space_s *pSpace)
 {
   const char *CString; 
   scr_string_t name; 
-  float fmt; 
+  double Float; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
   bool bBadplace[4]; 
   int usageFlags; 
   int entNum; 
@@ -574,7 +551,6 @@ void Nav_ReadRepulsor(MemoryFile *memFile, nav_space_s *pSpace)
   vec3_t vel; 
   vec3_t pos; 
 
-  __asm { vmovaps [rsp+0B8h+var_28], xmm6 }
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 421, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 422, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
@@ -587,27 +563,24 @@ void Nav_ReadRepulsor(MemoryFile *memFile, nav_space_s *pSpace)
   MemFile_ReadData(memFile, 4ui64, &p);
   MemFile_ReadData(memFile, 4ui64, &entNum);
   MemFile_ReadData(memFile, 4ui64, &usageFlags);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsp+0B8h+pos], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsp+0B8h+pos+4], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsp+0B8h+pos+8], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsp+0B8h+vel], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsp+0B8h+vel+4], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsp+0B8h+vel+8], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  pos.v[0] = *(float *)&Float;
+  v7 = MemFile_ReadFloat(memFile);
+  pos.v[1] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  pos.v[2] = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  vel.v[0] = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  vel.v[1] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  vel.v[2] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
   MemFile_ReadData(memFile, 1ui64, bBadplace);
-  __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm6 }
-  if ( !Nav_CreateRepulsor(pSpace, &pos, &vel, p, fmt, entNum, usageFlags, name, bBadplace[0]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 442, ASSERT_TYPE_ASSERT, "( pRepulsor )", (const char *)&queryFormat, "pRepulsor") )
+  if ( !Nav_CreateRepulsor(pSpace, &pos, &vel, p, *(float *)&v12, entNum, usageFlags, name, bBadplace[0]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 442, ASSERT_TYPE_ASSERT, "( pRepulsor )", (const char *)&queryFormat, "pRepulsor") )
     __debugbreak();
   if ( name )
     SL_RemoveRefToString(name);
-  __asm { vmovaps xmm6, [rsp+0B8h+var_28] }
 }
 
 /*
@@ -677,25 +650,28 @@ Nav_UpdateRepulsorPosVel
 void Nav_UpdateRepulsorPosVel(nav_repulsor_s *pRepulsor)
 {
   __int64 entNum; 
-  __int64 v4; 
-  gentity_s *v7; 
+  __int64 v3; 
+  float v4; 
+  gentity_s *v5; 
+  float v6; 
   nav_space_s *MostLikelySpace; 
+  vec3_t *client; 
   const sentient_s *sentient; 
-  __int64 v19; 
+  float v10; 
+  __int64 v11; 
   vec3_t vVelOut; 
   float v1[4]; 
   GTrajectory quat; 
 
-  _RBX = pRepulsor;
   if ( !pRepulsor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 206, ASSERT_TYPE_ASSERT, "( pRepulsor )", (const char *)&queryFormat, "pRepulsor") )
     __debugbreak();
-  entNum = _RBX->entNum;
+  entNum = pRepulsor->entNum;
   if ( (_DWORD)entNum != 2047 )
   {
     if ( (unsigned int)entNum >= 0x800 )
     {
-      LODWORD(v19) = _RBX->entNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v19, 2048) )
+      LODWORD(v11) = pRepulsor->entNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, 2048) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -704,79 +680,55 @@ void Nav_UpdateRepulsorPosVel(nav_repulsor_s *pRepulsor)
       __debugbreak();
     if ( !g_entityIsInUse[entNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 211, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( pRepulsor->entNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( pRepulsor->entNum )") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+24h] }
-    v4 = _RBX->entNum;
-    __asm
+    v3 = pRepulsor->entNum;
+    v4 = pRepulsor->origin.v[1];
+    v1[0] = pRepulsor->origin.v[0];
+    v5 = &g_entities[v3];
+    v6 = pRepulsor->origin.v[2];
+    v1[1] = v4;
+    v1[2] = v6;
+    if ( !VecNCompareCustomEpsilon(v5->r.currentOrigin.v, v1, 0.001, 3) )
     {
-      vmovss  xmm1, dword ptr [rbx+28h]
-      vmovss  xmm2, cs:__real@3a83126f; epsilon
-      vmovss  [rsp+98h+v1], xmm0
-    }
-    v7 = &g_entities[v4];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmovss  [rsp+98h+var_44], xmm1
-      vmovss  [rsp+98h+var_40], xmm0
-    }
-    if ( !VecNCompareCustomEpsilon(v7->r.currentOrigin.v, v1, *(float *)&_XMM2, 3) )
-    {
-      MostLikelySpace = Nav_FindMostLikelySpace(&v7->r.currentOrigin, NAV_LAYER_HUMAN, NULL);
+      MostLikelySpace = Nav_FindMostLikelySpace(&v5->r.currentOrigin, NAV_LAYER_HUMAN, NULL);
       if ( MostLikelySpace )
       {
-        if ( _RBX->pSpace != MostLikelySpace )
-          Nav_MoveRepulsorToSpace(_RBX, MostLikelySpace);
+        if ( pRepulsor->pSpace != MostLikelySpace )
+          Nav_MoveRepulsorToSpace(pRepulsor, MostLikelySpace);
       }
     }
-    __asm
+    vVelOut.v[0] = 0.0;
+    vVelOut.v[1] = 0.0;
+    vVelOut.v[2] = 0.0;
+    client = (vec3_t *)v5->client;
+    if ( client )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+98h+vVelOut], xmm0
-      vmovss  dword ptr [rsp+98h+vVelOut+4], xmm0
-      vmovss  dword ptr [rsp+98h+vVelOut+8], xmm0
-    }
-    if ( v7->client )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+3Ch]
-        vmovss  dword ptr [rsp+98h+vVelOut], xmm0
-        vmovss  xmm1, dword ptr [rax+40h]
-        vmovss  dword ptr [rsp+98h+vVelOut+4], xmm1
-        vmovss  xmm0, dword ptr [rax+44h]
-        vmovss  dword ptr [rsp+98h+vVelOut+8], xmm0
-      }
+      vVelOut = client[5];
     }
     else
     {
-      sentient = v7->sentient;
+      sentient = v5->sentient;
       if ( sentient )
       {
         Sentient_GetVelocity(sentient, &vVelOut);
       }
-      else if ( v7->vehicle )
+      else if ( v5->vehicle )
       {
-        AnglesToQuat(&v7->r.currentAngles, (vec4_t *)&quat);
-        QuatTransform((const vec4_t *)&quat, &v7->vehicle->phys.bodyVel, &vVelOut);
+        AnglesToQuat(&v5->r.currentAngles, (vec4_t *)&quat);
+        QuatTransform((const vec4_t *)&quat, &v5->vehicle->phys.bodyVel, &vVelOut);
       }
       else
       {
-        GTrajectory::GTrajectory(&quat, v7);
+        GTrajectory::GTrajectory(&quat, v5);
         BgTrajectory::EvaluatePosTrajectoryDelta(&quat, level.time, &vVelOut);
       }
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+98h+vVelOut]
-      vmovss  xmm1, dword ptr [rsp+98h+vVelOut+4]
-      vmovss  dword ptr [rbx+18h], xmm0
-      vmovss  xmm0, dword ptr [rsp+98h+vVelOut+8]
-      vmovss  dword ptr [rbx+20h], xmm0
-      vmovss  dword ptr [rbx+1Ch], xmm1
-    }
-    _RBX->origin.v[0] = v7->r.currentOrigin.v[0];
-    _RBX->origin.v[1] = v7->r.currentOrigin.v[1];
-    _RBX->origin.v[2] = v7->r.currentOrigin.v[2];
+    v10 = vVelOut.v[1];
+    pRepulsor->velocity.v[0] = vVelOut.v[0];
+    pRepulsor->velocity.v[2] = vVelOut.v[2];
+    pRepulsor->velocity.v[1] = v10;
+    pRepulsor->origin.v[0] = v5->r.currentOrigin.v[0];
+    pRepulsor->origin.v[1] = v5->r.currentOrigin.v[1];
+    pRepulsor->origin.v[2] = v5->r.currentOrigin.v[2];
   }
 }
 
@@ -787,6 +739,7 @@ Nav_UpdateRepulsors
 */
 void Nav_UpdateRepulsors(int milliseconds)
 {
+  nav_repulsor_s *FirstRepulsor; 
   nav_repulsor_s *NextRepulsor; 
   __int64 entNum; 
   nav_repulsor_s *v5; 
@@ -794,43 +747,43 @@ void Nav_UpdateRepulsors(int milliseconds)
   int v7; 
   const dvar_t *v8; 
   __int64 duration; 
-  __int64 v11; 
+  __int64 v10; 
 
-  _RBX = Nav_GetFirstRepulsor();
-  if ( _RBX )
+  FirstRepulsor = Nav_GetFirstRepulsor();
+  if ( FirstRepulsor )
   {
     do
     {
-      NextRepulsor = Nav_GetNextRepulsor(_RBX);
-      entNum = _RBX->entNum;
+      NextRepulsor = Nav_GetNextRepulsor(FirstRepulsor);
+      entNum = FirstRepulsor->entNum;
       v5 = NextRepulsor;
       if ( (_DWORD)entNum == 2047 )
         goto LABEL_15;
       if ( (unsigned int)entNum >= 0x800 )
       {
-        LODWORD(v11) = 2048;
-        LODWORD(duration) = _RBX->entNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v11) )
+        LODWORD(v10) = 2048;
+        LODWORD(duration) = FirstRepulsor->entNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v10) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
       if ( g_entities[entNum].r.isInUse != g_entityIsInUse[entNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[entNum] && g_entities[_RBX->entNum].health > 0 )
+      if ( g_entityIsInUse[entNum] && g_entities[FirstRepulsor->entNum].health > 0 )
       {
 LABEL_15:
-        Nav_UpdateRepulsorPosVel(_RBX);
-        v6 = _RBX->duration;
+        Nav_UpdateRepulsorPosVel(FirstRepulsor);
+        v6 = FirstRepulsor->duration;
         if ( v6 > 0 )
         {
           v7 = v6 - milliseconds;
-          _RBX->duration = v7;
+          FirstRepulsor->duration = v7;
           if ( v7 <= 0 )
           {
-            Scr_SetString(&_RBX->name, (scr_string_t)0);
-            Nav_RemoveRepulsorFromSpace(_RBX->pSpace, _RBX);
-            Nav_FreeRepulsor(_RBX);
+            Scr_SetString(&FirstRepulsor->name, (scr_string_t)0);
+            Nav_RemoveRepulsorFromSpace(FirstRepulsor->pSpace, FirstRepulsor);
+            Nav_FreeRepulsor(FirstRepulsor);
           }
         }
         v8 = DCONST_DVARINT_ai_showRepulsors;
@@ -838,18 +791,15 @@ LABEL_15:
           __debugbreak();
         Dvar_CheckFrontendServerThread(v8);
         if ( v8->current.integer == 1 )
-        {
-          __asm { vmovss  xmm1, dword ptr [rbx+30h]; radius }
-          G_DebugCircle(&_RBX->origin, *(float *)&_XMM1, &colorRed, 1, 1, 1);
-        }
+          G_DebugCircle(&FirstRepulsor->origin, FirstRepulsor->radius, &colorRed, 1, 1, 1);
       }
       else
       {
-        Scr_SetString(&_RBX->name, (scr_string_t)0);
-        Nav_RemoveRepulsorFromSpace(_RBX->pSpace, _RBX);
-        Nav_FreeRepulsor(_RBX);
+        Scr_SetString(&FirstRepulsor->name, (scr_string_t)0);
+        Nav_RemoveRepulsorFromSpace(FirstRepulsor->pSpace, FirstRepulsor);
+        Nav_FreeRepulsor(FirstRepulsor);
       }
-      _RBX = v5;
+      FirstRepulsor = v5;
     }
     while ( v5 );
   }
@@ -865,24 +815,22 @@ void Nav_WriteRepulsor(MemoryFile *memFile, nav_repulsor_s *pRepulsor)
   const char *v4; 
   int p; 
 
-  _RBX = pRepulsor;
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 394, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 395, ASSERT_TYPE_ASSERT, "( pRepulsor )", (const char *)&queryFormat, "pRepulsor") )
+  if ( !pRepulsor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_repulsor.cpp", 395, ASSERT_TYPE_ASSERT, "( pRepulsor )", (const char *)&queryFormat, "pRepulsor") )
     __debugbreak();
-  v4 = SL_ConvertToString(_RBX->name);
+  v4 = SL_ConvertToString(pRepulsor->name);
   MemFile_WriteCString(memFile, v4);
-  p = _RBX->duration;
+  p = pRepulsor->duration;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->entNum;
+  p = pRepulsor->entNum;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->usageFlags;
+  p = pRepulsor->usageFlags;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->origin);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->velocity);
-  __asm { vmovss  xmm1, dword ptr [rbx+30h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RBX->bBadplace;
+  MemFile_WriteData(memFile, 0xCui64, &pRepulsor->origin);
+  MemFile_WriteData(memFile, 0xCui64, &pRepulsor->velocity);
+  MemFile_WriteFloat(memFile, pRepulsor->radius);
+  LOBYTE(p) = pRepulsor->bBadplace;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 

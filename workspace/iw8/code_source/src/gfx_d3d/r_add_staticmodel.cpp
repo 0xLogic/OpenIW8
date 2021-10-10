@@ -202,379 +202,365 @@ GenerateScreenSpaceExtentsFromWorldBounds
 */
 void GenerateScreenSpaceExtentsFromWorldBounds(const Bounds *worldBounds, const GfxViewportParms *viewportParms, GfxExtents2D *extents2D)
 {
-  char v23; 
-  bool v24; 
-  bool v213; 
-  bool v219; 
-  bool v225; 
-  bool v231; 
-  bool v234; 
-  double v247; 
-  double v248; 
-  double v249; 
-  double v250; 
-  double v251; 
-  double v252; 
-  double v253; 
-  double v254; 
-  tmat44_t<vec4_t> v269; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __m128 v11; 
+  __m128 v13; 
+  float v14; 
+  __int128 v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  __int128 v23; 
+  __m128 v26; 
+  __m128 v28; 
+  __m128 v29; 
+  float v30; 
+  __m128 v31; 
+  __m128 v33; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __m128 v42; 
+  __m128 v44; 
+  __m128 v46; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v56; 
+  __m128 v58; 
+  __m128 v60; 
+  __m128 v66; 
+  __m128 v67; 
+  __m128 v69; 
+  __m128 v71; 
+  __int128 v73; 
+  __m128 v76; 
+  __m128 v80; 
+  __m128 v84; 
+  __m128 v88; 
+  __int128 v93; 
+  __m128 v96; 
+  __int128 v99; 
+  __int128 v102; 
+  __int128 v105; 
+  __int128 v110; 
+  __int128 v113; 
+  __int128 v114; 
+  __int128 v115; 
+  __int128 v116; 
+  __int128 v118; 
+  __int128 v120; 
+  __int128 v124; 
+  __int128 v126; 
+  __int128 v127; 
+  __int128 v128; 
+  __int128 v135; 
+  __int128 v138; 
+  __int128 v141; 
+  __int128 v144; 
+  __int128 v147; 
+  float width; 
+  float height; 
+  float v157; 
+  float v160; 
+  unsigned int v161; 
+  unsigned int v162; 
+  float v163; 
+  unsigned int v164; 
+  float v165; 
+  unsigned int v166; 
+  unsigned int v167; 
+  unsigned int v168; 
+  float v169; 
+  float v170; 
+  float v171; 
+  tmat44_t<vec4_t> v172; 
   tmat44_t<vec4_t> out; 
-  char v271; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-  }
   _RBX = worldBounds;
-  _RDI = extents2D;
   MatrixIdentity44(&out);
+  v6 = out.m[3].v[1] - viewportParms->viewParms.camera.origin.v[1];
+  out.m[3].v[0] = out.m[3].v[0] - viewportParms->viewParms.camera.origin.v[0];
+  out.m[3].v[2] = out.m[3].v[2] - viewportParms->viewParms.camera.origin.v[2];
+  out.m[3].v[1] = v6;
+  MatrixMultiply44Aligned(&out, &viewportParms->viewParms.viewProjectionMatrix.m, &v172);
+  v7 = _RBX->midPoint.v[1];
+  v8 = _RBX->midPoint.v[2];
+  v9 = _RBX->halfSize.v[2];
+  v163 = (float)((float)((float)(_RBX->midPoint.v[0] * v172.m[0].v[2]) + (float)(v7 * v172.m[1].v[2])) + (float)(v8 * v172.m[2].v[2])) + v172.m[3].v[2];
+  __asm { vbroadcastss xmm0, dword ptr [rbx+0Ch] }
+  v11 = _mm128_mul_ps(_XMM0, (__m128)v172.m[0]);
+  __asm { vbroadcastss xmm0, dword ptr [rbx+10h] }
+  v13 = _mm128_mul_ps(_XMM0, (__m128)v172.m[1]);
+  v160 = v9 * v172.m[2].v[3];
+  _XMM0.m128_f32[0] = (float)viewportParms->viewport.width;
+  v14 = _XMM0.m128_f32[0] * 0.5;
+  v171 = _XMM0.m128_f32[0];
+  v15 = 0i64;
+  _XMM0.m128_f32[0] = (float)viewportParms->viewport.height;
+  v170 = _XMM0.m128_f32[0] * 0.5;
+  v16 = (float)((float)((float)(v172.m[0].v[0] * _RBX->midPoint.v[0]) + (float)(v172.m[1].v[0] * v7)) + (float)(v8 * v172.m[2].v[0])) + v172.m[3].v[0];
+  v165 = v13.m128_f32[0] * v14;
+  v17 = v13.m128_f32[0] * v14;
+  v18 = v16 * v14;
+  *(float *)&v161 = (float)(v9 * v172.m[2].v[0]) * v14;
+  _mm_shuffle_ps((__m128)v172.m[0], (__m128)v172.m[0], 85);
+  _mm_shuffle_ps((__m128)v172.m[1], (__m128)v172.m[1], 85);
+  v169 = v14;
+  *(float *)&v15 = (float)(_XMM0.m128_f32[0] * -0.5) * v13.m128_f32[1];
+  v19 = v15;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbp+140h+out+30h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+110h]
-    vmovss  xmm2, dword ptr [rbp+140h+out+34h]
-    vsubss  xmm0, xmm2, dword ptr [rsi+114h]
-    vmovss  dword ptr [rbp+140h+out+30h], xmm1
-    vmovss  xmm1, dword ptr [rbp+140h+out+38h]
-    vsubss  xmm2, xmm1, dword ptr [rsi+118h]
-    vmovss  dword ptr [rbp+140h+out+38h], xmm2
-    vmovss  dword ptr [rbp+140h+out+34h], xmm0
-  }
-  MatrixMultiply44Aligned(&out, &viewportParms->viewParms.viewProjectionMatrix.m, &v269);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+4]
-    vmovss  xmm14, dword ptr [rbx]
-    vmovss  xmm11, dword ptr [rbx+8]
-    vmulss  xmm2, xmm7, dword ptr [rbp+140h+var_180+18h]
-    vmulss  xmm0, xmm11, dword ptr [rbp+140h+var_180+28h]
-    vmovups xmm12, xmmword ptr [rbp+140h+var_180]
-    vmovups xmm10, xmmword ptr [rbp-30h]
-    vmulss  xmm3, xmm14, dword ptr [rbp+140h+var_180+8]
-    vmovss  xmm13, dword ptr [rbx+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm14, dword ptr [rbp+140h+var_180+0Ch]
-    vaddss  xmm1, xmm4, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rbp+140h+var_180+38h]
-    vmulss  xmm1, xmm7, dword ptr [rbp+140h+var_180+1Ch]
-    vmulss  xmm0, xmm11, dword ptr [rbp+140h+var_180+2Ch]
-    vmovss  [rsp+240h+var_1F0], xmm2
-    vaddss  xmm2, xmm3, xmm1
-    vmovss  xmm3, dword ptr [rbp+140h+var_180+24h]
-    vaddss  xmm1, xmm2, xmm0
-    vaddss  xmm15, xmm1, dword ptr [rbp+140h+var_180+3Ch]
-    vbroadcastss xmm0, dword ptr [rbx+0Ch]
-    vmulps  xmm8, xmm0, xmm12
-    vbroadcastss xmm0, dword ptr [rbx+10h]
-    vmulps  xmm6, xmm0, xmm10
-    vmulss  xmm0, xmm13, dword ptr [rbp+140h+var_180+2Ch]
-    vmovss  [rsp+240h+var_200], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm4, xmm0, cs:__real@3f000000
-    vmovss  [rsp+240h+var_1CC], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm9, xmm0, cs:__real@bf000000
-    vmulss  xmm0, xmm0, cs:__real@3f000000
-    vmovss  [rsp+240h+var_1D0], xmm0
-    vmulss  xmm0, xmm10, xmm7
-    vmulss  xmm1, xmm12, xmm14
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, dword ptr [rbp+140h+var_180+20h]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rbp+140h+var_180+30h]
-    vmulss  xmm0, xmm6, xmm4
-    vmovss  [rsp+240h+var_1E0], xmm0
-    vmovaps xmm11, xmm0
-    vmulss  xmm0, xmm13, dword ptr [rbp+140h+var_180+20h]
-    vmulss  xmm0, xmm0, xmm4
-    vmulss  xmm7, xmm2, xmm4
-    vmovss  [rsp+240h+var_1FC], xmm0
-    vshufps xmm12, xmm12, xmm12, 55h ; 'U'
-    vmulss  xmm1, xmm12, xmm14
-    vshufps xmm10, xmm10, xmm10, 55h ; 'U'
-    vmulss  xmm0, xmm10, dword ptr [rbx+4]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, dword ptr [rbx+8]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rbp+140h+var_180+34h]
-    vmovups [rbp+140h+var_1B0], xmm8
-    vmovss  [rsp+240h+var_1D4], xmm4
-    vmulss  xmm8, xmm8, xmm4
-    vmulss  xmm4, xmm2, xmm9
-    vmovups [rbp+140h+var_198], xmm6
-    vmulss  xmm12, xmm9, dword ptr [rbp+140h+var_198+4]
-    vmulss  xmm5, xmm9, dword ptr [rbp+140h+var_1B0+4]
     vbroadcastss xmm2, [rsp+240h+var_1F0]
     vinsertps xmm2, xmm2, xmm15, 30h ; '0'
-    vmovss  xmm15, cs:__real@3f800000
-    vmovss  xmm2, xmm2, xmm7
-    vinsertps xmm2, xmm2, xmm4, 10h
-    vmulss  xmm1, xmm3, xmm13
-    vmulss  xmm0, xmm1, xmm9
-    vmovss  [rsp+240h+var_1F8], xmm0
-    vmovups xmm0, [rbp+140h+var_1B0]
-    vmovss  xmm0, xmm0, xmm8
-    vinsertps xmm0, xmm0, xmm5, 10h
-    vsubps  xmm5, xmm2, xmm0
-    vaddps  xmm1, xmm2, xmm0
-    vshufps xmm4, xmm5, xmm5, 55h ; 'U'
-    vmovups xmm7, xmm6
-    vmovss  xmm6, [rsp+240h+var_1E0]
-    vaddss  xmm0, xmm5, xmm6
-    vmovss  [rsp+240h+var_1E0], xmm0
-    vsubss  xmm0, xmm5, xmm6
-    vmovss  [rsp+240h+var_1DC], xmm0
-    vsubss  xmm0, xmm4, xmm12
-    vmovss  [rsp+240h+var_1D8], xmm0
-    vmovss  xmm7, xmm7, xmm11
-    vinsertps xmm7, xmm7, xmm12, 10h
-    vaddps  xmm10, xmm1, xmm7
-    vsubps  xmm11, xmm1, xmm7
-    vshufps xmm1, xmm5, xmm5, 0FFh
-    vshufps xmm7, xmm7, xmm7, 0FFh
-    vsubss  xmm0, xmm1, xmm7
-    vmovss  [rsp+240h+var_1F0], xmm0
-    vaddss  xmm13, xmm7, xmm1
-    vaddss  xmm14, xmm12, xmm4
-    vmovss  xmm12, cs:__real@3a83126f
-    vshufps xmm9, xmm10, xmm10, 0FFh
-    vaddss  xmm0, xmm9, [rsp+240h+var_200]
-    vmaxss  xmm1, xmm0, xmm12
-    vaddss  xmm0, xmm10, [rsp+240h+var_1FC]
-    vdivss  xmm2, xmm15, xmm1
-    vmulss  xmm3, xmm0, xmm2
+  }
+  v23 = _XMM2;
+  *(float *)&v23 = v18;
+  _XMM2 = v23;
+  __asm { vinsertps xmm2, xmm2, xmm4, 10h }
+  *(float *)&v162 = (float)(v172.m[2].v[1] * v9) * (float)(_XMM0.m128_f32[0] * -0.5);
+  v26 = v11;
+  v26.m128_f32[0] = v11.m128_f32[0] * v14;
+  _XMM0 = v26;
+  __asm { vinsertps xmm0, xmm0, xmm5, 10h }
+  v28 = _mm128_sub_ps(_XMM2, _XMM0);
+  v29 = _mm128_add_ps(_XMM2, _XMM0);
+  v30 = _mm_shuffle_ps(v28, v28, 85).m128_f32[0];
+  v31 = v13;
+  v13.m128_f32[0] = v165;
+  *(float *)&v166 = v28.m128_f32[0] + v165;
+  *(float *)&v167 = v28.m128_f32[0] - v13.m128_f32[0];
+  *(float *)&v168 = v30 - *(float *)&v19;
+  v33 = v31;
+  v33.m128_f32[0] = v17;
+  _XMM7 = v33;
+  __asm { vinsertps xmm7, xmm7, xmm12, 10h }
+  v35 = _mm128_add_ps(v29, _XMM7);
+  v36 = _mm128_sub_ps(v29, _XMM7);
+  v29.m128_f32[0] = _mm_shuffle_ps(v28, v28, 255).m128_f32[0];
+  v37 = _mm_shuffle_ps(_XMM7, _XMM7, 255);
+  *(float *)&v164 = v29.m128_f32[0] - v37.m128_f32[0];
+  v39 = v37;
+  v39.m128_f32[0] = v37.m128_f32[0] + v29.m128_f32[0];
+  v38 = v39;
+  v41 = v19;
+  *(float *)&v41 = *(float *)&v19 + v30;
+  v40 = v41;
+  v42 = _mm_shuffle_ps(v35, v35, 255);
+  v44 = v42;
+  v44.m128_f32[0] = v42.m128_f32[0] + v160;
+  _XMM0 = v44;
+  __asm { vmaxss  xmm1, xmm0, xmm12 }
+  v46 = v35;
+  v46.m128_f32[0] = (float)(v35.m128_f32[0] + *(float *)&v161) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM3 = v46;
+  __asm
+  {
     vminss  xmm5, xmm3, cs:__real@7f7fffff
     vmaxss  xmm6, xmm3, cs:__real@ff7fffff
-    vshufps xmm4, xmm10, xmm10, 55h ; 'U'
-    vaddss  xmm0, xmm4, [rsp+240h+var_1F8]
-    vmulss  xmm2, xmm0, xmm2
+  }
+  v50 = _mm_shuffle_ps(v35, v35, 85);
+  v51 = v50;
+  v51.m128_f32[0] = (float)(v50.m128_f32[0] + *(float *)&v162) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM2 = v51;
+  __asm
+  {
     vminss  xmm7, xmm2, cs:__real@7f7fffff
     vmaxss  xmm8, xmm2, cs:__real@ff7fffff
-    vsubss  xmm0, xmm9, [rsp+240h+var_200]
-    vmaxss  xmm1, xmm0, xmm12
-    vsubss  xmm0, xmm10, [rsp+240h+var_1FC]
-    vmovss  xmm10, [rsp+240h+var_1F8]
-    vdivss  xmm2, xmm15, xmm1
-    vmulss  xmm3, xmm0, xmm2
-    vsubss  xmm1, xmm4, xmm10
-    vmulss  xmm4, xmm1, xmm2
+  }
+  v56 = v42;
+  v56.m128_f32[0] = v42.m128_f32[0] - v160;
+  _XMM0 = v56;
+  __asm { vmaxss  xmm1, xmm0, xmm12 }
+  v58 = v35;
+  v58.m128_f32[0] = (float)(v35.m128_f32[0] - *(float *)&v161) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM3 = v58;
+  v60 = v50;
+  v60.m128_f32[0] = (float)(v50.m128_f32[0] - *(float *)&v162) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM4 = v60;
+  __asm
+  {
     vminss  xmm5, xmm3, xmm5
     vmaxss  xmm6, xmm3, xmm6
     vminss  xmm7, xmm4, xmm7
     vmaxss  xmm8, xmm4, xmm8
-    vshufps xmm4, xmm11, xmm11, 55h ; 'U'
-    vshufps xmm9, xmm11, xmm11, 0FFh
-    vaddss  xmm0, xmm9, [rsp+240h+var_200]
-    vmaxss  xmm1, xmm0, xmm12
-    vaddss  xmm0, xmm11, [rsp+240h+var_1FC]
-    vdivss  xmm3, xmm15, xmm1
-    vmulss  xmm2, xmm0, xmm3
-    vaddss  xmm0, xmm10, xmm4
-    vmulss  xmm1, xmm0, xmm3
-    vsubss  xmm0, xmm9, [rsp+240h+var_200]
+  }
+  v66 = _mm_shuffle_ps(v36, v36, 85);
+  v67 = _mm_shuffle_ps(v36, v36, 255);
+  v69 = v67;
+  v69.m128_f32[0] = v67.m128_f32[0] + v160;
+  _XMM0 = v69;
+  __asm { vmaxss  xmm1, xmm0, xmm12 }
+  v71 = v36;
+  v71.m128_f32[0] = (float)(v36.m128_f32[0] + *(float *)&v161) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM2 = v71;
+  v73 = v162;
+  *(float *)&v73 = (float)(*(float *)&v162 + v66.m128_f32[0]) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM1 = v73;
+  v76 = v67;
+  v76.m128_f32[0] = v67.m128_f32[0] - v160;
+  _XMM0 = v76;
+  __asm
+  {
     vminss  xmm7, xmm1, xmm7
     vmaxss  xmm8, xmm1, xmm8
     vmaxss  xmm1, xmm0, xmm12
-    vsubss  xmm0, xmm11, [rsp+240h+var_1FC]
+  }
+  v80 = v36;
+  __asm
+  {
     vminss  xmm5, xmm2, xmm5
     vmaxss  xmm6, xmm2, xmm6
-    vdivss  xmm2, xmm15, xmm1
-    vmulss  xmm3, xmm0, xmm2
-    vsubss  xmm1, xmm4, xmm10
-    vminss  xmm5, xmm3, xmm5
-    vmulss  xmm4, xmm1, xmm2
-    vmovss  xmm11, [rsp+240h+var_1FC]
-    vaddss  xmm0, xmm13, [rsp+240h+var_200]
-    vmovss  xmm9, [rsp+240h+var_1E0]
-    vmaxss  xmm1, xmm0, xmm12
-    vdivss  xmm2, xmm15, xmm1
-    vmaxss  xmm6, xmm3, xmm6
-    vminss  xmm7, xmm4, xmm7
-    vmaxss  xmm8, xmm4, xmm8
-    vaddss  xmm0, xmm11, xmm9
-    vmulss  xmm3, xmm0, xmm2
-    vsubss  xmm0, xmm13, [rsp+240h+var_200]
-    vminss  xmm5, xmm3, xmm5
-    vmaxss  xmm6, xmm3, xmm6
-    vaddss  xmm1, xmm10, xmm14
-    vmulss  xmm4, xmm1, xmm2
-    vmaxss  xmm1, xmm0, xmm12
-    vdivss  xmm2, xmm15, xmm1
-    vsubss  xmm0, xmm9, xmm11
-    vmovss  xmm9, [rsp+240h+var_1F0]
-    vmulss  xmm3, xmm0, xmm2
-    vaddss  xmm0, xmm9, [rsp+240h+var_200]
-    vminss  xmm7, xmm4, xmm7
-    vmaxss  xmm8, xmm4, xmm8
-    vminss  xmm5, xmm3, xmm5
-    vmaxss  xmm6, xmm3, xmm6
-    vsubss  xmm1, xmm14, xmm10
-    vmovss  xmm10, [rsp+240h+var_1DC]
-    vmulss  xmm4, xmm1, xmm2
-    vmaxss  xmm1, xmm0, xmm12
-    vdivss  xmm2, xmm15, xmm1
-    vaddss  xmm0, xmm11, xmm10
-    vmovss  xmm11, [rsp+240h+var_1D8]
-    vaddss  xmm1, xmm11, [rsp+240h+var_1F8]
-    vmulss  xmm3, xmm0, xmm2
-    vsubss  xmm0, xmm9, [rsp+240h+var_200]
-    vminss  xmm7, xmm4, xmm7
-    vmaxss  xmm8, xmm4, xmm8
-    vmulss  xmm4, xmm1, xmm2
-    vmaxss  xmm1, xmm0, xmm12
-    vsubss  xmm0, xmm10, [rsp+240h+var_1FC]
-    vdivss  xmm2, xmm15, xmm1
-    vsubss  xmm1, xmm11, [rsp+240h+var_1F8]
-    vmaxss  xmm6, xmm3, xmm6
-    vminss  xmm7, xmm4, xmm7
-    vmaxss  xmm8, xmm4, xmm8
-    vmulss  xmm4, xmm1, xmm2
-    vminss  xmm5, xmm3, xmm5
-    vmulss  xmm3, xmm0, xmm2
-    vminss  xmm1, xmm4, xmm7
-    vmovss  xmm7, [rsp+240h+var_1CC]
-    vaddss  xmm12, xmm1, [rsp+240h+var_1D0]
-    vmaxss  xmm2, xmm3, xmm6
-    vaddss  xmm11, xmm2, [rsp+240h+var_1D4]
-    vmaxss  xmm0, xmm4, xmm8
-    vaddss  xmm13, xmm0, [rsp+240h+var_1D0]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-    vminss  xmm5, xmm3, xmm5
-    vaddss  xmm9, xmm5, [rsp+240h+var_1D4]
-    vxorpd  xmm8, xmm8, xmm8
   }
-  if ( v23 )
+  v80.m128_f32[0] = (float)(v36.m128_f32[0] - *(float *)&v161) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM3 = v80;
+  v84 = v66;
+  __asm { vminss  xmm5, xmm3, xmm5 }
+  v84.m128_f32[0] = (float)(v66.m128_f32[0] - *(float *)&v162) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM4 = v84;
+  v88 = v38;
+  v88.m128_f32[0] = v38.m128_f32[0] + v160;
+  _XMM0 = v88;
+  __asm
   {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+240h+var_210], xmm0
-      vmovsd  [rsp+240h+var_218], xmm8
-    }
-    v213 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v247, v251);
-    v23 = 0;
-    v24 = !v213;
-    if ( v213 )
-      __debugbreak();
+    vmaxss  xmm1, xmm0, xmm12
+    vmaxss  xmm6, xmm3, xmm6
+    vminss  xmm7, xmm4, xmm7
+    vmaxss  xmm8, xmm4, xmm8
   }
+  v93 = v161;
+  *(float *)&v93 = (float)(*(float *)&v161 + *(float *)&v166) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM3 = v93;
+  v96 = v38;
+  v96.m128_f32[0] = v38.m128_f32[0] - v160;
+  _XMM0 = v96;
+  __asm
+  {
+    vminss  xmm5, xmm3, xmm5
+    vmaxss  xmm6, xmm3, xmm6
+  }
+  v99 = v162;
+  *(float *)&v99 = (float)(*(float *)&v162 + *(float *)&v40) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM4 = v99;
+  __asm { vmaxss  xmm1, xmm0, xmm12 }
+  v102 = v166;
+  *(float *)&v102 = (float)(*(float *)&v166 - *(float *)&v161) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM3 = v102;
+  v105 = v164;
+  *(float *)&v105 = *(float *)&v164 + v160;
+  _XMM0 = v105;
+  __asm
+  {
+    vminss  xmm7, xmm4, xmm7
+    vmaxss  xmm8, xmm4, xmm8
+    vminss  xmm5, xmm3, xmm5
+    vmaxss  xmm6, xmm3, xmm6
+  }
+  v110 = v40;
+  *(float *)&v110 = (float)(*(float *)&v40 - *(float *)&v162) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM4 = v110;
+  __asm { vmaxss  xmm1, xmm0, xmm12 }
+  _XMM2.m128_f32[0] = 1.0 / *(float *)&_XMM1;
+  v114 = v161;
+  *(float *)&v114 = *(float *)&v161 + *(float *)&v167;
+  v113 = v114;
+  v116 = v168;
+  *(float *)&v116 = *(float *)&v168 + *(float *)&v162;
+  v115 = v116;
+  v118 = v113;
+  *(float *)&v118 = *(float *)&v113 * _XMM2.m128_f32[0];
+  _XMM3 = v118;
+  v120 = v164;
+  *(float *)&v120 = *(float *)&v164 - v160;
+  _XMM0 = v120;
+  __asm
+  {
+    vminss  xmm7, xmm4, xmm7
+    vmaxss  xmm8, xmm4, xmm8
+  }
+  v124 = v115;
+  *(float *)&v124 = *(float *)&v115 * _XMM2.m128_f32[0];
+  _XMM4 = v124;
+  __asm { vmaxss  xmm1, xmm0, xmm12 }
+  v127 = v167;
+  *(float *)&v127 = *(float *)&v167 - *(float *)&v161;
+  v126 = v127;
+  v128 = v168;
+  __asm
+  {
+    vmaxss  xmm6, xmm3, xmm6
+    vminss  xmm7, xmm4, xmm7
+    vmaxss  xmm8, xmm4, xmm8
+  }
+  *(float *)&v128 = (float)(*(float *)&v168 - *(float *)&v162) * (float)(1.0 / *(float *)&_XMM1);
+  _XMM4 = v128;
+  __asm { vminss  xmm5, xmm3, xmm5 }
+  v135 = v126;
+  *(float *)&v135 = *(float *)&v126 * (float)(1.0 / *(float *)&_XMM1);
+  _XMM3 = v135;
+  __asm { vminss  xmm1, xmm4, xmm7 }
+  v138 = _XMM1;
+  *(float *)&v138 = *(float *)&_XMM1 + v170;
+  _XMM12 = v138;
+  __asm { vmaxss  xmm2, xmm3, xmm6 }
+  v141 = _XMM2;
+  *(float *)&v141 = *(float *)&_XMM2 + v169;
+  _XMM11 = v141;
+  __asm { vmaxss  xmm0, xmm4, xmm8 }
+  v144 = _XMM0;
+  *(float *)&v144 = *(float *)&_XMM0 + v170;
+  _XMM13 = v144;
+  __asm { vminss  xmm5, xmm3, xmm5 }
+  v147 = _XMM5;
+  *(float *)&v147 = *(float *)&_XMM5 + v169;
+  _XMM9 = v147;
+  __asm { vxorpd  xmm8, xmm8, xmm8 }
+  if ( v171 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM8, v171) )
+    __debugbreak();
   __asm
   {
     vmaxss  xmm0, xmm9, xmm6
     vminss  xmm10, xmm0, xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, rax
-    vcomiss xmm7, xmm6
   }
-  if ( v23 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+240h+var_210], xmm0
-      vmovsd  [rsp+240h+var_218], xmm8
-    }
-    v219 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v248, v252);
-    v23 = 0;
-    v24 = !v219;
-    if ( v219 )
-      __debugbreak();
-  }
+  width = (float)viewportParms->viewport.width;
+  if ( width < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM8, width) )
+    __debugbreak();
   __asm
   {
     vmaxss  xmm0, xmm11, xmm6
     vminss  xmm9, xmm0, xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, rax
-    vcomiss xmm7, xmm6
   }
-  if ( v23 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+240h+var_210], xmm0
-      vmovsd  [rsp+240h+var_218], xmm8
-    }
-    v225 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v249, v253);
-    v23 = 0;
-    v24 = !v225;
-    if ( v225 )
-      __debugbreak();
-  }
+  height = (float)viewportParms->viewport.height;
+  if ( height < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM8, height) )
+    __debugbreak();
   __asm
   {
     vmaxss  xmm0, xmm12, xmm6
     vminss  xmm11, xmm0, xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, rax
-    vcomiss xmm7, xmm6
   }
-  if ( v23 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+240h+var_210], xmm0
-      vmovsd  [rsp+240h+var_218], xmm8
-    }
-    v231 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v250, v254);
-    v23 = 0;
-    v24 = !v231;
-    if ( v231 )
-      __debugbreak();
-  }
+  v157 = (float)viewportParms->viewport.height;
+  if ( v157 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM8, v157) )
+    __debugbreak();
   __asm
   {
-    vcomiss xmm10, xmm9
     vmaxss  xmm0, xmm13, xmm6
     vminss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rdi+0Ch], xmm1
-    vmovss  dword ptr [rdi], xmm10
-    vmovss  dword ptr [rdi+4], xmm9
-    vmovss  dword ptr [rdi+8], xmm11
   }
-  if ( !(v23 | v24) )
-  {
-    v234 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4178, ASSERT_TYPE_ASSERT, "(extents2D->minX <= extents2D->maxX)", (const char *)&queryFormat, "extents2D->minX <= extents2D->maxX");
-    v23 = 0;
-    if ( v234 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vcomiss xmm0, dword ptr [rdi+8]
-  }
-  if ( v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4179, ASSERT_TYPE_ASSERT, "(extents2D->minY <= extents2D->maxY)", (const char *)&queryFormat, "extents2D->minY <= extents2D->maxY") )
+  extents2D->maxY = *(float *)&_XMM1;
+  extents2D->minX = *(float *)&_XMM10;
+  extents2D->maxX = *(float *)&_XMM9;
+  extents2D->minY = *(float *)&_XMM11;
+  if ( *(float *)&_XMM10 > *(float *)&_XMM9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4178, ASSERT_TYPE_ASSERT, "(extents2D->minX <= extents2D->maxX)", (const char *)&queryFormat, "extents2D->minX <= extents2D->maxX") )
     __debugbreak();
-  _R11 = &v271;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  if ( extents2D->maxY < extents2D->minY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4179, ASSERT_TYPE_ASSERT, "(extents2D->minY <= extents2D->maxY)", (const char *)&queryFormat, "extents2D->minY <= extents2D->maxY") )
+    __debugbreak();
 }
 
 /*
@@ -585,18 +571,18 @@ R_AccumVisibleSModelCollectionArgs
 void R_AccumVisibleSModelCollectionArgs(SModelCollectionEmit *emitCache, unsigned int *smodelSurfVisData, unsigned int smodelCollectionIndex, unsigned int validLodBits, unsigned __int8 subdivLevel, unsigned int passIndex, unsigned int sceneViewType)
 {
   unsigned int smodelCollectionArgCount; 
-  __int64 v12; 
+  __int64 v10; 
   GfxWorld *world; 
-  GfxStaticModelCollection *v15; 
+  float v12; 
+  GfxStaticModelCollection *v13; 
   __int64 firstInstance; 
-  __int64 v17; 
-  unsigned __int8 v19; 
-  __int64 v23; 
+  double v15; 
+  __int64 v16; 
+  __int64 v18; 
 
   smodelCollectionArgCount = emitCache->smodelCollectionArgCount;
   _EBP = validLodBits;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  v12 = smodelCollectionIndex;
+  v10 = smodelCollectionIndex;
   if ( smodelCollectionArgCount == 128 )
   {
     R_FlushVisibleSModelCollections(emitCache, smodelSurfVisData, passIndex);
@@ -605,38 +591,31 @@ void R_AccumVisibleSModelCollectionArgs(SModelCollectionEmit *emitCache, unsigne
   if ( smodelCollectionArgCount >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2493, ASSERT_TYPE_ASSERT, "(emitCache.smodelCollectionArgCount < 128)", (const char *)&queryFormat, "emitCache.smodelCollectionArgCount < SMODEL_COLLECTION_ARG_CACHE_SIZE") )
     __debugbreak();
   world = rgp.world;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  v15 = &rgp.world->smodels.collections[v12];
-  if ( v15->instanceCount == 1 )
+  v12 = FLOAT_1_0;
+  v13 = &rgp.world->smodels.collections[v10];
+  if ( v13->instanceCount == 1 )
   {
-    firstInstance = v15->firstInstance;
+    firstInstance = v13->firstInstance;
     if ( (unsigned int)firstInstance >= rgp.world->smodels.instanceCount )
     {
-      LODWORD(v23) = v15->firstInstance;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2502, ASSERT_TYPE_ASSERT, "(unsigned)( singletonInstanceIndex ) < (unsigned)( rgp.world->smodels.instanceCount )", "singletonInstanceIndex doesn't index rgp.world->smodels.instanceCount\n\t%i not in [0, %i)", v23, rgp.world->smodels.instanceCount) )
+      LODWORD(v18) = v13->firstInstance;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2502, ASSERT_TYPE_ASSERT, "(unsigned)( singletonInstanceIndex ) < (unsigned)( rgp.world->smodels.instanceCount )", "singletonInstanceIndex doesn't index rgp.world->smodels.instanceCount\n\t%i not in [0, %i)", v18, rgp.world->smodels.instanceCount) )
         __debugbreak();
       world = rgp.world;
     }
-    *(double *)&_XMM0 = GfxStaticModelLodDistIndexToScale(world->smodels.instanceFlags[firstInstance] & 0xF);
-    __asm { vmovaps xmm6, xmm0 }
+    v15 = GfxStaticModelLodDistIndexToScale(world->smodels.instanceFlags[firstInstance] & 0xF);
+    v12 = *(float *)&v15;
   }
-  v17 = emitCache->smodelCollectionArgCount;
+  v16 = emitCache->smodelCollectionArgCount;
   if ( !_EBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2510, ASSERT_TYPE_ASSERT, "(validLodBits)", (const char *)&queryFormat, "validLodBits") )
     __debugbreak();
   __asm { tzcnt   ebx, ebp }
-  emitCache->smodelCollectionArgs[v17].smodelCollectionIndex = truncate_cast<unsigned short,unsigned int>(v12);
-  emitCache->smodelCollectionArgs[v17].validLodBits = truncate_cast<unsigned char,unsigned int>(_EBP);
-  emitCache->smodelCollectionArgs[v17].lodOffset = truncate_cast<unsigned char,unsigned int>(_EBX);
-  v19 = truncate_cast<unsigned char,unsigned int>(32 - _EBX - __lzcnt(_EBP));
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@42000000
-    vcvttss2si rcx, xmm0; val
-  }
-  emitCache->smodelCollectionArgs[v17].lodCount = v19;
-  emitCache->smodelCollectionArgs[v17].lodCullScalePacked = truncate_cast<unsigned char,unsigned int>(_RCX);
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  emitCache->smodelCollectionArgs[v17].viewType = truncate_cast<unsigned char,unsigned int>(sceneViewType);
+  emitCache->smodelCollectionArgs[v16].smodelCollectionIndex = truncate_cast<unsigned short,unsigned int>(v10);
+  emitCache->smodelCollectionArgs[v16].validLodBits = truncate_cast<unsigned char,unsigned int>(_EBP);
+  emitCache->smodelCollectionArgs[v16].lodOffset = truncate_cast<unsigned char,unsigned int>(_EBX);
+  emitCache->smodelCollectionArgs[v16].lodCount = truncate_cast<unsigned char,unsigned int>(32 - _EBX - __lzcnt(_EBP));
+  emitCache->smodelCollectionArgs[v16].lodCullScalePacked = truncate_cast<unsigned char,unsigned int>((int)(float)(v12 * 32.0));
+  emitCache->smodelCollectionArgs[v16].viewType = truncate_cast<unsigned char,unsigned int>(sceneViewType);
   ++emitCache->smodelCollectionArgCount;
 }
 
@@ -648,142 +627,135 @@ R_AddAllStaticModelSurfacesCamera
 void R_AddAllStaticModelSurfacesCamera(const void *const cmd)
 {
   signed __int64 v1; 
-  void *v5; 
-  __int64 v7; 
+  void *v2; 
+  __int64 v4; 
   GfxStaticModelCollection *collections; 
-  unsigned int *v9; 
+  unsigned int *v6; 
   GfxSModelSurfDelaySort *p_delaySurfList; 
   unsigned int i; 
   const GfxStaticModel *smodel; 
-  __int64 v14; 
+  __int64 v10; 
+  GfxSModelLodCalcResult *v12; 
   unsigned __int64 smodelCollectionIndex; 
   __int64 smodelIndex; 
-  const GfxStaticModel *v20; 
-  const vec4_t *v21; 
+  const GfxStaticModel *v16; 
+  const vec4_t *v17; 
   const XModel *model; 
   const XModelLodInfo *LodInfo; 
   unsigned __int16 surfIndex; 
   unsigned __int16 numsurfs; 
   const XSurface *surfs; 
-  const XModel *v27; 
-  unsigned __int16 v28; 
-  __int64 v29; 
-  unsigned int v34; 
+  const XModel *v23; 
+  unsigned __int16 v24; 
+  __int64 v25; 
+  float lodDist; 
+  float baseDist; 
+  unsigned int v28; 
   SModelMask *p_smodelCountMask; 
-  unsigned int v36; 
-  char v37; 
-  unsigned __int64 v38; 
+  unsigned int v30; 
+  char v31; 
+  unsigned __int64 v32; 
+  __int64 v33; 
+  const char *v34; 
+  unsigned int v35; 
+  SModelMask *v36; 
+  GfxSModelSurfDelaySort **v37; 
+  __int64 v38; 
   __int64 v39; 
-  const char *v45; 
-  unsigned int v46; 
-  SModelMask *v47; 
-  GfxSModelSurfDelaySort **v48; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v59; 
+  __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
   unsigned __int8 subdivLevel; 
   GfxViewMaterialRenderFeatures renderFeatures; 
   unsigned int j; 
-  __int64 v63; 
-  unsigned __int64 v64; 
-  unsigned int *v65; 
-  GfxStaticModelCollection *v66; 
+  __int64 v49; 
+  unsigned __int64 v50; 
+  unsigned int *v51; 
+  GfxStaticModelCollection *v52; 
   GfxStaticModel *models; 
   Bounds *collectionBounds; 
-  __int64 v69; 
+  __int64 v55; 
   __int16 data[1792]; 
-  __int64 v71; 
-  int v72; 
-  unsigned int v73; 
+  __int64 v57; 
+  int v58; 
+  unsigned int v59; 
   GfxSModelEmitInfo smodelEmit; 
   vec3_t origin; 
   SModelMask smodelCountMask; 
-  SModelMask v77; 
+  SModelMask v63; 
   MaterialLodSettings materialLodSettings; 
   GfxSModelSurfDrawData drawData; 
   DebugXModelStats surfDataLimit; 
-  int v81; 
-  int v82; 
-  int v83; 
-  int v84; 
-  int v85; 
-  int v86; 
-  int v87; 
+  int v67; 
+  int v68; 
+  int v69; 
+  int v70; 
+  int v71; 
+  int v72; 
+  int v73; 
   GfxSModelSurfDelaySort delaySurfList; 
-  char v89[8]; 
-  char v92; 
+  char v75[8]; 
 
-  v5 = alloca(v1);
-  v69 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+12900h+var_30], xmm6
-    vmovaps [rsp+12900h+var_40], xmm7
-  }
+  v2 = alloca(v1);
+  v55 = -2i64;
   Profile_Begin(95);
   Profile_Begin(547);
-  v7 = *(_QWORD *)cmd;
-  v63 = *(_QWORD *)cmd;
+  v4 = *(_QWORD *)cmd;
+  v49 = *(_QWORD *)cmd;
   collections = rgp.world->smodels.collections;
-  v66 = collections;
+  v52 = collections;
   models = rgp.world->smodels.models;
-  v9 = rgp.world->dpvs.smodelVisData[0];
-  v65 = v9;
+  v6 = rgp.world->dpvs.smodelVisData[0];
+  v51 = v6;
   surfDataLimit.name = (const char *)0x40000004800i64;
   surfDataLimit.type = 1024;
   surfDataLimit.lod = 1024;
   surfDataLimit.numSurfs = 1024;
   surfDataLimit.numTris = 18432;
   *(_QWORD *)&surfDataLimit.numVerts = 0x40000000400i64;
-  v81 = 1024;
-  v82 = 1024;
-  v83 = 18432;
-  v84 = 1024;
-  v85 = 1024;
-  v86 = 1024;
-  v87 = 1024;
+  v67 = 1024;
+  v68 = 1024;
+  v69 = 18432;
+  v70 = 1024;
+  v71 = 1024;
+  v72 = 1024;
+  v73 = 1024;
   R_InitSModelSurfDrawData(&drawData, 0x4000u, (const unsigned int (*)[5])&surfDataLimit);
   p_delaySurfList = &delaySurfList;
   for ( i = 0; i < 5; ++i )
     p_delaySurfList = R_InitSModelSurfBuildLists(&drawData, i, p_delaySurfList, 0x100u);
-  if ( p_delaySurfList != (GfxSModelSurfDelaySort *)v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3126, ASSERT_TYPE_ASSERT, "( delaySurfList ) == ( delaySurfs + ( sizeof( *array_counter( delaySurfs ) ) + 0 ) )", "%s == %s\n\t%p, %p", "delaySurfList", "delaySurfs + ARRAY_COUNT( delaySurfs )", p_delaySurfList, v89) )
+  if ( p_delaySurfList != (GfxSModelSurfDelaySort *)v75 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3126, ASSERT_TYPE_ASSERT, "( delaySurfList ) == ( delaySurfs + ( sizeof( *array_counter( delaySurfs ) ) + 0 ) )", "%s == %s\n\t%p, %p", "delaySurfList", "delaySurfs + ARRAY_COUNT( delaySurfs )", p_delaySurfList, v75) )
     __debugbreak();
   memset_0(smodelEmit.smodelCountForSurf, 0, sizeof(smodelEmit.smodelCountForSurf));
   smodel = NULL;
   smodelEmit.smodel = NULL;
   smodelCountMask.m_mask[0] = 0i64;
   smodelCountMask.m_mask[1] = 0i64;
-  v77.m_mask[0] = 0i64;
-  v77.m_mask[1] = 0i64;
+  v63.m_mask[0] = 0i64;
+  v63.m_mask[1] = 0i64;
   R_SetMaterialLodSettings(&materialLodSettings);
-  R_LGV_InitPerFrameData((const vec3_t *)(v7 + 256));
+  R_LGV_InitPerFrameData((const vec3_t *)(v4 + 256));
   renderFeatures = GFX_VIEW_MTL_FEAT_NONE;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+12800h+origin], xmm0
-    vmovss  dword ptr [rbp+12800h+origin+4], xmm0
-    vmovss  dword ptr [rbp+12800h+origin+8], xmm0
-  }
-  v71 = v7;
-  v14 = *(_QWORD *)(v7 + 11696);
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3162, ASSERT_TYPE_ASSERT, "(backendData)", (const char *)&queryFormat, "backendData") )
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  v57 = v4;
+  v10 = *(_QWORD *)(v4 + 11696);
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3162, ASSERT_TYPE_ASSERT, "(backendData)", (const char *)&queryFormat, "backendData") )
     __debugbreak();
-  v72 = *(_DWORD *)(v14 + 1088720);
-  v73 = 0;
+  v58 = *(_DWORD *)(v10 + 1088720);
+  v59 = 0;
   if ( g_cameraSModelCollectionCount > rgp.world->smodels.collectionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3169, ASSERT_TYPE_ASSERT, "(g_cameraSModelCollectionCount <= rgp.world->smodels.collectionCount)", (const char *)&queryFormat, "g_cameraSModelCollectionCount <= rgp.world->smodels.collectionCount") )
     __debugbreak();
   _EAX = 0;
   for ( j = 0; _EAX < g_cameraSModelCollectionCount; j = _EAX )
   {
-    _RSI = &g_cameraSModelLodCalcResults[_EAX];
-    smodelCollectionIndex = _RSI->smodelCollectionIndex;
-    LOBYTE(_EAX) = _RSI->lodMask;
+    v12 = &g_cameraSModelLodCalcResults[_EAX];
+    smodelCollectionIndex = v12->smodelCollectionIndex;
+    LOBYTE(_EAX) = v12->lodMask;
     if ( (_BYTE)_EAX )
     {
       _EAX = (unsigned __int8)_EAX;
@@ -793,45 +765,45 @@ void R_AddAllStaticModelSurfacesCamera(const void *const cmd)
     {
       _ER15 = 6;
     }
-    subdivLevel = _RSI->subdivLevel;
+    subdivLevel = v12->subdivLevel;
     if ( _ER15 == 6 )
     {
-      v9[smodelCollectionIndex >> 5] &= ~(0x80000000 >> (smodelCollectionIndex & 0x1F));
+      v6[smodelCollectionIndex >> 5] &= ~(0x80000000 >> (smodelCollectionIndex & 0x1F));
     }
     else
     {
       if ( (unsigned int)smodelCollectionIndex >= rgp.world->smodels.collectionCount )
       {
-        LODWORD(v58) = rgp.world->smodels.collectionCount;
-        LODWORD(v57) = _RSI->smodelCollectionIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3188, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollectionIndex ) < (unsigned)( rgp.world->smodels.collectionCount )", "smodelCollectionIndex doesn't index rgp.world->smodels.collectionCount\n\t%i not in [0, %i)", v57, v58) )
+        LODWORD(v44) = rgp.world->smodels.collectionCount;
+        LODWORD(v43) = v12->smodelCollectionIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3188, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollectionIndex ) < (unsigned)( rgp.world->smodels.collectionCount )", "smodelCollectionIndex doesn't index rgp.world->smodels.collectionCount\n\t%i not in [0, %i)", v43, v44) )
           __debugbreak();
       }
-      v64 = 3 * smodelCollectionIndex;
+      v50 = 3 * smodelCollectionIndex;
       collectionBounds = rgp.world->smodels.collectionBounds;
       smodelIndex = collections[smodelCollectionIndex].smodelIndex;
       if ( (unsigned int)smodelIndex >= rgp.world->smodels.modelCount )
       {
-        LODWORD(v58) = rgp.world->smodels.modelCount;
-        LODWORD(v57) = collections[smodelCollectionIndex].smodelIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3198, ASSERT_TYPE_ASSERT, "(unsigned)( smodelIndex ) < (unsigned)( rgp.world->smodels.modelCount )", "smodelIndex doesn't index rgp.world->smodels.modelCount\n\t%i not in [0, %i)", v57, v58) )
+        LODWORD(v44) = rgp.world->smodels.modelCount;
+        LODWORD(v43) = collections[smodelCollectionIndex].smodelIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3198, ASSERT_TYPE_ASSERT, "(unsigned)( smodelIndex ) < (unsigned)( rgp.world->smodels.modelCount )", "smodelIndex doesn't index rgp.world->smodels.modelCount\n\t%i not in [0, %i)", v43, v44) )
           __debugbreak();
       }
-      v20 = &models[smodelIndex];
-      if ( XModelShouldShowBounds(v20->model) )
+      v16 = &models[smodelIndex];
+      if ( XModelShouldShowBounds(v16->model) )
       {
-        v21 = &colorGreen;
+        v17 = &colorGreen;
         if ( rgp.world->smodels.collections[smodelCollectionIndex].instanceCount > 1 )
-          v21 = &colorBlue;
+          v17 = &colorBlue;
         if ( r_showCullSModels->current.enabled && !r_showCull->current.integer )
-          R_AddDebugBox((DebugGlobals *)(*(_QWORD *)(v63 + 11696) + 927248i64), &rgp.world->smodels.collectionBounds[v64 / 3], v21, r_showCullMode->current.integer != 0);
+          R_AddDebugBox((DebugGlobals *)(*(_QWORD *)(v49 + 11696) + 927248i64), &rgp.world->smodels.collectionBounds[v50 / 3], v17, r_showCullMode->current.integer != 0);
       }
       if ( rg.showXModelRemoteConsole && rg.showXModelRankingFilterMode != 2 )
       {
         memset(&surfDataLimit, 0, sizeof(surfDataLimit));
-        R_InitDebugXmodelStats(v20->model, 0, _ER15, 1u, &surfDataLimit);
-        model = v20->model;
-        if ( !v20->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 296, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+        R_InitDebugXmodelStats(v16->model, 0, _ER15, 1u, &surfDataLimit);
+        model = v16->model;
+        if ( !v16->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 296, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
         LodInfo = XModelGetLodInfo(model, _ER15);
         if ( !LodInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 300, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
@@ -842,17 +814,17 @@ void R_AddAllStaticModelSurfacesCamera(const void *const cmd)
           numsurfs = model->numsurfs;
           if ( surfIndex >= numsurfs )
           {
-            LODWORD(v58) = numsurfs;
-            LODWORD(v57) = surfIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 303, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v57, v58) )
+            LODWORD(v44) = numsurfs;
+            LODWORD(v43) = surfIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 303, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v43, v44) )
               __debugbreak();
           }
           if ( LodInfo->numsurfs + (unsigned int)LodInfo->surfIndex > model->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 304, ASSERT_TYPE_ASSERT, "(lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs)", (const char *)&queryFormat, "lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs") )
             __debugbreak();
           if ( !LodInfo->surfs )
           {
-            LODWORD(v59) = _ER15;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 310, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", model->name, v59) )
+            LODWORD(v45) = _ER15;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 310, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", model->name, v45) )
               __debugbreak();
           }
           if ( !LodInfo->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 311, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
@@ -863,95 +835,80 @@ void R_AddAllStaticModelSurfacesCamera(const void *const cmd)
         {
           surfs = NULL;
         }
-        v27 = v20->model;
-        if ( !v20->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 247, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+        v23 = v16->model;
+        if ( !v16->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 247, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
-        v28 = XModelGetLodInfo(v27, _ER15)->numsurfs;
-        if ( v28 )
+        v24 = XModelGetLodInfo(v23, _ER15)->numsurfs;
+        if ( v24 )
         {
-          v29 = v28;
+          v25 = v24;
           do
           {
             R_AddXSurfaceToXModelStats(surfs++, &surfDataLimit);
-            --v29;
+            --v25;
           }
-          while ( v29 );
+          while ( v25 );
         }
         R_PrintDebugXModelStats(&surfDataLimit);
       }
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi+8]
-        vmovss  xmm7, dword ptr [rsi+4]
-      }
-      if ( v73 == 256 )
+      lodDist = v12->lodDists.lodDist;
+      baseDist = v12->lodDists.baseDist;
+      if ( v59 == 256 )
       {
         Sys_AddWorkerCmd(WRKCMD_PROCESS_SMODEL_COLLECTIONS, data);
-        v73 = 0;
+        v59 = 0;
       }
-      else if ( v73 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2418, ASSERT_TYPE_ASSERT, "(processCmd.numSModelCollections < 256)", (const char *)&queryFormat, "processCmd.numSModelCollections < R_PROCESS_SMODEL_COLLECTION_BATCH_SIZE") )
+      else if ( v59 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2418, ASSERT_TYPE_ASSERT, "(processCmd.numSModelCollections < 256)", (const char *)&queryFormat, "processCmd.numSModelCollections < R_PROCESS_SMODEL_COLLECTION_BATCH_SIZE") )
       {
         __debugbreak();
       }
-      data[v73] = truncate_cast<unsigned short,unsigned int>(smodelCollectionIndex);
-      _RAX = v73;
-      __asm { vmovss  [rbp+rax*4+12800h+var_12660], xmm7 }
-      _RAX = v73;
-      __asm { vmovss  [rbp+rax*4+12800h+var_12260], xmm6 }
-      *(_DWORD *)&data[2 * v73++ + 1280] = _ER15;
+      data[v59] = truncate_cast<unsigned short,unsigned int>(smodelCollectionIndex);
+      *(float *)&data[2 * v59 + 256] = baseDist;
+      *(float *)&data[2 * v59 + 768] = lodDist;
+      *(_DWORD *)&data[2 * v59++ + 1280] = _ER15;
       if ( subdivLevel )
       {
-        if ( v20 != smodel )
+        if ( v16 != smodel )
         {
-          v34 = 0;
+          v28 = 0;
           p_smodelCountMask = &smodelCountMask;
           while ( !p_smodelCountMask->m_mask[0] )
           {
-            ++v34;
+            ++v28;
             p_smodelCountMask = (SModelMask *)((char *)p_smodelCountMask + 8);
-            if ( v34 >= 2 )
+            if ( v28 >= 2 )
               goto LABEL_72;
           }
           R_EmitSModelSurfs_Camera(&drawData, &smodelEmit, &smodelCountMask, &renderFeatures, &origin);
 LABEL_72:
-          smodelEmit.smodel = v20;
+          smodelEmit.smodel = v16;
         }
-        v36 = R_AddSModelToAppropriateList(&smodelEmit, smodelCollectionIndex, _ER15, subdivLevel);
-        v37 = v36 & 0x3F;
-        if ( smodelEmit.smodelCountForSurf[v36] == 128 )
+        v30 = R_AddSModelToAppropriateList(&smodelEmit, smodelCollectionIndex, _ER15, subdivLevel);
+        v31 = v30 & 0x3F;
+        if ( smodelEmit.smodelCountForSurf[v30] == 128 )
         {
-          v38 = 0x8000000000000000ui64 >> v37;
-          v39 = v36 >> 6;
-          v77.m_mask[v39] |= 0x8000000000000000ui64 >> v37;
-          R_EmitSModelSurfs_Camera(&drawData, &smodelEmit, &v77, &renderFeatures, &origin);
-          smodelCountMask.m_mask[v39] &= ~v38;
+          v32 = 0x8000000000000000ui64 >> v31;
+          v33 = v30 >> 6;
+          v63.m_mask[v33] |= 0x8000000000000000ui64 >> v31;
+          R_EmitSModelSurfs_Camera(&drawData, &smodelEmit, &v63, &renderFeatures, &origin);
+          smodelCountMask.m_mask[v33] &= ~v32;
         }
         else
         {
-          smodelCountMask.m_mask[v36 >> 6] |= 0x8000000000000000ui64 >> v37;
+          smodelCountMask.m_mask[v30 >> 6] |= 0x8000000000000000ui64 >> v31;
         }
-        _RAX = v64;
-        _RCX = collectionBounds;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rax*8]
-          vmovss  dword ptr [rbp+12800h+origin], xmm0
-          vmovss  xmm1, dword ptr [rcx+rax*8+4]
-          vmovss  dword ptr [rbp+12800h+origin+4], xmm1
-          vmovss  xmm0, dword ptr [rcx+rax*8+8]
-          vmovss  dword ptr [rbp+12800h+origin+8], xmm0
-        }
+        origin = collectionBounds[v50 / 3].midPoint;
         smodel = smodelEmit.smodel;
       }
-      collections = v66;
-      v9 = v65;
+      collections = v52;
+      v6 = v51;
     }
     _EAX = j + 1;
   }
-  if ( v73 )
+  if ( v59 )
   {
     Sys_AddWorkerCmd(WRKCMD_PROCESS_SMODEL_COLLECTIONS, data);
-    v73 = 0;
+    v59 = 0;
   }
   if ( r_staticModelDumpLodInfo->current.enabled )
   {
@@ -965,71 +922,65 @@ LABEL_72:
       else
       {
         FS_FCloseFile(s_staticModelDumpInfo.handle);
-        v45 = Sys_DefaultInstallPath();
-        Com_Printf(18, "^7Successfully wrote static model info [%s\\%s].\n", v45, (const char *)&stru_1443D05B0);
+        v34 = Sys_DefaultInstallPath();
+        Com_Printf(18, "^7Successfully wrote static model info [%s\\%s].\n", v34, (const char *)&stru_1443D05B0);
       }
     }
   }
-  v46 = 0;
-  v47 = &smodelCountMask;
-  while ( !v47->m_mask[0] )
+  v35 = 0;
+  v36 = &smodelCountMask;
+  while ( !v36->m_mask[0] )
   {
-    ++v46;
-    v47 = (SModelMask *)((char *)v47 + 8);
-    if ( v46 >= 2 )
+    ++v35;
+    v36 = (SModelMask *)((char *)v36 + 8);
+    if ( v35 >= 2 )
       goto LABEL_91;
   }
   R_EmitSModelSurfs_Camera(&drawData, &smodelEmit, &smodelCountMask, &renderFeatures, &origin);
 LABEL_91:
-  v48 = &drawData.buildList[0][0].delaySurfList;
-  v49 = 5i64;
+  v37 = &drawData.buildList[0][0].delaySurfList;
+  v38 = 5i64;
   do
   {
-    v50 = 3i64;
+    v39 = 3i64;
     do
     {
-      v51 = *((unsigned int *)v48 + 2);
-      if ( (_DWORD)v51 )
+      v40 = *((unsigned int *)v37 + 2);
+      if ( (_DWORD)v40 )
       {
-        R_SortSModelSurfDelaySort(*v48, 0, v51);
-        v52 = 0i64;
+        R_SortSModelSurfDelaySort(*v37, 0, v40);
+        v41 = 0i64;
         do
         {
-          R_EmitSingleSModelSurf((GfxSModelSurfBuildList *)(v48 - 7), (*v48)[v52].fields.header, (*v48)[v52].fields.visDataRef);
-          ++v52;
-          --v51;
+          R_EmitSingleSModelSurf((GfxSModelSurfBuildList *)(v37 - 7), (*v37)[v41].fields.header, (*v37)[v41].fields.visDataRef);
+          ++v41;
+          --v40;
         }
-        while ( v51 );
+        while ( v40 );
       }
-      v48 += 9;
-      --v50;
+      v37 += 9;
+      --v39;
     }
-    while ( v50 );
-    --v49;
+    while ( v39 );
+    --v38;
   }
-  while ( v49 );
+  while ( v38 );
   R_ProcessSModelSurfVisBits_Camera(g_cameraSModelSurfVisData, &drawData, &renderFeatures);
   R_UpdateViewMaterialRenderTechflags(&renderFeatures);
-  v53 = v63;
+  v42 = v49;
   if ( ((r_drawOpaqueSurfs->current.integer - 2) & 0xFFFFFFFD) != 0 )
   {
-    R_FlushSModelSurfBuildList((GfxDrawList *)(v63 + 16208), &drawData, 0);
-    R_FlushSModelSurfBuildList((GfxDrawList *)(v53 + 17120), &drawData, 1u);
+    R_FlushSModelSurfBuildList((GfxDrawList *)(v49 + 16208), &drawData, 0);
+    R_FlushSModelSurfBuildList((GfxDrawList *)(v42 + 17120), &drawData, 1u);
   }
   if ( ((r_drawTransDecalSurfs->current.integer - 2) & 0xFFFFFFFD) != 0 )
   {
-    R_FlushSModelSurfBuildList((GfxDrawList *)(v53 + 17424), &drawData, 2u);
-    R_FlushSModelSurfBuildList((GfxDrawList *)(v53 + 17576), &drawData, 3u);
+    R_FlushSModelSurfBuildList((GfxDrawList *)(v42 + 17424), &drawData, 2u);
+    R_FlushSModelSurfBuildList((GfxDrawList *)(v42 + 17576), &drawData, 3u);
   }
-  R_FlushSModelSurfBuildList((GfxDrawList *)(v53 + 18640), &drawData, 4u);
+  R_FlushSModelSurfBuildList((GfxDrawList *)(v42 + 18640), &drawData, 4u);
   Profile_EndInternal(NULL);
   Profile_EndInternal(NULL);
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -1886,6 +1837,7 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
   unsigned int (*v15)[3]; 
   unsigned __int8 *(*v16)[3]; 
   unsigned int *v17; 
+  GfxSpotShadowUpdate *v18; 
   unsigned __int8 *v19; 
   __int64 v20; 
   GfxShadowGeometry *v21; 
@@ -1903,20 +1855,19 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
   const vec4_t *v35; 
   unsigned int v36; 
   SModelMask *v37; 
-  unsigned int v38; 
+  int v38; 
   unsigned int smodelsChangedCount; 
-  bool v45; 
-  unsigned int v47; 
-  char v48; 
-  unsigned __int64 v49; 
-  __int64 v50; 
-  unsigned int v51; 
-  SModelMask *v52; 
-  SModelMask *v53; 
+  unsigned int v40; 
+  char v41; 
+  unsigned __int64 v42; 
+  __int64 v43; 
+  unsigned int v44; 
+  SModelMask *v45; 
+  SModelMask *v46; 
   __int64 passIndex; 
   __int64 sceneViewType; 
   unsigned int smodelCollectionIndex; 
-  int v57; 
+  int v50; 
   SModelMask *smodelCountMask; 
   GfxSpotShadowUpdate *viewportParms; 
   GfxSModelEmitInfo *viewportParmsa; 
@@ -1925,40 +1876,40 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
   unsigned int activeStatus; 
   GfxSModelSurfDrawData *p_drawData; 
   GfxShadowGeometry *shadowGeomOptimized; 
-  __int64 v67; 
+  __int64 v60; 
   unsigned int *smodelSurfVisData; 
   SModelCollectionEmit *emitCache; 
   GfxExtents2D extents2D; 
   GfxStaticModel *models; 
-  const XModel **v73; 
-  const GfxStaticModelCollection *v74; 
+  const XModel **v66; 
+  const GfxStaticModelCollection *v67; 
   GfxStaticModelCollection *collections; 
   GfxSModelLodBitsCache cache; 
-  __int64 v77; 
-  int v78; 
-  __int64 v79; 
+  __int64 v70; 
+  int v71; 
+  __int64 v72; 
   GfxSModelEmitInfo smodelEmit; 
-  GfxSModelEmitInfo v81; 
-  SModelMask v82; 
-  SModelMask v83; 
-  SModelMask v84; 
+  GfxSModelEmitInfo v74; 
+  SModelMask v75; 
+  SModelMask v76; 
+  SModelMask v77; 
   GfxSModelSurfDrawData drawData; 
-  GfxSModelSurfDrawData v86; 
-  SModelCollectionEmit v87; 
-  SModelCollectionEmit v88; 
-  unsigned int v89[2048]; 
-  unsigned int v90[2048]; 
-  char v91; 
-  char v92; 
+  GfxSModelSurfDrawData v79; 
+  SModelCollectionEmit v80; 
+  SModelCollectionEmit v81; 
+  unsigned int v82[2048]; 
+  unsigned int v83[2048]; 
+  char v84; 
+  char v85; 
 
-  v79 = -2i64;
+  v72 = -2i64;
   v3 = primaryLightIndex;
   v4 = spotShadowUpdateIndex;
   Profile_Begin(95);
   shadowGeomOptimized = rgp.world->shadowGeomOptimized;
   if ( shadowGeomOptimized )
   {
-    v67 = 3 * v3;
+    v60 = 3 * v3;
     if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4379, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
       __debugbreak();
     if ( (unsigned int)v4 >= frontEndDataOut->spotShadowUpdateCount )
@@ -1976,7 +1927,7 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
       collections = rgp.world->smodels.collections;
       models = rgp.world->smodels.models;
       R_InitSModelSurfDrawData(&drawData, 0x2000u, surfDataLimit_0);
-      v6 = &v91;
+      v6 = &v84;
       v7 = 0;
       v8 = 0;
       surfDataLimit = drawData.surfDataLimit;
@@ -2006,15 +1957,15 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
       smodelEmit.smodel = NULL;
       cache.model = NULL;
       cache.validLodBits = 0;
-      v83.m_mask[0] = 0i64;
-      v83.m_mask[1] = 0i64;
-      R_InitSModelSurfDrawData(&v86, 0x2000u, surfDataLimit_0);
-      v13 = &v92;
+      v76.m_mask[0] = 0i64;
+      v76.m_mask[1] = 0i64;
+      R_InitSModelSurfDrawData(&v79, 0x2000u, surfDataLimit_0);
+      v13 = &v85;
       v14 = 0;
-      v15 = v86.surfDataLimit;
-      v16 = v86.surfData;
-      v17 = &v86.buildList[0][0].visDataRefCount;
-      _R13 = viewportParms;
+      v15 = v79.surfDataLimit;
+      v16 = v79.surfData;
+      v17 = &v79.buildList[0][0].visDataRefCount;
+      v18 = viewportParms;
       do
       {
         *((_QWORD *)v17 - 2) = -1i64;
@@ -2035,22 +1986,22 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
         v15 = (unsigned int (*)[3])((char *)v15 + 4);
       }
       while ( v14 < 3 );
-      memset_0(v81.smodelCountForSurf, 0, sizeof(v81.smodelCountForSurf));
-      v81.smodel = NULL;
-      v77 = 0i64;
-      v78 = 0;
-      v84.m_mask[0] = 0i64;
-      v84.m_mask[1] = 0i64;
-      v82.m_mask[0] = 0i64;
-      v82.m_mask[1] = 0i64;
-      v88.smodelCollectionArgCount = 0;
-      v87.smodelCollectionArgCount = 0;
-      memset_0(v90, 0, sizeof(v90));
-      memset_0(v89, 0, sizeof(v89));
+      memset_0(v74.smodelCountForSurf, 0, sizeof(v74.smodelCountForSurf));
+      v74.smodel = NULL;
+      v70 = 0i64;
+      v71 = 0;
+      v77.m_mask[0] = 0i64;
+      v77.m_mask[1] = 0i64;
+      v75.m_mask[0] = 0i64;
+      v75.m_mask[1] = 0i64;
+      v81.smodelCollectionArgCount = 0;
+      v80.smodelCollectionArgCount = 0;
+      memset_0(v83, 0, sizeof(v83));
+      memset_0(v82, 0, sizeof(v82));
       v20 = 0i64;
-      v57 = 0;
+      v50 = 0;
       v21 = shadowGeomOptimized;
-      for ( i = v67; (unsigned int)v20 < shadowGeomOptimized[(unsigned __int64)v67 / 3].smodelCount; i = v67 )
+      for ( i = v60; (unsigned int)v20 < shadowGeomOptimized[(unsigned __int64)v60 / 3].smodelCount; i = v60 )
       {
         v23 = *(unsigned __int16 *)(*((_QWORD *)&v21->smodelIndex + i) + 2 * v20);
         smodelCollectionIndex = v23;
@@ -2062,7 +2013,7 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
             __debugbreak();
         }
         v24 = &collections[v23];
-        v74 = v24;
+        v67 = v24;
         transientGfxWorldPlaced = v24->transientGfxWorldPlaced;
         v26 = frontEndDataOut;
         if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_backend_data.h", 447, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -2084,7 +2035,7 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
               __debugbreak();
           }
           p_model = (const XModel **)&models[v24->smodelIndex].model;
-          v73 = p_model;
+          v66 = p_model;
           if ( R_ShouldDrawTransientModel(viewDrawStaticDefaultModels, *p_model) )
           {
             if ( ((_BYTE)p_model[1] & 4) != 0 )
@@ -2094,20 +2045,20 @@ void R_AddAllStaticModelSurfacesSpotShadow_Split(GfxViewInfo *viewInfo, unsigned
                 viewportParmsa = &smodelEmit;
                 p_cache = &cache;
                 p_drawData = &drawData;
-                smodelCountMask = &v83;
-                smodelSurfVisData = v89;
-                emitCache = &v87;
+                smodelCountMask = &v76;
+                smodelSurfVisData = v82;
+                emitCache = &v80;
 LABEL_34:
                 v29 = &rgp.world->smodels.collectionBounds[v23];
                 _EAX = R_GetStaticModelCollectionLODMask(viewInfo->viewInfoIndex, v23, *p_model, p_cache, NULL);
                 v31 = _EAX;
                 if ( !_EAX )
-                  goto LABEL_73;
+                  goto LABEL_72;
                 __asm { tzcnt   r15d, eax }
                 if ( _ER15 == 6 || _ER15 > (*p_model)->shadowCutoffLod )
                 {
-LABEL_73:
-                  ++_R13->missingSModelLOD;
+LABEL_72:
+                  ++v18->missingSModelLOD;
                 }
                 else
                 {
@@ -2115,11 +2066,11 @@ LABEL_73:
                   R_AccumVisibleSModelCollectionArgs(emitCache, smodelSurfVisData, smodelCollectionIndex, v31, SModelCollectionSubdivLodLevel, 1u, spotShadowUpdateIndex + 4);
                   if ( SModelCollectionSubdivLodLevel )
                   {
-                    v34 = v73;
-                    if ( XModelShouldShowBounds(*v73) )
+                    v34 = v66;
+                    if ( XModelShouldShowBounds(*v66) )
                     {
                       v35 = &colorGreen;
-                      if ( v74->instanceCount > 1 )
+                      if ( v67->instanceCount > 1 )
                         v35 = &colorGreenFaded;
                       if ( r_showCullSModels->current.enabled && spotShadowUpdateIndex + 4 == r_showCull->current.integer )
                         R_AddDebugBox(&viewInfo->input.data->debugGlobals, v29, v35, r_showCullMode->current.integer != 0);
@@ -2133,25 +2084,25 @@ LABEL_73:
                         ++v36;
                         v37 = (SModelMask *)((char *)v37 + 8);
                         if ( v36 >= 2 )
-                          goto LABEL_69;
+                          goto LABEL_68;
                       }
                       R_EmitSModelSurfs_Shadow(p_drawData, viewportParmsa, smodelCountMask, 0);
-LABEL_69:
+LABEL_68:
                       viewportParmsa->smodel = (const GfxStaticModel *)v34;
                     }
-                    v47 = R_AddSModelToAppropriateList(viewportParmsa, smodelCollectionIndex, _ER15, SModelCollectionSubdivLodLevel);
-                    v48 = v47 & 0x3F;
-                    if ( viewportParmsa->smodelCountForSurf[v47] == 128 )
+                    v40 = R_AddSModelToAppropriateList(viewportParmsa, smodelCollectionIndex, _ER15, SModelCollectionSubdivLodLevel);
+                    v41 = v40 & 0x3F;
+                    if ( viewportParmsa->smodelCountForSurf[v40] == 128 )
                     {
-                      v49 = 0x8000000000000000ui64 >> v48;
-                      v50 = v47 >> 6;
-                      v82.m_mask[v50] |= 0x8000000000000000ui64 >> v48;
-                      R_EmitSModelSurfs_Shadow(p_drawData, viewportParmsa, &v82, 0);
-                      smodelCountMask->m_mask[v50] &= ~v49;
+                      v42 = 0x8000000000000000ui64 >> v41;
+                      v43 = v40 >> 6;
+                      v75.m_mask[v43] |= 0x8000000000000000ui64 >> v41;
+                      R_EmitSModelSurfs_Shadow(p_drawData, viewportParmsa, &v75, 0);
+                      smodelCountMask->m_mask[v43] &= ~v42;
                     }
                     else
                     {
-                      smodelCountMask->m_mask[v47 >> 6] |= 0x8000000000000000ui64 >> v48;
+                      smodelCountMask->m_mask[v40 >> 6] |= 0x8000000000000000ui64 >> v41;
                     }
                   }
                 }
@@ -2159,13 +2110,13 @@ LABEL_69:
             }
             else if ( activeStatus != 4 )
             {
-              viewportParmsa = &v81;
-              p_drawData = &v86;
-              p_cache = (GfxSModelLodBitsCache *)&v77;
-              smodelCountMask = &v84;
-              smodelSurfVisData = v90;
-              emitCache = &v88;
-              if ( _R13->activeStatus != 3 )
+              viewportParmsa = &v74;
+              p_drawData = &v79;
+              p_cache = (GfxSModelLodBitsCache *)&v70;
+              smodelCountMask = &v77;
+              smodelSurfVisData = v83;
+              emitCache = &v81;
+              if ( v18->activeStatus != 3 )
                 goto LABEL_34;
               if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4187, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
                 __debugbreak();
@@ -2178,90 +2129,67 @@ LABEL_69:
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4189, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollectionIndex ) < (unsigned)( rgp.world->smodels.collectionCount )", "smodelCollectionIndex doesn't index rgp.world->smodels.collectionCount\n\t%i not in [0, %i)", passIndex, sceneViewType) )
                   __debugbreak();
               }
-              GenerateScreenSpaceExtentsFromWorldBounds(&rgp.world->smodels.collectionBounds[v23], &_R13->viewportParms, &extents2D);
+              GenerateScreenSpaceExtentsFromWorldBounds(&rgp.world->smodels.collectionBounds[v23], &v18->viewportParms, &extents2D);
               v38 = 0;
-              smodelsChangedCount = _R13->smodelsChangedCount;
+              smodelsChangedCount = v18->smodelsChangedCount;
               if ( smodelsChangedCount )
               {
-                __asm
+                while ( extents2D.maxX <= v18->smodelChangedBoundingBox[v38].minX || extents2D.minX >= v18->smodelChangedBoundingBox[v38].maxX || extents2D.maxY <= v18->smodelChangedBoundingBox[v38].minY || extents2D.minY >= v18->smodelChangedBoundingBox[v38].maxY )
                 {
-                  vmovss  xmm0, [rbp+0FB90h+extents2D.maxY]
-                  vmovss  xmm1, [rbp+0FB90h+extents2D.minY]
-                  vmovss  xmm2, [rbp+0FB90h+extents2D.maxX]
-                  vmovss  xmm3, [rbp+0FB90h+extents2D.minX]
+                  if ( ++v38 >= smodelsChangedCount )
+                    goto LABEL_73;
                 }
-                do
-                {
-                  _RAX = v38 + 28i64;
-                  v45 = __CFADD__(_RAX, _RAX) || 2 * _RAX == 0;
-                  _RAX *= 2i64;
-                  __asm { vcomiss xmm2, dword ptr [r13+rax*8+0] }
-                  if ( !v45 )
-                  {
-                    _RCX = 2i64 * v38;
-                    __asm { vcomiss xmm3, dword ptr [r13+rcx*8+1C4h] }
-                    if ( __CFADD__(v38, v38) )
-                    {
-                      __asm { vcomiss xmm0, dword ptr [r13+rcx*8+1C8h] }
-                      if ( !__CFADD__(v38, v38) && 2i64 * v38 != 0 )
-                      {
-                        __asm { vcomiss xmm1, dword ptr [r13+rcx*8+1CCh] }
-                        if ( __CFADD__(v38, v38) )
-                          goto LABEL_34;
-                      }
-                    }
-                  }
-                }
-                while ( ++v38 < smodelsChangedCount );
+                goto LABEL_34;
               }
             }
           }
           else
           {
-            ++_R13->missingTransientSModel;
+            ++v18->missingTransientSModel;
           }
         }
         else
         {
-          ++_R13->missingTransientSModel;
+          ++v18->missingTransientSModel;
         }
-        v20 = (unsigned int)(v57 + 1);
-        v57 = v20;
+LABEL_73:
+        v20 = (unsigned int)(v50 + 1);
+        v50 = v20;
         v21 = shadowGeomOptimized;
       }
-      R_FlushVisibleSModelCollections(&v87, v89, 1u);
-      R_FlushVisibleSModelCollections(&v88, v90, 1u);
-      if ( v87.smodelCollectionArgCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4571, ASSERT_TYPE_ASSERT, "(smodelCollectionEmitUncached.smodelCollectionArgCount == 0)", (const char *)&queryFormat, "smodelCollectionEmitUncached.smodelCollectionArgCount == 0") )
+      R_FlushVisibleSModelCollections(&v80, v82, 1u);
+      R_FlushVisibleSModelCollections(&v81, v83, 1u);
+      if ( v80.smodelCollectionArgCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4571, ASSERT_TYPE_ASSERT, "(smodelCollectionEmitUncached.smodelCollectionArgCount == 0)", (const char *)&queryFormat, "smodelCollectionEmitUncached.smodelCollectionArgCount == 0") )
         __debugbreak();
-      if ( v88.smodelCollectionArgCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4572, ASSERT_TYPE_ASSERT, "(smodelCollectionEmitCached.smodelCollectionArgCount == 0)", (const char *)&queryFormat, "smodelCollectionEmitCached.smodelCollectionArgCount == 0") )
+      if ( v81.smodelCollectionArgCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4572, ASSERT_TYPE_ASSERT, "(smodelCollectionEmitCached.smodelCollectionArgCount == 0)", (const char *)&queryFormat, "smodelCollectionEmitCached.smodelCollectionArgCount == 0") )
         __debugbreak();
-      v51 = 0;
-      v52 = &v83;
-      while ( !v52->m_mask[0] )
+      v44 = 0;
+      v45 = &v76;
+      while ( !v45->m_mask[0] )
       {
-        ++v51;
-        v52 = (SModelMask *)((char *)v52 + 8);
-        if ( v51 >= 2 )
-          goto LABEL_86;
+        ++v44;
+        v45 = (SModelMask *)((char *)v45 + 8);
+        if ( v44 >= 2 )
+          goto LABEL_85;
       }
-      R_EmitSModelSurfs_Shadow(&drawData, &smodelEmit, &v83, 0);
-LABEL_86:
+      R_EmitSModelSurfs_Shadow(&drawData, &smodelEmit, &v76, 0);
+LABEL_85:
       R_EmitDelayedSModelSurfsRemaining(drawData.buildList[0]);
-      R_ProcessSModelSurfVisBits_Shadow(v89, &drawData, spotShadowUpdateIndex + 4);
+      R_ProcessSModelSurfVisBits_Shadow(v82, &drawData, spotShadowUpdateIndex + 4);
       R_FlushSModelSurfBuildList(&viewInfo->drawList[spotShadowUpdateIndex + 37], &drawData, 0);
-      v53 = &v84;
-      while ( !v53->m_mask[0] )
+      v46 = &v77;
+      while ( !v46->m_mask[0] )
       {
         ++v7;
-        v53 = (SModelMask *)((char *)v53 + 8);
+        v46 = (SModelMask *)((char *)v46 + 8);
         if ( v7 >= 2 )
-          goto LABEL_91;
+          goto LABEL_90;
       }
-      R_EmitSModelSurfs_Shadow(&v86, &v81, &v84, 0);
-LABEL_91:
-      R_EmitDelayedSModelSurfsRemaining(v86.buildList[0]);
-      R_ProcessSModelSurfVisBits_Shadow(v90, &v86, spotShadowUpdateIndex + 4);
-      R_FlushSModelSurfBuildList(&viewInfo->drawList[spotShadowUpdateIndex + 29], &v86, 0);
+      R_EmitSModelSurfs_Shadow(&v79, &v74, &v77, 0);
+LABEL_90:
+      R_EmitDelayedSModelSurfsRemaining(v79.buildList[0]);
+      R_ProcessSModelSurfVisBits_Shadow(v83, &v79, spotShadowUpdateIndex + 4);
+      R_FlushSModelSurfBuildList(&viewInfo->drawList[spotShadowUpdateIndex + 29], &v79, 0);
     }
   }
   Profile_EndInternal(NULL);
@@ -2322,51 +2250,51 @@ R_AddAllStaticModelsSurfacesCachedSunShadow
 */
 void R_AddAllStaticModelsSurfacesCachedSunShadow(GfxViewInfo *viewInfo, unsigned int partitionIndex, unsigned int cellIdx, GfxSModelSurfDrawData *drawData)
 {
-  __int64 v6; 
+  __int64 v5; 
   const GfxSunShadowPartitionCache *SunShadowPartitionCache; 
-  GfxCachedSunShadowOverlap *v10; 
-  char *v11; 
-  unsigned int v12; 
+  GfxCachedSunShadowOverlap *v9; 
+  char *v10; 
+  unsigned int v11; 
   unsigned int (*surfDataLimit)[3]; 
   unsigned __int8 *(*surfData)[3]; 
   unsigned int *p_visDataRefCount; 
-  unsigned int *v16; 
-  unsigned __int8 *v17; 
-  unsigned int (*v18)[3]; 
-  char *v19; 
-  unsigned int v20; 
-  unsigned __int8 *(*v21)[3]; 
-  unsigned __int8 *v22; 
-  GfxViewInfo *v23; 
-  GfxCachedSunShadow *v24; 
-  GfxCachedSunShadowOverlap *v25; 
+  unsigned int *v15; 
+  unsigned __int8 *v16; 
+  unsigned int (*v17)[3]; 
+  char *v18; 
+  unsigned int v19; 
+  unsigned __int8 *(*v20)[3]; 
+  unsigned __int8 *v21; 
+  GfxViewInfo *v22; 
+  GfxCachedSunShadow *v23; 
+  GfxCachedSunShadowOverlap *v24; 
   unsigned int firstSmodelId; 
   GfxCachedSunShadow_Smodel *Smodel; 
   unsigned __int16 smodelIndex; 
-  const GfxStaticModelCollection *v29; 
-  const GfxStaticModel *v30; 
+  const GfxStaticModelCollection *v28; 
+  const GfxStaticModel *v29; 
   unsigned int UsableLodForDist; 
-  unsigned int v34; 
-  const vec4_t *v35; 
+  unsigned int v31; 
+  const vec4_t *v32; 
   unsigned __int8 SModelCollectionSubdivLodLevel; 
-  unsigned int v37; 
+  unsigned int v34; 
   SModelMask *p_smodelCountMask; 
-  unsigned int v39; 
-  char v40; 
-  unsigned __int64 v41; 
-  __int64 v42; 
-  unsigned int v43; 
-  SModelMask *v44; 
-  GfxSModelSurfDrawData *v45; 
+  unsigned int v36; 
+  char v37; 
+  unsigned __int64 v38; 
+  __int64 v39; 
+  unsigned int v40; 
+  SModelMask *v41; 
+  GfxSModelSurfDrawData *v42; 
   GfxSunShadow *p_sunShadow; 
-  __int64 v47; 
+  __int64 v44; 
   __int64 visDataUsed; 
   __int64 passIndex; 
   __int64 sceneViewType; 
-  GfxCachedSunShadowOverlap *v51; 
+  GfxCachedSunShadowOverlap *v48; 
   unsigned __int8 *(*lastId)[3]; 
   unsigned int lastIda; 
-  unsigned int v54; 
+  unsigned int v51; 
   GfxCachedSunShadow *staticEntry; 
   unsigned int (*viewDrawStaticDefaultModels)[3]; 
   int viewDrawStaticDefaultModelsa; 
@@ -2374,104 +2302,104 @@ void R_AddAllStaticModelsSurfacesCachedSunShadow(GfxViewInfo *viewInfo, unsigned
   GfxStaticModel *models; 
   GfxSModelEmitInfo smodelEmit; 
   SModelMask smodelCountMask; 
-  SModelMask v66; 
+  SModelMask v63; 
   SModelCollectionEmit emitCache; 
   unsigned int smodelSurfVisData[2048]; 
-  char v69[12288]; 
-  char v70[8]; 
+  char v66[12288]; 
+  char v67[8]; 
 
-  v6 = cellIdx;
+  v5 = cellIdx;
   Profile_Begin(548);
-  v54 = v6 + R_GetCachedSceneViewTypeForSunShadowPartition(&frontEndDataOut->sunShadow, partitionIndex);
+  v51 = v5 + R_GetCachedSceneViewTypeForSunShadowPartition(&frontEndDataOut->sunShadow, partitionIndex);
   if ( (frontEndDataOut->sunShadow.firstCachedSunShadowPartition > partitionIndex || partitionIndex > frontEndDataOut->sunShadow.lastCachedSunShadowPartition) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3811, ASSERT_TYPE_ASSERT, "(R_IsCachedSunShadowPartition( &frontEndDataOut->sunShadow, partitionIndex ))", (const char *)&queryFormat, "R_IsCachedSunShadowPartition( &frontEndDataOut->sunShadow, partitionIndex )") )
     __debugbreak();
   SunShadowPartitionCache = R_GetSunShadowPartitionCache(&frontEndDataOut->sunShadow, partitionIndex);
-  v10 = &SunShadowPartitionCache->gfxCachedSunShadowOverlap[v6];
-  v51 = v10;
-  if ( SunShadowPartitionCache->gfxCachedSunShadowOverlap[v6].skipUpdate )
+  v9 = &SunShadowPartitionCache->gfxCachedSunShadowOverlap[v5];
+  v48 = v9;
+  if ( SunShadowPartitionCache->gfxCachedSunShadowOverlap[v5].skipUpdate )
   {
-    R_SunShadowCache_EndProcessing(&SunShadowPartitionCache->gfxCachedSunShadowOverlap[v6]);
+    R_SunShadowCache_EndProcessing(&SunShadowPartitionCache->gfxCachedSunShadowOverlap[v5]);
   }
   else
   {
-    if ( SunShadowPartitionCache->gfxCachedSunShadowOverlap[v6].gen )
-      R_ProcessSunShadowCacheEntryVisibility(viewInfo, partitionIndex, v6);
-    R_ProcessSunShadowCacheEntrySmodelLodChanges(viewInfo, partitionIndex, v6);
-    staticEntry = v10->staticEntry;
-    R_SunShadowCache_EndProcessing(v10);
+    if ( SunShadowPartitionCache->gfxCachedSunShadowOverlap[v5].gen )
+      R_ProcessSunShadowCacheEntryVisibility(viewInfo, partitionIndex, v5);
+    R_ProcessSunShadowCacheEntrySmodelLodChanges(viewInfo, partitionIndex, v5);
+    staticEntry = v9->staticEntry;
+    R_SunShadowCache_EndProcessing(v9);
     collections = rgp.world->smodels.collections;
     models = rgp.world->smodels.models;
-    v11 = v69;
-    v12 = 0;
+    v10 = v66;
+    v11 = 0;
     viewDrawStaticDefaultModels = drawData->surfDataLimit;
     surfDataLimit = drawData->surfDataLimit;
     surfData = drawData->surfData;
     lastId = drawData->surfData;
     p_visDataRefCount = &drawData->buildList[0][0].visDataRefCount;
-    v16 = p_visDataRefCount;
+    v15 = p_visDataRefCount;
     do
     {
-      *((_QWORD *)v16 - 2) = -1i64;
-      *((_QWORD *)v16 - 1) = 0i64;
-      *v16 = 0;
-      v17 = (*surfData)[0];
-      *((_QWORD *)v16 + 1) = (*surfData)[0];
-      *((_QWORD *)v16 + 2) = v17;
-      *((_QWORD *)v16 + 3) = &v17[*(_DWORD *)surfDataLimit];
-      *((_QWORD *)v16 + 4) = -1i64;
-      *((_QWORD *)v16 + 5) = v11;
-      v16[12] = 0;
-      v16[13] = 256;
-      v11 += 4096;
-      ++v12;
+      *((_QWORD *)v15 - 2) = -1i64;
+      *((_QWORD *)v15 - 1) = 0i64;
+      *v15 = 0;
+      v16 = (*surfData)[0];
+      *((_QWORD *)v15 + 1) = (*surfData)[0];
+      *((_QWORD *)v15 + 2) = v16;
+      *((_QWORD *)v15 + 3) = &v16[*(_DWORD *)surfDataLimit];
+      *((_QWORD *)v15 + 4) = -1i64;
+      *((_QWORD *)v15 + 5) = v10;
+      v15[12] = 0;
+      v15[13] = 256;
+      v10 += 4096;
+      ++v11;
       surfData = (unsigned __int8 *(*)[3])((char *)surfData + 8);
       surfDataLimit = (unsigned int (*)[3])((char *)surfDataLimit + 4);
-      v16 += 18;
+      v15 += 18;
     }
-    while ( v12 < 3 );
-    v18 = viewDrawStaticDefaultModels;
-    if ( v11 != v70 )
+    while ( v11 < 3 );
+    v17 = viewDrawStaticDefaultModels;
+    if ( v10 != v67 )
     {
-      v19 = v69;
-      v20 = 0;
-      v21 = lastId;
+      v18 = v66;
+      v19 = 0;
+      v20 = lastId;
       do
       {
         *((_QWORD *)p_visDataRefCount - 2) = -1i64;
         *((_QWORD *)p_visDataRefCount - 1) = 0i64;
         *p_visDataRefCount = 0;
-        v22 = (*v21)[0];
-        *((_QWORD *)p_visDataRefCount + 1) = (*v21)[0];
-        *((_QWORD *)p_visDataRefCount + 2) = v22;
-        *((_QWORD *)p_visDataRefCount + 3) = &v22[*(_DWORD *)v18];
+        v21 = (*v20)[0];
+        *((_QWORD *)p_visDataRefCount + 1) = (*v20)[0];
+        *((_QWORD *)p_visDataRefCount + 2) = v21;
+        *((_QWORD *)p_visDataRefCount + 3) = &v21[*(_DWORD *)v17];
         *((_QWORD *)p_visDataRefCount + 4) = -1i64;
-        *((_QWORD *)p_visDataRefCount + 5) = v19;
+        *((_QWORD *)p_visDataRefCount + 5) = v18;
         p_visDataRefCount[12] = 0;
         p_visDataRefCount[13] = 256;
-        v19 += 4096;
-        ++v20;
-        v21 = (unsigned __int8 *(*)[3])((char *)v21 + 8);
-        v18 = (unsigned int (*)[3])((char *)v18 + 4);
+        v18 += 4096;
+        ++v19;
+        v20 = (unsigned __int8 *(*)[3])((char *)v20 + 8);
+        v17 = (unsigned int (*)[3])((char *)v17 + 4);
         p_visDataRefCount += 18;
       }
-      while ( v20 < 3 );
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3844, ASSERT_TYPE_ASSERT, "R_InitSModelSurfBuildLists( drawData, 0, delaySurfList, R_SMODELSURF_DELAY_SURF_LIMIT_SUNSHADOW ) == delaySurfList + ARRAY_COUNT( delaySurfList )", "\n\t%llx, %llx", v19, v70) )
+      while ( v19 < 3 );
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3844, ASSERT_TYPE_ASSERT, "R_InitSModelSurfBuildLists( drawData, 0, delaySurfList, R_SMODELSURF_DELAY_SURF_LIMIT_SUNSHADOW ) == delaySurfList + ARRAY_COUNT( delaySurfList )", "\n\t%llx, %llx", v18, v67) )
         __debugbreak();
     }
     memset_0(smodelEmit.smodelCountForSurf, 0, sizeof(smodelEmit.smodelCountForSurf));
     smodelEmit.smodel = NULL;
     smodelCountMask.m_mask[0] = 0i64;
     smodelCountMask.m_mask[1] = 0i64;
-    v66.m_mask[0] = 0i64;
-    v66.m_mask[1] = 0i64;
+    v63.m_mask[0] = 0i64;
+    v63.m_mask[1] = 0i64;
     emitCache.smodelCollectionArgCount = 0;
     memset_0(smodelSurfVisData, 0, sizeof(smodelSurfVisData));
-    v23 = viewInfo;
+    v22 = viewInfo;
     viewDrawStaticDefaultModelsa = viewInfo->drawStaticDefaultModels;
-    v24 = staticEntry;
+    v23 = staticEntry;
     lastIda = staticEntry->lastSmodelId;
-    v25 = v51;
-    if ( v51->updateExtentsMask )
+    v24 = v48;
+    if ( v48->updateExtentsMask )
     {
       firstSmodelId = staticEntry->firstSmodelId;
       if ( firstSmodelId != -1 )
@@ -2480,115 +2408,112 @@ void R_AddAllStaticModelsSurfacesCachedSunShadow(GfxViewInfo *viewInfo, unsigned
         {
           Smodel = R_SunShadowCache_GetSmodel(firstSmodelId);
           smodelIndex = Smodel->smodelIndex;
-          if ( (Smodel->extentsMask & v25->updateExtentsMask) != 0 )
+          if ( (Smodel->extentsMask & v24->updateExtentsMask) != 0 )
           {
-            v29 = &collections[smodelIndex];
-            v30 = &models[v29->smodelIndex];
-            __asm { vxorps  xmm2, xmm2, xmm2; cullDist }
-            _RAX = staticEntry;
-            __asm { vmovss  xmm1, dword ptr [rax+28h]; dist }
-            UsableLodForDist = XModelGetUsableLodForDist(v30->model, *(const float *)&_XMM1, *(const float *)&_XMM2);
-            v34 = UsableLodForDist;
+            v28 = &collections[smodelIndex];
+            v29 = &models[v28->smodelIndex];
+            UsableLodForDist = XModelGetUsableLodForDist(v29->model, staticEntry->cachedLODRefDistance, 0.0);
+            v31 = UsableLodForDist;
             if ( UsableLodForDist > (*((_WORD *)Smodel + 5) & 7u) )
               R_WarnOncePerFrame(R_WARN_DROPPED_SUN_SHADOW_LOD, UsableLodForDist);
-            if ( v34 != 6 && v34 <= v30->model->shadowCutoffLod && R_ShouldDrawTransientModel(viewDrawStaticDefaultModelsa, v30->model) )
+            if ( v31 != 6 && v31 <= v29->model->shadowCutoffLod && R_ShouldDrawTransientModel(viewDrawStaticDefaultModelsa, v29->model) )
             {
-              if ( XModelShouldShowBounds(v30->model) )
+              if ( XModelShouldShowBounds(v29->model) )
               {
-                v35 = &colorGreen;
-                if ( v29->instanceCount > 1 )
-                  v35 = &colorGreenFaded;
-                if ( r_showCullSModels->current.enabled && v51->sceneViewType == r_showCull->current.integer )
-                  R_AddDebugBox(&viewInfo->input.data->debugGlobals, &rgp.world->smodels.collectionBounds[smodelIndex], v35, r_showCullMode->current.integer != 0);
+                v32 = &colorGreen;
+                if ( v28->instanceCount > 1 )
+                  v32 = &colorGreenFaded;
+                if ( r_showCullSModels->current.enabled && v48->sceneViewType == r_showCull->current.integer )
+                  R_AddDebugBox(&viewInfo->input.data->debugGlobals, &rgp.world->smodels.collectionBounds[smodelIndex], v32, r_showCullMode->current.integer != 0);
               }
-              SModelCollectionSubdivLodLevel = R_GetSModelCollectionSubdivLodLevel(v30->model, v34, v29, &rgp.world->smodels.collectionBounds[smodelIndex]);
-              if ( v34 >= v30->model->numLods )
+              SModelCollectionSubdivLodLevel = R_GetSModelCollectionSubdivLodLevel(v29->model, v31, v28, &rgp.world->smodels.collectionBounds[smodelIndex]);
+              if ( v31 >= v29->model->numLods )
               {
-                LODWORD(sceneViewType) = v30->model->numLods;
-                LODWORD(passIndex) = v34;
+                LODWORD(sceneViewType) = v29->model->numLods;
+                LODWORD(passIndex) = v31;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3936, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( smodel->model->numLods )", "lod doesn't index smodel->model->numLods\n\t%i not in [0, %i)", passIndex, sceneViewType) )
                   __debugbreak();
               }
-              R_AccumVisibleSModelCollectionArgs(&emitCache, smodelSurfVisData, smodelIndex, 1 << v34, SModelCollectionSubdivLodLevel, 1u, v54);
+              R_AccumVisibleSModelCollectionArgs(&emitCache, smodelSurfVisData, smodelIndex, 1 << v31, SModelCollectionSubdivLodLevel, 1u, v51);
               if ( SModelCollectionSubdivLodLevel )
               {
-                if ( v30 != smodelEmit.smodel )
+                if ( v29 != smodelEmit.smodel )
                 {
-                  v37 = 0;
+                  v34 = 0;
                   p_smodelCountMask = &smodelCountMask;
                   while ( !p_smodelCountMask->m_mask[0] )
                   {
-                    ++v37;
+                    ++v34;
                     p_smodelCountMask = (SModelMask *)((char *)p_smodelCountMask + 8);
-                    if ( v37 >= 2 )
+                    if ( v34 >= 2 )
                       goto LABEL_40;
                   }
                   R_EmitSModelSurfs_Shadow(drawData, &smodelEmit, &smodelCountMask, 0);
 LABEL_40:
-                  smodelEmit.smodel = v30;
+                  smodelEmit.smodel = v29;
                 }
-                v39 = R_AddSModelToAppropriateList(&smodelEmit, smodelIndex, v34, SModelCollectionSubdivLodLevel);
-                v40 = v39 & 0x3F;
-                if ( smodelEmit.smodelCountForSurf[v39] == 128 )
+                v36 = R_AddSModelToAppropriateList(&smodelEmit, smodelIndex, v31, SModelCollectionSubdivLodLevel);
+                v37 = v36 & 0x3F;
+                if ( smodelEmit.smodelCountForSurf[v36] == 128 )
                 {
-                  v41 = 0x8000000000000000ui64 >> v40;
-                  v42 = v39 >> 6;
-                  v66.m_mask[v42] |= 0x8000000000000000ui64 >> v40;
-                  R_EmitSModelSurfs_Shadow(drawData, &smodelEmit, &v66, 0);
-                  smodelCountMask.m_mask[v42] &= ~v41;
+                  v38 = 0x8000000000000000ui64 >> v37;
+                  v39 = v36 >> 6;
+                  v63.m_mask[v39] |= 0x8000000000000000ui64 >> v37;
+                  R_EmitSModelSurfs_Shadow(drawData, &smodelEmit, &v63, 0);
+                  smodelCountMask.m_mask[v39] &= ~v38;
                 }
                 else
                 {
-                  smodelCountMask.m_mask[v39 >> 6] |= 0x8000000000000000ui64 >> v40;
+                  smodelCountMask.m_mask[v36 >> 6] |= 0x8000000000000000ui64 >> v37;
                 }
               }
             }
-            v25 = v51;
+            v24 = v48;
           }
           firstSmodelId = R_SunShadowCache_NextSmodelId(firstSmodelId, lastIda);
         }
         while ( firstSmodelId != -1 );
-        v23 = viewInfo;
+        v22 = viewInfo;
       }
-      v24 = staticEntry;
+      v23 = staticEntry;
     }
     R_FlushVisibleSModelCollections(&emitCache, smodelSurfVisData, 1u);
     if ( emitCache.smodelCollectionArgCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3974, ASSERT_TYPE_ASSERT, "(smodelCollectionEmit.smodelCollectionArgCount == 0)", (const char *)&queryFormat, "smodelCollectionEmit.smodelCollectionArgCount == 0") )
       __debugbreak();
-    v43 = 0;
-    v44 = &smodelCountMask;
-    while ( !v44->m_mask[0] )
+    v40 = 0;
+    v41 = &smodelCountMask;
+    while ( !v41->m_mask[0] )
     {
-      ++v43;
-      v44 = (SModelMask *)((char *)v44 + 8);
-      if ( v43 >= 2 )
+      ++v40;
+      v41 = (SModelMask *)((char *)v41 + 8);
+      if ( v40 >= 2 )
       {
-        v45 = drawData;
+        v42 = drawData;
         goto LABEL_56;
       }
     }
-    v45 = drawData;
+    v42 = drawData;
     R_EmitSModelSurfs_Shadow(drawData, &smodelEmit, &smodelCountMask, 0);
 LABEL_56:
-    R_EmitDelayedSModelSurfsRemaining(v45->buildList[0]);
-    if ( v54 - 12 > 0x13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3983, ASSERT_TYPE_ASSERT, "(sceneViewType >= SCENE_VIEW_CACHED_SUNSHADOW_FIRST && sceneViewType <= SCENE_VIEW_CACHED_SUNSHADOW_LAST)", (const char *)&queryFormat, "sceneViewType >= SCENE_VIEW_CACHED_SUNSHADOW_FIRST && sceneViewType <= SCENE_VIEW_CACHED_SUNSHADOW_LAST") )
+    R_EmitDelayedSModelSurfsRemaining(v42->buildList[0]);
+    if ( v51 - 12 > 0x13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3983, ASSERT_TYPE_ASSERT, "(sceneViewType >= SCENE_VIEW_CACHED_SUNSHADOW_FIRST && sceneViewType <= SCENE_VIEW_CACHED_SUNSHADOW_LAST)", (const char *)&queryFormat, "sceneViewType >= SCENE_VIEW_CACHED_SUNSHADOW_FIRST && sceneViewType <= SCENE_VIEW_CACHED_SUNSHADOW_LAST") )
       __debugbreak();
-    R_ProcessSModelSurfVisBits_Shadow(smodelSurfVisData, v45, v54);
+    R_ProcessSModelSurfVisBits_Shadow(smodelSurfVisData, v42, v51);
     p_sunShadow = &frontEndDataOut->sunShadow;
     if ( frontEndDataOut == (GfxBackEndData *)-927488i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 376, ASSERT_TYPE_ASSERT, "(sunShadow)", (const char *)&queryFormat, "sunShadow") )
       __debugbreak();
     if ( !R_IsCachedSunShadowPartition(p_sunShadow, partitionIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 377, ASSERT_TYPE_ASSERT, "(R_IsCachedSunShadowPartition( sunShadow, partitionIndex ))", (const char *)&queryFormat, "R_IsCachedSunShadowPartition( sunShadow, partitionIndex )") )
       __debugbreak();
-    v47 = (int)(cellIdx + 10 * (partitionIndex - p_sunShadow->firstCachedSunShadowPartition) + 45);
-    R_FlushSModelSurfBuildList(&v23->drawList[v47], v45, 0);
-    visDataUsed = v45->visDataUsed;
-    v45->visData += visDataUsed;
-    v45->visDataLimit -= visDataUsed;
-    v45->visDataUsed = 0;
-    if ( v25->gen )
+    v44 = (int)(cellIdx + 10 * (partitionIndex - p_sunShadow->firstCachedSunShadowPartition) + 45);
+    R_FlushSModelSurfBuildList(&v22->drawList[v44], v42, 0);
+    visDataUsed = v42->visDataUsed;
+    v42->visData += visDataUsed;
+    v42->visDataLimit -= visDataUsed;
+    v42->visDataUsed = 0;
+    if ( v24->gen )
     {
-      v24->genSmodel = v23->input.data->frameCount;
-      v24->smodelCount = v23->drawList[v47].smodelSurfList[0].surfDataBytes + v23->drawList[v47].smodelSurfList[1].surfDataBytes + v23->drawList[v47].smodelSurfList[2].surfDataBytes;
+      v23->genSmodel = v22->input.data->frameCount;
+      v23->smodelCount = v22->drawList[v44].smodelSurfList[0].surfDataBytes + v22->drawList[v44].smodelSurfList[1].surfDataBytes + v22->drawList[v44].smodelSurfList[2].surfDataBytes;
     }
   }
   Profile_EndInternal(NULL);
@@ -2696,58 +2621,23 @@ bool R_AddStaticModel_IsValidShadowLOD(const XModel *xmodel, unsigned int lod)
 R_AdjustStaticModelLODForRamp
 ==============
 */
-
-__int64 __fastcall R_AdjustStaticModelLODForRamp(unsigned int origLOD, const XModel *const model, double baseDist, double lodCullScale, bool isClutter, float *lodDist, float *lodCullDist, float *scaledDist)
+__int64 R_AdjustStaticModelLODForRamp(unsigned int origLOD, const XModel *const model, float baseDist, float lodCullScale, bool isClutter, float *lodDist, float *lodCullDist, float *scaledDist)
 {
-  __int64 result; 
+  float v10; 
+  float v11; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
   if ( origLOD != 6 || rg.correctedLodParms.ramp.allowLODOutStatic )
-    goto LABEL_8;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm3, xmm0
-  }
-  if ( !rg.correctedLodParms.ramp.allowLODOutStatic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 295, ASSERT_TYPE_ASSERT, "(lodCullScale != 0.0f)", (const char *)&queryFormat, "lodCullScale != 0.0f") )
+    return origLOD;
+  if ( lodCullScale == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 295, ASSERT_TYPE_ASSERT, "(lodCullScale != 0.0f)", (const char *)&queryFormat, "lodCullScale != 0.0f") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm1, xmm7, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.cappedLodScale; r_globals_t rg
-    vmulss  xmm8, xmm7, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vdivss  xmm6, xmm1, xmm6
-    vmovaps xmm2, xmm6; cullDist
-    vmovaps xmm1, xmm8; dist
-  }
-  if ( XModelGetDesiredLodForDist(model, *(const float *)&_XMM1, *(const float *)&_XMM2) == 6 )
-  {
-LABEL_8:
-    result = origLOD;
-  }
-  else
-  {
-    _RAX = lodDist;
-    __asm { vmovss  dword ptr [rax], xmm8 }
-    _RAX = lodCullDist;
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = scaledDist;
-    __asm { vmovss  dword ptr [rax], xmm7 }
-    result = XModelGetNumLods(model) - 1;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  return result;
+  v10 = baseDist * rg.correctedLodParms.invFovScale;
+  v11 = (float)(baseDist * rg.correctedLodParms.cappedLodScale) / lodCullScale;
+  if ( XModelGetDesiredLodForDist(model, baseDist * rg.correctedLodParms.invFovScale, v11) == 6 )
+    return origLOD;
+  *lodDist = v10;
+  *lodCullDist = v11;
+  *scaledDist = baseDist;
+  return XModelGetNumLods(model) - 1;
 }
 
 /*
@@ -2758,93 +2648,89 @@ R_CalcAllStaticModelSurfacesSpotShadowLodChange
 void R_CalcAllStaticModelSurfacesSpotShadowLodChange(GfxViewInfo *viewInfo, unsigned int spotShadowUpdateIndex, unsigned int primaryLightIndex)
 {
   GfxShadowGeometry *shadowGeomOptimized; 
-  __int64 v6; 
-  __int64 v7; 
-  GfxSpotShadowUpdate *v8; 
+  __int64 v4; 
+  __int64 v5; 
+  GfxSpotShadowUpdate *v6; 
   unsigned int activeStatus; 
-  unsigned int v10; 
-  __int64 v12; 
-  GfxBackEndData *v13; 
-  GfxStaticModelCollection *v14; 
+  unsigned int v8; 
+  __int64 v9; 
+  GfxBackEndData *v10; 
+  GfxStaticModelCollection *v11; 
   unsigned __int64 transientGfxWorldPlaced; 
-  GfxStaticModel *v16; 
+  GfxStaticModel *v13; 
   const XModel *model; 
-  const Bounds *v18; 
+  const Bounds *v15; 
   unsigned int NumLods; 
-  unsigned int v22; 
-  unsigned int v23; 
+  unsigned int v19; 
+  unsigned int v20; 
   __int64 smodelsChangedCount; 
-  bool v26; 
-  bool v27; 
-  __int64 v32; 
-  __int64 v33; 
+  float *p_minX; 
+  float width; 
+  float height; 
+  __int64 v25; 
+  __int64 v26; 
   int integer; 
   R_SpotShadow_ActiveCacheEntry *active; 
-  GfxShadowGeometry *v36; 
-  __int64 v37; 
+  GfxShadowGeometry *v29; 
+  __int64 v30; 
   int drawStaticDefaultModels; 
 
   shadowGeomOptimized = rgp.world->shadowGeomOptimized;
-  v36 = shadowGeomOptimized;
+  v29 = shadowGeomOptimized;
   if ( shadowGeomOptimized )
   {
-    v6 = 3i64 * primaryLightIndex;
+    v4 = 3i64 * primaryLightIndex;
     drawStaticDefaultModels = viewInfo->drawStaticDefaultModels;
-    v7 = spotShadowUpdateIndex;
-    v37 = v6;
-    v8 = &frontEndDataOut->spotShadowUpdates[v7];
-    active = frontEndDataOut->spotShadowUpdates[v7].active;
-    activeStatus = frontEndDataOut->spotShadowUpdates[v7].activeStatus;
+    v5 = spotShadowUpdateIndex;
+    v30 = v4;
+    v6 = &frontEndDataOut->spotShadowUpdates[v5];
+    active = frontEndDataOut->spotShadowUpdates[v5].active;
+    activeStatus = frontEndDataOut->spotShadowUpdates[v5].activeStatus;
     integer = sm_spotSModelTargetLOD->current.integer;
-    frontEndDataOut->spotShadowUpdates[v7].smodelsChangedCount = 0;
+    frontEndDataOut->spotShadowUpdates[v5].smodelsChangedCount = 0;
     if ( activeStatus != 4 && activeStatus != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4236, ASSERT_TYPE_ASSERT, "(spotShadowUpdate->activeStatus == R_SpotShadow_ActiveCacheStatus_Valid || spotShadowUpdate->activeStatus == R_SpotShadow_ActiveCacheStatus_InvalidBSP)", (const char *)&queryFormat, "spotShadowUpdate->activeStatus == R_SpotShadow_ActiveCacheStatus_Valid || spotShadowUpdate->activeStatus == R_SpotShadow_ActiveCacheStatus_InvalidBSP") )
       __debugbreak();
-    v10 = 0;
-    if ( *(&shadowGeomOptimized->smodelCount + 4 * v6) )
+    v8 = 0;
+    if ( *(&shadowGeomOptimized->smodelCount + 4 * v4) )
     {
-      __asm
-      {
-        vmovaps [rsp+0A8h+var_48], xmm6
-        vxorps  xmm6, xmm6, xmm6
-      }
       while ( 1 )
       {
-        if ( v10 >= 0x1000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4241, ASSERT_TYPE_ASSERT, "(smodelIter < R_SPOTSHADOW_ACTIVE_CACHE_MAX_CACHED_SMODELS)", (const char *)&queryFormat, "smodelIter < R_SPOTSHADOW_ACTIVE_CACHE_MAX_CACHED_SMODELS") )
+        if ( v8 >= 0x1000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4241, ASSERT_TYPE_ASSERT, "(smodelIter < R_SPOTSHADOW_ACTIVE_CACHE_MAX_CACHED_SMODELS)", (const char *)&queryFormat, "smodelIter < R_SPOTSHADOW_ACTIVE_CACHE_MAX_CACHED_SMODELS") )
           __debugbreak();
-        v12 = *(unsigned __int16 *)(*((_QWORD *)&shadowGeomOptimized->smodelIndex + v6) + 2i64 * v10);
-        if ( (unsigned int)v12 >= rgp.world->smodels.collectionCount )
+        v9 = *(unsigned __int16 *)(*((_QWORD *)&shadowGeomOptimized->smodelIndex + v4) + 2i64 * v8);
+        if ( (unsigned int)v9 >= rgp.world->smodels.collectionCount )
         {
-          LODWORD(v33) = rgp.world->smodels.collectionCount;
-          LODWORD(v32) = *(unsigned __int16 *)(*((_QWORD *)&shadowGeomOptimized->smodelIndex + v6) + 2i64 * v10);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4244, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollectionIndex ) < (unsigned)( rgp.world->smodels.collectionCount )", "smodelCollectionIndex doesn't index rgp.world->smodels.collectionCount\n\t%i not in [0, %i)", v32, v33) )
+          LODWORD(v26) = rgp.world->smodels.collectionCount;
+          LODWORD(v25) = *(unsigned __int16 *)(*((_QWORD *)&shadowGeomOptimized->smodelIndex + v4) + 2i64 * v8);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4244, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollectionIndex ) < (unsigned)( rgp.world->smodels.collectionCount )", "smodelCollectionIndex doesn't index rgp.world->smodels.collectionCount\n\t%i not in [0, %i)", v25, v26) )
             __debugbreak();
         }
-        v13 = frontEndDataOut;
-        v14 = &rgp.world->smodels.collections[v12];
-        transientGfxWorldPlaced = v14->transientGfxWorldPlaced;
+        v10 = frontEndDataOut;
+        v11 = &rgp.world->smodels.collections[v9];
+        transientGfxWorldPlaced = v11->transientGfxWorldPlaced;
         if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_backend_data.h", 447, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
           __debugbreak();
         if ( (unsigned int)transientGfxWorldPlaced >= 0x600 )
         {
-          LODWORD(v33) = 1536;
-          LODWORD(v32) = transientGfxWorldPlaced;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v32, v33) )
+          LODWORD(v26) = 1536;
+          LODWORD(v25) = transientGfxWorldPlaced;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v25, v26) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (transientGfxWorldPlaced & 0x1F)) & v13->transientVisibility.array[transientGfxWorldPlaced >> 5]) == 0 )
-          goto LABEL_57;
-        if ( v14->smodelIndex >= rgp.world->smodels.modelCount )
+        if ( ((0x80000000 >> (transientGfxWorldPlaced & 0x1F)) & v10->transientVisibility.array[transientGfxWorldPlaced >> 5]) == 0 )
+          goto LABEL_59;
+        if ( v11->smodelIndex >= rgp.world->smodels.modelCount )
         {
-          LODWORD(v33) = rgp.world->smodels.modelCount;
-          LODWORD(v32) = v14->smodelIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4250, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollection->smodelIndex ) < (unsigned)( rgp.world->smodels.modelCount )", "smodelCollection->smodelIndex doesn't index rgp.world->smodels.modelCount\n\t%i not in [0, %i)", v32, v33) )
+          LODWORD(v26) = rgp.world->smodels.modelCount;
+          LODWORD(v25) = v11->smodelIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4250, ASSERT_TYPE_ASSERT, "(unsigned)( smodelCollection->smodelIndex ) < (unsigned)( rgp.world->smodels.modelCount )", "smodelCollection->smodelIndex doesn't index rgp.world->smodels.modelCount\n\t%i not in [0, %i)", v25, v26) )
             __debugbreak();
         }
-        v16 = &rgp.world->smodels.models[v14->smodelIndex];
+        v13 = &rgp.world->smodels.models[v11->smodelIndex];
         if ( !drawStaticDefaultModels )
         {
-          model = v16->model;
-          if ( !v16->model )
+          model = v13->model;
+          if ( !v13->model )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 625, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
               __debugbreak();
@@ -2852,95 +2738,69 @@ void R_CalcAllStaticModelSurfacesSpotShadowLodChange(GfxViewInfo *viewInfo, unsi
               __debugbreak();
           }
           if ( (model->flags & 0x8000) != 0 )
-            goto LABEL_57;
+            goto LABEL_59;
         }
-        if ( (v16->flags & 4) != 0 )
-          goto LABEL_57;
-        v18 = &rgp.world->smodels.collectionBounds[v12];
-        if ( R_GetStaticModelCollectionLODMask(viewInfo->viewInfoIndex, v12, v16->model, NULL, NULL) )
+        if ( (v13->flags & 4) != 0 )
+          goto LABEL_59;
+        v15 = &rgp.world->smodels.collectionBounds[v9];
+        if ( R_GetStaticModelCollectionLODMask(viewInfo->viewInfoIndex, v9, v13->model, NULL, NULL) )
           __asm { tzcnt   ebx, eax }
         else
           _EBX = 6;
-        if ( _EBX >= v16->model->shadowCutoffLod )
+        if ( _EBX >= v13->model->shadowCutoffLod )
           _EBX = 6;
-        NumLods = XModelGetNumLods(v16->model);
-        v22 = active->cachedSmodelLOD[v10];
+        NumLods = XModelGetNumLods(v13->model);
+        v19 = active->cachedSmodelLOD[v8];
         if ( integer >= 0 )
           break;
-        if ( _EBX != v22 )
-          goto LABEL_45;
-LABEL_57:
-        shadowGeomOptimized = v36;
-        v6 = v37;
-        if ( ++v10 >= *(&v36->smodelCount + 4 * v37) )
-        {
-          __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
-          goto LABEL_59;
-        }
+        if ( _EBX != v19 )
+          goto LABEL_44;
+LABEL_59:
+        shadowGeomOptimized = v29;
+        v4 = v30;
+        if ( ++v8 >= *(&v29->smodelCount + 4 * v30) )
+          goto LABEL_60;
       }
-      if ( _EBX == v22 )
-        goto LABEL_57;
-      v23 = NumLods - 1;
-      if ( v23 > integer )
-        v23 = integer;
-      if ( v22 <= v23 || _EBX >= v22 )
-        goto LABEL_57;
-LABEL_45:
-      active->cachedSmodelLOD[v10] = truncate_cast<unsigned char,unsigned int>(_EBX);
-      if ( v8->activeStatus - 1 > 1 )
+      if ( _EBX == v19 )
+        goto LABEL_59;
+      v20 = NumLods - 1;
+      if ( v20 > integer )
+        v20 = integer;
+      if ( v19 <= v20 || _EBX >= v19 )
+        goto LABEL_59;
+LABEL_44:
+      active->cachedSmodelLOD[v8] = truncate_cast<unsigned char,unsigned int>(_EBX);
+      if ( v6->activeStatus - 1 > 1 )
       {
-        smodelsChangedCount = v8->smodelsChangedCount;
-        v8->activeStatus = 3;
+        smodelsChangedCount = v6->smodelsChangedCount;
+        v6->activeStatus = 3;
         if ( (unsigned int)smodelsChangedCount < 0x400 )
         {
-          GenerateScreenSpaceExtentsFromWorldBounds(v18, &v8->viewportParms, &v8->smodelChangedBoundingBox[smodelsChangedCount]);
-          _RBX = &v8->smodelChangedBoundingBox[v8->smodelsChangedCount];
-          if ( v8->viewportParms.viewport.x || (v26 = v8->viewportParms.viewport.y == 0, v8->viewportParms.viewport.y) )
+          GenerateScreenSpaceExtentsFromWorldBounds(v15, &v6->viewportParms, &v6->smodelChangedBoundingBox[smodelsChangedCount]);
+          p_minX = &v6->smodelChangedBoundingBox[v6->smodelsChangedCount].minX;
+          if ( (v6->viewportParms.viewport.x || v6->viewportParms.viewport.y) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4307, ASSERT_TYPE_ASSERT, "(spotShadowUpdate->viewportParms.viewport.x == 0 && spotShadowUpdate->viewportParms.viewport.y == 0)", (const char *)&queryFormat, "spotShadowUpdate->viewportParms.viewport.x == 0 && spotShadowUpdate->viewportParms.viewport.y == 0") )
+            __debugbreak();
+          if ( *p_minX > 0.0 || (width = (float)v6->viewportParms.viewport.width, width > p_minX[1]) || p_minX[2] > 0.0 || (height = (float)v6->viewportParms.viewport.height, height > p_minX[3]) )
           {
-            v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 4307, ASSERT_TYPE_ASSERT, "(spotShadowUpdate->viewportParms.viewport.x == 0 && spotShadowUpdate->viewportParms.viewport.y == 0)", (const char *)&queryFormat, "spotShadowUpdate->viewportParms.viewport.x == 0 && spotShadowUpdate->viewportParms.viewport.y == 0");
-            v26 = !v27;
-            if ( v27 )
-              __debugbreak();
+            if ( *p_minX < p_minX[1] && p_minX[3] > p_minX[2] )
+              ++v6->smodelsChangedCount;
           }
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx]
-            vcomiss xmm1, xmm6
-          }
-          if ( !v26 )
-            goto LABEL_56;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vcomiss xmm0, dword ptr [rbx+4]
-          }
-          if ( !v26 )
-            goto LABEL_56;
-          __asm
-          {
-            vcomiss xmm6, dword ptr [rbx+8]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vcomiss xmm0, dword ptr [rbx+0Ch]
-          }
-          if ( v26 )
-            v8->activeStatus = 2;
           else
-LABEL_56:
-            __asm { vcomiss xmm1, dword ptr [rbx+4] }
+          {
+            v6->activeStatus = 2;
+          }
         }
         else
         {
-          v8->activeStatus = 2;
+          v6->activeStatus = 2;
           Com_PrintWarning(8, "Too many cached spot lod changes.  Increase the number up from %zu.\n", 0x400ui64);
         }
       }
-      goto LABEL_57;
+      goto LABEL_59;
     }
-LABEL_59:
-    if ( v8->activeStatus == 3 && !v8->smodelsChangedCount )
-      v8->activeStatus = 4;
+LABEL_60:
+    if ( v6->activeStatus == 3 && !v6->smodelsChangedCount )
+      v6->activeStatus = 4;
   }
 }
 
@@ -2987,12 +2847,15 @@ R_EmitDelayedSModelSurfsUpToMaterial
 void R_EmitDelayedSModelSurfsUpToMaterial(GfxSModelSurfBuildList *buildListArray, GfxSModelSurfHeader refKey, unsigned int firstMtlSortIndex)
 {
   __int64 v4; 
+  GfxSModelSurfDelaySort *delaySurfList; 
   unsigned int delaySurfCount; 
   unsigned int v7; 
   GfxSModelSurfHeader header; 
   GfxSModelSurfHeader minDelaySortKey; 
   GfxSModelSurfHeader v10; 
-  unsigned int v15; 
+  __int64 v11; 
+  GfxSModelSurfDelaySort v12; 
+  unsigned int v13; 
 
   refKey.fields.materialSortedIndex = firstMtlSortIndex;
   if ( (unsigned __int16)firstMtlSortIndex != firstMtlSortIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1271, ASSERT_TYPE_ASSERT, "(refKey.fields.materialSortedIndex == firstMtlSortIndex)", (const char *)&queryFormat, "refKey.fields.materialSortedIndex == firstMtlSortIndex") )
@@ -3002,8 +2865,8 @@ void R_EmitDelayedSModelSurfsUpToMaterial(GfxSModelSurfBuildList *buildListArray
   {
     if ( buildListArray->minDelaySortKey.packed <= refKey.packed )
     {
-      _R14 = buildListArray->delaySurfList;
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1279, ASSERT_TYPE_ASSERT, "(delaySurfList)", (const char *)&queryFormat, "delaySurfList") )
+      delaySurfList = buildListArray->delaySurfList;
+      if ( !delaySurfList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1279, ASSERT_TYPE_ASSERT, "(delaySurfList)", (const char *)&queryFormat, "delaySurfList") )
         __debugbreak();
       delaySurfCount = buildListArray->delaySurfCount;
       v7 = 0;
@@ -3011,7 +2874,7 @@ void R_EmitDelayedSModelSurfsUpToMaterial(GfxSModelSurfBuildList *buildListArray
       if ( delaySurfCount > buildListArray->delaySurfLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1284, ASSERT_TYPE_ASSERT, "(end <= buildList->delaySurfLimit)", (const char *)&queryFormat, "end <= buildList->delaySurfLimit") )
         __debugbreak();
 LABEL_12:
-      header = _R14[v7].fields.header;
+      header = delaySurfList[v7].fields.header;
       if ( header.packed <= refKey.packed )
         goto LABEL_18;
       minDelaySortKey = buildListArray->minDelaySortKey;
@@ -3024,26 +2887,21 @@ LABEL_12:
         }
         if ( ++v7 == delaySurfCount )
           break;
-        header = _R14[v7].fields.header;
+        header = delaySurfList[v7].fields.header;
         if ( header.packed <= refKey.packed )
         {
 LABEL_18:
           while ( v7 != --delaySurfCount )
           {
-            v10 = _R14[delaySurfCount].fields.header;
+            v10 = delaySurfList[delaySurfCount].fields.header;
             if ( v10.packed > refKey.packed )
             {
               if ( buildListArray->minDelaySortKey.packed > v10.packed )
                 buildListArray->minDelaySortKey = v10;
-              _RDX = 2i64 * delaySurfCount;
-              _RAX = 2i64 * v7++;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [r14+rdx*8]
-                vmovups xmm1, xmmword ptr [r14+rax*8]
-                vmovups xmmword ptr [r14+rax*8], xmm0
-                vmovups xmmword ptr [r14+rdx*8], xmm1
-              }
+              v11 = v7++;
+              v12 = delaySurfList[v11];
+              delaySurfList[v11] = delaySurfList[delaySurfCount];
+              delaySurfList[delaySurfCount] = v12;
               if ( v7 != delaySurfCount )
                 goto LABEL_12;
               goto $done_splitting_1;
@@ -3055,15 +2913,15 @@ LABEL_18:
 $done_splitting_1:
       if ( v7 >= buildListArray->delaySurfCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1312, ASSERT_TYPE_ASSERT, "(begin < buildList->delaySurfCount)", (const char *)&queryFormat, "begin < buildList->delaySurfCount") )
         __debugbreak();
-      R_SortSModelSurfDelaySort(_R14, v7, buildListArray->delaySurfCount);
-      v15 = buildListArray->delaySurfCount;
+      R_SortSModelSurfDelaySort(delaySurfList, v7, buildListArray->delaySurfCount);
+      v13 = buildListArray->delaySurfCount;
       buildListArray->delaySurfCount = v7;
       do
       {
-        R_EmitSingleSModelSurf(buildListArray, _R14[v7].fields.header, _R14[v7].fields.visDataRef);
+        R_EmitSingleSModelSurf(buildListArray, delaySurfList[v7].fields.header, delaySurfList[v7].fields.visDataRef);
         ++v7;
       }
-      while ( v7 != v15 );
+      while ( v7 != v13 );
     }
     ++buildListArray;
     --v4;
@@ -4185,6 +4043,7 @@ R_GetSModelCollectionSubdivLodLevel
 */
 unsigned __int8 R_GetSModelCollectionSubdivLodLevel(const XModel *model, int lod, const GfxStaticModelCollection *smodelCollection, const Bounds *smodelCollectionBounds)
 {
+  double Scale; 
   unsigned __int8 ModelSubdivLodLevelWithBounds; 
 
   if ( !smodelCollection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2032, ASSERT_TYPE_ASSERT, "(smodelCollection)", (const char *)&queryFormat, "smodelCollection") )
@@ -4194,11 +4053,10 @@ unsigned __int8 R_GetSModelCollectionSubdivLodLevel(const XModel *model, int lod
   if ( !R_ModelLodHasSubdivision(model, lod) )
     return 0;
   if ( smodelCollection->instanceCount == 1 && (~smodelCollection->flags & 0x20) != 0 )
-    *(double *)&_XMM0 = R_StaticModelInstance_GetScale(smodelCollection->firstInstance);
+    Scale = R_StaticModelInstance_GetScale(smodelCollection->firstInstance);
   else
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  __asm { vmovaps xmm3, xmm0; scale }
-  ModelSubdivLodLevelWithBounds = R_GetModelSubdivLodLevelWithBounds(model, lod, smodelCollectionBounds, *(float *)&_XMM3);
+    *(float *)&Scale = FLOAT_1_0;
+  ModelSubdivLodLevelWithBounds = R_GetModelSubdivLodLevelWithBounds(model, lod, smodelCollectionBounds, *(float *)&Scale);
   if ( !ModelSubdivLodLevelWithBounds )
     ModelSubdivLodLevelWithBounds = 1;
   if ( R_CacheRigidSubdivLod(model, lod) )
@@ -4212,81 +4070,37 @@ unsigned __int8 R_GetSModelCollectionSubdivLodLevel(const XModel *model, int lod
 R_GetStaticModelCollectionLODAndDists
 ==============
 */
-
-__int64 __fastcall R_GetStaticModelCollectionLODAndDists(const XModel *model, double baseDist, double lodCullScale, bool isClutter, SModelLodDists *pOutDists)
+__int64 R_GetStaticModelCollectionLODAndDists(const XModel *model, float baseDist, float lodCullScale, bool isClutter, SModelLodDists *pOutDists)
 {
+  float v6; 
+  float v7; 
   unsigned int DesiredLodForDist; 
-  __int64 result; 
-  char v39; 
-  void *retaddr; 
+  float v9; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vxorps  xmm10, xmm10, xmm10
-    vucomiss xmm2, xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-    vmovss  xmm0, cs:__real@3f800000
-    vmulss  xmm2, xmm6, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.cappedLodScale; r_globals_t rg
-    vdivss  xmm11, xmm0, xmm7
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmulss  xmm8, xmm0, xmm6
-    vmovaps xmm1, xmm8; dist
-    vmulss  xmm2, xmm2, xmm11; cullDist
-    vmovaps xmm9, xmm6
-  }
-  DesiredLodForDist = XModelGetDesiredLodForDist(model, *(const float *)&_XMM1, *(const float *)&_XMM2);
+  if ( lodCullScale == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 295, ASSERT_TYPE_ASSERT, "(lodCullScale != 0.0f)", (const char *)&queryFormat, "lodCullScale != 0.0f") )
+    __debugbreak();
+  v6 = rg.correctedLodParms.invFovScale * baseDist;
+  v7 = baseDist;
+  DesiredLodForDist = XModelGetDesiredLodForDist(model, rg.correctedLodParms.invFovScale * baseDist, (float)(baseDist * rg.correctedLodParms.cappedLodScale) * (float)(1.0 / lodCullScale));
   if ( DesiredLodForDist == 6 && !rg.correctedLodParms.ramp.allowLODOutStatic )
   {
-    __asm { vucomiss xmm7, xmm10 }
-    if ( !rg.correctedLodParms.ramp.allowLODOutStatic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 295, ASSERT_TYPE_ASSERT, "(lodCullScale != 0.0f)", (const char *)&queryFormat, "lodCullScale != 0.0f") )
+    if ( lodCullScale == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 295, ASSERT_TYPE_ASSERT, "(lodCullScale != 0.0f)", (const char *)&queryFormat, "lodCullScale != 0.0f") )
       __debugbreak();
-    __asm
+    v9 = baseDist * rg.correctedLodParms.invFovScale;
+    if ( XModelGetDesiredLodForDist(model, baseDist * rg.correctedLodParms.invFovScale, (float)(baseDist * rg.correctedLodParms.cappedLodScale) * (float)(1.0 / lodCullScale)) != 6 )
     {
-      vmulss  xmm1, xmm6, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.cappedLodScale; r_globals_t rg
-      vmulss  xmm7, xmm6, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-      vmulss  xmm2, xmm1, xmm11; cullDist
-      vmovaps xmm1, xmm7; dist
-    }
-    if ( XModelGetDesiredLodForDist(model, *(const float *)&_XMM1, *(const float *)&_XMM2) != 6 )
-    {
-      __asm
-      {
-        vmovaps xmm8, xmm7
-        vmovaps xmm9, xmm6
-      }
+      v6 = v9;
+      v7 = baseDist;
       DesiredLodForDist = XModelGetNumLods(model) - 1;
     }
   }
-  _RAX = pOutDists;
   if ( pOutDists )
   {
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm6
-      vmovss  dword ptr [rax+4], xmm8
-      vmovss  dword ptr [rax+8], xmm9
-    }
+    pOutDists->baseDist = baseDist;
+    pOutDists->lodDist = v6;
+    pOutDists->scaledDist = v7;
   }
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v39;
-  result = DesiredLodForDist;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return DesiredLodForDist;
 }
 
 /*
@@ -4401,152 +4215,132 @@ R_GetStaticModelCollectionLODMaskInternal
 */
 __int64 R_GetStaticModelCollectionLODMaskInternal(unsigned int viewIndex, unsigned int smodelCollectionIndex, const XModel *model, SModelLodDists *pOutDists)
 {
-  __int64 v8; 
-  GfxStaticModelCollection *v11; 
-  bool v13; 
+  __int64 v4; 
+  GfxStaticModelCollection *v7; 
+  Bounds *v8; 
+  bool v9; 
   unsigned int firstInstance; 
-  char v15; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned int v21; 
+  char v11; 
+  float StaticModelInstanceLODDistWithBounds; 
+  double v13; 
+  unsigned int v14; 
+  unsigned int v15; 
+  unsigned int v16; 
+  __int128 v18; 
+  __m128 v22; 
+  __m128 v26; 
+  __m128 v35; 
+  float v40; 
   unsigned int StaticModelCollectionLODAndDists; 
-  unsigned int v57; 
-  unsigned int v58; 
+  unsigned int v43; 
   unsigned int BestUsableLod; 
-  unsigned int v60; 
+  unsigned int v45; 
   unsigned int NumLods; 
-  char v66; 
-  unsigned int v67; 
-  unsigned int v68; 
-  __int128 v69; 
-  __int128 v70; 
-  __int128 v71; 
+  char v48; 
+  unsigned int v49; 
+  unsigned int v50; 
+  __int128 v51; 
+  __m128 v52; 
+  __m128 v53; 
 
-  v8 = smodelCollectionIndex;
-  __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-  v11 = &rgp.world->smodels.collections[smodelCollectionIndex];
-  _RDI = &rgp.world->smodels.collectionBounds[v8];
-  v13 = (v11->flags & 0x20) != 0;
-  if ( v11->instanceCount != 1 || (v11->flags & 0x20) != 0 )
+  v4 = smodelCollectionIndex;
+  v7 = &rgp.world->smodels.collections[smodelCollectionIndex];
+  v8 = &rgp.world->smodels.collectionBounds[v4];
+  v9 = (v7->flags & 0x20) != 0;
+  if ( v7->instanceCount != 1 || (v7->flags & 0x20) != 0 )
   {
+    HIDWORD(v51) = 0;
+    v18 = v51;
+    *(float *)&v18 = rg.correctedLodParms.origin.v[0];
+    _XMM4 = v18;
     __asm
     {
-      vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg
-      vmovaps [rsp+0B8h+var_48], xmm7
-    }
-    HIDWORD(v69) = 0;
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_58], xmm8
-      vmovups xmm4, xmmword ptr [rsp+40h]
-      vmovss  xmm4, xmm4, xmm0
       vinsertps xmm4, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4, 10h; r_globals_t rg
       vinsertps xmm4, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8, 20h ; ' '; r_globals_t rg
-      vmovss  xmm0, dword ptr [rdi]
-      vmovups xmmword ptr [rsp+40h], xmm4
     }
-    HIDWORD(v70) = 0;
+    v52 = _XMM4;
+    v52.m128_i32[3] = 0;
+    v22 = v52;
+    v22.m128_f32[0] = v8->midPoint.v[0];
+    _XMM3 = v22;
     __asm
     {
-      vmovups xmm3, xmmword ptr [rsp+40h]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [rdi+4], 10h
       vinsertps xmm3, xmm3, dword ptr [rdi+8], 20h ; ' '
-      vmovss  xmm0, dword ptr [rdi+0Ch]
-      vsubps  xmm1, xmm4, xmm3
-      vmovups xmmword ptr [rsp+40h], xmm3
     }
-    HIDWORD(v71) = 0;
+    _mm128_sub_ps(_XMM4, _XMM3);
+    v53 = _XMM3;
+    v53.m128_i32[3] = 0;
+    v26 = v53;
+    v26.m128_f32[0] = v8->halfSize.v[0];
+    _XMM6 = v26;
+    _XMM0 = g_negativeZero.v;
     __asm
     {
-      vmovups xmm6, xmmword ptr [rsp+40h]
-      vmovss  xmm6, xmm6, xmm0
-      vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
       vinsertps xmm6, xmm6, dword ptr [rdi+10h], 10h
       vinsertps xmm6, xmm6, dword ptr [rdi+14h], 20h ; ' '
       vandnps xmm5, xmm0, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vsubps  xmm2, xmm5, xmm6
-      vmaxps  xmm1, xmm2, xmm0
-      vmulps  xmm3, xmm1, xmm1
-      vhaddps xmm0, xmm3, xmm3
-      vaddps  xmm1, xmm6, xmm5
-      vhaddps xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm1, xmm1
+    }
+    _XMM2 = _mm128_sub_ps(_XMM5, _XMM6);
+    __asm { vmaxps  xmm1, xmm2, xmm0 }
+    _XMM3 = _mm128_mul_ps(_XMM1, _XMM1);
+    __asm { vhaddps xmm0, xmm3, xmm3 }
+    v35 = _mm128_add_ps(_XMM6, _XMM5);
+    __asm { vhaddps xmm4, xmm0, xmm0 }
+    _XMM0 = _mm128_mul_ps(v35, v35);
+    __asm
+    {
       vhaddps xmm2, xmm0, xmm0
       vhaddps xmm1, xmm2, xmm2
-      vsqrtss xmm8, xmm1, xmm1
-      vsqrtss xmm7, xmm4, xmm4
     }
-    if ( (v11->flags & 0x20) != 0 )
+    v40 = fsqrt(*(float *)&_XMM1);
+    LODWORD(_XMM7) = fsqrt(*(float *)&_XMM4);
+    if ( (v7->flags & 0x20) != 0 )
     {
-      *(double *)&_XMM0 = Stream_GetMinViewDistanceToClutter(viewIndex);
+      *(double *)_XMM0.m128_u64 = Stream_GetMinViewDistanceToClutter(viewIndex);
       __asm { vmaxss  xmm7, xmm0, xmm7 }
     }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; lodCullScale
-      vmovaps xmm1, xmm7; baseDist
-    }
-    StaticModelCollectionLODAndDists = R_GetStaticModelCollectionLODAndDists(model, *(double *)&_XMM1, *(double *)&_XMM2, v13, pOutDists);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; lodCullScale
-      vmovaps xmm1, xmm8; baseDist
-    }
-    v57 = StaticModelCollectionLODAndDists;
-    v58 = R_GetStaticModelCollectionLODAndDists(model, *(double *)&_XMM1, *(double *)&_XMM2, v13, NULL);
-    BestUsableLod = XModelGetBestUsableLod(model, v57, 1);
-    v60 = XModelGetBestUsableLod(model, v58, 1);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0B8h+var_58]
-      vmovaps xmm7, [rsp+0B8h+var_48]
-    }
-    v21 = v60;
-    v20 = v60;
-    if ( v60 < BestUsableLod )
-      v21 = BestUsableLod;
-    if ( v60 > BestUsableLod )
-      v20 = BestUsableLod;
+    StaticModelCollectionLODAndDists = R_GetStaticModelCollectionLODAndDists(model, *(float *)&_XMM7, 1.0, v9, pOutDists);
+    v43 = R_GetStaticModelCollectionLODAndDists(model, v40, 1.0, v9, NULL);
+    BestUsableLod = XModelGetBestUsableLod(model, StaticModelCollectionLODAndDists, 1);
+    v45 = XModelGetBestUsableLod(model, v43, 1);
+    v16 = v45;
+    v15 = v45;
+    if ( v45 < BestUsableLod )
+      v16 = BestUsableLod;
+    if ( v45 > BestUsableLod )
+      v15 = BestUsableLod;
   }
   else
   {
-    firstInstance = v11->firstInstance;
-    if ( v11->firstInstance >= rgp.world->smodels.instanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 415, ASSERT_TYPE_ASSERT, "(unsigned)( singletonInstanceIndex ) < (unsigned)( rgp.world->smodels.instanceCount )", "singletonInstanceIndex doesn't index rgp.world->smodels.instanceCount\n\t%i not in [0, %i)", v11->firstInstance, rgp.world->smodels.instanceCount) )
+    firstInstance = v7->firstInstance;
+    if ( v7->firstInstance >= rgp.world->smodels.instanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 415, ASSERT_TYPE_ASSERT, "(unsigned)( singletonInstanceIndex ) < (unsigned)( rgp.world->smodels.instanceCount )", "singletonInstanceIndex doesn't index rgp.world->smodels.instanceCount\n\t%i not in [0, %i)", v7->firstInstance, rgp.world->smodels.instanceCount) )
       __debugbreak();
-    *(float *)&_XMM0 = R_GetStaticModelInstanceLODDistWithBounds(model, firstInstance, _RDI, &rg.correctedLodParms.origin);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = GfxStaticModelLodDistIndexToScale(v15 & 0xF);
-    __asm
-    {
-      vmovaps xmm2, xmm0; lodCullScale
-      vmovaps xmm1, xmm6; baseDist
-    }
-    v19 = R_GetStaticModelCollectionLODAndDists(model, *(double *)&_XMM1, *(double *)&_XMM2, 0, pOutDists);
-    v20 = XModelGetBestUsableLod(model, v19, 1);
-    v21 = v20;
+    StaticModelInstanceLODDistWithBounds = R_GetStaticModelInstanceLODDistWithBounds(model, firstInstance, v8, &rg.correctedLodParms.origin);
+    v13 = GfxStaticModelLodDistIndexToScale(v11 & 0xF);
+    v14 = R_GetStaticModelCollectionLODAndDists(model, StaticModelInstanceLODDistWithBounds, *(float *)&v13, 0, pOutDists);
+    v15 = XModelGetBestUsableLod(model, v14, 1);
+    v16 = v15;
   }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
-  if ( v20 == 6 )
+  if ( v15 == 6 )
   {
-    if ( v21 != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 451, ASSERT_TYPE_ASSERT, "(lodFar == XMODEL_LOD_CULLED_OUT)", (const char *)&queryFormat, "lodFar == XMODEL_LOD_CULLED_OUT") )
+    if ( v16 != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 451, ASSERT_TYPE_ASSERT, "(lodFar == XMODEL_LOD_CULLED_OUT)", (const char *)&queryFormat, "lodFar == XMODEL_LOD_CULLED_OUT") )
       __debugbreak();
     return 0i64;
   }
   else
   {
     NumLods = XModelGetNumLods(model);
-    v66 = NumLods;
-    v67 = NumLods - 1;
-    if ( NumLods - 1 > v21 )
-      v67 = v21;
-    if ( v20 > v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 459, ASSERT_TYPE_ASSERT, "(lodNear <= lodFar)", (const char *)&queryFormat, "lodNear <= lodFar") )
+    v48 = NumLods;
+    v49 = NumLods - 1;
+    if ( NumLods - 1 > v16 )
+      v49 = v16;
+    if ( v15 > v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 459, ASSERT_TYPE_ASSERT, "(lodNear <= lodFar)", (const char *)&queryFormat, "lodNear <= lodFar") )
       __debugbreak();
-    v68 = ((1 << (v67 - v20 + 1)) - 1) << v20;
-    if ( ((-1 << v66) & v68) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 464, ASSERT_TYPE_ASSERT, "(( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0)", (const char *)&queryFormat, "( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0") )
+    v50 = ((1 << (v49 - v15 + 1)) - 1) << v15;
+    if ( ((-1 << v48) & v50) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 464, ASSERT_TYPE_ASSERT, "(( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0)", (const char *)&queryFormat, "( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0") )
       __debugbreak();
-    return v68;
+    return v50;
   }
 }
 
@@ -4557,160 +4351,140 @@ R_GetStaticModelCollectionLODMaskInternal_StreamTree
 */
 __int64 R_GetStaticModelCollectionLODMaskInternal_StreamTree(unsigned int smodelCollectionIndex, const XModel *model, SModelLodDists *pOutDists)
 {
-  GfxStaticModelCollection *v9; 
+  GfxStaticModelCollection *v5; 
+  Bounds *collectionBounds; 
+  __int64 v7; 
   unsigned int SModelCollectionLodMaskFromXModelStreamTree; 
   __int64 firstInstance; 
-  unsigned int v14; 
-  unsigned __int8 v15; 
-  bool v16; 
-  bool v17; 
+  unsigned int v10; 
+  unsigned __int8 v11; 
+  bool v12; 
+  bool v13; 
+  __int128 v15; 
+  __m128 v19; 
+  __m128 v23; 
+  __m128 v32; 
+  float v37; 
+  float v38; 
+  float v39; 
+  double v40; 
   unsigned int StaticModelCollectionLODAndDists; 
-  __int64 result; 
-  bool v53; 
+  bool v43; 
   unsigned int NumLods; 
-  char v55; 
-  unsigned int v56; 
-  unsigned int v59; 
+  char v45; 
+  unsigned int v46; 
+  unsigned int v47; 
   bool IsLodUsable; 
-  unsigned __int64 v61; 
-  __int128 v66; 
-  __int128 v67; 
-  __int128 v68; 
-  char v70; 
-  void *retaddr; 
+  unsigned __int64 v49; 
+  __int128 v50; 
+  __m128 v51; 
+  __m128 v52; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v9 = &rgp.world->smodels.collections[smodelCollectionIndex];
-  _R13 = rgp.world->smodels.collectionBounds;
-  _R15 = 3i64 * smodelCollectionIndex;
+  v5 = &rgp.world->smodels.collections[smodelCollectionIndex];
+  collectionBounds = rgp.world->smodels.collectionBounds;
+  v7 = smodelCollectionIndex;
   SModelCollectionLodMaskFromXModelStreamTree = Stream_GetSModelCollectionLodMaskFromXModelStreamTree(smodelCollectionIndex);
-  firstInstance = v9->firstInstance;
-  v14 = SModelCollectionLodMaskFromXModelStreamTree;
+  firstInstance = v5->firstInstance;
+  v10 = SModelCollectionLodMaskFromXModelStreamTree;
   if ( (unsigned int)firstInstance >= rgp.world->smodels.instanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 482, ASSERT_TYPE_ASSERT, "(unsigned)( firstInstanceIndex ) < (unsigned)( rgp.world->smodels.instanceCount )", "firstInstanceIndex doesn't index rgp.world->smodels.instanceCount\n\t%i not in [0, %i)", firstInstance, rgp.world->smodels.instanceCount) )
     __debugbreak();
-  v15 = rgp.world->smodels.instanceFlags[firstInstance];
-  v16 = (v9->flags & 0x20) != 0;
-  v17 = v9->instanceCount > 1 || (v9->flags & 0x20) != 0;
-  __asm { vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg }
-  HIDWORD(v66) = 0;
+  v11 = rgp.world->smodels.instanceFlags[firstInstance];
+  v12 = (v5->flags & 0x20) != 0;
+  v13 = v5->instanceCount > 1 || (v5->flags & 0x20) != 0;
+  HIDWORD(v50) = 0;
+  v15 = v50;
+  *(float *)&v15 = rg.correctedLodParms.origin.v[0];
+  _XMM4 = v15;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+40h]
-    vmovss  xmm4, xmm4, xmm0
     vinsertps xmm4, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4, 10h; r_globals_t rg
     vinsertps xmm4, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8, 20h ; ' '; r_globals_t rg
-    vmovss  xmm0, dword ptr [r13+r15*8+0]
-    vmovups xmmword ptr [rsp+40h], xmm4
   }
-  HIDWORD(v67) = 0;
+  v51 = _XMM4;
+  v51.m128_i32[3] = 0;
+  v19 = v51;
+  v19.m128_f32[0] = collectionBounds[v7].midPoint.v[0];
+  _XMM3 = v19;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+40h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [r13+r15*8+4], 10h
     vinsertps xmm3, xmm3, dword ptr [r13+r15*8+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [r13+r15*8+0Ch]
-    vsubps  xmm1, xmm4, xmm3
-    vmovups xmmword ptr [rsp+40h], xmm3
   }
-  HIDWORD(v68) = 0;
+  _mm128_sub_ps(_XMM4, _XMM3);
+  v52 = _XMM3;
+  v52.m128_i32[3] = 0;
+  v23 = v52;
+  v23.m128_f32[0] = collectionBounds[v7].halfSize.v[0];
+  _XMM6 = v23;
+  _XMM0 = g_negativeZero.v;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rsp+40h]
-    vmovss  xmm6, xmm6, xmm0
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
     vinsertps xmm6, xmm6, dword ptr [r13+r15*8+10h], 10h
     vinsertps xmm6, xmm6, dword ptr [r13+r15*8+14h], 20h ; ' '
     vandnps xmm5, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm2, xmm5, xmm6
-    vmaxps  xmm1, xmm2, xmm0
-    vmulps  xmm3, xmm1, xmm1
-    vhaddps xmm0, xmm3, xmm3
-    vaddps  xmm1, xmm6, xmm5
-    vhaddps xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm1, xmm1
+  }
+  _XMM2 = _mm128_sub_ps(_XMM5, _XMM6);
+  __asm { vmaxps  xmm1, xmm2, xmm0 }
+  _XMM3 = _mm128_mul_ps(_XMM1, _XMM1);
+  __asm { vhaddps xmm0, xmm3, xmm3 }
+  v32 = _mm128_add_ps(_XMM6, _XMM5);
+  __asm { vhaddps xmm4, xmm0, xmm0 }
+  _XMM0 = _mm128_mul_ps(v32, v32);
+  __asm
+  {
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm1, xmm2, xmm2
-    vsqrtss xmm8, xmm1, xmm1
-    vsqrtss xmm7, xmm4, xmm4
   }
-  if ( v17 )
+  v37 = fsqrt(*(float *)&_XMM1);
+  v38 = fsqrt(*(float *)&_XMM4);
+  if ( v13 )
   {
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    v39 = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = GfxStaticModelLodDistIndexToScale(v15 & 0xF);
-    __asm { vmovaps xmm6, xmm0 }
+    v40 = GfxStaticModelLodDistIndexToScale(v11 & 0xF);
+    v39 = *(float *)&v40;
   }
-  __asm
-  {
-    vmovaps xmm2, xmm6; lodCullScale
-    vmovaps xmm1, xmm7; baseDist
-  }
-  StaticModelCollectionLODAndDists = R_GetStaticModelCollectionLODAndDists(model, *(double *)&_XMM1, *(double *)&_XMM2, v16, pOutDists);
+  StaticModelCollectionLODAndDists = R_GetStaticModelCollectionLODAndDists(model, v38, v39, v12, pOutDists);
   if ( StaticModelCollectionLODAndDists == 6 )
-  {
-    result = 0i64;
-    goto LABEL_30;
-  }
-  v53 = v14 == 0;
+    return 0i64;
+  v43 = v10 == 0;
   NumLods = XModelGetNumLods(model);
-  v55 = NumLods;
-  v56 = NumLods - 1;
-  if ( v14 )
+  v45 = NumLods;
+  v46 = NumLods - 1;
+  if ( v10 )
   {
-    if ( v17 )
+    if ( v13 )
     {
-      __asm
-      {
-        vmovaps xmm2, xmm6; lodCullScale
-        vmovaps xmm1, xmm8; baseDist
-      }
-      v59 = R_GetStaticModelCollectionLODAndDists(model, *(double *)&_XMM1, *(double *)&_XMM2, v16, NULL);
-      if ( StaticModelCollectionLODAndDists > v59 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 514, ASSERT_TYPE_ASSERT, "(desiredLodNear <= desiredLodFar)", (const char *)&queryFormat, "desiredLodNear <= desiredLodFar") )
+      v47 = R_GetStaticModelCollectionLODAndDists(model, v37, v39, v12, NULL);
+      if ( StaticModelCollectionLODAndDists > v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 514, ASSERT_TYPE_ASSERT, "(desiredLodNear <= desiredLodFar)", (const char *)&queryFormat, "desiredLodNear <= desiredLodFar") )
         __debugbreak();
-      if ( StaticModelCollectionLODAndDists > v56 || v59 < v56 )
+      if ( StaticModelCollectionLODAndDists > v46 || v47 < v46 )
         goto LABEL_26;
       goto LABEL_23;
     }
-    v53 = StaticModelCollectionLODAndDists == v56;
+    v43 = StaticModelCollectionLODAndDists == v46;
   }
-  if ( v53 )
+  if ( v43 )
   {
 LABEL_23:
-    IsLodUsable = XModelIsLodUsable(model, v56);
-    v61 = (unsigned __int64)v56 << 6;
+    IsLodUsable = XModelIsLodUsable(model, v46);
+    v49 = (unsigned __int64)v46 << 6;
     if ( IsLodUsable )
     {
-      v14 |= 1 << v56;
-      Stream_UsedMesh(*(const XModelSurfs **)((char *)&model->lodInfo[0].modelSurfsStaging + v61));
+      v10 |= 1 << v46;
+      Stream_UsedMesh(*(const XModelSurfs **)((char *)&model->lodInfo[0].modelSurfsStaging + v49));
     }
     else
     {
-      Stream_RequestMesh(*(const XModelSurfs **)((char *)&model->lodInfo[0].modelSurfsStaging + v61));
+      Stream_RequestMesh(*(const XModelSurfs **)((char *)&model->lodInfo[0].modelSurfsStaging + v49));
     }
   }
 LABEL_26:
-  if ( ((-1 << v55) & v14) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 536, ASSERT_TYPE_ASSERT, "(( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0)", (const char *)&queryFormat, "( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0") )
+  if ( ((-1 << v45) & v10) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 536, ASSERT_TYPE_ASSERT, "(( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0)", (const char *)&queryFormat, "( lodMask & ~( ( 1 << numLods ) - 1 ) ) == 0") )
     __debugbreak();
-  result = v14;
-LABEL_30:
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0C8h+var_58]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return v10;
 }
 
 /*
@@ -4734,50 +4508,54 @@ R_GetStaticModelInstanceLODDistWithBounds
 */
 float R_GetStaticModelInstanceLODDistWithBounds(const XModel *model, unsigned int smodelInstanceIndex, const Bounds *instanceBounds, const vec3_t *lodOrigin)
 {
-  __int128 v30; 
-  __int128 v31; 
-  __int128 v32; 
+  __int128 v5; 
+  __m128 v9; 
+  __m128 v13; 
+  __int128 v24; 
+  __m128 v25; 
+  __m128 v26; 
 
-  __asm { vmovss  xmm0, dword ptr [r9] }
-  HIDWORD(v30) = 0;
+  HIDWORD(v24) = 0;
+  v5 = v24;
+  *(float *)&v5 = lodOrigin->v[0];
+  _XMM5 = v5;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp]
-    vmovss  xmm5, xmm5, xmm0
-    vmovss  xmm0, dword ptr [r8]
     vinsertps xmm5, xmm5, dword ptr [r9+4], 10h
     vinsertps xmm5, xmm5, dword ptr [r9+8], 20h ; ' '
-    vmovups xmmword ptr [rsp], xmm5
   }
-  HIDWORD(v31) = 0;
+  v25 = _XMM5;
+  v25.m128_i32[3] = 0;
+  v9 = v25;
+  v9.m128_f32[0] = instanceBounds->midPoint.v[0];
+  _XMM4 = v9;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [r8+0Ch]
     vinsertps xmm4, xmm4, dword ptr [r8+4], 10h
     vinsertps xmm4, xmm4, dword ptr [r8+8], 20h ; ' '
-    vmovups xmmword ptr [rsp], xmm4
-    vsubps  xmm1, xmm5, xmm4
   }
-  HIDWORD(v32) = 0;
+  v26 = _XMM4;
+  _mm128_sub_ps(_XMM5, _XMM4);
+  v26.m128_i32[3] = 0;
+  v13 = v26;
+  v13.m128_f32[0] = instanceBounds->halfSize.v[0];
+  _XMM3 = v13;
+  __asm { vinsertps xmm3, xmm3, dword ptr [r8+10h], 10h }
+  _XMM0 = g_negativeZero.v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
-    vinsertps xmm3, xmm3, dword ptr [r8+10h], 10h
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
     vinsertps xmm3, xmm3, dword ptr [r8+14h], 20h ; ' '
     vandnps xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm3, xmm2, xmm3
-    vmaxps  xmm1, xmm3, xmm0
-    vmulps  xmm2, xmm1, xmm1
+  }
+  _XMM3 = _mm128_sub_ps(_XMM2, _XMM3);
+  __asm { vmaxps  xmm1, xmm3, xmm0 }
+  _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
+  __asm
+  {
     vhaddps xmm0, xmm2, xmm2
     vhaddps xmm1, xmm0, xmm0
-    vsqrtss xmm0, xmm1, xmm1
   }
-  return *(float *)&_XMM0;
+  return fsqrt(*(float *)&_XMM1);
 }
 
 /*
@@ -4929,91 +4707,82 @@ R_ProcessSModelCollections
 */
 void R_ProcessSModelCollections(const void *const cmd)
 {
-  const GfxViewInfo *v3; 
-  const char *v4; 
-  GfxStaticModelCollection *v6; 
-  const GfxStaticModel *v7; 
-  bool v9; 
+  unsigned int *v1; 
+  const GfxViewInfo *v2; 
+  const char *v3; 
+  __int64 v4; 
+  GfxStaticModelCollection *v5; 
+  const GfxStaticModel *v6; 
+  float v7; 
+  bool v8; 
   unsigned int instanceCount; 
   bool isSingleInstanceCollection; 
-  unsigned int v12; 
+  unsigned int v11; 
   bool isClutter; 
-  unsigned int v14; 
-  float v16; 
-  char v17; 
-  char v18; 
-  int v19; 
+  unsigned int v13; 
+  char v14; 
+  char v15; 
+  int i; 
   GfxViewInfo *viewInfo; 
   unsigned int smodelCollectionIndex; 
   int lod; 
   MaterialLodSettings materialLodSettings; 
 
-  _RSI = (unsigned int *)cmd;
+  v1 = (unsigned int *)cmd;
   R_SetMaterialLodSettings(&materialLodSettings);
-  v3 = (const GfxViewInfo *)*((_QWORD *)_RSI + 448);
-  viewInfo = (GfxViewInfo *)v3;
-  if ( CG_DrawHits_AnyActive(v3->clientIndex) || r_showCullSModels->current.enabled && !r_showCull->current.integer || r_showTriCounts->current.enabled || r_showVertCounts->current.enabled || r_showSurfCounts->current.enabled || Dvar_GetInt_Internal_DebugName(DVARINT_cg_drawFPS, "cg_drawFPS") >= 3 || r_showModelNames->current.enabled || r_showModelLODs->current.integer || r_showModelLODOutDist->current.enabled || r_staticModelDumpLodInfo->current.enabled || (v17 = 0, r_showXModelRanking->current.enabled) )
-    v17 = 1;
-  v4 = j_va("Process SModel Collections: %d", _RSI[899]);
-  Sys_ProfBeginNamedEvent(0xFFE9967A, v4);
-  _R13 = 0i64;
-  v19 = 0;
-  if ( _RSI[899] )
+  v2 = (const GfxViewInfo *)*((_QWORD *)v1 + 448);
+  viewInfo = (GfxViewInfo *)v2;
+  if ( CG_DrawHits_AnyActive(v2->clientIndex) || r_showCullSModels->current.enabled && !r_showCull->current.integer || r_showTriCounts->current.enabled || r_showVertCounts->current.enabled || r_showSurfCounts->current.enabled || Dvar_GetInt_Internal_DebugName(DVARINT_cg_drawFPS, "cg_drawFPS") >= 3 || r_showModelNames->current.enabled || r_showModelLODs->current.integer || r_showModelLODOutDist->current.enabled || r_staticModelDumpLodInfo->current.enabled || (v14 = 0, r_showXModelRanking->current.enabled) )
+    v14 = 1;
+  v3 = j_va("Process SModel Collections: %d", v1[899]);
+  Sys_ProfBeginNamedEvent(0xFFE9967A, v3);
+  v4 = 0i64;
+  for ( i = 0; (unsigned int)v4 < v1[899]; i = v4 )
   {
-    __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-    do
+    smodelCollectionIndex = *((unsigned __int16 *)v1 + v4);
+    v5 = &rgp.world->smodels.collections[*((unsigned __int16 *)v1 + v4)];
+    v6 = &rgp.world->smodels.models[v5->smodelIndex];
+    if ( (v5->flags & 0x20) == 0 )
     {
-      smodelCollectionIndex = *((unsigned __int16 *)_RSI + _R13);
-      v6 = &rgp.world->smodels.collections[*((unsigned __int16 *)_RSI + _R13)];
-      v7 = &rgp.world->smodels.models[v6->smodelIndex];
-      if ( (v6->flags & 0x20) == 0 )
+      v7 = *(float *)&v1[v4 + 384];
+      lod = v1[v4 + 640];
+      if ( !rg.useLightGridVolumes || (v15 = 1, !R_IsStaticModelProbeLit(v6)) )
+        v15 = 0;
+      v8 = R_LGV_DrawProbes_Enabled(v2) || r_lgvDebugSmodelId->current.integer > 0 || r_lgvDrawVolumes->current.integer;
+      instanceCount = v5->instanceCount;
+      isSingleInstanceCollection = instanceCount == 1;
+      v11 = 0;
+      isClutter = (v5->flags & 0x20) != 0;
+      if ( instanceCount )
       {
-        __asm { vmovss  xmm6, dword ptr [rsi+r13*4+600h] }
-        lod = _RSI[_R13 + 640];
-        if ( !rg.useLightGridVolumes || (v18 = 1, !R_IsStaticModelProbeLit(v7)) )
-          v18 = 0;
-        v9 = R_LGV_DrawProbes_Enabled(v3) || r_lgvDebugSmodelId->current.integer > 0 || r_lgvDrawVolumes->current.integer;
-        instanceCount = v6->instanceCount;
-        isSingleInstanceCollection = instanceCount == 1;
-        v12 = 0;
-        isClutter = (v6->flags & 0x20) != 0;
+        do
+        {
+          if ( v14 )
+            R_StaticModelInstanceDebugAids(viewInfo, v11 + v5->firstInstance, smodelCollectionIndex, v6, lod, v7, isClutter, isSingleInstanceCollection);
+          instanceCount = v5->instanceCount;
+          ++v11;
+        }
+        while ( v11 < instanceCount );
+        v1 = (unsigned int *)cmd;
+        LODWORD(v4) = i;
+      }
+      if ( v15 )
+      {
+        v13 = 0;
         if ( instanceCount )
         {
           do
           {
-            if ( v17 )
-            {
-              __asm { vmovss  [rsp+0B8h+var_90], xmm6 }
-              R_StaticModelInstanceDebugAids(viewInfo, v12 + v6->firstInstance, smodelCollectionIndex, v7, lod, v16, isClutter, isSingleInstanceCollection);
-            }
-            instanceCount = v6->instanceCount;
-            ++v12;
+            if ( v8 )
+              R_LGV_DebugMarkStaticLGVVisible(v1[898], v13 + v5->firstInstance);
+            ++v13;
           }
-          while ( v12 < instanceCount );
-          _RSI = (unsigned int *)cmd;
-          LODWORD(_R13) = v19;
+          while ( v13 < v5->instanceCount );
         }
-        if ( v18 )
-        {
-          v14 = 0;
-          if ( instanceCount )
-          {
-            do
-            {
-              if ( v9 )
-                R_LGV_DebugMarkStaticLGVVisible(_RSI[898], v14 + v6->firstInstance);
-              ++v14;
-            }
-            while ( v14 < v6->instanceCount );
-          }
-        }
-        v3 = viewInfo;
       }
-      _R13 = (unsigned int)(_R13 + 1);
-      v19 = _R13;
+      v2 = viewInfo;
     }
-    while ( (unsigned int)_R13 < _RSI[899] );
-    __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
+    v4 = (unsigned int)(v4 + 1);
   }
   Sys_ProfEndNamedEvent();
 }
@@ -5031,46 +4800,46 @@ void R_ProcessSModelSurfVisBits_Camera(const unsigned int *smodelSurfVisData, Gf
   __int64 index; 
   unsigned __int64 smodelMaterialIndex; 
   unsigned __int8 emitType; 
-  Material **v11; 
-  unsigned int v12; 
-  unsigned int *v13; 
-  __int64 v14; 
-  unsigned __int16 v15; 
-  unsigned __int64 v16; 
+  Material **v10; 
+  unsigned int v11; 
+  unsigned int *v12; 
+  __int64 v13; 
+  unsigned __int16 v14; 
+  unsigned __int64 v15; 
+  unsigned int v16; 
   unsigned int v17; 
-  unsigned int v18; 
-  __int64 v20; 
-  unsigned int v21; 
+  __int64 v18; 
+  unsigned int v19; 
   const char **p_name; 
-  __int64 v23; 
-  char *v24; 
-  const char *v25; 
+  __int64 v21; 
+  char *v22; 
+  const char *v23; 
   Material *MaterialAtIndex; 
-  __int16 v27; 
+  __int16 v25; 
+  __int64 v26; 
+  unsigned int v27; 
   __int64 v28; 
-  unsigned int v29; 
+  __int64 v29; 
+  __int64 v30; 
   __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  unsigned __int16 v35; 
+  unsigned __int16 v32; 
   unsigned int validBatchCount; 
-  __int16 v37; 
-  unsigned int v38; 
+  __int16 v34; 
+  unsigned int v35; 
   Material **materials; 
   BitArrayIterator iter; 
   GfxViewMaterialRenderFeatures *renderFeaturesa; 
-  GfxSModelSurfDrawData *v42; 
+  GfxSModelSurfDrawData *v39; 
   vec3_t origin; 
-  int v44[512]; 
+  int v41[512]; 
 
   renderFeaturesa = renderFeatures;
-  v42 = drawData;
+  v39 = drawData;
   smodelSurfMatIndirection = rgp.world->smodels.smodelSurfMatIndirection;
   surfaceCount = rgp.world->smodels.surfaceCount;
   materialCount = rgp.world->smodels.materialCount;
   materials = rgp.world->smodels.materials;
-  memset_0(v44, 0, sizeof(v44));
+  memset_0(v41, 0, sizeof(v41));
   iter.bitArray = smodelSurfVisData;
   iter.wordIndex = 0;
   iter.wordCount = (unsigned __int64)(surfaceCount + 31) >> 5;
@@ -5083,135 +4852,128 @@ void R_ProcessSModelSurfVisBits_Camera(const unsigned int *smodelSurfVisData, Gf
     smodelMaterialIndex = smodelSurfMatIndirection[iter.index].smodelMaterialIndex;
     if ( iter.index >= (unsigned int)surfaceCount )
     {
-      LODWORD(v32) = surfaceCount;
-      LODWORD(v31) = iter.index;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2575, ASSERT_TYPE_ASSERT, "(unsigned)( smodelSurfIndex ) < (unsigned)( smodelSurfCount )", "smodelSurfIndex doesn't index smodelSurfCount\n\t%i not in [0, %i)", v31, v32) )
+      LODWORD(v29) = surfaceCount;
+      LODWORD(v28) = iter.index;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2575, ASSERT_TYPE_ASSERT, "(unsigned)( smodelSurfIndex ) < (unsigned)( smodelSurfCount )", "smodelSurfIndex doesn't index smodelSurfCount\n\t%i not in [0, %i)", v28, v29) )
         __debugbreak();
     }
     if ( (unsigned int)smodelMaterialIndex >= rgp.world->smodels.materialCount )
     {
-      LODWORD(v32) = rgp.world->smodels.materialCount;
-      LODWORD(v31) = smodelMaterialIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2576, ASSERT_TYPE_ASSERT, "(unsigned)( smodelMaterialIndex ) < (unsigned)( rgp.world->smodels.materialCount )", "smodelMaterialIndex doesn't index rgp.world->smodels.materialCount\n\t%i not in [0, %i)", v31, v32) )
+      LODWORD(v29) = rgp.world->smodels.materialCount;
+      LODWORD(v28) = smodelMaterialIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2576, ASSERT_TYPE_ASSERT, "(unsigned)( smodelMaterialIndex ) < (unsigned)( rgp.world->smodels.materialCount )", "smodelMaterialIndex doesn't index rgp.world->smodels.materialCount\n\t%i not in [0, %i)", v28, v29) )
         __debugbreak();
     }
     emitType = smodelSurfMatIndirection[index].emitType;
     if ( (emitType & 1) != 0 && (!rg.subdiv || (emitType & 8) != 0) && (rg.distortion || (emitType & 4) != 0) )
-      v44[smodelMaterialIndex >> 5] |= 0x80000000 >> (smodelMaterialIndex & 0x1F);
+      v41[smodelMaterialIndex >> 5] |= 0x80000000 >> (smodelMaterialIndex & 0x1F);
   }
-  v11 = materials;
-  v12 = 0;
+  v10 = materials;
+  v11 = 0;
   if ( (unsigned int)(materialCount + 31) >> 5 )
   {
-    v13 = (unsigned int *)v44;
-    v14 = (unsigned int)(materialCount + 31) >> 5;
+    v12 = (unsigned int *)v41;
+    v13 = (unsigned int)(materialCount + 31) >> 5;
     do
     {
-      v12 += __popcnt(*v13++);
-      --v14;
+      v11 += __popcnt(*v12++);
+      --v13;
     }
-    while ( v14 );
-    if ( v12 )
+    while ( v13 );
+    if ( v11 )
     {
       validBatchCount = 0;
-      v15 = R_AllocGPUBatchIndexesSModel(0, SCENE_VIEW_CAMERA, v12, &validBatchCount);
-      v35 = v15;
-      if ( v15 != 0x4000 )
+      v14 = R_AllocGPUBatchIndexesSModel(0, SCENE_VIEW_CAMERA, v11, &validBatchCount);
+      v32 = v14;
+      if ( v14 != 0x4000 )
       {
         if ( validBatchCount )
         {
-          __asm { vmovaps [rsp+900h+var_40], xmm6 }
-          v16 = (unsigned __int64)(materialCount + 31) >> 5;
-          iter.bitArray = (const unsigned int *)v44;
+          v15 = (unsigned __int64)(materialCount + 31) >> 5;
+          iter.bitArray = (const unsigned int *)v41;
+          v16 = 0;
+          v35 = 0;
+          if ( (_DWORD)v15 )
+            v16 = v41[0];
           v17 = 0;
-          v38 = 0;
-          if ( (_DWORD)v16 )
-            v17 = v44[0];
-          v18 = 0;
-          iter.bits = v17;
-          iter.wordCount = v16;
+          iter.bits = v16;
+          iter.wordCount = v15;
           iter.wordIndex = 0;
-          __asm { vxorps  xmm6, xmm6, xmm6 }
           while ( BitArrayIterator::Advance(&iter) )
           {
-            v20 = iter.index;
-            v21 = v18 + v15;
-            if ( v21 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v18 + v15), "unsigned", v21) )
+            v18 = iter.index;
+            v19 = v17 + v14;
+            if ( v19 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v17 + v14), "unsigned", v19) )
               __debugbreak();
-            R_GP_MapSModelMaterialToBatch(0, 0, (unsigned __int16)(v18 + v15), v20);
-            p_name = &v11[v20]->name;
+            R_GP_MapSModelMaterialToBatch(0, 0, (unsigned __int16)(v17 + v14), v18);
+            p_name = &v10[v18]->name;
             if ( !p_name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 455, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
               __debugbreak();
             if ( !*p_name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
               __debugbreak();
             if ( !**p_name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 457, ASSERT_TYPE_ASSERT, "(handle->name[0])", (const char *)&queryFormat, "handle->name[0]") )
               __debugbreak();
-            __asm
-            {
-              vmovss  dword ptr [rbp+800h+origin], xmm6
-              vmovss  dword ptr [rbp+800h+origin+4], xmm6
-              vmovss  dword ptr [rbp+800h+origin+8], xmm6
-            }
+            origin.v[0] = 0.0;
+            origin.v[1] = 0.0;
+            origin.v[2] = 0.0;
             R_AccumulateMaterialRenderTechflags((const Material *)p_name, renderFeaturesa, &origin);
-            v23 = *((unsigned __int16 *)p_name + 24);
-            v24 = (char *)v42 + 216 * *((unsigned __int8 *)p_name + 24);
-            if ( (_DWORD)v23 == 45055 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 536, ASSERT_TYPE_ASSERT, "( ( mtlSortIndex != MAX_SORTED_MATERIALS ) )", "( mtl->name ) = %s", *p_name) )
+            v21 = *((unsigned __int16 *)p_name + 24);
+            v22 = (char *)v39 + 216 * *((unsigned __int8 *)p_name + 24);
+            if ( (_DWORD)v21 == 45055 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 536, ASSERT_TYPE_ASSERT, "( ( mtlSortIndex != MAX_SORTED_MATERIALS ) )", "( mtl->name ) = %s", *p_name) )
               __debugbreak();
-            if ( (unsigned int)v23 >= rgp.materialCount )
+            if ( (unsigned int)v21 >= rgp.materialCount )
             {
-              LODWORD(v32) = rgp.materialCount;
-              LODWORD(v31) = v23;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v31, v32) )
+              LODWORD(v29) = rgp.materialCount;
+              LODWORD(v28) = v21;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v28, v29) )
                 __debugbreak();
             }
-            if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v23]) != (Material *)p_name )
+            if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v21]) != (Material *)p_name )
             {
-              v25 = *p_name;
-              if ( (unsigned int)v23 >= rgp.materialCount )
+              v23 = *p_name;
+              if ( (unsigned int)v21 >= rgp.materialCount )
               {
-                LODWORD(v32) = rgp.materialCount;
-                LODWORD(v31) = v23;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v31, v32) )
+                LODWORD(v29) = rgp.materialCount;
+                LODWORD(v28) = v21;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v28, v29) )
                   __debugbreak();
               }
-              MaterialAtIndex = DB_GetMaterialAtIndex(rgp.sortedMaterials[v23]);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 537, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( mtlSortIndex ) == mtl)", "%s\n\t'%s' '%s'", "R_GetSortedMaterial( mtlSortIndex ) == mtl", MaterialAtIndex->name, v25) )
+              MaterialAtIndex = DB_GetMaterialAtIndex(rgp.sortedMaterials[v21]);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 537, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( mtlSortIndex ) == mtl)", "%s\n\t'%s' '%s'", "R_GetSortedMaterial( mtlSortIndex ) == mtl", MaterialAtIndex->name, v23) )
                 __debugbreak();
-              v18 = v38;
+              v17 = v35;
             }
-            v27 = ((unsigned __int8)v37 ^ (*((_DWORD *)p_name + 3) >> 27)) & 1 ^ v37;
-            v28 = *((_QWORD *)v24 + 30);
-            v37 = v27;
-            if ( (unsigned __int64)(v28 + 12) > *((_QWORD *)v24 + 31) )
+            v25 = ((unsigned __int8)v34 ^ (*((_DWORD *)p_name + 3) >> 27)) & 1 ^ v34;
+            v26 = *((_QWORD *)v22 + 30);
+            v34 = v25;
+            if ( (unsigned __int64)(v26 + 12) > *((_QWORD *)v22 + 31) )
             {
               R_WarnOncePerFrame(R_WARN_SMODEL_SURF_LIMIT);
-              goto LABEL_61;
+              return;
             }
-            v15 = v35;
-            *(_WORD *)v28 = 0;
-            ++v18;
-            *(_DWORD *)(v28 + 8) = 0;
-            *(_WORD *)(v28 + 2) = v21;
-            *(_WORD *)(v28 + 4) = v27;
-            *(_WORD *)(v28 + 6) = v23;
-            *((_QWORD *)v24 + 30) = v28 + 12;
-            v29 = validBatchCount;
-            v11 = materials;
-            v38 = v18;
-            if ( validBatchCount != v12 && v18 >= validBatchCount )
+            v14 = v32;
+            *(_WORD *)v26 = 0;
+            ++v17;
+            *(_DWORD *)(v26 + 8) = 0;
+            *(_WORD *)(v26 + 2) = v19;
+            *(_WORD *)(v26 + 4) = v25;
+            *(_WORD *)(v26 + 6) = v21;
+            *((_QWORD *)v22 + 30) = v26 + 12;
+            v27 = validBatchCount;
+            v10 = materials;
+            v35 = v17;
+            if ( validBatchCount != v11 && v17 >= validBatchCount )
               goto LABEL_57;
           }
-          v29 = validBatchCount;
+          v27 = validBatchCount;
 LABEL_57:
-          if ( v29 == v12 && v18 != v12 )
+          if ( v27 == v11 && v17 != v11 )
           {
-            LODWORD(v34) = v12;
-            LODWORD(v33) = v18;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2667, ASSERT_TYPE_ASSERT, "( batchEmitCount ) == ( batchCount )", "%s == %s\n\t%u, %u", "batchEmitCount", "batchCount", v33, v34) )
+            LODWORD(v31) = v11;
+            LODWORD(v30) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 2667, ASSERT_TYPE_ASSERT, "( batchEmitCount ) == ( batchCount )", "%s == %s\n\t%u, %u", "batchEmitCount", "batchCount", v30, v31) )
               __debugbreak();
           }
-LABEL_61:
-          __asm { vmovaps xmm6, [rsp+900h+var_40] }
         }
       }
     }
@@ -5465,126 +5227,107 @@ R_ProcessSunShadowCacheEntrySmodelLodChanges
 */
 void R_ProcessSunShadowCacheEntrySmodelLodChanges(const GfxViewInfo *viewInfo, unsigned int partitionIndex, unsigned int cellIdx)
 {
-  __int64 v6; 
+  __int64 v4; 
   const GfxSunShadowPartitionCache *SunShadowPartitionCache; 
-  int v8; 
-  __int64 v9; 
-  const GfxSunShadowPartitionCache *v10; 
+  int v6; 
+  __int64 v7; 
+  const GfxSunShadowPartitionCache *v8; 
   GfxStaticModelCollection *collections; 
-  unsigned __int64 v12; 
-  __int64 v14; 
+  unsigned __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
   unsigned int SmodelId; 
-  int v16; 
-  int v17; 
+  int v14; 
+  int v15; 
   GfxCachedSunShadow_Smodel *Smodel; 
-  GfxCachedSunShadow_Smodel *v23; 
+  float v17; 
+  GfxCachedSunShadow_Smodel *v18; 
   const XModel *const *p_model; 
   unsigned int DesiredLodForDist; 
   unsigned int UsableLodForDist; 
-  __int16 v29; 
-  __int16 v30; 
-  int v31; 
-  GfxStaticModelCollection *v34; 
-  const GfxSunShadowPartitionCache *v35; 
-  __int64 v36; 
-  __int64 v37; 
+  __int16 v22; 
+  __int16 v23; 
+  int v24; 
+  GfxStaticModelCollection *v25; 
+  const GfxSunShadowPartitionCache *v26; 
+  __int64 v27; 
+  __int64 v28; 
   unsigned int lastId; 
   GfxStaticModel *models; 
 
-  v6 = cellIdx;
+  v4 = cellIdx;
   if ( (frontEndDataOut->sunShadow.firstCachedSunShadowPartition > partitionIndex || partitionIndex > frontEndDataOut->sunShadow.lastCachedSunShadowPartition) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3721, ASSERT_TYPE_ASSERT, "(R_IsCachedSunShadowPartition( &frontEndDataOut->sunShadow, partitionIndex ))", (const char *)&queryFormat, "R_IsCachedSunShadowPartition( &frontEndDataOut->sunShadow, partitionIndex )") )
     __debugbreak();
   SunShadowPartitionCache = R_GetSunShadowPartitionCache(&frontEndDataOut->sunShadow, partitionIndex);
-  v8 = 0;
-  v9 = 864 * v6;
-  v10 = SunShadowPartitionCache;
-  v35 = SunShadowPartitionCache;
+  v6 = 0;
+  v7 = 864 * v4;
+  v8 = SunShadowPartitionCache;
+  v26 = SunShadowPartitionCache;
   collections = rgp.world->smodels.collections;
-  v12 = 0i64;
-  v36 = v9;
-  v34 = collections;
-  _R13 = *(__int64 *)((char *)&SunShadowPartitionCache->gfxCachedSunShadowOverlap[0].staticEntry + v9);
-  v14 = *(__int64 *)((char *)&SunShadowPartitionCache->gfxCachedSunShadowOverlap[0].bspEntry + v9);
-  v37 = v14;
+  v10 = 0i64;
+  v27 = v7;
+  v25 = collections;
+  v11 = *(__int64 *)((char *)&SunShadowPartitionCache->gfxCachedSunShadowOverlap[0].staticEntry + v7);
+  v12 = *(__int64 *)((char *)&SunShadowPartitionCache->gfxCachedSunShadowOverlap[0].bspEntry + v7);
+  v28 = v12;
   models = rgp.world->smodels.models;
-  if ( *(_BYTE *)(_R13 + 4) )
+  if ( *(_BYTE *)(v11 + 4) )
   {
-    *(unsigned __int64 *)((char *)&SunShadowPartitionCache->gfxCachedSunShadowOverlap[0].updateExtentsMask + v9) = 0i64;
+    *(unsigned __int64 *)((char *)&SunShadowPartitionCache->gfxCachedSunShadowOverlap[0].updateExtentsMask + v7) = 0i64;
   }
   else
   {
-    SmodelId = *(_DWORD *)(_R13 + 520);
-    lastId = *(_DWORD *)(_R13 + 524);
-    v16 = 0;
+    SmodelId = *(_DWORD *)(v11 + 520);
+    lastId = *(_DWORD *)(v11 + 524);
+    v14 = 0;
     if ( SmodelId != -1 )
     {
-      __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-      v17 = 0;
-      __asm
-      {
-        vmovaps [rsp+0A8h+var_58], xmm7
-        vxorps  xmm7, xmm7, xmm7
-      }
+      v15 = 0;
       do
       {
-        ++v17;
+        ++v15;
         Smodel = R_SunShadowCache_GetSmodel(SmodelId);
-        __asm
-        {
-          vmovss  xmm6, dword ptr [r13+28h]
-          vmovaps xmm2, xmm7; cullDist
-          vmovaps xmm1, xmm6; dist
-        }
-        v23 = Smodel;
+        v17 = *(float *)(v11 + 40);
+        v18 = Smodel;
         p_model = (const XModel *const *)&models[collections[Smodel->smodelIndex].smodelIndex].model;
-        DesiredLodForDist = XModelGetDesiredLodForDist(*p_model, *(const float *)&_XMM1, *(const float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm2, xmm7; cullDist
-          vmovaps xmm1, xmm6; dist
-        }
-        UsableLodForDist = XModelGetUsableLodForDist(*p_model, *(const float *)&_XMM1, *(const float *)&_XMM2);
-        v29 = *((_WORD *)v23 + 5);
+        DesiredLodForDist = XModelGetDesiredLodForDist(*p_model, v17, 0.0);
+        UsableLodForDist = XModelGetUsableLodForDist(*p_model, v17, 0.0);
+        v22 = *((_WORD *)v18 + 5);
         if ( r_cachedSunShadowForceInvalidSModel->current.enabled )
         {
-          v12 |= v23->extentsMask;
-          v30 = UsableLodForDist & 7 | v29 & 0xFFE8 | 8;
+          v10 |= v18->extentsMask;
+          v23 = UsableLodForDist & 7 | v22 & 0xFFE8 | 8;
         }
-        else if ( UsableLodForDist >= (v29 & 7u) || UsableLodForDist > DesiredLodForDist || (v29 & 0x10) != 0 )
+        else if ( UsableLodForDist >= (v22 & 7u) || UsableLodForDist > DesiredLodForDist || (v22 & 0x10) != 0 )
         {
-          v30 = v29 & 0xFFF7;
+          v23 = v22 & 0xFFF7;
         }
         else
         {
-          v12 |= v23->extentsMask;
+          v10 |= v18->extentsMask;
           if ( UsableLodForDist >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3782, ASSERT_TYPE_ASSERT, "(highestAvailableLod < ( 1 << GfxCachedSunShadow_Smodel::LOD_BITS ))", (const char *)&queryFormat, "highestAvailableLod < ( 1 << GfxCachedSunShadow_Smodel::LOD_BITS )") )
             __debugbreak();
-          v30 = UsableLodForDist & 7 | *((_WORD *)v23 + 5) & 0xFFF8 | 0x18;
+          v23 = UsableLodForDist & 7 | *((_WORD *)v18 + 5) & 0xFFF8 | 0x18;
         }
-        *((_WORD *)v23 + 5) = v30;
-        v31 = v8 + 1;
-        if ( (v30 & 0x10) == 0 )
-          v31 = v8;
-        collections = v34;
+        *((_WORD *)v18 + 5) = v23;
+        v24 = v6 + 1;
+        if ( (v23 & 0x10) == 0 )
+          v24 = v6;
+        collections = v25;
         SmodelId = R_SunShadowCache_NextSmodelId(SmodelId, lastId);
-        v8 = v31;
+        v6 = v24;
       }
       while ( SmodelId != -1 );
-      v9 = v36;
-      v14 = v37;
-      __asm
-      {
-        vmovaps xmm7, [rsp+0A8h+var_58]
-        vmovaps xmm6, [rsp+0A8h+var_48]
-      }
-      v16 = v17;
-      v10 = v35;
+      v7 = v27;
+      v12 = v28;
+      v14 = v15;
+      v8 = v26;
     }
-    *(_BYTE *)(_R13 + 4) = v8 == v16;
-    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3797, ASSERT_TYPE_ASSERT, "(bspEntry)", (const char *)&queryFormat, "bspEntry") )
+    *(_BYTE *)(v11 + 4) = v6 == v14;
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3797, ASSERT_TYPE_ASSERT, "(bspEntry)", (const char *)&queryFormat, "bspEntry") )
       __debugbreak();
-    *(_BYTE *)(v14 + 1) = *(_BYTE *)(_R13 + 4);
-    *(unsigned __int64 *)((char *)&v10->gfxCachedSunShadowOverlap[0].updateExtentsMask + v9) = v12;
+    *(_BYTE *)(v12 + 1) = *(_BYTE *)(v11 + 4);
+    *(unsigned __int64 *)((char *)&v8->gfxCachedSunShadowOverlap[0].updateExtentsMask + v7) = v10;
   }
 }
 
@@ -5593,40 +5336,43 @@ void R_ProcessSunShadowCacheEntrySmodelLodChanges(const GfxViewInfo *viewInfo, u
 R_ProcessSunShadowCacheEntryVisibility
 ==============
 */
-
-void __fastcall R_ProcessSunShadowCacheEntryVisibility(const GfxViewInfo *viewInfo, unsigned int partitionIndex, unsigned int cellIdx, double _XMM3_8)
+void R_ProcessSunShadowCacheEntryVisibility(const GfxViewInfo *viewInfo, unsigned int partitionIndex, unsigned int cellIdx, float a4)
 {
+  float v4; 
   __int64 v7; 
   __int64 v8; 
   const GfxSunShadowPartitionCache *SunShadowPartitionCache; 
+  GfxCachedSunShadow *staticEntry; 
+  __m256i v11; 
   const GfxBackEndData *data; 
-  unsigned __int8 v14; 
+  unsigned __int8 v13; 
   int activePrimarySunLight; 
-  char v29; 
+  char v15; 
   GfxWorld *world; 
-  const unsigned int *v31; 
-  int v32; 
+  const unsigned int *v17; 
+  int v18; 
   unsigned int index; 
-  GfxStaticModel *v34; 
-  bool v35; 
+  GfxStaticModel *v20; 
+  bool v21; 
   unsigned int *collectionVisData; 
-  GfxBackEndData *v37; 
+  GfxBackEndData *v23; 
   unsigned __int64 firstStaticModelSurfaceIndex; 
-  __int64 v39; 
-  GfxStaticModel *v40; 
+  __int64 v25; 
+  GfxStaticModel *v26; 
   XModel *model; 
   unsigned int flags; 
   unsigned int Smodel; 
-  GfxCachedSunShadow_Smodel *v44; 
-  __int64 v54; 
-  __int64 v55; 
-  int v56; 
-  int v57; 
+  GfxCachedSunShadow_Smodel *v30; 
+  float v31; 
+  __int64 v32; 
+  __int64 v33; 
+  int v34; 
+  int v35; 
   int drawStaticDefaultModels; 
   GfxStaticModel *models; 
   GfxStaticModelCollection *collections; 
   BitArrayIterator iter; 
-  unsigned int v62; 
+  unsigned int v40; 
   Bounds worldBounds; 
   GfxMatrix worldToViewport; 
 
@@ -5636,114 +5382,94 @@ void __fastcall R_ProcessSunShadowCacheEntryVisibility(const GfxViewInfo *viewIn
     __debugbreak();
   v8 = v7;
   SunShadowPartitionCache = R_GetSunShadowPartitionCache(&frontEndDataOut->sunShadow, partitionIndex);
-  _RDI = SunShadowPartitionCache->gfxCachedSunShadowOverlap[v7].staticEntry;
+  staticEntry = SunShadowPartitionCache->gfxCachedSunShadowOverlap[v7].staticEntry;
   if ( !SunShadowPartitionCache->gfxCachedSunShadowOverlap[v7].gen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3575, ASSERT_TYPE_ASSERT, "(sunShadowOverlap->gen)", (const char *)&queryFormat, "sunShadowOverlap->gen") )
     __debugbreak();
   if ( !SunShadowPartitionCache->gfxCachedSunShadowOverlap[v8].staticEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3576, ASSERT_TYPE_ASSERT, "(sunShadowOverlap->staticEntry)", (const char *)&queryFormat, "sunShadowOverlap->staticEntry") )
     __debugbreak();
   if ( !SunShadowPartitionCache->gfxCachedSunShadowOverlap[v8].bspEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3577, ASSERT_TYPE_ASSERT, "(sunShadowOverlap->bspEntry)", (const char *)&queryFormat, "sunShadowOverlap->bspEntry") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+0F0h]
-    vmovss  xmm4, cs:__real@3f000000
-  }
+  v11 = *(__m256i *)staticEntry->viewParms.viewProjectionMatrix.m.m[0].v;
   data = viewInfo->input.data;
-  _RDI->missingTransient[1] = 0;
-  v14 = 0;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+57h+worldToViewport.m], ymm0
-    vmovups ymm3, ymmword ptr [rdi+110h]
-    vmulss  xmm2, xmm4, dword ptr [rbp+57h+worldToViewport.m+10h]
-    vmovups ymmword ptr [rbp+57h+worldToViewport.m+20h], ymm3
-    vmulss  xmm0, xmm0, xmm4
-    vmovss  dword ptr [rbp+57h+worldToViewport.m], xmm0
-    vmulss  xmm0, xmm3, xmm4
-    vmovss  xmm3, cs:__real@bf000000
-    vmulss  xmm1, xmm3, dword ptr [rbp+57h+worldToViewport.m+14h]
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+20h], xmm0
-    vmulss  xmm0, xmm3, dword ptr [rbp+57h+worldToViewport.m+4]
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+4], xmm0
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+10h], xmm2
-    vmulss  xmm2, xmm3, dword ptr [rbp+57h+worldToViewport.m+24h]
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+worldToViewport.m+30h]
-    vaddss  xmm0, xmm1, cs:__real@3f800000
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+24h], xmm2
-    vmulss  xmm2, xmm0, xmm4
-    vmulss  xmm0, xmm4, dword ptr [rbp+57h+worldToViewport.m+34h]
-    vsubss  xmm0, xmm4, xmm0
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+34h], xmm0
-    vmovss  dword ptr [rbp+57h+worldToViewport.m+30h], xmm2
-  }
+  staticEntry->missingTransient[1] = 0;
+  v13 = 0;
+  *(__m256i *)worldToViewport.m.m[0].v = v11;
+  *(__m256i *)worldToViewport.m.row2.v = *(__m256i *)staticEntry->viewParms.viewProjectionMatrix.m.row2.v;
+  worldToViewport.m.m[0].v[0] = v4 * 0.5;
+  worldToViewport.m.m[2].v[0] = a4 * 0.5;
+  worldToViewport.m.m[0].v[1] = -0.5 * worldToViewport.m.m[0].v[1];
+  worldToViewport.m.m[1].v[0] = 0.5 * worldToViewport.m.m[1].v[0];
+  worldToViewport.m.m[1].v[1] = -0.5 * worldToViewport.m.m[1].v[1];
+  worldToViewport.m.m[2].v[1] = -0.5 * worldToViewport.m.m[2].v[1];
+  worldToViewport.m.m[3].v[1] = 0.5 - (float)(0.5 * worldToViewport.m.m[3].v[1]);
+  worldToViewport.m.m[3].v[0] = (float)(worldToViewport.m.m[3].v[0] + 1.0) * 0.5;
   activePrimarySunLight = data->activePrimarySunLight;
   if ( activePrimarySunLight && viewInfo->useShadowGeomOpt )
   {
-    v29 = 5;
+    v15 = 5;
     if ( activePrimarySunLight < 5 )
-      v29 = activePrimarySunLight;
-    v14 = 1 << (v29 - 1);
+      v15 = activePrimarySunLight;
+    v13 = 1 << (v15 - 1);
   }
   world = rgp.world;
-  v31 = world->dpvs.smodelVisData[(unsigned int)(v7 + R_GetCachedSceneViewTypeForSunShadowPartition(&frontEndDataOut->sunShadow, partitionIndex))];
+  v17 = world->dpvs.smodelVisData[(unsigned int)(v7 + R_GetCachedSceneViewTypeForSunShadowPartition(&frontEndDataOut->sunShadow, partitionIndex))];
   collections = rgp.world->smodels.collections;
   models = rgp.world->smodels.models;
-  R_SunShadowCache_DeallocateSmodels(_RDI);
-  v32 = -1;
-  v56 = -1;
-  v57 = -1;
+  R_SunShadowCache_DeallocateSmodels(staticEntry);
+  v18 = -1;
+  v34 = -1;
+  v35 = -1;
   iter.wordIndex = 0;
   iter.wordCount = rgp.world->dpvs.smodelVisDataCount;
-  iter.bitArray = v31;
+  iter.bitArray = v17;
   iter.bits = 0;
   if ( iter.wordCount )
-    iter.bits = *v31;
-  index = v62;
-  v34 = models;
+    iter.bits = *v17;
+  index = v40;
+  v20 = models;
   while ( 1 )
   {
-    v35 = BitArrayIterator::Advance(&iter);
-    if ( v35 )
+    v21 = BitArrayIterator::Advance(&iter);
+    if ( v21 )
     {
       index = iter.index;
-      v35 = 1;
-      v62 = iter.index;
-      v34 = (GfxStaticModel *)&collections[iter.index];
+      v21 = 1;
+      v40 = iter.index;
+      v20 = (GfxStaticModel *)&collections[iter.index];
     }
-    if ( !v35 )
+    if ( !v21 )
       break;
     collectionVisData = rgp.world->smodels.collectionVisData;
     if ( !collectionVisData || ((0x80000000 >> (index & 0x1F)) & collectionVisData[(unsigned __int64)index >> 5]) != 0 )
     {
-      v37 = frontEndDataOut;
-      firstStaticModelSurfaceIndex = v34->firstStaticModelSurfaceIndex;
+      v23 = frontEndDataOut;
+      firstStaticModelSurfaceIndex = v20->firstStaticModelSurfaceIndex;
       if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_backend_data.h", 447, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
         __debugbreak();
       if ( (unsigned int)firstStaticModelSurfaceIndex >= 0x600 )
       {
-        LODWORD(v55) = 1536;
-        LODWORD(v54) = firstStaticModelSurfaceIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v54, v55) )
+        LODWORD(v33) = 1536;
+        LODWORD(v32) = firstStaticModelSurfaceIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v32, v33) )
           __debugbreak();
       }
-      if ( ((0x80000000 >> (firstStaticModelSurfaceIndex & 0x1F)) & v37->transientVisibility.array[firstStaticModelSurfaceIndex >> 5]) != 0 )
+      if ( ((0x80000000 >> (firstStaticModelSurfaceIndex & 0x1F)) & v23->transientVisibility.array[firstStaticModelSurfaceIndex >> 5]) != 0 )
       {
-        v39 = *(unsigned __int16 *)&v34->flags;
-        if ( (unsigned int)v39 >= rgp.world->smodels.modelCount )
+        v25 = *(unsigned __int16 *)&v20->flags;
+        if ( (unsigned int)v25 >= rgp.world->smodels.modelCount )
         {
-          LODWORD(v55) = rgp.world->smodels.modelCount;
-          LODWORD(v54) = *(unsigned __int16 *)&v34->flags;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3661, ASSERT_TYPE_ASSERT, "(unsigned)( smodelIndex ) < (unsigned)( rgp.world->smodels.modelCount )", "smodelIndex doesn't index rgp.world->smodels.modelCount\n\t%i not in [0, %i)", v54, v55) )
+          LODWORD(v33) = rgp.world->smodels.modelCount;
+          LODWORD(v32) = *(unsigned __int16 *)&v20->flags;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3661, ASSERT_TYPE_ASSERT, "(unsigned)( smodelIndex ) < (unsigned)( rgp.world->smodels.modelCount )", "smodelIndex doesn't index rgp.world->smodels.modelCount\n\t%i not in [0, %i)", v32, v33) )
             __debugbreak();
         }
-        v40 = &models[v39];
-        if ( !v40->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3664, ASSERT_TYPE_ASSERT, "(smodel->model)", (const char *)&queryFormat, "smodel->model") )
+        v26 = &models[v25];
+        if ( !v26->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3664, ASSERT_TYPE_ASSERT, "(smodel->model)", (const char *)&queryFormat, "smodel->model") )
           __debugbreak();
         if ( drawStaticDefaultModels )
           goto LABEL_65;
-        model = v40->model;
-        if ( !v40->model )
+        model = v26->model;
+        if ( !v26->model )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 625, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
@@ -5751,67 +5477,55 @@ void __fastcall R_ProcessSunShadowCacheEntryVisibility(const GfxViewInfo *viewIn
             __debugbreak();
         }
         flags = model->flags;
-        v32 = v56;
+        v18 = v34;
         if ( (flags & 0x8000) == 0 )
         {
 LABEL_65:
-          if ( partitionIndex >= rg.firstForceCacheSModelPartition && partitionIndex < 3 || (v32 = v56, (v40->flags & 4) == 0) )
+          if ( partitionIndex >= rg.firstForceCacheSModelPartition && partitionIndex < 3 || (v18 = v34, (v26->flags & 4) == 0) )
           {
-            if ( !v14 || (v32 = v56, (v14 & *(_BYTE *)(&v34->firstStaticModelSurfaceIndex + 2)) != 0) )
+            if ( !v13 || (v18 = v34, (v13 & *(_BYTE *)(&v20->firstStaticModelSurfaceIndex + 2)) != 0) )
             {
               Smodel = R_SunShadowCache_AllocateSmodel();
               if ( Smodel == -1 )
               {
                 R_WarnOncePerFrame(R_WARN_SMODEL_VIS_DATA_LIMIT, 0x10000i64, 0x10000i64);
-                v32 = v56;
+                v18 = v34;
                 break;
               }
-              v32 = v56;
-              v57 = Smodel;
-              if ( v56 == -1 )
-                v32 = Smodel;
-              v56 = v32;
-              v44 = R_SunShadowCache_GetSmodel(Smodel);
-              _R8 = 3i64 * index;
-              _RDX = rgp.world->smodels.collectionBounds;
-              __asm
-              {
-                vmovups xmm1, xmmword ptr [rdx+r8*8]
-                vmovups xmmword ptr [rbp+57h+worldBounds.midPoint], xmm1
-                vmovsd  xmm0, qword ptr [rdx+r8*8+10h]
-                vmovsd  qword ptr [rbp+57h+worldBounds.halfSize+4], xmm0
-                vsubss  xmm0, xmm1, dword ptr [rdi+170h]
-                vmovss  xmm1, dword ptr [rbp+57h+worldBounds.midPoint+4]
-                vsubss  xmm2, xmm1, dword ptr [rdi+174h]
-                vmovss  dword ptr [rbp+57h+worldBounds.midPoint], xmm0
-                vmovss  xmm0, dword ptr [rbp+57h+worldBounds.midPoint+8]
-                vsubss  xmm1, xmm0, dword ptr [rdi+178h]
-                vmovss  dword ptr [rbp+57h+worldBounds.midPoint+8], xmm1
-                vmovss  dword ptr [rbp+57h+worldBounds.midPoint+4], xmm2
-              }
-              v44->smodelIndex = v62;
-              *((_WORD *)v44 + 5) = *((_WORD *)v44 + 5) & 0xFFE0 | 6;
-              R_SunShadowCache_ComputeSmodelExtentsMask(&worldBounds, &worldToViewport, v44);
+              v18 = v34;
+              v35 = Smodel;
+              if ( v34 == -1 )
+                v18 = Smodel;
+              v34 = v18;
+              v30 = R_SunShadowCache_GetSmodel(Smodel);
+              worldBounds = rgp.world->smodels.collectionBounds[index];
+              v31 = worldBounds.midPoint.v[1] - staticEntry->viewParms.camera.origin.v[1];
+              worldBounds.midPoint.v[0] = worldBounds.midPoint.v[0] - staticEntry->viewParms.camera.origin.v[0];
+              worldBounds.midPoint.v[2] = worldBounds.midPoint.v[2] - staticEntry->viewParms.camera.origin.v[2];
+              worldBounds.midPoint.v[1] = v31;
+              v30->smodelIndex = v40;
+              *((_WORD *)v30 + 5) = *((_WORD *)v30 + 5) & 0xFFE0 | 6;
+              R_SunShadowCache_ComputeSmodelExtentsMask(&worldBounds, &worldToViewport, v30);
             }
           }
         }
       }
       else
       {
-        ++_RDI->missingTransient[1];
-        v32 = v56;
+        ++staticEntry->missingTransient[1];
+        v18 = v34;
       }
     }
     else
     {
-      ++_RDI->missingTransient[1];
+      ++staticEntry->missingTransient[1];
     }
   }
-  if ( _RDI->firstSmodelId != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3709, ASSERT_TYPE_ASSERT, "(entry->firstSmodelId == R_SUNSHADOW_INVALID_ID)", (const char *)&queryFormat, "entry->firstSmodelId == R_SUNSHADOW_INVALID_ID") )
+  if ( staticEntry->firstSmodelId != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 3709, ASSERT_TYPE_ASSERT, "(entry->firstSmodelId == R_SUNSHADOW_INVALID_ID)", (const char *)&queryFormat, "entry->firstSmodelId == R_SUNSHADOW_INVALID_ID") )
     __debugbreak();
-  _RDI->lastSmodelId = v57;
-  _RDI->firstSmodelId = v32;
-  *(_WORD *)&_RDI->finalized = 0;
+  staticEntry->lastSmodelId = v35;
+  staticEntry->firstSmodelId = v18;
+  *(_WORD *)&staticEntry->finalized = 0;
 }
 
 /*
@@ -5964,95 +5678,111 @@ void R_SortSModelSurfDelaySort(GfxSModelSurfDelaySort *delaySurfList, unsigned i
   unsigned int v9; 
   unsigned int v10; 
   unsigned int v11; 
-  __int64 v14; 
+  GfxSModelSurfDelaySort *v12; 
+  __int64 v13; 
+  GfxSModelSurfDelaySort v14; 
+  GfxSModelSurfHeader v15; 
+  unsigned __int64 v16; 
   __int64 v17; 
-  unsigned int v20; 
+  __int64 v18; 
+  GfxSModelSurfHeader v19; 
+  bool v20; 
   unsigned int v21; 
   unsigned int v22; 
-  unsigned int v29; 
-  __int64 v30; 
-  bool v31; 
-  __int64 v32; 
+  unsigned int v23; 
+  GfxSModelSurfHeader header; 
+  unsigned __int64 p0; 
+  GfxSModelSurfDelaySort *v26; 
+  bool v27; 
+  GfxSModelSurfDelaySort *v28; 
+  bool v29; 
+  bool v30; 
+  GfxSModelSurfDelaySort v31; 
+  unsigned int v32; 
   __int64 v33; 
-  unsigned int v34; 
-  unsigned __int128 v35; 
-  unsigned __int128 v36; 
-  int v37[20]; 
+  bool v34; 
+  __int64 v35; 
+  __int64 v36; 
+  unsigned int v37; 
+  int v38[20]; 
 
-  _RDI = delaySurfList;
-  for ( i = 0; ; end = v37[2 * i + 1] )
+  for ( i = 0; ; end = v38[2 * i + 1] )
   {
     while ( 1 )
     {
-      v34 = i;
+      v37 = i;
       v7 = end;
       v8 = begin;
       v9 = end;
       if ( end - begin <= 0xB )
         break;
-      v20 = begin;
-      v21 = (end + begin) >> 1;
-      v22 = end;
-      _RAX = 2i64 * v21;
-      __asm
+      v21 = begin;
+      v22 = (end + begin) >> 1;
+      v23 = end;
+      header = delaySurfList[v22].fields.header;
+      p0 = delaySurfList[v22].packed.p0;
+      while ( 1 )
       {
-        vmovups xmm0, xmmword ptr [rdi+rax*8]
-        vmovups [rsp+0F8h+var_B0], xmm0
-      }
-      while ( *(_OWORD *)&_RDI[v20] < v36 )
-      {
-LABEL_19:
-        if ( ++v20 == v22 )
+        v26 = &delaySurfList[v21];
+        v27 = v26->fields.header.packed < header.packed;
+        if ( v26->fields.header.packed == header.packed )
+          v27 = v26->packed.p0 < p0;
+        if ( !v27 )
+          break;
+LABEL_25:
+        if ( ++v21 == v23 )
           goto $done_splitting_2;
       }
-      while ( v20 != --v22 )
+      while ( v21 != --v23 )
       {
-        if ( *(_OWORD *)&_RDI[v22] <= v36 )
+        v28 = &delaySurfList[v23];
+        v29 = v28->fields.header.packed < header.packed;
+        v30 = v28->fields.header.packed == header.packed;
+        if ( v28->fields.header.packed == header.packed )
         {
-          _R10 = 2i64 * v20;
-          _R9 = 2i64 * v22;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rdi+r10*8]
-            vmovups xmm0, xmmword ptr [rdi+r9*8]
-            vmovups xmmword ptr [rdi+r10*8], xmm0
-            vmovups xmmword ptr [rdi+r9*8], xmm1
-          }
-          goto LABEL_19;
+          v29 = v28->packed.p0 < p0;
+          v30 = v28->packed.p0 == p0;
+        }
+        if ( v29 || v30 )
+        {
+          v31 = delaySurfList[v21];
+          delaySurfList[v21] = delaySurfList[v23];
+          delaySurfList[v23] = v31;
+          goto LABEL_25;
         }
       }
 $done_splitting_2:
-      if ( begin == v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1165, ASSERT_TYPE_ASSERT, "(begin != localBegin)", (const char *)&queryFormat, "begin != localBegin") )
+      if ( begin == v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1165, ASSERT_TYPE_ASSERT, "(begin != localBegin)", (const char *)&queryFormat, "begin != localBegin") )
         __debugbreak();
-      if ( v20 == end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1166, ASSERT_TYPE_ASSERT, "(localBegin != end)", (const char *)&queryFormat, "localBegin != end") )
+      if ( v21 == end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1166, ASSERT_TYPE_ASSERT, "(localBegin != end)", (const char *)&queryFormat, "localBegin != end") )
         __debugbreak();
-      v29 = v34;
-      if ( v34 >= 0xA )
+      v32 = v37;
+      if ( v37 >= 0xA )
       {
-        LODWORD(v33) = 10;
-        LODWORD(v32) = v34;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1167, ASSERT_TYPE_ASSERT, "(unsigned)( stackPos ) < (unsigned)( ( sizeof( *array_counter( stack ) ) + 0 ) )", "stackPos doesn't index ARRAY_COUNT( stack )\n\t%i not in [0, %i)", v32, v33) )
+        LODWORD(v36) = 10;
+        LODWORD(v35) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 1167, ASSERT_TYPE_ASSERT, "(unsigned)( stackPos ) < (unsigned)( ( sizeof( *array_counter( stack ) ) + 0 ) )", "stackPos doesn't index ARRAY_COUNT( stack )\n\t%i not in [0, %i)", v35, v36) )
           __debugbreak();
-        v29 = v34;
+        v32 = v37;
       }
-      v30 = v29;
-      end = v20;
-      i = v29 + 1;
-      v31 = v20 <= v21;
-      if ( v20 > v21 )
-        v9 = v20;
-      if ( v20 > v21 )
+      v33 = v32;
+      end = v21;
+      i = v32 + 1;
+      v34 = v21 <= v22;
+      if ( v21 > v22 )
+        v9 = v21;
+      if ( v21 > v22 )
       {
-        begin = v20;
-        if ( v20 > v21 )
+        begin = v21;
+        if ( v21 > v22 )
         {
-          v20 = v8;
-          if ( !v31 )
+          v21 = v8;
+          if ( !v34 )
             end = v7;
         }
       }
-      v37[2 * v30] = v20;
-      v37[2 * v30 + 1] = v9;
+      v38[2 * v33] = v21;
+      v38[2 * v33 + 1] = v9;
     }
     if ( end - begin > 1 )
     {
@@ -6060,38 +5790,37 @@ $done_splitting_2:
       do
       {
         v11 = v10--;
-        _R9 = 2i64 * v10;
-        _R8 = &_RDI[v11];
-        v14 = v11;
-        if ( *(_OWORD *)_R8 < *(_OWORD *)&_RDI[v10] )
+        v12 = &delaySurfList[v11];
+        v13 = v11;
+        if ( *(_OWORD *)v12 < *(_OWORD *)&delaySurfList[v10] )
         {
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rdi+r9*8]
-            vmovups [rsp+0F8h+var_B0], xmm1
-          }
+          v14 = delaySurfList[v10];
+          v15 = delaySurfList[v10].fields.header;
+          v16 = delaySurfList[v10].packed.p0;
           do
           {
-            __asm { vmovups xmm0, xmmword ptr [r8] }
-            v17 = v14;
-            _RCX = 2i64 * (v11++ - 1);
-            __asm { vmovups xmmword ptr [rdi+rcx*8], xmm0 }
+            v17 = v13;
+            v18 = v11++ - 1;
+            delaySurfList[v18] = *v12;
             if ( v11 == end )
               break;
-            _R8 = &_RDI[v11];
-            v14 = v11;
+            v12 = &delaySurfList[v11];
+            v13 = v11;
+            v19 = v12->fields.header;
+            v20 = v19.packed < v15.packed;
+            if ( v19.packed == v15.packed )
+              v20 = v12->packed.p0 < v16;
           }
-          while ( *(_OWORD *)_R8 < v35 );
-          _R10 = 2 * v17;
-          __asm { vmovups xmmword ptr [rdi+r10*8], xmm1 }
+          while ( v20 );
+          delaySurfList[v17] = v14;
         }
       }
       while ( v10 != begin );
-      i = v34;
+      i = v37;
     }
     if ( !i )
       break;
-    begin = v37[2 * --i];
+    begin = v38[2 * --i];
   }
 }
 
@@ -6103,23 +5832,33 @@ R_StaticModelInstanceDebugAids
 void R_StaticModelInstanceDebugAids(const GfxViewInfo *viewInfo, unsigned int smodelInstanceIndex, unsigned int smodelCollectionIndex, const GfxStaticModel *smodel, int lod, float lodDist, bool isClutter, bool isSingleInstanceCollection)
 {
   signed __int64 v8; 
-  void *v12; 
+  __int128 v9; 
+  void *v10; 
   XModel *model; 
-  __int64 v17; 
-  const vec4_t *v67; 
+  __int64 v15; 
+  __int64 splinedModelInstanceIndex; 
+  Bounds *splinedModelInstanceBounds; 
+  __m128 v20; 
+  double v21; 
+  __int128 v23; 
+  __int128 v27; 
+  __int128 v31; 
+  const vec4_t *v41; 
   const GfxBackEndData *data; 
   int integer; 
-  const char *v70; 
-  const char *v71; 
-  const GfxBackEndData *v72; 
-  unsigned int v74; 
+  const char *v44; 
+  const char *v45; 
+  double v46; 
+  const GfxBackEndData *v47; 
+  float v48; 
+  unsigned int v49; 
+  double LodOutDist; 
   __int64 handle; 
-  unsigned __int64 v78; 
-  DebugXModelStats *v80; 
+  unsigned __int64 v52; 
+  DebugXModelStats *v53; 
   unsigned int SurfCount; 
-  const XSurface *v82; 
-  __int64 v83; 
-  float pOutDistsa; 
+  const XSurface *v55; 
+  __int64 v56; 
   const char *pOutDists; 
   float outScale[4]; 
   Bounds baseBounds; 
@@ -6127,166 +5866,125 @@ void R_StaticModelInstanceDebugAids(const GfxViewInfo *viewInfo, unsigned int sm
   Bounds rotatedBounds; 
   tmat33_t<vec3_t> axis; 
   char dest[4096]; 
+  __int128 v64; 
 
-  v12 = alloca(v8);
-  __asm
-  {
-    vmovaps [rsp+1140h+var_40], xmm6
-    vmovaps [rsp+1140h+var_60], xmm8
-    vmovss  xmm8, [rbp+1040h+arg_28]
-  }
+  v10 = alloca(v8);
   model = smodel->model;
-  v17 = smodelInstanceIndex;
-  __asm { vmovaps [rsp+1140h+var_50], xmm7 }
+  v15 = smodelInstanceIndex;
+  v64 = v9;
   R_StaticModelInstance_GetPlacement(smodelInstanceIndex, &outPlacement, outScale);
   if ( (smodel->flags & 0x10) != 0 )
   {
-    _RAX = rgp.world->smodels.splinedModelInstanceBounds;
-    _R8 = 3i64 * rgp.world->smodels.modelStaticIndirection[v17].splinedModelInstanceIndex;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rax+r8*8]
-      vmovups xmmword ptr [rbp+1040h+rotatedBounds.midPoint], xmm3
-      vmovsd  xmm0, qword ptr [rax+r8*8+10h]
-      vshufps xmm6, xmm3, xmm3, 55h ; 'U'
-      vshufps xmm7, xmm3, xmm3, 0AAh ; 'ª'
-      vmovsd  qword ptr [rbp+1040h+rotatedBounds.halfSize+4], xmm0
-      vmovss  dword ptr [rbp+1040h+outPlacement.origin], xmm3
-      vmovss  dword ptr [rbp+1040h+outPlacement.origin+4], xmm6
-      vmovss  dword ptr [rbp+1040h+outPlacement.origin+8], xmm7
-    }
+    splinedModelInstanceIndex = rgp.world->smodels.modelStaticIndirection[v15].splinedModelInstanceIndex;
+    splinedModelInstanceBounds = rgp.world->smodels.splinedModelInstanceBounds;
+    v20 = *(__m128 *)splinedModelInstanceBounds[splinedModelInstanceIndex].midPoint.v;
+    *(__m128 *)rotatedBounds.midPoint.v = v20;
+    *(_QWORD *)&rotatedBounds.halfSize.y = *(_QWORD *)&splinedModelInstanceBounds[splinedModelInstanceIndex].halfSize.y;
+    outPlacement.origin.v[0] = v20.m128_f32[0];
+    LODWORD(outPlacement.origin.v[1]) = _mm_shuffle_ps(v20, v20, 85).m128_u32[0];
+    LODWORD(outPlacement.origin.v[2]) = _mm_shuffle_ps(v20, v20, 170).m128_u32[0];
   }
   else
   {
     QuatToAxis(&outPlacement.quat, &axis);
-    __asm
-    {
-      vmovss  xmm3, [rsp+1140h+outScale]
-      vmovsd  xmm1, qword ptr [rdi+3Ch]
-      vmovups xmm0, xmmword ptr [rdi+2Ch]
-      vmovups xmmword ptr [rsp+1140h+baseBounds.midPoint], xmm0
-      vmovsd  qword ptr [rsp+1140h+baseBounds.halfSize+4], xmm1
-      vmulss  xmm2, xmm3, dword ptr [rsp+1140h+baseBounds.halfSize+8]
-      vshufps xmm0, xmm0, xmm0, 0FFh
-      vmulss  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rsp+1140h+baseBounds.halfSize], xmm0
-      vmulss  xmm0, xmm1, xmm3
-      vmulss  xmm1, xmm3, dword ptr [rsp+1140h+baseBounds.midPoint]
-      vmovss  dword ptr [rsp+1140h+baseBounds.halfSize+4], xmm0
-      vmulss  xmm0, xmm3, dword ptr [rsp+1140h+baseBounds.midPoint+4]
-      vmovss  dword ptr [rsp+1140h+baseBounds.halfSize+8], xmm2
-      vmulss  xmm2, xmm3, dword ptr [rsp+1140h+baseBounds.midPoint+8]
-      vmovss  dword ptr [rsp+1140h+baseBounds.midPoint+4], xmm0
-      vmovss  dword ptr [rsp+1140h+baseBounds.midPoint], xmm1
-      vmovss  dword ptr [rsp+1140h+baseBounds.midPoint+8], xmm2
-    }
+    v21 = *(double *)&model->bounds.halfSize.y;
+    *(_OWORD *)baseBounds.midPoint.v = *(_OWORD *)model->bounds.midPoint.v;
+    *(double *)&baseBounds.halfSize.y = v21;
+    baseBounds.halfSize.v[0] = _mm_shuffle_ps(*(__m128 *)baseBounds.midPoint.v, *(__m128 *)baseBounds.midPoint.v, 255).m128_f32[0] * outScale[0];
+    baseBounds.halfSize.v[1] = *(float *)&v21 * outScale[0];
+    baseBounds.halfSize.v[2] = outScale[0] * baseBounds.halfSize.v[2];
+    baseBounds.midPoint.v[1] = outScale[0] * baseBounds.midPoint.v[1];
+    baseBounds.midPoint.v[0] = outScale[0] * baseBounds.midPoint.v[0];
+    baseBounds.midPoint.v[2] = outScale[0] * baseBounds.midPoint.v[2];
     Bounds_Transform(&baseBounds, &outPlacement.origin, &axis, &rotatedBounds);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbp+1040h+rotatedBounds.midPoint]
-      vmovss  xmm7, dword ptr [rbp+1040h+rotatedBounds.midPoint+8]
-      vmovss  xmm6, dword ptr [rbp+1040h+rotatedBounds.midPoint+4]
-    }
+    v20.m128_i32[0] = LODWORD(rotatedBounds.midPoint.v[0]);
   }
   if ( !isSingleInstanceCollection )
   {
-    __asm { vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg }
     baseBounds.halfSize.v[0] = 0.0;
+    v23 = *(_OWORD *)baseBounds.midPoint.v;
+    *(float *)&v23 = rg.correctedLodParms.origin.v[0];
+    _XMM5 = v23;
     __asm
     {
-      vmovups xmm5, xmmword ptr [rsp+1140h+baseBounds.midPoint]
-      vmovss  xmm5, xmm5, xmm0
-      vmovss  xmm0, dword ptr [rbp+1040h+rotatedBounds.halfSize]
       vinsertps xmm5, xmm5, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4, 10h; r_globals_t rg
       vinsertps xmm5, xmm5, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8, 20h ; ' '; r_globals_t rg
-      vmovups xmmword ptr [rsp+1140h+baseBounds.midPoint], xmm5
     }
+    *(__m128 *)baseBounds.midPoint.v = _XMM5;
     baseBounds.halfSize.v[0] = 0.0;
+    v27 = *(_OWORD *)baseBounds.midPoint.v;
+    *(float *)&v27 = v20.m128_f32[0];
+    _XMM4 = v27;
     __asm
     {
-      vmovups xmm4, xmmword ptr [rsp+1140h+baseBounds.midPoint]
-      vmovss  xmm4, xmm4, xmm3
       vinsertps xmm4, xmm4, xmm6, 10h
       vinsertps xmm4, xmm4, xmm7, 20h ; ' '
-      vmovups xmmword ptr [rsp+1140h+baseBounds.midPoint], xmm4
     }
+    *(__m128 *)baseBounds.midPoint.v = _XMM4;
     baseBounds.halfSize.v[0] = 0.0;
+    v31 = *(_OWORD *)baseBounds.midPoint.v;
+    *(float *)&v31 = rotatedBounds.halfSize.v[0];
+    _XMM3 = v31;
+    __asm { vinsertps xmm3, xmm3, dword ptr [rbp+1040h+rotatedBounds.halfSize+4], 1040h+dest+40h }
+    _XMM0 = g_negativeZero.v;
+    __asm { vinsertps xmm3, xmm3, dword ptr [rbp+1040h+rotatedBounds.halfSize+8], 1040h+dest+50h }
+    _mm128_sub_ps(_XMM5, _XMM4);
+    __asm { vandnps xmm2, xmm0, xmm1 }
+    *(__m128 *)baseBounds.midPoint.v = _XMM3;
+    _XMM3 = _mm128_sub_ps(_XMM2, _XMM3);
+    __asm { vmaxps  xmm1, xmm3, xmm0 }
+    _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
     __asm
     {
-      vmovups xmm3, xmmword ptr [rsp+1140h+baseBounds.midPoint]
-      vmovss  xmm3, xmm3, xmm0
-      vinsertps xmm3, xmm3, dword ptr [rbp+1040h+rotatedBounds.halfSize+4], 1040h+dest+40h
-      vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vinsertps xmm3, xmm3, dword ptr [rbp+1040h+rotatedBounds.halfSize+8], 1040h+dest+50h
-      vsubps  xmm1, xmm5, xmm4
-      vandnps xmm2, xmm0, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vmovups xmmword ptr [rsp+1140h+baseBounds.midPoint], xmm3
-      vsubps  xmm3, xmm2, xmm3
-      vmaxps  xmm1, xmm3, xmm0
-      vmulps  xmm2, xmm1, xmm1
       vhaddps xmm0, xmm2, xmm2
-      vmovss  xmm2, cs:__real@3f800000; lodCullScale
       vhaddps xmm1, xmm0, xmm0
-      vsqrtss xmm8, xmm1, xmm1
-      vmovaps xmm1, xmm8; baseDist
     }
-    lod = R_GetStaticModelCollectionLODAndDists(model, *(double *)&_XMM1, *(double *)&_XMM2, isClutter, NULL);
+    lodDist = fsqrt(*(float *)&_XMM1);
+    lod = R_GetStaticModelCollectionLODAndDists(model, lodDist, 1.0, isClutter, NULL);
   }
-  __asm { vmovaps xmm7, [rsp+1140h+var_50] }
   if ( lod != 6 && XModelIsLodUsable(model, lod) )
   {
     if ( XModelShouldShowBounds(model) && r_showCullSModels->current.enabled && !r_showCull->current.integer )
       R_AddDebugBox(&viewInfo->input.data->debugGlobals, &rotatedBounds, &colorGreen, r_showCullMode->current.integer != 0);
-    __asm
-    {
-      vmovss  xmm0, [rsp+1140h+outScale]
-      vmovss  dword ptr [rsp+1140h+pOutDists], xmm0
-    }
-    CG_DrawHits_OnDrawSModel(viewInfo->clientIndex, v17, smodelCollectionIndex, &outPlacement, pOutDistsa, model, lod);
+    CG_DrawHits_OnDrawSModel(viewInfo->clientIndex, v15, smodelCollectionIndex, &outPlacement, outScale[0], model, lod);
     R_ShowCountsStaticModel(&viewInfo->input.data->debugGlobals, &outPlacement.origin, model, lod);
-    v67 = &colorCyan;
+    v41 = &colorCyan;
     if ( r_showModelNames->current.enabled )
       R_AddScaledDebugString(&viewInfo->input.data->debugGlobals, &rg.debugViewParms->camera, &outPlacement.origin, &colorCyan, model->name);
     data = viewInfo->input.data;
     integer = r_showModelLODs->current.integer;
     if ( integer && 6 - integer >= (unsigned int)lod )
     {
-      v70 = j_va("%d", (unsigned int)lod);
-      R_AddScaledDebugString(&data->debugGlobals, &rg.debugViewParms->camera, &outPlacement.origin, &colorCyan, v70);
+      v44 = j_va("%d", (unsigned int)lod);
+      R_AddScaledDebugString(&data->debugGlobals, &rg.debugViewParms->camera, &outPlacement.origin, &colorCyan, v44);
     }
-    *(double *)&_XMM0 = GfxStaticModelLodDistIndexToScale(rgp.world->smodels.instanceFlags[v17] & 0xF);
-    v72 = viewInfo->input.data;
-    __asm { vmovaps xmm6, xmm0 }
+    v46 = GfxStaticModelLodDistIndexToScale(rgp.world->smodels.instanceFlags[v15] & 0xF);
+    v47 = viewInfo->input.data;
+    v48 = *(float *)&v46;
     if ( r_showModelLODOutDist->current.enabled )
     {
-      v74 = model->numLods - 1;
-      *(double *)&_XMM0 = XModelGetLodOutDist(model);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si r8d, xmm1
-      }
-      pOutDists = j_va("[%d] %d", v74, _R8);
-      if ( lod == v74 )
-        v67 = &colorYellow;
-      R_AddScaledDebugString(&v72->debugGlobals, &rg.debugViewParms->camera, &outPlacement.origin, v67, pOutDists);
+      v49 = model->numLods - 1;
+      LodOutDist = XModelGetLodOutDist(model);
+      pOutDists = j_va("[%d] %d", v49, (unsigned int)(int)(float)(*(float *)&LodOutDist * v48));
+      if ( lod == v49 )
+        v41 = &colorYellow;
+      R_AddScaledDebugString(&v47->debugGlobals, &rg.debugViewParms->camera, &outPlacement.origin, v41, pOutDists);
     }
     if ( r_staticModelDumpLodInfo->current.enabled && !s_staticModelDumpInfo.openHandleFailed )
     {
       handle = s_staticModelDumpInfo.handle.handle.handle;
       if ( s_staticModelDumpInfo.handle.handle.handle != -1 )
         goto LABEL_30;
-      s_staticModelDumpInfo.handle.handle.handle = (__int64)FS_FOpenTextFileWrite((fileHandle_t *)&stru_1443D05B0, v71);
+      s_staticModelDumpInfo.handle.handle.handle = (__int64)FS_FOpenTextFileWrite((fileHandle_t *)&stru_1443D05B0, v45);
       handle = s_staticModelDumpInfo.handle.handle.handle;
       if ( s_staticModelDumpInfo.handle.handle.handle != -1 )
       {
         Com_sprintf(dest, 0x1000ui64, "index,name,radius,numLods,lodDist,lodPixels720p,1PixelDist720p,scaledDist,posx,posy,posz,pixels\n");
-        v78 = -1i64;
+        v52 = -1i64;
         do
-          ++v78;
-        while ( dest[v78] );
-        FS_Write(dest, v78, (fileHandle_t)handle);
+          ++v52;
+        while ( dest[v52] );
+        FS_Write(dest, v52, (fileHandle_t)handle);
         handle = s_staticModelDumpInfo.handle.handle.handle;
       }
       s_staticModelDumpInfo.staticModelCount = 0;
@@ -6298,35 +5996,29 @@ void R_StaticModelInstanceDebugAids(const GfxViewInfo *viewInfo, unsigned int sm
       else
       {
 LABEL_30:
-        __asm { vmovaps xmm3, xmm8; dist }
-        R_StaticModelWriteInfo((fileHandle_t)handle, &outPlacement.origin, model, *(const float *)&_XMM3);
+        R_StaticModelWriteInfo((fileHandle_t)handle, &outPlacement.origin, model, lodDist);
       }
     }
     if ( rg.showXModelRanking )
     {
       if ( rg.showXModelRankingFilterMode != 2 )
       {
-        v80 = R_AddXModelToRankingStats(model, lod, 1u);
+        v53 = R_AddXModelToRankingStats(model, lod, 1u);
         XModelGetSurfaces(model, (XSurface **)&baseBounds, lod);
         SurfCount = XModelGetSurfCount(model, lod);
         if ( SurfCount )
         {
-          v82 = *(const XSurface **)baseBounds.midPoint.v;
-          v83 = SurfCount;
+          v55 = *(const XSurface **)baseBounds.midPoint.v;
+          v56 = SurfCount;
           do
           {
-            R_AddXSurfaceToXModelStats(v82++, v80);
-            --v83;
+            R_AddXSurfaceToXModelStats(v55++, v53);
+            --v56;
           }
-          while ( v83 );
+          while ( v56 );
         }
       }
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+1140h+var_40]
-    vmovaps xmm8, [rsp+1140h+var_60]
   }
 }
 
@@ -6335,110 +6027,31 @@ LABEL_30:
 R_StaticModelWriteInfo
 ==============
 */
-
-void __fastcall R_StaticModelWriteInfo(fileHandle_t fileHandle, const vec3_t *origin, const XModel *xmodel, double dist)
+void R_StaticModelWriteInfo(fileHandle_t fileHandle, const vec3_t *origin, const XModel *xmodel, const float dist)
 {
-  bool v13; 
-  bool v16; 
-  bool v19; 
-  __int64 v20; 
-  int numLods; 
-  unsigned __int64 v40; 
-  double v42; 
-  double v43; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  double v49; 
-  double v50; 
+  float v7; 
+  float v8; 
+  __int64 v9; 
+  unsigned __int64 v10; 
   char dest[4096]; 
 
-  _RSI = origin;
-  _RDI = xmodel;
-  __asm
-  {
-    vmovaps [rsp+10F8h+var_38], xmm6
-    vmovaps [rsp+10F8h+var_48], xmm7
-    vmovaps [rsp+10F8h+var_68], xmm9
-    vmovaps xmm7, xmm3
-  }
   if ( !xmodel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 892, ASSERT_TYPE_ASSERT, "(xmodel)", (const char *)&queryFormat, "xmodel") )
     __debugbreak();
-  if ( !_RDI->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 893, ASSERT_TYPE_ASSERT, "(xmodel->name)", (const char *)&queryFormat, "xmodel->name") )
+  if ( !xmodel->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 893, ASSERT_TYPE_ASSERT, "(xmodel->name)", (const char *)&queryFormat, "xmodel->name") )
     __debugbreak();
-  if ( !_RDI->numLods && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 894, ASSERT_TYPE_ASSERT, "(xmodel->numLods > 0)", (const char *)&queryFormat, "xmodel->numLods > 0") )
+  if ( !xmodel->numLods && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 894, ASSERT_TYPE_ASSERT, "(xmodel->numLods > 0)", (const char *)&queryFormat, "xmodel->numLods > 0") )
     __debugbreak();
-  _RAX = _RDI->numLods;
-  v13 = __CFSHL__(_RAX, 6);
-  _RAX <<= 6;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  xmm9, dword ptr [rax+rdi+0B0h]
-    vcomiss xmm9, xmm6
-  }
-  if ( v13 || _RAX == 0 )
-  {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 898, ASSERT_TYPE_ASSERT, "(lodDist > 0.0f)", (const char *)&queryFormat, "lodDist > 0.0f");
-    v13 = 0;
-    if ( v16 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:radius2pixels
-    vmulss  xmm1, xmm0, dword ptr [rdi+28h]
-  }
-  v19 = v13 || s_staticModelDumpInfo.staticModelCount == -1;
-  v20 = (unsigned int)(s_staticModelDumpInfo.staticModelCount + 1);
-  __asm { vcomiss xmm7, xmm6 }
-  ++s_staticModelDumpInfo.staticModelCount;
-  if ( !v19 )
-  {
-    numLods = _RDI->numLods;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsi+8]
-      vmovss  xmm5, dword ptr [rsi+4]
-      vmovss  xmm6, dword ptr [rsi]
-      vdivss  xmm0, xmm1, xmm7
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovsd  [rsp+10F8h+var_1088], xmm3
-      vdivss  xmm0, xmm1, xmm9
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+10F8h+var_1090], xmm4
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+10F8h+var_1098], xmm5
-      vcvtss2sd xmm2, xmm9, xmm9
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+10F8h+var_10A0], xmm6
-      vmovaps [rsp+10F8h+var_58], xmm8
-      vcvtss2sd xmm8, xmm1, xmm1
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm7, xmm7, xmm7
-      vmovsd  [rsp+10F8h+var_10A8], xmm7
-      vmovsd  [rsp+10F8h+var_10B0], xmm8
-      vmovsd  [rsp+10F8h+var_10B8], xmm1
-      vmovsd  [rsp+10F8h+var_10C0], xmm2
-      vmovsd  [rsp+10F8h+var_10D0], xmm0
-    }
-    Com_sprintf(dest, 0x1000ui64, "%d,%s,%.1f,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n", v20, _RDI->name, v42, numLods, v43, v44, v45, v46, v47, v48, v49, v50);
-    __asm { vmovaps xmm8, [rsp+10F8h+var_58] }
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+10F8h+var_68]
-    vmovaps xmm7, [rsp+10F8h+var_48]
-  }
-  v40 = -1i64;
-  __asm { vmovaps xmm6, [rsp+10F8h+var_38] }
+  v7 = *((float *)&xmodel->trans + 16 * (unsigned __int64)xmodel->numLods);
+  if ( v7 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_staticmodel.cpp", 898, ASSERT_TYPE_ASSERT, "(lodDist > 0.0f)", (const char *)&queryFormat, "lodDist > 0.0f") )
+    __debugbreak();
+  v8 = radius2pixels * xmodel->radius;
+  v9 = (unsigned int)++s_staticModelDumpInfo.staticModelCount;
+  if ( dist > 0.0 )
+    Com_sprintf(dest, 0x1000ui64, "%d,%s,%.1f,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n", v9, xmodel->name, xmodel->radius, xmodel->numLods, v7, (float)(v8 / v7), v8, dist, origin->v[0], origin->v[1], origin->v[2], (float)(v8 / dist));
+  v10 = -1i64;
   do
-    ++v40;
-  while ( dest[v40] );
-  FS_Write(dest, v40, fileHandle);
+    ++v10;
+  while ( dest[v10] );
+  FS_Write(dest, v10, fileHandle);
 }
 

@@ -1265,16 +1265,10 @@ TerrainFollowingRadarControl::TerrainFollowingRadarControl
 */
 void TerrainFollowingRadarControl::TerrainFollowingRadarControl(TerrainFollowingRadarControl *this)
 {
-  _RBX = this;
   TerrainFollowingRadarControl::LoadTFRParameters(this);
-  TerrainFollowingRadarControl::ComputeDirectionVectorsForRays(_RBX);
-  __asm
-  {
-    vmovss  xmm0, cs:?TFR_LOW_SPEED_VALUE@@3MA; float TFR_LOW_SPEED_VALUE
-    vmovss  dword ptr [rbx+50Ch], xmm0
-    vmovss  xmm1, cs:?TFR_HIGH_SPEED_VALUE@@3MA; float TFR_HIGH_SPEED_VALUE
-    vmovss  dword ptr [rbx+510h], xmm1
-  }
+  TerrainFollowingRadarControl::ComputeDirectionVectorsForRays(this);
+  this->m_minSpeed = TFR_LOW_SPEED_VALUE;
+  this->m_maxSpeed = TFR_HIGH_SPEED_VALUE;
 }
 
 /*
@@ -1282,60 +1276,40 @@ void TerrainFollowingRadarControl::TerrainFollowingRadarControl(TerrainFollowing
 FlightDynamics::ApplyForceAtNonLocal
 ==============
 */
-
-void __fastcall FlightDynamics::ApplyForceAtNonLocal(FlightDynamics *this, vec3_t *forceVector, vec3_t *pointofApplication, double dT, float distanceMultiplier)
+void FlightDynamics::ApplyForceAtNonLocal(FlightDynamics *this, vec3_t *forceVector, vec3_t *pointofApplication, float dT, float distanceMultiplier)
 {
-  FlightDynamics *v16; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v14; 
   vec3_t cross; 
   vec3_t v1; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmulss  xmm0, xmm3, dword ptr [rdx]
-    vaddss  xmm1, xmm0, dword ptr [rcx+2E4h]
-    vmulss  xmm0, xmm3, dword ptr [rdx+4]
-    vmovss  xmm2, dword ptr [r8+4]
-    vmovss  dword ptr [rcx+2E4h], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+2E8h]
-    vmulss  xmm0, xmm3, dword ptr [rdx+8]
-    vmovss  dword ptr [rcx+2E8h], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+2ECh]
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  dword ptr [rcx+2ECh], xmm1
-    vsubss  xmm1, xmm0, dword ptr [rcx+2D8h]
-    vsubss  xmm0, xmm2, dword ptr [rcx+2DCh]
-  }
-  v16 = this;
-  __asm
-  {
-    vmovss  dword ptr [rsp+68h+v1], xmm1
-    vmovss  xmm1, dword ptr [r8+8]
-    vsubss  xmm2, xmm1, dword ptr [rcx+2E0h]
-    vmovss  dword ptr [rsp+68h+v1+8], xmm2
-    vmovss  dword ptr [rsp+68h+v1+4], xmm0
-    vmovaps xmm6, xmm3
-  }
+  v5 = dT * forceVector->v[1];
+  v6 = pointofApplication->v[1];
+  this->m_Velocity.v[0] = (float)(dT * forceVector->v[0]) + this->m_Velocity.v[0];
+  v7 = v5 + this->m_Velocity.v[1];
+  v8 = dT * forceVector->v[2];
+  this->m_Velocity.v[1] = v7;
+  v9 = v8 + this->m_Velocity.v[2];
+  v10 = pointofApplication->v[0];
+  this->m_Velocity.v[2] = v9;
+  v11 = v10 - this->m_Position.v[0];
+  v12 = v6 - this->m_Position.v[1];
+  v1.v[0] = v11;
+  v1.v[2] = pointofApplication->v[2] - this->m_Position.v[2];
+  v1.v[1] = v12;
   Vec3Cross(forceVector, &v1, &cross);
-  __asm
-  {
-    vmovss  xmm2, [rsp+68h+arg_20]
-    vmulss  xmm1, xmm2, dword ptr [rsp+68h+cross+4]
-    vmulss  xmm4, xmm2, dword ptr [rsp+68h+cross]
-    vmulss  xmm3, xmm2, dword ptr [rsp+68h+cross+8]
-    vmovss  dword ptr [rsp+68h+cross+4], xmm1
-    vmulss  xmm1, xmm1, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmulss  xmm2, xmm0, xmm6; angle
-    vmovss  dword ptr [rsp+68h+cross], xmm4
-    vmovss  dword ptr [rsp+68h+cross+8], xmm3
-  }
-  FlightDynamics::SetRotationNonLocal(v16, &cross, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  cross.v[1] = distanceMultiplier * cross.v[1];
+  v14 = fsqrt((float)((float)(cross.v[1] * cross.v[1]) + (float)((float)(distanceMultiplier * cross.v[0]) * (float)(distanceMultiplier * cross.v[0]))) + (float)((float)(distanceMultiplier * cross.v[2]) * (float)(distanceMultiplier * cross.v[2])));
+  cross.v[0] = distanceMultiplier * cross.v[0];
+  cross.v[2] = distanceMultiplier * cross.v[2];
+  FlightDynamics::SetRotationNonLocal(this, &cross, v14 * dT);
 }
 
 /*
@@ -1353,86 +1327,41 @@ void FlightDynamics::ApplyGravity(FlightDynamics *this, float dT)
 FlightDynamics::ApplyRotationDrag
 ==============
 */
-
-void __fastcall FlightDynamics::ApplyRotationDrag(FlightDynamics *this, double coeff)
+void FlightDynamics::ApplyRotationDrag(FlightDynamics *this, float coeff)
 {
-  FlightDynamics *v22; 
-  __int64 v41; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v7; 
   float angleOut; 
   vec3_t axisOut; 
   vec4_t quat; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v2 = this->m_RotationQuaternion.v[0];
+  v3 = this->m_RotationQuaternion.v[1];
+  v4 = this->m_RotationQuaternion.v[2];
+  v5 = this->m_RotationQuaternion.v[3];
+  v7 = fsqrt((float)((float)((float)(v2 * v2) + (float)(v3 * v3)) + (float)(v4 * v4)) + (float)(v5 * v5));
+  axisOut.v[2] = 0.0;
+  axisOut.v[1] = 0.0;
+  axisOut.v[0] = 0.0;
+  quat.v[0] = v2;
+  quat.v[1] = v3;
+  quat.v[2] = v4;
+  quat.v[3] = v5;
+  if ( v7 != 0.0 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm5, dword ptr [rcx+368h]
-    vmovss  xmm6, dword ptr [rcx+36Ch]
-    vmovss  xmm7, dword ptr [rcx+370h]
-    vmovss  xmm8, dword ptr [rcx+374h]
-    vxorps  xmm4, xmm4, xmm4
-    vmovaps xmm9, xmm1
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vucomiss xmm1, xmm4
-    vmovss  dword ptr [rsp+98h+axisOut+8], xmm4
-    vmovss  dword ptr [rsp+98h+axisOut+4], xmm4
-    vmovss  dword ptr [rsp+98h+axisOut], xmm4
-    vmovss  dword ptr [rsp+98h+quat], xmm5
-    vmovss  dword ptr [rsp+98h+quat+4], xmm6
-    vmovss  dword ptr [rsp+98h+quat+8], xmm7
-    vmovss  dword ptr [rsp+98h+quat+0Ch], xmm8
-  }
-  v22 = this;
-  if ( (unsigned __int64)&v41 != _security_cookie )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm2, xmm0, xmm1
-      vmulss  xmm1, xmm2, xmm5
-      vmulss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rsp+98h+quat], xmm1
-      vmovss  dword ptr [rsp+98h+quat+4], xmm0
-      vmulss  xmm1, xmm2, xmm7
-      vmulss  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rsp+98h+quat+8], xmm1
-      vmovss  dword ptr [rsp+98h+quat+0Ch], xmm0
-    }
+    quat.v[0] = (float)(1.0 / v7) * v2;
+    quat.v[1] = (float)(1.0 / v7) * v3;
+    quat.v[2] = (float)(1.0 / v7) * v4;
+    quat.v[3] = (float)(1.0 / v7) * v5;
   }
   FD_QuatToAngleAxis(&quat, &angleOut, &axisOut);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+98h+axisOut+4]
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rsp+98h+axisOut]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+98h+axisOut], xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+axisOut+8]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+98h+axisOut+8], xmm2
-    vmulss  xmm2, xmm9, [rsp+98h+angleOut]; angle
-    vmovss  dword ptr [rsp+98h+axisOut+4], xmm0
-  }
-  FlightDynamics::SetRotationLocal(v22, &axisOut, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-  }
+  LODWORD(axisOut.v[0]) ^= _xmm;
+  LODWORD(axisOut.v[2]) ^= _xmm;
+  LODWORD(axisOut.v[1]) ^= _xmm;
+  FlightDynamics::SetRotationLocal(this, &axisOut, coeff * angleOut);
 }
 
 /*
@@ -1440,116 +1369,58 @@ void __fastcall FlightDynamics::ApplyRotationDrag(FlightDynamics *this, double c
 FlightDynamics::ApplyRotationDragAroundAxis
 ==============
 */
-
-void __fastcall FlightDynamics::ApplyRotationDragAroundAxis(vec4_t *quat, vec3_t *axisDrag, double coeff, double dT, vec4_t *quatOut)
+void FlightDynamics::ApplyRotationDragAroundAxis(vec4_t *quat, vec3_t *axisDrag, const float coeff, const float dT, vec4_t *quatOut)
 {
-  __int64 v59; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  double v14; 
+  float v15; 
   float outRadians; 
   float s; 
   vec3_t outAxis; 
   vec4_t quata; 
   vec4_t in2; 
-  char v65; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v5 = quat->v[0];
+  v6 = quat->v[1];
+  v7 = quat->v[2];
+  v8 = quat->v[3];
+  v10 = fsqrt((float)((float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7)) + (float)(v8 * v8));
+  outAxis.v[2] = 0.0;
+  outAxis.v[1] = 0.0;
+  outAxis.v[0] = 0.0;
+  quata.v[0] = v5;
+  quata.v[1] = v6;
+  quata.v[2] = v7;
+  quata.v[3] = v8;
+  if ( v10 != 0.0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovss  xmm4, dword ptr [rcx]
-    vmovss  xmm5, dword ptr [rcx+4]
-    vmovss  xmm6, dword ptr [rcx+8]
-    vmovss  xmm7, dword ptr [rcx+0Ch]
-    vmovss  xmm9, cs:__real@3f800000
-    vxorps  xmm8, xmm8, xmm8
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vmovaps xmm10, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm11, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vucomiss xmm1, xmm8
-    vmovss  dword ptr [rbp+4Fh+outAxis+8], xmm8
-    vmovss  dword ptr [rbp+4Fh+outAxis+4], xmm8
-    vmovss  dword ptr [rbp+4Fh+outAxis], xmm8
-    vmovss  dword ptr [rbp+4Fh+quat], xmm4
-    vmovss  dword ptr [rbp+4Fh+quat+4], xmm5
-    vmovss  dword ptr [rbp+4Fh+quat+8], xmm6
-    vmovss  dword ptr [rbp+4Fh+quat+0Ch], xmm7
-  }
-  if ( (unsigned __int64)&v59 != _security_cookie )
-  {
-    __asm
-    {
-      vdivss  xmm2, xmm9, xmm1
-      vmulss  xmm0, xmm2, xmm4
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rbp+4Fh+quat], xmm0
-      vmovss  dword ptr [rbp+4Fh+quat+4], xmm1
-      vmulss  xmm0, xmm2, xmm6
-      vmulss  xmm1, xmm2, xmm7
-      vmovss  dword ptr [rbp+4Fh+quat+8], xmm0
-      vmovss  dword ptr [rbp+4Fh+quat+0Ch], xmm1
-    }
+    quata.v[0] = (float)(1.0 / v10) * v5;
+    quata.v[1] = v6 * (float)(1.0 / v10);
+    quata.v[2] = (float)(1.0 / v10) * v7;
+    quata.v[3] = (float)(1.0 / v10) * v8;
   }
   QuatToAngleRadAxis(&quata, &outRadians, &outAxis);
-  __asm
-  {
-    vmovss  xmm1, [rbp+4Fh+outRadians]
-    vmulss  xmm3, xmm1, dword ptr [rbp+4Fh+outAxis]
-    vmulss  xmm4, xmm1, dword ptr [rbp+4Fh+outAxis+4]
-    vmulss  xmm5, xmm1, dword ptr [rbp+4Fh+outAxis+8]
-    vmulss  xmm0, xmm4, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+4Fh+outAxis], xmm3
-    vmulss  xmm3, xmm3, dword ptr [rbx]
-    vmovss  dword ptr [rbp+4Fh+outAxis+4], xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm3, xmm5, dword ptr [rbx+8]
-    vmulss  xmm0, xmm11, xmm10; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vaddss  xmm6, xmm4, xmm3
-    vmovss  dword ptr [rbp+4Fh+outAxis+8], xmm5
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm1, cs:__real@3f000000; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &in2.v[3]);
-  __asm
-  {
-    vmovss  xmm0, [rbp+4Fh+s]
-    vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm1, xmm2, dword ptr [rbx]
-    vmulss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+4Fh+in2], xmm1
-    vmulss  xmm1, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+4Fh+in2+8], xmm1
-    vmovss  dword ptr [rbp+4Fh+in2+4], xmm0
-  }
+  v11 = (float)(outRadians * outAxis.v[1]) * axisDrag->v[1];
+  outAxis.v[0] = outRadians * outAxis.v[0];
+  v12 = outAxis.v[0] * axisDrag->v[0];
+  outAxis.v[1] = outRadians * outAxis.v[1];
+  v13 = (float)(v12 + v11) + (float)((float)(outRadians * outAxis.v[2]) * axisDrag->v[2]);
+  outAxis.v[2] = outRadians * outAxis.v[2];
+  v14 = I_fclamp(dT * coeff, 0.0, 1.0);
+  FastSinCos((float)(*(float *)&v14 * v13) * 0.5, &s, &in2.v[3]);
+  v15 = COERCE_FLOAT(LODWORD(s) ^ _xmm) * axisDrag->v[1];
+  in2.v[0] = COERCE_FLOAT(LODWORD(s) ^ _xmm) * axisDrag->v[0];
+  in2.v[2] = COERCE_FLOAT(LODWORD(s) ^ _xmm) * axisDrag->v[2];
+  in2.v[1] = v15;
   QuatMultiply(&quata, &in2, quatOut);
   Vec4Normalize(quatOut);
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -1557,30 +1428,17 @@ void __fastcall FlightDynamics::ApplyRotationDragAroundAxis(vec4_t *quat, vec3_t
 FlightDynamics::ApplyRotationDragToQuat
 ==============
 */
-
-void __fastcall FlightDynamics::ApplyRotationDragToQuat(vec4_t *quat, const float coeff, double dT, vec4_t *quatOut)
+void FlightDynamics::ApplyRotationDragToQuat(vec4_t *quat, const float coeff, const float dT, vec4_t *quatOut)
 {
   vec4_t to; 
   vec4_t from; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+78h+from], xmm0
-    vmovaps xmm6, xmm2
-  }
+  from = *quat;
   if ( !quatOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2308, ASSERT_TYPE_ASSERT, "(quatOut)", (const char *)&queryFormat, "quatOut") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-    vmovaps xmm2, xmm6; frac
-    vmovups xmmword ptr [rsp+78h+to], xmm0
-  }
-  QuatSlerp(&from, &to, *(float *)&_XMM2, quatOut);
+  to = (vec4_t)_xmm;
+  QuatSlerp(&from, &to, dT, quatOut);
   Vec4Normalize(quatOut);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -1588,62 +1446,25 @@ void __fastcall FlightDynamics::ApplyRotationDragToQuat(vec4_t *quat, const floa
 FlightDynamics::ApplyTorqueAtNonLocal
 ==============
 */
-
-void __fastcall FlightDynamics::ApplyTorqueAtNonLocal(FlightDynamics *this, vec3_t *torqueVector, vec3_t *pointofApplication, double dT, float distanceMultiplier)
+void FlightDynamics::ApplyTorqueAtNonLocal(FlightDynamics *this, vec3_t *torqueVector, vec3_t *pointofApplication, float dT, float distanceMultiplier)
 {
-  vec3_t *v18; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t v1; 
   vec3_t cross; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm2, dword ptr [rdx+4]
-    vmovss  xmm4, dword ptr [rdx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmulss  xmm2, xmm0, xmm3; angle
-    vmovaps xmm6, xmm3
-  }
-  _RBX = pointofApplication;
-  v18 = torqueVector;
-  _RSI = this;
-  FlightDynamics::SetRotationNonLocal(this, torqueVector, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsi+2D8h]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsi+2DCh]
-    vmovss  dword ptr [rsp+78h+v1], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsi+2E0h]
-    vmovss  dword ptr [rsp+78h+v1+8], xmm2
-    vmovss  dword ptr [rsp+78h+v1+4], xmm0
-  }
-  Vec3Cross(v18, &v1, &cross);
-  __asm
-  {
-    vmovss  xmm4, [rsp+78h+arg_20]
-    vmulss  xmm1, xmm4, dword ptr [rsp+78h+cross]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rsi+2E4h]
-    vmulss  xmm1, xmm4, dword ptr [rsp+78h+cross+4]
-    vmulss  xmm2, xmm1, xmm6
-    vmulss  xmm1, xmm4, dword ptr [rsp+78h+cross+8]
-    vmovss  dword ptr [rsi+2E4h], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rsi+2E8h]
-    vmulss  xmm2, xmm1, xmm6
-    vmovss  dword ptr [rsi+2E8h], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rsi+2ECh]
-    vmovss  dword ptr [rsi+2ECh], xmm3
-    vmovaps xmm6, [rsp+78h+var_28]
-  }
+  FlightDynamics::SetRotationNonLocal(this, torqueVector, fsqrt((float)((float)(torqueVector->v[0] * torqueVector->v[0]) + (float)(torqueVector->v[1] * torqueVector->v[1])) + (float)(torqueVector->v[2] * torqueVector->v[2])) * dT);
+  v8 = pointofApplication->v[1] - this->m_Position.v[1];
+  v1.v[0] = pointofApplication->v[0] - this->m_Position.v[0];
+  v1.v[2] = pointofApplication->v[2] - this->m_Position.v[2];
+  v1.v[1] = v8;
+  Vec3Cross(torqueVector, &v1, &cross);
+  v9 = (float)(distanceMultiplier * cross.v[1]) * dT;
+  v10 = distanceMultiplier * cross.v[2];
+  this->m_Velocity.v[0] = (float)((float)(distanceMultiplier * cross.v[0]) * dT) + this->m_Velocity.v[0];
+  this->m_Velocity.v[1] = v9 + this->m_Velocity.v[1];
+  this->m_Velocity.v[2] = (float)(v10 * dT) + this->m_Velocity.v[2];
 }
 
 /*
@@ -1651,15 +1472,11 @@ void __fastcall FlightDynamics::ApplyTorqueAtNonLocal(FlightDynamics *this, vec3
 BG_FD_AdjustSensitivyDividers
 ==============
 */
-
-void __fastcall BG_FD_AdjustSensitivyDividers(double hSensDiv, double vSensDiv, double lerpSpeed)
+void BG_FD_AdjustSensitivyDividers(const float hSensDiv, const float vSensDiv, const float lerpSpeed)
 {
-  __asm
-  {
-    vmovss  cs:?FBW_USER_INPUT_RUDDER_EXPO@@3MA, xmm0; float FBW_USER_INPUT_RUDDER_EXPO
-    vmovss  cs:?FBW_USER_INPUT_ELEVATOR_EXPO@@3MA, xmm1; float FBW_USER_INPUT_ELEVATOR_EXPO
-    vmovss  cs:?FBW_ELEVATOR_TO_FBW_MULTIPLIER@@3MA, xmm2; float FBW_ELEVATOR_TO_FBW_MULTIPLIER
-  }
+  FBW_USER_INPUT_RUDDER_EXPO = hSensDiv;
+  FBW_USER_INPUT_ELEVATOR_EXPO = vSensDiv;
+  FBW_ELEVATOR_TO_FBW_MULTIPLIER = lerpSpeed;
 }
 
 /*
@@ -1677,195 +1494,116 @@ FlightDynamicsManager *BG_GetFlightDynamicsManager()
 FlightDynamics::BlendToPmoveObject
 ==============
 */
-
-void __fastcall FlightDynamics::BlendToPmoveObject(FlightDynamics *this, double deltaTime, const BgVehiclePhysics *pmoveObj, vec3_t *inOutLinearVelWs, vec3_t *inOutAngularVelWs)
+void FlightDynamics::BlendToPmoveObject(FlightDynamics *this, float deltaTime, const BgVehiclePhysics *pmoveObj, vec3_t *inOutLinearVelWs, vec3_t *inOutAngularVelWs)
 {
-  const dvar_t *v11; 
-  float v17; 
-  float v18; 
+  __int128 v5; 
+  const dvar_t *v6; 
+  float v10; 
   unsigned int PhysicsBodyId; 
-  char v25; 
-  bool v26; 
-  bool v27; 
-  float v68; 
-  int v86; 
-  int v87; 
-  int v88; 
+  const dvar_t *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v21; 
+  float v25; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
   vec4_t position; 
   vec4_t cur; 
   vec4_t orientation; 
   vec4_t in2; 
+  __int128 v37; 
 
-  __asm { vmovaps [rsp+130h+var_50], xmm6 }
-  v11 = DVARBOOL_fd_pmove_use_alternate_blend;
-  _RBX = inOutAngularVelWs;
-  _R14 = inOutLinearVelWs;
-  _RDI = pmoveObj;
-  __asm { vmovaps xmm6, xmm1 }
+  v6 = DVARBOOL_fd_pmove_use_alternate_blend;
   if ( !DVARBOOL_fd_pmove_use_alternate_blend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_pmove_use_alternate_blend") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
   {
     if ( BgVehiclePhysics::IsPhysicsBodyIdValid(this) )
     {
-      this->m_pmoveTargetPosition.v[0] = _RDI->m_manualIntegratedPos.v[0];
-      v17 = _RDI->m_manualIntegratedPos.v[1];
-      __asm { vmovaps [rsp+130h+var_60], xmm7 }
-      this->m_pmoveTargetPosition.v[1] = v17;
-      v18 = _RDI->m_manualIntegratedPos.v[2];
-      __asm { vmovaps [rsp+130h+var_70], xmm8 }
-      this->m_pmoveTargetPosition.v[2] = v18;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi+1E4h]
-        vmovaps [rsp+130h+var_80], xmm9
-        vmovaps [rsp+130h+var_90], xmm10
-        vmovups xmmword ptr [rbp+4Fh+in2], xmm0
-        vmovaps [rsp+130h+var_A0], xmm11
-      }
+      this->m_pmoveTargetPosition.v[0] = pmoveObj->m_manualIntegratedPos.v[0];
+      v10 = pmoveObj->m_manualIntegratedPos.v[1];
+      v37 = v5;
+      this->m_pmoveTargetPosition.v[1] = v10;
+      this->m_pmoveTargetPosition.v[2] = pmoveObj->m_manualIntegratedPos.v[2];
+      in2 = pmoveObj->m_manualIntegratedOrientation;
       if ( BgVehiclePhysics::IsPhysicsBodyIdValid(this) )
       {
         PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(this);
         Physics_GetRigidBodyTransform((const Physics_WorldId)this->m_worldId, PhysicsBodyId, (vec3_t *)&position, &orientation);
       }
-      _RDI = DCONST_DVARFLT_bg_vehNetLerpSpeed;
+      v12 = DCONST_DVARFLT_bg_vehNetLerpSpeed;
       cur.v[2] = position.v[2];
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rsp+130h+position]
-        vmovsd  qword ptr [rsp+130h+cur], xmm0
-      }
+      *(double *)cur.v = *(double *)position.v;
       if ( !DCONST_DVARFLT_bg_vehNetLerpSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehNetLerpSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+28h]; speed
-        vmovaps xmm2, xmm6; frameTime
-      }
-      BgVehiclePhysics::DampLerp((vec3_t *)&cur, &this->m_pmoveTargetPosition, *(float *)&_XMM2, *(float *)&_XMM3);
-      __asm { vcomiss xmm6, cs:__real@3a83126f }
-      if ( v25 | v26 )
-      {
-        v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 677, ASSERT_TYPE_ASSERT, "(deltaTime > 0.001f)", (const char *)&queryFormat, "deltaTime > EQUAL_EPSILON");
-        v25 = 0;
-        v26 = !v27;
-        if ( v27 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  xmm1, dword ptr [rsp+130h+cur]
-        vmovss  xmm2, dword ptr [rsp+130h+cur+4]
-        vdivss  xmm8, xmm0, xmm6
-        vsubss  xmm0, xmm1, dword ptr [rsp+130h+position]
-        vsubss  xmm1, xmm2, dword ptr [rsp+130h+position+4]
-        vmulss  xmm9, xmm0, xmm8
-        vmovss  xmm0, dword ptr [rsp+130h+cur+8]
-        vsubss  xmm2, xmm0, dword ptr [rsp+130h+position+8]
-        vmulss  xmm10, xmm1, xmm8
-        vcvtss2sd xmm1, xmm6, xmm6
-        vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-        vmulss  xmm11, xmm2, xmm8
-      }
-      if ( v25 | v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 693, ASSERT_TYPE_ASSERT, "(deltaTime > 1.0E-6)", (const char *)&queryFormat, "deltaTime > ZERO_EPSILON") )
+      Dvar_CheckFrontendServerThread(v12);
+      BgVehiclePhysics::DampLerp((vec3_t *)&cur, &this->m_pmoveTargetPosition, deltaTime, v12->current.value);
+      if ( deltaTime <= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 677, ASSERT_TYPE_ASSERT, "(deltaTime > 0.001f)", (const char *)&queryFormat, "deltaTime > EQUAL_EPSILON") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+4Fh+orientation]
-        vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm2, dword ptr [rbp+4Fh+orientation+4]
-        vxorps  xmm1, xmm0, xmm7
-        vxorps  xmm0, xmm2, xmm7
-        vmovss  dword ptr [rsp+130h+position], xmm1
-        vmovss  xmm1, dword ptr [rbp+4Fh+orientation+8]
-        vmovss  dword ptr [rsp+130h+position+4], xmm0
-        vmovss  xmm0, dword ptr [rbp+4Fh+orientation+0Ch]
-        vxorps  xmm2, xmm1, xmm7
-        vmovss  dword ptr [rsp+130h+position+8], xmm2
-        vmovss  [rsp+130h+var_DC], xmm0
-      }
+      v13 = 1.0 / deltaTime;
+      v14 = (float)(cur.v[0] - position.v[0]) * (float)(1.0 / deltaTime);
+      v15 = (float)(cur.v[1] - position.v[1]) * (float)(1.0 / deltaTime);
+      v16 = (float)(cur.v[2] - position.v[2]) * (float)(1.0 / deltaTime);
+      if ( deltaTime <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 693, ASSERT_TYPE_ASSERT, "(deltaTime > 1.0E-6)", (const char *)&queryFormat, "deltaTime > ZERO_EPSILON") )
+        __debugbreak();
+      LODWORD(position.v[0]) = LODWORD(orientation.v[0]) ^ _xmm;
+      LODWORD(position.v[1]) = LODWORD(orientation.v[1]) ^ _xmm;
+      LODWORD(position.v[2]) = LODWORD(orientation.v[2]) ^ _xmm;
+      position.v[3] = orientation.v[3];
       QuatMultiply(&position, &in2, &cur);
+      _XMM1 = LODWORD(cur.v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
+      _XMM3 = 0i64;
       __asm
       {
-        vmovss  xmm5, [rbp+4Fh+var_CC]
-        vmovss  xmm2, dword ptr [rsp+130h+cur]
-        vmulss  xmm6, xmm8, cs:__real@3f000000
-        vxorps  xmm1, xmm2, xmm7
-        vxorps  xmm3, xmm3, xmm3
         vcmpless xmm0, xmm3, xmm5
         vblendvps xmm0, xmm1, xmm2, xmm0
-        vmovss  xmm2, dword ptr [rsp+130h+cur+4]
-        vmulss  xmm4, xmm0, xmm6
-        vxorps  xmm1, xmm2, xmm7
-        vcmpless xmm0, xmm3, xmm5
-        vblendvps xmm0, xmm1, xmm2, xmm0
-        vmovss  xmm2, dword ptr [rsp+130h+cur+8]
-        vmulss  xmm8, xmm0, xmm6
-        vxorps  xmm1, xmm2, xmm7
-        vmovaps xmm7, [rsp+130h+var_60]
-        vcmpless xmm0, xmm3, xmm5
-        vmovss  [rsp+130h+var_F0], xmm4
-        vblendvps xmm0, xmm1, xmm2, xmm0
-        vmulss  xmm3, xmm0, xmm6
-        vmovss  dword ptr [rsp+130h+position+8], xmm3
-        vmovss  dword ptr [rsp+130h+position], xmm4
-        vmovss  dword ptr [rsp+130h+position+4], xmm8
       }
-      if ( (v86 & 0x7F800000) == 2139095040 )
-        goto LABEL_21;
-      __asm { vmovss  [rsp+130h+var_F0], xmm8 }
-      if ( (v87 & 0x7F800000) == 2139095040 )
-        goto LABEL_21;
-      __asm { vmovss  [rsp+130h+var_F0], xmm3 }
-      if ( (v88 & 0x7F800000) == 2139095040 )
+      v21 = *(float *)&_XMM0 * (float)(v13 * 0.5);
+      _XMM1 = LODWORD(cur.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+      __asm
       {
-LABEL_21:
-        v68 = 0.0;
+        vcmpless xmm0, xmm3, xmm5
+        vblendvps xmm0, xmm1, xmm2, xmm0
+      }
+      v25 = *(float *)&_XMM0 * (float)(v13 * 0.5);
+      _XMM1 = LODWORD(cur.v[2]) ^ (unsigned __int128)(unsigned int)_xmm;
+      __asm
+      {
+        vcmpless xmm0, xmm3, xmm5
+        vblendvps xmm0, xmm1, xmm2, xmm0
+      }
+      position.v[2] = *(float *)&_XMM0 * (float)(v13 * 0.5);
+      position.v[0] = v21;
+      position.v[1] = v25;
+      if ( (LODWORD(v21) & 0x7F800000) == 2139095040 || (LODWORD(v25) & 0x7F800000) == 2139095040 || (COERCE_UNSIGNED_INT(*(float *)&_XMM0 * (float)(v13 * 0.5)) & 0x7F800000) == 2139095040 )
+      {
+        v29 = 0.0;
         *(_QWORD *)inOutAngularVelWs->v = 0i64;
       }
       else
       {
-        __asm { vmovsd  xmm0, qword ptr [rsp+130h+position] }
-        v68 = position.v[2];
-        __asm { vmovsd  qword ptr [rbx], xmm0 }
+        v29 = position.v[2];
+        *(double *)inOutAngularVelWs->v = *(double *)position.v;
       }
-      inOutAngularVelWs->v[2] = v68;
-      __asm
-      {
-        vmovss  xmm4, cs:?FD_PMOVELWEIGHT@@3MA; float FD_PMOVELWEIGHT
-        vmovss  xmm3, cs:?FD_SIMVELWEIGHT@@3MA; float FD_SIMVELWEIGHT
-        vmulss  xmm0, xmm3, dword ptr [r14]
-        vmulss  xmm1, xmm9, xmm4
-        vaddss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm3, dword ptr [r14+4]
-        vmovss  dword ptr [r14], xmm1
-        vmulss  xmm2, xmm10, xmm4
-        vaddss  xmm1, xmm2, xmm0
-        vmovss  dword ptr [r14+4], xmm1
-        vmulss  xmm1, xmm3, dword ptr [r14+8]
-        vmulss  xmm0, xmm11, xmm4
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [r14+8], xmm1
-      }
-      this->ClipVelocities(this, _R14, inOutAngularVelWs);
-      __asm
-      {
-        vmovaps xmm11, [rsp+130h+var_A0]
-        vmovaps xmm10, [rsp+130h+var_90]
-        vmovaps xmm9, [rsp+130h+var_80]
-        vmovaps xmm8, [rsp+130h+var_70]
-      }
+      inOutAngularVelWs->v[2] = v29;
+      v30 = FD_PMOVELWEIGHT;
+      v31 = FD_SIMVELWEIGHT;
+      v32 = FD_SIMVELWEIGHT * inOutLinearVelWs->v[1];
+      inOutLinearVelWs->v[0] = (float)(v14 * FD_PMOVELWEIGHT) + (float)(FD_SIMVELWEIGHT * inOutLinearVelWs->v[0]);
+      inOutLinearVelWs->v[1] = (float)(v15 * v30) + v32;
+      inOutLinearVelWs->v[2] = (float)(v31 * inOutLinearVelWs->v[2]) + (float)(v16 * v30);
+      this->ClipVelocities(this, inOutLinearVelWs, inOutAngularVelWs);
     }
   }
   else
   {
-    __asm { vmovaps xmm1, xmm6; deltaTime }
-    BgVehiclePhysics::BlendToPmoveObject(this, *(float *)&_XMM1, _RDI, _R14, inOutAngularVelWs);
+    BgVehiclePhysics::BlendToPmoveObject(this, deltaTime, pmoveObj, inOutLinearVelWs, inOutAngularVelWs);
   }
-  __asm { vmovaps xmm6, [rsp+130h+var_50] }
 }
 
 /*
@@ -1873,18 +1611,11 @@ LABEL_21:
 FlightDynamics::CalculateFlyByWireOffset
 ==============
 */
-
-void __fastcall FlightDynamics::CalculateFlyByWireOffset(FlightDynamics *this, double scale, vec3_t *result)
+void FlightDynamics::CalculateFlyByWireOffset(FlightDynamics *this, float scale, vec3_t *result)
 {
-  __asm
-  {
-    vmulss  xmm0, xmm1, dword ptr [rcx+4C8h]
-    vmovss  dword ptr [r8], xmm0
-    vmulss  xmm2, xmm1, dword ptr [rcx+4CCh]
-    vmovss  dword ptr [r8+4], xmm2
-    vmulss  xmm0, xmm1, dword ptr [rcx+4D0h]
-    vmovss  dword ptr [r8+8], xmm0
-  }
+  result->v[0] = scale * this->m_FlyByWireNormalizedVector.v[0];
+  result->v[1] = scale * this->m_FlyByWireNormalizedVector.v[1];
+  result->v[2] = scale * this->m_FlyByWireNormalizedVector.v[2];
 }
 
 /*
@@ -1926,183 +1657,76 @@ FlightDynamics::ClipVelocities
 */
 void FlightDynamics::ClipVelocities(FlightDynamics *this, vec3_t *inOutLinearVelWs, vec3_t *inOutAngularVelWs)
 {
-  char v17; 
-  char v18; 
-  unsigned __int8 v21; 
-  char v23; 
-  bool v24; 
+  float v6; 
+  double TopSpeedForward; 
+  float v8; 
+  double TopSpeedReverse; 
+  unsigned __int8 v10; 
+  char v11; 
+  __int128 v12; 
+  float v16; 
+  float v17; 
+  float *v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  double v22; 
+  float v23; 
+  double v24; 
+  double GlobalTopSpeed; 
+  double v26; 
   vec3_t vec; 
   vec3_t outVelLs; 
 
-  _RDI = inOutLinearVelWs;
-  _RBX = this;
   if ( !this->SupportsFeature(this, VPFEAT_NO_SPEED_LIMITER) )
   {
-    __asm
+    v6 = (float)((float)(this->m_transform.m[0].v[1] * inOutLinearVelWs->v[1]) + (float)(inOutLinearVelWs->v[0] * this->m_transform.m[0].v[0])) + (float)(inOutLinearVelWs->v[2] * this->m_transform.m[0].v[2]);
+    TopSpeedForward = BgVehiclePhysics::GetTopSpeedForward(this);
+    vec.v[0] = *(float *)&TopSpeedForward;
+    v8 = *(float *)&TopSpeedForward;
+    TopSpeedReverse = BgVehiclePhysics::GetTopSpeedReverse(this);
+    vec.v[1] = *(float *)&TopSpeedReverse;
+    v10 = v8 > 0.001 && v6 > v8;
+    v11 = *(float *)&TopSpeedReverse > 0.001 && v6 < COERCE_FLOAT(LODWORD(TopSpeedReverse) ^ _xmm);
+    if ( (v10 || v11) && ((float)(inOutLinearVelWs->v[0] * inOutLinearVelWs->v[0]) > 0.0000010000001 || (float)(inOutLinearVelWs->v[1] * inOutLinearVelWs->v[1]) > 0.0000010000001) )
     {
-      vmovss  xmm0, dword ptr [rbx+178h]
-      vmovss  xmm1, dword ptr [rdi]
-      vmulss  xmm3, xmm0, dword ptr [rdi+4]
-      vmulss  xmm2, xmm1, dword ptr [rbx+174h]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmulss  xmm1, xmm0, dword ptr [rbx+17Ch]
-      vaddss  xmm4, xmm3, xmm2
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vaddss  xmm7, xmm4, xmm1
-    }
-    *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(_RBX);
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C8h+vec], xmm0
-      vmovaps xmm6, xmm0
-    }
-    *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedReverse(_RBX);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3a83126f
-      vcomiss xmm6, xmm1
-      vmovss  dword ptr [rsp+0C8h+vec+4], xmm0
-    }
-    if ( v17 | v18 )
-      goto LABEL_5;
-    __asm { vcomiss xmm7, xmm6 }
-    if ( v17 | v18 )
-    {
-LABEL_5:
-      v21 = 0;
-      v17 = 0;
-      v18 = 1;
-    }
-    else
-    {
-      v21 = 1;
-    }
-    __asm
-    {
-      vcomiss xmm0, xmm1
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    if ( v17 | v18 )
-      goto LABEL_9;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm6
-      vcomiss xmm7, xmm0
-    }
-    if ( !v17 )
-LABEL_9:
-      v23 = 0;
-    else
-      v23 = 1;
-    v24 = v21 == 0;
-    if ( v21 || (v24 = v23 == 0, v23) )
-    {
+      if ( v10 == v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 757, ASSERT_TYPE_ASSERT, "( clipFwSpeed != clipBwSpeed )", "BgVehiclePhysics::ClipPlaneVelocities: to clip forward and backward speed at same time!") )
+        __debugbreak();
+      BgVehiclePhysics::ComputeVelocityLocalSpace(this, inOutLinearVelWs, &outVelLs);
+      v12 = LODWORD(outVelLs.v[0]);
+      *(float *)&v12 = fsqrt((float)(outVelLs.v[0] * outVelLs.v[0]) + (float)(outVelLs.v[1] * outVelLs.v[1]));
+      _XMM2 = v12;
       __asm
       {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  xmm2, cs:__real@358637be
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm1, xmm2
+        vcmpless xmm0, xmm2, cs:__real@80000000
+        vblendvps xmm0, xmm2, xmm1, xmm0
       }
-      if ( !v24 )
-        goto LABEL_14;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm1, xmm2
-      }
-      if ( !v24 )
-      {
-LABEL_14:
-        __asm { vmovaps [rsp+0C8h+var_58], xmm8 }
-        if ( v21 == v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 757, ASSERT_TYPE_ASSERT, "( clipFwSpeed != clipBwSpeed )", "BgVehiclePhysics::ClipPlaneVelocities: to clip forward and backward speed at same time!") )
-          __debugbreak();
-        BgVehiclePhysics::ComputeVelocityLocalSpace(_RBX, _RDI, &outVelLs);
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+0C8h+outVelLs]
-          vmovss  xmm3, dword ptr [rsp+0C8h+outVelLs+4]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vcmpless xmm0, xmm2, cs:__real@80000000
-          vblendvps xmm0, xmm2, xmm1, xmm0
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm7, xmm4, xmm1
-          vmulss  xmm8, xmm3, xmm1
-        }
-        if ( 1 - (unsigned int)v21 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", 1 - v21, 2) )
-          __debugbreak();
-        __asm
-        {
-          vmulss  xmm0, xmm7, dword ptr [rax]
-          vmulss  xmm1, xmm8, dword ptr [rax]
-          vmovss  dword ptr [rsp+0C8h+outVelLs], xmm0
-          vmovss  dword ptr [rsp+0C8h+outVelLs+4], xmm1
-        }
-        AxisTransformVec3((const tmat33_t<vec3_t> *)&_RBX->m_transform, &outVelLs, _RDI);
-        __asm { vmovaps xmm8, [rsp+0C8h+var_58] }
-      }
+      v16 = outVelLs.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v17 = outVelLs.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      if ( 1 - (unsigned int)v10 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", 1 - v10, 2) )
+        __debugbreak();
+      v18 = &vec.v[-v10 + 1];
+      v19 = v17 * *v18;
+      outVelLs.v[0] = v16 * *v18;
+      outVelLs.v[1] = v19;
+      AxisTransformVec3((const tmat33_t<vec3_t> *)&this->m_transform, &outVelLs, inOutLinearVelWs);
     }
-    __asm
+    if ( this->m_topAngularSpeedLs.v[0] != 0.0 || this->m_topAngularSpeedLs.v[1] != 0.0 || this->m_topAngularSpeedLs.v[2] != 0.0 )
     {
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+1FCh]
+      BgVehiclePhysics::ComputeVelocityLocalSpace(this, inOutAngularVelWs, &vec);
+      v20 = I_fclamp(vec.v[0], COERCE_FLOAT(LODWORD(this->m_topAngularSpeedLs.v[0]) ^ _xmm), this->m_topAngularSpeedLs.v[0]);
+      v21 = this->m_topAngularSpeedLs.v[1];
+      vec.v[0] = *(float *)&v20;
+      v22 = I_fclamp(vec.v[1], COERCE_FLOAT(LODWORD(v21) ^ _xmm), v21);
+      v23 = this->m_topAngularSpeedLs.v[2];
+      vec.v[1] = *(float *)&v22;
+      v24 = I_fclamp(vec.v[2], COERCE_FLOAT(LODWORD(v23) ^ _xmm), v23);
+      vec.v[2] = *(float *)&v24;
+      AxisTransformVec3((const tmat33_t<vec3_t> *)&this->m_transform, &vec, inOutAngularVelWs);
     }
-    if ( !v24 )
-      goto LABEL_24;
-    __asm { vucomiss xmm0, dword ptr [rbx+200h] }
-    if ( !v24 )
-      goto LABEL_24;
-    __asm { vucomiss xmm0, dword ptr [rbx+204h] }
-    if ( !v24 )
-    {
-LABEL_24:
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_RBX, inOutAngularVelWs, &vec);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+1FCh]; max
-        vmovss  xmm0, dword ptr [rsp+0C8h+vec]; val
-        vxorps  xmm1, xmm2, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+200h]; max
-        vmovss  dword ptr [rsp+0C8h+vec], xmm0
-        vmovss  xmm0, dword ptr [rsp+0C8h+vec+4]; val
-        vxorps  xmm1, xmm2, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+204h]; max
-        vmovss  dword ptr [rsp+0C8h+vec+4], xmm0
-        vmovss  xmm0, dword ptr [rsp+0C8h+vec+8]; val
-        vxorps  xmm1, xmm2, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rsp+0C8h+vec+8], xmm0 }
-      AxisTransformVec3((const tmat33_t<vec3_t> *)&_RBX->m_transform, &vec, inOutAngularVelWs);
-    }
-    *(double *)&_XMM0 = BgVehiclePhysics::GetGlobalTopSpeed(_RBX);
-    __asm
-    {
-      vxorps  xmm1, xmm0, xmm6; min
-      vmovaps xmm2, xmm0; max
-      vmovss  xmm0, dword ptr [rbx+1ACh]; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm6, [rsp+0C8h+var_38]
-      vmovss  dword ptr [rbx+1ACh], xmm0
-    }
+    GlobalTopSpeed = BgVehiclePhysics::GetGlobalTopSpeed(this);
+    v26 = I_fclamp(this->m_linearVelocityWs.v[2], COERCE_FLOAT(LODWORD(GlobalTopSpeed) ^ _xmm), *(float *)&GlobalTopSpeed);
+    this->m_linearVelocityWs.v[2] = *(float *)&v26;
   }
 }
 
@@ -2125,33 +1749,20 @@ FlightDynamics::ComputeDeadzone
 
 float __fastcall FlightDynamics::ComputeDeadzone(double value, double deadzone)
 {
-  char v2; 
-  char v3; 
+  __int128 v5; 
 
+  _XMM4 = *(_OWORD *)&deadzone;
+  if ( COERCE_FLOAT(LODWORD(value) & _xmm) <= *(float *)&deadzone )
+    return 0.0;
+  v5 = *(_OWORD *)&value;
+  *(float *)&v5 = *(float *)&value + *(float *)&deadzone;
+  _XMM2 = v5;
   __asm
   {
-    vandps  xmm2, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm2, xmm1
-    vmovaps xmm4, xmm1
+    vcmpltss xmm0, xmm4, xmm0
+    vblendvps xmm3, xmm2, xmm1, xmm0
   }
-  if ( v2 | v3 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm
-    {
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm1, xmm0, xmm4
-      vcmpltss xmm0, xmm4, xmm0
-      vblendvps xmm3, xmm2, xmm1, xmm0
-      vmovss  xmm1, cs:__real@3f800000
-      vsubss  xmm2, xmm1, xmm4
-      vdivss  xmm0, xmm3, xmm2
-    }
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM3 / (float)(1.0 - *(float *)&deadzone);
 }
 
 /*
@@ -2160,35 +1771,22 @@ FlightDynamics::ComputeDeadzoneRange
 ==============
 */
 
-float __fastcall FlightDynamics::ComputeDeadzoneRange(double value, double deadzone, double range)
+float __fastcall FlightDynamics::ComputeDeadzoneRange(double value, double deadzone, const float range)
 {
-  char v3; 
-  char v4; 
+  __int128 v7; 
 
+  _XMM4 = *(_OWORD *)&deadzone;
+  if ( COERCE_FLOAT(LODWORD(value) & _xmm) <= *(float *)&deadzone )
+    return 0.0;
+  v7 = *(_OWORD *)&value;
+  *(float *)&v7 = *(float *)&value + *(float *)&deadzone;
+  _XMM2 = v7;
   __asm
   {
-    vandps  xmm3, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm3, xmm1
-    vmovaps xmm5, xmm2
-    vmovaps xmm4, xmm1
+    vcmpltss xmm0, xmm4, xmm0
+    vblendvps xmm2, xmm2, xmm1, xmm0
   }
-  if ( v3 | v4 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm4
-      vaddss  xmm2, xmm0, xmm4
-      vcmpltss xmm0, xmm4, xmm0
-      vblendvps xmm2, xmm2, xmm1, xmm0
-      vsubss  xmm1, xmm5, xmm4
-      vdivss  xmm0, xmm2, xmm1
-    }
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM2 / (float)(range - *(float *)&deadzone);
 }
 
 /*
@@ -2198,391 +1796,273 @@ TerrainFollowingRadarControl::ComputeDirectionVectorsForRays
 */
 void TerrainFollowingRadarControl::ComputeDirectionVectorsForRays(TerrainFollowingRadarControl *this)
 {
-  FlightDynamicsTerrainFollowingRadarModes m_currentOperatingMode; 
-  int v12; 
-  __int64 v17; 
-  __int64 v22; 
-  char v207; 
-  void *retaddr; 
+  __int32 v2; 
+  __int64 v3; 
+  __int64 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  float *v7; 
+  __int64 v8; 
+  float v9; 
+  double v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v37; 
+  float v38; 
+  float *v39; 
+  double v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v46; 
+  __int128 v47; 
+  float v48; 
+  __int128 v49; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
+  __int128 v67; 
 
-  _RAX = &retaddr;
-  m_currentOperatingMode = this->m_currentOperatingMode;
-  _RDI = this;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  v12 = 2 * m_currentOperatingMode;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0C8h+var_88], xmm12
-  }
-  if ( (unsigned int)v12 >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3967, ASSERT_TYPE_ASSERT, "(unsigned)( modeIndex ) < (unsigned)( TFR_MODES_TOTAL * TFR_PARAMETER_BLOCKS_MAX )", "modeIndex doesn't index TFR_MODES_TOTAL * TFR_PARAMETER_BLOCKS_MAX\n\t%i not in [0, %i)", v12, 6) )
+  v2 = 2 * this->m_currentOperatingMode;
+  if ( (unsigned int)v2 >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3967, ASSERT_TYPE_ASSERT, "(unsigned)( modeIndex ) < (unsigned)( TFR_MODES_TOTAL * TFR_PARAMETER_BLOCKS_MAX )", "modeIndex doesn't index TFR_MODES_TOTAL * TFR_PARAMETER_BLOCKS_MAX\n\t%i not in [0, %i)", 2 * this->m_currentOperatingMode, 6) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm10, cs:__real@80000000
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm11, cs:__real@3f490fdb
-  }
-  v17 = 2i64;
-  _RSI = v12;
-  __asm
-  {
-    vxorps  xmm12, xmm12, xmm12
-    vxorps  xmm6, xmm6, xmm6
-  }
-  _RBX = (_DWORD *)&_RDI->m_radarBeams[1].beamDirectionVector.v[2];
-  v22 = 2i64;
-  __asm { vmovss  xmm8, dword ptr [rsi+rdi+30h] }
+  v3 = 2i64;
+  v4 = v2;
+  v5 = 0i64;
+  v6 = 0i64;
+  v7 = &this->m_radarBeams[1].beamDirectionVector.v[2];
+  v8 = 2i64;
+  v9 = this->m_parameters[v4][8];
   do
   {
+    *(v7 - 11) = v9;
+    v10 = j___libm_sse2_sincosf_();
+    *(v7 - 10) = *(float *)&v10;
+    LODWORD(v10) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v10, (__m128)*(unsigned __int64 *)&v10, 1).m128_u32[0];
+    *(v7 - 9) = COERCE_FLOAT(LODWORD(v10) ^ _xmm);
+    v11 = *((unsigned int *)v7 - 11);
+    v12 = v11;
+    *(float *)&v12 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(*(v7 - 10) * *(v7 - 10))) + (float)(COERCE_FLOAT(LODWORD(v10) ^ _xmm) * COERCE_FLOAT(LODWORD(v10) ^ _xmm)));
+    _XMM3 = v12;
     __asm
     {
-      vmovaps xmm1, xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx-2Ch], xmm8
-    }
-    *(double *)&_XMM0 = j___libm_sse2_sincosf_();
-    __asm
-    {
-      vmovss  dword ptr [rbx-28h], xmm0
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx-24h], xmm3
-      vmovss  xmm4, dword ptr [rbx-2Ch]
-      vmovss  xmm0, dword ptr [rbx-28h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx-2Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx-28h]
-      vmovss  dword ptr [rbx-28h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx-24h]
-      vmovss  dword ptr [rbx-24h], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-1Ch], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-20h], xmm0
     }
-    *(_RBX - 5) = 0;
-    *(_RBX - 4) = LODWORD(_RDI->m_parameters[_RSI][10]);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    *(_RBX - 3) = LODWORD(_RDI->m_parameters[_RSI][11]);
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm11
-      vmovaps xmm1, xmm6
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx-8], xmm8
-    }
+    *(v7 - 11) = *(float *)&v11 * (float)(1.0 / *(float *)&_XMM0);
+    *(v7 - 10) = (float)(1.0 / *(float *)&_XMM0) * *(v7 - 10);
+    *(v7 - 9) = (float)(1.0 / *(float *)&_XMM0) * *(v7 - 9);
+    *(v7 - 7) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v7 - 8) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v7 - 5) = 0.0;
+    *(v7 - 4) = this->m_parameters[v4][10];
+    *(v7 - 3) = this->m_parameters[v4][11];
+    v17 = v6;
+    *(float *)&v17 = *(float *)&v6 + 0.78539819;
+    v16 = v17;
+    *(v7 - 2) = v9;
     *(double *)&_XMM0 = j___libm_sse2_sincosf_();
+    *(v7 - 1) = *(float *)&_XMM0;
+    LODWORD(_XMM0) = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_u32[0];
+    *v7 = COERCE_FLOAT(_XMM0 ^ _xmm);
+    v18 = *((unsigned int *)v7 - 2);
+    v19 = v18;
+    *(float *)&v19 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(*(v7 - 1) * *(v7 - 1))) + (float)(COERCE_FLOAT(_XMM0 ^ _xmm) * COERCE_FLOAT(_XMM0 ^ _xmm)));
+    _XMM3 = v19;
     __asm
     {
-      vmovss  dword ptr [rbx-4], xmm0
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx], xmm3
-      vmovss  xmm2, dword ptr [rbx-4]
-      vmovss  xmm4, dword ptr [rbx-8]
-      vmulss  xmm0, xmm2, xmm2
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx-4]
-      vmovss  dword ptr [rbx-4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+4], xmm0
     }
-    _RBX[4] = 0;
-    _RBX[5] = LODWORD(_RDI->m_parameters[_RSI][10]);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RBX[6] = LODWORD(_RDI->m_parameters[_RSI][11]);
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm11
-      vmovaps xmm1, xmm6
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx+1Ch], xmm8
-    }
+    *(v7 - 2) = *(float *)&v18 * (float)(1.0 / *(float *)&_XMM0);
+    *(v7 - 1) = (float)(1.0 / *(float *)&_XMM0) * *(v7 - 1);
+    *v7 = (float)(1.0 / *(float *)&_XMM0) * *v7;
+    v7[2] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v7[1] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v7[4] = 0.0;
+    v7[5] = this->m_parameters[v4][10];
+    v7[6] = this->m_parameters[v4][11];
+    v24 = v16;
+    *(float *)&v24 = *(float *)&v16 + 0.78539819;
+    v23 = v24;
+    v7[7] = v9;
     *(double *)&_XMM0 = j___libm_sse2_sincosf_();
+    v7[8] = *(float *)&_XMM0;
+    LODWORD(_XMM0) = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_u32[0];
+    v7[9] = COERCE_FLOAT(_XMM0 ^ _xmm);
+    v25 = *((unsigned int *)v7 + 7);
+    v26 = v25;
+    *(float *)&v26 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(v7[8] * v7[8])) + (float)(COERCE_FLOAT(_XMM0 ^ _xmm) * COERCE_FLOAT(_XMM0 ^ _xmm)));
+    _XMM3 = v26;
     __asm
     {
-      vmovss  dword ptr [rbx+20h], xmm0
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx+24h], xmm3
-      vmovss  xmm4, dword ptr [rbx+1Ch]
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx+1Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx+20h]
-      vmovss  dword ptr [rbx+20h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-      vmovss  dword ptr [rbx+24h], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+2Ch], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+28h], xmm0
     }
-    _RBX[13] = 0;
-    _RBX[14] = LODWORD(_RDI->m_parameters[_RSI][10]);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RBX[15] = LODWORD(_RDI->m_parameters[_RSI][11]);
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm11
-      vmovaps xmm1, xmm6
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx+40h], xmm8
-    }
+    v7[7] = *(float *)&v25 * (float)(1.0 / *(float *)&_XMM0);
+    v7[8] = (float)(1.0 / *(float *)&_XMM0) * v7[8];
+    v7[9] = (float)(1.0 / *(float *)&_XMM0) * v7[9];
+    v7[11] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v7[10] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v7[13] = 0.0;
+    v7[14] = this->m_parameters[v4][10];
+    v7[15] = this->m_parameters[v4][11];
+    v31 = v23;
+    *(float *)&v31 = *(float *)&v23 + 0.78539819;
+    v30 = v31;
+    v7[16] = v9;
     *(double *)&_XMM0 = j___libm_sse2_sincosf_();
-    __asm { vmovss  dword ptr [rbx+44h], xmm0 }
-    _RBX += 36;
+    v7[17] = *(float *)&_XMM0;
+    v7 += 36;
+    LODWORD(_XMM0) = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_u32[0];
+    *(v7 - 18) = COERCE_FLOAT(_XMM0 ^ _xmm);
+    v32 = *((unsigned int *)v7 - 20);
+    v33 = v32;
+    *(float *)&v33 = fsqrt((float)((float)(*(float *)&v32 * *(float *)&v32) + (float)(*(v7 - 19) * *(v7 - 19))) + (float)(COERCE_FLOAT(_XMM0 ^ _xmm) * COERCE_FLOAT(_XMM0 ^ _xmm)));
+    _XMM3 = v33;
     __asm
     {
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx-48h], xmm3
-      vmovss  xmm0, dword ptr [rbx-4Ch]
-      vmovss  xmm4, dword ptr [rbx-50h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx-50h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx-4Ch]
-      vmovss  dword ptr [rbx-4Ch], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx-48h]
-      vmovss  dword ptr [rbx-48h], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-40h], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-44h], xmm0
     }
-    *(_RBX - 14) = 0;
-    *(_RBX - 13) = LODWORD(_RDI->m_parameters[_RSI][10]);
-    *(_RBX - 12) = LODWORD(_RDI->m_parameters[_RSI][11]);
-    __asm { vaddss  xmm6, xmm6, xmm11 }
-    --v22;
+    *(v7 - 20) = *(float *)&v32 * (float)(1.0 / *(float *)&_XMM0);
+    *(v7 - 19) = (float)(1.0 / *(float *)&_XMM0) * *(v7 - 19);
+    *(v7 - 18) = (float)(1.0 / *(float *)&_XMM0) * *(v7 - 18);
+    *(v7 - 16) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v7 - 17) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v7 - 14) = 0.0;
+    *(v7 - 13) = this->m_parameters[v4][10];
+    *(v7 - 12) = this->m_parameters[v4][11];
+    v37 = v30;
+    *(float *)&v37 = *(float *)&v30 + 0.78539819;
+    v6 = v37;
+    --v8;
   }
-  while ( v22 );
-  __asm { vaddss  xmm8, xmm8, dword ptr [rsi+rdi+34h] }
-  _RBX = (_DWORD *)&_RDI->m_radarBeams[9].beamDirectionVector.v[2];
+  while ( v8 );
+  v38 = v9 + this->m_parameters[v4][9];
+  v39 = &this->m_radarBeams[9].beamDirectionVector.v[2];
   do
   {
+    *(v39 - 11) = v38;
+    v40 = j___libm_sse2_sincosf_();
+    *(v39 - 10) = *(float *)&v40;
+    LODWORD(v40) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v40, (__m128)*(unsigned __int64 *)&v40, 1).m128_u32[0];
+    *(v39 - 9) = COERCE_FLOAT(LODWORD(v40) ^ _xmm);
+    v41 = *((unsigned int *)v39 - 11);
+    v42 = v41;
+    *(float *)&v42 = fsqrt((float)((float)(*(float *)&v41 * *(float *)&v41) + (float)(*(v39 - 10) * *(v39 - 10))) + (float)(COERCE_FLOAT(LODWORD(v40) ^ _xmm) * COERCE_FLOAT(LODWORD(v40) ^ _xmm)));
+    _XMM3 = v42;
     __asm
     {
-      vmovaps xmm1, xmm12
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx-2Ch], xmm8
-    }
-    *(double *)&_XMM0 = j___libm_sse2_sincosf_();
-    __asm
-    {
-      vmovss  dword ptr [rbx-28h], xmm0
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx-24h], xmm3
-      vmovss  xmm4, dword ptr [rbx-2Ch]
-      vmovss  xmm0, dword ptr [rbx-28h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx-2Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx-28h]
-      vmovss  dword ptr [rbx-28h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx-24h]
-      vmovss  dword ptr [rbx-24h], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-1Ch], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-20h], xmm0
     }
-    *(_RBX - 5) = 0;
-    *(_RBX - 4) = LODWORD(_RDI->m_parameters[_RSI][12]);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    *(_RBX - 3) = LODWORD(_RDI->m_parameters[_RSI][13]);
-    __asm
-    {
-      vaddss  xmm6, xmm12, xmm11
-      vmovaps xmm1, xmm6
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx-8], xmm8
-    }
+    *(v39 - 11) = *(float *)&v41 * (float)(1.0 / *(float *)&_XMM0);
+    *(v39 - 10) = (float)(1.0 / *(float *)&_XMM0) * *(v39 - 10);
+    *(v39 - 9) = (float)(1.0 / *(float *)&_XMM0) * *(v39 - 9);
+    *(v39 - 7) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v39 - 8) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v39 - 5) = 0.0;
+    *(v39 - 4) = this->m_parameters[v4][12];
+    *(v39 - 3) = this->m_parameters[v4][13];
+    v47 = v5;
+    *(float *)&v47 = *(float *)&v5 + 0.78539819;
+    v46 = v47;
+    *(v39 - 2) = v38;
     *(double *)&_XMM0 = j___libm_sse2_sincosf_();
+    *(v39 - 1) = *(float *)&_XMM0;
+    LODWORD(_XMM0) = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_u32[0];
+    *v39 = COERCE_FLOAT(_XMM0 ^ _xmm);
+    v48 = *(v39 - 2);
+    v49 = *((unsigned int *)v39 - 1);
+    *(float *)&v49 = fsqrt((float)((float)(*(v39 - 1) * *(v39 - 1)) + (float)(v48 * v48)) + (float)(COERCE_FLOAT(_XMM0 ^ _xmm) * COERCE_FLOAT(_XMM0 ^ _xmm)));
+    _XMM4 = v49;
     __asm
     {
-      vmovss  dword ptr [rbx-4], xmm0
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm4, xmm0, xmm9
-      vmovss  dword ptr [rbx], xmm4
-      vmovss  xmm1, dword ptr [rbx-4]
-      vmovss  xmm5, dword ptr [rbx-8]
-      vmulss  xmm2, xmm1, xmm1
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm1
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, xmm10
       vblendvps xmm0, xmm4, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx-4]
-      vmovss  dword ptr [rbx-4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+4], xmm0
     }
-    _RBX[4] = 0;
-    _RBX[5] = LODWORD(_RDI->m_parameters[_RSI][12]);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RBX[6] = LODWORD(_RDI->m_parameters[_RSI][13]);
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm11
-      vmovaps xmm1, xmm6
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx+1Ch], xmm8
-    }
+    *(v39 - 2) = v48 * (float)(1.0 / *(float *)&_XMM0);
+    *(v39 - 1) = (float)(1.0 / *(float *)&_XMM0) * *(v39 - 1);
+    *v39 = (float)(1.0 / *(float *)&_XMM0) * *v39;
+    v39[2] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v39[1] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v39[4] = 0.0;
+    v39[5] = this->m_parameters[v4][12];
+    v39[6] = this->m_parameters[v4][13];
+    v54 = v46;
+    *(float *)&v54 = *(float *)&v46 + 0.78539819;
+    v53 = v54;
+    v39[7] = v38;
     *(double *)&_XMM0 = j___libm_sse2_sincosf_();
+    v39[8] = *(float *)&_XMM0;
+    LODWORD(_XMM0) = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_u32[0];
+    v39[9] = COERCE_FLOAT(_XMM0 ^ _xmm);
+    v55 = *((unsigned int *)v39 + 7);
+    v56 = v55;
+    *(float *)&v56 = fsqrt((float)((float)(*(float *)&v55 * *(float *)&v55) + (float)(v39[8] * v39[8])) + (float)(COERCE_FLOAT(_XMM0 ^ _xmm) * COERCE_FLOAT(_XMM0 ^ _xmm)));
+    _XMM3 = v56;
     __asm
     {
-      vmovss  dword ptr [rbx+20h], xmm0
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx+24h], xmm3
-      vmovss  xmm4, dword ptr [rbx+1Ch]
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx+1Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx+20h]
-      vmovss  dword ptr [rbx+20h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-      vmovss  dword ptr [rbx+24h], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+2Ch], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx+28h], xmm0
     }
-    _RBX[13] = 0;
-    _RBX[14] = LODWORD(_RDI->m_parameters[_RSI][12]);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RBX[15] = LODWORD(_RDI->m_parameters[_RSI][13]);
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm11
-      vmovaps xmm1, xmm6
-      vmovss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx+40h], xmm8
-    }
+    v39[7] = *(float *)&v55 * (float)(1.0 / *(float *)&_XMM0);
+    v39[8] = (float)(1.0 / *(float *)&_XMM0) * v39[8];
+    v39[9] = (float)(1.0 / *(float *)&_XMM0) * v39[9];
+    v39[11] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v39[10] = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    v39[13] = 0.0;
+    v39[14] = this->m_parameters[v4][12];
+    v39[15] = this->m_parameters[v4][13];
+    v61 = v53;
+    *(float *)&v61 = *(float *)&v53 + 0.78539819;
+    v60 = v61;
+    v39[16] = v38;
     *(double *)&_XMM0 = j___libm_sse2_sincosf_();
-    __asm { vmovss  dword ptr [rbx+44h], xmm0 }
-    _RBX += 36;
+    v39[17] = *(float *)&_XMM0;
+    v39 += 36;
+    LODWORD(_XMM0) = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_u32[0];
+    *(v39 - 18) = COERCE_FLOAT(_XMM0 ^ _xmm);
+    v62 = *((unsigned int *)v39 - 20);
+    v63 = v62;
+    *(float *)&v63 = fsqrt((float)((float)(*(float *)&v62 * *(float *)&v62) + (float)(*(v39 - 19) * *(v39 - 19))) + (float)(COERCE_FLOAT(_XMM0 ^ _xmm) * COERCE_FLOAT(_XMM0 ^ _xmm)));
+    _XMM3 = v63;
     __asm
     {
-      vshufps xmm0, xmm0, xmm0, 1
-      vxorps  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbx-48h], xmm3
-      vmovss  xmm0, dword ptr [rbx-4Ch]
-      vmovss  xmm4, dword ptr [rbx-50h]
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbx-50h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx-4Ch]
-      vmovss  dword ptr [rbx-4Ch], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx-48h]
-      vmovss  dword ptr [rbx-48h], xmm0
-      vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-40h], xmm1
-      vmovss  xmm0, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-      vmovss  dword ptr [rbx-44h], xmm0
     }
-    *(_RBX - 14) = 0;
-    *(_RBX - 13) = LODWORD(_RDI->m_parameters[_RSI][12]);
-    *(_RBX - 12) = LODWORD(_RDI->m_parameters[_RSI][13]);
-    __asm { vaddss  xmm12, xmm6, xmm11 }
-    --v17;
+    *(v39 - 20) = *(float *)&v62 * (float)(1.0 / *(float *)&_XMM0);
+    *(v39 - 19) = (float)(1.0 / *(float *)&_XMM0) * *(v39 - 19);
+    *(v39 - 18) = (float)(1.0 / *(float *)&_XMM0) * *(v39 - 18);
+    *(v39 - 16) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v39 - 17) = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+    *(v39 - 14) = 0.0;
+    *(v39 - 13) = this->m_parameters[v4][12];
+    *(v39 - 12) = this->m_parameters[v4][13];
+    v67 = v60;
+    *(float *)&v67 = *(float *)&v60 + 0.78539819;
+    v5 = v67;
+    --v3;
   }
-  while ( v17 );
-  _R11 = &v207;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  while ( v3 );
 }
 
 /*
@@ -2590,35 +2070,22 @@ void TerrainFollowingRadarControl::ComputeDirectionVectorsForRays(TerrainFollowi
 FlightDynamics::ComputeGForceMagnitude
 ==============
 */
-
-float __fastcall FlightDynamics::ComputeGForceMagnitude(FlightDynamics *this, double dT)
+float FlightDynamics::ComputeGForceMagnitude(FlightDynamics *this, float dT)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+2F0h]
-    vsubss  xmm5, xmm0, dword ptr [rcx+2E4h]
-    vmovss  dword ptr [rcx+50Ch], xmm5
-    vmovss  xmm2, dword ptr [rcx+2F4h]
-    vsubss  xmm3, xmm2, dword ptr [rcx+2E8h]
-    vmovss  dword ptr [rcx+510h], xmm3
-    vmovss  xmm0, dword ptr [rcx+2F8h]
-    vsubss  xmm4, xmm0, dword ptr [rcx+2ECh]
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovaps xmm6, xmm1
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vdivss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+18h+var_18]
-    vsqrtss xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm3, xmm1
-    vmovss  dword ptr [rcx+514h], xmm4
-    vmovss  dword ptr [rcx+518h], xmm0
-  }
-  return *(float *)&_XMM0;
+  float v2; 
+  float v3; 
+  float v4; 
+  float result; 
+
+  v2 = this->m_PreviousVelocity.v[0] - this->m_Velocity.v[0];
+  this->m_GforceVector.v[0] = v2;
+  v3 = this->m_PreviousVelocity.v[1] - this->m_Velocity.v[1];
+  this->m_GforceVector.v[1] = v3;
+  v4 = this->m_PreviousVelocity.v[2] - this->m_Velocity.v[2];
+  result = fsqrt((float)((float)(v3 * v3) + (float)(v2 * v2)) + (float)(v4 * v4)) * (float)(1.0 / dT);
+  this->m_GforceVector.v[2] = v4;
+  this->m_GforceMagnitude = result;
+  return result;
 }
 
 /*
@@ -2628,22 +2095,12 @@ FlightDynamics::ComputeGForceMagnitudeFromVelocities
 */
 float FlightDynamics::ComputeGForceMagnitudeFromVelocities(const vec3_t *initialVelocity, const vec3_t *newVelocity)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vsubss  xmm3, xmm0, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm2, xmm1, dword ptr [rdx+4]
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm4, xmm0, dword ptr [rdx+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm0, xmm2, xmm2
-  }
-  return *(float *)&_XMM0;
+  float v2; 
+  float v3; 
+
+  v2 = initialVelocity->v[1] - newVelocity->v[1];
+  v3 = initialVelocity->v[2] - newVelocity->v[2];
+  return fsqrt((float)((float)(v2 * v2) + (float)((float)(initialVelocity->v[0] - newVelocity->v[0]) * (float)(initialVelocity->v[0] - newVelocity->v[0]))) + (float)(v3 * v3));
 }
 
 /*
@@ -2722,172 +2179,82 @@ void FlightDynamics::ExitSecondDerivativeMode(FlightDynamics *this)
 FD_MouseSensitivityAdjustment
 ==============
 */
-
-void __fastcall FD_MouseSensitivityAdjustment(LocalClientNum_t thisClient, const vec2_t coords, vec2_t outputCoords, double dT)
+void FD_MouseSensitivityAdjustment(LocalClientNum_t thisClient, const vec2_t coords, vec2_t outputCoords, const float dT)
 {
-  char v28; 
-  char v29; 
-  vec2_t v91; 
-  char v93; 
-  void *retaddr; 
+  __int64 v4; 
+  float v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  float v20; 
+  double v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  float v28; 
+  double v29; 
+  float v30; 
+  double v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
-  _RBX = thisClient;
-  _RDI = &sFlightDynamicsManager;
-  v91 = coords;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+var_78]
-    vmovaps xmm8, xmm3
-    vsubss  xmm9, xmm0, dword ptr [rdi+rbx*8+0A4h]
-    vmovss  xmm0, dword ptr [rsp+98h+var_78+4]
-    vsubss  xmm10, xmm0, dword ptr [rdi+rbx*8+0A8h]
-    vmulss  xmm1, xmm10, xmm10
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vmulss  xmm0, xmm2, cs:__real@3c010204; value
-    vmovss  xmm1, cs:?FD_MOUSE_INPUT_STRENGTH_EXPO@@3MA; expo
-  }
-  *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f800000
-    vmovaps xmm2, xmm11; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm6, xmm6, xmm6
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+rbx*8+0B4h]
-    vmovaps xmm2, xmm0
-    vmulss  xmm2, xmm2, cs:?FD_MOUSE_NO_INPUT_DRAG@@3MA; float FD_MOUSE_NO_INPUT_DRAG
-    vsubss  xmm0, xmm11, xmm0
-    vmulss  xmm3, xmm0, cs:?FD_MOUSE_FULL_INPUT_DRAG@@3MA; float FD_MOUSE_FULL_INPUT_DRAG
-    vaddss  xmm7, xmm3, xmm2
-    vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm0, xmm7, xmm4
-    vmulss  xmm5, xmm0, xmm8
-    vandps  xmm1, xmm5, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
-  }
-  if ( v28 | v29 )
-    __asm { vsubss  xmm0, xmm4, xmm5 }
+  v4 = thisClient;
+  v5 = coords.v[0] - sFlightDynamicsManager.m_MousePosition[thisClient].v[0];
+  v6 = coords.v[1] - sFlightDynamicsManager.m_MousePosition[thisClient].v[1];
+  v7 = I_pow(fsqrt((float)(v6 * v6) + (float)(v5 * v5)) * 0.0078740157, FD_MOUSE_INPUT_STRENGTH_EXPO);
+  v8 = 0.0;
+  v9 = I_fclamp(*(float *)&v7, 0.0, 1.0);
+  v10 = sFlightDynamicsManager.m_MouseVelocity[v4].v[0];
+  v11 = (float)((float)(1.0 - *(float *)&v9) * FD_MOUSE_FULL_INPUT_DRAG) + (float)(*(float *)&v9 * FD_MOUSE_NO_INPUT_DRAG);
+  v12 = (float)(v11 * v10) * dT;
+  if ( COERCE_FLOAT(LODWORD(v12) & _xmm) <= COERCE_FLOAT(LODWORD(v10) & _xmm) )
+    v13 = v10 - v12;
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  __asm
-  {
-    vmovss  dword ptr [rdi+rbx*8+0B4h], xmm0
-    vmovss  xmm2, dword ptr [rdi+rbx*8+0B8h]
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm4, xmm0, xmm8
-    vandps  xmm1, xmm4, xmm3
-    vandps  xmm0, xmm2, xmm3
-    vcomiss xmm1, xmm0
-  }
-  if ( v28 | v29 )
-    __asm { vsubss  xmm6, xmm2, xmm4 }
-  __asm
-  {
-    vmovss  xmm1, cs:?FD_MOUSE_ACCELERATION_DAMPENER_EXPO@@3MA; expo
-    vmovss  dword ptr [rdi+rbx*8+0B8h], xmm6
-    vmulss  xmm6, xmm9, cs:?FD_MOUSE_VELOCITY_SCALE_H@@3MA; float FD_MOUSE_VELOCITY_SCALE_H
-    vmovaps xmm0, xmm9; value
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:?FD_MOUSE_ACCELERATION_DAMPENER_MULT@@3MA; float FD_MOUSE_ACCELERATION_DAMPENER_MULT
-    vsubss  xmm7, xmm6, xmm1
-    vmovss  xmm1, cs:?FD_MOUSE_ACCELERATION_DAMPENER_EXPO@@3MA; expo
-    vmulss  xmm6, xmm10, cs:?FD_MOUSE_VELOCITY_SCALE_V@@3MA; float FD_MOUSE_VELOCITY_SCALE_V
-    vmovaps xmm0, xmm10; value
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:?FD_MOUSE_ACCELERATION_DAMPENER_MULT@@3MA; float FD_MOUSE_ACCELERATION_DAMPENER_MULT
-    vmulss  xmm2, xmm7, xmm8
-    vaddss  xmm0, xmm2, dword ptr [rdi+rbx*8+0B4h]
-    vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rdi+rbx*8+0B4h], xmm0
-    vsubss  xmm3, xmm6, xmm1
-    vmulss  xmm1, xmm3, xmm8
-    vaddss  xmm2, xmm1, dword ptr [rdi+rbx*8+0B8h]
-    vmovss  dword ptr [rdi+rbx*8+0B8h], xmm2
-    vmovss  xmm2, cs:?FD_MOUSE_MAX_VELOCITY@@3MA; max
-    vmovss  xmm0, dword ptr [rdi+rbx*8+0B4h]; val
-    vxorps  xmm1, xmm2, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:?FD_MOUSE_MAX_VELOCITY@@3MA; max
-    vmovss  dword ptr [rdi+rbx*8+0B4h], xmm0
-    vmovss  xmm0, dword ptr [rdi+rbx*8+0B8h]; val
-    vxorps  xmm1, xmm2, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rdi+rbx*8+0B8h], xmm0
-    vmulss  xmm1, xmm8, dword ptr [rdi+rbx*8+0B4h]
-    vaddss  xmm0, xmm1, dword ptr [rdi+rbx*8+0A4h]
-    vmovss  dword ptr [rdi+rbx*8+0A4h], xmm0
-    vmulss  xmm0, xmm8, dword ptr [rdi+rbx*8+0B8h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+rbx*8+0A8h]
-    vmovss  dword ptr [rdi+rbx*8+0A8h], xmm1
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovss  xmm0, dword ptr [rdi+rbx*8+0A4h]; val
-    vmovaps xmm2, xmm11; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovss  dword ptr [rdi+rbx*8+0A4h], xmm0
-    vmovss  xmm0, dword ptr [rdi+rbx*8+0A8h]; val
-    vmovaps xmm2, xmm11; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:?FD_MAX_MOUSE_THROW@@3MA; max
-    vmovss  dword ptr [rdi+rbx*8+0A8h], xmm0
-    vmovss  xmm0, dword ptr [rdi+rbx*8+0A4h]; val
-    vxorps  xmm1, xmm2, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:?FD_MAX_MOUSE_THROW@@3MA; max
-    vmovss  dword ptr [rdi+rbx*8+0A4h], xmm0
-    vmovss  xmm0, dword ptr [rdi+rbx*8+0A8h]; val
-    vxorps  xmm1, xmm2, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rdi+rbx*8+0A8h], xmm0 }
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+    v13 = 0.0;
+  sFlightDynamicsManager.m_MouseVelocity[v4].v[0] = v13;
+  v14 = sFlightDynamicsManager.m_MouseVelocity[v4].v[1];
+  v15 = (float)(v11 * v14) * dT;
+  if ( COERCE_FLOAT(LODWORD(v15) & _xmm) <= COERCE_FLOAT(LODWORD(v14) & _xmm) )
+    v8 = v14 - v15;
+  v16 = FD_MOUSE_ACCELERATION_DAMPENER_EXPO;
+  sFlightDynamicsManager.m_MouseVelocity[v4].v[1] = v8;
+  v17 = v5 * FD_MOUSE_VELOCITY_SCALE_H;
+  v18 = FD_ComputeExpo(v5, v16);
+  v19 = v17 - (float)(*(float *)&v18 * FD_MOUSE_ACCELERATION_DAMPENER_MULT);
+  v20 = v6 * FD_MOUSE_VELOCITY_SCALE_V;
+  v21 = FD_ComputeExpo(v6, FD_MOUSE_ACCELERATION_DAMPENER_EXPO);
+  v22 = *(float *)&v21 * FD_MOUSE_ACCELERATION_DAMPENER_MULT;
+  sFlightDynamicsManager.m_MouseVelocity[v4].v[0] = (float)(v19 * dT) + sFlightDynamicsManager.m_MouseVelocity[v4].v[0];
+  sFlightDynamicsManager.m_MouseVelocity[v4].v[1] = (float)((float)(v20 - v22) * dT) + sFlightDynamicsManager.m_MouseVelocity[v4].v[1];
+  v23 = I_fclamp(sFlightDynamicsManager.m_MouseVelocity[v4].v[0], COERCE_FLOAT(LODWORD(FD_MOUSE_MAX_VELOCITY) ^ _xmm), FD_MOUSE_MAX_VELOCITY);
+  v24 = FD_MOUSE_MAX_VELOCITY;
+  sFlightDynamicsManager.m_MouseVelocity[v4].v[0] = *(float *)&v23;
+  v25 = I_fclamp(sFlightDynamicsManager.m_MouseVelocity[v4].v[1], COERCE_FLOAT(LODWORD(v24) ^ _xmm), v24);
+  sFlightDynamicsManager.m_MouseVelocity[v4].v[1] = *(float *)&v25;
+  sFlightDynamicsManager.m_MousePosition[v4].v[0] = (float)(dT * sFlightDynamicsManager.m_MouseVelocity[v4].v[0]) + sFlightDynamicsManager.m_MousePosition[v4].v[0];
+  sFlightDynamicsManager.m_MousePosition[v4].v[1] = (float)(dT * sFlightDynamicsManager.m_MouseVelocity[v4].v[1]) + sFlightDynamicsManager.m_MousePosition[v4].v[1];
+  v26 = I_fclamp(sFlightDynamicsManager.m_MousePosition[v4].v[0], -1.0, 1.0);
+  sFlightDynamicsManager.m_MousePosition[v4].v[0] = *(float *)&v26;
+  v27 = I_fclamp(sFlightDynamicsManager.m_MousePosition[v4].v[1], -1.0, 1.0);
+  v28 = FD_MAX_MOUSE_THROW;
+  sFlightDynamicsManager.m_MousePosition[v4].v[1] = *(float *)&v27;
+  v29 = I_fclamp(sFlightDynamicsManager.m_MousePosition[v4].v[0], COERCE_FLOAT(LODWORD(v28) ^ _xmm), v28);
+  v30 = FD_MAX_MOUSE_THROW;
+  sFlightDynamicsManager.m_MousePosition[v4].v[0] = *(float *)&v29;
+  v31 = I_fclamp(sFlightDynamicsManager.m_MousePosition[v4].v[1], COERCE_FLOAT(LODWORD(v30) ^ _xmm), v30);
+  sFlightDynamicsManager.m_MousePosition[v4].v[1] = *(float *)&v31;
 }
 
 /*
@@ -2895,39 +2262,13 @@ void __fastcall FD_MouseSensitivityAdjustment(LocalClientNum_t thisClient, const
 FD_ScaleClamp
 ==============
 */
-
-float __fastcall FD_ScaleClamp(double valueIn, double thresholdLow, double thresholdHigh)
+float FD_ScaleClamp(float valueIn, float thresholdLow, float thresholdHigh)
 {
-  char v3; 
-  char v4; 
-
-  __asm
-  {
-    vcomiss xmm0, xmm1
-    vmovaps xmm3, xmm1
-  }
-  if ( v3 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm { vcomiss xmm0, xmm2 }
-    if ( v3 | v4 )
-    {
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm3
-        vsubss  xmm0, xmm2, xmm3
-        vdivss  xmm0, xmm1, xmm0
-      }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-    }
-  }
-  return *(float *)&_XMM0;
+  if ( valueIn < thresholdLow )
+    return 0.0;
+  if ( valueIn <= thresholdHigh )
+    return (float)(valueIn - thresholdLow) / (float)(thresholdHigh - thresholdLow);
+  return FLOAT_1_0;
 }
 
 /*
@@ -2969,118 +2310,86 @@ __int64 FlightDynamics::SoundData::FetchSound(FlightDynamics::SoundData *this, c
 TerrainFollowingRadarControl::RadarBeamInfo::FireBeam
 ==============
 */
-
-float __fastcall TerrainFollowingRadarControl::RadarBeamInfo::FireBeam(TerrainFollowingRadarControl::RadarBeamInfo *this, vec3_t *position, vec4_t *orientationQuat, double beamRange, float forwardIncrease, vec3_t *rotatedBeam, int clipMask, float beamExpo, vec3_t *rotatedBeamScaled, Physics_WorldId worldId)
+float TerrainFollowingRadarControl::RadarBeamInfo::FireBeam(TerrainFollowingRadarControl::RadarBeamInfo *this, vec3_t *position, vec4_t *orientationQuat, float beamRange, float forwardIncrease, vec3_t *rotatedBeam, int clipMask, float beamExpo, vec3_t *rotatedBeamScaled, Physics_WorldId worldId)
 {
-  vec3_t v52; 
-  vec4_t v53; 
+  float v10; 
+  float v14; 
+  float v15; 
+  __int128 v17; 
+  float dopplerSpeedNormalized; 
+  const vec4_t *v20; 
+  vec3_t *v21; 
+  vec3_t *v22; 
+  float v23; 
+  vec3_t v25; 
+  vec3_t v26; 
+  float v27; 
   vec3_t in; 
-  trace_t v55; 
-  char v56; 
-  void *retaddr; 
+  trace_t v29; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm6, dword ptr [rcx]
-  }
-  _RDI = rotatedBeamScaled;
-  _RSI = position;
-  _R14 = this;
+  v10 = this->beamDirectionVector.v[0];
   this->beamDirectionVector.v[0] = 0.0;
-  __asm { vmovaps xmm7, xmm3 }
   QuatTransform(orientationQuat, &this->beamDirectionVector, rotatedBeam);
-  __asm
-  {
-    vmovss  dword ptr [r14], xmm6
-    vmulss  xmm0, xmm7, dword ptr [r14+4]
-    vmulss  xmm1, xmm7, dword ptr [r14+8]
-    vmovss  dword ptr [rsp+140h+in+4], xmm0
-    vmulss  xmm0, xmm6, xmm7
-    vaddss  xmm2, xmm0, [rbp+40h+arg_20]
-    vmovss  dword ptr [rsp+140h+in], xmm2
-    vmovss  dword ptr [rsp+140h+in+8], xmm1
-  }
+  this->beamDirectionVector.v[0] = v10;
+  v14 = beamRange * this->beamDirectionVector.v[2];
+  in.v[1] = beamRange * this->beamDirectionVector.v[1];
+  in.v[0] = (float)(v10 * beamRange) + forwardIncrease;
+  in.v[2] = v14;
   QuatTransform(orientationQuat, &in, rotatedBeamScaled);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm3, xmm0, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [rsi+4]
-    vaddss  xmm2, xmm0, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm1
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovss  xmm0, xmm0, xmm3
-    vinsertps xmm1, xmm0, xmm2, 10h
-    vmovsd  xmm0, qword ptr [rsi]
-    vmovsd  qword ptr [rdi], xmm1
-  }
-  v52.v[2] = rotatedBeamScaled->v[2];
-  v53.v[2] = _RSI->v[2];
-  __asm
-  {
-    vmovsd  qword ptr [rsp+140h+var_100], xmm1
-    vmovsd  qword ptr [rsp+140h+var_F0], xmm0
-  }
-  FD_Trace(worldId, &v55, (const vec3_t *)&v53, &v52, NULL, clipMask, NULL);
-  __asm { vmovss  xmm9, cs:__real@3f800000 }
+  v15 = rotatedBeamScaled->v[0] + position->v[0];
+  rotatedBeamScaled->v[2] = position->v[2] + rotatedBeamScaled->v[2];
+  v17 = *(unsigned __int64 *)rotatedBeamScaled->v;
+  *(float *)&v17 = v15;
+  _XMM0 = v17;
+  __asm { vinsertps xmm1, xmm0, xmm2, 10h }
+  *(_QWORD *)&_XMM0 = *(_QWORD *)position->v;
+  *(double *)rotatedBeamScaled->v = *(double *)&_XMM1;
+  v25.v[2] = rotatedBeamScaled->v[2];
+  v26.v[2] = position->v[2];
+  *(double *)v25.v = *(double *)&_XMM1;
+  *(double *)v26.v = *(double *)&_XMM0;
+  FD_Trace(worldId, &v29, &v26, &v25, NULL, clipMask, NULL);
   if ( FD_GetDrawAvoidanceTracesDvar() )
   {
     if ( FD_GetDrawAvoidanceTracesAsDoppler() )
     {
-      __asm
+      dopplerSpeedNormalized = this->dopplerSpeedNormalized;
+      v27 = COERCE_FLOAT(LODWORD(dopplerSpeedNormalized) & _xmm) * TFR_DEBUG_DOPPLER_LINES_INTENSITY;
+      v26.v[0] = 0.0;
+      v20 = (const vec4_t *)&v26;
+      v21 = rotatedBeamScaled;
+      v22 = position;
+      if ( dopplerSpeedNormalized <= 0.0 )
       {
-        vmovss  xmm1, dword ptr [r14+18h]
-        vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmulss  xmm3, xmm0, cs:TFR_DEBUG_DOPPLER_LINES_INTENSITY
-        vxorps  xmm2, xmm2, xmm2
-        vcomiss xmm1, xmm2
-        vmovss  [rsp+140h+var_E4], xmm3
-        vmovss  [rsp+140h+var_F0], xmm2
-        vmovss  [rsp+140h+var_EC], xmm2
-        vmovss  [rsp+140h+var_E8], xmm3
+        v26.v[1] = 0.0;
+        v26.v[2] = COERCE_FLOAT(LODWORD(dopplerSpeedNormalized) & _xmm) * TFR_DEBUG_DOPPLER_LINES_INTENSITY;
       }
-      FD_DebugLine(_RSI, rotatedBeamScaled, &v53, 0, 0);
+      else
+      {
+        v26.v[1] = COERCE_FLOAT(LODWORD(dopplerSpeedNormalized) & _xmm) * TFR_DEBUG_DOPPLER_LINES_INTENSITY;
+        v26.v[2] = 0.0;
+      }
     }
     else
     {
-      __asm
+      if ( v29.fraction >= 1.0 )
       {
-        vmovss  xmm0, [rsp+140h+var_D0.fraction]
-        vcomiss xmm0, xmm9
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [r14+4]
+        v20 = &colorWhite;
+        if ( this->beamDirectionVector.v[1] >= 0.0 )
+          v20 = &colorYellow;
       }
-      FD_DebugLine(_RSI, rotatedBeamScaled, &colorYellow, 0, 0);
+      else
+      {
+        v20 = &colorBlue;
+      }
+      v21 = rotatedBeamScaled;
+      v22 = position;
     }
+    FD_DebugLine(v22, v21, v20, 0, 0);
   }
-  __asm
-  {
-    vmovss  xmm1, [rbp+40h+arg_38]; Y
-    vmovss  xmm0, [rsp+140h+var_D0.fraction]; X
-  }
-  powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm8, xmm9, xmm0
-    vmovss  dword ptr [r14+14h], xmm8
-    vmovaps xmm0, xmm8
-  }
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return *(float *)&_XMM0;
+  v23 = 1.0 - powf_0(v29.fraction, beamExpo);
+  this->beamRawDistance = v23;
+  return v23;
 }
 
 /*
@@ -3141,8 +2450,7 @@ TerrainFollowingRadarControl::GetAvoidanceStrength
 */
 float TerrainFollowingRadarControl::GetAvoidanceStrength(TerrainFollowingRadarControl *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+504h] }
-  return *(float *)&_XMM0;
+  return this->m_totalRangeStrength;
 }
 
 /*
@@ -3152,8 +2460,7 @@ TerrainFollowingRadarControl::GetBlockageFactor
 */
 float TerrainFollowingRadarControl::GetBlockageFactor(TerrainFollowingRadarControl *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+508h] }
-  return *(float *)&_XMM0;
+  return this->m_blockageFactor;
 }
 
 /*
@@ -3163,67 +2470,28 @@ TerrainFollowingRadarControl::GetControlSurfaceActuators
 */
 void TerrainFollowingRadarControl::GetControlSurfaceActuators(TerrainFollowingRadarControl *this, float *elevatorStrength, float *rudderStrength, float *aileronStrength, float followTargetStrength)
 {
-  bool v12; 
-  bool v13; 
+  double Param; 
+  float v10; 
+  double v11; 
+  double v12; 
+  double v13; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = aileronStrength;
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
-  _RDI = rudderStrength;
-  _RSI = elevatorStrength;
   if ( !elevatorStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4425, ASSERT_TYPE_ASSERT, "(elevatorStrength)", (const char *)&queryFormat, "elevatorStrength") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4426, ASSERT_TYPE_ASSERT, "(rudderStrength)", (const char *)&queryFormat, "rudderStrength") )
+  if ( !rudderStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4426, ASSERT_TYPE_ASSERT, "(rudderStrength)", (const char *)&queryFormat, "rudderStrength") )
     __debugbreak();
-  v12 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4427, ASSERT_TYPE_ASSERT, "(aileronStrength)", (const char *)&queryFormat, "aileronStrength");
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+58h+followTargetStrength]
-    vcomiss xmm6, cs:__real@bf800000
-  }
-  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4429, ASSERT_TYPE_ASSERT, "(followTargetStrength > -1.0f)", (const char *)&queryFormat, "followTargetStrength > -1.0f") )
+  if ( !aileronStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4427, ASSERT_TYPE_ASSERT, "(aileronStrength)", (const char *)&queryFormat, "aileronStrength") )
     __debugbreak();
-  *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_CONTROL_TARGETLOCK_STRENGTH);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, cs:__real@3f800000
-    vmulss  xmm7, xmm2, dword ptr [rbp+504h]
-    vmovss  xmm2, cs:?TFR_MAX_CONTROL@@3MA; max
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm7, dword ptr [rbp+4C0h]; val
-    vxorps  xmm1, xmm2, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm2, cs:?TFR_MAX_CONTROL@@3MA; max
-    vmulss  xmm0, xmm7, dword ptr [rbp+4C4h]; val
-    vxorps  xmm1, xmm2, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm2, cs:?TFR_MAX_CONTROL@@3MA; max
-    vmulss  xmm0, xmm7, dword ptr [rbp+4CCh]; val
-    vxorps  xmm1, xmm2, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rbx], xmm0
-  }
+  if ( followTargetStrength <= -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4429, ASSERT_TYPE_ASSERT, "(followTargetStrength > -1.0f)", (const char *)&queryFormat, "followTargetStrength > -1.0f") )
+    __debugbreak();
+  Param = TerrainFollowingRadarControl::GetParam(this, TFR_CONTROL_TARGETLOCK_STRENGTH);
+  v10 = (float)((float)(*(float *)&Param * followTargetStrength) + 1.0) * this->m_totalRangeStrength;
+  v11 = I_fclamp(v10 * this->m_controlSurfaces[0], COERCE_FLOAT(LODWORD(TFR_MAX_CONTROL) ^ _xmm), TFR_MAX_CONTROL);
+  *rudderStrength = *(float *)&v11;
+  v12 = I_fclamp(v10 * this->m_controlSurfaces[1], COERCE_FLOAT(LODWORD(TFR_MAX_CONTROL) ^ _xmm), TFR_MAX_CONTROL);
+  *elevatorStrength = *(float *)&v12;
+  v13 = I_fclamp(v10 * this->m_controlSurfaces[3], COERCE_FLOAT(LODWORD(TFR_MAX_CONTROL) ^ _xmm), TFR_MAX_CONTROL);
+  *aileronStrength = *(float *)&v13;
 }
 
 /*
@@ -3243,59 +2511,35 @@ FlightDynamics::GetExternalRotationMagnitude
 */
 void FlightDynamics::GetExternalRotationMagnitude(FlightDynamics *this, vec4_t *externalRotation, vec3_t *angVel)
 {
+  float v5; 
+  float v6; 
+  float v7; 
   vec4_t *p_m_RotationInertiaQuat; 
+  float v9; 
   vec4_t in1; 
   vec4_t out; 
   vec4_t quat; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovss  xmm2, cs:__real@3c8efa35
-    vmulss  xmm0, xmm2, dword ptr [r8]
-    vmovss  dword ptr [r8], xmm0
-    vmulss  xmm0, xmm2, dword ptr [r8+4]
-    vmovss  dword ptr [r8+4], xmm0
-    vmulss  xmm0, xmm2, dword ptr [r8+8]
-  }
-  _RDI = this;
-  __asm { vmovss  dword ptr [r8+8], xmm0 }
+  angVel->v[0] = 0.017453292 * angVel->v[0];
+  angVel->v[1] = 0.017453292 * angVel->v[1];
+  angVel->v[2] = 0.017453292 * angVel->v[2];
   AnglesToQuat(angVel, &quat);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rdi+368h]
-    vmovss  xmm1, dword ptr [rdi+36Ch]
-    vxorps  xmm2, xmm1, xmm3
-    vxorps  xmm0, xmm0, xmm3
-    vmovss  dword ptr [rsp+88h+in1], xmm0
-    vmovss  xmm0, dword ptr [rdi+370h]
-    vmovss  dword ptr [rsp+88h+in1+4], xmm2
-    vmovss  xmm2, dword ptr [rdi+374h]
-    vxorps  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rsp+88h+in1+8], xmm1
-    vmovss  dword ptr [rsp+88h+in1+0Ch], xmm2
-  }
+  LODWORD(v5) = LODWORD(this->m_RotationQuaternion.v[1]) ^ _xmm;
+  LODWORD(in1.v[0]) = LODWORD(this->m_RotationQuaternion.v[0]) ^ _xmm;
+  v6 = this->m_RotationQuaternion.v[2];
+  in1.v[1] = v5;
+  v7 = this->m_RotationQuaternion.v[3];
+  LODWORD(in1.v[2]) = LODWORD(v6) ^ _xmm;
+  in1.v[3] = v7;
   QuatMultiply(&in1, externalRotation, &out);
-  p_m_RotationInertiaQuat = &_RDI->m_RotationInertiaQuat;
+  p_m_RotationInertiaQuat = &this->m_RotationInertiaQuat;
   QuatMultiply(&out, p_m_RotationInertiaQuat, &in1);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+88h+in1]
-    vmovss  xmm6, cs:?FD_EXTERNAL_ROTATION_FACTOR@@3MA; float FD_EXTERNAL_ROTATION_FACTOR
-    vmovdqa xmmword ptr [rsp+88h+in1], xmm0
-  }
-  if ( !p_m_RotationInertiaQuat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2308, ASSERT_TYPE_ASSERT, "(quatOut)", (const char *)&queryFormat, "quatOut", *(_OWORD *)&in1) )
+  v9 = FD_EXTERNAL_ROTATION_FACTOR;
+  if ( !p_m_RotationInertiaQuat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2308, ASSERT_TYPE_ASSERT, "(quatOut)", (const char *)&queryFormat, "quatOut") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-    vmovaps xmm2, xmm6; frac
-    vmovups xmmword ptr [rsp+88h+out], xmm0
-  }
-  QuatSlerp(&in1, &out, *(float *)&_XMM2, p_m_RotationInertiaQuat);
+  out = (vec4_t)_xmm;
+  QuatSlerp(&in1, &out, v9, p_m_RotationInertiaQuat);
   Vec4Normalize(p_m_RotationInertiaQuat);
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -3306,85 +2550,49 @@ FlightDynamics::GetFlightDynamicsParameter
 void FlightDynamics::GetFlightDynamicsParameter(FlightDynamics *this, vec3_t *position, vec3_t *orientation, vec3_t *velocity, tmat33_t<vec3_t> *matrix, vec4_t *quaternion, vec4_t *angularVelocity, vec3_t *fbwVector, float *cruiseLow, float *cruiseHigh, float *cruiseBoost)
 {
   __int64 m_DynamicsModel; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
+  float v16; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = this;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+368h]
-    vmovss  [rsp+0D8h+var_A8], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3473, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
+  v16 = this->m_RotationQuaternion.v[0];
+  if ( (LODWORD(v16) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3473, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )", v16) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+36Ch]
-    vmovss  [rsp+0D8h+var_A8], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3474, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3474, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+370h]
-    vmovss  [rsp+0D8h+var_A8], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3475, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[2]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3475, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+374h]
-    vmovss  [rsp+0D8h+var_A8], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3476, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[3]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3476, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
     __debugbreak();
   if ( orientation )
   {
-    QuatToAxis(&_RBX->m_RotationQuaternion, &axis);
+    QuatToAxis(&this->m_RotationQuaternion, &axis);
     AxisToAngles(&axis, orientation);
   }
   if ( matrix )
   {
-    QuatToAxis(&_RBX->m_RotationQuaternion, matrix);
+    QuatToAxis(&this->m_RotationQuaternion, matrix);
     AxisToAngles(matrix, orientation);
   }
   if ( quaternion )
-    *quaternion = _RBX->m_RotationQuaternion;
+    *quaternion = this->m_RotationQuaternion;
   if ( angularVelocity )
-    *angularVelocity = _RBX->m_RotationVelocity;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2E4h]
-    vmovss  xmm2, dword ptr [rbx+2E8h]
-    vmovss  xmm3, dword ptr [rbx+2ECh]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm0, cs:FD_EXCESSIVE_PHYSICS_SPEED
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3506, ASSERT_TYPE_ASSERT, "(velocityMagnitude < FD_EXCESSIVE_PHYSICS_SPEED)", (const char *)&queryFormat, "velocityMagnitude < FD_EXCESSIVE_PHYSICS_SPEED") )
+    *angularVelocity = this->m_RotationVelocity;
+  if ( fsqrt((float)((float)(this->m_Velocity.v[0] * this->m_Velocity.v[0]) + (float)(this->m_Velocity.v[1] * this->m_Velocity.v[1])) + (float)(this->m_Velocity.v[2] * this->m_Velocity.v[2])) >= FD_EXCESSIVE_PHYSICS_SPEED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3506, ASSERT_TYPE_ASSERT, "(velocityMagnitude < FD_EXCESSIVE_PHYSICS_SPEED)", (const char *)&queryFormat, "velocityMagnitude < FD_EXCESSIVE_PHYSICS_SPEED") )
     __debugbreak();
   if ( velocity )
   {
-    velocity->v[0] = _RBX->m_Velocity.v[0];
-    velocity->v[1] = _RBX->m_Velocity.v[1];
-    velocity->v[2] = _RBX->m_Velocity.v[2];
+    velocity->v[0] = this->m_Velocity.v[0];
+    velocity->v[1] = this->m_Velocity.v[1];
+    velocity->v[2] = this->m_Velocity.v[2];
   }
   if ( position )
   {
-    position->v[0] = _RBX->m_Position.v[0];
-    position->v[1] = _RBX->m_Position.v[1];
-    position->v[2] = _RBX->m_Position.v[2];
+    position->v[0] = this->m_Position.v[0];
+    position->v[1] = this->m_Position.v[1];
+    position->v[2] = this->m_Position.v[2];
   }
   if ( fbwVector )
-    *fbwVector = _RBX->m_FlyByWireInputVector;
-  m_DynamicsModel = _RBX->m_DynamicsModel;
+    *fbwVector = this->m_FlyByWireInputVector;
+  m_DynamicsModel = this->m_DynamicsModel;
   if ( cruiseLow )
     *cruiseLow = sFlightDynamicsManager.m_FlightDynamicModels[m_DynamicsModel].m_Parameter[97];
   if ( cruiseHigh )
@@ -3420,21 +2628,23 @@ GetOrthogonalVector
 */
 void GetOrthogonalVector(vec3_t *in, vec3_t *perpVector)
 {
-  __asm
+  float v2; 
+  float v3; 
+  vec3_t *p_m_ElevatorAxis; 
+
+  v2 = in->v[1];
+  v3 = in->v[2];
+  if ( (float)((float)((float)(in->v[0] * sFlightDynamicsManager.m_UpAxis.v[0]) + (float)(v2 * sFlightDynamicsManager.m_UpAxis.v[1])) + (float)(v3 * sFlightDynamicsManager.m_UpAxis.v[2])) <= -0.75 )
   {
-    vmovss  xmm4, dword ptr [rcx+4]
-    vmovss  xmm5, dword ptr [rcx]
-    vmulss  xmm1, xmm5, dword ptr cs:sFlightDynamicsManager.m_UpAxis
-    vmulss  xmm0, xmm4, dword ptr cs:sFlightDynamicsManager.m_UpAxis+4
-    vaddss  xmm2, xmm1, xmm0
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rcx+8]
-    vmulss  xmm1, xmm6, dword ptr cs:sFlightDynamicsManager.m_UpAxis+8
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, cs:__real@bf400000
+    p_m_ElevatorAxis = &sFlightDynamicsManager.m_ElevatorAxis;
+    if ( (float)((float)((float)(in->v[0] * sFlightDynamicsManager.m_ElevatorAxis.v[0]) + (float)(v2 * sFlightDynamicsManager.m_ElevatorAxis.v[1])) + (float)(v3 * sFlightDynamicsManager.m_ElevatorAxis.v[2])) <= -0.75 )
+      p_m_ElevatorAxis = &sFlightDynamicsManager.m_ForwardAxis;
+    Vec3Cross(in, p_m_ElevatorAxis, perpVector);
   }
-  Vec3Cross(in, &sFlightDynamicsManager.m_UpAxis, perpVector);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+  else
+  {
+    Vec3Cross(in, &sFlightDynamicsManager.m_UpAxis, perpVector);
+  }
 }
 
 /*
@@ -3444,44 +2654,27 @@ TerrainFollowingRadarControl::GetParam
 */
 float TerrainFollowingRadarControl::GetParam(TerrainFollowingRadarControl *this, FlightDynamicsTerrainFollowingRadarParamType param)
 {
+  __int64 v3; 
   FlightDynamicsTerrainFollowingRadarModes m_currentOperatingMode; 
-  int v22; 
+  int v5; 
+  float v6; 
+  __int64 v8; 
+  int v9; 
 
-  __asm
+  v3 = param;
+  if ( (float)(this->m_maxSpeed - this->m_minSpeed) == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4221, ASSERT_TYPE_ASSERT, "(( m_maxSpeed - m_minSpeed ) != 0.0f)", (const char *)&queryFormat, "( m_maxSpeed - m_minSpeed ) != 0.0f") )
+    __debugbreak();
+  m_currentOperatingMode = this->m_currentOperatingMode;
+  v5 = 2 * m_currentOperatingMode;
+  v6 = (float)(this->m_clampedSpeedMagnitude - this->m_minSpeed) / (float)(this->m_maxSpeed - this->m_minSpeed);
+  if ( (unsigned int)m_currentOperatingMode >= TFR_MODES_TOTAL )
   {
-    vmovss  xmm0, dword ptr [rcx+510h]
-    vsubss  xmm2, xmm0, dword ptr [rcx+50Ch]
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm2, xmm1
-    vmovaps [rsp+58h+var_18], xmm6
-  }
-  _RBX = this;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+50Ch]
-    vmovss  xmm0, dword ptr [rbx+518h]
-    vmovss  xmm1, dword ptr [rbx+510h]
-    vsubss  xmm3, xmm0, xmm2
-    vsubss  xmm2, xmm1, xmm2
-    vdivss  xmm6, xmm3, xmm2
-  }
-  if ( this->m_currentOperatingMode >= (unsigned int)TFR_MODES_TOTAL )
-  {
-    v22 = 3;
-    m_currentOperatingMode = this->m_currentOperatingMode;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4226, ASSERT_TYPE_ASSERT, "(unsigned)( m_currentOperatingMode ) < (unsigned)( TFR_MODES_TOTAL )", "m_currentOperatingMode doesn't index TFR_MODES_TOTAL\n\t%i not in [0, %i)", m_currentOperatingMode, v22) )
+    v9 = 3;
+    LODWORD(v8) = this->m_currentOperatingMode;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4226, ASSERT_TYPE_ASSERT, "(unsigned)( m_currentOperatingMode ) < (unsigned)( TFR_MODES_TOTAL )", "m_currentOperatingMode doesn't index TFR_MODES_TOTAL\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, dword ptr [rbx+rax*4+10h]
-    vmulss  xmm0, xmm6, dword ptr [rbx+rax*4+78h]
-    vmovaps xmm6, [rsp+58h+var_18]
-    vaddss  xmm0, xmm2, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)(1.0 - v6) * this->m_parameters[v5][v3]) + (float)(v6 * this->m_parameters[v5 + 1][v3]);
 }
 
 /*
@@ -3512,113 +2705,80 @@ GetRotationQuatFromVectors
 */
 void GetRotationQuatFromVectors(vec3_t *vec1, vec3_t *vec2, vec4_t *quat)
 {
-  bool v13; 
-  bool v26; 
-  _BYTE v68[32]; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  double v18; 
+  float v19; 
+  double v21; 
+  float v22; 
+  float v23; 
+  vec3_t v24; 
+  vec4_t v25; 
+  vec4_t in1; 
   vec3_t cross; 
-  __int64 v70; 
-  char v71; 
-  void *retaddr; 
+  vec4_t v28; 
 
-  _RAX = &retaddr;
-  _RBP = &v70;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-  }
-  v13 = (unsigned __int64)v68 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm4, xmm2, xmm1
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm4, xmm9
-  }
-  _R14 = quat;
-  _RDI = vec2;
-  _RSI = vec1;
-  if ( (unsigned __int64)v68 == _security_cookie )
-  {
-    v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4030, ASSERT_TYPE_ASSERT, "(Vec3Length( vec1 ) > 0.0f)", (const char *)&queryFormat, "Vec3Length( vec1 ) > 0.0f");
-    v13 = !v26;
-    if ( v26 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+4]
-    vmovss  xmm7, dword ptr [rdi]
-    vmovss  xmm8, dword ptr [rdi+8]
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, xmm9
-  }
-  if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4031, ASSERT_TYPE_ASSERT, "(Vec3Length( vec2 ) > 0.0f)", (const char *)&queryFormat, "Vec3Length( vec2 ) > 0.0f") )
+  _XMM9 = 0i64;
+  if ( (float)((float)((float)(vec1->v[0] * vec1->v[0]) + (float)(vec1->v[1] * vec1->v[1])) + (float)(vec1->v[2] * vec1->v[2])) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4030, ASSERT_TYPE_ASSERT, "(Vec3Length( vec1 ) > 0.0f)", (const char *)&queryFormat, "Vec3Length( vec1 ) > 0.0f") )
     __debugbreak();
-  __asm
+  v7 = vec2->v[1];
+  v8 = vec2->v[0];
+  v9 = vec2->v[2];
+  if ( (float)((float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v9 * v9)) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 4031, ASSERT_TYPE_ASSERT, "(Vec3Length( vec2 ) > 0.0f)", (const char *)&queryFormat, "Vec3Length( vec2 ) > 0.0f") )
+    __debugbreak();
+  v10 = vec1->v[1];
+  v11 = vec1->v[0];
+  v12 = vec1->v[2];
+  v13 = (float)((float)(v8 * vec1->v[0]) + (float)(v10 * v7)) + (float)(v12 * v9);
+  if ( v13 >= -0.75 )
   {
-    vmovss  xmm10, dword ptr [rsi+4]
-    vmovss  xmm11, dword ptr [rsi]
-    vmovss  xmm12, dword ptr [rsi+8]
-    vmulss  xmm1, xmm7, xmm11
-    vmulss  xmm0, xmm10, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm12, xmm8
-    vaddss  xmm13, xmm2, xmm1
-    vcomiss xmm13, cs:__real@bf400000
+    Vec3Cross(vec1, vec2, &cross);
+    v22 = cross.v[1];
+    quat->v[0] = cross.v[0];
+    v23 = cross.v[2];
+    quat->v[1] = v22;
+    quat->v[2] = v23;
+    quat->v[3] = fsqrt((float)((float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v9 * v9)) * (float)((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v12 * v12))) + v13;
+    Vec4Normalize(quat);
   }
-  Vec3Cross(_RSI, _RDI, &cross);
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rsp+130h+cross]
-    vmovss  xmm1, dword ptr [rsp+130h+cross+4]
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm0, dword ptr [rsp+130h+cross+8]
-    vmovss  dword ptr [r14+4], xmm1
-    vmovss  dword ptr [r14+8], xmm0
-    vmulss  xmm2, xmm7, xmm7
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm2, xmm11, xmm11
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm12, xmm12
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm4, xmm2
-    vsqrtss xmm3, xmm1, xmm1
-    vaddss  xmm0, xmm3, xmm13
-    vmovss  dword ptr [r14+0Ch], xmm0
-  }
-  Vec4Normalize(_R14);
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
+    _XMM3 = LODWORD(quat->v[0]);
+    __asm
+    {
+      vinsertps xmm3, xmm3, dword ptr [r14+4], 10h
+      vinsertps xmm3, xmm3, dword ptr [r14+8], 20h ; ' '
+      vinsertps xmm3, xmm3, dword ptr [r14+0Ch], 30h ; '0'
+    }
+    v18 = *(double *)vec1->v;
+    v19 = vec1->v[2];
+    __asm { vunpcklps xmm6, xmm9, xmm9 }
+    cross.v[2] = 0.0;
+    v28 = _XMM3;
+    v25 = _XMM3;
+    in1.v[2] = 0.0;
+    in1.v[1] = 0.0;
+    in1.v[0] = 0.0;
+    *(double *)cross.v = *(double *)&_XMM6;
+    *(double *)v24.v = v18;
+    v24.v[2] = v19;
+    GetRotationQuatFromVectors(&v24, &cross, &v25);
+    v21 = *(double *)vec2->v;
+    v24.v[2] = vec2->v[2];
+    cross.v[2] = 0.0;
+    v25.v[3] = in1.v[3];
+    *(double *)v24.v = v21;
+    v25.v[0] = 0.0;
+    v25.v[1] = 0.0;
+    v25.v[2] = 0.0;
+    *(double *)cross.v = *(double *)&_XMM6;
+    GetRotationQuatFromVectors(&cross, &v24, &v25);
+    QuatMultiply(&in1, &v28, quat);
   }
 }
 
@@ -3639,29 +2799,11 @@ FlightDynamics::GetSoundValuesFD
 */
 void FlightDynamics::GetSoundValuesFD(FlightDynamics *this, const int clientNum, int time, float *outThrottle, float *outBrake, float *outRpmNormal, float *outGear, float *outMph, bool *outTurbineStart, bool *outTurbineStop, vec3_t *outPosition)
 {
-  _RDX = this;
   *outRpmNormal = 0.0;
   *outThrottle = 0.0;
   *outGear = 0.0;
   *outBrake = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+178h]
-    vmulss  xmm3, xmm0, dword ptr [rdx+1A8h]
-    vmovss  xmm1, dword ptr [rdx+174h]
-    vmulss  xmm2, xmm1, dword ptr [rdx+1A4h]
-    vmovss  xmm0, dword ptr [rdx+17Ch]
-    vmulss  xmm1, xmm0, dword ptr [rdx+1ACh]
-  }
-  _RAX = outMph;
-  __asm
-  {
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm0, xmm2, cs:__real@3d68ba2f
-    vmovss  dword ptr [rax], xmm0
-  }
+  *outMph = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(this->m_transform.m[0].v[1] * this->m_linearVelocityWs.v[1]) + (float)(this->m_transform.m[0].v[0] * this->m_linearVelocityWs.v[0])) + (float)(this->m_transform.m[0].v[2] * this->m_linearVelocityWs.v[2])) & _xmm) * 0.056818184;
   *outTurbineStart = 0;
   *outTurbineStop = 0;
   *outPosition = this->m_Position;
@@ -3675,18 +2817,12 @@ TerrainFollowingRadarControl::Initialize
 void TerrainFollowingRadarControl::Initialize(TerrainFollowingRadarControl *this, int newClipMask)
 {
   *(_WORD *)this->m_modeInitizalied = 0;
-  _RDI = this;
   this->m_modeInitizalied[2] = 0;
   TerrainFollowingRadarControl::LoadTFRParameters(this);
-  TerrainFollowingRadarControl::ComputeDirectionVectorsForRays(_RDI);
-  _RDI->m_clipMask = newClipMask;
-  __asm
-  {
-    vmovss  xmm0, cs:?TFR_LOW_SPEED_VALUE@@3MA; float TFR_LOW_SPEED_VALUE
-    vmovss  dword ptr [rdi+50Ch], xmm0
-    vmovss  xmm1, cs:?TFR_HIGH_SPEED_VALUE@@3MA; float TFR_HIGH_SPEED_VALUE
-    vmovss  dword ptr [rdi+510h], xmm1
-  }
+  TerrainFollowingRadarControl::ComputeDirectionVectorsForRays(this);
+  this->m_clipMask = newClipMask;
+  this->m_minSpeed = TFR_LOW_SPEED_VALUE;
+  this->m_maxSpeed = TFR_HIGH_SPEED_VALUE;
 }
 
 /*
@@ -3706,96 +2842,62 @@ FlightDynamics::LoadControlInputs
 */
 void FlightDynamics::LoadControlInputs(FlightDynamics *this, const usercmd_s *cmd, float *rawControlInputs)
 {
+  char v6; 
+  int v7; 
+  char v8; 
   int m_StickMode; 
+  char rightmove; 
   unsigned __int64 buttons; 
 
-  _RBX = rawControlInputs;
   if ( !rawControlInputs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2444, ASSERT_TYPE_ASSERT, "(rawControlInputs)", (const char *)&queryFormat, "rawControlInputs") )
     __debugbreak();
+  v6 = cmd->pitchmove + cmd->remoteControlMove[0];
+  LOBYTE(v7) = cmd->yawmove + cmd->remoteControlMove[1];
+  v8 = cmd->forwardmove + cmd->remoteControlMove[2];
   m_StickMode = this->m_StickMode;
+  rightmove = cmd->rightmove;
   if ( m_StickMode )
   {
     if ( m_StickMode == 2 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  dword ptr [rbx+8], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-      }
-      _RBX[4] = 0.0;
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm1
-        vmovss  dword ptr [rbx+4], xmm0
-      }
+      rawControlInputs[2] = (float)v8;
+      rawControlInputs[4] = 0.0;
+      *rawControlInputs = (float)(char)v7;
+      rawControlInputs[1] = (float)-v6;
     }
     else
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2489, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Stick mode is not valid for this FD tyte\n") )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx], xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-      }
-      _RBX[4] = 0.0;
-      __asm
-      {
-        vmovss  dword ptr [rbx+0Ch], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      rawControlInputs[2] = (float)v8;
+      *rawControlInputs = (float)rightmove;
+      rawControlInputs[4] = 0.0;
+      rawControlInputs[3] = (float)(char)v7;
+      rawControlInputs[1] = (float)v6;
       buttons = cmd->buttons;
       if ( (cmd->buttons & 0x10000000000i64) != 0 )
       {
-        _RBX[4] = -127.0;
+        rawControlInputs[4] = -127.0;
         buttons = cmd->buttons;
       }
       if ( (buttons & 0x20000000000i64) != 0 )
-        _RBX[4] = 127.0;
+        rawControlInputs[4] = 127.0;
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    rawControlInputs[2] = (float)v8;
+    v7 = (char)v7;
     if ( !this->GetFlyByWireStatus(this) )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmovss  dword ptr [rbx+0Ch], xmm0
-      }
+      rawControlInputs[3] = (float)(char)v7;
+      v7 = rightmove;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, esi
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-    *((_QWORD *)_RBX + 2) = 0i64;
+    *rawControlInputs = (float)-v7;
+    rawControlInputs[1] = (float)v6;
+    *((_QWORD *)rawControlInputs + 2) = 0i64;
     if ( (cmd->buttons & 2) != 0 )
-      _RBX[7] = 127.0;
+      rawControlInputs[7] = 127.0;
   }
 }
 
@@ -4014,293 +3116,213 @@ FlightDynamics::NormalizePlayerInputs
 */
 void FlightDynamics::NormalizePlayerInputs(FlightDynamics *this)
 {
-  __int64 v6; 
+  float *m_ControlInputsNormalized; 
+  __int64 v2; 
+  __int128 v3; 
+  float v4; 
+  __int128 v5; 
+  float v7; 
+  __int128 v11; 
+  float v12; 
+  __int128 v13; 
+  float v15; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
+  float v23; 
+  __int128 v27; 
+  float v28; 
+  __int128 v29; 
+  float v31; 
+  __int128 v35; 
+  float v36; 
+  __int128 v37; 
+  float v39; 
+  __int128 v43; 
+  float v44; 
+  __int128 v45; 
+  float v47; 
+  __int128 v51; 
+  float v52; 
+  __int128 v53; 
+  float v55; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RAX = this->m_ControlInputsNormalized;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3c010204
-    vmovaps [rsp+38h+var_28], xmm7
-  }
-  v6 = 2i64;
-  __asm
-  {
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+38h+var_38], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-  }
+  m_ControlInputsNormalized = this->m_ControlInputsNormalized;
+  v2 = 2i64;
   do
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax-38h]
-      vmulss  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rax], xmm3
-    }
+    v3 = *((unsigned int *)m_ControlInputsNormalized - 14);
+    v5 = v3;
+    *(float *)&v5 = *(float *)&v3 * 0.0078740157;
+    v4 = *(float *)&v3 * 0.0078740157;
+    *m_ControlInputsNormalized = *(float *)&v3 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM4 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v5 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm4, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm3, xmm7
-        vcomiss xmm0, xmm4
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm3, xmm4
-          vcmpltss xmm0, xmm4, xmm3
-          vaddss  xmm2, xmm3, xmm4
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm4
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm4, xmm3 }
+        *(float *)&v5 = *(float *)&v5 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v5;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v7 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v7 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm3, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax], xmm3
-      }
+      v4 = v7 * this->m_InputStrengthModifier;
+      *m_ControlInputsNormalized = v4;
     }
-    __asm
-    {
-      vmovss  dword ptr [rax-70h], xmm3
-      vmovss  xmm0, dword ptr [rax-34h]
-      vmulss  xmm4, xmm0, xmm6
-      vmovss  dword ptr [rax+4], xmm4
-    }
+    *(m_ControlInputsNormalized - 28) = v4;
+    v11 = *((unsigned int *)m_ControlInputsNormalized - 13);
+    v13 = v11;
+    *(float *)&v13 = *(float *)&v11 * 0.0078740157;
+    v12 = *(float *)&v11 * 0.0078740157;
+    m_ControlInputsNormalized[1] = *(float *)&v11 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM5 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v13 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm5, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm4, xmm7
-        vcomiss xmm0, xmm5
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm4, xmm5
-          vcmpltss xmm0, xmm5, xmm4
-          vaddss  xmm2, xmm4, xmm5
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm5
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm5, xmm4 }
+        *(float *)&v13 = *(float *)&v13 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v13;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v15 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v15 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax+4], xmm4
-      }
+      v12 = v15 * this->m_InputStrengthModifier;
+      m_ControlInputsNormalized[1] = v12;
     }
-    __asm
-    {
-      vmovss  dword ptr [rax-6Ch], xmm4
-      vmovss  xmm0, dword ptr [rax-30h]
-      vmulss  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rax+8], xmm3
-    }
+    *(m_ControlInputsNormalized - 27) = v12;
+    v19 = *((unsigned int *)m_ControlInputsNormalized - 12);
+    v21 = v19;
+    *(float *)&v21 = *(float *)&v19 * 0.0078740157;
+    v20 = *(float *)&v19 * 0.0078740157;
+    m_ControlInputsNormalized[2] = *(float *)&v19 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM4 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v21 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm4, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm3, xmm7
-        vcomiss xmm0, xmm4
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm3, xmm4
-          vcmpltss xmm0, xmm4, xmm3
-          vaddss  xmm2, xmm3, xmm4
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm4
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm4, xmm3 }
+        *(float *)&v21 = *(float *)&v21 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v21;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v23 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v23 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm3, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax+8], xmm3
-      }
+      v20 = v23 * this->m_InputStrengthModifier;
+      m_ControlInputsNormalized[2] = v20;
     }
-    __asm
-    {
-      vmovss  dword ptr [rax-68h], xmm3
-      vmovss  xmm0, dword ptr [rax-2Ch]
-      vmulss  xmm4, xmm0, xmm6
-      vmovss  dword ptr [rax+0Ch], xmm4
-    }
+    *(m_ControlInputsNormalized - 26) = v20;
+    v27 = *((unsigned int *)m_ControlInputsNormalized - 11);
+    v29 = v27;
+    *(float *)&v29 = *(float *)&v27 * 0.0078740157;
+    v28 = *(float *)&v27 * 0.0078740157;
+    m_ControlInputsNormalized[3] = *(float *)&v27 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM5 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v29 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm5, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm4, xmm7
-        vcomiss xmm0, xmm5
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm4, xmm5
-          vcmpltss xmm0, xmm5, xmm4
-          vaddss  xmm2, xmm4, xmm5
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm5
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm5, xmm4 }
+        *(float *)&v29 = *(float *)&v29 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v29;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v31 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v31 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax+0Ch], xmm4
-      }
+      v28 = v31 * this->m_InputStrengthModifier;
+      m_ControlInputsNormalized[3] = v28;
     }
-    __asm
-    {
-      vmovss  dword ptr [rax-64h], xmm4
-      vmovss  xmm0, dword ptr [rax-28h]
-      vmulss  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rax+10h], xmm3
-    }
+    *(m_ControlInputsNormalized - 25) = v28;
+    v35 = *((unsigned int *)m_ControlInputsNormalized - 10);
+    v37 = v35;
+    *(float *)&v37 = *(float *)&v35 * 0.0078740157;
+    v36 = *(float *)&v35 * 0.0078740157;
+    m_ControlInputsNormalized[4] = *(float *)&v35 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM4 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v37 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm4, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm3, xmm7
-        vcomiss xmm0, xmm4
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm3, xmm4
-          vcmpltss xmm0, xmm4, xmm3
-          vaddss  xmm2, xmm3, xmm4
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm4
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm4, xmm3 }
+        *(float *)&v37 = *(float *)&v37 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v37;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v39 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v39 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm3, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax+10h], xmm3
-      }
+      v36 = v39 * this->m_InputStrengthModifier;
+      m_ControlInputsNormalized[4] = v36;
     }
-    __asm
-    {
-      vmovss  dword ptr [rax-60h], xmm3
-      vmovss  xmm0, dword ptr [rax-24h]
-      vmulss  xmm4, xmm0, xmm6
-      vmovss  dword ptr [rax+14h], xmm4
-    }
+    *(m_ControlInputsNormalized - 24) = v36;
+    v43 = *((unsigned int *)m_ControlInputsNormalized - 9);
+    v45 = v43;
+    *(float *)&v45 = *(float *)&v43 * 0.0078740157;
+    v44 = *(float *)&v43 * 0.0078740157;
+    m_ControlInputsNormalized[5] = *(float *)&v43 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM5 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v45 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm5, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm4, xmm7
-        vcomiss xmm0, xmm5
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm4, xmm5
-          vcmpltss xmm0, xmm5, xmm4
-          vaddss  xmm2, xmm4, xmm5
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm5
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm5, xmm4 }
+        *(float *)&v45 = *(float *)&v45 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v45;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v47 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v47 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax+14h], xmm4
-      }
+      v44 = v47 * this->m_InputStrengthModifier;
+      m_ControlInputsNormalized[5] = v44;
     }
-    __asm
-    {
-      vmovss  dword ptr [rax-5Ch], xmm4
-      vmovss  xmm0, dword ptr [rax-20h]
-      vmulss  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rax+18h], xmm3
-    }
+    *(m_ControlInputsNormalized - 23) = v44;
+    v51 = *((unsigned int *)m_ControlInputsNormalized - 8);
+    v53 = v51;
+    *(float *)&v53 = *(float *)&v51 * 0.0078740157;
+    v52 = *(float *)&v51 * 0.0078740157;
+    m_ControlInputsNormalized[6] = *(float *)&v51 * 0.0078740157;
     if ( this->m_EnableInputDeadZone )
     {
-      __asm
+      _XMM4 = LODWORD(FD_DEFAULT_DEADZONE);
+      if ( COERCE_FLOAT(v53 & _xmm) > FD_DEFAULT_DEADZONE )
       {
-        vmovss  xmm4, cs:?FD_DEFAULT_DEADZONE@@3MA; float FD_DEFAULT_DEADZONE
-        vandps  xmm0, xmm3, xmm7
-        vcomiss xmm0, xmm4
-      }
-      if ( this->m_EnableInputDeadZone )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm3, xmm4
-          vcmpltss xmm0, xmm4, xmm3
-          vaddss  xmm2, xmm3, xmm4
-          vblendvps xmm3, xmm2, xmm1, xmm0
-          vsubss  xmm1, xmm8, xmm4
-          vdivss  xmm0, xmm3, xmm1
-        }
+        __asm { vcmpltss xmm0, xmm4, xmm3 }
+        *(float *)&v53 = *(float *)&v53 + FD_DEFAULT_DEADZONE;
+        _XMM2 = v53;
+        __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+        v55 = *(float *)&_XMM3 / (float)(1.0 - FD_DEFAULT_DEADZONE);
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        v55 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm3, xmm0, dword ptr [rcx+3D0h]
-        vmovss  dword ptr [rax+18h], xmm3
-      }
+      v52 = v55 * this->m_InputStrengthModifier;
+      m_ControlInputsNormalized[6] = v52;
     }
-    __asm { vmovss  dword ptr [rax-58h], xmm3 }
-    _RAX += 7;
-    --v6;
+    *(m_ControlInputsNormalized - 22) = v52;
+    m_ControlInputsNormalized += 7;
+    --v2;
   }
-  while ( v6 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovaps xmm7, [rsp+38h+var_28]
-    vmovaps xmm8, [rsp+38h+var_38]
-  }
+  while ( v2 );
 }
 
 /*
@@ -4370,30 +3392,24 @@ FlightDynamics::QuatToQuatDistance
 */
 float FlightDynamics::QuatToQuatDistance(vec4_t *quat1, vec4_t *quat2)
 {
+  float v2; 
+  float v3; 
+  float v4; 
   float angleOut; 
   vec4_t in2; 
   vec4_t out; 
   vec3_t axisOut; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm1, dword ptr [rcx+4]
-    vxorps  xmm2, xmm1, xmm3
-    vxorps  xmm0, xmm0, xmm3
-    vmovss  dword ptr [rsp+68h+in2], xmm0
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+68h+in2+4], xmm2
-    vmovss  xmm2, dword ptr [rcx+0Ch]
-    vxorps  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rsp+68h+in2+8], xmm1
-    vmovss  dword ptr [rsp+68h+in2+0Ch], xmm2
-  }
+  LODWORD(v2) = LODWORD(quat1->v[1]) ^ _xmm;
+  LODWORD(in2.v[0]) = LODWORD(quat1->v[0]) ^ _xmm;
+  v3 = quat1->v[2];
+  in2.v[1] = v2;
+  v4 = quat1->v[3];
+  LODWORD(in2.v[2]) = LODWORD(v3) ^ _xmm;
+  in2.v[3] = v4;
   QuatMultiply(quat2, &in2, &out);
   FD_QuatToAngleAxis(&out, &angleOut, &axisOut);
-  __asm { vmovss  xmm0, [rsp+68h+angleOut] }
-  return *(float *)&_XMM0;
+  return angleOut;
 }
 
 /*
@@ -4403,33 +3419,26 @@ FlightDynamics::QuatToUnitQuatDistance
 */
 float FlightDynamics::QuatToUnitQuatDistance(vec4_t *quat1)
 {
+  float v1; 
+  float v2; 
+  float v3; 
   float angleOut; 
   vec4_t in1; 
   vec4_t in2; 
   vec4_t out; 
   vec3_t axisOut; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm1, dword ptr [rcx+4]
-    vxorps  xmm0, xmm0, xmm3
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+78h+in2], xmm0
-    vmovss  xmm0, dword ptr [rcx+8]
-    vxorps  xmm1, xmm0, xmm3
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-    vmovss  dword ptr [rsp+78h+in2+4], xmm2
-    vmovss  xmm2, dword ptr [rcx+0Ch]
-    vmovups xmmword ptr [rsp+78h+in1], xmm0
-    vmovss  dword ptr [rsp+78h+in2+8], xmm1
-    vmovss  dword ptr [rsp+78h+in2+0Ch], xmm2
-  }
+  LODWORD(v1) = LODWORD(quat1->v[1]) ^ _xmm;
+  LODWORD(in2.v[0]) = LODWORD(quat1->v[0]) ^ _xmm;
+  LODWORD(v2) = LODWORD(quat1->v[2]) ^ _xmm;
+  in2.v[1] = v1;
+  v3 = quat1->v[3];
+  in1 = (vec4_t)_xmm;
+  in2.v[2] = v2;
+  in2.v[3] = v3;
   QuatMultiply(&in1, &in2, &out);
   FD_QuatToAngleAxis(&out, &angleOut, &axisOut);
-  __asm { vmovss  xmm0, [rsp+78h+angleOut] }
-  return *(float *)&_XMM0;
+  return angleOut;
 }
 
 /*
@@ -4557,424 +3566,284 @@ void FlightDynamics::ResetRotationQuaternion(FlightDynamics *this)
 TerrainFollowingRadarControl::ScanTerrainAhead
 ==============
 */
-
-void __fastcall TerrainFollowingRadarControl::ScanTerrainAhead(TerrainFollowingRadarControl *this, double dT, vec3_t *position, vec3_t *velocity, vec4_t *noseRotationQuat, float enginePower, Physics_WorldId worldId)
+void TerrainFollowingRadarControl::ScanTerrainAhead(TerrainFollowingRadarControl *this, float dT, vec3_t *position, vec3_t *velocity, vec4_t *noseRotationQuat, float enginePower, Physics_WorldId worldId)
 {
+  float v11; 
+  __int128 v12; 
+  float v13; 
+  __int128 v14; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v22; 
+  double Param; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  float v27; 
+  __int128 v32; 
+  float v33; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float *p_currentObstacleRangeNormalized; 
   TerrainFollowingRadarControl::RadarBeamInfo *m_radarBeams; 
-  __int64 v82; 
-  float v84; 
+  __int64 v45; 
+  float v46; 
   int m_clipMask; 
-  char v91; 
-  char v92; 
-  char v159; 
-  char v160; 
-  vec3_t *v163; 
-  int duration; 
-  float v199; 
-  vec4_t v200; 
-  vec4_t v201; 
+  double v48; 
+  float v49; 
+  double v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  __int128 v59; 
+  float v63; 
+  float v64; 
+  float v65; 
+  __int128 v66; 
+  float v67; 
+  float v68; 
+  __int128 v72; 
+  float v73; 
+  __int128 m_totalRangeStrength_low; 
+  vec3_t *v75; 
+  double v76; 
+  __int128 v77; 
+  float v78; 
+  float v83; 
+  double v84; 
+  vec4_t v85; 
+  vec4_t v86; 
   vec3_t *start; 
-  vec3_t v203; 
-  __int64 v204; 
+  vec3_t v88; 
+  __int64 v89; 
   vec3_t end; 
-  vec3_t v206; 
+  vec3_t m_ForwardAxis; 
   vec3_t out; 
-  float v209; 
-  vec3_t v210; 
-  vec3_t v211; 
-  vec3_t v212; 
-  char v213; 
-  void *retaddr; 
+  vec3_t v93; 
+  vec3_t v94; 
+  vec3_t v95; 
+  vec3_t v96; 
 
-  _RAX = &retaddr;
-  v204 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _RBX = velocity;
-  _R12 = position;
+  v89 = -2i64;
   start = position;
-  __asm { vmovaps xmm10, xmm1 }
-  _RDI = this;
   if ( this->m_modeInitizalied[this->m_currentOperatingMode] )
   {
     Sys_ProfBeginNamedEvent(0xFF008008, "ScanTerrainAhead");
+    v11 = velocity->v[0];
+    v12 = LODWORD(velocity->v[1]);
+    v13 = velocity->v[2];
+    v14 = v12;
+    *(float *)&v14 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(v11 * v11)) + (float)(v13 * v13));
+    _XMM6 = v14;
     __asm
     {
-      vmovss  xmm12, dword ptr [rbx]
-      vmovss  xmm13, dword ptr [rbx+4]
-      vmovss  xmm14, dword ptr [rbx+8]
-      vmulss  xmm1, xmm13, xmm13
-      vmulss  xmm0, xmm12, xmm12
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm14, xmm14
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm6, xmm2, xmm2
       vcmpless xmm0, xmm6, cs:__real@80000000
-      vmovss  xmm15, cs:__real@3f800000
       vblendvps xmm1, xmm6, xmm15, xmm0
-      vdivss  xmm0, xmm15, xmm1
-      vmulss  xmm7, xmm12, xmm0
-      vmulss  xmm8, xmm13, xmm0
-      vmulss  xmm9, xmm14, xmm0
-      vmovss  dword ptr [rdi+514h], xmm6
-      vmovss  xmm2, dword ptr [rdi+510h]; max
-      vmovss  xmm1, dword ptr [rdi+50Ch]; min
-      vmovaps xmm0, xmm6; val
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm11, xmm0
-      vmovss  dword ptr [rdi+518h], xmm0
-      vcomiss xmm6, cs:__real@3a83126f
-    }
-    if ( !(v91 | v92) )
+    v19 = LODWORD(velocity->v[0]);
+    *(float *)&v19 = velocity->v[0] * (float)(1.0 / *(float *)&_XMM1);
+    v18 = v19;
+    v21 = v12;
+    *(float *)&v21 = *(float *)&v12 * (float)(1.0 / *(float *)&_XMM1);
+    v20 = v21;
+    this->m_speedMagnitude = *(float *)&_XMM6;
+    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM6, this->m_minSpeed, this->m_maxSpeed);
+    v22 = *(float *)&_XMM6;
+    this->m_clampedSpeedMagnitude = *(float *)&_XMM0;
+    if ( *(float *)&_XMM6 > 0.001 )
     {
       QuatTransform(noseRotationQuat, &sFlightDynamicsManager.m_ForwardAxis, &out);
-      QuatTransform(noseRotationQuat, &sFlightDynamicsManager.m_UpAxis, &v211);
-      QuatTransform(noseRotationQuat, &sFlightDynamicsManager.m_ElevatorAxis, &v212);
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_NOSE_AFFECT_THROTTLE);
+      QuatTransform(noseRotationQuat, &sFlightDynamicsManager.m_UpAxis, &v95);
+      QuatTransform(noseRotationQuat, &sFlightDynamicsManager.m_ElevatorAxis, &v96);
+      Param = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_NOSE_AFFECT_THROTTLE);
+      v25 = v18;
+      *(float *)&v25 = *(float *)&v18 + (float)((float)(*(float *)&Param * enginePower) * out.v[0]);
+      v24 = v25;
+      v26 = v20;
+      v27 = (float)(v13 * (float)(1.0 / *(float *)&_XMM1)) + (float)((float)(*(float *)&Param * enginePower) * out.v[2]);
+      *(float *)&v26 = fsqrt((float)((float)((float)(*(float *)&v20 + (float)((float)(*(float *)&Param * enginePower) * out.v[1])) * (float)(*(float *)&v20 + (float)((float)(*(float *)&Param * enginePower) * out.v[1]))) + (float)(*(float *)&v24 * *(float *)&v24)) + (float)(v27 * v27));
+      _XMM3 = v26;
       __asm
       {
-        vmulss  xmm2, xmm0, [rbp+100h+arg_28]
-        vmulss  xmm4, xmm2, dword ptr [rbp+100h+out]
-        vmulss  xmm3, xmm2, dword ptr [rbp+100h+out+4]
-        vmulss  xmm2, xmm2, dword ptr [rbp+100h+out+8]
-        vaddss  xmm5, xmm7, xmm4
-        vaddss  xmm4, xmm8, xmm3
-        vaddss  xmm6, xmm9, xmm2
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm1, xmm3, xmm15, xmm0
-        vdivss  xmm0, xmm15, xmm1
-        vmulss  xmm3, xmm5, xmm0
-        vmulss  xmm2, xmm4, xmm0
-        vmulss  xmm0, xmm6, xmm0
-        vmovss  [rbp+100h+var_108], xmm0
-        vxorps  xmm9, xmm9, xmm9
-        vmovss  [rsp+200h+var_1A0], xmm9
-        vmovss  [rsp+200h+var_19C], xmm9
-        vmovss  [rsp+200h+var_198], xmm9
-        vmovss  xmm15, [rsp+200h+var_184]
-        vmovss  [rsp+200h+var_194], xmm15
-        vunpcklps xmm0, xmm3, xmm2
-        vmovsd  qword ptr [rbp+100h+end], xmm0
       }
-      end.v[2] = v210.v[2];
-      __asm
-      {
-        vmovsd  xmm0, qword ptr cs:sFlightDynamicsManager.m_ForwardAxis
-        vmovsd  [rbp+100h+var_140], xmm0
-      }
-      v206.v[2] = sFlightDynamicsManager.m_ForwardAxis.v[2];
-      GetRotationQuatFromVectors(&v206, &end, &v200);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [r12]
-        vmovss  xmm7, dword ptr [r12+4]
-        vmovss  xmm8, dword ptr [r12+8]
-      }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_RANGE_AHEAD_SPEED_MULTIPLIER);
-      __asm
-      {
-        vsubss  xmm1, xmm0, dword ptr [rdi+51Ch]
-        vmulss  xmm2, xmm1, xmm10
-        vmulss  xmm3, xmm12, xmm2
-        vmulss  xmm4, xmm13, xmm2
-        vmulss  xmm5, xmm14, xmm2
-        vaddss  xmm0, xmm3, xmm6
-        vmovss  dword ptr [rbp+100h+end], xmm0
-        vaddss  xmm1, xmm4, xmm7
-        vmovss  dword ptr [rbp+100h+end+4], xmm1
-        vaddss  xmm0, xmm5, xmm8
-        vmovss  dword ptr [rbp+100h+end+8], xmm0
-      }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_DECAY);
-      __asm { vmovaps xmm12, xmm0 }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_DOPPLER_DECAY);
-      __asm { vmovaps xmm7, xmm0 }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_DOPPLER_MULITPLIER);
-      __asm { vmovaps xmm13, xmm0 }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_RANGE_EXPO);
-      __asm { vmovaps xmm14, xmm0 }
-      _RDI->m_totalRangeStrength = 0.0;
-      __asm
-      {
-        vmovss  [rbp+100h+var_138], xmm9
-        vmovss  dword ptr [rbp+100h+var_140+4], xmm9
-        vmovss  dword ptr [rbp+100h+var_140], xmm9
-        vmovss  [rbp+100h+var_118], xmm9
-        vmovss  dword ptr [rbp+100h+var_120+4], xmm9
-        vmovss  dword ptr [rbp+100h+var_120], xmm9
-      }
-      _RSI = &_RDI->m_radarBeams[0].currentObstacleRangeNormalized;
-      m_radarBeams = _RDI->m_radarBeams;
-      v82 = 16i64;
-      __asm { vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-      v84 = end.v[2];
+      v32 = v24;
+      *(float *)&v32 = *(float *)&v24 * (float)(1.0 / *(float *)&_XMM1);
+      _XMM3 = v32;
+      v94.v[2] = v27 * (float)(1.0 / *(float *)&_XMM1);
+      v85.v[0] = 0.0;
+      v85.v[1] = 0.0;
+      v85.v[2] = 0.0;
+      v33 = v86.v[3];
+      v85.v[3] = v86.v[3];
+      __asm { vunpcklps xmm0, xmm3, xmm2 }
+      *(double *)end.v = *(double *)&_XMM0;
+      end.v[2] = v94.v[2];
+      m_ForwardAxis = sFlightDynamicsManager.m_ForwardAxis;
+      GetRotationQuatFromVectors(&m_ForwardAxis, &end, &v85);
+      v35 = position->v[0];
+      v36 = position->v[1];
+      v37 = position->v[2];
+      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_RANGE_AHEAD_SPEED_MULTIPLIER);
+      v38 = (float)(*(float *)&_XMM0 - this->m_lookAheadDecrease) * dT;
+      end.v[0] = (float)(v11 * v38) + v35;
+      end.v[1] = (float)(*(float *)&v12 * v38) + v36;
+      end.v[2] = (float)(v13 * v38) + v37;
+      TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_DECAY);
+      v39 = (float)(v13 * v38) + v37;
+      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_DOPPLER_DECAY);
+      v40 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_DOPPLER_MULITPLIER);
+      v41 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_RANGE_EXPO);
+      v42 = *(float *)&_XMM0;
+      this->m_totalRangeStrength = 0.0;
+      m_ForwardAxis.v[2] = 0.0;
+      m_ForwardAxis.v[1] = 0.0;
+      m_ForwardAxis.v[0] = 0.0;
+      v93.v[2] = 0.0;
+      *(_QWORD *)v93.v = 0i64;
+      p_currentObstacleRangeNormalized = &this->m_radarBeams[0].currentObstacleRangeNormalized;
+      m_radarBeams = this->m_radarBeams;
+      v45 = 16i64;
+      v46 = end.v[2];
       do
       {
-        m_clipMask = _RDI->m_clipMask;
-        *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_RANGE_SPEEDMULT);
-        __asm { vmulss  xmm6, xmm0, xmm11 }
-        *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_BEAM_RANGE);
-        __asm
-        {
-          vmulss  xmm3, xmm0, xmm11
-          vmovsd  xmm0, [rbp+100h+var_120]
-          vmovsd  [rbp+100h+var_170], xmm0
-        }
-        v203.v[2] = v209;
-        __asm
-        {
-          vmovsd  xmm0, [rbp+100h+var_140]
-          vmovsd  qword ptr [rsp+200h+var_1A0], xmm0
-        }
-        v200.v[2] = v206.v[2];
-        __asm
-        {
-          vmovss  [rsp+200h+var_190], xmm9
-          vmovss  [rsp+200h+var_18C], xmm9
-          vmovss  [rsp+200h+var_188], xmm9
-          vmovss  [rsp+200h+var_184], xmm15
-          vmovsd  xmm0, qword ptr [rbp+100h+end]
-          vmovsd  [rbp+100h+var_110], xmm0
-        }
-        v210.v[2] = v84;
-        __asm
-        {
-          vmovss  dword ptr [rsp+200h+var_1C8], xmm14
-          vmovss  [rsp+200h+duration], xmm6
-        }
-        TerrainFollowingRadarControl::RadarBeamInfo::FireBeam(m_radarBeams, &v210, &v201, *(float *)&_XMM3, *(float *)&duration, (vec3_t *)&v200, m_clipMask, v199, &v203, worldId);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi]
-          vmovss  dword ptr [rsi+4], xmm1
-          vmulss  xmm0, xmm10, dword ptr [rsi+8]
-          vaddss  xmm3, xmm0, xmm1
-          vsubss  xmm1, xmm3, xmm1
-          vmulss  xmm2, xmm1, xmm10
-          vmulss  xmm0, xmm2, xmm13
-          vaddss  xmm4, xmm0, dword ptr [rsi+0Ch]
-          vmulss  xmm1, xmm3, xmm12
-          vmulss  xmm5, xmm1, xmm10
-          vandps  xmm2, xmm5, xmm8
-          vandps  xmm0, xmm3, xmm8
-          vcomiss xmm2, xmm0
-        }
-        if ( v91 | v92 )
-          __asm { vsubss  xmm2, xmm3, xmm5 }
+        m_clipMask = this->m_clipMask;
+        v48 = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_RANGE_SPEEDMULT);
+        v49 = *(float *)&v48 * v22;
+        v50 = TerrainFollowingRadarControl::GetParam(this, TFR_BEAM_RANGE);
+        v88 = v93;
+        v85.xyz = m_ForwardAxis;
+        v86.v[0] = 0.0;
+        v86.v[1] = 0.0;
+        v86.v[2] = 0.0;
+        v86.v[3] = v33;
+        *(double *)v94.v = *(double *)end.v;
+        v94.v[2] = v46;
+        TerrainFollowingRadarControl::RadarBeamInfo::FireBeam(m_radarBeams, &v94, &v86, *(float *)&v50 * v22, v49, (vec3_t *)&v85, m_clipMask, v42, &v88, worldId);
+        v51 = *p_currentObstacleRangeNormalized;
+        p_currentObstacleRangeNormalized[1] = *p_currentObstacleRangeNormalized;
+        v52 = (float)(dT * p_currentObstacleRangeNormalized[2]) + v51;
+        v53 = (float)((float)((float)(v52 - v51) * dT) * v41) + p_currentObstacleRangeNormalized[3];
+        v54 = (float)(v52 * v39) * dT;
+        if ( COERCE_FLOAT(LODWORD(v54) & _xmm) <= COERCE_FLOAT(LODWORD(v52) & _xmm) )
+          v55 = v52 - v54;
         else
-          __asm { vmovaps xmm2, xmm9 }
-        __asm
-        {
-          vmovss  dword ptr [rsi], xmm2
-          vmulss  xmm0, xmm4, xmm7
-          vmulss  xmm3, xmm0, xmm10
-          vandps  xmm1, xmm3, xmm8
-          vandps  xmm0, xmm4, xmm8
-          vcomiss xmm1, xmm0
-        }
-        if ( v91 | v92 )
-          __asm { vsubss  xmm0, xmm4, xmm3 }
+          v55 = 0.0;
+        *p_currentObstacleRangeNormalized = v55;
+        v56 = (float)(v53 * v40) * dT;
+        if ( COERCE_FLOAT(LODWORD(v56) & _xmm) <= COERCE_FLOAT(LODWORD(v53) & _xmm) )
+          v57 = v53 - v56;
         else
-          __asm { vmovaps xmm0, xmm9 }
-        __asm
+          v57 = 0.0;
+        p_currentObstacleRangeNormalized[3] = v57;
+        v58 = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+        if ( v55 > TFR_MAX_BEAM_NORMALIZED_DISTANCE )
         {
-          vmovss  dword ptr [rsi+0Ch], xmm0
-          vmovss  xmm1, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-          vcomiss xmm2, xmm1
+          *p_currentObstacleRangeNormalized = TFR_MAX_BEAM_NORMALIZED_DISTANCE;
+          v55 = v58;
         }
-        if ( !(v91 | v92) )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsi], xmm1
-            vmovaps xmm2, xmm1
-          }
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm2, xmm0; X
-          vmovss  xmm1, dword ptr [rsi+14h]; Y
-        }
-        *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmulss  xmm1, xmm0, dword ptr [rsi+10h]
-          vaddss  xmm2, xmm1, dword ptr [rdi+504h]
-          vmovss  dword ptr [rdi+504h], xmm2
-        }
+        this->m_totalRangeStrength = (float)(powf_0(v55 * v57, p_currentObstacleRangeNormalized[5]) * p_currentObstacleRangeNormalized[4]) + this->m_totalRangeStrength;
         ++m_radarBeams;
-        _RSI += 9;
-        --v82;
+        p_currentObstacleRangeNormalized += 9;
+        --v45;
       }
-      while ( v82 );
+      while ( v45 );
+      v59 = LODWORD(out.v[1]);
+      *(float *)&v59 = fsqrt((float)((float)(*(float *)&v59 * *(float *)&v59) + (float)(out.v[0] * out.v[0])) + (float)(out.v[2] * out.v[2]));
+      _XMM3 = v59;
       __asm
       {
-        vmovss  xmm4, dword ptr [rbp+100h+out]
-        vmovss  xmm5, dword ptr [rbp+100h+out+4]
-        vmovss  xmm6, dword ptr [rbp+100h+out+8]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
-        vcmpless xmm0, xmm3, cs:__real@80000000
-        vmovss  xmm15, cs:__real@3f800000
-        vblendvps xmm1, xmm3, xmm15, xmm0
-        vdivss  xmm0, xmm15, xmm1
-        vmulss  xmm3, xmm0, xmm4
-        vmulss  xmm4, xmm5, xmm0
-        vmulss  xmm6, xmm6, xmm0
-        vmulss  xmm5, xmm10, cs:?TFR_VECTOR_TIME_LERP@@3MA; float TFR_VECTOR_TIME_LERP
-        vmovss  xmm1, dword ptr [rdi+4F8h]
-        vsubss  xmm0, xmm1, xmm3
-        vmulss  xmm2, xmm0, xmm5
-        vaddss  xmm7, xmm2, xmm3
-        vmovss  dword ptr [rdi+4F8h], xmm7
-        vmovss  xmm0, dword ptr [rdi+4FCh]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm4, xmm2, xmm4
-        vmovss  dword ptr [rdi+4FCh], xmm4
-        vmovss  xmm0, dword ptr [rdi+500h]
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm3, xmm2, xmm6
-        vmovss  dword ptr [rdi+500h], xmm3
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm1, xmm3, xmm15, xmm0
-        vdivss  xmm2, xmm15, xmm1
-        vmulss  xmm0, xmm2, xmm7
-        vmovss  dword ptr [rdi+4F8h], xmm0
-        vmulss  xmm1, xmm2, dword ptr [rdi+4FCh]
-        vmovss  dword ptr [rdi+4FCh], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdi+500h]
-        vmovss  dword ptr [rdi+500h], xmm0
-        vmovss  xmm6, cs:?TFR_MAX_CONTROL_SURFACE_STRENGTH@@3MA; float TFR_MAX_CONTROL_SURFACE_STRENGTH
       }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, (FlightDynamicsTerrainFollowingRadarParamType)((unsigned __int8)v82 + 3));
+      v63 = out.v[1] * (float)(1.0 / *(float *)&_XMM1);
+      v64 = out.v[2] * (float)(1.0 / *(float *)&_XMM1);
+      v65 = dT * TFR_VECTOR_TIME_LERP;
+      v66 = LODWORD(this->m_fbwAvoidanceVector.v[0]);
+      v67 = (float)((float)(this->m_fbwAvoidanceVector.v[0] - (float)((float)(1.0 / *(float *)&_XMM1) * out.v[0])) * (float)(dT * TFR_VECTOR_TIME_LERP)) + (float)((float)(1.0 / *(float *)&_XMM1) * out.v[0]);
+      this->m_fbwAvoidanceVector.v[0] = v67;
+      v68 = (float)((float)(this->m_fbwAvoidanceVector.v[1] - v63) * v65) + v63;
+      this->m_fbwAvoidanceVector.v[1] = v68;
+      *(float *)&_XMM3 = (float)((float)(this->m_fbwAvoidanceVector.v[2] - v64) * v65) + v64;
+      this->m_fbwAvoidanceVector.v[2] = *(float *)&_XMM3;
+      *(float *)&v66 = fsqrt((float)((float)(v67 * v67) + (float)(v68 * v68)) + (float)(*(float *)&_XMM3 * *(float *)&_XMM3));
+      _XMM3 = v66;
       __asm
       {
-        vmulss  xmm0, xmm0, dword ptr [rdi+504h]; val
-        vmovaps xmm2, xmm6; max
-        vmovaps xmm1, xmm9; min
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm1, xmm3, xmm15, xmm0
       }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-      _RDI->m_blockageFactor = 0.0;
-      __asm { vmovss  dword ptr [rdi+504h], xmm0 }
-      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_CONTROL_BLOCKED_PERCENT);
-      __asm
+      v72 = LODWORD(FLOAT_1_0);
+      this->m_fbwAvoidanceVector.v[0] = (float)(1.0 / *(float *)&_XMM1) * v67;
+      this->m_fbwAvoidanceVector.v[1] = (float)(1.0 / *(float *)&_XMM1) * this->m_fbwAvoidanceVector.v[1];
+      this->m_fbwAvoidanceVector.v[2] = (float)(1.0 / *(float *)&_XMM1) * this->m_fbwAvoidanceVector.v[2];
+      v73 = TFR_MAX_CONTROL_SURFACE_STRENGTH;
+      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_CONTROL_SURFACE_MAGNITUDE_MULTIPLIER);
+      *(float *)&v72 = *(float *)&_XMM0 * this->m_totalRangeStrength;
+      *(double *)&_XMM0 = I_fclamp(*(float *)&v72, 0.0, v73);
+      m_totalRangeStrength_low = v72;
+      this->m_blockageFactor = 0.0;
+      this->m_totalRangeStrength = *(float *)&_XMM0;
+      *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(this, TFR_CONTROL_BLOCKED_PERCENT);
+      v75 = start;
+      if ( (float)(*(float *)&_XMM0 * *(float *)&v72) > 0.0 )
       {
-        vmulss  xmm1, xmm0, xmm6
-        vcomiss xmm9, xmm1
+        m_totalRangeStrength_low = LODWORD(this->m_totalRangeStrength);
+        v76 = TerrainFollowingRadarControl::GetParam(this, TFR_CONTROL_BLOCKED_PERCENT);
+        this->m_blockageFactor = *(float *)&v76 * *(float *)&m_totalRangeStrength_low;
       }
-      v163 = start;
-      if ( v159 )
+      v77 = m_totalRangeStrength_low;
+      *(float *)&v77 = (float)((float)(*(float *)&m_totalRangeStrength_low * TFR_LOOKAHEAD_MULTIPLIER) * dT) + this->m_lookAheadDecrease;
+      this->m_lookAheadDecrease = *(float *)&v77;
+      v78 = (float)(*(float *)&v77 * TFR_LOOKAHEAD_DECAY) * dT;
+      if ( COERCE_FLOAT(LODWORD(v78) & _xmm) <= COERCE_FLOAT(v77 & _xmm) )
       {
-        __asm { vmovss  xmm6, dword ptr [rdi+504h] }
-        *(double *)&_XMM0 = TerrainFollowingRadarControl::GetParam(_RDI, TFR_CONTROL_BLOCKED_PERCENT);
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm6
-          vmovss  dword ptr [rdi+508h], xmm1
-        }
+        *(float *)&v77 = *(float *)&v77 - v78;
+        _XMM0 = v77;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:?TFR_LOOKAHEAD_MULTIPLIER@@3MA; float TFR_LOOKAHEAD_MULTIPLIER
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, dword ptr [rdi+51Ch]
-        vmovss  dword ptr [rdi+51Ch], xmm2
-        vmulss  xmm0, xmm2, cs:?TFR_LOOKAHEAD_DECAY@@3MA; float TFR_LOOKAHEAD_DECAY
-        vmulss  xmm3, xmm0, xmm10
-        vandps  xmm1, xmm3, xmm8
-        vandps  xmm0, xmm2, xmm8
-        vcomiss xmm1, xmm0
-      }
-      if ( v159 | v160 )
-        __asm { vsubss  xmm0, xmm2, xmm3 }
       else
-        __asm { vmovaps xmm0, xmm9 }
+      {
+        _XMM0 = 0i64;
+      }
+      this->m_lookAheadDecrease = *(float *)&_XMM0;
+      _XMM2 = LODWORD(TFR_LOOKAHEAD_MAX);
       __asm
       {
-        vmovss  dword ptr [rdi+51Ch], xmm0
-        vmovss  xmm2, cs:?TFR_LOOKAHEAD_MAX@@3MA; float TFR_LOOKAHEAD_MAX
         vcmpltss xmm1, xmm2, xmm0
         vblendvps xmm1, xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+51Ch], xmm1
       }
-      _RDI->m_controlSurfaces[3] = 0.0;
-      *(_QWORD *)_RDI->m_controlSurfaces = 0i64;
-      __asm { vmovss  xmm6, cs:?TFR_MAX_CONTROL_SURFACE_STRENGTH@@3MA; float TFR_MAX_CONTROL_SURFACE_STRENGTH }
-      TerrainFollowingRadarControl::GetParam(_RDI, TFR_CONTROL_SURFACE_MAGNITUDE_MULTIPLIER);
-      __asm
-      {
-        vmovaps xmm2, xmm6; max
-        vmovaps xmm1, xmm9; min
-        vmovaps xmm0, xmm9; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rdi+504h], xmm0 }
+      this->m_lookAheadDecrease = *(float *)&_XMM1;
+      this->m_controlSurfaces[3] = 0.0;
+      *(_QWORD *)this->m_controlSurfaces = 0i64;
+      v83 = TFR_MAX_CONTROL_SURFACE_STRENGTH;
+      TerrainFollowingRadarControl::GetParam(this, TFR_CONTROL_SURFACE_MAGNITUDE_MULTIPLIER);
+      v84 = I_fclamp(0.0, 0.0, v83);
+      this->m_totalRangeStrength = *(float *)&v84;
       if ( Physics_IsPredictiveWorld(worldId) && FD_GetDrawAvoidanceTracesDvar() )
       {
-        __asm
-        {
-          vmovss  xmm3, cs:__real@459c4000
-          vmulss  xmm0, xmm3, dword ptr [rdi+4F8h]
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vmovss  dword ptr [rbp+100h+end], xmm1
-          vmulss  xmm0, xmm3, dword ptr [rdi+4FCh]
-          vaddss  xmm1, xmm0, dword ptr [r12+4]
-          vmovss  dword ptr [rbp+100h+end+4], xmm1
-          vmulss  xmm0, xmm3, dword ptr [rdi+500h]
-          vaddss  xmm1, xmm0, dword ptr [r12+8]
-          vmovss  dword ptr [rbp+100h+end+8], xmm1
-        }
-        FD_DebugLine(v163, &end, &colorWhite, 0, 1);
+        end.v[0] = (float)(5000.0 * this->m_fbwAvoidanceVector.v[0]) + v75->v[0];
+        end.v[1] = (float)(5000.0 * this->m_fbwAvoidanceVector.v[1]) + v75->v[1];
+        end.v[2] = (float)(5000.0 * this->m_fbwAvoidanceVector.v[2]) + v75->v[2];
+        FD_DebugLine(v75, &end, &colorWhite, 0, 1);
       }
     }
     Sys_ProfEndNamedEvent();
-  }
-  _R11 = &v213;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -5058,20 +3927,20 @@ FlightDynamics::SetInitialState
 */
 void FlightDynamics::SetInitialState(FlightDynamics *this, vec3_t *position, vec4_t *orientation, vec3_t *velocity, int clipMask, FlightDynamicsStatus status)
 {
-  FlightDynamics *v11; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   float v12; 
   float v13; 
   FlightDynamics_vtbl *v14; 
 
-  __asm
-  {
-    vmovss  xmm4, dword ptr [r8]
-    vmovss  xmm3, dword ptr [r8+4]
-    vmovss  xmm2, dword ptr [r8+8]
-    vmovss  xmm1, dword ptr [r8+0Ch]
-    vmovss  xmm0, dword ptr [r9]
-  }
-  v11 = this;
+  v6 = orientation->v[0];
+  v7 = orientation->v[1];
+  v8 = orientation->v[2];
+  v9 = orientation->v[3];
+  v10 = velocity->v[0];
   *(_QWORD *)&this->m_RotationQuaternion.xyz.y = 0i64;
   *(vec4_t *)((char *)&this->m_RotationQuaternion + 12) = (vec4_t)0x3F800000ui64;
   *(vec4_t *)((char *)&this->m_PreviousRotationQuaternion + 12) = (vec4_t)0x3F800000ui64;
@@ -5084,37 +3953,28 @@ void FlightDynamics::SetInitialState(FlightDynamics *this, vec3_t *position, vec
   this->m_Position.v[0] = v12;
   *(_QWORD *)&this->m_Position.y = *(_QWORD *)&position->y;
   v13 = velocity->v[1];
-  __asm
-  {
-    vmovss  dword ptr [rcx+368h], xmm4
-    vmovss  dword ptr [rcx+36Ch], xmm3
-    vmovss  dword ptr [rcx+370h], xmm2
-    vmovss  dword ptr [rcx+374h], xmm1
-  }
+  this->m_RotationQuaternion.v[0] = v6;
+  this->m_RotationQuaternion.v[1] = v7;
+  this->m_RotationQuaternion.v[2] = v8;
+  this->m_RotationQuaternion.v[3] = v9;
   this->m_Velocity.v[1] = v13;
   this->m_Velocity.v[2] = velocity->v[2];
-  __asm
-  {
-    vmovss  dword ptr [rcx+2E4h], xmm0
-    vmovss  dword ptr [rcx+2F0h], xmm0
-  }
+  this->m_Velocity.v[0] = v10;
+  this->m_PreviousVelocity.v[0] = v10;
   *(_QWORD *)&this->m_PreviousVelocity.y = *(_QWORD *)&this->m_Velocity.y;
   this->m_PreviousRotationVelocity = this->m_RotationVelocity;
-  __asm
-  {
-    vmovss  dword ptr [rcx+368h], xmm4
-    vmovss  dword ptr [rcx+36Ch], xmm3
-    vmovss  dword ptr [rcx+370h], xmm2
-    vmovss  dword ptr [rcx+374h], xmm1
-    vmovss  dword ptr [rcx+378h], xmm4
-    vmovss  dword ptr [rcx+37Ch], xmm3
-    vmovss  dword ptr [rcx+380h], xmm2
-    vmovss  dword ptr [rcx+384h], xmm1
-  }
+  this->m_RotationQuaternion.v[0] = v6;
+  this->m_RotationQuaternion.v[1] = v7;
+  this->m_RotationQuaternion.v[2] = v8;
+  this->m_RotationQuaternion.v[3] = v9;
+  this->m_PreviousRotationQuaternion.v[0] = v6;
+  this->m_PreviousRotationQuaternion.v[1] = v7;
+  this->m_PreviousRotationQuaternion.v[2] = v8;
+  this->m_PreviousRotationQuaternion.v[3] = v9;
   v14 = this->__vftable;
   this->m_EnableFlyByWire = 1;
   ((void (*)(void))v14->ResetInputControls)();
-  v11->m_Status = status;
+  this->m_Status = status;
 }
 
 /*
@@ -5122,10 +3982,9 @@ void FlightDynamics::SetInitialState(FlightDynamics *this, vec3_t *position, vec
 FlightDynamics::SetPilotInputStrength
 ==============
 */
-
-void __fastcall FlightDynamics::SetPilotInputStrength(FlightDynamics *this, double strength)
+void FlightDynamics::SetPilotInputStrength(FlightDynamics *this, float strength)
 {
-  __asm { vmovss  dword ptr [rcx+3D0h], xmm1 }
+  this->m_InputStrengthModifier = strength;
 }
 
 /*
@@ -5133,149 +3992,50 @@ void __fastcall FlightDynamics::SetPilotInputStrength(FlightDynamics *this, doub
 FlightDynamics::SetRotationLocal
 ==============
 */
-
-void __fastcall FlightDynamics::SetRotationLocal(FlightDynamics *this, const vec3_t *rotationNormalVector, double angle)
+void FlightDynamics::SetRotationLocal(FlightDynamics *this, const vec3_t *rotationNormalVector, float angle)
 {
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
+  float v5; 
   float s; 
   vec4_t out; 
   vec4_t in1; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm6
-    vmovss  xmm0, dword ptr [rcx+368h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  _RDI = rotationNormalVector;
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm2 }
-  if ( (v35 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2109, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2109, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+36Ch]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2110, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2110, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+370h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2111, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[2]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2111, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+374h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2112, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[3]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2112, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+388h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2114, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_X] )") )
+  if ( (LODWORD(this->m_RotationVelocity.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2114, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_X] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+38Ch]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2115, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_Y] )") )
+  if ( (LODWORD(this->m_RotationVelocity.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2115, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_Y] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+390h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v41 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2116, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_Z] )") )
+  if ( (LODWORD(this->m_RotationVelocity.v[2]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2116, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_Z] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+394h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v42 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2117, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_W] )") )
+  if ( (LODWORD(this->m_RotationVelocity.v[3]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2117, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationVelocity[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationVelocity[FD_W] )") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2119, ASSERT_TYPE_ASSERT, "(rotationNormalVector)", (const char *)&queryFormat, "rotationNormalVector") )
+  if ( !rotationNormalVector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2119, ASSERT_TYPE_ASSERT, "(rotationNormalVector)", (const char *)&queryFormat, "rotationNormalVector") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm2, dword ptr [rdi+4]
-    vmovss  xmm3, dword ptr [rdi+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@3a83126f
-    vmulss  xmm0, xmm6, cs:__real@3f000000; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &in1.v[3]);
-  __asm
-  {
-    vmovss  xmm2, [rsp+0A8h+s]
-    vmulss  xmm0, xmm2, dword ptr [rdi]
-    vmulss  xmm1, xmm2, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+0A8h+in1], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+0A8h+in1+8], xmm0
-    vmovss  dword ptr [rsp+0A8h+in1+4], xmm1
-  }
-  QuatMultiply(&in1, &_RBX->m_RotationQuaternion, &out);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0A8h+out]
-    vmovups xmmword ptr [rbx+368h], xmm0
-  }
-  QuatMultiply(&in1, &_RBX->m_RotationVelocity, &out);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0A8h+out]
-    vmovups xmmword ptr [rbx+388h], xmm0
-    vmovss  xmm0, dword ptr [rbx+368h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v43 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2141, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
+  if ( (float)((float)((float)(rotationNormalVector->v[0] * rotationNormalVector->v[0]) + (float)(rotationNormalVector->v[1] * rotationNormalVector->v[1])) + (float)(rotationNormalVector->v[2] * rotationNormalVector->v[2])) < 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2120, ASSERT_TYPE_ASSERT, "(Vec3LengthSq( *rotationNormalVector ) >= 0.001f)", (const char *)&queryFormat, "Vec3LengthSq( *rotationNormalVector ) >= EQUAL_EPSILON") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+36Ch]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v44 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2142, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
+  FastSinCos(angle * 0.5, &s, &in1.v[3]);
+  v5 = s * rotationNormalVector->v[1];
+  in1.v[0] = s * rotationNormalVector->v[0];
+  in1.v[2] = s * rotationNormalVector->v[2];
+  in1.v[1] = v5;
+  QuatMultiply(&in1, &this->m_RotationQuaternion, &out);
+  this->m_RotationQuaternion = out;
+  QuatMultiply(&in1, &this->m_RotationVelocity, &out);
+  this->m_RotationVelocity = out;
+  if ( (LODWORD(this->m_RotationQuaternion.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2141, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+370h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v45 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2143, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2142, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+374h]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v46 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2144, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[2]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2143, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
+  if ( (LODWORD(this->m_RotationQuaternion.v[3]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2144, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
+    __debugbreak();
 }
 
 /*
@@ -5283,72 +4043,32 @@ void __fastcall FlightDynamics::SetRotationLocal(FlightDynamics *this, const vec
 FlightDynamics::SetRotationNonLocal
 ==============
 */
-
-void __fastcall FlightDynamics::SetRotationNonLocal(FlightDynamics *this, const vec3_t *rotationNormalVector, double angle)
+void FlightDynamics::SetRotationNonLocal(FlightDynamics *this, const vec3_t *rotationNormalVector, float angle)
 {
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
+  float v5; 
   float s; 
   vec4_t out; 
   vec4_t in2; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  _RSI = this;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !rotationNormalVector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2151, ASSERT_TYPE_ASSERT, "(rotationNormalVector)", (const char *)&queryFormat, "rotationNormalVector") )
     __debugbreak();
-  __asm { vmulss  xmm0, xmm6, cs:__real@3f000000; radians }
-  FastSinCos(*(const float *)&_XMM0, &s, &in2.v[3]);
-  __asm
-  {
-    vmovss  xmm2, [rsp+88h+s]
-    vmulss  xmm0, xmm2, dword ptr [rbx]
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+88h+in2], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+88h+in2+8], xmm0
-    vmovss  dword ptr [rsp+88h+in2+4], xmm1
-  }
-  QuatMultiply(&_RSI->m_RotationQuaternion, &in2, &out);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+88h+out]
-    vmovups xmmword ptr [rsi+368h], xmm0
-  }
-  QuatMultiply(&_RSI->m_RotationVelocity, &in2, &out);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+88h+out]
-    vmovups xmmword ptr [rsi+388h], xmm0
-    vmovss  xmm0, dword ptr [rsi+368h]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2172, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
+  FastSinCos(angle * 0.5, &s, &in2.v[3]);
+  v5 = s * rotationNormalVector->v[1];
+  in2.v[0] = s * rotationNormalVector->v[0];
+  in2.v[2] = s * rotationNormalVector->v[2];
+  in2.v[1] = v5;
+  QuatMultiply(&this->m_RotationQuaternion, &in2, &out);
+  this->m_RotationQuaternion = out;
+  QuatMultiply(&this->m_RotationVelocity, &in2, &out);
+  this->m_RotationVelocity = out;
+  if ( (LODWORD(this->m_RotationQuaternion.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2172, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_X] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_X] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+36Ch]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2173, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2173, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Y] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Y] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+370h]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2174, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[2]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2174, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_Z] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_Z] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+374h]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2175, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
+  if ( (LODWORD(this->m_RotationQuaternion.v[3]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 2175, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_RotationQuaternion[FD_W] ))", (const char *)&queryFormat, "!IS_NAN( m_RotationQuaternion[FD_W] )") )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -5566,541 +4286,344 @@ void FlightDynamics::StartPlayerControlling(FlightDynamics *this)
 FlightDynamics::Step
 ==============
 */
-
-bool __fastcall FlightDynamics::Step(FlightDynamics *this, double deltaTime)
+char FlightDynamics::Step(FlightDynamics *this, float deltaTime)
 {
-  float v51; 
+  float v2; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  __m128 v8; 
+  double v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __m128 v15; 
+  float v16; 
+  __m128 v17; 
+  float v18; 
+  __m128 v19; 
+  float v20; 
+  float v21; 
+  __m128 v22; 
+  float v26; 
+  float v27; 
+  float v28; 
   hknpWorld *world; 
+  __m128 v34; 
+  __m128 v37; 
   const hkTransformf *(__fastcall *getBodyTransform)(hknpWorldReader *, hknpBodyId); 
   unsigned int PhysicsBodyId; 
-  const hkRotationImpl<float> *v125; 
-  char v151; 
-  char v152; 
-  bool v243; 
-  int v255; 
-  int v256; 
-  int v257; 
-  int v258; 
-  vec3_t v259; 
+  const hkRotationImpl<float> *v40; 
+  __m128 m_quad; 
+  __m128 v42; 
+  __m128 v54; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v65; 
+  __m128 v72; 
+  float v77; 
+  float v78; 
+  float v79; 
+  double v80; 
+  float v81; 
+  double v84; 
+  vec3_t v86; 
   vec4_t quat_8; 
-  __int64 v261; 
+  __int64 v88; 
   vec3_t axis; 
   vec4_t out; 
   vec3_t in; 
-  vec3_t v265; 
+  vec3_t v92; 
   vec4_t result; 
-  hkQuaternionf v267; 
-  hkQuaternionf v268; 
-  hkSimdFloat32 v269; 
-  char v270; 
-  void *retaddr; 
+  hkQuaternionf v94; 
+  hkQuaternionf v95; 
+  hkSimdFloat32 v96; 
 
-  _RAX = &retaddr;
-  v261 = -2i64;
-  __asm
+  v88 = -2i64;
+  v2 = deltaTime;
+  if ( !Physics_IsPredictiveWorld(this->m_worldId) )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovaps xmm6, xmm1
+LABEL_10:
+    this->m_AverageDT = v2;
+    goto LABEL_11;
   }
-  _RSI = this;
-  __asm { vmovss  xmm9, cs:__real@3f800000 }
-  if ( Physics_IsPredictiveWorld(this->m_worldId) )
+  if ( deltaTime >= (float)(FD_SIMULATION_LOCKED_STEP_DELTATIME - 0.001) )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?FD_SIMULATION_LOCKED_STEP_DELTATIME@@3MA; float FD_SIMULATION_LOCKED_STEP_DELTATIME
-      vsubss  xmm1, xmm0, cs:__real@3a83126f
-      vcomiss xmm6, xmm1
-      vmovss  xmm0, cs:?FD_STEP_ROLLING_AVERAGE_FRAME_COUNT@@3MA; float FD_STEP_ROLLING_AVERAGE_FRAME_COUNT
-      vdivss  xmm1, xmm0, xmm6
-      vaddss  xmm6, xmm6, dword ptr [rsi+300h]
-      vmovss  xmm2, dword ptr [rsi+2FCh]
-      vcomiss xmm1, xmm9
-      vdivss  xmm1, xmm9, xmm1
-      vmulss  xmm0, xmm1, xmm2
-      vsubss  xmm2, xmm2, xmm0
-      vmulss  xmm1, xmm1, xmm6
-      vaddss  xmm6, xmm1, xmm2
-    }
-    _RSI->m_AccumulatedDT = 0.0;
+    v7 = FD_STEP_ROLLING_AVERAGE_FRAME_COUNT / deltaTime;
+    v2 = v2 + this->m_AccumulatedDT;
+    if ( v7 > 1.0 )
+      v2 = (float)((float)(1.0 / v7) * v2) + (float)(this->m_AverageDT - (float)((float)(1.0 / v7) * this->m_AverageDT));
+    this->m_AccumulatedDT = 0.0;
+    goto LABEL_10;
   }
-  __asm
+  v5 = deltaTime + this->m_AccumulatedDT;
+  v4 = v5;
+  this->m_AccumulatedDT = v5;
+  if ( v5 >= FD_SIMULATION_LOCKED_STEP_DELTATIME )
   {
-    vmovss  dword ptr [rsi+2FCh], xmm6
-    vmovss  xmm10, cs:?FD_SIMULATION_LOCKED_STEP_DELTATIME@@3MA; float FD_SIMULATION_LOCKED_STEP_DELTATIME
-    vdivss  xmm0, xmm6, xmm10; val
-    vmovss  xmm2, cs:?FD_MAX_ALLOWED_EXTRAPOLATION_DELTATIME_RATIO@@3MA; max
-    vmovss  xmm1, cs:__real@3dcccccd; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm13, xmm0 }
-  Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamics::Step");
-  __asm { vmovaps xmm1, xmm10; deltaTime }
-  BgVehiclePhysics::Step(_RSI, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+368h]
-    vmovss  [rsp+1C0h+var_190], xmm1
-  }
-  if ( (v255 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+36Ch]
-    vmovss  [rsp+1C0h+var_190], xmm0
-  }
-  if ( (v256 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+370h]
-    vmovss  [rsp+1C0h+var_190], xmm0
-  }
-  if ( (v257 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+374h]
-    vmovss  [rsp+1C0h+var_190], xmm0
-  }
-  if ( (v258 & 0x7F800000) == 2139095040 )
-  {
-LABEL_28:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 930, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_RotationQuaternion )[0] ) && !IS_NAN( ( m_RotationQuaternion )[1] ) && !IS_NAN( ( m_RotationQuaternion )[2] ) && !IS_NAN( ( m_RotationQuaternion )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_RotationQuaternion )[0] ) && !IS_NAN( ( m_RotationQuaternion )[1] ) && !IS_NAN( ( m_RotationQuaternion )[2] ) && !IS_NAN( ( m_RotationQuaternion )[3] )") )
+    v6 = FD_STEP_ROLLING_AVERAGE_FRAME_COUNT / deltaTime;
+    if ( (float)(FD_STEP_ROLLING_AVERAGE_FRAME_COUNT / v2) > 1.0 )
+      v5 = (float)((float)(1.0 / v6) * v5) + (float)(this->m_AverageDT - (float)((float)(1.0 / v6) * this->m_AverageDT));
+    v2 = v5;
+    this->m_AverageDT = v5;
+    this->m_AccumulatedDT = v4 - FD_SIMULATION_LOCKED_STEP_DELTATIME;
+LABEL_11:
+    v8 = (__m128)LODWORD(FD_SIMULATION_LOCKED_STEP_DELTATIME);
+    v9 = I_fclamp(v2 / FD_SIMULATION_LOCKED_STEP_DELTATIME, 0.1, FD_MAX_ALLOWED_EXTRAPOLATION_DELTATIME_RATIO);
+    v10 = *(float *)&v9;
+    Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamics::Step");
+    BgVehiclePhysics::Step(this, v8.m128_f32[0]);
+    if ( ((LODWORD(this->m_RotationQuaternion.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(this->m_RotationQuaternion.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(this->m_RotationQuaternion.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(this->m_RotationQuaternion.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 930, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_RotationQuaternion )[0] ) && !IS_NAN( ( m_RotationQuaternion )[1] ) && !IS_NAN( ( m_RotationQuaternion )[2] ) && !IS_NAN( ( m_RotationQuaternion )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_RotationQuaternion )[0] ) && !IS_NAN( ( m_RotationQuaternion )[1] ) && !IS_NAN( ( m_RotationQuaternion )[2] ) && !IS_NAN( ( m_RotationQuaternion )[3] )") )
       __debugbreak();
-  }
-  Axis43ToQuat(&_RSI->m_transform, &out);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+1A8h]
-    vmovss  xmm0, dword ptr [rsi+1A4h]
-    vmovss  xmm3, dword ptr [rsi+1ACh]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@4b3d1000
-  }
-  if ( v151 | v152 )
-  {
-    __asm
+    Axis43ToQuat(&this->m_transform, &out);
+    if ( (float)((float)((float)(this->m_linearVelocityWs.v[0] * this->m_linearVelocityWs.v[0]) + (float)(this->m_linearVelocityWs.v[1] * this->m_linearVelocityWs.v[1])) + (float)(this->m_linearVelocityWs.v[2] * this->m_linearVelocityWs.v[2])) <= 12390400.0 )
     {
-      vmovss  xmm6, dword ptr [rbp+0C0h+out+0Ch]
-      vmovss  xmm5, dword ptr [rbp+0C0h+out+8]
-      vmovss  xmm4, dword ptr [rbp+0C0h+out+4]
-      vmovss  xmm3, dword ptr [rbp+0C0h+out]
+      v14 = out.v[3];
+      v13 = out.v[2];
+      v12 = out.v[1];
+      v11 = out.v[0];
     }
-  }
-  else
-  {
-    _RSI->m_linearVelocityWs.v[0] = _RSI->m_Velocity.v[0];
-    __asm
+    else
     {
-      vmovss  xmm0, dword ptr [rsi+2E8h]
-      vmovss  dword ptr [rsi+1A8h], xmm0
-      vmovss  xmm1, dword ptr [rsi+2ECh]
-      vmovss  dword ptr [rsi+1ACh], xmm1
-      vmovss  xmm3, dword ptr [rsi+368h]
-      vmovss  dword ptr [rbp+0C0h+out], xmm3
-      vmovss  xmm4, dword ptr [rsi+36Ch]
-      vmovss  dword ptr [rbp+0C0h+out+4], xmm4
-      vmovss  xmm5, dword ptr [rsi+370h]
-      vmovss  dword ptr [rbp+0C0h+out+8], xmm5
-      vmovss  xmm6, dword ptr [rsi+374h]
-      vmovss  dword ptr [rbp+0C0h+out+0Ch], xmm6
+      this->m_linearVelocityWs.v[0] = this->m_Velocity.v[0];
+      this->m_linearVelocityWs.v[1] = this->m_Velocity.v[1];
+      this->m_linearVelocityWs.v[2] = this->m_Velocity.v[2];
+      v11 = this->m_RotationQuaternion.v[0];
+      out.v[0] = v11;
+      v12 = this->m_RotationQuaternion.v[1];
+      out.v[1] = v12;
+      v13 = this->m_RotationQuaternion.v[2];
+      out.v[2] = v13;
+      v14 = this->m_RotationQuaternion.v[3];
+      out.v[3] = v14;
     }
-  }
-  __asm { vmovsd  xmm2, qword ptr [rsi+1A4h] }
-  v51 = _RSI->m_linearVelocityWs.v[2];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0C0h+out]
-    vmovsd  xmm1, qword ptr [rsi+198h]
-    vmovdqa xmmword ptr [rsp+1C0h+quat+8], xmm0
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-  }
-  if ( _RSI->m_Status == FD_ENABLED )
-  {
-    v259.v[2] = v51;
-    axis.v[2] = _RSI->m_transform.m[3].v[2];
-    __asm
+    v15 = (__m128)*(unsigned __int64 *)this->m_linearVelocityWs.v;
+    v16 = this->m_linearVelocityWs.v[2];
+    v17 = (__m128)*(unsigned __int64 *)this->m_transform.row3.v;
+    quat_8 = out;
+    LODWORD(v18) = _mm_shuffle_ps(v17, v17, 85).m128_u32[0];
+    if ( this->m_Status == FD_ENABLED )
     {
-      vmovss  dword ptr [rsi+2D8h], xmm1
-      vmovss  dword ptr [rsi+2DCh], xmm0
-      vmovss  xmm0, dword ptr [rsp+1C0h+axis+8]
-      vmovss  dword ptr [rsi+2E0h], xmm0
+      v86.v[2] = v16;
+      axis.v[2] = this->m_transform.m[3].v[2];
+      this->m_Position.v[0] = v17.m128_f32[0];
+      this->m_Position.v[1] = v18;
+      this->m_Position.v[2] = axis.v[2];
+      this->m_PreviousRotationQuaternion.v[0] = this->m_RotationQuaternion.v[0];
+      this->m_PreviousRotationQuaternion.v[1] = this->m_RotationQuaternion.v[1];
+      this->m_PreviousRotationQuaternion.v[2] = this->m_RotationQuaternion.v[2];
+      this->m_PreviousRotationQuaternion.v[3] = this->m_RotationQuaternion.v[3];
+      this->m_RotationQuaternion.v[0] = v11;
+      this->m_RotationQuaternion.v[1] = v12;
+      this->m_RotationQuaternion.v[2] = v13;
+      this->m_RotationQuaternion.v[3] = v14;
+      this->m_Velocity.v[0] = v15.m128_f32[0];
+      *(double *)v86.v = *(double *)v15.m128_u64;
+      this->m_Velocity.v[1] = _mm_shuffle_ps(v15, v15, 85).m128_f32[0];
+      this->m_Velocity.v[2] = v86.v[2];
     }
-    _RSI->m_PreviousRotationQuaternion.v[0] = _RSI->m_RotationQuaternion.v[0];
-    __asm
+    else
     {
-      vmovss  xmm0, dword ptr [rsi+36Ch]
-      vmovss  dword ptr [rsi+37Ch], xmm0
-      vmovss  xmm1, dword ptr [rsi+370h]
-      vmovss  dword ptr [rsi+380h], xmm1
-      vmovss  xmm0, dword ptr [rsi+374h]
-      vmovss  dword ptr [rsi+384h], xmm0
-      vmovss  dword ptr [rsi+368h], xmm3
-      vmovss  dword ptr [rsi+36Ch], xmm4
-      vmovss  dword ptr [rsi+370h], xmm5
-      vmovss  dword ptr [rsi+374h], xmm6
-      vmovss  dword ptr [rsi+2E4h], xmm2
-      vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-      vmovsd  [rsp+1C0h+var_180], xmm2
-      vmovss  dword ptr [rsi+2E8h], xmm0
-      vmovss  xmm0, dword ptr [rsp+1C0h+quat]
-      vmovss  dword ptr [rsi+2ECh], xmm0
+      axis.v[2] = v16;
+      v86.v[2] = this->m_transform.m[3].v[2];
+      *(_QWORD *)&this->m_RotationQuaternion.xyz.y = 0i64;
+      *(_QWORD *)(&this->m_RotationQuaternion.xyz + 1) = 1065353216i64;
+      *(_QWORD *)&this->m_PreviousRotationQuaternion.xyz.y = 0i64;
+      *(_QWORD *)(&this->m_PreviousRotationQuaternion.xyz + 1) = 1065353216i64;
+      *(_QWORD *)&this->m_RotationVelocity.xyz.y = 0i64;
+      *(_QWORD *)(&this->m_RotationVelocity.xyz + 1) = 1065353216i64;
+      *(_QWORD *)&this->m_PreviousRotationVelocity.xyz.y = 0i64;
+      *(_QWORD *)(&this->m_PreviousRotationVelocity.xyz + 1) = 1065353216i64;
+      *(_QWORD *)&this->m_RotationInertiaQuat.xyz.y = 0i64;
+      *(_QWORD *)(&this->m_RotationInertiaQuat.xyz + 1) = 1065353216i64;
+      *(_QWORD *)&this->m_SavedRotationQuaternion.xyz.y = 0i64;
+      this->m_SavedRotationQuaternion.v[3] = 0.0;
+      this->m_InputStrengthModifier = 1.0;
+      this->m_Position.v[0] = v17.m128_f32[0];
+      *(double *)v86.v = *(double *)v17.m128_u64;
+      this->m_Position.v[1] = v18;
+      this->m_Position.v[2] = v86.v[2];
+      this->m_RotationQuaternion.v[0] = v11;
+      this->m_RotationQuaternion.v[1] = v12;
+      this->m_RotationQuaternion.v[2] = v13;
+      this->m_RotationQuaternion.v[3] = v14;
+      *(double *)axis.v = *(double *)v15.m128_u64;
+      this->m_Velocity.v[0] = v15.m128_f32[0];
+      this->m_Velocity.v[1] = axis.v[1];
+      this->m_Velocity.v[2] = axis.v[2];
+      this->m_PreviousVelocity.v[0] = v15.m128_f32[0];
+      this->m_PreviousVelocity.v[1] = this->m_Velocity.v[1];
+      this->m_PreviousVelocity.v[2] = this->m_Velocity.v[2];
+      this->m_PreviousRotationVelocity.v[0] = this->m_RotationVelocity.v[0];
+      this->m_PreviousRotationVelocity.v[1] = this->m_RotationVelocity.v[1];
+      this->m_PreviousRotationVelocity.v[2] = this->m_RotationVelocity.v[2];
+      this->m_PreviousRotationVelocity.v[3] = this->m_RotationVelocity.v[3];
+      this->m_RotationQuaternion.v[0] = v11;
+      this->m_RotationQuaternion.v[1] = v12;
+      this->m_RotationQuaternion.v[2] = v13;
+      this->m_RotationQuaternion.v[3] = v14;
+      this->m_PreviousRotationQuaternion.v[0] = v11;
+      this->m_PreviousRotationQuaternion.v[1] = v12;
+      this->m_PreviousRotationQuaternion.v[2] = v13;
+      this->m_PreviousRotationQuaternion.v[3] = v14;
+      this->m_EnableFlyByWire = 1;
+      this->ResetInputControls(this);
+      this->m_Status = FD_PROPOSE_ENABLE;
+      quat_8 = this->m_RotationInertiaQuat;
+      v19 = (__m128)*(unsigned __int64 *)this->m_angularVelocityWs.v;
+      v86.v[2] = this->m_angularVelocityWs.v[2];
+      v20 = v19.m128_f32[0] * v8.m128_f32[0];
+      *(double *)v86.v = *(double *)v19.m128_u64;
+      v22 = _mm_shuffle_ps(v19, v19, 85);
+      v21 = v22.m128_f32[0] * v8.m128_f32[0];
+      v22.m128_f32[0] = fsqrt((float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)((float)(v8.m128_f32[0] * v86.v[2]) * (float)(v8.m128_f32[0] * v86.v[2])));
+      _XMM0 = v22;
+      __asm
+      {
+        vcmpless xmm1, xmm0, cs:__real@80000000
+        vblendvps xmm2, xmm0, xmm9, xmm1
+      }
+      axis.v[0] = (float)(1.0 / *(float *)&_XMM2) * v20;
+      axis.v[1] = (float)(1.0 / *(float *)&_XMM2) * v21;
+      axis.v[2] = (float)(1.0 / *(float *)&_XMM2) * (float)(v8.m128_f32[0] * v86.v[2]);
+      AngleRadAxisToQuat(v22.m128_f32[0], &axis, &quat_8);
     }
-  }
-  else
-  {
-    axis.v[2] = v51;
-    v259.v[2] = _RSI->m_transform.m[3].v[2];
-    *(_QWORD *)&_RSI->m_RotationQuaternion.xyz.y = 0i64;
-    *(_QWORD *)(&_RSI->m_RotationQuaternion.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RSI->m_PreviousRotationQuaternion.xyz.y = 0i64;
-    *(_QWORD *)(&_RSI->m_PreviousRotationQuaternion.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RSI->m_RotationVelocity.xyz.y = 0i64;
-    *(_QWORD *)(&_RSI->m_RotationVelocity.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RSI->m_PreviousRotationVelocity.xyz.y = 0i64;
-    *(_QWORD *)(&_RSI->m_PreviousRotationVelocity.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RSI->m_RotationInertiaQuat.xyz.y = 0i64;
-    *(_QWORD *)(&_RSI->m_RotationInertiaQuat.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RSI->m_SavedRotationQuaternion.xyz.y = 0i64;
-    _RSI->m_SavedRotationQuaternion.v[3] = 0.0;
-    _RSI->m_InputStrengthModifier = 1.0;
+    v26 = this->m_linearVelocityWs.v[0];
+    v27 = this->m_linearVelocityWs.v[1];
+    v28 = this->m_linearVelocityWs.v[2];
+    FlightDynamics::UpdateFlightDynamics(this, v8.m128_f32[0], 1);
+    world = HavokPhysics_GetConstWorld(this->m_worldId)->world;
+    if ( !world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 1000, ASSERT_TYPE_ASSERT, "(world)", (const char *)&queryFormat, "world") )
+      __debugbreak();
+    in.v[0] = this->m_Position.v[0] - this->m_centerOfMassWs.v[0];
+    in.v[1] = this->m_Position.v[1] - this->m_centerOfMassWs.v[1];
+    in.v[2] = this->m_Position.v[2] - this->m_centerOfMassWs.v[2];
+    QuatSlerp(&out, &this->m_RotationQuaternion, v10, &result);
+    this->m_Velocity.v[0] = (float)((float)(this->m_Velocity.v[0] - v26) * v10) + v26;
+    this->m_Velocity.v[1] = (float)((float)(this->m_Velocity.v[1] - v27) * v10) + v27;
+    this->m_Velocity.v[2] = (float)((float)(this->m_Velocity.v[2] - v28) * v10) + v28;
+    _XMM6 = LODWORD(result.v[0]);
     __asm
     {
-      vmovss  dword ptr [rsi+2D8h], xmm1
-      vmovsd  [rsp+1C0h+var_180], xmm1
-      vmovss  dword ptr [rsi+2DCh], xmm0
-      vmovss  xmm0, dword ptr [rsp+1C0h+quat]
-      vmovss  dword ptr [rsi+2E0h], xmm0
-      vmovss  dword ptr [rsi+368h], xmm3
-      vmovss  dword ptr [rsi+36Ch], xmm4
-      vmovss  dword ptr [rsi+370h], xmm5
-      vmovss  dword ptr [rsi+374h], xmm6
-      vmovsd  qword ptr [rsp+1C0h+axis], xmm2
-      vmovss  dword ptr [rsi+2E4h], xmm2
-      vmovss  xmm0, dword ptr [rsp+1C0h+axis+4]
-      vmovss  dword ptr [rsi+2E8h], xmm0
-      vmovss  xmm1, dword ptr [rsp+1C0h+axis+8]
-      vmovss  dword ptr [rsi+2ECh], xmm1
-      vmovss  dword ptr [rsi+2F0h], xmm2
-      vmovss  xmm0, dword ptr [rsi+2E8h]
-      vmovss  dword ptr [rsi+2F4h], xmm0
-      vmovss  xmm1, dword ptr [rsi+2ECh]
-      vmovss  dword ptr [rsi+2F8h], xmm1
+      vinsertps xmm6, xmm6, dword ptr [rbp+0C0h+result+4], 10h
+      vinsertps xmm6, xmm6, dword ptr [rbp+0C0h+result+8], 20h
+      vinsertps xmm6, xmm6, dword ptr [rbp+0C0h+result+0Ch], 30h
     }
-    _RSI->m_PreviousRotationVelocity.v[0] = _RSI->m_RotationVelocity.v[0];
+    v34 = v8;
+    v34.m128_f32[0] = v8.m128_f32[0] * v10;
+    _XMM2 = _mm_shuffle_ps(v34, v34, 0);
+    __asm { vrcpps  xmm3, xmm2 }
+    v37 = _mm128_mul_ps(_XMM3, _mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM3, _XMM2)));
+    getBodyTransform = world->getBodyTransform;
+    PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(this);
+    v40 = (const hkRotationImpl<float> *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))getBodyTransform)(&world->hknpWorldReader, PhysicsBodyId);
+    hkQuaternionf::set(&v95, v40);
+    m_quad = v95.m_vec.m_quad;
+    v42 = _mm128_sub_ps(_mm128_mul_ps(v95.m_vec.m_quad, _mm_shuffle_ps(_XMM6, _XMM6, 201)), _mm128_mul_ps(_XMM6, _mm_shuffle_ps(m_quad, m_quad, 201)));
+    _XMM3 = _mm128_add_ps(_mm128_sub_ps(_mm_shuffle_ps(v42, v42, 201), _mm128_mul_ps(v95.m_vec.m_quad, _mm_shuffle_ps(_XMM6, _XMM6, 255))), _mm128_mul_ps(_XMM6, _mm_shuffle_ps(m_quad, m_quad, 255)));
     __asm
     {
-      vmovss  xmm0, dword ptr [rsi+38Ch]
-      vmovss  dword ptr [rsi+39Ch], xmm0
-      vmovss  xmm1, dword ptr [rsi+390h]
-      vmovss  dword ptr [rsi+3A0h], xmm1
-      vmovss  xmm0, dword ptr [rsi+394h]
-      vmovss  dword ptr [rsi+3A4h], xmm0
-      vmovss  dword ptr [rsi+368h], xmm3
-      vmovss  dword ptr [rsi+36Ch], xmm4
-      vmovss  dword ptr [rsi+370h], xmm5
-      vmovss  dword ptr [rsi+374h], xmm6
-      vmovss  dword ptr [rsi+378h], xmm3
-      vmovss  dword ptr [rsi+37Ch], xmm4
-      vmovss  dword ptr [rsi+380h], xmm5
-      vmovss  dword ptr [rsi+384h], xmm6
-    }
-    _RSI->m_EnableFlyByWire = 1;
-    _RSI->ResetInputControls(_RSI);
-    _RSI->m_Status = FD_PROPOSE_ENABLE;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+3A8h]
-      vmovups xmmword ptr [rsp+1C0h+quat+8], xmm0
-      vmovsd  xmm1, qword ptr [rsi+1B0h]
-    }
-    v259.v[2] = _RSI->m_angularVelocityWs.v[2];
-    __asm
-    {
-      vmulss  xmm6, xmm1, xmm10
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vmovsd  [rsp+1C0h+var_180], xmm1
-      vmulss  xmm5, xmm0, xmm10
-      vmulss  xmm4, xmm10, dword ptr [rsp+1C0h+quat]
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm0, xmm2, xmm2; radians
-      vcmpless xmm1, xmm0, cs:__real@80000000
-      vblendvps xmm2, xmm0, xmm9, xmm1
-      vdivss  xmm3, xmm9, xmm2
-      vmulss  xmm1, xmm3, xmm6
-      vmovss  dword ptr [rsp+1C0h+axis], xmm1
-      vmulss  xmm2, xmm3, xmm5
-      vmovss  dword ptr [rsp+1C0h+axis+4], xmm2
-      vmulss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rsp+1C0h+axis+8], xmm1
-    }
-    AngleRadAxisToQuat(*(float *)&_XMM0, &axis, &quat_8);
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsi+1A4h]
-    vmovss  xmm7, dword ptr [rsi+1A8h]
-    vmovss  xmm8, dword ptr [rsi+1ACh]
-    vmovaps xmm1, xmm10; dT
-  }
-  FlightDynamics::UpdateFlightDynamics(_RSI, *(float *)&_XMM1, 1);
-  world = HavokPhysics_GetConstWorld(_RSI->m_worldId)->world;
-  if ( !world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 1000, ASSERT_TYPE_ASSERT, "(world)", (const char *)&queryFormat, "world") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+2D8h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+22Ch]
-    vmovss  dword ptr [rbp+0C0h+in], xmm1
-    vmovss  xmm2, dword ptr [rsi+2DCh]
-    vsubss  xmm0, xmm2, dword ptr [rsi+230h]
-    vmovss  dword ptr [rbp+0C0h+in+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+2E0h]
-    vsubss  xmm2, xmm1, dword ptr [rsi+234h]
-    vmovss  dword ptr [rbp+0C0h+in+8], xmm2
-    vmovaps xmm2, xmm13; frac
-  }
-  QuatSlerp(&out, &_RSI->m_RotationQuaternion, *(float *)&_XMM2, &result);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+2E4h]
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm13
-    vaddss  xmm3, xmm2, xmm6
-    vmovss  dword ptr [rsi+2E4h], xmm3
-    vmovss  xmm0, dword ptr [rsi+2E8h]
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm2, xmm1, xmm13
-    vaddss  xmm3, xmm2, xmm7
-    vmovss  dword ptr [rsi+2E8h], xmm3
-    vmovss  xmm0, dword ptr [rsi+2ECh]
-    vsubss  xmm1, xmm0, xmm8
-    vmulss  xmm2, xmm1, xmm13
-    vaddss  xmm3, xmm2, xmm8
-    vmovss  dword ptr [rsi+2ECh], xmm3
-    vmovss  xmm6, dword ptr [rbp+0C0h+result]
-    vinsertps xmm6, xmm6, dword ptr [rbp+0C0h+result+4], 10h
-    vinsertps xmm6, xmm6, dword ptr [rbp+0C0h+result+8], 20h
-    vinsertps xmm6, xmm6, dword ptr [rbp+0C0h+result+0Ch], 30h
-    vmulss  xmm15, xmm10, xmm13
-    vmovaps xmm1, xmm15
-    vshufps xmm2, xmm1, xmm1, 0
-    vrcpps  xmm3, xmm2
-    vmulps  xmm1, xmm3, xmm2
-    vmovups xmm0, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-    vsubps  xmm1, xmm0, xmm1
-    vmulps  xmm14, xmm3, xmm1
-  }
-  getBodyTransform = world->getBodyTransform;
-  PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(_RSI);
-  v125 = (const hkRotationImpl<float> *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))getBodyTransform)(&world->hknpWorldReader, PhysicsBodyId);
-  hkQuaternionf::set(&v268, v125);
-  __asm
-  {
-    vshufps xmm0, xmm6, xmm6, 0C9h ; 'É'
-    vmovups xmm5, xmmword ptr [rbp+0C0h+var_F0.m_vec.m_quad]
-    vmulps  xmm2, xmm5, xmm0
-    vshufps xmm0, xmm5, xmm5, 0C9h ; 'É'
-    vmulps  xmm1, xmm6, xmm0
-    vsubps  xmm4, xmm2, xmm1
-    vshufps xmm0, xmm6, xmm6, 0FFh
-    vmulps  xmm3, xmm5, xmm0
-    vshufps xmm1, xmm5, xmm5, 0FFh
-    vmulps  xmm2, xmm6, xmm1
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vsubps  xmm1, xmm0, xmm3
-    vaddps  xmm3, xmm1, xmm2
-    vdpps   xmm0, xmm6, xmm5, 0FFh
-    vblendps xmm4, xmm3, xmm0, 8
-    vdpps   xmm0, xmm4, xmm4, 0FFh
-    vrsqrtps xmm1, xmm0
-    vmulps  xmm2, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-    vmulps  xmm0, xmm0, xmm1
-    vmulps  xmm1, xmm0, xmm1
-    vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-    vsubps  xmm1, xmm0, xmm1
-    vmulps  xmm2, xmm1, xmm2
-    vmulps  xmm0, xmm2, xmm4
-    vmovups xmmword ptr [rbp+0C0h+var_100.m_vec.m_quad], xmm0
-    vbroadcastss xmm6, cs:__real@3bf5c28f
-  }
-  hkQuaternionf::getAngleSr(&v267, &v269);
-  __asm
-  {
-    vmovups xmm7, xmmword ptr [rbp+0C0h+var_E0.m_real]
-    vucomiss xmm7, xmm6
-  }
-  if ( !(v151 | v152) )
-  {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rbp+0C0h+var_100.m_vec.m_quad]
-      vdpps   xmm0, xmm6, xmm6, 7Fh
-      vxorps  xmm5, xmm5, xmm5
-      vcmpleps xmm3, xmm0, xmm5
+      vdpps   xmm0, xmm6, xmm5, 0FFh
+      vblendps xmm4, xmm3, xmm0, 8
+      vdpps   xmm0, xmm4, xmm4, 0FFh
       vrsqrtps xmm1, xmm0
-      vmulps  xmm2, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-      vmulps  xmm0, xmm1, xmm0
-      vmulps  xmm1, xmm0, xmm1
-      vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-      vsubps  xmm1, xmm0, xmm1
-      vmulps  xmm2, xmm1, xmm2
-      vandnps xmm0, xmm3, xmm2
-      vmulps  xmm4, xmm0, xmm6
-      vshufps xmm1, xmm6, xmm6, 0FFh
-      vcmpltps xmm0, xmm1, xmm5
-      vpsrld  xmm2, xmm0, 1Fh
-      vpslld  xmm3, xmm2, 1Fh
-      vmulps  xmm1, xmm14, xmm7
-      vxorps  xmm0, xmm4, xmm3
     }
-LABEL_24:
-    __asm { vmulps  xmm8, xmm0, xmm1 }
-    goto LABEL_25;
-  }
-  __asm
-  {
-    vbroadcastss xmm2, cs:__real@2f800000
-    vmovups xmm11, xmmword ptr [rbp+0C0h+var_100.m_vec.m_quad]
-    vdpps   xmm12, xmm11, xmm11, 7Fh
-    vmulps  xmm4, xmm12, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+90h; __m128 const near * const g_vectorfConstants
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm4, xmm2
-  }
-  if ( !(v151 | v152) )
-  {
-    __asm
+    v94.m_vec.m_quad = _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM0, _XMM1), _XMM1)), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM4);
+    __asm { vbroadcastss xmm6, cs:__real@3bf5c28f }
+    hkQuaternionf::getAngleSr(&v94, &v96);
+    if ( v96.m_real.m128_f32[0] <= *(float *)&_XMM6 )
     {
-      vcmpleps xmm3, xmm4, xmm8
-      vrsqrtps xmm1, xmm4
-      vmulps  xmm2, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-      vmulps  xmm0, xmm4, xmm1
-      vmulps  xmm1, xmm0, xmm1
-      vmovups xmm5, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-      vsubps  xmm0, xmm5, xmm1
-      vmulps  xmm1, xmm0, xmm2
-      vmulps  xmm2, xmm1, xmm4
-      vandnps xmm7, xmm3, xmm2
-      vcmpleps xmm4, xmm12, xmm8
-      vrsqrtps xmm1, xmm12
-      vmulps  xmm3, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-      vmulps  xmm0, xmm1, xmm12
-      vmulps  xmm1, xmm0, xmm1
-      vsubps  xmm2, xmm5, xmm1
-      vmulps  xmm0, xmm2, xmm3
-      vandnps xmm1, xmm4, xmm0
-      vmulps  xmm3, xmm1, xmm11
-      vshufps xmm0, xmm11, xmm11, 0FFh
-      vcmpltps xmm1, xmm0, xmm8
-      vpsrld  xmm2, xmm1, 1Fh
-      vpslld  xmm0, xmm2, 1Fh
-      vmulps  xmm1, xmm7, xmm14
-      vxorps  xmm0, xmm3, xmm0
+      __asm { vbroadcastss xmm2, cs:__real@2f800000 }
+      _XMM11 = v94.m_vec.m_quad;
+      __asm { vdpps   xmm12, xmm11, xmm11, 7Fh }
+      _XMM4 = _mm128_mul_ps(_XMM12, g_vectorfConstants[9]);
+      v65 = 0i64;
+      if ( _XMM4.m128_f32[0] <= *(float *)&_XMM2 )
+      {
+LABEL_31:
+        QuatTransform(&this->m_RotationInertiaQuat, &in, &v92);
+        v77 = v92.v[2] - in.v[2];
+        v92.v[0] = (float)(v92.v[0] - in.v[0]) * v10;
+        v92.v[1] = (float)(v92.v[1] - in.v[1]) * v10;
+        v78 = v92.v[1];
+        v92.v[2] = (float)(v92.v[2] - in.v[2]) * v10;
+        v79 = FD_ANGULAR_TO_LINEAR_OFFSET_MULTIPLIER;
+        this->m_Velocity.v[0] = (float)(v92.v[0] * FD_ANGULAR_TO_LINEAR_OFFSET_MULTIPLIER) + this->m_Velocity.v[0];
+        this->m_Velocity.v[1] = (float)(v78 * v79) + this->m_Velocity.v[1];
+        this->m_Velocity.v[2] = (float)((float)(v77 * v10) * v79) + this->m_Velocity.v[2];
+        v80 = I_fclamp((float)(v8.m128_f32[0] * FD_ANGULAR_INERTIA_TRANSFER_RATE) * v10, 0.0, 1.0);
+        v81 = (float)((float)(1.0 - *(float *)&v80) * this->m_angularVelocityWs.v[0]) + (float)(v65.m128_f32[0] * *(float *)&v80);
+        _mm_shuffle_ps(v65, v65, 85);
+        this->m_angularVelocityWs.v[2] = (float)((float)(1.0 - *(float *)&v80) * this->m_angularVelocityWs.v[2]) + (float)(_mm_shuffle_ps(v65, v65, 170).m128_f32[0] * *(float *)&v80);
+        quat_8 = this->m_RotationInertiaQuat;
+        _XMM2 = *(unsigned __int64 *)this->m_angularVelocityWs.v;
+        __asm { vinsertps xmm0, xmm2, xmm4, 10h }
+        HIDWORD(v84) = DWORD1(_XMM0);
+        *(float *)&v84 = v81;
+        *(double *)this->m_angularVelocityWs.v = v84;
+        *(double *)v86.v = v84;
+        v86.v[2] = this->m_angularVelocityWs.v[2];
+        FlightDynamics::CalculateDeltaQuatFromAngularVelocity(&v86, v8.m128_f32[0] * v10, &quat_8);
+        this->m_linearVelocityWs.v[0] = this->m_Velocity.v[0];
+        this->m_linearVelocityWs.v[1] = this->m_Velocity.v[1];
+        this->m_linearVelocityWs.v[2] = this->m_Velocity.v[2];
+        Sys_ProfEndNamedEvent();
+        return 1;
+      }
+      __asm
+      {
+        vcmpleps xmm3, xmm4, xmm8
+        vrsqrtps xmm1, xmm4
+      }
+      _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM4, _XMM1), _XMM1)), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM4);
+      __asm
+      {
+        vandnps xmm7, xmm3, xmm2
+        vcmpleps xmm4, xmm12, xmm8
+        vrsqrtps xmm1, xmm12
+      }
+      _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM12), _XMM1)), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf));
+      __asm { vandnps xmm1, xmm4, xmm0 }
+      v72 = _mm128_mul_ps(_XMM1, v94.m_vec.m_quad);
+      _XMM0 = _mm_shuffle_ps(v94.m_vec.m_quad, v94.m_vec.m_quad, 255);
+      __asm
+      {
+        vcmpltps xmm1, xmm0, xmm8
+        vpsrld  xmm2, xmm1, 1Fh
+        vpslld  xmm0, xmm2, 1Fh
+      }
+      v59 = _mm128_mul_ps(_XMM7, v37);
+      v60 = (__m128)(*(_OWORD *)&v72 ^ _XMM0);
     }
-    goto LABEL_24;
+    else
+    {
+      _XMM6 = v94.m_vec.m_quad;
+      __asm
+      {
+        vdpps   xmm0, xmm6, xmm6, 7Fh
+        vcmpleps xmm3, xmm0, xmm5
+        vrsqrtps xmm1, xmm0
+      }
+      _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM0), _XMM1)), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf));
+      __asm { vandnps xmm0, xmm3, xmm2 }
+      v54 = _mm128_mul_ps(_XMM0, v94.m_vec.m_quad);
+      _XMM1 = _mm_shuffle_ps(_XMM6, _XMM6, 255);
+      __asm
+      {
+        vcmpltps xmm0, xmm1, xmm5
+        vpsrld  xmm2, xmm0, 1Fh
+        vpslld  xmm3, xmm2, 1Fh
+      }
+      v59 = _mm128_mul_ps(v37, v96.m_real);
+      v60 = (__m128)(*(_OWORD *)&v54 ^ _XMM3);
+    }
+    v65 = _mm128_mul_ps(v60, v59);
+    goto LABEL_31;
   }
-LABEL_25:
-  QuatTransform(&_RSI->m_RotationInertiaQuat, &in, &v265);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0C0h+var_120]
-    vsubss  xmm2, xmm0, dword ptr [rbp+0C0h+in]
-    vmovss  xmm1, dword ptr [rbp+0C0h+var_120+4]
-    vsubss  xmm3, xmm1, dword ptr [rbp+0C0h+in+4]
-    vmovss  xmm0, dword ptr [rbp+0C0h+var_120+8]
-    vsubss  xmm4, xmm0, dword ptr [rbp+0C0h+in+8]
-    vmulss  xmm1, xmm2, xmm13
-    vmovss  dword ptr [rbp+0C0h+var_120], xmm1
-    vmulss  xmm5, xmm3, xmm13
-    vmovss  dword ptr [rbp+0C0h+var_120+4], xmm5
-    vmulss  xmm4, xmm4, xmm13
-    vmovss  dword ptr [rbp+0C0h+var_120+8], xmm4
-    vmovss  xmm3, cs:?FD_ANGULAR_TO_LINEAR_OFFSET_MULTIPLIER@@3MA; float FD_ANGULAR_TO_LINEAR_OFFSET_MULTIPLIER
-    vmulss  xmm0, xmm1, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rsi+2E4h]
-    vmovss  dword ptr [rsi+2E4h], xmm1
-    vmulss  xmm2, xmm5, xmm3
-    vaddss  xmm0, xmm2, dword ptr [rsi+2E8h]
-    vmovss  dword ptr [rsi+2E8h], xmm0
-    vmulss  xmm1, xmm4, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rsi+2ECh]
-    vmovss  dword ptr [rsi+2ECh], xmm2
-    vmulss  xmm0, xmm10, cs:?FD_ANGULAR_INERTIA_TRANSFER_RATE@@3MA; float FD_ANGULAR_INERTIA_TRANSFER_RATE
-    vmulss  xmm0, xmm0, xmm13; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vsubss  xmm5, xmm9, xmm0
-    vmulss  xmm2, xmm5, dword ptr [rsi+1B0h]
-    vmulss  xmm1, xmm8, xmm0
-    vaddss  xmm7, xmm2, xmm1
-    vshufps xmm3, xmm8, xmm8, 55h ; 'U'
-    vmulss  xmm1, xmm5, dword ptr [rsi+1B4h]
-    vmulss  xmm0, xmm3, xmm0
-    vaddss  xmm4, xmm1, xmm0
-    vshufps xmm2, xmm8, xmm8, 0AAh ; 'ª'
-    vmulss  xmm1, xmm5, dword ptr [rsi+1B8h]
-    vmulss  xmm0, xmm2, xmm6
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rsi+1B8h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+3A8h]
-    vmovups xmmword ptr [rsp+1C0h+quat+8], xmm0
-    vmovsd  xmm2, qword ptr [rsi+1B0h]
-    vinsertps xmm0, xmm2, xmm4, 10h
-    vmovss  xmm0, xmm0, xmm7
-    vmovsd  qword ptr [rsi+1B0h], xmm0
-    vmovsd  [rsp+1C0h+var_180], xmm0
-  }
-  v259.v[2] = _RSI->m_angularVelocityWs.v[2];
-  __asm { vmovaps xmm1, xmm15 }
-  FlightDynamics::CalculateDeltaQuatFromAngularVelocity(&v259, *(const float *)&_XMM1, &quat_8);
-  _RSI->m_linearVelocityWs.v[0] = _RSI->m_Velocity.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+2E8h]
-    vmovss  dword ptr [rsi+1A8h], xmm0
-    vmovss  xmm1, dword ptr [rsi+2ECh]
-    vmovss  dword ptr [rsi+1ACh], xmm1
-  }
-  Sys_ProfEndNamedEvent();
-  v243 = 1;
-  _R11 = &v270;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v243;
+  return 1;
 }
 
 /*
@@ -6108,41 +4631,34 @@ LABEL_25:
 FlightDynamics::StopPlayerControlling
 ==============
 */
-
-void __fastcall FlightDynamics::StopPlayerControlling(FlightDynamics *this, double _XMM1_8)
+void FlightDynamics::StopPlayerControlling(FlightDynamics *this)
 {
   VehiclePhysicsNetcodeType m_netcodeType; 
-  BgVehiclePhysicsManager *v4; 
+  BgVehiclePhysicsManager *v3; 
   BgVehiclePhysics *ObjectForPmove; 
   BGVehicles *m_vehicleSystem; 
-  __int64 v8; 
+  __int64 v6; 
 
-  _RBX = this;
   Com_Printf(16, "[FlightDynamics::StopPlayerControlling() - FD type %d object becomes not player controlled.\n", (unsigned int)this->m_DynamicsModel);
-  m_netcodeType = _RBX->m_netcodeType;
+  m_netcodeType = this->m_netcodeType;
   if ( m_netcodeType == VEH_NETCODE_CLIENT_PRED || m_netcodeType == VEH_NETCODE_CLIENT_PRED_SB )
   {
-    v4 = _RBX->m_vehicleSystem->PhysicsGetVehiclePhysicsManager(_RBX->m_vehicleSystem);
-    ObjectForPmove = BgVehiclePhysicsManager::GetObjectForPmove(v4, _RBX);
+    v3 = this->m_vehicleSystem->PhysicsGetVehiclePhysicsManager(this->m_vehicleSystem);
+    ObjectForPmove = BgVehiclePhysicsManager::GetObjectForPmove(v3, this);
     memset_0(ObjectForPmove, 0, 0xD20ui64);
-    __asm
-    {
-      vmovss  xmm0, cs:?FD_ABANDONED_TO_KEYFRAMED_TIME_SEC@@3MA; float FD_ABANDONED_TO_KEYFRAMED_TIME_SEC
-      vmovss  dword ptr [rbx+38h], xmm0
-    }
+    this->m_minTimeDynamic = FD_ABANDONED_TO_KEYFRAMED_TIME_SEC;
   }
-  if ( !_RBX->m_pmoveObject )
+  if ( !this->m_pmoveObject )
   {
-    if ( _RBX == (FlightDynamics *)-152i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+    if ( this == (FlightDynamics *)-152i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
       __debugbreak();
-    _RBX->m_deferActionMgr.actionBits[0] |= 2u;
+    this->m_deferActionMgr.actionBits[0] |= 2u;
   }
-  m_vehicleSystem = _RBX->m_vehicleSystem;
-  _RBX->m_controls.timeToAcceptInput = 0.0;
-  _RBX->m_driverEntNum = 2047;
-  v8 = (__int64)m_vehicleSystem->PhysicsGetEventSystem(m_vehicleSystem);
-  __asm { vxorps  xmm1, xmm1, xmm1 }
-  (*(void (__fastcall **)(__int64))(*(_QWORD *)v8 + 8i64))(v8);
+  m_vehicleSystem = this->m_vehicleSystem;
+  this->m_controls.timeToAcceptInput = 0.0;
+  this->m_driverEntNum = 2047;
+  v6 = (__int64)m_vehicleSystem->PhysicsGetEventSystem(m_vehicleSystem);
+  (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 8i64))(v6);
 }
 
 /*
@@ -6185,8 +4701,7 @@ FlightDynamics::TerrainFollowingRadar
 */
 float FlightDynamics::TerrainFollowingRadar(FlightDynamics *this, bool useEnemyToVector, float range)
 {
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -6195,46 +4710,42 @@ TerrainFollowingRadarControl::RadarBeamInfo::UpdateBeam
 ==============
 */
 
-void __fastcall TerrainFollowingRadarControl::RadarBeamInfo::UpdateBeam(TerrainFollowingRadarControl::RadarBeamInfo *this, double dT, double decay, float dopplerMultiplier)
+void __fastcall TerrainFollowingRadarControl::RadarBeamInfo::UpdateBeam(TerrainFollowingRadarControl::RadarBeamInfo *this, double dT, float decay, float dopplerMultiplier, float dopplerDecay)
 {
-  __asm
+  float currentObstacleRangeNormalized; 
+  __int128 v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+
+  currentObstacleRangeNormalized = this->currentObstacleRangeNormalized;
+  v6 = *(_OWORD *)&dT;
+  *(float *)&v6 = (float)(*(float *)&dT * this->beamRawDistance) + currentObstacleRangeNormalized;
+  this->previousObstacleRangeNormalized = currentObstacleRangeNormalized;
+  v7 = (float)((float)((float)(*(float *)&v6 - currentObstacleRangeNormalized) * *(float *)&dT) * dopplerMultiplier) + this->dopplerSpeedNormalized;
+  v8 = (float)(*(float *)&v6 * decay) * *(float *)&dT;
+  v9 = 0.0;
+  if ( COERCE_FLOAT(LODWORD(v8) & _xmm) <= COERCE_FLOAT(v6 & _xmm) )
   {
-    vmovss  xmm4, dword ptr [rcx+0Ch]
-    vmulss  xmm0, xmm1, dword ptr [rcx+14h]
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+38h+var_28], xmm7
-    vaddss  xmm7, xmm0, xmm4
-    vmovss  dword ptr [rcx+10h], xmm4
-    vsubss  xmm4, xmm7, xmm4
-    vmulss  xmm0, xmm4, xmm1
-    vmulss  xmm3, xmm0, xmm3
-    vaddss  xmm5, xmm3, dword ptr [rcx+18h]
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm3, xmm0, xmm1
-    vmovaps [rsp+38h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vandps  xmm1, xmm3, xmm6
-    vandps  xmm0, xmm7, xmm6
-    vcomiss xmm1, xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm3, xmm3, xmm3
-    vmulss  xmm0, xmm5, [rsp+38h+dopplerDecay]
-    vmulss  xmm4, xmm0, xmm8
-    vandps  xmm1, xmm4, xmm6
-    vandps  xmm0, xmm5, xmm6
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [rcx+0Ch], xmm3
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovaps xmm7, [rsp+38h+var_28]
-    vmovaps xmm8, [rsp+38h+var_38]
-    vmovss  dword ptr [rcx+18h], xmm2
-    vmovss  xmm2, cs:?TFR_MAX_BEAM_NORMALIZED_DISTANCE@@3MA; float TFR_MAX_BEAM_NORMALIZED_DISTANCE
-    vcmpltss xmm1, xmm2, xmm3
-    vmovaps xmm0, xmm3
-    vblendvps xmm1, xmm0, xmm2, xmm1
-    vmovss  dword ptr [rcx+0Ch], xmm1
+    *(float *)&v6 = *(float *)&v6 - v8;
+    v10 = v6;
   }
+  else
+  {
+    v10 = 0i64;
+  }
+  v11 = (float)(v7 * dopplerDecay) * *(float *)&dT;
+  this->currentObstacleRangeNormalized = *(float *)&v10;
+  if ( COERCE_FLOAT(LODWORD(v11) & _xmm) <= COERCE_FLOAT(LODWORD(v7) & _xmm) )
+    v9 = v7 - v11;
+  this->dopplerSpeedNormalized = v9;
+  _XMM2 = LODWORD(TFR_MAX_BEAM_NORMALIZED_DISTANCE);
+  __asm { vcmpltss xmm1, xmm2, xmm3 }
+  _XMM0 = v10;
+  __asm { vblendvps xmm1, xmm0, xmm2, xmm1 }
+  this->currentObstacleRangeNormalized = *(float *)&_XMM1;
 }
 
 /*
@@ -6244,21 +4755,15 @@ FlightDynamics::UpdateCollider
 */
 void FlightDynamics::UpdateCollider(FlightDynamics *this, unsigned int colliderBodyId, const vec3_t *hitPos)
 {
+  float v3; 
+
   this->m_lastColliderBodyId = colliderBodyId;
   *(_QWORD *)&this->m_timeSinceLastCollisionBody = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm3, xmm0, dword ptr [rcx+198h]
-    vmovss  dword ptr [rcx+2BCh], xmm3
-    vmovss  xmm1, dword ptr [r8+4]
-    vsubss  xmm0, xmm1, dword ptr [rcx+19Ch]
-    vmovss  dword ptr [rcx+2C0h], xmm0
-    vmovss  xmm2, dword ptr [r8+8]
-    vsubss  xmm1, xmm2, dword ptr [rcx+1A0h]
-    vmovss  dword ptr [rcx+2C4h], xmm1
-    vmovss  dword ptr [rcx+2C8h], xmm3
-  }
+  v3 = hitPos->v[0] - this->m_transform.m[3].v[0];
+  this->m_lastCollisionBodyPosLs.v[0] = v3;
+  this->m_lastCollisionBodyPosLs.v[1] = hitPos->v[1] - this->m_transform.m[3].v[1];
+  this->m_lastCollisionBodyPosLs.v[2] = hitPos->v[2] - this->m_transform.m[3].v[2];
+  this->m_lastCollisionPosLs.v[0] = v3;
   *(_QWORD *)&this->m_lastCollisionPosLs.y = *(_QWORD *)&this->m_lastCollisionBodyPosLs.y;
 }
 
@@ -6267,106 +4772,59 @@ void FlightDynamics::UpdateCollider(FlightDynamics *this, unsigned int colliderB
 FlightDynamics::UpdateFlightDynamics
 ==============
 */
-
-void __fastcall FlightDynamics::UpdateFlightDynamics(FlightDynamics *this, double dT, bool allowUserControl)
+void FlightDynamics::UpdateFlightDynamics(FlightDynamics *this, float dT, bool allowUserControl)
 {
-  __int64 v16; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   int fmt; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  _RDI = this;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamics::UpdateFlightDynamics");
-  if ( _RDI->m_Status == FD_DISABLED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3558, ASSERT_TYPE_ASSERT, "(GetStatus() != FD_DISABLED)", (const char *)&queryFormat, "GetStatus() != FD_DISABLED", -2i64) )
+  if ( dT <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3553, ASSERT_TYPE_ASSERT, "(dT > 0.0f)", (const char *)&queryFormat, "dT > 0.0f", -2i64) )
     __debugbreak();
-  _RDI->m_Status = FD_ENABLED;
-  FlightDynamics::NormalizePlayerInputs(_RDI);
-  QuatTransform(&_RDI->m_RotationQuaternion, &sFlightDynamicsManager.m_ElevatorAxis, &_RDI->m_sideVector);
-  QuatTransform(&_RDI->m_RotationQuaternion, &sFlightDynamicsManager.m_ForwardAxis, &_RDI->m_forwardVector);
-  QuatTransform(&_RDI->m_RotationQuaternion, &sFlightDynamicsManager.m_UpAxis, &_RDI->m_upVector);
-  _RDI->m_PreviousVelocity.v[0] = _RDI->m_Velocity.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+2E8h]
-    vmovss  dword ptr [rdi+2F4h], xmm0
-    vmovss  xmm1, dword ptr [rdi+2ECh]
-    vmovss  dword ptr [rdi+2F8h], xmm1
-  }
-  _RDI->m_PreviousRotationVelocity.v[0] = _RDI->m_RotationVelocity.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+38Ch]
-    vmovss  dword ptr [rdi+39Ch], xmm0
-    vmovss  xmm1, dword ptr [rdi+390h]
-    vmovss  dword ptr [rdi+3A0h], xmm1
-    vmovss  xmm0, dword ptr [rdi+394h]
-    vmovss  dword ptr [rdi+3A4h], xmm0
-  }
-  *(_QWORD *)_RDI->m_RotationVelocity.v = 0i64;
-  *(_QWORD *)&_RDI->m_RotationVelocity.xyz.z = 0i64;
-  _RDI->m_RotationVelocity.v[3] = 1.0;
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->ApplyGravity)(_RDI);
-  _RDI->PerformCoordinatedFlight(_RDI);
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->ComputeLiftForces)(_RDI);
+  Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamics::UpdateFlightDynamics");
+  if ( this->m_Status == FD_DISABLED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.cpp", 3558, ASSERT_TYPE_ASSERT, "(GetStatus() != FD_DISABLED)", (const char *)&queryFormat, "GetStatus() != FD_DISABLED") )
+    __debugbreak();
+  this->m_Status = FD_ENABLED;
+  FlightDynamics::NormalizePlayerInputs(this);
+  QuatTransform(&this->m_RotationQuaternion, &sFlightDynamicsManager.m_ElevatorAxis, &this->m_sideVector);
+  QuatTransform(&this->m_RotationQuaternion, &sFlightDynamicsManager.m_ForwardAxis, &this->m_forwardVector);
+  QuatTransform(&this->m_RotationQuaternion, &sFlightDynamicsManager.m_UpAxis, &this->m_upVector);
+  this->m_PreviousVelocity.v[0] = this->m_Velocity.v[0];
+  this->m_PreviousVelocity.v[1] = this->m_Velocity.v[1];
+  this->m_PreviousVelocity.v[2] = this->m_Velocity.v[2];
+  this->m_PreviousRotationVelocity.v[0] = this->m_RotationVelocity.v[0];
+  this->m_PreviousRotationVelocity.v[1] = this->m_RotationVelocity.v[1];
+  this->m_PreviousRotationVelocity.v[2] = this->m_RotationVelocity.v[2];
+  this->m_PreviousRotationVelocity.v[3] = this->m_RotationVelocity.v[3];
+  *(_QWORD *)this->m_RotationVelocity.v = 0i64;
+  *(_QWORD *)&this->m_RotationVelocity.xyz.z = 0i64;
+  this->m_RotationVelocity.v[3] = 1.0;
+  ((void (__fastcall *)(FlightDynamics *))this->ApplyGravity)(this);
+  this->PerformCoordinatedFlight(this);
+  ((void (__fastcall *)(FlightDynamics *))this->ComputeLiftForces)(this);
   LOBYTE(fmt) = 0;
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *, __int64, _QWORD, __int64, int))_RDI->CalculateFlyByWireVector)(_RDI, v16, 0i64, 1i64, fmt);
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->PerformAutomaticControl)(_RDI);
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->PerformControlSurfaces)(_RDI);
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->PerformThrusterControl)(_RDI);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rdi+2E4h]
-    vmulss  xmm1, xmm6, dword ptr [rdi+2E8h]
-    vmulss  xmm2, xmm6, dword ptr [rdi+2ECh]
-    vaddss  xmm0, xmm0, dword ptr [rdi+2D8h]
-    vmovss  dword ptr [rdi+2D8h], xmm0
-    vaddss  xmm1, xmm1, dword ptr [rdi+2DCh]
-    vmovss  dword ptr [rdi+2DCh], xmm1
-    vaddss  xmm0, xmm2, dword ptr [rdi+2E0h]
-    vmovss  dword ptr [rdi+2E0h], xmm0
-    vmovaps xmm1, xmm6
-  }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->SimulateTurbineOperation)(_RDI);
-  __asm { vmovaps xmm1, xmm6 }
-  ((void (__fastcall *)(FlightDynamics *))_RDI->PerformFlyByWire)(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+2F0h]
-    vsubss  xmm4, xmm0, dword ptr [rdi+2E4h]
-    vmovss  dword ptr [rdi+50Ch], xmm4
-    vmovss  xmm1, dword ptr [rdi+2F4h]
-    vsubss  xmm2, xmm1, dword ptr [rdi+2E8h]
-    vmovss  dword ptr [rdi+510h], xmm2
-    vmovss  xmm0, dword ptr [rdi+2F8h]
-    vsubss  xmm3, xmm0, dword ptr [rdi+2ECh]
-    vmovss  dword ptr [rdi+514h], xmm3
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm3, xmm1
-    vmovss  dword ptr [rdi+518h], xmm2
-  }
+  ((void (__fastcall *)(FlightDynamics *, __int64, _QWORD, __int64, int))this->CalculateFlyByWireVector)(this, v5, 0i64, 1i64, fmt);
+  ((void (__fastcall *)(FlightDynamics *))this->PerformAutomaticControl)(this);
+  ((void (__fastcall *)(FlightDynamics *))this->PerformControlSurfaces)(this);
+  ((void (__fastcall *)(FlightDynamics *))this->PerformThrusterControl)(this);
+  v6 = dT * this->m_Velocity.v[1];
+  v7 = dT * this->m_Velocity.v[2];
+  this->m_Position.v[0] = (float)(dT * this->m_Velocity.v[0]) + this->m_Position.v[0];
+  this->m_Position.v[1] = v6 + this->m_Position.v[1];
+  this->m_Position.v[2] = v7 + this->m_Position.v[2];
+  ((void (__fastcall *)(FlightDynamics *))this->SimulateTurbineOperation)(this);
+  ((void (__fastcall *)(FlightDynamics *))this->PerformFlyByWire)(this);
+  v8 = this->m_PreviousVelocity.v[0] - this->m_Velocity.v[0];
+  this->m_GforceVector.v[0] = v8;
+  v9 = this->m_PreviousVelocity.v[1] - this->m_Velocity.v[1];
+  this->m_GforceVector.v[1] = v9;
+  v10 = this->m_PreviousVelocity.v[2] - this->m_Velocity.v[2];
+  this->m_GforceVector.v[2] = v10;
+  this->m_GforceMagnitude = fsqrt((float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10)) * (float)(1.0 / dT);
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -6456,22 +4914,11 @@ void FlightDynamics::UpdatePlayerInputControls(FlightDynamics *this, const userc
 FlightDynamics::UpdatePosition
 ==============
 */
-
-void __fastcall FlightDynamics::UpdatePosition(FlightDynamics *this, double dT)
+void FlightDynamics::UpdatePosition(FlightDynamics *this, float dT)
 {
-  __asm
-  {
-    vmulss  xmm0, xmm1, dword ptr [rcx+2E4h]
-    vaddss  xmm2, xmm0, dword ptr [rcx+2D8h]
-    vmovss  dword ptr [rcx+2D8h], xmm2
-    vmovaps xmm5, xmm1
-    vmulss  xmm1, xmm1, dword ptr [rcx+2E8h]
-    vaddss  xmm0, xmm1, dword ptr [rcx+2DCh]
-    vmovss  dword ptr [rcx+2DCh], xmm0
-    vmulss  xmm2, xmm5, dword ptr [rcx+2ECh]
-    vaddss  xmm1, xmm2, dword ptr [rcx+2E0h]
-    vmovss  dword ptr [rcx+2E0h], xmm1
-  }
+  this->m_Position.v[0] = (float)(dT * this->m_Velocity.v[0]) + this->m_Position.v[0];
+  this->m_Position.v[1] = (float)(dT * this->m_Velocity.v[1]) + this->m_Position.v[1];
+  this->m_Position.v[2] = (float)(dT * this->m_Velocity.v[2]) + this->m_Position.v[2];
 }
 
 /*
@@ -6481,401 +4928,191 @@ FlightDynamicsGyroscope::UpdateTailrotor
 */
 void FlightDynamicsGyroscope::UpdateTailrotor(FlightDynamicsGyroscope *this, const tmat43_t<vec3_t> *matrix, const vec3_t *linearVelocity, const vec3_t *angularVelocity, float dT, float *rudderOutput)
 {
-  char v75; 
-  bool v83; 
+  double v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  bool v31; 
+  float m_GyroRudderStrength; 
+  double v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  __int128 v37; 
+  float v38; 
+  float v39; 
+  int v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __int128 v47; 
+  float v48; 
+  __int128 v52; 
+  __int128 v56; 
+  float v57; 
+  float v58; 
+  float v62; 
+  float v63; 
+  vec3_t row2; 
+  float v65; 
+  float v66; 
+  float v67; 
   vec3_t v0; 
   vec3_t cross; 
   vec3_t v1; 
-  vec3_t v272; 
-  vec3_t v273; 
-  char v274; 
-  void *retaddr; 
+  vec3_t v71; 
+  vec3_t v72; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovss  xmm2, cs:__real@3c888889; max
-    vmovss  xmm1, cs:__real@3b888889; min
-    vmovss  xmm0, [rsp+158h+dT]; val
-  }
-  _R14 = rudderOutput;
-  _RSI = linearVelocity;
-  _RBX = matrix;
-  _RBP = this;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RBP->m_fbwOutputs.v[0] = _RBP->m_ControlInputs[8];
-  *(_QWORD *)&_RBP->m_fbwOutputs.y = LODWORD(_RBP->m_ControlInputs[9]);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx]
-    vmovss  xmm7, dword ptr [rbx+4]
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmovss  xmm8, dword ptr [rbx+14h]
-    vmovss  xmm12, dword ptr [rbx+0Ch]
-    vmovss  xmm13, dword ptr [rbx+10h]
-    vmovaps xmm9, xmm0
-    vmovss  xmm0, dword ptr [rbp+74h]
-    vmovss  [rsp+158h+var_138], xmm0
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rsp+158h+var_128], xmm0
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rsp+158h+var_124], xmm0
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rsp+158h+var_120], xmm0
-    vmovss  dword ptr [rsp+158h+v0], xmm6
-    vmovss  dword ptr [rsp+158h+v0+4], xmm7
-    vmovss  dword ptr [rsp+158h+v0+8], xmm1
-    vmovss  [rsp+158h+var_130], xmm8
-  }
+  v10 = I_fclamp(dT, 0.0041666669, 0.016666668);
+  this->m_fbwOutputs.v[0] = this->m_ControlInputs[8];
+  *(_QWORD *)&this->m_fbwOutputs.y = LODWORD(this->m_ControlInputs[9]);
+  v12 = matrix->m[0].v[1];
+  v13 = matrix->m[0].v[2];
+  v14 = matrix->m[1].v[2];
+  v15 = matrix->m[1].v[0];
+  v16 = LODWORD(matrix->m[1].v[1]);
+  v17 = *(float *)&v10;
+  v62 = this->m_ControlInputs[2];
+  row2 = matrix->row2;
+  v0.v[0] = matrix->m[0].v[0];
+  v11 = v0.v[0];
+  v0.v[1] = v12;
+  v0.v[2] = v13;
   Vec3Cross(&v0, angularVelocity, &cross);
+  v18 = v16;
+  v19 = (float)((float)((float)(*(float *)&v16 * cross.v[1]) + (float)(v15 * cross.v[0])) + (float)(v14 * cross.v[2])) * FD_GYRO_ANGULAR_VELOCITY_SCALE;
+  v65 = v19;
+  v20 = (float)((float)(v19 * FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER) * v15) + v11;
+  v21 = (float)((float)(v19 * FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER) * *(float *)&v16) + v12;
+  *(float *)&v18 = fsqrt((float)(v21 * v21) + (float)(v20 * v20));
+  _XMM3 = v18;
   __asm
   {
-    vmulss  xmm1, xmm8, dword ptr [rsp+158h+cross+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm3, xmm13, dword ptr [rsp+158h+cross+4]
-    vmulss  xmm2, xmm12, dword ptr [rsp+158h+cross]
-    vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm2, cs:?FD_GYRO_ANGULAR_VELOCITY_SCALE@@3MA; float FD_GYRO_ANGULAR_VELOCITY_SCALE
-    vmulss  xmm3, xmm1, cs:?FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER@@3MA; float FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER
-    vmovss  [rsp+158h+var_11C], xmm1
-    vmulss  xmm1, xmm3, xmm12
-    vaddss  xmm5, xmm1, xmm6
-    vmulss  xmm0, xmm3, xmm13
-    vaddss  xmm4, xmm0, xmm7
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm1, cs:__real@80000000
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm1
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vmovss  [rsp+158h+var_12C], xmm1
-    vdivss  xmm1, xmm8, xmm0
-    vmovss  xmm0, dword ptr [rbp+6Ch]
-    vxorps  xmm10, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm7, xmm4, xmm1
-    vandps  xmm6, xmm10, xmm11
-    vsubss  xmm0, xmm8, xmm6
-    vmulss  xmm0, xmm0, dword ptr [rbp+7Ch]
   }
-  _RBP->m_GyroVelocityDelta = *_RSI;
-  __asm
-  {
-    vmovss  [rsp+158h+var_134], xmm0
-    vmovss  xmm0, dword ptr [rbp+1Ch]
-    vmulss  xmm3, xmm0, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rbp+20h]
-    vmulss  xmm15, xmm5, xmm1
-    vmovss  xmm1, dword ptr [rsi]
-    vmulss  xmm2, xmm1, dword ptr [rbp+18h]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  [rsp+158h+var_114], xmm7
-    vmulss  xmm1, xmm0, dword ptr [rsi+8]
-    vaddss  xmm14, xmm4, xmm1
-    vdivss  xmm0, xmm14, cs:?FD_SPEED_LIMITER@@3MA; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm14, cs:__real@ba83126f
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( v75 )
-  {
-    __asm
-    {
-      vmulss  xmm3, xmm9, cs:?FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME@@3MA; float FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME
-      vsubss  xmm2, xmm8, xmm3
-      vmulss  xmm1, xmm2, dword ptr [rbp+30h]
-      vsubss  xmm4, xmm1, xmm3
-    }
-  }
+  v25 = 1.0 / *(float *)&_XMM0;
+  LODWORD(v26) = LODWORD(this->m_ControlInputs[0]) ^ _xmm;
+  v27 = v21 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&_XMM0 = (float)(1.0 - COERCE_FLOAT(LODWORD(v26) & _xmm)) * this->m_ControlInputs[4];
+  this->m_GyroVelocityDelta = *linearVelocity;
+  v63 = *(float *)&_XMM0;
+  v28 = v20 * v25;
+  v67 = v27;
+  v29 = (float)((float)(this->m_GyroRudderForwardVector.v[1] * linearVelocity->v[1]) + (float)(linearVelocity->v[0] * this->m_GyroRudderForwardVector.v[0])) + (float)(this->m_GyroRudderForwardVector.v[2] * linearVelocity->v[2]);
+  *(double *)&_XMM0 = I_fclamp(v29 / FD_SPEED_LIMITER, 0.0, 1.0);
+  v66 = *(float *)&_XMM0;
+  if ( v29 >= -0.001 )
+    v30 = (float)((float)(1.0 - (float)(v17 * FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME)) * this->m_GyroRudderReverseActuator) + (float)(v17 * FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME);
   else
+    v30 = (float)((float)(1.0 - (float)(v17 * FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME)) * this->m_GyroRudderReverseActuator) - (float)(v17 * FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME);
+  v31 = !this->m_GyroRudderForwardVectorSet;
+  this->m_GyroRudderReverseActuator = v30;
+  if ( v31 )
   {
-    __asm
-    {
-      vmulss  xmm2, xmm9, cs:?FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME@@3MA; float FD_GYRO_REVERSE_ACTUATOR_REACTION_TIME
-      vsubss  xmm1, xmm8, xmm2
-      vmulss  xmm0, xmm1, dword ptr [rbp+30h]
-      vaddss  xmm4, xmm0, xmm2
-    }
+    this->m_GyroRudderForwardVectorSet = 1;
+    this->m_GyroRudderForwardVector.v[0] = v28;
+    this->m_GyroRudderForwardVector.v[1] = v27;
+    this->m_GyroRudderForwardVector.v[2] = 0.0;
   }
-  v83 = !_RBP->m_GyroRudderForwardVectorSet;
-  __asm { vmovss  dword ptr [rbp+30h], xmm4 }
-  if ( v83 )
-  {
-    _RBP->m_GyroRudderForwardVectorSet = 1;
-    __asm
-    {
-      vmovss  dword ptr [rbp+18h], xmm15
-      vmovss  dword ptr [rbp+1Ch], xmm7
-    }
-    _RBP->m_GyroRudderForwardVector.v[2] = 0.0;
-  }
-  __asm { vcomiss xmm6, cs:__real@3a83126f }
-  if ( !v83 )
-  {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+28h]
-      vsubss  xmm0, xmm2, xmm10
-      vandps  xmm0, xmm0, xmm11
-      vcomiss xmm0, xmm8
-    }
-  }
+  if ( COERCE_FLOAT(LODWORD(v26) & _xmm) <= 0.001 || (m_GyroRudderStrength = this->m_GyroRudderStrength, COERCE_FLOAT(COERCE_UNSIGNED_INT(m_GyroRudderStrength - v26) & _xmm) >= 1.0) )
+    *(float *)&v33 = (float)(1.0 - (float)(v17 * FD_GYRO_RUDDER_HEADHOLD_TO_RATE_DECAY)) * this->m_GyroRudderStrength;
+  else
+    v33 = I_fclamp((float)((float)(1.0 - (float)(v17 * FD_GYRO_RUDDER_HEADHOLD_TO_RATE_SMOOTHING)) * m_GyroRudderStrength) + (float)((float)(v17 * FD_GYRO_RUDDER_HEADHOLD_TO_RATE_SMOOTHING) * v26), -0.5, 0.5);
+  this->m_GyroRudderStrength = *(float *)&v33;
+  v34 = (float)((float)(1.0 - (float)(v17 * FD_GYRO_AILERON_TO_STRAFE_REACTION_TIME)) * this->m_GyroAileronRate) + (float)((float)(v17 * FD_GYRO_AILERON_TO_STRAFE_REACTION_TIME) * v63);
+  this->m_GyroAileronRate = v34;
+  v35 = v34 * FD_GYRO_PROPOSED_FBW_CHANGE_MULTIPLIER;
+  v36 = (float)(v15 * (float)(v34 * FD_GYRO_PROPOSED_FBW_CHANGE_MULTIPLIER)) + v28;
+  v37 = v16;
+  v38 = (float)(*(float *)&v16 * v35) + v27;
+  v39 = v35 * v14;
+  *(float *)&v37 = fsqrt((float)((float)(v38 * v38) + (float)(v36 * v36)) + (float)(v39 * v39));
+  _XMM4 = v37;
   __asm
   {
-    vmulss  xmm1, xmm9, cs:?FD_GYRO_RUDDER_HEADHOLD_TO_RATE_DECAY@@3MA; float FD_GYRO_RUDDER_HEADHOLD_TO_RATE_DECAY
-    vsubss  xmm1, xmm8, xmm1
-    vmulss  xmm0, xmm1, dword ptr [rbp+28h]
-    vmovss  dword ptr [rbp+28h], xmm0
-    vmulss  xmm1, xmm9, cs:?FD_GYRO_AILERON_TO_STRAFE_REACTION_TIME@@3MA; float FD_GYRO_AILERON_TO_STRAFE_REACTION_TIME
-    vsubss  xmm0, xmm8, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rbp+58h]
-    vmulss  xmm1, xmm1, [rsp+158h+var_134]
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  dword ptr [rbp+58h], xmm3
-    vmulss  xmm4, xmm3, cs:?FD_GYRO_PROPOSED_FBW_CHANGE_MULTIPLIER@@3MA; float FD_GYRO_PROPOSED_FBW_CHANGE_MULTIPLIER
-    vmulss  xmm0, xmm12, xmm4
-    vmovss  xmm12, [rsp+158h+var_12C]
-    vaddss  xmm5, xmm0, xmm15
-    vmulss  xmm1, xmm13, xmm4
-    vaddss  xmm6, xmm1, xmm7
-    vmulss  xmm7, xmm4, [rsp+158h+var_130]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, xmm12
     vblendvps xmm0, xmm4, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+158h+v1], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+158h+v1+8], xmm0
-    vmovss  dword ptr [rsp+158h+v1+4], xmm1
   }
-  Vec3Cross(&_RBP->m_GyroRudderForwardVector, &v1, &v272);
+  v1.v[0] = v36 * (float)(1.0 / *(float *)&_XMM0);
+  v1.v[2] = v39 * (float)(1.0 / *(float *)&_XMM0);
+  v1.v[1] = v38 * (float)(1.0 / *(float *)&_XMM0);
+  Vec3Cross(&this->m_GyroRudderForwardVector, &v1, &v71);
+  *(double *)&_XMM0 = FD_ComputeExpo((float)((float)((float)(v71.v[0] * row2.v[0]) + (float)(v71.v[1] * row2.v[1])) + (float)(v71.v[2] * row2.v[2])) * FD_GYRO_TAIL_LOCK_STRENGTH, FD_GYRO_TAIL_LOCK_STRENGTH_EXPO);
+  v43 = _XMM0;
+  *(double *)&_XMM0 = I_fclamp((float)((float)(1.0 - COERCE_FLOAT(LODWORD(this->m_GyroRudderStrength) & _xmm)) * *(float *)&_XMM0) - (float)(COERCE_FLOAT(LODWORD(this->m_GyroRudderStrength) & _xmm) * (float)((float)((float)((float)((float)(v26 * FD_GYRO_TAIL_MAX_TURN_RATE) * this->m_GyroRudderReverseActuator) - (float)((float)(FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER * v65) * this->m_GyroRudderReverseActuator)) * FD_GYRO_TAIL_MAX_TURN_RATE_STRENGTH) * v17)), -1.0, 1.0);
+  *(double *)&_XMM0 = I_fclamp((float)((float)(*(float *)&_XMM0 * this->m_GyroRudderReverseActuator) * (float)(v17 * FD_GYRO_ACTUATOR_RESPONSE_REACTION_TIME)) + (float)((float)(1.0 - (float)(v17 * FD_GYRO_ACTUATOR_RESPONSE_REACTION_TIME)) * this->m_GyroRudderOutput), -1.0, 1.0);
+  this->m_GyroRudderOutput = *(float *)&_XMM0;
+  *rudderOutput = *(float *)&_XMM0;
+  *(double *)&_XMM0 = I_fclamp(2.0 - v62, 0.0, 1.0);
+  v44 = *(float *)&_XMM0 * COERCE_FLOAT(v43 & _xmm);
+  *(double *)&_XMM0 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(v29 * v62) ^ _xmm), 0.0, 1.0);
+  I_fclamp((float)((float)((float)((float)(1.0 - (float)((float)(1.0 - *(float *)&_XMM0) * v44)) * FD_GYRO_ACCELERATOR_MIX_ZERO_FBW_DELTA) + (float)((float)((float)(1.0 - *(float *)&_XMM0) * v44) * FD_GYRO_ACCELERATOR_MIX_FULL_FBW_DELTA)) * v17) * v62, -1.0, 1.0);
+  v45 = v26 * FD_GYRO_RUDDER_RATE;
+  *rudderOutput = (float)((float)(1.0 - v66) * v26) + (float)(v66 * this->m_GyroRudderOutput);
+  *(double *)&_XMM0 = I_fclamp((float)(COERCE_FLOAT(LODWORD(v45) & _xmm) * FD_HFD_FBW_GYRO_RUDDER_RATE_MANUAL_VECTOR) * v17, 0.0, 1.0);
+  *(float *)&v37 = (float)((float)(v28 - this->m_GyroRudderForwardVector.v[0]) * *(float *)&_XMM0) + this->m_GyroRudderForwardVector.v[0];
+  this->m_GyroRudderForwardVector.v[0] = *(float *)&v37;
+  this->m_GyroRudderForwardVector.v[1] = (float)((float)(v67 - this->m_GyroRudderForwardVector.v[1]) * *(float *)&_XMM0) + this->m_GyroRudderForwardVector.v[1];
+  *(float *)&v37 = *(float *)&v37 - v0.v[0];
+  this->m_GyroRudderForwardVector.v[2] = (float)(1.0 - (float)(*(float *)&_XMM0 * 1.0)) * this->m_GyroRudderForwardVector.v[2];
+  v46 = (float)(*(float *)&v37 * v66) + v0.v[0];
+  this->m_GyroRudderForwardVector.v[0] = v46;
+  v47 = LODWORD(this->m_GyroRudderForwardVector.v[1]);
+  *(float *)&v47 = (float)((float)(this->m_GyroRudderForwardVector.v[1] - v0.v[1]) * v66) + v0.v[1];
+  this->m_GyroRudderForwardVector.v[1] = *(float *)&v47;
+  v48 = (float)((float)(this->m_GyroRudderForwardVector.v[2] - v0.v[2]) * v66) + v0.v[2];
+  this->m_GyroRudderForwardVector.v[2] = v48;
+  *(float *)&v47 = fsqrt((float)((float)(*(float *)&v47 * *(float *)&v47) + (float)(v46 * v46)) + (float)(v48 * v48));
+  _XMM3 = v47;
   __asm
   {
-    vmovss  xmm1, dword ptr [rsp+158h+var_E0+4]
-    vmulss  xmm2, xmm1, [rsp+158h+var_124]
-    vmovss  xmm0, dword ptr [rsp+158h+var_E0]
-    vmulss  xmm3, xmm0, [rsp+158h+var_128]
-    vmovss  xmm0, dword ptr [rsp+158h+var_E0+8]
-    vmulss  xmm1, xmm0, [rsp+158h+var_120]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm0, xmm2, cs:?FD_GYRO_TAIL_LOCK_STRENGTH@@3MA; value
-    vmovss  xmm1, cs:?FD_GYRO_TAIL_LOCK_STRENGTH_EXPO@@3MA; expo
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm3, cs:?FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER@@3MA; float FD_GYRO_ANGULAR_VELOCITY_MULTIPLIER
-    vmulss  xmm1, xmm3, [rsp+158h+var_11C]
-    vmulss  xmm2, xmm10, cs:?FD_GYRO_TAIL_MAX_TURN_RATE@@3MA; float FD_GYRO_TAIL_MAX_TURN_RATE
-    vmulss  xmm4, xmm2, dword ptr [rbp+30h]
-    vmulss  xmm2, xmm1, dword ptr [rbp+30h]
-    vmovss  xmm1, dword ptr [rbp+28h]
-    vmovss  xmm7, cs:__real@bf800000
-    vsubss  xmm4, xmm4, xmm2
-    vmulss  xmm3, xmm4, cs:?FD_GYRO_TAIL_MAX_TURN_RATE_STRENGTH@@3MA; float FD_GYRO_TAIL_MAX_TURN_RATE_STRENGTH
-    vandps  xmm1, xmm1, xmm11
-    vmovaps xmm6, xmm0
-    vsubss  xmm0, xmm8, xmm1
-    vmulss  xmm2, xmm0, xmm6
-    vmulss  xmm5, xmm3, xmm9
-    vmulss  xmm1, xmm1, xmm5
-    vsubss  xmm0, xmm2, xmm1; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm0, xmm0, dword ptr [rbp+30h]
-    vmulss  xmm3, xmm9, cs:?FD_GYRO_ACTUATOR_RESPONSE_REACTION_TIME@@3MA; float FD_GYRO_ACTUATOR_RESPONSE_REACTION_TIME
-    vmulss  xmm2, xmm0, xmm3
-    vsubss  xmm1, xmm8, xmm3
-    vmulss  xmm0, xmm1, dword ptr [rbp+34h]
-    vaddss  xmm0, xmm2, xmm0; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbp+34h], xmm0
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm0, cs:__real@40000000
-    vsubss  xmm0, xmm0, [rsp+158h+var_138]; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vandps  xmm6, xmm6, xmm11
-    vmulss  xmm6, xmm0, xmm6
-    vmulss  xmm0, xmm14, [rsp+158h+var_138]
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm0, xmm8, xmm0
-    vmulss  xmm3, xmm0, xmm6
-    vmulss  xmm0, xmm3, cs:?FD_GYRO_ACCELERATOR_MIX_FULL_FBW_DELTA@@3MA; float FD_GYRO_ACCELERATOR_MIX_FULL_FBW_DELTA
-    vsubss  xmm1, xmm8, xmm3
-    vmulss  xmm2, xmm1, cs:?FD_GYRO_ACCELERATOR_MIX_ZERO_FBW_DELTA@@3MA; float FD_GYRO_ACCELERATOR_MIX_ZERO_FBW_DELTA
-    vaddss  xmm2, xmm2, xmm0
-    vmulss  xmm1, xmm2, xmm9
-    vmulss  xmm0, xmm1, [rsp+158h+var_138]; val
-    vmovaps xmm1, xmm7; min
-    vmovaps xmm2, xmm8; max
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm7, xmm10, cs:?FD_GYRO_RUDDER_RATE@@3MA; float FD_GYRO_RUDDER_RATE
-    vmovss  xmm6, [rsp+158h+var_118]
-    vmulss  xmm0, xmm6, dword ptr [rbp+34h]
-    vsubss  xmm2, xmm8, xmm6
-    vmulss  xmm3, xmm2, xmm10
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  dword ptr [r14], xmm2
-    vandps  xmm0, xmm7, xmm11
-    vmulss  xmm0, xmm0, cs:?FD_HFD_FBW_GYRO_RUDDER_RATE_MANUAL_VECTOR@@3MA; float FD_HFD_FBW_GYRO_RUDDER_RATE_MANUAL_VECTOR
-    vmulss  xmm0, xmm0, xmm9; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm15, dword ptr [rbp+18h]
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm5, xmm2, dword ptr [rbp+18h]
-    vmovss  xmm1, [rsp+158h+var_114]
-    vmovss  dword ptr [rbp+18h], xmm5
-    vsubss  xmm1, xmm1, dword ptr [rbp+1Ch]
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm3, xmm2, dword ptr [rbp+1Ch]
-    vmovss  dword ptr [rbp+1Ch], xmm3
-    vmulss  xmm0, xmm0, xmm8
-    vsubss  xmm0, xmm8, xmm0
-    vmulss  xmm1, xmm0, dword ptr [rbp+20h]
-    vsubss  xmm0, xmm5, dword ptr [rsp+158h+v0]
-    vmovss  dword ptr [rbp+20h], xmm1
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm5, xmm1, dword ptr [rsp+158h+v0]
-    vmovss  dword ptr [rbp+18h], xmm5
-    vmovss  xmm0, dword ptr [rbp+1Ch]
-    vsubss  xmm0, xmm0, dword ptr [rsp+158h+v0+4]
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm4, xmm1, dword ptr [rsp+158h+v0+4]
-    vmovss  dword ptr [rbp+1Ch], xmm4
-    vmovss  xmm0, dword ptr [rbp+20h]
-    vsubss  xmm0, xmm0, dword ptr [rsp+158h+v0+8]
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm3, xmm1, dword ptr [rsp+158h+v0+8]
-    vmovss  dword ptr [rbp+20h], xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm12
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+18h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbp+1Ch]
-    vmovss  dword ptr [rbp+1Ch], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbp+20h]
-    vmovss  dword ptr [rbp+20h], xmm0
   }
-  Vec3Cross(&sFlightDynamicsManager.m_UpAxis, &_RBP->m_GyroRudderForwardVector, &v273);
+  this->m_GyroRudderForwardVector.v[0] = v46 * (float)(1.0 / *(float *)&_XMM0);
+  this->m_GyroRudderForwardVector.v[1] = (float)(1.0 / *(float *)&_XMM0) * this->m_GyroRudderForwardVector.v[1];
+  this->m_GyroRudderForwardVector.v[2] = (float)(1.0 / *(float *)&_XMM0) * this->m_GyroRudderForwardVector.v[2];
+  Vec3Cross(&sFlightDynamicsManager.m_UpAxis, &this->m_GyroRudderForwardVector, &v72);
+  v52 = LODWORD(v72.v[0]);
+  *(float *)&v52 = fsqrt((float)((float)(*(float *)&v52 * *(float *)&v52) + (float)(v72.v[1] * v72.v[1])) + (float)(v72.v[2] * v72.v[2]));
+  _XMM3 = v52;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+158h+var_D0+4]
-    vmovss  xmm6, dword ptr [rsp+158h+var_D0]
-    vmovss  xmm4, dword ptr [rsp+158h+var_D0+8]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm12
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm3, xmm5, xmm1
-    vmulss  xmm0, xmm6, xmm1
-    vmulss  xmm4, xmm7, xmm9
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rbp+18h]
-    vmovss  dword ptr [rbp+18h], xmm2
-    vmovaps xmm5, xmm2
-    vmulss  xmm0, xmm3, xmm4
-    vaddss  xmm1, xmm0, dword ptr [rbp+1Ch]
-    vmovss  dword ptr [rbp+1Ch], xmm1
   }
-  _RBP->m_GyroRudderForwardVector.v[2] = 0.0;
+  *(float *)&_XMM3 = v72.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  v56 = LODWORD(v72.v[0]);
+  *(float *)&v56 = (float)((float)(v72.v[0] * (float)(1.0 / *(float *)&_XMM0)) * (float)(v45 * v17)) + this->m_GyroRudderForwardVector.v[0];
+  this->m_GyroRudderForwardVector.v[0] = *(float *)&v56;
+  v57 = *(float *)&v56;
+  v58 = (float)(*(float *)&_XMM3 * (float)(v45 * v17)) + this->m_GyroRudderForwardVector.v[1];
+  this->m_GyroRudderForwardVector.v[1] = v58;
+  this->m_GyroRudderForwardVector.v[2] = 0.0;
+  *(float *)&v56 = fsqrt((float)((float)(*(float *)&v56 * *(float *)&v56) + (float)(v58 * v58)) + (float)(this->m_GyroRudderForwardVector.v[2] * this->m_GyroRudderForwardVector.v[2]));
+  _XMM4 = v56;
   __asm
   {
-    vmovss  xmm3, dword ptr [rbp+20h]
-    vmovaps xmm0, xmm1
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, xmm12
     vblendvps xmm0, xmm4, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [rbp+18h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbp+1Ch]
-    vmovss  dword ptr [rbp+1Ch], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbp+20h]
-    vmovss  dword ptr [rbp+20h], xmm0
   }
-  _R11 = &v274;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  this->m_GyroRudderForwardVector.v[0] = (float)(1.0 / *(float *)&_XMM0) * v57;
+  this->m_GyroRudderForwardVector.v[1] = (float)(1.0 / *(float *)&_XMM0) * this->m_GyroRudderForwardVector.v[1];
+  this->m_GyroRudderForwardVector.v[2] = (float)(1.0 / *(float *)&_XMM0) * this->m_GyroRudderForwardVector.v[2];
 }
 

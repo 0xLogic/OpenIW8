@@ -218,7 +218,7 @@ __int64 DDL_LUA_ArrayIndex_impl(lua_State *const luaVM)
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+58h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( DDL_MoveToIndex(&v4->state, &toState, v6) )
   {
     DDL_LuaCreateUserData(luaVM, &toState, v4->ddlContext);
@@ -330,7 +330,7 @@ __int64 DDL_LUA_ArrayIteratorClosure_impl(lua_State *const luaVM)
               toState.isValid = 0;
               toState.offset = 0;
               toState.arrayIndex = -1;
-              __asm { vmovdqu xmmword ptr [rsp+58h+toState.member], xmm0 }
+              *(_OWORD *)&toState.member = _XMM0;
               if ( DDL_MoveToIndex(&v4->state, &toState, v6) )
               {
                 j_lua_pushinteger(luaVM, v7);
@@ -595,7 +595,7 @@ __int64 DDL_LUA_ParentIndex_impl(lua_State *const luaVM)
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+58h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( DDL_MoveToPath(&v4->state, &toState, 1, (const char **)&path) )
   {
     DDL_LuaCreateUserData(luaVM, &toState, v4->ddlContext);
@@ -661,14 +661,13 @@ void DDL_LUA_ValueDDLToLua(lua_State *luaVM, DDLState *state, DDLValue *val)
   const char *v10; 
   const char *EnumString; 
 
-  _RDI = val;
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_ddl.cpp", 396, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
   if ( !state->member && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_ddl.cpp", 397, ASSERT_TYPE_ASSERT, "(state->member)", (const char *)&queryFormat, "state->member") )
     __debugbreak();
   if ( state->member->type == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_ddl.cpp", 398, ASSERT_TYPE_ASSERT, "(state->member->type != DDL_INVALID_TYPE)", (const char *)&queryFormat, "state->member->type != DDL_INVALID_TYPE") )
     __debugbreak();
-  if ( !_RDI )
+  if ( !val )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_ddl.cpp", 399, ASSERT_TYPE_ASSERT, "(val)", (const char *)&queryFormat, "val") )
       __debugbreak();
@@ -688,10 +687,10 @@ LABEL_14:
     case 0:
     case 1:
     case 3:
-      intValue = _RDI->intValue;
+      intValue = val->intValue;
       goto LABEL_19;
     case 2:
-      intValue = _RDI->uintValue;
+      intValue = val->uintValue;
       if ( (unsigned int)intValue <= 0x7FFFFFFF )
       {
 LABEL_19:
@@ -704,23 +703,18 @@ LABEL_19:
       }
       break;
     case 4:
-      v10 = j_va("%llu", _RDI->uint64Value);
+      v10 = j_va("%llu", val->uint64Value);
       j_lua_pushstring(luaVM, v10);
       break;
     case 6:
     case 7:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi]; jumptable 000000014261CC9D cases 6,7
-        vcvtss2sd xmm1, xmm1, xmm1; n
-      }
-      j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+      j_lua_pushnumber(luaVM, val->fixedPointValue);
       break;
     case 8:
-      j_lua_pushstring(luaVM, _RDI->stringPtr);
+      j_lua_pushstring(luaVM, val->stringPtr);
       break;
     case 10:
-      EnumString = DDL::DDL_Lookup_GetEnumString(state, _RDI->intValue);
+      EnumString = DDL::DDL_Lookup_GetEnumString(state, val->intValue);
       j_lua_pushstring(luaVM, EnumString);
       break;
     default:
@@ -747,7 +741,6 @@ __int64 DDL_LUA_ValueLuaToDDL(lua_State *luaVM, int stackPos, DDLState *state, D
   unsigned int v18; 
   char *fmt; 
 
-  _RSI = val;
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_ddl.cpp", 298, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
   if ( !state->member && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_ddl.cpp", 299, ASSERT_TYPE_ASSERT, "(state->member)", (const char *)&queryFormat, "state->member") )
@@ -773,49 +766,46 @@ LABEL_32:
           v11 = j_lua_tointeger(luaVM, stackPos);
           EnumIndexByHash = truncate_cast<int,__int64>(v11);
 LABEL_15:
-          _RSI->intValue = EnumIndexByHash;
+          val->intValue = EnumIndexByHash;
           return 1i64;
         }
         else
         {
           if ( j_lua_type(luaVM, stackPos) != 1 )
             goto LABEL_32;
-          _RSI->intValue = j_lua_toboolean(luaVM, stackPos);
+          val->intValue = j_lua_toboolean(luaVM, stackPos);
           return 1i64;
         }
       case 2:
         if ( j_lua_isstring(luaVM, stackPos) )
         {
           v14 = j_lua_tolstring(luaVM, stackPos, NULL);
-          _RSI->intValue = I_atoui(v14);
+          val->intValue = I_atoui(v14);
           return 1i64;
         }
         if ( !j_lua_isnumber(luaVM, stackPos) )
           goto LABEL_32;
-        _RSI->intValue = j_lua_tointeger(luaVM, stackPos);
+        val->intValue = j_lua_tointeger(luaVM, stackPos);
         result = 1i64;
         break;
       case 4:
         if ( !j_lua_isstring(luaVM, stackPos) )
           goto LABEL_32;
         v15 = j_lua_tolstring(luaVM, stackPos, NULL);
-        _RSI->uint64Value = I_atoui64(v15);
+        val->uint64Value = I_atoui64(v15);
         return 1i64;
       case 6:
       case 7:
         if ( !j_lua_isnumber(luaVM, stackPos) )
           goto LABEL_32;
         *(double *)&_XMM0 = j_lua_tonumber(luaVM, stackPos);
-        __asm
-        {
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rsi], xmm1
-        }
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        val->fixedPointValue = *(float *)&_XMM1;
         return 1i64;
       case 8:
         if ( !j_lua_isstring(luaVM, stackPos) )
           goto LABEL_32;
-        _RSI->uint64Value = (unsigned __int64)j_lua_tolstring(luaVM, stackPos, NULL);
+        val->uint64Value = (unsigned __int64)j_lua_tolstring(luaVM, stackPos, NULL);
         return 1i64;
       case 10:
         if ( !j_lua_isstring(luaVM, stackPos) )

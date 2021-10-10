@@ -247,10 +247,16 @@ CL_CGameMP_AdjustTimeDelta_Acceleration
 */
 void CL_CGameMP_AdjustTimeDelta_Acceleration(const ClActiveClientMP *cl, int idealDelta, int *correction, int *correctionWhenExtrapolating)
 {
-  const dvar_t *v11; 
-  int v12; 
-  int v14; 
-  const dvar_t *v24; 
+  const dvar_t *v8; 
+  int v9; 
+  const dvar_t *v10; 
+  int v11; 
+  float value; 
+  const dvar_t *v13; 
+  double v14; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 1142, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
     __debugbreak();
@@ -262,62 +268,38 @@ void CL_CGameMP_AdjustTimeDelta_Acceleration(const ClActiveClientMP *cl, int ide
   *correctionWhenExtrapolating = 2;
   if ( (cl->snap.info.snapFlags & 0x40) != 0 )
     goto LABEL_15;
-  v11 = DCONST_DVARBOOL_deltaTimeAlwaysUseNewAlgorithm;
+  v8 = DCONST_DVARBOOL_deltaTimeAlwaysUseNewAlgorithm;
   if ( !DCONST_DVARBOOL_deltaTimeAlwaysUseNewAlgorithm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deltaTimeAlwaysUseNewAlgorithm") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled )
   {
 LABEL_15:
-    v12 = idealDelta - cl->serverTimeDelta;
-    _RDI = DCONST_DVARFLT_deltaTimeMaxCorrectionDisplacement;
-    __asm
-    {
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovaps [rsp+78h+var_38], xmm7
-    }
-    v14 = abs32(v12);
+    v9 = idealDelta - cl->serverTimeDelta;
+    v10 = DCONST_DVARFLT_deltaTimeMaxCorrectionDisplacement;
+    v11 = abs32(v9);
     if ( !DCONST_DVARFLT_deltaTimeMaxCorrectionDisplacement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deltaTimeMaxCorrectionDisplacement") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARFLT_deltaTimeMinCorrectionDisplacement;
+    Dvar_CheckFrontendServerThread(v10);
+    value = v10->current.value;
+    v13 = DCONST_DVARFLT_deltaTimeMinCorrectionDisplacement;
     if ( !DCONST_DVARFLT_deltaTimeMinCorrectionDisplacement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deltaTimeMinCorrectionDisplacement") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+28h]; min
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx; value
-      vmovaps xmm2, xmm6; max
-    }
-    *(double *)&_XMM0 = ApplyLinearMap(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    _RDI = DCONST_DVARFLT_deltaTimeMaxCorrectionSpeed;
-    __asm { vmovaps xmm7, xmm0 }
+    Dvar_CheckFrontendServerThread(v13);
+    v14 = ApplyLinearMap((float)v11, v13->current.value, value);
+    v15 = DCONST_DVARFLT_deltaTimeMaxCorrectionSpeed;
     if ( !DCONST_DVARFLT_deltaTimeMaxCorrectionSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deltaTimeMaxCorrectionSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    v24 = DCONST_DVARFLT_deltaTimeMinCorrectionSpeed;
+    Dvar_CheckFrontendServerThread(v15);
+    v16 = v15->current.value;
+    v17 = DCONST_DVARFLT_deltaTimeMinCorrectionSpeed;
     if ( !DCONST_DVARFLT_deltaTimeMinCorrectionSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deltaTimeMinCorrectionSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm7
-      vmulss  xmm2, xmm1, dword ptr [rdi+28h]
-      vmulss  xmm0, xmm6, xmm7
-      vmovaps xmm7, [rsp+78h+var_38]
-      vmovaps xmm6, [rsp+78h+var_28]
-      vaddss  xmm1, xmm2, xmm0
-      vcvttss2si eax, xmm1
-    }
-    if ( _EAX <= v14 )
-      v14 = _EAX;
-    *correction = v14;
-    *correctionWhenExtrapolating = v14;
+    Dvar_CheckFrontendServerThread(v17);
+    if ( (int)(float)((float)((float)(1.0 - *(float *)&v14) * v17->current.value) + (float)(v16 * *(float *)&v14)) <= v11 )
+      v11 = (int)(float)((float)((float)(1.0 - *(float *)&v14) * v17->current.value) + (float)(v16 * *(float *)&v14));
+    *correction = v11;
+    *correctionWhenExtrapolating = v11;
   }
 }
 
@@ -364,21 +346,23 @@ __int64 CL_CGameMP_AdjustTimeDelta_GetExpectedSnapInterval(const LocalClientNum_
   __int64 v13; 
   int *v14; 
   unsigned __int64 v15; 
+  __m256i v16; 
+  __m256i v17; 
+  int v18; 
+  unsigned int v19; 
   int v20; 
-  unsigned int v21; 
-  int v22; 
-  __int64 v23; 
-  unsigned int v24; 
-  int v25; 
-  std::less<void> v26; 
+  __int64 v21; 
+  unsigned int v22; 
+  int v23; 
+  std::less<void> v24; 
   int _First[8]; 
+  __m256i v26; 
 
-  _RBX = cl;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 1178, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
     __debugbreak();
   snapIntervalCount = 16;
-  if ( _RBX->snapIntervalCount < 16 )
-    snapIntervalCount = _RBX->snapIntervalCount;
+  if ( cl->snapIntervalCount < 16 )
+    snapIntervalCount = cl->snapIntervalCount;
   if ( !snapIntervalCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 1181, ASSERT_TYPE_ASSERT, "(intervalCount != 0)", (const char *)&queryFormat, "intervalCount != 0") )
     __debugbreak();
   if ( !cls.m_serverFrameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 316, ASSERT_TYPE_ASSERT, "(m_serverFrameDuration)", "%s\n\tMust be called after client has received game state", "m_serverFrameDuration") )
@@ -394,21 +378,17 @@ __int64 CL_CGameMP_AdjustTimeDelta_GetExpectedSnapInterval(const LocalClientNum_
     v7 = integer - 1;
     if ( !v7 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+1FB5Ch]
-        vmovups ymm1, ymmword ptr [rbx+1FB7Ch]
-        vmovups ymmword ptr [rsp+0B8h+_First], ymm0
-        vmovups [rsp+0B8h+var_48], ymm1
-      }
-      std::_Sort_unchecked<int *,std::less<void>>(_First, &_First[snapIntervalCount], snapIntervalCount, v26);
+      v16 = *(__m256i *)&cl->snapInterval[8];
+      *(__m256i *)_First = *(__m256i *)cl->snapInterval;
+      v26 = v16;
+      std::_Sort_unchecked<int *,std::less<void>>(_First, &_First[snapIntervalCount], snapIntervalCount, v24);
       return (unsigned int)_First[snapIntervalCount / 2];
     }
     v8 = v7 - 1;
     if ( v8 )
     {
       if ( v8 == 1 )
-        return (unsigned int)(_RBX->snap.info.serverTime - _RBX->oldSnapServerTime);
+        return (unsigned int)(cl->snap.info.serverTime - cl->oldSnapServerTime);
       return m_serverFrameDuration;
     }
     v10 = 0;
@@ -417,7 +397,7 @@ __int64 CL_CGameMP_AdjustTimeDelta_GetExpectedSnapInterval(const LocalClientNum_
     v13 = 0i64;
     if ( snapIntervalCount >= 2i64 )
     {
-      v14 = &_RBX->snapInterval[1];
+      v14 = &cl->snapInterval[1];
       v15 = ((unsigned __int64)(snapIntervalCount - 2i64) >> 1) + 1;
       v13 = 2 * v15;
       do
@@ -430,45 +410,41 @@ __int64 CL_CGameMP_AdjustTimeDelta_GetExpectedSnapInterval(const LocalClientNum_
       while ( v15 );
     }
     if ( v13 < snapIntervalCount )
-      v12 = _RBX->snapInterval[v13];
+      v12 = cl->snapInterval[v13];
     return (unsigned int)((v12 + v11 + v10) / snapIntervalCount);
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+1FB5Ch]
-      vmovups ymm1, ymmword ptr [rbx+1FB7Ch]
-      vmovups ymmword ptr [rsp+0B8h+_First], ymm0
-      vmovups [rsp+0B8h+var_48], ymm1
-    }
-    std::_Sort_unchecked<int *,std::less<void>>(_First, &_First[snapIntervalCount], snapIntervalCount, v26);
+    v17 = *(__m256i *)&cl->snapInterval[8];
+    *(__m256i *)_First = *(__m256i *)cl->snapInterval;
+    v26 = v17;
+    std::_Sort_unchecked<int *,std::less<void>>(_First, &_First[snapIntervalCount], snapIntervalCount, v24);
+    v18 = 0;
+    v19 = 0;
     v20 = 0;
-    v21 = 0;
-    v22 = 0;
     if ( snapIntervalCount <= 0 )
       return m_serverFrameDuration;
-    v23 = 0i64;
+    v21 = 0i64;
     do
     {
-      v24 = _First[v23];
-      v25 = 1;
-      if ( v24 == v21 )
-        v25 = v20 + 1;
-      result = v24;
-      v20 = v25;
-      if ( v25 <= v22 )
+      v22 = _First[v21];
+      v23 = 1;
+      if ( v22 == v19 )
+        v23 = v18 + 1;
+      result = v22;
+      v18 = v23;
+      if ( v23 <= v20 )
         result = m_serverFrameDuration;
-      ++v23;
+      ++v21;
       m_serverFrameDuration = result;
-      if ( v24 == v21 )
-        v24 = v21;
-      v21 = v24;
-      if ( v25 <= v22 )
-        v25 = v22;
-      v22 = v25;
+      if ( v22 == v19 )
+        v22 = v19;
+      v19 = v22;
+      if ( v23 <= v20 )
+        v23 = v20;
+      v20 = v23;
     }
-    while ( v23 < snapIntervalCount );
+    while ( v21 < snapIntervalCount );
   }
   return result;
 }
@@ -722,42 +698,34 @@ void CL_CGameMP_BeginExtrapolate(const LocalClientNum_t localClientNum, int snap
   __int64 v2; 
   __int64 v4; 
   const ClSnapshot *SnapshotForTracking; 
-  const ClSnapshot *v7; 
+  const ClSnapshot *v6; 
   ClSnapshotState state; 
+  int v8; 
   int v9; 
-  int v10; 
 
   v2 = localClientNum;
   if ( CL_GetLocalClientGameConnectionState(localClientNum) >= CA_CONNECTED )
   {
     v4 = v2;
-    if ( !s_trackExtrapolate[v2].isExtrapolating )
+    if ( !s_trackExtrapolate[v2].isExtrapolating && com_timescaleValue == 1.0 && (!s_trackExtrapolate[v2].firstSnapTime || cls.realtime - s_trackExtrapolate[v2].firstSnapTime >= Dvar_GetInt_Internal_DebugName(DVARINT_cl_extrap_tracking_start_time, "cl_extrap_tracking_start_time")) )
     {
-      __asm
+      SnapshotForTracking = CL_CGameMP_GetSnapshotForTracking((const LocalClientNum_t)v2, snapshotNumber);
+      v6 = SnapshotForTracking;
+      if ( SnapshotForTracking )
       {
-        vmovss  xmm0, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-        vucomiss xmm0, cs:__real@3f800000
-      }
-      if ( !s_trackExtrapolate[v2].isExtrapolating && (!s_trackExtrapolate[v2].firstSnapTime || cls.realtime - s_trackExtrapolate[v2].firstSnapTime >= Dvar_GetInt_Internal_DebugName(DVARINT_cl_extrap_tracking_start_time, "cl_extrap_tracking_start_time")) )
-      {
-        SnapshotForTracking = CL_CGameMP_GetSnapshotForTracking((const LocalClientNum_t)v2, snapshotNumber);
-        v7 = SnapshotForTracking;
-        if ( SnapshotForTracking )
+        state = SnapshotForTracking->state;
+        if ( state != BOOL_VALUE )
         {
-          state = SnapshotForTracking->state;
-          if ( state != BOOL_VALUE )
-          {
-            v10 = 1;
-            v9 = (unsigned __int8)state;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2686, ASSERT_TYPE_ASSERT, "( snap->state ) == ( ClSnapshotState::VALID )", "%s == %s\n\t%i, %i", "snap->state", "ClSnapshotState::VALID", v9, v10) )
-              __debugbreak();
-          }
-          if ( (v7->info.snapFlags & 0x40) == 0 )
-          {
-            s_trackExtrapolate[v4].lastInterpolatedTime = v7->info.serverTime;
-            s_trackExtrapolate[v4].extrapolatePrevSnap = snapshotNumber;
-            s_trackExtrapolate[v4].isExtrapolating = 1;
-          }
+          v9 = 1;
+          v8 = (unsigned __int8)state;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2686, ASSERT_TYPE_ASSERT, "( snap->state ) == ( ClSnapshotState::VALID )", "%s == %s\n\t%i, %i", "snap->state", "ClSnapshotState::VALID", v8, v9) )
+            __debugbreak();
+        }
+        if ( (v6->info.snapFlags & 0x40) == 0 )
+        {
+          s_trackExtrapolate[v4].lastInterpolatedTime = v6->info.serverTime;
+          s_trackExtrapolate[v4].extrapolatePrevSnap = snapshotNumber;
+          s_trackExtrapolate[v4].isExtrapolating = 1;
         }
       }
     }
@@ -775,24 +743,16 @@ void CL_CGameMP_DebugDrawIsNearCommandOverflow(LocalClientNum_t localClientNum, 
   ClConnectionDataMP *ClientConnectionData; 
   int serverCommandSequence; 
   int v8; 
-  bool v10; 
-  BOOL v11; 
+  bool v9; 
+  BOOL v10; 
 
   v3 = outputBufSize;
   ClientConnectionData = ClConnectionMP::GetClientConnectionData(localClientNum);
   serverCommandSequence = CG_GetLocalClientStaticGlobals(localClientNum)->serverCommandSequence;
   v8 = ClientConnectionData->serverCommandSequence - serverCommandSequence;
-  if ( v8 <= 0 )
-  {
-    v10 = 0;
-  }
-  else
-  {
-    __asm { vmovss  xmm2, cs:__real@3f4ccccd; memoryRatio }
-    v10 = CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit(&ClientConnectionData->serverReliableCommands, ((_WORD)serverCommandSequence + 1) & 0x1FF, *(const float *)&_XMM2);
-  }
-  v11 = ScriptableCl_IsNearChangeQueueOverflow(localClientNum);
-  Com_sprintf_truncate(outputBuf, v3, "%d / %d cmd. %d buf %d sbl", (unsigned int)v8, 409, v10, v11);
+  v9 = v8 > 0 && CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit(&ClientConnectionData->serverReliableCommands, ((_WORD)serverCommandSequence + 1) & 0x1FF, 0.80000001);
+  v10 = ScriptableCl_IsNearChangeQueueOverflow(localClientNum);
+  Com_sprintf_truncate(outputBuf, v3, "%d / %d cmd. %d buf %d sbl", (unsigned int)v8, 409, v9, v10);
 }
 
 /*
@@ -840,16 +800,8 @@ void CL_CGameMP_ExtrapolateSnap(const LocalClientNum_t localClientNum, int snaps
     {
       if ( !s_trackExtrapolate[v3].firstSnapTime )
         s_trackExtrapolate[v3].firstSnapTime = cls.realtime;
-      if ( s_trackExtrapolate[v3].isExtrapolating )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-          vucomiss xmm0, cs:__real@3f800000
-        }
-        if ( !s_trackExtrapolate[v3].isExtrapolating && CL_CGameMP_GetSnapshotForTracking((const LocalClientNum_t)v3, extrapolatePrevSnap) && CL_CGameMP_GetSnapshotForTracking((const LocalClientNum_t)v3, snapshotNumber) )
-          s_trackExtrapolate[v3].lastExtrapolatedTime = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v3)->time;
-      }
+      if ( s_trackExtrapolate[v3].isExtrapolating && com_timescaleValue == 1.0 && CL_CGameMP_GetSnapshotForTracking((const LocalClientNum_t)v3, extrapolatePrevSnap) && CL_CGameMP_GetSnapshotForTracking((const LocalClientNum_t)v3, snapshotNumber) )
+        s_trackExtrapolate[v3].lastExtrapolatedTime = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v3)->time;
     }
     else
     {
@@ -882,16 +834,16 @@ void CL_CGameMP_FirstSnapshot(LocalClientNum_t localClientNum)
   cgs_t *LocalClientStaticGlobals; 
   int serverCommandSequence; 
   __int64 v7; 
-  unsigned int v9; 
+  unsigned int v8; 
+  int v9; 
   int v10; 
-  int v11; 
-  bool v12; 
+  bool v11; 
   int serverTime; 
-  int v14; 
+  int v13; 
   int ControllerFromClient; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
-  char v18; 
+  char v17; 
 
   v1 = localClientNum;
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
@@ -922,15 +874,14 @@ void CL_CGameMP_FirstSnapshot(LocalClientNum_t localClientNum)
   }
   if ( (int)v7 > 0 )
   {
-    __asm { vmovss  xmm2, cs:__real@3f4ccccd; memoryRatio }
-    v9 = ((_WORD)serverCommandSequence + 1) & 0x1FF;
-    if ( CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit(&ClientConnectionData->serverReliableCommands, v9, *(const float *)&_XMM2) )
+    v8 = ((_WORD)serverCommandSequence + 1) & 0x1FF;
+    if ( CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit(&ClientConnectionData->serverReliableCommands, v8, 0.80000001) )
     {
       Com_PrintWarning(14, "CL_CGameMP_IsNearReliableCommandOverflow: Near the reliable command buffer limit (%i pending).\n", (unsigned int)(ClientConnectionData->serverCommandSequence - LocalClientStaticGlobals->serverCommandSequence));
       v4 = 1;
       goto LABEL_15;
     }
-    if ( (ClientConnectionData->serverReliableCommands.m_bufferNextIndex - ClientConnectionData->serverReliableCommands.m_entries[v9].offset > 0x20000 || !ClientConnectionData->serverReliableCommands.m_entries[v9].size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 1742, ASSERT_TYPE_ASSERT, "(clcData->serverReliableCommands.IsDataAvailable( gameNextSequenceIndex ))", "%s\n\tSomething failed in the detection above, we ended up with an invalid reliable command", "clcData->serverReliableCommands.IsDataAvailable( gameNextSequenceIndex )") )
+    if ( (ClientConnectionData->serverReliableCommands.m_bufferNextIndex - ClientConnectionData->serverReliableCommands.m_entries[v8].offset > 0x20000 || !ClientConnectionData->serverReliableCommands.m_entries[v8].size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 1742, ASSERT_TYPE_ASSERT, "(clcData->serverReliableCommands.IsDataAvailable( gameNextSequenceIndex ))", "%s\n\tSomething failed in the detection above, we ended up with an invalid reliable command", "clcData->serverReliableCommands.IsDataAvailable( gameNextSequenceIndex )") )
       __debugbreak();
   }
   v4 = ScriptableCl_IsNearChangeQueueOverflow((const LocalClientNum_t)v1);
@@ -942,22 +893,22 @@ LABEL_15:
   Stream_LoadSync_BeginMP((LocalClientNum_t)v1, &ClientMP->snap.ps.origin);
   if ( Com_Frontend_LoadFastfile_IsInUse() || Com_GameStart_IsActive() )
   {
-    v10 = 1;
+    v9 = 1;
     if ( v4 )
     {
       Com_Printf(35, "CL_CGameMP_CheckStreaming: Skipped, forceCompletion detected\n");
     }
     else
     {
-      LOBYTE(v11) = CL_CGameMP_StreamSyncIsDone();
-      v10 = v11;
-      if ( !v11 )
+      LOBYTE(v10) = CL_CGameMP_StreamSyncIsDone();
+      v9 = v10;
+      if ( !v10 )
       {
         Com_GameStart_FirstSnapshotStreaming();
         return;
       }
     }
-    DB_LoadTimes_StreamSyncMPFinished(v10 == 1);
+    DB_LoadTimes_StreamSyncMPFinished(v9 == 1);
   }
   if ( !Com_GameStart_CheckFirstSnapshotMinDelay(v4) )
   {
@@ -968,24 +919,24 @@ LABEL_15:
   Stream_LoadSync_EndMP((LocalClientNum_t)v1);
 LABEL_36:
   Com_GameStart_ClearState();
-  v12 = !CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v1);
+  v11 = !CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v1);
   Sys_Print("Setting state to CA_ACTIVE in CL_CGameMP_FirstSnapshot\n");
   if ( (unsigned int)v1 >= 2 )
   {
-    LODWORD(v16) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, 2) )
+    LODWORD(v15) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, 2) )
       __debugbreak();
   }
   Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v1].connectionState, 9i64);
   clientUIActives[v1].connectionState = CA_ACTIVE;
-  if ( v12 )
+  if ( v11 )
   {
-    v18 = 37;
+    v17 = 37;
     if ( (unsigned int)v1 >= 2 )
     {
-      LODWORD(v17) = 2;
-      LODWORD(v16) = v1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_connection.h", 106, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, v17) )
+      LODWORD(v16) = 2;
+      LODWORD(v15) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_connection.h", 106, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
     if ( !ClConnection::ms_connections[v1] )
@@ -999,25 +950,25 @@ LABEL_36:
     {
       if ( (unsigned int)v1 >= LODWORD(cl_maxLocalClients) )
       {
-        *(float *)&v17 = cl_maxLocalClients;
-        LODWORD(v16) = v1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_connection.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, v17) )
+        *(float *)&v16 = cl_maxLocalClients;
+        LODWORD(v15) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_connection.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
       if ( !(_BYTE)ClConnection::ms_activeConnectionType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_connection.h", 98, ASSERT_TYPE_ASSERT, "(ms_activeConnectionType != GameModeType::NONE)", (const char *)&queryFormat, "ms_activeConnectionType != GameModeType::NONE") )
         __debugbreak();
       if ( !ClConnection::ms_connections[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_connection.h", 99, ASSERT_TYPE_ASSERT, "(ms_connections[localClientNum])", (const char *)&queryFormat, "ms_connections[localClientNum]") )
         __debugbreak();
-      ClConnection::ms_connections[v1]->AddReliableBinaryCommand(ClConnection::ms_connections[v1], (const unsigned __int8 *)&v18, 1);
+      ClConnection::ms_connections[v1]->AddReliableBinaryCommand(ClConnection::ms_connections[v1], (const unsigned __int8 *)&v17, 1);
     }
   }
   ClientConnectionData->isServerRestarting = 0;
   g_waitingForServer = 0;
   serverTime = ClientMP->snap.info.serverTime;
   ClientMP->serverTime = serverTime;
-  v14 = serverTime - cls.realtime;
+  v13 = serverTime - cls.realtime;
   ClientMP->serverTimeDelta = serverTime - cls.realtime;
-  ClientMP->desiredServerTimeDelta = v14;
+  ClientMP->desiredServerTimeDelta = v13;
   ClientMP->m_firstSnapTime = cls.realtime;
   Con_SetServerTime((LocalClientNum_t)v1, serverTime);
   Con_ServerTimeJumped((LocalClientNum_t)v1, ClientMP->serverTime);
@@ -1057,6 +1008,7 @@ CL_CGameMP_GetSnapshot
 */
 __int64 CL_CGameMP_GetSnapshot(LocalClientNum_t localClientNum, int snapshotNumber, CgSnapshotMP *snapshot)
 {
+  CgSnapshotMP *v3; 
   ClActiveClientMP *ClientMP; 
   ClConnectionMP *ClientConnectionMP; 
   __int64 v8; 
@@ -1073,30 +1025,45 @@ __int64 CL_CGameMP_GetSnapshot(LocalClientNum_t localClientNum, int snapshotNumb
   __int64 v19; 
   __int64 v20; 
   __int64 v21; 
+  WeaponMapEntry *weapons; 
   __int64 v23; 
-  unsigned int v28; 
-  bool v29; 
+  __int64 v24; 
+  unsigned int v25; 
+  bool v26; 
   unsigned int maxEntitiesInSnapshotForClient; 
-  const char *v31; 
-  __int64 v32; 
+  const char *v28; 
+  __int64 v29; 
+  entityState_t *entities; 
+  char *v31; 
   __int64 number; 
-  __int64 v51; 
-  __int64 v69; 
-  char *v70; 
+  __int64 v33; 
+  entityState_t *v34; 
+  __int64 v35; 
+  __int64 v36; 
+  char *v37; 
   unsigned int maxClients; 
-  unsigned int v72; 
+  unsigned int v39; 
   clientState_t *clients; 
-  __int64 v74; 
-  __int64 v77; 
+  __int64 v41; 
+  clientState_t *v42; 
+  __int64 v43; 
+  __int64 v44; 
+  __int128 v45; 
+  agentState_s *agents; 
   unsigned int maxAgents; 
-  unsigned int v89; 
-  __int64 v117; 
-  __int64 v118; 
-  __int64 v119; 
-  __int64 v120; 
-  char v122[2048]; 
+  unsigned int v48; 
+  __int128 v49; 
+  __int64 v50; 
+  bitarray<384> *parseUmbraGateStates; 
+  BgScriptedCameraState *parseScriptedCameras; 
+  __int64 v53; 
+  __int64 v55; 
+  __int64 v56; 
+  __int64 v57; 
+  __int64 v58; 
+  char v60[2048]; 
 
-  _R14 = snapshot;
+  v3 = snapshot;
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
   if ( snapshotNumber > ClientMP->snap.messageNum )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14420E8C0, 993i64);
@@ -1106,11 +1073,11 @@ __int64 CL_CGameMP_GetSnapshot(LocalClientNum_t localClientNum, int snapshotNumb
     __debugbreak();
   if ( ClientConnectionMP->m_packetBackupCount <= 0 )
   {
-    LODWORD(v119) = ClientConnectionMP->m_packetBackupCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 171, ASSERT_TYPE_ASSERT, "( m_packetBackupCount ) > ( 0 )", "%s > %s\n\t%i, %i", "m_packetBackupCount", "0", v119, 0i64) )
+    LODWORD(v57) = ClientConnectionMP->m_packetBackupCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 171, ASSERT_TYPE_ASSERT, "( m_packetBackupCount ) > ( 0 )", "%s > %s\n\t%i, %i", "m_packetBackupCount", "0", v57, 0i64) )
       __debugbreak();
-    LODWORD(v120) = ClientConnectionMP->m_packetBackupCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 192, ASSERT_TYPE_ASSERT, "( clc->GetPacketBackupCount() ) > ( 0 )", "%s > %s\n\t%i, %i", "clc->GetPacketBackupCount()", "0", v120, 0i64) )
+    LODWORD(v58) = ClientConnectionMP->m_packetBackupCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 192, ASSERT_TYPE_ASSERT, "( clc->GetPacketBackupCount() ) > ( 0 )", "%s > %s\n\t%i, %i", "clc->GetPacketBackupCount()", "0", v58, 0i64) )
       __debugbreak();
   }
   if ( ClientMP->snap.messageNum - snapshotNumber >= ClConnectionMP::GetPacketBackupCount(ClientConnectionMP) )
@@ -1158,436 +1125,350 @@ __int64 CL_CGameMP_GetSnapshot(LocalClientNum_t localClientNum, int snapshotNumb
     if ( ClientMP->parseScriptedCameraIndex - *(_DWORD *)(v9 + 94596) >= parseScriptedCameraCount )
       return 0i64;
   }
-  _R14->snapFlags = *(_DWORD *)(v9 + 94468);
-  _R14->serverCommandSequence = *(_DWORD *)(v9 + 94592);
-  _R14->ping = *(_DWORD *)(v9 + 94484);
-  _R14->serverTime = *(_DWORD *)(v9 + 94472);
-  memcpy_0(&_R14->ps, (const void *)v9, sizeof(_R14->ps));
-  memcpy_0(&_R14->scores, (const void *)(v9 + 21412), sizeof(_R14->scores));
-  memcpy_0(&_R14->streamSync, (const void *)(v9 + 27432), sizeof(_R14->streamSync));
+  v3->snapFlags = *(_DWORD *)(v9 + 94468);
+  v3->serverCommandSequence = *(_DWORD *)(v9 + 94592);
+  v3->ping = *(_DWORD *)(v9 + 94484);
+  v3->serverTime = *(_DWORD *)(v9 + 94472);
+  memcpy_0(&v3->ps, (const void *)v9, sizeof(v3->ps));
+  memcpy_0(&v3->scores, (const void *)(v9 + 21412), sizeof(v3->scores));
+  memcpy_0(&v3->streamSync, (const void *)(v9 + 27432), sizeof(v3->streamSync));
   v15 = BG_Omnvar_PerSnapCount();
   parseOmnvars = ClientMP->parseOmnvars;
   v17 = 8i64 * v15;
   v18 = BG_Omnvar_PerSnapCount();
-  memcpy_0(_R14->omnvars, &parseOmnvars[v18 * (*(_QWORD *)(v9 + 94544) % (__int64)ClientMP->parseOmnvarsCount)], v17);
+  memcpy_0(v3->omnvars, &parseOmnvars[v18 * (*(_QWORD *)(v9 + 94544) % (__int64)ClientMP->parseOmnvarsCount)], v17);
   v19 = *(unsigned int *)(v9 + 94512);
   if ( (unsigned int)v19 > BgWeaponMap::GetRuntimeSize() )
   {
-    LODWORD(v119) = BgWeaponMap::GetRuntimeSize();
-    LODWORD(v117) = v19;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 284, ASSERT_TYPE_ASSERT, "( 0 ) <= ( count ) && ( count ) <= ( BgWeaponMap::GetRuntimeSize() )", "count not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v117, 0i64, v119) )
+    LODWORD(v57) = BgWeaponMap::GetRuntimeSize();
+    LODWORD(v55) = v19;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 284, ASSERT_TYPE_ASSERT, "( 0 ) <= ( count ) && ( count ) <= ( BgWeaponMap::GetRuntimeSize() )", "count not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v55, 0i64, v57) )
       __debugbreak();
   }
-  _R14->numWeapons = v19;
+  v3->numWeapons = v19;
   v20 = 0i64;
   v21 = v19;
   if ( (_DWORD)v19 )
   {
-    _RBX = _R14->weapons;
+    weapons = v3->weapons;
     do
     {
       v23 = (v20 + *(_QWORD *)(v9 + 94552)) % ClientMP->parseWeaponMapEntriesCount;
       if ( (unsigned int)v23 >= ClientMP->parseWeaponMapEntriesCount )
       {
-        LODWORD(v118) = ClientMP->parseWeaponMapEntriesCount;
-        LODWORD(v117) = (v20 + *(_QWORD *)(v9 + 94552)) % (unsigned int)v118;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 289, ASSERT_TYPE_ASSERT, "(unsigned)( bufIdx ) < (unsigned)( cl->parseWeaponMapEntriesCount )", "bufIdx doesn't index cl->parseWeaponMapEntriesCount\n\t%i not in [0, %i)", v117, v118) )
+        LODWORD(v56) = ClientMP->parseWeaponMapEntriesCount;
+        LODWORD(v55) = (v20 + *(_QWORD *)(v9 + 94552)) % (unsigned int)v56;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 289, ASSERT_TYPE_ASSERT, "(unsigned)( bufIdx ) < (unsigned)( cl->parseWeaponMapEntriesCount )", "bufIdx doesn't index cl->parseWeaponMapEntriesCount\n\t%i not in [0, %i)", v55, v56) )
           __debugbreak();
       }
       ++v20;
-      _RDX = (__int64)&ClientMP->parseWeaponMapEntries[v23];
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups xmm1, xmmword ptr [rdx+20h]
-        vmovups xmmword ptr [rbx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rdx+30h]
-        vmovsd  qword ptr [rbx+30h], xmm0
-      }
-      *(_DWORD *)&_RBX->weapon.attachmentVariationIndices[27] = *(_DWORD *)(_RDX + 56);
-      *(_WORD *)&_RBX->weapon.scopeVariation = *(_WORD *)(_RDX + 60);
-      ++_RBX;
+      v24 = (__int64)&ClientMP->parseWeaponMapEntries[v23];
+      *(__m256i *)&weapons->index = *(__m256i *)v24;
+      *(_OWORD *)&weapons->weapon.attachmentVariationIndices[3] = *(_OWORD *)(v24 + 32);
+      *(double *)&weapons->weapon.attachmentVariationIndices[19] = *(double *)(v24 + 48);
+      *(_DWORD *)&weapons->weapon.attachmentVariationIndices[27] = *(_DWORD *)(v24 + 56);
+      *(_WORD *)&weapons->weapon.scopeVariation = *(_WORD *)(v24 + 60);
+      ++weapons;
     }
     while ( v20 < v21 );
-    _R14 = snapshot;
+    v3 = snapshot;
   }
-  v28 = *(_DWORD *)(v9 + 94500);
-  v29 = (_R14->snapFlags & 8) != 0;
+  v25 = *(_DWORD *)(v9 + 94500);
+  v26 = (v3->snapFlags & 8) != 0;
   if ( !cls.maxEntitiesInSnapshotForClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 297, ASSERT_TYPE_ASSERT, "(cls.maxEntitiesInSnapshotForClient)", (const char *)&queryFormat, "cls.maxEntitiesInSnapshotForClient") )
     __debugbreak();
   maxEntitiesInSnapshotForClient = cls.maxEntitiesInSnapshotForClient;
-  if ( v29 )
+  if ( v26 )
     maxEntitiesInSnapshotForClient = cls.maxNoDeltaEntities;
-  if ( v28 > maxEntitiesInSnapshotForClient )
+  if ( v25 > maxEntitiesInSnapshotForClient )
   {
     if ( com_statmon->current.enabled )
     {
-      v31 = j_va("Snapshot sent %i entities - max %i", v28, maxEntitiesInSnapshotForClient);
-      StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SNAPSHOTENTS, 3000, v31, v28);
-      Com_PrintError(1, "Too many client entities in snapshot ignoring remaining %d > %d.\n", v28, maxEntitiesInSnapshotForClient);
+      v28 = j_va("Snapshot sent %i entities - max %i", v25, maxEntitiesInSnapshotForClient);
+      StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SNAPSHOTENTS, 3000, v28, v25);
+      Com_PrintError(1, "Too many client entities in snapshot ignoring remaining %d > %d.\n", v25, maxEntitiesInSnapshotForClient);
     }
     else
     {
-      Com_DPrintf(14, "CL_GetSnapshot: truncated %i entities to %i\n", v28, maxEntitiesInSnapshotForClient);
+      Com_DPrintf(14, "CL_GetSnapshot: truncated %i entities to %i\n", v25, maxEntitiesInSnapshotForClient);
     }
-    v28 = maxEntitiesInSnapshotForClient;
+    v25 = maxEntitiesInSnapshotForClient;
   }
-  _R14->numEntities = v28;
-  memset_0(v122, 0, sizeof(v122));
-  v32 = v28;
-  if ( v29 )
+  v3->numEntities = v25;
+  memset_0(v60, 0, sizeof(v60));
+  v29 = v25;
+  if ( v26 )
   {
-    if ( v28 != cls.nextNoDeltaEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 325, ASSERT_TYPE_ASSERT, "( static_cast<SnapshotEntryIndex>(count) ) == ( cls.nextNoDeltaEntity )", "%s == %s\n\t%lli, %lli", "static_cast<SnapshotEntryIndex>(count)", "cls.nextNoDeltaEntity", v28, cls.nextNoDeltaEntity) )
+    if ( v25 != cls.nextNoDeltaEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 325, ASSERT_TYPE_ASSERT, "( static_cast<SnapshotEntryIndex>(count) ) == ( cls.nextNoDeltaEntity )", "%s == %s\n\t%lli, %lli", "static_cast<SnapshotEntryIndex>(count)", "cls.nextNoDeltaEntity", v25, cls.nextNoDeltaEntity) )
       __debugbreak();
-    if ( !v28 )
+    if ( !v25 )
       goto LABEL_77;
-    _RDI = _R14->entities;
+    entities = v3->entities;
     do
     {
-      _RAX = (char *)&_RDI[-86] + (unsigned __int64)cls.noDeltaEntities - (_QWORD)_R14 - 124;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rdi], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rdi+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rdi+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rdi+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rdi+40h], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups xmmword ptr [rdi+50h], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rdi+60h], xmm0
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rdi+70h], xmm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rdi+80h], xmm0
-        vmovups xmm1, xmmword ptr [rax+90h]
-        vmovups xmmword ptr [rdi+90h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0A0h]
-        vmovups xmmword ptr [rdi+0A0h], xmm0
-        vmovups xmm1, xmmword ptr [rax+0B0h]
-        vmovups xmmword ptr [rdi+0B0h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0C0h]
-        vmovups xmmword ptr [rdi+0C0h], xmm0
-        vmovups xmm1, xmmword ptr [rax+0D0h]
-        vmovups xmmword ptr [rdi+0D0h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0E0h]
-        vmovups xmmword ptr [rdi+0E0h], xmm0
-      }
-      *(_QWORD *)&_RDI->partBits.array[6] = *((_QWORD *)_RAX + 30);
-      number = _RDI->number;
+      v31 = (char *)&entities[-86] + (unsigned __int64)cls.noDeltaEntities - (_QWORD)v3 - 124;
+      *(_OWORD *)&entities->number = *(_OWORD *)v31;
+      *(_OWORD *)&entities->lerp.pos.trType = *((_OWORD *)v31 + 1);
+      *(_OWORD *)&entities->lerp.pos.trBase.y = *((_OWORD *)v31 + 2);
+      *(_OWORD *)&entities->lerp.pos.trDelta.z = *((_OWORD *)v31 + 3);
+      *(_OWORD *)entities->lerp.apos.trBase.v = *((_OWORD *)v31 + 4);
+      *(_OWORD *)&entities->lerp.apos.trDelta.y = *((_OWORD *)v31 + 5);
+      *(_OWORD *)&entities->lerp.u.vehicle.bodyPitch = *((_OWORD *)v31 + 6);
+      *(LerpEntityStateInfoVolumeGrapple *)((char *)&entities->lerp.u.infoVolumeGrapple + 24) = (LerpEntityStateInfoVolumeGrapple)*((_OWORD *)v31 + 7);
+      *(_OWORD *)&entities->staticState.turret.carrierEntNum = *((_OWORD *)v31 + 8);
+      *(_OWORD *)&entities->clientNum = *((_OWORD *)v31 + 9);
+      *(_OWORD *)&entities->events[0].eventType = *((_OWORD *)v31 + 10);
+      *(_OWORD *)&entities->events[2].eventType = *((_OWORD *)v31 + 11);
+      *(_OWORD *)&entities->index.brushModel = *((_OWORD *)v31 + 12);
+      *(_OWORD *)&entities->animInfo.selectAnim = *((_OWORD *)v31 + 13);
+      *(_OWORD *)&entities->partBits.array[2] = *((_OWORD *)v31 + 14);
+      *(_QWORD *)&entities->partBits.array[6] = *((_QWORD *)v31 + 30);
+      number = entities->number;
       if ( (unsigned int)number > 0x7FF )
       {
-        LODWORD(v117) = _RDI->number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 333, ASSERT_TYPE_ASSERT, "( ( (number >= 0 && number < ( 2048 )) ) )", "( number ) = %i", v117) )
+        LODWORD(v55) = entities->number;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 333, ASSERT_TYPE_ASSERT, "( ( (number >= 0 && number < ( 2048 )) ) )", "( number ) = %i", v55) )
           __debugbreak();
       }
-      if ( v122[number] )
+      if ( v60[number] )
       {
-        LODWORD(v118) = number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 334, ASSERT_TYPE_ASSERT, "(!entityFound[number])", "%s\n\tEntityNum %i was found twice in this snapshot", "!entityFound[number]", v118) )
+        LODWORD(v56) = number;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 334, ASSERT_TYPE_ASSERT, "(!entityFound[number])", "%s\n\tEntityNum %i was found twice in this snapshot", "!entityFound[number]", v56) )
           __debugbreak();
       }
-      ++_RDI;
-      v122[number] = 1;
-      --v32;
+      ++entities;
+      v60[number] = 1;
+      --v29;
     }
-    while ( v32 );
+    while ( v29 );
     goto LABEL_76;
   }
-  v51 = 0i64;
-  if ( v28 )
+  v33 = 0i64;
+  if ( v25 )
   {
-    _R13 = _R14->entities;
+    v34 = v3->entities;
     do
     {
-      _RAX = (__int64)&ClientMP->parseEntities[(v51 + *(_QWORD *)(v9 + 94520)) % ClientMP->parseEntitiesCount];
-      __asm
+      v35 = (__int64)&ClientMP->parseEntities[(v33 + *(_QWORD *)(v9 + 94520)) % ClientMP->parseEntitiesCount];
+      *(_OWORD *)&v34->number = *(_OWORD *)v35;
+      *(_OWORD *)&v34->lerp.pos.trType = *(_OWORD *)(v35 + 16);
+      *(_OWORD *)&v34->lerp.pos.trBase.y = *(_OWORD *)(v35 + 32);
+      *(_OWORD *)&v34->lerp.pos.trDelta.z = *(_OWORD *)(v35 + 48);
+      *(_OWORD *)v34->lerp.apos.trBase.v = *(_OWORD *)(v35 + 64);
+      *(_OWORD *)&v34->lerp.apos.trDelta.y = *(_OWORD *)(v35 + 80);
+      *(_OWORD *)&v34->lerp.u.vehicle.bodyPitch = *(_OWORD *)(v35 + 96);
+      *(LerpEntityStateInfoVolumeGrapple *)((char *)&v34->lerp.u.infoVolumeGrapple + 24) = *(LerpEntityStateInfoVolumeGrapple *)(v35 + 112);
+      *(_OWORD *)&v34->staticState.turret.carrierEntNum = *(_OWORD *)(v35 + 128);
+      *(_OWORD *)&v34->clientNum = *(_OWORD *)(v35 + 144);
+      *(_OWORD *)&v34->events[0].eventType = *(_OWORD *)(v35 + 160);
+      *(_OWORD *)&v34->events[2].eventType = *(_OWORD *)(v35 + 176);
+      *(_OWORD *)&v34->index.brushModel = *(_OWORD *)(v35 + 192);
+      *(_OWORD *)&v34->animInfo.selectAnim = *(_OWORD *)(v35 + 208);
+      *(_OWORD *)&v34->partBits.array[2] = *(_OWORD *)(v35 + 224);
+      *(_QWORD *)&v34->partBits.array[6] = *(_QWORD *)(v35 + 240);
+      v36 = v34->number;
+      if ( (unsigned int)v36 > 0x7FF )
       {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [r13+0], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [r13+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [r13+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [r13+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [r13+40h], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups xmmword ptr [r13+50h], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [r13+60h], xmm0
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [r13+70h], xmm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [r13+80h], xmm0
-        vmovups xmm1, xmmword ptr [rax+90h]
-        vmovups xmmword ptr [r13+90h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0A0h]
-        vmovups xmmword ptr [r13+0A0h], xmm0
-        vmovups xmm1, xmmword ptr [rax+0B0h]
-        vmovups xmmword ptr [r13+0B0h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0C0h]
-        vmovups xmmword ptr [r13+0C0h], xmm0
-        vmovups xmm1, xmmword ptr [rax+0D0h]
-        vmovups xmmword ptr [r13+0D0h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0E0h]
-        vmovups xmmword ptr [r13+0E0h], xmm0
-      }
-      *(_QWORD *)&_R13->partBits.array[6] = *(_QWORD *)(_RAX + 240);
-      v69 = _R13->number;
-      if ( (unsigned int)v69 > 0x7FF )
-      {
-        LODWORD(v117) = _R13->number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 347, ASSERT_TYPE_ASSERT, "( ( (number >= 0 && number < ( 2048 )) ) )", "( number ) = %i", v117) )
+        LODWORD(v55) = v34->number;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 347, ASSERT_TYPE_ASSERT, "( ( (number >= 0 && number < ( 2048 )) ) )", "( number ) = %i", v55) )
           __debugbreak();
       }
-      v70 = &v122[v69];
-      if ( v122[v69] )
+      v37 = &v60[v36];
+      if ( v60[v36] )
       {
-        LODWORD(v118) = v69;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 348, ASSERT_TYPE_ASSERT, "(!entityFound[number])", "%s\n\tEntityNum %i was found twice in this snapshot", "!entityFound[number]", v118) )
+        LODWORD(v56) = v36;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 348, ASSERT_TYPE_ASSERT, "(!entityFound[number])", "%s\n\tEntityNum %i was found twice in this snapshot", "!entityFound[number]", v56) )
           __debugbreak();
-        v70 = &v122[v69];
+        v37 = &v60[v36];
       }
-      ++v51;
-      *v70 = 1;
-      ++_R13;
+      ++v33;
+      *v37 = 1;
+      ++v34;
     }
-    while ( v51 < v32 );
+    while ( v33 < v29 );
 LABEL_76:
-    _R14 = snapshot;
+    v3 = snapshot;
     v8 = 0i64;
   }
 LABEL_77:
-  _R14->entitiesLoD.array[0] = *(_DWORD *)(v9 + 94600);
-  _R14->entitiesLoD.array[1] = *(_DWORD *)(v9 + 94604);
-  _R14->entitiesLoD.array[2] = *(_DWORD *)(v9 + 94608);
-  _R14->entitiesLoD.array[3] = *(_DWORD *)(v9 + 94612);
-  _R14->entitiesLoD.array[4] = *(_DWORD *)(v9 + 94616);
-  _R14->entitiesLoD.array[5] = *(_DWORD *)(v9 + 94620);
-  _R14->entitiesLoD.array[6] = *(_DWORD *)(v9 + 94624);
-  _R14->entitiesLoD.array[7] = *(_DWORD *)(v9 + 94628);
-  _R14->entitiesLoD.array[8] = *(_DWORD *)(v9 + 94632);
-  _R14->entitiesLoD.array[9] = *(_DWORD *)(v9 + 94636);
-  _R14->entitiesLoD.array[10] = *(_DWORD *)(v9 + 94640);
-  _R14->entitiesLoD.array[11] = *(_DWORD *)(v9 + 94644);
-  _R14->entitiesLoD.array[12] = *(_DWORD *)(v9 + 94648);
-  _R14->entitiesLoD.array[13] = *(_DWORD *)(v9 + 94652);
-  _R14->entitiesLoD.array[14] = *(_DWORD *)(v9 + 94656);
-  _R14->entitiesLoD.array[15] = *(_DWORD *)(v9 + 94660);
-  _R14->entitiesLoD.array[16] = *(_DWORD *)(v9 + 94664);
-  _R14->entitiesLoD.array[17] = *(_DWORD *)(v9 + 94668);
-  _R14->entitiesLoD.array[18] = *(_DWORD *)(v9 + 94672);
-  _R14->entitiesLoD.array[19] = *(_DWORD *)(v9 + 94676);
-  _R14->entitiesLoD.array[20] = *(_DWORD *)(v9 + 94680);
-  _R14->entitiesLoD.array[21] = *(_DWORD *)(v9 + 94684);
-  _R14->entitiesLoD.array[22] = *(_DWORD *)(v9 + 94688);
-  _R14->entitiesLoD.array[23] = *(_DWORD *)(v9 + 94692);
-  _R14->entitiesLoD.array[24] = *(_DWORD *)(v9 + 94696);
-  _R14->entitiesLoD.array[25] = *(_DWORD *)(v9 + 94700);
-  _R14->entitiesLoD.array[26] = *(_DWORD *)(v9 + 94704);
-  _R14->entitiesLoD.array[27] = *(_DWORD *)(v9 + 94708);
-  _R14->entitiesLoD.array[28] = *(_DWORD *)(v9 + 94712);
-  _R14->entitiesLoD.array[29] = *(_DWORD *)(v9 + 94716);
-  _R14->entitiesLoD.array[30] = *(_DWORD *)(v9 + 94720);
-  _R14->entitiesLoD.array[31] = *(_DWORD *)(v9 + 94724);
-  _R14->entitiesLoD.array[32] = *(_DWORD *)(v9 + 94728);
-  _R14->entitiesLoD.array[33] = *(_DWORD *)(v9 + 94732);
-  _R14->entitiesLoD.array[34] = *(_DWORD *)(v9 + 94736);
-  _R14->entitiesLoD.array[35] = *(_DWORD *)(v9 + 94740);
-  _R14->entitiesLoD.array[36] = *(_DWORD *)(v9 + 94744);
-  _R14->entitiesLoD.array[37] = *(_DWORD *)(v9 + 94748);
-  _R14->entitiesLoD.array[38] = *(_DWORD *)(v9 + 94752);
-  _R14->entitiesLoD.array[39] = *(_DWORD *)(v9 + 94756);
-  _R14->entitiesLoD.array[40] = *(_DWORD *)(v9 + 94760);
-  _R14->entitiesLoD.array[41] = *(_DWORD *)(v9 + 94764);
-  _R14->entitiesLoD.array[42] = *(_DWORD *)(v9 + 94768);
-  _R14->entitiesLoD.array[43] = *(_DWORD *)(v9 + 94772);
-  _R14->entitiesLoD.array[44] = *(_DWORD *)(v9 + 94776);
-  _R14->entitiesLoD.array[45] = *(_DWORD *)(v9 + 94780);
-  _R14->entitiesLoD.array[46] = *(_DWORD *)(v9 + 94784);
-  _R14->entitiesLoD.array[47] = *(_DWORD *)(v9 + 94788);
-  _R14->entitiesLoD.array[48] = *(_DWORD *)(v9 + 94792);
-  _R14->entitiesLoD.array[49] = *(_DWORD *)(v9 + 94796);
-  _R14->entitiesLoD.array[50] = *(_DWORD *)(v9 + 94800);
-  _R14->entitiesLoD.array[51] = *(_DWORD *)(v9 + 94804);
-  _R14->entitiesLoD.array[52] = *(_DWORD *)(v9 + 94808);
-  _R14->entitiesLoD.array[53] = *(_DWORD *)(v9 + 94812);
-  _R14->entitiesLoD.array[54] = *(_DWORD *)(v9 + 94816);
-  _R14->entitiesLoD.array[55] = *(_DWORD *)(v9 + 94820);
-  _R14->entitiesLoD.array[56] = *(_DWORD *)(v9 + 94824);
-  _R14->entitiesLoD.array[57] = *(_DWORD *)(v9 + 94828);
-  _R14->entitiesLoD.array[58] = *(_DWORD *)(v9 + 94832);
-  _R14->entitiesLoD.array[59] = *(_DWORD *)(v9 + 94836);
-  _R14->entitiesLoD.array[60] = *(_DWORD *)(v9 + 94840);
-  _R14->entitiesLoD.array[61] = *(_DWORD *)(v9 + 94844);
-  _R14->entitiesLoD.array[62] = *(_DWORD *)(v9 + 94848);
-  _R14->entitiesLoD.array[63] = *(_DWORD *)(v9 + 94852);
+  v3->entitiesLoD.array[0] = *(_DWORD *)(v9 + 94600);
+  v3->entitiesLoD.array[1] = *(_DWORD *)(v9 + 94604);
+  v3->entitiesLoD.array[2] = *(_DWORD *)(v9 + 94608);
+  v3->entitiesLoD.array[3] = *(_DWORD *)(v9 + 94612);
+  v3->entitiesLoD.array[4] = *(_DWORD *)(v9 + 94616);
+  v3->entitiesLoD.array[5] = *(_DWORD *)(v9 + 94620);
+  v3->entitiesLoD.array[6] = *(_DWORD *)(v9 + 94624);
+  v3->entitiesLoD.array[7] = *(_DWORD *)(v9 + 94628);
+  v3->entitiesLoD.array[8] = *(_DWORD *)(v9 + 94632);
+  v3->entitiesLoD.array[9] = *(_DWORD *)(v9 + 94636);
+  v3->entitiesLoD.array[10] = *(_DWORD *)(v9 + 94640);
+  v3->entitiesLoD.array[11] = *(_DWORD *)(v9 + 94644);
+  v3->entitiesLoD.array[12] = *(_DWORD *)(v9 + 94648);
+  v3->entitiesLoD.array[13] = *(_DWORD *)(v9 + 94652);
+  v3->entitiesLoD.array[14] = *(_DWORD *)(v9 + 94656);
+  v3->entitiesLoD.array[15] = *(_DWORD *)(v9 + 94660);
+  v3->entitiesLoD.array[16] = *(_DWORD *)(v9 + 94664);
+  v3->entitiesLoD.array[17] = *(_DWORD *)(v9 + 94668);
+  v3->entitiesLoD.array[18] = *(_DWORD *)(v9 + 94672);
+  v3->entitiesLoD.array[19] = *(_DWORD *)(v9 + 94676);
+  v3->entitiesLoD.array[20] = *(_DWORD *)(v9 + 94680);
+  v3->entitiesLoD.array[21] = *(_DWORD *)(v9 + 94684);
+  v3->entitiesLoD.array[22] = *(_DWORD *)(v9 + 94688);
+  v3->entitiesLoD.array[23] = *(_DWORD *)(v9 + 94692);
+  v3->entitiesLoD.array[24] = *(_DWORD *)(v9 + 94696);
+  v3->entitiesLoD.array[25] = *(_DWORD *)(v9 + 94700);
+  v3->entitiesLoD.array[26] = *(_DWORD *)(v9 + 94704);
+  v3->entitiesLoD.array[27] = *(_DWORD *)(v9 + 94708);
+  v3->entitiesLoD.array[28] = *(_DWORD *)(v9 + 94712);
+  v3->entitiesLoD.array[29] = *(_DWORD *)(v9 + 94716);
+  v3->entitiesLoD.array[30] = *(_DWORD *)(v9 + 94720);
+  v3->entitiesLoD.array[31] = *(_DWORD *)(v9 + 94724);
+  v3->entitiesLoD.array[32] = *(_DWORD *)(v9 + 94728);
+  v3->entitiesLoD.array[33] = *(_DWORD *)(v9 + 94732);
+  v3->entitiesLoD.array[34] = *(_DWORD *)(v9 + 94736);
+  v3->entitiesLoD.array[35] = *(_DWORD *)(v9 + 94740);
+  v3->entitiesLoD.array[36] = *(_DWORD *)(v9 + 94744);
+  v3->entitiesLoD.array[37] = *(_DWORD *)(v9 + 94748);
+  v3->entitiesLoD.array[38] = *(_DWORD *)(v9 + 94752);
+  v3->entitiesLoD.array[39] = *(_DWORD *)(v9 + 94756);
+  v3->entitiesLoD.array[40] = *(_DWORD *)(v9 + 94760);
+  v3->entitiesLoD.array[41] = *(_DWORD *)(v9 + 94764);
+  v3->entitiesLoD.array[42] = *(_DWORD *)(v9 + 94768);
+  v3->entitiesLoD.array[43] = *(_DWORD *)(v9 + 94772);
+  v3->entitiesLoD.array[44] = *(_DWORD *)(v9 + 94776);
+  v3->entitiesLoD.array[45] = *(_DWORD *)(v9 + 94780);
+  v3->entitiesLoD.array[46] = *(_DWORD *)(v9 + 94784);
+  v3->entitiesLoD.array[47] = *(_DWORD *)(v9 + 94788);
+  v3->entitiesLoD.array[48] = *(_DWORD *)(v9 + 94792);
+  v3->entitiesLoD.array[49] = *(_DWORD *)(v9 + 94796);
+  v3->entitiesLoD.array[50] = *(_DWORD *)(v9 + 94800);
+  v3->entitiesLoD.array[51] = *(_DWORD *)(v9 + 94804);
+  v3->entitiesLoD.array[52] = *(_DWORD *)(v9 + 94808);
+  v3->entitiesLoD.array[53] = *(_DWORD *)(v9 + 94812);
+  v3->entitiesLoD.array[54] = *(_DWORD *)(v9 + 94816);
+  v3->entitiesLoD.array[55] = *(_DWORD *)(v9 + 94820);
+  v3->entitiesLoD.array[56] = *(_DWORD *)(v9 + 94824);
+  v3->entitiesLoD.array[57] = *(_DWORD *)(v9 + 94828);
+  v3->entitiesLoD.array[58] = *(_DWORD *)(v9 + 94832);
+  v3->entitiesLoD.array[59] = *(_DWORD *)(v9 + 94836);
+  v3->entitiesLoD.array[60] = *(_DWORD *)(v9 + 94840);
+  v3->entitiesLoD.array[61] = *(_DWORD *)(v9 + 94844);
+  v3->entitiesLoD.array[62] = *(_DWORD *)(v9 + 94848);
+  v3->entitiesLoD.array[63] = *(_DWORD *)(v9 + 94852);
   maxClients = cls.maxClients;
-  v72 = *(_DWORD *)(v9 + 94504);
+  v39 = *(_DWORD *)(v9 + 94504);
   if ( (unsigned int)(cls.maxClients - 1) > 0xC7 )
   {
-    LODWORD(v119) = 200;
-    LODWORD(v118) = 1;
-    LODWORD(v117) = cls.maxClients;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 360, ASSERT_TYPE_ASSERT, "( 1 ) <= ( cls.maxClients ) && ( cls.maxClients ) <= ( 200 )", "cls.maxClients not in [1, MAX_CLIENTS_MP]\n\t%i not in [%i, %i]", v117, v118, v119) )
+    LODWORD(v57) = 200;
+    LODWORD(v56) = 1;
+    LODWORD(v55) = cls.maxClients;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 360, ASSERT_TYPE_ASSERT, "( 1 ) <= ( cls.maxClients ) && ( cls.maxClients ) <= ( 200 )", "cls.maxClients not in [1, MAX_CLIENTS_MP]\n\t%i not in [%i, %i]", v55, v56, v57) )
       __debugbreak();
     maxClients = cls.maxClients;
   }
-  clients = _R14->clients;
-  if ( v72 > maxClients )
-    v72 = maxClients;
-  memset_0(_R14->clients, 170, sizeof(_R14->clients));
-  _R14->numClients = v72;
-  v74 = 0i64;
-  if ( v72 )
+  clients = v3->clients;
+  if ( v39 > maxClients )
+    v39 = maxClients;
+  memset_0(v3->clients, 170, sizeof(v3->clients));
+  v3->numClients = v39;
+  v41 = 0i64;
+  if ( v39 )
   {
     do
     {
-      _RDX = clients;
-      _RAX = (__int64)&ClientMP->parseClients[(v74 + *(_QWORD *)(v9 + 94528)) % ClientMP->parseClientsCount];
-      v77 = 3i64;
+      v42 = clients;
+      v43 = (__int64)&ClientMP->parseClients[(v41 + *(_QWORD *)(v9 + 94528)) % ClientMP->parseClientsCount];
+      v44 = 3i64;
       do
       {
-        _RDX = (clientState_t *)((char *)_RDX + 128);
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RAX += 128i64;
-        __asm
-        {
-          vmovups xmmword ptr [rdx-80h], xmm0
-          vmovups xmm1, xmmword ptr [rax-70h]
-          vmovups xmmword ptr [rdx-70h], xmm1
-          vmovups xmm0, xmmword ptr [rax-60h]
-          vmovups xmmword ptr [rdx-60h], xmm0
-          vmovups xmm1, xmmword ptr [rax-50h]
-          vmovups xmmword ptr [rdx-50h], xmm1
-          vmovups xmm0, xmmword ptr [rax-40h]
-          vmovups xmmword ptr [rdx-40h], xmm0
-          vmovups xmm1, xmmword ptr [rax-30h]
-          vmovups xmmword ptr [rdx-30h], xmm1
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rdx-20h], xmm0
-          vmovups xmm1, xmmword ptr [rax-10h]
-          vmovups xmmword ptr [rdx-10h], xmm1
-        }
-        --v77;
+        v42 = (clientState_t *)((char *)v42 + 128);
+        v45 = *(_OWORD *)v43;
+        v43 += 128i64;
+        *(_OWORD *)&v42[-1].mount.normalIndex = v45;
+        *(_OWORD *)&v42[-1].perkIconName = *(_OWORD *)(v43 - 112);
+        *(_OWORD *)&v42[-1].doorState[0].angle = *(_OWORD *)(v43 - 96);
+        *(_OWORD *)&v42[-1].doorState[1].owner = *(_OWORD *)(v43 - 80);
+        *(_OWORD *)&v42[-1].footstepActionType = *(_OWORD *)(v43 - 64);
+        *(_OWORD *)&v42[-1].playerASM_scripted_anim_start_time = *(_OWORD *)(v43 - 48);
+        *(_OWORD *)&v42[-1].vehicleAnimStateSeat = *(_OWORD *)(v43 - 32);
+        *(_OWORD *)&v42[-1].movingPlatform = *(_OWORD *)(v43 - 16);
+        --v44;
       }
-      while ( v77 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rdx], xmm0
-      }
-      ++v74;
+      while ( v44 );
+      *(_OWORD *)&v42->clientIndex = *(_OWORD *)v43;
+      ++v41;
       ++clients;
-      *(_QWORD *)&_RDX->doNotSimulateTracers = *(_QWORD *)(_RAX + 16);
+      *(_QWORD *)&v42->doNotSimulateTracers = *(_QWORD *)(v43 + 16);
     }
-    while ( v74 < v72 );
+    while ( v41 < v39 );
   }
-  _RBX = _R14->agents;
-  memset_0(_R14->agents, 187, sizeof(_R14->agents));
+  agents = v3->agents;
+  memset_0(v3->agents, 187, sizeof(v3->agents));
   maxAgents = cls.maxAgents;
-  v89 = *(_DWORD *)(v9 + 94508);
+  v48 = *(_DWORD *)(v9 + 94508);
   if ( cls.maxAgents > 0x30u )
   {
-    LODWORD(v119) = 48;
-    LODWORD(v117) = cls.maxAgents;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 391, ASSERT_TYPE_ASSERT, "( 0 ) <= ( cls.maxAgents ) && ( cls.maxAgents ) <= ( 48 )", "cls.maxAgents not in [0, MAX_AGENTS_MP]\n\t%i not in [%i, %i]", v117, 0i64, v119) )
+    LODWORD(v57) = 48;
+    LODWORD(v55) = cls.maxAgents;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 391, ASSERT_TYPE_ASSERT, "( 0 ) <= ( cls.maxAgents ) && ( cls.maxAgents ) <= ( 48 )", "cls.maxAgents not in [0, MAX_AGENTS_MP]\n\t%i not in [%i, %i]", v55, 0i64, v57) )
       __debugbreak();
     maxAgents = cls.maxAgents;
   }
-  if ( v89 > maxAgents )
-    v89 = maxAgents;
-  _R14->numAgents = v89;
-  if ( v89 )
+  if ( v48 > maxAgents )
+    v48 = maxAgents;
+  v3->numAgents = v48;
+  if ( v48 )
   {
     do
     {
-      ++_RBX;
-      _RAX = v8 + *(_QWORD *)(v9 + 94536);
+      ++agents;
+      v49 = v8 + *(_QWORD *)(v9 + 94536);
       ++v8;
-      *((_QWORD *)&_RAX + 1) = &ClientMP->parseAgents[_RAX % ClientMP->parseAgentsCount];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rbx-0FCh], xmm0
-        vmovups xmm1, xmmword ptr [rdx+10h]
-        vmovups xmmword ptr [rbx-0ECh], xmm1
-        vmovups xmm0, xmmword ptr [rdx+20h]
-        vmovups xmmword ptr [rbx-0DCh], xmm0
-        vmovups xmm1, xmmword ptr [rdx+30h]
-        vmovups xmmword ptr [rbx-0CCh], xmm1
-        vmovups xmm0, xmmword ptr [rdx+40h]
-        vmovups xmmword ptr [rbx-0BCh], xmm0
-        vmovups xmm1, xmmword ptr [rdx+50h]
-        vmovups xmmword ptr [rbx-0ACh], xmm1
-        vmovups xmm0, xmmword ptr [rdx+60h]
-        vmovups xmmword ptr [rbx-9Ch], xmm0
-        vmovups xmm1, xmmword ptr [rdx+70h]
-        vmovups xmmword ptr [rbx-8Ch], xmm1
-        vmovups xmm0, xmmword ptr [rdx+80h]
-        vmovups xmmword ptr [rbx-7Ch], xmm0
-        vmovups xmm1, xmmword ptr [rdx+90h]
-        vmovups xmmword ptr [rbx-6Ch], xmm1
-        vmovups xmm0, xmmword ptr [rdx+0A0h]
-        vmovups xmmword ptr [rbx-5Ch], xmm0
-        vmovups xmm1, xmmword ptr [rdx+0B0h]
-        vmovups xmmword ptr [rbx-4Ch], xmm1
-        vmovups xmm0, xmmword ptr [rdx+0C0h]
-        vmovups xmmword ptr [rbx-3Ch], xmm0
-        vmovups xmm1, xmmword ptr [rdx+0D0h]
-        vmovups xmmword ptr [rbx-2Ch], xmm1
-        vmovups xmm0, xmmword ptr [rdx+0E0h]
-        vmovups xmmword ptr [rbx-1Ch], xmm0
-      }
-      *(_QWORD *)&_RBX[-1].serverDobjHeldWeapon.m_mapEntryId = *(_QWORD *)(*((_QWORD *)&_RAX + 1) + 240i64);
-      *(_DWORD *)&_RBX[-1].serverDobjHideWeapon = *(_DWORD *)(*((_QWORD *)&_RAX + 1) + 248i64);
+      *((_QWORD *)&v49 + 1) = &ClientMP->parseAgents[v49 % ClientMP->parseAgentsCount];
+      *(_OWORD *)&agents[-1].entityNum = **((_OWORD **)&v49 + 1);
+      *(_OWORD *)&agents[-1].dualWielding = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 16i64);
+      *(_OWORD *)agents[-1].isWeaponSmoking = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 32i64);
+      *(_OWORD *)agents[-1].attachModelIndex = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 48i64);
+      *(_OWORD *)&agents[-1].attachModelIndex[4] = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 64i64);
+      *(_OWORD *)&agents[-1].attachModelIndex[8] = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 80i64);
+      *(_OWORD *)&agents[-1].attachTagIndex[3] = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 96i64);
+      *(_OWORD *)&agents[-1].attachTagIndex[7] = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 112i64);
+      *(_OWORD *)&agents[-1].compressedAnimData.flags = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 128i64);
+      *(_OWORD *)&agents[-1].compressedAnimData.endScriptAnimTableIndex = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 144i64);
+      *(_OWORD *)&agents[-1].gunAdditiveIndex = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 160i64);
+      *(_OWORD *)&agents[-1].civilianFocus = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 176i64);
+      *(_OWORD *)&agents[-1].footstepActionType = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 192i64);
+      *(_OWORD *)&agents[-1].playerASM_scripted_anim_start_time = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 208i64);
+      *(_OWORD *)&agents[-1].vehicleAnimStateSeat = *(_OWORD *)(*((_QWORD *)&v49 + 1) + 224i64);
+      *(_QWORD *)&agents[-1].serverDobjHeldWeapon.m_mapEntryId = *(_QWORD *)(*((_QWORD *)&v49 + 1) + 240i64);
+      *(_DWORD *)&agents[-1].serverDobjHideWeapon = *(_DWORD *)(*((_QWORD *)&v49 + 1) + 248i64);
     }
-    while ( v8 < v89 );
+    while ( v8 < v48 );
   }
-  _R14->scriptableChangeStartSequence = *(_QWORD *)(v9 + 94568);
-  _R14->scriptableChangeEndSequence = *(_QWORD *)(v9 + 94576);
-  _R14->scriptablePartsChecksum = *(_DWORD *)(v9 + 94588);
-  _R14->scriptableInstanceChecksum = *(_DWORD *)(v9 + 94584);
-  _RAX = ClientMP->parseUmbraGateStates;
-  _RCX = 6 * (*(_QWORD *)(v9 + 94560) % (__int64)ClientMP->parseUmbraGateStatesCount);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+rcx*8]
-    vmovups ymmword ptr [r14+0BA6A4h], ymm0
-    vmovups xmm1, xmmword ptr [rax+rcx*8+20h]
-    vmovups xmmword ptr [r14+0BA6C4h], xmm1
-  }
+  v3->scriptableChangeStartSequence = *(_QWORD *)(v9 + 94568);
+  v3->scriptableChangeEndSequence = *(_QWORD *)(v9 + 94576);
+  v3->scriptablePartsChecksum = *(_DWORD *)(v9 + 94588);
+  v3->scriptableInstanceChecksum = *(_DWORD *)(v9 + 94584);
+  v50 = *(_QWORD *)(v9 + 94560) % (__int64)ClientMP->parseUmbraGateStatesCount;
+  parseUmbraGateStates = ClientMP->parseUmbraGateStates;
+  *(__m256i *)v3->umbraGateStates.array = *(__m256i *)parseUmbraGateStates[v50].array;
+  *(_OWORD *)&v3->umbraGateStates.array[8] = *(_OWORD *)&parseUmbraGateStates[v50].array[8];
   if ( ClientMP->parseScriptedCameraCount )
   {
     if ( !ClientMP->parseScriptedCameras && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 416, ASSERT_TYPE_ASSERT, "(cl->parseScriptedCameras)", (const char *)&queryFormat, "cl->parseScriptedCameras") )
       __debugbreak();
-    _RAX = ClientMP->parseScriptedCameras;
-    _RCX = (__int64)(*(_DWORD *)(v9 + 94596) % ClientMP->parseScriptedCameraCount) << 7;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+rax]
-      vmovups ymmword ptr [r14+0BA6D4h], ymm0
-      vmovups ymm1, ymmword ptr [rcx+rax+20h]
-      vmovups ymmword ptr [r14+0BA6F4h], ymm1
-      vmovups ymm0, ymmword ptr [rcx+rax+40h]
-      vmovups ymmword ptr [r14+0BA714h], ymm0
-      vmovups ymm1, ymmword ptr [rcx+rax+60h]
-      vmovups ymmword ptr [r14+0BA734h], ymm1
-    }
+    parseScriptedCameras = ClientMP->parseScriptedCameras;
+    v53 = (__int64)(*(_DWORD *)(v9 + 94596) % ClientMP->parseScriptedCameraCount) << 7;
+    *(__m256i *)&v3->scriptedCameraState.m_fadeTarget = *(__m256i *)((char *)&parseScriptedCameras->m_fadeTarget + v53);
+    *(__m256i *)&v3->scriptedCameraState.m_requiredCharacters[4] = *(__m256i *)&parseScriptedCameras->m_requiredCharacters[v53 + 4];
+    *(__m256i *)&v3->scriptedCameraState.m_cinematicPlaybackName[8] = *(__m256i *)&parseScriptedCameras->m_cinematicPlaybackName[v53 + 8];
+    *(__m256i *)&v3->scriptedCameraState.m_cinematicPlaybackName[40] = *(__m256i *)&parseScriptedCameras->m_cinematicPlaybackName[v53 + 40];
   }
   else
   {
-    memset_0(&_R14->scriptedCameraState, 0, sizeof(_R14->scriptedCameraState));
+    memset_0(&v3->scriptedCameraState, 0, sizeof(v3->scriptedCameraState));
   }
-  memcpy_0(_R14->mlgSpectatorClientInfo, (const void *)(v9 + 51264), sizeof(_R14->mlgSpectatorClientInfo));
+  memcpy_0(v3->mlgSpectatorClientInfo, (const void *)(v9 + 51264), sizeof(v3->mlgSpectatorClientInfo));
   return 1i64;
 }
 
@@ -1658,53 +1539,53 @@ CL_CGameMP_Init_Internal
 */
 void CL_CGameMP_Init_Internal(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   int ControllerFromClient; 
-  char v4; 
+  char v3; 
   const PartyData *PartyData; 
   const char *ConfigString; 
-  const char *v7; 
-  int v8; 
+  const char *v6; 
+  int v7; 
   int MapIndex; 
   int MapSource; 
-  __int64 v11; 
+  __int64 v10; 
   ClConnectionDataMP *ClientConnectionData; 
   HunkUser *HunkUser; 
   unsigned __int8 ActiveGameMode; 
-  int v19; 
+  int v16; 
   Online_AAR *Instance; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v18; 
+  __int64 v19; 
   PartyActiveClient outPartyActiveClient; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   Sys_Milliseconds();
-  ClActiveClientMP::GetClientMP((const LocalClientNum_t)v2);
-  if ( (unsigned int)v2 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v2, 2) )
+  ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1);
+  if ( (unsigned int)v1 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v1, 2) )
     __debugbreak();
-  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
-  if ( (unsigned int)v2 >= 2 )
+  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+  if ( (unsigned int)v1 >= 2 )
   {
-    LODWORD(v22) = 2;
-    LODWORD(v21) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v19) = 2;
+    LODWORD(v18) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
-  v4 = clientUIActives[v2].frontEndSceneState[0];
+  v3 = clientUIActives[v1].frontEndSceneState[0];
   if ( !cls.m_activeGameMapName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 295, ASSERT_TYPE_ASSERT, "(m_activeGameMapName[0])", "%s\n\tRequested mapname before it was set", "m_activeGameMapName[0]") )
     __debugbreak();
   if ( !cls.m_activeGameTypeName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 309, ASSERT_TYPE_ASSERT, "(m_activeGameTypeName[0])", "%s\n\tRequested gametype before it was set", "m_activeGameTypeName[0]") )
     __debugbreak();
-  if ( !v4 )
+  if ( !v3 )
   {
-    Con_Close((LocalClientNum_t)v2);
+    Con_Close((LocalClientNum_t)v1);
     Live_SetCurrentMapname(cls.m_activeGameMapName);
     Live_SetGametype(ControllerFromClient, cls.m_activeGameTypeName);
     PartyData = Lobby_GetPartyData();
     if ( Party_GetSecondaryActiveClient(PartyData, &outPartyActiveClient) )
       Live_SetGametype(outPartyActiveClient.localControllerIndex, cls.m_activeGameTypeName);
   }
-  if ( Live_ShouldTrackConnectionHistory((LocalClientNum_t)v2) )
+  if ( Live_ShouldTrackConnectionHistory((LocalClientNum_t)v1) )
   {
     Live_IncrementGameCount(ControllerFromClient);
     Live_TrackNonMigrateableQuitBeginGame(ControllerFromClient);
@@ -1713,87 +1594,82 @@ void CL_CGameMP_Init_Internal(LocalClientNum_t localClientNum)
   }
   if ( !Com_IsAnyLocalServerRunning() )
   {
-    if ( v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 834, ASSERT_TYPE_ASSERT, "(isGameServer)", (const char *)&queryFormat, "isGameServer") )
+    if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 834, ASSERT_TYPE_ASSERT, "(isGameServer)", (const char *)&queryFormat, "isGameServer") )
       __debugbreak();
     Dvar_SetString_Internal(DVARSTR_ui_mapname, cls.m_activeGameMapName);
     Dvar_SetString_Internal(DVARSTR_ui_gametype, cls.m_activeGameTypeName);
     ConfigString = CL_GetConfigString(528);
-    v7 = Dvar_InfoValueForKey(ConfigString, "LOMTKQTRTM");
-    v8 = atoi(v7);
-    Dvar_SetBoolByName("LOMTKQTRTM", v8 != 0);
+    v6 = Dvar_InfoValueForKey(ConfigString, "LOMTKQTRTM");
+    v7 = atoi(v6);
+    Dvar_SetBoolByName("LOMTKQTRTM", v7 != 0);
   }
-  if ( !v4 )
+  if ( !v3 )
   {
     MapIndex = Live_GetMapIndex(cls.m_activeGameMapName);
     MapSource = Live_GetMapSource(MapIndex);
     if ( !Content_DoWeHaveContentPack(MapSource) )
       UI_MissingMapError();
   }
-  if ( !CL_MainMP_WasMapAlreadyLoaded((LocalClientNum_t)v2) )
+  if ( !CL_MainMP_WasMapAlreadyLoaded((LocalClientNum_t)v1) )
   {
-    if ( v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 855, ASSERT_TYPE_ASSERT, "(isGameServer)", (const char *)&queryFormat, "isGameServer") )
+    if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 855, ASSERT_TYPE_ASSERT, "(isGameServer)", (const char *)&queryFormat, "isGameServer") )
       __debugbreak();
     Com_InitDObj();
     DB_LoadLevelXAssets(cls.m_activeGameMapName, 0, 0);
   }
   Com_Printf(14, "Setting state to CA_LOADING in CL_CGameMP_Init\n");
-  if ( (unsigned int)v2 >= 2 )
+  if ( (unsigned int)v1 >= 2 )
   {
-    LODWORD(v22) = 2;
-    LODWORD(v21) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v19) = 2;
+    LODWORD(v18) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
-  Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v2].connectionState, 7i64);
-  v11 = v2;
-  clientUIActives[v2].connectionState = CA_LOADING;
-  *(_QWORD *)&s_trackExtrapolate[v11].isExtrapolating = 0i64;
-  *(_QWORD *)&s_trackExtrapolate[v11].extrapolatePrevSnap = 0i64;
-  s_trackExtrapolate[v11].lastExtrapolatedTime = 0;
+  Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v1].connectionState, 7i64);
+  v10 = v1;
+  clientUIActives[v1].connectionState = CA_LOADING;
+  *(_QWORD *)&s_trackExtrapolate[v10].isExtrapolating = 0i64;
+  *(_QWORD *)&s_trackExtrapolate[v10].extrapolatePrevSnap = 0i64;
+  s_trackExtrapolate[v10].lastExtrapolatedTime = 0;
   CL_MainMP_GamePostMapMemoryAllocate();
-  clientUIActives[v2].cgameInitCalled = 1;
+  clientUIActives[v1].cgameInitCalled = 1;
   cl_serverLoadingMap = 0;
-  ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v2);
+  ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v1);
   HunkUser = CL_Main_GetHunkUser();
-  CG_MainMP_Init((LocalClientNum_t)v2, ClientConnectionData->serverMessageSequence, ClientConnectionData->lastExecutedServerCommand, ClientConnectionData->clientNum, HunkUser);
-  clientUIActives[v2].cgameInitialized = 1;
-  if ( !v4 )
+  CG_MainMP_Init((LocalClientNum_t)v1, ClientConnectionData->serverMessageSequence, ClientConnectionData->lastExecutedServerCommand, ClientConnectionData->clientNum, HunkUser);
+  clientUIActives[v1].cgameInitialized = 1;
+  if ( !v3 )
     R_BeginRemoteScreenUpdate();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "CL_CGameMP_Init Remote Screen");
   Com_Printf(14, "Setting state to CA_PRIMED in CL_CGameMP_Init\n");
-  if ( (unsigned int)v2 >= 2 )
+  if ( (unsigned int)v1 >= 2 )
   {
-    LODWORD(v22) = 2;
-    LODWORD(v21) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v19) = 2;
+    LODWORD(v18) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
-  Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v2].connectionState, 8i64);
-  clientUIActives[v2].connectionState = CA_PRIMED;
+  Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v1].connectionState, 8i64);
+  clientUIActives[v1].connectionState = CA_PRIMED;
   Sys_Milliseconds();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, eax
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(14, "CL_CGameMP_Init: %5.2f seconds\n", *(double *)&_XMM2);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, eax }
+  Com_Printf(14, "CL_CGameMP_Init: %5.2f seconds\n", *(double *)&_XMM0 * 0.001);
   R_EndRegistration();
-  if ( !v4 )
+  if ( !v3 )
   {
-    Con_ClearNotify((LocalClientNum_t)v2);
-    Con_InitConfig((const LocalClientNum_t)v2, "console_mp.cfg");
+    Con_ClearNotify((LocalClientNum_t)v1);
+    Con_InitConfig((const LocalClientNum_t)v1, "console_mp.cfg");
     Con_InitMessageBuffer();
     Con_InitGameMsgChannels();
     ActiveGameMode = Com_GameMode_GetActiveGameMode();
     CL_Main_ReInitDevGUI((GameModeType)ActiveGameMode);
-    v19 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
-    if ( GamerProfile_GetGamepadEnabled(v19) )
-      GamerProfile_ExecControllerBindings(v19);
+    v16 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+    if ( GamerProfile_GetGamepadEnabled(v16) )
+      GamerProfile_ExecControllerBindings(v16);
   }
   Sys_ProfEndNamedEvent();
-  if ( v4 )
+  if ( v3 )
   {
     NetConstBaselines_ClearBaselineData();
   }
@@ -1807,7 +1683,7 @@ void CL_CGameMP_Init_Internal(LocalClientNum_t localClientNum)
   Com_ResetFrametime();
   if ( !Com_IsAnyLocalServerRunning() )
     Com_MapLoadErrors_Finalize(cls.m_activeGameMapName);
-  if ( !v4 )
+  if ( !v3 )
   {
     Instance = Online_AAR::GetInstance();
     Online_AAR::StartMatch(Instance);
@@ -2271,171 +2147,75 @@ CL_CGameMP_SetExtrapolatedData
 void CL_CGameMP_SetExtrapolatedData(LocalClientNum_t localClientNum, playerState_s *ps)
 {
   ClActiveClientMP *ClientMP; 
-  bool v16; 
-  bool v17; 
-  bool v31; 
-  unsigned int inputTime; 
-  const dvar_t *v68; 
-  double v83; 
-  double v84; 
-  char v87; 
-  void *retaddr; 
+  const dvar_t *v5; 
+  ClActiveClientMP *v6; 
+  float value; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v12; 
+  float v13; 
+  float v15; 
+  __int16 v19; 
+  unsigned int v21; 
+  unsigned int v22; 
+  const dvar_t *v23; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RDI = ps;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0E8h+var_88], xmm12
-    vmovaps [rsp+0E8h+var_98], xmm13
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 483, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-  _RSI = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
-  _RBX = ClientMP;
+  v5 = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
+  v6 = ClientMP;
   if ( !DCONST_DVARFLT_com_userCmdMaxExtrapTranslation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxExtrapTranslation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  v8 = value * 0.000030518509;
+  v9 = ps->origin.v[1] - v6->cgamePredictedData.origin.v[1];
+  v10 = ps->origin.v[0] - v6->cgamePredictedData.origin.v[0];
+  _XMM0 = LODWORD(ps->origin.v[2]);
+  v12 = *(float *)&_XMM0 - v6->cgamePredictedData.origin.v[2];
+  v13 = 0.0;
+  if ( value < 0.0 )
   {
-    vmovss  xmm8, dword ptr [rsi+28h]
-    vmovss  xmm0, cs:__real@46fffe00
-    vmovss  xmm1, dword ptr [rdi+34h]
-    vmulss  xmm12, xmm8, cs:__real@38000100
-    vsubss  xmm10, xmm1, dword ptr [rbx+1FA18h]
-    vdivss  xmm13, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rdi+30h]
-    vsubss  xmm6, xmm0, dword ptr [rbx+1FA14h]
-    vmovss  xmm0, dword ptr [rdi+38h]
-    vsubss  xmm11, xmm0, dword ptr [rbx+1FA1Ch]
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm8, xmm9
-  }
-  if ( v16 )
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+0E8h+var_A8], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_B0], xmm1
-    }
-    v31 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector.h", 524, ASSERT_TYPE_ASSERT, "( maxLength ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "maxLength", "0.0f", v83, v84);
-    v16 = 0;
-    v17 = !v31;
-    if ( v31 )
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector.h", 524, ASSERT_TYPE_ASSERT, "( maxLength ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "maxLength", "0.0f", value, *(double *)&_XMM0) )
       __debugbreak();
   }
+  v15 = (float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v12 * v12);
+  if ( v15 > (float)(value * value) )
+    v13 = fsqrt(v15);
+  _XMM7 = 0i64;
   __asm
   {
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm10, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm8, xmm8
-    vcomiss xmm3, xmm0
-  }
-  if ( !v16 && !v17 )
-  {
-    __asm
-    {
-      vsqrtss xmm9, xmm3, xmm3
-      vdivss  xmm0, xmm8, xmm9
-      vmulss  xmm6, xmm6, xmm0
-      vmulss  xmm10, xmm10, xmm0
-      vmulss  xmm11, xmm11, xmm0
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm6, xmm13
-    vmovss  xmm6, cs:__real@3f000000
-    vaddss  xmm1, xmm0, xmm6
-    vxorps  xmm7, xmm7, xmm7
     vroundss xmm2, xmm7, xmm1, 1
-    vcvttss2si ecx, xmm2; val
-    vmulss  xmm0, xmm10, xmm13
-    vaddss  xmm2, xmm0, xmm6
     vroundss xmm0, xmm7, xmm2, 1
   }
-  _RBX->cgamePredictedData.extrapData.offset.v[0] = truncate_cast<short,int>(_ECX);
-  __asm
+  v6->cgamePredictedData.extrapData.offset.v[0] = truncate_cast<short,int>((int)*(float *)&_XMM2);
+  v19 = truncate_cast<short,int>((int)*(float *)&_XMM0);
+  __asm { vroundss xmm0, xmm7, xmm2, 1 }
+  v6->cgamePredictedData.extrapData.offset.v[1] = v19;
+  v21 = truncate_cast<short,int>((int)*(float *)&_XMM0);
+  v6->cgamePredictedData.extrapData.offset.v[2] = v21;
+  v6->cgamePredictedData.extrapData.time = ps->commandTime - v6->cgamePredictedData.commandTime;
+  v6->cgamePredictedData.extrapData.inputTime = ps->inputTime - v6->cgamePredictedData.inputTime;
+  if ( v13 >= value )
   {
-    vcvttss2si ecx, xmm0; val
-    vmulss  xmm0, xmm11, xmm13
-    vaddss  xmm2, xmm0, xmm6
-    vroundss xmm0, xmm7, xmm2, 1
-  }
-  _RBX->cgamePredictedData.extrapData.offset.v[1] = truncate_cast<short,int>(_ECX);
-  __asm { vcvttss2si ecx, xmm0; val }
-  _ECX = truncate_cast<short,int>(_ECX);
-  _RBX->cgamePredictedData.extrapData.offset.v[2] = _ECX;
-  _RBX->cgamePredictedData.extrapData.time = _RDI->commandTime - _RBX->cgamePredictedData.commandTime;
-  inputTime = _RDI->inputTime;
-  v16 = inputTime < _RBX->cgamePredictedData.inputTime;
-  __asm { vcomiss xmm9, xmm8 }
-  _RBX->cgamePredictedData.extrapData.inputTime = inputTime - _RBX->cgamePredictedData.inputTime;
-  if ( v16 )
-  {
-    __asm { vmovd   xmm0, dword ptr [rbx+1FA34h] }
-    _EAX = _RBX->cgamePredictedData.extrapData.offset.v[1];
-    __asm
-    {
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm1, xmm0, xmm12
-      vaddss  xmm2, xmm1, dword ptr [rbx+1FA14h]
-      vmovss  dword ptr [rdi+30h], xmm2
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm1, xmm0, xmm12
-      vaddss  xmm2, xmm1, dword ptr [rbx+1FA18h]
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm1, xmm0, xmm12
-      vmovss  dword ptr [rdi+34h], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+1FA1Ch]
-      vmovss  dword ptr [rdi+38h], xmm2
-    }
+    v23 = DCONST_DVARBOOL_com_userCmdLogExtrapError;
+    if ( !DCONST_DVARBOOL_com_userCmdLogExtrapError && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdLogExtrapError") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v23);
+    if ( v23->current.enabled )
+      Com_PrintError(14, "Extrapolation offset %f exceeds the maximum length %f.\n", v13, value);
   }
   else
   {
-    v68 = DCONST_DVARBOOL_com_userCmdLogExtrapError;
-    if ( !DCONST_DVARBOOL_com_userCmdLogExtrapError && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdLogExtrapError") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v68);
-    if ( v68->current.enabled )
-    {
-      __asm
-      {
-        vcvtss2sd xmm3, xmm8, xmm8
-        vcvtss2sd xmm2, xmm9, xmm9
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      Com_PrintError(14, "Extrapolation offset %f exceeds the maximum length %f.\n", _R8, _R9);
-    }
+    v22 = v6->cgamePredictedData.extrapData.offset.v[1];
+    ps->origin.v[0] = (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)v6->cgamePredictedData.extrapData.offset.v[0]).m128_f32[0] * v8) + v6->cgamePredictedData.origin.v[0];
+    ps->origin.v[1] = (float)(_mm_cvtepi32_ps((__m128i)v22).m128_f32[0] * v8) + v6->cgamePredictedData.origin.v[1];
+    ps->origin.v[2] = (float)(_mm_cvtepi32_ps((__m128i)v21).m128_f32[0] * v8) + v6->cgamePredictedData.origin.v[2];
   }
-  __asm { vmovsd  xmm0, qword ptr [rdi+28h] }
-  _R11 = &v87;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovsd  qword ptr [rbx+1FA48h], xmm0
-  }
+  *(double *)v6->cgamePredictedData.extrapData.packedBobCycle = *(double *)ps->packedBobCycle;
 }
 
 /*
@@ -2479,143 +2259,142 @@ CL_CGameMP_ShouldSendPeerVoiceData
 */
 _BOOL8 CL_CGameMP_ShouldSendPeerVoiceData(const PartyData *party, const LocalClientNum_t localClientNum, const int listenerClientNum)
 {
-  __int64 v8; 
-  const dvar_t *v10; 
-  const dvar_t *v11; 
-  _BOOL8 ShouldSendPeerVoiceDataPriorToGameState; 
+  __int64 v4; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
+  _BOOL8 v8; 
   int ControllerFromClient; 
   int OurClientNum; 
-  CgStatic *v16; 
+  CgGlobalsMP *LocalClientGlobals; 
+  CgStatic *v12; 
   characterInfo_t *CharacterInfo; 
   XUID *Xuid; 
-  const char *v19; 
-  characterInfo_t *v20; 
+  const char *v15; 
+  characterInfo_t *v16; 
   int team; 
   CgHandler *Handler; 
   bool IsGameTypeQuick_BR; 
-  bool v24; 
+  bool v20; 
   int squadIndex; 
-  int v27; 
-  int v28; 
-  char v29; 
+  int v22; 
+  int v23; 
+  char v24; 
   centity_t *Entity; 
-  char v31; 
+  char v26; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  bool v46; 
-  const char *v47; 
+  __int128 v31; 
+  bool v41; 
+  const char *v42; 
+  const char *v43; 
+  const char *v44; 
+  char v45; 
+  const char *v46; 
+  bool v47; 
   const char *v48; 
-  const char *v49; 
-  char v50; 
-  const char *v51; 
-  bool v52; 
-  const char *v53; 
-  char v54; 
-  const char *v70; 
-  unsigned int v71; 
+  char v49; 
+  float v50; 
+  __int64 v51; 
+  const char *v52; 
+  unsigned int v53; 
   int *recentVictimTimes; 
-  __int64 v73; 
-  unsigned int v74; 
+  __int64 v55; 
+  unsigned int v56; 
   const PartyData *GameParty; 
-  const vec4_t *v76; 
-  char v82; 
-  char v83; 
+  const vec4_t *v58; 
+  char v59; 
+  char v60; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v85; 
-  char v110; 
+  unsigned __int64 v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  __int128 v67; 
+  float v70; 
+  double Float_Internal_DebugName; 
   CgMLGSpectator *MLGSpectator; 
   __int64 duration; 
-  __int64 v113; 
-  char v114; 
-  bool v115; 
-  char v116; 
+  __int64 v74; 
+  char v75; 
+  bool v76; 
+  char v77; 
   bool m_useSquads; 
-  bool v118; 
+  bool v79; 
   bool Bool_Internal_DebugName; 
   vec3_t point; 
-  int v121; 
+  int v82; 
   unsigned int Int_Internal_DebugName; 
-  __int64 v123; 
+  __int64 v84; 
   vec3_t result; 
-  char v125; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v123 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v8 = localClientNum;
+  v84 = -2i64;
+  v4 = localClientNum;
   if ( (unsigned int)listenerClientNum >= 0xC8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2346, ASSERT_TYPE_ASSERT, "(unsigned)( listenerClientNum ) < (unsigned)( 200 )", "listenerClientNum doesn't index MAX_CLIENTS_MP\n\t%i not in [0, %i)", listenerClientNum, 200) )
     __debugbreak();
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2347, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  v10 = DVARBOOL_cl_voice_mute;
+  v6 = DVARBOOL_cl_voice_mute;
   if ( !DVARBOOL_cl_voice_mute && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_voice_mute") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled || !Party_IsMemberRegistered(party, listenerClientNum) )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled || !Party_IsMemberRegistered(party, listenerClientNum) )
     goto LABEL_18;
   if ( !Party_IsMemberPresent(party, listenerClientNum) )
   {
-    v11 = DVARBOOL_voice_debug;
+    v7 = DVARBOOL_voice_debug;
     if ( !DVARBOOL_voice_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v11->current.enabled )
+    Dvar_CheckFrontendServerThread(v7);
+    if ( v7->current.enabled )
       Com_Printf(14, "clientNum %i is not yet present in the party\n", (unsigned int)listenerClientNum);
     goto LABEL_18;
   }
-  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v8);
+  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
   OurClientNum = Live_GetOurClientNum(ControllerFromClient, party);
   if ( OurClientNum == listenerClientNum || Party_MemberHasLoopbackAddr(party, listenerClientNum) )
   {
 LABEL_18:
-    ShouldSendPeerVoiceDataPriorToGameState = 0i64;
+    v8 = 0i64;
     memset(&point, 0, sizeof(point));
-    goto LABEL_153;
+    return v8;
   }
-  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v8) < CA_PRIMED )
+  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v4) < CA_PRIMED )
   {
     memset(&point, 0, sizeof(point));
-    ShouldSendPeerVoiceDataPriorToGameState = CL_CGameMP_ShouldSendPeerVoiceDataPriorToGameState(party, OurClientNum, listenerClientNum);
-    goto LABEL_153;
+    return CL_CGameMP_ShouldSendPeerVoiceDataPriorToGameState(party, OurClientNum, listenerClientNum);
   }
   if ( (unsigned int)listenerClientNum >= cls.maxClients )
   {
-    LODWORD(v113) = cls.maxClients;
+    LODWORD(v74) = cls.maxClients;
     LODWORD(duration) = listenerClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2385, ASSERT_TYPE_ASSERT, "(unsigned)( listenerClientNum ) < (unsigned)( cls.maxClients )", "listenerClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", duration, v113) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2385, ASSERT_TYPE_ASSERT, "(unsigned)( listenerClientNum ) < (unsigned)( cls.maxClients )", "listenerClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", duration, v74) )
       __debugbreak();
   }
-  if ( (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2387, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", "%s\n\tAccessing server session, must not be in frontend state", "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
+  if ( (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2387, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", "%s\n\tAccessing server session, must not be in frontend state", "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
     __debugbreak();
-  _R15 = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v8);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2390, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v4);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2390, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( !(_BYTE)CgStatic::ms_allocatedType )
   {
-    LODWORD(v113) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v113) )
+    LODWORD(v74) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v74) )
       __debugbreak();
   }
-  if ( (unsigned int)v8 >= LODWORD(CgStatic::ms_allocatedCount) )
+  if ( (unsigned int)v4 >= LODWORD(CgStatic::ms_allocatedCount) )
   {
-    *(float *)&v113 = CgStatic::ms_allocatedCount;
-    LODWORD(duration) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v113) )
+    *(float *)&v74 = CgStatic::ms_allocatedCount;
+    LODWORD(duration) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v74) )
       __debugbreak();
   }
-  if ( !CgStatic::ms_cgameStaticsArray[v8] )
+  if ( !CgStatic::ms_cgameStaticsArray[v4] )
   {
-    LODWORD(v113) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v113) )
+    LODWORD(v74) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v74) )
       __debugbreak();
   }
-  v16 = CgStatic::ms_cgameStaticsArray[v8];
-  CharacterInfo = CgStatic::GetCharacterInfo(v16, listenerClientNum);
+  v12 = CgStatic::ms_cgameStaticsArray[v4];
+  CharacterInfo = CgStatic::GetCharacterInfo(v12, listenerClientNum);
   *(_QWORD *)result.v = CharacterInfo;
   if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2395, ASSERT_TYPE_ASSERT, "(characterInfo)", (const char *)&queryFormat, "characterInfo") )
     __debugbreak();
@@ -2624,348 +2403,311 @@ LABEL_18:
     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_debug, "voice_debug") )
     {
       Xuid = Party_GetXuid((XUID *)&result, party, listenerClientNum);
-      v19 = XUID::ToDevString(Xuid);
-      Com_Printf(14, "%s (clientNum %i) is !infoValid but registered, most likely preloading the map in the front end\n", v19, (unsigned int)listenerClientNum);
+      v15 = XUID::ToDevString(Xuid);
+      Com_Printf(14, "%s (clientNum %i) is !infoValid but registered, most likely preloading the map in the front end\n", v15, (unsigned int)listenerClientNum);
     }
     goto LABEL_18;
   }
-  v20 = CgStatic::GetCharacterInfo(v16, _R15->clientNum);
-  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2404, ASSERT_TYPE_ASSERT, "(localPlayer)", (const char *)&queryFormat, "localPlayer") )
+  v16 = CgStatic::GetCharacterInfo(v12, LocalClientGlobals->clientNum);
+  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_cgame_mp.cpp", 2404, ASSERT_TYPE_ASSERT, "(localPlayer)", (const char *)&queryFormat, "localPlayer") )
     __debugbreak();
-  if ( !v20->infoValid )
+  if ( !v16->infoValid )
   {
     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_debug, "voice_debug") )
-      Com_Printf(14, "localPlayer (clientNum %i) is !infoValid!\n", (unsigned int)_R15->clientNum);
+      Com_Printf(14, "localPlayer (clientNum %i) is !infoValid!\n", (unsigned int)LocalClientGlobals->clientNum);
     goto LABEL_18;
   }
-  if ( !_R15->predictedPlayerState.stats[0] || !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&_R15->predictedPlayerState.otherFlags, (POtherFlagsMP)34) || (v116 = 0, GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&_R15->predictedPlayerState.otherFlags, (POtherFlagsMP)33)) )
-    v116 = 1;
-  team = v20->team;
-  v121 = team;
-  Handler = CgHandler::getHandler((LocalClientNum_t)v8);
+  if ( !LocalClientGlobals->predictedPlayerState.stats[0] || !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&LocalClientGlobals->predictedPlayerState.otherFlags, (POtherFlagsMP)34) || (v77 = 0, GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&LocalClientGlobals->predictedPlayerState.otherFlags, (POtherFlagsMP)33)) )
+    v77 = 1;
+  team = v16->team;
+  v82 = team;
+  Handler = CgHandler::getHandler((LocalClientNum_t)v4);
   IsGameTypeQuick_BR = BG_IsGameTypeQuick_BR(Handler);
-  v24 = 1;
+  v20 = 1;
   s_voiceDebugMsg[0] = 0;
-  __asm { vmovss  xmm8, cs:__real@3f800000 }
-  if ( _R15->predictedPlayerState.pm_type == 6 && !IsGameTypeQuick_BR )
+  if ( LocalClientGlobals->predictedPlayerState.pm_type == 6 && !IsGameTypeQuick_BR )
     goto LABEL_144;
-  m_useSquads = _R15->m_useSquads;
-  v118 = Party_AreMembersInSameSubparty(party, _R15->clientNum, listenerClientNum);
+  m_useSquads = LocalClientGlobals->m_useSquads;
+  v79 = Party_AreMembersInSameSubparty(party, LocalClientGlobals->clientNum, listenerClientNum);
   Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_proximity_team, "voice_proximity_team");
-  v115 = Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_proximity_enemy, "voice_proximity_enemy");
-  squadIndex = v16->GetClientInfo(v16, _R15->clientNum)->squadIndex;
-  v27 = v16->GetClientInfo(v16, listenerClientNum)->squadIndex;
-  v28 = *(_DWORD *)(*(_QWORD *)result.v + 12i64);
-  if ( team != v28 || !team || !v28 )
+  v76 = Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_proximity_enemy, "voice_proximity_enemy");
+  squadIndex = v12->GetClientInfo(v12, LocalClientGlobals->clientNum)->squadIndex;
+  v22 = v12->GetClientInfo(v12, listenerClientNum)->squadIndex;
+  v23 = *(_DWORD *)(*(_QWORD *)result.v + 12i64);
+  if ( team != v23 || !team || !v23 )
   {
-    v29 = 0;
+    v24 = 0;
 LABEL_66:
-    v114 = 0;
+    v75 = 0;
     goto LABEL_67;
   }
-  v29 = 1;
-  if ( !m_useSquads || squadIndex != v27 )
+  v24 = 1;
+  if ( !m_useSquads || squadIndex != v22 )
     goto LABEL_66;
-  v114 = 1;
+  v75 = 1;
 LABEL_67:
-  Entity = CG_GetEntity((const LocalClientNum_t)v8, listenerClientNum);
-  v31 = (Entity->flags & 1) == 0;
+  Entity = CG_GetEntity((const LocalClientNum_t)v4, listenerClientNum);
+  v26 = (Entity->flags & 1) == 0;
   if ( !Entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(Entity->pose.origin.Get_origin, &Entity->pose);
   FunctionPointer_origin(&Entity->pose.origin.origin.origin, &point);
   if ( Entity->pose.isPosePrecise )
   {
-    __asm
-    {
-      vmovd   xmm0, dword ptr [rbp+57h+point]
-      vcvtdq2pd xmm0, xmm0
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rbp+57h+point], xmm1
-      vmovd   xmm2, dword ptr [rbp+57h+point+4]
-      vcvtdq2pd xmm2, xmm2
-      vmulsd  xmm0, xmm2, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rbp+57h+point+4], xmm1
-      vmovd   xmm2, dword ptr [rbp+57h+point+8]
-      vcvtdq2pd xmm2, xmm2
-      vmulsd  xmm0, xmm2, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rbp+57h+point+8], xmm1
-    }
+    _XMM0 = LODWORD(point.v[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v31 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v31 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v31;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    point.v[0] = *(float *)&_XMM1;
+    _XMM2 = LODWORD(point.v[1]);
+    __asm { vcvtdq2pd xmm2, xmm2 }
+    *((_QWORD *)&v31 + 1) = *((_QWORD *)&_XMM2 + 1);
+    *(double *)&v31 = *(double *)&_XMM2 * 0.000244140625;
+    _XMM0 = v31;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    point.v[1] = *(float *)&_XMM1;
+    _XMM2 = LODWORD(point.v[2]);
+    __asm { vcvtdq2pd xmm2, xmm2 }
+    *((_QWORD *)&v31 + 1) = *((_QWORD *)&_XMM2 + 1);
+    *(double *)&v31 = *(double *)&_XMM2 * 0.000244140625;
+    _XMM0 = v31;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    point.v[2] = *(float *)&_XMM1;
   }
-  v24 = 0;
-  v46 = 1;
+  v20 = 0;
+  v41 = 1;
   if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
   {
-    v47 = "Alive";
-    if ( v31 )
-      v47 = "Dead";
-    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v47);
+    v42 = "Alive";
+    if ( v26 )
+      v42 = "Dead";
+    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v42);
   }
   if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
   {
-    v48 = ", Enemy";
-    if ( v29 )
-      v48 = ", Teammate";
-    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v48);
+    v43 = ", Enemy";
+    if ( v24 )
+      v43 = ", Teammate";
+    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v43);
   }
-  if ( m_useSquads && v29 && Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
+  if ( m_useSquads && v24 && Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
   {
-    v49 = ", Not Squadmate";
-    if ( v114 )
-      v49 = ", Squadmate";
-    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v49);
+    v44 = ", Not Squadmate";
+    if ( v75 )
+      v44 = ", Squadmate";
+    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v44);
   }
-  v50 = v114;
-  if ( !v114 )
+  v45 = v75;
+  if ( !v75 )
   {
-    if ( v29 && v118 )
+    if ( v24 && v79 )
     {
-      v46 = 1;
+      v41 = 1;
       if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
       {
 LABEL_93:
-        v50 = 0;
+        v45 = 0;
         goto LABEL_94;
       }
-      v51 = ", Private Party Member";
+      v46 = ", Private Party Member";
 LABEL_92:
-      I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v51);
+      I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v46);
       goto LABEL_93;
     }
-    if ( Bool_Internal_DebugName && v29 )
+    if ( Bool_Internal_DebugName && v24 )
     {
-      if ( v31 )
+      if ( v26 )
         goto LABEL_105;
-      v54 = v116;
-      if ( v116 )
+      v49 = v77;
+      if ( v77 )
         goto LABEL_105;
     }
     else
     {
-      v54 = v116;
+      v49 = v77;
     }
-    v52 = v115;
-    if ( !v115 || v29 || !v31 && !v54 )
+    v47 = v76;
+    if ( !v76 || v24 || !v26 && !v49 )
     {
-      if ( (!Bool_Internal_DebugName || !v29) && (!v115 || v29) )
+      if ( (!Bool_Internal_DebugName || !v24) && (!v76 || v24) )
       {
-        v50 = 0;
+        v45 = 0;
         goto LABEL_95;
       }
       Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_voice_proximity_radius, "voice_proximity_radius");
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+point]
-        vsubss  xmm3, xmm0, dword ptr [r15+38h]
-        vmovss  xmm1, dword ptr [rbp+57h+point+4]
-        vsubss  xmm2, xmm1, dword ptr [r15+3Ch]
-        vmovss  xmm0, dword ptr [rbp+57h+point+8]
-        vsubss  xmm4, xmm0, dword ptr [r15+40h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm6, xmm3, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vcomiss xmm0, xmm6
-      }
-      v46 = (unsigned __int64)((int)Int_Internal_DebugName * (__int64)(int)Int_Internal_DebugName) >> 32 == 0;
+      v50 = (float)((float)((float)(point.v[1] - LocalClientGlobals->predictedPlayerState.origin.v[1]) * (float)(point.v[1] - LocalClientGlobals->predictedPlayerState.origin.v[1])) + (float)((float)(point.v[0] - LocalClientGlobals->predictedPlayerState.origin.v[0]) * (float)(point.v[0] - LocalClientGlobals->predictedPlayerState.origin.v[0]))) + (float)((float)(point.v[2] - LocalClientGlobals->predictedPlayerState.origin.v[2]) * (float)(point.v[2] - LocalClientGlobals->predictedPlayerState.origin.v[2]));
+      v41 = (float)(int)(Int_Internal_DebugName * Int_Internal_DebugName) >= v50;
       if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
         goto LABEL_93;
-      __asm
-      {
-        vsqrtss xmm0, xmm6, xmm6
-        vcvttss2si r8d, xmm0
-      }
-      v70 = "Out of Range";
-      if ( v46 )
-        v70 = "In Range";
-      v51 = j_va(", %s %i/%i", v70, _R8, Int_Internal_DebugName);
+      v51 = (unsigned int)(int)fsqrt(v50);
+      v52 = "Out of Range";
+      if ( v41 )
+        v52 = "In Range";
+      v46 = j_va(", %s %i/%i", v52, v51, Int_Internal_DebugName);
       goto LABEL_92;
     }
 LABEL_105:
-    v46 = 0;
+    v41 = 0;
     if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
       goto LABEL_93;
-    v51 = ", Local player dead";
-    if ( v31 )
-      v51 = (char *)&queryFormat.fmt + 3;
+    v46 = ", Local player dead";
+    if ( v26 )
+      v46 = (char *)&queryFormat.fmt + 3;
     goto LABEL_92;
   }
-  v46 = 1;
+  v41 = 1;
 LABEL_94:
-  v52 = v115;
+  v47 = v76;
 LABEL_95:
-  if ( v121 || *(_DWORD *)(*(_QWORD *)result.v + 12i64) || !v46 )
+  if ( v82 || *(_DWORD *)(*(_QWORD *)result.v + 12i64) || !v41 )
   {
-    if ( v50 )
+    if ( v45 )
     {
-      v24 = 1;
+      v20 = 1;
       goto LABEL_144;
     }
-    if ( v29 && !v46 )
+    if ( v24 && !v41 )
     {
-      v24 = 0;
+      v20 = 0;
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
         I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, ", Team Proximity Voice Enabled");
       goto LABEL_129;
     }
-    v82 = v116;
-    if ( v31 == v116 )
+    v59 = v77;
+    if ( v26 == v77 )
     {
-      if ( !v29 )
+      if ( !v24 )
       {
-LABEL_160:
-        if ( v52 && v46 )
+LABEL_159:
+        if ( v47 && v41 )
         {
-          v24 = 1;
+          v20 = 1;
           if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
             goto LABEL_144;
-          v53 = ", Enemy Proximity Voice Enabled";
+          v48 = ", Enemy Proximity Voice Enabled";
           goto LABEL_100;
         }
-LABEL_164:
-        if ( v31 == v116 )
+LABEL_163:
+        if ( v26 == v77 )
         {
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cg_chatWithOtherTeams, "cg_chatWithOtherTeams") )
           {
-            v24 = 1;
+            v20 = 1;
             if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
               goto LABEL_144;
-            v53 = ", Same State, cg_chatWithOtherTeams";
+            v48 = ", Same State, cg_chatWithOtherTeams";
             goto LABEL_100;
           }
-          v82 = v116;
+          v59 = v77;
         }
-        if ( v31 && v82 && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_deadChatWithDead, "cg_deadChatWithDead") )
+        if ( v26 && v59 && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_deadChatWithDead, "cg_deadChatWithDead") )
         {
-          v24 = 1;
+          v20 = 1;
           if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
             goto LABEL_144;
-          v53 = ", Both Dead, cg_deadChatWithDead";
+          v48 = ", Both Dead, cg_deadChatWithDead";
           goto LABEL_100;
         }
-        if ( v29 )
+        if ( v24 )
         {
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_deadChatWithTeam, "cg_deadChatWithTeam") )
           {
-            v24 = 1;
+            v20 = 1;
             if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
               goto LABEL_144;
-            v53 = ", cg_deadChatWithTeam";
+            v48 = ", cg_deadChatWithTeam";
             goto LABEL_100;
           }
-          if ( !v31 )
-            goto LABEL_189;
-          v83 = v116;
-          if ( v116 )
+          if ( !v26 )
+            goto LABEL_188;
+          v60 = v77;
+          if ( v77 )
           {
-LABEL_184:
-            if ( v31 && !v83 && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_deadHearAllLiving, "cg_deadHearAllLiving") )
+LABEL_183:
+            if ( v26 && !v60 && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_deadHearAllLiving, "cg_deadHearAllLiving") )
             {
-              v24 = 1;
+              v20 = 1;
               if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
                 goto LABEL_144;
-              v53 = ", cg_deadHearAllLiving";
+              v48 = ", cg_deadHearAllLiving";
               goto LABEL_100;
             }
-LABEL_189:
-            if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_everyoneHearsEveryone, "cg_everyoneHearsEveryone") && v46 )
+LABEL_188:
+            if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_everyoneHearsEveryone, "cg_everyoneHearsEveryone") && v41 )
             {
-              v24 = 1;
+              v20 = 1;
               if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
                 goto LABEL_144;
-              v53 = ", cg_everyoneHearsEveryone";
+              v48 = ", cg_everyoneHearsEveryone";
               goto LABEL_100;
             }
-            if ( v29 )
-              goto LABEL_207;
-            if ( v31 )
-              goto LABEL_207;
-            if ( v116 )
-              goto LABEL_207;
+            if ( v24 )
+              goto LABEL_206;
+            if ( v26 )
+              goto LABEL_206;
+            if ( v77 )
+              goto LABEL_206;
             PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x20u);
-            v85 = (unsigned int)PerkNetworkPriorityIndex;
+            v62 = (unsigned int)PerkNetworkPriorityIndex;
             if ( PerkNetworkPriorityIndex < 0 )
-              goto LABEL_207;
+              goto LABEL_206;
             if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
             {
-              LODWORD(v113) = 64;
+              LODWORD(v74) = 64;
               LODWORD(duration) = PerkNetworkPriorityIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", duration, v113) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", duration, v74) )
                 __debugbreak();
             }
-            if ( ((0x80000000 >> (v85 & 0x1F)) & *(_DWORD *)(*(_QWORD *)result.v + 4 * (v85 >> 5) + 2776)) == 0 )
+            if ( ((0x80000000 >> (v62 & 0x1F)) & *(_DWORD *)(*(_QWORD *)result.v + 4 * (v62 >> 5) + 2776)) == 0 )
             {
-LABEL_207:
-              MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)v8);
-              if ( CgMLGSpectator::IsClientMLGSpectator(MLGSpectator, (LocalClientNum_t)v8, listenerClientNum) )
+LABEL_206:
+              MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)v4);
+              if ( CgMLGSpectator::IsClientMLGSpectator(MLGSpectator, (LocalClientNum_t)v4, listenerClientNum) )
               {
-                v24 = 1;
+                v20 = 1;
                 if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
                   goto LABEL_144;
-                v53 = ", MLG Spectator";
+                v48 = ", MLG Spectator";
                 goto LABEL_100;
               }
             }
             else
             {
               AngleVectors((const vec3_t *)(*(_QWORD *)result.v + 2496i64), &result, NULL, NULL);
+              v63 = LocalClientGlobals->predictedPlayerState.origin.v[0] - point.v[0];
+              v67 = LODWORD(LocalClientGlobals->predictedPlayerState.origin.v[1]);
+              v64 = LocalClientGlobals->predictedPlayerState.origin.v[1] - point.v[1];
+              v65 = LocalClientGlobals->predictedPlayerState.origin.v[2] - point.v[2];
+              *(float *)&v67 = fsqrt((float)((float)(v64 * v64) + (float)(v63 * v63)) + (float)(v65 * v65));
+              _XMM7 = v67;
               __asm
               {
-                vmovss  xmm0, dword ptr [r15+38h]
-                vsubss  xmm5, xmm0, dword ptr [rbp+57h+point]
-                vmovss  xmm1, dword ptr [r15+3Ch]
-                vsubss  xmm6, xmm1, dword ptr [rbp+57h+point+4]
-                vmovss  xmm0, dword ptr [r15+40h]
-                vsubss  xmm4, xmm0, dword ptr [rbp+57h+point+8]
-                vmulss  xmm2, xmm6, xmm6
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm3, xmm0
-                vsqrtss xmm7, xmm2, xmm2
                 vcmpless xmm0, xmm7, cs:__real@80000000
                 vblendvps xmm1, xmm7, xmm8, xmm0
-                vdivss  xmm0, xmm8, xmm1
-                vmulss  xmm3, xmm5, xmm0
-                vmulss  xmm4, xmm4, xmm0
-                vmulss  xmm0, xmm6, xmm0
-                vmulss  xmm2, xmm0, dword ptr [rbp+57h+result.m_id+4]
-                vmulss  xmm1, xmm3, dword ptr [rbp+57h+result.m_id]
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, [rbp+57h+var_70]
-                vaddss  xmm6, xmm3, xmm0
               }
+              v70 = (float)((float)((float)(v64 * (float)(1.0 / *(float *)&_XMM1)) * result.v[1]) + (float)((float)(v63 * (float)(1.0 / *(float *)&_XMM1)) * result.v[0])) + (float)((float)(v65 * (float)(1.0 / *(float *)&_XMM1)) * result.v[2]);
               *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_parabolicAngle, "perk_parabolicAngle");
-              __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; X }
-              *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-              __asm { vcomiss xmm6, xmm0 }
-              if ( !v110 )
+              if ( v70 >= cosf_0(*(float *)&_XMM0 * 0.017453292) )
               {
-                *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_parabolicRadius, "perk_parabolicRadius");
-                __asm { vcomiss xmm0, xmm7 }
-                v24 = !v110;
+                Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_parabolicRadius, "perk_parabolicRadius");
+                v20 = *(float *)&Float_Internal_DebugName >= *(float *)&v67;
               }
               if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
                 I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, ", Parabolic Perk");
-              if ( v24 )
+              if ( v20 )
                 goto LABEL_144;
             }
 LABEL_129:
-            if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_hearVictimEnabled, "cg_hearVictimEnabled") && listenerClientNum == _R15->recentKilledByClientNum )
+            if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_hearVictimEnabled, "cg_hearVictimEnabled") && listenerClientNum == LocalClientGlobals->recentKilledByClientNum )
             {
-              v71 = _R15->time - _R15->recentKilledByTime;
-              if ( v71 < Dvar_GetInt_Internal_DebugName(DVARINT_cg_hearVictimTime, "cg_hearVictimTime") )
+              v53 = LocalClientGlobals->time - LocalClientGlobals->recentKilledByTime;
+              if ( v53 < Dvar_GetInt_Internal_DebugName(DVARINT_cg_hearVictimTime, "cg_hearVictimTime") )
               {
-                if ( _R15->recentKilledByTime )
+                if ( LocalClientGlobals->recentKilledByTime )
                 {
-                  v24 = 1;
+                  v20 = 1;
                   if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
                     I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, ", cg_hearVictimEnabled");
                 }
@@ -2973,93 +2715,83 @@ LABEL_129:
             }
             if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cg_hearKillerEnabled, "cg_hearKillerEnabled") )
             {
-              recentVictimTimes = _R15->recentVictimTimes;
-              v73 = 8i64;
+              recentVictimTimes = LocalClientGlobals->recentVictimTimes;
+              v55 = 8i64;
               do
               {
                 if ( listenerClientNum == *(recentVictimTimes - 8) )
                 {
-                  v74 = _R15->time - *recentVictimTimes;
-                  if ( v74 < Dvar_GetInt_Internal_DebugName(DVARINT_cg_hearKillerTime, "cg_hearKillerTime") )
+                  v56 = LocalClientGlobals->time - *recentVictimTimes;
+                  if ( v56 < Dvar_GetInt_Internal_DebugName(DVARINT_cg_hearKillerTime, "cg_hearKillerTime") )
                   {
                     if ( *recentVictimTimes )
                     {
-                      v24 = 1;
+                      v20 = 1;
                       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
                         I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, ", cg_hearKillerEnabled");
                     }
                   }
                 }
                 ++recentVictimTimes;
-                --v73;
+                --v55;
               }
-              while ( v73 );
+              while ( v55 );
             }
-            if ( !v24 )
+            if ( !v20 )
               goto LABEL_147;
             goto LABEL_144;
           }
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_deadHearTeamLiving, "cg_deadHearTeamLiving") )
           {
-            v24 = 1;
+            v20 = 1;
             if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
               goto LABEL_144;
-            v53 = ", cg_deadHearTeamLiving";
+            v48 = ", cg_deadHearTeamLiving";
             goto LABEL_100;
           }
         }
-        v83 = v116;
-        goto LABEL_184;
+        v60 = v77;
+        goto LABEL_183;
       }
-      if ( v46 )
+      if ( v41 )
       {
-        v24 = 1;
+        v20 = 1;
         if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
           goto LABEL_144;
-        v53 = ", Same State";
+        v48 = ", Same State";
         goto LABEL_100;
       }
     }
-    if ( v29 )
-      goto LABEL_164;
-    goto LABEL_160;
+    if ( v24 )
+      goto LABEL_163;
+    goto LABEL_159;
   }
-  v24 = 1;
+  v20 = 1;
   if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
   {
-    v53 = ", FFA";
+    v48 = ", FFA";
 LABEL_100:
-    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v53);
+    I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, v48);
   }
 LABEL_144:
   GameParty = Live_GetGameParty();
   if ( CL_IsPlayerMuted(GameParty, listenerClientNum) )
   {
-    v24 = 0;
+    v20 = 0;
     s_voiceDebugMsg[0] = 0;
     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") )
       I_strcat_truncate(s_voiceDebugMsg, 0x80ui64, "Muted");
   }
 LABEL_147:
-  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") && CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v8) == CA_ACTIVE )
+  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_on_screen_debug, "voice_on_screen_debug") && CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v4) == CA_ACTIVE )
   {
-    v76 = &colorRed;
-    if ( v24 )
-      v76 = &colorGreen;
-    __asm { vmovaps xmm2, xmm8; scale }
-    CG_DebugString(&point, v76, *(float *)&_XMM2, s_voiceDebugMsg, 0, 0);
+    v58 = &colorRed;
+    if ( v20 )
+      v58 = &colorGreen;
+    CG_DebugString(&point, v58, 1.0, s_voiceDebugMsg, 0, 0);
   }
   memset(&point, 0, sizeof(point));
-  ShouldSendPeerVoiceDataPriorToGameState = v24;
-LABEL_153:
-  _R11 = &v125;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return ShouldSendPeerVoiceDataPriorToGameState;
+  return v20;
 }
 
 /*
@@ -3242,53 +2974,50 @@ CL_CGameMP_StreamSyncIsDone
 */
 StreamLoadSyncResult CL_CGameMP_StreamSyncIsDone()
 {
-  const dvar_t *v3; 
+  const dvar_t *v0; 
+  float value; 
+  const dvar_t *v2; 
   int integer; 
-  const dvar_t *v5; 
-  int v6; 
-  const dvar_t *v7; 
-  int v8; 
-  const dvar_t *v9; 
-  StreamLoadSyncResult result; 
+  const dvar_t *v4; 
+  int v5; 
+  const dvar_t *v6; 
+  int v7; 
+  const dvar_t *v8; 
   float outPercentage; 
 
-  _RBX = DCONST_DVARFLT_stream_syncMP_imageQuality;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
+  v0 = DCONST_DVARFLT_stream_syncMP_imageQuality;
   if ( !DCONST_DVARFLT_stream_syncMP_imageQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMP_imageQuality") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v3 = DCONST_DVARINT_stream_syncMP_timeoutSeconds;
+  Dvar_CheckFrontendServerThread(v0);
+  value = v0->current.value;
+  v2 = DCONST_DVARINT_stream_syncMP_timeoutSeconds;
   if ( !DCONST_DVARINT_stream_syncMP_timeoutSeconds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMP_timeoutSeconds") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  integer = v3->current.integer;
+  Dvar_CheckFrontendServerThread(v2);
+  integer = v2->current.integer;
   if ( CL_TransientsWorldMP_IsActive() )
   {
-    v5 = DVARINT_stream_syncMPTRWorld_maxTimeSeconds;
+    v4 = DVARINT_stream_syncMPTRWorld_maxTimeSeconds;
     if ( !DVARINT_stream_syncMPTRWorld_maxTimeSeconds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMPTRWorld_maxTimeSeconds") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v5);
-    v6 = v5->current.integer;
-    v7 = DVARINT_stream_syncMPTRWorld_trPortion_maxTimeSeconds;
+    Dvar_CheckFrontendServerThread(v4);
+    v5 = v4->current.integer;
+    v6 = DVARINT_stream_syncMPTRWorld_trPortion_maxTimeSeconds;
     if ( !DVARINT_stream_syncMPTRWorld_trPortion_maxTimeSeconds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMPTRWorld_trPortion_maxTimeSeconds") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    v8 = v7->current.integer;
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = v6->current.integer;
   }
   else
   {
-    v9 = DVARINT_stream_syncMP_maxTimeSeconds;
+    v8 = DVARINT_stream_syncMP_maxTimeSeconds;
     if ( !DVARINT_stream_syncMP_maxTimeSeconds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMP_maxTimeSeconds") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    v6 = v9->current.integer;
-    v8 = 0;
+    Dvar_CheckFrontendServerThread(v8);
+    v5 = v8->current.integer;
+    v7 = 0;
   }
-  __asm { vmovaps xmm0, xmm6; enoughQuality }
-  result = Stream_LoadSync_IsDone(*(float *)&_XMM0, integer, v6, v8, &outPercentage);
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  return Stream_LoadSync_IsDone(value, integer, v5, v7, &outPercentage);
 }
 
 /*

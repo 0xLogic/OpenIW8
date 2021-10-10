@@ -54,15 +54,10 @@ _BOOL8 Vec3ZeroEpsilon(const vec3_t *a)
 {
   float v1[4]; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3a83126f; epsilon
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+48h+v1], xmm0
-    vmovss  [rsp+48h+var_24], xmm0
-    vmovss  [rsp+48h+var_20], xmm0
-  }
-  return VecNCompareCustomEpsilon(a->v, v1, *(float *)&_XMM2, 3);
+  v1[0] = 0.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  return VecNCompareCustomEpsilon(a->v, v1, 0.001, 3);
 }
 
 /*
@@ -70,42 +65,33 @@ _BOOL8 Vec3ZeroEpsilon(const vec3_t *a)
 Vec3LimitLength
 ==============
 */
-
-float __fastcall Vec3LimitLength(vec3_t *v, double maxLength)
+float Vec3LimitLength(vec3_t *v, float maxLength)
 {
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  _RBX = v;
-  __asm
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float result; 
+
+  if ( maxLength < 0.0 )
   {
-    vmovaps [rsp+88h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm1, xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps xmm6, xmm1
-    vmovss  xmm4, dword ptr [rbx+4]
-    vmovss  xmm5, dword ptr [rbx]
-    vmovss  xmm8, dword ptr [rbx+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vcomiss xmm3, xmm0
-    vsqrtss xmm3, xmm3, xmm3
-    vdivss  xmm2, xmm6, xmm3
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm8, xmm2
-    vmulss  xmm1, xmm4, xmm2
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovaps xmm0, xmm3
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector.h", 524, ASSERT_TYPE_ASSERT, "( maxLength ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "maxLength", "0.0f", maxLength, *(double *)&_XMM0) )
+      __debugbreak();
   }
-  return *(float *)&_XMM0;
+  v5 = v->v[1];
+  v6 = v->v[0];
+  v7 = v->v[2];
+  v8 = (float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7);
+  if ( v8 <= (float)(maxLength * maxLength) )
+    return 0.0;
+  v9 = fsqrt(v8);
+  v->v[0] = v6 * (float)(maxLength / v9);
+  v->v[2] = v7 * (float)(maxLength / v9);
+  result = v9;
+  v->v[1] = v5 * (float)(maxLength / v9);
+  return result;
 }
 
 /*
@@ -113,41 +99,12 @@ float __fastcall Vec3LimitLength(vec3_t *v, double maxLength)
 Short4LerpAsVec4
 ==============
 */
-
-void __fastcall Short4LerpAsVec4(const __int16 *from, const __int16 *to, double frac, vec4_t *out)
+void Short4LerpAsVec4(const __int16 *from, const __int16 *to, const float frac, vec4_t *out)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm3, xmm0, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r8d
-    vaddss  xmm3, xmm3, xmm1
-    vmovss  dword ptr [r9], xmm3
-    vmovaps xmm4, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r8d
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [r9+4], xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm4
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ecx
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [r9+8], xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vmulss  xmm2, xmm0, xmm4
-    vcvtsi2ss xmm1, xmm1, ecx
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [r9+0Ch], xmm2
-  }
+  out->v[0] = (float)((float)(*to - *from) * frac) + (float)*from;
+  out->v[1] = (float)((float)(to[1] - from[1]) * frac) + (float)from[1];
+  out->v[2] = (float)((float)(to[2] - from[2]) * frac) + (float)from[2];
+  out->v[3] = (float)((float)(to[3] - from[3]) * frac) + (float)from[3];
 }
 
 /*
@@ -157,77 +114,51 @@ Vec2CubicBezierSplitHalf
 */
 void Vec2CubicBezierSplitHalf(const CubicBezierVec2 *input, CubicBezierVec2 *a, CubicBezierVec2 *b)
 {
-  void *retaddr; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+10h]
-    vaddss  xmm3, xmm0, dword ptr [rcx+18h]
-    vaddss  xmm5, xmm0, dword ptr [rcx+8]
-    vmovss  xmm2, dword ptr [rcx+0Ch]
-    vmovss  xmm1, dword ptr [rcx+14h]
-    vaddss  xmm4, xmm1, dword ptr [rcx+1Ch]
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmmword ptr [r11-58h], xmm10
-    vmovaps xmmword ptr [r11-68h], xmm11
-    vmovaps xmmword ptr [r11-78h], xmm12
-    vaddss  xmm8, xmm2, dword ptr [rcx+4]
-    vmovss  xmm10, cs:__real@3f000000
-    vmovaps [rsp+0A8h+var_88], xmm13
-    vmovaps [rsp+0A8h+var_98], xmm14
-    vmovaps [rsp+0A8h+var_A8], xmm15
-    vmovss  xmm15, dword ptr [rcx]
-    vaddss  xmm7, xmm15, dword ptr [rcx+8]
-    vmovss  dword ptr [rdx], xmm15
-    vmovaps xmm15, [rsp+0A8h+var_A8]
-  }
+  v3 = input->p[2].v[0];
+  v4 = v3 + input->p[3].v[0];
+  v5 = v3 + input->p[1].v[0];
+  v6 = input->p[1].v[1];
+  v7 = input->p[2].v[1];
+  v8 = v7 + input->p[3].v[1];
+  v9 = v6 + input->p[0].v[1];
+  v10 = input->p[0].v[0] + input->p[1].v[0];
+  a->p[0].v[0] = input->p[0].v[0];
   a->p[0].v[1] = input->p[0].v[1];
-  __asm
-  {
-    vaddss  xmm6, xmm2, xmm1
-    vmovss  xmm2, cs:__real@3e800000
-    vaddss  xmm0, xmm7, xmm5
-    vmulss  xmm9, xmm0, xmm2
-    vaddss  xmm0, xmm8, xmm6
-    vmulss  xmm11, xmm7, xmm10
-    vmovss  dword ptr [rdx+8], xmm11
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmulss  xmm7, xmm0, xmm2
-    vmulss  xmm12, xmm8, xmm10
-    vmovss  dword ptr [rdx+0Ch], xmm12
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovss  dword ptr [rdx+10h], xmm9
-    vmovss  dword ptr [rdx+14h], xmm7
-    vaddss  xmm1, xmm5, xmm3
-    vmulss  xmm8, xmm1, xmm2
-    vmulss  xmm13, xmm3, xmm10
-    vaddss  xmm0, xmm6, xmm4
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmulss  xmm5, xmm0, xmm2
-    vaddss  xmm1, xmm9, xmm8
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmulss  xmm3, xmm1, xmm10
-    vmovss  dword ptr [rdx+18h], xmm3
-    vmulss  xmm14, xmm4, xmm10
-    vaddss  xmm0, xmm5, xmm7
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmulss  xmm2, xmm0, xmm10
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovss  dword ptr [rdx+1Ch], xmm2
-    vmovss  dword ptr [r8], xmm3
-    vmovss  dword ptr [r8+4], xmm2
-    vmovss  dword ptr [r8+8], xmm8
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovss  dword ptr [r8+0Ch], xmm5
-    vmovss  dword ptr [r8+10h], xmm13
-    vmovaps xmm13, [rsp+0A8h+var_88]
-    vmovss  dword ptr [r8+14h], xmm14
-    vmovaps xmm14, [rsp+0A8h+var_98]
-  }
+  v11 = (float)(v10 + v5) * 0.25;
+  a->p[1].v[0] = v10 * 0.5;
+  v12 = (float)(v9 + (float)(v6 + v7)) * 0.25;
+  a->p[1].v[1] = v9 * 0.5;
+  a->p[2].v[0] = v11;
+  a->p[2].v[1] = v12;
+  v13 = (float)(v5 + v4) * 0.25;
+  v14 = v4 * 0.5;
+  v15 = (float)((float)(v6 + v7) + v8) * 0.25;
+  v16 = (float)(v11 + v13) * 0.5;
+  a->p[3].v[0] = v16;
+  v17 = (float)(v15 + v12) * 0.5;
+  a->p[3].v[1] = v17;
+  b->p[0].v[0] = v16;
+  b->p[0].v[1] = v17;
+  b->p[1].v[0] = v13;
+  b->p[1].v[1] = v15;
+  b->p[2].v[0] = v14;
+  b->p[2].v[1] = v8 * 0.5;
   b->p[3] = input->p[3];
 }
 

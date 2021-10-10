@@ -362,53 +362,53 @@ SV_InitSP_SpawnServer
 */
 void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapStart, int isRestart, bool isSPHotLoad)
 {
-  char v9; 
-  unsigned __int64 v10; 
-  __int64 v11; 
-  const dvar_t *v12; 
+  char v8; 
+  unsigned __int64 v9; 
+  __int64 v10; 
+  const dvar_t *v11; 
   int ControllerFromClient; 
-  BOOL v14; 
-  bool v15; 
+  BOOL v13; 
+  bool v14; 
   SvGameModeApplication *ActiveServerApplication; 
   unsigned int m_frameDuration; 
   unsigned __int8 ActiveGameMode; 
   bool IsAnyLocalServerRunning; 
   unsigned __int64 FreeReserveAmount; 
-  unsigned __int64 v21; 
+  unsigned __int64 v20; 
+  scrContext_t *v21; 
   scrContext_t *v22; 
-  scrContext_t *v23; 
-  unsigned __int16 v24; 
-  char v25; 
+  unsigned __int16 v23; 
+  char v24; 
+  int v25; 
   int v26; 
-  int v27; 
   SvGameGlobals *SvGameGlobalsCommon; 
+  SvGameGlobals *v28; 
   SvGameGlobals *v29; 
-  SvGameGlobals *v30; 
-  unsigned __int64 v31; 
+  unsigned __int64 v30; 
   volatile __int32 *p_m_svMemoryInitialized; 
-  scrContext_t *v33; 
-  int v34; 
+  scrContext_t *v32; 
+  int v33; 
   CLPauseReason PauseReason; 
-  SvGameGlobals *v36; 
-  const dvar_t *v37; 
+  SvGameGlobals *v35; 
+  const dvar_t *v36; 
+  int v37; 
   int v38; 
-  int v39; 
   char *fmt; 
   __int64 suppressPlayerNotify; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
   int savegamea; 
   int randomSeed; 
-  int v52; 
-  unsigned __int64 v53; 
+  int v48; 
+  unsigned __int64 v49; 
   SaveGame *save[3]; 
   char filename[72]; 
 
   save[1] = (SaveGame *)-2i64;
   savegamea = savegame;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "SV_InitSP_SpawnServer");
-  v9 = 1;
+  v8 = 1;
   SV_InitSP_PopRemoteScreenUpdate();
   Com_SyncThreads();
   SV_InitSP_PushRemoteScreenUpdate();
@@ -416,8 +416,8 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   G_SaveMemorySP_WaitForWritesToComplete(0);
   if ( !savegamea )
     Com_ScreenShotSaveGame_ClearScreenShot();
-  v10 = (unsigned __int64)&g_serverThreadOwnership & 3;
-  v53 = (unsigned __int64)&g_serverThreadOwnership & 3;
+  v9 = (unsigned __int64)&g_serverThreadOwnership & 3;
+  v49 = (unsigned __int64)&g_serverThreadOwnership & 3;
   if ( ((unsigned __int8)&g_serverThreadOwnership & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
@@ -427,7 +427,7 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
       __debugbreak();
   }
   SV_DemoSP_AutoSaveEndDemo();
-  v11 = tls_index;
+  v10 = tls_index;
   *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) = -1;
   if ( !isSPHotLoad )
   {
@@ -445,18 +445,18 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   Com_FastFile_SyncLoadComplete(server);
   DB_SyncXAssets();
   CL_MainSP_GameAllocate();
-  v12 = DVARBOOL_lmc;
+  v11 = DVARBOOL_lmc;
   if ( !DVARBOOL_lmc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lmc") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.enabled )
   {
     SV_InitSP_PopRemoteScreenUpdate();
     ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
     Cbuf_ExecuteBufferInternal(LOCAL_CLIENT_0, ControllerFromClient, "loadzone mychanges\n", 0, 0);
     SV_InitSP_PushRemoteScreenUpdate();
   }
-  v52 = Sys_Milliseconds();
+  v48 = Sys_Milliseconds();
   LoadBar_Reset();
   Stream_LoadSync_SetSPWaitType(NO_WAIT_AFTER_LEVEL_LOAD);
   CL_MainSP_InitLoad(server);
@@ -464,7 +464,7 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   SV_InitSP_PopRemoteScreenUpdate();
   CL_MainSP_MapLoading(server);
   SV_InitSP_PushRemoteScreenUpdate();
-  if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+  if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
   {
@@ -473,7 +473,7 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
       __debugbreak();
   }
   Live_Frame(0);
-  if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+  if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
   {
@@ -486,9 +486,9 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   SV_CmdsSP_ClearLoadGame();
   ProfLoad_End();
   ProfLoad_Begin("Shutdown systems");
-  v14 = !isSPHotLoad;
+  v13 = !isSPHotLoad;
   SV_InitSP_PopRemoteScreenUpdate();
-  CL_Main_ShutdownAll(isRestart, v14);
+  CL_Main_ShutdownAll(isRestart, v13);
   SV_InitSP_PushRemoteScreenUpdate();
   DB_PushFullLevelUnload();
   if ( isSPHotLoad )
@@ -505,12 +505,12 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   Com_Printf(15, "Server: %s\n", server);
   LODWORD(fmt) = isRestart;
   Com_Printf(15, "Hotload = %i. Savegame = %i. Restart = %i\n", isSPHotLoad, (unsigned int)savegamea, fmt);
-  *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v11) + 1052i64) = -4609;
+  *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v10) + 1052i64) = -4609;
   SV_InitSP_ClearServer();
   ProfLoad_End();
   ProfLoad_Begin("Shutdown file system");
   randomSeed = Sys_MillisecondsRaw();
-  if ( v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+  if ( v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
   {
@@ -523,7 +523,7 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   Com_Restart();
   SV_InitSP_PushRemoteScreenUpdate();
   ProfLoad_End();
-  if ( v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+  if ( v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
   {
@@ -533,7 +533,7 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   }
   if ( isSPHotLoad )
   {
-    v9 = 0;
+    v8 = 0;
   }
   else
   {
@@ -551,9 +551,9 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   ProfLoad_End();
   DB_PopFullLevelUnload();
   ProfLoad_Begin("After file system restart");
-  v15 = v9;
+  v14 = v8;
   if ( DB_DevFastBoot_BootTimeCheck() )
-    v15 = 0;
+    v14 = 0;
   ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
   if ( !ActiveServerApplication->m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
     __debugbreak();
@@ -562,9 +562,9 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   {
     if ( !m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
       __debugbreak();
-    LODWORD(v47) = 50;
+    LODWORD(v43) = 50;
     LODWORD(suppressPlayerNotify) = ActiveServerApplication->m_frameDuration;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_init_sp.cpp", 948, ASSERT_TYPE_ASSERT, "( svApp->GetFrameDuration() ) == ( SvGameModeApplication::DEFAULT_SERVER_FRAME_DURATION )", "svApp->GetFrameDuration() == SvGameModeApplication::DEFAULT_SERVER_FRAME_DURATION\n\t%i, %i", suppressPlayerNotify, v47) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_init_sp.cpp", 948, ASSERT_TYPE_ASSERT, "( svApp->GetFrameDuration() ) == ( SvGameModeApplication::DEFAULT_SERVER_FRAME_DURATION )", "svApp->GetFrameDuration() == SvGameModeApplication::DEFAULT_SERVER_FRAME_DURATION\n\t%i, %i", suppressPlayerNotify, v43) )
       __debugbreak();
   }
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
@@ -573,7 +573,7 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   SV_InitSP_PopRemoteScreenUpdate();
   if ( !ActiveServerApplication->m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
     __debugbreak();
-  CL_CGameSP_StartLoading(server, v15, v14, savegamea != 0, ActiveServerApplication->m_frameDuration);
+  CL_CGameSP_StartLoading(server, v14, v13, savegamea != 0, ActiveServerApplication->m_frameDuration);
   SV_InitSP_PushRemoteScreenUpdate();
   ProfLoad_End();
   if ( level.forceStreamSyncSP )
@@ -595,8 +595,8 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
     SV_MemorySP_Shutdown();
     if ( g_serverHunkUser )
       Mem_HunkUser_Reset(g_serverHunkUser);
-    v23 = ScriptContext_Server();
-    ScriptContext_MemoryClear(v23);
+    v22 = ScriptContext_Server();
+    ScriptContext_MemoryClear(v22);
   }
   else
   {
@@ -606,38 +606,38 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
       __debugbreak();
     g_serverHunkUser = Mem_HunkUser_Create(0xC800000ui64, "g_serverHunkUser", TRACK_NETWORK_ENTITY, MEM_ALLOC_FLAG_NO_MEM_CLEAR);
     FreeReserveAmount = Mem_HunkUser_GetFreeReserveAmount(g_serverHunkUser);
-    v21 = Mem_HunkUser_GetFreeReserveAmount(g_serverHunkUser);
-    Com_Printf(0, "Mem_HunkUser_GetFreeReserveAmount( g_serverHunkUser ) = %zu kb (Alignment Loss: %zu)\n", v21 >> 10, FreeReserveAmount - 209715200);
+    v20 = Mem_HunkUser_GetFreeReserveAmount(g_serverHunkUser);
+    Com_Printf(0, "Mem_HunkUser_GetFreeReserveAmount( g_serverHunkUser ) = %zu kb (Alignment Loss: %zu)\n", v20 >> 10, FreeReserveAmount - 209715200);
     G_Main_InitXanimHunkUser();
     G_InitTagInfoHeap();
     ScriptableSv_InitMemory();
-    v22 = ScriptContext_Server();
-    ScriptContext_MemoryInit(v22, NULL, 1u);
+    v21 = ScriptContext_Server();
+    ScriptContext_MemoryInit(v21, NULL, 1u);
   }
   SV_MemorySP_InitPreMap(1u);
-  v24 = BgWeaponMap::ComputeRuntimeSize(1u, server, 0xFFu, &BgWeaponMap::ms_runtimeIndexBits);
-  BgWeaponMap::ms_runtimeSize = v24;
-  v25 = BgWeaponMap::ms_runtimeIndexBits;
-  v26 = 1 << BgWeaponMap::ms_runtimeIndexBits;
-  if ( 1 << BgWeaponMap::ms_runtimeIndexBits < 0 || (unsigned int)v26 > 0xFFFF )
+  v23 = BgWeaponMap::ComputeRuntimeSize(1u, server, 0xFFu, &BgWeaponMap::ms_runtimeIndexBits);
+  BgWeaponMap::ms_runtimeSize = v23;
+  v24 = BgWeaponMap::ms_runtimeIndexBits;
+  v25 = 1 << BgWeaponMap::ms_runtimeIndexBits;
+  if ( 1 << BgWeaponMap::ms_runtimeIndexBits < 0 || (unsigned int)v25 > 0xFFFF )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v26, "signed", v26) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v25, "signed", v25) )
       __debugbreak();
-    v24 = BgWeaponMap::ms_runtimeSize;
-    v25 = BgWeaponMap::ms_runtimeIndexBits;
+    v23 = BgWeaponMap::ms_runtimeSize;
+    v24 = BgWeaponMap::ms_runtimeIndexBits;
   }
-  if ( v24 >= (unsigned __int16)v26 )
+  if ( v23 >= (unsigned __int16)v25 )
   {
-    v27 = 1 << v25;
-    if ( 1 << v25 < 0 || (unsigned int)v27 > 0xFFFF )
+    v26 = 1 << v24;
+    if ( 1 << v24 < 0 || (unsigned int)v26 > 0xFFFF )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v27, "signed", v27) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v26, "signed", v26) )
         __debugbreak();
-      v24 = BgWeaponMap::ms_runtimeSize;
+      v23 = BgWeaponMap::ms_runtimeSize;
     }
-    LODWORD(v49) = (unsigned __int16)v27;
-    LODWORD(v48) = v24;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 243, ASSERT_TYPE_ASSERT, "( ms_runtimeSize ) < ( truncate_cast<ushort>(1 << ms_runtimeIndexBits) )", "%s < %s\n\t%i, %i", "ms_runtimeSize", "truncate_cast<ushort>(1 << ms_runtimeIndexBits)", v48, v49) )
+    LODWORD(v45) = (unsigned __int16)v26;
+    LODWORD(v44) = v23;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 243, ASSERT_TYPE_ASSERT, "( ms_runtimeSize ) < ( truncate_cast<ushort>(1 << ms_runtimeIndexBits) )", "%s < %s\n\t%i, %i", "ms_runtimeSize", "truncate_cast<ushort>(1 << ms_runtimeIndexBits)", v44, v45) )
       __debugbreak();
   }
   BgWeaponMap::ms_runtimeSizeInitialized = 1;
@@ -649,8 +649,8 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
     __debugbreak();
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF )
   {
-    LODWORD(v47) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v47) )
+    LODWORD(v43) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v43) )
       __debugbreak();
   }
   SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
@@ -660,12 +660,12 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   ProfLoad_Begin("Initialize config strings");
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF )
   {
-    LODWORD(v47) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v47) )
+    LODWORD(v43) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v43) )
       __debugbreak();
   }
-  v29 = SvGameGlobals::GetSvGameGlobalsCommon();
-  SvGameGlobals::InitConfigStrings(v29);
+  v28 = SvGameGlobals::GetSvGameGlobalsCommon();
+  SvGameGlobals::InitConfigStrings(v28);
   NetConstStrings_BuildStringMap();
   BgDynamicLimits::UpdateDynamicValues();
   BG_Omnvar_InitializeDefaultValues();
@@ -676,12 +676,12 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   ProfLoad_Begin("Load collision (server)");
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF )
   {
-    LODWORD(v47) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v47) )
+    LODWORD(v43) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v43) )
       __debugbreak();
   }
-  v30 = SvGameGlobals::GetSvGameGlobalsCommon();
-  CM_LoadMap(filename, &v30->mapcrc);
+  v29 = SvGameGlobals::GetSvGameGlobalsCommon();
+  CM_LoadMap(filename, &v29->mapcrc);
   ProfLoad_End();
   ProfLoad_Begin("CM_LoadAddOnMapEnts");
   CM_LoadAddOnMapEnts(server);
@@ -699,8 +699,8 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   SV_AllocServerSnapshotCache(g_serverHunkUser);
   XAnimProceduralBonesAllocator_AllocateServerMemorySP(g_serverHunkUser, 1);
   ProfLoad_End();
-  v31 = Mem_HunkUser_GetFreeReserveAmount(g_serverHunkUser);
-  Com_Printf(15, "g_serverHunkUser finished. free memory %zu kb\n", v31 >> 10);
+  v30 = Mem_HunkUser_GetFreeReserveAmount(g_serverHunkUser);
+  Com_Printf(15, "g_serverHunkUser finished. free memory %zu kb\n", v30 >> 10);
   if ( !SvPersistentGlobals::ms_svPersistent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_persistent_globals.h", 72, ASSERT_TYPE_ASSERT, "(ms_svPersistent)", "%s\n\tAttempting to access server static data outside of an active server context", "ms_svPersistent") )
     __debugbreak();
   if ( !BYTE1(SvGameGlobals::ms_allocatedType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_persistent_globals.h", 73, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access server static data outside of an active server context", "ms_allocatedType != GameModeType::NONE") )
@@ -709,8 +709,8 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   if ( (((_BYTE)SvPersistentGlobals::ms_svPersistent + 20) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &SvPersistentGlobals::ms_svPersistent->m_svMemoryInitialized) )
     __debugbreak();
   _InterlockedExchange(p_m_svMemoryInitialized, 1);
-  v33 = ScriptContext_Server();
-  ScriptContext_MemoryAllocate(v33);
+  v32 = ScriptContext_Server();
+  ScriptContext_MemoryAllocate(v32);
   SV_MemorySP_PrintAllocationSize(1);
   BgDynamicLimits::UpdateDynamicValues();
   if ( !IsAnyLocalServerRunning )
@@ -718,10 +718,10 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   ProfLoad_Begin("Live_SetCurrentMapname");
   Live_SetCurrentMapname(server);
   ProfLoad_End();
-  v34 = (unsigned __int8)(sv_serverId_value + 16);
-  sv_serverId_value = v34;
-  if ( (v34 & 0xF0) == 0 )
-    sv_serverId_value = v34 + 16;
+  v33 = (unsigned __int8)(sv_serverId_value + 16);
+  sv_serverId_value = v33;
+  if ( (v33 & 0xF0) == 0 )
+    sv_serverId_value = v33 + 16;
   ProfLoad_Begin("SaveMemory_InitializeSaveSystem");
   if ( (_BYTE)GSaveMemory::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_savememory_sp.h", 131, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
@@ -755,31 +755,31 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   ProfLoad_Begin("SV_InitSnapshotSP");
   SV_MainSP_InitSnapshot();
   ProfLoad_End();
-  v30[1].gameClientSize = 0;
+  v29[1].gameClientSize = 0;
   if ( DB_DevFastBoot_BootTimeCheck() == FASTBOOT_NONE && !isSPHotLoad && !savegamea )
   {
     ProfLoad_Begin("Save game");
     if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF )
     {
-      LODWORD(v47) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v47) )
+      LODWORD(v43) = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_game_globals_sp.h", 102, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%i)", "ms_allocatedType == ALLOCATION_TYPE", v43) )
         __debugbreak();
     }
-    v36 = SvGameGlobals::GetSvGameGlobalsCommon();
-    v37 = DVARBOOL_sv_saveOnStartMap;
+    v35 = SvGameGlobals::GetSvGameGlobalsCommon();
+    v36 = DVARBOOL_sv_saveOnStartMap;
     if ( !DVARBOOL_sv_saveOnStartMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_saveOnStartMap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v37);
-    if ( v37->current.enabled )
+    Dvar_CheckFrontendServerThread(v36);
+    if ( v36->current.enabled )
     {
       SV_SaveSP_ClearPendingSaves();
       SV_SaveSP_AddPendingSave(server, "Start Level Save", (const char *)&queryFormat.fmt + 3, SAVE_TYPE_AUTOSAVE, 6u, 1);
       ProfLoad_Begin("GamerProfile_UpdateProfileAndSaveIfNeeded");
-      v38 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-      GamerProfile_UpdateProfileAndSaveIfNeeded(v38);
+      v37 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
+      GamerProfile_UpdateProfileAndSaveIfNeeded(v37);
       ProfLoad_End();
       SV_SaveSP_ProcessPendingSaves();
-      v36[1].gameClientSize = 1;
+      v35[1].gameClientSize = 1;
     }
     ProfLoad_End();
   }
@@ -811,12 +811,12 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
     SV_MainSP_RunFrame(SV_FRAME_DO_ALL, 0);
   if ( G_MainSP_IsDemoSaveGame() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_init_sp.cpp", 1217, ASSERT_TYPE_ASSERT, "(!G_MainSP_IsDemoSaveGame())", (const char *)&queryFormat, "!G_MainSP_IsDemoSaveGame()") )
     __debugbreak();
-  v39 = Sys_Milliseconds();
-  Com_Printf(15, "Load time: %d msec\n", (unsigned int)(v39 - v52));
+  v38 = Sys_Milliseconds();
+  Com_Printf(15, "Load time: %d msec\n", (unsigned int)(v38 - v48));
   SV_Main_RestrictClientAllowedDvarFlags(0);
   Com_ResetFrametime();
   DB_DevFastBoot_Disable();
-  if ( v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+  if ( v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
   {
@@ -828,20 +828,11 @@ void SV_InitSP_SpawnServer(const char *server, int savegame, unsigned int mapSta
   BB_RecordSystemMemoryFootprint(server, 0);
   Sys_Print("SV_SpawnServer: completed\n");
   Compass_Print("Ready for Compass\n");
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(__rdtsc() - g_timerTickAtBoot) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(0, "Time since boot: %.2fs\n", *(double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(0, "Time since boot: %.2fs\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
   Com_SetLocalServerStarting(NONE);
   Sys_ProfEndNamedEvent();
 }
@@ -1233,8 +1224,7 @@ void SvPersistentGlobalsSP::ServerShutdown(SvPersistentGlobalsSP *this, const ch
   SV_GameSP_ShutdownGameProgs();
   SV_InitSP_ClearServer();
   ScriptableSv_ClearCounts();
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  Dvar_SetFloat_Internal(com_timescale, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(com_timescale, 1.0);
   Dvar_SetBool_Internal(com_cinematicEndInWhite, 0);
 }
 

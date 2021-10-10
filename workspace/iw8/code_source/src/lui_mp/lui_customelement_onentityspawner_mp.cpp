@@ -137,67 +137,60 @@ LUIOnEntityElementSpawnerMP::UpdateFiltersForPlayerThermalSettings
 */
 void LUIOnEntityElementSpawnerMP::UpdateFiltersForPlayerThermalSettings(const LocalClientNum_t localClientNum, const CgGlobalsMP *const cgameGlob, const centity_t *const entity, bool isFriendly)
 {
-  __int64 v13; 
-  const dvar_t *v14; 
-  const dvar_t *v16; 
+  __int64 v7; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
   bool enabled; 
-  CgWeaponMap *v18; 
-  char v19; 
+  CgWeaponMap *v11; 
+  double v12; 
   const Weapon *CurrentWeaponForPlayer; 
   GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
-  bool v22; 
+  bool v15; 
   unsigned int WeaponAttachments; 
-  unsigned int v24; 
-  WeaponAttachment **v25; 
+  unsigned int v17; 
+  WeaponAttachment **v18; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v27; 
+  unsigned __int64 v20; 
+  const dvar_t *v21; 
+  float value; 
+  float v23; 
+  float v24; 
+  float v25; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  bool v34; 
-  __int64 v62; 
-  __int64 v63; 
-  int v64[4]; 
-  __int64 v65; 
+  __int128 v30; 
+  __int64 v40; 
+  __int64 v41; 
+  int v42[4]; 
+  __int64 v43; 
   bitarray<64> outPerks; 
   WeaponAttachment *attachments[30]; 
-  char v68; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v65 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  v13 = localClientNum;
+  v43 = -2i64;
+  v7 = localClientNum;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_customelement_onentityspawner_mp.cpp", 21, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( !entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_customelement_onentityspawner_mp.cpp", 22, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
     __debugbreak();
   if ( (entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_customelement_onentityspawner_mp.cpp", 23, ASSERT_TYPE_ASSERT, "(CENextValid( entity ))", (const char *)&queryFormat, "CENextValid( entity )") )
     __debugbreak();
-  v14 = DCONST_DVARMPBOOL_thermalVisionLuiUse;
+  v8 = DCONST_DVARMPBOOL_thermalVisionLuiUse;
   if ( !DCONST_DVARMPBOOL_thermalVisionLuiUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "thermalVisionLuiUse") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled )
   {
-    _RSI = &cgameGlob->predictedPlayerState;
-    v16 = DVARBOOL_thermalVisionLuiDebugAlwaysActive;
+    v9 = DVARBOOL_thermalVisionLuiDebugAlwaysActive;
     if ( !DVARBOOL_thermalVisionLuiDebugAlwaysActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "thermalVisionLuiDebugAlwaysActive") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    enabled = v16->current.enabled;
-    if ( !CgWeaponMap::ms_instance[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+    Dvar_CheckFrontendServerThread(v9);
+    enabled = v9->current.enabled;
+    if ( !CgWeaponMap::ms_instance[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
       __debugbreak();
-    v18 = CgWeaponMap::ms_instance[v13];
-    *(double *)&_XMM0 = BG_WeaponADSFractionAffectedByReload(v18, &cgameGlob->predictedPlayerState);
-    __asm { vcomiss xmm0, cs:__real@3f000000 }
-    if ( v19 | v34 )
+    v11 = CgWeaponMap::ms_instance[v7];
+    v12 = BG_WeaponADSFractionAffectedByReload(v11, &cgameGlob->predictedPlayerState);
+    if ( *(float *)&v12 <= 0.5 )
       goto LABEL_31;
-    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(v18, &cgameGlob->predictedPlayerState);
+    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(v11, &cgameGlob->predictedPlayerState);
     if ( cgameGlob == (const CgGlobalsMP *const)-8i64 )
     {
       p_weapFlags = (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)1832;
@@ -210,22 +203,22 @@ void LUIOnEntityElementSpawnerMP::UpdateFiltersForPlayerThermalSettings(const Lo
     }
     if ( cgameGlob != (const CgGlobalsMP *const)-8i64 && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(p_weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(p_weapFlags, ACTIVE, 0x1Bu)) )
     {
-      v22 = 1;
+      v15 = 1;
 LABEL_24:
-      WeaponAttachments = BG_GetWeaponAttachments(CurrentWeaponForPlayer, v22, (const WeaponAttachment **)attachments);
-      v24 = 0;
+      WeaponAttachments = BG_GetWeaponAttachments(CurrentWeaponForPlayer, v15, (const WeaponAttachment **)attachments);
+      v17 = 0;
       if ( WeaponAttachments )
       {
-        v25 = attachments;
+        v18 = attachments;
         while ( 1 )
         {
-          if ( !*v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_customelement_onentityspawner_mp.cpp", 52, ASSERT_TYPE_ASSERT, "(attachments[attachmentIndex])", (const char *)&queryFormat, "attachments[attachmentIndex]") )
+          if ( !*v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_customelement_onentityspawner_mp.cpp", 52, ASSERT_TYPE_ASSERT, "(attachments[attachmentIndex])", (const char *)&queryFormat, "attachments[attachmentIndex]") )
             __debugbreak();
-          if ( (*v25)->internalName == scr_const.vrlscope )
+          if ( (*v18)->internalName == scr_const.vrlscope )
             break;
-          ++v24;
-          ++v25;
-          if ( v24 >= WeaponAttachments )
+          ++v17;
+          ++v18;
+          if ( v17 >= WeaponAttachments )
             goto LABEL_31;
         }
 LABEL_33:
@@ -234,102 +227,75 @@ LABEL_33:
         if ( isFriendly )
           goto LABEL_40;
         PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x31u);
-        v27 = (unsigned int)PerkNetworkPriorityIndex;
+        v20 = (unsigned int)PerkNetworkPriorityIndex;
         if ( PerkNetworkPriorityIndex < 0 )
           goto LABEL_40;
         if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
         {
-          LODWORD(v63) = 64;
-          LODWORD(v62) = PerkNetworkPriorityIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v62, v63) )
+          LODWORD(v41) = 64;
+          LODWORD(v40) = PerkNetworkPriorityIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v40, v41) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v27 & 0x1F)) & outPerks.array[v27 >> 5]) == 0 )
+        if ( ((0x80000000 >> (v20 & 0x1F)) & outPerks.array[v20 >> 5]) == 0 )
         {
 LABEL_40:
-          _RDI = DCONST_DVARFLT_thermalVisionLuiDefaultDistance;
+          v21 = DCONST_DVARFLT_thermalVisionLuiDefaultDistance;
           if ( !DCONST_DVARFLT_thermalVisionLuiDefaultDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "thermalVisionLuiDefaultDistance") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rdi+28h]
-            vmovss  xmm7, dword ptr [rsi+30h]
-            vmovss  xmm8, dword ptr [rsi+34h]
-            vmovss  xmm9, dword ptr [rsi+38h]
-          }
+          Dvar_CheckFrontendServerThread(v21);
+          value = v21->current.value;
+          v23 = cgameGlob->predictedPlayerState.origin.v[0];
+          v24 = cgameGlob->predictedPlayerState.origin.v[1];
+          v25 = cgameGlob->predictedPlayerState.origin.v[2];
           if ( !entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
             __debugbreak();
           FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(entity->pose.origin.Get_origin, &entity->pose);
-          FunctionPointer_origin(&entity->pose.origin.origin.origin, (vec3_t *)v64);
-          v34 = entity->pose.isPosePrecise == 0;
+          FunctionPointer_origin(&entity->pose.origin.origin.origin, (vec3_t *)v42);
           if ( entity->pose.isPosePrecise )
           {
-            __asm
-            {
-              vmovd   xmm0, [rsp+1D8h+var_198]
-              vcvtdq2pd xmm0, xmm0
-              vmovsd  xmm2, cs:__real@3f30000000000000
-              vmulsd  xmm0, xmm0, xmm2
-              vcvtsd2ss xmm3, xmm0, xmm0
-              vmovss  [rsp+1D8h+var_198], xmm3
-              vmovd   xmm1, [rsp+1D8h+var_194]
-              vcvtdq2pd xmm1, xmm1
-              vmulsd  xmm0, xmm1, xmm2
-              vcvtsd2ss xmm4, xmm0, xmm0
-              vmovss  [rsp+1D8h+var_194], xmm4
-              vmovd   xmm1, [rsp+1D8h+var_190]
-              vcvtdq2pd xmm1, xmm1
-              vmulsd  xmm0, xmm1, xmm2
-              vcvtsd2ss xmm5, xmm0, xmm0
-              vmovss  [rsp+1D8h+var_190], xmm5
-            }
+            _XMM0 = (unsigned int)v42[0];
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v30 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v30 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM0 = v30;
+            __asm { vcvtsd2ss xmm3, xmm0, xmm0 }
+            v42[0] = _XMM3;
+            _XMM1 = (unsigned int)v42[1];
+            __asm { vcvtdq2pd xmm1, xmm1 }
+            *((_QWORD *)&v30 + 1) = *((_QWORD *)&_XMM1 + 1);
+            *(double *)&v30 = *(double *)&_XMM1 * 0.000244140625;
+            _XMM0 = v30;
+            __asm { vcvtsd2ss xmm4, xmm0, xmm0 }
+            v42[1] = _XMM4;
+            _XMM1 = (unsigned int)v42[2];
+            __asm { vcvtdq2pd xmm1, xmm1 }
+            *((_QWORD *)&v30 + 1) = *((_QWORD *)&_XMM1 + 1);
+            *(double *)&v30 = *(double *)&_XMM1 * 0.000244140625;
+            _XMM0 = v30;
+            __asm { vcvtsd2ss xmm5, xmm0, xmm0 }
+            v42[2] = _XMM5;
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm5, [rsp+1D8h+var_190]
-              vmovss  xmm4, [rsp+1D8h+var_194]
-              vmovss  xmm3, [rsp+1D8h+var_198]
-            }
+            LODWORD(_XMM5) = v42[2];
+            LODWORD(_XMM4) = v42[1];
+            LODWORD(_XMM3) = v42[0];
           }
-          __asm
-          {
-            vsubss  xmm2, xmm3, xmm7
-            vsubss  xmm0, xmm4, xmm8
-            vsubss  xmm3, xmm5, xmm9
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vcomiss xmm3, xmm0
-          }
-          if ( v34 )
+          if ( (float)((float)((float)((float)(*(float *)&_XMM4 - v24) * (float)(*(float *)&_XMM4 - v24)) + (float)((float)(*(float *)&_XMM3 - v23) * (float)(*(float *)&_XMM3 - v23))) + (float)((float)(*(float *)&_XMM5 - v25) * (float)(*(float *)&_XMM5 - v25))) <= (float)(value * value) )
             LUIOnEntityElementSpawner::InsertFilteredEntity((const EntityFilter)21, entity->nextState.number);
-          memset(v64, 0, 0xCui64);
+          memset(v42, 0, 0xCui64);
         }
-        goto LABEL_57;
+        return;
       }
 LABEL_31:
       if ( !enabled && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.otherFlags, ACTIVE, 4u) )
-        goto LABEL_57;
+        return;
       goto LABEL_33;
     }
 LABEL_23:
-    v22 = 0;
+    v15 = 0;
     goto LABEL_24;
-  }
-LABEL_57:
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 

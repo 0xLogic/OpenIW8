@@ -1224,47 +1224,29 @@ LUI_DataBindingLobby_SortPartyMembers
 */
 void LUI_DataBindingLobby_SortPartyMembers(const PartyData *partyData, int *outSortedMemberIndices)
 {
-  int team; 
-  signed int v4; 
-  __int64 v5; 
-  int *v6; 
-  int subpartyIndex; 
-  int IsMemberLocalPlayer; 
-  std::_Ref_fn<<lambda_1fd09c6bf6df872d885441eadb177ac9> > v10; 
-  __int128 v11; 
-  const PartyData *v13; 
+  signed int v3; 
+  __int64 v4; 
+  int *v5; 
+  std::_Ref_fn<<lambda_1fd09c6bf6df872d885441eadb177ac9> > v6; 
+  const PartyData *v7; 
   LUI_DataBindingLobby_SortPartyMembers::__l2::<lambda_1fd09c6bf6df872d885441eadb177ac9> _Val; 
 
-  v13 = partyData;
-  team = 0;
-  v4 = 0;
-  v5 = 0i64;
-  v6 = outSortedMemberIndices;
-  subpartyIndex = -1;
+  v7 = partyData;
+  v3 = 0;
+  v4 = 0i64;
+  v5 = outSortedMemberIndices;
   do
   {
-    *v6 = v4;
-    IsMemberLocalPlayer = Party_IsMemberLocalPlayer(partyData, v4);
-    partyData = v13;
-    if ( IsMemberLocalPlayer )
-    {
-      team = v13->partyMembers[v5].team;
-      subpartyIndex = v13->partyMembers[v5].subpartyIndex;
-    }
-    ++v4;
-    ++v6;
+    *v5 = v3;
+    Party_IsMemberLocalPlayer(partyData, v3);
+    partyData = v7;
+    ++v3;
     ++v5;
+    v4 += 504i64;
   }
-  while ( v4 < 200 );
-  *((_QWORD *)&v11 + 1) = __PAIR64__(subpartyIndex, team);
-  *(_QWORD *)&v11 = &v13;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_38]
-    vmovdqa [rsp+58h+var_38], xmm0
-  }
-  v10._Fn = std::_Pass_fn__lambda_1fd09c6bf6df872d885441eadb177ac9__0_(&_Val)._Fn;
-  std::_Sort_unchecked_int___std::_Ref_fn__lambda_1fd09c6bf6df872d885441eadb177ac9_____(outSortedMemberIndices, outSortedMemberIndices + 199, 199i64, (std::_Ref_fn<<lambda_1fd09c6bf6df872d885441eadb177ac9> >)v10._Fn->partyData);
+  while ( v3 < 200 );
+  v6._Fn = std::_Pass_fn__lambda_1fd09c6bf6df872d885441eadb177ac9__0_(&_Val)._Fn;
+  std::_Sort_unchecked_int___std::_Ref_fn__lambda_1fd09c6bf6df872d885441eadb177ac9_____(outSortedMemberIndices, outSortedMemberIndices + 199, 199i64, (std::_Ref_fn<<lambda_1fd09c6bf6df872d885441eadb177ac9> >)v6._Fn->partyData);
 }
 
 /*
@@ -1459,36 +1441,38 @@ void LUI_DataBinding_PushLobbyDataToModel(const PartyData *partyData, unsigned _
   unsigned __int16 v45; 
   const char *v46; 
   int IsWaitingFor; 
-  const char *v49; 
-  unsigned __int16 v50; 
+  const char *v50; 
   unsigned __int16 v51; 
+  unsigned __int16 v52; 
   int ControllerFromClient; 
-  bool v53; 
+  bool v54; 
   bool LobbyCommitReadyStatus; 
-  bool v55; 
   bool v56; 
   bool v57; 
-  unsigned __int16 v58; 
+  bool v58; 
   unsigned __int16 v59; 
-  bool v60; 
-  unsigned __int16 v61; 
-  int v62; 
+  unsigned __int16 v60; 
+  bool v61; 
+  unsigned __int16 v62; 
   int v63; 
-  const dvar_t *v64; 
-  const dvar_t *v69; 
+  int v64; 
+  const dvar_t *v65; 
+  float v66; 
+  int v67; 
+  const dvar_t *v68; 
   bool enabled; 
-  bool v71; 
+  bool v70; 
+  int v71; 
   int v72; 
-  int v73; 
   int DraftLoadoutTimer; 
   int DraftWeaponTimer; 
   int DraftRigTimer; 
+  unsigned __int16 v76; 
   unsigned __int16 v77; 
   unsigned __int16 v78; 
   unsigned __int16 v79; 
   unsigned __int16 v80; 
   unsigned __int16 v81; 
-  unsigned __int16 v82; 
   ConversionArguments arguments; 
   char dest[1024]; 
 
@@ -1576,16 +1560,13 @@ void LUI_DataBinding_PushLobbyDataToModel(const PartyData *partyData, unsigned _
           vpxor   xmm1, xmm1, xmm1
         }
         *(_QWORD *)&arguments.argCount = 1i64;
-        __asm { vmovdqu xmmword ptr [rsp+4E8h+arguments.args+8], xmm0 }
+        *(_OWORD *)&arguments.args[1] = _XMM0;
         arguments.args[0] = partyData->partyMembers[IsWaitingFor].info.gamertag;
-        __asm
-        {
-          vmovdqu xmmword ptr [rsp+4E8h+arguments.args+18h], xmm1
-          vmovdqu xmmword ptr [rsp+4E8h+arguments.args+28h], xmm0
-          vmovdqu xmmword ptr [rsp+4E8h+arguments.args+38h], xmm1
-        }
-        v49 = UI_SafeTranslateString("MENU/WAITING_FOR_PARTY_MEMBER");
-        UI_ReplaceConversions(v49, &arguments, dest, 0x400ui64);
+        *(_OWORD *)&arguments.args[3] = _XMM1;
+        *(_OWORD *)&arguments.args[5] = _XMM0;
+        *(_OWORD *)&arguments.args[7] = _XMM1;
+        v50 = UI_SafeTranslateString("MENU/WAITING_FOR_PARTY_MEMBER");
+        UI_ReplaceConversions(v50, &arguments, dest, 0x400ui64);
       }
     }
     else
@@ -1595,71 +1576,66 @@ void LUI_DataBinding_PushLobbyDataToModel(const PartyData *partyData, unsigned _
     }
   }
   LUI_Model_SetString(v45, dest);
-  v50 = LUI_Model_CreateModelFromPath(baseModel, "areTeamsRostersComplete");
-  v51 = LUI_Model_CreateModelFromPath(baseModel, "areAllPlayersCommitReady");
+  v51 = LUI_Model_CreateModelFromPath(baseModel, "areTeamsRostersComplete");
+  v52 = LUI_Model_CreateModelFromPath(baseModel, "areAllPlayersCommitReady");
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-  v53 = Live_IsInGameBattlesGame();
+  v54 = Live_IsInGameBattlesGame();
   LobbyCommitReadyStatus = GameBattles_GetLobbyCommitReadyStatus();
-  v55 = GameBattles_AreTeamsRostersComplete(ControllerFromClient);
-  v56 = v53 && v55;
-  LUI_Model_SetBool(v50, v56);
-  v57 = v53 && LobbyCommitReadyStatus;
+  v56 = GameBattles_AreTeamsRostersComplete(ControllerFromClient);
+  v57 = v54 && v56;
   LUI_Model_SetBool(v51, v57);
-  v77 = LUI_Model_CreateModelFromPath(baseModel, "isCodCastingEnabled");
-  v58 = v77;
-  v78 = LUI_Model_CreateModelFromPath(baseModel, "areMLGRulesEnabled");
-  v79 = LUI_Model_CreateModelFromPath(baseModel, "isTeamAssignmentEnabled");
-  v80 = LUI_Model_CreateModelFromPath(baseModel, "draftLoadoutTimer");
-  v81 = LUI_Model_CreateModelFromPath(baseModel, "draftWeaponTimer");
-  v82 = LUI_Model_CreateModelFromPath(baseModel, "draftRigTimer");
-  v59 = LUI_Model_CreateModelFromPath(baseModel, "isUIFadingOut");
-  v60 = 0;
-  v61 = LUI_Model_CreateModelFromPath(baseModel, "timeRemaining");
+  v58 = v54 && LobbyCommitReadyStatus;
+  LUI_Model_SetBool(v52, v58);
+  v76 = LUI_Model_CreateModelFromPath(baseModel, "isCodCastingEnabled");
+  v59 = v76;
+  v77 = LUI_Model_CreateModelFromPath(baseModel, "areMLGRulesEnabled");
+  v78 = LUI_Model_CreateModelFromPath(baseModel, "isTeamAssignmentEnabled");
+  v79 = LUI_Model_CreateModelFromPath(baseModel, "draftLoadoutTimer");
+  v80 = LUI_Model_CreateModelFromPath(baseModel, "draftWeaponTimer");
+  v81 = LUI_Model_CreateModelFromPath(baseModel, "draftRigTimer");
+  v60 = LUI_Model_CreateModelFromPath(baseModel, "isUIFadingOut");
+  v61 = 0;
+  v62 = LUI_Model_CreateModelFromPath(baseModel, "timeRemaining");
   if ( PartyUI_IsMatchStart(partyData) )
   {
-    v62 = Sys_Milliseconds();
-    v63 = Party_GetGameStartTime(partyData) - v62;
-    if ( v63 > 0 )
+    v63 = Sys_Milliseconds();
+    v64 = Party_GetGameStartTime(partyData) - v63;
+    if ( v64 > 0 )
     {
-      v64 = DCONST_DVARINT_lui_uiFadeOutThreshold;
+      v65 = DCONST_DVARINT_lui_uiFadeOutThreshold;
       if ( !DCONST_DVARINT_lui_uiFadeOutThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_uiFadeOutThreshold") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v64);
-      v60 = v63 < v64->current.integer;
+      Dvar_CheckFrontendServerThread(v65);
+      v61 = v64 < v65->current.integer;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-    }
-    v58 = v77;
-    __asm { vcvttss2si edx, xmm1 }
+    v66 = (float)v64 * 0.001;
+    v59 = v76;
+    v67 = (int)v66;
   }
   else
   {
-    _EDX = -1;
+    v67 = -1;
   }
-  LUI_Model_SetInt(v61, _EDX);
-  LUI_Model_SetBool(v59, v60);
-  v69 = DVARBOOL_com_devCodcasterEnabled;
+  LUI_Model_SetInt(v62, v67);
+  LUI_Model_SetBool(v60, v61);
+  v68 = DVARBOOL_com_devCodcasterEnabled;
   if ( !DVARBOOL_com_devCodcasterEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_devCodcasterEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v69);
-  enabled = v69->current.enabled;
-  v71 = Party_CheckCodcastingEnabled(partyData) == 1 || enabled;
-  LUI_Model_SetBool(v58, v71);
-  v72 = Party_CheckUsesMLGRules(partyData);
+  Dvar_CheckFrontendServerThread(v68);
+  enabled = v68->current.enabled;
+  v70 = Party_CheckCodcastingEnabled(partyData) == 1 || enabled;
+  LUI_Model_SetBool(v59, v70);
+  v71 = Party_CheckUsesMLGRules(partyData);
+  LUI_Model_SetBool(v77, v71 == 1);
+  v72 = Party_CheckTeamAssignmentEnabled(partyData);
   LUI_Model_SetBool(v78, v72 == 1);
-  v73 = Party_CheckTeamAssignmentEnabled(partyData);
-  LUI_Model_SetBool(v79, v73 == 1);
   DraftLoadoutTimer = Party_GetDraftLoadoutTimer(partyData);
-  LUI_Model_SetInt(v80, DraftLoadoutTimer);
+  LUI_Model_SetInt(v79, DraftLoadoutTimer);
   DraftWeaponTimer = Party_GetDraftWeaponTimer(partyData);
-  LUI_Model_SetInt(v81, DraftWeaponTimer);
+  LUI_Model_SetInt(v80, DraftWeaponTimer);
   DraftRigTimer = Party_GetDraftRigTimer(partyData);
-  LUI_Model_SetInt(v82, DraftRigTimer);
-  if ( !v53 )
+  LUI_Model_SetInt(v81, DraftRigTimer);
+  if ( !v54 )
     LUI_DataBindingLobby_PushMapVoteDataToModel(partyData, baseModel);
 }
 

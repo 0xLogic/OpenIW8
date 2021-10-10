@@ -163,52 +163,40 @@ void AI_Spawn_info_grenade_hint(gentity_s *ent)
 Debug_DrawGrenadeTraceLine
 ==============
 */
-
-void __fastcall Debug_DrawGrenadeTraceLine(const vec3_t *start, const vec3_t *end, double height, const vec4_t *color, int depthTest)
+void Debug_DrawGrenadeTraceLine(const vec3_t *start, const vec3_t *end, float height, const vec4_t *color, int depthTest)
 {
-  const dvar_t *v7; 
-  char v13; 
-  char v14; 
+  const dvar_t *v5; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t enda; 
   vec3_t starta; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  v7 = DVARINT_g_drawGrenadeHints;
-  _RSI = end;
-  _RDI = start;
-  __asm { vmovaps xmm6, xmm2 }
+  v5 = DVARINT_g_drawGrenadeHints;
   if ( !DVARINT_g_drawGrenadeHints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_drawGrenadeHints") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer > 0 )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer > 0 )
   {
-    G_DebugLineWithDuration(_RDI, _RSI, color, depthTest, 100);
-    __asm
+    G_DebugLineWithDuration(start, end, color, depthTest, 100);
+    if ( height > 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( !(v13 | v14) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  xmm1, dword ptr [rdi+4]
-        vmovss  dword ptr [rsp+98h+start], xmm0
-        vmovss  xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rsp+98h+start+4], xmm1
-        vmovss  xmm1, dword ptr [rsi+4]
-        vmovss  dword ptr [rsp+98h+end], xmm0
-        vaddss  xmm0, xmm6, dword ptr [rdi+8]
-        vmovss  dword ptr [rsp+98h+end+4], xmm1
-        vaddss  xmm1, xmm6, dword ptr [rsi+8]
-        vmovss  dword ptr [rsp+98h+start+8], xmm0
-        vmovss  dword ptr [rsp+98h+end+8], xmm1
-      }
+      v9 = start->v[1];
+      starta.v[0] = start->v[0];
+      v10 = end->v[0];
+      starta.v[1] = v9;
+      v11 = end->v[1];
+      enda.v[0] = v10;
+      v12 = height + start->v[2];
+      enda.v[1] = v11;
+      v13 = height + end->v[2];
+      starta.v[2] = v12;
+      enda.v[2] = v13;
       G_DebugLineWithDuration(&starta, &enda, color, depthTest, 100);
     }
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -216,157 +204,98 @@ void __fastcall Debug_DrawGrenadeTraceLine(const vec3_t *start, const vec3_t *en
 G_DrawGrenadeHints
 ==============
 */
-void G_DrawGrenadeHints()
+void G_DrawGrenadeHints(void)
 {
-  const dvar_t *v10; 
+  const dvar_t *v0; 
   int integer; 
+  gentity_s *gentities; 
   unsigned int grenadeHintCount; 
-  unsigned int v15; 
-  char v22; 
-  char v23; 
+  unsigned int v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  vec3_t *v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   vec3_t end; 
   vec3_t start; 
 
-  v10 = DVARINT_g_drawGrenadeHints;
+  v0 = DVARINT_g_drawGrenadeHints;
   if ( !DVARINT_g_drawGrenadeHints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_drawGrenadeHints") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  integer = v10->current.integer;
+  Dvar_CheckFrontendServerThread(v0);
+  integer = v0->current.integer;
   if ( integer > 0 )
   {
-    _RDX = level.gentities;
+    gentities = level.gentities;
     if ( level.gentities->client )
     {
-      _RAX = level.clients;
       grenadeHintCount = level.grenadeHintCount;
-      __asm { vmovaps [rsp+118h+var_88], xmm13 }
-      v15 = 0;
-      __asm
-      {
-        vmovaps [rsp+118h+var_98], xmm14
-        vmovaps [rsp+118h+var_A8], xmm15
-        vmovss  xmm0, dword ptr [rax+1E8h]
-        vaddss  xmm15, xmm0, dword ptr [rax+38h]
-        vmovss  xmm13, dword ptr [rax+30h]
-        vmovss  xmm14, dword ptr [rax+34h]
-      }
+      v4 = 0;
+      v5 = level.clients->ps.viewHeightCurrent + level.clients->ps.origin.v[2];
+      v6 = level.clients->ps.origin.v[0];
+      v7 = level.clients->ps.origin.v[1];
       if ( level.grenadeHintCount )
       {
-        __asm
-        {
-          vmovaps [rsp+118h+var_58], xmm10
-          vmovaps [rsp+118h+var_68], xmm11
-          vmovss  xmm11, cs:__real@43400000
-          vmovaps [rsp+118h+var_78], xmm12
-          vmovss  xmm12, cs:__real@3f800000
-          vmovaps [rsp+118h+var_18], xmm6
-          vmovaps [rsp+118h+var_28], xmm7
-        }
-        v23 = ((unsigned __int64)(integer * (__int64)integer) >> 32 != 0) | v22;
-        __asm
-        {
-          vxorps  xmm10, xmm10, xmm10
-          vmovaps [rsp+118h+var_38], xmm8
-          vmovaps [rsp+118h+var_48], xmm9
-          vcvtsi2ss xmm10, xmm10, ecx
-        }
+        v8 = (float)(integer * integer);
         do
         {
-          __asm
+          v9 = gentities->r.currentOrigin.v[0] - g_vGrenadeHint[v4].v[0];
+          v10 = gentities->r.currentOrigin.v[1] - g_vGrenadeHint[v4].v[1];
+          v11 = gentities->r.currentOrigin.v[2] - g_vGrenadeHint[v4].v[2];
+          v12 = &g_vGrenadeHint[v4];
+          if ( (float)((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v11 * v11)) <= v8 )
           {
-            vmovss  xmm0, dword ptr [rdx+130h]
-            vmovss  xmm1, dword ptr [rdx+134h]
-            vsubss  xmm3, xmm0, dword ptr [rsi+rcx*4]
-            vsubss  xmm2, xmm1, dword ptr [rsi+rcx*4+4]
-            vmovss  xmm0, dword ptr [rdx+138h]
-            vsubss  xmm4, xmm0, dword ptr [rsi+rcx*4+8]
-          }
-          _RDI = &g_vGrenadeHint[v15];
-          __asm
-          {
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, xmm10
-          }
-          if ( v23 )
-          {
-            __asm { vmovss  xmm1, cs:__real@41000000; radius }
-            G_DebugCircle(&g_vGrenadeHint[v15], *(float *)&_XMM1, &colorRed, 1, 0, 0);
-            __asm { vmovaps xmm1, xmm11; radius }
-            G_DebugCircle(&g_vGrenadeHint[v15], *(float *)&_XMM1, &colorOrange, 1, 0, 0);
+            G_DebugCircle(&g_vGrenadeHint[v4], 8.0, &colorRed, 1, 0, 0);
+            G_DebugCircle(&g_vGrenadeHint[v4], 192.0, &colorOrange, 1, 0, 0);
+            v13 = v12->v[0];
+            v14 = LODWORD(v12->v[1]);
+            v15 = v12->v[2];
+            v16 = v14;
+            v17 = v12->v[0] - v6;
+            *(float *)&v16 = fsqrt((float)((float)((float)(*(float *)&v14 - v7) * (float)(*(float *)&v14 - v7)) + (float)(v17 * v17)) + (float)((float)(v15 - v5) * (float)(v15 - v5)));
+            _XMM4 = v16;
             __asm
             {
-              vmovss  xmm9, dword ptr [rdi]
-              vmovss  xmm8, dword ptr [rdi+4]
-              vmovss  xmm7, dword ptr [rdi+8]
-              vsubss  xmm5, xmm8, xmm14
-              vmulss  xmm1, xmm5, xmm5
-              vsubss  xmm3, xmm7, xmm15
-              vsubss  xmm6, xmm9, xmm13
-              vmulss  xmm0, xmm6, xmm6
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm4, xmm2, xmm2
               vcmpless xmm0, xmm4, cs:__real@80000000
               vblendvps xmm0, xmm4, xmm12, xmm0
-              vdivss  xmm2, xmm12, xmm0
-              vmulss  xmm0, xmm5, xmm2
-              vmulss  xmm4, xmm0, xmm11
-              vmulss  xmm0, xmm6, xmm2
-              vmulss  xmm3, xmm0, cs:__real@c3400000
-              vaddss  xmm1, xmm4, xmm9
-              vmovss  dword ptr [rsp+118h+start], xmm1
-              vaddss  xmm1, xmm8, xmm3
-              vmovss  dword ptr [rsp+118h+start+4], xmm1
-              vsubss  xmm1, xmm8, xmm3
-              vsubss  xmm0, xmm9, xmm4
-              vmovss  dword ptr [rsp+118h+end+4], xmm1
-              vmovss  dword ptr [rsp+118h+start+8], xmm7
-              vmovss  dword ptr [rsp+118h+end], xmm0
-              vmovss  dword ptr [rsp+118h+end+8], xmm7
             }
+            *(float *)&_XMM4 = (float)((float)(*(float *)&v14 - v7) * (float)(1.0 / *(float *)&_XMM0)) * 192.0;
+            v21 = (float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * -192.0;
+            start.v[0] = *(float *)&_XMM4 + v12->v[0];
+            start.v[1] = *(float *)&v14 + v21;
+            end.v[1] = *(float *)&v14 - v21;
+            start.v[2] = v15;
+            end.v[0] = v13 - *(float *)&_XMM4;
+            end.v[2] = v15;
             G_DebugLine(&start, &end, &colorOrange, 1);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+8]
-              vmovss  xmm3, dword ptr [rdi]
-              vmovss  xmm2, dword ptr [rdi+4]
-              vaddss  xmm0, xmm11, xmm1
-              vmovss  dword ptr [rsp+118h+start+8], xmm0
-              vsubss  xmm0, xmm1, xmm11
-              vmovss  dword ptr [rsp+118h+end+8], xmm0
-              vmovss  dword ptr [rsp+118h+start], xmm3
-              vmovss  dword ptr [rsp+118h+start+4], xmm2
-              vmovss  dword ptr [rsp+118h+end], xmm3
-              vmovss  dword ptr [rsp+118h+end+4], xmm2
-            }
+            v22 = v12->v[2];
+            v23 = v12->v[0];
+            v24 = v12->v[1];
+            start.v[2] = v22 + 192.0;
+            end.v[2] = v22 - 192.0;
+            start.v[0] = v23;
+            start.v[1] = v24;
+            end.v[0] = v23;
+            end.v[1] = v24;
             G_DebugLine(&start, &end, &colorOrange, 1);
             grenadeHintCount = level.grenadeHintCount;
-            _RDX = level.gentities;
+            gentities = level.gentities;
           }
-          v23 = ++v15 <= grenadeHintCount;
+          ++v4;
         }
-        while ( v15 < grenadeHintCount );
-        __asm
-        {
-          vmovaps xmm12, [rsp+118h+var_78]
-          vmovaps xmm11, [rsp+118h+var_68]
-          vmovaps xmm10, [rsp+118h+var_58]
-          vmovaps xmm9, [rsp+118h+var_48]
-          vmovaps xmm8, [rsp+118h+var_38]
-          vmovaps xmm7, [rsp+118h+var_28]
-          vmovaps xmm6, [rsp+118h+var_18]
-        }
-      }
-      __asm
-      {
-        vmovaps xmm14, [rsp+118h+var_98]
-        vmovaps xmm13, [rsp+118h+var_88]
-        vmovaps xmm15, [rsp+118h+var_A8]
+        while ( v4 < grenadeHintCount );
       }
     }
   }
@@ -379,40 +308,21 @@ Grenade_CheckDesperateToss
 */
 char Grenade_CheckDesperateToss(ai_common_t *pAI, const vec3_t *vFrom, vec3_t *vVelOut)
 {
-  char v9; 
-  int v13; 
+  const dvar_t *v6; 
+  int v7; 
 
-  _RDI = vFrom;
   Profile_Begin(483);
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
+  v6 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 570, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 570, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
     __debugbreak();
-  if ( !level.grenadeHintCount )
-    goto LABEL_11;
-  __asm
+  if ( level.grenadeHintCount && (g_vRefPos = *vFrom, qsort(g_vGrenadeHint, level.grenadeHintCount, 0xCui64, (_CoreCrtNonSecureSearchSortCompareFunction)compare_desperate_hints), v7 = 0, level.grenadeHintCount) )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  dword ptr cs:g_vRefPos, xmm0
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  dword ptr cs:g_vRefPos+4, xmm1
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr cs:g_vRefPos+8, xmm0
-  }
-  qsort(g_vGrenadeHint, level.grenadeHintCount, 0xCui64, (_CoreCrtNonSecureSearchSortCompareFunction)compare_desperate_hints);
-  v13 = 0;
-  if ( level.grenadeHintCount )
-  {
-    while ( !Grenade_CheckMaximumEnergyToss(pAI, 2047, _RDI, &g_vGrenadeHint[v13], 0, vVelOut) )
+    while ( !Grenade_CheckMaximumEnergyToss(pAI, 2047, vFrom, &g_vGrenadeHint[v7], 0, vVelOut) )
     {
-      if ( ++v13 >= level.grenadeHintCount )
+      if ( ++v7 >= level.grenadeHintCount )
         goto LABEL_11;
     }
     Profile_EndInternal(NULL);
@@ -431,286 +341,132 @@ LABEL_11:
 Grenade_CheckGrenadeHintToss
 ==============
 */
-bool Grenade_CheckGrenadeHintToss(ai_common_t *pAI, int grenadeEntNum, const vec3_t *vFrom, const vec3_t *vLand, vec3_t *vVelOut)
+char Grenade_CheckGrenadeHintToss(ai_common_t *pAI, int grenadeEntNum, const vec3_t *vFrom, const vec3_t *vLand, vec3_t *vVelOut)
 {
+  const dvar_t *v9; 
   unsigned int grenadeHintCount; 
-  __int64 v38; 
-  bool v40; 
-  bool v41; 
-  bool v42; 
-  bool result; 
-  int v117; 
-  int v118; 
-  int v119; 
-  int v120; 
-  int v121; 
-  int v122; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  double Float_Internal_DebugName; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  double v36; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
   vec3_t vGoal; 
 
-  __asm { vmovaps [rsp+148h+var_68], xmm8 }
-  _RBP = vVelOut;
-  _RSI = vLand;
-  _RDI = vFrom;
   Profile_Begin(482);
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
+  v9 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm8, dword ptr [rbx+28h]
-  }
-  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 409, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 409, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+148h+var_108], xmm0
-  }
-  if ( (v117 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+148h+var_108], xmm0
-  }
-  if ( (v118 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+148h+var_108], xmm0
-  }
-  if ( (v119 & 0x7F800000) == 2139095040 )
-  {
-LABEL_41:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+148h+var_108], xmm0
-  }
-  if ( (v120 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+148h+var_108], xmm0
-  }
-  if ( (v121 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+148h+var_108], xmm0
-  }
-  if ( (v122 & 0x7F800000) == 2139095040 )
-  {
-LABEL_42:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 412, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(vFrom->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(vLand->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 412, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )") )
+    __debugbreak();
   grenadeHintCount = level.grenadeHintCount;
-  __asm
+  if ( level.grenadeHintCount )
   {
-    vmovaps [rsp+148h+var_48], xmm6
-    vmovaps [rsp+148h+var_58], xmm7
-    vmovaps [rsp+148h+var_78], xmm9
-    vmovaps [rsp+148h+var_88], xmm10
-    vmovaps [rsp+148h+var_98], xmm11
-    vmovaps [rsp+148h+var_A8], xmm12
-    vmovaps [rsp+148h+var_B8], xmm13
-    vmovaps [rsp+148h+var_C8], xmm14
-    vmovaps [rsp+148h+var_D8], xmm15
-  }
-  if ( !level.grenadeHintCount )
-  {
-LABEL_37:
-    Profile_EndInternal(NULL);
-    result = 0;
-    goto LABEL_38;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm3, xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm6, xmm0, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm4, xmm0, dword ptr [rdi+8]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-  }
-  v38 = 0i64;
-  __asm
-  {
-    vmovss  [rsp+148h+var_100], xmm2
-    vsqrtss xmm13, xmm2, xmm2
-    vmovss  [rsp+148h+var_FC], xmm3
-    vmovss  [rsp+148h+var_108], xmm6
-    vmovss  [rsp+148h+var_104], xmm4
-  }
-  v40 = 0;
-  v41 = level.grenadeHintCount == 0;
-  v42 = level.grenadeHintCount == 0;
-  _R13 = g_vGrenadeHint;
-  while ( 1 )
-  {
-    __asm
+    v11 = vLand->v[0] - vFrom->v[0];
+    v12 = vLand->v[1] - vFrom->v[1];
+    v13 = vLand->v[2] - vFrom->v[2];
+    v14 = 0i64;
+    v40 = (float)(v12 * v12) + (float)(v11 * v11);
+    v15 = fsqrt(v40);
+    v41 = v11;
+    v38 = v12;
+    v39 = v13;
+    while ( 1 )
     {
-      vmovss  xmm9, dword ptr [rdi]
-      vmovss  xmm10, dword ptr [rdi+4]
-    }
-    _RCX = 3 * v38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+rcx*4+0]
-      vmovss  xmm1, dword ptr [r13+rcx*4+4]
-      vsubss  xmm5, xmm0, xmm9
-      vmovss  xmm0, dword ptr [r13+rcx*4+8]
-      vsubss  xmm11, xmm0, dword ptr [rdi+8]
-      vsubss  xmm7, xmm1, xmm10
-      vmulss  xmm2, xmm5, xmm3
-      vmulss  xmm1, xmm7, xmm6
-      vmulss  xmm0, xmm11, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm4, xmm3, xmm0
-      vcomiss xmm4, xmm8
-    }
-    if ( !v40 )
-      break;
-    __asm { vmovss  xmm4, [rsp+148h+var_104] }
-LABEL_33:
-    v38 = (unsigned int)(v38 + 1);
-    v40 = (unsigned int)v38 < grenadeHintCount;
-    v41 = (_DWORD)v38 == grenadeHintCount;
-    v42 = (unsigned int)v38 <= grenadeHintCount;
-    if ( (unsigned int)v38 >= grenadeHintCount )
-      goto LABEL_37;
-    __asm { vmovss  xmm3, [rsp+148h+var_FC] }
-  }
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm12, xmm1, xmm0
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm6, xmm12, xmm12
-    vcomiss xmm6, xmm13
-    vcmpless xmm0, xmm6, cs:__real@80000000
-    vblendvps xmm0, xmm6, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm14, xmm1, xmm5
-    vmulss  xmm15, xmm1, xmm7
-  }
-  if ( !v40 )
-    goto LABEL_31;
-  __asm { vucomiss xmm6, xmm8 }
-  if ( v41 )
-    goto LABEL_31;
-  __asm
-  {
-    vmulss  xmm0, xmm14, xmm13
-    vaddss  xmm3, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmulss  xmm1, xmm15, xmm13
-    vaddss  xmm2, xmm1, xmm10
-    vmovss  xmm1, dword ptr [rsi]
-    vsubss  xmm4, xmm1, xmm3
-    vmovss  dword ptr [rsp+148h+vGoal+8], xmm0
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmulss  xmm1, xmm4, xmm4
-    vmovss  xmm4, [rsp+148h+var_104]
-    vmovss  dword ptr [rsp+148h+vGoal+4], xmm2
-    vsubss  xmm2, xmm0, xmm2
-    vmovss  dword ptr [rsp+148h+vGoal], xmm3
-    vmulss  xmm3, xmm2, xmm2
-    vaddss  xmm0, xmm3, xmm1
-    vcomiss xmm0, cs:__real@47100000
-  }
-  if ( !v42 )
-    goto LABEL_32;
-  __asm
-  {
-    vmulss  xmm1, xmm4, xmm6
-    vmulss  xmm0, xmm11, xmm13
-    vsubss  xmm7, xmm1, xmm0
-    vcomiss xmm7, xmm8
-  }
-  if ( !v40 )
-    goto LABEL_32;
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@bf000000
-    vmovss  xmm10, [rsp+148h+var_100]
-    vmulss  xmm2, xmm10, xmm6
-    vdivss  xmm7, xmm1, xmm7
-    vmulss  xmm0, xmm12, xmm13
-    vsubss  xmm1, xmm2, xmm0
-    vmulss  xmm9, xmm1, xmm7
-    vsqrtss xmm6, xmm9, xmm9
-    vucomiss xmm6, xmm8
-  }
-  if ( v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 448, ASSERT_TYPE_ASSERT, "(fVelHorz != 0.0f)", (const char *)&queryFormat, "fVelHorz != 0.0f") )
-    __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm12, [rsp+148h+var_104]
-    vmulss  xmm1, xmm10, xmm11
-    vsubss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, xmm7
-    vdivss  xmm7, xmm2, xmm6
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_ai_maxGrenadeThrowSpeed, "ai_maxGrenadeThrowSpeed");
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm9
-    vmulss  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-  }
-  if ( !v40 && !v41 )
-    goto LABEL_30;
-  __asm
-  {
-    vmulss  xmm0, xmm14, xmm6
-    vmulss  xmm1, xmm15, xmm6
-    vmovss  dword ptr [rbp+0], xmm0
-    vmovss  dword ptr [rbp+4], xmm1
-    vmovss  dword ptr [rbp+8], xmm7
-  }
-  if ( !Grenade_IsValidTrajectory(pAI, grenadeEntNum, _RDI, vVelOut, &vGoal) )
-  {
-LABEL_30:
-    grenadeHintCount = level.grenadeHintCount;
-LABEL_31:
-    __asm { vmovss  xmm4, [rsp+148h+var_104] }
+      v16 = vFrom->v[0];
+      v17 = vFrom->v[1];
+      v18 = g_vGrenadeHint[v14].v[0] - vFrom->v[0];
+      v19 = g_vGrenadeHint[v14].v[2] - vFrom->v[2];
+      v21 = LODWORD(g_vGrenadeHint[v14].v[1]);
+      *(float *)&v21 = g_vGrenadeHint[v14].v[1] - v17;
+      v20 = *(float *)&v21;
+      if ( (float)((float)((float)(v18 * v11) + (float)(*(float *)&v21 * v12)) + (float)(v19 * v13)) >= 0.0 )
+        break;
+      v13 = v39;
 LABEL_32:
-    __asm { vmovss  xmm6, [rsp+148h+var_108] }
-    goto LABEL_33;
+      v14 = (unsigned int)(v14 + 1);
+      if ( (unsigned int)v14 >= grenadeHintCount )
+        goto LABEL_36;
+      v11 = v41;
+    }
+    v22 = (float)(*(float *)&v21 * *(float *)&v21) + (float)(v18 * v18);
+    *(float *)&v21 = fsqrt(v22);
+    _XMM6 = v21;
+    __asm
+    {
+      vcmpless xmm0, xmm6, cs:__real@80000000
+      vblendvps xmm0, xmm6, xmm1, xmm0
+    }
+    v26 = (float)(1.0 / *(float *)&_XMM0) * v18;
+    v27 = (float)(1.0 / *(float *)&_XMM0) * v20;
+    if ( *(float *)&v21 < v15 && *(float *)&v21 != 0.0 )
+    {
+      v28 = vLand->v[0] - (float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * v18) * v15) + v16);
+      vGoal.v[2] = vLand->v[2];
+      v29 = vLand->v[1];
+      v13 = v39;
+      vGoal.v[1] = (float)(v27 * v15) + v17;
+      vGoal.v[0] = (float)(v26 * v15) + v16;
+      if ( (float)((float)((float)(v29 - vGoal.v[1]) * (float)(v29 - vGoal.v[1])) + (float)(v28 * v28)) > 36864.0 )
+        goto LABEL_31;
+      v30 = (float)(v39 * *(float *)&_XMM6) - (float)(v19 * v15);
+      if ( v30 >= 0.0 )
+        goto LABEL_31;
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+      v32 = (float)(*(float *)&Float_Internal_DebugName * -0.5) / v30;
+      v33 = (float)((float)(v40 * *(float *)&_XMM6) - (float)(v22 * v15)) * v32;
+      v34 = fsqrt(v33);
+      if ( v34 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 448, ASSERT_TYPE_ASSERT, "(fVelHorz != 0.0f)", (const char *)&queryFormat, "fVelHorz != 0.0f") )
+        __debugbreak();
+      v35 = (float)((float)((float)(v40 * v19) - (float)(v22 * v39)) * v32) / v34;
+      v36 = Dvar_GetFloat_Internal_DebugName(DVARFLT_ai_maxGrenadeThrowSpeed, "ai_maxGrenadeThrowSpeed");
+      if ( (float)((float)(v35 * v35) + v33) <= (float)(*(float *)&v36 * *(float *)&v36) )
+      {
+        vVelOut->v[0] = v26 * v34;
+        vVelOut->v[1] = v27 * v34;
+        vVelOut->v[2] = v35;
+        if ( Grenade_IsValidTrajectory(pAI, grenadeEntNum, vFrom, vVelOut, &vGoal) )
+        {
+          Profile_EndInternal(NULL);
+          return 1;
+        }
+      }
+      grenadeHintCount = level.grenadeHintCount;
+    }
+    v13 = v39;
+LABEL_31:
+    v12 = v38;
+    goto LABEL_32;
   }
+LABEL_36:
   Profile_EndInternal(NULL);
-  result = 1;
-LABEL_38:
-  __asm
-  {
-    vmovaps xmm15, [rsp+148h+var_D8]
-    vmovaps xmm14, [rsp+148h+var_C8]
-    vmovaps xmm13, [rsp+148h+var_B8]
-    vmovaps xmm12, [rsp+148h+var_A8]
-    vmovaps xmm11, [rsp+148h+var_98]
-    vmovaps xmm10, [rsp+148h+var_88]
-    vmovaps xmm9, [rsp+148h+var_78]
-    vmovaps xmm7, [rsp+148h+var_58]
-    vmovaps xmm6, [rsp+148h+var_48]
-    vmovaps xmm8, [rsp+148h+var_68]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -720,192 +476,59 @@ Grenade_CheckInfiniteEnergyToss
 */
 bool Grenade_CheckInfiniteEnergyToss(ai_common_t *pAI, int grenadeEntNum, const vec3_t *vFrom, const vec3_t *vLand, vec3_t *vVelOut)
 {
-  char v19; 
-  bool v26; 
-  bool v27; 
-  const dvar_t *v39; 
-  const dvar_t *v42; 
-  char v48; 
-  int v68; 
-  int v69; 
-  int v70; 
-  int v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  char v80; 
-  void *retaddr; 
+  const dvar_t *v5; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float v17; 
+  const dvar_t *v18; 
+  int v19; 
+  float v20; 
 
-  _RAX = &retaddr;
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
-  _RBP = vVelOut;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm6 }
-  _RSI = vLand;
-  __asm { vmovaps xmmword ptr [rax-68h], xmm7 }
-  _RDI = vFrom;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps [rsp+0F8h+var_88], xmm9
-    vmovaps [rsp+0F8h+var_98], xmm10
-    vmovaps [rsp+0F8h+var_A8], xmm11
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm8, dword ptr [rbx+28h]
-  }
-  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 600, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v68 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v69 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v70 & 0x7F800000) == 2139095040 )
-  {
-LABEL_40:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 602, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v71 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v72 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  v26 = (v73 & 0x7F800000u) <= 0x7F800000;
-  if ( (v73 & 0x7F800000) == 2139095040 )
-  {
-LABEL_41:
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 603, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )");
-    v26 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm9, xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm10, xmm1, dword ptr [rdi+4]
-    vsubss  xmm11, xmm0, dword ptr [rdi+8]
-    vmulss  xmm1, xmm10, xmm10
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm6, xmm2, xmm1
-    vcomiss xmm6, xmm8
-  }
-  if ( v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 607, ASSERT_TYPE_ASSERT, "(fTotalDistSqrd > 0)", (const char *)&queryFormat, "fTotalDistSqrd > 0") )
-    __debugbreak();
-  v39 = DCONST_DVARFLT_bg_lowGravity;
+  v5 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v39);
-  __asm
-  {
-    vsqrtss xmm0, xmm6, xmm6
-    vmulss  xmm6, xmm0, dword ptr [rbx+28h]
-  }
-  v42 = DCONST_DVARFLT_bg_lowGravity;
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 600, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
+    __debugbreak();
+  if ( ((LODWORD(vFrom->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 602, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(vLand->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 603, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )") )
+    __debugbreak();
+  v10 = vLand->v[0] - vFrom->v[0];
+  v11 = vLand->v[1] - vFrom->v[1];
+  v12 = vLand->v[2] - vFrom->v[2];
+  v13 = (float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v12 * v12);
+  if ( v13 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 607, ASSERT_TYPE_ASSERT, "(fTotalDistSqrd > 0)", (const char *)&queryFormat, "fTotalDistSqrd > 0") )
+    __debugbreak();
+  v14 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v42);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@40000000
-    vmovss  xmm6, cs:__real@3f800000
-    vsqrtss xmm1, xmm0, xmm0
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]
-    vmulss  xmm7, xmm1, xmm0
-    vucomiss xmm7, xmm8
-  }
-  if ( v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 612, ASSERT_TYPE_ASSERT, "(fTotalTime != 0.0f)", (const char *)&queryFormat, "fTotalTime != 0.0f") )
-    __debugbreak();
-  __asm
-  {
-    vdivss  xmm6, xmm6, xmm7
-    vmulss  xmm0, xmm6, xmm9
-    vmulss  xmm1, xmm6, xmm10
-    vmovss  dword ptr [rbp+0], xmm0
-    vmovss  dword ptr [rbp+4], xmm1
-  }
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
+  Dvar_CheckFrontendServerThread(v14);
+  v15 = fsqrt(v13) * v14->current.value;
+  v16 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-    vmulss  xmm3, xmm1, xmm7
-    vmulss  xmm2, xmm6, xmm11
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  dword ptr [rbp+8], xmm4
-  }
-  if ( (v74 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v75 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm { vmovss  [rsp+0F8h+var_B8], xmm4 }
-  if ( (v76 & 0x7F800000) == 2139095040 )
-  {
-LABEL_42:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 618, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] )") )
-      __debugbreak();
-  }
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-  }
-  return Grenade_IsValidTrajectory(pAI, grenadeEntNum, _RDI, vVelOut, _RSI);
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = fsqrt(v15 * 2.0) * (float)(1.0 / v16->current.value);
+  if ( v17 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 612, ASSERT_TYPE_ASSERT, "(fTotalTime != 0.0f)", (const char *)&queryFormat, "fTotalTime != 0.0f") )
+    __debugbreak();
+  vVelOut->v[0] = (float)(1.0 / v17) * v10;
+  vVelOut->v[1] = (float)(1.0 / v17) * v11;
+  v18 = DCONST_DVARFLT_bg_lowGravity;
+  if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = LODWORD(vVelOut->v[0]) & 0x7F800000;
+  v20 = (float)((float)(v18->current.value * 0.5) * v17) + (float)((float)(1.0 / v17) * v12);
+  vVelOut->v[2] = v20;
+  if ( (v19 == 2139095040 || (LODWORD(vVelOut->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v20) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 618, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] )") )
+    __debugbreak();
+  return Grenade_IsValidTrajectory(pAI, grenadeEntNum, vFrom, vVelOut, vLand);
 }
 
 /*
@@ -915,246 +538,100 @@ Grenade_CheckMaximumEnergyToss
 */
 bool Grenade_CheckMaximumEnergyToss(ai_common_t *pAI, int grenadeEntNum, const vec3_t *vFrom, const vec3_t *vLand, int bLob, vec3_t *vVelOut)
 {
-  bool v27; 
-  bool v28; 
-  const dvar_t *v43; 
-  const dvar_t *v49; 
-  const dvar_t *v54; 
-  char v55; 
-  bool result; 
-  int v84; 
-  int v85; 
-  int v86; 
-  int v87; 
-  int v88; 
-  int v89; 
-  int v90; 
-  int v91; 
-  int v92; 
-  char v101; 
+  const dvar_t *v6; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float value; 
+  const dvar_t *v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  const dvar_t *v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  const dvar_t *v29; 
+  int v30; 
+  float v31; 
 
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
-  _RBP = vVelOut;
-  __asm { vmovaps [rsp+118h+var_78], xmm8 }
-  _RSI = vLand;
-  __asm { vmovaps [rsp+118h+var_88], xmm9 }
-  _RDI = vFrom;
-  __asm
-  {
-    vmovaps [rsp+118h+var_98], xmm10
-    vmovaps [rsp+118h+var_A8], xmm11
-    vmovaps [rsp+118h+var_B8], xmm12
-    vmovaps [rsp+118h+var_C8], xmm13
-  }
+  v6 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm10, dword ptr [rbx+28h]
-  }
-  if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 352, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 352, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+118h+var_D8], xmm0
-  }
-  if ( (v84 & 0x7F800000) == 2139095040 )
-    goto LABEL_56;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+118h+var_D8], xmm0
-  }
-  if ( (v85 & 0x7F800000) == 2139095040 )
-    goto LABEL_56;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+118h+var_D8], xmm0
-  }
-  if ( (v86 & 0x7F800000) == 2139095040 )
-  {
-LABEL_56:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 354, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+118h+var_D8], xmm0
-  }
-  if ( (v87 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+118h+var_D8], xmm0
-  }
-  if ( (v88 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+118h+var_D8], xmm0
-  }
-  v27 = (v89 & 0x7F800000u) < 0x7F800000;
-  if ( (v89 & 0x7F800000) == 2139095040 )
-  {
-LABEL_57:
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 355, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )");
-    v27 = 0;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm12, xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm13, xmm1, dword ptr [rdi+4]
-    vsubss  xmm11, xmm0, dword ptr [rdi+8]
-    vmovss  xmm9, cs:__real@3f800000
-    vmulss  xmm1, xmm13, xmm13
-    vmulss  xmm0, xmm12, xmm12
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm8, xmm2, xmm1
-    vcomiss xmm8, xmm9
-    vmovaps [rsp+118h+var_58], xmm6
-    vmovaps [rsp+118h+var_68], xmm7
-  }
-  if ( v27 )
-    goto LABEL_52;
-  _RBX = DVARFLT_ai_maxGrenadeThrowSpeed;
+  if ( ((LODWORD(vFrom->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 354, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(vLand->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 355, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )") )
+    __debugbreak();
+  v11 = vLand->v[0] - vFrom->v[0];
+  v12 = vLand->v[1] - vFrom->v[1];
+  v14 = vLand->v[2] - vFrom->v[2];
+  v13 = v14;
+  v15 = (float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v13 * v13);
+  if ( v15 < 1.0 )
+    return 0;
+  v16 = DVARFLT_ai_maxGrenadeThrowSpeed;
   if ( !DVARFLT_ai_maxGrenadeThrowSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_maxGrenadeThrowSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v43 = DCONST_DVARFLT_bg_lowGravity;
+  Dvar_CheckFrontendServerThread(v16);
+  value = v16->current.value;
+  v18 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v43);
-  __asm { vmulss  xmm0, xmm11, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm6
-    vsubss  xmm7, xmm1, xmm0
-  }
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = v14 * v18->current.value;
+  v20 = DCONST_DVARFLT_bg_lowGravity;
+  v22 = (float)(value * value) - v19;
+  v21 = v22;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v49 = DCONST_DVARFLT_bg_lowGravity;
+  Dvar_CheckFrontendServerThread(v20);
+  v23 = v20->current.value;
+  v24 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v49);
-  __asm
+  Dvar_CheckFrontendServerThread(v24);
+  v25 = (float)(v22 * v22) - (float)((float)(v23 * v15) * v24->current.value);
+  if ( v25 < 0.0 )
+    return 0;
+  v26 = DCONST_DVARFLT_bg_lowGravity;
+  if ( bLob )
   {
-    vmulss  xmm0, xmm6, xmm8
-    vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    vmulss  xmm2, xmm7, xmm7
-    vsubss  xmm6, xmm2, xmm1
-    vcomiss xmm6, xmm10
-  }
-  if ( v27 )
-  {
-LABEL_52:
-    result = 0;
+    if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = fsqrt(v25) + v21;
   }
   else
   {
-    v54 = DCONST_DVARFLT_bg_lowGravity;
-    if ( bLob )
-    {
-      if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v54);
-      __asm
-      {
-        vsqrtss xmm0, xmm6, xmm6
-        vaddss  xmm1, xmm0, xmm7
-      }
-    }
-    else
-    {
-      if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v54);
-      __asm
-      {
-        vsqrtss xmm0, xmm6, xmm6
-        vsubss  xmm1, xmm7, xmm0
-      }
-    }
-    __asm
-    {
-      vmulss  xmm2, xmm1, cs:__real@40000000
-      vdivss  xmm0, xmm9, dword ptr [rbx+28h]
-      vsqrtss xmm3, xmm2, xmm2
-      vmulss  xmm7, xmm3, xmm0
-      vucomiss xmm7, xmm10
-    }
-    if ( v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 373, ASSERT_TYPE_ASSERT, "(fTotalTime != 0.0f)", (const char *)&queryFormat, "fTotalTime != 0.0f") )
-      __debugbreak();
-    __asm
-    {
-      vdivss  xmm6, xmm9, xmm7
-      vmulss  xmm0, xmm12, xmm6
-      vmulss  xmm1, xmm13, xmm6
-      vmovss  dword ptr [rbp+0], xmm0
-      vmovss  dword ptr [rbp+4], xmm1
-    }
-    _RBX = DCONST_DVARFLT_bg_lowGravity;
     if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmovss  [rsp+118h+var_D8], xmm0
-      vmulss  xmm3, xmm1, xmm7
-      vmulss  xmm2, xmm11, xmm6
-      vaddss  xmm4, xmm3, xmm2
-      vmovss  dword ptr [rbp+8], xmm4
-    }
-    if ( (v90 & 0x7F800000) == 2139095040 )
-      goto LABEL_58;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4]
-      vmovss  [rsp+118h+var_D8], xmm0
-    }
-    if ( (v91 & 0x7F800000) == 2139095040 )
-      goto LABEL_58;
-    __asm { vmovss  [rsp+118h+var_D8], xmm4 }
-    if ( (v92 & 0x7F800000) == 2139095040 )
-    {
-LABEL_58:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 379, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] )") )
-        __debugbreak();
-    }
-    result = Grenade_IsValidTrajectory(pAI, grenadeEntNum, _RDI, vVelOut, _RSI);
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = v21 - fsqrt(v25);
   }
-  __asm { vmovaps xmm7, [rsp+118h+var_68] }
-  _R11 = &v101;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm6, [rsp+118h+var_58]
-    vmovaps xmm13, [rsp+118h+var_C8]
-  }
-  return result;
+  v28 = fsqrt(v27 * 2.0) * (float)(1.0 / v26->current.value);
+  if ( v28 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 373, ASSERT_TYPE_ASSERT, "(fTotalTime != 0.0f)", (const char *)&queryFormat, "fTotalTime != 0.0f") )
+    __debugbreak();
+  vVelOut->v[0] = v11 * (float)(1.0 / v28);
+  vVelOut->v[1] = v12 * (float)(1.0 / v28);
+  v29 = DCONST_DVARFLT_bg_lowGravity;
+  if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v29);
+  v30 = LODWORD(vVelOut->v[0]) & 0x7F800000;
+  v31 = (float)((float)(v29->current.value * 0.5) * v28) + (float)(v13 * (float)(1.0 / v28));
+  vVelOut->v[2] = v31;
+  if ( (v30 == 2139095040 || (LODWORD(vVelOut->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v31) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 379, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] )") )
+    __debugbreak();
+  return Grenade_IsValidTrajectory(pAI, grenadeEntNum, vFrom, vVelOut, vLand);
 }
 
 /*
@@ -1164,211 +641,66 @@ Grenade_CheckMinimumEnergyToss
 */
 bool Grenade_CheckMinimumEnergyToss(ai_common_t *pAI, int grenadeEntNum, const vec3_t *vFrom, const vec3_t *vLand, vec3_t *vVelOut)
 {
-  char v19; 
-  bool v26; 
-  bool v27; 
-  const dvar_t *v40; 
-  char v46; 
-  bool result; 
-  const dvar_t *v48; 
-  int v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  int v79; 
-  char v83; 
-  void *retaddr; 
+  const dvar_t *v5; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  const dvar_t *v18; 
+  float v19; 
+  const dvar_t *v20; 
+  int v21; 
+  float v22; 
 
-  _RAX = &retaddr;
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
-  _RDI = vVelOut;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm6 }
-  _RBP = vLand;
-  __asm { vmovaps xmmword ptr [rax-68h], xmm7 }
-  _RSI = vFrom;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps [rsp+0F8h+var_88], xmm9
-    vmovaps [rsp+0F8h+var_98], xmm10
-    vmovaps [rsp+0F8h+var_A8], xmm11
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm8, dword ptr [rbx+28h]
-  }
-  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 312, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v71 & 0x7F800000) == 2139095040 )
-    goto LABEL_46;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v72 & 0x7F800000) == 2139095040 )
-    goto LABEL_46;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v73 & 0x7F800000) == 2139095040 )
-  {
-LABEL_46:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 314, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v74 & 0x7F800000) == 2139095040 )
-    goto LABEL_47;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  if ( (v75 & 0x7F800000) == 2139095040 )
-    goto LABEL_47;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+0F8h+var_B8], xmm0
-  }
-  v26 = (v76 & 0x7F800000u) <= 0x7F800000;
-  if ( (v76 & 0x7F800000) == 2139095040 )
-  {
-LABEL_47:
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 315, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )");
-    v26 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vsubss  xmm10, xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  xmm0, dword ptr [rbp+8]
-    vsubss  xmm11, xmm1, dword ptr [rsi+4]
-    vsubss  xmm9, xmm0, dword ptr [rsi+8]
-    vmulss  xmm1, xmm11, xmm11
-    vmulss  xmm0, xmm10, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm7, xmm2, xmm2
-    vcomiss xmm7, xmm8
-  }
-  if ( v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 319, ASSERT_TYPE_ASSERT, "(fTotalDist > 0)", (const char *)&queryFormat, "fTotalDist > 0") )
-    __debugbreak();
-  v40 = DCONST_DVARFLT_bg_lowGravity;
+  v5 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v40);
-  __asm
-  {
-    vaddss  xmm0, xmm9, xmm7
-    vmulss  xmm6, xmm0, dword ptr [rbx+28h]
-  }
-  _RBX = DVARFLT_ai_maxGrenadeThrowSpeed;
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 312, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
+    __debugbreak();
+  if ( ((LODWORD(vFrom->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 314, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(vLand->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vLand->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 315, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vLand )[0] ) && !IS_NAN( ( vLand )[1] ) && !IS_NAN( ( vLand )[2] )") )
+    __debugbreak();
+  v10 = vLand->v[0] - vFrom->v[0];
+  v11 = vLand->v[1] - vFrom->v[1];
+  v12 = vLand->v[2] - vFrom->v[2];
+  v13 = fsqrt((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v12 * v12));
+  if ( v13 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 319, ASSERT_TYPE_ASSERT, "(fTotalDist > 0)", (const char *)&queryFormat, "fTotalDist > 0") )
+    __debugbreak();
+  v14 = DCONST_DVARFLT_bg_lowGravity;
+  if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v14);
+  v15 = (float)(v12 + v13) * v14->current.value;
+  v16 = DVARFLT_ai_maxGrenadeThrowSpeed;
   if ( !DVARFLT_ai_maxGrenadeThrowSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_maxGrenadeThrowSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vcomiss xmm6, xmm1
-  }
-  if ( v19 | v46 )
-  {
-    v48 = DCONST_DVARFLT_bg_lowGravity;
-    if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v48);
-    __asm
-    {
-      vmulss  xmm0, xmm7, cs:__real@40000000
-      vdivss  xmm1, xmm0, dword ptr [rbx+28h]
-      vsqrtss xmm7, xmm1, xmm1
-      vucomiss xmm7, xmm8
-    }
-    if ( v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 327, ASSERT_TYPE_ASSERT, "(fTotalTime != 0.0f)", (const char *)&queryFormat, "fTotalTime != 0.0f") )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm6, xmm0, xmm7
-      vmulss  xmm1, xmm10, xmm6
-      vmulss  xmm0, xmm11, xmm6
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  dword ptr [rdi+4], xmm0
-    }
-    _RBX = DCONST_DVARFLT_bg_lowGravity;
-    if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  [rsp+0F8h+var_B8], xmm0
-      vmulss  xmm3, xmm1, xmm7
-      vmulss  xmm2, xmm9, xmm6
-      vaddss  xmm4, xmm3, xmm2
-      vmovss  dword ptr [rdi+8], xmm4
-    }
-    if ( (v77 & 0x7F800000) == 2139095040 )
-      goto LABEL_48;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  [rsp+0F8h+var_B8], xmm0
-    }
-    if ( (v78 & 0x7F800000) == 2139095040 )
-      goto LABEL_48;
-    __asm { vmovss  [rsp+0F8h+var_B8], xmm4 }
-    if ( (v79 & 0x7F800000) == 2139095040 )
-    {
-LABEL_48:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 333, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] )") )
-        __debugbreak();
-    }
-    result = Grenade_IsValidTrajectory(pAI, grenadeEntNum, _RSI, vVelOut, _RBP);
-  }
-  else
-  {
-    result = 0;
-  }
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v15 > (float)(v16->current.value * v16->current.value) )
+    return 0;
+  v18 = DCONST_DVARFLT_bg_lowGravity;
+  if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = fsqrt((float)(v13 * 2.0) / v18->current.value);
+  if ( v19 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 327, ASSERT_TYPE_ASSERT, "(fTotalTime != 0.0f)", (const char *)&queryFormat, "fTotalTime != 0.0f") )
+    __debugbreak();
+  vVelOut->v[0] = v10 * (float)(1.0 / v19);
+  vVelOut->v[1] = v11 * (float)(1.0 / v19);
+  v20 = DCONST_DVARFLT_bg_lowGravity;
+  if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v20);
+  v21 = LODWORD(vVelOut->v[0]) & 0x7F800000;
+  v22 = (float)((float)(v20->current.value * 0.5) * v19) + (float)(v12 * (float)(1.0 / v19));
+  vVelOut->v[2] = v22;
+  if ( (v21 == 2139095040 || (LODWORD(vVelOut->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v22) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 333, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelOut )[0] ) && !IS_NAN( ( vVelOut )[1] ) && !IS_NAN( ( vVelOut )[2] )") )
+    __debugbreak();
+  return Grenade_IsValidTrajectory(pAI, grenadeEntNum, vFrom, vVelOut, vLand);
 }
 
 /*
@@ -1378,103 +710,54 @@ Grenade_GetTossPositions
 */
 void Grenade_GetTossPositions(const vec3_t *vFrom, const vec3_t *vTargetPos, vec3_t *vLand, const Weapon *grenadeWPID)
 {
-  __int64 v9; 
-  WeaponDef *v14; 
+  __int64 v4; 
+  WeaponDef *v9; 
   bool detailTrace; 
-  char v23; 
-  unsigned int v24; 
+  float v11; 
+  float v12; 
+  float v13; 
+  unsigned int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   vec3_t end; 
   vec3_t start; 
   trace_t results; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  LODWORD(v9) = grenadeWPID->weaponIdx;
-  _R14 = vLand;
-  _RDI = vTargetPos;
-  _RBP = vFrom;
-  if ( (unsigned int)v9 > bg_lastParsedWeaponIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", grenadeWPID->weaponIdx, bg_lastParsedWeaponIndex) )
+  LODWORD(v4) = grenadeWPID->weaponIdx;
+  if ( (unsigned int)v4 > bg_lastParsedWeaponIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", grenadeWPID->weaponIdx, bg_lastParsedWeaponIndex) )
     __debugbreak();
-  v9 = (unsigned __int16)v9;
-  if ( !bg_weaponDefs[(unsigned __int16)v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+  v4 = (unsigned __int16)v4;
+  if ( !bg_weaponDefs[(unsigned __int16)v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
-  v14 = bg_weaponDefs[v9];
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 50, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+  v9 = bg_weaponDefs[v4];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 50, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   detailTrace = BG_WeaponRadiusDamageDetailTrace(grenadeWPID, 0);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmovss  xmm3, dword ptr [rdi]
-    vmovss  xmm2, dword ptr [rdi+4]
-    vmovss  xmm6, cs:__real@3f800000
-    vaddss  xmm0, xmm6, xmm1
-    vmovss  dword ptr [rsp+148h+start+8], xmm0
-    vsubss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rsp+148h+end+8], xmm0
-    vmovss  dword ptr [rsp+148h+start], xmm3
-    vmovss  dword ptr [rsp+148h+start+4], xmm2
-    vmovss  dword ptr [rsp+148h+end], xmm3
-    vmovss  dword ptr [rsp+148h+end+4], xmm2
-  }
+  v11 = vTargetPos->v[2];
+  v12 = vTargetPos->v[0];
+  v13 = vTargetPos->v[1];
+  start.v[2] = v11 + 1.0;
+  end.v[2] = v11 - 1.0;
+  start.v[0] = v12;
+  start.v[1] = v13;
+  end.v[0] = v12;
+  end.v[1] = v13;
   G_Missile_Trace(NULL, &results, &start, &end, &bounds_origin, 2047, 2047, 2065, detailTrace);
-  __asm
-  {
-    vmovss  xmm0, [rsp+148h+results.fraction]
-    vucomiss xmm0, xmm6
-  }
-  if ( v23 )
-    v24 = 0;
+  if ( results.fraction == 1.0 )
+    v14 = 0;
   else
-    v24 = (results.surfaceFlags >> 19) & 0x3F;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbp+4]
-    vmovss  xmm8, dword ptr [rdi+8]
-    vmovss  xmm7, dword ptr [rbp+8]
-  }
-  _RCX = v24;
-  _RAX = v14->parallelBounce;
-  __asm { vmovss  xmm3, dword ptr [rax+rcx*4] }
-  _RAX = v14->perpendicularBounce;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+rcx*4]
-    vsubss  xmm1, xmm0, xmm3
-    vmulss  xmm2, xmm1, cs:__real@3f70902e
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, dword ptr [rbp+0]
-    vaddss  xmm3, xmm2, xmm3
-    vsubss  xmm9, xmm6, xmm3
-    vmovss  xmm6, dword ptr [rdi+4]
-    vmulss  xmm2, xmm1, xmm9
-    vaddss  xmm3, xmm2, dword ptr [rbp+0]
-    vsubss  xmm0, xmm6, xmm4
-    vmulss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [r14], xmm3
-    vaddss  xmm2, xmm1, dword ptr [rbp+4]
-    vsubss  xmm0, xmm8, xmm7
-    vmulss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [r14+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbp+8]
-    vmovss  dword ptr [r14+8], xmm2
-  }
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+    v14 = (results.surfaceFlags >> 19) & 0x3F;
+  v15 = vTargetPos->v[2];
+  v16 = vFrom->v[2];
+  v17 = v9->parallelBounce[v14];
+  v18 = 1.0 - (float)((float)((float)(v9->perpendicularBounce[v14] - v17) * 0.93970001) + v17);
+  v19 = (float)(vTargetPos->v[1] - vFrom->v[1]) * v18;
+  vLand->v[0] = (float)((float)(vTargetPos->v[0] - vFrom->v[0]) * v18) + vFrom->v[0];
+  vLand->v[1] = v19 + vFrom->v[1];
+  vLand->v[2] = (float)((float)(v15 - v16) * v18) + vFrom->v[2];
 }
 
 /*
@@ -1484,410 +767,293 @@ Grenade_GetTossPositionsFromHints
 */
 char Grenade_GetTossPositionsFromHints(const vec3_t *vFrom, const vec3_t *vTargetPos, vec3_t *vLand)
 {
+  const dvar_t *v6; 
+  float v7; 
   unsigned int grenadeHintCount; 
-  __int64 v27; 
-  int v28; 
-  bool v29; 
-  bool v30; 
-  unsigned int v32; 
-  int v33; 
-  bool v147; 
-  bool v148; 
-  void *retaddr; 
+  float v9; 
+  float v10; 
+  __int64 v11; 
+  int v12; 
+  float v13; 
+  int v14; 
+  float *v15; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  float v30; 
+  __int128 v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
+  float v44; 
+  __int128 v45; 
+  float v46; 
+  float v47; 
+  __int128 v48; 
+  float v52; 
+  float v53; 
+  __int128 v54; 
+  float v58; 
+  __int128 v59; 
+  float v60; 
+  float v61; 
+  __int128 v62; 
+  float v66; 
+  float v67; 
+  __int128 v68; 
+  float v72; 
+  float *v73; 
+  float v74; 
+  __int128 v75; 
+  float v76; 
+  float v77; 
+  __int128 v78; 
+  float v82; 
+  float v83; 
+  __int128 v84; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
 
-  _RAX = &retaddr;
-  _RBX = vTargetPos;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps [rsp+0F8h+var_98], xmm14
-    vmovaps [rsp+0F8h+var_A8], xmm15
-  }
   Profile_Begin(481);
-  _RDI = DVARFLT_ai_debugGrenadeHintArc;
+  v6 = DVARFLT_ai_debugGrenadeHintArc;
   if ( !DVARFLT_ai_debugGrenadeHintArc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugGrenadeHintArc") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm0, cs:__real@3c0efa35
-    vaddss  xmm0, xmm1, cs:__real@40490fdb; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = cosf_0((float)(v6->current.value * 0.0087266462) + 3.1415927);
   grenadeHintCount = level.grenadeHintCount;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_B4], xmm0
-    vmovaps xmm14, xmm0
-  }
+  v94 = v7;
+  v9 = v7;
   if ( !level.grenadeHintCount )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 484, ASSERT_TYPE_ASSERT, "(level.grenadeHintCount > 0)", (const char *)&queryFormat, "level.grenadeHintCount > 0") )
       __debugbreak();
     grenadeHintCount = level.grenadeHintCount;
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovss  xmm10, cs:__real@41200000
-    vmovss  xmm11, cs:__real@80000000
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm15, cs:__real@43400000
-    vmovaps [rsp+0F8h+var_18], xmm6
-  }
-  v27 = 0i64;
-  __asm { vmovaps [rsp+0F8h+var_38], xmm8 }
-  v28 = -1;
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_78], xmm12
-    vmovaps [rsp+0F8h+var_88], xmm13
-  }
-  v29 = grenadeHintCount < 4;
-  v30 = grenadeHintCount <= 4;
+  v10 = FLOAT_3_4028235e38;
+  v11 = 0i64;
+  v12 = -1;
   if ( grenadeHintCount >= 4 )
   {
-    __asm { vmovss  xmm12, dword ptr [rbx+8] }
-    v32 = grenadeHintCount - 3;
-    v33 = 2;
-    _RAX = &g_vGrenadeHint[1].v[1];
+    v13 = vTargetPos->v[2];
+    v14 = 2;
+    v15 = &g_vGrenadeHint[1].v[1];
     do
     {
-      __asm
+      if ( (float)(*(v15 - 2) + 10.0) >= v13 )
       {
-        vaddss  xmm1, xmm10, dword ptr [rax-8]
-        vcomiss xmm1, xmm12
-      }
-      if ( !v29 )
-      {
+        v16 = *(v15 - 4);
+        v17 = *((unsigned int *)v15 - 3);
+        v18 = v16 - vTargetPos->v[0];
+        v20 = v17;
+        v19 = *(float *)&v17 - vTargetPos->v[1];
+        *(float *)&v20 = fsqrt((float)(v19 * v19) + (float)(v18 * v18));
+        _XMM6 = v20;
         __asm
         {
-          vmovss  xmm2, dword ptr [rax-10h]
-          vmovss  xmm3, dword ptr [rax-0Ch]
-          vsubss  xmm8, xmm2, dword ptr [rbx]
-          vsubss  xmm13, xmm3, dword ptr [rbx+4]
-          vmulss  xmm1, xmm13, xmm13
-          vmulss  xmm0, xmm8, xmm8
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm6, xmm1, xmm1
-          vcomiss xmm6, xmm15
           vcmpless xmm0, xmm6, xmm11
           vblendvps xmm0, xmm6, xmm9, xmm0
-          vmovss  [rsp+0F8h+var_B8], xmm0
         }
-        if ( v30 )
+        v89 = *(float *)&_XMM0;
+        if ( *(float *)&v20 <= 192.0 )
         {
+          v24 = v16 - vFrom->v[0];
+          v26 = *((unsigned int *)v15 - 3);
+          v25 = *(float *)&v17 - vFrom->v[1];
+          *(float *)&v26 = fsqrt((float)(v25 * v25) + (float)(v24 * v24));
+          _XMM2 = v26;
           __asm
           {
-            vsubss  xmm5, xmm2, dword ptr [rsi]
-            vsubss  xmm3, xmm3, dword ptr [rsi+4]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm5, xmm5
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
             vcmpless xmm0, xmm2, xmm11
             vblendvps xmm0, xmm2, xmm9, xmm0
-            vdivss  xmm2, xmm9, [rsp+0F8h+var_B8]
-            vmulss  xmm1, xmm13, xmm2
-            vdivss  xmm4, xmm9, xmm0
-            vmulss  xmm0, xmm3, xmm4
-            vmulss  xmm3, xmm1, xmm0
-            vmulss  xmm2, xmm8, xmm2
-            vmulss  xmm1, xmm5, xmm4
-            vmulss  xmm0, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, xmm14
           }
-          if ( v30 )
+          if ( (float)((float)((float)(v19 * (float)(1.0 / v89)) * (float)(v25 * (float)(1.0 / *(float *)&_XMM0))) + (float)((float)(v18 * (float)(1.0 / v89)) * (float)(v24 * (float)(1.0 / *(float *)&_XMM0)))) <= v9 && *(float *)&_XMM6 < v10 )
           {
-            __asm { vcomiss xmm6, xmm7 }
-            if ( v29 )
-            {
-              v28 = v27;
-              __asm { vmovaps xmm7, xmm6 }
-            }
+            v12 = v11;
+            v10 = *(float *)&_XMM6;
           }
         }
       }
-      __asm
+      if ( (float)(v15[1] + 10.0) >= v13 )
       {
-        vaddss  xmm1, xmm10, dword ptr [rax+4]
-        vcomiss xmm1, xmm12
-      }
-      if ( !v29 )
-      {
+        v30 = *(v15 - 1);
+        v31 = *(unsigned int *)v15;
+        v32 = v30 - vTargetPos->v[0];
+        v34 = v31;
+        v33 = *(float *)&v31 - vTargetPos->v[1];
+        *(float *)&v34 = fsqrt((float)(v33 * v33) + (float)(v32 * v32));
+        _XMM8 = v34;
         __asm
         {
-          vmovss  xmm2, dword ptr [rax-4]
-          vmovss  xmm3, dword ptr [rax]
-          vsubss  xmm13, xmm2, dword ptr [rbx]
-          vsubss  xmm14, xmm3, dword ptr [rbx+4]
-          vmulss  xmm1, xmm14, xmm14
-          vmulss  xmm0, xmm13, xmm13
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm8, xmm1, xmm1
-          vcomiss xmm8, xmm15
           vcmpless xmm0, xmm8, xmm11
           vblendvps xmm0, xmm8, xmm9, xmm0
-          vmovss  [rsp+0F8h+var_B8], xmm0
         }
-        if ( v30 )
+        v90 = *(float *)&_XMM0;
+        if ( *(float *)&v34 <= 192.0 )
         {
+          v38 = v30 - vFrom->v[0];
+          v40 = *(unsigned int *)v15;
+          v39 = *(float *)&v31 - vFrom->v[1];
+          *(float *)&v40 = fsqrt((float)(v39 * v39) + (float)(v38 * v38));
+          _XMM2 = v40;
           __asm
           {
-            vsubss  xmm6, xmm2, dword ptr [rsi]
-            vsubss  xmm3, xmm3, dword ptr [rsi+4]
-            vdivss  xmm4, xmm9, [rsp+0F8h+var_B8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm6, xmm6
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
             vcmpless xmm0, xmm2, xmm11
             vblendvps xmm0, xmm2, xmm9, xmm0
-            vdivss  xmm5, xmm9, xmm0
-            vmulss  xmm1, xmm5, xmm3
-            vmulss  xmm0, xmm4, xmm14
-            vmulss  xmm3, xmm1, xmm0
-            vmulss  xmm2, xmm6, xmm5
-            vmulss  xmm1, xmm13, xmm4
-            vmulss  xmm0, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, [rsp+0F8h+var_B4]
           }
-          if ( v30 )
+          if ( (float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * v39) * (float)((float)(1.0 / v90) * v33)) + (float)((float)(v38 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v32 * (float)(1.0 / v90)))) <= v94 && *(float *)&_XMM8 < v10 )
           {
-            __asm { vcomiss xmm8, xmm7 }
-            if ( v29 )
-            {
-              v28 = v33 - 1;
-              __asm { vmovaps xmm7, xmm8 }
-            }
+            v12 = v14 - 1;
+            v10 = *(float *)&_XMM8;
           }
         }
       }
-      __asm
+      if ( (float)(v15[4] + 10.0) >= v13 )
       {
-        vaddss  xmm1, xmm10, dword ptr [rax+10h]
-        vcomiss xmm1, xmm12
-      }
-      if ( !v29 )
-      {
+        v44 = v15[2];
+        v45 = *((unsigned int *)v15 + 3);
+        v46 = v44 - vTargetPos->v[0];
+        v48 = v45;
+        v47 = *(float *)&v45 - vTargetPos->v[1];
+        *(float *)&v48 = fsqrt((float)(v47 * v47) + (float)(v46 * v46));
+        _XMM8 = v48;
         __asm
         {
-          vmovss  xmm2, dword ptr [rax+8]
-          vmovss  xmm3, dword ptr [rax+0Ch]
-          vsubss  xmm13, xmm2, dword ptr [rbx]
-          vsubss  xmm14, xmm3, dword ptr [rbx+4]
-          vmulss  xmm1, xmm14, xmm14
-          vmulss  xmm0, xmm13, xmm13
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm8, xmm1, xmm1
-          vcomiss xmm8, xmm15
           vcmpless xmm0, xmm8, xmm11
           vblendvps xmm0, xmm8, xmm9, xmm0
-          vmovss  [rsp+0F8h+var_B8], xmm0
         }
-        if ( v30 )
+        v91 = *(float *)&_XMM0;
+        if ( *(float *)&v48 <= 192.0 )
         {
+          v52 = v44 - vFrom->v[0];
+          v54 = *((unsigned int *)v15 + 3);
+          v53 = *(float *)&v45 - vFrom->v[1];
+          *(float *)&v54 = fsqrt((float)(v53 * v53) + (float)(v52 * v52));
+          _XMM2 = v54;
           __asm
           {
-            vsubss  xmm6, xmm2, dword ptr [rsi]
-            vsubss  xmm3, xmm3, dword ptr [rsi+4]
-            vdivss  xmm4, xmm9, [rsp+0F8h+var_B8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm6, xmm6
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
             vcmpless xmm0, xmm2, xmm11
             vblendvps xmm0, xmm2, xmm9, xmm0
-            vdivss  xmm5, xmm9, xmm0
-            vmulss  xmm1, xmm3, xmm5
-            vmulss  xmm0, xmm14, xmm4
-            vmulss  xmm3, xmm1, xmm0
-            vmulss  xmm2, xmm6, xmm5
-            vmulss  xmm1, xmm13, xmm4
-            vmulss  xmm0, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, [rsp+0F8h+var_B4]
           }
-          if ( v30 )
+          if ( (float)((float)((float)(v53 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v47 * (float)(1.0 / v91))) + (float)((float)(v52 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v46 * (float)(1.0 / v91)))) <= v94 && *(float *)&_XMM8 < v10 )
           {
-            __asm { vcomiss xmm8, xmm7 }
-            if ( v29 )
-            {
-              v28 = v33;
-              __asm { vmovaps xmm7, xmm8 }
-            }
+            v12 = v14;
+            v10 = *(float *)&_XMM8;
           }
         }
       }
-      __asm
-      {
-        vaddss  xmm1, xmm10, dword ptr [rax+1Ch]
-        vcomiss xmm1, xmm12
-      }
-      if ( v29 )
+      if ( (float)(v15[7] + 10.0) < v13 )
         goto LABEL_30;
+      v58 = v15[5];
+      v59 = *((unsigned int *)v15 + 6);
+      v60 = v58 - vTargetPos->v[0];
+      v62 = v59;
+      v61 = *(float *)&v59 - vTargetPos->v[1];
+      *(float *)&v62 = fsqrt((float)(v61 * v61) + (float)(v60 * v60));
+      _XMM8 = v62;
       __asm
       {
-        vmovss  xmm2, dword ptr [rax+14h]
-        vmovss  xmm3, dword ptr [rax+18h]
-        vsubss  xmm13, xmm2, dword ptr [rbx]
-        vsubss  xmm14, xmm3, dword ptr [rbx+4]
-        vmulss  xmm1, xmm14, xmm14
-        vmulss  xmm0, xmm13, xmm13
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm8, xmm1, xmm1
-        vcomiss xmm8, xmm15
         vcmpless xmm0, xmm8, xmm11
         vblendvps xmm0, xmm8, xmm9, xmm0
-        vmovss  [rsp+0F8h+var_B8], xmm0
       }
-      if ( !v30 )
+      v92 = *(float *)&_XMM0;
+      if ( *(float *)&v62 > 192.0 )
       {
 LABEL_30:
-        __asm { vmovss  xmm14, [rsp+0F8h+var_B4] }
+        v9 = v94;
       }
       else
       {
+        v66 = v58 - vFrom->v[0];
+        v68 = *((unsigned int *)v15 + 6);
+        v67 = *(float *)&v59 - vFrom->v[1];
+        *(float *)&v68 = fsqrt((float)(v67 * v67) + (float)(v66 * v66));
+        _XMM2 = v68;
         __asm
         {
-          vsubss  xmm6, xmm2, dword ptr [rsi]
-          vsubss  xmm3, xmm3, dword ptr [rsi+4]
-          vdivss  xmm4, xmm9, [rsp+0F8h+var_B8]
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
           vcmpless xmm0, xmm2, xmm11
           vblendvps xmm0, xmm2, xmm9, xmm0
-          vdivss  xmm5, xmm9, xmm0
-          vmulss  xmm0, xmm14, xmm4
-          vmovss  xmm14, [rsp+0F8h+var_B4]
-          vmulss  xmm1, xmm3, xmm5
-          vmulss  xmm3, xmm1, xmm0
-          vmulss  xmm2, xmm6, xmm5
-          vmulss  xmm1, xmm13, xmm4
-          vmulss  xmm0, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm14
         }
-        if ( v30 )
+        v72 = 1.0 / *(float *)&_XMM0;
+        *(float *)&_XMM0 = v61 * (float)(1.0 / v92);
+        v9 = v94;
+        if ( (float)((float)((float)(v67 * v72) * *(float *)&_XMM0) + (float)((float)(v66 * v72) * (float)(v60 * (float)(1.0 / v92)))) <= v94 && *(float *)&_XMM8 < v10 )
         {
-          __asm { vcomiss xmm8, xmm7 }
-          if ( v29 )
-          {
-            v28 = v33 + 1;
-            __asm { vmovaps xmm7, xmm8 }
-          }
+          v12 = v14 + 1;
+          v10 = *(float *)&_XMM8;
         }
       }
-      _RAX += 12;
-      v27 = (unsigned int)(v27 + 4);
-      v33 += 4;
-      v29 = (unsigned int)v27 < v32;
-      v30 = (unsigned int)v27 <= v32;
+      v15 += 12;
+      v11 = (unsigned int)(v11 + 4);
+      v14 += 4;
     }
-    while ( (unsigned int)v27 < v32 );
+    while ( (unsigned int)v11 < grenadeHintCount - 3 );
   }
-  v147 = (unsigned int)v27 < grenadeHintCount;
-  v148 = (unsigned int)v27 <= grenadeHintCount;
-  if ( (unsigned int)v27 < grenadeHintCount )
+  if ( (unsigned int)v11 < grenadeHintCount )
   {
-    __asm { vmovss  xmm14, dword ptr [rbx+8] }
-    _RAX = &g_vGrenadeHint[v27].v[2];
+    v73 = &g_vGrenadeHint[v11].v[2];
     do
     {
-      __asm
+      if ( (float)(*v73 + 10.0) >= vTargetPos->v[2] )
       {
-        vaddss  xmm1, xmm10, dword ptr [rax]
-        vcomiss xmm1, xmm14
-      }
-      if ( !v147 )
-      {
+        v74 = *(v73 - 2);
+        v75 = *((unsigned int *)v73 - 1);
+        v76 = v74 - vTargetPos->v[0];
+        v78 = v75;
+        v77 = *(float *)&v75 - vTargetPos->v[1];
+        *(float *)&v78 = fsqrt((float)(v77 * v77) + (float)(v76 * v76));
+        _XMM8 = v78;
         __asm
         {
-          vmovss  xmm2, dword ptr [rax-8]
-          vmovss  xmm3, dword ptr [rax-4]
-          vsubss  xmm12, xmm2, dword ptr [rbx]
-          vsubss  xmm13, xmm3, dword ptr [rbx+4]
-          vmulss  xmm1, xmm13, xmm13
-          vmulss  xmm0, xmm12, xmm12
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm8, xmm1, xmm1
-          vcomiss xmm8, xmm15
           vcmpless xmm0, xmm8, xmm11
           vblendvps xmm0, xmm8, xmm9, xmm0
-          vmovss  [rsp+0F8h+var_B8], xmm0
         }
-        if ( v148 )
+        v93 = *(float *)&_XMM0;
+        if ( *(float *)&v78 <= 192.0 )
         {
+          v82 = v74 - vFrom->v[0];
+          v84 = *((unsigned int *)v73 - 1);
+          v83 = *(float *)&v75 - vFrom->v[1];
+          *(float *)&v84 = fsqrt((float)(v83 * v83) + (float)(v82 * v82));
+          _XMM2 = v84;
           __asm
           {
-            vsubss  xmm6, xmm2, dword ptr [rsi]
-            vsubss  xmm3, xmm3, dword ptr [rsi+4]
-            vdivss  xmm4, xmm9, [rsp+0F8h+var_B8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm6, xmm6
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
             vcmpless xmm0, xmm2, xmm11
             vblendvps xmm0, xmm2, xmm9, xmm0
-            vdivss  xmm5, xmm9, xmm0
-            vmulss  xmm1, xmm3, xmm5
-            vmulss  xmm0, xmm13, xmm4
-            vmulss  xmm3, xmm1, xmm0
-            vmulss  xmm2, xmm6, xmm5
-            vmulss  xmm1, xmm12, xmm4
-            vmulss  xmm0, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, [rsp+0F8h+var_B4]
           }
-          if ( v148 )
+          if ( (float)((float)((float)(v83 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v77 * (float)(1.0 / v93))) + (float)((float)(v82 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v76 * (float)(1.0 / v93)))) <= v94 && *(float *)&_XMM8 < v10 )
           {
-            __asm { vcomiss xmm8, xmm7 }
-            if ( v147 )
-            {
-              v28 = v27;
-              __asm { vmovaps xmm7, xmm8 }
-            }
+            v12 = v11;
+            v10 = *(float *)&_XMM8;
           }
         }
       }
-      _RAX += 3;
-      LODWORD(v27) = v27 + 1;
-      v147 = (unsigned int)v27 < grenadeHintCount;
-      v148 = (unsigned int)v27 <= grenadeHintCount;
+      v73 += 3;
+      LODWORD(v11) = v11 + 1;
     }
-    while ( (unsigned int)v27 < grenadeHintCount );
+    while ( (unsigned int)v11 < grenadeHintCount );
   }
-  __asm
-  {
-    vmovaps xmm15, [rsp+0F8h+var_A8]
-    vmovaps xmm14, [rsp+0F8h+var_98]
-    vmovaps xmm13, [rsp+0F8h+var_88]
-    vmovaps xmm12, [rsp+0F8h+var_78]
-    vmovaps xmm11, [rsp+0F8h+var_68]
-    vmovaps xmm10, [rsp+0F8h+var_58]
-    vmovaps xmm9, [rsp+0F8h+var_48]
-    vmovaps xmm8, [rsp+0F8h+var_38]
-    vmovaps xmm7, [rsp+0F8h+var_28]
-    vmovaps xmm6, [rsp+0F8h+var_18]
-  }
-  if ( v28 == -1 )
+  if ( v12 == -1 )
   {
     Profile_EndInternal(NULL);
     return 0;
   }
   else
   {
-    vLand->v[0] = g_vGrenadeHint[v28].v[0];
-    vLand->v[1] = g_vGrenadeHint[v28].v[1];
-    vLand->v[2] = g_vGrenadeHint[v28].v[2];
+    vLand->v[0] = g_vGrenadeHint[v12].v[0];
+    vLand->v[1] = g_vGrenadeHint[v12].v[1];
+    vLand->v[2] = g_vGrenadeHint[v12].v[2];
     Profile_EndInternal(NULL);
     return 1;
   }
@@ -1900,516 +1066,254 @@ Grenade_IsValidTrajectory
 */
 bool Grenade_IsValidTrajectory(ai_common_t *pAI, int grenadeEntNum, const vec3_t *vFrom, const vec3_t *vVelocity, const vec3_t *vGoal)
 {
-  bool v30; 
-  bool v31; 
-  const dvar_t *v34; 
-  const dvar_t *v37; 
-  bool v46; 
-  bool v47; 
-  bool v50; 
-  int v51; 
-  bool v59; 
-  bool v60; 
-  const dvar_t *v61; 
-  bool v66; 
+  const dvar_t *v5; 
+  bool v10; 
+  const dvar_t *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  __int128 v17; 
+  int v18; 
+  __int128 v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v24; 
   int number; 
-  int v101; 
-  int v111; 
-  bool v112; 
-  int v144; 
+  float v26; 
+  __int128 v27; 
+  float v28; 
+  float v31; 
+  int v32; 
+  float v33; 
+  double Float_Internal_DebugName; 
+  int v35; 
+  float v37; 
+  double v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  double v43; 
+  float v44; 
+  int v47; 
   unsigned int ThreadId; 
-  unsigned int v146; 
+  unsigned int v49; 
   unsigned __int16 EntityHitId; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
   sentient_s *sentient; 
-  sentient_s *v172; 
-  bool v173; 
-  unsigned int v177; 
+  sentient_s *v56; 
+  bool v57; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v59; 
+  double v60; 
+  unsigned int v61; 
   unsigned __int64 eTeam; 
   __int64 skipEntity1; 
   __int64 contentMask; 
-  int v181; 
-  int v182; 
-  int v183; 
-  int v184; 
-  int v185; 
-  int v186; 
-  int v187; 
-  int v188; 
-  int v189; 
-  int v190; 
-  int v191; 
-  int v192; 
-  int v193; 
-  int v194; 
-  int v195; 
-  int v196; 
-  int v197; 
   vec3_t start; 
-  vec3_t v199; 
+  vec3_t v66; 
   Bounds bounds; 
   vec3_t end; 
   bitarray<224> result; 
   trace_t results; 
 
-  __asm
-  {
-    vmovaps [rsp+1F0h+var_80], xmm9
-    vmovaps [rsp+1F0h+var_D0], xmm15
-  }
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
-  _RDI = vGoal;
-  _RSI = vVelocity;
-  _R14 = vFrom;
+  v5 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm9, dword ptr [rbx+28h]
-  }
-  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 125, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 125, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_lowGravity, \"bg_lowGravity\" ) > 0)", (const char *)&queryFormat, "Dconst_GetFloat( bg_lowGravity ) > 0") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v181 & 0x7F800000) == 2139095040 )
-    goto LABEL_96;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v182 & 0x7F800000) == 2139095040 )
-    goto LABEL_96;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v183 & 0x7F800000) == 2139095040 )
-  {
-LABEL_96:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 146, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v184 & 0x7F800000) == 2139095040 )
-    goto LABEL_97;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v185 & 0x7F800000) == 2139095040 )
-    goto LABEL_97;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v186 & 0x7F800000) == 2139095040 )
-  {
-LABEL_97:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 147, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelocity )[0] ) && !IS_NAN( ( vVelocity )[1] ) && !IS_NAN( ( vVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelocity )[0] ) && !IS_NAN( ( vVelocity )[1] ) && !IS_NAN( ( vVelocity )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v187 & 0x7F800000) == 2139095040 )
-    goto LABEL_98;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  if ( (v188 & 0x7F800000) == 2139095040 )
-    goto LABEL_98;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+1F0h+var_1B0], xmm0
-  }
-  v30 = (v189 & 0x7F800000u) < 0x7F800000;
-  if ( (v189 & 0x7F800000) == 2139095040 )
-  {
-LABEL_98:
-    v31 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 148, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vGoal )[0] ) && !IS_NAN( ( vGoal )[1] ) && !IS_NAN( ( vGoal )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vGoal )[0] ) && !IS_NAN( ( vGoal )[1] ) && !IS_NAN( ( vGoal )[2] )");
-    v30 = 0;
-    if ( v31 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm9, dword ptr [rsi+8]
-    vmovss  xmm15, cs:__real@3f800000
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-  }
-  v34 = DCONST_DVARFLT_bg_lowGravity;
-  __asm
-  {
-    vmovaps [rsp+1F0h+var_50], xmm6
-    vmovaps [rsp+1F0h+var_60], xmm7
-    vmovaps [rsp+1F0h+var_70], xmm8
-    vmovaps [rsp+1F0h+var_90], xmm10
-    vmovaps [rsp+1F0h+var_A0], xmm11
-    vmovaps [rsp+1F0h+var_B0], xmm12
-    vmovaps [rsp+1F0h+var_C0], xmm14
-    vmovss  dword ptr [rsp+1F0h+bounds.halfSize+4], xmm15
-    vmovss  dword ptr [rsp+1F0h+bounds.halfSize+8], xmm15
-    vmovups xmmword ptr [rsp+1F0h+bounds.midPoint], xmm0
-  }
-  if ( v30 )
+  if ( ((LODWORD(vFrom->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vFrom->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 146, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vFrom )[0] ) && !IS_NAN( ( vFrom )[1] ) && !IS_NAN( ( vFrom )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(vVelocity->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vVelocity->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vVelocity->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 147, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vVelocity )[0] ) && !IS_NAN( ( vVelocity )[1] ) && !IS_NAN( ( vVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vVelocity )[0] ) && !IS_NAN( ( vVelocity )[1] ) && !IS_NAN( ( vVelocity )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(vGoal->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(vGoal->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(vGoal->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 148, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vGoal )[0] ) && !IS_NAN( ( vGoal )[1] ) && !IS_NAN( ( vGoal )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vGoal )[0] ) && !IS_NAN( ( vGoal )[1] ) && !IS_NAN( ( vGoal )[2] )") )
+    __debugbreak();
+  v10 = vVelocity->v[2] > 0.0;
+  v11 = DCONST_DVARFLT_bg_lowGravity;
+  bounds.halfSize.v[1] = FLOAT_1_0;
+  bounds.halfSize.v[2] = FLOAT_1_0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  if ( v10 )
   {
     if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vdivss  xmm7, xmm0, dword ptr [rbx+28h]
-    }
-    v37 = DCONST_DVARFLT_bg_lowGravity;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f000000
-      vmulss  xmm12, xmm7, xmm8
-    }
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = vVelocity->v[2] / v11->current.value;
+    v13 = DCONST_DVARFLT_bg_lowGravity;
+    v14 = FLOAT_0_5;
+    v15 = v12 * 0.5;
     if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v37);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm1, xmm0, dword ptr [rdi+8]
-      vmulss  xmm2, xmm1, cs:__real@40000000
-      vdivss  xmm3, xmm2, dword ptr [rbx+28h]
-      vmovss  [rsp+1F0h+var_1B0], xmm7
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm6, xmm3, xmm0
-    }
-    if ( (v190 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 172, ASSERT_TYPE_SANITY, "( !IS_NAN( tApex ) )", (const char *)&queryFormat, "!IS_NAN( tApex )") )
+    Dvar_CheckFrontendServerThread(v13);
+    v16 = LODWORD(vFrom->v[2]);
+    *(float *)&v16 = (float)((float)((float)(vFrom->v[2] - vGoal->v[2]) * 2.0) / v13->current.value) + (float)(v12 * v12);
+    if ( (LODWORD(v12) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 172, ASSERT_TYPE_SANITY, "( !IS_NAN( tApex ) )", (const char *)&queryFormat, "!IS_NAN( tApex )") )
       __debugbreak();
-    __asm { vmovss  [rsp+1F0h+var_1B0], xmm12 }
-    if ( (v191 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 173, ASSERT_TYPE_SANITY, "( !IS_NAN( tMidNear ) )", (const char *)&queryFormat, "!IS_NAN( tMidNear )") )
+    if ( (LODWORD(v15) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 173, ASSERT_TYPE_SANITY, "( !IS_NAN( tMidNear ) )", (const char *)&queryFormat, "!IS_NAN( tMidNear )") )
       __debugbreak();
-    __asm { vmovss  [rsp+1F0h+var_1B0], xmm6 }
-    v46 = (v192 & 0x7F800000u) <= 0x7F800000;
-    if ( (v192 & 0x7F800000) == 2139095040 )
-    {
-      v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 174, ASSERT_TYPE_SANITY, "( !IS_NAN( tDiscriminant ) )", (const char *)&queryFormat, "!IS_NAN( tDiscriminant )");
-      v46 = !v47;
-      if ( v47 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm6, xmm9 }
-    if ( v46 )
-      goto LABEL_65;
-    __asm
-    {
-      vsqrtss xmm0, xmm6, xmm6
-      vmulss  xmm6, xmm0, xmm8
-      vmovss  [rsp+1F0h+var_1B0], xmm6
-    }
-    v50 = (v193 & 0x7F800000u) <= 0x7F800000;
-    if ( (v193 & 0x7F800000) != 2139095040 )
+    if ( (v16 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 174, ASSERT_TYPE_SANITY, "( !IS_NAN( tDiscriminant ) )", (const char *)&queryFormat, "!IS_NAN( tDiscriminant )") )
+      __debugbreak();
+    if ( *(float *)&v16 <= 0.0 )
+      return 0;
+    *(float *)&v16 = fsqrt(*(float *)&v16) * 0.5;
+    v17 = v16;
+    if ( (v16 & 0x7F800000) != 2139095040 )
       goto LABEL_55;
-    v51 = 180;
+    v18 = 180;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm12, xmm12, xmm12
-    }
+    v12 = 0.0;
+    v15 = 0.0;
     if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm1, xmm0, dword ptr [rdi+8]
-      vmulss  xmm2, xmm1, cs:__real@40000000
-      vmovss  xmm4, dword ptr [rsi+8]
-      vmulss  xmm3, xmm2, dword ptr [rbx+28h]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm6, xmm3, xmm0
-      vmovss  [rsp+1F0h+var_1B0], xmm6
-    }
-    v59 = (v194 & 0x7F800000u) <= 0x7F800000;
-    if ( (v194 & 0x7F800000) == 2139095040 )
-    {
-      v60 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( tDiscriminant ) )", (const char *)&queryFormat, "!IS_NAN( tDiscriminant )");
-      v59 = !v60;
-      if ( v60 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm6, xmm9 }
-    if ( v59 )
-      goto LABEL_65;
-    v61 = DCONST_DVARFLT_bg_lowGravity;
+    Dvar_CheckFrontendServerThread(v11);
+    v19 = LODWORD(vFrom->v[2]);
+    *(float *)&v19 = (float)((float)((float)(vFrom->v[2] - vGoal->v[2]) * 2.0) * v11->current.value) + (float)(vVelocity->v[2] * vVelocity->v[2]);
+    if ( (v19 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( tDiscriminant ) )", (const char *)&queryFormat, "!IS_NAN( tDiscriminant )") )
+      __debugbreak();
+    if ( *(float *)&v19 <= 0.0 )
+      return 0;
+    v20 = DCONST_DVARFLT_bg_lowGravity;
     if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v61);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f000000
-      vsqrtss xmm0, xmm6, xmm6
-      vaddss  xmm1, xmm0, dword ptr [rsi+8]
-      vmulss  xmm1, xmm1, xmm8
-      vdivss  xmm6, xmm1, dword ptr [rbx+28h]
-      vmovss  [rsp+1F0h+var_1B0], xmm6
-    }
-    v50 = (v195 & 0x7F800000u) <= 0x7F800000;
-    if ( (v195 & 0x7F800000) != 2139095040 )
+    Dvar_CheckFrontendServerThread(v20);
+    v14 = FLOAT_0_5;
+    *(float *)&v19 = (float)((float)(fsqrt(*(float *)&v19) + vVelocity->v[2]) * 0.5) / v20->current.value;
+    v17 = v19;
+    if ( (v19 & 0x7F800000) != 2139095040 )
       goto LABEL_55;
-    v51 = 194;
+    v18 = 194;
   }
-  v66 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", v51, ASSERT_TYPE_SANITY, "( !IS_NAN( tHalfFarSegment ) )", (const char *)&queryFormat, "!IS_NAN( tHalfFarSegment )");
-  v50 = !v66;
-  if ( v66 )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", v18, ASSERT_TYPE_SANITY, "( !IS_NAN( tHalfFarSegment ) )", (const char *)&queryFormat, "!IS_NAN( tHalfFarSegment )") )
     __debugbreak();
 LABEL_55:
-  __asm
+  v21 = *(float *)&v17 + v12;
+  v22 = (float)(*(float *)&v17 + v12) + *(float *)&v17;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v22 * vVelocity->v[0]) + vFrom->v[0]) - vGoal->v[0]) & _xmm) <= 0.1 )
   {
-    vmovss  xmm10, dword ptr [r14]
-    vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm4, cs:__real@3dcccccd
-    vaddss  xmm14, xmm6, xmm7
-    vaddss  xmm5, xmm14, xmm6
-    vmulss  xmm0, xmm5, dword ptr [rsi]
-    vaddss  xmm1, xmm0, xmm10
-    vsubss  xmm2, xmm1, dword ptr [rdi]
-    vandps  xmm2, xmm2, xmm3
-    vcomiss xmm2, xmm4
-  }
-  if ( v50 )
-  {
-    __asm
-    {
-      vmovss  xmm11, dword ptr [r14+4]
-      vmulss  xmm0, xmm5, dword ptr [rsi+4]
-      vaddss  xmm1, xmm0, xmm11
-      vsubss  xmm2, xmm1, dword ptr [rdi+4]
-      vandps  xmm2, xmm2, xmm3
-      vcomiss xmm2, xmm4
-    }
-    if ( v50 )
+    v23 = vFrom->v[1];
+    *((_QWORD *)&v24 + 1) = *((_QWORD *)&v17 + 1);
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v22 * vVelocity->v[1]) + v23) - vGoal->v[1]) & _xmm) <= 0.1 )
     {
       number = 2047;
       if ( pAI )
         number = pAI->ent->s.number;
-      __asm { vcomiss xmm7, xmm9 }
-      if ( pAI )
+      if ( v12 <= 0.0 )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3e000000
-          vmulss  xmm2, xmm1, xmm12
-          vmulss  xmm9, xmm2, xmm12
-          vmovss  [rsp+1F0h+var_1B0], xmm9
-        }
-        if ( (v196 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 213, ASSERT_TYPE_SANITY, "( !IS_NAN( fMaxErrorNear ) )", (const char *)&queryFormat, "!IS_NAN( fMaxErrorNear )") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm10, cs:__real@bf800000
-          vaddss  xmm2, xmm9, xmm15
-          vmulss  xmm0, xmm2, xmm8
-          vsubss  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rsp+1F0h+bounds.midPoint+8], xmm1
-          vsubss  xmm2, xmm2, xmm10
-          vmulss  xmm0, xmm2, xmm8
-          vmaxss  xmm1, xmm0, dword ptr [rsp+1F0h+bounds.halfSize]
-          vmulss  xmm0, xmm12, dword ptr [rsi]
-          vmovss  dword ptr [rsp+1F0h+bounds.halfSize+8], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14]
-          vmulss  xmm0, xmm12, dword ptr [rsi+4]
-          vmovss  dword ptr [rbp+0F0h+end], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14+4]
-          vmovss  dword ptr [rbp+0F0h+end+4], xmm1
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3fc00000
-          vmulss  xmm2, xmm1, xmm12
-          vmulss  xmm3, xmm2, xmm12
-          vaddss  xmm0, xmm3, dword ptr [r14+8]
-          vmovss  dword ptr [rbp+0F0h+end+8], xmm0
-          vmovaps xmm2, xmm9; height
-        }
-        v101 = PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, _R14, &end, &bounds, number, grenadeEntNum, 41972113);
-        Debug_DrawGrenadeTraceLine(_R14, &end, *(float *)&_XMM2, &colorCyan, 1);
-        if ( v101 )
-          goto LABEL_65;
-        __asm
-        {
-          vmulss  xmm0, xmm7, dword ptr [rsi]
-          vaddss  xmm1, xmm0, dword ptr [r14]
-          vmulss  xmm0, xmm7, dword ptr [rsi+4]
-          vmovss  dword ptr [rsp+1F0h+start], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14+4]
-          vmovss  dword ptr [rsp+1F0h+start+4], xmm1
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm8
-          vmulss  xmm3, xmm1, xmm7
-          vmulss  xmm4, xmm3, xmm7
-          vaddss  xmm0, xmm4, dword ptr [r14+8]
-          vmovss  dword ptr [rsp+1F0h+start+8], xmm0
-          vmovaps xmm2, xmm9; height
-        }
-        v111 = PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &end, &start, &bounds, number, grenadeEntNum, 41972113);
-        Debug_DrawGrenadeTraceLine(&end, &start, *(float *)&_XMM2, &colorCyan, 1);
-        if ( v111 )
-          goto LABEL_65;
+        v37 = vFrom->v[2];
+        start.v[0] = vFrom->v[0];
+        v28 = FLOAT_N1_0;
+        start.v[2] = v37;
+        start.v[1] = v23;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+8]
-          vmovss  dword ptr [rsp+1F0h+start], xmm10
-          vmovss  xmm10, cs:__real@bf800000
-          vmovss  dword ptr [rsp+1F0h+start+8], xmm0
-          vmovss  dword ptr [rsp+1F0h+start+4], xmm11
-        }
+        *(double *)&v24 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+        v27 = v24;
+        *(float *)&v27 = (float)((float)(*(float *)&v24 * 0.125) * v15) * v15;
+        v26 = *(float *)&v27;
+        if ( (v27 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 213, ASSERT_TYPE_SANITY, "( !IS_NAN( fMaxErrorNear ) )", (const char *)&queryFormat, "!IS_NAN( fMaxErrorNear )") )
+          __debugbreak();
+        v28 = FLOAT_N1_0;
+        bounds.midPoint.v[2] = (float)((float)(*(float *)&v27 + 1.0) * v14) - v14;
+        *(float *)&v27 = (float)((float)(*(float *)&v27 + 1.0) - -1.0) * v14;
+        _XMM0 = v27;
+        __asm { vmaxss  xmm1, xmm0, dword ptr [rsp+1F0h+bounds.halfSize] }
+        *(float *)&_XMM0 = v15 * vVelocity->v[0];
+        bounds.halfSize.v[2] = *(float *)&_XMM1;
+        v31 = v15 * vVelocity->v[1];
+        end.v[0] = *(float *)&_XMM0 + vFrom->v[0];
+        end.v[1] = v31 + vFrom->v[1];
+        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+        end.v[2] = (float)((float)((float)(*(float *)&_XMM0 * 1.5) * v15) * v15) + vFrom->v[2];
+        v32 = PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, vFrom, &end, &bounds, number, grenadeEntNum, 41972113);
+        Debug_DrawGrenadeTraceLine(vFrom, &end, v26, &colorCyan, 1);
+        if ( v32 )
+          return 0;
+        v33 = v12 * vVelocity->v[1];
+        start.v[0] = (float)(v12 * vVelocity->v[0]) + vFrom->v[0];
+        start.v[1] = v33 + vFrom->v[1];
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+        start.v[2] = (float)((float)((float)(*(float *)&Float_Internal_DebugName * v14) * v12) * v12) + vFrom->v[2];
+        v35 = PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &end, &start, &bounds, number, grenadeEntNum, 41972113);
+        Debug_DrawGrenadeTraceLine(&end, &start, v26, &colorCyan, 1);
+        if ( v35 )
+          return 0;
       }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3e000000
-        vmulss  xmm2, xmm1, xmm6
-        vmulss  xmm6, xmm2, xmm6
-        vmovss  [rsp+1F0h+var_1B0], xmm6
-      }
-      if ( (v197 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 248, ASSERT_TYPE_SANITY, "( !IS_NAN( fMaxErrorFar ) )", (const char *)&queryFormat, "!IS_NAN( fMaxErrorFar )") )
+      v38 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+      v40 = (float)((float)(*(float *)&v38 * 0.125) * *(float *)&v17) * *(float *)&v17;
+      v39 = v40;
+      if ( (LODWORD(v40) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_grenade_toss.cpp", 248, ASSERT_TYPE_SANITY, "( !IS_NAN( fMaxErrorFar ) )", (const char *)&queryFormat, "!IS_NAN( fMaxErrorFar )") )
         __debugbreak();
-      __asm
-      {
-        vaddss  xmm2, xmm6, xmm15
-        vmulss  xmm0, xmm2, xmm8
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rsp+1F0h+bounds.midPoint+8], xmm1
-        vmulss  xmm1, xmm14, dword ptr [rsi]
-        vsubss  xmm2, xmm2, xmm10
-        vmulss  xmm0, xmm2, xmm8
-        vmovss  dword ptr [rsp+1F0h+bounds.halfSize+8], xmm0
-        vaddss  xmm0, xmm1, dword ptr [r14]
-        vmulss  xmm1, xmm14, dword ptr [rsi+4]
-        vmovss  dword ptr [rsp+1F0h+var_198], xmm0
-        vaddss  xmm0, xmm1, dword ptr [r14+4]
-        vmovss  dword ptr [rsp+1F0h+var_198+4], xmm0
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+8]
-        vmulss  xmm1, xmm0, xmm8
-        vmulss  xmm3, xmm1, xmm14
-        vsubss  xmm0, xmm2, xmm3
-        vmulss  xmm1, xmm0, xmm14
-        vaddss  xmm3, xmm1, dword ptr [r14+8]
-        vmovss  xmm0, dword ptr [rsp+1F0h+bounds.halfSize]
-        vmaxss  xmm1, xmm0, dword ptr [rsp+1F0h+bounds.halfSize+8]
-        vmovss  dword ptr [rsp+1F0h+bounds.halfSize+8], xmm1
-        vmovss  dword ptr [rsp+1F0h+var_198+8], xmm3
-        vmovaps xmm2, xmm6; height
-      }
-      v144 = PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &v199, &bounds, number, grenadeEntNum, 41972113);
-      Debug_DrawGrenadeTraceLine(&start, &v199, *(float *)&_XMM2, &colorCyan, 1);
-      if ( !v144 )
+      bounds.midPoint.v[2] = (float)((float)(v40 + 1.0) * v14) - v14;
+      v41 = v21 * vVelocity->v[0];
+      bounds.halfSize.v[2] = (float)((float)(v40 + 1.0) - v28) * v14;
+      v42 = v21 * vVelocity->v[1];
+      v66.v[0] = v41 + vFrom->v[0];
+      v66.v[1] = v42 + vFrom->v[1];
+      v43 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+      v44 = (float)((float)(vVelocity->v[2] - (float)((float)(*(float *)&v43 * v14) * v21)) * v21) + vFrom->v[2];
+      _XMM0 = LODWORD(bounds.halfSize.v[0]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsp+1F0h+bounds.halfSize+8] }
+      bounds.halfSize.v[2] = *(float *)&_XMM1;
+      v66.v[2] = v44;
+      v47 = PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &v66, &bounds, number, grenadeEntNum, 41972113);
+      Debug_DrawGrenadeTraceLine(&start, &v66, v39, &colorCyan, 1);
+      if ( !v47 )
       {
         ThreadId = Physics_GetThreadId();
         Physics_DisableShapeCache(ThreadId, 1);
-        G_Main_TraceCapsule(&results, &v199, vGoal, &bounds, number, 41972113);
-        v146 = Physics_GetThreadId();
-        Physics_DisableShapeCache(v146, 0);
-        __asm { vmovaps xmm2, xmm6; height }
-        Debug_DrawGrenadeTraceLine(&v199, vGoal, *(float *)&_XMM2, &colorCyan, 1);
-        __asm
+        G_Main_TraceCapsule(&results, &v66, vGoal, &bounds, number, 41972113);
+        v49 = Physics_GetThreadId();
+        Physics_DisableShapeCache(v49, 0);
+        Debug_DrawGrenadeTraceLine(&v66, vGoal, v39, &colorCyan, 1);
+        if ( results.fraction >= 1.0 )
+          return 1;
+        EntityHitId = Trace_GetEntityHitId(&results);
+        if ( EntityHitId == 2046 )
         {
-          vmovss  xmm0, [rbp+0F0h+results.fraction]
-          vcomiss xmm0, xmm15
+          v51 = (float)((float)((float)(vGoal->v[0] - v66.v[0]) * results.fraction) + v66.v[0]) - vGoal->v[0];
+          v52 = (float)((float)((float)(vGoal->v[1] - v66.v[1]) * results.fraction) + v66.v[1]) - vGoal->v[1];
+          v53 = (float)((float)((float)(vGoal->v[2] - v66.v[2]) * results.fraction) + v66.v[2]) - vGoal->v[2];
+          v54 = (float)((float)(v52 * v52) + (float)(v51 * v51)) + (float)(v53 * v53);
+          if ( v54 >= 16.0 )
+            return v54 < 900.0 && results.normal.v[2] > v14;
+          return 1;
         }
-        if ( v30 )
+        sentient = level.gentities[EntityHitId].sentient;
+        if ( sentient && pAI )
         {
-          EntityHitId = Trace_GetEntityHitId(&results);
-          if ( EntityHitId == 2046 )
-          {
-            __asm
-            {
-              vmovss  xmm4, [rbp+0F0h+results.fraction]
-              vmovss  xmm2, dword ptr [rdi]
-              vsubss  xmm0, xmm2, dword ptr [rsp+1F0h+var_198]
-              vmovss  xmm3, dword ptr [rdi+4]
-              vmovss  xmm7, dword ptr [rdi+8]
-              vmulss  xmm0, xmm0, xmm4
-              vaddss  xmm1, xmm0, dword ptr [rsp+1F0h+var_198]
-              vsubss  xmm0, xmm3, dword ptr [rsp+1F0h+var_198+4]
-              vsubss  xmm6, xmm1, xmm2
-              vmulss  xmm1, xmm0, xmm4
-              vaddss  xmm2, xmm1, dword ptr [rsp+1F0h+var_198+4]
-              vsubss  xmm0, xmm7, dword ptr [rsp+1F0h+var_198+8]
-              vmulss  xmm1, xmm0, xmm4
-              vsubss  xmm5, xmm2, xmm3
-              vaddss  xmm2, xmm1, dword ptr [rsp+1F0h+var_198+8]
-              vsubss  xmm4, xmm2, xmm7
-              vmulss  xmm3, xmm5, xmm5
-              vmulss  xmm0, xmm6, xmm6
-              vmulss  xmm1, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-              vaddss  xmm5, xmm2, xmm1
-              vcomiss xmm5, cs:__real@41800000
-              vcomiss xmm5, cs:__real@44610000
-            }
-            goto LABEL_65;
-          }
-          sentient = level.gentities[EntityHitId].sentient;
-          if ( !sentient || !pAI )
-            goto LABEL_65;
-          v172 = pAI->sentient;
-          if ( !v172 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 259, ASSERT_TYPE_ASSERT, "(other)", (const char *)&queryFormat, "other") )
+          v56 = pAI->sentient;
+          if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 259, ASSERT_TYPE_ASSERT, "(other)", (const char *)&queryFormat, "other") )
             __debugbreak();
           if ( level.teammode == TEAMMODE_FFA )
           {
-            v173 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
+            v57 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
             if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-              _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+              AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
             else
-              _RAX = Com_TeamsMP_GetAllTeamFlags();
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovsd  xmm1, qword ptr [rax+10h]
-            }
-            v177 = _RAX->array[6] & 0xFFEFFFFF;
-            __asm
-            {
-              vmovups xmmword ptr [rbp+0F0h+result.array], xmm0
-              vmovsd  qword ptr [rbp+0F0h+result.array+10h], xmm1
-            }
-            if ( v173 )
+              AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+            v59 = *(_OWORD *)AllCombatTeamFlags->array;
+            v60 = *(double *)&AllCombatTeamFlags->array[4];
+            v61 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+            *(_OWORD *)result.array = v59;
+            *(double *)&result.array[4] = v60;
+            if ( v57 )
               result.array[0] &= ~0x8000000u;
-            result.array[6] = v177 & 0xFF9FFFFF;
+            result.array[6] = v61 & 0xFF9FFFFF;
           }
           else
           {
-            Com_Teams_GetEnemyTeamFlags(&result, v172->eTeam);
+            Com_Teams_GetEnemyTeamFlags(&result, v56->eTeam);
           }
           eTeam = (unsigned int)sentient->eTeam;
           if ( (unsigned int)eTeam >= 0xE0 )
@@ -2419,30 +1323,13 @@ LABEL_55:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", skipEntity1, contentMask) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (eTeam & 0x1F)) & result.array[eTeam >> 5]) == 0 )
-            goto LABEL_65;
+          if ( ((0x80000000 >> (eTeam & 0x1F)) & result.array[eTeam >> 5]) != 0 )
+            return 1;
         }
-        v112 = 1;
-        goto LABEL_66;
       }
     }
   }
-LABEL_65:
-  v112 = 0;
-LABEL_66:
-  __asm
-  {
-    vmovaps xmm14, [rsp+1F0h+var_C0]
-    vmovaps xmm12, [rsp+1F0h+var_B0]
-    vmovaps xmm11, [rsp+1F0h+var_A0]
-    vmovaps xmm10, [rsp+1F0h+var_90]
-    vmovaps xmm8, [rsp+1F0h+var_70]
-    vmovaps xmm7, [rsp+1F0h+var_60]
-    vmovaps xmm6, [rsp+1F0h+var_50]
-    vmovaps xmm9, [rsp+1F0h+var_80]
-    vmovaps xmm15, [rsp+1F0h+var_D0]
-  }
-  return v112;
+  return 0;
 }
 
 /*
@@ -2452,6 +1339,7 @@ MagicGrenade_Internal
 */
 gentity_s *MagicGrenade_Internal(gentity_s *pSelf, ai_common_t *pAI, const vec3_t *origin, const vec3_t *vTargetPos, const Weapon *grenadeWeapon, int grenadeTime, int shouldThrow, bool bSticky)
 {
+  float v11; 
   vec3_t vLand; 
   vec3_t dir; 
 
@@ -2459,15 +1347,10 @@ gentity_s *MagicGrenade_Internal(gentity_s *pSelf, ai_common_t *pAI, const vec3_
   {
     if ( bSticky )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r9]
-        vmovss  xmm1, dword ptr [r9+4]
-        vmovss  dword ptr [rsp+0A8h+vLand], xmm0
-        vmovss  xmm0, dword ptr [r9+8]
-        vmovss  dword ptr [rsp+0A8h+vLand+8], xmm0
-        vmovss  dword ptr [rsp+0A8h+vLand+4], xmm1
-      }
+      v11 = vTargetPos->v[1];
+      vLand.v[0] = vTargetPos->v[0];
+      vLand.v[2] = vTargetPos->v[2];
+      vLand.v[1] = v11;
     }
     else
     {
@@ -2481,13 +1364,9 @@ gentity_s *MagicGrenade_Internal(gentity_s *pSelf, ai_common_t *pAI, const vec3_
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0A8h+dir], xmm0
-      vmovss  dword ptr [rsp+0A8h+dir+4], xmm0
-      vmovss  dword ptr [rsp+0A8h+dir+8], xmm0
-    }
+    dir.v[0] = 0.0;
+    dir.v[1] = 0.0;
+    dir.v[2] = 0.0;
   }
   return G_Missile_FireGrenade(pSelf, origin, &dir, grenadeWeapon, 0, WEAPON_HAND_DEFAULT, 1, grenadeTime, 1, level.time);
 }
@@ -2499,35 +1378,14 @@ compare_desperate_hints
 */
 __int64 compare_desperate_hints(const void *pe0, const void *pe1)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vsubss  xmm4, xmm0, dword ptr cs:g_vRefPos
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm2, xmm1, dword ptr cs:g_vRefPos+4
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm3, xmm0, dword ptr cs:g_vRefPos+8
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rdx]
-    vmulss  xmm1, xmm3, xmm3
-    vsubss  xmm3, xmm0, dword ptr cs:g_vRefPos
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm4, xmm0, dword ptr cs:g_vRefPos+8
-    vmovaps [rsp+18h+var_18], xmm8
-    vaddss  xmm8, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm2, xmm1, dword ptr cs:g_vRefPos+4
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm5, xmm3, xmm0
-    vcomiss xmm8, xmm5
-    vcomiss xmm8, xmm5
-    vmovaps xmm8, [rsp+18h+var_18]
-  }
-  return 0i64;
+  float v2; 
+  float v3; 
+
+  v2 = (float)((float)((float)(*((float *)pe0 + 1) - g_vRefPos.v[1]) * (float)(*((float *)pe0 + 1) - g_vRefPos.v[1])) + (float)((float)(*(float *)pe0 - g_vRefPos.v[0]) * (float)(*(float *)pe0 - g_vRefPos.v[0]))) + (float)((float)(*((float *)pe0 + 2) - g_vRefPos.v[2]) * (float)(*((float *)pe0 + 2) - g_vRefPos.v[2]));
+  v3 = (float)((float)((float)(*((float *)pe1 + 1) - g_vRefPos.v[1]) * (float)(*((float *)pe1 + 1) - g_vRefPos.v[1])) + (float)((float)(*(float *)pe1 - g_vRefPos.v[0]) * (float)(*(float *)pe1 - g_vRefPos.v[0]))) + (float)((float)(*((float *)pe1 + 2) - g_vRefPos.v[2]) * (float)(*((float *)pe1 + 2) - g_vRefPos.v[2]));
+  if ( v2 >= v3 )
+    return v2 > v3;
+  else
+    return 0xFFFFFFFFi64;
 }
 

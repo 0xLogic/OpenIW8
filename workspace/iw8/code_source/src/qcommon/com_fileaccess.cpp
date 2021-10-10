@@ -223,6 +223,7 @@ sysFileHandle_t *FS_FileOpenReadBinary(sysFileHandle_t *result, const char *file
 {
   __int64 v5; 
   int v6; 
+  __int128 v7; 
   int v8; 
   wchar_t WideCharStr[256]; 
 
@@ -230,7 +231,7 @@ sysFileHandle_t *FS_FileOpenReadBinary(sysFileHandle_t *result, const char *file
   v5 = 32i64;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v6 = 0x8000000;
-  __asm { vmovdqu [rsp+268h+var_22C], xmm0 }
+  v7 = _XMM0;
   MultiByteToWideChar(0xFDE9u, 0, (LPCCH)result, -1, WideCharStr, 256);
   return (sysFileHandle_t *)CreateFile2(WideCharStr, 0x80000000i64, 0i64, 3i64, &v5);
 }

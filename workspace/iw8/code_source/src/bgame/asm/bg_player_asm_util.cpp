@@ -1199,200 +1199,149 @@ BG_PlayerASM_GetIndexOfRandomAnimFromAlias<1>
 */
 __int64 BG_PlayerASM_GetIndexOfRandomAnimFromAlias<1>(unsigned int *holdrand, unsigned int entNum, const unsigned int animsetIndex, const AnimsetState *pState, const scr_string_t aliasName, int animEntryToSkip)
 {
-  unsigned int v12; 
-  const AnimsetState *v13; 
-  unsigned int numAnimAliases; 
-  __int64 v16; 
-  scr_string_t v20; 
-  unsigned int v21; 
+  unsigned int v6; 
+  const AnimsetState *v7; 
+  __int64 v9; 
+  scr_string_t v10; 
+  unsigned int v11; 
   AnimsetAlias *animAliases; 
   __int64 numAnims; 
   const Animset *AnimsetByIndex; 
+  __int64 v15; 
+  double v16; 
+  float v17; 
+  __int64 v18; 
+  __int128 v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  __int128 v22; 
+  const char *v23; 
+  const char *v24; 
   __int64 v25; 
-  __int64 v30; 
-  unsigned int v31; 
-  __int64 v32; 
-  bool v33; 
-  bool v34; 
-  const char *v35; 
-  const char *v36; 
-  __int64 v37; 
-  const char *v38; 
-  const char *v39; 
-  const char *v40; 
-  const char *v41; 
-  const char *v42; 
+  const char *v26; 
+  const char *v27; 
+  const char *v28; 
+  const char *v29; 
+  const char *v30; 
   __int64 result; 
-  bool v49; 
-  unsigned int v50; 
-  unsigned int v51; 
-  int v52; 
+  bool v32; 
+  unsigned int v33; 
+  unsigned int numAnimAliases; 
+  int v35; 
   unsigned int seed; 
-  const Animset *v54; 
-  unsigned int v61; 
+  const Animset *v37; 
+  unsigned int v39; 
 
-  v61 = animsetIndex;
-  v12 = 0;
-  v50 = 0;
-  v13 = pState;
+  v39 = animsetIndex;
+  v6 = 0;
+  v33 = 0;
+  v7 = pState;
   if ( !pState )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 155, ASSERT_TYPE_ASSERT, "(pState)", (const char *)&queryFormat, "pState") )
       __debugbreak();
-    animsetIndex = v61;
+    animsetIndex = v39;
   }
-  numAnimAliases = v13->numAnimAliases;
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_48], xmm6
-    vmovaps [rsp+0F8h+var_58], xmm7
-    vmovaps [rsp+0F8h+var_68], xmm8
-    vmovaps [rsp+0F8h+var_78], xmm9
-    vmovaps [rsp+0F8h+var_88], xmm10
-  }
-  v51 = numAnimAliases;
-  v52 = 0;
+  numAnimAliases = v7->numAnimAliases;
+  v35 = 0;
   if ( !numAnimAliases )
-  {
-LABEL_43:
-    result = 0xFFFFFFFFi64;
-    goto LABEL_44;
-  }
-  v16 = 0i64;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3dcccccd
-    vmovss  xmm10, cs:__real@37e66666
-  }
-  v20 = aliasName;
-  v21 = v51;
+    return 0xFFFFFFFFi64;
+  v9 = 0i64;
+  v10 = aliasName;
+  v11 = v7->numAnimAliases;
   while ( 1 )
   {
-    animAliases = v13->animAliases;
-    numAnims = (int)animAliases[v16].numAnims;
-    if ( animAliases[v16].name == v20 )
+    animAliases = v7->animAliases;
+    numAnims = (int)animAliases[v9].numAnims;
+    if ( animAliases[v9].name == v10 )
       break;
-    v12 += numAnims;
-    v50 = v12;
+    v6 += numAnims;
+    v33 = v6;
 LABEL_34:
-    ++v16;
-    if ( ++v52 >= v21 )
-      goto LABEL_43;
-    animsetIndex = v61;
+    ++v9;
+    if ( ++v35 >= v11 )
+      return 0xFFFFFFFFi64;
+    animsetIndex = v39;
   }
   if ( (_DWORD)numAnims == 1 )
-    goto LABEL_42;
+    return v6;
   AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(animsetIndex);
-  v54 = AnimsetByIndex;
+  v37 = AnimsetByIndex;
   if ( (_DWORD)numAnims == 2 )
   {
-    result = v12 + 1;
-    if ( animEntryToSkip == v12 )
-      goto LABEL_44;
+    result = v6 + 1;
+    if ( animEntryToSkip == v6 )
+      return result;
     if ( animEntryToSkip != (_DWORD)result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 175, ASSERT_TYPE_ASSERT, "(animEntryToSkip == index || animEntryToSkip == index + 1)", (const char *)&queryFormat, "animEntryToSkip == index || animEntryToSkip == index + 1") )
       __debugbreak();
-LABEL_42:
-    result = v12;
-    goto LABEL_44;
+    return v6;
   }
-  v49 = holdrand && (int)numAnims > 2;
-  v25 = numAnims;
+  v32 = holdrand && (int)numAnims > 2;
+  v15 = numAnims;
   while ( 1 )
   {
     if ( holdrand )
     {
-      __asm
-      {
-        vmovaps xmm1, xmm9; max
-        vmovaps xmm0, xmm8; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm7, xmm0 }
+      v16 = BG_flrand(0.1, 1.0, holdrand);
+      v17 = *(float *)&v16;
     }
     else
     {
-      seed = entNum + v13->name + 7 * AnimsetByIndex->constName;
-      BgPlayer_Asm::irandWithSeed(&seed, 0, 0x7FFF);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm7, xmm1, xmm8
-      }
+      seed = entNum + v7->name + 7 * AnimsetByIndex->constName;
+      v17 = (float)((float)BgPlayer_Asm::irandWithSeed(&seed, 0, 0x7FFF) * 0.00002746582) + 0.1;
     }
-    v30 = 0i64;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( v25 > 0 )
+    v18 = 0i64;
+    v19 = 0i64;
+    if ( v15 > 0 )
       break;
 LABEL_26:
-    v13 = pState;
-    AnimsetByIndex = v54;
-    if ( !v49 )
+    v7 = pState;
+    AnimsetByIndex = v37;
+    if ( !v32 )
     {
-      if ( (int)v25 > 0 )
+      if ( (int)v15 > 0 )
       {
-        v13 = pState;
-        v37 = (__int64)v54;
+        v7 = pState;
+        v25 = (__int64)v37;
       }
       else
       {
-        v35 = SL_ConvertToString(aliasName);
-        v36 = SL_ConvertToString(pState->name);
-        v37 = (__int64)v54;
-        v38 = v36;
-        v39 = SL_ConvertToString(v54->constName);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 209, ASSERT_TYPE_ASSERT, "(numAnims > 0)", "%s\n\tanimset '%s' state %s alias '%s' has no anims!", "numAnims > 0", v39, v38, v35) )
+        v23 = SL_ConvertToString(aliasName);
+        v24 = SL_ConvertToString(pState->name);
+        v25 = (__int64)v37;
+        v26 = v24;
+        v27 = SL_ConvertToString(v37->constName);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 209, ASSERT_TYPE_ASSERT, "(numAnims > 0)", "%s\n\tanimset '%s' state %s alias '%s' has no anims!", "numAnims > 0", v27, v26, v23) )
           __debugbreak();
       }
-      v40 = SL_ConvertToString(aliasName);
-      v41 = SL_ConvertToString(v13->name);
-      v42 = SL_ConvertToString((scr_string_t)*(_DWORD *)(v37 + 8));
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 210, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "animset '%s' state '%s' alias %s has bad weights!", v42, v41, v40) )
+      v28 = SL_ConvertToString(aliasName);
+      v29 = SL_ConvertToString(v7->name);
+      v30 = SL_ConvertToString((scr_string_t)*(_DWORD *)(v25 + 8));
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 210, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "animset '%s' state '%s' alias %s has bad weights!", v30, v29, v28) )
         __debugbreak();
-      v21 = v51;
-      v20 = aliasName;
-      v12 = v50;
+      v11 = numAnimAliases;
+      v10 = aliasName;
+      v6 = v33;
       goto LABEL_34;
     }
   }
-  v31 = v50;
-  v32 = 0i64;
+  v20 = v33;
+  v21 = 0i64;
   while ( 1 )
   {
-    v33 = (unsigned __int64)v25 < 2;
-    if ( v25 <= 2 )
-    {
-      v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 197, ASSERT_TYPE_ASSERT, "(!skipAnim || (skipAnim && numAnims > 2))", (const char *)&queryFormat, "!skipAnim || (skipAnim && numAnims > 2)");
-      v33 = 0;
-      if ( v34 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vaddss  xmm6, xmm6, dword ptr [rax+rdi+4]
-      vcomiss xmm6, xmm7
-    }
-    if ( !v33 && animEntryToSkip != v31 )
-      break;
-    ++v31;
-    ++v30;
-    v32 += 24i64;
-    if ( v30 >= v25 )
+    if ( v15 <= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 197, ASSERT_TYPE_ASSERT, "(!skipAnim || (skipAnim && numAnims > 2))", (const char *)&queryFormat, "!skipAnim || (skipAnim && numAnims > 2)") )
+      __debugbreak();
+    v22 = v19;
+    *(float *)&v22 = *(float *)&v19 + animAliases[v9].anims[v21].weight;
+    v19 = v22;
+    if ( *(float *)&v22 >= v17 && animEntryToSkip != v20 )
+      return v20;
+    ++v20;
+    ++v18;
+    ++v21;
+    if ( v18 >= v15 )
       goto LABEL_26;
   }
-  result = v31;
-LABEL_44:
-  __asm
-  {
-    vmovaps xmm10, [rsp+0F8h+var_88]
-    vmovaps xmm9, [rsp+0F8h+var_78]
-    vmovaps xmm8, [rsp+0F8h+var_68]
-    vmovaps xmm7, [rsp+0F8h+var_58]
-    vmovaps xmm6, [rsp+0F8h+var_48]
-  }
-  return result;
 }
 
 /*
@@ -1418,152 +1367,109 @@ BG_PlayerASM_GetIndexOfRandomAnimFromAlias<0>
 */
 __int64 BG_PlayerASM_GetIndexOfRandomAnimFromAlias<0>(unsigned int *holdrand, unsigned int entNum, const unsigned int animsetIndex, const AnimsetState *pState, const scr_string_t aliasName)
 {
+  unsigned int v5; 
+  unsigned int v7; 
+  __int64 v8; 
   unsigned int v9; 
-  unsigned int numAnimAliases; 
-  unsigned int v12; 
-  __int64 v13; 
-  unsigned int v17; 
   AnimsetAlias *animAliases; 
-  unsigned __int64 numAnims; 
+  __int64 numAnims; 
   const Animset *AnimsetByIndex; 
-  unsigned __int64 v26; 
-  AnimsetAnim *anims; 
-  unsigned int v28; 
-  bool v29; 
+  double v13; 
+  float v14; 
+  __int64 v15; 
+  __int128 v16; 
+  unsigned int v17; 
   float *p_weight; 
-  const char *v31; 
-  const char *v32; 
-  const char *v33; 
-  const char *v34; 
-  const char *v35; 
-  const char *v36; 
-  __int64 result; 
+  __int128 v19; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  const char *v23; 
+  const char *v24; 
+  const char *v25; 
   unsigned int seed[4]; 
-  unsigned int v47; 
-  unsigned int v48; 
+  unsigned int v30; 
+  unsigned int numAnimAliases; 
 
-  v47 = animsetIndex;
-  v9 = 0;
+  v30 = animsetIndex;
+  v5 = 0;
   if ( !pState )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 155, ASSERT_TYPE_ASSERT, "(pState)", (const char *)&queryFormat, "pState") )
       __debugbreak();
-    animsetIndex = v47;
+    animsetIndex = v30;
   }
+  v7 = 0;
   numAnimAliases = pState->numAnimAliases;
-  v12 = 0;
-  __asm
+  if ( numAnimAliases )
   {
-    vmovaps [rsp+0D8h+var_58], xmm6
-    vmovaps [rsp+0D8h+var_68], xmm7
-    vmovaps [rsp+0D8h+var_78], xmm8
-  }
-  v48 = numAnimAliases;
-  if ( !numAnimAliases )
-  {
-LABEL_27:
-    result = 0xFFFFFFFFi64;
-    goto LABEL_28;
-  }
-  v13 = 0i64;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm6, cs:__real@3dcccccd
-    vmovss  xmm8, cs:__real@37e66666
-  }
-  v17 = numAnimAliases;
-  while ( 1 )
-  {
-    animAliases = pState->animAliases;
-    numAnims = (int)animAliases[v13].numAnims;
-    if ( animAliases[v13].name != aliasName )
+    v8 = 0i64;
+    v9 = pState->numAnimAliases;
+    while ( 1 )
     {
-      v9 += numAnims;
-      goto LABEL_22;
-    }
-    if ( (_DWORD)numAnims == 1 )
-      break;
-    AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(animsetIndex);
-    if ( holdrand )
-    {
-      __asm
+      animAliases = pState->animAliases;
+      numAnims = (int)animAliases[v8].numAnims;
+      if ( animAliases[v8].name == aliasName )
       {
-        vmovaps xmm1, xmm7; max
-        vmovaps xmm0, xmm6; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm1, xmm0 }
-    }
-    else
-    {
-      seed[0] = entNum + pState->name + 7 * AnimsetByIndex->constName;
-      BgPlayer_Asm::irandWithSeed(seed, 0, 0x7FFF);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm8
-        vaddss  xmm1, xmm1, xmm6
-      }
-    }
-    v26 = 0i64;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    if ( (int)numAnims > 0 )
-    {
-      anims = animAliases[v13].anims;
-      v28 = v9;
-      v29 = __CFADD__(anims, 4i64);
-      p_weight = &anims->weight;
-      do
-      {
-        __asm
+        if ( (_DWORD)numAnims == 1 )
+          return v5;
+        AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(animsetIndex);
+        if ( holdrand )
         {
-          vaddss  xmm0, xmm0, dword ptr [rax]
-          vcomiss xmm0, xmm1
+          v13 = BG_flrand(0.1, 1.0, holdrand);
+          v14 = *(float *)&v13;
         }
-        if ( !v29 )
+        else
         {
-          result = v28;
-          goto LABEL_28;
+          seed[0] = entNum + pState->name + 7 * AnimsetByIndex->constName;
+          v14 = (float)((float)BgPlayer_Asm::irandWithSeed(seed, 0, 0x7FFF) * 0.00002746582) + 0.1;
         }
-        ++v28;
-        ++v26;
-        p_weight += 6;
-        v29 = v26 < numAnims;
-      }
-      while ( (__int64)v26 < (__int64)numAnims );
-      if ( (int)numAnims > 0 )
-        goto LABEL_19;
-    }
-    v31 = SL_ConvertToString(aliasName);
-    v32 = SL_ConvertToString(pState->name);
-    v33 = SL_ConvertToString(AnimsetByIndex->constName);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 209, ASSERT_TYPE_ASSERT, "(numAnims > 0)", "%s\n\tanimset '%s' state %s alias '%s' has no anims!", "numAnims > 0", v33, v32, v31) )
-      __debugbreak();
+        v15 = 0i64;
+        v16 = 0i64;
+        if ( (int)numAnims > 0 )
+        {
+          v17 = v5;
+          p_weight = &animAliases[v8].anims->weight;
+          do
+          {
+            v19 = v16;
+            *(float *)&v19 = *(float *)&v16 + *p_weight;
+            v16 = v19;
+            if ( *(float *)&v19 >= v14 )
+              return v17;
+            ++v17;
+            ++v15;
+            p_weight += 6;
+          }
+          while ( v15 < numAnims );
+          if ( (int)numAnims > 0 )
+            goto LABEL_19;
+        }
+        v20 = SL_ConvertToString(aliasName);
+        v21 = SL_ConvertToString(pState->name);
+        v22 = SL_ConvertToString(AnimsetByIndex->constName);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 209, ASSERT_TYPE_ASSERT, "(numAnims > 0)", "%s\n\tanimset '%s' state %s alias '%s' has no anims!", "numAnims > 0", v22, v21, v20) )
+          __debugbreak();
 LABEL_19:
-    v34 = SL_ConvertToString(aliasName);
-    v35 = SL_ConvertToString(pState->name);
-    v36 = SL_ConvertToString(AnimsetByIndex->constName);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 210, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "animset '%s' state '%s' alias %s has bad weights!", v36, v35, v34) )
-      __debugbreak();
-    v17 = v48;
-LABEL_22:
-    ++v12;
-    ++v13;
-    if ( v12 >= v17 )
-      goto LABEL_27;
-    animsetIndex = v47;
+        v23 = SL_ConvertToString(aliasName);
+        v24 = SL_ConvertToString(pState->name);
+        v25 = SL_ConvertToString(AnimsetByIndex->constName);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 210, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "animset '%s' state '%s' alias %s has bad weights!", v25, v24, v23) )
+          __debugbreak();
+        v9 = numAnimAliases;
+      }
+      else
+      {
+        v5 += numAnims;
+      }
+      ++v7;
+      ++v8;
+      if ( v7 >= v9 )
+        return 0xFFFFFFFFi64;
+      animsetIndex = v30;
+    }
   }
-  result = v9;
-LABEL_28:
-  __asm
-  {
-    vmovaps xmm8, [rsp+0D8h+var_78]
-    vmovaps xmm7, [rsp+0D8h+var_68]
-    vmovaps xmm6, [rsp+0D8h+var_58]
-  }
-  return result;
+  return 0xFFFFFFFFi64;
 }
 
 /*
@@ -1590,36 +1496,32 @@ BG_PlayerASM_ApplyAliasAddonOverrides
 void BG_PlayerASM_ApplyAliasAddonOverrides(DObj *obj, const characterInfo_t *ci, PlayerASM_AnimOverrides *animOverrides, scr_string_t overrideType, bool clear, XModelNameMap *modelNameMap, const unsigned int flags)
 {
   unsigned int count; 
-  int v14; 
-  PlayerASM_AnimOverrideEntry *v15; 
-  int v16; 
+  int v10; 
+  PlayerASM_AnimOverrideEntry *v11; 
+  unsigned int i; 
+  PlayerASM_AnimOverrideEntry *v13; 
   int entryIndex; 
-  int v21; 
+  int v15; 
   unsigned int animsetIndex; 
   const Animset *AnimsetByIndex; 
   char redAnims; 
-  bool v25; 
+  bool v19; 
+  float blendTime; 
   XAnimTree *tree; 
   const XAnim_s *SubTreeAnims; 
-  unsigned int v29; 
-  const XAnim_s *v30; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  unsigned int v23; 
+  const XAnim_s *v24; 
+  double GoalWeight; 
   XAnimSubTreeID *pOutAnimSubtreeID; 
-  float pOutAnimSubtreeIDa; 
-  float pOutAnimSubtreeIDb; 
   XAnimCurveID *pOutAnimCurveID; 
-  float pOutAnimCurveIDa; 
-  float pOutAnimCurveIDb; 
-  XAnimSubTreeID v43[2]; 
+  XAnimSubTreeID v28[2]; 
   unsigned int pOutAnimIndex; 
   unsigned int pOutGraftNode; 
   int pOutStateIndex; 
   AnimsetAlias *ppOutAlias; 
   AnimsetAnim *ppOutAnim; 
   AnimsetState *outState; 
-  XAnimCurveID v55; 
+  XAnimCurveID v37; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1870, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -1631,128 +1533,83 @@ void BG_PlayerASM_ApplyAliasAddonOverrides(DObj *obj, const characterInfo_t *ci,
       __debugbreak();
   }
   count = animOverrides->count;
-  v14 = 0;
+  v10 = 0;
   if ( count )
   {
     while ( 1 )
     {
-      v15 = &animOverrides->entries[v14];
-      if ( (!overrideType || v15->overrideType == overrideType) && v15->stateName && v15->overrideType )
+      v11 = &animOverrides->entries[v10];
+      if ( (!overrideType || v11->overrideType == overrideType) && v11->stateName && v11->overrideType )
         break;
-      if ( ++v14 >= count )
+      if ( ++v10 >= count )
         return;
     }
-    if ( v15->animsetIndex >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1813, ASSERT_TYPE_ASSERT, "(!isValid || (entry->animsetIndex < (1 << 2)))", (const char *)&queryFormat, "!isValid || (entry->animsetIndex < MAX_PLAYERANIM_ANIMSET_COUNT)") )
+    if ( v11->animsetIndex >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1813, ASSERT_TYPE_ASSERT, "(!isValid || (entry->animsetIndex < (1 << 2)))", (const char *)&queryFormat, "!isValid || (entry->animsetIndex < MAX_PLAYERANIM_ANIMSET_COUNT)") )
       __debugbreak();
-    v16 = 0;
-    if ( animOverrides->count )
+    for ( i = 0; i < animOverrides->count; ++i )
     {
-      __asm
+      v13 = &animOverrides->entries[i];
+      if ( (!overrideType || overrideType == v13->overrideType) && v13->stateName )
       {
-        vmovaps [rsp+0F0h+var_50], xmm7
-        vmovaps [rsp+0F0h+var_60], xmm8
-        vmovss  xmm8, cs:__real@3f800000
-        vmovaps [rsp+0F0h+var_40], xmm6
-        vxorps  xmm7, xmm7, xmm7
-      }
-      while ( 1 )
-      {
-        _RBX = &animOverrides->entries[v16];
-        if ( (!overrideType || overrideType == _RBX->overrideType) && _RBX->stateName )
+        if ( !BG_PlayerASM_GetStateInfoByName(v13->animsetIndex, (const scr_string_t)v13->stateName, &outState, &pOutStateIndex) )
+          return;
+        BG_PlayerASM_GetAnimIndexFromStateIndexAndEntry(v13->animsetIndex, pOutStateIndex, v13->entryIndex, &pOutAnimIndex, &pOutGraftNode, v28, &v37);
+        entryIndex = v13->entryIndex;
+        v15 = pOutStateIndex;
+        animsetIndex = v13->animsetIndex;
+        if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1833, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+          __debugbreak();
+        ppOutAlias = NULL;
+        ppOutAnim = NULL;
+        AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(animsetIndex);
+        if ( !AnimsetByIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1840, ASSERT_TYPE_ASSERT, "(pAnimset)", (const char *)&queryFormat, "pAnimset") )
+          __debugbreak();
+        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v15, entryIndex, (const AnimsetAlias **)&ppOutAlias, (const AnimsetAnim **)&ppOutAnim);
+        if ( !ppOutAlias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1843, ASSERT_TYPE_ASSERT, "(alias)", (const char *)&queryFormat, "alias") )
+          __debugbreak();
+        redAnims = (char)ppOutAlias->u.m_AIAnimsetAlias[5].redAnims;
+        if ( redAnims == 10 )
         {
-          if ( !BG_PlayerASM_GetStateInfoByName(_RBX->animsetIndex, (const scr_string_t)_RBX->stateName, &outState, &pOutStateIndex) )
-            goto LABEL_53;
-          BG_PlayerASM_GetAnimIndexFromStateIndexAndEntry(_RBX->animsetIndex, pOutStateIndex, _RBX->entryIndex, &pOutAnimIndex, &pOutGraftNode, v43, &v55);
-          entryIndex = _RBX->entryIndex;
-          v21 = pOutStateIndex;
-          animsetIndex = _RBX->animsetIndex;
-          if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1833, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
-            __debugbreak();
-          ppOutAlias = NULL;
-          ppOutAnim = NULL;
-          AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(animsetIndex);
-          if ( !AnimsetByIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1840, ASSERT_TYPE_ASSERT, "(pAnimset)", (const char *)&queryFormat, "pAnimset") )
-            __debugbreak();
-          BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v21, entryIndex, (const AnimsetAlias **)&ppOutAlias, (const AnimsetAnim **)&ppOutAnim);
-          if ( !ppOutAlias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1843, ASSERT_TYPE_ASSERT, "(alias)", (const char *)&queryFormat, "alias") )
-            __debugbreak();
-          redAnims = (char)ppOutAlias->u.m_AIAnimsetAlias[5].redAnims;
-          if ( redAnims == 10 )
+          v19 = !ci->useShadowAnims;
+        }
+        else
+        {
+          if ( redAnims != 11 )
+            goto LABEL_38;
+          v19 = ci->isFemale == 0;
+        }
+        if ( !v19 )
+        {
+LABEL_38:
+          if ( (flags & 4) != 0 )
+            blendTime = 0.0;
+          else
+            blendTime = v13->blendTime;
+          tree = obj->tree;
+          if ( clear )
           {
-            v25 = !ci->useShadowAnims;
+            SubTreeAnims = XAnimGetSubTreeAnims(tree, v28[0]);
+            v23 = pOutAnimIndex;
+            v24 = SubTreeAnims;
+            if ( pOutAnimIndex >= SubTreeAnims->size )
+            {
+              LODWORD(pOutAnimCurveID) = SubTreeAnims->size;
+              LODWORD(pOutAnimSubtreeID) = pOutAnimIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1912, ASSERT_TYPE_ASSERT, "(unsigned)( animIndex ) < (unsigned)( anims->size )", "animIndex doesn't index anims->size\n\t%i not in [0, %i)", pOutAnimSubtreeID, pOutAnimCurveID) )
+                __debugbreak();
+              v23 = pOutAnimIndex;
+            }
+            if ( XAnimIsCustomNodeType(v24->entries[v23].nodeType) )
+              XAnimSetGoalWeight(obj, pOutGraftNode, v28[0], pOutAnimIndex, 0.0, blendTime, v13->rate, (scr_string_t)0, 0, 0, LINEAR, modelNameMap);
+            else
+              XAnimClearTreeGoalWeights(obj->tree, pOutGraftNode, v28[0], pOutAnimIndex, blendTime, 0, obj, LINEAR);
           }
           else
           {
-            if ( redAnims != 11 )
-              goto LABEL_39;
-            v25 = ci->isFemale == 0;
+            GoalWeight = XAnimGetGoalWeight(tree, pOutGraftNode, v28[0], pOutAnimIndex);
+            if ( *(float *)&GoalWeight != 1.0 )
+              XAnimSetCompleteGoalWeight(obj, pOutGraftNode, v28[0], pOutAnimIndex, 1.0, blendTime, v13->rate, (scr_string_t)0, 0, v13->restart, LINEAR, modelNameMap);
           }
-          if ( !v25 )
-          {
-LABEL_39:
-            if ( (flags & 4) != 0 )
-              __asm { vmovaps xmm6, xmm7 }
-            else
-              __asm { vmovss  xmm6, dword ptr [rbx+10h] }
-            tree = obj->tree;
-            if ( clear )
-            {
-              SubTreeAnims = XAnimGetSubTreeAnims(tree, v43[0]);
-              v29 = pOutAnimIndex;
-              v30 = SubTreeAnims;
-              if ( pOutAnimIndex >= SubTreeAnims->size )
-              {
-                LODWORD(pOutAnimCurveID) = SubTreeAnims->size;
-                LODWORD(pOutAnimSubtreeID) = pOutAnimIndex;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1912, ASSERT_TYPE_ASSERT, "(unsigned)( animIndex ) < (unsigned)( anims->size )", "animIndex doesn't index anims->size\n\t%i not in [0, %i)", pOutAnimSubtreeID, pOutAnimCurveID) )
-                  __debugbreak();
-                v29 = pOutAnimIndex;
-              }
-              if ( XAnimIsCustomNodeType(v30->entries[v29].nodeType) )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+14h]
-                  vmovss  dword ptr [rsp+0F0h+pOutAnimCurveID], xmm0
-                  vmovss  dword ptr [rsp+0F0h+pOutAnimSubtreeID], xmm6
-                  vmovss  dword ptr [rsp+0F0h+fmt], xmm7
-                }
-                XAnimSetGoalWeight(obj, pOutGraftNode, v43[0], pOutAnimIndex, fmt, pOutAnimSubtreeIDa, pOutAnimCurveIDa, (scr_string_t)0, 0, 0, LINEAR, modelNameMap);
-              }
-              else
-              {
-                __asm { vmovss  dword ptr [rsp+0F0h+fmt], xmm6 }
-                XAnimClearTreeGoalWeights(obj->tree, pOutGraftNode, v43[0], pOutAnimIndex, fmta, 0, obj, LINEAR);
-              }
-            }
-            else
-            {
-              *(double *)&_XMM0 = XAnimGetGoalWeight(tree, pOutGraftNode, v43[0], pOutAnimIndex);
-              __asm { vucomiss xmm0, xmm8 }
-              if ( !v25 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+14h]
-                  vmovss  dword ptr [rsp+0F0h+pOutAnimCurveID], xmm0
-                  vmovss  dword ptr [rsp+0F0h+pOutAnimSubtreeID], xmm6
-                  vmovss  dword ptr [rsp+0F0h+fmt], xmm8
-                }
-                XAnimSetCompleteGoalWeight(obj, pOutGraftNode, v43[0], pOutAnimIndex, fmtb, pOutAnimSubtreeIDb, pOutAnimCurveIDb, (scr_string_t)0, 0, _RBX->restart, LINEAR, modelNameMap);
-              }
-            }
-          }
-        }
-        if ( ++v16 >= animOverrides->count )
-        {
-LABEL_53:
-          __asm
-          {
-            vmovaps xmm6, [rsp+0F0h+var_40]
-            vmovaps xmm7, [rsp+0F0h+var_50]
-            vmovaps xmm8, [rsp+0F0h+var_60]
-          }
-          return;
         }
       }
     }
@@ -1907,22 +1764,22 @@ void BG_PlayerASM_DebugAnimEventLog_AddEntry(const int entNum, const int serverT
   const dvar_t *v3; 
   int integer; 
   bool IsServerThread; 
+  PlayerASM_DebugAnimEventInfoEntry *v9; 
   bool v10; 
   int v11; 
   bool *p_isServer; 
   PlayerASM_DebugAnimEventInfoLog *v13; 
 
   v3 = DVARINT_animscript_debug;
-  _RBP = events;
   if ( !DVARINT_animscript_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "animscript_debug") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v3);
   integer = v3->current.integer;
-  if ( integer != -1 && integer == entNum && BG_CheckAnyOn(_RBP->events) )
+  if ( integer != -1 && integer == entNum && BG_CheckAnyOn(events->events) )
   {
     Sys_EnterCriticalSection(CRITSECT_DEBUG_ANIM_EVENT_LOG);
     IsServerThread = ASM_IsServerThread();
-    _R9 = NULL;
+    v9 = NULL;
     v10 = IsServerThread;
     v11 = 0;
     if ( s_debugAnimEventInfoLog.entryCount <= 0 )
@@ -1930,7 +1787,7 @@ void BG_PlayerASM_DebugAnimEventLog_AddEntry(const int entNum, const int serverT
 LABEL_13:
       if ( s_debugAnimEventInfoLog.entryCount == 8 )
       {
-        _R9 = &s_debugAnimEventInfoLog.entries[7];
+        v9 = &s_debugAnimEventInfoLog.entries[7];
       }
       else
       {
@@ -1941,23 +1798,17 @@ LABEL_13:
           if ( (__int64)v13 >= (__int64)&s_debugAnimEventInfoLog.entryCount )
             goto LABEL_20;
         }
-        _R9 = (PlayerASM_DebugAnimEventInfoEntry *)v13;
+        v9 = (PlayerASM_DebugAnimEventInfoEntry *)v13;
         ++s_debugAnimEventInfoLog.entryCount;
       }
 LABEL_20:
-      _R9->isUsed = 1;
-      _R9->serverTime = serverTime;
-      _R9->isServer = v10;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+0]
-        vmovups ymmword ptr [r9+4], ymm0
-        vmovups ymm1, ymmword ptr [rbp+20h]
-        vmovups ymmword ptr [r9+24h], ymm1
-        vmovups ymm0, ymmword ptr [rbp+40h]
-        vmovups ymmword ptr [r9+44h], ymm0
-      }
-      *(_DWORD *)&_R9->events.hasEvents = *(_DWORD *)&_RBP->hasEvents;
+      v9->isUsed = 1;
+      v9->serverTime = serverTime;
+      v9->isServer = v10;
+      *(__m256i *)v9->events.events = *(__m256i *)events->events;
+      *(__m256i *)v9->events.isContinue = *(__m256i *)events->isContinue;
+      *(__m256i *)v9->events.force = *(__m256i *)events->force;
+      *(_DWORD *)&v9->events.hasEvents = *(_DWORD *)&events->hasEvents;
       std::_Sort_unchecked<PlayerASM_DebugAnimEventInfoEntry *,bool (*)(PlayerASM_DebugAnimEventInfoEntry &,PlayerASM_DebugAnimEventInfoEntry &)>(s_debugAnimEventInfoLog.entries, (PlayerASM_DebugAnimEventInfoEntry *)&s_debugAnimEventInfoLog.entryCount, 8i64, BG_PlayerASM_DebugAnimEventLog_Sorter);
     }
     else
@@ -3068,82 +2919,59 @@ BG_PlayerASM_GetVelocityDir
 */
 __int64 BG_PlayerASM_GetVelocityDir(const playerState_s *ps, const BgHandler *handler)
 {
-  char v14; 
-  char v15; 
-  double v22; 
-  double v25; 
-  unsigned __int16 v26; 
-  __int64 result; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
+  __int128 v7; 
+  double v11; 
+  double v12; 
+  double v13; 
+  unsigned __int16 v14; 
   vec2_t vec; 
   vec3_t inOutPlayerVelocity; 
-  WorldUpReferenceFrame v32; 
-  char v34; 
+  WorldUpReferenceFrame v18; 
 
-  __asm { vmovaps [rsp+98h+var_18], xmm6 }
-  _RBX = ps;
   if ( !PlayerASM_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1686, ASSERT_TYPE_ASSERT, "(PlayerASM_IsEnabled())", (const char *)&queryFormat, "PlayerASM_IsEnabled()") )
     __debugbreak();
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1687, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v32, _RBX, handler);
-  __asm
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v18, ps, handler);
+  v4 = ps->velocity.v[1];
+  inOutPlayerVelocity.v[0] = ps->velocity.v[0];
+  inOutPlayerVelocity.v[2] = ps->velocity.v[2];
+  v5 = LODWORD(inOutPlayerVelocity.v[2]);
+  inOutPlayerVelocity.v[1] = v4;
+  BG_PlayerSecondaryCollision_ClipToVelocityPlane(ps, &inOutPlayerVelocity);
+  *(double *)&v5 = WorldUpReferenceFrame::GetForwardContribution(&v18, &inOutPlayerVelocity);
+  vec.v[0] = *(float *)&v5;
+  *(double *)&v5 = WorldUpReferenceFrame::GetRightContribution(&v18, &inOutPlayerVelocity);
+  v7 = v5;
+  vec.v[1] = *(float *)&v5;
+  v6 = *(float *)&v5;
+  *(float *)&v7 = (float)(*(float *)&v5 * *(float *)&v5) + (float)(vec.v[0] * vec.v[0]);
+  if ( *(float *)&v7 <= 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vmovss  dword ptr [rsp+98h+inOutPlayerVelocity], xmm0
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vmovss  dword ptr [rsp+98h+inOutPlayerVelocity+8], xmm0
-    vmovss  dword ptr [rsp+98h+inOutPlayerVelocity+4], xmm1
-  }
-  BG_PlayerSecondaryCollision_ClipToVelocityPlane(_RBX, &inOutPlayerVelocity);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v32, &inOutPlayerVelocity);
-  __asm { vmovss  dword ptr [rsp+98h+vec], xmm0 }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v32, &inOutPlayerVelocity);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+98h+vec]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm2, xmm0, xmm0
-    vmovss  dword ptr [rsp+98h+vec+4], xmm0
-    vmovaps xmm4, xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v14 | v15 )
-  {
-    __asm { vmovss  xmm0, dword ptr [rbx+1DCh]; angle }
+    *(float *)&v11 = ps->viewangles.v[1];
   }
   else
   {
+    *(float *)&v7 = fsqrt(*(float *)&v7);
+    _XMM3 = v7;
     __asm
     {
-      vmovss  xmm2, cs:__real@3f800000
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm1, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm2, xmm1
-      vdivss  xmm1, xmm2, xmm0
-      vmulss  xmm0, xmm5, xmm1
-      vmulss  xmm1, xmm4, xmm1
-      vmovss  dword ptr [rsp+98h+vec+4], xmm1
-      vmovss  dword ptr [rsp+98h+vec], xmm0
     }
-    *(double *)&_XMM0 = vectoyaw(&vec);
+    vec.v[1] = v6 * (float)(1.0 / *(float *)&_XMM0);
+    vec.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v11 = vectoyaw(&vec);
   }
-  v22 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43b40000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  v25 = I_fclamp(*(float *)&v22, *(float *)&_XMM1, *(float *)&_XMM2);
-  v26 = BG_DegreesToMovementDir(*(float *)&v25);
-  if ( (unsigned __int8)v26 != v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1714, ASSERT_TYPE_ASSERT, "((velocityDir & ((1 << 8) - 1)) == velocityDir)", (const char *)&queryFormat, "(velocityDir & ((1 << MOVEMENTDIR_BITS) - 1)) == velocityDir") )
+  v12 = AngleNormalize360(*(const float *)&v11);
+  v13 = I_fclamp(*(float *)&v12, 0.0, 360.0);
+  v14 = BG_DegreesToMovementDir(*(float *)&v13);
+  if ( (unsigned __int8)v14 != v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1714, ASSERT_TYPE_ASSERT, "((velocityDir & ((1 << 8) - 1)) == velocityDir)", (const char *)&queryFormat, "(velocityDir & ((1 << MOVEMENTDIR_BITS) - 1)) == velocityDir") )
     __debugbreak();
-  result = v26;
-  _R11 = &v34;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return v14;
 }
 
 /*
@@ -3151,26 +2979,18 @@ __int64 BG_PlayerASM_GetVelocityDir(const playerState_s *ps, const BgHandler *ha
 BG_PlayerASM_GetXAnimLength
 ==============
 */
-
-__int64 __fastcall BG_PlayerASM_GetXAnimLength(const XAnimParts *parts, double rate)
+__int64 BG_PlayerASM_GetXAnimLength(const XAnimParts *parts, const float rate)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  __int64 v3; 
+  float v4; 
+
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 641, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  XAnimGetLengthFromPartsMsec(parts);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvttss2si rax, xmm1
-  }
-  return (unsigned int)(10 * _RAX);
+  LODWORD(v3) = XAnimGetLengthFromPartsMsec(parts);
+  if ( (unsigned int)v3 < 0x32 )
+    v3 = 50i64;
+  v4 = (float)v3;
+  return (unsigned int)(10 * (int)(float)(v4 / rate));
 }
 
 /*
@@ -4249,35 +4069,51 @@ BG_PlayerASM_ShouldSyncAnims
 */
 char BG_PlayerASM_ShouldSyncAnims(const unsigned int animsetIndex, const unsigned int oldPackedAnim, const unsigned int anim, unsigned int *inOutTimer)
 {
-  unsigned int v11; 
+  unsigned int v7; 
   const Animset *AnimsetByIndex; 
-  int v13; 
+  int v9; 
   unsigned int NumEntriesForStateIndex; 
-  unsigned int v15; 
-  int v16; 
+  unsigned int v11; 
+  int v12; 
+  unsigned int v13; 
+  XAnim_s *v14; 
+  XAnim_s *v15; 
+  char v16; 
   unsigned int v17; 
-  XAnim_s *v18; 
-  XAnim_s *v19; 
-  char v20; 
-  unsigned int v21; 
   AnimsetAnim *XAnimParts; 
   bool IsBlendspaceNode; 
-  bool v24; 
-  unsigned int v25; 
-  char v47; 
+  bool v20; 
+  __int64 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float XAnimLength; 
+  int v26; 
+  float v27; 
+  unsigned int v28; 
+  float v29; 
+  float v30; 
+  double v31; 
+  __int64 v34; 
+  unsigned int v35; 
+  float v36; 
+  float v37; 
+  __int64 v38; 
+  double v39; 
+  float v40; 
   XAnimSyncGroupID outSyncGroupID; 
-  unsigned int v67; 
+  unsigned int v43; 
   AnimsetAlias *outSyncRoot; 
   unsigned int animIndex; 
   unsigned int pOutAnimIndex; 
   unsigned int outAnimEntry[2]; 
   XAnim_s *pSubtreeAnims; 
   XAnim_s *subtreeAnims; 
-  AnimsetAnim *v74; 
+  AnimsetAnim *v50; 
   XAnim_s *anims; 
   unsigned int graftIndex; 
   unsigned int pOutGraftNode; 
-  XAnim_s *v78; 
+  XAnim_s *v54; 
   XAnim_s *outSyncRootAnims; 
   AnimsetAlias *ppOutAlias; 
   AnimsetAnim *ppOutAnim; 
@@ -4285,188 +4121,136 @@ char BG_PlayerASM_ShouldSyncAnims(const unsigned int animsetIndex, const unsigne
 
   if ( *inOutTimer )
   {
-    v11 = 0;
+    v7 = 0;
     BG_PlayerASM_UnpackAnim(animsetIndex, anim, (unsigned int *)&outAnimState, outAnimEntry);
-    BG_PlayerASM_UnpackAnim(animsetIndex, oldPackedAnim, (unsigned int *)&outSyncRoot, &v67);
+    BG_PlayerASM_UnpackAnim(animsetIndex, oldPackedAnim, (unsigned int *)&outSyncRoot, &v43);
     AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(animsetIndex);
     if ( !AnimsetByIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1261, ASSERT_TYPE_ASSERT, "(pAnimset)", (const char *)&queryFormat, "pAnimset") )
       __debugbreak();
-    v13 = (int)outAnimState;
+    v9 = (int)outAnimState;
     NumEntriesForStateIndex = BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, (int)outAnimState);
-    v15 = outAnimEntry[0];
+    v11 = outAnimEntry[0];
     if ( outAnimEntry[0] < NumEntriesForStateIndex )
     {
-      v16 = (int)outSyncRoot;
-      v17 = BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, (int)outSyncRoot);
-      if ( v67 < v17 && (v13 == v16 || !BG_PlayerASM_DoesAliasHaveAnyFlags(anim, animsetIndex, 0x2000000000ui64)) )
+      v12 = (int)outSyncRoot;
+      v13 = BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, (int)outSyncRoot);
+      if ( v43 < v13 && (v9 == v12 || !BG_PlayerASM_DoesAliasHaveAnyFlags(anim, animsetIndex, 0x2000000000ui64)) )
       {
         subtreeAnims = BG_PlayerASM_GetAnims(animsetIndex);
         if ( !subtreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1276, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
           __debugbreak();
-        BG_PlayerASM_GetAnimIndexFromStateIndexAndEntry(animsetIndex, v13, v15, &pOutAnimIndex, &pOutGraftNode, (const XAnim_s **)&pSubtreeAnims);
-        BG_PlayerASM_GetAnimIndexFromStateIndexAndEntry(animsetIndex, v16, v67, &animIndex, &graftIndex, (const XAnim_s **)&anims);
-        v18 = pSubtreeAnims;
-        v19 = anims;
+        BG_PlayerASM_GetAnimIndexFromStateIndexAndEntry(animsetIndex, v9, v11, &pOutAnimIndex, &pOutGraftNode, (const XAnim_s **)&pSubtreeAnims);
+        BG_PlayerASM_GetAnimIndexFromStateIndexAndEntry(animsetIndex, v12, v43, &animIndex, &graftIndex, (const XAnim_s **)&anims);
+        v14 = pSubtreeAnims;
+        v15 = anims;
         if ( !pSubtreeAnims )
-          v18 = subtreeAnims;
-        pSubtreeAnims = v18;
+          v14 = subtreeAnims;
+        pSubtreeAnims = v14;
         if ( !anims )
-          v19 = subtreeAnims;
-        anims = v19;
-        v20 = 0;
-        if ( !BG_PlayerASM_IsSyncAnim(subtreeAnims, graftIndex, v19, animIndex, &outSyncGroupID, (const XAnim_s **)&outSyncRootAnims, (unsigned int *)&outSyncRoot) )
+          v15 = subtreeAnims;
+        anims = v15;
+        v16 = 0;
+        if ( !BG_PlayerASM_IsSyncAnim(subtreeAnims, graftIndex, v15, animIndex, &outSyncGroupID, (const XAnim_s **)&outSyncRootAnims, (unsigned int *)&outSyncRoot) )
           goto LABEL_66;
-        if ( !BG_PlayerASM_IsSyncAnim(subtreeAnims, pOutGraftNode, pSubtreeAnims, pOutAnimIndex, (XAnimSyncGroupID *)&outAnimState, (const XAnim_s **)&v78, outAnimEntry) )
+        if ( !BG_PlayerASM_IsSyncAnim(subtreeAnims, pOutGraftNode, pSubtreeAnims, pOutAnimIndex, (XAnimSyncGroupID *)&outAnimState, (const XAnim_s **)&v54, outAnimEntry) )
           goto LABEL_66;
         ppOutAnim = NULL;
         subtreeAnims = NULL;
-        v74 = NULL;
+        v50 = NULL;
         ppOutAlias = NULL;
-        if ( v13 != -1 && v15 != -1 && v16 != -1 && v67 != -1 && v15 < BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, v13) )
+        if ( v9 != -1 && v11 != -1 && v12 != -1 && v43 != -1 && v11 < BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, v9) )
         {
-          v21 = BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, v16);
-          if ( v67 < v21 && v13 == v16 )
+          v17 = BG_Animset_GetNumEntriesForStateIndex(AnimsetByIndex, v12);
+          if ( v43 < v17 && v9 == v12 )
           {
-            BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v13, v15, (const AnimsetAlias **)&subtreeAnims, (const AnimsetAnim **)&ppOutAnim);
-            BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v16, v67, (const AnimsetAlias **)&ppOutAlias, (const AnimsetAnim **)&v74);
+            BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v9, v11, (const AnimsetAlias **)&subtreeAnims, (const AnimsetAnim **)&ppOutAnim);
+            BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v12, v43, (const AnimsetAlias **)&ppOutAlias, (const AnimsetAnim **)&v50);
             if ( subtreeAnims )
             {
-              if ( ppOutAlias && subtreeAnims == (XAnim_s *)ppOutAlias && (*(_QWORD *)(*(_QWORD *)&subtreeAnims->lodDistances[2] + 8i64) & 0x8000000000i64) != 0 && ppOutAnim && v74 )
+              if ( ppOutAlias && subtreeAnims == (XAnim_s *)ppOutAlias && (*(_QWORD *)(*(_QWORD *)&subtreeAnims->lodDistances[2] + 8i64) & 0x8000000000i64) != 0 && ppOutAnim && v50 )
                 goto LABEL_66;
             }
           }
         }
-        if ( (_BYTE)outSyncGroupID != (_BYTE)outAnimState || (_BYTE)outAnimState == 4 && (outAnimEntry[0] != (_DWORD)outSyncRoot || outSyncRootAnims != v78) )
+        if ( (_BYTE)outSyncGroupID != (_BYTE)outAnimState || (_BYTE)outAnimState == 4 && (outAnimEntry[0] != (_DWORD)outSyncRoot || outSyncRootAnims != v54) )
           goto LABEL_66;
         *(_QWORD *)outAnimEntry = BG_PlayerASM_GetXAnimParts(anims, animIndex, NULL);
         XAnimParts = (AnimsetAnim *)BG_PlayerASM_GetXAnimParts(pSubtreeAnims, pOutAnimIndex, NULL);
-        v20 = 1;
-        v74 = XAnimParts;
+        v16 = 1;
+        v50 = XAnimParts;
         if ( !*(_QWORD *)outAnimEntry || !XAnimParts )
           goto LABEL_66;
         outSyncRootAnims = NULL;
         outSyncRoot = NULL;
-        v78 = NULL;
+        v54 = NULL;
         outAnimState = NULL;
-        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v13, v15, (const AnimsetAlias **)&outSyncRoot, (const AnimsetAnim **)&outSyncRootAnims);
-        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v16, v67, &outAnimState, (const AnimsetAnim **)&v78);
+        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v9, v11, (const AnimsetAlias **)&outSyncRoot, (const AnimsetAnim **)&outSyncRootAnims);
+        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry(AnimsetByIndex, v12, v43, &outAnimState, (const AnimsetAnim **)&v54);
         if ( !outAnimState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1337, ASSERT_TYPE_ASSERT, "(oldAnimsetAlias)", (const char *)&queryFormat, "oldAnimsetAlias") )
           __debugbreak();
         if ( !outSyncRoot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1338, ASSERT_TYPE_ASSERT, "(animsetAlias)", (const char *)&queryFormat, "animsetAlias") )
           __debugbreak();
         if ( !*inOutTimer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1339, ASSERT_TYPE_ASSERT, "(*inOutTimer > 0)", (const char *)&queryFormat, "*inOutTimer > 0") )
           __debugbreak();
-        __asm { vmovaps [rsp+100h+var_40], xmm6 }
         IsBlendspaceNode = XAnimBlendSpace_IsBlendspaceNode(anims, animIndex);
-        v24 = XAnimBlendSpace_IsBlendspaceNode(pSubtreeAnims, pOutAnimIndex);
+        v20 = XAnimBlendSpace_IsBlendspaceNode(pSubtreeAnims, pOutAnimIndex);
         if ( IsBlendspaceNode )
         {
-          v25 = *inOutTimer;
-          if ( v24 )
+          v21 = *inOutTimer;
+          if ( v20 )
           {
-            v11 = *inOutTimer;
+            v7 = *inOutTimer;
 LABEL_65:
-            __asm { vmovaps xmm6, [rsp+100h+var_40] }
-            v20 = 1;
+            v16 = 1;
 LABEL_66:
-            *inOutTimer = v11;
-            return v20;
+            *inOutTimer = v7;
+            return v16;
           }
-          if ( v25 == 0x7FFFF )
+          if ( (_DWORD)v21 == 0x7FFFF )
           {
-            __asm { vmovss  xmm6, cs:__real@3f800000 }
+            v22 = FLOAT_1_0;
           }
           else
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rdx
-              vmulss  xmm6, xmm0, cs:__real@36000000
-              vxorps  xmm1, xmm1, xmm1
-              vcomiss xmm6, xmm1
-            }
-            if ( v25 >= 0x7FFFF )
-              __asm { vcomiss xmm6, cs:__real@3f800000 }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1353, ASSERT_TYPE_ASSERT, "(oldTimer >= 0.f && oldTimer <= 1.f)", (const char *)&queryFormat, "oldTimer >= 0.f && oldTimer <= 1.f") )
+            v23 = (float)v21;
+            v24 = v23 * 0.0000019073486;
+            v22 = v24;
+            if ( (v24 < 0.0 || v24 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1353, ASSERT_TYPE_ASSERT, "(oldTimer >= 0.f && oldTimer <= 1.f)", (const char *)&queryFormat, "oldTimer >= 0.f && oldTimer <= 1.f") )
               __debugbreak();
           }
-          _RCX.m_AIAnimsetAlias = (AIAnimsetAlias *)outSyncRoot->u;
-          __asm { vmovss  xmm1, dword ptr [rcx+4]; rate }
-          BG_PlayerASM_GetXAnimLength((const XAnimParts *)v74, *(const float *)&_XMM1);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, xmm6
-            vcvttss2si rax, xmm1
-          }
+          XAnimLength = (float)BG_PlayerASM_GetXAnimLength((const XAnimParts *)v50, *((const float *)&outSyncRoot->u.m_AIAnimsetAlias->redAnims + 1));
+          v26 = (int)(float)(XAnimLength * v22);
         }
         else
         {
-          _RCX.m_AIAnimsetAlias = (AIAnimsetAlias *)outAnimState->u;
-          __asm { vmovss  xmm1, dword ptr [rcx+4]; rate }
-          if ( v24 )
+          v27 = *((float *)&outAnimState->u.m_AIAnimsetAlias->redAnims + 1);
+          if ( v20 )
           {
-            __asm { vmovaps [rsp+100h+var_50], xmm7 }
-            BG_PlayerASM_GetXAnimLength(*(const XAnimParts **)outAnimEntry, *(const float *)&_XMM1);
-            __asm
-            {
-              vmovss  xmm2, cs:__real@3f800000; max
-              vxorps  xmm1, xmm1, xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm1, xmm1, rcx
-              vcvtsi2ss xmm0, xmm0, rax
-              vdivss  xmm0, xmm1, xmm0; val
-              vxorps  xmm1, xmm1, xmm1; min
-              vxorps  xmm6, xmm6, xmm6
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vcomiss xmm0, xmm6
-              vmovaps xmm7, xmm0
-            }
-            if ( v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.h", 182, ASSERT_TYPE_ASSERT, "(value >= 0.f)", (const char *)&queryFormat, "value >= 0.f") )
+            v28 = BG_PlayerASM_GetXAnimLength(*(const XAnimParts **)outAnimEntry, v27);
+            v29 = (float)*inOutTimer;
+            v30 = (float)v28;
+            v31 = I_fclamp(v29 / v30, 0.0, 1.0);
+            if ( *(float *)&v31 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.h", 182, ASSERT_TYPE_ASSERT, "(value >= 0.f)", (const char *)&queryFormat, "value >= 0.f") )
               __debugbreak();
-            __asm
-            {
-              vmulss  xmm0, xmm7, cs:__real@49000000
-              vmovaps xmm7, [rsp+100h+var_50]
-              vxorps  xmm1, xmm1, xmm1
-              vroundss xmm1, xmm1, xmm0, 1
-              vcvttss2si eax, xmm1
-            }
-            if ( (int)_RAX > 0x7FFFF )
-              LODWORD(_RAX) = 0x7FFFF;
+            _XMM1 = 0i64;
+            __asm { vroundss xmm1, xmm1, xmm0, 1 }
+            v26 = (int)*(float *)&_XMM1;
+            if ( (int)*(float *)&_XMM1 > 0x7FFFF )
+              v26 = 0x7FFFF;
           }
           else
           {
-            BG_PlayerASM_GetXAnimLength(*(const XAnimParts **)outAnimEntry, *(const float *)&_XMM1);
-            _RDX.m_AIAnimsetAlias = (AIAnimsetAlias *)outSyncRoot->u;
-            __asm { vmovss  xmm1, dword ptr [rdx+4]; rate }
-            BG_PlayerASM_GetXAnimLength((const XAnimParts *)v74, *(const float *)&_XMM1);
-            __asm
-            {
-              vmovss  xmm2, cs:__real@3f800000; max
-              vxorps  xmm1, xmm1, xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm1, xmm1, rcx
-              vcvtsi2ss xmm0, xmm0, rbx
-              vdivss  xmm0, xmm1, xmm0; val
-              vxorps  xmm1, xmm1, xmm1; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, rdi
-              vmulss  xmm0, xmm0, xmm1
-              vcvttss2si rax, xmm0
-            }
+            v34 = BG_PlayerASM_GetXAnimLength(*(const XAnimParts **)outAnimEntry, v27);
+            v35 = BG_PlayerASM_GetXAnimLength((const XAnimParts *)v50, *((const float *)&outSyncRoot->u.m_AIAnimsetAlias->redAnims + 1));
+            v36 = (float)*inOutTimer;
+            v37 = (float)v34;
+            v38 = v35;
+            v39 = I_fclamp(v36 / v37, 0.0, 1.0);
+            v40 = (float)v38;
+            v26 = (int)(float)(*(float *)&v39 * v40);
           }
         }
-        v11 = _RAX;
+        v7 = v26;
         goto LABEL_65;
       }
     }
@@ -4486,9 +4270,10 @@ void BG_PlayerASM_StoreCommandDir(const int clientNum, const int serverTime, con
   cg_t *LocalClientGlobals; 
   characterInfo_t *CharacterInfo; 
   __int64 v11; 
-  unsigned int v14; 
-  _DWORD *v15; 
-  __int64 v24; 
+  unsigned int v12; 
+  _DWORD *v13; 
+  double v14; 
+  __int64 v15; 
   vec2_t vec; 
 
   v7 = clientNum;
@@ -4510,51 +4295,35 @@ LABEL_12:
   }
   if ( (unsigned int)v7 >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
   {
-    LODWORD(v24) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v24, LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
+    LODWORD(v15) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v15, LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
       __debugbreak();
   }
   v11 = *(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v7;
 LABEL_13:
   if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1765, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+moveRight]
-    vmovss  xmm1, [rsp+58h+moveForward]
-    vmovss  dword ptr [rsp+58h+vec], xmm0
-    vmovss  dword ptr [rsp+58h+vec+4], xmm1
-  }
+  vec.v[0] = moveRight;
+  vec.v[1] = moveForward;
   if ( serverTime <= 0 )
   {
 LABEL_20:
     memmove_0((void *)(v11 + 2644), (const void *)(v11 + 2636), 0x28ui64);
     *(_QWORD *)(v11 + 2636) = 0i64;
     *(_DWORD *)(v11 + 2640) = serverTime;
-    *(double *)&_XMM0 = vectoyaw(&vec);
-    __asm { vcvttss2si eax, xmm0 }
-    *(_WORD *)(v11 + 2636) = _EAX;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+58h+vec+4]
-      vmovss  xmm0, dword ptr [rsp+58h+vec]
-      vmulss  xmm3, xmm1, xmm1
-      vmulss  xmm2, xmm0, xmm0
-      vaddss  xmm1, xmm3, xmm2
-      vsqrtss xmm3, xmm1, xmm1
-      vcvttss2si eax, xmm3
-    }
-    *(_WORD *)(v11 + 2638) = _EAX;
+    v14 = vectoyaw(&vec);
+    *(_WORD *)(v11 + 2636) = (int)*(float *)&v14;
+    *(_WORD *)(v11 + 2638) = (int)fsqrt((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0]));
   }
   else
   {
-    v14 = 0;
-    v15 = (_DWORD *)(v11 + 2640);
-    while ( *v15 != serverTime )
+    v12 = 0;
+    v13 = (_DWORD *)(v11 + 2640);
+    while ( *v13 != serverTime )
     {
-      ++v14;
-      v15 += 2;
-      if ( v14 >= 6 )
+      ++v12;
+      v13 += 2;
+      if ( v12 >= 6 )
         goto LABEL_20;
     }
   }
@@ -4728,61 +4497,34 @@ BG_PlayerASM_UpdateAngles
 
 void __fastcall BG_PlayerASM_UpdateAngles(double velocityAngle, characterInfo_t *ci)
 {
-  bool v7; 
-  bool v8; 
-  int v11; 
-  int v13; 
-  int v14; 
-  int v15; 
+  __int128 v3; 
+  float yawAngle; 
+  __int128 v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  __int128 v10; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = ci;
-  __asm
+  v3 = *(_OWORD *)&velocityAngle;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1751, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+    __debugbreak();
+  yawAngle = ci->legs.yawAngle;
+  LODWORD(_XMM6) = 0;
+  ci->playerASMLocomotion.lerpVelocityDir = *(float *)&v3;
+  if ( yawAngle != 0.0 || *(float *)&v3 != 0.0 )
   {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm0
-  }
-  v7 = ci == NULL;
-  if ( !ci )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_util.cpp", 1751, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci");
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+800h]; degrees
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-    vmovss  dword ptr [rdi+0A10h], xmm7
-  }
-  if ( !v7 )
-    goto LABEL_6;
-  __asm { vucomiss xmm7, xmm6 }
-  if ( !v7 )
-  {
-LABEL_6:
-    v11 = BG_DegreesToMovementDir(*(float *)&_XMM0);
-    __asm { vmovaps xmm0, xmm7; degrees }
-    v13 = v11;
-    v14 = BG_DegreesToMovementDir(*(float *)&_XMM0);
-    v15 = BG_MovementDirNormalize180(v14 - v13);
-    *(double *)&_XMM0 = BG_MovementDirToDegrees(v15);
-    __asm
-    {
-      vmulss  xmm5, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm5, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm3, xmm1, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm4, xmm0, xmm3, 1
-      vmovss  xmm3, cs:__real@43340000
-      vsubss  xmm1, xmm5, xmm4
-      vmulss  xmm2, xmm1, cs:__real@43b40000
-      vucomiss xmm2, xmm3
-    }
-    if ( !v7 )
+    *((_QWORD *)&v6 + 1) = *((_QWORD *)&v3 + 1);
+    v7 = BG_DegreesToMovementDir(yawAngle);
+    v8 = BG_DegreesToMovementDir(*(float *)&v3);
+    v9 = BG_MovementDirNormalize180(v8 - v7);
+    *(double *)&v6 = BG_MovementDirToDegrees(v9);
+    v10 = v6;
+    *(float *)&v10 = *(float *)&v6 * 0.0027777778;
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm3, 1 }
+    *(float *)&v10 = (float)(*(float *)&v10 - *(float *)&_XMM4) * 360.0;
+    _XMM2 = v10;
+    if ( *(float *)&v10 != 180.0 )
     {
       __asm
       {
@@ -4791,12 +4533,7 @@ LABEL_6:
       }
     }
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rdi+0A14h], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  ci->playerASMLocomotion.strafeAngle = *(float *)&_XMM6;
 }
 
 /*
@@ -4827,30 +4564,14 @@ void BG_PlayerASM_VerifyAnim(unsigned int animsetIndex, unsigned int packedAnimI
 BG_PlayerASM_flrand
 ==============
 */
-
-float __fastcall BG_PlayerASM_flrand(unsigned int entNum, const scr_string_t animsetName, const scr_string_t stateName, double min, float max)
+float BG_PlayerASM_flrand(unsigned int entNum, const scr_string_t animsetName, const scr_string_t stateName, float min, float max)
 {
+  int v5; 
   unsigned int seed; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   seed = stateName + entNum + 7 * animsetName;
-  BgPlayer_Asm::irandWithSeed(&seed, 0, 0x7FFF);
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+max]
-    vsubss  xmm1, xmm0, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vmulss  xmm2, xmm2, xmm1
-    vmulss  xmm3, xmm2, cs:__real@38000000
-    vaddss  xmm0, xmm3, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  v5 = BgPlayer_Asm::irandWithSeed(&seed, 0, 0x7FFF);
+  return (float)((float)((float)v5 * (float)(max - min)) * 0.000030517578) + min;
 }
 
 /*
@@ -4858,15 +4579,9 @@ float __fastcall BG_PlayerASM_flrand(unsigned int entNum, const scr_string_t ani
 BG_PlayerASM_flrand
 ==============
 */
-
-double __fastcall BG_PlayerASM_flrand(unsigned int *holdrand, double min, double max)
+double BG_PlayerASM_flrand(unsigned int *holdrand, float min, float max)
 {
-  __asm
-  {
-    vmovaps xmm0, xmm1; min
-    vmovaps xmm1, xmm2; max
-  }
-  return BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+  return BG_flrand(min, max, holdrand);
 }
 
 /*

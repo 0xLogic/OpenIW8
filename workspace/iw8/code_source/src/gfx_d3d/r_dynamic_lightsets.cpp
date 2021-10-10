@@ -151,70 +151,50 @@ GfxColorFromVec4_t
 */
 __int64 GfxColorFromVec4_t(const vec4_t *val)
 {
-  char v11; 
-  char v16; 
-  char v21; 
-  char v25; 
-  unsigned int v28; 
+  int v3; 
+  char v4; 
+  int v6; 
+  char v7; 
+  int v9; 
+  char v10; 
+  int v12; 
+  char v13; 
+  unsigned int v15; 
 
-  __asm
-  {
-    vmovss  xmm5, cs:__real@437f0000
-    vmulss  xmm1, xmm5, dword ptr [rcx]
-    vmovss  xmm4, cs:__real@3f000000
-    vmovaps [rsp+18h+var_18], xmm6
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm5, dword ptr [rcx+4]
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm3, xmm6, xmm2, 1
-    vcvttss2si edx, xmm3
-    vaddss  xmm3, xmm1, xmm4
-  }
-  if ( _EDX > 255 )
-    _EDX = 255;
-  v11 = _EDX;
+  _XMM6 = 0i64;
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  v3 = (int)*(float *)&_XMM3;
+  if ( (int)*(float *)&_XMM3 > 255 )
+    v3 = 255;
+  v4 = v3;
   __asm { vroundss xmm1, xmm6, xmm3, 1 }
-  if ( _EDX < 0 )
-    v11 = 0;
-  LOBYTE(v28) = v11;
-  __asm
-  {
-    vcvttss2si ecx, xmm1
-    vmulss  xmm1, xmm5, dword ptr [r8+8]
-    vaddss  xmm3, xmm1, xmm4
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v16 = _ECX;
+  if ( v3 < 0 )
+    v4 = 0;
+  LOBYTE(v15) = v4;
+  v6 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v6 = 255;
+  v7 = v6;
   __asm { vroundss xmm1, xmm6, xmm3, 1 }
-  if ( _ECX < 0 )
-    v16 = 0;
-  BYTE1(v28) = v16;
-  __asm
-  {
-    vcvttss2si ecx, xmm1
-    vmulss  xmm1, xmm5, dword ptr [r8+0Ch]
-    vaddss  xmm3, xmm1, xmm4
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v21 = _ECX;
-  __asm
-  {
-    vroundss xmm1, xmm6, xmm3, 1
-    vmovaps xmm6, [rsp+18h+var_18]
-  }
-  if ( _ECX < 0 )
-    v21 = 0;
-  BYTE2(v28) = v21;
-  __asm { vcvttss2si ecx, xmm1 }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v25 = _ECX;
-  if ( _ECX < 0 )
-    v25 = 0;
-  HIBYTE(v28) = v25;
-  return v28;
+  if ( v6 < 0 )
+    v7 = 0;
+  BYTE1(v15) = v7;
+  v9 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v9 = 255;
+  v10 = v9;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  if ( v9 < 0 )
+    v10 = 0;
+  BYTE2(v15) = v10;
+  v12 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v12 = 255;
+  v13 = v12;
+  if ( v12 < 0 )
+    v13 = 0;
+  HIBYTE(v15) = v13;
+  return v15;
 }
 
 /*
@@ -224,48 +204,69 @@ RB_DynamicLightsets_DisplayDebug
 */
 void RB_DynamicLightsets_DisplayDebug(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
   GfxWorld *world; 
+  float pixelHeight; 
+  __int64 v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  int v19; 
   __int64 v20; 
-  int v24; 
-  __int64 v28; 
-  int v29; 
-  __int64 v30; 
-  GfxColor v32; 
-  unsigned int v33; 
-  GfxColor v34; 
-  __int64 v37; 
-  GfxDynamicLightsetBFData *basisFunctions; 
-  bool v44; 
-  bool v45; 
-  char v49; 
-  GfxColor v58; 
-  __int64 v59; 
-  int *v60; 
+  int v21; 
+  __int64 v22; 
+  __int128 v23; 
+  GfxColor v24; 
+  unsigned int v25; 
+  GfxColor v26; 
+  __int64 v27; 
+  float *v28; 
+  __int128 v29; 
+  float v30; 
+  bool v31; 
+  double v32; 
+  GfxColor v33; 
+  signed __int64 v34; 
+  __int64 v35; 
+  int *v36; 
+  float v37; 
+  __int128 v38; 
+  __int128 v39; 
   materialCommands_t *Tess; 
-  materialCommands_t *v72; 
-  float fmt; 
-  float fmta; 
-  float v81; 
-  float v82; 
-  float v83; 
-  float v84; 
-  float v85; 
-  unsigned int v86; 
+  materialCommands_t *v41; 
+  unsigned int v42; 
+  float v43; 
   unsigned int numBasisFunctions; 
-  _QWORD v89[3]; 
-  GfxWorld *v90; 
-  GfxCmdBufContext v91; 
+  _QWORD v45[3]; 
+  GfxWorld *v46; 
+  GfxCmdBufContext v47; 
   vec4_t val; 
-  __int64 v93; 
-  int v94; 
-  int v95[8]; 
+  __int64 v49; 
+  float v50; 
+  int v51[8]; 
   char dest[512]; 
-  void *retaddr; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
 
-  _R11 = &retaddr;
-  _R13 = gfxContext;
   world = rgp.world;
-  v90 = rgp.world;
+  v46 = rgp.world;
   if ( r_dlsDebugVisualize->current.enabled )
   {
     if ( data->viewInfoCount )
@@ -279,184 +280,94 @@ void RB_DynamicLightsets_DisplayDebug(GfxCmdBufContext *gfxContext, const GfxBac
           {
             if ( dlsGlob.initDone )
             {
-              __asm
-              {
-                vmovaps xmmword ptr [r11-38h], xmm6
-                vmovaps xmmword ptr [r11-48h], xmm7
-                vmovaps xmmword ptr [r11-58h], xmm8
-                vmovaps xmmword ptr [r11-68h], xmm9
-                vmovss  xmm9, cs:__real@3e4ccccd
-                vmovaps xmmword ptr [r11-78h], xmm10
-                vmovss  xmm10, cs:__real@3f800000
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-                vmovaps xmmword ptr [r11-88h], xmm11
-              }
-              v20 = 0i64;
-              __asm
-              {
-                vmovss  dword ptr [rbp+2B0h+val+0Ch], xmm10
-                vmovss  dword ptr [rsp+3B0h+var_350], xmm0
-              }
+              v62 = v2;
+              v61 = v3;
+              v60 = v4;
+              v59 = v5;
+              v58 = v6;
+              pixelHeight = (float)backEnd.debugFont->pixelHeight;
+              v57 = v7;
+              v15 = 0i64;
+              val.v[3] = FLOAT_1_0;
+              v43 = pixelHeight;
               do
               {
-                v93 = 0i64;
-                v94 = 0;
-                *(_DWORD *)((char *)&v93 + v20) = 1061997773;
-                __asm
-                {
-                  vmovss  xmm6, dword ptr [rbp+2B0h+var_300]
-                  vmovss  xmm7, dword ptr [rbp+2B0h+var_300+4]
-                  vmovss  xmm8, [rbp+2B0h+var_2F8]
-                  vmovss  dword ptr [rbp+2B0h+val], xmm6
-                  vmovss  dword ptr [rbp+2B0h+val+4], xmm7
-                  vmovss  dword ptr [rbp+2B0h+val+8], xmm8
-                }
-                v24 = GfxColorFromVec4_t(&val);
-                __asm
-                {
-                  vmulss  xmm0, xmm6, xmm9
-                  vmovss  dword ptr [rbp+2B0h+val], xmm0
-                  vmulss  xmm0, xmm8, xmm9
-                  vmulss  xmm1, xmm7, xmm9
-                }
-                *(int *)((char *)v95 + v28) = v24;
-                __asm
-                {
-                  vmovss  dword ptr [rbp+2B0h+val+8], xmm0
-                  vmovss  dword ptr [rbp+2B0h+val+4], xmm1
-                }
-                v29 = GfxColorFromVec4_t(&val);
-                *(int *)((char *)&v95[4] + v30) = v29;
-                v20 = v30 + 4;
+                v49 = 0i64;
+                v50 = 0.0;
+                *(_DWORD *)((char *)&v49 + v15) = 1061997773;
+                v16 = *(float *)&v49;
+                v17 = *((float *)&v49 + 1);
+                v18 = v50;
+                val.v[0] = *(float *)&v49;
+                val.v[1] = *((float *)&v49 + 1);
+                val.v[2] = v50;
+                v19 = GfxColorFromVec4_t(&val);
+                val.v[0] = v16 * 0.2;
+                *(int *)((char *)v51 + v20) = v19;
+                val.v[2] = v18 * 0.2;
+                val.v[1] = v17 * 0.2;
+                v21 = GfxColorFromVec4_t(&val);
+                *(int *)((char *)&v51[4] + v22) = v21;
+                v15 = v22 + 4;
               }
-              while ( v20 < 12 );
-              __asm { vmovss  xmm11, cs:__real@43020000 }
-              v32.packed = GfxColorFromVec4_t(&colorWhite);
-              v33 = 0;
-              v34.packed = GfxColorFromVec4_t(&colorMdGrey);
-              __asm
-              {
-                vmovss  xmm9, cs:__real@43c60000
-                vmovss  xmm8, cs:__real@40a00000
-              }
-              v37 = 0i64;
-              __asm
-              {
-                vmovaps [rsp+3B0h+var_98+8], xmm12
-                vmovss  xmm12, cs:__real@430c0000
-                vmovaps [rsp+3B0h+var_A8+8], xmm13
-                vmovss  xmm13, cs:__real@41900000
-                vmovaps [rsp+3B0h+var_B8+8], xmm14
-                vmovss  xmm14, cs:__real@3a800000
-                vmovaps [rsp+3B0h+var_C8+8], xmm15
-                vmovss  xmm15, cs:__real@3f000000
-              }
-              v89[0] = 0i64;
-              __asm { vxorps  xmm7, xmm7, xmm7 }
+              while ( v15 < 12 );
+              v23 = LODWORD(FLOAT_130_0);
+              v24.packed = GfxColorFromVec4_t(&colorWhite);
+              v25 = 0;
+              v26.packed = GfxColorFromVec4_t(&colorMdGrey);
+              v27 = 0i64;
+              v56 = v8;
+              v55 = v9;
+              v54 = v10;
+              v53 = v11;
+              v45[0] = 0i64;
               do
               {
-                basisFunctions = world->dynamicLightset.basisFunctions;
-                v44 = (GfxDynamicLightsetBFData *)((char *)basisFunctions + v37) == NULL;
-                v45 = __CFADD__(v37, basisFunctions) || v44;
-                _R14 = (char *)basisFunctions + v37;
-                __asm
-                {
-                  vmovaps xmm6, xmm11
-                  vucomiss xmm7, dword ptr [r14+4]
-                  vmovss  xmm0, dword ptr [r14+8]
-                }
-                if ( !v44 )
-                  goto LABEL_14;
-                __asm { vcomiss xmm0, xmm14 }
-                if ( v45 )
-                  v49 = 0;
-                else
-LABEL_14:
-                  v49 = 1;
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [r14]
-                  vmulss  xmm2, xmm1, cs:__real@3eaaaaab
-                  vcvtss2sd xmm3, xmm2, xmm2
-                  vmulss  xmm0, xmm0, xmm15
-                  vmovq   r9, xmm3
-                  vmovss  dword ptr [r14+8], xmm0
-                }
-                Com_sprintf<512>((char (*)[512])dest, "%2.2d %5.2f", v33, *(double *)&_XMM3);
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r13+0]
-                  vaddss  xmm1, xmm11, dword ptr [rsp+3B0h+var_350]
-                  vmovss  xmm3, cs:__real@42480000
-                }
-                v58 = v34;
-                __asm { vmovups [rbp+2B0h+var_320], xmm0 }
-                if ( v49 )
-                  v58 = v32;
-                __asm { vmovss  dword ptr [rsp+3B0h+fmt], xmm1 }
-                RB_DrawText(&v91, dest, backEnd.debugFont, *(float *)&_XMM3, fmt, v58);
-                v59 = 0i64;
+                v28 = (float *)((char *)world->dynamicLightset.basisFunctions->curValue + v27);
+                v29 = v23;
+                v30 = v28[2];
+                v31 = v28[1] != 0.0 || v30 > 0.0009765625;
+                v32 = (float)(*v28 * 0.33333334);
+                v28[2] = v30 * 0.5;
+                Com_sprintf<512>((char (*)[512])dest, "%2.2d %5.2f", v25, v32);
+                v33 = v26;
+                v47 = *gfxContext;
+                if ( v31 )
+                  v33 = v24;
+                RB_DrawText(&v47, dest, backEnd.debugFont, 50.0, *(float *)&v23 + v43, v33);
+                v34 = (char *)v28 - (char *)v51;
+                v35 = 0i64;
                 do
                 {
-                  v60 = &v95[v59];
-                  __asm { vmulss  xmm1, xmm9, dword ptr [r14+rax+0Ch] }
-                  if ( !v49 )
-                    v60 = &v95[v59 + 4];
-                  __asm { vmovups xmm0, xmmword ptr [r13+0] }
-                  v86 = *v60;
-                  __asm
-                  {
-                    vmovss  [rsp+3B0h+var_368], xmm10
-                    vmovss  [rsp+3B0h+var_370], xmm10
-                    vmovss  [rsp+3B0h+var_378], xmm7
-                    vmovss  [rsp+3B0h+var_380], xmm7
-                    vmovss  [rsp+3B0h+var_388], xmm8
-                    vmovaps xmm3, xmm6
-                    vmovaps xmm2, xmm12
-                    vmovss  dword ptr [rsp+3B0h+fmt], xmm1
-                    vmovups xmmword ptr [rsp+3B0h+var_348+8], xmm0
-                  }
-                  RB_DrawStretchPic((GfxCmdBufContext *)&v89[1], rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v81, v82, v83, v84, v85, v86, GFX_PRIM_STATS_DEBUG);
-                  ++v59;
-                  __asm { vaddss  xmm6, xmm6, xmm8 }
+                  v36 = &v51[v35];
+                  v37 = 396.0 * *(float *)((char *)&v51[v35 + 3] + v34);
+                  if ( !v31 )
+                    v36 = &v51[v35 + 4];
+                  v42 = *v36;
+                  *(GfxCmdBufContext *)&v45[1] = *gfxContext;
+                  RB_DrawStretchPic((GfxCmdBufContext *)&v45[1], rgp.whiteMaterial, 140.0, *(float *)&v29, v37, 5.0, 0.0, 0.0, 1.0, 1.0, v42, GFX_PRIM_STATS_DEBUG);
+                  ++v35;
+                  v38 = v29;
+                  *(float *)&v38 = *(float *)&v29 + 5.0;
+                  v29 = v38;
                 }
-                while ( v59 < 3 );
-                ++v33;
-                world = v90;
-                v37 = v89[0] + 32i64;
-                __asm { vaddss  xmm11, xmm11, xmm13 }
-                v89[0] += 32i64;
+                while ( v35 < 3 );
+                ++v25;
+                world = v46;
+                v27 = v45[0] + 32i64;
+                v39 = v23;
+                *(float *)&v39 = *(float *)&v23 + 18.0;
+                v23 = v39;
+                v45[0] += 32i64;
               }
-              while ( v33 < numBasisFunctions );
-              __asm
-              {
-                vmovaps xmm15, [rsp+3B0h+var_C8+8]
-                vmovaps xmm14, [rsp+3B0h+var_B8+8]
-                vmovaps xmm13, [rsp+3B0h+var_A8+8]
-                vmovaps xmm12, [rsp+3B0h+var_98+8]
-                vmovups xmm0, xmmword ptr [r13+0]
-                vmovups xmmword ptr [rsp+3B0h+var_348+8], xmm0
-              }
-              Tess = R_GetTess((GfxCmdBufContext *)&v89[1]);
-              __asm { vmovaps xmm11, [rsp+3B0h+var_88+8] }
-              v72 = Tess;
-              __asm
-              {
-                vmovaps xmm10, [rsp+3B0h+var_78+8]
-                vmovaps xmm9, [rsp+3B0h+var_68+8]
-                vmovaps xmm8, [rsp+3B0h+var_58+8]
-                vmovaps xmm7, [rsp+3B0h+var_48+8]
-                vmovaps xmm6, [rsp+3B0h+var_38+8]
-              }
+              while ( v25 < numBasisFunctions );
+              *(GfxCmdBufContext *)&v45[1] = *gfxContext;
+              Tess = R_GetTess((GfxCmdBufContext *)&v45[1]);
+              v41 = Tess;
               if ( Tess->vertexCount )
               {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r13+0]
-                  vmovups xmmword ptr [rsp+3B0h+var_348+8], xmm0
-                }
-                RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v89[1], "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
+                *(GfxCmdBufContext *)&v45[1] = *gfxContext;
+                RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v45[1], "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
               }
               else
               {
@@ -465,8 +376,8 @@ LABEL_14:
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
                     __debugbreak();
                 }
-                v72->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-                v72->primStatsTarget = GFX_PRIM_STATS_INVALID;
+                v41->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+                v41->primStatsTarget = GFX_PRIM_STATS_INVALID;
               }
             }
           }
@@ -499,116 +410,157 @@ RB_DynamicLightsets_Update
 */
 void RB_DynamicLightsets_Update(GfxCmdBufContext *gfxContext, GfxWorld *world, const GfxBackEndData *data)
 {
-  GfxCmdBufContext *v16; 
-  char v17; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  GfxBackEndData *v13; 
+  GfxCmdBufContext *v15; 
+  char v16; 
   GfxShaderBufferView *smpFrame; 
-  char v19; 
-  int v20; 
-  unsigned int v21; 
+  char v18; 
+  int v19; 
+  unsigned int v20; 
+  int v21; 
   int v22; 
-  int v23; 
-  GfxDynamicLightsetBFType bfType; 
-  __int64 v37; 
-  unsigned int v38; 
-  __int64 whichPrimary; 
-  unsigned int numRec; 
-  bool v56; 
-  bool v57; 
+  unsigned int v23; 
   GfxDynamicLightsetBFData *basisFunctions; 
-  unsigned __int64 v65; 
-  bool v66; 
-  unsigned int v91; 
+  unsigned __int64 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  GfxDynamicLightsetBFType bfType; 
+  __int64 v31; 
+  unsigned int v32; 
+  GfxDynamicLightsetLightInfo *v33; 
+  __int64 whichPrimary; 
+  __int128 intensity_low; 
+  __int128 v36; 
+  float v38; 
+  float v39; 
+  __int128 v45; 
+  __int128 v46; 
+  __int128 v47; 
+  GfxDynamicLightsetBFData *v48; 
+  float v49; 
+  __int128 v51; 
+  __int128 v53; 
+  __int128 v55; 
+  vec4_t *v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  GfxDynamicLightsetPortalGIData *portalGIData; 
+  __int128 v63; 
   GfxDynamicLightsetProductGIData *productGIData; 
-  int v94; 
-  int v103; 
-  GfxDynamicLightsetBFData *v112; 
-  GfxDynamicLightsetBFData *v113; 
-  __int64 v124; 
-  __int64 v125; 
-  __int64 v126; 
+  __int64 whichDLS; 
+  __int64 v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  GfxDynamicLightsetBFData *v72; 
+  float v75; 
+  int v76; 
+  float v77; 
+  GfxDynamicLightsetBFData *v78; 
+  GfxDynamicLightsetBFData *v79; 
+  __int64 v80; 
+  __int64 v81; 
+  __int64 v82; 
   int integer; 
-  __int64 v129; 
-  int v142; 
-  bool v143; 
-  char v144; 
+  __int64 v84; 
+  float value; 
+  unsigned int v86; 
+  GfxDynamicLightsetBFData *v90; 
+  int v91; 
+  bool v92; 
+  bool v93; 
+  char v94; 
   unsigned int *p_numBFActive; 
-  unsigned int v146; 
-  __int64 v147; 
-  __int64 v148; 
-  __int64 v149; 
-  __int64 v150; 
-  __int64 v151; 
-  __int64 v152; 
-  unsigned int *v153; 
-  __int64 v154; 
-  GfxCmdBufState *v155; 
-  D3D12_RESOURCE_STATES v156; 
+  unsigned int v96; 
+  __int64 v97; 
+  __int64 v98; 
+  __int64 v99; 
+  __int64 v100; 
+  __int64 v101; 
+  __int64 v102; 
+  unsigned int *v103; 
+  __int64 v104; 
+  GfxCmdBufState *v105; 
+  D3D12_RESOURCE_STATES v106; 
   const GfxImage *LightmapAtlasTexture; 
   const GfxTexture *Resident; 
-  const GfxImage *v159; 
-  const GfxTexture *v160; 
-  unsigned int v161; 
+  const GfxImage *v109; 
+  const GfxTexture *v110; 
+  unsigned int v111; 
   _DWORD *i; 
-  __int64 v163; 
-  __int64 v164; 
+  __int64 v113; 
+  __int64 v114; 
   GfxShaderBufferView *p_view; 
-  GfxShaderBufferView *v166; 
-  unsigned int v167; 
-  __int64 v168; 
-  __int64 v169; 
-  unsigned __int64 v170; 
+  GfxShaderBufferView *v116; 
+  unsigned int v117; 
+  __int64 v118; 
+  __int64 v119; 
+  unsigned __int64 v120; 
   unsigned int *chunkLMStart; 
-  __int64 v172; 
-  unsigned int v173; 
-  unsigned int v174; 
-  unsigned int v175; 
+  __int64 v122; 
+  unsigned int v123; 
+  unsigned int v124; 
+  unsigned int v125; 
   GfxDynamicLightsetGChunk *chunkGLM; 
-  GfxDynamicLightsetBFData *v177; 
+  GfxDynamicLightsetBFData *v127; 
   unsigned __int16 *chunkGLMBF; 
-  __int64 v179; 
-  unsigned int *v180; 
-  GfxDynamicLightsetGChunk *v181; 
-  __int64 v182; 
-  __int64 v183; 
-  unsigned int v184; 
-  __int64 v185; 
-  int v186; 
+  __int64 v129; 
+  unsigned int *v130; 
+  GfxDynamicLightsetGChunk *v131; 
+  __int64 v132; 
+  __int64 v133; 
+  unsigned int v134; 
+  __int64 v135; 
+  int v136; 
   unsigned int *p_deltaBits; 
-  __int64 v188; 
-  GfxDynamicLightsetGChunk *v189; 
-  int v190; 
-  int v191; 
-  unsigned int *v192; 
-  GfxDynamicLightsetGChunk *v193; 
-  __int64 v194; 
-  unsigned int *v195; 
-  __int64 v196; 
-  __int64 v197; 
-  GfxDynamicLightsetGChunk *v198; 
-  const GfxImage *v199; 
-  const GfxTexture *v200; 
-  const GfxImage *v201; 
-  const GfxTexture *v202; 
-  __int64 v203; 
+  __int64 v138; 
+  GfxDynamicLightsetGChunk *v139; 
+  int v140; 
+  int v141; 
+  unsigned int *v142; 
+  GfxDynamicLightsetGChunk *v143; 
+  __int64 v144; 
+  unsigned int *v145; 
+  __int64 v146; 
+  __int64 v147; 
+  GfxDynamicLightsetGChunk *v148; 
+  const GfxImage *v149; 
+  const GfxTexture *v150; 
+  const GfxImage *v151; 
+  const GfxTexture *v152; 
+  __int64 v153; 
   const GfxImage *LightGridVolumeAtlasTexture; 
-  const GfxTexture *v205; 
-  const GfxImage *v206; 
-  const GfxTexture *v207; 
-  unsigned int v208; 
-  GfxBackEndData *v209; 
-  GfxDynamicLightsetLGppZoneInfo *v210; 
-  const GfxImage *v211; 
-  const GfxImage *v212; 
-  const GfxImage *v213; 
-  const GfxTexture *v214; 
-  const GfxImage *v215; 
-  const GfxTexture *v216; 
+  const GfxTexture *v155; 
+  const GfxImage *v156; 
+  const GfxTexture *v157; 
+  unsigned int v158; 
+  GfxBackEndData *v159; 
+  GfxDynamicLightsetLGppZoneInfo *v160; 
+  const GfxImage *v161; 
+  const GfxImage *v162; 
+  const GfxImage *v163; 
+  const GfxTexture *v164; 
+  const GfxImage *v165; 
+  const GfxTexture *v166; 
   __int64 flag; 
   unsigned int *slice; 
-  char v219; 
+  char v169; 
   bool forceUpdate; 
-  int v221; 
-  unsigned int v222; 
+  int v171; 
+  unsigned int v172; 
   unsigned int y; 
   GfxShaderBufferView *views; 
   bool dlsUseAsyncCompute; 
@@ -618,485 +570,395 @@ void RB_DynamicLightsets_Update(GfxCmdBufContext *gfxContext, GfxWorld *world, c
   float Px; 
   unsigned int heavySlot; 
   unsigned int mixedSlot; 
-  D3D12_RESOURCE_STATES v232; 
+  D3D12_RESOURCE_STATES v182; 
   unsigned int x; 
-  unsigned int v234; 
+  unsigned int v184; 
   unsigned int optSlot; 
   unsigned int copySlot; 
-  unsigned int v237; 
+  unsigned int v187; 
   unsigned int numChunk; 
   unsigned int numRecords; 
   unsigned int orgStart; 
   unsigned int bfStart; 
   unsigned int tmpStart; 
-  __int128 v243; 
-  __int128 v244; 
-  int v245[4]; 
+  __int128 v193; 
+  __int128 v194; 
+  int v195[4]; 
   ComputeCmdBufState state; 
   unsigned int heavySet[64]; 
   unsigned int mixedSet[64]; 
   unsigned int copySet[64]; 
   GChunkBypassStruct optSet; 
+  __int128 v201; 
+  __int128 v202; 
+  __int128 v203; 
+  __int128 v204; 
+  __int128 v205; 
+  __int128 v206; 
+  __int128 v207; 
+  __int128 v208; 
+  __int128 v209; 
+  __int128 v210; 
 
   dataa = (GfxBackEndData *)data;
-  _R12 = (GfxBackEndData *)data;
+  v13 = (GfxBackEndData *)data;
   *(_QWORD *)height = gfxContext;
-  v16 = gfxContext;
+  v15 = gfxContext;
   if ( world && data )
   {
     if ( !world->dynamicLightset.numBasisFunctions || !dlsGlob.initDone )
       return;
-    v17 = 1;
+    v16 = 1;
   }
   else
   {
-    v17 = 0;
+    v16 = 0;
   }
-  if ( !v17 || !r_dlsDebugMode->current.integer )
+  if ( !v16 || !r_dlsDebugMode->current.integer )
     return;
   smpFrame = (GfxShaderBufferView *)data->smpFrame;
+  v18 = 0;
   v19 = 0;
   v20 = 0;
   v21 = 0;
-  v22 = 0;
   views = smpFrame;
-  v23 = 0;
-  v219 = 0;
+  v22 = 0;
+  v169 = 0;
   y = 0;
-  _ER15 = 0;
-  v221 = 0;
+  v23 = 0;
+  v171 = 0;
   if ( !world->dynamicLightset.numBasisFunctions )
     goto LABEL_37;
-  __asm
-  {
-    vmovaps [rsp+12F0h+var_40], xmm6
-    vmovaps [rsp+12F0h+var_50], xmm7
-    vmovaps [rsp+12F0h+var_60], xmm8
-    vmovaps [rsp+12F0h+var_90], xmm11
-    vmovss  xmm11, cs:__real@3f800000
-    vmovaps [rsp+12F0h+var_A0], xmm12
-    vmovss  xmm12, cs:__real@40a00000
-    vmovaps [rsp+12F0h+var_B0], xmm13
-    vmovss  xmm13, cs:__real@40000000
-    vmovaps [rsp+12F0h+var_C0], xmm14
-    vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+12F0h+var_D0], xmm15
-    vmovss  xmm15, cs:__real@3f7ff972
-    vmovaps [rsp+12F0h+var_70], xmm9
-    vmovaps [rsp+12F0h+var_80], xmm10
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v210 = v3;
+  v209 = v4;
+  v208 = v5;
+  v205 = v8;
+  v204 = v9;
+  v203 = v10;
+  v202 = v11;
+  v201 = v12;
+  v207 = v6;
+  v206 = v7;
+  _XMM6 = 0i64;
   do
   {
-    _R9 = world->dynamicLightset.basisFunctions;
-    _RBX = _ER15;
-    __asm
-    {
-      vmovaps xmm5, xmm6
-      vmovaps xmm7, xmm6
-      vmovaps xmm8, xmm6
-    }
-    bfType = _R9[_RBX].bfType;
+    basisFunctions = world->dynamicLightset.basisFunctions;
+    v26 = v23;
+    v27 = 0i64;
+    v28 = 0i64;
+    v29 = 0i64;
+    bfType = basisFunctions[v26].bfType;
     if ( bfType )
     {
       if ( bfType == GFX_BF_PORTALGI )
       {
-        v65 = 16 * (v21 + ((unsigned __int64)_R12->smpFrame << 8));
-        v66 = __CFADD__(dlsGlob.portalGIquats, v65);
-        v57 = __CFADD__(dlsGlob.portalGIquats, v65) || (DynamicLightsetsGlob *)((char *)dlsGlob.portalGIquats + v65) == NULL;
-        _RCX = (char *)dlsGlob.portalGIquats + v65;
-        __asm
+        v56 = &dlsGlob.portalGIquats[(unsigned __int64)v13->smpFrame][v20];
+        _XMM5 = 0i64;
+        v57 = v56->v[1];
+        v58 = v56->v[0];
+        v59 = v56->v[2];
+        v60 = v56->v[3];
+        if ( (float)((float)((float)((float)(v58 * v58) + (float)(v57 * v57)) + (float)(v59 * v59)) + (float)(v60 * v60)) > 0.0 )
         {
-          vmovaps xmm5, xmm6
-          vmovss  xmm7, dword ptr [rcx+4]
-          vmovss  xmm8, dword ptr [rcx]
-          vmovss  xmm9, dword ptr [rcx+8]
-          vmovss  xmm10, dword ptr [rcx+0Ch]
-          vmulss  xmm1, xmm8, xmm8
-          vmulss  xmm0, xmm7, xmm7
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm9, xmm9
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm10, xmm10
-          vaddss  xmm4, xmm3, xmm0
-          vcomiss xmm4, xmm6
-        }
-        if ( !v57 )
-        {
+          portalGIData = world->dynamicLightset.portalGIData;
+          v63 = LODWORD(FLOAT_0_99989998);
+          *(float *)&v63 = 0.99989998 - (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v57 * portalGIData[basisFunctions[v26].startRec].baseQuat.v[1]) + (float)(v58 * portalGIData[basisFunctions[v26].startRec].baseQuat.v[0])) + (float)(v59 * portalGIData[basisFunctions[v26].startRec].baseQuat.v[2])) + (float)(v60 * portalGIData[basisFunctions[v26].startRec].baseQuat.v[3])) & _xmm) - portalGIData[basisFunctions[v26].startRec].extraInfo.v[0]) * portalGIData[basisFunctions[v26].startRec].extraInfo.v[1]);
+          _XMM0 = v63;
           __asm
           {
-            vmulss  xmm1, xmm7, dword ptr [rax+rcx*4+8]
-            vmulss  xmm0, xmm8, dword ptr [rax+rcx*4+4]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm9, dword ptr [rax+rcx*4+0Ch]
-            vmulss  xmm0, xmm10, dword ptr [rax+rcx*4+10h]
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vandps  xmm1, xmm1, xmm14
-            vsubss  xmm1, xmm1, dword ptr [rax+rcx*4+14h]
-            vmulss  xmm0, xmm1, dword ptr [rax+rcx*4+18h]
-            vsubss  xmm0, xmm15, xmm0
             vminss  xmm1, xmm0, xmm11
             vmaxss  xmm5, xmm1, xmm6
           }
         }
-        v91 = v21 + 1;
-        v56 = v91 == 0;
-        v57 = v66 || v91 == 0;
-        y = v91;
-        __asm
-        {
-          vmovaps xmm0, xmm5
-          vmovaps xmm2, xmm5
-        }
+        y = v20 + 1;
+        _XMM0 = _XMM5;
+        _XMM2 = _XMM5;
       }
       else
       {
         productGIData = world->dynamicLightset.productGIData;
-        _RAX = 32i64 * productGIData[v23].whichDLS;
-        v66 = __CFSHL__(world->dynamicLightset.numDLSBasisFunctions + productGIData[v23].whichPortal, 5);
-        v94 = v23 + 1;
-        v56 = v94 == 0;
-        v57 = v66 || v94 == 0;
-        v221 = v94;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+r9+0Ch]
-          vmulss  xmm5, xmm0, dword ptr [r8+r9+0Ch]
-          vmovss  xmm0, dword ptr [rax+r9+14h]
-          vmovss  xmm1, dword ptr [rax+r9+10h]
-          vmulss  xmm0, xmm0, dword ptr [r8+r9+14h]
-          vmulss  xmm2, xmm1, dword ptr [r8+r9+10h]
-        }
+        whichDLS = productGIData[v22].whichDLS;
+        v67 = world->dynamicLightset.numDLSBasisFunctions + productGIData[v22].whichPortal;
+        v171 = v22 + 1;
+        v68 = LODWORD(basisFunctions[whichDLS].lastValue[0]);
+        *(float *)&v68 = basisFunctions[whichDLS].lastValue[0] * basisFunctions[v67].lastValue[0];
+        _XMM5 = v68;
+        v69 = LODWORD(basisFunctions[whichDLS].lastValue[2]);
+        *(float *)&v69 = basisFunctions[whichDLS].lastValue[2] * basisFunctions[v67].lastValue[2];
+        _XMM0 = v69;
+        v70 = LODWORD(basisFunctions[whichDLS].lastValue[1]);
+        *(float *)&v70 = basisFunctions[whichDLS].lastValue[1] * basisFunctions[v67].lastValue[1];
+        _XMM2 = v70;
       }
-      basisFunctions = _R9;
+      v48 = basisFunctions;
     }
     else
     {
-      if ( !_R9[_RBX].numRec )
+      if ( !basisFunctions[v26].numRec )
       {
-        v37 = _ER15;
-        _R9[v37].curValue[0] = 0.0;
-        world->dynamicLightset.basisFunctions[v37].curValue[1] = 0.0;
+        v31 = v23;
+        basisFunctions[v31].curValue[0] = 0.0;
+        world->dynamicLightset.basisFunctions[v31].curValue[1] = 0.0;
         goto LABEL_35;
       }
-      v38 = 0;
+      v32 = 0;
       do
       {
-        _RDX = &world->dynamicLightset.basisFunctionLights[v38 + _R9[_RBX].startRec];
-        whichPrimary = _RDX->whichPrimary;
-        if ( (unsigned int)whichPrimary < _R12->sceneLightCount )
+        v33 = &world->dynamicLightset.basisFunctionLights[v32 + basisFunctions[v26].startRec];
+        whichPrimary = v33->whichPrimary;
+        if ( (unsigned int)whichPrimary < v13->sceneLightCount )
         {
-          _RCX = 152 * whichPrimary;
-          __asm
-          {
-            vmovss  xmm4, dword ptr [rcx+r12+53A010h]
-            vmulss  xmm0, xmm4, dword ptr [rcx+r12+53A014h]
-            vmulss  xmm3, xmm0, dword ptr [rdx]
-            vmovss  xmm1, dword ptr [rcx+r12+53A018h]
-            vmovss  xmm2, dword ptr [rcx+r12+53A01Ch]
-            vmovss  dword ptr [rdx+0Ch], xmm3
-            vmulss  xmm1, xmm4, xmm1
-            vmulss  xmm0, xmm1, dword ptr [rdx+4]
-            vmovss  dword ptr [rdx+10h], xmm0
-            vmulss  xmm2, xmm4, xmm2
-            vmulss  xmm1, xmm2, dword ptr [rdx+8]
-            vmovss  dword ptr [rdx+14h], xmm1
-            vmaxss  xmm4, xmm3, xmm6
-            vmovss  dword ptr [rdx+0Ch], xmm4
-            vmovss  xmm0, dword ptr [rdx+10h]
-            vmaxss  xmm2, xmm0, xmm6
-            vmovss  dword ptr [rdx+10h], xmm2
-            vmovss  xmm1, dword ptr [rdx+14h]
-            vmaxss  xmm0, xmm1, xmm6
-            vmovss  dword ptr [rdx+14h], xmm0
-          }
-          _R9 = world->dynamicLightset.basisFunctions;
-          __asm
-          {
-            vaddss  xmm5, xmm5, xmm4
-            vaddss  xmm7, xmm7, xmm2
-            vaddss  xmm8, xmm8, xmm0
-          }
+          intensity_low = LODWORD(v13->sceneLights[whichPrimary].intensity);
+          v36 = intensity_low;
+          *(float *)&v36 = (float)(*(float *)&intensity_low * v13->sceneLights[whichPrimary].colorLinearSrgb.v[0]) * v33->baseIntensity[0];
+          _XMM3 = v36;
+          v38 = v13->sceneLights[whichPrimary].colorLinearSrgb.v[1];
+          v39 = v13->sceneLights[whichPrimary].colorLinearSrgb.v[2];
+          v33->lastIntensity[0] = *(float *)&v36;
+          v33->lastIntensity[1] = (float)(*(float *)&intensity_low * v38) * v33->baseIntensity[1];
+          v33->lastIntensity[2] = (float)(*(float *)&intensity_low * v39) * v33->baseIntensity[2];
+          __asm { vmaxss  xmm4, xmm3, xmm6 }
+          v33->lastIntensity[0] = *(float *)&_XMM4;
+          _XMM0 = LODWORD(v33->lastIntensity[1]);
+          __asm { vmaxss  xmm2, xmm0, xmm6 }
+          v33->lastIntensity[1] = *(float *)&_XMM2;
+          _XMM1 = LODWORD(v33->lastIntensity[2]);
+          __asm { vmaxss  xmm0, xmm1, xmm6 }
+          v33->lastIntensity[2] = *(float *)&_XMM0;
+          basisFunctions = world->dynamicLightset.basisFunctions;
+          v45 = v27;
+          *(float *)&v45 = *(float *)&v27 + *(float *)&_XMM4;
+          v27 = v45;
+          v46 = v28;
+          *(float *)&v46 = *(float *)&v28 + *(float *)&_XMM2;
+          v28 = v46;
+          v47 = v29;
+          *(float *)&v47 = *(float *)&v29 + *(float *)&_XMM0;
+          v29 = v47;
         }
-        numRec = _R9[_RBX].numRec;
-        v56 = ++v38 == numRec;
-        v57 = v38 <= numRec;
+        ++v32;
       }
-      while ( v38 < numRec );
-      basisFunctions = world->dynamicLightset.basisFunctions;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm11, xmm0
-        vmulss  xmm5, xmm5, xmm1
-        vmulss  xmm2, xmm7, xmm1
-        vmulss  xmm0, xmm8, xmm1
-      }
+      while ( v32 < basisFunctions[v26].numRec );
+      v48 = world->dynamicLightset.basisFunctions;
+      v49 = 1.0 / (float)basisFunctions[v26].numRec;
+      v51 = v27;
+      *(float *)&v51 = *(float *)&v27 * v49;
+      _XMM5 = v51;
+      v53 = v28;
+      *(float *)&v53 = *(float *)&v28 * v49;
+      _XMM2 = v53;
+      v55 = v29;
+      *(float *)&v55 = *(float *)&v29 * v49;
+      _XMM0 = v55;
     }
     __asm { vminss  xmm7, xmm5, xmm12 }
-    _RAX = _R9;
+    v72 = basisFunctions;
     __asm
     {
       vminss  xmm4, xmm2, xmm12
       vminss  xmm5, xmm0, xmm12
-      vmovss  xmm1, dword ptr [rax+rbx+0Ch]
-      vucomiss xmm7, xmm1
     }
-    if ( !v56 )
-      goto LABEL_29;
-    __asm { vucomiss xmm4, dword ptr [rax+rbx+10h] }
-    if ( !v56 )
-      goto LABEL_29;
-    __asm { vucomiss xmm5, dword ptr [rax+rbx+14h] }
-    if ( v56 )
+    v75 = basisFunctions[v26].lastValue[0];
+    if ( *(float *)&_XMM7 == v75 && *(float *)&_XMM4 == basisFunctions[v26].lastValue[1] && *(float *)&_XMM5 == basisFunctions[v26].lastValue[2] )
     {
-      v103 = 1;
-      __asm { vaddss  xmm2, xmm4, xmm7 }
+      v76 = 1;
+      v77 = *(float *)&_XMM4 + *(float *)&_XMM7;
     }
     else
     {
-LABEL_29:
-      __asm
+      v76 = 0;
+      v77 = *(float *)&_XMM4 + *(float *)&_XMM7;
+      if ( (float)(*(float *)&_XMM5 + (float)(*(float *)&_XMM4 + *(float *)&_XMM7)) == 0.0 && (float)((float)(v75 + basisFunctions[v26].lastValue[1]) + basisFunctions[v26].lastValue[2]) > 2.0 )
       {
-        vaddss  xmm3, xmm4, xmm7
-        vaddss  xmm0, xmm5, xmm3
-        vucomiss xmm0, xmm6
-      }
-      v103 = 0;
-      __asm { vmovaps xmm2, xmm3 }
-      if ( v56 )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm1, dword ptr [rax+rbx+10h]
-          vaddss  xmm1, xmm0, dword ptr [rax+rbx+14h]
-          vcomiss xmm1, xmm13
-        }
-        if ( !v57 )
-        {
-          v219 = 1;
-          _RAX = basisFunctions;
-        }
+        v169 = 1;
+        v72 = v48;
       }
     }
-    __asm
-    {
-      vmovss  dword ptr [rbx+rax+0Ch], xmm7
-      vmovss  dword ptr [rbx+rax+10h], xmm4
-      vmovss  dword ptr [rbx+rax+14h], xmm5
-      vaddss  xmm0, xmm2, xmm5
-    }
-    world->dynamicLightset.basisFunctions[_RBX].curValue[1] = 0.0;
-    _RAX = world->dynamicLightset.basisFunctions;
-    __asm { vmovss  dword ptr [rbx+rax], xmm0 }
-    _RAX = world->dynamicLightset.basisFunctions;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+rax]
-      vmovss  [rbp+11F0h+Px], xmm0
-    }
+    v72[v26].lastValue[0] = *(float *)&_XMM7;
+    v72[v26].lastValue[1] = *(float *)&_XMM4;
+    v72[v26].lastValue[2] = *(float *)&_XMM5;
+    world->dynamicLightset.basisFunctions[v26].curValue[1] = 0.0;
+    world->dynamicLightset.basisFunctions[v26].curValue[0] = v77 + *(float *)&_XMM5;
+    Px = world->dynamicLightset.basisFunctions[v26].curValue[0];
     if ( _fdtest(&Px) > 0 )
     {
-      v112 = world->dynamicLightset.basisFunctions;
-      *(_QWORD *)v112[_RBX].curValue = 0i64;
-      v112[_RBX].curValue[2] = 0.0;
-      v113 = world->dynamicLightset.basisFunctions;
-      *(_QWORD *)v113[_RBX].lastValue = 0i64;
-      v113[_RBX].lastValue[2] = 0.0;
+      v78 = world->dynamicLightset.basisFunctions;
+      *(_QWORD *)v78[v26].curValue = 0i64;
+      v78[v26].curValue[2] = 0.0;
+      v79 = world->dynamicLightset.basisFunctions;
+      *(_QWORD *)v79[v26].lastValue = 0i64;
+      v79[v26].lastValue[2] = 0.0;
 LABEL_34:
-      _R12 = dataa;
-      v23 = v221;
-      v21 = y;
+      v13 = dataa;
+      v22 = v171;
+      v20 = y;
       goto LABEL_35;
     }
-    if ( !v103 )
+    if ( !v76 )
     {
-      v125 = _ER15;
-      world->dynamicLightset.basisFunctions[v125].curValue[1] = 1.0;
-      world->dynamicLightset.basisFunctions[v125].curValue[2] = 1.0;
-      if ( (unsigned int)v22 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 815, ASSERT_TYPE_ASSERT, "(numChanged < MAX_CHANGED)", (const char *)&queryFormat, "numChanged < MAX_CHANGED") )
+      v81 = v23;
+      world->dynamicLightset.basisFunctions[v81].curValue[1] = 1.0;
+      world->dynamicLightset.basisFunctions[v81].curValue[2] = 1.0;
+      if ( (unsigned int)v21 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 815, ASSERT_TYPE_ASSERT, "(numChanged < MAX_CHANGED)", (const char *)&queryFormat, "numChanged < MAX_CHANGED") )
         __debugbreak();
-      v126 = (unsigned int)v22++;
-      *(&optSet.whichChunk + v126) = _ER15;
+      v82 = (unsigned int)v21++;
+      *(&optSet.whichChunk + v82) = v23;
     }
     integer = r_dlsDebugLight->current.integer;
     if ( !integer )
       goto LABEL_34;
-    _RAX = r_dlsDebugIntensity;
-    v129 = _ER15;
-    __asm { vmovss  xmm3, dword ptr [rax+28h] }
-    world->dynamicLightset.basisFunctions[v129].curValue[1] = 1.0;
-    world->dynamicLightset.basisFunctions[v129].curValue[2] = 1.0;
-    world->dynamicLightset.basisFunctions[_RBX].curValue[0] = 0.0;
-    world->dynamicLightset.basisFunctions[_RBX].lastValue[2] = 0.0;
-    world->dynamicLightset.basisFunctions[_RBX].lastValue[1] = 0.0;
-    world->dynamicLightset.basisFunctions[_RBX].lastValue[0] = 0.0;
+    v84 = v23;
+    value = r_dlsDebugIntensity->current.value;
+    world->dynamicLightset.basisFunctions[v84].curValue[1] = 1.0;
+    world->dynamicLightset.basisFunctions[v84].curValue[2] = 1.0;
+    world->dynamicLightset.basisFunctions[v26].curValue[0] = 0.0;
+    world->dynamicLightset.basisFunctions[v26].lastValue[2] = 0.0;
+    world->dynamicLightset.basisFunctions[v26].lastValue[1] = 0.0;
+    world->dynamicLightset.basisFunctions[v26].lastValue[0] = 0.0;
     if ( integer == 2 )
     {
-      world->dynamicLightset.basisFunctions[_RBX].curValue[0] = 1.0;
-      world->dynamicLightset.basisFunctions[_RBX].curValue[2] = 1.0;
-      _RAX = world->dynamicLightset.basisFunctions;
-      __asm { vmovss  dword ptr [rax+rbx+14h], xmm3 }
-      _RAX = world->dynamicLightset.basisFunctions;
-      __asm { vmovss  dword ptr [rax+rbx+10h], xmm3 }
-      _RAX = world->dynamicLightset.basisFunctions;
-      __asm { vmovss  dword ptr [rax+rbx+0Ch], xmm3 }
+      world->dynamicLightset.basisFunctions[v26].curValue[0] = 1.0;
+      world->dynamicLightset.basisFunctions[v26].curValue[2] = 1.0;
+      world->dynamicLightset.basisFunctions[v26].lastValue[2] = value;
+      world->dynamicLightset.basisFunctions[v26].lastValue[1] = value;
+      world->dynamicLightset.basisFunctions[v26].lastValue[0] = value;
       goto LABEL_34;
     }
     if ( integer < 3 )
       goto LABEL_34;
-    _RAX = world->dynamicLightset.basisFunctions;
-    _ECX = integer - 3;
-    v21 = y;
-    v23 = v221;
-    _R12 = dataa;
+    v86 = integer - 3;
+    v20 = y;
+    v22 = v171;
+    v13 = dataa;
+    _XMM0 = v86;
     __asm
     {
-      vmovd   xmm0, ecx
-      vmovd   xmm1, r15d
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm0, xmm6, xmm11, xmm2
-      vmovss  dword ptr [rbx+rax], xmm0
     }
-    _RAX = world->dynamicLightset.basisFunctions;
-    if ( _ECX == _ER15 )
+    world->dynamicLightset.basisFunctions[v26].curValue[0] = *(float *)&_XMM0;
+    v90 = world->dynamicLightset.basisFunctions;
+    if ( v86 == v23 )
     {
-      __asm { vmovss  dword ptr [rbx+rax+14h], xmm3 }
-      _RAX = world->dynamicLightset.basisFunctions;
-      __asm { vmovss  dword ptr [rax+rbx+10h], xmm3 }
-      _RAX = world->dynamicLightset.basisFunctions;
-      __asm { vmovss  dword ptr [rax+rbx+0Ch], xmm3 }
-      world->dynamicLightset.basisFunctions[_RBX].curValue[2] = 1.0;
+      v90[v26].lastValue[2] = value;
+      world->dynamicLightset.basisFunctions[v26].lastValue[1] = value;
+      world->dynamicLightset.basisFunctions[v26].lastValue[0] = value;
+      world->dynamicLightset.basisFunctions[v26].curValue[2] = 1.0;
     }
     else
     {
-      _RAX[_RBX].curValue[2] = 0.0;
+      v90[v26].curValue[2] = 0.0;
     }
 LABEL_35:
-    ++_ER15;
+    ++v23;
   }
-  while ( _ER15 < world->dynamicLightset.numBasisFunctions );
+  while ( v23 < world->dynamicLightset.numBasisFunctions );
   LOBYTE(smpFrame) = (_BYTE)views;
-  v19 = v219;
-  v16 = *(GfxCmdBufContext **)height;
-  __asm
-  {
-    vmovaps xmm15, [rsp+12F0h+var_D0]
-    vmovaps xmm14, [rsp+12F0h+var_C0]
-    vmovaps xmm13, [rsp+12F0h+var_B0]
-    vmovaps xmm12, [rsp+12F0h+var_A0]
-    vmovaps xmm11, [rsp+12F0h+var_90]
-    vmovaps xmm10, [rsp+12F0h+var_80]
-    vmovaps xmm9, [rsp+12F0h+var_70]
-    vmovaps xmm8, [rsp+12F0h+var_60]
-    vmovaps xmm7, [rsp+12F0h+var_50]
-    vmovaps xmm6, [rsp+12F0h+var_40]
-  }
+  v18 = v169;
+  v15 = *(GfxCmdBufContext **)height;
 LABEL_37:
-  v124 = (unsigned __int8)smpFrame & 1;
+  v80 = (unsigned __int8)smpFrame & 1;
   if ( r_dlsDebugDisableTemporalSmoothingPulse->current.enabled )
   {
-    dlsGlob.lgvTemporalDisableCount[v124] = 0;
+    dlsGlob.lgvTemporalDisableCount[v80] = 0;
   }
-  else if ( v19 && dlsGlob.lgvTemporalDisableCount[v124] >= 0 )
+  else if ( v18 && dlsGlob.lgvTemporalDisableCount[v80] >= 0 )
   {
-    dlsGlob.lgvTemporalDisableCount[v124] = -2;
+    dlsGlob.lgvTemporalDisableCount[v80] = -2;
   }
   else
   {
-    v142 = dlsGlob.lgvTemporalDisableCount[v124];
-    if ( v142 < 0 )
-      dlsGlob.lgvTemporalDisableCount[v124] = v142 + 1;
+    v91 = dlsGlob.lgvTemporalDisableCount[v80];
+    if ( v91 < 0 )
+      dlsGlob.lgvTemporalDisableCount[v80] = v91 + 1;
   }
-  if ( r_dlsDebugLight->current.integer || v22 || dlsGlob.transientForceUpdateCount )
+  if ( r_dlsDebugLight->current.integer || v21 || dlsGlob.transientForceUpdateCount )
   {
-    v143 = !RB_IsLightmapAtlasIdle(GFX_LIGHTMAP_TYPE_AB_LIGHTING);
-    v56 = !RB_IsLightGridVolumesAtlasIdle();
-    v144 = v143;
-    if ( v56 )
-      v144 = 1;
-    if ( v144 )
+    v92 = !RB_IsLightmapAtlasIdle(GFX_LIGHTMAP_TYPE_AB_LIGHTING);
+    v93 = !RB_IsLightGridVolumesAtlasIdle();
+    v94 = v92;
+    if ( v93 )
+      v94 = 1;
+    if ( v94 )
     {
-      if ( v22 >= 4 )
+      if ( v21 >= 4 )
       {
         p_numBFActive = &optSet.numBFActive;
-        v146 = ((unsigned int)(v22 - 4) >> 2) + 1;
-        v147 = v146;
-        v20 = 4 * v146;
+        v96 = ((unsigned int)(v21 - 4) >> 2) + 1;
+        v97 = v96;
+        v19 = 4 * v96;
         do
         {
-          v148 = *(p_numBFActive - 1);
+          v98 = *(p_numBFActive - 1);
           p_numBFActive += 4;
-          v148 *= 32i64;
-          *(float *)((char *)world->dynamicLightset.basisFunctions->lastValue + v148) = -1.0;
-          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[1] + v148) = -1.0;
-          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[2] + v148) = -1.0;
-          v149 = *(p_numBFActive - 4);
-          world->dynamicLightset.basisFunctions[v149].lastValue[0] = -1.0;
-          world->dynamicLightset.basisFunctions[v149].lastValue[1] = -1.0;
-          world->dynamicLightset.basisFunctions[v149].lastValue[2] = -1.0;
-          v150 = *(p_numBFActive - 3);
-          world->dynamicLightset.basisFunctions[v150].lastValue[0] = -1.0;
-          world->dynamicLightset.basisFunctions[v150].lastValue[1] = -1.0;
-          world->dynamicLightset.basisFunctions[v150].lastValue[2] = -1.0;
-          v151 = *(p_numBFActive - 2);
-          world->dynamicLightset.basisFunctions[v151].lastValue[0] = -1.0;
-          world->dynamicLightset.basisFunctions[v151].lastValue[1] = -1.0;
-          world->dynamicLightset.basisFunctions[v151].lastValue[2] = -1.0;
-          --v147;
+          v98 *= 32i64;
+          *(float *)((char *)world->dynamicLightset.basisFunctions->lastValue + v98) = -1.0;
+          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[1] + v98) = -1.0;
+          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[2] + v98) = -1.0;
+          v99 = *(p_numBFActive - 4);
+          world->dynamicLightset.basisFunctions[v99].lastValue[0] = -1.0;
+          world->dynamicLightset.basisFunctions[v99].lastValue[1] = -1.0;
+          world->dynamicLightset.basisFunctions[v99].lastValue[2] = -1.0;
+          v100 = *(p_numBFActive - 3);
+          world->dynamicLightset.basisFunctions[v100].lastValue[0] = -1.0;
+          world->dynamicLightset.basisFunctions[v100].lastValue[1] = -1.0;
+          world->dynamicLightset.basisFunctions[v100].lastValue[2] = -1.0;
+          v101 = *(p_numBFActive - 2);
+          world->dynamicLightset.basisFunctions[v101].lastValue[0] = -1.0;
+          world->dynamicLightset.basisFunctions[v101].lastValue[1] = -1.0;
+          world->dynamicLightset.basisFunctions[v101].lastValue[2] = -1.0;
+          --v97;
         }
-        while ( v147 );
+        while ( v97 );
       }
-      if ( v20 < v22 )
+      if ( v19 < v21 )
       {
-        v152 = (unsigned int)(v22 - v20);
-        v153 = &optSet.whichChunk + v20;
+        v102 = (unsigned int)(v21 - v19);
+        v103 = &optSet.whichChunk + v19;
         do
         {
-          v154 = *v153++;
-          v154 *= 32i64;
-          *(float *)((char *)world->dynamicLightset.basisFunctions->lastValue + v154) = -1.0;
-          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[1] + v154) = -1.0;
-          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[2] + v154) = -1.0;
-          --v152;
+          v104 = *v103++;
+          v104 *= 32i64;
+          *(float *)((char *)world->dynamicLightset.basisFunctions->lastValue + v104) = -1.0;
+          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[1] + v104) = -1.0;
+          *(float *)((char *)&world->dynamicLightset.basisFunctions->lastValue[2] + v104) = -1.0;
+          --v102;
         }
-        while ( v152 );
+        while ( v102 );
       }
       return;
     }
-    v155 = v16->state;
+    v105 = v15->state;
     R_LockGfxImmediateContext();
-    dlsUseAsyncCompute = _R12->viewInfo[_R12->viewInfoIndex].dlsUseAsyncCompute;
+    dlsUseAsyncCompute = v13->viewInfo[v13->viewInfoIndex].dlsUseAsyncCompute;
     if ( dlsUseAsyncCompute )
     {
-      R_InitComputeCmdBufState(&state, _R12, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
-      R_ComputeWaitForGraphics(&state, v155);
-      v156 = D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+      R_InitComputeCmdBufState(&state, v13, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
+      R_ComputeWaitForGraphics(&state, v105);
+      v106 = D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
     }
     else
     {
-      R_InitGfxComputeCmdBufState(&state, v155);
-      R_GfxComputeWaitForGraphics(v155);
-      v156 = D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+      R_InitGfxComputeCmdBufState(&state, v105);
+      R_GfxComputeWaitForGraphics(v105);
+      v106 = D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
     }
-    v232 = v156;
-    LightmapAtlasTexture = R_GetLightmapAtlasTexture(_R12, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 1u);
+    v182 = v106;
+    LightmapAtlasTexture = R_GetLightmapAtlasTexture(v13, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 1u);
     Resident = R_Texture_GetResident(LightmapAtlasTexture->textureId);
-    R_HW_AddResourceTransition(&state, Resident, 0xFFFFFFFF, v156, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    v159 = R_GetLightmapAtlasTexture(_R12, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 2u);
-    v160 = R_Texture_GetResident(v159->textureId);
-    R_HW_AddResourceTransition(&state, v160, 0xFFFFFFFF, v156, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    v161 = 0;
-    for ( i = dlsGlob.bfCoeffs[_R12->smpFrame].data; v161 < world->dynamicLightset.numBasisFunctions; i[2 * v164 + 3] = LODWORD(world->dynamicLightset.basisFunctions[v163].curValue[1]) )
+    R_HW_AddResourceTransition(&state, Resident, 0xFFFFFFFF, v106, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v109 = R_GetLightmapAtlasTexture(v13, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 2u);
+    v110 = R_Texture_GetResident(v109->textureId);
+    R_HW_AddResourceTransition(&state, v110, 0xFFFFFFFF, v106, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v111 = 0;
+    for ( i = dlsGlob.bfCoeffs[v13->smpFrame].data; v111 < world->dynamicLightset.numBasisFunctions; i[2 * v114 + 3] = LODWORD(world->dynamicLightset.basisFunctions[v113].curValue[1]) )
     {
-      v163 = v161;
-      v164 = v161++;
-      v164 *= 2i64;
-      i[2 * v164] = LODWORD(world->dynamicLightset.basisFunctions[v163].lastValue[0]);
-      i[2 * v164 + 1] = LODWORD(world->dynamicLightset.basisFunctions[v163].lastValue[1]);
-      i[2 * v164 + 2] = LODWORD(world->dynamicLightset.basisFunctions[v163].lastValue[2]);
+      v113 = v111;
+      v114 = v111++;
+      v114 *= 2i64;
+      i[2 * v114] = LODWORD(world->dynamicLightset.basisFunctions[v113].lastValue[0]);
+      i[2 * v114 + 1] = LODWORD(world->dynamicLightset.basisFunctions[v113].lastValue[1]);
+      i[2 * v114 + 2] = LODWORD(world->dynamicLightset.basisFunctions[v113].lastValue[2]);
     }
     R_FlushResourceTransitions(&state);
     R_ProfBeginNamedEvent(&state, "Dynamic Lightsets");
@@ -1104,301 +966,301 @@ LABEL_37:
     R_SetComputeViews(&state, 0, 1, (const GfxShaderBufferView *const *)&views);
     views = &world->dynamicLightset.lmData.origRecordsBuffer.view;
     R_SetComputeViews(&state, 1, 1, (const GfxShaderBufferView *const *)&views);
-    views = &dlsGlob.bfCoeffs[0].view + 2 * _R12->smpFrame;
+    views = &dlsGlob.bfCoeffs[0].view + 2 * v13->smpFrame;
     R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&views);
     views = &world->dynamicLightset.lmData.bfTexelsBuffer.view;
     R_SetComputeViews(&state, 3, 1, (const GfxShaderBufferView *const *)&views);
     p_view = &gfxBuf.dummyBuffer.view;
-    v166 = &world->dynamicLightset.lmData.skipRecordsBuffer.view;
+    v116 = &world->dynamicLightset.lmData.skipRecordsBuffer.view;
     if ( world->dynamicLightset.lmData.numSkipRecords )
       p_view = &world->dynamicLightset.lmData.palletteRecordsBuffer.view;
     else
-      v166 = &gfxBuf.dummyBuffer.view;
+      v116 = &gfxBuf.dummyBuffer.view;
     views = p_view;
     R_SetComputeViews(&state, 4, 1, (const GfxShaderBufferView *const *)&views);
-    views = v166;
+    views = v116;
     R_SetComputeViews(&state, 5, 1, (const GfxShaderBufferView *const *)&views);
-    v167 = 0;
-    v222 = 0;
+    v117 = 0;
+    v172 = 0;
     if ( world->dynamicLightset.lmData.numLMHave )
     {
       while ( 2 )
       {
-        v168 = v167;
-        v169 = world->dynamicLightset.lmData.chunkWhichLM[v167];
-        v170 = world->draw.lightmapTransientIndex[v169];
-        forceUpdate = dlsGlob.transientForceUpdate[v170];
-        if ( !(_DWORD)v170 )
+        v118 = v117;
+        v119 = world->dynamicLightset.lmData.chunkWhichLM[v117];
+        v120 = world->draw.lightmapTransientIndex[v119];
+        forceUpdate = dlsGlob.transientForceUpdate[v120];
+        if ( !(_DWORD)v120 )
           goto LABEL_84;
-        if ( (unsigned int)v170 >= 0x600 )
+        if ( (unsigned int)v120 >= 0x600 )
         {
           LODWORD(slice) = 1536;
-          LODWORD(flag) = v170;
+          LODWORD(flag) = v120;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", flag, slice) )
             __debugbreak();
-          v167 = v222;
+          v117 = v172;
         }
-        if ( ((0x80000000 >> (v170 & 0x1F)) & dataa->transientVisibility.array[v170 >> 5]) == 0 )
+        if ( ((0x80000000 >> (v120 & 0x1F)) & dataa->transientVisibility.array[v120 >> 5]) == 0 )
         {
-          _R12 = dataa;
+          v13 = dataa;
         }
         else
         {
 LABEL_84:
           chunkLMStart = world->dynamicLightset.lmData.chunkLMStart;
           Px = 0.0;
-          v172 = chunkLMStart[v168];
-          v173 = chunkLMStart[v167 + 1] - v172;
-          numChunk = v173;
-          if ( !RB_GetLightimapPacking(GFX_LIGHTMAP_TYPE_AB_LIGHTING, v169, &x, &y, (unsigned int *)&views, height, &v237) )
+          v122 = chunkLMStart[v118];
+          v123 = chunkLMStart[v117 + 1] - v122;
+          numChunk = v123;
+          if ( !RB_GetLightimapPacking(GFX_LIGHTMAP_TYPE_AB_LIGHTING, v119, &x, &y, (unsigned int *)&views, height, &v187) )
             goto LABEL_127;
           if ( (unsigned __int16)x != x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 569, ASSERT_TYPE_ASSERT, "(( x & 0xFFFF ) == x)", (const char *)&queryFormat, "( x & 0xFFFF ) == x") )
             __debugbreak();
-          v174 = y;
+          v124 = y;
           if ( (unsigned __int16)y != y )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 570, ASSERT_TYPE_ASSERT, "(( y & 0xFFFF ) == y)", (const char *)&queryFormat, "( y & 0xFFFF ) == y") )
               __debugbreak();
-            v174 = y;
+            v124 = y;
           }
-          _R12 = dataa;
-          v175 = x | (v174 << 16);
-          v234 = v175;
-          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)GetLightmapAtlasTextureSliceRWView(dataa, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 1u, v237);
+          v13 = dataa;
+          v125 = x | (v124 << 16);
+          v184 = v125;
+          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)GetLightmapAtlasTextureSliceRWView(dataa, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 1u, v187);
           R_SetComputeTextureRWViews(&state, 0, 1, (const GfxShaderTextureRWView *const *)&LightmapAtlasTextureSliceRWView);
-          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)GetLightmapAtlasTextureSliceRWView(_R12, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 2u, v237);
+          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)GetLightmapAtlasTextureSliceRWView(v13, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 2u, v187);
           R_SetComputeTextureRWViews(&state, 1, 1, (const GfxShaderTextureRWView *const *)&LightmapAtlasTextureSliceRWView);
           chunkGLM = world->dynamicLightset.lmData.chunkGLM;
-          v177 = world->dynamicLightset.basisFunctions;
+          v127 = world->dynamicLightset.basisFunctions;
           chunkGLMBF = world->dynamicLightset.lmData.chunkGLMBF;
-          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)(3 * v172);
-          if ( RB_GetNextGChunks(v173, &chunkGLM[v172], chunkGLMBF, v177, (unsigned int *)&Px, copySet, &optSet, mixedSet, heavySet, &copySlot, &optSlot, &mixedSlot, &heavySlot, forceUpdate) )
+          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)(3 * v122);
+          if ( RB_GetNextGChunks(v123, &chunkGLM[v122], chunkGLMBF, v127, (unsigned int *)&Px, copySet, &optSet, mixedSet, heavySet, &copySlot, &optSlot, &mixedSlot, &heavySlot, forceUpdate) )
           {
             do
             {
-              v179 = copySlot;
+              v129 = copySlot;
               if ( copySlot )
               {
                 R_ProfBeginNamedEvent(&state, "lm copy");
                 R_SetComputeShader(&state, rgp.dynLightsetsOptCopyToLM);
-                if ( (_DWORD)v179 )
+                if ( (_DWORD)v129 )
                 {
-                  v180 = copySet;
+                  v130 = copySet;
                   do
                   {
-                    v181 = world->dynamicLightset.lmData.chunkGLM;
-                    v182 = (unsigned int)v172 + *v180;
-                    v245[0] = v181[(unsigned int)v172 + *v180].chunkInfo.numRecords;
-                    v245[1] = v181[v182].chunkInfo.orgStart;
-                    v245[2] = v175;
+                    v131 = world->dynamicLightset.lmData.chunkGLM;
+                    v132 = (unsigned int)v122 + *v130;
+                    v195[0] = v131[(unsigned int)v122 + *v130].chunkInfo.numRecords;
+                    v195[1] = v131[v132].chunkInfo.orgStart;
+                    v195[2] = v125;
                     if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
                       Sys_Error((const ObfuscateErrorText)&stru_143DB8680, (unsigned int)state.computeContextType);
-                    R_UploadAndSetComputeConstants(&state, 0, v245, 0x10u, NULL);
-                    R_Dispatch(&state, (unsigned int)(v245[0] + 63) >> 6, 1u, 1u);
-                    ++v180;
-                    --v179;
+                    R_UploadAndSetComputeConstants(&state, 0, v195, 0x10u, NULL);
+                    R_Dispatch(&state, (unsigned int)(v195[0] + 63) >> 6, 1u, 1u);
+                    ++v130;
+                    --v129;
                   }
-                  while ( v179 );
+                  while ( v129 );
                 }
                 R_ProfEndNamedEvent(&state);
               }
-              v183 = optSlot;
-              v184 = heavySlot;
-              v185 = mixedSlot;
+              v133 = optSlot;
+              v134 = heavySlot;
+              v135 = mixedSlot;
               if ( optSlot || mixedSlot || heavySlot )
               {
-                v243 = v175;
+                v193 = v125;
                 if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
                   Sys_Error((const ObfuscateErrorText)&stru_143DB8680, (unsigned int)state.computeContextType);
-                R_UploadAndSetComputeConstants(&state, 0, &v243, 0x10u, NULL);
-                v186 = -1;
-                if ( (_DWORD)v183 )
+                R_UploadAndSetComputeConstants(&state, 0, &v193, 0x10u, NULL);
+                v136 = -1;
+                if ( (_DWORD)v133 )
                 {
                   R_ProfBeginNamedEvent(&state, "lm opt blend");
                   p_deltaBits = &optSet.deltaBits;
-                  v188 = v183;
+                  v138 = v133;
                   do
                   {
-                    v189 = world->dynamicLightset.lmData.chunkGLM;
-                    v190 = *(p_deltaBits - 2);
-                    numRecords = v189[(unsigned int)(v172 + v190)].chunkInfo.numRecords;
-                    orgStart = v189[(unsigned int)(v172 + v190)].chunkInfo.orgStart;
-                    bfStart = v189[(unsigned int)(v172 + v190)].chunkInfo.bfStart;
+                    v139 = world->dynamicLightset.lmData.chunkGLM;
+                    v140 = *(p_deltaBits - 2);
+                    numRecords = v139[(unsigned int)(v122 + v140)].chunkInfo.numRecords;
+                    orgStart = v139[(unsigned int)(v122 + v140)].chunkInfo.orgStart;
+                    bfStart = v139[(unsigned int)(v122 + v140)].chunkInfo.bfStart;
                     tmpStart = *p_deltaBits;
                     if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
                       Sys_Error((const ObfuscateErrorText)&stru_143DB8680, (unsigned int)state.computeContextType);
                     R_UploadAndSetComputeConstants(&state, 1, &numRecords, 0x10u, NULL);
-                    v191 = *(p_deltaBits - 1) - 1;
-                    if ( v191 != v186 )
+                    v141 = *(p_deltaBits - 1) - 1;
+                    if ( v141 != v136 )
                     {
-                      R_SetComputeShader(&state, rgp.dynLightsetsOptBlendToLM[v191]);
-                      v186 = v191;
+                      R_SetComputeShader(&state, rgp.dynLightsetsOptBlendToLM[v141]);
+                      v136 = v141;
                     }
                     R_Dispatch(&state, (numRecords + 63) >> 6, 1u, 1u);
                     p_deltaBits += 3;
-                    --v188;
+                    --v138;
                   }
-                  while ( v188 );
-                  v185 = mixedSlot;
-                  v184 = heavySlot;
+                  while ( v138 );
+                  v135 = mixedSlot;
+                  v134 = heavySlot;
                   R_ProfEndNamedEvent(&state);
                 }
-                if ( (_DWORD)v185 )
+                if ( (_DWORD)v135 )
                 {
                   R_ProfBeginNamedEvent(&state, "lm mixed blend");
                   R_SetComputeShader(&state, rgp.dynLightsetsOpt5to8LM);
-                  v192 = mixedSet;
+                  v142 = mixedSet;
                   do
                   {
-                    v193 = world->dynamicLightset.lmData.chunkGLM;
-                    v194 = (unsigned int)v172 + *v192;
-                    numRecords = v193[(unsigned int)v172 + *v192].chunkInfo.numRecords;
-                    orgStart = v193[v194].chunkInfo.orgStart;
-                    bfStart = v193[v194].chunkInfo.bfStart;
-                    tmpStart = v193[v194].chunkInfo.tmpStart;
+                    v143 = world->dynamicLightset.lmData.chunkGLM;
+                    v144 = (unsigned int)v122 + *v142;
+                    numRecords = v143[(unsigned int)v122 + *v142].chunkInfo.numRecords;
+                    orgStart = v143[v144].chunkInfo.orgStart;
+                    bfStart = v143[v144].chunkInfo.bfStart;
+                    tmpStart = v143[v144].chunkInfo.tmpStart;
                     if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
                       Sys_Error((const ObfuscateErrorText)&stru_143DB8680, (unsigned int)state.computeContextType);
                     R_UploadAndSetComputeConstants(&state, 1, &numRecords, 0x10u, NULL);
                     R_Dispatch(&state, (numRecords + 63) >> 6, 1u, 1u);
-                    ++v192;
-                    --v185;
+                    ++v142;
+                    --v135;
                   }
-                  while ( v185 );
+                  while ( v135 );
                   R_ProfEndNamedEvent(&state);
                 }
-                if ( v184 )
+                if ( v134 )
                 {
                   R_ProfBeginNamedEvent(&state, "lm large blend");
                   R_SetComputeShader(&state, rgp.dynLightsetsOpt9to16LM);
-                  v195 = heavySet;
-                  v196 = v184;
+                  v145 = heavySet;
+                  v146 = v134;
                   do
                   {
-                    v197 = (unsigned int)v172 + *v195;
-                    v198 = world->dynamicLightset.lmData.chunkGLM;
-                    numRecords = v198[(unsigned int)v172 + *v195].chunkInfo.numRecords;
-                    orgStart = v198[v197].chunkInfo.orgStart;
-                    bfStart = v198[v197].chunkInfo.bfStart;
-                    tmpStart = v198[v197].chunkInfo.tmpStart;
+                    v147 = (unsigned int)v122 + *v145;
+                    v148 = world->dynamicLightset.lmData.chunkGLM;
+                    numRecords = v148[(unsigned int)v122 + *v145].chunkInfo.numRecords;
+                    orgStart = v148[v147].chunkInfo.orgStart;
+                    bfStart = v148[v147].chunkInfo.bfStart;
+                    tmpStart = v148[v147].chunkInfo.tmpStart;
                     if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
                       Sys_Error((const ObfuscateErrorText)&stru_143DB8680, (unsigned int)state.computeContextType);
                     R_UploadAndSetComputeConstants(&state, 1, &numRecords, 0x10u, NULL);
                     R_Dispatch(&state, (numRecords + 63) >> 6, 1u, 1u);
-                    ++v195;
-                    --v196;
+                    ++v145;
+                    --v146;
                   }
-                  while ( v196 );
+                  while ( v146 );
                   R_ProfEndNamedEvent(&state);
                 }
-                v175 = v234;
+                v125 = v184;
               }
             }
             while ( RB_GetNextGChunks(numChunk, (GfxDynamicLightsetGChunk *)((char *)world->dynamicLightset.lmData.chunkGLM + 8 * (_QWORD)LightmapAtlasTextureSliceRWView), world->dynamicLightset.lmData.chunkGLMBF, world->dynamicLightset.basisFunctions, (unsigned int *)&Px, copySet, &optSet, mixedSet, heavySet, &copySlot, &optSlot, &mixedSlot, &heavySlot, forceUpdate) );
 LABEL_127:
-            _R12 = dataa;
+            v13 = dataa;
           }
-          v167 = v222;
+          v117 = v172;
         }
-        v222 = ++v167;
-        if ( v167 >= world->dynamicLightset.lmData.numLMHave )
+        v172 = ++v117;
+        if ( v117 >= world->dynamicLightset.lmData.numLMHave )
         {
-          v156 = v232;
+          v106 = v182;
           break;
         }
         continue;
       }
     }
     R_ComputeWaitForCompute(&state, PIPE_FLUSH_FULL);
-    v199 = R_GetLightmapAtlasTexture(_R12, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 1u);
-    v200 = R_Texture_GetResident(v199->textureId);
-    R_HW_AddResourceTransition(&state, v200, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v156, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    v201 = R_GetLightmapAtlasTexture(_R12, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 2u);
-    v202 = R_Texture_GetResident(v201->textureId);
-    R_HW_AddResourceTransition(&state, v202, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v156, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v149 = R_GetLightmapAtlasTexture(v13, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 1u);
+    v150 = R_Texture_GetResident(v149->textureId);
+    R_HW_AddResourceTransition(&state, v150, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v106, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v151 = R_GetLightmapAtlasTexture(v13, GFX_LIGHTMAP_TYPE_AB_LIGHTING, 2u);
+    v152 = R_Texture_GetResident(v151->textureId);
+    R_HW_AddResourceTransition(&state, v152, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v106, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(&state);
     if ( world->draw.lightGridType != GFX_LIGHTGRID_TYPE_SINGLE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 1233, ASSERT_TYPE_ASSERT, "(( world->draw.lightGridType == GFX_LIGHTGRID_TYPE_SINGLE ) && \"Transient GpuLightGrids not yet supported on levels with A/B lighting!\")", (const char *)&queryFormat, "( world->draw.lightGridType == GFX_LIGHTGRID_TYPE_SINGLE ) && \"Transient GpuLightGrids not yet supported on levels with A/B lighting!\"") )
       __debugbreak();
-    if ( R_GetNumActiveLightGrids(_R12) > 0 )
+    if ( R_GetNumActiveLightGrids(v13) > 0 )
     {
-      if ( R_GetNumActiveLightGrids(_R12) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 1237, ASSERT_TYPE_ASSERT, "(R_GetNumActiveLightGrids( data ) == 1)", (const char *)&queryFormat, "R_GetNumActiveLightGrids( data ) == 1") )
+      if ( R_GetNumActiveLightGrids(v13) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dynamic_lightsets.cpp", 1237, ASSERT_TYPE_ASSERT, "(R_GetNumActiveLightGrids( data ) == 1)", (const char *)&queryFormat, "R_GetNumActiveLightGrids( data ) == 1") )
         __debugbreak();
-      v203 = (__int64)*R_GetActiveLightGridsList(_R12);
-      R_HW_AddResourceTransition(&state, (const GfxWrappedBuffer *)(v203 + 16), 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      v153 = (__int64)*R_GetActiveLightGridsList(v13);
+      R_HW_AddResourceTransition(&state, (const GfxWrappedBuffer *)(v153 + 16), 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_FlushResourceTransitions(&state);
-      LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)(v203 + 48);
+      LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)(v153 + 48);
       R_SetComputeRWViewsWithCounters(&state, 0, 1, (const GfxShaderBufferRWView *const *)&LightmapAtlasTextureSliceRWView, NULL);
       LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)&world->dynamicLightset.lgProbeData.tempRemapBuffer.view;
       R_SetComputeViews(&state, 8, 1, (const GfxShaderBufferView *const *)&LightmapAtlasTextureSliceRWView);
-      v244 = 0ui64;
-      v243 = 0ui64;
-      LODWORD(v244) = world->dynamicLightset.lgProbeData.origStart;
+      v194 = 0ui64;
+      v193 = 0ui64;
+      LODWORD(v194) = world->dynamicLightset.lgProbeData.origStart;
       if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
         Sys_Error((const ObfuscateErrorText)&stru_143DB8680, (unsigned int)state.computeContextType);
-      R_UploadAndSetComputeConstants(&state, 0, &v243, 0x20u, NULL);
-      RB_DynamicLightsets_UpdateProbesNew(world, _R12, &state, &world->dynamicLightset.lgProbeData, 0, 0, 0);
-      R_HW_AddResourceTransition(&state, (const GfxWrappedBuffer *)(v203 + 16), 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      R_UploadAndSetComputeConstants(&state, 0, &v193, 0x20u, NULL);
+      RB_DynamicLightsets_UpdateProbesNew(world, v13, &state, &world->dynamicLightset.lgProbeData, 0, 0, 0);
+      R_HW_AddResourceTransition(&state, (const GfxWrappedBuffer *)(v153 + 16), 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_FlushResourceTransitions(&state);
     }
-    LightGridVolumeAtlasTexture = R_GetLightGridVolumeAtlasTexture(_R12, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
-    v205 = R_Texture_GetResident(LightGridVolumeAtlasTexture->textureId);
-    R_HW_AddResourceTransition(&state, v205, 0xFFFFFFFF, v156, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    v206 = R_GetLightGridVolumeAtlasTexture(_R12, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
-    v207 = R_Texture_GetResident(v206->textureId);
-    R_HW_AddResourceTransition(&state, v207, 0xFFFFFFFF, v156, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    LightGridVolumeAtlasTexture = R_GetLightGridVolumeAtlasTexture(v13, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
+    v155 = R_Texture_GetResident(LightGridVolumeAtlasTexture->textureId);
+    R_HW_AddResourceTransition(&state, v155, 0xFFFFFFFF, v106, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v156 = R_GetLightGridVolumeAtlasTexture(v13, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
+    v157 = R_Texture_GetResident(v156->textureId);
+    R_HW_AddResourceTransition(&state, v157, 0xFFFFFFFF, v106, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(&state);
-    v208 = 0;
-    if ( _R12->transientDrawContext.zoneCount )
+    v158 = 0;
+    if ( v13->transientDrawContext.zoneCount )
     {
       do
       {
-        v209 = dataa;
-        v210 = dataa->transientDrawContext.dynLightSets[v208];
-        if ( v210 && v210->lgvProbeData.numGChunk )
+        v159 = dataa;
+        v160 = dataa->transientDrawContext.dynLightSets[v158];
+        if ( v160 && v160->lgvProbeData.numGChunk )
         {
-          v211 = R_GetLightGridVolumeAtlasTexture(dataa, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
-          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)R_Texture_GetResident(v211->textureId);
+          v161 = R_GetLightGridVolumeAtlasTexture(dataa, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
+          LightmapAtlasTextureSliceRWView = (GfxShaderTextureRWView *)R_Texture_GetResident(v161->textureId);
           R_SetComputeRWTextures(&state, 1, 1, (const GfxTexture *const *)&LightmapAtlasTextureSliceRWView);
-          v212 = R_GetLightGridVolumeAtlasTexture(v209, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
-          views = (GfxShaderBufferView *)R_Texture_GetResident(v212->textureId);
+          v162 = R_GetLightGridVolumeAtlasTexture(v159, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
+          views = (GfxShaderBufferView *)R_Texture_GetResident(v162->textureId);
           R_SetComputeRWTextures(&state, 2, 1, (const GfxTexture *const *)&views);
-          *(_QWORD *)height = &R_GetLightGridVolumesAtlasPackingParamsBuffer(v209)->view;
+          *(_QWORD *)height = &R_GetLightGridVolumesAtlasPackingParamsBuffer(v159)->view;
           R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)height);
-          *(_QWORD *)height = &R_GetLightGridVolumesAtlasTransientPackingBuffer(v209)->view;
+          *(_QWORD *)height = &R_GetLightGridVolumesAtlasTransientPackingBuffer(v159)->view;
           R_SetComputeViews(&state, 4, 1, (const GfxShaderBufferView *const *)height);
-          *(_QWORD *)height = &v210->lgvReferencesBuffer.view;
+          *(_QWORD *)height = &v160->lgvReferencesBuffer.view;
           R_SetComputeViews(&state, 3, 1, (const GfxShaderBufferView *const *)height);
           *(_QWORD *)height = &gfxBuf.dummyRWBuffer.rwView;
           R_SetComputeRWViewsWithCounters(&state, 0, 1, (const GfxShaderBufferRWView *const *)height, NULL);
-          *(_QWORD *)height = &v210->lgvProbeData.tempRemapBuffer.view;
+          *(_QWORD *)height = &v160->lgvProbeData.tempRemapBuffer.view;
           R_SetComputeViews(&state, 8, 1, (const GfxShaderBufferView *const *)height);
-          LODWORD(v244) = v210->lgvProbeData.origStart;
-          *(_QWORD *)((char *)&v243 + 4) = 64i64;
-          *(_QWORD *)((char *)&v244 + 4) = 0i64;
-          HIDWORD(v244) = 0;
-          HIDWORD(v243) = v208;
-          LODWORD(v243) = 64;
-          DWORD2(v243) = R_GetLightGridVolumesAtlasTextureDepth(v209);
+          LODWORD(v194) = v160->lgvProbeData.origStart;
+          *(_QWORD *)((char *)&v193 + 4) = 64i64;
+          *(_QWORD *)((char *)&v194 + 4) = 0i64;
+          HIDWORD(v194) = 0;
+          HIDWORD(v193) = v158;
+          LODWORD(v193) = 64;
+          DWORD2(v193) = R_GetLightGridVolumesAtlasTextureDepth(v159);
           if ( !R_ComputeCheckReserveDescriptorHeaps(&state) )
             Sys_Error((const ObfuscateErrorText)&stru_143DB8A20, (unsigned int)state.computeContextType);
-          R_UploadAndSetComputeConstants(&state, 0, &v243, 0x20u, NULL);
-          _R12 = v209;
-          RB_DynamicLightsets_UpdateProbesNew(world, v209, &state, &v210->lgvProbeData, 1, v208, dlsGlob.transientForceUpdate[v208]);
+          R_UploadAndSetComputeConstants(&state, 0, &v193, 0x20u, NULL);
+          v13 = v159;
+          RB_DynamicLightsets_UpdateProbesNew(world, v159, &state, &v160->lgvProbeData, 1, v158, dlsGlob.transientForceUpdate[v158]);
         }
         else
         {
-          _R12 = dataa;
+          v13 = dataa;
         }
-        ++v208;
+        ++v158;
       }
-      while ( v208 < _R12->transientDrawContext.zoneCount );
-      v156 = v232;
+      while ( v158 < v13->transientDrawContext.zoneCount );
+      v106 = v182;
     }
-    v213 = R_GetLightGridVolumeAtlasTexture(_R12, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
-    v214 = R_Texture_GetResident(v213->textureId);
-    R_HW_AddResourceTransition(&state, v214, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v156, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    v215 = R_GetLightGridVolumeAtlasTexture(_R12, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
-    v216 = R_Texture_GetResident(v215->textureId);
-    R_HW_AddResourceTransition(&state, v216, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v156, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v163 = R_GetLightGridVolumeAtlasTexture(v13, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
+    v164 = R_Texture_GetResident(v163->textureId);
+    R_HW_AddResourceTransition(&state, v164, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v106, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v165 = R_GetLightGridVolumeAtlasTexture(v13, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
+    v166 = R_Texture_GetResident(v165->textureId);
+    R_HW_AddResourceTransition(&state, v166, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, v106, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(&state);
     if ( dlsGlob.transientForceUpdateCount )
       memset_0(&dlsGlob.transientForceUpdateCount, 0, 0x604ui64);
@@ -1634,261 +1496,210 @@ RB_GetNextGChunks
 */
 bool RB_GetNextGChunks(const unsigned int numChunk, GfxDynamicLightsetGChunk *chunks, unsigned __int16 *bfList, GfxDynamicLightsetBFData *bfData, unsigned int *activeIndex, unsigned int *copySet, GChunkBypassStruct *optSet, unsigned int *mixedSet, unsigned int *heavySet, unsigned int *copySlot, unsigned int *optSlot, unsigned int *mixedSlot, unsigned int *heavySlot, bool forceUpdate)
 {
-  unsigned int *v15; 
-  unsigned int *v17; 
-  unsigned int *v19; 
-  unsigned int *v21; 
+  unsigned int *v14; 
+  unsigned int *v16; 
+  unsigned int *v18; 
+  unsigned int *v20; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v24; 
+  __int64 v23; 
+  char v24; 
   __int64 v25; 
-  char v26; 
-  __int64 v27; 
   GfxDynamicLightsetGChunkFlags flags; 
-  unsigned int v29; 
-  __int16 v30; 
+  unsigned int v27; 
+  __int16 v28; 
+  char v29; 
+  bool v30; 
   char v31; 
-  bool v32; 
-  unsigned int v33; 
+  unsigned int v32; 
   unsigned int bfChunkStart; 
-  __int64 v35; 
-  bool v37; 
   unsigned int numBFActive; 
-  __int64 v40; 
-  unsigned int v43; 
-  __int64 v44; 
-  unsigned int v47; 
-  __int64 v48; 
-  unsigned int v51; 
-  __int64 v52; 
-  unsigned int v55; 
-  unsigned int v56; 
-  unsigned int v58; 
-  char v59; 
+  unsigned int v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  unsigned int v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  unsigned int v42; 
 
-  v15 = optSlot;
-  _RDI = bfData;
-  v17 = mixedSlot;
-  v19 = heavySlot;
-  v21 = copySlot;
+  v14 = optSlot;
+  v16 = mixedSlot;
+  v18 = heavySlot;
+  v20 = copySlot;
   *heavySlot = 0;
   *mixedSlot = 0;
   *optSlot = 0;
   *copySlot = 0;
-  v22 = *activeIndex;
-  if ( (unsigned int)v22 < numChunk )
+  v21 = *activeIndex;
+  if ( (unsigned int)v21 < numChunk )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
     while ( 1 )
     {
-      if ( *v21 >= 0x40 )
-        return *v15 || *v17 || *v21 || *v19;
-      v24 = *v15;
-      if ( (unsigned int)v24 >= 0x40 || *v17 >= 0x40 || *v19 >= 0x40 )
-        return *v15 || *v17 || *v21 || *v19;
+      if ( *v20 >= 0x40 )
+        return *v14 || *v16 || *v20 || *v18;
+      v22 = *v14;
+      if ( (unsigned int)v22 >= 0x40 || *v16 >= 0x40 || *v18 >= 0x40 )
+        return *v14 || *v16 || *v20 || *v18;
+      v23 = v21;
+      v24 = 0;
       v25 = v22;
-      v26 = 0;
-      v27 = v24;
-      flags = chunks[v22].flags;
-      v29 = (unsigned __int8)flags;
-      v30 = (unsigned __int16)flags >> 12;
-      v31 = 0;
-      v32 = (flags & 0x800) != 0;
-      optSet[v27].numBFActive = 0;
-      v58 = v29;
-      v59 = v30 & 1;
-      optSet[v27].whichChunk = *activeIndex;
-      optSet[v27].deltaBits = 0;
-      if ( (v30 & 1) != 0 )
+      flags = chunks[v21].flags;
+      v27 = (unsigned __int8)flags;
+      v28 = (unsigned __int16)flags >> 12;
+      v29 = 0;
+      v30 = (flags & 0x800) != 0;
+      optSet[v25].numBFActive = 0;
+      v31 = v28 & 1;
+      v42 = v27;
+      optSet[v25].whichChunk = *activeIndex;
+      optSet[v25].deltaBits = 0;
+      if ( v31 )
       {
-        optSet[v24].deltaBits = 16434824;
-        optSet[v24].numBFActive = (((unsigned __int16)chunks[v25].flags >> 8) & 7) + 1;
+        optSet[v22].deltaBits = 16434824;
+        optSet[v22].numBFActive = (((unsigned __int16)chunks[v23].flags >> 8) & 7) + 1;
       }
-      v33 = 0;
-      if ( v29 >= 4 )
+      v32 = 0;
+      if ( v27 >= 4 )
       {
         do
         {
-          bfChunkStart = chunks[v25].bfChunkStart;
-          v35 = bfList[bfChunkStart + v33];
-          if ( forceUpdate )
-            goto LABEL_12;
-          _RAX = 32i64 * bfList[bfChunkStart + v33];
-          __asm { vucomiss xmm0, dword ptr [rax+rdi+4] }
-          if ( _RAX )
-LABEL_12:
-            v26 = 1;
-          v37 = __CFSHL__(v35, 5);
-          _R11 = 32 * v35;
-          __asm { vcomiss xmm0, dword ptr [r11+rdi] }
-          if ( v37 )
+          bfChunkStart = chunks[v23].bfChunkStart;
+          if ( forceUpdate || bfData[bfList[bfChunkStart + v32]].curValue[1] != 0.0 )
+            v24 = 1;
+          if ( bfData[bfList[bfChunkStart + v32]].curValue[0] > 0.0 )
           {
-            v31 = 1;
-            if ( v32 )
+            v29 = 1;
+            if ( v30 )
             {
-              numBFActive = optSet[v24].numBFActive;
-              optSet[v24].deltaBits |= v33 << (3 * numBFActive);
-              optSet[v24].numBFActive = numBFActive + 1;
-              bfChunkStart = chunks[v25].bfChunkStart;
+              numBFActive = optSet[v22].numBFActive;
+              optSet[v22].deltaBits |= v32 << (3 * numBFActive);
+              optSet[v22].numBFActive = numBFActive + 1;
+              bfChunkStart = chunks[v23].bfChunkStart;
             }
-            else if ( v26 )
+            else if ( v24 )
             {
-              goto LABEL_51;
+              goto LABEL_50;
             }
           }
-          v40 = bfList[bfChunkStart + 1 + v33];
-          if ( forceUpdate )
-            goto LABEL_19;
-          _RAX = 32i64 * bfList[bfChunkStart + 1 + v33];
-          __asm { vucomiss xmm0, dword ptr [rax+rdi+4] }
-          if ( _RAX )
-LABEL_19:
-            v26 = 1;
-          v37 = __CFSHL__(v40, 5);
-          _R11 = 32 * v40;
-          __asm { vcomiss xmm0, dword ptr [r11+rdi] }
-          if ( v37 )
+          if ( forceUpdate || bfData[bfList[bfChunkStart + 1 + v32]].curValue[1] != 0.0 )
+            v24 = 1;
+          if ( bfData[bfList[bfChunkStart + 1 + v32]].curValue[0] > 0.0 )
           {
-            v31 = 1;
-            if ( v32 )
+            v29 = 1;
+            if ( v30 )
             {
-              v43 = optSet[v24].numBFActive;
-              optSet[v24].deltaBits |= (v33 + 1) << (3 * v43);
-              optSet[v24].numBFActive = v43 + 1;
-              bfChunkStart = chunks[v25].bfChunkStart;
+              v35 = optSet[v22].numBFActive;
+              optSet[v22].deltaBits |= (v32 + 1) << (3 * v35);
+              optSet[v22].numBFActive = v35 + 1;
+              bfChunkStart = chunks[v23].bfChunkStart;
             }
-            else if ( v26 )
+            else if ( v24 )
             {
-              goto LABEL_51;
+              goto LABEL_50;
             }
           }
-          v44 = bfList[bfChunkStart + 2 + v33];
-          if ( forceUpdate )
-            goto LABEL_26;
-          _RAX = 32i64 * bfList[bfChunkStart + 2 + v33];
-          __asm { vucomiss xmm0, dword ptr [rax+rdi+4] }
-          if ( _RAX )
-LABEL_26:
-            v26 = 1;
-          v37 = __CFSHL__(v44, 5);
-          _R11 = 32 * v44;
-          __asm { vcomiss xmm0, dword ptr [r11+rdi] }
-          if ( v37 )
+          if ( forceUpdate || bfData[bfList[bfChunkStart + 2 + v32]].curValue[1] != 0.0 )
+            v24 = 1;
+          if ( bfData[bfList[bfChunkStart + 2 + v32]].curValue[0] > 0.0 )
           {
-            v31 = 1;
-            if ( v32 )
+            v29 = 1;
+            if ( v30 )
             {
-              v47 = optSet[v24].numBFActive;
-              optSet[v24].deltaBits |= (v33 + 2) << (3 * v47);
-              optSet[v24].numBFActive = v47 + 1;
-              bfChunkStart = chunks[v25].bfChunkStart;
+              v36 = optSet[v22].numBFActive;
+              optSet[v22].deltaBits |= (v32 + 2) << (3 * v36);
+              optSet[v22].numBFActive = v36 + 1;
+              bfChunkStart = chunks[v23].bfChunkStart;
             }
-            else if ( v26 )
+            else if ( v24 )
             {
-              goto LABEL_51;
+              goto LABEL_50;
             }
           }
-          v48 = bfList[bfChunkStart + 3 + v33];
-          if ( forceUpdate )
-            goto LABEL_33;
-          _RAX = 32i64 * (unsigned int)v48;
-          __asm { vucomiss xmm0, dword ptr [rax+rdi+4] }
-          if ( _RAX )
-LABEL_33:
-            v26 = 1;
-          v37 = __CFSHL__(v48, 5);
-          _RDX = 32 * v48;
-          __asm { vcomiss xmm0, dword ptr [rdx+rdi] }
-          if ( v37 )
+          v37 = bfList[bfChunkStart + 3 + v32];
+          if ( forceUpdate || bfData[(unsigned int)v37].curValue[1] != 0.0 )
+            v24 = 1;
+          if ( bfData[v37].curValue[0] > 0.0 )
           {
-            v31 = 1;
-            if ( v32 )
+            v29 = 1;
+            if ( v30 )
             {
-              v51 = optSet[v24].numBFActive;
-              optSet[v24].deltaBits |= (v33 + 3) << (3 * v51);
-              optSet[v24].numBFActive = v51 + 1;
+              v38 = optSet[v22].numBFActive;
+              optSet[v22].deltaBits |= (v32 + 3) << (3 * v38);
+              optSet[v22].numBFActive = v38 + 1;
             }
-            else if ( v26 )
+            else if ( v24 )
             {
-              goto LABEL_51;
+              goto LABEL_50;
             }
           }
-          v29 = v58;
-          v33 += 4;
+          v27 = v42;
+          v32 += 4;
         }
-        while ( v33 < v58 - 3 );
+        while ( v32 < v42 - 3 );
       }
-      for ( ; v33 < v29; ++v33 )
+      for ( ; v32 < v27; ++v32 )
       {
-        v52 = bfList[v33 + chunks[v25].bfChunkStart];
-        if ( forceUpdate )
-          goto LABEL_42;
-        _RAX = 32i64 * bfList[v33 + chunks[v25].bfChunkStart];
-        __asm { vucomiss xmm0, dword ptr [rax+rdi+4] }
-        if ( _RAX )
-LABEL_42:
-          v26 = 1;
-        v37 = __CFSHL__(v52, 5);
-        _RCX = 32 * v52;
-        __asm { vcomiss xmm0, dword ptr [rcx+rdi] }
-        if ( v37 )
+        if ( forceUpdate || bfData[bfList[v32 + chunks[v23].bfChunkStart]].curValue[1] != 0.0 )
+          v24 = 1;
+        if ( bfData[bfList[v32 + chunks[v23].bfChunkStart]].curValue[0] > 0.0 )
         {
-          v31 = 1;
-          if ( v32 )
+          v29 = 1;
+          if ( v30 )
           {
-            v55 = optSet[v27].numBFActive;
-            optSet[v27].deltaBits |= v33 << (3 * v55);
-            optSet[v27].numBFActive = v55 + 1;
+            v39 = optSet[v22].numBFActive;
+            optSet[v22].deltaBits |= v32 << (3 * v39);
+            optSet[v22].numBFActive = v39 + 1;
           }
-          else if ( v26 )
+          else if ( v24 )
           {
-            goto LABEL_51;
+            goto LABEL_50;
           }
         }
       }
-      if ( !v26 )
+      if ( !v24 )
         break;
-      if ( v31 )
+      if ( v29 )
       {
-        if ( !v32 )
+        if ( !v30 )
         {
-LABEL_51:
-          if ( !v59 )
+LABEL_50:
+          if ( !v31 )
           {
-            v17 = mixedSlot;
-            v19 = heavySlot;
-            v15 = optSlot;
-            v56 = *activeIndex;
-            if ( (chunks[v25].flags & 0x2000) != 0 )
-              mixedSet[(*mixedSlot)++] = v56;
+            v16 = mixedSlot;
+            v18 = heavySlot;
+            v14 = optSlot;
+            v40 = *activeIndex;
+            if ( (chunks[v23].flags & 0x2000) != 0 )
+              mixedSet[(*mixedSlot)++] = v40;
             else
-              heavySet[(*heavySlot)++] = v56;
-            goto LABEL_59;
+              heavySet[(*heavySlot)++] = v40;
+            goto LABEL_58;
           }
         }
-        v15 = optSlot;
+        v14 = optSlot;
         ++*optSlot;
+LABEL_57:
+        v16 = mixedSlot;
+        v18 = heavySlot;
 LABEL_58:
-        v17 = mixedSlot;
-        v19 = heavySlot;
-LABEL_59:
-        v21 = copySlot;
-        goto LABEL_60;
+        v20 = copySlot;
+        goto LABEL_59;
       }
-      v21 = copySlot;
-      v17 = mixedSlot;
-      v15 = optSlot;
+      v20 = copySlot;
+      v16 = mixedSlot;
+      v14 = optSlot;
       copySet[(*copySlot)++] = *activeIndex;
-      v19 = heavySlot;
-LABEL_60:
-      v22 = *activeIndex + 1;
-      *activeIndex = v22;
-      if ( (unsigned int)v22 >= numChunk )
-        return *v15 || *v17 || *v21 || *v19;
+      v18 = heavySlot;
+LABEL_59:
+      v21 = *activeIndex + 1;
+      *activeIndex = v21;
+      if ( (unsigned int)v21 >= numChunk )
+        return *v14 || *v16 || *v20 || *v18;
     }
-    v15 = optSlot;
-    goto LABEL_58;
+    v14 = optSlot;
+    goto LABEL_57;
   }
-  return *v15 || *v17 || *v21 || *v19;
+  return *v14 || *v16 || *v20 || *v18;
 }
 
 /*
@@ -2082,9 +1893,6 @@ R_UpdateDLS_Quat
 */
 void R_UpdateDLS_Quat(vec4_t *quat, const int whichSlot, unsigned int smpFrame)
 {
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
-  _RAX = dlsGlob.portalGIquats;
-  _R9 = 2 * (whichSlot + ((unsigned __int64)(smpFrame & 1) << 8));
-  __asm { vmovups xmmword ptr [rax+r9*8], xmm0 }
+  dlsGlob.portalGIquats[(unsigned __int64)(smpFrame & 1)][whichSlot] = *quat;
 }
 

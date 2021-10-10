@@ -1321,20 +1321,19 @@ DDL_GetFixedPoint
 */
 float DDL_GetFixedPoint(const DDLState *state, const DDLContext *ddlContext)
 {
+  unsigned int Bits; 
+  float v8; 
+
   if ( IsBufferValid(state, ddlContext) )
-    DDL::DDL_Buffer_ReadBits(ddlContext, state->offset, state->member->bitSize / state->member->arraySize, state->member->limitSize);
-  __asm
-  {
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-    vdivsd  xmm1, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vmulss  xmm0, xmm2, xmm0
-  }
-  return *(float *)&_XMM0;
+    Bits = DDL::DDL_Buffer_ReadBits(ddlContext, state->offset, state->member->bitSize / state->member->arraySize, state->member->limitSize);
+  else
+    Bits = 0;
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
+  _XMM1 = COERCE_UNSIGNED_INT64(1.0 / *(double *)&_XMM1);
+  v8 = (float)Bits;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  return *(float *)&_XMM2 * v8;
 }
 
 /*
@@ -1344,20 +1343,10 @@ DDL_GetFloat
 */
 float DDL_GetFloat(const DDLState *state, const DDLContext *ddlContext)
 {
-  unsigned int Bits; 
-  int v7; 
-
   if ( IsBufferValid(state, ddlContext) )
-  {
-    Bits = DDL::DDL_Buffer_ReadBits(ddlContext, state->offset, state->member->bitSize / state->member->arraySize, state->member->limitSize);
-    __asm { vmovss  xmm0, [rsp+28h+arg_10] }
-  }
+    return COERCE_FLOAT(DDL::DDL_Buffer_ReadBits(ddlContext, state->offset, state->member->bitSize / state->member->arraySize, state->member->limitSize));
   else
-  {
-    v7 = 0;
-    __asm { vmovss  xmm0, [rsp+28h+arg_10] }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -1382,14 +1371,8 @@ DDLHeader *DDL_GetHeader(DDLHeader *result, const void *buff, bool isMinimal)
 {
   DDLHeader resulta; 
 
-  _RBX = result;
-  _RAX = DDL::DDL_Header_Get(&resulta, buff, isMinimal);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx], ymm0
-  }
-  return _RBX;
+  *result = *DDL::DDL_Header_Get(&resulta, buff, isMinimal);
+  return result;
 }
 
 /*
@@ -1580,29 +1563,31 @@ DDL_GetValue
 DDLValue DDL_GetValue(const DDLState *state, const DDLContext *ddlContext)
 {
   DDLValue result; 
-  DDLValue v6; 
+  double Float; 
+  double FixedPoint; 
+  DDLValue v7; 
 
-  v6.uint64Value = 0i64;
+  v7.uint64Value = 0i64;
   if ( IsBufferValid(state, ddlContext) )
   {
     switch ( state->member->type )
     {
       case 0:
-        v6.intValue = DDL_GetByte(state, ddlContext);
-        result = v6;
+        v7.intValue = DDL_GetByte(state, ddlContext);
+        result = v7;
         break;
       case 1:
-        v6.intValue = DDL_GetShort(state, ddlContext);
-        result = v6;
+        v7.intValue = DDL_GetShort(state, ddlContext);
+        result = v7;
         break;
       case 2:
       case 0xA:
-        v6.intValue = DDL_GetUInt(state, ddlContext);
-        result = v6;
+        v7.intValue = DDL_GetUInt(state, ddlContext);
+        result = v7;
         break;
       case 3:
-        v6.intValue = DDL_GetInt(state, ddlContext);
-        result = v6;
+        v7.intValue = DDL_GetInt(state, ddlContext);
+        result = v7;
         break;
       case 4:
         result.uint64Value = DDL_GetUInt64(state, ddlContext);
@@ -1611,24 +1596,24 @@ DDLValue DDL_GetValue(const DDLState *state, const DDLContext *ddlContext)
         result.uint64Value = DDL_GetHash(state, ddlContext);
         break;
       case 6:
-        *(double *)&_XMM0 = DDL_GetFloat(state, ddlContext);
-        __asm { vmovss  dword ptr [rsp+28h+arg_10], xmm0 }
-        result = v6;
+        Float = DDL_GetFloat(state, ddlContext);
+        v7.fixedPointValue = *(float *)&Float;
+        result = v7;
         break;
       case 7:
-        *(double *)&_XMM0 = DDL_GetFixedPoint(state, ddlContext);
-        __asm { vmovss  dword ptr [rsp+28h+arg_10], xmm0 }
-        result = v6;
+        FixedPoint = DDL_GetFixedPoint(state, ddlContext);
+        v7.fixedPointValue = *(float *)&FixedPoint;
+        result = v7;
         break;
       case 8:
         return (DDLValue)DDL_GetString(state, ddlContext);
       default:
-        return v6;
+        return v7;
     }
   }
   else
   {
-    return v6;
+    return v7;
   }
   return result;
 }
@@ -1643,10 +1628,8 @@ char *DDL_GetValueStr(const DDLState *state, const DDLContext *ddlContext)
   const char *stringPtr; 
   DDLMember *member; 
   char *result; 
-  int v9; 
 
   stringPtr = DDL_GetValue(state, ddlContext).stringPtr;
-  v9 = (int)stringPtr;
   member = state->member;
   if ( !member )
     return 0i64;
@@ -1666,13 +1649,7 @@ char *DDL_GetValueStr(const DDLState *state, const DDLContext *ddlContext)
       break;
     case 6:
     case 7:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+28h+arg_0]; jumptable 0000000143796768 cases 6,7
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      result = DDL::DDL_va("%f", _RDX);
+      result = DDL::DDL_va("%f", *(float *)&stringPtr);
       break;
     case 8:
       goto LABEL_10;
@@ -1745,30 +1722,23 @@ DDL_Init
 
 bool __fastcall DDL_Init(const DDLConfigParams *const appFuncs, __int64 a2, double _XMM2_8)
 {
+  __m256i v3; 
+  DDLFile *(__fastcall *f_getAsset)(const char *); 
   bool result; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr cs:s_configParams.m_scratchBuff, ymm0
-    vmovups ymm1, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr cs:s_configParams.f_accessCallback, ymm1
-    vmovups ymm2, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr cs:s_configParams.f_assert, ymm2
-    vmovups ymm0, ymmword ptr [rcx+60h]
-    vpextrq rax, xmm2, 1
-  }
+  *(__m256i *)&s_configParams.m_scratchBuff = *(__m256i *)&appFuncs->m_scratchBuff;
+  *(__m256i *)&s_configParams.f_accessCallback = *(__m256i *)&appFuncs->f_accessCallback;
+  *(__m256i *)&s_configParams.f_assert = *(__m256i *)&appFuncs->f_assert;
+  v3 = *(__m256i *)&appFuncs->f_fileWriteClose;
+  __asm { vpextrq rax, xmm2, 1 }
   s_ddlInitialized = 1;
-  __asm
-  {
-    vmovups ymmword ptr cs:s_configParams.f_fileWriteClose, ymm0
-    vmovsd  xmm1, qword ptr [rcx+80h]
-  }
+  *(__m256i *)&s_configParams.f_fileWriteClose = v3;
+  f_getAsset = appFuncs->f_getAsset;
   if ( !_RAX )
     _RAX = DDL::DDL_HashStringDefault;
   s_configParams.f_stringHash = _RAX;
   result = 1;
-  __asm { vmovsd  cs:s_configParams.f_getAsset, xmm1 }
+  s_configParams.f_getAsset = f_getAsset;
   return result;
 }
 
@@ -1781,45 +1751,38 @@ bool DDL_IsChecksumValid(const void *buff, const DDLDef *def)
 {
   const DDLDef *ddlDef; 
   const char *name; 
-  int v9; 
   DDLFile *Asset; 
   DDLDef *i; 
-  const DDLDef *v12; 
-  bool v13; 
-  int v14; 
-  int v15; 
-  DDLFile *v16; 
-  DDLDef *v17; 
+  const DDLDef *v9; 
+  bool v10; 
+  int v11; 
+  int v12; 
+  DDLFile *v13; 
+  DDLDef *v14; 
   DDLHeader result; 
   char dest[256]; 
 
   ddlDef = def;
-  _RAX = DDL::DDL_Header_Get(&result, buff, def->minimalHeader);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vextractf128 xmm0, ymm0, 1
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_EAX == ddlDef->version )
+  _YMM0 = *(__m256i *)DDL::DDL_Header_Get(&result, buff, def->minimalHeader);
+  __asm { vextractf128 xmm0, ymm0, 1 }
+  if ( (_WORD)_XMM0 == ddlDef->version )
     goto LABEL_20;
   name = ddlDef->name;
-  v9 = (unsigned __int16)_EAX;
   Asset = DDL::DDL_GetAsset(ddlDef->name);
   if ( !Asset )
     return 0;
   ddlDef = Asset->ddlDef;
-  if ( !v9 )
+  if ( !(_WORD)_XMM0 )
   {
     if ( ddlDef )
     {
-      for ( i = ddlDef->next; i; ddlDef = v12 )
+      for ( i = ddlDef->next; i; ddlDef = v9 )
       {
-        v12 = i;
-        v13 = i->version <= ddlDef->version;
+        v9 = i;
+        v10 = i->version <= ddlDef->version;
         i = i->next;
-        if ( v13 )
-          v12 = ddlDef;
+        if ( v10 )
+          v9 = ddlDef;
       }
       goto LABEL_20;
     }
@@ -1827,7 +1790,7 @@ bool DDL_IsChecksumValid(const void *buff, const DDLDef *def)
   }
   if ( ddlDef )
   {
-    while ( ddlDef->version != v9 )
+    while ( ddlDef->version != (unsigned __int16)_XMM0 )
     {
       ddlDef = ddlDef->next;
       if ( !ddlDef )
@@ -1838,25 +1801,25 @@ bool DDL_IsChecksumValid(const void *buff, const DDLDef *def)
   {
 LABEL_13:
     ddlDef = NULL;
-    v14 = DDL::DDL_strlen(name);
-    v15 = DDL::DDL_strlen(".ddl");
-    DDL::DDL_strncpy(dest, 0x100ui64, name, v14 - v15);
+    v11 = DDL::DDL_strlen(name);
+    v12 = DDL::DDL_strlen(".ddl");
+    DDL::DDL_strncpy(dest, 0x100ui64, name, v11 - v12);
     DDL::DDL_strcat(dest, 0x100ui64, "_archive.ddl");
     if ( DDL::DDL_DoesAssetExist(dest) )
     {
-      v16 = DDL::DDL_GetAsset(dest);
-      if ( v16 )
+      v13 = DDL::DDL_GetAsset(dest);
+      if ( v13 )
       {
-        v17 = v16->ddlDef;
-        if ( v17 )
+        v14 = v13->ddlDef;
+        if ( v14 )
         {
-          while ( v17->version != v9 )
+          while ( v14->version != (unsigned __int16)_XMM0 )
           {
-            v17 = v17->next;
-            if ( !v17 )
+            v14 = v14->next;
+            if ( !v14 )
               goto LABEL_20;
           }
-          ddlDef = v17;
+          ddlDef = v14;
         }
       }
     }
@@ -2371,20 +2334,13 @@ bool DDL_SetEnumByHash(const DDLState *state, DDLContext *ddlContext, unsigned i
 DDL_SetFixedPoint
 ==============
 */
-
-bool __fastcall DDL_SetFixedPoint(const DDLState *state, DDLContext *ddlContext, double val)
+bool DDL_SetFixedPoint(const DDLState *state, DDLContext *ddlContext, const float val)
 {
-  __asm
-  {
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-    vdivsd  xmm1, xmm0, xmm1
-    vcvtsd2ss xmm3, xmm1, xmm1
-    vdivss  xmm2, xmm2, xmm3
-    vcvttss2si r8, xmm2; val
-  }
-  return DDL_SetUInt(state, ddlContext, _R8);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
+  _XMM1 = COERCE_UNSIGNED_INT64(1.0 / *(double *)&_XMM1);
+  __asm { vcvtsd2ss xmm3, xmm1, xmm1 }
+  return DDL_SetUInt(state, ddlContext, (int)(float)(val / *(float *)&_XMM3));
 }
 
 /*
@@ -2392,13 +2348,9 @@ bool __fastcall DDL_SetFixedPoint(const DDLState *state, DDLContext *ddlContext,
 DDL_SetFloat
 ==============
 */
-
-bool __fastcall DDL_SetFloat(const DDLState *state, DDLContext *ddlContext, double val)
+bool DDL_SetFloat(const DDLState *state, DDLContext *ddlContext, float val)
 {
-  unsigned int vala; 
-
-  __asm { vmovss  [rsp+val], xmm2 }
-  return DDL_SetUInt(state, ddlContext, vala);
+  return DDL_SetUInt(state, ddlContext, LODWORD(val));
 }
 
 /*
@@ -2508,14 +2460,13 @@ bool DDL_SetValue(const DDLState *state, DDLContext *ddlContext, const DDLValue 
   DDLMember *member; 
   bool result; 
   int limitSize; 
-  signed int v10; 
-  int v20; 
-  int v21; 
-  int vala; 
-  unsigned int valb; 
+  signed int v9; 
+  int v14; 
+  int v15; 
+  unsigned int vala; 
 
   uint64Value = (const char *)val.uint64Value;
-  vala = val.intValue;
+  vala = val.uintValue;
   if ( !IsBufferValid(state, ddlContext) )
     return 0;
   member = state->member;
@@ -2536,8 +2487,8 @@ bool DDL_SetValue(const DDLState *state, DDLContext *ddlContext, const DDLValue 
       limitSize = member->limitSize;
       if ( limitSize >= 32 )
         goto $LN5_268;
-      v10 = (1 << (limitSize - 1)) - 1;
-      if ( (int)uint64Value <= v10 )
+      v9 = (1 << (limitSize - 1)) - 1;
+      if ( (int)uint64Value <= v9 )
       {
         if ( (int)uint64Value < 1 - (1 << (limitSize - 1)) )
           LODWORD(uint64Value) = 1 - (1 << (limitSize - 1));
@@ -2546,7 +2497,7 @@ $LN5_268:
       }
       else
       {
-        result = DDL_SetUInt(state, ddlContext, v10);
+        result = DDL_SetUInt(state, ddlContext, v9);
       }
       break;
     case 4:
@@ -2556,42 +2507,30 @@ $LN5_268:
         return 0;
       return DDL::DDL_Buffer_WriteBits64(ddlContext, state->offset, (unsigned __int64)uint64Value);
     case 6:
-      __asm
-      {
-        vmovss  xmm0, [rsp+58h+val]; jumptable 00000001437979B6 case 6
-        vmovss  [rsp+58h+val], xmm0
-      }
-      return DDL_SetUInt(state, ddlContext, valb);
+      return DDL_SetUInt(state, ddlContext, vala);
     case 7:
-      __asm
-      {
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vmovss  xmm2, [rsp+58h+val]
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2sd xmm1, xmm1, rax
-        vdivsd  xmm1, xmm0, xmm1
-        vcvtsd2ss xmm3, xmm1, xmm1
-        vdivss  xmm0, xmm2, xmm3
-        vcvttss2si r8, xmm0; val
-      }
-      return DDL_SetUInt(state, ddlContext, _R8);
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, rax }
+      _XMM1 = COERCE_UNSIGNED_INT64(1.0 / *(double *)&_XMM1);
+      __asm { vcvtsd2ss xmm3, xmm1, xmm1 }
+      return DDL_SetUInt(state, ddlContext, (int)(float)(*(float *)&vala / *(float *)&_XMM3));
     case 8:
       if ( !IsBufferValid(state, ddlContext) || !uint64Value )
         return 0;
-      v20 = DDL::DDL_strlen(uint64Value);
-      v21 = state->member->bitSize / state->member->arraySize / 8;
-      if ( v20 <= v21 )
+      v14 = DDL::DDL_strlen(uint64Value);
+      v15 = state->member->bitSize / state->member->arraySize / 8;
+      if ( v14 <= v15 )
       {
-        if ( v20 < v21 )
-          ++v20;
+        if ( v14 < v15 )
+          ++v14;
       }
       else
       {
-        v20 = state->member->bitSize / state->member->arraySize / 8;
+        v14 = state->member->bitSize / state->member->arraySize / 8;
       }
-      if ( v20 <= 0 )
+      if ( v14 <= 0 )
         return 0;
-      DDL::DDL_Buffer_WriteBitsRaw(ddlContext, state->offset, (const unsigned __int8 *)uint64Value, 8 * v20, 8 * v21);
+      DDL::DDL_Buffer_WriteBitsRaw(ddlContext, state->offset, (const unsigned __int8 *)uint64Value, 8 * v14, 8 * v15);
       return 1;
     default:
       return 0;
@@ -2606,6 +2545,7 @@ DDL_SetValueStr
 */
 bool DDL_SetValueStr(const DDLState *state, DDLContext *ddlContext, const char *val)
 {
+  double v5; 
   unsigned int v6; 
   DDLValue vala; 
 
@@ -2625,8 +2565,8 @@ bool DDL_SetValueStr(const DDLState *state, DDLContext *ddlContext, const char *
       break;
     case 6:
     case 7:
-      *(double *)&_XMM0 = DDL::DDL_atof(val);
-      __asm { vmovss  dword ptr [rsp+28h+val], xmm0 }
+      v5 = DDL::DDL_atof(val);
+      vala.fixedPointValue = *(float *)&v5;
       break;
     case 8:
       vala.uint64Value = (unsigned __int64)val;
@@ -2781,6 +2721,7 @@ DDL_StrToVal
 DDLValue DDL_StrToVal(const DDLState *state, const char *v)
 {
   DDLValue result; 
+  double v4; 
   unsigned int v5; 
   DDLValue v6; 
 
@@ -2803,8 +2744,8 @@ DDLValue DDL_StrToVal(const DDLState *state, const char *v)
       break;
     case 6:
     case 7:
-      *(double *)&_XMM0 = DDL::DDL_atof(v);
-      __asm { vmovss  dword ptr [rsp+28h+arg_0], xmm0 }
+      v4 = DDL::DDL_atof(v);
+      v6.fixedPointValue = *(float *)&v4;
       result = v6;
       break;
     case 8:
@@ -2907,9 +2848,7 @@ DDL_ValToStr
 char *DDL_ValToStr(const DDLState *state, const DDLValue val)
 {
   char *result; 
-  int intValue; 
 
-  intValue = val.intValue;
   result = (char *)state->member;
   if ( result )
   {
@@ -2929,13 +2868,7 @@ char *DDL_ValToStr(const DDLState *state, const DDLValue val)
         break;
       case 6:
       case 7:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsp+28h+arg_8]; jumptable 0000000143798165 cases 6,7
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   rdx, xmm1; enumValue
-        }
-        result = DDL::DDL_va("%f", _RDX, state);
+        result = DDL::DDL_va("%f", val.fixedPointValue, state);
         break;
       case 8:
         result = (char *)val.uint64Value;
@@ -2972,7 +2905,7 @@ __int64 DDL_WriteAsText(const DDLContext *ddlContext, void (*func_AppendToOutput
   unsigned int v11; 
   int v12; 
   DDLStruct *structList; 
-  __int64 v15; 
+  __int64 v14; 
   const char *name; 
   DDLState toState; 
   DDLState fromState; 
@@ -2986,27 +2919,20 @@ __int64 DDL_WriteAsText(const DDLContext *ddlContext, void (*func_AppendToOutput
   toState.ddlDef = def;
   v12 = 0;
   toState.isValid = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0C8h+toState.isValid]
-    vmovups ymmword ptr [rsp+0C8h+fromState.isValid], ymm0
-  }
+  fromState = toState;
   structList = def->structList;
   s_pathLength = 0;
   if ( structList->memberCount > 0 )
   {
-    v15 = 0i64;
+    v14 = 0i64;
     do
     {
       toState.isValid = 0;
       toState.offset = 0;
       toState.arrayIndex = -1;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+0C8h+toState.member], xmm0
-      }
-      name = structList->members[v15].name;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&toState.member = _XMM0;
+      name = structList->members[v14].name;
       if ( *name != 95 )
       {
         DDL::DDL_Lookup_MoveToName(&fromState, &toState, name, 0);
@@ -3014,7 +2940,7 @@ __int64 DDL_WriteAsText(const DDLContext *ddlContext, void (*func_AppendToOutput
         structList = def->structList;
       }
       ++v12;
-      ++v15;
+      ++v14;
     }
     while ( v12 < structList->memberCount );
   }
@@ -3028,49 +2954,49 @@ DDL_WriteMemberAsText
 */
 __int64 DDL_WriteMemberAsText(const DDLState *ddlState, const DDLContext *ddlContext, void (*func_AppendToOutput)(char *, int, void *), bool nonZeroOnly, const char *separator, void *userData)
 {
-  int v8; 
+  int v7; 
   bool IsEnumArrayRoot; 
   DDLMember *member; 
   bool IsEnumArrayMember; 
-  DDLMember *v15; 
+  DDLMember *v14; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
-  int v18; 
-  __int64 v19; 
-  DDLMember *v20; 
-  __int64 v21; 
+  int v17; 
+  __int64 v18; 
+  DDLMember *v19; 
+  __int64 v20; 
   DDLStruct *structList; 
-  __int64 v23; 
+  __int64 v22; 
   const char *name; 
-  char v25; 
+  char v24; 
   int UInt; 
-  const char *v28; 
+  const char *v27; 
   unsigned __int64 UInt64; 
-  char *v30; 
+  char *v29; 
+  double Float; 
   const char *String; 
   const char *Enum; 
-  const char *v35; 
-  unsigned int v36; 
-  int v37; 
-  void *userDataa; 
-  char v39; 
+  const char *v33; 
+  unsigned int v34; 
+  int v35; 
+  char v36; 
   bool IsArrayRoot; 
-  bool v41; 
-  int v42; 
+  bool v38; 
+  int v39; 
   const DDLDef *ddlDef; 
-  __int64 v45; 
+  __int64 v42; 
   DDLState toState; 
   char dest[64]; 
-  char v48[4096]; 
+  char v45[4096]; 
 
-  v8 = 0;
-  v42 = 0;
+  v7 = 0;
+  v39 = 0;
   IsArrayRoot = DDL::DDL_Lookup_IsArrayRoot(ddlState);
   IsEnumArrayRoot = DDL::DDL_Lookup_IsEnumArrayRoot(ddlState);
   member = ddlState->member;
-  v41 = IsEnumArrayRoot;
-  if ( !member || (v39 = 1, member->type != 9) )
-    v39 = 0;
+  v38 = IsEnumArrayRoot;
+  if ( !member || (v36 = 1, member->type != 9) )
+    v36 = 0;
   ddlDef = ddlState->ddlDef;
   if ( DDL::DDL_Lookup_IsArrayMember(ddlState) )
   {
@@ -3079,38 +3005,38 @@ __int64 DDL_WriteMemberAsText(const DDLState *ddlState, const DDLContext *ddlCon
   else
   {
     IsEnumArrayMember = DDL::DDL_Lookup_IsEnumArrayMember(ddlState);
-    v15 = ddlState->member;
+    v14 = ddlState->member;
     if ( IsEnumArrayMember )
-      DDL::DDL_sprintf(dest, 0x40ui64, "[%s]", ddlState->ddlDef->enumList[v15->enumIndex].members[ddlState->arrayIndex]);
+      DDL::DDL_sprintf(dest, 0x40ui64, "[%s]", ddlState->ddlDef->enumList[v14->enumIndex].members[ddlState->arrayIndex]);
     else
-      DDL::DDL_sprintf(dest, 0x40ui64, (const char *)&queryFormat, v15->name);
+      DDL::DDL_sprintf(dest, 0x40ui64, (const char *)&queryFormat, v14->name);
   }
+  v15 = -1i64;
   v16 = -1i64;
-  v17 = -1i64;
   do
-    ++v17;
-  while ( dest[v17] );
-  v18 = s_pathLength;
-  if ( (unsigned int)(s_pathLength + v17 + 1) < 0x400 )
+    ++v16;
+  while ( dest[v16] );
+  v17 = s_pathLength;
+  if ( (unsigned int)(s_pathLength + v16 + 1) < 0x400 )
   {
     if ( s_pathLength > 0 && dest[0] != 91 )
     {
       s_path[s_pathLength] = 46;
-      v19 = (unsigned int)(v18 + 1);
-      s_pathLength = v19;
-      if ( (unsigned __int64)(int)v19 >= 0x400 )
+      v18 = (unsigned int)(v17 + 1);
+      s_pathLength = v18;
+      if ( (unsigned __int64)(int)v18 >= 0x400 )
         goto LABEL_74;
-      s_path[(int)v19] = 0;
+      s_path[(int)v18] = 0;
     }
     DDL::DDL_strcat(s_path, 0x400ui64, dest);
-    s_pathLength += v17;
-    v19 = (unsigned int)s_pathLength;
+    s_pathLength += v16;
+    v18 = (unsigned int)s_pathLength;
     if ( (unsigned __int64)s_pathLength < 0x400 )
     {
       s_path[s_pathLength] = 0;
-      if ( IsArrayRoot || v41 )
+      if ( IsArrayRoot || v38 )
       {
-        v37 = 0;
+        v35 = 0;
         if ( ddlState->member->arraySize > 0 )
         {
           do
@@ -3119,21 +3045,21 @@ __int64 DDL_WriteMemberAsText(const DDLState *ddlState, const DDLContext *ddlCon
             toState.isValid = 0;
             toState.offset = 0;
             toState.arrayIndex = -1;
-            __asm { vmovdqu xmmword ptr [rsp+1110h+toState.member], xmm0 }
-            DDL::DDL_Lookup_MoveToIndex(ddlState, &toState, v37, 0);
-            v8 += DDL_WriteMemberAsText(&toState, ddlContext, func_AppendToOutput, nonZeroOnly, separator, userData);
-            ++v37;
+            *(_OWORD *)&toState.member = _XMM0;
+            DDL::DDL_Lookup_MoveToIndex(ddlState, &toState, v35, 0);
+            v7 += DDL_WriteMemberAsText(&toState, ddlContext, func_AppendToOutput, nonZeroOnly, separator, userData);
+            ++v35;
           }
-          while ( v37 < ddlState->member->arraySize );
-          v19 = (unsigned int)s_pathLength;
+          while ( v35 < ddlState->member->arraySize );
+          v18 = (unsigned int)s_pathLength;
         }
       }
       else
       {
-        v20 = ddlState->member;
-        if ( !v39 )
+        v19 = ddlState->member;
+        if ( !v36 )
         {
-          switch ( v20->type )
+          switch ( v19->type )
           {
             case 0:
               LOBYTE(UInt) = DDL_GetByte(ddlState, ddlContext);
@@ -3141,7 +3067,7 @@ __int64 DDL_WriteMemberAsText(const DDLState *ddlState, const DDLContext *ddlCon
                 goto LABEL_46;
               UInt = (unsigned __int8)UInt;
 LABEL_38:
-              v28 = "%s%s %d\n";
+              v27 = "%s%s %d\n";
               goto LABEL_39;
             case 1:
               LOWORD(UInt) = DDL_GetShort(ddlState, ddlContext);
@@ -3149,9 +3075,9 @@ LABEL_38:
                 goto LABEL_46;
               UInt = (unsigned __int16)UInt;
 LABEL_43:
-              v28 = "%s%s %u\n";
+              v27 = "%s%s %u\n";
 LABEL_39:
-              DDL::DDL_sprintf(v48, 0x1000ui64, v28, s_path, separator, UInt);
+              DDL::DDL_sprintf(v45, 0x1000ui64, v27, s_path, separator, UInt);
               goto LABEL_69;
             case 2:
               UInt = DDL_GetUInt(ddlState, ddlContext);
@@ -3171,54 +3097,43 @@ LABEL_39:
 LABEL_52:
               if ( nonZeroOnly && !UInt64 )
                 goto LABEL_46;
-              v30 = DDL::DDL_va("%s%s %llu\n", s_path, separator, UInt64);
-              DDL::DDL_sprintf(v48, 0x1000ui64, (const char *)&queryFormat, v30);
+              v29 = DDL::DDL_va("%s%s %llu\n", s_path, separator, UInt64);
+              DDL::DDL_sprintf(v45, 0x1000ui64, (const char *)&queryFormat, v29);
               goto LABEL_69;
             case 6:
-              *(double *)&_XMM0 = DDL_GetFloat(ddlState, ddlContext);
+              Float = DDL_GetFloat(ddlState, ddlContext);
               goto LABEL_57;
             case 7:
-              *(double *)&_XMM0 = DDL_GetFixedPoint(ddlState, ddlContext);
+              Float = DDL_GetFixedPoint(ddlState, ddlContext);
 LABEL_57:
-              if ( nonZeroOnly )
-              {
-                __asm
-                {
-                  vxorps  xmm1, xmm1, xmm1
-                  vucomiss xmm0, xmm1
-                }
-              }
-              __asm
-              {
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+1110h+userData], xmm0
-              }
-              DDL::DDL_sprintf(v48, 0x1000ui64, "%s%s %f\n", s_path, separator, userDataa);
+              if ( nonZeroOnly && *(float *)&Float == 0.0 )
+                goto LABEL_46;
+              DDL::DDL_sprintf(v45, 0x1000ui64, "%s%s %f\n", s_path, separator, *(float *)&Float);
               goto LABEL_69;
             case 8:
               String = DDL_GetString(ddlState, ddlContext);
               if ( nonZeroOnly && !*String )
                 goto LABEL_46;
-              DDL::DDL_sprintf(v48, 0x1000ui64, "%s%s %s\n", s_path, separator, String);
+              DDL::DDL_sprintf(v45, 0x1000ui64, "%s%s %s\n", s_path, separator, String);
               goto LABEL_69;
             case 0xA:
               Enum = DDL_GetEnum(ddlState, ddlContext);
-              v35 = Enum;
+              v33 = Enum;
               if ( !Enum )
                 goto LABEL_46;
               if ( !*Enum )
                 goto LABEL_46;
-              v36 = DDL_GetUInt(ddlState, ddlContext);
-              if ( nonZeroOnly && !v36 )
+              v34 = DDL_GetUInt(ddlState, ddlContext);
+              if ( nonZeroOnly && !v34 )
                 goto LABEL_46;
-              DDL::DDL_sprintf(v48, 0x1000ui64, "%s%s %s\n", s_path, separator, v35);
+              DDL::DDL_sprintf(v45, 0x1000ui64, "%s%s %s\n", s_path, separator, v33);
               do
 LABEL_69:
-                ++v16;
-              while ( v48[v16] );
-              v8 = v16;
-              func_AppendToOutput(v48, v16, userData);
-              v19 = (unsigned int)s_pathLength;
+                ++v15;
+              while ( v45[v15] );
+              v7 = v15;
+              func_AppendToOutput(v45, v15, userData);
+              v18 = (unsigned int)s_pathLength;
               goto LABEL_27;
             default:
 LABEL_46:
@@ -3226,61 +3141,58 @@ LABEL_46:
               return 0i64;
           }
         }
-        v21 = 56i64 * v20->externalIndex;
+        v20 = 56i64 * v19->externalIndex;
         structList = ddlDef->structList;
-        v45 = v21;
-        if ( *(int *)((char *)&structList->memberCount + v21) > 0 )
+        v42 = v20;
+        if ( *(int *)((char *)&structList->memberCount + v20) > 0 )
         {
-          v23 = 0i64;
+          v22 = 0i64;
           do
           {
             toState.isValid = 0;
             toState.offset = 0;
             toState.arrayIndex = -1;
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr [rsp+1110h+toState.member], xmm0
-            }
-            name = (*(DDLMember **)((char *)&structList->members + v21))[v23].name;
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            *(_OWORD *)&toState.member = _XMM0;
+            name = (*(DDLMember **)((char *)&structList->members + v20))[v22].name;
             if ( *name != 95 )
             {
               DDL::DDL_Lookup_MoveToName(ddlState, &toState, name, 0);
-              v42 += DDL_WriteMemberAsText(&toState, ddlContext, func_AppendToOutput, nonZeroOnly, separator, userData);
+              v39 += DDL_WriteMemberAsText(&toState, ddlContext, func_AppendToOutput, nonZeroOnly, separator, userData);
               structList = ddlDef->structList;
             }
-            v21 = v45;
-            ++v8;
-            ++v23;
+            v20 = v42;
+            ++v7;
+            ++v22;
           }
-          while ( v8 < *(int *)((char *)&structList->memberCount + v45) );
-          v19 = (unsigned int)s_pathLength;
+          while ( v7 < *(int *)((char *)&structList->memberCount + v42) );
+          v18 = (unsigned int)s_pathLength;
         }
-        v8 = v42;
+        v7 = v39;
       }
 LABEL_27:
-      if ( (int)v19 > 0 )
+      if ( (int)v18 > 0 )
       {
         do
         {
-          v25 = s_path[(int)v19];
-          if ( v25 == 46 )
+          v24 = s_path[(int)v18];
+          if ( v24 == 46 )
             break;
-          if ( v25 == 91 )
+          if ( v24 == 91 )
             break;
-          v19 = (unsigned int)(v19 - 1);
+          v18 = (unsigned int)(v18 - 1);
         }
-        while ( (int)v19 > 0 );
-        s_pathLength = v19;
+        while ( (int)v18 > 0 );
+        s_pathLength = v18;
       }
-      if ( (unsigned __int64)(int)v19 < 0x400 )
+      if ( (unsigned __int64)(int)v18 < 0x400 )
       {
-        s_path[(int)v19] = 0;
-        return (unsigned int)v8;
+        s_path[(int)v18] = 0;
+        return (unsigned int)v7;
       }
     }
 LABEL_74:
-    j___report_rangecheckfailure(v19);
+    j___report_rangecheckfailure(v18);
     __debugbreak();
   }
   return 0i64;

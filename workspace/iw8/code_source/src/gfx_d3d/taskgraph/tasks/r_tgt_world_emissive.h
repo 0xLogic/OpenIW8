@@ -365,14 +365,10 @@ RBTD_DrawEmissiveOverdraw
 */
 void RBTD_DrawEmissiveOverdraw(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  RBT_DrawEmissiveCommon(&v5, taskInfo, viewInfo, data);
+  v4 = *gfxContext;
+  RBT_DrawEmissiveCommon(&v4, taskInfo, viewInfo, data);
 }
 
 /*
@@ -382,18 +378,14 @@ RBTD_ShowEmissiveOverdraw
 */
 void RBTD_ShowEmissiveOverdraw(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v7; 
-  R_RT_Handle v8; 
+  GfxCmdBufContext v4; 
+  GfxCmdBufContext v5; 
+  R_RT_Handle v6; 
 
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-    vmovups [rsp+58h+var_38], xmm1
-  }
-  R_ShowOverdrawOverlay(&v7, viewInfo, &v8);
+  v4 = *gfxContext;
+  v6 = *taskInfo->attachments;
+  v5 = v4;
+  R_ShowOverdrawOverlay(&v5, viewInfo, &v6);
 }
 
 /*
@@ -403,14 +395,10 @@ RBT_DrawEmissive
 */
 void RBT_DrawEmissive(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  RBT_DrawEmissiveCommon(&v5, taskInfo, viewInfo, data);
+  v4 = *gfxContext;
+  RBT_DrawEmissiveCommon(&v4, taskInfo, viewInfo, data);
 }
 
 /*
@@ -456,14 +444,10 @@ RBT_DrawEmissivePostBlur
 */
 void RBT_DrawEmissivePostBlur(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  RBT_DrawEmissiveCommon(&v5, taskInfo, viewInfo, data);
+  v4 = *gfxContext;
+  RBT_DrawEmissiveCommon(&v4, taskInfo, viewInfo, data);
 }
 
 /*
@@ -473,18 +457,14 @@ RBT_HalfRes_DownsampleDepth
 */
 void RBT_HalfRes_DownsampleDepth(const GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v7; 
-  R_RT_Handle v8; 
+  GfxCmdBufContext v4; 
+  GfxCmdBufContext v5; 
+  R_RT_Handle v6; 
 
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-    vmovups [rsp+58h+var_38], xmm1
-  }
-  R_HalfRes_DownsampleDepth(&v7, &v8, &viewInfo->sceneEmissiveViewport);
+  v4 = *gfxContext;
+  v6 = *taskInfo->attachments;
+  v5 = v4;
+  R_HalfRes_DownsampleDepth(&v5, &v6, &viewInfo->sceneEmissiveViewport);
 }
 
 /*
@@ -494,35 +474,28 @@ RBT_HalfRes_Upsample
 */
 void RBT_HalfRes_Upsample(const GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxViewport *p_sceneViewport; 
-  GfxCmdBufContext v13; 
-  R_RT_Handle v14; 
-  R_RT_Handle v15; 
-  R_RT_Handle v16; 
-  R_RT_Handle v17; 
-  void *retaddr; 
+  R_RT_Handle *attachments; 
+  R_RT_Handle v5; 
+  R_RT_Handle v6; 
+  __m256i v7; 
+  GfxCmdBufContext v8; 
+  GfxCmdBufContext v9; 
+  R_RT_Handle v10; 
+  R_RT_Handle v11; 
+  R_RT_Handle v12; 
+  __m256i v13; 
 
-  _R11 = &retaddr;
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymm1, ymmword ptr [rax+40h]
-    vmovups [rsp+0C8h+var_88], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups [rsp+0C8h+var_68], ymm1
-    vmovups ymm1, ymmword ptr [rax]
-  }
-  p_sceneViewport = &viewInfo->sceneViewport;
-  _R8 = &v16;
-  __asm
-  {
-    vmovups ymmword ptr [r11-48h], ymm0
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups ymmword ptr [r11-28h], ymm1
-    vmovups [rsp+0C8h+var_98], xmm0
-  }
-  R_HalfRes_Upsample(&v13, &v17, &v16, &v15, &v14, p_sceneViewport);
+  attachments = taskInfo->attachments;
+  v5 = attachments[2];
+  v10 = attachments[3];
+  v6 = attachments[1];
+  v11 = v5;
+  v7 = *(__m256i *)attachments;
+  v12 = v6;
+  v8 = *gfxContext;
+  v13 = v7;
+  v9 = v8;
+  R_HalfRes_Upsample(&v9, (R_RT_Handle *)&v13, &v12, &v11, &v10, &viewInfo->sceneViewport);
 }
 
 /*
@@ -532,39 +505,25 @@ RTD_DrawEmissiveOverdrawSetup
 */
 void RTD_DrawEmissiveOverdrawSetup(const GfxTaskInfo *taskInfo, GfxViewInfo *viewInfo)
 {
-  R_RT_Handle v8; 
-  R_RT_Handle v9; 
-  R_RT_Handle v10; 
-  R_RT_Handle v11; 
+  R_RT_Handle v4; 
+  R_RT_Handle v5; 
+  R_RT_Handle v6; 
+  R_RT_Handle v7; 
 
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v8.m_surfaceID = 0;
-  v8.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_80+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_80]
-  }
-  v9.m_surfaceID = 0;
-  v9.m_tracking.m_allocCounter = 0;
-  v10.m_surfaceID = 0;
-  v10.m_tracking.m_allocCounter = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0 }
-  v11.m_surfaceID = 0;
-  v11.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_60+10h], xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_20+10h], xmm0
-    vmovups ymm0, [rbp+57h+var_60]
-    vmovups [rbp+57h+var_80], ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-    vmovups [rbp+57h+var_60], ymm0
-    vmovups ymm0, [rbp+57h+var_20]
-    vmovups [rbp+57h+var_40], ymm1
-    vmovups [rbp+57h+var_20], ymm0
-  }
-  RT_DrawEmissiveCommonSetup(taskInfo, viewInfo, &v11, &v10, &v9, &v8);
+  v4.m_surfaceID = 0;
+  v4.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v4.m_tracking.m_name = _XMM0;
+  v5.m_surfaceID = 0;
+  v5.m_tracking.m_allocCounter = 0;
+  v6.m_surfaceID = 0;
+  v6.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v6.m_tracking.m_name = _XMM0;
+  v7.m_surfaceID = 0;
+  v7.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v5.m_tracking.m_name = _XMM0;
+  *(_OWORD *)&v7.m_tracking.m_name = _XMM0;
+  RT_DrawEmissiveCommonSetup(taskInfo, viewInfo, &v7, &v6, &v5, &v4);
 }
 
 /*
@@ -574,139 +533,114 @@ RT_DrawEmissiveCommonSetup
 */
 void RT_DrawEmissiveCommonSetup(const GfxTaskInfo *taskInfo, GfxViewInfo *viewInfo, R_RT_Handle *lmapColor, R_RT_Handle *lmapSH, R_RT_Handle *lmapFog, R_RT_Handle *packedStencil)
 {
+  __int16 v6; 
   R_RT_Image *defaultWaveWaterFloatZImage; 
+  R_RT_Handle v12; 
   R_RT_Image *whiteImage; 
+  R_RT_Handle v14; 
   R_RT_Image *p_m_image; 
   R_RT_Image *defaultFogLightmapImage; 
   bool enabled; 
   R_RT_Image *blackImage; 
-  __int64 v27; 
+  __int64 v19; 
   unsigned int *p_count; 
-  const R_TG_DrawListGroup *v29; 
-  __int64 v30; 
+  const R_TG_DrawListGroup *v21; 
+  __int64 v22; 
   unsigned int taskFlags; 
-  R_RT_Handle v32; 
+  R_RT_Handle v24; 
 
-  _R14 = lmapSH;
-  _RSI = lmapColor;
   if ( !rg.debugShaderEnabled )
   {
-    _RAX = taskInfo->attachments;
     defaultWaveWaterFloatZImage = (R_RT_Image *)rgp.defaultWaveWaterFloatZImage;
-    __asm
+    v24 = *taskInfo->attachments;
+    if ( v6 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0
+      R_RT_Handle::GetSurface(&v24);
+      defaultWaveWaterFloatZImage = &R_RT_Handle::GetSurface(&v24)->m_image;
     }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v32);
-      defaultWaveWaterFloatZImage = &R_RT_Handle::GetSurface(&v32)->m_image;
-    }
-    else if ( v32.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v32.m_surfaceID) )
+    else if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v24.m_surfaceID) )
     {
       __debugbreak();
     }
     if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovd   eax, xmm0
-    }
+    v12 = *lmapColor;
     viewInfo->input.codePersistentImages[15] = &defaultWaveWaterFloatZImage->m_base;
     whiteImage = (R_RT_Image *)rgp.whiteImage;
-    __asm { vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
+    v24 = v12;
+    if ( v6 )
     {
-      R_RT_Handle::GetSurface(&v32);
-      whiteImage = &R_RT_Handle::GetSurface(&v32)->m_image;
+      R_RT_Handle::GetSurface(&v24);
+      whiteImage = &R_RT_Handle::GetSurface(&v24)->m_image;
     }
-    else if ( v32.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v32.m_surfaceID) )
+    else if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v24.m_surfaceID) )
     {
       __debugbreak();
     }
     if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovd   eax, xmm0
-    }
+    v14 = *lmapSH;
     viewInfo->input.codeImages[36] = &whiteImage->m_base;
     p_m_image = (R_RT_Image *)rgp.whiteImage;
-    __asm { vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
+    v24 = v14;
+    if ( v6 )
     {
-      R_RT_Handle::GetSurface(&v32);
-      p_m_image = &R_RT_Handle::GetSurface(&v32)->m_image;
+      R_RT_Handle::GetSurface(&v24);
+      p_m_image = &R_RT_Handle::GetSurface(&v24)->m_image;
     }
-    else if ( v32.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v32.m_surfaceID) )
+    else if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v24.m_surfaceID) )
     {
       __debugbreak();
     }
     if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    _RAX = lmapFog;
     viewInfo->input.codeImages[37] = &p_m_image->m_base;
     defaultFogLightmapImage = (R_RT_Image *)rgp.defaultFogLightmapImage;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0
-    }
+    v24 = *lmapFog;
     enabled = fx_gpu_deferred_fog->current.enabled;
-    __asm { vmovd   eax, xmm0 }
-    if ( (_WORD)_RAX )
+    if ( v6 )
     {
-      R_RT_Handle::GetSurface(&v32);
+      R_RT_Handle::GetSurface(&v24);
       if ( enabled )
-        defaultFogLightmapImage = &R_RT_Handle::GetSurface(&v32)->m_image;
+        defaultFogLightmapImage = &R_RT_Handle::GetSurface(&v24)->m_image;
     }
-    else if ( v32.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v32.m_surfaceID) )
+    else if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v24.m_surfaceID) )
     {
       __debugbreak();
     }
     if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    _RAX = packedStencil;
     viewInfo->input.codeImages[38] = &defaultFogLightmapImage->m_base;
     blackImage = (R_RT_Image *)rgp.blackImage;
-    __asm
+    v24 = *packedStencil;
+    if ( v6 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0
+      R_RT_Handle::GetSurface(&v24);
+      blackImage = &R_RT_Handle::GetSurface(&v24)->m_image;
     }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v32);
-      blackImage = &R_RT_Handle::GetSurface(&v32)->m_image;
-    }
-    else if ( v32.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v32.m_surfaceID) )
+    else if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v24.m_surfaceID) )
     {
       __debugbreak();
     }
     if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
     viewInfo->input.codeImages[79] = &blackImage->m_base;
-    v27 = 0i64;
+    v19 = 0i64;
     p_count = &g_R_TG_emissiveGroups[*taskInfo->pTaskData].count;
     if ( *p_count )
     {
-      v29 = &g_R_TG_emissiveGroups[*taskInfo->pTaskData];
+      v21 = &g_R_TG_emissiveGroups[*taskInfo->pTaskData];
       do
       {
-        v30 = (__int64)&v29->drawLists[v27];
-        if ( (unsigned int)(*(_DWORD *)v30 - 19) > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_world_emissive.h", 72, ASSERT_TYPE_ASSERT, "(drawList.type == DRAWLIST_EMISSIVE || drawList.type == DRAWLIST_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_DISTORT_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_EMISSIVE)", (const char *)&queryFormat, "drawList.type == DRAWLIST_EMISSIVE || drawList.type == DRAWLIST_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_DISTORT_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_EMISSIVE") )
+        v22 = (__int64)&v21->drawLists[v19];
+        if ( (unsigned int)(*(_DWORD *)v22 - 19) > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_world_emissive.h", 72, ASSERT_TYPE_ASSERT, "(drawList.type == DRAWLIST_EMISSIVE || drawList.type == DRAWLIST_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_DISTORT_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_EMISSIVE)", (const char *)&queryFormat, "drawList.type == DRAWLIST_EMISSIVE || drawList.type == DRAWLIST_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_DISTORT_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_DEPTH_HACK_EMISSIVE || drawList.type == DRAWLIST_POST_BLUR_EMISSIVE") )
           __debugbreak();
         taskFlags = taskInfo->pGraphInfo->taskFlags;
-        if ( (taskFlags & *(_DWORD *)(v30 + 4)) == *(_DWORD *)(v30 + 4) && (taskFlags & *(_DWORD *)(v30 + 8)) == 0 )
-          R_AddDrawCall(viewInfo, &taskInfo->rtGroup, *(GfxDrawListType *)v30, 0x5Du);
-        v27 = (unsigned int)(v27 + 1);
+        if ( (taskFlags & *(_DWORD *)(v22 + 4)) == *(_DWORD *)(v22 + 4) && (taskFlags & *(_DWORD *)(v22 + 8)) == 0 )
+          R_AddDrawCall(viewInfo, &taskInfo->rtGroup, *(GfxDrawListType *)v22, 0x5Du);
+        v19 = (unsigned int)(v19 + 1);
       }
-      while ( (unsigned int)v27 < *p_count );
+      while ( (unsigned int)v19 < *p_count );
     }
   }
 }
@@ -718,25 +652,23 @@ RT_DrawEmissiveSetup
 */
 void RT_DrawEmissiveSetup(const GfxTaskInfo *taskInfo, GfxViewInfo *viewInfo)
 {
+  R_RT_Handle *attachments; 
+  R_RT_Handle v3; 
+  R_RT_Handle v4; 
+  R_RT_Handle v5; 
+  R_RT_Handle v6; 
+  R_RT_Handle v7; 
   R_RT_Handle v8; 
-  R_RT_Handle v9; 
-  R_RT_Handle v10; 
-  R_RT_Handle v11; 
-  void *retaddr; 
+  __m256i v9; 
 
-  _R11 = &retaddr;
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+240h]
-    vmovups ymm1, ymmword ptr [rax+100h]
-    vmovups [rsp+0B8h+var_88], ymm0
-    vmovups ymm0, ymmword ptr [rax+0E0h]
-    vmovups [rsp+0B8h+var_68], ymm1
-    vmovups ymm1, ymmword ptr [rax+0C0h]
-    vmovups [rsp+0B8h+var_48], ymm0
-    vmovups ymmword ptr [r11-28h], ymm1
-  }
-  RT_DrawEmissiveCommonSetup(taskInfo, viewInfo, &v11, &v10, &v9, &v8);
+  attachments = taskInfo->attachments;
+  v3 = attachments[8];
+  v6 = attachments[18];
+  v4 = attachments[7];
+  v7 = v3;
+  v5 = attachments[6];
+  v8 = v4;
+  v9 = (__m256i)v5;
+  RT_DrawEmissiveCommonSetup(taskInfo, viewInfo, (R_RT_Handle *)&v9, &v8, &v7, &v6);
 }
 

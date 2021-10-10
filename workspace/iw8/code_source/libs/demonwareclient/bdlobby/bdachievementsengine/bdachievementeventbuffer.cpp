@@ -283,23 +283,15 @@ void bdAchievementEventBuffer::Entry::Entry(bdAchievementEventBuffer::Entry *thi
   bdUserAccountID::bdUserAccountID(&this->m_user, user);
   bdUserAccountID::bdUserAccountID(&this->m_firstPartyUser, firstPartyUser);
   this->m_platform = platform;
-  _RBX = &this->m_event;
   *((_QWORD *)&this->m_event.__vftable + 1) = &bdAchievementEvent::`vbtable';
-  _RDI = event;
   bdReferencable::bdReferencable((bdReferencable *)(&this->m_event.m_keyValues + 1), (const bdReferencable *)((char *)&event->__vftable + *(int *)(*((_QWORD *)&event->__vftable + 1) + 4i64) + 8));
   bdStructBufferSerializable::bdStructBufferSerializable(&this->m_event, event);
   this->m_event.__vftable = (bdAchievementEvent_vtbl *)&bdAchievementEvent::`vftable'{for `bdStructBufferSerializable'};
   *(bdAchievementEvent_vtbl **)((char *)&this->m_event.__vftable + *(int *)(*((_QWORD *)&this->m_event.__vftable + 1) + 4i64) + 8) = (bdAchievementEvent_vtbl *)&bdAchievementEvent::`vftable'{for `bdReferencable'};
   *((_QWORD *)&this->m_event.__vftable + 2) = *((_QWORD *)&event->__vftable + 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+18h]
-    vmovups ymmword ptr [rbx+18h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+38h]
-    vmovups ymmword ptr [rbx+38h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+58h]
-    vmovups ymmword ptr [rbx+58h], ymm0
-  }
+  *(bdStructBufferSerializable *)((char *)&this->m_event.bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&event->bdStructBufferSerializable + 24);
+  *(__m256i *)&this->m_event.m_name[24] = *(__m256i *)&event->m_name[24];
+  *(__m256i *)&this->m_event.m_name[56] = *(__m256i *)&event->m_name[56];
   *(_DWORD *)&this->m_event.m_name[88] = *(_DWORD *)&event->m_name[88];
   this->m_event.m_name[92] = event->m_name[92];
   this->m_event.m_timestamp = event->m_timestamp;
@@ -395,12 +387,13 @@ bdAchievementEventBuffer::Iterator::operator++
 */
 bdAchievementEventBuffer::Iterator *bdAchievementEventBuffer::Iterator::operator++(bdAchievementEventBuffer::Iterator *this, bdAchievementEventBuffer::Iterator *result, int __formal)
 {
+  bdAchievementEventBuffer::Iterator v3; 
   bdAchievementEventBuffer::Iterator *v4; 
 
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
+  v3 = *this;
   ++this->m_offset;
   v4 = result;
-  __asm { vmovups xmmword ptr [rdx], xmm0 }
+  *result = v3;
   return v4;
 }
 
@@ -599,33 +592,27 @@ bool bdAchievementEventBuffer::pushUnprocessed(bdAchievementEventBuffer *this, c
 {
   unsigned int m_size; 
   bool result; 
+  bdAchievementEventBuffer::Entry *v6; 
 
-  _RDI = entry;
   m_size = this->m_size;
   if ( m_size == 128 )
     return 0;
-  _RSI = &this->m_buffer[((_BYTE)m_size + (unsigned __int8)this->m_head) & 0x7F];
-  bdUserAccountID::operator=(&_RSI->m_user, &entry->m_user);
-  bdUserAccountID::operator=(&_RSI->m_firstPartyUser, &_RDI->m_firstPartyUser);
-  _RSI->m_platform = _RDI->m_platform;
-  bdReferencable::operator=((bdReferencable *)((char *)&_RSI->m_event.__vftable + *(int *)(*((_QWORD *)&_RSI->m_event.__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&_RDI->m_event.__vftable + *(int *)(*((_QWORD *)&_RDI->m_event.__vftable + 1) + 4i64) + 8));
-  *((_QWORD *)&_RSI->m_event.__vftable + 2) = *((_QWORD *)&_RDI->m_event.__vftable + 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+0B0h]
-    vmovups ymmword ptr [rsi+0B0h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+0D0h]
-    vmovups ymmword ptr [rsi+0D0h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+0F0h]
-    vmovups ymmword ptr [rsi+0F0h], ymm0
-  }
-  *(_DWORD *)&_RSI->m_event.m_name[88] = *(_DWORD *)&_RDI->m_event.m_name[88];
-  _RSI->m_event.m_name[92] = _RDI->m_event.m_name[92];
-  _RSI->m_event.m_timestamp = _RDI->m_event.m_timestamp;
-  if ( &_RSI->m_event.m_keyValues != &_RDI->m_event.m_keyValues )
-    bdStructFixedSizeArray<bdAchievementEventKeyValue,10>::copy(&_RSI->m_event.m_keyValues, &_RDI->m_event.m_keyValues);
-  _RSI->m_timestamp = _RDI->m_timestamp;
-  _RSI->m_timesAttempted = _RDI->m_timesAttempted;
+  v6 = &this->m_buffer[((_BYTE)m_size + (unsigned __int8)this->m_head) & 0x7F];
+  bdUserAccountID::operator=(&v6->m_user, &entry->m_user);
+  bdUserAccountID::operator=(&v6->m_firstPartyUser, &entry->m_firstPartyUser);
+  v6->m_platform = entry->m_platform;
+  bdReferencable::operator=((bdReferencable *)((char *)&v6->m_event.__vftable + *(int *)(*((_QWORD *)&v6->m_event.__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&entry->m_event.__vftable + *(int *)(*((_QWORD *)&entry->m_event.__vftable + 1) + 4i64) + 8));
+  *((_QWORD *)&v6->m_event.__vftable + 2) = *((_QWORD *)&entry->m_event.__vftable + 2);
+  *(bdStructBufferSerializable *)((char *)&v6->m_event.bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&entry->m_event.bdStructBufferSerializable + 24);
+  *(__m256i *)&v6->m_event.m_name[24] = *(__m256i *)&entry->m_event.m_name[24];
+  *(__m256i *)&v6->m_event.m_name[56] = *(__m256i *)&entry->m_event.m_name[56];
+  *(_DWORD *)&v6->m_event.m_name[88] = *(_DWORD *)&entry->m_event.m_name[88];
+  v6->m_event.m_name[92] = entry->m_event.m_name[92];
+  v6->m_event.m_timestamp = entry->m_event.m_timestamp;
+  if ( &v6->m_event.m_keyValues != &entry->m_event.m_keyValues )
+    bdStructFixedSizeArray<bdAchievementEventKeyValue,10>::copy(&v6->m_event.m_keyValues, &entry->m_event.m_keyValues);
+  v6->m_timestamp = entry->m_timestamp;
+  v6->m_timesAttempted = entry->m_timesAttempted;
   result = 1;
   ++this->m_size;
   ++this->m_unprocessedSize;

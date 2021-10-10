@@ -380,145 +380,126 @@ NetConstStrings_RegisterScriptDvars
 int __fastcall NetConstStrings_RegisterScriptDvars(double _XMM0_8)
 {
   int result; 
-  unsigned int v4; 
-  unsigned int v5; 
+  unsigned int v2; 
+  unsigned int v3; 
   const char *ColumnValueForRow; 
   const dvar_t *VarByName; 
+  const char *v6; 
+  unsigned int v7; 
+  __int16 v8; 
+  const char *v9; 
   const char *v10; 
-  unsigned int v11; 
-  __int16 v12; 
-  const char *v13; 
-  const char *v14; 
-  char v15; 
-  const dvar_t *v16; 
-  int v17; 
-  int v21; 
-  unsigned int v22; 
-  unsigned int v23; 
+  char v11; 
+  const dvar_t *v12; 
+  int v13; 
+  int v15; 
+  unsigned int v16; 
+  unsigned int v17; 
   char *description; 
-  __int64 v27; 
+  __int64 v19; 
   StringTable *tablePtr; 
 
   StringTable_GetAsset("mp/scriptClientData.csv", (const StringTable **)&tablePtr);
   if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 130, ASSERT_TYPE_ASSERT, "(scriptClientData)", (const char *)&queryFormat, "scriptClientData") )
     __debugbreak();
   result = StringTable_GetRowCount(tablePtr);
-  v4 = result;
-  v5 = 0;
+  v2 = result;
+  v3 = 0;
   if ( result )
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_38], xmm6
-      vmovss  xmm6, cs:__real@7f7fffff
-      vmovaps [rsp+88h+var_48], xmm7
-      vmovss  xmm7, cs:__real@ff7fffff
-    }
     while ( 1 )
     {
-      ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v5, 1);
+      ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v3, 1);
       if ( !Dvar_IsValidName(ColumnValueForRow) )
-        Sys_Error((const ObfuscateErrorText)&stru_143FFB660, ColumnValueForRow, v5);
+        Sys_Error((const ObfuscateErrorText)&stru_143FFB660, ColumnValueForRow, v3);
       VarByName = Dvar_FindVarByName(ColumnValueForRow);
       if ( VarByName )
         Sys_Error((const ObfuscateErrorText)&stru_143FFB6A0, ColumnValueForRow);
       if ( s_networkDvarCount == 256 )
         Sys_Error((const ObfuscateErrorText)&stru_143FFB6E0);
-      v10 = StringTable_GetColumnValueForRow(tablePtr, v5, 0);
-      if ( *v10 == 99 )
+      v6 = StringTable_GetColumnValueForRow(tablePtr, v3, 0);
+      if ( *v6 == 99 )
         break;
-      if ( *v10 != 115 )
+      if ( *v6 != 115 )
       {
-        Sys_Error((const ObfuscateErrorText)&stru_143FFB7C0, v10);
-        v11 = 0;
-LABEL_19:
-        v12 = 0;
-        goto LABEL_20;
+        Sys_Error((const ObfuscateErrorText)&stru_143FFB7C0, v6);
+        v7 = 0;
+LABEL_18:
+        v8 = 0;
+        goto LABEL_19;
       }
       if ( s_codInfoDvarCount >= 0x64 )
         Sys_Error((const ObfuscateErrorText)&stru_143FFB750);
-      v12 = 8;
-      v11 = 396;
-LABEL_20:
-      v13 = StringTable_GetColumnValueForRow(tablePtr, v5, 2);
-      v14 = StringTable_GetColumnValueForRow(tablePtr, v5, 3);
-      v15 = *v13;
-      if ( *v13 == 98 )
+      v8 = 8;
+      v7 = 396;
+LABEL_19:
+      v9 = StringTable_GetColumnValueForRow(tablePtr, v3, 2);
+      v10 = StringTable_GetColumnValueForRow(tablePtr, v3, 3);
+      v11 = *v9;
+      if ( *v9 == 98 )
       {
-        v21 = atoi(v14);
-        v16 = Dvar_RegisterBool(ColumnValueForRow, v21 != 0, v11, "ScriptClientData Generated Bool");
+        v15 = atoi(v10);
+        v12 = Dvar_RegisterBool(ColumnValueForRow, v15 != 0, v7, "ScriptClientData Generated Bool");
       }
       else
       {
-        switch ( v15 )
+        switch ( v11 )
         {
           case 'f':
-            _XMM0_8 = atof(v14);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0; value
-              vmovaps xmm3, xmm6; max
-              vmovaps xmm2, xmm7; min
-            }
-            v16 = Dvar_RegisterFloat(ColumnValueForRow, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v11, "ScriptClientData Generated Float");
+            _XMM0_8 = atof(v10);
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0; value }
+            v12 = Dvar_RegisterFloat(ColumnValueForRow, *(float *)&_XMM1, -3.4028235e38, 3.4028235e38, v7, "ScriptClientData Generated Float");
             break;
           case 'i':
-            v17 = atoi(v14);
-            v16 = Dvar_RegisterInt(ColumnValueForRow, v17, 0x80000000, 0x7FFFFFFF, v11, "ScriptClientData Generated Int");
+            v13 = atoi(v10);
+            v12 = Dvar_RegisterInt(ColumnValueForRow, v13, 0x80000000, 0x7FFFFFFF, v7, "ScriptClientData Generated Int");
             break;
           case 's':
-            v16 = Dvar_RegisterString(ColumnValueForRow, v14, v11, "ScriptClientData Generated String");
+            v12 = Dvar_RegisterString(ColumnValueForRow, v10, v7, "ScriptClientData Generated String");
             break;
           default:
-            Sys_Error((const ObfuscateErrorText)&stru_143FFB8C0, v13, ColumnValueForRow);
-            goto LABEL_30;
+            Sys_Error((const ObfuscateErrorText)&stru_143FFB8C0, v9, ColumnValueForRow);
+            goto LABEL_29;
         }
       }
-      VarByName = v16;
-LABEL_30:
+      VarByName = v12;
+LABEL_29:
       if ( !VarByName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 210, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
         __debugbreak();
       if ( (VarByName->flags & 8) != 0 )
       {
-        if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 215, ASSERT_TYPE_ASSERT, "(curFlags & (1 << 3))", (const char *)&queryFormat, "curFlags & DVAR_CODINFO") )
+        if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 215, ASSERT_TYPE_ASSERT, "(curFlags & (1 << 3))", (const char *)&queryFormat, "curFlags & DVAR_CODINFO") )
           __debugbreak();
-        v22 = s_codInfoDvarCount;
+        v16 = s_codInfoDvarCount;
         if ( s_codInfoDvarCount >= 0x64 )
         {
-          LODWORD(v27) = 100;
+          LODWORD(v19) = 100;
           LODWORD(description) = s_codInfoDvarCount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 217, ASSERT_TYPE_ASSERT, "(unsigned)( s_codInfoDvarCount ) < (unsigned)( ( sizeof( *array_counter( s_codinfoDvars ) ) + 0 ) )", "s_codInfoDvarCount doesn't index ARRAY_COUNT( s_codinfoDvars )\n\t%i not in [0, %i)", description, v27) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 217, ASSERT_TYPE_ASSERT, "(unsigned)( s_codInfoDvarCount ) < (unsigned)( ( sizeof( *array_counter( s_codinfoDvars ) ) + 0 ) )", "s_codInfoDvarCount doesn't index ARRAY_COUNT( s_codinfoDvars )\n\t%i not in [0, %i)", description, v19) )
             __debugbreak();
-          v22 = s_codInfoDvarCount;
+          v16 = s_codInfoDvarCount;
         }
-        s_codInfoDvarCount = v22 + 1;
-        s_codinfoDvars[v22] = VarByName;
+        s_codInfoDvarCount = v16 + 1;
+        s_codinfoDvars[v16] = VarByName;
       }
-      v23 = s_networkDvarCount;
+      v17 = s_networkDvarCount;
       if ( s_networkDvarCount >= 0x100 )
       {
-        LODWORD(v27) = 256;
+        LODWORD(v19) = 256;
         LODWORD(description) = s_networkDvarCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 222, ASSERT_TYPE_ASSERT, "(unsigned)( s_networkDvarCount ) < (unsigned)( ( sizeof( *array_counter( s_networkDvars ) ) + 0 ) )", "s_networkDvarCount doesn't index ARRAY_COUNT( s_networkDvars )\n\t%i not in [0, %i)", description, v27) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconststrings\\netconststrings_dvar.cpp", 222, ASSERT_TYPE_ASSERT, "(unsigned)( s_networkDvarCount ) < (unsigned)( ( sizeof( *array_counter( s_networkDvars ) ) + 0 ) )", "s_networkDvarCount doesn't index ARRAY_COUNT( s_networkDvars )\n\t%i not in [0, %i)", description, v19) )
           __debugbreak();
-        v23 = s_networkDvarCount;
+        v17 = s_networkDvarCount;
       }
-      result = v23;
-      ++v5;
-      s_networkDvarCount = v23 + 1;
-      s_networkDvars[v23] = VarByName;
-      if ( v5 >= v4 )
-      {
-        __asm
-        {
-          vmovaps xmm7, [rsp+88h+var_48]
-          vmovaps xmm6, [rsp+88h+var_38]
-        }
+      result = v17;
+      ++v3;
+      s_networkDvarCount = v17 + 1;
+      s_networkDvars[v17] = VarByName;
+      if ( v3 >= v2 )
         return result;
-      }
     }
-    v11 = 276;
-    goto LABEL_19;
+    v7 = 276;
+    goto LABEL_18;
   }
   return result;
 }

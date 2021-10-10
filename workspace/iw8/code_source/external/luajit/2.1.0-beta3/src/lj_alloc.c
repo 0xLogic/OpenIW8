@@ -7,35 +7,35 @@ void add_segment(malloc_state *m, char *tbase, unsigned __int64 tsize, unsigned 
 {
   malloc_chunk *top; 
   malloc_segment *p_seg; 
-  unsigned __int64 v10; 
+  char *v10; 
   __int64 v11; 
   malloc_chunk *v12; 
+  malloc_segment *p_fd; 
   __int64 v14; 
-  char *v15; 
+  malloc_chunk *v15; 
   unsigned __int64 v16; 
-  malloc_chunk **p_fd; 
-  malloc_chunk **p_bk; 
+  malloc_chunk **v17; 
+  char *p_bk; 
+  unsigned __int64 v19; 
   unsigned __int64 v20; 
-  unsigned __int64 v21; 
   unsigned int smallmap; 
-  __int64 v23; 
-  unsigned __int64 v24; 
+  malloc_chunk **v22; 
+  unsigned __int64 v23; 
+  unsigned int v24; 
   unsigned int v25; 
-  unsigned int v26; 
-  int v27; 
-  unsigned int v28; 
-  malloc_chunk *v29; 
+  int v26; 
+  unsigned int v27; 
+  malloc_tree_chunk **v28; 
   unsigned int treemap; 
-  malloc_chunk *prev_foot; 
-  char v32; 
+  malloc_chunk *v30; 
+  char v31; 
+  unsigned __int64 v32; 
   unsigned __int64 v33; 
-  unsigned __int64 v34; 
-  __int64 v35; 
+  __int64 v34; 
   malloc_chunk *fd; 
 
   top = m->top;
   p_seg = &m->seg;
-  _RBX = m;
   do
   {
     if ( (char *)top >= p_seg->base && (char *)top < &p_seg->base[p_seg->size] )
@@ -43,140 +43,136 @@ void add_segment(malloc_state *m, char *tbase, unsigned __int64 tsize, unsigned 
     p_seg = p_seg->next;
   }
   while ( p_seg );
-  v10 = (unsigned __int64)&p_seg->base[p_seg->size];
+  v10 = &p_seg->base[p_seg->size];
   if ( (((_BYTE)v10 - 79) & 7) != 0 )
     v11 = -(((_BYTE)v10 - 79) & 7) & 7;
   else
     v11 = 0i64;
-  v12 = (malloc_chunk *)(v11 + v10 - 79);
+  v12 = (malloc_chunk *)&v10[v11 - 79];
   if ( v12 < &top[1] )
     v12 = top;
-  _R11 = (malloc_segment *)&v12->fd;
+  p_fd = (malloc_segment *)&v12->fd;
   if ( ((unsigned __int8)tbase & 7) != 0 )
     v14 = -((unsigned __int8)tbase & 7) & 7;
   else
     v14 = 0i64;
-  v15 = &tbase[v14];
+  v15 = (malloc_chunk *)&tbase[v14];
   v16 = tsize - 72 - v14;
-  _RBX->top = (malloc_chunk *)v15;
-  _RBX->topsize = v16;
-  *((_QWORD *)v15 + 1) = v16 | 1;
-  *(_QWORD *)&v15[v16 + 8] = 72i64;
-  _RBX->trim_check = _RBX->m_params.trim_threshold;
-  p_fd = &v12[1].fd;
+  m->top = v15;
+  m->topsize = v16;
+  v15->head = v16 | 1;
+  *(unsigned __int64 *)((char *)&v15->head + v16) = 72i64;
+  m->trim_check = m->m_params.trim_threshold;
+  v17 = &v12[1].fd;
   v12->head = 43i64;
-  p_bk = &v12[1].bk;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+368h]
-    vmovups ymmword ptr [r11], ymm0
-  }
-  _RBX->seg.base = tbase;
-  _RBX->seg.size = tsize;
-  *(_DWORD *)_RBX->gap380 = mmapped;
-  _RBX->seg.next = _R11;
+  p_bk = (char *)&v12[1].bk;
+  *(__m256i *)&p_fd->base = *(__m256i *)&m->seg.base;
+  m->seg.base = tbase;
+  m->seg.size = tsize;
+  *(_DWORD *)m->gap380 = mmapped;
+  m->seg.next = p_fd;
   v12[1].fd = (malloc_chunk *)11;
-  if ( (unsigned __int64)&v12[1].bk < v10 )
+  if ( &v12[1].bk < (malloc_chunk **)v10 )
   {
     do
     {
-      ++p_bk;
-      p_fd[1] = (malloc_chunk *)11;
-      ++p_fd;
+      p_bk += 8;
+      v17[1] = (malloc_chunk *)11;
+      ++v17;
     }
-    while ( (unsigned __int64)p_bk < v10 );
+    while ( p_bk < v10 );
   }
   if ( v12 != top )
   {
     v12->head &= ~1ui64;
-    v20 = (char *)v12 - (char *)top;
+    v19 = (char *)v12 - (char *)top;
     top->head = ((char *)v12 - (char *)top) | 1;
     v12->prev_foot = (char *)v12 - (char *)top;
-    v21 = (unsigned __int64)((char *)v12 - (char *)top) >> 3;
-    if ( v21 >= 0x20 )
+    v20 = (unsigned __int64)((char *)v12 - (char *)top) >> 3;
+    if ( v20 >= 0x20 )
     {
-      v24 = v20 >> 8;
-      if ( v20 >> 8 )
+      v23 = v19 >> 8;
+      if ( v19 >> 8 )
       {
-        if ( v24 <= 0xFFFF )
+        if ( v23 <= 0xFFFF )
         {
-          v26 = ((unsigned int)(v24 - 256) >> 16) & 8;
-          v27 = (_DWORD)v24 << (((unsigned int)(v24 - 256) >> 16) & 8);
-          v28 = ((unsigned int)(v27 << (((unsigned int)(v27 - 4096) >> 16) & 4) << (((unsigned int)((v27 << (((unsigned int)(v27 - 4096) >> 16) & 4)) - 0x4000) >> 16) & 2)) >> 15) - (((unsigned int)((v27 << (((unsigned int)(v27 - 4096) >> 16) & 4)) - 0x4000) >> 16) & 2) - ((((unsigned int)(v27 - 4096) >> 16) & 4) + v26);
-          v25 = ((v20 >> ((unsigned __int8)v28 + 21)) & 1) + 2 * v28 + 28;
+          v25 = ((unsigned int)(v23 - 256) >> 16) & 8;
+          v26 = (_DWORD)v23 << (((unsigned int)(v23 - 256) >> 16) & 8);
+          v27 = ((unsigned int)(v26 << (((unsigned int)(v26 - 4096) >> 16) & 4) << (((unsigned int)((v26 << (((unsigned int)(v26 - 4096) >> 16) & 4)) - 0x4000) >> 16) & 2)) >> 15) - (((unsigned int)((v26 << (((unsigned int)(v26 - 4096) >> 16) & 4)) - 0x4000) >> 16) & 2) - ((((unsigned int)(v26 - 4096) >> 16) & 4) + v25);
+          v24 = ((v19 >> ((unsigned __int8)v27 + 21)) & 1) + 2 * v27 + 28;
         }
         else
         {
-          v25 = 31;
+          v24 = 31;
         }
       }
       else
       {
-        v25 = 0;
+        v24 = 0;
       }
-      LODWORD(top[1].bk) = v25;
+      LODWORD(top[1].bk) = v24;
       top[1].head = 0i64;
       top[1].prev_foot = 0i64;
-      v29 = (malloc_chunk *)&_RBX->treebins[v25];
-      treemap = _RBX->treemap;
-      if ( _bittest((const int *)&treemap, v25) )
+      v28 = &m->treebins[v24];
+      treemap = m->treemap;
+      if ( _bittest((const int *)&treemap, v24) )
       {
-        prev_foot = (malloc_chunk *)v29->prev_foot;
-        if ( v25 == 31 )
-          v32 = 0;
+        v30 = (malloc_chunk *)*v28;
+        if ( v24 == 31 )
+          v31 = 0;
         else
-          v32 = 63 - ((v25 >> 1) + 6);
-        v33 = v20 << v32;
-        if ( (prev_foot->head & 0xFFFFFFFFFFFFFFFCui64) == v20 )
+          v31 = 63 - ((v24 >> 1) + 6);
+        v32 = v19 << v31;
+        if ( (v30->head & 0xFFFFFFFFFFFFFFFCui64) == v19 )
         {
 LABEL_34:
-          fd = prev_foot->fd;
+          fd = v30->fd;
           fd->bk = top;
-          prev_foot->fd = top;
+          v30->fd = top;
           top->fd = fd;
-          top->bk = prev_foot;
+          top->bk = v30;
           top[1].fd = NULL;
         }
         else
         {
           while ( 1 )
           {
-            v34 = v33;
-            v33 *= 2i64;
-            v35 = (__int64)&prev_foot[1] + 8 * (v34 >> 63);
-            if ( !*(_QWORD *)v35 )
+            v33 = v32;
+            v32 *= 2i64;
+            v34 = (__int64)&v30[1] + 8 * (v33 >> 63);
+            if ( !*(_QWORD *)v34 )
               break;
-            prev_foot = *(malloc_chunk **)v35;
-            if ( (*(_QWORD *)(*(_QWORD *)v35 + 8i64) & 0xFFFFFFFFFFFFFFFCui64) == v20 )
+            v30 = *(malloc_chunk **)v34;
+            if ( (*(_QWORD *)(*(_QWORD *)v34 + 8i64) & 0xFFFFFFFFFFFFFFFCui64) == v19 )
               goto LABEL_34;
           }
-          *(_QWORD *)v35 = top;
-          top[1].fd = prev_foot;
+          *(_QWORD *)v34 = top;
+          top[1].fd = v30;
           top->bk = top;
           top->fd = top;
         }
       }
       else
       {
-        _RBX->treemap = treemap | (1 << v25);
-        v29->prev_foot = (unsigned __int64)top;
-        top[1].fd = v29;
+        m->treemap = treemap | (1 << v24);
+        *v28 = (malloc_tree_chunk *)top;
+        top[1].fd = (malloc_chunk *)v28;
         top->bk = top;
         top->fd = top;
       }
     }
     else
     {
-      smallmap = _RBX->smallmap;
-      v23 = (__int64)&_RBX->smallbins[(unsigned int)(2 * v21)];
-      if ( _bittest((const int *)&smallmap, v21) )
-        v23 = (__int64)_RBX->smallbins[(unsigned int)(2 * v21) + 2];
+      smallmap = m->smallmap;
+      v22 = &m->smallbins[(unsigned int)(2 * v20)];
+      if ( _bittest((const int *)&smallmap, v20) )
+        v22 = (malloc_chunk **)m->smallbins[(unsigned int)(2 * v20) + 2];
       else
-        _RBX->smallmap = smallmap | (1 << v21);
-      _RBX->smallbins[(unsigned int)(2 * v21) + 2] = top;
-      *(_QWORD *)(v23 + 24) = top;
-      top->fd = (malloc_chunk *)v23;
-      top->bk = (malloc_chunk *)&_RBX->smallbins[(unsigned int)(2 * v21)];
+        m->smallmap = smallmap | (1 << v20);
+      m->smallbins[(unsigned int)(2 * v20) + 2] = top;
+      v22[3] = top;
+      top->fd = (malloc_chunk *)v22;
+      top->bk = (malloc_chunk *)&m->smallbins[(unsigned int)(2 * v20)];
     }
   }
 }

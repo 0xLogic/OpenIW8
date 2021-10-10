@@ -958,18 +958,7 @@ Stream_GetMemoryStats
 */
 void Stream_GetMemoryStats(StreamFrontendMemoryStats *outStats)
 {
-  _RAX = streamFrontendGlob;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+0BBD3F0h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rax+0BBD410h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+0BBD430h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups xmm1, xmmword ptr [rax+0BBD450h]
-    vmovups xmmword ptr [rcx+60h], xmm1
-  }
+  *outStats = streamFrontendGlob->memoryStats;
 }
 
 /*
@@ -1103,44 +1092,22 @@ bool Stream_IsYieldingRequested()
 Stream_LoadQuality_Image
 ==============
 */
-
-float __fastcall Stream_LoadQuality_Image(double _XMM0_8)
+float Stream_LoadQuality_Image()
 {
-  double v7; 
-  double v8[3]; 
+  StreamFrontendGlob *v0; 
+  float imageStreamingQualitySmoothed; 
 
-  _RAX = streamFrontendGlob;
-  if ( streamFrontendGlob->levelInit.state == 4 )
+  v0 = streamFrontendGlob;
+  if ( streamFrontendGlob->levelInit.state != 4 )
+    return 0.0;
+  imageStreamingQualitySmoothed = streamFrontendGlob->imageStreamingQualitySmoothed;
+  if ( imageStreamingQualitySmoothed < 1.0842022e-19 || imageStreamingQualitySmoothed > 1.8446674e19 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+0B96B2Ch]
-      vcomiss xmm0, cs:__real@20000000
-    }
-    if ( streamFrontendGlob->levelInit.state < 4u )
-      goto LABEL_5;
-    __asm { vcomiss xmm0, cs:__real@5f7fffc0 }
-    if ( streamFrontendGlob->levelInit.state > 4u )
-    {
-LABEL_5:
-      __asm
-      {
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovaps xmm0, cs:__xmm@43effff7ffff00003c00000000000000
-        vmovups xmmword ptr [rsp+48h+var_18], xmm0
-        vmovsd  [rsp+48h+var_20], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream.cpp", 732, ASSERT_TYPE_ASSERT, "( Stream_GetImageStreamingQualityMin() ) <= ( streamFrontendGlob->imageStreamingQualitySmoothed ) && ( streamFrontendGlob->imageStreamingQualitySmoothed ) <= ( Stream_GetImageStreamingQualityMax() )", "streamFrontendGlob->imageStreamingQualitySmoothed not in [Stream_GetImageStreamingQualityMin(), Stream_GetImageStreamingQualityMax()]\n\t%g not in [%g, %g]", v7, v8[0], v8[1]) )
-        __debugbreak();
-      _RAX = streamFrontendGlob;
-    }
-    __asm { vmovss  xmm0, dword ptr [rax+0B96B2Ch] }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream.cpp", 732, ASSERT_TYPE_ASSERT, "( Stream_GetImageStreamingQualityMin() ) <= ( streamFrontendGlob->imageStreamingQualitySmoothed ) && ( streamFrontendGlob->imageStreamingQualitySmoothed ) <= ( Stream_GetImageStreamingQualityMax() )", "streamFrontendGlob->imageStreamingQualitySmoothed not in [Stream_GetImageStreamingQualityMin(), Stream_GetImageStreamingQualityMax()]\n\t%g not in [%g, %g]", imageStreamingQualitySmoothed, *(double *)&_xmm, *((double *)&_xmm + 1)) )
+      __debugbreak();
+    v0 = streamFrontendGlob;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  return v0->imageStreamingQualitySmoothed;
 }
 
 /*
@@ -1150,12 +1117,7 @@ Stream_LoadQuality_Mesh
 */
 float Stream_LoadQuality_Mesh()
 {
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm0, xmm0, dword ptr [rax+0B96B34h]
-  }
-  return *(float *)&_XMM0;
+  return 1.0 - streamFrontendGlob->meshBoost;
 }
 
 /*

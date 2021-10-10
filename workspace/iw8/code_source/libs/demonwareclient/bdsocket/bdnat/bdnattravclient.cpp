@@ -402,7 +402,8 @@ bdNATTravClient::bdNATTravClient
 void bdNATTravClient::bdNATTravClient(bdNATTravClient *this)
 {
   unsigned int PowerOf2; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **v8; 
+  float v3; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **v4; 
 
   bdPacketInterceptor::bdPacketInterceptor(this);
   this->__vftable = (bdNATTravClient_vtbl *)&bdNATTravClient::`vftable';
@@ -413,17 +414,11 @@ void bdNATTravClient::bdNATTravClient(bdNATTravClient *this)
   PowerOf2 = bdBitOperations::nextPowerOf2(4u);
   this->m_callbacks.m_capacity = PowerOf2;
   this->m_callbacks.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@3f400000
-    vcvttss2si rcx, xmm1
-  }
-  this->m_callbacks.m_threshold = _RCX;
-  v8 = (bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-  this->m_callbacks.m_map = v8;
-  memset_0(v8, 0, 8i64 * this->m_callbacks.m_capacity);
+  v3 = (float)PowerOf2;
+  this->m_callbacks.m_threshold = (int)(float)(v3 * 0.75);
+  v4 = (bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  this->m_callbacks.m_map = v4;
+  memset_0(v4, 0, 8i64 * this->m_callbacks.m_capacity);
   bdGlobalStopwatch::bdGlobalStopwatch(&this->m_keepAliveTimer);
   this->m_status = BD_NAT_TRAV_UNINITIALIZED;
   this->m_localCommonAddr.m_ptr = NULL;
@@ -581,63 +576,49 @@ char bdNATTravClient::connect(bdNATTravClient *this, bdReference<bdCommonAddr> r
 {
   unsigned int v8; 
   void (__fastcall *onNATAddrDiscovery)(bdNATTravListener *, bdReference<bdCommonAddr>, const bdAddr *); 
-  bdCommonAddr_vtbl *v16; 
-  char v18; 
-  bdCommonAddr *v19; 
-  unsigned int v20; 
+  bdCommonAddr_vtbl *v10; 
+  char v12; 
+  bdCommonAddr *v13; 
+  unsigned int v14; 
   bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass> *p_m_callbacks; 
-  int v22; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v23; 
-  bdCommonAddr *v24; 
-  bdCommonAddr *v25; 
+  int v16; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v17; 
+  bdCommonAddr *v18; 
+  bdCommonAddr *v19; 
   bdNATType NATType; 
   bdNATTravClient::bdNATTravClientInterleaveMode m_interleaveMode; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v28; 
-  bdCommonAddr *v29; 
-  bdCommonAddr *v30; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v22; 
+  bdCommonAddr *v23; 
+  bdCommonAddr *v24; 
   unsigned int key; 
-  bdReference<bdCommonAddr> v32; 
-  bdReference<bdCommonAddr> v33; 
+  bdReference<bdCommonAddr> v26; 
+  bdReference<bdCommonAddr> v27; 
   bdReference<bdCommonAddr> local; 
   bdReference<bdCommonAddr> addr; 
-  bdCommonAddr_vtbl *v36; 
+  bdCommonAddr_vtbl *v30; 
   bdReference<bdCommonAddr> remotea; 
-  __int64 v38; 
+  __int64 v32; 
   bdCommonAddr *m_ptr; 
   bdNATTravClient::bdCachedTraversal out; 
-  bdAddr v41; 
+  bdAddr m_realAddress; 
   bdNATTravClientData data; 
-  char v43[1024]; 
+  char v37[1024]; 
   char buf[1024]; 
   char format[1024]; 
 
-  v38 = -2i64;
+  v32 = -2i64;
   m_ptr = remote.m_ptr;
-  bdAddr::bdAddr(&v41);
+  bdAddr::bdAddr(&m_realAddress);
   if ( this->m_useNatTravCache && (v8 = HIDWORD(remote.m_ptr->__vftable[117].~bdReferencable), out.m_remoteAddressHash = 0, bdAddr::bdAddr(&out.m_realAddress), out.m_timestamp = 0i64, bdNATTravClient::getCacheEntry(v8, &out)) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+36E0h+out.m_realAddress.m_address.inUn]
-      vmovups ymmword ptr [rbp+36E0h+var_36A0.m_address.inUn], ymm0
-      vmovups ymm1, ymmword ptr [rbp+36E0h+out.m_realAddress.m_address.inUn+20h]
-      vmovups ymmword ptr [rbp+36E0h+var_36A0.m_address.inUn+20h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+36E0h+out.m_realAddress.m_address.inUn+40h]
-      vmovups ymmword ptr [rbp+36E0h+var_36A0.m_address.inUn+40h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+36E0h+out.m_realAddress.m_address.inUn+60h]
-      vmovups ymmword ptr [rbp+36E0h+var_36A0.m_address.inUn+60h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+36E0h+out.m_realAddress.m_relayRoute.m_relayID]
-      vmovups xmmword ptr [rbp+36E0h+var_36A0.m_relayRoute.m_relayID], xmm0
-      vmovsd  xmm1, qword ptr [rbp+36E0h+out.m_realAddress.m_type]
-      vmovsd  qword ptr [rbp+36E0h+var_36A0.m_type], xmm1
-    }
+    m_realAddress = out.m_realAddress;
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0x6Cu, "Cached Nat traversal - skipping 2nd attempt (1st attempt worked)");
     onNATAddrDiscovery = listener->onNATAddrDiscovery;
-    v16 = remote.m_ptr->__vftable;
-    v36 = v16;
-    if ( v16 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v16[1], 1u);
-    ((void (__fastcall *)(bdNATTravListener *, bdCommonAddr_vtbl **, bdAddr *))onNATAddrDiscovery)(listener, &v36, &v41);
+    v10 = remote.m_ptr->__vftable;
+    v30 = v10;
+    if ( v10 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v10[1], 1u);
+    ((void (__fastcall *)(bdNATTravListener *, bdCommonAddr_vtbl **, bdAddr *))onNATAddrDiscovery)(listener, &v30, &m_realAddress);
     if ( remote.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&remote.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
     {
       if ( remote.m_ptr->__vftable )
@@ -650,27 +631,27 @@ char bdNATTravClient::connect(bdNATTravClient *this, bdReference<bdCommonAddr> r
   {
     if ( this->m_status )
     {
-      v19 = (bdCommonAddr *)remote.m_ptr->__vftable;
-      v20 = HIDWORD(remote.m_ptr->__vftable[117].~bdReferencable);
-      key = v20;
+      v13 = (bdCommonAddr *)remote.m_ptr->__vftable;
+      v14 = HIDWORD(remote.m_ptr->__vftable[117].~bdReferencable);
+      key = v14;
       p_m_callbacks = &this->m_callbacks;
-      if ( this->m_callbacks.m_size && (v22 = HIBYTE(v20) ^ (16777619 * (BYTE2(v20) ^ (16777619 * (BYTE1(v20) ^ (16777619 * (unsigned __int8)v20))))), (v23 = this->m_callbacks.m_map[v22 & (this->m_callbacks.m_capacity - 1)]) != NULL) )
+      if ( this->m_callbacks.m_size && (v16 = HIBYTE(v14) ^ (16777619 * (BYTE2(v14) ^ (16777619 * (BYTE1(v14) ^ (16777619 * (unsigned __int8)v14))))), (v17 = this->m_callbacks.m_map[v16 & (this->m_callbacks.m_capacity - 1)]) != NULL) )
       {
-        while ( v20 != v23->m_key )
+        while ( v14 != v17->m_key )
         {
-          v23 = v23->m_next;
-          if ( !v23 )
+          v17 = v17->m_next;
+          if ( !v17 )
             goto LABEL_17;
         }
         _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 1u);
         bdHandleAssert(this->m_callbacks.m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,class bdNATTravClientData,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
         _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 0xFFFFFFFF);
-        if ( p_m_callbacks->m_size && (v28 = this->m_callbacks.m_map[v22 & (this->m_callbacks.m_capacity - 1)]) != NULL )
+        if ( p_m_callbacks->m_size && (v22 = this->m_callbacks.m_map[v16 & (this->m_callbacks.m_capacity - 1)]) != NULL )
         {
-          while ( key != v28->m_key )
+          while ( key != v22->m_key )
           {
-            v28 = v28->m_next;
-            if ( !v28 )
+            v22 = v22->m_next;
+            if ( !v22 )
               goto LABEL_33;
           }
           _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 1u);
@@ -678,43 +659,43 @@ char bdNATTravClient::connect(bdNATTravClient *this, bdReference<bdCommonAddr> r
         else
         {
 LABEL_33:
-          v28 = NULL;
+          v22 = NULL;
         }
-        if ( v28->m_data.m_secondaryListener )
+        if ( v22->m_data.m_secondaryListener )
         {
-          v29 = (bdCommonAddr *)remote.m_ptr->__vftable;
-          v33.m_ptr = v29;
-          if ( v29 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v29->m_refCount, 1u);
-          bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v33, v43, 0x400u);
-          bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0xBCu, "Third connect request to %s. Ignoring.", v43);
-          v18 = 0;
-          bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::releaseIterator(p_m_callbacks, v28);
+          v23 = (bdCommonAddr *)remote.m_ptr->__vftable;
+          v27.m_ptr = v23;
+          if ( v23 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v23->m_refCount, 1u);
+          bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v27, v37, 0x400u);
+          bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0xBCu, "Third connect request to %s. Ignoring.", v37);
+          v12 = 0;
+          bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::releaseIterator(p_m_callbacks, v22);
         }
         else
         {
-          v28->m_data.m_secondaryListener = listener;
-          v18 = 1;
-          bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::releaseIterator(p_m_callbacks, v28);
+          v22->m_data.m_secondaryListener = listener;
+          v12 = 1;
+          bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::releaseIterator(p_m_callbacks, v22);
         }
       }
       else
       {
 LABEL_17:
-        remotea.m_ptr = v19;
-        if ( v19 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
-        v24 = this->m_localCommonAddr.m_ptr;
-        local.m_ptr = v24;
-        if ( v24 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v24->m_refCount, 1u);
+        remotea.m_ptr = v13;
+        if ( v13 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v13->m_refCount, 1u);
+        v18 = this->m_localCommonAddr.m_ptr;
+        local.m_ptr = v18;
+        if ( v18 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
         bdNATTravClientData::bdNATTravClientData(&data, (bdReference<bdCommonAddr>)&local, (bdReference<bdCommonAddr>)&remotea, listener);
         data.m_throttled = throttle;
         bdStopwatch::start(&data.m_age);
-        v25 = (bdCommonAddr *)remote.m_ptr->__vftable;
-        addr.m_ptr = v25;
-        if ( v25 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v25->m_refCount, 1u);
+        v19 = (bdCommonAddr *)remote.m_ptr->__vftable;
+        addr.m_ptr = v19;
+        if ( v19 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
         bdCommonAddrInfo::getInfo((const bdReference<bdCommonAddr>)&addr, buf, 0x400u);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0x85u, "Starting NAT trav to %s", buf);
         NATType = bdCommonAddr::getNATType((bdCommonAddr *)remote.m_ptr->__vftable);
@@ -733,25 +714,25 @@ LABEL_17:
         if ( bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::put(&this->m_callbacks, &key, &data) )
         {
           this->m_status = BD_NAT_TRAV_RUNNING;
-          v18 = 1;
+          v12 = 1;
         }
         else
         {
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0x9Eu, "Failed to put address in map.");
-          v30 = (bdCommonAddr *)remote.m_ptr->__vftable;
-          v32.m_ptr = v30;
-          if ( v30 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
-          bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v32, format, 0x400u);
+          v24 = (bdCommonAddr *)remote.m_ptr->__vftable;
+          v26.m_ptr = v24;
+          if ( v24 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v24->m_refCount, 1u);
+          bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v26, format, 0x400u);
           bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0xA3u, format);
-          v18 = 0;
+          v12 = 0;
         }
         bdNATTravClientData::~bdNATTravClientData(&data);
       }
     }
     else
     {
-      v18 = 0;
+      v12 = 0;
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::connect", 0x75u, "Cannot call connect until this class has been initialized.");
     }
     if ( remote.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&remote.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
@@ -760,7 +741,7 @@ LABEL_17:
         (*(void (__fastcall **)(bdCommonAddr_vtbl *, __int64))remote.m_ptr->~bdReferencable)(remote.m_ptr->__vftable, 1i64);
       remote.m_ptr->__vftable = NULL;
     }
-    return v18;
+    return v12;
   }
 }
 
@@ -844,91 +825,59 @@ bdNATTravClient::getCacheEntry
 */
 __int64 bdNATTravClient::getCacheEntry(unsigned int remoteAddressHash, bdNATTravClient::bdCachedTraversal *out)
 {
-  unsigned __int8 v9; 
+  unsigned __int8 v4; 
   unsigned __int64 HiResTimeStamp; 
+  bdNATTravClient::bdCachedTraversal *v6; 
   unsigned __int64 m_timestamp; 
-  __int64 result; 
-  void *retaddr; 
+  double ElapsedTime; 
+  float v9; 
+  float v10; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R14 = out;
-  v9 = 0;
+  v4 = 0;
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
   bdMutex::lock(&bdNATTravClient::m_cacheLock);
-  _RBX = bdNATTravClient::m_cachedTraversals;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@447a0000
-  }
+  v6 = bdNATTravClient::m_cachedTraversals;
   do
   {
-    if ( _RBX >= (bdNATTravClient::bdCachedTraversal *)&unk_1564C7E60 )
+    if ( v6 >= (bdNATTravClient::bdCachedTraversal *)&unk_1564C7E60 )
       break;
-    if ( _RBX->m_remoteAddressHash == remoteAddressHash )
+    if ( v6->m_remoteAddressHash == remoteAddressHash )
     {
-      m_timestamp = _RBX->m_timestamp;
+      m_timestamp = v6->m_timestamp;
       if ( m_timestamp )
       {
         if ( !bdNATTravClient::m_cacheTimeoutMilliseconds )
           goto LABEL_9;
-        *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(m_timestamp, HiResTimeStamp);
-        __asm
-        {
-          vmulss  xmm2, xmm0, xmm7
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-        }
+        ElapsedTime = bdPlatformTiming::getElapsedTime(m_timestamp, HiResTimeStamp);
+        v9 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
         if ( (bdNATTravClient::m_cacheTimeoutMilliseconds & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm { vcomiss xmm2, xmm1 }
-        if ( !bdNATTravClient::m_cacheTimeoutMilliseconds )
+        {
+          v10 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
+          v9 = v10 + 1.8446744e19;
+        }
+        if ( (float)(*(float *)&ElapsedTime * 1000.0) <= v9 )
         {
 LABEL_9:
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovups xmmword ptr [r14], xmm0
-            vmovups xmm1, xmmword ptr [rbx+10h]
-            vmovups xmmword ptr [r14+10h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+20h]
-            vmovups xmmword ptr [r14+20h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+30h]
-            vmovups xmmword ptr [r14+30h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+40h]
-            vmovups xmmword ptr [r14+40h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+50h]
-            vmovups xmmword ptr [r14+50h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+60h]
-            vmovups xmmword ptr [r14+60h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+70h]
-            vmovups xmmword ptr [r14+70h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+80h]
-            vmovups xmmword ptr [r14+80h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+90h]
-            vmovups xmmword ptr [r14+90h], xmm1
-          }
-          _R14->m_timestamp = _RBX->m_timestamp;
-          v9 = 1;
+          *(_OWORD *)&out->m_remoteAddressHash = *(_OWORD *)&v6->m_remoteAddressHash;
+          out->m_realAddress.m_address.inUn.m_ipv6Sockaddr.sin6_addr = v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr.sin6_addr;
+          *(_OWORD *)&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr.sin6_scope_id = *(_OWORD *)&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr.sin6_scope_id;
+          *(_OWORD *)((char *)&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 40) = *(_OWORD *)((char *)&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 40);
+          *(_OWORD *)(&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 2) = *(_OWORD *)(&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 2);
+          *(_OWORD *)((char *)&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 72) = *(_OWORD *)((char *)&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 72);
+          *(_OWORD *)((char *)&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 88) = *(_OWORD *)((char *)&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 88);
+          *(_OWORD *)((char *)&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 104) = *(_OWORD *)((char *)&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 104);
+          *(_OWORD *)((char *)&out->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 120) = *(_OWORD *)((char *)&v6->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 120);
+          *(_OWORD *)&out->m_realAddress.m_relayRoute.m_relayRoutingID = *(_OWORD *)&v6->m_realAddress.m_relayRoute.m_relayRoutingID;
+          out->m_timestamp = v6->m_timestamp;
+          v4 = 1;
         }
       }
     }
-    ++_RBX;
+    ++v6;
   }
-  while ( !v9 );
+  while ( !v4 );
   bdMutex::unlock(&bdNATTravClient::m_cacheLock);
-  result = v9;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
-  }
-  return result;
+  return v4;
 }
 
 /*
@@ -938,24 +887,22 @@ bdNATTravClient::getCachedTraversalAge
 */
 __int64 bdNATTravClient::getCachedTraversalAge(bdReference<bdCommonAddr> remote)
 {
+  unsigned int v2; 
   unsigned __int64 HiResTimeStamp; 
+  double ElapsedTime; 
   bdNATTravClient::bdCachedTraversal out; 
 
   out.m_remoteAddressHash = 0;
   bdAddr::bdAddr(&out.m_realAddress);
   out.m_timestamp = 0i64;
-  LODWORD(_RBX) = 0;
+  v2 = 0;
   if ( bdNATTravClient::getCacheEntry(HIDWORD(remote.m_ptr->__vftable[117].~bdReferencable), &out) )
   {
     HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-    *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(out.m_timestamp, HiResTimeStamp);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si rbx, xmm1
-    }
-    if ( !(_DWORD)_RBX )
-      LODWORD(_RBX) = 1;
+    ElapsedTime = bdPlatformTiming::getElapsedTime(out.m_timestamp, HiResTimeStamp);
+    v2 = (int)(float)(*(float *)&ElapsedTime * 1000.0);
+    if ( !v2 )
+      v2 = 1;
   }
   if ( remote.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&remote.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
   {
@@ -963,7 +910,7 @@ __int64 bdNATTravClient::getCachedTraversalAge(bdReference<bdCommonAddr> remote)
       (*(void (__fastcall **)(bdCommonAddr_vtbl *, __int64))remote.m_ptr->~bdReferencable)(remote.m_ptr->__vftable, 1i64);
     remote.m_ptr->__vftable = NULL;
   }
-  return (unsigned int)_RBX;
+  return v2;
 }
 
 /*
@@ -974,30 +921,30 @@ bdNATTravClient::getFromCache
 bool bdNATTravClient::getFromCache(unsigned int remoteAddressHash, bdAddr *outAddr)
 {
   bool result; 
+  __m256i v5; 
+  __m256i v6; 
+  __m256i v7; 
+  bdRelayRoute m_relayRoute; 
+  double v9; 
   bdNATTravClient::bdCachedTraversal out; 
 
   out.m_remoteAddressHash = 0;
-  _RDI = outAddr;
   bdAddr::bdAddr(&out.m_realAddress);
   out.m_timestamp = 0i64;
   result = bdNATTravClient::getCacheEntry(remoteAddressHash, &out);
   if ( result )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+0E8h+out.m_realAddress.m_address.inUn]
-      vmovups ymm1, ymmword ptr [rsp+0E8h+out.m_realAddress.m_address.inUn+20h]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm0, ymmword ptr [rsp+0E8h+out.m_realAddress.m_address.inUn+40h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-      vmovups ymm1, ymmword ptr [rsp+0E8h+out.m_realAddress.m_address.inUn+60h]
-      vmovups ymmword ptr [rdi+40h], ymm0
-      vmovups xmm0, xmmword ptr [rsp+0E8h+out.m_realAddress.m_relayRoute.m_relayID]
-      vmovups ymmword ptr [rdi+60h], ymm1
-      vmovsd  xmm1, qword ptr [rsp+0E8h+out.m_realAddress.m_type]
-      vmovups xmmword ptr [rdi+80h], xmm0
-      vmovsd  qword ptr [rdi+90h], xmm1
-    }
+    v5 = *((__m256i *)&out.m_realAddress.m_address.inUn.m_ipv6Sockaddr + 1);
+    *(__m256i *)&outAddr->m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&out.m_realAddress.m_address.inUn.m_sockaddrStorage.ss_family;
+    v6 = *((__m256i *)&out.m_realAddress.m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&outAddr->m_address.inUn.m_ipv6Sockaddr + 1) = v5;
+    v7 = *((__m256i *)&out.m_realAddress.m_address.inUn.m_ipv6Sockaddr + 3);
+    *((__m256i *)&outAddr->m_address.inUn.m_ipv6Sockaddr + 2) = v6;
+    m_relayRoute = out.m_realAddress.m_relayRoute;
+    *((__m256i *)&outAddr->m_address.inUn.m_ipv6Sockaddr + 3) = v7;
+    v9 = *(double *)&out.m_realAddress.m_type;
+    outAddr->m_relayRoute = m_relayRoute;
+    *(double *)&outAddr->m_type = v9;
   }
   return result;
 }
@@ -1169,25 +1116,23 @@ bdNATTravClient::isCacheEntryValid
 bool bdNATTravClient::isCacheEntryValid(const bdNATTravClient::bdCachedTraversal *entry, unsigned __int64 now)
 {
   unsigned __int64 m_timestamp; 
-  bool result; 
+  double ElapsedTime; 
+  float v5; 
+  float v6; 
 
   m_timestamp = entry->m_timestamp;
   if ( !m_timestamp )
     return 0;
   if ( !bdNATTravClient::m_cacheTimeoutMilliseconds )
     return 1;
-  *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(m_timestamp, now);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-  }
+  ElapsedTime = bdPlatformTiming::getElapsedTime(m_timestamp, now);
+  v5 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
   if ( (bdNATTravClient::m_cacheTimeoutMilliseconds & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-  result = 1;
-  __asm { vcomiss xmm2, xmm1 }
-  return result;
+  {
+    v6 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
+    v5 = v6 + 1.8446744e19;
+  }
+  return (float)(*(float *)&ElapsedTime * 1000.0) <= v5;
 }
 
 /*
@@ -1262,378 +1207,347 @@ bdNATTravClient::pump
 void bdNATTravClient::pump(bdNATTravClient *this)
 {
   signed __int64 v1; 
-  void *v5; 
-  char v7; 
-  char v8; 
-  unsigned int v10; 
+  void *v3; 
+  unsigned int v6; 
   unsigned int m_capacity; 
   bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **m_map; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v13; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v9; 
   const unsigned int *p_m_key; 
-  const bdAddr *v17; 
-  bdAddrString *v18; 
+  double v11; 
+  double ElapsedTimeInSeconds; 
+  const bdAddr *PublicAddr; 
+  bdAddrString *v14; 
   const char *String; 
-  const bdAddr *v20; 
-  bdCommonAddr *v21; 
-  bdLinkedList<unsigned int>::Node *v22; 
-  bdLinkedList<unsigned int>::Node *v23; 
+  const bdAddr *v16; 
+  bdCommonAddr *m_ptr; 
+  bdLinkedList<unsigned int>::Node *v18; 
+  bdLinkedList<unsigned int>::Node *v19; 
   bdLinkedList<unsigned int>::Node *m_tail; 
   bdLinkedList<unsigned int>::Node *m_next; 
-  bdCommonAddr *v27; 
+  double v22; 
+  double v23; 
+  bdCommonAddr *v24; 
   bdNATType NATType; 
-  const bdAddr *v29; 
+  const bdAddr *v26; 
+  bdCommonAddr *v27; 
+  bdCommonAddr *v28; 
+  bdCommonAddr *v29; 
   bdCommonAddr *v30; 
-  bdCommonAddr *v31; 
+  bdAddr *v31; 
   bdCommonAddr *v32; 
   bdCommonAddr *v33; 
-  bdAddr *PublicAddr; 
+  const bdAddr *v34; 
   bdCommonAddr *v35; 
   bdCommonAddr *v36; 
-  const bdAddr *v37; 
-  bdCommonAddr *v38; 
-  bdCommonAddr *m_ptr; 
-  unsigned int v40; 
-  __int64 v41; 
-  bool v42; 
+  unsigned int v37; 
+  __int64 v38; 
+  bool v39; 
   bdLinkedList<unsigned int>::Node *m_head; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **v44; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v45; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v46; 
-  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v47; 
-  bdLinkedList<unsigned int>::Node *v48; 
-  bdLinkedList<unsigned int>::Node *v49; 
-  double v53; 
-  double v54; 
-  bdQueue<unsigned int> v55; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node **v41; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v42; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v43; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *v44; 
+  bdLinkedList<unsigned int>::Node *v45; 
+  bdLinkedList<unsigned int>::Node *v46; 
+  bdQueue<unsigned int> v47; 
   bdReference<bdCommonAddr> remote; 
   bdReference<bdCommonAddr> addr; 
-  bdReference<bdCommonAddr> v58; 
-  bdReference<bdCommonAddr> v59; 
-  bdReference<bdCommonAddr> v60; 
-  bdReference<bdCommonAddr> v61; 
-  bdReference<bdCommonAddr> v62; 
-  bdReference<bdCommonAddr> v63; 
-  bdReference<bdCommonAddr> v64; 
-  bdReference<bdCommonAddr> v65; 
-  __int64 v66; 
-  bdAddrString v67; 
-  bdAddr v68; 
-  bdAddr v69; 
-  bdAddr v70; 
+  bdReference<bdCommonAddr> v50; 
+  bdReference<bdCommonAddr> v51; 
+  bdReference<bdCommonAddr> v52; 
+  bdReference<bdCommonAddr> v53; 
+  bdReference<bdCommonAddr> v54; 
+  bdReference<bdCommonAddr> v55; 
+  bdReference<bdCommonAddr> v56; 
+  bdReference<bdCommonAddr> v57; 
+  __int64 v58; 
+  bdAddrString v59; 
+  bdAddr v60; 
+  bdAddr v61; 
+  bdAddr v62; 
   char buf[1024]; 
   char format[1024]; 
-  char v73[1024]; 
-  char v74[1024]; 
-  char v75[1024]; 
-  char v76[1024]; 
-  char v77[1024]; 
-  char v80; 
+  char v65[1024]; 
+  char v66[1024]; 
+  char v67[1024]; 
+  char v68[1024]; 
+  char v69[1024]; 
 
-  v5 = alloca(v1);
-  v66 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+1F10h+var_30], xmm6
-    vmovaps [rsp+1F10h+var_40], xmm7
-  }
-  _RSI = this;
+  v3 = alloca(v1);
+  v58 = -2i64;
   if ( this->m_status == BD_NAT_TRAV_UNINITIALIZED )
-    goto LABEL_82;
+    goto LABEL_81;
   *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
-  __asm { vcomiss xmm0, cs:__real@41700000 }
-  if ( !(v7 | v8) )
-    bdNATTravClient::sendKeepAlive(_RSI);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+1F10h+var_1EB8.m_list.m_head], xmm0
-  }
-  v55.m_list.m_size = 0;
-  if ( !_RSI->m_callbacks.m_size )
-    goto LABEL_80;
-  v10 = 0;
-  m_capacity = _RSI->m_callbacks.m_capacity;
+  if ( *(float *)&_XMM0 > 15.0 )
+    bdNATTravClient::sendKeepAlive(this);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v47.m_list.m_head = _XMM0;
+  v47.m_list.m_size = 0;
+  if ( !this->m_callbacks.m_size )
+    goto LABEL_79;
+  v6 = 0;
+  m_capacity = this->m_callbacks.m_capacity;
   if ( m_capacity )
   {
     do
     {
-      if ( _RSI->m_callbacks.m_map[v10] )
+      if ( this->m_callbacks.m_map[v6] )
         break;
-      ++v10;
+      ++v6;
     }
-    while ( v10 < m_capacity );
+    while ( v6 < m_capacity );
   }
-  m_map = _RSI->m_callbacks.m_map;
-  if ( m_map[v10] )
+  m_map = this->m_callbacks.m_map;
+  if ( m_map[v6] )
   {
-    _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_callbacks.m_numIterators, 1u);
-    m_map = _RSI->m_callbacks.m_map;
+    _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 1u);
+    m_map = this->m_callbacks.m_map;
   }
-  v13 = m_map[v10];
-  if ( !v13 )
-    goto LABEL_80;
-  __asm { vmovss  xmm7, cs:__real@41a00000 }
+  v9 = m_map[v6];
+  if ( !v9 )
+    goto LABEL_79;
   while ( 1 )
   {
     do
     {
-      p_m_key = &v13->m_key;
-      if ( !v13->m_data.m_throttled )
-        goto LABEL_25;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v13->m_data.m_age);
-      __asm { vcomiss xmm0, xmm7 }
-      if ( v7 | v8 )
+      p_m_key = &v9->m_key;
+      if ( v9->m_data.m_throttled && (v11 = bdStopwatch::getElapsedTimeInSeconds(&v9->m_data.m_age), *(float *)&v11 > 20.0) )
       {
-LABEL_25:
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v13->m_data.m_lastSent);
-        __asm { vcomiss xmm0, dword ptr [rsi+108h] }
-        if ( v7 | v8 )
-          goto LABEL_63;
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v13->m_data.m_lastSent);
-        __asm
+        ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&v9->m_data.m_age);
+        PublicAddr = bdCommonAddr::getPublicAddr(v9->m_data.m_remote.m_ptr);
+        bdAddrString::bdAddrString(&v59, PublicAddr);
+        String = bdAddrString::getString(v14);
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x18Fu, "Request to %s has been pending for too long (%f seconds). Allocated bandwidth inconsistent with request rate.", String, *(float *)&ElapsedTimeInSeconds);
+        bdAddr::bdAddr(&v60);
+        bdNATTravTelemetry::setResult(&v9->m_data.m_telemetry, BD_FAILURE, &v9->m_data, v16);
+        bdTelemetry::addNatTrav(&v9->m_data.m_telemetry);
+        m_ptr = v9->m_data.m_remote.m_ptr;
+        remote.m_ptr = m_ptr;
+        if ( m_ptr )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
+        bdNATTravClientData::callOnNATAddrDiscoveryFailed(&v9->m_data, (bdReference<bdCommonAddr>)&remote);
+        v18 = (bdLinkedList<unsigned int>::Node *)bdMemory::allocate(0x18ui64);
+        v19 = v18;
+        if ( v18 )
+          v18->m_data = *p_m_key;
+        else
+          v19 = NULL;
+        m_tail = v47.m_list.m_tail;
+        if ( v47.m_list.m_tail )
         {
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+1F10h+var_1ED8], xmm1
+          v19->m_next = v47.m_list.m_tail->m_next;
+          v19->m_prev = m_tail;
+          m_next = m_tail->m_next;
+          if ( m_next )
+          {
+            m_next->m_prev = v19;
+          }
+          else
+          {
+            bdHandleAssert(1, "node == m_tail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::insertAfter", 0x176u, "bdLinkedList::insertAfter, node has no next entry, but is not the tail.");
+            v47.m_list.m_tail = v19;
+          }
+          m_tail->m_next = v19;
+          ++v47.m_list.m_size;
         }
-        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x199u, "%f seconds since last send, retrying..", v53);
-        switch ( v13->m_data.m_state )
+        else
+        {
+          v19->m_next = NULL;
+          v19->m_prev = NULL;
+          v47.m_list.m_head = v19;
+          v47.m_list.m_tail = v19;
+          ++v47.m_list.m_size;
+        }
+      }
+      else
+      {
+        v22 = bdStopwatch::getElapsedTimeInSeconds(&v9->m_data.m_lastSent);
+        if ( *(float *)&v22 <= this->m_natTravTimeout )
+          goto LABEL_62;
+        v23 = bdStopwatch::getElapsedTimeInSeconds(&v9->m_data.m_lastSent);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x199u, "%f seconds since last send, retrying..", *(float *)&v23);
+        switch ( v9->m_data.m_state )
         {
           case BD_NTCDS_STAGE_1:
-            if ( v13->m_data.m_tries[1] < _RSI->m_maxTriesPerStage[1] )
+            if ( v9->m_data.m_tries[1] < this->m_maxTriesPerStage[1] )
             {
               bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1BFu, "Request timed out. Retrying. (stage 1)");
-              m_ptr = v13->m_data.m_remote.m_ptr;
-              v65.m_ptr = m_ptr;
-              if ( m_ptr )
-                _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v65, v77, 0x400u);
-              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1C2u, v77);
-              goto LABEL_62;
+              v36 = v9->m_data.m_remote.m_ptr;
+              v57.m_ptr = v36;
+              if ( v36 )
+                _InterlockedExchangeAdd((volatile signed __int32 *)&v36->m_refCount, 1u);
+              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v57, v69, 0x400u);
+              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1C2u, v69);
+              goto LABEL_61;
             }
-            PublicAddr = (bdAddr *)bdCommonAddr::getPublicAddr(v13->m_data.m_remote.m_ptr);
-            if ( bdSockAddr::isValid(&PublicAddr->m_address) && _RSI->m_introducers.m_size )
+            v31 = (bdAddr *)bdCommonAddr::getPublicAddr(v9->m_data.m_remote.m_ptr);
+            if ( bdSockAddr::isValid(&v31->m_address) && this->m_introducers.m_size )
             {
               bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1A5u, "Stage 1 failed. Starting stage 2.");
-              v35 = v13->m_data.m_remote.m_ptr;
-              v62.m_ptr = v35;
-              if ( v35 )
-                _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 1u);
-              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v62, v75, 0x400u);
-              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1A8u, v75);
-              v13->m_data.m_state = BD_NTCDS_STAGE_2;
-              bdNATTravClient::sendStage2(_RSI, &v13->m_data);
+              v32 = v9->m_data.m_remote.m_ptr;
+              v54.m_ptr = v32;
+              if ( v32 )
+                _InterlockedExchangeAdd((volatile signed __int32 *)&v32->m_refCount, 1u);
+              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v54, v67, 0x400u);
+              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1A8u, v67);
+              v9->m_data.m_state = BD_NTCDS_STAGE_2;
+              bdNATTravClient::sendStage2(this, &v9->m_data);
             }
             else
             {
               bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1B1u, "Address lookup failed. (Stage 1 failed. No public address so finished.)");
-              v36 = v13->m_data.m_remote.m_ptr;
-              v63.m_ptr = v36;
-              if ( v36 )
-                _InterlockedExchangeAdd((volatile signed __int32 *)&v36->m_refCount, 1u);
-              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v63, v76, 0x400u);
-              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1B4u, v76);
-              bdAddr::bdAddr(&v70);
-              bdNATTravTelemetry::setResult(&v13->m_data.m_telemetry, (bdNATTravTelemetry::bdNATTravResultType)4, &v13->m_data, v37);
-              bdTelemetry::addNatTrav(&v13->m_data.m_telemetry);
-              v38 = v13->m_data.m_remote.m_ptr;
-              v64.m_ptr = v38;
-              if ( v38 )
-                _InterlockedExchangeAdd((volatile signed __int32 *)&v38->m_refCount, 1u);
-              bdNATTravClientData::callOnNATAddrDiscoveryFailed(&v13->m_data, (bdReference<bdCommonAddr>)&v64);
-              bdQueue<unsigned int>::enqueue(&v55, &v13->m_key);
+              v33 = v9->m_data.m_remote.m_ptr;
+              v55.m_ptr = v33;
+              if ( v33 )
+                _InterlockedExchangeAdd((volatile signed __int32 *)&v33->m_refCount, 1u);
+              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v55, v68, 0x400u);
+              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1B4u, v68);
+              bdAddr::bdAddr(&v62);
+              bdNATTravTelemetry::setResult(&v9->m_data.m_telemetry, (bdNATTravTelemetry::bdNATTravResultType)4, &v9->m_data, v34);
+              bdTelemetry::addNatTrav(&v9->m_data.m_telemetry);
+              v35 = v9->m_data.m_remote.m_ptr;
+              v56.m_ptr = v35;
+              if ( v35 )
+                _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 1u);
+              bdNATTravClientData::callOnNATAddrDiscoveryFailed(&v9->m_data, (bdReference<bdCommonAddr>)&v56);
+              bdQueue<unsigned int>::enqueue(&v47, &v9->m_key);
             }
             break;
           case BD_NTCDS_STAGE_2:
-            if ( v13->m_data.m_tries[2] >= _RSI->m_maxTriesPerStage[2] )
+            if ( v9->m_data.m_tries[2] >= this->m_maxTriesPerStage[2] )
             {
               bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1CCu, "Stage 2 failed. Starting stage 3.");
-              v32 = v13->m_data.m_remote.m_ptr;
-              v60.m_ptr = v32;
-              if ( v32 )
-                _InterlockedExchangeAdd((volatile signed __int32 *)&v32->m_refCount, 1u);
-              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v60, v73, 0x400u);
-              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1CFu, v73);
-              v13->m_data.m_state = BD_NTCDS_STAGE_3;
-              ++v13->m_data.m_tries[3];
-              goto LABEL_62;
+              v29 = v9->m_data.m_remote.m_ptr;
+              v52.m_ptr = v29;
+              if ( v29 )
+                _InterlockedExchangeAdd((volatile signed __int32 *)&v29->m_refCount, 1u);
+              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v52, v65, 0x400u);
+              bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1CFu, v65);
+              v9->m_data.m_state = BD_NTCDS_STAGE_3;
+              ++v9->m_data.m_tries[3];
+              goto LABEL_61;
             }
             bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1D7u, "Request timed out. Retrying. (stage 2)");
-            v33 = v13->m_data.m_remote.m_ptr;
-            v61.m_ptr = v33;
-            if ( v33 )
-              _InterlockedExchangeAdd((volatile signed __int32 *)&v33->m_refCount, 1u);
-            bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v61, v74, 0x400u);
-            bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1DAu, v74);
-            bdNATTravClient::sendStage2(_RSI, &v13->m_data);
+            v30 = v9->m_data.m_remote.m_ptr;
+            v53.m_ptr = v30;
+            if ( v30 )
+              _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
+            bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v53, v66, 0x400u);
+            bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1DAu, v66);
+            bdNATTravClient::sendStage2(this, &v9->m_data);
             break;
           case BD_NTCDS_STAGE_3:
-            if ( v13->m_data.m_tries[3] < _RSI->m_maxTriesPerStage[3] )
+            if ( v9->m_data.m_tries[3] < this->m_maxTriesPerStage[3] )
             {
               bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1FAu, "Request timed out. Retrying. (stage 3)");
-              v31 = v13->m_data.m_remote.m_ptr;
-              v59.m_ptr = v31;
-              if ( v31 )
-                _InterlockedExchangeAdd((volatile signed __int32 *)&v31->m_refCount, 1u);
-              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v59, format, 0x400u);
+              v28 = v9->m_data.m_remote.m_ptr;
+              v51.m_ptr = v28;
+              if ( v28 )
+                _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 1u);
+              bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v51, format, 0x400u);
               bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1FDu, format);
-              ++v13->m_data.m_tries[3];
-LABEL_62:
-              bdNATTravClient::sendStage1(_RSI, &v13->m_data);
+              ++v9->m_data.m_tries[3];
+LABEL_61:
+              bdNATTravClient::sendStage1(this, &v9->m_data);
               break;
             }
             bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1E6u, "NAT traversal failed. (Stage 3 failed)");
-            v27 = v13->m_data.m_remote.m_ptr;
-            addr.m_ptr = v27;
-            if ( v27 )
-              _InterlockedExchangeAdd((volatile signed __int32 *)&v27->m_refCount, 1u);
+            v24 = v9->m_data.m_remote.m_ptr;
+            addr.m_ptr = v24;
+            if ( v24 )
+              _InterlockedExchangeAdd((volatile signed __int32 *)&v24->m_refCount, 1u);
             bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&addr, buf, 0x400u);
             bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x1E9u, buf);
-            NATType = bdCommonAddr::getNATType(v13->m_data.m_remote.m_ptr);
+            NATType = bdCommonAddr::getNATType(v9->m_data.m_remote.m_ptr);
             if ( (unsigned int)NATType <= BD_NAT_STRICT )
-              ++_RSI->m_traversalFailureCount[NATType];
-            bdAddr::bdAddr(&v69);
-            bdNATTravTelemetry::setResult(&v13->m_data.m_telemetry, BD_FAILURE, &v13->m_data, v29);
-            bdTelemetry::addNatTrav(&v13->m_data.m_telemetry);
-            v30 = v13->m_data.m_remote.m_ptr;
-            v58.m_ptr = v30;
-            if ( v30 )
-              _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
-            bdNATTravClientData::callOnNATAddrDiscoveryFailed(&v13->m_data, (bdReference<bdCommonAddr>)&v58);
-            bdQueue<unsigned int>::enqueue(&v55, &v13->m_key);
+              ++this->m_traversalFailureCount[NATType];
+            bdAddr::bdAddr(&v61);
+            bdNATTravTelemetry::setResult(&v9->m_data.m_telemetry, BD_FAILURE, &v9->m_data, v26);
+            bdTelemetry::addNatTrav(&v9->m_data.m_telemetry);
+            v27 = v9->m_data.m_remote.m_ptr;
+            v50.m_ptr = v27;
+            if ( v27 )
+              _InterlockedExchangeAdd((volatile signed __int32 *)&v27->m_refCount, 1u);
+            bdNATTravClientData::callOnNATAddrDiscoveryFailed(&v9->m_data, (bdReference<bdCommonAddr>)&v50);
+            bdQueue<unsigned int>::enqueue(&v47, &v9->m_key);
             break;
           default:
             bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x205u, "Invalid state.");
             break;
         }
       }
-      else
-      {
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v13->m_data.m_age);
-        __asm { vcvtss2sd xmm6, xmm0, xmm0 }
-        v17 = bdCommonAddr::getPublicAddr(v13->m_data.m_remote.m_ptr);
-        bdAddrString::bdAddrString(&v67, v17);
-        String = bdAddrString::getString(v18);
-        __asm { vmovsd  [rsp+1F10h+var_1ED0], xmm6 }
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::pump", 0x18Fu, "Request to %s has been pending for too long (%f seconds). Allocated bandwidth inconsistent with request rate.", String, v54);
-        bdAddr::bdAddr(&v68);
-        bdNATTravTelemetry::setResult(&v13->m_data.m_telemetry, BD_FAILURE, &v13->m_data, v20);
-        bdTelemetry::addNatTrav(&v13->m_data.m_telemetry);
-        v21 = v13->m_data.m_remote.m_ptr;
-        remote.m_ptr = v21;
-        if ( v21 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v21->m_refCount, 1u);
-        bdNATTravClientData::callOnNATAddrDiscoveryFailed(&v13->m_data, (bdReference<bdCommonAddr>)&remote);
-        v22 = (bdLinkedList<unsigned int>::Node *)bdMemory::allocate(0x18ui64);
-        v23 = v22;
-        if ( v22 )
-          v22->m_data = *p_m_key;
-        else
-          v23 = NULL;
-        m_tail = v55.m_list.m_tail;
-        if ( v55.m_list.m_tail )
-        {
-          v23->m_next = v55.m_list.m_tail->m_next;
-          v23->m_prev = m_tail;
-          m_next = m_tail->m_next;
-          if ( m_next )
-          {
-            m_next->m_prev = v23;
-          }
-          else
-          {
-            bdHandleAssert(1, "node == m_tail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::insertAfter", 0x176u, "bdLinkedList::insertAfter, node has no next entry, but is not the tail.");
-            v55.m_list.m_tail = v23;
-          }
-          m_tail->m_next = v23;
-          ++v55.m_list.m_size;
-        }
-        else
-        {
-          v23->m_next = NULL;
-          v23->m_prev = NULL;
-          v55.m_list.m_head = v23;
-          v55.m_list.m_tail = v23;
-          ++v55.m_list.m_size;
-        }
-      }
-LABEL_63:
-      v13 = v13->m_next;
+LABEL_62:
+      v9 = v9->m_next;
     }
-    while ( v13 );
-    v40 = _RSI->m_callbacks.m_capacity;
-    v41 = ((*((unsigned __int8 *)p_m_key + 3) ^ (16777619 * (*((unsigned __int8 *)p_m_key + 2) ^ (16777619 * ((16777619 * *(unsigned __int8 *)p_m_key) ^ *((unsigned __int8 *)p_m_key + 1)))))) & (v40 - 1)) + 1;
-    if ( (unsigned int)v41 >= v40 )
+    while ( v9 );
+    v37 = this->m_callbacks.m_capacity;
+    v38 = ((*((unsigned __int8 *)p_m_key + 3) ^ (16777619 * (*((unsigned __int8 *)p_m_key + 2) ^ (16777619 * ((16777619 * *(unsigned __int8 *)p_m_key) ^ *((unsigned __int8 *)p_m_key + 1)))))) & (v37 - 1)) + 1;
+    if ( (unsigned int)v38 >= v37 )
       break;
     while ( 1 )
     {
-      v13 = _RSI->m_callbacks.m_map[v41];
-      if ( v13 )
+      v9 = this->m_callbacks.m_map[v38];
+      if ( v9 )
         break;
-      v41 = (unsigned int)(v41 + 1);
-      if ( (unsigned int)v41 >= v40 )
-        goto LABEL_67;
+      v38 = (unsigned int)(v38 + 1);
+      if ( (unsigned int)v38 >= v37 )
+        goto LABEL_66;
     }
   }
-LABEL_67:
-  _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_callbacks.m_numIterators, 0xFFFFFFFF);
-  for ( ; v55.m_list.m_size; --v55.m_list.m_size )
+LABEL_66:
+  _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 0xFFFFFFFF);
+  for ( ; v47.m_list.m_size; --v47.m_list.m_size )
   {
-    v42 = v55.m_list.m_size != 0;
-    bdHandleAssert(v55.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
-    bdHandleAssert(v55.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
-    bdHandleAssert(_RSI->m_callbacks.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,class bdNATTravClientData,class bdHashingClass>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
-    m_head = v55.m_list.m_head;
-    v44 = _RSI->m_callbacks.m_map;
-    v45 = v44[(HIBYTE(v55.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v55.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v55.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v55.m_list.m_head->m_data))))))) & (_RSI->m_callbacks.m_capacity - 1)];
-    v46 = NULL;
-    if ( v45 )
+    v39 = v47.m_list.m_size != 0;
+    bdHandleAssert(v47.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
+    bdHandleAssert(v47.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
+    bdHandleAssert(this->m_callbacks.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,class bdNATTravClientData,class bdHashingClass>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
+    m_head = v47.m_list.m_head;
+    v41 = this->m_callbacks.m_map;
+    v42 = v41[(HIBYTE(v47.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v47.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v47.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v47.m_list.m_head->m_data))))))) & (this->m_callbacks.m_capacity - 1)];
+    v43 = NULL;
+    if ( v42 )
     {
-      while ( v55.m_list.m_head->m_data != v45->m_key )
+      while ( v47.m_list.m_head->m_data != v42->m_key )
       {
-        v46 = v45;
-        v45 = v45->m_next;
-        if ( !v45 )
-          goto LABEL_76;
+        v43 = v42;
+        v42 = v42->m_next;
+        if ( !v42 )
+          goto LABEL_75;
       }
-      v47 = v45->m_next;
-      if ( v46 )
-        v46->m_next = v47;
+      v44 = v42->m_next;
+      if ( v43 )
+        v43->m_next = v44;
       else
-        v44[(HIBYTE(v55.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v55.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v55.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v55.m_list.m_head->m_data))))))) & (_RSI->m_callbacks.m_capacity - 1)] = v47;
-      bdNATTravClientData::~bdNATTravClientData(&v45->m_data);
-      bdMemory::deallocate(v45);
-      --_RSI->m_callbacks.m_size;
+        v41[(HIBYTE(v47.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v47.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v47.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v47.m_list.m_head->m_data))))))) & (this->m_callbacks.m_capacity - 1)] = v44;
+      bdNATTravClientData::~bdNATTravClientData(&v42->m_data);
+      bdMemory::deallocate(v42);
+      --this->m_callbacks.m_size;
     }
-LABEL_76:
-    bdHandleAssert(v42, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
-    v48 = m_head->m_next;
-    v55.m_list.m_head = v48;
-    if ( m_head == v55.m_list.m_tail )
-      v55.m_list.m_tail = m_head->m_prev;
+LABEL_75:
+    bdHandleAssert(v39, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
+    v45 = m_head->m_next;
+    v47.m_list.m_head = v45;
+    if ( m_head == v47.m_list.m_tail )
+      v47.m_list.m_tail = m_head->m_prev;
     else
-      v48->m_prev = m_head->m_prev;
+      v45->m_prev = m_head->m_prev;
     bdMemory::deallocate(m_head);
   }
-LABEL_80:
-  if ( v55.m_list.m_head )
+LABEL_79:
+  if ( v47.m_list.m_head )
   {
     do
     {
-      v49 = v55.m_list.m_head->m_next;
-      bdMemory::deallocate(v55.m_list.m_head);
-      v55.m_list.m_head = v49;
+      v46 = v47.m_list.m_head->m_next;
+      bdMemory::deallocate(v47.m_list.m_head);
+      v47.m_list.m_head = v46;
     }
-    while ( v49 );
+    while ( v46 );
   }
-LABEL_82:
-  if ( !_RSI->m_callbacks.m_size )
-    _RSI->m_status = BD_NAT_TRAV_INITIALIZED;
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+LABEL_81:
+  if ( !this->m_callbacks.m_size )
+    this->m_status = BD_NAT_TRAV_INITIALIZED;
 }
 
 /*
@@ -1645,23 +1559,24 @@ char bdNATTravClient::quit(bdNATTravClient *this)
 {
   bdNATTravClient::bdNATTravClientStatus m_status; 
   bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass> *p_m_callbacks; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *Iterator; 
   bdCommonAddr *m_ptr; 
   bdCommonAddr *v7; 
-  bdNATTravTelemetry *v9; 
-  __int64 v10; 
+  bdNATTravTelemetry *v8; 
+  __int64 v9; 
+  bdCommonAddr *v10; 
   bdCommonAddr *v11; 
-  bdCommonAddr *v12; 
-  const bdAddr *v13; 
+  const bdAddr *v12; 
   unsigned int m_capacity; 
-  __int64 v15; 
+  __int64 v14; 
   bdReference<bdCommonAddr> addr; 
-  __int64 v17; 
+  __int64 v16; 
   bdNATTravTelemetry *p_m_telemetry; 
-  bdAddr v19; 
+  bdAddr v18; 
   bdNATTravClientData data; 
   char buf[1024]; 
 
-  v17 = -2i64;
+  v16 = -2i64;
   m_status = this->m_status;
   if ( m_status == BD_NAT_TRAV_INITIALIZED )
   {
@@ -1677,89 +1592,85 @@ char bdNATTravClient::quit(bdNATTravClient *this)
   else if ( m_status == BD_NAT_TRAV_RUNNING )
   {
     p_m_callbacks = &this->m_callbacks;
-    _RBX = (bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *)bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::getIterator(&this->m_callbacks);
-    if ( _RBX )
+    Iterator = (bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *)bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::getIterator(&this->m_callbacks);
+    if ( Iterator )
     {
       p_m_telemetry = &data.m_telemetry;
       do
       {
-        data.m_state = _RBX->m_data.m_state;
-        m_ptr = _RBX->m_data.m_local.m_ptr;
+        data.m_state = Iterator->m_data.m_state;
+        m_ptr = Iterator->m_data.m_local.m_ptr;
         data.m_local.m_ptr = m_ptr;
         if ( m_ptr )
           _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-        v7 = _RBX->m_data.m_remote.m_ptr;
+        v7 = Iterator->m_data.m_remote.m_ptr;
         data.m_remote.m_ptr = v7;
         if ( v7 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v7->m_refCount, 1u);
-        data.m_listener = _RBX->m_data.m_listener;
-        data.m_secondaryListener = _RBX->m_data.m_secondaryListener;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx+28h]
-          vmovups xmmword ptr [rbp+2DE0h+data.m_tries], xmm0
-        }
-        data.m_lastSent.m_start = _RBX->m_data.m_lastSent.m_start;
-        data.m_throttled = _RBX->m_data.m_throttled;
-        data.m_age.m_start = _RBX->m_data.m_age.m_start;
-        v9 = &data.m_telemetry;
-        v10 = 32i64;
+        data.m_listener = Iterator->m_data.m_listener;
+        data.m_secondaryListener = Iterator->m_data.m_secondaryListener;
+        *(_OWORD *)data.m_tries = *(_OWORD *)Iterator->m_data.m_tries;
+        data.m_lastSent.m_start = Iterator->m_data.m_lastSent.m_start;
+        data.m_throttled = Iterator->m_data.m_throttled;
+        data.m_age.m_start = Iterator->m_data.m_age.m_start;
+        v8 = &data.m_telemetry;
+        v9 = 32i64;
         do
         {
-          bdNATTravTelemetry::bdNATTravEvent::bdNATTravEvent(v9->m_attemptRecords, (const bdNATTravTelemetry::bdNATTravEvent *)((char *)v9->m_attemptRecords + (char *)_RBX - (char *)&data));
-          v9 = (bdNATTravTelemetry *)((char *)v9 + 320);
-          --v10;
+          bdNATTravTelemetry::bdNATTravEvent::bdNATTravEvent(v8->m_attemptRecords, (const bdNATTravTelemetry::bdNATTravEvent *)((char *)v8->m_attemptRecords + (char *)Iterator - (char *)&data));
+          v8 = (bdNATTravTelemetry *)((char *)v8 + 320);
+          --v9;
         }
-        while ( v10 );
-        data.m_telemetry.m_attemptRecordsCount = _RBX->m_data.m_telemetry.m_attemptRecordsCount;
-        data.m_telemetry.m_age.m_start = _RBX->m_data.m_telemetry.m_age.m_start;
-        v11 = _RBX->m_data.m_telemetry.m_localCommonAddr.m_ptr;
-        data.m_telemetry.m_localCommonAddr.m_ptr = v11;
+        while ( v9 );
+        data.m_telemetry.m_attemptRecordsCount = Iterator->m_data.m_telemetry.m_attemptRecordsCount;
+        data.m_telemetry.m_age.m_start = Iterator->m_data.m_telemetry.m_age.m_start;
+        v10 = Iterator->m_data.m_telemetry.m_localCommonAddr.m_ptr;
+        data.m_telemetry.m_localCommonAddr.m_ptr = v10;
+        if ( v10 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v10->m_refCount, 1u);
+        v11 = Iterator->m_data.m_telemetry.m_remoteCommonAddr.m_ptr;
+        data.m_telemetry.m_remoteCommonAddr.m_ptr = v11;
         if ( v11 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
-        v12 = _RBX->m_data.m_telemetry.m_remoteCommonAddr.m_ptr;
-        data.m_telemetry.m_remoteCommonAddr.m_ptr = v12;
-        if ( v12 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
-        bdAddr::bdAddr(&data.m_telemetry.m_realAddr, &_RBX->m_data.m_telemetry.m_realAddr);
-        bdAddr::bdAddr(&data.m_telemetry.m_stunAddr, &_RBX->m_data.m_telemetry.m_stunAddr);
-        data.m_telemetry.m_result = _RBX->m_data.m_telemetry.m_result;
-        data.m_telemetry.m_triesStage1 = _RBX->m_data.m_telemetry.m_triesStage1;
-        data.m_telemetry.m_triesStage2 = _RBX->m_data.m_telemetry.m_triesStage2;
-        data.m_telemetry.m_triesStage3 = _RBX->m_data.m_telemetry.m_triesStage3;
-        data.m_telemetry.m_throttled = _RBX->m_data.m_telemetry.m_throttled;
-        data.m_telemetry.m_duration = _RBX->m_data.m_telemetry.m_duration;
+        bdAddr::bdAddr(&data.m_telemetry.m_realAddr, &Iterator->m_data.m_telemetry.m_realAddr);
+        bdAddr::bdAddr(&data.m_telemetry.m_stunAddr, &Iterator->m_data.m_telemetry.m_stunAddr);
+        data.m_telemetry.m_result = Iterator->m_data.m_telemetry.m_result;
+        data.m_telemetry.m_triesStage1 = Iterator->m_data.m_telemetry.m_triesStage1;
+        data.m_telemetry.m_triesStage2 = Iterator->m_data.m_telemetry.m_triesStage2;
+        data.m_telemetry.m_triesStage3 = Iterator->m_data.m_telemetry.m_triesStage3;
+        data.m_telemetry.m_throttled = Iterator->m_data.m_telemetry.m_throttled;
+        data.m_telemetry.m_duration = Iterator->m_data.m_telemetry.m_duration;
         addr.m_ptr = data.m_remote.m_ptr;
         if ( data.m_remote.m_ptr )
           _InterlockedExchangeAdd((volatile signed __int32 *)&data.m_remote.m_ptr->m_refCount, 1u);
         bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&addr, buf, 0x400u);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::quit", 0x234u, "NAT traversal to %s failed.", buf);
-        bdAddr::bdAddr(&v19);
-        bdNATTravTelemetry::setResult(&data.m_telemetry, BD_FAILURE|BD_SUCCESS, &data, v13);
+        bdAddr::bdAddr(&v18);
+        bdNATTravTelemetry::setResult(&data.m_telemetry, BD_FAILURE|BD_SUCCESS, &data, v12);
         bdTelemetry::addNatTrav(&data.m_telemetry);
-        if ( _RBX->m_next )
+        if ( Iterator->m_next )
         {
-          _RBX = _RBX->m_next;
+          Iterator = Iterator->m_next;
         }
         else
         {
           m_capacity = this->m_callbacks.m_capacity;
-          v15 = ((HIBYTE(_RBX->m_key) ^ (16777619 * (BYTE2(_RBX->m_key) ^ (16777619 * (BYTE1(_RBX->m_key) ^ (16777619 * LOBYTE(_RBX->m_key))))))) & (m_capacity - 1)) + 1;
-          if ( (unsigned int)v15 >= m_capacity )
+          v14 = ((HIBYTE(Iterator->m_key) ^ (16777619 * (BYTE2(Iterator->m_key) ^ (16777619 * (BYTE1(Iterator->m_key) ^ (16777619 * LOBYTE(Iterator->m_key))))))) & (m_capacity - 1)) + 1;
+          if ( (unsigned int)v14 >= m_capacity )
           {
 LABEL_23:
-            _RBX = NULL;
+            Iterator = NULL;
             _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 0xFFFFFFFF);
           }
           else
           {
             while ( 1 )
             {
-              _RBX = this->m_callbacks.m_map[v15];
-              if ( _RBX )
+              Iterator = this->m_callbacks.m_map[v14];
+              if ( Iterator )
                 break;
-              v15 = (unsigned int)(v15 + 1);
-              if ( (unsigned int)v15 >= m_capacity )
+              v14 = (unsigned int)(v14 + 1);
+              if ( (unsigned int)v14 >= m_capacity )
                 goto LABEL_23;
             }
           }
@@ -1777,10 +1688,10 @@ LABEL_23:
             ((void (__fastcall *)(bdCommonAddr *, __int64))data.m_local.m_ptr->~bdReferencable)(data.m_local.m_ptr, 1i64);
         }
       }
-      while ( _RBX );
+      while ( Iterator );
       p_m_callbacks = &this->m_callbacks;
     }
-    bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::releaseIterator(p_m_callbacks, _RBX);
+    bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::releaseIterator(p_m_callbacks, Iterator);
     bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::clear(p_m_callbacks);
     bdMemory::deallocate(this->m_introducers.m_data);
     this->m_introducers.m_data = NULL;
@@ -1804,273 +1715,261 @@ bdNATTravClient::receiveFrom
 void bdNATTravClient::receiveFrom(bdNATTravClient *this, const bdAddr *addr, bdNATTraversalPacket *packet)
 {
   signed __int64 v3; 
-  void *v7; 
+  void *v4; 
   unsigned __int8 Type; 
-  unsigned int v12; 
-  const char *v13; 
-  bdLogMessageType v14; 
-  int v15; 
-  bdAddrString *v16; 
-  bdAddrString *v17; 
-  bdAddrString *v18; 
+  unsigned int m_hash; 
+  const char *v10; 
+  bdLogMessageType v11; 
+  int v12; 
+  bdAddrString *v13; 
+  bdAddrString *v14; 
+  bdAddrString *v15; 
   const bdAddr *AddrDest; 
-  const bdAddr *v20; 
+  const bdAddr *v17; 
   const unsigned __int8 *HMAC; 
+  bdAddrString *v19; 
+  const char *v20; 
+  const bdAddr *v21; 
   bdAddrString *v22; 
   const char *v23; 
-  const bdAddr *v24; 
-  bdAddrString *v25; 
-  const char *v26; 
+  double ElapsedTimeInSeconds; 
+  float v25; 
+  float v26; 
+  unsigned __int64 v27; 
+  unsigned __int64 v28; 
   bdNATType NATType; 
   const bdAddr *PublicAddr; 
-  unsigned int m_hash; 
+  unsigned int v31; 
   unsigned __int64 HiResTimeStamp; 
-  bdNATTravClient::bdCachedTraversal *v37; 
-  bdNATTravClient::bdCachedTraversal *v38; 
-  unsigned __int64 v40; 
+  bdNATTravClient::bdCachedTraversal *v33; 
+  bdNATTravClient::bdCachedTraversal *v34; 
+  bdNATTravClient::bdCachedTraversal *v35; 
+  unsigned __int64 v36; 
   unsigned __int64 m_timestamp; 
+  double ElapsedTime; 
+  float v39; 
+  float v40; 
+  float v41; 
   const bdAddr *AddrSrc; 
-  int v51; 
-  bdAddrString *v52; 
-  bdAddrString *v53; 
+  int v43; 
+  bdAddrString *v44; 
+  bdAddrString *v45; 
   unsigned int line; 
   unsigned int linea; 
   unsigned int lineb; 
   char *format; 
   char *formata; 
   const char *String; 
-  const char *v63; 
-  int v64; 
-  __int64 v65; 
+  const char *v52; 
+  int v53; 
+  __int64 v54; 
   unsigned int newOffset; 
   unsigned int key; 
   bdReference<bdCommonAddr> remote; 
-  __int64 v69; 
-  bdMutex *v70; 
-  bdAddrString v71; 
-  bdAddrString v72; 
-  bdAddrString v73; 
-  bdAddrString v74; 
-  bdAddrString v75; 
-  bdAddrString v76; 
-  bdAddrString v77; 
+  __int64 v58; 
+  bdMutex *v59; 
+  bdAddrString v60; 
+  bdAddrString v61; 
+  bdAddrString v62; 
+  bdAddrString v63; 
+  bdAddrString v64; 
+  bdAddrString v65; 
+  bdAddrString v66; 
   bdNATTravClientData value; 
-  unsigned __int8 v79[8]; 
-  __int16 v80; 
+  unsigned __int8 v68[8]; 
+  __int16 v69; 
   char data[1296]; 
-  char v84; 
 
-  v7 = alloca(v3);
-  v69 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+3050h+var_40], xmm6
-    vmovaps [rsp+3050h+var_50], xmm7
-  }
-  _R12 = addr;
+  v4 = alloca(v3);
+  v58 = -2i64;
   Type = bdNATTraversalPacket::getType(packet);
-  switch ( Type )
+  if ( Type == 10 )
   {
-    case 0xAu:
-      format = "Received server packet in client code.";
-      line = 239;
-      v13 = "warn/";
-      v14 = BD_LOG_WARNING;
-      goto LABEL_50;
-    case 0xBu:
-      AddrSrc = bdNATTraversalPacket::getAddrSrc(packet);
-      bdNATTraversalPacket::setType(packet, 0xCu);
-      if ( !bdNATTraversalPacket::serialize(packet, data, 0x508u, 0, &newOffset) )
-      {
-        format = "Cannot serialize the packet.";
-        line = 251;
-        v13 = (const char *)&other;
-        v14 = BD_LOG_ERROR;
-        goto LABEL_50;
-      }
-      v51 = this->m_socket->sendTo(this->m_socket, AddrSrc, data, newOffset);
-      if ( v51 > 0 )
-      {
-        bdAddrString::bdAddrString(&v76, AddrSrc);
-        String = bdAddrString::getString(v52);
-        formata = "sent INTRO REPLY to %s";
-        linea = 261;
-        goto LABEL_13;
-      }
-      bdAddrString::bdAddrString(&v77, AddrSrc);
-      v64 = v51;
-      v63 = bdAddrString::getString(v53);
-      lineb = 265;
+    format = "Received server packet in client code.";
+    line = 239;
+    v10 = "warn/";
+    v11 = BD_LOG_WARNING;
+    goto LABEL_53;
+  }
+  if ( Type == 11 )
+  {
+    AddrSrc = bdNATTraversalPacket::getAddrSrc(packet);
+    bdNATTraversalPacket::setType(packet, 0xCu);
+    if ( !bdNATTraversalPacket::serialize(packet, data, 0x508u, 0, &newOffset) )
+    {
+      format = "Cannot serialize the packet.";
+      line = 251;
+      v10 = (const char *)&other;
+      v11 = BD_LOG_ERROR;
+      goto LABEL_53;
+    }
+    v43 = this->m_socket->sendTo(this->m_socket, AddrSrc, data, newOffset);
+    if ( v43 > 0 )
+    {
+      bdAddrString::bdAddrString(&v65, AddrSrc);
+      String = bdAddrString::getString(v44);
+      formata = "sent INTRO REPLY to %s";
+      linea = 261;
+      goto LABEL_13;
+    }
+    bdAddrString::bdAddrString(&v66, AddrSrc);
+    v53 = v43;
+    v52 = bdAddrString::getString(v45);
+    lineb = 265;
+    goto LABEL_11;
+  }
+  if ( Type != 12 )
+  {
+    if ( Type != 13 )
+      return;
+    m_hash = this->m_localCommonAddr.m_ptr->m_hash;
+    if ( bdNATTraversalPacket::getIdentifier(packet) != m_hash )
+    {
+      bdAddrString::bdAddrString(&v62, addr);
+      String = bdAddrString::getString(v15);
+      formata = "ignored request from %s";
+      linea = 368;
+      goto LABEL_13;
+    }
+    bdNATTraversalPacket::setType(packet, 0xCu);
+    if ( !bdNATTraversalPacket::serialize(packet, data, 0x508u, 0, &newOffset) )
+    {
+      format = "Cannot serialze the packet.";
+      line = 347;
+      v10 = (const char *)&other;
+      v11 = BD_LOG_ERROR;
+LABEL_53:
+      bdLogMessage(v11, v10, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", line, format);
+      return;
+    }
+    v12 = this->m_socket->sendTo(this->m_socket, addr, data, newOffset);
+    if ( v12 > 0 )
+    {
+      bdAddrString::bdAddrString(&v60, addr);
+      String = bdAddrString::getString(v13);
+      formata = "sent INTRO REPLY to %s";
+      linea = 355;
+LABEL_13:
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", linea, formata, String);
+      return;
+    }
+    bdAddrString::bdAddrString(&v61, addr);
+    v53 = v12;
+    v52 = bdAddrString::getString(v14);
+    lineb = 359;
 LABEL_11:
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", lineb, "Failed to send INTRO REPLY to %s. Socket error %i", v63, v64);
-      break;
-    case 0xCu:
-      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x110u, "Received NAT Trav reply.");
-      key = bdNATTraversalPacket::getIdentifier(packet);
-      AddrDest = bdNATTraversalPacket::getAddrDest(packet);
-      v20 = bdNATTraversalPacket::getAddrSrc(packet);
-      if ( bdNATTravClient::doHMac(this, key, v20, AddrDest, v79) && (HMAC = bdNATTraversalPacket::getHMAC(packet), *(_QWORD *)v79 == *(_QWORD *)HMAC) && v80 == *((_WORD *)HMAC + 4) )
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", lineb, "Failed to send INTRO REPLY to %s. Socket error %i", v52, v53);
+    return;
+  }
+  bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x110u, "Received NAT Trav reply.");
+  key = bdNATTraversalPacket::getIdentifier(packet);
+  AddrDest = bdNATTraversalPacket::getAddrDest(packet);
+  v17 = bdNATTraversalPacket::getAddrSrc(packet);
+  if ( bdNATTravClient::doHMac(this, key, v17, AddrDest, v68) && (HMAC = bdNATTraversalPacket::getHMAC(packet), *(_QWORD *)v68 == *(_QWORD *)HMAC) && v69 == *((_WORD *)HMAC + 4) )
+  {
+    bdAddrString::bdAddrString(&v63, addr);
+    v20 = bdAddrString::getString(v19);
+    v21 = bdNATTraversalPacket::getAddrDest(packet);
+    bdAddrString::bdAddrString(&v64, v21);
+    v23 = bdAddrString::getString(v22);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x11Cu, "discovered addr for %s: %s", v23, v20);
+    bdNATTravClientData::bdNATTravClientData(&value);
+    if ( bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::remove(&this->m_callbacks, &key, &value) )
+    {
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&value.m_age);
+      v26 = *(float *)&ElapsedTimeInSeconds * 1000.0;
+      v25 = *(float *)&ElapsedTimeInSeconds * 1000.0;
+      v27 = 0i64;
+      if ( (float)(*(float *)&ElapsedTimeInSeconds * 1000.0) >= 9.223372e18 )
       {
-        bdAddrString::bdAddrString(&v74, _R12);
-        v23 = bdAddrString::getString(v22);
-        v24 = bdNATTraversalPacket::getAddrDest(packet);
-        bdAddrString::bdAddrString(&v75, v24);
-        v26 = bdAddrString::getString(v25);
-        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x11Cu, "discovered addr for %s: %s", v26, v23);
-        bdNATTravClientData::bdNATTravClientData(&value);
-        if ( bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::remove(&this->m_callbacks, &key, &value) )
+        v25 = v26 - 9.223372e18;
+        if ( (float)(v26 - 9.223372e18) < 9.223372e18 )
+          v27 = 0x8000000000000000ui64;
+      }
+      v28 = v27 + (unsigned int)(int)v25;
+      NATType = bdCommonAddr::getNATType(value.m_remote.m_ptr);
+      if ( (unsigned int)NATType <= BD_NAT_STRICT )
+      {
+        ++this->m_traversalCount[NATType];
+        this->m_traversalDurationAggr[NATType] += v28;
+        this->m_traversalDurationAggrSq[NATType] += v28 * v28;
+      }
+      LODWORD(v54) = NATType;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x12Cu, "NAT trav duration = %lld msecs (type %d)", v28, v54);
+      PublicAddr = bdCommonAddr::getPublicAddr(this->m_localCommonAddr.m_ptr);
+      bdNATTravTelemetry::addRecord(&value.m_telemetry, BD_RECV_INTRO_REPLY, addr, PublicAddr, 1);
+      bdNATTravTelemetry::setResult(&value.m_telemetry, BD_SUCCESS, &value, addr);
+      bdTelemetry::addNatTrav(&value.m_telemetry);
+      remote.m_ptr = value.m_remote.m_ptr;
+      if ( value.m_remote.m_ptr )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&value.m_remote.m_ptr->m_refCount, 1u);
+      bdNATTravClientData::callOnNATAddrDiscovery(&value, (bdReference<bdCommonAddr>)&remote, addr);
+      v31 = value.m_remote.m_ptr->m_hash;
+      HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
+      v33 = NULL;
+      v34 = NULL;
+      v59 = &bdNATTravClient::m_cacheLock;
+      bdMutex::lock(&bdNATTravClient::m_cacheLock);
+      v35 = bdNATTravClient::m_cachedTraversals;
+      v36 = bdNATTravClient::m_cacheTimeoutMilliseconds;
+      do
+      {
+        if ( v35 >= (bdNATTravClient::bdCachedTraversal *)&unk_1564C7E60 )
+          break;
+        m_timestamp = v35->m_timestamp;
+        if ( !m_timestamp )
+          goto LABEL_35;
+        if ( !v36 )
+          goto LABEL_56;
+        ElapsedTime = bdPlatformTiming::getElapsedTime(m_timestamp, HiResTimeStamp);
+        v39 = *(float *)&ElapsedTime * 1000.0;
+        v36 = bdNATTravClient::m_cacheTimeoutMilliseconds;
+        v40 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
+        if ( (bdNATTravClient::m_cacheTimeoutMilliseconds & 0x8000000000000000ui64) != 0i64 )
         {
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&value.m_age);
-          __asm
-          {
-            vmovss  xmm7, cs:__real@447a0000
-            vmulss  xmm1, xmm0, xmm7
-            vmovss  xmm2, cs:__real@5f000000
-            vcomiss xmm1, xmm2
-            vsubss  xmm1, xmm1, xmm2
-            vcomiss xmm1, xmm2
-            vcvttss2si rbx, xmm1
-          }
-          NATType = bdCommonAddr::getNATType(value.m_remote.m_ptr);
-          if ( (unsigned int)NATType <= BD_NAT_STRICT )
-          {
-            ++this->m_traversalCount[NATType];
-            this->m_traversalDurationAggr[NATType] += _RBX;
-            this->m_traversalDurationAggrSq[NATType] += _RBX * _RBX;
-          }
-          LODWORD(v65) = NATType;
-          bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x12Cu, "NAT trav duration = %lld msecs (type %d)", _RBX, v65);
-          PublicAddr = bdCommonAddr::getPublicAddr(this->m_localCommonAddr.m_ptr);
-          bdNATTravTelemetry::addRecord(&value.m_telemetry, BD_RECV_INTRO_REPLY, _R12, PublicAddr, 1);
-          bdNATTravTelemetry::setResult(&value.m_telemetry, BD_SUCCESS, &value, _R12);
-          bdTelemetry::addNatTrav(&value.m_telemetry);
-          remote.m_ptr = value.m_remote.m_ptr;
-          if ( value.m_remote.m_ptr )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&value.m_remote.m_ptr->m_refCount, 1u);
-          bdNATTravClientData::callOnNATAddrDiscovery(&value, (bdReference<bdCommonAddr>)&remote, _R12);
-          m_hash = value.m_remote.m_ptr->m_hash;
-          HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-          _RDI = NULL;
-          v37 = NULL;
-          v70 = &bdNATTravClient::m_cacheLock;
-          bdMutex::lock(&bdNATTravClient::m_cacheLock);
-          v38 = bdNATTravClient::m_cachedTraversals;
-          __asm { vmovss  xmm6, cs:__real@5f800000 }
-          v40 = bdNATTravClient::m_cacheTimeoutMilliseconds;
-          do
-          {
-            if ( v38 >= (bdNATTravClient::bdCachedTraversal *)&unk_1564C7E60 )
-              break;
-            m_timestamp = v38->m_timestamp;
-            if ( !m_timestamp )
-              goto LABEL_32;
-            if ( !v40 )
-              goto LABEL_54;
-            *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(m_timestamp, HiResTimeStamp);
-            __asm { vmulss  xmm1, xmm0, xmm7 }
-            v40 = bdNATTravClient::m_cacheTimeoutMilliseconds;
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rdx
-            }
-            if ( (bdNATTravClient::m_cacheTimeoutMilliseconds & 0x8000000000000000ui64) != 0i64 )
-              __asm { vaddss  xmm0, xmm0, xmm6 }
-            __asm { vcomiss xmm1, xmm0 }
-            if ( bdNATTravClient::m_cacheTimeoutMilliseconds )
-            {
-LABEL_32:
-              _RDI = v38;
-            }
-            else
-            {
-LABEL_54:
-              if ( !v37 || v38->m_timestamp < v37->m_timestamp )
-                v37 = v38;
-            }
-            ++v38;
-          }
-          while ( !_RDI );
-          if ( !_RDI )
-            _RDI = v37;
-          if ( _RDI )
-          {
-            _RDI->m_remoteAddressHash = m_hash;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r12]
-              vmovups ymmword ptr [rdi+8], ymm0
-              vmovups ymm1, ymmword ptr [r12+20h]
-              vmovups ymmword ptr [rdi+28h], ymm1
-              vmovups ymm0, ymmword ptr [r12+40h]
-              vmovups ymmword ptr [rdi+48h], ymm0
-              vmovups ymm1, ymmword ptr [r12+60h]
-              vmovups ymmword ptr [rdi+68h], ymm1
-              vmovups xmm0, xmmword ptr [r12+80h]
-              vmovups xmmword ptr [rdi+88h], xmm0
-              vmovsd  xmm1, qword ptr [r12+90h]
-              vmovsd  qword ptr [rdi+98h], xmm1
-            }
-            if ( !HiResTimeStamp )
-              HiResTimeStamp = 1i64;
-            _RDI->m_timestamp = HiResTimeStamp;
-          }
-          bdMutex::unlock(&bdNATTravClient::m_cacheLock);
+          v41 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
+          v40 = v41 + 1.8446744e19;
+        }
+        if ( v39 > v40 )
+        {
+LABEL_35:
+          v33 = v35;
         }
         else
         {
-          bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x13Au, "Failed to find identifier in callback table. This is ok if we have already received a reply for this search.");
+LABEL_56:
+          if ( !v34 || v35->m_timestamp < v34->m_timestamp )
+            v34 = v35;
         }
-        bdNATTravClientData::~bdNATTravClientData(&value);
+        ++v35;
       }
-      else
+      while ( !v33 );
+      if ( !v33 )
+        v33 = v34;
+      if ( v33 )
       {
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x13Fu, "Packet was tampered with, discarding.");
+        v33->m_remoteAddressHash = v31;
+        *(__m256i *)&v33->m_realAddress.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&addr->m_address.inUn.m_sockaddrStorage.ss_family;
+        *((__m256i *)&v33->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 1);
+        *((__m256i *)&v33->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 2);
+        *((__m256i *)&v33->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 3);
+        v33->m_realAddress.m_relayRoute = addr->m_relayRoute;
+        *(double *)&v33->m_realAddress.m_type = *(double *)&addr->m_type;
+        if ( !HiResTimeStamp )
+          HiResTimeStamp = 1i64;
+        v33->m_timestamp = HiResTimeStamp;
       }
-      break;
-    case 0xDu:
-      v12 = this->m_localCommonAddr.m_ptr->m_hash;
-      if ( bdNATTraversalPacket::getIdentifier(packet) != v12 )
-      {
-        bdAddrString::bdAddrString(&v73, _R12);
-        String = bdAddrString::getString(v18);
-        formata = "ignored request from %s";
-        linea = 368;
-        goto LABEL_13;
-      }
-      bdNATTraversalPacket::setType(packet, 0xCu);
-      if ( !bdNATTraversalPacket::serialize(packet, data, 0x508u, 0, &newOffset) )
-      {
-        format = "Cannot serialze the packet.";
-        line = 347;
-        v13 = (const char *)&other;
-        v14 = BD_LOG_ERROR;
-LABEL_50:
-        bdLogMessage(v14, v13, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", line, format);
-        break;
-      }
-      v15 = this->m_socket->sendTo(this->m_socket, _R12, data, newOffset);
-      if ( v15 > 0 )
-      {
-        bdAddrString::bdAddrString(&v71, _R12);
-        String = bdAddrString::getString(v16);
-        formata = "sent INTRO REPLY to %s";
-        linea = 355;
-LABEL_13:
-        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", linea, formata, String);
-        break;
-      }
-      bdAddrString::bdAddrString(&v72, _R12);
-      v64 = v15;
-      v63 = bdAddrString::getString(v17);
-      lineb = 359;
-      goto LABEL_11;
+      bdMutex::unlock(&bdNATTravClient::m_cacheLock);
+    }
+    else
+    {
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x13Au, "Failed to find identifier in callback table. This is ok if we have already received a reply for this search.");
+    }
+    bdNATTravClientData::~bdNATTravClientData(&value);
   }
-  _R11 = &v84;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattravclient.cpp", "bdNATTravClient::receiveFrom", 0x13Fu, "Packet was tampered with, discarding.");
   }
 }
 
@@ -2092,94 +1991,70 @@ bdNATTravClient::saveInCache
 void bdNATTravClient::saveInCache(unsigned int remoteAddressHash, const bdAddr *realAddress)
 {
   unsigned __int64 HiResTimeStamp; 
-  bdNATTravClient::bdCachedTraversal *v10; 
-  bdNATTravClient::bdCachedTraversal *v11; 
-  unsigned __int64 v14; 
+  bdNATTravClient::bdCachedTraversal *v5; 
+  bdNATTravClient::bdCachedTraversal *v6; 
+  bdNATTravClient::bdCachedTraversal *v7; 
+  unsigned __int64 v8; 
   unsigned __int64 m_timestamp; 
-  void *retaddr; 
+  double ElapsedTime; 
+  float v11; 
+  float v12; 
+  float v13; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R14 = realAddress;
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  _RDI = NULL;
-  v10 = NULL;
+  v5 = NULL;
+  v6 = NULL;
   bdMutex::lock(&bdNATTravClient::m_cacheLock);
-  v11 = bdNATTravClient::m_cachedTraversals;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@447a0000
-  }
-  v14 = bdNATTravClient::m_cacheTimeoutMilliseconds;
+  v7 = bdNATTravClient::m_cachedTraversals;
+  v8 = bdNATTravClient::m_cacheTimeoutMilliseconds;
   do
   {
-    if ( v11 >= (bdNATTravClient::bdCachedTraversal *)&unk_1564C7E60 )
+    if ( v7 >= (bdNATTravClient::bdCachedTraversal *)&unk_1564C7E60 )
       break;
-    m_timestamp = v11->m_timestamp;
+    m_timestamp = v7->m_timestamp;
     if ( !m_timestamp )
       goto LABEL_11;
-    if ( !v14 )
+    if ( !v8 )
       goto LABEL_22;
-    *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(m_timestamp, HiResTimeStamp);
-    __asm { vmulss  xmm1, xmm0, xmm7 }
-    v14 = bdNATTravClient::m_cacheTimeoutMilliseconds;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-    }
+    ElapsedTime = bdPlatformTiming::getElapsedTime(m_timestamp, HiResTimeStamp);
+    v11 = *(float *)&ElapsedTime * 1000.0;
+    v8 = bdNATTravClient::m_cacheTimeoutMilliseconds;
+    v12 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
     if ( (bdNATTravClient::m_cacheTimeoutMilliseconds & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm { vcomiss xmm1, xmm0 }
-    if ( bdNATTravClient::m_cacheTimeoutMilliseconds )
+    {
+      v13 = (float)(__int64)bdNATTravClient::m_cacheTimeoutMilliseconds;
+      v12 = v13 + 1.8446744e19;
+    }
+    if ( v11 > v12 )
     {
 LABEL_11:
-      _RDI = v11;
+      v5 = v7;
     }
     else
     {
 LABEL_22:
-      if ( !v10 || v11->m_timestamp < v10->m_timestamp )
-        v10 = v11;
+      if ( !v6 || v7->m_timestamp < v6->m_timestamp )
+        v6 = v7;
     }
-    ++v11;
+    ++v7;
   }
-  while ( !_RDI );
-  if ( !_RDI )
-    _RDI = v10;
-  if ( _RDI )
+  while ( !v5 );
+  if ( !v5 )
+    v5 = v6;
+  if ( v5 )
   {
-    _RDI->m_remoteAddressHash = remoteAddressHash;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rdi+8], ymm0
-      vmovups ymm1, ymmword ptr [r14+20h]
-      vmovups ymmword ptr [rdi+28h], ymm1
-      vmovups ymm0, ymmword ptr [r14+40h]
-      vmovups ymmword ptr [rdi+48h], ymm0
-      vmovups ymm1, ymmword ptr [r14+60h]
-      vmovups ymmword ptr [rdi+68h], ymm1
-      vmovups xmm0, xmmword ptr [r14+80h]
-      vmovups xmmword ptr [rdi+88h], xmm0
-      vmovsd  xmm1, qword ptr [r14+90h]
-      vmovsd  qword ptr [rdi+98h], xmm1
-    }
+    v5->m_remoteAddressHash = remoteAddressHash;
+    *(__m256i *)&v5->m_realAddress.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&realAddress->m_address.inUn.m_sockaddrStorage.ss_family;
+    *((__m256i *)&v5->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&realAddress->m_address.inUn.m_ipv6Sockaddr + 1);
+    *((__m256i *)&v5->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&realAddress->m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&v5->m_realAddress.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&realAddress->m_address.inUn.m_ipv6Sockaddr + 3);
+    v5->m_realAddress.m_relayRoute = realAddress->m_relayRoute;
+    *(double *)&v5->m_realAddress.m_type = *(double *)&realAddress->m_type;
     if ( !HiResTimeStamp )
       HiResTimeStamp = 1i64;
-    _RDI->m_timestamp = HiResTimeStamp;
+    v5->m_timestamp = HiResTimeStamp;
   }
   bdMutex::unlock(&bdNATTravClient::m_cacheLock);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
-  }
 }
 
 /*
@@ -2674,10 +2549,9 @@ void bdNATTravClient::setNATTravStageMaxTries(bdNATTravClient *this, bdNATTravCl
 bdNATTravClient::setNATTravTimeout
 ==============
 */
-
-void __fastcall bdNATTravClient::setNATTravTimeout(bdNATTravClient *this, double NATTravTimeout)
+void bdNATTravClient::setNATTravTimeout(bdNATTravClient *this, float NATTravTimeout)
 {
-  __asm { vmovss  dword ptr [rcx+108h], xmm1 }
+  this->m_natTravTimeout = NATTravTimeout;
 }
 
 /*
@@ -2714,23 +2588,25 @@ __int64 bdNATTravClient::updateLocalCommonAddr(bdNATTravClient *this, const bdRe
 {
   bdCommonAddr *m_ptr; 
   unsigned __int8 v4; 
+  bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *Iterator; 
   __int64 v6; 
   __int64 v7; 
-  bdNATTravTelemetry *v9; 
-  __int64 v10; 
+  bdNATTravTelemetry *v8; 
+  __int64 v9; 
+  bdCommonAddr *v10; 
   bdCommonAddr *v11; 
-  bdCommonAddr *v12; 
-  bdCommonAddr_vtbl *v13; 
+  bdCommonAddr_vtbl *v12; 
   unsigned int m_capacity; 
-  __int64 v15; 
+  __int64 v14; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
   bdNATTravListener *m_listener; 
   bdNATTravListener *m_secondaryListener; 
+  __int128 v21; 
   unsigned __int64 m_start; 
   bool m_throttled; 
-  unsigned __int64 v25; 
-  bdNATTravTelemetry v26; 
+  unsigned __int64 v24; 
+  bdNATTravTelemetry v25; 
 
   m_ptr = newLocalCommonAddr.m_ptr;
   v4 = 0;
@@ -2738,100 +2614,96 @@ __int64 bdNATTravClient::updateLocalCommonAddr(bdNATTravClient *this, const bdRe
   {
     if ( newLocalCommonAddr.m_ptr->__vftable )
     {
-      _RBX = (bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *)bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::getIterator(&this->m_callbacks);
-      while ( _RBX )
+      Iterator = (bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::Node *)bdHashMap<unsigned int,bdNATTravClientData,bdHashingClass>::getIterator(&this->m_callbacks);
+      while ( Iterator )
       {
-        v6 = (__int64)_RBX->m_data.m_local.m_ptr;
-        v18 = v6;
+        v6 = (__int64)Iterator->m_data.m_local.m_ptr;
+        v17 = v6;
         if ( v6 )
           _InterlockedExchangeAdd((volatile signed __int32 *)(v6 + 8), 1u);
-        v7 = (__int64)_RBX->m_data.m_remote.m_ptr;
-        v19 = v7;
+        v7 = (__int64)Iterator->m_data.m_remote.m_ptr;
+        v18 = v7;
         if ( v7 )
           _InterlockedExchangeAdd((volatile signed __int32 *)(v7 + 8), 1u);
-        m_listener = _RBX->m_data.m_listener;
-        m_secondaryListener = _RBX->m_data.m_secondaryListener;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx+28h]
-          vmovups [rbp+2950h+var_29C8], xmm0
-        }
-        m_start = _RBX->m_data.m_lastSent.m_start;
-        m_throttled = _RBX->m_data.m_throttled;
-        v25 = _RBX->m_data.m_age.m_start;
-        v9 = &v26;
-        v10 = 32i64;
+        m_listener = Iterator->m_data.m_listener;
+        m_secondaryListener = Iterator->m_data.m_secondaryListener;
+        v21 = *(_OWORD *)Iterator->m_data.m_tries;
+        m_start = Iterator->m_data.m_lastSent.m_start;
+        m_throttled = Iterator->m_data.m_throttled;
+        v24 = Iterator->m_data.m_age.m_start;
+        v8 = &v25;
+        v9 = 32i64;
         do
         {
-          bdNATTravTelemetry::bdNATTravEvent::bdNATTravEvent(v9->m_attemptRecords, (const bdNATTravTelemetry::bdNATTravEvent *)((char *)v9->m_attemptRecords + (char *)&_RBX->m_data.m_telemetry - (char *)&v26));
-          v9 = (bdNATTravTelemetry *)((char *)v9 + 320);
-          --v10;
+          bdNATTravTelemetry::bdNATTravEvent::bdNATTravEvent(v8->m_attemptRecords, (const bdNATTravTelemetry::bdNATTravEvent *)((char *)v8->m_attemptRecords + (char *)&Iterator->m_data.m_telemetry - (char *)&v25));
+          v8 = (bdNATTravTelemetry *)((char *)v8 + 320);
+          --v9;
         }
-        while ( v10 );
-        v26.m_attemptRecordsCount = _RBX->m_data.m_telemetry.m_attemptRecordsCount;
-        v26.m_age.m_start = _RBX->m_data.m_telemetry.m_age.m_start;
-        v11 = _RBX->m_data.m_telemetry.m_localCommonAddr.m_ptr;
-        v26.m_localCommonAddr.m_ptr = v11;
+        while ( v9 );
+        v25.m_attemptRecordsCount = Iterator->m_data.m_telemetry.m_attemptRecordsCount;
+        v25.m_age.m_start = Iterator->m_data.m_telemetry.m_age.m_start;
+        v10 = Iterator->m_data.m_telemetry.m_localCommonAddr.m_ptr;
+        v25.m_localCommonAddr.m_ptr = v10;
+        if ( v10 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v10->m_refCount, 1u);
+        v11 = Iterator->m_data.m_telemetry.m_remoteCommonAddr.m_ptr;
+        v25.m_remoteCommonAddr.m_ptr = v11;
         if ( v11 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
-        v12 = _RBX->m_data.m_telemetry.m_remoteCommonAddr.m_ptr;
-        v26.m_remoteCommonAddr.m_ptr = v12;
-        if ( v12 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
-        bdAddr::bdAddr(&v26.m_realAddr, &_RBX->m_data.m_telemetry.m_realAddr);
-        bdAddr::bdAddr(&v26.m_stunAddr, &_RBX->m_data.m_telemetry.m_stunAddr);
-        v26.m_result = _RBX->m_data.m_telemetry.m_result;
-        v26.m_triesStage1 = _RBX->m_data.m_telemetry.m_triesStage1;
-        v26.m_triesStage2 = _RBX->m_data.m_telemetry.m_triesStage2;
-        v26.m_triesStage3 = _RBX->m_data.m_telemetry.m_triesStage3;
-        v26.m_throttled = _RBX->m_data.m_telemetry.m_throttled;
-        v26.m_duration = _RBX->m_data.m_telemetry.m_duration;
+        bdAddr::bdAddr(&v25.m_realAddr, &Iterator->m_data.m_telemetry.m_realAddr);
+        bdAddr::bdAddr(&v25.m_stunAddr, &Iterator->m_data.m_telemetry.m_stunAddr);
+        v25.m_result = Iterator->m_data.m_telemetry.m_result;
+        v25.m_triesStage1 = Iterator->m_data.m_telemetry.m_triesStage1;
+        v25.m_triesStage2 = Iterator->m_data.m_telemetry.m_triesStage2;
+        v25.m_triesStage3 = Iterator->m_data.m_telemetry.m_triesStage3;
+        v25.m_throttled = Iterator->m_data.m_telemetry.m_throttled;
+        v25.m_duration = Iterator->m_data.m_telemetry.m_duration;
         m_ptr = newLocalCommonAddr.m_ptr;
-        if ( (__int64 *)newLocalCommonAddr.m_ptr != &v18 )
+        if ( (__int64 *)newLocalCommonAddr.m_ptr != &v17 )
         {
-          if ( v18 && _InterlockedExchangeAdd((volatile signed __int32 *)(v18 + 8), 0xFFFFFFFF) == 1 && v18 )
-            (**(void (__fastcall ***)(__int64, __int64))v18)(v18, 1i64);
-          v13 = newLocalCommonAddr.m_ptr->__vftable;
-          v18 = (__int64)v13;
-          if ( v13 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v13[1], 1u);
+          if ( v17 && _InterlockedExchangeAdd((volatile signed __int32 *)(v17 + 8), 0xFFFFFFFF) == 1 && v17 )
+            (**(void (__fastcall ***)(__int64, __int64))v17)(v17, 1i64);
+          v12 = newLocalCommonAddr.m_ptr->__vftable;
+          v17 = (__int64)v12;
+          if ( v12 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v12[1], 1u);
         }
-        if ( _RBX->m_next )
+        if ( Iterator->m_next )
         {
-          _RBX = _RBX->m_next;
+          Iterator = Iterator->m_next;
         }
         else
         {
           m_capacity = this->m_callbacks.m_capacity;
-          v15 = ((HIBYTE(_RBX->m_key) ^ (16777619 * (BYTE2(_RBX->m_key) ^ (16777619 * (BYTE1(_RBX->m_key) ^ (16777619 * LOBYTE(_RBX->m_key))))))) & (m_capacity - 1)) + 1;
-          if ( (unsigned int)v15 >= m_capacity )
+          v14 = ((HIBYTE(Iterator->m_key) ^ (16777619 * (BYTE2(Iterator->m_key) ^ (16777619 * (BYTE1(Iterator->m_key) ^ (16777619 * LOBYTE(Iterator->m_key))))))) & (m_capacity - 1)) + 1;
+          if ( (unsigned int)v14 >= m_capacity )
           {
 LABEL_27:
-            _RBX = NULL;
+            Iterator = NULL;
             _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_callbacks.m_numIterators, 0xFFFFFFFF);
           }
           else
           {
             while ( 1 )
             {
-              _RBX = this->m_callbacks.m_map[v15];
-              if ( _RBX )
+              Iterator = this->m_callbacks.m_map[v14];
+              if ( Iterator )
                 break;
-              v15 = (unsigned int)(v15 + 1);
-              if ( (unsigned int)v15 >= m_capacity )
+              v14 = (unsigned int)(v14 + 1);
+              if ( (unsigned int)v14 >= m_capacity )
                 goto LABEL_27;
             }
           }
         }
-        bdNATTravTelemetry::~bdNATTravTelemetry(&v26);
-        if ( v19 && _InterlockedExchangeAdd((volatile signed __int32 *)(v19 + 8), 0xFFFFFFFF) == 1 )
+        bdNATTravTelemetry::~bdNATTravTelemetry(&v25);
+        if ( v18 && _InterlockedExchangeAdd((volatile signed __int32 *)(v18 + 8), 0xFFFFFFFF) == 1 )
         {
-          if ( v19 )
-            (**(void (__fastcall ***)(__int64, __int64))v19)(v19, 1i64);
-          v19 = 0i64;
+          if ( v18 )
+            (**(void (__fastcall ***)(__int64, __int64))v18)(v18, 1i64);
+          v18 = 0i64;
         }
-        if ( v18 && _InterlockedExchangeAdd((volatile signed __int32 *)(v18 + 8), 0xFFFFFFFF) == 1 && v18 )
-          (**(void (__fastcall ***)(__int64, __int64))v18)(v18, 1i64);
+        if ( v17 && _InterlockedExchangeAdd((volatile signed __int32 *)(v17 + 8), 0xFFFFFFFF) == 1 && v17 )
+          (**(void (__fastcall ***)(__int64, __int64))v17)(v17, 1i64);
       }
       bdReference<bdCommonAddr>::operator=(&this->m_localCommonAddr, (const bdReference<bdCommonAddr> *)m_ptr);
       v4 = 1;

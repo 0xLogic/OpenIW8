@@ -159,19 +159,10 @@ bdUserPresence::bdUserPresence
 */
 void bdUserPresence::bdUserPresence(bdUserPresence *this, const bdUserPresence *other)
 {
-  const bdUserPresence *v2; 
-  bdUserPresence *v3; 
-
-  v2 = other;
-  v3 = this;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *(_OWORD *)this->m_context.m_buffer = *(_OWORD *)other->m_context.m_buffer;
   this->m_context.m_buffer[16] = other->m_context.m_buffer[16];
   bdUserPresenceInfo::bdUserPresenceInfo(&this->m_presence, &other->m_presence);
-  bdUserDetails::bdUserDetails(&v3->m_userDetails, &v2->m_userDetails);
+  bdUserDetails::bdUserDetails(&this->m_userDetails, &other->m_userDetails);
 }
 
 /*
@@ -245,23 +236,14 @@ bdUserPresence::operator=
 */
 bdUserPresence *bdUserPresence::operator=(bdUserPresence *this, const bdUserPresence *other)
 {
-  const bdUserPresence *v2; 
-  bdUserPresence *v3; 
-
-  v2 = other;
-  v3 = this;
   if ( this != other )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx], xmm0
-    }
+    *(_OWORD *)this->m_context.m_buffer = *(_OWORD *)other->m_context.m_buffer;
     this->m_context.m_buffer[16] = other->m_context.m_buffer[16];
     bdUserPresenceInfo::operator=(&this->m_presence, &other->m_presence);
-    bdUserDetails::operator=(&v3->m_userDetails, &v2->m_userDetails);
+    bdUserDetails::operator=(&this->m_userDetails, &other->m_userDetails);
   }
-  return v3;
+  return this;
 }
 
 /*

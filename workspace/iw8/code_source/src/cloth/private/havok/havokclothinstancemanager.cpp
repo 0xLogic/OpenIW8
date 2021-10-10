@@ -545,16 +545,11 @@ HavokCloth_Instance *__fastcall HavokCloth_InstanceManager_GetInstance(const Hav
 HavokCloth_InstanceManager_AddSimulatedSpeed
 ==============
 */
-
-void __fastcall HavokCloth_InstanceManager_AddSimulatedSpeed(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, double speed)
+void HavokCloth_InstanceManager_AddSimulatedSpeed(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, const float speed)
 {
-  __int64 v11; 
+  HavokCloth_Instance *Instance; 
+  __int64 v8; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 934, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 935, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -563,23 +558,19 @@ void __fastcall HavokCloth_InstanceManager_AddSimulatedSpeed(const HavokCloth_In
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v11) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 937, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v11, manager->capacity) )
+    LODWORD(v8) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 937, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v8, manager->capacity) )
       __debugbreak();
   }
   if ( !HavokCloth_InstanceManager_IsInstanceInUse(manager, instanceId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 938, ASSERT_TYPE_ASSERT, "(HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId ))", (const char *)&queryFormat, "HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId )") )
     __debugbreak();
-  _RBX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 942, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 942, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+190h]
-    vmaxss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rbx+190h], xmm1
-  }
-  _RBX->lastSimulationSpeedValid = 1;
+  _XMM0 = LODWORD(Instance->lastSimulationSpeed);
+  __asm { vmaxss  xmm1, xmm0, xmm6 }
+  Instance->lastSimulationSpeed = *(float *)&_XMM1;
+  Instance->lastSimulationSpeedValid = 1;
 }
 
 /*
@@ -592,59 +583,56 @@ __int64 HavokCloth_InstanceManager_AllocateInstance(HavokCloth_InstanceManager *
   __int64 destroyedInstances; 
   HavokCloth_Instance *buffer; 
   unsigned int i; 
-  int v5; 
-  __int64 v7; 
+  unsigned int v5; 
+  __int64 freeInstances; 
+  HavokCloth_Instance *v7; 
+  unsigned int peakInstanceId; 
 
-  _RBX = manager;
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 105, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
-  if ( !_RBX->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 106, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
+  if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 106, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
     __debugbreak();
-  if ( _RBX->freeInstances == -1 )
+  if ( manager->freeInstances == -1 )
   {
-    if ( !_RBX->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 166, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
+    if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 166, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
       __debugbreak();
-    destroyedInstances = _RBX->destroyedInstances;
+    destroyedInstances = manager->destroyedInstances;
     if ( (_DWORD)destroyedInstances != -1 )
     {
-      buffer = _RBX->buffer;
-      for ( i = _RBX->buffer[destroyedInstances].nextInstanceId; i != -1; i = buffer[i].nextInstanceId )
+      buffer = manager->buffer;
+      for ( i = manager->buffer[destroyedInstances].nextInstanceId; i != -1; i = buffer[i].nextInstanceId )
         LODWORD(destroyedInstances) = i;
-      buffer[(unsigned int)destroyedInstances].nextInstanceId = _RBX->freeInstances;
-      _RBX->freeInstances = _RBX->destroyedInstances;
-      _RBX->numFreeInstances += _RBX->numDestroyedInstances;
-      v5 = _RBX->numAllocatedInstances + _RBX->numFreeInstances;
-      _RBX->destroyedInstances = -1;
-      _RBX->numDestroyedInstances = 0;
-      if ( v5 != _RBX->capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 191, ASSERT_TYPE_ASSERT, "(manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity)", (const char *)&queryFormat, "manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity") )
+      buffer[(unsigned int)destroyedInstances].nextInstanceId = manager->freeInstances;
+      manager->freeInstances = manager->destroyedInstances;
+      manager->numFreeInstances += manager->numDestroyedInstances;
+      v5 = manager->numAllocatedInstances + manager->numFreeInstances;
+      manager->destroyedInstances = -1;
+      manager->numDestroyedInstances = 0;
+      if ( v5 != manager->capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 191, ASSERT_TYPE_ASSERT, "(manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity)", (const char *)&queryFormat, "manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity") )
         __debugbreak();
     }
-    if ( _RBX->freeInstances == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 113, ASSERT_TYPE_ASSERT, "(!HavokCloth_InstanceManager_IsFull( manager ))", (const char *)&queryFormat, "!HavokCloth_InstanceManager_IsFull( manager )") )
+    if ( manager->freeInstances == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 113, ASSERT_TYPE_ASSERT, "(!HavokCloth_InstanceManager_IsFull( manager ))", (const char *)&queryFormat, "!HavokCloth_InstanceManager_IsFull( manager )") )
       __debugbreak();
   }
-  _RDI = _RBX->freeInstances;
-  v7 = (__int64)&_RBX->buffer[_RDI];
-  _RBX->freeInstances = *(_DWORD *)v7;
-  *(_DWORD *)v7 = -1;
-  *(_BYTE *)(v7 + 4) = 1;
-  if ( --_RBX->numFreeInstances + ++_RBX->numAllocatedInstances + _RBX->numDestroyedInstances != _RBX->capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 129, ASSERT_TYPE_ASSERT, "(manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity)", (const char *)&queryFormat, "manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity") )
+  freeInstances = manager->freeInstances;
+  v7 = &manager->buffer[freeInstances];
+  manager->freeInstances = v7->nextInstanceId;
+  v7->nextInstanceId = -1;
+  v7->inUse = 1;
+  if ( --manager->numFreeInstances + ++manager->numAllocatedInstances + manager->numDestroyedInstances != manager->capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 129, ASSERT_TYPE_ASSERT, "(manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity)", (const char *)&queryFormat, "manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity") )
     __debugbreak();
-  _EAX = _RBX->peakInstanceId;
-  if ( _EAX == -1 )
+  peakInstanceId = manager->peakInstanceId;
+  if ( peakInstanceId == -1 )
   {
-    _RBX->peakInstanceId = _RDI;
+    manager->peakInstanceId = freeInstances;
   }
   else
   {
-    __asm
-    {
-      vmovd   xmm1, edi
-      vmovd   xmm0, eax
-      vpmaxud xmm1, xmm0, xmm1
-      vmovd   dword ptr [rbx+20h], xmm1
-    }
+    _XMM0 = peakInstanceId;
+    __asm { vpmaxud xmm1, xmm0, xmm1 }
+    manager->peakInstanceId = _XMM1;
   }
-  return (unsigned int)_RDI;
+  return (unsigned int)freeInstances;
 }
 
 /*
@@ -822,7 +810,8 @@ HavokCloth_InstanceManager_GetBlendedSpeed
 */
 float HavokCloth_InstanceManager_GetBlendedSpeed(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId)
 {
-  __int64 v8; 
+  HavokCloth_Instance *Instance; 
+  __int64 v6; 
 
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 994, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
@@ -832,25 +821,18 @@ float HavokCloth_InstanceManager_GetBlendedSpeed(const HavokCloth_InstanceManage
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v8) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 997, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v8, manager->capacity) )
+    LODWORD(v6) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 997, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v6, manager->capacity) )
       __debugbreak();
   }
   if ( !HavokCloth_InstanceManager_IsInstanceInUse(manager, instanceId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 998, ASSERT_TYPE_ASSERT, "(HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId ))", (const char *)&queryFormat, "HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId )") )
     __debugbreak();
-  _RAX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  _RBX = _RAX;
-  if ( _RAX )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+194h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 1002, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+194h] }
-  }
-  return *(float *)&_XMM0;
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( Instance )
+    return Instance->blendedSpeed;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 1002, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
+    __debugbreak();
+  return MEMORY[0x194];
 }
 
 /*
@@ -1123,9 +1105,10 @@ HavokCloth_InstanceManager_GetOrientation
 */
 void HavokCloth_InstanceManager_GetOrientation(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, hkQuaternionf *orientation)
 {
-  __int64 v9; 
+  HavokCloth_Instance *Instance; 
+  hkQuaternionf v7; 
+  __int64 v8; 
 
-  _RDI = orientation;
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 759, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 760, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -1134,23 +1117,22 @@ void HavokCloth_InstanceManager_GetOrientation(const HavokCloth_InstanceManager 
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v9) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 762, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v9, manager->capacity) )
+    LODWORD(v8) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 762, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v8, manager->capacity) )
       __debugbreak();
   }
-  _RAX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  _RBX = _RAX;
-  if ( _RAX )
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( Instance )
   {
-    __asm { vmovups xmm0, xmmword ptr [rax+30h] }
+    v7.m_vec.m_quad = (__m128)Instance->orientation;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 766, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr [rbx+30h] }
+    v7.m_vec.m_quad = (__m128)MEMORY[0x30];
   }
-  __asm { vmovups xmmword ptr [rdi], xmm0 }
+  *orientation = (hkQuaternionf)v7.m_vec.m_quad;
 }
 
 /*
@@ -1248,9 +1230,10 @@ HavokCloth_InstanceManager_GetPosition
 */
 void HavokCloth_InstanceManager_GetPosition(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, hkVector4f *position)
 {
-  __int64 v9; 
+  HavokCloth_Instance *Instance; 
+  hkVector4f v7; 
+  __int64 v8; 
 
-  _RDI = position;
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 725, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 726, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -1259,23 +1242,22 @@ void HavokCloth_InstanceManager_GetPosition(const HavokCloth_InstanceManager *co
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v9) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 728, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v9, manager->capacity) )
+    LODWORD(v8) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 728, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v8, manager->capacity) )
       __debugbreak();
   }
-  _RAX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  _RBX = _RAX;
-  if ( _RAX )
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( Instance )
   {
-    __asm { vmovups xmm0, xmmword ptr [rax+20h] }
+    v7.m_quad = (__m128)Instance->position;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 732, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr [rbx+20h] }
+    v7.m_quad = (__m128)MEMORY[0x20];
   }
-  __asm { vmovups xmmword ptr [rdi], xmm0 }
+  *position = (hkVector4f)v7.m_quad;
 }
 
 /*
@@ -1379,11 +1361,10 @@ HavokCloth_InstanceManager_GetSimulatedSpeed
 */
 bool HavokCloth_InstanceManager_GetSimulatedSpeed(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, float *speed)
 {
-  bool v8; 
-  bool v9; 
-  __int64 v13; 
+  HavokCloth_Instance *Instance; 
+  float lastSimulationSpeed; 
+  __int64 v9; 
 
-  _RSI = speed;
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 953, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 954, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -1392,31 +1373,20 @@ bool HavokCloth_InstanceManager_GetSimulatedSpeed(const HavokCloth_InstanceManag
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v13) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 956, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v13, manager->capacity) )
+    LODWORD(v9) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 956, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v9, manager->capacity) )
       __debugbreak();
   }
   if ( !HavokCloth_InstanceManager_IsInstanceInUse(manager, instanceId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 957, ASSERT_TYPE_ASSERT, "(HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId ))", (const char *)&queryFormat, "HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId )") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 958, ASSERT_TYPE_ASSERT, "(speed)", (const char *)&queryFormat, "speed") )
+  if ( !speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 958, ASSERT_TYPE_ASSERT, "(speed)", (const char *)&queryFormat, "speed") )
     __debugbreak();
-  _RBX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  v8 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 962, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance");
-    v8 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+190h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-    vmovss  dword ptr [rsi], xmm1
-  }
-  return !v8;
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 962, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
+    __debugbreak();
+  lastSimulationSpeed = Instance->lastSimulationSpeed;
+  *speed = lastSimulationSpeed;
+  return lastSimulationSpeed != 0.0;
 }
 
 /*
@@ -1931,16 +1901,11 @@ void HavokCloth_InstanceManager_SetBindPoseBased(HavokCloth_InstanceManager *con
 HavokCloth_InstanceManager_SetBlendedSpeed
 ==============
 */
-
-void __fastcall HavokCloth_InstanceManager_SetBlendedSpeed(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, double speed)
+void HavokCloth_InstanceManager_SetBlendedSpeed(const HavokCloth_InstanceManager *const manager, const unsigned int instanceId, float speed)
 {
-  __int64 v10; 
+  HavokCloth_Instance *Instance; 
+  __int64 v6; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 976, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 977, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -1949,25 +1914,23 @@ void __fastcall HavokCloth_InstanceManager_SetBlendedSpeed(const HavokCloth_Inst
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v10) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 979, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v10, manager->capacity) )
+    LODWORD(v6) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 979, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v6, manager->capacity) )
       __debugbreak();
   }
   if ( !HavokCloth_InstanceManager_IsInstanceInUse(manager, instanceId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 980, ASSERT_TYPE_ASSERT, "(HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId ))", (const char *)&queryFormat, "HavokCloth_InstanceManager_IsInstanceInUse( manager, instanceId )") )
     __debugbreak();
-  _RAX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  _RBX = _RAX;
-  if ( _RAX )
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( Instance )
   {
-    __asm { vmovss  dword ptr [rax+194h], xmm6 }
+    Instance->blendedSpeed = speed;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 984, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    __asm { vmovss  dword ptr [rbx+194h], xmm6 }
+    MEMORY[0x194] = speed;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -2139,9 +2102,9 @@ HavokCloth_InstanceManager_SetOrientation
 */
 void HavokCloth_InstanceManager_SetOrientation(HavokCloth_InstanceManager *const manager, const unsigned int instanceId, const hkQuaternionf *orientation)
 {
-  __int64 v10; 
+  HavokCloth_Instance *Instance; 
+  __int64 v7; 
 
-  _RDI = orientation;
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 742, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 743, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -2150,29 +2113,20 @@ void HavokCloth_InstanceManager_SetOrientation(HavokCloth_InstanceManager *const
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v10) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 745, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v10, manager->capacity) )
+    LODWORD(v7) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 745, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v7, manager->capacity) )
       __debugbreak();
   }
-  _RAX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  _RBX = _RAX;
-  if ( _RAX )
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( Instance )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rax+30h], xmm0
-    }
+    Instance->orientation = (hkQuaternionf)orientation->m_vec.m_quad;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 749, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rbx+30h], xmm0
-    }
+    MEMORY[0x30] = orientation->m_vec.m_quad;
   }
 }
 
@@ -2270,9 +2224,9 @@ HavokCloth_InstanceManager_SetPosition
 */
 void HavokCloth_InstanceManager_SetPosition(HavokCloth_InstanceManager *const manager, const unsigned int instanceId, const hkVector4f *position)
 {
-  __int64 v10; 
+  HavokCloth_Instance *Instance; 
+  __int64 v7; 
 
-  _RDI = position;
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 708, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
   if ( !manager->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 709, ASSERT_TYPE_ASSERT, "(manager->buffer)", (const char *)&queryFormat, "manager->buffer") )
@@ -2281,29 +2235,20 @@ void HavokCloth_InstanceManager_SetPosition(HavokCloth_InstanceManager *const ma
     __debugbreak();
   if ( instanceId >= manager->capacity )
   {
-    LODWORD(v10) = instanceId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 711, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v10, manager->capacity) )
+    LODWORD(v7) = instanceId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 711, ASSERT_TYPE_ASSERT, "(unsigned)( instanceId ) < (unsigned)( HavokCloth_InstanceManager_GetCapacity( manager ) )", "instanceId doesn't index HavokCloth_InstanceManager_GetCapacity( manager )\n\t%i not in [0, %i)", v7, manager->capacity) )
       __debugbreak();
   }
-  _RAX = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
-  _RBX = _RAX;
-  if ( _RAX )
+  Instance = HavokCloth_InstanceManager_GetInstance(manager, instanceId);
+  if ( Instance )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rax+20h], xmm0
-    }
+    Instance->position = (hkVector4f)position->m_quad;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothinstancemanager.cpp", 715, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rbx+20h], xmm0
-    }
+    MEMORY[0x20] = position->m_quad;
   }
 }
 

@@ -169,18 +169,9 @@ CGMovingPlatformAimAssist::AdjustPitchForMoverVelocity
 */
 void CGMovingPlatformAimAssist::AdjustPitchForMoverVelocity(CGMovingPlatformAimAssist *this, float *pitchTurnRate)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vaddss  xmm2, xmm0, dword ptr [rdx]
-    vmovss  dword ptr [rdx], xmm2
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  *pitchTurnRate = (float)((float)((float)(this->m_angleVelocity.v[0] * 0.0027777778) - *(float *)&_XMM4) * 360.0) + *pitchTurnRate;
 }
 
 /*
@@ -190,19 +181,9 @@ CGMovingPlatformAimAssist::AdjustYawForMoverVelocity
 */
 void CGMovingPlatformAimAssist::AdjustYawForMoverVelocity(CGMovingPlatformAimAssist *this, float *yawTurnRate)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+10h]
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm2, xmm1, cs:__real@43b40000
-    vsubss  xmm2, xmm0, xmm2
-    vmovss  dword ptr [rdx], xmm2
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  *yawTurnRate = *yawTurnRate - (float)((float)((float)(this->m_angleVelocity.v[1] * 0.0027777778) - *(float *)&_XMM4) * 360.0);
 }
 
 /*
@@ -277,110 +258,80 @@ CGMovingPlatformAimAssist::CalculateLinearVelocity
 void CGMovingPlatformAimAssist::CalculateLinearVelocity(LocalClientNum_t localClientNum, const playerState_s *ps, vec3_t *outVel)
 {
   cg_t *LocalClientGlobals; 
-  int v11; 
+  int v7; 
   int m_movingPlatformEntity; 
-  const dvar_t *v13; 
-  vec3_t v45; 
+  const dvar_t *v9; 
+  int v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  vec3_t v19; 
   vec3_t out; 
 
-  _RDI = outVel;
-  _RSI = ps;
   if ( BGMovingPlatforms::IsOnMovingPlatform(ps) )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\movingplatforms\\cg_moving_platform_aimassist.cpp", 179, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
-    v11 = _RSI->commandTime - LocalClientGlobals->oldCommandTime;
+    v7 = ps->commandTime - LocalClientGlobals->oldCommandTime;
     m_movingPlatformEntity = LocalClientGlobals->predictedPlayerState.movingPlatforms.m_movingPlatformEntity;
     if ( !Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_IDLE|0x80) )
       goto LABEL_15;
-    v13 = DVARBOOL_killswitch_aim_assist_mover_fix_enabled;
+    v9 = DVARBOOL_killswitch_aim_assist_mover_fix_enabled;
     if ( !DVARBOOL_killswitch_aim_assist_mover_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_aim_assist_mover_fix_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( v13->current.enabled && LocalClientGlobals->oldMoverId == m_movingPlatformEntity )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v9->current.enabled && LocalClientGlobals->oldMoverId == m_movingPlatformEntity )
     {
-      __asm
-      {
-        vxorps  xmm4, xmm4, xmm4
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm2, xmm2, xmm2
-      }
-      if ( _RSI->serverTime - LocalClientGlobals->oldServerTime > 0 )
+      v10 = ps->serverTime - LocalClientGlobals->oldServerTime;
+      v11 = 0.0;
+      v12 = 0.0;
+      v13 = 0.0;
+      if ( v10 > 0 )
       {
         MatrixTransformVector43(&LocalClientGlobals->originMoverLocal, &LocalClientGlobals->oldMoverTransform, &out);
-        MatrixTransformVector43(&LocalClientGlobals->originMoverLocal, &LocalClientGlobals->moverTransform, &v45);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@447a0000
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r14d
-          vdivss  xmm3, xmm0, xmm1
-          vmovss  xmm1, dword ptr [rsp+98h+var_58]
-          vsubss  xmm2, xmm1, dword ptr [rsp+98h+out]
-          vmovss  xmm0, dword ptr [rsp+98h+var_58+4]
-          vsubss  xmm1, xmm0, dword ptr [rsp+98h+out+4]
-          vmulss  xmm4, xmm2, xmm3
-          vmovss  xmm2, dword ptr [rsp+98h+var_58+8]
-          vsubss  xmm0, xmm2, dword ptr [rsp+98h+out+8]
-          vmulss  xmm2, xmm0, xmm3
-          vmulss  xmm1, xmm1, xmm3
-        }
+        MatrixTransformVector43(&LocalClientGlobals->originMoverLocal, &LocalClientGlobals->moverTransform, &v19);
+        v14 = 1000.0 / (float)v10;
+        v11 = (float)(v19.v[0] - out.v[0]) * v14;
+        v13 = (float)(v19.v[2] - out.v[2]) * v14;
+        v12 = (float)(v19.v[1] - out.v[1]) * v14;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm4, dword ptr [rsi+3Ch]
-        vmovss  dword ptr [rdi], xmm0
-        vaddss  xmm1, xmm1, dword ptr [rsi+40h]
-        vmovss  dword ptr [rdi+4], xmm1
-        vaddss  xmm0, xmm2, dword ptr [rsi+44h]
-        vmovss  dword ptr [rdi+8], xmm0
-      }
+      outVel->v[0] = v11 + ps->velocity.v[0];
+      outVel->v[1] = v12 + ps->velocity.v[1];
+      outVel->v[2] = v13 + ps->velocity.v[2];
     }
     else
     {
 LABEL_15:
-      if ( v11 > 0 )
+      if ( v7 > 0 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+30h]
-          vsubss  xmm5, xmm0, dword ptr [rbp+596A8h]
-          vmovss  dword ptr [rdi], xmm5
-          vmovss  xmm1, dword ptr [rsi+34h]
-          vsubss  xmm4, xmm1, dword ptr [rbp+596ACh]
-          vmovss  dword ptr [rdi+4], xmm4
-          vmovss  xmm0, dword ptr [rsi+38h]
-          vsubss  xmm3, xmm0, dword ptr [rbp+596B0h]
-          vmovss  xmm0, cs:__real@447a0000
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r14d
-          vdivss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm5, xmm2
-          vmovss  dword ptr [rdi], xmm1
-          vmulss  xmm0, xmm4, xmm2
-          vmulss  xmm1, xmm3, xmm2
-          vmovss  dword ptr [rdi+4], xmm0
-          vmovss  dword ptr [rdi+8], xmm1
-        }
+        v15 = ps->origin.v[0] - LocalClientGlobals->oldOrigin.v[0];
+        outVel->v[0] = v15;
+        v16 = ps->origin.v[1] - LocalClientGlobals->oldOrigin.v[1];
+        outVel->v[1] = v16;
+        v17 = ps->origin.v[2] - LocalClientGlobals->oldOrigin.v[2];
+        v18 = 1000.0 / (float)v7;
+        outVel->v[0] = v15 * v18;
+        outVel->v[1] = v16 * v18;
+        outVel->v[2] = v17 * v18;
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        *(_QWORD *)_RDI->v = 0i64;
-        __asm { vmovss  dword ptr [rdi+8], xmm0 }
+        *(_QWORD *)outVel->v = 0i64;
+        outVel->v[2] = 0;
       }
     }
   }
   else
   {
-    _RDI->v[0] = _RSI->velocity.v[0];
-    _RDI->v[1] = _RSI->velocity.v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+44h]
-      vmovss  dword ptr [rdi+8], xmm0
-    }
+    outVel->v[0] = ps->velocity.v[0];
+    outVel->v[1] = ps->velocity.v[1];
+    outVel->v[2] = ps->velocity.v[2];
   }
 }
 
@@ -441,27 +392,20 @@ void CGMovingPlatformAimAssist::UpdateDataFromPS(CGMovingPlatformAimAssist *this
 {
   cg_t *LocalClientGlobals; 
 
-  _RSI = this;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\movingplatforms\\cg_moving_platform_aimassist.cpp", 91, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  __asm
+  this->m_frametime = (float)LocalClientGlobals->frametime * 0.001;
+  this->m_movingPlatformEntity = ps->movingPlatforms.m_movingPlatformEntity;
+  this->m_commandTime = ps->serverTime;
+  if ( CGMovingPlatformAimAssist::IsOnMovingPlatform(this) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+65E4h]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  dword ptr [rsi], xmm1
-  }
-  _RSI->m_movingPlatformEntity = ps->movingPlatforms.m_movingPlatformEntity;
-  _RSI->m_commandTime = ps->serverTime;
-  if ( CGMovingPlatformAimAssist::IsOnMovingPlatform(_RSI) )
-  {
-    CGMovingPlatformClient::GetPlatformAngularVelocity(&LocalClientGlobals->movingPlatforms, &_RSI->m_angleVelocity);
+    CGMovingPlatformClient::GetPlatformAngularVelocity(&LocalClientGlobals->movingPlatforms, &this->m_angleVelocity);
   }
   else
   {
-    *(_QWORD *)_RSI->m_angleVelocity.v = 0i64;
-    _RSI->m_angleVelocity.v[2] = 0.0;
+    *(_QWORD *)this->m_angleVelocity.v = 0i64;
+    this->m_angleVelocity.v[2] = 0.0;
   }
 }
 
@@ -472,44 +416,26 @@ CGMovingPlatformAimAssist::UpdateDeltas
 */
 void CGMovingPlatformAimAssist::UpdateDeltas(LocalClientNum_t localClientNum)
 {
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps [rsp+88h+var_58], xmm10
-    vmovaps [rsp+88h+var_68], xmm11
-  }
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rax+38h]
-    vmovss  xmm6, dword ptr [rax+596A8h]
-    vmovss  xmm9, dword ptr [rax+3Ch]
-    vmovss  xmm8, dword ptr [rax+596ACh]
-    vmovss  xmm11, dword ptr [rax+40h]
-    vmovss  xmm10, dword ptr [rax+596B0h]
-  }
-  _RAX = AimAssist_GetSharedGlobals(localClientNum);
-  __asm
-  {
-    vsubss  xmm0, xmm7, xmm6
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vaddss  xmm1, xmm0, dword ptr [rax]
-    vsubss  xmm0, xmm9, xmm8
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovss  dword ptr [rax], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rax+4]
-    vsubss  xmm0, xmm11, xmm10
-    vmovaps xmm10, [rsp+88h+var_58]
-    vmovaps xmm11, [rsp+88h+var_68]
-    vmovss  dword ptr [rax+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rax+8]
-    vmovss  dword ptr [rax+8], xmm1
-  }
+  cg_t *LocalClientGlobals; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  AimAssistSharedGlobals *SharedGlobals; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v3 = LocalClientGlobals->predictedPlayerState.origin.v[0];
+  v4 = LocalClientGlobals->oldOrigin.v[0];
+  v5 = LocalClientGlobals->predictedPlayerState.origin.v[1];
+  v6 = LocalClientGlobals->oldOrigin.v[1];
+  v7 = LocalClientGlobals->predictedPlayerState.origin.v[2];
+  v8 = LocalClientGlobals->oldOrigin.v[2];
+  SharedGlobals = AimAssist_GetSharedGlobals(localClientNum);
+  SharedGlobals->eyeOrigin.v[0] = (float)(v3 - v4) + SharedGlobals->eyeOrigin.v[0];
+  SharedGlobals->eyeOrigin.v[1] = (float)(v5 - v6) + SharedGlobals->eyeOrigin.v[1];
+  SharedGlobals->eyeOrigin.v[2] = (float)(v7 - v8) + SharedGlobals->eyeOrigin.v[2];
 }
 
 /*
@@ -520,48 +446,33 @@ CGMovingPlatformAimAssist::UpdateScreenTargetVelocity
 __int64 CGMovingPlatformAimAssist::UpdateScreenTargetVelocity(CGMovingPlatformAimAssist *this, const centity_t *screenTargetEnt, int targetIndex, AimScreenTarget *screenTarget)
 {
   __int64 v5; 
-  char v16; 
+  __int64 v8; 
+  float v9; 
+  float m_frametime; 
   vec3_t outOrigin; 
 
-  _RDI = screenTarget;
   v5 = targetIndex;
-  _RSI = this;
-  if ( !CGMovingPlatformAimAssist::IsOnMovingPlatform(this) || !_RSI->m_targetInfo[v5].dataValid )
+  if ( !CGMovingPlatformAimAssist::IsOnMovingPlatform(this) )
+    return 0i64;
+  v8 = v5;
+  if ( !this->m_targetInfo[v8].dataValid )
     return 0i64;
   CG_GetPoseOrigin(&screenTargetEnt->pose, &outOrigin);
-  __asm
+  v9 = outOrigin.v[0] - this->m_targetInfo[v8].prevOrigin.v[0];
+  screenTarget->velocity.v[0] = v9;
+  screenTarget->velocity.v[1] = outOrigin.v[1] - this->m_targetInfo[v8].prevOrigin.v[1];
+  screenTarget->velocity.v[2] = outOrigin.v[2] - this->m_targetInfo[v8].prevOrigin.v[2];
+  m_frametime = this->m_frametime;
+  if ( this->m_frametime == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+48h+outOrigin]
-    vsubss  xmm3, xmm0, dword ptr [rsi+rbx*8+1Ch]
-    vmovss  dword ptr [rdi+20h], xmm3
-    vmovss  xmm1, dword ptr [rsp+48h+outOrigin+4]
-    vsubss  xmm0, xmm1, dword ptr [rsi+rbx*8+20h]
-    vmovss  dword ptr [rdi+24h], xmm0
-    vmovss  xmm2, dword ptr [rsp+48h+outOrigin+8]
-    vsubss  xmm1, xmm2, dword ptr [rsi+rbx*8+24h]
-    vmovss  dword ptr [rdi+28h], xmm1
-    vmovss  xmm4, dword ptr [rsi]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm4, xmm0
-  }
-  if ( v16 )
-  {
-    *(_QWORD *)_RDI->velocity.v = 0i64;
-    _RDI->velocity.v[2] = 0.0;
+    *(_QWORD *)screenTarget->velocity.v = 0i64;
+    screenTarget->velocity.v[2] = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm2, xmm0, xmm4
-      vmulss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rdi+20h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdi+24h]
-      vmovss  dword ptr [rdi+24h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rdi+28h]
-      vmovss  dword ptr [rdi+28h], xmm1
-    }
+    screenTarget->velocity.v[0] = v9 * (float)(1.0 / m_frametime);
+    screenTarget->velocity.v[1] = (float)(1.0 / m_frametime) * screenTarget->velocity.v[1];
+    screenTarget->velocity.v[2] = (float)(1.0 / m_frametime) * screenTarget->velocity.v[2];
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
   return 1i64;

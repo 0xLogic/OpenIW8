@@ -530,652 +530,390 @@ RB_GP_GenerateSurfs
 void RB_GP_GenerateSurfs(GfxCmdBufContext *gfxContext, ComputeCmdBufState *state, const GfxBackEndData *data, unsigned int passIndex, R_RT_BufferHandle *perSurfDataBuffer, R_RT_BufferHandle *batchSubMeshOffsetsBuffer, R_RT_BufferHandle *subMeshWorkgroupArgsBuffer, R_RT_BufferHandle *subMeshCountBuffer, R_RT_BufferHandle *clusterPassIndirectArgsBuffer, R_RT_BufferHandle *clusterPPSumIndirectArgsBuffer, R_RT_BufferHandle *smodelSurfEmitCountBuffer, R_RT_BufferHandle *smodelSurfCountBuffer)
 {
   __int64 smpFrame; 
-  __int64 v19; 
-  int *v24; 
-  int v26; 
-  unsigned int v27; 
+  __int64 v17; 
+  R_RT_Handle v18; 
+  int *v19; 
+  int v20; 
+  unsigned int v21; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v29; 
-  const R_RT_Surface *v30; 
-  GfxShaderBufferView *v49; 
-  const R_RT_Surface *v50; 
-  GfxShaderBufferView *v65; 
-  const R_RT_Surface *v66; 
-  unsigned int v73; 
-  unsigned int v85; 
-  unsigned int *v143; 
+  const R_RT_Surface *v23; 
+  const R_RT_Surface *v24; 
+  R_RT_Handle v25; 
+  GfxShaderBufferView *v26; 
+  const R_RT_Surface *v27; 
+  R_RT_BufferHandle v28; 
+  R_RT_BufferHandle v29; 
+  R_RT_BufferHandle v30; 
+  R_RT_Handle v31; 
+  GfxShaderBufferView *v32; 
+  const R_RT_Surface *v33; 
+  R_RT_BufferHandle v35; 
+  unsigned int v36; 
+  unsigned int v37; 
+  R_RT_BufferHandle v39; 
+  R_RT_BufferHandle v40; 
+  GfxCmdBufContext *v41; 
+  GfxCmdBufContext v42; 
+  GfxCmdBufContext v43; 
+  GfxCmdBufContext v44; 
+  GfxCmdBufContext v45; 
+  GfxCmdBufContext v46; 
+  GfxCmdBufContext v47; 
+  unsigned int *v48; 
   GfxShaderBufferView *views; 
   GfxShaderBufferRWView *p_rwView; 
-  GfxShaderBufferView *v146; 
-  GfxShaderBufferRWView *v147; 
-  GfxCmdBufContext *v148; 
-  __m256i v149; 
-  __m256i v150; 
-  GfxCmdBufContext v151; 
-  GfxCmdBufContext v152; 
-  GfxCmdBufContext v153; 
-  GfxCmdBufContext v154; 
-  GfxCmdBufContext v155; 
-  GfxCmdBufContext v156; 
-  GfxCmdBufContext v157; 
-  GfxCmdBufContext v158; 
-  R_RT_Handle v159; 
-  R_RT_Handle v160; 
-  R_RT_BufferHandle v161; 
-  R_RT_BufferHandle v162; 
-  R_RT_BufferHandle v163; 
-  R_RT_BufferHandle v164; 
-  R_RT_BufferHandle v165; 
-  R_RT_BufferHandle v166; 
-  R_RT_BufferHandle v167; 
-  R_RT_BufferHandle v168; 
-  R_RT_Handle v169; 
-  R_RT_Handle v170; 
-  R_RT_Handle v171; 
-  R_RT_Handle v172; 
-  R_RT_Handle v173; 
-  R_RT_Handle v174; 
-  R_RT_Handle v175; 
-  R_RT_BufferHandle v176; 
-  R_RT_BufferHandle v177; 
-  R_RT_BufferHandle v178; 
-  R_RT_BufferHandle v179; 
-  R_RT_BufferHandle v180; 
-  R_RT_Handle v181; 
-  R_RT_Handle v182; 
-  R_RT_Handle v183; 
-  R_RT_BufferHandle v184; 
-  R_RT_BufferHandle v185; 
-  R_RT_BufferHandle v186; 
-  R_RT_BufferHandle v187; 
-  R_RT_Handle v188; 
-  R_RT_Handle v189; 
-  R_RT_Handle v190; 
-  R_RT_Handle v191; 
-  R_RT_Handle v192; 
-  R_RT_Handle v193; 
-  R_RT_Handle v194; 
-  R_RT_BufferHandle v195; 
-  R_RT_BufferHandle v196; 
-  R_RT_BufferHandle v197; 
-  R_RT_BufferHandle v198; 
-  R_RT_BufferHandle v199; 
-  R_RT_BufferHandle v200; 
-  R_RT_BufferHandle v201; 
-  R_RT_Handle v202; 
-  R_RT_Handle v203; 
-  R_RT_Handle v204; 
-  R_RT_Handle v205; 
-  R_RT_Handle v206; 
-  R_RT_BufferHandle v207; 
-  R_RT_BufferHandle v208; 
-  R_RT_BufferHandle v209; 
-  R_RT_BufferHandle v210; 
-  R_RT_Handle v211; 
-  R_RT_Handle v212; 
-  R_RT_Handle v213; 
-  R_RT_Handle v214; 
-  R_RT_BufferHandle v215; 
-  R_RT_BufferHandle v216; 
-  R_RT_BufferHandle v217; 
-  R_RT_BufferHandle v218; 
-  R_RT_BufferHandle v219; 
-  R_RT_Handle v220; 
-  R_RT_Handle v221; 
-  R_RT_Handle v222; 
-  R_RT_Handle v223; 
-  R_RT_Handle v224; 
-  R_RT_BufferHandle v225; 
-  R_RT_BufferHandle v226; 
-  R_RT_BufferHandle v227; 
-  R_RT_BufferHandle v228; 
-  R_RT_BufferHandle v229; 
-  R_RT_BufferHandle v230; 
-  R_RT_Handle v231; 
-  R_RT_Handle v232; 
-  R_RT_Handle v233; 
-  R_RT_Handle v234; 
-  R_RT_Handle v235; 
-  R_RT_Handle v236; 
-  R_RT_Handle v237; 
-  R_RT_Handle v238; 
-  R_RT_Handle v239; 
-  R_RT_Handle v240; 
-  R_RT_Handle v241; 
+  GfxShaderBufferView *v51; 
+  GfxShaderBufferRWView *v52; 
+  GfxCmdBufContext *v53; 
+  R_RT_BufferHandle v54; 
+  R_RT_BufferHandle v55; 
+  GfxCmdBufContext v56; 
+  GfxCmdBufContext v57; 
+  GfxCmdBufContext v58; 
+  GfxCmdBufContext v59; 
+  GfxCmdBufContext v60; 
+  GfxCmdBufContext v61; 
+  GfxCmdBufContext v62; 
+  GfxCmdBufContext v63; 
+  R_RT_Handle v64; 
+  R_RT_Handle v65; 
+  R_RT_BufferHandle v66; 
+  R_RT_BufferHandle v67; 
+  R_RT_BufferHandle v68; 
+  R_RT_BufferHandle v69; 
+  R_RT_BufferHandle v70; 
+  R_RT_BufferHandle v71; 
+  R_RT_BufferHandle v72; 
+  R_RT_BufferHandle v73; 
+  R_RT_Handle v74; 
+  R_RT_Handle v75; 
+  R_RT_Handle v76; 
+  R_RT_Handle v77; 
+  R_RT_Handle v78; 
+  R_RT_Handle v79; 
+  R_RT_Handle v80; 
+  R_RT_BufferHandle v81; 
+  R_RT_BufferHandle v82; 
+  R_RT_BufferHandle v83; 
+  R_RT_BufferHandle v84; 
+  R_RT_BufferHandle v85; 
+  R_RT_Handle v86; 
+  R_RT_Handle v87; 
+  R_RT_Handle v88; 
+  R_RT_BufferHandle v89; 
+  R_RT_BufferHandle v90; 
+  R_RT_BufferHandle v91; 
+  R_RT_BufferHandle v92; 
+  R_RT_Handle v93; 
+  R_RT_Handle v94; 
+  R_RT_Handle v95; 
+  R_RT_Handle v96; 
+  R_RT_Handle v97; 
+  R_RT_Handle v98; 
+  R_RT_Handle v99; 
+  R_RT_BufferHandle v100; 
+  R_RT_BufferHandle v101; 
+  R_RT_BufferHandle v102; 
+  R_RT_BufferHandle v103; 
+  R_RT_BufferHandle v104; 
+  R_RT_BufferHandle v105; 
+  R_RT_BufferHandle v106; 
+  R_RT_Handle v107; 
+  R_RT_Handle v108; 
+  R_RT_Handle v109; 
+  R_RT_Handle v110; 
+  R_RT_Handle v111; 
+  R_RT_BufferHandle v112; 
+  R_RT_BufferHandle v113; 
+  R_RT_BufferHandle v114; 
+  R_RT_BufferHandle v115; 
+  R_RT_Handle v116; 
+  R_RT_Handle v117; 
+  R_RT_Handle v118; 
+  R_RT_Handle v119; 
+  R_RT_BufferHandle v120; 
+  R_RT_BufferHandle v121; 
+  R_RT_BufferHandle v122; 
+  R_RT_BufferHandle v123; 
+  R_RT_BufferHandle v124; 
+  R_RT_Handle v125; 
+  R_RT_Handle v126; 
+  R_RT_Handle v127; 
+  R_RT_Handle v128; 
+  R_RT_Handle v129; 
+  R_RT_BufferHandle v130; 
+  R_RT_BufferHandle v131; 
+  R_RT_BufferHandle v132; 
+  R_RT_BufferHandle v133; 
+  R_RT_BufferHandle v134; 
+  R_RT_BufferHandle v135; 
+  R_RT_Handle v136; 
+  R_RT_Handle v137; 
+  R_RT_Handle v138; 
+  R_RT_Handle v139; 
+  R_RT_Handle v140; 
+  R_RT_Handle v141; 
+  R_RT_Handle v142; 
+  R_RT_Handle v143; 
+  R_RT_Handle v144; 
+  R_RT_Handle v145; 
+  R_RT_Handle v146; 
   __int64 dataa; 
-  int v243; 
-  int v244; 
-  __int64 v245; 
-  unsigned int v246; 
-  int v247; 
+  int v148; 
+  int v149; 
+  __int64 v150; 
+  unsigned int v151; 
+  int v152; 
   R_RT_BufferHandle result; 
-  R_RT_BufferHandle v249; 
-  R_RT_BufferHandle v250; 
-  R_RT_BufferHandle v251; 
-  R_RT_BufferHandle v252; 
-  R_RT_BufferHandle v253; 
-  R_RT_BufferHandle v254; 
-  R_RT_BufferHandle v255; 
+  R_RT_BufferHandle v154; 
+  R_RT_BufferHandle v155; 
+  R_RT_BufferHandle v156; 
+  R_RT_BufferHandle v157; 
+  R_RT_BufferHandle v158; 
+  R_RT_BufferHandle v159; 
+  R_RT_BufferHandle v160; 
 
-  _R14 = smodelSurfEmitCountBuffer;
-  _R15 = smodelSurfCountBuffer;
   smpFrame = data->smpFrame;
-  v148 = gfxContext;
-  v19 = 8576i64 * passIndex;
-  v143 = (unsigned int *)((char *)&s_gpBackendFrameData[smpFrame] + v19);
+  v53 = gfxContext;
+  v17 = 8576i64 * passIndex;
+  v48 = (unsigned int *)((char *)&s_gpBackendFrameData[smpFrame] + v17);
   R_RT_CreateBufferInternal(&result, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Batch SubMesh Counts Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3079)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rbp+0C50h+var_A90], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v169, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_A70], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v170, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v74 = smodelSurfEmitCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v74, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v75 = smodelSurfCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v75, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
+  v18 = smodelSurfEmitCountBuffer->R_RT_Handle;
+  v19 = (int *)((char *)s_gpBackendFrameData + v17 + smpFrame * 20544);
+  v78 = smodelSurfCountBuffer->R_RT_Handle;
+  v77 = v18;
+  v20 = *v19;
+  v76 = (R_RT_Handle)result;
+  if ( v20 )
   {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymm1, ymmword ptr [r14]
-  }
-  v24 = (int *)((char *)s_gpBackendFrameData + v19 + smpFrame * 20544);
-  __asm
-  {
-    vmovups ymmword ptr [rbp+0C50h+var_A10.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups ymmword ptr [rbp+0C50h+var_A30.m_surfaceID], ymm1
-  }
-  v26 = *v24;
-  __asm { vmovups ymmword ptr [rbp+0C50h+var_A50.m_surfaceID], ymm0 }
-  if ( v26 )
-  {
-    v27 = 4 * *v24;
-    Surface = R_RT_Handle::GetSurface(&v171);
+    v21 = 4 * *v19;
+    Surface = R_RT_Handle::GetSurface(&v76);
     if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    R_GP_ClearBufferToZero(state, (const GfxWrappedRWBuffer *)&Surface->1080, v27, 0);
+    R_GP_ClearBufferToZero(state, (const GfxWrappedRWBuffer *)&Surface->1080, v21, 0);
   }
-  v29 = R_RT_Handle::GetSurface(&v172);
-  if ( (v29->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v23 = R_RT_Handle::GetSurface(&v77);
+  if ( (v23->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  R_GP_ClearBufferToZero(state, (const GfxWrappedRWBuffer *)&v29->1080, 4u, 0);
-  v30 = R_RT_Handle::GetSurface(&v173);
-  if ( (v30->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  R_GP_ClearBufferToZero(state, (const GfxWrappedRWBuffer *)&v23->1080, 4u, 0);
+  v24 = R_RT_Handle::GetSurface(&v78);
+  if ( (v24->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  R_GP_ClearBufferToZero(state, (const GfxWrappedRWBuffer *)&v30->1080, 4u, 0);
-  R_RT_CreateBufferInternal(&v249, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Surf SubMesh Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3091)");
-  _RDI = perSurfDataBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups [rbp+0C50h+var_9F0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v174, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_9D0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v175, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_GP_ClearBufferToZero(state, (const GfxWrappedRWBuffer *)&v24->1080, 4u, 0);
+  R_RT_CreateBufferInternal(&v154, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Surf SubMesh Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3091)");
+  v79 = perSurfDataBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v79, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v80 = (R_RT_Handle)result;
+  R_HW_AddResourceTransition(state, &v80, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_130.baseclass_0.m_surfaceID]
-    vmovups ymm1, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_9B0], ymm0
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups [rbp+0C50h+var_970], ymm0
-    vmovups [rbp+0C50h+var_990], ymm1
-  }
-  R_GP_GenerateDynSurfData(state, data, passIndex, &v178, &v177, &v176);
-  R_RT_CreateBufferInternal(&v250, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Workgroup Counter Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3103)");
-  R_RT_CreateBufferInternal(&v251, 4u, 0x4000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Workgroup Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3104)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_F0.baseclass_0.m_surfaceID]
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_110.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_950], ymm0
-    vmovups [rbp+0C50h+var_930], ymm1
-  }
-  R_GP_GenerateSModelWorkgroups(state, data, passIndex, &v180, &v179);
-  R_RT_CreateBufferInternal(&v252, 8u, 0xD000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Surf Emit Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3111)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_110.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_910], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v181, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_F0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_8F0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v182, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rbp+0C50h+var_8D0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v183, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v81 = v154;
+  v83 = *perSurfDataBuffer;
+  v82 = result;
+  R_GP_GenerateDynSurfData(state, data, passIndex, &v83, &v82, &v81);
+  R_RT_CreateBufferInternal(&v155, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Workgroup Counter Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3103)");
+  R_RT_CreateBufferInternal(&v156, 4u, 0x4000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Workgroup Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3104)");
+  v84 = v156;
+  v85 = v155;
+  R_GP_GenerateSModelWorkgroups(state, data, passIndex, &v85, &v84);
+  R_RT_CreateBufferInternal(&v157, 8u, 0xD000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Surf Emit Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3111)");
+  v86 = (R_RT_Handle)v155;
+  R_HW_AddResourceTransition(state, &v86, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v87 = (R_RT_Handle)v156;
+  R_HW_AddResourceTransition(state, &v87, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v88 = smodelSurfEmitCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v88, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_D0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_8B0], ymm0
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_F0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_890], ymm1
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_110.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_870], ymm0
-    vmovups [rbp+0C50h+var_850], ymm1
-  }
-  R_GP_GenerateSModelSurfs(state, data, passIndex, &v187, &v186, &v185, &v184);
-  R_RT_CreateBufferInternal(&v253, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Surf Datagen Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3127)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rbp+0C50h+var_830], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v188, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v89 = *smodelSurfEmitCountBuffer;
+  v90 = v157;
+  v91 = v156;
+  v92 = v155;
+  R_GP_GenerateSModelSurfs(state, data, passIndex, &v92, &v91, &v90, &v89);
+  R_RT_CreateBufferInternal(&v158, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SModel Surf Datagen Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3127)");
+  v93 = smodelSurfEmitCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v93, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_B0.baseclass_0.m_surfaceID]
-    vmovups ymm1, ymmword ptr [r14]
-  }
+  v25 = smodelSurfEmitCountBuffer->R_RT_Handle;
   dataa = 64i64;
-  v243 = 0;
-  v244 = 0x10000;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+0C50h+var_7F0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+0C50h+var_810.m_surfaceID], ymm1
-  }
+  v148 = 0;
+  v149 = 0x10000;
+  v95 = (R_RT_Handle)v158;
+  v94 = v25;
   R_UploadAndSetComputeConstants(state, 5, &dataa, 0x10u, NULL);
-  v49 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v189);
-  if ( (v49->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v26 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v94);
+  if ( (v26->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  views = v49 + 68;
+  views = v26 + 68;
   R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&views);
-  v50 = R_RT_Handle::GetSurface(&v190);
-  if ( (v50->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v27 = R_RT_Handle::GetSurface(&v95);
+  if ( (v27->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  p_rwView = &v50->m_buffer.m_wrappedBuffer.rwView;
+  p_rwView = &v27->m_buffer.m_wrappedBuffer.rwView;
   R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
   R_SetComputeShader(state, rgp.gpCovertSModelSurfCounterToIndirectArg);
   R_Dispatch(state, 1u, 1u, 1u);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_B0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_7D0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v191, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_D0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_7B0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v192, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rbp+0C50h+var_790], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v193, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_770], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v194, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v96 = (R_RT_Handle)v158;
+  R_HW_AddResourceTransition(state, &v96, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v97 = (R_RT_Handle)v157;
+  R_HW_AddResourceTransition(state, &v97, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v98 = smodelSurfEmitCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v98, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v99 = smodelSurfCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v99, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_130.baseclass_0.m_surfaceID]
-    vmovups ymm1, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_750], ymm0
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_730], ymm1
-    vmovups ymm1, ymmword ptr [rdi]
-    vmovups [rbp+0C50h+var_710], ymm0
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rbp+0C50h+var_6F0], ymm1
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_D0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_6D0], ymm0
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_B0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_6B0], ymm1
-    vmovups [rbp+0C50h+var_690], ymm0
-  }
-  R_GP_GenerateSModelSurfData(state, data, passIndex, &v201, &v200, &v199, &v198, &v197, &v196, &v195);
-  R_RT_CreateBufferInternal(&v254, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Workgroup Gen Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3158)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_670], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v202, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v100 = v154;
+  v28 = *smodelSurfCountBuffer;
+  v101 = result;
+  v29 = *perSurfDataBuffer;
+  v102 = v28;
+  v30 = *smodelSurfEmitCountBuffer;
+  v103 = v29;
+  v104 = v30;
+  v105 = v157;
+  v106 = v158;
+  R_GP_GenerateSModelSurfData(state, data, passIndex, &v106, &v105, &v104, &v103, &v102, &v101, &v100);
+  R_RT_CreateBufferInternal(&v159, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Workgroup Gen Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3158)");
+  v107 = smodelSurfCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v107, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_90.baseclass_0.m_surfaceID]
-    vmovups ymm1, ymmword ptr [r15]
-  }
-  v245 = 64i64;
-  v246 = v143[33];
-  __asm
-  {
-    vmovups ymmword ptr [rbp+0C50h+var_630.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+0C50h+var_650.m_surfaceID], ymm1
-  }
-  v247 = 0x10000;
-  R_UploadAndSetComputeConstants(state, 5, &v245, 0x10u, NULL);
-  v65 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v203);
-  if ( (v65->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v31 = smodelSurfCountBuffer->R_RT_Handle;
+  v150 = 64i64;
+  v151 = v48[33];
+  v109 = (R_RT_Handle)v159;
+  v108 = v31;
+  v152 = 0x10000;
+  R_UploadAndSetComputeConstants(state, 5, &v150, 0x10u, NULL);
+  v32 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v108);
+  if ( (v32->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  v146 = v65 + 68;
-  R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&v146);
-  v66 = R_RT_Handle::GetSurface(&v204);
-  if ( (v66->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v51 = v32 + 68;
+  R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&v51);
+  v33 = R_RT_Handle::GetSurface(&v109);
+  if ( (v33->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  v147 = &v66->m_buffer.m_wrappedBuffer.rwView;
-  R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&v147, NULL);
+  v52 = &v33->m_buffer.m_wrappedBuffer.rwView;
+  R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&v52, NULL);
   R_SetComputeShader(state, rgp.gpCovertSModelSurfCounterToIndirectArg);
   R_Dispatch(state, 1u, 1u, 1u);
-  R_RT_CreateBufferInternal(&v255, 4u, 0x100u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Batch SubMesh Reduce Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3172)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_610], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v205, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = batchSubMeshOffsetsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_5F0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v206, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_RT_CreateBufferInternal(&v160, 4u, 0x100u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Batch SubMesh Reduce Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3172)");
+  v110 = (R_RT_Handle)result;
+  R_HW_AddResourceTransition(state, &v110, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v111 = batchSubMeshOffsetsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v111, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  _RAX = batchSubMeshOffsetsBuffer;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+0C50h+var_C70+10h], xmm0
-  }
-  v150.m256i_i16[0] = 0;
-  __asm { vmovups ymm0, ymmword ptr [rax] }
-  v150.m256i_i32[2] = 0;
-  v73 = *v143;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_70.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_5D0], ymm0
-    vmovups ymm0, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_5B0], ymm1
-    vmovups ymm1, [rbp+0C50h+var_C70]
-    vmovups [rbp+0C50h+var_590], ymm0
-    vmovups [rbp+0C50h+var_570], ymm1
-  }
-  R_GP_PrefixSum256(state, data, passIndex, v73, &v210, &v209, &v208, &v207);
-  _RAX = batchSubMeshOffsetsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_550], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v211, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = subMeshCountBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_530], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v212, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = clusterPassIndirectArgsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_510], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v213, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = clusterPPSumIndirectArgsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_4F0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v214, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v55.m_tracking.m_name = _XMM0;
+  v55.m_surfaceID = 0;
+  v35 = *batchSubMeshOffsetsBuffer;
+  v55.m_tracking.m_allocCounter = 0;
+  v36 = *v48;
+  v112 = v35;
+  v113 = v160;
+  v114 = result;
+  v115 = v55;
+  R_GP_PrefixSum256(state, data, passIndex, v36, &v115, &v114, &v113, &v112);
+  v116 = batchSubMeshOffsetsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v116, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v117 = subMeshCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v117, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v118 = clusterPassIndirectArgsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v118, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v119 = clusterPPSumIndirectArgsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v119, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  v85 = *v143;
-  _RBX = batchSubMeshOffsetsBuffer;
-  v149.m256i_i16[0] = 0;
-  v149.m256i_i32[2] = 0;
-  _RAX = clusterPPSumIndirectArgsBuffer;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+0C50h+var_C90+10h], xmm0
-    vmovups ymm0, ymmword ptr [rax]
-  }
-  _RAX = clusterPassIndirectArgsBuffer;
-  __asm
-  {
-    vmovups [rbp+0C50h+var_4D0], ymm0
-    vmovups ymm1, ymmword ptr [rax]
-  }
-  _RAX = subMeshCountBuffer;
-  __asm
-  {
-    vmovups [rbp+0C50h+var_4B0], ymm1
-    vmovups ymm1, ymmword ptr [rbx]
-    vmovups [rbp+0C50h+var_470], ymm1
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_490], ymm0
-    vmovups ymm0, [rbp+0C50h+var_C90]
-    vmovups [rbp+0C50h+var_450], ymm0
-  }
-  R_GP_InitIndirectArgsFromPrefixSum(state, data, passIndex, v85, 0x100u, 0x4000u, 0x10000u, &v219, &v218, &v217, &v216, &v215);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_90.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_430], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v220, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_410], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v221, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups [rbp+0C50h+var_3F0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v222, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_130.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_3D0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v223, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = subMeshWorkgroupArgsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_3B0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v224, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v37 = *v48;
+  v54.m_surfaceID = 0;
+  v54.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v54.m_tracking.m_name = _XMM0;
+  v120 = *clusterPPSumIndirectArgsBuffer;
+  v121 = *clusterPassIndirectArgsBuffer;
+  v123 = *batchSubMeshOffsetsBuffer;
+  v122 = *subMeshCountBuffer;
+  v124 = v54;
+  R_GP_InitIndirectArgsFromPrefixSum(state, data, passIndex, v37, 0x100u, 0x4000u, 0x10000u, &v124, &v123, &v122, &v121, &v120);
+  v125 = (R_RT_Handle)v159;
+  R_HW_AddResourceTransition(state, &v125, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v126 = smodelSurfCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v126, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v127 = perSurfDataBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v127, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v128 = (R_RT_Handle)v154;
+  R_HW_AddResourceTransition(state, &v128, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v129 = subMeshWorkgroupArgsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v129, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  _RAX = subMeshWorkgroupArgsBuffer;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_130.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_370], ymm1
-    vmovups ymm1, ymmword ptr [rdi]
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_390], ymm0
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups [rbp+0C50h+var_350], ymm0
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_330], ymm1
-    vmovups ymm1, ymmword ptr [rbp+0C50h+var_90.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_310], ymm0
-    vmovups [rbp+0C50h+var_2F0], ymm1
-  }
-  R_GP_GenerateSubMeshWorkgroups(state, data, passIndex, &v230, &v229, &v228, &v227, &v226, &v225);
-  _RAX = subMeshWorkgroupArgsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_2D0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v231, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = subMeshCountBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_2B0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v232, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = clusterPassIndirectArgsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_290], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v233, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = clusterPPSumIndirectArgsBuffer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rbp+0C50h+var_270], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v234, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rbp+0C50h+var_250], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v235, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups [rbp+0C50h+var_230], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v236, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_110.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_210], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v237, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_F0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_1F0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v238, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_D0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_1D0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v239, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_B0.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_1B0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v240, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_190], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v241, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_90.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_BD0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v159, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_130.baseclass_0.m_surfaceID]
-    vmovups [rbp+0C50h+var_BB0], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v160, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v131 = v154;
+  v39 = *perSurfDataBuffer;
+  v130 = *subMeshWorkgroupArgsBuffer;
+  v132 = *batchSubMeshOffsetsBuffer;
+  v40 = *smodelSurfCountBuffer;
+  v133 = v39;
+  v134 = v40;
+  v135 = v159;
+  R_GP_GenerateSubMeshWorkgroups(state, data, passIndex, &v135, &v134, &v133, &v132, &v131, &v130);
+  v136 = subMeshWorkgroupArgsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v136, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v137 = subMeshCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v137, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v138 = clusterPassIndirectArgsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v138, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v139 = clusterPPSumIndirectArgsBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v139, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v140 = smodelSurfEmitCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v140, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v141 = smodelSurfCountBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v141, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v142 = (R_RT_Handle)v155;
+  R_HW_AddResourceTransition(state, &v142, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v143 = (R_RT_Handle)v156;
+  R_HW_AddResourceTransition(state, &v143, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v144 = (R_RT_Handle)v157;
+  R_HW_AddResourceTransition(state, &v144, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v145 = (R_RT_Handle)v158;
+  R_HW_AddResourceTransition(state, &v145, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v146 = (R_RT_Handle)result;
+  R_HW_AddResourceTransition(state, &v146, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v64 = (R_RT_Handle)v159;
+  R_HW_AddResourceTransition(state, &v64, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v65 = (R_RT_Handle)v154;
+  R_HW_AddResourceTransition(state, &v65, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm { vmovups ymm0, ymmword ptr [rbp+0C50h+var_110.baseclass_0.m_surfaceID] }
-  _RBX = v148;
-  __asm
-  {
-    vmovups [rbp+0C50h+var_B90], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_C50], xmm1
-  }
-  R_RT_Destroy(&v151, &v161);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_F0.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_B70], ymm0
-    vmovups [rbp+0C50h+var_C40], xmm1
-  }
-  R_RT_Destroy(&v152, &v162);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_D0.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_B50], ymm0
-    vmovups [rbp+0C50h+var_C30], xmm1
-  }
-  R_RT_Destroy(&v153, &v163);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_B0.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_B30], ymm0
-    vmovups [rbp+0C50h+var_C20], xmm1
-  }
-  R_RT_Destroy(&v154, &v164);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+result.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_B10], ymm0
-    vmovups [rbp+0C50h+var_C10], xmm1
-  }
-  R_RT_Destroy(&v155, &v165);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_90.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_C00], xmm1
-    vmovups [rbp+0C50h+var_AF0], ymm0
-  }
-  R_RT_Destroy(&v156, &v166);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_130.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_AD0], ymm0
-    vmovups [rbp+0C50h+var_BF0], xmm1
-  }
-  R_RT_Destroy(&v157, &v167);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0C50h+var_70.baseclass_0.m_surfaceID]
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+0C50h+var_AB0], ymm0
-    vmovups [rbp+0C50h+var_BE0], xmm1
-  }
-  R_RT_Destroy(&v158, &v168);
+  v41 = v53;
+  v66 = v155;
+  v56 = *v53;
+  R_RT_Destroy(&v56, &v66);
+  v42 = *v41;
+  v67 = v156;
+  v57 = v42;
+  R_RT_Destroy(&v57, &v67);
+  v43 = *v41;
+  v68 = v157;
+  v58 = v43;
+  R_RT_Destroy(&v58, &v68);
+  v44 = *v41;
+  v69 = v158;
+  v59 = v44;
+  R_RT_Destroy(&v59, &v69);
+  v45 = *v41;
+  v70 = result;
+  v60 = v45;
+  R_RT_Destroy(&v60, &v70);
+  v61 = *v41;
+  v71 = v159;
+  R_RT_Destroy(&v61, &v71);
+  v46 = *v41;
+  v72 = v154;
+  v62 = v46;
+  R_RT_Destroy(&v62, &v72);
+  v47 = *v41;
+  v73 = v160;
+  v63 = v47;
+  R_RT_Destroy(&v63, &v73);
 }
 
 /*
@@ -1185,213 +923,220 @@ RB_GP_ProcessSurfs
 */
 void RB_GP_ProcessSurfs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, const GfxGPConfig *gpConfig)
 {
+  __int16 v5; 
   __int64 passIndex; 
   char v11; 
-  const GfxDevice *device; 
+  GfxDevice *device; 
   GPBackendFrameData *v13; 
   const GfxDevice *v14; 
   GfxCmdBufState *v15; 
+  R_RT_ColorHandle *p_m_floatZFullRt; 
   unsigned int rwView; 
   GfxWorld *world; 
-  unsigned int v32; 
-  _DWORD *v73; 
+  unsigned int v19; 
+  R_RT_Handle v20; 
+  _DWORD *v23; 
   GfxShaderBufferView *Surface; 
-  GfxShaderBufferView *v86; 
-  GfxShaderBufferView *v87; 
-  GfxShaderBufferView *v88; 
-  GfxShaderBufferView *v89; 
-  GfxShaderBufferView *v90; 
-  GfxShaderBufferView *v91; 
-  const R_RT_Surface *v92; 
-  const R_RT_Surface *v93; 
-  const R_RT_Surface *v94; 
-  R_RT_Handle *v95; 
-  GfxShaderBufferView *v102; 
-  GfxShaderBufferView *v103; 
-  GfxShaderBufferView *v104; 
-  GfxShaderBufferView *v105; 
-  const R_RT_Surface *v106; 
-  const R_RT_Surface *v107; 
+  GfxShaderBufferView *v25; 
+  GfxShaderBufferView *v26; 
+  GfxShaderBufferView *v27; 
+  GfxShaderBufferView *v28; 
+  GfxShaderBufferView *v29; 
+  GfxShaderBufferView *v30; 
+  const R_RT_Surface *v31; 
+  const R_RT_Surface *v32; 
+  const R_RT_Surface *v33; 
+  R_RT_Handle *v34; 
+  GfxShaderBufferView *v35; 
+  GfxShaderBufferView *v36; 
+  GfxShaderBufferView *v37; 
+  GfxShaderBufferView *v38; 
+  const R_RT_Surface *v39; 
+  const R_RT_Surface *v40; 
   unsigned __int64 smpFrame; 
-  _DWORD *v140; 
-  GfxShaderBufferView *v141; 
-  GfxShaderBufferView *v142; 
-  GfxShaderBufferView *v143; 
-  GfxShaderBufferView *v144; 
-  const R_RT_Surface *v145; 
-  GPBackendPassData *v149; 
-  __int64 v185; 
+  _DWORD *v43; 
+  GfxShaderBufferView *v44; 
+  GfxShaderBufferView *v45; 
+  GfxShaderBufferView *v46; 
+  GfxShaderBufferView *v47; 
+  const R_RT_Surface *v48; 
+  __m256i v49; 
+  GPBackendPassData *v50; 
+  __int64 v51; 
+  R_RT_Handle v52; 
   GfxShaderBufferView *views; 
-  GfxShaderBufferView *v188; 
-  GfxShaderBufferView *v189; 
-  GfxShaderBufferView *v190; 
-  GfxShaderBufferView *v191; 
-  GfxShaderBufferView *v192; 
-  GfxShaderBufferView *v193; 
+  GfxShaderBufferView *v54; 
+  GfxShaderBufferView *v55; 
+  GfxShaderBufferView *v56; 
+  GfxShaderBufferView *v57; 
+  GfxShaderBufferView *v58; 
+  GfxShaderBufferView *v59; 
   GfxShaderBufferRWView *p_rwView; 
-  GfxShaderBufferRWView *v195; 
-  GfxShaderBufferRWView *v196; 
-  GfxShaderBufferView *v197; 
-  GfxShaderBufferView *v198; 
-  GfxShaderBufferView *v199; 
-  GfxShaderBufferView *v200; 
-  GfxShaderBufferRWView *v201; 
-  GfxShaderBufferView *v202; 
-  GfxShaderBufferView *v203; 
+  GfxShaderBufferRWView *v61; 
+  GfxShaderBufferRWView *v62; 
+  GfxShaderBufferView *v63; 
+  GfxShaderBufferView *v64; 
+  GfxShaderBufferView *v65; 
+  GfxShaderBufferView *v66; 
+  GfxShaderBufferRWView *v67; 
+  GfxShaderBufferView *v68; 
+  GfxShaderBufferView *v69; 
   GfxShaderBufferView *p_view; 
-  GfxShaderBufferView *v205; 
-  GfxShaderBufferView *v206; 
-  GfxShaderBufferView *v207; 
-  GfxShaderBufferRWView *v208; 
-  __m256i v209; 
-  __m256i v210; 
-  __m256i v211; 
-  __m256i v214; 
-  __m256i v216; 
-  __m256i v217; 
-  __m256i v218; 
-  __m256i v219; 
-  __m256i v220; 
-  __m256i v221; 
-  GfxCmdBufContext v222; 
-  GfxCmdBufContext v223; 
-  GfxCmdBufContext v224; 
-  GfxCmdBufContext v225; 
-  GfxCmdBufContext v226; 
-  GfxCmdBufContext v227; 
-  __int64 v228; 
-  __m256i v229; 
-  __m256i v230; 
-  __m256i v231; 
-  GfxCmdBufContext v232; 
-  R_RT_BufferHandle v233; 
-  R_RT_BufferHandle v234; 
-  R_RT_BufferHandle v235; 
-  R_RT_BufferHandle v236; 
-  R_RT_BufferHandle v237; 
-  R_RT_BufferHandle v238; 
-  R_RT_BufferHandle v239; 
-  R_RT_BufferHandle v240; 
-  R_RT_BufferHandle v241; 
-  R_RT_BufferHandle v242; 
-  R_RT_BufferHandle v243; 
-  R_RT_BufferHandle v244; 
-  R_RT_BufferHandle v245; 
-  R_RT_BufferHandle v246; 
-  R_RT_BufferHandle v247; 
-  R_RT_BufferHandle v248; 
-  R_RT_BufferHandle v249; 
-  R_RT_BufferHandle v250; 
-  R_RT_BufferHandle v251; 
-  R_RT_BufferHandle v252; 
-  R_RT_BufferHandle v253; 
-  R_RT_BufferHandle v254; 
-  R_RT_BufferHandle v255; 
-  R_RT_BufferHandle v256; 
-  R_RT_BufferHandle v257; 
-  R_RT_ColorHandle v258; 
-  R_RT_ColorHandle v259; 
-  R_RT_BufferHandle v260; 
-  R_RT_BufferHandle v261; 
-  R_RT_BufferHandle v262; 
-  R_RT_BufferHandle v263; 
-  R_RT_BufferHandle v264; 
-  R_RT_Handle v265; 
-  R_RT_BufferHandle v266; 
-  R_RT_BufferHandle v267; 
-  R_RT_BufferHandle v268; 
-  R_RT_BufferHandle v269; 
-  R_RT_Handle v270; 
-  R_RT_BufferHandle v271; 
-  R_RT_BufferHandle v272; 
-  R_RT_BufferHandle v273; 
-  R_RT_BufferHandle v274; 
-  R_RT_BufferHandle v275; 
-  R_RT_Handle v276; 
-  R_RT_Handle v277; 
-  R_RT_Handle v278; 
-  R_RT_Handle v279; 
-  R_RT_Handle v280; 
-  R_RT_Handle v281; 
-  R_RT_Handle v282; 
-  R_RT_Handle v283; 
-  R_RT_Handle v284; 
-  R_RT_Handle v285; 
-  R_RT_Handle v286; 
-  __m256i v287; 
-  R_RT_Handle v288; 
-  R_RT_Handle v289; 
-  R_RT_Handle v290; 
-  R_RT_Handle v291; 
-  R_RT_Handle v292; 
-  R_RT_Handle v293; 
-  R_RT_Handle v294; 
-  R_RT_Handle v295; 
-  R_RT_Handle v296; 
-  R_RT_BufferHandle v297; 
-  R_RT_BufferHandle v298; 
-  R_RT_ColorHandle v299; 
-  R_RT_ColorHandle v300; 
-  R_RT_BufferHandle v301; 
-  R_RT_BufferHandle v302; 
-  R_RT_BufferHandle v303; 
-  R_RT_Handle v304; 
-  R_RT_Handle v305; 
-  R_RT_BufferHandle v306; 
-  R_RT_BufferHandle v307; 
-  R_RT_BufferHandle v308; 
-  R_RT_BufferHandle v309; 
-  R_RT_Handle v310; 
-  R_RT_Handle v311; 
-  R_RT_Handle v312; 
-  R_RT_Handle v313; 
-  R_RT_BufferHandle v314; 
-  R_RT_BufferHandle v315; 
-  R_RT_BufferHandle v316; 
-  R_RT_BufferHandle v317; 
-  R_RT_Handle v318; 
-  R_RT_Handle v319; 
-  R_RT_Handle v320; 
-  R_RT_Handle v321; 
-  R_RT_Handle v322; 
-  R_RT_Handle v323; 
-  R_RT_Handle v324; 
-  R_RT_Handle v325; 
-  R_RT_BufferHandle v326; 
-  R_RT_BufferHandle v327; 
-  R_RT_BufferHandle v328; 
-  R_RT_BufferHandle v329; 
-  R_RT_BufferHandle v330; 
-  R_RT_BufferHandle v331; 
-  R_RT_BufferHandle v332; 
-  R_RT_BufferHandle v333; 
-  R_RT_BufferHandle v334; 
-  R_RT_BufferHandle v335; 
-  R_RT_BufferHandle v336; 
+  GfxShaderBufferView *v71; 
+  GfxShaderBufferView *v72; 
+  GfxShaderBufferView *v73; 
+  GfxShaderBufferRWView *v74; 
+  R_RT_Handle m_gpClusterPassIndirectArgsBuffer; 
+  R_RT_Handle m_gpSubMeshWorkgroupArgsBuffer; 
+  R_RT_Handle m_gpPerSurfDataBuffer; 
+  R_RT_Handle v78; 
+  R_RT_Handle m_gpIndexBuffer; 
+  __m256i m_gpIndirectArgsBuffer; 
+  R_RT_Handle v81; 
+  R_RT_Handle m_gpPrevSubMeshClusterOffsetsBuffer; 
+  R_RT_Handle m_gpPrevCulledTriClusterBuffer; 
+  __m256i m_gpSubMeshCountBuffer; 
+  __m256i m_gpClusterPPSumIndirectArgsBuffer; 
+  R_RT_Handle m_gpPrevCulledSubMeshBuffer; 
+  __m256i m_gpBatchSubMeshOffsetsBuffer; 
+  GfxCmdBufContext v88; 
+  GfxCmdBufContext v89; 
+  GfxCmdBufContext v90; 
+  GfxCmdBufContext v91; 
+  GfxCmdBufContext v92; 
+  GfxCmdBufContext v93; 
+  __int64 v94; 
+  R_RT_ColorHandle v95; 
+  R_RT_BufferHandle v96; 
+  __m256i v97; 
+  GfxCmdBufContext v98; 
+  __m256i v99; 
+  R_RT_Handle v100; 
+  R_RT_Handle v101; 
+  R_RT_Handle v102; 
+  R_RT_BufferHandle v103; 
+  R_RT_BufferHandle v104; 
+  R_RT_BufferHandle v105; 
+  R_RT_BufferHandle v106; 
+  R_RT_BufferHandle v107; 
+  R_RT_BufferHandle v108; 
+  R_RT_BufferHandle v109; 
+  R_RT_BufferHandle v110; 
+  R_RT_BufferHandle v111; 
+  R_RT_BufferHandle v112; 
+  R_RT_BufferHandle v113; 
+  R_RT_BufferHandle v114; 
+  __m256i v115; 
+  R_RT_Handle v116; 
+  __m256i v117; 
+  R_RT_Handle v118; 
+  __m256i v119; 
+  R_RT_Handle v120; 
+  R_RT_Handle v121; 
+  R_RT_BufferHandle v122; 
+  R_RT_Handle v123; 
+  R_RT_ColorHandle v124; 
+  R_RT_ColorHandle v125; 
+  R_RT_Handle v126; 
+  R_RT_Handle v127; 
+  R_RT_Handle v128; 
+  R_RT_Handle v129; 
+  R_RT_Handle v130; 
+  R_RT_Handle v131; 
+  R_RT_Handle v132; 
+  R_RT_BufferHandle v133; 
+  R_RT_BufferHandle v134; 
+  __m256i v135; 
+  R_RT_Handle v136; 
+  R_RT_BufferHandle v137; 
+  R_RT_BufferHandle v138; 
+  R_RT_BufferHandle v139; 
+  R_RT_Handle v140; 
+  __m256i v141; 
+  R_RT_Handle v142; 
+  R_RT_Handle v143; 
+  R_RT_Handle v144; 
+  R_RT_Handle v145; 
+  R_RT_Handle v146; 
+  R_RT_Handle v147; 
+  R_RT_Handle v148; 
+  R_RT_Handle v149; 
+  R_RT_Handle v150; 
+  R_RT_Handle v151; 
+  R_RT_Handle v152; 
+  R_RT_Handle v153; 
+  R_RT_Handle v154; 
+  R_RT_Handle v155; 
+  R_RT_Handle v156; 
+  R_RT_Handle v157; 
+  R_RT_Handle v158; 
+  R_RT_Handle v159; 
+  R_RT_Handle v160; 
+  R_RT_Handle v161; 
+  R_RT_Handle v162; 
+  R_RT_BufferHandle v163; 
+  R_RT_Handle v164; 
+  __m256i v165; 
+  R_RT_ColorHandle v166; 
+  R_RT_Handle v167; 
+  R_RT_BufferHandle v168; 
+  R_RT_BufferHandle v169; 
+  R_RT_Handle v170; 
+  R_RT_Handle v171; 
+  R_RT_BufferHandle v172; 
+  R_RT_BufferHandle v173; 
+  R_RT_BufferHandle v174; 
+  R_RT_BufferHandle v175; 
+  R_RT_Handle v176; 
+  __m256i v177; 
+  R_RT_Handle v178; 
+  R_RT_Handle v179; 
+  __m256i v180; 
+  R_RT_BufferHandle v181; 
+  R_RT_Handle v182; 
+  __m256i v183; 
+  R_RT_Handle v184; 
+  R_RT_Handle v185; 
+  R_RT_Handle v186; 
+  R_RT_Handle v187; 
+  R_RT_Handle v188; 
+  R_RT_Handle v189; 
+  R_RT_Handle v190; 
+  __m256i v191; 
+  __m256i v192; 
+  __m256i v193; 
+  R_RT_Handle v194; 
+  __m256i v195; 
+  __m256i v196; 
+  R_RT_BufferHandle v197; 
+  R_RT_BufferHandle v198; 
+  R_RT_BufferHandle v199; 
+  R_RT_Handle v200; 
+  R_RT_BufferHandle v201; 
+  R_RT_BufferHandle v202; 
   int dataa[8]; 
-  int v338[8]; 
-  R_RT_BufferHandle v339; 
-  R_RT_BufferHandle v340; 
-  R_RT_BufferHandle v341; 
-  R_RT_BufferHandle v342; 
-  __int16 v343; 
-  int v344; 
+  int v204[8]; 
+  R_RT_BufferHandle v205; 
+  R_RT_BufferHandle v206; 
+  R_RT_BufferHandle v207; 
+  R_RT_BufferHandle v208; 
+  __int16 v209; 
+  int v210; 
+  GfxCmdBufContext v211; 
   R_RT_BufferHandle result; 
-  R_RT_BufferHandle v347; 
-  R_RT_BufferHandle v348; 
-  R_RT_BufferHandle v349; 
-  __m256i v350; 
-  R_RT_BufferHandle v351; 
-  R_RT_BufferHandle v352; 
-  R_RT_BufferHandle v353; 
+  R_RT_BufferHandle v213; 
+  R_RT_BufferHandle v214; 
+  R_RT_BufferHandle v215; 
+  __m256i m_floatZFullRt; 
+  R_RT_BufferHandle v217; 
+  R_RT_BufferHandle v218; 
+  R_RT_BufferHandle v219; 
   ComputeCmdBufState state; 
 
-  v228 = -2i64;
-  _RDI = viewInfo;
-  _RBX = gfxContext;
+  v94 = -2i64;
   passIndex = (unsigned int)gpConfig->passIndex;
   Sys_ProfBeginNamedEvent(0xFF800000, "RB_GP_ProcessSurfs");
-  v11 = BYTE1(*((_DWORD *)&_RDI->viewportFeatures + 11)) & 1;
+  v11 = BYTE1(*((_DWORD *)&viewInfo->viewportFeatures + 11)) & 1;
   if ( v11 )
   {
     if ( !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
@@ -1405,84 +1150,62 @@ void RB_GP_ProcessSurfs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInf
     __debugbreak();
   if ( v11 )
     R_LockGfxImmediateContext();
-  device = _RBX->state->device;
+  device = gfxContext->state->device;
   R_LockIfGfxImmediateContext(device);
   v13 = &s_gpBackendFrameData[data->smpFrame];
-  v185 = 8576 * passIndex;
+  v51 = 8576 * passIndex;
   if ( !v13->gpBackendPass[passIndex].dynSurfCount && v13->gpBackendPass[passIndex].visibleSModelCollectionCount <= 0 || !v13->gpBackendPass[passIndex].batchCount )
   {
     v14 = device;
     goto LABEL_161;
   }
-  v15 = _RBX->state;
+  v15 = gfxContext->state;
   R_InitGfxComputeCmdBufState(&state, v15);
   R_GfxComputeWaitForGraphics(v15);
   R_ProfBeginNamedEvent(&state, "Begin GPU pipeline backend");
   R_GPU_BeginTimer(GPU_TIMER_GP_TRIANGLE_PASS);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rdi+34E8h]
-    vmovups [rbp+1C00h+var_1B20], ymm1
-    vmovups ymm0, ymmword ptr [rdi+3508h]
-    vmovups [rbp+1C00h+var_1B00], ymm0
-    vmovups ymm0, ymmword ptr [rdi+3528h]
-    vmovups [rbp+1C00h+var_1B60], ymm0
-    vmovups ymm0, ymmword ptr [rdi+3548h]
-    vmovups [rbp+1C00h+var_1A20], ymm0
-    vmovups ymm0, ymmword ptr [rdi+3568h]
-    vmovups [rbp+1C00h+var_1B80], ymm0
-    vmovups ymm0, ymmword ptr [rdi+3588h]
-    vmovups [rbp+1C00h+var_1A80], ymm0
-    vmovups ymm0, ymmword ptr [rdi+35A8h]
-    vmovups [rbp+1C00h+var_1BA0], ymm0
-    vmovups ymm0, ymmword ptr [rdi+35C8h]
-    vmovups [rbp+1C00h+var_1A60], ymm0
-    vmovups ymm0, ymmword ptr [rdi+35E8h]
-    vmovups [rbp+1C00h+var_1A40], ymm0
-    vmovups ymm0, ymmword ptr [rdi+3608h]
-    vmovups [rbp+1C00h+var_1AC0], ymm0
-    vmovups ymm0, ymmword ptr [rdi+3628h]
-    vmovups [rbp+1C00h+var_1AA0], ymm0
-    vmovd   eax, xmm1
-  }
-  if ( !(_WORD)_EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3406, ASSERT_TYPE_ASSERT, "(!indexBuffer.IsNull())", (const char *)&queryFormat, "!indexBuffer.IsNull()") )
+  m_gpIndexBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpIndexBuffer;
+  m_gpIndirectArgsBuffer = (__m256i)viewInfo->sceneRtInput.m_gpIndirectArgsBuffer;
+  m_gpPerSurfDataBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpPerSurfDataBuffer;
+  m_gpBatchSubMeshOffsetsBuffer = (__m256i)viewInfo->sceneRtInput.m_gpBatchSubMeshOffsetsBuffer;
+  m_gpSubMeshWorkgroupArgsBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpSubMeshWorkgroupArgsBuffer;
+  m_gpSubMeshCountBuffer = (__m256i)viewInfo->sceneRtInput.m_gpSubMeshCountBuffer;
+  m_gpClusterPassIndirectArgsBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpClusterPassIndirectArgsBuffer;
+  m_gpClusterPPSumIndirectArgsBuffer = (__m256i)viewInfo->sceneRtInput.m_gpClusterPPSumIndirectArgsBuffer;
+  m_gpPrevCulledSubMeshBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpPrevCulledSubMeshBuffer;
+  m_gpPrevSubMeshClusterOffsetsBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpPrevSubMeshClusterOffsetsBuffer;
+  m_gpPrevCulledTriClusterBuffer = (R_RT_Handle)viewInfo->sceneRtInput.m_gpPrevCulledTriClusterBuffer;
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3406, ASSERT_TYPE_ASSERT, "(!indexBuffer.IsNull())", (const char *)&queryFormat, "!indexBuffer.IsNull()") )
     __debugbreak();
-  if ( !v214.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3407, ASSERT_TYPE_ASSERT, "(!indirectArgsBuffer.IsNull())", (const char *)&queryFormat, "!indirectArgsBuffer.IsNull()") )
+  if ( !m_gpIndirectArgsBuffer.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3407, ASSERT_TYPE_ASSERT, "(!indirectArgsBuffer.IsNull())", (const char *)&queryFormat, "!indirectArgsBuffer.IsNull()") )
     __debugbreak();
-  if ( !v211.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3408, ASSERT_TYPE_ASSERT, "(!perSurfDataBuffer.IsNull())", (const char *)&queryFormat, "!perSurfDataBuffer.IsNull()") )
+  if ( !m_gpPerSurfDataBuffer.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3408, ASSERT_TYPE_ASSERT, "(!perSurfDataBuffer.IsNull())", (const char *)&queryFormat, "!perSurfDataBuffer.IsNull()") )
     __debugbreak();
-  if ( !v221.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3409, ASSERT_TYPE_ASSERT, "(!batchSubMeshOffsetsBuffer.IsNull())", (const char *)&queryFormat, "!batchSubMeshOffsetsBuffer.IsNull()") )
+  if ( !m_gpBatchSubMeshOffsetsBuffer.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3409, ASSERT_TYPE_ASSERT, "(!batchSubMeshOffsetsBuffer.IsNull())", (const char *)&queryFormat, "!batchSubMeshOffsetsBuffer.IsNull()") )
     __debugbreak();
-  if ( !v210.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3410, ASSERT_TYPE_ASSERT, "(!subMeshWorkgroupArgsBuffer.IsNull())", (const char *)&queryFormat, "!subMeshWorkgroupArgsBuffer.IsNull()") )
+  if ( !m_gpSubMeshWorkgroupArgsBuffer.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3410, ASSERT_TYPE_ASSERT, "(!subMeshWorkgroupArgsBuffer.IsNull())", (const char *)&queryFormat, "!subMeshWorkgroupArgsBuffer.IsNull()") )
     __debugbreak();
-  if ( !v218.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3411, ASSERT_TYPE_ASSERT, "(!subMeshCountBuffer.IsNull())", (const char *)&queryFormat, "!subMeshCountBuffer.IsNull()") )
+  if ( !m_gpSubMeshCountBuffer.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3411, ASSERT_TYPE_ASSERT, "(!subMeshCountBuffer.IsNull())", (const char *)&queryFormat, "!subMeshCountBuffer.IsNull()") )
     __debugbreak();
-  if ( !v209.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3412, ASSERT_TYPE_ASSERT, "(!clusterPassIndirectArgsBuffer.IsNull())", (const char *)&queryFormat, "!clusterPassIndirectArgsBuffer.IsNull()") )
+  if ( !m_gpClusterPassIndirectArgsBuffer.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3412, ASSERT_TYPE_ASSERT, "(!clusterPassIndirectArgsBuffer.IsNull())", (const char *)&queryFormat, "!clusterPassIndirectArgsBuffer.IsNull()") )
     __debugbreak();
-  if ( !v219.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3413, ASSERT_TYPE_ASSERT, "(!clusterPPSumIndirectArgsBuffer.IsNull())", (const char *)&queryFormat, "!clusterPPSumIndirectArgsBuffer.IsNull()") )
+  if ( !m_gpClusterPPSumIndirectArgsBuffer.m256i_i16[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3413, ASSERT_TYPE_ASSERT, "(!clusterPPSumIndirectArgsBuffer.IsNull())", (const char *)&queryFormat, "!clusterPPSumIndirectArgsBuffer.IsNull()") )
     __debugbreak();
   if ( gpConfig->occlusionPass )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3340h]
-      vmovups [rbp+1C00h+var_AC0], ymm0
-    }
-    _R13 = &v350;
+    m_floatZFullRt = (__m256i)viewInfo->sceneRtInput.m_floatZFullRt;
+    p_m_floatZFullRt = (R_RT_ColorHandle *)&m_floatZFullRt;
   }
   else
   {
-    v343 = 0;
-    v344 = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rbp+1C00h+var_B50], xmm0
-    }
-    _R13 = (__m256i *)&v343;
+    v209 = 0;
+    v210 = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    v211 = _XMM0;
+    p_m_floatZFullRt = (R_RT_ColorHandle *)&v209;
   }
   R_RT_CreateBufferInternal(&result, 4u, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SModel Surf Emit Count Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3417)");
-  R_RT_CreateBufferInternal(&v347, 4u, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SModel Surf Count Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3418)");
+  R_RT_CreateBufferInternal(&v213, 4u, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SModel Surf Count Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3418)");
   if ( !gpConfig->skipPerSurfData )
   {
     R_GPU_BeginTimer(GPU_TIMER_GENERATE_CLUTTER);
@@ -1496,8 +1219,8 @@ void RB_GP_ProcessSurfs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInf
       R_FlushResourceTransitions(&state);
       R_GP_GenerateClutter(&state, data, 0, 0);
       world = rgp.world;
-      v32 = rgp.world->smodels.clutterTintDataBuffer.rwView.rwView;
-      if ( v32 != 3 && v32 && rgp.world->smodels.clutterTintDataBuffer.data && rgp.world->smodels.clutterTintDataBuffer.view.view >= 2 )
+      v19 = rgp.world->smodels.clutterTintDataBuffer.rwView.rwView;
+      if ( v19 != 3 && v19 && rgp.world->smodels.clutterTintDataBuffer.data && rgp.world->smodels.clutterTintDataBuffer.view.view >= 2 )
       {
         R_HW_AddResourceTransition(&state, &rgp.world->smodels.clutterTintDataBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         world = rgp.world;
@@ -1508,172 +1231,91 @@ void RB_GP_ProcessSurfs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInf
       RB_ST_ClutterUpdateStats(&state, data);
     }
     R_GPU_EndTimer();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1C00h+var_B20.baseclass_0.m_surfaceID]
-      vmovups [rbp+1C00h+var_1760], ymm0
-      vmovups ymm1, ymmword ptr [rbp+1C00h+result.baseclass_0.m_surfaceID]
-      vmovups [rbp+1C00h+var_1740], ymm1
-      vmovups ymm0, [rbp+1C00h+var_1A60]
-      vmovups [rbp+1C00h+var_1720], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1BA0]
-      vmovups [rbp+1C00h+var_1700], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1A80]
-      vmovups [rbp+1C00h+var_16E0], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1B80]
-      vmovups [rbp+1C00h+var_16C0], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1A20]
-      vmovups [rbp+1C00h+var_16A0], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1B60]
-      vmovups [rbp+1C00h+var_1680], ymm0
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rbp+1C00h+var_19C0], xmm0
-    }
-    RB_GP_GenerateSurfs(&v226, &state, data, passIndex, &v254, &v253, &v252, &v251, &v250, &v249, &v248, &v247);
+    v113 = v213;
+    v114 = result;
+    v115 = m_gpClusterPPSumIndirectArgsBuffer;
+    v116 = m_gpClusterPassIndirectArgsBuffer;
+    v117 = m_gpSubMeshCountBuffer;
+    v118 = m_gpSubMeshWorkgroupArgsBuffer;
+    v119 = m_gpBatchSubMeshOffsetsBuffer;
+    v120 = m_gpPerSurfDataBuffer;
+    _XMM0 = *gfxContext;
+    v92 = *gfxContext;
+    RB_GP_GenerateSurfs(&v92, &state, data, passIndex, (R_RT_BufferHandle *)&v120, (R_RT_BufferHandle *)&v119, (R_RT_BufferHandle *)&v118, (R_RT_BufferHandle *)&v117, (R_RT_BufferHandle *)&v116, (R_RT_BufferHandle *)&v115, &v114, &v113);
   }
   if ( gpConfig->reusePrepassVisData )
   {
-    _RAX = R_RT_CreateBufferInternal(&v351, 8u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Culled SubMesh Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3444)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+1C00h+var_1AE0], ymm0
-    }
-    _RAX = R_RT_CreateBufferInternal(&v352, 4u, 0x10001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3445)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+1C00h+var_1C70], ymm0
-    }
-    _RAX = R_RT_CreateBufferInternal(&v353, 8u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Culled Tri Cluster Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3446)");
-    __asm { vmovups ymm0, ymmword ptr [rax] }
+    v81 = R_RT_CreateBufferInternal(&v217, 8u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Culled SubMesh Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3444)")->R_RT_Handle;
+    v52 = R_RT_CreateBufferInternal(&v218, 4u, 0x10001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3445)")->R_RT_Handle;
+    v20 = R_RT_CreateBufferInternal(&v219, 8u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Culled Tri Cluster Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3446)")->R_RT_Handle;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, [rbp+1C00h+var_1A40]
-      vmovups [rbp+1C00h+var_1AE0], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1AC0]
-      vmovups [rbp+1C00h+var_1C70], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1AA0]
-    }
+    v81 = m_gpPrevCulledSubMeshBuffer;
+    v52 = m_gpPrevSubMeshClusterOffsetsBuffer;
+    v20 = m_gpPrevCulledTriClusterBuffer;
   }
-  __asm { vmovups [rbp+1C00h+var_1B40], ymm0 }
-  R_RT_CreateBufferInternal(&v341, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Counts Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3455)");
-  v229.m256i_i16[0] = 0;
-  v229.m256i_i32[2] = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+1C00h+var_1998+10h], xmm0
-    vmovups ymm0, [rbp+1C00h+var_1AA0]
-    vmovups [rbp+1C00h+var_1660], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BA0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1640], ymm0
-    vmovups ymm1, [rbp+1C00h+var_1AE0]
-    vmovups [rbp+1C00h+var_1620], ymm1
-    vmovups ymm0, [rbp+1C00h+var_1998]
-    vmovups [rbp+1C00h+var_1600], ymm0
-    vmovups ymm1, ymmword ptr [r13+0]
-    vmovups [rbp+1C00h+var_15E0], ymm1
-    vmovups ymm0, [rbp+1C00h+var_1AC0]
-    vmovups [rbp+1C00h+var_15C0], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1A40]
-    vmovups [rbp+1C00h+var_15A0], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1B60]
-    vmovups [rbp+1C00h+var_1580], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1B80]
-    vmovups [rbp+1C00h+var_1560], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1BA0]
-    vmovups [rbp+1C00h+var_1540], ymm0
-  }
-  R_GP_CullClusters(&state, data, _RDI, passIndex, gpConfig->reusePrepassVisData, 0, &v264, &v263, &v262, &v261, &v260, &v259, &v258, &v257, &v256, &v255);
-  R_RT_CreateBufferInternal(&v348, 4u, 0x100u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Reduce Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3471)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BA0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1520], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v265, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v78 = v20;
+  R_RT_CreateBufferInternal(&v207, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Counts Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3455)");
+  v95.m_surfaceID = 0;
+  v95.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v95.m_tracking.m_name = _XMM0;
+  v121 = m_gpPrevCulledTriClusterBuffer;
+  v122 = v207;
+  v123 = v81;
+  v124 = v95;
+  v125 = *p_m_floatZFullRt;
+  v126 = m_gpPrevSubMeshClusterOffsetsBuffer;
+  v127 = m_gpPrevCulledSubMeshBuffer;
+  v128 = m_gpPerSurfDataBuffer;
+  v129 = m_gpSubMeshWorkgroupArgsBuffer;
+  v130 = m_gpClusterPassIndirectArgsBuffer;
+  R_GP_CullClusters(&state, data, viewInfo, passIndex, gpConfig->reusePrepassVisData, 0, (R_RT_BufferHandle *)&v130, (R_RT_BufferHandle *)&v129, (R_RT_BufferHandle *)&v128, (R_RT_BufferHandle *)&v127, (R_RT_BufferHandle *)&v126, &v125, &v124, (R_RT_BufferHandle *)&v123, &v122, (R_RT_BufferHandle *)&v121);
+  R_RT_CreateBufferInternal(&v214, 4u, 0x100u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Reduce Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3471)");
+  v131 = (R_RT_Handle)v207;
+  R_HW_AddResourceTransition(&state, &v131, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(&state);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1C70]
-    vmovups [rbp+1C00h+var_1500], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_B00.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_14E0], ymm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_BA0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_14C0], ymm1
-    vmovups ymm0, [rbp+1C00h+var_1A60]
-    vmovups [rbp+1C00h+var_14A0], ymm0
-  }
-  R_GP_PrefixSum256(&state, data, passIndex, 0, &v269, &v268, &v267, &v266);
-  R_RT_CreateBufferInternal(&v339, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Triangle Pass Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3485)");
-  R_RT_CreateBufferInternal(&v342, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Triangle Prefix Sum Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3486)");
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1C70]
-    vmovups [rbp+1C00h+var_1480], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v270, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v132 = v52;
+  v133 = v214;
+  v134 = v207;
+  v135 = m_gpClusterPPSumIndirectArgsBuffer;
+  R_GP_PrefixSum256(&state, data, passIndex, 0, (R_RT_BufferHandle *)&v135, &v134, &v133, (R_RT_BufferHandle *)&v132);
+  R_RT_CreateBufferInternal(&v205, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Triangle Pass Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3485)");
+  R_RT_CreateBufferInternal(&v208, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Triangle Prefix Sum Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3486)");
+  v136 = v52;
+  R_HW_AddResourceTransition(&state, &v136, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(&state);
-  v230.m256i_i16[0] = 0;
-  v230.m256i_i32[2] = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+1C00h+var_1978+10h], xmm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_B80.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1460], ymm1
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BE0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1440], ymm0
-    vmovups ymm1, [rbp+1C00h+var_1978]
-    vmovups [rbp+1C00h+var_1420], ymm1
-    vmovups ymm0, [rbp+1C00h+var_1C70]
-    vmovups [rbp+1C00h+var_1400], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1A80]
-    vmovups [rbp+1C00h+var_13E0], ymm0
-  }
-  R_GP_InitIndirectArgsFromPrefixSum(&state, data, passIndex, 0, 0x200u, 0x10000u, 0x40000u, &v275, &v274, &v273, &v272, &v271);
-  R_RT_CreateBufferInternal(&v336, 4u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Cluster Workgroup Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3503)");
-  R_RT_CreateBufferInternal(&v340, 4u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Workgroup Triangle Counts Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3504)");
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1AE0]
-    vmovups [rbp+1C00h+var_13C0], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v276, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v96.m_surfaceID = 0;
+  v96.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v96.m_tracking.m_name = _XMM0;
+  v137 = v208;
+  v138 = v205;
+  v139 = v96;
+  v140 = v52;
+  v141 = m_gpSubMeshCountBuffer;
+  R_GP_InitIndirectArgsFromPrefixSum(&state, data, passIndex, 0, 0x200u, 0x10000u, 0x40000u, (R_RT_BufferHandle *)&v141, (R_RT_BufferHandle *)&v140, &v139, &v138, &v137);
+  R_RT_CreateBufferInternal(&v202, 4u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Cluster Workgroup Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3503)");
+  R_RT_CreateBufferInternal(&v206, 4u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Workgroup Triangle Counts Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3504)");
+  v142 = v81;
+  R_HW_AddResourceTransition(&state, &v142, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(&state);
-  v73 = (_DWORD *)((char *)&s_gpBackendFrameData[data->smpFrame] + v185);
+  v23 = (_DWORD *)((char *)&s_gpBackendFrameData[data->smpFrame] + v51);
   if ( gpConfig->reusePrepassVisData )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1C00h+var_BC0.baseclass_0.m_surfaceID]
-      vmovups ymmword ptr [rbp+1C00h+var_1280.m_surfaceID], ymm0
-      vmovups ymm1, [rbp+1C00h+var_1B40]
-      vmovups ymmword ptr [rbp+1C00h+var_12A0.m_surfaceID], ymm1
-      vmovups ymm0, ymmword ptr [rbp+1C00h+var_C40.baseclass_0.m_surfaceID]
-      vmovups ymmword ptr [rbp+1C00h+var_12C0.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1AA0]
-      vmovups ymmword ptr [rbp+1C00h+var_12E0.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1AC0]
-      vmovups ymmword ptr [rbp+1C00h+var_1300.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1A40]
-      vmovups ymmword ptr [rbp+1C00h+var_1320.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1C70]
-      vmovups ymmword ptr [rbp+1C00h+var_1340.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1AE0]
-      vmovups ymmword ptr [rbp+1C00h+var_1360.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1B60]
-      vmovups ymmword ptr [rbp+1C00h+var_1380.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1B80]
-      vmovups ymmword ptr [rbp+1C00h+var_13A0.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1BA0]
-      vmovups [rbp+1C00h+var_1260], ymm0
-    }
-    if ( !v73[33] && (int)v73[16] <= 0 || !*v73 )
+    v152 = (R_RT_Handle)v206;
+    v151 = v78;
+    v150 = (R_RT_Handle)v202;
+    v149 = m_gpPrevCulledTriClusterBuffer;
+    v148 = m_gpPrevSubMeshClusterOffsetsBuffer;
+    v147 = m_gpPrevCulledSubMeshBuffer;
+    v146 = v52;
+    v145 = v81;
+    v144 = m_gpPerSurfDataBuffer;
+    v143 = m_gpSubMeshWorkgroupArgsBuffer;
+    v153 = m_gpClusterPassIndirectArgsBuffer;
+    if ( !v23[33] && (int)v23[16] <= 0 || !*v23 )
       goto LABEL_122;
     dataa[0] = rg.gpuCullTriSModels;
     dataa[1] = rg.gpuCullTriRigidModels;
@@ -1681,298 +1323,209 @@ void RB_GP_ProcessSurfs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInf
     dataa[4] = rg.gpuCullTriMinThreshold;
     dataa[5] = rg.gpuCullClusterMinThreshold;
     R_UploadAndSetComputeConstants(&state, 7, dataa, 0x20u, NULL);
-    Surface = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v277);
+    Surface = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v143);
     if ( (Surface->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
     views = Surface + 68;
     R_SetComputeViews(&state, 19, 1, (const GfxShaderBufferView *const *)&views);
-    v86 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v278);
-    if ( (v86->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v25 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v144);
+    if ( (v25->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v188 = v86 + 68;
-    R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&v188);
-    v87 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v279);
-    if ( (v87->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v54 = v25 + 68;
+    R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&v54);
+    v26 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v145);
+    if ( (v26->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v189 = v87 + 68;
-    R_SetComputeViews(&state, 20, 1, (const GfxShaderBufferView *const *)&v189);
-    v88 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v280);
-    if ( (v88->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v55 = v26 + 68;
+    R_SetComputeViews(&state, 20, 1, (const GfxShaderBufferView *const *)&v55);
+    v27 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v146);
+    if ( (v27->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v190 = v88 + 68;
-    R_SetComputeViews(&state, 21, 1, (const GfxShaderBufferView *const *)&v190);
-    v89 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v281);
-    if ( (v89->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v56 = v27 + 68;
+    R_SetComputeViews(&state, 21, 1, (const GfxShaderBufferView *const *)&v56);
+    v28 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v147);
+    if ( (v28->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v191 = v89 + 68;
-    R_SetComputeViews(&state, 22, 1, (const GfxShaderBufferView *const *)&v191);
-    v90 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v282);
-    if ( (v90->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v57 = v28 + 68;
+    R_SetComputeViews(&state, 22, 1, (const GfxShaderBufferView *const *)&v57);
+    v29 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v148);
+    if ( (v29->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v192 = v90 + 68;
-    R_SetComputeViews(&state, 23, 1, (const GfxShaderBufferView *const *)&v192);
-    v91 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v283);
-    if ( (v91->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v58 = v29 + 68;
+    R_SetComputeViews(&state, 23, 1, (const GfxShaderBufferView *const *)&v58);
+    v30 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v149);
+    if ( (v30->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v193 = v91 + 68;
-    R_SetComputeViews(&state, 24, 1, (const GfxShaderBufferView *const *)&v193);
-    v92 = R_RT_Handle::GetSurface(&v284);
-    if ( (v92->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v59 = v30 + 68;
+    R_SetComputeViews(&state, 24, 1, (const GfxShaderBufferView *const *)&v59);
+    v31 = R_RT_Handle::GetSurface(&v150);
+    if ( (v31->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    p_rwView = &v92->m_buffer.m_wrappedBuffer.rwView;
+    p_rwView = &v31->m_buffer.m_wrappedBuffer.rwView;
     R_SetComputeRWViewsWithCounters(&state, 5, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-    v93 = R_RT_Handle::GetSurface(&v285);
-    if ( (v93->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v32 = R_RT_Handle::GetSurface(&v151);
+    if ( (v32->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v195 = &v93->m_buffer.m_wrappedBuffer.rwView;
-    R_SetComputeRWViewsWithCounters(&state, 6, 1, (const GfxShaderBufferRWView *const *)&v195, NULL);
-    v94 = R_RT_Handle::GetSurface(&v286);
-    if ( (v94->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v61 = &v32->m_buffer.m_wrappedBuffer.rwView;
+    R_SetComputeRWViewsWithCounters(&state, 6, 1, (const GfxShaderBufferRWView *const *)&v61, NULL);
+    v33 = R_RT_Handle::GetSurface(&v152);
+    if ( (v33->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v196 = &v94->m_buffer.m_wrappedBuffer.rwView;
-    R_SetComputeRWViewsWithCounters(&state, 7, 1, (const GfxShaderBufferRWView *const *)&v196, NULL);
+    v62 = &v33->m_buffer.m_wrappedBuffer.rwView;
+    R_SetComputeRWViewsWithCounters(&state, 7, 1, (const GfxShaderBufferRWView *const *)&v62, NULL);
     R_SetComputeShader(&state, rgp.gpClusterWorkgroupAndVisbitsGenPass);
-    v95 = (R_RT_Handle *)&v287;
+    v34 = &v153;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1C00h+var_C40.baseclass_0.m_surfaceID]
-      vmovups ymmword ptr [rbp+1C00h+var_11C0.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1C70]
-      vmovups ymmword ptr [rbp+1C00h+var_11E0.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1AE0]
-      vmovups ymmword ptr [rbp+1C00h+var_1200.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1B60]
-      vmovups ymmword ptr [rbp+1C00h+var_1220.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1B80]
-      vmovups ymmword ptr [rbp+1C00h+var_1240.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1BA0]
-      vmovups ymmword ptr [rbp+1C00h+var_11A0.m_surfaceID], ymm0
-    }
-    if ( !v73[33] && (int)v73[16] <= 0 || !*v73 )
+    v158 = (R_RT_Handle)v202;
+    v157 = v52;
+    v156 = v81;
+    v155 = m_gpPerSurfDataBuffer;
+    v154 = m_gpSubMeshWorkgroupArgsBuffer;
+    v159 = m_gpClusterPassIndirectArgsBuffer;
+    if ( !v23[33] && (int)v23[16] <= 0 || !*v23 )
       goto LABEL_122;
-    v338[0] = rg.gpuCullTriSModels;
-    v338[1] = rg.gpuCullTriRigidModels;
-    v338[2] = rg.gpuCullTriSkinnedModels;
-    v338[4] = rg.gpuCullTriMinThreshold;
-    v338[5] = rg.gpuCullClusterMinThreshold;
-    R_UploadAndSetComputeConstants(&state, 7, v338, 0x20u, NULL);
-    v102 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v288);
-    if ( (v102->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v204[0] = rg.gpuCullTriSModels;
+    v204[1] = rg.gpuCullTriRigidModels;
+    v204[2] = rg.gpuCullTriSkinnedModels;
+    v204[4] = rg.gpuCullTriMinThreshold;
+    v204[5] = rg.gpuCullClusterMinThreshold;
+    R_UploadAndSetComputeConstants(&state, 7, v204, 0x20u, NULL);
+    v35 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v154);
+    if ( (v35->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v197 = v102 + 68;
-    R_SetComputeViews(&state, 19, 1, (const GfxShaderBufferView *const *)&v197);
-    v103 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v289);
-    if ( (v103->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v63 = v35 + 68;
+    R_SetComputeViews(&state, 19, 1, (const GfxShaderBufferView *const *)&v63);
+    v36 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v155);
+    if ( (v36->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v198 = v103 + 68;
-    R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&v198);
-    v104 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v290);
-    if ( (v104->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v64 = v36 + 68;
+    R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&v64);
+    v37 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v156);
+    if ( (v37->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v199 = v104 + 68;
-    R_SetComputeViews(&state, 20, 1, (const GfxShaderBufferView *const *)&v199);
-    v105 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v291);
-    if ( (v105->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v65 = v37 + 68;
+    R_SetComputeViews(&state, 20, 1, (const GfxShaderBufferView *const *)&v65);
+    v38 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v157);
+    if ( (v38->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v200 = v105 + 68;
-    R_SetComputeViews(&state, 21, 1, (const GfxShaderBufferView *const *)&v200);
-    v106 = R_RT_Handle::GetSurface(&v292);
-    if ( (v106->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v66 = v38 + 68;
+    R_SetComputeViews(&state, 21, 1, (const GfxShaderBufferView *const *)&v66);
+    v39 = R_RT_Handle::GetSurface(&v158);
+    if ( (v39->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v201 = &v106->m_buffer.m_wrappedBuffer.rwView;
-    R_SetComputeRWViewsWithCounters(&state, 5, 1, (const GfxShaderBufferRWView *const *)&v201, NULL);
+    v67 = &v39->m_buffer.m_wrappedBuffer.rwView;
+    R_SetComputeRWViewsWithCounters(&state, 5, 1, (const GfxShaderBufferRWView *const *)&v67, NULL);
     R_SetComputeShader(&state, rgp.gpClusterWorkgroupGenPass);
-    v95 = &v293;
+    v34 = &v159;
   }
-  v107 = R_RT_Handle::GetSurface(v95);
-  if ( (v107->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v40 = R_RT_Handle::GetSurface(v34);
+  if ( (v40->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  R_DispatchIndirect(&state, v107->m_buffer.m_wrappedBuffer.buffer, 0);
-  v15 = _RBX->state;
+  R_DispatchIndirect(&state, v40->m_buffer.m_wrappedBuffer.buffer, 0);
+  v15 = gfxContext->state;
 LABEL_122:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BE0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1180], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v294, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C40.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1160], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v295, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B40]
-    vmovups [rbp+1C00h+var_1140], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v296, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v160 = (R_RT_Handle)v205;
+  R_HW_AddResourceTransition(&state, &v160, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v161 = (R_RT_Handle)v202;
+  R_HW_AddResourceTransition(&state, &v161, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v162 = v78;
+  R_HW_AddResourceTransition(&state, &v162, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(&state);
-  v231.m256i_i16[0] = 0;
-  v231.m256i_i32[2] = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+1C00h+var_1958+10h], xmm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_BC0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1120], ymm1
-    vmovups ymm0, [rbp+1C00h+var_1B40]
-    vmovups [rbp+1C00h+var_1100], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_1958]
-    vmovups [rbp+1C00h+var_10E0], ymm0
-    vmovups ymm1, ymmword ptr [r13+0]
-    vmovups [rbp+1C00h+var_10C0], ymm1
-    vmovups ymm0, [rbp+1C00h+var_1B60]
-    vmovups [rbp+1C00h+var_10A0], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C40.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1080], ymm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_BE0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1060], ymm1
-  }
-  R_GP_CullTriangles(&state, data, _RDI, passIndex, gpConfig->reusePrepassVisData, &v303, &v302, &v301, &v300, &v299, &v298, &v297);
-  R_RT_CreateBufferInternal(&v349, 4u, 0x200u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Reduce Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3550)");
-  R_RT_CreateBufferInternal(&v335, 4u, 0x40001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3551)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_B80.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1040], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v304, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BC0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1020], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v305, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v97.m256i_i16[0] = 0;
+  v97.m256i_i32[2] = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v97.m256i_u64[2] = _XMM0;
+  v163 = v206;
+  v164 = v78;
+  v165 = v97;
+  v166 = *p_m_floatZFullRt;
+  v167 = m_gpPerSurfDataBuffer;
+  v168 = v202;
+  v169 = v205;
+  R_GP_CullTriangles(&state, data, viewInfo, passIndex, gpConfig->reusePrepassVisData, &v169, &v168, (R_RT_BufferHandle *)&v167, &v166, (R_RT_ColorHandle *)&v165, (R_RT_BufferHandle *)&v164, &v163);
+  R_RT_CreateBufferInternal(&v215, 4u, 0x200u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Reduce Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3550)");
+  R_RT_CreateBufferInternal(&v201, 4u, 0x40001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "SubMesh Cluster Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp(3551)");
+  v170 = (R_RT_Handle)v208;
+  R_HW_AddResourceTransition(&state, &v170, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v171 = (R_RT_Handle)v206;
+  R_HW_AddResourceTransition(&state, &v171, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(&state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1000], ymm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_AE0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_FE0], ymm1
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BC0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_FC0], ymm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_B80.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_FA0], ymm1
-  }
-  R_GP_PrefixSum512(&state, data, passIndex, 0, &v309, &v308, &v307, &v306);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B20]
-    vmovups [rbp+1C00h+var_F80], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v310, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B00]
-    vmovups [rbp+1C00h+var_F60], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v311, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B40]
-    vmovups [rbp+1C00h+var_F40], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v312, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_F20], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v313, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v172 = v201;
+  v173 = v215;
+  v174 = v206;
+  v175 = v208;
+  R_GP_PrefixSum512(&state, data, passIndex, 0, &v175, &v174, &v173, &v172);
+  v176 = m_gpIndexBuffer;
+  R_HW_AddResourceTransition(&state, &v176, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v177 = m_gpIndirectArgsBuffer;
+  R_HW_AddResourceTransition(&state, (R_RT_Handle *)&v177, 0xFFFFFFFF, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v178 = v78;
+  R_HW_AddResourceTransition(&state, &v178, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v179 = (R_RT_Handle)v201;
+  R_HW_AddResourceTransition(&state, &v179, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(&state);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B00]
-    vmovups [rbp+1C00h+var_F00], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_EE0], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1C70]
-    vmovups [rbp+1C00h+var_EC0], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1A20]
-    vmovups [rbp+1C00h+var_EA0], ymm0
-  }
-  R_GP_InitDrawIndirectArgs(&state, data, passIndex, 1, &v317, &v316, &v315, &v314);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B20]
-    vmovups ymmword ptr [rbp+1C00h+var_E00.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups ymmword ptr [rbp+1C00h+var_E20.m_surfaceID], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1B40]
-    vmovups ymmword ptr [rbp+1C00h+var_E40.m_surfaceID], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1B60]
-    vmovups ymmword ptr [rbp+1C00h+var_E60.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C40.baseclass_0.m_surfaceID]
-    vmovups ymmword ptr [rbp+1C00h+var_E80.m_surfaceID], ymm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+var_BE0.baseclass_0.m_surfaceID]
-    vmovups ymmword ptr [rbp+1C00h+var_DE0.m_surfaceID], ymm1
-  }
+  v180 = m_gpIndirectArgsBuffer;
+  v181 = v201;
+  v182 = v52;
+  v183 = m_gpBatchSubMeshOffsetsBuffer;
+  R_GP_InitDrawIndirectArgs(&state, data, passIndex, 1, (R_RT_BufferHandle *)&v183, (R_RT_BufferHandle *)&v182, &v181, (R_RT_BufferHandle *)&v180);
+  v188 = m_gpIndexBuffer;
+  v187 = (R_RT_Handle)v201;
+  v186 = v78;
+  v185 = m_gpPerSurfDataBuffer;
+  v184 = (R_RT_Handle)v202;
+  v189 = (R_RT_Handle)v205;
   smpFrame = data->smpFrame;
-  v140 = (_DWORD *)((char *)&s_gpBackendFrameData[smpFrame] + v185);
-  if ( (v140[33] || (int)v140[16] > 0) && *v140 )
+  v43 = (_DWORD *)((char *)&s_gpBackendFrameData[smpFrame] + v51);
+  if ( (v43[33] || (int)v43[16] > 0) && *v43 )
   {
-    v141 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v318);
-    if ( (v141->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v44 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v184);
+    if ( (v44->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v202 = v141 + 68;
-    R_SetComputeViews(&state, 13, 1, (const GfxShaderBufferView *const *)&v202);
-    v142 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v319);
-    if ( (v142->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v68 = v44 + 68;
+    R_SetComputeViews(&state, 13, 1, (const GfxShaderBufferView *const *)&v68);
+    v45 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v185);
+    if ( (v45->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v203 = v142 + 68;
-    R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&v203);
+    v69 = v45 + 68;
+    R_SetComputeViews(&state, 2, 1, (const GfxShaderBufferView *const *)&v69);
     p_view = &gfxBuf.unifiedIndexBuffer.view;
     R_SetComputeViews(&state, 9, 1, (const GfxShaderBufferView *const *)&p_view);
-    v205 = &gfxBuf.uibVirtPageTableBuffer.view;
-    R_SetComputeViews(&state, 10, 1, (const GfxShaderBufferView *const *)&v205);
-    v143 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v320);
-    if ( (v143->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v71 = &gfxBuf.uibVirtPageTableBuffer.view;
+    R_SetComputeViews(&state, 10, 1, (const GfxShaderBufferView *const *)&v71);
+    v46 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v186);
+    if ( (v46->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v206 = v143 + 68;
-    R_SetComputeViews(&state, 14, 1, (const GfxShaderBufferView *const *)&v206);
-    v144 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v321);
-    if ( (v144->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v72 = v46 + 68;
+    R_SetComputeViews(&state, 14, 1, (const GfxShaderBufferView *const *)&v72);
+    v47 = (GfxShaderBufferView *)R_RT_Handle::GetSurface(&v187);
+    if ( (v47->view & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v207 = v144 + 68;
-    R_SetComputeViews(&state, 15, 1, (const GfxShaderBufferView *const *)&v207);
-    v145 = R_RT_Handle::GetSurface(&v322);
-    if ( (v145->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v73 = v47 + 68;
+    R_SetComputeViews(&state, 15, 1, (const GfxShaderBufferView *const *)&v73);
+    v48 = R_RT_Handle::GetSurface(&v188);
+    if ( (v48->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v208 = &v145->m_buffer.m_wrappedBuffer.rwView;
-    R_SetComputeRWViewsWithCounters(&state, 0, 1, (const GfxShaderBufferRWView *const *)&v208, NULL);
+    v74 = &v48->m_buffer.m_wrappedBuffer.rwView;
+    R_SetComputeRWViewsWithCounters(&state, 0, 1, (const GfxShaderBufferRWView *const *)&v74, NULL);
     R_SetComputeShader(&state, rgp.gpIndexedTriangleExpandPass);
-    smpFrame = (unsigned __int64)R_RT_Handle::GetSurface(&v323);
+    smpFrame = (unsigned __int64)R_RT_Handle::GetSurface(&v189);
     if ( (*(_DWORD *)(smpFrame + 8) & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
     R_DispatchIndirect(&state, *(ID3D12Resource **)(smpFrame + 1080), 0);
     LODWORD(smpFrame) = data->smpFrame;
   }
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B20]
-    vmovups [rbp+1C00h+var_DC0], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v324, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B00]
-    vmovups [rbp+1C00h+var_DA0], ymm0
-  }
-  R_HW_AddResourceTransition(&state, &v325, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v190 = m_gpIndexBuffer;
+  R_HW_AddResourceTransition(&state, &v190, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v191 = m_gpIndirectArgsBuffer;
+  R_HW_AddResourceTransition(&state, (R_RT_Handle *)&v191, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(&state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1B20], ymm0
-  }
-  v149 = &s_gpBackendFrameData[(unsigned int)smpFrame].gpBackendPass[(unsigned __int64)v185 / 0x2180];
-  if ( !rg.stats || !r_gpShowStats->current.integer || !v149->dynSurfCount && v149->visibleSModelCollectionCount <= 0 || !v149->batchCount )
+  v49 = (__m256i)v201;
+  m_gpIndexBuffer = (R_RT_Handle)v201;
+  v50 = &s_gpBackendFrameData[(unsigned int)smpFrame].gpBackendPass[(unsigned __int64)v51 / 0x2180];
+  if ( !rg.stats || !r_gpShowStats->current.integer || !v50->dynSurfCount && v50->visibleSModelCollectionCount <= 0 || !v50->batchCount )
     goto LABEL_158;
   if ( gpConfig->occlusionPass )
   {
@@ -1980,152 +1533,72 @@ LABEL_122:
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3022, ASSERT_TYPE_ASSERT, "(passIndex == GFX_GP_PASS_CAMERA)", (const char *)&queryFormat, "passIndex == GFX_GP_PASS_CAMERA") )
         __debugbreak();
-      __asm { vmovups ymm0, [rbp+1C00h+var_1B20] }
+      v49 = (__m256i)m_gpIndexBuffer;
     }
-    __asm
-    {
-      vmovups ymm1, [rbp+1C00h+var_1B00]
-      vmovups [rbp+1C00h+var_D80], ymm1
-      vmovups [rbp+1C00h+var_D60], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1C70]
-      vmovups [rbp+1C00h+var_D40], ymm0
-      vmovups ymm0, [rbp+1C00h+var_1A20]
-      vmovups [rbp+1C00h+var_D20], ymm0
-    }
-    R_GP_ReadBackGPStats_PostOcclusion(&state, data, passIndex, &v329, &v328, &v327, &v326);
+    v192 = m_gpIndirectArgsBuffer;
+    v193 = v49;
+    v194 = v52;
+    v195 = m_gpBatchSubMeshOffsetsBuffer;
+    R_GP_ReadBackGPStats_PostOcclusion(&state, data, passIndex, (R_RT_BufferHandle *)&v195, (R_RT_BufferHandle *)&v194, (R_RT_BufferHandle *)&v193, (R_RT_BufferHandle *)&v192);
     goto LABEL_156;
   }
-  __asm
-  {
-    vmovups ymm0, [rbp+1C00h+var_1B00]
-    vmovups [rbp+1C00h+var_D00], ymm0
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_B20.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_CE0], ymm0
-    vmovups ymm1, ymmword ptr [rbp+1C00h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_CC0], ymm1
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_CA0], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1C70]
-    vmovups [rbp+1C00h+var_C80], ymm0
-    vmovups ymm0, [rbp+1C00h+var_1A20]
-    vmovups [rbp+1C00h+var_1920], ymm0
-  }
-  R_GP_ReadBackGPStats_PreOcclusion(&state, data, passIndex, &v233, &v334, &v333, &v332, &v331, &v330);
+  v196 = m_gpIndirectArgsBuffer;
+  v197 = v213;
+  v198 = result;
+  v199 = v201;
+  v200 = v52;
+  v99 = m_gpBatchSubMeshOffsetsBuffer;
+  R_GP_ReadBackGPStats_PreOcclusion(&state, data, passIndex, (R_RT_BufferHandle *)&v99, (R_RT_BufferHandle *)&v200, &v199, &v198, &v197, (R_RT_BufferHandle *)&v196);
   if ( (_DWORD)passIndex == 1 )
 LABEL_156:
     GPReadBackRing::GPUCopyToRingBuffer(&s_gpReadBackRing[passIndex], &state);
-  R_CollectGPBackendStats(v149);
+  R_CollectGPBackendStats(v50);
 LABEL_158:
   R_GPU_EndTimer();
   R_ProfEndNamedEvent(&state);
   R_ComputeWaitForCompute(&state, PIPE_FLUSH_PARTIAL);
   if ( gpConfig->reusePrepassVisData )
   {
-    __asm
-    {
-      vmovups ymm0, [rbp+1C00h+var_1AE0]
-      vmovups [rbp+1C00h+var_1900], ymm0
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rbp+1C00h+var_19F0], xmm0
-    }
-    R_RT_Destroy(&v223, &v234);
-    __asm
-    {
-      vmovups ymm0, [rbp+1C00h+var_1C70]
-      vmovups [rbp+1C00h+var_18E0], ymm0
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rbp+1C00h+var_19E0], xmm0
-    }
-    R_RT_Destroy(&v224, &v235);
-    __asm
-    {
-      vmovups ymm0, [rbp+1C00h+var_1B40]
-      vmovups [rbp+1C00h+var_18C0], ymm0
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rbp+1C00h+var_19D0], xmm0
-    }
-    R_RT_Destroy(&v225, &v236);
+    v100 = v81;
+    v89 = *gfxContext;
+    R_RT_Destroy(&v89, (R_RT_BufferHandle *)&v100);
+    v101 = v52;
+    v90 = *gfxContext;
+    R_RT_Destroy(&v90, (R_RT_BufferHandle *)&v101);
+    v102 = v78;
+    v91 = *gfxContext;
+    R_RT_Destroy(&v91, (R_RT_BufferHandle *)&v102);
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+result.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_18A0], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+1C00h+var_19B0], xmm1
-  }
-  R_RT_Destroy(&v227, &v237);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_B20.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1880], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+1C00h+var_1930], xmm1
-  }
-  R_RT_Destroy(&v232, &v238);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BA0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1860], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups [rbp+1C00h+var_1A00], xmm1
-  }
-  R_RT_Destroy(&v222, &v239);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_B00.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1840], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1A40], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v220, &v240);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BE0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1820], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1AC0], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v216, &v241);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_B80.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1800], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1AA0], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v217, &v242);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C40.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_17E0], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1A80], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v218, &v243);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_BC0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_17C0], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1A60], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v219, &v244);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_AE0.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_17A0], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1BA0], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v209, &v245);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+1C00h+var_C60.baseclass_0.m_surfaceID]
-    vmovups [rbp+1C00h+var_1780], ymm0
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovups xmmword ptr [rbp+1C00h+var_1B80], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v210, &v246);
+  v103 = result;
+  v93 = *gfxContext;
+  R_RT_Destroy(&v93, &v103);
+  v104 = v213;
+  v98 = *gfxContext;
+  R_RT_Destroy(&v98, &v104);
+  v105 = v207;
+  v88 = *gfxContext;
+  R_RT_Destroy(&v88, &v105);
+  v106 = v214;
+  *(GfxCmdBufContext *)&m_gpPrevCulledSubMeshBuffer.m_surfaceID = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpPrevCulledSubMeshBuffer, &v106);
+  v107 = v205;
+  *(GfxCmdBufContext *)&m_gpPrevSubMeshClusterOffsetsBuffer.m_surfaceID = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpPrevSubMeshClusterOffsetsBuffer, &v107);
+  v108 = v208;
+  *(GfxCmdBufContext *)&m_gpPrevCulledTriClusterBuffer.m_surfaceID = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpPrevCulledTriClusterBuffer, &v108);
+  v109 = v202;
+  *(GfxCmdBufContext *)m_gpSubMeshCountBuffer.m256i_i8 = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpSubMeshCountBuffer, &v109);
+  v110 = v206;
+  *(GfxCmdBufContext *)m_gpClusterPPSumIndirectArgsBuffer.m256i_i8 = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpClusterPPSumIndirectArgsBuffer, &v110);
+  v111 = v215;
+  *(GfxCmdBufContext *)&m_gpClusterPassIndirectArgsBuffer.m_surfaceID = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpClusterPassIndirectArgsBuffer, &v111);
+  v112 = v201;
+  *(GfxCmdBufContext *)&m_gpSubMeshWorkgroupArgsBuffer.m_surfaceID = *gfxContext;
+  R_RT_Destroy((GfxCmdBufContext *)&m_gpSubMeshWorkgroupArgsBuffer, &v112);
   R_ShutdownGfxComputeCmdBufState(&state);
   v14 = v15->device;
 LABEL_161:
@@ -2353,74 +1826,71 @@ R_CollectGPBackendStats
 void R_CollectGPBackendStats(GPBackendPassData *gpBackendPass)
 {
   __int64 passIndex; 
+  GPReadBackRing *v3; 
   unsigned __int64 *writeFenceAddr; 
   unsigned __int64 v5; 
+  __m256i *v6; 
   unsigned int emittedStaticSurfCount; 
   __int64 preocclusionTriangleCount; 
   __int64 preocclusionClusterCount; 
   __int64 subMeshCount; 
   __int64 preocclusionMaxBatchIndexCount; 
-  int v14; 
+  int v12; 
   int postocclusionMaxBatchIndexCount; 
   int filteredStaticSurfCount; 
 
   passIndex = gpBackendPass->passIndex;
-  _RBX = &s_gpReadBackRing[passIndex];
-  writeFenceAddr = (unsigned __int64 *)_RBX->writeFenceAddr;
+  v3 = &s_gpReadBackRing[passIndex];
+  writeFenceAddr = (unsigned __int64 *)v3->writeFenceAddr;
   v5 = *writeFenceAddr;
-  if ( _RBX->lastReadPos <= *writeFenceAddr )
+  if ( v3->lastReadPos <= *writeFenceAddr )
   {
-    _RAX = _RBX->readBackInfoGPU[truncate_cast<unsigned int,unsigned __int64>(*writeFenceAddr & 3)];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx+70h], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+90h], ymm1
-    }
-    _RBX->lastReadPos = v5;
+    v6 = (__m256i *)v3->readBackInfoGPU[truncate_cast<unsigned int,unsigned __int64>(*writeFenceAddr & 3)];
+    *(__m256i *)&v3->readbackInfoCPU.preocclusionTriangleCount = *v6;
+    *(__m256i *)&v3->readbackInfoCPU.emittedStaticSurfCount = v6[1];
+    v3->lastReadPos = v5;
   }
   if ( gpBackendPass->visibleSModelCollectionCount )
   {
-    emittedStaticSurfCount = _RBX->readbackInfoCPU.emittedStaticSurfCount;
+    emittedStaticSurfCount = v3->readbackInfoCPU.emittedStaticSurfCount;
     if ( emittedStaticSurfCount > 0xD000 )
       R_WarnOncePerFrame(R_WARN_GPU_PIPELINE_SURF_LIMIT, s_gpTypedSurfNames[2], emittedStaticSurfCount, 53248i64, g_gpPassNames[passIndex]);
     if ( emittedStaticSurfCount > 0x10000 )
       R_WarnOncePerFrame(R_WARN_GPU_PIPELINE_TOTAL_SURF_LIMIT, emittedStaticSurfCount + gpBackendPass->dynSurfCount, 0x10000i64, g_gpPassNames[passIndex]);
   }
-  preocclusionTriangleCount = _RBX->readbackInfoCPU.preocclusionTriangleCount;
+  preocclusionTriangleCount = v3->readbackInfoCPU.preocclusionTriangleCount;
   if ( (unsigned int)preocclusionTriangleCount > 0x280000 )
     R_WarnOncePerFrame(R_WARN_GPU_PIPELINE_INDEX_LIMIT, preocclusionTriangleCount, 2621440i64, g_gpPassNames[passIndex]);
-  preocclusionClusterCount = _RBX->readbackInfoCPU.preocclusionClusterCount;
+  preocclusionClusterCount = v3->readbackInfoCPU.preocclusionClusterCount;
   if ( (unsigned int)preocclusionClusterCount > 0x40000 )
     R_WarnOncePerFrame(R_WARN_GPU_PIPELINE_CLUSTER_LIMIT, preocclusionClusterCount, 0x40000i64, g_gpPassNames[passIndex]);
-  subMeshCount = _RBX->readbackInfoCPU.subMeshCount;
+  subMeshCount = v3->readbackInfoCPU.subMeshCount;
   if ( (unsigned int)subMeshCount > 0x10000 )
     R_WarnOncePerFrame(R_WARN_GPU_PIPELINE_SUBMESH_LIMIT, subMeshCount, 0x10000i64, g_gpPassNames[passIndex]);
-  preocclusionMaxBatchIndexCount = _RBX->readbackInfoCPU.preocclusionMaxBatchIndexCount;
+  preocclusionMaxBatchIndexCount = v3->readbackInfoCPU.preocclusionMaxBatchIndexCount;
   if ( (unsigned int)preocclusionMaxBatchIndexCount >= 0x2FF400 )
     R_WarnOncePerFrame(R_WARN_GPU_PIPELINE_INDIRECT_ARG_INDEX_LIMIT, preocclusionMaxBatchIndexCount, 3142656i64, g_gpPassNames[passIndex]);
   if ( rg.stats && r_gpShowStats->current.integer )
   {
-    rg.stats->numPreOcclusionGPTris[passIndex] = _RBX->readbackInfoCPU.preocclusionTriangleCount;
-    rg.stats->numPostOcclusionGPTris[passIndex] = _RBX->readbackInfoCPU.postocclusionTriangleCount;
-    rg.stats->numPreOcclusionGPClusters[passIndex] = _RBX->readbackInfoCPU.preocclusionClusterCount;
-    rg.stats->numPostOcclusionGPClusters[passIndex] = _RBX->readbackInfoCPU.postocclusionClusterCount;
-    rg.stats->numSubMeshes[passIndex] = _RBX->readbackInfoCPU.subMeshCount;
-    rg.stats->maxBatchPreOccIndices[passIndex] = _RBX->readbackInfoCPU.preocclusionMaxBatchIndexCount;
-    v14 = _RBX->readbackInfoCPU.preocclusionMaxBatchIndexCount;
-    if ( rg.stats->maxBatchPreOccIndicesWatermark[passIndex] > v14 )
-      v14 = rg.stats->maxBatchPreOccIndicesWatermark[passIndex];
-    rg.stats->maxBatchPreOccIndicesWatermark[passIndex] = v14;
-    rg.stats->numPreOccDrawnBatches[passIndex] = _RBX->readbackInfoCPU.preocclusionDrawnBatchCount;
-    rg.stats->maxBatchPostOccIndices[passIndex] = _RBX->readbackInfoCPU.postocclusionMaxBatchIndexCount;
-    postocclusionMaxBatchIndexCount = _RBX->readbackInfoCPU.postocclusionMaxBatchIndexCount;
+    rg.stats->numPreOcclusionGPTris[passIndex] = v3->readbackInfoCPU.preocclusionTriangleCount;
+    rg.stats->numPostOcclusionGPTris[passIndex] = v3->readbackInfoCPU.postocclusionTriangleCount;
+    rg.stats->numPreOcclusionGPClusters[passIndex] = v3->readbackInfoCPU.preocclusionClusterCount;
+    rg.stats->numPostOcclusionGPClusters[passIndex] = v3->readbackInfoCPU.postocclusionClusterCount;
+    rg.stats->numSubMeshes[passIndex] = v3->readbackInfoCPU.subMeshCount;
+    rg.stats->maxBatchPreOccIndices[passIndex] = v3->readbackInfoCPU.preocclusionMaxBatchIndexCount;
+    v12 = v3->readbackInfoCPU.preocclusionMaxBatchIndexCount;
+    if ( rg.stats->maxBatchPreOccIndicesWatermark[passIndex] > v12 )
+      v12 = rg.stats->maxBatchPreOccIndicesWatermark[passIndex];
+    rg.stats->maxBatchPreOccIndicesWatermark[passIndex] = v12;
+    rg.stats->numPreOccDrawnBatches[passIndex] = v3->readbackInfoCPU.preocclusionDrawnBatchCount;
+    rg.stats->maxBatchPostOccIndices[passIndex] = v3->readbackInfoCPU.postocclusionMaxBatchIndexCount;
+    postocclusionMaxBatchIndexCount = v3->readbackInfoCPU.postocclusionMaxBatchIndexCount;
     if ( rg.stats->numBatchPostOccIndicesWatermark[passIndex] > postocclusionMaxBatchIndexCount )
       postocclusionMaxBatchIndexCount = rg.stats->numBatchPostOccIndicesWatermark[passIndex];
     rg.stats->numBatchPostOccIndicesWatermark[passIndex] = postocclusionMaxBatchIndexCount;
-    rg.stats->numPostOccDrawnBatches[passIndex] = _RBX->readbackInfoCPU.postocclusionDrawnBatchCount;
+    rg.stats->numPostOccDrawnBatches[passIndex] = v3->readbackInfoCPU.postocclusionDrawnBatchCount;
     if ( gpBackendPass->visibleSModelCollectionCount )
-      filteredStaticSurfCount = _RBX->readbackInfoCPU.filteredStaticSurfCount;
+      filteredStaticSurfCount = v3->readbackInfoCPU.filteredStaticSurfCount;
     else
       filteredStaticSurfCount = 0;
     rg.stats->numGPStaticSurfs[passIndex] = filteredStaticSurfCount;
@@ -2568,329 +2038,247 @@ R_GP_AddViewParms
 */
 void R_GP_AddViewParms()
 {
-  GfxViewInfo *v6; 
-  unsigned int v9; 
-  unsigned int v10; 
-  __int64 v11; 
-  __int64 v16; 
-  __int64 v30; 
-  unsigned int v32; 
-  __int64 v33; 
-  __int64 v34; 
-  bool v37; 
+  __int128 v0; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  GfxViewInfo *v5; 
+  unsigned int v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  GfxViewParmsCPU *v9; 
+  GfxViewParms *DepthHackViewParms; 
+  char *v11; 
+  __int64 v12; 
+  vec4_t v13; 
+  GfxViewParms *p_viewParms; 
+  float width; 
+  float height; 
+  __int64 MapSize; 
+  __int64 v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  __int64 v21; 
+  bool v22; 
+  float v23; 
+  float v24; 
+  GPBackendFrameData *v25; 
+  float v26; 
   BOOL vertexDeformForceCullSunShadows; 
+  float v28; 
+  float invFovScale; 
+  float cappedLodScale; 
+  float biasWithoutFovScale; 
+  float scaleWithoutFovScale; 
+  float vertexDeformCutOffDist; 
   BOOL vertexDeformForceCullSpotShadows; 
-  __int64 v66; 
+  __int64 v37; 
   unsigned __int8 *viewParmsGPU; 
-  tmat44_t<vec4_t> *v69; 
-  __int64 v72; 
-  unsigned __int8 *v73; 
-  int v74; 
-  __int64 v90; 
+  GfxViewParmsCPU *v39; 
+  tmat44_t<vec4_t> *v40; 
+  unsigned __int8 *v41; 
+  __int64 v42; 
+  __int64 v43; 
+  unsigned __int8 *v44; 
+  int v45; 
+  __int64 v46; 
   GfxViewParms result; 
-  char v92[384]; 
-  void *retaddr; 
+  char v48[384]; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
+  __int128 v53; 
 
-  _R11 = &retaddr;
-  v37 = s_gpCurBackendFrameData == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-  }
-  if ( v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 855, ASSERT_TYPE_ASSERT, "(s_gpCurBackendFrameData)", (const char *)&queryFormat, "s_gpCurBackendFrameData") )
+  v51 = v2;
+  v50 = v3;
+  v49 = v4;
+  if ( !s_gpCurBackendFrameData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 855, ASSERT_TYPE_ASSERT, "(s_gpCurBackendFrameData)", (const char *)&queryFormat, "s_gpCurBackendFrameData") )
     __debugbreak();
   if ( s_gpCurBackendFrameData->smpFrame != frontEndDataOut->smpFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 856, ASSERT_TYPE_ASSERT, "(s_gpCurBackendFrameData->smpFrame == static_cast< uint >( frontEndDataOut->smpFrame ))", (const char *)&queryFormat, "s_gpCurBackendFrameData->smpFrame == static_cast< uint >( frontEndDataOut->smpFrame )") )
     __debugbreak();
-  v6 = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 859, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
+  v5 = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 859, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  xmm9, cs:__real@45800000
-  }
-  v9 = 0;
-  __asm { vmovaps [rsp+3B8h+var_38], xmm6 }
-  v10 = 0;
-  __asm { vmovaps [rsp+3B8h+var_48], xmm7 }
-  v11 = 0i64;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v6 = 0;
+  v53 = v0;
+  v7 = 0;
+  v52 = v1;
+  v8 = 0i64;
   do
   {
-    _RSI = &s_gpCurBackendFrameData->viewParmsCPU[v11];
-    if ( v10 == 32 )
+    v9 = &s_gpCurBackendFrameData->viewParmsCPU[v8];
+    if ( v7 == 32 )
     {
-      _RAX = R_GetDepthHackViewParms(&result, (const GfxViewParms *)v6);
-      _RCX = v92;
-      v16 = 3i64;
+      DepthHackViewParms = R_GetDepthHackViewParms(&result, (const GfxViewParms *)v5);
+      v11 = v48;
+      v12 = 3i64;
       do
       {
-        _RCX += 128;
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RAX = (GfxViewParms *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups xmmword ptr [rcx-80h], xmm0
-          vmovups xmm1, xmmword ptr [rax-70h]
-          vmovups xmmword ptr [rcx-70h], xmm1
-          vmovups xmm0, xmmword ptr [rax-60h]
-          vmovups xmmword ptr [rcx-60h], xmm0
-          vmovups xmm1, xmmword ptr [rax-50h]
-          vmovups xmmword ptr [rcx-50h], xmm1
-          vmovups xmm0, xmmword ptr [rax-40h]
-          vmovups xmmword ptr [rcx-40h], xmm0
-          vmovups xmm1, xmmword ptr [rax-30h]
-          vmovups xmmword ptr [rcx-30h], xmm1
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmm1, xmmword ptr [rax-10h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v16;
+        v11 += 128;
+        v13 = DepthHackViewParms->viewMatrix.m.m[0];
+        DepthHackViewParms = (GfxViewParms *)((char *)DepthHackViewParms + 128);
+        *((vec4_t *)v11 - 8) = v13;
+        *((_OWORD *)v11 - 7) = *(_OWORD *)&DepthHackViewParms[-1].camera.axis.row0.y;
+        *((_OWORD *)v11 - 6) = *(_OWORD *)&DepthHackViewParms[-1].camera.axis.row1.z;
+        *((_OWORD *)v11 - 5) = *(_OWORD *)&DepthHackViewParms[-1].camera.tanHalfFovX;
+        *((_OWORD *)v11 - 4) = *(_OWORD *)DepthHackViewParms[-1].camera.zPlanes;
+        *((_OWORD *)v11 - 3) = *(_OWORD *)&DepthHackViewParms[-1].camera.focalLength;
+        *((_OWORD *)v11 - 2) = *(_OWORD *)&DepthHackViewParms[-1].camera.visibilityQueryDistance;
+        *((_OWORD *)v11 - 1) = *(_OWORD *)&DepthHackViewParms[-1].cameraMotion;
+        --v12;
       }
-      while ( v16 );
-      _RBX = (GfxViewParms *)v92;
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, rax
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, rax
-      }
+      while ( v12 );
+      p_viewParms = (GfxViewParms *)v48;
+      width = (float)v5->sceneViewport.width;
+      height = (float)v5->sceneViewport.height;
     }
     else
     {
-      if ( v10 )
+      if ( v7 )
       {
-        if ( v10 - 1 > 2 )
+        if ( v7 - 1 > 2 )
         {
-          if ( v10 - 4 > 7 )
+          if ( v7 - 4 > 7 )
           {
-            if ( v10 - 12 > 0x13 )
+            if ( v7 - 12 > 0x13 )
             {
-              LODWORD(v90) = v10;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 921, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "R_GP_AddViewParms: unhandled scene view type %d", v90) )
+              LODWORD(v46) = v7;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 921, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "R_GP_AddViewParms: unhandled scene view type %d", v46) )
                 __debugbreak();
 LABEL_40:
-              *(_QWORD *)_RSI->viewProjectionMatrix.m[0].v = 0i64;
+              *(_QWORD *)v9->viewProjectionMatrix.m[0].v = 0i64;
               goto LABEL_41;
             }
-            v32 = (v10 - 12) % 0xA;
-            v33 = (v10 - 12) / 0xA;
-            if ( v32 >= frontEndDataOut->sunShadow.partitionCache[v33].gfxCachedSunShadowOverlapCount )
+            v19 = (v7 - 12) % 0xA;
+            v20 = (v7 - 12) / 0xA;
+            if ( v19 >= frontEndDataOut->sunShadow.partitionCache[v20].gfxCachedSunShadowOverlapCount )
               goto LABEL_41;
-            v34 = v33 * 8656 + 864i64 * v32;
-            if ( (GfxBackEndData *)((char *)frontEndDataOut + v34) == (GfxBackEndData *)-929984i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 913, ASSERT_TYPE_ASSERT, "(&frontEndDataOut->sunShadow.partitionCache[partitionIndex].gfxCachedSunShadowOverlap[cellIndex].staticEntry)", (const char *)&queryFormat, "&frontEndDataOut->sunShadow.partitionCache[partitionIndex].gfxCachedSunShadowOverlap[cellIndex].staticEntry") )
+            v21 = v20 * 8656 + 864i64 * v19;
+            if ( (GfxBackEndData *)((char *)frontEndDataOut + v21) == (GfxBackEndData *)-929984i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 913, ASSERT_TYPE_ASSERT, "(&frontEndDataOut->sunShadow.partitionCache[partitionIndex].gfxCachedSunShadowOverlap[cellIndex].staticEntry)", (const char *)&queryFormat, "&frontEndDataOut->sunShadow.partitionCache[partitionIndex].gfxCachedSunShadowOverlap[cellIndex].staticEntry") )
               __debugbreak();
-            _RBX = &(*(GfxCachedSunShadow **)((char *)&frontEndDataOut->sunShadow.partitionCache[0].gfxCachedSunShadowOverlap[0].staticEntry + v34))->viewParms;
-            R_SunShadow_GetMapSize();
-            __asm
-            {
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, rax
-            }
-            R_SunShadow_GetMapSize();
+            p_viewParms = &(*(GfxCachedSunShadow **)((char *)&frontEndDataOut->sunShadow.partitionCache[0].gfxCachedSunShadowOverlap[0].staticEntry + v21))->viewParms;
+            width = (float)(R_SunShadow_GetMapSize() >> 1);
+            MapSize = R_SunShadow_GetMapSize() >> 1;
           }
           else
           {
-            v30 = v10 - 4;
-            if ( (unsigned int)v30 >= frontEndDataOut->spotShadowUpdateCount )
+            v18 = v7 - 4;
+            if ( (unsigned int)v18 >= frontEndDataOut->spotShadowUpdateCount )
               goto LABEL_40;
-            __asm { vxorps  xmm6, xmm6, xmm6 }
-            _RBX = &frontEndDataOut->spotShadowUpdates[v30].viewportParms.viewParms;
-            __asm { vcvtsi2ss xmm6, xmm6, rax }
+            p_viewParms = &frontEndDataOut->spotShadowUpdates[v18].viewportParms.viewParms;
+            width = (float)frontEndDataOut->spotShadowUpdates[v18].viewportParms.viewport.width;
+            MapSize = frontEndDataOut->spotShadowUpdates[v18].viewportParms.viewport.height;
           }
         }
         else
         {
-          _RBX = &frontEndDataOut->sunShadow.partition[v10 - 1].viewParms;
-          R_SunShadow_GetMapSize();
-          __asm
-          {
-            vxorps  xmm6, xmm6, xmm6
-            vcvtsi2ss xmm6, xmm6, rax
-          }
-          R_SunShadow_GetMapSize();
+          p_viewParms = &frontEndDataOut->sunShadow.partition[v7 - 1].viewParms;
+          width = (float)R_SunShadow_GetMapSize();
+          MapSize = R_SunShadow_GetMapSize();
         }
       }
       else
       {
-        _RBX = (GfxViewParms *)v6;
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, rax
-        }
+        p_viewParms = (GfxViewParms *)v5;
+        width = (float)v5->sceneViewport.width;
+        MapSize = v5->sceneViewport.height;
       }
-      __asm
-      {
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, rax
-      }
-      if ( !_RBX )
+      height = (float)MapSize;
+      if ( !p_viewParms )
         goto LABEL_40;
     }
-    MatrixCopy44(&_RBX->viewProjectionMatrix.m, &_RSI->viewProjectionMatrix);
-    __asm
+    MatrixCopy44(&p_viewParms->viewProjectionMatrix.m, &v9->viewProjectionMatrix);
+    v22 = p_viewParms->projectionMatrix.m.m[0].v[3] == 0.0;
+    v9->rtSize.v[2] = 1.0 / width;
+    v9->rtSize.v[3] = 1.0 / height;
+    v9->rtSize.v[0] = width;
+    v9->rtSize.v[1] = height;
+    v9->flags = 0;
+    if ( v22 && p_viewParms->projectionMatrix.m.m[1].v[3] == 0.0 && p_viewParms->projectionMatrix.m.m[2].v[3] == 0.0 )
     {
-      vucomiss xmm8, dword ptr [rbx+4Ch]
-      vdivss  xmm0, xmm10, xmm6
-      vdivss  xmm1, xmm10, xmm7
-      vmovss  dword ptr [rsi+58h], xmm0
-      vmovss  dword ptr [rsi+5Ch], xmm1
-      vmovss  dword ptr [rsi+50h], xmm6
-      vmovss  dword ptr [rsi+54h], xmm7
-    }
-    _RSI->flags = 0;
-    if ( !v37 )
-      goto LABEL_37;
-    __asm { vucomiss xmm8, dword ptr [rbx+5Ch] }
-    if ( !v37 )
-      goto LABEL_37;
-    __asm { vucomiss xmm8, dword ptr [rbx+6Ch] }
-    if ( v37 )
-    {
-      if ( v10 - 1 > 2 && v10 - 12 > 0x13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 945, ASSERT_TYPE_ASSERT, "(isSunShadow)", (const char *)&queryFormat, "isSunShadow") )
+      if ( v7 - 1 > 2 && v7 - 12 > 0x13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 945, ASSERT_TYPE_ASSERT, "(isSunShadow)", (const char *)&queryFormat, "isSunShadow") )
         __debugbreak();
-      _RSI->eyeOffset.v[0] = LODWORD(_RBX->camera.axis.m[0].v[0]);
-      _RSI->eyeOffset.v[1] = LODWORD(_RBX->camera.axis.m[0].v[1]);
-      _RSI->eyeOffset.v[2] = LODWORD(_RBX->camera.axis.m[0].v[2]);
-      _RSI->flags |= 1u;
+      v9->eyeOffset.v[0] = LODWORD(p_viewParms->camera.axis.m[0].v[0]);
+      v9->eyeOffset.v[1] = LODWORD(p_viewParms->camera.axis.m[0].v[1]);
+      v9->eyeOffset.v[2] = LODWORD(p_viewParms->camera.axis.m[0].v[2]);
+      v9->flags |= 1u;
     }
     else
     {
-LABEL_37:
-      __asm
-      {
-        vmulss  xmm1, xmm9, dword ptr [rbx+100h]
-        vcvttss2si eax, xmm1
-        vmulss  xmm1, xmm9, dword ptr [rbx+104h]
-      }
-      _RSI->eyeOffset.v[0] = _EAX;
-      __asm
-      {
-        vcvttss2si eax, xmm1
-        vmulss  xmm1, xmm9, dword ptr [rbx+108h]
-      }
-      _RSI->eyeOffset.v[1] = _EAX;
-      __asm { vcvttss2si eax, xmm1 }
-      _RSI->eyeOffset.v[2] = _EAX;
+      v23 = 4096.0 * p_viewParms->camera.origin.v[1];
+      v9->eyeOffset.v[0] = (int)(float)(4096.0 * p_viewParms->camera.origin.v[0]);
+      v24 = 4096.0 * p_viewParms->camera.origin.v[2];
+      v9->eyeOffset.v[1] = (int)v23;
+      v9->eyeOffset.v[2] = (int)v24;
     }
 LABEL_41:
-    ++v10;
-    ++v11;
+    ++v7;
+    ++v8;
   }
-  while ( v10 < 0x21 );
-  _RCX = s_gpCurBackendFrameData;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4; r_globals_t rg
-  }
+  while ( v7 < 0x21 );
+  v25 = s_gpCurBackendFrameData;
+  v26 = rg.correctedLodParms.origin.v[1];
   vertexDeformForceCullSunShadows = rg.vertexDeformForceCullSunShadows;
-  __asm
-  {
-    vmovaps xmm10, [rsp+3B8h+var_78]
-    vmovaps xmm9, [rsp+3B8h+var_68]
-    vmovaps xmm8, [rsp+3B8h+var_58]
-    vmovaps xmm7, [rsp+3B8h+var_48]
-    vmovaps xmm6, [rsp+3B8h+var_38]
-    vmovss  dword ptr [rcx+4F94h], xmm0
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8; r_globals_t rg
-    vmovss  dword ptr [rcx+4F98h], xmm1
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  dword ptr [rcx+4F9Ch], xmm0
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.cappedLodScale; r_globals_t rg
-    vmovss  dword ptr [rcx+4FA0h], xmm1
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.biasWithoutFovScale; r_globals_t rg
-    vmovss  dword ptr [rcx+4FA4h], xmm0
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.scaleWithoutFovScale; r_globals_t rg
-    vmovss  dword ptr [rcx+4FACh], xmm1
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.vertexDeformCutOffDist; r_globals_t rg
-    vmovss  dword ptr [rcx+4FA8h], xmm0
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.vertexDeformFadeDist; r_globals_t rg
-    vmovss  dword ptr [rcx+4F90h], xmm1
-    vminss  xmm1, xmm0, xmm1
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.clutterRamp.biasWithoutFovScale; r_globals_t rg
-    vmovss  dword ptr [rcx+4FB0h], xmm1
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.clutterRamp.scaleWithoutFovScale; r_globals_t rg
-  }
-  _RCX->lodParamConsts.vertexDeformForceCullSunShadows = vertexDeformForceCullSunShadows;
+  s_gpCurBackendFrameData->lodParamConsts.lodOrigin.v[0] = rg.correctedLodParms.origin.v[0];
+  v28 = rg.correctedLodParms.origin.v[2];
+  v25->lodParamConsts.lodOrigin.v[1] = v26;
+  invFovScale = rg.correctedLodParms.invFovScale;
+  v25->lodParamConsts.lodOrigin.v[2] = v28;
+  cappedLodScale = rg.correctedLodParms.cappedLodScale;
+  v25->lodParamConsts.invFovScale = invFovScale;
+  biasWithoutFovScale = rg.correctedLodParms.ramp.biasWithoutFovScale;
+  v25->lodParamConsts.cappedLodScale = cappedLodScale;
+  scaleWithoutFovScale = rg.correctedLodParms.ramp.scaleWithoutFovScale;
+  v25->lodParamConsts.lodRampBias = biasWithoutFovScale;
+  vertexDeformCutOffDist = rg.vertexDeformCutOffDist;
+  v25->lodParamConsts.lodRampScale = scaleWithoutFovScale;
+  _XMM0 = LODWORD(rg.vertexDeformFadeDist);
+  v25->lodParamConsts.vertexDeformCutOffDist = vertexDeformCutOffDist;
+  __asm { vminss  xmm1, xmm0, xmm1 }
+  *(float *)&_XMM0 = rg.correctedLodParms.clutterRamp.biasWithoutFovScale;
+  v25->lodParamConsts.vertexDeformFadeDist = *(float *)&_XMM1;
+  *(float *)&_XMM1 = rg.correctedLodParms.clutterRamp.scaleWithoutFovScale;
+  v25->lodParamConsts.vertexDeformForceCullSunShadows = vertexDeformForceCullSunShadows;
   vertexDeformForceCullSpotShadows = rg.vertexDeformForceCullSpotShadows;
-  __asm
-  {
-    vmovss  dword ptr [rcx+4FC0h], xmm1
-    vmovss  dword ptr [rcx+4FC4h], xmm0
-  }
-  _RCX->lodParamConsts.vertexDeformForceCullSpotShadows = vertexDeformForceCullSpotShadows;
-  if ( !_RCX->viewParmsGPU && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 966, ASSERT_TYPE_ASSERT, "(s_gpCurBackendFrameData->viewParmsGPU)", (const char *)&queryFormat, "s_gpCurBackendFrameData->viewParmsGPU") )
+  v25->lodParamConsts.clutterLodScale = *(float *)&_XMM1;
+  v25->lodParamConsts.clutterLodBias = *(float *)&_XMM0;
+  v25->lodParamConsts.vertexDeformForceCullSpotShadows = vertexDeformForceCullSpotShadows;
+  if ( !v25->viewParmsGPU && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 966, ASSERT_TYPE_ASSERT, "(s_gpCurBackendFrameData->viewParmsGPU)", (const char *)&queryFormat, "s_gpCurBackendFrameData->viewParmsGPU") )
     __debugbreak();
-  v66 = 0i64;
+  v37 = 0i64;
   do
   {
     viewParmsGPU = s_gpCurBackendFrameData->viewParmsGPU;
-    _RBX = &s_gpCurBackendFrameData->viewParmsCPU[v66];
-    if ( (unsigned __int64)(v9 << 6) + 64 > 0xC60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 670, ASSERT_TYPE_ASSERT, "(( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize)", (const char *)&queryFormat, "( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize") )
+    v39 = &s_gpCurBackendFrameData->viewParmsCPU[v37];
+    if ( (unsigned __int64)(v6 << 6) + 64 > 0xC60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 670, ASSERT_TYPE_ASSERT, "(( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize)", (const char *)&queryFormat, "( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize") )
       __debugbreak();
-    v69 = (tmat44_t<vec4_t> *)&viewParmsGPU[64 * v9];
-    _R14 = s_gpCurBackendFrameData->viewParmsGPU;
-    _RSI = 16 * (v9 + 132);
-    if ( (unsigned __int64)(_RSI + 16) > 0xC60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 670, ASSERT_TYPE_ASSERT, "(( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize)", (const char *)&queryFormat, "( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize") )
+    v40 = (tmat44_t<vec4_t> *)&viewParmsGPU[64 * v6];
+    v41 = s_gpCurBackendFrameData->viewParmsGPU;
+    v42 = 16 * (v6 + 132);
+    if ( (unsigned __int64)(v42 + 16) > 0xC60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 670, ASSERT_TYPE_ASSERT, "(( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize)", (const char *)&queryFormat, "( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize") )
       __debugbreak();
-    v72 = 16 * (v9 + 165);
-    v73 = s_gpCurBackendFrameData->viewParmsGPU;
-    if ( (unsigned __int64)(v72 + 16) > 0xC60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 670, ASSERT_TYPE_ASSERT, "(( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize)", (const char *)&queryFormat, "( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize") )
+    v43 = 16 * (v6 + 165);
+    v44 = s_gpCurBackendFrameData->viewParmsGPU;
+    if ( (unsigned __int64)(v43 + 16) > 0xC60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 670, ASSERT_TYPE_ASSERT, "(( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize)", (const char *)&queryFormat, "( byteOffset + sizeof( VAR_TYPE ) ) <= bufferSize") )
       __debugbreak();
-    MatrixCopy44(&_RBX->viewProjectionMatrix, v69);
-    v74 = _RBX->eyeOffset.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+40h]
-      vmovsd  qword ptr [rsi+r14], xmm0
-    }
-    *(_DWORD *)&_R14[_RSI + 8] = v74;
-    ++v9;
-    ++v66;
-    *(_DWORD *)&_R14[_RSI + 12] = _RBX->flags;
-    *(float *)&v73[v72] = _RBX->rtSize.v[0];
-    *(float *)&v73[v72 + 4] = _RBX->rtSize.v[1];
-    *(float *)&v73[v72 + 8] = _RBX->rtSize.v[2];
-    *(float *)&v73[v72 + 12] = _RBX->rtSize.v[3];
+    MatrixCopy44(&v39->viewProjectionMatrix, v40);
+    v45 = v39->eyeOffset.v[2];
+    *(double *)&v41[v42] = *(double *)v39->eyeOffset.v;
+    *(_DWORD *)&v41[v42 + 8] = v45;
+    ++v6;
+    ++v37;
+    *(_DWORD *)&v41[v42 + 12] = v39->flags;
+    *(float *)&v44[v43] = v39->rtSize.v[0];
+    *(float *)&v44[v43 + 4] = v39->rtSize.v[1];
+    *(float *)&v44[v43 + 8] = v39->rtSize.v[2];
+    *(float *)&v44[v43 + 12] = v39->rtSize.v[3];
   }
-  while ( v9 < 0x21 );
+  while ( v6 < 0x21 );
   if ( !s_gpCurBackendFrameData->transientVisBitsGPU && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 981, ASSERT_TYPE_ASSERT, "(s_gpCurBackendFrameData->transientVisBitsGPU)", (const char *)&queryFormat, "s_gpCurBackendFrameData->transientVisBitsGPU") )
     __debugbreak();
-  _RDX = frontEndDataOut;
-  __asm { vmovups xmm0, xmmword ptr [rdx+169CFCh] }
-  _RCX = s_gpCurBackendFrameData->transientVisBitsGPU;
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rdx+169D0Ch]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+169D1Ch]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+169D2Ch]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+169D3Ch]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+169D4Ch]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+169D5Ch]
-    vmovups xmmword ptr [rcx+60h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+169D6Ch]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+169D7Ch]
-    vmovups xmmword ptr [rcx+80h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+169D8Ch]
-    vmovups xmmword ptr [rcx+90h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+169D9Ch]
-    vmovups xmmword ptr [rcx+0A0h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+169DACh]
-    vmovups xmmword ptr [rcx+0B0h], xmm1
-  }
+  *(bitarray<1536> *)s_gpCurBackendFrameData->transientVisBitsGPU = frontEndDataOut->transientVisibility;
 }
 
 /*
@@ -2999,129 +2387,116 @@ void R_GP_CullClusters(ComputeCmdBufState *state, const GfxBackEndData *data, co
   __int64 v20; 
   int v21; 
   int v22; 
-  bool v30; 
-  bool v31; 
+  float v23; 
+  int v24; 
+  float v25; 
+  float v26; 
+  bool v27; 
+  bool v28; 
   const R_RT_Surface *Surface; 
   GfxTexture *Resident; 
-  int v36; 
+  int v31; 
   GfxTextureId textureId; 
   ComputeShader *gpClusterCullingOcclusionPass; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
   GfxShaderBufferView *views; 
-  GfxShaderBufferView *v41; 
-  __int64 v42; 
-  GfxShaderBufferView *v43; 
+  GfxShaderBufferView *v36; 
+  __int64 v37; 
+  GfxShaderBufferView *v38; 
   GfxTexture *textures; 
-  GfxTexture *v45; 
+  GfxTexture *v40; 
   GfxShaderBufferView *p_view; 
-  GfxShaderBufferView *v47; 
-  R_RT_Handle *v48; 
-  GfxShaderBufferView *v49; 
-  R_RT_Handle *v50; 
-  GfxShaderBufferView *v51; 
-  R_RT_Handle *v52; 
+  GfxShaderBufferView *v42; 
+  R_RT_Handle *v43; 
+  GfxShaderBufferView *v44; 
+  R_RT_Handle *v45; 
+  GfxShaderBufferView *v46; 
+  R_RT_Handle *v47; 
   GfxShaderBufferRWView *p_rwView; 
-  R_RT_Handle *v54; 
-  GfxShaderBufferRWView *v55; 
-  R_RT_Handle *v56; 
-  GfxShaderBufferRWView *v57; 
-  R_RT_Handle *v58; 
-  GfxShaderBufferView *v59; 
-  R_RT_Handle *v60; 
-  GfxShaderBufferView *v61; 
-  R_RT_Handle *v62; 
-  R_RT_Handle v63; 
-  int v64; 
-  __int64 v65; 
-  int v66; 
+  R_RT_Handle *v49; 
+  GfxShaderBufferRWView *v50; 
+  R_RT_Handle *v51; 
+  GfxShaderBufferRWView *v52; 
+  R_RT_Handle *v53; 
+  GfxShaderBufferView *v54; 
+  R_RT_Handle *v55; 
+  GfxShaderBufferView *v56; 
+  R_RT_Handle *v57; 
+  R_RT_Handle v58; 
+  int v59; 
+  __int64 v60; 
+  int v61; 
   unsigned int gpuCullClusterDepthMipBias; 
-  BOOL v68; 
+  BOOL v63; 
   int dataa[12]; 
 
-  v62 = clusterPassIndirectArgsBuffer;
-  v48 = subMeshWorkgroupArgsBuffer;
-  v50 = perSurfDataBuffer;
-  v58 = prevCulledSubMeshBuffer;
-  v60 = prevSubMeshClusterOffsetsBuffer;
-  v52 = culledSubMeshBuffer;
-  v54 = subMeshClusterCountsBuffer;
-  v56 = culledTriClusterBuffer;
+  v57 = clusterPassIndirectArgsBuffer;
+  v43 = subMeshWorkgroupArgsBuffer;
+  v45 = perSurfDataBuffer;
+  v53 = prevCulledSubMeshBuffer;
+  v55 = prevSubMeshClusterOffsetsBuffer;
+  v47 = culledSubMeshBuffer;
+  v49 = subMeshClusterCountsBuffer;
+  v51 = culledTriClusterBuffer;
   v19 = 20544i64 * data->smpFrame;
   v20 = v19 + 8576i64 * passIndex;
-  v42 = v19;
+  v37 = v19;
   if ( !*(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].dynSurfCount + v20) && *(int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].visibleSModelCollectionCount + v20) <= 0 || !*(volatile int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].batchCount + v20) )
     return;
   v21 = *(unsigned int *)((char *)s_gpBackendFrameData[0].gpBackendPass[0].surfTypeCount + v20);
   v22 = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].surfTypeCount[1] + v20);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@45800000
-    vmulss  xmm0, xmm2, dword ptr [r8+5B8h]
-  }
+  v23 = 4096.0 * viewInfo->sceneDef.viewOffset.v[0];
   dataa[7] = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].dynSurfCount + v20);
   dataa[0] = *(unsigned int *)((char *)s_gpBackendFrameData[0].gpBackendPass[0].surfIndexOffsets + v20);
   dataa[1] = v21;
   dataa[2] = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].surfIndexOffsets[1] + v20);
-  __asm
-  {
-    vcvttss2si eax, xmm0
-    vmulss  xmm0, xmm2, dword ptr [r8+5BCh]
-  }
-  dataa[4] = _EAX;
-  __asm
-  {
-    vcvttss2si eax, xmm0
-    vmulss  xmm0, xmm2, dword ptr [r8+5C0h]
-  }
-  dataa[5] = _EAX;
-  __asm { vcvttss2si eax, xmm0 }
+  v24 = (int)v23;
+  v25 = 4096.0 * viewInfo->sceneDef.viewOffset.v[1];
+  dataa[4] = v24;
+  v26 = 4096.0 * viewInfo->sceneDef.viewOffset.v[2];
+  dataa[5] = (int)v25;
   dataa[3] = v22;
-  dataa[6] = _EAX;
+  dataa[6] = (int)v26;
   R_UploadAndSetComputeConstants(state, 0, dataa, 0x30u, NULL);
-  v30 = occlusionDepthTexture->m_surfaceID && rg.gpuCullTriClusterOcclusion;
-  v31 = occlusionDepthTexture->m_surfaceID == 0;
-  v64 = v30;
-  if ( v31 )
+  v27 = occlusionDepthTexture->m_surfaceID && rg.gpuCullTriClusterOcclusion;
+  v28 = occlusionDepthTexture->m_surfaceID == 0;
+  v59 = v27;
+  if ( v28 )
   {
-    v65 = 0i64;
-    v66 = 0;
+    v60 = 0i64;
+    v61 = 0;
   }
   else
   {
-    LODWORD(v65) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.width;
-    HIDWORD(v65) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.height;
-    v66 = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.levelCount - 1;
+    LODWORD(v60) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.width;
+    HIDWORD(v60) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.height;
+    v61 = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.levelCount - 1;
   }
   gpuCullClusterDepthMipBias = rg.gpuCullClusterDepthMipBias;
-  _RAX = umbraOcclusionTexture;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0A0h+var_B0.m_surfaceID], ymm0
-  }
-  if ( !R_Umbra_GetOcclusionImageCameraView(data) || passIndex || !v63.m_surfaceID )
+  v58 = umbraOcclusionTexture->R_RT_Handle;
+  if ( !R_Umbra_GetOcclusionImageCameraView(data) || passIndex || !v58.m_surfaceID )
   {
     Resident = NULL;
 LABEL_21:
-    v36 = 0;
+    v31 = 0;
     goto LABEL_22;
   }
-  Surface = R_RT_Handle::GetSurface(&v63);
+  Surface = R_RT_Handle::GetSurface(&v58);
   Resident = (GfxTexture *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
-  if ( !Resident || !rg.gpuCullOcclusion || !rg.gpuCullTriClusterOcclusion || !rg.gpuCullOcclusionUmbra || v30 )
+  if ( !Resident || !rg.gpuCullOcclusion || !rg.gpuCullTriClusterOcclusion || !rg.gpuCullOcclusionUmbra || v27 )
     goto LABEL_21;
-  v36 = 2;
+  v31 = 2;
 LABEL_22:
-  v64 |= v36;
-  v68 = useVisBuffer;
-  R_UploadAndSetComputeConstants(state, 1, &v64, 0x20u, NULL);
+  v59 |= v31;
+  v63 = useVisBuffer;
+  R_UploadAndSetComputeConstants(state, 1, &v59, 0x20u, NULL);
   views = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].rigidSurfCullArgsBuffer.view + v20);
   R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&views);
-  v41 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].skinnedSurfCullArgsBuffer.view + v20);
-  R_SetComputeViews(state, 1, 1, (const GfxShaderBufferView *const *)&v41);
+  v36 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].skinnedSurfCullArgsBuffer.view + v20);
+  R_SetComputeViews(state, 1, 1, (const GfxShaderBufferView *const *)&v36);
   RB_ModelData_SetComputeResources(state, 4u, 3u);
-  v43 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].viewParmsBuffer.view + v42);
-  R_SetComputeViews(state, 5, 1, (const GfxShaderBufferView *const *)&v43);
+  v38 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].viewParmsBuffer.view + v37);
+  R_SetComputeViews(state, 5, 1, (const GfxShaderBufferView *const *)&v38);
   if ( occlusionDepthTexture->m_surfaceID )
     textureId = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.textureId;
   else
@@ -3130,28 +2505,28 @@ LABEL_22:
   R_SetComputeTextures(state, 6, 1, (const GfxTexture *const *)&textures);
   if ( !Resident )
     Resident = (GfxTexture *)R_Texture_GetResident(rgp.blackImage->textureId);
-  v45 = Resident;
-  R_SetComputeTextures(state, 25, 1, (const GfxTexture *const *)&v45);
+  v40 = Resident;
+  R_SetComputeTextures(state, 25, 1, (const GfxTexture *const *)&v40);
   p_view = &gfxBuf.uibVirtPageTableBuffer.view;
   R_SetComputeViews(state, 10, 1, (const GfxShaderBufferView *const *)&p_view);
-  v47 = &gfxBuf.uibPageDataBuffer.view;
-  R_SetComputeViews(state, 11, 1, (const GfxShaderBufferView *const *)&v47);
-  v49 = &R_RT_Handle::GetWrappedBuffer(v48)->view;
-  R_SetComputeViews(state, 19, 1, (const GfxShaderBufferView *const *)&v49);
-  v51 = &R_RT_Handle::GetWrappedBuffer(v50)->view;
-  R_SetComputeViews(state, 2, 1, (const GfxShaderBufferView *const *)&v51);
-  p_rwView = &R_RT_Handle::GetWrappedBuffer(v52)->rwView;
+  v42 = &gfxBuf.uibPageDataBuffer.view;
+  R_SetComputeViews(state, 11, 1, (const GfxShaderBufferView *const *)&v42);
+  v44 = &R_RT_Handle::GetWrappedBuffer(v43)->view;
+  R_SetComputeViews(state, 19, 1, (const GfxShaderBufferView *const *)&v44);
+  v46 = &R_RT_Handle::GetWrappedBuffer(v45)->view;
+  R_SetComputeViews(state, 2, 1, (const GfxShaderBufferView *const *)&v46);
+  p_rwView = &R_RT_Handle::GetWrappedBuffer(v47)->rwView;
   R_SetComputeRWViewsWithCounters(state, 3, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-  v55 = &R_RT_Handle::GetWrappedBuffer(v54)->rwView;
-  R_SetComputeRWViewsWithCounters(state, 4, 1, (const GfxShaderBufferRWView *const *)&v55, NULL);
-  v57 = &R_RT_Handle::GetWrappedBuffer(v56)->rwView;
-  R_SetComputeRWViewsWithCounters(state, 6, 1, (const GfxShaderBufferRWView *const *)&v57, NULL);
+  v50 = &R_RT_Handle::GetWrappedBuffer(v49)->rwView;
+  R_SetComputeRWViewsWithCounters(state, 4, 1, (const GfxShaderBufferRWView *const *)&v50, NULL);
+  v52 = &R_RT_Handle::GetWrappedBuffer(v51)->rwView;
+  R_SetComputeRWViewsWithCounters(state, 6, 1, (const GfxShaderBufferRWView *const *)&v52, NULL);
   if ( reusePrepassVisData )
   {
-    v59 = &R_RT_Handle::GetWrappedBuffer(v58)->view;
-    R_SetComputeViews(state, 22, 1, (const GfxShaderBufferView *const *)&v59);
-    v61 = &R_RT_Handle::GetWrappedBuffer(v60)->view;
-    R_SetComputeViews(state, 23, 1, (const GfxShaderBufferView *const *)&v61);
+    v54 = &R_RT_Handle::GetWrappedBuffer(v53)->view;
+    R_SetComputeViews(state, 22, 1, (const GfxShaderBufferView *const *)&v54);
+    v56 = &R_RT_Handle::GetWrappedBuffer(v55)->view;
+    R_SetComputeViews(state, 23, 1, (const GfxShaderBufferView *const *)&v56);
     gpClusterCullingOcclusionPass = rgp.gpClusterCullingOcclusionPass;
   }
   else
@@ -3159,7 +2534,7 @@ LABEL_22:
     gpClusterCullingOcclusionPass = rgp.gpClusterCullingPass;
   }
   R_SetComputeShader(state, gpClusterCullingOcclusionPass);
-  WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v62);
+  WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v57);
   R_DispatchIndirect(state, WrappedBuffer->buffer, 0);
 }
 
@@ -3171,120 +2546,107 @@ R_GP_CullTriangles
 void R_GP_CullTriangles(ComputeCmdBufState *state, const GfxBackEndData *data, const GfxViewInfo *viewInfo, unsigned int passIndex, bool reusePrepassVisData, R_RT_BufferHandle *triPassIndirectArgsBuffer, R_RT_BufferHandle *clusterWorkgroupArgsBuffer, R_RT_BufferHandle *perSurfDataBuffer, R_RT_ColorHandle *occlusionDepthTexture, R_RT_ColorHandle *umbraOcclusionTexture, R_RT_BufferHandle *culledTriClusterBuffer, R_RT_BufferHandle *clusterTriCountsBuffer)
 {
   __int64 smpFrame; 
-  __int64 v15; 
-  int v16; 
+  __int64 v16; 
   int v17; 
+  int v18; 
+  float v19; 
+  int v20; 
+  float v21; 
+  float v22; 
   GfxTexture *Resident; 
-  bool v26; 
+  bool v24; 
   const R_RT_Surface *Surface; 
-  int v30; 
+  int v26; 
   GfxTextureId textureId; 
   ComputeShader *gpTriangleOcclusionCullPass; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
   GfxShaderBufferView *views; 
-  GfxShaderBufferView *v36; 
-  R_RT_Handle *v37; 
+  GfxShaderBufferView *v32; 
+  R_RT_Handle *v33; 
   GfxShaderBufferView *p_view; 
-  unsigned __int64 v39; 
-  GfxShaderBufferView *v40; 
+  unsigned __int64 v35; 
+  GfxShaderBufferView *v36; 
   GfxTexture *textures; 
-  GfxTexture *v42; 
+  GfxTexture *v38; 
+  GfxShaderBufferView *v39; 
+  GfxShaderBufferView *v40; 
+  GfxShaderBufferView *v41; 
+  GfxShaderBufferView *v42; 
   GfxShaderBufferView *v43; 
-  GfxShaderBufferView *v44; 
+  R_RT_Handle *v44; 
   GfxShaderBufferView *v45; 
-  GfxShaderBufferView *v46; 
-  GfxShaderBufferView *v47; 
-  R_RT_Handle *v48; 
-  GfxShaderBufferView *v49; 
-  R_RT_Handle *v50; 
+  R_RT_Handle *v46; 
   GfxShaderBufferRWView *p_rwView; 
-  R_RT_Handle *v52; 
-  GfxShaderBufferRWView *v53; 
-  R_RT_Handle *v54; 
-  R_RT_Handle v55; 
-  int v56; 
-  __int64 v57; 
-  int v58; 
+  R_RT_Handle *v48; 
+  GfxShaderBufferRWView *v49; 
+  R_RT_Handle *v50; 
+  R_RT_Handle v51; 
+  int v52; 
+  __int64 v53; 
+  int v54; 
   unsigned int gpuCullTriDepthMipBias; 
-  int v60; 
+  int v56; 
   int dataa[12]; 
 
   smpFrame = data->smpFrame;
-  v54 = triPassIndirectArgsBuffer;
-  v48 = clusterWorkgroupArgsBuffer;
-  v37 = perSurfDataBuffer;
-  v50 = culledTriClusterBuffer;
-  v52 = clusterTriCountsBuffer;
-  v15 = 20544 * smpFrame + 8576i64 * passIndex;
-  v39 = 20544 * smpFrame;
-  if ( (*(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].dynSurfCount + v15) || *(int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].visibleSModelCollectionCount + v15) > 0) && *(volatile int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].batchCount + v15) )
+  v50 = triPassIndirectArgsBuffer;
+  v44 = clusterWorkgroupArgsBuffer;
+  v33 = perSurfDataBuffer;
+  v46 = culledTriClusterBuffer;
+  v48 = clusterTriCountsBuffer;
+  v16 = 20544 * smpFrame + 8576i64 * passIndex;
+  v35 = 20544 * smpFrame;
+  if ( (*(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].dynSurfCount + v16) || *(int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].visibleSModelCollectionCount + v16) > 0) && *(volatile int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].batchCount + v16) )
   {
-    if ( *(int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].batchCount + v15) >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 2706, ASSERT_TYPE_ASSERT, "(gpBackendPass->batchCount < ( 16384 ))", (const char *)&queryFormat, "gpBackendPass->batchCount < GP_BATCH_LIMIT") )
+    if ( *(int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].batchCount + v16) >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 2706, ASSERT_TYPE_ASSERT, "(gpBackendPass->batchCount < ( 16384 ))", (const char *)&queryFormat, "gpBackendPass->batchCount < GP_BATCH_LIMIT") )
       __debugbreak();
-    v16 = *(unsigned int *)((char *)s_gpBackendFrameData[0].gpBackendPass[0].surfTypeCount + v15);
-    v17 = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].surfTypeCount[1] + v15);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@45800000
-      vmulss  xmm0, xmm2, dword ptr [rsi+5B8h]
-    }
-    dataa[7] = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].dynSurfCount + v15);
-    dataa[0] = *(unsigned int *)((char *)s_gpBackendFrameData[0].gpBackendPass[0].surfIndexOffsets + v15);
-    dataa[1] = v16;
-    dataa[2] = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].surfIndexOffsets[1] + v15);
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rsi+5BCh]
-    }
-    dataa[4] = _EAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rsi+5C0h]
-    }
+    v17 = *(unsigned int *)((char *)s_gpBackendFrameData[0].gpBackendPass[0].surfTypeCount + v16);
+    v18 = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].surfTypeCount[1] + v16);
+    v19 = 4096.0 * viewInfo->sceneDef.viewOffset.v[0];
+    dataa[7] = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].dynSurfCount + v16);
+    dataa[0] = *(unsigned int *)((char *)s_gpBackendFrameData[0].gpBackendPass[0].surfIndexOffsets + v16);
+    dataa[1] = v17;
+    dataa[2] = *(unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].surfIndexOffsets[1] + v16);
+    v20 = (int)v19;
+    v21 = 4096.0 * viewInfo->sceneDef.viewOffset.v[1];
+    dataa[4] = v20;
+    v22 = 4096.0 * viewInfo->sceneDef.viewOffset.v[2];
     Resident = NULL;
-    dataa[5] = _EAX;
-    dataa[3] = v17;
-    __asm { vcvttss2si eax, xmm0 }
-    dataa[6] = _EAX;
+    dataa[5] = (int)v21;
+    dataa[3] = v18;
+    dataa[6] = (int)v22;
     R_UploadAndSetComputeConstants(state, 0, dataa, 0x30u, NULL);
-    v26 = occlusionDepthTexture->m_surfaceID && rg.gpuCullTriOcclusion;
-    v56 = v26;
+    v24 = occlusionDepthTexture->m_surfaceID && rg.gpuCullTriOcclusion;
+    v52 = v24;
     if ( occlusionDepthTexture->m_surfaceID )
     {
-      LODWORD(v57) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.width;
-      HIDWORD(v57) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.height;
-      v58 = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.levelCount - 1;
+      LODWORD(v53) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.width;
+      HIDWORD(v53) = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.height;
+      v54 = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.levelCount - 1;
     }
     else
     {
-      v57 = 0i64;
-      v58 = 0;
+      v53 = 0i64;
+      v54 = 0;
     }
     gpuCullTriDepthMipBias = rg.gpuCullTriDepthMipBias;
-    _RAX = umbraOcclusionTexture;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+90h+var_B0.m_surfaceID], ymm0
-    }
-    if ( R_Umbra_GetOcclusionImageCameraView(data) && !passIndex && v55.m_surfaceID && (Surface = R_RT_Handle::GetSurface(&v55), (Resident = (GfxTexture *)R_Texture_GetResident(Surface->m_image.m_base.textureId)) != NULL) && rg.gpuCullOcclusion && rg.gpuCullTriOcclusion && rg.gpuCullTriOcclusionUmbra && !v26 )
-      v30 = 2;
+    v51 = umbraOcclusionTexture->R_RT_Handle;
+    if ( R_Umbra_GetOcclusionImageCameraView(data) && !passIndex && v51.m_surfaceID && (Surface = R_RT_Handle::GetSurface(&v51), (Resident = (GfxTexture *)R_Texture_GetResident(Surface->m_image.m_base.textureId)) != NULL) && rg.gpuCullOcclusion && rg.gpuCullTriOcclusion && rg.gpuCullTriOcclusionUmbra && !v24 )
+      v26 = 2;
     else
-      v30 = 0;
-    v56 |= v30;
-    v60 = 0;
-    R_UploadAndSetComputeConstants(state, 1, &v56, 0x20u, NULL);
-    views = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].rigidSurfCullArgsBuffer.view + v15);
+      v26 = 0;
+    v52 |= v26;
+    v56 = 0;
+    R_UploadAndSetComputeConstants(state, 1, &v52, 0x20u, NULL);
+    views = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].rigidSurfCullArgsBuffer.view + v16);
     R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&views);
-    v36 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].skinnedSurfCullArgsBuffer.view + v15);
-    R_SetComputeViews(state, 1, 1, (const GfxShaderBufferView *const *)&v36);
-    p_view = &R_RT_Handle::GetWrappedBuffer(v37)->view;
+    v32 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].skinnedSurfCullArgsBuffer.view + v16);
+    R_SetComputeViews(state, 1, 1, (const GfxShaderBufferView *const *)&v32);
+    p_view = &R_RT_Handle::GetWrappedBuffer(v33)->view;
     R_SetComputeViews(state, 2, 1, (const GfxShaderBufferView *const *)&p_view);
     RB_ModelData_SetComputeResources(state, 4u, 3u);
-    v40 = &s_gpBackendFrameData[v39 / 0x5040].viewParmsBuffer.view;
-    R_SetComputeViews(state, 5, 1, (const GfxShaderBufferView *const *)&v40);
+    v36 = &s_gpBackendFrameData[v35 / 0x5040].viewParmsBuffer.view;
+    R_SetComputeViews(state, 5, 1, (const GfxShaderBufferView *const *)&v36);
     if ( occlusionDepthTexture->m_surfaceID )
       textureId = R_RT_Handle::GetSurface(occlusionDepthTexture)->m_image.m_base.textureId;
     else
@@ -3293,29 +2655,29 @@ void R_GP_CullTriangles(ComputeCmdBufState *state, const GfxBackEndData *data, c
     R_SetComputeTextures(state, 6, 1, (const GfxTexture *const *)&textures);
     if ( !Resident )
       Resident = (GfxTexture *)R_Texture_GetResident(rgp.blackImage->textureId);
-    v42 = Resident;
-    R_SetComputeTextures(state, 25, 1, (const GfxTexture *const *)&v42);
-    v43 = &gfxBuf.unifiedVertexBuffer.view;
-    R_SetComputeViews(state, 7, 1, (const GfxShaderBufferView *const *)&v43);
-    v44 = &gfxBuf.uvbVirtPageTableBuffer.view;
-    R_SetComputeViews(state, 8, 1, (const GfxShaderBufferView *const *)&v44);
-    v45 = &gfxBuf.unifiedIndexBuffer.view;
-    R_SetComputeViews(state, 9, 1, (const GfxShaderBufferView *const *)&v45);
-    v46 = &gfxBuf.uibVirtPageTableBuffer.view;
-    R_SetComputeViews(state, 10, 1, (const GfxShaderBufferView *const *)&v46);
-    v47 = &data->skinnedCacheVb->wrappedBuffer.view;
-    R_SetComputeViews(state, 12, 1, (const GfxShaderBufferView *const *)&v47);
-    v49 = &R_RT_Handle::GetWrappedBuffer(v48)->view;
-    R_SetComputeViews(state, 13, 1, (const GfxShaderBufferView *const *)&v49);
-    p_rwView = &R_RT_Handle::GetWrappedBuffer(v50)->rwView;
+    v38 = Resident;
+    R_SetComputeTextures(state, 25, 1, (const GfxTexture *const *)&v38);
+    v39 = &gfxBuf.unifiedVertexBuffer.view;
+    R_SetComputeViews(state, 7, 1, (const GfxShaderBufferView *const *)&v39);
+    v40 = &gfxBuf.uvbVirtPageTableBuffer.view;
+    R_SetComputeViews(state, 8, 1, (const GfxShaderBufferView *const *)&v40);
+    v41 = &gfxBuf.unifiedIndexBuffer.view;
+    R_SetComputeViews(state, 9, 1, (const GfxShaderBufferView *const *)&v41);
+    v42 = &gfxBuf.uibVirtPageTableBuffer.view;
+    R_SetComputeViews(state, 10, 1, (const GfxShaderBufferView *const *)&v42);
+    v43 = &data->skinnedCacheVb->wrappedBuffer.view;
+    R_SetComputeViews(state, 12, 1, (const GfxShaderBufferView *const *)&v43);
+    v45 = &R_RT_Handle::GetWrappedBuffer(v44)->view;
+    R_SetComputeViews(state, 13, 1, (const GfxShaderBufferView *const *)&v45);
+    p_rwView = &R_RT_Handle::GetWrappedBuffer(v46)->rwView;
     R_SetComputeRWViewsWithCounters(state, 2, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-    v53 = &R_RT_Handle::GetWrappedBuffer(v52)->rwView;
-    R_SetComputeRWViewsWithCounters(state, 3, 1, (const GfxShaderBufferRWView *const *)&v53, NULL);
+    v49 = &R_RT_Handle::GetWrappedBuffer(v48)->rwView;
+    R_SetComputeRWViewsWithCounters(state, 3, 1, (const GfxShaderBufferRWView *const *)&v49, NULL);
     gpTriangleOcclusionCullPass = rgp.gpTriangleOcclusionCullPass;
     if ( !reusePrepassVisData )
       gpTriangleOcclusionCullPass = rgp.gpTriangleCullPass;
     R_SetComputeShader(state, gpTriangleOcclusionCullPass);
-    WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v54);
+    WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v50);
     R_DispatchIndirect(state, WrappedBuffer->buffer, 0);
   }
 }
@@ -3484,122 +2846,134 @@ R_GP_GenerateClutter
 */
 void R_GP_GenerateClutter(ComputeCmdBufState *state, const GfxBackEndData *data, unsigned int passIndex, const bool reactiveMotionPass)
 {
-  __int64 v12; 
-  const char *v15; 
-  GfxShaderBufferRWView *v16; 
+  __int64 v5; 
+  const char *v8; 
+  GPBackendFrameData *v9; 
+  __int64 v10; 
+  unsigned int v11; 
+  unsigned int reactiveMotionIndex; 
+  float v13; 
+  float v14; 
+  StDiskTerrainSurface *v15; 
+  unsigned __int64 v16; 
   __int64 v17; 
   unsigned int v18; 
-  unsigned int reactiveMotionIndex; 
-  unsigned __int64 v25; 
-  __int64 v26; 
-  unsigned int v27; 
-  unsigned int v29; 
-  unsigned int v30; 
-  char v31; 
-  __int64 v32; 
+  unsigned int v19; 
+  unsigned int v20; 
+  char v21; 
+  __int64 v22; 
   GfxClutterCollection *clutterCollections; 
-  GfxStaticModelCollection *v34; 
-  const StTerrain *v35; 
+  GfxStaticModelCollection *v24; 
+  const StTerrain *v25; 
   int terrainSurfaceIndex; 
-  __int64 v37; 
-  int v47; 
-  GfxStaticModel *v51; 
+  __int64 v27; 
+  __int64 surfaceMapSetIndex; 
+  StTerrainMaps *maps; 
+  float v30; 
+  float v31; 
+  int v32; 
+  const StTerrainClutterLayer *v33; 
+  GfxStaticModel *v34; 
   const XModel *model; 
-  int v53; 
-  int v54; 
-  StDiskTerrainSurface *v61; 
+  int v36; 
+  int v37; 
+  float clutterLodBias; 
+  double LodOutDist; 
+  float *p_layerSize; 
+  StDiskTerrainSurface *v41; 
   StreamKey *streamKey; 
   unsigned int ClutterTilesInstanceCount; 
   unsigned int size; 
-  bool v65; 
+  bool v45; 
   bool ClutterTilesCovered; 
-  unsigned int v78; 
-  unsigned int v79; 
-  bool v85; 
-  const StTerrainClutterLayer *v86; 
-  unsigned int v88; 
-  BOOL v89; 
-  int v90; 
-  GfxBackEndData *v93; 
-  const GfxTexture *const *v94; 
-  bool v95; 
-  int v96; 
+  float v48; 
+  unsigned int v50; 
+  unsigned int v51; 
+  float v52; 
+  bool v53; 
+  const StTerrainClutterLayer *v54; 
+  StDiskTerrainSurface *v55; 
+  unsigned int v56; 
+  BOOL v57; 
+  int v58; 
+  GfxBackEndData *v59; 
+  const GfxTexture *const *v60; 
+  bool v61; 
+  int v62; 
   ComputeShader *gpClutterCollectionGenPassForReactiveMotionModels; 
-  int v98; 
-  bool v99; 
+  int v64; 
+  bool v65; 
   base_vec2_t<unsigned int> *tileCount; 
-  __int64 v107; 
+  __int64 v67; 
   bool count_1; 
   unsigned int count_4; 
   GfxShaderBufferRWView *views; 
-  unsigned int v112; 
-  int v113; 
-  __int64 v114; 
+  unsigned int v72; 
+  int v73; 
+  __int64 v74; 
   StDiskTerrainSurface *surface; 
-  __int64 v116; 
+  __int64 v76; 
   GfxShaderBufferView *p_view; 
-  unsigned int v118; 
-  int v119; 
-  __int64 v120; 
-  unsigned __int64 v121; 
-  int v122; 
+  unsigned int v78; 
+  int v79; 
+  __int64 v80; 
+  unsigned __int64 v81; 
+  int v82; 
   const StTerrain *terrain; 
-  GfxShaderBufferRWView *v124; 
-  GfxBackEndData *v125; 
+  GPBackendFrameData *v84; 
+  GfxBackEndData *v85; 
   int integer; 
   GfxTexture *textures; 
-  const GfxTexture *v128; 
-  GfxTexture *v129[3]; 
-  base_vec2_t<unsigned int> v130; 
+  const GfxTexture *v88; 
+  GfxTexture *v89[3]; 
+  base_vec2_t<unsigned int> v90; 
   vec2_t coords; 
-  base_vec2_t<unsigned int> v132; 
+  base_vec2_t<unsigned int> v92; 
   int dataa[2]; 
   base_vec2_t<unsigned int> tileStart; 
-  base_vec2_t<unsigned int> v135; 
-  unsigned int v136; 
-  unsigned int v137; 
-  unsigned int v141; 
-  int v142; 
-  unsigned int v143; 
-  __int128 v144; 
-  unsigned int v145; 
-  float v147; 
+  base_vec2_t<unsigned int> v95; 
+  unsigned int v96; 
+  unsigned int v97; 
+  float v98; 
+  float v99; 
+  float v100; 
+  unsigned int v101; 
+  int v102; 
+  unsigned int v103; 
+  vec4_t quat; 
+  unsigned int v105; 
+  __int64 v106; 
+  float v107; 
+  float heightOffset; 
+  float heightScale; 
+  float v110; 
+  float v111; 
+  float v112; 
   GPClutterReactiveMotionModelInfoGpu clutterModelInfo; 
-  char v154; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v129[1] = (GfxTexture *)-2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  v12 = passIndex;
-  v125 = (GfxBackEndData *)data;
-  v15 = "Generate Runtime Clutter Instances";
+  v89[1] = (GfxTexture *)-2i64;
+  v5 = passIndex;
+  v85 = (GfxBackEndData *)data;
+  v8 = "Generate Runtime Clutter Instances";
   if ( reactiveMotionPass )
-    v15 = "Generate Runtime Clutter Instances (Reactive)";
-  v129[2] = (GfxTexture *)state;
+    v8 = "Generate Runtime Clutter Instances (Reactive)";
+  v89[2] = (GfxTexture *)state;
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_profile.h", 38, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
-  R_ProfBeginNamedEvent(state, v15);
-  if ( (_DWORD)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1878, ASSERT_TYPE_ASSERT, "(passIndex == GFX_GP_PASS_CAMERA)", (const char *)&queryFormat, "passIndex == GFX_GP_PASS_CAMERA") )
+  R_ProfBeginNamedEvent(state, v8);
+  if ( (_DWORD)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1878, ASSERT_TYPE_ASSERT, "(passIndex == GFX_GP_PASS_CAMERA)", (const char *)&queryFormat, "passIndex == GFX_GP_PASS_CAMERA") )
     __debugbreak();
-  v16 = (GfxShaderBufferRWView *)&s_gpBackendFrameData[data->smpFrame];
-  v124 = v16;
-  v17 = (__int64)v16 + 8576 * v12;
-  v120 = v17;
+  v9 = &s_gpBackendFrameData[data->smpFrame];
+  v84 = v9;
+  v10 = (__int64)&v9->gpBackendPass[v5];
+  v80 = v10;
   terrain = s_stGlob.terrain;
   if ( s_stGlob.terrain )
   {
     count_1 = 0;
-    v18 = 0;
+    v11 = 0;
     count_4 = 0;
-    LODWORD(v116) = 0;
+    LODWORD(v76) = 0;
     if ( reactiveMotionPass )
     {
       views = &R_ReactiveMotion_GetClutterSModelInstanceDataBuffer()->rwView;
@@ -3609,7 +2983,7 @@ void R_GP_GenerateClutter(ComputeCmdBufState *state, const GfxBackEndData *data,
       R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
       views = &R_ReactiveMotion_GetClutterInstanceOffsetsBuffer(reactiveMotionIndex)->rwView;
       R_SetComputeRWViewsWithCounters(state, 4, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-      v17 = v120;
+      v10 = v80;
     }
     else
     {
@@ -3626,256 +3000,206 @@ void R_GP_GenerateClutter(ComputeCmdBufState *state, const GfxBackEndData *data,
     R_SetComputeViews(state, 1, 1, (const GfxShaderBufferView *const *)&views);
     views = (GfxShaderBufferRWView *)&terrain->clutterSamplePoints.samplePointBuffer.view;
     R_SetComputeViews(state, 3, 1, (const GfxShaderBufferView *const *)&views);
-    views = v16 + 715;
+    views = (GfxShaderBufferRWView *)&v9->viewParmsBuffer.view;
     R_SetComputeViews(state, 5, 1, (const GfxShaderBufferView *const *)&views);
     integer = r_st_clutterTintSampleLevel->current.integer;
     LODWORD(p_view) = 0;
-    v122 = -1;
-    LODWORD(v114) = 0;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vdivss  xmm10, xmm8, dword ptr [r13+4FC0h]
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rbp+160h+coords], xmm0
-      vmovss  dword ptr [rbp+160h+coords+4], xmm0
-      vmovaps xmm7, xmm8
-    }
-    _R13 = NULL;
+    v82 = -1;
+    LODWORD(v74) = 0;
+    v13 = 1.0 / v9->lodParamConsts.clutterLodScale;
+    coords.v[0] = 0.0;
+    coords.v[1] = 0.0;
+    v14 = FLOAT_1_0;
+    v15 = NULL;
     surface = NULL;
     views = NULL;
-    v25 = ((unsigned __int64)rgp.world->smodels.clutterCollectionCount + 31) >> 5;
-    v121 = v25;
-    LODWORD(v26) = 0;
-    v113 = 0;
-    v27 = 0;
-    v112 = 0;
-    if ( (_DWORD)v25 )
+    v16 = ((unsigned __int64)rgp.world->smodels.clutterCollectionCount + 31) >> 5;
+    v81 = v16;
+    LODWORD(v17) = 0;
+    v73 = 0;
+    v18 = 0;
+    v72 = 0;
+    if ( (_DWORD)v16 )
     {
-      v27 = *(_DWORD *)(v17 + 156);
-      v112 = v27;
+      v18 = *(_DWORD *)(v10 + 156);
+      v72 = v18;
     }
-    __asm { vmovss  xmm9, cs:__real@3f000000 }
     while ( 1 )
     {
       while ( 1 )
       {
         while ( 1 )
         {
-          if ( v27 )
+          if ( v18 )
           {
-LABEL_19:
-            v29 = __lzcnt(v27);
-            v30 = v29 + 32 * v26;
-            v118 = v30;
-            if ( v29 >= 0x20 )
+LABEL_18:
+            v19 = __lzcnt(v18);
+            v20 = v19 + 32 * v17;
+            v78 = v20;
+            if ( v19 >= 0x20 )
             {
-              LODWORD(v107) = 32;
-              LODWORD(tileCount) = v29;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", tileCount, v107) )
+              LODWORD(v67) = 32;
+              LODWORD(tileCount) = v19;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", tileCount, v67) )
                 __debugbreak();
             }
-            if ( ((0x80000000 >> v29) & v27) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+            if ( ((0x80000000 >> v19) & v18) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
               __debugbreak();
-            v112 = ~(0x80000000 >> v29) & v27;
-            v31 = 1;
-            v18 = count_4;
+            v72 = ~(0x80000000 >> v19) & v18;
+            v21 = 1;
+            v11 = count_4;
           }
           else
           {
             while ( 1 )
             {
-              v26 = (unsigned int)(v26 + 1);
-              v113 = v26;
-              if ( (unsigned int)v26 >= (unsigned int)v25 )
+              v17 = (unsigned int)(v17 + 1);
+              v73 = v17;
+              if ( (unsigned int)v17 >= (unsigned int)v16 )
                 break;
-              v27 = *(_DWORD *)(v17 + 4 * v26 + 156);
-              v112 = v27;
-              LODWORD(v25) = v121;
-              if ( v27 )
-                goto LABEL_19;
+              v18 = *(_DWORD *)(v10 + 4 * v17 + 156);
+              v72 = v18;
+              LODWORD(v16) = v81;
+              if ( v18 )
+                goto LABEL_18;
             }
-            v31 = 0;
-            v30 = v118;
+            v21 = 0;
+            v20 = v78;
           }
-          if ( !v31 )
+          if ( !v21 )
           {
             if ( reactiveMotionPass )
-              R_ReactiveMotion_SetReactiveMotionClutterLayerCount(v125->reactiveMotionIndex, v18);
-            goto LABEL_116;
+              R_ReactiveMotion_SetReactiveMotionClutterLayerCount(v85->reactiveMotionIndex, v11);
+            goto LABEL_115;
           }
-          v32 = v30;
+          v22 = v20;
           clutterCollections = rgp.world->smodels.clutterCollections;
-          v34 = &rgp.world->smodels.collections[clutterCollections[v32].smodelCollectionIndex];
-          v35 = terrain;
-          if ( clutterCollections[v32].terrainSurfaceIndex >= terrain->surfaceCount )
+          v24 = &rgp.world->smodels.collections[clutterCollections[v22].smodelCollectionIndex];
+          v25 = terrain;
+          if ( clutterCollections[v22].terrainSurfaceIndex >= terrain->surfaceCount )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1936, ASSERT_TYPE_ASSERT, "(clutterCollection.terrainSurfaceIndex < terrain->surfaceCount)", (const char *)&queryFormat, "clutterCollection.terrainSurfaceIndex < terrain->surfaceCount") )
               __debugbreak();
-            v35 = terrain;
+            v25 = terrain;
           }
-          terrainSurfaceIndex = clutterCollections[v32].terrainSurfaceIndex;
-          if ( v122 != terrainSurfaceIndex )
+          terrainSurfaceIndex = clutterCollections[v22].terrainSurfaceIndex;
+          if ( v82 != terrainSurfaceIndex )
           {
-            v37 = clutterCollections[v32].terrainSurfaceIndex;
-            v122 = clutterCollections[v32].terrainSurfaceIndex;
+            v27 = clutterCollections[v22].terrainSurfaceIndex;
+            v82 = clutterCollections[v22].terrainSurfaceIndex;
             LOBYTE(terrainSurfaceIndex) = 1;
-            LODWORD(v114) = terrainSurfaceIndex;
-            _R13 = &v35->surfaces[v37];
-            surface = _R13;
-            views = (GfxShaderBufferRWView *)_R13->combinedAlbedoMap;
-            coords = R_ST_GetCameraCoords((const vec3_t *)&v124[848].rwSubresourceToTransition, &_R13->objToWld);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rdi+rsi*8+4]
-              vdivss  xmm2, xmm8, xmm0
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmulss  xmm6, xmm0, xmm2
-              vmovss  xmm1, dword ptr [r13+7Ch]
-              vmovss  [rbp+160h+var_100], xmm1
-              vmovss  xmm0, dword ptr [r13+80h]
-              vmovss  [rbp+160h+var_FC], xmm0
-              vmovss  [rbp+160h+var_F8], xmm6
-              vmulss  xmm1, xmm2, xmm9
-              vmovss  [rbp+160h+var_F4], xmm1
-            }
+            LODWORD(v74) = terrainSurfaceIndex;
+            v15 = &v25->surfaces[v27];
+            surface = v15;
+            surfaceMapSetIndex = v15->surfaceMapSetIndex;
+            maps = v25->maps;
+            views = (GfxShaderBufferRWView *)v15->combinedAlbedoMap;
+            coords = R_ST_GetCameraCoords(&v84->lodParamConsts.lodOrigin, &v15->objToWld);
+            v30 = 1.0 / (float)maps[surfaceMapSetIndex].paddedResolution;
+            v31 = (float)(maps[surfaceMapSetIndex].mapResolution - 1) * v30;
+            heightOffset = v15->heightOffset;
+            heightScale = v15->heightScale;
+            v110 = v31;
+            v111 = v30 * 0.5;
             if ( rgp.world->smodels.clutterInstancePool.start >= 0x7FFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1956, ASSERT_TYPE_ASSERT, "(rgp.world->smodels.clutterInstancePool.start < ( 1 << 27 ) - 1)", (const char *)&queryFormat, "rgp.world->smodels.clutterInstancePool.start < ( 1 << 27 ) - 1") )
               __debugbreak();
-            v47 = integer;
+            v32 = integer;
             if ( integer >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1957, ASSERT_TYPE_ASSERT, "(tintMipLevel < ( 1 << 3 ) - 1)", (const char *)&queryFormat, "tintMipLevel < ( 1 << 3 ) - 1") )
               __debugbreak();
-            v145 = v47 | (16 * rgp.world->smodels.clutterInstancePool.start);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, ecx
-              vmulss  xmm1, xmm0, xmm6
-              vdivss  xmm7, xmm8, xmm1
-            }
+            v105 = v32 | (16 * rgp.world->smodels.clutterInstancePool.start);
+            v14 = 1.0 / (float)((float)v15->heightMap->width * v31);
           }
-          if ( clutterCollections[v32].clutterLayerIndex >= _R13->clutterLayerCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1963, ASSERT_TYPE_ASSERT, "(clutterCollection.clutterLayerIndex < surface->clutterLayerCount)", (const char *)&queryFormat, "clutterCollection.clutterLayerIndex < surface->clutterLayerCount") )
+          if ( clutterCollections[v22].clutterLayerIndex >= v15->clutterLayerCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1963, ASSERT_TYPE_ASSERT, "(clutterCollection.clutterLayerIndex < surface->clutterLayerCount)", (const char *)&queryFormat, "clutterCollection.clutterLayerIndex < surface->clutterLayerCount") )
             __debugbreak();
-          _R14 = &_R13->clutterLayers[clutterCollections[v32].clutterLayerIndex];
-          v51 = &rgp.world->smodels.models[v34->smodelIndex];
-          model = v51->model;
-          if ( !v51->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1969, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+          v33 = &v15->clutterLayers[clutterCollections[v22].clutterLayerIndex];
+          v34 = &rgp.world->smodels.models[v24->smodelIndex];
+          model = v34->model;
+          if ( !v34->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1969, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
-          v53 = 2 * v118;
-          if ( (v51->flags & 0x40) != 0 )
-            v53 |= 1u;
-          dataa[0] = v53;
-          v54 = (int)p_view;
+          v36 = 2 * v78;
+          if ( (v34->flags & 0x40) != 0 )
+            v36 |= 1u;
+          dataa[0] = v36;
+          v37 = (int)p_view;
           dataa[1] = (int)p_view;
-          _RAX = (__int64)v124;
-          __asm { vmovss  xmm6, dword ptr [rax+4FC4h] }
-          *(double *)&_XMM0 = XModelGetLodOutDist(model);
-          __asm
+          clutterLodBias = v84->lodParamConsts.clutterLodBias;
+          LodOutDist = XModelGetLodOutDist(model);
+          p_layerSize = (float *)&v33->layerSize;
+          if ( R_ST_GetClutterTilesCovered(&coords, &v33->layerSize, (float)(*(float *)&LodOutDist - clutterLodBias) * v13, &v33->tileSizeUV, &tileStart, &v92) )
           {
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm6, xmm1, xmm10
-          }
-          _R13 = &_R14->layerSize;
-          __asm { vmovaps xmm2, xmm6; drawDistance }
-          if ( R_ST_GetClutterTilesCovered(&coords, &_R14->layerSize, *(const float *)&_XMM2, &_R14->tileSizeUV, &tileStart, &v132) )
-          {
-            v61 = surface;
+            v41 = surface;
             if ( surface->clutterSampleBitmask.wordCount )
             {
               streamKey = surface->clutterSampleBitmask.streamKey;
               if ( streamKey )
               {
                 if ( !Stream_GenericIsSafeToUse(streamKey) )
-                  goto LABEL_53;
-                v61 = surface;
+                  goto LABEL_52;
+                v41 = surface;
               }
-              ClutterTilesInstanceCount = R_ST_GetClutterTilesInstanceCount(v61, _R14, &tileStart, &v132);
+              ClutterTilesInstanceCount = R_ST_GetClutterTilesInstanceCount(v41, v33, &tileStart, &v92);
               if ( ClutterTilesInstanceCount )
                 break;
             }
           }
-LABEL_53:
-          _R13 = surface;
-          v18 = count_4;
-          LODWORD(v26) = v113;
-          LODWORD(v25) = v121;
-          v17 = v120;
-          v27 = v112;
+LABEL_52:
+          v15 = surface;
+          v11 = count_4;
+          LODWORD(v17) = v73;
+          LODWORD(v16) = v81;
+          v10 = v80;
+          v18 = v72;
         }
-        v119 = ClutterTilesInstanceCount + v54;
+        v79 = ClutterTilesInstanceCount + v37;
         size = rgp.world->smodels.clutterInstancePool.size;
-        if ( ClutterTilesInstanceCount + v54 <= size )
+        if ( ClutterTilesInstanceCount + v37 <= size )
           break;
         if ( size > 0x249F0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1997, ASSERT_TYPE_ASSERT, "(rgp.world->smodels.clutterInstancePool.size <= 150'000)", (const char *)&queryFormat, "rgp.world->smodels.clutterInstancePool.size <= MAX_GENERATED_CLUTTER_INSTANCES") )
           __debugbreak();
         R_WarnOncePerFrame(R_WARN_CLUTTER_GENERATION_LIMIT, rgp.world->smodels.clutterInstancePool.size);
-        _R13 = surface;
-        v18 = count_4;
-        LODWORD(v26) = v113;
-        LODWORD(v25) = v121;
-        v17 = v120;
-        v27 = v112;
+        v15 = surface;
+        v11 = count_4;
+        LODWORD(v17) = v73;
+        LODWORD(v16) = v81;
+        v10 = v80;
+        v18 = v72;
       }
-      v65 = (v51->flags & 8) != 0 && R_ReactiveMotion_UsesClutterPass(v125->reactiveMotionIndex);
+      v45 = (v34->flags & 8) != 0 && R_ReactiveMotion_UsesClutterPass(v85->reactiveMotionIndex);
       ClutterTilesCovered = 0;
-      v130 = 0i64;
-      if ( v65 )
+      v90 = 0i64;
+      if ( v45 )
       {
-        _RAX = (__int64)v124;
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rax+4F90h]
-          vmovss  xmm4, dword ptr [r14+1Ch]
-          vmovss  xmm0, dword ptr [rbp+160h+coords]
-          vdivss  xmm1, xmm0, dword ptr [r13+0]
-          vaddss  xmm2, xmm1, xmm9
-          vdivss  xmm3, xmm2, dword ptr [r14+10h]
-          vmovss  [rbp+160h+var_140], xmm3
-          vmovss  xmm0, dword ptr [rbp+160h+coords+4]
-          vdivss  xmm1, xmm0, xmm4
-          vsubss  xmm1, xmm9, xmm1
-          vdivss  xmm0, xmm1, dword ptr [r14+14h]
-          vmovss  [rbp+160h+var_13C], xmm0
-          vminss  xmm2, xmm5, xmm6; drawDistance
-        }
-        ClutterTilesCovered = R_ST_GetClutterTilesCovered(&coords, &_R14->layerSize, *(const float *)&_XMM2, &_R14->tileSizeUV, &v135, &v130);
+        _XMM5 = LODWORD(v84->lodParamConsts.vertexDeformCutOffDist);
+        v48 = v33->layerSize.v[1];
+        v98 = (float)((float)(coords.v[0] / *p_layerSize) + 0.5) / v33->tileSizeUV.v[0];
+        v99 = (float)(0.5 - (float)(coords.v[1] / v48)) / v33->tileSizeUV.v[1];
+        __asm { vminss  xmm2, xmm5, xmm6; drawDistance }
+        ClutterTilesCovered = R_ST_GetClutterTilesCovered(&coords, &v33->layerSize, *(const float *)&_XMM2, &v33->tileSizeUV, &v95, &v90);
         if ( ClutterTilesCovered )
         {
-          v78 = v130.v[1];
-          v79 = v130.v[0];
-          if ( (unsigned int)(v116 + 32 * v130.v[0] * v130.v[1]) >= 0xF00 )
+          v50 = v90.v[1];
+          v51 = v90.v[0];
+          if ( (unsigned int)(v76 + 32 * v90.v[0] * v90.v[1]) >= 0xF00 )
           {
             R_WarnOncePerFrame(R_WARN_CLUTTER_GENERATION_REACTIVE_TILES_OFFSET_LIMIT, 3840i64);
             ClutterTilesCovered = 0;
-            v78 = v130.v[1];
-            v79 = v130.v[0];
+            v50 = v90.v[1];
+            v51 = v90.v[0];
           }
-          v136 = v79 + v135.v[0];
-          v137 = v78 + v135.v[1];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r13+0]
-            vmulss  xmm2, xmm0, dword ptr [r14+10h]
-          }
-          _RAX = (__int64)v124;
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rax+4F90h]
-            vdivss  xmm2, xmm1, xmm2
-            vmulss  xmm0, xmm2, xmm2
-            vmovss  [rbp+160h+var_138], xmm0
-          }
-          v18 = count_4;
-          v141 = count_4;
-          v142 = v116;
-          v143 = 32 * v79;
+          v96 = v51 + v95.v[0];
+          v97 = v50 + v95.v[1];
+          v52 = v84->lodParamConsts.vertexDeformCutOffDist / (float)(*p_layerSize * v33->tileSizeUV.v[0]);
+          v100 = v52 * v52;
+          v11 = count_4;
+          v101 = count_4;
+          v102 = v76;
+          v103 = 32 * v51;
         }
         else
         {
-          v18 = count_4;
+          v11 = count_4;
         }
-        if ( v18 >= 0x28 )
+        if ( v11 >= 0x28 )
         {
           R_WarnOncePerFrame(R_WARN_CLUTTER_GENERATION_REACTIVE_LAYERS_LIMIT, 40i64);
           ClutterTilesCovered = 0;
@@ -3883,135 +3207,117 @@ LABEL_53:
       }
       else
       {
-        v18 = count_4;
+        v11 = count_4;
       }
-      v85 = reactiveMotionPass;
+      v53 = reactiveMotionPass;
       if ( reactiveMotionPass )
         break;
       if ( ClutterTilesCovered )
-        goto LABEL_78;
-      v88 = 0;
-      _R14 = surface;
-LABEL_80:
-      if ( v85 )
+        goto LABEL_77;
+      v56 = 0;
+      v55 = surface;
+LABEL_79:
+      if ( v53 )
       {
-        if ( !v88 )
+        if ( !v56 )
         {
-          _R13 = surface;
-LABEL_83:
-          v18 = count_4;
-          goto LABEL_84;
+          v15 = surface;
+LABEL_82:
+          v11 = count_4;
+          goto LABEL_83;
         }
-        tileStart = v135;
-        v132 = v130;
-        R_ReactiveMotion_GetClutterReactiveMotionModelInfoGPU(v125->reactiveMotionIndex, model, &clutterModelInfo);
+        tileStart = v95;
+        v92 = v90;
+        R_ReactiveMotion_GetClutterReactiveMotionModelInfoGPU(v85->reactiveMotionIndex, model, &clutterModelInfo);
         R_UploadAndSetComputeConstants(state, 3, &clutterModelInfo, 0x50u, NULL);
       }
-      v89 = ClutterTilesCovered && v65 && v88;
-      v90 = (unsigned __int8)v114;
-      if ( count_1 != v89 )
-        v90 = 1;
-      LODWORD(v114) = v90;
+      v57 = ClutterTilesCovered && v45 && v56;
+      v58 = (unsigned __int8)v74;
+      if ( count_1 != v57 )
+        v58 = 1;
+      LODWORD(v74) = v58;
       R_UploadAndSetComputeConstants(state, 1, dataa, 0x40u, NULL);
-      if ( (_BYTE)v114 )
+      if ( (_BYTE)v74 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14+28h]
-          vmovups [rbp+160h+var_120], xmm0
-          vmovsd  xmm1, qword ptr [r14+38h]
-          vmovsd  [rbp+160h+var_10C], xmm1
-        }
-        v147 = _R14->objToWld.origin.v[2];
-        __asm
-        {
-          vmulss  xmm0, xmm7, dword ptr [r13+0]
-          vmovss  [rbp+160h+var_F0], xmm0
-        }
-        R_UploadAndSetComputeConstants(state, 2, &v144, 0x40u, NULL);
-        _R13 = surface;
+        quat = v55->objToWld.quat;
+        v106 = *(_QWORD *)v55->objToWld.origin.v;
+        v107 = v55->objToWld.origin.v[2];
+        v112 = v14 * *p_layerSize;
+        R_UploadAndSetComputeConstants(state, 2, &quat, 0x40u, NULL);
+        v15 = surface;
         if ( !surface->heightMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 2079, ASSERT_TYPE_ASSERT, "(surface->heightMap)", (const char *)&queryFormat, "surface->heightMap") )
           __debugbreak();
-        v93 = v125;
-        textures = (GfxTexture *)R_Texture_Get(v125, _R13->heightMap->textureId);
+        v59 = v85;
+        textures = (GfxTexture *)R_Texture_Get(v85, v15->heightMap->textureId);
         R_SetComputeTextures(state, 0, 1, (const GfxTexture *const *)&textures);
-        if ( R_Texture_GetLevelCount(v93, (GfxTextureId)views->rwView) )
+        if ( R_Texture_GetLevelCount(v59, (GfxTextureId)views->rwView) )
         {
-          v128 = R_Texture_Get(v93, (GfxTextureId)views->rwView);
-          v94 = &v128;
+          v88 = R_Texture_Get(v59, (GfxTextureId)views->rwView);
+          v60 = &v88;
         }
         else
         {
-          v129[0] = (GfxTexture *)R_Texture_GetDefault();
-          v94 = (const GfxTexture *const *)v129;
+          v89[0] = (GfxTexture *)R_Texture_GetDefault();
+          v60 = (const GfxTexture *const *)v89;
         }
-        R_SetComputeTextures(state, 5, 1, v94);
-        p_view = &_R13->clutterLayersBuffer.view;
+        R_SetComputeTextures(state, 5, 1, v60);
+        p_view = &v15->clutterLayersBuffer.view;
         R_SetComputeViews(state, 2, 1, (const GfxShaderBufferView *const *)&p_view);
-        p_view = &_R13->clutterSampleBitmask.bitmaskBuffer.view;
+        p_view = &v15->clutterSampleBitmask.bitmaskBuffer.view;
         R_SetComputeViews(state, 4, 1, (const GfxShaderBufferView *const *)&p_view);
-        v95 = ClutterTilesCovered && v65 && v88;
-        count_1 = v95;
+        v61 = ClutterTilesCovered && v45 && v56;
+        count_1 = v61;
         if ( reactiveMotionPass )
         {
           R_SetComputeShader(state, rgp.gpReactiveMotionClutterGenPass);
-          LOBYTE(v96) = 0;
-          LODWORD(v114) = v96;
+          LOBYTE(v62) = 0;
+          LODWORD(v74) = v62;
         }
         else
         {
           gpClutterCollectionGenPassForReactiveMotionModels = rgp.gpClutterCollectionGenPassForReactiveMotionModels;
-          if ( !v95 )
+          if ( !v61 )
             gpClutterCollectionGenPassForReactiveMotionModels = rgp.gpClutterCollectionGenPass;
           R_SetComputeShader(state, gpClutterCollectionGenPassForReactiveMotionModels);
-          LOBYTE(v98) = 0;
-          LODWORD(v114) = v98;
+          LOBYTE(v64) = 0;
+          LODWORD(v74) = v64;
         }
       }
       else
       {
-        _R13 = surface;
+        v15 = surface;
       }
-      R_Dispatch(state, v132.v[0], v132.v[1], 0x20u);
+      R_Dispatch(state, v92.v[0], v92.v[1], 0x20u);
+      if ( !v45 )
+        goto LABEL_82;
+      v65 = v56 == 0;
+      v11 = count_4;
       if ( !v65 )
-        goto LABEL_83;
-      v99 = v88 == 0;
-      v18 = count_4;
-      if ( !v99 )
       {
-        v18 = ++count_4;
-        LODWORD(v116) = 32 * v130.v[0] * v130.v[1] + v116;
+        v11 = ++count_4;
+        LODWORD(v76) = 32 * v90.v[0] * v90.v[1] + v76;
       }
-LABEL_84:
-      LODWORD(p_view) = v119;
-      LODWORD(v26) = v113;
-      LODWORD(v25) = v121;
-      v17 = v120;
-      v27 = v112;
+LABEL_83:
+      LODWORD(p_view) = v79;
+      LODWORD(v17) = v73;
+      LODWORD(v16) = v81;
+      v10 = v80;
+      v18 = v72;
     }
-    if ( !v65 || !ClutterTilesCovered )
+    if ( !v45 || !ClutterTilesCovered )
     {
-      _R13 = surface;
-      goto LABEL_84;
+      v15 = surface;
+      goto LABEL_83;
     }
-LABEL_78:
-    v86 = _R14;
-    _R14 = surface;
-    v88 = R_ST_GetClutterTilesInstanceCount(surface, v86, &v135, &v130);
-    v85 = reactiveMotionPass;
-    goto LABEL_80;
+LABEL_77:
+    v54 = v33;
+    v55 = surface;
+    v56 = R_ST_GetClutterTilesInstanceCount(surface, v54, &v95, &v90);
+    v53 = reactiveMotionPass;
+    goto LABEL_79;
   }
-LABEL_116:
+LABEL_115:
   R_ProfEndNamedEvent(state);
-  _R11 = &v154;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -4216,57 +3522,51 @@ R_GP_GenerateSModelWorkgroups
 */
 void R_GP_GenerateSModelWorkgroups(ComputeCmdBufState *state, const GfxBackEndData *data, unsigned int passIndex, R_RT_BufferHandle *smodelWorkgroupCounterBuffer, R_RT_BufferHandle *smodelWorkgroupArgsBuffer)
 {
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
   const R_RT_Surface *Surface; 
-  unsigned int *v12; 
+  unsigned int *v10; 
   GfxWrappedRWBuffer *p_clutterCollectionGPUDataBuffer; 
   unsigned int rwView; 
   GfxShaderBufferView *p_view; 
   GfxShaderBufferRWView *p_rwView; 
-  GfxShaderBufferRWView *v17; 
-  R_RT_Handle v18; 
-  R_RT_Handle v19; 
+  GfxShaderBufferRWView *v15; 
+  R_RT_Handle v16; 
+  R_RT_Handle v17; 
   GfxShaderBufferRWView *views; 
-  GfxShaderBufferView *v21; 
+  GfxShaderBufferView *v19; 
 
-  _RSI = smodelWorkgroupCounterBuffer;
-  __asm { vmovups ymm0, ymmword ptr [r9] }
-  v8 = 20544i64 * data->smpFrame;
-  v9 = passIndex;
-  __asm { vmovups ymmword ptr [rsp+0B8h+var_68.m_surfaceID], ymm0 }
+  v7 = 20544i64 * data->smpFrame;
+  v8 = passIndex;
+  v16 = smodelWorkgroupCounterBuffer->R_RT_Handle;
   R_SetComputeShader(state, rgp.gpClearComputeIndirectArgs);
-  Surface = R_RT_Handle::GetSurface(&v18);
+  Surface = R_RT_Handle::GetSurface(&v16);
   if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
   views = &Surface->m_buffer.m_wrappedBuffer.rwView;
   R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
   R_Dispatch(state, 1u, 1u, 1u);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups [rsp+0B8h+var_48], ymm0
-  }
-  R_HW_AddResourceTransition(state, &v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v17 = smodelWorkgroupCounterBuffer->R_RT_Handle;
+  R_HW_AddResourceTransition(state, &v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  v12 = (unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[v9].visibleSModelCollectionCount + v8);
-  if ( *v12 )
+  v10 = (unsigned int *)((char *)&s_gpBackendFrameData[0].gpBackendPass[v8].visibleSModelCollectionCount + v7);
+  if ( *v10 )
   {
     p_clutterCollectionGPUDataBuffer = &rgp.world->smodels.clutterCollectionGPUDataBuffer;
     rwView = rgp.world->smodels.clutterCollectionGPUDataBuffer.rwView.rwView;
     if ( rwView == 3 || !rwView || !rgp.world->smodels.clutterCollectionGPUDataBuffer.data || rgp.world->smodels.clutterCollectionGPUDataBuffer.view.view <= 1 )
       p_clutterCollectionGPUDataBuffer = (GfxWrappedRWBuffer *)&gfxBuf.dummyStructuredBuffer8;
-    v21 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].smodelCollExpansionArgsBuffer.view + v9 * 8576 + v8);
-    R_SetComputeViews(state, 8, 1, (const GfxShaderBufferView *const *)&v21);
+    v19 = (GfxShaderBufferView *)((char *)&s_gpBackendFrameData[0].gpBackendPass[0].smodelCollExpansionArgsBuffer.view + v8 * 8576 + v7);
+    R_SetComputeViews(state, 8, 1, (const GfxShaderBufferView *const *)&v19);
     RB_ModelData_SetSModelCollectionsData(state, 9u);
     p_view = &p_clutterCollectionGPUDataBuffer->view;
     R_SetComputeViews(state, 18, 1, (const GfxShaderBufferView *const *)&p_view);
-    p_rwView = &R_RT_Handle::GetWrappedBuffer(_RSI)->rwView;
+    p_rwView = &R_RT_Handle::GetWrappedBuffer(smodelWorkgroupCounterBuffer)->rwView;
     R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-    v17 = &R_RT_Handle::GetWrappedBuffer(smodelWorkgroupArgsBuffer)->rwView;
-    R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&v17, NULL);
+    v15 = &R_RT_Handle::GetWrappedBuffer(smodelWorkgroupArgsBuffer)->rwView;
+    R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&v15, NULL);
     R_SetComputeShader(state, rgp.gpSModelWorkgroupGenPass);
-    R_Dispatch(state, *v12, 1u, 1u);
+    R_Dispatch(state, *v10, 1u, 1u);
   }
 }
 
@@ -4498,57 +3798,52 @@ R_GP_InitDrawIndirectArgs
 void R_GP_InitDrawIndirectArgs(ComputeCmdBufState *state, const GfxBackEndData *data, unsigned int passIndex, bool isPrepass, R_RT_BufferHandle *batchSubMeshOffsetsBuffer, R_RT_BufferHandle *subMeshClusterOffsetsBuffer, R_RT_BufferHandle *clusterTriOffsetsBuffer, R_RT_BufferHandle *indirectArgsBuffer)
 {
   __int64 smpFrame; 
-  unsigned __int64 v13; 
-  GPBackendFrameData *v14; 
+  unsigned __int64 v12; 
+  GPBackendFrameData *v13; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
-  _DWORD *v17; 
-  bool v18; 
-  int v19; 
+  _DWORD *v15; 
+  bool v16; 
+  int v17; 
   __int64 batchCount; 
   GfxShaderBufferView *views; 
-  R_RT_Handle *v22; 
+  R_RT_Handle *v20; 
   GfxShaderBufferView *p_view; 
-  R_RT_Handle *v24; 
-  GfxShaderBufferView *v25; 
+  R_RT_Handle *v22; 
+  GfxShaderBufferView *v23; 
   GfxShaderBufferRWView *p_rwView; 
-  R_RT_Handle v27; 
+  R_RT_Handle v25; 
   int dataa[8]; 
 
-  _RBP = indirectArgsBuffer;
-  v22 = subMeshClusterOffsetsBuffer;
-  v24 = clusterTriOffsetsBuffer;
+  v20 = subMeshClusterOffsetsBuffer;
+  v22 = clusterTriOffsetsBuffer;
   smpFrame = data->smpFrame;
-  v13 = passIndex;
-  v14 = &s_gpBackendFrameData[smpFrame];
-  if ( s_gpBackendFrameData[smpFrame].gpBackendPass[v13].batchCount )
+  v12 = passIndex;
+  v13 = &s_gpBackendFrameData[smpFrame];
+  if ( s_gpBackendFrameData[smpFrame].gpBackendPass[v12].batchCount )
   {
     WrappedBuffer = R_RT_Handle::GetWrappedBuffer(indirectArgsBuffer);
     R_GP_ClearBufferToZero(state, WrappedBuffer, 0x90000u, 0);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+0]
-      vmovups [rsp+0E8h+var_88], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v27, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v25 = indirectArgsBuffer->R_RT_Handle;
+    R_HW_AddResourceTransition(state, &v25, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
   }
-  v17 = (_DWORD *)((char *)s_gpBackendFrameData + v13 * 8576 + smpFrame * 20544);
-  if ( (v17[33] || (int)v17[16] > 0) && *v17 )
+  v15 = (_DWORD *)((char *)s_gpBackendFrameData + v12 * 8576 + smpFrame * 20544);
+  if ( (v15[33] || (int)v15[16] > 0) && *v15 )
   {
-    v18 = isPrepass && !passIndex;
-    dataa[0] = v14->gpBackendPass[v13].batchCount;
-    v19 = 2621440;
-    if ( v18 )
-      v19 = 7864320;
-    dataa[4] = v19;
+    v16 = isPrepass && !passIndex;
+    dataa[0] = v13->gpBackendPass[v12].batchCount;
+    v17 = 2621440;
+    if ( v16 )
+      v17 = 7864320;
+    dataa[4] = v17;
     R_UploadAndSetComputeConstants(state, 6, dataa, 0x20u, NULL);
-    batchCount = v14->gpBackendPass[v13].batchCount;
+    batchCount = v13->gpBackendPass[v12].batchCount;
     views = &R_RT_Handle::GetWrappedBuffer(batchSubMeshOffsetsBuffer)->view;
     R_SetComputeViews(state, 17, 1, (const GfxShaderBufferView *const *)&views);
-    p_view = &R_RT_Handle::GetWrappedBuffer(v22)->view;
+    p_view = &R_RT_Handle::GetWrappedBuffer(v20)->view;
     R_SetComputeViews(state, 21, 1, (const GfxShaderBufferView *const *)&p_view);
-    v25 = &R_RT_Handle::GetWrappedBuffer(v24)->view;
-    R_SetComputeViews(state, 15, 1, (const GfxShaderBufferView *const *)&v25);
+    v23 = &R_RT_Handle::GetWrappedBuffer(v22)->view;
+    R_SetComputeViews(state, 15, 1, (const GfxShaderBufferView *const *)&v23);
     p_rwView = &R_RT_Handle::GetWrappedBuffer(indirectArgsBuffer)->rwView;
     R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
     R_SetComputeShader(state, rgp.gpInitDrawIndirectArgs);
@@ -4758,12 +4053,13 @@ void R_GP_PrefixSum256(ComputeCmdBufState *state, const GfxBackEndData *data, un
   GPBackendPassData *v9; 
   R_RT_BufferHandle *v10; 
   unsigned __int64 v11; 
+  R_RT_BufferHandle *v12; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
-  const GfxWrappedRWBuffer *v16; 
+  const GfxWrappedRWBuffer *v14; 
   GfxShaderBufferRWView *p_rwView; 
-  GfxShaderBufferRWView *v18; 
-  R_RT_Handle v19; 
-  R_RT_Handle v20; 
+  GfxShaderBufferRWView *v16; 
+  R_RT_Handle v17; 
+  R_RT_Handle v18; 
   GfxShaderBufferView *views; 
 
   v9 = &s_gpBackendFrameData[data->smpFrame].gpBackendPass[passIndex];
@@ -4775,11 +4071,11 @@ void R_GP_PrefixSum256(ComputeCmdBufState *state, const GfxBackEndData *data, un
       __debugbreak();
     views = &R_RT_Handle::GetWrappedBuffer(countsBuffer)->view;
     R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&views);
-    _R14 = reduceBuffer;
+    v12 = reduceBuffer;
     p_rwView = &R_RT_Handle::GetWrappedBuffer(reduceBuffer)->rwView;
     R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-    v18 = &R_RT_Handle::GetWrappedBuffer(offsetsBuffer)->rwView;
-    R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&v18, NULL);
+    v16 = &R_RT_Handle::GetWrappedBuffer(offsetsBuffer)->rwView;
+    R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&v16, NULL);
     R_SetComputeShader(state, rgp.prefixSumUpsweep256);
     if ( v10->m_surfaceID )
     {
@@ -4790,27 +4086,19 @@ void R_GP_PrefixSum256(ComputeCmdBufState *state, const GfxBackEndData *data, un
     {
       R_Dispatch(state, v11, 1u, 1u);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups [rsp+98h+var_58], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v17 = v12->R_RT_Handle;
+    R_HW_AddResourceTransition(state, &v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_SetComputeShader(state, rgp.prefixSumResolve256);
     R_Dispatch(state, 1u, 1u, 1u);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups [rsp+98h+var_38], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v20, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v18 = v12->R_RT_Handle;
+    R_HW_AddResourceTransition(state, &v18, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_SetComputeShader(state, rgp.prefixSumDownsweep256);
     if ( v10->m_surfaceID )
     {
-      v16 = R_RT_Handle::GetWrappedBuffer(v10);
-      R_DispatchIndirect(state, v16->buffer, 0);
+      v14 = R_RT_Handle::GetWrappedBuffer(v10);
+      R_DispatchIndirect(state, v14->buffer, 0);
     }
     else
     {
@@ -4829,12 +4117,13 @@ void R_GP_PrefixSum512(ComputeCmdBufState *state, const GfxBackEndData *data, un
   GPBackendPassData *v9; 
   R_RT_BufferHandle *v10; 
   unsigned __int64 v11; 
+  R_RT_BufferHandle *v12; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
-  const GfxWrappedRWBuffer *v16; 
+  const GfxWrappedRWBuffer *v14; 
   GfxShaderBufferRWView *p_rwView; 
-  GfxShaderBufferRWView *v18; 
-  R_RT_Handle v19; 
-  R_RT_Handle v20; 
+  GfxShaderBufferRWView *v16; 
+  R_RT_Handle v17; 
+  R_RT_Handle v18; 
   GfxShaderBufferView *views; 
 
   v9 = &s_gpBackendFrameData[data->smpFrame].gpBackendPass[passIndex];
@@ -4846,11 +4135,11 @@ void R_GP_PrefixSum512(ComputeCmdBufState *state, const GfxBackEndData *data, un
       __debugbreak();
     views = &R_RT_Handle::GetWrappedBuffer(countsBuffer)->view;
     R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&views);
-    _R14 = reduceBuffer;
+    v12 = reduceBuffer;
     p_rwView = &R_RT_Handle::GetWrappedBuffer(reduceBuffer)->rwView;
     R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&p_rwView, NULL);
-    v18 = &R_RT_Handle::GetWrappedBuffer(offsetsBuffer)->rwView;
-    R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&v18, NULL);
+    v16 = &R_RT_Handle::GetWrappedBuffer(offsetsBuffer)->rwView;
+    R_SetComputeRWViewsWithCounters(state, 1, 1, (const GfxShaderBufferRWView *const *)&v16, NULL);
     R_SetComputeShader(state, rgp.prefixSumUpsweep512);
     if ( v10->m_surfaceID )
     {
@@ -4861,27 +4150,19 @@ void R_GP_PrefixSum512(ComputeCmdBufState *state, const GfxBackEndData *data, un
     {
       R_Dispatch(state, v11, 1u, 1u);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups [rsp+98h+var_58], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v17 = v12->R_RT_Handle;
+    R_HW_AddResourceTransition(state, &v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_SetComputeShader(state, rgp.prefixSumResolve512);
     R_Dispatch(state, 1u, 1u, 1u);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups [rsp+98h+var_38], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v20, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v18 = v12->R_RT_Handle;
+    R_HW_AddResourceTransition(state, &v18, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_SetComputeShader(state, rgp.prefixSumDownsweep512);
     if ( v10->m_surfaceID )
     {
-      v16 = R_RT_Handle::GetWrappedBuffer(v10);
-      R_DispatchIndirect(state, v16->buffer, 0);
+      v14 = R_RT_Handle::GetWrappedBuffer(v10);
+      R_DispatchIndirect(state, v14->buffer, 0);
     }
     else
     {
@@ -4899,18 +4180,18 @@ void R_GP_ReadBackGPStats(ComputeCmdBufState *state, const GfxBackEndData *data,
 {
   __int64 v14; 
   GPBackendPassData *v15; 
-  R_RT_BufferHandle v34; 
-  R_RT_BufferHandle v35; 
-  R_RT_BufferHandle v36; 
-  R_RT_BufferHandle v37; 
-  R_RT_BufferHandle v38; 
-  R_RT_BufferHandle v39; 
-  R_RT_BufferHandle v40; 
-  R_RT_BufferHandle v41; 
-  R_RT_BufferHandle v42; 
-  R_RT_BufferHandle v43; 
+  R_RT_BufferHandle v16; 
+  R_RT_BufferHandle v17; 
+  R_RT_BufferHandle v18; 
+  R_RT_BufferHandle v19; 
+  R_RT_BufferHandle v20; 
+  R_RT_BufferHandle v21; 
+  R_RT_BufferHandle v22; 
+  R_RT_BufferHandle v23; 
+  R_RT_BufferHandle v24; 
+  R_RT_BufferHandle v25; 
+  R_RT_BufferHandle v26; 
 
-  _R15 = batchSubMeshOffsetsBuffer;
   v14 = passIndex;
   v15 = &s_gpBackendFrameData[data->smpFrame].gpBackendPass[passIndex];
   if ( rg.stats && r_gpShowStats->current.integer && (v15->dynSurfCount || v15->visibleSModelCollectionCount > 0) && v15->batchCount )
@@ -4922,57 +4203,22 @@ void R_GP_ReadBackGPStats(ComputeCmdBufState *state, const GfxBackEndData *data,
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 3022, ASSERT_TYPE_ASSERT, "(passIndex == GFX_GP_PASS_CAMERA)", (const char *)&queryFormat, "passIndex == GFX_GP_PASS_CAMERA") )
           __debugbreak();
       }
-      _RAX = indirectArgsBuffer;
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      _RAX = clusterTriOffsetsBuffer;
-      __asm
-      {
-        vmovups [rsp+1A8h+var_158], ymm0
-        vmovups ymm1, ymmword ptr [rax]
-      }
-      _RAX = subMeshClusterOffsetsBuffer;
-      __asm
-      {
-        vmovups [rsp+1A8h+var_138], ymm1
-        vmovups ymm1, ymmword ptr [r15]
-        vmovups [rsp+1A8h+var_F8], ymm1
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups [rsp+1A8h+var_118], ymm0
-      }
-      R_GP_ReadBackGPStats_PostOcclusion(state, data, passIndex, &v37, &v36, &v35, &v34);
+      v17 = *indirectArgsBuffer;
+      v18 = *clusterTriOffsetsBuffer;
+      v20 = *batchSubMeshOffsetsBuffer;
+      v19 = *subMeshClusterOffsetsBuffer;
+      R_GP_ReadBackGPStats_PostOcclusion(state, data, passIndex, &v20, &v19, &v18, &v17);
     }
     else
     {
-      _RAX = indirectArgsBuffer;
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      _RAX = smodelSurfCountBuffer;
-      __asm
-      {
-        vmovups [rsp+1A8h+var_D8], ymm0
-        vmovups ymm1, ymmword ptr [rax]
-      }
-      _RAX = smodelSurfEmitCountBuffer;
-      __asm
-      {
-        vmovups [rsp+1A8h+var_B8], ymm1
-        vmovups ymm0, ymmword ptr [rax]
-      }
-      _RAX = clusterTriOffsetsBuffer;
-      __asm
-      {
-        vmovups [rsp+1A8h+var_98], ymm0
-        vmovups ymm1, ymmword ptr [rax]
-      }
-      _RAX = subMeshClusterOffsetsBuffer;
-      __asm
-      {
-        vmovups [rsp+1A8h+var_78], ymm1
-        vmovups ymm1, ymmword ptr [r9]
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups [rsp+1A8h+var_58], ymm0
-        vmovups [rsp+1A8h+var_38], ymm1
-      }
-      R_GP_ReadBackGPStats_PreOcclusion(state, data, passIndex, &v43, &v42, &v41, &v40, &v39, &v38);
+      v21 = *indirectArgsBuffer;
+      v22 = *smodelSurfCountBuffer;
+      v23 = *smodelSurfEmitCountBuffer;
+      v24 = *clusterTriOffsetsBuffer;
+      v16 = *batchSubMeshOffsetsBuffer;
+      v25 = *subMeshClusterOffsetsBuffer;
+      v26 = v16;
+      R_GP_ReadBackGPStats_PreOcclusion(state, data, passIndex, &v26, &v25, &v24, &v23, &v22, &v21);
       if ( passIndex != 1 )
       {
 LABEL_13:
@@ -5262,6 +4508,7 @@ void R_GenerateGPArgsForRigidBatch(const GfxBackEndData *data, GPFrontendData *g
 {
   unsigned __int8 *surfsBuffer; 
   __int64 firstSurf; 
+  unsigned __int8 *v11; 
   int v12; 
   __int64 v13; 
   unsigned int v14; 
@@ -5276,10 +4523,10 @@ void R_GenerateGPArgsForRigidBatch(const GfxBackEndData *data, GPFrontendData *g
   unsigned __int16 v23; 
   __int64 v24; 
   __int64 v25; 
-  GfxPerDynSurfData *v27; 
+  GfxPerDynSurfData *v26; 
   Bounds *bounds; 
-  unsigned int v29; 
-  __int64 v30; 
+  unsigned int v28; 
+  __int64 v29; 
   __int16 gpBatcha; 
 
   if ( gpFrontend != (GPFrontendData *)gpFrontend->typed[0].surfsBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1349, ASSERT_TYPE_ASSERT, "(gpFrontend->rigidSurfs == gpFrontend->typed[GP_SURF_RIGID].surfsBuffer)", (const char *)&queryFormat, "gpFrontend->rigidSurfs == gpFrontend->typed[GP_SURF_RIGID].surfsBuffer") )
@@ -5288,19 +4535,19 @@ void R_GenerateGPArgsForRigidBatch(const GfxBackEndData *data, GPFrontendData *g
   firstSurf = gpBatch->firstSurf;
   if ( !gpBackendPass->perDynSurfDataGPU && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1359, ASSERT_TYPE_ASSERT, "(gpBackendPass->perDynSurfDataGPU)", (const char *)&queryFormat, "gpBackendPass->perDynSurfDataGPU") )
     __debugbreak();
-  _RDI = &surfsBuffer[gpFrontend->rigidSurfs[firstSurf].objID];
-  v12 = -3 - *(_DWORD *)_RDI;
-  v13 = *((_QWORD *)_RDI + 7);
-  v30 = v13;
-  if ( v12 > 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", -3 - *(_DWORD *)_RDI, 128) )
+  v11 = &surfsBuffer[gpFrontend->rigidSurfs[firstSurf].objID];
+  v12 = -3 - *(_DWORD *)v11;
+  v13 = *((_QWORD *)v11 + 7);
+  v29 = v13;
+  if ( v12 > 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", -3 - *(_DWORD *)v11, 128) )
     __debugbreak();
   if ( gpBatch->surfCount != v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1365, ASSERT_TYPE_ASSERT, "(gpBatch.surfCount == R_GetModelRigidSurfaceChildCount( rigidSurf ))", (const char *)&queryFormat, "gpBatch.surfCount == R_GetModelRigidSurfaceChildCount( rigidSurf )") )
     __debugbreak();
   v14 = gpBatch->firstSurf + gpBackendPass->surfIndexOffsets[0];
-  v29 = v14;
+  v28 = v14;
   if ( v14 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1369, ASSERT_TYPE_ASSERT, "(R_GP_IsValidGPUSurfIndex( globalFirstSurf ))", (const char *)&queryFormat, "R_GP_IsValidGPUSurfIndex( globalFirstSurf )") )
     __debugbreak();
-  v15 = *((_WORD *)_RDI + 52);
+  v15 = *((_WORD *)v11 + 52);
   gpBatcha = v15;
   if ( v15 == -1 && gpBatch->surfCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1374, ASSERT_TYPE_ASSERT, "(gpBatch.surfCount == 1)", (const char *)&queryFormat, "gpBatch.surfCount == 1") )
     __debugbreak();
@@ -5318,7 +4565,7 @@ void R_GenerateGPArgsForRigidBatch(const GfxBackEndData *data, GPFrontendData *g
       if ( v18 >= 0x10000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1386, ASSERT_TYPE_ASSERT, "(globalSurfIndex < ( 65536 ))", (const char *)&queryFormat, "globalSurfIndex < GP_SURF_LIMIT") )
         __debugbreak();
       v20 = 32i64 * v16;
-      v21 = (const GfxPlacementPrecise *)&_RDI[v20 + 76];
+      v21 = (const GfxPlacementPrecise *)&v11[v20 + 76];
       if ( v15 == -1 )
       {
         v22 = *(_WORD *)(v13 + 4);
@@ -5326,33 +4573,32 @@ void R_GenerateGPArgsForRigidBatch(const GfxBackEndData *data, GPFrontendData *g
       }
       else
       {
-        v24 = (unsigned int)*(__int16 *)&_RDI[v20 + 104];
+        v24 = (unsigned int)*(__int16 *)&v11[v20 + 104];
         v25 = *(_QWORD *)(v13 + 88);
         v23 = *(_WORD *)(v25 + 8 * v24 + 4);
         v22 = *(_WORD *)(v25 + 8 * v24 + 6);
       }
-      __asm { vmovss  xmm3, dword ptr [rdi+48h]; scale }
-      R_PopulateRigidSurfCullArgs(gpBackendPass, v19, v21, *(const float *)&_XMM3, bounds);
-      if ( v23 + (unsigned int)v22 > *(unsigned __int16 *)(v30 + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1409, ASSERT_TYPE_ASSERT, "(triOffset + triCount <= xsurf->triCount)", (const char *)&queryFormat, "triOffset + triCount <= xsurf->triCount") )
+      R_PopulateRigidSurfCullArgs(gpBackendPass, v19, v21, *((const float *)v11 + 18), bounds);
+      if ( v23 + (unsigned int)v22 > *(unsigned __int16 *)(v29 + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1409, ASSERT_TYPE_ASSERT, "(triOffset + triCount <= xsurf->triCount)", (const char *)&queryFormat, "triOffset + triCount <= xsurf->triCount") )
         __debugbreak();
       ++v16;
-      v27 = &gpBackendPass->perDynSurfDataGPU[v18];
-      v14 = v29;
-      *(_QWORD *)&v27->childID = 0i64;
-      *(_QWORD *)&v27->triOffset = 0i64;
-      *(_QWORD *)&v27->skinnedCacheOffset = 0i64;
-      *(_QWORD *)&v27->mayhemSelfVisInfo = 0i64;
-      v27->childID = v17;
-      v27->viewType = gpBatch->sceneViewType;
-      v27->cullType = gpBatch->cullType;
-      v27->triCount = v22;
-      v13 = v30;
-      v27->triOffset = v23;
+      v26 = &gpBackendPass->perDynSurfDataGPU[v18];
+      v14 = v28;
+      *(_QWORD *)&v26->childID = 0i64;
+      *(_QWORD *)&v26->triOffset = 0i64;
+      *(_QWORD *)&v26->skinnedCacheOffset = 0i64;
+      *(_QWORD *)&v26->mayhemSelfVisInfo = 0i64;
+      v26->childID = v17;
+      v26->viewType = gpBatch->sceneViewType;
+      v26->cullType = gpBatch->cullType;
+      v26->triCount = v22;
+      v13 = v29;
+      v26->triOffset = v23;
       v15 = gpBatcha;
-      v27->ugbID = *(_WORD *)(v30 + 10);
-      v27->batchIndex = batchIndex;
-      v27->mayhemVBOffset = *((_DWORD *)_RDI + 1);
-      v27->mayhemSelfVisInfo = *((_DWORD *)_RDI + 2);
+      v26->ugbID = *(_WORD *)(v29 + 10);
+      v26->batchIndex = batchIndex;
+      v26->mayhemVBOffset = *((_DWORD *)v11 + 1);
+      v26->mayhemSelfVisInfo = *((_DWORD *)v11 + 2);
     }
     while ( v16 < gpBatch->surfCount );
   }
@@ -5376,9 +4622,9 @@ void R_GenerateGPArgsForSkinnedBatch(const GfxBackEndData *data, GPFrontendData 
   vec3_t *GPBufferPtr_vec3_t; 
   vec3_t *v18; 
   vec4_t *GPBufferPtr_vec4_t; 
-  int v31; 
-  int v32; 
-  int v33; 
+  vec4_t *v20; 
+  float v21; 
+  float v22; 
 
   if ( gpFrontend->skinnedSurfs != gpFrontend->typed[1].surfsBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1434, ASSERT_TYPE_ASSERT, "(gpFrontend->skinnedSurfs == gpFrontend->typed[GP_SURF_SKINNED].surfsBuffer)", (const char *)&queryFormat, "gpFrontend->skinnedSurfs == gpFrontend->typed[GP_SURF_SKINNED].surfsBuffer") )
     __debugbreak();
@@ -5418,34 +4664,14 @@ void R_GenerateGPArgsForSkinnedBatch(const GfxBackEndData *data, GPFrontendData 
   v18->v[1] = (float)v16[37];
   v18->v[2] = (float)v16[38];
   GPBufferPtr_vec4_t = R_GetGPBufferPtr_vec4_t_(skinnedSurfCullArgsGPU, 16 * v14, 0x38000u);
-  _RDX = R_GetGPBufferPtr_vec4_t_(skinnedSurfCullArgsGPU, 16 * (v14 + 4096), 0x38000u);
-  __asm { vmovss  xmm2, cs:__real@45800000 }
+  v20 = R_GetGPBufferPtr_vec4_t_(skinnedSurfCullArgsGPU, 16 * (v14 + 4096), 0x38000u);
   *GPBufferPtr_vec4_t = *(vec4_t *)(v11 + 76);
-  __asm
-  {
-    vmulss  xmm0, xmm2, dword ptr [rdi+5Ch]
-    vcvttss2si ecx, xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+60h]
-    vcvttss2si eax, xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+64h]
-  }
-  v32 = _EAX;
-  __asm
-  {
-    vcvttss2si eax, xmm0
-    vmovss  xmm0, [rsp+78h+var_44]
-  }
-  v31 = _ECX;
-  __asm { vmovss  xmm1, [rsp+78h+var_48] }
-  v33 = _EAX;
-  __asm
-  {
-    vmovss  dword ptr [rdx], xmm1
-    vmovss  xmm1, [rsp+78h+var_40]
-    vmovss  dword ptr [rdx+8], xmm1
-    vmovss  dword ptr [rdx+4], xmm0
-  }
-  _RDX->v[3] = 1.0;
+  LODWORD(v21) = (int)(float)(4096.0 * *((float *)v11 + 24));
+  LODWORD(v22) = (int)(float)(4096.0 * *((float *)v11 + 25));
+  v20->v[0] = (int)(float)(4096.0 * *((float *)v11 + 23));
+  v20->v[2] = v22;
+  v20->v[1] = v21;
+  v20->v[3] = 1.0;
 }
 
 /*
@@ -5627,113 +4853,63 @@ void R_GenerateGPUArgsWorker(const void *const data)
 R_PopulateRigidSurfCullArgs
 ==============
 */
-
-void __fastcall R_PopulateRigidSurfCullArgs(GPBackendPassData *gpBackendPass, unsigned int rigidSurfIndex, const GfxPlacementPrecise *precisePlacement, double scale, const Bounds *bounds)
+void R_PopulateRigidSurfCullArgs(GPBackendPassData *gpBackendPass, unsigned int rigidSurfIndex, const GfxPlacementPrecise *precisePlacement, const float scale, const Bounds *bounds)
 {
   unsigned __int8 *rigidSurfCullArgsGPU; 
-  unsigned int v32; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int128 v15; 
+  unsigned int v21; 
   vec3_t *GPBufferPtr_vec3_t; 
-  vec3_t *v38; 
-  int v60; 
-  int v61; 
-  int v62; 
-  char v65; 
-  void *retaddr; 
+  vec3_t *v26; 
+  vec4_t *GPBufferPtr_vec4_t; 
+  vec4_t *v28; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0E8h+var_88], xmm12
-    vmovaps [rsp+0E8h+var_98], xmm13
-    vmovsd  xmm2, cs:__real@3f30000000000000
-  }
   rigidSurfCullArgsGPU = gpBackendPass->rigidSurfCullArgsGPU;
+  v6 = precisePlacement->quat.v[0];
+  v7 = precisePlacement->quat.v[1];
+  v8 = precisePlacement->quat.v[2];
+  v9 = precisePlacement->quat.v[3];
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, dword ptr [r8+10h] }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, dword ptr [r8+14h] }
+  *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v15 = *(double *)&_XMM0 * 0.000244140625;
+  _XMM0 = v15;
+  __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
+  *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v15 = *(double *)&_XMM1 * 0.000244140625;
+  _XMM0 = v15;
+  _XMM1 = 0i64;
   __asm
   {
-    vmovss  xmm10, dword ptr [r8]
-    vmovss  xmm11, dword ptr [r8+4]
-    vmovss  xmm12, dword ptr [r8+8]
-    vmovss  xmm13, dword ptr [r8+0Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, dword ptr [r8+10h]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, dword ptr [r8+14h]
-    vmulsd  xmm0, xmm0, xmm2
-    vcvtsd2ss xmm7, xmm0, xmm0
-    vmulsd  xmm0, xmm1, xmm2
-    vxorps  xmm1, xmm1, xmm1
     vcvtsi2sd xmm1, xmm1, dword ptr [r8+18h]
     vcvtsd2ss xmm8, xmm0, xmm0
   }
-  v32 = 12 * rigidSurfIndex;
-  __asm
-  {
-    vmulsd  xmm0, xmm1, xmm2
-    vcvtsd2ss xmm9, xmm0, xmm0
-    vmovaps xmm6, xmm3
-  }
+  v21 = 12 * rigidSurfIndex;
+  *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v15 = *(double *)&_XMM1 * 0.000244140625;
+  _XMM0 = v15;
+  __asm { vcvtsd2ss xmm9, xmm0, xmm0 }
   GPBufferPtr_vec3_t = R_GetGPBufferPtr_vec3_t_(rigidSurfCullArgsGPU, 12 * rigidSurfIndex + 0x40000, 0x70000u);
-  v38 = R_GetGPBufferPtr_vec3_t_(rigidSurfCullArgsGPU, v32 + 360448, 0x70000u);
-  _RBX = R_GetGPBufferPtr_vec4_t_(rigidSurfCullArgsGPU, 16 * rigidSurfIndex, 0x70000u);
-  _RDI = R_GetGPBufferPtr_vec4_t_(rigidSurfCullArgsGPU, 16 * (rigidSurfIndex + 0x2000), 0x70000u);
+  v26 = R_GetGPBufferPtr_vec3_t_(rigidSurfCullArgsGPU, v21 + 360448, 0x70000u);
+  GPBufferPtr_vec4_t = R_GetGPBufferPtr_vec4_t_(rigidSurfCullArgsGPU, 16 * rigidSurfIndex, 0x70000u);
+  v28 = R_GetGPBufferPtr_vec4_t_(rigidSurfCullArgsGPU, 16 * (rigidSurfIndex + 0x2000), 0x70000u);
   if ( rigidSurfIndex >= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_pipeline.cpp", 1294, ASSERT_TYPE_ASSERT, "(rigidSurfIndex < GP_SURF_RIGID_COUNT)", (const char *)&queryFormat, "rigidSurfIndex < GP_SURF_RIGID_COUNT") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@45800000
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm8, xmm2
-  }
   *GPBufferPtr_vec3_t = bounds->halfSize;
-  *(_QWORD *)v38->v = *(_QWORD *)bounds->midPoint.v;
-  v38->v[2] = bounds->midPoint.v[2];
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm10
-    vmovss  dword ptr [rbx+4], xmm11
-    vmovss  dword ptr [rbx+8], xmm12
-    vcvttss2si eax, xmm0
-    vmovss  dword ptr [rbx+0Ch], xmm13
-  }
-  v60 = _EAX;
-  __asm
-  {
-    vcvttss2si eax, xmm1
-    vmovss  xmm1, [rsp+0E8h+var_B8]
-    vmulss  xmm0, xmm9, xmm2
-  }
-  v61 = _EAX;
-  __asm
-  {
-    vcvttss2si eax, xmm0
-    vmovss  xmm0, [rsp+0E8h+var_B4]
-  }
-  v62 = _EAX;
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm1, [rsp+0E8h+var_B0]
-    vmovss  dword ptr [rdi+8], xmm1
-    vmovss  dword ptr [rdi+4], xmm0
-    vmovss  dword ptr [rdi+0Ch], xmm6
-  }
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  *(_QWORD *)v26->v = *(_QWORD *)bounds->midPoint.v;
+  v26->v[2] = bounds->midPoint.v[2];
+  GPBufferPtr_vec4_t->v[0] = v6;
+  GPBufferPtr_vec4_t->v[1] = v7;
+  GPBufferPtr_vec4_t->v[2] = v8;
+  GPBufferPtr_vec4_t->v[3] = v9;
+  v28->v[0] = (int)(float)(*(float *)&_XMM7 * 4096.0);
+  v28->v[2] = (int)(float)(*(float *)&_XMM9 * 4096.0);
+  v28->v[1] = (int)(float)(*(float *)&_XMM8 * 4096.0);
+  v28->v[3] = scale;
 }
 

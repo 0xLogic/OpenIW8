@@ -309,59 +309,77 @@ CG_PlayADSSounds
 void CG_PlayADSSounds(const LocalClientNum_t localClientNum, const Weapon *weapon, const bool isAlternate, const playerState_s *ps, centity_t *cent)
 {
   cg_t *LocalClientGlobals; 
-  const WeaponDef *v13; 
+  const WeaponDef *v11; 
   CgWeaponMap *Instance; 
+  __int64 v13; 
+  __int64 v14; 
+  double v15; 
   AdsSoundState adsSoundState; 
   __int32 v17; 
+  const SndAliasList *v18; 
   unsigned __int64 SndEntHandle; 
+  unsigned __int64 v20; 
+  const SndAliasList *WeaponSoundWithWeaponSfxPackageFallback; 
   int number; 
   int centa; 
+  CgSoundSystem *centb; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 434, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   number = cent->nextState.number;
   centa = LocalClientGlobals->predictedPlayerState.clientNum;
-  v13 = BG_WeaponDef(weapon, isAlternate);
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 441, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+  v11 = BG_WeaponDef(weapon, isAlternate);
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 441, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( v13->sfxPackage )
+  if ( v11->sfxPackage )
   {
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    if ( centa != number || ps || (ps = &LocalClientGlobals->predictedPlayerState, LocalClientGlobals->renderingThirdPerson) || BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState) )
+    v13 = 1i64;
+    v14 = 1i64;
+    if ( centa == number && !ps )
     {
-      CgSoundSystem::GetSoundSystem(localClientNum);
-      if ( ps )
+      ps = &LocalClientGlobals->predictedPlayerState;
+      if ( !LocalClientGlobals->renderingThirdPerson && !BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState) )
+        return;
+      v13 = 0i64;
+      v14 = 0i64;
+    }
+    centb = CgSoundSystem::GetSoundSystem(localClientNum);
+    if ( !ps )
+      return;
+    v15 = BG_WeaponADSFractionAffectedByReload(Instance, ps);
+    adsSoundState = LocalClientGlobals->adsSoundState;
+    if ( adsSoundState == ADSSS_NOT_IN_ADS )
+    {
+      if ( *(float *)&v15 <= 0.0 )
+        return;
+      WeaponSoundWithWeaponSfxPackageFallback = BG_GetWeaponSoundWithWeaponSfxPackageFallback(weapon, isAlternate, 8 * v14 + 576);
+      CgSoundSystem::PlayEntitySoundAlias(centb, cent->nextState.number, WeaponSoundWithWeaponSfxPackageFallback);
+      goto LABEL_25;
+    }
+    v17 = adsSoundState - 1;
+    if ( v17 )
+    {
+      if ( v17 == 1 && *(float *)&v15 < 1.0 )
       {
-        *(double *)&_XMM0 = BG_WeaponADSFractionAffectedByReload(Instance, ps);
-        adsSoundState = LocalClientGlobals->adsSoundState;
-        __asm { vmovaps xmm1, xmm0 }
-        if ( adsSoundState )
-        {
-          v17 = adsSoundState - 1;
-          if ( v17 )
-          {
-            if ( v17 == 1 )
-              __asm { vcomiss xmm0, cs:__real@3f800000 }
-          }
-          else
-          {
-            __asm { vucomiss xmm1, cs:__real@3f800000 }
-            SndEntHandle = CG_GenerateSndEntHandle(localClientNum, cent->nextState.number);
-            __asm { vxorps  xmm3, xmm3, xmm3; fadeTime }
-            SND_SetEntContext(SndEntHandle, v13->sfxPackage->adsContextType, v13->sfxPackage->adsContextValue, *(float *)&_XMM3);
-            LocalClientGlobals->adsSoundState = ADSSS_IN_ADS;
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcomiss xmm1, xmm0
-          }
-        }
+        v18 = BG_GetWeaponSoundWithWeaponSfxPackageFallback(weapon, isAlternate, 8 * v13 + 592);
+        CgSoundSystem::PlayEntitySoundAlias(centb, cent->nextState.number, v18);
+        SndEntHandle = CG_GenerateSndEntHandle(localClientNum, cent->nextState.number);
+        SND_SetEntContext(SndEntHandle, v11->sfxPackage->adsContextType, 0, 0.0);
+LABEL_25:
+        LocalClientGlobals->adsSoundState = ADSSS_TRANSITIONING_ADS;
       }
+    }
+    else if ( *(float *)&v15 == 1.0 )
+    {
+      v20 = CG_GenerateSndEntHandle(localClientNum, cent->nextState.number);
+      SND_SetEntContext(v20, v11->sfxPackage->adsContextType, v11->sfxPackage->adsContextValue, 0.0);
+      LocalClientGlobals->adsSoundState = ADSSS_IN_ADS;
+    }
+    else if ( *(float *)&v15 == 0.0 )
+    {
+      LocalClientGlobals->adsSoundState = ADSSS_NOT_IN_ADS;
     }
   }
 }
@@ -373,337 +391,268 @@ CG_PlayContinuousFireSounds
 */
 void CG_PlayContinuousFireSounds(const LocalClientNum_t localClientNum, const playerState_s *ps, centity_t *cent)
 {
+  __int64 v5; 
   __int64 v6; 
-  __int64 v7; 
-  CgWeaponMap *v8; 
+  CgWeaponMap *v7; 
   const Weapon *ViewmodelWeapon; 
   bool inAltWeaponMode; 
-  const char *v12; 
+  const dvar_t *v10; 
+  const char *v11; 
   int number; 
-  cg_t *v17; 
+  cg_t *v13; 
   int clientNum; 
   CgSoundSystem *SoundSystem; 
   weapFireType_t WeaponFireType; 
   int WeaponHandForViewWeapon; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v18; 
+  __int64 v19; 
   int *p_weaponState; 
-  __int64 v25; 
-  unsigned __int64 v26; 
+  __int64 v21; 
+  unsigned __int64 v22; 
   const SndAliasList *WeaponSoundWithFallback; 
-  unsigned __int8 v29; 
-  const SndAliasList *v30; 
-  const char *v31; 
-  SndAliasList *v32; 
-  const SndAliasList *v35; 
-  const SndAliasList *v36; 
-  const char *v37; 
-  SndAliasList *v38; 
+  unsigned __int8 v24; 
+  const SndAliasList *v25; 
   const char *name; 
   SndAliasList *Alias; 
-  int fmt; 
-  int fmta; 
-  int fmtb; 
-  int fmtc; 
-  int fmtd; 
-  int fmte; 
-  int fmtf; 
-  __int64 v51; 
-  int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  __int64 v59; 
-  CgWeaponSystem *v60; 
-  CgCompassSystem *v61; 
+  const SndAliasList *v28; 
+  const SndAliasList *v29; 
+  const char *v30; 
+  const char *v31; 
+  __int64 v32; 
+  __int64 v33; 
+  CgWeaponSystem *v34; 
+  CgCompassSystem *v35; 
   BgWeaponMap *weaponMap; 
   vec3_t outOrigin; 
-  __int64 v64; 
-  unsigned __int8 v66; 
+  __int64 v38; 
+  unsigned __int8 v39; 
   cg_t *LocalClientGlobals; 
-  char v68; 
-  int v69; 
+  char v41; 
+  unsigned int v42; 
   Weapon *r_weapon; 
 
-  v64 = -2i64;
-  __asm { vmovaps [rsp+0C8h+var_58], xmm6 }
-  v6 = localClientNum;
+  v38 = -2i64;
+  v5 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 265, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  v7 = v6;
-  if ( !CgWeaponMap::ms_instance[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v6 = v5;
+  if ( !CgWeaponMap::ms_instance[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v8 = CgWeaponMap::ms_instance[v6];
-  weaponMap = v8;
-  if ( CgWeaponSystem::ms_allocatedType == WEAPONS_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", v6) )
+  v7 = CgWeaponMap::ms_instance[v5];
+  weaponMap = v7;
+  if ( CgWeaponSystem::ms_allocatedType == WEAPONS_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", v5) )
     __debugbreak();
-  if ( (unsigned int)v6 >= CgWeaponSystem::ms_allocatedCount )
+  if ( (unsigned int)v5 >= CgWeaponSystem::ms_allocatedCount )
   {
-    LODWORD(v59) = CgWeaponSystem::ms_allocatedCount;
-    LODWORD(v51) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v51, v59) )
+    LODWORD(v33) = CgWeaponSystem::ms_allocatedCount;
+    LODWORD(v32) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v32, v33) )
       __debugbreak();
   }
-  if ( !CgWeaponSystem::ms_weaponSystemArray[v6] )
+  if ( !CgWeaponSystem::ms_weaponSystemArray[v5] )
   {
-    LODWORD(v59) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v59) )
+    LODWORD(v33) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v33) )
       __debugbreak();
   }
-  v60 = CgWeaponSystem::ms_weaponSystemArray[v6];
+  v34 = CgWeaponSystem::ms_weaponSystemArray[v5];
   if ( ps )
   {
-    ViewmodelWeapon = BG_GetViewmodelWeapon(v8, ps);
+    ViewmodelWeapon = BG_GetViewmodelWeapon(v7, ps);
     r_weapon = (Weapon *)ViewmodelWeapon;
     inAltWeaponMode = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x1Bu));
   }
   else
   {
-    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( cent == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    ViewmodelWeapon = BgWeaponMap::GetWeapon(v8, cent->nextState.weaponHandle);
+    ViewmodelWeapon = BgWeaponMap::GetWeapon(v7, cent->nextState.weaponHandle);
     r_weapon = (Weapon *)ViewmodelWeapon;
     inAltWeaponMode = cent->nextState.inAltWeaponMode;
   }
   *(_QWORD *)outOrigin.v = BG_WeaponDef(ViewmodelWeapon, inAltWeaponMode);
   if ( !*(_QWORD *)outOrigin.v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 275, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
   if ( !(_BYTE)CgCompassSystem::ms_allocatedType )
   {
-    LODWORD(v59) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 575, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type is not known\n", "ms_allocatedType != GameModeType::NONE", v59) )
+    LODWORD(v33) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 575, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type is not known\n", "ms_allocatedType != GameModeType::NONE", v33) )
       __debugbreak();
   }
-  if ( (unsigned int)v6 >= CgCompassSystem::ms_allocatedCount )
+  if ( (unsigned int)v5 >= CgCompassSystem::ms_allocatedCount )
   {
-    LODWORD(v59) = CgCompassSystem::ms_allocatedCount;
-    LODWORD(v51) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 576, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v51, v59) )
+    LODWORD(v33) = CgCompassSystem::ms_allocatedCount;
+    LODWORD(v32) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 576, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v32, v33) )
       __debugbreak();
   }
-  if ( !CgCompassSystem::ms_compassSystemArray[v6] )
+  if ( !CgCompassSystem::ms_compassSystemArray[v5] )
   {
-    LODWORD(v59) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 577, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v59) )
+    LODWORD(v33) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 577, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v33) )
       __debugbreak();
   }
-  v61 = CgCompassSystem::ms_compassSystemArray[v6];
+  v35 = CgCompassSystem::ms_compassSystemArray[v5];
   if ( BG_IsSilenced(ViewmodelWeapon, inAltWeaponMode) )
   {
-    _RBX = DCONST_DVARFLT_compassSilencedSoundPingDuration;
+    v10 = DCONST_DVARFLT_compassSilencedSoundPingDuration;
     if ( DCONST_DVARFLT_compassSilencedSoundPingDuration )
       goto LABEL_48;
-    v12 = "compassSilencedSoundPingDuration";
+    v11 = "compassSilencedSoundPingDuration";
   }
   else
   {
-    _RBX = DCONST_DVARMPSPFLT_compassSoundPingDuration;
+    v10 = DCONST_DVARMPSPFLT_compassSoundPingDuration;
     if ( DCONST_DVARMPSPFLT_compassSoundPingDuration )
       goto LABEL_48;
-    v12 = "compassSoundPingDuration";
+    v11 = "compassSoundPingDuration";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v12) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v11) )
     __debugbreak();
 LABEL_48:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm0
-  }
-  v69 = _EAX;
+  Dvar_CheckFrontendServerThread(v10);
+  v42 = (int)(float)(v10->current.value * 1000.0);
   number = cent->nextState.number;
-  v17 = LocalClientGlobals;
+  v13 = LocalClientGlobals;
   clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-  v66 = 1;
-  v68 = 1;
+  v39 = 1;
+  v41 = 1;
   if ( clientNum == number )
   {
-    v66 = 1;
-    v68 = 1;
+    v39 = 1;
+    v41 = 1;
     if ( !ps )
     {
-      ps = &v17->predictedPlayerState;
-      if ( !v17->renderingThirdPerson && !BG_IsThirdPersonMode(weaponMap, &v17->predictedPlayerState) )
-        goto LABEL_100;
-      v66 = 0;
-      v68 = 0;
+      ps = &v13->predictedPlayerState;
+      if ( !v13->renderingThirdPerson && !BG_IsThirdPersonMode(weaponMap, &v13->predictedPlayerState) )
+        return;
+      v39 = 0;
+      v41 = 0;
     }
   }
-  SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v6);
+  SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v5);
   WeaponFireType = BG_GetWeaponFireType(r_weapon, inAltWeaponMode);
-  if ( BG_IsMeleeOnlyWeapon(r_weapon, inAltWeaponMode) || WeaponFireType != WEAPON_FIRETYPE_BEAM && WeaponFireType || !*(_QWORD *)(*(_QWORD *)outOrigin.v + 520i64) )
+  if ( !BG_IsMeleeOnlyWeapon(r_weapon, inAltWeaponMode) && (WeaponFireType == WEAPON_FIRETYPE_BEAM || WeaponFireType == WEAPON_FIRETYPE_FULLAUTO) && *(_QWORD *)(*(_QWORD *)outOrigin.v + 520i64) )
   {
-    if ( cent->clientSoundState.playedBeamFireSound )
+    if ( clientNum == number )
     {
-      name = cent->clientSoundState.stopFireSoundAlias.name;
-      if ( name )
+      if ( !ps )
       {
-        Alias = SND_TryFindAlias(name);
-        if ( Alias )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+          __debugbreak();
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 240, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+          __debugbreak();
+      }
+      if ( !CgWeaponMap::ms_instance[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+        __debugbreak();
+      WeaponHandForViewWeapon = BG_PlayerLastWeaponHandForViewWeapon(CgWeaponMap::ms_instance[v6], ps);
+      v18 = WeaponHandForViewWeapon;
+      if ( WeaponHandForViewWeapon >= 0 )
+      {
+        v19 = 0i64;
+        p_weaponState = &ps->weapState[0].weaponState;
+        v21 = 0xC01000000030001i64;
+        while ( 1 )
         {
-          CG_GetPoseOrigin(&cent->pose, &outOrigin);
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  dword ptr [rsp+0C8h+var_A0], xmm0
-            vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-          }
-          ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, Alias, fmtf, v58, 0);
-          goto LABEL_98;
+          v22 = *p_weaponState;
+          if ( (unsigned int)v22 > 0x3B || !_bittest64(&v21, v22) )
+            break;
+          ++v19;
+          p_weaponState += 20;
+          if ( v19 > v18 )
+            goto LABEL_71;
         }
-        goto LABEL_99;
-      }
-    }
-    goto LABEL_100;
-  }
-  if ( clientNum == number )
-  {
-    if ( !ps )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-        __debugbreak();
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 240, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-        __debugbreak();
-    }
-    if ( !CgWeaponMap::ms_instance[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
-      __debugbreak();
-    WeaponHandForViewWeapon = BG_PlayerLastWeaponHandForViewWeapon(CgWeaponMap::ms_instance[v7], ps);
-    v22 = WeaponHandForViewWeapon;
-    if ( WeaponHandForViewWeapon >= 0 )
-    {
-      v23 = 0i64;
-      p_weaponState = &ps->weapState[0].weaponState;
-      v25 = 0xC01000000030001i64;
-      while ( 1 )
-      {
-        v26 = *p_weaponState;
-        if ( (unsigned int)v26 > 0x3B || !_bittest64(&v25, v26) )
-          break;
-        ++v23;
-        p_weaponState += 20;
-        if ( v23 > v22 )
-          goto LABEL_71;
-      }
 LABEL_79:
+        if ( cent->clientSoundState.playedBeamFireSound )
+        {
+          name = cent->clientSoundState.stopFireSoundAlias.name;
+          if ( name )
+          {
+            Alias = SND_TryFindAlias(name);
+            if ( Alias )
+              goto LABEL_97;
+            goto LABEL_98;
+          }
+        }
+        return;
+      }
+LABEL_71:
+      if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 0xAu) )
+        goto LABEL_79;
+      CG_GetPoseOrigin(&cent->pose, &outOrigin);
       if ( cent->clientSoundState.playedBeamFireSound )
       {
-        v31 = cent->clientSoundState.stopFireSoundAlias.name;
-        if ( v31 )
-        {
-          v32 = SND_TryFindAlias(v31);
-          if ( v32 )
-          {
-            CG_GetPoseOrigin(&cent->pose, &outOrigin);
-            __asm
-            {
-              vmovss  xmm0, cs:__real@3f800000
-              vmovss  dword ptr [rsp+0C8h+var_A0], xmm0
-              vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-            }
-            ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v32, fmtb, v54, 0);
-LABEL_98:
-            memset(&outOrigin, 0, sizeof(outOrigin));
-            goto LABEL_99;
-          }
-          goto LABEL_99;
-        }
+        v24 = v41;
       }
-      goto LABEL_100;
-    }
-LABEL_71:
-    if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 0xAu) )
-      goto LABEL_79;
-    CG_GetPoseOrigin(&cent->pose, &outOrigin);
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( cent->clientSoundState.playedBeamFireSound )
-    {
-      v29 = v68;
+      else
+      {
+        WeaponSoundWithFallback = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 8i64 * v39 + 160);
+        ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, WeaponSoundWithFallback, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
+        cent->clientSoundState.stopFireSoundAlias = BG_GetWeaponSoundLookup(r_weapon, inAltWeaponMode, 8i64 * v39 + 192);
+        cent->clientSoundState.playedBeamFireSound = 1;
+        v24 = v39;
+      }
+      v25 = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 8i64 * v24 + 176);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v25, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
+      if ( v25 )
+      {
+        if ( v34->ShouldWeaponPing(v34, cent, r_weapon, inAltWeaponMode, &outOrigin) )
+          v35->AddWeaponPingInfo(v35, cent, &outOrigin, v42);
+      }
     }
     else
     {
-      WeaponSoundWithFallback = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 8i64 * v66 + 160);
-      __asm
+      if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 0xAu) )
       {
-        vmovss  dword ptr [rsp+0C8h+var_A0], xmm6
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm6
+        if ( cent->clientSoundState.playedBeamFireSound )
+        {
+          v30 = cent->clientSoundState.stopFireSoundAlias.name;
+          if ( v30 )
+          {
+            Alias = SND_TryFindAlias(v30);
+            if ( Alias )
+              goto LABEL_97;
+            goto LABEL_98;
+          }
+        }
+        return;
       }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, WeaponSoundWithFallback, fmt, v52, 0);
-      cent->clientSoundState.stopFireSoundAlias = BG_GetWeaponSoundLookup(r_weapon, inAltWeaponMode, 8i64 * v66 + 192);
-      cent->clientSoundState.playedBeamFireSound = 1;
-      v29 = v66;
+      CG_GetPoseOrigin(&cent->pose, &outOrigin);
+      if ( !cent->clientSoundState.playedBeamFireSound )
+      {
+        v28 = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 160i64);
+        ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v28, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
+        cent->clientSoundState.stopFireSoundAlias = BG_GetWeaponSoundLookup(r_weapon, inAltWeaponMode, 192i64);
+        cent->clientSoundState.playedBeamFireSound = 1;
+      }
+      v29 = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 176i64);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v29, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
+      if ( v29 && v34->ShouldWeaponPing(v34, cent, r_weapon, inAltWeaponMode, &outOrigin) )
+        v35->AddWeaponPingInfo(v35, cent, &outOrigin, v42);
     }
-    v30 = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 8i64 * v29 + 176);
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C8h+var_A0], xmm6
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-    }
-    ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v30, fmta, v53, 0);
-    if ( v30 && v60->ShouldWeaponPing(v60, cent, r_weapon, inAltWeaponMode, &outOrigin) )
-      v61->AddWeaponPingInfo(v61, cent, &outOrigin, v69);
-LABEL_78:
     memset(&outOrigin, 0, sizeof(outOrigin));
-    goto LABEL_100;
-  }
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 0xAu) )
-  {
-    CG_GetPoseOrigin(&cent->pose, &outOrigin);
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( !cent->clientSoundState.playedBeamFireSound )
-    {
-      v35 = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 160i64);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C8h+var_A0], xmm6
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v35, fmtc, v55, 0);
-      cent->clientSoundState.stopFireSoundAlias = BG_GetWeaponSoundLookup(r_weapon, inAltWeaponMode, 192i64);
-      cent->clientSoundState.playedBeamFireSound = 1;
-    }
-    v36 = BG_GetWeaponSoundWithFallback(r_weapon, inAltWeaponMode, 176i64);
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C8h+var_A0], xmm6
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-    }
-    ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v36, fmtd, v56, 0);
-    if ( v36 && v60->ShouldWeaponPing(v60, cent, r_weapon, inAltWeaponMode, &outOrigin) )
-      v61->AddWeaponPingInfo(v61, cent, &outOrigin, v69);
-    goto LABEL_78;
+    return;
   }
   if ( cent->clientSoundState.playedBeamFireSound )
   {
-    v37 = cent->clientSoundState.stopFireSoundAlias.name;
-    if ( v37 )
+    v31 = cent->clientSoundState.stopFireSoundAlias.name;
+    if ( v31 )
     {
-      v38 = SND_TryFindAlias(v37);
-      if ( v38 )
+      Alias = SND_TryFindAlias(v31);
+      if ( Alias )
       {
+LABEL_97:
         CG_GetPoseOrigin(&cent->pose, &outOrigin);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  dword ptr [rsp+0C8h+var_A0], xmm0
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-        }
-        ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, v38, fmte, v57, 0);
-        goto LABEL_98;
+        ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)cent->nextState.number, &outOrigin, Alias, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
+        memset(&outOrigin, 0, sizeof(outOrigin));
       }
-LABEL_99:
+LABEL_98:
       cent->clientSoundState.playedBeamFireSound = 0;
     }
   }
-LABEL_100:
-  __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
 }
 
 /*
@@ -1052,22 +1001,15 @@ CgSoundSystem::ChangeSoundParameterOnEnt
 */
 void CgSoundSystem::ChangeSoundParameterOnEnt(CgSoundSystem *this, const int entitynum, const unsigned int paramBitField, void (*changeParameterFunction)(unsigned __int64, float, int), float maxvalue)
 {
-  unsigned __int16 v7; 
+  unsigned __int16 v6; 
   unsigned __int64 SndEntHandle; 
-  __int64 v15; 
+  __int64 v10; 
 
-  v7 = paramBitField;
+  v6 = paramBitField;
   if ( !changeParameterFunction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1130, ASSERT_TYPE_ASSERT, "(changeParameterFunction)", (const char *)&queryFormat, "changeParameterFunction") )
     __debugbreak();
   SndEntHandle = CG_GenerateSndEntHandle((const LocalClientNum_t)this->m_localClientNum, entitynum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@37800080
-    vmulss  xmm1, xmm1, [rsp+38h+maxvalue]
-  }
-  ((void (__fastcall *)(unsigned __int64, __int64, _QWORD))changeParameterFunction)(SndEntHandle, v15, v7);
+  ((void (__fastcall *)(unsigned __int64, __int64, _QWORD))changeParameterFunction)(SndEntHandle, v10, v6);
 }
 
 /*
@@ -1077,56 +1019,48 @@ CgSoundSystem::GetEquipmentVolumeScale
 */
 float CgSoundSystem::GetEquipmentVolumeScale(CgSoundSystem *this, const centity_t *cent, int isPlayerView)
 {
-  char v10; 
+  double FootstepVolumeScale; 
   CgStatic *LocalClientStatics; 
-  const char *v12; 
+  const char *v8; 
+  float v9; 
   const characterInfo_t *CharacterInfo; 
-  const dvar_t *v15; 
-  const char *v16; 
+  const dvar_t *v11; 
+  const char *v12; 
+  double Float_Internal_DebugName; 
 
-  *(double *)&_XMM0 = CG_GameInterface_GetFootstepVolumeScale((const LocalClientNum_t)this->m_localClientNum, cent, isPlayerView);
-  __asm
+  FootstepVolumeScale = CG_GameInterface_GetFootstepVolumeScale((const LocalClientNum_t)this->m_localClientNum, cent, isPlayerView);
+  if ( *(float *)&FootstepVolumeScale < 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  if ( v10 )
-  {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
     LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)this->m_localClientNum);
     if ( (cent->flags & 1) == 0 )
     {
-      v12 = "no";
+      v8 = "no";
       if ( isPlayerView )
-        v12 = "yes";
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1265, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", "%s\n\tentnum %i, isPlayerView: %s", "CENextValid( cent )", cent->nextState.number, v12) )
+        v8 = "yes";
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1265, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", "%s\n\tentnum %i, isPlayerView: %s", "CENextValid( cent )", cent->nextState.number, v8) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    v9 = FLOAT_1_0;
     CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, cent->nextState.number);
     if ( CharacterInfo && BG_HasPerk(&CharacterInfo->perks, 0x1Fu) )
     {
       if ( isPlayerView )
       {
-        v15 = DCONST_DVARFLT_perk_equipmentVolumeQuietPlayer;
-        v16 = "perk_equipmentVolumeQuietPlayer";
+        v11 = DCONST_DVARFLT_perk_equipmentVolumeQuietPlayer;
+        v12 = "perk_equipmentVolumeQuietPlayer";
       }
       else
       {
-        v15 = DCONST_DVARFLT_perk_equipmentVolumeQuietNPC;
-        v16 = "perk_equipmentVolumeQuietNPC";
+        v11 = DCONST_DVARFLT_perk_equipmentVolumeQuietNPC;
+        v12 = "perk_equipmentVolumeQuietNPC";
       }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v15, v16);
-      __asm { vmovaps xmm6, xmm0 }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v11, v12);
+      v9 = *(float *)&Float_Internal_DebugName;
     }
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    *(float *)&FootstepVolumeScale = v9;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&FootstepVolumeScale;
 }
 
 /*
@@ -1136,40 +1070,36 @@ CgSoundSystem::GetFootstepVolumeScale
 */
 float CgSoundSystem::GetFootstepVolumeScale(CgSoundSystem *this, const centity_t *cent, const int moveType, int isPlayerView)
 {
-  char v12; 
+  double FootstepVolumeScale; 
   cg_t *LocalClientGlobals; 
   CgStatic *LocalClientStatics; 
-  const char *v15; 
+  const char *v12; 
   const characterInfo_t *CharacterInfo; 
-  const dvar_t *v18; 
-  const char *v19; 
-  const characterInfo_t *v20; 
-  const characterInfo_t *v21; 
+  const dvar_t *v15; 
+  const char *v16; 
+  double Float_Internal_DebugName; 
+  const characterInfo_t *v18; 
+  const characterInfo_t *v19; 
   team_t team; 
-  team_t v23; 
-  const dvar_t *v24; 
-  const char *v25; 
+  team_t v21; 
+  const dvar_t *v22; 
+  const char *v23; 
+  double v24; 
 
-  *(double *)&_XMM0 = CG_GameInterface_GetFootstepVolumeScale((const LocalClientNum_t)this->m_localClientNum, cent, isPlayerView);
-  __asm
+  FootstepVolumeScale = CG_GameInterface_GetFootstepVolumeScale((const LocalClientNum_t)this->m_localClientNum, cent, isPlayerView);
+  if ( *(float *)&FootstepVolumeScale < 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  if ( v12 )
-  {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
     LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
     LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)this->m_localClientNum);
     if ( (cent->flags & 1) == 0 )
     {
-      v15 = "no";
+      v12 = "no";
       if ( isPlayerView )
-        v15 = "yes";
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1172, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", "%s\n\tentnum %i, isPlayerView: %s", "CENextValid( cent )", cent->nextState.number, v15) )
+        v12 = "yes";
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1172, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", "%s\n\tentnum %i, isPlayerView: %s", "CENextValid( cent )", cent->nextState.number, v12) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    *(float *)&_XMM6 = FLOAT_1_0;
     CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, cent->nextState.number);
     if ( CharacterInfo )
     {
@@ -1180,90 +1110,90 @@ float CgSoundSystem::GetFootstepVolumeScale(CgSoundSystem *this, const centity_t
         case 0:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerCreep;
-            v19 = "perk_footstepVolumeQuietPlayerCreep";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerCreep;
+            v16 = "perk_footstepVolumeQuietPlayerCreep";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCCreep;
-            v19 = "perk_footstepVolumeQuietNPCCreep";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCCreep;
+            v16 = "perk_footstepVolumeQuietNPCCreep";
           }
           break;
         case 1:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerWalk;
-            v19 = "perk_footstepVolumeQuietPlayerWalk";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerWalk;
+            v16 = "perk_footstepVolumeQuietPlayerWalk";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCWalk;
-            v19 = "perk_footstepVolumeQuietNPCWalk";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCWalk;
+            v16 = "perk_footstepVolumeQuietNPCWalk";
           }
           break;
         case 2:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerRun;
-            v19 = "perk_footstepVolumeQuietPlayerRun";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerRun;
+            v16 = "perk_footstepVolumeQuietPlayerRun";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCRun;
-            v19 = "perk_footstepVolumeQuietNPCRun";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCRun;
+            v16 = "perk_footstepVolumeQuietNPCRun";
           }
           break;
         case 3:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerSprint;
-            v19 = "perk_footstepVolumeQuietPlayerSprint";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerSprint;
+            v16 = "perk_footstepVolumeQuietPlayerSprint";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCSprint;
-            v19 = "perk_footstepVolumeQuietNPCSprint";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCSprint;
+            v16 = "perk_footstepVolumeQuietNPCSprint";
           }
           break;
         case 4:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerSuperSprint;
-            v19 = "perk_footstepVolumeQuietPlayerSuperSprint";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerSuperSprint;
+            v16 = "perk_footstepVolumeQuietPlayerSuperSprint";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCSuperSprint;
-            v19 = "perk_footstepVolumeQuietNPCSuperSprint";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCSuperSprint;
+            v16 = "perk_footstepVolumeQuietNPCSuperSprint";
           }
           break;
         case 5:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerProne;
-            v19 = "perk_footstepVolumeQuietPlayerProne";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayerProne;
+            v16 = "perk_footstepVolumeQuietPlayerProne";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCProne;
-            v19 = "perk_footstepVolumeQuietNPCProne";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPCProne;
+            v16 = "perk_footstepVolumeQuietNPCProne";
           }
           break;
         default:
           if ( isPlayerView )
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayer;
-            v19 = "perk_footstepVolumeQuietPlayer";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayer;
+            v16 = "perk_footstepVolumeQuietPlayer";
           }
           else
           {
-            v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPC;
-            v19 = "perk_footstepVolumeQuietNPC";
+            v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPC;
+            v16 = "perk_footstepVolumeQuietNPC";
           }
           break;
       }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v18, v19);
-      __asm { vmovaps xmm6, xmm0 }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v15, v16);
+      LODWORD(_XMM6) = LODWORD(Float_Internal_DebugName);
       if ( !isPlayerView )
       {
 LABEL_53:
@@ -1271,46 +1201,42 @@ LABEL_53:
         {
           if ( isPlayerView )
           {
-            v24 = DVARFLT_perk_footstepVolumePlayer;
-            v25 = "perk_footstepVolumePlayer";
+            v22 = DVARFLT_perk_footstepVolumePlayer;
+            v23 = "perk_footstepVolumePlayer";
           }
           else
           {
             *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_footstepVolumeSelectiveHearingMin, "perk_footstepVolumeSelectiveHearingMin");
             __asm { vmaxss  xmm6, xmm0, xmm6 }
-            v20 = CgStatic::GetCharacterInfo(LocalClientStatics, LocalClientGlobals->predictedPlayerState.clientNum);
-            if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1231, ASSERT_TYPE_ASSERT, "(playerCI)", (const char *)&queryFormat, "playerCI") )
+            v18 = CgStatic::GetCharacterInfo(LocalClientStatics, LocalClientGlobals->predictedPlayerState.clientNum);
+            if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1231, ASSERT_TYPE_ASSERT, "(playerCI)", (const char *)&queryFormat, "playerCI") )
               __debugbreak();
-            v21 = CgStatic::GetCharacterInfo(LocalClientStatics, cent->nextState.clientNum);
-            if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1234, ASSERT_TYPE_ASSERT, "(entCI)", (const char *)&queryFormat, "entCI") )
+            v19 = CgStatic::GetCharacterInfo(LocalClientStatics, cent->nextState.clientNum);
+            if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1234, ASSERT_TYPE_ASSERT, "(entCI)", (const char *)&queryFormat, "entCI") )
               __debugbreak();
-            team = v20->team;
-            v23 = v21->team;
+            team = v18->team;
+            v21 = v19->team;
             if ( cent == (const centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 164, ASSERT_TYPE_ASSERT, "(otherEntityState)", (const char *)&queryFormat, "otherEntityState") )
               __debugbreak();
-            if ( team && team == v23 )
+            if ( team && team == v21 )
             {
-              v24 = DVARFLT_perk_footstepVolumeAlly;
-              v25 = "perk_footstepVolumeAlly";
+              v22 = DVARFLT_perk_footstepVolumeAlly;
+              v23 = "perk_footstepVolumeAlly";
             }
             else
             {
-              v24 = DVARFLT_perk_footstepVolumeEnemy;
-              v25 = "perk_footstepVolumeEnemy";
+              v22 = DVARFLT_perk_footstepVolumeEnemy;
+              v23 = "perk_footstepVolumeEnemy";
             }
           }
-          Dvar_GetFloat_Internal_DebugName(v24, v25);
-          __asm { vmulss  xmm6, xmm6, xmm0 }
+          v24 = Dvar_GetFloat_Internal_DebugName(v22, v23);
+          *(float *)&_XMM6 = *(float *)&_XMM6 * *(float *)&v24;
         }
       }
     }
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+68h+var_28]
-    }
+    LODWORD(FootstepVolumeScale) = _XMM6;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&FootstepVolumeScale;
 }
 
 /*
@@ -1322,20 +1248,12 @@ __int64 CgSoundSystem::PlayClientSoundAlias(CgSoundSystem *this, const SndAliasL
 {
   cg_t *LocalClientGlobals; 
   playerState_s *p_predictedPlayerState; 
-  int fmt; 
-  int v9; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
   if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 925, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rsp+48h+var_20], xmm0
-    vmovss  dword ptr [rsp+48h+fmt], xmm0
-  }
-  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD))this->PlaySoundAliasScaled)(this, (unsigned int)p_predictedPlayerState->clientNum, &p_predictedPlayerState->origin, aliasList, fmt, v9, 0);
+  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))this->PlaySoundAliasScaled)(this, (unsigned int)p_predictedPlayerState->clientNum, &p_predictedPlayerState->origin, aliasList, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
 }
 
 /*
@@ -1380,24 +1298,16 @@ CgSoundSystem::PlayEntitySoundAlias
 __int64 CgSoundSystem::PlayEntitySoundAlias(CgSoundSystem *this, const int entitynum, const SndAliasList *aliasList)
 {
   centity_t *Entity; 
-  unsigned int v9; 
-  int v10; 
-  int v11; 
+  unsigned int v8; 
   vec3_t trBase; 
 
   if ( !aliasList )
     return 0i64;
   Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entitynum);
   Trajectory_GetTrBase(&Entity->nextState.lerp.pos, &trBase);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+68h+var_40], xmm0
-    vmovss  [rsp+68h+var_48], xmm0
-  }
-  v9 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD))this->PlaySoundAliasScaled)(this, (unsigned int)entitynum, &trBase, aliasList, v10, v11, 0);
+  v8 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))this->PlaySoundAliasScaled)(this, (unsigned int)entitynum, &trBase, aliasList, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
   memset(&trBase, 0, sizeof(trBase));
-  return v9;
+  return v8;
 }
 
 /*
@@ -1440,140 +1350,76 @@ CgSoundSystem::PlayEntitySoundAliasFootstep
 */
 __int64 CgSoundSystem::PlayEntitySoundAliasFootstep(CgSoundSystem *this, const centity_t *cent, const SndAliasList *aliasList, const SndAliasList *ceilingAlist, int surfaceType, const int moveType, int isPlayerView, int isQuietMove, bool isLadder)
 {
-  const char *v20; 
+  const char *v13; 
+  double FootstepVolumeScale; 
+  int v15; 
   int ContextIndex; 
-  unsigned int v23; 
-  unsigned int v25; 
-  char v35; 
-  char v36; 
-  __int64 result; 
-  int v49; 
-  int v50; 
-  int v51; 
-  int v52; 
-  int v53; 
-  int v54; 
+  unsigned int v17; 
+  unsigned int v18; 
+  const dvar_t *v19; 
+  float value; 
+  const dvar_t *v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   vec3_t trBase; 
-  __int64 v56; 
+  __int64 v27; 
   vec3_t coneDir; 
   vec3_t point; 
-  char v59; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v56 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-  }
+  v27 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 984, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( (cent->flags & 1) == 0 )
   {
-    v20 = "no";
+    v13 = "no";
     if ( isPlayerView )
-      v20 = "yes";
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 985, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", "%s\n\tentnum %i, isPlayerView: %s", "CENextValid( cent )", cent->nextState.number, v20) )
+      v13 = "yes";
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 985, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", "%s\n\tentnum %i, isPlayerView: %s", "CENextValid( cent )", cent->nextState.number, v13) )
       __debugbreak();
   }
-  *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(this, cent, moveType, isPlayerView);
-  __asm { vmovaps xmm6, xmm0 }
+  FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(this, cent, moveType, isPlayerView);
+  v15 = LODWORD(FootstepVolumeScale);
   Trajectory_GetTrBase(&cent->nextState.lerp.pos, &trBase);
   if ( !isLadder )
   {
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3f800000
-      vmovss  dword ptr [rsp+128h+var_F8], xmm10
-      vmovss  dword ptr [rsp+128h+var_100], xmm6
-    }
-    v25 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, int, _DWORD))this->PlaySurfaceSound)(this, (unsigned int)cent->nextState.number, &trBase, aliasList, surfaceType, v49, v51, 0);
+    v18 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, _DWORD, _DWORD, _DWORD))this->PlaySurfaceSound)(this, (unsigned int)cent->nextState.number, &trBase, aliasList, surfaceType, LODWORD(FootstepVolumeScale), LODWORD(FLOAT_1_0), 0);
     if ( ceilingAlist )
     {
-      _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+38h]
-        vmovsd  qword ptr [rsp+128h+point], xmm0
-      }
-      point.v[2] = _RAX->predictedPlayerState.origin.v[2];
-      __asm
-      {
-        vxorps  xmm8, xmm8, xmm8
-        vmovss  dword ptr [rsp+128h+coneDir], xmm8
-        vmovss  dword ptr [rsp+128h+coneDir+4], xmm8
-        vmovss  xmm0, cs:__real@bf800000
-        vmovss  dword ptr [rsp+128h+coneDir+8], xmm0
-      }
-      _RDI = DVARFLT_cg_ceiling_footstep_coneHeight;
+      point = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->predictedPlayerState.origin;
+      coneDir.v[0] = 0.0;
+      coneDir.v[1] = 0.0;
+      coneDir.v[2] = FLOAT_N1_0;
+      v19 = DVARFLT_cg_ceiling_footstep_coneHeight;
       if ( !DVARFLT_cg_ceiling_footstep_coneHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ceiling_footstep_coneHeight") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-      _RDI = DVARFLT_cg_ceiling_footstep_coneRadius;
+      Dvar_CheckFrontendServerThread(v19);
+      value = v19->current.value;
+      v21 = DVARFLT_cg_ceiling_footstep_coneRadius;
       if ( !DVARFLT_cg_ceiling_footstep_coneRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ceiling_footstep_coneRadius") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm9, dword ptr [rdi+28h]
-        vcomiss xmm7, xmm8
-      }
-      if ( v35 | v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1019, ASSERT_TYPE_ASSERT, "(coneHeight > 0)", (const char *)&queryFormat, "coneHeight > 0") )
+      Dvar_CheckFrontendServerThread(v21);
+      v22 = v21->current.value;
+      if ( value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 1019, ASSERT_TYPE_ASSERT, "(coneHeight > 0)", (const char *)&queryFormat, "coneHeight > 0") )
         __debugbreak();
-      __asm { vdivss  xmm0, xmm9, xmm7; X }
-      *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+128h+trBase+8]
-        vaddss  xmm2, xmm1, cs:__real@c1400000
-        vmovss  dword ptr [rsp+128h+trBase+8], xmm2
-        vmovaps xmm3, xmm7; coneHeight
-        vmovaps xmm2, xmm0; cosHalfFov
-      }
-      if ( PointInsideCone(&trBase, &coneDir, *(float *)&_XMM2, *(float *)&_XMM3, &point) )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+128h+var_F8], xmm10
-          vmovss  dword ptr [rsp+128h+var_100], xmm6
-        }
-        ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, int, _DWORD))this->PlaySurfaceSound)(this, (unsigned int)cent->nextState.number, &trBase, ceilingAlist, surfaceType, v50, v52, 0);
-      }
+      v23 = atanf_0(v22 / value);
+      v24 = cosf_0(v23);
+      trBase.v[2] = trBase.v[2] + -12.0;
+      if ( PointInsideCone(&trBase, &coneDir, v24, value, &point) )
+        ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD, _DWORD))this->PlaySurfaceSound)(this, (unsigned int)cent->nextState.number, &trBase, ceilingAlist, surfaceType, v15, LODWORD(FLOAT_1_0), 0);
     }
     goto LABEL_24;
   }
   ContextIndex = SND_SV_FindContextIndex("climb", "ladder");
-  v23 = 0;
+  v17 = 0;
   if ( ContextIndex != -1 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+128h+var_E8], xmm0
-      vmovss  dword ptr [rsp+128h+var_F0], xmm6
-    }
-    v25 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD, int, int))this->PlayContextSound)(this, (unsigned int)cent->nextState.number, &trBase, aliasList, surfaceType, ContextIndex, 0, v53, v54);
+    v18 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, _DWORD, _DWORD, _DWORD))this->PlayContextSound)(this, (unsigned int)cent->nextState.number, &trBase, aliasList, surfaceType, ContextIndex, 0, LODWORD(FootstepVolumeScale), LODWORD(FLOAT_1_0));
 LABEL_24:
-    v23 = v25;
+    v17 = v18;
   }
   memset(&trBase, 0, sizeof(trBase));
-  result = v23;
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-  }
-  return result;
+  return v17;
 }
 
 /*
@@ -1583,16 +1429,7 @@ CgSoundSystem::PlaySoundAlias
 */
 __int64 CgSoundSystem::PlaySoundAlias(CgSoundSystem *this, __int64 entitynum, const vec3_t *origin, const SndAliasList *aliasList)
 {
-  int v6; 
-  int v7; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  return ((__int64 (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, const SndAliasList *, int, int, _DWORD))this->PlaySoundAliasScaled)(this, entitynum, origin, aliasList, v6, v7, 0);
+  return ((__int64 (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))this->PlaySoundAliasScaled)(this, entitynum, origin, aliasList, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
 }
 
 /*
@@ -1602,16 +1439,7 @@ CgSoundSystem::PlaySoundAliasAsync
 */
 void CgSoundSystem::PlaySoundAliasAsync(CgSoundSystem *this, __int64 entitynum, const vec3_t *origin, const SndAliasList *aliasList)
 {
-  int v5; 
-  int v6; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, const SndAliasList *, int, int, _DWORD))this->PlaySoundAliasScaledAsync)(this, entitynum, origin, aliasList, v5, v6, 0);
+  ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))this->PlaySoundAliasScaledAsync)(this, entitynum, origin, aliasList, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
 }
 
 /*
@@ -1621,18 +1449,10 @@ CgSoundSystem::PlaySoundAliasAtTime
 */
 __int64 CgSoundSystem::PlaySoundAliasAtTime(CgSoundSystem *this, const int entitynum, const vec3_t *origin, const SndAliasList *aliasList, int msecWhenPlayed)
 {
-  int v11; 
-  int v12; 
-
   if ( CG_Utils_TimeIsInThePast(this->m_localClientNum, msecWhenPlayed) )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, const SndAliasList *, int, int, _DWORD))this->PlaySoundAliasScaled)(this, (unsigned int)entitynum, origin, aliasList, v11, v12, 0);
+  else
+    return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD))this->PlaySoundAliasScaled)(this, (unsigned int)entitynum, origin, aliasList, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
 }
 
 /*
@@ -1642,14 +1462,17 @@ CgSoundSystem::PlaySoundAliasAtViewHeight
 */
 __int64 CgSoundSystem::PlaySoundAliasAtViewHeight(CgSoundSystem *this, const int entityNum, const vec3_t *origin, int soundString)
 {
+  int viewheight_stand; 
   centity_t *Entity; 
   CgStatic *LocalClientStatics; 
   characterInfo_t *CharacterInfo; 
-  CgSoundSystem_vtbl *v13; 
-  __int64 v18; 
-  int v19[4]; 
+  const SuitDef *SuitDef; 
+  float v13; 
+  CgSoundSystem_vtbl *v14; 
+  __int64 v16; 
+  int v17[4]; 
 
-  _R14 = origin;
+  viewheight_stand = 60;
   Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entityNum);
   if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 873, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -1661,33 +1484,28 @@ __int64 CgSoundSystem::PlaySoundAliasAtViewHeight(CgSoundSystem *this, const int
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v18) = Entity->nextState.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 877, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v18, ComCharacterLimits::ms_gameData.m_characterCount) )
+      LODWORD(v16) = Entity->nextState.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 877, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v16, ComCharacterLimits::ms_gameData.m_characterCount) )
         __debugbreak();
     }
     LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)this->m_localClientNum);
     if ( !LocalClientStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 879, ASSERT_TYPE_ASSERT, "(cgameStatic)", (const char *)&queryFormat, "cgameStatic") )
       __debugbreak();
     CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, Entity->nextState.clientNum);
-    if ( CharacterInfo && !BG_GetSuitDef(CharacterInfo->suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 884, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-      __debugbreak();
+    if ( CharacterInfo )
+    {
+      SuitDef = BG_GetSuitDef(CharacterInfo->suitIndex);
+      if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 884, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+        __debugbreak();
+      viewheight_stand = SuitDef->viewheight_stand;
+    }
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  xmm1, dword ptr [r14+4]
-  }
-  v13 = this->__vftable;
-  __asm
-  {
-    vmovss  [rsp+98h+var_58], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vaddss  xmm0, xmm0, dword ptr [r14+8]
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  [rsp+98h+var_54], xmm1
-  }
-  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, int *, _QWORD))v13->PlaySoundAliasByName)(this, (unsigned int)entityNum, v19, (unsigned int)soundString);
+  v13 = origin->v[1];
+  v14 = this->__vftable;
+  v17[0] = LODWORD(origin->v[0]);
+  *(float *)&v17[2] = (float)viewheight_stand + origin->v[2];
+  *(float *)&v17[1] = v13;
+  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, int *, _QWORD))v14->PlaySoundAliasByName)(this, (unsigned int)entityNum, v17, (unsigned int)soundString);
 }
 
 /*
@@ -1699,18 +1517,10 @@ __int64 CgSoundSystem::PlaySoundAliasByLookup(CgSoundSystem *this, const int ent
 {
   unsigned int (__fastcall *PlaySoundAliasScaled)(CgSoundSystem *, const int, const vec3_t *, const SndAliasList *, float, float, int); 
   SndAliasList *Alias; 
-  int v11; 
-  int v12; 
 
   PlaySoundAliasScaled = this->PlaySoundAliasScaled;
   Alias = SND_TryFindAlias(lookup.name);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, SndAliasList *, int, int, _DWORD))PlaySoundAliasScaled)(this, (unsigned int)entitynum, origin, Alias, v11, v12, 0);
+  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD))PlaySoundAliasScaled)(this, (unsigned int)entitynum, origin, Alias, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
 }
 
 /*
@@ -1720,16 +1530,17 @@ CgSoundSystem::PlaySoundAliasListAtViewHeight
 */
 __int64 CgSoundSystem::PlaySoundAliasListAtViewHeight(CgSoundSystem *this, const int entityNum, const vec3_t *origin, const SndAliasList *aliasList, float volumeScale)
 {
+  int viewheight_stand; 
   centity_t *Entity; 
   CgStatic *LocalClientStatics; 
   characterInfo_t *CharacterInfo; 
-  CgSoundSystem_vtbl *v14; 
-  int fmt; 
-  __int64 v22; 
-  int v23; 
-  int v24[4]; 
+  const SuitDef *SuitDef; 
+  float v14; 
+  CgSoundSystem_vtbl *v15; 
+  __int64 v17; 
+  int v18[4]; 
 
-  _R14 = origin;
+  viewheight_stand = 60;
   Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entityNum);
   if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 900, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -1741,37 +1552,28 @@ __int64 CgSoundSystem::PlaySoundAliasListAtViewHeight(CgSoundSystem *this, const
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v22) = Entity->nextState.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 904, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v22, ComCharacterLimits::ms_gameData.m_characterCount) )
+      LODWORD(v17) = Entity->nextState.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 904, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v17, ComCharacterLimits::ms_gameData.m_characterCount) )
         __debugbreak();
     }
     LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)this->m_localClientNum);
     if ( !LocalClientStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 906, ASSERT_TYPE_ASSERT, "(cgameStatic)", (const char *)&queryFormat, "cgameStatic") )
       __debugbreak();
     CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, Entity->nextState.clientNum);
-    if ( CharacterInfo && !BG_GetSuitDef(CharacterInfo->suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 911, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-      __debugbreak();
+    if ( CharacterInfo )
+    {
+      SuitDef = BG_GetSuitDef(CharacterInfo->suitIndex);
+      if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 911, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+        __debugbreak();
+      viewheight_stand = SuitDef->viewheight_stand;
+    }
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  xmm1, dword ptr [r14+4]
-  }
-  v14 = this->__vftable;
-  __asm
-  {
-    vmovss  [rsp+98h+var_58], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vaddss  xmm0, xmm0, dword ptr [r14+8]
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+98h+var_54], xmm1
-    vmovss  xmm1, [rsp+98h+volumeScale]
-    vmovss  dword ptr [rsp+98h+var_70], xmm0
-    vmovss  dword ptr [rsp+98h+fmt], xmm1
-  }
-  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, int *, const SndAliasList *, int, int, _DWORD))v14->PlaySoundAliasScaled)(this, (unsigned int)entityNum, v24, aliasList, fmt, v23, 0);
+  v14 = origin->v[1];
+  v15 = this->__vftable;
+  v18[0] = LODWORD(origin->v[0]);
+  *(float *)&v18[2] = (float)viewheight_stand + origin->v[2];
+  *(float *)&v18[1] = v14;
+  return ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, int *, const SndAliasList *, _DWORD, _DWORD, _DWORD))v15->PlaySoundAliasScaled)(this, (unsigned int)entityNum, v18, aliasList, LODWORD(volumeScale), LODWORD(FLOAT_1_0), 0);
 }
 
 /*
@@ -1784,42 +1586,37 @@ void CgSoundSystem::PlayWhizbyAndImpactSfx_Internal(CgSoundSystem *this, const C
   int NewBulletEvent; 
   cg_t *LocalClientGlobals; 
   CgBallistics *System; 
-  bool v29; 
+  bool v18; 
   const RefdefView *p_view; 
+  float v20; 
+  float v21; 
+  float v22; 
+  vec3_t *v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
   const WeaponSFXPackage *SfxPackage; 
-  char v69; 
-  char v70; 
-  int v88; 
-  const SndAliasList *hitSound; 
-  int impactEnt; 
-  const WeaponSFXPackage *v91; 
+  float v36; 
+  float v37; 
   float radius; 
-  float impactSound; 
+  int v39; 
+  const SndAliasList *impactSound; 
+  int impactEnt; 
+  const WeaponSFXPackage *v42; 
   vec3_t outOrg; 
   vec3_t *inImpactPos; 
   Weapon *r_weapon; 
-  vec3_t v108; 
-  __int64 v109; 
+  vec3_t v47; 
+  __int64 v48; 
   vec3_t inBulletDir; 
   vec3_t inSndCenterPt; 
-  char v112; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v109 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
-  _RSI = start;
+  v48 = -2i64;
   inImpactPos = (vec3_t *)end;
   r_weapon = (Weapon *)inWeapon;
   NewBulletEvent = -1;
@@ -1827,108 +1624,59 @@ void CgSoundSystem::PlayWhizbyAndImpactSfx_Internal(CgSoundSystem *this, const C
   System = CgBallistics::GetSystem((const LocalClientNum_t)this->m_localClientNum);
   if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.cpp", 565, ASSERT_TYPE_ASSERT, "(ballisticSystem)", (const char *)&queryFormat, "ballisticSystem") )
     __debugbreak();
-  v29 = System->ShouldFireBallisticBullet(System, r_weapon, isAlternate, whizbyEnt);
-  if ( playWhizby && !v29 )
+  v18 = System->ShouldFireBallisticBullet(System, r_weapon, isAlternate, whizbyEnt);
+  if ( playWhizby && !v18 )
   {
     if ( whizbyEnt == LocalClientGlobals->clientNum )
     {
       p_view = &LocalClientGlobals->refdef.view;
       RefdefView_GetOrg(p_view, &outOrg);
-      __asm
-      {
-        vmovss  xmm9, dword ptr [rsp+180h+outOrg+8]
-        vmovss  xmm10, dword ptr [rsp+180h+outOrg+4]
-        vmovss  xmm11, dword ptr [rsp+180h+outOrg]
-      }
+      v20 = outOrg.v[2];
+      v21 = outOrg.v[1];
+      v22 = outOrg.v[0];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm11, dword ptr [rsi]
-        vmovss  dword ptr [rsp+180h+outOrg], xmm11
-        vmovss  xmm10, dword ptr [rsi+4]
-        vmovss  dword ptr [rsp+180h+outOrg+4], xmm10
-        vmovss  xmm9, dword ptr [rsi+8]
-        vmovss  dword ptr [rsp+180h+outOrg+8], xmm9
-      }
+      v22 = start->v[0];
+      outOrg.v[0] = start->v[0];
+      v21 = start->v[1];
+      outOrg.v[1] = v21;
+      v20 = start->v[2];
+      outOrg.v[2] = v20;
       p_view = &LocalClientGlobals->refdef.view;
     }
-    RefdefView_GetOrg(p_view, &v108);
-    _R15 = inImpactPos;
+    RefdefView_GetOrg(p_view, &v47);
+    v23 = inImpactPos;
+    v24 = inImpactPos->v[0] - v22;
+    v26 = LODWORD(inImpactPos->v[1]);
+    v25 = inImpactPos->v[1] - v21;
+    v27 = inImpactPos->v[2] - v20;
+    *(float *)&v26 = fsqrt((float)((float)(v25 * v25) + (float)(v24 * v24)) + (float)(v27 * v27));
+    _XMM8 = v26;
     __asm
     {
-      vmovss  xmm0, dword ptr [r15]
-      vsubss  xmm4, xmm0, xmm11
-      vmovss  xmm1, dword ptr [r15+4]
-      vsubss  xmm6, xmm1, xmm10
-      vmovss  xmm0, dword ptr [r15+8]
-      vsubss  xmm7, xmm0, xmm9
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm8, xmm2, xmm2
       vcmpless xmm0, xmm8, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm8, xmm2, xmm0
-      vdivss  xmm0, xmm2, xmm1
-      vmulss  xmm5, xmm4, xmm0
-      vmovss  dword ptr [rbp+80h+inBulletDir], xmm5
-      vmulss  xmm1, xmm6, xmm0
-      vmovss  dword ptr [rbp+80h+inBulletDir+4], xmm1
-      vmulss  xmm4, xmm7, xmm0
-      vmovss  dword ptr [rbp+80h+inBulletDir+8], xmm4
-      vmovss  xmm14, dword ptr [rsp+180h+var_108]
-      vsubss  xmm2, xmm14, xmm11
-      vmovss  xmm12, dword ptr [rsp+180h+var_108+4]
-      vsubss  xmm0, xmm12, xmm10
-      vmovss  xmm13, dword ptr [rbp+80h+var_108+8]
-      vsubss  xmm3, xmm13, xmm9
-      vmulss  xmm1, xmm0, xmm1
-      vmulss  xmm0, xmm2, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm4
-      vaddss  xmm7, xmm2, xmm1
     }
+    inBulletDir.v[0] = v24 * (float)(1.0 / *(float *)&_XMM1);
+    inBulletDir.v[1] = v25 * (float)(1.0 / *(float *)&_XMM1);
+    inBulletDir.v[2] = v27 * (float)(1.0 / *(float *)&_XMM1);
+    v31 = v47.v[0];
+    v32 = v47.v[1];
+    v33 = v47.v[2];
+    v34 = (float)((float)((float)(v47.v[1] - v21) * inBulletDir.v[1]) + (float)((float)(v47.v[0] - v22) * inBulletDir.v[0])) + (float)((float)(v47.v[2] - v20) * inBulletDir.v[2]);
     SfxPackage = BG_GetSfxPackage(r_weapon, isAlternate);
-    __asm { vcomiss xmm7, xmm8 }
-    if ( v69 | v70 )
+    if ( v34 <= *(float *)&_XMM8 )
     {
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbp+80h+inBulletDir]
-        vaddss  xmm6, xmm1, xmm11
-        vmulss  xmm0, xmm7, dword ptr [rbp+80h+inBulletDir+4]
-        vaddss  xmm4, xmm0, xmm10
-        vmulss  xmm2, xmm7, dword ptr [rbp+80h+inBulletDir+8]
-        vaddss  xmm0, xmm2, xmm9
-        vsubss  xmm3, xmm6, xmm14
-        vsubss  xmm5, xmm4, xmm12
-        vsubss  xmm4, xmm0, xmm13
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm8, xmm2, xmm2
-        vmovss  dword ptr [rbp+80h+inSndCenterPt], xmm6
-        vaddss  xmm0, xmm5, xmm12
-        vmovss  dword ptr [rbp+80h+inSndCenterPt+4], xmm0
-        vaddss  xmm1, xmm4, xmm13
-        vmovss  dword ptr [rbp+80h+inSndCenterPt+8], xmm1
-      }
+      v36 = (float)((float)(v34 * inBulletDir.v[1]) + v21) - v32;
+      v37 = (float)((float)(v34 * inBulletDir.v[2]) + v20) - v33;
+      radius = fsqrt((float)((float)(v36 * v36) + (float)((float)((float)((float)(v34 * inBulletDir.v[0]) + v22) - v31) * (float)((float)((float)(v34 * inBulletDir.v[0]) + v22) - v31))) + (float)(v37 * v37));
+      inSndCenterPt.v[0] = (float)(v34 * inBulletDir.v[0]) + v22;
+      inSndCenterPt.v[1] = v36 + v32;
+      inSndCenterPt.v[2] = v37 + v33;
       NewBulletEvent = SND_GetNewBulletEvent();
       if ( NewBulletEvent != -1 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+180h+impactSound], xmm7
-          vmovss  [rsp+180h+radius], xmm8
-        }
-        SND_AddWhizbyToBulletEvent(NewBulletEvent, (const LocalClientNum_t)this->m_localClientNum, SfxPackage, &inSndCenterPt, &inBulletDir, radius, impactSound);
-      }
+        SND_AddWhizbyToBulletEvent(NewBulletEvent, (const LocalClientNum_t)this->m_localClientNum, SfxPackage, &inSndCenterPt, &inBulletDir, radius, v34);
     }
     if ( inSfxInfo->hitSound )
     {
@@ -1936,44 +1684,28 @@ void CgSoundSystem::PlayWhizbyAndImpactSfx_Internal(CgSoundSystem *this, const C
       {
         NewBulletEvent = SND_GetNewBulletEvent();
         if ( NewBulletEvent == -1 )
-        {
-LABEL_18:
-          memset(&v108, 0, sizeof(v108));
-          memset(&outOrg, 0, sizeof(outOrg));
-          goto LABEL_22;
-        }
+          goto LABEL_18;
       }
-      SND_AddImpactToBulletEvent(NewBulletEvent, (const LocalClientNum_t)this->m_localClientNum, SfxPackage, start, _R15, inSfxInfo->impactEnt, inSfxInfo->hitSound, surfType, hitImpactDelayOverride, hitmarkerType);
+      SND_AddImpactToBulletEvent(NewBulletEvent, (const LocalClientNum_t)this->m_localClientNum, SfxPackage, start, v23, inSfxInfo->impactEnt, inSfxInfo->hitSound, surfType, hitImpactDelayOverride, hitmarkerType);
     }
     if ( NewBulletEvent != -1 )
       SND_StartBulletEvent(NewBulletEvent);
-    goto LABEL_18;
+LABEL_18:
+    memset(&v47, 0, sizeof(v47));
+    memset(&outOrg, 0, sizeof(outOrg));
+    return;
   }
   if ( inSfxInfo->hitSound )
   {
-    v88 = SND_GetNewBulletEvent();
-    if ( v88 != -1 )
+    v39 = SND_GetNewBulletEvent();
+    if ( v39 != -1 )
     {
-      hitSound = inSfxInfo->hitSound;
+      impactSound = inSfxInfo->hitSound;
       impactEnt = inSfxInfo->impactEnt;
-      v91 = BG_GetSfxPackage(r_weapon, isAlternate);
-      SND_AddImpactToBulletEvent(v88, (const LocalClientNum_t)this->m_localClientNum, v91, start, inImpactPos, impactEnt, hitSound, surfType, hitImpactDelayOverride, hitmarkerType);
-      SND_StartBulletEvent(v88);
+      v42 = BG_GetSfxPackage(r_weapon, isAlternate);
+      SND_AddImpactToBulletEvent(v39, (const LocalClientNum_t)this->m_localClientNum, v42, start, inImpactPos, impactEnt, impactSound, surfType, hitImpactDelayOverride, hitmarkerType);
+      SND_StartBulletEvent(v39);
     }
-  }
-LABEL_22:
-  _R11 = &v112;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
   }
 }
 

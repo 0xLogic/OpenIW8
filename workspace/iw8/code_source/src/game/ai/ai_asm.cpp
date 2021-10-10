@@ -742,103 +742,92 @@ Ai_Asm::DebugRender
 */
 void Ai_Asm::DebugRender(Ai_Asm *this, const ASM_Instance *pInst, vec3_t *drawPos, int dTime)
 {
-  const dvar_t *v9; 
+  const dvar_t *v7; 
   int integer; 
-  bool v17; 
-  const dvar_t *v18; 
+  bool v11; 
+  const dvar_t *v12; 
+  double v13; 
   const ASM_EphemeralEvent *EphemeralEventTable; 
   int Int_Internal_DebugName; 
-  float v23; 
-  const dvar_t *v24; 
+  float v16; 
+  const dvar_t *v17; 
+  gentity_s *v18; 
   scr_string_t AnimsetName; 
   unsigned int animData; 
-  const char *v28; 
+  const char *v21; 
+  float v22; 
+  float v23; 
   char *fmt; 
   vec3_t xyz; 
   char dest[128]; 
 
-  _RDI = drawPos;
   if ( !pInst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.cpp", 904, ASSERT_TYPE_ASSERT, "( pInst )", (const char *)&queryFormat, "pInst") )
     __debugbreak();
-  v9 = DVARINT_ai_debugAsm;
+  v7 = DVARINT_ai_debugAsm;
   if ( !DVARINT_ai_debugAsm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugAsm") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  integer = v9->current.integer;
+  Dvar_CheckFrontendServerThread(v7);
+  integer = v7->current.integer;
   if ( integer )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebp
-      vmulss  xmm1, xmm0, cs:__real@3ca3d70a
-      vxorps  xmm2, xmm2, xmm2
-      vroundss xmm2, xmm2, xmm1, 2
-      vcvttss2si ebp, xmm2
-    }
+    _XMM2 = 0i64;
+    __asm { vroundss xmm2, xmm2, xmm1, 2 }
     if ( integer == 1 )
     {
-      v17 = 0;
+      v11 = 0;
     }
     else
     {
       if ( integer == 2 )
       {
-        v18 = DVARINT_ai_debugEntIndex;
+        v12 = DVARINT_ai_debugEntIndex;
         if ( !DVARINT_ai_debugEntIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugEntIndex") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v18);
-        if ( v18->current.integer == pInst->m_EntNum )
+        Dvar_CheckFrontendServerThread(v12);
+        if ( v12->current.integer == pInst->m_EntNum )
         {
-          __asm { vmovsd  xmm0, qword ptr [rdi] }
-          xyz.v[2] = _RDI->v[2];
-          __asm { vmovsd  qword ptr [rsp+118h+xyz], xmm0 }
-          Common_Asm::Utils::DebugRender_States3D(pInst, 1, &xyz, 1, _EBP);
+          v13 = *(double *)drawPos->v;
+          xyz.v[2] = drawPos->v[2];
+          *(double *)xyz.v = v13;
+          Common_Asm::Utils::DebugRender_States3D(pInst, 1, &xyz, 1, (int)*(float *)&_XMM2);
           if ( pInst->m_EphemeralTableIndex == 0xFF )
             EphemeralEventTable = NULL;
           else
             EphemeralEventTable = Common_Asm::GetEphemeralEventTable(this, (ASM_Instance *)pInst);
-          Common_Asm::Utils::DebugRender_EntDetails(pInst, EphemeralEventTable, 1, _EBP);
+          Common_Asm::Utils::DebugRender_EntDetails(pInst, EphemeralEventTable, 1, (int)*(float *)&_XMM2);
         }
         goto LABEL_24;
       }
       if ( integer != 3 || (Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_ai_debugEntIndex, "ai_debugEntIndex"), Int_Internal_DebugName != -1) && Int_Internal_DebugName != pInst->m_EntNum )
       {
 LABEL_24:
-        v24 = DVARBOOL_ai_debugArc;
+        v17 = DVARBOOL_ai_debugArc;
         if ( !DVARBOOL_ai_debugArc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugArc") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v24);
-        if ( v24->current.enabled )
+        Dvar_CheckFrontendServerThread(v17);
+        if ( v17->current.enabled )
         {
-          _RDI = &g_entities[pInst->m_EntNum];
-          AnimsetName = BG_AnimationState_GetAnimsetName(&_RDI->s);
-          animData = _RDI->s.animInfo.animData;
-          v28 = SL_ConvertToString(AnimsetName);
+          v18 = &g_entities[pInst->m_EntNum];
+          AnimsetName = BG_AnimationState_GetAnimsetName(&v18->s);
+          animData = v18->s.animInfo.animData;
+          v21 = SL_ConvertToString(AnimsetName);
           LODWORD(fmt) = (animData >> 11) & 0x7F;
-          Com_sprintf<128>((char (*)[128])dest, "arc: %s %d %d", v28, (animData >> 1) & 0x3FF, fmt);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+138h]
-            vmovss  xmm2, dword ptr [rdi+134h]
-            vmovss  xmm1, dword ptr [rdi+130h]
-            vaddss  xmm3, xmm0, cs:__real@42b40000
-            vmovss  dword ptr [rsp+118h+xyz+4], xmm2
-            vmovss  xmm2, cs:__real@3e99999a; scale
-            vmovss  dword ptr [rsp+118h+xyz+8], xmm3
-            vmovss  dword ptr [rsp+118h+xyz], xmm1
-          }
-          G_Main_AddDebugString(&xyz, &colorLtYellow, *(float *)&_XMM2, dest);
+          Com_sprintf<128>((char (*)[128])dest, "arc: %s %d %d", v21, (animData >> 1) & 0x3FF, fmt);
+          v22 = v18->r.currentOrigin.v[2];
+          v23 = v18->r.currentOrigin.v[0];
+          xyz.v[1] = v18->r.currentOrigin.v[1];
+          xyz.v[2] = v22 + 90.0;
+          xyz.v[0] = v23;
+          G_Main_AddDebugString(&xyz, &colorLtYellow, 0.30000001, dest);
         }
         return;
       }
-      v17 = 1;
+      v11 = 1;
     }
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
-    v23 = _RDI->v[2];
-    __asm { vmovsd  qword ptr [rsp+118h+xyz], xmm0 }
-    xyz.v[2] = v23;
-    Common_Asm::Utils::DebugRender_States3D(pInst, v17, &xyz, 1, _EBP);
+    v16 = drawPos->v[2];
+    *(_QWORD *)xyz.v = *(_QWORD *)drawPos->v;
+    xyz.v[2] = v16;
+    Common_Asm::Utils::DebugRender_States3D(pInst, v11, &xyz, 1, (int)*(float *)&_XMM2);
     goto LABEL_24;
   }
 }
@@ -1563,47 +1552,46 @@ Ai_Asm::PushParamsToScript
 __int64 Ai_Asm::PushParamsToScript(scrContext_t *scrContext, int numParams, ASM_Function_Param *pParams)
 {
   __int64 v3; 
+  __int64 v7; 
   ASM_Function_Param_Type m_Type; 
-  __int64 v10; 
+  __int64 v9; 
 
   v3 = numParams;
-  _R14 = pParams;
   if ( !numParams )
     return 0i64;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "ASM_GetParams");
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.cpp", 291, ASSERT_TYPE_ASSERT, "(pParams)", (const char *)&queryFormat, "pParams") )
+  if ( !pParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.cpp", 291, ASSERT_TYPE_ASSERT, "(pParams)", (const char *)&queryFormat, "pParams") )
     __debugbreak();
   if ( (int)v3 > 1 )
     Scr_MakeArray(scrContext);
   if ( (int)v3 > 0 )
   {
-    _RDI = 0i64;
+    v7 = 0i64;
     while ( 1 )
     {
-      m_Type = _R14[_RDI].m_Type;
+      m_Type = pParams[v7].m_Type;
       if ( m_Type == ParamType_Undefined )
         break;
       switch ( m_Type )
       {
         case ParamType_Bool:
-          Scr_AddBool(scrContext, _R14[_RDI].u.m_Bool);
+          Scr_AddBool(scrContext, pParams[v7].u.m_Bool);
           goto LABEL_22;
         case ParamType_String:
-          Scr_AddConstString(scrContext, _R14[_RDI].u.m_String);
+          Scr_AddConstString(scrContext, pParams[v7].u.m_String);
           goto LABEL_22;
         case ParamType_Int:
-          Scr_AddInt(scrContext, _R14[_RDI].u.m_Int);
+          Scr_AddInt(scrContext, pParams[v7].u.m_Int);
           goto LABEL_22;
         case ParamType_Float:
-          __asm { vmovss  xmm1, dword ptr [r14+rdi*8]; value }
-          Scr_AddFloat(scrContext, *(float *)&_XMM1);
+          Scr_AddFloat(scrContext, pParams[v7].u.m_Float);
           goto LABEL_22;
       }
-      LODWORD(v10) = _R14[_RDI].m_Type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.cpp", 327, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported param type %d", v10) )
+      LODWORD(v9) = pParams[v7].m_Type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_asm.cpp", 327, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported param type %d", v9) )
         __debugbreak();
 LABEL_24:
-      if ( ++_RDI >= v3 )
+      if ( ++v7 >= v3 )
         goto LABEL_25;
     }
     Scr_AddUndefined(scrContext);

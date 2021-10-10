@@ -244,7 +244,7 @@ StreamLoader::Decompress
 void StreamLoader::Decompress(StreamLoader *this, StreamLoader::Job *job)
 {
   bool v4; 
-  __int128 v6; 
+  __int128 v5; 
   StreamDecompressCmd cmd; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "StreamLoader::Decompress");
@@ -258,8 +258,8 @@ void StreamLoader::Decompress(StreamLoader *this, StreamLoader::Job *job)
   }
   else
   {
-    *(_QWORD *)&v6 = this;
-    *((_QWORD *)&v6 + 1) = job;
+    *(_QWORD *)&v5 = this;
+    *((_QWORD *)&v5 + 1) = job;
     if ( !job->m_srcData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.cpp", 452, ASSERT_TYPE_ASSERT, "(job->m_srcData)", (const char *)&queryFormat, "job->m_srcData") )
       __debugbreak();
     cmd.decompressItemCallback.m_InvokeFctPtr = stdext::inplace_function<bool (int,StreamDecompressItem *),32,16>::DefaultFunction;
@@ -282,11 +282,7 @@ void StreamLoader::Decompress(StreamLoader *this, StreamLoader::Job *job)
     cmd.decompressItemCallback.m_InvokeFctPtr = stdext::inplace_function<bool (int,StreamDecompressItem *),32,16>::invoke<_lambda_8cf32654943a0140ea85665a97d6afa6_>;
     cmd.decompressItemCompleteCallback.m_ManagerFctPtr = stdext::inplace_function<void (int,StreamDecompressItem const *),32,16>::manage<_lambda_daa1bd346ce2cbc1faa5ba2babdcc38e_>;
     cmd.decompressItemCompleteCallback.m_InvokeFctPtr = stdext::inplace_function<void (int,StreamDecompressItem const *),32,16>::invoke<_lambda_daa1bd346ce2cbc1faa5ba2babdcc38e_>;
-    __asm
-    {
-      vmovups xmm0, [rsp+1A0h+var_170]
-      vmovups xmmword ptr [rbp+0A0h+cmd.decompressFinishedCallback.m_Data._Space], xmm0
-    }
+    *(_OWORD *)cmd.decompressFinishedCallback.m_Data._Space = v5;
     cmd.decompressFinishedCallback.m_ManagerFctPtr = stdext::inplace_function<void (bool),32,16>::manage<_lambda_3df850bf9ab8ef58c6bfbfd1f85f9b9d_>;
     cmd.decompressFinishedCallback.m_InvokeFctPtr = stdext::inplace_function<void (bool),32,16>::invoke<_lambda_3df850bf9ab8ef58c6bfbfd1f85f9b9d_>;
     *(_QWORD *)cmd.debugDumpXpakInfo.m_Data._Space = job;
@@ -525,8 +521,8 @@ void StreamLoader::Read(StreamLoader *this, StreamLoader::Job *job)
   __int64 v6; 
   unsigned int v7; 
   __int64 v8; 
-  bool v10; 
-  __int128 v11; 
+  bool v9; 
+  __int128 v10; 
   stdext::inplace_function<void __cdecl(void *,unsigned __int64),32,16> readCallback; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "StreamLoader::Read");
@@ -562,25 +558,21 @@ void StreamLoader::Read(StreamLoader *this, StreamLoader::Job *job)
     job->m_readSize = 0x100000;
     LODWORD(v4) = 0x100000;
   }
-  *(_QWORD *)&v11 = this;
-  *((_QWORD *)&v11 + 1) = job;
+  *(_QWORD *)&v10 = this;
+  *((_QWORD *)&v10 + 1) = job;
   v7 = (v4 + 0x7FFF) & 0xFFFF8000;
   if ( v7 > 0x100000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.cpp", 371, ASSERT_TYPE_ASSERT, "(alignedReadSize <= STREAM_LOADER_BLOCK_SIZE)", (const char *)&queryFormat, "alignedReadSize <= STREAM_LOADER_BLOCK_SIZE") )
     __debugbreak();
   v8 = job->m_currentRead;
   job->m_currentRead = v8 + job->m_readSize;
-  __asm
-  {
-    vmovups xmm0, [rsp+0E8h+var_98]
-    vmovups xmmword ptr [rsp+0E8h+var_78.m_Data._Space], xmm0
-  }
+  *(_OWORD *)readCallback.m_Data._Space = v10;
   readCallback.m_ManagerFctPtr = stdext::inplace_function<void (void *,unsigned __int64),32,16>::manage<_lambda_3511d6a16932ab6d3e0b6ae8e0e35998_>;
   readCallback.m_InvokeFctPtr = stdext::inplace_function<void (void *,unsigned __int64),32,16>::invoke<_lambda_3511d6a16932ab6d3e0b6ae8e0e35998_>;
-  v10 = !StreamReader::QueueJob(this->m_reader, job->m_jobIndex, job->m_cmd.m_xpakIndex, v8, v7, &readCallback);
+  v9 = !StreamReader::QueueJob(this->m_reader, job->m_jobIndex, job->m_cmd.m_xpakIndex, v8, v7, &readCallback);
   readCallback.m_InvokeFctPtr = stdext::inplace_function<void (void *,unsigned __int64),32,16>::DefaultFunction;
   if ( readCallback.m_ManagerFctPtr )
     readCallback.m_ManagerFctPtr(&readCallback.m_Data, NULL, Destroy);
-  if ( v10 )
+  if ( v9 )
   {
     job->m_currentRead = v8;
     Com_PrintError(35, "StreamLoader::Read failed to Queue Read\n");
@@ -605,7 +597,7 @@ unsigned __int8 *Stream_Primer_AssetInfo::ResolveAddress(Stream_Primer_AssetInfo
   unsigned __int8 *v7; 
   unsigned __int8 *v8; 
   unsigned int StreamItemSize; 
-  __int64 v12; 
+  __int64 v10; 
   unsigned int StreamedPartCount; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
@@ -632,8 +624,8 @@ unsigned __int8 *Stream_Primer_AssetInfo::ResolveAddress(Stream_Primer_AssetInfo
       if ( (unsigned int)v4 >= Image_GetStreamedPartCount((const GfxImage *)name) )
       {
         StreamedPartCount = Image_GetStreamedPartCount((const GfxImage *)name);
-        LODWORD(v12) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 193, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v12, StreamedPartCount) )
+        LODWORD(v10) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 193, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v10, StreamedPartCount) )
           __debugbreak();
       }
       v6 = *(_DWORD *)&name[40 * (unsigned int)v4 + 88] >> 4;
@@ -653,12 +645,7 @@ unsigned __int8 *Stream_Primer_AssetInfo::ResolveAddress(Stream_Primer_AssetInfo
         __debugbreak();
     }
     this->m_data = v8;
-    _RAX = Stream_Logger_MakeItem(&result, &handle);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+88h+item.___u0], xmm0
-    }
+    item = *Stream_Logger_MakeItem(&result, &handle);
     StreamItemSize = Stream_Primer_AssetInfo::GetStreamItemSize(this);
     Stream_Logger_OnPrimerIntoAddress("Stream_Primer_AssetInfo::ResolveAddress", NULL, &item, this->m_data, StreamItemSize);
     return this->m_data;

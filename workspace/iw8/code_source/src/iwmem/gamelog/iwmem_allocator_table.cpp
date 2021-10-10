@@ -221,33 +221,33 @@ void IWMemAllocatorTable::Allocate(IWMemAllocatorTable *this, const unsigned __i
   unsigned int callstackCrc; 
   IWMemProfileNode *CurrentNode; 
   IWMemAllocatorTableEntry *AdjacentEntry; 
-  IWMemAllocatorTableEntry *v19; 
+  IWMemAllocatorTableEntry *v18; 
   unsigned __int64 m_address; 
-  __int64 v21; 
-  unsigned __int64 v22; 
-  __int64 v23; 
-  unsigned int v24; 
-  IWMemAllocatorTableEntry *v25; 
-  unsigned __int64 v26; 
-  __int64 v27; 
-  unsigned __int64 v28; 
-  __int64 v29; 
-  unsigned __int64 v30; 
+  __int64 v20; 
+  unsigned __int64 v21; 
+  __int64 v22; 
+  unsigned int v23; 
+  IWMemAllocatorTableEntry *v24; 
+  unsigned __int64 v25; 
+  __int64 v26; 
+  unsigned __int64 v27; 
+  __int64 v28; 
+  unsigned __int64 v29; 
+  __int64 v30; 
   __int64 v31; 
-  __int64 v32; 
-  unsigned int v33; 
-  IWMemAllocatorTableEntry *v34; 
-  unsigned __int64 v35; 
-  __int64 v36; 
-  unsigned __int64 v37; 
-  IWMemBlock v38; 
+  unsigned int v32; 
+  IWMemAllocatorTableEntry *v33; 
+  unsigned __int64 v34; 
+  __int64 v35; 
+  unsigned __int64 v36; 
+  IWMemBlock v37; 
 
   if ( !address && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 51, ASSERT_TYPE_ASSERT, "(address)", (const char *)&queryFormat, "address") )
     __debugbreak();
   if ( !size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 52, ASSERT_TYPE_ASSERT, "(size)", (const char *)&queryFormat, "size") )
     __debugbreak();
-  v38.m_address = address;
-  v38.m_size = size;
+  v37.m_address = address;
+  v37.m_size = size;
   if ( !size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
     __debugbreak();
   if ( address >= size + address && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
@@ -305,92 +305,80 @@ LABEL_19:
   CurrentNode = IWMem_ProfileTree_GetCurrentNode();
   if ( traceCallstacks && IWMem_ShouldTraceCallstacks() )
     callstackCrc = IWMem_CallstackHash_TraceCurrent();
-  if ( uniqueEntries )
-    goto LABEL_83;
-  __asm
+  if ( !uniqueEntries && (AdjacentEntry = IWMemAllocatorTable::FindAdjacentEntry(this, &v37), (v18 = AdjacentEntry) != NULL) && IWMemAllocatorTableEntry::GetMemProfileNode(AdjacentEntry) == CurrentNode && v18->m_callstackHash == callstackCrc )
   {
-    vmovups xmm0, [rsp+88h+var_38]
-    vmovdqa [rsp+88h+var_38], xmm0
-  }
-  AdjacentEntry = IWMemAllocatorTable::FindAdjacentEntry(this, &v38);
-  v19 = AdjacentEntry;
-  if ( !AdjacentEntry )
-    goto LABEL_83;
-  if ( IWMemAllocatorTableEntry::GetMemProfileNode(AdjacentEntry) == CurrentNode && v19->m_callstackHash == callstackCrc )
-  {
-    m_address = v19->m_address;
-    v21 = *((_QWORD *)v19 + 1) & 0xFFFFFFFFFFi64;
-    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
+    m_address = v18->m_address;
+    v20 = *((_QWORD *)v18 + 1) & 0xFFFFFFFFFFi64;
+    if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
       __debugbreak();
-    v22 = m_address + v21;
-    if ( m_address >= m_address + v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
+    v21 = m_address + v20;
+    if ( m_address >= m_address + v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
       __debugbreak();
-    v23 = *((_QWORD *)v19 + 1);
-    if ( v22 == address )
+    v22 = *((_QWORD *)v18 + 1);
+    if ( v21 == address )
     {
-      *((_QWORD *)v19 + 1) = v23 ^ (v23 ^ (v23 + size)) & 0xFFFFFFFFFFi64;
+      *((_QWORD *)v18 + 1) = v22 ^ (v22 ^ (v22 + size)) & 0xFFFFFFFFFFi64;
       this->m_usedSize += size;
-      v24 = v19->m_childNodeIndices[1];
-      if ( v24 )
+      v23 = v18->m_childNodeIndices[1];
+      if ( v23 )
       {
-        v25 = &g_iwMemAllocatorPool[v24];
-        if ( v25 )
+        v24 = &g_iwMemAllocatorPool[v23];
+        if ( v24 )
         {
-          v26 = v25->m_address;
-          v27 = *((_QWORD *)v25 + 1) & 0xFFFFFFFFFFi64;
-          if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
+          v25 = v24->m_address;
+          v26 = *((_QWORD *)v24 + 1) & 0xFFFFFFFFFFi64;
+          if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
             __debugbreak();
-          if ( v26 >= v26 + v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
+          if ( v25 >= v25 + v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
             __debugbreak();
-          if ( v26 == v19->m_address + (*((_QWORD *)v19 + 1) & 0xFFFFFFFFFFi64) )
-            IWMemAllocatorTable::TryCombineBlocks(this, v19, v25);
+          if ( v25 == v18->m_address + (*((_QWORD *)v18 + 1) & 0xFFFFFFFFFFi64) )
+            IWMemAllocatorTable::TryCombineBlocks(this, v18, v24);
         }
       }
     }
     else
     {
-      v28 = v19->m_address;
-      v29 = v23 & 0xFFFFFFFFFFi64;
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
+      v27 = v18->m_address;
+      v28 = v22 & 0xFFFFFFFFFFi64;
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
         __debugbreak();
-      if ( v28 >= v28 + v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
+      if ( v27 >= v27 + v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
         __debugbreak();
-      if ( v28 != size + address && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 118, ASSERT_TYPE_ASSERT, "(p_adjacent->GetBlock().GetAddress() == allocedBlock.GetExclusiveEndAddress())", (const char *)&queryFormat, "p_adjacent->GetBlock().GetAddress() == allocedBlock.GetExclusiveEndAddress()") )
+      if ( v27 != size + address && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 118, ASSERT_TYPE_ASSERT, "(p_adjacent->GetBlock().GetAddress() == allocedBlock.GetExclusiveEndAddress())", (const char *)&queryFormat, "p_adjacent->GetBlock().GetAddress() == allocedBlock.GetExclusiveEndAddress()") )
         __debugbreak();
-      v30 = v19->m_address;
-      v31 = *((_QWORD *)v19 + 1) & 0xFFFFFFFFFFi64;
-      if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
+      v29 = v18->m_address;
+      v30 = *((_QWORD *)v18 + 1) & 0xFFFFFFFFFFi64;
+      if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
         __debugbreak();
-      if ( v30 >= v30 + v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
+      if ( v29 >= v29 + v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
         __debugbreak();
-      if ( address >= v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 119, ASSERT_TYPE_ASSERT, "(allocedBlock.GetAddress() < p_adjacent->GetBlock().GetAddress())", (const char *)&queryFormat, "allocedBlock.GetAddress() < p_adjacent->GetBlock().GetAddress()") )
+      if ( address >= v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 119, ASSERT_TYPE_ASSERT, "(allocedBlock.GetAddress() < p_adjacent->GetBlock().GetAddress())", (const char *)&queryFormat, "allocedBlock.GetAddress() < p_adjacent->GetBlock().GetAddress()") )
         __debugbreak();
-      v32 = *((_QWORD *)v19 + 1);
-      v19->m_address = address;
-      *((_QWORD *)v19 + 1) = v32 ^ (v32 ^ (v32 + size)) & 0xFFFFFFFFFFi64;
+      v31 = *((_QWORD *)v18 + 1);
+      v18->m_address = address;
+      *((_QWORD *)v18 + 1) = v31 ^ (v31 ^ (v31 + size)) & 0xFFFFFFFFFFi64;
       this->m_usedSize += size;
-      v33 = v19->m_childNodeIndices[0];
-      if ( v33 )
+      v32 = v18->m_childNodeIndices[0];
+      if ( v32 )
       {
-        v34 = &g_iwMemAllocatorPool[v33];
-        if ( v34 )
+        v33 = &g_iwMemAllocatorPool[v32];
+        if ( v33 )
         {
-          v35 = v34->m_address;
-          v36 = *((_QWORD *)v34 + 1) & 0xFFFFFFFFFFi64;
-          if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
+          v34 = v33->m_address;
+          v35 = *((_QWORD *)v33 + 1) & 0xFFFFFFFFFFi64;
+          if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
             __debugbreak();
-          v37 = v35 + v36;
-          if ( v35 >= v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
+          v36 = v34 + v35;
+          if ( v34 >= v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
             __debugbreak();
-          if ( v37 == v19->m_address )
-            IWMemAllocatorTable::TryCombineBlocks(this, v34, v19);
+          if ( v36 == v18->m_address )
+            IWMemAllocatorTable::TryCombineBlocks(this, v33, v18);
         }
       }
     }
   }
   else
   {
-LABEL_83:
     IWMemAllocatorTable::AddNewBlock(this, address, size, leakDetect, CurrentNode, callstackCrc);
   }
 }
@@ -456,15 +444,14 @@ IWMemAllocatorTableEntry *IWMemAllocatorTable::FindAdjacentEntry(IWMemAllocatorT
   unsigned __int64 m_address; 
   __int64 v5; 
   unsigned __int64 v6; 
+  unsigned __int64 v7; 
+  __int64 v8; 
   unsigned __int64 v9; 
   __int64 v10; 
-  unsigned __int64 v11; 
-  __int64 v12; 
-  int v13; 
-  __int128 v15; 
+  int v11; 
+  IWMemBlock v13; 
 
   mp_root = this->m_allocs.mp_root;
-  _R14 = block;
   if ( !this->m_allocs.mp_root )
     return 0i64;
   while ( 1 )
@@ -476,42 +463,37 @@ IWMemAllocatorTableEntry *IWMemAllocatorTable::FindAdjacentEntry(IWMemAllocatorT
     v6 = m_address + v5;
     if ( m_address >= v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
       __debugbreak();
-    __asm
+    v13 = *block;
+    if ( m_address >= block->m_address )
     {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovq   rcx, xmm0
-      vmovups [rsp+68h+var_38], xmm0
-    }
-    if ( m_address >= _RCX )
-    {
-      if ( *((_QWORD *)&v15 + 1) + _RCX - 1 < m_address )
+      if ( v13.m_size + v13.m_address - 1 < m_address )
         goto LABEL_14;
     }
-    else if ( v6 - 1 < _RCX )
+    else if ( v6 - 1 < v13.m_address )
     {
       goto LABEL_14;
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 321, ASSERT_TYPE_ASSERT, "(!p_curr_node->GetBlock().DoesOtherOverlap( block ))", (const char *)&queryFormat, "!p_curr_node->GetBlock().DoesOtherOverlap( block )", (_QWORD)v15) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_table.cpp", 321, ASSERT_TYPE_ASSERT, "(!p_curr_node->GetBlock().DoesOtherOverlap( block ))", (const char *)&queryFormat, "!p_curr_node->GetBlock().DoesOtherOverlap( block )") )
       __debugbreak();
 LABEL_14:
-    v9 = mp_root->m_address;
-    if ( mp_root->m_address == _R14->m_address + _R14->m_size )
+    v7 = mp_root->m_address;
+    if ( mp_root->m_address == block->m_address + block->m_size )
       return mp_root;
-    v10 = *((_QWORD *)mp_root + 1) & 0xFFFFFFFFFFi64;
-    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
+    v8 = *((_QWORD *)mp_root + 1) & 0xFFFFFFFFFFi64;
+    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
       __debugbreak();
-    v11 = v9 + v10;
-    if ( v9 >= v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
+    v9 = v7 + v8;
+    if ( v7 >= v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
       __debugbreak();
-    if ( v11 == _R14->m_address )
+    if ( v9 == block->m_address )
       return mp_root;
-    v12 = 16i64;
-    if ( mp_root->m_address < _R14->m_address )
-      v12 = 20i64;
-    v13 = *(_DWORD *)((char *)&mp_root->m_address + v12);
-    if ( v13 )
+    v10 = 16i64;
+    if ( mp_root->m_address < block->m_address )
+      v10 = 20i64;
+    v11 = *(_DWORD *)((char *)&mp_root->m_address + v10);
+    if ( v11 )
     {
-      mp_root = &g_iwMemAllocatorPool[v13];
+      mp_root = &g_iwMemAllocatorPool[v11];
       if ( mp_root )
         continue;
     }

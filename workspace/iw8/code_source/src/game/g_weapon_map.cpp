@@ -534,14 +534,14 @@ GWeaponMap::AssignEntry
 void GWeaponMap::AssignEntry(GWeaponMap *this, const unsigned __int16 entryIndex, const Weapon *r_weapon)
 {
   unsigned __int16 v6; 
-  __int64 v8; 
-  unsigned __int16 v12; 
-  unsigned __int16 v13; 
-  __int64 v14; 
-  __int64 v15; 
-  int v16; 
+  __int64 v7; 
+  Weapon *p_weapon; 
+  unsigned __int16 v9; 
+  unsigned __int16 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
 
-  _R14 = r_weapon;
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 181, ASSERT_TYPE_ASSERT, "( m_entries != nullptr )", (const char *)&queryFormat, "m_entries != nullptr") )
     __debugbreak();
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 161, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr") )
@@ -553,41 +553,35 @@ void GWeaponMap::AssignEntry(GWeaponMap *this, const unsigned __int16 entryIndex
     __debugbreak();
   if ( this->m_entries[v6].index == v6 )
   {
-    v16 = entryIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 182, ASSERT_TYPE_ASSERT, "(!IsEntryValid( entryIndex ))", "%s\n\tAdding new weapon entry: found an available entry but the index for that entry is already active (%d)", "!IsEntryValid( entryIndex )", v16) )
+    v13 = entryIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 182, ASSERT_TYPE_ASSERT, "(!IsEntryValid( entryIndex ))", "%s\n\tAdding new weapon entry: found an available entry but the index for that entry is already active (%d)", "!IsEntryValid( entryIndex )", v13) )
       __debugbreak();
   }
-  __asm { vmovups ymm0, ymmword ptr [r14] }
-  v8 = entryIndex;
-  _RCX = &this->m_entries[v8].weapon;
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [r14+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, qword ptr [r14+30h]
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)&_RCX->weaponCamo = *(_DWORD *)&_R14->weaponCamo;
-  this->m_entries[v8].index = entryIndex;
+  v7 = entryIndex;
+  p_weapon = &this->m_entries[v7].weapon;
+  *(__m256i *)&p_weapon->weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)&p_weapon->attachmentVariationIndices[5] = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&p_weapon->attachmentVariationIndices[21] = *(double *)&r_weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&p_weapon->weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
+  this->m_entries[v7].index = entryIndex;
   if ( this->m_activeCount == 0xFFFF )
   {
-    LODWORD(v15) = 0xFFFF;
-    LODWORD(v14) = 0xFFFF;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 190, ASSERT_TYPE_ASSERT, "( m_activeCount ) < ( 0xffff )", "m_activeCount < USHRT_MAX\n\t%i, %i", v14, v15) )
+    LODWORD(v12) = 0xFFFF;
+    LODWORD(v11) = 0xFFFF;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 190, ASSERT_TYPE_ASSERT, "( m_activeCount ) < ( 0xffff )", "m_activeCount < USHRT_MAX\n\t%i, %i", v11, v12) )
       __debugbreak();
   }
-  v12 = ++this->m_activeCount;
-  if ( v12 > this->m_activeHighWatermark )
-    this->m_activeHighWatermark = v12;
+  v9 = ++this->m_activeCount;
+  if ( v9 > this->m_activeHighWatermark )
+    this->m_activeHighWatermark = v9;
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 161, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr") )
     __debugbreak();
-  v13 = truncate_cast<unsigned short,unsigned int>(entryIndex);
+  v10 = truncate_cast<unsigned short,unsigned int>(entryIndex);
   if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
     __debugbreak();
-  if ( v13 >= BgWeaponMap::ms_runtimeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 165, ASSERT_TYPE_ASSERT, "(mapEntryIndex < BgWeaponMap::GetRuntimeSize())", "%s\n\tHandle supplied to BgWeaponMap::GetWeapon does not index the map.", "mapEntryIndex < BgWeaponMap::GetRuntimeSize()") )
+  if ( v10 >= BgWeaponMap::ms_runtimeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 165, ASSERT_TYPE_ASSERT, "(mapEntryIndex < BgWeaponMap::GetRuntimeSize())", "%s\n\tHandle supplied to BgWeaponMap::GetWeapon does not index the map.", "mapEntryIndex < BgWeaponMap::GetRuntimeSize()") )
     __debugbreak();
-  if ( this->m_entries[v13].index != v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 197, ASSERT_TYPE_ASSERT, "( IsEntryValid( entryIndex ) )", (const char *)&queryFormat, "IsEntryValid( entryIndex )") )
+  if ( this->m_entries[v10].index != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 197, ASSERT_TYPE_ASSERT, "( IsEntryValid( entryIndex ) )", (const char *)&queryFormat, "IsEntryValid( entryIndex )") )
     __debugbreak();
 }
 
@@ -845,102 +839,74 @@ GWeaponMap::DrawWeaponMap
 */
 void GWeaponMap::DrawWeaponMap(GWeaponMap *this)
 {
-  const dvar_t *v6; 
-  unsigned int v7; 
-  int v8; 
-  signed int v10; 
-  signed int v11; 
-  unsigned __int16 *v14; 
-  unsigned __int16 v16; 
+  __int128 v1; 
+  const dvar_t *v3; 
+  unsigned int v4; 
+  int v5; 
+  __int128 v6; 
+  signed int v7; 
+  signed int v8; 
+  unsigned __int16 *v9; 
+  unsigned __int16 v10; 
   WeaponMapEntry *m_entries; 
   const char *WeaponName; 
+  __int128 v13; 
   char *fmt; 
-  __int64 v30; 
+  __int64 v15; 
   char dest[1024]; 
   char output[512]; 
+  __int128 v18; 
 
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 820, ASSERT_TYPE_ASSERT, "( m_entries != nullptr )", (const char *)&queryFormat, "m_entries != nullptr") )
     __debugbreak();
-  v6 = DVARBOOL_g_drawWeaponMap;
+  v3 = DVARBOOL_g_drawWeaponMap;
   if ( !DVARBOOL_g_drawWeaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_drawWeaponMap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    v7 = 0;
-    __asm { vmovaps [rsp+6B8h+var_38], xmm6 }
-    v8 = 0;
-    __asm
-    {
-      vmovss  xmm6, cs:__real@42e20000
-      vmovaps [rsp+6B8h+var_48], xmm7
-      vmovaps [rsp+6B8h+var_68], xmm9
-    }
+    v4 = 0;
+    v5 = 0;
+    v6 = LODWORD(FLOAT_113_0);
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    v10 = BgWeaponMap::ms_runtimeSize;
-    v11 = 1;
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f8ccccd
-      vmovss  xmm7, cs:__real@42c80000
-    }
+    v7 = BgWeaponMap::ms_runtimeSize;
+    v8 = 1;
     if ( BgWeaponMap::ms_runtimeSize > 1u )
     {
-      v14 = &this->m_refCount[1];
-      __asm
-      {
-        vmovaps [rsp+6B8h+var_58], xmm8
-        vmovss  xmm8, cs:__real@41500000
-      }
+      v9 = &this->m_refCount[1];
+      v18 = v1;
       do
       {
         if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 161, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr") )
           __debugbreak();
-        v16 = truncate_cast<unsigned short,unsigned int>(v11);
+        v10 = truncate_cast<unsigned short,unsigned int>(v8);
         if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
           __debugbreak();
-        if ( v16 >= BgWeaponMap::ms_runtimeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 165, ASSERT_TYPE_ASSERT, "(mapEntryIndex < BgWeaponMap::GetRuntimeSize())", "%s\n\tHandle supplied to BgWeaponMap::GetWeapon does not index the map.", "mapEntryIndex < BgWeaponMap::GetRuntimeSize()") )
+        if ( v10 >= BgWeaponMap::ms_runtimeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 165, ASSERT_TYPE_ASSERT, "(mapEntryIndex < BgWeaponMap::GetRuntimeSize())", "%s\n\tHandle supplied to BgWeaponMap::GetWeapon does not index the map.", "mapEntryIndex < BgWeaponMap::GetRuntimeSize()") )
           __debugbreak();
         m_entries = this->m_entries;
-        if ( m_entries[v16].index == v16 )
+        if ( m_entries[v10].index == v10 )
         {
-          WeaponName = BG_GetWeaponName(&m_entries[v11].weapon, output, 0x200u);
-          LODWORD(fmt) = *v14;
-          Com_sprintf(dest, 0x400ui64, "Entry:%d RefCount:%d Weapon:%s\n", (unsigned int)v11, fmt, WeaponName);
-          __asm
-          {
-            vmovaps xmm3, xmm9; scale
-            vmovaps xmm1, xmm6; y
-            vmovaps xmm0, xmm7; x
-          }
-          G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorWhite, *(float *)&_XMM3, dest);
-          v8 += *v14;
-          ++v7;
+          WeaponName = BG_GetWeaponName(&m_entries[v8].weapon, output, 0x200u);
+          LODWORD(fmt) = *v9;
+          Com_sprintf(dest, 0x400ui64, "Entry:%d RefCount:%d Weapon:%s\n", (unsigned int)v8, fmt, WeaponName);
+          G_Main_AddDebugString2D(100.0, *(float *)&v6, &colorWhite, 1.1, dest);
+          v5 += *v9;
+          ++v4;
         }
-        ++v11;
-        ++v14;
-        __asm { vaddss  xmm6, xmm6, xmm8 }
+        ++v8;
+        ++v9;
+        v13 = v6;
+        *(float *)&v13 = *(float *)&v6 + 13.0;
+        v6 = v13;
       }
-      while ( v11 < v10 );
-      __asm { vmovaps xmm8, [rsp+6B8h+var_58] }
+      while ( v8 < v7 );
     }
-    LODWORD(v30) = v8;
-    LODWORD(fmt) = v10;
-    Com_sprintf(dest, 0x400ui64, "Using: %d / %d     Total RefCount:%d", v7, fmt, v30);
-    __asm
-    {
-      vmovaps xmm3, xmm9; scale
-      vmovaps xmm1, xmm7; y
-      vmovaps xmm0, xmm7; x
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorWhite, *(float *)&_XMM3, dest);
-    __asm
-    {
-      vmovaps xmm9, [rsp+6B8h+var_68]
-      vmovaps xmm7, [rsp+6B8h+var_48]
-      vmovaps xmm6, [rsp+6B8h+var_38]
-    }
+    LODWORD(v15) = v5;
+    LODWORD(fmt) = v7;
+    Com_sprintf(dest, 0x400ui64, "Using: %d / %d     Total RefCount:%d", v4, fmt, v15);
+    G_Main_AddDebugString2D(100.0, 100.0, &colorWhite, 1.1, dest);
   }
 }
 
@@ -1050,10 +1016,14 @@ void GWeaponMap::LoadWeapons(GWeaponMap *this, MemoryFile *memFile)
   __int16 v5; 
   unsigned __int16 v6; 
   __int64 v7; 
+  WeaponMapEntry *v8; 
   unsigned __int16 v9; 
+  Weapon *WeaponForName; 
   int v11; 
+  __int128 v12; 
+  double v13; 
   __int16 p[2]; 
-  unsigned __int16 v16; 
+  unsigned __int16 v15; 
   Weapon result; 
   char psz[512]; 
 
@@ -1077,9 +1047,9 @@ void GWeaponMap::LoadWeapons(GWeaponMap *this, MemoryFile *memFile)
     do
     {
       v7 = v6;
-      _RDI = &this->m_entries[v6];
-      MemFile_ReadData(memFile, 2ui64, &v16);
-      v9 = v16;
+      v8 = &this->m_entries[v6];
+      MemFile_ReadData(memFile, 2ui64, &v15);
+      v9 = v15;
       if ( !GSave::ms_weaponNameSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_save.h", 79, ASSERT_TYPE_ASSERT, "(ms_weaponNameSize != 0)", (const char *)&queryFormat, "ms_weaponNameSize != 0") )
         __debugbreak();
       G_SaveField_ReadCStyleString(psz, GSave::ms_weaponNameSize, memFile);
@@ -1088,19 +1058,15 @@ void GWeaponMap::LoadWeapons(GWeaponMap *this, MemoryFile *memFile)
         Com_Printf(16, "Encountered an empty weapon string when reading weapon map. Only valid weapons should have been written to the save file.");
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E3E358);
       }
-      _RDI->index = v5;
-      _RAX = G_Weapon_GetWeaponForName(&result, psz);
-      v11 = *(_DWORD *)&_RAX->weaponCamo;
-      __asm
-      {
-        vmovups ymm1, ymmword ptr [rax]
-        vmovups xmm2, xmmword ptr [rax+20h]
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovups ymmword ptr [rdi+2], ymm1
-        vmovups xmmword ptr [rdi+22h], xmm2
-        vmovsd  qword ptr [rdi+32h], xmm0
-      }
-      *(_DWORD *)&_RDI->weapon.weaponCamo = v11;
+      v8->index = v5;
+      WeaponForName = G_Weapon_GetWeaponForName(&result, psz);
+      v11 = *(_DWORD *)&WeaponForName->weaponCamo;
+      v12 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+      v13 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+      *(__m256i *)&v8->weapon.weaponIdx = *(__m256i *)&WeaponForName->weaponIdx;
+      *(_OWORD *)&v8->weapon.attachmentVariationIndices[5] = v12;
+      *(double *)&v8->weapon.attachmentVariationIndices[21] = v13;
+      *(_DWORD *)&v8->weapon.weaponCamo = v11;
       this->m_refCount[v7] = v9;
       ++this->m_activeCount;
       MemFile_ReadData(memFile, 2ui64, p);
@@ -1270,18 +1236,19 @@ GWeaponMap::TryGetWeaponEntry
 bool GWeaponMap::TryGetWeaponEntry(GWeaponMap *this, const unsigned __int16 mapEntryIndex, WeaponMapEntry *outWeaponMapEntry)
 {
   unsigned int v6; 
+  __int64 v7; 
+  WeaponMapEntry *m_entries; 
   bool result; 
-  __int64 v13; 
+  __int64 v10; 
 
-  _RBX = outWeaponMapEntry;
   if ( !mapEntryIndex )
   {
     v6 = 0;
 LABEL_8:
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    LODWORD(v13) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 520, ASSERT_TYPE_ASSERT, "( FIRST_ENTRY_ID ) <= ( mapEntryIndex ) && ( mapEntryIndex ) <= ( BgWeaponMap::GetRuntimeSize() - 1 )", "mapEntryIndex not in [FIRST_ENTRY_ID, BgWeaponMap::GetRuntimeSize() - 1]\n\t%i not in [%i, %i]", v13, 1, BgWeaponMap::ms_runtimeSize - 1) )
+    LODWORD(v10) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 520, ASSERT_TYPE_ASSERT, "( FIRST_ENTRY_ID ) <= ( mapEntryIndex ) && ( mapEntryIndex ) <= ( BgWeaponMap::GetRuntimeSize() - 1 )", "mapEntryIndex not in [FIRST_ENTRY_ID, BgWeaponMap::GetRuntimeSize() - 1]\n\t%i not in [%i, %i]", v10, 1, BgWeaponMap::ms_runtimeSize - 1) )
       __debugbreak();
     goto LABEL_13;
   }
@@ -1291,26 +1258,20 @@ LABEL_8:
   if ( mapEntryIndex > BgWeaponMap::ms_runtimeSize - 1 )
     goto LABEL_8;
 LABEL_13:
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 521, ASSERT_TYPE_ASSERT, "( outWeaponMapEntry )", (const char *)&queryFormat, "outWeaponMapEntry") )
+  if ( !outWeaponMapEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 521, ASSERT_TYPE_ASSERT, "( outWeaponMapEntry )", (const char *)&queryFormat, "outWeaponMapEntry") )
     __debugbreak();
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_weapon_map.cpp", 522, ASSERT_TYPE_ASSERT, "( m_entries != nullptr )", (const char *)&queryFormat, "m_entries != nullptr") )
     __debugbreak();
   if ( !BgWeaponMap::IsEntryValid(this, v6) )
     return 0;
-  _RCX = mapEntryIndex;
-  _RAX = this->m_entries;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+rax+2]
-    vmovups ymmword ptr [rbx+2], ymm0
-    vmovups xmm1, xmmword ptr [rcx+rax+22h]
-    vmovups xmmword ptr [rbx+22h], xmm1
-    vmovsd  xmm0, qword ptr [rcx+rax+32h]
-    vmovsd  qword ptr [rbx+32h], xmm0
-  }
-  *(_DWORD *)&_RBX->weapon.weaponCamo = *(_DWORD *)&_RAX[_RCX].weapon.weaponCamo;
+  v7 = mapEntryIndex;
+  m_entries = this->m_entries;
+  *(__m256i *)&outWeaponMapEntry->weapon.weaponIdx = *(__m256i *)&m_entries[v7].weapon.weaponIdx;
+  *(_OWORD *)&outWeaponMapEntry->weapon.attachmentVariationIndices[5] = *(_OWORD *)&m_entries[v7].weapon.attachmentVariationIndices[5];
+  *(double *)&outWeaponMapEntry->weapon.attachmentVariationIndices[21] = *(double *)&m_entries[v7].weapon.attachmentVariationIndices[21];
+  *(_DWORD *)&outWeaponMapEntry->weapon.weaponCamo = *(_DWORD *)&m_entries[v7].weapon.weaponCamo;
   result = 1;
-  _RBX->index = mapEntryIndex;
+  outWeaponMapEntry->index = mapEntryIndex;
   return result;
 }
 

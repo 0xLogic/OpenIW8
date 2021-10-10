@@ -45,69 +45,67 @@ void R_Cmd_Testmonkey_Dump()
   const char *v0; 
   const char *v1; 
   cg_t *v2; 
+  refdef_t *p_refdef; 
   fileHandle_t *v4; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
+  refdef_t *v8; 
+  cg_t *v9; 
   int i; 
-  __int64 v63; 
-  int v64; 
+  __int64 v11; 
+  int v12; 
   int j; 
-  __int64 v66; 
-  int v67; 
+  __int64 v14; 
+  int v15; 
   int k; 
-  __int64 v69; 
-  int v70; 
+  __int64 v17; 
+  int v18; 
   char *fmt; 
   char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  char *fmte; 
-  char *fmtf; 
-  __int64 v78; 
-  __int64 v79; 
-  __int64 v80; 
-  __int64 v81; 
-  __int64 v82; 
-  __int64 v83; 
-  __int64 v84; 
-  __int64 v85; 
-  __int64 v86; 
-  __int64 v87; 
-  __int64 v88; 
-  __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  __int64 v92; 
-  char v93; 
-  int v94[3]; 
-  level_locals_t *v95; 
-  refdef_t *p_refdef; 
-  cg_t *v97; 
-  __int64 v98; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
+  char v36; 
+  int v37[3]; 
+  level_locals_t *v38; 
+  refdef_t *v39; 
+  cg_t *v40; 
+  __int64 v41; 
   Hash_state md; 
   unsigned __int8 out; 
-  unsigned __int8 v101; 
-  unsigned __int8 v102; 
-  unsigned __int8 v103; 
-  unsigned __int8 v104; 
-  unsigned __int8 v105; 
-  unsigned __int8 v106; 
-  unsigned __int8 v107; 
-  unsigned __int8 v108; 
-  unsigned __int8 v109; 
-  unsigned __int8 v110; 
-  unsigned __int8 v111; 
-  unsigned __int8 v112; 
-  unsigned __int8 v113; 
-  unsigned __int8 v114; 
-  unsigned __int8 v115; 
+  unsigned __int8 v44; 
+  unsigned __int8 v45; 
+  unsigned __int8 v46; 
+  unsigned __int8 v47; 
+  unsigned __int8 v48; 
+  unsigned __int8 v49; 
+  unsigned __int8 v50; 
+  unsigned __int8 v51; 
+  unsigned __int8 v52; 
+  unsigned __int8 v53; 
+  unsigned __int8 v54; 
+  unsigned __int8 v55; 
+  unsigned __int8 v56; 
+  unsigned __int8 v57; 
+  unsigned __int8 v58; 
   fileHandle_t dest[32]; 
 
-  v98 = -2i64;
-  if ( !com_testmonkey || (v93 = 1, com_testmonkey->current.integer <= 1) )
-    v93 = 0;
+  v41 = -2i64;
+  if ( !com_testmonkey || (v36 = 1, com_testmonkey->current.integer <= 1) )
+    v36 = 0;
   v0 = Cmd_Argv(1);
   Com_sprintf((char *)dest, 0x100ui64, "screenshots/%s.json", v0);
   if ( !Com_GameMode_SupportsFeature(WEAPON_LEAP_LOOP) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_api.h", 118, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::SINGLE_LOCAL_CLIENT ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::SINGLE_LOCAL_CLIENT )") )
@@ -116,26 +114,26 @@ void R_Cmd_Testmonkey_Dump()
     __debugbreak();
   if ( !cg_t::ms_allocatedCount )
   {
-    LODWORD(v78) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v78, cg_t::ms_allocatedCount) )
+    LODWORD(v21) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v21, cg_t::ms_allocatedCount) )
       __debugbreak();
   }
   if ( !cg_t::ms_cgArray[0] )
   {
-    LODWORD(v80) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v80) )
+    LODWORD(v23) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v23) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v80) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v80) )
+    LODWORD(v23) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v23) )
       __debugbreak();
   }
   v2 = cg_t::ms_cgArray[0];
-  v97 = cg_t::ms_cgArray[0];
-  _RSI = &cg_t::ms_cgArray[0]->refdef;
+  v40 = cg_t::ms_cgArray[0];
   p_refdef = &cg_t::ms_cgArray[0]->refdef;
+  v39 = &cg_t::ms_cgArray[0]->refdef;
   v4 = FS_FOpenFileWrite(dest, v1);
   if ( v4 == (fileHandle_t *)-1i64 )
   {
@@ -150,200 +148,116 @@ void R_Cmd_Testmonkey_Dump()
     v = (_DWORD *)p_view->org.org.v;
     if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    v94[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-    v94[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-    v94[2] = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
+    v37[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+    v37[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+    v37[2] = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
     FS_Printf((fileHandle_t)v4, "{ \"camera\": { \n");
-    __asm
-    {
-      vmovss  xmm0, [rbp+290h+var_300]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, [rbp+290h+var_304]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, [rbp+290h+var_308]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+3A0h+fmt], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"tx\": %16f, \"ty\": %16f,  \"tz\": %16f,\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+2Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsi+28h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsi+24h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+3A0h+fmt], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"yx\": %16f, \"xy\": %16f,  \"xz\": %16f,\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+38h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsi+34h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsi+30h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+3A0h+fmt], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"yx\": %16f, \"yy\": %16f,  \"yz\": %16f,\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtb);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+44h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsi+40h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsi+3Ch]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+3A0h+fmt], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"zx\": %16f, \"zy\": %16f,  \"zz\": %16f,\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtc);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+48h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"znear\": %16f,\n", *(double *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+10h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"tanHalfFovX\": %16f,\n", *(double *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+14h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"tanHalfFovY\": %16f\n", *(double *)&_XMM2);
+    FS_Printf((fileHandle_t)v4, "\t\"tx\": %16f, \"ty\": %16f,  \"tz\": %16f,\n", *(float *)v37, *(float *)&v37[1], *(float *)&v37[2]);
+    FS_Printf((fileHandle_t)v4, "\t\"yx\": %16f, \"xy\": %16f,  \"xz\": %16f,\n", p_refdef->view.axis.m[0].v[0], p_refdef->view.axis.m[0].v[1], p_refdef->view.axis.m[0].v[2]);
+    FS_Printf((fileHandle_t)v4, "\t\"yx\": %16f, \"yy\": %16f,  \"yz\": %16f,\n", p_refdef->view.axis.m[1].v[0], p_refdef->view.axis.m[1].v[1], p_refdef->view.axis.m[1].v[2]);
+    FS_Printf((fileHandle_t)v4, "\t\"zx\": %16f, \"zy\": %16f,  \"zz\": %16f,\n", p_refdef->view.axis.m[2].v[0], p_refdef->view.axis.m[2].v[1], p_refdef->view.axis.m[2].v[2]);
+    FS_Printf((fileHandle_t)v4, "\t\"znear\": %16f,\n", p_refdef->view.zNear);
+    FS_Printf((fileHandle_t)v4, "\t\"tanHalfFovX\": %16f,\n", p_refdef->view.fov.tanHalfFovX);
+    FS_Printf((fileHandle_t)v4, "\t\"tanHalfFovY\": %16f\n", p_refdef->view.fov.tanHalfFovY);
     FS_Printf((fileHandle_t)v4, "\t},\n");
     j_md5_init(&md);
-    j_md5_process(&md, (const unsigned __int8 *)_RSI, 0x10FA0u);
+    j_md5_process(&md, (const unsigned __int8 *)p_refdef, 0x10FA0u);
     j_md5_done(&md, &out);
-    LODWORD(v80) = v104;
-    LODWORD(v78) = v103;
-    LODWORD(fmtd) = v102;
-    FS_Printf((fileHandle_t)v4, "\"refdefhash\": \"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\", \n", out, v101, fmtd, v78, v80, v105, v106, v107, v108, v109, v110, v111, v112, v113, v114, v115);
+    LODWORD(v23) = v47;
+    LODWORD(v21) = v46;
+    LODWORD(fmt) = v45;
+    FS_Printf((fileHandle_t)v4, "\"refdefhash\": \"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\", \n", out, v44, fmt, v21, v23, v48, v49, v50, v51, v52, v53, v54, v55, v56, v57, v58);
     j_md5_init(&md);
-    v95 = &level;
+    v38 = &level;
     j_md5_process(&md, (const unsigned __int8 *)&level, 0x73EC0u);
     j_md5_done(&md, &out);
-    LODWORD(v92) = v115;
-    LODWORD(v91) = v114;
-    LODWORD(v90) = v113;
-    LODWORD(v89) = v112;
-    LODWORD(v88) = v111;
-    LODWORD(v87) = v110;
-    LODWORD(v86) = v109;
-    LODWORD(v85) = v108;
-    LODWORD(v84) = v107;
-    LODWORD(v83) = v106;
-    LODWORD(v82) = v105;
-    LODWORD(v81) = v104;
-    LODWORD(v79) = v103;
-    LODWORD(fmte) = v102;
-    FS_Printf((fileHandle_t)v4, "\"levelhash\": \"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\", \n", out, v101, fmte, v79, v81, v82, v83, v84, v85, v86, v87, v88, v89, v90, v91, v92);
-    _R15 = p_refdef;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+84h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [r15+80h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [r15+7Ch]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+3A0h+fmt], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\"viewoffset\": { \"tx\": %16f, \"ty\": %16f,  \"tz\": %16f },\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtf);
+    LODWORD(v35) = v58;
+    LODWORD(v34) = v57;
+    LODWORD(v33) = v56;
+    LODWORD(v32) = v55;
+    LODWORD(v31) = v54;
+    LODWORD(v30) = v53;
+    LODWORD(v29) = v52;
+    LODWORD(v28) = v51;
+    LODWORD(v27) = v50;
+    LODWORD(v26) = v49;
+    LODWORD(v25) = v48;
+    LODWORD(v24) = v47;
+    LODWORD(v22) = v46;
+    LODWORD(fmta) = v45;
+    FS_Printf((fileHandle_t)v4, "\"levelhash\": \"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\", \n", out, v44, fmta, v22, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35);
+    v8 = v39;
+    FS_Printf((fileHandle_t)v4, "\"viewoffset\": { \"tx\": %16f, \"ty\": %16f,  \"tz\": %16f },\n", v39->viewOffset.v[0], v39->viewOffset.v[1], v39->viewOffset.v[2]);
     FS_Printf((fileHandle_t)v4, "\"refdef\": {\n");
-    FS_Printf((fileHandle_t)v4, "\t\"time\": %8d,\n", (unsigned int)p_refdef->time);
-    FS_Printf((fileHandle_t)v4, "\t\"frameTime\": %8d\n", (unsigned int)p_refdef->frameTime);
+    FS_Printf((fileHandle_t)v4, "\t\"time\": %8d,\n", (unsigned int)v39->time);
+    FS_Printf((fileHandle_t)v4, "\t\"frameTime\": %8d\n", (unsigned int)v39->frameTime);
     FS_Printf((fileHandle_t)v4, "\t},\n");
     FS_Printf((fileHandle_t)v4, "\"level\": {\n");
     FS_Printf((fileHandle_t)v4, "\t\"time\": %8d,\n", (unsigned int)level.time);
     FS_Printf((fileHandle_t)v4, "\t\"frame\": %8d\n", (unsigned int)level.framenum);
     FS_Printf((fileHandle_t)v4, "\t},\n");
     FS_Printf((fileHandle_t)v4, "\"cgameGlob\": {\n");
-    _R14 = v97;
-    FS_Printf((fileHandle_t)v4, "\t\"time\": %8d,\n", (unsigned int)v97->time);
-    FS_Printf((fileHandle_t)v4, "\t\"frame\": %8d,\n", (unsigned int)v97->frametime);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14+65E0h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    FS_Printf((fileHandle_t)v4, "\t\"frameInterpolation\": %16f\n", *(double *)&_XMM2);
+    v9 = v40;
+    FS_Printf((fileHandle_t)v4, "\t\"time\": %8d,\n", (unsigned int)v40->time);
+    FS_Printf((fileHandle_t)v4, "\t\"frame\": %8d,\n", (unsigned int)v40->frametime);
+    FS_Printf((fileHandle_t)v4, "\t\"frameInterpolation\": %16f\n", v40->frameInterpolation);
     FS_Printf((fileHandle_t)v4, "\t}");
-    if ( v93 )
+    if ( v36 )
     {
       FS_Printf((fileHandle_t)v4, ",\n");
       FS_Printf((fileHandle_t)v4, "\n\n\"refdef\": [\n");
       for ( i = 0; i < 69536; i += 16 )
       {
         FS_Printf((fileHandle_t)v4, "\"%08x: ", (unsigned int)i);
-        v63 = 0i64;
-        v64 = i;
+        v11 = 0i64;
+        v12 = i;
         do
         {
-          if ( v63 >= 16 )
+          if ( v11 >= 16 )
             break;
-          FS_Printf((fileHandle_t)v4, "%02x ", *((unsigned __int8 *)&_R15->displayViewport.x + v63));
-          ++v64;
-          ++v63;
+          FS_Printf((fileHandle_t)v4, "%02x ", *((unsigned __int8 *)&v8->displayViewport.x + v11));
+          ++v12;
+          ++v11;
         }
-        while ( v64 < 69536 );
+        while ( v12 < 69536 );
         FS_Printf((fileHandle_t)v4, "\",\n");
-        _R15 = (refdef_t *)((char *)_R15 + 16);
+        v8 = (refdef_t *)((char *)v8 + 16);
       }
       FS_Printf((fileHandle_t)v4, "\"\"],\n\n\n\n\"cgameGlob\": [\n");
       for ( j = 0; j < 807600; j += 16 )
       {
         FS_Printf((fileHandle_t)v4, "\"%08x: ", (unsigned int)j);
-        v66 = 0i64;
-        v67 = j;
+        v14 = 0i64;
+        v15 = j;
         do
         {
-          if ( v66 >= 16 )
+          if ( v14 >= 16 )
             break;
-          FS_Printf((fileHandle_t)v4, "%02x ", *((unsigned __int8 *)&_R14->__vftable + v66));
-          ++v67;
-          ++v66;
+          FS_Printf((fileHandle_t)v4, "%02x ", *((unsigned __int8 *)&v9->__vftable + v14));
+          ++v15;
+          ++v14;
         }
-        while ( v67 < 807600 );
+        while ( v15 < 807600 );
         FS_Printf((fileHandle_t)v4, "\",\n");
-        _R14 = (cg_t *)((char *)_R14 + 16);
+        v9 = (cg_t *)((char *)v9 + 16);
       }
       FS_Printf((fileHandle_t)v4, "\"\"],\n\n\n\n\"level\": [\n");
       for ( k = 0; k < 474816; k += 16 )
       {
         FS_Printf((fileHandle_t)v4, "\"%08x: ", (unsigned int)k);
-        v69 = 0i64;
-        v70 = k;
+        v17 = 0i64;
+        v18 = k;
         do
         {
-          if ( v69 >= 16 )
+          if ( v17 >= 16 )
             break;
-          FS_Printf((fileHandle_t)v4, "%02x ", *((unsigned __int8 *)&v95->clients + v69));
-          ++v70;
-          ++v69;
+          FS_Printf((fileHandle_t)v4, "%02x ", *((unsigned __int8 *)&v38->clients + v17));
+          ++v18;
+          ++v17;
         }
-        while ( v70 < 474816 );
+        while ( v18 < 474816 );
         FS_Printf((fileHandle_t)v4, "\",\n");
-        v95 = (level_locals_t *)((char *)v95 + 16);
+        v38 = (level_locals_t *)((char *)v38 + 16);
       }
       FS_Printf((fileHandle_t)v4, "\"\"]\n");
     }
@@ -351,7 +265,7 @@ void R_Cmd_Testmonkey_Dump()
     FS_FCloseFile((fileHandle_t)v4);
     Com_Printf(8, "Wrote %s\n", (const char *)dest);
     R_ScreenshotCommand(TGA, LINEAR);
-    memset(v94, 0, sizeof(v94));
+    memset(v37, 0, sizeof(v37));
   }
 }
 

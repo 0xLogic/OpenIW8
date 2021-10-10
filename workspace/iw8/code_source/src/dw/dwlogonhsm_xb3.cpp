@@ -883,15 +883,17 @@ void dwLogonHSM_xb3::UpdateConsoleWaitForAuthReply(dwLogonHSM_xb3 *this)
   bdLoginResult *Result; 
   const bdAuthTicket *AuthTicket; 
   const bdLoginFailure *Failure; 
+  char *m_loginFailureMessage; 
+  char *v9; 
   __int64 v10; 
-  Online_AccountRegistration *v19; 
+  Online_AccountRegistration *v11; 
   const char *LoginFailureMessage; 
   bdLoginFailure::bdLoginFailureCode LoginFailureCode; 
-  bdLoginResult *v22; 
+  bdLoginResult *v14; 
   unsigned int TaskErrorCode; 
-  bdLoginResult *v24; 
-  bdLobbyErrorCode v25; 
-  bdLoginFailure v26; 
+  bdLoginResult *v16; 
+  bdLobbyErrorCode v17; 
+  bdLoginFailure v18; 
 
   Instance = DWServicesAccess::GetInstance();
   Login = DWServicesAccess::GetLogin(Instance, this->m_controllerIndex);
@@ -908,44 +910,30 @@ void dwLogonHSM_xb3::UpdateConsoleWaitForAuthReply(dwLogonHSM_xb3 *this)
   else if ( !DWLogin::isPending(Login) )
   {
     Failure = DWLogin::getFailure(Login);
-    v26.__vftable = (bdLoginFailure_vtbl *)&bdLoginFailure::`vftable';
-    v26.m_loginFailureCode = Failure->m_loginFailureCode;
-    _RCX = Failure->m_loginFailureMessage;
-    _RAX = v26.m_loginFailureMessage;
+    v18.__vftable = (bdLoginFailure_vtbl *)&bdLoginFailure::`vftable';
+    v18.m_loginFailureCode = Failure->m_loginFailureCode;
+    m_loginFailureMessage = Failure->m_loginFailureMessage;
+    v9 = v18.m_loginFailureMessage;
     v10 = 4i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rax], xmm0
-        vmovups xmm1, xmmword ptr [rcx+10h]
-        vmovups xmmword ptr [rax+10h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+20h]
-        vmovups xmmword ptr [rax+20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+30h]
-        vmovups xmmword ptr [rax+30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+50h]
-        vmovups xmmword ptr [rax+50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 128;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rcx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RCX += 128;
+      *(_OWORD *)v9 = *(_OWORD *)m_loginFailureMessage;
+      *((_OWORD *)v9 + 1) = *((_OWORD *)m_loginFailureMessage + 1);
+      *((_OWORD *)v9 + 2) = *((_OWORD *)m_loginFailureMessage + 2);
+      *((_OWORD *)v9 + 3) = *((_OWORD *)m_loginFailureMessage + 3);
+      *((_OWORD *)v9 + 4) = *((_OWORD *)m_loginFailureMessage + 4);
+      *((_OWORD *)v9 + 5) = *((_OWORD *)m_loginFailureMessage + 5);
+      *((_OWORD *)v9 + 6) = *((_OWORD *)m_loginFailureMessage + 6);
+      v9 += 128;
+      *((_OWORD *)v9 - 1) = *((_OWORD *)m_loginFailureMessage + 7);
+      m_loginFailureMessage += 128;
       --v10;
     }
     while ( v10 );
-    if ( bdLoginFailure::getLoginFailureCode(&v26) == NO_CROSSPLAY_ACCOUNT_FOUND )
+    if ( bdLoginFailure::getLoginFailureCode(&v18) == NO_CROSSPLAY_ACCOUNT_FOUND )
     {
-      v19 = Online_AccountRegistration::GetInstance();
-      if ( Online_AccountRegistration::StartRegistration(v19, this->m_controllerIndex) )
+      v11 = Online_AccountRegistration::GetInstance();
+      if ( Online_AccountRegistration::StartRegistration(v11, this->m_controllerIndex) )
         dwLogOnHSM_base::HSM_TriggerEvent(this, USER_DECLINE_INVITATION);
       else
         dwLogOnHSM_base::HSM_TriggerEvent(this, INVITE_GENERIC_COM_ERROR);
@@ -953,21 +941,21 @@ void dwLogonHSM_xb3::UpdateConsoleWaitForAuthReply(dwLogonHSM_xb3 *this)
     else
     {
       Com_PrintError(25, "**************\n**************\n**************\n");
-      LoginFailureMessage = bdLoginFailure::getLoginFailureMessage(&v26);
-      LoginFailureCode = bdLoginFailure::getLoginFailureCode(&v26);
+      LoginFailureMessage = bdLoginFailure::getLoginFailureMessage(&v18);
+      LoginFailureCode = bdLoginFailure::getLoginFailureCode(&v18);
       Com_PrintError(25, "Demonware login failed with error %d (%s)\n", (unsigned int)LoginFailureCode, LoginFailureMessage);
       Com_PrintError(25, "**************\n**************\n**************\n");
       dwLogOnHSM_base::HSM_TriggerEvent(this, INVITE_GENERIC_COM_ERROR);
-      v22 = (bdLoginResult *)DWLogin::getResult(Login);
-      TaskErrorCode = bdLoginResult::getTaskErrorCode(v22);
+      v14 = (bdLoginResult *)DWLogin::getResult(Login);
+      TaskErrorCode = bdLoginResult::getTaskErrorCode(v14);
       if ( Live_HandleDWLoginError(this->m_controllerIndex, TaskErrorCode) )
       {
-        v24 = (bdLoginResult *)DWLogin::getResult(Login);
-        v25 = bdLoginResult::getTaskErrorCode(v24);
-        Com_PrintError(25, "Demonware login failed with handled task error (%u)\n", (unsigned int)v25);
+        v16 = (bdLoginResult *)DWLogin::getResult(Login);
+        v17 = bdLoginResult::getTaskErrorCode(v16);
+        Com_PrintError(25, "Demonware login failed with handled task error (%u)\n", (unsigned int)v17);
       }
     }
-    bdLoginFailure::~bdLoginFailure(&v26);
+    bdLoginFailure::~bdLoginFailure(&v18);
   }
 }
 

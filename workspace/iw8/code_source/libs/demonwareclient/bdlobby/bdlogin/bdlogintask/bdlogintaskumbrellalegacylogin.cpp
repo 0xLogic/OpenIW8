@@ -597,47 +597,42 @@ bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply
 */
 void bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply(bdLoginTaskUmbrellaLegacyLogin *this)
 {
+  unsigned int v2; 
   unsigned int v3; 
-  unsigned int v4; 
-  const char *v5; 
-  double v7; 
-  bdJSONDeserializer v8; 
+  const char *v4; 
+  double ElapsedTimeInSeconds; 
+  bdJSONDeserializer v6; 
   bdLoginTaskUmbrellaLegacyLogin::UmbrellaLegacyLoginStatusCode code; 
 
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply", 0xAFu, "Processing bdLogin Umbrella legacy login task reply");
-  v3 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
-  v4 = v3;
-  if ( v3 == 200 )
+  v2 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
+  v3 = v2;
+  if ( v2 == 200 )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v8);
-    if ( bdJSONDeserializer::parse(&v8, this->m_httpResponseBuffer) && bdJSONDeserializer::isObject(&v8) )
+    bdJSONDeserializer::bdJSONDeserializer(&v6);
+    if ( bdJSONDeserializer::parse(&v6, this->m_httpResponseBuffer) && bdJSONDeserializer::isObject(&v6) )
     {
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply", 0xBBu, "Setting state to COMPLETED");
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
       this->m_umbrellaStatusCode = DISCONNECTING;
-      v5 = "Got successful Umbrella Legacy Login reply";
+      v4 = "Got successful Umbrella Legacy Login reply";
     }
     else
     {
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply", 0xC0u, "Failed to process Umbrella Legacy Login resposne json", 200);
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
       this->m_umbrellaStatusCode = CONNECTED;
-      v5 = "Failed to parse Umbrella Legacy Login response json";
+      v4 = "Failed to parse Umbrella Legacy Login response json";
     }
-    bdStrlcpy(this->m_umbrellaStatusMessage, v5, 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+78h+var_40], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v7);
-    bdJSONDeserializer::~bdJSONDeserializer(&v8);
+    bdStrlcpy(this->m_umbrellaStatusMessage, v4, 0x400ui64);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
+    bdJSONDeserializer::~bdJSONDeserializer(&v6);
   }
   else
   {
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply", 0xC6u, "Umbrella Legacy Login task failed with HTTP code [%u]", v3);
-    bdSnprintf(this->m_umbrellaStatusMessage, 0x400ui64, "Umbrella login task failed with HTTP code [%u]", v4);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply", 0xC6u, "Umbrella Legacy Login task failed with HTTP code [%u]", v2);
+    bdSnprintf(this->m_umbrellaStatusMessage, 0x400ui64, "Umbrella login task failed with HTTP code [%u]", v3);
     code = CONNECTED;
     bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus(this, this->m_umbrellaStatusMessage, &code);
   }
@@ -651,21 +646,21 @@ bdLoginTaskUmbrellaLegacyLogin::pump
 void bdLoginTaskUmbrellaLegacyLogin::pump(bdLoginTaskUmbrellaLegacyLogin *this)
 {
   bdLoginTaskUmbrellaLegacyLogin::UmbrellaLegacyLoginStatusCode m_umbrellaStatusCode; 
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  double v7; 
+  double ElapsedTimeInSeconds; 
   bdLoginTaskUmbrellaLegacyLogin::UmbrellaLegacyLoginStatusCode code; 
 
   m_umbrellaStatusCode = this->m_umbrellaStatusCode;
   if ( m_umbrellaStatusCode )
   {
-    v4 = m_umbrellaStatusCode - 1;
-    if ( v4 )
+    v3 = m_umbrellaStatusCode - 1;
+    if ( v3 )
     {
-      v5 = v4 - 1;
-      if ( v5 )
+      v4 = v3 - 1;
+      if ( v4 )
       {
-        if ( v5 == 1 )
+        if ( v4 == 1 )
         {
           bdLoginTaskUmbrellaLegacyLogin::processUmbrellaLoginReply(this);
         }
@@ -675,13 +670,8 @@ void bdLoginTaskUmbrellaLegacyLogin::pump(bdLoginTaskUmbrellaLegacyLogin *this)
           bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
           this->m_umbrellaStatusCode = CONNECTED;
           bdStrlcpy(this->m_umbrellaStatusMessage, "Pumping Umbrella legacy login request in an unknown state!", 0x400ui64);
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  [rsp+48h+var_10], xmm1
-          }
-          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v7);
+          ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
         }
       }
       else if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
@@ -880,102 +870,97 @@ bdLoginTaskUmbrellaLegacyLogin::startLoginTask
 */
 void bdLoginTaskUmbrellaLegacyLogin::startLoginTask(bdLoginTaskUmbrellaLegacyLogin *this)
 {
-  __int64 v3; 
-  bdHTTP::bdStatus v4; 
-  bool v5; 
-  bdRemoteTask *v7; 
+  __int64 v2; 
+  bdHTTP::bdStatus v3; 
+  bool v4; 
+  double ElapsedTimeInSeconds; 
+  bdRemoteTask *v6; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
-  bdRemoteTask *v10; 
-  __int64 v11; 
+  bdRemoteTask *v9; 
+  __int64 v10; 
   bdHTTP *m_httpInterface; 
-  unsigned int v13; 
-  bdHTTP *v14; 
+  unsigned int v12; 
+  bdHTTP *v13; 
   bool (__fastcall *setHeader)(bdHTTP *, const char *, const unsigned __int64); 
-  unsigned __int64 v16; 
-  unsigned __int64 v18; 
-  bdRemoteTask *v20; 
-  __int64 v21; 
-  double v23; 
+  unsigned __int64 v15; 
+  double v16; 
+  unsigned __int64 v17; 
+  double v18; 
+  bdRemoteTask *v19; 
+  __int64 v20; 
+  double v21; 
   unsigned __int64 TransactionID; 
-  double v25; 
-  double v26; 
-  unsigned __int64 v27; 
-  bdRandom v28[2]; 
-  bdReference<bdRemoteTask> v29; 
+  bdRandom v23[2]; 
+  bdReference<bdRemoteTask> v24; 
   bdReference<bdRemoteTask> other; 
-  bdReference<bdRemoteTask> v31; 
-  bdRemoteTask *v32; 
-  __int64 v33; 
-  bdJSONSerializer v34; 
+  bdReference<bdRemoteTask> v26; 
+  bdRemoteTask *v27; 
+  __int64 v28; 
+  bdJSONSerializer v29; 
   unsigned __int8 in[8]; 
 
-  v33 = -2i64;
-  v3 = 0i64;
-  v4 = this->m_httpInterface->getStatus(this->m_httpInterface);
-  v5 = v4 != BD_FAILED;
-  if ( v4 == BD_FAILED )
+  v28 = -2i64;
+  v2 = 0i64;
+  v3 = this->m_httpInterface->getStatus(this->m_httpInterface);
+  v4 = v3 != BD_FAILED;
+  if ( v3 == BD_FAILED )
     bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::readyForRequest", 0x47u, "Only one Umbrella legacy request can happen at a time.");
-  if ( !v5 )
+  if ( !v4 )
   {
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Another Umbrella Login request is already in process", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+1C0h+var_188], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v23);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::startLoginTask", 0xFDu, "Another Umbrella Login request is already in process");
-    v7 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v29.m_ptr = v7;
-    if ( v7 )
+    v6 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    v24.m_ptr = v6;
+    if ( v6 )
     {
-      bdRemoteTask::bdRemoteTask(v7);
-      v9 = v8;
+      bdRemoteTask::bdRemoteTask(v6);
+      v8 = v7;
     }
     else
     {
-      v9 = 0i64;
+      v8 = 0i64;
     }
-    other.m_ptr = (bdRemoteTask *)v9;
-    if ( v9 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v9 + 8), 1u);
-    *(_DWORD *)(v9 + 28) = 3;
-    *(_DWORD *)(v9 + 80) = 5;
+    other.m_ptr = (bdRemoteTask *)v8;
+    if ( v8 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v8 + 8), 1u);
+    *(_DWORD *)(v8 + 28) = 3;
+    *(_DWORD *)(v8 + 80) = 5;
     bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &other);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v9 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v9)(v9, 1i64);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v8 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v8)(v8, 1i64);
   }
   memset_0(this->m_httpRequestBuffer, 0, this->m_requestBufferSize);
   memset_0(this->m_httpResponseBuffer, 0, this->m_responseBufferSize);
-  bdJSONSerializer::bdJSONSerializer(&v34);
-  bdJSONSerializer::setBuffer(&v34, this->m_httpRequestBuffer, this->m_requestBufferSize);
-  bdJSONSerializer::writeBeginObject(&v34);
-  if ( bdJSONSerializer::writeString(&v34, "ticket", this->m_authTicketB64) && bdJSONSerializer::writeString(&v34, "initialVectorSeed", this->m_ivSeedB64) && bdJSONSerializer::writeUInt32(&v34, "titleID", this->m_loginResult->m_titleID, 0) && bdJSONSerializer::writeEndObject(&v34) )
+  bdJSONSerializer::bdJSONSerializer(&v29);
+  bdJSONSerializer::setBuffer(&v29, this->m_httpRequestBuffer, this->m_requestBufferSize);
+  bdJSONSerializer::writeBeginObject(&v29);
+  if ( bdJSONSerializer::writeString(&v29, "ticket", this->m_authTicketB64) && bdJSONSerializer::writeString(&v29, "initialVectorSeed", this->m_ivSeedB64) && bdJSONSerializer::writeUInt32(&v29, "titleID", this->m_loginResult->m_titleID, 0) && bdJSONSerializer::writeEndObject(&v29) )
   {
-    v10 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v32 = v10;
-    if ( v10 )
+    v9 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    v27 = v9;
+    if ( v9 )
     {
-      bdRemoteTask::bdRemoteTask(v10);
-      v3 = v11;
+      bdRemoteTask::bdRemoteTask(v9);
+      v2 = v10;
     }
-    v31.m_ptr = (bdRemoteTask *)v3;
-    if ( v3 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 1u);
-    *(_DWORD *)(v3 + 28) = 1;
-    bdRandom::bdRandom(&v28[1]);
-    bdRandom::nextUBytes(&v28[1], in, 8);
-    *(_QWORD *)(v3 + 72) = *(_QWORD *)in;
-    bdRandom::~bdRandom(&v28[1]);
-    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v31);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v3)(v3, 1i64);
+    v26.m_ptr = (bdRemoteTask *)v2;
+    if ( v2 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 1u);
+    *(_DWORD *)(v2 + 28) = 1;
+    bdRandom::bdRandom(&v23[1]);
+    bdRandom::nextUBytes(&v23[1], in, 8);
+    *(_QWORD *)(v2 + 72) = *(_QWORD *)in;
+    bdRandom::~bdRandom(&v23[1]);
+    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v26);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v2)(v2, 1i64);
     this->m_outputObject = &this->m_loginResult->m_umbrellaAccount;
-    if ( ((unsigned __int8 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 3i64, this->m_url) && (m_httpInterface = this->m_httpInterface, v13 = bdJSONSerializer::length(&v34), bdHTTP::setUploadData(m_httpInterface, this->m_httpRequestBuffer, v13)) && bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpResponseBuffer, this->m_responseBufferSize) && (v14 = this->m_httpInterface, setHeader = v14->setHeader, v16 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr), setHeader(v14, "X-TransactionID", v16)) && this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") && this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json") )
+    if ( ((unsigned __int8 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 3i64, this->m_url) && (m_httpInterface = this->m_httpInterface, v12 = bdJSONSerializer::length(&v29), bdHTTP::setUploadData(m_httpInterface, this->m_httpRequestBuffer, v12)) && bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpResponseBuffer, this->m_responseBufferSize) && (v13 = this->m_httpInterface, setHeader = v13->setHeader, v15 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr), setHeader(v13, "X-TransactionID", v15)) && this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") && this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json") )
     {
       this->m_httpInterface->sendRequest(this->m_httpInterface);
       if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
@@ -992,15 +977,10 @@ void bdLoginTaskUmbrellaLegacyLogin::startLoginTask(bdLoginTaskUmbrellaLegacyLog
         bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
         this->m_umbrellaStatusCode = CONNECTED;
         bdStrlcpy(this->m_umbrellaStatusMessage, "Got into unexpected state starting the Umbrella legacy login request", 0x400ui64);
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-        __asm
-        {
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+1C0h+var_188], xmm1
-        }
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v25);
-        v18 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::startLoginTask", 0x12Eu, "Got into unexpected state starting the Umbrella legacy login request. TransactionID: (%I64u)", v18);
+        v16 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&v16);
+        v17 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::startLoginTask", 0x12Eu, "Got into unexpected state starting the Umbrella legacy login request. TransactionID: (%I64u)", v17);
       }
     }
     else
@@ -1008,46 +988,36 @@ void bdLoginTaskUmbrellaLegacyLogin::startLoginTask(bdLoginTaskUmbrellaLegacyLog
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
       this->m_umbrellaStatusCode = CONNECTED;
       bdStrlcpy(this->m_umbrellaStatusMessage, "Encountered error while attempting to build request for Legacy Umbrella Login", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+1C0h+var_188], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v26);
+      v18 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&v18);
       bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::startLoginTask", 0x11Du, "Encountered error while attempting to build request for Legacy Umbrella Login");
     }
   }
   else
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::startLoginTask", 0x133u, "Failed to serialize JSON for Umbrella Legacy Login request");
-    v20 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v32 = v20;
-    if ( v20 )
+    v19 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    v27 = v19;
+    if ( v19 )
     {
-      bdRemoteTask::bdRemoteTask(v20);
-      v3 = v21;
+      bdRemoteTask::bdRemoteTask(v19);
+      v2 = v20;
     }
-    v29.m_ptr = (bdRemoteTask *)v3;
-    if ( v3 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 1u);
-    *(_DWORD *)(v3 + 28) = 3;
-    *(_DWORD *)(v3 + 80) = 5;
-    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v29);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v3)(v3, 1i64);
+    v24.m_ptr = (bdRemoteTask *)v2;
+    if ( v2 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 1u);
+    *(_DWORD *)(v2 + 28) = 3;
+    *(_DWORD *)(v2 + 80) = 5;
+    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v24);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v2)(v2, 1i64);
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Failed to serialize JSON for Umbrella Legacy Login request", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+1C0h+var_188], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v27);
+    v21 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&v21);
   }
-  bdJSONSerializer::~bdJSONSerializer(&v34);
+  bdJSONSerializer::~bdJSONSerializer(&v29);
 }
 
 /*
@@ -1057,20 +1027,15 @@ bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus
 */
 void bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus(bdLoginTaskUmbrellaLegacyLogin *this, const char *messageInfo, const bdLoginTaskUmbrellaLegacyLogin::UmbrellaLegacyLoginStatusCode *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x197u, "Must provide valid message to update Umbrella legacy login task status!");
   this->m_umbrellaStatusCode = *code;
   bdStrlcpy(this->m_umbrellaStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(*code - 4) <= 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellalegacylogin.cpp", "bdLoginTaskUmbrellaLegacyLogin::updateUmbrellaLegacyLoginStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

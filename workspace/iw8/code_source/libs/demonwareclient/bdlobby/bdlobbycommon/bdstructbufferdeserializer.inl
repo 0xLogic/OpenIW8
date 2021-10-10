@@ -751,8 +751,9 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementProgress,4>(bdS
   _BYTE *v8; 
   unsigned __int64 v9; 
   __int64 m_size; 
+  bdAchievementProgress *v11; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
   bdAchievementProgress Buf; 
 
   v6 = 1;
@@ -772,23 +773,19 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementProgress,4>(bdS
         m_size = objects->m_size;
         if ( (unsigned int)m_size < 4 )
         {
-          _RBX = &objects->m_elements[m_size];
+          v11 = &objects->m_elements[m_size];
           objects->m_size = m_size + 1;
-          bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&Buf.m_targetName[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24]);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rsp+108h+Buf.baseclass_0+10h]
-            vmovups ymmword ptr [rbx+10h], ymm0
-          }
-          _RBX->m_targetName[16] = Buf.m_targetName[16];
-          _RBX->m_currentProgress = Buf.m_currentProgress;
-          _RBX->m_targetProgress = Buf.m_targetProgress;
+          bdReferencable::operator=((bdReferencable *)((char *)&v11->__vftable + *(int *)(*((_QWORD *)&v11->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&Buf.m_targetName[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24]);
+          *(bdStructBufferSerializable *)((char *)&v11->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&Buf.bdStructBufferSerializable + 16);
+          v11->m_targetName[16] = Buf.m_targetName[16];
+          v11->m_currentProgress = Buf.m_currentProgress;
+          v11->m_targetProgress = Buf.m_targetProgress;
         }
         goto LABEL_10;
       }
-      LODWORD(v15) = 4;
-      LODWORD(v14) = tag;
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v14, v15);
+      LODWORD(v14) = 4;
+      LODWORD(v13) = tag;
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v13, v14);
 LABEL_9:
       v6 = 0;
       goto LABEL_10;
@@ -831,13 +828,16 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementState,100>(bdSt
   unsigned __int8 v6; 
   char v7; 
   __int64 m_size; 
+  bdAchievementState *v9; 
   char *p_m_multiProgress; 
-  unsigned int v14; 
-  __int64 v15; 
-  _BYTE *v19; 
-  unsigned __int64 v20; 
-  __int64 v22; 
-  __int64 v23; 
+  unsigned int v11; 
+  __int64 v12; 
+  _BYTE *v13; 
+  char *v14; 
+  _BYTE *v15; 
+  unsigned __int64 v16; 
+  __int64 v18; 
+  __int64 v19; 
   bdAchievementState ptr; 
 
   v4 = tag;
@@ -859,53 +859,43 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementState,100>(bdSt
         m_size = objects->m_size;
         if ( (unsigned int)m_size < 0x64 )
         {
-          _RBX = &objects->m_elements[m_size];
+          v9 = &objects->m_elements[m_size];
           objects->m_size = m_size + 1;
-          bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&ptr.m_name[*(int *)(*((_QWORD *)&ptr.__vftable + 1) + 4i64) - 24]);
-          *((_QWORD *)&_RBX->__vftable + 2) = *((_QWORD *)&ptr.__vftable + 2);
-          __asm
+          bdReferencable::operator=((bdReferencable *)((char *)&v9->__vftable + *(int *)(*((_QWORD *)&v9->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&ptr.m_name[*(int *)(*((_QWORD *)&ptr.__vftable + 1) + 4i64) - 24]);
+          *((_QWORD *)&v9->__vftable + 2) = *((_QWORD *)&ptr.__vftable + 2);
+          *(bdStructBufferSerializable *)((char *)&v9->bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&ptr.bdStructBufferSerializable + 24);
+          *(__m256i *)&v9->m_name[24] = *(__m256i *)&ptr.m_name[24];
+          *(__m256i *)&v9->m_name[56] = *(__m256i *)&ptr.m_name[56];
+          *(_DWORD *)&v9->m_name[88] = *(_DWORD *)&ptr.m_name[88];
+          v9->m_name[92] = ptr.m_name[92];
+          v9->m_kind = ptr.m_kind;
+          v9->m_progress = ptr.m_progress;
+          v9->m_progressTarget = ptr.m_progressTarget;
+          v9->m_status = ptr.m_status;
+          v9->m_completionTimestamp = ptr.m_completionTimestamp;
+          v9->m_activationTimestamp = ptr.m_activationTimestamp;
+          v9->m_expirationTimestamp = ptr.m_expirationTimestamp;
+          v9->m_completionCount = ptr.m_completionCount;
+          p_m_multiProgress = (char *)&v9->m_multiProgress;
+          if ( &v9->m_multiProgress != &ptr.m_multiProgress )
           {
-            vmovups ymm0, ymmword ptr [rbp+1E0h+ptr.baseclass_0+18h]
-            vmovups ymmword ptr [rbx+18h], ymm0
-            vmovups ymm1, ymmword ptr [rbp+1E0h+ptr.m_name+18h]
-            vmovups ymmword ptr [rbx+38h], ymm1
-            vmovups ymm0, ymmword ptr [rbp+1E0h+ptr.m_name+38h]
-            vmovups ymmword ptr [rbx+58h], ymm0
-          }
-          *(_DWORD *)&_RBX->m_name[88] = *(_DWORD *)&ptr.m_name[88];
-          _RBX->m_name[92] = ptr.m_name[92];
-          _RBX->m_kind = ptr.m_kind;
-          _RBX->m_progress = ptr.m_progress;
-          _RBX->m_progressTarget = ptr.m_progressTarget;
-          _RBX->m_status = ptr.m_status;
-          _RBX->m_completionTimestamp = ptr.m_completionTimestamp;
-          _RBX->m_activationTimestamp = ptr.m_activationTimestamp;
-          _RBX->m_expirationTimestamp = ptr.m_expirationTimestamp;
-          _RBX->m_completionCount = ptr.m_completionCount;
-          p_m_multiProgress = (char *)&_RBX->m_multiProgress;
-          if ( &_RBX->m_multiProgress != &ptr.m_multiProgress )
-          {
-            _RBX->m_multiProgress.m_size = ptr.m_multiProgress.m_size;
-            v14 = 0;
+            v9->m_multiProgress.m_size = ptr.m_multiProgress.m_size;
+            v11 = 0;
             if ( ptr.m_multiProgress.m_size )
             {
               do
               {
-                v15 = 88i64 * v14;
-                _RDI = &ptr.gap218[v15 - 360];
-                _RSI = &p_m_multiProgress[v15];
-                bdReferencable::operator=((bdReferencable *)&p_m_multiProgress[v15 + 8 + *(int *)(*(_QWORD *)&p_m_multiProgress[v15 + 8] + 4i64)], (const bdReferencable *)&_RDI[*(int *)(*((_QWORD *)_RDI + 1) + 4i64) + 8]);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rdi+10h]
-                  vmovups ymmword ptr [rsi+10h], ymm0
-                }
-                _RSI[48] = _RDI[48];
-                *((_QWORD *)_RSI + 7) = *((_QWORD *)_RDI + 7);
-                *((_QWORD *)_RSI + 8) = *((_QWORD *)_RDI + 8);
-                ++v14;
+                v12 = 88i64 * v11;
+                v13 = &ptr.gap218[v12 - 360];
+                v14 = &p_m_multiProgress[v12];
+                bdReferencable::operator=((bdReferencable *)&p_m_multiProgress[v12 + 8 + *(int *)(*(_QWORD *)&p_m_multiProgress[v12 + 8] + 4i64)], (const bdReferencable *)&v13[*(int *)(*((_QWORD *)v13 + 1) + 4i64) + 8]);
+                *(__m256i *)(v14 + 16) = *(__m256i *)(v13 + 16);
+                v14[48] = v13[48];
+                *((_QWORD *)v14 + 7) = *((_QWORD *)v13 + 7);
+                *((_QWORD *)v14 + 8) = *((_QWORD *)v13 + 8);
+                ++v11;
               }
-              while ( v14 < *((_DWORD *)p_m_multiProgress + 88) );
+              while ( v11 < *((_DWORD *)p_m_multiProgress + 88) );
               v4 = tag;
             }
           }
@@ -913,9 +903,9 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementState,100>(bdSt
         }
         goto LABEL_16;
       }
-      LODWORD(v23) = 100;
-      LODWORD(v22) = v4;
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v22, v23);
+      LODWORD(v19) = 100;
+      LODWORD(v18) = v4;
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v18, v19);
 LABEL_9:
       v6 = 0;
       goto LABEL_16;
@@ -923,12 +913,12 @@ LABEL_9:
     v7 = 1;
 LABEL_16:
     `eh vector destructor iterator'(&ptr.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-    v19 = memchr_0(&ptr.__vftable + 3, 0, 0x65ui64);
-    if ( v19 )
-      v20 = v19 - (_BYTE *)(&ptr.__vftable + 3);
+    v15 = memchr_0(&ptr.__vftable + 3, 0, 0x65ui64);
+    if ( v15 )
+      v16 = v15 - (_BYTE *)(&ptr.__vftable + 3);
     else
-      v20 = 101i64;
-    bdHandleAssert(v20 < 0x65, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+      v16 = 101i64;
+    bdHandleAssert(v16 < 0x65, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
     bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&ptr.__vftable + 2));
     bdReferencable::~bdReferencable((bdReferencable *)ptr.gap218);
     if ( !v6 )
@@ -2086,9 +2076,10 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedCurrency>
   char v7; 
   unsigned int m_capacity; 
   unsigned int v9; 
+  bdRedeemCodeGrantedCurrency *m_data; 
   __int64 v11; 
   __int64 m_size; 
-  bdRedeemCodeGrantedCurrency v17; 
+  bdRedeemCodeGrantedCurrency v14; 
 
   v6 = 1;
   bdMemory::deallocate(objects->m_data);
@@ -2099,8 +2090,8 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedCurrency>
   {
     if ( v7 )
       break;
-    bdRedeemCodeGrantedCurrency::bdRedeemCodeGrantedCurrency(&v17);
-    if ( bdStructBufferDeserializer::readObject(this, tag, &v17) )
+    bdRedeemCodeGrantedCurrency::bdRedeemCodeGrantedCurrency(&v14);
+    if ( bdStructBufferDeserializer::readObject(this, tag, &v14) )
     {
       v6 = 1;
       if ( bdStructBufferDeserializer::getLastReadResult(this) == BD_READ_SUCCESS_TAG_NOT_FOUND )
@@ -2115,40 +2106,32 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedCurrency>
           v9 = objects->m_capacity;
           if ( !m_capacity )
             v9 = 1;
-          _RSI = NULL;
+          m_data = NULL;
           v11 = m_capacity + v9;
           if ( (_DWORD)v11 )
           {
-            _RSI = (bdRedeemCodeGrantedCurrency *)bdMemory::allocate(48 * v11);
+            m_data = (bdRedeemCodeGrantedCurrency *)bdMemory::allocate(48 * v11);
             m_size = objects->m_size;
             if ( (_DWORD)m_size )
-              memcpy_0(_RSI, objects->m_data, 48 * m_size);
+              memcpy_0(m_data, objects->m_data, 48 * m_size);
           }
           bdMemory::deallocate(objects->m_data);
-          objects->m_data = _RSI;
+          objects->m_data = m_data;
           objects->m_capacity = v11;
         }
         else
         {
-          _RSI = objects->m_data;
+          m_data = objects->m_data;
         }
-        _RCX = 6i64 * objects->m_size;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+88h+var_60.baseclass_0.__vftable]
-          vmovups ymmword ptr [rsi+rcx*8], ymm0
-          vmovups xmm1, xmmword ptr [rsp+88h+var_60.gap20]
-          vmovups xmmword ptr [rsi+rcx*8+20h], xmm1
-        }
-        ++objects->m_size;
+        m_data[objects->m_size++] = v14;
       }
     }
     else
     {
       v6 = 0;
     }
-    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v17.__vftable + 2));
-    bdReferencable::~bdReferencable((bdReferencable *)v17.gap20);
+    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v14.__vftable + 2));
+    bdReferencable::~bdReferencable((bdReferencable *)v14.gap20);
   }
   while ( v6 );
   return v6;
@@ -2168,8 +2151,10 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedItem>(bdS
   bdRedeemCodeGrantedItem *m_data; 
   unsigned int v11; 
   __int64 m_size; 
+  bdRedeemCodeGrantedItem *v13; 
+  bdRedeemCodeGrantedItem *v14; 
   __int64 v15; 
-  bdRedeemCodeGrantedItem v28; 
+  bdRedeemCodeGrantedItem v17; 
 
   v6 = 1;
   bdMemory::deallocate(objects->m_data);
@@ -2180,8 +2165,8 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedItem>(bdS
   {
     if ( v7 )
       break;
-    bdRedeemCodeGrantedItem::bdRedeemCodeGrantedItem(&v28);
-    if ( bdStructBufferDeserializer::readObject(this, tag, &v28) )
+    bdRedeemCodeGrantedItem::bdRedeemCodeGrantedItem(&v17);
+    if ( bdStructBufferDeserializer::readObject(this, tag, &v17) )
     {
       v6 = 1;
       if ( bdStructBufferDeserializer::getLastReadResult(this) == BD_READ_SUCCESS_TAG_NOT_FOUND )
@@ -2213,47 +2198,27 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedItem>(bdS
         {
           m_data = objects->m_data;
         }
-        _RAX = &m_data[objects->m_size];
-        _RCX = &v28;
+        v13 = &m_data[objects->m_size];
+        v14 = &v17;
         v15 = 7i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx]
-            vmovups xmmword ptr [rax], xmm0
-            vmovups xmm1, xmmword ptr [rcx+10h]
-            vmovups xmmword ptr [rax+10h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+20h]
-            vmovups xmmword ptr [rax+20h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+30h]
-            vmovups xmmword ptr [rax+30h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+40h]
-            vmovups xmmword ptr [rax+40h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+50h]
-            vmovups xmmword ptr [rax+50h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+60h]
-            vmovups xmmword ptr [rax+60h], xmm0
-          }
-          _RAX = (bdRedeemCodeGrantedItem *)((char *)_RAX + 128);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rcx+70h]
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          _RCX = (bdRedeemCodeGrantedItem *)((char *)_RCX + 128);
+          *(_OWORD *)&v13->__vftable = *(_OWORD *)&v14->__vftable;
+          *((_OWORD *)&v13->__vftable + 1) = *((_OWORD *)&v14->__vftable + 1);
+          *(_OWORD *)v13->m_itemName = *(_OWORD *)v14->m_itemName;
+          *(_OWORD *)&v13->m_itemName[16] = *(_OWORD *)&v14->m_itemName[16];
+          *(_OWORD *)&v13->m_itemName[32] = *(_OWORD *)&v14->m_itemName[32];
+          *(_OWORD *)&v13->m_itemName[48] = *(_OWORD *)&v14->m_itemName[48];
+          *(_OWORD *)&v13->m_itemName[64] = *(_OWORD *)&v14->m_itemName[64];
+          v13 = (bdRedeemCodeGrantedItem *)((char *)v13 + 128);
+          *(_OWORD *)&v13[-1].gap39C[4] = *(_OWORD *)&v14->m_itemName[80];
+          v14 = (bdRedeemCodeGrantedItem *)((char *)v14 + 128);
           --v15;
         }
         while ( v15 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups xmm1, xmmword ptr [rcx+10h]
-          vmovups xmmword ptr [rax+10h], xmm1
-          vmovups xmm0, xmmword ptr [rcx+20h]
-          vmovups xmmword ptr [rax+20h], xmm0
-        }
+        *(_OWORD *)&v13->__vftable = *(_OWORD *)&v14->__vftable;
+        *((_OWORD *)&v13->__vftable + 1) = *((_OWORD *)&v14->__vftable + 1);
+        *(_OWORD *)v13->m_itemName = *(_OWORD *)v14->m_itemName;
         ++objects->m_size;
       }
     }
@@ -2261,8 +2226,8 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdRedeemCodeGrantedItem>(bdS
     {
       v6 = 0;
     }
-    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v28.__vftable + 2));
-    bdReferencable::~bdReferencable((bdReferencable *)&v28.gap39C[4]);
+    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v17.__vftable + 2));
+    bdReferencable::~bdReferencable((bdReferencable *)&v17.gap39C[4]);
   }
   while ( v6 );
   return v6;
@@ -2318,10 +2283,11 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdActivateAchievementAchieve
   unsigned __int8 v6; 
   char v7; 
   __int64 m_size; 
-  _BYTE *v13; 
-  unsigned __int64 v14; 
-  __int64 v16; 
-  __int64 v17; 
+  bdActivateAchievementAchievementTrigger *v9; 
+  _BYTE *v10; 
+  unsigned __int64 v11; 
+  __int64 v13; 
+  __int64 v14; 
   bdActivateAchievementAchievementTrigger Buf; 
 
   v6 = 1;
@@ -2341,32 +2307,26 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdActivateAchievementAchieve
         m_size = objects->m_size;
         if ( (unsigned int)m_size < 2 )
         {
-          _RBX = &objects->m_elements[m_size];
+          v9 = &objects->m_elements[m_size];
           objects->m_size = m_size + 1;
-          bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&Buf.m_name[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24]);
-          __asm
+          bdReferencable::operator=((bdReferencable *)((char *)&v9->__vftable + *(int *)(*((_QWORD *)&v9->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&Buf.m_name[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24]);
+          *(bdStructBufferSerializable *)((char *)&v9->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&Buf.bdStructBufferSerializable + 16);
+          *(__m256i *)&v9->m_name[16] = *(__m256i *)&Buf.m_name[16];
+          *(__m256i *)&v9->m_name[48] = *(__m256i *)&Buf.m_name[48];
+          *(_DWORD *)&v9->m_name[80] = *(_DWORD *)&Buf.m_name[80];
+          v9->m_name[84] = Buf.m_name[84];
+          bdAchievementRelativeTimestamp::operator=(&v9->m_startTimestamp, &Buf.m_startTimestamp);
+          if ( &v9->m_timeLimit != &Buf.m_timeLimit )
           {
-            vmovups ymm0, ymmword ptr [rsp+1F0h+Buf.baseclass_0+10h]
-            vmovups ymmword ptr [rbx+10h], ymm0
-            vmovups ymm1, ymmword ptr [rbp+0F0h+Buf.m_name+10h]
-            vmovups ymmword ptr [rbx+30h], ymm1
-            vmovups ymm0, ymmword ptr [rbp+0F0h+Buf.m_name+30h]
-            vmovups ymmword ptr [rbx+50h], ymm0
-          }
-          *(_DWORD *)&_RBX->m_name[80] = *(_DWORD *)&Buf.m_name[80];
-          _RBX->m_name[84] = Buf.m_name[84];
-          bdAchievementRelativeTimestamp::operator=(&_RBX->m_startTimestamp, &Buf.m_startTimestamp);
-          if ( &_RBX->m_timeLimit != &Buf.m_timeLimit )
-          {
-            _RBX->m_timeLimit.m_hasValue = Buf.m_timeLimit.m_hasValue;
-            bdAchievementRelativeTimestamp::operator=(&_RBX->m_timeLimit.m_value, &Buf.m_timeLimit.m_value);
+            v9->m_timeLimit.m_hasValue = Buf.m_timeLimit.m_hasValue;
+            bdAchievementRelativeTimestamp::operator=(&v9->m_timeLimit.m_value, &Buf.m_timeLimit.m_value);
           }
         }
         goto LABEL_12;
       }
-      LODWORD(v17) = 2;
-      LODWORD(v16) = tag;
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v16, v17);
+      LODWORD(v14) = 2;
+      LODWORD(v13) = tag;
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v13, v14);
 LABEL_8:
       v6 = 0;
       goto LABEL_12;
@@ -2381,12 +2341,12 @@ LABEL_12:
     bdReferencable::~bdReferencable((bdReferencable *)&Buf.m_startTimestamp.m_periodParams[32]);
     bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.m_startTimestamp.__vftable + 2));
     bdReferencable::~bdReferencable((bdReferencable *)&Buf.m_startTimestamp.m_periodParams[48]);
-    v13 = memchr_0(&Buf.__vftable + 2, 0, 0x65ui64);
-    if ( v13 )
-      v14 = v13 - (_BYTE *)(&Buf.__vftable + 2);
+    v10 = memchr_0(&Buf.__vftable + 2, 0, 0x65ui64);
+    if ( v10 )
+      v11 = v10 - (_BYTE *)(&Buf.__vftable + 2);
     else
-      v14 = 101i64;
-    bdHandleAssert(v14 < 0x65, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+      v11 = 101i64;
+    bdHandleAssert(v11 < 0x65, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<100>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
     bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
     bdReferencable::~bdReferencable((bdReferencable *)Buf.gap140);
     if ( !v6 )
@@ -2668,8 +2628,9 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementProgressTarget,
   _BYTE *v8; 
   unsigned __int64 v9; 
   __int64 m_size; 
+  bdAchievementProgressTarget *v11; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
   bdAchievementProgressTarget Buf; 
 
   v6 = 1;
@@ -2689,22 +2650,18 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdAchievementProgressTarget,
         m_size = objects->m_size;
         if ( (unsigned int)m_size < 4 )
         {
-          _RBX = &objects->m_elements[m_size];
+          v11 = &objects->m_elements[m_size];
           objects->m_size = m_size + 1;
-          bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&Buf.m_name[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24]);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rsp+0F8h+Buf.baseclass_0+10h]
-            vmovups ymmword ptr [rbx+10h], ymm0
-          }
-          _RBX->m_name[16] = Buf.m_name[16];
-          _RBX->m_progress = Buf.m_progress;
+          bdReferencable::operator=((bdReferencable *)((char *)&v11->__vftable + *(int *)(*((_QWORD *)&v11->__vftable + 1) + 4i64) + 8), (const bdReferencable *)&Buf.m_name[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24]);
+          *(bdStructBufferSerializable *)((char *)&v11->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&Buf.bdStructBufferSerializable + 16);
+          v11->m_name[16] = Buf.m_name[16];
+          v11->m_progress = Buf.m_progress;
         }
         goto LABEL_10;
       }
-      LODWORD(v15) = 4;
-      LODWORD(v14) = tag;
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v14, v15);
+      LODWORD(v14) = 4;
+      LODWORD(v13) = tag;
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/common/structbufferdeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructbufferdeserializer.inl", "bdStructBufferDeserializer::readObjectArray", 0x61u, "No capacity to push back deserialized object. tag=%d , capacity=%d", v13, v14);
 LABEL_9:
       v6 = 0;
       goto LABEL_10;
@@ -2882,7 +2839,7 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdTencentClientDecidedReward
   bdTencentClientDecidedReward *m_data; 
   __int64 v11; 
   __int64 m_size; 
-  bdTencentClientDecidedReward v20; 
+  bdTencentClientDecidedReward v14; 
 
   v6 = 1;
   bdMemory::deallocate(objects->m_data);
@@ -2893,8 +2850,8 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdTencentClientDecidedReward
   {
     if ( v7 )
       break;
-    bdTencentClientDecidedReward::bdTencentClientDecidedReward(&v20);
-    if ( bdStructBufferDeserializer::readObject(this, tag, &v20) )
+    bdTencentClientDecidedReward::bdTencentClientDecidedReward(&v14);
+    if ( bdStructBufferDeserializer::readObject(this, tag, &v14) )
     {
       v6 = 1;
       if ( bdStructBufferDeserializer::getLastReadResult(this) == BD_READ_SUCCESS_TAG_NOT_FOUND )
@@ -2926,31 +2883,17 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdTencentClientDecidedReward
         {
           m_data = objects->m_data;
         }
-        _RCX = &m_data[objects->m_size];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+108h+var_D8.baseclass_0.__vftable]
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm1, ymmword ptr [rsp+108h+var_D8.m_eventCode]
-          vmovups ymmword ptr [rcx+20h], ymm1
-          vmovups ymm0, ymmword ptr [rsp+108h+var_D8.m_eventCode+20h]
-          vmovups ymmword ptr [rcx+40h], ymm0
-          vmovups ymm1, ymmword ptr [rsp+108h+var_D8.m_rewardID]
-          vmovups ymmword ptr [rcx+60h], ymm1
-          vmovups xmm0, xmmword ptr [rsp+108h+var_D8.gap7C+4]
-          vmovups xmmword ptr [rcx+80h], xmm0
-        }
-        ++objects->m_size;
+        m_data[objects->m_size++] = v14;
       }
     }
     else
     {
       v6 = 0;
     }
-    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v20.m_eventCode);
-    bdReferencable::~bdReferencable((bdReferencable *)&v20.m_eventCode[48]);
-    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v20.__vftable + 2));
-    bdReferencable::~bdReferencable((bdReferencable *)&v20.gap7C[4]);
+    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v14.m_eventCode);
+    bdReferencable::~bdReferencable((bdReferencable *)&v14.m_eventCode[48]);
+    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v14.__vftable + 2));
+    bdReferencable::~bdReferencable((bdReferencable *)&v14.gap7C[4]);
   }
   while ( v6 );
   return v6;
@@ -3202,14 +3145,17 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdObjectStoreHTTPHeader>(bdS
   __int64 v14; 
   char *v15; 
   bdObjectStoreHTTPHeader *m_data; 
+  char *v17; 
   __int64 v18; 
+  __int64 v19; 
   __int64 v20; 
   int v21; 
-  unsigned int v25; 
-  char v31; 
-  int v32; 
-  unsigned int v34; 
-  bdObjectStoreHTTPHeader *v36; 
+  unsigned int v22; 
+  bdObjectStoreHTTPHeader *v23; 
+  char v25; 
+  int v26; 
+  unsigned int v28; 
+  bdObjectStoreHTTPHeader *v30; 
   bdObjectStoreHTTPHeader Src; 
 
   v3 = objects;
@@ -3217,13 +3163,13 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdObjectStoreHTTPHeader>(bdS
   v5 = this;
   v6 = 0;
   v7 = 0;
-  v32 = 0;
+  v26 = 0;
   v8 = 1;
   bdArray<bdObjectStoreHTTPHeader>::destruct(v3, v3->m_data, objects->m_size);
   bdMemory::deallocate(v3->m_data);
   v3->m_data = NULL;
   *(_QWORD *)&v3->m_capacity = 0i64;
-  v31 = 0;
+  v25 = 0;
   do
   {
     if ( v6 )
@@ -3235,7 +3181,7 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdObjectStoreHTTPHeader>(bdS
       if ( bdStructBufferDeserializer::getLastReadResult(v5) == BD_READ_SUCCESS_TAG_NOT_FOUND )
       {
         v6 = 1;
-        v31 = 1;
+        v25 = 1;
       }
       else
       {
@@ -3249,53 +3195,47 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdObjectStoreHTTPHeader>(bdS
           v12 = NULL;
           v13 = m_capacity + v11 == 0;
           v14 = m_capacity + v11;
-          v34 = v14;
+          v28 = v14;
           if ( !v13 )
           {
             v15 = (char *)bdMemory::allocate(4232 * v14);
             v12 = (bdObjectStoreHTTPHeader *)v15;
-            v36 = (bdObjectStoreHTTPHeader *)v15;
+            v30 = (bdObjectStoreHTTPHeader *)v15;
             m_size = v3->m_size;
             m_data = v3->m_data;
             if ( m_size )
             {
-              _RBX = v15 + 8;
+              v17 = v15 + 8;
               v18 = v15 - (char *)m_data + 4208;
-              _R12 = (char *)m_data - v15;
+              v19 = (char *)m_data - v15;
               v20 = m_size;
-              v21 = v32;
+              v21 = v26;
               do
               {
-                if ( _RBX != (_DWORD *)8 )
+                if ( v17 != (char *)8 )
                 {
-                  *(_QWORD *)_RBX = &bdObjectStoreHTTPHeader::`vbtable';
-                  bdReferencable::bdReferencable((bdReferencable *)((char *)_RBX + _R12 + v18), (const bdReferencable *)((char *)_RBX + _R12 + *(int *)(*(_QWORD *)((char *)_RBX + _R12) + 4i64)));
+                  *(_QWORD *)v17 = &bdObjectStoreHTTPHeader::`vbtable';
+                  bdReferencable::bdReferencable((bdReferencable *)&v17[v19 + v18], (const bdReferencable *)&v17[v19 + *(int *)(*(_QWORD *)&v17[v19] + 4i64)]);
                   v21 |= 1u;
-                  v32 = v21;
-                  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(_RBX - 2), (const bdStructBufferSerializable *)((char *)_RBX + _R12 - 8));
-                  *((_QWORD *)_RBX - 1) = &bdObjectStoreHTTPHeader::`vftable'{for `bdStructBufferSerializable'};
-                  *(_QWORD *)((char *)_RBX + *(int *)(*(_QWORD *)_RBX + 4i64)) = &bdObjectStoreHTTPHeader::`vftable'{for `bdReferencable'};
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [r12+rbx+8]
-                    vmovups ymmword ptr [rbx+8], ymm0
-                    vmovups ymm1, ymmword ptr [r12+rbx+28h]
-                    vmovups ymmword ptr [rbx+28h], ymm1
-                    vmovups ymm0, ymmword ptr [r12+rbx+48h]
-                    vmovups ymmword ptr [rbx+48h], ymm0
-                  }
-                  _RBX[26] = *(_DWORD *)((char *)_RBX + _R12 + 104);
-                  memcpy_0(_RBX + 27, (char *)_RBX + _R12 + 108, 0x1000ui64);
+                  v26 = v21;
+                  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(v17 - 8), (const bdStructBufferSerializable *)&v17[v19 - 8]);
+                  *((_QWORD *)v17 - 1) = &bdObjectStoreHTTPHeader::`vftable'{for `bdStructBufferSerializable'};
+                  *(_QWORD *)&v17[*(int *)(*(_QWORD *)v17 + 4i64)] = &bdObjectStoreHTTPHeader::`vftable'{for `bdReferencable'};
+                  *(__m256i *)(v17 + 8) = *(__m256i *)&v17[v19 + 8];
+                  *(__m256i *)(v17 + 40) = *(__m256i *)&v17[v19 + 40];
+                  *(__m256i *)(v17 + 72) = *(__m256i *)&v17[v19 + 72];
+                  *((_DWORD *)v17 + 26) = *(_DWORD *)&v17[v19 + 104];
+                  memcpy_0(v17 + 108, &v17[v19 + 108], 0x1000ui64);
                 }
-                _RBX += 1058;
+                v17 += 4232;
                 --v20;
               }
               while ( v20 );
               v3 = objects;
               m_size = objects->m_size;
-              v12 = v36;
+              v12 = v30;
               v8 = 1;
-              v7 = v32;
+              v7 = v26;
               v5 = this;
               v4 = tag;
             }
@@ -3303,39 +3243,33 @@ __int64 bdStructBufferDeserializer::readObjectArray<bdObjectStoreHTTPHeader>(bdS
           bdArray<bdObjectStoreHTTPHeader>::destruct(v3, v3->m_data, m_size);
           bdMemory::deallocate(v3->m_data);
           v3->m_data = v12;
-          v3->m_capacity = v34;
+          v3->m_capacity = v28;
           m_size = v3->m_size;
         }
         else
         {
           v12 = v3->m_data;
         }
-        v25 = m_size;
-        _RBX = &v12[m_size];
-        if ( _RBX )
+        v22 = m_size;
+        v23 = &v12[m_size];
+        if ( v23 )
         {
-          *((_QWORD *)&_RBX->__vftable + 1) = &bdObjectStoreHTTPHeader::`vbtable';
-          bdReferencable::bdReferencable((bdReferencable *)&_RBX->gap1074[4], (const bdReferencable *)&Src.m_key[*(int *)(*((_QWORD *)&Src.__vftable + 1) + 4i64) - 24]);
+          *((_QWORD *)&v23->__vftable + 1) = &bdObjectStoreHTTPHeader::`vbtable';
+          bdReferencable::bdReferencable((bdReferencable *)&v23->gap1074[4], (const bdReferencable *)&Src.m_key[*(int *)(*((_QWORD *)&Src.__vftable + 1) + 4i64) - 24]);
           v7 |= 2u;
-          v32 = v7;
-          bdStructBufferSerializable::bdStructBufferSerializable(_RBX, &Src);
-          _RBX->__vftable = (bdObjectStoreHTTPHeader_vtbl *)&bdObjectStoreHTTPHeader::`vftable'{for `bdStructBufferSerializable'};
-          *(bdObjectStoreHTTPHeader_vtbl **)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8) = (bdObjectStoreHTTPHeader_vtbl *)&bdObjectStoreHTTPHeader::`vftable'{for `bdReferencable'};
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rsp+1148h+Src.baseclass_0+10h]
-            vmovups ymmword ptr [rbx+10h], ymm0
-            vmovups ymm1, ymmword ptr [rsp+1148h+Src.m_key+10h]
-            vmovups ymmword ptr [rbx+30h], ymm1
-            vmovups ymm0, ymmword ptr [rsp+1148h+Src.m_key+30h]
-            vmovups ymmword ptr [rbx+50h], ymm0
-          }
-          *(_DWORD *)&_RBX->m_key[80] = *(_DWORD *)&Src.m_key[80];
-          memcpy_0(_RBX->m_value, Src.m_value, sizeof(_RBX->m_value));
-          v25 = v3->m_size;
+          v26 = v7;
+          bdStructBufferSerializable::bdStructBufferSerializable(v23, &Src);
+          v23->__vftable = (bdObjectStoreHTTPHeader_vtbl *)&bdObjectStoreHTTPHeader::`vftable'{for `bdStructBufferSerializable'};
+          *(bdObjectStoreHTTPHeader_vtbl **)((char *)&v23->__vftable + *(int *)(*((_QWORD *)&v23->__vftable + 1) + 4i64) + 8) = (bdObjectStoreHTTPHeader_vtbl *)&bdObjectStoreHTTPHeader::`vftable'{for `bdReferencable'};
+          *(bdStructBufferSerializable *)((char *)&v23->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&Src.bdStructBufferSerializable + 16);
+          *(__m256i *)&v23->m_key[16] = *(__m256i *)&Src.m_key[16];
+          *(__m256i *)&v23->m_key[48] = *(__m256i *)&Src.m_key[48];
+          *(_DWORD *)&v23->m_key[80] = *(_DWORD *)&Src.m_key[80];
+          memcpy_0(v23->m_value, Src.m_value, sizeof(v23->m_value));
+          v22 = v3->m_size;
         }
-        v3->m_size = v25 + 1;
-        v6 = v31;
+        v3->m_size = v22 + 1;
+        v6 = v25;
       }
     }
     else

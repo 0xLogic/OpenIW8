@@ -31,11 +31,10 @@ void R_DrawCodeSurf(GfxCodeSurfIter *codeSurfIter, GfxCmdBufContext *context)
   const char *v16; 
   const char *ConstantLayoutName; 
   GfxDrawGroupSetup v18; 
+  __int64 v19; 
   __int64 v20; 
-  __int64 v21; 
-  GfxCmdBufContext v22; 
+  GfxCmdBufContext v21; 
 
-  _RBP = context;
   Value = (char *)Sys_GetValue(0);
   v5 = (unsigned int *)(Value + 5376);
   if ( (unsigned int)(*((_DWORD *)Value + 1344) + 1) >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", *((_DWORD *)Value + 1344) + 1, 3) )
@@ -44,9 +43,9 @@ void R_DrawCodeSurf(GfxCodeSurfIter *codeSurfIter, GfxCmdBufContext *context)
   *v5 = v6;
   if ( v6 >= 3 )
   {
-    LODWORD(v21) = 3;
-    LODWORD(v20) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v20) = 3;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v19, v20) )
       __debugbreak();
   }
   v7 = Value + 2088;
@@ -69,11 +68,11 @@ void R_DrawCodeSurf(GfxCodeSurfIter *codeSurfIter, GfxCmdBufContext *context)
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 82, NULL, 0);
   if ( !codeSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_code.cpp", 226, ASSERT_TYPE_ASSERT, "(codeSurfIter)", (const char *)&queryFormat, "codeSurfIter") )
     __debugbreak();
-  if ( !_RBP->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_code.cpp", 227, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_code.cpp", 227, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBP->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_code.cpp", 228, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_code.cpp", 228, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  state = _RBP->state;
+  state = context->state;
   technique = state->technique;
   precompiledIndex = technique->precompiledIndex;
   if ( precompiledIndex )
@@ -95,12 +94,8 @@ void R_DrawCodeSurf(GfxCodeSurfIter *codeSurfIter, GfxCmdBufContext *context)
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups [rsp+98h+var_38], xmm0
-    }
-    R_DrawCodeSurf_Internal_0_(codeSurfIter, &v22);
+    v21 = *context;
+    R_DrawCodeSurf_Internal_0_(codeSurfIter, &v21);
   }
   Profile_EndInternal(NULL);
 }

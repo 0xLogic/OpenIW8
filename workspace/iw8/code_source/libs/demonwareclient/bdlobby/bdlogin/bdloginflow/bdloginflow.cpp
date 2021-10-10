@@ -306,22 +306,16 @@ void bdLoginFlow::handleBackOffState(bdLoginFlow *this)
 bdLoginFlow::loginDelayElapsed
 ==============
 */
-
-bool __fastcall bdLoginFlow::loginDelayElapsed(bdLoginFlow *this, double _XMM1_8)
+bool bdLoginFlow::loginDelayElapsed(bdLoginFlow *this)
 {
   unsigned __int64 HiResTimeStamp; 
-  char v8; 
+  double ElapsedTime; 
+  float m_loginDelayMS; 
 
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_loginDelayStartTimestamp, HiResTimeStamp);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vcomiss xmm2, xmm1
-  }
-  return !v8;
+  ElapsedTime = bdPlatformTiming::getElapsedTime(this->m_loginDelayStartTimestamp, HiResTimeStamp);
+  m_loginDelayMS = (float)this->m_loginDelayMS;
+  return (float)(*(float *)&ElapsedTime * 1000.0) >= m_loginDelayMS;
 }
 
 /*
@@ -332,19 +326,23 @@ bdLoginFlow::loginQueuePollWaitElapsed
 bool bdLoginFlow::loginQueuePollWaitElapsed(bdLoginFlow *this)
 {
   unsigned __int64 HiResTimeStamp; 
+  double ElapsedTime; 
+  float v4; 
+  float v5; 
+  unsigned __int64 v6; 
 
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_loginQueueWaitStartTimestamp, HiResTimeStamp);
-  __asm
+  ElapsedTime = bdPlatformTiming::getElapsedTime(this->m_loginQueueWaitStartTimestamp, HiResTimeStamp);
+  v5 = *(float *)&ElapsedTime * 1000.0;
+  v4 = *(float *)&ElapsedTime * 1000.0;
+  v6 = 0i64;
+  if ( (float)(*(float *)&ElapsedTime * 1000.0) >= 9.223372e18 )
   {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vmovss  xmm2, cs:__real@5f000000
-    vcomiss xmm1, xmm2
-    vsubss  xmm1, xmm1, xmm2
-    vcomiss xmm1, xmm2
-    vcvttss2si rbx, xmm1
+    v4 = v5 - 9.223372e18;
+    if ( (float)(v5 - 9.223372e18) < 9.223372e18 )
+      v6 = 0x8000000000000000ui64;
   }
-  return _RBX >= bdLoginStatus::getNextPollAfterMS(this->m_loginStatus);
+  return v6 + (unsigned int)(int)v4 >= bdLoginStatus::getNextPollAfterMS(this->m_loginStatus);
 }
 
 /*
@@ -352,124 +350,128 @@ bool bdLoginFlow::loginQueuePollWaitElapsed(bdLoginFlow *this)
 bdLoginFlow::pump
 ==============
 */
-
-__int64 __fastcall bdLoginFlow::pump(bdLoginFlow *this, double _XMM1_8)
+__int64 bdLoginFlow::pump(bdLoginFlow *this)
 {
   char *p_m_firstPartyTask; 
   bdLoginResult *m_loginResult; 
   bdLoginConfig *m_loginConfig; 
-  bdRemoteTask *v7; 
-  bdLoginTask *v8; 
+  bdRemoteTask *v5; 
+  bdLoginTask *v6; 
   bool isDediLogin; 
   bdLoginStatus *m_loginStatus; 
-  bdLoginResult *v11; 
+  bdLoginResult *v9; 
   const char *ThunderpantsToken; 
   bdLoginTask *Myval2; 
-  void (**v14)(void); 
-  bdLoginStatus *v15; 
+  void (**v12)(void); 
+  bdLoginStatus *v13; 
+  const char *v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
-  const char *v18; 
   unsigned int MaxInitialLoginDelayMS; 
-  bdLoginStatus *v20; 
-  unsigned int v21; 
-  unsigned int v22; 
+  bdLoginStatus *v18; 
+  unsigned int v19; 
+  unsigned int v20; 
   unsigned __int64 HiResTimeStamp; 
-  char v27; 
+  double ElapsedTime; 
+  float m_loginDelayMS; 
   bdLoginTaskAuthenticate::AuthStatusCode TaskCode; 
   bdEnvironment Environment; 
-  const char *v30; 
-  bdLoginStatus *v31; 
-  const char *v32; 
-  const char *v33; 
+  const char *v26; 
+  bdLoginStatus *v27; 
+  const char *v28; 
+  const char *v29; 
   bool isCrossPlayEnabled; 
+  bdLoginStatus *v31; 
+  bdLoginTaskJoinQueue::JoinQueueState v32; 
+  bdLoginTaskJoinQueue *v33; 
+  bool v34; 
   bdLoginStatus *v35; 
-  bdLoginTaskJoinQueue::JoinQueueState v36; 
-  bdLoginTaskJoinQueue *v37; 
-  bool v38; 
-  bdLoginStatus *v39; 
   bdLoginQueueRecord *LoginqueueRecord; 
-  bdLoginStatus *v41; 
-  bdLoginStatus *v42; 
-  const char *v43; 
-  __int64 (__fastcall **v44)(void *); 
+  bdLoginStatus *v37; 
+  bdLoginStatus *v38; 
+  const char *v39; 
+  __int64 (__fastcall **v40)(void *); 
   void *p_m_joinQueueTask; 
-  const char *v46; 
-  bdLoginTaskPollQueue::PollQueueState v47; 
-  bdLoginStatus *v48; 
+  const char *v42; 
+  bdLoginTaskPollQueue::PollQueueState v43; 
+  bdLoginStatus *v44; 
   const char *UserQueueData; 
-  bdLoginQueueRecord *v50; 
-  bdLoginStatus *v51; 
-  bool v52; 
-  bdLoginStatus *v53; 
+  bdLoginQueueRecord *v46; 
+  bdLoginStatus *v47; 
+  bool v48; 
+  bdLoginStatus *v49; 
+  unsigned __int64 v50; 
+  double v51; 
+  float v52; 
+  float v53; 
   unsigned __int64 v54; 
-  bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode v59; 
+  bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode v55; 
   const char *FirstPartyUsername; 
   const char *FirstPartyAccountType; 
   unsigned __int64 FirstPartyUserID; 
   bool shouldPauseAfterCrossPlatformLogin; 
-  bdLoginStatus *v64; 
-  bdLoginStatus *v65; 
-  const char *v66; 
+  bdLoginStatus *v60; 
+  bdLoginStatus *v61; 
+  const char *v62; 
   bdReference<bdRemoteTask> *RemoteTaskRef; 
-  bool v68; 
+  bool v64; 
   bdLoginResumeConfig *LoginResumeConfig; 
   bool isInitialized; 
-  bdLoginStatus *v71; 
-  __int64 (__fastcall **v72)(void *); 
+  bdLoginStatus *v67; 
+  __int64 (__fastcall **v68)(void *); 
   void *p_m_umbrellaCrossplayTask; 
-  const char *v74; 
+  const char *v70; 
   bdLoginResumeFlow LoginResumeFlow; 
-  bdLoginResult *v76; 
-  bdLoginTaskCreateUnoAnonymousAccount::CreateUnoAnonymousAccountStatusCode v77; 
+  bdLoginResult *v72; 
+  bdLoginTaskCreateUnoAnonymousAccount::CreateUnoAnonymousAccountStatusCode v73; 
   const char *UnoIDToken; 
-  __int64 (__fastcall **v79)(void *); 
+  __int64 (__fastcall **v75)(void *); 
   void *p_m_createUnoAnonymousAccountTask; 
-  const char *v81; 
-  bdLoginTaskCreateUnoAccount::CreateUnoAccountStatusCode v82; 
-  __int32 v83; 
+  const char *v77; 
+  bdLoginTaskCreateUnoAccount::CreateUnoAccountStatusCode v78; 
+  __int32 v79; 
   void *p_m_createUnoAccountTask; 
-  bdLoginStatus *v85; 
-  const char *v86; 
-  bdLoginTaskAuthenticateUnoAccount::AuthenticateUnoAccountStatusCode v87; 
-  __int32 v88; 
-  bdLoginTaskUpdateUnoAccount::UpdateUnoAccountStatusCode v89; 
-  __int32 v90; 
-  bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode v91; 
+  bdLoginStatus *v81; 
+  const char *v82; 
+  bdLoginTaskAuthenticateUnoAccount::AuthenticateUnoAccountStatusCode v83; 
+  __int32 v84; 
+  bdLoginTaskUpdateUnoAccount::UpdateUnoAccountStatusCode v85; 
+  __int32 v86; 
+  bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode v87; 
+  const char *v88; 
+  const char *v89; 
+  unsigned __int64 v90; 
+  bdLoginTaskUmbrellaLegacyLogin::UmbrellaLegacyLoginStatusCode v91; 
   const char *v92; 
   const char *v93; 
-  unsigned __int64 v94; 
-  bdLoginTaskUmbrellaLegacyLogin::UmbrellaLegacyLoginStatusCode v95; 
+  bdLoginTaskConnectToLSG::LSGConnectionState v94; 
+  __int64 v95; 
   const char *v96; 
-  const char *v97; 
-  bdLoginTaskConnectToLSG::LSGConnectionState v98; 
-  __int64 v99; 
-  const char *v100; 
-  bdLoginTaskReportExtendedAuthInfo::ReportInfoState v101; 
+  bdLoginTaskReportExtendedAuthInfo::ReportInfoState v97; 
   const char *Username; 
   const char *AccountType; 
-  unsigned __int64 v104; 
+  unsigned __int64 v100; 
   unsigned __int64 UnoID; 
-  bdLoginStatus *v106; 
-  const char *v107; 
-  bdLoginTaskFetchUnoAccount::FetchUnoAccountStatusCode v108; 
-  bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode v109; 
-  bdLoginTask *v110; 
+  bdLoginStatus *v102; 
+  const char *v103; 
+  bdLoginTaskFetchUnoAccount::FetchUnoAccountStatusCode v104; 
+  bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode v105; 
+  bdLoginTask *v106; 
   unsigned int line; 
   char *format; 
   const char *ClientID; 
   unsigned __int64 UserID; 
-  unsigned __int64 v116; 
+  unsigned __int64 v112; 
   unsigned int TitleID; 
-  bdRandom v118; 
-  bdReference<bdRemoteTask> v119; 
-  __int64 v120; 
-  char v121; 
+  bdRandom v114; 
+  bdReference<bdRemoteTask> v115; 
+  __int64 v116; 
+  char v117; 
   bdLoginQueueRecord result; 
-  bdLoginQueueRecord v123; 
-  bdLoginResumeConfig v124; 
+  bdLoginQueueRecord v119; 
+  bdLoginResumeConfig v120; 
 
-  v120 = -2i64;
+  v116 = -2i64;
   switch ( bdLoginStatus::getLoginStatusCode(this->m_loginStatus) )
   {
     case READY:
@@ -480,26 +482,26 @@ __int64 __fastcall bdLoginFlow::pump(bdLoginFlow *this, double _XMM1_8)
         m_loginConfig = this->m_loginConfig;
         if ( bdLoginConfig::getLoginType(m_loginConfig) == WAITING_FOR_REPORT_CONSOLE_DETAILS )
         {
-          v7 = (bdRemoteTask *)bdMemory::allocate(0x1EC0ui64);
-          v119.m_ptr = v7;
-          if ( v7 )
-            bdLoginTaskFetchXboxOneToken::bdLoginTaskFetchXboxOneToken((bdLoginTaskFetchXboxOneToken *)v7, m_loginConfig, m_loginResult);
+          v5 = (bdRemoteTask *)bdMemory::allocate(0x1EC0ui64);
+          v115.m_ptr = v5;
+          if ( v5 )
+            bdLoginTaskFetchXboxOneToken::bdLoginTaskFetchXboxOneToken((bdLoginTaskFetchXboxOneToken *)v5, m_loginConfig, m_loginResult);
         }
         else
         {
-          v7 = NULL;
+          v5 = NULL;
         }
-        if ( p_m_firstPartyTask == &v121 )
+        if ( p_m_firstPartyTask == &v117 )
         {
-          if ( v7 )
-            ((void (__fastcall *)(bdRemoteTask *, __int64))v7->~bdReferencable)(v7, 1i64);
+          if ( v5 )
+            ((void (__fastcall *)(bdRemoteTask *, __int64))v5->~bdReferencable)(v5, 1i64);
         }
         else
         {
-          v8 = *(bdLoginTask **)p_m_firstPartyTask;
-          *(_QWORD *)p_m_firstPartyTask = v7;
-          if ( v8 )
-            ((void (__fastcall *)(bdLoginTask *, __int64))v8->~bdLoginTask)(v8, 1i64);
+          v6 = *(bdLoginTask **)p_m_firstPartyTask;
+          *(_QWORD *)p_m_firstPartyTask = v5;
+          if ( v6 )
+            ((void (__fastcall *)(bdLoginTask *, __int64))v6->~bdLoginTask)(v6, 1i64);
         }
       }
       bdLoginStatus::startLoginTimer(this->m_loginStatus);
@@ -508,9 +510,9 @@ __int64 __fastcall bdLoginFlow::pump(bdLoginFlow *this, double _XMM1_8)
       if ( isDediLogin )
       {
         bdLoginStatus::updateLoginStatus(m_loginStatus, "ATVI dedicated login detected, starting Auth task", AUTHENTICATING);
-        v11 = this->m_loginResult;
+        v9 = this->m_loginResult;
         ThunderpantsToken = bdLoginConfig::getThunderpantsToken(this->m_loginConfig);
-        bdLoginResult::setPlatformToken(v11, ThunderpantsToken);
+        bdLoginResult::setPlatformToken(v9, ThunderpantsToken);
         format = "ATVI dedicated login detected, starting Auth task";
         line = 150;
         goto LABEL_24;
@@ -523,20 +525,20 @@ __int64 __fastcall bdLoginFlow::pump(bdLoginFlow *this, double _XMM1_8)
       Myval2 = this->m_firstPartyTask._Mypair._Myval2;
       if ( Myval2->m_firstPartyTokenStatusCode == FIRST_PARTY_AUTHED )
       {
-        v15 = this->m_loginStatus;
-        v16 = Myval2->getTaskMessage(Myval2);
-        bdLoginStatus::updateLoginStatus(v15, v16, FAILED);
-        v17 = this->m_firstPartyTask._Mypair._Myval2->getTaskMessage(this->m_firstPartyTask._Mypair._Myval2);
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xACu, v17);
-        v18 = this->m_firstPartyTask._Mypair._Myval2->getTaskMessage(this->m_firstPartyTask._Mypair._Myval2);
-        bdLoginFlow::recordBackoffError(this, v18);
+        v13 = this->m_loginStatus;
+        v14 = Myval2->getTaskMessage(Myval2);
+        bdLoginStatus::updateLoginStatus(v13, v14, FAILED);
+        v15 = this->m_firstPartyTask._Mypair._Myval2->getTaskMessage(this->m_firstPartyTask._Mypair._Myval2);
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xACu, v15);
+        v16 = this->m_firstPartyTask._Mypair._Myval2->getTaskMessage(this->m_firstPartyTask._Mypair._Myval2);
+        bdLoginFlow::recordBackoffError(this, v16);
         this->m_code = FIRST_PARTY_ERROR;
         return (unsigned int)this->m_code;
       }
       if ( Myval2->m_firstPartyTokenStatusCode != LOGIN_DELAY )
       {
 LABEL_15:
-        v14 = (void (**)(void))Myval2->__vftable;
+        v12 = (void (**)(void))Myval2->__vftable;
         goto LABEL_16;
       }
       bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Got First Party token(s), ready to authenticate with Demonware", FIRST_PARTY_AUTHED);
@@ -545,35 +547,29 @@ LABEL_15:
       goto LABEL_24;
     case FIRST_PARTY_AUTHED:
       MaxInitialLoginDelayMS = bdLoginConfig::getMaxInitialLoginDelayMS(this->m_loginConfig);
-      v20 = this->m_loginStatus;
+      v18 = this->m_loginStatus;
       if ( MaxInitialLoginDelayMS )
       {
-        bdLoginStatus::updateLoginStatus(v20, "Applying initial login delay, before authenticating with Demonware", LOGIN_DELAY);
+        bdLoginStatus::updateLoginStatus(v18, "Applying initial login delay, before authenticating with Demonware", LOGIN_DELAY);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xCAu, "Updating state to: LOGIN_DELAY");
-        bdRandom::bdRandom(&v118);
-        v21 = bdLoginConfig::getMaxInitialLoginDelayMS(this->m_loginConfig);
-        v22 = bdRandom::nextUInt(&v118);
-        this->m_loginDelayMS = v22 % v21;
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xD0u, "Going to wait %d ms", v22 % v21);
+        bdRandom::bdRandom(&v114);
+        v19 = bdLoginConfig::getMaxInitialLoginDelayMS(this->m_loginConfig);
+        v20 = bdRandom::nextUInt(&v114);
+        this->m_loginDelayMS = v20 % v19;
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xD0u, "Going to wait %d ms", v20 % v19);
         this->m_loginDelayStartTimestamp = bdPlatformTiming::getHiResTimeStamp();
-        bdRandom::~bdRandom(&v118);
+        bdRandom::~bdRandom(&v114);
         return (unsigned int)this->m_code;
       }
-      bdLoginStatus::updateLoginStatus(v20, "Authenticating to Demonware", AUTHENTICATING);
+      bdLoginStatus::updateLoginStatus(v18, "Authenticating to Demonware", AUTHENTICATING);
       format = "Updating state to: AUTHENTICATING";
       line = 217;
       goto LABEL_24;
     case LOGIN_DELAY:
       HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-      *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_loginDelayStartTimestamp, HiResTimeStamp);
-      __asm
-      {
-        vmulss  xmm2, xmm0, cs:__real@447a0000
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vcomiss xmm2, xmm1
-      }
-      if ( v27 )
+      ElapsedTime = bdPlatformTiming::getElapsedTime(this->m_loginDelayStartTimestamp, HiResTimeStamp);
+      m_loginDelayMS = (float)this->m_loginDelayMS;
+      if ( (float)(*(float *)&ElapsedTime * 1000.0) < m_loginDelayMS )
         return (unsigned int)this->m_code;
       bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Authenticating to Demonware", AUTHENTICATING);
       format = "Updating state to: AUTHENTICATING";
@@ -587,24 +583,24 @@ LABEL_15:
           bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Got a reply from Demonware Auth", AUTHENTICATING);
           break;
         case CONNECTED:
-          v33 = this->m_authenticateTask.getTaskMessage(&this->m_authenticateTask);
-          bdLoginFlow::recordBackoffError(this, v33);
+          v29 = this->m_authenticateTask.getTaskMessage(&this->m_authenticateTask);
+          bdLoginFlow::recordBackoffError(this, v29);
           this->m_code = AUTH_ERROR;
           return (unsigned int)this->m_code;
         case DISCONNECTING:
-          v31 = this->m_loginStatus;
-          v32 = this->m_authenticateTask.getTaskMessage(&this->m_authenticateTask);
-          bdLoginStatus::updateLoginStatus(v31, v32, FAILED);
+          v27 = this->m_loginStatus;
+          v28 = this->m_authenticateTask.getTaskMessage(&this->m_authenticateTask);
+          bdLoginStatus::updateLoginStatus(v27, v28, FAILED);
           this->m_code = AUTH_ERROR;
           return (unsigned int)this->m_code;
         case DISCONNECTED:
           bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Authenticated to Demonware", AUTHENTICATED);
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xF0u, "Updating state to: AUTHENTICATED");
           Environment = bdLoginResult::getEnvironment(this->m_loginResult);
-          v30 = bdEnvironmentToString(Environment);
+          v26 = bdEnvironmentToString(Environment);
           TitleID = bdLoginResult::getTitleID(this->m_loginResult);
           ClientID = bdLoginResult::getClientID(this->m_loginResult);
-          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xF5u, "Using Client ID: %s, Title ID: %d, ENV: %s", ClientID, TitleID, v30);
+          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0xF5u, "Using Client ID: %s, Title ID: %d, ENV: %s", ClientID, TitleID, v26);
           return (unsigned int)this->m_code;
       }
       this->m_authenticateTask.pump(&this->m_authenticateTask);
@@ -618,32 +614,32 @@ LABEL_15:
         return (unsigned int)this->m_code;
       }
       isCrossPlayEnabled = bdLoginResult::isCrossPlayEnabled(this->m_loginResult);
-      v35 = this->m_loginStatus;
+      v31 = this->m_loginStatus;
       if ( isCrossPlayEnabled )
       {
-        bdLoginStatus::updateLoginStatus(v35, "Starting crossplay login", CROSSPLAY_LOG_IN);
+        bdLoginStatus::updateLoginStatus(v31, "Starting crossplay login", CROSSPLAY_LOG_IN);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x116u, "Updating state to: CROSSPLAY_LOG_IN");
         this->m_umbrellaCrossplayTask.pump(&this->m_umbrellaCrossplayTask);
         return (unsigned int)this->m_code;
       }
-      bdLoginStatus::updateLoginStatus(v35, "Starting legacy login", LEGACY_LOG_IN);
+      bdLoginStatus::updateLoginStatus(v31, "Starting legacy login", LEGACY_LOG_IN);
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x11Eu, "Updating state to: LEGACY_LOG_IN");
-      goto LABEL_128;
+      goto LABEL_131;
     case CROSSPLAY_LOG_IN:
-      v59 = bdLoginTaskUmbrellaCrossplay::getTaskCode(&this->m_umbrellaCrossplayTask);
-      switch ( v59 )
+      v55 = bdLoginTaskUmbrellaCrossplay::getTaskCode(&this->m_umbrellaCrossplayTask);
+      switch ( v55 )
       {
         case CONNECTED:
-          RemoteTaskRef = bdLoginTaskUmbrellaCrossplay::getRemoteTaskRef(&this->m_umbrellaCrossplayTask, &v119);
-          v68 = bdRemoteTask::getErrorCode(RemoteTaskRef->m_ptr) == BD_UMBRELLA_ACCOUNT_NOT_FOUND;
-          if ( v119.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v119.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v119.m_ptr )
-            ((void (__fastcall *)(bdRemoteTask *, __int64))v119.m_ptr->~bdReferencable)(v119.m_ptr, 1i64);
-          if ( !v68 )
+          RemoteTaskRef = bdLoginTaskUmbrellaCrossplay::getRemoteTaskRef(&this->m_umbrellaCrossplayTask, &v115);
+          v64 = bdRemoteTask::getErrorCode(RemoteTaskRef->m_ptr) == BD_UMBRELLA_ACCOUNT_NOT_FOUND;
+          if ( v115.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v115.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v115.m_ptr )
+            ((void (__fastcall *)(bdRemoteTask *, __int64))v115.m_ptr->~bdReferencable)(v115.m_ptr, 1i64);
+          if ( !v64 )
           {
-LABEL_85:
-            v72 = (__int64 (__fastcall **)(void *))this->m_umbrellaCrossplayTask.__vftable;
+LABEL_88:
+            v68 = (__int64 (__fastcall **)(void *))this->m_umbrellaCrossplayTask.__vftable;
             p_m_umbrellaCrossplayTask = &this->m_umbrellaCrossplayTask;
-            goto LABEL_86;
+            goto LABEL_89;
           }
           if ( bdLoginConfig::shouldCreateAnonymousAccount(this->m_loginConfig) )
           {
@@ -652,26 +648,26 @@ LABEL_85:
             this->m_createUnoAnonymousAccountTask.pump(&this->m_createUnoAnonymousAccountTask);
             return (unsigned int)this->m_code;
           }
-          LoginResumeConfig = bdLoginResult::getLoginResumeConfig(this->m_loginResult, &v124);
+          LoginResumeConfig = bdLoginResult::getLoginResumeConfig(this->m_loginResult, &v120);
           isInitialized = bdLoginResumeConfig::isInitialized(LoginResumeConfig);
-          bdLoginResumeConfig::~bdLoginResumeConfig(&v124);
-          v71 = this->m_loginStatus;
+          bdLoginResumeConfig::~bdLoginResumeConfig(&v120);
+          v67 = this->m_loginStatus;
           if ( isInitialized )
           {
-            bdLoginStatus::updateLoginStatus(v71, "Resume Flow has already been set, creating Uno Account", RESUME_FLOW);
+            bdLoginStatus::updateLoginStatus(v67, "Resume Flow has already been set, creating Uno Account", RESUME_FLOW);
             format = "Updating state to: RESUME_FLOW";
             line = 460;
             goto LABEL_24;
           }
-          bdLoginStatus::updateLoginStatus(v71, "[NO_CROSSPLAY_ACCOUNT_FOUND] Failed to retrieve linked account", FAILED);
+          bdLoginStatus::updateLoginStatus(v67, "[NO_CROSSPLAY_ACCOUNT_FOUND] Failed to retrieve linked account", FAILED);
           this->m_code = NO_CROSSPLAY_ACCOUNT_FOUND;
           break;
         case DISCONNECTING:
-LABEL_74:
+LABEL_77:
           this->m_code = UMBRELLA_ERROR;
-          v65 = this->m_loginStatus;
-          v66 = this->m_umbrellaCrossplayTask.getTaskMessage(&this->m_umbrellaCrossplayTask);
-          bdLoginStatus::updateLoginStatus(v65, v66, FAILED);
+          v61 = this->m_loginStatus;
+          v62 = this->m_umbrellaCrossplayTask.getTaskMessage(&this->m_umbrellaCrossplayTask);
+          bdLoginStatus::updateLoginStatus(v61, v62, FAILED);
           break;
         case DISCONNECTED:
           FirstPartyUsername = bdLoginResult::getFirstPartyUsername(this->m_loginResult);
@@ -679,15 +675,15 @@ LABEL_74:
           FirstPartyUserID = bdLoginResult::getFirstPartyUserID(this->m_loginResult);
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x1A5u, "First Party User ID : %I64u, Account Type: %s, Username: %s", FirstPartyUserID, FirstPartyAccountType, FirstPartyUsername);
           shouldPauseAfterCrossPlatformLogin = bdLoginConfig::shouldPauseAfterCrossPlatformLogin(this->m_loginConfig);
-          v64 = this->m_loginStatus;
+          v60 = this->m_loginStatus;
           if ( shouldPauseAfterCrossPlatformLogin )
           {
-            bdLoginStatus::updateLoginStatus(v64, "Paused", FLOW_PAUSED);
+            bdLoginStatus::updateLoginStatus(v60, "Paused", FLOW_PAUSED);
             bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x1AAu, "Updating state to: FLOW_PAUSED");
           }
           else
           {
-            bdLoginStatus::updateLoginStatus(v64, "Connecting to LSG", CONNECTING_TO_LSG);
+            bdLoginStatus::updateLoginStatus(v60, "Connecting to LSG", CONNECTING_TO_LSG);
             bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x1AFu, "Updating state to: CONNECTING_TO_LSG");
           }
           break;
@@ -720,8 +716,8 @@ LABEL_74:
         case BD_LOGIN_UPDATE_EXISTING_USER:
           bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Setting state to UPDATING_UNO_ACCOUNT", UPDATING_UNO_ACCOUNT);
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x205u, "Updating state to: UPDATING_UNO_ACCOUNT");
-          v76 = this->m_loginResult;
-          v76->m_loginResumeConfig.m_accountInfo.m_userID = bdLoginResult::getUserID(v76);
+          v72 = this->m_loginResult;
+          v72->m_loginResumeConfig.m_accountInfo.m_userID = bdLoginResult::getUserID(v72);
           break;
         default:
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x20Au, "In an unknown resume flow state");
@@ -729,14 +725,14 @@ LABEL_74:
       }
       return (unsigned int)this->m_code;
     case CREATING_UNO_ANONYMOUS_ACCOUNT:
-      v77 = bdLoginTaskCreateUnoAnonymousAccount::getTaskCode(&this->m_createUnoAnonymousAccountTask);
-      if ( v77 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
+      v73 = bdLoginTaskCreateUnoAnonymousAccount::getTaskCode(&this->m_createUnoAnonymousAccountTask);
+      if ( v73 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
       {
-        v79 = (__int64 (__fastcall **)(void *))this->m_createUnoAnonymousAccountTask.__vftable;
+        v75 = (__int64 (__fastcall **)(void *))this->m_createUnoAnonymousAccountTask.__vftable;
         p_m_createUnoAnonymousAccountTask = &this->m_createUnoAnonymousAccountTask;
-        goto LABEL_103;
+        goto LABEL_106;
       }
-      if ( v77 != CONNECTED )
+      if ( v73 != CONNECTED )
       {
         this->m_createUnoAnonymousAccountTask.pump(&this->m_createUnoAnonymousAccountTask);
         return (unsigned int)this->m_code;
@@ -746,137 +742,137 @@ LABEL_74:
       this->m_umbrellaCrossplayTask.reset(&this->m_umbrellaCrossplayTask);
       bdLoginTaskUmbrellaCrossplay::setLinking(&this->m_umbrellaCrossplayTask, 1);
       UnoIDToken = bdLoginTaskCreateUnoAnonymousAccount::getUnoIDToken(&this->m_createUnoAnonymousAccountTask);
-      goto LABEL_100;
+      goto LABEL_103;
     case CREATING_UNO_ACCOUNT:
-      v82 = bdLoginTaskCreateUnoAccount::getTaskCode(&this->m_createUnoAccountTask);
-      if ( v82 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
+      v78 = bdLoginTaskCreateUnoAccount::getTaskCode(&this->m_createUnoAccountTask);
+      if ( v78 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
       {
-        v79 = (__int64 (__fastcall **)(void *))this->m_createUnoAccountTask.__vftable;
+        v75 = (__int64 (__fastcall **)(void *))this->m_createUnoAccountTask.__vftable;
         p_m_createUnoAnonymousAccountTask = &this->m_createUnoAccountTask;
-        goto LABEL_103;
+        goto LABEL_106;
       }
-      v83 = v82 - 4;
-      if ( v82 == CONNECTED )
+      v79 = v78 - 4;
+      if ( v78 == CONNECTED )
       {
         bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Created Uno Account", CROSSPLAY_LOG_IN_LINK);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x22Cu, "Updating state to: CROSSPLAY_LOG_IN_LINK");
         this->m_umbrellaCrossplayTask.reset(&this->m_umbrellaCrossplayTask);
         bdLoginTaskUmbrellaCrossplay::setLinking(&this->m_umbrellaCrossplayTask, 1);
         UnoIDToken = bdLoginTaskCreateUnoAccount::getUnoIDToken(&this->m_createUnoAccountTask);
-        goto LABEL_100;
-      }
-      v14 = (void (**)(void))this->m_createUnoAccountTask.__vftable;
-      p_m_createUnoAccountTask = &this->m_createUnoAccountTask;
-      if ( v83 != 1 )
-      {
-LABEL_16:
-        v14[1]();
-        return (unsigned int)this->m_code;
-      }
-      goto LABEL_107;
-    case AUTHENTICATING_UNO_ACCOUNT:
-      v87 = bdLoginTaskAuthenticateUnoAccount::getTaskCode(&this->m_authenticateUnoAccountTask);
-      if ( v87 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
-      {
-        v79 = (__int64 (__fastcall **)(void *))this->m_authenticateUnoAccountTask.__vftable;
-        p_m_createUnoAnonymousAccountTask = &this->m_authenticateUnoAccountTask;
         goto LABEL_103;
       }
-      v88 = v87 - 4;
-      if ( v87 == CONNECTED )
+      v12 = (void (**)(void))this->m_createUnoAccountTask.__vftable;
+      p_m_createUnoAccountTask = &this->m_createUnoAccountTask;
+      if ( v79 != 1 )
+      {
+LABEL_16:
+        v12[1]();
+        return (unsigned int)this->m_code;
+      }
+      goto LABEL_110;
+    case AUTHENTICATING_UNO_ACCOUNT:
+      v83 = bdLoginTaskAuthenticateUnoAccount::getTaskCode(&this->m_authenticateUnoAccountTask);
+      if ( v83 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
+      {
+        v75 = (__int64 (__fastcall **)(void *))this->m_authenticateUnoAccountTask.__vftable;
+        p_m_createUnoAnonymousAccountTask = &this->m_authenticateUnoAccountTask;
+        goto LABEL_106;
+      }
+      v84 = v83 - 4;
+      if ( v83 == CONNECTED )
       {
         bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Created Uno Account", CROSSPLAY_LOG_IN_LINK);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x248u, "Updating state to: CROSSPLAY_LOG_IN_LINK");
         this->m_umbrellaCrossplayTask.reset(&this->m_umbrellaCrossplayTask);
         bdLoginTaskUmbrellaCrossplay::setLinking(&this->m_umbrellaCrossplayTask, 1);
         UnoIDToken = bdLoginTaskAuthenticateUnoAccount::getUnoIDToken(&this->m_authenticateUnoAccountTask);
-LABEL_100:
+LABEL_103:
         bdLoginTaskUmbrellaCrossplay::setUnoIDToken(&this->m_umbrellaCrossplayTask, UnoIDToken);
         goto LABEL_48;
       }
-      v14 = (void (**)(void))this->m_authenticateUnoAccountTask.__vftable;
+      v12 = (void (**)(void))this->m_authenticateUnoAccountTask.__vftable;
       p_m_createUnoAccountTask = &this->m_authenticateUnoAccountTask;
-      if ( v88 == 1 )
-        goto LABEL_107;
-      goto LABEL_113;
+      if ( v84 == 1 )
+        goto LABEL_110;
+      goto LABEL_116;
     case UPDATING_UNO_ACCOUNT:
-      v89 = bdLoginTaskUpdateUnoAccount::getTaskCode(&this->m_updateUnoAccountTask);
-      if ( v89 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
+      v85 = bdLoginTaskUpdateUnoAccount::getTaskCode(&this->m_updateUnoAccountTask);
+      if ( v85 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
       {
-        v79 = (__int64 (__fastcall **)(void *))this->m_updateUnoAccountTask.__vftable;
+        v75 = (__int64 (__fastcall **)(void *))this->m_updateUnoAccountTask.__vftable;
         p_m_createUnoAnonymousAccountTask = &this->m_updateUnoAccountTask;
-        goto LABEL_103;
+        goto LABEL_106;
       }
-      v90 = v89 - 4;
-      if ( v89 == CONNECTED )
+      v86 = v85 - 4;
+      if ( v85 == CONNECTED )
       {
         bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Updated Uno Account", CONNECTING_TO_LSG);
         format = "Updating state to: CONNECTING_TO_LSG";
         line = 611;
         goto LABEL_24;
       }
-      v14 = (void (**)(void))this->m_updateUnoAccountTask.__vftable;
+      v12 = (void (**)(void))this->m_updateUnoAccountTask.__vftable;
       p_m_createUnoAccountTask = &this->m_updateUnoAccountTask;
-      if ( v90 == 1 )
+      if ( v86 == 1 )
       {
-LABEL_107:
-        v85 = this->m_loginStatus;
-        v86 = (const char *)((__int64 (__fastcall *)(void *))v14[4])(p_m_createUnoAccountTask);
-        bdLoginStatus::updateLoginStatus(v85, v86, FAILED);
+LABEL_110:
+        v81 = this->m_loginStatus;
+        v82 = (const char *)((__int64 (__fastcall *)(void *))v12[4])(p_m_createUnoAccountTask);
+        bdLoginStatus::updateLoginStatus(v81, v82, FAILED);
         this->m_code = UNO_ERROR;
       }
       else
       {
-LABEL_113:
-        ((void (__fastcall *)(void *))v14[1])(p_m_createUnoAccountTask);
+LABEL_116:
+        ((void (__fastcall *)(void *))v12[1])(p_m_createUnoAccountTask);
       }
       return (unsigned int)this->m_code;
     case CROSSPLAY_LOG_IN_LINK:
-      v91 = bdLoginTaskUmbrellaCrossplay::getTaskCode(&this->m_umbrellaCrossplayTask);
-      if ( v91 == CONNECTED )
-        goto LABEL_85;
-      if ( v91 == DISCONNECTING )
-        goto LABEL_74;
-      if ( v91 != DISCONNECTED )
+      v87 = bdLoginTaskUmbrellaCrossplay::getTaskCode(&this->m_umbrellaCrossplayTask);
+      if ( v87 == CONNECTED )
+        goto LABEL_88;
+      if ( v87 == DISCONNECTING )
+        goto LABEL_77;
+      if ( v87 != DISCONNECTED )
         goto LABEL_48;
       bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Connecting to LSG", CONNECTING_TO_LSG);
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x27Bu, "Updating state to: CONNECTING_TO_LSG");
-      v92 = bdLoginResult::getFirstPartyUsername(this->m_loginResult);
-      v93 = bdLoginResult::getFirstPartyAccountType(this->m_loginResult);
-      v94 = bdLoginResult::getFirstPartyUserID(this->m_loginResult);
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x280u, "First Party User ID : %I64u, Account Type: %s, Username: %s", v94, v93, v92);
+      v88 = bdLoginResult::getFirstPartyUsername(this->m_loginResult);
+      v89 = bdLoginResult::getFirstPartyAccountType(this->m_loginResult);
+      v90 = bdLoginResult::getFirstPartyUserID(this->m_loginResult);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x280u, "First Party User ID : %I64u, Account Type: %s, Username: %s", v90, v89, v88);
       UserID = bdLoginResult::getUserID(this->m_loginResult);
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x281u, "Uno ID: %I64u", UserID);
       return (unsigned int)this->m_code;
     case LEGACY_LOG_IN:
-      v95 = bdLoginTaskUmbrellaLegacyLogin::getTaskCode(&this->m_umbrellaLegacyLoginTask);
-      if ( v95 == CONNECTED )
+      v91 = bdLoginTaskUmbrellaLegacyLogin::getTaskCode(&this->m_umbrellaLegacyLoginTask);
+      if ( v91 == CONNECTED )
       {
-        v72 = (__int64 (__fastcall **)(void *))this->m_umbrellaLegacyLoginTask.__vftable;
+        v68 = (__int64 (__fastcall **)(void *))this->m_umbrellaLegacyLoginTask.__vftable;
         p_m_umbrellaCrossplayTask = &this->m_umbrellaLegacyLoginTask;
-LABEL_86:
-        v74 = (const char *)v72[4](p_m_umbrellaCrossplayTask);
-        bdLoginFlow::recordBackoffError(this, v74);
+LABEL_89:
+        v70 = (const char *)v68[4](p_m_umbrellaCrossplayTask);
+        bdLoginFlow::recordBackoffError(this, v70);
         this->m_code = UMBRELLA_ERROR;
       }
       else
       {
-        if ( v95 != DISCONNECTING )
-          goto LABEL_128;
+        if ( v91 != DISCONNECTING )
+          goto LABEL_131;
         bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Connecting to LSG", CONNECTING_TO_LSG);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x298u, "Updating state to: CONNECTING_TO_LSG");
-        v96 = bdLoginResult::getFirstPartyUsername(this->m_loginResult);
-        v97 = bdLoginResult::getFirstPartyAccountType(this->m_loginResult);
-        v116 = bdLoginResult::getFirstPartyUserID(this->m_loginResult);
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x29Du, "First Party User ID : %I64u, Account Type: %s, Username: %s", v116, v97, v96);
+        v92 = bdLoginResult::getFirstPartyUsername(this->m_loginResult);
+        v93 = bdLoginResult::getFirstPartyAccountType(this->m_loginResult);
+        v112 = bdLoginResult::getFirstPartyUserID(this->m_loginResult);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x29Du, "First Party User ID : %I64u, Account Type: %s, Username: %s", v112, v93, v92);
       }
       return (unsigned int)this->m_code;
     case CONNECTING_TO_LSG:
-      v98 = bdLoginTaskConnectToLSG::getTaskCode(&this->m_connectToLSGTask);
-      v99 = (unsigned int)(v98 - 4);
-      if ( v98 == CONNECTED )
-        goto LABEL_135;
-      if ( v98 != DISCONNECTING )
+      v94 = bdLoginTaskConnectToLSG::getTaskCode(&this->m_connectToLSGTask);
+      v95 = (unsigned int)(v94 - 4);
+      if ( v94 == CONNECTED )
+        goto LABEL_138;
+      if ( v94 != DISCONNECTING )
       {
         this->m_connectToLSGTask.pump(&this->m_connectToLSGTask);
         return (unsigned int)this->m_code;
@@ -886,29 +882,29 @@ LABEL_86:
       line = 688;
       goto LABEL_24;
     case REPORTING_EXTENDED_AUTH_INFO:
-      v101 = bdLoginTaskReportExtendedAuthInfo::getTaskCode(&this->m_reportExtendedAuthInfoTask);
-      if ( v101 == CONNECTING )
+      v97 = bdLoginTaskReportExtendedAuthInfo::getTaskCode(&this->m_reportExtendedAuthInfoTask);
+      if ( v97 == CONNECTING )
       {
-        v107 = (const char *)((__int64 (__fastcall *)(bdLoginTaskReportExtendedAuthInfo *, _QWORD))this->m_reportExtendedAuthInfoTask.getTaskMessage)(&this->m_reportExtendedAuthInfoTask, (unsigned int)(v101 - 2));
-        bdLoginFlow::recordBackoffError(this, v107);
+        v103 = (const char *)((__int64 (__fastcall *)(bdLoginTaskReportExtendedAuthInfo *, _QWORD))this->m_reportExtendedAuthInfoTask.getTaskMessage)(&this->m_reportExtendedAuthInfoTask, (unsigned int)(v97 - 2));
+        bdLoginFlow::recordBackoffError(this, v103);
         this->m_code = ANTI_CHEAT_ERROR;
       }
-      else if ( v101 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
+      else if ( v97 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
       {
         Username = bdLoginResult::getUsername(this->m_loginResult);
         AccountType = bdLoginResult::getAccountType(this->m_loginResult);
-        v104 = bdLoginResult::getUserID(this->m_loginResult);
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x2C5u, "DW User ID: %I64u Account Type: %s, Username: %s", v104, AccountType, Username);
+        v100 = bdLoginResult::getUserID(this->m_loginResult);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x2C5u, "DW User ID: %I64u Account Type: %s, Username: %s", v100, AccountType, Username);
         UnoID = bdLoginResult::getUnoID(this->m_loginResult);
-        v106 = this->m_loginStatus;
+        v102 = this->m_loginStatus;
         if ( UnoID )
         {
-          bdLoginStatus::updateLoginStatus(v106, "Updating state to: FETCHING_UNO_ACCOUNT", FETCHING_UNO_ACCOUNT);
+          bdLoginStatus::updateLoginStatus(v102, "Updating state to: FETCHING_UNO_ACCOUNT", FETCHING_UNO_ACCOUNT);
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x2CAu, "Updating state to: FETCHING_UNO_ACCOUNT");
         }
         else
         {
-          bdLoginStatus::setFinishedFlow(v106, 1);
+          bdLoginStatus::setFinishedFlow(v102, 1);
           bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Login Complete", COMPLETED);
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x2D0u, "No UnoID could be found for this user, will not Fetch Uno Account details");
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x2D1u, "Updating state to: COMPLETED");
@@ -920,34 +916,34 @@ LABEL_86:
       }
       return (unsigned int)this->m_code;
     case JOINING_LOGIN_QUEUE:
-      v36 = bdLoginTaskJoinQueue::getTaskCode(&this->m_joinQueueTask);
-      if ( v36 == CONNECTED )
+      v32 = bdLoginTaskJoinQueue::getTaskCode(&this->m_joinQueueTask);
+      if ( v32 == CONNECTED )
       {
-        v44 = (__int64 (__fastcall **)(void *))this->m_joinQueueTask.__vftable;
+        v40 = (__int64 (__fastcall **)(void *))this->m_joinQueueTask.__vftable;
         p_m_joinQueueTask = &this->m_joinQueueTask;
         goto LABEL_54;
       }
-      if ( v36 == DISCONNECTING )
+      if ( v32 == DISCONNECTING )
         goto LABEL_52;
-      v37 = &this->m_joinQueueTask;
-      if ( v36 != DISCONNECTED )
+      v33 = &this->m_joinQueueTask;
+      if ( v32 != DISCONNECTED )
       {
-        this->m_joinQueueTask.pump(v37);
+        this->m_joinQueueTask.pump(v33);
         return (unsigned int)this->m_code;
       }
-      if ( bdLoginTaskJoinQueue::getQueueMemberStatus(v37) != BD_POPPED_FROM_THE_QUEUE )
+      if ( bdLoginTaskJoinQueue::getQueueMemberStatus(v33) != BD_POPPED_FROM_THE_QUEUE )
       {
         if ( bdLoginTaskJoinQueue::getQueueMemberStatus(&this->m_joinQueueTask) == BD_JOINED )
         {
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x142u, "Joined the Login Queue");
           LoginqueueRecord = bdLoginTaskJoinQueue::getLoginqueueRecord(&this->m_joinQueueTask, &result);
-          v41 = this->m_loginStatus;
-          v41->m_loginQueueInfo.m_position = LoginqueueRecord->m_position;
-          v41->m_loginQueueInfo.m_estimatedWaitTimeSec = LoginqueueRecord->m_estimatedWaitTimeSec;
-          v41->m_loginQueueInfo.m_estimatedWaitTimeMilliseconds = LoginqueueRecord->m_estimatedWaitTimeMilliseconds;
-          v41->m_loginQueueInfo.m_nextPollAfterSec = LoginqueueRecord->m_nextPollAfterSec;
-          v41->m_loginQueueInfo.m_nextPollAfterMilliseconds = LoginqueueRecord->m_nextPollAfterMilliseconds;
-          v41->m_loginQueueInfo.m_ivSeed = LoginqueueRecord->m_ivSeed;
+          v37 = this->m_loginStatus;
+          v37->m_loginQueueInfo.m_position = LoginqueueRecord->m_position;
+          v37->m_loginQueueInfo.m_estimatedWaitTimeSec = LoginqueueRecord->m_estimatedWaitTimeSec;
+          v37->m_loginQueueInfo.m_estimatedWaitTimeMilliseconds = LoginqueueRecord->m_estimatedWaitTimeMilliseconds;
+          v37->m_loginQueueInfo.m_nextPollAfterSec = LoginqueueRecord->m_nextPollAfterSec;
+          v37->m_loginQueueInfo.m_nextPollAfterMilliseconds = LoginqueueRecord->m_nextPollAfterMilliseconds;
+          v37->m_loginQueueInfo.m_ivSeed = LoginqueueRecord->m_ivSeed;
           bdLoginQueueRecord::~bdLoginQueueRecord(&result);
           this->m_loginQueueWaitStartTimestamp = bdPlatformTiming::getHiResTimeStamp();
           bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Setting status to POLLING_LOGIN_QUEUE_WAIT", POLLING_LOGIN_QUEUE_WAIT);
@@ -956,71 +952,71 @@ LABEL_86:
         return (unsigned int)this->m_code;
       }
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x12Cu, "No need to join Login Queue at this moment");
-      v38 = bdLoginResult::isCrossPlayEnabled(this->m_loginResult);
-      v39 = this->m_loginStatus;
-      if ( v38 )
+      v34 = bdLoginResult::isCrossPlayEnabled(this->m_loginResult);
+      v35 = this->m_loginStatus;
+      if ( v34 )
       {
-        bdLoginStatus::updateLoginStatus(v39, "Starting crossplay login", CROSSPLAY_LOG_IN);
+        bdLoginStatus::updateLoginStatus(v35, "Starting crossplay login", CROSSPLAY_LOG_IN);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x132u, "Updating state to: CROSSPLAY_LOG_IN");
         goto LABEL_48;
       }
-      bdLoginStatus::updateLoginStatus(v39, "Starting legacy login", LEGACY_LOG_IN);
+      bdLoginStatus::updateLoginStatus(v35, "Starting legacy login", LEGACY_LOG_IN);
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x13Au, "Updating state to: LEGACY_LOG_IN");
-      goto LABEL_128;
+      goto LABEL_131;
     case POLLING_LOGIN_QUEUE:
-      v47 = bdLoginTaskPollQueue::getTaskCode(&this->m_pollQueueTask);
-      switch ( v47 )
+      v43 = bdLoginTaskPollQueue::getTaskCode(&this->m_pollQueueTask);
+      switch ( v43 )
       {
         case CONNECTED:
-          v44 = (__int64 (__fastcall **)(void *))this->m_pollQueueTask.__vftable;
+          v40 = (__int64 (__fastcall **)(void *))this->m_pollQueueTask.__vftable;
           p_m_joinQueueTask = &this->m_pollQueueTask;
 LABEL_54:
-          v46 = (const char *)v44[4](p_m_joinQueueTask);
-          bdLoginFlow::recordBackoffError(this, v46);
+          v42 = (const char *)v40[4](p_m_joinQueueTask);
+          bdLoginFlow::recordBackoffError(this, v42);
           this->m_code = LOGINQUEUE_ERROR;
           break;
         case DISCONNECTING:
 LABEL_52:
-          v42 = this->m_loginStatus;
-          v43 = this->m_joinQueueTask.getTaskMessage(&this->m_joinQueueTask);
-          bdLoginStatus::updateLoginStatus(v42, v43, FAILED);
+          v38 = this->m_loginStatus;
+          v39 = this->m_joinQueueTask.getTaskMessage(&this->m_joinQueueTask);
+          bdLoginStatus::updateLoginStatus(v38, v39, FAILED);
           this->m_code = LOGINQUEUE_ERROR;
           break;
         case DISCONNECTED:
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x160u, "Polled Login Queue Completed");
-          v52 = bdLoginResult::isCrossPlayEnabled(this->m_loginResult);
-          v53 = this->m_loginStatus;
-          if ( v52 )
+          v48 = bdLoginResult::isCrossPlayEnabled(this->m_loginResult);
+          v49 = this->m_loginStatus;
+          if ( v48 )
           {
-            bdLoginStatus::updateLoginStatus(v53, "Starting crossplay login", CROSSPLAY_LOG_IN);
+            bdLoginStatus::updateLoginStatus(v49, "Starting crossplay login", CROSSPLAY_LOG_IN);
             bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x166u, "Updating state to: CROSSPLAY_LOG_IN");
 LABEL_48:
             this->m_umbrellaCrossplayTask.pump(&this->m_umbrellaCrossplayTask);
           }
           else
           {
-            bdLoginStatus::updateLoginStatus(v53, "Starting legacy login", LEGACY_LOG_IN);
+            bdLoginStatus::updateLoginStatus(v49, "Starting legacy login", LEGACY_LOG_IN);
             bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginflow\\bdloginflow.cpp", "bdLoginFlow::pump", 0x16Eu, "Updating state to: LEGACY_LOG_IN");
-LABEL_128:
+LABEL_131:
             this->m_umbrellaLegacyLoginTask.pump(&this->m_umbrellaLegacyLoginTask);
           }
           break;
         default:
           this->m_pollQueueTask.pump(&this->m_pollQueueTask);
-          v48 = this->m_loginStatus;
+          v44 = this->m_loginStatus;
           UserQueueData = bdLoginTaskPollQueue::getUserQueueData(&this->m_pollQueueTask);
-          bdLoginStatus::updateLoginStatusMessage(v48, UserQueueData);
+          bdLoginStatus::updateLoginStatusMessage(v44, UserQueueData);
           if ( bdLoginTaskPollQueue::pollStatusUpdated(&this->m_pollQueueTask) && bdLoginTaskPollQueue::getTaskCode(&this->m_pollQueueTask) == UNINITIALIZED )
           {
-            v50 = bdLoginTaskPollQueue::getLoginqueueRecord(&this->m_pollQueueTask, &v123);
-            v51 = this->m_loginStatus;
-            v51->m_loginQueueInfo.m_position = v50->m_position;
-            v51->m_loginQueueInfo.m_estimatedWaitTimeSec = v50->m_estimatedWaitTimeSec;
-            v51->m_loginQueueInfo.m_estimatedWaitTimeMilliseconds = v50->m_estimatedWaitTimeMilliseconds;
-            v51->m_loginQueueInfo.m_nextPollAfterSec = v50->m_nextPollAfterSec;
-            v51->m_loginQueueInfo.m_nextPollAfterMilliseconds = v50->m_nextPollAfterMilliseconds;
-            v51->m_loginQueueInfo.m_ivSeed = v50->m_ivSeed;
-            bdLoginQueueRecord::~bdLoginQueueRecord(&v123);
+            v46 = bdLoginTaskPollQueue::getLoginqueueRecord(&this->m_pollQueueTask, &v119);
+            v47 = this->m_loginStatus;
+            v47->m_loginQueueInfo.m_position = v46->m_position;
+            v47->m_loginQueueInfo.m_estimatedWaitTimeSec = v46->m_estimatedWaitTimeSec;
+            v47->m_loginQueueInfo.m_estimatedWaitTimeMilliseconds = v46->m_estimatedWaitTimeMilliseconds;
+            v47->m_loginQueueInfo.m_nextPollAfterSec = v46->m_nextPollAfterSec;
+            v47->m_loginQueueInfo.m_nextPollAfterMilliseconds = v46->m_nextPollAfterMilliseconds;
+            v47->m_loginQueueInfo.m_ivSeed = v46->m_ivSeed;
+            bdLoginQueueRecord::~bdLoginQueueRecord(&v119);
             bdLoginTaskPollQueue::setPollStatusUpdated(&this->m_pollQueueTask, 0);
             this->m_loginQueueWaitStartTimestamp = bdPlatformTiming::getHiResTimeStamp();
             bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Setting status to POLLING_LOGIN_QUEUE_WAIT", POLLING_LOGIN_QUEUE_WAIT);
@@ -1030,35 +1026,35 @@ LABEL_128:
       }
       return (unsigned int)this->m_code;
     case POLLING_LOGIN_QUEUE_WAIT:
-      v54 = bdPlatformTiming::getHiResTimeStamp();
-      *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_loginQueueWaitStartTimestamp, v54);
-      __asm
+      v50 = bdPlatformTiming::getHiResTimeStamp();
+      v51 = bdPlatformTiming::getElapsedTime(this->m_loginQueueWaitStartTimestamp, v50);
+      v53 = *(float *)&v51 * 1000.0;
+      v52 = *(float *)&v51 * 1000.0;
+      v54 = 0i64;
+      if ( (float)(*(float *)&v51 * 1000.0) >= 9.223372e18 )
       {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vmovss  xmm2, cs:__real@5f000000
-        vcomiss xmm1, xmm2
-        vsubss  xmm1, xmm1, xmm2
-        vcomiss xmm1, xmm2
-        vcvttss2si rbx, xmm1
+        v52 = v53 - 9.223372e18;
+        if ( (float)(v53 - 9.223372e18) < 9.223372e18 )
+          v54 = 0x8000000000000000ui64;
       }
-      if ( _RBX < bdLoginStatus::getNextPollAfterMS(this->m_loginStatus) )
+      if ( v54 + (unsigned int)(int)v52 < bdLoginStatus::getNextPollAfterMS(this->m_loginStatus) )
         return (unsigned int)this->m_code;
       bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Updating state to: POLLING_LOGIN_QUEUE", POLLING_LOGIN_QUEUE);
       format = "Updating state to: POLLING_LOGIN_QUEUE";
       line = 409;
       goto LABEL_24;
     case FETCHING_UNO_ACCOUNT:
-      v108 = bdLoginTaskFetchUnoAccount::getTaskCode(&this->m_fetchUnoAccountTask);
-      if ( v108 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
+      v104 = bdLoginTaskFetchUnoAccount::getTaskCode(&this->m_fetchUnoAccountTask);
+      if ( v104 == WAITING_FOR_REPORT_CONSOLE_DETAILS )
       {
-        v79 = (__int64 (__fastcall **)(void *))this->m_fetchUnoAccountTask.__vftable;
+        v75 = (__int64 (__fastcall **)(void *))this->m_fetchUnoAccountTask.__vftable;
         p_m_createUnoAnonymousAccountTask = &this->m_fetchUnoAccountTask;
-LABEL_103:
-        v81 = (const char *)v79[4](p_m_createUnoAnonymousAccountTask);
-        bdLoginFlow::recordBackoffError(this, v81);
+LABEL_106:
+        v77 = (const char *)v75[4](p_m_createUnoAnonymousAccountTask);
+        bdLoginFlow::recordBackoffError(this, v77);
         this->m_code = UNO_ERROR;
       }
-      else if ( v108 == CONNECTED )
+      else if ( v104 == CONNECTED )
       {
         bdLoginStatus::setFinishedFlow(this->m_loginStatus, 1);
         bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Login Complete", COMPLETED);
@@ -1073,11 +1069,11 @@ LABEL_24:
       }
       return (unsigned int)this->m_code;
     case REFRESHING_CROSSPLAY_TOKEN:
-      v109 = bdLoginTaskUmbrellaCrossplay::getTaskCode(&this->m_umbrellaCrossplayTask);
-      if ( v109 == CONNECTED )
-        goto LABEL_85;
-      if ( v109 != DISCONNECTED )
-        goto LABEL_161;
+      v105 = bdLoginTaskUmbrellaCrossplay::getTaskCode(&this->m_umbrellaCrossplayTask);
+      if ( v105 == CONNECTED )
+        goto LABEL_88;
+      if ( v105 != DISCONNECTED )
+        goto LABEL_164;
       bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Refreshed crossplay token, setting login state `Completed`", COMPLETED);
       format = "Refreshed crossplay token, setting login state `Completed`";
       line = 759;
@@ -1094,11 +1090,11 @@ LABEL_24:
         }
         else
         {
-          v110 = this->m_firstPartyTask._Mypair._Myval2;
-          if ( v110 )
+          v106 = this->m_firstPartyTask._Mypair._Myval2;
+          if ( v106 )
           {
             this->m_firstPartyTask._Mypair._Myval2 = NULL;
-            ((void (__fastcall *)(bdLoginTask *, __int64))v110->~bdLoginTask)(v110, 1i64);
+            ((void (__fastcall *)(bdLoginTask *, __int64))v106->~bdLoginTask)(v106, 1i64);
           }
           this->m_authenticateTask.reset(&this->m_authenticateTask);
           this->m_createUnoAnonymousAccountTask.reset(&this->m_createUnoAnonymousAccountTask);
@@ -1125,15 +1121,15 @@ LABEL_24:
         {
           bdLoginStatus::updateLoginStatus(this->m_loginStatus, "Doing Umbrella token refresh", REFRESHING_CROSSPLAY_TOKEN);
           this->m_umbrellaCrossplayTask.reset(&this->m_umbrellaCrossplayTask);
-LABEL_161:
+LABEL_164:
           bdLoginTaskUmbrellaCrossplay::pumpRefresh(&this->m_umbrellaCrossplayTask);
         }
       }
       else
       {
-LABEL_135:
-        v100 = (const char *)((__int64 (__fastcall *)(bdLoginTaskConnectToLSG *, __int64))this->m_connectToLSGTask.getTaskMessage)(&this->m_connectToLSGTask, v99);
-        bdLoginFlow::recordBackoffError(this, v100);
+LABEL_138:
+        v96 = (const char *)((__int64 (__fastcall *)(bdLoginTaskConnectToLSG *, __int64))this->m_connectToLSGTask.getTaskMessage)(&this->m_connectToLSGTask, v95);
+        bdLoginFlow::recordBackoffError(this, v96);
         this->m_code = LSG_ERROR;
       }
       return (unsigned int)this->m_code;

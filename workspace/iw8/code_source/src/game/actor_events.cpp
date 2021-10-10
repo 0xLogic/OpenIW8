@@ -410,258 +410,124 @@ Actor_BroadcastArcEvent
 */
 void Actor_BroadcastArcEvent(gentity_s *originator, ai_event_t eType, const bitarray<224> *teamFlags, const vec3_t *origin, float radius, float angle0, float angle1, float halfHeight)
 {
-  int v21; 
-  bool v22; 
-  bool v23; 
-  unsigned int v26; 
-  const bitarray<224> *v27; 
-  bool v28; 
+  unsigned int v12; 
+  const bitarray<224> *v13; 
   sentient_s *sentient; 
-  unsigned int v30; 
-  bitarray<224> *p_result; 
-  AIIterator *AIScriptedIterator; 
-  __int64 v37; 
-  AICommonInterface *v52; 
-  int v53; 
-  gentity_s *Entity; 
-  const gentity_s **p_ent; 
-  AICommonInterface *m_pAI; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
+  int v15; 
+  bitarray<224> *i; 
   float radiusSqrd; 
-  float radiusSqrda; 
-  float radiusSqrdb; 
-  float radiusSqrdc; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
-  float v91; 
-  float v92; 
-  float v93; 
-  AICommonWrapper v94; 
+  double v18; 
+  AIIterator *AIScriptedIterator; 
+  __int64 v20; 
+  gentity_s *v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  AICommonInterface *v25; 
+  int j; 
+  gentity_s *Entity; 
+  gentity_s *v28; 
+  float v29; 
+  float v30; 
+  const gentity_s **p_ent; 
+  float v32; 
+  AICommonInterface *m_pAI; 
+  AICommonWrapper v34; 
   bitarray<224> result; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   if ( eType != AI_EV_BADPLACE_ARC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 652, ASSERT_TYPE_ASSERT, "(eType > AI_EV_FIRST_ARC_EVENT && eType < AI_EV_LAST_ARC_EVENT)", (const char *)&queryFormat, "eType > AI_EV_FIRST_ARC_EVENT && eType < AI_EV_LAST_ARC_EVENT") )
     __debugbreak();
-  v21 = BG_AISystemEnabled();
-  v22 = v21 == 0;
-  if ( !v21 )
+  if ( !BG_AISystemEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 654, ASSERT_TYPE_ASSERT, "( BG_AISystemEnabled() )", (const char *)&queryFormat, "BG_AISystemEnabled()") )
+    __debugbreak();
+  if ( angle0 != angle1 )
   {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 654, ASSERT_TYPE_ASSERT, "( BG_AISystemEnabled() )", (const char *)&queryFormat, "BG_AISystemEnabled()");
-    v22 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+1B8h+angle0]
-    vmovss  xmm7, [rsp+1B8h+angle1]
-    vucomiss xmm6, xmm7
-  }
-  if ( !v22 )
-  {
-    v26 = 0;
-    v27 = teamFlags;
+    v12 = 0;
+    v13 = teamFlags;
     do
     {
-      v28 = v27->array[0] == 0;
-      if ( v27->array[0] )
+      if ( v13->array[0] )
         goto LABEL_19;
-      ++v26;
-      v27 = (const bitarray<224> *)((char *)v27 + 4);
+      ++v12;
+      v13 = (const bitarray<224> *)((char *)v13 + 4);
     }
-    while ( v26 < 7 );
+    while ( v12 < 7 );
     if ( !originator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 665, ASSERT_TYPE_ASSERT, "(originator)", (const char *)&queryFormat, "originator") )
       __debugbreak();
     sentient = originator->sentient;
     if ( sentient )
     {
       Sentient_EnemyTeamFlags(&result, sentient->eTeam);
-      v30 = 0;
-      p_result = &result;
-      while ( 1 )
+      v15 = 0;
+      for ( i = &result; !i->array[0]; i = (bitarray<224> *)((char *)i + 4) )
       {
-        v28 = p_result->array[0] == 0;
-        if ( p_result->array[0] )
-          break;
-        ++v30;
-        p_result = (bitarray<224> *)((char *)p_result + 4);
-        if ( v30 >= 7 )
-          goto LABEL_47;
+        if ( (unsigned int)++v15 >= 7 )
+          return;
       }
 LABEL_19:
-      __asm
+      radiusSqrd = radius * radius;
+      if ( (float)(radius * radius) == 0.0 )
       {
-        vmovaps [rsp+1B8h+var_78], xmm8
-        vmovaps [rsp+1B8h+var_98], xmm10
-        vmovaps [rsp+1B8h+var_A8], xmm11
-        vmovss  xmm11, [rsp+1B8h+radius]
-        vmulss  xmm10, xmm11, xmm11
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm10, xmm0
-      }
-      if ( v28 )
-      {
-        *(double *)&_XMM0 = Actor_EventDefaultRadiusSqrd(eType);
-        __asm { vmovaps xmm10, xmm0 }
-      }
-      __asm
-      {
-        vmovaps [rsp+1B8h+var_88], xmm9
-        vmovss  xmm8, [rsp+1B8h+halfHeight]
+        v18 = Actor_EventDefaultRadiusSqrd(eType);
+        radiusSqrd = *(float *)&v18;
       }
       if ( BG_ActorOrAgentSystemEnabled() )
       {
         AIScriptedIterator = AIScriptedInterface::GetAIScriptedIterator();
-        v37 = AIScriptedIterator->GetFirst(AIScriptedIterator);
-        while ( v37 )
+        v20 = AIScriptedIterator->GetFirst(AIScriptedIterator);
+        while ( v20 )
         {
-          _RBX = (gentity_s *)v37;
-          v37 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
-          if ( (_RBX != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf) && bitarray_base<bitarray<224>>::testBit((bitarray_base<bitarray<224> > *)teamFlags, _RBX->sentient->eTeam) )
+          v21 = (gentity_s *)v20;
+          v20 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
+          if ( (v21 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf) && bitarray_base<bitarray<224>>::testBit((bitarray_base<bitarray<224> > *)teamFlags, v21->sentient->eTeam) && AI_IsInsideArc(v21, origin, radius, angle0, angle1, halfHeight) )
           {
-            __asm
+            v22 = v21->r.currentOrigin.v[1] - origin->v[1];
+            v23 = v21->r.currentOrigin.v[2] - origin->v[2];
+            v24 = (float)((float)(v22 * v22) + (float)((float)(v21->r.currentOrigin.v[0] - origin->v[0]) * (float)(v21->r.currentOrigin.v[0] - origin->v[0]))) + (float)(v23 * v23);
+            AIWrapper::AIWrapper((AIWrapper *)&v34, v21);
+            v25 = (AICommonInterface *)v34.m_botInterface.__vftable;
+            if ( !v34.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 700, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+              __debugbreak();
+            AICommonInterface::ReceiveArcEvent(v25, originator, eType, origin, v24, radiusSqrd, angle0, angle1, halfHeight);
+          }
+        }
+      }
+      for ( j = Actor_EventListener_First(eType, teamFlags); j >= 0; j = Actor_EventListener_Next(j, eType, teamFlags) )
+      {
+        Entity = Actor_EventListener_GetEntity(j);
+        v28 = Entity;
+        if ( Entity != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
+        {
+          if ( IsPosInsideArc(&Entity->r.currentOrigin, 15.0, origin, radius, angle0, angle1, halfHeight) )
+          {
+            Actor_EventListener_NotifyToListener(v28, originator, eType, origin);
+            if ( AI_IsLiveBot(v28) )
             {
-              vmovss  [rsp+1B8h+radiusSqrd], xmm8
-              vmovaps xmm3, xmm6; angle0
-              vmovaps xmm2, xmm11; radius
-              vmovss  dword ptr [rsp+1B8h+fmt], xmm7
-            }
-            if ( AI_IsInsideArc(_RBX, origin, *(float *)&_XMM2, *(float *)&_XMM3, fmt, radiusSqrd) )
-            {
-              __asm
+              v29 = v28->r.currentOrigin.v[1] - origin->v[1];
+              v30 = v28->r.currentOrigin.v[2] - origin->v[2];
+              p_ent = (const gentity_s **)&v28->sentient->ai->ent;
+              v32 = (float)((float)(v29 * v29) + (float)((float)(v28->r.currentOrigin.v[0] - origin->v[0]) * (float)(v28->r.currentOrigin.v[0] - origin->v[0]))) + (float)(v30 * v30);
+              AIActorInterface::AIActorInterface(&v34.m_actorInterface);
+              AIAgentInterface::AIAgentInterface(&v34.m_newAgentInterface);
+              v34.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+              AICommonInterface::AICommonInterface(&v34.m_botInterface);
+              v34.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+              AICommonInterface::AICommonInterface(&v34.m_botAgentInterface);
+              m_pAI = NULL;
+              v34.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+              v34.m_pAI = NULL;
+              if ( p_ent )
               {
-                vmovss  xmm0, dword ptr [rbx+130h]
-                vsubss  xmm3, xmm0, dword ptr [rdi]
-                vmovss  xmm1, dword ptr [rbx+134h]
-                vmovss  xmm0, dword ptr [rbx+138h]
-                vsubss  xmm2, xmm1, dword ptr [rdi+4]
-                vsubss  xmm4, xmm0, dword ptr [rdi+8]
-                vmulss  xmm2, xmm2, xmm2
-                vmulss  xmm1, xmm3, xmm3
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm3, xmm2, xmm1
-                vaddss  xmm9, xmm3, xmm0
+                AICommonWrapper::Setup(&v34, *p_ent);
+                m_pAI = v34.m_pAI;
               }
-              AIWrapper::AIWrapper((AIWrapper *)&v94, _RBX);
-              v52 = (AICommonInterface *)v94.m_botInterface.__vftable;
-              if ( !v94.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 700, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+              if ( !m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 724, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
                 __debugbreak();
-              __asm
-              {
-                vmovss  [rsp+1B8h+var_178], xmm8
-                vmovss  [rsp+1B8h+var_180], xmm7
-                vmovss  [rsp+1B8h+var_188], xmm6
-                vmovss  [rsp+1B8h+radiusSqrd], xmm10
-                vmovss  dword ptr [rsp+1B8h+fmt], xmm9
-              }
-              AICommonInterface::ReceiveArcEvent(v52, originator, eType, origin, fmta, radiusSqrda, v87, v90, v92);
+              AICommonInterface::ReceiveArcEvent(m_pAI, originator, eType, origin, v32, radiusSqrd, angle0, angle1, halfHeight);
             }
           }
         }
-      }
-      v53 = Actor_EventListener_First(eType, teamFlags);
-      if ( v53 >= 0 )
-      {
-        __asm
-        {
-          vmovaps [rsp+1B8h+var_B8], xmm12
-          vmovss  xmm12, cs:__real@41700000
-        }
-        do
-        {
-          Entity = Actor_EventListener_GetEntity(v53);
-          _RBX = Entity;
-          if ( Entity != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
-          {
-            __asm
-            {
-              vmovss  [rsp+1B8h+var_188], xmm8
-              vmovss  [rsp+1B8h+radiusSqrd], xmm7
-              vmovaps xmm3, xmm11; arcRadius
-              vmovaps xmm1, xmm12; posRadius
-              vmovss  dword ptr [rsp+1B8h+fmt], xmm6
-            }
-            if ( IsPosInsideArc(&Entity->r.currentOrigin, *(float *)&_XMM1, origin, *(float *)&_XMM3, fmtb, radiusSqrdb, v88) )
-            {
-              Actor_EventListener_NotifyToListener(_RBX, originator, eType, origin);
-              if ( AI_IsLiveBot(_RBX) )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+130h]
-                  vsubss  xmm3, xmm0, dword ptr [rdi]
-                  vmovss  xmm1, dword ptr [rbx+134h]
-                  vmovss  xmm0, dword ptr [rbx+138h]
-                  vsubss  xmm2, xmm1, dword ptr [rdi+4]
-                  vsubss  xmm4, xmm0, dword ptr [rdi+8]
-                  vmulss  xmm2, xmm2, xmm2
-                  vmulss  xmm1, xmm3, xmm3
-                }
-                p_ent = (const gentity_s **)&_RBX->sentient->ai->ent;
-                __asm
-                {
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm3, xmm2, xmm1
-                  vaddss  xmm9, xmm3, xmm0
-                }
-                AIActorInterface::AIActorInterface(&v94.m_actorInterface);
-                AIAgentInterface::AIAgentInterface(&v94.m_newAgentInterface);
-                v94.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-                AICommonInterface::AICommonInterface(&v94.m_botInterface);
-                v94.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-                AICommonInterface::AICommonInterface(&v94.m_botAgentInterface);
-                m_pAI = NULL;
-                v94.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-                v94.m_pAI = NULL;
-                if ( p_ent )
-                {
-                  AICommonWrapper::Setup(&v94, *p_ent);
-                  m_pAI = v94.m_pAI;
-                }
-                if ( !m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 724, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
-                  __debugbreak();
-                __asm
-                {
-                  vmovss  [rsp+1B8h+var_178], xmm8
-                  vmovss  [rsp+1B8h+var_180], xmm7
-                  vmovss  [rsp+1B8h+var_188], xmm6
-                  vmovss  [rsp+1B8h+radiusSqrd], xmm10
-                  vmovss  dword ptr [rsp+1B8h+fmt], xmm9
-                }
-                AICommonInterface::ReceiveArcEvent(m_pAI, originator, eType, origin, fmtc, radiusSqrdc, v89, v91, v93);
-              }
-            }
-          }
-          v53 = Actor_EventListener_Next(v53, eType, teamFlags);
-        }
-        while ( v53 >= 0 );
-        __asm { vmovaps xmm12, [rsp+1B8h+var_B8] }
-      }
-      __asm
-      {
-        vmovaps xmm9, [rsp+1B8h+var_88]
-        vmovaps xmm10, [rsp+1B8h+var_98]
-        vmovaps xmm8, [rsp+1B8h+var_78]
-        vmovaps xmm11, [rsp+1B8h+var_A8]
       }
     }
-  }
-LABEL_47:
-  __asm
-  {
-    vmovaps xmm6, [rsp+1B8h+var_58]
-    vmovaps xmm7, [rsp+1B8h+var_68]
   }
 }
 
@@ -673,69 +539,53 @@ Actor_BroadcastGlassEvent
 void Actor_BroadcastGlassEvent(gentity_s *originator, ai_event_t eType, const bitarray<224> *teamFlags, const vec3_t *vOrigin)
 {
   HavokPhysics_CollisionQueryResult *CollisionQueryResult; 
-  char v16; 
-  char v17; 
-  hkMemoryAllocator *v18; 
-  hkMemoryAllocator *v19; 
+  float v9; 
+  float v10; 
+  hkMemoryAllocator *v11; 
+  hkMemoryAllocator *v12; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v21; 
-  __int64 v22; 
+  HavokPhysics_IgnoreBodies v14; 
+  __int64 v15; 
   vec3_t end; 
   vec3_t pos; 
 
-  v22 = -2i64;
-  _RSI = vOrigin;
+  v15 = -2i64;
   Actor_BroadcastPointEvent(originator, eType, teamFlags, vOrigin);
   CollisionQueryResult = Physics_AllocateCollisionQueryResult(PHYSICS_WORLD_ID_FIRST, PHYSICS_COLLISIONQUERY_COLLECTION_TYPE_ANY);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm3, xmm0, cs:__real@44800000
-    vmovss  xmm2, dword ptr [rsi+4]
-    vmovss  xmm1, dword ptr [rsi]
-    vmovss  dword ptr [rbp+57h+end], xmm1
-    vmovss  dword ptr [rbp+57h+end+4], xmm2
-    vmovss  dword ptr [rbp+57h+end+8], xmm3
-  }
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v21, originator != NULL, 0);
-  HavokPhysics_IgnoreBodies::SetIsClutter(&v21, 1);
+  v9 = vOrigin->v[2];
+  v10 = vOrigin->v[1];
+  end.v[0] = vOrigin->v[0];
+  end.v[1] = v10;
+  end.v[2] = v9 - 1024.0;
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v14, originator != NULL, 0);
+  HavokPhysics_IgnoreBodies::SetIsClutter(&v14, 1);
   if ( originator )
-    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v21, 0, originator->s.number, 1, 0, 0, 0, 0);
+    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v14, 0, originator->s.number, 1, 0, 0, 0, 0);
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+57h+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = 33685505;
-  extendedData.ignoreBodies = &v21;
-  Physics_Raycast(PHYSICS_WORLD_ID_FIRST, _RSI, &end, &extendedData, CollisionQueryResult);
+  extendedData.ignoreBodies = &v14;
+  Physics_Raycast(PHYSICS_WORLD_ID_FIRST, vOrigin, &end, &extendedData, CollisionQueryResult);
   if ( HavokPhysics_CollisionQueryResult::HasHit(CollisionQueryResult) )
   {
     HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(CollisionQueryResult, 0, &pos);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+pos+8]
-      vcomiss xmm1, cs:__real@42900000
-    }
-    if ( !(v16 | v17) )
+    if ( (float)(vOrigin->v[2] - pos.v[2]) > 72.0 )
       Actor_BroadcastPointEvent(originator, eType, teamFlags, &pos);
   }
   Physics_FreeCollisionQueryResult(CollisionQueryResult);
-  v18 = hkMemHeapAllocator();
-  v21.m_ignoreBodies.m_size = 0;
-  if ( v21.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v18, v21.m_ignoreBodies.m_data, 4, v21.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v21.m_ignoreBodies.m_data = NULL;
-  v21.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v19 = hkMemHeapAllocator();
-  v21.m_ignoreEntities.m_size = 0;
-  if ( v21.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v19, v21.m_ignoreEntities.m_data, 8, v21.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  v11 = hkMemHeapAllocator();
+  v14.m_ignoreBodies.m_size = 0;
+  if ( v14.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v11, v14.m_ignoreBodies.m_data, 4, v14.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v14.m_ignoreBodies.m_data = NULL;
+  v14.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v12 = hkMemHeapAllocator();
+  v14.m_ignoreEntities.m_size = 0;
+  if ( v14.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v12, v14.m_ignoreEntities.m_data, 8, v14.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -861,325 +711,232 @@ Actor_BroadcastLineEvent
 */
 void Actor_BroadcastLineEvent(gentity_s *originator, ai_event_t eType, const bitarray<224> *teamFlags, const vec3_t *vStart, const vec3_t *vEnd, const WeaponDef *weapDef)
 {
-  const bitarray<224> *v20; 
-  const bitarray<224> *v22; 
-  unsigned int v23; 
+  __int128 v6; 
+  const bitarray<224> *v9; 
+  const bitarray<224> *v11; 
+  unsigned int v12; 
   sentient_s *sentient; 
-  int v25; 
+  int v14; 
   bitarray<224> *i; 
-  AIIterator *v52; 
-  __int64 v53; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v20; 
+  float v24; 
+  __int64 v25; 
+  float defaultHeight; 
+  float v27; 
+  float v28; 
+  AIIterator *v29; 
+  __int64 v30; 
+  gentity_s *v31; 
   unsigned __int64 eTeam; 
-  AICommonInterface *v58; 
-  bool v59; 
-  char v60; 
+  AICommonInterface *v33; 
+  float v34; 
+  bool v35; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
   int j; 
-  bool v99; 
+  gentity_s *Entity; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
   const gentity_s **p_ent; 
+  float v52; 
   AICommonInterface *m_pAI; 
+  bool v54; 
   vec3_t *vClosest; 
-  WeaponDef *v149; 
+  WeaponDef *v59; 
   AIIterator *AIScriptedIterator; 
-  AICommonWrapper v155; 
+  float v61; 
+  AICommonWrapper v64; 
   vec3_t origin; 
   vec3_t outCentroid; 
   bitarray<224> result; 
 
-  _R12 = vEnd;
-  v20 = teamFlags;
+  v9 = teamFlags;
   if ( (unsigned __int8)(eType - 17) > 2u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 502, ASSERT_TYPE_ASSERT, "(eType > AI_EV_FIRST_LINE_EVENT && eType < AI_EV_LAST_LINE_EVENT)", (const char *)&queryFormat, "eType > AI_EV_FIRST_LINE_EVENT && eType < AI_EV_LAST_LINE_EVENT") )
     __debugbreak();
   if ( !BG_AISystemEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 504, ASSERT_TYPE_ASSERT, "( BG_AISystemEnabled() )", (const char *)&queryFormat, "BG_AISystemEnabled()") )
     __debugbreak();
-  v22 = v20;
-  v23 = 0;
-  while ( !v22->array[0] )
+  v11 = v9;
+  v12 = 0;
+  while ( !v11->array[0] )
   {
-    ++v23;
-    v22 = (const bitarray<224> *)((char *)v22 + 4);
-    if ( v23 >= 7 )
+    ++v12;
+    v11 = (const bitarray<224> *)((char *)v11 + 4);
+    if ( v12 >= 7 )
     {
       sentient = originator->sentient;
       if ( !sentient )
         return;
       Sentient_EnemyTeamFlags(&result, sentient->eTeam);
-      v25 = 0;
+      v14 = 0;
       for ( i = &result; !i->array[0]; i = (bitarray<224> *)((char *)i + 4) )
       {
-        if ( (unsigned int)++v25 >= 7 )
+        if ( (unsigned int)++v14 >= 7 )
           return;
       }
       break;
     }
   }
+  Actor_EventDefaultRadiusSqrd(eType);
+  *(double *)&v6 = Actor_EventBusyRadiusSqrd(eType);
+  v16 = vEnd->v[0] - vStart->v[0];
+  v18 = LODWORD(vEnd->v[1]);
+  v17 = vEnd->v[1] - vStart->v[1];
+  v61 = *(float *)&v6;
+  _XMM8 = v6;
+  v20 = vEnd->v[2] - vStart->v[2];
+  *(float *)&v18 = fsqrt((float)((float)(v17 * v17) + (float)(v16 * v16)) + (float)(v20 * v20));
+  _XMM13 = v18;
   __asm
   {
-    vmovaps [rsp+220h+var_50], xmm6
-    vmovaps [rsp+220h+var_60], xmm7
-    vmovaps [rsp+220h+var_70], xmm8
-    vmovaps [rsp+220h+var_80], xmm9
-    vmovaps [rsp+220h+var_90], xmm10
-    vmovaps [rsp+220h+var_A0], xmm11
-    vmovaps [rsp+220h+var_B0], xmm12
-    vmovaps [rsp+220h+var_C0], xmm13
-    vmovaps [rsp+220h+var_D0], xmm14
-    vmovaps [rsp+220h+var_E0], xmm15
-  }
-  *(double *)&_XMM0 = Actor_EventDefaultRadiusSqrd(eType);
-  __asm { vmovaps xmm15, xmm0 }
-  *(double *)&_XMM0 = Actor_EventBusyRadiusSqrd(eType);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r12]
-    vsubss  xmm6, xmm1, dword ptr [r14]
-    vmovss  xmm1, dword ptr [r12+4]
-    vsubss  xmm5, xmm1, dword ptr [r14+4]
-    vmovss  [rsp+220h+var_1D0], xmm0
-    vmovaps xmm8, xmm0
-    vmovss  xmm0, dword ptr [r12+8]
-    vsubss  xmm4, xmm0, dword ptr [r14+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm13, xmm2, xmm2
     vcmpless xmm0, xmm13, cs:__real@80000000
-  }
-  _RSI = g_ai_event_info;
-  __asm
-  {
     vblendvps xmm0, xmm13, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm10, xmm6, xmm1
   }
-  _RBX = (unsigned __int8)eType;
-  __asm
+  v24 = v16 * (float)(1.0 / *(float *)&_XMM0);
+  v25 = (unsigned __int8)eType;
+  defaultHeight = g_ai_event_info[(unsigned __int8)eType].defaultHeight;
+  v27 = v17 * (float)(1.0 / *(float *)&_XMM0);
+  v28 = v20 * (float)(1.0 / *(float *)&_XMM0);
+  if ( !BG_ActorOrAgentSystemEnabled() )
+    goto LABEL_46;
+  AIScriptedIterator = AIScriptedInterface::GetAIScriptedIterator();
+  v29 = AIScriptedIterator;
+  v30 = AIScriptedIterator->GetFirst(AIScriptedIterator);
+  if ( !v30 )
+    goto LABEL_45;
+  do
   {
-    vmovss  xmm14, dword ptr [rsi+rbx*8+18h]
-    vmulss  xmm11, xmm5, xmm1
-    vmulss  xmm12, xmm4, xmm1
-    vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  if ( BG_ActorOrAgentSystemEnabled() )
-  {
-    AIScriptedIterator = AIScriptedInterface::GetAIScriptedIterator();
-    v52 = AIScriptedIterator;
-    v53 = AIScriptedIterator->GetFirst(AIScriptedIterator);
-    if ( v53 )
+    v31 = (gentity_s *)v30;
+    v30 = (__int64)v29->GetNext(v29);
+    if ( v31 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
     {
-      __asm
+      eTeam = (unsigned int)v31->sentient->eTeam;
+      if ( (unsigned int)eTeam >= 0xE0 )
       {
-        vmovss  xmm7, cs:__real@41700000
-        vmovss  xmm8, cs:__real@3f000000
+        LODWORD(v59) = 224;
+        LODWORD(vClosest) = v31->sentient->eTeam;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", vClosest, v59) )
+          __debugbreak();
       }
-      do
+      if ( ((0x80000000 >> (eTeam & 0x1F)) & teamFlags->array[eTeam >> 5]) == 0 )
+        goto LABEL_42;
+      AIWrapper::AIWrapper((AIWrapper *)&v64, v31);
+      v33 = (AICommonInterface *)v64.m_botInterface.__vftable;
+      if ( !v64.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 556, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+        __debugbreak();
+      if ( eType == AI_EV_BLOCK_FRIENDLIES && !((unsigned __int8 (__fastcall *)(AICommonInterface *))v33->__vftable[2].GetWeaponFlashTagName)(v33) )
+        goto LABEL_42;
+      v34 = (float)((float)((float)(v31->r.currentOrigin.v[1] - vStart->v[1]) * v27) + (float)((float)(v31->r.currentOrigin.v[0] - vStart->v[0]) * v24)) + (float)((float)(v31->r.currentOrigin.v[2] - vStart->v[2]) * v28);
+      if ( v34 < 0.0 )
+        goto LABEL_42;
+      v35 = v33->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(v33) != originator;
+      _XMM0 = v35;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM0 = LODWORD(v61);
+      __asm { vblendvps xmm0, xmm0, xmm15, xmm2 }
+      if ( v34 < *(float *)&_XMM13 )
       {
-        _RDI = (gentity_s *)v53;
-        v53 = (__int64)v52->GetNext(v52);
-        if ( _RDI != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
+        v40 = (float)(v24 * v34) + vStart->v[0];
+        v42 = (float)(v28 * v34) + vStart->v[2];
+        v41 = (float)(v27 * v34) + vStart->v[1];
+        origin.v[2] = v42;
+        origin.v[0] = v40;
+        origin.v[1] = v41;
+      }
+      else
+      {
+        v40 = vEnd->v[0];
+        v41 = vEnd->v[1];
+        v42 = vEnd->v[2];
+        origin.v[0] = vEnd->v[0];
+        origin.v[1] = v41;
+        origin.v[2] = v42;
+        if ( eType == AI_EV_BULLET && (float)(v34 - *(float *)&_XMM13) > 15.0 )
         {
-          eTeam = (unsigned int)_RDI->sentient->eTeam;
-          if ( (unsigned int)eTeam >= 0xE0 )
-          {
-            LODWORD(v149) = 224;
-            LODWORD(vClosest) = _RDI->sentient->eTeam;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", vClosest, v149) )
-              __debugbreak();
-          }
-          if ( ((0x80000000 >> (eTeam & 0x1F)) & teamFlags->array[eTeam >> 5]) != 0 )
-          {
-            AIWrapper::AIWrapper((AIWrapper *)&v155, _RDI);
-            v58 = (AICommonInterface *)v155.m_botInterface.__vftable;
-            if ( !v155.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 556, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
-              __debugbreak();
-            v59 = (unsigned __int8)eType < AI_EV_BLOCK_FRIENDLIES;
-            if ( eType != AI_EV_BLOCK_FRIENDLIES || (v60 = ((__int64 (__fastcall *)(AICommonInterface *))v58->__vftable[2].GetWeaponFlashTagName)(v58), v59 = 0, v60) )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+134h]
-                vsubss  xmm1, xmm0, dword ptr [r14+4]
-                vmovss  xmm2, dword ptr [rdi+130h]
-                vsubss  xmm0, xmm2, dword ptr [r14]
-                vmovss  xmm2, dword ptr [rdi+138h]
-                vmulss  xmm3, xmm1, xmm11
-                vmulss  xmm1, xmm0, xmm10
-                vsubss  xmm0, xmm2, dword ptr [r14+8]
-                vaddss  xmm4, xmm3, xmm1
-                vmulss  xmm1, xmm0, xmm12
-                vaddss  xmm6, xmm4, xmm1
-                vxorps  xmm0, xmm0, xmm0
-                vcomiss xmm6, xmm0
-              }
-              if ( !v59 )
-              {
-                LOBYTE(_EAX) = v58->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(v58) != originator;
-                _ECX = 0;
-                _EAX = (unsigned __int8)_EAX;
-                __asm
-                {
-                  vcomiss xmm6, xmm13
-                  vmovd   xmm0, eax
-                  vmovd   xmm1, ecx
-                  vpcmpeqd xmm2, xmm0, xmm1
-                  vmovss  xmm0, [rsp+220h+var_1D0]
-                  vblendvps xmm0, xmm0, xmm15, xmm2
-                  vmovss  [rsp+220h+var_1E0], xmm0
-                  vmovss  xmm2, dword ptr [r12]
-                  vmovss  xmm3, dword ptr [r12+4]
-                  vmovss  xmm5, dword ptr [r12+8]
-                  vmovss  dword ptr [rbp+120h+origin], xmm2
-                  vmovss  dword ptr [rbp+120h+origin+4], xmm3
-                  vmovss  dword ptr [rbp+120h+origin+8], xmm5
-                }
-                if ( eType == AI_EV_BULLET )
-                {
-                  __asm
-                  {
-                    vsubss  xmm0, xmm6, xmm13
-                    vcomiss xmm0, xmm7
-                  }
-                }
-                __asm
-                {
-                  vmovss  xmm6, [rsp+220h+var_1E0]
-                  vmovss  xmm0, dword ptr [rdi+130h]
-                  vmovss  xmm1, dword ptr [rdi+134h]
-                  vsubss  xmm4, xmm0, xmm2
-                  vmovss  xmm0, dword ptr [rdi+138h]
-                  vsubss  xmm3, xmm1, xmm3
-                  vsubss  xmm2, xmm0, xmm5
-                  vaddss  xmm5, xmm2, dword ptr [rdi+114h]
-                  vmulss  xmm0, xmm4, xmm4
-                  vmulss  xmm1, xmm3, xmm3
-                  vaddss  xmm1, xmm1, xmm0
-                  vcomiss xmm1, xmm6
-                }
-                if ( (unsigned __int8)eType <= AI_EV_BULLET )
-                {
-                  __asm
-                  {
-                    vandps  xmm5, xmm5, xmm9
-                    vandps  xmm0, xmm14, xmm9
-                    vcomiss xmm5, xmm0
-                  }
-                  if ( (unsigned __int8)eType < AI_EV_BULLET )
-                    AICommonInterface::ReceiveLineEvent(v58, originator, eType, vStart, vEnd, &origin, weapDef);
-                }
-              }
-            }
-          }
-          v52 = AIScriptedIterator;
+          v43 = *(float *)&_XMM0 * 0.5;
+LABEL_39:
+          if ( (float)((float)((float)(v31->r.currentOrigin.v[1] - v41) * (float)(v31->r.currentOrigin.v[1] - v41)) + (float)((float)(v31->r.currentOrigin.v[0] - v40) * (float)(v31->r.currentOrigin.v[0] - v40))) <= v43 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v31->r.currentOrigin.v[2] - v42) + v31->r.box.halfSize.v[2]) & _xmm) < COERCE_FLOAT(LODWORD(defaultHeight) & _xmm) )
+            AICommonInterface::ReceiveLineEvent(v33, originator, eType, vStart, vEnd, &origin, weapDef);
+LABEL_42:
+          v29 = AIScriptedIterator;
+          continue;
         }
       }
-      while ( v53 );
-      __asm { vmovss  xmm8, [rsp+220h+var_1D0] }
-      v20 = teamFlags;
+      v43 = *(float *)&_XMM0;
+      goto LABEL_39;
     }
-    _RBX = (unsigned __int8)eType;
   }
-  for ( j = Actor_EventListener_First(eType, v20); j >= 0; j = Actor_EventListener_Next(j, eType, teamFlags) )
+  while ( v30 );
+  _XMM8 = LODWORD(v61);
+  v9 = teamFlags;
+LABEL_45:
+  v25 = (unsigned __int8)eType;
+LABEL_46:
+  for ( j = Actor_EventListener_First(eType, v9); j >= 0; j = Actor_EventListener_Next(j, eType, teamFlags) )
   {
-    _RDI = Actor_EventListener_GetEntity(j);
-    v99 = _RDI < originator;
-    if ( _RDI != originator || (v99 = 0, g_ai_event_info[_RBX].notifySelf) )
+    Entity = Actor_EventListener_GetEntity(j);
+    if ( Entity != originator || g_ai_event_info[v25].notifySelf )
     {
-      _RAX = vStart;
-      __asm
+      v46 = vStart->v[1];
+      v47 = vStart->v[2];
+      v48 = (float)((float)((float)(Entity->r.currentOrigin.v[1] - v46) * v27) + (float)((float)(Entity->r.currentOrigin.v[0] - vStart->v[0]) * v24)) + (float)((float)(Entity->r.currentOrigin.v[2] - v47) * v28);
+      if ( v48 >= 0.0 )
       {
-        vmovss  xmm0, dword ptr [rdi+134h]
-        vmovss  xmm2, dword ptr [rdi+130h]
-        vmovss  xmm6, dword ptr [rax+4]
-        vmovss  xmm5, dword ptr [rax]
-        vmovss  xmm7, dword ptr [rax+8]
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm3, xmm1, xmm11
-        vsubss  xmm0, xmm2, xmm5
-        vmovss  xmm2, dword ptr [rdi+138h]
-        vmulss  xmm1, xmm0, xmm10
-        vsubss  xmm0, xmm2, xmm7
-        vaddss  xmm4, xmm3, xmm1
-        vmulss  xmm1, xmm0, xmm12
-        vaddss  xmm3, xmm4, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm3, xmm0
-      }
-      if ( !v99 )
-      {
-        __asm
+        if ( v48 < *(float *)&_XMM13 )
         {
-          vcomiss xmm3, xmm13
-          vmovss  xmm0, dword ptr [r12]
-          vmovss  xmm1, dword ptr [r12+4]
-          vmovss  dword ptr [rbp+120h+origin], xmm0
-          vmovss  xmm0, dword ptr [r12+8]
-          vmovss  dword ptr [rbp+120h+origin+8], xmm0
-          vmovss  dword ptr [rbp+120h+origin+4], xmm1
+          origin.v[0] = (float)(v24 * v48) + vStart->v[0];
+          origin.v[2] = (float)(v28 * v48) + v47;
+          origin.v[1] = (float)(v27 * v48) + v46;
         }
-        G_Utils_EntityCentroid(_RDI, &outCentroid);
-        __asm
+        else
         {
-          vmovss  xmm0, dword ptr [rbp+120h+outCentroid]
-          vmovss  xmm1, dword ptr [rbp+120h+outCentroid+4]
-          vsubss  xmm3, xmm0, dword ptr [rbp+120h+origin]
-          vsubss  xmm2, xmm1, dword ptr [rbp+120h+origin+4]
-          vmovss  xmm0, dword ptr [rbp+120h+outCentroid+8]
-          vsubss  xmm6, xmm0, dword ptr [rbp+120h+origin+8]
-          vmulss  xmm2, xmm2, xmm2
+          v49 = vEnd->v[1];
+          origin.v[0] = vEnd->v[0];
+          origin.v[2] = vEnd->v[2];
+          origin.v[1] = v49;
         }
-        p_ent = (const gentity_s **)&_RDI->sentient->ai->ent;
-        __asm
-        {
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm7, xmm2, xmm1
-        }
+        G_Utils_EntityCentroid(Entity, &outCentroid);
+        v50 = outCentroid.v[2] - origin.v[2];
+        p_ent = (const gentity_s **)&Entity->sentient->ai->ent;
+        v52 = (float)((float)(outCentroid.v[1] - origin.v[1]) * (float)(outCentroid.v[1] - origin.v[1])) + (float)((float)(outCentroid.v[0] - origin.v[0]) * (float)(outCentroid.v[0] - origin.v[0]));
         if ( p_ent )
         {
-          AIActorInterface::AIActorInterface(&v155.m_actorInterface);
-          AIAgentInterface::AIAgentInterface(&v155.m_newAgentInterface);
-          v155.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-          AICommonInterface::AICommonInterface(&v155.m_botInterface);
-          v155.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-          AICommonInterface::AICommonInterface(&v155.m_botAgentInterface);
-          v155.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-          v155.m_pAI = NULL;
-          AICommonWrapper::Setup(&v155, *p_ent);
-          m_pAI = v155.m_pAI;
-          if ( !v155.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 623, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+          AIActorInterface::AIActorInterface(&v64.m_actorInterface);
+          AIAgentInterface::AIAgentInterface(&v64.m_newAgentInterface);
+          v64.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+          AICommonInterface::AICommonInterface(&v64.m_botInterface);
+          v64.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+          AICommonInterface::AICommonInterface(&v64.m_botAgentInterface);
+          v64.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+          v64.m_pAI = NULL;
+          AICommonWrapper::Setup(&v64, *p_ent);
+          m_pAI = v64.m_pAI;
+          if ( !v64.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 623, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
             __debugbreak();
-          LOBYTE(_EAX) = m_pAI->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(m_pAI) != originator;
-          _ECX = 0;
-          _EAX = (unsigned __int8)_EAX;
+          v54 = m_pAI->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(m_pAI) != originator;
+          _XMM0 = v54;
           __asm
           {
-            vmovd   xmm0, eax
-            vmovd   xmm1, ecx
             vpcmpeqd xmm2, xmm0, xmm1
             vblendvps xmm0, xmm8, xmm15, xmm2
-            vcomiss xmm7, xmm0
-            vandps  xmm6, xmm6, xmm9
-            vandps  xmm0, xmm14, xmm9
-            vcomiss xmm6, xmm0
+          }
+          if ( v52 <= *(float *)&_XMM0 && COERCE_FLOAT(LODWORD(v50) & _xmm) < COERCE_FLOAT(LODWORD(defaultHeight) & _xmm) )
+          {
+            Actor_EventListener_NotifyToListener(Entity, originator, eType, &origin);
+            if ( AI_IsLiveBot(Entity) )
+              AICommonInterface::ReceiveLineEvent(m_pAI, originator, eType, vStart, vEnd, &origin, weapDef);
           }
         }
       }
     }
-    _RBX = (unsigned __int8)eType;
-  }
-  __asm
-  {
-    vmovaps xmm14, [rsp+220h+var_D0]
-    vmovaps xmm13, [rsp+220h+var_C0]
-    vmovaps xmm12, [rsp+220h+var_B0]
-    vmovaps xmm11, [rsp+220h+var_A0]
-    vmovaps xmm10, [rsp+220h+var_90]
-    vmovaps xmm9, [rsp+220h+var_80]
-    vmovaps xmm8, [rsp+220h+var_70]
-    vmovaps xmm7, [rsp+220h+var_60]
-    vmovaps xmm6, [rsp+220h+var_50]
-    vmovaps xmm15, [rsp+220h+var_E0]
+    v25 = (unsigned __int8)eType;
   }
 }
 
@@ -1190,35 +947,43 @@ Actor_BroadcastPointEvent
 */
 void Actor_BroadcastPointEvent(gentity_s *originator, ai_event_t eType, const bitarray<224> *teamFlags, const vec3_t *vOrigin)
 {
-  const bitarray<224> *v12; 
+  __int128 v4; 
+  const bitarray<224> *v9; 
   unsigned int i; 
   sentient_s *sentient; 
-  int v15; 
+  int v12; 
   bitarray<224> *j; 
-  __int64 v17; 
+  __int64 v14; 
   AIIterator *AIScriptedIterator; 
-  __int64 v21; 
-  gentity_s *v22; 
-  AICommonInterface *v34; 
+  __int64 v17; 
+  gentity_s *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  AICommonInterface *v22; 
+  bool v23; 
   int k; 
   gentity_s *Entity; 
-  gentity_s *v43; 
+  gentity_s *v29; 
+  float v30; 
+  float v31; 
   const gentity_s **p_ent; 
+  float v33; 
   AICommonInterface *m_pAI; 
-  AICommonWrapper v66; 
+  bool v35; 
+  AICommonWrapper v39; 
   bitarray<224> result; 
 
-  _R12 = vOrigin;
   if ( (unsigned __int8)(eType - 2) > 0xCu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 404, ASSERT_TYPE_ASSERT, "(eType > AI_EV_FIRST_POINT_EVENT && eType < AI_EV_LAST_POINT_EVENT)", (const char *)&queryFormat, "eType > AI_EV_FIRST_POINT_EVENT && eType < AI_EV_LAST_POINT_EVENT") )
     __debugbreak();
   if ( !BG_AISystemEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 406, ASSERT_TYPE_ASSERT, "( BG_AISystemEnabled() )", (const char *)&queryFormat, "BG_AISystemEnabled()") )
     __debugbreak();
-  v12 = teamFlags;
+  v9 = teamFlags;
   for ( i = 0; i < 7; ++i )
   {
-    if ( v12->array[0] )
+    if ( v9->array[0] )
       goto LABEL_18;
-    v12 = (const bitarray<224> *)((char *)v12 + 4);
+    v9 = (const bitarray<224> *)((char *)v9 + 4);
   }
   if ( !originator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 415, ASSERT_TYPE_ASSERT, "(originator)", (const char *)&queryFormat, "originator") )
     __debugbreak();
@@ -1226,139 +991,97 @@ void Actor_BroadcastPointEvent(gentity_s *originator, ai_event_t eType, const bi
   if ( sentient )
   {
     Sentient_EnemyTeamFlags(&result, sentient->eTeam);
-    v15 = 0;
+    v12 = 0;
     for ( j = &result; !j->array[0]; j = (bitarray<224> *)((char *)j + 4) )
     {
-      if ( (unsigned int)++v15 >= 7 )
+      if ( (unsigned int)++v12 >= 7 )
         return;
     }
 LABEL_18:
-    v17 = (unsigned __int8)eType;
+    v14 = (unsigned __int8)eType;
     if ( g_ai_event_info[(unsigned __int8)eType].variableRadius )
     {
-      Actor_BroadcastVariableRadiusPointEvent(originator, eType, teamFlags, _R12);
+      Actor_BroadcastVariableRadiusPointEvent(originator, eType, teamFlags, vOrigin);
     }
     else
     {
-      __asm
-      {
-        vmovaps [rsp+168h+var_58], xmm6
-        vmovaps [rsp+168h+var_68], xmm7
-        vmovaps [rsp+168h+var_78], xmm8
-      }
-      *(double *)&_XMM0 = Actor_EventDefaultRadiusSqrd(eType);
-      __asm { vmovaps xmm7, xmm0 }
-      *(double *)&_XMM0 = Actor_EventBusyRadiusSqrd(eType);
-      __asm { vmovaps xmm8, xmm0 }
+      Actor_EventDefaultRadiusSqrd(eType);
+      *(double *)&v4 = Actor_EventBusyRadiusSqrd(eType);
+      _XMM8 = v4;
       if ( BG_ActorOrAgentSystemEnabled() )
       {
         AIScriptedIterator = AIScriptedInterface::GetAIScriptedIterator();
-        v21 = AIScriptedIterator->GetFirst(AIScriptedIterator);
-        if ( v21 )
+        v17 = AIScriptedIterator->GetFirst(AIScriptedIterator);
+        if ( v17 )
         {
           do
           {
-            v22 = (gentity_s *)v21;
-            v21 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
-            if ( (v22 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf) && bitarray_base<bitarray<224>>::testBit((bitarray_base<bitarray<224> > *)teamFlags, v22->sentient->eTeam) )
+            v18 = (gentity_s *)v17;
+            v17 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
+            if ( (v18 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf) && bitarray_base<bitarray<224>>::testBit((bitarray_base<bitarray<224> > *)teamFlags, v18->sentient->eTeam) )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r12]
-                vsubss  xmm3, xmm0, dword ptr [rbx+130h]
-                vmovss  xmm1, dword ptr [r12+4]
-                vmovss  xmm0, dword ptr [r12+8]
-                vsubss  xmm2, xmm1, dword ptr [rbx+134h]
-                vsubss  xmm4, xmm0, dword ptr [rbx+138h]
-                vmulss  xmm2, xmm2, xmm2
-                vmulss  xmm1, xmm3, xmm3
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm3, xmm2, xmm1
-                vaddss  xmm6, xmm3, xmm0
-              }
-              AIWrapper::AIWrapper((AIWrapper *)&v66, v22);
-              v34 = (AICommonInterface *)v66.m_botInterface.__vftable;
-              if ( !v66.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 453, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+              v19 = vOrigin->v[1] - v18->r.currentOrigin.v[1];
+              v20 = vOrigin->v[2] - v18->r.currentOrigin.v[2];
+              v21 = (float)((float)(v19 * v19) + (float)((float)(vOrigin->v[0] - v18->r.currentOrigin.v[0]) * (float)(vOrigin->v[0] - v18->r.currentOrigin.v[0]))) + (float)(v20 * v20);
+              AIWrapper::AIWrapper((AIWrapper *)&v39, v18);
+              v22 = (AICommonInterface *)v39.m_botInterface.__vftable;
+              if ( !v39.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 453, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
                 __debugbreak();
-              LOBYTE(_EAX) = v34->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(v34) != originator;
-              _ECX = 0;
-              _EAX = (unsigned __int8)_EAX;
+              v23 = v22->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(v22) != originator;
+              _XMM0 = v23;
               __asm
               {
-                vmovd   xmm0, eax
-                vmovd   xmm1, ecx
                 vpcmpeqd xmm2, xmm0, xmm1
                 vblendvps xmm0, xmm8, xmm7, xmm2
-                vcomiss xmm6, xmm0
               }
-              AICommonInterface::ReceivePointEvent(v34, originator, eType, _R12);
+              if ( v21 <= *(float *)&_XMM0 )
+                AICommonInterface::ReceivePointEvent(v22, originator, eType, vOrigin);
             }
           }
-          while ( v21 );
-          v17 = (unsigned __int8)eType;
+          while ( v17 );
+          v14 = (unsigned __int8)eType;
         }
       }
       for ( k = Actor_EventListener_First(eType, teamFlags); k >= 0; k = Actor_EventListener_Next(k, eType, teamFlags) )
       {
         Entity = Actor_EventListener_GetEntity(k);
-        v43 = Entity;
-        if ( Entity != originator || g_ai_event_info[v17].notifySelf )
+        v29 = Entity;
+        if ( Entity != originator || g_ai_event_info[v14].notifySelf )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r12]
-            vsubss  xmm3, xmm0, dword ptr [rax+130h]
-            vmovss  xmm0, dword ptr [r12+8]
-            vmovss  xmm1, dword ptr [r12+4]
-            vsubss  xmm2, xmm1, dword ptr [rax+134h]
-            vsubss  xmm4, xmm0, dword ptr [rax+138h]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-          }
+          v30 = vOrigin->v[1] - Entity->r.currentOrigin.v[1];
+          v31 = vOrigin->v[2] - Entity->r.currentOrigin.v[2];
           p_ent = (const gentity_s **)&Entity->sentient->ai->ent;
-          __asm
-          {
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm6, xmm3, xmm0
-          }
+          v33 = (float)((float)(v30 * v30) + (float)((float)(vOrigin->v[0] - Entity->r.currentOrigin.v[0]) * (float)(vOrigin->v[0] - Entity->r.currentOrigin.v[0]))) + (float)(v31 * v31);
           if ( p_ent )
           {
-            AIActorInterface::AIActorInterface(&v66.m_actorInterface);
-            AIAgentInterface::AIAgentInterface(&v66.m_newAgentInterface);
-            v66.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-            AICommonInterface::AICommonInterface(&v66.m_botInterface);
-            v66.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-            AICommonInterface::AICommonInterface(&v66.m_botAgentInterface);
-            v66.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-            v66.m_pAI = NULL;
-            AICommonWrapper::Setup(&v66, *p_ent);
-            m_pAI = v66.m_pAI;
-            if ( !v66.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 474, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+            AIActorInterface::AIActorInterface(&v39.m_actorInterface);
+            AIAgentInterface::AIAgentInterface(&v39.m_newAgentInterface);
+            v39.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+            AICommonInterface::AICommonInterface(&v39.m_botInterface);
+            v39.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+            AICommonInterface::AICommonInterface(&v39.m_botAgentInterface);
+            v39.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+            v39.m_pAI = NULL;
+            AICommonWrapper::Setup(&v39, *p_ent);
+            m_pAI = v39.m_pAI;
+            if ( !v39.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 474, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
               __debugbreak();
-            LOBYTE(_EAX) = m_pAI->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(m_pAI) != originator;
-            _ECX = 0;
-            _EAX = (unsigned __int8)_EAX;
+            v35 = m_pAI->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(m_pAI) != originator;
+            _XMM0 = v35;
             __asm
             {
-              vmovd   xmm0, eax
-              vmovd   xmm1, ecx
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm0, xmm8, xmm7, xmm2
-              vcomiss xmm6, xmm0
             }
-            Actor_EventListener_NotifyToListener(v43, originator, eType, _R12);
-            if ( AI_IsLiveBot(v43) )
-              AICommonInterface::ReceivePointEvent(m_pAI, originator, eType, _R12);
+            if ( v33 <= *(float *)&_XMM0 )
+            {
+              Actor_EventListener_NotifyToListener(v29, originator, eType, vOrigin);
+              if ( AI_IsLiveBot(v29) )
+                AICommonInterface::ReceivePointEvent(m_pAI, originator, eType, vOrigin);
+            }
           }
         }
-        v17 = (unsigned __int8)eType;
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+168h+var_68]
-        vmovaps xmm6, [rsp+168h+var_58]
-        vmovaps xmm8, [rsp+168h+var_78]
+        v14 = (unsigned __int8)eType;
       }
     }
   }
@@ -1398,130 +1121,118 @@ Actor_BroadcastVariableRadiusPointEvent
 */
 void Actor_BroadcastVariableRadiusPointEvent(gentity_s *originator, ai_event_t eType, const bitarray<224> *teamFlags, const vec3_t *vOrigin)
 {
-  const bitarray<224> *v9; 
+  __int128 v4; 
+  const bitarray<224> *v5; 
+  int v9; 
   AIIterator *AIScriptedIterator; 
-  __int64 v16; 
-  const gentity_s *v17; 
+  __int64 v12; 
+  const gentity_s *v13; 
   unsigned __int64 eTeam; 
-  unsigned __int64 v19; 
-  char v20; 
+  unsigned __int64 v15; 
+  char v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   AICommonInterface *p_m_newAgentInterface; 
   ai_agent_t *ScriptedAgentInfo; 
   actor_s *actor; 
+  bool v23; 
   int i; 
   gentity_s *Entity; 
+  float v29; 
+  float v30; 
   const gentity_s **p_ent; 
+  float v32; 
   AICommonInterface *m_pAI; 
-  char v61; 
-  char v62; 
-  const gentity_s **v64; 
-  AICommonInterface *v65; 
-  __int64 v69; 
-  __int64 v70; 
-  AICommonWrapper v72; 
-  void *retaddr; 
+  bool v34; 
+  double v38; 
+  const gentity_s **v39; 
+  AICommonInterface *v40; 
+  __int64 v41; 
+  __int64 v42; 
+  AICommonWrapper v44; 
 
-  _RAX = &retaddr;
-  v9 = teamFlags;
-  __asm { vmovaps xmmword ptr [rax-68h], xmm7 }
-  _R13 = vOrigin;
-  __asm { vmovaps xmmword ptr [rax-78h], xmm8 }
+  v5 = teamFlags;
   if ( !BG_AISystemEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 326, ASSERT_TYPE_ASSERT, "( BG_AISystemEnabled() )", (const char *)&queryFormat, "BG_AISystemEnabled()") )
     __debugbreak();
-  __asm { vmovaps xmmword ptr [rsp+140h+var_58+8], xmm6 }
-  *(double *)&_XMM0 = Actor_EventDefaultRadiusSqrd(eType);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Actor_EventBusyRadiusSqrd(eType);
-  __asm { vmovaps xmm8, xmm0 }
+  *(double *)&v4 = Actor_EventDefaultRadiusSqrd(eType);
+  v9 = v4;
+  *(double *)&v4 = Actor_EventBusyRadiusSqrd(eType);
+  _XMM8 = v4;
   if ( BG_ActorOrAgentSystemEnabled() )
   {
     AIScriptedIterator = AIScriptedInterface::GetAIScriptedIterator();
-    v16 = AIScriptedIterator->GetFirst(AIScriptedIterator);
-    if ( v16 )
+    v12 = AIScriptedIterator->GetFirst(AIScriptedIterator);
+    if ( v12 )
     {
       while ( 1 )
       {
-        v17 = (const gentity_s *)v16;
-        v16 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
-        if ( v17 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
+        v13 = (const gentity_s *)v12;
+        v12 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
+        if ( v13 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
           break;
 LABEL_36:
-        v9 = teamFlags;
+        v5 = teamFlags;
 LABEL_37:
-        if ( !v16 )
+        if ( !v12 )
           goto LABEL_38;
       }
-      eTeam = (unsigned int)v17->sentient->eTeam;
+      eTeam = (unsigned int)v13->sentient->eTeam;
       if ( (unsigned int)eTeam >= 0xE0 )
       {
-        LODWORD(v70) = 224;
-        LODWORD(v69) = v17->sentient->eTeam;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v69, v70) )
+        LODWORD(v42) = 224;
+        LODWORD(v41) = v13->sentient->eTeam;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v41, v42) )
           __debugbreak();
       }
-      v19 = eTeam;
-      v20 = eTeam;
-      v9 = teamFlags;
-      if ( ((0x80000000 >> (v20 & 0x1F)) & teamFlags->array[v19 >> 5]) == 0 )
+      v15 = eTeam;
+      v16 = eTeam;
+      v5 = teamFlags;
+      if ( ((0x80000000 >> (v16 & 0x1F)) & teamFlags->array[v15 >> 5]) == 0 )
         goto LABEL_37;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r13+0]
-        vsubss  xmm3, xmm0, dword ptr [rdi+130h]
-        vmovss  xmm1, dword ptr [r13+4]
-        vmovss  xmm0, dword ptr [r13+8]
-        vsubss  xmm2, xmm1, dword ptr [rdi+134h]
-        vsubss  xmm4, xmm0, dword ptr [rdi+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm6, xmm3, xmm0
-      }
-      AIActorInterface::AIActorInterface(&v72.m_actorInterface);
-      AIAgentInterface::AIAgentInterface(&v72.m_newAgentInterface);
-      v72.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-      v72.m_botInterface.__vftable = NULL;
+      v17 = vOrigin->v[1] - v13->r.currentOrigin.v[1];
+      v18 = vOrigin->v[2] - v13->r.currentOrigin.v[2];
+      v19 = (float)((float)(v17 * v17) + (float)((float)(vOrigin->v[0] - v13->r.currentOrigin.v[0]) * (float)(vOrigin->v[0] - v13->r.currentOrigin.v[0]))) + (float)(v18 * v18);
+      AIActorInterface::AIActorInterface(&v44.m_actorInterface);
+      AIAgentInterface::AIAgentInterface(&v44.m_newAgentInterface);
+      v44.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+      v44.m_botInterface.__vftable = NULL;
       p_m_newAgentInterface = NULL;
-      if ( v17->agent )
+      if ( v13->agent )
       {
-        if ( SV_Agent_IsScripted(v17->s.number) )
+        if ( SV_Agent_IsScripted(v13->s.number) )
         {
-          ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v17);
+          ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v13);
           if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
             __debugbreak();
           if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
             __debugbreak();
-          AINewAgentInterface::SetAgent(&v72.m_newAgentInterface, ScriptedAgentInfo);
-          v72.m_botInterface.__vftable = (AIBotInterface_vtbl *)&v72.m_newAgentInterface;
-          p_m_newAgentInterface = &v72.m_newAgentInterface;
+          AINewAgentInterface::SetAgent(&v44.m_newAgentInterface, ScriptedAgentInfo);
+          v44.m_botInterface.__vftable = (AIBotInterface_vtbl *)&v44.m_newAgentInterface;
+          p_m_newAgentInterface = &v44.m_newAgentInterface;
 LABEL_30:
-          LOBYTE(_EAX) = p_m_newAgentInterface->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(p_m_newAgentInterface) != originator;
-          _ECX = 0;
-          _EAX = (unsigned __int8)_EAX;
+          v23 = p_m_newAgentInterface->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(p_m_newAgentInterface) != originator;
+          _XMM0 = v23;
           __asm
           {
-            vmovd   xmm1, ecx
-            vmovd   xmm0, eax
             vpcmpeqd xmm2, xmm0, xmm1
             vblendvps xmm3, xmm8, xmm7, xmm2; defaultRadiusSqrd
           }
           *(double *)&_XMM0 = AICommonInterface::EventVariableRadiusSqrd(p_m_newAgentInterface, originator, eType, *(float *)&_XMM3);
-          __asm { vcomiss xmm6, xmm0 }
-          if ( v61 | v62 )
-            AICommonInterface::ReceivePointEvent(p_m_newAgentInterface, originator, eType, _R13);
+          if ( v19 <= *(float *)&_XMM0 )
+            AICommonInterface::ReceivePointEvent(p_m_newAgentInterface, originator, eType, vOrigin);
           goto LABEL_36;
         }
-        p_m_newAgentInterface = (AICommonInterface *)v72.m_botInterface.__vftable;
+        p_m_newAgentInterface = (AICommonInterface *)v44.m_botInterface.__vftable;
       }
-      actor = v17->actor;
+      actor = v13->actor;
       if ( actor )
       {
         if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
           __debugbreak();
-        AIActorInterface::SetActor(&v72.m_actorInterface, v17->actor);
-        p_m_newAgentInterface = (AICommonInterface *)&v72;
-        v72.m_botInterface.__vftable = (AIBotInterface_vtbl *)&v72;
+        AIActorInterface::SetActor(&v44.m_actorInterface, v13->actor);
+        p_m_newAgentInterface = (AICommonInterface *)&v44;
+        v44.m_botInterface.__vftable = (AIBotInterface_vtbl *)&v44;
       }
       if ( !p_m_newAgentInterface && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 348, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
         __debugbreak();
@@ -1529,96 +1240,70 @@ LABEL_30:
     }
   }
 LABEL_38:
-  for ( i = Actor_EventListener_First(eType, v9); i >= 0; i = Actor_EventListener_Next(i, eType, teamFlags) )
+  for ( i = Actor_EventListener_First(eType, v5); i >= 0; i = Actor_EventListener_Next(i, eType, teamFlags) )
   {
     Entity = Actor_EventListener_GetEntity(i);
     if ( !Entity->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 362, ASSERT_TYPE_ASSERT, "( ent->sentient )", (const char *)&queryFormat, "ent->sentient") )
       __debugbreak();
     if ( Entity != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r13+0]
-        vsubss  xmm3, xmm0, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [r13+4]
-        vmovss  xmm0, dword ptr [r13+8]
-        vsubss  xmm2, xmm1, dword ptr [rbx+134h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-      }
+      v29 = vOrigin->v[1] - Entity->r.currentOrigin.v[1];
+      v30 = vOrigin->v[2] - Entity->r.currentOrigin.v[2];
       p_ent = (const gentity_s **)&Entity->sentient->ai->ent;
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm6, xmm3, xmm0
-      }
+      v32 = (float)((float)(v29 * v29) + (float)((float)(vOrigin->v[0] - Entity->r.currentOrigin.v[0]) * (float)(vOrigin->v[0] - Entity->r.currentOrigin.v[0]))) + (float)(v30 * v30);
       if ( p_ent )
       {
-        AIActorInterface::AIActorInterface(&v72.m_actorInterface);
-        AIAgentInterface::AIAgentInterface(&v72.m_newAgentInterface);
-        v72.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-        AICommonInterface::AICommonInterface(&v72.m_botInterface);
-        v72.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-        AICommonInterface::AICommonInterface(&v72.m_botAgentInterface);
-        v72.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-        v72.m_pAI = NULL;
-        AICommonWrapper::Setup(&v72, *p_ent);
-        m_pAI = v72.m_pAI;
-        if ( !v72.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 371, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+        AIActorInterface::AIActorInterface(&v44.m_actorInterface);
+        AIAgentInterface::AIAgentInterface(&v44.m_newAgentInterface);
+        v44.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+        AICommonInterface::AICommonInterface(&v44.m_botInterface);
+        v44.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+        AICommonInterface::AICommonInterface(&v44.m_botAgentInterface);
+        v44.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+        v44.m_pAI = NULL;
+        AICommonWrapper::Setup(&v44, *p_ent);
+        m_pAI = v44.m_pAI;
+        if ( !v44.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 371, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
           __debugbreak();
-        LOBYTE(_EAX) = m_pAI->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(m_pAI) != originator;
-        _ESI = 0;
-        _EAX = (unsigned __int8)_EAX;
+        v34 = m_pAI->m_pAI->threat.hasThreateningEnemy && AICommonInterface::GetTargetEntity(m_pAI) != originator;
+        _XMM0 = v34;
         __asm
         {
-          vmovd   xmm1, esi
-          vmovd   xmm0, eax
           vpcmpeqd xmm2, xmm0, xmm1
           vblendvps xmm3, xmm8, xmm7, xmm2; defaultRadiusSqrd
         }
-        *(double *)&_XMM0 = AICommonInterface::EventVariableRadiusSqrd(m_pAI, originator, eType, *(float *)&_XMM3);
+        v38 = AICommonInterface::EventVariableRadiusSqrd(m_pAI, originator, eType, *(float *)&_XMM3);
       }
       else
       {
-        __asm { vmovaps xmm0, xmm7 }
-        v61 = 0;
-        v62 = 1;
+        LODWORD(v38) = v9;
       }
-      __asm { vcomiss xmm6, xmm0 }
-      if ( v61 | v62 )
+      if ( v32 <= *(float *)&v38 )
       {
-        Actor_EventListener_NotifyToListener(Entity, originator, eType, _R13);
+        Actor_EventListener_NotifyToListener(Entity, originator, eType, vOrigin);
         if ( AI_IsLiveBot(Entity) )
         {
-          v64 = (const gentity_s **)&Entity->sentient->ai->ent;
-          AIActorInterface::AIActorInterface(&v72.m_actorInterface);
-          AIAgentInterface::AIAgentInterface(&v72.m_newAgentInterface);
-          v72.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-          AICommonInterface::AICommonInterface(&v72.m_botInterface);
-          v72.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-          AICommonInterface::AICommonInterface(&v72.m_botAgentInterface);
-          v65 = NULL;
-          v72.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-          v72.m_pAI = NULL;
-          if ( v64 )
+          v39 = (const gentity_s **)&Entity->sentient->ai->ent;
+          AIActorInterface::AIActorInterface(&v44.m_actorInterface);
+          AIAgentInterface::AIAgentInterface(&v44.m_newAgentInterface);
+          v44.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+          AICommonInterface::AICommonInterface(&v44.m_botInterface);
+          v44.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+          AICommonInterface::AICommonInterface(&v44.m_botAgentInterface);
+          v40 = NULL;
+          v44.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+          v44.m_pAI = NULL;
+          if ( v39 )
           {
-            AICommonWrapper::Setup(&v72, *v64);
-            v65 = v72.m_pAI;
+            AICommonWrapper::Setup(&v44, *v39);
+            v40 = v44.m_pAI;
           }
-          if ( !v65 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 386, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+          if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 386, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
             __debugbreak();
-          AICommonInterface::ReceivePointEvent(v65, originator, eType, _R13);
+          AICommonInterface::ReceivePointEvent(v40, originator, eType, vOrigin);
         }
       }
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+140h+var_58+8]
-    vmovaps xmm7, [rsp+140h+var_68+8]
-    vmovaps xmm8, [rsp+140h+var_78+8]
   }
 }
 
@@ -1629,159 +1314,134 @@ Actor_BroadcastVolumeEvent
 */
 void Actor_BroadcastVolumeEvent(gentity_s *originator, ai_event_t eType, const bitarray<224> *teamFlags, gentity_s *volumeEnt, float radius)
 {
-  const bitarray<224> *v7; 
-  unsigned int v10; 
-  const bitarray<224> *v11; 
+  const bitarray<224> *v6; 
+  unsigned int v9; 
+  const bitarray<224> *v10; 
   sentient_s *sentient; 
-  int v13; 
+  int v12; 
   bitarray<224> *i; 
+  float v14; 
   AIIterator *AIScriptedIterator; 
-  __int64 v18; 
-  gentity_s *v19; 
+  __int64 v16; 
+  gentity_s *v17; 
   unsigned __int64 eTeam; 
   unsigned int Instance; 
-  char v34; 
-  AICommonInterface *v35; 
+  float v20; 
+  float v21; 
+  float v22; 
+  AICommonInterface *v23; 
   int j; 
   gentity_s *Entity; 
-  unsigned int v38; 
+  unsigned int v26; 
+  float v27; 
+  float v28; 
+  float v29; 
   const gentity_s **p_ent; 
   AICommonInterface *m_pAI; 
-  __int64 v54; 
-  __int64 v55; 
-  AICommonWrapper v57; 
+  __int64 v32; 
+  __int64 v33; 
+  AICommonWrapper v35; 
   bitarray<224> result; 
 
-  v7 = teamFlags;
+  v6 = teamFlags;
   if ( eType != AI_EV_BADPLACE_VOLUME && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 741, ASSERT_TYPE_ASSERT, "(eType > AI_EV_FIRST_VOLUME_EVENT && eType < AI_EV_LAST_VOLUME_EVENT)", (const char *)&queryFormat, "eType > AI_EV_FIRST_VOLUME_EVENT && eType < AI_EV_LAST_VOLUME_EVENT") )
     __debugbreak();
   if ( !BG_AISystemEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 743, ASSERT_TYPE_ASSERT, "( BG_AISystemEnabled() )", (const char *)&queryFormat, "BG_AISystemEnabled()") )
     __debugbreak();
-  v10 = 0;
-  v11 = v7;
+  v9 = 0;
+  v10 = v6;
   do
   {
-    if ( v11->array[0] )
+    if ( v10->array[0] )
       goto LABEL_18;
-    ++v10;
-    v11 = (const bitarray<224> *)((char *)v11 + 4);
+    ++v9;
+    v10 = (const bitarray<224> *)((char *)v10 + 4);
   }
-  while ( v10 < 7 );
+  while ( v9 < 7 );
   if ( !originator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 747, ASSERT_TYPE_ASSERT, "(originator)", (const char *)&queryFormat, "originator") )
     __debugbreak();
   sentient = originator->sentient;
   if ( sentient )
   {
     Sentient_EnemyTeamFlags(&result, sentient->eTeam);
-    v13 = 0;
+    v12 = 0;
     for ( i = &result; !i->array[0]; i = (bitarray<224> *)((char *)i + 4) )
     {
-      if ( (unsigned int)++v13 >= 7 )
+      if ( (unsigned int)++v12 >= 7 )
         return;
     }
 LABEL_18:
-    __asm
-    {
-      vmovss  xmm0, [rsp+158h+radius]
-      vmovaps [rsp+158h+var_58], xmm6
-      vmulss  xmm6, xmm0, xmm0
-    }
+    v14 = radius * radius;
     if ( BG_ActorOrAgentSystemEnabled() )
     {
       AIScriptedIterator = AIScriptedInterface::GetAIScriptedIterator();
-      v18 = AIScriptedIterator->GetFirst(AIScriptedIterator);
-      while ( v18 )
+      v16 = AIScriptedIterator->GetFirst(AIScriptedIterator);
+      while ( v16 )
       {
-        v19 = (gentity_s *)v18;
-        v18 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
-        if ( v19 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
+        v17 = (gentity_s *)v16;
+        v16 = (__int64)AIScriptedIterator->GetNext(AIScriptedIterator);
+        if ( v17 != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
         {
-          eTeam = (unsigned int)v19->sentient->eTeam;
+          eTeam = (unsigned int)v17->sentient->eTeam;
           if ( (unsigned int)eTeam >= 0xE0 )
           {
-            LODWORD(v55) = 224;
-            LODWORD(v54) = v19->sentient->eTeam;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v54, v55) )
+            LODWORD(v33) = 224;
+            LODWORD(v32) = v17->sentient->eTeam;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v32, v33) )
               __debugbreak();
           }
           if ( ((0x80000000 >> (eTeam & 0x1F)) & teamFlags->array[eTeam >> 5]) != 0 )
           {
             Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, volumeEnt);
-            _RDX = &v19->r.currentOrigin;
-            __asm
+            v20 = v17->r.currentOrigin.v[0] - volumeEnt->r.currentOrigin.v[0];
+            v21 = v17->r.currentOrigin.v[1] - volumeEnt->r.currentOrigin.v[1];
+            v22 = v17->r.currentOrigin.v[2] - volumeEnt->r.currentOrigin.v[2];
+            if ( (float)((float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v22 * v22)) < v14 )
             {
-              vmovss  xmm0, dword ptr [rdx]
-              vsubss  xmm3, xmm0, dword ptr [r13+130h]
-              vmovss  xmm1, dword ptr [rdx+4]
-              vsubss  xmm2, xmm1, dword ptr [r13+134h]
-              vmovss  xmm0, dword ptr [rdx+8]
-              vsubss  xmm4, xmm0, dword ptr [r13+138h]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm2, xmm3, xmm0
-              vcomiss xmm2, xmm6
-            }
-            if ( v34 )
-            {
-              if ( PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, _RDX, Instance, volumeEnt) )
+              if ( PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, &v17->r.currentOrigin, Instance, volumeEnt) )
               {
-                AIWrapper::AIWrapper((AIWrapper *)&v57, v19);
-                v35 = (AICommonInterface *)v57.m_botInterface.__vftable;
-                if ( !v57.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 784, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+                AIWrapper::AIWrapper((AIWrapper *)&v35, v17);
+                v23 = (AICommonInterface *)v35.m_botInterface.__vftable;
+                if ( !v35.m_botInterface.__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 784, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
                   __debugbreak();
-                AICommonInterface::ReceiveVolumeEvent(v35, originator, eType);
+                AICommonInterface::ReceiveVolumeEvent(v23, originator, eType);
               }
             }
           }
         }
       }
-      v7 = teamFlags;
+      v6 = teamFlags;
     }
-    for ( j = Actor_EventListener_First(eType, v7); j >= 0; j = Actor_EventListener_Next(j, eType, v7) )
+    for ( j = Actor_EventListener_First(eType, v6); j >= 0; j = Actor_EventListener_Next(j, eType, v6) )
     {
       Entity = Actor_EventListener_GetEntity(j);
       if ( Entity != originator || g_ai_event_info[(unsigned __int8)eType].notifySelf )
       {
-        v38 = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, volumeEnt);
-        _RDX = &Entity->r.currentOrigin;
-        __asm
+        v26 = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, volumeEnt);
+        v27 = Entity->r.currentOrigin.v[0] - volumeEnt->r.currentOrigin.v[0];
+        v28 = Entity->r.currentOrigin.v[1] - volumeEnt->r.currentOrigin.v[1];
+        v29 = Entity->r.currentOrigin.v[2] - volumeEnt->r.currentOrigin.v[2];
+        if ( (float)((float)((float)(v28 * v28) + (float)(v27 * v27)) + (float)(v29 * v29)) < v14 )
         {
-          vmovss  xmm0, dword ptr [rdx]
-          vsubss  xmm3, xmm0, dword ptr [r13+130h]
-          vmovss  xmm1, dword ptr [rdx+4]
-          vsubss  xmm2, xmm1, dword ptr [r13+134h]
-          vmovss  xmm0, dword ptr [rdx+8]
-          vsubss  xmm4, xmm0, dword ptr [r13+138h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( v34 )
-        {
-          if ( PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, _RDX, v38, volumeEnt) )
+          if ( PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, &Entity->r.currentOrigin, v26, volumeEnt) )
           {
             Actor_EventListener_NotifyToListener(Entity, originator, eType, &volumeEnt->r.currentOrigin);
             if ( AI_IsLiveBot(Entity) )
             {
               p_ent = (const gentity_s **)&Entity->sentient->ai->ent;
-              AIActorInterface::AIActorInterface(&v57.m_actorInterface);
-              AIAgentInterface::AIAgentInterface(&v57.m_newAgentInterface);
-              v57.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-              AICommonInterface::AICommonInterface(&v57.m_botInterface);
-              v57.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-              AICommonInterface::AICommonInterface(&v57.m_botAgentInterface);
+              AIActorInterface::AIActorInterface(&v35.m_actorInterface);
+              AIAgentInterface::AIAgentInterface(&v35.m_newAgentInterface);
+              v35.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+              AICommonInterface::AICommonInterface(&v35.m_botInterface);
+              v35.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+              AICommonInterface::AICommonInterface(&v35.m_botAgentInterface);
               m_pAI = NULL;
-              v57.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-              v57.m_pAI = NULL;
+              v35.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+              v35.m_pAI = NULL;
               if ( p_ent )
               {
-                AICommonWrapper::Setup(&v57, *p_ent);
-                m_pAI = v57.m_pAI;
+                AICommonWrapper::Setup(&v35, *p_ent);
+                m_pAI = v35.m_pAI;
               }
               if ( !m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 812, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
                 __debugbreak();
@@ -1791,7 +1451,6 @@ LABEL_18:
         }
       }
     }
-    __asm { vmovaps xmm6, [rsp+158h+var_58] }
   }
 }
 
@@ -1803,19 +1462,15 @@ Actor_EventBusyRadiusSqrd
 float Actor_EventBusyRadiusSqrd(ai_event_t eType)
 {
   __int64 v1; 
+  const dvar_t *v2; 
 
   v1 = (unsigned __int8)eType;
   if ( !g_ai_event_info[(unsigned __int8)eType].busyDistDvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 105, ASSERT_TYPE_ASSERT, "(g_ai_event_info[eType].busyDistDvar)", (const char *)&queryFormat, "g_ai_event_info[eType].busyDistDvar") )
     __debugbreak();
-  _RBX = *g_ai_event_info[v1].busyDistDvar;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 108, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+  v2 = *g_ai_event_info[v1].busyDistDvar;
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 108, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, xmm0
-  }
-  return *(float *)&_XMM0;
+  return v2->current.value * v2->current.value;
 }
 
 /*
@@ -1826,19 +1481,15 @@ Actor_EventDefaultRadiusSqrd
 float Actor_EventDefaultRadiusSqrd(ai_event_t eType)
 {
   __int64 v1; 
+  const dvar_t *v2; 
 
   v1 = (unsigned __int8)eType;
   if ( !g_ai_event_info[(unsigned __int8)eType].defaultDistDvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 91, ASSERT_TYPE_ASSERT, "(g_ai_event_info[eType].defaultDistDvar)", (const char *)&queryFormat, "g_ai_event_info[eType].defaultDistDvar") )
     __debugbreak();
-  _RBX = *g_ai_event_info[v1].defaultDistDvar;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 94, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+  v2 = *g_ai_event_info[v1].defaultDistDvar;
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 94, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, xmm0
-  }
-  return *(float *)&_XMM0;
+  return v2->current.value * v2->current.value;
 }
 
 /*
@@ -1938,12 +1589,16 @@ AICommonInterface::EventDeath
 */
 void AICommonInterface::EventDeath(AICommonInterface *this, sentient_s *pCasualty, sentient_s *pAttacker, unsigned __int8 reason)
 {
+  const tacpoint_t *v8; 
   const tacpoint_t *v9; 
-  const tacpoint_t *v10; 
-  team_t eTeam; 
-  char v30; 
+  const dvar_t *v10; 
+  gentity_s *ent; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  const dvar_t *v16; 
 
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1004, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1005, ASSERT_TYPE_ASSERT, "(m_pAI->ent)", (const char *)&queryFormat, "m_pAI->ent") )
@@ -1953,54 +1608,27 @@ void AICommonInterface::EventDeath(AICommonInterface *this, sentient_s *pCasualt
   if ( !pAttacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1007, ASSERT_TYPE_ASSERT, "(pAttacker)", (const char *)&queryFormat, "pAttacker") )
     __debugbreak();
   this->ReactToDanger(this);
-  v9 = Sentient_NearestTacPoint(this->m_pAI->sentient);
-  v10 = Sentient_NearestTacPoint(pAttacker);
-  if ( v9 && v10 && TacVisGraph_HasVis(v9, v10) && AICommonInterface::CanSeeEntity(this, pAttacker->ent) )
+  v8 = Sentient_NearestTacPoint(this->m_pAI->sentient);
+  v9 = Sentient_NearestTacPoint(pAttacker);
+  if ( v8 && v9 && TacVisGraph_HasVis(v8, v9) && AICommonInterface::CanSeeEntity(this, pAttacker->ent) )
     this->GetPerfectInfo(this, pAttacker, reason);
-  _RBP = DVARFLT_ai_teamDeathListenRadius;
-  _RCX = this->m_pAI->ent;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+130h]
-    vsubss  xmm3, xmm0, dword ptr [rax+130h]
-    vmovss  xmm1, dword ptr [rcx+134h]
-    vmovss  xmm0, dword ptr [rcx+138h]
-    vsubss  xmm2, xmm1, dword ptr [rax+134h]
-    vsubss  xmm4, xmm0, dword ptr [rax+138h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm6, xmm3, xmm0
-  }
+  v10 = DVARFLT_ai_teamDeathListenRadius;
+  ent = this->m_pAI->ent;
+  v12 = ent->r.currentOrigin.v[0] - pCasualty->ent->r.currentOrigin.v[0];
+  v13 = ent->r.currentOrigin.v[1] - pCasualty->ent->r.currentOrigin.v[1];
+  v14 = ent->r.currentOrigin.v[2] - pCasualty->ent->r.currentOrigin.v[2];
+  v15 = (float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14);
   if ( !DVARFLT_ai_teamDeathListenRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_teamDeathListenRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  eTeam = this->m_pAI->sentient->eTeam;
-  if ( pCasualty->eTeam == eTeam )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm6, xmm1
-    }
-    if ( pCasualty->eTeam <= (unsigned int)eTeam )
-      this->ReactToTeamDeath(this, pCasualty, pAttacker);
-  }
-  _RDI = DVARFLT_ai_teamDeathRetreatDistance;
+  Dvar_CheckFrontendServerThread(v10);
+  if ( pCasualty->eTeam == this->m_pAI->sentient->eTeam && v15 <= (float)(v10->current.value * v10->current.value) )
+    this->ReactToTeamDeath(this, pCasualty, pAttacker);
+  v16 = DVARFLT_ai_teamDeathRetreatDistance;
   if ( !DVARFLT_ai_teamDeathRetreatDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_teamDeathRetreatDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vcomiss xmm6, xmm1
-  }
-  if ( v30 )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v15 < (float)(v16->current.value * v16->current.value) )
     this->UpdateRetreat(this);
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
 }
 
 /*
@@ -2014,12 +1642,19 @@ void AICommonInterface::EventExplosion(AICommonInterface *this, gentity_s *origi
   sentient_s *sentient; 
   sentient_s *v10; 
   bool v11; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v13; 
+  double v14; 
   unsigned int v15; 
-  scrContext_t *v27; 
-  scrContext_t *v28; 
+  ai_common_t *v16; 
+  sentient_s *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  scrContext_t *v21; 
+  scrContext_t *v22; 
   bitarray<224> result; 
 
-  _RDI = originator;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1085, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1086, ASSERT_TYPE_ASSERT, "(m_pAI->ent)", (const char *)&queryFormat, "m_pAI->ent") )
@@ -2027,9 +1662,9 @@ void AICommonInterface::EventExplosion(AICommonInterface *this, gentity_s *origi
   m_pAI = this->m_pAI;
   if ( !m_pAI->threat.ignoreExplosionEvents )
   {
-    if ( _RDI )
+    if ( originator )
     {
-      sentient = _RDI->sentient;
+      sentient = originator->sentient;
       if ( sentient )
       {
         v10 = m_pAI->sentient;
@@ -2039,20 +1674,14 @@ void AICommonInterface::EventExplosion(AICommonInterface *this, gentity_s *origi
         {
           v11 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-            _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+            AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
           else
-            _RAX = Com_TeamsMP_GetAllTeamFlags();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovsd  xmm1, qword ptr [rax+10h]
-          }
-          v15 = _RAX->array[6] & 0xFFEFFFFF;
-          __asm
-          {
-            vmovups xmmword ptr [rsp+98h+result.array], xmm0
-            vmovsd  qword ptr [rsp+98h+result.array+10h], xmm1
-          }
+            AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+          v13 = *(_OWORD *)AllCombatTeamFlags->array;
+          v14 = *(double *)&AllCombatTeamFlags->array[4];
+          v15 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+          *(_OWORD *)result.array = v13;
+          *(double *)&result.array[4] = v14;
           if ( v11 )
             result.array[0] &= ~0x8000000u;
           result.array[6] = v15 & 0xFF9FFFFF;
@@ -2063,34 +1692,27 @@ void AICommonInterface::EventExplosion(AICommonInterface *this, gentity_s *origi
         }
         if ( bitarray_base<bitarray<224>>::testBit(&result, v10->eTeam) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+130h]
-            vmovss  xmm1, dword ptr [rdi+134h]
-            vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-            vsubss  xmm4, xmm0, dword ptr [rcx+130h]
-            vmovss  xmm0, dword ptr [rdi+138h]
-            vsubss  xmm3, xmm0, dword ptr [rcx+138h]
-            vmulss  xmm1, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm2, xmm2, xmm1
-            vcomiss xmm2, cs:__real@48800000
-          }
-          AICommonInterface::UpdateLastKnownPos(this, _RDI->sentient, vOrigin, reason);
+          v16 = this->m_pAI;
+          v17 = originator->sentient;
+          v18 = originator->r.currentOrigin.v[1] - v16->ent->r.currentOrigin.v[1];
+          v19 = originator->r.currentOrigin.v[0] - v16->ent->r.currentOrigin.v[0];
+          v20 = originator->r.currentOrigin.v[2] - v16->ent->r.currentOrigin.v[2];
+          if ( (float)((float)((float)(v18 * v18) + (float)(v19 * v19)) + (float)(v20 * v20)) >= 262144.0 )
+            AICommonInterface::UpdateLastKnownPos(this, v17, vOrigin, reason);
+          else
+            this->GetPerfectInfo(this, v17, reason);
         }
       }
     }
     this->EnterAlertState(this);
   }
-  v27 = ScriptContext_Server();
-  v28 = v27;
-  if ( _RDI )
-    GScr_AddEntity(_RDI);
+  v21 = ScriptContext_Server();
+  v22 = v21;
+  if ( originator )
+    GScr_AddEntity(originator);
   else
-    Scr_AddUndefined(v27);
-  Scr_AddVector(v28, vOrigin->v);
+    Scr_AddUndefined(v21);
+  Scr_AddVector(v22, vOrigin->v);
   GScr_Notify(this->m_pAI->ent, scr_const.explode, 2u);
 }
 
@@ -2390,126 +2012,95 @@ AICommonInterface::EventVariableRadiusSqrd
 float __fastcall AICommonInterface::EventVariableRadiusSqrd(AICommonInterface *this, gentity_s *originator, ai_event_t eType, double defaultRadiusSqrd)
 {
   playerState_s *EntityPlayerState; 
-  playerState_s *v17; 
-  const dvar_t *v19; 
-  const char *v20; 
-  bool v21; 
-  bool HasPerk; 
-  char v24; 
+  playerState_s *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  const char *v14; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v16; 
+  double v17; 
   sentient_s *sentient; 
   team_t eTeam; 
-  const dvar_t *v27; 
+  double v20; 
+  const dvar_t *v21; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovaps xmm7, xmm3
-  }
+  _XMM7 = *(_OWORD *)&defaultRadiusSqrd;
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 133, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
   switch ( eType )
   {
     case AI_EV_FOOTSTEP:
-      _RAX = this->m_pAI;
-      __asm { vmovss  xmm2, dword ptr [rax+48h] }
+      _XMM2 = LODWORD(this->m_pAI->threat.footstepDetectDistSq);
       break;
     case AI_EV_FOOTSTEP_WALK:
-      _RAX = this->m_pAI;
-      __asm { vmovss  xmm2, dword ptr [rax+4Ch] }
+      _XMM2 = LODWORD(this->m_pAI->threat.footstepDetectDistWalkSq);
       break;
     case AI_EV_FOOTSTEP_SPRINT:
-      _RAX = this->m_pAI;
-      __asm { vmovss  xmm2, dword ptr [rax+50h] }
+      _XMM2 = LODWORD(this->m_pAI->threat.footstepDetectDistSprintSq);
       break;
     default:
       goto LABEL_11;
   }
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vcmpneqss xmm1, xmm2, xmm0
     vblendvps xmm7, xmm7, xmm2, xmm1
   }
 LABEL_11:
   if ( (unsigned __int8)(eType - 2) > 2u )
+    return *(float *)&_XMM7;
+  if ( !originator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 156, ASSERT_TYPE_ASSERT, "(originator)", (const char *)&queryFormat, "originator") )
+    __debugbreak();
+  if ( !this->m_pAI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 157, ASSERT_TYPE_ASSERT, "(m_pAI->ent)", (const char *)&queryFormat, "m_pAI->ent") )
+    __debugbreak();
+  EntityPlayerState = G_GetEntityPlayerState(originator);
+  v11 = G_GetEntityPlayerState(this->m_pAI->ent);
+  v12 = FLOAT_1_0;
+  if ( EntityPlayerState && BG_HasPerk(&EntityPlayerState->perks, 0x1Fu) )
   {
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  else
-  {
-    __asm { vmovaps [rsp+78h+var_28], xmm6 }
-    if ( !originator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 156, ASSERT_TYPE_ASSERT, "(originator)", (const char *)&queryFormat, "originator") )
-      __debugbreak();
-    if ( !this->m_pAI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 157, ASSERT_TYPE_ASSERT, "(m_pAI->ent)", (const char *)&queryFormat, "m_pAI->ent") )
-      __debugbreak();
-    EntityPlayerState = G_GetEntityPlayerState(originator);
-    v17 = G_GetEntityPlayerState(this->m_pAI->ent);
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( EntityPlayerState && BG_HasPerk(&EntityPlayerState->perks, 0x1Fu) )
+    if ( originator->client )
     {
-      if ( originator->client )
-      {
-        v19 = DCONST_DVARFLT_perk_footstepActorNotifyVolumeQuietPlayer;
-        v20 = "perk_footstepActorNotifyVolumeQuietPlayer";
-      }
-      else
-      {
-        v19 = DCONST_DVARFLT_perk_footstepActorNotifyVolumeQuietNPC;
-        v20 = "perk_footstepActorNotifyVolumeQuietNPC";
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v19, v20);
-      __asm { vmovaps xmm6, xmm0 }
-    }
-    v21 = v17 == NULL;
-    if ( v17 )
-    {
-      HasPerk = BG_HasPerk(&v17->perks, 0x28u);
-      v21 = !HasPerk;
-      if ( HasPerk )
-      {
-        _RBX = DVARFLT_perk_footstepVolumeSelectiveHearingMin;
-        if ( !DVARFLT_perk_footstepVolumeSelectiveHearingMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_footstepVolumeSelectiveHearingMin") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-        if ( v24 )
-        {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_footstepVolumeSelectiveHearingMin, "perk_footstepVolumeSelectiveHearingMin");
-          __asm { vmovaps xmm6, xmm0 }
-        }
-        sentient = originator->sentient;
-        if ( sentient && (eTeam = sentient->eTeam) != TEAM_ZERO && eTeam == this->m_pAI->sentient->eTeam )
-        {
-          Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_footstepVolumeAlly, "perk_footstepVolumeAlly");
-          __asm { vmulss  xmm6, xmm6, xmm0 }
-        }
-        else
-        {
-          v27 = DVARFLT_perk_footstepVolumeEnemy;
-          if ( !DVARFLT_perk_footstepVolumeEnemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_footstepVolumeEnemy") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v27);
-          __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
-        }
-      }
-    }
-    __asm { vucomiss xmm6, cs:__real@3f800000 }
-    if ( v21 )
-    {
-      __asm { vmovaps xmm0, xmm7 }
+      v13 = DCONST_DVARFLT_perk_footstepActorNotifyVolumeQuietPlayer;
+      v14 = "perk_footstepActorNotifyVolumeQuietPlayer";
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm7
-        vmulss  xmm0, xmm0, xmm6
-      }
+      v13 = DCONST_DVARFLT_perk_footstepActorNotifyVolumeQuietNPC;
+      v14 = "perk_footstepActorNotifyVolumeQuietNPC";
     }
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v13, v14);
+    v12 = *(float *)&Float_Internal_DebugName;
   }
-  __asm { vmovaps xmm7, [rsp+78h+var_38] }
-  return *(float *)&_XMM0;
+  if ( v11 && BG_HasPerk(&v11->perks, 0x28u) )
+  {
+    v16 = DVARFLT_perk_footstepVolumeSelectiveHearingMin;
+    if ( !DVARFLT_perk_footstepVolumeSelectiveHearingMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_footstepVolumeSelectiveHearingMin") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v16);
+    if ( v12 < v16->current.value )
+    {
+      v17 = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_footstepVolumeSelectiveHearingMin, "perk_footstepVolumeSelectiveHearingMin");
+      v12 = *(float *)&v17;
+    }
+    sentient = originator->sentient;
+    if ( sentient && (eTeam = sentient->eTeam) != TEAM_ZERO && eTeam == this->m_pAI->sentient->eTeam )
+    {
+      v20 = Dvar_GetFloat_Internal_DebugName(DVARFLT_perk_footstepVolumeAlly, "perk_footstepVolumeAlly");
+      v12 = v12 * *(float *)&v20;
+    }
+    else
+    {
+      v21 = DVARFLT_perk_footstepVolumeEnemy;
+      if ( !DVARFLT_perk_footstepVolumeEnemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_footstepVolumeEnemy") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v21);
+      v12 = v12 * v21->current.value;
+    }
+  }
+  if ( v12 == 1.0 )
+    return *(float *)&_XMM7;
+  else
+    return (float)(v12 * *(float *)&_XMM7) * v12;
 }
 
 /*
@@ -2541,19 +2132,16 @@ void AIScriptedInterface::ReactToTeamDeath(AIScriptedInterface *this, sentient_s
 {
   ai_scripted_t *m_pAI; 
   gentity_s *ent; 
-  char v31; 
-  int v32; 
-  AILookAtType v33; 
-  __int64 v36; 
-  float v37; 
+  gentity_s *v8; 
+  __int128 v9; 
+  float v13; 
+  int v14; 
+  AILookAtType v15; 
+  __int64 v16; 
+  float v17; 
   vec3_t worldPos; 
   vec3_t forward; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_28], xmm6
-    vmovaps [rsp+0A8h+var_38], xmm7
-  }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1044, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_events.cpp", 1045, ASSERT_TYPE_ASSERT, "(m_pAI->ent)", (const char *)&queryFormat, "m_pAI->ent") )
@@ -2564,58 +2152,29 @@ void AIScriptedInterface::ReactToTeamDeath(AIScriptedInterface *this, sentient_s
     __debugbreak();
   m_pAI = this->m_pAI;
   ent = pAttacker->ent;
-  _RAX = m_pAI->ent;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax+130h]
-    vmovsd  [rsp+0A8h+var_78], xmm0
-  }
-  v37 = _RAX->r.currentOrigin.v[2];
-  _RAX = pCasualty->ent;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax+130h]
-    vmovsd  qword ptr [rsp+0A8h+worldPos], xmm0
-  }
-  worldPos.v[2] = _RAX->r.currentOrigin.v[2];
+  v8 = m_pAI->ent;
+  v16 = *(_QWORD *)m_pAI->ent->r.currentOrigin.v;
+  v17 = v8->r.currentOrigin.v[2];
+  worldPos = pCasualty->ent->r.currentOrigin;
   EntHandle::setEnt(&m_pAI->lastTeamKillerEnemy, ent);
   this->m_pAI->lastNearbyTeammateKilledTime = level.time;
-  this->AddSuppressionLine(this, pAttacker, &pAttacker->ent->r.currentOrigin, (const vec3_t *)&v36, (const vec3_t *)&v36);
+  this->AddSuppressionLine(this, pAttacker, &pAttacker->ent->r.currentOrigin, (const vec3_t *)&v16, (const vec3_t *)&v16);
+  v9 = LODWORD(worldPos.v[1]);
+  *(float *)&v9 = fsqrt((float)((float)(worldPos.v[1] - *((float *)&v16 + 1)) * (float)(worldPos.v[1] - *((float *)&v16 + 1))) + (float)((float)(worldPos.v[0] - *(float *)&v16) * (float)(worldPos.v[0] - *(float *)&v16)));
+  _XMM3 = v9;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+0A8h+worldPos]
-    vsubss  xmm5, xmm0, dword ptr [rsp+0A8h+var_78]
-    vmovss  xmm1, dword ptr [rsp+0A8h+worldPos+4]
-    vsubss  xmm4, xmm1, dword ptr [rsp+0A8h+var_78+4]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm4, xmm4
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm3, xmm1, xmm1
-    vmovss  xmm1, cs:__real@3f800000
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm7, xmm5, xmm1
-    vmulss  xmm6, xmm4, xmm1
   }
+  v13 = (float)(worldPos.v[0] - *(float *)&v16) * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&v9 = (float)(worldPos.v[1] - *((float *)&v16 + 1)) * (float)(1.0 / *(float *)&_XMM0);
   AngleVectors(&this->m_pAI->ent->r.currentAngles, &forward, NULL, NULL);
-  __asm
+  if ( (float)((float)(*(float *)&v9 * forward.v[1]) + (float)(v13 * forward.v[0])) >= 0.175 )
   {
-    vmulss  xmm1, xmm6, dword ptr [rsp+0A8h+forward+4]
-    vmulss  xmm0, xmm7, dword ptr [rsp+0A8h+forward]
-    vaddss  xmm1, xmm1, xmm0
-    vcomiss xmm1, cs:__real@3e333333
-  }
-  if ( !v31 )
-  {
-    v32 = G_irand(300, 400);
-    LOBYTE(v33) = 5;
-    AIScriptedInterface::SetGlancePos(this, &worldPos, v33, 1, v32);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_28]
-    vmovaps xmm7, [rsp+0A8h+var_38]
+    v14 = G_irand(300, 400);
+    LOBYTE(v15) = 5;
+    AIScriptedInterface::SetGlancePos(this, &worldPos, v15, 1, v14);
   }
 }
 

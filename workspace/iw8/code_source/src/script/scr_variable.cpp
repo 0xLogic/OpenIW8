@@ -5401,42 +5401,14 @@ Scr_AllocVector
 */
 float *Scr_AllocVector(scrContext_t *scrContext, const float *v)
 {
-  const float *v3; 
   float *result; 
-  int v8; 
-  int v9; 
-  int v10; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  v3 = v;
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4663, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )") )
-      __debugbreak();
-  }
+  if ( ((*(_DWORD *)v & 0x7F800000) == 2139095040 || ((_DWORD)v[1] & 0x7F800000) == 2139095040 || ((_DWORD)v[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4663, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )") )
+    __debugbreak();
   result = Scr_AllocVector_Inline(scrContext);
-  *result = *v3;
-  result[1] = v3[1];
-  result[2] = v3[2];
+  *result = *v;
+  result[1] = v[1];
+  result[2] = v[2];
   return result;
 }
 
@@ -5480,30 +5452,32 @@ Scr_CastBool_NonInteger
 __int64 Scr_CastBool_NonInteger(scrContext_t *scrContext, VariableValue *value)
 {
   VariableType type; 
-  VariableValue *v4; 
   const char *NameForType; 
-  const char *v9; 
+  const char *v7; 
 
   type = value->type;
-  v4 = value;
   if ( type == VAR_FLOAT )
   {
-    __asm
+    if ( value->u.floatValue == 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdx]
+      MakeVariableValue_Out(VAR_INTEGER, 0, value);
+      return 0i64;
     }
-    MakeVariableValue_Out(VAR_INTEGER, 0, value);
+    else
+    {
+      MakeVariableValue_Out(VAR_INTEGER, 1u, value);
+      return 1i64;
+    }
   }
   else
   {
     RemoveRefToValue(scrContext, (unsigned __int8)type, value->u);
-    v4->type = VAR_UNDEFINED;
+    value->type = VAR_UNDEFINED;
     NameForType = Scr_GetNameForType(type);
-    v9 = j_va("cannot cast %s to bool", NameForType);
-    Scr_Error(COM_ERR_5233, scrContext, v9);
+    v7 = j_va("cannot cast %s to bool", NameForType);
+    Scr_Error(COM_ERR_5233, scrContext, v7);
+    return 0i64;
   }
-  return 0i64;
 }
 
 /*
@@ -5558,11 +5532,11 @@ Scr_CastString
 */
 bool Scr_CastString(scrContext_t *scrContext, VariableValue *value)
 {
-  VariableValue *v3; 
   VariableType type; 
   int intValue; 
   unsigned int StringForInt; 
   bool result; 
+  int v8; 
   unsigned int StringForFloat; 
   const float *scriptCodePosValue; 
   const float *v11; 
@@ -5573,7 +5547,6 @@ bool Scr_CastString(scrContext_t *scrContext, VariableValue *value)
   unsigned int String; 
   const char *NameForType; 
 
-  v3 = value;
   type = value->type;
   switch ( type )
   {
@@ -5583,20 +5556,20 @@ bool Scr_CastString(scrContext_t *scrContext, VariableValue *value)
       intValue = value->u.intValue;
       value->type = VAR_STRING;
       StringForInt = SL_GetStringForInt(intValue);
-      Scr_SetStringValue(v3, StringForInt);
+      Scr_SetStringValue(value, StringForInt);
       return 1;
     case VAR_FLOAT:
-      __asm { vmovss  xmm0, dword ptr [rdx]; f }
+      v8 = value->u.intValue;
       value->type = VAR_STRING;
-      StringForFloat = SL_GetStringForFloat(*(float *)&_XMM0);
-      Scr_SetStringValue(v3, StringForFloat);
+      StringForFloat = SL_GetStringForFloat(*(float *)&v8);
+      Scr_SetStringValue(value, StringForFloat);
       return 1;
     case VAR_VECTOR:
       scriptCodePosValue = (const float *)value->u.scriptCodePosValue;
       v11 = (const float *)value->u.scriptCodePosValue;
       value->type = VAR_STRING;
       StringForVector = SL_GetStringForVector(v11);
-      Scr_SetStringValue(v3, StringForVector);
+      Scr_SetStringValue(value, StringForVector);
       RemoveRefToVector(scrContext, scriptCodePosValue);
       return 1;
     case VAR_ANIMATION:
@@ -5604,16 +5577,16 @@ bool Scr_CastString(scrContext_t *scrContext, VariableValue *value)
       Anims = Scr_GetAnims(scrContext, WORD1(value->u.scriptCodePosValue));
       AnimName = XAnimGetAnimName(Anims, v13);
       String = j_SL_GetString_(AnimName, 0, 17);
-      RemoveRefToValue(scrContext, (unsigned __int8)v3->type, v3->u);
-      v3->type = VAR_STRING;
-      Scr_SetStringValue(v3, String);
+      RemoveRefToValue(scrContext, (unsigned __int8)value->type, value->u);
+      value->type = VAR_STRING;
+      Scr_SetStringValue(value, String);
       return 1;
     default:
       NameForType = Scr_GetNameForType(type);
       scrContext->m_varPub.error_message = j_va("cannot cast %s to string", NameForType);
-      RemoveRefToValue(scrContext, (unsigned __int8)v3->type, v3->u);
+      RemoveRefToValue(scrContext, (unsigned __int8)value->type, value->u);
       result = 0;
-      v3->type = VAR_UNDEFINED;
+      value->type = VAR_UNDEFINED;
       break;
   }
   return result;
@@ -5626,112 +5599,86 @@ Scr_CastVector
 */
 void Scr_CastVector(scrContext_t *scrContext, VariableValue *value)
 {
-  __int64 v6; 
-  VariableValue *v7; 
-  int v10; 
-  __int64 v11; 
+  __int64 v2; 
+  VariableValue *v3; 
+  float *v5; 
+  int v6; 
+  __int64 v7; 
+  VariableValue *v8; 
   VariableType type; 
+  float floatValue; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float *v15; 
   const char *NameForType; 
-  const char *v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31[4]; 
+  const char *v17; 
+  __int64 v18; 
+  int v19; 
+  float v20; 
+  float v21; 
+  float v22; 
 
-  v6 = 2i64;
-  v7 = value + 2;
-  _R8 = v31;
-  v10 = 2;
-  v11 = 2i64;
-  _RAX = value + 2;
+  v2 = 2i64;
+  v3 = value + 2;
+  v5 = &v20;
+  v6 = 2;
+  v7 = 2i64;
+  v8 = value + 2;
   do
   {
-    type = _RAX->type;
+    type = v8->type;
     if ( type == VAR_FLOAT )
     {
-      __asm { vmovss  xmm0, dword ptr [rax] }
+      floatValue = v8->u.floatValue;
     }
     else
     {
       if ( type != VAR_INTEGER )
       {
-        scrContext->m_varPub.error_index = v10 + 1;
+        scrContext->m_varPub.error_index = v6 + 1;
         do
         {
-          RemoveRefToValue(scrContext, (unsigned __int8)v7->type, v7->u);
-          --v6;
-          --v7;
+          RemoveRefToValue(scrContext, (unsigned __int8)v3->type, v3->u);
+          --v2;
+          --v3;
         }
-        while ( v6 >= 0 );
+        while ( v2 >= 0 );
         value->type = VAR_UNDEFINED;
         NameForType = Scr_GetNameForType(type);
-        v24 = j_va("type %s is not a float", NameForType);
-        Scr_Error(COM_ERR_5235, scrContext, v24);
+        v17 = j_va("type %s is not a float", NameForType);
+        Scr_Error(COM_ERR_5235, scrContext, v17);
         return;
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax]
-      }
+      floatValue = (float)v8->u.intValue;
     }
-    __asm { vmovss  dword ptr [r8], xmm0 }
-    ++_R8;
-    --v10;
-    --_RAX;
-    --v11;
+    *v5++ = floatValue;
+    --v6;
+    --v8;
+    --v7;
   }
-  while ( v11 >= 0 );
-  __asm
+  while ( v7 >= 0 );
+  v12 = v22;
+  v13 = v21;
+  v14 = v20;
+  *(float *)&v19 = v20;
+  if ( (LODWORD(v20) & 0x7F800000) == 2139095040 || (*(float *)&v19 = v21, (LODWORD(v21) & 0x7F800000) == 2139095040) || (*(float *)&v19 = v22, (LODWORD(v22) & 0x7F800000) == 2139095040) )
   {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovss  xmm6, [rsp+98h+var_58]
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovss  xmm7, [rsp+98h+var_5C]
-    vmovaps [rsp+98h+var_48], xmm8
-    vmovss  xmm8, [rsp+98h+var_60]
-    vmovss  [rsp+98h+var_68], xmm8
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm { vmovss  [rsp+98h+var_68], xmm7 }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm { vmovss  [rsp+98h+var_68], xmm6 }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6114, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6114, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] )", v19) )
       __debugbreak();
   }
-  __asm { vmovss  [rsp+98h+var_68], xmm8 }
+  *(float *)&v18 = v14;
   value->type = VAR_VECTOR;
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm { vmovss  [rsp+98h+var_68], xmm7 }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm { vmovss  [rsp+98h+var_68], xmm6 }
-  if ( (v30 & 0x7F800000) == 2139095040 )
+  if ( (LODWORD(v14) & 0x7F800000) == 2139095040 || (*(float *)&v18 = v13, (LODWORD(v13) & 0x7F800000) == 2139095040) || (*(float *)&v18 = v12, (LODWORD(v12) & 0x7F800000) == 2139095040) )
   {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4663, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4663, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )", v18) )
       __debugbreak();
   }
-  _RAX = Scr_AllocVector_Inline(scrContext);
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm8
-    vmovaps xmm8, [rsp+98h+var_48]
-    vmovss  dword ptr [rax+4], xmm7
-    vmovaps xmm7, [rsp+98h+var_38]
-    vmovss  dword ptr [rax+8], xmm6
-    vmovaps xmm6, [rsp+98h+var_28]
-  }
-  value->u.scriptCodePosValue = (unsigned __int64)_RAX;
+  v15 = Scr_AllocVector_Inline(scrContext);
+  *v15 = v14;
+  v15[1] = v13;
+  v15[2] = v12;
+  value->u.scriptCodePosValue = (unsigned __int64)v15;
 }
 
 /*
@@ -5741,32 +5688,31 @@ Scr_CastWeakerPair2
 */
 void Scr_CastWeakerPair2(scrContext_t *scrContext, VariableValue *value1, VariableValue *value2, VariableType type1, VariableType type2)
 {
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
+  float *v7; 
+  VariableUnion v8; 
+  int v9; 
+  int v10; 
+  float *v11; 
+  float v12; 
+  float v13; 
+  float *v14; 
+  VariableUnion v15; 
+  int v16; 
+  int v17; 
+  float *v18; 
+  float v19; 
+  float v20; 
+  int intValue; 
+  float v22; 
+  int v23; 
+  float v24; 
 
-  _RBX = value2;
-  _RDI = value1;
   switch ( type1 )
   {
     case VAR_FLOAT:
       if ( type2 == VAR_INTEGER )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [r8]
-          vmovss  dword ptr [r8], xmm0
-        }
+        value2->u.floatValue = (float)value2->u.intValue;
         value2->type = VAR_FLOAT;
         return;
       }
@@ -5774,87 +5720,46 @@ void Scr_CastWeakerPair2(scrContext_t *scrContext, VariableValue *value1, Variab
     case VAR_INTEGER:
       if ( type2 == VAR_FLOAT )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdx]
-          vmovss  dword ptr [rdx], xmm0
-        }
-        value1->type = type2;
+        value1->u.floatValue = (float)value1->u.intValue;
+        value1->type = VAR_FLOAT;
         return;
       }
       goto LABEL_21;
     case VAR_VECTOR:
       if ( type2 == VAR_FLOAT )
       {
-        _RAX = Scr_AllocVector_Inline(scrContext);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  [rsp+38h+arg_18], xmm0
-        }
-        _RDI = _RAX;
-        __asm
-        {
-          vmovss  dword ptr [rax], xmm0
-          vmovss  xmm2, dword ptr [rbx]
-          vmovss  dword ptr [rax+4], xmm2
-          vmovss  xmm1, dword ptr [rbx]
-          vmovss  dword ptr [rax+8], xmm1
-        }
-        if ( (v36 & 0x7F800000) == 2139095040 )
-          goto LABEL_38;
-        __asm { vmovss  [rsp+38h+arg_18], xmm2 }
-        if ( (v37 & 0x7F800000) == 2139095040 )
-          goto LABEL_38;
-        __asm { vmovss  [rsp+38h+arg_18], xmm1 }
-        if ( (v38 & 0x7F800000) == 2139095040 )
-        {
-LABEL_38:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6213, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
-            __debugbreak();
-        }
+        v7 = Scr_AllocVector_Inline(scrContext);
+        intValue = value2->u.intValue;
+        v8.scriptCodePosValue = (unsigned __int64)v7;
+        *v7 = value2->u.floatValue;
+        v9 = value2->u.intValue;
+        v7[1] = value2->u.floatValue;
+        v10 = value2->u.intValue;
+        v7[2] = value2->u.floatValue;
+        if ( ((intValue & 0x7F800000) == 2139095040 || (v9 & 0x7F800000) == 2139095040 || (v10 & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6213, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+          __debugbreak();
         goto LABEL_14;
       }
       if ( type2 == VAR_INTEGER )
       {
-        __asm
+        v11 = Scr_AllocVector_Inline(scrContext);
+        v22 = (float)value2->u.intValue;
+        v8.scriptCodePosValue = (unsigned __int64)v11;
+        *v11 = v22;
+        v12 = (float)value2->u.intValue;
+        v11[1] = v12;
+        v13 = (float)value2->u.intValue;
+        v11[2] = v13;
+        if ( ((LODWORD(v22) & 0x7F800000) == 2139095040 || (LODWORD(v12) & 0x7F800000) == 2139095040 || (LODWORD(v13) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6225, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx]
-          vmovss  [rsp+38h+arg_18], xmm0
-        }
-        _RDI = Scr_AllocVector_Inline(scrContext);
-        __asm
-        {
-          vmovss  dword ptr [rax], xmm0
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, dword ptr [rbx]
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  dword ptr [rax+4], xmm2
-          vcvtsi2ss xmm1, xmm1, dword ptr [rbx]
-          vmovss  dword ptr [rax+8], xmm1
-        }
-        if ( (v39 & 0x7F800000) == 2139095040 )
-          goto LABEL_39;
-        __asm { vmovss  [rsp+38h+arg_18], xmm2 }
-        if ( (v40 & 0x7F800000) == 2139095040 )
-          goto LABEL_39;
-        __asm { vmovss  [rsp+38h+arg_18], xmm1 }
-        if ( (v41 & 0x7F800000) == 2139095040 )
-        {
-LABEL_39:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6225, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
-          {
-            __debugbreak();
-            _RBX->u.scriptCodePosValue = (unsigned __int64)_RDI;
-            _RBX->type = VAR_VECTOR;
-            return;
-          }
+          __debugbreak();
+          value2->u = v8;
+          value2->type = VAR_VECTOR;
+          return;
         }
 LABEL_14:
-        _RBX->u.scriptCodePosValue = (unsigned __int64)_RDI;
-        _RBX->type = VAR_VECTOR;
+        value2->u = v8;
+        value2->type = VAR_VECTOR;
         return;
       }
       break;
@@ -5864,72 +5769,36 @@ LABEL_14:
 LABEL_21:
   if ( type1 == VAR_FLOAT )
   {
-    _RAX = Scr_AllocVector_Inline(scrContext);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  [rsp+38h+arg_18], xmm0
-    }
-    _RBX = _RAX;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vmovss  xmm2, dword ptr [rdi]
-      vmovss  dword ptr [rax+4], xmm2
-      vmovss  xmm1, dword ptr [rdi]
-      vmovss  dword ptr [rax+8], xmm1
-    }
-    if ( (v42 & 0x7F800000) == 2139095040 )
-      goto LABEL_40;
-    __asm { vmovss  [rsp+38h+arg_18], xmm2 }
-    if ( (v43 & 0x7F800000) == 2139095040 )
-      goto LABEL_40;
-    __asm { vmovss  [rsp+38h+arg_18], xmm1 }
-    if ( (v44 & 0x7F800000) == 2139095040 )
-    {
-LABEL_40:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6240, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
-        __debugbreak();
-    }
+    v14 = Scr_AllocVector_Inline(scrContext);
+    v23 = value1->u.intValue;
+    v15.scriptCodePosValue = (unsigned __int64)v14;
+    *v14 = value1->u.floatValue;
+    v16 = value1->u.intValue;
+    v14[1] = value1->u.floatValue;
+    v17 = value1->u.intValue;
+    v14[2] = value1->u.floatValue;
+    if ( ((v23 & 0x7F800000) == 2139095040 || (v16 & 0x7F800000) == 2139095040 || (v17 & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6240, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+      __debugbreak();
 LABEL_28:
-    _RDI->u.scriptCodePosValue = (unsigned __int64)_RBX;
-    _RDI->type = VAR_VECTOR;
+    value1->u = v15;
+    value1->type = VAR_VECTOR;
     return;
   }
   if ( type1 == VAR_INTEGER )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi]
-      vmovss  [rsp+38h+arg_18], xmm0
-    }
-    _RBX = Scr_AllocVector_Inline(scrContext);
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [rdi]
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rax+4], xmm2
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi]
-      vmovss  dword ptr [rax+8], xmm1
-    }
-    if ( (v45 & 0x7F800000) != 2139095040 )
-    {
-      __asm { vmovss  [rsp+38h+arg_18], xmm2 }
-      if ( (v46 & 0x7F800000) != 2139095040 )
-      {
-        __asm { vmovss  [rsp+38h+arg_18], xmm1 }
-        if ( (v47 & 0x7F800000) != 2139095040 )
-          goto LABEL_28;
-      }
-    }
-    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6252, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+    v18 = Scr_AllocVector_Inline(scrContext);
+    v24 = (float)value1->u.intValue;
+    v15.scriptCodePosValue = (unsigned __int64)v18;
+    *v18 = v24;
+    v19 = (float)value1->u.intValue;
+    v18[1] = v19;
+    v20 = (float)value1->u.intValue;
+    v18[2] = v20;
+    if ( (LODWORD(v24) & 0x7F800000) != 2139095040 && (LODWORD(v19) & 0x7F800000) != 2139095040 && (LODWORD(v20) & 0x7F800000) != 2139095040 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6252, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
       goto LABEL_28;
     __debugbreak();
-    _RDI->u.scriptCodePosValue = (unsigned __int64)_RBX;
-    _RDI->type = VAR_VECTOR;
+    value1->u = v15;
+    value1->type = VAR_VECTOR;
   }
   else
   {
@@ -6329,92 +6198,65 @@ void Scr_DrawDebugVariablesForEntity(scrContext_t *scrContext, unsigned int enti
 {
   const char *m_scriptPos; 
   unsigned int EntityId; 
-  __int64 v17; 
+  float v11; 
+  __int64 v12; 
   size_t AllVariableField; 
-  const char *v19; 
-  unsigned int *v25; 
-  unsigned int v26; 
+  const char *v14; 
+  unsigned int *v15; 
+  unsigned int v16; 
   unsigned __int8 type; 
-  unsigned __int8 v28; 
+  unsigned __int8 v18; 
   unsigned int Variable; 
   const char *CanonicalString; 
-  const char *v31; 
+  const char *v21; 
   unsigned int outparamcount; 
   VariableValue out; 
   VariableValue *top; 
   vec3_t xyz; 
   unsigned int names[512]; 
   char s[128]; 
-  char v44; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
   m_scriptPos = scrContext->m_varPub.varUsagePos.m_scriptPos;
   scrContext->m_varPub.varUsagePos.m_genericPos = (unsigned __int64)"<trigger draw variable>";
-  _RSI = origin;
   if ( scrContext->m_Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 8814, ASSERT_TYPE_ASSERT, "(scrContext.m_Instance == SCRIPTINSTANCE_SERVER)", (const char *)&queryFormat, "scrContext.m_Instance == SCRIPTINSTANCE_SERVER") )
     __debugbreak();
   EntityId = Scr_GetEntityId(scrContext, entityNum, ENTITY_CLASS_GENTITY, LOCAL_CLIENT_0);
   scrContext->m_varPub.varUsagePos.m_genericPos = (unsigned __int64)m_scriptPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+940h+xyz], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-  }
-  v17 = EntityId;
-  __asm
-  {
-    vmovss  dword ptr [rsp+940h+xyz+8], xmm0
-    vmovss  dword ptr [rsp+940h+xyz+4], xmm1
-  }
+  v11 = origin->v[1];
+  xyz.v[0] = origin->v[0];
+  v12 = EntityId;
+  xyz.v[2] = origin->v[2];
+  xyz.v[1] = v11;
   AllVariableField = Scr_FindAllVariableField(scrContext, EntityId, names);
   qsort(names, AllVariableField, 4ui64, (_CoreCrtNonSecureSearchSortCompareFunction)Scr_CompareCanonicalStrings);
-  v19 = j_va("entity: %d", entityNum);
-  __asm
-  {
-    vmovss  xmm6, [rbp+840h+fontSize]
-    vmovaps xmm2, xmm6; scale
-  }
-  G_Main_AddDebugString(&xyz, textColor, *(float *)&_XMM2, v19);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+940h+xyz+8]
-    vmulss  xmm7, xmm6, cs:__real@41400000
-    vsubss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rsp+940h+xyz+8], xmm1
-  }
+  v14 = j_va("entity: %d", entityNum);
+  G_Main_AddDebugString(&xyz, textColor, fontSize, v14);
+  xyz.v[2] = xyz.v[2] - (float)(fontSize * 12.0);
   if ( (_DWORD)AllVariableField )
   {
     outparamcount = scrContext->m_vmPub.outparamcount;
-    v25 = names;
+    v15 = names;
     top = scrContext->m_vmPub.top;
     do
     {
-      v26 = *v25;
+      v16 = *v15;
       scrContext->m_vmPub.outparamcount = 0;
-      if ( !(_DWORD)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4899, ASSERT_TYPE_ASSERT, "( parentId )", (const char *)&queryFormat, "parentId") )
+      if ( !(_DWORD)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4899, ASSERT_TYPE_ASSERT, "( parentId )", (const char *)&queryFormat, "parentId") )
         __debugbreak();
-      type = scrContext->m_varGlob.objectVariableValue[v17].w.type;
+      type = scrContext->m_varGlob.objectVariableValue[v12].w.type;
       if ( (type == 26 || type < 0x11u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4900, ASSERT_TYPE_ASSERT, "( IsValidObject( &scrContext.m_varGlob.objectVariableValue[parentId] ) )", (const char *)&queryFormat, "IsValidObject( &scrContext.m_varGlob.objectVariableValue[parentId] )") )
         __debugbreak();
-      v28 = scrContext->m_varGlob.objectVariableValue[v17].w.type;
-      if ( (v28 <= 0x10u || v28 == 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4901, ASSERT_TYPE_ASSERT, "( (scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_OBJECT && scrContext.m_varGlob.objectVariableValue[parentId].GetType() < VAR_FIRST_NONFIELD_OBJECT) || (scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_DEAD_OBJECT) )", (const char *)&queryFormat, "(scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_OBJECT && scrContext.m_varGlob.objectVariableValue[parentId].GetType() < VAR_FIRST_NONFIELD_OBJECT) || (scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_DEAD_OBJECT)") )
+      v18 = scrContext->m_varGlob.objectVariableValue[v12].w.type;
+      if ( (v18 <= 0x10u || v18 == 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4901, ASSERT_TYPE_ASSERT, "( (scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_OBJECT && scrContext.m_varGlob.objectVariableValue[parentId].GetType() < VAR_FIRST_NONFIELD_OBJECT) || (scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_DEAD_OBJECT) )", (const char *)&queryFormat, "(scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_OBJECT && scrContext.m_varGlob.objectVariableValue[parentId].GetType() < VAR_FIRST_NONFIELD_OBJECT) || (scrContext.m_varGlob.objectVariableValue[parentId].GetType() >= VAR_FIRST_DEAD_OBJECT)") )
         __debugbreak();
-      Variable = FindVariable(scrContext, v17, v26);
+      Variable = FindVariable(scrContext, v12, v16);
       if ( Variable )
       {
         Scr_EvalVariable_Out(scrContext, Variable, &out);
       }
-      else if ( LOBYTE(scrContext->m_varGlob.objectVariableValue[v17].w.type) == 23 )
+      else if ( LOBYTE(scrContext->m_varGlob.objectVariableValue[v12].w.type) == 23 )
       {
-        Scr_EvalVariableEntityField_Out_1_(scrContext, v17, v26, &out);
+        Scr_EvalVariableEntityField_Out_1_(scrContext, v12, v16, &out);
       }
       else
       {
@@ -6422,32 +6264,20 @@ void Scr_DrawDebugVariablesForEntity(scrContext_t *scrContext, unsigned int enti
       }
       if ( (unsigned __int8)(out.type - 2) <= 4u )
       {
-        if ( (CanonicalString = Scr_GetCanonicalString(*v25), Scr_GetValueString(scrContext, 0, &out, 128, s), strncmp(s, "\"\"", 2ui64)) && strncmp(s, "0", 1ui64) && strncmp(s, "(0, 0, 0)", 9ui64) && strcmp_0(CanonicalString, "anglelerprate") && strcmp_0(CanonicalString, "realorigin") && strcmp_0(CanonicalString, "code_classname") || !strncmp(CanonicalString, "script_", 7ui64) )
+        if ( (CanonicalString = Scr_GetCanonicalString(*v15), Scr_GetValueString(scrContext, 0, &out, 128, s), strncmp(s, "\"\"", 2ui64)) && strncmp(s, "0", 1ui64) && strncmp(s, "(0, 0, 0)", 9ui64) && strcmp_0(CanonicalString, "anglelerprate") && strcmp_0(CanonicalString, "realorigin") && strcmp_0(CanonicalString, "code_classname") || !strncmp(CanonicalString, "script_", 7ui64) )
         {
-          v31 = j_va("%s: %s", CanonicalString, s);
-          __asm { vmovaps xmm2, xmm6; scale }
-          G_Main_AddDebugString(&xyz, textColor, *(float *)&_XMM2, v31);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+940h+xyz+8]
-            vsubss  xmm1, xmm0, xmm7
-            vmovss  dword ptr [rsp+940h+xyz+8], xmm1
-          }
+          v21 = j_va("%s: %s", CanonicalString, s);
+          G_Main_AddDebugString(&xyz, textColor, fontSize, v21);
+          xyz.v[2] = xyz.v[2] - (float)(fontSize * 12.0);
         }
       }
       RemoveRefToValue(scrContext, (unsigned __int8)out.type, out.u);
       scrContext->m_vmPub.outparamcount = outparamcount;
-      ++v25;
+      ++v15;
       scrContext->m_vmPub.top = top;
       --AllVariableField;
     }
     while ( AllVariableField );
-  }
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -6505,250 +6335,266 @@ Scr_DumpScriptThreads
 */
 void Scr_DumpScriptThreads(scrContext_t *scrContext, bool bError)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   unsigned int m_variableListChildSize; 
-  int v9; 
+  int v7; 
   ChildVariableValue::TypeAndName *p_tn; 
-  __int64 v12; 
-  int v13; 
-  char v14; 
+  __int64 v10; 
+  int v11; 
+  char v12; 
   ChildVariableValue *childVariableValue; 
-  char *v16; 
-  __int64 v17; 
+  char *v14; 
+  __int64 v15; 
+  int v16; 
+  char *v17; 
   int v18; 
-  int v20; 
   ChildVariableValue::FreeListOrVariableUnion u; 
+  __int64 v20; 
+  char *v21; 
   __int64 v22; 
-  char *v23; 
+  int v23; 
   __int64 v24; 
-  int v25; 
+  char v25; 
   __int64 v26; 
-  char v27; 
+  __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
-  _BYTE *v31; 
-  int v32; 
+  _BYTE *v29; 
+  int v30; 
+  __int128 v31; 
   unsigned int ParentLocalId; 
-  VariableUnion v35; 
-  int v36; 
-  _DWORD *v37; 
-  int v38; 
+  VariableUnion v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  int v37; 
+  _DWORD *v38; 
   int v39; 
-  __int64 v40; 
-  char *v41; 
-  __int64 v42; 
-  int v43; 
+  int v40; 
+  __int64 v41; 
+  char *v42; 
+  __int64 v43; 
+  int v44; 
+  __int128 v45; 
+  __int128 v46; 
   __int64 v47; 
   unsigned int v48; 
   ScriptCodePos *v49; 
+  __int128 v50; 
+  __int128 v51; 
+  char *v52; 
   __int64 v53; 
+  __int128 v54; 
+  __int128 v55; 
   char type; 
   unsigned int EntNum; 
   __int64 EntClassId; 
-  char v58; 
   char v59; 
+  char v60; 
+  unsigned int v61; 
+  float v62; 
+  float v63; 
+  __int128 v64; 
+  __int128 v65; 
   int v66; 
   ScriptCodePos *v67; 
-  int v72; 
-  __int64 v75; 
+  int v68; 
+  __int64 v69; 
+  __int64 v70; 
   const char **p_name; 
-  __int64 v79; 
-  unsigned int v80; 
-  unsigned int v81; 
+  __int64 v72; 
+  unsigned int v73; 
+  unsigned int v74; 
+  __int128 v75; 
   unsigned int i; 
-  ChildVariableValue *v84; 
+  ChildVariableValue *v77; 
+  __int128 v78; 
   unsigned int NumScriptThreads; 
   char *fmt; 
-  __int64 v90; 
-  int v92; 
-  unsigned int v93; 
-  char *v94; 
-  __int64 v95; 
-  __int64 v96; 
+  __int64 v81; 
+  int v83; 
+  unsigned int v84; 
+  char *v85; 
+  __int64 v86; 
+  __int64 v87; 
   char *Base; 
-  ChildVariableValue *v98; 
-  __int64 v99; 
+  ChildVariableValue *v89; 
+  __int64 v90; 
   ObjectVariableValue *objectVariableValue; 
-  __int64 v101[64]; 
-  int v102; 
+  __int64 v92[64]; 
+  int v93; 
   int next; 
-  __int64 v104[8]; 
-  __int64 v105[8]; 
-  __int64 v106[8]; 
+  __int64 v95[8]; 
+  __int64 v96[8]; 
+  __int64 v97[8]; 
+  __int128 v98; 
+  __int128 v99; 
+  __int128 v100; 
 
   m_variableListChildSize = scrContext->m_variableListChildSize;
-  v9 = 0;
+  v7 = 0;
   if ( m_variableListChildSize )
   {
     p_tn = &scrContext->m_varGlob.childVariableValue->tn;
-    v96 = scrContext->m_variableListChildSize;
-    v12 = m_variableListChildSize;
+    v87 = scrContext->m_variableListChildSize;
+    v10 = m_variableListChildSize;
     do
     {
-      v13 = v9 + 1;
-      v14 = *(_BYTE *)p_tn & 0x3F;
+      v11 = v7 + 1;
+      v12 = *(_BYTE *)p_tn & 0x3F;
       p_tn += 16;
-      if ( v14 != 12 )
-        v13 = v9;
-      v9 = v13;
-      --v12;
+      if ( v12 != 12 )
+        v11 = v7;
+      v7 = v11;
+      --v10;
     }
-    while ( v12 );
-    if ( v13 )
+    while ( v10 );
+    if ( v11 )
     {
-      Base = (char *)Mem_Virtual_TryAlloc(528i64 * v13, "Scr_DumpScriptThreads", TRACK_DEBUG);
+      Base = (char *)Mem_Virtual_TryAlloc(528i64 * v11, "Scr_DumpScriptThreads", TRACK_DEBUG);
       if ( Base )
       {
         childVariableValue = scrContext->m_varGlob.childVariableValue;
-        v16 = Base;
-        v17 = v96;
-        v18 = 0;
-        __asm
-        {
-          vmovaps [rsp+3D0h+var_40], xmm6
-          vmovaps [rsp+3D0h+var_60], xmm8
-          vmovaps [rsp+3D0h+var_70], xmm9
-          vmovaps [rsp+3D0h+var_80], xmm10
-        }
-        v98 = childVariableValue;
+        v14 = Base;
+        v15 = v87;
+        v16 = 0;
+        v99 = v4;
+        v98 = v5;
+        v89 = childVariableValue;
         do
         {
           if ( (*(_BYTE *)&childVariableValue->tn & 0x3F) == 12 )
           {
-            _RSI = v16;
-            v20 = 0;
-            v94 = v16 + 528;
-            v92 = v18 + 1;
-            u = v98->u;
-            v102 = 0;
-            v22 = *(unsigned int *)(u.u.scriptCodePosValue + 12);
-            v23 = (char *)(u.u.scriptCodePosValue + 17);
-            v24 = *(_QWORD *)u.u.vectorValue;
-            v25 = *(unsigned __int16 *)(u.u.scriptCodePosValue + 8);
-            v99 = *(_QWORD *)u.u.vectorValue;
-            v26 = v22;
+            v17 = v14;
+            v18 = 0;
+            v85 = v14 + 528;
+            v83 = v16 + 1;
+            u = v89->u;
+            v93 = 0;
+            v20 = *(unsigned int *)(u.u.scriptCodePosValue + 12);
+            v21 = (char *)(u.u.scriptCodePosValue + 17);
+            v22 = *(_QWORD *)u.u.vectorValue;
+            v23 = *(unsigned __int16 *)(u.u.scriptCodePosValue + 8);
+            v90 = *(_QWORD *)u.u.vectorValue;
+            v24 = v20;
             objectVariableValue = scrContext->m_varGlob.objectVariableValue;
-            if ( (unsigned __int8)(LOBYTE(objectVariableValue[v22].w.type) - 17) > 3u )
+            if ( (unsigned __int8)(LOBYTE(objectVariableValue[v20].w.type) - 17) > 3u )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 4447, ASSERT_TYPE_ASSERT, "( (entryValue->GetType() >= VAR_THREAD) && (entryValue->GetType() <= VAR_CHILD_THREAD) )", (const char *)&queryFormat, "(entryValue->GetType() >= VAR_THREAD) && (entryValue->GetType() <= VAR_CHILD_THREAD)") )
                 __debugbreak();
-              v24 = v99;
+              v22 = v90;
             }
-            next = objectVariableValue[v26].u.f.next;
-            while ( v25 )
+            next = objectVariableValue[v24].u.f.next;
+            while ( v23 )
             {
-              v27 = *v23;
-              --v25;
-              v28 = *(_QWORD *)(v23 + 1);
-              v23 += 9;
-              if ( v27 == 7 )
+              v25 = *v21;
+              --v23;
+              v26 = *(_QWORD *)(v21 + 1);
+              v21 += 9;
+              if ( v25 == 7 )
               {
-                v101[v20] = v28;
-                v20 = ++v102;
+                v92[v18] = v26;
+                v18 = ++v93;
               }
             }
-            v29 = v20;
-            v30 = *(unsigned __int16 *)(u.u.scriptCodePosValue + 8);
-            v101[v29] = v24;
-            v31 = (_BYTE *)(v30 + u.u.scriptCodePosValue + 8 * v30 + 17);
-            v32 = v102 + 1;
-            *(float *)&_XMM0 = Scr_GetObjectUsage(scrContext, *(_DWORD *)(u.u.scriptCodePosValue + 12));
-            __asm { vmovaps xmm6, xmm0 }
-            *(float *)&_XMM0 = Scr_GetEndonUsage(scrContext, *(_DWORD *)(u.u.scriptCodePosValue + 12));
-            __asm { vmovss  dword ptr [rsi+208h], xmm0 }
+            v27 = v18;
+            v28 = *(unsigned __int16 *)(u.u.scriptCodePosValue + 8);
+            v92[v27] = v22;
+            v29 = (_BYTE *)(v28 + u.u.scriptCodePosValue + 8 * v28 + 17);
+            v30 = v93 + 1;
+            *(float *)&v2 = Scr_GetObjectUsage(scrContext, *(_DWORD *)(u.u.scriptCodePosValue + 12));
+            v31 = v2;
+            *((float *)v17 + 130) = Scr_GetEndonUsage(scrContext, *(_DWORD *)(u.u.scriptCodePosValue + 12));
             ParentLocalId = *(_DWORD *)(u.u.scriptCodePosValue + 12);
-            while ( (_DWORD)v30 )
+            while ( (_DWORD)v28 )
             {
-              v35 = *(VariableUnion *)(v31 - 8);
-              v31 -= 9;
-              LODWORD(v30) = v30 - 1;
-              if ( *v31 == 7 )
+              v33 = *(VariableUnion *)(v29 - 8);
+              v29 -= 9;
+              LODWORD(v28) = v28 - 1;
+              if ( *v29 == 7 )
               {
                 ParentLocalId = GetParentLocalId(scrContext, ParentLocalId);
-                Scr_GetObjectUsage(scrContext, ParentLocalId);
-                __asm { vaddss  xmm6, xmm6, xmm0 }
-                *(float *)&_XMM0 = Scr_GetEndonUsage(scrContext, ParentLocalId);
-                __asm
-                {
-                  vaddss  xmm0, xmm0, dword ptr [rsi+208h]
-                  vmovss  dword ptr [rsi+208h], xmm0
-                }
+                v35 = v31;
+                *(float *)&v35 = *(float *)&v31 + Scr_GetObjectUsage(scrContext, ParentLocalId);
+                v31 = v35;
+                *(float *)&v2 = Scr_GetEndonUsage(scrContext, ParentLocalId);
+                v36 = v2;
+                *(float *)&v36 = *(float *)&v2 + *((float *)v17 + 130);
+                v2 = v36;
+                *((float *)v17 + 130) = *(float *)&v36;
               }
               else
               {
-                Scr_GetEntryUsage(scrContext, (unsigned __int8)*v31, v35);
-                __asm { vaddss  xmm6, xmm6, xmm0 }
+                v34 = v31;
+                *(float *)&v34 = *(float *)&v31 + Scr_GetEntryUsage(scrContext, (unsigned __int8)*v29, v33);
+                v31 = v34;
               }
             }
-            v36 = next;
-            v37 = _RSI + 512;
-            v38 = 0;
-            *((_DWORD *)_RSI + 128) = v32;
-            *((_DWORD *)_RSI + 131) = v36;
-            v39 = v32 - 1;
-            v102 = v32 - 1;
-            __asm { vmovss  dword ptr [rsi+204h], xmm6 }
-            if ( v32 > 0 )
+            v37 = next;
+            v38 = v17 + 512;
+            v39 = 0;
+            *((_DWORD *)v17 + 128) = v30;
+            *((_DWORD *)v17 + 131) = v37;
+            v40 = v30 - 1;
+            v93 = v30 - 1;
+            *((float *)v17 + 129) = *(float *)&v31;
+            if ( v30 > 0 )
             {
               do
               {
-                v40 = v39;
-                _RSI += 8;
-                ++v38;
-                --v39;
-                *((_QWORD *)_RSI - 1) = v101[v40];
+                v41 = v40;
+                v17 += 8;
+                ++v39;
+                --v40;
+                *((_QWORD *)v17 - 1) = v92[v41];
               }
-              while ( v38 < *v37 );
+              while ( v39 < *v38 );
             }
-            v18 = v92;
-            v16 = v94;
-            v17 = v96;
+            v16 = v83;
+            v14 = v85;
+            v15 = v87;
           }
-          childVariableValue = v98 + 1;
-          --v17;
-          ++v98;
-          v96 = v17;
+          childVariableValue = v89 + 1;
+          --v15;
+          ++v89;
+          v87 = v15;
         }
-        while ( v17 );
-        v41 = Base;
-        v42 = v18;
-        v95 = v18;
-        qsort(Base, v18, 0x210ui64, (_CoreCrtNonSecureSearchSortCompareFunction)ThreadInfoCompare);
+        while ( v15 );
+        v42 = Base;
+        v43 = v16;
+        v86 = v16;
+        qsort(Base, v16, 0x210ui64, (_CoreCrtNonSecureSearchSortCompareFunction)ThreadInfoCompare);
         Com_Printf(65559, "********************************\n");
-        v43 = 0;
-        memset(v105, 0, sizeof(v105));
-        memset(v104, 0, sizeof(v104));
-        memset(v106, 0, sizeof(v106));
-        __asm
+        v44 = 0;
+        memset(v96, 0, sizeof(v96));
+        memset(v95, 0, sizeof(v95));
+        memset(v97, 0, sizeof(v97));
+        v45 = 0i64;
+        v46 = 0i64;
+        if ( v43 > 0 )
         {
-          vxorps  xmm8, xmm8, xmm8
-          vxorps  xmm9, xmm9, xmm9
-          vxorps  xmm10, xmm10, xmm10
-        }
-        if ( v42 > 0 )
-        {
-          __asm { vmovaps [rsp+3D0h+var_50], xmm7 }
+          v100 = v3;
           v47 = 0i64;
           do
           {
             v48 = 0;
-            v49 = (ScriptCodePos *)&v41[528 * v47];
-            __asm
-            {
-              vmovaps xmm6, xmm8
-              vmovaps xmm7, xmm8
-            }
+            v49 = (ScriptCodePos *)&v42[528 * v47];
+            v50 = 0i64;
+            v51 = 0i64;
             Com_Printf(65559, "selves: ");
-            _R14 = (char *)&v49[64].m_genericPos + 4;
+            v52 = (char *)&v49[64].m_genericPos + 4;
             do
             {
-              v53 = *((unsigned int *)_R14 + 2);
-              __asm
-              {
-                vaddss  xmm6, xmm6, dword ptr [r14]
-                vaddss  xmm7, xmm7, dword ptr [r14+4]
-              }
-              v93 = v48 + 1;
+              v53 = *((unsigned int *)v52 + 2);
+              v54 = v50;
+              *(float *)&v54 = *(float *)&v50 + *(float *)v52;
+              v50 = v54;
+              v55 = v51;
+              *(float *)&v55 = *(float *)&v51 + *((float *)v52 + 1);
+              v51 = v55;
+              v84 = v48 + 1;
               if ( (_DWORD)v53 == scrContext->m_varPub.levelId )
               {
                 Com_Printf(65559, "level  ");
@@ -6772,23 +6618,23 @@ void Scr_DumpScriptThreads(scrContext_t *scrContext, bool bError)
                 {
                   if ( type == 26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6923, ASSERT_TYPE_ASSERT, "( scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE )", (const char *)&queryFormat, "scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE") )
                     __debugbreak();
-                  v58 = scrContext->m_varGlob.objectVariableValue[v53].w.type;
-                  if ( v58 == 21 )
+                  v59 = scrContext->m_varGlob.objectVariableValue[v53].w.type;
+                  if ( v59 == 21 )
                   {
                     Com_Printf(65559, "s%i  ", (unsigned int)v53);
                   }
                   else
                   {
-                    if ( v58 == 26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6923, ASSERT_TYPE_ASSERT, "( scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE )", (const char *)&queryFormat, "scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE") )
+                    if ( v59 == 26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6923, ASSERT_TYPE_ASSERT, "( scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE )", (const char *)&queryFormat, "scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE") )
                       __debugbreak();
-                    v59 = scrContext->m_varGlob.objectVariableValue[v53].w.type;
-                    if ( v59 == 24 )
+                    v60 = scrContext->m_varGlob.objectVariableValue[v53].w.type;
+                    if ( v60 == 24 )
                     {
                       Com_Printf(65559, "a%i  ", (unsigned int)v53);
                     }
                     else
                     {
-                      if ( v59 == 26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6923, ASSERT_TYPE_ASSERT, "( scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE )", (const char *)&queryFormat, "scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE") )
+                      if ( v60 == 26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6923, ASSERT_TYPE_ASSERT, "( scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE )", (const char *)&queryFormat, "scrContext.m_varGlob.objectVariableValue[id].GetType() != VAR_FREE") )
                         __debugbreak();
                       Com_Printf(65559, "%d:%i  ", LOBYTE(scrContext->m_varGlob.objectVariableValue[v53].w.type), (unsigned int)v53);
                     }
@@ -6799,42 +6645,29 @@ void Scr_DumpScriptThreads(scrContext_t *scrContext, bool bError)
                 __debugbreak();
               if ( LOBYTE(scrContext->m_varGlob.objectVariableValue[v53].w.type) == 23 && Scr_GetEntClassId(scrContext, v53) == 101 && Scr_GetEntNum(scrContext, v53) < 0x10 )
               {
-                LODWORD(_RAX) = Scr_GetEntNum(scrContext, v53);
-                __asm { vmovss  xmm0, dword ptr [r14] }
-                _RAX = (unsigned int)_RAX;
-                __asm
-                {
-                  vaddss  xmm1, xmm0, dword ptr [rbp+rax*4+2D0h+var_110]
-                  vmovss  xmm0, dword ptr [r14+4]
-                }
-                ++*((_DWORD *)v106 + (unsigned int)_RAX);
-                __asm
-                {
-                  vmovss  dword ptr [rbp+rax*4+2D0h+var_110], xmm1
-                  vaddss  xmm1, xmm0, dword ptr [rbp+rax*4+2D0h+var_150]
-                  vmovss  dword ptr [rbp+rax*4+2D0h+var_150], xmm1
-                }
+                v61 = Scr_GetEntNum(scrContext, v53);
+                v62 = *(float *)v52 + *((float *)v96 + v61);
+                v63 = *((float *)v52 + 1);
+                ++*((_DWORD *)v97 + v61);
+                *((float *)v96 + v61) = v62;
+                *((float *)v95 + v61) = v63 + *((float *)v95 + v61);
               }
-              ++v43;
+              ++v44;
               ++v47;
-              _R14 += 528;
-              if ( v47 >= v95 )
+              v52 += 528;
+              if ( v47 >= v86 )
                 break;
-              v48 = v93;
+              v48 = v84;
             }
-            while ( !ThreadInfoCompare(v49, &Base[528 * v43]) );
-            __asm
-            {
-              vcvttss2si eax, xmm7
-              vcvttss2si r9d, xmm6
-            }
-            LODWORD(fmt) = _EAX;
-            __asm
-            {
-              vaddss  xmm9, xmm9, xmm6
-              vaddss  xmm10, xmm10, xmm7
-            }
-            Com_Printf(65559, "\ncount: %d, var usage: %d, endon usage: %d\n", v93, _R9, fmt);
+            while ( !ThreadInfoCompare(v49, &Base[528 * v44]) );
+            LODWORD(fmt) = (int)*(float *)&v55;
+            v64 = v45;
+            *(float *)&v64 = *(float *)&v45 + *(float *)&v50;
+            v45 = v64;
+            v65 = v46;
+            *(float *)&v65 = *(float *)&v46 + *(float *)&v51;
+            v46 = v65;
+            Com_Printf(65559, "\ncount: %d, var usage: %d, endon usage: %d\n", v84, (unsigned int)(int)*(float *)&v50, fmt);
             Scr_PrintPrevCodePos(scrContext, 65559, (ScriptCodePos)v49->m_scriptPos, 0, bError);
             v66 = 1;
             if ( SLODWORD(v49[64].m_scriptPos) > 1 )
@@ -6849,88 +6682,62 @@ void Scr_DumpScriptThreads(scrContext_t *scrContext, bool bError)
               }
               while ( v66 < SLODWORD(v49[64].m_scriptPos) );
             }
-            v41 = Base;
+            v42 = Base;
           }
-          while ( v47 < v95 );
-          __asm { vmovaps xmm7, [rsp+3D0h+var_50] }
+          while ( v47 < v86 );
         }
-        Mem_Virtual_Free(v41);
+        Mem_Virtual_Free(v42);
         Com_Printf(65559, "********************************\n");
-        __asm
-        {
-          vcvttss2si r9d, xmm10
-          vcvttss2si r8d, xmm9
-        }
-        Com_Printf(65559, "var usage: %d, endon usage: %d\n", _R8, _R9);
+        Com_Printf(65559, "var usage: %d, endon usage: %d\n", (unsigned int)(int)*(float *)&v45, (unsigned int)(int)*(float *)&v46);
         Com_Printf(65559, "\n");
-        __asm { vmovaps xmm10, [rsp+3D0h+var_80] }
-        v72 = 0;
-        __asm { vmovaps xmm9, [rsp+3D0h+var_70] }
-        _RBX = 0i64;
+        v68 = 0;
+        v69 = 0i64;
         do
         {
-          v75 = *(unsigned int *)((char *)v106 + _RBX);
-          if ( (_DWORD)v75 )
+          v70 = *(unsigned int *)((char *)v97 + v69);
+          if ( (_DWORD)v70 || *(float *)((char *)v96 + v69) > 0.0 || *(float *)((char *)v95 + v69) > 0.0 )
           {
-            __asm
-            {
-              vcvttss2si ecx, dword ptr [rbp+rbx+2D0h+var_110]
-              vcvttss2si eax, dword ptr [rbp+rbx+2D0h+var_150]
-            }
-            LODWORD(v90) = _EAX;
-            LODWORD(fmt) = _ECX;
-            Com_Printf(65559, "e%d ... count: %d, var usage: %d, endon usage: %d\n", (unsigned int)v72, v75, fmt, v90);
-          }
-          else
-          {
-            __asm
-            {
-              vcomiss xmm8, dword ptr [rbp+rbx+2D0h+var_110]
-              vcomiss xmm8, dword ptr [rbp+rbx+2D0h+var_150]
-            }
+            LODWORD(v81) = (int)*(float *)((char *)v95 + v69);
+            LODWORD(fmt) = (int)*(float *)((char *)v96 + v69);
+            Com_Printf(65559, "e%d ... count: %d, var usage: %d, endon usage: %d\n", (unsigned int)v68, v70, fmt, v81);
           }
           Com_Printf(65559, "\n");
-          ++v72;
-          _RBX += 4i64;
+          ++v68;
+          v69 += 4i64;
         }
-        while ( v72 < 16 );
+        while ( v68 < 16 );
         p_name = &scrContext->m_varPub.m_classMap[0].name;
-        v79 = 11i64;
+        v72 = 11i64;
         do
         {
-          v80 = *((_DWORD *)p_name - 3);
-          if ( v80 )
+          v73 = *((_DWORD *)p_name - 3);
+          if ( v73 )
           {
-            v81 = 0;
-            __asm { vmovaps xmm6, xmm8 }
-            for ( i = FindFirstSibling(scrContext, v80); i; i = v84->nextSibling )
+            v74 = 0;
+            v75 = 0i64;
+            for ( i = FindFirstSibling(scrContext, v73); i; i = v77->nextSibling )
             {
-              ++v81;
-              v84 = &scrContext->m_varGlob.childVariableValue[i];
-              if ( (*(_BYTE *)&v84->tn & 0x3F) == 1 )
+              ++v74;
+              v77 = &scrContext->m_varGlob.childVariableValue[i];
+              if ( (*(_BYTE *)&v77->tn & 0x3F) == 1 )
               {
-                Scr_GetObjectUsage(scrContext, v84->u.f.prev);
-                __asm { vaddss  xmm6, xmm6, xmm0 }
+                v78 = v75;
+                *(float *)&v78 = *(float *)&v75 + Scr_GetObjectUsage(scrContext, v77->u.f.prev);
+                v75 = v78;
               }
             }
-            __asm { vcvttss2si eax, xmm6 }
-            LODWORD(fmt) = _EAX;
-            Com_Printf(65559, "ent type '%s'... count: %d, var usage: %d\n", *p_name, v81, fmt);
+            LODWORD(fmt) = (int)*(float *)&v75;
+            Com_Printf(65559, "ent type '%s'... count: %d, var usage: %d\n", *p_name, v74, fmt);
           }
           p_name += 3;
-          --v79;
+          --v72;
         }
-        while ( v79 );
+        while ( v72 );
         Com_Printf(65559, "********************************\n");
         Com_Printf(65559, "num vars:    %d\n", scrContext->m_varPub.numScriptValues + scrContext->m_varPub.numScriptObjects);
         NumScriptThreads = Scr_GetNumScriptThreads(scrContext);
         Com_Printf(65559, "num threads: %d\n", NumScriptThreads);
         Com_Printf(65559, "********************************\n");
-        __asm
-        {
-          vmovaps xmm8, [rsp+3D0h+var_60]
-          vmovaps xmm6, [rsp+3D0h+var_40]
-        }
       }
       else
       {
@@ -7620,27 +7427,27 @@ Scr_EvalBinaryOperator
 */
 void Scr_EvalBinaryOperator(scrContext_t *scrContext, int op, VariableValue *value1, VariableValue *value2)
 {
-  VariableType v8; 
+  VariableType v7; 
   VariableType type; 
+  VariableType v9; 
   VariableType v10; 
   VariableType v11; 
-  VariableType v12; 
-  float *v17; 
-  int v26; 
-  VariableType v27; 
-  VariableType v28; 
-  VariableType v41; 
-  VariableType v42; 
-  VariableType v43; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
+  float *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
+  VariableType v17; 
+  VariableType v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  VariableType v22; 
+  VariableType v23; 
+  VariableType v24; 
+  float v25; 
+  float v26; 
 
-  _RDI = value2;
-  _RBX = value1;
   switch ( op )
   {
     case 2:
@@ -7651,12 +7458,12 @@ void Scr_EvalBinaryOperator(scrContext_t *scrContext, int op, VariableValue *val
       return;
     case 12:
       if ( value1->type != VAR_INTEGER || value2->type != VAR_INTEGER )
-        goto LABEL_77;
+        goto LABEL_79;
       value1->u.intValue >>= value2->u.intValue;
       return;
     case 15:
       if ( value1->type != VAR_INTEGER || value2->type != VAR_INTEGER )
-        goto LABEL_77;
+        goto LABEL_79;
       value1->u.intValue |= value2->u.intValue;
       return;
     case 16:
@@ -7664,124 +7471,97 @@ void Scr_EvalBinaryOperator(scrContext_t *scrContext, int op, VariableValue *val
       return;
     case 45:
       if ( value1->type != VAR_INTEGER || value2->type != VAR_INTEGER )
-        goto LABEL_77;
+        goto LABEL_79;
       value1->u.intValue <<= value2->u.intValue;
       return;
     case 61:
       Scr_EvalGreater(scrContext, value1, value2);
-      type = _RBX->type;
+      type = value1->type;
       if ( type == VAR_INTEGER || type == VAR_UNDEFINED || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6565, ASSERT_TYPE_ASSERT, "( (value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED) )", (const char *)&queryFormat, "(value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED)") )
         goto LABEL_26;
       goto LABEL_15;
     case 78:
-      v11 = value1->type;
-      v12 = value2->type;
-      if ( v11 != v12 )
+      v10 = value1->type;
+      v11 = value2->type;
+      if ( v10 != v11 )
       {
-        Scr_CastWeakerPair2(scrContext, value1, value2, v11, v12);
-        v11 = _RBX->type;
-        v12 = _RDI->type;
+        Scr_CastWeakerPair2(scrContext, value1, value2, v10, v11);
+        v10 = value1->type;
+        v11 = value2->type;
       }
-      if ( v11 != v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6670, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+      if ( v10 != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6670, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
         __debugbreak();
-      if ( _RBX->type != VAR_VECTOR )
+      if ( value1->type != VAR_VECTOR )
       {
-        if ( _RBX->type == VAR_FLOAT )
+        if ( value1->type == VAR_FLOAT )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx]
-            vsubss  xmm1, xmm0, dword ptr [rdi]
-            vmovss  dword ptr [rbx], xmm1
-          }
+          value1->u.floatValue = value1->u.floatValue - value2->u.floatValue;
         }
         else
         {
-          if ( _RBX->type != VAR_INTEGER )
-            goto LABEL_77;
-          _RBX->u.intValue -= _RDI->u.intValue;
+          if ( value1->type != VAR_INTEGER )
+            goto LABEL_79;
+          value1->u.intValue -= value2->u.intValue;
         }
         return;
       }
-      _RAX = Scr_AllocVector_Inline(scrContext);
-      _RCX = _RBX->u;
-      v17 = _RAX;
-      __asm
+      v12 = Scr_AllocVector_Inline(scrContext);
+      v13 = *value1->u.vectorValue - *value2->u.vectorValue;
+      *v12 = v13;
+      v25 = v13;
+      v14 = *(float *)(value1->u.scriptCodePosValue + 4) - *(float *)(value2->u.scriptCodePosValue + 4);
+      v12[1] = v14;
+      v15 = *(float *)(value1->u.scriptCodePosValue + 8) - *(float *)(value2->u.scriptCodePosValue + 8);
+      v12[2] = v15;
+      if ( (LODWORD(v25) & 0x7F800000) == 2139095040 || (LODWORD(v14) & 0x7F800000) == 2139095040 || (LODWORD(v15) & 0x7F800000) == 2139095040 )
       {
-        vmovss  xmm0, dword ptr [rcx]
-        vsubss  xmm1, xmm0, dword ptr [rdx]
-        vmovss  dword ptr [rax], xmm1
-      }
-      _RCX = _RBX->u;
-      __asm
-      {
-        vmovss  [rsp+48h+arg_8], xmm1
-        vmovss  xmm0, dword ptr [rcx+4]
-        vsubss  xmm2, xmm0, dword ptr [rdx+4]
-        vmovss  dword ptr [rax+4], xmm2
-      }
-      _RCX = _RBX->u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+8]
-        vsubss  xmm3, xmm0, dword ptr [rdx+8]
-        vmovss  dword ptr [rax+8], xmm3
-      }
-      if ( (v46 & 0x7F800000) == 2139095040 )
-        goto LABEL_47;
-      __asm { vmovss  [rsp+48h+arg_8], xmm2 }
-      if ( (v47 & 0x7F800000) == 2139095040 )
-        goto LABEL_47;
-      __asm { vmovss  [rsp+48h+arg_8], xmm3 }
-      if ( (v48 & 0x7F800000) == 2139095040 )
-      {
-LABEL_47:
-        v26 = 6687;
+        v16 = 6687;
         goto LABEL_62;
       }
       goto LABEL_64;
     case 83:
       Scr_EvalLess(scrContext, value1, value2);
-      v10 = _RBX->type;
-      if ( v10 != VAR_INTEGER && v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6531, ASSERT_TYPE_ASSERT, "( (value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED) )", (const char *)&queryFormat, "(value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED)") )
+      v9 = value1->type;
+      if ( v9 != VAR_INTEGER && v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6531, ASSERT_TYPE_ASSERT, "( (value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED) )", (const char *)&queryFormat, "(value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED)") )
         __debugbreak();
       goto LABEL_26;
     case 100:
-      v41 = value1->type;
-      v42 = value2->type;
-      if ( v41 != v42 )
+      v22 = value1->type;
+      v23 = value2->type;
+      if ( v22 != v23 )
       {
-        Scr_CastWeakerPair2(scrContext, value1, value2, v41, v42);
-        if ( _RBX->type != _RDI->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6805, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+        Scr_CastWeakerPair2(scrContext, value1, value2, v22, v23);
+        if ( value1->type != value2->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6805, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
           __debugbreak();
       }
-      v43 = _RBX->type;
-      if ( v43 == VAR_INTEGER )
+      v24 = value1->type;
+      if ( v24 == VAR_INTEGER )
       {
-        if ( _RDI->type != VAR_INTEGER )
-          goto LABEL_77;
-        if ( _RDI->u.intValue )
+        if ( value2->type != VAR_INTEGER )
+          goto LABEL_79;
+        if ( value2->u.intValue )
         {
-          _RBX->u.intValue %= _RDI->u.intValue;
+          value1->u.intValue %= value2->u.intValue;
         }
         else
         {
-          _RBX->u.intValue = 0;
+          value1->u.intValue = 0;
           Scr_Error(COM_ERR_5245, scrContext, "divide by 0");
         }
       }
       else
       {
-        if ( v43 != VAR_FLOAT )
-          goto LABEL_77;
-        __asm
+        if ( v24 != VAR_FLOAT )
+          goto LABEL_79;
+        if ( value2->u.floatValue == 0.0 )
         {
-          vmovss  xmm1, dword ptr [rdi]; Y
-          vxorps  xmm0, xmm0, xmm0
-          vucomiss xmm1, xmm0
+          value1->u.intValue = 0;
+          Scr_Error(COM_ERR_5246, scrContext, "divide by 0");
         }
-        _RBX->u.intValue = 0;
-        Scr_Error(COM_ERR_5246, scrContext, "divide by 0");
+        else
+        {
+          value1->u.floatValue = fmodf_0(value1->u.floatValue, value2->u.floatValue);
+        }
       }
       break;
     case 118:
@@ -7791,102 +7571,74 @@ LABEL_47:
       Scr_EvalDivide(scrContext, value1, value2);
       return;
     case 139:
-      v27 = value1->type;
-      v28 = value2->type;
-      if ( v27 != v28 )
+      v17 = value1->type;
+      v18 = value2->type;
+      if ( v17 != v18 )
       {
-        Scr_CastWeakerPair2(scrContext, value1, value2, v27, v28);
-        v27 = _RBX->type;
-        v28 = _RDI->type;
+        Scr_CastWeakerPair2(scrContext, value1, value2, v17, v18);
+        v17 = value1->type;
+        v18 = value2->type;
       }
-      if ( v27 != v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6708, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+      if ( v17 != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6708, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
         __debugbreak();
-      switch ( _RBX->type )
+      switch ( value1->type )
       {
         case VAR_VECTOR:
-          _RAX = Scr_AllocVector_Inline(scrContext);
-          _RCX = _RBX->u;
-          v17 = _RAX;
-          __asm
+          v12 = Scr_AllocVector_Inline(scrContext);
+          v19 = *value1->u.vectorValue * *value2->u.vectorValue;
+          *v12 = v19;
+          v26 = v19;
+          v20 = *(float *)(value1->u.scriptCodePosValue + 4) * *(float *)(value2->u.scriptCodePosValue + 4);
+          v12[1] = v20;
+          v21 = *(float *)(value1->u.scriptCodePosValue + 8) * *(float *)(value2->u.scriptCodePosValue + 8);
+          v12[2] = v21;
+          if ( (LODWORD(v26) & 0x7F800000) == 2139095040 || (LODWORD(v20) & 0x7F800000) == 2139095040 || (LODWORD(v21) & 0x7F800000) == 2139095040 )
           {
-            vmovss  xmm0, dword ptr [rcx]
-            vmulss  xmm1, xmm0, dword ptr [rdx]
-            vmovss  dword ptr [rax], xmm1
-          }
-          _RCX = _RBX->u;
-          __asm
-          {
-            vmovss  [rsp+48h+arg_8], xmm1
-            vmovss  xmm0, dword ptr [rcx+4]
-            vmulss  xmm2, xmm0, dword ptr [rdx+4]
-            vmovss  dword ptr [rax+4], xmm2
-          }
-          _RCX = _RBX->u;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+8]
-            vmulss  xmm3, xmm0, dword ptr [rdx+8]
-            vmovss  dword ptr [rax+8], xmm3
-          }
-          if ( (v49 & 0x7F800000) == 2139095040 )
-            goto LABEL_61;
-          __asm { vmovss  [rsp+48h+arg_8], xmm2 }
-          if ( (v50 & 0x7F800000) == 2139095040 )
-            goto LABEL_61;
-          __asm { vmovss  [rsp+48h+arg_8], xmm3 }
-          if ( (v51 & 0x7F800000) == 2139095040 )
-          {
-LABEL_61:
-            v26 = 6725;
+            v16 = 6725;
 LABEL_62:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", v26, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", v16, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
               __debugbreak();
           }
 LABEL_64:
-          RemoveRefToVector(scrContext, _RBX->u.vectorValue);
-          RemoveRefToVector(scrContext, _RDI->u.vectorValue);
-          _RBX->u.scriptCodePosValue = (unsigned __int64)v17;
+          RemoveRefToVector(scrContext, value1->u.vectorValue);
+          RemoveRefToVector(scrContext, value2->u.vectorValue);
+          value1->u.scriptCodePosValue = (unsigned __int64)v12;
           break;
         case VAR_FLOAT:
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx]
-            vmulss  xmm1, xmm0, dword ptr [rdi]
-            vmovss  dword ptr [rbx], xmm1
-          }
+          value1->u.floatValue = value1->u.floatValue * value2->u.floatValue;
           break;
         case VAR_INTEGER:
-          _RBX->u.intValue *= _RDI->u.intValue;
+          value1->u.intValue *= value2->u.intValue;
           break;
         default:
-LABEL_77:
-          Scr_UnmatchingTypesError(scrContext, _RBX, _RDI);
+LABEL_79:
+          Scr_UnmatchingTypesError(scrContext, value1, value2);
           break;
       }
       break;
     case 144:
       if ( value1->type != VAR_INTEGER || value2->type != VAR_INTEGER )
-        goto LABEL_77;
+        goto LABEL_79;
       value1->u.intValue &= value2->u.intValue;
       return;
     case 151:
       Scr_EvalEquality(scrContext, value1, value2);
-      v8 = _RBX->type;
-      if ( v8 != VAR_INTEGER && v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6497, ASSERT_TYPE_ASSERT, "( (value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED) )", (const char *)&queryFormat, "(value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED)") )
+      v7 = value1->type;
+      if ( v7 != VAR_INTEGER && v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6497, ASSERT_TYPE_ASSERT, "( (value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED) )", (const char *)&queryFormat, "(value1->type == VAR_INTEGER) || (value1->type == VAR_UNDEFINED)") )
       {
 LABEL_15:
         __debugbreak();
-        _RBX->u.intValue = _RBX->u.intValue == 0;
+        value1->u.intValue = value1->u.intValue == 0;
       }
       else
       {
 LABEL_26:
-        _RBX->u.intValue = _RBX->u.intValue == 0;
+        value1->u.intValue = value1->u.intValue == 0;
       }
       return;
     case 153:
       if ( value1->type != VAR_INTEGER || value2->type != VAR_INTEGER )
-        goto LABEL_77;
+        goto LABEL_79;
       value1->u.intValue ^= value2->u.intValue;
       return;
     default:
@@ -7956,133 +7708,80 @@ void Scr_EvalDivide(scrContext_t *scrContext, VariableValue *value1, VariableVal
 {
   VariableType type; 
   VariableType type2; 
-  char v23; 
-  int v33; 
-  int v34; 
-  int v35; 
+  float *v8; 
+  VariableUnion u; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
 
   type = value1->type;
   type2 = value2->type;
-  _RSI = value2;
-  _RBX = value1;
   if ( type != type2 )
   {
     Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
-    type = _RBX->type;
-    type2 = _RSI->type;
+    type = value1->type;
+    type2 = value2->type;
   }
   if ( type != type2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6745, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( value1->type )
   {
     case VAR_VECTOR:
-      _R14 = Scr_AllocVector_Inline(scrContext);
-      _RAX = (const float *)_RSI->u.scriptCodePosValue;
-      __asm
+      v8 = Scr_AllocVector_Inline(scrContext);
+      u = value2->u;
+      v10 = *value2->u.vectorValue;
+      if ( v10 == 0.0 || *(float *)(u.scriptCodePosValue + 4) == 0.0 || *(float *)(u.scriptCodePosValue + 8) == 0.0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rax]
-        vucomiss xmm1, xmm0
-      }
-      if ( v23 )
-      {
-        *(_QWORD *)_R14 = 0i64;
-        _R14[2] = 0.0;
-        RemoveRefToVector(scrContext, _RBX->u.vectorValue);
-        RemoveRefToVector(scrContext, _RSI->u.vectorValue);
-        _RBX->u.scriptCodePosValue = (unsigned __int64)_R14;
+        *(_QWORD *)v8 = 0i64;
+        v8[2] = 0.0;
+        RemoveRefToVector(scrContext, value1->u.vectorValue);
+        RemoveRefToVector(scrContext, value2->u.vectorValue);
+        value1->u.scriptCodePosValue = (unsigned __int64)v8;
         Scr_Error(COM_ERR_5244, scrContext, "divide by 0");
       }
       else
       {
-        __asm
-        {
-          vucomiss xmm0, dword ptr [rax+4]
-          vucomiss xmm0, dword ptr [rax+8]
-        }
-        _RAX = (const float *)_RBX->u.scriptCodePosValue;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vdivss  xmm1, xmm0, xmm1
-          vmovss  dword ptr [r14], xmm1
-        }
-        _RAX = (const float *)_RBX->u.scriptCodePosValue;
-        __asm
-        {
-          vmovss  [rsp+48h+arg_8], xmm1
-          vmovss  xmm0, dword ptr [rax+4]
-          vdivss  xmm2, xmm0, dword ptr [rcx+4]
-          vmovss  dword ptr [r14+4], xmm2
-        }
-        _RAX = (const float *)_RBX->u.scriptCodePosValue;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+8]
-          vdivss  xmm3, xmm0, dword ptr [rcx+8]
-          vmovss  dword ptr [r14+8], xmm3
-        }
-        if ( (v33 & 0x7F800000) == 2139095040 )
-          goto LABEL_28;
-        __asm { vmovss  [rsp+48h+arg_8], xmm2 }
-        if ( (v34 & 0x7F800000) == 2139095040 )
-          goto LABEL_28;
-        __asm { vmovss  [rsp+48h+arg_8], xmm3 }
-        if ( (v35 & 0x7F800000) == 2139095040 )
-        {
-LABEL_28:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6787, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
-            __debugbreak();
-        }
-        RemoveRefToVector(scrContext, _RBX->u.vectorValue);
-        RemoveRefToVector(scrContext, _RSI->u.vectorValue);
-        _RBX->u.scriptCodePosValue = (unsigned __int64)_R14;
+        v11 = *value1->u.vectorValue / v10;
+        *v8 = v11;
+        v14 = v11;
+        v12 = *(float *)(value1->u.scriptCodePosValue + 4) / *(float *)(value2->u.scriptCodePosValue + 4);
+        v8[1] = v12;
+        v13 = *(float *)(value1->u.scriptCodePosValue + 8) / *(float *)(value2->u.scriptCodePosValue + 8);
+        v8[2] = v13;
+        if ( ((LODWORD(v14) & 0x7F800000) == 2139095040 || (LODWORD(v12) & 0x7F800000) == 2139095040 || (LODWORD(v13) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6787, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+          __debugbreak();
+        RemoveRefToVector(scrContext, value1->u.vectorValue);
+        RemoveRefToVector(scrContext, value2->u.vectorValue);
+        value1->u.scriptCodePosValue = (unsigned __int64)v8;
       }
       break;
     case VAR_FLOAT:
-      __asm
+      if ( value2->u.floatValue == 0.0 )
       {
-        vmovss  xmm1, dword ptr [rsi]
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm1, xmm0
-      }
-      if ( _RBX->type == VAR_FLOAT )
-      {
-        _RBX->u.intValue = 0;
+        value1->u.intValue = 0;
         Scr_Error(COM_ERR_5243, scrContext, "divide by 0");
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vdivss  xmm1, xmm0, xmm1
-          vmovss  dword ptr [rbx], xmm1
-        }
+        value1->u.floatValue = value1->u.floatValue / value2->u.floatValue;
       }
       break;
     case VAR_INTEGER:
-      _RBX->type = VAR_FLOAT;
-      if ( _RSI->u.intValue )
+      value1->type = VAR_FLOAT;
+      if ( value2->u.intValue )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, dword ptr [rbx]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx], xmm1
-        }
+        value1->u.floatValue = (float)value1->u.intValue / (float)value2->u.intValue;
       }
       else
       {
-        _RBX->u.intValue = 0;
+        value1->u.intValue = 0;
         Scr_Error(COM_ERR_5242, scrContext, "divide by 0");
       }
       break;
     default:
-      Scr_UnmatchingTypesError(scrContext, _RBX, _RSI);
+      Scr_UnmatchingTypesError(scrContext, value1, value2);
       break;
   }
 }
@@ -8095,63 +7794,49 @@ Scr_EvalEqualAny
 char Scr_EvalEqualAny(const scrContext_t *scrContext, VariableValue *array, VariableValue *value)
 {
   unsigned int firstChild; 
+  ChildVariableValue *v7; 
   VariableType type; 
-  char v10; 
-  bool v11; 
+  char v9; 
+  bool v10; 
 
-  _RDI = value;
   if ( array->type != VAR_POINTER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6374, ASSERT_TYPE_ASSERT, "( array->type == VAR_POINTER )", (const char *)&queryFormat, "array->type == VAR_POINTER") )
     __debugbreak();
   if ( LOBYTE(scrContext->m_varGlob.objectVariableValue[array->u.uintValue].w.type) != 24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6375, ASSERT_TYPE_ASSERT, "( scrContext.m_varGlob.objectVariableValue[array->u.pointerValue].GetType() == VAR_ARRAY )", (const char *)&queryFormat, "scrContext.m_varGlob.objectVariableValue[array->u.pointerValue].GetType() == VAR_ARRAY") )
     __debugbreak();
-  if ( _RDI->type == VAR_POINTER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6376, ASSERT_TYPE_ASSERT, "( value->type != VAR_POINTER )", (const char *)&queryFormat, "value->type != VAR_POINTER") )
+  if ( value->type == VAR_POINTER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6376, ASSERT_TYPE_ASSERT, "( value->type != VAR_POINTER )", (const char *)&queryFormat, "value->type != VAR_POINTER") )
     __debugbreak();
   firstChild = scrContext->m_varGlob.objectVariableChildren[array->u.uintValue].firstChild;
   if ( !firstChild )
     return 0;
   while ( 1 )
   {
-    _RBX = &scrContext->m_varGlob.childVariableValue[firstChild];
-    if ( (*(_BYTE *)&_RBX->tn & 0x3Fu) >= 0x11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6387, ASSERT_TYPE_ASSERT, "( IsValidChild( entryValue ) )", (const char *)&queryFormat, "IsValidChild( entryValue )") )
+    v7 = &scrContext->m_varGlob.childVariableValue[firstChild];
+    if ( (*(_BYTE *)&v7->tn & 0x3Fu) >= 0x11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6387, ASSERT_TYPE_ASSERT, "( IsValidChild( entryValue ) )", (const char *)&queryFormat, "IsValidChild( entryValue )") )
       __debugbreak();
-    type = _RDI->type;
-    v10 = *(_BYTE *)&_RBX->tn & 0x3F;
-    if ( v10 == type )
+    type = value->type;
+    v9 = *(_BYTE *)&v7->tn & 0x3F;
+    if ( v9 == type )
     {
-      v11 = _RBX->u.f.prev == _RDI->u.intValue;
+      v10 = v7->u.f.prev == value->u.intValue;
       goto LABEL_22;
     }
-    if ( v10 != 5 )
+    if ( v9 != 5 )
       break;
-    v11 = type == VAR_INTEGER;
     if ( type == VAR_INTEGER )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi]
-        vucomiss xmm0, dword ptr [rbx]
-      }
+      v10 = (float)value->u.intValue == v7->u.u.floatValue;
       goto LABEL_22;
     }
 LABEL_23:
-    firstChild = _RBX->nextSibling;
+    firstChild = v7->nextSibling;
     if ( !firstChild )
       return 0;
   }
-  if ( v10 != 6 )
+  if ( v9 != 6 || type != VAR_FLOAT )
     goto LABEL_23;
-  v11 = type == VAR_FLOAT;
-  if ( type != VAR_FLOAT )
-    goto LABEL_23;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx]
-    vucomiss xmm0, dword ptr [rdi]
-  }
+  v10 = (float)v7->u.u.intValue == value->u.floatValue;
 LABEL_22:
-  if ( !v11 )
+  if ( !v10 )
     goto LABEL_23;
   return 1;
 }
@@ -8165,120 +7850,80 @@ void Scr_EvalEquality(scrContext_t *scrContext, VariableValue *value1, VariableV
 {
   VariableType type; 
   VariableType type2; 
-  bool v8; 
-  VariableType v9; 
-  VariableType v10; 
-  bool v11; 
-  scr_string_t intValue; 
-  BOOL v16; 
-  int v22; 
+  float floatValue; 
+  int intValue; 
+  int v10; 
+  VariableUnion u; 
+  VariableUnion v12; 
+  int v13; 
   __int64 uintValue; 
   ObjectVariableValue *objectVariableValue; 
-  BOOL v25; 
+  int v16; 
 
   type = value1->type;
   type2 = value2->type;
-  _RBX = value1;
-  v8 = type == type2;
   if ( type != type2 )
   {
     Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
-    v9 = _RBX->type;
-    v10 = value2->type;
-    v8 = v9 == v10;
-    if ( v9 != v10 )
-    {
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6426, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type");
-      v8 = !v11;
-      if ( v11 )
-        __debugbreak();
-    }
+    if ( value1->type != value2->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6426, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+      __debugbreak();
   }
-  switch ( _RBX->type )
+  switch ( value1->type )
   {
     case VAR_UNDEFINED:
-      _RBX->type = VAR_INTEGER;
-      _RBX->u.intValue = 1;
+      value1->type = VAR_INTEGER;
+      value1->u.intValue = 1;
       break;
     case VAR_POINTER:
-      uintValue = _RBX->u.uintValue;
+      uintValue = value1->u.uintValue;
       objectVariableValue = scrContext->m_varGlob.objectVariableValue;
       if ( (LOBYTE(objectVariableValue[uintValue].w.type) == 24 || LOBYTE(objectVariableValue[value2->u.uintValue].w.type) == 24) && !scrContext->m_varPub.evaluate )
         goto LABEL_22;
-      _RBX->type = VAR_INTEGER;
-      v25 = uintValue == value2->u.intValue;
+      value1->type = VAR_INTEGER;
+      v16 = uintValue == value2->u.intValue;
       RemoveRefToObject(scrContext, uintValue);
       RemoveRefToObject(scrContext, value2->u.intValue);
-      _RBX->u.intValue = v25;
+      value1->u.intValue = v16;
       break;
     case VAR_STRING:
     case VAR_ISTRING:
-      intValue = _RBX->u.intValue;
-      _RBX->type = VAR_INTEGER;
-      v16 = intValue == value2->u.intValue;
-      SL_RemoveRefToString(intValue);
+      intValue = value1->u.intValue;
+      value1->type = VAR_INTEGER;
+      v10 = intValue == value2->u.intValue;
+      SL_RemoveRefToString((scr_string_t)intValue);
       SL_RemoveRefToString((scr_string_t)value2->u.intValue);
-      _RBX->u.intValue = v16;
+      value1->u.intValue = v10;
       break;
     case VAR_VECTOR:
-      _RDX = (const float *)_RBX->u.scriptCodePosValue;
-      _RBX->type = VAR_INTEGER;
-      _RAX = value2->u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vucomiss xmm0, dword ptr [rdx]
-      }
-      if ( !v8 )
-        goto LABEL_15;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+4]
-        vucomiss xmm0, dword ptr [rdx+4]
-      }
-      if ( !v8 )
-        goto LABEL_15;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+8]
-        vucomiss xmm0, dword ptr [rdx+8]
-      }
-      if ( v8 )
-        v22 = 1;
-      else
-LABEL_15:
-        v22 = 0;
-      RemoveRefToVector(scrContext, _RDX);
+      u = value1->u;
+      value1->type = VAR_INTEGER;
+      v12 = value2->u;
+      v13 = *value2->u.vectorValue == *u.vectorValue && *(float *)(v12.scriptCodePosValue + 4) == *(float *)(u.scriptCodePosValue + 4) && *(float *)(v12.scriptCodePosValue + 8) == *(float *)(u.scriptCodePosValue + 8);
+      RemoveRefToVector(scrContext, u.vectorValue);
       RemoveRefToVector(scrContext, value2->u.vectorValue);
-      _RBX->u.intValue = v22;
+      value1->u.intValue = v13;
       break;
     case VAR_FLOAT:
-      __asm { vmovss  xmm0, dword ptr [rbx]; jumptable 0000000141589FCC case 5 }
-      _RBX->type = VAR_INTEGER;
-      __asm
-      {
-        vsubss  xmm1, xmm0, dword ptr [rsi]
-        vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm1, cs:__real@358637bd
-      }
-      _RBX->u.intValue = 0;
+      floatValue = value1->u.floatValue;
+      value1->type = VAR_INTEGER;
+      value1->u.intValue = COERCE_FLOAT(COERCE_UNSIGNED_INT(floatValue - value2->u.floatValue) & _xmm) < 0.000001;
       break;
     case VAR_INTEGER:
       goto $LN11_93;
     case VAR_FUNCTION:
-      _RBX->type = VAR_INTEGER;
-      _RBX->u.intValue = _RBX->u.scriptCodePosValue == value2->u.scriptCodePosValue;
+      value1->type = VAR_INTEGER;
+      value1->u.intValue = value1->u.scriptCodePosValue == value2->u.scriptCodePosValue;
       break;
     case VAR_BUILTIN_FUNCTION:
     case VAR_BUILTIN_METHOD:
     case VAR_ANIMATION:
-      _RBX->type = VAR_INTEGER;
+      value1->type = VAR_INTEGER;
 $LN11_93:
-      _RBX->u.intValue = _RBX->u.intValue == value2->u.intValue;
+      value1->u.intValue = value1->u.intValue == value2->u.intValue;
       break;
     default:
 LABEL_22:
-      Scr_UnmatchingTypesError(scrContext, _RBX, value2);
+      Scr_UnmatchingTypesError(scrContext, value1, value2);
       break;
   }
 }
@@ -8343,32 +7988,25 @@ void Scr_EvalGreater(scrContext_t *scrContext, VariableValue *value1, VariableVa
   VariableType type2; 
 
   type = value1->type;
-  _RBX = value1;
   type2 = value2->type;
-  _RDI = value2;
   if ( type != type2 )
   {
-    Scr_CastWeakerPair2(scrContext, _RBX, value2, type, type2);
-    if ( _RBX->type != _RDI->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6540, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+    Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
+    if ( value1->type != value2->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6540, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
       __debugbreak();
   }
-  if ( _RBX->type == VAR_FLOAT )
+  if ( value1->type == VAR_FLOAT )
   {
-    _RBX->type = VAR_INTEGER;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vcomiss xmm0, dword ptr [rbx]
-    }
-    _RBX->u.intValue = 0;
+    value1->type = VAR_INTEGER;
+    value1->u.intValue = value2->u.floatValue < value1->u.floatValue;
   }
-  else if ( _RBX->type == VAR_INTEGER )
+  else if ( value1->type == VAR_INTEGER )
   {
-    _RBX->u.intValue = _RBX->u.intValue > _RDI->u.intValue;
+    value1->u.intValue = value1->u.intValue > value2->u.intValue;
   }
   else
   {
-    Scr_UnmatchingTypesError(scrContext, _RBX, _RDI);
+    Scr_UnmatchingTypesError(scrContext, value1, value2);
   }
 }
 
@@ -8413,31 +8051,29 @@ void Scr_EvalLess(scrContext_t *scrContext, VariableValue *value1, VariableValue
 {
   VariableType type; 
   VariableType type2; 
+  float floatValue; 
 
   type = value1->type;
-  _RBX = value1;
   type2 = value2->type;
-  _RDI = value2;
   if ( type != type2 )
   {
-    Scr_CastWeakerPair2(scrContext, _RBX, value2, type, type2);
-    if ( _RBX->type != _RDI->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6506, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+    Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
+    if ( value1->type != value2->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6506, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
       __debugbreak();
   }
-  if ( _RBX->type == VAR_FLOAT )
+  if ( value1->type == VAR_FLOAT )
   {
-    __asm { vmovss  xmm0, dword ptr [rbx] }
-    _RBX->type = VAR_INTEGER;
-    __asm { vcomiss xmm0, dword ptr [rdi] }
-    _RBX->u.intValue = 0;
+    floatValue = value1->u.floatValue;
+    value1->type = VAR_INTEGER;
+    value1->u.intValue = floatValue < value2->u.floatValue;
   }
-  else if ( _RBX->type == VAR_INTEGER )
+  else if ( value1->type == VAR_INTEGER )
   {
-    _RBX->u.intValue = _RBX->u.intValue < _RDI->u.intValue;
+    value1->u.intValue = value1->u.intValue < value2->u.intValue;
   }
   else
   {
-    Scr_UnmatchingTypesError(scrContext, _RBX, _RDI);
+    Scr_UnmatchingTypesError(scrContext, value1, value2);
   }
 }
 
@@ -8466,78 +8102,47 @@ void Scr_EvalMinus(scrContext_t *scrContext, VariableValue *value1, VariableValu
 {
   VariableType type; 
   VariableType type2; 
-  float *v12; 
-  int v21; 
-  int v22; 
-  int v23; 
+  float *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
 
   type = value1->type;
   type2 = value2->type;
-  _RBX = value1;
   if ( type != type2 )
   {
     Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
-    type = _RBX->type;
+    type = value1->type;
     type2 = value2->type;
   }
   if ( type != type2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6670, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( value1->type )
   {
     case VAR_VECTOR:
-      _RAX = Scr_AllocVector_Inline(scrContext);
-      _RCX = (const float *)_RBX->u.scriptCodePosValue;
-      v12 = _RAX;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx]
-        vsubss  xmm1, xmm0, dword ptr [rdx]
-        vmovss  dword ptr [rax], xmm1
-      }
-      _RCX = _RBX->u;
-      __asm
-      {
-        vmovss  [rsp+48h+arg_8], xmm1
-        vmovss  xmm0, dword ptr [rcx+4]
-        vsubss  xmm2, xmm0, dword ptr [rdx+4]
-        vmovss  dword ptr [rax+4], xmm2
-      }
-      _RCX = _RBX->u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+8]
-        vsubss  xmm3, xmm0, dword ptr [rdx+8]
-        vmovss  dword ptr [rax+8], xmm3
-      }
-      if ( (v21 & 0x7F800000) == 2139095040 )
-        goto LABEL_20;
-      __asm { vmovss  [rsp+48h+arg_8], xmm2 }
-      if ( (v22 & 0x7F800000) == 2139095040 )
-        goto LABEL_20;
-      __asm { vmovss  [rsp+48h+arg_8], xmm3 }
-      if ( (v23 & 0x7F800000) == 2139095040 )
-      {
-LABEL_20:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6687, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
-          __debugbreak();
-      }
-      RemoveRefToVector(scrContext, _RBX->u.vectorValue);
+      v8 = Scr_AllocVector_Inline(scrContext);
+      v9 = *value1->u.vectorValue - *value2->u.vectorValue;
+      *v8 = v9;
+      v12 = v9;
+      v10 = *(float *)(value1->u.scriptCodePosValue + 4) - *(float *)(value2->u.scriptCodePosValue + 4);
+      v8[1] = v10;
+      v11 = *(float *)(value1->u.scriptCodePosValue + 8) - *(float *)(value2->u.scriptCodePosValue + 8);
+      v8[2] = v11;
+      if ( ((LODWORD(v12) & 0x7F800000) == 2139095040 || (LODWORD(v10) & 0x7F800000) == 2139095040 || (LODWORD(v11) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6687, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+        __debugbreak();
+      RemoveRefToVector(scrContext, value1->u.vectorValue);
       RemoveRefToVector(scrContext, value2->u.vectorValue);
-      _RBX->u.scriptCodePosValue = (unsigned __int64)v12;
+      value1->u.scriptCodePosValue = (unsigned __int64)v8;
       break;
     case VAR_FLOAT:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vsubss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      value1->u.floatValue = value1->u.floatValue - value2->u.floatValue;
       break;
     case VAR_INTEGER:
-      _RBX->u.intValue -= value2->u.intValue;
+      value1->u.intValue -= value2->u.intValue;
       break;
     default:
-      Scr_UnmatchingTypesError(scrContext, _RBX, value2);
+      Scr_UnmatchingTypesError(scrContext, value1, value2);
       break;
   }
 }
@@ -8551,48 +8156,46 @@ void Scr_EvalMod(scrContext_t *scrContext, VariableValue *value1, VariableValue 
 {
   VariableType type; 
   VariableType type2; 
-  VariableType v9; 
+  VariableType v8; 
 
   type = value1->type;
   type2 = value2->type;
-  _RDI = value2;
   if ( type != type2 )
   {
     Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
-    if ( value1->type != _RDI->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6805, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+    if ( value1->type != value2->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6805, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
       __debugbreak();
   }
-  v9 = value1->type;
-  if ( v9 != VAR_INTEGER )
+  v8 = value1->type;
+  if ( v8 == VAR_INTEGER )
   {
-    if ( v9 == VAR_FLOAT )
+    if ( value2->type == VAR_INTEGER )
     {
-      __asm
+      if ( value2->u.intValue )
       {
-        vmovss  xmm1, dword ptr [rdi]; Y
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm1, xmm0
+        value1->u.intValue %= value2->u.intValue;
       }
-      value1->u.intValue = 0;
-      Scr_Error(COM_ERR_5246, scrContext, "divide by 0");
+      else
+      {
+        value1->u.intValue = 0;
+        Scr_Error(COM_ERR_5245, scrContext, "divide by 0");
+      }
       return;
     }
-    goto LABEL_12;
-  }
-  if ( _RDI->type != VAR_INTEGER )
-  {
-LABEL_12:
-    Scr_UnmatchingTypesError(scrContext, value1, _RDI);
+LABEL_14:
+    Scr_UnmatchingTypesError(scrContext, value1, value2);
     return;
   }
-  if ( _RDI->u.intValue )
+  if ( v8 != VAR_FLOAT )
+    goto LABEL_14;
+  if ( value2->u.floatValue == 0.0 )
   {
-    value1->u.intValue %= _RDI->u.intValue;
+    value1->u.intValue = 0;
+    Scr_Error(COM_ERR_5246, scrContext, "divide by 0");
   }
   else
   {
-    value1->u.intValue = 0;
-    Scr_Error(COM_ERR_5245, scrContext, "divide by 0");
+    value1->u.floatValue = fmodf_0(value1->u.floatValue, value2->u.floatValue);
   }
 }
 
@@ -8605,78 +8208,47 @@ void Scr_EvalMultiply(scrContext_t *scrContext, VariableValue *value1, VariableV
 {
   VariableType type; 
   VariableType type2; 
-  float *v12; 
-  int v21; 
-  int v22; 
-  int v23; 
+  float *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
 
   type = value1->type;
   type2 = value2->type;
-  _RBX = value1;
   if ( type != type2 )
   {
     Scr_CastWeakerPair2(scrContext, value1, value2, type, type2);
-    type = _RBX->type;
+    type = value1->type;
     type2 = value2->type;
   }
   if ( type != type2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6708, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( value1->type )
   {
     case VAR_VECTOR:
-      _RAX = Scr_AllocVector_Inline(scrContext);
-      _RCX = (const float *)_RBX->u.scriptCodePosValue;
-      v12 = _RAX;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx]
-        vmulss  xmm1, xmm0, dword ptr [rdx]
-        vmovss  dword ptr [rax], xmm1
-      }
-      _RCX = _RBX->u;
-      __asm
-      {
-        vmovss  [rsp+48h+arg_8], xmm1
-        vmovss  xmm0, dword ptr [rcx+4]
-        vmulss  xmm2, xmm0, dword ptr [rdx+4]
-        vmovss  dword ptr [rax+4], xmm2
-      }
-      _RCX = _RBX->u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+8]
-        vmulss  xmm3, xmm0, dword ptr [rdx+8]
-        vmovss  dword ptr [rax+8], xmm3
-      }
-      if ( (v21 & 0x7F800000) == 2139095040 )
-        goto LABEL_20;
-      __asm { vmovss  [rsp+48h+arg_8], xmm2 }
-      if ( (v22 & 0x7F800000) == 2139095040 )
-        goto LABEL_20;
-      __asm { vmovss  [rsp+48h+arg_8], xmm3 }
-      if ( (v23 & 0x7F800000) == 2139095040 )
-      {
-LABEL_20:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6725, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
-          __debugbreak();
-      }
-      RemoveRefToVector(scrContext, _RBX->u.vectorValue);
+      v8 = Scr_AllocVector_Inline(scrContext);
+      v9 = *value1->u.vectorValue * *value2->u.vectorValue;
+      *v8 = v9;
+      v12 = v9;
+      v10 = *(float *)(value1->u.scriptCodePosValue + 4) * *(float *)(value2->u.scriptCodePosValue + 4);
+      v8[1] = v10;
+      v11 = *(float *)(value1->u.scriptCodePosValue + 8) * *(float *)(value2->u.scriptCodePosValue + 8);
+      v8[2] = v11;
+      if ( ((LODWORD(v12) & 0x7F800000) == 2139095040 || (LODWORD(v10) & 0x7F800000) == 2139095040 || (LODWORD(v11) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6725, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+        __debugbreak();
+      RemoveRefToVector(scrContext, value1->u.vectorValue);
       RemoveRefToVector(scrContext, value2->u.vectorValue);
-      _RBX->u.scriptCodePosValue = (unsigned __int64)v12;
+      value1->u.scriptCodePosValue = (unsigned __int64)v8;
       break;
     case VAR_FLOAT:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmulss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      value1->u.floatValue = value1->u.floatValue * value2->u.floatValue;
       break;
     case VAR_INTEGER:
-      _RBX->u.intValue *= value2->u.intValue;
+      value1->u.intValue *= value2->u.intValue;
       break;
     default:
-      Scr_UnmatchingTypesError(scrContext, _RBX, value2);
+      Scr_UnmatchingTypesError(scrContext, value1, value2);
       break;
   }
 }
@@ -8702,64 +8274,53 @@ Scr_EvalPlus
 void Scr_EvalPlus(scrContext_t *scrContext, VariableValue *value1, VariableValue *value2)
 {
   VariableType type; 
-  VariableType v6; 
-  float *v17; 
-  char *v26; 
-  char *v27; 
+  VariableType v5; 
+  float *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  char *v12; 
+  char *v13; 
   unsigned __int64 StringLen; 
-  unsigned __int64 v29; 
-  const char *v30; 
-  char *v31; 
-  char v32; 
-  unsigned __int64 v33; 
-  char v34; 
+  unsigned __int64 v15; 
+  const char *v16; 
+  char *v17; 
+  char v18; 
+  unsigned __int64 v19; 
+  char v20; 
   unsigned int StringOfSize; 
-  int v36; 
-  int v37; 
-  int v38; 
+  float v22; 
   char str[8192]; 
 
   type = value1->type;
-  v6 = value2->type;
-  _R14 = value2;
-  _RDI = value1;
-  if ( type != v6 )
+  v5 = value2->type;
+  if ( type != v5 )
   {
     if ( type == VAR_STRING )
     {
       if ( !Scr_CastString(scrContext, value2) )
       {
-        RemoveRefToValue(scrContext, (unsigned __int8)_RDI->type, _RDI->u);
-        _RDI->type = VAR_UNDEFINED;
+        RemoveRefToValue(scrContext, (unsigned __int8)value1->type, value1->u);
+        value1->type = VAR_UNDEFINED;
         Scr_Error(COM_ERR_5239, scrContext, scrContext->m_varPub.error_message);
       }
     }
     else
     {
-      if ( v6 != VAR_STRING )
+      if ( v5 != VAR_STRING )
       {
         if ( type == VAR_FLOAT )
         {
-          if ( v6 == VAR_INTEGER )
+          if ( v5 == VAR_INTEGER )
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [r8]
-              vmovss  dword ptr [r8], xmm0
-            }
+            value2->u.floatValue = (float)value2->u.intValue;
             value2->type = VAR_FLOAT;
             goto LABEL_15;
           }
         }
-        else if ( v6 == VAR_FLOAT && type == VAR_INTEGER )
+        else if ( v5 == VAR_FLOAT && type == VAR_INTEGER )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rdx]
-            vmovss  dword ptr [rdx], xmm0
-          }
+          value1->u.floatValue = (float)value1->u.intValue;
           value1->type = VAR_FLOAT;
           goto LABEL_15;
         }
@@ -8768,109 +8329,81 @@ void Scr_EvalPlus(scrContext_t *scrContext, VariableValue *value1, VariableValue
       }
       if ( !Scr_CastString(scrContext, value1) )
       {
-        RemoveRefToValue(scrContext, (unsigned __int8)_R14->type, _R14->u);
-        _R14->type = VAR_UNDEFINED;
+        RemoveRefToValue(scrContext, (unsigned __int8)value2->type, value2->u);
+        value2->type = VAR_UNDEFINED;
         Scr_Error(COM_ERR_5240, scrContext, scrContext->m_varPub.error_message);
       }
     }
   }
 LABEL_15:
-  if ( _RDI->type != _R14->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6608, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
+  if ( value1->type != value2->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6608, ASSERT_TYPE_ASSERT, "( value1->type == value2->type )", (const char *)&queryFormat, "value1->type == value2->type") )
     __debugbreak();
-  switch ( _RDI->type )
+  switch ( value1->type )
   {
     case VAR_STRING:
-      v26 = (char *)SL_ConvertToString((scr_string_t)_RDI->u.intValue);
-      v27 = (char *)SL_ConvertToString((scr_string_t)_R14->u.intValue);
-      StringLen = SL_GetStringLen((scr_string_t)_RDI->u.intValue);
-      v29 = SL_GetStringLen((scr_string_t)_R14->u.intValue) + StringLen + 1;
-      if ( v29 <= 0x2000 )
+      v12 = (char *)SL_ConvertToString((scr_string_t)value1->u.intValue);
+      v13 = (char *)SL_ConvertToString((scr_string_t)value2->u.intValue);
+      StringLen = SL_GetStringLen((scr_string_t)value1->u.intValue);
+      v15 = SL_GetStringLen((scr_string_t)value2->u.intValue) + StringLen + 1;
+      if ( v15 <= 0x2000 )
       {
-        v31 = (char *)(str - v26);
+        v17 = (char *)(str - v12);
         do
         {
-          v32 = *v26;
-          v26[(_QWORD)v31] = *v26;
-          ++v26;
+          v18 = *v12;
+          v12[(_QWORD)v17] = *v12;
+          ++v12;
         }
-        while ( v32 );
-        v33 = StringLen - (_QWORD)v27;
+        while ( v18 );
+        v19 = StringLen - (_QWORD)v13;
         do
         {
-          v34 = *v27;
-          str[v33 + (_QWORD)v27] = *v27;
-          ++v27;
+          v20 = *v13;
+          str[v19 + (_QWORD)v13] = *v13;
+          ++v13;
         }
-        while ( v34 );
-        StringOfSize = j_SL_GetStringOfSize(str, 0, v29, 17);
-        SL_RemoveRefToString((scr_string_t)_RDI->u.intValue);
-        SL_RemoveRefToString((scr_string_t)_R14->u.intValue);
-        Scr_SetStringValue(_RDI, StringOfSize);
+        while ( v20 );
+        StringOfSize = j_SL_GetStringOfSize(str, 0, v15, 17);
+        SL_RemoveRefToString((scr_string_t)value1->u.intValue);
+        SL_RemoveRefToString((scr_string_t)value2->u.intValue);
+        Scr_SetStringValue(value1, StringOfSize);
       }
       else
       {
-        SL_RemoveRefToString((scr_string_t)_RDI->u.intValue);
-        SL_RemoveRefToString((scr_string_t)_R14->u.intValue);
-        _RDI->type = VAR_UNDEFINED;
-        _R14->type = VAR_UNDEFINED;
-        v30 = j_va("cannot concat \"%s\" and \"%s\" - max string length exceeded", v26, v27);
-        Scr_Error(COM_ERR_5241, scrContext, v30);
+        SL_RemoveRefToString((scr_string_t)value1->u.intValue);
+        SL_RemoveRefToString((scr_string_t)value2->u.intValue);
+        value1->type = VAR_UNDEFINED;
+        value2->type = VAR_UNDEFINED;
+        v16 = j_va("cannot concat \"%s\" and \"%s\" - max string length exceeded", v12, v13);
+        Scr_Error(COM_ERR_5241, scrContext, v16);
       }
       break;
     case VAR_VECTOR:
-      _RAX = Scr_AllocVector_Inline(scrContext);
-      _RCX = _R14->u;
-      v17 = _RAX;
-      __asm
+      v8 = Scr_AllocVector_Inline(scrContext);
+      v9 = *value2->u.vectorValue + *value1->u.vectorValue;
+      *v8 = v9;
+      v22 = v9;
+      v10 = *(float *)(value2->u.scriptCodePosValue + 4) + *(float *)(value1->u.scriptCodePosValue + 4);
+      v8[1] = v10;
+      v11 = *(float *)(value2->u.scriptCodePosValue + 8) + *(float *)(value1->u.scriptCodePosValue + 8);
+      v8[2] = v11;
+      if ( (LODWORD(v22) & 0x7F800000) == 2139095040 || (v22 = v10, (LODWORD(v10) & 0x7F800000) == 2139095040) || (v22 = v11, (LODWORD(v11) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rcx]
-        vaddss  xmm1, xmm0, dword ptr [rdx]
-        vmovss  dword ptr [rax], xmm1
-      }
-      _RCX = _R14->u;
-      __asm
-      {
-        vmovss  [rsp+2078h+var_2048], xmm1
-        vmovss  xmm0, dword ptr [rcx+4]
-        vaddss  xmm2, xmm0, dword ptr [rdx+4]
-        vmovss  dword ptr [rax+4], xmm2
-      }
-      _RCX = _R14->u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+8]
-        vaddss  xmm3, xmm0, dword ptr [rdx+8]
-        vmovss  dword ptr [rax+8], xmm3
-      }
-      if ( (v36 & 0x7F800000) == 2139095040 )
-        goto LABEL_40;
-      __asm { vmovss  [rsp+2078h+var_2048], xmm2 }
-      if ( (v37 & 0x7F800000) == 2139095040 )
-        goto LABEL_40;
-      __asm { vmovss  [rsp+2078h+var_2048], xmm3 }
-      if ( (v38 & 0x7F800000) == 2139095040 )
-      {
-LABEL_40:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6649, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 6649, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tempVector )[0] ) && !IS_NAN( ( tempVector )[1] ) && !IS_NAN( ( tempVector )[2] )", v22) )
           __debugbreak();
       }
-      RemoveRefToVector(scrContext, _RDI->u.vectorValue);
-      RemoveRefToVector(scrContext, _R14->u.vectorValue);
-      _RDI->u.scriptCodePosValue = (unsigned __int64)v17;
+      RemoveRefToVector(scrContext, value1->u.vectorValue);
+      RemoveRefToVector(scrContext, value2->u.vectorValue);
+      value1->u.scriptCodePosValue = (unsigned __int64)v8;
       break;
     case VAR_FLOAT:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
+      value1->u.floatValue = value2->u.floatValue + value1->u.floatValue;
       break;
     case VAR_INTEGER:
-      _RDI->u.intValue += _R14->u.intValue;
+      value1->u.intValue += value2->u.intValue;
       break;
     default:
-      Scr_UnmatchingTypesError(scrContext, _RDI, _R14);
+      Scr_UnmatchingTypesError(scrContext, value1, value2);
       break;
   }
 }
@@ -10023,47 +9556,25 @@ Scr_GetEndonUsage
 float Scr_GetEndonUsage(scrContext_t *scrContext, unsigned int parentId)
 {
   unsigned int Variable; 
+  __int128 v6; 
   unsigned int Object; 
-  unsigned int FirstSibling; 
+  unsigned int i; 
+  __int128 v9; 
 
   if ( !IsValidObject(&scrContext->m_varGlob.objectVariableValue[parentId]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 8012, ASSERT_TYPE_ASSERT, "( IsValidObject( parentValue ) )", (const char *)&queryFormat, "IsValidObject( parentValue )") )
     __debugbreak();
   Variable = FindVariable(scrContext, scrContext->m_varPub.pauseArrayId, parentId + 0x80000);
-  if ( Variable )
+  if ( !Variable )
+    return 0.0;
+  v6 = 0i64;
+  Object = FindObject(scrContext, Variable);
+  for ( i = FindFirstSibling(scrContext, Object); i; i = FindNextSibling(scrContext, i) )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    Object = FindObject(scrContext, Variable);
-    FirstSibling = FindFirstSibling(scrContext, Object);
-    if ( FirstSibling )
-    {
-      __asm
-      {
-        vmovaps [rsp+58h+var_28], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-      }
-      do
-      {
-        __asm { vaddss  xmm6, xmm6, xmm7 }
-        FirstSibling = FindNextSibling(scrContext, FirstSibling);
-      }
-      while ( FirstSibling );
-      __asm { vmovaps xmm7, [rsp+58h+var_28] }
-    }
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    v9 = v6;
+    *(float *)&v9 = *(float *)&v6 + 1.0;
+    v6 = v9;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v6;
 }
 
 /*
@@ -10184,33 +9695,20 @@ Scr_GetEntryUsage
 float Scr_GetEntryUsage(scrContext_t *scrContext, unsigned int type, VariableUnion u)
 {
   int intValue; 
-  ObjectVariableValue *v7; 
+  ObjectVariableValue *v5; 
 
   intValue = u.intValue;
   if ( type != 1 )
-    goto LABEL_10;
+    return 0.0;
   if ( u.intValue >= scrContext->m_variableListParentSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 7979, ASSERT_TYPE_ASSERT, "(unsigned)( u.pointerValue ) < (unsigned)( scrContext.m_variableListParentSize )", "u.pointerValue doesn't index scrContext.m_variableListParentSize\n\t%i not in [0, %i)", u.intValue, scrContext->m_variableListParentSize) )
     __debugbreak();
-  v7 = &scrContext->m_varGlob.objectVariableValue[intValue];
-  if ( !IsValidObject(v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 7981, ASSERT_TYPE_ASSERT, "( IsValidObject( parentValue ) )", (const char *)&queryFormat, "IsValidObject( parentValue )") )
+  v5 = &scrContext->m_varGlob.objectVariableValue[intValue];
+  if ( !IsValidObject(v5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 7981, ASSERT_TYPE_ASSERT, "( IsValidObject( parentValue ) )", (const char *)&queryFormat, "IsValidObject( parentValue )") )
     __debugbreak();
-  if ( LOBYTE(v7->w.type) == 24 )
-  {
-    *(float *)&_XMM0 = Scr_GetObjectUsage(scrContext, intValue);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vaddss  xmm2, xmm1, cs:__real@3f800000
-      vdivss  xmm0, xmm0, xmm2
-    }
-  }
+  if ( LOBYTE(v5->w.type) == 24 )
+    return Scr_GetObjectUsage(scrContext, intValue) / (float)((float)v5->u.o.refCount + 1.0);
   else
-  {
-LABEL_10:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -10358,49 +9856,27 @@ Scr_GetObjectUsage
 */
 float Scr_GetObjectUsage(scrContext_t *scrContext, unsigned int parentId)
 {
+  __int128 v4; 
   unsigned int FirstSibling; 
-  ChildVariableValue *v10; 
+  ChildVariableValue *v6; 
+  __int128 v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !IsValidObject(&scrContext->m_varGlob.objectVariableValue[parentId]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 8041, ASSERT_TYPE_ASSERT, "( IsValidObject( parentValue ) )", (const char *)&queryFormat, "IsValidObject( parentValue )") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v4 = 0i64;
   FirstSibling = FindFirstSibling(scrContext, parentId);
-  if ( FirstSibling )
+  if ( !FirstSibling )
+    return 0.0;
+  do
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-    }
-    do
-    {
-      v10 = &scrContext->m_varGlob.childVariableValue[FirstSibling];
-      *(float *)&_XMM0 = Scr_GetEntryUsage(scrContext, *(_BYTE *)&v10->tn & 0x3F, v10->u.u);
-      __asm
-      {
-        vaddss  xmm1, xmm0, xmm7
-        vaddss  xmm6, xmm6, xmm1
-      }
-      FirstSibling = FindNextSibling(scrContext, FirstSibling);
-    }
-    while ( FirstSibling );
-    __asm
-    {
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    v6 = &scrContext->m_varGlob.childVariableValue[FirstSibling];
+    v7 = v4;
+    *(float *)&v7 = *(float *)&v4 + (float)(Scr_GetEntryUsage(scrContext, *(_BYTE *)&v6->tn & 0x3F, v6->u.u) + 1.0);
+    v4 = v7;
+    FirstSibling = FindNextSibling(scrContext, FirstSibling);
   }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm6, [rsp+58h+var_18]
-      vxorps  xmm0, xmm0, xmm0
-    }
-  }
-  return *(float *)&_XMM0;
+  while ( FirstSibling );
+  return *(float *)&v7;
 }
 
 /*
@@ -10617,8 +10093,11 @@ void Scr_InitVariables(scrContext_t *scrContext)
   __int64 v14; 
   unsigned int v15; 
   ChildVariableValue *v16; 
+  scr_classStruct_t *m_classMap; 
   __int64 v18; 
-  ChildVariableValue *v28; 
+  scr_classStruct_t *v19; 
+  __int128 v20; 
+  ChildVariableValue *v21; 
   unsigned int index; 
 
   m_variableListParentSize = scrContext->m_variableListParentSize;
@@ -10687,40 +10166,30 @@ void Scr_InitVariables(scrContext_t *scrContext)
   *(_WORD *)&v16->tn &= 0xFFC0u;
   v16->u.f.prev = v11 - 1;
   memset_0(scrContext->m_varGlob.childVariableBucket, 0, 0x40000ui64);
-  _RCX = scrContext->m_varPub.m_classMap;
+  m_classMap = scrContext->m_varPub.m_classMap;
   v18 = 2i64;
-  _RAX = g_classMapTemplate;
+  v19 = g_classMapTemplate;
   do
   {
-    _RCX = (scr_classStruct_t *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (scr_classStruct_t *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    m_classMap = (scr_classStruct_t *)((char *)m_classMap + 128);
+    v20 = *(_OWORD *)&v19->id;
+    v19 = (scr_classStruct_t *)((char *)v19 + 128);
+    *(_OWORD *)&m_classMap[-6].name = v20;
+    *(_OWORD *)&m_classMap[-5].charId = *(_OWORD *)&v19[-5].charId;
+    *(_OWORD *)&m_classMap[-4].id = *(_OWORD *)&v19[-4].id;
+    *(_OWORD *)&m_classMap[-4].name = *(_OWORD *)&v19[-4].name;
+    *(_OWORD *)&m_classMap[-3].charId = *(_OWORD *)&v19[-3].charId;
+    *(_OWORD *)&m_classMap[-2].id = *(_OWORD *)&v19[-2].id;
+    *(_OWORD *)&m_classMap[-2].name = *(_OWORD *)&v19[-2].name;
+    *(_OWORD *)&m_classMap[-1].charId = *(_OWORD *)&v19[-1].charId;
     --v18;
   }
   while ( v18 );
-  *(_QWORD *)&_RCX->id = *(_QWORD *)&_RAX->id;
+  *(_QWORD *)&m_classMap->id = *(_QWORD *)&v19->id;
   scrContext->m_varPub.varUsagePos.m_genericPos = (unsigned __int64)"<script temp variable>";
-  v28 = AllocChildVariable(scrContext, &index);
-  *(_WORD *)&v28->tn &= 0xFFC0u;
-  v28->k.match &= 0x3FFFu;
+  v21 = AllocChildVariable(scrContext, &index);
+  *(_WORD *)&v21->tn &= 0xFFC0u;
+  v21->k.match &= 0x3FFFu;
   scrContext->m_varPub.tempVariable = index;
   scrContext->m_varPub.varUsagePos.m_genericPos = 0i64;
   scrContext->m_varPub.bInited = 1;
@@ -11045,7 +10514,7 @@ void Scr_PrintChildValue(scrContext_t *scrContext, const ChildVariableValue *val
   VariableType v6; 
   __int64 v7; 
   int v10; 
-  unsigned int match; 
+  ChildBucketMatchKeys v11; 
   unsigned int v12; 
   __int64 v13; 
   const char *ShortNameForType; 
@@ -11064,28 +10533,27 @@ void Scr_PrintChildValue(scrContext_t *scrContext, const ChildVariableValue *val
   const char *v27; 
   const char *v28; 
   const char *v29; 
+  float *scriptCodePosValue; 
   const char *v31; 
+  const char *v32; 
+  const char *v33; 
+  const char *v34; 
+  const char *v35; 
+  const char *v36; 
+  const char *v37; 
+  const char *v38; 
+  const char *v39; 
   const char *v40; 
-  const char *v44; 
-  const char *v45; 
-  const char *v46; 
-  const char *v47; 
-  const char *v48; 
-  const char *v49; 
-  const char *v50; 
-  const char *v51; 
-  char *fmt; 
 
   v6 = *(_BYTE *)&value->tn & 0x3F;
   v7 = index;
-  _RSI = value;
   if ( s_childBitArray && !bitarray_base<bitarray<655360>>::testBit(s_childBitArray, index) )
     bitarray_base<bitarray<655360>>::setBit(s_childBitArray, v7);
   ++s_childCount;
   v10 = 0;
-  match = _RSI->k.match;
+  v11.keys = (ChildBucketMatchKeys::<unnamed_type_keys>)value->k;
   s_crPrinted = 1;
-  if ( match < 0x4000 )
+  if ( v11.match < 0x4000 )
   {
     v12 = 0;
 LABEL_14:
@@ -11110,7 +10578,7 @@ LABEL_29:
     }
     goto LABEL_30;
   }
-  v12 = (*(_WORD *)&_RSI->tn >> 6) + ((match & 0x3FFF) << 10);
+  v12 = (*(_WORD *)&value->tn >> 6) + ((*(_WORD *)&v11.keys & 0x3FFF) << 10);
   if ( v12 < 0x80000 )
     goto LABEL_14;
   if ( v12 >= scrContext->m_variableListParentSize + 0x80000 )
@@ -11138,7 +10606,7 @@ LABEL_30:
       {
         if ( s_noIdHeader )
         {
-          type = scrContext->m_varGlob.objectVariableValue[_RSI->u.f.prev].w.type;
+          type = scrContext->m_varGlob.objectVariableValue[value->u.f.prev].w.type;
           NameForTypeExtended = Scr_GetNameForTypeExtended(type);
           Com_Printf(65559, "= %s ", NameForTypeExtended);
           if ( type == VAR_OBJECT )
@@ -11147,7 +10615,7 @@ LABEL_30:
               v23 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
             else
               v23 = (char *)&queryFormat.fmt + 3;
-            Com_Printf(65559, "{%d} %s\n", _RSI->u.f.prev, v23);
+            Com_Printf(65559, "{%d} %s\n", value->u.f.prev, v23);
             v24 = s_crPrinted;
             goto LABEL_46;
           }
@@ -11163,19 +10631,19 @@ LABEL_30:
             v20 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
           else
             v20 = (char *)&queryFormat.fmt + 3;
-          Com_Printf(65559, "%u = %s: ", _RSI->u.f.prev, v20);
+          Com_Printf(65559, "%u = %s: ", value->u.f.prev, v20);
         }
       }
       else
       {
-        v26 = Scr_GetNameForTypeExtended((VariableType)LOBYTE(scrContext->m_varGlob.objectVariableValue[_RSI->u.f.prev].w.type));
+        v26 = Scr_GetNameForTypeExtended((VariableType)LOBYTE(scrContext->m_varGlob.objectVariableValue[value->u.f.prev].w.type));
         Com_Printf(65559, "%s ", v26);
       }
       v24 = 0;
       s_crPrinted = 0;
 LABEL_46:
       LOBYTE(v10) = v24;
-      Scr_PrintObject(scrContext, _RSI->u.f.prev, depth + v10, s_defaultEnterEnts);
+      Scr_PrintObject(scrContext, value->u.f.prev, depth + v10, s_defaultEnterEnts);
       return;
     case VAR_STRING:
       if ( (s_printVarFlags & 0x10) == 0 )
@@ -11184,7 +10652,7 @@ LABEL_46:
         v27 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
         v27 = (char *)&queryFormat.fmt + 3;
-      v28 = SL_ConvertToString((scr_string_t)_RSI->u.f.prev);
+      v28 = SL_ConvertToString((scr_string_t)value->u.f.prev);
       Com_Printf(65559, "= \"%s\" %s\n", v28, v27);
       return;
     case VAR_ISTRING:
@@ -11201,109 +10669,91 @@ LABEL_46:
       }
       return;
     case VAR_VECTOR:
-      _RAX = _RSI->u;
-      if ( !_RSI->u.u.scriptCodePosValue || (s_printVarFlags & 0x10) == 0 )
+      scriptCodePosValue = (float *)value->u.u.scriptCodePosValue;
+      if ( !value->u.u.scriptCodePosValue || (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
       {
         v31 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
-        _RAX = _RSI->u;
+        scriptCodePosValue = (float *)value->u.u.scriptCodePosValue;
       }
       else
       {
         v31 = (char *)&queryFormat.fmt + 3;
       }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rax+4]
-        vmovss  xmm2, dword ptr [rax]
-        vmovss  xmm0, dword ptr [rax+8]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+58h+fmt], xmm0
-      }
-      Com_Printf(65559, "= [%f %f %f] %s\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v31);
+      Com_Printf(65559, "= [%f %f %f] %s\n", *scriptCodePosValue, scriptCodePosValue[1], scriptCodePosValue[2], v31);
       return;
     case VAR_FLOAT:
       if ( (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
-        v40 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+        v32 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
-        v40 = (char *)&queryFormat.fmt + 3;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      Com_Printf(65559, "= %f %s\n", *(double *)&_XMM2, v40);
+        v32 = (char *)&queryFormat.fmt + 3;
+      Com_Printf(65559, "= %f %s\n", value->u.u.floatValue, v32);
       return;
     case VAR_INTEGER:
       if ( (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
-        v44 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+        v33 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
-        v44 = (char *)&queryFormat.fmt + 3;
-      Com_Printf(65559, "= %d %s\n", _RSI->u.f.prev, v44);
+        v33 = (char *)&queryFormat.fmt + 3;
+      Com_Printf(65559, "= %d %s\n", value->u.f.prev, v33);
       return;
     case VAR_CODEPOS:
       if ( (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
-        v48 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+        v37 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
-        v48 = (char *)&queryFormat.fmt + 3;
-      Com_Printf(65559, "= CP*%p %s\n", _RSI->u.u.vectorValue, v48);
+        v37 = (char *)&queryFormat.fmt + 3;
+      Com_Printf(65559, "= CP*%p %s\n", value->u.u.vectorValue, v37);
       return;
     case VAR_PRECODEPOS:
-      v50 = "PRECODEPOS\n";
+      v39 = "PRECODEPOS\n";
       if ( (s_printVarFlags & 0x10) == 0 )
-        v50 = "\n";
-      Com_Printf(65559, v50);
+        v39 = "\n";
+      Com_Printf(65559, v39);
       return;
     case VAR_FUNCTION:
       if ( (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
-        v49 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+        v38 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
-        v49 = (char *)&queryFormat.fmt + 3;
-      Com_Printf(65559, "= F*%p %s\n", _RSI->u.u.vectorValue, v49);
+        v38 = (char *)&queryFormat.fmt + 3;
+      Com_Printf(65559, "= F*%p %s\n", value->u.u.vectorValue, v38);
       return;
     case VAR_BUILTIN_FUNCTION:
       if ( (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
-        v46 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+        v35 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
-        v46 = (char *)&queryFormat.fmt + 3;
-      Com_Printf(65559, "= BF*%d %s\n", _RSI->u.f.prev, v46);
+        v35 = (char *)&queryFormat.fmt + 3;
+      Com_Printf(65559, "= BF*%d %s\n", value->u.f.prev, v35);
       return;
     case VAR_BUILTIN_METHOD:
       if ( (s_printVarFlags & 0x10) == 0 )
         goto LABEL_52;
       if ( s_showCodePos )
-        v47 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+        v36 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
       else
-        v47 = (char *)&queryFormat.fmt + 3;
-      Com_Printf(65559, "= BM*%d %s\n", _RSI->u.f.prev, v47);
+        v36 = (char *)&queryFormat.fmt + 3;
+      Com_Printf(65559, "= BM*%d %s\n", value->u.f.prev, v36);
       return;
     case VAR_STACK:
-      Scr_PrintStackValue(scrContext, _RSI->u.u, v7, depth);
+      Scr_PrintStackValue(scrContext, value->u.u, v7, depth);
       return;
     case VAR_ANIMATION:
       if ( (s_printVarFlags & 0x10) != 0 )
       {
         if ( s_showCodePos )
-          v45 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
+          v34 = Scr_PrintCodePos(scrContext, scrContext->m_varDebugPub.childVarUsage[v7]);
         else
-          v45 = (char *)&queryFormat.fmt + 3;
-        Com_Printf(65559, "= A*%d %s\n", _RSI->u.f.prev, v45);
+          v34 = (char *)&queryFormat.fmt + 3;
+        Com_Printf(65559, "= A*%d %s\n", value->u.f.prev, v34);
       }
       else
       {
@@ -11312,8 +10762,8 @@ LABEL_52:
       }
       return;
     default:
-      v51 = Scr_GetShortNameForType(v6);
-      Com_Printf(65559, "unhandled %s\n", v51);
+      v40 = Scr_GetShortNameForType(v6);
+      Com_Printf(65559, "unhandled %s\n", v40);
       return;
   }
 }
@@ -12018,135 +11468,167 @@ void Scr_PrintVars(scrContext_t *scrContext, unsigned int overrideFlags, bool al
 {
   const char *string; 
   bitarray<262144> *m_ptr; 
-  bitarray<655360> *v15; 
-  unsigned int v16; 
-  unsigned int v17; 
-  bitarray<262144> *v18; 
-  __int64 v19; 
-  bitarray<655360> *v20; 
+  bitarray<655360> *v7; 
+  unsigned int v8; 
+  unsigned int v9; 
+  bitarray<262144> *v10; 
+  __int64 v11; 
+  bitarray<655360> *v12; 
   __int64 i; 
-  unsigned int v22; 
-  int v23; 
-  signed int v24; 
+  unsigned int v14; 
+  unsigned int v15; 
+  signed int v16; 
   unsigned __int8 ActiveGameMode; 
   SvClient *CommonClient; 
   unsigned int gentity; 
-  unsigned int v28; 
-  unsigned int v29; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int levelId; 
+  unsigned int v25; 
+  unsigned int v26; 
+  unsigned int gameId; 
+  ChildVariableValue *v28; 
+  unsigned int prev; 
   unsigned int v30; 
   unsigned int v31; 
-  unsigned int levelId; 
+  unsigned int v32; 
   unsigned int v33; 
-  unsigned int v34; 
-  unsigned int gameId; 
-  ChildVariableValue *v36; 
-  unsigned int prev; 
+  unsigned int animId; 
+  unsigned int v35; 
+  unsigned int v36; 
+  unsigned int timeArrayId; 
   unsigned int v38; 
   unsigned int v39; 
   unsigned int v40; 
   unsigned int v41; 
-  unsigned int animId; 
+  unsigned int pauseArrayId; 
   unsigned int v43; 
   unsigned int v44; 
-  unsigned int timeArrayId; 
+  unsigned int v45; 
   unsigned int v46; 
-  unsigned int v47; 
+  unsigned int notifyArrayId; 
   unsigned int v48; 
   unsigned int v49; 
-  unsigned int pauseArrayId; 
+  unsigned int objectStackId; 
   unsigned int v51; 
   unsigned int v52; 
   unsigned int v53; 
   unsigned int v54; 
-  unsigned int notifyArrayId; 
-  unsigned int v56; 
+  unsigned int v55; 
+  scr_classStruct_t *m_classMap; 
   unsigned int v57; 
-  unsigned int objectStackId; 
-  unsigned int v59; 
+  unsigned int v58; 
+  unsigned int entArrayId; 
   unsigned int v60; 
   unsigned int v61; 
   unsigned int v62; 
-  unsigned int v63; 
-  scr_classStruct_t *m_classMap; 
-  unsigned int v65; 
-  unsigned int v66; 
-  unsigned int entArrayId; 
+  unsigned int m_variableListParentSize; 
+  unsigned int v64; 
+  unsigned __int64 v65; 
+  __int64 v66; 
+  bitarray<262144> *v67; 
   unsigned int v68; 
   unsigned int v69; 
   unsigned int v70; 
-  unsigned int m_variableListParentSize; 
+  unsigned int v71; 
   unsigned int v72; 
-  unsigned __int64 v73; 
-  __int64 v74; 
-  bitarray<262144> *v75; 
-  unsigned int v76; 
-  unsigned int v77; 
+  unsigned int m_variableListChildSize; 
+  unsigned int v74; 
+  unsigned __int64 v75; 
+  __int64 v76; 
+  bitarray<655360> *v77; 
   unsigned int v78; 
   unsigned int v79; 
-  unsigned int v80; 
-  unsigned int m_variableListChildSize; 
-  unsigned int v82; 
-  unsigned __int64 v83; 
-  __int64 v84; 
-  bitarray<655360> *v85; 
-  unsigned int v86; 
-  unsigned int v87; 
-  unsigned int v88; 
-  unsigned int v89; 
-  _DWORD *v115; 
-  Scr_VarCount *v116; 
+  __int64 v80; 
+  __int64 v81; 
+  float v82; 
+  float childCount; 
+  float v84; 
+  float v85; 
+  int v86; 
+  float parentCount; 
+  float v88; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  int v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  _DWORD *v98; 
+  Scr_VarCount *v99; 
   const char **p_name; 
-  __int64 v118; 
+  __int64 v101; 
+  float v102; 
+  float v103; 
+  float v104; 
+  int v105; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  float v115; 
+  float v116; 
+  int v117; 
+  float v118; 
+  float v119; 
+  float v120; 
+  float v121; 
+  int v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
+  float v127; 
   char *fmt; 
   __int64 lineSort; 
   char *fileName; 
   char *functionName; 
-  unsigned int v180; 
-  unsigned int v181; 
-  unsigned int v182; 
-  unsigned int v183; 
-  unsigned int v184; 
-  unsigned int v185; 
-  int v187; 
-  int v188; 
-  int v189; 
-  int v190; 
-  unsigned int v191; 
-  unsigned int v192; 
-  unsigned int v193; 
-  unsigned int v194; 
-  int v195; 
-  unsigned int v196; 
-  unsigned int v197; 
-  unsigned int v198; 
-  unsigned int v199; 
-  unsigned int v200; 
-  unsigned int v201; 
-  int v202; 
-  unsigned int v203; 
-  int v204; 
-  unsigned int v205; 
-  int v206; 
+  unsigned int v132; 
+  unsigned int v133; 
+  unsigned int v134; 
+  unsigned int v135; 
+  unsigned int v136; 
+  unsigned int v137; 
+  int v139; 
+  unsigned int v140; 
+  unsigned int v141; 
+  int v142; 
+  unsigned int v143; 
+  unsigned int v144; 
+  unsigned int v145; 
+  unsigned int v146; 
+  int v147; 
+  unsigned int v148; 
+  unsigned int v149; 
+  unsigned int v150; 
+  unsigned int v151; 
+  unsigned int v152; 
+  unsigned int v153; 
+  int v154; 
+  unsigned int v155; 
+  int v156; 
+  unsigned int v157; 
+  int v158; 
   Scr_VarCount varCountPlayer; 
-  unsigned int v208; 
-  unsigned int v209; 
-  __int64 v210; 
-  Mem_LargeLocal v211; 
-  Mem_LargeLocal v212; 
+  unsigned int v160; 
+  unsigned int v161; 
+  __int64 v162; 
+  Mem_LargeLocal v163; 
+  Mem_LargeLocal v164; 
   _BYTE varCountByClass[128]; 
-  int v214; 
-  char v215; 
-  void *retaddr; 
+  int v166; 
 
-  _RAX = &retaddr;
-  v210 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
+  v162 = -2i64;
   if ( scrContext->m_varDebugPub.m_Inited )
   {
     if ( allowFile )
@@ -12155,70 +11637,70 @@ void Scr_PrintVars(scrContext_t *scrContext, unsigned int overrideFlags, bool al
       if ( *string )
         Com_OpenUserFileCon(string);
     }
-    Mem_LargeLocal::Mem_LargeLocal(&v212, 0x8000ui64, "parentBitArray_t tParentBitArray");
-    m_ptr = (bitarray<262144> *)v212.m_ptr;
-    Mem_LargeLocal::Mem_LargeLocal(&v211, 0x14000ui64, "childBitArray_t tChildBitArray");
-    v15 = (bitarray<655360> *)v211.m_ptr;
+    Mem_LargeLocal::Mem_LargeLocal(&v164, 0x8000ui64, "parentBitArray_t tParentBitArray");
+    m_ptr = (bitarray<262144> *)v164.m_ptr;
+    Mem_LargeLocal::Mem_LargeLocal(&v163, 0x14000ui64, "childBitArray_t tChildBitArray");
+    v7 = (bitarray<655360> *)v163.m_ptr;
     if ( !overrideFlags )
       overrideFlags = script_print_vars_flags->current.unsignedInt;
     s_printVarFlags = overrideFlags;
     s_noIdHeader = (overrideFlags & 1) == 0;
     s_showCodePos = (overrideFlags & 2) != 0;
-    v16 = overrideFlags >> 3;
-    LOBYTE(v16) = (overrideFlags & 8) != 0;
-    v208 = v16;
-    v17 = overrideFlags >> 2;
-    LOBYTE(v17) = v17 & 1;
-    v209 = v17;
-    v18 = m_ptr;
-    v19 = 512i64;
+    v8 = overrideFlags >> 3;
+    LOBYTE(v8) = (overrideFlags & 8) != 0;
+    v160 = v8;
+    v9 = overrideFlags >> 2;
+    LOBYTE(v9) = v9 & 1;
+    v161 = v9;
+    v10 = m_ptr;
+    v11 = 512i64;
     do
     {
-      *(_QWORD *)v18->array = 0i64;
-      *(_QWORD *)&v18->array[2] = 0i64;
-      *(_QWORD *)&v18->array[4] = 0i64;
-      v18 = (bitarray<262144> *)((char *)v18 + 64);
-      *(_QWORD *)&v18[-1].array[8182] = 0i64;
-      *(_QWORD *)&v18[-1].array[8184] = 0i64;
-      *(_QWORD *)&v18[-1].array[8186] = 0i64;
-      *(_QWORD *)&v18[-1].array[8188] = 0i64;
-      *(_QWORD *)&v18[-1].array[8190] = 0i64;
-      --v19;
+      *(_QWORD *)v10->array = 0i64;
+      *(_QWORD *)&v10->array[2] = 0i64;
+      *(_QWORD *)&v10->array[4] = 0i64;
+      v10 = (bitarray<262144> *)((char *)v10 + 64);
+      *(_QWORD *)&v10[-1].array[8182] = 0i64;
+      *(_QWORD *)&v10[-1].array[8184] = 0i64;
+      *(_QWORD *)&v10[-1].array[8186] = 0i64;
+      *(_QWORD *)&v10[-1].array[8188] = 0i64;
+      *(_QWORD *)&v10[-1].array[8190] = 0i64;
+      --v11;
     }
-    while ( v19 );
+    while ( v11 );
     s_parentBitArray = m_ptr;
-    v20 = v15;
+    v12 = v7;
     for ( i = 20480i64; i; --i )
     {
-      v20->array[0] = 0;
-      v20 = (bitarray<655360> *)((char *)v20 + 4);
+      v12->array[0] = 0;
+      v12 = (bitarray<655360> *)((char *)v12 + 4);
     }
-    s_childBitArray = v15;
+    s_childBitArray = v7;
     memset(varCountByClass, 0, sizeof(varCountByClass));
-    v214 = 0;
+    v166 = 0;
     *(_QWORD *)&varCountPlayer.childCount = 0i64;
     varCountPlayer.objectCount = 0;
-    v22 = 0;
-    v200 = 0;
-    v23 = 0;
-    v189 = 0;
-    v190 = 0;
-    v201 = 0;
-    v191 = 0;
-    v202 = 0;
-    v203 = 0;
-    v192 = 0;
-    v204 = 0;
-    v205 = 0;
-    v193 = 0;
-    v206 = 0;
-    v183 = 0;
-    v180 = 0;
-    v24 = 0;
-    v187 = 0;
-    v194 = 0;
-    v188 = 0;
-    v195 = 0;
+    v14 = 0;
+    v152 = 0;
+    v15 = 0;
+    v141 = 0;
+    v142 = 0;
+    v153 = 0;
+    v143 = 0;
+    v154 = 0;
+    v155 = 0;
+    v144 = 0;
+    v156 = 0;
+    v157 = 0;
+    v145 = 0;
+    v158 = 0;
+    v135 = 0;
+    v132 = 0;
+    v16 = 0;
+    v139 = 0;
+    v146 = 0;
+    v140 = 0;
+    v147 = 0;
     Com_Printf(65559, "entity variables:\n");
     s_defaultEnterEnts = 0;
     s_childCount = 0;
@@ -12232,54 +11714,54 @@ void Scr_PrintVars(scrContext_t *scrContext, unsigned int overrideFlags, bool al
         Com_Printf(65559, "client variables:\n");
         if ( (int)SvClient::ms_clientCount <= 0 )
         {
-          v24 = 0;
+          v16 = 0;
         }
         else
         {
           do
           {
-            if ( SvClient::GetCommonClient(v24)->state >= CS_CONNECTED )
+            if ( SvClient::GetCommonClient(v16)->state >= CS_CONNECTED )
             {
               if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
                 __debugbreak();
-              CommonClient = SvClient::GetCommonClient(v24);
-              if ( !SV_ClientMP_IsLocalClient(v24) && (SV_ClientMP_IsLocalClient(v24) || *(_QWORD *)&CommonClient[1].state) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 1644, ASSERT_TYPE_ASSERT, "(SV_ClientMP_IsLocalClient( i ) || !SV_ClientMP_IsLocalClient( i ) && !client->dropReason)", "%s\n\tUnexpected drop reason for non local clients", "SV_ClientMP_IsLocalClient( i ) || !SV_ClientMP_IsLocalClient( i ) && !client->dropReason") )
+              CommonClient = SvClient::GetCommonClient(v16);
+              if ( !SV_ClientMP_IsLocalClient(v16) && (SV_ClientMP_IsLocalClient(v16) || *(_QWORD *)&CommonClient[1].state) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 1644, ASSERT_TYPE_ASSERT, "(SV_ClientMP_IsLocalClient( i ) || !SV_ClientMP_IsLocalClient( i ) && !client->dropReason)", "%s\n\tUnexpected drop reason for non local clients", "SV_ClientMP_IsLocalClient( i ) || !SV_ClientMP_IsLocalClient( i ) && !client->dropReason") )
                 __debugbreak();
               gentity = (unsigned int)CommonClient[854].gentity;
               if ( gentity )
               {
-                v28 = s_childCount;
-                v29 = s_parentCount;
+                v20 = s_childCount;
+                v21 = s_parentCount;
                 Com_Printf(65559, "%s variables:\n", "client");
                 Scr_PrintObject(scrContext, gentity, 1, 0);
-                v30 = s_childCount - v28;
-                v31 = s_parentCount - v29;
-                Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v30, s_parentCount - v29);
-                v22 += v30;
-                v23 += v31;
-                ++v190;
+                v22 = s_childCount - v20;
+                v23 = s_parentCount - v21;
+                Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v22, s_parentCount - v21);
+                v14 += v22;
+                v15 += v23;
+                ++v142;
               }
             }
-            ++v24;
+            ++v16;
           }
-          while ( v24 < (int)SvClient::ms_clientCount );
-          v200 = v22;
-          v189 = v23;
-          v24 = 0;
+          while ( v16 < (int)SvClient::ms_clientCount );
+          v152 = v14;
+          v141 = v15;
+          v16 = 0;
         }
       }
     }
     levelId = scrContext->m_varPub.levelId;
     if ( levelId )
     {
-      v33 = s_childCount;
-      v34 = s_parentCount;
+      v25 = s_childCount;
+      v26 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "level");
       Scr_PrintObject(scrContext, levelId, 1, 0);
-      v201 = s_childCount - v33;
-      v191 = s_parentCount - v34;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v33, s_parentCount - v34);
-      v202 = 1;
+      v153 = s_childCount - v25;
+      v143 = s_parentCount - v26;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v25, s_parentCount - v26);
+      v154 = 1;
     }
     gameId = scrContext->m_varPub.gameId;
     if ( !gameId )
@@ -12287,107 +11769,107 @@ void Scr_PrintVars(scrContext_t *scrContext, unsigned int overrideFlags, bool al
     if ( s_childBitArray && !bitarray_base<bitarray<655360>>::testBit(s_childBitArray, gameId) )
       bitarray_base<bitarray<655360>>::setBit(s_childBitArray, scrContext->m_varPub.gameId);
     ++s_childCount;
-    v36 = &scrContext->m_varGlob.childVariableValue[scrContext->m_varPub.gameId];
-    if ( (*(_BYTE *)&v36->tn & 0x3F) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 1668, ASSERT_TYPE_ASSERT, "(value->GetType() == VAR_POINTER)", (const char *)&queryFormat, "value->GetType() == VAR_POINTER") )
+    v28 = &scrContext->m_varGlob.childVariableValue[scrContext->m_varPub.gameId];
+    if ( (*(_BYTE *)&v28->tn & 0x3F) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 1668, ASSERT_TYPE_ASSERT, "(value->GetType() == VAR_POINTER)", (const char *)&queryFormat, "value->GetType() == VAR_POINTER") )
       __debugbreak();
-    prev = v36->u.f.prev;
-    if ( v36->u.f.prev )
+    prev = v28->u.f.prev;
+    if ( v28->u.f.prev )
     {
-      v38 = s_childCount;
-      v39 = s_parentCount;
+      v30 = s_childCount;
+      v31 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "game");
       Scr_PrintObject(scrContext, prev, 1, 0);
-      v40 = s_childCount - v38;
-      v183 = s_childCount - v38;
-      v41 = s_parentCount - v39;
-      v180 = s_parentCount - v39;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v38, s_parentCount - v39);
-      v24 = 1;
-      v187 = 1;
+      v32 = s_childCount - v30;
+      v135 = s_childCount - v30;
+      v33 = s_parentCount - v31;
+      v132 = s_parentCount - v31;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v30, s_parentCount - v31);
+      v16 = 1;
+      v139 = 1;
     }
     else
     {
 LABEL_40:
-      v41 = 0;
-      v40 = 0;
+      v33 = 0;
+      v32 = 0;
     }
     animId = scrContext->m_varPub.animId;
     if ( animId )
     {
-      v43 = s_childCount;
-      v44 = s_parentCount;
+      v35 = s_childCount;
+      v36 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "anim");
       Scr_PrintObject(scrContext, animId, 1, 0);
-      v203 = s_childCount - v43;
-      v192 = s_parentCount - v44;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v43, s_parentCount - v44);
-      v204 = 1;
+      v155 = s_childCount - v35;
+      v144 = s_parentCount - v36;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v35, s_parentCount - v36);
+      v156 = 1;
     }
     timeArrayId = scrContext->m_varPub.timeArrayId;
     if ( timeArrayId )
     {
-      v46 = s_childCount;
-      v47 = s_parentCount;
+      v38 = s_childCount;
+      v39 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "timeArray");
       Scr_PrintObject(scrContext, timeArrayId, 1, 0);
-      v48 = s_childCount - v46;
-      v49 = s_parentCount - v47;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v48, s_parentCount - v47);
-      v40 += v48;
-      v183 = v40;
-      v41 += v49;
-      v180 = v41;
-      v187 = ++v24;
+      v40 = s_childCount - v38;
+      v41 = s_parentCount - v39;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v40, s_parentCount - v39);
+      v32 += v40;
+      v135 = v32;
+      v33 += v41;
+      v132 = v33;
+      v139 = ++v16;
     }
     pauseArrayId = scrContext->m_varPub.pauseArrayId;
     if ( pauseArrayId )
     {
-      v51 = s_childCount;
-      v52 = s_parentCount;
+      v43 = s_childCount;
+      v44 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "pauseArray");
       Scr_PrintObject(scrContext, pauseArrayId, 1, 0);
-      v53 = s_childCount - v51;
-      v54 = s_parentCount - v52;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v53, s_parentCount - v52);
-      v40 += v53;
-      v183 = v40;
-      v41 += v54;
-      v180 = v41;
-      v187 = ++v24;
+      v45 = s_childCount - v43;
+      v46 = s_parentCount - v44;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v45, s_parentCount - v44);
+      v32 += v45;
+      v135 = v32;
+      v33 += v46;
+      v132 = v33;
+      v139 = ++v16;
     }
     notifyArrayId = scrContext->m_varPub.notifyArrayId;
     if ( notifyArrayId )
     {
-      v56 = s_childCount;
-      v57 = s_parentCount;
+      v48 = s_childCount;
+      v49 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "notifyArray");
       Scr_PrintObject(scrContext, notifyArrayId, 1, 0);
-      v205 = s_childCount - v56;
-      v193 = s_parentCount - v57;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v56, s_parentCount - v57);
-      v206 = 1;
+      v157 = s_childCount - v48;
+      v145 = s_parentCount - v49;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v48, s_parentCount - v49);
+      v158 = 1;
     }
     objectStackId = scrContext->m_varPub.objectStackId;
     if ( objectStackId )
     {
-      v59 = s_childCount;
-      v60 = s_parentCount;
+      v51 = s_childCount;
+      v52 = s_parentCount;
       Com_Printf(65559, "%s variables:\n", "objectStack");
       Scr_PrintObject(scrContext, objectStackId, 1, 0);
-      v61 = s_childCount - v59;
-      v62 = s_parentCount - v60;
-      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v61, s_parentCount - v60);
-      v183 = v61 + v40;
-      v180 = v62 + v41;
-      v187 = v24 + 1;
+      v53 = s_childCount - v51;
+      v54 = s_parentCount - v52;
+      Com_Printf(65559, "  childCount = %d    parentCount = %d\n", v53, s_parentCount - v52);
+      v135 = v53 + v32;
+      v132 = v54 + v33;
+      v139 = v16 + 1;
     }
     Com_Printf(65559, "classMaps\n");
-    v63 = 0;
+    v55 = 0;
     m_classMap = scrContext->m_varPub.m_classMap;
     do
     {
-      v65 = s_childCount;
-      v66 = s_parentCount;
+      v57 = s_childCount;
+      v58 = s_parentCount;
       if ( s_crPrinted )
         Com_Printf(65559, "%*s", 2, (const char *)&queryFormat.fmt + 3);
       Com_Printf(65559, "classMap %s:\n", m_classMap->name);
@@ -12398,468 +11880,323 @@ LABEL_40:
         Scr_PrintObject(scrContext, entArrayId, 2, 0);
       if ( s_crPrinted )
         Com_Printf(65559, "%*s", 6, (const char *)&queryFormat.fmt + 3);
-      v68 = s_childCount - v65;
-      v69 = s_parentCount - v66;
-      Com_Printf(65559, "childCount = %d    parentCount = %d\n", v68, s_parentCount - v66);
-      v194 += v68;
-      v188 += v69;
-      ++v195;
-      ++v63;
+      v60 = s_childCount - v57;
+      v61 = s_parentCount - v58;
+      Com_Printf(65559, "childCount = %d    parentCount = %d\n", v60, s_parentCount - v58);
+      v146 += v60;
+      v140 += v61;
+      ++v147;
+      ++v55;
       ++m_classMap;
     }
-    while ( v63 < 0xB );
-    v70 = s_childCount;
-    v196 = s_childCount;
-    v198 = s_parentCount;
+    while ( v55 < 0xB );
+    v62 = s_childCount;
+    v148 = s_childCount;
+    v150 = s_parentCount;
     Com_Printf(65559, "leftover parents:\n");
     m_variableListParentSize = scrContext->m_variableListParentSize;
-    v72 = 0;
+    v64 = 0;
     if ( m_variableListParentSize )
     {
-      v73 = 0i64;
-      v74 = 0i64;
+      v65 = 0i64;
+      v66 = 0i64;
       do
       {
-        if ( LOBYTE(scrContext->m_varGlob.objectVariableValue[v74].w.type) != 26 )
+        if ( LOBYTE(scrContext->m_varGlob.objectVariableValue[v66].w.type) != 26 )
         {
-          v75 = s_parentBitArray;
-          if ( v72 >= 0x40000 )
+          v67 = s_parentBitArray;
+          if ( v64 >= 0x40000 )
           {
             LODWORD(fileName) = 0x40000;
-            LODWORD(lineSort) = v72;
+            LODWORD(lineSort) = v64;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", lineSort, fileName) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (v72 & 0x1F)) & v75->array[v73 >> 5]) == 0 )
-            Scr_PrintObject(scrContext, v72, 1, s_defaultEnterEnts);
+          if ( ((0x80000000 >> (v64 & 0x1F)) & v67->array[v65 >> 5]) == 0 )
+            Scr_PrintObject(scrContext, v64, 1, s_defaultEnterEnts);
         }
-        ++v72;
-        ++v73;
-        ++v74;
+        ++v64;
+        ++v65;
+        ++v66;
       }
-      while ( v72 < m_variableListParentSize );
-      v70 = v196;
+      while ( v64 < m_variableListParentSize );
+      v62 = v148;
     }
-    v76 = s_childCount - v70;
-    v77 = s_parentCount - v198;
-    Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v70, s_parentCount - v198);
-    v78 = v76 + v183;
-    v184 = v76 + v183;
-    v79 = v77 + v180;
-    v181 = v77 + v180;
-    v80 = s_childCount;
-    v199 = s_childCount;
-    v197 = s_parentCount;
+    v68 = s_childCount - v62;
+    v69 = s_parentCount - v150;
+    Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v62, s_parentCount - v150);
+    v70 = v68 + v135;
+    v136 = v68 + v135;
+    v71 = v69 + v132;
+    v133 = v69 + v132;
+    v72 = s_childCount;
+    v151 = s_childCount;
+    v149 = s_parentCount;
     Com_Printf(65559, "leftover children:\n");
     m_variableListChildSize = scrContext->m_variableListChildSize;
-    v82 = 1;
+    v74 = 1;
     if ( m_variableListChildSize > 1 )
     {
-      v83 = 1i64;
-      v84 = 1i64;
+      v75 = 1i64;
+      v76 = 1i64;
       do
       {
-        if ( (*(_BYTE *)&scrContext->m_varGlob.childVariableValue[v84].tn & 0x3F) != 26 )
+        if ( (*(_BYTE *)&scrContext->m_varGlob.childVariableValue[v76].tn & 0x3F) != 26 )
         {
-          v85 = s_childBitArray;
-          if ( v82 >= 0xA0000 )
+          v77 = s_childBitArray;
+          if ( v74 >= 0xA0000 )
           {
             LODWORD(fileName) = 655360;
-            LODWORD(lineSort) = v82;
+            LODWORD(lineSort) = v74;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", lineSort, fileName) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (v82 & 0x1F)) & v85->array[v83 >> 5]) == 0 )
-            Scr_PrintChild(scrContext, v82, 1, 0);
+          if ( ((0x80000000 >> (v74 & 0x1F)) & v77->array[v75 >> 5]) == 0 )
+            Scr_PrintChild(scrContext, v74, 1, 0);
         }
-        ++v82;
-        ++v83;
-        ++v84;
+        ++v74;
+        ++v75;
+        ++v76;
       }
-      while ( v82 < m_variableListChildSize );
-      v80 = v199;
-      v79 = v181;
-      v78 = v184;
+      while ( v74 < m_variableListChildSize );
+      v72 = v151;
+      v71 = v133;
+      v70 = v136;
     }
-    v86 = s_childCount - v80;
-    v87 = s_parentCount - v197;
-    Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v80, s_parentCount - v197);
-    v185 = v86 + v78;
-    v182 = v87 + v79;
+    v78 = s_childCount - v72;
+    v79 = s_parentCount - v149;
+    Com_Printf(65559, "  childCount = %d    parentCount = %d\n", s_childCount - v72, s_parentCount - v149);
+    v137 = v78 + v70;
+    v134 = v79 + v71;
     Com_Printf(65559, "\n");
-    v88 = s_childCount;
-    v89 = s_parentCount;
+    v80 = s_childCount;
+    v81 = s_parentCount;
     Com_Printf(65559, "        TYPE :      child     parent\n");
     Com_Printf(65559, "--------------------------------------------------------\n");
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  xmm7, cs:__real@42c80000
-    }
+    v82 = 0.0;
     if ( varCountPlayer.childCount || varCountPlayer.parentCount )
     {
-      if ( v88 )
+      if ( (_DWORD)v80 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r9
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14
-          vdivss  xmm2, xmm1, xmm0
-        }
+        childCount = (float)varCountPlayer.childCount;
+        v84 = (float)v80;
+        v85 = childCount / v84;
       }
       else
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v85 = 0.0;
       }
-      __asm
+      v86 = (int)(float)(v85 * 100.0);
+      if ( (_DWORD)v81 )
       {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si edi, xmm0
-      }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdx
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r15
-          vdivss  xmm2, xmm1, xmm0
-        }
+        parentCount = (float)varCountPlayer.parentCount;
+        v88 = (float)v81;
+        v89 = parentCount / v88;
       }
       else
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v89 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si ecx, xmm0
-      }
-      LODWORD(fileName) = _ECX;
+      LODWORD(fileName) = (int)(float)(v89 * 100.0);
       LODWORD(lineSort) = varCountPlayer.parentCount;
-      LODWORD(fmt) = _EDI;
+      LODWORD(fmt) = v86;
       Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", rowName, varCountPlayer.childCount, fmt, lineSort, fileName, varCountPlayer.objectCount);
     }
-    __asm
+    v90 = (float)v80;
+    if ( v152 || v141 )
     {
-      vxorps  xmm9, xmm9, xmm9
-      vcvtsi2ss xmm9, xmm9, rax
-    }
-    if ( v200 || v189 )
-    {
-      if ( v88 )
+      if ( (_DWORD)v80 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r9
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v91 = (float)v152;
+        v92 = (float)v80;
+        v93 = v91 / v92;
       }
       else
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v93 = 0.0;
       }
-      __asm
+      v94 = (int)(float)(v93 * 100.0);
+      if ( (_DWORD)v81 )
       {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si ecx, xmm0
-      }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r15
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v95 = (float)v141;
+        v96 = (float)v81;
+        v97 = v95 / v96;
       }
       else
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v97 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(functionName) = v190;
-      LODWORD(fileName) = _EAX;
-      LODWORD(lineSort) = v189;
-      LODWORD(fmt) = _ECX;
-      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "client", v200, fmt, lineSort, fileName, functionName);
+      LODWORD(functionName) = v142;
+      LODWORD(fileName) = (int)(float)(v97 * 100.0);
+      LODWORD(lineSort) = v141;
+      LODWORD(fmt) = v94;
+      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "client", v152, fmt, lineSort, fileName, functionName);
     }
-    v115 = &varCountByClass[8];
-    v116 = (Scr_VarCount *)varCountByClass;
+    v98 = &varCountByClass[8];
+    v99 = (Scr_VarCount *)varCountByClass;
     p_name = &scrContext->m_varPub.m_classMap[0].name;
-    v118 = 11i64;
+    v101 = 11i64;
     do
     {
-      if ( *v115 )
-        Scr_VarCount_Print(v116, *p_name, v88, v89);
-      ++v116;
+      if ( *v98 )
+        Scr_VarCount_Print(v99, *p_name, v80, v81);
+      ++v99;
       p_name += 3;
-      v115 += 3;
-      --v118;
+      v98 += 3;
+      --v101;
     }
-    while ( v118 );
-    if ( v201 || v191 )
+    while ( v101 );
+    if ( v153 || v143 )
     {
-      if ( v88 )
+      if ( (_DWORD)v80 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdx
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v102 = (float)v153;
+        v103 = (float)v80;
+        v104 = v102 / v103;
       }
       else
       {
-        __asm { vmovaps xmm2, xmm6 }
+        v104 = 0.0;
       }
-      __asm
+      v105 = (int)(float)(v104 * 100.0);
+      if ( (_DWORD)v81 )
       {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si ecx, xmm0
-      }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r15
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v106 = (float)v143;
+        v107 = (float)v81;
+        v108 = v106 / v107;
       }
       else
       {
-        __asm { vmovaps xmm2, xmm6 }
+        v108 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(functionName) = v202;
-      LODWORD(fileName) = _EAX;
-      LODWORD(lineSort) = v191;
-      LODWORD(fmt) = _ECX;
-      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "level", v201, fmt, lineSort, fileName, functionName);
+      LODWORD(functionName) = v154;
+      LODWORD(fileName) = (int)(float)(v108 * 100.0);
+      LODWORD(lineSort) = v143;
+      LODWORD(fmt) = v105;
+      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "level", v153, fmt, lineSort, fileName, functionName);
     }
-    __asm
+    v109 = (float)v81;
+    if ( v155 || v144 )
     {
-      vxorps  xmm8, xmm8, xmm8
-      vcvtsi2ss xmm8, xmm8, r15
+      if ( (_DWORD)v80 )
+      {
+        v110 = (float)v155;
+        v111 = v110 / v90;
+      }
+      else
+      {
+        v111 = 0.0;
+      }
+      if ( (_DWORD)v81 )
+      {
+        v112 = (float)v144;
+        v113 = (float)v81;
+        v114 = v112 / v113;
+      }
+      else
+      {
+        v114 = 0.0;
+      }
+      LODWORD(functionName) = v156;
+      LODWORD(fileName) = (int)(float)(v114 * 100.0);
+      LODWORD(lineSort) = v144;
+      LODWORD(fmt) = (int)(float)(v111 * 100.0);
+      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "anim", v155, fmt, lineSort, fileName, functionName);
     }
-    if ( v203 || v192 )
+    if ( v157 || v145 )
     {
-      if ( v88 )
+      if ( (_DWORD)v80 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rdx
-          vdivss  xmm1, xmm0, xmm9
-        }
+        v115 = (float)v157;
+        v116 = v115 / v90;
       }
       else
       {
-        __asm { vmovaps xmm1, xmm6 }
+        v116 = 0.0;
       }
-      __asm
+      v117 = (int)(float)(v116 * 100.0);
+      if ( (_DWORD)v81 )
       {
-        vmulss  xmm0, xmm1, xmm7
-        vcvttss2si ecx, xmm0
-      }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r15
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v118 = (float)v145;
+        v119 = v118 / v109;
       }
       else
       {
-        __asm { vmovaps xmm2, xmm6 }
+        v119 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm2, xmm7
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(functionName) = v204;
-      LODWORD(fileName) = _EAX;
-      LODWORD(lineSort) = v192;
-      LODWORD(fmt) = _ECX;
-      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "anim", v203, fmt, lineSort, fileName, functionName);
+      LODWORD(functionName) = v158;
+      LODWORD(fileName) = (int)(float)(v119 * 100.0);
+      LODWORD(lineSort) = v145;
+      LODWORD(fmt) = v117;
+      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "notify", v157, fmt, lineSort, fileName, functionName);
     }
-    if ( v205 || v193 )
+    if ( v146 || v140 )
     {
-      if ( v88 )
+      if ( (_DWORD)v80 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rdx
-          vdivss  xmm1, xmm0, xmm9
-        }
+        v120 = (float)v146;
+        v121 = v120 / v90;
       }
       else
       {
-        __asm { vmovaps xmm1, xmm6 }
+        v121 = 0.0;
       }
-      __asm
+      v122 = (int)(float)(v121 * 100.0);
+      if ( (_DWORD)v81 )
       {
-        vmulss  xmm0, xmm1, xmm7
-        vcvttss2si ecx, xmm0
-      }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm1, xmm0, xmm8
-        }
+        v123 = (float)v140;
+        v124 = v123 / v109;
       }
       else
       {
-        __asm { vmovaps xmm1, xmm6 }
+        v124 = 0.0;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm7
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(functionName) = v206;
-      LODWORD(fileName) = _EAX;
-      LODWORD(lineSort) = v193;
-      LODWORD(fmt) = _ECX;
-      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "notify", v205, fmt, lineSort, fileName, functionName);
+      LODWORD(functionName) = v147;
+      LODWORD(fileName) = (int)(float)(v124 * 100.0);
+      LODWORD(lineSort) = v140;
+      LODWORD(fmt) = v122;
+      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "classmap", v146, fmt, lineSort, fileName, functionName);
     }
-    if ( v194 || v188 )
+    if ( v137 || v134 )
     {
-      if ( v88 )
+      if ( (_DWORD)v80 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r9
-          vdivss  xmm1, xmm0, xmm9
-        }
+        v125 = (float)v137;
+        v126 = v125 / v90;
       }
       else
       {
-        __asm { vmovaps xmm1, xmm6 }
+        v126 = 0.0;
       }
-      __asm
+      if ( (_DWORD)v81 )
       {
-        vmulss  xmm0, xmm1, xmm7
-        vcvttss2si ecx, xmm0
+        v127 = (float)v134;
+        v82 = v127 / v109;
       }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm1, xmm0, xmm8
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm1, xmm6 }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm7
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(functionName) = v195;
-      LODWORD(fileName) = _EAX;
-      LODWORD(lineSort) = v188;
-      LODWORD(fmt) = _ECX;
-      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "classmap", v194, fmt, lineSort, fileName, functionName);
+      LODWORD(functionName) = v139 + 2;
+      LODWORD(fileName) = (int)(float)(v82 * 100.0);
+      LODWORD(lineSort) = v134;
+      LODWORD(fmt) = (int)(float)(v126 * 100.0);
+      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "misc", v137, fmt, lineSort, fileName, functionName);
     }
-    if ( v185 || v182 )
-    {
-      if ( v88 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r9
-          vdivss  xmm1, xmm0, xmm9
-        }
-      }
-      else
-      {
-        __asm { vmovaps xmm1, xmm6 }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm7
-        vcvttss2si ecx, xmm0
-      }
-      if ( v89 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm6, xmm0, xmm8
-        }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm7
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(functionName) = v187 + 2;
-      LODWORD(fileName) = _EAX;
-      LODWORD(lineSort) = v182;
-      LODWORD(fmt) = _ECX;
-      Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", "misc", v185, fmt, lineSort, fileName, functionName);
-    }
-    LODWORD(fmt) = v89;
-    Com_Printf(65559, "  %10s : %6d     %6d\n", "TOTALS", v88, fmt);
-    Com_Printf(65559, "  %10s : %d vars\n", "GRANDTOTAL", v89 + v88);
+    LODWORD(fmt) = v81;
+    Com_Printf(65559, "  %10s : %6d     %6d\n", "TOTALS", (unsigned int)v80, fmt);
+    Com_Printf(65559, "  %10s : %d vars\n", "GRANDTOTAL", (unsigned int)(v81 + v80));
     Com_Printf(65559, "\n");
     s_parentBitArray = NULL;
     s_childBitArray = NULL;
     s_defaultEnterEnts = 1;
-    if ( (_BYTE)v208 )
+    if ( (_BYTE)v160 )
       Scr_DumpScriptVariables(scrContext, 1, 0, 0, 0, 0, NULL, NULL, 0, 1, 1, 1);
-    if ( (_BYTE)v209 )
+    if ( (_BYTE)v161 )
       Scr_DumpScriptThreads(scrContext, 0);
-    if ( allowFile && *(_BYTE *)script_print_vars_file->current.integer64 )
-      Com_CloseUserFileCon();
-    Mem_LargeLocal::~Mem_LargeLocal(&v211);
-    Mem_LargeLocal::~Mem_LargeLocal(&v212);
-  }
-  _R11 = &v215;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    if ( allowFile )
+    {
+      if ( *(_BYTE *)script_print_vars_file->current.integer64 )
+        Com_CloseUserFileCon();
+    }
+    Mem_LargeLocal::~Mem_LargeLocal(&v163);
+    Mem_LargeLocal::~Mem_LargeLocal(&v164);
   }
 }
 
@@ -13012,8 +12349,8 @@ __int64 Scr_SetEntityScriptVariableType(scrContext_t *scrContext, unsigned int k
   const char *NameForType; 
   int v12; 
   float valuea; 
-  int v16; 
-  int v17; 
+  float v15; 
+  float v16; 
 
   if ( !value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.cpp", 8626, ASSERT_TYPE_ASSERT, (const char *)&stru_143CE7590.m_end, (const char *)&queryFormat, &stru_143CE7590) )
     __debugbreak();
@@ -13035,14 +12372,10 @@ __int64 Scr_SetEntityScriptVariableType(scrContext_t *scrContext, unsigned int k
       Scr_AddString(scrContext, value);
       break;
     case VAR_VECTOR:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+68h+value], xmm0
-        vmovss  [rsp+68h+var_34], xmm0
-        vmovss  [rsp+68h+var_30], xmm0
-      }
-      j_sscanf(value, "%f %f %f", &valuea, &v16, &v17);
+      valuea = 0.0;
+      v15 = 0.0;
+      v16 = 0.0;
+      j_sscanf(value, "%f %f %f", &valuea, &v15, &v16);
       Scr_AddVector(scrContext, &valuea);
       return v8;
     case VAR_FLOAT:
@@ -13231,54 +12564,39 @@ Scr_VarCount_Print
 */
 void Scr_VarCount_Print(Scr_VarCount *varCount, const char *name, unsigned int childCount, unsigned int parentCount)
 {
-  __int64 v10; 
-  unsigned int v16; 
-  unsigned int objectCount; 
+  __int64 v4; 
+  __int64 v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
 
-  v10 = varCount->childCount;
+  v4 = parentCount;
+  v6 = varCount->childCount;
   if ( *(_QWORD *)&varCount->childCount )
   {
-    __asm { vxorps  xmm2, xmm2, xmm2 }
+    v7 = 0.0;
     if ( childCount )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, r9
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm3, xmm1, xmm0
-      }
+      v8 = (float)v6;
+      v9 = (float)childCount;
+      v10 = v8 / v9;
     }
     else
     {
-      __asm { vxorps  xmm3, xmm3, xmm3 }
+      v10 = 0.0;
     }
-    v16 = varCount->parentCount;
-    __asm
+    v11 = varCount->parentCount;
+    if ( (_DWORD)v4 )
     {
-      vmovss  xmm4, cs:__real@42c80000
-      vmulss  xmm0, xmm3, xmm4
-      vcvttss2si r8d, xmm0
+      v12 = (float)v11;
+      v13 = (float)v4;
+      v7 = v12 / v13;
     }
-    if ( parentCount )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, rdx
-        vcvtsi2ss xmm0, xmm0, r11
-        vdivss  xmm2, xmm1, xmm0
-      }
-    }
-    objectCount = varCount->objectCount;
-    __asm
-    {
-      vmulss  xmm0, xmm2, xmm4
-      vcvttss2si ecx, xmm0
-    }
-    Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", name, v10, _ER8, v16, _ECX, objectCount);
+    Com_Printf(65559, "  %10s : %6d %2d%% %6d %2d%%  -  %d objects\n", name, v6, (int)(float)(v10 * 100.0), v11, (int)(float)(v7 * 100.0), varCount->objectCount);
   }
 }
 

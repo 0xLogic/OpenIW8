@@ -386,168 +386,143 @@ void MemBudget_BudgetFile_ProcessTable(const StringTable *csvTable, MemBudgetTab
 {
   int ColumnCount; 
   int RowCount; 
-  int v11; 
   int i; 
+  int j; 
   const char *ColumnValueForRow; 
-  const char *v17; 
+  const char *v10; 
   char PollTypeFromName; 
   const char *PollTypeName; 
+  __int64 v13; 
+  const char *v14; 
+  int v15; 
+  int v16; 
+  int v18; 
+  int v19; 
   __int64 v20; 
   const char *v21; 
   int v22; 
   int v23; 
   int v25; 
   int v26; 
-  __int64 v27; 
-  const char *v28; 
-  int v29; 
-  int v30; 
-  int v32; 
-  int v33; 
-  unsigned int v34; 
+  unsigned int v27; 
+  float v29; 
+  float v30; 
+  unsigned __int64 v31; 
   MemBudgetTable::TableRow __that; 
-  char v45; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
   ColumnCount = StringTable_GetColumnCount(csvTable);
   RowCount = StringTable_GetRowCount(csvTable);
-  v11 = 0;
-  if ( RowCount > 0 )
+  for ( i = 0; i < RowCount; ++i )
   {
-    __asm
+    __that.keys.m_size = 0i64;
+    *(_WORD *)__that.pollType = 38;
+    __that.sinceBoot = 0;
+    __that.size = 0i64;
+    for ( j = 0; j < ColumnCount; ++j )
     {
-      vmovss  xmm7, cs:__real@49800000
-      vmovss  xmm8, cs:__real@3f000000
-      vmovss  xmm6, cs:__real@5f000000
-    }
-    do
-    {
-      __that.keys.m_size = 0i64;
-      *(_WORD *)__that.pollType = 38;
-      __that.sinceBoot = 0;
-      __that.size = 0i64;
-      for ( i = 0; i < ColumnCount; ++i )
+      ColumnValueForRow = StringTable_GetColumnValueForRow(csvTable, i, j);
+      v10 = ColumnValueForRow;
+      if ( !ColumnValueForRow || !*ColumnValueForRow )
+        break;
+      if ( (unsigned __int8)(*ColumnValueForRow - 48) <= 9u )
       {
-        ColumnValueForRow = StringTable_GetColumnValueForRow(csvTable, v11, i);
-        v17 = ColumnValueForRow;
-        if ( !ColumnValueForRow || !*ColumnValueForRow )
-          break;
-        if ( (unsigned __int8)(*ColumnValueForRow - 48) <= 9u )
+        if ( __that.pollType[0] != 38 )
         {
-          if ( __that.pollType[0] != 38 )
+          *(double *)&_XMM0 = atof(ColumnValueForRow);
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          v30 = (float)(*(float *)&_XMM1 * 1048576.0) + 0.5;
+          v29 = v30;
+          v31 = 0i64;
+          if ( v30 >= 9.223372e18 )
           {
-            *(double *)&_XMM0 = atof(ColumnValueForRow);
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmulss  xmm2, xmm1, xmm7
-              vaddss  xmm3, xmm2, xmm8
-              vcomiss xmm3, xmm6
-              vsubss  xmm3, xmm3, xmm6
-              vcomiss xmm3, xmm6
-              vcvttss2si rax, xmm3
-            }
-            __that.size = _RAX;
-            if ( outTable->rows.m_size >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
-              __debugbreak();
-            MemBudgetTable::TableRow::TableRow((MemBudgetTable::TableRow *)outTable + outTable->rows.m_size, &__that);
-            ++outTable->rows.m_size;
+            v29 = v30 - 9.223372e18;
+            if ( (float)(v30 - 9.223372e18) < 9.223372e18 )
+              v31 = 0x8000000000000000ui64;
           }
-          break;
-        }
-        PollTypeFromName = MemBudget_GetPollTypeFromName(ColumnValueForRow);
-        if ( PollTypeFromName == 38 )
-        {
-          v20 = 0x7FFFFFFFi64;
-          v21 = "add_to";
-          while ( 1 )
-          {
-            v22 = (unsigned __int8)v21[v17 - "add_to"];
-            v23 = *(unsigned __int8 *)v21++;
-            if ( !v20-- )
-            {
-LABEL_21:
-              __that.addTo = 1;
-              goto LABEL_22;
-            }
-            if ( v22 != v23 )
-            {
-              v25 = v22 + 32;
-              if ( (unsigned int)(v22 - 65) > 0x19 )
-                v25 = v22;
-              v22 = v25;
-              v26 = v23 + 32;
-              if ( (unsigned int)(v23 - 65) > 0x19 )
-                v26 = v23;
-              if ( v22 != v26 )
-                break;
-            }
-            if ( !v22 )
-              goto LABEL_21;
-          }
-          v27 = 0x7FFFFFFFi64;
-          v28 = "since_boot";
-          while ( 1 )
-          {
-            v29 = (unsigned __int8)v28[v17 - "since_boot"];
-            v30 = *(unsigned __int8 *)v28++;
-            if ( !v27-- )
-            {
-LABEL_33:
-              __that.sinceBoot = 1;
-              goto LABEL_22;
-            }
-            if ( v29 != v30 )
-            {
-              v32 = v29 + 32;
-              if ( (unsigned int)(v29 - 65) > 0x19 )
-                v32 = v29;
-              v29 = v32;
-              v33 = v30 + 32;
-              if ( (unsigned int)(v30 - 65) > 0x19 )
-                v33 = v30;
-              if ( v29 != v33 )
-                break;
-            }
-            if ( !v29 )
-              goto LABEL_33;
-          }
-          v34 = MemBudget_HashString(v17);
-          if ( __that.keys.m_size >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 171, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+          __that.size = v31 + (unsigned int)(int)v29;
+          if ( outTable->rows.m_size >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
             __debugbreak();
-          *(_DWORD *)&__that.keys.m_data.m_buffer[4 * __that.keys.m_size++] = v34;
+          MemBudgetTable::TableRow::TableRow((MemBudgetTable::TableRow *)outTable + outTable->rows.m_size, &__that);
+          ++outTable->rows.m_size;
         }
-        else
-        {
-          if ( __that.pollType[0] != 38 )
-          {
-            PollTypeName = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)__that.pollType[0]);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_budgetfile.cpp", 205, ASSERT_TYPE_ASSERT, "( row.pollType == MemBudget_PollType::Count )", "Can only specify one polltype per row: %s,%s on same row", PollTypeName, v17) )
-              __debugbreak();
-          }
-          __that.pollType[0] = PollTypeFromName;
-        }
-LABEL_22:
-        ;
+        break;
       }
-      ntl::fixed_vector<unsigned int,6,0>::~fixed_vector<unsigned int,6,0>(&__that.keys);
-      ++v11;
+      PollTypeFromName = MemBudget_GetPollTypeFromName(ColumnValueForRow);
+      if ( PollTypeFromName == 38 )
+      {
+        v13 = 0x7FFFFFFFi64;
+        v14 = "add_to";
+        while ( 1 )
+        {
+          v15 = (unsigned __int8)v14[v10 - "add_to"];
+          v16 = *(unsigned __int8 *)v14++;
+          if ( !v13-- )
+          {
+LABEL_20:
+            __that.addTo = 1;
+            goto LABEL_21;
+          }
+          if ( v15 != v16 )
+          {
+            v18 = v15 + 32;
+            if ( (unsigned int)(v15 - 65) > 0x19 )
+              v18 = v15;
+            v15 = v18;
+            v19 = v16 + 32;
+            if ( (unsigned int)(v16 - 65) > 0x19 )
+              v19 = v16;
+            if ( v15 != v19 )
+              break;
+          }
+          if ( !v15 )
+            goto LABEL_20;
+        }
+        v20 = 0x7FFFFFFFi64;
+        v21 = "since_boot";
+        while ( 1 )
+        {
+          v22 = (unsigned __int8)v21[v10 - "since_boot"];
+          v23 = *(unsigned __int8 *)v21++;
+          if ( !v20-- )
+          {
+LABEL_32:
+            __that.sinceBoot = 1;
+            goto LABEL_21;
+          }
+          if ( v22 != v23 )
+          {
+            v25 = v22 + 32;
+            if ( (unsigned int)(v22 - 65) > 0x19 )
+              v25 = v22;
+            v22 = v25;
+            v26 = v23 + 32;
+            if ( (unsigned int)(v23 - 65) > 0x19 )
+              v26 = v23;
+            if ( v22 != v26 )
+              break;
+          }
+          if ( !v22 )
+            goto LABEL_32;
+        }
+        v27 = MemBudget_HashString(v10);
+        if ( __that.keys.m_size >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 171, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+          __debugbreak();
+        *(_DWORD *)&__that.keys.m_data.m_buffer[4 * __that.keys.m_size++] = v27;
+      }
+      else
+      {
+        if ( __that.pollType[0] != 38 )
+        {
+          PollTypeName = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)__that.pollType[0]);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_budgetfile.cpp", 205, ASSERT_TYPE_ASSERT, "( row.pollType == MemBudget_PollType::Count )", "Can only specify one polltype per row: %s,%s on same row", PollTypeName, v10) )
+            __debugbreak();
+        }
+        __that.pollType[0] = PollTypeFromName;
+      }
+LABEL_21:
+      ;
     }
-    while ( v11 < RowCount );
-  }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    ntl::fixed_vector<unsigned int,6,0>::~fixed_vector<unsigned int,6,0>(&__that.keys);
   }
 }
 

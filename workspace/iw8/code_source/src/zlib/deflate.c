@@ -1276,25 +1276,23 @@ deflateCopy
 */
 __int64 deflateCopy(z_stream_s *dest, z_stream_s *source)
 {
-  z_stream_s *v2; 
   internal_state *state; 
-  internal_state *v8; 
-  internal_state *v9; 
+  internal_state *v4; 
+  internal_state *v5; 
   __int64 result; 
   __int64 dummy; 
-  __int64 v12; 
+  void *v8; 
+  __int64 v9; 
+  void *v10; 
+  __int64 v11; 
+  void *v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
+  char *v14; 
+  void *v15; 
+  char *v16; 
   __int64 v17; 
   __int64 v18; 
-  void *v19; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
 
-  v2 = dest;
   if ( !source )
     return 4294967294i64;
   if ( !dest )
@@ -1302,57 +1300,47 @@ __int64 deflateCopy(z_stream_s *dest, z_stream_s *source)
   state = source->state;
   if ( !state )
     return 4294967294i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+50h]
-    vmovsd  qword ptr [rcx+50h], xmm1
-  }
-  v8 = (internal_state *)dest->zalloc(dest->opaque, 1i64, 5920i64);
-  v9 = v8;
-  if ( !v8 )
+  *dest = *source;
+  v4 = (internal_state *)dest->zalloc(dest->opaque, 1i64, 5920i64);
+  v5 = v4;
+  if ( !v4 )
     return 4294967292i64;
-  v2->state = v8;
-  memcpy_0(v8, state, 0x1720ui64);
-  dummy = (unsigned int)v9[17].dummy;
-  *(_QWORD *)&v9->dummy = v2;
-  v12 = (__int64)v2->zalloc(v2->opaque, dummy, 2u);
-  v13 = (unsigned int)v9[17].dummy;
-  *(_QWORD *)&v9[20].dummy = v12;
-  v14 = (__int64)v2->zalloc(v2->opaque, v13, 2u);
-  v15 = (unsigned int)v9[29].dummy;
-  *(_QWORD *)&v9[24].dummy = v14;
-  v16 = (__int64)v2->zalloc(v2->opaque, v15, 2u);
-  v17 = (unsigned int)v9[1468].dummy;
-  *(_QWORD *)&v9[26].dummy = v16;
-  v18 = (__int64)v2->zalloc(v2->opaque, v17, 4u);
-  v19 = *(void **)&v9[20].dummy;
-  v20 = v18;
-  *(_QWORD *)&v9[4].dummy = v18;
-  if ( v19 && *(_QWORD *)&v9[24].dummy && *(_QWORD *)&v9[26].dummy && v18 )
+  dest->state = v4;
+  memcpy_0(v4, state, 0x1720ui64);
+  dummy = (unsigned int)v5[17].dummy;
+  *(_QWORD *)&v5->dummy = dest;
+  v8 = dest->zalloc(dest->opaque, dummy, 2i64);
+  v9 = (unsigned int)v5[17].dummy;
+  *(_QWORD *)&v5[20].dummy = v8;
+  v10 = dest->zalloc(dest->opaque, v9, 2i64);
+  v11 = (unsigned int)v5[29].dummy;
+  *(_QWORD *)&v5[24].dummy = v10;
+  v12 = dest->zalloc(dest->opaque, v11, 2i64);
+  v13 = (unsigned int)v5[1468].dummy;
+  *(_QWORD *)&v5[26].dummy = v12;
+  v14 = (char *)dest->zalloc(dest->opaque, v13, 4i64);
+  v15 = *(void **)&v5[20].dummy;
+  v16 = v14;
+  *(_QWORD *)&v5[4].dummy = v14;
+  if ( v15 && *(_QWORD *)&v5[24].dummy && *(_QWORD *)&v5[26].dummy && v14 )
   {
-    memcpy_0(v19, *(const void **)&state[20].dummy, (unsigned int)(2 * v9[17].dummy));
-    memcpy_0(*(void **)&v9[24].dummy, *(const void **)&state[24].dummy, 2i64 * (unsigned int)v9[17].dummy);
-    memcpy_0(*(void **)&v9[26].dummy, *(const void **)&state[26].dummy, 2i64 * (unsigned int)v9[29].dummy);
-    memcpy_0(*(void **)&v9[4].dummy, *(const void **)&state[4].dummy, (unsigned int)v9[6].dummy);
-    v21 = (unsigned int)v9[1468].dummy;
-    v22 = *(_QWORD *)&v9[4].dummy;
-    *(_QWORD *)&v9[8].dummy = v22 + *(_QWORD *)&state[8].dummy - *(_QWORD *)&state[4].dummy;
-    *(_QWORD *)&v9[1470].dummy = v20 + 2 * ((unsigned __int64)(unsigned int)v21 >> 1);
-    *(_QWORD *)&v9[720].dummy = v9 + 47;
-    *(_QWORD *)&v9[726].dummy = v9 + 620;
-    *(_QWORD *)&v9[732].dummy = v9 + 681;
+    memcpy_0(v15, *(const void **)&state[20].dummy, (unsigned int)(2 * v5[17].dummy));
+    memcpy_0(*(void **)&v5[24].dummy, *(const void **)&state[24].dummy, 2i64 * (unsigned int)v5[17].dummy);
+    memcpy_0(*(void **)&v5[26].dummy, *(const void **)&state[26].dummy, 2i64 * (unsigned int)v5[29].dummy);
+    memcpy_0(*(void **)&v5[4].dummy, *(const void **)&state[4].dummy, (unsigned int)v5[6].dummy);
+    v17 = (unsigned int)v5[1468].dummy;
+    v18 = *(_QWORD *)&v5[4].dummy;
+    *(_QWORD *)&v5[8].dummy = v18 + *(_QWORD *)&state[8].dummy - *(_QWORD *)&state[4].dummy;
+    *(_QWORD *)&v5[1470].dummy = &v16[2 * ((unsigned __int64)(unsigned int)v17 >> 1)];
+    *(_QWORD *)&v5[720].dummy = v5 + 47;
+    *(_QWORD *)&v5[726].dummy = v5 + 620;
+    *(_QWORD *)&v5[732].dummy = v5 + 681;
     result = 0i64;
-    *(_QWORD *)&v9[1466].dummy = v22 + 2 * v21 + v21;
+    *(_QWORD *)&v5[1466].dummy = v18 + 2 * v17 + v17;
   }
   else
   {
-    j_deflateEnd(v2);
+    j_deflateEnd(dest);
     return 4294967292i64;
   }
   return result;

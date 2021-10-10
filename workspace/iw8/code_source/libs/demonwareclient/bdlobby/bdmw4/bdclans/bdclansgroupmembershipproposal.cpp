@@ -170,6 +170,8 @@ bdClansGroupMembershipProposal::bdClansGroupMembershipProposal
 */
 void bdClansGroupMembershipProposal::bdClansGroupMembershipProposal(bdClansGroupMembershipProposal *this, const bdClansGroupMembershipProposal *__that, int a3)
 {
+  unsigned __int8 *m_attachment; 
+  unsigned __int8 *v6; 
   __int64 v7; 
 
   if ( a3 )
@@ -186,35 +188,21 @@ void bdClansGroupMembershipProposal::bdClansGroupMembershipProposal(bdClansGroup
   bdClansGroupIdentifier::bdClansGroupIdentifier(&this->m_group, &__that->m_group);
   this->m_replacesGroupID = __that->m_replacesGroupID;
   this->m_attachmentSize = __that->m_attachmentSize;
-  _RCX = this->m_attachment;
-  _RAX = __that->m_attachment;
+  m_attachment = this->m_attachment;
+  v6 = __that->m_attachment;
   v7 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
+    *(_OWORD *)m_attachment = *(_OWORD *)v6;
+    *((_OWORD *)m_attachment + 1) = *((_OWORD *)v6 + 1);
+    *((_OWORD *)m_attachment + 2) = *((_OWORD *)v6 + 2);
+    *((_OWORD *)m_attachment + 3) = *((_OWORD *)v6 + 3);
+    *((_OWORD *)m_attachment + 4) = *((_OWORD *)v6 + 4);
+    *((_OWORD *)m_attachment + 5) = *((_OWORD *)v6 + 5);
+    *((_OWORD *)m_attachment + 6) = *((_OWORD *)v6 + 6);
+    m_attachment += 128;
+    *((_OWORD *)m_attachment - 1) = *((_OWORD *)v6 + 7);
+    v6 += 128;
     --v7;
   }
   while ( v7 );

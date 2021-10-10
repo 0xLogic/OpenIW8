@@ -558,82 +558,72 @@ ClConfigStringsMP::ParseConfigStrings
 */
 void ClConfigStringsMP::ParseConfigStrings(ClConfigStringsMP *this, LocalClientNum_t localClientNum, msg_t *msg)
 {
-  unsigned int v6; 
+  unsigned int v5; 
   unsigned int Short; 
-  __int64 v8; 
+  __int64 v7; 
   __int64 Bits; 
   char *BigString; 
-  char *v11; 
-  __int64 v12; 
+  char *v10; 
+  __int64 v11; 
   __int64 dataCount; 
-  size_t v14; 
+  size_t v13; 
   unsigned int StringTotalCount; 
+  float v15; 
+  float v16; 
   char *fmt; 
 
   memset_0(this->m_gameState.stringOffsets, 0, sizeof(this->m_gameState.stringOffsets));
   this->m_gameState.dataCount = 1;
-  v6 = -1;
+  v5 = -1;
   Short = MSG_ReadShort(msg);
   if ( Short )
   {
-    v8 = Short;
+    v7 = Short;
     do
     {
       if ( MSG_ReadBit(msg) )
       {
-        ++v6;
+        ++v5;
       }
       else
       {
         Bits = MSG_ReadBits(msg, 0xAu);
-        v6 = Bits;
+        v5 = Bits;
         if ( (unsigned __int64)(Bits + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)Bits, "signed", Bits) )
           __debugbreak();
       }
-      if ( v6 >= 0x2FE )
+      if ( v5 >= 0x2FE )
       {
-        Com_PrintError(14, "Config string index %i is out of bounds.\n", v6);
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442110D0, 794i64, v6);
+        Com_PrintError(14, "Config string index %i is out of bounds.\n", v5);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442110D0, 794i64, v5);
       }
       BigString = MSG_ReadBigString(msg);
-      v11 = BigString;
-      v12 = -1i64;
+      v10 = BigString;
+      v11 = -1i64;
       do
-        ++v12;
-      while ( BigString[v12] );
+        ++v11;
+      while ( BigString[v11] );
       dataCount = this->m_gameState.dataCount;
-      if ( (unsigned __int64)(dataCount + v12 + 1) > 0x243D8 )
+      if ( (unsigned __int64)(dataCount + v11 + 1) > 0x243D8 )
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144210FE8, 795i64);
         LODWORD(dataCount) = this->m_gameState.dataCount;
       }
-      v14 = v12 + 1;
-      this->m_gameState.stringOffsets[v6] = dataCount;
-      memcpy_0(&this->m_gameState.stringData[this->m_gameState.dataCount], v11, v14);
-      if ( (v14 > 0x7FFFFFFFFFFFFFFFi64 || v14 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v14, "unsigned", v14) )
+      v13 = v11 + 1;
+      this->m_gameState.stringOffsets[v5] = dataCount;
+      memcpy_0(&this->m_gameState.stringData[this->m_gameState.dataCount], v10, v13);
+      if ( (v13 > 0x7FFFFFFFFFFFFFFFi64 || v13 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v13, "unsigned", v13) )
         __debugbreak();
-      this->m_gameState.dataCount += v14;
-      --v8;
+      this->m_gameState.dataCount += v13;
+      --v7;
     }
-    while ( v8 );
+    while ( v7 );
   }
   StringTotalCount = NetConstStrings_GetStringTotalCount();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@42c80000
-  }
+  v15 = (float)StringTotalCount;
   LODWORD(fmt) = Short;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vdivss  xmm1, xmm1, xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  Com_Printf(16, "^6Client NCS: %.2f%% config string coverage (%i cached, %i received).\n", *(double *)&_XMM2, StringTotalCount, fmt);
+  v16 = (float)(StringTotalCount + Short);
+  Com_Printf(16, "^6Client NCS: %.2f%% config string coverage (%i cached, %i received).\n", (float)((float)(v15 * 100.0) / v16), StringTotalCount, fmt);
 }
 
 /*

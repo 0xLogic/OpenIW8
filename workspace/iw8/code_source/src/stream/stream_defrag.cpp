@@ -1361,9 +1361,10 @@ void StreamDefrag::InsertCommand<1>(StreamDefrag *this, StreamDefragCommand *com
   RSList<StreamDefragCommand> *v2; 
   StreamDefragCommand *mHead; 
   int v5; 
+  Stream_Logger_Item v6; 
   StreamDefragAllocNode *node; 
   unsigned int size; 
-  const unsigned __int8 *v10; 
+  const unsigned __int8 *v9; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
 
@@ -1391,13 +1392,12 @@ LABEL_8:
   if ( (*((_DWORD *)command->node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4328, ASSERT_TYPE_ASSERT, "(command->node->defragRefCount > 0)", (const char *)&queryFormat, "command->node->defragRefCount > 0") )
     __debugbreak();
   RSList<StreamDefragCommand>::PushBack(v2, command);
-  _RAX = Stream_Logger_MakeItem(&result, command->node);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
+  v6 = *Stream_Logger_MakeItem(&result, command->node);
   node = command->node;
   size = command->partSize[0] + command->partSize[1] + command->partSize[2] + command->partSize[3];
-  __asm { vmovups xmmword ptr [rsp+58h+item.___u0], xmm0 }
-  v10 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)node >> 19) & 1), *((unsigned int *)node + 2));
-  Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, DODGE, v10, size);
+  item = v6;
+  v9 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)node >> 19) & 1), *((unsigned int *)node + 2));
+  Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, DODGE, v9, size);
 }
 
 /*
@@ -1407,24 +1407,24 @@ StreamDefrag::InsertCommand<2>
 */
 void StreamDefrag::InsertCommand<2>(StreamDefrag *this, StreamDefragCommand *command)
 {
+  Stream_Logger_Item v4; 
   StreamDefragAllocNode *node; 
-  unsigned __int64 v7; 
+  unsigned __int64 v6; 
   unsigned int size; 
-  const unsigned __int8 *v9; 
+  const unsigned __int8 *v8; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
 
   if ( (*((_DWORD *)command->node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4328, ASSERT_TYPE_ASSERT, "(command->node->defragRefCount > 0)", (const char *)&queryFormat, "command->node->defragRefCount > 0") )
     __debugbreak();
   RSList<StreamDefragCommand>::PushBack(&this->mDefragSteps[2], command);
-  _RAX = Stream_Logger_MakeItem(&result, command->node);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
+  v4 = *Stream_Logger_MakeItem(&result, command->node);
   node = command->node;
-  v7 = *((unsigned int *)command + 11);
+  v6 = *((unsigned int *)command + 11);
   size = command->partSize[0] + command->partSize[1] + command->partSize[2] + command->partSize[3];
-  __asm { vmovups xmmword ptr [rsp+58h+item.___u0], xmm0 }
-  v9 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)node >> 19) & 1), v7);
-  Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, COUNT, v9, size);
+  item = v4;
+  v8 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)node >> 19) & 1), v6);
+  Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, COUNT, v8, size);
 }
 
 /*
@@ -1440,9 +1440,10 @@ void StreamDefrag::InsertCommand<0>(StreamDefrag *this, StreamDefragCommand *com
   int v6; 
   StreamDefragCommand *v7; 
   int v8; 
-  StreamDefragAllocNode *v11; 
+  Stream_Logger_Item v9; 
+  StreamDefragAllocNode *v10; 
   unsigned int size; 
-  const unsigned __int8 *v13; 
+  const unsigned __int8 *v12; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
 
@@ -1496,13 +1497,12 @@ LABEL_22:
   if ( (*((_DWORD *)command->node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4328, ASSERT_TYPE_ASSERT, "(command->node->defragRefCount > 0)", (const char *)&queryFormat, "command->node->defragRefCount > 0") )
     __debugbreak();
   RSList<StreamDefragCommand>::PushBack(mDefragSteps, command);
-  _RAX = Stream_Logger_MakeItem(&result, command->node);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v11 = command->node;
+  v9 = *Stream_Logger_MakeItem(&result, command->node);
+  v10 = command->node;
   size = command->partSize[0] + command->partSize[1] + command->partSize[2] + command->partSize[3];
-  __asm { vmovups xmmword ptr [rsp+58h+item.___u0], xmm0 }
-  v13 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)v11 >> 19) & 1), *((unsigned int *)v11 + 2));
-  Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, MOVEMENT, v13, size);
+  item = v9;
+  v12 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)v10 >> 19) & 1), *((unsigned int *)v10 + 2));
+  Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, MOVEMENT, v12, size);
 }
 
 /*
@@ -1524,28 +1524,27 @@ void StreamDefrag::StreamDefrag(StreamDefrag *this)
   RSList<StreamDefragCommand> *mDefragSteps; 
   __int64 v12; 
   const dvar_t *v13; 
-  __int64 v16; 
+  __int64 v14; 
   unsigned __int64 i; 
-  unsigned __int64 v22; 
-  unsigned __int64 v23; 
-  unsigned __int64 v24; 
-  unsigned __int64 v25; 
-  unsigned __int64 v26; 
-  _DWORD *v27; 
-  int v28; 
-  __int64 v29; 
+  unsigned __int64 v17; 
+  unsigned __int64 v18; 
+  unsigned __int64 v19; 
+  unsigned __int64 v20; 
+  unsigned __int64 v21; 
+  _DWORD *v22; 
+  unsigned int v23; 
+  __int64 v24; 
   unsigned __int64 j; 
   unsigned __int64 mAddrTail; 
   StreamNextTailAddress *mHead; 
-  __int16 v33; 
-  StreamNextTailAddress *v34; 
-  unsigned int v35; 
-  __int128 v38; 
+  __int16 v28; 
+  StreamNextTailAddress *v29; 
+  unsigned int v30; 
+  StreamAddressSpace v31; 
 
-  _RDI = this;
   mNodePool = this->mFreePool.mNodePool;
   memset_0(this->mFreePool.mNodePool, 0, sizeof(this->mFreePool.mNodePool));
-  _RDI->mFreePool.mHead = mNodePool;
+  this->mFreePool.mHead = mNodePool;
   v3 = mNodePool;
   v4 = 164863i64;
   do
@@ -1556,7 +1555,7 @@ void StreamDefrag::StreamDefrag(StreamDefrag *this)
   }
   while ( v4 );
   *(_DWORD *)&mNodePool[164863] &= 0xFFF80000;
-  mAddressSpaces = _RDI->mAddressSpaces;
+  mAddressSpaces = this->mAddressSpaces;
   v6 = 2i64;
   v7 = 2i64;
   do
@@ -1565,54 +1564,54 @@ void StreamDefrag::StreamDefrag(StreamDefrag *this)
     --v7;
   }
   while ( v7 );
-  memset_0(_RDI->mNextTailAddressPool.mNodePool, 0, sizeof(_RDI->mNextTailAddressPool.mNodePool));
-  _RDI->mNextTailAddressPool.mHead = _RDI->mNextTailAddressPool.mNodePool;
-  *((_WORD *)_RDI->mNextTailAddressPool.mNodePool + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[1] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[2] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[3] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[4] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[5] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[6] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[7] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[8] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[9] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[10] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[11] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[12] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[13] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[14] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[15] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[16] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[17] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[18] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[19] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[20] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[21] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[22] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[23] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[24] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[25] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[26] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[27] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[28] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[29] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[30] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[31] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[32] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[33] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[34] + 8) = 1;
-  *((_WORD *)&_RDI->mNextTailAddressPool.mNodePool[35] + 8) = 0;
-  mNextTailAddresses = _RDI->mNextTailAddresses;
+  memset_0(this->mNextTailAddressPool.mNodePool, 0, sizeof(this->mNextTailAddressPool.mNodePool));
+  this->mNextTailAddressPool.mHead = this->mNextTailAddressPool.mNodePool;
+  *((_WORD *)this->mNextTailAddressPool.mNodePool + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[1] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[2] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[3] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[4] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[5] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[6] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[7] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[8] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[9] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[10] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[11] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[12] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[13] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[14] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[15] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[16] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[17] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[18] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[19] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[20] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[21] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[22] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[23] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[24] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[25] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[26] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[27] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[28] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[29] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[30] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[31] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[32] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[33] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[34] + 8) = 1;
+  *((_WORD *)&this->mNextTailAddressPool.mNodePool[35] + 8) = 0;
+  mNextTailAddresses = this->mNextTailAddresses;
   do
   {
     RList<StreamNextTailAddress>::RList<StreamNextTailAddress>(mNextTailAddresses++);
     --v6;
   }
   while ( v6 );
-  memset_0(_RDI->mDefragPool.mNodePool, 0, sizeof(_RDI->mDefragPool.mNodePool));
-  _RDI->mDefragPool.mHead = _RDI->mDefragPool.mNodePool;
-  v9 = (_DWORD *)((char *)&_RDI->mDefragPool.mNodePool[1] + 52);
+  memset_0(this->mDefragPool.mNodePool, 0, sizeof(this->mDefragPool.mNodePool));
+  this->mDefragPool.mHead = this->mDefragPool.mNodePool;
+  v9 = (_DWORD *)((char *)&this->mDefragPool.mNodePool[1] + 52);
   v10 = 341i64;
   do
   {
@@ -1626,8 +1625,8 @@ void StreamDefrag::StreamDefrag(StreamDefrag *this)
     --v10;
   }
   while ( v10 );
-  *((_DWORD *)&_RDI->mDefragPool.mNodePool[1023] + 13) &= 0xFFFFF800;
-  mDefragSteps = _RDI->mDefragSteps;
+  *((_DWORD *)&this->mDefragPool.mNodePool[1023] + 13) &= 0xFFFFF800;
+  mDefragSteps = this->mDefragSteps;
   v12 = 3i64;
   do
   {
@@ -1635,130 +1634,114 @@ void StreamDefrag::StreamDefrag(StreamDefrag *this)
     --v12;
   }
   while ( v12 );
-  _RDI->mAsyncVAMaps.mHead = NULL;
-  _RDI->mAsyncVAUnmaps.mHead = NULL;
-  _RDI->mAsyncCPUMemCopies.mHead = NULL;
-  _RDI->mCopyMode = 5;
-  _RDI->mGPUCopyFenceCounter = 0;
-  _RDI->mDMACopyFence = 0i64;
-  _RDI->mDefragPages.mUpdateID = 0i64;
-  _RDI->mDefragPages.mPages = 0i64;
-  _RDI->mDefragPages.mCookie = -1061110033;
-  *(_QWORD *)_RDI->mDefragPageSurplus = 0i64;
-  _RDI->mDefragFrameIndex = 1;
+  this->mAsyncVAMaps.mHead = NULL;
+  this->mAsyncVAUnmaps.mHead = NULL;
+  this->mAsyncCPUMemCopies.mHead = NULL;
+  this->mCopyMode = 5;
+  this->mGPUCopyFenceCounter = 0;
+  this->mDMACopyFence = 0i64;
+  this->mDefragPages.mUpdateID = 0i64;
+  this->mDefragPages.mPages = 0i64;
+  this->mDefragPages.mCookie = -1061110033;
+  *(_QWORD *)this->mDefragPageSurplus = 0i64;
+  this->mDefragFrameIndex = 1;
   v13 = DCONST_DVARINT_stream_defragFrameDepth;
   if ( !DCONST_DVARINT_stream_defragFrameDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragFrameDepth") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v13);
-  _RDI->mDefragUnmapFrameDepth = v13->current.unsignedInt;
-  *(_WORD *)&_RDI->mAsyncVAProcess = 257;
-  _RDI->mFrameOpen = 0;
-  _RDI->mDefragLockCriticalSection.readCount = 0;
-  _RDI->mDefragLockCriticalSection.writeCount = 0;
-  _RDI->mDefragLockCriticalSection.tempPriority.threadHandle = NULL;
-  *(_QWORD *)&_RDI->mDefragLockCriticalSection.tempPriority.oldPriority = 0i64;
-  _RDI->mDefragLockCriticalSection.writeThreadId = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+333630h]
-    vmovups [rsp+0C8h+var_68], ymm0
-  }
-  _RDI->mDefragLockCountCriticalSection.readCount = 0;
-  _RDI->mDefragLockCountCriticalSection.writeCount = 0;
-  _RDI->mDefragLockCountCriticalSection.tempPriority.threadHandle = NULL;
-  *(_QWORD *)&_RDI->mDefragLockCountCriticalSection.tempPriority.oldPriority = 0i64;
-  _RDI->mDefragLockCountCriticalSection.writeThreadId = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+333650h]
-    vmovups [rsp+0C8h+var_68], ymm0
-  }
+  this->mDefragUnmapFrameDepth = v13->current.unsignedInt;
+  *(_WORD *)&this->mAsyncVAProcess = 257;
+  this->mFrameOpen = 0;
+  this->mDefragLockCriticalSection.readCount = 0;
+  this->mDefragLockCriticalSection.writeCount = 0;
+  this->mDefragLockCriticalSection.tempPriority.threadHandle = NULL;
+  *(_QWORD *)&this->mDefragLockCriticalSection.tempPriority.oldPriority = 0i64;
+  this->mDefragLockCriticalSection.writeThreadId = 0;
+  this->mDefragLockCountCriticalSection.readCount = 0;
+  this->mDefragLockCountCriticalSection.writeCount = 0;
+  this->mDefragLockCountCriticalSection.tempPriority.threadHandle = NULL;
+  *(_QWORD *)&this->mDefragLockCountCriticalSection.tempPriority.oldPriority = 0i64;
+  this->mDefragLockCountCriticalSection.writeThreadId = 0;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2507, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v16 = 0i64;
+  v14 = 0i64;
   for ( i = 0i64; i < 2; ++i )
   {
-    _RCX = 2i64 * (unsigned int)v16;
-    _RAX = s_streamAddressManager;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+rcx*8]
-      vmovups [rsp+0C8h+var_48], xmm0
-      vpextrq r15, xmm0, 1
-    }
-    if ( _R15 <= MOVEABLE_REGION_SIZE[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2514, ASSERT_TYPE_ASSERT, "(addressSpace.size > MOVEABLE_REGION_SIZE[i])", (const char *)&queryFormat, "addressSpace.size > MOVEABLE_REGION_SIZE[i]") )
+    v31 = s_streamAddressManager->m_addressSpaces[(unsigned int)v14];
+    __asm { vpextrq r15, xmm0, 1 }
+    if ( _R15 <= MOVEABLE_REGION_SIZE[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2514, ASSERT_TYPE_ASSERT, "(addressSpace.size > MOVEABLE_REGION_SIZE[i])", (const char *)&queryFormat, "addressSpace.size > MOVEABLE_REGION_SIZE[i]") )
       __debugbreak();
-    if ( MOVEABLE_REGION_SIZE[v16] >= STREAM_MEM_RESERVE_SIZE[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2515, ASSERT_TYPE_ASSERT, "(MOVEABLE_REGION_SIZE[i] < STREAM_MEM_RESERVE_SIZE[i])", (const char *)&queryFormat, "MOVEABLE_REGION_SIZE[i] < STREAM_MEM_RESERVE_SIZE[i]") )
+    if ( MOVEABLE_REGION_SIZE[v14] >= STREAM_MEM_RESERVE_SIZE[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2515, ASSERT_TYPE_ASSERT, "(MOVEABLE_REGION_SIZE[i] < STREAM_MEM_RESERVE_SIZE[i])", (const char *)&queryFormat, "MOVEABLE_REGION_SIZE[i] < STREAM_MEM_RESERVE_SIZE[i]") )
       __debugbreak();
-    v22 = MOVEABLE_REGION_SIZE[v16];
-    if ( _RDI->mAddressSpaces[i].mMoveableRegion.mAddrBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1104, ASSERT_TYPE_ASSERT, "(mAddrBase == 0ull)", (const char *)&queryFormat, "mAddrBase == 0ull") )
+    v17 = MOVEABLE_REGION_SIZE[v14];
+    if ( this->mAddressSpaces[i].mMoveableRegion.mAddrBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1104, ASSERT_TYPE_ASSERT, "(mAddrBase == 0ull)", (const char *)&queryFormat, "mAddrBase == 0ull") )
       __debugbreak();
-    if ( !(_QWORD)v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1105, ASSERT_TYPE_ASSERT, "(base != 0ull)", (const char *)&queryFormat, "base != 0ull") )
+    if ( !v31.base && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1105, ASSERT_TYPE_ASSERT, "(base != 0ull)", (const char *)&queryFormat, "base != 0ull") )
       __debugbreak();
-    if ( (_WORD)v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1106, ASSERT_TYPE_ASSERT, "(IsAligned( base, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( base, MEM_PHYSICAL_PAGE_SIZE )") )
+    if ( LOWORD(v31.base) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1106, ASSERT_TYPE_ASSERT, "(IsAligned( base, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( base, MEM_PHYSICAL_PAGE_SIZE )") )
       __debugbreak();
-    if ( (_WORD)v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1107, ASSERT_TYPE_ASSERT, "(IsAligned( size, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( size, MEM_PHYSICAL_PAGE_SIZE )") )
+    if ( (_WORD)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1107, ASSERT_TYPE_ASSERT, "(IsAligned( size, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( size, MEM_PHYSICAL_PAGE_SIZE )") )
       __debugbreak();
-    _RDI->mAddressSpaces[i].mMoveableRegion.mPool = v16;
-    _RDI->mAddressSpaces[i].mMoveableRegion.mAddrBase = v38;
-    _RDI->mAddressSpaces[i].mMoveableRegion.mAddrEnd = v38 + v22;
-    v23 = v38 + ((9 * (v22 / 0xA)) & 0xFFFFFFFFFFFF0000ui64);
-    _RDI->mAddressSpaces[i].mMoveableRegion.mAddrHead = v23;
-    _RDI->mAddressSpaces[i].mMoveableRegion.mAddrTail = v23;
-    _RDI->mAddressSpaces[i].mMoveableRegion.mDefragSteps = (const RSList<StreamDefragCommand> (*)[3])_RDI->mDefragSteps;
-    _RDI->mAddressSpaces[i].mMoveableRegion.mNextTailAddresses = (const RList<StreamNextTailAddress> (*)[2])_RDI->mNextTailAddresses;
-    v24 = MOVEABLE_REGION_SIZE[v16];
-    v25 = _R15 - v24;
-    v26 = v24 + v38;
-    if ( _RDI->mAddressSpaces[i].mFixedRegion.mAddrBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1104, ASSERT_TYPE_ASSERT, "(mAddrBase == 0ull)", (const char *)&queryFormat, "mAddrBase == 0ull") )
+    this->mAddressSpaces[i].mMoveableRegion.mPool = v14;
+    this->mAddressSpaces[i].mMoveableRegion.mAddrBase = v31.base;
+    this->mAddressSpaces[i].mMoveableRegion.mAddrEnd = v31.base + v17;
+    v18 = v31.base + ((9 * (v17 / 0xA)) & 0xFFFFFFFFFFFF0000ui64);
+    this->mAddressSpaces[i].mMoveableRegion.mAddrHead = v18;
+    this->mAddressSpaces[i].mMoveableRegion.mAddrTail = v18;
+    this->mAddressSpaces[i].mMoveableRegion.mDefragSteps = (const RSList<StreamDefragCommand> (*)[3])this->mDefragSteps;
+    this->mAddressSpaces[i].mMoveableRegion.mNextTailAddresses = (const RList<StreamNextTailAddress> (*)[2])this->mNextTailAddresses;
+    v19 = MOVEABLE_REGION_SIZE[v14];
+    v20 = _R15 - v19;
+    v21 = v19 + v31.base;
+    if ( this->mAddressSpaces[i].mFixedRegion.mAddrBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1104, ASSERT_TYPE_ASSERT, "(mAddrBase == 0ull)", (const char *)&queryFormat, "mAddrBase == 0ull") )
       __debugbreak();
-    if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1105, ASSERT_TYPE_ASSERT, "(base != 0ull)", (const char *)&queryFormat, "base != 0ull") )
+    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1105, ASSERT_TYPE_ASSERT, "(base != 0ull)", (const char *)&queryFormat, "base != 0ull") )
       __debugbreak();
-    if ( (_WORD)v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1106, ASSERT_TYPE_ASSERT, "(IsAligned( base, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( base, MEM_PHYSICAL_PAGE_SIZE )") )
+    if ( (_WORD)v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1106, ASSERT_TYPE_ASSERT, "(IsAligned( base, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( base, MEM_PHYSICAL_PAGE_SIZE )") )
       __debugbreak();
-    if ( (_WORD)v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1107, ASSERT_TYPE_ASSERT, "(IsAligned( size, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( size, MEM_PHYSICAL_PAGE_SIZE )") )
+    if ( (_WORD)v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1107, ASSERT_TYPE_ASSERT, "(IsAligned( size, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( size, MEM_PHYSICAL_PAGE_SIZE )") )
       __debugbreak();
-    _RDI->mAddressSpaces[i].mFixedRegion.mPool = v16;
-    _RDI->mAddressSpaces[i].mFixedRegion.mAddrBase = v26;
-    _RDI->mAddressSpaces[i].mFixedRegion.mAddrEnd = v26 + v25;
-    _RDI->mAddressSpaces[i].mFixedRegion.mAddrHead = v26;
-    _RDI->mAddressSpaces[i].mFixedRegion.mAddrTail = v26;
-    _RDI->mAddressSpaces[i].mFixedRegion.mDefragSteps = (const RSList<StreamDefragCommand> (*)[3])_RDI->mDefragSteps;
-    _RDI->mAddressSpaces[i].mFixedRegion.mNextTailAddresses = (const RList<StreamNextTailAddress> (*)[2])_RDI->mNextTailAddresses;
-    ++v16;
+    this->mAddressSpaces[i].mFixedRegion.mPool = v14;
+    this->mAddressSpaces[i].mFixedRegion.mAddrBase = v21;
+    this->mAddressSpaces[i].mFixedRegion.mAddrEnd = v21 + v20;
+    this->mAddressSpaces[i].mFixedRegion.mAddrHead = v21;
+    this->mAddressSpaces[i].mFixedRegion.mAddrTail = v21;
+    this->mAddressSpaces[i].mFixedRegion.mDefragSteps = (const RSList<StreamDefragCommand> (*)[3])this->mDefragSteps;
+    this->mAddressSpaces[i].mFixedRegion.mNextTailAddresses = (const RList<StreamNextTailAddress> (*)[2])this->mNextTailAddresses;
+    ++v14;
   }
-  if ( !StreamerMemLoan::MakeReady(&_RDI->mDefragPages, DODGE, 0x1080000ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2523, ASSERT_TYPE_ASSERT, "(mDefragPages.MakeReady( StreamMemPool::GPU, DEFRAG_PAGE_COUNT * MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "mDefragPages.MakeReady( StreamMemPool::GPU, DEFRAG_PAGE_COUNT * MEM_PHYSICAL_PAGE_SIZE )") )
+  if ( !StreamerMemLoan::MakeReady(&this->mDefragPages, DODGE, 0x1080000ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2523, ASSERT_TYPE_ASSERT, "(mDefragPages.MakeReady( StreamMemPool::GPU, DEFRAG_PAGE_COUNT * MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "mDefragPages.MakeReady( StreamMemPool::GPU, DEFRAG_PAGE_COUNT * MEM_PHYSICAL_PAGE_SIZE )") )
     __debugbreak();
-  if ( StreamerMemLoan::TotalPages(&_RDI->mDefragPages) != 264 )
+  if ( StreamerMemLoan::TotalPages(&this->mDefragPages) != 264 )
   {
-    v35 = StreamerMemLoan::TotalPages(&_RDI->mDefragPages);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2524, ASSERT_TYPE_ASSERT, "( mDefragPages.TotalPages() ) == ( DEFRAG_PAGE_COUNT )", "%s == %s\n\t%u, %u", "mDefragPages.TotalPages()", "DEFRAG_PAGE_COUNT", v35, 264) )
+    v30 = StreamerMemLoan::TotalPages(&this->mDefragPages);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2524, ASSERT_TYPE_ASSERT, "( mDefragPages.TotalPages() ) == ( DEFRAG_PAGE_COUNT )", "%s == %s\n\t%u, %u", "mDefragPages.TotalPages()", "DEFRAG_PAGE_COUNT", v30, 264) )
       __debugbreak();
   }
-  if ( _RDI->mFreePool.mNodePool != (StreamDefragAllocNode *)_RDI->mAddressSpaces )
+  if ( this->mFreePool.mNodePool != (StreamDefragAllocNode *)this->mAddressSpaces )
   {
-    v27 = (_DWORD *)((char *)_RDI->mFreePool.mNodePool + 4);
+    v22 = (_DWORD *)((char *)this->mFreePool.mNodePool + 4);
     do
     {
-      *v27 |= 3u;
-      v27 += 5;
+      *v22 |= 3u;
+      v22 += 5;
     }
-    while ( v27 - 1 != (_DWORD *)_RDI->mAddressSpaces );
+    while ( v22 - 1 != (_DWORD *)this->mAddressSpaces );
   }
-  v28 = _RDI->mDefragUnmapFrameDepth + _RDI->mDefragFrameIndex + 1;
-  v29 = 0i64;
+  v23 = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
+  v24 = 0i64;
   for ( j = 3298672i64; j < 0x325590; j += 16i64 )
   {
-    mAddrTail = _RDI->mAddressSpaces[v29].mMoveableRegion.mAddrTail;
-    mHead = _RDI->mNextTailAddressPool.mHead;
+    mAddrTail = this->mAddressSpaces[v24].mMoveableRegion.mAddrTail;
+    mHead = this->mNextTailAddressPool.mHead;
     if ( mHead )
     {
-      v33 = *((_WORD *)mHead + 8);
-      if ( v33 )
-        v34 = &mHead[v33];
+      v28 = *((_WORD *)mHead + 8);
+      if ( v28 )
+        v29 = &mHead[v28];
       else
-        v34 = NULL;
-      _RDI->mNextTailAddressPool.mHead = v34;
+        v29 = NULL;
+      this->mNextTailAddressPool.mHead = v29;
       *((_WORD *)mHead + 8) = 0;
     }
     else
@@ -1769,11 +1752,11 @@ void StreamDefrag::StreamDefrag(StreamDefrag *this)
     }
     mHead->vAddrCurTail = mAddrTail;
     mHead->vAddrNextTail = mAddrTail;
-    mHead->unmapFrame = v28;
-    RList<StreamNextTailAddress>::PushBack((RList<StreamNextTailAddress> *)((char *)_RDI + j), mHead);
-    ++v29;
+    mHead->unmapFrame = v23;
+    RList<StreamNextTailAddress>::PushBack((RList<StreamNextTailAddress> *)((char *)this + j), mHead);
+    ++v24;
   }
-  _RDI->mGPUCopyFenceAddr = (unsigned __int64 *)PMem_Alloc(8ui64, 0x40ui64, MEM_POOL_GPU_PRIVATE, PMEM_STACK_GAME, "Stream Defrag Fence");
+  this->mGPUCopyFenceAddr = (unsigned __int64 *)PMem_Alloc(8ui64, 0x40ui64, MEM_POOL_GPU_PRIVATE, PMEM_STACK_GAME, "Stream Defrag Fence");
 }
 
 /*
@@ -2208,10 +2191,10 @@ unsigned __int64 StreamDefragRegion<0>::AssignAndFixup(StreamDefragRegion<0> *th
 {
   int v9; 
   int v10; 
-  unsigned int v13; 
-  const unsigned __int8 *v14; 
-  unsigned __int8 *v15; 
-  unsigned __int8 *v16; 
+  unsigned int v11; 
+  const unsigned __int8 *v12; 
+  unsigned __int8 *v13; 
+  unsigned __int8 *v14; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
 
@@ -2228,22 +2211,17 @@ unsigned __int64 StreamDefragRegion<0>::AssignAndFixup(StreamDefragRegion<0> *th
   *((_DWORD *)node + 2) = v9;
   if ( v10 != this->mPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1690, ASSERT_TYPE_ASSERT, "(pool == mPool)", (const char *)&queryFormat, "pool == mPool") )
     __debugbreak();
-  _RAX = Stream_Logger_MakeItem(&result, node);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
-  v13 = truncate_cast<unsigned int,unsigned __int64>(allocSize);
-  v14 = StrmOffsetToAddress((StreamMemPool)v10, *((unsigned int *)node + 2));
-  Stream_Logger_OnAddressAssigned("StreamDefragRegion<0>::AssignAndFixup", data, &item, v14, v13);
+  item = *Stream_Logger_MakeItem(&result, node);
+  v11 = truncate_cast<unsigned int,unsigned __int64>(allocSize);
+  v12 = StrmOffsetToAddress((StreamMemPool)v10, *((unsigned int *)node + 2));
+  Stream_Logger_OnAddressAssigned("StreamDefragRegion<0>::AssignAndFixup", data, &item, v12, v11);
   if ( ((*(_DWORD *)node >> 19) & 1) != this->mPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2249, ASSERT_TYPE_ASSERT, "(static_cast<StreamMemPool>( node->memPool ) == mPool)", (const char *)&queryFormat, "static_cast<StreamMemPool>( node->memPool ) == mPool", item.m_image, *(_QWORD *)&item.m_type) )
     __debugbreak();
-  v15 = StrmOffsetToAddress(this->mPool, *((unsigned int *)node + 3));
-  v16 = v15;
-  if ( ((unsigned __int64)v15 < this->mAddrBase || (unsigned __int64)v15 >= this->mAddrEnd) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2252, ASSERT_TYPE_ASSERT, "(addrWrite >= mAddrBase && addrWrite < mAddrEnd)", (const char *)&queryFormat, "addrWrite >= mAddrBase && addrWrite < mAddrEnd") )
+  v13 = StrmOffsetToAddress(this->mPool, *((unsigned int *)node + 3));
+  v14 = v13;
+  if ( ((unsigned __int64)v13 < this->mAddrBase || (unsigned __int64)v13 >= this->mAddrEnd) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2252, ASSERT_TYPE_ASSERT, "(addrWrite >= mAddrBase && addrWrite < mAddrEnd)", (const char *)&queryFormat, "addrWrite >= mAddrBase && addrWrite < mAddrEnd") )
     __debugbreak();
-  if ( (unsigned __int8 *)this->mAddrHead != &v16[NodeGetMaxVaSize(node)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2253, ASSERT_TYPE_ASSERT, "(mAddrHead == addrWrite + NodeGetMaxVaSize( node ))", (const char *)&queryFormat, "mAddrHead == addrWrite + NodeGetMaxVaSize( node )") )
+  if ( (unsigned __int8 *)this->mAddrHead != &v14[NodeGetMaxVaSize(node)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2253, ASSERT_TYPE_ASSERT, "(mAddrHead == addrWrite + NodeGetMaxVaSize( node ))", (const char *)&queryFormat, "mAddrHead == addrWrite + NodeGetMaxVaSize( node )") )
     __debugbreak();
   if ( *((_DWORD *)node + 2) != *((_DWORD *)node + 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2265, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetRead == node->vAddrOffsetWrite)", (const char *)&queryFormat, "node->vAddrOffsetRead == node->vAddrOffsetWrite") )
     __debugbreak();
@@ -2260,10 +2238,8 @@ StreamDefrag::BackendFlushProtection
 StreamDefragCommand *StreamDefrag::BackendFlushProtection(StreamDefrag *this, const StreamDefragAllocNode *node)
 {
   StreamDefragCommand *mHead; 
-  const unsigned __int8 *v7; 
-  __int128 v8; 
-  __int128 v9; 
-  __int64 v10; 
+  const unsigned __int8 *v6; 
+  StreamDefragCommand *v7; 
 
   Stream_Defrag_CheckLocks();
   if ( *((_DWORD *)node + 2) != *((_DWORD *)node + 3) )
@@ -2271,37 +2247,30 @@ StreamDefragCommand *StreamDefrag::BackendFlushProtection(StreamDefrag *this, co
     if ( (*((_DWORD *)node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4409, ASSERT_TYPE_ASSERT, "(node->defragRefCount > 0)", (const char *)&queryFormat, "node->defragRefCount > 0") )
       __debugbreak();
     mHead = this->mDefragSteps[0].mHead;
-    *(_QWORD *)&v8 = &v10;
-    *((_QWORD *)&v8 + 1) = node;
-    v10 = 0i64;
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_38]
-      vmovdqa [rsp+68h+var_38], xmm0
-    }
+    v7 = NULL;
     if ( mHead )
     {
       do
       {
         if ( (*((_DWORD *)mHead->node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4419, ASSERT_TYPE_ASSERT, "(command->node->defragRefCount > 0)", (const char *)&queryFormat, "command->node->defragRefCount > 0") )
           __debugbreak();
-        if ( mHead->node == (StreamDefragAllocNode *)*((_QWORD *)&v9 + 1) )
-          *(_QWORD *)v9 = mHead;
-        if ( *(_QWORD *)v9 )
+        if ( mHead->node == node )
+          v7 = mHead;
+        if ( v7 )
           break;
         if ( !(*((_DWORD *)mHead + 13) << 21) )
           break;
         mHead += (__int64)(int)(*((_DWORD *)mHead + 13) << 21) >> 21;
       }
       while ( mHead );
-      if ( v10 )
+      if ( v7 )
       {
         StreamDefrag::FlushAsyncVA(this, Block, MapsOnly, 0);
-        return (StreamDefragCommand *)v10;
+        return v7;
       }
     }
-    v7 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)node >> 19) & 1), *((unsigned int *)node + 3));
-    Stream_Logger_Dump(v7);
+    v6 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)node >> 19) & 1), *((unsigned int *)node + 3));
+    Stream_Logger_Dump(v6);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4439, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "BackendFlushProtection failed to find node!") )
       __debugbreak();
   }
@@ -2356,11 +2325,11 @@ StreamDefrag::CPUMemCpyAsync
 char StreamDefrag::CPUMemCpyAsync(StreamDefrag *this, StreamDefragCommand *command)
 {
   const dvar_t *v4; 
+  StreamDefragCommand *v5; 
 
-  _RBX = command;
   if ( !command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4687, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
     __debugbreak();
-  if ( !_RBX->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4688, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
+  if ( !command->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4688, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
     __debugbreak();
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4690, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE )") )
     __debugbreak();
@@ -2368,25 +2337,19 @@ char StreamDefrag::CPUMemCpyAsync(StreamDefrag *this, StreamDefragCommand *comma
   if ( !DCONST_DVARBOOL_stream_defragAsyncCPUMemCpy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragAsyncCPUMemCpy") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && (_RAX = RStackThreadSafe<StreamDefragCommand>::Pop(&this->mDefragPool)) != NULL )
+  if ( v4->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && (v5 = RStackThreadSafe<StreamDefragCommand>::Pop(&this->mDefragPool)) != NULL )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups xmm1, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rax+20h], xmm1
-      vmovsd  xmm0, qword ptr [rbx+30h]
-      vmovsd  qword ptr [rax+30h], xmm0
-    }
-    RStackThreadSafe<StreamDefragCommand>::Push(&this->mAsyncCPUMemCopies, _RAX);
+    *(__m256i *)&v5->node = *(__m256i *)&command->node;
+    *(_OWORD *)&v5->partOffset[2] = *(_OWORD *)&command->partOffset[2];
+    *((double *)v5 + 6) = *((double *)command + 6);
+    RStackThreadSafe<StreamDefragCommand>::Push(&this->mAsyncCPUMemCopies, v5);
     return 1;
   }
   else
   {
     if ( this->mAsyncCPUMemCopies.mHead )
       StreamDefrag::FlushAsyncCPUMemCpy(this, Block, 0);
-    Stream_Defrag_MemCpy(CPUMemCpy, NULL, _RBX);
+    Stream_Defrag_MemCpy(CPUMemCpy, NULL, command);
     return 0;
   }
 }
@@ -2573,20 +2536,20 @@ __int64 StreamDefrag::CommitParts(StreamDefrag *this, const StreamDefragCommand 
   unsigned __int8 *v13; 
   __int64 v14; 
   unsigned __int8 *end; 
-  unsigned int v18; 
-  StreamerMemPageCounts *v19; 
-  __int64 v21; 
-  __int64 v22; 
+  unsigned int v16; 
+  StreamerMemPageCounts *v17; 
+  __int64 v19; 
+  __int64 v20; 
   unsigned int outPageDeficitOrCommitCount; 
-  unsigned __int8 *v24; 
-  __int64 v25; 
+  unsigned __int8 *v22; 
+  __int64 v23; 
   StreamerMemPageCounts *pagesTaken; 
-  __int64 v27; 
+  __int64 v25; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
   StreamerMemLoan optionalLoan; 
 
-  v27 = -2i64;
+  v25 = -2i64;
   v5 = partBits;
   pagesTaken = reservedPages;
   if ( !command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4461, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
@@ -2595,7 +2558,7 @@ __int64 StreamDefrag::CommitParts(StreamDefrag *this, const StreamDefragCommand 
     __debugbreak();
   if ( !addressOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4463, ASSERT_TYPE_ASSERT, "(addressOffset != 0)", (const char *)&queryFormat, "addressOffset != 0") )
     __debugbreak();
-  v24 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)command->node >> 19) & 1), addressOffset);
+  v22 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)command->node >> 19) & 1), addressOffset);
   optionalLoan.mUpdateID = 0i64;
   optionalLoan.mPages = 0i64;
   optionalLoan.mCookie = -1061110033;
@@ -2611,39 +2574,34 @@ __int64 StreamDefrag::CommitParts(StreamDefrag *this, const StreamDefragCommand 
   {
     if ( (v11 & v10) != 0 )
     {
-      v13 = &v24[v12[4]];
+      v13 = &v22[v12[4]];
       v14 = *v12;
       end = &v13[v14];
-      v25 = v14 + v8;
+      v23 = v14 + v8;
       Mem_Paged_CheckUnaliasedDecommittedSubPageMemory(v13, &v13[v14]);
-      _RAX = Stream_Logger_MakeItem(&result, command->node);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+0F8h+item.___u0], xmm0
-      }
+      item = *Stream_Logger_MakeItem(&result, command->node);
       Stream_Logger_OnMemoryMapped("StreamDefrag::CommitParts", NULL, &item, v9, v13, end);
       outPageDeficitOrCommitCount = 0;
-      v18 = StreamerMemLoan::TotalPages(&optionalLoan);
+      v16 = StreamerMemLoan::TotalPages(&optionalLoan);
       if ( !Mem_Paged_BatchCommitSubPageMemory(v13, end, &optionalLoan, &outPageDeficitOrCommitCount, "StreamerDefrag") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4493, ASSERT_TYPE_ASSERT, "(Mem_Paged_BatchCommitSubPageMemory( dataStart, dataEnd, &reservedPagesLoan, &commitPageCount , \"StreamerDefrag\" ))", (const char *)&queryFormat, "Mem_Paged_BatchCommitSubPageMemory( dataStart, dataEnd, &reservedPagesLoan, &commitPageCount MEM_TRACK_ARGS( \"StreamerDefrag\" ) )") )
         __debugbreak();
-      if ( v18 < outPageDeficitOrCommitCount )
+      if ( v16 < outPageDeficitOrCommitCount )
       {
-        LODWORD(v22) = outPageDeficitOrCommitCount;
-        LODWORD(v21) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4494, ASSERT_TYPE_ASSERT, "( reservedBeforeCommitPageCount ) >= ( commitPageCount )", "%s >= %s\n\t%u, %u", "reservedBeforeCommitPageCount", "commitPageCount", v21, v22) )
+        LODWORD(v20) = outPageDeficitOrCommitCount;
+        LODWORD(v19) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4494, ASSERT_TYPE_ASSERT, "( reservedBeforeCommitPageCount ) >= ( commitPageCount )", "%s >= %s\n\t%u, %u", "reservedBeforeCommitPageCount", "commitPageCount", v19, v20) )
           __debugbreak();
       }
-      v8 = v25;
+      v8 = v23;
     }
     v10 = __ROR8__(v10, 1);
     --v12;
     --v9;
   }
   while ( v9 >= 0 );
-  v19 = pagesTaken;
+  v17 = pagesTaken;
   *pagesTaken = 0i64;
-  StreamerMemLoan::TakeAllPages(&optionalLoan, v19);
+  StreamerMemLoan::TakeAllPages(&optionalLoan, v17);
   StreamerMemLoan::~StreamerMemLoan(&optionalLoan);
   return v8;
 }
@@ -2665,13 +2623,13 @@ __int64 StreamDefrag::DecommitParts(StreamDefrag *this, const StreamDefragComman
   unsigned __int8 *v14; 
   __int64 v15; 
   unsigned __int8 *end; 
-  StreamerMemLoan *v19; 
-  __int64 v21; 
-  unsigned __int8 *v22; 
+  StreamerMemLoan *v17; 
+  __int64 v19; 
+  unsigned __int8 *v20; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
-  StreamerMemLoan v25; 
-  StreamerMemLoan v26; 
+  StreamerMemLoan v23; 
+  StreamerMemLoan v24; 
 
   v5 = partBits;
   if ( !command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4533, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
@@ -2681,7 +2639,7 @@ __int64 StreamDefrag::DecommitParts(StreamDefrag *this, const StreamDefragComman
   if ( !addressOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4535, ASSERT_TYPE_ASSERT, "(addressOffset != 0)", (const char *)&queryFormat, "addressOffset != 0") )
     __debugbreak();
   v8 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)command->node >> 19) & 1), addressOffset);
-  v22 = v8;
+  v20 = v8;
   v9 = 0i64;
   v10 = 3;
   v11 = 8i64;
@@ -2694,23 +2652,18 @@ __int64 StreamDefrag::DecommitParts(StreamDefrag *this, const StreamDefragComman
       v14 = &v8[v13[4]];
       v15 = *v13;
       end = &v14[v15];
-      v21 = v15 + v9;
-      _RAX = Stream_Logger_MakeItem(&result, command->node);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+0D8h+item.___u0], xmm0
-      }
+      v19 = v15 + v9;
+      item = *Stream_Logger_MakeItem(&result, command->node);
       Stream_Logger_OnMemoryUnmapped("StreamDefrag::DecommitParts", NULL, &item, v10, v14, end);
-      v19 = Mem_Paged_BatchDecommitSubPageMemory(&v26, v14, end);
-      StreamerMemLoan::StreamerMemLoan(&v25, v19);
-      StreamerMemLoan::~StreamerMemLoan(&v26);
-      if ( !StreamerMemLoan::Ready(&v25) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4557, ASSERT_TYPE_ASSERT, "(loan.Ready())", (const char *)&queryFormat, "loan.Ready()") )
+      v17 = Mem_Paged_BatchDecommitSubPageMemory(&v24, v14, end);
+      StreamerMemLoan::StreamerMemLoan(&v23, v17);
+      StreamerMemLoan::~StreamerMemLoan(&v24);
+      if ( !StreamerMemLoan::Ready(&v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4557, ASSERT_TYPE_ASSERT, "(loan.Ready())", (const char *)&queryFormat, "loan.Ready()") )
         __debugbreak();
-      StreamerMemLoan::TakeAllPages(&v25, unmappedPages);
-      StreamerMemLoan::~StreamerMemLoan(&v25);
-      v9 = v21;
-      v8 = v22;
+      StreamerMemLoan::TakeAllPages(&v23, unmappedPages);
+      StreamerMemLoan::~StreamerMemLoan(&v23);
+      v9 = v19;
+      v8 = v20;
     }
     v11 = __ROR8__(v11, 1);
     --v13;
@@ -2938,10 +2891,10 @@ void StreamDefrag::DefragFrameBegin(StreamDefrag *this, GfxCmdBufContext *gfxCon
   unsigned int FreePageCountForCommit; 
   Mem_Pool v10; 
   const dvar_t *v11; 
-  __int64 v14; 
-  __int64 v15; 
-  __int128 state; 
-  StreamDefrag *v20; 
+  __int64 v12; 
+  __int64 v13; 
+  GfxCmdBufContext state; 
+  StreamDefrag *v18; 
 
   Stream_Defrag_CheckLocks();
   StreamDefrag::ValidateRegions(this);
@@ -2963,9 +2916,9 @@ void StreamDefrag::DefragFrameBegin(StreamDefrag *this, GfxCmdBufContext *gfxCon
     if ( StreamerMemLoan::PagesForPool(p_mDefragPages, (StreamMemPool)v6) > FreePageCountForCommit )
     {
       v10 = Stream_Alloc_GetMemPoolFromStreamMemPool((StreamMemPool)v6);
-      LODWORD(v15) = Mem_Paged_GetFreePageCountForCommit(v10);
-      LODWORD(v14) = StreamerMemLoan::PagesForPool(p_mDefragPages, (StreamMemPool)v6);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3109, ASSERT_TYPE_ASSERT, "( mDefragPages.PagesForPool( pool ) ) <= ( Mem_Paged_GetFreePageCountForCommit( Stream_Alloc_GetMemPoolFromStreamMemPool( pool ) ) )", "%s <= %s\n\t%u, %u", "mDefragPages.PagesForPool( pool )", "Mem_Paged_GetFreePageCountForCommit( Stream_Alloc_GetMemPoolFromStreamMemPool( pool ) )", v14, v15) )
+      LODWORD(v13) = Mem_Paged_GetFreePageCountForCommit(v10);
+      LODWORD(v12) = StreamerMemLoan::PagesForPool(p_mDefragPages, (StreamMemPool)v6);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3109, ASSERT_TYPE_ASSERT, "( mDefragPages.PagesForPool( pool ) ) <= ( Mem_Paged_GetFreePageCountForCommit( Stream_Alloc_GetMemPoolFromStreamMemPool( pool ) ) )", "%s <= %s\n\t%u, %u", "mDefragPages.PagesForPool( pool )", "Mem_Paged_GetFreePageCountForCommit( Stream_Alloc_GetMemPoolFromStreamMemPool( pool ) )", v12, v13) )
         __debugbreak();
     }
     ++v6;
@@ -2973,7 +2926,6 @@ void StreamDefrag::DefragFrameBegin(StreamDefrag *this, GfxCmdBufContext *gfxCon
   }
   while ( v6 < 2 );
   v11 = DCONST_DVARBOOL_stream_defragEnable;
-  _R12 = gfxContext;
   if ( !DCONST_DVARBOOL_stream_defragEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragEnable") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v11);
@@ -2982,20 +2934,16 @@ void StreamDefrag::DefragFrameBegin(StreamDefrag *this, GfxCmdBufContext *gfxCon
     StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses(this, data);
     if ( this->mAsyncVAProcess && (this->mAsyncVAMaps.mHead || this->mAsyncVAUnmaps.mHead) )
     {
-      v20 = this;
-      Sys_AddWorkerCmd(WRKCMD_STREAM_DEFRAG_FLUSH_VA, &v20);
+      v18 = this;
+      Sys_AddWorkerCmd(WRKCMD_STREAM_DEFRAG_FLUSH_VA, &v18);
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r12]
-    vmovups xmmword ptr [rsp+0A8h+state], xmm0
-  }
+  state = *gfxContext;
   if ( this->mCopyMode != 5 && this->mGPUCopyFenceCounter >= 2 )
   {
     R_LockGfxImmediateContext();
     R_GPU_BeginTimer(GPU_TIMER_STREAMER_DEFRAG_WAIT);
-    R_GPULabel_Wait(*((CmdBufState **)&state + 1), this->mGPUCopyFenceAddr, this->mGPUCopyFenceCounter - 2, GFX_LABEL_COMPARE_FUNC_GREATEREQUAL);
+    R_GPULabel_Wait(state.state, this->mGPUCopyFenceAddr, this->mGPUCopyFenceCounter - 2, GFX_LABEL_COMPARE_FUNC_GREATEREQUAL);
     R_GPU_EndTimer();
     R_UnlockGfxImmediateContext();
   }
@@ -3136,83 +3084,89 @@ void StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses(StreamDefrag *thi
   __int64 v8; 
   StreamDefragRegion<1> *p_mMoveableRegion; 
   StreamDefragAllocNode *mHead; 
-  int v13; 
+  int v11; 
   RStackThreadSafe<StreamDefragCommand> *p_mDefragPool; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  unsigned int v23; 
-  unsigned __int64 v24; 
-  unsigned int *v25; 
-  unsigned int v26; 
-  unsigned int v27; 
+  StreamDefragCommand *v13; 
+  int v14; 
+  int v15; 
+  int v16; 
+  int v17; 
+  unsigned int v18; 
+  unsigned __int64 v19; 
+  unsigned int *v20; 
+  unsigned int v21; 
+  unsigned int v22; 
   GfxImage *GfxImageAtIndex; 
-  unsigned int v29; 
-  int v30; 
-  int v31; 
-  unsigned int v32; 
+  unsigned int v24; 
+  int v25; 
+  int v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  unsigned int v30; 
+  unsigned int v31; 
+  unsigned __int64 v32; 
   __int64 v33; 
-  __int64 v34; 
-  unsigned int v35; 
-  unsigned int v36; 
-  unsigned __int64 v37; 
-  __int64 v38; 
-  unsigned __int64 v39; 
+  unsigned __int64 v34; 
+  __int64 v35; 
+  Stream_Logger_Item *v36; 
+  const unsigned __int8 *v37; 
+  const unsigned __int8 *v38; 
+  unsigned int v39; 
   __int64 v40; 
-  const unsigned __int8 *v43; 
-  const unsigned __int8 *v44; 
-  unsigned int v45; 
+  __int64 v41; 
+  const dvar_t *v42; 
+  StreamDefragCommand *v43; 
+  char v44; 
+  __int64 v45; 
   __int64 v46; 
-  __int64 v47; 
-  const dvar_t *v48; 
-  char v53; 
-  __int64 v54; 
-  __int64 v55; 
-  char v56; 
+  char v47; 
   unsigned int maxPages; 
   unsigned int FrameDefragCommandCount; 
   unsigned int startOverlap; 
-  unsigned int v60; 
+  unsigned int v51; 
   GfxBackEndData *dataa; 
-  StreamDefragRegion<1> *v62; 
-  unsigned __int64 v63; 
-  RStackThreadSafe<StreamDefragCommand> *v64; 
+  StreamDefragRegion<1> *v53; 
+  unsigned __int64 v54; 
+  RStackThreadSafe<StreamDefragCommand> *v55; 
   StreamMemPool pool[2]; 
-  StreamDefrag *v66; 
+  StreamDefrag *v57; 
   FastCriticalSection *critSect; 
-  _BYTE v68[32]; 
-  __int128 v69; 
-  __int64 v70; 
+  __int64 v59; 
+  __int64 v60; 
+  __int64 v61; 
+  __int64 v62; 
+  __int128 v63; 
+  __int64 v64; 
   Stream_Logger_Item item; 
-  Stream_Logger_Item v72; 
+  Stream_Logger_Item v66; 
   Stream_Logger_Item result; 
-  Stream_Logger_Item v74; 
+  Stream_Logger_Item v68; 
   StreamerMemPageCounts pagesTaken; 
 
   v2 = this->mDefragSteps[0].mTail == NULL;
   v3 = data;
   dataa = (GfxBackEndData *)data;
   v4 = this;
-  v66 = this;
+  v57 = this;
   if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4765, ASSERT_TYPE_ASSERT, "(DefragStepCommands( StreamDefragStep::COPY ).Empty())", (const char *)&queryFormat, "DefragStepCommands( StreamDefragStep::COPY ).Empty()") )
     __debugbreak();
   critSect = &v4->mDefragLockCriticalSection;
   Sys_LockWrite(&v4->mDefragLockCriticalSection);
   Stream_Logger_OnDefragOp("StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses", v3);
   v5 = 0;
-  v56 = 0;
-  v60 = v4->mDefragUnmapFrameDepth + v4->mDefragFrameIndex + 1;
+  v47 = 0;
+  v51 = v4->mDefragUnmapFrameDepth + v4->mDefragFrameIndex + 1;
   v6 = startPoolIndex + 1;
   LOBYTE(v7) = 0;
   ++startPoolIndex;
-  v63 = 0i64;
+  v54 = 0i64;
   while ( 1 )
   {
     v8 = (v6 + (_BYTE)v7) & 1;
     *(_QWORD *)pool = v8;
     p_mMoveableRegion = &v4->mAddressSpaces[v8].mMoveableRegion;
-    v62 = p_mMoveableRegion;
+    v53 = p_mMoveableRegion;
     FrameDefragCommandCount = StreamDefrag::GetFrameDefragCommandCount(v4, (StreamMemPool)v8);
     if ( FrameDefragCommandCount )
     {
@@ -3238,207 +3192,183 @@ void StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses(StreamDefrag *thi
         if ( (*(_DWORD *)mHead & 0x7800000) != 0 )
         {
           p_mDefragPool = &v4->mDefragPool;
-          v64 = &v4->mDefragPool;
-          _R15 = RStackThreadSafe<StreamDefragCommand>::Pop(&v4->mDefragPool);
-          if ( !_R15 )
+          v55 = &v4->mDefragPool;
+          v13 = RStackThreadSafe<StreamDefragCommand>::Pop(&v4->mDefragPool);
+          if ( !v13 )
             break;
-          memset(v68, 0, sizeof(v68));
-          __asm
-          {
-            vmovups ymm0, [rbp+60h+var_C0]
-            vmovups ymmword ptr [r15], ymm0
-          }
-          v69 = 0ui64;
-          __asm
-          {
-            vmovups xmm1, [rbp+60h+var_A0]
-            vmovups xmmword ptr [r15+20h], xmm1
-          }
-          v70 = 0i64;
-          __asm
-          {
-            vmovsd  xmm0, [rbp+60h+var_90]
-            vmovsd  qword ptr [r15+30h], xmm0
-          }
-          _R15->node = mHead;
-          CommandSetPartInfo(_R15);
-          if ( (*((_DWORD *)_R15 + 13) & 0xF000000) != ((*((_DWORD *)_R15 + 13) >> 4) & 0xF000000) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4854, ASSERT_TYPE_ASSERT, "(command->copyParts == command->unmapParts)", (const char *)&queryFormat, "command->copyParts == command->unmapParts") )
+          v59 = 0i64;
+          v60 = 0i64;
+          v61 = 0i64;
+          v62 = 0i64;
+          *(__m256i *)&v13->node = (__m256i)0;
+          v63 = 0ui64;
+          *(_OWORD *)&v13->partOffset[2] = 0ui64;
+          v64 = 0i64;
+          *((double *)v13 + 6) = 0i64;
+          v13->node = mHead;
+          CommandSetPartInfo(v13);
+          if ( (*((_DWORD *)v13 + 13) & 0xF000000) != ((*((_DWORD *)v13 + 13) >> 4) & 0xF000000) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4854, ASSERT_TYPE_ASSERT, "(command->copyParts == command->unmapParts)", (const char *)&queryFormat, "command->copyParts == command->unmapParts") )
             __debugbreak();
-          v19 = *(_DWORD *)mHead >> 23;
-          v20 = HIBYTE(*((_DWORD *)_R15 + 13)) & 0xF;
-          if ( v20 != (v19 & 0xF) )
+          v14 = *(_DWORD *)mHead >> 23;
+          v15 = HIBYTE(*((_DWORD *)v13 + 13)) & 0xF;
+          if ( v15 != (v14 & 0xF) )
             goto LABEL_87;
-          v21 = (*(_DWORD *)mHead >> 27) & 0xF;
-          if ( v20 != v21 )
+          v16 = (*(_DWORD *)mHead >> 27) & 0xF;
+          if ( v15 != v16 )
             goto LABEL_87;
-          v22 = (unsigned __int8)HIBYTE(*((_DWORD *)_R15 + 13)) & (unsigned __int8)v19 & 0xF;
-          if ( v22 != v21 )
+          v17 = (unsigned __int8)HIBYTE(*((_DWORD *)v13 + 13)) & (unsigned __int8)v14 & 0xF;
+          if ( v17 != v16 )
           {
-            LODWORD(v55) = (*(_DWORD *)mHead >> 27) & 0xF;
-            LODWORD(v54) = v22;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4864, ASSERT_TYPE_ASSERT, "( ( command->copyParts & node->mappedParts ) ) == ( node->inuseParts )", "%s == %s\n\t%u, %u", "( command->copyParts & node->mappedParts )", "node->inuseParts", v54, v55) )
+            LODWORD(v46) = (*(_DWORD *)mHead >> 27) & 0xF;
+            LODWORD(v45) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4864, ASSERT_TYPE_ASSERT, "( ( command->copyParts & node->mappedParts ) ) == ( node->inuseParts )", "%s == %s\n\t%u, %u", "( command->copyParts & node->mappedParts )", "node->inuseParts", v45, v46) )
               __debugbreak();
           }
           maxPages = 0;
-          Command_MaxPageCount(_R15, &maxPages);
-          v23 = StreamerMemLoan::TotalPages(&v4->mDefragPages);
-          if ( maxPages > v23 )
+          Command_MaxPageCount(v13, &maxPages);
+          v18 = StreamerMemLoan::TotalPages(&v4->mDefragPages);
+          if ( maxPages > v18 )
           {
 LABEL_87:
-            RStackThreadSafe<StreamDefragCommand>::Push(&v4->mDefragPool, _R15);
+            RStackThreadSafe<StreamDefragCommand>::Push(&v4->mDefragPool, v13);
             break;
           }
-          v24 = *((unsigned int *)mHead + 1);
-          if ( (v24 & 0x78000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4877, ASSERT_TYPE_ASSERT, "( node->vAddrOffsetWriteLockParts ) == ( 0 )", "%s == %s\n\t%llu, %llu", "node->vAddrOffsetWriteLockParts", "0", (v24 >> 27) & 0xF, 0i64) )
+          v19 = *((unsigned int *)mHead + 1);
+          if ( (v19 & 0x78000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4877, ASSERT_TYPE_ASSERT, "( node->vAddrOffsetWriteLockParts ) == ( 0 )", "%s == %s\n\t%llu, %llu", "node->vAddrOffsetWriteLockParts", "0", (v19 >> 27) & 0xF, 0i64) )
             __debugbreak();
           if ( !StreamDefrag::UpdateNewTailAddressBeforeMove(v4, mHead) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4879, ASSERT_TYPE_ASSERT, "(UpdateNewTailAddressBeforeMove( node ))", (const char *)&queryFormat, "UpdateNewTailAddressBeforeMove( node )") )
             __debugbreak();
-          v25 = &_R15->partSize[1];
-          *((_DWORD *)_R15 + 13) ^= (*((_DWORD *)_R15 + 13) ^ (*((_DWORD *)mHead + 1) >> 9)) & 0x3800;
-          *((_DWORD *)_R15 + 11) = *((_DWORD *)mHead + 2);
-          *((_DWORD *)_R15 + 13) ^= (*((_DWORD *)_R15 + 13) ^ (*((_DWORD *)mHead + 1) >> 9)) & 0x3C000;
-          _R15->unmapFrame = v60;
-          v26 = _R15->partSize[1] + _R15->partSize[0] + _R15->partSize[2] + _R15->partSize[3];
-          if ( v26 != NodeGetMaxVaSize(mHead) )
+          v20 = &v13->partSize[1];
+          *((_DWORD *)v13 + 13) ^= (*((_DWORD *)v13 + 13) ^ (*((_DWORD *)mHead + 1) >> 9)) & 0x3800;
+          *((_DWORD *)v13 + 11) = *((_DWORD *)mHead + 2);
+          *((_DWORD *)v13 + 13) ^= (*((_DWORD *)v13 + 13) ^ (*((_DWORD *)mHead + 1) >> 9)) & 0x3C000;
+          v13->unmapFrame = v51;
+          v21 = v13->partSize[1] + v13->partSize[0] + v13->partSize[2] + v13->partSize[3];
+          if ( v21 != NodeGetMaxVaSize(mHead) )
           {
-            LODWORD(v55) = NodeGetMaxVaSize(mHead);
-            LODWORD(v54) = v26;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4891, ASSERT_TYPE_ASSERT, "( totalSize ) == ( NodeGetMaxVaSize( node ) )", "%s == %s\n\t%u, %u", "totalSize", "NodeGetMaxVaSize( node )", v54, v55) )
+            LODWORD(v46) = NodeGetMaxVaSize(mHead);
+            LODWORD(v45) = v21;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4891, ASSERT_TYPE_ASSERT, "( totalSize ) == ( NodeGetMaxVaSize( node ) )", "%s == %s\n\t%u, %u", "totalSize", "NodeGetMaxVaSize( node )", v45, v46) )
               __debugbreak();
           }
           if ( RList<StreamDefragAllocNode>::PopFront(&p_mMoveableRegion->mAllocations) != mHead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4894, ASSERT_TYPE_ASSERT, "((moveableRegion.PopFront()) == (node))", (const char *)&queryFormat, "moveableRegion.PopFront() == node") )
             __debugbreak();
-          v27 = *((_DWORD *)mHead + 1);
-          if ( (v27 & 3) != 0 )
+          v22 = *((_DWORD *)mHead + 1);
+          if ( (v22 & 3) != 0 )
           {
-            v40 = BitDecodeAlignment((*((_DWORD *)_R15 + 13) >> 18) & 0xF);
-            v39 = StreamDefragRegion<1>::Assign(p_mMoveableRegion, mHead, v26, v40, NULL);
+            v35 = BitDecodeAlignment((*((_DWORD *)v13 + 13) >> 18) & 0xF);
+            v34 = StreamDefragRegion<1>::Assign(p_mMoveableRegion, mHead, v21, v35, NULL);
           }
           else
           {
-            GfxImageAtIndex = DB_GetGfxImageAtIndex((v27 >> 2) & 0x3FFFF);
-            v29 = 32 - __lzcnt((*(_DWORD *)mHead >> 23) & 0xF);
-            if ( v29 > GfxImageAtIndex->streamedPartCount )
+            GfxImageAtIndex = DB_GetGfxImageAtIndex((v22 >> 2) & 0x3FFFF);
+            v24 = 32 - __lzcnt((*(_DWORD *)mHead >> 23) & 0xF);
+            if ( v24 > GfxImageAtIndex->streamedPartCount )
             {
-              LODWORD(v55) = GfxImageAtIndex->streamedPartCount;
-              LODWORD(v54) = v29;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4909, ASSERT_TYPE_ASSERT, "( minReservedPartCount ) <= ( image->streamedPartCount )", "%s <= %s\n\t%u, %u", "minReservedPartCount", "image->streamedPartCount", v54, v55) )
+              LODWORD(v46) = GfxImageAtIndex->streamedPartCount;
+              LODWORD(v45) = v24;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4909, ASSERT_TYPE_ASSERT, "( minReservedPartCount ) <= ( image->streamedPartCount )", "%s <= %s\n\t%u, %u", "minReservedPartCount", "image->streamedPartCount", v45, v46) )
                 __debugbreak();
             }
-            v30 = 0;
-            v31 = 0;
-            v32 = 0;
-            v33 = 0i64;
-            if ( v29 >= 2 )
+            v25 = 0;
+            v26 = 0;
+            v27 = 0;
+            v28 = 0i64;
+            if ( v24 >= 2 )
             {
-              v34 = ((v29 - 2) >> 1) + 1;
-              v33 = (unsigned int)(2 * v34);
+              v29 = ((v24 - 2) >> 1) + 1;
+              v28 = (unsigned int)(2 * v29);
               do
               {
-                v30 += *(v25 - 1);
-                v31 += *v25;
-                v25 += 2;
-                --v34;
+                v25 += *(v20 - 1);
+                v26 += *v20;
+                v20 += 2;
+                --v29;
               }
-              while ( v34 );
+              while ( v29 );
             }
-            if ( (unsigned int)v33 < v29 )
-              v32 = _R15->partSize[v33];
-            v35 = v30 + v31 + v32;
-            if ( v26 < v35 )
+            if ( (unsigned int)v28 < v24 )
+              v27 = v13->partSize[v28];
+            v30 = v25 + v26 + v27;
+            if ( v21 < v30 )
             {
-              LODWORD(v55) = v35;
-              LODWORD(v54) = v26;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4916, ASSERT_TYPE_ASSERT, "( totalSize ) >= ( minReservedSize )", "%s >= %s\n\t%u, %u", "totalSize", "minReservedSize", v54, v55) )
+              LODWORD(v46) = v30;
+              LODWORD(v45) = v21;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4916, ASSERT_TYPE_ASSERT, "( totalSize ) >= ( minReservedSize )", "%s >= %s\n\t%u, %u", "totalSize", "minReservedSize", v45, v46) )
                 __debugbreak();
             }
-            v36 = v26 - v35;
-            v37 = (*((_DWORD *)_R15 + 13) >> 18) & 0xF;
-            startOverlap = v26 - v35;
-            v38 = BitDecodeAlignment(v37);
-            v39 = StreamDefragRegion<1>::Assign(v62, mHead, v26, v38, &startOverlap);
-            if ( startOverlap != v36 )
-              LOBYTE(v29) = GfxImageAtIndex->streamedPartCount;
+            v31 = v21 - v30;
+            v32 = (*((_DWORD *)v13 + 13) >> 18) & 0xF;
+            startOverlap = v21 - v30;
+            v33 = BitDecodeAlignment(v32);
+            v34 = StreamDefragRegion<1>::Assign(v53, mHead, v21, v33, &startOverlap);
+            if ( startOverlap != v31 )
+              LOBYTE(v24) = GfxImageAtIndex->streamedPartCount;
             *((_DWORD *)mHead + 1) &= 0xFF8FFFFF;
-            p_mMoveableRegion = v62;
-            *((_DWORD *)mHead + 1) |= (v29 & 7) << 20;
-            p_mDefragPool = v64;
+            p_mMoveableRegion = v53;
+            *((_DWORD *)mHead + 1) |= (v24 & 7) << 20;
+            p_mDefragPool = v55;
           }
-          _RAX = Stream_Logger_MakeItem(&v74, mHead);
+          v36 = Stream_Logger_MakeItem(&v68, mHead);
           v8 = *(_QWORD *)pool;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rbp+60h+var_78.___u0], xmm0
-          }
-          v43 = StrmOffsetToAddress(pool[0], v39);
-          v44 = StrmOffsetToAddress((StreamMemPool)v8, *((unsigned int *)mHead + 3));
-          Stream_Logger_OnVAddrOffsetWriteChanged("StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses", dataa, &v72, v44, v43);
+          v66 = *v36;
+          v37 = StrmOffsetToAddress(pool[0], v34);
+          v38 = StrmOffsetToAddress((StreamMemPool)v8, *((unsigned int *)mHead + 3));
+          Stream_Logger_OnVAddrOffsetWriteChanged("StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses", dataa, &v66, v38, v37);
           *((_DWORD *)mHead + 1) &= 0xF87FFFFF;
-          v45 = maxPages;
-          *((_DWORD *)mHead + 3) = v39;
-          v4 = v66;
+          v39 = maxPages;
+          *((_DWORD *)mHead + 3) = v34;
+          v4 = v57;
           pagesTaken = 0i64;
-          StreamerMemLoan::TakePages(&v66->mDefragPages, (StreamMemPool)v8, v45, &pagesTaken);
-          if ( !_R15->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4596, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
+          StreamerMemLoan::TakePages(&v57->mDefragPages, (StreamMemPool)v8, v39, &pagesTaken);
+          if ( !v13->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4596, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
             __debugbreak();
-          Stream_Defrag_CheckLocks(v47, v46);
-          StreamDefrag::TrackCommitParts(v4, _R15, *((unsigned int *)_R15->node + 3), *((_BYTE *)_R15 + 55) & 0xF);
-          v48 = DCONST_DVARBOOL_stream_defragAsyncMapping;
+          Stream_Defrag_CheckLocks(v41, v40);
+          StreamDefrag::TrackCommitParts(v4, v13, *((unsigned int *)v13->node + 3), *((_BYTE *)v13 + 55) & 0xF);
+          v42 = DCONST_DVARBOOL_stream_defragAsyncMapping;
           if ( !DCONST_DVARBOOL_stream_defragAsyncMapping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragAsyncMapping") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v48);
-          if ( v48->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && (_RAX = RStackThreadSafe<StreamDefragCommand>::Pop(p_mDefragPool)) != NULL )
+          Dvar_CheckFrontendServerThread(v42);
+          if ( v42->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && (v43 = RStackThreadSafe<StreamDefragCommand>::Pop(p_mDefragPool)) != NULL )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r15]
-              vmovups ymmword ptr [rax], ymm0
-              vmovups xmm1, xmmword ptr [r15+20h]
-              vmovups xmmword ptr [rax+20h], xmm1
-              vmovsd  xmm0, qword ptr [r15+30h]
-              vmovsd  qword ptr [rax+30h], xmm0
-            }
-            RStackThreadSafe<StreamDefragCommand>::Push(&v4->mAsyncVAMaps, _RAX);
-            v53 = 0;
+            *(__m256i *)&v43->node = *(__m256i *)&v13->node;
+            *(_OWORD *)&v43->partOffset[2] = *(_OWORD *)&v13->partOffset[2];
+            *((double *)v43 + 6) = *((double *)v13 + 6);
+            RStackThreadSafe<StreamDefragCommand>::Push(&v4->mAsyncVAMaps, v43);
+            v44 = 0;
           }
           else
           {
             if ( v4->mAsyncVAMaps.mHead || v4->mAsyncVAUnmaps.mHead )
               StreamDefrag::FlushAsyncVA(v4, Block, MapsAndUnmaps, 0);
-            StreamDefrag::Map(v4, _R15);
-            v53 = 1;
+            StreamDefrag::Map(v4, v13);
+            v44 = 1;
           }
-          v5 = v53 | v56;
-          v56 |= v53;
+          v5 = v44 | v47;
+          v47 |= v44;
           if ( (*((_DWORD *)mHead + 4) & 0xC00000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4941, ASSERT_TYPE_ASSERT, "(node->defragRefCount == 0)", (const char *)&queryFormat, "node->defragRefCount == 0") )
             __debugbreak();
-          StreamDefrag::InsertCommand<0>(v4, _R15);
+          StreamDefrag::InsertCommand<0>(v4, v13);
           StreamDefragRegion<1>::PushBack(p_mMoveableRegion, mHead);
           v3 = dataa;
-          v13 = --FrameDefragCommandCount;
+          v11 = --FrameDefragCommandCount;
         }
         else
         {
           StreamDefrag::UpdateNewTailAddressBeforeMove(v4, mHead);
           StreamDefragRegion<1>::ReleaseVAReserve(p_mMoveableRegion, mHead);
-          _RAX = Stream_Logger_MakeItem(&result, mHead);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rbp+60h+item.___u0], xmm0
-          }
+          item = *Stream_Logger_MakeItem(&result, mHead);
           Stream_Logger_OnVirtualAddressReleased("StreamDefrag::DefragStep0_StartCommandsAndMapNewAddresses", v3, &item);
           *((_DWORD *)mHead + 1) &= 0xF80FFFFF;
           *((_QWORD *)mHead + 1) = 0i64;
-          v13 = FrameDefragCommandCount;
+          v11 = FrameDefragCommandCount;
         }
       }
-      while ( v13 );
+      while ( v11 );
     }
     StreamDefragRegion<1>::Validate(p_mMoveableRegion);
-    v7 = v63 + 1;
-    v63 = v7;
+    v7 = v54 + 1;
+    v54 = v7;
     if ( v7 >= 2 )
       break;
     v6 = startPoolIndex;
@@ -3467,16 +3397,17 @@ void StreamDefrag::DefragStep1_IssueCopies(StreamDefrag *this, GfxCmdBufContext 
   StreamDefragAllocNode *node; 
   StreamDefragCommand *v13; 
   int v14; 
-  StreamDefragAllocNode *v17; 
+  Stream_Logger_Item v15; 
+  StreamDefragAllocNode *v16; 
   unsigned int size; 
-  const unsigned __int8 *v19; 
-  __int64 v20; 
-  unsigned int v21; 
+  const unsigned __int8 *v18; 
+  __int64 v19; 
+  unsigned int v20; 
+  unsigned __int64 v21; 
   unsigned __int64 v22; 
-  unsigned __int64 v23; 
   StreamDefragCopyMode mCopyMode; 
+  __int64 v24; 
   __int64 v25; 
-  __int64 v26; 
   void *data; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
@@ -3536,9 +3467,9 @@ void StreamDefrag::DefragStep1_IssueCopies(StreamDefrag *this, GfxCmdBufContext 
         __debugbreak();
       if ( mHead->unmapFrame != this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1 )
       {
-        LODWORD(v26) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
-        LODWORD(v25) = mHead->unmapFrame;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5011, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) == ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s == %s\n\t%u, %u", "command->unmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v25, v26) )
+        LODWORD(v25) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
+        LODWORD(v24) = mHead->unmapFrame;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5011, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) == ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s == %s\n\t%u, %u", "command->unmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v24, v25) )
           __debugbreak();
       }
       node = mHead->node;
@@ -3590,15 +3521,14 @@ LABEL_47:
       if ( (*((_DWORD *)mHead->node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4328, ASSERT_TYPE_ASSERT, "(command->node->defragRefCount > 0)", (const char *)&queryFormat, "command->node->defragRefCount > 0") )
         __debugbreak();
       RSList<StreamDefragCommand>::PushBack(&this->mDefragSteps[1], mHead);
-      _RAX = Stream_Logger_MakeItem(&result, mHead->node);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      v17 = mHead->node;
+      v15 = *Stream_Logger_MakeItem(&result, mHead->node);
+      v16 = mHead->node;
       size = mHead->partSize[0] + mHead->partSize[1] + mHead->partSize[2] + mHead->partSize[3];
-      __asm { vmovups xmmword ptr [rsp+0AB8h+item.___u0], xmm0 }
-      v19 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)v17 >> 19) & 1), *((unsigned int *)v17 + 2));
-      Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, DODGE, v19, size);
+      item = v15;
+      v18 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)v16 >> 19) & 1), *((unsigned int *)v16 + 2));
+      Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &item, DODGE, v18, size);
     }
-    v20 = (__int64)data;
+    v19 = (__int64)data;
     if ( this->mDefragSteps[0].mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 97, ASSERT_TYPE_ASSERT, "(mTail == nullptr)", (const char *)&queryFormat, "mTail == nullptr") )
       __debugbreak();
     R_ProfEndNamedEvent(p_state);
@@ -3609,20 +3539,20 @@ LABEL_47:
     }
     if ( v8 )
     {
-      v21 = ++this->mGPUCopyFenceCounter;
-      R_GPULabel_Signal(p_state, this->mGPUCopyFenceAddr, v21);
+      v20 = ++this->mGPUCopyFenceCounter;
+      R_GPULabel_Signal(p_state, this->mGPUCopyFenceAddr, v20);
       R_FlushCompute(p_state);
-      v22 = v21;
+      v21 = v20;
     }
     else
     {
       if ( !v9 )
         goto LABEL_63;
-      v23 = R_FlushDefragDMACommandList();
-      this->mDMACopyFence = v23;
-      v22 = v23;
+      v22 = R_FlushDefragDMACommandList();
+      this->mDMACopyFence = v22;
+      v21 = v22;
     }
-    Stream_Logger_OnInsertCopyFinishedFence("StreamDefrag::DefragStep1_IssueCopies", *(const GfxBackEndData **)(*(_QWORD *)v20 + 9728i64), v22);
+    Stream_Logger_OnInsertCopyFinishedFence("StreamDefrag::DefragStep1_IssueCopies", *(const GfxBackEndData **)(*(_QWORD *)v19 + 9728i64), v21);
 LABEL_63:
     if ( v8 + (unsigned int)v9 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5087, ASSERT_TYPE_ASSERT, "(issuedAsyncGPUCopies + issuedAsyncDMACopies <= 1)", (const char *)&queryFormat, "issuedAsyncGPUCopies + issuedAsyncDMACopies <= 1") )
       __debugbreak();
@@ -3669,25 +3599,27 @@ void StreamDefrag::DefragStep2_PtrFixup(StreamDefrag *this, const GfxBackEndData
   unsigned __int64 mDMACopyFence; 
   bool v23; 
   const unsigned __int8 *v24; 
+  Stream_Logger_Item v25; 
   const StreamDefragAllocNode *node; 
+  const unsigned __int8 *v27; 
   const unsigned __int8 *v28; 
-  const unsigned __int8 *v29; 
-  __int64 v30; 
-  StreamDefragAllocNode *v33; 
-  unsigned __int64 v34; 
+  __int64 v29; 
+  Stream_Logger_Item v30; 
+  StreamDefragAllocNode *v31; 
+  unsigned __int64 v32; 
   unsigned int size; 
-  const unsigned __int8 *v36; 
-  __int64 v37; 
-  __int64 v38; 
+  const unsigned __int8 *v34; 
+  __int64 v35; 
+  __int64 v36; 
   __int64 pool; 
-  __int64 v40; 
-  unsigned int *v41; 
+  __int64 v38; 
+  unsigned int *v39; 
   Stream_Logger_Item item; 
-  Stream_Logger_Item v43; 
+  Stream_Logger_Item v41; 
   Stream_Logger_Item result; 
-  Stream_Logger_Item v45; 
-  char v48; 
-  int v49; 
+  Stream_Logger_Item v43; 
+  char v46; 
+  int v47; 
 
   v2 = data;
   v3 = this;
@@ -3697,7 +3629,7 @@ void StreamDefrag::DefragStep2_PtrFixup(StreamDefrag *this, const GfxBackEndData
   Stream_Logger_OnDefragOp("StreamDefrag::DefragStep2_PtrFixup", v2);
   StreamDefrag::FlushAsyncCPUMemCpy(v3, Block, 0);
   v4 = 0;
-  v48 = 0;
+  v46 = 0;
   v5 = 0;
   while ( 1 )
   {
@@ -3729,9 +3661,9 @@ void StreamDefrag::DefragStep2_PtrFixup(StreamDefrag *this, const GfxBackEndData
     pool = v8;
     if ( *((_DWORD *)mHead + 12) != *((_DWORD *)mHead->node + 3) )
     {
-      LODWORD(v38) = *((_DWORD *)mHead->node + 3);
-      LODWORD(v37) = *((_DWORD *)mHead + 12);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5135, ASSERT_TYPE_ASSERT, "( command->vAddrOffsetWrite ) == ( command->node->vAddrOffsetWrite )", "%s == %s\n\t%u, %u", "command->vAddrOffsetWrite", "command->node->vAddrOffsetWrite", v37, v38) )
+      LODWORD(v36) = *((_DWORD *)mHead->node + 3);
+      LODWORD(v35) = *((_DWORD *)mHead + 12);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5135, ASSERT_TYPE_ASSERT, "( command->vAddrOffsetWrite ) == ( command->node->vAddrOffsetWrite )", "%s == %s\n\t%u, %u", "command->vAddrOffsetWrite", "command->node->vAddrOffsetWrite", v35, v36) )
         __debugbreak();
     }
     if ( !v4 )
@@ -3766,28 +3698,28 @@ void StreamDefrag::DefragStep2_PtrFixup(StreamDefrag *this, const GfxBackEndData
           Sys_Sleep(0);
         }
       }
-      v48 = 1;
+      v46 = 1;
     }
     v10 = DCONST_DVARINT_stream_defragValidationMode;
     if ( !DCONST_DVARINT_stream_defragValidationMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragValidationMode") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v10);
     integer = v10->current.integer;
-    v49 = integer;
+    v47 = integer;
     if ( integer )
     {
       v12 = 1i64;
       partSize = mHead->partSize;
-      v40 = 1i64;
-      v41 = mHead->partSize;
+      v38 = 1i64;
+      v39 = mHead->partSize;
       while ( ((unsigned __int8)v12 & (unsigned __int8)HIBYTE(*((_DWORD *)mHead + 13)) & 0xF) == 0 )
       {
 LABEL_55:
-        ++v41;
+        ++v39;
         ++v5;
-        partSize = v41;
+        partSize = v39;
         v12 = __ROL8__(v12, 1);
-        v40 = v12;
+        v38 = v12;
         if ( v5 >= 4 )
         {
           v3 = this;
@@ -3807,10 +3739,10 @@ LABEL_55:
         v18 = R_DefragDMACommandListFencePending(&this->mDMACopyFence) == 0;
         Stream_Logger_OnCopyFinishedFenceCheck("StreamDefrag::IsAsyncCopyFinished", data, this->mDMACopyFence);
         v19 = !v18;
-        v12 = v40;
+        v12 = v38;
         if ( v19 )
         {
-          integer = v49;
+          integer = v47;
 LABEL_54:
           v8 = pool;
           goto LABEL_55;
@@ -3821,7 +3753,7 @@ LABEL_54:
         goto LABEL_54;
       }
       v24 = &StrmOffsetToAddress((StreamMemPool)pool, *((unsigned int *)mHead->node + 3))[v15];
-      if ( v49 == 2 )
+      if ( v47 == 2 )
       {
         ValidateDataHashAgainstXPakEntry(v24, v14, v5, mHead->node);
       }
@@ -3829,7 +3761,7 @@ LABEL_54:
       {
         if ( (unsigned int)v14 < 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5199, ASSERT_TYPE_ASSERT, "(partSize >= sizeof( uint64_t ))", (const char *)&queryFormat, "partSize >= sizeof( uint64_t )") )
           __debugbreak();
-        if ( v49 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5200, ASSERT_TYPE_ASSERT, "(validationMode == StreamDefragValidationMode::QuickValidation)", (const char *)&queryFormat, "validationMode == StreamDefragValidationMode::QuickValidation") )
+        if ( v47 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5200, ASSERT_TYPE_ASSERT, "(validationMode == StreamDefragValidationMode::QuickValidation)", (const char *)&queryFormat, "validationMode == StreamDefragValidationMode::QuickValidation") )
           __debugbreak();
         if ( *(_QWORD *)v24 != *(_QWORD *)v17 )
         {
@@ -3839,35 +3771,34 @@ LABEL_54:
             __debugbreak();
         }
       }
-      integer = v49;
+      integer = v47;
       goto LABEL_54;
     }
 LABEL_57:
     if ( *((_DWORD *)mHead + 11) != *((_DWORD *)mHead->node + 2) )
     {
-      LODWORD(v38) = *((_DWORD *)mHead->node + 2);
-      LODWORD(v37) = *((_DWORD *)mHead + 11);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5216, ASSERT_TYPE_ASSERT, "( command->vAddrOffsetUnmap ) == ( command->node->vAddrOffsetRead )", "%s == %s\n\t%u, %u", "command->vAddrOffsetUnmap", "command->node->vAddrOffsetRead", v37, v38) )
+      LODWORD(v36) = *((_DWORD *)mHead->node + 2);
+      LODWORD(v35) = *((_DWORD *)mHead + 11);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5216, ASSERT_TYPE_ASSERT, "( command->vAddrOffsetUnmap ) == ( command->node->vAddrOffsetRead )", "%s == %s\n\t%u, %u", "command->vAddrOffsetUnmap", "command->node->vAddrOffsetRead", v35, v36) )
         __debugbreak();
     }
     if ( mHead->unmapFrame != v3->mDefragFrameIndex + v3->mDefragUnmapFrameDepth )
     {
-      LODWORD(v38) = v3->mDefragFrameIndex + v3->mDefragUnmapFrameDepth;
-      LODWORD(v37) = mHead->unmapFrame;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5217, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) == ( mDefragFrameIndex + mDefragUnmapFrameDepth )", "%s == %s\n\t%u, %u", "command->unmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth", v37, v38) )
+      LODWORD(v36) = v3->mDefragFrameIndex + v3->mDefragUnmapFrameDepth;
+      LODWORD(v35) = mHead->unmapFrame;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5217, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) == ( mDefragFrameIndex + mDefragUnmapFrameDepth )", "%s == %s\n\t%u, %u", "command->unmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth", v35, v36) )
         __debugbreak();
     }
-    _RAX = Stream_Logger_MakeItem(&result, mHead->node);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
+    v25 = *Stream_Logger_MakeItem(&result, mHead->node);
     node = mHead->node;
-    __asm { vmovups xmmword ptr [rsp+0F8h+item.___u0], xmm0 }
-    v28 = StrmOffsetToAddress((StreamMemPool)v8, *((unsigned int *)node + 3));
-    v29 = StrmOffsetToAddress((StreamMemPool)v8, *((unsigned int *)mHead->node + 2));
-    Stream_Logger_OnVAddrOffsetReadChanged("StreamDefrag::DefragStep2_PtrFixup", v2, &item, v29, v28);
-    v30 = v8 << 8;
-    if ( !*(unsigned int *)((char *)&v3->mAddressSpaces[0].mMoveableRegion.mDefragInFlightCopyCount + v30) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2010, ASSERT_TYPE_ASSERT, "(mDefragInFlightCopyCount > 0)", (const char *)&queryFormat, "mDefragInFlightCopyCount > 0") )
+    item = v25;
+    v27 = StrmOffsetToAddress((StreamMemPool)v8, *((unsigned int *)node + 3));
+    v28 = StrmOffsetToAddress((StreamMemPool)v8, *((unsigned int *)mHead->node + 2));
+    Stream_Logger_OnVAddrOffsetReadChanged("StreamDefrag::DefragStep2_PtrFixup", v2, &item, v28, v27);
+    v29 = v8 << 8;
+    if ( !*(unsigned int *)((char *)&v3->mAddressSpaces[0].mMoveableRegion.mDefragInFlightCopyCount + v29) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2010, ASSERT_TYPE_ASSERT, "(mDefragInFlightCopyCount > 0)", (const char *)&queryFormat, "mDefragInFlightCopyCount > 0") )
       __debugbreak();
-    --*(unsigned int *)((char *)&v3->mAddressSpaces[0].mMoveableRegion.mDefragInFlightCopyCount + v30);
+    --*(unsigned int *)((char *)&v3->mAddressSpaces[0].mMoveableRegion.mDefragInFlightCopyCount + v29);
     if ( *((_DWORD *)mHead->node + 2) == *((_DWORD *)mHead->node + 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5225, ASSERT_TYPE_ASSERT, "(command->node->vAddrOffsetRead != command->node->vAddrOffsetWrite)", (const char *)&queryFormat, "command->node->vAddrOffsetRead != command->node->vAddrOffsetWrite") )
       __debugbreak();
     *((_DWORD *)mHead->node + 2) = *((_DWORD *)mHead->node + 3);
@@ -3876,15 +3807,14 @@ LABEL_57:
     if ( (*((_DWORD *)mHead->node + 4) & 0xC00000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4328, ASSERT_TYPE_ASSERT, "(command->node->defragRefCount > 0)", (const char *)&queryFormat, "command->node->defragRefCount > 0") )
       __debugbreak();
     RSList<StreamDefragCommand>::PushBack(&v3->mDefragSteps[2], mHead);
-    _RAX = Stream_Logger_MakeItem(&v45, mHead->node);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    v33 = mHead->node;
-    v34 = *((unsigned int *)mHead + 11);
+    v30 = *Stream_Logger_MakeItem(&v43, mHead->node);
+    v31 = mHead->node;
+    v32 = *((unsigned int *)mHead + 11);
     size = mHead->partSize[0] + mHead->partSize[1] + mHead->partSize[2] + mHead->partSize[3];
-    __asm { vmovups xmmword ptr [rsp+0F8h+var_80.___u0], xmm0 }
-    v36 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)v33 >> 19) & 1), v34);
-    Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &v43, COUNT, v36, size);
-    v4 = v48;
+    v41 = v30;
+    v34 = StrmOffsetToAddress((StreamMemPool)((*(_DWORD *)v31 >> 19) & 1), v32);
+    Stream_Logger_OnInsertDefragCommand("StreamDefrag::InsertCommand", NULL, &v41, COUNT, v34, size);
+    v4 = v46;
   }
   if ( v3->mDefragSteps[1].mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 97, ASSERT_TYPE_ASSERT, "(mTail == nullptr)", (const char *)&queryFormat, "mTail == nullptr") )
     __debugbreak();
@@ -3905,67 +3835,68 @@ void StreamDefrag::DefragStep3_UnmapOldAddress(StreamDefrag *this, const GfxBack
   unsigned int unmapFrame; 
   __int64 v9; 
   char *v10; 
+  Stream_Logger_Item *v11; 
   unsigned __int64 v12; 
-  const unsigned __int8 *v14; 
-  StreamNextTailAddress *v15; 
+  const unsigned __int8 *v13; 
+  StreamNextTailAddress *v14; 
   __int64 MaxVaSize; 
   __int64 VaSizeForParts; 
-  unsigned __int8 *v18; 
-  __int64 v19; 
+  unsigned __int8 *v17; 
+  __int64 v18; 
   unsigned __int64 vAddrCurTail; 
-  unsigned __int8 *v21; 
+  unsigned __int8 *v20; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
-  unsigned __int64 v24; 
-  __int64 v25; 
+  unsigned __int64 v23; 
+  __int64 v24; 
+  unsigned __int64 v25; 
   unsigned __int64 v26; 
   unsigned __int64 v27; 
   unsigned __int64 v28; 
-  unsigned __int64 v29; 
+  __int64 v29; 
   __int64 v30; 
-  __int64 v31; 
-  unsigned __int64 v32; 
-  __int64 v33; 
-  unsigned __int64 v34; 
-  bool v35; 
+  unsigned __int64 v31; 
+  __int64 v32; 
+  unsigned __int64 v33; 
+  bool v34; 
   const StreamKey *StreamKeyAtIndex; 
+  __int64 v36; 
   __int64 v37; 
   __int64 v38; 
   __int64 v39; 
-  __int64 v40; 
-  const dvar_t *v41; 
-  __int64 v42; 
+  const dvar_t *v40; 
+  __int64 v41; 
+  StreamDefragCommand *v42; 
   StreamDefragCommand *v43; 
-  StreamDefragCommand *v44; 
-  signed __int64 v45; 
-  int v46; 
-  __int64 v47; 
-  bool v48; 
+  signed __int64 v44; 
+  int v45; 
+  __int64 v46; 
+  bool v47; 
+  __int64 v48; 
   __int64 v49; 
-  __int64 v50; 
   StreamerMemPageCounts *p_unmappedPages; 
-  int v52; 
-  __int64 v53; 
+  int v51; 
+  __int64 v52; 
   StreamDefrag::AddressSpace *mAddressSpaces; 
   StreamNextTailAddress **p_mTail; 
-  StreamNextTailAddress *v56; 
+  StreamNextTailAddress *v55; 
+  const char *v56; 
   const char *v57; 
   const char *v58; 
-  const char *v59; 
-  int v60; 
-  __int16 v61; 
-  StreamNextTailAddress *v62; 
+  int v59; 
+  __int16 v60; 
+  StreamNextTailAddress *v61; 
   unsigned __int64 mAddrTail; 
   unsigned __int64 vAddrNextTail; 
-  StreamNextTailAddress *v65; 
-  signed __int64 v66; 
+  StreamNextTailAddress *v64; 
+  signed __int64 v65; 
+  __int64 v66; 
   __int64 v67; 
   __int64 v68; 
-  __int64 v69; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
   StreamerMemPageCounts unmappedPages; 
-  StreamerMemPageCounts v74; 
+  StreamerMemPageCounts v73; 
 
   v2 = data;
   Stream_Defrag_CheckLocks(this, data);
@@ -3980,27 +3911,27 @@ void StreamDefrag::DefragStep3_UnmapOldAddress(StreamDefrag *this, const GfxBack
       {
         if ( this->mDefragSteps[2].mTail )
         {
-          v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 97, ASSERT_TYPE_ASSERT, "(mTail == nullptr)", (const char *)&queryFormat, "mTail == nullptr");
+          v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 97, ASSERT_TYPE_ASSERT, "(mTail == nullptr)", (const char *)&queryFormat, "mTail == nullptr");
           goto LABEL_107;
         }
 LABEL_109:
+        v48 = 2i64;
         v49 = 2i64;
-        v50 = 2i64;
         p_unmappedPages = &unmappedPages;
-        v52 = 0;
-        if ( &unmappedPages > &v74 )
-          v50 = 0i64;
-        v53 = 0i64;
-        if ( &unmappedPages <= &v74 )
+        v51 = 0;
+        if ( &unmappedPages > &v73 )
+          v49 = 0i64;
+        v52 = 0i64;
+        if ( &unmappedPages <= &v73 )
         {
           do
           {
-            v52 += p_unmappedPages->pages[0];
-            ++v53;
+            v51 += p_unmappedPages->pages[0];
+            ++v52;
             p_unmappedPages = (StreamerMemPageCounts *)((char *)p_unmappedPages + 4);
           }
-          while ( v53 != v50 );
-          if ( v52 )
+          while ( v52 != v49 );
+          if ( v51 )
           {
             Mem_Paged_BatchFlush();
             StreamDefrag::AddPagesToDefragPageSurplus(this, &unmappedPages);
@@ -4011,30 +3942,30 @@ LABEL_109:
         p_mTail = &this->mNextTailAddresses[0].mTail;
         while ( 2 )
         {
-          v56 = *(p_mTail - 1);
-          if ( v56 )
+          v55 = *(p_mTail - 1);
+          if ( v55 )
           {
-            v61 = *((_WORD *)v56 + 8);
-            if ( v61 )
+            v60 = *((_WORD *)v55 + 8);
+            if ( v60 )
             {
-              v62 = &v56[v61];
-              *(p_mTail - 1) = v62;
-              *((_WORD *)v62 + 9) = 0;
-              *((_DWORD *)v56 + 4) = 0;
+              v61 = &v55[v60];
+              *(p_mTail - 1) = v61;
+              *((_WORD *)v61 + 9) = 0;
+              *((_DWORD *)v55 + 4) = 0;
               if ( *p_mTail && *((_WORD *)*p_mTail + 8) )
               {
-                v59 = "mTail == nullptr || mTail->next == 0";
-                v60 = 425;
-                v57 = "(mTail == nullptr || mTail->next == 0)";
-                v58 = "c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h";
+                v58 = "mTail == nullptr || mTail->next == 0";
+                v59 = 425;
+                v56 = "(mTail == nullptr || mTail->next == 0)";
+                v57 = "c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h";
                 goto LABEL_132;
               }
             }
             else
             {
-              if ( *p_mTail != v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 412, ASSERT_TYPE_ASSERT, "(mTail == mHead)", (const char *)&queryFormat, "mTail == mHead") )
+              if ( *p_mTail != v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 412, ASSERT_TYPE_ASSERT, "(mTail == mHead)", (const char *)&queryFormat, "mTail == mHead") )
                 __debugbreak();
-              if ( (*((_DWORD *)v56 + 4) & 0xFFFF0000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 413, ASSERT_TYPE_ASSERT, "(node->prev == 0)", (const char *)&queryFormat, "node->prev == 0") )
+              if ( (*((_DWORD *)v55 + 4) & 0xFFFF0000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 413, ASSERT_TYPE_ASSERT, "(node->prev == 0)", (const char *)&queryFormat, "node->prev == 0") )
                 __debugbreak();
               *(p_mTail - 1) = NULL;
               *p_mTail = NULL;
@@ -4044,47 +3975,47 @@ LABEL_109:
           {
             if ( *p_mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 406, ASSERT_TYPE_ASSERT, "(mTail == nullptr)", (const char *)&queryFormat, "mTail == nullptr") )
               __debugbreak();
-            v57 = "(nextTailAddress)";
-            v56 = NULL;
-            v58 = "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp";
-            v59 = "nextTailAddress";
-            v60 = 5342;
+            v56 = "(nextTailAddress)";
+            v55 = NULL;
+            v57 = "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp";
+            v58 = "nextTailAddress";
+            v59 = 5342;
 LABEL_132:
-            if ( CoreAssert_Handler(v58, v60, ASSERT_TYPE_ASSERT, v57, (const char *)&queryFormat, v59) )
+            if ( CoreAssert_Handler(v57, v59, ASSERT_TYPE_ASSERT, v56, (const char *)&queryFormat, v58) )
               __debugbreak();
           }
-          if ( v56->unmapFrame != this->mDefragFrameIndex )
+          if ( v55->unmapFrame != this->mDefragFrameIndex )
           {
-            LODWORD(v69) = this->mDefragFrameIndex;
-            LODWORD(v68) = v56->unmapFrame;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5343, ASSERT_TYPE_ASSERT, "( nextTailAddress->unmapFrame ) == ( mDefragFrameIndex )", "%s == %s\n\t%u, %u", "nextTailAddress->unmapFrame", "mDefragFrameIndex", v68, v69) )
+            LODWORD(v68) = this->mDefragFrameIndex;
+            LODWORD(v67) = v55->unmapFrame;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5343, ASSERT_TYPE_ASSERT, "( nextTailAddress->unmapFrame ) == ( mDefragFrameIndex )", "%s == %s\n\t%u, %u", "nextTailAddress->unmapFrame", "mDefragFrameIndex", v67, v68) )
               __debugbreak();
           }
           mAddrTail = mAddressSpaces->mMoveableRegion.mAddrTail;
-          if ( mAddrTail != v56->vAddrCurTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5344, ASSERT_TYPE_ASSERT, "( moveableRegion.GetTail() ) == ( nextTailAddress->vAddrCurTail )", "%s == %s\n\t%llx, %llx", "moveableRegion.GetTail()", "nextTailAddress->vAddrCurTail", mAddrTail, v56->vAddrCurTail) )
+          if ( mAddrTail != v55->vAddrCurTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5344, ASSERT_TYPE_ASSERT, "( moveableRegion.GetTail() ) == ( nextTailAddress->vAddrCurTail )", "%s == %s\n\t%llx, %llx", "moveableRegion.GetTail()", "nextTailAddress->vAddrCurTail", mAddrTail, v55->vAddrCurTail) )
             __debugbreak();
-          vAddrNextTail = v56->vAddrNextTail;
-          if ( v56->vAddrCurTail != vAddrNextTail )
+          vAddrNextTail = v55->vAddrNextTail;
+          if ( v55->vAddrCurTail != vAddrNextTail )
             StreamDefragRegion<1>::MoveTailAddressForward(&mAddressSpaces->mMoveableRegion, vAddrNextTail);
-          if ( *((_WORD *)v56 + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 652, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
+          if ( *((_WORD *)v55 + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 652, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
             __debugbreak();
-          v65 = this->mNextTailAddressPool.mHead;
-          if ( v65 )
+          v64 = this->mNextTailAddressPool.mHead;
+          if ( v64 )
           {
-            v66 = (char *)v65 - (char *)v56;
-            v67 = v66 / 24;
-            *((_WORD *)v56 + 8) = v66 / 24;
-            if ( (__int16)v67 != v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 659, ASSERT_TYPE_ASSERT, "( node->next ) == ( curHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "curHead - node", (__int16)v67, v66 / 24) )
+            v65 = (char *)v64 - (char *)v55;
+            v66 = v65 / 24;
+            *((_WORD *)v55 + 8) = v65 / 24;
+            if ( (__int16)v66 != v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 659, ASSERT_TYPE_ASSERT, "( node->next ) == ( curHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "curHead - node", (__int16)v66, v65 / 24) )
               __debugbreak();
           }
           else
           {
-            *((_WORD *)v56 + 8) = 0;
+            *((_WORD *)v55 + 8) = 0;
           }
           p_mTail += 2;
-          this->mNextTailAddressPool.mHead = v56;
+          this->mNextTailAddressPool.mHead = v55;
           ++mAddressSpaces;
-          if ( !--v49 )
+          if ( !--v48 )
             return;
           continue;
         }
@@ -4112,9 +4043,9 @@ LABEL_132:
         __debugbreak();
       if ( !mHead->unmapFrame )
       {
-        LODWORD(v69) = 1;
-        LODWORD(v68) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5265, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) >= ( 1 )", "%s >= %s\n\t%u, %u", "command->unmapFrame", "1", v68, v69) )
+        LODWORD(v68) = 1;
+        LODWORD(v67) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5265, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) >= ( 1 )", "%s >= %s\n\t%u, %u", "command->unmapFrame", "1", v67, v68) )
           __debugbreak();
       }
       if ( (*(_DWORD *)mHead->node & 0x400000) != 0 )
@@ -4129,28 +4060,28 @@ LABEL_132:
       {
         if ( (*((_DWORD *)mHead + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 69, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
           __debugbreak();
-        v43 = this->mDefragSteps[2].mTail;
-        if ( v43 && (*((_DWORD *)v43 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 70, ASSERT_TYPE_ASSERT, "(mTail == nullptr || mTail->next == 0)", (const char *)&queryFormat, "mTail == nullptr || mTail->next == 0") )
+        v42 = this->mDefragSteps[2].mTail;
+        if ( v42 && (*((_DWORD *)v42 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 70, ASSERT_TYPE_ASSERT, "(mTail == nullptr || mTail->next == 0)", (const char *)&queryFormat, "mTail == nullptr || mTail->next == 0") )
           __debugbreak();
-        v44 = this->mDefragSteps[2].mHead;
+        v43 = this->mDefragSteps[2].mHead;
         if ( !this->mDefragSteps[2].mTail )
         {
-          if ( v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 76, ASSERT_TYPE_ASSERT, "(mHead == nullptr)", (const char *)&queryFormat, "mHead == nullptr") )
+          if ( v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 76, ASSERT_TYPE_ASSERT, "(mHead == nullptr)", (const char *)&queryFormat, "mHead == nullptr") )
             __debugbreak();
           this->mDefragSteps[2].mTail = mHead;
         }
         this->mDefragSteps[2].mHead = mHead;
-        if ( v44 )
+        if ( v43 )
         {
-          v45 = (char *)v44 - (char *)mHead;
-          v46 = *((_DWORD *)mHead + 13) ^ (*((_DWORD *)mHead + 13) ^ (v45 / 56)) & 0x7FF;
-          *((_DWORD *)mHead + 13) = v46;
-          v47 = (__int64)(v46 << 21) >> 21;
-          if ( v47 != v45 / 56 )
+          v44 = (char *)v43 - (char *)mHead;
+          v45 = *((_DWORD *)mHead + 13) ^ (*((_DWORD *)mHead + 13) ^ (v44 / 56)) & 0x7FF;
+          *((_DWORD *)mHead + 13) = v45;
+          v46 = (__int64)(v45 << 21) >> 21;
+          if ( v46 != v44 / 56 )
           {
-            v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 87, ASSERT_TYPE_ASSERT, "( node->next ) == ( oldHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "oldHead - node", v47, v45 / 56);
+            v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 87, ASSERT_TYPE_ASSERT, "( node->next ) == ( oldHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "oldHead - node", v46, v44 / 56);
 LABEL_107:
-            if ( v48 )
+            if ( v47 )
               __debugbreak();
           }
         }
@@ -4160,76 +4091,72 @@ LABEL_107:
       v10 = (char *)this + 256 * v9;
       if ( unmapFrame != mDefragFrameIndex )
       {
-        LODWORD(v69) = this->mDefragFrameIndex;
-        LODWORD(v68) = mHead->unmapFrame;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5281, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) == ( mDefragFrameIndex )", "%s == %s\n\t%u, %u", "command->unmapFrame", "mDefragFrameIndex", v68, v69) )
+        LODWORD(v68) = this->mDefragFrameIndex;
+        LODWORD(v67) = mHead->unmapFrame;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5281, ASSERT_TYPE_ASSERT, "( command->unmapFrame ) == ( mDefragFrameIndex )", "%s == %s\n\t%u, %u", "command->unmapFrame", "mDefragFrameIndex", v67, v68) )
           __debugbreak();
       }
-      _RAX = Stream_Logger_MakeItem(&result, mHead->node);
+      v11 = Stream_Logger_MakeItem(&result, mHead->node);
       v12 = *((unsigned int *)mHead + 11);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+0C8h+item.___u0], xmm0
-      }
-      v14 = StrmOffsetToAddress((StreamMemPool)v9, v12);
-      Stream_Logger_OnDefragUnmapAsync("StreamDefrag::DefragStep3_UnmapOldAddress", v2, &item, v14);
-      v15 = this->mNextTailAddresses[v9].mHead;
-      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5287, ASSERT_TYPE_ASSERT, "(nextTailAddress)", (const char *)&queryFormat, "nextTailAddress") )
+      item = *v11;
+      v13 = StrmOffsetToAddress((StreamMemPool)v9, v12);
+      Stream_Logger_OnDefragUnmapAsync("StreamDefrag::DefragStep3_UnmapOldAddress", v2, &item, v13);
+      v14 = this->mNextTailAddresses[v9].mHead;
+      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5287, ASSERT_TYPE_ASSERT, "(nextTailAddress)", (const char *)&queryFormat, "nextTailAddress") )
         __debugbreak();
-      if ( v15->unmapFrame != this->mDefragFrameIndex )
+      if ( v14->unmapFrame != this->mDefragFrameIndex )
       {
-        LODWORD(v69) = this->mDefragFrameIndex;
-        LODWORD(v68) = v15->unmapFrame;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5288, ASSERT_TYPE_ASSERT, "( nextTailAddress->unmapFrame ) == ( mDefragFrameIndex )", "%s == %s\n\t%u, %u", "nextTailAddress->unmapFrame", "mDefragFrameIndex", v68, v69) )
+        LODWORD(v68) = this->mDefragFrameIndex;
+        LODWORD(v67) = v14->unmapFrame;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5288, ASSERT_TYPE_ASSERT, "( nextTailAddress->unmapFrame ) == ( mDefragFrameIndex )", "%s == %s\n\t%u, %u", "nextTailAddress->unmapFrame", "mDefragFrameIndex", v67, v68) )
           __debugbreak();
       }
-      if ( v15->vAddrCurTail != *((_QWORD *)v10 + 412167) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5289, ASSERT_TYPE_ASSERT, "( nextTailAddress->vAddrCurTail ) == ( moveableRegion.GetTail() )", "%s == %s\n\t%llx, %llx", "nextTailAddress->vAddrCurTail", "moveableRegion.GetTail()", v15->vAddrCurTail, *((_QWORD *)v10 + 412167)) )
+      if ( v14->vAddrCurTail != *((_QWORD *)v10 + 412167) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5289, ASSERT_TYPE_ASSERT, "( nextTailAddress->vAddrCurTail ) == ( moveableRegion.GetTail() )", "%s == %s\n\t%llx, %llx", "nextTailAddress->vAddrCurTail", "moveableRegion.GetTail()", v14->vAddrCurTail, *((_QWORD *)v10 + 412167)) )
         __debugbreak();
       MaxVaSize = NodeGetMaxVaSize(mHead->node);
       VaSizeForParts = NodeGetVaSizeForParts(mHead->node, (*((_DWORD *)mHead + 13) >> 11) & 7);
-      v18 = StrmOffsetToAddress((StreamMemPool)v9, *((unsigned int *)mHead + 11));
-      v19 = MaxVaSize - VaSizeForParts;
-      vAddrCurTail = v15->vAddrCurTail;
-      v21 = &v18[v19];
-      if ( (v15->vAddrCurTail < *((_QWORD *)v10 + 412165) || vAddrCurTail > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1143, ASSERT_TYPE_ASSERT, "(a >= mAddrBase && a <= mAddrEnd)", (const char *)&queryFormat, "a >= mAddrBase && a <= mAddrEnd") )
+      v17 = StrmOffsetToAddress((StreamMemPool)v9, *((unsigned int *)mHead + 11));
+      v18 = MaxVaSize - VaSizeForParts;
+      vAddrCurTail = v14->vAddrCurTail;
+      v20 = &v17[v18];
+      if ( (v14->vAddrCurTail < *((_QWORD *)v10 + 412165) || vAddrCurTail > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1143, ASSERT_TYPE_ASSERT, "(a >= mAddrBase && a <= mAddrEnd)", (const char *)&queryFormat, "a >= mAddrBase && a <= mAddrEnd") )
         __debugbreak();
-      if ( ((unsigned __int64)v21 < *((_QWORD *)v10 + 412165) || (unsigned __int64)v21 > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1144, ASSERT_TYPE_ASSERT, "(b >= mAddrBase && b <= mAddrEnd)", (const char *)&queryFormat, "b >= mAddrBase && b <= mAddrEnd") )
+      if ( ((unsigned __int64)v20 < *((_QWORD *)v10 + 412165) || (unsigned __int64)v20 > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1144, ASSERT_TYPE_ASSERT, "(b >= mAddrBase && b <= mAddrEnd)", (const char *)&queryFormat, "b >= mAddrBase && b <= mAddrEnd") )
         __debugbreak();
-      v22 = truncate_cast<__int64,unsigned __int64>(vAddrCurTail - *((_QWORD *)v10 + 412165));
-      v23 = truncate_cast<__int64,unsigned __int64>((unsigned __int64)&v21[-*((_QWORD *)v10 + 412165)]);
-      v24 = *((_QWORD *)v10 + 412166) - *((_QWORD *)v10 + 412165);
-      v25 = v23 - v22;
-      if ( v25 < 0 )
-        v25 += v24;
-      v26 = truncate_cast<unsigned __int64,__int64>(v25 % v24);
-      v27 = v15->vAddrCurTail;
-      v28 = v26;
-      v29 = v15->vAddrNextTail;
-      if ( (v15->vAddrCurTail < *((_QWORD *)v10 + 412165) || v27 > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1143, ASSERT_TYPE_ASSERT, "(a >= mAddrBase && a <= mAddrEnd)", (const char *)&queryFormat, "a >= mAddrBase && a <= mAddrEnd") )
+      v21 = truncate_cast<__int64,unsigned __int64>(vAddrCurTail - *((_QWORD *)v10 + 412165));
+      v22 = truncate_cast<__int64,unsigned __int64>((unsigned __int64)&v20[-*((_QWORD *)v10 + 412165)]);
+      v23 = *((_QWORD *)v10 + 412166) - *((_QWORD *)v10 + 412165);
+      v24 = v22 - v21;
+      if ( v24 < 0 )
+        v24 += v23;
+      v25 = truncate_cast<unsigned __int64,__int64>(v24 % v23);
+      v26 = v14->vAddrCurTail;
+      v27 = v25;
+      v28 = v14->vAddrNextTail;
+      if ( (v14->vAddrCurTail < *((_QWORD *)v10 + 412165) || v26 > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1143, ASSERT_TYPE_ASSERT, "(a >= mAddrBase && a <= mAddrEnd)", (const char *)&queryFormat, "a >= mAddrBase && a <= mAddrEnd") )
         __debugbreak();
-      if ( (v29 < *((_QWORD *)v10 + 412165) || v29 > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1144, ASSERT_TYPE_ASSERT, "(b >= mAddrBase && b <= mAddrEnd)", (const char *)&queryFormat, "b >= mAddrBase && b <= mAddrEnd") )
+      if ( (v28 < *((_QWORD *)v10 + 412165) || v28 > *((_QWORD *)v10 + 412166)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1144, ASSERT_TYPE_ASSERT, "(b >= mAddrBase && b <= mAddrEnd)", (const char *)&queryFormat, "b >= mAddrBase && b <= mAddrEnd") )
         __debugbreak();
-      v30 = truncate_cast<__int64,unsigned __int64>(v27 - *((_QWORD *)v10 + 412165));
-      v31 = truncate_cast<__int64,unsigned __int64>(v29 - *((_QWORD *)v10 + 412165));
-      v32 = *((_QWORD *)v10 + 412166) - *((_QWORD *)v10 + 412165);
-      v33 = v31 - v30;
-      if ( v33 < 0 )
-        v33 += v32;
-      v34 = truncate_cast<unsigned __int64,__int64>(v33 % v32);
+      v29 = truncate_cast<__int64,unsigned __int64>(v26 - *((_QWORD *)v10 + 412165));
+      v30 = truncate_cast<__int64,unsigned __int64>(v28 - *((_QWORD *)v10 + 412165));
+      v31 = *((_QWORD *)v10 + 412166) - *((_QWORD *)v10 + 412165);
+      v32 = v30 - v29;
+      if ( v32 < 0 )
+        v32 += v31;
+      v33 = truncate_cast<unsigned __int64,__int64>(v32 % v31);
       if ( (*((_DWORD *)mHead + 13) & 0x800000) != 0 )
       {
-        if ( v28 >= v34 )
+        if ( v27 >= v33 )
           goto LABEL_69;
-        v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5303, ASSERT_TYPE_ASSERT, "( distCurTailToUnmap ) >= ( distCurTailToNextTail )", "%s >= %s\n\t%llx, %llx", "distCurTailToUnmap", "distCurTailToNextTail", v28, v34);
+        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5303, ASSERT_TYPE_ASSERT, "( distCurTailToUnmap ) >= ( distCurTailToNextTail )", "%s >= %s\n\t%llx, %llx", "distCurTailToUnmap", "distCurTailToNextTail", v27, v33);
       }
       else
       {
-        if ( v28 < v34 )
+        if ( v27 < v33 )
           goto LABEL_69;
-        v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5308, ASSERT_TYPE_ASSERT, "( distCurTailToUnmap ) < ( distCurTailToNextTail )", "%s < %s\n\t%llx, %llx", "distCurTailToUnmap", "distCurTailToNextTail", v28, v34);
+        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5308, ASSERT_TYPE_ASSERT, "( distCurTailToUnmap ) < ( distCurTailToNextTail )", "%s < %s\n\t%llx, %llx", "distCurTailToUnmap", "distCurTailToNextTail", v27, v33);
       }
-      if ( v35 )
+      if ( v34 )
         __debugbreak();
 LABEL_69:
       *((_DWORD *)mHead->node + 4) ^= (*((_DWORD *)mHead->node + 4) ^ (((*((_DWORD *)mHead->node + 4) >> 22) - 1) << 22)) & 0xC00000;
@@ -4241,28 +4168,28 @@ LABEL_69:
       StreamDefrag::TrackDecommitParts(this, mHead, *((unsigned int *)mHead + 11), *((_DWORD *)mHead + 13) >> 28);
       if ( (*((_DWORD *)mHead + 13) & 0x3800) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1921, ASSERT_TYPE_ASSERT, "(command->vaReservedPartCountUnmap > 0)", (const char *)&queryFormat, "command->vaReservedPartCountUnmap > 0") )
         __debugbreak();
-      Stream_Defrag_CheckLocks(v38, v37);
+      Stream_Defrag_CheckLocks(v37, v36);
       StreamDefragRegion<1>::DecreaseVASizeUsedForUnmapCommand((StreamDefragRegion<1> *)(v10 + 3297288), mHead);
       if ( !*((_DWORD *)v10 + 824346) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2003, ASSERT_TYPE_ASSERT, "(mDefragInFlightNodeCount > 0)", (const char *)&queryFormat, "mDefragInFlightNodeCount > 0") )
         __debugbreak();
       --*((_DWORD *)v10 + 824346);
       if ( !mHead->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4627, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
         __debugbreak();
-      Stream_Defrag_CheckLocks(v40, v39);
-      v41 = DCONST_DVARBOOL_stream_defragAsyncMapping;
+      Stream_Defrag_CheckLocks(v39, v38);
+      v40 = DCONST_DVARBOOL_stream_defragAsyncMapping;
       if ( !DCONST_DVARBOOL_stream_defragAsyncMapping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragAsyncMapping") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v41);
-      if ( v41->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 )
+      Dvar_CheckFrontendServerThread(v40);
+      if ( v40->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 )
       {
-        v42 = 3356112i64;
+        v41 = 3356112i64;
       }
       else
       {
         StreamDefrag::DecommitParts(this, mHead, *((unsigned int *)mHead + 11), *((_DWORD *)mHead + 13) >> 28, &unmappedPages);
-        v42 = 3298704i64;
+        v41 = 3298704i64;
       }
-      RStackThreadSafe<StreamDefragCommand>::Push((RStackThreadSafe<StreamDefragCommand> *)((char *)this + v42), mHead);
+      RStackThreadSafe<StreamDefragCommand>::Push((RStackThreadSafe<StreamDefragCommand> *)((char *)this + v41), mHead);
       v2 = data;
     }
   }
@@ -4278,12 +4205,13 @@ void StreamDefrag::FastForwardDefragSteps(StreamDefrag *this, StreamDefragStep s
   int v9; 
   unsigned int v10; 
   const StreamKey *StreamKeyAtIndex; 
+  Stream_Logger_Item *v12; 
   unsigned int unmappedPageCount; 
   __int64 v14; 
   StreamerMemPageCounts *v15; 
   __int64 v16; 
   unsigned int size; 
-  const unsigned __int8 *v19; 
+  const unsigned __int8 *v18; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
 
@@ -4323,16 +4251,12 @@ void StreamDefrag::FastForwardDefragSteps(StreamDefrag *this, StreamDefragStep s
       __debugbreak();
     --this->mAddressSpaces[(unsigned __int64)v10].mMoveableRegion.mDefragInFlightCopyCount;
   }
-  _RAX = Stream_Logger_MakeItem(&result, node);
+  v12 = Stream_Logger_MakeItem(&result, node);
   unmappedPageCount = 0;
   v14 = 2i64;
   v15 = unmappedPages;
   v16 = 0i64;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+88h+item.___u0], xmm0
-  }
+  item = *v12;
   if ( unmappedPages > &unmappedPages[1] )
     v14 = 0i64;
   if ( unmappedPages <= &unmappedPages[1] )
@@ -4346,8 +4270,8 @@ void StreamDefrag::FastForwardDefragSteps(StreamDefrag *this, StreamDefragStep s
     while ( v16 != v14 );
   }
   size = removedCmd->partSize[0] + removedCmd->partSize[1] + removedCmd->partSize[2] + removedCmd->partSize[3];
-  v19 = StrmOffsetToAddress((StreamMemPool)v10, *((unsigned int *)removedCmd + 11));
-  Stream_Logger_OnFreeHandleRemoveDefragStep("StreamDefrag::FastForwardDefragSteps", NULL, &item, step, v19, size, unmappedPageCount);
+  v18 = StrmOffsetToAddress((StreamMemPool)v10, *((unsigned int *)removedCmd + 11));
+  Stream_Logger_OnFreeHandleRemoveDefragStep("StreamDefrag::FastForwardDefragSteps", NULL, &item, step, v18, size, unmappedPageCount);
   StreamDefrag::DecommitParts(this, removedCmd, *((unsigned int *)removedCmd + 11), *((_DWORD *)removedCmd + 13) >> 28, unmappedPages);
   RStackThreadSafe<StreamDefragCommand>::Push(&this->mDefragPool, removedCmd);
 }
@@ -4363,79 +4287,74 @@ void StreamDefrag::FlagSkippedNonTailVAResizeMoves(StreamDefrag *this, StreamMem
   __int64 v7; 
   RSList<StreamDefragCommand> *mDefragSteps; 
   StreamDefragCommand *mHead; 
-  unsigned __int64 *v12; 
-  StreamDefragRegion<1> *v13; 
-  StreamDefragRegion<1> *v14; 
-  unsigned __int64 *v15; 
-  int v16; 
+  unsigned __int64 *v10; 
+  StreamDefragRegion<1> *v11; 
+  StreamDefragRegion<1> *v12; 
+  unsigned __int64 *v13; 
+  int v14; 
   const StreamDefragAllocNode *node; 
   __int64 MaxVaSize; 
   __int64 VaSizeForParts; 
-  unsigned __int8 *v20; 
-  unsigned __int64 v21; 
-  RSList<StreamDefragCommand> *v22; 
-  __int64 v23; 
-  __int64 v24; 
-  StreamDefrag::AddressSpace *v25; 
-  __m256i v26; 
+  unsigned __int8 *v18; 
+  unsigned __int64 v19; 
+  RSList<StreamDefragCommand> *v20; 
+  __int64 v21; 
+  __int64 v22; 
+  StreamDefrag::AddressSpace *v23; 
+  __m256i v24; 
+  __int128 v25; 
+  StreamDefragRegion<1> *v26[4]; 
   __int128 v27; 
-  StreamDefragRegion<1> *v28[4]; 
-  __int128 v29; 
-  StreamMemPool v30; 
-  unsigned __int64 v31; 
-  unsigned __int64 v32; 
+  StreamMemPool v28; 
+  unsigned __int64 v29; 
+  unsigned __int64 v30; 
 
-  v32 = newTailAddress;
-  v31 = currentTailAddress;
-  v30 = pool;
+  v30 = newTailAddress;
+  v29 = currentTailAddress;
+  v28 = pool;
   if ( !unmapFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2562, ASSERT_TYPE_ASSERT, "(unmapFrame > 0)", (const char *)&queryFormat, "unmapFrame > 0") )
     __debugbreak();
-  if ( v30 == DODGE )
+  if ( v28 == DODGE )
   {
     v6 = &this->mAddressSpaces[1];
     v7 = 3i64;
     mDefragSteps = this->mDefragSteps;
-    v22 = this->mDefragSteps;
-    v24 = 1i64;
-    v25 = &this->mAddressSpaces[1];
-    v23 = 3i64;
+    v20 = this->mDefragSteps;
+    v22 = 1i64;
+    v23 = &this->mAddressSpaces[1];
+    v21 = 3i64;
     do
     {
       mHead = mDefragSteps->mHead;
-      v26.m256i_i64[0] = (__int64)&v24;
-      v26.m256i_i64[1] = (__int64)&unmapFrame;
-      v26.m256i_i64[2] = (__int64)&v30;
-      *(_QWORD *)&v27 = &v31;
-      *((_QWORD *)&v27 + 1) = &v32;
-      v26.m256i_i64[3] = (__int64)v6;
-      __asm
-      {
-        vmovups xmm1, [rbp+4Fh+var_70]
-        vmovups ymm0, [rbp+4Fh+var_90]
-        vmovups [rbp+4Fh+var_40], xmm1
-        vmovups ymmword ptr [rbp+4Fh+var_60], ymm0
-      }
+      v24.m256i_i64[0] = (__int64)&v22;
+      v24.m256i_i64[1] = (__int64)&unmapFrame;
+      v24.m256i_i64[2] = (__int64)&v28;
+      *(_QWORD *)&v25 = &v29;
+      *((_QWORD *)&v25 + 1) = &v30;
+      v24.m256i_i64[3] = (__int64)v6;
+      v27 = v25;
+      *(__m256i *)v26 = v24;
       if ( mHead )
       {
-        v12 = (unsigned __int64 *)v29;
-        v13 = v28[1];
-        v14 = v28[0];
-        v15 = (unsigned __int64 *)*((_QWORD *)&v29 + 1);
+        v10 = (unsigned __int64 *)v27;
+        v11 = v26[1];
+        v12 = v26[0];
+        v13 = (unsigned __int64 *)*((_QWORD *)&v27 + 1);
         do
         {
-          if ( v14->mAllocations.mHead == (StreamDefragAllocNode *)((*(_DWORD *)mHead->node >> 19) & 1) )
+          if ( v12->mAllocations.mHead == (StreamDefragAllocNode *)((*(_DWORD *)mHead->node >> 19) & 1) )
           {
-            v16 = *((_DWORD *)mHead + 13);
-            if ( (v16 & 0x800000) != 0 && LODWORD(v13->mAllocations.mHead) == mHead->unmapFrame )
+            v14 = *((_DWORD *)mHead + 13);
+            if ( (v14 & 0x800000) != 0 && LODWORD(v11->mAllocations.mHead) == mHead->unmapFrame )
             {
-              if ( (v16 & 0x400000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2580, ASSERT_TYPE_ASSERT, "(command->isForVaResize)", (const char *)&queryFormat, "command->isForVaResize") )
+              if ( (v14 & 0x400000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2580, ASSERT_TYPE_ASSERT, "(command->isForVaResize)", (const char *)&queryFormat, "command->isForVaResize") )
                 __debugbreak();
               node = mHead->node;
               MaxVaSize = NodeGetMaxVaSize(mHead->node);
               VaSizeForParts = NodeGetVaSizeForParts(node, (*((_DWORD *)mHead + 13) >> 11) & 7);
-              v20 = StrmOffsetToAddress((StreamMemPool)v28[2]->mAllocations.mHead, *((unsigned int *)mHead + 11));
-              v21 = StreamDefragRegion<1>::CircularAddressDistance(v28[3], *v12, (unsigned __int64)&v20[MaxVaSize - VaSizeForParts]);
-              if ( v21 <= StreamDefragRegion<1>::CircularAddressDistance(v28[3], *v12, *v15) )
+              v18 = StrmOffsetToAddress((StreamMemPool)v26[2]->mAllocations.mHead, *((unsigned int *)mHead + 11));
+              v19 = StreamDefragRegion<1>::CircularAddressDistance(v26[3], *v10, (unsigned __int64)&v18[MaxVaSize - VaSizeForParts]);
+              if ( v19 <= StreamDefragRegion<1>::CircularAddressDistance(v26[3], *v10, *v13) )
                 *((_DWORD *)mHead + 13) &= ~0x800000u;
             }
           }
@@ -4444,14 +4363,14 @@ void StreamDefrag::FlagSkippedNonTailVAResizeMoves(StreamDefrag *this, StreamMem
           mHead += (__int64)(int)(*((_DWORD *)mHead + 13) << 21) >> 21;
         }
         while ( mHead );
-        mDefragSteps = v22;
-        v7 = v23;
-        v6 = v25;
+        mDefragSteps = v20;
+        v7 = v21;
+        v6 = v23;
       }
       ++mDefragSteps;
       --v7;
-      v22 = mDefragSteps;
-      v23 = v7;
+      v20 = mDefragSteps;
+      v21 = v7;
     }
     while ( v7 );
   }
@@ -4783,51 +4702,51 @@ void StreamDefrag::FreeHandle(StreamDefrag *this, streamer_handle_t *handle)
   unsigned int v6; 
   bool v7; 
   bool IsPrimingMesh; 
-  bool v11; 
-  StreamDefragCommand *v12; 
+  bool v9; 
+  StreamDefragCommand *v10; 
   StreamDefragCommand *mHead; 
-  StreamDefragCommand *v14; 
-  int v15; 
-  unsigned int v16; 
+  StreamDefragCommand *v12; 
+  int v13; 
+  unsigned int v14; 
+  StreamDefragCommand *v15; 
+  StreamDefragCommand *v16; 
   StreamDefragCommand *v17; 
-  StreamDefragCommand *v18; 
-  StreamDefragCommand *v19; 
-  int v20; 
-  unsigned int v21; 
-  __int64 v22; 
-  StreamDefragCommand *v23; 
-  StreamDefragCommand *v24; 
-  bool v25; 
+  int v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  StreamDefragCommand *v21; 
+  StreamDefragCommand *v22; 
+  bool v23; 
+  int v24; 
+  __int64 v25; 
   int v26; 
-  __int64 v27; 
-  int v28; 
   Stream_Logger_Item *p_item; 
-  unsigned int v30; 
+  unsigned int v28; 
+  __int64 v29; 
+  unsigned __int8 *v30; 
   __int64 v31; 
-  unsigned __int8 *v32; 
-  __int64 v33; 
   signed int i; 
+  const unsigned __int8 *v33; 
+  __int64 v34; 
   const unsigned __int8 *v35; 
   __int64 v36; 
-  const unsigned __int8 *v37; 
-  __int64 v38; 
-  StreamDefragRegion<1> *v39; 
-  unsigned __int64 v40; 
+  StreamDefragRegion<1> *v37; 
+  unsigned __int64 v38; 
   unsigned __int64 mVaSizeCommitted; 
-  unsigned __int64 v42; 
-  __int64 v43; 
-  __int64 v44; 
+  unsigned __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
   unsigned int outPartOffset; 
   unsigned int outPartSize; 
-  streamer_handle_t *v47; 
-  __int64 v48; 
-  ScopedCriticalSection v49; 
+  streamer_handle_t *v45; 
+  __int64 v46; 
+  ScopedCriticalSection v47; 
   Stream_Logger_Item result; 
   Stream_Logger_Item item; 
 
-  v48 = -2i64;
+  v46 = -2i64;
   v2 = handle;
-  v47 = handle;
+  v45 = handle;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3513, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3514, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
@@ -4836,7 +4755,7 @@ void StreamDefrag::FreeHandle(StreamDefrag *this, streamer_handle_t *handle)
     __debugbreak();
   if ( Sys_InCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3517, ASSERT_TYPE_ASSERT, "(!Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE ))", (const char *)&queryFormat, "!Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE )") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v49, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v47, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   if ( Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3524, ASSERT_TYPE_ASSERT, "(IsIdle())", (const char *)&queryFormat, "IsIdle()") )
     __debugbreak();
   data = (unsigned int *)v2->data;
@@ -4874,12 +4793,7 @@ LABEL_39:
   if ( v7 )
     __debugbreak();
 LABEL_41:
-  _RAX = Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)data);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0D8h+item.___u0], xmm0
-  }
+  item = *Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)data);
   Stream_Logger_OnFreeHandle("StreamDefrag::FreeHandle", NULL, &item);
   StreamDefrag::FlushAsyncVA(this, Block, MapsOnly, 1);
   StreamDefrag::FlushAsyncCPUMemCpy(this, Block, 1);
@@ -4887,196 +4801,196 @@ LABEL_41:
   if ( (*data & 0x200000) == 0 )
   {
 LABEL_115:
-    v11 = (data[4] & 0xC00000) == 0;
+    v9 = (data[4] & 0xC00000) == 0;
     goto LABEL_116;
   }
-  v11 = (data[4] & 0xC00000) == 0;
+  v9 = (data[4] & 0xC00000) == 0;
   if ( (data[4] & 0xC00000) != 0 )
   {
     item.m_image = NULL;
-    v12 = RSList_StreamDefragCommand_::RemoveIf__lambda_71dc78e730b781b2248561fd54876aa7___((StreamDefrag::FreeHandle::__l64::<lambda_71dc78e730b781b2248561fd54876aa7>)this->mDefragSteps);
-    if ( v12 )
+    v10 = RSList_StreamDefragCommand_::RemoveIf__lambda_71dc78e730b781b2248561fd54876aa7___((StreamDefrag::FreeHandle::__l64::<lambda_71dc78e730b781b2248561fd54876aa7>)this->mDefragSteps);
+    if ( v10 )
     {
       mHead = this->mDefragSteps[0].mHead;
-      v14 = NULL;
+      v12 = NULL;
       if ( mHead )
       {
         while ( 1 )
         {
-          v15 = (int)(*((_DWORD *)mHead + 13) << 21) >> 21;
+          v13 = (int)(*((_DWORD *)mHead + 13) << 21) >> 21;
           if ( (unsigned int *)mHead->node == data )
             break;
-          if ( v15 )
+          if ( v13 )
           {
-            v14 = mHead;
-            mHead += v15;
+            v12 = mHead;
+            mHead += v13;
             if ( mHead )
               continue;
           }
           goto LABEL_54;
         }
-        RSList<StreamDefragCommand>::RemoveNode(this->mDefragSteps, mHead, v14);
+        RSList<StreamDefragCommand>::RemoveNode(this->mDefragSteps, mHead, v12);
         if ( (*((_DWORD *)mHead + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 239, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3561, ASSERT_TYPE_ASSERT, "(DefragStepCommands( StreamDefragStep::COPY ).RemoveIf( isNodeToBeFreed ) == nullptr)", (const char *)&queryFormat, "DefragStepCommands( StreamDefragStep::COPY ).RemoveIf( isNodeToBeFreed ) == nullptr") )
           __debugbreak();
       }
 LABEL_54:
-      if ( (*((_DWORD *)v12 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3562, ASSERT_TYPE_ASSERT, "(removedCmd->next == 0)", (const char *)&queryFormat, "removedCmd->next == 0") )
+      if ( (*((_DWORD *)v10 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3562, ASSERT_TYPE_ASSERT, "(removedCmd->next == 0)", (const char *)&queryFormat, "removedCmd->next == 0") )
         __debugbreak();
       if ( data[2] == data[3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3566, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetRead != node->vAddrOffsetWrite)", (const char *)&queryFormat, "node->vAddrOffsetRead != node->vAddrOffsetWrite") )
         __debugbreak();
-      if ( *((_DWORD *)v12 + 11) != data[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3567, ASSERT_TYPE_ASSERT, "(removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead)", (const char *)&queryFormat, "removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead") )
+      if ( *((_DWORD *)v10 + 11) != data[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3567, ASSERT_TYPE_ASSERT, "(removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead)", (const char *)&queryFormat, "removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead") )
         __debugbreak();
-      v16 = 32 - __lzcnt(*((_BYTE *)v12 + 55) & 0xF);
-      if ( v16 > ((data[1] >> 20) & 7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3568, ASSERT_TYPE_ASSERT, "( GetHighestSetPartCount( removedCmd->copyParts ) ) <= ( node->vaReservedPartCount )", "%s <= %s\n\t%u, %u", "GetHighestSetPartCount( removedCmd->copyParts )", "node->vaReservedPartCount", v16, (data[1] >> 20) & 7) )
+      v14 = 32 - __lzcnt(*((_BYTE *)v10 + 55) & 0xF);
+      if ( v14 > ((data[1] >> 20) & 7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3568, ASSERT_TYPE_ASSERT, "( GetHighestSetPartCount( removedCmd->copyParts ) ) <= ( node->vaReservedPartCount )", "%s <= %s\n\t%u, %u", "GetHighestSetPartCount( removedCmd->copyParts )", "node->vaReservedPartCount", v14, (data[1] >> 20) & 7) )
         __debugbreak();
-      StreamDefrag::FastForwardDefragSteps(this, MOVEMENT, v12, (StreamDefragAllocNode *)data, (StreamerMemPageCounts *)&item);
+      StreamDefrag::FastForwardDefragSteps(this, MOVEMENT, v10, (StreamDefragAllocNode *)data, (StreamerMemPageCounts *)&item);
     }
-    v17 = RSList_StreamDefragCommand_::RemoveIf__lambda_71dc78e730b781b2248561fd54876aa7___((StreamDefrag::FreeHandle::__l64::<lambda_71dc78e730b781b2248561fd54876aa7>)&this->mDefragSteps[1]);
-    if ( v17 )
+    v15 = RSList_StreamDefragCommand_::RemoveIf__lambda_71dc78e730b781b2248561fd54876aa7___((StreamDefrag::FreeHandle::__l64::<lambda_71dc78e730b781b2248561fd54876aa7>)&this->mDefragSteps[1]);
+    if ( v15 )
     {
-      v18 = this->mDefragSteps[1].mHead;
-      v19 = NULL;
-      if ( v18 )
+      v16 = this->mDefragSteps[1].mHead;
+      v17 = NULL;
+      if ( v16 )
       {
         while ( 1 )
         {
-          v20 = (int)(*((_DWORD *)v18 + 13) << 21) >> 21;
-          if ( (unsigned int *)v18->node == data )
+          v18 = (int)(*((_DWORD *)v16 + 13) << 21) >> 21;
+          if ( (unsigned int *)v16->node == data )
             break;
-          if ( v20 )
+          if ( v18 )
           {
-            v19 = v18;
-            v18 += v20;
-            if ( v18 )
+            v17 = v16;
+            v16 += v18;
+            if ( v16 )
               continue;
           }
           goto LABEL_78;
         }
-        RSList<StreamDefragCommand>::RemoveNode(&this->mDefragSteps[1], v18, v19);
-        if ( (*((_DWORD *)v18 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 239, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
+        RSList<StreamDefragCommand>::RemoveNode(&this->mDefragSteps[1], v16, v17);
+        if ( (*((_DWORD *)v16 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 239, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3579, ASSERT_TYPE_ASSERT, "(DefragStepCommands( StreamDefragStep::PTR_FIXUP ).RemoveIf( isNodeToBeFreed ) == nullptr)", (const char *)&queryFormat, "DefragStepCommands( StreamDefragStep::PTR_FIXUP ).RemoveIf( isNodeToBeFreed ) == nullptr") )
           __debugbreak();
       }
 LABEL_78:
-      if ( (*((_DWORD *)v17 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3580, ASSERT_TYPE_ASSERT, "(removedCmd->next == 0)", (const char *)&queryFormat, "removedCmd->next == 0") )
+      if ( (*((_DWORD *)v15 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3580, ASSERT_TYPE_ASSERT, "(removedCmd->next == 0)", (const char *)&queryFormat, "removedCmd->next == 0") )
         __debugbreak();
       if ( data[2] == data[3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3586, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetRead != node->vAddrOffsetWrite)", (const char *)&queryFormat, "node->vAddrOffsetRead != node->vAddrOffsetWrite") )
         __debugbreak();
-      if ( *((_DWORD *)v17 + 11) != data[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3587, ASSERT_TYPE_ASSERT, "(removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead)", (const char *)&queryFormat, "removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead") )
+      if ( *((_DWORD *)v15 + 11) != data[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3587, ASSERT_TYPE_ASSERT, "(removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead)", (const char *)&queryFormat, "removedCmd->vAddrOffsetUnmap == node->vAddrOffsetRead") )
         __debugbreak();
-      v21 = 32 - __lzcnt(*((_BYTE *)v17 + 55) & 0xF);
-      if ( v21 > ((data[1] >> 20) & 7) )
+      v19 = 32 - __lzcnt(*((_BYTE *)v15 + 55) & 0xF);
+      if ( v19 > ((data[1] >> 20) & 7) )
       {
-        LODWORD(v44) = (data[1] >> 20) & 7;
-        LODWORD(v43) = v21;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3588, ASSERT_TYPE_ASSERT, "( GetHighestSetPartCount( removedCmd->copyParts ) ) <= ( node->vaReservedPartCount )", "%s <= %s\n\t%u, %u", "GetHighestSetPartCount( removedCmd->copyParts )", "node->vaReservedPartCount", v43, v44) )
+        LODWORD(v42) = (data[1] >> 20) & 7;
+        LODWORD(v41) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3588, ASSERT_TYPE_ASSERT, "( GetHighestSetPartCount( removedCmd->copyParts ) ) <= ( node->vaReservedPartCount )", "%s <= %s\n\t%u, %u", "GetHighestSetPartCount( removedCmd->copyParts )", "node->vaReservedPartCount", v41, v42) )
           __debugbreak();
       }
-      StreamDefrag::FastForwardDefragSteps(this, DODGE, v17, (StreamDefragAllocNode *)data, (StreamerMemPageCounts *)&item);
+      StreamDefrag::FastForwardDefragSteps(this, DODGE, v15, (StreamDefragAllocNode *)data, (StreamerMemPageCounts *)&item);
     }
-    v22 = 2i64;
+    v20 = 2i64;
 LABEL_92:
-    v23 = this->mDefragSteps[2].mHead;
-    v24 = NULL;
-    v25 = v23 == NULL;
-    while ( !v25 )
+    v21 = this->mDefragSteps[2].mHead;
+    v22 = NULL;
+    v23 = v21 == NULL;
+    while ( !v23 )
     {
-      v26 = (int)(*((_DWORD *)v23 + 13) << 21) >> 21;
-      if ( (unsigned int *)v23->node == data )
+      v24 = (int)(*((_DWORD *)v21 + 13) << 21) >> 21;
+      if ( (unsigned int *)v21->node == data )
       {
-        RSList<StreamDefragCommand>::RemoveNode(&this->mDefragSteps[2], v23, v24);
-        if ( (*((_DWORD *)v23 + 13) & 0x7FF) != 0 )
+        RSList<StreamDefragCommand>::RemoveNode(&this->mDefragSteps[2], v21, v22);
+        if ( (*((_DWORD *)v21 + 13) & 0x7FF) != 0 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 239, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
             __debugbreak();
-          if ( (*((_DWORD *)v23 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3604, ASSERT_TYPE_ASSERT, "(removedCmd->next == 0)", (const char *)&queryFormat, "removedCmd->next == 0") )
+          if ( (*((_DWORD *)v21 + 13) & 0x7FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3604, ASSERT_TYPE_ASSERT, "(removedCmd->next == 0)", (const char *)&queryFormat, "removedCmd->next == 0") )
             __debugbreak();
         }
         if ( data[3] != data[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3605, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetWrite == node->vAddrOffsetRead)", (const char *)&queryFormat, "node->vAddrOffsetWrite == node->vAddrOffsetRead") )
           __debugbreak();
-        if ( *((_DWORD *)v23 + 11) == data[3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3606, ASSERT_TYPE_ASSERT, "(removedCmd->vAddrOffsetUnmap != node->vAddrOffsetWrite)", (const char *)&queryFormat, "removedCmd->vAddrOffsetUnmap != node->vAddrOffsetWrite") )
+        if ( *((_DWORD *)v21 + 11) == data[3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3606, ASSERT_TYPE_ASSERT, "(removedCmd->vAddrOffsetUnmap != node->vAddrOffsetWrite)", (const char *)&queryFormat, "removedCmd->vAddrOffsetUnmap != node->vAddrOffsetWrite") )
           __debugbreak();
-        StreamDefrag::FastForwardDefragSteps(this, COUNT, v23, (StreamDefragAllocNode *)data, (StreamerMemPageCounts *)&item);
+        StreamDefrag::FastForwardDefragSteps(this, COUNT, v21, (StreamDefragAllocNode *)data, (StreamerMemPageCounts *)&item);
         goto LABEL_92;
       }
-      if ( !v26 )
+      if ( !v24 )
         break;
-      v24 = v23;
-      v27 = v26;
-      v25 = &v23[v27] == NULL;
-      v23 = (StreamDefragCommand *)((char *)v23 + v27 * 56);
+      v22 = v21;
+      v25 = v24;
+      v23 = &v21[v25] == NULL;
+      v21 = (StreamDefragCommand *)((char *)v21 + v25 * 56);
     }
-    v28 = 0;
+    v26 = 0;
     p_item = &item;
-    v2 = v47;
+    v2 = v45;
     do
     {
-      v28 += LODWORD(p_item->m_image);
+      v26 += LODWORD(p_item->m_image);
       p_item = (Stream_Logger_Item *)((char *)p_item + 4);
-      --v22;
+      --v20;
     }
-    while ( v22 );
-    if ( v28 )
+    while ( v20 );
+    if ( v26 )
       Mem_Paged_BatchFlush();
     StreamDefrag::AddPagesToDefragPageSurplus(this, (const StreamerMemPageCounts *)&item);
     goto LABEL_115;
   }
 LABEL_116:
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3623, ASSERT_TYPE_ASSERT, "(node->defragRefCount == 0)", (const char *)&queryFormat, "node->defragRefCount == 0") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3623, ASSERT_TYPE_ASSERT, "(node->defragRefCount == 0)", (const char *)&queryFormat, "node->defragRefCount == 0") )
     __debugbreak();
-  v30 = *data;
-  v31 = (*data >> 19) & 1;
+  v28 = *data;
+  v29 = (*data >> 19) & 1;
   if ( (*data & 0x7800000) != 0 )
   {
-    v32 = StrmOffsetToAddress((StreamMemPool)v31, data[3]);
-    v33 = 8i64;
+    v30 = StrmOffsetToAddress((StreamMemPool)v29, data[3]);
+    v31 = 8i64;
     for ( i = 3; i >= 0; --i )
     {
-      if ( ((unsigned __int8)v33 & (unsigned __int8)((unsigned __int64)*data >> 23) & 0xF) != 0 )
+      if ( ((unsigned __int8)v31 & (unsigned __int8)((unsigned __int64)*data >> 23) & 0xF) != 0 )
       {
         NodeGetPartSizeAndOffset((const StreamDefragAllocNode *)data, i, &outPartSize, &outPartOffset);
-        v35 = &v32[outPartOffset];
-        v36 = outPartSize;
-        v37 = &v35[outPartSize];
-        v38 = v31 << 8;
+        v33 = &v30[outPartOffset];
+        v34 = outPartSize;
+        v35 = &v33[outPartSize];
+        v36 = v29 << 8;
         if ( (*data & 0x200000) != 0 )
         {
-          v39 = (StreamDefragRegion<1> *)((char *)&this->mAddressSpaces[0].mMoveableRegion + v38);
-          StreamDefragRegion<1>::AssertValidAddressRange(v39, v35, v37);
+          v37 = (StreamDefragRegion<1> *)((char *)&this->mAddressSpaces[0].mMoveableRegion + v36);
+          StreamDefragRegion<1>::AssertValidAddressRange(v37, v33, v35);
         }
         else
         {
-          v39 = (StreamDefragRegion<1> *)((char *)&this->mAddressSpaces[0].mFixedRegion + v38);
-          StreamDefragRegion<0>::AssertValidAddressRange((StreamDefragRegion<0> *)v39, v35, v37);
+          v37 = (StreamDefragRegion<1> *)((char *)&this->mAddressSpaces[0].mFixedRegion + v36);
+          StreamDefragRegion<0>::AssertValidAddressRange((StreamDefragRegion<0> *)v37, v33, v35);
         }
-        v40 = truncate_cast<unsigned __int64,__int64>(v36);
-        mVaSizeCommitted = v39->mVaSizeCommitted;
-        if ( mVaSizeCommitted < v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2115, ASSERT_TYPE_ASSERT, "( mVaSizeCommitted ) >= ( size )", "%s >= %s\n\t%zu, %zu", "mVaSizeCommitted", "size", mVaSizeCommitted, v40) )
+        v38 = truncate_cast<unsigned __int64,__int64>(v34);
+        mVaSizeCommitted = v37->mVaSizeCommitted;
+        if ( mVaSizeCommitted < v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2115, ASSERT_TYPE_ASSERT, "( mVaSizeCommitted ) >= ( size )", "%s >= %s\n\t%zu, %zu", "mVaSizeCommitted", "size", mVaSizeCommitted, v38) )
           __debugbreak();
-        v39->mVaSizeCommitted -= v40;
-        v42 = v39->mVaSizeCommitted;
-        if ( v42 > v39->mVaSizeUsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2117, ASSERT_TYPE_ASSERT, "( mVaSizeCommitted ) <= ( mVaSizeUsed )", "%s <= %s\n\t%zu, %zu", "mVaSizeCommitted", "mVaSizeUsed", v42, v39->mVaSizeUsed) )
+        v37->mVaSizeCommitted -= v38;
+        v40 = v37->mVaSizeCommitted;
+        if ( v40 > v37->mVaSizeUsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2117, ASSERT_TYPE_ASSERT, "( mVaSizeCommitted ) <= ( mVaSizeUsed )", "%s <= %s\n\t%zu, %zu", "mVaSizeCommitted", "mVaSizeUsed", v40, v37->mVaSizeUsed) )
           __debugbreak();
       }
-      v33 = __ROR8__(v33, 1);
+      v31 = __ROR8__(v31, 1);
     }
-    v30 = *data;
-    v2 = v47;
+    v28 = *data;
+    v2 = v45;
   }
-  if ( (v30 & 0x200000) != 0 )
+  if ( (v28 & 0x200000) != 0 )
   {
     StreamDefrag::UpdateNewTailAddressBeforeMove(this, (StreamDefragAllocNode *)data);
-    StreamDefragRegion<1>::InvalidateNode(&this->mAddressSpaces[v31].mMoveableRegion, (StreamDefragAllocNode *)data);
+    StreamDefragRegion<1>::InvalidateNode(&this->mAddressSpaces[v29].mMoveableRegion, (StreamDefragAllocNode *)data);
   }
   else
   {
-    StreamDefragRegion<0>::InvalidateNode(&this->mAddressSpaces[v31].mFixedRegion, (StreamDefragAllocNode *)data);
+    StreamDefragRegion<0>::InvalidateNode(&this->mAddressSpaces[v29].mFixedRegion, (StreamDefragAllocNode *)data);
   }
   v2->data = 0i64;
-  ScopedCriticalSection::~ScopedCriticalSection(&v49);
+  ScopedCriticalSection::~ScopedCriticalSection(&v47);
 }
 
 /*
@@ -5147,99 +5061,96 @@ StreamDefrag::GetFrameDefragCommandCount
 */
 __int64 StreamDefrag::GetFrameDefragCommandCount(StreamDefrag *this, StreamMemPool pool)
 {
-  __int64 v4; 
-  StreamDefrag::AddressSpace *v14; 
-  const char *v16; 
+  const dvar_t *v2; 
+  __int64 v3; 
+  float v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  StreamDefrag::AddressSpace *v11; 
+  unsigned int v12; 
+  const char *v13; 
   unsigned __int64 VASizeFragmentation; 
-  unsigned int v19; 
-  unsigned __int64 v20; 
+  unsigned int v15; 
+  unsigned __int64 v16; 
+  __int64 v17; 
+  float v18; 
+  unsigned __int64 v19; 
   __int64 result; 
-  __int64 v27; 
-  __int64 v28; 
+  __int64 v21; 
+  __int64 v22; 
+  int v23[4]; 
+  float value; 
+  int v25[3]; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _RBX = DCONST_DVARVEC3_stream_defragStepUpBytes;
-  v4 = (unsigned int)pool;
+  v2 = DCONST_DVARVEC3_stream_defragStepUpBytes;
+  v3 = (unsigned int)pool;
   if ( !DCONST_DVARVEC3_stream_defragStepUpBytes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragStepUpBytes") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vmovss  [rsp+0A8h+var_68], xmm0
-    vmovss  xmm0, dword ptr [rbx+30h]
-  }
-  _RBX = DCONST_DVARVEC4_stream_defragStepUpCmdCount;
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_64], xmm1
-    vmovss  [rsp+0A8h+var_60], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v2);
+  v5 = v2->current.vector.v[1];
+  v23[0] = v2->current.integer;
+  v6 = v2->current.vector.v[2];
+  v7 = DCONST_DVARVEC4_stream_defragStepUpCmdCount;
+  *(float *)&v23[1] = v5;
+  *(float *)&v23[2] = v6;
   if ( !DCONST_DVARVEC4_stream_defragStepUpCmdCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragStepUpCmdCount") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.vector.v[1];
+  v9 = v7->current.vector.v[2];
+  v10 = v7->current.vector.v[3];
+  value = v7->current.value;
+  *(float *)v25 = v8;
+  *(float *)&v25[1] = v9;
+  v11 = &this->mAddressSpaces[v3];
+  *(float *)&v25[2] = v10;
+  v12 = (int)value;
+  if ( StreamDefragRegion<1>::GetVASizeNotAllocated(&v11->mMoveableRegion) > 0xC800000 )
   {
-    vmovss  xmm2, dword ptr [rbx+28h]
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovss  xmm1, dword ptr [rbx+30h]
-    vmovss  xmm6, dword ptr [rbx+34h]
-    vmovss  [rsp+0A8h+var_58], xmm2
-    vmovss  [rsp+0A8h+var_54], xmm0
-    vmovss  [rsp+0A8h+var_50], xmm1
-  }
-  v14 = &this->mAddressSpaces[v4];
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_4C], xmm6
-    vcvttss2si rsi, xmm2
-  }
-  if ( StreamDefragRegion<1>::GetVASizeNotAllocated(&v14->mMoveableRegion) > 0xC800000 )
-  {
-    VASizeFragmentation = StreamDefragRegion<1>::GetVASizeFragmentation(&v14->mMoveableRegion);
-    __asm { vmovss  xmm6, cs:__real@5f000000 }
-    v19 = 0;
-    v20 = VASizeFragmentation;
-    _RDI = 0i64;
+    VASizeFragmentation = StreamDefragRegion<1>::GetVASizeFragmentation(&v11->mMoveableRegion);
+    v15 = 0;
+    v16 = VASizeFragmentation;
+    v17 = 0i64;
     do
     {
-      __asm
+      v18 = *(float *)&v23[v17];
+      v19 = 0i64;
+      if ( v18 >= 9.223372e18 )
       {
-        vmovss  xmm0, [rsp+rdi+0A8h+var_68]
-        vcomiss xmm0, xmm6
-        vsubss  xmm0, xmm0, xmm6
-        vcomiss xmm0, xmm6
-        vcvttss2si rax, xmm0
+        v18 = v18 - 9.223372e18;
+        if ( v18 < 9.223372e18 )
+          v19 = 0x8000000000000000ui64;
       }
-      if ( v20 > _RAX )
+      if ( v16 > v19 + (unsigned int)(int)v18 )
       {
-        if ( v19 + 1 >= 4 )
+        if ( v15 + 1 >= 4 )
         {
-          LODWORD(v28) = 4;
-          LODWORD(v27) = v19 + 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v27, v28) )
+          LODWORD(v22) = 4;
+          LODWORD(v21) = v15 + 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, v22) )
             __debugbreak();
         }
-        __asm { vcvttss2si rsi, [rsp+rdi+0A8h+var_54] }
+        v12 = (int)*(float *)&v25[v17];
       }
-      ++v19;
-      _RDI += 4i64;
+      ++v15;
+      ++v17;
     }
-    while ( v19 < 3 );
+    while ( v15 < 3 );
   }
   else
   {
-    v16 = "GPU";
-    if ( !(_DWORD)v4 )
-      v16 = "CPU";
-    R_WarnOncePerFrame(R_WARN_STREAM_DEFRAG_CLOSE_TO_OVERWRITE, v16, 200i64);
-    __asm { vcvttss2si rsi, xmm6 }
+    v13 = "GPU";
+    if ( !(_DWORD)v3 )
+      v13 = "CPU";
+    R_WarnOncePerFrame(R_WARN_STREAM_DEFRAG_CLOSE_TO_OVERWRITE, v13, 200i64);
+    v12 = (int)v10;
   }
   result = 1024i64;
-  if ( (unsigned int)_RSI < 0x400 )
-    result = (unsigned int)_RSI;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+  if ( v12 < 0x400 )
+    return v12;
   return result;
 }
 
@@ -5625,68 +5536,58 @@ StreamDefrag::HarvestUnusedNode
 */
 void StreamDefrag::HarvestUnusedNode(StreamDefrag *this, StreamDefragAllocNode *node)
 {
-  bool v7; 
+  bool v4; 
   StreamDefragAllocNode *mHead; 
-  unsigned int v9; 
-  __int64 v10; 
-  int v11; 
-  int v12; 
+  unsigned int v6; 
+  __int64 v7; 
+  int v8; 
+  int v9; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
-  __int128 v15; 
-  int v16; 
+  __int128 v12; 
+  int v13; 
 
-  _RBX = node;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3675, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( (*(_DWORD *)_RBX & 0x7FFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3676, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
+  if ( (*(_DWORD *)node & 0x7FFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3676, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
     __debugbreak();
-  if ( (*((_DWORD *)_RBX + 4) & 0x380000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3677, ASSERT_TYPE_ASSERT, "(node->defragLockCount == 0)", (const char *)&queryFormat, "node->defragLockCount == 0") )
+  if ( (*((_DWORD *)node + 4) & 0x380000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3677, ASSERT_TYPE_ASSERT, "(node->defragLockCount == 0)", (const char *)&queryFormat, "node->defragLockCount == 0") )
     __debugbreak();
-  if ( (*((_DWORD *)_RBX + 4) & 0xC00000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3678, ASSERT_TYPE_ASSERT, "(node->defragRefCount == 0)", (const char *)&queryFormat, "node->defragRefCount == 0") )
+  if ( (*((_DWORD *)node + 4) & 0xC00000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3678, ASSERT_TYPE_ASSERT, "(node->defragRefCount == 0)", (const char *)&queryFormat, "node->defragRefCount == 0") )
     __debugbreak();
-  if ( NodeIsValid(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3679, ASSERT_TYPE_ASSERT, "(!NodeIsValid( node ))", (const char *)&queryFormat, "!NodeIsValid( node )") )
+  if ( NodeIsValid(node) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3679, ASSERT_TYPE_ASSERT, "(!NodeIsValid( node ))", (const char *)&queryFormat, "!NodeIsValid( node )") )
     __debugbreak();
-  _RAX = Stream_Logger_MakeItem(&result, _RBX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0B8h+item.___u0], xmm0
-  }
+  item = *Stream_Logger_MakeItem(&result, node);
   Stream_Logger_OnNodeHarvested("StreamDefrag::HarvestUnusedNode", NULL, &item);
-  v15 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+0B8h+var_48]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  *((_DWORD *)_RBX + 4) = 0;
-  *((_DWORD *)_RBX + 1) |= 3u;
-  v7 = (*(_DWORD *)_RBX & 0x7FFFF) == 0;
-  v16 = 0;
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 719, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
+  v12 = 0ui64;
+  *(_OWORD *)node = 0ui64;
+  *((_DWORD *)node + 4) = 0;
+  *((_DWORD *)node + 1) |= 3u;
+  v4 = (*(_DWORD *)node & 0x7FFFF) == 0;
+  v13 = 0;
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 719, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
     __debugbreak();
   do
   {
     mHead = this->mFreePool.mHead;
-    v9 = *(_DWORD *)_RBX & 0xFFF80000;
+    v6 = *(_DWORD *)node & 0xFFF80000;
     if ( this->mFreePool.mHead )
     {
-      v10 = mHead - _RBX;
-      v11 = v9 | (((int)mHead - (int)_RBX) / 20) & 0x7FFFF;
-      *(_DWORD *)_RBX = v11;
-      v12 = v11 << 13;
-      if ( (__int64)v12 >> 13 != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 728, ASSERT_TYPE_ASSERT, "( node->next ) == ( curHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "curHead - node", (__int64)v12 >> 13, v10) )
+      v7 = mHead - node;
+      v8 = v6 | (((int)mHead - (int)node) / 20) & 0x7FFFF;
+      *(_DWORD *)node = v8;
+      v9 = v8 << 13;
+      if ( (__int64)v9 >> 13 != v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 728, ASSERT_TYPE_ASSERT, "( node->next ) == ( curHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "curHead - node", (__int64)v9 >> 13, v7) )
         __debugbreak();
     }
     else
     {
-      *(_DWORD *)_RBX = v9;
+      *(_DWORD *)node = v6;
     }
     if ( ((unsigned __int8)this & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 128, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int64 ) ) ) )", "( target ) = %p", this) )
       __debugbreak();
   }
-  while ( mHead != (StreamDefragAllocNode *)_InterlockedCompareExchange64((volatile signed __int64 *)this, (signed __int64)_RBX, (signed __int64)mHead) );
+  while ( mHead != (StreamDefragAllocNode *)_InterlockedCompareExchange64((volatile signed __int64 *)this, (signed __int64)node, (signed __int64)mHead) );
 }
 
 /*
@@ -6137,31 +6038,26 @@ StreamDefrag::IssueCopies
 void StreamDefrag::IssueCopies(StreamDefrag *this, GfxCmdBufContext *gfxContext)
 {
   RList<StreamNextTailAddress> *mNextTailAddresses; 
-  __int64 v6; 
-  RList<StreamNextTailAddress> *v7; 
+  __int64 v5; 
+  RList<StreamNextTailAddress> *v6; 
   StreamNextTailAddress *i; 
-  __int16 v9; 
+  __int16 v8; 
   unsigned __int64 *p_mAddrTail; 
-  unsigned int v11; 
-  __int64 v12; 
+  unsigned int v10; 
+  __int64 v11; 
   StreamNextTailAddress *mTail; 
   unsigned __int64 vAddrNextTail; 
   StreamNextTailAddress *mHead; 
-  __int16 v16; 
-  StreamNextTailAddress *v17; 
+  __int16 v15; 
+  StreamNextTailAddress *v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
-  GfxCmdBufContext v20; 
+  GfxCmdBufContext v19; 
   __int64 data; 
 
-  _RDI = gfxContext;
   StreamDefrag::FlushAsyncVA(this, Block, MapsOnly, 0);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+88h+var_38], xmm0
-  }
-  StreamDefrag::DefragStep1_IssueCopies(this, &v20);
+  v19 = *gfxContext;
+  StreamDefrag::DefragStep1_IssueCopies(this, &v19);
   if ( this->mAsyncVAProcess && (this->mAsyncVAMaps.mHead || this->mAsyncVAUnmaps.mHead) )
   {
     data = (__int64)this;
@@ -6170,37 +6066,37 @@ void StreamDefrag::IssueCopies(StreamDefrag *this, GfxCmdBufContext *gfxContext)
   StreamDefrag::ValidateRegions(this);
   mNextTailAddresses = this->mNextTailAddresses;
   data = 2i64;
-  v6 = 2i64;
-  v7 = this->mNextTailAddresses;
+  v5 = 2i64;
+  v6 = this->mNextTailAddresses;
   do
   {
-    for ( i = v7->mHead; i; i += v9 )
+    for ( i = v6->mHead; i; i += v8 )
     {
       if ( i->unmapFrame <= this->mDefragFrameIndex )
       {
-        LODWORD(v19) = this->mDefragFrameIndex;
-        LODWORD(v18) = i->unmapFrame;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3182, ASSERT_TYPE_ASSERT, "( nextTailAddress->unmapFrame ) > ( mDefragFrameIndex )", "%s > %s\n\t%u, %u", "nextTailAddress->unmapFrame", "mDefragFrameIndex", v18, v19) )
+        LODWORD(v18) = this->mDefragFrameIndex;
+        LODWORD(v17) = i->unmapFrame;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3182, ASSERT_TYPE_ASSERT, "( nextTailAddress->unmapFrame ) > ( mDefragFrameIndex )", "%s > %s\n\t%u, %u", "nextTailAddress->unmapFrame", "mDefragFrameIndex", v17, v18) )
           __debugbreak();
       }
-      v9 = *((_WORD *)i + 8);
-      if ( !v9 )
+      v8 = *((_WORD *)i + 8);
+      if ( !v8 )
         break;
     }
-    ++v7;
-    --v6;
+    ++v6;
+    --v5;
   }
-  while ( v6 );
+  while ( v5 );
   ++this->mDefragFrameIndex;
   p_mAddrTail = &this->mAddressSpaces[0].mMoveableRegion.mAddrTail;
-  v11 = this->mDefragFrameIndex + this->mDefragUnmapFrameDepth;
-  v12 = data;
+  v10 = this->mDefragFrameIndex + this->mDefragUnmapFrameDepth;
+  v11 = data;
   do
   {
     mTail = mNextTailAddresses->mTail;
     if ( mTail )
     {
-      if ( mTail->unmapFrame != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3204, ASSERT_TYPE_ASSERT, "(existingNextTailAddress == nullptr || existingNextTailAddress->unmapFrame == unmapFrame - 1)", (const char *)&queryFormat, "existingNextTailAddress == nullptr || existingNextTailAddress->unmapFrame == unmapFrame - 1") )
+      if ( mTail->unmapFrame != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3204, ASSERT_TYPE_ASSERT, "(existingNextTailAddress == nullptr || existingNextTailAddress->unmapFrame == unmapFrame - 1)", (const char *)&queryFormat, "existingNextTailAddress == nullptr || existingNextTailAddress->unmapFrame == unmapFrame - 1") )
         __debugbreak();
       vAddrNextTail = mTail->vAddrNextTail;
     }
@@ -6211,12 +6107,12 @@ void StreamDefrag::IssueCopies(StreamDefrag *this, GfxCmdBufContext *gfxContext)
     mHead = this->mNextTailAddressPool.mHead;
     if ( mHead )
     {
-      v16 = *((_WORD *)mHead + 8);
-      if ( v16 )
-        v17 = &mHead[v16];
+      v15 = *((_WORD *)mHead + 8);
+      if ( v15 )
+        v16 = &mHead[v15];
       else
-        v17 = NULL;
-      this->mNextTailAddressPool.mHead = v17;
+        v16 = NULL;
+      this->mNextTailAddressPool.mHead = v16;
       *((_WORD *)mHead + 8) = 0;
     }
     else
@@ -6227,13 +6123,13 @@ void StreamDefrag::IssueCopies(StreamDefrag *this, GfxCmdBufContext *gfxContext)
     }
     mHead->vAddrCurTail = vAddrNextTail;
     mHead->vAddrNextTail = vAddrNextTail;
-    mHead->unmapFrame = v11 + 1;
+    mHead->unmapFrame = v10 + 1;
     RList<StreamNextTailAddress>::PushBack(mNextTailAddresses, mHead);
     p_mAddrTail += 32;
     ++mNextTailAddresses;
-    --v12;
+    --v11;
   }
-  while ( v12 );
+  while ( v11 );
 }
 
 /*
@@ -6278,12 +6174,7 @@ char StreamDefrag::LockDefrag(StreamDefrag *this, streamer_handle_t handle)
   {
     v8 = 1;
     *(_DWORD *)(handle.data + 16) ^= (*(_DWORD *)(handle.data + 16) ^ (*(_DWORD *)(handle.data + 16) + 0x80000)) & 0x380000;
-    _RAX = Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)handle.data);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+88h+item.___u0], xmm0
-    }
+    item = *Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)handle.data);
     Stream_Logger_OnDefragLock("StreamDefrag::LockDefrag", NULL, &item);
   }
   Sys_UnlockWrite(&this->mDefragLockCountCriticalSection);
@@ -6344,37 +6235,31 @@ StreamDefrag::MapAsync
 char StreamDefrag::MapAsync(StreamDefrag *this, StreamDefragCommand *command)
 {
   const dvar_t *v4; 
+  StreamDefragCommand *v5; 
 
-  _RDI = command;
   if ( !command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4595, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
     __debugbreak();
-  if ( !_RDI->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4596, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
+  if ( !command->node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4596, ASSERT_TYPE_ASSERT, "(command->node)", (const char *)&queryFormat, "command->node") )
     __debugbreak();
   Stream_Defrag_CheckLocks(this, command);
-  StreamDefrag::TrackCommitParts(this, _RDI, *((unsigned int *)_RDI->node + 3), *((_BYTE *)_RDI + 55) & 0xF);
+  StreamDefrag::TrackCommitParts(this, command, *((unsigned int *)command->node + 3), *((_BYTE *)command + 55) & 0xF);
   v4 = DCONST_DVARBOOL_stream_defragAsyncMapping;
   if ( !DCONST_DVARBOOL_stream_defragAsyncMapping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragAsyncMapping") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && (_RAX = RStackThreadSafe<StreamDefragCommand>::Pop(&this->mDefragPool)) != NULL )
+  if ( v4->current.enabled && Stream_IsEnabled() && !Stream_BackendQueue_IsInForcedFlush() && streamFrontendGlob->levelInit.state == 4 && (v5 = RStackThreadSafe<StreamDefragCommand>::Pop(&this->mDefragPool)) != NULL )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rax+20h], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  qword ptr [rax+30h], xmm0
-    }
-    RStackThreadSafe<StreamDefragCommand>::Push(&this->mAsyncVAMaps, _RAX);
+    *(__m256i *)&v5->node = *(__m256i *)&command->node;
+    *(_OWORD *)&v5->partOffset[2] = *(_OWORD *)&command->partOffset[2];
+    *((double *)v5 + 6) = *((double *)command + 6);
+    RStackThreadSafe<StreamDefragCommand>::Push(&this->mAsyncVAMaps, v5);
     return 0;
   }
   else
   {
     if ( this->mAsyncVAMaps.mHead || this->mAsyncVAUnmaps.mHead )
       StreamDefrag::FlushAsyncVA(this, Block, MapsAndUnmaps, 0);
-    StreamDefrag::Map(this, _RDI);
+    StreamDefrag::Map(this, command);
     return 1;
   }
 }
@@ -6595,6 +6480,7 @@ StreamDefrag::NeedsVAResize
 */
 char StreamDefrag::NeedsVAResize(StreamDefrag *this, const StreamDefragAllocNode *node)
 {
+  __m256i v4; 
   const dvar_t *v6; 
   bool v7; 
   int v8; 
@@ -6645,11 +6531,8 @@ char StreamDefrag::NeedsVAResize(StreamDefrag *this, const StreamDefragAllocNode
         vpxor   xmm1, xmm1, xmm1
       }
       command.node = (StreamDefragAllocNode *)node;
-      __asm
-      {
-        vmovdqu ymmword ptr [rsp+0A8h+command.partSize], ymm0
-        vmovdqu xmmword ptr [rsp+0A8h+command.unmapFrame], xmm1
-      }
+      *(__m256i *)command.partSize = v4;
+      *(_OWORD *)&command.unmapFrame = _XMM1;
       CommandSetPartInfo(&command);
       v15 = HIBYTE(*((_DWORD *)&command + 13)) & 0xF;
       if ( v15 == ((*(_DWORD *)node >> 23) & 0xF) && v15 == ((*(_DWORD *)node >> 27) & 0xF) )
@@ -6939,11 +6822,11 @@ void Node_PtrFixup(const GfxBackEndData *data, StreamDefragAllocNode *node, bool
   unsigned int v6; 
   XModelSurfs *XModelSurfsAtIndex; 
   GfxImage *GfxImageAtIndex; 
-  const GfxImage *v10; 
-  unsigned int v11; 
-  GfxImage *v12; 
+  const GfxImage *v9; 
+  unsigned int v10; 
+  GfxImage *v11; 
   unsigned int i; 
-  int v14; 
+  int v13; 
   Stream_Logger_Item item; 
 
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 463, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -6975,16 +6858,11 @@ void Node_PtrFixup(const GfxBackEndData *data, StreamDefragAllocNode *node, bool
       item.m_type = STREAM_ITEM_GENERIC;
     }
     item.m_image = (const GfxImage *)XModelSurfsAtIndex;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+item.___u0]
-      vmovdqa xmmword ptr [rsp+48h+item.___u0], xmm0
-    }
     Stream_Logger_OnPatchDescriptor("Node_PtrFixup", data, &item, 0, -1);
     return;
   }
   GfxImageAtIndex = DB_GetGfxImageAtIndex((v6 >> 2) & 0x3FFFF);
-  v10 = GfxImageAtIndex;
+  v9 = GfxImageAtIndex;
   GfxImageAtIndex->pixels.streamedDataHandle.data = (unsigned __int64)node;
   if ( !newAlloc && !RB_Texture_HasStreamedFallbackAssigned(data, GfxImageAtIndex->textureId) )
   {
@@ -6994,29 +6872,24 @@ void Node_PtrFixup(const GfxBackEndData *data, StreamDefragAllocNode *node, bool
       __debugbreak();
     if ( (*(_DWORD *)node & 0x78000000) != 0 )
     {
-      v11 = 0;
-      v12 = DB_GetGfxImageAtIndex((*((_DWORD *)node + 1) >> 2) & 0x3FFFF);
-      for ( i = 0; i < v12->streamedPartCount; v11 = i++ )
+      v10 = 0;
+      v11 = DB_GetGfxImageAtIndex((*((_DWORD *)node + 1) >> 2) & 0x3FFFF);
+      for ( i = 0; i < v11->streamedPartCount; v10 = i++ )
       {
         if ( (((unsigned __int64)*(_DWORD *)node >> 27) & (unsigned __int8)(1i64 << i) & 0xF) == 0 )
           break;
       }
-      v14 = v12->levelCount - (v12->streams[v11].levelCountAndSize & 0xF);
+      v13 = v11->levelCount - (v11->streams[v10].levelCountAndSize & 0xF);
     }
     else
     {
-      v14 = 0;
+      v13 = 0;
     }
-    RB_Texture_FixupStreamedPixelsPtr(data, v10, v14);
-    Stream_BackendQueue_QueueCopyTextureDesc(data, v10);
+    RB_Texture_FixupStreamedPixelsPtr(data, v9, v13);
+    Stream_BackendQueue_QueueCopyTextureDesc(data, v9);
     item.m_type = STREAM_ITEM_IMAGE;
-    item.m_image = v10;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+item.___u0]
-      vmovdqa xmmword ptr [rsp+48h+item.___u0], xmm0
-    }
-    Stream_Logger_OnPatchDescriptor("Node_PtrFixup", data, &item, 0, v14);
+    item.m_image = v9;
+    Stream_Logger_OnPatchDescriptor("Node_PtrFixup", data, &item, 0, v13);
   }
 }
 
@@ -7622,36 +7495,36 @@ StreamDefrag::ReserveHandle
 streamer_handle_t StreamDefrag::ReserveHandle(StreamDefrag *this, StreamDefragAllocNode **type, int assetIndex, unsigned int a4)
 {
   StreamItemType v5; 
+  StreamDefragAllocNode *mHead; 
   signed __int64 v9; 
   char ItemMemPool; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int128 v15; 
 
   v5 = (char)assetIndex;
   if ( (unsigned __int8)assetIndex >= 3u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3434, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( MAX_ASSET_TYPE )", "type doesn't index MAX_ASSET_TYPE\n\t%i not in [0, %i)", (unsigned __int8)assetIndex, 3) )
     __debugbreak();
   if ( a4 >= 0x3FFFF )
   {
-    LODWORD(v14) = 0x3FFFF;
-    LODWORD(v13) = a4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3435, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( MAX_ASSET_INDEX )", "assetIndex doesn't index MAX_ASSET_INDEX\n\t%i not in [0, %i)", v13, v14) )
+    LODWORD(v13) = 0x3FFFF;
+    LODWORD(v12) = a4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3435, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( MAX_ASSET_INDEX )", "assetIndex doesn't index MAX_ASSET_INDEX\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
-  _RBX = this->mFreePool.mHead;
+  mHead = this->mFreePool.mHead;
   if ( this->mFreePool.mHead )
   {
     while ( 1 )
     {
-      if ( *(_DWORD *)_RBX << 13 )
-        v9 = (signed __int64)&_RBX[(__int64)(int)(*(_DWORD *)_RBX << 13) >> 13];
+      if ( *(_DWORD *)mHead << 13 )
+        v9 = (signed __int64)&mHead[(__int64)(int)(*(_DWORD *)mHead << 13) >> 13];
       else
         v9 = 0i64;
       if ( ((unsigned __int8)this & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 128, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int64 ) ) ) )", "( target ) = %p", this) )
         __debugbreak();
-      if ( _RBX == (StreamDefragAllocNode *)_InterlockedCompareExchange64((volatile signed __int64 *)this, v9, (signed __int64)_RBX) )
+      if ( mHead == (StreamDefragAllocNode *)_InterlockedCompareExchange64((volatile signed __int64 *)this, v9, (signed __int64)mHead) )
         break;
-      _RBX = this->mFreePool.mHead;
+      mHead = this->mFreePool.mHead;
       if ( !this->mFreePool.mHead )
         goto LABEL_16;
     }
@@ -7659,24 +7532,19 @@ streamer_handle_t StreamDefrag::ReserveHandle(StreamDefrag *this, StreamDefragAl
   else
   {
 LABEL_16:
-    _RBX = NULL;
+    mHead = NULL;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3438, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
       __debugbreak();
   }
-  v15 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_48]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  *((_DWORD *)_RBX + 4) = 0;
-  *(_DWORD *)_RBX |= 0x100000u;
+  *(_OWORD *)mHead = 0ui64;
+  *((_DWORD *)mHead + 4) = 0;
+  *(_DWORD *)mHead |= 0x100000u;
   ItemMemPool = Stream_Alloc_GetItemMemPool(v5, a4);
-  *(_DWORD *)_RBX &= ~0x80000u;
-  *((_DWORD *)_RBX + 1) &= 0xFFF00000;
-  *(_DWORD *)_RBX |= (ItemMemPool & 1) << 19;
-  *type = _RBX;
-  *((_DWORD *)_RBX + 1) |= (4 * (a4 & 0x3FFFF)) | v5 & 3;
+  *(_DWORD *)mHead &= ~0x80000u;
+  *((_DWORD *)mHead + 1) &= 0xFFF00000;
+  *(_DWORD *)mHead |= (ItemMemPool & 1) << 19;
+  *type = mHead;
+  *((_DWORD *)mHead + 1) |= (4 * (a4 & 0x3FFFF)) | v5 & 3;
   return (streamer_handle_t)type;
 }
 
@@ -7720,58 +7588,65 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
   const char *v36; 
   __int64 v37; 
   __int64 v38; 
+  StreamDefragCommand *v39; 
+  int v40; 
+  __int64 v41; 
+  unsigned int v42; 
   int v43; 
-  __int64 v44; 
-  unsigned int v45; 
-  int v46; 
   bool updated; 
-  int v48; 
+  int v45; 
   unsigned int MaxVaSize; 
-  __int64 v50; 
-  unsigned __int8 *v51; 
-  __int64 v52; 
-  unsigned __int64 v53; 
+  __int64 v47; 
+  unsigned __int8 *v48; 
+  __int64 v49; 
+  unsigned __int64 v50; 
   StreamNextTailAddress *mTail; 
-  unsigned __int64 v55; 
-  const GfxImage *v56; 
-  unsigned __int64 v57; 
-  const GfxImage *v58; 
-  unsigned __int64 v59; 
+  unsigned __int64 v52; 
+  const GfxImage *v53; 
+  unsigned __int64 v54; 
+  const GfxImage *v55; 
+  unsigned __int64 v56; 
   StreamDefragAllocNode *mHead; 
-  int v61; 
-  StreamDefragAllocNode *v62; 
-  unsigned __int64 v66; 
-  const unsigned __int8 *v68; 
-  int v69; 
-  unsigned int v70; 
+  int v58; 
+  StreamDefragAllocNode *v59; 
+  Stream_Logger_Item *Item; 
+  Stream_Logger_Item *v61; 
+  unsigned __int64 v62; 
+  const unsigned __int8 *v63; 
+  int v64; 
+  unsigned int v65; 
   unsigned __int8 streamedPartCount; 
-  unsigned __int64 v73; 
-  const unsigned __int8 *v75; 
-  unsigned int v76; 
-  unsigned __int8 *v77; 
-  unsigned __int8 *v78; 
+  Stream_Logger_Item *v67; 
+  unsigned __int64 v68; 
+  const unsigned __int8 *v69; 
+  unsigned int v70; 
+  unsigned __int8 *v71; 
+  unsigned __int8 *v72; 
   __int64 mapOffset; 
   __int64 mapSize; 
-  const unsigned __int8 *v81; 
-  char *v82; 
-  const unsigned __int8 *v83; 
-  unsigned __int64 v84; 
-  unsigned __int64 v85; 
+  const unsigned __int8 *v75; 
+  char *v76; 
+  const unsigned __int8 *v77; 
+  unsigned __int64 v78; 
+  unsigned __int64 v79; 
   unsigned int fmt; 
-  __int64 v88; 
-  __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  bool v92; 
+  __int64 v82; 
+  __int64 v83; 
+  __int64 v84; 
+  __int64 v85; 
+  bool v86; 
   int partBits; 
   StreamDefragRegion<1> *p_mMoveableRegion; 
-  const unsigned __int8 *v95; 
+  const unsigned __int8 *v89; 
   unsigned __int64 b[2]; 
   Stream_Logger_Item result; 
   GfxBackEndData *dataa; 
-  _BYTE v100[32]; 
-  __int128 v101; 
-  __int64 v102; 
+  __int64 v94; 
+  __int64 v95; 
+  __int64 v96; 
+  __int64 v97; 
+  __int128 v98; 
+  __int64 v99; 
   Stream_Logger_Item unmappedPages; 
 
   v3 = streamMap;
@@ -7786,14 +7661,14 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
     __debugbreak();
   if ( ((unsigned __int8)(1i64 << v3->partIndex) & (unsigned __int8)((unsigned __int64)*(_DWORD *)v6 >> 23) & 0xF) != 0 )
   {
-    LODWORD(v88) = (*(_DWORD *)v6 >> 23) & 0xF;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2661, ASSERT_TYPE_ASSERT, "( ( ( node->mappedParts & ( 1ull << streamMap->partIndex ) ) == 0 ) )", "( node->mappedParts ) = %u", v88) )
+    LODWORD(v82) = (*(_DWORD *)v6 >> 23) & 0xF;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2661, ASSERT_TYPE_ASSERT, "( ( ( node->mappedParts & ( 1ull << streamMap->partIndex ) ) == 0 ) )", "( node->mappedParts ) = %u", v82) )
       __debugbreak();
   }
   if ( ((unsigned __int8)(1i64 << v3->partIndex) & ((unsigned __int64)*(_DWORD *)v6 >> 27) & 0xF) != 0 )
   {
-    LODWORD(v88) = (*(_DWORD *)v6 >> 27) & 0xF;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2662, ASSERT_TYPE_ASSERT, "( ( ( node->inuseParts & ( 1ull << streamMap->partIndex ) ) == 0 ) )", "( node->inuseParts ) = %u", v88) )
+    LODWORD(v82) = (*(_DWORD *)v6 >> 27) & 0xF;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2662, ASSERT_TYPE_ASSERT, "( ( ( node->inuseParts & ( 1ull << streamMap->partIndex ) ) == 0 ) )", "( node->inuseParts ) = %u", v82) )
       __debugbreak();
   }
   v8 = *(_DWORD *)v6;
@@ -7807,7 +7682,7 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
     if ( (*(_DWORD *)v6 & 0x7FFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2873, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
       __debugbreak();
     *(_DWORD *)v6 ^= (*(_DWORD *)v6 ^ (((*(_DWORD *)v6 >> 23) & 0xF | (1 << v3->partIndex)) << 23)) & 0x7800000;
-    v77 = StreamDefrag::ResolveNewAddr(this, data, v6);
+    v71 = StreamDefrag::ResolveNewAddr(this, data, v6);
   }
   else
   {
@@ -7846,14 +7721,14 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         __debugbreak();
       if ( (int)__popcnt((*(_DWORD *)v6 >> 23) & 0xF) < 1 )
       {
-        LODWORD(v88) = (*(_DWORD *)v6 >> 23) & 0xF;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2691, ASSERT_TYPE_ASSERT, "( ( CountBitsGeneric( node->mappedParts ) >= 1 ) )", "( node->mappedParts ) = %u", v88) )
+        LODWORD(v82) = (*(_DWORD *)v6 >> 23) & 0xF;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2691, ASSERT_TYPE_ASSERT, "( ( CountBitsGeneric( node->mappedParts ) >= 1 ) )", "( node->mappedParts ) = %u", v82) )
           __debugbreak();
       }
       if ( ((*((_DWORD *)v6 + 4) >> 19) & 7) != 0 )
       {
-        LODWORD(v88) = (*((_DWORD *)v6 + 4) >> 19) & 7;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2692, ASSERT_TYPE_ASSERT, "( ( node->defragLockCount == 0 ) )", "( node->defragLockCount ) = %u", v88) )
+        LODWORD(v82) = (*((_DWORD *)v6 + 4) >> 19) & 7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2692, ASSERT_TYPE_ASSERT, "( ( node->defragLockCount == 0 ) )", "( node->defragLockCount ) = %u", v82) )
           __debugbreak();
       }
       v18 = *((unsigned int *)v6 + 1);
@@ -7870,9 +7745,9 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         __debugbreak();
       if ( (unsigned int)partIndex >= Image_GetStreamedPartCount(v21) )
       {
-        LODWORD(v89) = Image_GetStreamedPartCount(v21);
-        LODWORD(v88) = partIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v88, v89) )
+        LODWORD(v83) = Image_GetStreamedPartCount(v21);
+        LODWORD(v82) = partIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v82, v83) )
           __debugbreak();
       }
       p_levelCountAndSize = &v21->streams[partIndex].levelCountAndSize;
@@ -7882,9 +7757,9 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         v23 = (unsigned int)*p_levelCountAndSize >> 4;
       if ( v3->mapSize != v23 )
       {
-        LODWORD(v91) = Image_ExclusivePartSize(v21, v3->partIndex);
-        LODWORD(v90) = v3->mapSize;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2698, ASSERT_TYPE_ASSERT, "( streamMap->mapSize ) == ( Image_ExclusivePartSize( image, streamMap->partIndex ) )", "%s == %s\n\t%u, %u", "streamMap->mapSize", "Image_ExclusivePartSize( image, streamMap->partIndex )", v90, v91) )
+        LODWORD(v85) = Image_ExclusivePartSize(v21, v3->partIndex);
+        LODWORD(v84) = v3->mapSize;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2698, ASSERT_TYPE_ASSERT, "( streamMap->mapSize ) == ( Image_ExclusivePartSize( image, streamMap->partIndex ) )", "%s == %s\n\t%u, %u", "streamMap->mapSize", "Image_ExclusivePartSize( image, streamMap->partIndex )", v84, v85) )
           __debugbreak();
       }
       v24 = v3->partIndex;
@@ -7893,19 +7768,19 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
       v25 = Image_InclusivePartSize(v21, v24);
       if ( v21->totalSize < v25 )
       {
-        LODWORD(v91) = v25;
-        LODWORD(v90) = v21->totalSize;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 215, ASSERT_TYPE_ASSERT, "( image->totalSize ) >= ( size )", "%s >= %s\n\t%u, %u", "image->totalSize", "size", v90, v91) )
+        LODWORD(v85) = v25;
+        LODWORD(v84) = v21->totalSize;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 215, ASSERT_TYPE_ASSERT, "( image->totalSize ) >= ( size )", "%s >= %s\n\t%u, %u", "image->totalSize", "size", v84, v85) )
           __debugbreak();
       }
       if ( v3->mapOffset != v21->totalSize - v25 )
       {
-        LODWORD(v91) = Image_PartOffset(v21, v3->partIndex);
-        LODWORD(v90) = v3->mapOffset;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2699, ASSERT_TYPE_ASSERT, "( streamMap->mapOffset ) == ( Image_PartOffset( image, streamMap->partIndex ) )", "%s == %s\n\t%u, %u", "streamMap->mapOffset", "Image_PartOffset( image, streamMap->partIndex )", v90, v91) )
+        LODWORD(v85) = Image_PartOffset(v21, v3->partIndex);
+        LODWORD(v84) = v3->mapOffset;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2699, ASSERT_TYPE_ASSERT, "( streamMap->mapOffset ) == ( Image_PartOffset( image, streamMap->partIndex ) )", "%s == %s\n\t%u, %u", "streamMap->mapOffset", "Image_PartOffset( image, streamMap->partIndex )", v84, v85) )
           __debugbreak();
       }
-      v92 = 0;
+      v86 = 0;
       v26 = &this->mAddressSpaces[(_QWORD)m_image];
       p_mMoveableRegion = &v26->mMoveableRegion;
       v27 = StreamDefrag::BackendFlushProtection(this, v6);
@@ -7920,9 +7795,9 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
           __debugbreak();
         if ( v28->unmapFrame != this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1 )
         {
-          LODWORD(v91) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
-          LODWORD(v90) = v28->unmapFrame;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2711, ASSERT_TYPE_ASSERT, "( inFlightCopy->unmapFrame ) == ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s == %s\n\t%u, %u", "inFlightCopy->unmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v90, v91) )
+          LODWORD(v85) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
+          LODWORD(v84) = v28->unmapFrame;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2711, ASSERT_TYPE_ASSERT, "( inFlightCopy->unmapFrame ) == ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s == %s\n\t%u, %u", "inFlightCopy->unmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v84, v85) )
             __debugbreak();
         }
         if ( *((_DWORD *)v28 + 13) < 0x10000000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2712, ASSERT_TYPE_ASSERT, "(inFlightCopy->unmapParts != 0)", (const char *)&queryFormat, "inFlightCopy->unmapParts != 0") )
@@ -7935,9 +7810,9 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         v30 = __popcnt(*((_DWORD *)v28 + 13) >> 28);
         if ( v29 > v30 )
         {
-          LODWORD(v91) = v30;
-          LODWORD(v90) = v29;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2723, ASSERT_TYPE_ASSERT, "( CountBitsGeneric( inFlightCopy->copyParts ) ) <= ( CountBitsGeneric( inFlightCopy->unmapParts ) )", "%s <= %s\n\t%u, %u", "CountBitsGeneric( inFlightCopy->copyParts )", "CountBitsGeneric( inFlightCopy->unmapParts )", v90, v91) )
+          LODWORD(v85) = v30;
+          LODWORD(v84) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2723, ASSERT_TYPE_ASSERT, "( CountBitsGeneric( inFlightCopy->copyParts ) ) <= ( CountBitsGeneric( inFlightCopy->unmapParts ) )", "%s <= %s\n\t%u, %u", "CountBitsGeneric( inFlightCopy->copyParts )", "CountBitsGeneric( inFlightCopy->unmapParts )", v84, v85) )
             __debugbreak();
         }
         v31 = *((unsigned int *)v6 + 3);
@@ -7948,9 +7823,9 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         StreamDefrag::AddPagesToDefragPageSurplus(this, (const StreamerMemPageCounts *)&unmappedPages);
         if ( (*((_BYTE *)v28 + 55) & 0xF) != ((*(_DWORD *)v6 >> 27) & 0xF) )
         {
-          LODWORD(v91) = (*(_DWORD *)v6 >> 27) & 0xF;
-          LODWORD(v90) = *((_BYTE *)v28 + 55) & 0xF;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2733, ASSERT_TYPE_ASSERT, "( inFlightCopy->copyParts ) == ( node->inuseParts )", "%s == %s\n\t%u, %u", "inFlightCopy->copyParts", "node->inuseParts", v90, v91) )
+          LODWORD(v85) = (*(_DWORD *)v6 >> 27) & 0xF;
+          LODWORD(v84) = *((_BYTE *)v28 + 55) & 0xF;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2733, ASSERT_TYPE_ASSERT, "( inFlightCopy->copyParts ) == ( node->inuseParts )", "%s == %s\n\t%u, %u", "inFlightCopy->copyParts", "node->inuseParts", v84, v85) )
             __debugbreak();
         }
         v33 = (unsigned int)__lzcnt(0x100ui64) ^ 0x3F;
@@ -7964,65 +7839,56 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         {
           if ( v35 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 570, ASSERT_TYPE_ASSERT, "( ( v & ~( uint64_t( 1 ) << ret ) ) == 0 )", v36, v37, v37) )
             __debugbreak();
-          LODWORD(v91) = v33 - LODWORD(result.m_image);
-          LODWORD(v90) = (*((_DWORD *)v28 + 13) >> 18) & 0xF;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2734, ASSERT_TYPE_ASSERT, "( inFlightCopy->alignLog2 ) == ( BitEncodeAlignment( R_IMAGE_ALIGNMENT ) )", "%s == %s\n\t%u, %u", "inFlightCopy->alignLog2", "BitEncodeAlignment( R_IMAGE_ALIGNMENT )", v90, v91) )
+          LODWORD(v85) = v33 - LODWORD(result.m_image);
+          LODWORD(v84) = (*((_DWORD *)v28 + 13) >> 18) & 0xF;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2734, ASSERT_TYPE_ASSERT, "( inFlightCopy->alignLog2 ) == ( BitEncodeAlignment( R_IMAGE_ALIGNMENT ) )", "%s == %s\n\t%u, %u", "inFlightCopy->alignLog2", "BitEncodeAlignment( R_IMAGE_ALIGNMENT )", v84, v85) )
             __debugbreak();
         }
-        _R14 = v28;
+        v39 = v28;
         *((_DWORD *)v28 + 13) |= (partBits << 28) | 0x400000;
       }
       else
       {
         if ( *((_DWORD *)v6 + 2) != *((_DWORD *)v6 + 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2742, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetRead == node->vAddrOffsetWrite)", (const char *)&queryFormat, "node->vAddrOffsetRead == node->vAddrOffsetWrite") )
           __debugbreak();
-        _R14 = RStackThreadSafe<StreamDefragCommand>::Pop(&this->mDefragPool);
-        if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2745, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
+        v39 = RStackThreadSafe<StreamDefragCommand>::Pop(&this->mDefragPool);
+        if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2745, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
           __debugbreak();
-        memset(v100, 0, sizeof(v100));
-        __asm
-        {
-          vmovups ymm0, [rbp+57h+var_80]
-          vmovups ymmword ptr [r14], ymm0
-        }
-        v101 = 0ui64;
-        __asm
-        {
-          vmovups xmm1, [rbp+57h+var_60]
-          vmovups xmmword ptr [r14+20h], xmm1
-        }
-        v102 = 0i64;
-        __asm
-        {
-          vmovsd  xmm0, [rbp+57h+var_50]
-          vmovsd  qword ptr [r14+30h], xmm0
-        }
-        v43 = __lzcnt(0x100ui64) ^ 0x3F;
-        _R14->node = v6;
-        *((_DWORD *)_R14 + 13) = (partBits << 28) | (*((_DWORD *)_R14 + 13) ^ (*((_DWORD *)_R14 + 13) ^ (*(_DWORD *)v6 >> 3)) & 0xF000000) & 0xFFFFFFF;
-        if ( (~(1i64 << v43) & 0x100) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 570, ASSERT_TYPE_ASSERT, "( ( v & ~( uint64_t( 1 ) << ret ) ) == 0 )", "iLog2: %llu, 0x%llx is not power of 2", 256i64, 256i64) )
+        v94 = 0i64;
+        v95 = 0i64;
+        v96 = 0i64;
+        v97 = 0i64;
+        *(__m256i *)&v39->node = (__m256i)0;
+        v98 = 0ui64;
+        *(_OWORD *)&v39->partOffset[2] = 0ui64;
+        v99 = 0i64;
+        *((double *)v39 + 6) = 0i64;
+        v40 = __lzcnt(0x100ui64) ^ 0x3F;
+        v39->node = v6;
+        *((_DWORD *)v39 + 13) = (partBits << 28) | (*((_DWORD *)v39 + 13) ^ (*((_DWORD *)v39 + 13) ^ (*(_DWORD *)v6 >> 3)) & 0xF000000) & 0xFFFFFFF;
+        if ( (~(1i64 << v40) & 0x100) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 570, ASSERT_TYPE_ASSERT, "( ( v & ~( uint64_t( 1 ) << ret ) ) == 0 )", "iLog2: %llu, 0x%llx is not power of 2", 256i64, 256i64) )
           __debugbreak();
-        v44 = 0i64;
-        v45 = *((_DWORD *)_R14 + 13) ^ (*((_DWORD *)_R14 + 13) ^ ((v43 - (unsigned int)compileTimeLog2(8ui64)) << 18)) & 0x3C0000;
-        *((_DWORD *)_R14 + 13) = v45;
-        v46 = ((unsigned __int16)v45 ^ (unsigned __int16)(*((_DWORD *)v6 + 1) >> 9)) & 0x3800 ^ v45;
-        *((_DWORD *)_R14 + 13) = v46;
-        *((_DWORD *)_R14 + 11) = *((_DWORD *)v6 + 2);
-        *((_DWORD *)_R14 + 13) = v46 ^ (v46 ^ (*((_DWORD *)v6 + 1) >> 9)) & 0x3C000;
-        for ( _R14->unmapFrame = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1; (unsigned int)v44 < v21->streamedPartCount; v44 = (unsigned int)(v44 + 1) )
+        v41 = 0i64;
+        v42 = *((_DWORD *)v39 + 13) ^ (*((_DWORD *)v39 + 13) ^ ((v40 - (unsigned int)compileTimeLog2(8ui64)) << 18)) & 0x3C0000;
+        *((_DWORD *)v39 + 13) = v42;
+        v43 = ((unsigned __int16)v42 ^ (unsigned __int16)(*((_DWORD *)v6 + 1) >> 9)) & 0x3800 ^ v42;
+        *((_DWORD *)v39 + 13) = v43;
+        *((_DWORD *)v39 + 11) = *((_DWORD *)v6 + 2);
+        *((_DWORD *)v39 + 13) = v43 ^ (v43 ^ (*((_DWORD *)v6 + 1) >> 9)) & 0x3C000;
+        for ( v39->unmapFrame = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1; (unsigned int)v41 < v21->streamedPartCount; v41 = (unsigned int)(v41 + 1) )
         {
-          _R14->partSize[v44] = Image_ExclusivePartSize(v21, v44);
-          _R14->partOffset[v44] = Image_PartOffset(v21, v44);
+          v39->partSize[v41] = Image_ExclusivePartSize(v21, v41);
+          v39->partOffset[v41] = Image_PartOffset(v21, v41);
         }
         Sys_LockWrite(&this->mDefragLockCriticalSection);
-        v10 = (*((_DWORD *)_R14 + 13) & 0xF000000) == 0;
-        LODWORD(result.m_image) = *((_DWORD *)_R14 + 13) & 0xF000000;
-        v92 = !v10;
+        v10 = (*((_DWORD *)v39 + 13) & 0xF000000) == 0;
+        LODWORD(result.m_image) = *((_DWORD *)v39 + 13) & 0xF000000;
+        v86 = !v10;
         updated = StreamDefrag::UpdateNewTailAddressBeforeMove(this, v6);
-        v48 = 0;
+        v45 = 0;
         if ( !updated )
-          v48 = 0x800000;
-        *((_DWORD *)_R14 + 13) = *((_DWORD *)_R14 + 13) & 0xFF3FFFFF | 0x400000 | v48;
+          v45 = 0x800000;
+        *((_DWORD *)v39 + 13) = *((_DWORD *)v39 + 13) & 0xFF3FFFFF | 0x400000 | v45;
         if ( updated )
         {
           m_image = unmappedPages.m_image;
@@ -8031,40 +7897,40 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
         else
         {
           MaxVaSize = NodeGetMaxVaSize(v6);
-          v50 = NodeGetVaSizeForParts(v6, (*((_DWORD *)v6 + 1) >> 20) & 7);
-          v51 = StrmOffsetToAddress((StreamMemPool)unmappedPages.m_image, *((unsigned int *)v6 + 2));
-          v52 = MaxVaSize - v50;
+          v47 = NodeGetVaSizeForParts(v6, (*((_DWORD *)v6 + 1) >> 20) & 7);
+          v48 = StrmOffsetToAddress((StreamMemPool)unmappedPages.m_image, *((unsigned int *)v6 + 2));
+          v49 = MaxVaSize - v47;
           v26 = (StreamDefrag::AddressSpace *)p_mMoveableRegion;
-          v53 = (unsigned __int64)&v51[v52];
-          b[0] = v53;
-          if ( v53 == p_mMoveableRegion->mAddrTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2784, ASSERT_TYPE_ASSERT, "( vAddrRead ) != ( moveableRegion.GetTail() )", "%s != %s\n\t%llx, %llx", "vAddrRead", "moveableRegion.GetTail()", v53, p_mMoveableRegion->mAddrTail) )
+          v50 = (unsigned __int64)&v48[v49];
+          b[0] = v50;
+          if ( v50 == p_mMoveableRegion->mAddrTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2784, ASSERT_TYPE_ASSERT, "( vAddrRead ) != ( moveableRegion.GetTail() )", "%s != %s\n\t%llx, %llx", "vAddrRead", "moveableRegion.GetTail()", v50, p_mMoveableRegion->mAddrTail) )
             __debugbreak();
           m_image = unmappedPages.m_image;
           mTail = this->mNextTailAddresses[(__int64)unmappedPages.m_image].mTail;
           if ( mTail )
           {
-            v55 = **((_QWORD **)&this->mFreePool.mHead + 2 * ((__int64)&unmappedPages.m_image[888].streams[2].xpakEntry.offset + 7));
-            v56 = (const GfxImage *)StreamDefragRegion<1>::CircularAddressDistance(p_mMoveableRegion, v55, mTail->vAddrNextTail);
-            v57 = v55;
+            v52 = **((_QWORD **)&this->mFreePool.mHead + 2 * ((__int64)&unmappedPages.m_image[888].streams[2].xpakEntry.offset + 7));
+            v53 = (const GfxImage *)StreamDefragRegion<1>::CircularAddressDistance(p_mMoveableRegion, v52, mTail->vAddrNextTail);
+            v54 = v52;
             v26 = (StreamDefrag::AddressSpace *)p_mMoveableRegion;
-            unmappedPages.m_image = v56;
-            v58 = (const GfxImage *)StreamDefragRegion<1>::CircularAddressDistance(p_mMoveableRegion, v57, b[0]);
-            if ( unmappedPages.m_image > v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2792, ASSERT_TYPE_ASSERT, "( nextTailBeginToEndDist ) <= ( nextTailBeginToReadDist )", "%s <= %s\n\t%llx, %llx", "nextTailBeginToEndDist", "nextTailBeginToReadDist", unmappedPages.m_image, v58) )
+            unmappedPages.m_image = v53;
+            v55 = (const GfxImage *)StreamDefragRegion<1>::CircularAddressDistance(p_mMoveableRegion, v54, b[0]);
+            if ( unmappedPages.m_image > v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2792, ASSERT_TYPE_ASSERT, "( nextTailBeginToEndDist ) <= ( nextTailBeginToReadDist )", "%s <= %s\n\t%llx, %llx", "nextTailBeginToEndDist", "nextTailBeginToReadDist", unmappedPages.m_image, v55) )
               __debugbreak();
           }
         }
         if ( !LODWORD(result.m_image) )
         {
-          v59 = *((unsigned int *)v6 + 2);
+          v56 = *((unsigned int *)v6 + 2);
           unmappedPages.m_image = NULL;
-          StreamDefrag::TrackDecommitParts(this, _R14, v59, partBits);
-          StreamDefrag::DecommitParts(this, _R14, *((unsigned int *)v6 + 2), partBits, (StreamerMemPageCounts *)&unmappedPages);
+          StreamDefrag::TrackDecommitParts(this, v39, v56, partBits);
+          StreamDefrag::DecommitParts(this, v39, *((unsigned int *)v6 + 2), partBits, (StreamerMemPageCounts *)&unmappedPages);
           StreamDefrag::AddPagesToDefragPageSurplus(this, (const StreamerMemPageCounts *)&unmappedPages);
         }
       }
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2810, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
+      if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2810, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
         __debugbreak();
-      if ( ((unsigned __int8)partBits & *((_BYTE *)_R14 + 55)) != ((*(_DWORD *)v6 >> 27) & 0xF) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2811, ASSERT_TYPE_ASSERT, "(( command->copyParts & prevMappedParts ) == node->inuseParts)", (const char *)&queryFormat, "( command->copyParts & prevMappedParts ) == node->inuseParts") )
+      if ( ((unsigned __int8)partBits & *((_BYTE *)v39 + 55)) != ((*(_DWORD *)v6 >> 27) & 0xF) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2811, ASSERT_TYPE_ASSERT, "(( command->copyParts & prevMappedParts ) == node->inuseParts)", (const char *)&queryFormat, "( command->copyParts & prevMappedParts ) == node->inuseParts") )
         __debugbreak();
       if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2274, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
         __debugbreak();
@@ -8082,12 +7948,12 @@ unsigned __int8 *StreamDefrag::ResolveMap(StreamDefrag *this, const GfxBackEndDa
       {
         while ( 1 )
         {
-          v61 = (int)(*(_DWORD *)mHead << 13) >> 13;
+          v58 = (int)(*(_DWORD *)mHead << 13) >> 13;
           if ( mHead == v6 )
             break;
-          if ( v61 )
+          if ( v58 )
           {
-            mHead += v61;
+            mHead += v58;
             if ( mHead )
               continue;
           }
@@ -8103,107 +7969,98 @@ LABEL_161:
       RList<StreamDefragAllocNode>::Remove(&v26->mMoveableRegion.mAllocations, v6);
       if ( (StreamDefragAllocNode *)b[0] == v6 )
       {
-        v62 = v26->mMoveableRegion.mAllocations.mTail;
-        if ( v62 )
+        v59 = v26->mMoveableRegion.mAllocations.mTail;
+        if ( v59 )
         {
-          if ( (*((_DWORD *)v62 + 1) & 0x7800000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2299, ASSERT_TYPE_ASSERT, "(newHeadNode->vAddrEndAlignLog2 != 0)", (const char *)&queryFormat, "newHeadNode->vAddrEndAlignLog2 != 0") )
+          if ( (*((_DWORD *)v59 + 1) & 0x7800000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2299, ASSERT_TYPE_ASSERT, "(newHeadNode->vAddrEndAlignLog2 != 0)", (const char *)&queryFormat, "newHeadNode->vAddrEndAlignLog2 != 0") )
             __debugbreak();
-          *((_DWORD *)v62 + 1) &= 0xF87FFFFF;
+          *((_DWORD *)v59 + 1) &= 0xF87FFFFF;
         }
         v26 = (StreamDefrag::AddressSpace *)p_mMoveableRegion;
       }
       unmappedPages.m_image = (const GfxImage *)StreamDefragRegion<1>::Assign(&v26->mMoveableRegion, v6, v21->totalSize, 0x100ui64, NULL);
-      v95 = StrmOffsetToAddress((StreamMemPool)m_image, (unsigned __int64)unmappedPages.m_image);
-      _RAX = Stream_Logger_MakeItem(&result, v6);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
+      v89 = StrmOffsetToAddress((StreamMemPool)m_image, (unsigned __int64)unmappedPages.m_image);
+      Item = Stream_Logger_MakeItem(&result, v6);
       fmt = v21->totalSize;
-      __asm { vmovups xmmword ptr [rbp+57h+b], xmm0 }
-      Stream_Logger_OnVirtualAddressReserved("StreamDefrag::ResolveMap", dataa, (const Stream_Logger_Item *)b, v95, fmt);
-      StreamDefrag::TrackCommitParts(this, _R14, (unsigned __int64)unmappedPages.m_image, partBits);
-      StreamDefrag::CommitParts(this, _R14, (unsigned __int64)unmappedPages.m_image, partBits, &streamMap->pagesReserved);
-      _RAX = Stream_Logger_MakeItem(&result, v6);
-      v66 = *((unsigned int *)v6 + 3);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+57h+b], xmm0
-      }
-      v68 = StrmOffsetToAddress((StreamMemPool)m_image, v66);
-      Stream_Logger_OnVAddrOffsetWriteChanged("StreamDefrag::ResolveMap", dataa, (const Stream_Logger_Item *)b, v68, v95);
-      v69 = (int)unmappedPages.m_image;
-      v70 = *((_DWORD *)v6 + 1) & 0xF80FFFFF;
+      *(Stream_Logger_Item *)b = *Item;
+      Stream_Logger_OnVirtualAddressReserved("StreamDefrag::ResolveMap", dataa, (const Stream_Logger_Item *)b, v89, fmt);
+      StreamDefrag::TrackCommitParts(this, v39, (unsigned __int64)unmappedPages.m_image, partBits);
+      StreamDefrag::CommitParts(this, v39, (unsigned __int64)unmappedPages.m_image, partBits, &streamMap->pagesReserved);
+      v61 = Stream_Logger_MakeItem(&result, v6);
+      v62 = *((unsigned int *)v6 + 3);
+      *(Stream_Logger_Item *)b = *v61;
+      v63 = StrmOffsetToAddress((StreamMemPool)m_image, v62);
+      Stream_Logger_OnVAddrOffsetWriteChanged("StreamDefrag::ResolveMap", dataa, (const Stream_Logger_Item *)b, v63, v89);
+      v64 = (int)unmappedPages.m_image;
+      v65 = *((_DWORD *)v6 + 1) & 0xF80FFFFF;
       *((_DWORD *)v6 + 3) = unmappedPages.m_image;
       streamedPartCount = v21->streamedPartCount;
       *(_DWORD *)v6 |= 0x400000u;
-      *((_DWORD *)v6 + 1) = v70 | ((streamedPartCount & 7) << 20);
+      *((_DWORD *)v6 + 1) = v65 | ((streamedPartCount & 7) << 20);
       if ( v28 )
       {
-        if ( *((_DWORD *)v6 + 2) == v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2855, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetRead != node->vAddrOffsetWrite)", (const char *)&queryFormat, "node->vAddrOffsetRead != node->vAddrOffsetWrite") )
+        if ( *((_DWORD *)v6 + 2) == v64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2855, ASSERT_TYPE_ASSERT, "(node->vAddrOffsetRead != node->vAddrOffsetWrite)", (const char *)&queryFormat, "node->vAddrOffsetRead != node->vAddrOffsetWrite") )
           __debugbreak();
         StreamDefragRegion<1>::OnDefragMoveDone(&v26->mMoveableRegion);
         StreamDefragRegion<1>::OnDefragCopyDone(&v26->mMoveableRegion);
       }
       else
       {
-        if ( v92 )
+        if ( v86 )
         {
-          StreamDefrag::InsertCommand<0>(this, _R14);
+          StreamDefrag::InsertCommand<0>(this, v39);
         }
         else
         {
-          StreamDefragRegion<1>::OnUnmapOldAddress(&v26->mMoveableRegion, _R14, 0);
-          _RAX = Stream_Logger_MakeItem(&unmappedPages, v6);
-          v73 = *((unsigned int *)v6 + 2);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rbp+57h+b], xmm0
-          }
-          v75 = StrmOffsetToAddress((StreamMemPool)m_image, v73);
-          Stream_Logger_OnVAddrOffsetReadChanged("StreamDefrag::ResolveMap", dataa, (const Stream_Logger_Item *)b, v75, v95);
+          StreamDefragRegion<1>::OnUnmapOldAddress(&v26->mMoveableRegion, v39, 0);
+          v67 = Stream_Logger_MakeItem(&unmappedPages, v6);
+          v68 = *((unsigned int *)v6 + 2);
+          *(Stream_Logger_Item *)b = *v67;
+          v69 = StrmOffsetToAddress((StreamMemPool)m_image, v68);
+          Stream_Logger_OnVAddrOffsetReadChanged("StreamDefrag::ResolveMap", dataa, (const Stream_Logger_Item *)b, v69, v89);
           *((_DWORD *)v6 + 2) = *((_DWORD *)v6 + 3);
-          RStackThreadSafe<StreamDefragCommand>::Push(&this->mDefragPool, _R14);
+          RStackThreadSafe<StreamDefragCommand>::Push(&this->mDefragPool, v39);
           *(_DWORD *)v6 &= ~0x400000u;
         }
         Sys_UnlockWrite(&this->mDefragLockCriticalSection);
       }
       StreamDefragRegion<1>::PushBack(&v26->mMoveableRegion, v6);
     }
-    v76 = 32 - __lzcnt((*(_DWORD *)v6 >> 23) & 0xF);
-    if ( v76 > ((*((_DWORD *)v6 + 1) >> 20) & 7u) )
+    v70 = 32 - __lzcnt((*(_DWORD *)v6 >> 23) & 0xF);
+    if ( v70 > ((*((_DWORD *)v6 + 1) >> 20) & 7u) )
     {
-      LODWORD(v91) = (*((_DWORD *)v6 + 1) >> 20) & 7;
-      LODWORD(v90) = v76;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2864, ASSERT_TYPE_ASSERT, "( GetHighestSetPartCount( node->mappedParts ) ) <= ( node->vaReservedPartCount )", "%s <= %s\n\t%u, %u", "GetHighestSetPartCount( node->mappedParts )", "node->vaReservedPartCount", v90, v91) )
+      LODWORD(v85) = (*((_DWORD *)v6 + 1) >> 20) & 7;
+      LODWORD(v84) = v70;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2864, ASSERT_TYPE_ASSERT, "( GetHighestSetPartCount( node->mappedParts ) ) <= ( node->vaReservedPartCount )", "%s <= %s\n\t%u, %u", "GetHighestSetPartCount( node->mappedParts )", "node->vaReservedPartCount", v84, v85) )
         __debugbreak();
     }
-    v77 = StrmOffsetToAddress((StreamMemPool)m_image, *((unsigned int *)v6 + 3));
+    v71 = StrmOffsetToAddress((StreamMemPool)m_image, *((unsigned int *)v6 + 3));
     v3 = streamMap;
   }
-  v78 = v77;
-  if ( !v77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2880, ASSERT_TYPE_ASSERT, "(addressWrite != nullptr)", (const char *)&queryFormat, "addressWrite != nullptr") )
+  v72 = v71;
+  if ( !v71 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2880, ASSERT_TYPE_ASSERT, "(addressWrite != nullptr)", (const char *)&queryFormat, "addressWrite != nullptr") )
     __debugbreak();
   mapOffset = v3->mapOffset;
   mapSize = v3->mapSize;
-  v81 = &v78[mapOffset];
-  v82 = (char *)this + 256 * (_QWORD)m_image;
-  v83 = &v81[mapSize];
+  v75 = &v72[mapOffset];
+  v76 = (char *)this + 256 * (_QWORD)m_image;
+  v77 = &v75[mapSize];
   if ( (*(_DWORD *)v6 & 0x200000) != 0 )
   {
-    StreamDefragRegion<1>::OnCommit((StreamDefragRegion<1> *)(v82 + 3297288), v81, v83);
-    StreamDefragRegion<1>::Validate((StreamDefragRegion<1> *)(v82 + 3297288));
+    StreamDefragRegion<1>::OnCommit((StreamDefragRegion<1> *)(v76 + 3297288), v75, v77);
+    StreamDefragRegion<1>::Validate((StreamDefragRegion<1> *)(v76 + 3297288));
   }
   else
   {
-    StreamDefragRegion<0>::AssertValidAddressRange((StreamDefragRegion<0> *)(v82 + 3297416), v81, v83);
-    v84 = truncate_cast<unsigned __int64,__int64>(mapSize) + *((_QWORD *)v82 + 412187);
-    v85 = *((_QWORD *)v82 + 412185);
-    *((_QWORD *)v82 + 412187) = v84;
-    if ( v84 > v85 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2108, ASSERT_TYPE_ASSERT, "( mVaSizeCommitted ) <= ( mVaSizeUsed )", "%s <= %s\n\t%zu, %zu", "mVaSizeCommitted", "mVaSizeUsed", v84, v85) )
+    StreamDefragRegion<0>::AssertValidAddressRange((StreamDefragRegion<0> *)(v76 + 3297416), v75, v77);
+    v78 = truncate_cast<unsigned __int64,__int64>(mapSize) + *((_QWORD *)v76 + 412187);
+    v79 = *((_QWORD *)v76 + 412185);
+    *((_QWORD *)v76 + 412187) = v78;
+    if ( v78 > v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2108, ASSERT_TYPE_ASSERT, "( mVaSizeCommitted ) <= ( mVaSizeUsed )", "%s <= %s\n\t%zu, %zu", "mVaSizeCommitted", "mVaSizeUsed", v78, v79) )
       __debugbreak();
-    StreamDefragRegion<0>::Validate((StreamDefragRegion<0> *)(v82 + 3297416));
+    StreamDefragRegion<0>::Validate((StreamDefragRegion<0> *)(v76 + 3297416));
   }
-  return v78;
+  return v72;
 }
 
 /*
@@ -8228,14 +8085,14 @@ unsigned __int8 *StreamDefrag::ResolveNewAddr(StreamDefrag *this, const GfxBackE
   unsigned __int64 v18; 
   int v19; 
   int v20; 
-  unsigned int v23; 
+  unsigned int v21; 
+  const unsigned __int8 *v22; 
+  unsigned __int64 v23; 
   const unsigned __int8 *v24; 
-  unsigned __int64 v25; 
-  const unsigned __int8 *v28; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
 
@@ -8246,8 +8103,8 @@ unsigned __int8 *StreamDefrag::ResolveNewAddr(StreamDefrag *this, const GfxBackE
     __debugbreak();
   if ( __popcnt((*(_DWORD *)node >> 23) & 0xF) != 1 )
   {
-    LODWORD(v30) = (*(_DWORD *)node >> 23) & 0xF;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2978, ASSERT_TYPE_ASSERT, "( ( CountBitsGeneric( node->mappedParts ) == 1 ) )", "( node->mappedParts ) = %u", v30) )
+    LODWORD(v26) = (*(_DWORD *)node >> 23) & 0xF;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 2978, ASSERT_TYPE_ASSERT, "( ( CountBitsGeneric( node->mappedParts ) == 1 ) )", "( node->mappedParts ) = %u", v26) )
       __debugbreak();
   }
   v6 = *((_DWORD *)node + 1);
@@ -8282,9 +8139,9 @@ unsigned __int8 *StreamDefrag::ResolveNewAddr(StreamDefrag *this, const GfxBackE
       __debugbreak();
     if ( v9 > 0x10000 )
     {
-      LODWORD(v33) = 0x10000;
-      LODWORD(v32) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3015, ASSERT_TYPE_ASSERT, "( alignment ) <= ( MAX_DEFRAG_ALIGNMENT )", "%s <= %s\n\t%u, %u", "alignment", "MAX_DEFRAG_ALIGNMENT", v32, v33) )
+      LODWORD(v29) = 0x10000;
+      LODWORD(v28) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3015, ASSERT_TYPE_ASSERT, "( alignment ) <= ( MAX_DEFRAG_ALIGNMENT )", "%s <= %s\n\t%u, %u", "alignment", "MAX_DEFRAG_ALIGNMENT", v28, v29) )
         goto LABEL_14;
     }
   }
@@ -8298,9 +8155,9 @@ LABEL_23:
   v15 = (unsigned int)ItemMemPool;
   if ( (unsigned int)ItemMemPool >= COUNT )
   {
-    LODWORD(v31) = 2;
-    LODWORD(v30) = ItemMemPool;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3018, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( StreamMemPool::COUNT )", "pool doesn't index StreamMemPool::COUNT\n\t%i not in [0, %i)", v30, v31) )
+    LODWORD(v27) = 2;
+    LODWORD(v26) = ItemMemPool;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3018, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( StreamMemPool::COUNT )", "pool doesn't index StreamMemPool::COUNT\n\t%i not in [0, %i)", v26, v27) )
       __debugbreak();
   }
   v16 = &this->mAddressSpaces[v15];
@@ -8326,32 +8183,22 @@ LABEL_23:
     *((_DWORD *)node + 2) = v19;
     if ( v20 != v16->mMoveableRegion.mPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1690, ASSERT_TYPE_ASSERT, "(pool == mPool)", (const char *)&queryFormat, "pool == mPool") )
       __debugbreak();
-    _RAX = Stream_Logger_MakeItem(&result, node);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+98h+item.___u0], xmm0
-    }
-    v23 = truncate_cast<unsigned int,unsigned __int64>(totalSize);
-    v24 = StrmOffsetToAddress((StreamMemPool)v20, *((unsigned int *)node + 2));
-    Stream_Logger_OnAddressAssigned("StreamDefragRegion<1>::AssignAndFixup", data, &item, v24, v23);
+    item = *Stream_Logger_MakeItem(&result, node);
+    v21 = truncate_cast<unsigned int,unsigned __int64>(totalSize);
+    v22 = StrmOffsetToAddress((StreamMemPool)v20, *((unsigned int *)node + 2));
+    Stream_Logger_OnAddressAssigned("StreamDefragRegion<1>::AssignAndFixup", data, &item, v22, v21);
     StreamDefragRegion<1>::PushBack(&v16->mMoveableRegion, node);
     Node_PtrFixup(data, node, 1);
-    v25 = *((unsigned int *)node + 2);
+    v23 = *((unsigned int *)node + 2);
   }
   else
   {
-    v25 = StreamDefragRegion<0>::AssignAndFixup(&v16->mFixedRegion, data, node, totalSize, 0x10000ui64);
+    v23 = StreamDefragRegion<0>::AssignAndFixup(&v16->mFixedRegion, data, node, totalSize, 0x10000ui64);
   }
-  _RAX = Stream_Logger_MakeItem(&result, node);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+98h+item.___u0], xmm0
-  }
-  v28 = StrmOffsetToAddress((StreamMemPool)v15, v25);
-  Stream_Logger_OnVirtualAddressReserved("StreamDefrag::ResolveNewAddr", data, &item, v28, totalSize);
-  return StrmOffsetToAddress((StreamMemPool)v15, v25);
+  item = *Stream_Logger_MakeItem(&result, node);
+  v24 = StrmOffsetToAddress((StreamMemPool)v15, v23);
+  Stream_Logger_OnVirtualAddressReserved("StreamDefrag::ResolveNewAddr", data, &item, v24, totalSize);
+  return StrmOffsetToAddress((StreamMemPool)v15, v23);
 }
 
 /*
@@ -8719,17 +8566,18 @@ unsigned __int8 *Stream_AddressSpace_LockFrontendAddr(streamer_handle_t handle, 
   const unsigned __int8 *v11; 
   bool v12; 
   const StreamDefragAllocNode *v13; 
-  __int64 v17; 
+  Stream_Logger_Item v14; 
+  __int64 v16; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v19; 
+  ScopedCriticalSection v18; 
   Stream_Logger_Item result; 
 
   if ( !handle.data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5557, ASSERT_TYPE_ASSERT, "(handle.data != 0)", (const char *)&queryFormat, "handle.data != 0") )
     __debugbreak();
   if ( part >= 4 )
   {
-    LODWORD(v17) = part;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5560, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( MAX_PART_COUNT )", "part doesn't index MAX_PART_COUNT\n\t%i not in [0, %i)", v17, 4) )
+    LODWORD(v16) = part;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5560, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( MAX_PART_COUNT )", "part doesn't index MAX_PART_COUNT\n\t%i not in [0, %i)", v16, 4) )
       __debugbreak();
   }
   v4 = handle.data >= (unsigned __int64)s_streamDefrag && handle.data < (unsigned __int64)s_streamDefrag->mAddressSpaces;
@@ -8738,14 +8586,14 @@ unsigned __int8 *Stream_AddressSpace_LockFrontendAddr(streamer_handle_t handle, 
     data = NULL;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5563, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v19, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v18, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   v6 = data[1];
   if ( (v6 & 3) == 0 )
   {
     if ( ((unsigned __int8)(1i64 << part) & ((unsigned __int64)v6 >> 27) & 0xF) == 0 )
       goto LABEL_26;
-    LODWORD(v17) = (v6 >> 27) & 0xF;
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5570, ASSERT_TYPE_ASSERT, "( ( ( node->vAddrOffsetWriteLockParts & ( 1ull << part ) ) == 0 ) )", "( node->vAddrOffsetWriteLockParts ) = %u", v17);
+    LODWORD(v16) = (v6 >> 27) & 0xF;
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5570, ASSERT_TYPE_ASSERT, "( ( ( node->vAddrOffsetWriteLockParts & ( 1ull << part ) ) == 0 ) )", "( node->vAddrOffsetWriteLockParts ) = %u", v16);
     goto LABEL_24;
   }
   if ( part && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5574, ASSERT_TYPE_ASSERT, "(part == 0)", (const char *)&queryFormat, "part == 0") )
@@ -8769,18 +8617,17 @@ LABEL_26:
     v13 = NULL;
   if ( v13 )
   {
-    _RAX = Stream_Logger_MakeItem(&result, v13);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
+    v14 = *Stream_Logger_MakeItem(&result, v13);
   }
   else
   {
     *(_QWORD *)&item.m_type = 3i64;
     item.m_image = (const GfxImage *)handle.data;
-    __asm { vmovups xmm0, xmmword ptr [rsp+98h+item.___u0] }
+    v14 = item;
   }
-  __asm { vmovdqa xmmword ptr [rsp+98h+item.___u0], xmm0 }
+  item = v14;
   Stream_Logger_OnVAddrOffsetWriteLocked("Stream_AddressSpace_LockFrontendAddr", NULL, &item, v11, v10);
-  ScopedCriticalSection::~ScopedCriticalSection(&v19);
+  ScopedCriticalSection::~ScopedCriticalSection(&v18);
   return (unsigned __int8 *)v11;
 }
 
@@ -8922,18 +8769,19 @@ void Stream_AddressSpace_UnlockFrontendAddr(streamer_handle_t handle, unsigned i
   int v9; 
   bool v10; 
   const StreamDefragAllocNode *v11; 
-  const unsigned __int8 *v14; 
-  __int64 v15; 
+  Stream_Logger_Item v12; 
+  const unsigned __int8 *v13; 
+  __int64 v14; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v17; 
+  ScopedCriticalSection v16; 
   Stream_Logger_Item result; 
 
   if ( !handle.data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5596, ASSERT_TYPE_ASSERT, "(handle.data != 0)", (const char *)&queryFormat, "handle.data != 0") )
     __debugbreak();
   if ( part >= 4 )
   {
-    LODWORD(v15) = part;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5599, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( MAX_PART_COUNT )", "part doesn't index MAX_PART_COUNT\n\t%i not in [0, %i)", v15, 4) )
+    LODWORD(v14) = part;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5599, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( MAX_PART_COUNT )", "part doesn't index MAX_PART_COUNT\n\t%i not in [0, %i)", v14, 4) )
       __debugbreak();
   }
   v4 = handle.data >= (unsigned __int64)s_streamDefrag && handle.data < (unsigned __int64)s_streamDefrag->mAddressSpaces;
@@ -8942,14 +8790,14 @@ void Stream_AddressSpace_UnlockFrontendAddr(streamer_handle_t handle, unsigned i
     data = NULL;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5602, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v17, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v16, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   v6 = data[1];
   if ( (v6 & 3) == 0 )
   {
     if ( ((unsigned __int8)(1i64 << part) & ((unsigned __int64)v6 >> 27) & 0xF) != 0 )
       goto LABEL_26;
-    LODWORD(v15) = (v6 >> 27) & 0xF;
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5609, ASSERT_TYPE_ASSERT, "( ( ( node->vAddrOffsetWriteLockParts & ( 1ull << part ) ) != 0 ) )", "( node->vAddrOffsetWriteLockParts ) = %u", v15);
+    LODWORD(v14) = (v6 >> 27) & 0xF;
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5609, ASSERT_TYPE_ASSERT, "( ( ( node->vAddrOffsetWriteLockParts & ( 1ull << part ) ) != 0 ) )", "( node->vAddrOffsetWriteLockParts ) = %u", v14);
     goto LABEL_24;
   }
   if ( part && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 5613, ASSERT_TYPE_ASSERT, "(part == 0)", (const char *)&queryFormat, "part == 0") )
@@ -8971,19 +8819,18 @@ LABEL_26:
     v11 = NULL;
   if ( v11 )
   {
-    _RAX = Stream_Logger_MakeItem(&result, v11);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
+    v12 = *Stream_Logger_MakeItem(&result, v11);
   }
   else
   {
     *(_QWORD *)&item.m_type = 3i64;
     item.m_image = (const GfxImage *)handle.data;
-    __asm { vmovups xmm0, xmmword ptr [rsp+98h+item.___u0] }
+    v12 = item;
   }
-  __asm { vmovdqa xmmword ptr [rsp+98h+item.___u0], xmm0 }
-  v14 = StrmOffsetToAddress((StreamMemPool)((*data >> 19) & 1), (unsigned int)data[3]);
-  Stream_Logger_OnVAddrOffsetWriteUnlocked("Stream_AddressSpace_UnlockFrontendAddr", NULL, &item, v14, v9);
-  ScopedCriticalSection::~ScopedCriticalSection(&v17);
+  item = v12;
+  v13 = StrmOffsetToAddress((StreamMemPool)((*data >> 19) & 1), (unsigned int)data[3]);
+  Stream_Logger_OnVAddrOffsetWriteUnlocked("Stream_AddressSpace_UnlockFrontendAddr", NULL, &item, v13, v9);
+  ScopedCriticalSection::~ScopedCriticalSection(&v16);
 }
 
 /*
@@ -9174,16 +9021,11 @@ Stream_Defrag_FrameBegin
 */
 void Stream_Defrag_FrameBegin(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  _RBX = gfxContext;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Defrag_FrameBegin");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups [rsp+58h+var_28], xmm0
-  }
-  StreamDefrag::DefragFrameBegin(s_streamDefrag, &v5, data);
+  v4 = *gfxContext;
+  StreamDefrag::DefragFrameBegin(s_streamDefrag, &v4, data);
   Sys_ProfEndNamedEvent();
 }
 
@@ -9221,16 +9063,11 @@ Stream_Defrag_FrameFlush
 */
 void Stream_Defrag_FrameFlush(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  _RBX = gfxContext;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Defrag_FrameFlush");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups [rsp+58h+var_28], xmm0
-  }
-  StreamDefrag::DefragFrameFlush(s_streamDefrag, &v5, data);
+  v4 = *gfxContext;
+  StreamDefrag::DefragFrameFlush(s_streamDefrag, &v4, data);
   Sys_ProfEndNamedEvent();
 }
 
@@ -9311,16 +9148,11 @@ Stream_Defrag_IssueCopies
 */
 void Stream_Defrag_IssueCopies(GfxCmdBufContext *gfxContext)
 {
-  GfxCmdBufContext v3; 
+  GfxCmdBufContext v2; 
 
-  _RBX = gfxContext;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Defrag_IssueCopies");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups [rsp+58h+var_28], xmm0
-  }
-  StreamDefrag::IssueCopies(s_streamDefrag, &v3);
+  v2 = *gfxContext;
+  StreamDefrag::IssueCopies(s_streamDefrag, &v2);
   Sys_ProfEndNamedEvent();
 }
 
@@ -9378,17 +9210,19 @@ size_t Stream_Defrag_MemCpy(MemCpyType memCpyType, ComputeCmdBufState *cmdBufSta
   size_t size; 
   const unsigned __int8 *v25; 
   unsigned __int8 *dst; 
+  Stream_Logger_Item *v27; 
   const GfxBackEndData *data; 
-  const GfxBackEndData *v33; 
-  unsigned __int8 *v36; 
+  Stream_Logger_Item *v29; 
+  const GfxBackEndData *v30; 
+  unsigned __int8 *v32; 
   Stream_Logger_Item item; 
-  Stream_Logger_Item v38; 
-  Stream_Logger_Item v39; 
+  Stream_Logger_Item v34; 
+  Stream_Logger_Item v35; 
   Stream_Logger_Item result; 
-  Stream_Logger_Item v41; 
-  Stream_Logger_Item v42; 
-  __int64 v45; 
-  unsigned __int8 *v46; 
+  Stream_Logger_Item v37; 
+  Stream_Logger_Item v38; 
+  __int64 v41; 
+  unsigned __int8 *v42; 
 
   v4 = cmdBufState;
   if ( !command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1002, ASSERT_TYPE_ASSERT, "(command)", (const char *)&queryFormat, "command") )
@@ -9398,14 +9232,14 @@ size_t Stream_Defrag_MemCpy(MemCpyType memCpyType, ComputeCmdBufState *cmdBufSta
   if ( *((_DWORD *)command + 12) != *((_DWORD *)command->node + 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1004, ASSERT_TYPE_ASSERT, "( command->vAddrOffsetWrite ) == ( command->node->vAddrOffsetWrite )", "%s == %s\n\t%u, %u", "command->vAddrOffsetWrite", "command->node->vAddrOffsetWrite", *((_DWORD *)command + 12), *((_DWORD *)command->node + 3)) )
     __debugbreak();
   v5 = 0i64;
-  v45 = 0i64;
+  v41 = 0i64;
   v6 = (*(_DWORD *)command->node >> 19) & 1;
   v7 = StrmOffsetToAddress((StreamMemPool)v6, *((unsigned int *)command->node + 2));
-  v46 = v7;
+  v42 = v7;
   v8 = StrmOffsetToAddress((StreamMemPool)v6, *((unsigned int *)command->node + 3));
   v9 = DCONST_DVARINT_stream_defragValidationMode;
   v10 = v8;
-  v36 = v8;
+  v32 = v8;
   if ( !DCONST_DVARINT_stream_defragValidationMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragValidationMode") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v9);
@@ -9419,13 +9253,13 @@ size_t Stream_Defrag_MemCpy(MemCpyType memCpyType, ComputeCmdBufState *cmdBufSta
       if ( ((unsigned __int8)v13 & (unsigned __int8)HIBYTE(*((_DWORD *)command + 13)) & 0xF) != 0 )
       {
         v14 = *partOffset;
-        v15 = &v46[v14];
+        v15 = &v42[v14];
         v16 = &v10[v14];
         v17 = *(partOffset - 4);
-        Mem_Paged_CheckUnaliasedCommittedSubPageMemory(&v46[v14], &v46[v14 + v17]);
+        Mem_Paged_CheckUnaliasedCommittedSubPageMemory(&v42[v14], &v42[v14 + v17]);
         Mem_Paged_CheckUnaliasedCommittedSubPageMemory(v16, &v16[v17]);
         ValidateDataHashAgainstXPakEntry(v15, (unsigned int)v17, v12, command->node);
-        v10 = v36;
+        v10 = v32;
       }
       ++v12;
       v13 = __ROL8__(v13, 1);
@@ -9434,7 +9268,7 @@ size_t Stream_Defrag_MemCpy(MemCpyType memCpyType, ComputeCmdBufState *cmdBufSta
     while ( v12 < 4 );
     v4 = cmdBufState;
     v5 = 0i64;
-    v7 = v46;
+    v7 = v42;
   }
   v18 = 3;
   v19 = 3i64;
@@ -9460,31 +9294,22 @@ size_t Stream_Defrag_MemCpy(MemCpyType memCpyType, ComputeCmdBufState *cmdBufSta
       v23 = command->partOffset[v18];
       size = (unsigned int)(command->partSize[v19 + 1] + command->partOffset[v19 + 1] - v23);
       v25 = &v7[v23];
-      dst = &v36[v23];
+      dst = &v32[v23];
       if ( memCpyType )
       {
         if ( memCpyType == CPUMemCpy )
         {
-          _RAX = Stream_Logger_MakeItem(&v41, command->node);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+108h+var_A0.___u0], xmm0
-          }
-          Stream_Logger_OnMemcpy("Stream_Defrag_MemCpy", NULL, &v38, v22, v25, dst, size);
+          v34 = *Stream_Logger_MakeItem(&v37, command->node);
+          Stream_Logger_OnMemcpy("Stream_Defrag_MemCpy", NULL, &v34, v22, v25, dst, size);
           memcpy_0(dst, v25, size);
         }
         else if ( memCpyType == DMAMemCpyAsync )
         {
           if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1076, ASSERT_TYPE_ASSERT, "(cmdBufState != nullptr)", (const char *)&queryFormat, "cmdBufState != nullptr") )
             __debugbreak();
-          _RAX = Stream_Logger_MakeItem(&result, command->node);
+          v27 = Stream_Logger_MakeItem(&result, command->node);
           data = v4->data;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+108h+item.___u0], xmm0
-          }
+          item = *v27;
           Stream_Logger_OnMemcpy("Stream_Defrag_MemCpy", data, &item, v22, v25, dst, size);
           ((void (__fastcall *)(ID3D12XboxDmaCommandList *, unsigned __int8 *, const unsigned __int8 *, size_t, _DWORD))g_dx.defragDMACommandList->m_pFunction[7].AddRef)(g_dx.defragDMACommandList, dst, v25, size, 0);
         }
@@ -9497,21 +9322,17 @@ size_t Stream_Defrag_MemCpy(MemCpyType memCpyType, ComputeCmdBufState *cmdBufSta
       {
         if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1065, ASSERT_TYPE_ASSERT, "(cmdBufState != nullptr)", (const char *)&queryFormat, "cmdBufState != nullptr") )
           __debugbreak();
-        _RAX = Stream_Logger_MakeItem(&v42, command->node);
-        v33 = v4->data;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+108h+var_90.___u0], xmm0
-        }
-        Stream_Logger_OnMemcpy("Stream_Defrag_MemCpy", v33, &v39, v22, v25, dst, size);
+        v29 = Stream_Logger_MakeItem(&v38, command->node);
+        v30 = v4->data;
+        v35 = *v29;
+        Stream_Logger_OnMemcpy("Stream_Defrag_MemCpy", v30, &v35, v22, v25, dst, size);
         R_MemCpy(v4, dst, v25, size, 0);
       }
-      v5 = size + v45;
-      v45 += size;
+      v5 = size + v41;
+      v41 += size;
       v18 = v21;
     }
-    v7 = v46;
+    v7 = v42;
     --v19;
     --v18;
   }
@@ -9619,12 +9440,7 @@ void Stream_Defrag_UnlockHandle(streamer_handle_t handle)
     if ( (*(_DWORD *)(data + 16) & 0x380000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4220, ASSERT_TYPE_ASSERT, "(node->defragLockCount > 0)", (const char *)&queryFormat, "node->defragLockCount > 0") )
       __debugbreak();
     *(_DWORD *)(data + 16) ^= (*(_DWORD *)(data + 16) ^ (((*(_DWORD *)(data + 16) >> 19) - 1) << 19)) & 0x380000;
-    _RAX = Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)data);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+58h+item.___u0], xmm0
-    }
+    item = *Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)data);
     Stream_Logger_OnDefragUnlock("StreamDefrag::UnlockDefrag", NULL, &item);
     Sys_UnlockWrite(p_mDefragLockCountCriticalSection);
   }
@@ -9657,37 +9473,27 @@ Stream_Logger_Item *Stream_Logger_MakeItem(Stream_Logger_Item *result, const str
   const GfxImage *data; 
   bool v4; 
   const StreamDefragAllocNode *v5; 
-  Stream_Logger_Item *v8; 
+  Stream_Logger_Item *v6; 
   Stream_Logger_Item resulta; 
 
   data = (const GfxImage *)handle->data;
-  _RBX = result;
   v4 = handle->data >= (unsigned __int64)s_streamDefrag && data < (const GfxImage *)s_streamDefrag->mAddressSpaces;
   v5 = (const StreamDefragAllocNode *)handle->data;
   if ( !v4 )
     v5 = NULL;
   if ( v5 )
   {
-    _RAX = Stream_Logger_MakeItem(&resulta, v5);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-    }
-    return _RBX;
+    *result = *Stream_Logger_MakeItem(&resulta, v5);
+    return result;
   }
   else
   {
     resulta.m_image = data;
     *(_QWORD *)&resulta.m_type = 3i64;
-    v8 = result;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+38h+result.___u0]
-      vmovups xmmword ptr [rbx], xmm0
-    }
+    v6 = result;
+    *result = resulta;
   }
-  return v8;
+  return v6;
 }
 
 /*
@@ -9738,28 +9544,21 @@ StrmAddressToOffset
 __int64 StrmAddressToOffset(StreamMemPool pool, unsigned __int64 address)
 {
   __int64 v2; 
-  unsigned __int64 v8; 
-  __int128 v10; 
+  unsigned __int64 v4; 
+  StreamAddressSpace v6; 
 
   v2 = (unsigned int)pool;
   if ( !address && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 399, ASSERT_TYPE_ASSERT, "(address)", (const char *)&queryFormat, "address") )
     __debugbreak();
   if ( !s_streamAddressManager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 400, ASSERT_TYPE_ASSERT, "(s_streamAddressManager)", (const char *)&queryFormat, "s_streamAddressManager") )
     __debugbreak();
-  _RAX = s_streamAddressManager;
-  _RCX = 2 * v2;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+rcx*8]
-    vmovq   rax, xmm0
-  }
-  v8 = address - _RAX;
-  __asm { vmovups [rsp+48h+var_18], xmm0 }
-  if ( (v8 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 404, ASSERT_TYPE_ASSERT, "(IsAligned( byteOffset, MEM_SUB_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( byteOffset, MEM_SUB_PAGE_SIZE )", (_QWORD)v10) )
+  v4 = address - s_streamAddressManager->m_addressSpaces[v2].base;
+  v6 = s_streamAddressManager->m_addressSpaces[v2];
+  if ( (v4 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 404, ASSERT_TYPE_ASSERT, "(IsAligned( byteOffset, MEM_SUB_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( byteOffset, MEM_SUB_PAGE_SIZE )", v6.base) )
     __debugbreak();
-  if ( v8 >= *((_QWORD *)&v10 + 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 405, ASSERT_TYPE_ASSERT, "(byteOffset < addressSpace.size)", (const char *)&queryFormat, "byteOffset < addressSpace.size") )
+  if ( v4 >= v6.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 405, ASSERT_TYPE_ASSERT, "(byteOffset < addressSpace.size)", (const char *)&queryFormat, "byteOffset < addressSpace.size") )
     __debugbreak();
-  return (v8 >> 4) + 1;
+  return (v4 >> 4) + 1;
 }
 
 /*
@@ -9770,26 +9569,19 @@ StrmOffsetToAddress
 unsigned __int8 *StrmOffsetToAddress(StreamMemPool pool, unsigned __int64 offset)
 {
   __int64 v3; 
-  unsigned __int64 v7; 
-  __int128 v10; 
+  unsigned __int64 v5; 
 
   v3 = (unsigned int)pool;
   if ( !s_streamAddressManager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 415, ASSERT_TYPE_ASSERT, "(s_streamAddressManager)", (const char *)&queryFormat, "s_streamAddressManager") )
     __debugbreak();
   if ( !offset )
     return 0i64;
-  _RAX = s_streamAddressManager;
-  _RCX = 2 * v3;
-  v7 = 16 * offset - 16;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+rcx*8]
-    vpextrq rax, xmm0, 1
-    vmovups [rsp+48h+var_18], xmm0
-  }
-  if ( v7 >= _RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 426, ASSERT_TYPE_ASSERT, "(byteOffset < addressSpace.size)", (const char *)&queryFormat, "byteOffset < addressSpace.size") )
+  v5 = 16 * offset - 16;
+  _XMM0 = s_streamAddressManager->m_addressSpaces[v3];
+  __asm { vpextrq rax, xmm0, 1 }
+  if ( v5 >= _RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 426, ASSERT_TYPE_ASSERT, "(byteOffset < addressSpace.size)", (const char *)&queryFormat, "byteOffset < addressSpace.size") )
     __debugbreak();
-  return (unsigned __int8 *)(v7 + v10);
+  return (unsigned __int8 *)(v5 + _XMM0.base);
 }
 
 /*
@@ -9912,12 +9704,7 @@ void StreamDefrag::UnlockDefrag(StreamDefrag *this, streamer_handle_t handle)
     if ( (*(_DWORD *)(data + 16) & 0x380000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 4220, ASSERT_TYPE_ASSERT, "(node->defragLockCount > 0)", (const char *)&queryFormat, "node->defragLockCount > 0") )
       __debugbreak();
     *(_DWORD *)(data + 16) ^= (*(_DWORD *)(data + 16) ^ (((*(_DWORD *)(data + 16) >> 19) - 1) << 19)) & 0x380000;
-    _RAX = Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)data);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+58h+item.___u0], xmm0
-    }
+    item = *Stream_Logger_MakeItem(&result, (const StreamDefragAllocNode *)data);
     Stream_Logger_OnDefragUnlock("StreamDefrag::UnlockDefrag", NULL, &item);
     Sys_UnlockWrite(p_mDefragLockCountCriticalSection);
   }
@@ -10101,39 +9888,39 @@ void StreamDefragRegion<1>::Validate(StreamDefragRegion<1> *this)
   RSList<StreamDefragCommand> *mDefragSteps; 
   __int64 mPool; 
   StreamDefragAllocNode *mHead; 
-  const RList<StreamNextTailAddress> *v49; 
-  StreamDefragCommand *v54; 
+  const RList<StreamNextTailAddress> *v48; 
+  StreamDefragCommand *v49; 
   StreamDefragCommand *i; 
   unsigned __int64 vAddrCurTail; 
-  __int64 v60; 
-  __int64 v61; 
-  unsigned __int8 *v62; 
-  const void *v63; 
-  size_t v64; 
-  size_t v65; 
-  size_t v66; 
-  size_t v67; 
-  StreamDefragRegion<1>::Validate::__l119::<lambda_ebbaa0612b2f899a5f9f25ea3ab4b595> v68; 
-  unsigned __int64 v69; 
-  unsigned __int64 v70; 
-  unsigned __int64 v71; 
-  unsigned __int64 v72; 
-  __int64 v73; 
-  __int64 v74; 
-  __m256i v75; 
-  __int128 v76; 
-  __int64 *v77; 
-  __m256i v78; 
-  __m256i v79; 
-  __m256i v80; 
-  __m256i v81; 
-  __int64 *v82; 
-  StreamDefragRegion<1>::Validate::__l119::<lambda_0fba517b77b28b546883b3ce6830a70c> v83; 
-  StreamDefragRegion<1>::Validate::__l2::<lambda_774ae07cf16581913133048ae4824bcb> v84; 
-  char v85; 
-  char v86; 
-  int v87; 
-  int v88; 
+  __int64 v52; 
+  __int64 v53; 
+  unsigned __int8 *v54; 
+  const void *v55; 
+  size_t v56; 
+  size_t v57; 
+  size_t v58; 
+  size_t v59; 
+  StreamDefragRegion<1>::Validate::__l119::<lambda_ebbaa0612b2f899a5f9f25ea3ab4b595> v60; 
+  unsigned __int64 v61; 
+  unsigned __int64 v62; 
+  unsigned __int64 v63; 
+  unsigned __int64 v64; 
+  __int64 v65; 
+  __int64 v66; 
+  __m256i v67; 
+  __int128 v68; 
+  __int64 *v69; 
+  __m256i v70; 
+  __m256i v71; 
+  __m256i v72; 
+  __m256i v73; 
+  __int64 *v74; 
+  StreamDefragRegion<1>::Validate::__l119::<lambda_0fba517b77b28b546883b3ce6830a70c> v75; 
+  StreamDefragRegion<1>::Validate::__l2::<lambda_774ae07cf16581913133048ae4824bcb> v76; 
+  char v77; 
+  char v78; 
+  int v79; 
+  int v80; 
 
   Stream_Defrag_CheckLocks();
   if ( !this->mDefragSteps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1361, ASSERT_TYPE_ASSERT, "(mDefragSteps)", (const char *)&queryFormat, "mDefragSteps") )
@@ -10246,9 +10033,9 @@ void StreamDefragRegion<1>::Validate(StreamDefragRegion<1> *this)
   }
   if ( this->mDefragInFlightNodeCount < this->mDefragInFlightCopyCount )
   {
-    LODWORD(v61) = this->mDefragInFlightCopyCount;
-    LODWORD(v60) = this->mDefragInFlightNodeCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1369, ASSERT_TYPE_ASSERT, "( mDefragInFlightNodeCount ) >= ( mDefragInFlightCopyCount )", "%s >= %s\n\t%u, %u", "mDefragInFlightNodeCount", "mDefragInFlightCopyCount", v60, v61) )
+    LODWORD(v53) = this->mDefragInFlightCopyCount;
+    LODWORD(v52) = this->mDefragInFlightNodeCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1369, ASSERT_TYPE_ASSERT, "( mDefragInFlightNodeCount ) >= ( mDefragInFlightCopyCount )", "%s >= %s\n\t%u, %u", "mDefragInFlightNodeCount", "mDefragInFlightCopyCount", v52, v53) )
       __debugbreak();
   }
   if ( this->mAllocations.mTail )
@@ -10257,23 +10044,23 @@ void StreamDefragRegion<1>::Validate(StreamDefragRegion<1> *this)
       __debugbreak();
     v34 = (const void *)this->mAddrTail;
     v35 = (const void *)this->mAddrBase;
-    v63 = v34;
+    v55 = v34;
     if ( v34 < v35 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1379, ASSERT_TYPE_ASSERT, "( addrTail ) >= ( reinterpret_cast<byte*>( mAddrBase ) )", "%s >= %s\n\t%p, %p", "addrTail", "reinterpret_cast<byte*>( mAddrBase )", v34, v35) )
         __debugbreak();
-      v34 = v63;
+      v34 = v55;
     }
     if ( (unsigned __int64)v34 >= this->mAddrEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1380, ASSERT_TYPE_ASSERT, "( addrTail ) < ( reinterpret_cast<byte*>( mAddrEnd ) )", "%s < %s\n\t%p, %p", "addrTail", "reinterpret_cast<byte*>( mAddrEnd )", v34, (const void *)this->mAddrEnd) )
       __debugbreak();
     mAddrHead = (unsigned __int8 *)this->mAddrHead;
     v37 = (unsigned __int8 *)this->mAddrBase;
-    v62 = mAddrHead;
+    v54 = mAddrHead;
     if ( mAddrHead < v37 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1383, ASSERT_TYPE_ASSERT, "( addrHead ) >= ( reinterpret_cast<byte*>( mAddrBase ) )", "%s >= %s\n\t%p, %p", "addrHead", "reinterpret_cast<byte*>( mAddrBase )", mAddrHead, v37) )
         __debugbreak();
-      mAddrHead = v62;
+      mAddrHead = v54;
     }
     if ( (unsigned __int64)mAddrHead > this->mAddrEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1384, ASSERT_TYPE_ASSERT, "( addrHead ) <= ( reinterpret_cast<byte*>( mAddrEnd ) )", "%s <= %s\n\t%p, %p", "addrHead", "reinterpret_cast<byte*>( mAddrEnd )", mAddrHead, (const void *)this->mAddrEnd) )
       __debugbreak();
@@ -10282,11 +10069,11 @@ void StreamDefragRegion<1>::Validate(StreamDefragRegion<1> *this)
     if ( (v39 & 0x7800000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1387, ASSERT_TYPE_ASSERT, "( backNode->vAddrEndAlignLog2 ) == ( 0 )", "%s == %s\n\t%llu, %llu", "backNode->vAddrEndAlignLog2", "0", (v39 >> 23) & 0xF, 0i64) )
       __debugbreak();
     v40 = StrmOffsetToAddress(this->mPool, *((unsigned int *)mTail + 3));
-    if ( v62 != &v40[(unsigned int)NodeGetMaxVaSize(mTail)] )
+    if ( v54 != &v40[(unsigned int)NodeGetMaxVaSize(mTail)] )
     {
       v41 = StrmOffsetToAddress(this->mPool, *((unsigned int *)mTail + 3));
       MaxVaSize = NodeGetMaxVaSize(mTail);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1388, ASSERT_TYPE_ASSERT, "( addrHead ) == ( StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode ) )", "%s == %s\n\t%p, %p", "addrHead", "StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode )", v62, &v41[MaxVaSize]) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1388, ASSERT_TYPE_ASSERT, "( addrHead ) == ( StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode ) )", "%s == %s\n\t%p, %p", "addrHead", "StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode )", v54, &v41[MaxVaSize]) )
         __debugbreak();
     }
     v43 = DCONST_DVARBOOL_stream_defragValidateRegions;
@@ -10299,66 +10086,57 @@ void StreamDefragRegion<1>::Validate(StreamDefragRegion<1> *this)
       mDefragSteps = (RSList<StreamDefragCommand> *)this->mDefragSteps;
       mPool = (unsigned int)this->mPool;
       mHead = this->mAllocations.mHead;
-      v70 = this->mAddrBase;
-      v72 = v70;
-      v78.m256i_i64[1] = (__int64)&v87;
-      v78.m256i_i64[3] = (__int64)&v66;
-      v79.m256i_i64[0] = (__int64)&v64;
-      v79.m256i_i64[1] = (__int64)&v67;
-      v79.m256i_i64[2] = (__int64)&v65;
-      v79.m256i_i64[3] = (__int64)&v69;
-      __asm { vmovups ymm1, [rbp+190h+var_178] }
-      v80.m256i_i64[0] = (__int64)&v70;
-      v80.m256i_i64[1] = (__int64)&v71;
-      v80.m256i_i64[2] = (__int64)&v72;
-      v80.m256i_i64[3] = (__int64)&v63;
-      v81.m256i_i64[0] = (__int64)&v85;
-      v81.m256i_i64[1] = (__int64)&v62;
-      v81.m256i_i64[2] = (__int64)&v86;
-      v81.m256i_i64[3] = (__int64)&v88;
-      v49 = &(*this->mNextTailAddresses)[mPool];
-      v78.m256i_i64[0] = (__int64)this;
-      v78.m256i_i64[2] = (__int64)mDefragSteps;
-      v82 = &v73;
-      v64 = 0i64;
-      v67 = 0i64;
+      v62 = this->mAddrBase;
+      v64 = v62;
+      v70.m256i_i64[1] = (__int64)&v79;
+      v70.m256i_i64[3] = (__int64)&v58;
+      v71.m256i_i64[0] = (__int64)&v56;
+      v71.m256i_i64[1] = (__int64)&v59;
+      v71.m256i_i64[2] = (__int64)&v57;
+      v71.m256i_i64[3] = (__int64)&v61;
+      v72.m256i_i64[0] = (__int64)&v62;
+      v72.m256i_i64[1] = (__int64)&v63;
+      v72.m256i_i64[2] = (__int64)&v64;
+      v72.m256i_i64[3] = (__int64)&v55;
+      v73.m256i_i64[0] = (__int64)&v77;
+      v73.m256i_i64[1] = (__int64)&v54;
+      v73.m256i_i64[2] = (__int64)&v78;
+      v73.m256i_i64[3] = (__int64)&v80;
+      v48 = &(*this->mNextTailAddresses)[mPool];
+      v70.m256i_i64[0] = (__int64)this;
+      v70.m256i_i64[2] = (__int64)mDefragSteps;
+      v74 = &v65;
+      v56 = 0i64;
+      v59 = 0i64;
+      v57 = 0i64;
+      v58 = 0i64;
       v65 = 0i64;
-      v66 = 0i64;
-      v73 = 0i64;
-      v69 = mAddrEnd;
-      v71 = mAddrEnd;
-      v88 = 0;
-      v87 = 0;
-      v85 = 0;
-      v86 = 0;
-      __asm
+      v61 = mAddrEnd;
+      v63 = mAddrEnd;
+      v80 = 0;
+      v79 = 0;
+      v77 = 0;
+      v78 = 0;
+      *(__m256i *)&v76.__this = v70;
+      *(__m256i *)&v76.vaSizeUsed = v71;
+      *(__m256i *)&v76.highestAddrRead = v72;
+      v76.prevAddrWriteBegin = (const unsigned __int8 **)&v65;
+      for ( *(__m256i *)&v76.foundTailNode = v73; mHead; mHead += (__int64)(int)(*(_DWORD *)mHead << 13) >> 13 )
       {
-        vmovups ymm0, [rbp+190h+var_198]
-        vmovups ymmword ptr [rbp+190h+var_D0.__this], ymm0
-        vmovups ymm0, [rbp+190h+var_158]
-        vmovups ymmword ptr [rbp+190h+var_D0.vaSizeUsed], ymm1
-        vmovups ymm1, [rbp+190h+var_138]
-        vmovups ymmword ptr [rbp+190h+var_D0.highestAddrRead], ymm0
-        vmovsd  xmm0, [rbp+190h+var_118]
-        vmovsd  [rbp+190h+var_D0.prevAddrWriteBegin], xmm0
-        vmovups ymmword ptr [rbp+190h+var_D0.foundTailNode], ymm1
-      }
-      for ( ; mHead; mHead += (__int64)(int)(*(_DWORD *)mHead << 13) >> 13 )
-      {
-        if ( !_lambda_774ae07cf16581913133048ae4824bcb_::operator()(&v84, mHead) )
+        if ( !_lambda_774ae07cf16581913133048ae4824bcb_::operator()(&v76, mHead) )
           break;
         if ( !(*(_DWORD *)mHead << 13) )
           break;
       }
-      v54 = mDefragSteps->mHead;
-      v68.__this = this;
-      for ( v68.vaSizeCommitted = &v65; v54; v54 += (__int64)(int)(*((_DWORD *)v54 + 13) << 21) >> 21 )
+      v49 = mDefragSteps->mHead;
+      v60.__this = this;
+      for ( v60.vaSizeCommitted = &v57; v49; v49 += (__int64)(int)(*((_DWORD *)v49 + 13) << 21) >> 21 )
       {
-        if ( (*(_DWORD *)v54->node & 0x200000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1577, ASSERT_TYPE_ASSERT, "(command->node->moveable)", (const char *)&queryFormat, "command->node->moveable") )
+        if ( (*(_DWORD *)v49->node & 0x200000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1577, ASSERT_TYPE_ASSERT, "(command->node->moveable)", (const char *)&queryFormat, "command->node->moveable") )
           __debugbreak();
-        if ( ((*(_DWORD *)v54->node >> 19) & 1) == this->mPool )
-          _lambda_ebbaa0612b2f899a5f9f25ea3ab4b595_::operator()(&v68, v54);
-        if ( !(*((_DWORD *)v54 + 13) << 21) )
+        if ( ((*(_DWORD *)v49->node >> 19) & 1) == this->mPool )
+          _lambda_ebbaa0612b2f899a5f9f25ea3ab4b595_::operator()(&v60, v49);
+        if ( !(*((_DWORD *)v49 + 13) << 21) )
           break;
       }
       for ( i = mDefragSteps[1].mHead; i; i += (__int64)(int)(*((_DWORD *)i + 13) << 21) >> 21 )
@@ -10366,52 +10144,46 @@ void StreamDefragRegion<1>::Validate(StreamDefragRegion<1> *this)
         if ( (*(_DWORD *)i->node & 0x200000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1588, ASSERT_TYPE_ASSERT, "(command->node->moveable)", (const char *)&queryFormat, "command->node->moveable") )
           __debugbreak();
         if ( ((*(_DWORD *)i->node >> 19) & 1) == this->mPool )
-          _lambda_ebbaa0612b2f899a5f9f25ea3ab4b595_::operator()(&v68, i);
+          _lambda_ebbaa0612b2f899a5f9f25ea3ab4b595_::operator()(&v60, i);
         if ( !(*((_DWORD *)i + 13) << 21) )
           break;
       }
-      v75.m256i_i64[0] = (__int64)this;
-      v75.m256i_i64[1] = (__int64)&v66;
-      v74 = 0i64;
-      v75.m256i_i64[2] = (__int64)&v64;
-      v75.m256i_i64[3] = (__int64)&v68;
-      __asm { vmovups ymm0, [rbp+190h+var_1D0] }
-      *(_QWORD *)&v76 = &v63;
-      *((_QWORD *)&v76 + 1) = &v85;
-      __asm { vmovups xmm1, [rbp+190h+var_1B0] }
-      v77 = &v74;
-      __asm
+      v67.m256i_i64[0] = (__int64)this;
+      v67.m256i_i64[1] = (__int64)&v58;
+      v66 = 0i64;
+      v67.m256i_i64[2] = (__int64)&v56;
+      v67.m256i_i64[3] = (__int64)&v60;
+      *(_QWORD *)&v68 = &v55;
+      *((_QWORD *)&v68 + 1) = &v77;
+      v69 = &v66;
+      *(__m256i *)&v75.__this = v67;
+      v75.prevAddrUnmapBegin = (const unsigned __int8 **)&v66;
+      *(_OWORD *)&v75.addrTail = v68;
+      RSList<StreamDefragCommand>::IterateFrontToBack<_lambda_0fba517b77b28b546883b3ce6830a70c_>(mDefragSteps + 2, &v75);
+      if ( v79 != this->mDefragInFlightNodeCount )
       {
-        vmovups [rbp+190h+var_110], ymm0
-        vmovsd  xmm0, [rbp+190h+var_1A0]
-        vmovsd  [rbp+190h+var_E0], xmm0
-        vmovups [rbp+190h+var_F0], xmm1
-      }
-      RSList<StreamDefragCommand>::IterateFrontToBack<_lambda_0fba517b77b28b546883b3ce6830a70c_>(mDefragSteps + 2, &v83);
-      if ( v87 != this->mDefragInFlightNodeCount )
-      {
-        LODWORD(v61) = this->mDefragInFlightNodeCount;
-        LODWORD(v60) = v87;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1649, ASSERT_TYPE_ASSERT, "( defragInFlightNodeCount ) == ( mDefragInFlightNodeCount )", "%s == %s\n\t%u, %u", "defragInFlightNodeCount", "mDefragInFlightNodeCount", v60, v61) )
+        LODWORD(v53) = this->mDefragInFlightNodeCount;
+        LODWORD(v52) = v79;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1649, ASSERT_TYPE_ASSERT, "( defragInFlightNodeCount ) == ( mDefragInFlightNodeCount )", "%s == %s\n\t%u, %u", "defragInFlightNodeCount", "mDefragInFlightNodeCount", v52, v53) )
           __debugbreak();
       }
-      if ( !v86 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1650, ASSERT_TYPE_ASSERT, "(foundHeadNode)", (const char *)&queryFormat, "foundHeadNode") )
+      if ( !v78 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1650, ASSERT_TYPE_ASSERT, "(foundHeadNode)", (const char *)&queryFormat, "foundHeadNode") )
         __debugbreak();
-      if ( !v85 )
+      if ( !v77 )
       {
-        if ( !v49->mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1658, ASSERT_TYPE_ASSERT, "(!nextTailAddresses.Empty())", (const char *)&queryFormat, "!nextTailAddresses.Empty()") )
+        if ( !v48->mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1658, ASSERT_TYPE_ASSERT, "(!nextTailAddresses.Empty())", (const char *)&queryFormat, "!nextTailAddresses.Empty()") )
           __debugbreak();
-        vAddrCurTail = v49->mHead->vAddrCurTail;
+        vAddrCurTail = v48->mHead->vAddrCurTail;
         if ( vAddrCurTail != this->mAddrTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1659, ASSERT_TYPE_ASSERT, "( nextTailAddresses.PeekFront()->vAddrCurTail ) == ( mAddrTail )", "%s == %s\n\t%llx, %llx", "nextTailAddresses.PeekFront()->vAddrCurTail", "mAddrTail", vAddrCurTail, this->mAddrTail) )
           __debugbreak();
       }
-      if ( v64 != this->mVaSizeUsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1670, ASSERT_TYPE_ASSERT, "( vaSizeUsed ) == ( mVaSizeUsed )", "%s == %s\n\t%zu, %zu", "vaSizeUsed", "mVaSizeUsed", v64, this->mVaSizeUsed) )
+      if ( v56 != this->mVaSizeUsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1670, ASSERT_TYPE_ASSERT, "( vaSizeUsed ) == ( mVaSizeUsed )", "%s == %s\n\t%zu, %zu", "vaSizeUsed", "mVaSizeUsed", v56, this->mVaSizeUsed) )
         __debugbreak();
-      if ( v65 != this->mVaSizeCommitted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1671, ASSERT_TYPE_ASSERT, "( vaSizeCommitted ) == ( mVaSizeCommitted )", "%s == %s\n\t%zu, %zu", "vaSizeCommitted", "mVaSizeCommitted", v65, this->mVaSizeCommitted) )
+      if ( v57 != this->mVaSizeCommitted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1671, ASSERT_TYPE_ASSERT, "( vaSizeCommitted ) == ( mVaSizeCommitted )", "%s == %s\n\t%zu, %zu", "vaSizeCommitted", "mVaSizeCommitted", v57, this->mVaSizeCommitted) )
         __debugbreak();
-      if ( v66 != this->mVaSizeAlignWaste && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1672, ASSERT_TYPE_ASSERT, "( vaSizeAlignWaste ) == ( mVaSizeAlignWaste )", "%s == %s\n\t%zu, %zu", "vaSizeAlignWaste", "mVaSizeAlignWaste", v66, this->mVaSizeAlignWaste) )
+      if ( v58 != this->mVaSizeAlignWaste && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1672, ASSERT_TYPE_ASSERT, "( vaSizeAlignWaste ) == ( mVaSizeAlignWaste )", "%s == %s\n\t%zu, %zu", "vaSizeAlignWaste", "mVaSizeAlignWaste", v58, this->mVaSizeAlignWaste) )
         __debugbreak();
-      if ( v67 != this->mVaSizeFullyUnmapped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1673, ASSERT_TYPE_ASSERT, "( vaSizeFullyUnmapped ) == ( mVaSizeFullyUnmapped )", "%s == %s\n\t%zu, %zu", "vaSizeFullyUnmapped", "mVaSizeFullyUnmapped", v67, this->mVaSizeFullyUnmapped) )
+      if ( v59 != this->mVaSizeFullyUnmapped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1673, ASSERT_TYPE_ASSERT, "( vaSizeFullyUnmapped ) == ( mVaSizeFullyUnmapped )", "%s == %s\n\t%zu, %zu", "vaSizeFullyUnmapped", "mVaSizeFullyUnmapped", v59, this->mVaSizeFullyUnmapped) )
         __debugbreak();
     }
   }
@@ -10463,34 +10235,34 @@ void StreamDefragRegion<0>::Validate(StreamDefragRegion<0> *this)
   unsigned __int8 *mAddrEnd; 
   __int64 mPool; 
   StreamDefragAllocNode *mHead; 
-  const RList<StreamNextTailAddress> *v42; 
+  const RList<StreamNextTailAddress> *v41; 
   unsigned __int64 vAddrCurTail; 
+  unsigned __int8 *v43; 
+  unsigned __int8 *v44; 
+  __int64 v45; 
+  __int64 v46; 
+  unsigned __int8 *v47; 
   unsigned __int8 *v48; 
   unsigned __int8 *v49; 
-  __int64 v50; 
-  __int64 v51; 
+  unsigned __int8 *v50; 
+  unsigned __int8 *v51; 
   unsigned __int8 *v52; 
   unsigned __int8 *v53; 
-  unsigned __int8 *v54; 
-  unsigned __int8 *v55; 
-  unsigned __int8 *v56; 
-  unsigned __int8 *v57; 
-  unsigned __int8 *v58; 
-  size_t v59; 
-  size_t v60; 
-  size_t v61; 
-  size_t v62; 
-  __int64 v63; 
-  __m256i v64; 
-  __m256i v65; 
-  __m256i v66; 
-  __m256i v67; 
-  __int64 *v68; 
-  StreamDefragRegion<0>::Validate::__l2::<lambda_5c08103b09a3a3c72d5b0d17833e193f> v69; 
-  char v70; 
-  char v71; 
-  int v72; 
-  int v73; 
+  size_t v54; 
+  size_t v55; 
+  size_t v56; 
+  size_t v57; 
+  __int64 v58; 
+  __m256i v59; 
+  __m256i v60; 
+  __m256i v61; 
+  __m256i v62; 
+  __int64 *v63; 
+  StreamDefragRegion<0>::Validate::__l2::<lambda_5c08103b09a3a3c72d5b0d17833e193f> v64; 
+  char v65; 
+  char v66; 
+  int v67; 
+  int v68; 
 
   Stream_Defrag_CheckLocks();
   if ( !this->mDefragSteps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1361, ASSERT_TYPE_ASSERT, "(mDefragSteps)", (const char *)&queryFormat, "mDefragSteps") )
@@ -10595,9 +10367,9 @@ void StreamDefragRegion<0>::Validate(StreamDefragRegion<0> *this)
   }
   if ( this->mDefragInFlightNodeCount < this->mDefragInFlightCopyCount )
   {
-    LODWORD(v51) = this->mDefragInFlightCopyCount;
-    LODWORD(v50) = this->mDefragInFlightNodeCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1369, ASSERT_TYPE_ASSERT, "( mDefragInFlightNodeCount ) >= ( mDefragInFlightCopyCount )", "%s >= %s\n\t%u, %u", "mDefragInFlightNodeCount", "mDefragInFlightCopyCount", v50, v51) )
+    LODWORD(v46) = this->mDefragInFlightCopyCount;
+    LODWORD(v45) = this->mDefragInFlightNodeCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1369, ASSERT_TYPE_ASSERT, "( mDefragInFlightNodeCount ) >= ( mDefragInFlightCopyCount )", "%s >= %s\n\t%u, %u", "mDefragInFlightNodeCount", "mDefragInFlightCopyCount", v45, v46) )
       __debugbreak();
   }
   if ( this->mAllocations.mTail )
@@ -10606,23 +10378,23 @@ void StreamDefragRegion<0>::Validate(StreamDefragRegion<0> *this)
       __debugbreak();
     mAddrTail = (unsigned __int8 *)this->mAddrTail;
     mAddrBase = (unsigned __int8 *)this->mAddrBase;
-    v54 = mAddrTail;
+    v49 = mAddrTail;
     if ( mAddrTail < mAddrBase )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1379, ASSERT_TYPE_ASSERT, "( addrTail ) >= ( reinterpret_cast<byte*>( mAddrBase ) )", "%s >= %s\n\t%p, %p", "addrTail", "reinterpret_cast<byte*>( mAddrBase )", mAddrTail, mAddrBase) )
         __debugbreak();
-      mAddrTail = v54;
+      mAddrTail = v49;
     }
     if ( (unsigned __int64)mAddrTail >= this->mAddrEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1380, ASSERT_TYPE_ASSERT, "( addrTail ) < ( reinterpret_cast<byte*>( mAddrEnd ) )", "%s < %s\n\t%p, %p", "addrTail", "reinterpret_cast<byte*>( mAddrEnd )", mAddrTail, (const void *)this->mAddrEnd) )
       __debugbreak();
     mAddrHead = (unsigned __int8 *)this->mAddrHead;
     v29 = (unsigned __int8 *)this->mAddrBase;
-    v53 = mAddrHead;
+    v48 = mAddrHead;
     if ( mAddrHead < v29 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1383, ASSERT_TYPE_ASSERT, "( addrHead ) >= ( reinterpret_cast<byte*>( mAddrBase ) )", "%s >= %s\n\t%p, %p", "addrHead", "reinterpret_cast<byte*>( mAddrBase )", mAddrHead, v29) )
         __debugbreak();
-      mAddrHead = v53;
+      mAddrHead = v48;
     }
     if ( (unsigned __int64)mAddrHead > this->mAddrEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1384, ASSERT_TYPE_ASSERT, "( addrHead ) <= ( reinterpret_cast<byte*>( mAddrEnd ) )", "%s <= %s\n\t%p, %p", "addrHead", "reinterpret_cast<byte*>( mAddrEnd )", mAddrHead, (const void *)this->mAddrEnd) )
       __debugbreak();
@@ -10633,16 +10405,16 @@ void StreamDefragRegion<0>::Validate(StreamDefragRegion<0> *this)
       __debugbreak();
     v33 = StrmOffsetToAddress(this->mPool, *((unsigned int *)mTail + 3));
     MaxVaSize = (unsigned int)NodeGetMaxVaSize(mTail);
-    v35 = v53;
-    if ( v53 != &v33[MaxVaSize] )
+    v35 = v48;
+    if ( v48 != &v33[MaxVaSize] )
     {
       v36 = StrmOffsetToAddress(this->mPool, *((unsigned int *)mTail + 3));
-      v52 = &v36[(unsigned int)NodeGetMaxVaSize(mTail)];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1388, ASSERT_TYPE_ASSERT, "( addrHead ) == ( StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode ) )", "%s == %s\n\t%p, %p", "addrHead", "StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode )", v53, v52) )
+      v47 = &v36[(unsigned int)NodeGetMaxVaSize(mTail)];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1388, ASSERT_TYPE_ASSERT, "( addrHead ) == ( StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode ) )", "%s == %s\n\t%p, %p", "addrHead", "StrmOffsetToAddress( mPool, backNode->vAddrOffsetWrite ) + NodeGetMaxVaSize( backNode )", v48, v47) )
         __debugbreak();
-      v35 = v53;
+      v35 = v48;
     }
-    if ( v54 > v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1392, ASSERT_TYPE_ASSERT, "( addrTail ) <= ( addrHead )", "%s <= %s\n\t%p, %p", "addrTail", "addrHead", v54, v35) )
+    if ( v49 > v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1392, ASSERT_TYPE_ASSERT, "( addrTail ) <= ( addrHead )", "%s <= %s\n\t%p, %p", "addrTail", "addrHead", v49, v35) )
       __debugbreak();
     v37 = DCONST_DVARBOOL_stream_defragValidateRegions;
     if ( !DCONST_DVARBOOL_stream_defragValidateRegions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragValidateRegions") )
@@ -10653,105 +10425,97 @@ void StreamDefragRegion<0>::Validate(StreamDefragRegion<0> *this)
       mAddrEnd = (unsigned __int8 *)this->mAddrEnd;
       mPool = (unsigned int)this->mPool;
       mHead = this->mAllocations.mHead;
-      v58 = (unsigned __int8 *)this->mAddrBase;
-      v57 = v58;
-      v64.m256i_i64[1] = (__int64)&v72;
-      v64.m256i_i64[2] = (__int64)this->mDefragSteps;
-      v64.m256i_i64[3] = (__int64)&v61;
-      v65.m256i_i64[0] = (__int64)&v59;
-      v65.m256i_i64[1] = (__int64)&v62;
-      v65.m256i_i64[2] = (__int64)&v60;
-      v65.m256i_i64[3] = (__int64)&v55;
-      __asm { vmovups ymm1, [rbp+100h+var_138] }
-      v66.m256i_i64[0] = (__int64)&v58;
-      v66.m256i_i64[1] = (__int64)&v56;
-      v66.m256i_i64[2] = (__int64)&v57;
-      v66.m256i_i64[3] = (__int64)&v54;
-      v67.m256i_i64[0] = (__int64)&v71;
-      v67.m256i_i64[1] = (__int64)&v53;
-      v67.m256i_i64[2] = (__int64)&v70;
-      v67.m256i_i64[3] = (__int64)&v73;
-      v42 = &(*this->mNextTailAddresses)[mPool];
-      v64.m256i_i64[0] = (__int64)this;
-      v68 = &v63;
-      v59 = 0i64;
-      v62 = 0i64;
-      v60 = 0i64;
-      v61 = 0i64;
-      v63 = 0i64;
-      v55 = mAddrEnd;
-      v56 = mAddrEnd;
-      v73 = 0;
-      v72 = 0;
-      v71 = 0;
-      v70 = 0;
-      __asm
-      {
-        vmovups ymm0, [rbp+100h+var_158]
-        vmovups ymmword ptr [rbp+100h+var_D0.__this], ymm0
-        vmovups ymm0, [rbp+100h+var_118]
-        vmovups ymmword ptr [rbp+100h+var_D0.vaSizeUsed], ymm1
-        vmovups ymm1, [rbp+100h+var_F8]
-        vmovups ymmword ptr [rbp+100h+var_D0.highestAddrRead], ymm0
-        vmovsd  xmm0, [rbp+100h+var_D8]
-        vmovsd  [rbp+100h+var_D0.prevAddrWriteBegin], xmm0
-        vmovups ymmword ptr [rbp+100h+var_D0.foundTailNode], ymm1
-      }
+      v53 = (unsigned __int8 *)this->mAddrBase;
+      v52 = v53;
+      v59.m256i_i64[1] = (__int64)&v67;
+      v59.m256i_i64[2] = (__int64)this->mDefragSteps;
+      v59.m256i_i64[3] = (__int64)&v56;
+      v60.m256i_i64[0] = (__int64)&v54;
+      v60.m256i_i64[1] = (__int64)&v57;
+      v60.m256i_i64[2] = (__int64)&v55;
+      v60.m256i_i64[3] = (__int64)&v50;
+      v61.m256i_i64[0] = (__int64)&v53;
+      v61.m256i_i64[1] = (__int64)&v51;
+      v61.m256i_i64[2] = (__int64)&v52;
+      v61.m256i_i64[3] = (__int64)&v49;
+      v62.m256i_i64[0] = (__int64)&v66;
+      v62.m256i_i64[1] = (__int64)&v48;
+      v62.m256i_i64[2] = (__int64)&v65;
+      v62.m256i_i64[3] = (__int64)&v68;
+      v41 = &(*this->mNextTailAddresses)[mPool];
+      v59.m256i_i64[0] = (__int64)this;
+      v63 = &v58;
+      v54 = 0i64;
+      v57 = 0i64;
+      v55 = 0i64;
+      v56 = 0i64;
+      v58 = 0i64;
+      v50 = mAddrEnd;
+      v51 = mAddrEnd;
+      v68 = 0;
+      v67 = 0;
+      v66 = 0;
+      v65 = 0;
+      *(__m256i *)&v64.__this = v59;
+      *(__m256i *)&v64.vaSizeUsed = v60;
+      *(__m256i *)&v64.highestAddrRead = v61;
+      v64.prevAddrWriteBegin = (const unsigned __int8 **)&v58;
+      *(__m256i *)&v64.foundTailNode = v62;
       if ( mHead )
       {
         do
         {
-          if ( !_lambda_5c08103b09a3a3c72d5b0d17833e193f_::operator()(&v69, mHead) )
+          if ( !_lambda_5c08103b09a3a3c72d5b0d17833e193f_::operator()(&v64, mHead) )
             break;
           if ( !(*(_DWORD *)mHead << 13) )
             break;
           mHead += (__int64)(int)(*(_DWORD *)mHead << 13) >> 13;
         }
         while ( mHead );
-        v31 = v72;
+        v31 = v67;
       }
       if ( v31 != this->mDefragInFlightNodeCount )
       {
-        LODWORD(v51) = this->mDefragInFlightNodeCount;
-        LODWORD(v50) = v31;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1649, ASSERT_TYPE_ASSERT, "( defragInFlightNodeCount ) == ( mDefragInFlightNodeCount )", "%s == %s\n\t%u, %u", "defragInFlightNodeCount", "mDefragInFlightNodeCount", v50, v51) )
+        LODWORD(v46) = this->mDefragInFlightNodeCount;
+        LODWORD(v45) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1649, ASSERT_TYPE_ASSERT, "( defragInFlightNodeCount ) == ( mDefragInFlightNodeCount )", "%s == %s\n\t%u, %u", "defragInFlightNodeCount", "mDefragInFlightNodeCount", v45, v46) )
           __debugbreak();
       }
-      if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1650, ASSERT_TYPE_ASSERT, "(foundHeadNode)", (const char *)&queryFormat, "foundHeadNode") )
+      if ( !v65 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1650, ASSERT_TYPE_ASSERT, "(foundHeadNode)", (const char *)&queryFormat, "foundHeadNode") )
         __debugbreak();
-      if ( !v71 )
+      if ( !v66 )
       {
-        if ( !v42->mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1658, ASSERT_TYPE_ASSERT, "(!nextTailAddresses.Empty())", (const char *)&queryFormat, "!nextTailAddresses.Empty()") )
+        if ( !v41->mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1658, ASSERT_TYPE_ASSERT, "(!nextTailAddresses.Empty())", (const char *)&queryFormat, "!nextTailAddresses.Empty()") )
           __debugbreak();
-        vAddrCurTail = v42->mHead->vAddrCurTail;
+        vAddrCurTail = v41->mHead->vAddrCurTail;
         if ( vAddrCurTail != this->mAddrTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1659, ASSERT_TYPE_ASSERT, "( nextTailAddresses.PeekFront()->vAddrCurTail ) == ( mAddrTail )", "%s == %s\n\t%llx, %llx", "nextTailAddresses.PeekFront()->vAddrCurTail", "mAddrTail", vAddrCurTail, this->mAddrTail) )
           __debugbreak();
       }
-      v48 = v54;
-      if ( v55 != v54 )
+      v43 = v49;
+      if ( v50 != v49 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1664, ASSERT_TYPE_ASSERT, "( lowestAddrRead ) == ( addrTail )", "%s == %s\n\t%p, %p", "lowestAddrRead", "addrTail", v55, v54) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1664, ASSERT_TYPE_ASSERT, "( lowestAddrRead ) == ( addrTail )", "%s == %s\n\t%p, %p", "lowestAddrRead", "addrTail", v50, v49) )
           __debugbreak();
-        v48 = v54;
+        v43 = v49;
       }
-      if ( v56 != v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1665, ASSERT_TYPE_ASSERT, "( lowestAddrWrite ) == ( addrTail )", "%s == %s\n\t%p, %p", "lowestAddrWrite", "addrTail", v56, v48) )
+      if ( v51 != v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1665, ASSERT_TYPE_ASSERT, "( lowestAddrWrite ) == ( addrTail )", "%s == %s\n\t%p, %p", "lowestAddrWrite", "addrTail", v51, v43) )
         __debugbreak();
-      v49 = v53;
-      if ( v57 != v53 )
+      v44 = v48;
+      if ( v52 != v48 )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1666, ASSERT_TYPE_ASSERT, "( highestAddrWrite ) == ( addrHead )", "%s == %s\n\t%p, %p", "highestAddrWrite", "addrHead", v57, v53) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1666, ASSERT_TYPE_ASSERT, "( highestAddrWrite ) == ( addrHead )", "%s == %s\n\t%p, %p", "highestAddrWrite", "addrHead", v52, v48) )
           __debugbreak();
-        v49 = v53;
+        v44 = v48;
       }
-      if ( v58 != v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1667, ASSERT_TYPE_ASSERT, "( highestAddrRead ) == ( addrHead )", "%s == %s\n\t%p, %p", "highestAddrRead", "addrHead", v58, v49) )
+      if ( v53 != v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1667, ASSERT_TYPE_ASSERT, "( highestAddrRead ) == ( addrHead )", "%s == %s\n\t%p, %p", "highestAddrRead", "addrHead", v53, v44) )
         __debugbreak();
-      if ( v59 != this->mVaSizeUsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1670, ASSERT_TYPE_ASSERT, "( vaSizeUsed ) == ( mVaSizeUsed )", "%s == %s\n\t%zu, %zu", "vaSizeUsed", "mVaSizeUsed", v59, this->mVaSizeUsed) )
+      if ( v54 != this->mVaSizeUsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1670, ASSERT_TYPE_ASSERT, "( vaSizeUsed ) == ( mVaSizeUsed )", "%s == %s\n\t%zu, %zu", "vaSizeUsed", "mVaSizeUsed", v54, this->mVaSizeUsed) )
         __debugbreak();
-      if ( v60 != this->mVaSizeCommitted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1671, ASSERT_TYPE_ASSERT, "( vaSizeCommitted ) == ( mVaSizeCommitted )", "%s == %s\n\t%zu, %zu", "vaSizeCommitted", "mVaSizeCommitted", v60, this->mVaSizeCommitted) )
+      if ( v55 != this->mVaSizeCommitted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1671, ASSERT_TYPE_ASSERT, "( vaSizeCommitted ) == ( mVaSizeCommitted )", "%s == %s\n\t%zu, %zu", "vaSizeCommitted", "mVaSizeCommitted", v55, this->mVaSizeCommitted) )
         __debugbreak();
-      if ( v61 != this->mVaSizeAlignWaste && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1672, ASSERT_TYPE_ASSERT, "( vaSizeAlignWaste ) == ( mVaSizeAlignWaste )", "%s == %s\n\t%zu, %zu", "vaSizeAlignWaste", "mVaSizeAlignWaste", v61, this->mVaSizeAlignWaste) )
+      if ( v56 != this->mVaSizeAlignWaste && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1672, ASSERT_TYPE_ASSERT, "( vaSizeAlignWaste ) == ( mVaSizeAlignWaste )", "%s == %s\n\t%zu, %zu", "vaSizeAlignWaste", "mVaSizeAlignWaste", v56, this->mVaSizeAlignWaste) )
         __debugbreak();
-      if ( v62 != this->mVaSizeFullyUnmapped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1673, ASSERT_TYPE_ASSERT, "( vaSizeFullyUnmapped ) == ( mVaSizeFullyUnmapped )", "%s == %s\n\t%zu, %zu", "vaSizeFullyUnmapped", "mVaSizeFullyUnmapped", v62, this->mVaSizeFullyUnmapped) )
+      if ( v57 != this->mVaSizeFullyUnmapped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 1673, ASSERT_TYPE_ASSERT, "( vaSizeFullyUnmapped ) == ( mVaSizeFullyUnmapped )", "%s == %s\n\t%zu, %zu", "vaSizeFullyUnmapped", "mVaSizeFullyUnmapped", v57, this->mVaSizeFullyUnmapped) )
         __debugbreak();
     }
   }
@@ -10857,29 +10621,22 @@ void StreamDefrag::ValidateDefragSteps(StreamDefrag *this)
   unsigned __int64 i; 
   unsigned int v3; 
   StreamDefragCommand *mHead; 
-  __int64 v7; 
-  __int64 v8; 
-  __int128 v9; 
-  int *v10; 
+  __int64 v5; 
+  __int64 v6; 
+  __int128 v7; 
   StreamDefragCommand command; 
-  unsigned int v12; 
-  int v13; 
+  unsigned int v9; 
+  int v10; 
 
   for ( i = 0i64; i < 3; ++i )
   {
-    v13 = i;
-    *((_QWORD *)&v9 + 1) = &v12;
+    v10 = i;
+    *((_QWORD *)&v7 + 1) = &v9;
     v3 = 0;
-    v12 = 0;
-    v10 = &v13;
-    __asm { vmovsd  xmm1, [rsp+0B8h+var_58] }
-    *(_QWORD *)&v9 = this;
-    __asm
-    {
-      vmovups xmm0, [rsp+0B8h+var_68]
-      vmovups xmmword ptr [rsp+0B8h+command.node], xmm0
-      vmovsd  qword ptr [rsp+0B8h+command.partSize+8], xmm1
-    }
+    v9 = 0;
+    *(_QWORD *)&v7 = this;
+    *(_OWORD *)&command.node = v7;
+    *(_QWORD *)&command.partSize[2] = &v10;
     mHead = this->mDefragSteps[(int)i].mHead;
     if ( mHead )
     {
@@ -10892,13 +10649,13 @@ void StreamDefrag::ValidateDefragSteps(StreamDefrag *this)
         mHead += (__int64)(int)(*((_DWORD *)mHead + 13) << 21) >> 21;
       }
       while ( mHead );
-      v3 = v12;
+      v3 = v9;
     }
     if ( v3 > this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1 )
     {
-      LODWORD(v8) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
-      LODWORD(v7) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3869, ASSERT_TYPE_ASSERT, "( prevUnmapFrame ) <= ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s <= %s\n\t%u, %u", "prevUnmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v7, v8) )
+      LODWORD(v6) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
+      LODWORD(v5) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3869, ASSERT_TYPE_ASSERT, "( prevUnmapFrame ) <= ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s <= %s\n\t%u, %u", "prevUnmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v5, v6) )
         __debugbreak();
     }
   }
@@ -10917,11 +10674,7 @@ void StreamDefrag::ValidateNextTailAddresses(StreamDefrag *this)
   const StreamDefragAllocNode *mHead; 
   unsigned int MaxVaSize; 
   __int64 VaSizeForParts; 
-  unsigned __int8 *v10; 
-  unsigned __int8 *v11; 
-  __int128 v12; 
-  StreamDefrag::AddressSpace *v13; 
-  __int64 v16; 
+  unsigned __int8 *v7; 
 
   mNextTailAddresses = (StreamDefrag::ValidateNextTailAddresses::__l7::<lambda_7b0187d96472505d06c2a83b210df050> *)this->mNextTailAddresses;
   v2 = 0i64;
@@ -10930,17 +10683,6 @@ void StreamDefrag::ValidateNextTailAddresses(StreamDefrag *this)
   {
     if ( mNextTailAddresses->prev )
     {
-      *(_QWORD *)&v12 = this;
-      *((_QWORD *)&v12 + 1) = &v16;
-      __asm { vmovups xmm0, [rsp+0B8h+var_68] }
-      v13 = mAddressSpaces;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+0B8h+var_58]
-        vmovups [rsp+0B8h+var_48], xmm0
-      }
-      v16 = 0i64;
-      __asm { vmovsd  [rsp+0B8h+var_38], xmm1 }
       RList_StreamNextTailAddress_::IterateFrontToBack__lambda_7b0187d96472505d06c2a83b210df050___(mNextTailAddresses);
       mHead = mAddressSpaces->mMoveableRegion.mAllocations.mHead;
       if ( mAddressSpaces->mMoveableRegion.mAllocations.mHead )
@@ -10949,9 +10691,8 @@ void StreamDefrag::ValidateNextTailAddresses(StreamDefrag *this)
         {
           MaxVaSize = NodeGetMaxVaSize(mAddressSpaces->mMoveableRegion.mAllocations.mHead);
           VaSizeForParts = NodeGetVaSizeForParts(mHead, (*((_DWORD *)mHead + 1) >> 20) & 7);
-          v10 = &StrmOffsetToAddress((StreamMemPool)v2, *((unsigned int *)mHead + 2))[MaxVaSize - VaSizeForParts];
-          v11 = *(unsigned __int8 **)(v16 + 8);
-          if ( v11 != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3913, ASSERT_TYPE_ASSERT, "( prev->vAddrNextTail ) == ( firstNonDefraggingReadAddr )", "%s == %s\n\t%llx, %llx", "prev->vAddrNextTail", "firstNonDefraggingReadAddr", v11, v10) )
+          v7 = &StrmOffsetToAddress((StreamMemPool)v2, *((unsigned int *)mHead + 2))[MaxVaSize - VaSizeForParts];
+          if ( (unsigned __int8 *)MEMORY[8] != v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3913, ASSERT_TYPE_ASSERT, "( prev->vAddrNextTail ) == ( firstNonDefraggingReadAddr )", "%s == %s\n\t%llx, %llx", "prev->vAddrNextTail", "firstNonDefraggingReadAddr", MEMORY[8], v7) )
             __debugbreak();
         }
       }
@@ -10990,37 +10731,30 @@ void StreamDefrag::ValidateRegions(StreamDefrag *this)
   StreamDefrag::AddressSpace *mAddressSpaces; 
   RStackPool<StreamNextTailAddress,36> *p_mNextTailAddressPool; 
   StreamDefrag::AddressSpace *j; 
-  const dvar_t *v10; 
-  const dvar_t *v11; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
   unsigned __int8 *mAddrBase; 
   unsigned __int8 *mAddrEnd; 
   unsigned __int8 *mAddrTail; 
   unsigned __int8 *mAddrHead; 
-  unsigned __int8 *v16; 
-  unsigned __int8 *v17; 
-  __int64 v18; 
-  __int64 v19; 
-  __int128 v20; 
-  int *v21; 
+  unsigned __int8 *v14; 
+  unsigned __int8 *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int128 v18; 
   StreamDefragCommand command; 
-  unsigned int v23; 
-  int v24; 
+  unsigned int v20; 
+  int v21; 
 
   for ( i = 0i64; i < 3; ++i )
   {
-    v24 = i;
-    *((_QWORD *)&v20 + 1) = &v23;
+    v21 = i;
+    *((_QWORD *)&v18 + 1) = &v20;
     v3 = 0;
-    v23 = 0;
-    v21 = &v24;
-    __asm { vmovsd  xmm1, [rsp+0C8h+var_68] }
-    *(_QWORD *)&v20 = this;
-    __asm
-    {
-      vmovups xmm0, [rsp+0C8h+var_78]
-      vmovups xmmword ptr [rsp+0C8h+command.node], xmm0
-      vmovsd  qword ptr [rsp+0C8h+command.partSize+8], xmm1
-    }
+    v20 = 0;
+    *(_QWORD *)&v18 = this;
+    *(_OWORD *)&command.node = v18;
+    *(_QWORD *)&command.partSize[2] = &v21;
     mHead = this->mDefragSteps[(int)i].mHead;
     if ( mHead )
     {
@@ -11033,13 +10767,13 @@ void StreamDefrag::ValidateRegions(StreamDefrag *this)
         mHead += (__int64)(int)(*((_DWORD *)mHead + 13) << 21) >> 21;
       }
       while ( mHead );
-      v3 = v23;
+      v3 = v20;
     }
     if ( v3 > this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1 )
     {
-      LODWORD(v19) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
-      LODWORD(v18) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3869, ASSERT_TYPE_ASSERT, "( prevUnmapFrame ) <= ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s <= %s\n\t%u, %u", "prevUnmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v18, v19) )
+      LODWORD(v17) = this->mDefragUnmapFrameDepth + this->mDefragFrameIndex + 1;
+      LODWORD(v16) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_defrag.cpp", 3869, ASSERT_TYPE_ASSERT, "( prevUnmapFrame ) <= ( mDefragFrameIndex + mDefragUnmapFrameDepth + 1 )", "%s <= %s\n\t%u, %u", "prevUnmapFrame", "mDefragFrameIndex + mDefragUnmapFrameDepth + 1", v16, v17) )
         __debugbreak();
     }
   }
@@ -11051,45 +10785,45 @@ void StreamDefrag::ValidateRegions(StreamDefrag *this)
     StreamDefragRegion<1>::Validate(&j->mMoveableRegion);
   }
   StreamDefrag::ValidateNextTailAddresses(this);
-  v10 = DCONST_DVARBOOL_stream_defragValidateRegionEmptyVAReserve;
+  v8 = DCONST_DVARBOOL_stream_defragValidateRegionEmptyVAReserve;
   if ( !DCONST_DVARBOOL_stream_defragValidateRegionEmptyVAReserve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragValidateRegionEmptyVAReserve") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled )
   {
     StreamDefrag::FlushAsyncVA(this, Block, MapsAndUnmaps, 0);
     for ( ; mAddressSpaces != (StreamDefrag::AddressSpace *)p_mNextTailAddressPool; ++mAddressSpaces )
     {
-      v11 = DCONST_DVARBOOL_stream_defragValidateRegionEmptyVAReserve;
+      v9 = DCONST_DVARBOOL_stream_defragValidateRegionEmptyVAReserve;
       mAddrBase = (unsigned __int8 *)mAddressSpaces->mMoveableRegion.mAddrBase;
       mAddrEnd = (unsigned __int8 *)mAddressSpaces->mMoveableRegion.mAddrEnd;
       mAddrTail = (unsigned __int8 *)mAddressSpaces->mMoveableRegion.mAddrTail;
       mAddrHead = (unsigned __int8 *)mAddressSpaces->mMoveableRegion.mAddrHead;
       if ( !DCONST_DVARBOOL_stream_defragValidateRegionEmptyVAReserve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_defragValidateRegionEmptyVAReserve") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      if ( v11->current.enabled )
+      Dvar_CheckFrontendServerThread(v9);
+      if ( v9->current.enabled )
       {
         if ( mAddrHead == mAddrTail )
         {
-          v16 = mAddrEnd;
-          v17 = mAddrBase;
+          v14 = mAddrEnd;
+          v15 = mAddrBase;
         }
         else
         {
           if ( mAddrHead <= mAddrTail )
           {
-            v16 = mAddrTail;
+            v14 = mAddrTail;
           }
           else
           {
             if ( mAddrTail != mAddrBase )
               Mem_Paged_CheckUnaliasedDecommittedSubPageMemory(mAddrBase, mAddrTail);
-            v16 = mAddrEnd;
+            v14 = mAddrEnd;
           }
-          v17 = mAddrHead;
+          v15 = mAddrHead;
         }
-        Mem_Paged_CheckUnaliasedDecommittedSubPageMemory(v17, v16);
+        Mem_Paged_CheckUnaliasedDecommittedSubPageMemory(v15, v14);
       }
     }
   }

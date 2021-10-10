@@ -91,23 +91,15 @@ bdVoteRank::getLikeDislikeRatioFromRating
 */
 char bdVoteRank::getLikeDislikeRatioFromRating(bdVoteRank *this, const bdVoteRankStatsInfo *rating, unsigned int *likes, unsigned int *dislikes)
 {
-  unsigned int v13; 
+  unsigned int m_totalVotes; 
 
   if ( !rating )
     return 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rax, xmm3
-  }
-  v13 = rating->m_totalVotes - _RAX;
-  *likes = _RAX;
-  *dislikes = v13;
+  m_totalVotes = rating->m_totalVotes;
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  *likes = (int)*(float *)&_XMM3;
+  *dislikes = m_totalVotes - (int)*(float *)&_XMM3;
   return 1;
 }
 

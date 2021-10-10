@@ -552,13 +552,13 @@ void bdDataChannelBase::rotateQueue(bdDataChannelBase *this)
   unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  bdDataChannelBase::bdDataChannelPacket *v16; 
+  double v13; 
 
   if ( this->m_messageQueue.m_size )
   {
     m_size = this->m_messageQueue.m_size;
     if ( m_size )
-      v16 = *this->m_messageQueue.m_data;
+      v13 = *(double *)this->m_messageQueue.m_data;
     v3 = NULL;
     if ( m_size )
     {
@@ -599,14 +599,7 @@ void bdDataChannelBase::rotateQueue(bdDataChannelBase *this)
       this->m_messageQueue.m_capacity = v11;
       this->m_messageQueue.m_data = (bdDataChannelBase::bdDataChannelPacket **)v3;
     }
-    _RCX = this->m_messageQueue.m_size;
-    _RAX = this->m_messageQueue.m_data;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+38h+arg_0]
-      vmovsd  qword ptr [rax+rcx*8], xmm0
-    }
-    ++this->m_messageQueue.m_size;
+    *(double *)&this->m_messageQueue.m_data[this->m_messageQueue.m_size++] = v13;
   }
 }
 

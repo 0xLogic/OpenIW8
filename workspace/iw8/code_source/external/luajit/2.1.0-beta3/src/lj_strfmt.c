@@ -318,19 +318,18 @@ const char *lj_strfmt_wstrnum(lua_State *L, const TValue *o, unsigned int *lenp)
   __int64 v6; 
   SBuf *v8; 
   unsigned __int64 ptr64; 
-  SBuf *v11; 
+  SBuf *v10; 
 
-  _RBX = o;
-  v6 = _RBX->it64 >> 47;
+  v6 = o->it64 >> 47;
   if ( (_DWORD)v6 == -5 )
   {
-    *lenp = *(_DWORD *)((_RBX->u64 & 0x7FFFFFFFFFFFi64) + 0x10);
-    if ( (unsigned int)(_RBX->it64 >> 47) != -5 )
+    *lenp = *(_DWORD *)((o->u64 & 0x7FFFFFFFFFFFi64) + 0x10);
+    if ( (unsigned int)(o->it64 >> 47) != -5 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_strfmt.c", 163, "(((uint32_t)((o)->it64 >> 47)) == (~4u))") )
         __debugbreak();
     }
-    return (const char *)((_RBX->u64 & 0x7FFFFFFFFFFFi64) + 24);
+    return (const char *)((o->u64 & 0x7FFFFFFFFFFFi64) + 24);
   }
   else if ( (unsigned int)v6 >= 0xFFFFFFF2 )
   {
@@ -342,10 +341,9 @@ const char *lj_strfmt_wstrnum(lua_State *L, const TValue *o, unsigned int *lenp)
     ptr64 = v8->b.ptr64;
     v8->L.ptr64 = (unsigned __int64)L;
     v8->p.ptr64 = ptr64;
-    __asm { vmovsd  xmm2, qword ptr [rbx]; n }
-    v11 = j_lj_strfmt_putfnum(v8, 0xF000035u, *(long double *)&_XMM2);
-    *lenp = LODWORD(v11->p.ptr64) - LODWORD(v11->b.ptr64);
-    return (const char *)v11->b.ptr64;
+    v10 = j_lj_strfmt_putfnum(v8, 0xF000035u, o->n);
+    *lenp = LODWORD(v10->p.ptr64) - LODWORD(v10->b.ptr64);
+    return (const char *)v10->b.ptr64;
   }
 }
 
@@ -695,10 +693,9 @@ lj_strfmt_putfnum_uint
 
 SBuf *__fastcall lj_strfmt_putfnum_uint(SBuf *sb, unsigned int sf, double n)
 {
+  _XMM0 = *(unsigned __int64 *)&DOUBLE_9_223372036854776e18;
   __asm
   {
-    vmovsd  xmm0, cs:__real@43e0000000000000
-    vsubsd  xmm3, xmm2, cs:__real@43f0000000000000
     vcmplesd xmm1, xmm0, xmm2
     vblendvpd xmm1, xmm2, xmm3, xmm1
     vcvttsd2si r8, xmm1; k
@@ -841,8 +838,9 @@ GCstr *lj_strfmt_obj(lua_State *L, const TValue *o)
   __int64 v7; 
   const char *v8; 
   __int64 v9; 
-  char *v12; 
-  const void *v13; 
+  char *v10; 
+  char *v11; 
+  const void *v12; 
   char str[32]; 
 
   u64 = o->u64;
@@ -864,28 +862,24 @@ GCstr *lj_strfmt_obj(lua_State *L, const TValue *o)
   while ( v8[v7] );
   v9 = (unsigned int)v7;
   memcpy_0(str, v8, (unsigned int)v7);
-  _RDI = &str[v9];
+  v10 = &str[v9];
   *(_WORD *)&str[v9] = 8250;
   if ( (unsigned int)(o->it64 >> 47) == -9 && *(_BYTE *)((o->u64 & 0x7FFFFFFFFFFFi64) + 0xA) > 1u )
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr cs:aBuiltin_1; "builtin#"
-      vmovsd  qword ptr [rdi+2], xmm0
-    }
+    *(double *)(v10 + 2) = *(double *)"builtin#";
     if ( (unsigned int)(o->it64 >> 47) != -9 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_strfmt.c", 394, "(((uint32_t)((o)->it64 >> 47)) == (~8u))") )
         __debugbreak();
     }
-    v12 = j_lj_strfmt_wint(_RDI + 10, *(unsigned __int8 *)((o->u64 & 0x7FFFFFFFFFFFi64) + 0xA));
+    v11 = j_lj_strfmt_wint(v10 + 10, *(unsigned __int8 *)((o->u64 & 0x7FFFFFFFFFFFi64) + 0xA));
   }
   else
   {
-    v13 = j_lj_obj_ptr(o);
-    v12 = j_lj_strfmt_wptr(_RDI + 2, v13);
+    v12 = j_lj_obj_ptr(o);
+    v11 = j_lj_strfmt_wptr(v10 + 2, v12);
   }
-  return j_lj_str_new(L, str, v12 - str);
+  return j_lj_str_new(L, str, v11 - str);
 }
 
 /*
@@ -898,8 +892,10 @@ GCstr *lj_strfmt_pushvf(lua_State *L, const char *fmt, char *argp)
   unsigned __int64 v4; 
   __int64 v6; 
   unsigned int v7; 
+  char *v8; 
   unsigned __int64 v9; 
   unsigned __int64 v10; 
+  long double v11; 
   const char *v12; 
   const char *v13; 
   __int64 v14; 
@@ -926,7 +922,7 @@ GCstr *lj_strfmt_pushvf(lua_State *L, const char *fmt, char *argp)
   v7 = j_lj_strfmt_parse(&v23);
   if ( v7 )
   {
-    _RDI = argp - 8;
+    v8 = argp - 8;
     do
     {
       switch ( v7 & 0xF )
@@ -935,24 +931,24 @@ GCstr *lj_strfmt_pushvf(lua_State *L, const char *fmt, char *argp)
           j_lj_buf_putmem((SBuf *)v4, v23.str, v23.len);
           break;
         case 3u:
-          v9 = *((int *)_RDI + 2);
-          _RDI += 8;
+          v9 = *((int *)v8 + 2);
+          v8 += 8;
           j_lj_strfmt_putfxint((SBuf *)v4, v7, v9);
           break;
         case 4u:
-          v10 = *((unsigned int *)_RDI + 2);
-          _RDI += 8;
+          v10 = *((unsigned int *)v8 + 2);
+          v8 += 8;
           j_lj_strfmt_putfxint((SBuf *)v4, v7, v10);
           break;
         case 5u:
-          __asm { vmovsd  xmm2, qword ptr [rdi+8]; jumptable 000000014380ABFA case 5 }
-          _RDI += 8;
-          j_lj_strfmt_putfnum((SBuf *)v4, 0xF000035u, *(long double *)&_XMM2);
+          v11 = *((double *)v8 + 1);
+          v8 += 8;
+          j_lj_strfmt_putfnum((SBuf *)v4, 0xF000035u, v11);
           break;
         case 6u:
-          v12 = (const char *)*((_QWORD *)_RDI + 1);
+          v12 = (const char *)*((_QWORD *)v8 + 1);
           v13 = "(null)";
-          _RDI += 8;
+          v8 += 8;
           v14 = -1i64;
           if ( v12 )
             v13 = v12;
@@ -962,8 +958,8 @@ GCstr *lj_strfmt_pushvf(lua_State *L, const char *fmt, char *argp)
           j_lj_buf_putmem((SBuf *)v4, v13, v14);
           break;
         case 7u:
-          _RDI += 8;
-          v15 = *(_DWORD *)_RDI;
+          v8 += 8;
+          v15 = *(_DWORD *)v8;
           if ( *(_DWORD *)(v4 + 8) == *(_DWORD *)v4 )
             v16 = j_lj_buf_more2((SBuf *)v4, 1u);
           else
@@ -972,11 +968,11 @@ GCstr *lj_strfmt_pushvf(lua_State *L, const char *fmt, char *argp)
           *(_QWORD *)v4 = v16 + 1;
           break;
         case 8u:
-          _RDI += 8;
-          v17 = *(const void **)_RDI;
+          v8 += 8;
+          v17 = *(const void **)v8;
           if ( (unsigned int)(*(_DWORD *)(v4 + 8) - *(_DWORD *)v4) >= 0x12 )
           {
-            *(_QWORD *)v4 = j_lj_strfmt_wptr(*(char **)v4, *(const void **)_RDI);
+            *(_QWORD *)v4 = j_lj_strfmt_wptr(*(char **)v4, *(const void **)v8);
           }
           else
           {

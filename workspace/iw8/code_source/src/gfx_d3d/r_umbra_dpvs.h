@@ -60,27 +60,33 @@ R_Umbra_IsBoxVisible
 */
 int R_Umbra_IsBoxVisible(const Bounds *bounds, const unsigned int sceneViewType, const unsigned int viewInfoIndex, const bool projectedBoundsTest)
 {
+  __int128 v4; 
   __int64 v5; 
   bool v10; 
   Umbra::OcclusionBuffer *OcclusionBuffer_Internal; 
   int v12; 
-  Umbra::OcclusionBuffer::VisibilityTestResult v22; 
-  __int64 v24; 
-  __int64 v25; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  Umbra::OcclusionBuffer::VisibilityTestResult v18; 
+  __int64 v19; 
+  __int64 v20; 
   Umbra::Vector3 mx; 
   Umbra::Vector3 mn; 
+  __int128 v23; 
 
   v5 = sceneViewType;
-  _RDI = bounds;
   if ( sceneViewType >= 0x21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 319, ASSERT_TYPE_ASSERT, "(unsigned)( sceneViewType ) < (unsigned)( SCENE_VIEW_COUNT )", "sceneViewType doesn't index SCENE_VIEW_COUNT\n\t%i not in [0, %i)", sceneViewType, 33) )
     __debugbreak();
   if ( rg.useCachedSunShadow && (unsigned int)(v5 - 1) <= 2 )
-    return R_Umbra_IsBoxVisible_CachedSunShadows(_RDI, v5, projectedBoundsTest);
+    return R_Umbra_IsBoxVisible_CachedSunShadows(bounds, v5, projectedBoundsTest);
   if ( (unsigned int)v5 >= 0x21 )
   {
-    LODWORD(v25) = 33;
-    LODWORD(v24) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 189, ASSERT_TYPE_ASSERT, "(unsigned)( sceneViewType ) < (unsigned)( SCENE_VIEW_COUNT )", "sceneViewType doesn't index SCENE_VIEW_COUNT\n\t%i not in [0, %i)", v24, v25) )
+    LODWORD(v20) = 33;
+    LODWORD(v19) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 189, ASSERT_TYPE_ASSERT, "(unsigned)( sceneViewType ) < (unsigned)( SCENE_VIEW_COUNT )", "sceneViewType doesn't index SCENE_VIEW_COUNT\n\t%i not in [0, %i)", v19, v20) )
       __debugbreak();
   }
   switch ( (int)v5 )
@@ -143,8 +149,8 @@ int R_Umbra_IsBoxVisible(const Bounds *bounds, const unsigned int sceneViewType,
       }
       break;
     default:
-      LODWORD(v24) = v5;
-      v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 249, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h(249): unhandled case %d in switch statement", v24);
+      LODWORD(v19) = v5;
+      v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 249, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h(249): unhandled case %d in switch statement", v19);
 LABEL_20:
       if ( v10 )
         __debugbreak();
@@ -154,33 +160,25 @@ LABEL_20:
   v12 = 1;
   if ( OcclusionBuffer_Internal )
   {
-    __asm
+    v13 = bounds->midPoint.v[1];
+    v14 = bounds->midPoint.v[2];
+    v23 = v4;
+    v15 = bounds->midPoint.v[0] - bounds->halfSize.v[0];
+    mx.x = bounds->midPoint.v[0] + bounds->halfSize.v[0];
+    mx.y = v13 + bounds->halfSize.v[1];
+    mx.z = v14 + bounds->halfSize.v[2];
+    v16 = v13 - bounds->halfSize.v[1];
+    mn.x = v15;
+    v17 = v14 - bounds->halfSize.v[2];
+    mn.y = v16;
+    mn.z = v17;
+    v18 = Umbra::OcclusionBuffer::testAABBVisibility(OcclusionBuffer_Internal, &mn, &mx, 0, NULL);
+    if ( v18 )
     {
-      vmovss  xmm5, dword ptr [rdi+4]
-      vmovss  xmm3, dword ptr [rdi+8]
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovss  xmm6, dword ptr [rdi]
-      vaddss  xmm0, xmm6, dword ptr [rdi+0Ch]
-      vsubss  xmm1, xmm6, dword ptr [rdi+0Ch]
-      vmovss  [rsp+0A8h+mx.x], xmm0
-      vaddss  xmm0, xmm5, dword ptr [rdi+10h]
-      vmovss  [rsp+0A8h+mx.y], xmm0
-      vaddss  xmm0, xmm3, dword ptr [rdi+14h]
-      vmovss  [rsp+0A8h+mx.z], xmm0
-      vsubss  xmm0, xmm5, dword ptr [rdi+10h]
-      vmovss  [rsp+0A8h+mn.x], xmm1
-      vsubss  xmm1, xmm3, dword ptr [rdi+14h]
-      vmovss  [rsp+0A8h+mn.y], xmm0
-      vmovss  [rsp+0A8h+mn.z], xmm1
-    }
-    v22 = Umbra::OcclusionBuffer::testAABBVisibility(OcclusionBuffer_Internal, &mn, &mx, 0, NULL);
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-    if ( v22 )
-    {
-      if ( v22 != VISIBLE && v22 != 3 )
+      if ( v18 != VISIBLE && v18 != 3 )
       {
-        LODWORD(v24) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 281, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h(281): unhandled case %d in switch statement", v24) )
+        LODWORD(v19) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 281, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h(281): unhandled case %d in switch statement", v19) )
           __debugbreak();
       }
     }
@@ -288,36 +286,35 @@ R_Umbra_IsBoxVisible
 */
 __int64 R_Umbra_IsBoxVisible(const Bounds *bounds, const Umbra::OcclusionBuffer *occlusionBuffer)
 {
-  Umbra::OcclusionBuffer::VisibilityTestResult v12; 
+  __int128 v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  Umbra::OcclusionBuffer::VisibilityTestResult v8; 
   Umbra::Vector3 mx; 
   Umbra::Vector3 mn; 
+  __int128 v12; 
 
   if ( !occlusionBuffer )
     return 1i64;
-  __asm
+  v3 = bounds->midPoint.v[1];
+  v4 = bounds->midPoint.v[2];
+  v12 = v2;
+  v5 = bounds->midPoint.v[0] - bounds->halfSize.v[0];
+  mx.x = bounds->midPoint.v[0] + bounds->halfSize.v[0];
+  mx.y = v3 + bounds->halfSize.v[1];
+  mx.z = v4 + bounds->halfSize.v[2];
+  v6 = v3 - bounds->halfSize.v[1];
+  mn.x = v5;
+  v7 = v4 - bounds->halfSize.v[2];
+  mn.y = v6;
+  mn.z = v7;
+  v8 = Umbra::OcclusionBuffer::testAABBVisibility((Umbra::OcclusionBuffer *)occlusionBuffer, &mn, &mx, 0, NULL);
+  if ( v8 )
   {
-    vmovss  xmm5, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rcx]
-    vaddss  xmm0, xmm6, dword ptr [rcx+0Ch]
-    vsubss  xmm1, xmm6, dword ptr [rcx+0Ch]
-    vmovss  [rsp+78h+mx.x], xmm0
-    vaddss  xmm0, xmm5, dword ptr [rcx+10h]
-    vmovss  [rsp+78h+mx.y], xmm0
-    vaddss  xmm0, xmm3, dword ptr [rcx+14h]
-    vmovss  [rsp+78h+mx.z], xmm0
-    vsubss  xmm0, xmm5, dword ptr [rcx+10h]
-    vmovss  [rsp+78h+mn.x], xmm1
-    vsubss  xmm1, xmm3, dword ptr [rcx+14h]
-    vmovss  [rsp+78h+mn.y], xmm0
-    vmovss  [rsp+78h+mn.z], xmm1
-  }
-  v12 = Umbra::OcclusionBuffer::testAABBVisibility((Umbra::OcclusionBuffer *)occlusionBuffer, &mn, &mx, 0, NULL);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  if ( v12 )
-  {
-    if ( v12 != VISIBLE && v12 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 281, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h(281): unhandled case %d in switch statement", v12) )
+    if ( v8 != VISIBLE && v8 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h", 281, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_umbra_dpvs.h(281): unhandled case %d in switch statement", v8) )
       __debugbreak();
     return 1i64;
   }

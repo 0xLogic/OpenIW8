@@ -269,27 +269,22 @@ bdLoginTaskPollQueue::abortTask
 */
 void bdLoginTaskPollQueue::abortTask(bdLoginTaskPollQueue *this)
 {
+  double ElapsedTimeInSeconds; 
   bdHTTP *m_httpInterface; 
-  bdHTTP *v5; 
-  double v6; 
+  bdHTTP *v4; 
 
   bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x197u, "Must provide valid message to update auth task status!");
   this->m_queueStatus = CONNECTED;
   bdStrlcpy(this->m_queueStatusMessage, (const char *const)&queryFormat.fmt + 3, 0x400ui64);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", v6);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   m_httpInterface = this->m_httpInterface;
   if ( m_httpInterface )
   {
     m_httpInterface->abortOperation(m_httpInterface);
-    v5 = this->m_httpInterface;
-    if ( v5 )
-      ((void (__fastcall *)(bdHTTP *, __int64))v5->~bdHTTP)(v5, 1i64);
+    v4 = this->m_httpInterface;
+    if ( v4 )
+      ((void (__fastcall *)(bdHTTP *, __int64))v4->~bdHTTP)(v4, 1i64);
     this->m_httpInterface = NULL;
   }
 }
@@ -301,7 +296,7 @@ bdLoginTaskPollQueue::buildPollLoginQueueReq
 */
 char bdLoginTaskPollQueue::buildPollLoginQueueReq(bdLoginTaskPollQueue *this)
 {
-  bdHTTP *v3; 
+  bdHTTP *v2; 
   bdLoginConfig *m_loginConfig; 
   const char *GameID; 
   const char *Region; 
@@ -309,17 +304,17 @@ char bdLoginTaskPollQueue::buildPollLoginQueueReq(bdLoginTaskPollQueue *this)
   bdHTTP *m_httpInterface; 
   bool (__fastcall *setHeader)(bdHTTP *, const char *, const unsigned __int64); 
   unsigned __int64 TransactionID; 
-  bool v11; 
-  unsigned __int64 v12; 
+  bool v10; 
+  unsigned __int64 v11; 
+  double ElapsedTimeInSeconds; 
   unsigned int format; 
   int EffectiveQueueID; 
-  double v17; 
   bdEnvironment env[4]; 
   char url[512]; 
 
-  v3 = bdHTTPUtility::newHTTP(0, 0);
+  v2 = bdHTTPUtility::newHTTP(0, 0);
   m_loginConfig = (bdLoginConfig *)this->m_loginConfig;
-  this->m_httpInterface = v3;
+  this->m_httpInterface = v2;
   GameID = bdLoginConfig::getGameID(m_loginConfig);
   Region = bdLoginConfig::getRegion((bdLoginConfig *)this->m_loginConfig);
   env[0] = bdLoginResult::getEnvironment(this->m_loginResult);
@@ -329,7 +324,7 @@ char bdLoginTaskPollQueue::buildPollLoginQueueReq(bdLoginTaskPollQueue *this)
   format = this->m_loginResult->m_titleID;
   bdSnprintf(this->m_urlString, 0x200ui64, "%s:
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::_updatePollUrlString", 0x110u, "Using URL [%s]", this->m_urlString);
-  v11 = 0;
+  v10 = 0;
   if ( ((unsigned __int8 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 1i64, this->m_urlString) )
   {
     if ( this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") )
@@ -338,12 +333,12 @@ char bdLoginTaskPollQueue::buildPollLoginQueueReq(bdLoginTaskPollQueue *this)
       setHeader = m_httpInterface->setHeader;
       TransactionID = bdLoginResult::getTransactionID(this->m_loginResult);
       if ( setHeader(m_httpInterface, "X-TransactionID", TransactionID) )
-        v11 = 1;
+        v10 = 1;
     }
   }
-  v12 = bdLoginResult::getTransactionID(this->m_loginResult);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::buildPollLoginQueueReq", 0x8Fu, "Transaction ID: %I64u).", v12);
-  if ( v11 && bdLoginTaskPollQueue::setTicketHeaders(this) && bdHTTP::setUploadData(this->m_httpInterface, NULL, 0) && this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Length", "0") && bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpLoginQueueReply, 0x400u) )
+  v11 = bdLoginResult::getTransactionID(this->m_loginResult);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::buildPollLoginQueueReq", 0x8Fu, "Transaction ID: %I64u).", v11);
+  if ( v10 && bdLoginTaskPollQueue::setTicketHeaders(this) && bdHTTP::setUploadData(this->m_httpInterface, NULL, 0) && this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Length", "0") && bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpLoginQueueReply, 0x400u) )
   {
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x197u, "Must provide valid message to update auth task status!");
     this->m_queueStatus = NOT_CONNECTED;
@@ -355,13 +350,8 @@ char bdLoginTaskPollQueue::buildPollLoginQueueReq(bdLoginTaskPollQueue *this)
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x197u, "Must provide valid message to update auth task status!");
     this->m_queueStatus = CONNECTED;
     bdStrlcpy(this->m_queueStatusMessage, "Encountered error building poll login queue request", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+278h+var_240], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", v17);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     return 0;
   }
 }
@@ -587,15 +577,15 @@ bdLoginTaskPollQueue::pump
 void bdLoginTaskPollQueue::pump(bdLoginTaskPollQueue *this)
 {
   bdLoginTaskPollQueue::PollQueueState m_queueStatus; 
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  bdHTTP::bdStatus v7; 
-  const char *v8; 
-  bdHTTP::bdStatus v9; 
+  double ElapsedTimeInSeconds; 
+  bdHTTP::bdStatus v6; 
+  const char *v7; 
+  bdHTTP::bdStatus v8; 
   char *m_queueStatusMessage; 
   unsigned int line; 
   const char *format; 
-  double v13; 
   bdLoginTaskPollQueue::PollQueueState code; 
 
   m_queueStatus = this->m_queueStatus;
@@ -605,12 +595,12 @@ void bdLoginTaskPollQueue::pump(bdLoginTaskPollQueue *this)
     bdLoginTaskPollQueue::buildPollLoginQueueReq(this);
     return;
   }
-  v4 = m_queueStatus - 1;
-  if ( !v4 )
+  v3 = m_queueStatus - 1;
+  if ( !v3 )
   {
-    v9 = this->m_httpInterface->getStatus(this->m_httpInterface);
-    this->m_httpStatus = v9;
-    if ( (v9 & 0xFFFFFFFD) != 0 )
+    v8 = this->m_httpInterface->getStatus(this->m_httpInterface);
+    this->m_httpStatus = v8;
+    if ( (v8 & 0xFFFFFFFD) != 0 )
     {
       m_queueStatusMessage = "Auth HTTP request already initialized/in progress";
       format = "Auth HTTP request already initialized/in progress";
@@ -622,7 +612,7 @@ void bdLoginTaskPollQueue::pump(bdLoginTaskPollQueue *this)
       {
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::pump", 0x55u, "Setting state to POLLING");
         code = CONNECTING;
-        v8 = "Attempting to poll queue";
+        v7 = "Attempting to poll queue";
         goto LABEL_11;
       }
       m_queueStatusMessage = this->m_queueStatusMessage;
@@ -632,26 +622,26 @@ void bdLoginTaskPollQueue::pump(bdLoginTaskPollQueue *this)
     }
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::pump", line, format);
     code = CONNECTED;
-    v8 = m_queueStatusMessage;
+    v7 = m_queueStatusMessage;
 LABEL_11:
-    bdLoginTaskPollQueue::updatePollQueueStatus(this, v8, &code);
+    bdLoginTaskPollQueue::updatePollQueueStatus(this, v7, &code);
     return;
   }
-  v5 = v4 - 1;
-  if ( !v5 )
+  v4 = v3 - 1;
+  if ( !v4 )
   {
-    v7 = this->m_httpInterface->getStatus(this->m_httpInterface);
-    this->m_httpStatus = v7;
-    if ( v7 == BD_FAILED )
+    v6 = this->m_httpInterface->getStatus(this->m_httpInterface);
+    this->m_httpStatus = v6;
+    if ( v6 == BD_FAILED )
       return;
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::pump", 0x6Au, "Setting state to RECEIVED_REPLY");
     if ( this->m_httpStatus == BD_MAX_STATUS )
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::pump", 0x6Du, "Got error from login queue service, processing response");
     code = WAITING_FOR_REPORT_CONSOLE_DETAILS;
-    v8 = "Received reply from login queue service";
+    v7 = "Received reply from login queue service";
     goto LABEL_11;
   }
-  if ( v5 == 1 )
+  if ( v4 == 1 )
   {
     bdLoginTaskPollQueue::processLoginQueueReply(this);
   }
@@ -661,13 +651,8 @@ LABEL_11:
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x197u, "Must provide valid message to update auth task status!");
     this->m_queueStatus = CONNECTED;
     bdStrlcpy(this->m_queueStatusMessage, "Pumping Authentication task in unexpected state", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", v13);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 
@@ -835,20 +820,15 @@ bdLoginTaskPollQueue::updatePollQueueStatus
 */
 void bdLoginTaskPollQueue::updatePollQueueStatus(bdLoginTaskPollQueue *this, const char *messageInfo, const bdLoginTaskPollQueue::PollQueueState *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x197u, "Must provide valid message to update auth task status!");
   this->m_queueStatus = *code;
   bdStrlcpy(this->m_queueStatusMessage, messageInfo, 0x400ui64);
   if ( ((*code - 4) & 0xFFFFFFFD) == 0 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskpollqueue.cpp", "bdLoginTaskPollQueue::updatePollQueueStatus", 0x19Fu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

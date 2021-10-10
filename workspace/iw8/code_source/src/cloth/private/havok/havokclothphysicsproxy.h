@@ -118,29 +118,8 @@ HavokCloth_ExternMeshShapeGeometry::getTriangleVertices
 */
 void HavokCloth_ExternMeshShapeGeometry::getTriangleVertices(HavokCloth_ExternMeshShapeGeometry *this, int index, hkVector4f *verticesOut)
 {
-  __int64 v3; 
-
-  v3 = index;
-  _RAX = this->m_geometry.m_vertices.m_data;
-  _RDX = 2i64 * this->m_geometry.m_triangles.m_data[index].m_a;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+rdx*8]
-    vmovups xmmword ptr [r8], xmm0
-  }
-  _RAX = this->m_geometry.m_vertices.m_data;
-  _RDX = 2i64 * this->m_geometry.m_triangles.m_data[v3].m_b;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+rdx*8]
-    vmovups xmmword ptr [r8+10h], xmm0
-  }
-  _RAX = this->m_geometry.m_vertices.m_data;
-  _RCX = 2i64 * this->m_geometry.m_triangles.m_data[v3].m_c;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+rcx*8]
-    vmovups xmmword ptr [r8+20h], xmm0
-  }
+  *verticesOut = this->m_geometry.m_vertices.m_data[this->m_geometry.m_triangles.m_data[index].m_a];
+  verticesOut[1] = this->m_geometry.m_vertices.m_data[this->m_geometry.m_triangles.m_data[index].m_b];
+  verticesOut[2] = this->m_geometry.m_vertices.m_data[this->m_geometry.m_triangles.m_data[index].m_c];
 }
 

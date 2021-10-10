@@ -93,30 +93,32 @@ AI_BB_Set_Clamp_Byte
 */
 void AI_BB_Set_Clamp_Byte(AIBlackboard *pBB, const ai_blackboard_field_t *pField, int offset)
 {
-  scrContext_t *v6; 
+  scrContext_t *v5; 
   VariableType Type; 
+  double Float; 
+  int Int; 
   char v9; 
 
-  v6 = ScriptContext_Server();
-  Type = Scr_GetType(v6, 0);
+  v5 = ScriptContext_Server();
+  Type = Scr_GetType(v5, 0);
   if ( Type == VAR_FLOAT )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(v6, 0);
-    __asm { vcvttss2si ebx, xmm0 }
+    Float = Scr_GetFloat(v5, 0);
+    Int = (int)*(float *)&Float;
   }
   else if ( Type == VAR_INTEGER )
   {
-    _EBX = Scr_GetInt(v6, 0);
+    Int = Scr_GetInt(v5, 0);
   }
   else
   {
-    _EBX = 0;
-    Scr_Error(COM_ERR_1767, v6, "Number value expected");
+    Int = 0;
+    Scr_Error(COM_ERR_1767, v5, "Number value expected");
   }
-  if ( _EBX > 255 )
-    _EBX = 255;
-  v9 = _EBX;
-  if ( _EBX < 0 )
+  if ( Int > 255 )
+    Int = 255;
+  v9 = Int;
+  if ( Int < 0 )
     v9 = 0;
   *((_BYTE *)&pBB->m_MoveType + pField->m_Ofs) = v9;
 }

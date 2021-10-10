@@ -94,29 +94,15 @@ bdNetTelemetry::finishGetHostByName
 */
 void bdNetTelemetry::finishGetHostByName(bdNetTelemetry *this, unsigned int id, const bdSockAddr *addr)
 {
+  __int64 v5; 
+  double ElapsedTimeInSeconds; 
+
   if ( id < 8 )
   {
-    _RDI = this;
-    _RSI = addr;
-    _RBX = id;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_getHostInfo[_RBX].m_age);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si rax, xmm1
-    }
-    _RDI->m_getHostInfo[_RBX].msToResolution = _RAX;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymmword ptr [rbx+rdi+38h], ymm0
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [rbx+rdi+58h], ymm1
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups ymmword ptr [rbx+rdi+78h], ymm0
-      vmovups ymm1, ymmword ptr [rsi+60h]
-      vmovups ymmword ptr [rbx+rdi+98h], ymm1
-    }
+    v5 = id;
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_getHostInfo[v5].m_age);
+    this->m_getHostInfo[v5].msToResolution = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+    this->m_getHostInfo[v5].addr = *addr;
   }
 }
 
@@ -128,35 +114,35 @@ bdNetTelemetry::setNetStart
 void bdNetTelemetry::setNetStart(bdNetTelemetry *this, const bdNetStartParams *params)
 {
   unsigned int v4; 
+  bdSockAddr *m_data; 
+  __int64 v6; 
+  __m256i v7; 
+  __m256i v8; 
+  __m256i v9; 
+  __m256i v10; 
+  unsigned __int64 v11; 
 
-  _RDI = this;
   bdStopwatch::start(&this->m_age);
   v4 = 0;
-  _RDI->m_result = 0;
-  *(_QWORD *)&_RDI->m_localAddrCount = 0i64;
-  for ( _RDI->m_getHostInfoCount = 0; v4 < params->m_localAddresses.m_size; ++_RDI->m_localAddrCount )
+  this->m_result = 0;
+  *(_QWORD *)&this->m_localAddrCount = 0i64;
+  for ( this->m_getHostInfoCount = 0; v4 < params->m_localAddresses.m_size; ++this->m_localAddrCount )
   {
     if ( v4 >= 0xA )
       break;
     bdHandleAssert(v4 < params->m_localAddresses.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-    _RAX = params->m_localAddresses.m_data;
-    _RCX = v4++;
-    _RCX <<= 7;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+rax]
-      vmovups ymm1, ymmword ptr [rcx+rax+20h]
-      vmovups ymm2, ymmword ptr [rcx+rax+40h]
-      vmovups ymm3, ymmword ptr [rcx+rax+60h]
-    }
-    _RAX = (unsigned __int64)_RDI->m_localAddrCount << 7;
-    __asm
-    {
-      vmovups ymmword ptr [rax+rdi+590h], ymm0
-      vmovups ymmword ptr [rax+rdi+5B0h], ymm1
-      vmovups ymmword ptr [rax+rdi+5D0h], ymm2
-      vmovups ymmword ptr [rax+rdi+5F0h], ymm3
-    }
+    m_data = params->m_localAddresses.m_data;
+    v6 = v4++;
+    v6 <<= 7;
+    v7 = *(__m256i *)((char *)&m_data->inUn.m_sockaddrStorage.ss_family + v6);
+    v8 = *(__m256i *)((char *)&m_data->inUn.m_ipv6Sockaddr + v6 + 32);
+    v9 = *(__m256i *)((char *)&m_data->inUn.m_ipv6Sockaddr + v6 + 64);
+    v10 = *(__m256i *)((char *)&m_data->inUn.m_ipv6Sockaddr + v6 + 96);
+    v11 = (unsigned __int64)this->m_localAddrCount << 7;
+    *(__m256i *)((char *)&this->m_localAddrs[0].inUn.m_sockaddrStorage.ss_family + v11) = v7;
+    *(__m256i *)((char *)&this->m_localAddrs[0].inUn.m_ipv6Sockaddr + v11 + 32) = v8;
+    *(__m256i *)((char *)&this->m_localAddrs[0].inUn.m_ipv6Sockaddr + v11 + 64) = v9;
+    *(__m256i *)((char *)&this->m_localAddrs[0].inUn.m_ipv6Sockaddr + v11 + 96) = v10;
   }
 }
 
@@ -167,16 +153,13 @@ bdNetTelemetry::setStatus
 */
 void bdNetTelemetry::setStatus(bdNetTelemetry *this, char state)
 {
+  double ElapsedTimeInSeconds; 
+
   if ( (unsigned __int8)state >= 0xFCu || state == 0 || state == 2 )
   {
     this->m_result = state;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si rax, xmm1
-    }
-    this->m_msToResult = _RAX;
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+    this->m_msToResult = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
   }
 }
 
@@ -188,34 +171,29 @@ bdNetTelemetry::startGetHostByName
 __int64 bdNetTelemetry::startGetHostByName(bdNetTelemetry *this, const char *hostname)
 {
   __int64 m_getHostInfoCount; 
+  char *v4; 
   __int64 v5; 
-  _BYTE *v11; 
-  bdSockAddr v13; 
+  __m256i *v6; 
+  _BYTE *v7; 
+  bdSockAddr v9; 
 
   m_getHostInfoCount = this->m_getHostInfoCount;
   if ( (unsigned int)m_getHostInfoCount >= 8 )
     return 0xFFFFFFFFi64;
   this->m_getHostInfoCount = m_getHostInfoCount + 1;
-  _RDI = (char *)this + 176 * m_getHostInfoCount;
-  bdStopwatch::start((bdStopwatch *)_RDI + 1);
-  *((_DWORD *)_RDI + 12) = -1;
-  bdSockAddr::bdSockAddr(&v13, 0xFF00FF00);
+  v4 = (char *)this + 176 * m_getHostInfoCount;
+  bdStopwatch::start((bdStopwatch *)v4 + 1);
+  *((_DWORD *)v4 + 12) = -1;
+  bdSockAddr::bdSockAddr(&v9, 0xFF00FF00);
   v5 = 31i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+38h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rdi+58h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rdi+78h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rdi+98h], ymm1
-  }
-  v11 = memchr_0(hostname, 0, 0x1Fui64);
-  if ( v11 )
-    v5 = v11 - hostname;
-  bdStrlcpy(_RDI + 16, hostname, v5 + 1);
+  *(__m256i *)(v4 + 56) = *v6;
+  *(__m256i *)(v4 + 88) = v6[1];
+  *(__m256i *)(v4 + 120) = v6[2];
+  *(__m256i *)(v4 + 152) = v6[3];
+  v7 = memchr_0(hostname, 0, 0x1Fui64);
+  if ( v7 )
+    v5 = v7 - hostname;
+  bdStrlcpy(v4 + 16, hostname, v5 + 1);
   return (unsigned int)m_getHostInfoCount;
 }
 

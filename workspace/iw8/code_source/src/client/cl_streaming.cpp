@@ -1022,6 +1022,8 @@ void CL_Streaming_AssignRequestsToBuffer(ClStreamingRequestBuffer *buffer, const
   __int64 v4; 
   __int64 v6; 
   __int64 v7; 
+  __int64 v8; 
+  ClStreamingRequest *v9; 
   unsigned int maxRequestCount; 
 
   v4 = requestCount;
@@ -1037,18 +1039,12 @@ void CL_Streaming_AssignRequestsToBuffer(ClStreamingRequestBuffer *buffer, const
     v7 = v4;
     do
     {
-      _RDX = (__int64)*requests++;
-      _RCX = &buffer->requests[v6++];
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmm1, xmmword ptr [rdx+20h]
-        vmovups xmmword ptr [rcx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rdx+30h]
-        vmovsd  qword ptr [rcx+30h], xmm0
-      }
-      _RCX->assetIds[12] = *(_DWORD *)(_RDX + 56);
+      v8 = (__int64)*requests++;
+      v9 = &buffer->requests[v6++];
+      *(__m256i *)&v9->priority.raw = *(__m256i *)v8;
+      *(_OWORD *)&v9->assetIds[6] = *(_OWORD *)(v8 + 32);
+      *(double *)&v9->assetIds[10] = *(double *)(v8 + 48);
+      v9->assetIds[12] = *(_DWORD *)(v8 + 56);
       --v7;
     }
     while ( v7 );
@@ -1495,18 +1491,16 @@ void CL_Streaming_DevPrintRequestQueue(const StreamRequestQueue *requestQueue, c
 CL_Streaming_DrawBufferOverlay
 ==============
 */
-
-void __fastcall CL_Streaming_DrawBufferOverlay(const ScreenPlacement *const scrPlace, double _XMM1_8, double _XMM2_8)
+void CL_Streaming_DrawBufferOverlay(const ScreenPlacement *const scrPlace)
 {
-  const dvar_t *v4; 
+  const dvar_t *v2; 
   unsigned int unsignedInt; 
-  unsigned int v6; 
-  unsigned int v7; 
+  unsigned int v4; 
+  unsigned int v5; 
   ClStreamingRequestBuffer *RequestBuffer; 
-  __int64 v9; 
+  __int64 v7; 
   char *fmt; 
   char *fmta; 
-  float fmtb; 
   char *s; 
   int destPos[4]; 
   char outRequestString[1040]; 
@@ -1514,41 +1508,34 @@ void __fastcall CL_Streaming_DrawBufferOverlay(const ScreenPlacement *const scrP
 
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3608, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  v4 = DCONST_DVARINT_cl_streaming_drawBuffer;
+  v2 = DCONST_DVARINT_cl_streaming_drawBuffer;
   if ( DCONST_DVARINT_cl_streaming_drawBuffer )
   {
     Dvar_CheckFrontendServerThread(DCONST_DVARINT_cl_streaming_drawBuffer);
-    unsignedInt = v4->current.unsignedInt;
+    unsignedInt = v2->current.unsignedInt;
     if ( unsignedInt != -1 )
     {
-      v6 = v4->current.unsignedInt;
-      v7 = 0;
+      v4 = v2->current.unsignedInt;
+      v5 = 0;
       destPos[0] = 0;
       dest[0] = 0;
-      RequestBuffer = CL_Streaming_GetRequestBuffer((const LocalClientNum_t)(v6 / 0xC), (const StreamSyncClientType)((v6 >> 1) % 6), (const ClStreamingBufferNum)(v6 & 1));
-      LODWORD(s) = (v6 >> 1) % 6;
+      RequestBuffer = CL_Streaming_GetRequestBuffer((const LocalClientNum_t)(v4 / 0xC), (const StreamSyncClientType)((v4 >> 1) % 6), (const ClStreamingBufferNum)(v4 & 1));
+      LODWORD(s) = (v4 >> 1) % 6;
       LODWORD(fmt) = unsignedInt / 0xC;
-      Com_sprintfPos_truncate(dest, 0x10A10ui64, destPos, "LocalClientNum: %d, StreamSyncClientType: %d, BufferNum: %d, requestCount: %d\n", fmt, s, v6 & 1, RequestBuffer->requestCount);
+      Com_sprintfPos_truncate(dest, 0x10A10ui64, destPos, "LocalClientNum: %d, StreamSyncClientType: %d, BufferNum: %d, requestCount: %d\n", fmt, s, v4 & 1, RequestBuffer->requestCount);
       if ( RequestBuffer->requestCount )
       {
         do
         {
-          v9 = (__int64)&RequestBuffer->requests[v7];
-          CL_Streaming_GetStreamingAssetsText((const unsigned int *)(v9 + 8), *(_DWORD *)(v9 + 4), outRequestString, 1032);
-          LODWORD(fmta) = (*(_DWORD *)v9 >> 23) & 7;
+          v7 = (__int64)&RequestBuffer->requests[v5];
+          CL_Streaming_GetStreamingAssetsText((const unsigned int *)(v7 + 8), *(_DWORD *)(v7 + 4), outRequestString, 1032);
+          LODWORD(fmta) = (*(_DWORD *)v7 >> 23) & 7;
           Com_sprintfPos_truncate(dest, 0x10A10ui64, destPos, "  %4u %s\n", fmta, outRequestString);
-          ++v7;
+          ++v5;
         }
-        while ( v7 < RequestBuffer->requestCount );
+        while ( v5 < RequestBuffer->requestCount );
       }
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f000000; xScale
-        vxorps  xmm2, xmm2, xmm2; y
-        vxorps  xmm1, xmm1, xmm1; x
-        vmovss  dword ptr [rsp+10EA8h+fmt], xmm3
-      }
-      CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, dest, color_1, 5, cls.smallDevFont);
+      CG_DrawDevString(scrPlace, 0.0, 0.0, 0.5, 0.5, dest, color_1, 5, cls.smallDevFont);
     }
   }
 }
@@ -1558,9 +1545,9 @@ void __fastcall CL_Streaming_DrawBufferOverlay(const ScreenPlacement *const scrP
 CL_Streaming_DrawOverlay
 ==============
 */
-void CL_Streaming_DrawOverlay(const ScreenPlacement *const scrPlace, double a2, double a3)
+void CL_Streaming_DrawOverlay(const ScreenPlacement *const scrPlace)
 {
-  CL_Streaming_DrawBufferOverlay(scrPlace, a2, a3);
+  CL_Streaming_DrawBufferOverlay(scrPlace);
   CL_Streaming_DrawQueueOverlay(scrPlace);
 }
 
@@ -1569,20 +1556,18 @@ void CL_Streaming_DrawOverlay(const ScreenPlacement *const scrPlace, double a2, 
 CL_Streaming_DrawQueueOverlay
 ==============
 */
-
-void __fastcall CL_Streaming_DrawQueueOverlay(const ScreenPlacement *const scrPlace, double _XMM1_8, double _XMM2_8)
+void CL_Streaming_DrawQueueOverlay(const ScreenPlacement *const scrPlace)
 {
-  const dvar_t *v4; 
+  const dvar_t *v2; 
   unsigned int unsignedInt; 
+  unsigned int v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  unsigned int v8; 
-  signed int v9; 
+  signed int v7; 
   StreamRequestQueue *ClientRequestQueue; 
-  const StreamRequestItem *v11; 
+  const StreamRequestItem *v9; 
   char *fmt; 
   char *fmta; 
-  float fmtb; 
   char *s; 
   int destPos[4]; 
   char outRequestString[1040]; 
@@ -1590,45 +1575,38 @@ void __fastcall CL_Streaming_DrawQueueOverlay(const ScreenPlacement *const scrPl
 
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3656, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  v4 = DCONST_DVARINT_cl_streaming_drawQueue;
+  v2 = DCONST_DVARINT_cl_streaming_drawQueue;
   if ( DCONST_DVARINT_cl_streaming_drawQueue )
   {
     Dvar_CheckFrontendServerThread(DCONST_DVARINT_cl_streaming_drawQueue);
-    unsignedInt = v4->current.unsignedInt;
+    unsignedInt = v2->current.unsignedInt;
     if ( unsignedInt != -1 )
     {
-      v6 = unsignedInt;
-      v7 = 0;
+      v4 = unsignedInt;
+      v5 = 0;
       destPos[0] = 0;
-      v8 = unsignedInt / 0xC;
+      v6 = unsignedInt / 0xC;
       dest[0] = 0;
-      v9 = unsignedInt % 6;
-      ClientRequestQueue = CL_Streaming_GetClientRequestQueue((const LocalClientNum_t)(v6 / 0xC), (const StreamSyncClientType)v9);
+      v7 = unsignedInt % 6;
+      ClientRequestQueue = CL_Streaming_GetClientRequestQueue((const LocalClientNum_t)(v4 / 0xC), (const StreamSyncClientType)v7);
       if ( !ClientRequestQueue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3676, ASSERT_TYPE_ASSERT, "(requestQueue)", (const char *)&queryFormat, "requestQueue") )
         __debugbreak();
-      LODWORD(s) = v9;
-      LODWORD(fmt) = v8;
+      LODWORD(s) = v7;
+      LODWORD(fmt) = v6;
       Com_sprintfPos_truncate(dest, 0x10A10ui64, destPos, "LocalClientNum: %d, StreamSyncClientType: %d, requestCount: %d\n", fmt, s, ClientRequestQueue->requestCount);
       if ( ClientRequestQueue->requestCount )
       {
         do
         {
-          v11 = &ClientRequestQueue->requestItem[v7];
-          CL_Streaming_GetRequestItemModelsText(v11, outRequestString, 0x408u);
-          LODWORD(fmta) = (v11->requestPriority.raw >> 23) & 7;
+          v9 = &ClientRequestQueue->requestItem[v5];
+          CL_Streaming_GetRequestItemModelsText(v9, outRequestString, 0x408u);
+          LODWORD(fmta) = (v9->requestPriority.raw >> 23) & 7;
           Com_sprintfPos_truncate(dest, 0x10A10ui64, destPos, "  %4u %s\n", fmta, outRequestString);
-          ++v7;
+          ++v5;
         }
-        while ( v7 < ClientRequestQueue->requestCount );
+        while ( v5 < ClientRequestQueue->requestCount );
       }
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f000000; xScale
-        vxorps  xmm2, xmm2, xmm2; y
-        vxorps  xmm1, xmm1, xmm1; x
-        vmovss  dword ptr [rsp+10EA8h+fmt], xmm3
-      }
-      CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, dest, color_2, 5, cls.smallDevFont);
+      CG_DrawDevString(scrPlace, 0.0, 0.0, 0.5, 0.5, dest, color_2, 5, cls.smallDevFont);
     }
   }
 }
@@ -3886,18 +3864,18 @@ void CL_Streaming_LoadDevWeaponAssets(const StreamSyncClientType streamType)
   connstate_t *p_connectionState; 
   bool v4; 
   StreamRequestQueue *ClientRequestQueue; 
-  const dvar_t *v7; 
-  StreamRequestQueue *v8; 
-  const dvar_t *v11; 
-  const dvar_t *v12; 
+  const dvar_t *v6; 
+  StreamRequestQueue *v7; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
   unsigned int WeaponStreamedModels; 
-  const XModel **v14; 
-  __int64 v15; 
+  const XModel **v11; 
+  __int64 v12; 
   __int64 requestCount; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
   unsigned int outRequestIndex; 
   Weapon inOutWeapon; 
   ClStreamingRequest outRequest; 
@@ -3914,22 +3892,22 @@ void CL_Streaming_LoadDevWeaponAssets(const StreamSyncClientType streamType)
     {
       if ( !v4 )
       {
-        LODWORD(v19) = 2;
-        LODWORD(v17) = v2;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v19) )
+        LODWORD(v16) = 2;
+        LODWORD(v14) = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v16) )
           __debugbreak();
-        LODWORD(v20) = 2;
-        LODWORD(v18) = v2;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v18, v20) )
+        LODWORD(v17) = 2;
+        LODWORD(v15) = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v17) )
           __debugbreak();
       }
       if ( !*((_BYTE *)p_connectionState + 28) )
       {
         if ( (unsigned int)v2 >= 2 )
         {
-          LODWORD(v19) = 2;
-          LODWORD(v17) = v2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v19) )
+          LODWORD(v16) = 2;
+          LODWORD(v14) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v16) )
             __debugbreak();
         }
         if ( *p_connectionState == CA_ACTIVE )
@@ -3942,39 +3920,32 @@ void CL_Streaming_LoadDevWeaponAssets(const StreamSyncClientType streamType)
         return;
     }
     ClientRequestQueue = CL_Streaming_GetClientRequestQueue((const LocalClientNum_t)v2, streamType);
-    __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-    v7 = DCONST_DVARBOOL_cl_streaming_devMaxLoad;
-    v8 = ClientRequestQueue;
+    v6 = DCONST_DVARBOOL_cl_streaming_devMaxLoad;
+    v7 = ClientRequestQueue;
     *(_DWORD *)&inOutWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rsp+208h+inOutWeapon.weaponIdx], ymm0
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      vmovsd  qword ptr [rsp+208h+inOutWeapon.attachmentVariationIndices+15h], xmm0
-      vmovups xmmword ptr [rsp+208h+inOutWeapon.attachmentVariationIndices+5], xmm1
-    }
+    memset(&inOutWeapon, 0, 48);
+    *(double *)&inOutWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
     if ( !DCONST_DVARBOOL_cl_streaming_devMaxLoad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_streaming_devMaxLoad") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( v7->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( v6->current.enabled )
       goto LABEL_33;
-    v11 = DCONST_DVARBOOL_cl_streaming_devMaxLoadWeapons;
+    v8 = DCONST_DVARBOOL_cl_streaming_devMaxLoadWeapons;
     if ( !DCONST_DVARBOOL_cl_streaming_devMaxLoadWeapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_streaming_devMaxLoadWeapons") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v11->current.enabled )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled )
     {
 LABEL_33:
       while ( 1 )
       {
         do
         {
-          v12 = DCONST_DVARBOOL_cl_streaming_devLoadWeaponsRandom;
+          v9 = DCONST_DVARBOOL_cl_streaming_devLoadWeaponsRandom;
           if ( !DCONST_DVARBOOL_cl_streaming_devLoadWeaponsRandom && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_streaming_devLoadWeaponsRandom") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v12);
-          if ( v12->current.enabled )
+          Dvar_CheckFrontendServerThread(v9);
+          if ( v9->current.enabled )
           {
             BG_WeaponsUtil_RandomizeWeapon(&inOutWeapon, &s_clStreamingRandomWeaponSeed);
           }
@@ -3984,40 +3955,40 @@ LABEL_33:
           }
         }
         while ( !BG_WeaponHasStreamedModels(&inOutWeapon) );
-        if ( v8->requestCount == v8->maxRequestCount )
+        if ( v7->requestCount == v7->maxRequestCount )
           break;
         if ( (unsigned int)streamType >= STREAM_SYNC_CLIENT_TYPE_COUNT )
         {
-          LODWORD(v19) = 6;
-          LODWORD(v17) = streamType;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3486, ASSERT_TYPE_ASSERT, "(unsigned)( streamType ) < (unsigned)( STREAM_SYNC_CLIENT_TYPE_COUNT )", "streamType doesn't index STREAM_SYNC_CLIENT_TYPE_COUNT\n\t%i not in [0, %i)", v17, v19) )
+          LODWORD(v16) = 6;
+          LODWORD(v14) = streamType;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3486, ASSERT_TYPE_ASSERT, "(unsigned)( streamType ) < (unsigned)( STREAM_SYNC_CLIENT_TYPE_COUNT )", "streamType doesn't index STREAM_SYNC_CLIENT_TYPE_COUNT\n\t%i not in [0, %i)", v14, v16) )
             __debugbreak();
         }
         WeaponStreamedModels = BG_GetWeaponStreamedModels(&inOutWeapon, (const XModel *(*)[32])outList, streamType == STREAM_SYNC_CLIENT_TYPE_VIEW_WEAPON);
         if ( WeaponStreamedModels )
         {
-          v14 = outList;
+          v11 = outList;
           outRequest.priority = ASSET_STREAMING_ZERO_PRIORITY;
           outRequest.assetCount = 0;
-          v15 = WeaponStreamedModels;
+          v12 = WeaponStreamedModels;
           do
           {
-            CL_Streaming_AddWeaponRequest(*v14++, &outRequest);
-            --v15;
+            CL_Streaming_AddWeaponRequest(*v11++, &outRequest);
+            --v12;
           }
-          while ( v15 );
-          if ( !CL_Streaming_FindRequest(v8, &outRequest, &outRequestIndex) )
+          while ( v12 );
+          if ( !CL_Streaming_FindRequest(v7, &outRequest, &outRequestIndex) )
           {
-            requestCount = v8->requestCount;
-            if ( (unsigned int)requestCount >= v8->maxRequestCount )
+            requestCount = v7->requestCount;
+            if ( (unsigned int)requestCount >= v7->maxRequestCount )
             {
-              LODWORD(v19) = streamType;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3577, ASSERT_TYPE_ASSERT, "(requestIndex < requestQueue->maxRequestCount)", "%s\n\tTrying to requestItem a weapon asset (streamType:%d) to fill capacity, but we are already at capacity", "requestIndex < requestQueue->maxRequestCount", v19) )
+              LODWORD(v16) = streamType;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_streaming.cpp", 3577, ASSERT_TYPE_ASSERT, "(requestIndex < requestQueue->maxRequestCount)", "%s\n\tTrying to requestItem a weapon asset (streamType:%d) to fill capacity, but we are already at capacity", "requestIndex < requestQueue->maxRequestCount", v16) )
                 __debugbreak();
             }
-            if ( !CL_Streaming_StartRequest(v8, &outRequest, streamType) )
+            if ( !CL_Streaming_StartRequest(v7, &outRequest, streamType) )
               return;
-            v8->requestItem[requestCount].requestFromDev = 1;
+            v7->requestItem[requestCount].requestFromDev = 1;
           }
         }
       }

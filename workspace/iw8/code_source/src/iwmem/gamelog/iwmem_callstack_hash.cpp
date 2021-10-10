@@ -166,11 +166,12 @@ __int64 IWMem_CallstackHash_TraceCurrent()
   unsigned __int64 v14; 
   unsigned __int64 v15; 
   ntl::fixed_hash_map<unsigned int,IWMemPackedCallstack,16384,24593,ntl::hash<unsigned int>,ntl::equal_to<unsigned int> > *v16; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *v19; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *v20; 
-  ntl::internal::pool_allocator_freelist<80> *v21; 
-  _BYTE v25[68]; 
-  _BYTE v26[64]; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *v17; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *v18; 
+  ntl::internal::pool_allocator_freelist<80> *v19; 
+  _QWORD **v20; 
+  _BYTE v21[68]; 
+  _BYTE v22[64]; 
   unsigned __int64 dest[16]; 
 
   if ( !sp_callstackMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_callstack_hash.cpp", 135, ASSERT_TYPE_ASSERT, "(sp_callstackMap)", (const char *)&queryFormat, "sp_callstackMap") )
@@ -246,64 +247,51 @@ LABEL_64:
           __debugbreak();
         LODWORD(v15) = 0;
       }
-      *(_DWORD *)&v26[4 * v14++] = v15;
+      *(_DWORD *)&v22[4 * v14++] = v15;
       --v0;
     }
     while ( v0 );
     v16 = sp_callstackMap;
-    *(_DWORD *)v25 = v8;
-    __asm
-    {
-      vmovups ymm0, [rsp+188h+var_F8]
-      vmovups ymm1, [rsp+188h+var_D8]
-      vmovups [rsp+188h+var_148+4], ymm0
-      vmovups [rsp+188h+var_124], ymm1
-    }
+    *(_DWORD *)v21 = v8;
+    *(__m256i *)&v21[4] = *(__m256i *)v22;
+    *(__m256i *)&v21[36] = *(__m256i *)&v22[32];
     if ( v9 >= 0x6011 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v19 = &v16->m_buckets.ntl::internal::hash_table<unsigned int,IWMemPackedCallstack,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack>,16384,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> >,24593>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v9];
-    v20 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *)v19->m_listHead.m_sentinel.mp_next;
-    if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *)v19->m_listHead.m_sentinel.mp_next == v19 )
+    v17 = &v16->m_buckets.ntl::internal::hash_table<unsigned int,IWMemPackedCallstack,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack>,16384,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> >,24593>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v9];
+    v18 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *)v17->m_listHead.m_sentinel.mp_next;
+    if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *)v17->m_listHead.m_sentinel.mp_next == v17 )
     {
 LABEL_51:
-      v21 = &v16->m_freelist;
+      v19 = &v16->m_freelist;
       if ( !v16->m_freelist.m_head.mp_next )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
           __debugbreak();
-        if ( !v21->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+        if ( !v19->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
           __debugbreak();
       }
-      if ( (ntl::internal::pool_allocator_freelist<80> *)v21->m_head.mp_next == v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x50ui64, 0x4000ui64) )
+      if ( (ntl::internal::pool_allocator_freelist<80> *)v19->m_head.mp_next == v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x50ui64, 0x4000ui64) )
         __debugbreak();
-      _RDX = (_QWORD **)v21->m_head.mp_next;
-      __asm
-      {
-        vmovups ymm0, [rsp+188h+var_148]
-        vmovups ymm1, ymmword ptr [rsp+60h]
-      }
-      v21->m_head.mp_next = v21->m_head.mp_next->mp_next;
-      __asm
-      {
-        vmovups ymmword ptr [rdx+8], ymm0
-        vmovups ymmword ptr [rdx+28h], ymm1
-      }
-      *_RDX = NULL;
-      *((_DWORD *)_RDX + 18) = *(_DWORD *)&v25[64];
-      *_RDX = &v19->m_listHead.m_sentinel.mp_next->mp_next;
-      v19->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)_RDX;
+      v20 = (_QWORD **)v19->m_head.mp_next;
+      v19->m_head.mp_next = v19->m_head.mp_next->mp_next;
+      *(__m256i *)(v20 + 1) = *(__m256i *)v21;
+      *(__m256i *)(v20 + 5) = *(__m256i *)&v21[32];
+      *v20 = NULL;
+      *((_DWORD *)v20 + 18) = *(_DWORD *)&v21[64];
+      *v20 = &v17->m_listHead.m_sentinel.mp_next->mp_next;
+      v17->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)v20;
       ++v16->m_currentNumItems;
     }
     else
     {
       while ( 1 )
       {
-        if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( LODWORD(v20[1].m_listHead.m_sentinel.mp_next) == v8 )
+        if ( LODWORD(v18[1].m_listHead.m_sentinel.mp_next) == v8 )
           break;
-        v20 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *)v20->m_listHead.m_sentinel.mp_next;
-        if ( v20 == v19 )
+        v18 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,IWMemPackedCallstack> > *)v18->m_listHead.m_sentinel.mp_next;
+        if ( v18 == v17 )
           goto LABEL_51;
       }
     }

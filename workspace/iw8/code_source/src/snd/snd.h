@@ -109,43 +109,24 @@ void GetSecureSndVec3(const vec3_t *from, vec3_t *to, const unsigned int xConst,
   float v7; 
   int v8; 
   unsigned int v9; 
-  __int64 v13; 
-  int v14; 
+  __int64 v10; 
+  int v11; 
 
   v5 = from->v[2];
   v6 = from->v[0];
-  LOBYTE(v14) = BYTE3(from);
-  HIBYTE(v14) = BYTE2(from);
+  LOBYTE(v11) = BYTE3(from);
+  HIBYTE(v11) = BYTE2(from);
   v7 = from->v[1];
-  *(_WORD *)((char *)&v14 + 1) = (_WORD)from;
-  v8 = v14;
-  v9 = LODWORD(v6) ^ v14 ^ ~yConst;
-  LODWORD(to->v[2]) = zConst ^ LODWORD(v5) ^ v14 ^ LODWORD(v7);
+  *(_WORD *)((char *)&v11 + 1) = (_WORD)from;
+  v8 = v11;
+  v9 = LODWORD(v6) ^ v11 ^ ~yConst;
+  LODWORD(to->v[2]) = zConst ^ LODWORD(v5) ^ v11 ^ LODWORD(v7);
   LODWORD(to->v[0]) = xConst ^ LODWORD(v6) ^ LODWORD(v5) ^ v8;
-  memset(&v13, 0, sizeof(v13));
+  memset(&v10, 0, sizeof(v10));
   LODWORD(to->v[1]) = v9;
-  __asm
+  zConst = LODWORD(to->v[0]);
+  if ( (zConst & 0x7F800000) == 2139095040 || (zConst = LODWORD(to->v[1]), (zConst & 0x7F800000) == 2139095040) || (zConst = LODWORD(to->v[2]), (zConst & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 868, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
       __debugbreak();
   }
@@ -191,56 +172,35 @@ SetSecureSndVec3
 */
 void SetSecureSndVec3(const vec3_t *from, vec3_t *to, const unsigned int xConst, const unsigned int yConst, const unsigned int zConst)
 {
-  const vec3_t *v9; 
+  float v9; 
+  unsigned int v10; 
+  float v11; 
   float v12; 
-  unsigned int v13; 
-  float v14; 
-  int v15; 
-  int v16; 
-  unsigned int v17; 
-  vec3_t *v18; 
-  int v19; 
+  int v13; 
+  unsigned int v14; 
+  vec3_t *v15; 
+  float v16; 
 
-  v18 = to;
-  __asm
+  v15 = to;
+  v16 = from->v[0];
+  if ( (LODWORD(v16) & 0x7F800000) == 2139095040 || (v16 = from->v[1], (LODWORD(v16) & 0x7F800000) == 2139095040) || (v16 = from->v[2], (LODWORD(v16) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  v9 = from;
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 816, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v12 = v9->v[0];
-  v13 = ~yConst ^ LODWORD(v9->v[1]);
-  LOBYTE(v19) = BYTE3(to);
-  HIBYTE(v19) = BYTE2(v18);
-  v14 = v9->v[2];
-  *(_WORD *)((char *)&v19 + 1) = (_WORD)to;
-  v15 = v19;
-  v16 = v19 ^ v13;
-  LODWORD(to->v[0]) = v16;
-  v17 = xConst ^ v15 ^ v16 ^ LODWORD(v12);
-  LODWORD(to->v[2]) = v17;
-  LODWORD(to->v[1]) = zConst ^ v15 ^ v17 ^ LODWORD(v14);
-  memset(&v18, 0, sizeof(v18));
+  v9 = from->v[0];
+  v10 = ~yConst ^ LODWORD(from->v[1]);
+  LOBYTE(v16) = BYTE3(to);
+  HIBYTE(v16) = BYTE2(v15);
+  v11 = from->v[2];
+  *(_WORD *)((char *)&v16 + 1) = (_WORD)to;
+  v12 = v16;
+  v13 = LODWORD(v16) ^ v10;
+  LODWORD(to->v[0]) = v13;
+  v14 = xConst ^ LODWORD(v12) ^ v13 ^ LODWORD(v9);
+  LODWORD(to->v[2]) = v14;
+  LODWORD(to->v[1]) = zConst ^ LODWORD(v12) ^ v14 ^ LODWORD(v11);
+  memset(&v15, 0, sizeof(v15));
 }
 
 /*

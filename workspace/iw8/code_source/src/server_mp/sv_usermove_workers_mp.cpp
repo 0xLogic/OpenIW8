@@ -247,23 +247,26 @@ SV_UserMoveWorkersMP_ExecuteClientThinkCmd
 void SV_UserMoveWorkersMP_ExecuteClientThinkCmd(const void *const cmdInfo)
 {
   __int64 v2; 
+  usercmd_s *p_cmd; 
   __int64 v4; 
   SvUserMoveWorkersThinkQueue *v5; 
+  usercmd_s *v6; 
+  __int128 v7; 
   ThreadContext CurrentThreadContext; 
-  __int64 v16; 
-  unsigned int *v17; 
-  bool v18; 
-  _QWORD *v19; 
-  __int64 v20; 
-  unsigned int v21; 
-  __int64 v22; 
-  BgStatic *v23; 
+  __int64 v9; 
+  unsigned int *v10; 
+  bool v11; 
+  _QWORD *v12; 
+  __int64 v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  BgStatic *v16; 
   SvClientMP *CommonClient; 
-  __int64 v25; 
+  __int64 v18; 
   volatile int *p_pendingCount; 
-  int v27; 
-  __int64 v28; 
-  __int64 v29; 
+  int v20; 
+  __int64 v21; 
+  __int64 v22; 
   int data[4]; 
   usercmd_s cmd; 
 
@@ -275,105 +278,95 @@ void SV_UserMoveWorkersMP_ExecuteClientThinkCmd(const void *const cmdInfo)
   v2 = *(unsigned int *)cmdInfo;
   if ( (unsigned int)v2 >= s_userMoveWorkersMp_data.userCmdThinkCount )
   {
-    LODWORD(v28) = *(_DWORD *)cmdInfo;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( s_userMoveWorkersMp_data.userCmdThinkCount )", "clientNum doesn't index s_userMoveWorkersMp_data.userCmdThinkCount\n\t%i not in [0, %i)", v28, s_userMoveWorkersMp_data.userCmdThinkCount) )
+    LODWORD(v21) = *(_DWORD *)cmdInfo;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( s_userMoveWorkersMp_data.userCmdThinkCount )", "clientNum doesn't index s_userMoveWorkersMp_data.userCmdThinkCount\n\t%i not in [0, %i)", v21, s_userMoveWorkersMp_data.userCmdThinkCount) )
       __debugbreak();
   }
-  _RCX = &cmd;
+  p_cmd = &cmd;
   v4 = 2i64;
   v5 = &s_userMoveWorkersMp_data.userCmdThinkQueue[v2];
-  _RAX = &v5->cmds[v5->readIndex];
+  v6 = &v5->cmds[v5->readIndex];
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+    v7 = *(_OWORD *)&v6->buttons;
+    v6 = (usercmd_s *)((char *)v6 + 128);
+    *(_OWORD *)&p_cmd[-1].offHand.attachmentVariationIndices[13] = v7;
+    *(_OWORD *)&p_cmd[-1].offHand.weaponCamo = *(_OWORD *)&v6[-1].offHand.weaponCamo;
+    *(_OWORD *)p_cmd[-1].remoteControlMove = *(_OWORD *)v6[-1].remoteControlMove;
+    *(_OWORD *)p_cmd[-1].vehAngles = *(_OWORD *)v6[-1].vehAngles;
+    *(_OWORD *)&p_cmd[-1].vehOrgZ = *(_OWORD *)&v6[-1].vehOrgZ;
+    *(_OWORD *)&p_cmd[-1].gunYOfs = *(_OWORD *)&v6[-1].gunYOfs;
+    *(_OWORD *)p_cmd[-1].sightedClientsMask.data = *(_OWORD *)v6[-1].sightedClientsMask.data;
+    *(_OWORD *)&p_cmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v6[-1].sightedClientsMask.data[4];
     --v4;
   }
   while ( v4 );
-  _RCX->buttons = _RAX->buttons;
+  p_cmd->buttons = v6->buttons;
   CurrentThreadContext = Sys_GetCurrentThreadContext();
-  v16 = (unsigned int)CurrentThreadContext;
+  v9 = (unsigned int)CurrentThreadContext;
   if ( (unsigned int)CurrentThreadContext >= THREAD_CONTEXT_COUNT )
   {
-    LODWORD(v29) = 28;
-    LODWORD(v28) = CurrentThreadContext;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 59, ASSERT_TYPE_ASSERT, "(unsigned)( threadIndex ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadIndex doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v28, v29) )
+    LODWORD(v22) = 28;
+    LODWORD(v21) = CurrentThreadContext;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 59, ASSERT_TYPE_ASSERT, "(unsigned)( threadIndex ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadIndex doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
-  v17 = &s_userMoveWorkersMp_data.inWorkerContext.m_workerActive[v16];
-  if ( *v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 340, ASSERT_TYPE_ASSERT, "( !s_userMoveWorkersMp_data.inWorkerContext.Test( context ) )", (const char *)&queryFormat, "!s_userMoveWorkersMp_data.inWorkerContext.Test( context )") )
+  v10 = &s_userMoveWorkersMp_data.inWorkerContext.m_workerActive[v9];
+  if ( *v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 340, ASSERT_TYPE_ASSERT, "( !s_userMoveWorkersMp_data.inWorkerContext.Test( context ) )", (const char *)&queryFormat, "!s_userMoveWorkersMp_data.inWorkerContext.Test( context )") )
     __debugbreak();
-  if ( (unsigned int)v16 >= 0x1C )
+  if ( (unsigned int)v9 >= 0x1C )
   {
-    LODWORD(v29) = 28;
-    LODWORD(v28) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 47, ASSERT_TYPE_ASSERT, "(unsigned)( threadIndex ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadIndex doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v28, v29) )
+    LODWORD(v22) = 28;
+    LODWORD(v21) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 47, ASSERT_TYPE_ASSERT, "(unsigned)( threadIndex ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadIndex doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
-  v18 = (_BYTE)SvClient::ms_allocatedType == HALF_HALF;
-  v19 = NtCurrentTeb()->Reserved1[11];
-  v20 = tls_index;
-  *v17 = 1;
-  v21 = *(_DWORD *)cmdInfo;
-  v22 = v19[v20];
-  v23 = *(BgStatic **)(v22 + 272);
-  *(_QWORD *)(v22 + 272) = 0i64;
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
+  v11 = (_BYTE)SvClient::ms_allocatedType == HALF_HALF;
+  v12 = NtCurrentTeb()->Reserved1[11];
+  v13 = tls_index;
+  *v10 = 1;
+  v14 = *(_DWORD *)cmdInfo;
+  v15 = v12[v13];
+  v16 = *(BgStatic **)(v15 + 272);
+  *(_QWORD *)(v15 + 272) = 0i64;
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
-  CommonClient = (SvClientMP *)SvClient::GetCommonClient(v21);
+  CommonClient = (SvClientMP *)SvClient::GetCommonClient(v14);
   SV_ClientMP_ThinkInternal(CommonClient, &cmd);
-  BgStatic::RestoreActiveStatics(v23);
-  if ( (unsigned int)v16 >= 0x1C )
+  BgStatic::RestoreActiveStatics(v16);
+  if ( (unsigned int)v9 >= 0x1C )
   {
-    LODWORD(v29) = 28;
-    LODWORD(v28) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 53, ASSERT_TYPE_ASSERT, "(unsigned)( threadIndex ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadIndex doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v28, v29) )
+    LODWORD(v22) = 28;
+    LODWORD(v21) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 53, ASSERT_TYPE_ASSERT, "(unsigned)( threadIndex ) < (unsigned)( THREAD_CONTEXT_COUNT )", "threadIndex doesn't index THREAD_CONTEXT_COUNT\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
-  *v17 = 0;
+  *v10 = 0;
   v5->readIndex = (v5->readIndex + 1) % 6;
-  v25 = *(unsigned int *)cmdInfo;
+  v18 = *(unsigned int *)cmdInfo;
   if ( !Sys_IsServerUserMoveWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 221, ASSERT_TYPE_ASSERT, "( Sys_IsServerUserMoveWorker() )", (const char *)&queryFormat, "Sys_IsServerUserMoveWorker()") )
     __debugbreak();
-  if ( (unsigned int)v25 >= s_userMoveWorkersMp_data.userCmdThinkCount )
+  if ( (unsigned int)v18 >= s_userMoveWorkersMp_data.userCmdThinkCount )
   {
-    LODWORD(v29) = s_userMoveWorkersMp_data.userCmdThinkCount;
-    LODWORD(v28) = v25;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( s_userMoveWorkersMp_data.userCmdThinkCount )", "clientNum doesn't index s_userMoveWorkersMp_data.userCmdThinkCount\n\t%i not in [0, %i)", v28, v29) )
+    LODWORD(v22) = s_userMoveWorkersMp_data.userCmdThinkCount;
+    LODWORD(v21) = v18;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( s_userMoveWorkersMp_data.userCmdThinkCount )", "clientNum doesn't index s_userMoveWorkersMp_data.userCmdThinkCount\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
-  p_pendingCount = &s_userMoveWorkersMp_data.userCmdThinkQueue[v25].pendingCount;
-  if ( ((unsigned __int8)p_pendingCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_userMoveWorkersMp_data.userCmdThinkQueue[v25].pendingCount) )
+  p_pendingCount = &s_userMoveWorkersMp_data.userCmdThinkQueue[v18].pendingCount;
+  if ( ((unsigned __int8)p_pendingCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_userMoveWorkersMp_data.userCmdThinkQueue[v18].pendingCount) )
     __debugbreak();
-  v27 = _InterlockedDecrement(p_pendingCount);
-  if ( v27 < 0 || (unsigned int)v27 > 5 )
+  v20 = _InterlockedDecrement(p_pendingCount);
+  if ( v20 < 0 || (unsigned int)v20 > 5 )
   {
-    LODWORD(v28) = v27;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 229, ASSERT_TYPE_ASSERT, "( 0 ) <= ( pendingCount ) && ( pendingCount ) <= ( SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME - 1 )", "pendingCount not in [0, SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME - 1]\n\t%i not in [%i, %i]", v28, 0i64, 5) )
+    LODWORD(v21) = v20;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 229, ASSERT_TYPE_ASSERT, "( 0 ) <= ( pendingCount ) && ( pendingCount ) <= ( SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME - 1 )", "pendingCount not in [0, SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME - 1]\n\t%i not in [%i, %i]", v21, 0i64, 5) )
       __debugbreak();
   }
-  if ( v27 > 0 )
+  if ( v20 > 0 )
   {
-    data[0] = v25;
+    data[0] = v18;
     Sys_AddWorkerCmd(WRKCMD_SV_CLIENT_THINK, data);
   }
   SV_Timing_EndWorkerContext();
@@ -505,13 +498,14 @@ char SV_UserMoveWorkersMP_TryQueueClientThinkCmd(const unsigned int clientNum, c
   SvUserMoveWorkersThinkQueue *CmdQueue; 
   volatile int *p_pendingCount; 
   __int64 v8; 
-  volatile int *v18; 
-  int v19; 
-  __int64 v20; 
-  __int64 v21; 
+  usercmd_s *v9; 
+  __int128 v10; 
+  volatile int *v11; 
+  int v12; 
+  __int64 v13; 
+  __int64 v14; 
   int data; 
 
-  _RBX = cmd;
   v3 = clientNum;
   if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 273, ASSERT_TYPE_ASSERT, "( Sys_IsServerThread() )", (const char *)&queryFormat, "Sys_IsServerThread()") )
     __debugbreak();
@@ -522,7 +516,7 @@ char SV_UserMoveWorkersMP_TryQueueClientThinkCmd(const unsigned int clientNum, c
   if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
   CommonClient = (SvClientMP *)SvClient::GetCommonClient(v3);
-  if ( SV_ClientMP_PreThink(CommonClient, _RBX) )
+  if ( SV_ClientMP_PreThink(CommonClient, cmd) )
   {
     CmdQueue = SV_UserMoveWorkersMP_GetCmdQueue(v3);
     p_pendingCount = &CmdQueue->pendingCount;
@@ -535,55 +529,45 @@ char SV_UserMoveWorkersMP_TryQueueClientThinkCmd(const unsigned int clientNum, c
       Sys_Sleep(1);
     }
     v8 = 2i64;
-    _RDX = &CmdQueue->cmds[CmdQueue->writeIndex];
+    v9 = &CmdQueue->cmds[CmdQueue->writeIndex];
     do
     {
-      _RDX = (usercmd_s *)((char *)_RDX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      _RBX = (const usercmd_s *)((char *)_RBX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rdx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-70h]
-        vmovups xmmword ptr [rdx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-60h]
-        vmovups xmmword ptr [rdx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-50h]
-        vmovups xmmword ptr [rdx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-40h]
-        vmovups xmmword ptr [rdx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-30h]
-        vmovups xmmword ptr [rdx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-10h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v9 = (usercmd_s *)((char *)v9 + 128);
+      v10 = *(_OWORD *)&cmd->buttons;
+      cmd = (const usercmd_s *)((char *)cmd + 128);
+      *(_OWORD *)&v9[-1].offHand.attachmentVariationIndices[13] = v10;
+      *(_OWORD *)&v9[-1].offHand.weaponCamo = *(_OWORD *)&cmd[-1].offHand.weaponCamo;
+      *(_OWORD *)v9[-1].remoteControlMove = *(_OWORD *)cmd[-1].remoteControlMove;
+      *(_OWORD *)v9[-1].vehAngles = *(_OWORD *)cmd[-1].vehAngles;
+      *(_OWORD *)&v9[-1].vehOrgZ = *(_OWORD *)&cmd[-1].vehOrgZ;
+      *(_OWORD *)&v9[-1].gunYOfs = *(_OWORD *)&cmd[-1].gunYOfs;
+      *(_OWORD *)v9[-1].sightedClientsMask.data = *(_OWORD *)cmd[-1].sightedClientsMask.data;
+      *(_OWORD *)&v9[-1].sightedClientsMask.data[4] = *(_OWORD *)&cmd[-1].sightedClientsMask.data[4];
       --v8;
     }
     while ( v8 );
-    _RDX->buttons = _RBX->buttons;
+    v9->buttons = cmd->buttons;
     CmdQueue->writeIndex = (CmdQueue->writeIndex + 1) % 6;
     if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 200, ASSERT_TYPE_ASSERT, "( Sys_IsServerThread() )", (const char *)&queryFormat, "Sys_IsServerThread()") )
       __debugbreak();
     if ( (unsigned int)v3 >= s_userMoveWorkersMp_data.userCmdThinkCount )
     {
-      LODWORD(v20) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( s_userMoveWorkersMp_data.userCmdThinkCount )", "clientNum doesn't index s_userMoveWorkersMp_data.userCmdThinkCount\n\t%i not in [0, %i)", v20, s_userMoveWorkersMp_data.userCmdThinkCount) )
+      LODWORD(v13) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 122, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( s_userMoveWorkersMp_data.userCmdThinkCount )", "clientNum doesn't index s_userMoveWorkersMp_data.userCmdThinkCount\n\t%i not in [0, %i)", v13, s_userMoveWorkersMp_data.userCmdThinkCount) )
         __debugbreak();
     }
-    v18 = &s_userMoveWorkersMp_data.userCmdThinkQueue[v3].pendingCount;
-    if ( ((unsigned __int8)v18 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_userMoveWorkersMp_data.userCmdThinkQueue[v3].pendingCount) )
+    v11 = &s_userMoveWorkersMp_data.userCmdThinkQueue[v3].pendingCount;
+    if ( ((unsigned __int8)v11 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_userMoveWorkersMp_data.userCmdThinkQueue[v3].pendingCount) )
       __debugbreak();
-    v19 = _InterlockedIncrement(v18);
-    if ( v19 < 1 || (unsigned int)v19 > 6 )
+    v12 = _InterlockedIncrement(v11);
+    if ( v12 < 1 || (unsigned int)v12 > 6 )
     {
-      LODWORD(v21) = 1;
-      LODWORD(v20) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 208, ASSERT_TYPE_ASSERT, "( 1 ) <= ( pendingCount ) && ( pendingCount ) <= ( SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME )", "pendingCount not in [1, SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME]\n\t%i not in [%i, %i]", v20, v21, 6) )
+      LODWORD(v14) = 1;
+      LODWORD(v13) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_usermove_workers_mp.cpp", 208, ASSERT_TYPE_ASSERT, "( 1 ) <= ( pendingCount ) && ( pendingCount ) <= ( SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME )", "pendingCount not in [1, SV_USERMOVE_WORKERS_MAX_THINK_PER_FRAME]\n\t%i not in [%i, %i]", v13, v14, 6) )
         __debugbreak();
     }
-    if ( v19 == 1 )
+    if ( v12 == 1 )
     {
       data = v3;
       Sys_AddWorkerCmd(WRKCMD_SV_CLIENT_THINK, &data);

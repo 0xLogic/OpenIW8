@@ -266,11 +266,8 @@ unsigned __int8 *SerializeCrossTitleLaunchData(const LaunchData *launchData, voi
     }
     operator delete(Myfirst, v15);
     v22.vtables_._Mypair._Myval2._Myfirst = NULL;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp-70h], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v22.vtables_._Mypair._Myval2._Mylast = _XMM0;
   }
   v16 = v22.offsetbuf_._Mypair._Myval2._Myfirst;
   if ( v22.offsetbuf_._Mypair._Myval2._Myfirst )
@@ -285,11 +282,8 @@ unsigned __int8 *SerializeCrossTitleLaunchData(const LaunchData *launchData, voi
     }
     operator delete(v16, v17);
     v22.offsetbuf_._Mypair._Myval2._Myfirst = NULL;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+70h], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v22.offsetbuf_._Mypair._Myval2._Mylast = _XMM0;
   }
   if ( v22.buf_.buf_ )
     ((void (__fastcall *)(const flatbuffers::simple_allocator *))v22.buf_.allocator_->deallocate)(v22.buf_.allocator_);

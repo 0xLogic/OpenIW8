@@ -296,8 +296,7 @@ SV_Timing_GetEventLoopFrameTime
 */
 float SV_Timing_GetEventLoopFrameTime()
 {
-  __asm { vmovss  xmm0, cs:s_serverTiming.eventLoopFrameTime }
-  return *(float *)&_XMM0;
+  return s_serverTiming.eventLoopFrameTime;
 }
 
 /*
@@ -307,8 +306,7 @@ SV_Timing_GetRunFrameTime
 */
 float SV_Timing_GetRunFrameTime()
 {
-  __asm { vmovss  xmm0, cs:s_serverTiming.serverFrameTime }
-  return *(float *)&_XMM0;
+  return s_serverTiming.serverFrameTime;
 }
 
 /*
@@ -318,13 +316,7 @@ SV_Timing_GetTotalFrameTime
 */
 float SV_Timing_GetTotalFrameTime()
 {
-  __asm
-  {
-    vmovss  xmm0, cs:s_serverTiming.eventLoopFrameTime
-    vaddss  xmm1, xmm0, cs:s_serverTiming.serverFrameTime
-    vaddss  xmm0, xmm1, cs:s_serverTiming.serverWkrFrameTime
-  }
-  return *(float *)&_XMM0;
+  return (float)(s_serverTiming.eventLoopFrameTime + s_serverTiming.serverFrameTime) + s_serverTiming.serverWkrFrameTime;
 }
 
 /*
@@ -334,8 +326,7 @@ SV_Timing_GetWorkerFrameTime
 */
 float SV_Timing_GetWorkerFrameTime()
 {
-  __asm { vmovss  xmm0, cs:s_serverTiming.serverWkrFrameTime }
-  return *(float *)&_XMM0;
+  return s_serverTiming.serverWkrFrameTime;
 }
 
 /*
@@ -413,13 +404,20 @@ void SV_Timing_StartWorkerContext(void)
 SV_Timing_UpdateClientMessages
 ==============
 */
-
-void __fastcall SV_Timing_UpdateClientMessages(const ServerTimingState *outTimingState, double _XMM1_8)
+void SV_Timing_UpdateClientMessages(const ServerTimingState *outTimingState)
 {
   signed __int64 totalTicks; 
-  const dvar_t *v6; 
+  const dvar_t *v3; 
+  __int128 v6; 
+  __int128 v8; 
+  float v10; 
+  double v13; 
+  __int128 v14; 
+  __int128 v16; 
+  double v20; 
+  __int128 v21; 
+  __int128 v23; 
   char *fmt; 
-  double v32; 
 
   if ( !outTimingState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_timing.cpp", 142, ASSERT_TYPE_ASSERT, "( outTimingState )", (const char *)&queryFormat, "outTimingState") )
     __debugbreak();
@@ -433,74 +431,60 @@ void __fastcall SV_Timing_UpdateClientMessages(const ServerTimingState *outTimin
     s_serverTiming.clientMsgTicksMax = outTimingState->totalTicks;
     totalTicks = outTimingState->totalTicks;
   }
-  v6 = DVARBOOL_sv_debugTrackServerTime;
+  v3 = DVARBOOL_sv_debugTrackServerTime;
   if ( DVARBOOL_sv_debugTrackServerTime )
   {
     Dvar_CheckFrontendServerThread(DVARBOOL_sv_debugTrackServerTime);
-    if ( v6->current.enabled )
+    if ( v3->current.enabled )
     {
-      __asm
-      {
-        vmovaps [rsp+58h+var_18], xmm6
-        vmovsd  xmm5, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vmovsd  xmm3, cs:__real@43f0000000000000
-      }
       if ( s_serverTiming.clientMsgCount <= 0 )
       {
-        __asm { vxorps  xmm4, xmm4, xmm4 }
+        v10 = 0.0;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rax
-        }
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
         if ( (s_serverTiming.clientMsgTicksTotal & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddsd  xmm0, xmm0, xmm3 }
-        __asm
         {
-          vmulsd  xmm0, xmm0, xmm5
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsd2ss xmm2, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, ecx
-          vdivss  xmm4, xmm2, xmm1
+          *((_QWORD *)&v6 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v6 = *(double *)&_XMM0 + 1.844674407370955e19;
+          _XMM0 = v6;
         }
+        *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v8 = *(double *)&_XMM0 * msecPerRawTimerTick;
+        _XMM0 = v8;
+        __asm { vcvtsd2ss xmm2, xmm0, xmm0 }
+        v10 = *(float *)&_XMM2 / (float)s_serverTiming.clientMsgCount;
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vcvtss2sd xmm6, xmm4, xmm4
-      }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      v13 = v10;
       if ( (s_serverTiming.clientMsgTicksTotal & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddsd  xmm0, xmm0, xmm3 }
-      __asm
       {
-        vmulsd  xmm0, xmm0, xmm5
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rdi
-        vcvtss2sd xmm4, xmm1, xmm1
+        *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v14 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v14;
       }
+      *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v16 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v16;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rdi }
+      v20 = *(float *)&_XMM1;
       if ( totalTicks < 0 )
-        __asm { vaddsd  xmm0, xmm0, xmm3 }
-      __asm
       {
-        vmulsd  xmm0, xmm0, xmm5
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovaps xmm3, xmm4
-        vmovsd  [rsp+58h+var_30], xmm6
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v21 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v21;
       }
+      *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v23 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v23;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
       LODWORD(fmt) = s_serverTiming.clientMsgCount;
-      __asm
-      {
-        vmovq   r8, xmm2
-        vmovq   r9, xmm3
-      }
-      Com_Printf(0, "Client Msg Time => [Current= %0.2f, clientMsgTotal= %0.2f, clientMsgCount= %d, clientMsgAvg= %0.2f] \n", *(double *)&_XMM2, *(double *)&_XMM3, fmt, v32);
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
+      Com_Printf(0, "Client Msg Time => [Current= %0.2f, clientMsgTotal= %0.2f, clientMsgCount= %d, clientMsgAvg= %0.2f] \n", *(float *)&_XMM1, v20, fmt, v13);
     }
   }
 }
@@ -525,163 +509,107 @@ void SV_Timing_UpdateEventLoop(const ServerTimingState *outTimingState)
 SV_Timing_UpdateFrame
 ==============
 */
-
-void __fastcall SV_Timing_UpdateFrame(const ServerTimingState *timingState, double frameDurationMs)
+void SV_Timing_UpdateFrame(const ServerTimingState *timingState, const float frameDurationMs)
 {
-  bool IsServerThread; 
-  bool v25; 
-  bool v26; 
-  const dvar_t *v30; 
+  __int128 v6; 
+  __int128 v8; 
+  __int128 v12; 
+  __int128 v14; 
+  __int128 v18; 
+  __int128 v20; 
+  float v22; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  float serverTimeCount; 
   char *fmt; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
   if ( !timingState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_timing.cpp", 240, ASSERT_TYPE_ASSERT, "( timingState )", (const char *)&queryFormat, "timingState") )
     __debugbreak();
   if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_timing.cpp", 20, ASSERT_TYPE_ASSERT, "( !UseServerSmp() || Sys_IsServerThread() )", (const char *)&queryFormat, "!UseServerSmp() || Sys_IsServerThread()") )
     __debugbreak();
-  __asm
-  {
-    vmovsd  xmm1, cs:__real@43f0000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (s_serverTiming.eventLoopFrameTicksTotal & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm1 }
-  __asm
   {
-    vmovsd  xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmulsd  xmm0, xmm0, xmm2
-    vcvtsd2ss xmm4, xmm0, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmovss  cs:s_serverTiming.eventLoopFrameTime, xmm4
+    *((_QWORD *)&v6 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v6 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v6;
   }
+  *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v8 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM0 = v8;
+  __asm { vcvtsd2ss xmm4, xmm0, xmm0 }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  s_serverTiming.eventLoopFrameTime = *(float *)&_XMM4;
   if ( (s_serverTiming.serverWrkTicksTotal & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm1 }
-  __asm
   {
-    vmulsd  xmm0, xmm0, xmm2
-    vcvtsd2ss xmm3, xmm0, xmm0
-    vmovss  cs:s_serverTiming.serverWkrFrameTime, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v12;
   }
+  *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v14 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM0 = v14;
+  __asm { vcvtsd2ss xmm3, xmm0, xmm0 }
+  s_serverTiming.serverWkrFrameTime = *(float *)&_XMM3;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (timingState->totalTicks & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm1 }
-  ++s_serverTiming.serverTimeCount;
-  __asm
   {
-    vmulsd  xmm0, xmm0, xmm2
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  cs:s_serverTiming.serverFrameTime, xmm1
-    vaddss  xmm1, xmm1, xmm4
-    vaddss  xmm6, xmm1, xmm3
-    vaddss  xmm2, xmm6, cs:s_serverTiming.serverTimeTotal
-    vmovss  cs:s_serverTiming.serverTimeTotal, xmm2
+    *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v18 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v18;
   }
+  ++s_serverTiming.serverTimeCount;
+  *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v20 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM0 = v20;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  s_serverTiming.serverFrameTime = *(float *)&_XMM1;
+  v22 = (float)(*(float *)&_XMM1 + *(float *)&_XMM4) + *(float *)&_XMM3;
+  s_serverTiming.serverTimeTotal = v22 + s_serverTiming.serverTimeTotal;
   if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_timing.cpp", 20, ASSERT_TYPE_ASSERT, "( !UseServerSmp() || Sys_IsServerThread() )", (const char *)&queryFormat, "!UseServerSmp() || Sys_IsServerThread()") )
     __debugbreak();
   s_serverTiming.eventLoopFrameTicksTotal = 0i64;
   s_serverTiming.eventLoopFrameCount = 0;
-  IsServerThread = Sys_IsServerThread();
-  v25 = !IsServerThread;
-  if ( !IsServerThread )
-  {
-    v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_timing.cpp", 20, ASSERT_TYPE_ASSERT, "( !UseServerSmp() || Sys_IsServerThread() )", (const char *)&queryFormat, "!UseServerSmp() || Sys_IsServerThread()");
-    v25 = !v26;
-    if ( v26 )
-      __debugbreak();
-  }
+  if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_timing.cpp", 20, ASSERT_TYPE_ASSERT, "( !UseServerSmp() || Sys_IsServerThread() )", (const char *)&queryFormat, "!UseServerSmp() || Sys_IsServerThread()") )
+    __debugbreak();
+  _XMM1 = LODWORD(s_serverTiming.serverTimeMax);
   __asm
   {
-    vcomiss xmm6, xmm7
-    vmovss  xmm1, cs:s_serverTiming.serverTimeMax
     vcmpltss xmm0, xmm1, xmm6
     vblendvps xmm0, xmm1, xmm6, xmm0
-    vmovss  cs:s_serverTiming.serverTimeMax, xmm0
   }
+  s_serverTiming.serverTimeMax = *(float *)&_XMM0;
   s_serverTiming.serverWrkTicksTotal = 0i64;
   s_serverTiming.serverWrkCount = 0;
-  if ( !v25 )
+  if ( v22 > frameDurationMs )
   {
-    __asm { vaddss  xmm1, xmm6, cs:s_serverTiming.serverTimeTotalExceed }
     ++s_serverTiming.serverTimeExceedCount;
-    __asm { vmovss  cs:s_serverTiming.serverTimeTotalExceed, xmm1 }
+    s_serverTiming.serverTimeTotalExceed = v22 + s_serverTiming.serverTimeTotalExceed;
   }
-  v30 = DVARBOOL_sv_debugTrackServerTime;
-  __asm { vmovss  cs:s_serverTiming.serverTimeTarget, xmm7 }
+  v26 = DVARBOOL_sv_debugTrackServerTime;
+  s_serverTiming.serverTimeTarget = frameDurationMs;
   if ( DVARBOOL_sv_debugTrackServerTime )
   {
     Dvar_CheckFrontendServerThread(DVARBOOL_sv_debugTrackServerTime);
-    if ( v30->current.enabled )
+    if ( v26->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm2, cs:s_serverTiming.serverTimeTotalExceed
-        vxorps  xmm1, xmm1, xmm1
-      }
+      v27 = 0.0;
       if ( s_serverTiming.serverTimeExceedCount <= 0 )
-      {
-        __asm { vxorps  xmm3, xmm3, xmm3 }
-      }
+        v28 = 0.0;
       else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm3, xmm2, xmm0
-        }
-      }
-      __asm
-      {
-        vmovss  xmm7, cs:s_serverTiming.serverTimeMax
-        vcvtss2sd xmm4, xmm3, xmm3
-        vmovss  xmm3, cs:s_serverTiming.serverTimeTotal
-        vcvtss2sd xmm5, xmm2, xmm2
-        vcvtss2sd xmm7, xmm7, xmm7
-      }
+        v28 = s_serverTiming.serverTimeTotalExceed / (float)s_serverTiming.serverTimeExceedCount;
       if ( s_serverTiming.serverTimeCount )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rdx
-          vdivss  xmm1, xmm3, xmm0
-        }
-      }
-      __asm
-      {
-        vmovsd  [rsp+78h+var_30], xmm4
-        vmovsd  [rsp+78h+var_40], xmm5
-        vcvtss2sd xmm0, xmm1, xmm1
-        vmovsd  [rsp+78h+var_48], xmm7
-        vmovsd  [rsp+78h+var_50], xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm6, xmm6
+        serverTimeCount = (float)s_serverTiming.serverTimeCount;
+        v27 = s_serverTiming.serverTimeTotal / serverTimeCount;
       }
       LODWORD(fmt) = s_serverTiming.serverTimeCount;
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      Com_Printf(0, "Server Time => [CurrentFrameTime= %0.2f], [Total= %0.2f, Count= %d, AvgTotal= %0.2f, Max= %0.2f], [ExceedTotal= %0.2f, ExceedCount= %d, AvgExceed= %0.2f] \n", *(double *)&_XMM2, *(double *)&_XMM3, fmt, v50, v51, v52, s_serverTiming.serverTimeExceedCount, v53);
+      Com_Printf(0, "Server Time => [CurrentFrameTime= %0.2f], [Total= %0.2f, Count= %d, AvgTotal= %0.2f, Max= %0.2f], [ExceedTotal= %0.2f, ExceedCount= %d, AvgExceed= %0.2f] \n", v22, s_serverTiming.serverTimeTotal, fmt, v27, s_serverTiming.serverTimeMax, s_serverTiming.serverTimeTotalExceed, s_serverTiming.serverTimeExceedCount, v28);
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
   }
 }
 

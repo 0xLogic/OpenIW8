@@ -498,58 +498,27 @@ void __fastcall AICommonInterface::SetGoalRadius(ai_goal_t *goal, float radius)
 AI_ComparePointsInternal
 ==============
 */
-
-bool __fastcall AI_ComparePointsInternal(const vec3_t *vPoint1, const vec3_t *vPoint2, double heightDistSQ, double distSQ, bool is3D)
+bool AI_ComparePointsInternal(const vec3_t *vPoint1, const vec3_t *vPoint2, float heightDistSQ, float distSQ, bool is3D)
 {
-  bool result; 
+  float v5; 
+  float v6; 
+  float v8; 
 
-  __asm
-  {
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovaps xmm6, xmm3
-    vmovaps xmm4, xmm2
-  }
   if ( is3D )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vsubss  xmm5, xmm0, dword ptr [rcx]
-      vmovss  xmm1, dword ptr [rdx+4]
-      vsubss  xmm2, xmm1, dword ptr [rcx+4]
-      vmovss  xmm0, dword ptr [rdx+8]
-      vsubss  xmm4, xmm0, dword ptr [rcx+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm6, xmm2
-    }
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
+    v5 = vPoint2->v[1] - vPoint1->v[1];
+    v6 = vPoint2->v[2] - vPoint1->v[2];
+    return distSQ >= (float)((float)((float)(v5 * v5) + (float)((float)(vPoint2->v[0] - vPoint1->v[0]) * (float)(vPoint2->v[0] - vPoint1->v[0]))) + (float)(v6 * v6));
+  }
+  else if ( (float)((float)(vPoint1->v[2] - vPoint2->v[2]) * (float)(vPoint1->v[2] - vPoint2->v[2])) <= heightDistSQ )
+  {
+    v8 = vPoint2->v[1] - vPoint1->v[1];
+    return distSQ >= (float)((float)(v8 * v8) + (float)((float)(vPoint2->v[0] - vPoint1->v[0]) * (float)(vPoint2->v[0] - vPoint1->v[0])));
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+8]
-      vsubss  xmm1, xmm0, dword ptr [rdx+8]
-      vmulss  xmm2, xmm1, xmm1
-      vcomiss xmm2, xmm4
-      vmovss  xmm0, dword ptr [rdx]
-      vmovss  xmm1, dword ptr [rdx+4]
-      vsubss  xmm2, xmm1, dword ptr [rcx+4]
-      vsubss  xmm4, xmm0, dword ptr [rcx]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm6, xmm1
-      vmovaps xmm6, [rsp+18h+var_18]
-    }
-    return 1;
+    return 0;
   }
-  return result;
 }
 
 /*
@@ -560,27 +529,21 @@ AI_DissociateAIFromEnt
 void AI_DissociateAIFromEnt(gentity_s *victim)
 {
   sentient_s *sentient; 
+  bitarray<224> *AllTeamFlags; 
   sentient_s *i; 
   const gentity_s **p_ent; 
   AICommonInterface *m_pAI; 
-  AICommonWrapper v9; 
+  AICommonWrapper v7; 
   bitarray<224> iTeamFlags; 
 
   if ( !victim->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 752, ASSERT_TYPE_ASSERT, "( victim->sentient )", (const char *)&queryFormat, "victim->sentient") )
     __debugbreak();
   sentient = victim->sentient;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+108h+iTeamFlags.array], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rsp+108h+iTeamFlags.array+10h], xmm1
-  }
-  iTeamFlags.array[6] = _RAX->array[6];
+    AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+  iTeamFlags = *AllTeamFlags;
   for ( i = Sentient_FirstSentient(&iTeamFlags); i; i = Sentient_NextSentient(i, &iTeamFlags) )
   {
     if ( i != sentient )
@@ -588,17 +551,17 @@ void AI_DissociateAIFromEnt(gentity_s *victim)
       p_ent = (const gentity_s **)&i->ai->ent;
       if ( p_ent )
       {
-        AIActorInterface::AIActorInterface(&v9.m_actorInterface);
-        AIAgentInterface::AIAgentInterface(&v9.m_newAgentInterface);
-        v9.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-        AICommonInterface::AICommonInterface(&v9.m_botInterface);
-        v9.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-        AICommonInterface::AICommonInterface(&v9.m_botAgentInterface);
-        v9.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-        v9.m_pAI = NULL;
-        AICommonWrapper::Setup(&v9, *p_ent);
-        m_pAI = v9.m_pAI;
-        if ( !v9.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 763, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+        AIActorInterface::AIActorInterface(&v7.m_actorInterface);
+        AIAgentInterface::AIAgentInterface(&v7.m_newAgentInterface);
+        v7.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+        AICommonInterface::AICommonInterface(&v7.m_botInterface);
+        v7.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+        AICommonInterface::AICommonInterface(&v7.m_botAgentInterface);
+        v7.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+        v7.m_pAI = NULL;
+        AICommonWrapper::Setup(&v7, *p_ent);
+        m_pAI = v7.m_pAI;
+        if ( !v7.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 763, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
           __debugbreak();
         m_pAI->DissociateSentient(m_pAI, sentient);
       }
@@ -623,89 +586,52 @@ AI_DropPointToFloorInternal
 */
 void AI_DropPointToFloorInternal(vec3_t *point, const Bounds *bounds, int useUp, const vec3_t *up)
 {
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float fraction; 
+  float v12; 
+  float v13; 
   vec3_t start; 
   vec3_t end; 
   trace_t results; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
-  _RBX = point;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rcx]
-    vmovss  xmm6, dword ptr [rcx+4]
-    vmovss  xmm7, dword ptr [rcx+8]
-  }
+  v5 = point->v[0];
+  v6 = point->v[1];
+  v7 = point->v[2];
   if ( useUp )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41900000
-      vmulss  xmm4, xmm2, dword ptr [r9]
-      vmulss  xmm3, xmm2, dword ptr [r9+4]
-      vmulss  xmm2, xmm2, dword ptr [r9+8]
-      vaddss  xmm0, xmm4, xmm5
-      vmovss  dword ptr [rbp+57h+start], xmm0
-      vaddss  xmm0, xmm6, xmm3
-      vmovss  dword ptr [rbp+57h+start+4], xmm0
-      vaddss  xmm0, xmm7, xmm2
-      vsubss  xmm1, xmm5, xmm4
-      vmovss  dword ptr [rbp+57h+start+8], xmm0
-      vmovss  dword ptr [rbp+57h+end], xmm1
-      vsubss  xmm0, xmm6, xmm3
-      vsubss  xmm1, xmm7, xmm2
-      vmovss  dword ptr [rbp+57h+end+4], xmm0
-      vmovss  dword ptr [rbp+57h+end+8], xmm1
-    }
+    v8 = 18.0 * up->v[0];
+    v9 = 18.0 * up->v[1];
+    v10 = 18.0 * up->v[2];
+    start.v[0] = v8 + v5;
+    start.v[1] = v6 + v9;
+    start.v[2] = v7 + v10;
+    end.v[0] = v5 - v8;
+    end.v[1] = v6 - v9;
+    end.v[2] = v7 - v10;
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm7, cs:__real@41900000
-      vmovss  dword ptr [rbp+57h+start+8], xmm0
-      vsubss  xmm0, xmm7, cs:__real@44480000
-      vmovss  dword ptr [rbp+57h+end+8], xmm0
-      vmovss  dword ptr [rbp+57h+start], xmm5
-      vmovss  dword ptr [rbp+57h+start+4], xmm6
-      vmovss  dword ptr [rbp+57h+end], xmm5
-      vmovss  dword ptr [rbp+57h+end+4], xmm6
-    }
+    start.v[2] = v7 + 18.0;
+    end.v[2] = v7 - 800.0;
+    start.v[0] = v5;
+    start.v[1] = v6;
+    end.v[0] = v5;
+    end.v[1] = v6;
   }
   G_Main_TraceCapsule(&results, &start, &end, bounds, 2047, 131089);
   if ( !*(_WORD *)&results.allsolid )
   {
-    __asm
-    {
-      vmovss  xmm5, [rbp+57h+results.fraction]
-      vmovss  xmm0, dword ptr [rbp+57h+end]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rbp+57h+start]
-      vmovss  xmm1, dword ptr [rbp+57h+end+4]
-      vmovss  dword ptr [rbx], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rbp+57h+start+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+4]
-      vmovss  xmm0, dword ptr [rbp+57h+end+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rbx+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+8]
-      vmovss  dword ptr [rbx+8], xmm3
-    }
-  }
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    fraction = results.fraction;
+    v12 = end.v[1];
+    point->v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    v13 = (float)(end.v[2] - start.v[2]) * fraction;
+    point->v[1] = (float)((float)(v12 - start.v[1]) * fraction) + start.v[1];
+    point->v[2] = v13 + start.v[2];
   }
 }
 
@@ -758,106 +684,65 @@ AI_GetDropToFloorPosition
 */
 __int64 AI_GetDropToFloorPosition(gentity_s *ent, vec3_t *inOutPosition)
 {
+  float v4; 
+  float v5; 
   gclient_s *client; 
   EffectiveStance EffectiveStance; 
+  double BoundsHeight; 
+  float v9; 
   int contentmask; 
-  char v13; 
   entityType_s eType; 
-  __int64 result; 
-  __int128 start; 
+  float fraction; 
+  float v14; 
+  float v15; 
+  vec3_t start; 
   vec3_t end; 
   Bounds bounds; 
   trace_t results; 
-  char v41; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RDI = inOutPosition;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 562, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-  }
+  v4 = inOutPosition->v[1];
+  v5 = inOutPosition->v[2];
   client = ent->client;
-  __asm
-  {
-    vmovss  dword ptr [rbp+57h+end], xmm2
-    vmovss  dword ptr [rbp+57h+end+4], xmm1
-    vmovss  dword ptr [rbp+57h+end+8], xmm0
-    vmovss  dword ptr [rbp+57h+start], xmm2
-    vmovss  dword ptr [rbp+57h+start+4], xmm1
-    vmovss  dword ptr [rbp+57h+start+8], xmm0
-  }
+  end.v[0] = inOutPosition->v[0];
+  end.v[1] = v4;
+  end.v[2] = v5;
+  start.v[0] = end.v[0];
+  start.v[1] = v4;
+  start.v[2] = v5;
   if ( client )
   {
     EffectiveStance = PM_GetEffectiveStance(&client->ps);
-    *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(&client->ps, EffectiveStance);
-    __asm
-    {
-      vcomiss xmm0, cs:__real@41f00000
-      vmovaps xmm6, xmm0
-    }
+    BoundsHeight = BG_Suit_GetBoundsHeight(&client->ps, EffectiveStance);
+    v9 = *(float *)&BoundsHeight;
     contentmask = 65553;
-    if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 584, ASSERT_TYPE_ASSERT, "(height >= radius * 2.f)", (const char *)&queryFormat, "height >= radius * 2.f", start) )
+    if ( *(float *)&BoundsHeight < 30.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 584, ASSERT_TYPE_ASSERT, "(height >= radius * 2.f)", (const char *)&queryFormat, "height >= radius * 2.f") )
       __debugbreak();
   }
   else
   {
     eType = ent->s.eType;
-    if ( (unsigned __int16)(eType - 19) > 2u && eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 577, ASSERT_TYPE_ASSERT, "(ent->s.eType == ET_ACTOR || ent->s.eType == ET_ACTOR_CORPSE || ent->s.eType == ET_ACTOR_SPAWNER || ent->s.eType == ET_SCRIPTMOVER)", (const char *)&queryFormat, "ent->s.eType == ET_ACTOR || ent->s.eType == ET_ACTOR_CORPSE || ent->s.eType == ET_ACTOR_SPAWNER || ent->s.eType == ET_SCRIPTMOVER", start) )
+    if ( (unsigned __int16)(eType - 19) > 2u && eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 577, ASSERT_TYPE_ASSERT, "(ent->s.eType == ET_ACTOR || ent->s.eType == ET_ACTOR_CORPSE || ent->s.eType == ET_ACTOR_SPAWNER || ent->s.eType == ET_SCRIPTMOVER)", (const char *)&queryFormat, "ent->s.eType == ET_ACTOR || ent->s.eType == ET_ACTOR_CORPSE || ent->s.eType == ET_ACTOR_SPAWNER || ent->s.eType == ET_SCRIPTMOVER") )
       __debugbreak();
-    __asm { vmovss  xmm6, cs:__real@42900000 }
+    v9 = FLOAT_72_0;
     contentmask = 131089;
   }
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rbp+57h+start+8]
-    vsubss  xmm2, xmm1, cs:__real@41f00000
-    vmovss  xmm0, dword ptr [rbp+57h+end+8]
-    vaddss  xmm1, xmm0, cs:__real@c4480000
-    vmovss  xmm0, cs:__real@41700000
-    vmovss  dword ptr [rbp+57h+start+8], xmm2
-    vmovups xmm2, cs:__xmm@41700000417000000000000000000000
-    vmovups xmmword ptr [rbp+57h+bounds.midPoint], xmm2
-    vmovss  dword ptr [rbp+57h+end+8], xmm1
-    vmovss  dword ptr [rbp+57h+bounds.halfSize+4], xmm0
-    vmovss  dword ptr [rbp+57h+bounds.halfSize+8], xmm0
-  }
-  G_Main_TraceCapsule(&results, (const vec3_t *)&start, &end, &bounds, 2047, contentmask);
+  start.v[2] = (float)(v9 + start.v[2]) - 30.0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  end.v[2] = end.v[2] + -800.0;
+  bounds.halfSize.v[1] = FLOAT_15_0;
+  bounds.halfSize.v[2] = FLOAT_15_0;
+  G_Main_TraceCapsule(&results, &start, &end, &bounds, 2047, contentmask);
   if ( results.startsolid )
-  {
-    result = 0i64;
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm5, [rbp+57h+results.fraction]
-      vmovss  xmm0, dword ptr [rbp+57h+end]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rbp+57h+start]
-      vmovss  xmm1, dword ptr [rbp+57h+end+4]
-      vmovss  dword ptr [rdi], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rbp+57h+start+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+4]
-      vmovss  xmm0, dword ptr [rbp+57h+end+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+start+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rdi+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+8]
-      vmovss  dword ptr [rdi+8], xmm3
-    }
-    result = 1i64;
-  }
-  _R11 = &v41;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+    return 0i64;
+  fraction = results.fraction;
+  v14 = end.v[1];
+  inOutPosition->v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+  v15 = (float)(end.v[2] - start.v[2]) * fraction;
+  inOutPosition->v[1] = (float)((float)(v14 - start.v[1]) * fraction) + start.v[1];
+  inOutPosition->v[2] = v15 + start.v[2];
+  return 1i64;
 }
 
 /*
@@ -865,35 +750,11 @@ __int64 AI_GetDropToFloorPosition(gentity_s *ent, vec3_t *inOutPosition)
 AI_IsInsideArc
 ==============
 */
-
-bool __fastcall AI_IsInsideArc(gentity_s *self, const vec3_t *origin, double radius, double angle0, float angle1, float halfHeight)
+bool AI_IsInsideArc(gentity_s *self, const vec3_t *origin, float radius, float angle0, float angle1, float halfHeight)
 {
-  float fmt; 
-  float arcAngle1; 
-  float v21; 
-
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 368, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, [rsp+68h+angle1]
-    vmovss  xmm0, [rsp+68h+halfHeight]
-    vmovss  [rsp+68h+var_38], xmm0
-    vmovss  [rsp+68h+arcAngle1], xmm1
-    vmovss  xmm1, cs:__real@41700000; posRadius
-    vmovaps xmm3, xmm7; arcRadius
-    vmovss  dword ptr [rsp+68h+fmt], xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return IsPosInsideArc(&self->r.currentOrigin, *(float *)&_XMM1, origin, *(float *)&_XMM3, fmt, arcAngle1, v21) != 0;
+  return IsPosInsideArc(&self->r.currentOrigin, 15.0, origin, radius, angle0, angle1, halfHeight) != 0;
 }
 
 /*
@@ -905,9 +766,13 @@ bool AI_PointNearNode(const ai_common_t *self, const vec3_t *vPoint, const pathn
 {
   AINavigator *pNavigator; 
   bool v6; 
+  float v7; 
+  bool v8; 
+  bool v9; 
+  float v11; 
+  float v12; 
   vec3_t pos; 
 
-  _RBX = vPoint;
   v6 = 0;
   if ( self )
   {
@@ -921,41 +786,20 @@ bool AI_PointNearNode(const ai_common_t *self, const vec3_t *vPoint, const pathn
   pathnode_t::GetPos((pathnode_t *)node, &pos);
   if ( v6 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+48h+pos]
-      vsubss  xmm3, xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rsp+48h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rbx+4]
-      vmovss  xmm0, dword ptr [rsp+48h+pos+8]
-      vsubss  xmm4, xmm0, dword ptr [rbx+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@43610000
-    }
+    v7 = (float)((float)((float)(pos.v[1] - vPoint->v[1]) * (float)(pos.v[1] - vPoint->v[1])) + (float)((float)(pos.v[0] - vPoint->v[0]) * (float)(pos.v[0] - vPoint->v[0]))) + (float)((float)(pos.v[2] - vPoint->v[2]) * (float)(pos.v[2] - vPoint->v[2]));
+    v8 = v7 < 225.0;
+    v9 = v7 == 225.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+48h+pos+8]
-      vmulss  xmm2, xmm1, xmm1
-      vcomiss xmm2, cs:__real@45c80000
-      vmovss  xmm0, dword ptr [rsp+48h+pos]
-      vmovss  xmm1, dword ptr [rsp+48h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rbx+4]
-      vsubss  xmm4, xmm0, dword ptr [rbx]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm1, cs:__real@43610000
-    }
+    if ( (float)((float)(vPoint->v[2] - pos.v[2]) * (float)(vPoint->v[2] - pos.v[2])) > 6400.0 )
+      return 0;
+    v11 = (float)(pos.v[1] - vPoint->v[1]) * (float)(pos.v[1] - vPoint->v[1]);
+    v12 = (float)(pos.v[0] - vPoint->v[0]) * (float)(pos.v[0] - vPoint->v[0]);
+    v8 = (float)(v11 + v12) < 225.0;
+    v9 = (float)(v11 + v12) == 225.0;
   }
-  return !v6;
+  return v8 || v9;
 }
 
 /*
@@ -1001,93 +845,49 @@ __int64 AI_StringToStance(const scr_string_t stance)
 AICommonInterface::AllSecondaryTargetsForward
 ==============
 */
-bool AICommonInterface::AllSecondaryTargetsForward(AICommonInterface *this)
+char AICommonInterface::AllSecondaryTargetsForward(AICommonInterface *this)
 {
+  gentity_s *TargetEntity; 
   ai_common_t *m_pAI; 
-  unsigned __int64 numSecondaryTarget; 
-  bool v26; 
-  unsigned __int64 v27; 
-  float *v28; 
-  bool result; 
+  float v4; 
+  float v5; 
+  __int128 v6; 
+  float v7; 
+  float v11; 
+  float v12; 
+  __int64 v13; 
+  float *i; 
 
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 275, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 276, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  if ( !AICommonInterface::GetTargetEntity(this) )
-    goto LABEL_12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+130h]
-    vmovss  xmm1, dword ptr [rax+134h]
-  }
+  TargetEntity = AICommonInterface::GetTargetEntity(this);
+  if ( !TargetEntity )
+    return 1;
   m_pAI = this->m_pAI;
+  v4 = TargetEntity->r.currentOrigin.v[0] - m_pAI->ent->r.currentOrigin.v[0];
+  v6 = LODWORD(TargetEntity->r.currentOrigin.v[1]);
+  v5 = TargetEntity->r.currentOrigin.v[1] - m_pAI->ent->r.currentOrigin.v[1];
+  v7 = TargetEntity->r.currentOrigin.v[2] - m_pAI->ent->r.currentOrigin.v[2];
+  *(float *)&v6 = fsqrt((float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v7 * v7));
+  _XMM4 = v6;
   __asm
   {
-    vsubss  xmm7, xmm0, dword ptr [rcx+130h]
-    vsubss  xmm6, xmm1, dword ptr [rcx+134h]
-    vmovss  xmm0, dword ptr [rax+138h]
-    vsubss  xmm5, xmm0, dword ptr [rcx+138h]
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm7, xmm7, xmm1
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm5, xmm5, xmm1
   }
-  if ( m_pAI->threat.numSecondaryTarget > 0 )
+  v11 = v4 * (float)(1.0 / *(float *)&_XMM0);
+  v12 = v7 * (float)(1.0 / *(float *)&_XMM0);
+  if ( m_pAI->threat.numSecondaryTarget <= 0 )
+    return 1;
+  v13 = 0i64;
+  for ( i = &m_pAI->threat.secondaryTargets[0].dirToEnt.v[2]; (float)((float)((float)(v11 * *(i - 2)) + (float)((float)(v5 * (float)(1.0 / *(float *)&_XMM0)) * *(i - 1))) + (float)(v12 * *i)) >= 0.0; i += 6 )
   {
-    numSecondaryTarget = m_pAI->threat.numSecondaryTarget;
-    v26 = 0;
-    v27 = 0i64;
-    v28 = &m_pAI->threat.secondaryTargets[0].dirToEnt.v[2];
-    __asm { vxorps  xmm4, xmm4, xmm4 }
-    while ( 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rax-8]
-        vmulss  xmm0, xmm6, dword ptr [rax-4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rax]
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm4
-      }
-      if ( v26 )
-        break;
-      ++v27;
-      v28 += 6;
-      v26 = v27 < numSecondaryTarget;
-      if ( (__int64)v27 >= (__int64)numSecondaryTarget )
-        goto LABEL_12;
-    }
-    __asm { vmovaps xmm7, [rsp+58h+var_28] }
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    if ( ++v13 >= m_pAI->threat.numSecondaryTarget )
+      return 1;
   }
-  else
-  {
-LABEL_12:
-    result = 1;
-    __asm
-    {
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -1097,184 +897,123 @@ AICommonInterface::BlendOldVelocityWithMoveDelta
 */
 void AICommonInterface::BlendOldVelocityWithMoveDelta(AICommonInterface *this, const vec3_t *myPos, const vec3_t *currentMoveDelta, const vec3_t *desiredMoveDelta, vec3_t *outBlendedMoveDelta)
 {
-  AINavigator3D *v41; 
-  bool v42; 
-  bool v43; 
-  bool v65; 
-  double v109; 
-  double v110; 
-  double v111; 
-  double v112; 
-  char v118; 
-  void *retaddr; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  __m128 v13; 
+  __int128 v15; 
+  AINavigator3D *v19; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
+  float v24; 
+  bool v26; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  __int128 v36; 
+  float v37; 
+  float v38; 
+  __int128 v39; 
+  float v43; 
+  bool IsStraightLineReachable; 
+  float v48; 
+  float v49; 
+  float v50; 
+  vec3_t endPos; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R14 = outBlendedMoveDelta;
-  _RDI = desiredMoveDelta;
-  _RSI = currentMoveDelta;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 686, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->Is3D(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 687, ASSERT_TYPE_ASSERT, "(Is3D())", (const char *)&queryFormat, "Is3D()") )
     __debugbreak();
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
+  v10 = desiredMoveDelta->v[1];
+  v11 = LODWORD(desiredMoveDelta->v[0]);
+  v12 = desiredMoveDelta->v[2];
+  v13 = _mm_cvtepi32_ps((__m128i)(unsigned int)level.frameDuration);
+  v13.m128_f32[0] = v13.m128_f32[0] * 0.011;
+  _XMM8 = v13;
+  v15 = v11;
+  *(float *)&v15 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(v10 * v10)) + (float)(v12 * v12));
+  _XMM3 = v15;
   __asm
   {
-    vmovss  xmm6, dword ptr [rdi+4]
-    vmovss  xmm4, dword ptr [rdi]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmovss  xmm12, cs:__real@3f800000
-    vmovd   xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmovss  xmm15, cs:__real@80000000
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm0, xmm0, cs:__real@3c343958
-    vmovss  [rsp+158h+var_FC], xmm0
-    vmovaps xmm8, xmm0
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm15
     vblendvps xmm0, xmm3, xmm12, xmm0
-    vdivss  xmm1, xmm12, xmm0
-    vmulss  xmm0, xmm4, xmm1
-    vmovss  [rsp+158h+var_108], xmm0
-    vmulss  xmm0, xmm6, xmm1
-    vmovss  [rsp+158h+var_104], xmm0
-    vmulss  xmm0, xmm5, xmm1
-    vmovss  [rsp+158h+var_100], xmm0
   }
+  v48 = *(float *)&v11 * (float)(1.0 / *(float *)&_XMM0);
+  v49 = v10 * (float)(1.0 / *(float *)&_XMM0);
+  v50 = v12 * (float)(1.0 / *(float *)&_XMM0);
   if ( !this->m_pAI->pNavigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 699, ASSERT_TYPE_ASSERT, "(m_pAI->pNavigator)", (const char *)&queryFormat, "m_pAI->pNavigator") )
     __debugbreak();
-  v41 = this->m_pAI->pNavigator->Get3DNavigator(this->m_pAI->pNavigator);
-  v42 = v41 == NULL;
-  if ( !v41 )
+  v19 = this->m_pAI->pNavigator->Get3DNavigator(this->m_pAI->pNavigator);
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 701, ASSERT_TYPE_ASSERT, "(pNav3D)", (const char *)&queryFormat, "pNav3D") )
+    __debugbreak();
+  __asm { vxorpd  xmm14, xmm14, xmm14 }
+  while ( 1 )
   {
-    v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 701, ASSERT_TYPE_ASSERT, "(pNav3D)", (const char *)&queryFormat, "pNav3D");
-    v42 = !v43;
-    if ( v43 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps [rsp+158h+var_B8], xmm13
-    vxorps  xmm11, xmm11, xmm11
-    vxorpd  xmm14, xmm14, xmm14
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm6, xmm0, dword ptr [rsi+4]
-    vmovss  xmm1, dword ptr [rdi+8]
-    vsubss  xmm5, xmm1, dword ptr [rsi+8]
-    vmovss  xmm10, dword ptr [rdi]
-    vsubss  xmm7, xmm10, dword ptr [rsi]
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vcomiss xmm4, xmm8
-    vcmpless xmm0, xmm4, xmm15
-    vblendvps xmm0, xmm4, xmm12, xmm0
-    vdivss  xmm1, xmm12, xmm0
-    vmulss  xmm7, xmm1, xmm7
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm9, xmm5, xmm1
-    vcomiss xmm8, xmm11
-  }
-  if ( v42 )
-  {
+    v22 = LODWORD(desiredMoveDelta->v[1]);
+    v21 = desiredMoveDelta->v[1] - currentMoveDelta->v[1];
+    v23 = desiredMoveDelta->v[2] - currentMoveDelta->v[2];
+    v24 = desiredMoveDelta->v[0] - currentMoveDelta->v[0];
+    *(float *)&v22 = fsqrt((float)((float)(v21 * v21) + (float)(v24 * v24)) + (float)(v23 * v23));
+    _XMM4 = v22;
+    v26 = *(float *)&v22 < _XMM8.m128_f32[0];
     __asm
     {
-      vmovsd  [rsp+158h+var_118], xmm14
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  [rsp+158h+var_120], xmm0
+      vcmpless xmm0, xmm4, xmm15
+      vblendvps xmm0, xmm4, xmm12, xmm0
     }
-    v65 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 715, ASSERT_TYPE_ASSERT, "( velocityDeltaPerFrame ) > ( 0.0f )", "%s > %s\n\t%g, %g", "velocityDeltaPerFrame", "0.0f", v109, v111);
-    v42 = !v65;
-    if ( v65 )
+    v29 = (float)(1.0 / *(float *)&_XMM0) * v24;
+    v30 = v21 * (float)(1.0 / *(float *)&_XMM0);
+    v31 = v23 * (float)(1.0 / *(float *)&_XMM0);
+    if ( v26 )
+      break;
+    if ( _XMM8.m128_f32[0] <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 715, ASSERT_TYPE_ASSERT, "( velocityDeltaPerFrame ) > ( 0.0f )", "%s > %s\n\t%g, %g", "velocityDeltaPerFrame", "0.0f", _XMM8.m128_f32[0], *(double *)&_XMM14) )
       __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, xmm11
-  }
-  if ( v42 )
-  {
+    v32 = (float)((float)(v30 * v30) + (float)(v29 * v29)) + (float)(v31 * v31);
+    if ( v32 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 716, ASSERT_TYPE_ASSERT, "( Vec3LengthSq( currentMoveDeltaToDesired ) ) > ( 0.0f )", "%s > %s\n\t%g, %g", "Vec3LengthSq( currentMoveDeltaToDesired )", "0.0f", v32, *(double *)&_XMM14) )
+      __debugbreak();
+    v33 = (float)(v29 * _XMM8.m128_f32[0]) + currentMoveDelta->v[0];
+    outBlendedMoveDelta->v[0] = v33;
+    v34 = (float)(v30 * _XMM8.m128_f32[0]) + currentMoveDelta->v[1];
+    outBlendedMoveDelta->v[1] = v34;
+    v35 = (float)(v31 * _XMM8.m128_f32[0]) + currentMoveDelta->v[2];
+    outBlendedMoveDelta->v[2] = v35;
+    v36 = LODWORD(currentMoveDelta->v[0]);
+    v37 = currentMoveDelta->v[1];
+    v38 = currentMoveDelta->v[2];
+    v39 = v36;
+    *(float *)&v39 = fsqrt((float)((float)(*(float *)&v36 * *(float *)&v36) + (float)(v37 * v37)) + (float)(v38 * v38));
+    _XMM3 = v39;
     __asm
     {
-      vmovsd  [rsp+158h+var_118], xmm14
-      vcvtss2sd xmm0, xmm3, xmm3
-      vmovsd  [rsp+158h+var_120], xmm0
+      vcmpless xmm0, xmm3, xmm15
+      vblendvps xmm0, xmm3, xmm12, xmm0
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 716, ASSERT_TYPE_ASSERT, "( Vec3LengthSq( currentMoveDeltaToDesired ) ) > ( 0.0f )", "%s > %s\n\t%g, %g", "Vec3LengthSq( currentMoveDeltaToDesired )", "0.0f", v110, v112) )
-      __debugbreak();
+    if ( (float)((float)((float)((float)(*(float *)&v36 * (float)(1.0 / *(float *)&_XMM0)) * v48) + (float)((float)(v37 * (float)(1.0 / *(float *)&_XMM0)) * v49)) + (float)((float)(v38 * (float)(1.0 / *(float *)&_XMM0)) * v50)) >= 0.94999999 )
+      return;
+    v43 = v34 + myPos->v[1];
+    endPos.v[0] = v33 + myPos->v[0];
+    endPos.v[2] = v35 + myPos->v[2];
+    endPos.v[1] = v43;
+    IsStraightLineReachable = Nav3D_IsStraightLineReachable(v19->m_pSpace, myPos, &endPos, &v19->m_PathSpec);
+    _XMM0 = IsStraightLineReachable;
+    __asm
+    {
+      vpcmpeqd xmm2, xmm0, xmm1
+      vblendvps xmm1, xmm8, xmm3, xmm2
+    }
+    if ( IsStraightLineReachable )
+      return;
+    _XMM8 = (__m128)(unsigned int)_XMM1;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm7, xmm8
-    vaddss  xmm10, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [r14], xmm10
-    vmulss  xmm0, xmm6, xmm8
-    vaddss  xmm13, xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [r14+4], xmm13
-    vmulss  xmm0, xmm9, xmm8
-    vaddss  xmm9, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [r14+8], xmm9
-    vmovss  xmm4, dword ptr [rsi]
-    vmovss  xmm6, dword ptr [rsi+4]
-    vmovss  xmm7, dword ptr [rsi+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vcmpless xmm0, xmm3, xmm15
-    vblendvps xmm0, xmm3, xmm12, xmm0
-    vdivss  xmm5, xmm12, xmm0
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm3, xmm0, [rsp+158h+var_108]
-    vmulss  xmm1, xmm6, xmm5
-    vmulss  xmm2, xmm1, [rsp+158h+var_104]
-    vmulss  xmm0, xmm7, xmm5
-    vmulss  xmm1, xmm0, [rsp+158h+var_100]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vcomiss xmm2, cs:__real@3f733333
-    vmovaps xmm13, [rsp+158h+var_B8]
-  }
-  _R11 = &v118;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  *outBlendedMoveDelta = *desiredMoveDelta;
 }
 
 /*
@@ -1326,46 +1065,16 @@ void AICommonInterface::DissociateSentient(AICommonInterface *this, sentient_s *
 G_GetAngleIndex
 ==============
 */
-
-int __fastcall G_GetAngleIndex(double angle, const float threshold, double _XMM2_8, double _XMM3_8)
+__int64 G_GetAngleIndex(const float angle, const float threshold)
 {
-  char v4; 
-  int result; 
-
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcomiss xmm0, xmm2
-    vxorps  xmm3, xmm3, xmm3
-  }
-  if ( v4 )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm0, cs:__real@43340000
-      vsubss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, cs:__real@3cb60b61
-      vroundss xmm3, xmm3, xmm2, 2
-    }
-  }
+  _XMM3 = 0i64;
+  if ( angle >= 0.0 )
+    __asm { vroundss xmm3, xmm3, xmm2, 1 }
   else
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm1
-      vmulss  xmm1, xmm0, cs:__real@3cb60b61
-      vaddss  xmm2, xmm1, cs:__real@40800000
-      vroundss xmm3, xmm3, xmm2, 1
-    }
-  }
-  __asm
-  {
-    vaddss  xmm2, xmm3, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vcvttss2si eax, xmm3
-  }
-  return result;
+    __asm { vroundss xmm3, xmm3, xmm2, 2 }
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  return (unsigned int)(int)*(float *)&_XMM3;
 }
 
 /*
@@ -1373,135 +1082,84 @@ int __fastcall G_GetAngleIndex(double angle, const float threshold, double _XMM2
 G_GetAngleIndices
 ==============
 */
-
-void __fastcall G_GetAngleIndices(double angle, double threshold, int *outAngleIndices, unsigned int *outAngleIndexCount)
+void G_GetAngleIndices(const float angle, const float threshold, int *outAngleIndices, unsigned int *outAngleIndexCount)
 {
-  unsigned int v32; 
-  __int64 v69; 
-  void *retaddr; 
+  int v13; 
+  unsigned int v14; 
+  float v24; 
+  __int64 v28; 
+  int v30; 
+  __m256i v31; 
+  float v32; 
 
-  _R11 = &retaddr;
-  __asm
+  v31 = _ymm;
+  v32 = FLOAT_180_0;
+  _XMM6 = 0i64;
+  if ( angle >= 0.0 )
   {
-    vmovups ymm2, cs:__ymm@4307000042b400004234000000000000c2340000c2b40000c3070000c3340000
-    vmovss  xmm5, cs:__real@3f000000
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovss  xmm7, cs:__real@3cb60b61
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovss  xmm9, cs:__real@43340000
-    vmovaps xmmword ptr [r11-58h], xmm11
-    vxorps  xmm11, xmm11, xmm11
-    vcomiss xmm0, xmm11
-    vmovups [rsp+0A8h+var_A0], ymm2
-    vmovss  dword ptr [r11-80h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm12
-    vmovaps xmm8, xmm1
-    vmovaps xmm4, xmm0
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm0, xmm4, xmm8
-    vmulss  xmm0, xmm0, xmm7
-    vaddss  xmm1, xmm0, cs:__real@40800000
-    vroundss xmm2, xmm2, xmm1, 1
-    vaddss  xmm2, xmm2, xmm5
-    vroundss xmm2, xmm6, xmm2, 1
-    vmovss  xmm1, cs:__real@c233999a
-    vcvttss2si ecx, xmm2
-    vmovss  xmm2, cs:__real@4233999a
+    _XMM2 = 0i64;
+    __asm
+    {
+      vroundss xmm2, xmm2, xmm1, 1
+      vroundss xmm2, xmm6, xmm2, 1
+    }
   }
-  _RAX = _ECX;
-  v32 = 1;
-  *outAngleIndices = _ECX;
+  else
+  {
+    _XMM0 = 0i64;
+    __asm
+    {
+      vroundss xmm0, xmm0, xmm2, 2
+      vroundss xmm2, xmm6, xmm1, 1
+    }
+  }
+  _XMM1 = LODWORD(FLOAT_N44_900002);
+  v13 = (int)*(float *)&_XMM2;
+  v14 = 1;
+  *outAngleIndices = (int)*(float *)&_XMM2;
   *outAngleIndexCount = 1;
+  _XMM0 = v31.m256i_u32[*(float *)&_XMM2];
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+rax*4+0A8h+var_A0]
     vcmpltss xmm3, xmm0, xmm4
     vblendvps xmm12, xmm1, xmm2, xmm3
-    vaddss  xmm0, xmm12, xmm4
-    vmulss  xmm3, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, xmm5
     vroundss xmm2, xmm6, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vcomiss xmm1, xmm11
-    vmovss  [rsp+0A8h+var_A8], xmm12
-    vxorps  xmm3, xmm3, xmm3
-    vaddss  xmm0, xmm1, xmm8
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm2, xmm1, cs:__real@40800000
-    vroundss xmm3, xmm3, xmm2, 1
-    vaddss  xmm1, xmm3, xmm5
-    vroundss xmm2, xmm6, xmm1, 1
-    vcvttss2si eax, xmm2
   }
-  if ( _ECX != _EAX )
+  _XMM3 = 0i64;
+  if ( (float)((float)((float)((float)(*(float *)&_XMM12 + angle) * 0.0027777778) - *(float *)&_XMM2) * 360.0) >= 0.0 )
+    __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  else
+    __asm { vroundss xmm3, xmm3, xmm2, 2 }
+  __asm { vroundss xmm2, xmm6, xmm1, 1 }
+  if ( v13 != (int)*(float *)&_XMM2 )
   {
-    outAngleIndices[1] = _EAX;
-    v32 = ++*outAngleIndexCount;
+    outAngleIndices[1] = (int)*(float *)&_XMM2;
+    v14 = ++*outAngleIndexCount;
   }
-  __asm
+  __asm { vroundss xmm3, xmm6, xmm0, 1 }
+  v24 = (float)((float)((float)(angle - *(float *)&_XMM12) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  _XMM3 = 0i64;
+  if ( v24 >= 0.0 )
+    __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  else
+    __asm { vroundss xmm3, xmm3, xmm2, 2 }
+  v28 = 0i64;
+  __asm { vroundss xmm2, xmm6, xmm1, 1 }
+  v30 = (int)*(float *)&_XMM2;
+  if ( v14 )
   {
-    vsubss  xmm0, xmm4, xmm12
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vmovaps xmm12, [rsp+0A8h+var_68]
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm4, xmm5
-    vmovss  xmm0, xmm1, xmm2
-    vroundss xmm3, xmm6, xmm0, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vcomiss xmm0, xmm11
-    vmovaps xmm11, [rsp+0A8h+var_58]
-    vxorps  xmm3, xmm3, xmm3
-  }
-  if ( _ECX >= _EAX )
-  {
-    __asm
+    while ( outAngleIndices[v28] != v30 )
     {
-      vaddss  xmm0, xmm8, xmm0
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm2, xmm1, cs:__real@40800000
-      vroundss xmm3, xmm3, xmm2, 1
+      v14 = *outAngleIndexCount;
+      v28 = (unsigned int)(v28 + 1);
+      if ( (unsigned int)v28 >= *outAngleIndexCount )
+        goto LABEL_15;
     }
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm9
-      vsubss  xmm1, xmm0, xmm8
-      vmulss  xmm2, xmm1, xmm7
-      vroundss xmm3, xmm3, xmm2, 2
-    }
-  }
-  __asm { vmovaps xmm9, [rsp+0A8h+var_48] }
-  v69 = 0i64;
-  __asm
-  {
-    vmovaps xmm8, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_28]
-    vaddss  xmm1, xmm3, xmm5
-    vroundss xmm2, xmm6, xmm1, 1
-    vmovaps xmm6, [rsp+0A8h+var_18]
-    vcvttss2si r8d, xmm2
-  }
-  if ( v32 )
-  {
-    while ( outAngleIndices[v69] != _ER8 )
-    {
-      v32 = *outAngleIndexCount;
-      v69 = (unsigned int)(v69 + 1);
-      if ( (unsigned int)v69 >= *outAngleIndexCount )
-        goto LABEL_9;
-    }
-  }
-  else
-  {
-LABEL_9:
-    outAngleIndices[v32] = _ER8;
+LABEL_15:
+    outAngleIndices[v14] = v30;
     ++*outAngleIndexCount;
   }
 }
@@ -1651,72 +1309,35 @@ bool AICommonInterface::IsUsingTurret(AICommonInterface *this)
 AICommonInterface::NearClaimNode
 ==============
 */
-
-bool __fastcall AICommonInterface::NearClaimNode(AICommonInterface *this, double dist)
+bool AICommonInterface::NearClaimNode(AICommonInterface *this, float dist)
 {
   pathnode_t *pClaimedNode; 
-  bool result; 
+  float v4; 
+  gentity_s *ent; 
+  bool v6; 
   vec3_t pos; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 487, ASSERT_TYPE_ASSERT, "( m_pAI )", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 488, ASSERT_TYPE_ASSERT, "( m_pAI->sentient )", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
   pClaimedNode = this->m_pAI->sentient->pClaimedNode;
-  if ( pClaimedNode )
+  if ( !pClaimedNode )
+    return 0;
+  pathnode_t::GetPos(pClaimedNode, &pos);
+  v4 = dist * dist;
+  ent = this->m_pAI->ent;
+  if ( !AICommonInterface::Use3DPathing(this) )
   {
-    pathnode_t::GetPos(pClaimedNode, &pos);
-    __asm { vmulss  xmm6, xmm6, xmm6 }
-    _RBX = this->m_pAI->ent;
-    if ( AICommonInterface::Use3DPathing(this) )
+    if ( (float)((float)(ent->r.currentOrigin.v[2] - pos.v[2]) * (float)(ent->r.currentOrigin.v[2] - pos.v[2])) <= 6400.0 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+68h+pos]
-        vsubss  xmm3, xmm0, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rsp+68h+pos+4]
-        vsubss  xmm2, xmm1, dword ptr [rbx+134h]
-        vmovss  xmm0, dword ptr [rsp+68h+pos+8]
-        vsubss  xmm4, xmm0, dword ptr [rbx+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm6, xmm2
-      }
+      v6 = v4 < (float)((float)((float)(pos.v[1] - ent->r.currentOrigin.v[1]) * (float)(pos.v[1] - ent->r.currentOrigin.v[1])) + (float)((float)(pos.v[0] - ent->r.currentOrigin.v[0]) * (float)(pos.v[0] - ent->r.currentOrigin.v[0])));
+      return !v6;
     }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vsubss  xmm1, xmm0, dword ptr [rsp+68h+pos+8]
-        vmulss  xmm2, xmm1, xmm1
-        vcomiss xmm2, cs:__real@45c80000
-        vmovss  xmm0, dword ptr [rsp+68h+pos]
-        vmovss  xmm1, dword ptr [rsp+68h+pos+4]
-        vsubss  xmm2, xmm1, dword ptr [rbx+134h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+130h]
-        vmulss  xmm3, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm1, xmm3, xmm0
-        vcomiss xmm6, xmm1
-      }
-    }
-    result = 1;
+    return 0;
   }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  return result;
+  v6 = v4 < (float)((float)((float)((float)(pos.v[1] - ent->r.currentOrigin.v[1]) * (float)(pos.v[1] - ent->r.currentOrigin.v[1])) + (float)((float)(pos.v[0] - ent->r.currentOrigin.v[0]) * (float)(pos.v[0] - ent->r.currentOrigin.v[0]))) + (float)((float)(pos.v[2] - ent->r.currentOrigin.v[2]) * (float)(pos.v[2] - ent->r.currentOrigin.v[2])));
+  return !v6;
 }
 
 /*
@@ -1751,12 +1372,7 @@ bool AICommonInterface::PointAt(AICommonInterface *this, const vec3_t *vPoint, c
   bool is3D; 
 
   is3D = AICommonInterface::Use3DPathing(this);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40800000; distSQ
-    vmovss  xmm2, cs:__real@45c80000; heightDistSQ
-  }
-  return AI_ComparePointsInternal(vPoint, vGoalPos, *(double *)&_XMM2, *(double *)&_XMM3, is3D);
+  return AI_ComparePointsInternal(vPoint, vGoalPos, 6400.0, 4.0, is3D);
 }
 
 /*
@@ -1767,27 +1383,19 @@ AICommonInterface::PointAtGoal
 bool AICommonInterface::PointAtGoal(AICommonInterface *this, const vec3_t *vPoint, const ai_goal_t *goal)
 {
   bool is3D; 
-  const gentity_s *v10; 
+  const gentity_s *v6; 
   unsigned int Instance; 
   bool result; 
 
-  _RBX = goal;
   is3D = AICommonInterface::Use3DPathing(this);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  xmm1, dword ptr [rbx+10h]
-    vmulss  xmm3, xmm0, xmm0; distSQ
-    vmulss  xmm2, xmm1, xmm1; heightDistSQ
-  }
   result = 0;
-  if ( AI_ComparePointsInternal(vPoint, &_RBX->pos, *(double *)&_XMM2, *(double *)&_XMM3, is3D) )
+  if ( AI_ComparePointsInternal(vPoint, &goal->pos, goal->height * goal->height, goal->radius * goal->radius, is3D) )
   {
-    if ( !EntHandle::isDefined(&_RBX->hVolume) )
+    if ( !EntHandle::isDefined(&goal->hVolume) )
       return 1;
-    v10 = EntHandle::ent(&_RBX->hVolume);
-    Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v10);
-    if ( PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, vPoint, Instance, v10) )
+    v6 = EntHandle::ent(&goal->hVolume);
+    Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v6);
+    if ( PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, vPoint, Instance, v6) )
       return 1;
   }
   return result;
@@ -1803,12 +1411,7 @@ bool AICommonInterface::PointNear(AICommonInterface *this, const vec3_t *vPoint,
   bool is3D; 
 
   is3D = AICommonInterface::Use3DPathing(this);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@44610000; distSQ
-    vmovss  xmm2, cs:__real@45c80000; heightDistSQ
-  }
-  return AI_ComparePointsInternal(vPoint, vGoalPos, *(double *)&_XMM2, *(double *)&_XMM3, is3D);
+  return AI_ComparePointsInternal(vPoint, vGoalPos, 6400.0, 900.0, is3D);
 }
 
 /*
@@ -1816,26 +1419,12 @@ bool AICommonInterface::PointNear(AICommonInterface *this, const vec3_t *vPoint,
 AICommonInterface::PointNearGoal
 ==============
 */
-
-bool __fastcall AICommonInterface::PointNearGoal(AICommonInterface *this, const vec3_t *vPoint, const ai_goal_t *goal, double buffer)
+bool AICommonInterface::PointNearGoal(AICommonInterface *this, const vec3_t *vPoint, const ai_goal_t *goal, float buffer)
 {
   bool is3D; 
-  bool result; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = goal;
-  __asm { vmovaps xmm6, xmm3 }
   is3D = AICommonInterface::Use3DPathing(this);
-  __asm
-  {
-    vaddss  xmm0, xmm6, dword ptr [rbx+0Ch]
-    vmovss  xmm1, dword ptr [rbx+10h]
-    vmulss  xmm3, xmm0, xmm0; distSQ
-    vmulss  xmm2, xmm1, xmm1; heightDistSQ
-  }
-  result = AI_ComparePointsInternal(vPoint, &_RBX->pos, *(double *)&_XMM2, *(double *)&_XMM3, is3D);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return AI_ComparePointsInternal(vPoint, &goal->pos, goal->height * goal->height, (float)(buffer + goal->radius) * (float)(buffer + goal->radius), is3D);
 }
 
 /*
@@ -1848,10 +1437,14 @@ bool AICommonInterface::PointNearNode(AICommonInterface *this, const vec3_t *vPo
   ai_common_t *m_pAI; 
   AINavigator *pNavigator; 
   bool v7; 
+  float v8; 
+  bool v9; 
+  bool v10; 
+  float v12; 
+  float v13; 
   vec3_t pos; 
 
   m_pAI = this->m_pAI;
-  _RBX = vPoint;
   v7 = 0;
   if ( m_pAI )
   {
@@ -1865,41 +1458,20 @@ bool AICommonInterface::PointNearNode(AICommonInterface *this, const vec3_t *vPo
   pathnode_t::GetPos((pathnode_t *)node, &pos);
   if ( v7 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+48h+pos]
-      vsubss  xmm3, xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rsp+48h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rbx+4]
-      vmovss  xmm0, dword ptr [rsp+48h+pos+8]
-      vsubss  xmm4, xmm0, dword ptr [rbx+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@43610000
-    }
+    v8 = (float)((float)((float)(pos.v[1] - vPoint->v[1]) * (float)(pos.v[1] - vPoint->v[1])) + (float)((float)(pos.v[0] - vPoint->v[0]) * (float)(pos.v[0] - vPoint->v[0]))) + (float)((float)(pos.v[2] - vPoint->v[2]) * (float)(pos.v[2] - vPoint->v[2]));
+    v9 = v8 < 225.0;
+    v10 = v8 == 225.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+48h+pos+8]
-      vmulss  xmm2, xmm1, xmm1
-      vcomiss xmm2, cs:__real@45c80000
-      vmovss  xmm0, dword ptr [rsp+48h+pos]
-      vmovss  xmm1, dword ptr [rsp+48h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rbx+4]
-      vsubss  xmm4, xmm0, dword ptr [rbx]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm1, cs:__real@43610000
-    }
+    if ( (float)((float)(vPoint->v[2] - pos.v[2]) * (float)(vPoint->v[2] - pos.v[2])) > 6400.0 )
+      return 0;
+    v12 = (float)(pos.v[1] - vPoint->v[1]) * (float)(pos.v[1] - vPoint->v[1]);
+    v13 = (float)(pos.v[0] - vPoint->v[0]) * (float)(pos.v[0] - vPoint->v[0]);
+    v9 = (float)(v12 + v13) < 225.0;
+    v10 = (float)(v12 + v13) == 225.0;
   }
-  return !v7;
+  return v9 || v10;
 }
 
 /*
@@ -1907,26 +1479,12 @@ bool AICommonInterface::PointNearNode(AICommonInterface *this, const vec3_t *vPo
 AICommonInterface::PointNearPoint
 ==============
 */
-
-bool __fastcall AICommonInterface::PointNearPoint(AICommonInterface *this, const vec3_t *vPoint, const vec3_t *vGoalPos, double buffer)
+bool AICommonInterface::PointNearPoint(AICommonInterface *this, const vec3_t *vPoint, const vec3_t *vGoalPos, float buffer)
 {
   bool is3D; 
-  bool result; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   is3D = AICommonInterface::Use3DPathing(this);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@45c80000; heightDistSQ
-    vmulss  xmm3, xmm6, xmm6; distSQ
-  }
-  result = AI_ComparePointsInternal(vPoint, vGoalPos, *(double *)&_XMM2, *(double *)&_XMM3, is3D);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return AI_ComparePointsInternal(vPoint, vGoalPos, 6400.0, buffer * buffer, is3D);
 }
 
 /*
@@ -1934,26 +1492,12 @@ bool __fastcall AICommonInterface::PointNearPoint(AICommonInterface *this, const
 AICommonInterface::PointNearPointSqDist
 ==============
 */
-
-bool __fastcall AICommonInterface::PointNearPointSqDist(AICommonInterface *this, const vec3_t *vPoint, const vec3_t *vGoalPos, double bufferSq)
+bool AICommonInterface::PointNearPointSqDist(AICommonInterface *this, const vec3_t *vPoint, const vec3_t *vGoalPos, float bufferSq)
 {
   bool is3D; 
-  bool result; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   is3D = AICommonInterface::Use3DPathing(this);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@45c80000; heightDistSQ
-    vmovaps xmm3, xmm6; distSQ
-  }
-  result = AI_ComparePointsInternal(vPoint, vGoalPos, *(double *)&_XMM2, *(double *)&_XMM3, is3D);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return AI_ComparePointsInternal(vPoint, vGoalPos, 6400.0, bufferSq, is3D);
 }
 
 /*
@@ -2102,72 +1646,47 @@ SentientInfo_GetLastKnownPos
 void SentientInfo_GetLastKnownPos(const sentient_info_t *pInfo, vec3_t *outLastKnownPos)
 {
   __int16 lastKnownGroundEntNum; 
-  float v13; 
-  int v16; 
-  int v17; 
-  int v18; 
+  vec3_t *p_vLastKnownLocalPos; 
+  gentity_s *v6; 
+  float v7; 
+  float v8; 
+  __int64 v9; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = pInfo;
   lastKnownGroundEntNum = pInfo->lastKnownGroundEntNum;
-  _RDI = outLastKnownPos;
   if ( (unsigned __int16)(lastKnownGroundEntNum - 2046) <= 1u )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+20h]
-      vmovss  dword ptr [rdi], xmm3
-    }
-    outLastKnownPos->v[1] = _RBX->vLastKnownLocalPos.v[1];
-    v13 = _RBX->vLastKnownLocalPos.v[2];
+    v7 = pInfo->vLastKnownLocalPos.v[0];
+    outLastKnownPos->v[0] = v7;
+    outLastKnownPos->v[1] = pInfo->vLastKnownLocalPos.v[1];
+    v8 = pInfo->vLastKnownLocalPos.v[2];
     goto LABEL_6;
   }
-  _RSI = &_RBX->vLastKnownLocalPos;
+  p_vLastKnownLocalPos = &pInfo->vLastKnownLocalPos;
   if ( !G_IsEntityInUse(lastKnownGroundEntNum) )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi]
-      vmovss  dword ptr [rdi], xmm3
-    }
-    _RDI->v[1] = _RBX->vLastKnownLocalPos.v[1];
-    v13 = _RBX->vLastKnownLocalPos.v[2];
+    v7 = p_vLastKnownLocalPos->v[0];
+    outLastKnownPos->v[0] = p_vLastKnownLocalPos->v[0];
+    outLastKnownPos->v[1] = pInfo->vLastKnownLocalPos.v[1];
+    v8 = pInfo->vLastKnownLocalPos.v[2];
 LABEL_6:
-    _RDI->v[2] = v13;
+    outLastKnownPos->v[2] = v8;
     goto LABEL_7;
   }
-  _RBX = &g_entities[_RBX->lastKnownGroundEntNum];
-  AnglesToAxis(&_RBX->r.currentAngles, &axis);
-  MatrixTransformVector(_RSI, &axis, _RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm3, xmm0, dword ptr [rbx+130h]
-    vmovss  dword ptr [rdi], xmm3
-    vmovss  xmm1, dword ptr [rbx+134h]
-    vaddss  xmm0, xmm1, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi+4], xmm0
-    vmovss  xmm2, dword ptr [rbx+138h]
-    vaddss  xmm1, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
+  v6 = &g_entities[pInfo->lastKnownGroundEntNum];
+  AnglesToAxis(&v6->r.currentAngles, &axis);
+  MatrixTransformVector(p_vLastKnownLocalPos, &axis, outLastKnownPos);
+  v7 = outLastKnownPos->v[0] + v6->r.currentOrigin.v[0];
+  outLastKnownPos->v[0] = v7;
+  outLastKnownPos->v[1] = v6->r.currentOrigin.v[1] + outLastKnownPos->v[1];
+  outLastKnownPos->v[2] = v6->r.currentOrigin.v[2] + outLastKnownPos->v[2];
 LABEL_7:
-  __asm { vmovss  [rsp+78h+var_48], xmm3 }
-  if ( (v16 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 155, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[0] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[0] )") )
+  if ( (LODWORD(v7) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 155, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[0] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[0] )", v7) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+78h+var_48], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 156, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[1] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[1] )") )
+  if ( (LODWORD(outLastKnownPos->v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 156, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[1] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[1] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+78h+var_48], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 157, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[2] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[2] )") )
+  *(float *)&v9 = outLastKnownPos->v[2];
+  if ( (v9 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 157, ASSERT_TYPE_ASSERT, "(!IS_NAN( outLastKnownPos[2] ))", (const char *)&queryFormat, "!IS_NAN( outLastKnownPos[2] )", v9) )
     __debugbreak();
 }
 
@@ -2182,11 +1701,11 @@ void SentientInfo_SetLastKnownPos(sentient_info_t *pInfo, const sentient_s *pSen
   __int16 groundEntNum; 
   actor_s *actor; 
   playerState_s *EntityPlayerState; 
+  float v10; 
   vec3_t in1; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
-  _R14 = vLastKnownPos;
   if ( !pSentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 166, ASSERT_TYPE_ASSERT, "(pSentient)", (const char *)&queryFormat, "pSentient") )
     __debugbreak();
   v6 = NULL;
@@ -2210,26 +1729,18 @@ LABEL_11:
   {
     AnglesToAxis(&v6->r.currentAngles, &axis);
     MatrixInverse(&axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vsubss  xmm1, xmm0, dword ptr [rdi+130h]
-      vmovss  xmm2, dword ptr [r14+4]
-      vsubss  xmm0, xmm2, dword ptr [rdi+134h]
-      vmovss  dword ptr [rsp+0C8h+in1], xmm1
-      vmovss  xmm1, dword ptr [r14+8]
-      vsubss  xmm2, xmm1, dword ptr [rdi+138h]
-      vmovss  dword ptr [rsp+0C8h+in1+8], xmm2
-      vmovss  dword ptr [rsp+0C8h+in1+4], xmm0
-    }
+    v10 = vLastKnownPos->v[1] - v6->r.currentOrigin.v[1];
+    in1.v[0] = vLastKnownPos->v[0] - v6->r.currentOrigin.v[0];
+    in1.v[2] = vLastKnownPos->v[2] - v6->r.currentOrigin.v[2];
+    in1.v[1] = v10;
     MatrixTransformVector(&in1, &out, &pInfo->vLastKnownLocalPos);
     pInfo->lastKnownGroundEntNum = groundEntNum;
   }
   else
   {
-    pInfo->vLastKnownLocalPos.v[0] = _R14->v[0];
-    pInfo->vLastKnownLocalPos.v[1] = _R14->v[1];
-    pInfo->vLastKnownLocalPos.v[2] = _R14->v[2];
+    pInfo->vLastKnownLocalPos.v[0] = vLastKnownPos->v[0];
+    pInfo->vLastKnownLocalPos.v[1] = vLastKnownPos->v[1];
+    pInfo->vLastKnownLocalPos.v[2] = vLastKnownPos->v[2];
     pInfo->lastKnownGroundEntNum = 2047;
   }
 }
@@ -2268,51 +1779,27 @@ AICommonInterface::SetGoal
 
 void __fastcall AICommonInterface::SetGoal(ai_goal_t *goal, const vec3_t *vPoint, double fRadius, double fHeight, bool bEnforceMinHeight)
 {
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RBX = goal;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm3
-  }
+  _XMM8 = *(_OWORD *)&fRadius;
+  _XMM6 = *(_OWORD *)&fHeight;
   if ( !goal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 506, ASSERT_TYPE_ASSERT, "(goal)", (const char *)&queryFormat, "goal") )
     __debugbreak();
-  _RBX->pos.v[0] = vPoint->v[0];
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm8, xmm7
-  }
-  _RBX->pos.v[1] = vPoint->v[1];
-  _RBX->pos.v[2] = vPoint->v[2];
-  __asm
-  {
-    vcomiss xmm6, xmm7
-    vmaxss  xmm0, xmm8, cs:__real@40800000
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
+  goal->pos.v[0] = vPoint->v[0];
+  goal->pos.v[1] = vPoint->v[1];
+  goal->pos.v[2] = vPoint->v[2];
+  if ( *(float *)&fRadius < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 519, ASSERT_TYPE_ASSERT, "(radius >= 0)", (const char *)&queryFormat, "radius >= 0") )
+    __debugbreak();
+  __asm { vmaxss  xmm0, xmm8, cs:__real@40800000 }
+  goal->radius = *(float *)&_XMM0;
+  if ( *(float *)&fHeight < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 533, ASSERT_TYPE_ASSERT, "(height >= 0)", (const char *)&queryFormat, "height >= 0") )
+    __debugbreak();
   if ( bEnforceMinHeight )
   {
-    __asm
-    {
-      vmaxss  xmm0, xmm6, cs:__real@42a00000
-      vmovss  dword ptr [rbx+10h], xmm0
-    }
+    __asm { vmaxss  xmm0, xmm6, cs:__real@42a00000 }
+    goal->height = *(float *)&_XMM0;
   }
   else
   {
-    __asm { vmovss  dword ptr [rbx+10h], xmm6 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
+    goal->height = *(float *)&fHeight;
   }
 }
 
@@ -2324,29 +1811,20 @@ AICommonInterface::SetGoalHeight
 
 void __fastcall AICommonInterface::SetGoalHeight(ai_goal_t *goal, double height, bool bEnforceMin)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = goal;
-  __asm { vmovaps xmm6, xmm1 }
+  _XMM6 = *(_OWORD *)&height;
   if ( !goal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 532, ASSERT_TYPE_ASSERT, "(goal)", (const char *)&queryFormat, "goal") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
+  if ( *(float *)&height < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 533, ASSERT_TYPE_ASSERT, "(height >= 0)", (const char *)&queryFormat, "height >= 0") )
+    __debugbreak();
   if ( bEnforceMin )
   {
-    __asm
-    {
-      vmaxss  xmm0, xmm6, cs:__real@42a00000
-      vmovss  dword ptr [rbx+10h], xmm0
-    }
+    __asm { vmaxss  xmm0, xmm6, cs:__real@42a00000 }
+    goal->height = *(float *)&_XMM0;
   }
   else
   {
-    __asm { vmovss  dword ptr [rbx+10h], xmm6 }
+    goal->height = *(float *)&height;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -2357,19 +1835,13 @@ AICommonInterface::SetGoalRadius
 
 void __fastcall AICommonInterface::SetGoalRadius(ai_goal_t *goal, double radius)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = goal;
-  __asm { vmovaps xmm6, xmm1 }
+  _XMM6 = *(_OWORD *)&radius;
   if ( !goal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 518, ASSERT_TYPE_ASSERT, "(goal)", (const char *)&queryFormat, "goal") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmaxss  xmm0, xmm6, cs:__real@40800000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
+  if ( *(float *)&radius < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 519, ASSERT_TYPE_ASSERT, "(radius >= 0)", (const char *)&queryFormat, "radius >= 0") )
+    __debugbreak();
+  __asm { vmaxss  xmm0, xmm6, cs:__real@40800000 }
+  goal->radius = *(float *)&_XMM0;
 }
 
 /*
@@ -2394,17 +1866,11 @@ VisCache_Copy
 */
 void VisCache_Copy(vis_cache_t *pDstCache, const vis_cache_t *pSrcCache)
 {
-  _RBX = pSrcCache;
-  _RDI = pDstCache;
   if ( !pDstCache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 48, ASSERT_TYPE_ASSERT, "(pDstCache)", (const char *)&queryFormat, "pDstCache") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 49, ASSERT_TYPE_ASSERT, "(pSrcCache)", (const char *)&queryFormat, "pSrcCache") )
+  if ( !pSrcCache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_common.cpp", 49, ASSERT_TYPE_ASSERT, "(pSrcCache)", (const char *)&queryFormat, "pSrcCache") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  *pDstCache = *pSrcCache;
 }
 
 /*

@@ -106,68 +106,66 @@ void CG_InitLightUpdate(LocalClientNum_t localClientNum)
 {
   GfxWorld *world; 
   size_t primaryLightCount; 
-  cg_t *LocalClientGlobals; 
-  unsigned int *v25; 
+  unsigned int v4; 
+  unsigned int v5; 
+  __int64 v9; 
+  __int64 v16; 
+  unsigned int *v20; 
 
   world = rgp.world;
   if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote_lighting.cpp", 488, ASSERT_TYPE_ASSERT, "(gfxWorld)", (const char *)&queryFormat, "gfxWorld") )
     __debugbreak();
   primaryLightCount = world->primaryLightCount;
-  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _R10 = s_primaryLightsSorted;
-  LocalClientGlobals->refdef.radiantLiveLightCount = 0;
-  _EAX = 0;
+  CG_GetLocalClientGlobals(localClientNum)->refdef.radiantLiveLightCount = 0;
+  v4 = 0;
   if ( (_DWORD)primaryLightCount )
   {
     if ( (unsigned int)primaryLightCount >= 0x10 )
     {
-      __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-      _EDX = 8;
+      v5 = 8;
       do
       {
-        _RCX = _EAX;
+        _XMM0 = v4;
         __asm
         {
-          vmovd   xmm0, eax
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [r10+rcx*4], xmm1
         }
-        _RCX = _EDX - 4;
-        _EAX += 16;
+        *(_OWORD *)&s_primaryLightsSorted[v4] = _XMM1;
+        v9 = v5 - 4;
+        v4 += 16;
+        _XMM0 = (unsigned int)v9;
         __asm
         {
-          vmovd   xmm0, ecx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [r10+rcx*4], xmm1
         }
-        _RCX = _EDX;
+        *(_OWORD *)&s_primaryLightsSorted[v9] = _XMM1;
+        _XMM0 = v5;
         __asm
         {
-          vmovd   xmm0, edx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [r10+rcx*4], xmm1
         }
-        _RCX = _EDX + 4;
-        _EDX += 16;
+        *(_OWORD *)&s_primaryLightsSorted[v5] = _XMM1;
+        v16 = v5 + 4;
+        v5 += 16;
+        _XMM0 = (unsigned int)v16;
         __asm
         {
-          vmovd   xmm0, ecx
           vpshufd xmm0, xmm0, 0
           vpaddd  xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [r10+rcx*4], xmm1
         }
+        *(_OWORD *)&s_primaryLightsSorted[v16] = _XMM1;
       }
-      while ( _EAX < (primaryLightCount & 0xFFFFFFF0) );
+      while ( v4 < (primaryLightCount & 0xFFFFFFF0) );
     }
-    if ( _EAX < (unsigned int)primaryLightCount )
+    if ( v4 < (unsigned int)primaryLightCount )
     {
-      v25 = &s_primaryLightsSorted[_EAX];
+      v20 = &s_primaryLightsSorted[v4];
       do
-        *v25++ = _EAX++;
-      while ( _EAX < (unsigned int)primaryLightCount );
+        *v20++ = v4++;
+      while ( v4 < (unsigned int)primaryLightCount );
     }
   }
   *(_QWORD *)&s_primaryLightArray = world->primaryLights;
@@ -239,13 +237,11 @@ void CG_ProcessLightCommand(RadiantCommandData *commandData)
   signed int Light; 
   int v8; 
   int v9; 
-  int v10; 
+  unsigned int v10; 
   __int64 v11; 
-  const char *v12; 
   GfxLight *primaryLights; 
-  signed int v14; 
-  char *fmt; 
-  __int64 v28; 
+  signed int v13; 
+  GfxLight *v14; 
   GfxLight lightOut; 
 
   v1 = *(_DWORD *)commandData->radiantCommand->command;
@@ -292,61 +288,68 @@ LABEL_14:
         world->primaryLights[Light].flags |= 0x10u;
       if ( (_DWORD)v11 != -1 )
         LightUpdate_DelTempLight(v6, v11);
-      v12 = "Turn off pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n";
-LABEL_34:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+lightOut.origin+8]
-        vmovss  xmm1, dword ptr [rbp+57h+lightOut.origin+4]
-        vmovss  xmm3, dword ptr [rbp+57h+lightOut.origin]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+100h+var_D8], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+100h+fmt], xmm1
-      }
-      Com_Printf(8, v12, (unsigned int)v10, _R9, fmt, v28);
-      return;
+      Com_Printf(8, "Turn off pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", v10, lightOut.origin.v[0], lightOut.origin.v[1], lightOut.origin.v[2]);
     }
-    if ( Light != -1 )
+    else if ( Light == -1 )
+    {
+      if ( (_DWORD)v11 == -1 )
+        LightUpdate_AddTempLight(v6, -1, &lightOut, (const RadiantLight *)v2);
+      else
+        LightUpdate_SetTempLight(v6, -1, v11, &lightOut, (const RadiantLight *)v2);
+    }
+    else
     {
       primaryLights = world->primaryLights;
-      v14 = rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount;
-      _RDI = &primaryLights[Light];
+      v13 = rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount;
+      v14 = &primaryLights[Light];
       R_InitSelectedPrimaryLights(Light, Light, primaryLights);
-      if ( v10 < v14 && _RDI->type == lightOut.type )
+      if ( (int)v10 < v13 && v14->type == lightOut.type && VecNCompareCustomEpsilon(v14->colorLinearSrgb.v, lightOut.colorLinearSrgb.v, 0.001, 3) && VecNCompareCustomEpsilon(v14->dir.v, lightOut.dir.v, 0.0049999999, 3) && VecNCompareCustomEpsilon(v14->origin.v, lightOut.origin.v, 0.1, 3) && lightOut.radius == v14->radius && lightOut.bulbRadius == v14->bulbRadius && VecNCompareCustomEpsilon(v14->bulbLength.v, lightOut.bulbLength.v, 0.001, 3) && lightOut.cosHalfFovOuter == v14->cosHalfFovOuter && !*((_DWORD *)v2 + 44) && !*((_DWORD *)v2 + 45) )
       {
-        __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-        if ( VecNCompareCustomEpsilon(_RDI->colorLinearSrgb.v, lightOut.colorLinearSrgb.v, *(float *)&_XMM2, 3) )
+        if ( v14->entityId != lightOut.entityId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote_lighting.cpp", 175, ASSERT_TYPE_SANITY, "( lightOut->entityId == lightSrc->entityId )", (const char *)&queryFormat, "lightOut->entityId == lightSrc->entityId") )
+          __debugbreak();
+        if ( v14->canUseShadowMap != lightOut.canUseShadowMap )
+          v14->canUseShadowMap = lightOut.canUseShadowMap;
+        if ( v14->needsDynamicShadows != lightOut.needsDynamicShadows )
+          v14->needsDynamicShadows = lightOut.needsDynamicShadows;
+        if ( v14->isVolumetric != lightOut.isVolumetric )
+          v14->isVolumetric = lightOut.isVolumetric;
+        if ( lightOut.uvIntensity != v14->uvIntensity )
+          v14->uvIntensity = lightOut.uvIntensity;
+        if ( lightOut.distanceFalloff != v14->distanceFalloff )
+          v14->distanceFalloff = lightOut.distanceFalloff;
+        if ( lightOut.intensity != v14->intensity )
+          v14->intensity = lightOut.intensity;
+        if ( lightOut.type != 1 )
         {
-          __asm { vmovss  xmm2, cs:__real@3ba3d70a; epsilon }
-          if ( VecNCompareCustomEpsilon(_RDI->dir.v, lightOut.dir.v, *(float *)&_XMM2, 3) )
-          {
-            __asm { vmovss  xmm2, cs:__real@3dcccccd; epsilon }
-            if ( VecNCompareCustomEpsilon(_RDI->origin.v, lightOut.origin.v, *(float *)&_XMM2, 3) )
-            {
-              __asm
-              {
-                vmovss  xmm0, [rbp+57h+lightOut.radius]
-                vucomiss xmm0, dword ptr [rdi+44h]
-              }
-            }
-          }
+          if ( lightOut.fadeOffsetRt.v[0] != v14->fadeOffsetRt.v[0] || lightOut.fadeOffsetRt.v[1] != v14->fadeOffsetRt.v[1] )
+            v14->fadeOffsetRt = lightOut.fadeOffsetRt;
+          if ( lightOut.cosHalfFovInner != v14->cosHalfFovInner )
+            v14->cosHalfFovInner = lightOut.cosHalfFovInner;
+          if ( lightOut.shadowSoftness != v14->shadowSoftness )
+            v14->shadowSoftness = lightOut.shadowSoftness;
+          if ( lightOut.shadowBias != v14->shadowBias )
+            v14->shadowBias = lightOut.shadowBias;
+          if ( lightOut.shadowArea != v14->shadowArea )
+            v14->shadowArea = lightOut.shadowArea;
+          if ( lightOut.shadowNearPlaneBias != v14->shadowNearPlaneBias )
+            v14->shadowNearPlaneBias = lightOut.shadowNearPlaneBias;
+          if ( v14->def != lightOut.def )
+            v14->def = lightOut.def;
         }
+        if ( (_DWORD)v11 != -1 )
+          LightUpdate_DelTempLight(v6, v11);
+        Com_Printf(8, "Update primary light(%d) at (%3.0f,%3.0f,%3.0f)\n", v10, v14->origin.v[0], v14->origin.v[1], v14->origin.v[2]);
       }
-      _RDI->flags |= 0x10u;
-      if ( (_DWORD)v11 == -1 )
-        LightUpdate_AddTempLight(v6, v10, &lightOut, (const RadiantLight *)v2);
       else
-        LightUpdate_SetTempLight(v6, v10, v11, &lightOut, (const RadiantLight *)v2);
-      v12 = "Create a new temp light for primary light(%d) at (%3.0f,%3.0f,%3.0f)\n";
-      goto LABEL_34;
+      {
+        v14->flags |= 0x10u;
+        if ( (_DWORD)v11 == -1 )
+          LightUpdate_AddTempLight(v6, v10, &lightOut, (const RadiantLight *)v2);
+        else
+          LightUpdate_SetTempLight(v6, v10, v11, &lightOut, (const RadiantLight *)v2);
+        Com_Printf(8, "Create a new temp light for primary light(%d) at (%3.0f,%3.0f,%3.0f)\n", v10, lightOut.origin.v[0], lightOut.origin.v[1], lightOut.origin.v[2]);
+      }
     }
-    if ( (_DWORD)v11 == -1 )
-      LightUpdate_AddTempLight(v6, -1, &lightOut, (const RadiantLight *)v2);
-    else
-      LightUpdate_SetTempLight(v6, -1, v11, &lightOut, (const RadiantLight *)v2);
   }
 }
 
@@ -362,6 +365,7 @@ void CG_ProcessLightDeleteCommand(RadiantCommandData *commandData)
   LocalClientNum_t FirstActiveGameLocalClient; 
   cg_t *LocalClientGlobals; 
   GfxWorld *world; 
+  cg_t *v6; 
   __int64 v7; 
   unsigned int v8; 
   unsigned int primaryLightCount; 
@@ -371,15 +375,13 @@ void CG_ProcessLightDeleteCommand(RadiantCommandData *commandData)
   int v13; 
   __int64 v14; 
   __int64 v15; 
-  int v24; 
-  int v25; 
-  int v26; 
-  unsigned int v27; 
-  __int64 v28; 
-  char *fmt; 
-  char *fmta; 
-  double v39; 
-  double v40; 
+  __int64 v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  __int64 v22; 
 
   v1 = *(unsigned int *)&commandData->radiantCommand->command[4];
   v2 = &commandData->radiantCommand->command[8];
@@ -388,7 +390,7 @@ void CG_ProcessLightDeleteCommand(RadiantCommandData *commandData)
     return;
   LocalClientGlobals = CG_GetLocalClientGlobals(FirstActiveGameLocalClient);
   world = rgp.world;
-  _RBP = LocalClientGlobals;
+  v6 = LocalClientGlobals;
   if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote_lighting.cpp", 613, ASSERT_TYPE_ASSERT, "(gfxWorld)", (const char *)&queryFormat, "gfxWorld") )
     __debugbreak();
   Com_Printf(8, "%d lights to delete\n", (unsigned int)v1);
@@ -425,64 +427,40 @@ LABEL_15:
     }
     if ( (_DWORD)v14 != -1 )
     {
-      _RCX = (__int64)&world->primaryLights[v14];
-      *(_DWORD *)(_RCX + 16) = 0;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+40h]
-        vmovss  xmm3, dword ptr [rcx+38h]
-        vmovss  xmm1, dword ptr [rcx+3Ch]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+58h+var_30], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+58h+fmt], xmm1
-      }
-      Com_Printf(8, "Suppress pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", (unsigned int)v14, *(double *)&_XMM3, *(double *)&fmt, v39);
+      v16 = (__int64)&world->primaryLights[v14];
+      *(_DWORD *)(v16 + 16) = 0;
+      Com_Printf(8, "Suppress pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", (unsigned int)v14, *(float *)(v16 + 56), *(float *)(v16 + 60), *(float *)(v16 + 64));
     }
 LABEL_19:
-    v24 = 0;
-    v25 = _RBP->refdef.radiantLiveLightCount - 1;
-    if ( v25 < 0 )
+    v17 = 0;
+    v18 = v6->refdef.radiantLiveLightCount - 1;
+    if ( v18 < 0 )
       goto LABEL_28;
     while ( 2 )
     {
-      v26 = (v25 + v24) / 2;
-      v27 = v26;
-      v28 = v26;
-      if ( _RBP->refdef.radiantLiveLights[v28].entityId > v8 )
+      v19 = (v18 + v17) / 2;
+      v20 = v19;
+      v21 = v19;
+      if ( v6->refdef.radiantLiveLights[v21].entityId > v8 )
       {
-        v25 = v26 - 1;
+        v18 = v19 - 1;
         goto LABEL_24;
       }
-      if ( _RBP->refdef.radiantLiveLights[v28].entityId < v8 )
+      if ( v6->refdef.radiantLiveLights[v21].entityId < v8 )
       {
-        v24 = v26 + 1;
+        v17 = v19 + 1;
 LABEL_24:
-        if ( v24 > v25 )
+        if ( v17 > v18 )
           goto LABEL_28;
         continue;
       }
       break;
     }
-    if ( v26 != -1 )
+    if ( v19 != -1 )
     {
-      _RBX = 152i64 * v26;
-      LightUpdate_DelTempLight(_RBP, (v25 + v24) / 2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+rbp+6CA8h]
-        vmovss  xmm3, dword ptr [rbx+rbp+6CA0h]
-        vmovss  xmm1, dword ptr [rbx+rbp+6CA4h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+58h+var_30], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+58h+fmt], xmm1
-      }
-      Com_Printf(8, "Remove temp light(%d) at (%3.0f,%3.0f,%3.0f)\n", v27, *(double *)&_XMM3, *(double *)&fmta, v40);
+      v22 = v19;
+      LightUpdate_DelTempLight(v6, (v18 + v17) / 2);
+      Com_Printf(8, "Remove temp light(%d) at (%3.0f,%3.0f,%3.0f)\n", v20, v6->refdef.radiantLiveLights[v22].origin.v[0], v6->refdef.radiantLiveLights[v22].origin.v[1], v6->refdef.radiantLiveLights[v22].origin.v[2]);
     }
 LABEL_28:
     v2 += 4;
@@ -509,14 +487,10 @@ void CG_ProcessLightSyncCommand(RadiantCommandData *commandData)
   __int64 v9; 
   int Light; 
   __int64 v11; 
+  __int64 v12; 
   unsigned int updated; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v29; 
-  double v30; 
-  double v31; 
-  __int64 v32; 
-  double v33; 
+  __int64 v14; 
+  __int64 v15; 
 
   v1 = *(unsigned int *)&commandData->radiantCommand->command[4];
   v2 = (const RadiantLight *)&commandData->radiantCommand->command[12];
@@ -551,56 +525,32 @@ void CG_ProcessLightSyncCommand(RadiantCommandData *commandData)
             v11 = Light;
             if ( Light != -1 )
             {
-              _RDI = (__int64)&world->primaryLights[Light];
+              v12 = (__int64)&world->primaryLights[Light];
               if ( (unsigned int)Light >= 0x1980 )
               {
-                LODWORD(v32) = 6528;
-                LODWORD(v29) = Light;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v29, v32) )
+                LODWORD(v15) = 6528;
+                LODWORD(v14) = Light;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v14, v15) )
                   __debugbreak();
               }
               s_primaryLightsModified[v11 >> 5] |= 1 << (v11 & 0x1F);
               if ( v2->action == 1 )
               {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+40h]
-                  vmovss  xmm3, dword ptr [rdi+38h]
-                  vmovss  xmm1, dword ptr [rdi+3Ch]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vcvtss2sd xmm3, xmm3, xmm3
-                  vcvtss2sd xmm1, xmm1, xmm1
-                  vmovsd  [rsp+68h+var_40], xmm0
-                  vmovq   r9, xmm3
-                  vmovsd  [rsp+68h+fmt], xmm1
-                }
-                Com_Printf(8, "Update pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", (unsigned int)v11, *(double *)&_XMM3, *(double *)&fmta, v31);
-                LightUpdate_RadiantLightToGfxLight(v2, (GfxLight *)_RDI);
+                Com_Printf(8, "Update pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", (unsigned int)v11, *(float *)(v12 + 56), *(float *)(v12 + 60), *(float *)(v12 + 64));
+                LightUpdate_RadiantLightToGfxLight(v2, (GfxLight *)v12);
               }
               else if ( v2->action == 2 )
               {
-                if ( *(_BYTE *)_RDI == 1 )
+                if ( *(_BYTE *)v12 == 1 )
                 {
-                  LightUpdate_RadiantLightToGfxLight(v2, (GfxLight *)_RDI);
+                  LightUpdate_RadiantLightToGfxLight(v2, (GfxLight *)v12);
                   Dvar_SetBoolByName("LRTMOMKOLS", 0);
                 }
                 else
                 {
-                  *(_DWORD *)(_RDI + 16) = 0;
+                  *(_DWORD *)(v12 + 16) = 0;
                   updated = LightUpdate_AddTempLight_0(v7, -1, v2);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rdi+40h]
-                    vmovss  xmm1, dword ptr [rdi+3Ch]
-                    vmovss  xmm2, dword ptr [rdi+38h]
-                    vcvtss2sd xmm0, xmm0, xmm0
-                    vmovsd  [rsp+68h+var_38], xmm0
-                    vcvtss2sd xmm1, xmm1, xmm1
-                    vcvtss2sd xmm2, xmm2, xmm2
-                    vmovsd  [rsp+68h+var_40], xmm1
-                    vmovsd  [rsp+68h+fmt], xmm2
-                  }
-                  Com_Printf(8, "Create a new temp light(%d) for pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", updated, (unsigned int)v11, *(double *)&fmt, v30, v33);
+                  Com_Printf(8, "Create a new temp light(%d) for pirmary light(%d) at (%3.0f,%3.0f,%3.0f)\n", updated, (unsigned int)v11, *(float *)(v12 + 56), *(float *)(v12 + 60), *(float *)(v12 + 64));
                 }
               }
             }
@@ -764,742 +714,580 @@ CG_RadiantLightAnim_UpdateColorAndIntensity
 */
 void CG_RadiantLightAnim_UpdateColorAndIntensity(cg_t *cgameGlob, RadiantLightAnim *anim, GfxLight *light)
 {
+  float v3; 
+  float waitTime; 
+  float v7; 
   RadiantLightEffect::ColorMode colorMode; 
   GfxWorld *world; 
-  GfxLight *v20; 
+  float *p_type; 
   int phase; 
   unsigned int isdefined; 
+  float speed_scale; 
+  __int128 v14; 
+  __int128 v16; 
+  float v18; 
+  __int128 v22; 
+  __int128 v25; 
+  float v26; 
+  unsigned int v28; 
+  __int128 v29; 
+  __int128 v31; 
+  __int128 v34; 
+  __int128 v36; 
+  __int128 v38; 
+  double v39; 
   int v44; 
-  int v66; 
-  unsigned int v67; 
-  int v86; 
-  int v110; 
-  int v111; 
-  unsigned int v112; 
-  int v130; 
-  int step_i; 
-  int v178; 
-  int v204; 
-  char v220; 
-  __int64 v225; 
+  unsigned int v45; 
+  float v46; 
+  __int128 v48; 
+  __int128 v50; 
+  float v51; 
+  __int128 v55; 
+  __int128 v58; 
+  float v59; 
+  unsigned int v61; 
+  __int128 v62; 
+  __int128 v64; 
+  __int128 v67; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v72; 
+  double v73; 
+  double v74; 
+  int v75; 
+  int v76; 
+  unsigned int v77; 
+  float v78; 
+  __int128 v80; 
+  __int128 v82; 
+  __int128 v84; 
+  __int128 v87; 
+  __int128 v90; 
+  float v91; 
+  unsigned int v93; 
+  __int128 v94; 
+  __int128 v96; 
+  __int128 v99; 
+  __int128 v102; 
+  __int128 v103; 
+  __int128 v105; 
+  int v106; 
+  float v107; 
+  float on_off_time; 
+  double v109; 
+  float step_i; 
+  float v111; 
+  float v112; 
+  float v113; 
+  __int128 v114; 
+  float v115; 
+  float v116; 
+  __int128 v118; 
+  int v120; 
+  int v121; 
+  float v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  __int128 v126; 
+  float v127; 
+  float v128; 
+  __int128 v130; 
+  int v132; 
+  double v133; 
+  double v134; 
+  int v135; 
+  float v136; 
+  float v137; 
+  float v138; 
+  float v139; 
   float outIntensity; 
   vec3_t inColorGammaSrgb; 
   vec3_t outColorLinearSrgb; 
-  char v231; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rcx+65ECh]
-    vmulss  xmm10, xmm0, cs:__real@3a83126f
-    vmovss  xmm0, dword ptr [rdx+48h]
-    vxorps  xmm9, xmm9, xmm9
-    vucomiss xmm0, xmm9
-  }
-  _RDI = light;
-  _RBX = anim;
-  if ( (unsigned __int64)&v225 != _security_cookie )
-    __asm { vsubss  xmm8, xmm0, xmm10 }
+  v3 = (float)cgameGlob->time * 0.001;
+  waitTime = anim->waitTime;
+  if ( waitTime == 0.0 )
+    v7 = 0.0;
   else
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    v7 = waitTime - v3;
   colorMode = anim->effect.colorMode;
-  if ( colorMode )
+  if ( colorMode == COLOR_FROM_SCRIPT )
+  {
+    if ( anim->compiledLightIndex != -1 )
+    {
+      world = rgp.world;
+      if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote_lighting.cpp", 790, ASSERT_TYPE_ASSERT, "(gfxWorld)", (const char *)&queryFormat, "gfxWorld") )
+        __debugbreak();
+      p_type = (float *)&world->primaryLights[anim->compiledLightIndex].type;
+      light->colorLinearSrgb.v[0] = p_type[5];
+      light->colorLinearSrgb.v[1] = p_type[6];
+      light->colorLinearSrgb.v[2] = p_type[7];
+      light->intensity = p_type[4];
+    }
+    return;
+  }
+  if ( colorMode == COLOR_OFF )
+  {
+    light->intensity = 0.0;
+    return;
+  }
+  if ( colorMode != COLOR_COLOR )
   {
     switch ( colorMode )
     {
-      case COLOR_OFF:
-        light->intensity = 0.0;
-        goto LABEL_124;
-      case COLOR_COLOR:
-        goto LABEL_124;
       case COLOR_COLOR_01:
-        __asm { vmovss  xmm1, dword ptr [rdx+20h]; inIntensity }
-        GetGameColorAndIntensity(anim->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-        goto LABEL_124;
+        GetGameColorAndIntensity(anim->effect.color, anim->effect.intensity[0], &light->colorLinearSrgb, &light->intensity);
+        return;
       case COLOR_COLOR_02:
-        __asm { vmovss  xmm1, dword ptr [rdx+24h]; inIntensity }
-        GetGameColorAndIntensity(&anim->effect.color[1], *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-        goto LABEL_124;
+        GetGameColorAndIntensity(&anim->effect.color[1], anim->effect.intensity[1], &light->colorLinearSrgb, &light->intensity);
+        return;
       case COLOR_TOGGLE:
-        __asm { vcomiss xmm8, xmm9 }
+        if ( v7 > 0.0 )
+          return;
         phase = anim->phase;
         if ( !phase )
         {
-          __asm { vmovss  xmm1, dword ptr [rdx+20h]; inIntensity }
-          GetGameColorAndIntensity(anim->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-          __asm { vmovss  xmm0, dword ptr [rbx+54h] }
-          _RBX->phase = 1;
-          __asm
-          {
-            vmaxss  xmm1, xmm0, dword ptr [rbx+5Ch]
-            vaddss  xmm0, xmm8, xmm10
-            vaddss  xmm2, xmm1, xmm0
-            vmovss  dword ptr [rbx+48h], xmm2
-          }
-          goto LABEL_124;
+          GetGameColorAndIntensity(anim->effect.color, anim->effect.intensity[0], &light->colorLinearSrgb, &light->intensity);
+          _XMM0 = LODWORD(anim->wait_min[0]);
+          anim->phase = 1;
+          __asm { vmaxss  xmm1, xmm0, dword ptr [rbx+5Ch] }
+          anim->waitTime = *(float *)&_XMM1 + (float)(v7 + v3);
+          return;
         }
         if ( phase == 1 )
         {
-          __asm { vmovss  xmm1, dword ptr [rdx+24h]; inIntensity }
-          GetGameColorAndIntensity(&anim->effect.color[1], *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-          __asm { vmovss  xmm1, dword ptr [rbx+60h] }
-          _RBX->phase = 0;
-          __asm
-          {
-            vmaxss  xmm1, xmm1, dword ptr [rbx+58h]
-            vaddss  xmm0, xmm8, xmm10
-            vaddss  xmm2, xmm1, xmm0
-            vmovss  dword ptr [rbx+48h], xmm2
-          }
-          goto LABEL_124;
+          GetGameColorAndIntensity(&anim->effect.color[1], anim->effect.intensity[1], &light->colorLinearSrgb, &light->intensity);
+          _XMM1 = LODWORD(anim->wait_max[1]);
+          anim->phase = 0;
+          __asm { vmaxss  xmm1, xmm1, dword ptr [rbx+58h] }
+          anim->waitTime = *(float *)&_XMM1 + (float)(v7 + v3);
+          return;
         }
         isdefined = anim->effect.isdefined;
-        __asm { vmovss  xmm1, cs:__real@3f800000 }
         if ( (isdefined & 1) != 0 )
-          __asm { vmovss  xmm0, dword ptr [rbx+0Ch] }
+          speed_scale = anim->effect.speed_scale;
         else
-          __asm { vmovaps xmm0, xmm1 }
-        __asm
-        {
-          vmovss  xmm3, cs:__real@40000000
-          vdivss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx+4Ch], xmm0
-          vmaxss  xmm0, xmm1, cs:__real@3e800000
-          vmovss  dword ptr [rbx+50h], xmm0
-        }
+          speed_scale = FLOAT_1_0;
+        v14 = LODWORD(FLOAT_2_0);
+        v16 = LODWORD(FLOAT_1_0);
+        *(float *)&v16 = 1.0 / speed_scale;
+        _XMM1 = v16;
+        anim->speed_scale = speed_scale;
+        __asm { vmaxss  xmm0, xmm1, cs:__real@3e800000 }
+        anim->on_off_time = *(float *)&_XMM0;
         if ( (isdefined & 6) != 2 )
         {
           if ( (isdefined & 2) != 0 )
           {
-            __asm { vmovss  xmm0, dword ptr [rbx+10h] }
+            v18 = anim->effect.wait_min[0];
 LABEL_29:
-            __asm
+            *(float *)&v16 = *(float *)&v16 * v18;
+            _XMM0 = v16;
+            __asm { vmaxss  xmm0, xmm0, xmm2 }
+            anim->wait_min[0] = *(float *)&_XMM0;
+            if ( (anim->effect.isdefined & 4) != 0 )
             {
-              vmovss  xmm2, cs:__real@3d4ccccd
-              vmulss  xmm0, xmm1, xmm0
-              vmaxss  xmm0, xmm0, xmm2
-              vmovss  dword ptr [rbx+54h], xmm0
-            }
-            if ( (_RBX->effect.isdefined & 4) != 0 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+18h]
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm2
-              }
+              v22 = LODWORD(anim->effect.wait_max[0]);
+              *(float *)&v22 = anim->effect.wait_max[0] / anim->speed_scale;
+              _XMM0 = v22;
+              __asm { vmaxss  xmm1, xmm0, xmm2 }
             }
             else
             {
-              __asm
+              v25 = LODWORD(FLOAT_2_0);
+              *(float *)&v25 = 2.0 / anim->speed_scale;
+              _XMM0 = v25;
+              __asm { vmaxss  xmm1, xmm0, xmm2 }
+            }
+LABEL_36:
+            anim->wait_max[0] = *(float *)&_XMM1;
+            v28 = anim->effect.isdefined & 8;
+            if ( (anim->effect.isdefined & 0x18) != 8 )
+            {
+              if ( v28 )
               {
-                vmovaps xmm0, xmm3
-                vdivss  xmm0, xmm3, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm2
+                v29 = LODWORD(anim->effect.wait_min[1]);
+                goto LABEL_41;
+              }
+              if ( (anim->effect.isdefined & 0x10) == 0 )
+              {
+                v29 = LODWORD(FLOAT_2_0);
+LABEL_41:
+                v31 = v29;
+                *(float *)&v31 = *(float *)&v29 / anim->speed_scale;
+                _XMM0 = v31;
+                __asm { vmaxss  xmm1, xmm0, xmm2 }
+                anim->wait_min[1] = *(float *)&_XMM1;
+                if ( (anim->effect.isdefined & 0x10) != 0 )
+                  v14 = LODWORD(anim->effect.wait_max[1]);
+                v34 = v14;
+                *(float *)&v34 = *(float *)&v14 / anim->speed_scale;
+                _XMM0 = v34;
+                __asm { vmaxss  xmm1, xmm0, xmm2 }
+                goto LABEL_48;
               }
             }
-            goto LABEL_36;
+            if ( v28 )
+              v36 = LODWORD(anim->effect.wait_min[1]);
+            else
+              v36 = LODWORD(anim->effect.wait_max[1]);
+            v38 = v36;
+            *(float *)&v38 = *(float *)&v36 / anim->speed_scale;
+            _XMM1 = v38;
+            __asm { vmaxss  xmm1, xmm1, xmm2 }
+            anim->wait_min[1] = *(float *)&_XMM1;
+LABEL_48:
+            anim->wait_max[1] = *(float *)&_XMM1;
+            GetGameColorAndIntensity(anim->effect.color, anim->effect.intensity[0], &light->colorLinearSrgb, &light->intensity);
+            v39 = G_flrand(0.0, anim->on_off_time);
+            anim->phase = 0;
+            anim->waitTime = *(float *)&v39 + (float)(v7 + v3);
+            return;
           }
           if ( (isdefined & 4) == 0 )
           {
-            __asm { vmovaps xmm0, xmm3 }
+            v18 = FLOAT_2_0;
             goto LABEL_29;
           }
         }
         if ( (isdefined & 2) != 0 )
-          __asm { vmovss  xmm0, dword ptr [rbx+10h] }
+          v26 = anim->effect.wait_min[0];
         else
-          __asm { vmovss  xmm0, dword ptr [rbx+18h] }
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3d4ccccd
-          vmulss  xmm0, xmm1, xmm0
-          vmaxss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rbx+54h], xmm1
-        }
-LABEL_36:
-        __asm { vmovss  dword ptr [rbx+5Ch], xmm1 }
-        v44 = _RBX->effect.isdefined & 8;
-        if ( (_RBX->effect.isdefined & 0x18) != 8 )
-        {
-          if ( v44 )
-          {
-            __asm { vmovss  xmm0, dword ptr [rbx+14h] }
-            goto LABEL_41;
-          }
-          if ( (_RBX->effect.isdefined & 0x10) == 0 )
-          {
-            __asm { vmovaps xmm0, xmm3 }
-LABEL_41:
-            __asm
-            {
-              vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-              vmaxss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [rbx+58h], xmm1
-            }
-            if ( (_RBX->effect.isdefined & 0x10) != 0 )
-              __asm { vmovss  xmm3, dword ptr [rbx+1Ch] }
-            __asm
-            {
-              vdivss  xmm0, xmm3, dword ptr [rbx+4Ch]
-              vmaxss  xmm1, xmm0, xmm2
-            }
-            goto LABEL_48;
-          }
-        }
-        if ( v44 )
-          __asm { vmovss  xmm0, dword ptr [rbx+14h] }
-        else
-          __asm { vmovss  xmm0, dword ptr [rbx+1Ch] }
-        __asm
-        {
-          vdivss  xmm1, xmm0, dword ptr [rbx+4Ch]
-          vmaxss  xmm1, xmm1, xmm2
-          vmovss  dword ptr [rbx+58h], xmm1
-        }
-LABEL_48:
-        __asm
-        {
-          vmovss  dword ptr [rbx+60h], xmm1
-          vmovss  xmm1, dword ptr [rbx+20h]; inIntensity
-        }
-        GetGameColorAndIntensity(_RBX->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+50h]; max
-          vxorps  xmm0, xmm0, xmm0; min
-        }
-        *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vaddss  xmm1, xmm8, xmm10
-          vaddss  xmm2, xmm0, xmm1
-        }
-        _RBX->phase = 0;
-        __asm { vmovss  dword ptr [rbx+48h], xmm2 }
-        goto LABEL_124;
+          v26 = anim->effect.wait_max[0];
+        *(float *)&v16 = *(float *)&v16 * v26;
+        _XMM0 = v16;
+        __asm { vmaxss  xmm1, xmm0, xmm2 }
+        anim->wait_min[0] = *(float *)&_XMM1;
+        goto LABEL_36;
       case COLOR_FLICKER:
-        __asm { vcomiss xmm8, xmm9 }
-        v66 = anim->phase;
-        if ( !v66 )
+        if ( v7 > 0.0 )
+          return;
+        v44 = anim->phase;
+        if ( !v44 )
         {
-          __asm { vmovss  xmm1, dword ptr [rdx+20h]; inIntensity }
-          GetGameColorAndIntensity(anim->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+5Ch]; max
-            vmovss  xmm0, dword ptr [rbx+54h]; min
-          }
-          *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vaddss  xmm1, xmm8, xmm10
-            vaddss  xmm2, xmm0, xmm1
-          }
-          _RBX->phase = 1;
-          __asm { vmovss  dword ptr [rbx+48h], xmm2 }
-          goto LABEL_124;
+          GetGameColorAndIntensity(anim->effect.color, anim->effect.intensity[0], &light->colorLinearSrgb, &light->intensity);
+          v74 = G_flrand(anim->wait_min[0], anim->wait_max[0]);
+          anim->phase = 1;
+          anim->waitTime = *(float *)&v74 + (float)(v7 + v3);
+          return;
         }
-        if ( v66 == 1 )
+        if ( v44 == 1 )
         {
-          __asm { vmovss  xmm1, dword ptr [rdx+24h]; inIntensity }
-          GetGameColorAndIntensity(&anim->effect.color[1], *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+60h]; max
-            vmovss  xmm0, dword ptr [rbx+58h]; min
-          }
-          *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vaddss  xmm1, xmm8, xmm10
-            vaddss  xmm2, xmm0, xmm1
-          }
-          _RBX->phase = 0;
-          __asm { vmovss  dword ptr [rbx+48h], xmm2 }
-          goto LABEL_124;
+          GetGameColorAndIntensity(&anim->effect.color[1], anim->effect.intensity[1], &light->colorLinearSrgb, &light->intensity);
+          v73 = G_flrand(anim->wait_min[1], anim->wait_max[1]);
+          anim->phase = 0;
+          anim->waitTime = *(float *)&v73 + (float)(v7 + v3);
+          return;
         }
-        v67 = anim->effect.isdefined;
-        __asm { vmovss  xmm1, cs:__real@3f800000 }
-        if ( (v67 & 1) != 0 )
-          __asm { vmovss  xmm0, dword ptr [rbx+0Ch] }
+        v45 = anim->effect.isdefined;
+        if ( (v45 & 1) != 0 )
+          v46 = anim->effect.speed_scale;
         else
-          __asm { vmovaps xmm0, xmm1 }
-        __asm
+          v46 = FLOAT_1_0;
+        v48 = LODWORD(FLOAT_1_0);
+        *(float *)&v48 = 1.0 / v46;
+        _XMM1 = v48;
+        anim->speed_scale = v46;
+        __asm { vmaxss  xmm0, xmm1, cs:__real@3e800000 }
+        anim->on_off_time = *(float *)&_XMM0;
+        if ( (v45 & 6) != 2 )
         {
-          vmovss  xmm3, cs:__real@3dcccccd
-          vdivss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx+4Ch], xmm0
-          vmaxss  xmm0, xmm1, cs:__real@3e800000
-          vmovss  dword ptr [rbx+50h], xmm0
-        }
-        if ( (v67 & 6) != 2 )
-        {
-          __asm { vmovss  xmm2, cs:__real@3d4ccccd }
-          if ( (v67 & 2) != 0 )
+          v50 = LODWORD(FLOAT_0_050000001);
+          if ( (v45 & 2) != 0 )
           {
-            __asm { vmovss  xmm0, dword ptr [rbx+10h] }
+            v51 = anim->effect.wait_min[0];
 LABEL_63:
-            __asm
+            *(float *)&v48 = *(float *)&v48 * v51;
+            _XMM0 = v48;
+            __asm { vmaxss  xmm1, xmm0, xmm2 }
+            anim->wait_min[0] = *(float *)&_XMM1;
+            if ( (anim->effect.isdefined & 4) != 0 )
             {
-              vmulss  xmm0, xmm1, xmm0
-              vmaxss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [rbx+54h], xmm1
-            }
-            if ( (_RBX->effect.isdefined & 4) != 0 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+18h]
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
-              }
+              v55 = LODWORD(anim->effect.wait_max[0]);
+              *(float *)&v55 = anim->effect.wait_max[0] / anim->speed_scale;
+              _XMM0 = v55;
+              __asm { vmaxss  xmm1, xmm0, xmm3 }
             }
             else
             {
-              __asm
-              {
-                vmovaps xmm0, xmm3
-                vdivss  xmm0, xmm3, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
-              }
+              v58 = LODWORD(FLOAT_0_1);
+              *(float *)&v58 = 0.1 / anim->speed_scale;
+              _XMM0 = v58;
+              __asm { vmaxss  xmm1, xmm0, xmm3 }
             }
             goto LABEL_70;
           }
-          if ( (v67 & 4) == 0 )
+          if ( (v45 & 4) == 0 )
           {
-            __asm { vmovaps xmm0, xmm2 }
+            v51 = FLOAT_0_050000001;
             goto LABEL_63;
           }
         }
-        if ( (v67 & 2) != 0 )
-          __asm { vmovss  xmm0, dword ptr [rbx+10h] }
+        if ( (v45 & 2) != 0 )
+          v59 = anim->effect.wait_min[0];
         else
-          __asm { vmovss  xmm0, dword ptr [rbx+18h] }
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3d4ccccd
-          vmulss  xmm0, xmm1, xmm0
-          vmaxss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rbx+54h], xmm1
-        }
+          v59 = anim->effect.wait_max[0];
+        v50 = LODWORD(FLOAT_0_050000001);
+        *(float *)&v48 = *(float *)&v48 * v59;
+        _XMM0 = v48;
+        __asm { vmaxss  xmm1, xmm0, xmm2 }
+        anim->wait_min[0] = *(float *)&_XMM1;
 LABEL_70:
-        __asm { vmovss  dword ptr [rbx+5Ch], xmm1 }
-        v86 = _RBX->effect.isdefined & 8;
-        if ( (_RBX->effect.isdefined & 0x18) != 8 )
+        anim->wait_max[0] = *(float *)&_XMM1;
+        v61 = anim->effect.isdefined & 8;
+        if ( (anim->effect.isdefined & 0x18) != 8 )
         {
-          if ( v86 )
+          if ( v61 )
           {
-            __asm { vmovss  xmm0, dword ptr [rbx+14h] }
+            v62 = LODWORD(anim->effect.wait_min[1]);
 LABEL_75:
-            __asm
+            v64 = v62;
+            *(float *)&v64 = *(float *)&v62 / anim->speed_scale;
+            _XMM0 = v64;
+            __asm { vmaxss  xmm1, xmm0, xmm2 }
+            anim->wait_min[1] = *(float *)&_XMM1;
+            if ( (anim->effect.isdefined & 0x10) != 0 )
             {
-              vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-              vmaxss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [rbx+58h], xmm1
-            }
-            if ( (_RBX->effect.isdefined & 0x10) != 0 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+1Ch]
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
-              }
+              v67 = LODWORD(anim->effect.wait_max[1]);
+              *(float *)&v67 = anim->effect.wait_max[1] / anim->speed_scale;
+              _XMM0 = v67;
+              __asm { vmaxss  xmm1, xmm0, xmm3 }
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, cs:__real@3f400000
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
-              }
+              v69 = LODWORD(FLOAT_0_75);
+              *(float *)&v69 = 0.75 / anim->speed_scale;
+              _XMM0 = v69;
+              __asm { vmaxss  xmm1, xmm0, xmm3 }
             }
-LABEL_82:
-            __asm
-            {
-              vmovss  dword ptr [rbx+60h], xmm1
-              vmovss  xmm1, dword ptr [rbx+20h]; inIntensity
-            }
-            GetGameColorAndIntensity(_RBX->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbx+50h]; max
-              vxorps  xmm0, xmm0, xmm0; min
-            }
-            *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-            __asm
-            {
-              vaddss  xmm1, xmm8, xmm10
-              vaddss  xmm2, xmm0, xmm1
-            }
-            _RBX->phase = 0;
-            __asm { vmovss  dword ptr [rbx+48h], xmm2 }
-            goto LABEL_124;
+            goto LABEL_48;
           }
-          if ( (_RBX->effect.isdefined & 0x10) == 0 )
+          if ( (anim->effect.isdefined & 0x10) == 0 )
           {
-            __asm { vmovaps xmm0, xmm2 }
+            v62 = v50;
             goto LABEL_75;
           }
         }
-        if ( v86 )
-          __asm { vmovss  xmm0, dword ptr [rbx+14h] }
+        if ( v61 )
+          v70 = LODWORD(anim->effect.wait_min[1]);
         else
-          __asm { vmovss  xmm0, dword ptr [rbx+1Ch] }
-        __asm
-        {
-          vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-          vmaxss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rbx+58h], xmm1
-        }
-        goto LABEL_82;
+          v70 = LODWORD(anim->effect.wait_max[1]);
+        v72 = v70;
+        *(float *)&v72 = *(float *)&v70 / anim->speed_scale;
+        _XMM0 = v72;
+        __asm { vmaxss  xmm1, xmm0, xmm2 }
+        anim->wait_min[1] = *(float *)&_XMM1;
+        goto LABEL_48;
     }
-    __asm { vmovaps [rsp+0B8h+var_18], xmm6 }
     if ( colorMode != COLOR_PULSE )
     {
-      __asm
+      v136 = v3 - anim->activationTime;
+      outColorLinearSrgb.v[0] = FLOAT_1_0;
+      outIntensity = FLOAT_1_0;
+      outColorLinearSrgb.v[1] = 0.0;
+      outColorLinearSrgb.v[2] = 0.0;
+      GetGameColorAndIntensity(&outColorLinearSrgb, 1.0, &outColorLinearSrgb, &outIntensity);
+      if ( fmodf_0(v136, 4.0) >= 2.0 )
       {
-        vmovss  xmm1, cs:__real@3f800000; inIntensity
-        vsubss  xmm6, xmm10, dword ptr [rdx+44h]
-        vmovss  dword ptr [rsp+0B8h+outColorLinearSrgb], xmm1
-        vmovss  [rsp+0B8h+outIntensity], xmm1
-        vmovss  dword ptr [rsp+0B8h+outColorLinearSrgb+4], xmm9
-        vmovss  dword ptr [rsp+0B8h+outColorLinearSrgb+8], xmm9
-      }
-      GetGameColorAndIntensity(&outColorLinearSrgb, *(float *)&_XMM1, &outColorLinearSrgb, &outIntensity);
-      __asm
-      {
-        vmovss  xmm1, cs:__real@40800000; Y
-        vmovaps xmm0, xmm6; X
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vcomiss xmm0, cs:__real@40000000 }
-      if ( v220 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0B8h+outColorLinearSrgb]
-          vmovss  xmm1, dword ptr [rsp+0B8h+outColorLinearSrgb+4]
-          vmovss  dword ptr [rdi+14h], xmm0
-          vmovss  xmm0, dword ptr [rsp+0B8h+outColorLinearSrgb+8]
-          vmovss  dword ptr [rdi+18h], xmm1
-          vmovss  xmm1, [rsp+0B8h+outIntensity]
-          vmovss  dword ptr [rdi+1Ch], xmm0
-          vmovss  dword ptr [rdi+10h], xmm1
-        }
+        *(_QWORD *)light->colorLinearSrgb.v = 0i64;
+        light->colorLinearSrgb.v[2] = 0.0;
+        light->intensity = 0.0;
       }
       else
       {
-        *(_QWORD *)_RDI->colorLinearSrgb.v = 0i64;
-        _RDI->colorLinearSrgb.v[2] = 0.0;
-        _RDI->intensity = 0.0;
+        v137 = outColorLinearSrgb.v[1];
+        light->colorLinearSrgb.v[0] = outColorLinearSrgb.v[0];
+        v138 = outColorLinearSrgb.v[2];
+        light->colorLinearSrgb.v[1] = v137;
+        v139 = outIntensity;
+        light->colorLinearSrgb.v[2] = v138;
+        light->intensity = v139;
       }
-      goto LABEL_123;
+      return;
     }
-    __asm { vcomiss xmm8, xmm9 }
-    v110 = anim->phase;
-    if ( !v110 )
+    if ( v7 > 0.0 )
+      return;
+    v75 = anim->phase;
+    if ( v75 )
     {
-      __asm { vmovss  xmm1, dword ptr [rdx+20h]; inIntensity }
-      GetGameColorAndIntensity(anim->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-      __asm
+      v76 = v75 - 1;
+      if ( v76 )
       {
-        vmovss  xmm1, dword ptr [rbx+5Ch]; max
-        vmovss  xmm0, dword ptr [rbx+54h]; min
-      }
-      *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vaddss  xmm1, xmm8, xmm10
-        vaddss  xmm0, xmm0, xmm1
-        vmovss  dword ptr [rbx+48h], xmm0
-        vmovss  xmm1, dword ptr [rbx+60h]; max
-        vmovss  xmm0, dword ptr [rbx+58h]; min
-      }
-      *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@41200000
-        vcvttss2si eax, xmm1
-      }
-      _RBX->steps = _EAX;
-      _RBX->phase = 1;
-      if ( _EAX > 1 )
-        _EAX = 1;
-      _RBX->step_i = _EAX;
-      goto LABEL_123;
-    }
-    __asm { vmovaps [rsp+0B8h+var_28], xmm7 }
-    v111 = v110 - 1;
-    if ( v111 )
-    {
-      if ( v111 != 1 )
-      {
-        v112 = anim->effect.isdefined;
-        __asm { vmovss  xmm1, cs:__real@3f800000 }
-        if ( (v112 & 1) != 0 )
-          __asm { vmovss  xmm0, dword ptr [rbx+0Ch] }
-        else
-          __asm { vmovaps xmm0, xmm1 }
-        __asm
+        if ( v76 != 1 )
         {
-          vmovss  xmm3, cs:__real@3dcccccd
-          vdivss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx+4Ch], xmm0
-          vmaxss  xmm0, xmm1, cs:__real@40400000
-          vmovss  dword ptr [rbx+50h], xmm0
-        }
-        if ( (v112 & 6) != 2 )
-        {
-          __asm { vmovss  xmm2, cs:__real@3d4ccccd }
-          if ( (v112 & 2) != 0 )
+          v77 = anim->effect.isdefined;
+          if ( (v77 & 1) != 0 )
+            v78 = anim->effect.speed_scale;
+          else
+            v78 = FLOAT_1_0;
+          v80 = LODWORD(FLOAT_1_0);
+          *(float *)&v80 = 1.0 / v78;
+          _XMM1 = v80;
+          anim->speed_scale = v78;
+          __asm { vmaxss  xmm0, xmm1, cs:__real@40400000 }
+          anim->on_off_time = *(float *)&_XMM0;
+          if ( (v77 & 6) != 2 )
           {
-            __asm { vmovss  xmm0, dword ptr [rbx+10h] }
-LABEL_98:
-            __asm
+            if ( (v77 & 2) != 0 )
             {
-              vmulss  xmm0, xmm0, xmm1
-              vmaxss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [rbx+54h], xmm1
-            }
-            if ( (_RBX->effect.isdefined & 4) != 0 )
-            {
-              __asm
+              v82 = LODWORD(anim->effect.wait_min[0]);
+LABEL_97:
+              v84 = v82;
+              *(float *)&v84 = *(float *)&v82 * *(float *)&_XMM1;
+              _XMM0 = v84;
+              __asm { vmaxss  xmm1, xmm0, xmm2 }
+              anim->wait_min[0] = *(float *)&_XMM1;
+              if ( (anim->effect.isdefined & 4) != 0 )
               {
-                vmovss  xmm0, dword ptr [rbx+18h]
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
+                v87 = LODWORD(anim->effect.wait_max[0]);
+                *(float *)&v87 = anim->effect.wait_max[0] / anim->speed_scale;
+                _XMM0 = v87;
+                __asm { vmaxss  xmm1, xmm0, xmm3 }
               }
-            }
-            else
-            {
-              __asm
+              else
               {
-                vmovss  xmm0, cs:__real@3f000000
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
+                v90 = LODWORD(FLOAT_0_5);
+                *(float *)&v90 = 0.5 / anim->speed_scale;
+                _XMM0 = v90;
+                __asm { vmaxss  xmm1, xmm0, xmm3 }
               }
+              goto LABEL_104;
             }
-            goto LABEL_105;
+            if ( (v77 & 4) == 0 )
+            {
+              v82 = LODWORD(FLOAT_0_050000001);
+              goto LABEL_97;
+            }
           }
-          if ( (v112 & 4) == 0 )
+          if ( (v77 & 2) != 0 )
+            v91 = anim->effect.wait_min[0];
+          else
+            v91 = anim->effect.wait_max[0];
+          *(float *)&v80 = *(float *)&v80 * v91;
+          _XMM0 = v80;
+          __asm { vmaxss  xmm1, xmm0, xmm2 }
+          anim->wait_min[0] = *(float *)&_XMM1;
+LABEL_104:
+          anim->wait_max[0] = *(float *)&_XMM1;
+          v93 = anim->effect.isdefined & 8;
+          if ( (anim->effect.isdefined & 0x18) != 8 )
           {
-            __asm { vmovaps xmm0, xmm2 }
-            goto LABEL_98;
-          }
-        }
-        if ( (v112 & 2) != 0 )
-          __asm { vmovss  xmm0, dword ptr [rbx+10h] }
-        else
-          __asm { vmovss  xmm0, dword ptr [rbx+18h] }
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3d4ccccd
-          vmulss  xmm0, xmm1, xmm0
-          vmaxss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rbx+54h], xmm1
-        }
-LABEL_105:
-        __asm { vmovss  dword ptr [rbx+5Ch], xmm1 }
-        v130 = _RBX->effect.isdefined & 8;
-        if ( (_RBX->effect.isdefined & 0x18) != 8 )
-        {
-          if ( v130 )
-          {
-            __asm { vmovss  xmm0, dword ptr [rbx+14h] }
-LABEL_110:
-            __asm
+            if ( v93 )
             {
-              vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-              vmaxss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [rbx+58h], xmm1
-            }
-            if ( (_RBX->effect.isdefined & 0x10) != 0 )
-            {
-              __asm
+              v94 = LODWORD(anim->effect.wait_min[1]);
+LABEL_109:
+              v96 = v94;
+              *(float *)&v96 = *(float *)&v94 / anim->speed_scale;
+              _XMM0 = v96;
+              __asm { vmaxss  xmm1, xmm0, xmm2 }
+              anim->wait_min[1] = *(float *)&_XMM1;
+              if ( (anim->effect.isdefined & 0x10) != 0 )
               {
-                vmovss  xmm0, dword ptr [rbx+1Ch]
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
+                v99 = LODWORD(anim->effect.wait_max[1]);
+                *(float *)&v99 = anim->effect.wait_max[1] / anim->speed_scale;
+                _XMM0 = v99;
+                __asm { vmaxss  xmm1, xmm0, xmm3 }
               }
-            }
-            else
-            {
-              __asm
+              else
               {
-                vmovss  xmm0, cs:__real@3f400000
-                vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-                vmaxss  xmm1, xmm0, xmm3
+                v102 = LODWORD(FLOAT_0_75);
+                *(float *)&v102 = 0.75 / anim->speed_scale;
+                _XMM0 = v102;
+                __asm { vmaxss  xmm1, xmm0, xmm3 }
               }
-            }
+LABEL_116:
+              anim->wait_max[1] = *(float *)&_XMM1;
+              GetGameColorAndIntensity(anim->effect.color, anim->effect.intensity[0], &light->colorLinearSrgb, &light->intensity);
+              v106 = (int)(float)(anim->wait_max[1] * 20.0);
+              v107 = 2.0 / (float)v106;
+              anim->step_inc = v107;
+              anim->steps = v106;
+              on_off_time = anim->on_off_time;
+              anim->intensity_inc = (float)(anim->effect.intensity[0] - anim->effect.intensity[1]) * v107;
+              v109 = G_flrand(0.0, on_off_time);
+              anim->waitTime = *(float *)&v109 + (float)(v7 + v3);
 LABEL_117:
-            __asm
-            {
-              vmovss  dword ptr [rbx+60h], xmm1
-              vmovss  xmm1, dword ptr [rbx+20h]; inIntensity
+              anim->phase = 0;
+              return;
             }
-            GetGameColorAndIntensity(_RBX->effect.color, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-            __asm
+            if ( (anim->effect.isdefined & 0x10) == 0 )
             {
-              vmovss  xmm0, dword ptr [rbx+60h]
-              vmulss  xmm1, xmm0, cs:__real@41a00000
-              vmovss  xmm0, cs:__real@40000000
-              vcvttss2si eax, xmm1
-              vxorps  xmm2, xmm2, xmm2
-              vcvtsi2ss xmm2, xmm2, eax
-              vdivss  xmm3, xmm0, xmm2
-              vmovss  dword ptr [rbx+6Ch], xmm3
+              v94 = LODWORD(FLOAT_0_25);
+              goto LABEL_109;
             }
-            _RBX->steps = _EAX;
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbx+20h]
-              vsubss  xmm0, xmm1, dword ptr [rbx+24h]
-              vmovss  xmm1, dword ptr [rbx+50h]; max
-              vmulss  xmm2, xmm0, xmm3
-              vxorps  xmm0, xmm0, xmm0; min
-              vmovss  dword ptr [rbx+70h], xmm2
-            }
-            *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-            __asm
-            {
-              vaddss  xmm1, xmm8, xmm10
-              vaddss  xmm0, xmm0, xmm1
-              vmovss  dword ptr [rbx+48h], xmm0
-            }
-LABEL_118:
-            _RBX->phase = 0;
-LABEL_122:
-            __asm { vmovaps xmm7, [rsp+0B8h+var_28] }
-LABEL_123:
-            __asm { vmovaps xmm6, [rsp+0B8h+var_18] }
-            goto LABEL_124;
           }
-          if ( (_RBX->effect.isdefined & 0x10) == 0 )
-          {
-            __asm { vmovss  xmm0, cs:__real@3e800000 }
-            goto LABEL_110;
-          }
+          if ( v93 )
+            v103 = LODWORD(anim->effect.wait_min[1]);
+          else
+            v103 = LODWORD(anim->effect.wait_max[1]);
+          v105 = v103;
+          *(float *)&v105 = *(float *)&v103 / anim->speed_scale;
+          _XMM0 = v105;
+          __asm { vmaxss  xmm1, xmm0, xmm2 }
+          anim->wait_min[1] = *(float *)&_XMM1;
+          goto LABEL_116;
         }
-        if ( v130 )
-          __asm { vmovss  xmm0, dword ptr [rbx+14h] }
-        else
-          __asm { vmovss  xmm0, dword ptr [rbx+1Ch] }
-        __asm
+        step_i = (float)anim->step_i;
+        v111 = step_i * anim->step_inc;
+        v112 = (float)(anim->effect.color[1].v[1] - anim->effect.color[0].v[1]) * v111;
+        v113 = anim->effect.color[1].v[2] - anim->effect.color[0].v[2];
+        v114 = LODWORD(anim->effect.intensity[0]);
+        inColorGammaSrgb.v[0] = (float)((float)(anim->effect.color[1].v[0] - anim->effect.color[0].v[0]) * v111) + anim->effect.color[0].v[0];
+        v115 = step_i * anim->intensity_inc;
+        inColorGammaSrgb.v[1] = v112 + anim->effect.color[0].v[1];
+        v116 = (float)(v113 * v111) + anim->effect.color[0].v[2];
+        v118 = v114;
+        *(float *)&v118 = *(float *)&v114 - v115;
+        _XMM2 = v118;
+        __asm { vmaxss  xmm1, xmm2, xmm9; inIntensity }
+        inColorGammaSrgb.v[2] = v116;
+        GetGameColorAndIntensity(&inColorGammaSrgb, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
+        v120 = anim->step_i;
+        anim->waitTime = (float)(v7 + v3) + 0.050000001;
+        if ( v120 == 1 )
+          goto LABEL_117;
+        v121 = v120 - 1;
+      }
+      else
+      {
+        v122 = (float)anim->step_i;
+        v123 = v122 * anim->step_inc;
+        v124 = (float)(anim->effect.color[1].v[1] - anim->effect.color[0].v[1]) * v123;
+        v125 = anim->effect.color[1].v[2] - anim->effect.color[0].v[2];
+        v126 = LODWORD(anim->effect.intensity[0]);
+        inColorGammaSrgb.v[0] = (float)((float)(anim->effect.color[1].v[0] - anim->effect.color[0].v[0]) * v123) + anim->effect.color[0].v[0];
+        v127 = v122 * anim->intensity_inc;
+        inColorGammaSrgb.v[1] = v124 + anim->effect.color[0].v[1];
+        v128 = (float)(v125 * v123) + anim->effect.color[0].v[2];
+        v130 = v126;
+        *(float *)&v130 = *(float *)&v126 - v127;
+        _XMM2 = v130;
+        __asm { vmaxss  xmm1, xmm2, xmm9; inIntensity }
+        inColorGammaSrgb.v[2] = v128;
+        GetGameColorAndIntensity(&inColorGammaSrgb, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
+        v132 = anim->step_i;
+        anim->waitTime = (float)(v7 + v3) + 0.050000001;
+        if ( v132 == anim->steps )
         {
-          vdivss  xmm0, xmm0, dword ptr [rbx+4Ch]
-          vmaxss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rbx+58h], xmm1
+          anim->phase = 2;
+          return;
         }
-        goto LABEL_117;
+        v121 = v132 + 1;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+34h]
-        vsubss  xmm1, xmm0, dword ptr [rdx+28h]
-        vmovss  xmm0, dword ptr [rdx+38h]
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, dword ptr [rdx+68h]
-        vmulss  xmm6, xmm7, dword ptr [rdx+6Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rdx+28h]
-        vsubss  xmm1, xmm0, dword ptr [rdx+2Ch]
-        vmovss  xmm0, dword ptr [rdx+3Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rdx+30h]
-        vmovss  xmm0, dword ptr [rdx+20h]
-        vmovss  dword ptr [rsp+0B8h+inColorGammaSrgb], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rdx+2Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vmulss  xmm1, xmm7, dword ptr [rdx+70h]
-        vmovss  dword ptr [rsp+0B8h+inColorGammaSrgb+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rdx+30h]
-        vsubss  xmm2, xmm0, xmm1
-        vmaxss  xmm1, xmm2, xmm9; inIntensity
-        vmovss  dword ptr [rsp+0B8h+inColorGammaSrgb+8], xmm3
-      }
-      GetGameColorAndIntensity(&inColorGammaSrgb, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-      step_i = _RBX->step_i;
-      __asm
-      {
-        vaddss  xmm0, xmm8, xmm10
-        vaddss  xmm1, xmm0, cs:__real@3d4ccccd
-        vmovss  dword ptr [rbx+48h], xmm1
-      }
-      if ( step_i == 1 )
-        goto LABEL_118;
-      v178 = step_i - 1;
+      anim->step_i = v121;
+      return;
     }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+34h]
-        vsubss  xmm1, xmm0, dword ptr [rdx+28h]
-        vmovss  xmm0, dword ptr [rdx+38h]
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, dword ptr [rdx+68h]
-        vmulss  xmm6, xmm7, dword ptr [rdx+6Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rdx+28h]
-        vsubss  xmm1, xmm0, dword ptr [rdx+2Ch]
-        vmovss  xmm0, dword ptr [rdx+3Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rdx+30h]
-        vmovss  xmm0, dword ptr [rdx+20h]
-        vmovss  dword ptr [rsp+0B8h+inColorGammaSrgb], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rdx+2Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vmulss  xmm1, xmm7, dword ptr [rdx+70h]
-        vmovss  dword ptr [rsp+0B8h+inColorGammaSrgb+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rdx+30h]
-        vsubss  xmm2, xmm0, xmm1
-        vmaxss  xmm1, xmm2, xmm9; inIntensity
-        vmovss  dword ptr [rsp+0B8h+inColorGammaSrgb+8], xmm3
-      }
-      GetGameColorAndIntensity(&inColorGammaSrgb, *(float *)&_XMM1, &light->colorLinearSrgb, &light->intensity);
-      v204 = _RBX->step_i;
-      __asm
-      {
-        vaddss  xmm0, xmm8, xmm10
-        vaddss  xmm1, xmm0, cs:__real@3d4ccccd
-        vmovss  dword ptr [rbx+48h], xmm1
-      }
-      if ( v204 == _RBX->steps )
-      {
-        _RBX->phase = 2;
-        goto LABEL_122;
-      }
-      v178 = v204 + 1;
-    }
-    _RBX->step_i = v178;
-    goto LABEL_122;
-  }
-  if ( anim->compiledLightIndex != -1 )
-  {
-    world = rgp.world;
-    if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote_lighting.cpp", 790, ASSERT_TYPE_ASSERT, "(gfxWorld)", (const char *)&queryFormat, "gfxWorld") )
-      __debugbreak();
-    v20 = &world->primaryLights[_RBX->compiledLightIndex];
-    _RDI->colorLinearSrgb.v[0] = v20->colorLinearSrgb.v[0];
-    _RDI->colorLinearSrgb.v[1] = v20->colorLinearSrgb.v[1];
-    _RDI->colorLinearSrgb.v[2] = v20->colorLinearSrgb.v[2];
-    _RDI->intensity = v20->intensity;
-  }
-LABEL_124:
-  _R11 = &v231;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    GetGameColorAndIntensity(anim->effect.color, anim->effect.intensity[0], &light->colorLinearSrgb, &light->intensity);
+    v133 = G_flrand(anim->wait_min[0], anim->wait_max[0]);
+    anim->waitTime = *(float *)&v133 + (float)(v7 + v3);
+    v134 = G_flrand(anim->wait_min[1], anim->wait_max[1]);
+    v135 = (int)(float)(*(float *)&v134 * 10.0);
+    anim->steps = v135;
+    anim->phase = 1;
+    if ( v135 > 1 )
+      v135 = 1;
+    anim->step_i = v135;
   }
 }
 
@@ -1530,113 +1318,44 @@ void CG_UpdateRadiantLightEffects(void)
 GetGameColorAndIntensity
 ==============
 */
-
-void __fastcall GetGameColorAndIntensity(const vec3_t *inColorGammaSrgb, double inIntensity, vec3_t *outColorLinearSrgb, float *outIntensity)
+void GetGameColorAndIntensity(const vec3_t *inColorGammaSrgb, float inIntensity, vec3_t *outColorLinearSrgb, float *outIntensity)
 {
-  char v17; 
-  char v18; 
+  float v4; 
+  float v6; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vcomiss xmm0, cs:__real@3d20e411
-    vmovaps [rsp+68h+var_18], xmm6
-  }
-  _RDI = outIntensity;
-  __asm
-  {
-    vmovss  dword ptr [r8], xmm0
-    vmovss  xmm6, dword ptr [rcx+4]
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RBX = outColorLinearSrgb;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm9
-    vmovss  dword ptr [r8+4], xmm6
-    vmovss  xmm9, dword ptr [rcx+8]
-    vmovaps [rsp+68h+var_48], xmm11
-    vmovaps xmm11, xmm1
-    vmulss  xmm0, xmm0, cs:__real@3f72a76f
-    vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-    vmovss  xmm1, cs:__real@4019999a; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vcomiss xmm6, cs:__real@3d20e411
-    vmovss  dword ptr [rbx], xmm7
-  }
-  if ( v17 | v18 )
-  {
-    __asm { vmulss  xmm6, xmm6, cs:__real@3d9e8391 }
-  }
+  v4 = inColorGammaSrgb->v[0];
+  outColorLinearSrgb->v[0] = inColorGammaSrgb->v[0];
+  v6 = inColorGammaSrgb->v[1];
+  outColorLinearSrgb->v[1] = v6;
+  v8 = inColorGammaSrgb->v[2];
+  if ( v4 > 0.039280001 )
+    v9 = powf_0((float)(v4 * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
-  }
-  __asm
-  {
-    vcomiss xmm9, cs:__real@3d20e411
-    vmovss  dword ptr [rbx+4], xmm6
-  }
-  if ( v17 | v18 )
-  {
-    __asm { vmulss  xmm4, xmm9, cs:__real@3d9e8391 }
-  }
+    v9 = v4 * 0.077399381;
+  outColorLinearSrgb->v[0] = v9;
+  if ( v6 > 0.039280001 )
+    v10 = powf_0((float)(v6 * 0.94786733) + 0.052132703, 2.4000001);
   else
+    v10 = v6 * 0.077399381;
+  outColorLinearSrgb->v[1] = v10;
+  if ( v8 > 0.039280001 )
+    v11 = powf_0((float)(v8 * 0.94786733) + 0.052132703, 2.4000001);
+  else
+    v11 = v8 * 0.077399381;
+  outColorLinearSrgb->v[2] = v11;
+  v12 = (float)((float)(v9 * 0.21259999) + (float)(v10 * 0.71520001)) + (float)(v11 * 0.0722);
+  if ( v12 > 0.0 )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm9, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm4, xmm0 }
+    outColorLinearSrgb->v[0] = v9 * (float)(1.0 / v12);
+    outColorLinearSrgb->v[2] = v11 * (float)(1.0 / v12);
+    outColorLinearSrgb->v[1] = v10 * (float)(1.0 / v12);
   }
-  __asm
-  {
-    vmovss  dword ptr [rbx+8], xmm4
-    vmulss  xmm2, xmm7, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B; vec3_t const luminanceCoefficientsBT709
-    vmulss  xmm1, xmm6, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B+4; vec3_t const luminanceCoefficientsBT709
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm4, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B+8; vec3_t const luminanceCoefficientsBT709
-    vaddss  xmm0, xmm3, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  if ( !(v17 | v18) )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm7, xmm2
-      vmovss  dword ptr [rbx], xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-  }
-  __asm
-  {
-    vmulss  xmm1, xmm11, cs:__real@43f6b0cf
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm9, [rsp+68h+var_38]
-    vmovaps xmm11, [rsp+68h+var_48]
-    vmovss  dword ptr [rdi], xmm1
-  }
+  *outIntensity = inIntensity * 493.38132;
 }
 
 /*
@@ -1647,12 +1366,31 @@ LightUpdate_AddTempLight
 __int64 LightUpdate_AddTempLight(cg_t *cgameGlob, int compiledLightIndex, const GfxLight *lightSrc, const RadiantLight *lightRadiant)
 {
   __int64 radiantLiveLightCount; 
-  __int64 v11; 
-  int v28; 
-  int action; 
-  __int64 result; 
-  char v68[240]; 
-  int v69; 
+  __int64 v9; 
+  RadiantLight *v10; 
+  RadiantLightAnim *v11; 
+  float *v12; 
+  __m256i v13; 
+  __m256i v14; 
+  __m256i v15; 
+  __m256i v16; 
+  double v17; 
+  __int128 v18; 
+  int v19; 
+  __m256i v20; 
+  __m256i v21; 
+  __m256i v22; 
+  __int128 v23; 
+  double v24; 
+  unsigned int action; 
+  __m256i v27; 
+  __m256i v28; 
+  __m256i v29; 
+  __m256i v30; 
+  __m256i v31; 
+  __m256i v32; 
+  __m256i v33; 
+  __int128 v34; 
 
   if ( lightSrc->type == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote_lighting.cpp", 239, ASSERT_TYPE_ASSERT, "(lightSrc->type != 1)", (const char *)&queryFormat, "lightSrc->type != GFX_LIGHT_TYPE_DIR") )
     __debugbreak();
@@ -1666,158 +1404,93 @@ __int64 LightUpdate_AddTempLight(cg_t *cgameGlob, int compiledLightIndex, const 
   {
     cgameGlob->refdef.radiantLiveLightCount = radiantLiveLightCount + 1;
     LightUpdate_SetTempLight(cgameGlob, compiledLightIndex, radiantLiveLightCount, lightSrc, lightRadiant);
-    v11 = radiantLiveLightCount;
+    v9 = radiantLiveLightCount;
     if ( (int)radiantLiveLightCount <= 0 )
     {
       return (unsigned int)radiantLiveLightCount;
     }
     else
     {
-      __asm
-      {
-        vmovaps [rsp+168h+var_28], xmm6
-        vmovaps [rsp+168h+var_38], xmm7
-      }
-      _R11 = &cgameGlob->refdef.radiantLiveLightsRaw[radiantLiveLightCount];
-      _R9 = &cgameGlob->refdef.radiantLiveLightsAnim[radiantLiveLightCount];
-      _RCX = &cgameGlob->refdef.dofPhysicalFocusState.focusDistance + 38 * radiantLiveLightCount;
+      v10 = &cgameGlob->refdef.radiantLiveLightsRaw[radiantLiveLightCount];
+      v11 = &cgameGlob->refdef.radiantLiveLightsAnim[radiantLiveLightCount];
+      v12 = &cgameGlob->refdef.dofPhysicalFocusState.focusDistance + 38 * radiantLiveLightCount;
       do
       {
-        if ( *((_DWORD *)_RCX + 64) >= *((_DWORD *)_RCX + 26) )
+        if ( *((_DWORD *)v12 + 64) >= *((_DWORD *)v12 + 26) )
           break;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymm3, ymmword ptr [rcx+98h]
-          vmovups ymm4, ymmword ptr [rcx+0B8h]
-          vmovups ymm5, ymmword ptr [rcx+0D8h]
-          vmovups ymm6, ymmword ptr [rcx+0F8h]
-          vmovsd  xmm2, qword ptr [rcx+128h]
-          vmovups xmm7, xmmword ptr [rcx+118h]
-          vmovups ymmword ptr [rcx+98h], ymm0
-          vmovups ymm1, ymmword ptr [rcx+20h]
-          vmovups ymmword ptr [rcx+0B8h], ymm1
-          vmovups ymm0, ymmword ptr [rcx+40h]
-          vmovups ymmword ptr [rcx+0D8h], ymm0
-          vmovups ymm1, ymmword ptr [rcx+60h]
-          vmovups ymmword ptr [rcx+0F8h], ymm1
-          vmovups xmm0, xmmword ptr [rcx+80h]
-          vmovups xmmword ptr [rcx+118h], xmm0
-          vmovsd  xmm1, qword ptr [rcx+90h]
-          vmovsd  qword ptr [rcx+128h], xmm1
-          vmovups ymmword ptr [rcx], ymm3
-          vmovups ymmword ptr [rcx+20h], ymm4
-          vmovups ymmword ptr [rcx+40h], ymm5
-          vmovups ymmword ptr [rcx+60h], ymm6
-          vmovups xmmword ptr [rcx+80h], xmm7
-          vmovsd  qword ptr [rcx+90h], xmm2
-          vmovups ymm0, ymmword ptr [r9-7Ch]
-        }
-        v28 = *((_DWORD *)_R9 + 30);
-        __asm
-        {
-          vmovups ymm3, ymmword ptr [r9]
-          vmovups ymm4, ymmword ptr [r9+20h]
-          vmovups ymm5, ymmword ptr [r9+40h]
-          vmovups xmm6, xmmword ptr [r9+60h]
-          vmovsd  xmm2, qword ptr [r9+70h]
-          vmovups ymmword ptr [r9], ymm0
-          vmovups ymm1, ymmword ptr [r9-5Ch]
-          vmovups ymmword ptr [r9+20h], ymm1
-          vmovups ymm0, ymmword ptr [r9-3Ch]
-          vmovups ymmword ptr [r9+40h], ymm0
-          vmovups xmm1, xmmword ptr [r9-1Ch]
-          vmovups xmmword ptr [r9+60h], xmm1
-          vmovsd  xmm0, qword ptr [r9-0Ch]
-          vmovsd  qword ptr [r9+70h], xmm0
-        }
-        *((_DWORD *)_R9 + 30) = *((_DWORD *)&_R9[-1] + 30);
-        __asm
-        {
-          vmovups ymmword ptr [r9-7Ch], ymm3
-          vmovups ymmword ptr [r9-5Ch], ymm4
-          vmovups ymmword ptr [r9-3Ch], ymm5
-          vmovups xmmword ptr [r9-1Ch], xmm6
-          vmovsd  qword ptr [r9-0Ch], xmm2
-        }
-        *((_DWORD *)&_R9[-1] + 30) = v28;
-        _RDX = v68;
-        __asm { vmovups ymm0, ymmword ptr [r11] }
-        action = _R11->action;
-        __asm
-        {
-          vmovups ymmword ptr [rdx], ymm0
-          vmovups ymm0, ymmword ptr [r11+20h]
-          vmovups ymmword ptr [rdx+20h], ymm0
-          vmovups ymm0, ymmword ptr [r11+40h]
-          vmovups ymmword ptr [rdx+40h], ymm0
-          vmovups ymm0, ymmword ptr [r11+60h]
-          vmovups ymmword ptr [rdx+60h], ymm0
-          vmovups ymm0, ymmword ptr [r11+80h]
-          vmovups ymmword ptr [rdx+80h], ymm0
-          vmovups ymm0, ymmword ptr [r11+0A0h]
-          vmovups ymmword ptr [rdx+0A0h], ymm0
-          vmovups ymm0, ymmword ptr [r11+0C0h]
-          vmovups ymmword ptr [rdx+0C0h], ymm0
-          vmovups xmm0, xmmword ptr [r11+0E0h]
-          vmovups xmmword ptr [rdx+0E0h], xmm0
-          vmovups ymm0, ymmword ptr [r11-0F4h]
-          vmovups ymmword ptr [r11], ymm0
-          vmovups ymm0, ymmword ptr [r11-0D4h]
-          vmovups ymmword ptr [r11+20h], ymm0
-          vmovups ymm0, ymmword ptr [r11-0B4h]
-          vmovups ymmword ptr [r11+40h], ymm0
-          vmovups ymm0, ymmword ptr [r11-94h]
-          vmovups ymmword ptr [r11+60h], ymm0
-          vmovups ymm0, ymmword ptr [r11-74h]
-          vmovups ymmword ptr [r11+80h], ymm0
-          vmovups ymm0, ymmword ptr [r11-54h]
-          vmovups ymmword ptr [r11+0A0h], ymm0
-          vmovups ymm0, ymmword ptr [r11-34h]
-          vmovups ymmword ptr [r11+0C0h], ymm0
-        }
-        v69 = action;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r11-14h]
-          vmovups xmmword ptr [r11+0E0h], xmm0
-        }
-        _RDX = v68;
-        __asm { vmovups ymm0, ymmword ptr [rdx] }
-        _R11->action = _R11[-1].action;
+        v13 = *(__m256i *)(v12 + 38);
+        v14 = *(__m256i *)(v12 + 46);
+        v15 = *(__m256i *)(v12 + 54);
+        v16 = *(__m256i *)(v12 + 62);
+        v17 = *((double *)v12 + 37);
+        v18 = *(_OWORD *)(v12 + 70);
+        *(__m256i *)(v12 + 38) = *(__m256i *)v12;
+        *(__m256i *)(v12 + 46) = *(__m256i *)(v12 + 8);
+        *(__m256i *)(v12 + 54) = *(__m256i *)(v12 + 16);
+        *(__m256i *)(v12 + 62) = *(__m256i *)(v12 + 24);
+        *(_OWORD *)(v12 + 70) = *((_OWORD *)v12 + 8);
+        *((double *)v12 + 37) = *((double *)v12 + 18);
+        *(__m256i *)v12 = v13;
+        *((__m256i *)v12 + 1) = v14;
+        *((__m256i *)v12 + 2) = v15;
+        *((__m256i *)v12 + 3) = v16;
+        *((_OWORD *)v12 + 8) = v18;
+        *((double *)v12 + 18) = v17;
+        v19 = *((_DWORD *)v11 + 30);
+        v20 = *(__m256i *)&v11->effect.isdefined;
+        v21 = *(__m256i *)v11->effect.intensity;
+        v22 = *(__m256i *)&v11->phase;
+        v23 = *(_OWORD *)&v11->wait_max[1];
+        v24 = *(double *)&v11->intensity_inc;
+        *(__m256i *)&v11->effect.isdefined = *(__m256i *)&v11[-1].effect.isdefined;
+        *(__m256i *)v11->effect.intensity = *(__m256i *)v11[-1].effect.intensity;
+        *(__m256i *)&v11->phase = *(__m256i *)&v11[-1].phase;
+        *(_OWORD *)&v11->wait_max[1] = *(_OWORD *)&v11[-1].wait_max[1];
+        *(double *)&v11->intensity_inc = *(double *)&v11[-1].intensity_inc;
+        *((_DWORD *)v11 + 30) = *((_DWORD *)&v11[-1] + 30);
+        *(__m256i *)&v11[-1].effect.isdefined = v20;
+        *(__m256i *)v11[-1].effect.intensity = v21;
+        *(__m256i *)&v11[-1].phase = v22;
+        *(_OWORD *)&v11[-1].wait_max[1] = v23;
+        *(double *)&v11[-1].intensity_inc = v24;
+        *((_DWORD *)&v11[-1] + 30) = v19;
+        action = v10->action;
+        v27 = *(__m256i *)&v10->uniqueLightID;
+        v28 = *(__m256i *)&v10->bulbLength.y;
+        v29 = *(__m256i *)&v10->bounceColorLinearSrgb.y;
+        v30 = *(__m256i *)&v10->sunDir.z;
+        v31 = *(__m256i *)&v10->shadowBias;
+        v32 = *(__m256i *)&v10->lightDef[20];
+        v33 = *(__m256i *)&v10->effect.wait_min[1];
+        v34 = *(_OWORD *)v10->effect.color[1].v;
+        *(__m256i *)&v10->uniqueLightID = *(__m256i *)&v10[-1].uniqueLightID;
+        *(__m256i *)&v10->bulbLength.y = *(__m256i *)&v10[-1].bulbLength.y;
+        *(__m256i *)&v10->bounceColorLinearSrgb.y = *(__m256i *)&v10[-1].bounceColorLinearSrgb.y;
+        *(__m256i *)&v10->sunDir.z = *(__m256i *)&v10[-1].sunDir.z;
+        *(__m256i *)&v10->shadowBias = *(__m256i *)&v10[-1].shadowBias;
+        *(__m256i *)&v10->lightDef[20] = *(__m256i *)&v10[-1].lightDef[20];
+        *(__m256i *)&v10->effect.wait_min[1] = *(__m256i *)&v10[-1].effect.wait_min[1];
+        *(_OWORD *)v10->effect.color[1].v = *(_OWORD *)v10[-1].effect.color[1].v;
+        v10->action = v10[-1].action;
         LODWORD(radiantLiveLightCount) = radiantLiveLightCount - 1;
-        __asm
-        {
-          vmovups ymmword ptr [r11-0F4h], ymm0
-          vmovups ymm0, ymmword ptr [rdx+20h]
-          vmovups ymmword ptr [r11-0D4h], ymm0
-          vmovups ymm0, ymmword ptr [rdx+40h]
-          vmovups ymmword ptr [r11-0B4h], ymm0
-          vmovups ymm0, ymmword ptr [rdx+60h]
-          vmovups ymmword ptr [r11-94h], ymm0
-          vmovups ymm0, ymmword ptr [rdx+80h]
-          vmovups ymmword ptr [r11-74h], ymm0
-          vmovups ymm0, ymmword ptr [rdx+0A0h]
-          vmovups ymmword ptr [r11-54h], ymm0
-          vmovups ymm0, ymmword ptr [rdx+0C0h]
-          vmovups ymmword ptr [r11-34h], ymm0
-          vmovups xmm0, xmmword ptr [rdx+0E0h]
-        }
-        LODWORD(_RDX) = v69;
+        *(__m256i *)&v10[-1].uniqueLightID = v27;
+        *(__m256i *)&v10[-1].bulbLength.y = v28;
+        *(__m256i *)&v10[-1].bounceColorLinearSrgb.y = v29;
+        *(__m256i *)&v10[-1].sunDir.z = v30;
+        *(__m256i *)&v10[-1].shadowBias = v31;
+        *(__m256i *)&v10[-1].lightDef[20] = v32;
+        *(__m256i *)&v10[-1].effect.wait_min[1] = v33;
+        --v9;
+        *(_OWORD *)v10[-1].effect.color[1].v = v34;
+        v10[-1].action = action;
+        v12 -= 38;
+        --v10;
         --v11;
-        __asm { vmovups xmmword ptr [r11-14h], xmm0 }
-        _R11[-1].action = (unsigned int)_RDX;
-        _RCX -= 38;
-        --_R11;
-        --_R9;
       }
-      while ( v11 > 0 );
-      __asm { vmovaps xmm6, [rsp+168h+var_28] }
-      result = (unsigned int)radiantLiveLightCount;
-      __asm { vmovaps xmm7, [rsp+168h+var_38] }
+      while ( v9 > 0 );
+      return (unsigned int)radiantLiveLightCount;
     }
   }
-  return result;
 }
 
 /*
@@ -1911,165 +1584,108 @@ LightUpdate_RadiantLightToGfxLight
 */
 void LightUpdate_RadiantLightToGfxLight(const RadiantLight *lightSrc, GfxLight *lightOut)
 {
-  unsigned __int8 v6; 
-  bool v16; 
+  unsigned __int8 v4; 
+  float distanceFalloff; 
+  double v6; 
+  vec3_t *p_up; 
+  vec3_t *p_bulbLength; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  __int128 fovOuter_low; 
+  __int128 v21; 
 
-  _RBX = lightOut;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RDI = lightSrc;
-  __asm { vmovaps [rsp+68h+var_38], xmm7 }
   if ( (*((_DWORD *)lightSrc + 59) & 0x80u) == 0 )
-    v6 = ((*((_DWORD *)lightSrc + 59) & 0x40) == 0) | 2;
+    v4 = ((*((_DWORD *)lightSrc + 59) & 0x40) == 0) | 2;
   else
-    v6 = 1;
-  lightOut->type = v6;
+    v4 = 1;
+  lightOut->type = v4;
   if ( (*((_BYTE *)lightSrc + 236) & 1) == 0 )
     lightOut->flags |= 0x40u;
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
   lightOut->entityId = lightSrc->uniqueLightID;
   lightOut->canUseShadowMap = (*((_DWORD *)lightSrc + 59) & 8) != 0;
   lightOut->needsDynamicShadows = (*((_DWORD *)lightSrc + 59) & 0x10) != 0;
-  v16 = (*((_DWORD *)lightSrc + 59) & 0x100) == 0;
   lightOut->isVolumetric = BYTE1(*((_DWORD *)lightSrc + 59)) & 1;
   lightOut->uvIntensity = lightSrc->uvIntensity;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+54h]; val
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( v16 )
-  {
-    __asm { vmovss  xmm0, cs:__real@3e4ccccd }
-  }
+  distanceFalloff = lightSrc->distanceFalloff;
+  if ( distanceFalloff == 0.0 )
+    *(float *)&v6 = FLOAT_0_2;
   else
+    v6 = I_fclamp(distanceFalloff, 0.1, 1.0);
+  lightOut->distanceFalloff = *(float *)&v6;
+  lightOut->intensity = lightSrc->directIntensity;
+  p_up = &lightOut->up;
+  lightOut->colorLinearSrgb.v[0] = lightSrc->directColorLinearSrgb.v[0];
+  lightOut->colorLinearSrgb.v[1] = lightSrc->directColorLinearSrgb.v[1];
+  lightOut->colorLinearSrgb.v[2] = lightSrc->directColorLinearSrgb.v[2];
+  lightOut->dir.v[0] = lightSrc->spotDir.v[0];
+  lightOut->dir.v[1] = lightSrc->spotDir.v[1];
+  lightOut->dir.v[2] = lightSrc->spotDir.v[2];
+  lightOut->up.v[0] = 0.0;
+  *(_QWORD *)&lightOut->up.y = 1065353216i64;
+  if ( *((char *)lightSrc + 236) >= 0 )
   {
-    __asm
+    lightOut->origin.v[0] = lightSrc->origin.v[0];
+    lightOut->origin.v[1] = lightSrc->origin.v[1];
+    lightOut->origin.v[2] = lightSrc->origin.v[2];
+    _XMM0 = LODWORD(lightSrc->radius);
+    __asm { vmaxss  xmm1, xmm0, cs:__real@3f8147ae }
+    lightOut->radius = *(float *)&_XMM1;
+    lightOut->fadeOffsetRt.v[0] = lightSrc->fadeOffset.v[0];
+    lightOut->fadeOffsetRt.v[1] = lightSrc->fadeOffset.v[1];
+    R_LightFadeOffsetRuntimeEncoding(&lightOut->fadeOffsetRt, lightOut->type);
+    _XMM0 = LODWORD(lightSrc->bulbRadius);
+    p_bulbLength = &lightOut->bulbLength;
+    __asm { vmaxss  xmm1, xmm0, xmm7 }
+    lightOut->bulbRadius = *(float *)&_XMM1;
+    *(float *)&_XMM0 = lightSrc->bulbLength.v[0];
+    lightOut->bulbLength.v[0] = *(float *)&_XMM0;
+    lightOut->bulbLength.v[1] = lightSrc->bulbLength.v[1];
+    lightOut->bulbLength.v[2] = lightSrc->bulbLength.v[2];
+    if ( *(float *)&_XMM0 == 0.0 && lightOut->bulbLength.v[1] == 0.0 && lightOut->bulbLength.v[2] == 0.0 )
     {
-      vmovss  xmm1, cs:__real@3dcccccd; min
-      vmovaps xmm2, xmm7; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
-  __asm { vmovss  dword ptr [rbx+84h], xmm0 }
-  _R15 = &_RBX->dir;
-  _RBX->intensity = _RDI->directIntensity;
-  _R14 = &_RBX->up;
-  _RBX->colorLinearSrgb.v[0] = _RDI->directColorLinearSrgb.v[0];
-  _RBX->colorLinearSrgb.v[1] = _RDI->directColorLinearSrgb.v[1];
-  _RBX->colorLinearSrgb.v[2] = _RDI->directColorLinearSrgb.v[2];
-  _RBX->dir.v[0] = _RDI->spotDir.v[0];
-  _RBX->dir.v[1] = _RDI->spotDir.v[1];
-  _RBX->dir.v[2] = _RDI->spotDir.v[2];
-  _RBX->up.v[0] = 0.0;
-  *(_QWORD *)&_RBX->up.y = 1065353216i64;
-  if ( *((char *)_RDI + 236) >= 0 )
-  {
-    _RBX->origin.v[0] = _RDI->origin.v[0];
-    _RBX->origin.v[1] = _RDI->origin.v[1];
-    _RBX->origin.v[2] = _RDI->origin.v[2];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+14h]
-      vmaxss  xmm1, xmm0, cs:__real@3f8147ae
-      vmovss  dword ptr [rbx+44h], xmm1
-    }
-    _RBX->fadeOffsetRt.v[0] = _RDI->fadeOffset.v[0];
-    _RBX->fadeOffsetRt.v[1] = _RDI->fadeOffset.v[1];
-    R_LightFadeOffsetRuntimeEncoding(&_RBX->fadeOffsetRt, _RBX->type);
-    __asm { vmovss  xmm0, dword ptr [rdi+18h] }
-    _RSI = &_RBX->bulbLength;
-    __asm
-    {
-      vmaxss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rbx+50h], xmm1
-      vmovss  xmm0, dword ptr [rdi+1Ch]
-      vucomiss xmm0, xmm6
-      vmovss  dword ptr [rsi], xmm0
-    }
-    _RBX->bulbLength.v[1] = _RDI->bulbLength.v[1];
-    _RBX->bulbLength.v[2] = _RDI->bulbLength.v[2];
-    if ( !v16 )
-      goto LABEL_25;
-    __asm { vucomiss xmm6, dword ptr [rbx+58h] }
-    if ( !v16 )
-      goto LABEL_25;
-    __asm { vucomiss xmm6, dword ptr [rbx+5Ch] }
-    if ( v16 )
-    {
-      _RSI->v[0] = 0.0039215689;
-      _RBX->bulbLength.v[1] = 0.0039215689;
-      _RBX->bulbLength.v[2] = 0.0039215689;
+      p_bulbLength->v[0] = 0.0039215689;
+      lightOut->bulbLength.v[1] = 0.0039215689;
+      lightOut->bulbLength.v[2] = 0.0039215689;
     }
     else
     {
-LABEL_25:
-      if ( _R15 == _R14 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+      if ( &lightOut->dir == p_up && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
         __debugbreak();
-      if ( _RSI == _R14 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+      if ( p_bulbLength == p_up && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
         __debugbreak();
+      v13 = (float)(lightOut->dir.v[1] * lightOut->bulbLength.v[2]) - (float)(lightOut->bulbLength.v[1] * lightOut->dir.v[2]);
+      p_up->v[0] = v13;
+      v14 = LODWORD(lightOut->dir.v[2]);
+      *(float *)&v14 = (float)(lightOut->dir.v[2] * lightOut->bulbLength.v[0]) - (float)(lightOut->dir.v[0] * lightOut->bulbLength.v[2]);
+      lightOut->up.v[1] = *(float *)&v14;
+      v15 = (float)(lightOut->bulbLength.v[1] * lightOut->dir.v[0]) - (float)(lightOut->dir.v[1] * lightOut->bulbLength.v[0]);
+      lightOut->up.v[2] = v15;
+      *(float *)&v14 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(v13 * v13)) + (float)(v15 * v15));
+      _XMM3 = v14;
       __asm
       {
-        vmovss  xmm0, dword ptr [r15+4]
-        vmulss  xmm3, xmm0, dword ptr [rsi+8]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vmulss  xmm2, xmm1, dword ptr [r15+8]
-        vsubss  xmm6, xmm3, xmm2
-        vmovss  dword ptr [r14], xmm6
-        vmovss  xmm0, dword ptr [r15+8]
-        vmulss  xmm3, xmm0, dword ptr [rsi]
-        vmovss  xmm1, dword ptr [r15]
-        vmulss  xmm2, xmm1, dword ptr [rsi+8]
-        vsubss  xmm5, xmm3, xmm2
-        vmovss  dword ptr [r14+4], xmm5
-        vmovss  xmm0, dword ptr [rsi+4]
-        vmulss  xmm3, xmm0, dword ptr [r15]
-        vmovss  xmm1, dword ptr [r15+4]
-        vmulss  xmm2, xmm1, dword ptr [rsi]
-        vsubss  xmm4, xmm3, xmm2
-        vmovss  dword ptr [r14+8], xmm4
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm2, xmm7, xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmovss  dword ptr [r14], xmm0
-        vmulss  xmm1, xmm2, dword ptr [r14+4]
-        vmovss  dword ptr [r14+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [r14+8]
-        vmovss  dword ptr [r14+8], xmm0
       }
+      p_up->v[0] = v13 * (float)(1.0 / *(float *)&_XMM0);
+      lightOut->up.v[1] = (float)(1.0 / *(float *)&_XMM0) * lightOut->up.v[1];
+      lightOut->up.v[2] = (float)(1.0 / *(float *)&_XMM0) * lightOut->up.v[2];
     }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f7fbe77; max
-      vmovss  xmm1, cs:__real@3a83126f; min
-    }
-    _RBX->cosHalfFovCollimation = _RDI->fovCollimation;
-    __asm { vmovss  xmm0, dword ptr [rdi+68h]; val }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rbx+60h], xmm0
-      vaddss  xmm0, xmm0, cs:__real@3a83126f
-      vmaxss  xmm1, xmm0, dword ptr [rdi+64h]
-      vmovss  dword ptr [rbx+64h], xmm1
-    }
-    _RBX->shadowSoftness = _RDI->shadowSoftness;
-    _RBX->shadowBias = _RDI->shadowBias;
-    _RBX->shadowArea = _RDI->shadowArea;
-    _RBX->shadowNearPlaneBias = _RDI->shadowNearPlaneBias;
-    _RBX->def = R_RegisterLightDef(_RDI->lightDef);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
+    lightOut->cosHalfFovCollimation = lightSrc->fovCollimation;
+    fovOuter_low = LODWORD(lightSrc->fovOuter);
+    *(double *)&fovOuter_low = I_fclamp(*(float *)&fovOuter_low, 0.001, 0.99900001);
+    lightOut->cosHalfFovOuter = *(float *)&fovOuter_low;
+    v21 = fovOuter_low;
+    *(float *)&v21 = *(float *)&fovOuter_low + 0.001;
+    _XMM0 = v21;
+    __asm { vmaxss  xmm1, xmm0, dword ptr [rdi+64h] }
+    lightOut->cosHalfFovInner = *(float *)&_XMM1;
+    lightOut->shadowSoftness = lightSrc->shadowSoftness;
+    lightOut->shadowBias = lightSrc->shadowBias;
+    lightOut->shadowArea = lightSrc->shadowArea;
+    lightOut->shadowNearPlaneBias = lightSrc->shadowNearPlaneBias;
+    lightOut->def = R_RegisterLightDef(lightSrc->lightDef);
   }
 }
 
@@ -2080,74 +1696,17 @@ LightUpdate_SetTempLight
 */
 void LightUpdate_SetTempLight(cg_t *cgameGlob, int compiledLightIndex, int tempLightIndex, const GfxLight *lightSrc, const RadiantLight *lightRadiant)
 {
-  _RBX = lightRadiant;
-  _RDI = tempLightIndex;
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _R10 = &cgameGlob->refdef.radiantLiveLightsRaw[tempLightIndex];
-  __asm
-  {
-    vmovups xmmword ptr [r10], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [r10+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [r10+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [r10+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [r10+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [r10+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [r10+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [r10+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [r10+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+90h]
-    vmovups xmmword ptr [r10+90h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0A0h]
-    vmovups xmmword ptr [r10+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0B0h]
-    vmovups xmmword ptr [r10+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0C0h]
-    vmovups xmmword ptr [r10+0C0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0D0h]
-    vmovups xmmword ptr [r10+0D0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0E0h]
-    vmovups xmmword ptr [r10+0E0h], xmm1
-  }
-  _R10->action = lightRadiant->action;
-  __asm { vmovups ymm0, ymmword ptr [r9] }
-  _RAX = 152i64 * tempLightIndex;
-  __asm
-  {
-    vmovups ymmword ptr [rax+rcx+6C68h], ymm0
-    vmovups ymm1, ymmword ptr [r9+20h]
-    vmovups ymmword ptr [rax+rcx+6C88h], ymm1
-    vmovups ymm0, ymmword ptr [r9+40h]
-    vmovups ymmword ptr [rax+rcx+6CA8h], ymm0
-    vmovups ymm1, ymmword ptr [r9+60h]
-    vmovups ymmword ptr [rax+rcx+6CC8h], ymm1
-    vmovups xmm0, xmmword ptr [r9+80h]
-    vmovups xmmword ptr [rax+rcx+6CE8h], xmm0
-    vmovsd  xmm1, qword ptr [r9+90h]
-    vmovsd  qword ptr [rax+rcx+6CF8h], xmm1
-    vmovups ymm0, ymmword ptr [rbx+0ACh]
-    vmovups ymmword ptr [rdi+rcx+13268h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+0CCh]
-    vmovups ymmword ptr [rdi+rcx+13288h], ymm1
-  }
-  cgameGlob->refdef.radiantLiveLightsAnim[_RDI].compiledLightIndex = compiledLightIndex;
-  *((_DWORD *)&cgameGlob->refdef.radiantLiveLightsAnim[_RDI] + 30) ^= (*((_DWORD *)&cgameGlob->refdef.radiantLiveLightsAnim[_RDI] + 30) ^ *((_DWORD *)lightRadiant + 59)) & 1;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rcx+65ECh]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  dword ptr [rdi+rcx+132ACh], xmm1
-  }
-  cgameGlob->refdef.radiantLiveLightsAnim[_RDI].waitTime = 0.0;
-  cgameGlob->refdef.radiantLiveLightsAnim[_RDI].phase = -1;
+  __int64 v5; 
+
+  v5 = tempLightIndex;
+  cgameGlob->refdef.radiantLiveLightsRaw[tempLightIndex] = *lightRadiant;
+  cgameGlob->refdef.radiantLiveLights[tempLightIndex] = *lightSrc;
+  cgameGlob->refdef.radiantLiveLightsAnim[v5].effect = lightRadiant->effect;
+  cgameGlob->refdef.radiantLiveLightsAnim[v5].compiledLightIndex = compiledLightIndex;
+  *((_DWORD *)&cgameGlob->refdef.radiantLiveLightsAnim[v5] + 30) ^= (*((_DWORD *)&cgameGlob->refdef.radiantLiveLightsAnim[v5] + 30) ^ *((_DWORD *)lightRadiant + 59)) & 1;
+  cgameGlob->refdef.radiantLiveLightsAnim[v5].activationTime = (float)cgameGlob->time * 0.001;
+  cgameGlob->refdef.radiantLiveLightsAnim[v5].waitTime = 0.0;
+  cgameGlob->refdef.radiantLiveLightsAnim[v5].phase = -1;
   CG_RadiantLightAnim_Update(cgameGlob, tempLightIndex);
 }
 

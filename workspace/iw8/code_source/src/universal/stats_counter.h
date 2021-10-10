@@ -82,17 +82,11 @@ void StatsCounter<double>::Clear(StatsCounter<double> *this)
 StatsCounter<double>::GetAvg
 ==============
 */
-
-long double __fastcall StatsCounter<double>::GetAvg(StatsCounter<double> *this, double _XMM1_8)
+long double StatsCounter<double>::GetAvg(StatsCounter<double> *this)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-    vdivsd  xmm0, xmm0, xmm1
-  }
-  return *(double *)&_XMM0;
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
+  return this->m_sum / *(double *)&_XMM1;
 }
 
 /*
@@ -112,66 +106,59 @@ StatsCounter<double>::GetString
 */
 __int64 StatsCounter<double>::GetString(StatsCounter<double> *this, const char *tableName, const char *rowTitle, bool titleLine, bool percentages, const char *unitFormat, int colHeaderWidth, int colWidth, char *buffer, int size)
 {
-  unsigned int v18; 
-  __int64 result; 
+  double *v11; 
+  int v12; 
+  unsigned int v13; 
+  long double v17; 
+  double v21; 
   char *fmt; 
-  __int64 v32; 
-  __int64 v33; 
-  __int128 v37; 
-  char v40[64]; 
-  char v41[65]; 
+  __int64 v24; 
+  __int64 v25; 
+  __int128 v29; 
+  double v30; 
+  __int64 v31; 
+  char v32[64]; 
+  char v33[65]; 
   char dest[65]; 
-  char v43[65]; 
-  char v44[65]; 
-  char v45[77]; 
+  char v35[65]; 
+  char v36[65]; 
+  char v37[77]; 
 
-  __asm { vmovaps [rsp+288h+var_48], xmm6 }
-  _R13 = this;
   if ( colWidth > 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\stats_counter.h", 104, ASSERT_TYPE_ASSERT, "(colWidth <= MAX_COL_WIDTH)", "%s\n\tMax col width %u -- bump if necessary", "colWidth <= MAX_COL_WIDTH", 64) )
     __debugbreak();
+  v11 = (double *)&v29;
+  v12 = 0;
+  v13 = 0;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  v17 = this->m_sum / *(double *)&_XMM0;
+  _XMM2 = *(unsigned __int64 *)&v17;
+  v29 = *(_OWORD *)&this->m_min;
+  _XMM0 = percentages;
   __asm
   {
-    vmovsd  xmm3, qword ptr [r13+0]
-    vmovups xmm1, xmmword ptr [r13+8]
-  }
-  _RDI = &v37;
-  _RBP = percentages;
-  _R14 = 0i64;
-  v18 = 0;
-  __asm
-  {
-    vmovsd  xmm6, cs:__real@4059000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vdivsd  xmm2, xmm3, xmm0
-    vmovups [rsp+288h+var_220], xmm1
-    vmovq   xmm0, rbp
-    vmovq   xmm1, r14
     vpcmpeqq xmm1, xmm0, xmm1
     vblendvpd xmm0, xmm2, xmm3, xmm1
-    vmovsd  [rsp+288h+var_208], xmm0
-    vmovsd  [rsp+288h+var_210], xmm2
   }
+  v31 = *(__int64 *)&_XMM0;
+  v30 = v17;
   do
   {
-    __asm { vmovsd  xmm2, qword ptr [rdi] }
+    v21 = *v11;
     if ( percentages )
-      __asm { vmulsd  xmm2, xmm2, xmm6 }
-    __asm { vmovq   r8, xmm2 }
-    Com_sprintf_truncate<65>((char (*)[65])&dest[65 * v18++], unitFormat, _R8);
-    _RDI = (__int128 *)((char *)_RDI + 8);
+      v21 = v21 * 100.0;
+    Com_sprintf_truncate<65>((char (*)[65])&dest[65 * v13++], unitFormat, v21);
+    ++v11;
   }
-  while ( v18 < 4 );
-  Com_sprintf<65>((char (*)[65])v41, "%u", _R13->m_count);
-  LODWORD(v33) = colWidth;
-  LODWORD(v32) = colWidth;
+  while ( v13 < 4 );
+  Com_sprintf<65>((char (*)[65])v33, "%u", this->m_count);
+  LODWORD(v25) = colWidth;
+  LODWORD(v24) = colWidth;
   LODWORD(fmt) = colWidth;
-  Com_sprintf<64>((char (*)[64])v40, "%%-%us%%-%us%%-%us%%-%us%%-%us%%-%us\n", (unsigned int)colHeaderWidth, (unsigned int)colWidth, fmt, v32, v33, colWidth);
+  Com_sprintf<64>((char (*)[64])v32, "%%-%us%%-%us%%-%us%%-%us%%-%us%%-%us\n", (unsigned int)colHeaderWidth, (unsigned int)colWidth, fmt, v24, v25, colWidth);
   if ( titleLine )
-    LODWORD(_R14) = Com_sprintf(buffer, size, v40, tableName, "min", "max", "avg", "total", "count");
-  result = (unsigned int)(_R14 + Com_sprintf(&buffer[(int)_R14], size - (int)_R14, v40, rowTitle, dest, v43, v44, v45, v41));
-  __asm { vmovaps xmm6, [rsp+288h+var_48] }
-  return result;
+    v12 = Com_sprintf(buffer, size, v32, tableName, "min", "max", "avg", "total", "count");
+  return (unsigned int)(v12 + Com_sprintf(&buffer[v12], size - v12, v32, rowTitle, dest, v35, v36, v37, v33));
 }
 
 /*
@@ -182,17 +169,19 @@ StatsCounter<double>::Track
 
 void __fastcall StatsCounter<double>::Track(StatsCounter<double> *this, double value)
 {
-  __asm { vaddsd  xmm0, xmm1, qword ptr [rcx] }
+  long double v2; 
+
+  v2 = value + this->m_sum;
   ++this->m_count;
+  this->m_sum = v2;
+  _XMM0 = *(unsigned __int64 *)&this->m_min;
   __asm
   {
-    vmovsd  qword ptr [rcx], xmm0
-    vmovsd  xmm0, qword ptr [rcx+8]
     vminsd  xmm2, xmm0, xmm1
     vmaxsd  xmm0, xmm1, qword ptr [rcx+10h]
-    vmovsd  qword ptr [rcx+10h], xmm0
-    vmovsd  qword ptr [rcx+8], xmm2
   }
+  this->m_max = *(double *)&_XMM0;
+  this->m_min = *(double *)&_XMM2;
 }
 
 /*

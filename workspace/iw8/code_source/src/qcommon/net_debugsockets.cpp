@@ -3151,26 +3151,21 @@ char PosSendSetup(rdbgClientInfo *ci)
   int *p_endPos; 
   char v6; 
   char v7; 
-  unsigned __int64 v16; 
-  unsigned int v17; 
-  __int64 v19; 
-  const char *v20; 
-  char v21; 
-  char v22; 
-  LocalClientNum_t v24; 
+  unsigned __int64 v9; 
+  unsigned int v10; 
+  __int64 v12; 
+  const char *v13; 
+  char v14; 
+  char v15; 
+  LocalClientNum_t v17; 
   cg_t *LocalClientGlobals; 
+  cg_t *v19; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  const char *v41; 
-  char v42; 
-  char v43; 
-  char *fmt; 
-  char *fmta; 
-  double v47; 
-  double v48; 
-  double v49; 
-  double v50; 
+  const char *v23; 
+  char v24; 
+  char v25; 
   vec3_t pos; 
 
   v2 = 0x7FFFFFFFi64;
@@ -3187,19 +3182,7 @@ char PosSendSetup(rdbgClientInfo *ci)
     {
 LABEL_7:
       CL_GetDebugViewPos(&pos);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+pos+8]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rsp+88h+pos+4]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovss  xmm3, dword ptr [rsp+88h+pos]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+88h+var_60], xmm0
-        vmovsd  [rsp+88h+fmt], xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf((char *)p_endPos, 0x8100ui64, "%.2f %.2f %.2f", *(double *)&_XMM3, *(double *)&fmt, v47);
+      Com_sprintf((char *)p_endPos, 0x8100ui64, "%.2f %.2f %.2f", pos.v[0], pos.v[1], pos.v[2]);
       goto LABEL_8;
     }
     if ( v6 != v7 )
@@ -3207,39 +3190,39 @@ LABEL_7:
     if ( !v6 )
       goto LABEL_7;
   }
-  v19 = 0x7FFFFFFFi64;
-  v20 = "fullviewpos";
+  v12 = 0x7FFFFFFFi64;
+  v13 = "fullviewpos";
   if ( !p_endPos && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
   do
   {
-    v21 = v20[(char *)p_endPos - "fullviewpos"];
-    v22 = *v20++;
-    if ( !v19-- )
+    v14 = v13[(char *)p_endPos - "fullviewpos"];
+    v15 = *v13++;
+    if ( !v12-- )
       break;
-    if ( v21 != v22 )
+    if ( v14 != v15 )
     {
-      v41 = "mdlprv";
+      v23 = "mdlprv";
       if ( !p_endPos && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       do
       {
-        v42 = v41[(char *)p_endPos - "mdlprv"];
-        v43 = *v41++;
+        v24 = v23[(char *)p_endPos - "mdlprv"];
+        v25 = *v23++;
         if ( !v2-- )
           break;
-        if ( v42 != v43 )
+        if ( v24 != v25 )
           return 0;
       }
-      while ( v42 );
+      while ( v24 );
       CG_ModelPreviewerBuildViewPosStr((char *)p_endPos, 0x80FFu);
       goto LABEL_8;
     }
   }
-  while ( v21 );
-  v24 = Cmd_LocalClientNum();
-  LocalClientGlobals = CG_GetLocalClientGlobals(v24);
-  _RDI = LocalClientGlobals;
+  while ( v14 );
+  v17 = Cmd_LocalClientNum();
+  LocalClientGlobals = CG_GetLocalClientGlobals(v17);
+  v19 = LocalClientGlobals;
   if ( !LocalClientGlobals || !LocalClientGlobals->nextSnap )
     return 0;
   p_view = &LocalClientGlobals->refdef.view;
@@ -3252,37 +3235,19 @@ LABEL_7:
   LODWORD(pos.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
   LODWORD(pos.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
   LODWORD(pos.v[2]) = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+178C0h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rdi+178C4h]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovss  xmm2, dword ptr [rsp+88h+pos+8]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovss  xmm4, dword ptr [rsp+88h+pos+4]
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovss  xmm3, dword ptr [rsp+88h+pos]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+88h+var_50], xmm0
-    vmovsd  [rsp+88h+var_58], xmm1
-    vmovsd  [rsp+88h+var_60], xmm2
-    vmovsd  [rsp+88h+fmt], xmm4
-    vmovq   r9, xmm3
-  }
-  Com_sprintf((char *)p_endPos, 0x8100ui64, "%.2f %.2f %.2f %.2f %.2f", *(double *)&_XMM3, *(double *)&fmta, v48, v49, v50);
+  Com_sprintf((char *)p_endPos, 0x8100ui64, "%.2f %.2f %.2f %.2f %.2f", pos.v[0], pos.v[1], pos.v[2], v19->refdefViewAngles.v[1], v19->refdefViewAngles.v[0]);
   memset(&pos, 0, sizeof(pos));
 LABEL_8:
   ci->state = RDBG_CSTATE_POS_SEND;
-  v16 = -1i64;
+  v9 = -1i64;
   do
-    ++v16;
-  while ( *((_BYTE *)p_endPos + v16) );
-  v17 = truncate_cast<unsigned int,unsigned __int64>(v16);
-  ci->msgData.un.welcome.xferCnt = v17;
+    ++v9;
+  while ( *((_BYTE *)p_endPos + v9) );
+  v10 = truncate_cast<unsigned int,unsigned __int64>(v9);
+  ci->msgData.un.welcome.xferCnt = v10;
   ci->msgData.un.general.bodyXferCnt = 0;
   *(_DWORD *)&ci->msgData.header.keyA = 1070921;
-  ci->msgData.header.bodyLength = htonl(v17);
+  ci->msgData.header.bodyLength = htonl(v10);
   ci->msgData.headerXferCnt = 0;
   ci->posRequest[0] = 0;
   return 1;
@@ -4142,77 +4107,50 @@ void rdbgRadiantSendCameraPosition(const vec3_t *origin, const vec3_t *angles)
 {
   __int64 m_clientType; 
   rdbgClientType_t *p_type; 
-  int v16; 
-  void *v17; 
-  rdbgClientInfo *v18; 
+  int v4; 
+  void *v5; 
+  rdbgClientInfo *v6; 
   unsigned int state; 
-  __int64 v20; 
-  unsigned __int64 v21; 
-  u_long v22; 
-  double v23; 
-  double v24; 
-  double v25; 
-  double v26; 
-  double v27; 
-  double v28; 
+  __int64 v8; 
+  unsigned __int64 v9; 
+  u_long v10; 
   char dest[33024]; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovss  xmm2, dword ptr [rdx]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmovss  xmm4, dword ptr [rcx+4]
-    vmovss  xmm5, dword ptr [rcx]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+8178h+var_8128], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+8178h+var_8130], xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+8178h+var_8138], xmm2
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+8178h+var_8140], xmm3
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+8178h+var_8148], xmm4
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+8178h+var_8150], xmm5
-  }
-  Com_sprintf(dest, 0x8100ui64, "RCMD! %d %d %g %g %g %g %g %g ", 4i64, 0i64, v23, v24, v25, v26, v27, v28);
+  Com_sprintf(dest, 0x8100ui64, "RCMD! %d %d %g %g %g %g %g %g ", 4i64, 0i64, origin->v[0], origin->v[1], origin->v[2], angles->v[0], angles->v[1], angles->v[2]);
   m_clientType = (unsigned int)g_debugSocketClientRadiant.m_clientType;
   p_type = &s_debugSocketClients[0].type;
-  v16 = 0;
-  v17 = &unk_14B9E6F44;
+  v4 = 0;
+  v5 = &unk_14B9E6F44;
   while ( *p_type != g_debugSocketClientRadiant.m_clientType )
   {
-    ++v16;
+    ++v4;
     p_type += 8318;
     if ( (__int64)p_type >= (__int64)&unk_14B9E6F44 )
       return;
   }
-  v18 = &s_debugSocketClients[v16];
-  if ( v18 && (v18->state != RDBG_CSTATE_IDLE || !g_debugSocketClientRadiant.SendSetup(&g_debugSocketClientRadiant, v18, dest)) )
+  v6 = &s_debugSocketClients[v4];
+  if ( v6 && (v6->state != RDBG_CSTATE_IDLE || !g_debugSocketClientRadiant.SendSetup(&g_debugSocketClientRadiant, v6, dest)) )
   {
-    state = v18->state;
+    state = v6->state;
     if ( state <= 2 || state == 4 )
     {
-      ((void (__fastcall *)(DebugSocketClientRadiant *, __int64, void *))g_debugSocketClientRadiant.FreeSendQueue)(&g_debugSocketClientRadiant, m_clientType, v17);
+      ((void (__fastcall *)(DebugSocketClientRadiant *, __int64, void *))g_debugSocketClientRadiant.FreeSendQueue)(&g_debugSocketClientRadiant, m_clientType, v5);
     }
     else
     {
-      v20 = ((__int64 (__fastcall *)(DebugSocketClientRadiant *, _QWORD, void *))g_debugSocketClientRadiant.AllocQueueMessageForKey)(&g_debugSocketClientRadiant, 0i64, v17);
-      Com_sprintf((char *)(v20 + 20), 0x8100ui64, (const char *)&queryFormat, dest);
-      v21 = -1i64;
+      v8 = ((__int64 (__fastcall *)(DebugSocketClientRadiant *, _QWORD, void *))g_debugSocketClientRadiant.AllocQueueMessageForKey)(&g_debugSocketClientRadiant, 0i64, v5);
+      Com_sprintf((char *)(v8 + 20), 0x8100ui64, (const char *)&queryFormat, dest);
+      v9 = -1i64;
       do
-        ++v21;
-      while ( *(_BYTE *)(v20 + v21 + 20) );
-      v22 = truncate_cast<unsigned int,unsigned __int64>(v21);
-      *(_DWORD *)(v20 + 12) = v22;
-      *(_DWORD *)(v20 + 16) = 0;
-      *(_BYTE *)(v20 + 2) = g_debugSocketClientRadiant.m_msgType;
-      *(_WORD *)v20 = 22345;
-      *(_BYTE *)(v20 + 3) = 0;
-      *(_DWORD *)(v20 + 4) = htonl(v22);
+        ++v9;
+      while ( *(_BYTE *)(v8 + v9 + 20) );
+      v10 = truncate_cast<unsigned int,unsigned __int64>(v9);
+      *(_DWORD *)(v8 + 12) = v10;
+      *(_DWORD *)(v8 + 16) = 0;
+      *(_BYTE *)(v8 + 2) = g_debugSocketClientRadiant.m_msgType;
+      *(_WORD *)v8 = 22345;
+      *(_BYTE *)(v8 + 3) = 0;
+      *(_DWORD *)(v8 + 4) = htonl(v10);
     }
   }
 }

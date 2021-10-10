@@ -295,15 +295,14 @@ void CgAntiLag::AntiLagSceneEnt(CgAntiLag *this, int entIndex, int gameTime, uns
   const BgAntiLagEntityHistory *EntityDataFromIndex; 
   const BgAntiLagEntityHistory *v12; 
   BgAntiLagRewindEntity *v13; 
-  float fmt; 
   __int64 entIndexa; 
   vec3_t origin; 
   vec3_t destPosition; 
   vec3_t outOrigin; 
-  __int64 v20; 
+  __int64 v18; 
   BgAntiLagEntityInfo outData; 
 
-  v20 = -2i64;
+  v18 = -2i64;
   if ( !startFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 119, ASSERT_TYPE_ASSERT, "( startFrame )", (const char *)&queryFormat, "startFrame") )
     __debugbreak();
   if ( !endFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 120, ASSERT_TYPE_ASSERT, "( endFrame )", (const char *)&queryFormat, "endFrame") )
@@ -326,12 +325,7 @@ void CgAntiLag::AntiLagSceneEnt(CgAntiLag *this, int entIndex, int gameTime, uns
         v13 = this->AllocNewRewindEnt(this, (unsigned int)entIndex);
         outData.boneInfo.boneList.m_usedSize = 0;
         outData.boneInfo.boneList.m_maxSize = 0;
-        __asm
-        {
-          vmovss  xmm0, [rsp+158h+progress]
-          vmovss  dword ptr [rsp+158h+fmt], xmm0
-        }
-        BgAntiLag::BlendEntity(this, startFrame, endFrame, NULL, fmt, entIndex, contextFlags, &outData);
+        BgAntiLag::BlendEntity(this, startFrame, endFrame, NULL, progress, entIndex, contextFlags, &outData);
         CG_GetPoseOrigin(&Entity->pose, &outOrigin);
         BgAntiLag::CopyPosition(this, entIndex, &outOrigin, &Entity->pose.angles, &destPosition, &v13->angles);
         BgAntiLagEntity_SetOrigin(v13, &destPosition);
@@ -355,124 +349,57 @@ CgAntiLag::ArchiveDelayedEntity
 */
 void CgAntiLag::ArchiveDelayedEntity(CgAntiLag *this, centity_t *cent)
 {
-  unsigned int v32; 
+  cg_t *LocalClientGlobals; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float frameInterpolation; 
+  unsigned int v9; 
   vec3_t outOrigin; 
   vec3_t inOrigin; 
-  __int64 v61; 
-  CgTrajectory v62; 
+  __int64 v14; 
+  CgTrajectory v15; 
   vec3_t outPos; 
-  vec3_t v64; 
-  vec3_t v65; 
+  vec3_t v17; 
+  vec3_t v18; 
   vec3_t outAng; 
-  char v67; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v61 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-  }
-  _RSI = cent;
+  v14 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 400, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  _R14 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  if ( CgAntiLag::ShouldArchiveEntity(this, _RSI) )
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  if ( CgAntiLag::ShouldArchiveEntity(this, cent) )
   {
-    CgTrajectory::CgTrajectory(&v62, (const LocalClientNum_t)this->m_localClientNum, _RSI, &_RSI->prevState);
-    BgTrajectory::EvaluateTrajectories(&v62, _R14->snap->serverTime, &outPos, &outAng);
-    v62.m_es = &_RSI->nextState.lerp;
-    BgTrajectory::EvaluateTrajectories(&v62, _R14->nextSnap->serverTime, &v64, &v65);
-    CG_GetPoseOrigin(&_RSI->pose, &outOrigin);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+190h+outOrigin]
-      vmovsd  qword ptr [rsp+190h+inOrigin], xmm0
-    }
-    inOrigin.v[2] = outOrigin.v[2];
-    __asm
-    {
-      vmovss  xmm12, dword ptr [rsi+48h]
-      vmovss  xmm13, dword ptr [rsi+4Ch]
-      vmovss  xmm14, dword ptr [rsi+50h]
-      vmovss  xmm6, dword ptr [r14+65E0h]
-      vmovss  xmm0, dword ptr [rbp+90h+var_F0]
-      vsubss  xmm1, xmm0, dword ptr [rbp+90h+outPos]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+90h+outPos]
-      vmovss  dword ptr [rsp+190h+outOrigin], xmm3
-      vmovss  xmm0, dword ptr [rbp+90h+var_F0+4]
-      vsubss  xmm1, xmm0, dword ptr [rbp+90h+outPos+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+90h+outPos+4]
-      vmovss  dword ptr [rsp+190h+outOrigin+4], xmm3
-      vmovss  xmm0, dword ptr [rbp+90h+var_F0+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+90h+outPos+8]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+90h+outPos+8]
-      vmovss  dword ptr [rsp+190h+outOrigin+8], xmm3
-    }
-    CG_SetPoseOrigin(&_RSI->pose, &outOrigin);
-    v32 = 0;
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  xmm9, cs:__real@3b360b61
-      vmovss  xmm10, cs:__real@3f000000
-      vmovss  xmm11, cs:__real@43b40000
-    }
+    CgTrajectory::CgTrajectory(&v15, (const LocalClientNum_t)this->m_localClientNum, cent, &cent->prevState);
+    BgTrajectory::EvaluateTrajectories(&v15, LocalClientGlobals->snap->serverTime, &outPos, &outAng);
+    v15.m_es = &cent->nextState.lerp;
+    BgTrajectory::EvaluateTrajectories(&v15, LocalClientGlobals->nextSnap->serverTime, &v17, &v18);
+    CG_GetPoseOrigin(&cent->pose, &outOrigin);
+    inOrigin = outOrigin;
+    v5 = cent->pose.angles.v[0];
+    v6 = cent->pose.angles.v[1];
+    v7 = cent->pose.angles.v[2];
+    frameInterpolation = LocalClientGlobals->frameInterpolation;
+    outOrigin.v[0] = (float)((float)(v17.v[0] - outPos.v[0]) * frameInterpolation) + outPos.v[0];
+    outOrigin.v[1] = (float)((float)(v17.v[1] - outPos.v[1]) * frameInterpolation) + outPos.v[1];
+    outOrigin.v[2] = (float)((float)(v17.v[2] - outPos.v[2]) * frameInterpolation) + outPos.v[2];
+    CG_SetPoseOrigin(&cent->pose, &outOrigin);
+    v9 = 0;
+    _XMM8 = 0i64;
     do
     {
-      __asm { vmovss  xmm7, dword ptr [r14+65E0h] }
-      _RBX = (int)v32;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbp+rbx*4+90h+var_E0]
-        vmovss  xmm5, dword ptr [rbp+rbx*4+90h+outAng]
-        vsubss  xmm0, xmm6, xmm5
-        vmulss  xmm4, xmm0, xmm9
-        vaddss  xmm2, xmm4, xmm10
-        vroundss xmm3, xmm8, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm11
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm6, xmm2, xmm5
-        vmovss  dword ptr [rsi+rbx*4+48h], xmm6
-      }
-      ++v32;
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      cent->pose.angles.v[v9] = (float)((float)((float)((float)((float)(v18.v[v9] - outAng.v[v9]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * LocalClientGlobals->frameInterpolation) + outAng.v[v9];
+      ++v9;
     }
-    while ( v32 < 3 );
-    CgAntiLag::ArchiveEntity(this, _RSI, 0);
-    CG_SetPoseOrigin(&_RSI->pose, &inOrigin);
-    __asm
-    {
-      vmovss  dword ptr [rsi+48h], xmm12
-      vmovss  dword ptr [rsi+4Ch], xmm13
-      vmovss  dword ptr [rsi+50h], xmm14
-    }
+    while ( v9 < 3 );
+    CgAntiLag::ArchiveEntity(this, cent, 0);
+    CG_SetPoseOrigin(&cent->pose, &inOrigin);
+    cent->pose.angles.v[0] = v5;
+    cent->pose.angles.v[1] = v6;
+    cent->pose.angles.v[2] = v7;
     memset(&outOrigin, 0, sizeof(outOrigin));
     memset(&inOrigin, 0, sizeof(inOrigin));
-  }
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
   }
 }
 
@@ -639,222 +566,98 @@ CgAntiLag::DrawDebug
 */
 void CgAntiLag::DrawDebug(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
-  __int64 v4; 
+  const dvar_t *v1; 
+  __int64 v2; 
   BgAntiLag *ServerSystem; 
   CgAntiLag *Instance; 
-  bool v7; 
-  const ScreenPlacement *v8; 
+  bool v5; 
+  const ScreenPlacement *v6; 
   BgAntiLagFrameHistory *CurrentHistoryFrame; 
-  const dvar_t *v10; 
-  BgAntiLagFrameHistory *v11; 
+  const dvar_t *v8; 
+  BgAntiLagFrameHistory *v9; 
+  BgAntiLagFrameHistory *v10; 
+  const dvar_t *v11; 
   BgAntiLagFrameHistory *v12; 
-  const dvar_t *v13; 
-  BgAntiLagFrameHistory *v14; 
-  CgAntiLag *v15; 
-  float v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  float v57; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
-  float v67; 
+  CgAntiLag *v13; 
   DebugAntilagCollector collector; 
-  DebugAntilagCollector v69; 
+  DebugAntilagCollector v15; 
   char dest[256]; 
 
-  v3 = DCONST_DVARINT_antilagDebug;
-  v4 = localClientNum;
+  v1 = DCONST_DVARINT_antilagDebug;
+  v2 = localClientNum;
   if ( !DCONST_DVARINT_antilagDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "antilagDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.integer > 0 && CG_GetLocalClientGlobals((const LocalClientNum_t)v4) && !CgAntiLag::IsDisabledForMigration((const LocalClientNum_t)v4) )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.integer > 0 && CG_GetLocalClientGlobals((const LocalClientNum_t)v2) && !CgAntiLag::IsDisabledForMigration((const LocalClientNum_t)v2) )
   {
-    __asm
-    {
-      vmovaps [rsp+1E0h+var_30], xmm6
-      vmovaps [rsp+1E0h+var_40], xmm7
-    }
     ServerSystem = G_AntiLag_GetServerSystem();
-    Instance = CgAntiLag::GetInstance((const LocalClientNum_t)v4);
+    Instance = CgAntiLag::GetInstance((const LocalClientNum_t)v2);
     if ( activeScreenPlacementMode )
     {
       if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
       {
-        v8 = &scrPlaceViewDisplay[v4];
-        if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 831, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
+        v6 = &scrPlaceViewDisplay[v2];
+        if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 831, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
           __debugbreak();
         goto LABEL_14;
       }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v7 )
+        v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v5 )
         __debugbreak();
     }
-    v8 = &scrPlaceFull;
+    v6 = &scrPlaceFull;
 LABEL_14:
     CurrentHistoryFrame = BgAntiLag::GetCurrentHistoryFrame(ServerSystem);
-    v10 = DCONST_DVARINT_antilagDebug;
-    v11 = CurrentHistoryFrame;
+    v8 = DCONST_DVARINT_antilagDebug;
+    v9 = CurrentHistoryFrame;
     if ( !DCONST_DVARINT_antilagDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "antilagDebug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    CgAntiLag::DrawDebugCountMovingEnts((LocalClientNum_t)v4, v11, &collector, v10->current.integer == 3);
-    v12 = BgAntiLag::GetCurrentHistoryFrame(Instance);
-    v13 = DCONST_DVARINT_antilagDebug;
-    v14 = v12;
+    Dvar_CheckFrontendServerThread(v8);
+    CgAntiLag::DrawDebugCountMovingEnts((LocalClientNum_t)v2, v9, &collector, v8->current.integer == 3);
+    v10 = BgAntiLag::GetCurrentHistoryFrame(Instance);
+    v11 = DCONST_DVARINT_antilagDebug;
+    v12 = v10;
     if ( !DCONST_DVARINT_antilagDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "antilagDebug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    CgAntiLag::DrawDebugCountMovingEnts((LocalClientNum_t)v4, v14, &v69, v13->current.integer == 2);
-    v15 = CgAntiLag::GetInstance((const LocalClientNum_t)v4);
-    CgAntiLag::DrawDebugLerpMovers(v15);
+    Dvar_CheckFrontendServerThread(v11);
+    CgAntiLag::DrawDebugCountMovingEnts((LocalClientNum_t)v2, v12, &v15, v11->current.integer == 2);
+    v13 = CgAntiLag::GetInstance((const LocalClientNum_t)v2);
+    CgAntiLag::DrawDebugLerpMovers(v13);
     Core_strcpy(dest, 0x100ui64, "Server");
-    __asm
-    {
-      vmovss  xmm7, cs:__real@41000000
-      vmovss  xmm6, cs:__real@40000000
-      vmovss  xmm2, cs:__real@41900000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, v52, 0);
+    CG_DrawStringExt(v6, 2.0, 18.0, dest, &colorYellow, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "Characters:\t\t\t\t\t%d", collector.characters);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41d00000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v53, 0);
+    CG_DrawStringExt(v6, 2.0, 26.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "Player Collision Moving:\t\t%d", collector.playerCollisionMoving);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42080000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v54, 0);
+    CG_DrawStringExt(v6, 2.0, 34.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "No Player Collision Moving:\t%d", collector.noCollisionMoving);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42280000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v55, 0);
+    CG_DrawStringExt(v6, 2.0, 42.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "Player Collision Static:\t\t%d", collector.playerCollision);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42480000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v56, 0);
+    CG_DrawStringExt(v6, 2.0, 50.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "No Player Collision Static:\t%d", collector.noCollision);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42680000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v57, 0);
+    CG_DrawStringExt(v6, 2.0, 58.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "Missiles:\t\t\t\t\t\t%d", collector.missiles);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42840000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v58, 0);
+    CG_DrawStringExt(v6, 2.0, 66.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Com_sprintf(dest, 0x100ui64, "Bone Ents:\t\t\t\t\t%d", collector.boneEnts);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42940000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v59, 0);
+    CG_DrawStringExt(v6, 2.0, 74.0, dest, &colorWhite, 0, 1, 8.0, 0);
     Core_strcpy(dest, 0x100ui64, "Client");
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42b40000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, v60, 0);
-    Com_sprintf(dest, 0x100ui64, "Characters:\t\t\t\t\t%d", v69.characters);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42c40000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v61, 0);
-    Com_sprintf(dest, 0x100ui64, "Player Collision Moving:\t\t%d", v69.playerCollisionMoving);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42d40000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v62, 0);
-    Com_sprintf(dest, 0x100ui64, "No Player Collision Moving:\t%d", v69.noCollisionMoving);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42e40000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v63, 0);
-    Com_sprintf(dest, 0x100ui64, "Player Collision Static:\t\t%d", v69.playerCollision);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42f40000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v64, 0);
-    Com_sprintf(dest, 0x100ui64, "No Player Collision Static:\t%d", v69.noCollision);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@43020000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v65, 0);
-    Com_sprintf(dest, 0x100ui64, "Missiles:\t\t\t\t\t\t%d", v69.missiles);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@430a0000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v66, 0);
-    Com_sprintf(dest, 0x100ui64, "Bone Ents:\t\t\t\t\t%d", v69.boneEnts);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@43120000; y
-      vmovss  [rsp+1E0h+var_1A8], xmm7
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v8, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v67, 0);
-    __asm
-    {
-      vmovaps xmm7, [rsp+1E0h+var_40]
-      vmovaps xmm6, [rsp+1E0h+var_30]
-    }
+    CG_DrawStringExt(v6, 2.0, 90.0, dest, &colorYellow, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "Characters:\t\t\t\t\t%d", v15.characters);
+    CG_DrawStringExt(v6, 2.0, 98.0, dest, &colorWhite, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "Player Collision Moving:\t\t%d", v15.playerCollisionMoving);
+    CG_DrawStringExt(v6, 2.0, 106.0, dest, &colorWhite, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "No Player Collision Moving:\t%d", v15.noCollisionMoving);
+    CG_DrawStringExt(v6, 2.0, 114.0, dest, &colorWhite, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "Player Collision Static:\t\t%d", v15.playerCollision);
+    CG_DrawStringExt(v6, 2.0, 122.0, dest, &colorWhite, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "No Player Collision Static:\t%d", v15.noCollision);
+    CG_DrawStringExt(v6, 2.0, 130.0, dest, &colorWhite, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "Missiles:\t\t\t\t\t\t%d", v15.missiles);
+    CG_DrawStringExt(v6, 2.0, 138.0, dest, &colorWhite, 0, 1, 8.0, 0);
+    Com_sprintf(dest, 0x100ui64, "Bone Ents:\t\t\t\t\t%d", v15.boneEnts);
+    CG_DrawStringExt(v6, 2.0, 146.0, dest, &colorWhite, 0, 1, 8.0, 0);
   }
 }
 
@@ -865,34 +668,27 @@ CgAntiLag::DrawDebugCountMovingEnts
 */
 void CgAntiLag::DrawDebugCountMovingEnts(LocalClientNum_t localClientNum, BgAntiLagFrameHistory *frame, DebugAntilagCollector *collector, bool drawMovers)
 {
-  __int64 v9; 
+  __int64 v6; 
   volatile int i; 
-  volatile int v11; 
+  volatile int v8; 
   AntiLagVector<unsigned int,2048> *p_otherEntList; 
   volatile int *p_m_usedSize; 
-  __int64 v16; 
-  __int64 v17; 
-  BgAntiLagEntityHistory *v18; 
-  CgEntitySystem *v19; 
+  __int64 v11; 
+  __int64 v12; 
+  BgAntiLagEntityHistory *v13; 
+  CgEntitySystem *v14; 
   const cpose_t *p_pose; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  __int64 v38; 
-  __int64 v39; 
+  __int128 v20; 
+  __int64 v30; 
+  __int64 v31; 
   vec3_t start; 
-  volatile int *v42; 
-  __int64 v43; 
+  volatile int *v34; 
+  __int64 v35; 
   vec3_t end; 
-  char v45; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v43 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v9 = localClientNum;
+  v35 = -2i64;
+  v6 = localClientNum;
   if ( !collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 680, ASSERT_TYPE_ASSERT, "(collector)", (const char *)&queryFormat, "collector") )
     __debugbreak();
   *(_QWORD *)&collector->characters = 0i64;
@@ -902,81 +698,76 @@ void CgAntiLag::DrawDebugCountMovingEnts(LocalClientNum_t localClientNum, BgAnti
   collector->boneEnts = frame->entityDataExtended.m_usedSize;
   for ( i = 0; i < frame->characterList.m_usedSize; ++i )
     ++collector->characters;
-  v11 = 0;
+  v8 = 0;
   if ( frame->otherEntList.m_usedSize > 0 )
   {
     p_otherEntList = &frame->otherEntList;
     p_m_usedSize = &frame->otherEntList.m_usedSize;
-    v42 = &frame->otherEntList.m_usedSize;
-    __asm
-    {
-      vmovsd  xmm6, cs:__real@3f30000000000000
-      vmovss  xmm7, cs:__real@44fa0000
-    }
+    v34 = &frame->otherEntList.m_usedSize;
     do
     {
-      if ( (unsigned int)v11 >= *p_m_usedSize )
+      if ( (unsigned int)v8 >= *p_m_usedSize )
       {
-        LODWORD(v39) = *p_m_usedSize;
-        LODWORD(v38) = v11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 675, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( m_usedSize )", "index doesn't index m_usedSize\n\t%i not in [0, %i)", v38, v39) )
+        LODWORD(v31) = *p_m_usedSize;
+        LODWORD(v30) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 675, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( m_usedSize )", "index doesn't index m_usedSize\n\t%i not in [0, %i)", v30, v31) )
           __debugbreak();
       }
-      v16 = (int)p_otherEntList->m_data[0];
-      v17 = frame->entityData[p_otherEntList->m_data[0]];
-      if ( (unsigned int)v17 >= frame->entityDataStandard.m_usedSize )
+      v11 = (int)p_otherEntList->m_data[0];
+      v12 = frame->entityData[p_otherEntList->m_data[0]];
+      if ( (unsigned int)v12 >= frame->entityDataStandard.m_usedSize )
       {
-        LODWORD(v39) = frame->entityDataStandard.m_usedSize;
-        LODWORD(v38) = frame->entityData[p_otherEntList->m_data[0]];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 675, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( m_usedSize )", "index doesn't index m_usedSize\n\t%i not in [0, %i)", v38, v39) )
+        LODWORD(v31) = frame->entityDataStandard.m_usedSize;
+        LODWORD(v30) = frame->entityData[p_otherEntList->m_data[0]];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 675, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( m_usedSize )", "index doesn't index m_usedSize\n\t%i not in [0, %i)", v30, v31) )
           __debugbreak();
       }
-      v18 = frame->entityDataStandard.m_data[v17];
-      if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 694, ASSERT_TYPE_ASSERT, "(entData)", (const char *)&queryFormat, "entData") )
+      v13 = frame->entityDataStandard.m_data[v12];
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 694, ASSERT_TYPE_ASSERT, "(entData)", (const char *)&queryFormat, "entData") )
         __debugbreak();
-      if ( v18->entType == 4 )
+      if ( v13->entType == 4 )
       {
         ++collector->missiles;
       }
-      else if ( v18->timeSinceChange )
+      else if ( v13->timeSinceChange )
       {
-        if ( (v18->flags & 1) != 0 )
+        if ( (v13->flags & 1) != 0 )
           ++collector->playerCollision;
         else
           ++collector->noCollision;
       }
-      else if ( (v18->flags & 1) != 0 )
+      else if ( (v13->flags & 1) != 0 )
       {
         if ( drawMovers )
         {
           if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
           {
-            LODWORD(v39) = v9;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v39) )
+            LODWORD(v31) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v31) )
               __debugbreak();
           }
-          if ( (unsigned int)v9 >= CgEntitySystem::ms_allocatedCount )
+          if ( (unsigned int)v6 >= CgEntitySystem::ms_allocatedCount )
           {
-            LODWORD(v39) = CgEntitySystem::ms_allocatedCount;
-            LODWORD(v38) = v9;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v38, v39) )
+            LODWORD(v31) = CgEntitySystem::ms_allocatedCount;
+            LODWORD(v30) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v30, v31) )
               __debugbreak();
           }
-          if ( !CgEntitySystem::ms_entitySystemArray[v9] )
+          if ( !CgEntitySystem::ms_entitySystemArray[v6] )
           {
-            LODWORD(v39) = v9;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v39) )
+            LODWORD(v31) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v31) )
               __debugbreak();
           }
-          v19 = CgEntitySystem::ms_entitySystemArray[v9];
-          if ( (unsigned int)v16 >= 0x800 )
+          v14 = CgEntitySystem::ms_entitySystemArray[v6];
+          if ( (unsigned int)v11 >= 0x800 )
           {
-            LODWORD(v39) = 2048;
-            LODWORD(v38) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v38, v39) )
+            LODWORD(v31) = 2048;
+            LODWORD(v30) = v11;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v30, v31) )
               __debugbreak();
           }
-          p_pose = &v19->m_entities[v16].pose;
+          p_pose = &v14->m_entities[v11].pose;
           if ( !p_pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
             __debugbreak();
           if ( !p_pose->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
@@ -985,41 +776,37 @@ void CgAntiLag::DrawDebugCountMovingEnts(LocalClientNum_t localClientNum, BgAnti
           FunctionPointer_origin(&p_pose->origin.origin.origin, &start);
           if ( p_pose->isPosePrecise )
           {
-            __asm
-            {
-              vmovd   xmm0, dword ptr [rsp+0D8h+start]
-              vcvtdq2pd xmm0, xmm0
-              vmulsd  xmm1, xmm0, xmm6
-              vcvtsd2ss xmm2, xmm1, xmm1
-              vmovss  dword ptr [rsp+0D8h+start], xmm2
-              vmovd   xmm0, dword ptr [rsp+0D8h+start+4]
-              vcvtdq2pd xmm0, xmm0
-              vmulsd  xmm1, xmm0, xmm6
-              vcvtsd2ss xmm3, xmm1, xmm1
-              vmovss  dword ptr [rsp+0D8h+start+4], xmm3
-              vmovd   xmm0, dword ptr [rsp+0D8h+start+8]
-              vcvtdq2pd xmm0, xmm0
-              vmulsd  xmm1, xmm0, xmm6
-              vcvtsd2ss xmm4, xmm1, xmm1
-              vmovss  dword ptr [rsp+0D8h+start+8], xmm4
-            }
+            _XMM0 = LODWORD(start.v[0]);
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM1 = v20;
+            __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+            start.v[0] = *(float *)&_XMM2;
+            _XMM0 = LODWORD(start.v[1]);
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM1 = v20;
+            __asm { vcvtsd2ss xmm3, xmm1, xmm1 }
+            start.v[1] = *(float *)&_XMM3;
+            _XMM0 = LODWORD(start.v[2]);
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM1 = v20;
+            __asm { vcvtsd2ss xmm4, xmm1, xmm1 }
+            start.v[2] = *(float *)&_XMM4;
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm4, dword ptr [rsp+0D8h+start+8]
-              vmovss  xmm3, dword ptr [rsp+0D8h+start+4]
-              vmovss  xmm2, dword ptr [rsp+0D8h+start]
-            }
+            *(float *)&_XMM4 = start.v[2];
+            *(float *)&_XMM3 = start.v[1];
+            *(float *)&_XMM2 = start.v[0];
           }
-          __asm
-          {
-            vmovss  dword ptr [rsp+0D8h+end], xmm2
-            vmovss  dword ptr [rsp+0D8h+end+4], xmm3
-            vaddss  xmm0, xmm4, xmm7
-            vmovss  dword ptr [rsp+0D8h+end+8], xmm0
-          }
+          end.v[0] = *(float *)&_XMM2;
+          end.v[1] = *(float *)&_XMM3;
+          end.v[2] = *(float *)&_XMM4 + 2000.0;
           CG_DebugLine(&start, &end, &colorRed, 1, 0);
           memset(&start, 0, sizeof(start));
         }
@@ -1029,17 +816,11 @@ void CgAntiLag::DrawDebugCountMovingEnts(LocalClientNum_t localClientNum, BgAnti
       {
         ++collector->noCollisionMoving;
       }
-      ++v11;
+      ++v8;
       p_otherEntList = (AntiLagVector<unsigned int,2048> *)((char *)p_otherEntList + 4);
-      p_m_usedSize = v42;
+      p_m_usedSize = v34;
     }
-    while ( v11 < frame->otherEntList.m_usedSize );
-  }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    while ( v8 < frame->otherEntList.m_usedSize );
   }
 }
 
@@ -1051,19 +832,21 @@ CgAntiLag::DrawDebugLerpMovers
 void CgAntiLag::DrawDebugLerpMovers(CgAntiLag *this)
 {
   LocalClientNum_t m_localClientNum; 
+  cg_t *LocalClientGlobals; 
   unsigned int serverTime; 
+  const Bounds *Bounds; 
+  float v6; 
+  float v7; 
   const vec3_t *p_origin; 
   unsigned int i; 
   unsigned int LerpMoverCommandIndex; 
-  __int64 v25; 
-  int duration; 
-  int durationa; 
+  __int64 v11; 
+  BgAntiLagLerpMoverCmd *v12; 
+  float v13; 
+  float v14; 
+  vec4_t *v15; 
   __int64 fAccelTimeSec; 
-  float fAccelTimeSeca; 
-  float fAccelTimeSecb; 
   __int64 fDecelTimeSec; 
-  float fDecelTimeSeca; 
-  float fDecelTimeSecb; 
   vec3_t dir; 
   vec3_t center; 
   vec4_t color; 
@@ -1072,51 +855,27 @@ void CgAntiLag::DrawDebugLerpMovers(CgAntiLag *this)
   vec3_t origin; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> rotation; 
-  char v63; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+140h+dir], xmm0
-    vmovss  dword ptr [rsp+140h+dir+4], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-  }
+  dir.v[0] = 0.0;
+  dir.v[1] = 0.0;
   m_localClientNum = this->m_localClientNum;
-  __asm { vmovss  dword ptr [rsp+140h+dir+8], xmm0 }
-  _RBX = CG_GetLocalClientGlobals(m_localClientNum);
-  serverTime = _RBX->snap->serverTime;
-  _RAX = BG_Suit_GetBounds(_RBX->predictedPlayerState.suitIndex, PM_EFF_STANCE_DEFAULT);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1E4h]; yaw
-    vmovss  xmm6, dword ptr [rax+0Ch]
-    vmovss  xmm7, dword ptr [rax+14h]
-  }
-  YawToAxis(*(float *)&_XMM0, &axis);
-  __asm { vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis] }
-  p_origin = &_RBX->predictedPlayerState.origin;
-  __asm
-  {
-    vaddss  xmm2, xmm1, dword ptr [r12]
-    vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis+4]
-    vmovss  dword ptr [rsp+140h+end], xmm2
-    vaddss  xmm2, xmm1, dword ptr [r12+4]
-    vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis+8]
-    vmovss  dword ptr [rsp+140h+end+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [rsp+140h+end+8], xmm2
-  }
-  CG_DebugLine(&_RBX->predictedPlayerState.origin, &end, &colorWhite, 0, 1);
-  __asm { vmovaps xmm1, xmm6; radius }
-  CG_DebugCircle(&_RBX->predictedPlayerState.origin, *(float *)&_XMM1, &dir, &colorWhite, 0, 1);
+  dir.v[2] = FLOAT_1_0;
+  LocalClientGlobals = CG_GetLocalClientGlobals(m_localClientNum);
+  serverTime = LocalClientGlobals->snap->serverTime;
+  Bounds = BG_Suit_GetBounds(LocalClientGlobals->predictedPlayerState.suitIndex, PM_EFF_STANCE_DEFAULT);
+  v6 = Bounds->halfSize.v[0];
+  v7 = Bounds->halfSize.v[2];
+  YawToAxis(LocalClientGlobals->predictedPlayerState.viewangles.v[1], &axis);
+  p_origin = &LocalClientGlobals->predictedPlayerState.origin;
+  end.v[0] = (float)(v6 * axis.m[0].v[0]) + LocalClientGlobals->predictedPlayerState.origin.v[0];
+  end.v[1] = (float)(v6 * axis.m[0].v[1]) + LocalClientGlobals->predictedPlayerState.origin.v[1];
+  end.v[2] = (float)(v6 * axis.m[0].v[2]) + LocalClientGlobals->predictedPlayerState.origin.v[2];
+  CG_DebugLine(&LocalClientGlobals->predictedPlayerState.origin, &end, &colorWhite, 0, 1);
+  CG_DebugCircle(&LocalClientGlobals->predictedPlayerState.origin, v6, &dir, &colorWhite, 0, 1);
   for ( i = 0; i < this->m_lerpMoverCommandCount; ++i )
   {
     LerpMoverCommandIndex = BgAntiLag::GetLerpMoverCommandIndex(this, i);
-    v25 = LerpMoverCommandIndex;
+    v11 = LerpMoverCommandIndex;
     if ( LerpMoverCommandIndex >= 0x64 )
     {
       LODWORD(fDecelTimeSec) = 100;
@@ -1124,67 +883,24 @@ void CgAntiLag::DrawDebugLerpMovers(CgAntiLag *this)
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 767, ASSERT_TYPE_ASSERT, "(unsigned)( commandIndex ) < (unsigned)( ( sizeof( *array_counter( m_lerpMoverCommands ) ) + 0 ) )", "commandIndex doesn't index m_lerpMoverCommands\n\t%i not in [0, %i)", fAccelTimeSec, fDecelTimeSec) )
         __debugbreak();
     }
-    _RBX = &this->m_lerpMoverCommands[v25];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+70h]
-      vmovss  xmm1, dword ptr [rbx+6Ch]
-      vmovss  [rsp+140h+fDecelTimeSec], xmm0
-      vmovss  xmm0, dword ptr [rbx+68h]
-      vmovss  [rsp+140h+fAccelTimeSec], xmm1
-      vmovss  [rsp+140h+duration], xmm0
-    }
-    ScriptableBg_LerpVector(&_RBX->startOrigin, &_RBX->endOrigin, _RBX->startTime, serverTime, *(const float *)&duration, fAccelTimeSeca, fDecelTimeSeca, &origin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+70h]
-      vmovss  xmm1, dword ptr [rbx+6Ch]
-      vmovss  [rsp+140h+fDecelTimeSec], xmm0
-      vmovss  xmm0, dword ptr [rbx+68h]
-      vmovss  [rsp+140h+fAccelTimeSec], xmm1
-      vmovss  [rsp+140h+duration], xmm0
-    }
-    ScriptableBg_LerpVector(&_RBX->startAngles, &_RBX->endAngles, _RBX->startTime, serverTime, *(const float *)&durationa, fAccelTimeSecb, fDecelTimeSecb, &angles);
+    v12 = &this->m_lerpMoverCommands[v11];
+    ScriptableBg_LerpVector(&v12->startOrigin, &v12->endOrigin, v12->startTime, serverTime, v12->seconds, v12->secondsAccel, v12->secondsDecel, &origin);
+    ScriptableBg_LerpVector(&v12->startAngles, &v12->endAngles, v12->startTime, serverTime, v12->seconds, v12->secondsAccel, v12->secondsDecel, &angles);
     AnglesToAxis(&angles, &rotation);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+64h]
-      vaddss  xmm2, xmm0, dword ptr [rbx+5Ch]
-      vmovss  xmm0, dword ptr [rbx+54h]
-      vmovss  xmm1, dword ptr [rbx+58h]
-      vmovss  dword ptr [rsp+140h+center], xmm0
-      vmovss  dword ptr [rsp+140h+center+4], xmm1
-      vmovss  dword ptr [rsp+140h+center+8], xmm2
-    }
-    if ( serverTime <= _RBX->startTime || (_RAX = &colorBlue, serverTime > _RBX->endTime) )
-      _RAX = &colorRed;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovaps xmm3, xmm7; playerHeight
-      vmovaps xmm2, xmm6; playerRadius
-      vmovups xmmword ptr [rsp+140h+color], xmm0
-    }
-    if ( BgAntiLag::GetLerpMoverOverlap(this, p_origin, *(const float *)&_XMM2, *(const float *)&_XMM3, _RBX) )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-        vmovups xmmword ptr [rsp+140h+color], xmm0
-      }
-    }
-    CG_DebugLine(&_RBX->origin, &center, &color, 0, 1);
-    __asm { vmovss  xmm1, dword ptr [rbx+60h]; radius }
-    CG_DebugCircle(&_RBX->origin, *(float *)&_XMM1, &dir, &color, 0, 1);
-    __asm { vmovss  xmm1, dword ptr [rbx+60h]; radius }
-    CG_DebugCircle(&center, *(float *)&_XMM1, &dir, &color, 0, 1);
-    CG_DebugBoxOriented(&origin, &_RBX->bounds, &rotation, &color, 0, 1);
-  }
-  _R11 = &v63;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    v13 = v12->height + v12->origin.v[2];
+    v14 = v12->origin.v[1];
+    center.v[0] = v12->origin.v[0];
+    center.v[1] = v14;
+    center.v[2] = v13;
+    if ( serverTime <= v12->startTime || (v15 = &colorBlue, serverTime > v12->endTime) )
+      v15 = &colorRed;
+    color = *v15;
+    if ( BgAntiLag::GetLerpMoverOverlap(this, p_origin, v6, v7, v12) )
+      color = colorGreen;
+    CG_DebugLine(&v12->origin, &center, &color, 0, 1);
+    CG_DebugCircle(&v12->origin, v12->radius, &dir, &color, 0, 1);
+    CG_DebugCircle(&center, v12->radius, &dir, &color, 0, 1);
+    CG_DebugBoxOriented(&origin, &v12->bounds, &rotation, &color, 0, 1);
   }
 }
 
@@ -1197,35 +913,35 @@ __int64 CgAntiLag::EntityStateToAntiLagEntity(CgAntiLag *this, int entityIndex, 
 {
   __int64 v5; 
   centity_t *Entity; 
+  const centity_t *v8; 
   unsigned __int8 v9; 
   cg_t *LocalClientGlobals; 
   const characterInfo_t *CharacterInfo; 
   int suitIndex; 
   unsigned int v13; 
-  _DWORD *doorAngle; 
+  float *doorAngle; 
   bool *p_owner; 
-  __int64 v19; 
-  __int64 v20; 
+  __int64 v17; 
+  __int64 v18; 
   vec3_t outOrigin; 
 
-  _RBX = entData;
   v5 = entityIndex;
   if ( !entData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 270, ASSERT_TYPE_ASSERT, "(entData)", (const char *)&queryFormat, "entData") )
     __debugbreak();
-  *(_QWORD *)_RBX->origin.origin.v = 0i64;
-  *(_QWORD *)&_RBX->origin.origin.z = 0i64;
-  *(_QWORD *)&_RBX->angles.y = 0i64;
-  *(_QWORD *)&_RBX->flags = 0i64;
-  *(_QWORD *)&_RBX->doorAngle[1] = 0i64;
-  *(_QWORD *)&_RBX->doorIndex[1] = 0i64;
+  *(_QWORD *)entData->origin.origin.v = 0i64;
+  *(_QWORD *)&entData->origin.origin.z = 0i64;
+  *(_QWORD *)&entData->angles.y = 0i64;
+  *(_QWORD *)&entData->flags = 0i64;
+  *(_QWORD *)&entData->doorAngle[1] = 0i64;
+  *(_QWORD *)&entData->doorIndex[1] = 0i64;
   Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, v5);
-  _RBP = Entity;
+  v8 = Entity;
   if ( (Entity->flags & 1) != 0 )
   {
-    BgAntiLag::EntityStateToAntiLagEntityInternal(this, &Entity->nextState, _RBX);
-    _RBX->entityIndex = truncate_cast<unsigned short,int>(v5);
-    if ( CG_Weapons_EntityHasShield((const LocalClientNum_t)this->m_localClientNum, _RBP) )
-      _RBX->flags |= 4u;
+    BgAntiLag::EntityStateToAntiLagEntityInternal(this, &Entity->nextState, entData);
+    entData->entityIndex = truncate_cast<unsigned short,int>(v5);
+    if ( CG_Weapons_EntityHasShield((const LocalClientNum_t)this->m_localClientNum, v8) )
+      entData->flags |= 4u;
     LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
     if ( LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, v5) )
     {
@@ -1233,8 +949,8 @@ __int64 CgAntiLag::EntityStateToAntiLagEntity(CgAntiLag *this, int entityIndex, 
       {
         if ( (unsigned int)v5 >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
         {
-          LODWORD(v19) = v5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v19, LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
+          LODWORD(v17) = v5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v17, LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
             __debugbreak();
         }
         CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v5);
@@ -1247,28 +963,28 @@ __int64 CgAntiLag::EntityStateToAntiLagEntity(CgAntiLag *this, int entityIndex, 
       {
         if ( NetConstStrings_GetCountForType(NETCONSTSTRINGTYPE_SUIT) > 0xFF )
         {
-          LODWORD(v20) = 255;
-          LODWORD(v19) = NetConstStrings_GetCountForType(NETCONSTSTRINGTYPE_SUIT);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 293, ASSERT_TYPE_ASSERT, "( NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) ) <= ( 0xffui8 )", "NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) not in [0, UINT8_MAX]\n\t%u not in [0, %u]", v19, v20) )
+          LODWORD(v18) = 255;
+          LODWORD(v17) = NetConstStrings_GetCountForType(NETCONSTSTRINGTYPE_SUIT);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 293, ASSERT_TYPE_ASSERT, "( NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) ) <= ( 0xffui8 )", "NetConstStrings_GetCountForType( NETCONSTSTRINGTYPE_SUIT ) not in [0, UINT8_MAX]\n\t%u not in [0, %u]", v17, v18) )
             __debugbreak();
         }
         suitIndex = CharacterInfo->suitIndex;
         if ( (suitIndex < 0 || (unsigned int)suitIndex > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)suitIndex, "signed", suitIndex) )
           __debugbreak();
-        _RBX->suitIndex = suitIndex;
+        entData->suitIndex = suitIndex;
         v13 = 0;
-        doorAngle = (_DWORD *)_RBX->doorAngle;
+        doorAngle = entData->doorAngle;
         p_owner = &CharacterInfo->doorState[0].owner;
         do
         {
-          doorAngle[2] = *((_DWORD *)p_owner - 2);
-          *doorAngle = *((_DWORD *)p_owner - 1);
+          doorAngle[2] = *((float *)p_owner - 2);
+          *doorAngle = *((float *)p_owner - 1);
           if ( *p_owner )
           {
             if ( v13 )
-              _RBX->flags |= 0x40u;
+              entData->flags |= 0x40u;
             else
-              _RBX->flags |= 0x20u;
+              entData->flags |= 0x20u;
           }
           ++v13;
           ++doorAngle;
@@ -1277,16 +993,11 @@ __int64 CgAntiLag::EntityStateToAntiLagEntity(CgAntiLag *this, int entityIndex, 
         while ( v13 < 2 );
       }
     }
-    _RBX->angles.v[0] = _RBP->pose.angles.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4Ch]
-      vmovss  dword ptr [rbx+10h], xmm0
-      vmovss  xmm1, dword ptr [rbp+50h]
-      vmovss  dword ptr [rbx+14h], xmm1
-    }
-    CG_GetPoseOrigin(&_RBP->pose, &outOrigin);
-    BgAntiLagEntity_SetOrigin(_RBX, &outOrigin);
+    entData->angles.v[0] = v8->pose.angles.v[0];
+    entData->angles.v[1] = v8->pose.angles.v[1];
+    entData->angles.v[2] = v8->pose.angles.v[2];
+    CG_GetPoseOrigin(&v8->pose, &outOrigin);
+    BgAntiLagEntity_SetOrigin(entData, &outOrigin);
     v9 = 1;
   }
   else
@@ -1711,97 +1422,41 @@ CgAntiLag::RestoreAntiLagSceneEnt
 void CgAntiLag::RestoreAntiLagSceneEnt(CgAntiLag *this, const BgAntiLagRewindEntity *rewindEnt, unsigned int contextFlags)
 {
   __int16 v3; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
-  double v36; 
-  double v37; 
-  double v38; 
-  double v39; 
-  double v40; 
-  double v41; 
-  double v42; 
-  double v43; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  vec3_t v48; 
+  centity_t *Entity; 
+  __int64 v7; 
+  __int64 v8; 
+  __int64 v9; 
+  vec3_t v10; 
   vec3_t outOrigin; 
   vec3_t origin; 
 
   v3 = contextFlags;
-  _RSI = rewindEnt;
   if ( rewindEnt->entIndex >= 0x800u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 208, ASSERT_TYPE_ASSERT, "(unsigned)( rewindEnt->entIndex ) < (unsigned)( ( 2048 ) )", "rewindEnt->entIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", rewindEnt->entIndex, 2048) )
     __debugbreak();
-  _RBX = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, _RSI->entIndex);
-  CG_GetPoseOrigin(&_RBX->pose, &outOrigin);
-  BgAntiLagEntity_GetOrigin(_RSI, &v48);
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-  if ( !VecNCompareCustomEpsilon(v48.v, outOrigin.v, *(float *)&_XMM2, 3) )
+  Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, rewindEnt->entIndex);
+  CG_GetPoseOrigin(&Entity->pose, &outOrigin);
+  BgAntiLagEntity_GetOrigin(rewindEnt, &v10);
+  if ( !VecNCompareCustomEpsilon(v10.v, outOrigin.v, 0.001, 3) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin+8]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rsp+0D8h+outOrigin+4]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm2, dword ptr [rsp+0D8h+outOrigin]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovss  xmm3, dword ptr [rsp+0D8h+var_50+8]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm4, dword ptr [rsp+0D8h+var_50+4]
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovss  xmm5, dword ptr [rsp+0D8h+var_50]
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+0D8h+var_68], xmm0
-      vmovsd  [rsp+0D8h+var_70], xmm1
-      vmovsd  [rsp+0D8h+var_78], xmm2
-      vmovsd  [rsp+0D8h+var_80], xmm3
-      vmovsd  [rsp+0D8h+var_88], xmm4
-      vmovsd  [rsp+0D8h+var_90], xmm5
-    }
-    LODWORD(v33) = _RSI->entIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 222, ASSERT_TYPE_ASSERT, "(Vec3CompareEpsilon( rewindEntOrg, tmpOrg2 ))", "%s\n\tEnt Num %d, Type %d, In Use %d, %f %f %f, %f %f %f", "Vec3CompareEpsilon( rewindEntOrg, tmpOrg2 )", v33, _RBX->nextState.eType, _RBX->flags & 1, v36, v38, v40, v42, v44, v46) )
+    LODWORD(v7) = rewindEnt->entIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 222, ASSERT_TYPE_ASSERT, "(Vec3CompareEpsilon( rewindEntOrg, tmpOrg2 ))", "%s\n\tEnt Num %d, Type %d, In Use %d, %f %f %f, %f %f %f", "Vec3CompareEpsilon( rewindEntOrg, tmpOrg2 )", v7, Entity->nextState.eType, Entity->flags & 1, v10.v[0], v10.v[1], v10.v[2], outOrigin.v[0], outOrigin.v[1], outOrigin.v[2]) )
       __debugbreak();
   }
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-  if ( !VecNCompareCustomEpsilon(_RSI->angles.v, _RBX->pose.angles.v, *(float *)&_XMM2, 3) )
+  if ( !VecNCompareCustomEpsilon(rewindEnt->angles.v, Entity->pose.angles.v, 0.001, 3) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rbx+4Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm2, dword ptr [rbx+48h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovss  xmm3, dword ptr [rsi+14h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm4, dword ptr [rsi+10h]
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovss  xmm5, dword ptr [rsi+0Ch]
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+0D8h+var_68], xmm0
-      vmovsd  [rsp+0D8h+var_70], xmm1
-      vmovsd  [rsp+0D8h+var_78], xmm2
-      vmovsd  [rsp+0D8h+var_80], xmm3
-      vmovsd  [rsp+0D8h+var_88], xmm4
-      vmovsd  [rsp+0D8h+var_90], xmm5
-    }
-    LODWORD(v35) = _RBX->flags & 1;
-    LODWORD(v34) = _RBX->nextState.eType;
-    LODWORD(v33) = _RSI->entIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 228, ASSERT_TYPE_ASSERT, "(Vec3CompareEpsilon( rewindEnt->angles, cent->pose.angles ))", "%s\n\tEnt Num %d, Type %d, In Use %d, %f %f %f, %f %f %f", "Vec3CompareEpsilon( rewindEnt->angles, cent->pose.angles )", v33, v34, v35, v37, v39, v41, v43, v45, v47) )
+    LODWORD(v9) = Entity->flags & 1;
+    LODWORD(v8) = Entity->nextState.eType;
+    LODWORD(v7) = rewindEnt->entIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_antilag.cpp", 228, ASSERT_TYPE_ASSERT, "(Vec3CompareEpsilon( rewindEnt->angles, cent->pose.angles ))", "%s\n\tEnt Num %d, Type %d, In Use %d, %f %f %f, %f %f %f", "Vec3CompareEpsilon( rewindEnt->angles, cent->pose.angles )", v7, v8, v9, rewindEnt->angles.v[0], rewindEnt->angles.v[1], rewindEnt->angles.v[2], Entity->pose.angles.v[0], Entity->pose.angles.v[1], Entity->pose.angles.v[2]) )
       __debugbreak();
   }
   if ( (v3 & 0x400) != 0 )
   {
-    CG_GetPoseOrigin(&_RBX->pose, &origin);
-    CG_AntiLag_PhysicsWarpEntity(this->m_localClientNum, _RBX, &origin, &_RBX->pose.angles);
+    CG_GetPoseOrigin(&Entity->pose, &origin);
+    CG_AntiLag_PhysicsWarpEntity(this->m_localClientNum, Entity, &origin, &Entity->pose.angles);
     memset(&origin, 0, sizeof(origin));
   }
-  memset(&v48, 0, sizeof(v48));
+  memset(&v10, 0, sizeof(v10));
   memset(&outOrigin, 0, sizeof(outOrigin));
 }
 

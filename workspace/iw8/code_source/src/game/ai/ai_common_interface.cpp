@@ -402,85 +402,43 @@ void AICommonInterface::EnterCombatState(AICommonInterface *this)
 AICommonInterface::GetDefaultScarinessForDistance
 ==============
 */
-
-float __fastcall AICommonInterface::GetDefaultScarinessForDistance(sentient_s *enemy, double fDist)
+float AICommonInterface::GetDefaultScarinessForDistance(sentient_s *enemy, float fDist)
 {
-  char v15; 
-  char v16; 
-  char v33; 
-  void *retaddr; 
+  const dvar_t *v2; 
+  float value; 
+  const dvar_t *v4; 
+  float v5; 
+  const dvar_t *v6; 
+  float v7; 
+  const dvar_t *v8; 
+  float v10; 
 
-  _R11 = &retaddr;
-  _RBX = DCONST_DVARFLT_ai_playerNearAccuracy;
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmm8, xmm1
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerNearAccuracy") )
+  v2 = DCONST_DVARFLT_ai_playerNearAccuracy;
+  if ( !DCONST_DVARFLT_ai_playerNearAccuracy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerNearAccuracy") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_ai_playerNearRange;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v4 = DCONST_DVARFLT_ai_playerNearRange;
   if ( !DCONST_DVARFLT_ai_playerNearRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerNearRange") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_ai_playerFarAccuracy;
+  Dvar_CheckFrontendServerThread(v4);
+  v5 = v4->current.value;
+  v6 = DCONST_DVARFLT_ai_playerFarAccuracy;
   if ( !DCONST_DVARFLT_ai_playerFarAccuracy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerFarAccuracy") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_ai_playerFarRange;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.value;
+  v8 = DCONST_DVARFLT_ai_playerFarRange;
   if ( !DCONST_DVARFLT_ai_playerFarRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerFarRange") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm8, xmm9 }
-  if ( v15 | v16 )
-  {
-    __asm { vmulss  xmm0, xmm6, cs:__real@40a00000 }
-  }
+  Dvar_CheckFrontendServerThread(v8);
+  if ( fDist <= v5 )
+    return value * 5.0;
+  v10 = v8->current.value;
+  if ( fDist >= v10 || value == v7 )
+    return v7 * 5.0;
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vcomiss xmm8, xmm0
-    }
-    if ( !v15 )
-      goto LABEL_18;
-    __asm { vucomiss xmm6, xmm7 }
-    if ( v16 )
-    {
-LABEL_18:
-      __asm { vmulss  xmm0, xmm7, cs:__real@40a00000 }
-    }
-    else
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm9
-        vsubss  xmm1, xmm8, xmm9
-        vdivss  xmm2, xmm1, xmm0
-        vsubss  xmm1, xmm7, xmm6
-        vmulss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, xmm6
-        vmulss  xmm0, xmm0, cs:__real@40a00000
-      }
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return *(float *)&_XMM0;
+    return (float)((float)((float)((float)(fDist - v5) / (float)(v10 - v5)) * (float)(v7 - value)) + value) * 5.0;
 }
 
 /*
@@ -554,85 +512,43 @@ double AICommonInterface::GetNodeAngleYawOffset(AICommonInterface *this, const p
 AICommonInterface::GetScarinessForDistance
 ==============
 */
-
-float __fastcall AICommonInterface::GetScarinessForDistance(AICommonInterface *this, sentient_s *enemy, double fDist)
+float AICommonInterface::GetScarinessForDistance(AICommonInterface *this, sentient_s *enemy, float fDist)
 {
-  char v16; 
-  char v17; 
-  char v34; 
-  void *retaddr; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float v11; 
 
-  _R11 = &retaddr;
-  _RBX = DCONST_DVARFLT_ai_playerNearAccuracy;
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmm9, xmm2
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerNearAccuracy") )
+  v3 = DCONST_DVARFLT_ai_playerNearAccuracy;
+  if ( !DCONST_DVARFLT_ai_playerNearAccuracy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerNearAccuracy") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_ai_playerNearRange;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DCONST_DVARFLT_ai_playerNearRange;
   if ( !DCONST_DVARFLT_ai_playerNearRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerNearRange") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm8, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_ai_playerFarAccuracy;
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  v7 = DCONST_DVARFLT_ai_playerFarAccuracy;
   if ( !DCONST_DVARFLT_ai_playerFarAccuracy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerFarAccuracy") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_ai_playerFarRange;
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.value;
+  v9 = DCONST_DVARFLT_ai_playerFarRange;
   if ( !DCONST_DVARFLT_ai_playerFarRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_playerFarRange") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm9, xmm8 }
-  if ( v16 | v17 )
-  {
-    __asm { vmulss  xmm0, xmm6, cs:__real@40a00000 }
-  }
+  Dvar_CheckFrontendServerThread(v9);
+  if ( fDist <= v6 )
+    return value * 5.0;
+  v11 = v9->current.value;
+  if ( fDist >= v11 || value == v8 )
+    return v8 * 5.0;
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vcomiss xmm9, xmm0
-    }
-    if ( !v16 )
-      goto LABEL_18;
-    __asm { vucomiss xmm6, xmm7 }
-    if ( v17 )
-    {
-LABEL_18:
-      __asm { vmulss  xmm0, xmm7, cs:__real@40a00000 }
-    }
-    else
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm8
-        vsubss  xmm1, xmm9, xmm8
-        vdivss  xmm2, xmm1, xmm0
-        vsubss  xmm1, xmm7, xmm6
-        vmulss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, xmm6
-        vmulss  xmm0, xmm0, cs:__real@40a00000
-      }
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return *(float *)&_XMM0;
+    return (float)((float)((float)((float)(fDist - v6) / (float)(v11 - v6)) * (float)(v8 - value)) + value) * 5.0;
 }
 
 /*

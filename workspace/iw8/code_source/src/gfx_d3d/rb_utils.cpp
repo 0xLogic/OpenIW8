@@ -51,119 +51,54 @@ void RB_CopyPartialRT(GfxCmdBufContext *gfxContext, R_RT_ColorHandle *dstColorRt
 {
   unsigned int height; 
   const R_RT_Surface *Surface; 
+  GfxCmdBufContext v12; 
+  GfxCmdBufContext v13; 
   R_RT_Image *p_m_image; 
-  __int64 v26; 
-  float fmt; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  R_RT_Handle v65; 
-  R_RT_ColorHandle v66; 
-  char v67; 
-  void *retaddr; 
+  float width; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int64 y; 
+  __int64 x; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  R_RT_Handle v26; 
+  R_RT_ColorHandle v27; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _R14 = gfxContext;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RSI = srcColorRt;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm10 }
-  _RDI = dstColorRt;
-  __asm { vmovups ymmword ptr [rsp+108h+var_98.m_surfaceID], ymm0 }
-  height = R_RT_Handle::GetSurface(&v65)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v65);
-  R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups xmm1, xmmword ptr [r14]
-    vmovups [rsp+108h+var_78], ymm0
-    vmovups xmmword ptr [rsp+108h+var_98.m_surfaceID], xmm1
-  }
-  R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v65, &v66, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(40)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups xmm10, xmmword ptr [r14]
-    vmovups ymmword ptr [rsp+108h+var_98.m_surfaceID], ymm0
-    vmovq   rbx, xmm10
-  }
-  p_m_image = &R_RT_Handle::GetSurface(&v65)->m_image;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v26 = dstColorRt->R_RT_Handle;
+  height = R_RT_Handle::GetSurface(&v26)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v26);
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
+  v12 = *gfxContext;
+  v27 = *dstColorRt;
+  *(GfxCmdBufContext *)&v26.m_surfaceID = v12;
+  R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v26, &v27, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(40)");
+  v13 = *gfxContext;
+  v26 = srcColorRt->R_RT_Handle;
+  p_m_image = &R_RT_Handle::GetSurface(&v26)->m_image;
+  if ( !v13.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v26 = _RBX + 1792;
-  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( v13.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  *(_QWORD *)(v26 + 6176) = p_m_image;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, rax
-    vxorps  xmm8, xmm8, xmm8
-    vcvtsi2ss xmm8, xmm8, rax
-  }
-  R_RT_Handle::GetSurface(&v65);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vdivss  xmm7, xmm6, xmm0
-  }
-  R_RT_Handle::GetSurface(&v65);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm0, xmm0, ecx
-    vdivss  xmm2, xmm6, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovdqa xmmword ptr [rsp+108h+var_98.m_surfaceID], xmm10
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm4, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm3, xmm0, xmm7
-    vcvtsi2ss xmm1, xmm1, rdx
-    vmovss  [rsp+108h+var_B0], xmm4
-    vmovss  [rsp+108h+var_B8], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r8
-    vmulss  xmm2, xmm1, xmm2
-    vmovss  [rsp+108h+var_C0], xmm2
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  [rsp+108h+var_C8], xmm1
-    vmovss  [rsp+108h+var_D0], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+108h+var_D8], xmm9
-    vmovss  dword ptr [rsp+108h+var_E0], xmm0
-    vmovss  dword ptr [rsp+108h+fmt], xmm0
-  }
-  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v65, copyMaterial, 0xFFFFFFFF, dstViewport, fmt, v58, v59, v60, v61, v62, v63, v64, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(33)");
-  __asm { vmovups xmmword ptr [rsp+108h+var_98.m_surfaceID], xmm10 }
-  R_UnbindRenderTarget((GfxCmdBufContext *)&v65);
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  v13.source->input.codeImages[4] = &p_m_image->m_base;
+  width = (float)dstViewport->width;
+  v16 = (float)dstViewport->height;
+  v17 = 1.0 / (float)R_RT_Handle::GetSurface(&v26)->m_image.m_base.width;
+  v18 = 1.0 / (float)R_RT_Handle::GetSurface(&v26)->m_image.m_base.height;
+  *(GfxCmdBufContext *)&v26.m_surfaceID = v13;
+  y = srcViewport->y;
+  x = srcViewport->x;
+  v21 = (float)(unsigned int)(y + srcViewport->height);
+  v22 = v21 * v18;
+  v23 = (float)(unsigned int)(x + srcViewport->width);
+  v24 = (float)y;
+  v25 = (float)x;
+  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v26, copyMaterial, 0xFFFFFFFF, dstViewport, 0.0, 0.0, width, v16, v25 * v17, v24 * v18, v23 * v17, v22, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(33)");
+  *(GfxCmdBufContext *)&v26.m_surfaceID = v13;
+  R_UnbindRenderTarget((GfxCmdBufContext *)&v26);
 }
 
 /*
@@ -176,63 +111,34 @@ void RB_CopyRT(GfxCmdBufContext *gfxContext, R_RT_ColorHandle *dstColorRt, R_RT_
   unsigned int height; 
   const R_RT_Surface *Surface; 
   GfxCmdBufSourceState *source; 
+  GfxCmdBufContext v12; 
   R_RT_Image *p_m_image; 
-  float fmt; 
-  float v26; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  R_RT_Handle v33; 
-  R_RT_ColorHandle v34; 
+  GfxCmdBufContext v14; 
+  float v15; 
+  float width; 
+  R_RT_Handle v17; 
+  R_RT_ColorHandle v18; 
 
-  __asm { vmovups ymm0, ymmword ptr [rdx] }
-  _R15 = gfxContext;
-  __asm { vmovups ymmword ptr [rsp+0C8h+var_58.m_surfaceID], ymm0 }
-  _RDI = dstColorRt;
-  height = R_RT_Handle::GetSurface(&v33)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v33);
-  source = _R15->source;
-  R_SetRenderTargetSize(_R15->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups xmm1, xmmword ptr [r15]
-    vmovups [rsp+0C8h+var_38], ymm0
-    vmovups xmmword ptr [rsp+0C8h+var_58.m_surfaceID], xmm1
-  }
-  R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v33, &v34, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(11)");
+  v17 = dstColorRt->R_RT_Handle;
+  height = R_RT_Handle::GetSurface(&v17)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v17);
+  source = gfxContext->source;
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
+  v12 = *gfxContext;
+  v18 = *dstColorRt;
+  *(GfxCmdBufContext *)&v17.m_surfaceID = v12;
+  R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v17, &v18, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(11)");
   p_m_image = &R_RT_Handle::GetSurface(srcColorRt)->m_image;
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vxorps  xmm1, xmm1, xmm1
-  }
+  v14 = *gfxContext;
   source->input.codeImages[4] = &p_m_image->m_base;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovups xmmword ptr [rsp+0C8h+var_58.m_surfaceID], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0C8h+var_70], xmm0
-    vmovss  [rsp+0C8h+var_78], xmm0
-    vmovss  [rsp+0C8h+var_80], xmm1
-    vmovss  [rsp+0C8h+var_88], xmm1
-    vmovss  [rsp+0C8h+var_90], xmm3
-    vmovss  [rsp+0C8h+var_98], xmm2
-    vmovss  dword ptr [rsp+0C8h+var_A0], xmm1
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm1
-  }
-  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v33, copyMaterial, 0xFFFFFFFF, viewport, fmt, v26, v27, v28, v29, v30, v31, v32, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(13)");
+  v15 = (float)viewport->height;
+  width = (float)viewport->width;
+  *(GfxCmdBufContext *)&v17.m_surfaceID = v14;
+  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v17, copyMaterial, 0xFFFFFFFF, viewport, 0.0, 0.0, width, v15, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(13)");
 }
 
 /*
@@ -283,89 +189,47 @@ void R_CopyPartialRT(GfxCmdBufContext *gfxContext, R_RT_ColorHandle *srcColorRt,
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  float fmt; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  GfxCmdBufContext v57; 
-  char v58; 
-  void *retaddr; 
+  float width; 
+  float height; 
+  float v15; 
+  const R_RT_Surface *v16; 
+  __int64 x; 
+  int v18; 
+  float v19; 
+  __int64 y; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  GfxCmdBufContext v27; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RSI = gfxContext;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
   Surface = R_RT_Handle::GetSurface(srcColorRt);
-  source = _RSI->source;
+  source = gfxContext->source;
   p_m_image = &Surface->m_image;
-  if ( !_RSI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[4] = &p_m_image->m_base;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, rax
-    vxorps  xmm8, xmm8, xmm8
-    vcvtsi2ss xmm8, xmm8, rax
-  }
-  R_RT_Handle::GetSurface(srcColorRt);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vdivss  xmm7, xmm6, xmm0
-  }
-  R_RT_Handle::GetSurface(srcColorRt);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm0, xmm0, ecx
-    vdivss  xmm2, xmm6, xmm0
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+0D8h+var_68], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm4, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm3, xmm0, xmm7
-    vcvtsi2ss xmm1, xmm1, rcx
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmovss  [rsp+0D8h+var_80], xmm4
-    vmovss  [rsp+0D8h+var_88], xmm3
-    vmulss  xmm2, xmm1, xmm2
-    vmovss  [rsp+0D8h+var_90], xmm2
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  [rsp+0D8h+var_98], xmm1
-    vmovss  [rsp+0D8h+var_A0], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0D8h+var_A8], xmm9
-    vmovss  dword ptr [rsp+0D8h+var_B0], xmm0
-    vmovss  dword ptr [rsp+0D8h+fmt], xmm0
-  }
-  RB_ViewportFilterDirectInternal(&v57, copyMaterial, 0xFFFFFFFF, dstViewport, fmt, v50, v51, v52, v53, v54, v55, v56, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(33)");
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  width = (float)dstViewport->width;
+  height = (float)dstViewport->height;
+  v15 = 1.0 / (float)R_RT_Handle::GetSurface(srcColorRt)->m_image.m_base.width;
+  v16 = R_RT_Handle::GetSurface(srcColorRt);
+  x = srcViewport->x;
+  v18 = v16->m_image.m_base.height;
+  LODWORD(v16) = srcViewport->height;
+  v19 = (float)v18;
+  y = srcViewport->y;
+  v21 = 1.0 / v19;
+  v27 = *gfxContext;
+  v22 = (float)(unsigned int)(y + (_DWORD)v16);
+  v23 = v22 * (float)(1.0 / v19);
+  v24 = (float)(unsigned int)(x + srcViewport->width);
+  v25 = (float)y;
+  v26 = (float)x;
+  RB_ViewportFilterDirectInternal(&v27, copyMaterial, 0xFFFFFFFF, dstViewport, 0.0, 0.0, width, height, v26 * v15, v25 * v21, v24 * v15, v23, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_utils.cpp(33)");
 }
 

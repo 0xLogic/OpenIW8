@@ -164,23 +164,23 @@ lj_cf_io_method_seek
 int lj_cf_io_method_seek(lua_State *L)
 {
   _iobuf *fp; 
-  int v4; 
-  int v6; 
+  int v3; 
+  int v5; 
 
   fp = io_tofilep(L)->fp;
   if ( !fp )
     j_lj_err_caller(L, LJ_ERR_IOCLFL);
-  v4 = j_lj_lib_checkopt(L, 2, 1, &byte_144747318);
+  v3 = j_lj_lib_checkopt(L, 2, 1, &byte_144747318);
   _RDX = 0i64;
-  v6 = v4;
-  if ( v4 )
+  v5 = v3;
+  if ( v3 )
   {
-    if ( v4 != 1 && v4 == 2 )
-      v6 = 2;
+    if ( v3 != 1 && v3 == 2 )
+      v5 = 2;
   }
   else
   {
-    v6 = 0;
+    v5 = 0;
   }
   _RCX = L->base + 2;
   if ( _RCX < L->top )
@@ -195,16 +195,12 @@ int lj_cf_io_method_seek(lua_State *L)
       __asm { vcvttsd2si rdx, qword ptr [rcx]; Offset }
     }
   }
-  if ( _fseeki64(fp, _RDX, v6) )
+  if ( _fseeki64(fp, _RDX, v5) )
     return j_luaL_fileresult(L, 0, NULL);
   _ftelli64(fp);
-  _RCX = L->top;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmovsd  qword ptr [rcx-8], xmm0
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  L->top[-1].n = *(double *)&_XMM0;
   return 1;
 }
 
@@ -636,30 +632,31 @@ int io_file_read(lua_State *L, _iobuf *fp, int start)
   __int64 v13; 
   char v14; 
   int v15; 
-  unsigned int v18; 
-  char *v19; 
-  unsigned int v20; 
   TValue *top; 
-  signed __int64 v22; 
+  unsigned int v17; 
+  char *v18; 
+  unsigned int v19; 
+  TValue *v20; 
+  signed __int64 v21; 
+  __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
-  unsigned int v26; 
-  __int64 v27; 
-  int v28; 
-  __int64 v30; 
+  unsigned int v25; 
+  double v26; 
+  int v27; 
+  __int64 v29; 
 
   v5 = L->top - L->base;
   v6 = start;
   clearerr(fp);
   v7 = v6 + 1;
-  v28 = v6 + 1;
+  v27 = v6 + 1;
   v8 = v5 - v6;
   if ( v8 )
   {
     j_luaL_checkstack(L, v8 + 20, "too many arguments");
     v11 = 8 * v6;
     v9 = 1;
-    v30 = 8 * v6;
+    v29 = 8 * v6;
     v10 = v6;
     do
     {
@@ -675,21 +672,17 @@ int io_file_read(lua_State *L, _iobuf *fp, int start)
           v14 = *(_BYTE *)(v13 + 25);
         if ( v14 == 110 )
         {
-          v15 = j_fscanf(fp, "%lf", &v27);
-          _RCX = L->top;
+          v15 = j_fscanf(fp, "%lf", &v26);
+          top = L->top;
           if ( v15 == 1 )
           {
-            __asm
-            {
-              vmovsd  xmm0, [rsp+68h+var_48]
-              vmovsd  qword ptr [rcx], xmm0
-            }
+            top->n = v26;
             ++L->top;
-            v9 = v15;
+            v9 = 1;
           }
           else
           {
-            _RCX->u64 = -1i64;
+            top->u64 = -1i64;
             ++L->top;
             v9 = 0;
           }
@@ -702,28 +695,28 @@ int io_file_read(lua_State *L, _iobuf *fp, int start)
         {
           if ( v14 != 97 )
             j_lj_err_arg(L, v10 + 1, LJ_ERR_INVFMT);
-          v18 = 512;
-          v19 = j_lj_buf_tmp(L, 0x200u);
-          v20 = fread(v19, 1ui64, 0x200ui64, fp);
-          if ( v20 == 512 )
+          v17 = 512;
+          v18 = j_lj_buf_tmp(L, 0x200u);
+          v19 = fread(v18, 1ui64, 0x200ui64, fp);
+          if ( v19 == 512 )
           {
             do
             {
-              v18 *= 2;
-              v19 = j_lj_buf_tmp(L, v18);
-              v20 += fread(&v19[v20], 1ui64, v18 - v20, fp);
+              v17 *= 2;
+              v18 = j_lj_buf_tmp(L, v17);
+              v19 += fread(&v18[v19], 1ui64, v17 - v19, fp);
             }
-            while ( v20 == v18 );
+            while ( v19 == v17 );
           }
-          top = L->top;
-          L->top = top + 1;
-          v22 = (unsigned __int64)j_lj_str_new(L, v19, v20) | 0xFFFD800000000000ui64;
-          top->u64 = v22;
-          v23 = v22 >> 47;
-          if ( (unsigned int)(v22 >> 47) + 4 > 0xFFFFFFF6 )
+          v20 = L->top;
+          L->top = v20 + 1;
+          v21 = (unsigned __int64)j_lj_str_new(L, v18, v19) | 0xFFFD800000000000ui64;
+          v20->u64 = v21;
+          v22 = v21 >> 47;
+          if ( (unsigned int)(v21 >> 47) + 4 > 0xFFFFFFF6 )
           {
-            v24 = v22 & 0x7FFFFFFFFFFFi64;
-            if ( ~(_DWORD)v23 != *(unsigned __int8 *)(v24 + 9) || (*(_BYTE *)(v24 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+            v23 = v21 & 0x7FFFFFFFFFFFi64;
+            if ( ~(_DWORD)v22 != *(unsigned __int8 *)(v23 + 9) || (*(_BYTE *)(v23 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
             {
               if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
                 __debugbreak();
@@ -731,21 +724,21 @@ int io_file_read(lua_State *L, _iobuf *fp, int start)
           }
           if ( *(_QWORD *)(L->glref.ptr64 + 48) >= *(_QWORD *)(L->glref.ptr64 + 56) )
             j_lj_gc_step(L);
-          v7 = v28;
+          v7 = v27;
         }
       }
       else
       {
         if ( (unsigned int)(v12 >> 47) > 0xFFFFFFF2 )
           j_lj_err_arg(L, v7, LJ_ERR_INVOPT);
-        v26 = j_lj_lib_checkint(L, v7);
-        v9 = io_file_readlen(L, fp, v26);
+        v25 = j_lj_lib_checkint(L, v7);
+        v9 = io_file_readlen(L, fp, v25);
       }
       ++v7;
-      v11 = v30 + 8;
-      v28 = v7;
+      v11 = v29 + 8;
+      v27 = v7;
       ++v10;
-      v30 += 8i64;
+      v29 += 8i64;
     }
     while ( v8 );
     LODWORD(v6) = start;

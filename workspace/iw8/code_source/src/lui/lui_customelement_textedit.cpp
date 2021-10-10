@@ -80,147 +80,72 @@ void __fastcall LUI_TextEdit_Finish(LocalClientNum_t localClientNum, LUIElement 
 LUIElement_TextEditRender
 ==============
 */
-
-void __fastcall LUIElement_TextEditRender(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha, float red, float green, float blue, lua_State *luaVM)
+void LUIElement_TextEditRender(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
-  __int64 v12; 
+  __int64 v9; 
+  const LUITextEditField *v11; 
   int userDataInt; 
+  float v13; 
   UIInputType lastInputType; 
-  bool v21; 
-  int OverstrikeMode; 
+  bool v15; 
+  float bottom; 
+  float v17; 
   char cursor; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  __int64 v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  int v56; 
-  float v57; 
-  float v58; 
-  float alphaa; 
-  float alphab; 
-  float text; 
-  float v62; 
-  float v63; 
-  float v64; 
-  int cursorPos; 
-  float v66[4]; 
+  __int64 v19; 
+  int v20; 
+  float v21[4]; 
   LUITextEditRenderData renderData; 
 
-  __asm { vmovaps [rsp+398h+var_68], xmm7 }
-  _RBX = element;
-  v12 = localClientNum;
-  __asm { vmovaps xmm7, xmm3 }
+  v9 = localClientNum;
   if ( !LUI_ElementHasWeakTableEntry(element, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 805, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
     __debugbreak();
-  LUI_PutElementOnTopOfStack(_RBX, luaVM);
+  LUI_PutElementOnTopOfStack(element, luaVM);
   j_lua_getfield(luaVM, -1, "m_LUITextEditField");
-  _RDI = (const LUITextEditField *)j_lua_touserdata(luaVM, -1);
+  v11 = (const LUITextEditField *)j_lua_touserdata(luaVM, -1);
   j_lua_settop(luaVM, -3);
-  if ( _RDI )
+  if ( v11 )
   {
-    __asm { vmovaps [rsp+398h+var_58], xmm6 }
     memset_0(&renderData, 0, 0x25Bui64);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+398h+renderData.overflowLen], xmm0
-      vmovss  [rsp+398h+renderData.selectionOffset], xmm0
-      vmovss  [rsp+398h+renderData.selectionLen], xmm0
-    }
+    renderData.overflowLen = 0.0;
+    renderData.selectionOffset = 0.0;
+    renderData.selectionLen = 0.0;
     renderData.utf8CursorPos = 0;
-    LUI_TextEdit_GetRenderData((LocalClientNum_t)v12, _RBX, _RDI, _RDI->length, &renderData);
-    userDataInt = _RBX->currentAnimationState.userDataInt;
-    __asm
+    LUI_TextEdit_GetRenderData((LocalClientNum_t)v9, element, v11, v11->length, &renderData);
+    userDataInt = element->currentAnimationState.userDataInt;
+    v13 = element->right - element->left;
+    if ( (unsigned int)v9 >= 2 )
     {
-      vmovss  xmm0, dword ptr [rbx+0D4h]
-      vsubss  xmm6, xmm0, dword ptr [rbx+0CCh]
-    }
-    if ( (unsigned int)v12 >= 2 )
-    {
-      v56 = 2;
-      LODWORD(v52) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v52, v56) )
+      v20 = 2;
+      LODWORD(v19) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    lastInputType = clientUIActives[v12].lastInputType;
-    v21 = userDataInt == 0;
+    lastInputType = clientUIActives[v9].lastInputType;
+    v15 = userDataInt == 0;
     if ( userDataInt )
     {
-      if ( _RDI->selectionLength > 0 && _RDI->selectionPos > -1 )
+      if ( v11->selectionLength > 0 && v11->selectionPos > -1 )
       {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx+0D8h]
-          vsubss  xmm1, xmm2, dword ptr [rbx+0D0h]
-          vmovups xmm0, xmmword ptr [rdi+270h]
-          vaddss  xmm4, xmm1, cs:__real@40800000
-          vsubss  xmm3, xmm2, cs:__real@40000000
-          vmovups xmmword ptr [rsp+398h+var_2F8], xmm0
-          vmovss  xmm0, dword ptr [rbx+0CCh]
-          vsubss  xmm1, xmm0, [rsp+398h+renderData.overflowLen]
-          vmovss  xmm0, [rsp+398h+renderData.selectionLen]
-          vaddss  xmm2, xmm1, [rsp+398h+renderData.selectionOffset]
-          vmovss  [rsp+398h+var_370], xmm4
-          vmovss  dword ptr [rsp+398h+fmt], xmm0
-        }
-        LUI_Interface_DrawTextSelection((const LocalClientNum_t)v12, _RBX, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v53, (vec4_t *)v66, luaVM);
+        bottom = element->bottom;
+        v17 = (float)(bottom - element->top) + 4.0;
+        *(vec4_t *)v21 = v11->textSelectionHighlightColor;
+        LUI_Interface_DrawTextSelection((const LocalClientNum_t)v9, element, (float)(element->left - renderData.overflowLen) + renderData.selectionOffset, bottom - 2.0, renderData.selectionLen, v17, (vec4_t *)v21, luaVM);
       }
-      v21 = userDataInt == 0;
+      v15 = userDataInt == 0;
     }
-    if ( v21 || lastInputType == GAMEPAD )
+    if ( v15 || lastInputType == GAMEPAD )
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+0D8h]
-        vsubss  xmm1, xmm2, dword ptr [rbx+0D0h]
-        vmovss  xmm0, dword ptr [rbx+0CCh]
-        vsubss  xmm3, xmm0, [rsp+398h+renderData.overflowLen]; x
-        vmovss  xmm0, [rsp+398h+blue]
-        vmovss  [rsp+398h+cursorPos], xmm6
-        vmovss  [rsp+398h+var_340], xmm1
-        vmovss  xmm1, [rsp+398h+green]
-        vmovss  dword ptr [rsp+398h+text], xmm7
-        vmovss  [rsp+398h+alpha], xmm0
-        vmovss  xmm0, [rsp+398h+red]
-        vmovss  [rsp+398h+var_368], xmm1
-        vmovss  [rsp+398h+var_370], xmm0
-        vmovss  dword ptr [rsp+398h+fmt], xmm2
-      }
-      LUI_Interface_DrawText((const LocalClientNum_t)v12, root, _RBX, *(float *)&_XMM3, fmtb, v55, v58, alphab, text, renderData.utf8Text, _RBX->textData.font, v64, *(float *)&cursorPos, 0, 0, _RBX->currentAnimationState.alignment, NULL, NULL, NULL, luaVM);
+      LUI_Interface_DrawText((const LocalClientNum_t)v9, root, element, element->left - renderData.overflowLen, element->bottom, red, green, blue, alpha, renderData.utf8Text, element->textData.font, element->bottom - element->top, v13, 0, 0, element->currentAnimationState.alignment, NULL, NULL, NULL, luaVM);
     }
     else
     {
-      OverstrikeMode = CL_Keys_GetOverstrikeMode((LocalClientNum_t)v12);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0CCh]
-        vsubss  xmm2, xmm0, [rsp+398h+renderData.overflowLen]; x
-        vmovss  xmm0, [rsp+398h+blue]
-        vmovss  xmm3, dword ptr [rbx+0D8h]; y
-        vsubss  xmm1, xmm3, dword ptr [rbx+0D0h]
-      }
+      v15 = CL_Keys_GetOverstrikeMode((LocalClientNum_t)v9) == 0;
       cursor = 124;
-      if ( OverstrikeMode )
+      if ( !v15 )
         cursor = 95;
-      __asm
-      {
-        vmovss  [rsp+398h+var_340], xmm6
-        vmovss  dword ptr [rsp+398h+var_348], xmm1
-        vmovss  xmm1, [rsp+398h+green]
-        vmovss  [rsp+398h+alpha], xmm7
-        vmovss  [rsp+398h+var_368], xmm0
-        vmovss  xmm0, [rsp+398h+red]
-        vmovss  [rsp+398h+var_370], xmm1
-        vmovss  dword ptr [rsp+398h+fmt], xmm0
-      }
-      LUI_Interface_DrawTextWithCursor((const LocalClientNum_t)v12, _RBX, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v54, v57, alphaa, renderData.utf8Text, _RBX->textData.font, v62, v63, renderData.utf8CursorPos, cursor, luaVM);
+      LUI_Interface_DrawTextWithCursor((const LocalClientNum_t)v9, element, element->left - renderData.overflowLen, element->bottom, red, green, blue, alpha, renderData.utf8Text, element->textData.font, element->bottom - element->top, v13, renderData.utf8CursorPos, cursor, luaVM);
     }
-    __asm { vmovaps xmm6, [rsp+398h+var_58] }
   }
-  __asm { vmovaps xmm7, [rsp+398h+var_68] }
 }
 
 /*
@@ -511,75 +436,61 @@ LUI_LuaCall_LUIElement_setTextSelectionHighlightColor
 */
 __int64 LUI_LuaCall_LUIElement_setTextSelectionHighlightColor(lua_State *luaVM)
 {
-  unsigned int v19; 
+  float v2; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  double v9; 
+  float *v10; 
+  unsigned int v11; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps [rsp+78h+var_58], xmm10
-  }
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm10, xmm10, xmm10
-    vmovss  xmm7, cs:__real@3b808081
-  }
+  v2 = 0.0;
+  v3 = 0.0;
   if ( j_lua_isnumber(luaVM, 2) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmulss  xmm10, xmm0, xmm7 }
+    v4 = lui_tonumber32(luaVM, 2);
+    v3 = *(float *)&v4 * 0.0039215689;
   }
-  __asm { vxorps  xmm9, xmm9, xmm9 }
+  v5 = 0.0;
   if ( j_lua_isnumber(luaVM, 3) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmulss  xmm9, xmm0, xmm7 }
+    v6 = lui_tonumber32(luaVM, 3);
+    v5 = *(float *)&v6 * 0.0039215689;
   }
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v7 = 0.0;
   if ( j_lua_isnumber(luaVM, 4) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmulss  xmm8, xmm0, xmm7 }
+    v8 = lui_tonumber32(luaVM, 4);
+    v7 = *(float *)&v8 * 0.0039215689;
   }
   if ( j_lua_isnumber(luaVM, 5) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 5);
-    __asm { vmulss  xmm6, xmm0, xmm7 }
+    v9 = lui_tonumber32(luaVM, 5);
+    v2 = *(float *)&v9 * 0.0039215689;
   }
   j_lua_getfield(luaVM, 1, "m_LUITextEditField");
-  __asm { vmovaps xmm7, [rsp+78h+var_28] }
   if ( j_lua_isuserdata(luaVM, -1) )
   {
-    _RBX = j_lua_touserdata(luaVM, -1);
+    v10 = (float *)j_lua_touserdata(luaVM, -1);
     j_lua_settop(luaVM, -2);
-    __asm
-    {
-      vmovss  dword ptr [rbx+270h], xmm10
-      vmovss  dword ptr [rbx+274h], xmm9
-      vmovss  dword ptr [rbx+278h], xmm8
-      vmovss  dword ptr [rbx+27Ch], xmm6
-    }
+    v10[156] = v3;
+    v10[157] = v5;
+    v10[158] = v7;
+    v10[159] = v2;
   }
   else
   {
     j_lua_settop(luaVM, -2);
   }
-  __asm
-  {
-    vmovaps xmm10, [rsp+78h+var_58]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v19 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v19);
+    v11 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v11);
   }
   return 0i64;
 }
@@ -621,7 +532,7 @@ __int64 LUI_LuaCall_LUIElement_setupTextEdit_impl(lua_State *const luaVM)
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   v2 = LUI_ToElement(luaVM, 1);
-  v2->renderFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *))LUIElement_TextEditRender;
+  v2->renderFunction = LUIElement_TextEditRender;
   v2->usageFlags |= 3u;
   LUIElement_InitTextLikeElement(v2);
   if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 888, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( self, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( self, luaVM )") )
@@ -726,8 +637,8 @@ LUI_TextEdit_GetCursorPosition
 */
 void LUI_TextEdit_GetCursorPosition(LocalClientNum_t localClientNum, int luaRef, int *outX, int *outY, lua_State *luaVM)
 {
-  const LUITextEditField *v12; 
-  int v21; 
+  LUIElement *v8; 
+  const LUITextEditField *v9; 
   LUITextEditRenderData renderData; 
 
   *outY = 0;
@@ -735,45 +646,22 @@ void LUI_TextEdit_GetCursorPosition(LocalClientNum_t localClientNum, int luaRef,
   j_lua_rawgeti(luaVM, -10000, luaRef);
   if ( j_lua_isuserdata(luaVM, -1) )
   {
-    _RSI = LUI_ToElement(luaVM, -1);
+    v8 = LUI_ToElement(luaVM, -1);
     j_lua_getfield(luaVM, -1, "m_LUITextEditField");
     if ( j_lua_isuserdata(luaVM, -1) )
     {
-      __asm { vmovaps [rsp+2F8h+var_48], xmm6 }
-      v12 = (const LUITextEditField *)j_lua_touserdata(luaVM, -1);
+      v9 = (const LUITextEditField *)j_lua_touserdata(luaVM, -1);
       j_lua_settop(luaVM, -3);
       memset_0(&renderData, 0, 0x25Bui64);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+2F8h+var_2C8.overflowLen], xmm0
-        vmovss  [rsp+2F8h+var_2C8.selectionOffset], xmm0
-        vmovss  [rsp+2F8h+var_2C8.selectionLen], xmm0
-      }
+      renderData.overflowLen = 0.0;
+      renderData.selectionOffset = 0.0;
+      renderData.selectionLen = 0.0;
       renderData.utf8CursorPos = 0;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0D8h]
-        vsubss  xmm0, xmm0, dword ptr [rsi+0D0h]
-        vmulss  xmm6, xmm0, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-      }
-      LUI_TextEdit_GetRenderData(localClientNum, _RSI, v12, v12->cursorPos, &renderData);
-      __asm
-      {
-        vaddss  xmm2, xmm6, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vcvttss2si r9d, xmm3; textHeight
-      }
-      v21 = R_TextWidth(renderData.utf8Text, -1, _RSI->textData.font, _ER9);
-      __asm
-      {
-        vcvttss2si ecx, dword ptr [rsi+0CCh]
-        vmovaps xmm6, [rsp+2F8h+var_48]
-      }
-      *outX = v21 + _ECX;
-      __asm { vcvttss2si eax, dword ptr [rsi+0D0h] }
-      *outY = _EAX;
+      LUI_TextEdit_GetRenderData(localClientNum, v8, v9, v9->cursorPos, &renderData);
+      _XMM1 = 0i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 1 }
+      *outX = R_TextWidth(renderData.utf8Text, -1, v8->textData.font, (int)*(float *)&_XMM3) + (int)v8->left;
+      *outY = (int)v8->top;
     }
   }
 }
@@ -785,86 +673,60 @@ LUI_TextEdit_GetRenderData
 */
 void LUI_TextEdit_GetRenderData(LocalClientNum_t localClientNum, const LUIElement *element, const LUITextEditField *editPtr, int charCount, LUITextEditRenderData *renderData)
 {
-  signed int v12; 
-  int v18; 
-  LUITextEditRenderData *v19; 
-  char v22; 
+  int v6; 
+  const LUIElement *v8; 
+  int v11; 
+  int v12; 
+  LUITextEditRenderData *v13; 
+  float v14; 
+  char v15; 
+  __int128 v16; 
   int selectionPos; 
   int selectionLength; 
-  int v31; 
-  unsigned __int64 v32; 
-  int v33; 
-  char *v34; 
-  int v35; 
-  const char *v36; 
-  char *v37; 
-  char v38; 
-  LocalClientNum_t v43; 
-  const LUIElement *v44; 
-  int v45; 
+  int v21; 
+  unsigned __int64 v22; 
+  int v23; 
+  char *v24; 
+  int v25; 
+  const char *v26; 
+  char *v27; 
+  char v28; 
+  LocalClientNum_t v29; 
   LUITextEditRenderData *renderDataa; 
 
-  v44 = element;
-  v43 = localClientNum;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+0D8h]
-    vsubss  xmm1, xmm0, dword ptr [rdx+0D0h]
-    vmulss  xmm2, xmm1, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-  }
-  _RBP = renderData;
-  v12 = 0;
-  __asm { vmovaps [rsp+98h+var_68], xmm7 }
-  _RDI = element;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si r14d, xmm2
-  }
-  v45 = _ER14;
+  v29 = localClientNum;
+  v6 = 0;
+  v8 = element;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  v11 = (int)*(float *)&_XMM2;
   if ( !element->currentAnimationState.userDataInt )
   {
     renderData->utf8Text[0] = 31;
-    v12 = 1;
+    v6 = 1;
   }
-  v18 = 0;
-  v19 = NULL;
+  v12 = 0;
+  v13 = NULL;
   renderDataa = (LUITextEditRenderData *)charCount;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovaps [rsp+98h+var_58], xmm6
-  }
   while ( 1 )
   {
-    if ( v18 == editPtr->cursorPos )
+    if ( v12 == editPtr->cursorPos )
     {
-      _RBP->utf8CursorPos = v12;
+      renderData->utf8CursorPos = v6;
       if ( (editPtr->flags & 4) != 0 )
       {
-        __asm
+        v14 = v8->right - v8->left;
+        if ( v14 > 0.0 )
         {
-          vmovss  xmm0, dword ptr [rdi+0D4h]
-          vsubss  xmm6, xmm0, dword ptr [rdi+0CCh]
-          vcomiss xmm6, xmm7
-        }
-        if ( (editPtr->flags & 4) != 0 )
-        {
-          if ( !CL_Keys_GetOverstrikeMode(localClientNum) || (v22 = 95, editPtr->cursorPos >= editPtr->length) )
-            v22 = 124;
-          _RBP->utf8Text[v12] = v22;
-          _RBP->utf8Text[v12 + 1] = 0;
-          R_TextWidth(_RBP->utf8Text, -1, _RDI->textData.font, _ER14);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vsubss  xmm1, xmm0, xmm6
-            vmaxss  xmm1, xmm1, xmm7
-            vmovss  dword ptr [rbp+260h], xmm1
-          }
+          if ( !CL_Keys_GetOverstrikeMode(localClientNum) || (v15 = 95, editPtr->cursorPos >= editPtr->length) )
+            v15 = 124;
+          renderData->utf8Text[v6] = v15;
+          renderData->utf8Text[v6 + 1] = 0;
+          v16 = 0i64;
+          *(float *)&v16 = (float)R_TextWidth(renderData->utf8Text, -1, v8->textData.font, v11) - v14;
+          _XMM1 = v16;
+          __asm { vmaxss  xmm1, xmm1, xmm7 }
+          renderData->overflowLen = *(float *)&_XMM1;
         }
       }
     }
@@ -874,121 +736,103 @@ void LUI_TextEdit_GetRenderData(LocalClientNum_t localClientNum, const LUIElemen
       selectionLength = editPtr->selectionLength;
       if ( selectionLength > 0 )
       {
-        if ( v18 == selectionPos )
+        if ( v12 == selectionPos )
         {
-          _RBP->utf8Text[v12] = 0;
-          R_TextWidth(_RBP->utf8Text, -1, _RDI->textData.font, _ER14);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmovss  dword ptr [rbp+264h], xmm0
-          }
+          renderData->utf8Text[v6] = 0;
+          renderData->selectionOffset = (float)R_TextWidth(renderData->utf8Text, -1, v8->textData.font, v11);
           selectionPos = editPtr->selectionPos;
           selectionLength = editPtr->selectionLength;
         }
-        if ( v18 == selectionLength + selectionPos )
+        if ( v12 == selectionLength + selectionPos )
         {
-          _RBP->utf8Text[v12] = 0;
-          R_TextWidth(_RBP->utf8Text, -1, _RDI->textData.font, _ER14);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vsubss  xmm1, xmm0, dword ptr [rbp+264h]
-            vmovss  dword ptr [rbp+268h], xmm1
-          }
+          renderData->utf8Text[v6] = 0;
+          renderData->selectionLen = (float)R_TextWidth(renderData->utf8Text, -1, v8->textData.font, v11) - renderData->selectionOffset;
         }
       }
     }
-    if ( v19 == renderDataa )
+    if ( v13 == renderDataa )
       break;
     if ( (editPtr->flags & 3) == 1 )
     {
-      v31 = 42;
+      v21 = 42;
     }
     else
     {
-      v31 = *(_DWORD *)&editPtr->gap0[4 * (_QWORD)v19];
-      if ( v31 == 94 && v18 + 1 < charCount )
+      v21 = *(_DWORD *)&editPtr->gap0[4 * (_QWORD)v13];
+      if ( v21 == 94 && v12 + 1 < charCount )
       {
-        if ( &editPtr->gap0[4 * v18 + 4] )
+        if ( &editPtr->gap0[4 * v12 + 4] )
         {
-          v35 = *(_DWORD *)&editPtr->gap0[4 * (_QWORD)v19 + 4];
-          if ( v35 != 94 && (unsigned int)(v35 - 39) <= 0x17 )
+          v25 = *(_DWORD *)&editPtr->gap0[4 * (_QWORD)v13 + 4];
+          if ( v25 != 94 && (unsigned int)(v25 - 39) <= 0x17 )
           {
-            v36 = aA_18;
-            v37 = &_RBP->utf8Text[v12];
-            v38 = 94;
+            v26 = aA_18;
+            v27 = &renderData->utf8Text[v6];
+            v28 = 94;
             do
             {
-              *v37 = v38;
-              v38 = *++v36;
-              ++v37;
-              ++v12;
+              *v27 = v28;
+              v28 = *++v26;
+              ++v27;
+              ++v6;
             }
-            while ( *v36 );
+            while ( *v26 );
             goto LABEL_44;
           }
         }
       }
     }
-    v32 = 602i64 - v12;
-    if ( v31 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\string.h", 73, ASSERT_TYPE_ASSERT, "(unicodeChar >= 0)", (const char *)&queryFormat, "unicodeChar >= 0") )
+    v22 = 602i64 - v6;
+    if ( v21 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\string.h", 73, ASSERT_TYPE_ASSERT, "(unicodeChar >= 0)", (const char *)&queryFormat, "unicodeChar >= 0") )
       __debugbreak();
-    v33 = 0;
-    v34 = &_RBP->utf8Text[v12];
-    if ( v31 > 127 )
+    v23 = 0;
+    v24 = &renderData->utf8Text[v6];
+    if ( v21 > 127 )
     {
-      if ( v31 > 2047 )
+      if ( v21 > 2047 )
       {
-        if ( v31 > 0xFFFF )
+        if ( v21 > 0xFFFF )
         {
-          if ( v31 <= 0x1FFFFF && v32 >= 4 )
+          if ( v21 <= 0x1FFFFF && v22 >= 4 )
           {
-            *v34 = ((v31 >> 18) & 7) - 16;
-            v34[1] = ((v31 >> 12) & 0x3F) + 0x80;
-            v34[2] = ((v31 >> 6) & 0x3F) + 0x80;
-            v34[3] = (v31 & 0x3F) + 0x80;
-            v33 = 4;
+            *v24 = ((v21 >> 18) & 7) - 16;
+            v24[1] = ((v21 >> 12) & 0x3F) + 0x80;
+            v24[2] = ((v21 >> 6) & 0x3F) + 0x80;
+            v24[3] = (v21 & 0x3F) + 0x80;
+            v23 = 4;
           }
         }
-        else if ( v32 >= 3 )
+        else if ( v22 >= 3 )
         {
-          *v34 = ((v31 >> 12) & 0xF) - 32;
-          v34[1] = ((v31 >> 6) & 0x3F) + 0x80;
-          v34[2] = (v31 & 0x3F) + 0x80;
-          v33 = 3;
+          *v24 = ((v21 >> 12) & 0xF) - 32;
+          v24[1] = ((v21 >> 6) & 0x3F) + 0x80;
+          v24[2] = (v21 & 0x3F) + 0x80;
+          v23 = 3;
         }
       }
-      else if ( v32 >= 2 )
+      else if ( v22 >= 2 )
       {
-        *v34 = ((v31 >> 6) & 0x1F) - 64;
-        v34[1] = (v31 & 0x3F) + 0x80;
-        v33 = 2;
+        *v24 = ((v21 >> 6) & 0x1F) - 64;
+        v24[1] = (v21 & 0x3F) + 0x80;
+        v23 = 2;
       }
     }
-    else if ( v32 )
+    else if ( v22 )
     {
-      v33 = 1;
-      *v34 = v31 & 0x7F;
+      v23 = 1;
+      *v24 = v21 & 0x7F;
     }
-    _RDI = v44;
-    v12 += v33;
-    _ER14 = v45;
+    v8 = element;
+    v6 += v23;
+    v11 = (int)*(float *)&_XMM2;
 LABEL_44:
-    if ( (unsigned int)v12 >= 0x25B && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 190, ASSERT_TYPE_ASSERT, "(utf8Len < sizeof( renderData.utf8Text ))", (const char *)&queryFormat, "utf8Len < sizeof( renderData.utf8Text )") )
+    if ( (unsigned int)v6 >= 0x25B && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 190, ASSERT_TYPE_ASSERT, "(utf8Len < sizeof( renderData.utf8Text ))", (const char *)&queryFormat, "utf8Len < sizeof( renderData.utf8Text )") )
       __debugbreak();
-    localClientNum = v43;
-    ++v18;
-    v19 = (LUITextEditRenderData *)((char *)v19 + 1);
+    localClientNum = v29;
+    ++v12;
+    v13 = (LUITextEditRenderData *)((char *)v13 + 1);
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_58]
-    vmovaps xmm7, [rsp+98h+var_68]
-  }
-  _RBP->utf8Text[v12] = 0;
+  renderData->utf8Text[v6] = 0;
 }
 
 /*
@@ -1097,385 +941,430 @@ void LUI_TextEdit_HandleChar(LocalClientNum_t localClientNum, int luaRef, lua_St
 LUI_TextEdit_HandleKey
 ==============
 */
-
-bool __fastcall LUI_TextEdit_HandleKey(LocalClientNum_t localClientNum, int luaRef, int key, double screenX, float screenY, const char *rootName, lua_State *luaVM)
+char LUI_TextEdit_HandleKey(LocalClientNum_t localClientNum, int luaRef, int key, float screenX, float screenY, const char *rootName, lua_State *luaVM, bool isDoubleClick)
 {
-  int v11; 
-  bool result; 
-  LUITextEditField *v14; 
+  int v10; 
+  LUIElement *v12; 
+  LUITextEditField *v13; 
   int length; 
   int cursorPos; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  unsigned __int64 v19; 
-  __int64 v20; 
-  _DWORD *v21; 
-  int v22; 
-  _DWORD *v23; 
-  unsigned __int64 v24; 
+  unsigned __int64 v18; 
+  __int64 v19; 
+  _DWORD *v20; 
+  int v21; 
+  _DWORD *v22; 
+  unsigned __int64 v23; 
+  __int64 v24; 
   __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  char *v28; 
-  _DWORD *v29; 
-  int v30; 
-  char *v31; 
-  unsigned __int64 v32; 
-  int v33; 
+  char *v27; 
+  _DWORD *v28; 
+  int v29; 
+  char *v30; 
+  unsigned __int64 v31; 
+  int v32; 
   int OverstrikeMode; 
-  unsigned int v35; 
+  unsigned int v34; 
   const char *UnicodeClipboardData; 
-  int v37; 
-  __int64 v38; 
-  int v39; 
-  __int64 v40; 
+  int v36; 
+  __int64 v37; 
+  int v38; 
+  __int64 v39; 
+  char *v40; 
   char *v41; 
   char *v42; 
-  char *v43; 
-  int v44; 
-  __int64 v45; 
-  int v46; 
+  int v43; 
+  __int64 v44; 
+  int v45; 
   int flags; 
-  const char *v48; 
+  const char *v47; 
+  int v48; 
+  GfxFont *font; 
   int v52; 
-  bool v53; 
+  float v53; 
   int v54; 
   int v55; 
   int v56; 
-  int selectionPos; 
-  int v58; 
+  int v57; 
+  bool v58; 
   int v59; 
+  int v60; 
+  int v61; 
+  int selectionPos; 
+  int v63; 
+  int v64; 
   int ControllerFromClient; 
   float outMouseX; 
   float outMouseY; 
-  int v64[152]; 
+  int textHeight; 
+  int v69; 
+  int v70; 
+  LUITextEditRenderData renderData; 
+  int v72[152]; 
   char utf8Buffer[608]; 
 
-  __asm
-  {
-    vmovaps [rsp+7F8h+var_58], xmm6
-    vmovaps xmm6, xmm3
-  }
   j_lua_rawgeti(luaVM, -10000, luaRef);
-  v11 = -1;
+  v10 = -1;
   if ( !j_lua_isuserdata(luaVM, -1) )
   {
     LUI_Interface_SetTextEditActive(localClientNum, NULL, 0, luaVM);
-    result = 0;
-    goto LABEL_129;
+    return 0;
   }
-  _R14 = LUI_ToElement(luaVM, -1);
+  v12 = LUI_ToElement(luaVM, -1);
   j_lua_getfield(luaVM, -1, "m_LUITextEditField");
   if ( !j_lua_isuserdata(luaVM, -1) )
   {
-    _R14->currentAnimationState.userDataInt = 0;
-    LUI_Interface_SetTextEditActive(localClientNum, _R14, 0, luaVM);
-    result = 0;
-    goto LABEL_129;
+    v12->currentAnimationState.userDataInt = 0;
+    LUI_Interface_SetTextEditActive(localClientNum, v12, 0, luaVM);
+    return 0;
   }
-  v14 = (LUITextEditField *)j_lua_touserdata(luaVM, -1);
+  v13 = (LUITextEditField *)j_lua_touserdata(luaVM, -1);
   j_lua_settop(luaVM, -3);
-  if ( (unsigned int)(v14->maxChars - 1) > 0x95 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 520, ASSERT_TYPE_ASSERT, "(editPtr->maxChars > 0 && editPtr->maxChars <= 150)", (const char *)&queryFormat, "editPtr->maxChars > 0 && editPtr->maxChars <= MAX_LUI_TEXT_EDIT_LEN") )
+  if ( (unsigned int)(v13->maxChars - 1) > 0x95 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 520, ASSERT_TYPE_ASSERT, "(editPtr->maxChars > 0 && editPtr->maxChars <= 150)", (const char *)&queryFormat, "editPtr->maxChars > 0 && editPtr->maxChars <= MAX_LUI_TEXT_EDIT_LEN") )
     __debugbreak();
-  length = v14->length;
-  if ( (length < 0 || length > v14->maxChars) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 521, ASSERT_TYPE_ASSERT, "(editPtr->length >= 0 && editPtr->length <= editPtr->maxChars)", (const char *)&queryFormat, "editPtr->length >= 0 && editPtr->length <= editPtr->maxChars") )
+  length = v13->length;
+  if ( (length < 0 || length > v13->maxChars) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 521, ASSERT_TYPE_ASSERT, "(editPtr->length >= 0 && editPtr->length <= editPtr->maxChars)", (const char *)&queryFormat, "editPtr->length >= 0 && editPtr->length <= editPtr->maxChars") )
     __debugbreak();
-  cursorPos = v14->cursorPos;
-  if ( (cursorPos < 0 || cursorPos > v14->length) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 522, ASSERT_TYPE_ASSERT, "(editPtr->cursorPos >= 0 && editPtr->cursorPos <= editPtr->length)", (const char *)&queryFormat, "editPtr->cursorPos >= 0 && editPtr->cursorPos <= editPtr->length") )
+  cursorPos = v13->cursorPos;
+  if ( (cursorPos < 0 || cursorPos > v13->length) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 522, ASSERT_TYPE_ASSERT, "(editPtr->cursorPos >= 0 && editPtr->cursorPos <= editPtr->length)", (const char *)&queryFormat, "editPtr->cursorPos >= 0 && editPtr->cursorPos <= editPtr->length") )
     __debugbreak();
-  if ( (v14->flags & 0x200) != 0 && KeyCodes_IsGamepadKey((keyNum_t)key) )
-    goto LABEL_95;
+  if ( (v13->flags & 0x200) != 0 && KeyCodes_IsGamepadKey((keyNum_t)key) )
+    return 0;
   switch ( key )
   {
     case 149:
-      if ( v14->selectionPos > -1 && v14->selectionLength > 0 )
+      if ( v13->selectionPos > -1 && v13->selectionLength > 0 )
       {
 LABEL_21:
-        LUI_TextEdit_RemoveCurrentSelection(v14, _R14, luaVM);
-        goto LABEL_123;
+        LUI_TextEdit_RemoveCurrentSelection(v13, v12, luaVM);
+        goto LABEL_140;
       }
-      v17 = v14->cursorPos;
-      v18 = v14->length;
-      if ( (int)v17 < (int)v18 )
+      v16 = v13->cursorPos;
+      v17 = v13->length;
+      if ( (int)v16 < (int)v17 )
       {
-        v19 = (unsigned __int64)v14 + 4 * v18;
-        v20 = 0i64;
-        v21 = &v14->gap0[4 * v17];
-        v22 = v18 - 1;
-        v23 = v21 + 1;
-        v14->length = v22;
-        v24 = (v19 - (unsigned __int64)(v21 + 1) + 3) >> 2;
-        if ( (unsigned __int64)(v21 + 1) > v19 )
-          v24 = 0i64;
-        if ( v24 )
+        v18 = (unsigned __int64)v13 + 4 * v17;
+        v19 = 0i64;
+        v20 = &v13->gap0[4 * v16];
+        v21 = v17 - 1;
+        v22 = v20 + 1;
+        v13->length = v21;
+        v23 = (v18 - (unsigned __int64)(v20 + 1) + 3) >> 2;
+        if ( (unsigned __int64)(v20 + 1) > v18 )
+          v23 = 0i64;
+        if ( v23 )
         {
           do
           {
-            ++v20;
-            *v21++ = *v23++;
+            ++v19;
+            *v20++ = *v22++;
           }
-          while ( v20 != v24 );
+          while ( v19 != v23 );
         }
 LABEL_27:
-        LUI_TextEdit_SetLUIElementText(v14, _R14, luaVM);
-        goto LABEL_123;
+        LUI_TextEdit_SetLUIElementText(v13, v12, luaVM);
+        goto LABEL_140;
       }
-      goto LABEL_123;
+      goto LABEL_140;
     case 127:
-      if ( v14->selectionPos > -1 && v14->selectionLength > 0 )
+      if ( v13->selectionPos > -1 && v13->selectionLength > 0 )
         goto LABEL_21;
-      v25 = v14->cursorPos;
-      if ( (int)v25 > 0 )
+      v24 = v13->cursorPos;
+      if ( (int)v24 > 0 )
       {
-        v26 = v14->length;
-        v14->cursorPos = v25 - 1;
-        v27 = 0i64;
-        v28 = &v14->gap0[4 * v26];
-        v29 = &v14->gap0[4 * (int)v25 - 4];
-        v30 = v26 - 1;
-        v31 = &v14->gap0[4 * v25];
-        v14->length = v30;
-        v32 = (unsigned __int64)(v28 - v31 + 3) >> 2;
-        if ( v31 > v28 )
-          v32 = 0i64;
-        if ( v32 )
+        v25 = v13->length;
+        v13->cursorPos = v24 - 1;
+        v26 = 0i64;
+        v27 = &v13->gap0[4 * v25];
+        v28 = &v13->gap0[4 * (int)v24 - 4];
+        v29 = v25 - 1;
+        v30 = &v13->gap0[4 * v24];
+        v13->length = v29;
+        v31 = (unsigned __int64)(v27 - v30 + 3) >> 2;
+        if ( v30 > v27 )
+          v31 = 0i64;
+        if ( v31 )
         {
           do
           {
-            ++v27;
-            *v29++ = *(_DWORD *)v31;
-            v31 += 4;
+            ++v26;
+            *v28++ = *(_DWORD *)v30;
+            v30 += 4;
           }
-          while ( v27 != v32 );
+          while ( v26 != v31 );
         }
         goto LABEL_27;
       }
-      goto LABEL_123;
+      goto LABEL_140;
     case 135:
     case 31:
     case 23:
       if ( !CL_Keys_IsModifierKeyDown(localClientNum, KMOD_SHIFT) )
       {
-        v14->selectionPos = -1;
-        v14->selectionLength = 0;
+        v13->selectionPos = -1;
+        v13->selectionLength = 0;
       }
-      v59 = v14->cursorPos;
-      if ( v59 < v14->length )
+      v64 = v13->cursorPos;
+      if ( v64 < v13->length )
       {
-        v14->cursorPos = v59 + 1;
+        v13->cursorPos = v64 + 1;
         if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_SHIFT) )
-          LUI_TextEdit_HandleRightTextSelection(v14, 1);
+          LUI_TextEdit_HandleRightTextSelection(v13, 1);
       }
-      goto LABEL_123;
+      goto LABEL_140;
     case 134:
     case 30:
     case 22:
       if ( !CL_Keys_IsModifierKeyDown(localClientNum, KMOD_SHIFT) )
       {
-        v14->selectionPos = -1;
-        v14->selectionLength = 0;
+        v13->selectionPos = -1;
+        v13->selectionLength = 0;
       }
-      v56 = v14->cursorPos;
-      if ( v56 > 0 )
+      v61 = v13->cursorPos;
+      if ( v61 > 0 )
       {
-        v14->cursorPos = v56 - 1;
+        v13->cursorPos = v61 - 1;
         if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_SHIFT) )
         {
-          selectionPos = v14->selectionPos;
-          if ( selectionPos == -1 || selectionPos == v14->cursorPos + 1 )
+          selectionPos = v13->selectionPos;
+          if ( selectionPos == -1 || selectionPos == v13->cursorPos + 1 )
           {
-            v58 = v14->cursorPos;
-            ++v14->selectionLength;
-            v14->selectionPos = v58;
+            v63 = v13->cursorPos;
+            ++v13->selectionLength;
+            v13->selectionPos = v63;
           }
           else
           {
-            --v14->selectionLength;
+            --v13->selectionLength;
           }
         }
       }
-      goto LABEL_123;
+      goto LABEL_140;
   }
   if ( (unsigned int)(key - 151) > 1 )
   {
-    if ( key == 153 || (v33 = 150, key == 150) )
+    if ( key == 153 || (v32 = 150, key == 150) )
     {
       if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_SHIFT) )
       {
-        v11 = v14->cursorPos;
-        v54 = v14->length - v11;
+        v10 = v13->cursorPos;
+        v59 = v13->length - v10;
       }
       else
       {
-        v54 = 0;
+        v59 = 0;
       }
-      v14->selectionPos = v11;
-      v14->selectionLength = v54;
-      v14->cursorPos = v14->length;
-      goto LABEL_123;
+      v13->selectionPos = v10;
+      v13->selectionLength = v59;
+      v13->cursorPos = v13->length;
+      goto LABEL_140;
     }
     switch ( key )
     {
       case 148:
         OverstrikeMode = CL_Keys_GetOverstrikeMode(localClientNum);
         CL_Keys_SetOverstrikeMode(localClientNum, OverstrikeMode == 0);
-        goto LABEL_123;
+        goto LABEL_140;
       case 97:
         if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) )
         {
-          v35 = v14->length;
-          *(_QWORD *)&v14->selectionLength = v35;
-          v14->cursorPos = v35;
+          v34 = v13->length;
+          *(_QWORD *)&v13->selectionLength = v34;
+          v13->cursorPos = v34;
         }
-        goto LABEL_123;
+        goto LABEL_140;
       case 99:
         if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) )
-          LUI_TextEdit_CopyCurrentSelection(v14);
-        goto LABEL_123;
+          LUI_TextEdit_CopyCurrentSelection(v13);
+        goto LABEL_140;
       case 118:
         if ( !CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) )
-          goto LABEL_123;
+          goto LABEL_140;
         UnicodeClipboardData = Sys_GetUnicodeClipboardData();
         if ( !UnicodeClipboardData )
-          goto LABEL_123;
-        if ( v14->selectionLength > 0 && v14->selectionPos > -1 )
-          LUI_TextEdit_RemoveCurrentSelection(v14, _R14, luaVM);
-        v37 = LUI_TextEdit_Utf8ToUtf32(UnicodeClipboardData, -1);
-        if ( v37 < 150 )
-          v33 = v37;
-        memset_0(v64, 0, 0x258ui64);
-        LUI_TextEdit_Utf8ToUtf32(UnicodeClipboardData, v33);
+          goto LABEL_140;
+        if ( v13->selectionLength > 0 && v13->selectionPos > -1 )
+          LUI_TextEdit_RemoveCurrentSelection(v13, v12, luaVM);
+        v36 = LUI_TextEdit_Utf8ToUtf32(UnicodeClipboardData, -1);
+        if ( v36 < 150 )
+          v32 = v36;
+        memset_0(v72, 0, 0x258ui64);
+        LUI_TextEdit_Utf8ToUtf32(UnicodeClipboardData, v32);
         Sys_FreeClipboardData(UnicodeClipboardData);
         if ( !CL_Keys_GetOverstrikeMode(localClientNum) )
         {
-          v38 = v14->length;
-          v39 = v33 + v38;
-          if ( v33 + (int)v38 > v14->maxChars )
-            goto LABEL_123;
-          v40 = v14->cursorPos;
-          v14->length = v39;
-          v41 = &v14->gap0[4 * v40];
-          v42 = &v14->gap0[4 * v38];
-          if ( v42 != v41 )
+          v37 = v13->length;
+          v38 = v32 + v37;
+          if ( v32 + (int)v37 > v13->maxChars )
+            goto LABEL_140;
+          v39 = v13->cursorPos;
+          v13->length = v38;
+          v40 = &v13->gap0[4 * v39];
+          v41 = &v13->gap0[4 * v37];
+          if ( v41 != v40 )
           {
-            v43 = &v14->gap0[4i64 * v39 - (_QWORD)v42];
+            v42 = &v13->gap0[4i64 * v38 - (_QWORD)v41];
             do
             {
-              v44 = *((_DWORD *)v42 - 1);
-              v42 -= 4;
-              *(_DWORD *)&v42[(_QWORD)v43] = v44;
+              v43 = *((_DWORD *)v41 - 1);
+              v41 -= 4;
+              *(_DWORD *)&v41[(_QWORD)v42] = v43;
             }
-            while ( v42 != v41 );
+            while ( v41 != v40 );
           }
         }
-        if ( v33 > 0 )
+        if ( v32 > 0 )
         {
-          v45 = 0i64;
+          v44 = 0i64;
           do
           {
-            v46 = v64[v45++];
-            *(_DWORD *)&v14->gap0[4 * v14->cursorPos++] = v46;
+            v45 = v72[v44++];
+            *(_DWORD *)&v13->gap0[4 * v13->cursorPos++] = v45;
           }
-          while ( v45 < v33 );
+          while ( v44 < v32 );
         }
-        LUI_TextEdit_Utf32ToUtf8((int)v14, (char *)(unsigned int)v14->length, (int)utf8Buffer);
-        LUI_LUIElement_SetText(_R14, utf8Buffer, luaVM);
-        goto LABEL_123;
+        LUI_TextEdit_Utf32ToUtf8((int)v13, (char *)(unsigned int)v13->length, (int)utf8Buffer);
+        LUI_LUIElement_SetText(v12, utf8Buffer, luaVM);
+        goto LABEL_140;
       case 120:
-        if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) && v14->selectionLength )
+        if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) && v13->selectionLength )
         {
-          LUI_TextEdit_CopyCurrentSelection(v14);
-          LUI_TextEdit_RemoveCurrentSelection(v14, _R14, luaVM);
+          LUI_TextEdit_CopyCurrentSelection(v13);
+          LUI_TextEdit_RemoveCurrentSelection(v13, v12, luaVM);
         }
-        goto LABEL_123;
+        goto LABEL_140;
     }
     if ( key != 13 && key != 178 )
     {
       if ( key == 27 )
-        goto LABEL_98;
+        goto LABEL_115;
       if ( (unsigned int)(key - 1) > 1 )
       {
         switch ( key )
         {
           case 9:
-            flags = v14->flags;
+            flags = v13->flags;
             if ( (flags & 0x20) != 0 )
             {
-              LUI_TextEdit_Finish(localClientNum, _R14, v14, 0, 1, 0, luaVM);
-              flags = v14->flags;
+              LUI_TextEdit_Finish(localClientNum, v12, v13, 0, 1, 0, luaVM);
+              flags = v13->flags;
             }
             if ( (flags & 0x100) == 0 )
-              goto LABEL_123;
-            v48 = "text_edit_tab_pressed";
+              goto LABEL_140;
+            v47 = "text_edit_tab_pressed";
             goto LABEL_86;
           case 32:
-            v48 = "text_edit_space_bar_pressed";
+            v47 = "text_edit_space_bar_pressed";
 LABEL_86:
-            if ( LUI_BeginEvent(localClientNum, v48, luaVM) )
+            if ( LUI_BeginEvent(localClientNum, v47, luaVM) )
               LUI_EndEvent(luaVM);
-            goto LABEL_123;
+            goto LABEL_140;
           case 187:
-            __asm
+            if ( LUI_ProjectRootCoordinate(luaVM, rootName, screenX, screenY, &outMouseX, &outMouseY) )
             {
-              vmovss  xmm3, [rsp+7F8h+screenY]; screenY
-              vmovaps xmm2, xmm6; screenX
-            }
-            if ( LUI_ProjectRootCoordinate(luaVM, rootName, *(float *)&_XMM2, *(float *)&_XMM3, &outMouseX, &outMouseY) )
-            {
-              __asm
+              if ( outMouseX < v12->left || outMouseX > v12->right || outMouseY < v12->top || outMouseY > v12->bottom )
               {
-                vmovss  xmm0, [rsp+7F8h+outMouseX]
-                vcomiss xmm0, dword ptr [r14+0CCh]
-                vcomiss xmm0, dword ptr [r14+0D4h]
+                if ( (v13->flags & 0x40) != 0 )
+                  LUI_TextEdit_Finish(localClientNum, v12, v13, 0, 1, 0, luaVM);
               }
-              if ( (v14->flags & 0x40) != 0 )
-                LUI_TextEdit_Finish(localClientNum, _R14, v14, 0, 1, 0, luaVM);
+              else
+              {
+                v48 = v13->length;
+                v70 = v13->cursorPos;
+                v69 = v48;
+                memset_0(&renderData, 0, 0x25Bui64);
+                renderData.utf8CursorPos = 0;
+                renderData.overflowLen = 0.0;
+                renderData.selectionOffset = 0.0;
+                renderData.selectionLen = 0.0;
+                LUI_TextEdit_GetRenderData(localClientNum, v12, v13, v48, &renderData);
+                font = v12->textData.font;
+                _XMM1 = 0i64;
+                __asm { vroundss xmm2, xmm1, xmm3, 1 }
+                textHeight = (int)*(float *)&_XMM2;
+                v52 = R_TextWidth(renderData.utf8Text, -1, font, (int)*(float *)&_XMM2);
+                v53 = (float)(outMouseX - v12->left) + renderData.overflowLen;
+                if ( v53 < (float)v52 )
+                {
+                  v54 = 0;
+                  if ( v48 > 0 )
+                  {
+                    while ( 1 )
+                    {
+                      v55 = v54 + 1;
+                      LUI_TextEdit_GetRenderData(localClientNum, v12, v13, v54 + 1, &renderData);
+                      if ( v53 < (float)R_TextWidth(renderData.utf8Text, -1, v12->textData.font, textHeight) )
+                        break;
+                      ++v54;
+                      if ( v55 >= v69 )
+                        goto LABEL_101;
+                    }
+                    v13->cursorPos = v54;
+                  }
+                }
+                else
+                {
+                  v13->cursorPos = v48;
+                }
+LABEL_101:
+                if ( v70 == v13->cursorPos && (v56 = v13->length, v13->selectionLength < v56) && isDoubleClick )
+                {
+                  v13->cursorPos = v56;
+                  v10 = 0;
+                }
+                else
+                {
+                  v56 = 0;
+                }
+                v13->selectionLength = v56;
+                v13->selectionPos = v10;
+              }
             }
-            goto LABEL_123;
+            goto LABEL_140;
         }
         if ( (unsigned int)(key - 132) > 1 )
         {
           if ( (unsigned int)key > 0x1D )
-            goto LABEL_123;
-          v52 = 808452096;
-          if ( !_bittest(&v52, key) )
-            goto LABEL_123;
+            goto LABEL_140;
+          v57 = 808452096;
+          if ( !_bittest(&v57, key) )
+            goto LABEL_140;
         }
-LABEL_95:
-        result = 0;
-        goto LABEL_129;
+        return 0;
       }
     }
     if ( key != 2 )
     {
-      v53 = 0;
-LABEL_99:
-      LUI_TextEdit_Finish(localClientNum, _R14, v14, v53, 1, 0, luaVM);
-      goto LABEL_123;
+      v58 = 0;
+LABEL_116:
+      LUI_TextEdit_Finish(localClientNum, v12, v13, v58, 1, 0, luaVM);
+      goto LABEL_140;
     }
-LABEL_98:
-    v53 = 1;
-    goto LABEL_99;
+LABEL_115:
+    v58 = 1;
+    goto LABEL_116;
   }
   if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_SHIFT) )
   {
-    v55 = v14->cursorPos;
-    *(_QWORD *)&v14->selectionLength = (unsigned int)v55;
-    if ( v14->length < v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 594, ASSERT_TYPE_ASSERT, "(editPtr->length >= editPtr->selectionPos + editPtr->selectionLength)", (const char *)&queryFormat, "editPtr->length >= editPtr->selectionPos + editPtr->selectionLength") )
+    v60 = v13->cursorPos;
+    *(_QWORD *)&v13->selectionLength = (unsigned int)v60;
+    if ( v13->length < v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_textedit.cpp", 594, ASSERT_TYPE_ASSERT, "(editPtr->length >= editPtr->selectionPos + editPtr->selectionLength)", (const char *)&queryFormat, "editPtr->length >= editPtr->selectionPos + editPtr->selectionLength") )
     {
       __debugbreak();
-      v14->cursorPos = 0;
-      goto LABEL_123;
+      v13->cursorPos = 0;
+      goto LABEL_140;
     }
   }
   else
   {
-    v14->selectionLength = 0;
-    v14->selectionPos = -1;
+    v13->selectionLength = 0;
+    v13->selectionPos = -1;
   }
-  v14->cursorPos = 0;
-LABEL_123:
-  if ( !v14->length && v14->isTypingEventSent )
+  v13->cursorPos = 0;
+LABEL_140:
+  if ( !v13->length && v13->isTypingEventSent )
   {
     if ( LUI_BeginEvent(localClientNum, "text_edit_is_typing", luaVM) )
     {
@@ -1484,12 +1373,9 @@ LABEL_123:
       LUI_SetTableInt("controller", ControllerFromClient, LUI_luaVM);
       LUI_EndEvent(luaVM);
     }
-    v14->isTypingEventSent = 0;
+    v13->isTypingEventSent = 0;
   }
-  result = 1;
-LABEL_129:
-  __asm { vmovaps xmm6, [rsp+7F8h+var_58] }
-  return result;
+  return 1;
 }
 
 /*
@@ -1499,118 +1385,90 @@ LUI_TextEdit_HandleMouseMove
 */
 void LUI_TextEdit_HandleMouseMove(LocalClientNum_t localClientNum, int luaRef, int mouseX, int mouseY, const char *rootName, lua_State *luaVM)
 {
-  LUITextEditField *v10; 
+  LUIElement *v8; 
+  LUITextEditField *v9; 
   int cursorPos; 
   int length; 
-  int v14; 
-  char v28; 
-  int v29; 
-  int v31; 
+  int v12; 
+  int v15; 
+  float v16; 
+  int v17; 
+  int v18; 
   int selectionPos; 
-  int v34; 
+  int v20; 
   LUITextEditRenderData renderData; 
 
   j_lua_rawgeti(luaVM, -10000, luaRef);
   if ( j_lua_isuserdata(luaVM, -1) )
   {
-    _RBP = LUI_ToElement(luaVM, -1);
+    v8 = LUI_ToElement(luaVM, -1);
     j_lua_getfield(luaVM, -1, "m_LUITextEditField");
     if ( j_lua_isuserdata(luaVM, -1) )
     {
-      v10 = (LUITextEditField *)j_lua_touserdata(luaVM, -1);
+      v9 = (LUITextEditField *)j_lua_touserdata(luaVM, -1);
       if ( CL_Keys_IsKeyDown(localClientNum, 187) )
       {
-        cursorPos = v10->cursorPos;
-        length = v10->length;
-        __asm { vmovaps [rsp+2F8h+var_48], xmm6 }
+        cursorPos = v9->cursorPos;
+        length = v9->length;
         memset_0(&renderData, 0, 0x25Bui64);
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        v14 = 0;
+        v12 = 0;
         renderData.utf8CursorPos = 0;
-        __asm
-        {
-          vmovss  [rsp+2F8h+var_2C8.overflowLen], xmm0
-          vmovss  [rsp+2F8h+var_2C8.selectionOffset], xmm0
-          vmovss  [rsp+2F8h+var_2C8.selectionLen], xmm0
-        }
-        LUI_TextEdit_GetRenderData(localClientNum, _RBP, v10, length, &renderData);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0D8h]
-          vsubss  xmm1, xmm0, dword ptr [rbp+0D0h]
-          vmulss  xmm2, xmm1, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-          vaddss  xmm3, xmm2, cs:__real@3f000000
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm2, xmm1, xmm3, 1
-          vcvttss2si r13d, xmm2
-        }
-        R_TextWidth(renderData.utf8Text, -1, _RBP->textData.font, _ER13);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vsubss  xmm1, xmm0, dword ptr [rbp+0CCh]
-          vaddss  xmm6, xmm1, [rsp+2F8h+var_2C8.overflowLen]
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, eax
-          vcomiss xmm6, xmm2
-        }
-        if ( v28 )
+        renderData.overflowLen = 0.0;
+        renderData.selectionOffset = 0.0;
+        renderData.selectionLen = 0.0;
+        LUI_TextEdit_GetRenderData(localClientNum, v8, v9, length, &renderData);
+        _XMM1 = 0i64;
+        __asm { vroundss xmm2, xmm1, xmm3, 1 }
+        v15 = R_TextWidth(renderData.utf8Text, -1, v8->textData.font, (int)*(float *)&_XMM2);
+        v16 = (float)((float)mouseX - v8->left) + renderData.overflowLen;
+        if ( v16 < (float)v15 )
         {
           if ( length > 0 )
           {
             while ( 1 )
             {
-              v29 = v14 + 1;
-              LUI_TextEdit_GetRenderData(localClientNum, _RBP, v10, v14 + 1, &renderData);
-              R_TextWidth(renderData.utf8Text, -1, _RBP->textData.font, _ER13);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vcomiss xmm6, xmm0
-              }
-              if ( v28 )
+              v17 = v12 + 1;
+              LUI_TextEdit_GetRenderData(localClientNum, v8, v9, v12 + 1, &renderData);
+              if ( v16 < (float)R_TextWidth(renderData.utf8Text, -1, v8->textData.font, (int)*(float *)&_XMM2) )
                 break;
-              ++v14;
-              if ( v29 >= length )
+              ++v12;
+              if ( v17 >= length )
                 goto LABEL_13;
             }
-            v10->cursorPos = v14;
+            v9->cursorPos = v12;
           }
         }
         else
         {
-          v10->cursorPos = length;
+          v9->cursorPos = length;
         }
 LABEL_13:
-        v31 = v10->cursorPos;
-        __asm { vmovaps xmm6, [rsp+2F8h+var_48] }
-        if ( v31 >= cursorPos )
+        v18 = v9->cursorPos;
+        if ( v18 >= cursorPos )
         {
-          if ( v31 > cursorPos )
-            LUI_TextEdit_HandleRightTextSelection(v10, v31 - cursorPos);
+          if ( v18 > cursorPos )
+            LUI_TextEdit_HandleRightTextSelection(v9, v18 - cursorPos);
         }
         else
         {
-          selectionPos = v10->selectionPos;
-          v34 = cursorPos - v31;
+          selectionPos = v9->selectionPos;
+          v20 = cursorPos - v18;
           if ( selectionPos == -1 || selectionPos == cursorPos )
           {
-            v10->selectionLength += v34;
-            v10->selectionPos = v31;
+            v9->selectionLength += v20;
+            v9->selectionPos = v18;
           }
           else
           {
-            v10->selectionLength -= v34;
+            v9->selectionLength -= v20;
           }
         }
       }
     }
     else
     {
-      _RBP->currentAnimationState.userDataInt = 0;
-      LUI_Interface_SetTextEditActive(localClientNum, _RBP, 0, luaVM);
+      v8->currentAnimationState.userDataInt = 0;
+      LUI_Interface_SetTextEditActive(localClientNum, v8, 0, luaVM);
     }
   }
   else

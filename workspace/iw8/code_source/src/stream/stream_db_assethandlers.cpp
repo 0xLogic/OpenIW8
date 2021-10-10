@@ -672,56 +672,54 @@ char Stream_DBPreMoveImage(GfxImage *fromImage, GfxImage *toImage, bool toImageO
   GfxImageFallback *fallback; 
   GfxImageFallback *v15; 
   unsigned __int64 data; 
+  __int64 v18; 
+  unsigned int *v19; 
+  unsigned int *v20; 
+  unsigned int v21; 
+  __int64 v22; 
+  __int64 v23; 
+  StreamFrontendGlob *v24; 
+  StreamFrontendGlob *v25; 
+  unsigned int v26; 
+  __int64 v27; 
   __int64 v28; 
-  unsigned int *v29; 
-  unsigned int *v30; 
+  StreamableBits::BitSwap::__l2::<lambda_0cfe52a449506a58f3f65a204b9daded> v29; 
+  ScopedCriticalSection v30; 
   unsigned int v31; 
-  __int64 v32; 
-  __int64 v33; 
-  StreamFrontendGlob *v34; 
-  StreamFrontendGlob *v35; 
-  unsigned int v36; 
-  __int64 v37; 
-  __int64 v38; 
-  StreamableBits::BitSwap::__l2::<lambda_0cfe52a449506a58f3f65a204b9daded> v39; 
-  ScopedCriticalSection v40; 
-  unsigned int v41; 
-  unsigned int v42; 
-  bool v43; 
-  unsigned int v44; 
+  unsigned int v32; 
+  bool v33; 
+  unsigned int v34; 
 
-  v43 = toImageOwnsResources;
+  v33 = toImageOwnsResources;
   v3 = toImageOwnsResources;
-  _RDI = toImage;
-  _RBX = fromImage;
   if ( !Sys_IsMainThread() && !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 186, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsDatabaseThread()") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 187, ASSERT_TYPE_ASSERT, "(fromImage)", (const char *)&queryFormat, "fromImage") )
+  if ( !fromImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 187, ASSERT_TYPE_ASSERT, "(fromImage)", (const char *)&queryFormat, "fromImage") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 188, ASSERT_TYPE_ASSERT, "(toImage)", (const char *)&queryFormat, "toImage") )
+  if ( !toImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 188, ASSERT_TYPE_ASSERT, "(toImage)", (const char *)&queryFormat, "toImage") )
     __debugbreak();
-  XPak_CheckAdjacencyInfo(_RBX);
-  XPak_CheckAdjacencyInfo(_RDI);
-  GfxImageIndex = DB_GetGfxImageIndex(_RBX);
-  v41 = GfxImageIndex;
-  v7 = DB_GetGfxImageIndex(_RDI);
+  XPak_CheckAdjacencyInfo(fromImage);
+  XPak_CheckAdjacencyInfo(toImage);
+  GfxImageIndex = DB_GetGfxImageIndex(fromImage);
+  v31 = GfxImageIndex;
+  v7 = DB_GetGfxImageIndex(toImage);
   v8 = v7;
   Stream_ImageRecord_MoveTracking(GfxImageIndex, v7);
-  if ( !g_usedDebugZone && (_RDI->flags & 0x40) != 0 && (_RBX->flags & 0x40) != 0 )
+  if ( !g_usedDebugZone && (toImage->flags & 0x40) != 0 && (fromImage->flags & 0x40) != 0 )
   {
     if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 205, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
       __debugbreak();
     if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 206, ASSERT_TYPE_ASSERT, "(toImageOwnsResources)", (const char *)&queryFormat, "toImageOwnsResources") )
       __debugbreak();
-    streamedPartCount = _RDI->streamedPartCount;
-    v10 = _RBX->streamedPartCount;
+    streamedPartCount = toImage->streamedPartCount;
+    v10 = fromImage->streamedPartCount;
     if ( streamedPartCount == v10 )
     {
       v11 = 0;
       if ( streamedPartCount )
       {
-        v12 = (char *)&_RBX->streams[0].xpakEntry + 24;
-        v13 = (char *)_RDI - (char *)_RBX;
+        v12 = (char *)&fromImage->streams[0].xpakEntry + 24;
+        v13 = (char *)toImage - (char *)fromImage;
         while ( *((_QWORD *)v12 - 3) == *(_QWORD *)&v12[v13 - 24] )
         {
           if ( *v12 != v12[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 227, ASSERT_TYPE_ASSERT, "(fromXPakEntry.xpakIndex == toXPakEntry.xpakIndex)", (const char *)&queryFormat, "fromXPakEntry.xpakIndex == toXPakEntry.xpakIndex") )
@@ -730,11 +728,11 @@ char Stream_DBPreMoveImage(GfxImage *fromImage, GfxImage *toImage, bool toImageO
             __debugbreak();
           if ( *((_QWORD *)v12 - 1) != *(_QWORD *)&v12[v13 - 8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 229, ASSERT_TYPE_ASSERT, "(fromXPakEntry.size == toXPakEntry.size)", (const char *)&queryFormat, "fromXPakEntry.size == toXPakEntry.size") )
             __debugbreak();
-          if ( streamFrontendGlob->imageXPakPosition[4 * v41 + v11] != streamFrontendGlob->imageXPakPosition[(unsigned int)(v11 + 4 * v8)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 234, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->imageXPakPosition[fromPartIndex] == streamFrontendGlob->imageXPakPosition[toPartIndex])", (const char *)&queryFormat, "streamFrontendGlob->imageXPakPosition[fromPartIndex] == streamFrontendGlob->imageXPakPosition[toPartIndex]") )
+          if ( streamFrontendGlob->imageXPakPosition[4 * v31 + v11] != streamFrontendGlob->imageXPakPosition[(unsigned int)(v11 + 4 * v8)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 234, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->imageXPakPosition[fromPartIndex] == streamFrontendGlob->imageXPakPosition[toPartIndex])", (const char *)&queryFormat, "streamFrontendGlob->imageXPakPosition[fromPartIndex] == streamFrontendGlob->imageXPakPosition[toPartIndex]") )
             __debugbreak();
           ++v11;
           v12 += 40;
-          if ( v11 >= _RDI->streamedPartCount )
+          if ( v11 >= toImage->streamedPartCount )
             goto LABEL_37;
         }
       }
@@ -743,127 +741,114 @@ char Stream_DBPreMoveImage(GfxImage *fromImage, GfxImage *toImage, bool toImageO
 LABEL_37:
         if ( streamedPartCount == v10 )
         {
-          if ( _RDI->flags != _RBX->flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 241, ASSERT_TYPE_ASSERT, "( toImage->flags ) == ( fromImage->flags )", "%s == %s\n\t%u, %u", "toImage->flags", "fromImage->flags", _RDI->flags, _RBX->flags) )
+          if ( toImage->flags != fromImage->flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 241, ASSERT_TYPE_ASSERT, "( toImage->flags ) == ( fromImage->flags )", "%s == %s\n\t%u, %u", "toImage->flags", "fromImage->flags", toImage->flags, fromImage->flags) )
             __debugbreak();
-          if ( _RDI->fallback )
+          if ( toImage->fallback )
           {
-            if ( !_RBX->fallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 256, ASSERT_TYPE_ASSERT, "(fromImage->fallback)", (const char *)&queryFormat, "fromImage->fallback") )
+            if ( !fromImage->fallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 256, ASSERT_TYPE_ASSERT, "(fromImage->fallback)", (const char *)&queryFormat, "fromImage->fallback") )
               __debugbreak();
-            fallback = _RDI->fallback;
-            v15 = _RBX->fallback;
+            fallback = toImage->fallback;
+            v15 = fromImage->fallback;
             if ( fallback->pixels == v15->pixels && *(_QWORD *)&fallback->size == *(_QWORD *)&v15->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 257, ASSERT_TYPE_ASSERT, "(memcmp( toImage->fallback, fromImage->fallback, sizeof( GfxImageFallback ) ))", (const char *)&queryFormat, "memcmp( toImage->fallback, fromImage->fallback, sizeof( GfxImageFallback ) )") )
               __debugbreak();
-            R_Texture_ResetFallback(_RDI, _RBX->fallback);
+            R_Texture_ResetFallback(toImage, fromImage->fallback);
           }
-          else if ( _RBX->fallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 267, ASSERT_TYPE_ASSERT, "(nullptr == fromImage->fallback)", (const char *)&queryFormat, "nullptr == fromImage->fallback") )
+          else if ( fromImage->fallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 267, ASSERT_TYPE_ASSERT, "(nullptr == fromImage->fallback)", (const char *)&queryFormat, "nullptr == fromImage->fallback") )
           {
             __debugbreak();
           }
-          Stream_DBPreReleaseImage(_RBX);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi+38h]
-            vmovups xmmword ptr [rbx+38h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+48h]
-            vmovups xmmword ptr [rbx+48h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+58h]
-            vmovups xmmword ptr [rbx+58h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+68h]
-            vmovups xmmword ptr [rbx+68h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+78h]
-            vmovups xmmword ptr [rbx+78h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+88h]
-            vmovups xmmword ptr [rbx+88h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+98h]
-            vmovups xmmword ptr [rbx+98h], xmm0
-            vmovups xmm0, xmmword ptr [rdi+0A8h]
-            vmovups xmmword ptr [rbx+0A8h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+0B8h]
-            vmovups xmmword ptr [rbx+0B8h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+0C8h]
-            vmovups xmmword ptr [rbx+0C8h], xmm0
-          }
-          if ( _RBX->pixels.streamedDataHandle.data )
+          Stream_DBPreReleaseImage(fromImage);
+          *(_OWORD *)&fromImage->streams[0].xpakEntry.key = *(_OWORD *)&toImage->streams[0].xpakEntry.key;
+          *(_OWORD *)&fromImage->streams[0].xpakEntry.size = *(_OWORD *)&toImage->streams[0].xpakEntry.size;
+          *(_OWORD *)&fromImage->streams[0].levelCountAndSize = *(_OWORD *)&toImage->streams[0].levelCountAndSize;
+          *(_OWORD *)&fromImage->streams[1].xpakEntry.offset = *(_OWORD *)&toImage->streams[1].xpakEntry.offset;
+          *(_OWORD *)((char *)&fromImage->streams[1].xpakEntry + 24) = *(_OWORD *)((char *)&toImage->streams[1].xpakEntry + 24);
+          *(_OWORD *)&fromImage->streams[2].xpakEntry.key = *(_OWORD *)&toImage->streams[2].xpakEntry.key;
+          *(_OWORD *)&fromImage->streams[2].xpakEntry.size = *(_OWORD *)&toImage->streams[2].xpakEntry.size;
+          *(_OWORD *)&fromImage->streams[2].levelCountAndSize = *(_OWORD *)&toImage->streams[2].levelCountAndSize;
+          *(_OWORD *)&fromImage->streams[3].xpakEntry.offset = *(_OWORD *)&toImage->streams[3].xpakEntry.offset;
+          *(_OWORD *)((char *)&fromImage->streams[3].xpakEntry + 24) = *(_OWORD *)((char *)&toImage->streams[3].xpakEntry + 24);
+          if ( fromImage->pixels.streamedDataHandle.data )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 281, ASSERT_TYPE_ASSERT, "(fromImage->pixels.streamedDataHandle.data == 0)", (const char *)&queryFormat, "fromImage->pixels.streamedDataHandle.data == 0") )
               __debugbreak();
           }
-          data = _RBX->pixels.streamedDataHandle.data;
-          _RBX->pixels.streamedDataHandle.data = _RDI->pixels.streamedDataHandle.data;
-          _RDI->pixels.streamedDataHandle.data = data;
+          data = fromImage->pixels.streamedDataHandle.data;
+          fromImage->pixels.streamedDataHandle.data = toImage->pixels.streamedDataHandle.data;
+          toImage->pixels.streamedDataHandle.data = data;
           return 0;
         }
       }
     }
-    GfxImageIndex = v41;
-    v3 = v43;
+    GfxImageIndex = v31;
+    v3 = v33;
   }
-  if ( (_RDI->flags & 0x40) != 0 )
+  if ( (toImage->flags & 0x40) != 0 )
   {
     if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 292, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
       __debugbreak();
     if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 293, ASSERT_TYPE_ASSERT, "(toImageOwnsResources)", (const char *)&queryFormat, "toImageOwnsResources") )
       __debugbreak();
-    Stream_DBPreReleaseImage(_RDI);
+    Stream_DBPreReleaseImage(toImage);
   }
-  if ( (_RBX->flags & 0x40) != 0 )
+  if ( (fromImage->flags & 0x40) != 0 )
   {
     if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 299, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
       __debugbreak();
     Sys_ProfBeginNamedEvent(0xFF00FFFF, "StreamAlloc_Lock");
-    ScopedCriticalSection::ScopedCriticalSection(&v40, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
+    ScopedCriticalSection::ScopedCriticalSection(&v30, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
     Sys_ProfEndNamedEvent();
-    Stream_Defrag_DBPatchImage(_RBX, v8);
-    v28 = (unsigned int)(4 * v8);
-    XPak_PatchAdjacencyInfo(_RBX, v8);
-    v29 = &streamFrontendGlob->imageUsedFrame[v8];
-    v30 = &streamFrontendGlob->imageUsedFrame[GfxImageIndex];
-    v31 = *v30;
-    *v30 = *v29;
-    *v29 = v31;
-    v32 = (unsigned int)v28 + 4 * (GfxImageIndex - (_DWORD)v8);
-    v33 = 4i64;
+    Stream_Defrag_DBPatchImage(fromImage, v8);
+    v18 = (unsigned int)(4 * v8);
+    XPak_PatchAdjacencyInfo(fromImage, v8);
+    v19 = &streamFrontendGlob->imageUsedFrame[v8];
+    v20 = &streamFrontendGlob->imageUsedFrame[GfxImageIndex];
+    v21 = *v20;
+    *v20 = *v19;
+    *v19 = v21;
+    v22 = (unsigned int)v18 + 4 * (GfxImageIndex - (_DWORD)v8);
+    v23 = 4i64;
     do
     {
-      v34 = streamFrontendGlob;
-      v44 = v28;
-      v42 = v32;
+      v24 = streamFrontendGlob;
+      v34 = v18;
+      v32 = v22;
       if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 603, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
         __debugbreak();
-      if ( v42 >= v34->imageBits.mBitCount )
+      if ( v32 >= v24->imageBits.mBitCount )
       {
-        LODWORD(v38) = v34->imageBits.mBitCount;
-        LODWORD(v37) = v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 604, ASSERT_TYPE_ASSERT, "(unsigned)( lhs ) < (unsigned)( mBitCount )", "lhs doesn't index mBitCount\n\t%i not in [0, %i)", v37, v38) )
+        LODWORD(v28) = v24->imageBits.mBitCount;
+        LODWORD(v27) = v32;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 604, ASSERT_TYPE_ASSERT, "(unsigned)( lhs ) < (unsigned)( mBitCount )", "lhs doesn't index mBitCount\n\t%i not in [0, %i)", v27, v28) )
           __debugbreak();
       }
-      if ( v44 >= v34->imageBits.mBitCount )
+      if ( v34 >= v24->imageBits.mBitCount )
       {
-        LODWORD(v38) = v34->imageBits.mBitCount;
-        LODWORD(v37) = v44;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 605, ASSERT_TYPE_ASSERT, "(unsigned)( rhs ) < (unsigned)( mBitCount )", "rhs doesn't index mBitCount\n\t%i not in [0, %i)", v37, v38) )
+        LODWORD(v28) = v24->imageBits.mBitCount;
+        LODWORD(v27) = v34;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 605, ASSERT_TYPE_ASSERT, "(unsigned)( rhs ) < (unsigned)( mBitCount )", "rhs doesn't index mBitCount\n\t%i not in [0, %i)", v27, v28) )
           __debugbreak();
       }
-      v39.lhs = (int *)&v42;
-      v39.rhs = (int *)&v44;
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mAlloc);
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mLoading);
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mPriming);
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mUse);
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mLoaded);
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mStaticForced);
-      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v39, v34->imageBits.mValid);
-      v35 = streamFrontendGlob;
-      v36 = streamFrontendGlob->imageXPakPosition[v32];
-      streamFrontendGlob->imageXPakPosition[v32] = streamFrontendGlob->imageXPakPosition[v28];
-      v35->imageXPakPosition[v28] = v36;
-      v28 = (unsigned int)(v28 + 1);
-      v32 = (unsigned int)(v32 + 1);
-      --v33;
+      v29.lhs = (int *)&v32;
+      v29.rhs = (int *)&v34;
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mAlloc);
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mLoading);
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mPriming);
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mUse);
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mLoaded);
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mStaticForced);
+      _lambda_0cfe52a449506a58f3f65a204b9daded_::operator()(&v29, v24->imageBits.mValid);
+      v25 = streamFrontendGlob;
+      v26 = streamFrontendGlob->imageXPakPosition[v22];
+      streamFrontendGlob->imageXPakPosition[v22] = streamFrontendGlob->imageXPakPosition[v18];
+      v25->imageXPakPosition[v18] = v26;
+      v18 = (unsigned int)(v18 + 1);
+      v22 = (unsigned int)(v22 + 1);
+      --v23;
     }
-    while ( v33 );
-    ScopedCriticalSection::~ScopedCriticalSection(&v40);
-    GfxImageIndex = v41;
+    while ( v23 );
+    ScopedCriticalSection::~ScopedCriticalSection(&v30);
+    GfxImageIndex = v31;
   }
   Stream_ImageRecord_ValidateOnRelease(GfxImageIndex);
   return 1;
@@ -917,131 +902,126 @@ void Stream_DBPreMoveMesh(XModelSurfs *fromMesh, XModelSurfs *toMesh, bool toMes
   XSurfaceShared *shared; 
   XSurfaceShared *v13; 
   unsigned __int64 data; 
-  __int64 v21; 
-  unsigned int v22; 
-  __int64 v23; 
-  unsigned int *v24; 
-  unsigned int *v25; 
-  unsigned int v26; 
-  __int64 v27; 
-  __int64 v28; 
-  ScopedCriticalSection v29; 
+  __m256i v15; 
+  __m256i v16; 
+  __m256i v17; 
+  __int64 v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  unsigned int *v21; 
+  unsigned int *v22; 
+  unsigned int v23; 
+  __int64 v24; 
+  __int64 v25; 
+  ScopedCriticalSection v26; 
 
-  _RSI = toMesh;
-  _R14 = fromMesh;
   if ( !Sys_IsMainThread() && !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 458, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsDatabaseThread()") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 459, ASSERT_TYPE_ASSERT, "(fromMesh)", (const char *)&queryFormat, "fromMesh") )
+  if ( !fromMesh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 459, ASSERT_TYPE_ASSERT, "(fromMesh)", (const char *)&queryFormat, "fromMesh") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 460, ASSERT_TYPE_ASSERT, "(toMesh)", (const char *)&queryFormat, "toMesh") )
+  if ( !toMesh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 460, ASSERT_TYPE_ASSERT, "(toMesh)", (const char *)&queryFormat, "toMesh") )
     __debugbreak();
-  if ( g_usedDebugZone || !XModelSurfs_IsStreamed(_RSI) || !XModelSurfs_IsStreamed(_R14) )
+  if ( g_usedDebugZone || !XModelSurfs_IsStreamed(toMesh) || !XModelSurfs_IsStreamed(fromMesh) )
     goto LABEL_67;
   if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 469, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
     __debugbreak();
   if ( !toMeshOwnsResources && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 470, ASSERT_TYPE_ASSERT, "(toMeshOwnsResources)", (const char *)&queryFormat, "toMeshOwnsResources") )
     __debugbreak();
-  if ( _R14->xpakEntry.key == _RSI->xpakEntry.key )
+  if ( fromMesh->xpakEntry.key == toMesh->xpakEntry.key )
   {
-    if ( *((_BYTE *)&_R14->xpakEntry + 24) != *((_BYTE *)&_RSI->xpakEntry + 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 478, ASSERT_TYPE_ASSERT, "(fromXPakEntry.xpakIndex == toXPakEntry.xpakIndex)", (const char *)&queryFormat, "fromXPakEntry.xpakIndex == toXPakEntry.xpakIndex") )
+    if ( *((_BYTE *)&fromMesh->xpakEntry + 24) != *((_BYTE *)&toMesh->xpakEntry + 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 478, ASSERT_TYPE_ASSERT, "(fromXPakEntry.xpakIndex == toXPakEntry.xpakIndex)", (const char *)&queryFormat, "fromXPakEntry.xpakIndex == toXPakEntry.xpakIndex") )
       __debugbreak();
-    if ( _R14->xpakEntry.offset != _RSI->xpakEntry.offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 479, ASSERT_TYPE_ASSERT, "(fromXPakEntry.offset == toXPakEntry.offset)", (const char *)&queryFormat, "fromXPakEntry.offset == toXPakEntry.offset") )
+    if ( fromMesh->xpakEntry.offset != toMesh->xpakEntry.offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 479, ASSERT_TYPE_ASSERT, "(fromXPakEntry.offset == toXPakEntry.offset)", (const char *)&queryFormat, "fromXPakEntry.offset == toXPakEntry.offset") )
       __debugbreak();
-    if ( _R14->xpakEntry.size != _RSI->xpakEntry.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 480, ASSERT_TYPE_ASSERT, "(fromXPakEntry.size == toXPakEntry.size)", (const char *)&queryFormat, "fromXPakEntry.size == toXPakEntry.size") )
+    if ( fromMesh->xpakEntry.size != toMesh->xpakEntry.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 480, ASSERT_TYPE_ASSERT, "(fromXPakEntry.size == toXPakEntry.size)", (const char *)&queryFormat, "fromXPakEntry.size == toXPakEntry.size") )
       __debugbreak();
-    XModelSurfsIndex = DB_GetXModelSurfsIndex(_R14);
-    if ( streamFrontendGlob->meshXPakPosition[XModelSurfsIndex] != streamFrontendGlob->meshXPakPosition[DB_GetXModelSurfsIndex(_RSI)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 485, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->meshXPakPosition[fromIndex] == streamFrontendGlob->meshXPakPosition[toIndex])", (const char *)&queryFormat, "streamFrontendGlob->meshXPakPosition[fromIndex] == streamFrontendGlob->meshXPakPosition[toIndex]") )
+    XModelSurfsIndex = DB_GetXModelSurfsIndex(fromMesh);
+    if ( streamFrontendGlob->meshXPakPosition[XModelSurfsIndex] != streamFrontendGlob->meshXPakPosition[DB_GetXModelSurfsIndex(toMesh)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 485, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->meshXPakPosition[fromIndex] == streamFrontendGlob->meshXPakPosition[toIndex])", (const char *)&queryFormat, "streamFrontendGlob->meshXPakPosition[fromIndex] == streamFrontendGlob->meshXPakPosition[toIndex]") )
       __debugbreak();
-    name = _RSI->name;
+    name = toMesh->name;
     do
     {
-      v8 = (unsigned __int8)name[(unsigned __int64)(_R14->name - _RSI->name)];
+      v8 = (unsigned __int8)name[(unsigned __int64)(fromMesh->name - toMesh->name)];
       v9 = *(unsigned __int8 *)name - v8;
       if ( v9 )
         break;
       ++name;
     }
     while ( v8 );
-    if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 489, ASSERT_TYPE_ASSERT, "( ( 0 == strcmp( toMesh->name, fromMesh->name ) ) )", "( toMesh->name ) = %s", _RSI->name) )
+    if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 489, ASSERT_TYPE_ASSERT, "( ( 0 == strcmp( toMesh->name, fromMesh->name ) ) )", "( toMesh->name ) = %s", toMesh->name) )
       __debugbreak();
-    _RSI->name = _R14->name;
-    numsurfs = _RSI->numsurfs;
-    v11 = _R14->numsurfs;
+    toMesh->name = fromMesh->name;
+    numsurfs = toMesh->numsurfs;
+    v11 = fromMesh->numsurfs;
     if ( numsurfs != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 492, ASSERT_TYPE_ASSERT, "( toMesh->numsurfs ) == ( fromMesh->numsurfs )", "%s == %s\n\t%u, %u", "toMesh->numsurfs", "fromMesh->numsurfs", numsurfs, v11) )
       __debugbreak();
-    _RSI->surfs = _R14->surfs;
-    _RSI->ugbState = _R14->ugbState;
-    if ( memcmp_0(&_RSI->partBits, &_R14->partBits, 0x20ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 500, ASSERT_TYPE_ASSERT, "( ( 0 == memcmp( &toMesh->partBits, &fromMesh->partBits, sizeof( toMesh->partBits ) ) ) )", "( toMesh->name ) = %s", _RSI->name) )
+    toMesh->surfs = fromMesh->surfs;
+    toMesh->ugbState = fromMesh->ugbState;
+    if ( memcmp_0(&toMesh->partBits, &fromMesh->partBits, 0x20ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 500, ASSERT_TYPE_ASSERT, "( ( 0 == memcmp( &toMesh->partBits, &fromMesh->partBits, sizeof( toMesh->partBits ) ) ) )", "( toMesh->name ) = %s", toMesh->name) )
       __debugbreak();
-    if ( _RSI->shared->dataSize != _R14->shared->dataSize )
+    if ( toMesh->shared->dataSize != fromMesh->shared->dataSize )
     {
-      LODWORD(v28) = _R14->shared->dataSize;
-      LODWORD(v27) = _RSI->shared->dataSize;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 505, ASSERT_TYPE_ASSERT, "( toMesh->shared->dataSize ) == ( fromMesh->shared->dataSize )", "%s == %s\n\t%u, %u", "toMesh->shared->dataSize", "fromMesh->shared->dataSize", v27, v28) )
+      LODWORD(v25) = fromMesh->shared->dataSize;
+      LODWORD(v24) = toMesh->shared->dataSize;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 505, ASSERT_TYPE_ASSERT, "( toMesh->shared->dataSize ) == ( fromMesh->shared->dataSize )", "%s == %s\n\t%u, %u", "toMesh->shared->dataSize", "fromMesh->shared->dataSize", v24, v25) )
         __debugbreak();
     }
-    if ( _RSI->shared->flags != _R14->shared->flags )
+    if ( toMesh->shared->flags != fromMesh->shared->flags )
     {
-      LODWORD(v28) = _R14->shared->flags;
-      LODWORD(v27) = _RSI->shared->flags;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 506, ASSERT_TYPE_ASSERT, "( toMesh->shared->flags ) == ( fromMesh->shared->flags )", "%s == %s\n\t%u, %u", "toMesh->shared->flags", "fromMesh->shared->flags", v27, v28) )
+      LODWORD(v25) = fromMesh->shared->flags;
+      LODWORD(v24) = toMesh->shared->flags;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 506, ASSERT_TYPE_ASSERT, "( toMesh->shared->flags ) == ( fromMesh->shared->flags )", "%s == %s\n\t%u, %u", "toMesh->shared->flags", "fromMesh->shared->flags", v24, v25) )
         __debugbreak();
     }
-    shared = _RSI->shared;
-    _RSI->shared = _R14->shared;
-    _R14->shared = shared;
-    v13 = _RSI->shared;
+    shared = toMesh->shared;
+    toMesh->shared = fromMesh->shared;
+    fromMesh->shared = shared;
+    v13 = toMesh->shared;
     data = v13->data.streamedDataHandle.data;
     v13->data.streamedDataHandle.data = shared->data.streamedDataHandle.data;
     shared->data.streamedDataHandle.data = data;
-    Stream_DBPreReleaseMesh(_R14);
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [r14]
-      vmovups ymm3, ymmword ptr [r14+20h]
-      vmovups ymm4, ymmword ptr [r14+40h]
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymmword ptr [r14], ymm0
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [r14+20h], ymm1
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups ymmword ptr [r14+40h], ymm0
-      vmovups ymmword ptr [rsi], ymm2
-      vmovups ymmword ptr [rsi+20h], ymm3
-      vmovups ymmword ptr [rsi+40h], ymm4
-    }
+    Stream_DBPreReleaseMesh(fromMesh);
+    v15 = *(__m256i *)&fromMesh->name;
+    v16 = *(__m256i *)&fromMesh->xpakEntry.size;
+    v17 = *(__m256i *)((char *)&fromMesh->partBits + 4);
+    *(__m256i *)&fromMesh->name = *(__m256i *)&toMesh->name;
+    *(__m256i *)&fromMesh->xpakEntry.size = *(__m256i *)&toMesh->xpakEntry.size;
+    *(DObjPartBits *)((char *)&fromMesh->partBits + 4) = *(DObjPartBits *)((char *)&toMesh->partBits + 4);
+    *(__m256i *)&toMesh->name = v15;
+    *(__m256i *)&toMesh->xpakEntry.size = v16;
+    *(__m256i *)((char *)&toMesh->partBits + 4) = v17;
   }
   else
   {
 LABEL_67:
-    if ( XModelSurfs_IsStreamed(_RSI) )
+    if ( XModelSurfs_IsStreamed(toMesh) )
     {
       if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 521, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
         __debugbreak();
       if ( !toMeshOwnsResources && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 522, ASSERT_TYPE_ASSERT, "(toMeshOwnsResources)", (const char *)&queryFormat, "toMeshOwnsResources") )
         __debugbreak();
-      Stream_DBPreReleaseMesh(_RSI);
+      Stream_DBPreReleaseMesh(toMesh);
     }
-    if ( XModelSurfs_IsStreamed(_R14) )
+    if ( XModelSurfs_IsStreamed(fromMesh) )
     {
       if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_assethandlers.cpp", 528, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
         __debugbreak();
-      v21 = DB_GetXModelSurfsIndex(_R14);
-      v22 = DB_GetXModelSurfsIndex(_RSI);
-      v23 = v22;
-      Stream_Defrag_DBPatchMesh(_R14, v22);
+      v18 = DB_GetXModelSurfsIndex(fromMesh);
+      v19 = DB_GetXModelSurfsIndex(toMesh);
+      v20 = v19;
+      Stream_Defrag_DBPatchMesh(fromMesh, v19);
       Sys_ProfBeginNamedEvent(0xFF00FFFF, "StreamAlloc_Lock");
-      ScopedCriticalSection::ScopedCriticalSection(&v29, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
+      ScopedCriticalSection::ScopedCriticalSection(&v26, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
       Sys_ProfEndNamedEvent();
-      StreamableBits::BitSwap(&streamFrontendGlob->meshBits, v21, v23);
-      RequestBits::BitSwap(&streamFrontendGlob->meshRequest, v21, v23);
-      XPak_PatchAdjacencyInfo(_R14, v23);
-      v24 = &streamFrontendGlob->meshXPakPosition[v23];
-      v25 = &streamFrontendGlob->meshXPakPosition[v21];
-      v26 = *v25;
-      *v25 = *v24;
-      *v24 = v26;
-      ScopedCriticalSection::~ScopedCriticalSection(&v29);
+      StreamableBits::BitSwap(&streamFrontendGlob->meshBits, v18, v20);
+      RequestBits::BitSwap(&streamFrontendGlob->meshRequest, v18, v20);
+      XPak_PatchAdjacencyInfo(fromMesh, v20);
+      v21 = &streamFrontendGlob->meshXPakPosition[v20];
+      v22 = &streamFrontendGlob->meshXPakPosition[v18];
+      v23 = *v22;
+      *v22 = *v21;
+      *v21 = v23;
+      ScopedCriticalSection::~ScopedCriticalSection(&v26);
     }
   }
 }

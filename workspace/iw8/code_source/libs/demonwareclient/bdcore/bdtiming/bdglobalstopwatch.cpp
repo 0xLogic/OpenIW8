@@ -75,8 +75,8 @@ double bdGlobalStopwatch::getElapsedTimeInSeconds(bdGlobalStopwatch *this)
 {
   if ( this->m_start )
     return bdPlatformTiming::getLoResElapsedTimeFloat(this->m_start, bdGlobalStopwatch::s_current.m_value._My_val);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(double *)&_XMM0;
+  else
+    return 0.0;
 }
 
 /*

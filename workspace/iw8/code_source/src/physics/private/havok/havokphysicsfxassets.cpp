@@ -690,12 +690,13 @@ HavokPhysicsFX_GetShapeScale
 */
 float HavokPhysicsFX_GetShapeScale(PhysicsFXShape *physicsFXShape, int scaleIndex)
 {
+  __int64 v2; 
   int v4; 
   unsigned __int64 val; 
-  __int64 v9; 
+  __int64 v7; 
   unsigned __int64 key; 
 
-  _RDI = scaleIndex;
+  v2 = scaleIndex;
   if ( !HavokPhysicsFX_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 445, ASSERT_TYPE_ASSERT, "(HavokPhysicsFX_IsInitialized())", "%s\n\tHavokPhysicsFX - calling HavokPhysicsFX_GetFXShapes when system is not initialized", "HavokPhysicsFX_IsInitialized()") )
     __debugbreak();
   if ( !s_havokPhysicsFXHKShapes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 446, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes)", "%s\n\tHavokPhysicsFX - calling HavokPhysicsFX_GetFXShapes but Shape pointer map is NULL", "s_havokPhysicsFXHKShapes") )
@@ -707,15 +708,13 @@ float HavokPhysicsFX_GetShapeScale(PhysicsFXShape *physicsFXShape, int scaleInde
   val = s_havokPhysicsFXHKShapes->m_map.m_elem[v4].val;
   if ( !val && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 452, ASSERT_TYPE_ASSERT, "(shapeTuple)", (const char *)&queryFormat, "shapeTuple") )
     __debugbreak();
-  if ( (unsigned int)_RDI >= *(_DWORD *)(val + 24) )
+  if ( (unsigned int)v2 >= *(_DWORD *)(val + 24) )
   {
-    LODWORD(v9) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 455, ASSERT_TYPE_ASSERT, "(unsigned)( scaleIndex ) < (unsigned)( shapeTuple->m_1.getSize() )", "scaleIndex doesn't index shapeTuple->m_1.getSize()\n\t%i not in [0, %i)", v9, *(_DWORD *)(val + 24)) )
+    LODWORD(v7) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 455, ASSERT_TYPE_ASSERT, "(unsigned)( scaleIndex ) < (unsigned)( shapeTuple->m_1.getSize() )", "scaleIndex doesn't index shapeTuple->m_1.getSize()\n\t%i not in [0, %i)", v7, *(_DWORD *)(val + 24)) )
       __debugbreak();
   }
-  _RAX = *(_QWORD *)(val + 16);
-  __asm { vmovss  xmm0, dword ptr [rax+rdi*4] }
-  return *(float *)&_XMM0;
+  return *(float *)(*(_QWORD *)(val + 16) + 4 * v2);
 }
 
 /*
@@ -857,17 +856,15 @@ void HavokPhysicsFX_MovePhysicsFXPipeline(PhysicsFXPipeline *from, PhysicsFXPipe
   hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *> > *v4; 
   int *v5; 
   int m_size; 
-  int v9; 
-  int v10; 
-  unsigned __int32 v11; 
-  unsigned __int32 v12; 
-  int v13; 
-  PhysicsFXPipeline *v14; 
-  __int64 v15; 
-  __int64 v16; 
+  int v7; 
+  int v8; 
+  unsigned __int32 v9; 
+  unsigned __int32 v10; 
+  int v11; 
+  PhysicsFXPipeline *v12; 
+  __int64 v13; 
+  __int64 v14; 
 
-  _RDI = to;
-  _RSI = from;
   if ( !HavokPhysicsFX_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 164, ASSERT_TYPE_ASSERT, "(HavokPhysicsFX_IsInitialized())", "%s\n\tHavokPhysicsFX - calling MovePhysicsFXPipeline when system is not initialized", "HavokPhysicsFX_IsInitialized()") )
     __debugbreak();
   HavokPhysicsFX_LockAssetWrite();
@@ -878,48 +875,43 @@ void HavokPhysicsFX_MovePhysicsFXPipeline(PhysicsFXPipeline *from, PhysicsFXPipe
       __debugbreak();
     v4 = s_havokPhysicsFXPipelines;
   }
-  LODWORD(v5) = hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v15);
+  LODWORD(v5) = hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v13);
   if ( *v5 < 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 170, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->remove( from ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->remove( from ).isSuccess()") )
       __debugbreak();
     v4 = s_havokPhysicsFXPipelines;
   }
-  hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v16);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-  }
+  hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v14);
+  *(__m256i *)&to->name = *(__m256i *)&from->name;
+  *(_OWORD *)&to->integrator.u.basicIntegrator = *(_OWORD *)&from->integrator.u.basicIntegrator;
   m_size = v4->m_elem.m_size;
   if ( 2 * v4->m_numElems > m_size - 1 )
   {
-    hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::resizeTable(v4, (int)&v15);
+    hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::resizeTable(v4, (int)&v13);
     m_size = v4->m_elem.m_size;
   }
-  v9 = m_size - 1;
-  v10 = 1;
-  v11 = _byteswap_ulong(-1640531535 * (_DWORD)_RDI);
-  v12 = _byteswap_ulong(-1640531535 * HIDWORD(_RDI));
-  v13 = v9 & (v12 ^ ((v11 >> 2) + v11 + (v12 << 6) - 1640531527));
-  v14 = v4->m_elem.m_data[v13];
-  if ( v14 != (PhysicsFXPipeline *)-1i64 )
+  v7 = m_size - 1;
+  v8 = 1;
+  v9 = _byteswap_ulong(-1640531535 * (_DWORD)to);
+  v10 = _byteswap_ulong(-1640531535 * HIDWORD(to));
+  v11 = v7 & (v10 ^ ((v9 >> 2) + v9 + (v10 << 6) - 1640531527));
+  v12 = v4->m_elem.m_data[v11];
+  if ( v12 != (PhysicsFXPipeline *)-1i64 )
   {
-    while ( v14 != _RDI )
+    while ( v12 != to )
     {
-      v13 = v9 & (v13 + 1);
-      v14 = v4->m_elem.m_data[v13];
-      if ( v14 == (PhysicsFXPipeline *)-1i64 )
+      v11 = v7 & (v11 + 1);
+      v12 = v4->m_elem.m_data[v11];
+      if ( v12 == (PhysicsFXPipeline *)-1i64 )
         goto LABEL_19;
     }
-    v10 = 0;
+    v8 = 0;
   }
 LABEL_19:
-  v4->m_numElems += v10;
-  v4->m_elem.m_data[v13] = _RDI;
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 175, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->insert( to )") )
+  v4->m_numElems += v8;
+  v4->m_elem.m_data[v11] = to;
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 175, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->insert( to )") )
     __debugbreak();
   s_havokPhysicsFXAssetLock.writeThreadId = 0;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_havokPhysicsFXAssetLock);
@@ -942,23 +934,21 @@ void HavokPhysicsFX_MovePhysicsFXShape(PhysicsFXShape *from, PhysicsFXShape *to)
   int *v10; 
   int *v11; 
   int m_size; 
-  int v15; 
-  int v16; 
-  unsigned __int32 v17; 
-  unsigned __int32 v18; 
-  int v19; 
+  int v13; 
+  int v14; 
+  unsigned __int32 v15; 
+  unsigned __int32 v16; 
+  int v17; 
   PhysicsFXShape **m_data; 
-  int v21; 
-  PhysicsFXShape *v22; 
-  hkPointerMap<PhysicsFXShape *,hkTuple<hkArray<hknpConvexShape *,hkContainerHeapAllocator>,hkArray<float,hkContainerHeapAllocator>,void,void,void,void,void,void> *,hkContainerHeapAllocator> *v23; 
-  hkMemoryAllocator *v24; 
-  unsigned __int64 v25; 
+  int v19; 
+  PhysicsFXShape *v20; 
+  hkPointerMap<PhysicsFXShape *,hkTuple<hkArray<hknpConvexShape *,hkContainerHeapAllocator>,hkArray<float,hkContainerHeapAllocator>,void,void,void,void,void,void> *,hkContainerHeapAllocator> *v21; 
+  hkMemoryAllocator *v22; 
+  unsigned __int64 v23; 
+  PhysicsFXShape *v24; 
+  PhysicsFXShape *v25; 
   PhysicsFXShape *v26; 
-  __int64 v27; 
-  __int64 v28; 
 
-  _RDI = (__int64)to;
-  _RSI = from;
   if ( !HavokPhysicsFX_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 294, ASSERT_TYPE_ASSERT, "(HavokPhysicsFX_IsInitialized())", "%s\n\tHavokPhysicsFX - calling MovePhysicsFXShape when system is not initialized", "HavokPhysicsFX_IsInitialized()") )
     __debugbreak();
   HavokPhysicsFX_LockAssetWrite();
@@ -966,8 +956,8 @@ void HavokPhysicsFX_MovePhysicsFXShape(PhysicsFXShape *from, PhysicsFXShape *to)
     __debugbreak();
   if ( !s_havokPhysicsFXHKShapes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 299, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes)", "%s\n\tHavokPhysicsFX - calling MovePhysicsFXShape but HK Shape pointer map is NULL", "s_havokPhysicsFXHKShapes") )
     __debugbreak();
-  v26 = _RSI;
-  Key = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsFXHKShapes->m_map, (const unsigned __int64 *)&v26);
+  v24 = from;
+  Key = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsFXHKShapes->m_map, (const unsigned __int64 *)&v24);
   v5 = s_havokPhysicsFXHKShapes;
   v6 = Key;
   if ( Key > s_havokPhysicsFXHKShapes->m_map.m_hashMod )
@@ -977,72 +967,67 @@ void HavokPhysicsFX_MovePhysicsFXShape(PhysicsFXShape *from, PhysicsFXShape *to)
     v5 = s_havokPhysicsFXHKShapes;
   }
   m_elem = v5->m_map.m_elem;
-  v27 = (__int64)_RSI;
+  v25 = from;
   val = m_elem[v6].val;
-  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&v5->m_map, &v25);
-  if ( (v25 & 0x80000000) != 0i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 308, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( from ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( from ).isSuccess()") )
+  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&v5->m_map, &v23);
+  if ( (v23 & 0x80000000) != 0i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 308, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( from ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( from ).isSuccess()") )
     __debugbreak();
-  v28 = _RDI;
-  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokPhysicsFXHKShapes->m_map, (const unsigned __int64 *)&v26);
-  if ( (int)v26 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 309, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( to ).isSuccess()") )
+  v26 = to;
+  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokPhysicsFXHKShapes->m_map, (const unsigned __int64 *)&v24);
+  if ( (int)v24 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 309, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( to ).isSuccess()") )
     __debugbreak();
   v9 = s_havokPhysicsFXShapes;
-  LODWORD(v10) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(s_havokPhysicsFXShapes, (PhysicsFXShape *)&v25);
+  LODWORD(v10) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(s_havokPhysicsFXShapes, (PhysicsFXShape *)&v23);
   if ( *v10 < 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 311, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->remove( from ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXShapes->remove( from ).isSuccess()") )
       __debugbreak();
     v9 = s_havokPhysicsFXShapes;
   }
-  LODWORD(v11) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(v9, (PhysicsFXShape *)&v26);
+  LODWORD(v11) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(v9, (PhysicsFXShape *)&v24);
   if ( *v11 < 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 312, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXShapes->remove( to ).isSuccess()") )
       __debugbreak();
     v9 = s_havokPhysicsFXShapes;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-  }
+  *(__m256i *)&to->name = *(__m256i *)&from->name;
+  *(_OWORD *)&to->soundMinImpulse = *(_OWORD *)&from->soundMinImpulse;
   m_size = v9->m_elem.m_size;
   if ( 2 * v9->m_numElems > m_size - 1 )
   {
-    hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::resizeTable(v9, (int)&v25);
+    hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::resizeTable(v9, (int)&v23);
     m_size = v9->m_elem.m_size;
   }
-  v15 = m_size - 1;
-  v16 = 1;
-  v17 = _byteswap_ulong(-1640531535 * _RDI);
-  v18 = _byteswap_ulong(-1640531535 * HIDWORD(_RDI));
-  v19 = v18 ^ ((v17 >> 2) + v17 + (v18 << 6) - 1640531527);
+  v13 = m_size - 1;
+  v14 = 1;
+  v15 = _byteswap_ulong(-1640531535 * (_DWORD)to);
+  v16 = _byteswap_ulong(-1640531535 * HIDWORD(to));
+  v17 = v16 ^ ((v15 >> 2) + v15 + (v16 << 6) - 1640531527);
   m_data = v9->m_elem.m_data;
-  v21 = v15 & v19;
-  v22 = v9->m_elem.m_data[v21];
-  if ( v22 != (PhysicsFXShape *)-1i64 )
+  v19 = v13 & v17;
+  v20 = v9->m_elem.m_data[v19];
+  if ( v20 != (PhysicsFXShape *)-1i64 )
   {
-    while ( v22 != (PhysicsFXShape *)_RDI )
+    while ( v20 != to )
     {
-      v21 = v15 & (v21 + 1);
-      v22 = m_data[v21];
-      if ( v22 == (PhysicsFXShape *)-1i64 )
+      v19 = v13 & (v19 + 1);
+      v20 = m_data[v19];
+      if ( v20 == (PhysicsFXShape *)-1i64 )
         goto LABEL_35;
     }
-    v16 = 0;
+    v14 = 0;
   }
 LABEL_35:
-  v9->m_numElems += v16;
-  m_data[v21] = (PhysicsFXShape *)_RDI;
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 318, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXShapes->insert( to )") )
+  v9->m_numElems += v14;
+  m_data[v19] = to;
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 318, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXShapes->insert( to )") )
     __debugbreak();
-  v23 = s_havokPhysicsFXHKShapes;
-  v25 = val;
-  v27 = _RDI;
-  v24 = hkMemHeapAllocator();
-  if ( !hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::insert(&v23->m_map, v24, (const unsigned __int64 *)&v27, &v25) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 320, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple )") )
+  v21 = s_havokPhysicsFXHKShapes;
+  v23 = val;
+  v25 = to;
+  v22 = hkMemHeapAllocator();
+  if ( !hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::insert(&v21->m_map, v22, (const unsigned __int64 *)&v25, &v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 320, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple )") )
     __debugbreak();
   s_havokPhysicsFXAssetLock.writeThreadId = 0;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_havokPhysicsFXAssetLock);
@@ -1207,27 +1192,27 @@ void HavokPhysicsFX_SwapPhysicsFXPipeline(PhysicsFXPipeline *from, PhysicsFXPipe
   hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *> > *v4; 
   int *v5; 
   int *v6; 
+  __m256i v7; 
+  __int128 v8; 
   int m_size; 
   int *p_m_numElems; 
-  hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *> > *v13; 
+  hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *> > *v11; 
+  int v12; 
+  int v13; 
   int v14; 
-  int v15; 
-  int v16; 
-  unsigned __int32 v17; 
-  unsigned __int32 v18; 
+  unsigned __int32 v15; 
+  unsigned __int32 v16; 
+  int v17; 
+  PhysicsFXPipeline *v18; 
   int v19; 
-  PhysicsFXPipeline *v20; 
-  int v21; 
-  int v22; 
-  unsigned __int32 v23; 
-  unsigned __int32 v24; 
-  int v25; 
-  PhysicsFXPipeline *v26; 
-  __int64 v27; 
-  __int64 v28; 
+  int v20; 
+  unsigned __int32 v21; 
+  unsigned __int32 v22; 
+  int v23; 
+  PhysicsFXPipeline *v24; 
+  __int64 v25; 
+  __int64 v26; 
 
-  _RSI = to;
-  _RDI = from;
   if ( !HavokPhysicsFX_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 143, ASSERT_TYPE_ASSERT, "(HavokPhysicsFX_IsInitialized())", "%s\n\tHavokPhysicsFX - calling SwapPhysicsFXPipeline when system is not initialized", "HavokPhysicsFX_IsInitialized()") )
     __debugbreak();
   HavokPhysicsFX_LockAssetWrite();
@@ -1238,93 +1223,88 @@ void HavokPhysicsFX_SwapPhysicsFXPipeline(PhysicsFXPipeline *from, PhysicsFXPipe
       __debugbreak();
     v4 = s_havokPhysicsFXPipelines;
   }
-  LODWORD(v5) = hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v27);
+  LODWORD(v5) = hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v25);
   if ( *v5 < 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 149, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->remove( from ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->remove( from ).isSuccess()") )
       __debugbreak();
     v4 = s_havokPhysicsFXPipelines;
   }
-  LODWORD(v6) = hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v28);
+  LODWORD(v6) = hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::remove(v4, (PhysicsFXPipeline *)&v26);
   if ( *v6 < 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 150, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->remove( to ).isSuccess()") )
       __debugbreak();
     v4 = s_havokPhysicsFXPipelines;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymm2, ymmword ptr [rdi]
-    vmovups xmm3, xmmword ptr [rdi+20h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovups ymmword ptr [rsi], ymm2
-    vmovups xmmword ptr [rsi+20h], xmm3
-  }
+  v7 = *(__m256i *)&from->name;
+  v8 = *(_OWORD *)&from->integrator.u.basicIntegrator;
+  *(__m256i *)&from->name = *(__m256i *)&to->name;
+  *(_OWORD *)&from->integrator.u.basicIntegrator = *(_OWORD *)&to->integrator.u.basicIntegrator;
+  *(__m256i *)&to->name = v7;
+  *(_OWORD *)&to->integrator.u.basicIntegrator = v8;
   m_size = v4->m_elem.m_size;
   p_m_numElems = &v4->m_numElems;
-  v13 = v4;
+  v11 = v4;
   if ( 2 * v4->m_numElems > m_size - 1 )
   {
-    hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::resizeTable(v4, (int)&v27);
+    hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::resizeTable(v4, (int)&v25);
     m_size = v4->m_elem.m_size;
     v4 = s_havokPhysicsFXPipelines;
   }
-  v14 = m_size - 1;
-  v15 = 1;
-  v16 = 1;
-  v17 = _byteswap_ulong(-1640531535 * (_DWORD)_RDI);
-  v18 = _byteswap_ulong(-1640531535 * HIDWORD(_RDI));
-  v19 = v14 & (v18 ^ ((v17 >> 2) + v17 + (v18 << 6) - 1640531527));
-  v20 = v13->m_elem.m_data[v19];
-  if ( v20 != (PhysicsFXPipeline *)-1i64 )
+  v12 = m_size - 1;
+  v13 = 1;
+  v14 = 1;
+  v15 = _byteswap_ulong(-1640531535 * (_DWORD)from);
+  v16 = _byteswap_ulong(-1640531535 * HIDWORD(from));
+  v17 = v12 & (v16 ^ ((v15 >> 2) + v15 + (v16 << 6) - 1640531527));
+  v18 = v11->m_elem.m_data[v17];
+  if ( v18 != (PhysicsFXPipeline *)-1i64 )
   {
-    while ( v20 != _RDI )
+    while ( v18 != from )
     {
-      v19 = v14 & (v19 + 1);
-      v20 = v13->m_elem.m_data[v19];
-      if ( v20 == (PhysicsFXPipeline *)-1i64 )
+      v17 = v12 & (v17 + 1);
+      v18 = v11->m_elem.m_data[v17];
+      if ( v18 == (PhysicsFXPipeline *)-1i64 )
         goto LABEL_23;
     }
-    v16 = 0;
+    v14 = 0;
   }
 LABEL_23:
-  *p_m_numElems += v16;
-  v13->m_elem.m_data[v19] = _RDI;
-  if ( !v16 )
+  *p_m_numElems += v14;
+  v11->m_elem.m_data[v17] = from;
+  if ( !v14 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 154, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->insert( from ))", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->insert( from )") )
       __debugbreak();
     v4 = s_havokPhysicsFXPipelines;
   }
-  v21 = v4->m_elem.m_size;
-  if ( 2 * v4->m_numElems > v21 - 1 )
+  v19 = v4->m_elem.m_size;
+  if ( 2 * v4->m_numElems > v19 - 1 )
   {
-    hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::resizeTable(v4, (int)&v27);
-    v21 = v4->m_elem.m_size;
+    hkSet<PhysicsFXPipeline *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXPipeline *>>::resizeTable(v4, (int)&v25);
+    v19 = v4->m_elem.m_size;
   }
-  v22 = v21 - 1;
-  v23 = _byteswap_ulong(-1640531535 * (_DWORD)_RSI);
-  v24 = _byteswap_ulong(-1640531535 * HIDWORD(_RSI));
-  v25 = v22 & (v24 ^ ((v23 >> 2) + v23 + (v24 << 6) - 1640531527));
-  v26 = v4->m_elem.m_data[v25];
-  if ( v26 != (PhysicsFXPipeline *)-1i64 )
+  v20 = v19 - 1;
+  v21 = _byteswap_ulong(-1640531535 * (_DWORD)to);
+  v22 = _byteswap_ulong(-1640531535 * HIDWORD(to));
+  v23 = v20 & (v22 ^ ((v21 >> 2) + v21 + (v22 << 6) - 1640531527));
+  v24 = v4->m_elem.m_data[v23];
+  if ( v24 != (PhysicsFXPipeline *)-1i64 )
   {
-    while ( v26 != _RSI )
+    while ( v24 != to )
     {
-      v25 = v22 & (v25 + 1);
-      v26 = v4->m_elem.m_data[v25];
-      if ( v26 == (PhysicsFXPipeline *)-1i64 )
+      v23 = v20 & (v23 + 1);
+      v24 = v4->m_elem.m_data[v23];
+      if ( v24 == (PhysicsFXPipeline *)-1i64 )
         goto LABEL_34;
     }
-    v15 = 0;
+    v13 = 0;
   }
 LABEL_34:
-  v4->m_numElems += v15;
-  v4->m_elem.m_data[v25] = _RSI;
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 155, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->insert( to )") )
+  v4->m_numElems += v13;
+  v4->m_elem.m_data[v23] = to;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 155, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXPipelines->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXPipelines->insert( to )") )
     __debugbreak();
   s_havokPhysicsFXAssetLock.writeThreadId = 0;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_havokPhysicsFXAssetLock);
@@ -1344,36 +1324,36 @@ void HavokPhysicsFX_SwapPhysicsFXShape(PhysicsFXShape *from, PhysicsFXShape *to)
   hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *> > *v7; 
   int *v8; 
   int *v9; 
+  __m256i v10; 
+  __int128 v11; 
   int m_size; 
   int *p_m_numElems; 
-  hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *> > *v16; 
+  hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *> > *v14; 
+  int v15; 
+  int v16; 
   int v17; 
-  int v18; 
-  int v19; 
-  unsigned __int32 v20; 
-  unsigned __int32 v21; 
+  unsigned __int32 v18; 
+  unsigned __int32 v19; 
+  int v20; 
+  PhysicsFXShape *v21; 
   int v22; 
-  PhysicsFXShape *v23; 
-  int v24; 
-  int v25; 
-  unsigned __int32 v26; 
-  unsigned __int32 v27; 
-  int v28; 
+  int v23; 
+  unsigned __int32 v24; 
+  unsigned __int32 v25; 
+  int v26; 
   PhysicsFXShape **m_data; 
-  int v30; 
-  PhysicsFXShape *v31; 
+  int v28; 
+  PhysicsFXShape *v29; 
+  hkPointerMap<PhysicsFXShape *,hkTuple<hkArray<hknpConvexShape *,hkContainerHeapAllocator>,hkArray<float,hkContainerHeapAllocator>,void,void,void,void,void,void> *,hkContainerHeapAllocator> *v30; 
+  hkMemoryAllocator *v31; 
   hkPointerMap<PhysicsFXShape *,hkTuple<hkArray<hknpConvexShape *,hkContainerHeapAllocator>,hkArray<float,hkContainerHeapAllocator>,void,void,void,void,void,void> *,hkContainerHeapAllocator> *v32; 
   hkMemoryAllocator *v33; 
-  hkPointerMap<PhysicsFXShape *,hkTuple<hkArray<hknpConvexShape *,hkContainerHeapAllocator>,hkArray<float,hkContainerHeapAllocator>,void,void,void,void,void,void> *,hkContainerHeapAllocator> *v34; 
-  hkMemoryAllocator *v35; 
-  unsigned __int64 v36; 
+  unsigned __int64 v34; 
   unsigned __int64 key; 
-  unsigned __int64 v38; 
-  unsigned __int64 v39; 
-  unsigned __int64 v40; 
+  PhysicsFXShape *v36; 
+  PhysicsFXShape *v37; 
+  PhysicsFXShape *v38; 
 
-  _RDI = (unsigned __int64)to;
-  _RSI = (unsigned __int64)from;
   if ( !HavokPhysicsFX_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 254, ASSERT_TYPE_ASSERT, "(HavokPhysicsFX_IsInitialized())", "%s\n\tHavokPhysicsFX - calling SwapPhysicsFXShape when system is not initialized", "HavokPhysicsFX_IsInitialized()") )
     __debugbreak();
   HavokPhysicsFX_LockAssetWrite();
@@ -1381,23 +1361,23 @@ void HavokPhysicsFX_SwapPhysicsFXShape(PhysicsFXShape *from, PhysicsFXShape *to)
     __debugbreak();
   if ( !s_havokPhysicsFXHKShapes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 259, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes)", "%s\n\tHavokPhysicsFX - calling SwapPhysicsFXShape but HK Shape pointer map is NULL", "s_havokPhysicsFXHKShapes") )
     __debugbreak();
-  key = _RSI;
+  key = (unsigned __int64)from;
   v4 = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsFXHKShapes->m_map, &key);
-  v38 = _RDI;
-  v5 = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsFXHKShapes->m_map, &v38);
+  v36 = to;
+  v5 = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsFXHKShapes->m_map, (const unsigned __int64 *)&v36);
   if ( v4 > s_havokPhysicsFXHKShapes->m_map.m_hashMod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 264, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->isValid( fromIt ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->isValid( fromIt )") )
     __debugbreak();
   if ( v5 > s_havokPhysicsFXHKShapes->m_map.m_hashMod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 265, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->isValid( toIt ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->isValid( toIt )") )
     __debugbreak();
-  v39 = _RSI;
+  v37 = from;
   val = s_havokPhysicsFXHKShapes->m_map.m_elem[v4].val;
-  v36 = s_havokPhysicsFXHKShapes->m_map.m_elem[v5].val;
+  v34 = s_havokPhysicsFXHKShapes->m_map.m_elem[v5].val;
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokPhysicsFXHKShapes->m_map, &key);
   if ( (key & 0x80000000) != 0i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 271, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( from ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( from ).isSuccess()") )
     __debugbreak();
-  v40 = _RDI;
-  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokPhysicsFXHKShapes->m_map, &v38);
-  if ( (v38 & 0x80000000) != 0i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 272, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( to ).isSuccess()") )
+  v38 = to;
+  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokPhysicsFXHKShapes->m_map, (const unsigned __int64 *)&v36);
+  if ( (int)v36 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 272, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->remove( to ).isSuccess()") )
     __debugbreak();
   v7 = s_havokPhysicsFXShapes;
   LODWORD(v8) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(s_havokPhysicsFXShapes, (PhysicsFXShape *)&key);
@@ -1407,100 +1387,95 @@ void HavokPhysicsFX_SwapPhysicsFXShape(PhysicsFXShape *from, PhysicsFXShape *to)
       __debugbreak();
     v7 = s_havokPhysicsFXShapes;
   }
-  LODWORD(v9) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(v7, (PhysicsFXShape *)&v38);
+  LODWORD(v9) = hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::remove(v7, (PhysicsFXShape *)&v36);
   if ( *v9 < 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 275, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->remove( to ).isSuccess())", (const char *)&queryFormat, "s_havokPhysicsFXShapes->remove( to ).isSuccess()") )
       __debugbreak();
     v7 = s_havokPhysicsFXShapes;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymm2, ymmword ptr [rsi]
-    vmovups xmm3, xmmword ptr [rsi+20h]
-    vmovups ymmword ptr [rsi], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsi+20h], xmm1
-    vmovups ymmword ptr [rdi], ymm2
-    vmovups xmmword ptr [rdi+20h], xmm3
-  }
+  v10 = *(__m256i *)&from->name;
+  v11 = *(_OWORD *)&from->soundMinImpulse;
+  *(__m256i *)&from->name = *(__m256i *)&to->name;
+  *(_OWORD *)&from->soundMinImpulse = *(_OWORD *)&to->soundMinImpulse;
+  *(__m256i *)&to->name = v10;
+  *(_OWORD *)&to->soundMinImpulse = v11;
   m_size = v7->m_elem.m_size;
   p_m_numElems = &v7->m_numElems;
-  v16 = v7;
+  v14 = v7;
   if ( 2 * v7->m_numElems > m_size - 1 )
   {
     hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::resizeTable(v7, (int)&key);
     m_size = v7->m_elem.m_size;
     v7 = s_havokPhysicsFXShapes;
   }
-  v17 = m_size - 1;
-  v18 = 1;
-  v19 = 1;
-  v20 = _byteswap_ulong(-1640531535 * _RSI);
-  v21 = _byteswap_ulong(-1640531535 * HIDWORD(_RSI));
-  v22 = v17 & (v21 ^ ((v20 >> 2) + v20 + (v21 << 6) - 1640531527));
-  v23 = v16->m_elem.m_data[v22];
-  if ( v23 != (PhysicsFXShape *)-1i64 )
+  v15 = m_size - 1;
+  v16 = 1;
+  v17 = 1;
+  v18 = _byteswap_ulong(-1640531535 * (_DWORD)from);
+  v19 = _byteswap_ulong(-1640531535 * HIDWORD(from));
+  v20 = v15 & (v19 ^ ((v18 >> 2) + v18 + (v19 << 6) - 1640531527));
+  v21 = v14->m_elem.m_data[v20];
+  if ( v21 != (PhysicsFXShape *)-1i64 )
   {
-    while ( v23 != (PhysicsFXShape *)_RSI )
+    while ( v21 != from )
     {
-      v22 = v17 & (v22 + 1);
-      v23 = v16->m_elem.m_data[v22];
-      if ( v23 == (PhysicsFXShape *)-1i64 )
+      v20 = v15 & (v20 + 1);
+      v21 = v14->m_elem.m_data[v20];
+      if ( v21 == (PhysicsFXShape *)-1i64 )
         goto LABEL_37;
     }
-    v19 = 0;
+    v17 = 0;
   }
 LABEL_37:
-  *p_m_numElems += v19;
-  v16->m_elem.m_data[v22] = (PhysicsFXShape *)_RSI;
-  if ( !v19 )
+  *p_m_numElems += v17;
+  v14->m_elem.m_data[v20] = from;
+  if ( !v17 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 281, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->insert( from ))", (const char *)&queryFormat, "s_havokPhysicsFXShapes->insert( from )") )
       __debugbreak();
     v7 = s_havokPhysicsFXShapes;
   }
-  v24 = v7->m_elem.m_size;
-  if ( 2 * v7->m_numElems > v24 - 1 )
+  v22 = v7->m_elem.m_size;
+  if ( 2 * v7->m_numElems > v22 - 1 )
   {
     hkSet<PhysicsFXShape *,hkContainerHeapAllocator,hkMapOperations<PhysicsFXShape *>>::resizeTable(v7, (int)&key);
-    v24 = v7->m_elem.m_size;
+    v22 = v7->m_elem.m_size;
   }
-  v25 = v24 - 1;
-  v26 = _byteswap_ulong(-1640531535 * _RDI);
-  v27 = _byteswap_ulong(-1640531535 * HIDWORD(_RDI));
-  v28 = v27 ^ ((v26 >> 2) + v26 + (v27 << 6) - 1640531527);
+  v23 = v22 - 1;
+  v24 = _byteswap_ulong(-1640531535 * (_DWORD)to);
+  v25 = _byteswap_ulong(-1640531535 * HIDWORD(to));
+  v26 = v25 ^ ((v24 >> 2) + v24 + (v25 << 6) - 1640531527);
   m_data = v7->m_elem.m_data;
-  v30 = v25 & v28;
-  v31 = v7->m_elem.m_data[v30];
-  if ( v31 != (PhysicsFXShape *)-1i64 )
+  v28 = v23 & v26;
+  v29 = v7->m_elem.m_data[v28];
+  if ( v29 != (PhysicsFXShape *)-1i64 )
   {
-    while ( v31 != (PhysicsFXShape *)_RDI )
+    while ( v29 != to )
     {
-      v30 = v25 & (v30 + 1);
-      v31 = m_data[v30];
-      if ( v31 == (PhysicsFXShape *)-1i64 )
+      v28 = v23 & (v28 + 1);
+      v29 = m_data[v28];
+      if ( v29 == (PhysicsFXShape *)-1i64 )
         goto LABEL_48;
     }
-    v18 = 0;
+    v16 = 0;
   }
 LABEL_48:
-  v7->m_numElems += v18;
-  m_data[v30] = (PhysicsFXShape *)_RDI;
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 282, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXShapes->insert( to )") )
+  v7->m_numElems += v16;
+  m_data[v28] = to;
+  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 282, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXShapes->insert( to ))", (const char *)&queryFormat, "s_havokPhysicsFXShapes->insert( to )") )
+    __debugbreak();
+  v30 = s_havokPhysicsFXHKShapes;
+  key = val;
+  v37 = to;
+  v31 = hkMemHeapAllocator();
+  if ( !hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::insert(&v30->m_map, v31, (const unsigned __int64 *)&v37, &key) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 284, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple )") )
     __debugbreak();
   v32 = s_havokPhysicsFXHKShapes;
-  key = val;
-  v39 = _RDI;
+  v36 = (PhysicsFXShape *)v34;
+  v38 = from;
   v33 = hkMemHeapAllocator();
-  if ( !hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::insert(&v32->m_map, v33, &v39, &key) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 284, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->insert( to, fromShapeTuple )") )
-    __debugbreak();
-  v34 = s_havokPhysicsFXHKShapes;
-  v38 = v36;
-  v40 = _RSI;
-  v35 = hkMemHeapAllocator();
-  if ( !hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::insert(&v34->m_map, v35, &v40, &v38) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 285, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->insert( from, toShapeTuple ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->insert( from, toShapeTuple )") )
+  if ( !hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::insert(&v32->m_map, v33, (const unsigned __int64 *)&v38, (const unsigned __int64 *)&v36) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsfxassets.cpp", 285, ASSERT_TYPE_ASSERT, "(s_havokPhysicsFXHKShapes->insert( from, toShapeTuple ))", (const char *)&queryFormat, "s_havokPhysicsFXHKShapes->insert( from, toShapeTuple )") )
     __debugbreak();
   s_havokPhysicsFXAssetLock.writeThreadId = 0;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_havokPhysicsFXAssetLock);

@@ -2402,8 +2402,8 @@ FindSimplePath
 */
 int FindSimplePath(path_t *path, const vec3_t *start, const vec3_t *end, pathnode_t *startNode, pathnode_t *endNode, int traceMask)
 {
-  bool v11; 
-  team_t v12; 
+  bool v10; 
+  team_t v11; 
   pathnode_t *pNodeFrom; 
   pathnode_t *pNodeTo; 
   PathFindInput pathFindInput; 
@@ -2415,12 +2415,11 @@ int FindSimplePath(path_t *path, const vec3_t *start, const vec3_t *end, pathnod
   if ( !path && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3396, ASSERT_TYPE_ASSERT, "( path )", (const char *)&queryFormat, "path") )
     __debugbreak();
   pathFindInput.pPath = path;
-  v11 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
-  v12 = TEAM_FOLLOWER;
-  if ( v11 )
-    v12 = TEAM_FOUR;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  pathFindInput.pPath->eTeam = v12;
+  v10 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
+  v11 = TEAM_FOLLOWER;
+  if ( v10 )
+    v11 = TEAM_FOUR;
+  pathFindInput.pPath->eTeam = v11;
   pathFindInput.pPath->iTraceMask = traceMask;
   pNodeFrom = pathFindInput.pNodeFrom;
   pathFindInput.useChokePoints = 0;
@@ -2429,7 +2428,7 @@ int FindSimplePath(path_t *path, const vec3_t *start, const vec3_t *end, pathnod
   path->fLookaheadAmount = 0.0;
   pathFindInput.pNodeFrom = pNodeFrom;
   pNodeTo = pathFindInput.pNodeTo;
-  __asm { vmovss  [rsp+188h+pathFindInput.badplacePercent], xmm0 }
+  pathFindInput.badplacePercent = 0.0;
   if ( endNode )
     pNodeTo = endNode;
   pathFindInput.vStartPos = start;
@@ -2673,137 +2672,106 @@ G_ParsePathnodeScriptFields
 */
 void G_ParsePathnodeScriptFields(pathnode_t *node)
 {
-  int v4; 
+  int v3; 
   scr_string_t *p_targetname; 
   char *(*spawnVars)[2]; 
-  const char *v8; 
-  const char *v9; 
-  unsigned int v10; 
-  bool v11; 
-  bool v12; 
+  const char *v6; 
+  const char *v7; 
   scr_string_t String; 
   scr_string_t *name; 
-  node_field_t *v19; 
+  node_field_t *v10; 
   unsigned int CanonicalString; 
-  scrContext_t *v21; 
+  scrContext_t *v12; 
   unsigned int Field; 
-  int v23; 
-  unsigned __int16 v25; 
-  __int64 v27; 
+  int v14; 
+  unsigned __int16 v16; 
+  __int64 v17; 
   VariableType type[8]; 
-  int v29; 
-  int v30; 
-  char v31; 
+  float v19; 
+  float v20; 
+  char v21; 
   vec3_t pos; 
 
   if ( !level.spawnVar.spawnVarsValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2220, ASSERT_TYPE_ASSERT, "(level.spawnVar.spawnVarsValid)", (const char *)&queryFormat, "level.spawnVar.spawnVarsValid") )
     __debugbreak();
-  v4 = 0;
+  v3 = 0;
   if ( level.spawnVar.numSpawnVars > 0 )
   {
     p_targetname = &node->constant.targetname;
     spawnVars = level.spawnVar.spawnVars;
-    __asm
+    do
     {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3c23d70b
-    }
-    while ( 1 )
-    {
-      v8 = (*spawnVars)[1];
-      v9 = (*spawnVars)[0];
-      PathNode_UpdateStringField("target", &node->constant.target, (*spawnVars)[0], v8);
-      PathNode_UpdateStringField("targetname", p_targetname, v9, v8);
-      PathNode_UpdateStringField("script_linkname", &node->constant.script_linkName, v9, v8);
-      PathNode_UpdateStringField("script_noteworthy", &node->constant.script_noteworthy, v9, v8);
-      PathNode_UpdateStringField("parentname", &node->constant.parent.name, v9, v8);
+      v6 = (*spawnVars)[1];
+      v7 = (*spawnVars)[0];
+      PathNode_UpdateStringField("target", &node->constant.target, (*spawnVars)[0], v6);
+      PathNode_UpdateStringField("targetname", p_targetname, v7, v6);
+      PathNode_UpdateStringField("script_linkname", &node->constant.script_linkName, v7, v6);
+      PathNode_UpdateStringField("script_noteworthy", &node->constant.script_noteworthy, v7, v6);
+      PathNode_UpdateStringField("parentname", &node->constant.parent.name, v7, v6);
       if ( node->constant.parent.name )
         pathData.parentIndexResolved = 0;
-      if ( ((1 << LOBYTE(node->constant.type)) & 0x62700000) == 0 && !I_stricmp(v9, "origin") && (node->constant.spawnflags & 0x4000) == 0 && !node->constant.parent.index )
+      if ( ((1 << LOBYTE(node->constant.type)) & 0x62700000) == 0 && !I_stricmp(v7, "origin") && (node->constant.spawnflags & 0x4000) == 0 && !node->constant.parent.index )
       {
         pathnode_t::GetPos(node, &pos);
-        v10 = j_sscanf(v8, "%f %f %f", &v29, &v30, &v31);
-        v11 = v10 < 3;
-        v12 = v10 == 3;
-        if ( v10 != 3 )
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FA2C48, 457i64, v8);
-        __asm
-        {
-          vmovss  xmm0, [rsp+98h+var_60]
-          vsubss  xmm1, xmm0, dword ptr [rsp+98h+pos]
-          vmulss  xmm2, xmm1, xmm1
-          vcomiss xmm2, xmm6
-        }
-        if ( !v11 && !v12 )
-          goto LABEL_16;
-        __asm
-        {
-          vmovss  xmm0, [rsp+98h+var_5C]
-          vsubss  xmm1, xmm0, dword ptr [rsp+98h+pos+4]
-          vmulss  xmm2, xmm1, xmm1
-          vcomiss xmm2, xmm6
-        }
-        if ( !v11 && !v12 )
-LABEL_16:
+        if ( j_sscanf(v6, "%f %f %f", &v19, &v20, &v21) != 3 )
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FA2C48, 457i64, v6);
+        _XMM0 = LODWORD(v19);
+        if ( (float)((float)(v19 - pos.v[0]) * (float)(v19 - pos.v[0])) > 0.010000001 || (_XMM0 = LODWORD(v20), (float)((float)(v20 - pos.v[1]) * (float)(v20 - pos.v[1])) > 0.010000001) )
           ++g_path.originErrors;
       }
-      String = SL_FindString(v9);
+      String = SL_FindString(v7);
       name = fields_2[0].name;
-      v19 = fields_2;
+      v10 = fields_2;
       if ( fields_2[0].name )
       {
         while ( *name != String )
         {
-          name = v19[1].name;
-          ++v19;
+          name = v10[1].name;
+          ++v10;
           if ( !name )
             goto LABEL_20;
         }
         goto LABEL_33;
       }
 LABEL_20:
-      CanonicalString = SL_GetCanonicalString(v9);
-      v21 = ScriptContext_Server();
-      Field = Scr_FindField(v21, CanonicalString, type);
+      CanonicalString = SL_GetCanonicalString(v7);
+      v12 = ScriptContext_Server();
+      Field = Scr_FindField(v12, CanonicalString, type);
       if ( Field )
       {
         switch ( type[0] )
         {
           case VAR_STRING:
-            Scr_AddString(v21, v8);
+            Scr_AddString(v12, v6);
             break;
           case VAR_VECTOR:
-            Scr_Error(COM_ERR_2468, v21, "G_SetPathnodeScriptVariable: vector is an unsupported script variable type for pathnodes");
+            Scr_Error(COM_ERR_2468, v12, "G_SetPathnodeScriptVariable: vector is an unsupported script variable type for pathnodes");
             break;
           case VAR_FLOAT:
-            *(double *)&_XMM0 = atof(v8);
+            *(double *)&_XMM0 = atof(v6);
             __asm { vcvtsd2ss xmm1, xmm0, xmm0; value }
-            Scr_AddFloat(v21, *(float *)&_XMM1);
+            Scr_AddFloat(v12, *(float *)&_XMM1);
             break;
           case VAR_INTEGER:
-            v23 = atoi(v8);
-            Scr_AddInt(v21, v23);
+            v14 = atoi(v6);
+            Scr_AddInt(v12, v14);
             break;
           default:
-            LODWORD(v27) = (unsigned __int8)type[0];
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2086, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "G_SetPathnodeScriptVariable: bad case %d", v27) )
+            LODWORD(v17) = (unsigned __int8)type[0];
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2086, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "G_SetPathnodeScriptVariable: bad case %d", v17) )
               __debugbreak();
             goto LABEL_32;
         }
-        v25 = Path_ConvertNodeToIndex(node);
-        Scr_SetDynamicEntityField(v21, LOCAL_CLIENT_0, v25, ENTITY_CLASS_PATHNODE, Field);
+        v16 = Path_ConvertNodeToIndex(node);
+        Scr_SetDynamicEntityField(v12, LOCAL_CLIENT_0, v16, ENTITY_CLASS_PATHNODE, Field);
       }
 LABEL_32:
       p_targetname = &node->constant.targetname;
 LABEL_33:
-      ++v4;
+      ++v3;
       ++spawnVars;
-      if ( v4 >= level.spawnVar.numSpawnVars )
-      {
-        __asm { vmovaps xmm6, [rsp+98h+var_38] }
-        return;
-      }
     }
+    while ( v3 < level.spawnVar.numSpawnVars );
   }
 }
 
@@ -2814,89 +2782,61 @@ G_SpawnCoverNode
 */
 __int64 G_SpawnCoverNode(vec3_t *origin, const vec3_t *angles, int nodeType, unsigned int spawnflags, scr_string_t targetname, scr_string_t parentname, bool calledFromScript)
 {
-  char *v18; 
-  __int64 result; 
-  unsigned __int16 v35; 
-  const pathnode_t *v36; 
-  const char *v37; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float fraction; 
+  char *v15; 
+  float v17; 
+  float v18; 
+  unsigned __int16 v19; 
+  const pathnode_t *v20; 
+  const char *v21; 
   vec3_t start; 
   vec3_t end; 
   trace_t results; 
 
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rcx+8]
-    vmovss  xmm3, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rcx+4]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  dword ptr [rsp+0F8h+start+8], xmm0
-    vsubss  xmm0, xmm1, cs:__real@42100000
-  }
-  _RBX = origin;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+end+8], xmm0
-    vmovss  dword ptr [rsp+0F8h+start], xmm3
-    vmovss  dword ptr [rsp+0F8h+start+4], xmm2
-    vmovss  dword ptr [rsp+0F8h+end], xmm3
-    vmovss  dword ptr [rsp+0F8h+end+4], xmm2
-  }
+  v7 = origin->v[2];
+  v8 = origin->v[0];
+  v9 = origin->v[1];
+  start.v[2] = v7 + 12.0;
+  end.v[2] = v7 - 36.0;
+  start.v[0] = v8;
+  start.v[1] = v9;
+  end.v[0] = v8;
+  end.v[1] = v9;
   G_Main_TraceCapsule(&results, &start, &end, &actorBox, 2047, 131089);
-  if ( !*(_WORD *)&results.allsolid )
+  if ( *(_WORD *)&results.allsolid )
   {
-    __asm { vmovaps [rsp+0F8h+var_38], xmm6 }
+    v21 = vtos(origin);
+    Com_PrintError(16, "SpawnCoverNode: pos %s is inside a solid.", v21);
+    return 0xFFFFi64;
+  }
+  else
+  {
     if ( ((1 << nodeType) & 0x1E300000) == 0 )
     {
-      __asm
+      fraction = results.fraction;
+      if ( results.fraction >= 1.0 && calledFromScript )
       {
-        vmovss  xmm6, [rsp+0F8h+results.fraction]
-        vcomiss xmm6, cs:__real@3f800000
+        v15 = vtos(origin);
+        Com_PrintError(16, "SpawnCoverNode: unable to find anything solid underneath pos %s within %.0f.", v15, DOUBLE_36_0);
+        return 0xFFFFi64;
       }
-      if ( calledFromScript )
-      {
-        v18 = vtos(_RBX);
-        __asm
-        {
-          vmovsd  xmm3, cs:__real@4042000000000000
-          vmovq   r9, xmm3
-        }
-        Com_PrintError(16, "SpawnCoverNode: unable to find anything solid underneath pos %s within %.0f.", v18, _R9);
-        result = 0xFFFFi64;
-LABEL_5:
-        __asm { vmovaps xmm6, [rsp+0F8h+var_38] }
-        return result;
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0F8h+end]
-        vsubss  xmm1, xmm0, dword ptr [rsp+0F8h+start]
-        vmovss  xmm0, dword ptr [rsp+0F8h+end+4]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsp+0F8h+start]
-        vsubss  xmm1, xmm0, dword ptr [rsp+0F8h+start+4]
-        vmovss  xmm0, dword ptr [rsp+0F8h+end+8]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rsp+0F8h+start+8]
-        vmovss  dword ptr [rbx], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rsp+0F8h+start+4]
-        vmulss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rbx+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rsp+0F8h+start+8]
-        vmovss  dword ptr [rbx+8], xmm3
-      }
+      v17 = (float)(end.v[1] - start.v[1]) * results.fraction;
+      v18 = end.v[2] - start.v[2];
+      origin->v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      origin->v[1] = v17 + start.v[1];
+      origin->v[2] = (float)(v18 * fraction) + start.v[2];
     }
-    v35 = Path_SpawnNode(_RBX, angles, nodeType, spawnflags, targetname, parentname);
-    if ( v35 != 0xFFFF && calledFromScript )
+    v19 = Path_SpawnNode(origin, angles, nodeType, spawnflags, targetname, parentname);
+    if ( v19 != 0xFFFF && calledFromScript )
     {
-      v36 = Path_ConvertIndexToNode(v35);
-      Scr_AddPathnode(v36);
+      v20 = Path_ConvertIndexToNode(v19);
+      Scr_AddPathnode(v20);
     }
-    result = v35;
-    goto LABEL_5;
+    return v19;
   }
-  v37 = vtos(_RBX);
-  Com_PrintError(16, "SpawnCoverNode: pos %s is inside a solid.", v37);
-  return 0xFFFFi64;
 }
 
 /*
@@ -2908,11 +2848,12 @@ void G_SpawnPathnodeDynamic(void)
 {
   const dvar_t *v0; 
   unsigned int actualNodeCount; 
+  pathnode_t *v2; 
   unsigned __int16 type; 
   unsigned int spawnflags; 
-  __int16 v8; 
-  __int64 v9; 
-  __int64 v10; 
+  __int16 v5; 
+  __int64 v6; 
+  __int64 v7; 
   vec3_t forward; 
 
   if ( !BG_ActorOrAgentSystemEnabled() )
@@ -2933,52 +2874,46 @@ LABEL_6:
       }
       else
       {
-        _RBX = &pathData.nodes[g_path.actualNodeCount++];
+        v2 = &pathData.nodes[g_path.actualNodeCount++];
         if ( actualNodeCount + 1 > pathData.nodeCount )
         {
           if ( pathData.zoneCount > 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2885, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "G_SpawnPathnodeDynamic(): Additional nodes may not be spawned when using node zones") )
             __debugbreak();
-          *(_QWORD *)&_RBX->dynamic.pOwners[0].number = 0i64;
-          *(_QWORD *)_RBX->dynamic.iFreeTime = 0i64;
-          *(_QWORD *)_RBX->dynamic.iValidTime = 0i64;
-          *(_QWORD *)&_RBX->dynamic.iValidTime[2] = 0i64;
-          *(_QWORD *)&_RBX->dynamic.bInactive = 0i64;
-          *(_QWORD *)&_RBX->dynamic.bots.recentUseProxTimes[1] = 0i64;
-          _RBX->dynamic.actors.inPlayerLOSTime = 0;
-          *(_QWORD *)&_RBX->transient.iSearchFrame = 0i64;
-          _RBX->transient.pNextOpen = NULL;
-          _RBX->transient.pPrevOpen = NULL;
-          _RBX->transient.pParent = NULL;
-          *(_QWORD *)&_RBX->transient.fCost = 0i64;
-          *(_QWORD *)&_RBX->transient.nodeCost = 0i64;
+          *(_QWORD *)&v2->dynamic.pOwners[0].number = 0i64;
+          *(_QWORD *)v2->dynamic.iFreeTime = 0i64;
+          *(_QWORD *)v2->dynamic.iValidTime = 0i64;
+          *(_QWORD *)&v2->dynamic.iValidTime[2] = 0i64;
+          *(_QWORD *)&v2->dynamic.bInactive = 0i64;
+          *(_QWORD *)&v2->dynamic.bots.recentUseProxTimes[1] = 0i64;
+          v2->dynamic.actors.inPlayerLOSTime = 0;
+          *(_QWORD *)&v2->transient.iSearchFrame = 0i64;
+          v2->transient.pNextOpen = NULL;
+          v2->transient.pPrevOpen = NULL;
+          v2->transient.pParent = NULL;
+          *(_QWORD *)&v2->transient.fCost = 0i64;
+          *(_QWORD *)&v2->transient.nodeCost = 0i64;
         }
-        if ( (_RBX->constant.spawnflags & 0x4000) != 0 )
-          PrintPathNodeError(_RBX);
-        G_ParsePathnodeScriptFields(_RBX);
-        type = _RBX->constant.type;
+        if ( (v2->constant.spawnflags & 0x4000) != 0 )
+          PrintPathNodeError(v2);
+        G_ParsePathnodeScriptFields(v2);
+        type = v2->constant.type;
         if ( ((1 << type) & 0x62700000) == 0 )
         {
-          __asm { vmovss  xmm0, dword ptr [rbx+2Ch]; yaw }
-          YawVectors(*(float *)&_XMM0, &forward, NULL);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+68h+forward]
-            vmovss  dword ptr [rbx+30h], xmm0
-            vmovss  xmm1, dword ptr [rsp+68h+forward+4]
-            vmovss  dword ptr [rbx+34h], xmm1
-          }
-          type = _RBX->constant.type;
+          YawVectors(v2->constant.yaw_orient.fLocalAngle, &forward, NULL);
+          v2->constant.yaw_orient.localForward.v[0] = forward.v[0];
+          v2->constant.yaw_orient.localForward.v[1] = forward.v[1];
+          type = v2->constant.type;
         }
         if ( type >= 0x20u )
         {
-          LODWORD(v10) = 32;
-          LODWORD(v9) = type;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2910, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( NODE_NUMTYPES )", "type doesn't index NODE_NUMTYPES\n\t%i not in [0, %i)", v9, v10) )
+          LODWORD(v7) = 32;
+          LODWORD(v6) = type;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2910, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( NODE_NUMTYPES )", "type doesn't index NODE_NUMTYPES\n\t%i not in [0, %i)", v6, v7) )
             __debugbreak();
         }
         if ( type == 18 )
         {
-          _RBX->dynamic.turretEntNumber = -1;
+          v2->dynamic.turretEntNumber = -1;
         }
         else if ( type > 0x1Cu )
         {
@@ -2988,25 +2923,25 @@ LABEL_6:
           }
           else if ( type == 31 )
           {
-            spawnflags = _RBX->constant.spawnflags;
-            v8 = 0;
-            if ( (_RBX->constant.spawnflags & 0x100000) != 0 )
+            spawnflags = v2->constant.spawnflags;
+            v5 = 0;
+            if ( (v2->constant.spawnflags & 0x100000) != 0 )
             {
-              _RBX->dynamic.turretEntNumber = 3;
+              v2->dynamic.turretEntNumber = 3;
             }
             else if ( (spawnflags & 0x200) != 0 )
             {
-              _RBX->dynamic.turretEntNumber = 2;
+              v2->dynamic.turretEntNumber = 2;
             }
             else if ( (spawnflags & 0x400) != 0 || (spawnflags & 0x200000) != 0 )
             {
-              _RBX->dynamic.turretEntNumber = 7;
+              v2->dynamic.turretEntNumber = 7;
             }
             else
             {
               if ( (spawnflags & 0x800) != 0 || (spawnflags & 0x400000) != 0 )
-                v8 = 6;
-              _RBX->dynamic.turretEntNumber = v8;
+                v5 = 6;
+              v2->dynamic.turretEntNumber = v5;
             }
           }
         }
@@ -3096,8 +3031,7 @@ float pathnode_t::GetAngle(pathnode_t *this)
   vec3_t vector; 
 
   pathnode_t::GetAngles(this, &vector);
-  __asm { vmovss  xmm0, dword ptr [rsp+48h+vector+4] }
-  return *(float *)&_XMM0;
+  return vector.v[1];
 }
 
 /*
@@ -3107,83 +3041,59 @@ pathnode_t::GetAngles
 */
 void pathnode_t::GetAngles(pathnode_t *this, vec3_t *vector)
 {
+  float fLocalAngle; 
+  float v4; 
   gentity_s *Parent; 
+  float v6; 
+  float v9; 
+  float v10; 
+  float v12; 
+  float v13; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> in1; 
   tmat33_t<vec3_t> out; 
 
-  _R8 = this;
-  _RBX = vector;
-  __asm { vmovss  xmm0, dword ptr [r8+2Ch] }
+  fLocalAngle = this->constant.yaw_orient.fLocalAngle;
   if ( ((1 << LOBYTE(this->constant.type)) & 0x62700000) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r8+30h]
-      vmovss  dword ptr [rsp+0C8h+angles], xmm0
-      vmovss  xmm0, dword ptr [r8+34h]
-      vmovss  dword ptr [rsp+0C8h+angles+8], xmm0
-      vmovss  dword ptr [rsp+0C8h+angles+4], xmm1
-    }
+    v4 = this->constant.yaw_orient.localForward.v[0];
+    angles.v[0] = this->constant.yaw_orient.fLocalAngle;
+    angles.v[2] = this->constant.yaw_orient.localForward.v[1];
+    angles.v[1] = v4;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rsp+0C8h+angles], xmm1
-      vmovss  dword ptr [rsp+0C8h+angles+8], xmm1
-      vmovss  dword ptr [rsp+0C8h+angles+4], xmm0
-    }
+    angles.v[0] = 0.0;
+    angles.v[2] = 0.0;
+    angles.v[1] = fLocalAngle;
   }
   Parent = pathnode_t::GetParent(this);
   if ( Parent )
   {
-    __asm { vmovaps [rsp+0C8h+var_18], xmm8 }
     AnglesToAxis(&Parent->r.currentAngles, &axis);
     AnglesToAxis(&angles, &in1);
     MatrixMultiply(&in1, &axis, &out);
-    AxisToAngles(&out, _RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vmovss  xmm5, cs:__real@43b40000
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm2, xmm8, xmm1, 1
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmulss  xmm4, xmm1, cs:__real@3b360b61
-      vsubss  xmm0, xmm3, xmm2
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vroundss xmm3, xmm8, xmm2, 1
-      vmovss  xmm2, dword ptr [rbx+8]
-      vmulss  xmm0, xmm0, xmm5
-      vmovss  dword ptr [rbx], xmm0
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm3, xmm2, cs:__real@3b360b61
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbx+4], xmm1
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vroundss xmm2, xmm8, xmm1, 1
-      vmovaps xmm8, [rsp+0C8h+var_18]
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    AxisToAngles(&out, vector);
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v9 = vector->v[1] * 0.0027777778;
+    v10 = (float)(vector->v[0] * 0.0027777778) - *(float *)&_XMM2;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    *(float *)&_XMM2 = vector->v[2];
+    vector->v[0] = v10 * 360.0;
+    v12 = v9 - *(float *)&_XMM3;
+    v13 = *(float *)&_XMM2 * 0.0027777778;
+    vector->v[1] = v12 * 360.0;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    vector->v[2] = (float)(v13 - *(float *)&_XMM2) * 360.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0C8h+angles]
-      vmovss  xmm1, dword ptr [rsp+0C8h+angles+4]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+0C8h+angles+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    v6 = angles.v[1];
+    vector->v[0] = angles.v[0];
+    vector->v[2] = angles.v[2];
+    vector->v[1] = v6;
   }
 }
 
@@ -3194,53 +3104,45 @@ pathnode_t::GetForward
 */
 void pathnode_t::GetForward(pathnode_t *this, vec2_t *forward)
 {
+  __int128 v4; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t vector; 
   vec3_t forwarda; 
-  vec3_t v19; 
+  vec3_t v13; 
 
-  _RDI = forward;
   if ( ((1 << LOBYTE(this->constant.type)) & 0x62700000) != 0 )
   {
     pathnode_t::GetAngles(this, &vector);
     AngleVectors(&vector, &forwarda, NULL, NULL);
+    v4 = LODWORD(forwarda.v[1]);
+    *(float *)&v4 = fsqrt((float)(*(float *)&v4 * *(float *)&v4) + (float)(forwarda.v[0] * forwarda.v[0]));
+    _XMM2 = v4;
     __asm
     {
-      vmovss  xmm4, dword ptr [rsp+68h+forward+4]
-      vmovss  xmm3, dword ptr [rsp+68h+forward]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vmovss  xmm1, cs:__real@3f800000
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm1, xmm0
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm1, xmm4, xmm1
     }
+    v8 = 1.0 / *(float *)&_XMM0;
+    v9 = forwarda.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v10 = forwarda.v[1] * v8;
   }
   else
   {
     if ( !pathnode_t::GetParent(this) )
     {
-      _RDI->v[0] = this->constant.yaw_orient.localForward.v[0];
-      _RDI->v[1] = this->constant.yaw_orient.localForward.v[1];
+      forward->v[0] = this->constant.yaw_orient.localForward.v[0];
+      forward->v[1] = this->constant.yaw_orient.localForward.v[1];
       return;
     }
     pathnode_t::GetAngles(this, &vector);
-    __asm { vmovss  xmm0, dword ptr [rsp+68h+vector+4]; yaw }
-    YawVectors(*(float *)&_XMM0, &v19, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+var_28]
-      vmovss  xmm1, dword ptr [rsp+68h+var_28+4]
-    }
+    YawVectors(vector.v[1], &v13, NULL);
+    v9 = v13.v[0];
+    v10 = v13.v[1];
   }
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  dword ptr [rdi], xmm0
-  }
+  forward->v[1] = v10;
+  forward->v[0] = v9;
 }
 
 /*
@@ -3251,79 +3153,48 @@ GetNodeExposedOffset
 void GetNodeExposedOffset(const pathnode_t *inNode, vec3_t *outOffset)
 {
   scr_string_t HighestNodeStance; 
-  ai_stance_e v7; 
+  ai_stance_e v5; 
   unsigned __int16 type; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t outEyeOffset; 
   tmat33_t<vec3_t> axis; 
   vec3_t vector; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = outOffset;
   *(_QWORD *)outOffset->v = 0i64;
   outOffset->v[2] = 0.0;
   HighestNodeStance = Path_GetHighestNodeStance(inNode);
   if ( !HighestNodeStance )
     HighestNodeStance = scr_const.crouch;
-  v7 = AI_StringToStance(HighestNodeStance);
+  v5 = AI_StringToStance(HighestNodeStance);
   type = inNode->constant.type;
   if ( type == 31 )
     type = inNode->dynamic.coverMultiType;
-  GetNodeExposedEyeOffset(type, v7, &outEyeOffset);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+57h+outEyeOffset]
-    vmovss  xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmovss  dword ptr [rbp+57h+outEyeOffset], xmm0
-    vmovss  dword ptr [rbp+57h+outEyeOffset+4], xmm1
-  }
+  GetNodeExposedEyeOffset(type, v5, &outEyeOffset);
+  v7 = outEyeOffset.v[0];
+  outEyeOffset.v[0] = outEyeOffset.v[1];
+  outEyeOffset.v[1] = v7;
   pathnode_t::GetAngles((pathnode_t *)inNode, &vector);
   AnglesToAxis(&vector, &axis);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rbp+57h+axis+0Ch]
-    vmovss  xmm2, dword ptr [rbp+57h+axis+10h]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rbp+57h+axis+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+axis+14h]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rbp+57h+axis+14h], xmm2
-    vmovss  dword ptr [rbp+57h+axis+10h], xmm0
-  }
-  if ( &outEyeOffset == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  LODWORD(axis.m[1].v[0]) ^= _xmm;
+  LODWORD(axis.m[1].v[2]) ^= _xmm;
+  LODWORD(axis.m[1].v[1]) ^= _xmm;
+  if ( &outEyeOffset == outOffset && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+57h+outEyeOffset]
-    vmovss  xmm6, dword ptr [rbp+57h+outEyeOffset+8]
-    vmovss  xmm0, dword ptr [rbp+57h+axis+0Ch]
-    vmulss  xmm2, xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmulss  xmm0, xmm5, dword ptr [rbp+57h+axis]
-    vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+18h]
-    vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+4]
-    vaddss  xmm2, xmm2, xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+axis+10h]
-    vmulss  xmm1, xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmulss  xmm0, xmm6, dword ptr [rbp+57h+axis+1Ch]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+8]
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+axis+14h]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm1, xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmulss  xmm0, xmm6, dword ptr [rbp+57h+axis+20h]
-    vaddss  xmm4, xmm3, xmm1
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  dword ptr [rdi+8], xmm1
-  }
-  _R11 = &vars0;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  v8 = outEyeOffset.v[0];
+  v9 = outEyeOffset.v[2];
+  v10 = outEyeOffset.v[0] * axis.m[0].v[1];
+  outOffset->v[0] = (float)((float)(axis.m[1].v[0] * outEyeOffset.v[1]) + (float)(outEyeOffset.v[0] * axis.m[0].v[0])) + (float)(outEyeOffset.v[2] * axis.m[2].v[0]);
+  v11 = v10 + (float)(axis.m[1].v[1] * outEyeOffset.v[1]);
+  v12 = v8 * axis.m[0].v[2];
+  v13 = axis.m[1].v[2];
+  outOffset->v[1] = v11 + (float)(v9 * axis.m[2].v[1]);
+  outOffset->v[2] = (float)(v12 + (float)(v13 * outEyeOffset.v[1])) + (float)(v9 * axis.m[2].v[2]);
 }
 
 /*
@@ -3334,116 +3205,119 @@ GetNodesInRadius
 void GetNodesInRadius(scrContext_t *scrContext, int sorted)
 {
   signed __int64 v2; 
-  void *v9; 
-  int v11; 
+  void *v3; 
+  float v4; 
+  int v5; 
   int typeFlags; 
-  unsigned __int16 v16; 
+  double Float; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  unsigned __int16 v13; 
   const char *String; 
-  char v18; 
-  const char **v19; 
-  const char *v20; 
-  __int64 v21; 
-  const char *v22; 
-  signed __int64 v23; 
+  char v15; 
+  const char **v16; 
+  const char *v17; 
+  __int64 v18; 
+  const char *v19; 
+  signed __int64 v20; 
+  int v21; 
+  __int64 v22; 
+  int v23; 
   int v24; 
-  __int64 v25; 
-  int v26; 
-  int v27; 
-  int v28; 
+  int v25; 
   int Int; 
-  unsigned int v32; 
-  unsigned int v33; 
-  gentity_s *Parent; 
-  char v41; 
-  bool v42; 
+  unsigned int v27; 
+  unsigned int v28; 
   pathnode_t *node; 
+  float v30; 
+  float v31; 
+  float v32; 
+  gentity_s *Parent; 
+  gentity_s *v34; 
+  float v35; 
+  pathnode_t *v36; 
   unsigned int spawnflags; 
-  int v60; 
-  unsigned int v61; 
-  const char *v62; 
-  signed int v63; 
-  pathnode_t *v64; 
-  scrContext_t *v65; 
-  unsigned __int16 v66; 
+  int v38; 
+  unsigned int v39; 
+  const char *v40; 
+  signed int v41; 
+  pathnode_t *v42; 
+  scrContext_t *v43; 
+  unsigned __int16 v44; 
   __int64 maxNodes; 
   __int64 allowDontLinkNodes; 
   vec3_t vectorValue; 
   tmat33_t<vec3_t> axis; 
   pathsort_s nodes[256]; 
-  char v85; 
 
-  v9 = alloca(v2);
-  __asm
-  {
-    vmovaps [rsp+1118h+var_38], xmm6
-    vmovaps [rsp+1118h+var_48], xmm7
-    vmovaps [rsp+1118h+var_78], xmm10
-    vmovss  xmm6, cs:__real@44000000
-  }
-  v11 = sorted;
+  v3 = alloca(v2);
+  v4 = FLOAT_512_0;
+  v5 = sorted;
   typeFlags = -1;
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmulss  xmm10, xmm0, xmm0 }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v9 = *(float *)&Float;
+  v10 = Scr_GetFloat(scrContext, 2u);
+  v11 = *(float *)&v10 * *(float *)&v10;
   if ( Scr_GetNumParam(scrContext) > 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm6, xmm0 }
+    v12 = Scr_GetFloat(scrContext, 3u);
+    v4 = *(float *)&v12;
   }
-  v16 = 0;
+  v13 = 0;
   if ( Scr_GetNumParam(scrContext) > 4 )
   {
     String = Scr_GetString(scrContext, 4u);
     if ( I_stricmp("Cover", String) )
     {
-      v18 = 0;
-      v19 = nodeStringTable;
+      v15 = 0;
+      v16 = nodeStringTable;
       do
       {
-        v20 = *v19;
-        v21 = 0x7FFFFFFFi64;
-        v22 = String;
-        if ( !*v19 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        v17 = *v16;
+        v18 = 0x7FFFFFFFi64;
+        v19 = String;
+        if ( !*v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
         if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v23 = v20 - String;
+        v20 = v17 - String;
         while ( 1 )
         {
-          v24 = (unsigned __int8)v22[v23];
-          v25 = v21;
-          v26 = *(unsigned __int8 *)v22++;
-          --v21;
-          if ( !v25 )
+          v21 = (unsigned __int8)v19[v20];
+          v22 = v18;
+          v23 = *(unsigned __int8 *)v19++;
+          --v18;
+          if ( !v22 )
           {
 LABEL_22:
-            typeFlags = 1 << v18;
+            typeFlags = 1 << v15;
             goto LABEL_25;
           }
-          if ( v24 != v26 )
+          if ( v21 != v23 )
           {
-            v27 = v24 + 32;
-            if ( (unsigned int)(v24 - 65) > 0x19 )
-              v27 = v24;
-            v24 = v27;
-            v28 = v26 + 32;
-            if ( (unsigned int)(v26 - 65) > 0x19 )
-              v28 = v26;
-            if ( v24 != v28 )
+            v24 = v21 + 32;
+            if ( (unsigned int)(v21 - 65) > 0x19 )
+              v24 = v21;
+            v21 = v24;
+            v25 = v23 + 32;
+            if ( (unsigned int)(v23 - 65) > 0x19 )
+              v25 = v23;
+            if ( v21 != v25 )
               break;
           }
-          if ( !v24 )
+          if ( !v21 )
             goto LABEL_22;
         }
-        ++v18;
-        ++v19;
+        ++v15;
+        ++v16;
       }
-      while ( (__int64)v19 < (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_691 );
+      while ( (__int64)v16 < (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_691 );
       typeFlags = -1;
 LABEL_25:
-      v11 = sorted;
+      v5 = sorted;
     }
     else
     {
@@ -3454,126 +3328,71 @@ LABEL_25:
     Int = 7;
   else
     Int = Scr_GetInt(scrContext, 5u);
-  __asm
-  {
-    vmovaps xmm3, xmm6; maxHeight
-    vmovaps xmm2, xmm7; maxDist
-  }
-  v32 = Path_NodesInCylinder(&vectorValue, NULL, *(float *)&_XMM2, *(float *)&_XMM3, nodes, 256, typeFlags, 0);
-  v33 = v32;
-  if ( v11 )
-    std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v32], v32, Path_CompareNodesIncreasing);
+  v27 = Path_NodesInCylinder(&vectorValue, NULL, v9, v4, nodes, 256, typeFlags, 0);
+  v28 = v27;
+  if ( v5 )
+    std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v27], v27, Path_CompareNodesIncreasing);
   Scr_MakeArray(scrContext);
-  if ( v33 )
+  if ( v28 )
   {
-    __asm
+    do
     {
-      vmovaps [rsp+1118h+var_68], xmm9
-      vxorps  xmm9, xmm9, xmm9
-      vmovaps [rsp+1118h+var_58], xmm8
-    }
-    while ( 1 )
-    {
-      if ( !Path_NodeValid(v16) )
-        goto LABEL_54;
-      _RCX = nodes[v16].node;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rcx+20h]
-        vmovss  xmm6, dword ptr [rcx+24h]
-        vmovss  xmm8, dword ptr [rcx+28h]
-      }
-      Parent = pathnode_t::GetParent(_RCX);
-      __asm { vmovaps xmm5, xmm7 }
-      v41 = 0;
-      v42 = Parent == NULL;
+      if ( !Path_NodeValid(v13) )
+        goto LABEL_53;
+      node = nodes[v13].node;
+      v30 = node->constant.vLocalOrigin.v[0];
+      v31 = node->constant.vLocalOrigin.v[1];
+      v32 = node->constant.vLocalOrigin.v[2];
+      Parent = pathnode_t::GetParent(node);
+      v34 = Parent;
+      v35 = v30;
       if ( Parent )
       {
         AnglesToAxis(&Parent->r.currentAngles, &axis);
-        __asm
-        {
-          vmulss  xmm0, xmm6, dword ptr [rsp+1118h+axis+0Ch]
-          vmulss  xmm1, xmm7, dword ptr [rsp+1118h+axis]
-          vmulss  xmm3, xmm6, dword ptr [rsp+1118h+axis+10h]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm8, dword ptr [rsp+1118h+axis+18h]
-          vmulss  xmm0, xmm8, dword ptr [rsp+1118h+axis+1Ch]
-          vaddss  xmm2, xmm2, xmm1
-          vmulss  xmm1, xmm7, dword ptr [rsp+1118h+axis+4]
-          vaddss  xmm5, xmm2, dword ptr [rbx+130h]
-          vaddss  xmm4, xmm3, xmm1
-          vaddss  xmm1, xmm4, xmm0
-          vaddss  xmm6, xmm1, dword ptr [rbx+134h]
-        }
+        v35 = (float)((float)((float)(v30 * axis.m[0].v[0]) + (float)(v31 * axis.m[1].v[0])) + (float)(v32 * axis.m[2].v[0])) + v34->r.currentOrigin.v[0];
+        v31 = (float)((float)((float)(v31 * axis.m[1].v[1]) + (float)(v30 * axis.m[0].v[1])) + (float)(v32 * axis.m[2].v[1])) + v34->r.currentOrigin.v[1];
       }
-      __asm { vucomiss xmm10, xmm9 }
-      if ( !v42 )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm5, dword ptr [rsp+1118h+vectorValue]
-          vsubss  xmm0, xmm6, dword ptr [rsp+1118h+vectorValue+4]
-          vmulss  xmm2, xmm0, xmm0
-          vmulss  xmm1, xmm1, xmm1
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm10, xmm2
-        }
-        if ( !(v41 | v42) )
-          goto LABEL_54;
-      }
-      node = nodes[v16].node;
-      if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10274, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+      if ( v11 != 0.0 && v11 > (float)((float)((float)(v31 - vectorValue.v[1]) * (float)(v31 - vectorValue.v[1])) + (float)((float)(v35 - vectorValue.v[0]) * (float)(v35 - vectorValue.v[0]))) )
+        goto LABEL_53;
+      v36 = nodes[v13].node;
+      if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10274, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
         __debugbreak();
-      spawnflags = node->constant.spawnflags;
-      v60 = ((node->constant.spawnflags & 4) == 0) | 4;
-      if ( (node->constant.spawnflags & 8) == 0 )
-        v60 = ((node->constant.spawnflags & 4) == 0) | 6;
-      v61 = v60 & 0xFFFFFFFB;
-      if ( (node->constant.spawnflags & 0x10) == 0 )
-        v61 = v60;
-      if ( v61 )
+      spawnflags = v36->constant.spawnflags;
+      v38 = ((v36->constant.spawnflags & 4) == 0) | 4;
+      if ( (v36->constant.spawnflags & 8) == 0 )
+        v38 = ((v36->constant.spawnflags & 4) == 0) | 6;
+      v39 = v38 & 0xFFFFFFFB;
+      if ( (v36->constant.spawnflags & 0x10) == 0 )
+        v39 = v38;
+      if ( v39 )
       {
-        if ( v61 == 7 )
-          goto LABEL_50;
+        if ( v39 == 7 )
+          goto LABEL_49;
       }
       else
       {
-        v62 = vtos(&node->constant.vLocalOrigin);
+        v40 = vtos(&v36->constant.vLocalOrigin);
         LODWORD(allowDontLinkNodes) = spawnflags;
-        LODWORD(maxNodes) = Path_ConvertNodeToIndex(node);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10285, ASSERT_TYPE_ASSERT, "( eAllowedStances )", "Node %d at %s has no valid stances.  Spawnflags: %d", maxNodes, v62, allowDontLinkNodes) )
+        LODWORD(maxNodes) = Path_ConvertNodeToIndex(v36);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10285, ASSERT_TYPE_ASSERT, "( eAllowedStances )", "Node %d at %s has no valid stances.  Spawnflags: %d", maxNodes, v40, allowDontLinkNodes) )
           __debugbreak();
       }
-      if ( (v61 & Int) != 0 )
+      if ( (v39 & Int) != 0 )
       {
-LABEL_50:
-        v63 = g_path.actualNodeCount - pathData.zoneCount;
-        if ( Path_ConvertNodeToIndex(nodes[v16].node) >= v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3206, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( nodes[i].node ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( nodes[i].node ) < Path_NodeCount()") )
+LABEL_49:
+        v41 = g_path.actualNodeCount - pathData.zoneCount;
+        if ( Path_ConvertNodeToIndex(nodes[v13].node) >= v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3206, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( nodes[i].node ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( nodes[i].node ) < Path_NodeCount()") )
           __debugbreak();
-        v64 = nodes[v16].node;
-        v65 = ScriptContext_Server();
-        v66 = Path_ConvertNodeToIndex(v64);
-        Scr_AddEntityNum(v65, v66, ENTITY_CLASS_PATHNODE);
+        v42 = nodes[v13].node;
+        v43 = ScriptContext_Server();
+        v44 = Path_ConvertNodeToIndex(v42);
+        Scr_AddEntityNum(v43, v44, ENTITY_CLASS_PATHNODE);
         Scr_AddArray(scrContext);
       }
-LABEL_54:
-      if ( ++v16 >= v33 )
-      {
-        __asm
-        {
-          vmovaps xmm9, [rsp+1118h+var_68]
-          vmovaps xmm8, [rsp+1118h+var_58]
-        }
-        break;
-      }
+LABEL_53:
+      ++v13;
     }
-  }
-  _R11 = &v85;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    while ( v13 < v28 );
   }
 }
 
@@ -3645,65 +3464,53 @@ __int64 GetParentNameFromParentIndex(const pathnode_t *node)
 GetPathNodeListForSightToPathNodeCheck
 ==============
 */
-
-void __fastcall GetPathNodeListForSightToPathNodeCheck(const vec3_t *position, double maxRadius, unsigned __int16 *pathNodeIndexListOut, unsigned __int64 maxPathNodeListItems, unsigned int *pathNodeListOutCount)
+void GetPathNodeListForSightToPathNodeCheck(const vec3_t *position, const float maxRadius, unsigned __int16 *pathNodeIndexListOut, unsigned __int64 maxPathNodeListItems, unsigned int *pathNodeListOutCount)
 {
   signed __int64 v5; 
-  void *v7; 
+  void *v6; 
+  unsigned int v10; 
+  const pathnode_t *v11; 
   unsigned int v12; 
-  const pathnode_t *v13; 
-  unsigned int v16; 
   pathsort_s *p_nodes; 
-  signed int v18; 
-  unsigned __int16 v19; 
+  signed int v14; 
+  unsigned __int16 v15; 
   pathsort_s nodes; 
 
-  v7 = alloca(v5);
-  __asm
-  {
-    vmovaps [rsp+2098h+var_48], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v6 = alloca(v5);
   if ( !pathNodeIndexListOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4302, ASSERT_TYPE_ASSERT, "(pathNodeIndexListOut)", (const char *)&queryFormat, "pathNodeIndexListOut") )
     __debugbreak();
   if ( !pathNodeListOutCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4303, ASSERT_TYPE_ASSERT, "(pathNodeListOutCount)", (const char *)&queryFormat, "pathNodeListOutCount") )
     __debugbreak();
-  v12 = 0;
+  v10 = 0;
   *pathNodeListOutCount = 0;
   Profile_Begin(772);
-  v13 = Path_NearestNodeForLineOfSight(position, 65537, NULL);
+  v11 = Path_NearestNodeForLineOfSight(position, 65537, NULL);
   Profile_EndInternal(NULL);
-  if ( v13 )
-    pathNodeIndexListOut[(*pathNodeListOutCount)++] = Path_ConvertNodeToIndex(v13);
+  if ( v11 )
+    pathNodeIndexListOut[(*pathNodeListOutCount)++] = Path_ConvertNodeToIndex(v11);
   if ( !*pathNodeListOutCount )
   {
     Profile_Begin(773);
-    __asm
-    {
-      vmovss  xmm3, cs:__real@43800000; maxHeight
-      vmovaps xmm2, xmm6; maxDist
-    }
-    v16 = Path_NodesInCylinder(position, NULL, *(float *)&_XMM2, *(float *)&_XMM3, &nodes, 512, -1, 0);
+    v12 = Path_NodesInCylinder(position, NULL, maxRadius, 256.0, &nodes, 512, -1, 0);
     Profile_EndInternal(NULL);
-    if ( v16 )
+    if ( v12 )
     {
       p_nodes = &nodes;
       do
       {
-        if ( v12 >= maxPathNodeListItems )
+        if ( v10 >= maxPathNodeListItems )
           break;
-        v18 = g_path.actualNodeCount - pathData.zoneCount;
-        if ( Path_ConvertNodeToIndex(p_nodes->node) >= v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4342, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( nodesAroundEntity[nodeIndex].node ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( nodesAroundEntity[nodeIndex].node ) < Path_NodeCount()") )
+        v14 = g_path.actualNodeCount - pathData.zoneCount;
+        if ( Path_ConvertNodeToIndex(p_nodes->node) >= v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4342, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( nodesAroundEntity[nodeIndex].node ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( nodesAroundEntity[nodeIndex].node ) < Path_NodeCount()") )
           __debugbreak();
-        v19 = Path_ConvertNodeToIndex(p_nodes->node);
-        ++v12;
+        v15 = Path_ConvertNodeToIndex(p_nodes->node);
+        ++v10;
         ++p_nodes;
-        pathNodeIndexListOut[(*pathNodeListOutCount)++] = v19;
+        pathNodeIndexListOut[(*pathNodeListOutCount)++] = v15;
       }
-      while ( v12 < v16 );
+      while ( v10 < v12 );
     }
   }
-  __asm { vmovaps xmm6, [rsp+2098h+var_48] }
 }
 
 /*
@@ -3714,28 +3521,24 @@ pathnode_t::GetPos
 void pathnode_t::GetPos(pathnode_t *this, vec3_t *pos)
 {
   gentity_s *Parent; 
+  float *p_number; 
+  float v5; 
+  float v6; 
   vec3_t out; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = pos;
   *pos = this->constant.vLocalOrigin;
   Parent = pathnode_t::GetParent(this);
+  p_number = (float *)&Parent->s.number;
   if ( Parent )
   {
     AnglesToAxis(&Parent->r.currentAngles, &axis);
-    MatrixTransformVector(_RBX, &axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+out]
-      vaddss  xmm1, xmm0, dword ptr [rdi+130h]
-      vmovss  xmm2, dword ptr [rsp+68h+out+4]
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdi+134h]
-      vmovss  xmm1, dword ptr [rsp+68h+out+8]
-      vmovss  dword ptr [rbx+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rdi+138h]
-      vmovss  dword ptr [rbx+8], xmm2
-    }
+    MatrixTransformVector(pos, &axis, &out);
+    v5 = out.v[1];
+    pos->v[0] = out.v[0] + p_number[76];
+    v6 = out.v[2];
+    pos->v[1] = v5 + p_number[77];
+    pos->v[2] = v6 + p_number[78];
   }
 }
 
@@ -3747,35 +3550,22 @@ pathnode_t::LocalizeDirToParent
 void pathnode_t::LocalizeDirToParent(pathnode_t *this, vec2_t *dir)
 {
   gentity_s *Parent; 
+  float v4; 
+  float v5; 
+  float v6; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = dir;
   Parent = pathnode_t::GetParent(this);
   if ( Parent )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rbx+4]
-      vmovaps [rsp+0A8h+var_28], xmm7
-      vmovss  xmm7, dword ptr [rbx]
-    }
+    v4 = dir->v[1];
+    v5 = dir->v[0];
     AnglesToAxis(&Parent->r.currentAngles, &axis);
     MatrixInverse(&axis, &out);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rsp+0A8h+out+0Ch]
-      vmulss  xmm1, xmm7, dword ptr [rsp+0A8h+out]
-      vmulss  xmm2, xmm6, dword ptr [rsp+0A8h+out+10h]
-      vmovaps xmm6, [rsp+0A8h+var_18]
-      vaddss  xmm3, xmm1, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rsp+0A8h+out+4]
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vaddss  xmm2, xmm2, xmm0
-      vmovss  dword ptr [rbx+4], xmm2
-      vmovss  dword ptr [rbx], xmm3
-    }
+    v6 = (float)(v5 * out.m[0].v[0]) + (float)(v4 * out.m[1].v[0]);
+    dir->v[1] = (float)(v4 * out.m[1].v[1]) + (float)(v5 * out.m[0].v[1]);
+    dir->v[0] = v6;
   }
 }
 
@@ -3787,29 +3577,21 @@ pathnode_t::LocalizePosToParent
 void pathnode_t::LocalizePosToParent(pathnode_t *this, vec3_t *pos)
 {
   gentity_s *Parent; 
+  float v4; 
   vec3_t in1; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
-  _RBX = pos;
   Parent = pathnode_t::GetParent(this);
   if ( Parent )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm1, xmm0, dword ptr [rax+130h]
-      vmovss  xmm2, dword ptr [rbx+4]
-      vsubss  xmm0, xmm2, dword ptr [rax+134h]
-      vmovss  dword ptr [rsp+98h+in1], xmm1
-      vmovss  xmm1, dword ptr [rbx+8]
-      vsubss  xmm2, xmm1, dword ptr [rax+138h]
-      vmovss  dword ptr [rsp+98h+in1+8], xmm2
-      vmovss  dword ptr [rsp+98h+in1+4], xmm0
-    }
+    v4 = pos->v[1] - Parent->r.currentOrigin.v[1];
+    in1.v[0] = pos->v[0] - Parent->r.currentOrigin.v[0];
+    in1.v[2] = pos->v[2] - Parent->r.currentOrigin.v[2];
+    in1.v[1] = v4;
     AnglesToAxis(&Parent->r.currentAngles, &axis);
     MatrixInverse(&axis, &out);
-    MatrixTransformVector(&in1, &out, _RBX);
+    MatrixTransformVector(&in1, &out, pos);
   }
 }
 
@@ -3818,37 +3600,16 @@ void pathnode_t::LocalizePosToParent(pathnode_t *this, vec3_t *pos)
 LogNoPathNodesAroundUser
 ==============
 */
-
-void __fastcall LogNoPathNodesAroundUser(gentity_s *pEntity, double radiusDistance)
+void LogNoPathNodesAroundUser(gentity_s *pEntity, float radiusDistance)
 {
-  int v5; 
-  __int64 v16; 
-  __int64 v17; 
+  int v3; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = pEntity;
-  __asm { vmovaps xmm6, xmm1 }
-  v5 = Sys_Milliseconds();
-  if ( v5 - lastTimeDisplayed > 1000 )
+  v3 = Sys_Milliseconds();
+  if ( v3 - lastTimeDisplayed > 1000 )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+134h]
-      vmovss  xmm2, dword ptr [rbx+130h]
-      vmovss  xmm1, dword ptr [rbx+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm6, xmm6
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+48h+var_20], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+var_28], xmm1
-    }
-    Com_PrintWarning(16, "Player @ X[%f] Y[%f] Z[%f] found no path nodes within %3.2f radius, this will break spawning checks.\n", _R8, _R9, v16, v17);
-    lastTimeDisplayed = v5;
+    Com_PrintWarning(16, "Player @ X[%f] Y[%f] Z[%f] found no path nodes within %3.2f radius, this will break spawning checks.\n", pEntity->r.currentOrigin.v[0], pEntity->r.currentOrigin.v[1], pEntity->r.currentOrigin.v[2], radiusDistance);
+    lastTimeDisplayed = v3;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -4131,116 +3892,83 @@ Path_AttemptAccurateTrajectoryJumpLink
 */
 int Path_AttemptAccurateTrajectoryJumpLink(pathnode_t *pNodeFrom, pathnode_t *pNodeTo, PathJumpLinkWorkData *workData)
 {
-  char v41; 
-  char v42; 
-  const char *v46; 
-  int result; 
-  float fmt; 
-  float speedScale; 
+  __int128 v3; 
+  __int128 v7; 
+  __int128 v11; 
+  bool v15; 
+  const dvar_t *v16; 
+  float value; 
+  const dvar_t *v18; 
+  const char *v19; 
+  const dvar_t *v20; 
   vec3_t toNormal; 
   vec3_t up; 
   vec3_t toPoint; 
   vec3_t pos; 
-  void *retaddr; 
+  __int128 v26; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm8
-  }
+  v26 = v3;
   if ( !workData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10779, ASSERT_TYPE_ASSERT, "(workData)", (const char *)&queryFormat, "workData") )
     __debugbreak();
   pathnode_t::GetPos(pNodeFrom, &pos);
   AngleVectors((const vec3_t *)&pNodeFrom->constant.44, NULL, NULL, &up);
+  v7 = LODWORD(up.v[0]);
+  *(float *)&v7 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(up.v[1] * up.v[1])) + (float)(up.v[2] * up.v[2]));
+  _XMM3 = v7;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+0C8h+up]
-    vmovss  xmm6, dword ptr [rsp+0C8h+up+4]
-    vmovss  xmm4, dword ptr [rsp+0C8h+up+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+0C8h+up], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0C8h+up+8], xmm0
-    vmovss  dword ptr [rsp+0C8h+up+4], xmm1
   }
+  up.v[0] = up.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  up.v[2] = up.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  up.v[1] = up.v[1] * (float)(1.0 / *(float *)&_XMM0);
   pathnode_t::GetPos(pNodeTo, &toPoint);
   AngleVectors((const vec3_t *)&pNodeTo->constant.44, NULL, NULL, &toNormal);
+  v11 = LODWORD(toNormal.v[0]);
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(toNormal.v[1] * toNormal.v[1])) + (float)(toNormal.v[2] * toNormal.v[2]));
+  _XMM3 = v11;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+0C8h+toNormal]
-    vmovss  xmm6, dword ptr [rsp+0C8h+toNormal+4]
-    vmovss  xmm4, dword ptr [rsp+0C8h+toNormal+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmovaps xmm8, [rsp+0C8h+var_38]
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+0C8h+toNormal], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vcomiss xmm0, cs:__real@3f59999a
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0C8h+toNormal+4], xmm1
-    vmovss  dword ptr [rsp+0C8h+toNormal+8], xmm0
   }
-  if ( v41 | v42 )
+  toNormal.v[0] = toNormal.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v15 = (float)(toNormal.v[2] * (float)(1.0 / *(float *)&_XMM0)) <= 0.85000002;
+  toNormal.v[1] = toNormal.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  toNormal.v[2] = toNormal.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  if ( v15 )
   {
-    _RSI = DVARFLT_agent_jumpWallSpeed;
+    v20 = DVARFLT_agent_jumpWallSpeed;
     if ( !DVARFLT_agent_jumpWallSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "agent_jumpWallSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-    _RSI = DVARFLT_agent_jumpWallGravity;
+    Dvar_CheckFrontendServerThread(v20);
+    value = v20->current.value;
+    v18 = DVARFLT_agent_jumpWallGravity;
     if ( !DVARFLT_agent_jumpWallGravity )
     {
-      v46 = "agent_jumpWallGravity";
+      v19 = "agent_jumpWallGravity";
 LABEL_15:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v46) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v19) )
         __debugbreak();
     }
   }
   else
   {
-    _RSI = DVARFLT_agent_jumpSpeed;
+    v16 = DVARFLT_agent_jumpSpeed;
     if ( !DVARFLT_agent_jumpSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "agent_jumpSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-    _RSI = DVARFLT_agent_jumpGravity;
+    Dvar_CheckFrontendServerThread(v16);
+    value = v16->current.value;
+    v18 = DVARFLT_agent_jumpGravity;
     if ( !DVARFLT_agent_jumpGravity )
     {
-      v46 = "agent_jumpGravity";
+      v19 = "agent_jumpGravity";
       goto LABEL_15;
     }
   }
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3f8147ae
-    vmovss  xmm1, dword ptr [rsi+28h]
-    vmovss  [rsp+0C8h+speedScale], xmm0
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm1
-  }
-  result = Path_TrajectoryCanAttemptAccurateJump(&pos, &up, &toPoint, &toNormal, fmt, speedScale, workData);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_28] }
-  return result;
+  Dvar_CheckFrontendServerThread(v18);
+  return Path_TrajectoryCanAttemptAccurateJump(&pos, &up, &toPoint, &toNormal, v18->current.value, value * 1.01, workData);
 }
 
 /*
@@ -4248,115 +3976,79 @@ LABEL_15:
 Path_AttemptInPlaneJumpLink
 ==============
 */
-__int64 Path_AttemptInPlaneJumpLink(pathnode_t *pNodeFrom, pathnode_t *pNodeTo)
+_BOOL8 Path_AttemptInPlaneJumpLink(pathnode_t *pNodeFrom, pathnode_t *pNodeTo)
 {
-  __int64 result; 
-  char v58; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v12; 
+  float v13; 
+  float v14; 
+  int v15; 
+  float v16; 
+  float v17; 
+  float v19; 
   vec3_t pos; 
   vec3_t start; 
-  vec3_t v62; 
+  vec3_t v22; 
   vec3_t end; 
   trace_t results; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-  }
   pathnode_t::GetPos(pNodeFrom, &pos);
-  pathnode_t::GetPos(pNodeTo, &v62);
+  pathnode_t::GetPos(pNodeTo, &v22);
+  v3 = v22.v[0];
+  v4 = pos.v[0];
+  v5 = v22.v[1];
+  v6 = pos.v[1];
+  v7 = pos.v[2];
+  v8 = LODWORD(v22.v[1]);
+  *(float *)&v8 = fsqrt((float)((float)(v22.v[1] - pos.v[1]) * (float)(v22.v[1] - pos.v[1])) + (float)((float)(v22.v[0] - pos.v[0]) * (float)(v22.v[0] - pos.v[0])));
+  _XMM2 = v8;
   __asm
   {
-    vmovss  xmm12, cs:__real@3f800000
-    vmovss  xmm13, dword ptr [rsp+190h+var_138]
-    vmovss  xmm10, dword ptr [rsp+190h+pos]
-    vmovss  xmm14, dword ptr [rsp+190h+var_138+4]
-    vmovss  xmm11, dword ptr [rsp+190h+pos+4]
-    vmovss  xmm8, dword ptr [rsp+190h+pos+8]
-    vmovss  xmm9, cs:__real@41200000
-    vsubss  xmm4, xmm13, xmm10
-    vmulss  xmm0, xmm4, xmm4
-    vsubss  xmm5, xmm14, xmm11
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm12, xmm0
-    vdivss  xmm3, xmm12, xmm0
-    vmulss  xmm0, xmm5, xmm3
-    vmulss  xmm0, xmm0, cs:__real@40800000
-    vmulss  xmm1, xmm3, xmm4
-    vmulss  xmm15, xmm1, cs:__real@40800000
-    vmovss  [rsp+190h+var_160], xmm0
-    vaddss  xmm6, xmm10, xmm15
-    vaddss  xmm7, xmm0, xmm11
-    vsubss  xmm1, xmm13, xmm6
-    vsubss  xmm0, xmm14, xmm7
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@41800000
-    vsubss  xmm0, xmm8, xmm9
-    vmovss  dword ptr [rsp+190h+pos+8], xmm0
-    vaddss  xmm0, xmm8, xmm9
-    vmovss  dword ptr [rsp+190h+start+8], xmm0
-    vmovss  dword ptr [rsp+190h+pos], xmm6
-    vmovss  dword ptr [rsp+190h+pos+4], xmm7
-    vmovss  dword ptr [rsp+190h+start], xmm6
-    vmovss  dword ptr [rsp+190h+start+4], xmm7
   }
-  G_Main_TraceCapsule(&results, &start, &pos, &pathConnectWalkActorBox, 2047, 131089);
-  if ( !results.startsolid )
+  v12 = 1.0 / *(float *)&_XMM0;
+  v13 = (float)((float)(v22.v[1] - pos.v[1]) * (float)(1.0 / *(float *)&_XMM0)) * 4.0;
+  v14 = (float)(v12 * (float)(v22.v[0] - pos.v[0])) * 4.0;
+  v19 = v13;
+  v15 = 0;
+  while ( 1 )
   {
-    __asm
+    v16 = v4 + v14;
+    v17 = v13 + v6;
+    if ( (float)((float)((float)(v5 - (float)(v13 + v6)) * (float)(v5 - (float)(v13 + v6))) + (float)((float)(v3 - (float)(v4 + v14)) * (float)(v3 - (float)(v4 + v14)))) < 16.0 )
+      return 0i64;
+    pos.v[2] = v7 - 10.0;
+    start.v[2] = v7 + 10.0;
+    pos.v[0] = v4 + v14;
+    pos.v[1] = v13 + v6;
+    start.v[0] = v4 + v14;
+    start.v[1] = v13 + v6;
+    G_Main_TraceCapsule(&results, &start, &pos, &pathConnectWalkActorBox, 2047, 131089);
+    if ( results.startsolid || results.fraction == 1.0 )
+      break;
+    v4 = (float)((float)(pos.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    v6 = (float)((float)(pos.v[1] - start.v[1]) * results.fraction) + start.v[1];
+    if ( (float)((float)((float)((float)(v6 - v17) * (float)(v6 - v17)) + (float)((float)(v4 - v16) * (float)(v4 - v16))) + (float)((float)((float)((float)((float)(pos.v[2] - start.v[2]) * results.fraction) + start.v[2]) - v7) * (float)((float)((float)((float)(pos.v[2] - start.v[2]) * results.fraction) + start.v[2]) - v7))) <= 100.0 )
     {
-      vmovss  xmm5, [rbp+90h+results.fraction]
-      vucomiss xmm5, xmm12
+      v13 = v19;
+      ++v15;
+      v7 = (float)((float)(pos.v[2] - start.v[2]) * results.fraction) + start.v[2];
+      if ( v15 < 96 )
+        continue;
     }
+    return 0i64;
   }
-  __asm
-  {
-    vaddss  xmm1, xmm9, dword ptr [rsp+190h+var_138+8]
-    vmovss  dword ptr [rsp+190h+end+8], xmm1
-    vmovss  dword ptr [rsp+190h+end], xmm13
-    vmovss  dword ptr [rsp+190h+end+4], xmm14
-  }
+  end.v[2] = v22.v[2] + 10.0;
+  end.v[0] = v3;
+  end.v[1] = v5;
   G_Main_TraceCapsule(&results, &start, &end, &pathConnectWalkActorBox, 2047, 529);
-  __asm
-  {
-    vmovss  xmm0, [rbp+90h+results.fraction]
-    vucomiss xmm0, xmm12
-  }
-  if ( v58 )
-    result = 1i64;
-  else
-    result = 0i64;
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  return results.fraction == 1.0;
 }
 
 /*
@@ -4364,67 +4056,56 @@ __int64 Path_AttemptInPlaneJumpLink(pathnode_t *pNodeFrom, pathnode_t *pNodeTo)
 Path_AutoDisconnectPaths
 ==============
 */
-void Path_AutoDisconnectPaths()
+void Path_AutoDisconnectPaths(void)
 {
-  int v2; 
-  __int64 v3; 
-  __int64 v4; 
-  gentity_s *v6; 
+  int v0; 
+  __int64 v1; 
+  __int64 v2; 
+  gentity_s *v3; 
   nav_space_s *SpaceByEntity; 
   nav_space_s *MostLikelySpace; 
   __int64 bNow; 
   __int64 userDataFlags; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v2 = 0;
+  v0 = 0;
   if ( level.num_entities > 0 )
   {
-    v3 = 0i64;
-    v4 = 0i64;
-    __asm
-    {
-      vmovaps xmmword ptr [rax-38h], xmm6
-      vmovss  xmm6, cs:__real@41700000
-    }
+    v1 = 0i64;
+    v2 = 0i64;
     do
     {
-      v6 = &level.gentities[v4];
-      if ( (unsigned int)v2 >= 0x800 )
+      v3 = &level.gentities[v2];
+      if ( (unsigned int)v0 >= 0x800 )
       {
         LODWORD(userDataFlags) = 2048;
-        LODWORD(bNow) = v2;
+        LODWORD(bNow) = v0;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", bNow, userDataFlags) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v4].r.isInUse != g_entityIsInUse[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v2].r.isInUse != g_entityIsInUse[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v3] && (v6->flags.m_flags[0] & 0xC0) == 0xC0 )
+      if ( g_entityIsInUse[v1] && (v3->flags.m_flags[0] & 0xC0) == 0xC0 )
       {
-        if ( (v6->flags.m_flags[0] & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10389, ASSERT_TYPE_ASSERT, "(Path_IsDynamicBlockingEntity( ent ))", (const char *)&queryFormat, "Path_IsDynamicBlockingEntity( ent )") )
+        if ( (v3->flags.m_flags[0] & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10389, ASSERT_TYPE_ASSERT, "(Path_IsDynamicBlockingEntity( ent ))", (const char *)&queryFormat, "Path_IsDynamicBlockingEntity( ent )") )
           __debugbreak();
-        Nav_DestroyObstacleByEnt(v6);
-        if ( (v6->flags.m_flags[0] & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10319, ASSERT_TYPE_ASSERT, "(Path_IsDynamicBlockingEntity( ent ))", (const char *)&queryFormat, "Path_IsDynamicBlockingEntity( ent )") )
+        Nav_DestroyObstacleByEnt(v3);
+        if ( (v3->flags.m_flags[0] & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10319, ASSERT_TYPE_ASSERT, "(Path_IsDynamicBlockingEntity( ent ))", (const char *)&queryFormat, "Path_IsDynamicBlockingEntity( ent )") )
           __debugbreak();
-        v6->flags.m_flags[0] |= 0x100u;
-        SpaceByEntity = Nav_GetSpaceByEntity(v6);
-        MostLikelySpace = Nav_FindMostLikelySpace(&v6->r.currentOrigin, NAV_LAYER_HUMAN, SpaceByEntity);
+        v3->flags.m_flags[0] |= 0x100u;
+        SpaceByEntity = Nav_GetSpaceByEntity(v3);
+        MostLikelySpace = Nav_FindMostLikelySpace(&v3->r.currentOrigin, NAV_LAYER_HUMAN, SpaceByEntity);
         if ( MostLikelySpace )
-        {
-          __asm { vmovaps xmm2, xmm6; penalty }
-          Nav_CreateObstacleByEnt(MostLikelySpace, v6, *(float *)&_XMM2, 0xFFFFFFFF, 0xFFFFE07F, 1, 0);
-        }
-        v6->flags.m_flags[0] &= ~0x100u;
-        v6->iDisconnectTime = level.time;
+          Nav_CreateObstacleByEnt(MostLikelySpace, v3, 15.0, 0xFFFFFFFF, 0xFFFFE07F, 1, 0);
+        v3->flags.m_flags[0] &= ~0x100u;
+        v3->iDisconnectTime = level.time;
       }
+      ++v0;
+      ++v1;
       ++v2;
-      ++v3;
-      ++v4;
     }
-    while ( v2 < level.num_entities );
-    __asm { vmovaps xmm6, [rsp+78h+var_38] }
+    while ( v0 < level.num_entities );
   }
 }
 
@@ -4621,23 +4302,22 @@ char Path_CanStealNode(const pathnode_t *const node, const sentient_s *const cla
 Path_CanStealPriorityNode
 ==============
 */
-bool Path_CanStealPriorityNode(const pathnode_t *const node, const sentient_s *const claimer)
+char Path_CanStealPriorityNode(const pathnode_t *const node, const sentient_s *const claimer)
 {
-  team_t eTeam; 
   unsigned int NodeTeam; 
   const char *GameType; 
-  int v8; 
-  unsigned int v9; 
+  int v6; 
+  unsigned int v7; 
+  const char *v8; 
+  int v9; 
   const char *v10; 
   int v11; 
-  const char *v12; 
   int v13; 
-  bool result; 
-  int v16; 
   sentient_s *NodeOwner; 
-  sentient_s *v18; 
-  __int64 v33; 
-  AIWrapper v34; 
+  const sentient_s *v15; 
+  float v16; 
+  __int64 v17; 
+  AIWrapper v18; 
   vec3_t pos; 
 
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9531, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
@@ -4648,68 +4328,61 @@ bool Path_CanStealPriorityNode(const pathnode_t *const node, const sentient_s *c
     __debugbreak();
   if ( !BG_ActorOrAgentSystemEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9534, ASSERT_TYPE_ASSERT, "(BG_ActorOrAgentSystemEnabled())", (const char *)&queryFormat, "BG_ActorOrAgentSystemEnabled()") )
     __debugbreak();
-  eTeam = claimer->eTeam;
-  __asm { vmovaps [rsp+0E8h+var_38], xmm6 }
-  NodeTeam = Path_GetNodeTeam(eTeam);
-  if ( Path_GetNodeOwnerCount(node, NodeTeam) )
+  NodeTeam = Path_GetNodeTeam(claimer->eTeam);
+  if ( !Path_GetNodeOwnerCount(node, NodeTeam) )
+    return 1;
+  if ( Path_GetNumClaimedOverlapNodes(node, NodeTeam) <= 1 )
   {
-    if ( Path_GetNumClaimedOverlapNodes(node, NodeTeam) <= 1 )
+    v13 = 0;
+    while ( 1 )
     {
-      __asm { vmovss  xmm6, cs:__real@43610000 }
-      v16 = 0;
-      while ( 1 )
+      NodeOwner = Path_GetNodeOwner(node, v13, NodeTeam);
+      v15 = NodeOwner;
+      if ( NodeOwner )
       {
-        NodeOwner = Path_GetNodeOwner(node, v16, NodeTeam);
-        v18 = NodeOwner;
-        if ( NodeOwner )
+        AIWrapper::AIWrapper(&v18, NodeOwner->ent);
+        if ( !v18.m_pAI )
+          break;
+        if ( v15 != claimer )
         {
-          AIWrapper::AIWrapper(&v34, NodeOwner->ent);
-          if ( !v34.m_pAI )
+          if ( v15->eTeam != claimer->eTeam )
             break;
-          if ( v18 != claimer )
+          if ( !((unsigned __int8 (*)(void))v18.m_pAI->IsDying)() )
           {
-            if ( v18->eTeam != claimer->eTeam )
+            pathnode_t::GetPos((pathnode_t *)node, &pos);
+            v16 = (float)((float)(pos.v[1] - v15->ent->r.currentOrigin.v[1]) * (float)(pos.v[1] - v15->ent->r.currentOrigin.v[1])) + (float)((float)(pos.v[0] - v15->ent->r.currentOrigin.v[0]) * (float)(pos.v[0] - v15->ent->r.currentOrigin.v[0]));
+            if ( v16 < 225.0 || (float)((float)((float)((float)(pos.v[1] - claimer->ent->r.currentOrigin.v[1]) * (float)(pos.v[1] - claimer->ent->r.currentOrigin.v[1])) + (float)((float)(pos.v[0] - claimer->ent->r.currentOrigin.v[0]) * (float)(pos.v[0] - claimer->ent->r.currentOrigin.v[0]))) + 225.0) >= v16 )
               break;
-            if ( !((unsigned __int8 (*)(void))v34.m_pAI->IsDying)() )
-            {
-              pathnode_t::GetPos((pathnode_t *)node, &pos);
-              __asm
-              {
-                vmovss  xmm3, dword ptr [rsp+0E8h+pos]
-                vmovss  xmm4, dword ptr [rsp+0E8h+pos+4]
-                vsubss  xmm1, xmm3, dword ptr [rax]
-                vsubss  xmm0, xmm4, dword ptr [rax+4]
-                vmulss  xmm2, xmm0, xmm0
-                vmulss  xmm1, xmm1, xmm1
-                vaddss  xmm5, xmm2, xmm1
-                vcomiss xmm5, xmm6
-              }
-              if ( v18->ent >= (gentity_s *)0xFFFFFFFFFFFFFED0i64 )
-                break;
-              __asm
-              {
-                vsubss  xmm0, xmm4, dword ptr [rax+4]
-                vsubss  xmm1, xmm3, dword ptr [rax]
-                vmulss  xmm2, xmm0, xmm0
-                vmulss  xmm1, xmm1, xmm1
-                vaddss  xmm2, xmm2, xmm1
-                vaddss  xmm0, xmm2, xmm6
-                vcomiss xmm0, xmm5
-              }
-              if ( claimer->ent < (gentity_s *)0xFFFFFFFFFFFFFED0i64 )
-                break;
-            }
           }
         }
-        if ( ++v16 >= 3 )
-          goto LABEL_47;
       }
+      if ( ++v13 >= 3 )
+        return 1;
+    }
+  }
+  else
+  {
+    if ( !BG_BotSystemEnabled() || (GameType = SV_GameMP_GetGameType(), *GameType == aBr_2[0]) && GameType[1] == aBr_2[1] && GameType[2] == aBr_2[2] )
+      NodeTeam = 0;
+    v6 = 1;
+    if ( BG_BotSystemEnabled() )
+    {
+      v8 = SV_GameMP_GetGameType();
+      v9 = *(unsigned __int8 *)v8 - (unsigned __int8)aBr_2[0];
+      if ( !v9 )
+      {
+        v9 = *((unsigned __int8 *)v8 + 1) - (unsigned __int8)aBr_2[1];
+        if ( !v9 )
+          v9 = *((unsigned __int8 *)v8 + 2) - (unsigned __int8)aBr_2[2];
+      }
+      v7 = (v9 != 0) + 1;
     }
     else
     {
-      if ( !BG_BotSystemEnabled() || (GameType = SV_GameMP_GetGameType(), *GameType == aBr_2[0]) && GameType[1] == aBr_2[1] && GameType[2] == aBr_2[2] )
-        NodeTeam = 0;
-      v8 = 1;
+      v7 = 1;
+    }
+    if ( NodeTeam >= v7 )
+    {
       if ( BG_BotSystemEnabled() )
       {
         v10 = SV_GameMP_GetGameType();
@@ -4720,42 +4393,19 @@ bool Path_CanStealPriorityNode(const pathnode_t *const node, const sentient_s *c
           if ( !v11 )
             v11 = *((unsigned __int8 *)v10 + 2) - (unsigned __int8)aBr_2[2];
         }
-        v9 = (v11 != 0) + 1;
+        v6 = (v11 != 0) + 1;
       }
-      else
-      {
-        v9 = 1;
-      }
-      if ( NodeTeam >= v9 )
-      {
-        if ( BG_BotSystemEnabled() )
-        {
-          v12 = SV_GameMP_GetGameType();
-          v13 = *(unsigned __int8 *)v12 - (unsigned __int8)aBr_2[0];
-          if ( !v13 )
-          {
-            v13 = *((unsigned __int8 *)v12 + 1) - (unsigned __int8)aBr_2[1];
-            if ( !v13 )
-              v13 = *((unsigned __int8 *)v12 + 2) - (unsigned __int8)aBr_2[2];
-          }
-          v8 = (v13 != 0) + 1;
-        }
-        LODWORD(v33) = NodeTeam;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 378, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeamAdjusted ) < (unsigned)( Path_NodeMaxNumTeamOwners( node ) )", "nodeTeamAdjusted doesn't index Path_NodeMaxNumTeamOwners( node )\n\t%i not in [0, %i)", v33, v8) )
-          __debugbreak();
-      }
-      if ( SentientHandle::isDefined(&node->dynamic.pOwners[NodeTeam]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9553, ASSERT_TYPE_ASSERT, "(!Path_NodeOwnerSentHandleConst( node, nodeTeam )->isDefined())", (const char *)&queryFormat, "!Path_NodeOwnerSentHandleConst( node, nodeTeam )->isDefined()") )
+      LODWORD(v17) = NodeTeam;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 378, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeamAdjusted ) < (unsigned)( Path_NodeMaxNumTeamOwners( node ) )", "nodeTeamAdjusted doesn't index Path_NodeMaxNumTeamOwners( node )\n\t%i not in [0, %i)", v17, v6) )
         __debugbreak();
     }
-    result = 0;
+    if ( SentientHandle::isDefined(&node->dynamic.pOwners[NodeTeam]) )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9553, ASSERT_TYPE_ASSERT, "(!Path_NodeOwnerSentHandleConst( node, nodeTeam )->isDefined())", (const char *)&queryFormat, "!Path_NodeOwnerSentHandleConst( node, nodeTeam )->isDefined()") )
+        __debugbreak();
+    }
   }
-  else
-  {
-LABEL_47:
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+0E8h+var_38] }
-  return result;
+  return 0;
 }
 
 /*
@@ -4763,157 +4413,78 @@ LABEL_47:
 Path_CheckValidJumpAngles
 ==============
 */
-__int64 Path_CheckValidJumpAngles(pathnode_t *pNodeFrom, pathnode_t *pNodeTo)
+_BOOL8 Path_CheckValidJumpAngles(pathnode_t *pNodeFrom, pathnode_t *pNodeTo)
 {
-  char v62; 
-  char v63; 
-  __int64 result; 
+  __int128 v4; 
+  $934789BA12C0671A9461497ABF95DE7A *v8; 
+  __int128 v9; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  float v20; 
+  float v21; 
+  float v22; 
+  BOOL v23; 
+  int v24; 
+  float v25; 
+  _BOOL8 result; 
   vec3_t up; 
-  vec3_t v96; 
-  vec3_t v97; 
-  char v98; 
-  void *retaddr; 
+  vec3_t v28; 
+  vec3_t v29; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  _RSI = pNodeTo;
   AngleVectors((const vec3_t *)&pNodeFrom->constant.44, NULL, NULL, &up);
+  v4 = LODWORD(up.v[0]);
+  *(float *)&v4 = fsqrt((float)((float)(*(float *)&v4 * *(float *)&v4) + (float)(up.v[1] * up.v[1])) + (float)(up.v[2] * up.v[2]));
+  _XMM3 = v4;
   __asm
   {
-    vmovss  xmm5, dword ptr [rbp+57h+up]
-    vmovss  xmm6, dword ptr [rbp+57h+up+4]
-    vmovss  xmm4, dword ptr [rbp+57h+up+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@80000000
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm7
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+57h+up], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+57h+up+8], xmm0
-    vmovss  dword ptr [rbp+57h+up+4], xmm1
   }
-  AngleVectors((const vec3_t *)&_RSI->constant.44, NULL, NULL, &v96);
+  up.v[0] = up.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v8 = &pNodeTo->constant.44;
+  up.v[2] = up.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  up.v[1] = up.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  AngleVectors((const vec3_t *)&pNodeTo->constant.44, NULL, NULL, &v28);
+  v9 = LODWORD(v28.v[0]);
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v28.v[1] * v28.v[1])) + (float)(v28.v[2] * v28.v[2]));
+  _XMM3 = v9;
   __asm
   {
-    vmovss  xmm5, dword ptr [rbp+57h+var_A0]
-    vmovss  xmm6, dword ptr [rbp+57h+var_A0+4]
-    vmovss  xmm4, dword ptr [rbp+57h+var_A0+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm7
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+57h+var_A0], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+57h+var_A0+8], xmm0
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vsubss  xmm6, xmm0, dword ptr [rdi+20h]
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vsubss  xmm4, xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbp+57h+var_A0+4], xmm1
-    vmovss  xmm1, dword ptr [rsi+24h]
-    vsubss  xmm5, xmm1, dword ptr [rdi+24h]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
+  }
+  v28.v[0] = v28.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v28.v[2] = v28.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v13 = pNodeTo->constant.vLocalOrigin.v[0] - pNodeFrom->constant.vLocalOrigin.v[0];
+  v14 = pNodeTo->constant.vLocalOrigin.v[2] - pNodeFrom->constant.vLocalOrigin.v[2];
+  v28.v[1] = v28.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  v16 = LODWORD(pNodeTo->constant.vLocalOrigin.v[1]);
+  v15 = pNodeTo->constant.vLocalOrigin.v[1] - pNodeFrom->constant.vLocalOrigin.v[1];
+  *(float *)&v16 = fsqrt((float)((float)(v15 * v15) + (float)(v13 * v13)) + (float)(v14 * v14));
+  _XMM1 = v16;
+  __asm
+  {
     vcmpless xmm0, xmm1, xmm7
     vblendvps xmm0, xmm1, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm9, xmm6, xmm1
-    vmulss  xmm10, xmm5, xmm1
-    vmulss  xmm11, xmm4, xmm1
   }
-  AngleVectors((const vec3_t *)&pNodeFrom->constant.44, NULL, NULL, &v97);
-  __asm
+  v20 = v13 * (float)(1.0 / *(float *)&_XMM0);
+  v21 = v15 * (float)(1.0 / *(float *)&_XMM0);
+  v22 = v14 * (float)(1.0 / *(float *)&_XMM0);
+  AngleVectors((const vec3_t *)&pNodeFrom->constant.44, NULL, NULL, &v29);
+  v24 = 0;
+  v23 = v29.v[2] > 0.85000002;
+  AngleVectors((const vec3_t *)v8, NULL, NULL, &v29);
+  LOBYTE(v24) = v29.v[2] > 0.85000002;
+  result = 0;
+  if ( (v23 || (float)((float)((float)(v20 * up.v[0]) + (float)(v21 * up.v[1])) + (float)(up.v[2] * v22)) >= 0.34200001) && (v24 || (float)((float)((float)(v20 * v28.v[0]) + (float)(v21 * v28.v[1])) + (float)(v28.v[2] * v22)) <= -0.34200001) )
   {
-    vmovss  xmm0, dword ptr [rbp+57h+var_90+8]
-    vcomiss xmm0, cs:__real@3f59999a
-  }
-  AngleVectors((const vec3_t *)&_RSI->constant.44, NULL, NULL, &v97);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+var_90+8]
-    vcomiss xmm0, cs:__real@3f59999a
-    vmovss  xmm5, dword ptr [rbp+57h+up+8]
-    vmovss  xmm7, dword ptr [rbp+57h+up+4]
-    vmovss  xmm8, dword ptr [rbp+57h+up]
-    vmulss  xmm1, xmm9, xmm8
-    vmulss  xmm0, xmm10, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm11
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@3eaf1aa0
-    vmovss  xmm3, dword ptr [rbp+57h+var_A0+8]
-    vmovss  xmm4, dword ptr [rbp+57h+var_A0+4]
-    vmovss  xmm6, dword ptr [rbp+57h+var_A0]
-  }
-  if ( v62 | v63 )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm9, xmm6
-      vmulss  xmm0, xmm10, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm11
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@beaf1aa0
-    }
-  }
-  if ( v62 | v63 )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm6, xmm8
-      vmulss  xmm0, xmm4, xmm7
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm5
-      vaddss  xmm4, xmm2, xmm1
-      vcomiss xmm4, cs:__real@3f59999a
-      vmovss  xmm0, cs:__real@be199998
-      vcomiss xmm5, xmm0
-      vcomiss xmm4, cs:__real@3f000000
-    }
-    result = 0i64;
-  }
-  else
-  {
-    result = 1i64;
-  }
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    if ( v23 || v24 )
+      return 1;
+    v25 = (float)((float)(v28.v[0] * up.v[0]) + (float)(v28.v[1] * up.v[1])) + (float)(v28.v[2] * up.v[2]);
+    if ( v25 <= 0.85000002 && (up.v[2] >= -0.14999998 || v28.v[2] >= -0.14999998) && v25 < 0.5 )
+      return 1;
   }
   return result;
 }
@@ -5745,7 +5316,7 @@ void Path_ClearAllNodeTransientData(void)
 Path_CompareNodesIncreasing
 ==============
 */
-char Path_CompareNodesIncreasing(const pathsort_s *ps1, const pathsort_s *ps2)
+bool Path_CompareNodesIncreasing(const pathsort_s *ps1, const pathsort_s *ps2)
 {
   __int16 wLinkCount; 
 
@@ -5759,12 +5330,7 @@ char Path_CompareNodesIncreasing(const pathsort_s *ps1, const pathsort_s *ps2)
   {
     return 0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vcomiss xmm0, dword ptr [rdx+8]
-  }
-  return 0;
+  return ps1->metric < ps2->metric;
 }
 
 /*
@@ -5774,14 +5340,7 @@ Path_CompareNodesIncreasingDistOnly
 */
 bool Path_CompareNodesIncreasingDistOnly(const pathsort_s *ps1, const pathsort_s *ps2)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vcomiss xmm0, dword ptr [rdx+8]
-  }
-  return v2;
+  return ps1->metric < ps2->metric;
 }
 
 /*
@@ -5904,224 +5463,152 @@ Path_DebugDrawJumpNodeLinks
 */
 unsigned __int16 Path_DebugDrawJumpNodeLinks()
 {
-  unsigned __int16 v9; 
+  cg_t *LocalClientGlobals; 
+  unsigned __int16 v1; 
+  float v2; 
+  float v3; 
   unsigned __int16 result; 
-  unsigned __int16 v23; 
-  unsigned __int16 v24; 
-  pathnode_t *v35; 
-  pathnode_t *v47; 
+  unsigned __int16 v5; 
+  unsigned __int16 v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  pathnode_t *v11; 
+  pathnode_t *v12; 
   unsigned __int16 type; 
-  pathnode_t *v54; 
-  bool v55; 
-  char v56; 
-  const vec4_t *v69; 
-  vec3_t *p_pointB; 
+  bool v14; 
+  pathnode_t *v15; 
+  float v16; 
+  float v17; 
+  int v18; 
+  const vec4_t *v19; 
   vec3_t *p_pointCenter; 
+  const vec4_t *v21; 
+  vec3_t *p_pointB; 
   vec3_t pos; 
   vec3_t outPos; 
   vec3_t end; 
-  vec3_t v82; 
+  vec3_t v26; 
   PathJumpLinkWorkData workData; 
   trace_t results; 
-  char v87; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
   CL_GetViewPos(LOCAL_CLIENT_0, &outPos);
-  _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-  __asm { vmovss  xmm3, cs:__real@467a0000 }
-  v9 = 0;
-  __asm
-  {
-    vmulss  xmm0, xmm3, dword ptr [rax+6944h]
-    vmovss  xmm2, dword ptr [rax+6948h]
-    vmovss  xmm4, dword ptr [rax+694Ch]
-    vaddss  xmm1, xmm0, dword ptr [rsp+1A0h+outPos]
-    vmulss  xmm2, xmm3, xmm2
-    vaddss  xmm0, xmm2, dword ptr [rsp+1A0h+outPos+4]
-    vmovss  dword ptr [rsp+1A0h+end], xmm1
-    vmulss  xmm1, xmm3, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rsp+1A0h+outPos+8]
-    vmovss  dword ptr [rsp+1A0h+end+8], xmm2
-    vmovss  dword ptr [rsp+1A0h+end+4], xmm0
-  }
+  LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+  v1 = 0;
+  v2 = LocalClientGlobals->refdef.view.axis.m[0].v[2];
+  v3 = (float)(16000.0 * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + outPos.v[1];
+  end.v[0] = (float)(16000.0 * LocalClientGlobals->refdef.view.axis.m[0].v[0]) + outPos.v[0];
+  end.v[2] = (float)(16000.0 * v2) + outPos.v[2];
+  end.v[1] = v3;
   G_Main_TraceCapsule(&results, &outPos, &end, &bounds_origin, 0, 33685521);
-  __asm
-  {
-    vmovss  xmm5, [rbp+0A0h+results.fraction]
-    vmovss  xmm0, dword ptr [rsp+1A0h+end]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1A0h+outPos]
-    vmovss  xmm0, dword ptr [rsp+1A0h+end+4]
-  }
   result = LOWORD(g_path.actualNodeCount) - LOWORD(pathData.zoneCount);
-  v23 = -1;
-  v24 = 0;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@4d742400
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm7, xmm1, dword ptr [rsp+1A0h+outPos]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1A0h+outPos+4]
-    vmovss  xmm0, dword ptr [rsp+1A0h+end+8]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rsp+1A0h+outPos+8]
-    vaddss  xmm8, xmm2, dword ptr [rsp+1A0h+outPos+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm9, xmm2, dword ptr [rsp+1A0h+outPos+8]
-  }
+  v5 = -1;
+  v6 = 0;
+  v7 = FLOAT_2_56e8;
+  v8 = (float)((float)(end.v[0] - outPos.v[0]) * results.fraction) + outPos.v[0];
+  v9 = (float)((float)(end.v[1] - outPos.v[1]) * results.fraction) + outPos.v[1];
+  v10 = (float)((float)(end.v[2] - outPos.v[2]) * results.fraction) + outPos.v[2];
   if ( (signed int)(g_path.actualNodeCount - pathData.zoneCount) > 0 )
   {
     do
     {
-      if ( Path_NodeValid(v24) )
+      if ( Path_NodeValid(v6) )
       {
-        v35 = &pathData.nodes[v24];
-        if ( (unsigned __int16)(v35->constant.type - 29) <= 1u )
+        v11 = &pathData.nodes[v6];
+        if ( (unsigned __int16)(v11->constant.type - 29) <= 1u )
         {
-          pathnode_t::GetPos(v35, &pos);
-          __asm
+          pathnode_t::GetPos(v11, &pos);
+          if ( (float)((float)((float)((float)(pos.v[1] - v9) * (float)(pos.v[1] - v9)) + (float)((float)(pos.v[0] - v8) * (float)(pos.v[0] - v8))) + (float)((float)(pos.v[2] - v10) * (float)(pos.v[2] - v10))) < v7 )
           {
-            vmovss  xmm0, dword ptr [rsp+1A0h+pos]
-            vmovss  xmm1, dword ptr [rsp+1A0h+pos+4]
-            vsubss  xmm3, xmm0, xmm7
-            vmovss  xmm0, dword ptr [rsp+1A0h+pos+8]
-            vsubss  xmm2, xmm1, xmm8
-            vsubss  xmm4, xmm0, xmm9
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-            vcomiss xmm5, xmm6
-          }
-          if ( v55 )
-          {
-            __asm { vmovaps xmm6, xmm5 }
-            v23 = v24;
+            v7 = (float)((float)((float)(pos.v[1] - v9) * (float)(pos.v[1] - v9)) + (float)((float)(pos.v[0] - v8) * (float)(pos.v[0] - v8))) + (float)((float)(pos.v[2] - v10) * (float)(pos.v[2] - v10));
+            v5 = v6;
           }
         }
       }
-      result = ++v24;
+      result = ++v6;
     }
-    while ( v24 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
-    if ( v23 != 0xFFFF )
+    while ( v6 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
+    if ( v5 != 0xFFFF )
     {
-      v47 = &pathData.nodes[v23];
-      type = v47->constant.type;
-      v55 = type == 29;
+      v12 = &pathData.nodes[v5];
+      type = v12->constant.type;
+      v14 = type == 29;
       result = type - 29;
-      if ( (v55 || result == 1) && (signed int)(g_path.actualNodeCount - pathData.zoneCount) > 0 )
+      if ( (v14 || result == 1) && (signed int)(g_path.actualNodeCount - pathData.zoneCount) > 0 )
       {
-        __asm
+        do
         {
-          vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmovss  xmm8, cs:__real@461c4000
-          vmovss  xmm9, cs:__real@42000000
-          vmovaps [rsp+1A0h+var_70], xmm10
-          vmovss  xmm10, cs:__real@48800000
-          vmovaps [rsp+1A0h+var_80], xmm11
-          vmovss  xmm11, cs:__real@43840000
-        }
-        while ( 1 )
-        {
-          if ( !Path_NodeValid(v9) )
-            goto LABEL_29;
-          v54 = &pathData.nodes[v9];
-          if ( v9 == v23 )
-            goto LABEL_29;
-          if ( (unsigned __int16)(v54->constant.type - 29) > 1u )
-            goto LABEL_29;
-          pathnode_t::GetPos(v47, &pos);
-          pathnode_t::GetPos(v54, &v82);
-          __asm
+          if ( !Path_NodeValid(v1) )
+            goto LABEL_33;
+          v15 = &pathData.nodes[v1];
+          if ( v1 == v5 )
+            goto LABEL_33;
+          if ( (unsigned __int16)(v15->constant.type - 29) > 1u )
+            goto LABEL_33;
+          pathnode_t::GetPos(v12, &pos);
+          pathnode_t::GetPos(v15, &v26);
+          v16 = v26.v[2] - pos.v[2];
+          if ( (float)(v26.v[2] - pos.v[2]) > 264.0 )
+            goto LABEL_33;
+          v17 = (float)((float)((float)(v26.v[1] - pos.v[1]) * (float)(v26.v[1] - pos.v[1])) + (float)((float)(v26.v[0] - pos.v[0]) * (float)(v26.v[0] - pos.v[0]))) + (float)(v16 * v16);
+          if ( v17 >= 262144.0 )
+            goto LABEL_33;
+          if ( v17 <= 10000.0 )
           {
-            vmovss  xmm0, dword ptr [rsp+1A0h+var_140]
-            vsubss  xmm2, xmm0, dword ptr [rsp+1A0h+pos]
-            vmovss  xmm0, dword ptr [rsp+1A0h+var_140+8]
-            vsubss  xmm6, xmm0, dword ptr [rsp+1A0h+pos+8]
-            vcomiss xmm6, xmm11
-            vmovss  xmm1, dword ptr [rsp+1A0h+var_140+4]
-            vsubss  xmm3, xmm1, dword ptr [rsp+1A0h+pos+4]
-          }
-          if ( !(v55 | v56) )
-            goto LABEL_29;
-          __asm
-          {
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm3, xmm2, xmm1
-            vcomiss xmm3, xmm10
-          }
-          if ( !v55 )
-            goto LABEL_29;
-          __asm { vcomiss xmm3, xmm8 }
-          if ( v55 | v56 )
-          {
-            v69 = &colorRed;
+            v21 = &colorRed;
           }
           else
           {
-            if ( Path_IsOrientedNodeUpright(v47) && Path_IsOrientedNodeUpright(v54) )
+            if ( Path_IsOrientedNodeUpright(v12) && Path_IsOrientedNodeUpright(v15) && COERCE_FLOAT(LODWORD(v16) & _xmm) < 32.0 )
             {
-              __asm
+              if ( Path_AttemptInPlaneJumpLink(v12, v15) )
               {
-                vandps  xmm6, xmm6, xmm7
-                vcomiss xmm6, xmm9
+                v18 = Path_AttemptAccurateTrajectoryJumpLink(v12, v15, &workData);
+                v19 = &colorCyan;
+                if ( !v18 )
+                  v19 = &colorYellow;
+                G_DebugLine(&workData.pointA, &workData.pointCenter, v19, 0);
+                p_pointCenter = &workData.pointCenter;
+                v21 = v19;
+                p_pointB = &workData.pointB;
               }
+              else
+              {
+                p_pointCenter = &pos;
+                v21 = &colorLtOrange;
+                p_pointB = &v26;
+              }
+              goto LABEL_32;
             }
-            if ( Path_CheckValidJumpAngles(v47, v54) )
+            if ( Path_CheckValidJumpAngles(v12, v15) )
             {
-              if ( Path_AttemptAccurateTrajectoryJumpLink(v47, v54, &workData) )
+              if ( Path_AttemptAccurateTrajectoryJumpLink(v12, v15, &workData) )
               {
                 G_DebugLine(&workData.pointA, &workData.pointCenter, &colorCyan, 0);
-                v69 = &colorCyan;
+                v21 = &colorCyan;
               }
               else
               {
                 G_DebugLine(&workData.pointA, &workData.pointCenter, &colorMagenta, 0);
-                v69 = &colorMagenta;
+                v21 = &colorMagenta;
               }
               p_pointB = &workData.pointB;
               p_pointCenter = &workData.pointCenter;
-              goto LABEL_28;
+              goto LABEL_32;
             }
-            v69 = &colorRedFaded;
+            v21 = &colorRedFaded;
           }
           p_pointCenter = &pos;
-          p_pointB = &v82;
-LABEL_28:
-          G_DebugLine(p_pointCenter, p_pointB, v69, 0);
-LABEL_29:
-          result = ++v9;
-          if ( v9 >= (signed int)(g_path.actualNodeCount - pathData.zoneCount) )
-          {
-            __asm
-            {
-              vmovaps xmm11, [rsp+1A0h+var_80]
-              vmovaps xmm10, [rsp+1A0h+var_70]
-            }
-            break;
-          }
+          p_pointB = &v26;
+LABEL_32:
+          G_DebugLine(p_pointCenter, p_pointB, v21, 0);
+LABEL_33:
+          result = ++v1;
         }
+        while ( v1 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
       }
     }
-  }
-  _R11 = &v87;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
   return result;
 }
@@ -6179,10 +5666,7 @@ void Path_DisconnectPathsForEntity(gentity_s *ent, bool bNow)
   SpaceByEntity = Nav_GetSpaceByEntity(ent);
   MostLikelySpace = Nav_FindMostLikelySpace(&ent->r.currentOrigin, NAV_LAYER_HUMAN, SpaceByEntity);
   if ( MostLikelySpace )
-  {
-    __asm { vmovss  xmm2, cs:__real@41700000; penalty }
-    Nav_CreateObstacleByEnt(MostLikelySpace, ent, *(float *)&_XMM2, 0xFFFFFFFF, 0xFFFFE07F, bNow, 0);
-  }
+    Nav_CreateObstacleByEnt(MostLikelySpace, ent, 15.0, 0xFFFFFFFF, 0xFFFFE07F, bNow, 0);
   ent->flags.m_flags[0] &= ~0x100u;
   ent->iDisconnectTime = level.time;
 }
@@ -6285,150 +5769,177 @@ Path_DrawDebug
 void Path_DrawDebug()
 {
   signed __int64 v0; 
-  void *v11; 
-  unsigned int v12; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  void *v5; 
+  unsigned int v6; 
+  const dvar_t *v7; 
+  float value; 
   gclient_s *client; 
-  unsigned int v24; 
-  unsigned int v25; 
-  unsigned int v26; 
-  __int64 v27; 
-  pathnode_t *v28; 
-  unsigned int v29; 
-  unsigned __int16 v30; 
-  char v33; 
-  char v34; 
-  __int64 v46; 
-  unsigned __int16 v47; 
-  pathnode_t *v56; 
-  const dvar_t *v57; 
-  const dvar_t *v58; 
-  unsigned int v59; 
-  unsigned int v60; 
-  int v61; 
-  unsigned int RawMax; 
-  const dvar_t *v82; 
-  const char *v92; 
-  const dvar_t *v95; 
-  unsigned int Traffic; 
-  unsigned int v97; 
-  const char *v109; 
-  unsigned int v111; 
-  pathnode_t *v117; 
-  unsigned int v118; 
-  const dvar_t *v144; 
-  const dvar_t *v145; 
-  const char *v146; 
-  const vec4_t *v147; 
-  const dvar_t *v150; 
-  const vec4_t *v151; 
-  unsigned __int16 v154; 
-  unsigned __int16 v155; 
-  const vec4_t *v156; 
-  const char *v157; 
-  unsigned int v165; 
-  unsigned __int16 v174; 
-  const vec4_t *v175; 
-  unsigned __int16 v176; 
-  bool IsNodeIndexExposedSkyBase; 
-  unsigned __int16 v178; 
-  unsigned int v179; 
-  const char *v184; 
-  unsigned int v186; 
-  int nodeNum; 
-  pathnode_t *v189; 
-  int v201; 
-  unsigned int totalLinkCount; 
-  unsigned int v210; 
-  __int64 v211; 
-  unsigned __int16 v212; 
-  const char *v213; 
-  int Int_Internal_DebugName; 
-  bool v216; 
-  unsigned int wLinkCount; 
+  float v10; 
+  float v11; 
+  unsigned int v12; 
+  unsigned int v13; 
   unsigned int i; 
-  int v223; 
-  pathnode_t *v225; 
-  char v226; 
-  char v227; 
-  unsigned __int16 v241; 
-  int v242; 
+  __int64 v15; 
+  pathnode_t *v16; 
+  unsigned int v17; 
+  unsigned __int16 v18; 
+  pathnode_t *v19; 
+  float v20; 
+  __int64 v21; 
+  unsigned __int16 v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  pathnode_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  unsigned int v30; 
+  unsigned int v31; 
+  int v32; 
+  float v33; 
+  __int64 RawMax; 
+  const dvar_t *v35; 
+  __m128 v36; 
+  const char *v37; 
+  const dvar_t *v38; 
+  unsigned int Traffic; 
+  unsigned int v40; 
+  __m128 v41; 
+  __m128 v42; 
+  const char *v43; 
+  unsigned int v44; 
+  pathnode_t *v45; 
+  unsigned int v46; 
+  __int128 v47; 
+  float v51; 
+  const dvar_t *v52; 
+  const dvar_t *v53; 
+  const char *v54; 
+  const vec4_t *v55; 
+  const dvar_t *v56; 
+  const vec4_t *v57; 
+  unsigned __int16 v58; 
+  unsigned __int16 v59; 
+  const vec4_t *v60; 
+  const char *v61; 
   unsigned int j; 
-  pathnode_t *v249; 
-  int v278; 
-  __int64 v279; 
-  __int64 v282; 
-  __int64 v283; 
-  const pathnode_t **v284; 
-  __int64 k; 
-  unsigned __int16 m; 
-  pathnode_t *v287; 
-  unsigned int n; 
-  sentient_s *v289; 
-  pathnode_t *v290; 
-  int v312; 
-  const char *v327; 
-  pathnode_t *v330; 
+  float v63; 
+  unsigned __int16 v64; 
+  const vec4_t *v65; 
+  unsigned __int16 v66; 
+  bool IsNodeIndexExposedSkyBase; 
+  unsigned __int16 v68; 
+  unsigned int v69; 
+  const char *v70; 
+  unsigned int v71; 
+  int nodeNum; 
+  pathnode_t *v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  int v77; 
+  unsigned int totalLinkCount; 
+  unsigned int v79; 
+  __int64 v80; 
+  unsigned __int16 v81; 
+  const char *v82; 
+  int Int_Internal_DebugName; 
+  bool v84; 
+  unsigned int wLinkCount; 
+  unsigned int k; 
+  int v87; 
+  pathnode_t *v88; 
+  float v89; 
+  unsigned __int16 v90; 
+  int v91; 
+  unsigned int m; 
+  pathnode_t *v93; 
+  int v94; 
+  __int64 v95; 
+  double Float_Internal_DebugName; 
+  __int64 v97; 
+  __int64 v98; 
+  const pathnode_t **v99; 
+  __int64 n; 
+  unsigned __int16 ii; 
+  pathnode_t *v102; 
+  unsigned int jj; 
+  sentient_s *v104; 
+  pathnode_t *v105; 
+  gclient_s *v106; 
+  const vec3_t *p_origin; 
+  float v108; 
+  float v109; 
+  int v110; 
+  float v111; 
+  const char *v112; 
+  pathnode_t *v113; 
+  __m128 v114; 
+  double Angle; 
   __int64 priority; 
-  const char *v343; 
+  const char *v117; 
+  double v118; 
   char *fmt; 
   char *fmta; 
   char *fmtb; 
   __int64 duration; 
   __int64 typeFlags; 
-  unsigned __int16 v358; 
-  unsigned int v359; 
+  unsigned __int16 v124; 
+  unsigned int v125; 
+  float v126; 
   vec3_t pos; 
   vec3_t xyz; 
   vec3_t start; 
-  vec3_t v364; 
+  vec3_t v130; 
   vec3_t angles; 
   vec3_t forward; 
   vec3_t outPos; 
   vec3_t targetDirection; 
-  Bounds v369; 
+  Bounds v135; 
   vec3_t vEyePosOut; 
-  vec3_t v371; 
-  vec4_t v372; 
+  vec3_t v137; 
+  vec4_t v138; 
   Bounds color; 
   vec3_t viewDir; 
-  vec3_t v375; 
+  vec3_t v141; 
   vec3_t end; 
   ai_search_t dest[5]; 
   __int64 Base[2000]; 
   unsigned __int16 results[4]; 
-  __int64 v380; 
-  __int64 v381; 
-  __int64 v382; 
-  __int64 v383; 
-  __int64 v384; 
-  __int64 v385; 
-  __int64 v386; 
+  __int64 v146; 
+  __int64 v147; 
+  __int64 v148; 
+  __int64 v149; 
+  __int64 v150; 
+  __int64 v151; 
+  __int64 v152; 
+  __int128 v153; 
+  __int128 v154; 
+  __int128 v155; 
+  __int128 v156; 
 
-  v11 = alloca(v0);
-  __asm { vmovaps [rsp+50F0h+var_40], xmm7 }
-  v12 = tls_index;
+  v5 = alloca(v0);
+  v6 = tls_index;
   if ( dword_14C8E241C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14C8E241C);
     if ( dword_14C8E241C == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f3d7eef
-        vmovss  cs:VIEW_FOV_DOT_0, xmm0
-      }
+      VIEW_FOV_DOT_0 = FLOAT_0_7402181;
       j__Init_thread_footer(&dword_14C8E241C);
     }
   }
-  _RBX = DVARFLT_ai_showNodesDist;
+  v7 = DVARFLT_ai_showNodesDist;
   if ( !DVARFLT_ai_showNodesDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodesDist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+28h]
-    vmovss  [rsp+50F0h+var_50A8], xmm7
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  v126 = value;
   if ( SvStaticGlobals::ms_svStaticGlobals.state == SS_GAME )
   {
     client = level.gentities->client;
@@ -6436,516 +5947,304 @@ void Path_DrawDebug()
     {
       if ( client->sess.connected == CON_CONNECTED && cg_t::ms_allocatedCount > 0 )
       {
-        __asm
-        {
-          vmovaps [rsp+50F0h+var_60], xmm9
-          vmovaps [rsp+50F0h+var_70], xmm10
-          vmovaps [rsp+50F0h+var_C0], xmm15
-        }
         Path_NavTests();
         if ( g_platformWarning )
           Com_PrintWarning(1, "Please reconnect paths for level. Parented moving platform nodes with old version.\n");
-        __asm
-        {
-          vmovaps [rsp+50F0h+var_30], xmm6
-          vmovaps [rsp+50F0h+var_50], xmm8
-        }
         CL_GetViewPos(LOCAL_CLIENT_0, &outPos);
-        _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+6944h]
-          vmovss  dword ptr [rbp+4FF0h+viewDir], xmm0
-          vmovss  xmm1, dword ptr [rax+6948h]
-          vmovss  dword ptr [rbp+4FF0h+viewDir+4], xmm1
-          vmovss  xmm0, dword ptr [rax+694Ch]
-          vmovss  dword ptr [rbp+4FF0h+viewDir+8], xmm0
-          vmovss  xmm9, cs:__real@3f000000
-          vmovss  xmm15, cs:__real@42700000
-          vmovss  xmm10, cs:__real@42b40000
-        }
-        v24 = 0;
+        viewDir = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->refdef.view.axis.m[0];
+        v10 = FLOAT_60_0;
+        v11 = FLOAT_90_0;
+        v12 = 0;
         if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") )
         {
-          v25 = 0;
-          __asm { vmovaps [rsp+50F0h+var_A0], xmm13 }
-          v26 = g_path.actualNodeCount - pathData.zoneCount;
-          if ( g_path.actualNodeCount )
+          v13 = 0;
+          v154 = v3;
+          for ( i = g_path.actualNodeCount - pathData.zoneCount; v13 < g_path.actualNodeCount; *(_QWORD *)&v16->transient.nodeCost = 0i64 )
           {
-            do
-            {
-              v27 = v25++;
-              v28 = &pathData.nodes[v27];
-              *(_QWORD *)&v28->transient.iSearchFrame = 0i64;
-              v28->transient.pNextOpen = NULL;
-              v28->transient.pPrevOpen = NULL;
-              v28->transient.pParent = NULL;
-              *(_QWORD *)&v28->transient.fCost = 0i64;
-              *(_QWORD *)&v28->transient.nodeCost = 0i64;
-            }
-            while ( v25 < g_path.actualNodeCount );
+            v15 = v13++;
+            v16 = &pathData.nodes[v15];
+            *(_QWORD *)&v16->transient.iSearchFrame = 0i64;
+            v16->transient.pNextOpen = NULL;
+            v16->transient.pPrevOpen = NULL;
+            v16->transient.pParent = NULL;
+            *(_QWORD *)&v16->transient.fCost = 0i64;
           }
-          v359 = 0;
-          v29 = 0;
-          v30 = 0;
-          __asm { vxorps  xmm8, xmm8, xmm8 }
-          if ( v26 )
+          v125 = 0;
+          v17 = 0;
+          v18 = 0;
+          if ( i )
           {
             do
             {
-              if ( Path_NodeValid(v30) )
+              if ( Path_NodeValid(v18) )
               {
-                _RBX = &pathData.nodes[v30];
-                pathnode_t::GetPos(_RBX, &pos);
-                __asm
+                v19 = &pathData.nodes[v18];
+                pathnode_t::GetPos(v19, &pos);
+                v20 = (float)((float)((float)(outPos.v[1] - pos.v[1]) * (float)(outPos.v[1] - pos.v[1])) + (float)((float)(outPos.v[0] - pos.v[0]) * (float)(outPos.v[0] - pos.v[0]))) + (float)((float)(outPos.v[2] - pos.v[2]) * (float)(outPos.v[2] - pos.v[2]));
+                v19->transient.fCost = v20;
+                if ( (value == 0.0 || v20 <= (float)(value * value)) && Path_NodeInOrNearPlayerView(v19, &outPos, &viewDir, VIEW_FOV_DOT_0) )
                 {
-                  vucomiss xmm7, xmm8
-                  vmovss  xmm0, dword ptr [rbp+4FF0h+outPos]
-                  vsubss  xmm3, xmm0, dword ptr [rsp+50F0h+pos]
-                  vmovss  xmm1, dword ptr [rbp+4FF0h+outPos+4]
-                  vmovss  xmm0, dword ptr [rbp+4FF0h+outPos+8]
-                  vsubss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+4]
-                  vsubss  xmm4, xmm0, dword ptr [rsp+50F0h+pos+8]
-                  vmulss  xmm2, xmm2, xmm2
-                  vmulss  xmm1, xmm3, xmm3
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm3, xmm2, xmm1
-                  vaddss  xmm5, xmm3, xmm0
-                  vmovss  dword ptr [rbx+0B0h], xmm5
-                }
-                if ( v34 )
-                  goto LABEL_20;
-                __asm
-                {
-                  vmulss  xmm0, xmm7, xmm7
-                  vcomiss xmm5, xmm0
-                }
-                if ( v33 | v34 )
-                {
-LABEL_20:
-                  __asm { vmovss  xmm3, cs:VIEW_FOV_DOT_0; viewFovDot }
-                  if ( Path_NodeInOrNearPlayerView(_RBX, &outPos, &viewDir, *(float *)&_XMM3) )
-                  {
-                    v46 = v29++;
-                    Base[v46] = (__int64)_RBX;
-                  }
+                  v21 = v17++;
+                  Base[v21] = (__int64)v19;
                 }
               }
-              ++v30;
+              ++v18;
             }
-            while ( v30 < v26 );
-            v359 = v29;
+            while ( v18 < i );
+            v125 = v17;
           }
-          qsort(Base, v29, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)Path_NodeCompareCost);
-          v47 = 0;
-          v358 = 0;
-          __asm { vmovss  xmm13, cs:__real@42200000 }
-          if ( v29 )
+          qsort(Base, v17, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)Path_NodeCompareCost);
+          v22 = 0;
+          v124 = 0;
+          v23 = FLOAT_40_0;
+          if ( v17 )
           {
-            __asm
-            {
-              vmovss  xmm10, cs:__real@41a00000
-              vmovss  xmm6, cs:__real@3b808081
-              vmovss  xmm7, cs:__real@41c80000
-              vmovss  xmm8, cs:__real@428c0000
-              vmovaps [rsp+50F0h+var_80], xmm11
-              vmovss  xmm11, cs:__real@41200000
-              vmovaps [rsp+50F0h+var_90], xmm12
-              vmovss  xmm12, cs:__real@41300000
-              vmovaps [rsp+50F0h+var_B0], xmm14
-              vmovss  xmm14, cs:__real@c2340000
-            }
+            v24 = FLOAT_0_0039215689;
+            v25 = FLOAT_25_0;
+            v26 = FLOAT_70_0;
+            v156 = v1;
+            v155 = v2;
+            v153 = v4;
             do
             {
-              v56 = (pathnode_t *)Base[v47];
-              pathnode_t::GetPos(v56, &pos);
+              v27 = (pathnode_t *)Base[v22];
+              pathnode_t::GetPos(v27, &pos);
               if ( !pathData.usePathExtraData )
-                goto LABEL_120;
-              v57 = DVARINT_ai_showNodes;
+                goto LABEL_118;
+              v28 = DVARINT_ai_showNodes;
               if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v57);
-              if ( v57->current.integer >= 5 )
+              Dvar_CheckFrontendServerThread(v28);
+              if ( v28->current.integer >= 5 )
               {
-                v58 = DVARINT_ai_showNodes;
+                v29 = DVARINT_ai_showNodes;
                 if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v58);
-                if ( v58->current.integer <= 7 )
+                Dvar_CheckFrontendServerThread(v29);
+                if ( v29->current.integer <= 7 )
                 {
-                  __asm
-                  {
-                    vxorps  xmm0, xmm0, xmm0
-                    vmovss  dword ptr [rbp+4FF0h+angles], xmm0
-                    vmovss  dword ptr [rbp+4FF0h+angles+4], xmm0
-                    vmovss  dword ptr [rbp+4FF0h+angles+8], xmm0
-                  }
+                  angles.v[0] = 0.0;
+                  angles.v[1] = 0.0;
+                  angles.v[2] = 0.0;
                   if ( !pathData.pathExposure )
-                    goto LABEL_139;
-                  v59 = 0;
+                    goto LABEL_137;
+                  v30 = 0;
                   while ( 1 )
                   {
-                    v60 = 0;
-                    v61 = __ROL4__(1, v59);
+                    v31 = 0;
+                    v32 = __ROL4__(1, v30);
                     do
                     {
-                      __asm
-                      {
-                        vxorps  xmm0, xmm0, xmm0
-                        vcvtsi2ss xmm0, xmm0, rax
-                        vmulss  xmm1, xmm0, cs:__real@42340000
-                        vsubss  xmm2, xmm1, cs:__real@41b40000
-                        vmovss  dword ptr [rbp+4FF0h+angles+4], xmm2
-                      }
+                      v33 = (float)v31;
+                      angles.v[1] = (float)(v33 * 45.0) - 22.5;
                       AngleVectors(&angles, &forward, NULL, NULL);
-                      __asm
+                      xyz.v[0] = (float)(20.0 * forward.v[0]) + pos.v[0];
+                      xyz.v[1] = (float)(20.0 * forward.v[1]) + pos.v[1];
+                      xyz.v[2] = (float)(20.0 * forward.v[2]) + pos.v[2];
+                      if ( !v31 )
                       {
-                        vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+forward]
-                        vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos]
-                        vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+forward+4]
-                        vmovss  dword ptr [rsp+50F0h+xyz], xmm2
-                        vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+4]
-                        vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+forward+8]
-                        vmovss  dword ptr [rsp+50F0h+xyz+4], xmm2
-                        vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+8]
-                        vmovss  dword ptr [rsp+50F0h+xyz+8], xmm2
-                      }
-                      if ( !v60 )
-                      {
-                        __asm
-                        {
-                          vaddss  xmm1, xmm14, dword ptr [rbp+4FF0h+angles+4]
-                          vmovss  dword ptr [rbp+4FF0h+angles+4], xmm1
-                        }
+                        angles.v[1] = angles.v[1] + -45.0;
                         AngleVectors(&angles, &forward, NULL, NULL);
-                        __asm
-                        {
-                          vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+forward]
-                          vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos]
-                          vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+forward+4]
-                          vmovss  dword ptr [rbp+4FF0h+var_5070], xmm2
-                          vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+4]
-                          vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+forward+8]
-                          vmovss  dword ptr [rbp+4FF0h+var_5070+4], xmm2
-                          vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+8]
-                          vmovss  dword ptr [rbp+4FF0h+var_5070+8], xmm2
-                        }
+                        v130.v[0] = (float)(20.0 * forward.v[0]) + pos.v[0];
+                        v130.v[1] = (float)(20.0 * forward.v[1]) + pos.v[1];
+                        v130.v[2] = (float)(20.0 * forward.v[2]) + pos.v[2];
                       }
-                      __asm { vmovss  xmm1, dword ptr [rbp+4FF0h+angles+4]; yaw }
-                      RawMax = Path_NodeExposureGetRawMax(v56, *(float *)&_XMM1, v61);
-                      if ( v59 )
+                      RawMax = Path_NodeExposureGetRawMax(v27, angles.v[1], v32);
+                      if ( v30 )
                       {
-                        if ( v59 == 1 )
+                        if ( v30 == 1 )
                         {
-                          __asm { vaddss  xmm1, xmm13, dword ptr [rsp+50F0h+pos+8] }
+                          v51 = v23 + pos.v[2];
                         }
                         else
                         {
-                          if ( v59 != 2 )
+                          if ( v30 != 2 )
                           {
-                            __asm { vaddss  xmm1, xmm11, dword ptr [rsp+50F0h+pos+8] }
-                            v82 = DVARINT_ai_showNodes;
-                            __asm
-                            {
-                              vmovss  dword ptr [rsp+50F0h+xyz+8], xmm1
-                              vmovss  dword ptr [rbp+4FF0h+var_5070+8], xmm1
-                            }
+                            v35 = DVARINT_ai_showNodes;
+                            xyz.v[2] = pos.v[2] + 10.0;
+                            v130.v[2] = pos.v[2] + 10.0;
                             if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                               __debugbreak();
-                            Dvar_CheckFrontendServerThread(v82);
-                            if ( v82->current.integer == 7 )
+                            Dvar_CheckFrontendServerThread(v35);
+                            if ( v35->current.integer == 7 )
                             {
-                              __asm
-                              {
-                                vmovups xmm3, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                                vsubps  xmm3, xmm3, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-                                vxorps  xmm0, xmm0, xmm0
-                                vcvtsi2ss xmm0, xmm0, rdi
-                                vmulss  xmm6, xmm0, xmm6
-                                vshufps xmm6, xmm6, xmm6, 0
-                                vmulps  xmm3, xmm3, xmm6
-                                vaddps  xmm3, xmm3, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-                                vmovups xmmword ptr [rbp+4FF0h+color], xmm3
-                              }
-                              if ( !RawMax )
-                              {
-                                __asm
-                                {
-                                  vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-                                  vmovups xmmword ptr [rbp+4FF0h+color], xmm0
-                                }
-                              }
-                              v92 = j_va("%X", RawMax);
-                              __asm { vmovaps xmm2, xmm9; scale }
-                              G_Main_AddDebugString(&xyz, (const vec4_t *)&color, *(float *)&_XMM2, v92);
-                              __asm { vmovss  xmm6, cs:__real@3b808081 }
+                              v36 = 0i64;
+                              v36.m128_f32[0] = (float)RawMax;
+                              v36.m128_f32[0] = v36.m128_f32[0] * v24;
+                              *(__m128 *)color.midPoint.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps((__m128)colorRed, (__m128)colorOrange), _mm_shuffle_ps(v36, v36, 0)), (__m128)colorOrange);
+                              if ( !(_DWORD)RawMax )
+                                *(vec4_t *)color.midPoint.v = colorGreen;
+                              v37 = j_va("%X", (unsigned int)RawMax);
+                              G_Main_AddDebugString(&xyz, (const vec4_t *)&color, 0.5, v37);
+                              v24 = FLOAT_0_0039215689;
                             }
                             goto LABEL_50;
                           }
-                          __asm { vaddss  xmm1, xmm12, dword ptr [rsp+50F0h+pos+8] }
+                          v51 = pos.v[2] + 11.0;
                         }
-                        v144 = DVARINT_ai_showNodes;
-                        __asm
-                        {
-                          vmovss  dword ptr [rbp+4FF0h+var_5070+8], xmm1
-                          vmovss  dword ptr [rsp+50F0h+xyz+8], xmm1
-                        }
+                        v52 = DVARINT_ai_showNodes;
+                        v130.v[2] = v51;
+                        xyz.v[2] = v51;
                         if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                           __debugbreak();
-                        Dvar_CheckFrontendServerThread(v144);
-                        if ( v144->current.integer != 5 )
+                        Dvar_CheckFrontendServerThread(v52);
+                        if ( v52->current.integer != 5 )
                         {
-LABEL_71:
-                          v145 = DVARINT_ai_showNodes;
+LABEL_70:
+                          v53 = DVARINT_ai_showNodes;
                           if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                             __debugbreak();
-                          Dvar_CheckFrontendServerThread(v145);
-                          if ( v145->current.integer == 6 )
+                          Dvar_CheckFrontendServerThread(v53);
+                          if ( v53->current.integer == 6 )
                           {
-                            v146 = j_va("%X", RawMax);
-                            v147 = &colorOrange;
-                            if ( RawMax <= 2 )
-                              v147 = &colorBlue;
-                            __asm { vmovaps xmm2, xmm9; scale }
-                            G_Main_AddDebugString(&xyz, v147, *(float *)&_XMM2, v146);
+                            v54 = j_va("%X", (unsigned int)RawMax);
+                            v55 = &colorOrange;
+                            if ( (unsigned int)RawMax <= 2 )
+                              v55 = &colorBlue;
+                            G_Main_AddDebugString(&xyz, v55, 0.5, v54);
                           }
                           goto LABEL_50;
                         }
                       }
                       else
                       {
-                        __asm { vaddss  xmm1, xmm15, dword ptr [rsp+50F0h+pos+8] }
-                        v150 = DVARINT_ai_showNodes;
-                        __asm
-                        {
-                          vmovss  dword ptr [rsp+50F0h+xyz+8], xmm1
-                          vmovss  dword ptr [rbp+4FF0h+var_5070+8], xmm1
-                        }
+                        v56 = DVARINT_ai_showNodes;
+                        xyz.v[2] = v10 + pos.v[2];
+                        v130.v[2] = v10 + pos.v[2];
                         if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                           __debugbreak();
-                        Dvar_CheckFrontendServerThread(v150);
-                        if ( v150->current.integer != 5 )
-                          goto LABEL_71;
+                        Dvar_CheckFrontendServerThread(v56);
+                        if ( v56->current.integer != 5 )
+                          goto LABEL_70;
                       }
-                      v151 = &colorOrange;
-                      if ( RawMax <= 2 )
-                        v151 = &colorBlue;
-                      G_DebugLine(&xyz, &v364, v151, 1);
+                      v57 = &colorOrange;
+                      if ( (unsigned int)RawMax <= 2 )
+                        v57 = &colorBlue;
+                      G_DebugLine(&xyz, &v130, v57, 1);
 LABEL_50:
-                      __asm { vmovsd  xmm0, qword ptr [rsp+50F0h+xyz] }
-                      ++v60;
-                      v364.v[2] = xyz.v[2];
-                      __asm { vmovsd  qword ptr [rbp+4FF0h+var_5070], xmm0 }
+                      ++v31;
+                      v130 = xyz;
                     }
-                    while ( v60 < 8 );
-                    ++v59;
-                    v24 = 0;
-                    if ( v59 >= 4 )
+                    while ( v31 < 8 );
+                    ++v30;
+                    v12 = 0;
+                    if ( v30 >= 4 )
                     {
-                      v95 = DVARINT_ai_showNodes;
+                      v38 = DVARINT_ai_showNodes;
                       if ( !DVARINT_ai_showNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodes") )
                         __debugbreak();
-                      Dvar_CheckFrontendServerThread(v95);
-                      if ( v95->current.integer == 7 )
+                      Dvar_CheckFrontendServerThread(v38);
+                      if ( v38->current.integer == 7 )
                       {
-                        Traffic = Path_NodeExposureGetTraffic(v56);
-                        v97 = Traffic;
-                        __asm
-                        {
-                          vmovups xmm3, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                          vsubps  xmm3, xmm3, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-                          vxorps  xmm0, xmm0, xmm0
-                          vcvtsi2ss xmm0, xmm0, rbx
-                          vmulss  xmm6, xmm0, xmm6
-                          vshufps xmm6, xmm6, xmm6, 0
-                          vmulps  xmm3, xmm3, xmm6
-                          vaddps  xmm3, xmm3, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-                          vmovups xmmword ptr [rbp+4FF0h+var_5020], xmm3
-                        }
+                        Traffic = Path_NodeExposureGetTraffic(v27);
+                        v40 = Traffic;
+                        v41 = 0i64;
+                        v41.m128_f32[0] = (float)Traffic;
+                        v41.m128_f32[0] = v41.m128_f32[0] * v24;
+                        v42 = _mm_shuffle_ps(v41, v41, 0);
+                        *(__m128 *)v135.midPoint.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps((__m128)colorRed, (__m128)colorOrange), v42), (__m128)colorOrange);
                         if ( !Traffic )
+                          *(vec4_t *)v135.midPoint.v = colorGreen;
+                        start.v[0] = pos.v[0];
+                        start.v[1] = pos.v[1];
+                        start.v[2] = pos.v[2] + 10.0;
+                        v43 = j_va("%X", Traffic);
+                        G_Main_AddDebugString(&start, (const vec4_t *)&v135, 0.5, v43);
+                        if ( v40 )
                         {
-                          __asm
+                          v44 = 0;
+                          *(__m128 *)v135.midPoint.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps((__m128)colorRed, (__m128)colorOrange), v42), (__m128)colorOrange);
+                          if ( v27->constant.totalLinkCount )
                           {
-                            vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-                            vmovups xmmword ptr [rbp+4FF0h+var_5020], xmm0
-                          }
-                        }
-                        __asm
-                        {
-                          vmovss  xmm0, dword ptr [rsp+50F0h+pos]
-                          vmovss  xmm1, dword ptr [rsp+50F0h+pos+4]
-                          vaddss  xmm2, xmm11, dword ptr [rsp+50F0h+pos+8]
-                          vmovss  dword ptr [rsp+50F0h+start], xmm0
-                          vmovss  dword ptr [rsp+50F0h+start+4], xmm1
-                          vmovss  dword ptr [rsp+50F0h+start+8], xmm2
-                        }
-                        v109 = j_va("%X", Traffic);
-                        __asm { vmovaps xmm2, xmm9; scale }
-                        G_Main_AddDebugString(&start, (const vec4_t *)&v369, *(float *)&_XMM2, v109);
-                        if ( v97 )
-                        {
-                          v111 = 0;
-                          __asm
-                          {
-                            vmovups xmm3, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                            vsubps  xmm3, xmm3, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-                            vmulps  xmm3, xmm3, xmm6
-                            vaddps  xmm3, xmm3, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-                            vmovups xmmword ptr [rbp+4FF0h+var_5020], xmm3
-                          }
-                          if ( v56->constant.totalLinkCount )
-                          {
-                            __asm { vmovss  xmm13, cs:__real@3f800000 }
                             do
                             {
-                              v117 = Path_ConvertIndexToNode(v56->constant.Links[v111].nodeNum);
-                              v118 = Path_NodeExposureGetTraffic(v117);
-                              pathnode_t::GetPos(v117, &v375);
-                              if ( v118 )
+                              v45 = Path_ConvertIndexToNode(v27->constant.Links[v44].nodeNum);
+                              v46 = Path_NodeExposureGetTraffic(v45);
+                              pathnode_t::GetPos(v45, &v141);
+                              if ( v46 )
                               {
+                                v47 = LODWORD(v141.v[1]);
+                                *(float *)&v47 = fsqrt((float)((float)((float)(v141.v[1] - pos.v[1]) * (float)(v141.v[1] - pos.v[1])) + (float)((float)(v141.v[0] - pos.v[0]) * (float)(v141.v[0] - pos.v[0]))) + (float)((float)(v141.v[2] - pos.v[2]) * (float)(v141.v[2] - pos.v[2])));
+                                _XMM4 = v47;
                                 __asm
                                 {
-                                  vmovss  xmm0, dword ptr [rbp+4FF0h+var_4FB0]
-                                  vsubss  xmm5, xmm0, dword ptr [rsp+50F0h+pos]
-                                  vmovss  xmm1, dword ptr [rbp+4FF0h+var_4FB0+4]
-                                  vsubss  xmm6, xmm1, dword ptr [rsp+50F0h+pos+4]
-                                  vmovss  xmm0, dword ptr [rbp+4FF0h+var_4FB0+8]
-                                  vsubss  xmm7, xmm0, dword ptr [rsp+50F0h+pos+8]
-                                  vmulss  xmm1, xmm5, xmm5
-                                  vmulss  xmm0, xmm7, xmm7
-                                  vmulss  xmm2, xmm6, xmm6
-                                  vaddss  xmm3, xmm2, xmm1
-                                  vaddss  xmm2, xmm3, xmm0
-                                  vsqrtss xmm4, xmm2, xmm2
                                   vcmpless xmm0, xmm4, cs:__real@80000000
                                   vblendvps xmm1, xmm4, xmm13, xmm0
-                                  vdivss  xmm3, xmm13, xmm1
-                                  vmulss  xmm4, xmm4, xmm9
-                                  vmulss  xmm0, xmm3, xmm5
-                                  vmulss  xmm1, xmm0, xmm4
-                                  vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+start]
-                                  vmulss  xmm0, xmm3, xmm6
-                                  vmulss  xmm1, xmm0, xmm4
-                                  vmovss  dword ptr [rbp+4FF0h+end], xmm2
-                                  vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+start+4]
-                                  vmulss  xmm0, xmm3, xmm7
-                                  vmulss  xmm1, xmm0, xmm4
-                                  vmovss  dword ptr [rbp+4FF0h+end+4], xmm2
-                                  vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+start+8]
-                                  vmovss  dword ptr [rbp+4FF0h+end+8], xmm2
                                 }
-                                G_DebugLine(&start, &end, (const vec4_t *)&v369, 1);
+                                end.v[0] = (float)((float)((float)(1.0 / *(float *)&_XMM1) * (float)(v141.v[0] - pos.v[0])) * (float)(*(float *)&v47 * 0.5)) + start.v[0];
+                                end.v[1] = (float)((float)((float)(1.0 / *(float *)&_XMM1) * (float)(v141.v[1] - pos.v[1])) * (float)(*(float *)&v47 * 0.5)) + start.v[1];
+                                end.v[2] = (float)((float)((float)(1.0 / *(float *)&_XMM1) * (float)(v141.v[2] - pos.v[2])) * (float)(*(float *)&v47 * 0.5)) + start.v[2];
+                                G_DebugLine(&start, &end, (const vec4_t *)&v135, 1);
                               }
-                              ++v111;
+                              ++v44;
                             }
-                            while ( v111 < v56->constant.totalLinkCount );
-                            __asm
-                            {
-                              vmovss  xmm13, cs:__real@42200000
-                              vmovss  xmm7, cs:__real@41c80000
-                            }
+                            while ( v44 < v27->constant.totalLinkCount );
+                            v23 = FLOAT_40_0;
+                            v25 = FLOAT_25_0;
                           }
                         }
                       }
                       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 6 )
                       {
-                        __asm
+                        xyz.v[0] = pos.v[0];
+                        xyz.v[1] = pos.v[1];
+                        xyz.v[2] = pos.v[2] + 20.0;
+                        v58 = Path_ConvertNodeToIndex(v27);
+                        if ( Path_IsNodeIndexExposedSkyBase(v58, 0) )
                         {
-                          vmovss  xmm0, dword ptr [rsp+50F0h+pos]
-                          vmovss  xmm1, dword ptr [rsp+50F0h+pos+4]
-                          vaddss  xmm2, xmm10, dword ptr [rsp+50F0h+pos+8]
-                          vmovss  dword ptr [rsp+50F0h+xyz], xmm0
-                          vmovss  dword ptr [rsp+50F0h+xyz+4], xmm1
-                          vmovss  dword ptr [rsp+50F0h+xyz+8], xmm2
-                        }
-                        v154 = Path_ConvertNodeToIndex(v56);
-                        if ( Path_IsNodeIndexExposedSkyBase(v154, 0) )
-                        {
-                          v155 = Path_ConvertNodeToIndex(v56);
-                          if ( Path_IsNodeIndexExposedSkyBase(v155, 1) )
+                          v59 = Path_ConvertNodeToIndex(v27);
+                          if ( Path_IsNodeIndexExposedSkyBase(v59, 1) )
                           {
-                            v156 = &colorOrange;
-                            v157 = j_va("skyStrict");
+                            v60 = &colorOrange;
+                            v61 = j_va("skyStrict");
                           }
                           else
                           {
-                            v156 = &colorYellow;
-                            v157 = j_va("sky");
+                            v60 = &colorYellow;
+                            v61 = j_va("sky");
                           }
                         }
                         else
                         {
-                          v156 = &colorBlue;
-                          v157 = j_va("top");
+                          v60 = &colorBlue;
+                          v61 = j_va("top");
                         }
-                        __asm { vmovaps xmm2, xmm9; scale }
-                        G_Main_AddDebugString(&xyz, v156, *(float *)&_XMM2, v157);
+                        G_Main_AddDebugString(&xyz, v60, 0.5, v61);
                       }
                       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 5 )
                       {
-                        __asm
-                        {
-                          vmovss  xmm0, cs:__real@c2b40000
-                          vmovss  dword ptr [rbp+4FF0h+angles+4], xmm0
-                        }
+                        angles.v[1] = FLOAT_N90_0;
                         AngleVectors(&angles, &forward, NULL, NULL);
-                        __asm
+                        v130.v[0] = (float)(v25 * forward.v[0]) + pos.v[0];
+                        v130.v[1] = (float)(v25 * forward.v[1]) + pos.v[1];
+                        v130.v[2] = (float)(v25 * forward.v[2]) + pos.v[2];
+                        for ( j = 0; j < 4; ++j )
                         {
-                          vmulss  xmm1, xmm7, dword ptr [rbp+4FF0h+forward]
-                          vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos]
-                          vmulss  xmm1, xmm7, dword ptr [rbp+4FF0h+forward+4]
-                          vmovss  dword ptr [rbp+4FF0h+var_5070], xmm2
-                          vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+4]
-                          vmulss  xmm1, xmm7, dword ptr [rbp+4FF0h+forward+8]
-                          vmovss  dword ptr [rbp+4FF0h+var_5070+4], xmm2
-                          vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+8]
-                          vmovss  dword ptr [rbp+4FF0h+var_5070+8], xmm2
-                        }
-                        v165 = 0;
-                        do
-                        {
-                          __asm
-                          {
-                            vxorps  xmm0, xmm0, xmm0
-                            vcvtsi2ss xmm0, xmm0, rax
-                            vmulss  xmm1, xmm0, cs:__real@42b40000
-                            vmovss  dword ptr [rbp+4FF0h+angles+4], xmm1
-                          }
+                          v63 = (float)j;
+                          angles.v[1] = v63 * 90.0;
                           AngleVectors(&angles, &forward, NULL, NULL);
-                          __asm
+                          xyz.v[0] = (float)(v25 * forward.v[0]) + pos.v[0];
+                          xyz.v[2] = v26 + pos.v[2];
+                          v130.v[2] = v26 + pos.v[2];
+                          xyz.v[1] = (float)(v25 * forward.v[1]) + pos.v[1];
+                          v64 = Path_ConvertNodeToIndex(v27);
+                          if ( Path_IsNodeIndexExposedSkyBase(v64, 1) )
                           {
-                            vmulss  xmm1, xmm7, dword ptr [rbp+4FF0h+forward]
-                            vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos]
-                            vmulss  xmm1, xmm7, dword ptr [rbp+4FF0h+forward+4]
-                            vmovss  dword ptr [rsp+50F0h+xyz], xmm2
-                            vaddss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+4]
-                            vaddss  xmm1, xmm8, dword ptr [rsp+50F0h+pos+8]
-                            vmovss  dword ptr [rsp+50F0h+xyz+8], xmm1
-                            vmovss  dword ptr [rbp+4FF0h+var_5070+8], xmm1
-                            vmovss  dword ptr [rsp+50F0h+xyz+4], xmm2
-                          }
-                          v174 = Path_ConvertNodeToIndex(v56);
-                          if ( Path_IsNodeIndexExposedSkyBase(v174, 1) )
-                          {
-                            v175 = &colorOrange;
+                            v65 = &colorOrange;
                           }
                           else
                           {
-                            v176 = Path_ConvertNodeToIndex(v56);
-                            IsNodeIndexExposedSkyBase = Path_IsNodeIndexExposedSkyBase(v176, 0);
-                            v175 = &colorYellow;
+                            v66 = Path_ConvertNodeToIndex(v27);
+                            IsNodeIndexExposedSkyBase = Path_IsNodeIndexExposedSkyBase(v66, 0);
+                            v65 = &colorYellow;
                             if ( !IsNodeIndexExposedSkyBase )
-                              v175 = &colorBlue;
+                              v65 = &colorBlue;
                           }
-                          G_DebugLine(&xyz, &v364, v175, 1);
-                          __asm { vmovsd  xmm0, qword ptr [rsp+50F0h+xyz] }
-                          ++v165;
-                          v364.v[2] = xyz.v[2];
-                          __asm { vmovsd  qword ptr [rbp+4FF0h+var_5070], xmm0 }
+                          G_DebugLine(&xyz, &v130, v65, 1);
+                          v130 = xyz;
                         }
-                        while ( v165 < 4 );
                       }
-                      goto LABEL_139;
+                      goto LABEL_137;
                     }
                   }
                 }
@@ -6954,431 +6253,242 @@ LABEL_50:
               {
                 if ( pathData.pathZones )
                 {
-                  v178 = Path_ConvertNodeToIndex(v56);
-                  v179 = Path_NodeZoneFromIndex(v178);
-                  if ( v179 != 255 )
+                  v68 = Path_ConvertNodeToIndex(v27);
+                  v69 = Path_NodeZoneFromIndex(v68);
+                  if ( v69 != 255 )
                   {
                     if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 12 )
                     {
-                      if ( Path_ZoneIsTraversalIsland(v179) )
-                      {
-                        __asm
-                        {
-                          vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                          vmovups xmmword ptr [rbp+4FF0h+var_4FE8], xmm0
-                        }
-                      }
+                      if ( Path_ZoneIsTraversalIsland(v69) )
+                        v138 = colorRed;
                       else
-                      {
-                        __asm
-                        {
-                          vmovups xmm0, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue
-                          vmovups xmmword ptr [rbp+4FF0h+var_4FE8], xmm0
-                        }
-                      }
+                        v138 = colorBlue;
                     }
                     else
                     {
-                      _RCX = zoneColor[v179 & 7];
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rcx]
-                        vmovss  dword ptr [rbp+4FF0h+var_4FE8], xmm0
-                        vmovss  xmm1, dword ptr [rcx+4]
-                        vmovss  dword ptr [rbp+4FF0h+var_4FE8+4], xmm1
-                        vmovss  xmm0, dword ptr [rcx+8]
-                        vmovss  dword ptr [rbp+4FF0h+var_4FE8+8], xmm0
-                        vmovss  xmm1, dword ptr [rcx+0Ch]
-                        vmovss  dword ptr [rbp+4FF0h+var_4FE8+0Ch], xmm1
-                      }
+                      v138 = *zoneColor[v69 & 7];
                     }
-                    v184 = j_va("%i", v179);
-                    __asm { vmovaps xmm2, xmm9; scale }
-                    G_Main_AddDebugString(&pos, &v372, *(float *)&_XMM2, v184);
-                    v186 = 0;
-                    if ( v56->constant.totalLinkCount )
+                    v70 = j_va("%i", v69);
+                    G_Main_AddDebugString(&pos, &v138, 0.5, v70);
+                    v71 = 0;
+                    if ( v27->constant.totalLinkCount )
                     {
-                      __asm { vmovss  xmm15, cs:__real@41700000 }
                       do
                       {
-                        nodeNum = v56->constant.Links[v186].nodeNum;
-                        v189 = Path_ConvertIndexToNode(v56->constant.Links[v186].nodeNum);
-                        pathnode_t::GetPos(v189, &targetDirection);
-                        __asm
+                        nodeNum = v27->constant.Links[v71].nodeNum;
+                        v73 = Path_ConvertIndexToNode(v27->constant.Links[v71].nodeNum);
+                        pathnode_t::GetPos(v73, &targetDirection);
+                        v74 = (float)((float)(pos.v[0] - targetDirection.v[0]) * 0.5) + targetDirection.v[0];
+                        v75 = (float)((float)(pos.v[1] - targetDirection.v[1]) * 0.5) + targetDirection.v[1];
+                        v76 = (float)((float)(pos.v[2] - targetDirection.v[2]) * 0.5) + targetDirection.v[2];
+                        targetDirection.v[2] = v76;
+                        targetDirection.v[0] = v74;
+                        targetDirection.v[1] = v75;
+                        v77 = Path_NodeZoneFromIndex(nodeNum);
+                        if ( v77 != 255 )
                         {
-                          vmovss  xmm0, dword ptr [rsp+50F0h+pos]
-                          vsubss  xmm1, xmm0, dword ptr [rbp+4FF0h+targetDirection]
-                          vmovss  xmm0, dword ptr [rsp+50F0h+pos+4]
-                          vmulss  xmm2, xmm1, xmm9
-                          vsubss  xmm1, xmm0, dword ptr [rbp+4FF0h+targetDirection+4]
-                          vaddss  xmm6, xmm2, dword ptr [rbp+4FF0h+targetDirection]
-                          vmovss  xmm0, dword ptr [rsp+50F0h+pos+8]
-                          vmulss  xmm2, xmm1, xmm9
-                          vsubss  xmm1, xmm0, dword ptr [rbp+4FF0h+targetDirection+8]
-                          vaddss  xmm7, xmm2, dword ptr [rbp+4FF0h+targetDirection+4]
-                          vmulss  xmm2, xmm1, xmm9
-                          vaddss  xmm8, xmm2, dword ptr [rbp+4FF0h+targetDirection+8]
-                          vmovss  dword ptr [rbp+4FF0h+targetDirection+8], xmm8
-                          vmovss  dword ptr [rbp+4FF0h+targetDirection], xmm6
-                          vmovss  dword ptr [rbp+4FF0h+targetDirection+4], xmm7
-                        }
-                        v201 = Path_NodeZoneFromIndex(nodeNum);
-                        if ( v201 != 255 )
-                        {
-                          __asm
-                          {
-                            vmovss  xmm1, dword ptr [rsp+50F0h+pos+4]
-                            vmovss  xmm0, dword ptr [rsp+50F0h+pos]
-                            vmovss  dword ptr [rbp+4FF0h+var_4FF8+4], xmm1
-                            vaddss  xmm1, xmm15, dword ptr [rsp+50F0h+pos+8]
-                            vaddss  xmm2, xmm8, xmm15
-                            vmovss  dword ptr [rbp+4FF0h+var_4FF8+8], xmm1
-                            vmovss  dword ptr [rbp+4FF0h+var_4FF8], xmm0
-                            vmovss  dword ptr [rbp+4FF0h+vEyePosOut], xmm6
-                            vmovss  dword ptr [rbp+4FF0h+vEyePosOut+4], xmm7
-                            vmovss  dword ptr [rbp+4FF0h+vEyePosOut+8], xmm2
-                          }
+                          v137.v[1] = pos.v[1];
+                          v137.v[2] = pos.v[2] + 15.0;
+                          v137.v[0] = pos.v[0];
+                          vEyePosOut.v[0] = v74;
+                          vEyePosOut.v[1] = v75;
+                          vEyePosOut.v[2] = v76 + 15.0;
                           if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 11 )
                           {
-                            if ( v201 == v179 )
-                            {
-                              _RCX = zoneColor[v179 & 7];
-                              __asm
-                              {
-                                vmovss  xmm0, dword ptr [rcx]
-                                vmovss  dword ptr [rbp+4FF0h+var_4FE8], xmm0
-                                vmovss  xmm1, dword ptr [rcx+4]
-                                vmovss  dword ptr [rbp+4FF0h+var_4FE8+4], xmm1
-                                vmovss  xmm0, dword ptr [rcx+8]
-                                vmovss  dword ptr [rbp+4FF0h+var_4FE8+8], xmm0
-                                vmovss  xmm1, dword ptr [rcx+0Ch]
-                                vmovss  dword ptr [rbp+4FF0h+var_4FE8+0Ch], xmm1
-                              }
-                            }
+                            if ( v77 == v69 )
+                              v138 = *zoneColor[v69 & 7];
                             else
-                            {
-                              __asm
-                              {
-                                vmovups xmm0, xmmword ptr cs:?colorDkGrey@@3Tvec4_t@@B; vec4_t const colorDkGrey
-                                vmovups xmmword ptr [rbp+4FF0h+var_4FE8], xmm0
-                              }
-                            }
+                              v138 = colorDkGrey;
                           }
-                          G_DebugLine(&v371, &vEyePosOut, &v372, 1);
+                          G_DebugLine(&v137, &vEyePosOut, &v138, 1);
                         }
-                        ++v186;
+                        ++v71;
                       }
-                      while ( v186 < v56->constant.totalLinkCount );
-                      __asm
-                      {
-                        vmovss  xmm15, cs:__real@42700000
-                        vmovss  xmm7, cs:__real@41c80000
-                        vmovss  xmm8, cs:__real@428c0000
-                      }
+                      while ( v71 < v27->constant.totalLinkCount );
+                      v10 = FLOAT_60_0;
+                      v25 = FLOAT_25_0;
+                      v26 = FLOAT_70_0;
                     }
                   }
                 }
               }
               else
               {
-LABEL_120:
+LABEL_118:
                 if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") != 16 )
                 {
                   if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") > 4 )
-                    goto LABEL_139;
+                    goto LABEL_137;
                   if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 2 || Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 4 )
                   {
-                    v212 = Path_ConvertNodeToIndex(v56);
-                    v213 = j_va("%i", v212);
-                    __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-                    G_Main_AddDebugString(&pos, &colorWhite, *(float *)&_XMM2, v213);
+                    v81 = Path_ConvertNodeToIndex(v27);
+                    v82 = j_va("%i", v81);
+                    G_Main_AddDebugString(&pos, &colorWhite, 1.0, v82);
                   }
                   Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes");
-                  v216 = Int_Internal_DebugName >= 3;
+                  v84 = Int_Internal_DebugName >= 3;
                   if ( Int_Internal_DebugName < 3 )
-                    wLinkCount = v56->dynamic.wLinkCount;
+                    wLinkCount = v27->dynamic.wLinkCount;
                   else
-                    wLinkCount = v56->constant.totalLinkCount;
+                    wLinkCount = v27->constant.totalLinkCount;
                   if ( wLinkCount )
                   {
-                    for ( i = 0; i < wLinkCount; ++i )
-                      Path_DrawDebugLink(v56, i, v216);
-                    goto LABEL_139;
+                    for ( k = 0; k < wLinkCount; ++k )
+                      Path_DrawDebugLink(v27, k, v84);
+                    goto LABEL_137;
                   }
-LABEL_136:
-                  Path_DrawDebugNoLinks(v56, &colorRed, 0);
-                  goto LABEL_139;
+LABEL_134:
+                  Path_DrawDebugNoLinks(v27, &colorRed, 0);
+                  goto LABEL_137;
                 }
-                if ( (v56->constant.spawnflags & 0x40000) == 0 )
-                  goto LABEL_139;
-                totalLinkCount = v56->constant.totalLinkCount;
-                if ( !v56->constant.totalLinkCount )
-                  goto LABEL_136;
-                v210 = 0;
-                v211 = 0i64;
+                if ( (v27->constant.spawnflags & 0x40000) == 0 )
+                  goto LABEL_137;
+                totalLinkCount = v27->constant.totalLinkCount;
+                if ( !v27->constant.totalLinkCount )
+                  goto LABEL_134;
+                v79 = 0;
+                v80 = 0i64;
                 do
                 {
-                  if ( (Path_ConvertIndexToNode(v56->constant.Links[v211].nodeNum)->constant.spawnflags & 0x40000) != 0 )
-                    Path_DrawDebugLink(v56, v210, 0);
-                  ++v210;
-                  ++v211;
+                  if ( (Path_ConvertIndexToNode(v27->constant.Links[v80].nodeNum)->constant.spawnflags & 0x40000) != 0 )
+                    Path_DrawDebugLink(v27, v79, 0);
+                  ++v79;
+                  ++v80;
                 }
-                while ( v210 < totalLinkCount );
+                while ( v79 < totalLinkCount );
               }
-LABEL_139:
-              __asm { vmovss  xmm6, cs:__real@3b808081 }
-              v47 = ++v358;
+LABEL_137:
+              v24 = FLOAT_0_0039215689;
+              v22 = ++v124;
             }
-            while ( v358 < v359 );
-            __asm
-            {
-              vmovss  xmm7, [rsp+50F0h+var_50A8]
-              vmovss  xmm10, cs:__real@42b40000
-            }
-            v12 = tls_index;
-            __asm
-            {
-              vmovaps xmm14, [rsp+50F0h+var_B0]
-              vmovaps xmm12, [rsp+50F0h+var_90]
-              vmovaps xmm11, [rsp+50F0h+var_80]
-              vxorps  xmm8, xmm8, xmm8
-            }
+            while ( v124 < v125 );
+            value = v126;
+            v11 = FLOAT_90_0;
+            v6 = tls_index;
           }
           if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") >= 8 && Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") <= 10 )
           {
             *(_QWORD *)results = 0i64;
-            v380 = 0i64;
-            v381 = 0i64;
-            v382 = 0i64;
-            v383 = 0i64;
-            v384 = 0i64;
-            v385 = 0i64;
-            v386 = 0i64;
+            v146 = 0i64;
+            v147 = 0i64;
+            v148 = 0i64;
+            v149 = 0i64;
+            v150 = 0i64;
+            v151 = 0i64;
+            v152 = 0i64;
             AI_FindEntrances(&outPos, results, 32);
           }
           if ( pathData.usePathExtraData && (Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 11 || Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 12) )
           {
-            v223 = 0;
-            __asm
-            {
-              vmovss  xmm6, cs:__real@42000000
-              vmovups xmm0, cs:__xmm@42000000000000000000000000000000
-              vmovss  [rbp+4FF0h+var_4FC8], xmm6
-              vmovss  [rbp+4FF0h+var_4FC4], xmm6
-              vmovups xmmword ptr [rbp+4FF0h+color], xmm0
-            }
+            v87 = 0;
+            color.halfSize.v[1] = FLOAT_32_0;
+            color.halfSize.v[2] = FLOAT_32_0;
+            *(_OWORD *)color.midPoint.v = _xmm;
             if ( pathData.zoneCount )
             {
               while ( 1 )
               {
-                v225 = Path_ConvertZoneIndexToZone(v223);
-                if ( !v225 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7863, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+                v88 = Path_ConvertZoneIndexToZone(v87);
+                if ( !v88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7863, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
                   __debugbreak();
-                pathnode_t::GetPos(v225, &pos);
-                __asm
-                {
-                  vucomiss xmm7, xmm8
-                  vaddss  xmm4, xmm6, dword ptr [rsp+50F0h+pos+8]
-                  vmovss  dword ptr [rsp+50F0h+pos+8], xmm4
-                }
-                if ( !v227 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+4FF0h+outPos]
-                    vsubss  xmm3, xmm0, dword ptr [rsp+50F0h+pos]
-                    vmovss  xmm1, dword ptr [rbp+4FF0h+outPos+4]
-                    vsubss  xmm2, xmm1, dword ptr [rsp+50F0h+pos+4]
-                    vmovss  xmm0, dword ptr [rbp+4FF0h+outPos+8]
-                    vsubss  xmm4, xmm0, xmm4
-                    vmulss  xmm1, xmm3, xmm3
-                    vmulss  xmm2, xmm2, xmm2
-                    vaddss  xmm3, xmm2, xmm1
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm4, xmm3, xmm0
-                    vmulss  xmm1, xmm7, xmm7
-                    vcomiss xmm4, xmm1
-                  }
-                  if ( !(v226 | v227) )
-                    goto LABEL_168;
-                }
-                __asm { vmovss  xmm3, cs:VIEW_FOV_DOT_0; viewFovDot }
-                if ( !Path_NodeInOrNearPlayerView(v225, &outPos, &viewDir, *(float *)&_XMM3) )
-                  goto LABEL_168;
+                pathnode_t::GetPos(v88, &pos);
+                v89 = pos.v[2] + 32.0;
+                pos.v[2] = pos.v[2] + 32.0;
+                if ( value != 0.0 && (float)((float)((float)((float)(outPos.v[1] - pos.v[1]) * (float)(outPos.v[1] - pos.v[1])) + (float)((float)(outPos.v[0] - pos.v[0]) * (float)(outPos.v[0] - pos.v[0]))) + (float)((float)(outPos.v[2] - v89) * (float)(outPos.v[2] - v89))) > (float)(value * value) || !Path_NodeInOrNearPlayerView(v88, &outPos, &viewDir, VIEW_FOV_DOT_0) )
+                  goto LABEL_166;
                 if ( !pathData.pathZones )
                   break;
-                v241 = Path_ConvertNodeToIndex(v225);
-                v242 = Path_NodeZoneFromIndex(v241);
-                if ( v242 == 255 )
-                  goto LABEL_159;
-LABEL_161:
+                v90 = Path_ConvertNodeToIndex(v88);
+                v91 = Path_NodeZoneFromIndex(v90);
+                if ( v91 == 255 )
+                  goto LABEL_157;
+LABEL_159:
                 if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 12 )
                 {
-                  if ( Path_ZoneIsTraversalIsland(v242) )
-                  {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                      vmovups xmmword ptr [rbp+4FF0h+var_5020], xmm0
-                    }
-                  }
+                  if ( Path_ZoneIsTraversalIsland(v91) )
+                    *(vec4_t *)v135.midPoint.v = colorRed;
                   else
-                  {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue
-                      vmovups xmmword ptr [rbp+4FF0h+var_5020], xmm0
-                    }
-                  }
+                    *(vec4_t *)v135.midPoint.v = colorBlue;
                 }
                 else
                 {
-                  _RCX = zoneColor[v242 & 7];
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rcx]
-                    vmovss  dword ptr [rbp+4FF0h+var_5020], xmm0
-                    vmovss  xmm1, dword ptr [rcx+4]
-                    vmovss  dword ptr [rbp+4FF0h+var_5020+4], xmm1
-                    vmovss  xmm0, dword ptr [rcx+8]
-                    vmovss  dword ptr [rbp+4FF0h+var_5020+8], xmm0
-                    vmovss  xmm1, dword ptr [rcx+0Ch]
-                    vmovss  dword ptr [rbp+4FF0h+var_5020+0Ch], xmm1
-                  }
+                  *(vec4_t *)v135.midPoint.v = *zoneColor[v91 & 7];
                 }
-                __asm { vmovaps xmm2, xmm8; yaw }
-                G_DebugBox(&pos, &color, *(float *)&_XMM2, (const vec4_t *)&v369, 0, 0);
-                for ( j = 0; j < v225->dynamic.wLinkCount; ++j )
+                G_DebugBox(&pos, &color, 0.0, (const vec4_t *)&v135, 0, 0);
+                for ( m = 0; m < v88->dynamic.wLinkCount; ++m )
                 {
-                  v249 = Path_ConvertIndexToNode(v225->constant.Links[j].nodeNum);
-                  pathnode_t::GetPos(v249, &start);
-                  __asm
-                  {
-                    vaddss  xmm5, xmm6, dword ptr [rsp+50F0h+start+8]
-                    vmovss  xmm1, dword ptr [rsp+50F0h+pos]
-                    vsubss  xmm0, xmm1, dword ptr [rsp+50F0h+start]
-                    vmulss  xmm2, xmm0, xmm9
-                    vaddss  xmm3, xmm2, dword ptr [rsp+50F0h+start]
-                    vmovss  xmm0, dword ptr [rsp+50F0h+pos+4]
-                    vsubss  xmm1, xmm0, dword ptr [rsp+50F0h+start+4]
-                    vmovss  xmm0, dword ptr [rsp+50F0h+pos+8]
-                    vmulss  xmm2, xmm1, xmm9
-                    vmovss  dword ptr [rsp+50F0h+start], xmm3
-                    vaddss  xmm3, xmm2, dword ptr [rsp+50F0h+start+4]
-                    vsubss  xmm1, xmm0, xmm5
-                    vmulss  xmm2, xmm1, xmm9
-                    vmovss  dword ptr [rsp+50F0h+start+4], xmm3
-                    vaddss  xmm3, xmm2, xmm5
-                    vmovss  dword ptr [rsp+50F0h+start+8], xmm3
-                  }
-                  G_DebugLine(&pos, &start, (const vec4_t *)&v369, 0);
+                  v93 = Path_ConvertIndexToNode(v88->constant.Links[m].nodeNum);
+                  pathnode_t::GetPos(v93, &start);
+                  start.v[0] = (float)((float)(pos.v[0] - start.v[0]) * 0.5) + start.v[0];
+                  start.v[1] = (float)((float)(pos.v[1] - start.v[1]) * 0.5) + start.v[1];
+                  start.v[2] = (float)((float)(pos.v[2] - (float)(start.v[2] + 32.0)) * 0.5) + (float)(start.v[2] + 32.0);
+                  G_DebugLine(&pos, &start, (const vec4_t *)&v135, 0);
                 }
-LABEL_168:
-                if ( (unsigned int)++v223 >= pathData.zoneCount )
+LABEL_166:
+                if ( (unsigned int)++v87 >= pathData.zoneCount )
                 {
-                  v12 = tls_index;
-                  goto LABEL_170;
+                  v6 = tls_index;
+                  goto LABEL_168;
                 }
               }
-              v242 = 255;
-LABEL_159:
+              v91 = 255;
+LABEL_157:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7879, ASSERT_TYPE_ASSERT, "( nodeZone != 255 )", (const char *)&queryFormat, "nodeZone != PATH_INVALID_ZONE") )
                 __debugbreak();
-              goto LABEL_161;
+              goto LABEL_159;
             }
           }
-LABEL_170:
+LABEL_168:
           if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 14 )
           {
-            __asm
-            {
-              vmovss  xmm6, cs:__real@3fc00000
-              vmovaps xmm3, xmm6; scale
-              vmovaps xmm1, xmm15; y
-              vmovaps xmm0, xmm13; x
-            }
-            G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, "Path Extra Data Size");
+            G_Main_AddDebugString2D(v23, v10, &colorYellow, 1.5, "Path Extra Data Size");
             Com_sprintf((char *)dest, 0x200ui64, "Num path nodes (for reference): %i", g_path.actualNodeCount - pathData.zoneCount);
-            __asm
-            {
-              vmovss  xmm1, cs:__real@42e40000; y
-              vmovaps xmm3, xmm6; scale
-              vmovaps xmm0, xmm13; x
-            }
-            G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, (const char *)dest);
+            G_Main_AddDebugString2D(v23, 114.0, &colorYellow, 1.5, (const char *)dest);
             LODWORD(fmt) = pathData.zonesBytes / 1024;
             Com_sprintf((char *)dest, 0x200ui64, "Path Zones bytes: %d (%d K)", (unsigned int)pathData.zonesBytes, fmt);
-            __asm
-            {
-              vmovss  xmm1, cs:__real@430d0000; y
-              vmovaps xmm3, xmm6; scale
-              vmovaps xmm0, xmm13; x
-            }
-            G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, (const char *)dest);
+            G_Main_AddDebugString2D(v23, 141.0, &colorYellow, 1.5, (const char *)dest);
             LODWORD(fmta) = pathData.exposureBytes / 1024;
             Com_sprintf((char *)dest, 0x200ui64, "Path Exposure bytes: %d (%d K)", (unsigned int)pathData.exposureBytes, fmta);
-            __asm
-            {
-              vmovss  xmm1, cs:__real@43280000; y
-              vmovaps xmm3, xmm6; scale
-              vmovaps xmm0, xmm13; x
-            }
-            G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, (const char *)dest);
+            G_Main_AddDebugString2D(v23, 168.0, &colorYellow, 1.5, (const char *)dest);
             LODWORD(fmtb) = pathData.noPeekVisBytes / 1024;
             Com_sprintf((char *)dest, 0x200ui64, "No Peek Vis bytes: %d (%d K)", (unsigned int)pathData.noPeekVisBytes, fmtb);
-            __asm
-            {
-              vmovss  xmm1, cs:__real@43430000; y
-              vmovaps xmm3, xmm6; scale
-              vmovaps xmm0, xmm13; x
-            }
-            G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, (const char *)dest);
+            G_Main_AddDebugString2D(v23, 195.0, &colorYellow, 1.5, (const char *)dest);
           }
-          __asm { vmovaps xmm13, [rsp+50F0h+var_A0] }
-        }
-        else
-        {
-          __asm { vxorps  xmm8, xmm8, xmm8 }
         }
         Nav_SetDebugDrawFlags();
         if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNodes, "ai_showNodes") == 15 )
           Path_DebugDrawJumpNodeLinks();
         if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNearbyNodes, "ai_showNearbyNodes") )
         {
-          v278 = Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNearbyNodes, "ai_showNearbyNodes");
-          v279 = v278;
-          if ( !v278 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7178, ASSERT_TYPE_ASSERT, "(numNodes)", (const char *)&queryFormat, "numNodes") )
+          v94 = Dvar_GetInt_Internal_DebugName(DVARINT_ai_showNearbyNodes, "ai_showNearbyNodes");
+          v95 = v94;
+          if ( !v94 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7178, ASSERT_TYPE_ASSERT, "(numNodes)", (const char *)&queryFormat, "numNodes") )
             __debugbreak();
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_ai_showNodesDist, "ai_showNodesDist");
-          __asm
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_ai_showNodesDist, "ai_showNodesDist");
+          v97 = Path_NodesInCylinder(&outPos, NULL, *(float *)&Float_Internal_DebugName, 1000000000.0, (pathsort_s *)dest, 256, -1, 0);
+          std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>((pathsort_s *)dest, (pathsort_s *)dest + v97, v97, Path_CompareNodesIncreasingDistOnly);
+          if ( v97 > 0 )
           {
-            vmovss  xmm3, cs:__real@4e6e6b28; maxHeight
-            vmovaps xmm2, xmm0; maxDist
-          }
-          v282 = Path_NodesInCylinder(&outPos, NULL, *(float *)&_XMM2, *(float *)&_XMM3, (pathsort_s *)dest, 256, -1, 0);
-          std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>((pathsort_s *)dest, (pathsort_s *)dest + v282, v282, Path_CompareNodesIncreasingDistOnly);
-          if ( v282 > 0 )
-          {
-            v283 = v279;
-            v284 = (const pathnode_t **)dest;
-            for ( k = 0i64; k < v282; ++k )
+            v98 = v95;
+            v99 = (const pathnode_t **)dest;
+            for ( n = 0i64; n < v97; ++n )
             {
-              if ( k >= v283 )
+              if ( n >= v98 )
                 break;
-              Path_DrawDebugNode(&outPos, *v284);
-              v284 += 2;
+              Path_DrawDebugNode(&outPos, *v99);
+              v99 += 2;
             }
           }
         }
         if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_ai_showPathFindNodes, "ai_showPathFindNodes") )
         {
-          for ( m = 0; m < (signed int)(g_path.actualNodeCount - pathData.zoneCount); ++m )
+          for ( ii = 0; ii < (signed int)(g_path.actualNodeCount - pathData.zoneCount); ++ii )
           {
-            if ( Path_NodeValid(m) )
+            if ( Path_NodeValid(ii) )
             {
-              v287 = &pathData.nodes[m];
-              if ( v287->transient.iSearchFrame == level.iSearchFrame )
-                Path_DrawDebugNode(&outPos, v287);
+              v102 = &pathData.nodes[ii];
+              if ( v102->transient.iSearchFrame == level.iSearchFrame )
+                Path_DrawDebugNode(&outPos, v102);
             }
           }
         }
@@ -7386,197 +6496,107 @@ LABEL_170:
         {
           if ( !level.sentients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7211, ASSERT_TYPE_ASSERT, "(level.sentients != 0)", (const char *)&queryFormat, "level.sentients != NULL") )
             __debugbreak();
-          for ( n = 0; n < level.maxSentients; ++n )
+          for ( jj = 0; jj < level.maxSentients; ++jj )
           {
-            v289 = &level.sentients[n];
-            if ( v289->inuse && v289->ent->s.eType != ET_INVISIBLE )
+            v104 = &level.sentients[jj];
+            if ( v104->inuse && v104->ent->s.eType != ET_INVISIBLE )
             {
-              v290 = Sentient_NearestNode(&level.sentients[n]);
-              if ( v290 )
+              v105 = Sentient_NearestNode(&level.sentients[jj]);
+              if ( v105 )
               {
-                Sentient_GetDebugEyePosition(v289, &vEyePosOut);
-                pathnode_t::GetPos(v290, &v371);
-                G_DebugLine(&vEyePosOut, &v371, &nodeColorTable[v290->constant.type], 1);
-                Path_DrawDebugNode(&outPos, v290);
+                Sentient_GetDebugEyePosition(v104, &vEyePosOut);
+                pathnode_t::GetPos(v105, &v137);
+                G_DebugLine(&vEyePosOut, &v137, &nodeColorTable[v105->constant.type], 1);
+                Path_DrawDebugNode(&outPos, v105);
               }
             }
           }
         }
         if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showVisData, "ai_showVisData") )
           Path_DrawVisData();
-        if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && Dvar_GetInt_Internal_DebugName(DVARINT_ai_searchDebug, "ai_searchDebug") > 0 )
+        if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) || Dvar_GetInt_Internal_DebugName(DVARINT_ai_searchDebug, "ai_searchDebug") <= 0 )
+          goto LABEL_217;
+        if ( dword_14C8E2424 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v6) + 1772i64) )
         {
-          if ( dword_14C8E2424 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v12) + 1772i64) )
+          j__Init_thread_header(&dword_14C8E2424);
+          if ( dword_14C8E2424 == -1 )
           {
-            j__Init_thread_header(&dword_14C8E2424);
-            if ( dword_14C8E2424 == -1 )
-            {
-              s_aiSearchDebug_LastTime = level.time - 15000;
-              j__Init_thread_footer(&dword_14C8E2424);
-            }
+            s_aiSearchDebug_LastTime = level.time - 15000;
+            j__Init_thread_footer(&dword_14C8E2424);
           }
-          if ( (int)abs32(level.time - s_aiSearchDebug_LastTime) > 20000 )
+        }
+        if ( (int)abs32(level.time - s_aiSearchDebug_LastTime) <= 20000 )
+          goto LABEL_217;
+        v135.halfSize.v[1] = FLOAT_15_0;
+        v135.halfSize.v[2] = FLOAT_46_0;
+        *(_OWORD *)v135.midPoint.v = _xmm;
+        v106 = &level.clients[level.gentities->s.number];
+        if ( !level.gentities->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7973, ASSERT_TYPE_ASSERT, "( localEnt && localEnt->client )", (const char *)&queryFormat, "localEnt && localEnt->client") )
+          __debugbreak();
+        if ( !v106 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7974, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+          __debugbreak();
+        AngleVectors(&v106->ps.viewangles, &targetDirection, NULL, NULL);
+        p_origin = &v106->ps.origin;
+        *(_QWORD *)dest[0].searchOrigin.v = *(_QWORD *)v106->ps.origin.v;
+        dest[0].searchOrigin.v[2] = v106->ps.origin.v[2];
+        v108 = (float)Dvar_GetInt_Internal_DebugName(DVARINT_ai_searchDebug, "ai_searchDebug");
+        dest[0].nodeNearestSearchOrigin = Path_NearestNodeByDistanceOnly(&v106->ps.origin, v108 * 127.5);
+        if ( dest[0].nodeNearestSearchOrigin )
+        {
+          v109 = fsqrt((float)((float)(v106->ps.velocity.v[0] * v106->ps.velocity.v[0]) + (float)(v106->ps.velocity.v[1] * v106->ps.velocity.v[1])) + (float)(v106->ps.velocity.v[2] * v106->ps.velocity.v[2]));
+          dest[0].highestPriorityDistScalar = FLOAT_0_5;
+          dest[0].maxSearchDistScalar = FLOAT_0_75;
+          v110 = Dvar_GetInt_Internal_DebugName(DVARINT_ai_searchDebug, "ai_searchDebug");
+          AI_BuildSearchArea(dest, &targetDirection, v109, 1000 * v110, NULL, 0, AI_SEARCH_THOROUGH);
+          G_DebugBox(p_origin, &v135, 0.0, &colorBlue, 1, 360);
+          *(_QWORD *)vEyePosOut.v = *(_QWORD *)p_origin->v;
+          v111 = v106->ps.origin.v[2] + 50.0;
+          v137.v[0] = (float)(v11 * targetDirection.v[0]) + vEyePosOut.v[0];
+          vEyePosOut.v[2] = v111;
+          v137.v[1] = (float)(v11 * targetDirection.v[1]) + vEyePosOut.v[1];
+          v137.v[2] = v111;
+          targetDirection.v[2] = 0.0;
+          G_DebugLineWithDuration(&vEyePosOut, &v137, &colorBlue, 1, 360);
+          *(_QWORD *)start.v = *(_QWORD *)p_origin->v;
+          start.v[2] = v10 + v106->ps.origin.v[2];
+          v112 = j_va("%f", v109);
+          CL_AddDebugString(&start, &colorBlue, 0.5, v112, 1, 360);
+          if ( dest[0].currentNodeCount )
           {
-            __asm
+            do
             {
-              vmovss  xmm1, cs:__real@41700000
-              vmovups xmm0, cs:__xmm@41700000423800000000000000000000
-              vmovss  [rbp+4FF0h+var_5010], xmm1
-              vmovss  xmm1, cs:__real@42380000
-              vmovss  [rbp+4FF0h+var_500C], xmm1
-              vmovups xmmword ptr [rbp+4FF0h+var_5020], xmm0
-            }
-            _RBX = &level.clients[level.gentities->s.number];
-            if ( !level.gentities->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7973, ASSERT_TYPE_ASSERT, "( localEnt && localEnt->client )", (const char *)&queryFormat, "localEnt && localEnt->client") )
-              __debugbreak();
-            if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7974, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
-              __debugbreak();
-            AngleVectors(&_RBX->ps.viewangles, &targetDirection, NULL, NULL);
-            _RDI = &_RBX->ps.origin;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi]
-              vmovss  dword ptr [rbp+4FF0h+dest], xmm0
-              vmovss  xmm1, dword ptr [rdi+4]
-              vmovss  [rbp+4FF0h+var_4F8C], xmm1
-              vmovss  xmm0, dword ptr [rdi+8]
-              vmovss  [rbp+4FF0h+var_4F88], xmm0
-            }
-            Dvar_GetInt_Internal_DebugName(DVARINT_ai_searchDebug, "ai_searchDebug");
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmulss  xmm1, xmm0, cs:__real@42ff0000; fMaxDist
-            }
-            dest[0].nodeNearestSearchOrigin = Path_NearestNodeByDistanceOnly(&_RBX->ps.origin, *(float *)&_XMM1);
-            if ( !dest[0].nodeNearestSearchOrigin )
-              goto LABEL_222;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+3Ch]
-              vmovss  xmm2, dword ptr [rbx+40h]
-              vmovss  xmm3, dword ptr [rbx+44h]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmovss  xmm0, cs:__real@3f400000
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm6, xmm2, xmm2
-              vmovss  [rbp+4FF0h+var_4F6C], xmm9
-              vmovss  [rbp+4FF0h+var_4F68], xmm0
-            }
-            v312 = Dvar_GetInt_Internal_DebugName(DVARINT_ai_searchDebug, "ai_searchDebug");
-            __asm { vmovaps xmm2, xmm6; targetVelocity }
-            AI_BuildSearchArea(dest, &targetDirection, *(float *)&_XMM2, 1000 * v312, NULL, 0, AI_SEARCH_THOROUGH);
-            __asm { vmovaps xmm2, xmm8; yaw }
-            G_DebugBox(_RDI, &v369, *(float *)&_XMM2, &colorBlue, 1, 360);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rdi]
-              vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+targetDirection]
-              vmovss  dword ptr [rbp+4FF0h+vEyePosOut], xmm2
-              vmovss  xmm4, dword ptr [rdi+4]
-              vaddss  xmm2, xmm1, xmm2
-              vmulss  xmm1, xmm10, dword ptr [rbp+4FF0h+targetDirection+4]
-              vmovss  dword ptr [rbp+4FF0h+vEyePosOut+4], xmm4
-              vmovss  xmm0, dword ptr [rdi+8]
-              vaddss  xmm3, xmm0, cs:__real@42480000
-              vmovss  dword ptr [rbp+4FF0h+var_4FF8], xmm2
-              vaddss  xmm2, xmm1, xmm4
-              vmovss  dword ptr [rbp+4FF0h+vEyePosOut+8], xmm3
-              vmovss  dword ptr [rbp+4FF0h+var_4FF8+4], xmm2
-              vmovss  dword ptr [rbp+4FF0h+var_4FF8+8], xmm3
-              vmovss  dword ptr [rbp+4FF0h+targetDirection+8], xmm8
-            }
-            G_DebugLineWithDuration(&vEyePosOut, &v371, &colorBlue, 1, 360);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi]
-              vmovss  dword ptr [rsp+50F0h+start], xmm0
-              vmovss  xmm1, dword ptr [rdi+4]
-              vmovss  dword ptr [rsp+50F0h+start+4], xmm1
-              vaddss  xmm2, xmm15, dword ptr [rdi+8]
-              vcvtss2sd xmm1, xmm6, xmm6
-              vmovq   rdx, xmm1
-              vmovss  dword ptr [rsp+50F0h+start+8], xmm2
-            }
-            v327 = j_va("%f", _RDX);
-            __asm { vmovaps xmm2, xmm9; scale }
-            CL_AddDebugString(&start, &colorBlue, *(float *)&_XMM2, v327, 1, 360);
-            if ( dest[0].currentNodeCount )
-            {
-              __asm { vmovss  xmm6, cs:__real@3a83126f }
-              do
+              if ( v12 >= 0x80 )
               {
-                if ( v24 >= 0x80 )
-                {
-                  LODWORD(typeFlags) = 128;
-                  LODWORD(duration) = v24;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8014, ASSERT_TYPE_ASSERT, "(unsigned)( searchNodesIndex ) < (unsigned)( 128 )", "searchNodesIndex doesn't index PATH_MAX_AI_SEARCH_NODES\n\t%i not in [0, %i)", duration, typeFlags) )
-                    __debugbreak();
-                }
-                v330 = Path_ConvertIndexToNode(dest[0].nodes[v24].nodeIndex);
-                pathnode_t::GetPos(v330, &angles);
-                __asm
-                {
-                  vmovups xmm1, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-                  vsubps  xmm2, xmm1, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, ecx
-                  vmulss  xmm0, xmm0, xmm6
-                  vshufps xmm0, xmm0, xmm0, 0
-                  vmulps  xmm0, xmm2, xmm0
-                  vaddps  xmm1, xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vmovups xmmword ptr [rbp+4FF0h+color], xmm1
-                }
-                *(double *)&_XMM0 = pathnode_t::GetAngle(v330);
-                __asm { vmovaps xmm2, xmm0; yaw }
-                G_DebugBox(&angles, &v369, *(float *)&_XMM2, (const vec4_t *)&color, 1, 360);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+4FF0h+angles]
-                  vmovss  xmm1, dword ptr [rbp+4FF0h+angles+4]
-                  vaddss  xmm2, xmm15, dword ptr [rbp+4FF0h+angles+8]
-                }
-                priority = dest[0].nodes[v24].priority;
-                __asm
-                {
-                  vmovss  dword ptr [rsp+50F0h+start], xmm0
-                  vmovss  dword ptr [rsp+50F0h+start+4], xmm1
-                  vmovss  dword ptr [rsp+50F0h+start+8], xmm2
-                }
-                v343 = j_va("%i", priority);
-                __asm { vmovaps xmm2, xmm9; scale }
-                CL_AddDebugString(&start, (const vec4_t *)&color, *(float *)&_XMM2, v343, 1, 360);
-                ++v24;
+                LODWORD(typeFlags) = 128;
+                LODWORD(duration) = v12;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8014, ASSERT_TYPE_ASSERT, "(unsigned)( searchNodesIndex ) < (unsigned)( 128 )", "searchNodesIndex doesn't index PATH_MAX_AI_SEARCH_NODES\n\t%i not in [0, %i)", duration, typeFlags) )
+                  __debugbreak();
               }
-              while ( v24 < dest[0].currentNodeCount );
+              v113 = Path_ConvertIndexToNode(dest[0].nodes[v12].nodeIndex);
+              pathnode_t::GetPos(v113, &angles);
+              v114 = 0i64;
+              v114.m128_f32[0] = (float)dest[0].nodes[v12].priority * 0.001;
+              *(__m128 *)color.midPoint.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps((__m128)colorGreen, (__m128)colorRed), _mm_shuffle_ps(v114, v114, 0)), (__m128)colorRed);
+              Angle = pathnode_t::GetAngle(v113);
+              G_DebugBox(&angles, &v135, *(float *)&Angle, (const vec4_t *)&color, 1, 360);
+              priority = dest[0].nodes[v12].priority;
+              start.v[0] = angles.v[0];
+              start.v[1] = angles.v[1];
+              start.v[2] = v10 + angles.v[2];
+              v117 = j_va("%i", priority);
+              CL_AddDebugString(&start, (const vec4_t *)&color, 0.5, v117, 1, 360);
+              ++v12;
             }
-            s_aiSearchDebug_LastTime = level.time;
+            while ( v12 < dest[0].currentNodeCount );
           }
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_ai_shownavdist, "ai_shownavdist");
-        __asm
-        {
-          vmovss  xmm3, cs:__real@42a90000; fov
-          vmovaps xmm2, xmm0; clipDist
-        }
-        Nav_DrawUpdate(&outPos, &viewDir, *(float *)&_XMM2, *(float *)&_XMM3);
-LABEL_222:
-        __asm
-        {
-          vmovaps xmm8, [rsp+50F0h+var_50]
-          vmovaps xmm6, [rsp+50F0h+var_30]
-          vmovaps xmm9, [rsp+50F0h+var_60]
-          vmovaps xmm10, [rsp+50F0h+var_70]
-          vmovaps xmm15, [rsp+50F0h+var_C0]
+          s_aiSearchDebug_LastTime = level.time;
+LABEL_217:
+          v118 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_ai_shownavdist, "ai_shownavdist");
+          Nav_DrawUpdate(&outPos, &viewDir, *(float *)&v118, 84.5);
         }
       }
     }
   }
-  __asm { vmovaps xmm7, [rsp+50F0h+var_40] }
 }
 
 /*
@@ -7584,109 +6604,110 @@ LABEL_222:
 Path_DrawDebugClaimedNode
 ==============
 */
-
-void __fastcall Path_DrawDebugClaimedNode(const pathnode_t *node, double scale)
+void Path_DrawDebugClaimedNode(const pathnode_t *node, float scale)
 {
-  unsigned int v10; 
-  int v11; 
-  __int64 v12; 
-  __int64 v14; 
-  bool v15; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  float v5; 
+  unsigned int v7; 
+  int v8; 
+  __int64 v9; 
+  float v10; 
+  __int64 v11; 
+  bool v12; 
   const char *GameType; 
-  int v17; 
-  __int64 v18; 
-  unsigned int v19; 
-  unsigned int v20; 
+  int v14; 
+  __int64 v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  const char *v18; 
+  int v19; 
+  int v20; 
   const char *v21; 
   int v22; 
-  int v23; 
-  const char *v24; 
-  int v25; 
-  SentientHandle *v26; 
+  SentientHandle *v23; 
   int number; 
-  __int64 v28; 
+  __int64 v25; 
   gentity_s *ent; 
-  unsigned __int64 v30; 
-  unsigned __int64 v31; 
-  int v32; 
-  scr_string_t *v33; 
-  const char *v34; 
-  sentient_s *v35; 
-  const char *v36; 
-  sentient_s *v37; 
+  unsigned __int64 v27; 
+  unsigned __int64 v28; 
+  int v29; 
+  scr_string_t *v30; 
+  const char *v31; 
+  sentient_s *v32; 
+  const char *v33; 
+  sentient_s *v34; 
   int time; 
   int *iValidTime; 
   unsigned int i; 
-  const char *v48; 
-  int v51; 
-  $7A0F6C62E0364555C5F0E34018BDFBD3 *v52; 
+  const char *v38; 
+  int v39; 
+  $7A0F6C62E0364555C5F0E34018BDFBD3 *v40; 
   unsigned int j; 
-  const char *v58; 
-  unsigned int v61; 
-  __int64 v62; 
-  bool v63; 
-  const char *v64; 
-  int v65; 
-  __int64 v66; 
-  unsigned int v67; 
-  unsigned int v68; 
-  const char *v69; 
-  int v70; 
-  int v71; 
-  const char *v72; 
-  int v73; 
-  int v74; 
-  int v77; 
-  scr_string_t *v78; 
-  const char *v79; 
-  const char *v82; 
-  bool v88; 
-  const char *v91; 
-  __int64 v94; 
-  __int64 v95; 
+  const char *v42; 
+  unsigned int v43; 
+  __int64 v44; 
+  bool v45; 
+  const char *v46; 
+  int v47; 
+  __int64 v48; 
+  unsigned int v49; 
+  unsigned int v50; 
+  const char *v51; 
+  int v52; 
+  int v53; 
+  const char *v54; 
+  int v55; 
+  int v56; 
+  float v57; 
+  int v58; 
+  scr_string_t *v59; 
+  const char *v60; 
+  const char *v61; 
+  const char *v62; 
+  __int64 v63; 
+  __int64 v64; 
   vec3_t pos; 
-  void *retaddr; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmulss  xmm8, xmm1, cs:__real@3f333333
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm9
-  }
+  v5 = scale * 0.69999999;
+  v67 = v3;
+  v66 = v4;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  v10 = 0;
-  v11 = Path_NodeMaxNumTeamOwners(node);
-  v12 = v11;
-  __asm { vmulss  xmm9, xmm8, cs:__real@41400000 }
-  if ( v11 > 0 )
+  v7 = 0;
+  v8 = Path_NodeMaxNumTeamOwners(node);
+  v9 = v8;
+  v10 = (float)(scale * 0.69999999) * 12.0;
+  if ( v8 > 0 )
   {
-    v14 = 0i64;
+    v11 = 0i64;
     do
     {
       if ( BG_BotSystemEnabled() )
       {
         GameType = SV_GameMP_GetGameType();
-        v17 = *(unsigned __int8 *)GameType - (unsigned __int8)aBr_2[0];
-        if ( !v17 )
+        v14 = *(unsigned __int8 *)GameType - (unsigned __int8)aBr_2[0];
+        if ( !v14 )
         {
-          v17 = *((unsigned __int8 *)GameType + 1) - (unsigned __int8)aBr_2[1];
-          if ( !v17 )
-            v17 = *((unsigned __int8 *)GameType + 2) - (unsigned __int8)aBr_2[2];
+          v14 = *((unsigned __int8 *)GameType + 1) - (unsigned __int8)aBr_2[1];
+          if ( !v14 )
+            v14 = *((unsigned __int8 *)GameType + 2) - (unsigned __int8)aBr_2[2];
         }
-        v15 = v17 == 0;
+        v12 = v14 == 0;
       }
       else
       {
-        v15 = 1;
+        v12 = 1;
       }
-      v18 = v14;
-      v19 = v10;
-      if ( v15 )
-        v18 = 0i64;
-      if ( v15 )
-        v19 = 0;
+      v15 = v11;
+      v16 = v7;
+      if ( v12 )
+        v15 = 0i64;
+      if ( v12 )
+        v16 = 0;
       if ( !node )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 377, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
@@ -7696,235 +6717,212 @@ void __fastcall Path_DrawDebugClaimedNode(const pathnode_t *node, double scale)
       }
       if ( BG_BotSystemEnabled() )
       {
-        v21 = SV_GameMP_GetGameType();
-        v22 = *(unsigned __int8 *)v21 - (unsigned __int8)aBr_2[0];
-        if ( !v22 )
+        v18 = SV_GameMP_GetGameType();
+        v19 = *(unsigned __int8 *)v18 - (unsigned __int8)aBr_2[0];
+        if ( !v19 )
         {
-          v22 = *((unsigned __int8 *)v21 + 1) - (unsigned __int8)aBr_2[1];
-          if ( !v22 )
-            v22 = *((unsigned __int8 *)v21 + 2) - (unsigned __int8)aBr_2[2];
+          v19 = *((unsigned __int8 *)v18 + 1) - (unsigned __int8)aBr_2[1];
+          if ( !v19 )
+            v19 = *((unsigned __int8 *)v18 + 2) - (unsigned __int8)aBr_2[2];
         }
-        v20 = (v22 != 0) + 1;
+        v17 = (v19 != 0) + 1;
       }
       else
       {
-        v20 = 1;
+        v17 = 1;
       }
-      if ( v19 >= v20 )
+      if ( v16 >= v17 )
       {
         if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 349, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
           __debugbreak();
         if ( BG_BotSystemEnabled() )
         {
-          v24 = SV_GameMP_GetGameType();
-          v25 = *(unsigned __int8 *)v24 - (unsigned __int8)aBr_2[0];
-          if ( !v25 )
+          v21 = SV_GameMP_GetGameType();
+          v22 = *(unsigned __int8 *)v21 - (unsigned __int8)aBr_2[0];
+          if ( !v22 )
           {
-            v25 = *((unsigned __int8 *)v24 + 1) - (unsigned __int8)aBr_2[1];
-            if ( !v25 )
-              v25 = *((unsigned __int8 *)v24 + 2) - (unsigned __int8)aBr_2[2];
+            v22 = *((unsigned __int8 *)v21 + 1) - (unsigned __int8)aBr_2[1];
+            if ( !v22 )
+              v22 = *((unsigned __int8 *)v21 + 2) - (unsigned __int8)aBr_2[2];
           }
-          v23 = (v25 != 0) + 1;
+          v20 = (v22 != 0) + 1;
         }
         else
         {
-          v23 = 1;
+          v20 = 1;
         }
-        LODWORD(v95) = v23;
-        LODWORD(v94) = v19;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 378, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeamAdjusted ) < (unsigned)( Path_NodeMaxNumTeamOwners( node ) )", "nodeTeamAdjusted doesn't index Path_NodeMaxNumTeamOwners( node )\n\t%i not in [0, %i)", v94, v95) )
+        LODWORD(v64) = v20;
+        LODWORD(v63) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 378, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeamAdjusted ) < (unsigned)( Path_NodeMaxNumTeamOwners( node ) )", "nodeTeamAdjusted doesn't index Path_NodeMaxNumTeamOwners( node )\n\t%i not in [0, %i)", v63, v64) )
           __debugbreak();
       }
-      v26 = &node->dynamic.pOwners[v18];
-      if ( SentientHandle::isDefined(v26) )
+      v23 = &node->dynamic.pOwners[v15];
+      if ( SentientHandle::isDefined(v23) )
       {
-        number = v26->number;
+        number = v23->number;
         if ( number - 1 >= level.maxSentients )
         {
-          LODWORD(v95) = level.maxSentients;
-          LODWORD(v94) = number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( level.maxSentients )", "number - 1 doesn't index level.maxSentients\n\t%i not in [0, %i)", v94, v95) )
+          LODWORD(v64) = level.maxSentients;
+          LODWORD(v63) = number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( level.maxSentients )", "number - 1 doesn't index level.maxSentients\n\t%i not in [0, %i)", v63, v64) )
             __debugbreak();
         }
-        v28 = v26->number;
-        if ( !level.sentients[v28 - 1].ent )
+        v25 = v23->number;
+        if ( !level.sentients[v25 - 1].ent )
         {
-          LODWORD(v95) = v28 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 146, ASSERT_TYPE_ASSERT, "( ( level.sentients[number - 1].ent ) )", "%s\n\t( number - 1 ) = %i", "( level.sentients[number - 1].ent )", v95) )
+          LODWORD(v64) = v25 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 146, ASSERT_TYPE_ASSERT, "( ( level.sentients[number - 1].ent ) )", "%s\n\t( number - 1 ) = %i", "( level.sentients[number - 1].ent )", v64) )
             __debugbreak();
         }
-        ent = level.sentients[v26->number - 1].ent;
+        ent = level.sentients[v23->number - 1].ent;
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v30 = (__int64)((unsigned __int128)(((char *)ent - (char *)g_entities) * (__int128)0x2D02D02D02D02D03i64) >> 64) >> 8;
-        v31 = (v30 >> 63) + v30;
-        if ( (unsigned int)v31 >= 0x800 )
+        v27 = (__int64)((unsigned __int128)(((char *)ent - (char *)g_entities) * (__int128)0x2D02D02D02D02D03i64) >> 64) >> 8;
+        v28 = (v27 >> 63) + v27;
+        if ( (unsigned int)v28 >= 0x800 )
         {
-          LODWORD(v95) = 2048;
-          LODWORD(v94) = v31;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v94, v95) )
+          LODWORD(v64) = 2048;
+          LODWORD(v63) = v28;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v63, v64) )
             __debugbreak();
         }
-        v31 = (__int16)v31;
-        if ( (unsigned int)(__int16)v31 >= 0x800 )
+        v28 = (__int16)v28;
+        if ( (unsigned int)(__int16)v28 >= 0x800 )
         {
-          LODWORD(v95) = 2048;
-          LODWORD(v94) = v31;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v94, v95) )
+          LODWORD(v64) = 2048;
+          LODWORD(v63) = v28;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v63, v64) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( g_entities[v31].r.isInUse != g_entityIsInUse[v31] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        if ( g_entities[v28].r.isInUse != g_entityIsInUse[v28] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v31] )
+        if ( !g_entityIsInUse[v28] )
         {
-          LODWORD(v95) = v26->number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 147, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( G_GetEntityIndex( level.sentients[number - 1].ent ) ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( G_GetEntityIndex( level.sentients[number - 1].ent ) ) )", v95) )
+          LODWORD(v64) = v23->number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 147, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( G_GetEntityIndex( level.sentients[number - 1].ent ) ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( G_GetEntityIndex( level.sentients[number - 1].ent ) ) )", v64) )
             __debugbreak();
         }
-        if ( !level.sentients[v26->number - 1].ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6855, ASSERT_TYPE_ASSERT, "(nodeOwnerSentHandle->sentient()->ent)", (const char *)&queryFormat, "nodeOwnerSentHandle->sentient()->ent") )
+        if ( !level.sentients[v23->number - 1].ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6855, ASSERT_TYPE_ASSERT, "(nodeOwnerSentHandle->sentient()->ent)", (const char *)&queryFormat, "nodeOwnerSentHandle->sentient()->ent") )
           __debugbreak();
-        if ( v12 <= 1 )
+        if ( v9 <= 1 )
         {
-          v37 = SentientHandle::sentient(v26);
-          v36 = j_va("Owner: %d", (unsigned int)v37->ent->s.number);
+          v34 = SentientHandle::sentient(v23);
+          v33 = j_va("Owner: %d", (unsigned int)v34->ent->s.number);
         }
         else
         {
-          if ( v10 >= (unsigned int)Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2 )
+          if ( v7 >= (unsigned int)Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2 )
           {
-            LODWORD(v95) = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2;
-            LODWORD(v94) = v10;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 219, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? (3) : (2) )", "nodeTeam doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? MAX_NODE_TEAMS_SP : MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v94, v95) )
+            LODWORD(v64) = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2;
+            LODWORD(v63) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 219, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? (3) : (2) )", "nodeTeam doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? MAX_NODE_TEAMS_SP : MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v63, v64) )
               __debugbreak();
           }
-          v32 = v10 + 1;
+          v29 = v7 + 1;
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
           {
-            if ( v32 < 0 || (unsigned int)v32 >= 6 )
+            if ( v29 < 0 || (unsigned int)v29 >= 6 )
             {
-              LODWORD(v94) = v10 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 274, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_SP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v7 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 274, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_SP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            if ( !S_TEAMS_SP_SCR_STRINGS_10[v14 + 1] )
+            if ( !S_TEAMS_SP_SCR_STRINGS_10[v11 + 1] )
             {
-              LODWORD(v94) = v10 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 275, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_SP_SCR_STRINGS[team] ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v7 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 275, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_SP_SCR_STRINGS[team] ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            v33 = (scr_string_t *)S_TEAMS_SP_SCR_STRINGS_10[v14 + 1];
+            v30 = (scr_string_t *)S_TEAMS_SP_SCR_STRINGS_10[v11 + 1];
           }
           else
           {
-            if ( v32 < 0 || (unsigned int)v32 >= 0xCB )
+            if ( v29 < 0 || (unsigned int)v29 >= 0xCB )
             {
-              LODWORD(v94) = v10 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 283, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_MP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v7 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 283, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_MP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            if ( !S_TEAMS_MP_SCR_STRINGS_10[v14 + 1] )
+            if ( !S_TEAMS_MP_SCR_STRINGS_10[v11 + 1] )
             {
-              LODWORD(v94) = v10 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 284, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_MP_SCR_STRINGS[team] ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v7 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 284, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_MP_SCR_STRINGS[team] ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            v33 = (scr_string_t *)S_TEAMS_MP_SCR_STRINGS_10[v14 + 1];
+            v30 = (scr_string_t *)S_TEAMS_MP_SCR_STRINGS_10[v11 + 1];
           }
-          v34 = SL_ConvertToString(*v33);
-          v35 = SentientHandle::sentient(v26);
-          v36 = j_va("Owner: %d (%s)", (unsigned int)v35->ent->s.number, v34);
+          v31 = SL_ConvertToString(*v30);
+          v32 = SentientHandle::sentient(v23);
+          v33 = j_va("Owner: %d (%s)", (unsigned int)v32->ent->s.number, v31);
         }
-        __asm { vmovaps xmm2, xmm8; scale }
-        G_Main_AddDebugString(&pos, &colorGreen, *(float *)&_XMM2, v36);
+        G_Main_AddDebugString(&pos, &colorGreen, v5, v33);
       }
-      __asm { vaddss  xmm1, xmm9, dword ptr [rsp+0D8h+pos+8] }
-      ++v10;
-      ++v14;
-      __asm { vmovss  dword ptr [rsp+0D8h+pos+8], xmm1 }
+      ++v7;
+      ++v11;
+      pos.v[2] = v10 + pos.v[2];
     }
-    while ( v14 < v12 );
+    while ( v11 < v9 );
   }
-  __asm { vmovss  xmm7, cs:__real@3a83126f }
   time = level.time;
   iValidTime = node->dynamic.iValidTime;
   for ( i = 0; i < 3; ++i )
   {
     if ( time < *iValidTime )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm7
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-      }
-      v48 = j_va("Invalid %i: %2.1f", i, _R8);
-      __asm { vmovaps xmm2, xmm8; scale }
-      G_Main_AddDebugString(&pos, &colorYellow, *(float *)&_XMM2, v48);
-      __asm { vaddss  xmm1, xmm9, dword ptr [rsp+0D8h+pos+8] }
+      v38 = j_va("Invalid %i: %2.1f", i, (float)((float)(*iValidTime - time) * 0.001));
+      G_Main_AddDebugString(&pos, &colorYellow, v5, v38);
       time = level.time;
-      __asm { vmovss  dword ptr [rsp+0D8h+pos+8], xmm1 }
+      pos.v[2] = v10 + pos.v[2];
     }
     ++iValidTime;
   }
   if ( BG_ActorOrAgentSystemEnabled() )
   {
-    v51 = level.time;
-    v52 = &node->dynamic.36;
+    v39 = level.time;
+    v40 = &node->dynamic.36;
     for ( j = 0; j < 3; ++j )
     {
-      if ( v51 < v52->actors.dangerousNodeTime[0] )
+      if ( v39 < v40->actors.dangerousNodeTime[0] )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        v58 = j_va("Dangerous %i: %2.1f", j, _R8);
-        __asm { vmovaps xmm2, xmm8; scale }
-        G_Main_AddDebugString(&pos, &colorYellow, *(float *)&_XMM2, v58);
-        __asm { vaddss  xmm1, xmm9, dword ptr [rsp+0D8h+pos+8] }
-        v51 = level.time;
-        __asm { vmovss  dword ptr [rsp+0D8h+pos+8], xmm1 }
+        v42 = j_va("Dangerous %i: %2.1f", j, (float)((float)(v40->actors.dangerousNodeTime[0] - v39) * 0.001));
+        G_Main_AddDebugString(&pos, &colorYellow, v5, v42);
+        v39 = level.time;
+        pos.v[2] = v10 + pos.v[2];
       }
-      v52 = ($7A0F6C62E0364555C5F0E34018BDFBD3 *)((char *)v52 + 4);
+      v40 = ($7A0F6C62E0364555C5F0E34018BDFBD3 *)((char *)v40 + 4);
     }
   }
-  v61 = 0;
-  if ( v12 > 0 )
+  v43 = 0;
+  if ( v9 > 0 )
   {
-    v62 = 0i64;
-    __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
+    v44 = 0i64;
+    v68 = v2;
     do
     {
       if ( BG_BotSystemEnabled() )
       {
-        v64 = SV_GameMP_GetGameType();
-        v65 = *(unsigned __int8 *)v64 - (unsigned __int8)aBr_2[0];
-        if ( !v65 )
+        v46 = SV_GameMP_GetGameType();
+        v47 = *(unsigned __int8 *)v46 - (unsigned __int8)aBr_2[0];
+        if ( !v47 )
         {
-          v65 = *((unsigned __int8 *)v64 + 1) - (unsigned __int8)aBr_2[1];
-          if ( !v65 )
-            v65 = *((unsigned __int8 *)v64 + 2) - (unsigned __int8)aBr_2[2];
+          v47 = *((unsigned __int8 *)v46 + 1) - (unsigned __int8)aBr_2[1];
+          if ( !v47 )
+            v47 = *((unsigned __int8 *)v46 + 2) - (unsigned __int8)aBr_2[2];
         }
-        v63 = v65 == 0;
+        v45 = v47 == 0;
       }
       else
       {
-        v63 = 1;
+        v45 = 1;
       }
-      v66 = v62;
-      v67 = v61;
-      if ( v63 )
-        v66 = 0i64;
-      if ( v63 )
-        v67 = 0;
+      v48 = v44;
+      v49 = v43;
+      if ( v45 )
+        v48 = 0i64;
+      if ( v45 )
+        v49 = 0;
       if ( !node )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 413, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
@@ -7934,153 +6932,122 @@ void __fastcall Path_DrawDebugClaimedNode(const pathnode_t *node, double scale)
       }
       if ( BG_BotSystemEnabled() )
       {
-        v69 = SV_GameMP_GetGameType();
-        v70 = *(unsigned __int8 *)v69 - (unsigned __int8)aBr_2[0];
-        if ( !v70 )
+        v51 = SV_GameMP_GetGameType();
+        v52 = *(unsigned __int8 *)v51 - (unsigned __int8)aBr_2[0];
+        if ( !v52 )
         {
-          v70 = *((unsigned __int8 *)v69 + 1) - (unsigned __int8)aBr_2[1];
-          if ( !v70 )
-            v70 = *((unsigned __int8 *)v69 + 2) - (unsigned __int8)aBr_2[2];
+          v52 = *((unsigned __int8 *)v51 + 1) - (unsigned __int8)aBr_2[1];
+          if ( !v52 )
+            v52 = *((unsigned __int8 *)v51 + 2) - (unsigned __int8)aBr_2[2];
         }
-        v68 = (v70 != 0) + 1;
+        v50 = (v52 != 0) + 1;
       }
       else
       {
-        v68 = 1;
+        v50 = 1;
       }
-      if ( v67 >= v68 )
+      if ( v49 >= v50 )
       {
         if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 349, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
           __debugbreak();
         if ( BG_BotSystemEnabled() )
         {
-          v72 = SV_GameMP_GetGameType();
-          v73 = *(unsigned __int8 *)v72 - (unsigned __int8)aBr_2[0];
-          if ( !v73 )
+          v54 = SV_GameMP_GetGameType();
+          v55 = *(unsigned __int8 *)v54 - (unsigned __int8)aBr_2[0];
+          if ( !v55 )
           {
-            v73 = *((unsigned __int8 *)v72 + 1) - (unsigned __int8)aBr_2[1];
-            if ( !v73 )
-              v73 = *((unsigned __int8 *)v72 + 2) - (unsigned __int8)aBr_2[2];
+            v55 = *((unsigned __int8 *)v54 + 1) - (unsigned __int8)aBr_2[1];
+            if ( !v55 )
+              v55 = *((unsigned __int8 *)v54 + 2) - (unsigned __int8)aBr_2[2];
           }
-          v71 = (v73 != 0) + 1;
+          v53 = (v55 != 0) + 1;
         }
         else
         {
-          v71 = 1;
+          v53 = 1;
         }
-        LODWORD(v95) = v71;
-        LODWORD(v94) = v67;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 414, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeamAdjusted ) < (unsigned)( Path_NodeMaxNumTeamOwners( node ) )", "nodeTeamAdjusted doesn't index Path_NodeMaxNumTeamOwners( node )\n\t%i not in [0, %i)", v94, v95) )
+        LODWORD(v64) = v53;
+        LODWORD(v63) = v49;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 414, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeamAdjusted ) < (unsigned)( Path_NodeMaxNumTeamOwners( node ) )", "nodeTeamAdjusted doesn't index Path_NodeMaxNumTeamOwners( node )\n\t%i not in [0, %i)", v63, v64) )
           __debugbreak();
       }
-      v74 = node->dynamic.iFreeTime[v66];
+      v56 = node->dynamic.iFreeTime[v48];
       if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 444, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
         __debugbreak();
-      if ( Path_NodeGetFreeTime(node, v61) != 0x7FFFFFFF && level.time < v74 )
+      if ( Path_NodeGetFreeTime(node, v43) != 0x7FFFFFFF && level.time < v56 )
       {
-        __asm
+        v57 = (float)(v56 - level.time) * 0.001;
+        if ( v9 <= 1 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-          vmulss  xmm6, xmm0, xmm7
-        }
-        if ( v12 <= 1 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm1, xmm6, xmm6
-            vmovq   rdx, xmm1
-          }
-          v82 = j_va("Delay: %2.1f", _RDX);
+          v61 = j_va("Delay: %2.1f", v57);
         }
         else
         {
-          if ( v61 >= (unsigned int)Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2 )
+          if ( v43 >= (unsigned int)Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2 )
           {
-            LODWORD(v95) = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2;
-            LODWORD(v94) = v61;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 219, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? (3) : (2) )", "nodeTeam doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? MAX_NODE_TEAMS_SP : MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v94, v95) )
+            LODWORD(v64) = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) + 2;
+            LODWORD(v63) = v43;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 219, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? (3) : (2) )", "nodeTeam doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ) ? MAX_NODE_TEAMS_SP : MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v63, v64) )
               __debugbreak();
           }
-          v77 = v61 + 1;
+          v58 = v43 + 1;
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
           {
-            if ( v77 < 0 || (unsigned int)v77 >= 6 )
+            if ( v58 < 0 || (unsigned int)v58 >= 6 )
             {
-              LODWORD(v94) = v61 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 274, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_SP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v43 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 274, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_SP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            if ( !S_TEAMS_SP_SCR_STRINGS_10[v62 + 1] )
+            if ( !S_TEAMS_SP_SCR_STRINGS_10[v44 + 1] )
             {
-              LODWORD(v94) = v61 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 275, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_SP_SCR_STRINGS[team] ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v43 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 275, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_SP_SCR_STRINGS[team] ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            v78 = (scr_string_t *)S_TEAMS_SP_SCR_STRINGS_10[v62 + 1];
+            v59 = (scr_string_t *)S_TEAMS_SP_SCR_STRINGS_10[v44 + 1];
           }
           else
           {
-            if ( v77 < 0 || (unsigned int)v77 >= 0xCB )
+            if ( v58 < 0 || (unsigned int)v58 >= 0xCB )
             {
-              LODWORD(v94) = v61 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 283, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_MP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v43 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 283, ASSERT_TYPE_ASSERT, "( ( team >= TEAM_BAD && team < ( sizeof( *array_counter( S_TEAMS_MP_SCR_STRINGS ) ) + 0 ) ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            if ( !S_TEAMS_MP_SCR_STRINGS_10[v62 + 1] )
+            if ( !S_TEAMS_MP_SCR_STRINGS_10[v44 + 1] )
             {
-              LODWORD(v94) = v61 + 1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 284, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_MP_SCR_STRINGS[team] ) )", "( team ) = %i", v94) )
+              LODWORD(v63) = v43 + 1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 284, ASSERT_TYPE_ASSERT, "( ( S_TEAMS_MP_SCR_STRINGS[team] ) )", "( team ) = %i", v63) )
                 __debugbreak();
             }
-            v78 = (scr_string_t *)S_TEAMS_MP_SCR_STRINGS_10[v62 + 1];
+            v59 = (scr_string_t *)S_TEAMS_MP_SCR_STRINGS_10[v44 + 1];
           }
-          v79 = SL_ConvertToString(*v78);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm6, xmm6
-            vmovq   rdx, xmm1
-          }
-          v82 = j_va("Delay: %2.1f (%s)", _RDX, v79);
+          v60 = SL_ConvertToString(*v59);
+          v61 = j_va("Delay: %2.1f (%s)", v57, v60);
         }
-        __asm { vmovaps xmm2, xmm8; scale }
-        G_Main_AddDebugString(&pos, &colorYellow, *(float *)&_XMM2, v82);
-        __asm
-        {
-          vaddss  xmm1, xmm9, dword ptr [rsp+0D8h+pos+8]
-          vmovss  dword ptr [rsp+0D8h+pos+8], xmm1
-        }
+        G_Main_AddDebugString(&pos, &colorYellow, v5, v61);
+        pos.v[2] = (float)((float)(scale * 0.69999999) * 12.0) + pos.v[2];
       }
-      ++v61;
-      ++v62;
+      ++v43;
+      ++v44;
     }
-    while ( v62 < v12 );
-    __asm { vmovaps xmm6, [rsp+0D8h+var_48] }
+    while ( v44 < v9 );
   }
-  v88 = Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH);
-  __asm
-  {
-    vmovaps xmm9, [rsp+0D8h+var_78]
-    vmovaps xmm7, [rsp+0D8h+var_58]
-  }
-  if ( v88 )
+  if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) )
   {
     if ( BG_BotSystemEnabled() )
     {
-      v91 = SV_GameMP_GetGameType();
-      if ( *v91 != aBr_2[0] || v91[1] != aBr_2[1] || v91[2] != aBr_2[2] )
+      v62 = SV_GameMP_GetGameType();
+      if ( *v62 != aBr_2[0] || v62[1] != aBr_2[1] || v62[2] != aBr_2[2] )
       {
         if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6915, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::BOTS ))", "%s\n\tAccess to pathnode_dynamic::bots", "Com_GameMode_SupportsFeature( Com_GameMode_Feature::BOTS )") )
           __debugbreak();
         if ( node->dynamic.bots.hasGlobalBadPlaceLink )
-        {
-          __asm { vmovaps xmm2, xmm8; scale }
-          G_Main_AddDebugString(&pos, &colorRed, *(float *)&_XMM2, "badplace link");
-        }
+          G_Main_AddDebugString(&pos, &colorRed, v5, "badplace link");
       }
     }
   }
-  __asm { vmovaps xmm8, [rsp+0D8h+var_68] }
 }
 
 /*
@@ -8090,295 +7057,209 @@ Path_DrawDebugLink
 */
 void Path_DrawDebugLink(const pathnode_t *node, const int i, bool bShowAll)
 {
-  __int64 v10; 
+  __int64 v5; 
   __int64 nodeNum; 
-  pathnode_t *v12; 
+  pathnode_t *v7; 
   int totalLinkCount; 
-  pathlink_s *v27; 
-  __int64 v28; 
-  __int64 v29; 
+  pathlink_s *v9; 
+  __int64 v10; 
+  __int64 v11; 
   unsigned __int16 *p_nodeNum; 
   pathlink_s *Links; 
-  int v32; 
+  int v14; 
   __int64 j; 
-  const vec4_t *v34; 
-  const vec4_t *v35; 
-  pathlink_s *v36; 
-  __int64 v37; 
-  __int64 v38; 
-  int v39; 
+  const vec4_t *v16; 
+  const vec4_t *v17; 
+  pathlink_s *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  int v21; 
   unsigned __int8 flags; 
-  const vec4_t *v41; 
+  const vec4_t *v23; 
   unsigned __int16 *wOverlapNode; 
-  vec4_t *v43; 
-  bool v44; 
+  vec4_t *v25; 
+  bool v26; 
+  __int128 v27; 
+  float v28; 
+  float v29; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  __int128 v37; 
+  float v41; 
   vec3_t end; 
   vec3_t pos; 
-  vec3_t v123; 
+  vec3_t v44; 
   vec3_t up; 
   vec3_t start; 
-  vec3_t v126; 
+  vec3_t v47; 
   vec3_t vector; 
   vec3_t angles; 
 
-  __asm { vmovaps [rsp+130h+var_40], xmm6 }
-  v10 = i;
+  v5 = i;
   nodeNum = node->constant.Links[i].nodeNum;
-  v12 = &pathData.nodes[nodeNum];
+  v7 = &pathData.nodes[nodeNum];
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  pathnode_t::GetPos(v12, &end);
+  pathnode_t::GetPos(v7, &end);
   pathnode_t::GetAngles((pathnode_t *)node, &vector);
   AngleVectors(&vector, NULL, NULL, &up);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41800000
-    vmulss  xmm3, xmm6, dword ptr [rsp+130h+up+4]
-    vmulss  xmm2, xmm6, dword ptr [rsp+130h+up]
-    vaddss  xmm2, xmm2, dword ptr [rsp+130h+pos]
-    vmovss  dword ptr [rsp+130h+pos], xmm2
-    vaddss  xmm2, xmm3, dword ptr [rsp+130h+pos+4]
-    vmulss  xmm3, xmm6, dword ptr [rsp+130h+up+8]
-    vmovss  dword ptr [rsp+130h+pos+4], xmm2
-    vaddss  xmm2, xmm3, dword ptr [rsp+130h+pos+8]
-    vmovss  dword ptr [rsp+130h+pos+8], xmm2
-  }
-  pathnode_t::GetAngles(v12, &angles);
+  pos.v[0] = (float)(16.0 * up.v[0]) + pos.v[0];
+  pos.v[1] = (float)(16.0 * up.v[1]) + pos.v[1];
+  pos.v[2] = (float)(16.0 * up.v[2]) + pos.v[2];
+  pathnode_t::GetAngles(v7, &angles);
   AngleVectors(&angles, NULL, NULL, &up);
-  __asm
-  {
-    vmulss  xmm3, xmm6, dword ptr [rsp+130h+up+4]
-    vmulss  xmm2, xmm6, dword ptr [rsp+130h+up]
-    vaddss  xmm2, xmm2, dword ptr [rsp+130h+end]
-    vmovss  dword ptr [rsp+130h+end], xmm2
-    vaddss  xmm2, xmm3, dword ptr [rsp+130h+end+4]
-    vmulss  xmm3, xmm6, dword ptr [rsp+130h+up+8]
-    vmovss  dword ptr [rsp+130h+end+4], xmm2
-    vaddss  xmm2, xmm3, dword ptr [rsp+130h+end+8]
-    vmovss  dword ptr [rsp+130h+end+8], xmm2
-  }
+  end.v[0] = (float)(16.0 * up.v[0]) + end.v[0];
+  end.v[1] = (float)(16.0 * up.v[1]) + end.v[1];
+  end.v[2] = (float)(16.0 * up.v[2]) + end.v[2];
   if ( bShowAll )
-    totalLinkCount = v12->constant.totalLinkCount;
+    totalLinkCount = v7->constant.totalLinkCount;
   else
-    totalLinkCount = v12->dynamic.wLinkCount;
-  __asm
-  {
-    vmovaps [rsp+130h+var_50], xmm7
-    vmovaps [rsp+130h+var_60], xmm8
-    vmovaps [rsp+130h+var_70], xmm9
-    vmovaps [rsp+130h+var_80], xmm10
-  }
+    totalLinkCount = v7->dynamic.wLinkCount;
   if ( totalLinkCount <= 0 )
   {
 LABEL_8:
     Links = node->constant.Links;
-    v32 = 2;
+    v14 = 2;
     for ( j = 2i64; j >= 0; --j )
     {
-      if ( Links[v10].ubBadPlaceCount[j] )
+      if ( Links[v5].ubBadPlaceCount[j] )
         break;
-      --v32;
+      --v14;
     }
-    if ( Path_IsNegotiationLink(node, &pathData.nodes[Links[v10].nodeNum]) )
+    if ( Path_IsNegotiationLink(node, &pathData.nodes[Links[v5].nodeNum]) )
     {
-      v34 = &colorOrange;
-      v35 = &colorOrange;
+      v16 = &colorOrange;
+      v17 = &colorOrange;
     }
     else
     {
-      v34 = &colorRed;
-      v35 = &colorMagenta;
-      if ( v32 < 0 )
-        v35 = &colorRed;
+      v16 = &colorRed;
+      v17 = &colorMagenta;
+      if ( v14 < 0 )
+        v17 = &colorRed;
     }
-    G_DebugLine(&pos, &end, v35, 1);
+    G_DebugLine(&pos, &end, v17, 1);
+    v37 = LODWORD(pos.v[1]);
+    *(float *)&v37 = fsqrt((float)((float)((float)(pos.v[1] - end.v[1]) * (float)(pos.v[1] - end.v[1])) + (float)((float)(pos.v[0] - end.v[0]) * (float)(pos.v[0] - end.v[0]))) + (float)((float)(pos.v[2] - end.v[2]) * (float)(pos.v[2] - end.v[2])));
+    _XMM3 = v37;
     __asm
     {
-      vmovss  xmm5, cs:__real@41000000
-      vmovss  xmm4, cs:__real@3f000000
-      vmovss  xmm6, dword ptr [rsp+130h+pos]
-      vaddss  xmm0, xmm6, dword ptr [rsp+130h+end]
-      vmovss  xmm3, dword ptr [rsp+130h+pos+4]
-      vmovss  xmm1, dword ptr [rsp+130h+pos+8]
-      vsubss  xmm7, xmm1, dword ptr [rsp+130h+end+8]
-      vmulss  xmm10, xmm0, xmm4
-      vaddss  xmm0, xmm3, dword ptr [rsp+130h+end+4]
-      vmulss  xmm9, xmm0, xmm4
-      vaddss  xmm0, xmm1, dword ptr [rsp+130h+end+8]
-      vmulss  xmm8, xmm0, xmm4
-      vsubss  xmm4, xmm6, dword ptr [rsp+130h+end]
-      vsubss  xmm6, xmm3, dword ptr [rsp+130h+end+4]
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm2
-      vmulss  xmm0, xmm1, xmm5
-      vaddss  xmm4, xmm0, xmm10
-      vmulss  xmm1, xmm6, xmm2
-      vmulss  xmm0, xmm1, xmm5
-      vaddss  xmm3, xmm0, xmm9
-      vmulss  xmm1, xmm7, xmm2
-      vmulss  xmm0, xmm1, xmm5
-      vaddss  xmm2, xmm0, xmm8
-      vaddss  xmm0, xmm2, xmm5
-      vsubss  xmm1, xmm2, xmm5
-      vmovss  dword ptr [rsp+130h+start+8], xmm0
-      vmovss  dword ptr [rsp+130h+var_C0+8], xmm1
-      vmovss  dword ptr [rsp+130h+var_F0], xmm10
-      vmovss  dword ptr [rsp+130h+var_F0+4], xmm9
-      vmovss  dword ptr [rsp+130h+var_F0+8], xmm8
-      vmovss  dword ptr [rsp+130h+start], xmm4
-      vmovss  dword ptr [rsp+130h+start+4], xmm3
-      vmovss  dword ptr [rsp+130h+var_C0], xmm4
-      vmovss  dword ptr [rsp+130h+var_C0+4], xmm3
     }
-    G_DebugLine(&start, &v123, v34, 0);
-    G_DebugLine(&v126, &v123, v34, 0);
+    v41 = (float)((float)((float)(pos.v[2] - end.v[2]) * (float)(1.0 / *(float *)&_XMM0)) * 8.0) + (float)((float)(pos.v[2] + end.v[2]) * 0.5);
+    start.v[2] = v41 + 8.0;
+    v47.v[2] = v41 - 8.0;
+    v44.v[0] = (float)(pos.v[0] + end.v[0]) * 0.5;
+    v44.v[1] = (float)(pos.v[1] + end.v[1]) * 0.5;
+    v44.v[2] = (float)(pos.v[2] + end.v[2]) * 0.5;
+    start.v[0] = (float)((float)((float)(pos.v[0] - end.v[0]) * (float)(1.0 / *(float *)&_XMM0)) * 8.0) + v44.v[0];
+    start.v[1] = (float)((float)((float)(pos.v[1] - end.v[1]) * (float)(1.0 / *(float *)&_XMM0)) * 8.0) + v44.v[1];
+    v47.v[0] = start.v[0];
+    v47.v[1] = start.v[1];
+    G_DebugLine(&start, &v44, v16, 0);
+    G_DebugLine(&v47, &v44, v16, 0);
   }
   else
   {
-    v27 = v12->constant.Links;
-    v28 = 0i64;
-    v29 = 0i64;
-    p_nodeNum = &v27->nodeNum;
+    v9 = v7->constant.Links;
+    v10 = 0i64;
+    v11 = 0i64;
+    p_nodeNum = &v9->nodeNum;
     while ( node != &pathData.nodes[*p_nodeNum] )
     {
-      ++v29;
+      ++v11;
       p_nodeNum += 6;
-      if ( v29 >= totalLinkCount )
+      if ( v11 >= totalLinkCount )
         goto LABEL_8;
     }
-    if ( node > v12 )
+    if ( node > v7 )
     {
-      v36 = node->constant.Links;
-      v37 = 2i64;
-      v38 = 2i64;
-      v39 = 0;
+      v18 = node->constant.Links;
+      v19 = 2i64;
+      v20 = 2i64;
+      v21 = 0;
       do
       {
-        if ( v36[v10].ubBadPlaceCount[v38] )
+        if ( v18[v5].ubBadPlaceCount[v20] )
         {
-          v39 = 1;
+          v21 = 1;
           break;
         }
-        --v38;
+        --v20;
       }
-      while ( v38 >= 0 );
-      while ( !v27[v29].ubBadPlaceCount[v37] )
+      while ( v20 >= 0 );
+      while ( !v9[v11].ubBadPlaceCount[v19] )
       {
-        if ( --v37 < 0 )
+        if ( --v19 < 0 )
           goto LABEL_23;
       }
-      v39 |= 2u;
+      v21 |= 2u;
 LABEL_23:
-      if ( v39 )
+      if ( v21 )
       {
-        v41 = &colorYellow;
-        v44 = v39 == 3;
-        v43 = &colorBlue;
+        v23 = &colorYellow;
+        v26 = v21 == 3;
+        v25 = &colorBlue;
       }
       else
       {
-        flags = v36[v10].flags;
-        v41 = &colorCyan;
+        flags = v18[v5].flags;
+        v23 = &colorCyan;
         if ( flags )
-          v41 = &colorGreen;
+          v23 = &colorGreen;
         wOverlapNode = node->constant.wOverlapNode;
         while ( *wOverlapNode != (_WORD)nodeNum )
         {
-          ++v28;
+          ++v10;
           ++wOverlapNode;
-          if ( v28 >= 2 )
+          if ( v10 >= 2 )
             goto LABEL_34;
         }
-        v43 = &colorLtOrange;
-        v44 = flags == 0;
-        v41 = &colorMagenta;
+        v25 = &colorLtOrange;
+        v26 = flags == 0;
+        v23 = &colorMagenta;
       }
-      if ( !v44 )
-        v41 = v43;
+      if ( !v26 )
+        v23 = v25;
 LABEL_34:
-      G_DebugLine(&pos, &end, v41, 1);
-      if ( (unsigned int)(v39 - 1) <= 1 )
+      G_DebugLine(&pos, &end, v23, 1);
+      if ( (unsigned int)(v21 - 1) <= 1 )
       {
+        v27 = LODWORD(pos.v[1]);
+        v28 = (float)(pos.v[0] + end.v[0]) * 0.5;
+        v29 = (float)(pos.v[1] + end.v[1]) * 0.5;
+        *(float *)&v27 = fsqrt((float)((float)((float)(pos.v[1] - end.v[1]) * (float)(pos.v[1] - end.v[1])) + (float)((float)(pos.v[0] - end.v[0]) * (float)(pos.v[0] - end.v[0]))) + (float)((float)(pos.v[2] - end.v[2]) * (float)(pos.v[2] - end.v[2])));
+        _XMM3 = v27;
         __asm
         {
-          vmovss  xmm4, cs:__real@3f000000
-          vmovss  xmm6, dword ptr [rsp+130h+pos]
-          vaddss  xmm0, xmm6, dword ptr [rsp+130h+end]
-          vmovss  xmm3, dword ptr [rsp+130h+pos+4]
-          vmovss  xmm1, dword ptr [rsp+130h+pos+8]
-          vsubss  xmm5, xmm3, dword ptr [rsp+130h+end+4]
-          vmulss  xmm8, xmm0, xmm4
-          vaddss  xmm0, xmm3, dword ptr [rsp+130h+end+4]
-          vmulss  xmm9, xmm0, xmm4
-          vaddss  xmm0, xmm1, dword ptr [rsp+130h+end+8]
-          vmulss  xmm10, xmm0, xmm4
-          vsubss  xmm4, xmm6, dword ptr [rsp+130h+end]
-          vsubss  xmm6, xmm1, dword ptr [rsp+130h+end+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm1, xmm0
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm4, xmm1
-          vmulss  xmm5, xmm5, xmm1
-          vmulss  xmm6, xmm6, xmm1
-          vmovss  dword ptr [rsp+130h+var_F0], xmm8
-          vmovss  dword ptr [rsp+130h+var_F0+4], xmm9
-          vmovss  dword ptr [rsp+130h+var_F0+8], xmm10
         }
-        if ( v39 == 1 )
+        v33 = (float)(pos.v[0] - end.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+        v34 = (float)(pos.v[1] - end.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+        v35 = (float)(pos.v[2] - end.v[2]) * (float)(1.0 / *(float *)&_XMM0);
+        v44.v[0] = v28;
+        v44.v[1] = v29;
+        v44.v[2] = (float)(pos.v[2] + end.v[2]) * 0.5;
+        if ( v21 == 1 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:__xmm@80000000800000008000000080000000
-            vxorps  xmm2, xmm2, xmm0
-            vxorps  xmm5, xmm5, xmm0
-            vxorps  xmm6, xmm6, xmm0
-          }
+          LODWORD(v33) ^= _xmm;
+          LODWORD(v34) ^= _xmm;
+          LODWORD(v35) = COERCE_UNSIGNED_INT((float)(pos.v[2] - end.v[2]) * (float)(1.0 / *(float *)&_XMM0)) ^ _xmm;
         }
-        __asm
-        {
-          vmovss  xmm4, cs:__real@41000000
-          vmulss  xmm0, xmm2, xmm4
-          vaddss  xmm3, xmm0, xmm8
-          vmulss  xmm1, xmm5, xmm4
-          vaddss  xmm2, xmm1, xmm9
-          vmulss  xmm0, xmm6, xmm4
-          vaddss  xmm1, xmm0, xmm10
-          vaddss  xmm0, xmm1, xmm4
-          vsubss  xmm1, xmm1, xmm4
-          vmovss  dword ptr [rsp+130h+var_C0+8], xmm1
-          vmovss  dword ptr [rsp+130h+start], xmm3
-          vmovss  dword ptr [rsp+130h+start+4], xmm2
-          vmovss  dword ptr [rsp+130h+var_C0], xmm3
-          vmovss  dword ptr [rsp+130h+var_C0+4], xmm2
-          vmovss  dword ptr [rsp+130h+start+8], xmm0
-        }
-        G_DebugLine(&start, &v123, v41, 1);
-        G_DebugLine(&v126, &v123, v41, 1);
+        v36 = (float)(v35 * 8.0) + (float)((float)(pos.v[2] + end.v[2]) * 0.5);
+        v47.v[2] = v36 - 8.0;
+        start.v[0] = (float)(v33 * 8.0) + v28;
+        start.v[1] = (float)(v34 * 8.0) + v29;
+        v47.v[0] = start.v[0];
+        v47.v[1] = start.v[1];
+        start.v[2] = v36 + 8.0;
+        G_DebugLine(&start, &v44, v23, 1);
+        G_DebugLine(&v47, &v44, v23, 1);
       }
     }
-  }
-  __asm
-  {
-    vmovaps xmm10, [rsp+130h+var_80]
-    vmovaps xmm9, [rsp+130h+var_70]
-    vmovaps xmm8, [rsp+130h+var_60]
-    vmovaps xmm7, [rsp+130h+var_50]
-    vmovaps xmm6, [rsp+130h+var_40]
   }
 }
 
@@ -8389,62 +7270,31 @@ Path_DrawDebugNoLinks
 */
 void Path_DrawDebugNoLinks(const pathnode_t *node, const vec4_t *color, int duration)
 {
+  float v5; 
+  float v6; 
+  float v7; 
   vec3_t end; 
   vec3_t start; 
   vec3_t pos; 
-  char v31; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm7
-    vmovaps xmmword ptr [rax-28h], xmm8
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmmword ptr [rax-48h], xmm10
-  }
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0B8h+pos+8]
-    vaddss  xmm10, xmm0, cs:__real@3f800000
-    vmovss  xmm8, dword ptr [rsp+0B8h+pos]
-    vmovss  xmm9, cs:__real@40ddb3d7
-    vmovss  xmm7, dword ptr [rsp+0B8h+pos+4]
-    vaddss  xmm0, xmm8, xmm9
-    vmovss  dword ptr [rsp+0B8h+start], xmm0
-    vaddss  xmm0, xmm7, cs:__real@40800000
-    vmovss  dword ptr [rsp+0B8h+start+4], xmm0
-    vsubss  xmm0, xmm7, cs:__real@40800000
-    vsubss  xmm1, xmm8, xmm9
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm0
-    vmovss  dword ptr [rsp+0B8h+start+8], xmm10
-    vmovss  dword ptr [rsp+0B8h+end], xmm1
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm10
-  }
+  v5 = pos.v[2] + 1.0;
+  v6 = pos.v[0];
+  v7 = pos.v[1];
+  start.v[0] = pos.v[0] + 6.9282031;
+  start.v[1] = pos.v[1] + 4.0;
+  end.v[1] = pos.v[1] - 4.0;
+  start.v[2] = pos.v[2] + 1.0;
+  end.v[0] = pos.v[0] - 6.9282031;
+  end.v[2] = pos.v[2] + 1.0;
   G_DebugLineWithDuration(&start, &end, color, 0, duration);
-  __asm
-  {
-    vsubss  xmm0, xmm8, cs:__real@40800000
-    vaddss  xmm1, xmm7, xmm9
-    vmovss  dword ptr [rsp+0B8h+start], xmm0
-    vsubss  xmm0, xmm8, cs:__real@c0800000
-    vmovss  dword ptr [rsp+0B8h+start+4], xmm1
-    vsubss  xmm1, xmm7, xmm9
-    vmovss  dword ptr [rsp+0B8h+end], xmm0
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm1
-    vmovss  dword ptr [rsp+0B8h+start+8], xmm10
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm10
-  }
+  start.v[0] = v6 - 4.0;
+  start.v[1] = v7 + 6.9282031;
+  end.v[0] = v6 - -4.0;
+  end.v[1] = v7 - 6.9282031;
+  start.v[2] = v5;
+  end.v[2] = v5;
   G_DebugLineWithDuration(&start, &end, color, 0, duration);
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -8454,50 +7304,56 @@ Path_DrawDebugNode
 */
 void Path_DrawDebugNode(const vec3_t *cameraPos, const pathnode_t *node)
 {
-  const dvar_t *v8; 
+  const dvar_t *v4; 
   int integer; 
-  bool v10; 
-  bool v11; 
+  bool v6; 
+  bool v7; 
   unsigned __int16 type; 
-  __int64 v13; 
-  const dvar_t *v33; 
-  unsigned __int16 v35; 
-  char *v36; 
-  const vec4_t *v37; 
-  int v38; 
-  const char *v39; 
-  unsigned __int16 v46; 
-  unsigned __int16 v47; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  gentity_s *Entity; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
+  float v17; 
+  unsigned __int16 v18; 
+  char *v19; 
+  const vec4_t *v20; 
+  int v21; 
+  const char *v22; 
+  unsigned __int16 v23; 
+  unsigned __int16 v24; 
   bool IsNodeIndexExposedSkyBase; 
-  const char *v49; 
-  unsigned __int16 v51; 
-  const char *v52; 
+  const char *v26; 
+  unsigned __int16 v27; 
+  const char *v28; 
   vec3_t xyz; 
   vec3_t pos; 
 
-  _RSI = cameraPos;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7076, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  v8 = DVARINT_ai_showNodesFilter;
+  v4 = DVARINT_ai_showNodesFilter;
   if ( !DVARINT_ai_showNodesFilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNodesFilter") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  integer = v8->current.integer;
+  Dvar_CheckFrontendServerThread(v4);
+  integer = v4->current.integer;
   if ( integer )
   {
     switch ( integer )
     {
       case 1:
-        v10 = ((1 << LOBYTE(node->constant.type)) & 0x806400FC) == 0;
+        v6 = ((1 << LOBYTE(node->constant.type)) & 0x806400FC) == 0;
         goto LABEL_22;
       case 2:
-        v11 = ((1 << LOBYTE(node->constant.type)) & 0x806400FC) == 0;
+        v7 = ((1 << LOBYTE(node->constant.type)) & 0x806400FC) == 0;
         goto LABEL_23;
       case 3:
-        v11 = node->constant.type == 6;
+        v7 = node->constant.type == 6;
         goto LABEL_23;
       case 4:
-        v11 = node->constant.type == 7;
+        v7 = node->constant.type == 7;
         goto LABEL_23;
       case 5:
         type = node->constant.type;
@@ -8505,185 +7361,140 @@ void Path_DrawDebugNode(const vec3_t *cameraPos, const pathnode_t *node)
           return;
         break;
       case 6:
-        v11 = node->constant.type == 3;
+        v7 = node->constant.type == 3;
         goto LABEL_23;
       case 7:
-        v11 = node->constant.type == 4;
+        v7 = node->constant.type == 4;
         goto LABEL_23;
       case 8:
-        v11 = node->constant.type == 5;
+        v7 = node->constant.type == 5;
         goto LABEL_23;
       case 9:
-        v11 = node->constant.type == 31;
+        v7 = node->constant.type == 31;
         goto LABEL_23;
       case 10:
-        v11 = (unsigned int)node->constant.type - 10 <= 2;
+        v7 = (unsigned int)node->constant.type - 10 <= 2;
         goto LABEL_23;
       case 11:
-        v10 = ((1 << LOBYTE(node->constant.type)) & 0x78030000) == 0;
+        v6 = ((1 << LOBYTE(node->constant.type)) & 0x78030000) == 0;
 LABEL_22:
-        v11 = !v10;
+        v7 = !v6;
 LABEL_23:
-        if ( v11 )
+        if ( v7 )
           break;
         return;
       default:
         break;
     }
   }
-  v13 = node->constant.type;
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41800000; width
-    vmovaps [rsp+0C8h+var_28], xmm6
-    vmovaps [rsp+0C8h+var_38], xmm7
-    vmovaps [rsp+0C8h+var_48], xmm8
-    vmovaps [rsp+0C8h+var_58], xmm9
-  }
-  Path_DrawDebugNodeBoxWithParams(node, &nodeColorTable[v13], *(float *)&_XMM2, 0);
+  Path_DrawDebugNodeBoxWithParams(node, &nodeColorTable[node->constant.type], 16.0, 0);
   if ( (node->constant.spawnflags & 0x4000) != 0 && node->constant.error == PNERR_NOPEEKOUT )
     Path_DrawDebugPeekOuts(node);
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
+  v9 = pos.v[2];
+  v10 = pos.v[0];
+  v11 = pos.v[1];
+  v12 = FLOAT_1_0;
+  xyz.v[2] = pos.v[2] + 8.0;
+  xyz.v[0] = pos.v[0];
+  xyz.v[1] = pos.v[1];
+  Entity = G_Utils_FindEntity(NULL, 380, scr_const.player);
+  if ( Entity )
   {
-    vmovss  xmm9, dword ptr [rsp+0C8h+pos+8]
-    vaddss  xmm0, xmm9, cs:__real@41000000
-    vmovss  xmm7, dword ptr [rsp+0C8h+pos]
-    vmovss  xmm8, dword ptr [rsp+0C8h+pos+4]
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  dword ptr [rsp+0C8h+xyz+8], xmm0
-    vmovss  dword ptr [rsp+0C8h+xyz], xmm7
-    vmovss  dword ptr [rsp+0C8h+xyz+4], xmm8
+    v14 = (float)(cameraPos->v[2] - xyz.v[2]) + Entity->client->ps.viewHeightCurrent;
+    v12 = fsqrt((float)((float)((float)(cameraPos->v[1] - xyz.v[1]) * (float)(cameraPos->v[1] - xyz.v[1])) + (float)((float)(cameraPos->v[0] - xyz.v[0]) * (float)(cameraPos->v[0] - xyz.v[0]))) + (float)(v14 * v14)) * 0.0022222223;
   }
-  if ( G_Utils_FindEntity(NULL, 380, scr_const.player) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm5, xmm0, dword ptr [rsp+0C8h+xyz]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vsubss  xmm2, xmm0, dword ptr [rsp+0C8h+xyz+8]
-      vsubss  xmm4, xmm1, dword ptr [rsp+0C8h+xyz+4]
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, dword ptr [rax+1E8h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmulss  xmm6, xmm0, cs:__real@3b11a2b4
-    }
-  }
-  v33 = DVARINT_path_nodeInfoType;
-  __asm { vmulss  xmm6, xmm6, cs:__real@3f400000 }
+  v15 = DVARINT_path_nodeInfoType;
+  v17 = v12 * 0.75;
+  v16 = v12 * 0.75;
   if ( !DVARINT_path_nodeInfoType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "path_nodeInfoType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v33);
-  switch ( v33->current.integer )
+  Dvar_CheckFrontendServerThread(v15);
+  switch ( v15->current.integer )
   {
     case 0:
-      v38 = Path_ConvertNodeToIndex(node);
-      if ( v38 < pathData.fixedNodeCount || (v39 = "%d*", v38 >= pathData.maxDynamicSpawnedNodeCount + pathData.fixedNodeCount) )
-        v39 = "%d";
-      v36 = j_va(v39);
-      v37 = &colorYellow;
+      v21 = Path_ConvertNodeToIndex(node);
+      if ( v21 < pathData.fixedNodeCount || (v22 = "%d*", v21 >= pathData.maxDynamicSpawnedNodeCount + pathData.fixedNodeCount) )
+        v22 = "%d";
+      v19 = j_va(v22);
+      v20 = &colorYellow;
       goto LABEL_60;
     case 1:
-      v35 = node->constant.type;
+      v18 = node->constant.type;
       if ( (node->constant.spawnflags & 0x20) != 0 )
       {
-        v36 = j_va("%s:Choke", nodeStringTable[v35]);
-        v37 = &colorYellow;
+        v19 = j_va("%s:Choke", nodeStringTable[v18]);
+        v20 = &colorYellow;
       }
-      else if ( v35 == 31 )
+      else if ( v18 == 31 )
       {
-        v36 = j_va("%s:%s", nodeStringTable[31], nodeStringTable[node->dynamic.coverMultiType]);
-        v37 = &colorYellow;
+        v19 = j_va("%s:%s", nodeStringTable[31], nodeStringTable[node->dynamic.coverMultiType]);
+        v20 = &colorYellow;
       }
       else
       {
-        v37 = &colorYellow;
-        v36 = (char *)nodeStringTable[v35];
+        v20 = &colorYellow;
+        v19 = (char *)nodeStringTable[v18];
       }
       goto LABEL_60;
     case 2:
-      __asm
-      {
-        vcvtss2sd xmm3, xmm9, xmm9; jumptable 00000001412125C4 case 2
-        vcvtss2sd xmm2, xmm8, xmm8
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v36 = j_va("(%0.f %0.f %0.f)", _RDX, _R8, _R9);
-      v37 = &colorYellow;
+      v19 = j_va("(%0.f %0.f %0.f)", v10, v11, v9);
+      v20 = &colorYellow;
       goto LABEL_60;
     case 3:
-      if ( pathData.usePathExtraData )
+      if ( !pathData.usePathExtraData )
       {
-        v46 = Path_ConvertNodeToIndex(node);
-        if ( Path_IsNodeIndexExposedSkyBase(v46, 0) )
+        if ( (node->constant.spawnflags & 0x2000) == 0 )
         {
-          v47 = Path_ConvertNodeToIndex(node);
-          IsNodeIndexExposedSkyBase = Path_IsNodeIndexExposedSkyBase(v47, 1);
-          v49 = "SkyStrict";
-          if ( !IsNodeIndexExposedSkyBase )
-            v49 = "Sky";
-          v37 = &colorYellow;
+          v26 = "Transition";
+          if ( (node->constant.spawnflags & 2) == 0 )
+            v26 = "Out";
+          v20 = &colorYellow;
           goto LABEL_61;
         }
 LABEL_49:
-        v49 = "In";
-        v37 = &colorYellow;
+        v26 = "In";
+        v20 = &colorYellow;
         goto LABEL_61;
       }
-      if ( (node->constant.spawnflags & 0x2000) != 0 )
+      v23 = Path_ConvertNodeToIndex(node);
+      if ( !Path_IsNodeIndexExposedSkyBase(v23, 0) )
         goto LABEL_49;
-      v49 = "Transition";
-      if ( (node->constant.spawnflags & 2) == 0 )
-        v49 = "Out";
-      v37 = &colorYellow;
+      v24 = Path_ConvertNodeToIndex(node);
+      IsNodeIndexExposedSkyBase = Path_IsNodeIndexExposedSkyBase(v24, 1);
+      v26 = "SkyStrict";
+      if ( !IsNodeIndexExposedSkyBase )
+        v26 = "Sky";
+      v20 = &colorYellow;
 LABEL_61:
-      __asm { vmovaps xmm2, xmm6; scale }
-      G_Main_AddDebugString(&xyz, v37, *(float *)&_XMM2, v49);
-LABEL_62:
-      __asm
-      {
-        vmovaps xmm8, [rsp+0C8h+var_48]; jumptable 00000001412125C4 default case
-        vmovaps xmm7, [rsp+0C8h+var_38]
-        vmovaps xmm6, [rsp+0C8h+var_28]
-        vmovaps xmm9, [rsp+0C8h+var_58]
-      }
+      G_Main_AddDebugString(&xyz, v20, v16, v26);
       return;
     case 4:
-      __asm { vmovaps xmm1, xmm6; jumptable 00000001412125C4 case 4 }
-      Path_DrawDebugClaimedNode(node, *(double *)&_XMM1);
-      goto LABEL_62;
+      Path_DrawDebugClaimedNode(node, v17);
+      return;
     case 5:
       Path_DrawDebugPeekOuts(node);
-      goto LABEL_62;
+      return;
     case 6:
-      v51 = node->constant.type;
+      v27 = node->constant.type;
       if ( (node->constant.spawnflags & 0x10000) != 0 )
       {
-        v36 = j_va("%s:LMG Mountable", nodeStringTable[v51]);
-        v37 = &colorYellow;
+        v19 = j_va("%s:LMG Mountable", nodeStringTable[v27]);
+        v20 = &colorYellow;
       }
       else
       {
-        v52 = "%s:DONT LMG";
+        v28 = "%s:DONT LMG";
         if ( (node->constant.spawnflags & 0x80u) == 0 )
-          v52 = "%s:Not Mountable";
-        v36 = j_va(v52, nodeStringTable[v51]);
-        v37 = &colorRed;
+          v28 = "%s:Not Mountable";
+        v19 = j_va(v28, nodeStringTable[v27]);
+        v20 = &colorRed;
       }
 LABEL_60:
-      v49 = v36;
+      v26 = v19;
       goto LABEL_61;
     default:
-      goto LABEL_62;
+      return;
   }
 }
 
@@ -8694,8 +7505,7 @@ Path_DrawDebugNodeBox
 */
 void Path_DrawDebugNodeBox(const pathnode_t *node)
 {
-  __asm { vmovss  xmm2, cs:__real@41800000; width }
-  Path_DrawDebugNodeBoxWithParams(node, &nodeColorTable[node->constant.type], *(float *)&_XMM2, 0);
+  Path_DrawDebugNodeBoxWithParams(node, &nodeColorTable[node->constant.type], 16.0, 0);
 }
 
 /*
@@ -8703,10 +7513,9 @@ void Path_DrawDebugNodeBox(const pathnode_t *node)
 Path_DrawDebugNodeBoxWithParams
 ==============
 */
-
-void __fastcall Path_DrawDebugNodeBoxWithParams(const pathnode_t *node, const vec4_t *color, double width, int duration)
+void Path_DrawDebugNodeBoxWithParams(const pathnode_t *node, const vec4_t *color, float width, int duration)
 {
-  int v14; 
+  int v7; 
   float c; 
   float s; 
   vec3_t start; 
@@ -8718,30 +7527,17 @@ void __fastcall Path_DrawDebugNodeBoxWithParams(const pathnode_t *node, const ve
   vec3_t forward; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovaps [rsp+120h+var_20], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6764, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-  }
-  v14 = 1 << LOBYTE(node->constant.type);
-  __asm
-  {
-    vmovss  dword ptr [rsp+120h+box.midPoint], xmm0
-    vmovss  dword ptr [rsp+120h+box.midPoint+4], xmm0
-    vmovss  dword ptr [rbp+20h+box.midPoint+8], xmm1
-    vmovss  dword ptr [rbp+20h+box.halfSize], xmm6
-    vmovss  dword ptr [rbp+20h+box.halfSize+4], xmm6
-    vmovss  dword ptr [rbp+20h+box.halfSize+8], xmm1
-  }
-  if ( (v14 & 0x62700000) != 0 )
+  v7 = 1 << LOBYTE(node->constant.type);
+  box.midPoint.v[0] = 0.0;
+  box.midPoint.v[1] = 0.0;
+  box.midPoint.v[2] = width * 0.5;
+  box.halfSize.v[0] = width;
+  box.halfSize.v[1] = width;
+  box.halfSize.v[2] = width * 0.5;
+  if ( (v7 & 0x62700000) != 0 )
   {
     pathnode_t::GetAngles((pathnode_t *)node, &vector);
     AnglesToAxis(&vector, &axis);
@@ -8750,98 +7546,39 @@ void __fastcall Path_DrawDebugNodeBoxWithParams(const pathnode_t *node, const ve
   else
   {
     pathnode_t::GetAngles((pathnode_t *)node, &vector);
-    __asm { vmovss  xmm2, dword ptr [rsp+120h+vector+4]; yaw }
-    G_DebugBox(&pos, &box, *(float *)&_XMM2, color, 1, duration);
+    G_DebugBox(&pos, &box, vector.v[1], color, 1, duration);
   }
   if ( (node->constant.spawnflags & 0x8000) != 0 )
   {
     if ( ((1 << LOBYTE(node->constant.type)) & 0x62700000) != 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+120h+var_30], xmm7
-        vmovaps [rsp+120h+var_40], xmm8
-      }
       pathnode_t::GetAngles((pathnode_t *)node, &vector);
       AngleVectors(&vector, NULL, NULL, &up);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+20h+box.midPoint+8]
-        vmulss  xmm0, xmm1, dword ptr [rbp+20h+up]
-        vaddss  xmm2, xmm0, dword ptr [rsp+120h+pos]
-        vmulss  xmm0, xmm1, dword ptr [rbp+20h+up+4]
-        vaddss  xmm5, xmm0, dword ptr [rsp+120h+pos+4]
-        vmulss  xmm0, xmm1, dword ptr [rbp+20h+up+8]
-        vaddss  xmm4, xmm0, dword ptr [rsp+120h+pos+8]
-        vmovss  xmm3, dword ptr [rbp+20h+box.halfSize+8]
-        vmulss  xmm0, xmm3, dword ptr [rbp+20h+up]
-        vaddss  xmm1, xmm0, xmm2
-        vmovss  dword ptr [rsp+120h+start], xmm2
-        vmulss  xmm2, xmm3, dword ptr [rbp+20h+up+4]
-        vaddss  xmm0, xmm2, xmm5
-        vmovss  dword ptr [rsp+120h+end], xmm1
-        vmulss  xmm1, xmm3, dword ptr [rbp+20h+up+8]
-        vaddss  xmm2, xmm1, xmm4
-        vmovss  dword ptr [rsp+120h+end+8], xmm2
-        vmovss  dword ptr [rsp+120h+start+4], xmm5
-        vmovss  dword ptr [rsp+120h+start+8], xmm4
-        vmovss  dword ptr [rsp+120h+end+4], xmm0
-      }
+      start.v[0] = (float)(box.midPoint.v[2] * up.v[0]) + pos.v[0];
+      end.v[0] = (float)(box.halfSize.v[2] * up.v[0]) + start.v[0];
+      end.v[2] = (float)(box.halfSize.v[2] * up.v[2]) + (float)((float)(box.midPoint.v[2] * up.v[2]) + pos.v[2]);
+      start.v[1] = (float)(box.midPoint.v[2] * up.v[1]) + pos.v[1];
+      start.v[2] = (float)(box.midPoint.v[2] * up.v[2]) + pos.v[2];
+      end.v[1] = (float)(box.halfSize.v[2] * up.v[1]) + start.v[1];
       G_DebugLineWithDuration(&start, &end, color, 1, duration);
       AngleVectors(&vector, &forward, NULL, NULL);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbp+20h+box.halfSize]
-        vmulss  xmm1, xmm3, dword ptr [rbp+20h+forward]
-        vaddss  xmm2, xmm1, dword ptr [rsp+120h+start]
-        vmulss  xmm1, xmm3, dword ptr [rbp+20h+forward+4]
-        vmovaps xmm8, [rsp+120h+var_40]
-        vmovaps xmm7, [rsp+120h+var_30]
-        vmovss  dword ptr [rsp+120h+end], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rsp+120h+start+4]
-        vmulss  xmm1, xmm3, dword ptr [rbp+20h+forward+8]
-        vmovss  dword ptr [rsp+120h+end+4], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rsp+120h+start+8]
-        vmovss  dword ptr [rsp+120h+end+8], xmm2
-      }
+      end.v[0] = (float)(box.halfSize.v[0] * forward.v[0]) + start.v[0];
+      end.v[1] = (float)(box.halfSize.v[0] * forward.v[1]) + start.v[1];
+      end.v[2] = (float)(box.halfSize.v[0] * forward.v[2]) + start.v[2];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+120h+box.midPoint]
-        vaddss  xmm1, xmm0, dword ptr [rsp+120h+pos]
-        vmovss  xmm2, dword ptr [rsp+120h+box.midPoint+4]
-        vaddss  xmm0, xmm2, dword ptr [rsp+120h+pos+4]
-        vmovss  dword ptr [rsp+120h+start], xmm1
-        vmovss  xmm1, dword ptr [rsp+120h+pos+8]
-        vaddss  xmm2, xmm1, dword ptr [rbp+20h+box.midPoint+8]
-        vmovss  dword ptr [rsp+120h+start+8], xmm2
-        vmovss  dword ptr [rsp+120h+start+4], xmm0
-      }
+      start.v[0] = box.midPoint.v[0] + pos.v[0];
+      start.v[2] = pos.v[2] + box.midPoint.v[2];
+      start.v[1] = box.midPoint.v[1] + pos.v[1];
       pathnode_t::GetAngles((pathnode_t *)node, &vector);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+120h+vector+4]
-        vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+20h+box.halfSize]
-        vmulss  xmm0, xmm2, [rsp+120h+c]
-        vaddss  xmm1, xmm0, dword ptr [rsp+120h+start]
-        vmulss  xmm2, xmm2, [rsp+120h+s]
-        vaddss  xmm0, xmm2, dword ptr [rsp+120h+start+4]
-        vmovss  dword ptr [rsp+120h+end], xmm1
-        vmovss  xmm1, dword ptr [rsp+120h+start+8]
-        vmovss  dword ptr [rsp+120h+end+8], xmm1
-        vmovss  dword ptr [rsp+120h+end+4], xmm0
-      }
+      FastSinCos(vector.v[1] * 0.017453292, &s, &c);
+      end.v[0] = (float)(box.halfSize.v[0] * c) + start.v[0];
+      end.v[2] = start.v[2];
+      end.v[1] = (float)(box.halfSize.v[0] * s) + start.v[1];
     }
     G_DebugLineWithDuration(&start, &end, color, 1, duration);
   }
-  __asm { vmovaps xmm6, [rsp+120h+var_20] }
 }
 
 /*
@@ -8851,107 +7588,45 @@ Path_DrawDebugPeekOutOffset
 */
 void Path_DrawDebugPeekOutOffset(const pathnode_t *node, const vec3_t *offset, const vec4_t *color, const char *traceEndDebugStr)
 {
-  char v6; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t end; 
   vec3_t xyz; 
-  vec3_t v51; 
+  vec3_t v14; 
   vec3_t forward; 
   tmat33_t<vec3_t> axis; 
   vec3_t vector; 
   vec3_t pos; 
 
-  __asm
+  if ( 0.0 != offset->v[0] || 0.0 != offset->v[1] || 0.0 != offset->v[2] )
   {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [rdx]
-  }
-  _RDI = (vec3_t *)offset;
-  if ( !v6 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [rdx+4]
-  }
-  if ( !v6 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [rdx+8]
-  }
-  if ( !v6 )
-  {
-LABEL_4:
-    __asm
-    {
-      vmovaps [rsp+100h+var_30], xmm6
-      vmovaps [rsp+100h+var_40], xmm8
-    }
     pathnode_t::GetPos((pathnode_t *)node, &pos);
     if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6930, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
       __debugbreak();
     if ( (node->constant.spawnflags & 0x8000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6931, ASSERT_TYPE_ASSERT, "(node->constant.spawnflags & PNF_ANGLEVALID)", (const char *)&queryFormat, "node->constant.spawnflags & PNF_ANGLEVALID") )
       __debugbreak();
-    pathnode_t::GetPos((pathnode_t *)node, &v51);
+    pathnode_t::GetPos((pathnode_t *)node, &v14);
     pathnode_t::GetAngles((pathnode_t *)node, &vector);
     AngleVectors(&vector, &forward, NULL, NULL);
     AnglesToAxis(&vector, &axis);
-    if ( _RDI == &end && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    if ( offset == &end && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rdi+4]
-      vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+0Ch]
-      vmovss  xmm1, dword ptr [rbp+57h+axis]
-      vmulss  xmm2, xmm1, dword ptr [rdi]
-      vmovss  xmm0, dword ptr [rbp+57h+axis+18h]
-      vmulss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  xmm0, dword ptr [rbp+57h+axis+1Ch]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+10h]
-      vaddss  xmm2, xmm4, xmm1
-      vaddss  xmm8, xmm2, dword ptr [rbp+57h+var_B0]
-      vmovss  xmm1, dword ptr [rbp+57h+axis+4]
-      vmulss  xmm2, xmm1, dword ptr [rdi]
-      vmulss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  xmm0, dword ptr [rbp+57h+axis+20h]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+14h]
-      vaddss  xmm2, xmm4, xmm1
-      vaddss  xmm6, xmm2, dword ptr [rbp+57h+var_B0+4]
-      vmovss  xmm1, dword ptr [rbp+57h+axis+8]
-      vmulss  xmm2, xmm1, dword ptr [rdi]
-      vmulss  xmm1, xmm0, dword ptr [rdi+8]
-      vaddss  xmm4, xmm3, xmm2
-      vmovss  xmm3, cs:__real@42000000
-      vaddss  xmm2, xmm4, xmm1
-      vaddss  xmm5, xmm2, dword ptr [rbp+57h+var_B0+8]
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward]
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward+4]
-      vmovss  dword ptr [rbp+57h+xyz], xmm2
-      vaddss  xmm2, xmm1, xmm6
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward+8]
-      vmovss  dword ptr [rbp+57h+xyz+4], xmm2
-      vaddss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rbp+57h+xyz+8], xmm2
-      vmovss  dword ptr [rbp+57h+end], xmm8
-      vmovss  dword ptr [rbp+57h+end+4], xmm6
-      vmovss  dword ptr [rbp+57h+end+8], xmm5
-    }
+    v8 = offset->v[1];
+    v9 = (float)((float)((float)(v8 * axis.m[1].v[0]) + (float)(axis.m[0].v[0] * offset->v[0])) + (float)(axis.m[2].v[0] * offset->v[2])) + v14.v[0];
+    v10 = (float)((float)((float)(v8 * axis.m[1].v[1]) + (float)(axis.m[0].v[1] * offset->v[0])) + (float)(axis.m[2].v[1] * offset->v[2])) + v14.v[1];
+    v11 = (float)((float)((float)(v8 * axis.m[1].v[2]) + (float)(axis.m[0].v[2] * offset->v[0])) + (float)(axis.m[2].v[2] * offset->v[2])) + v14.v[2];
+    xyz.v[0] = (float)(32.0 * forward.v[0]) + v9;
+    xyz.v[1] = (float)(32.0 * forward.v[1]) + v10;
+    xyz.v[2] = (float)(32.0 * forward.v[2]) + v11;
+    end.v[0] = v9;
+    end.v[1] = v10;
+    end.v[2] = v11;
     G_DebugLine(&pos, &end, color, 1);
     G_DebugLine(&end, &xyz, color, 1);
-    __asm
-    {
-      vmovaps xmm8, [rsp+100h+var_40]
-      vmovaps xmm6, [rsp+100h+var_30]
-    }
     if ( traceEndDebugStr )
-    {
-      __asm { vmovss  xmm2, cs:__real@3e19999a; scale }
-      G_Main_AddDebugString(&xyz, color, *(float *)&_XMM2, traceEndDebugStr);
-    }
+      G_Main_AddDebugString(&xyz, color, 0.15000001, traceEndDebugStr);
   }
 }
 
@@ -9024,9 +7699,8 @@ void Path_DrawVisData()
   unsigned int v6; 
   pathnode_t *v7; 
   const dvar_t *v8; 
-  char v18; 
-  char v19; 
-  const vec4_t *v20; 
+  const dvar_t *v9; 
+  const vec4_t *v10; 
   vec3_t end; 
   vec3_t pos; 
   vec3_t outPos; 
@@ -9068,23 +7742,11 @@ void Path_DrawVisData()
           if ( v8->current.integer == 2 && ((1 << LOBYTE(v7->constant.type)) & 0x82641EFC) == 0 )
             goto LABEL_38;
           pathnode_t::GetPos(v7, &end);
-          _RDI = DVARFLT_ai_showVisDataDist;
+          v9 = DVARFLT_ai_showVisDataDist;
           if ( !DVARFLT_ai_showVisDataDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showVisDataDist") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0A8h+end]
-            vmovss  xmm1, dword ptr [rsp+0A8h+end+4]
-            vsubss  xmm2, xmm1, dword ptr [rsp+0A8h+pos+4]
-            vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+pos]
-            vmulss  xmm3, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm1, xmm3, xmm0
-            vsqrtss xmm2, xmm1, xmm1
-            vcomiss xmm2, dword ptr [rdi+28h]
-          }
-          if ( !(v18 | v19) )
+          Dvar_CheckFrontendServerThread(v9);
+          if ( fsqrt((float)((float)(end.v[1] - pos.v[1]) * (float)(end.v[1] - pos.v[1])) + (float)((float)(end.v[0] - pos.v[0]) * (float)(end.v[0] - pos.v[0]))) > v9->current.value )
             goto LABEL_38;
           if ( pathData.usePathExtraData && Dvar_GetInt_Internal_DebugName(DVARINT_ai_showVisData, "ai_showVisData") == 4 )
           {
@@ -9094,12 +7756,12 @@ void Path_DrawVisData()
               if ( !Path_NodesVisibleNoPeek(v4, v7) )
               {
 LABEL_36:
-                v20 = &colorYellow;
+                v10 = &colorYellow;
                 goto LABEL_37;
               }
-              v20 = &colorRed;
+              v10 = &colorRed;
 LABEL_37:
-              G_DebugLine(&pos, &end, v20, 0);
+              G_DebugLine(&pos, &end, v10, 0);
             }
           }
           else
@@ -9107,13 +7769,13 @@ LABEL_37:
             if ( Dvar_GetInt_Internal_DebugName(DVARINT_ai_showVisData, "ai_showVisData") != 3 && Path_NodeSafeFrom(v4, v7) && Path_NodesVisible(v4, v7) )
             {
               Path_DrawDebugNode(&outPos, v7);
-              v20 = &colorGreen;
+              v10 = &colorGreen;
               goto LABEL_37;
             }
             if ( Path_NodesVisible(v4, v7) )
             {
               Path_DrawDebugNode(&outPos, v7);
-              v20 = &colorRed;
+              v10 = &colorRed;
               goto LABEL_37;
             }
             if ( Path_NodeSafeFrom(v4, v7) )
@@ -9273,32 +7935,16 @@ Path_GetDebugStringScale
 */
 float Path_GetDebugStringScale(const vec3_t *cameraPos, const vec3_t *origin)
 {
-  _RDI = cameraPos;
-  if ( G_Utils_FindEntity(NULL, 380, scr_const.player) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm5, xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm2, xmm0, dword ptr [rbx+8]
-      vsubss  xmm4, xmm1, dword ptr [rbx+4]
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, dword ptr [rax+1E8h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmulss  xmm0, xmm0, cs:__real@3b11a2b4
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+  gentity_s *Entity; 
+  float v5; 
+  float v6; 
+
+  Entity = G_Utils_FindEntity(NULL, 380, scr_const.player);
+  if ( !Entity )
+    return FLOAT_1_0;
+  v5 = cameraPos->v[1] - origin->v[1];
+  v6 = (float)(cameraPos->v[2] - origin->v[2]) + Entity->client->ps.viewHeightCurrent;
+  return fsqrt((float)((float)(v5 * v5) + (float)((float)(cameraPos->v[0] - origin->v[0]) * (float)(cameraPos->v[0] - origin->v[0]))) + (float)(v6 * v6)) * 0.0022222223;
 }
 
 /*
@@ -9533,13 +8179,17 @@ Path_GetPeekOutLine
 */
 void Path_GetPeekOutLine(const pathnode_t *node, const vec3_t *offset, vec3_t *outStart, vec3_t *outEnd)
 {
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t pos; 
   vec3_t forward; 
   vec3_t vector; 
   tmat33_t<vec3_t> axis; 
 
-  _RSI = outEnd;
-  _RDI = outStart;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6930, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   if ( (node->constant.spawnflags & 0x8000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 6931, ASSERT_TYPE_ASSERT, "(node->constant.spawnflags & PNF_ANGLEVALID)", (const char *)&queryFormat, "node->constant.spawnflags & PNF_ANGLEVALID") )
@@ -9548,29 +8198,19 @@ void Path_GetPeekOutLine(const pathnode_t *node, const vec3_t *offset, vec3_t *o
   pathnode_t::GetAngles((pathnode_t *)node, &vector);
   AngleVectors(&vector, &forward, NULL, NULL);
   AnglesToAxis(&vector, &axis);
-  MatrixTransformVector(offset, &axis, _RDI);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42000000
-    vmovss  xmm0, dword ptr [rsp+0B8h+pos]
-    vaddss  xmm2, xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rsp+0B8h+pos+4]
-    vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rsp+0B8h+pos+8]
-    vmovss  dword ptr [rdi+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm1
-    vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+forward]
-    vmovss  dword ptr [rdi], xmm2
-    vaddss  xmm2, xmm1, xmm2
-    vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+forward+4]
-    vmovss  dword ptr [rsi], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rdi+4]
-    vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+forward+8]
-    vmovss  dword ptr [rsi+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rsi+8], xmm2
-  }
+  MatrixTransformVector(offset, &axis, outStart);
+  v8 = pos.v[0] + outStart->v[0];
+  v9 = pos.v[2];
+  outStart->v[1] = pos.v[1] + outStart->v[1];
+  outStart->v[2] = v9 + outStart->v[2];
+  v10 = 32.0 * forward.v[0];
+  outStart->v[0] = v8;
+  v11 = v10 + v8;
+  v12 = 32.0 * forward.v[1];
+  outEnd->v[0] = v11;
+  v13 = 32.0 * forward.v[2];
+  outEnd->v[1] = v12 + outStart->v[1];
+  outEnd->v[2] = v13 + outStart->v[2];
 }
 
 /*
@@ -9803,32 +8443,26 @@ Path_IsNodeDisconnected
 */
 char Path_IsNodeDisconnected(unsigned __int16 nodeIndex)
 {
-  pathnode_t *v3; 
+  pathnode_t *v2; 
   const tacpoint_t *PointForPathnode; 
-  char v13; 
-  char v14; 
   bfx::AreaHandle *AreaForPoint; 
   vec3_t pos; 
-  vec3_t v19; 
+  vec3_t v7; 
   bfx::PathSpec pathSpec; 
 
   if ( nodeIndex >= pathData.nodeCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10328, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( pathData.nodeCount )", "nodeIndex doesn't index pathData.nodeCount\n\t%i not in [0, %i)", nodeIndex, pathData.nodeCount) )
     __debugbreak();
   if ( !Path_NodeValid(nodeIndex) || pathData.nodes[nodeIndex].dynamic.bInactive )
     return 1;
-  v3 = Path_ConvertIndexToNode(nodeIndex);
-  PointForPathnode = TacGraph_GetPointForPathnode(v3);
-  if ( PointForPathnode || (pathnode_t::GetPos(v3, &pos), (PointForPathnode = TacGraph_FindClosestPoint(&pos)) != NULL) )
+  v2 = Path_ConvertIndexToNode(nodeIndex);
+  PointForPathnode = TacGraph_GetPointForPathnode(v2);
+  if ( PointForPathnode || (pathnode_t::GetPos(v2, &pos), (PointForPathnode = TacGraph_FindClosestPoint(&pos)) != NULL) )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
     *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
     pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-    __asm
-    {
-      vmovss  [rsp+0C8h+pathSpec.m_pathSharingPenalty], xmm0
-      vmovss  [rsp+0C8h+pathSpec.m_maxPathSharingPenalty], xmm0
-      vmovss  [rsp+0C8h+pathSpec.m_maxSearchDist], xmm0
-    }
+    pathSpec.m_pathSharingPenalty = 0.0;
+    pathSpec.m_maxPathSharingPenalty = 0.0;
+    pathSpec.m_maxSearchDist = 0.0;
     pathSpec.m_usePathSharingPenalty = 0;
     *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
     bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
@@ -9839,21 +8473,9 @@ char Path_IsNodeDisconnected(unsigned __int16 nodeIndex)
   }
   else
   {
-    pathnode_t::GetPos(v3, &v19);
-    __asm { vmovss  xmm2, cs:__real@41700000; radius }
-    Nav_GetClosestVerticalPosInMostLikelySpace(&v19, NAV_LAYER_HUMAN, *(float *)&_XMM2, NULL, &pos, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0C8h+pos]
-      vmovss  xmm1, dword ptr [rsp+0C8h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+0C8h+var_78+4]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0C8h+var_78]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm1, cs:__real@43610000
-    }
-    if ( !(v13 | v14) )
+    pathnode_t::GetPos(v2, &v7);
+    Nav_GetClosestVerticalPosInMostLikelySpace(&v7, NAV_LAYER_HUMAN, 15.0, NULL, &pos, NULL);
+    if ( (float)((float)((float)(pos.v[1] - v7.v[1]) * (float)(pos.v[1] - v7.v[1])) + (float)((float)(pos.v[0] - v7.v[0]) * (float)(pos.v[0] - v7.v[0]))) > 225.0 )
       return 1;
   }
   return 0;
@@ -9864,126 +8486,80 @@ char Path_IsNodeDisconnected(unsigned __int16 nodeIndex)
 Path_IsNodeFacingToward
 ==============
 */
-
-bool __fastcall Path_IsNodeFacingToward(const pathnode_t *node, const vec3_t *origin, double dotLimit)
+bool Path_IsNodeFacingToward(const pathnode_t *node, const vec3_t *origin, float dotLimit)
 {
-  char v27; 
-  bool v28; 
-  gentity_s *Parent; 
-  bool result; 
+  float v6; 
+  float v7; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
+  bool v15; 
+  bool v16; 
+  __int128 v17; 
+  float v18; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
   vec3_t pos; 
   vec3_t vector; 
 
-  __asm { vmovaps [rsp+0B8h+var_58], xmm10 }
-  _RDI = origin;
-  _RBX = (pathnode_t *)node;
-  __asm { vmovaps xmm10, xmm2 }
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8071, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  __asm
+  pathnode_t::GetPos((pathnode_t *)node, &pos);
+  v6 = origin->v[0];
+  v7 = origin->v[1];
+  if ( ((1 << LOBYTE(node->constant.type)) & 0x62700000) != 0 )
   {
-    vmovaps [rsp+0B8h+var_18], xmm6
-    vmovaps [rsp+0B8h+var_28], xmm7
-  }
-  pathnode_t::GetPos(_RBX, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-  }
-  if ( ((1 << LOBYTE(_RBX->constant.type)) & 0x62700000) != 0 )
-  {
+    v9 = LODWORD(origin->v[1]);
+    v8 = v7 - pos.v[1];
+    v10 = v6 - pos.v[0];
+    v11 = origin->v[2] - pos.v[2];
+    *(float *)&v9 = fsqrt((float)((float)(v8 * v8) + (float)(v10 * v10)) + (float)(v11 * v11));
+    _XMM4 = v9;
     __asm
     {
-      vsubss  xmm7, xmm1, dword ptr [rsp+0B8h+pos+4]
-      vmulss  xmm2, xmm7, xmm7
-      vmovaps [rsp+0B8h+var_38], xmm8
-      vsubss  xmm8, xmm0, dword ptr [rsp+0B8h+pos]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmulss  xmm1, xmm8, xmm8
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vmovaps [rsp+0B8h+var_48], xmm9
-      vsubss  xmm9, xmm0, dword ptr [rsp+0B8h+pos+8]
-      vmulss  xmm0, xmm9, xmm9
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm1, xmm0
-      vdivss  xmm6, xmm1, xmm0
     }
-    pathnode_t::GetAngles(_RBX, &vector);
+    pathnode_t::GetAngles((pathnode_t *)node, &vector);
     AngleVectors(&vector, &pos, NULL, NULL);
-    __asm
-    {
-      vmulss  xmm1, xmm8, xmm6
-      vmulss  xmm2, xmm1, dword ptr [rsp+0B8h+pos]
-      vmovaps xmm8, [rsp+0B8h+var_38]
-      vmulss  xmm0, xmm7, xmm6
-      vmulss  xmm3, xmm0, dword ptr [rsp+0B8h+pos+4]
-      vmulss  xmm0, xmm9, xmm6
-      vmulss  xmm1, xmm0, dword ptr [rsp+0B8h+pos+8]
-      vmovaps xmm9, [rsp+0B8h+var_48]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vcomiss xmm2, xmm10
-    }
+    *(float *)&v9 = (float)((float)((float)(v8 * (float)(1.0 / *(float *)&_XMM0)) * pos.v[1]) + (float)((float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * pos.v[0])) + (float)((float)(v11 * (float)(1.0 / *(float *)&_XMM0)) * pos.v[2]);
+    v15 = *(float *)&v9 < dotLimit;
+    v16 = *(float *)&v9 == dotLimit;
   }
   else
   {
+    v17 = LODWORD(origin->v[1]);
+    v18 = v6 - pos.v[0];
+    *(float *)&v17 = fsqrt((float)((float)(v7 - pos.v[1]) * (float)(v7 - pos.v[1])) + (float)(v18 * v18));
+    _XMM2 = v17;
     __asm
     {
-      vsubss  xmm4, xmm1, dword ptr [rsp+0B8h+pos+4]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0B8h+pos]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vmovss  xmm1, cs:__real@3f800000
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm1, xmm0
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm6, xmm3, xmm1
-      vmulss  xmm7, xmm4, xmm1
     }
-    Parent = pathnode_t::GetParent(_RBX);
-    v27 = 0;
-    v28 = Parent == NULL;
-    if ( Parent )
+    v22 = v18 * (float)(1.0 / *(float *)&_XMM0);
+    v23 = (float)(v7 - pos.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+    if ( pathnode_t::GetParent((pathnode_t *)node) )
     {
-      pathnode_t::GetAngles(_RBX, &vector);
-      __asm { vmovss  xmm0, dword ptr [rsp+0B8h+vector+4]; yaw }
-      YawVectors(*(float *)&_XMM0, &pos, NULL);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0B8h+pos]
-        vmovss  xmm1, dword ptr [rsp+0B8h+pos+4]
-      }
+      pathnode_t::GetAngles((pathnode_t *)node, &vector);
+      YawVectors(vector.v[1], &pos, NULL);
+      v24 = pos.v[0];
+      v25 = pos.v[1];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vmovss  xmm1, dword ptr [rbx+34h]
-      }
+      v24 = node->constant.yaw_orient.localForward.v[0];
+      v25 = node->constant.yaw_orient.localForward.v[1];
     }
-    __asm
-    {
-      vmulss  xmm1, xmm7, xmm1
-      vmulss  xmm0, xmm6, xmm0
-      vaddss  xmm1, xmm1, xmm0
-      vcomiss xmm1, xmm10
-    }
+    v26 = (float)(v23 * v25) + (float)(v22 * v24);
+    v15 = v26 < dotLimit;
+    v16 = v26 == dotLimit;
   }
-  __asm { vmovaps xmm7, [rsp+0B8h+var_28] }
-  result = !(v27 | v28);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_18]
-    vmovaps xmm10, [rsp+0B8h+var_58]
-  }
-  return result;
+  return !v15 && !v16;
 }
 
 /*
@@ -10261,17 +8837,12 @@ __int64 Path_IsOnlyOwner(const pathnode_t *node, const sentient_s *owner)
 Path_IsOrientedNodeUpright
 ==============
 */
-__int64 Path_IsOrientedNodeUpright(const pathnode_t *node)
+_BOOL8 Path_IsOrientedNodeUpright(const pathnode_t *node)
 {
   vec3_t up; 
 
   AngleVectors((const vec3_t *)&node->constant.44, NULL, NULL, &up);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+up+8]
-    vcomiss xmm0, cs:__real@3f59999a
-  }
-  return 0i64;
+  return up.v[2] > 0.85000002;
 }
 
 /*
@@ -10303,104 +8874,65 @@ pathnode_t *Path_LoadNode(unsigned __int16 index)
 Path_LogStrandedNodes
 ==============
 */
-void Path_LogStrandedNodes()
+void Path_LogStrandedNodes(void)
 {
   unsigned int actualNodeCount; 
   int zoneCount; 
   int maxDynamicSpawnedNodeCount; 
-  signed int v8; 
-  unsigned __int16 v9; 
-  unsigned int v10; 
+  signed int v3; 
+  unsigned __int16 v4; 
+  unsigned int v5; 
+  pathnode_t *v6; 
   gentity_s *Parent; 
-  const char *v37; 
-  int v38; 
+  float *p_number; 
+  float v9; 
+  float v10; 
+  float v11; 
+  const char *v12; 
+  int v13; 
   vec3_t v; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   actualNodeCount = g_path.actualNodeCount;
   zoneCount = pathData.zoneCount;
   maxDynamicSpawnedNodeCount = pathData.maxDynamicSpawnedNodeCount;
-  v8 = g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount;
-  v9 = 0;
-  if ( v8 < 0 )
-    v8 = 0;
-  if ( v8 > 0 )
+  v3 = g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount;
+  v4 = 0;
+  if ( v3 < 0 )
+    v3 = 0;
+  if ( v3 > 0 )
   {
-    v10 = 0;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-18h], xmm6
-      vmovaps xmmword ptr [r11-28h], xmm7
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vmovaps xmmword ptr [r11-48h], xmm9
-    }
+    v5 = 0;
     do
     {
-      _RCX = &pathData.nodes[v9];
-      if ( !_RCX->dynamic.wLinkCount )
+      v6 = &pathData.nodes[v4];
+      if ( !v6->dynamic.wLinkCount )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+20h]
-          vmovss  dword ptr [rsp+0A8h+v], xmm0
-          vmovss  xmm1, dword ptr [rcx+24h]
-          vmovss  dword ptr [rsp+0A8h+v+4], xmm1
-          vmovss  xmm0, dword ptr [rcx+28h]
-          vmovss  dword ptr [rsp+0A8h+v+8], xmm0
-        }
-        Parent = pathnode_t::GetParent(_RCX);
+        v = v6->constant.vLocalOrigin;
+        Parent = pathnode_t::GetParent(v6);
+        p_number = (float *)&Parent->s.number;
         if ( Parent )
         {
           AnglesToAxis(&Parent->r.currentAngles, &axis);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rsp+0A8h+v]
-            vmulss  xmm7, xmm2, dword ptr [rsp+0A8h+axis+4]
-            vmulss  xmm8, xmm2, dword ptr [rsp+0A8h+axis+8]
-            vmovss  xmm6, dword ptr [rsp+0A8h+v+4]
-            vmulss  xmm2, xmm2, dword ptr [rsp+0A8h+axis]
-            vmovss  xmm5, dword ptr [rsp+0A8h+v+8]
-            vmulss  xmm3, xmm6, dword ptr [rsp+0A8h+axis+0Ch]
-            vmulss  xmm1, xmm5, dword ptr [rsp+0A8h+axis+18h]
-            vmulss  xmm0, xmm5, dword ptr [rsp+0A8h+axis+1Ch]
-            vmulss  xmm9, xmm6, dword ptr [rsp+0A8h+axis+14h]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vaddss  xmm3, xmm2, dword ptr [rsi+130h]
-            vmulss  xmm1, xmm6, dword ptr [rsp+0A8h+axis+10h]
-            vmulss  xmm2, xmm5, dword ptr [rsp+0A8h+axis+20h]
-            vmovss  dword ptr [rsp+0A8h+v], xmm3
-            vaddss  xmm3, xmm1, xmm7
-            vaddss  xmm1, xmm3, xmm0
-            vaddss  xmm3, xmm1, dword ptr [rsi+134h]
-            vaddss  xmm1, xmm8, xmm9
-            vaddss  xmm2, xmm2, xmm1
-            vmovss  dword ptr [rsp+0A8h+v+4], xmm3
-            vaddss  xmm0, xmm2, dword ptr [rsi+138h]
-            vmovss  dword ptr [rsp+0A8h+v+8], xmm0
-          }
+          v9 = v.v[0] * axis.m[0].v[1];
+          v10 = v.v[0] * axis.m[0].v[2];
+          v.v[0] = (float)((float)((float)(v.v[1] * axis.m[1].v[0]) + (float)(v.v[0] * axis.m[0].v[0])) + (float)(v.v[2] * axis.m[2].v[0])) + p_number[76];
+          v11 = (float)(v.v[2] * axis.m[2].v[2]) + (float)(v10 + (float)(v.v[1] * axis.m[1].v[2]));
+          v.v[1] = (float)((float)((float)(v.v[1] * axis.m[1].v[1]) + v9) + (float)(v.v[2] * axis.m[2].v[1])) + p_number[77];
+          v.v[2] = v11 + p_number[78];
         }
-        v37 = vtos(&v);
-        Com_PrintWarning(18, "Pathnode %d at pos %s has no links to other nodes and is stranded! This node cannot be used by the spawn system, place another path node near this or verify this node is on nav mesh!\n", v10, v37);
+        v12 = vtos(&v);
+        Com_PrintWarning(18, "Pathnode %d at pos %s has no links to other nodes and is stranded! This node cannot be used by the spawn system, place another path node near this or verify this node is on nav mesh!\n", v5, v12);
         maxDynamicSpawnedNodeCount = pathData.maxDynamicSpawnedNodeCount;
         zoneCount = pathData.zoneCount;
         actualNodeCount = g_path.actualNodeCount;
       }
-      v10 = ++v9;
-      v38 = actualNodeCount - zoneCount - maxDynamicSpawnedNodeCount;
-      if ( v38 < 0 )
-        v38 = 0;
+      v5 = ++v4;
+      v13 = actualNodeCount - zoneCount - maxDynamicSpawnedNodeCount;
+      if ( v13 < 0 )
+        v13 = 0;
     }
-    while ( v9 < v38 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0A8h+var_48]
-      vmovaps xmm8, [rsp+0A8h+var_38]
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vmovaps xmm6, [rsp+0A8h+var_18]
-    }
+    while ( v4 < v13 );
   }
 }
 
@@ -10557,404 +9089,231 @@ void Path_MarkNodeOverlap(pathnode_t *node, int nodeTeam)
 Path_NavTests
 ==============
 */
-void Path_NavTests()
+void Path_NavTests(void)
 {
-  const dvar_t *v11; 
+  const dvar_t *v0; 
   int integer; 
-  char v29; 
-  bool v30; 
+  const dvar_t *v2; 
+  float value; 
+  cg_t *LocalClientGlobals; 
+  double v5; 
+  cg_t *v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   nav_space_s *DefaultSpace; 
-  vec3_t *p_outClosestPos; 
-  nav_space_s *v70; 
-  nav_space_s *v72; 
+  vec3_t *p_start; 
+  const vec4_t *v12; 
+  nav_space_s *v13; 
+  nav_space_s *v14; 
   bool IsPointOnMesh; 
-  nav_space_s *v74; 
-  bool v75; 
-  nav_space_s *v76; 
-  const char *v186; 
-  float fmt; 
+  nav_space_s *v16; 
+  bool v17; 
+  nav_space_s *v18; 
+  __int128 v19; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  const char *v45; 
+  float v46; 
   bfx::Path3DSpec pathSpec; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
   vec3_t start; 
   vec3_t outPos; 
   vec2_t vec; 
+  float v55; 
   vec3_t outClosestPos; 
   tmat33_t<vec3_t> axis; 
-  vec3_t v211; 
-  vec3_t v212; 
-  vec3_t v213; 
+  vec3_t v58; 
+  vec3_t v59; 
+  vec3_t v60; 
   vec3_t end; 
   Bounds box; 
   nav_probe_results_3D_s pOutResults; 
-  char vars0; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm12
-  }
-  v11 = DCONST_DVARINT_ai_testNavVolumes;
+  v0 = DCONST_DVARINT_ai_testNavVolumes;
   if ( !DCONST_DVARINT_ai_testNavVolumes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_testNavVolumes") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  integer = v11->current.integer;
-  _RBX = DCONST_DVARFLT_ai_testNav3DReachable;
+  Dvar_CheckFrontendServerThread(v0);
+  integer = v0->current.integer;
+  v2 = DCONST_DVARFLT_ai_testNav3DReachable;
   if ( !DCONST_DVARFLT_ai_testNav3DReachable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_testNav3DReachable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+28h]
-    vxorps  xmm12, xmm12, xmm12
-  }
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  if ( integer <= 0 && value <= 0.0 || !Nav_MeshLoaded() )
+    return;
+  CL_GetViewPos(LOCAL_CLIENT_0, &outPos);
+  LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+  vec = *(vec2_t *)LocalClientGlobals->refdef.view.axis.m[0].v;
+  v55 = LocalClientGlobals->refdef.view.axis.m[0].v[2];
+  v5 = vectoyaw(&vec);
+  v51 = *(float *)&v5;
+  v6 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+  v7 = v6->refdef.view.axis.m[2].v[0];
+  v8 = v6->refdef.view.axis.m[2].v[1];
+  v9 = v6->refdef.view.axis.m[2].v[2];
+  *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
+  box.midPoint.v[0] = bounds_origin.midPoint.v[0];
+  box.midPoint.v[2] = bounds_origin.midPoint.v[2];
+  box.midPoint.v[1] = bounds_origin.midPoint.v[1];
+  box.halfSize.v[0] = FLOAT_2_5;
+  box.halfSize.v[1] = FLOAT_2_5;
+  box.halfSize.v[2] = FLOAT_2_5;
+  pathSpec.m_maxSearchDist = 0.0;
   if ( integer > 0 )
-    goto LABEL_29;
-  __asm { vcomiss xmm7, xmm12 }
-  if ( integer )
   {
-LABEL_29:
-    if ( Nav_MeshLoaded() )
+    DefaultSpace = Nav_GetDefaultSpace();
+    if ( Nav3D_GetClosestPointOnMesh(DefaultSpace, &pathSpec, &outPos, &outClosestPos) )
     {
-      __asm
+      if ( outPos.v[0] == outClosestPos.v[0] && outPos.v[1] == outClosestPos.v[1] && outPos.v[2] == outClosestPos.v[2] )
       {
-        vmovaps xmmword ptr [rsp+1F0h+var_18+8], xmm6
-        vmovaps xmmword ptr [rsp+1F0h+var_38+8], xmm8
-        vmovaps [rsp+1F0h+var_48+8], xmm9
-        vmovaps [rsp+1F0h+var_58+8], xmm10
-        vmovaps [rsp+1F0h+var_68+8], xmm11
-        vmovaps xmmword ptr [rsp+1F0h+var_88+8], xmm13
+        start.v[0] = (float)(15.0 * vec.v[0]) + outPos.v[0];
+        start.v[1] = (float)(15.0 * vec.v[1]) + outPos.v[1];
+        start.v[2] = (float)(15.0 * v55) + outPos.v[2];
+        v12 = &colorBlue;
+        p_start = &start;
+LABEL_19:
+        G_DebugBox(p_start, &box, *(float *)&v5, v12, 1, 1);
+        goto LABEL_20;
       }
-      CL_GetViewPos(LOCAL_CLIENT_0, &outPos);
-      _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+6944h]
-        vmovss  dword ptr [rbp+0F0h+vec], xmm0
-        vmovss  xmm1, dword ptr [rax+6948h]
-        vmovss  dword ptr [rbp+0F0h+vec+4], xmm1
-        vmovss  xmm0, dword ptr [rax+694Ch]
-        vmovss  [rbp+0F0h+var_160], xmm0
-      }
-      *(double *)&_XMM0 = vectoyaw(&vec);
-      __asm
-      {
-        vmovss  [rsp+1F0h+var_18C], xmm0
-        vmovaps xmm8, xmm0
-      }
-      _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@40200000
-        vmovss  xmm1, dword ptr cs:?bounds_origin@@3UBounds@@B.midPoint; Bounds const bounds_origin
-        vmovss  xmm2, dword ptr cs:?bounds_origin@@3UBounds@@B.midPoint+4; Bounds const bounds_origin
-        vmovss  xmm10, dword ptr [rax+695Ch]
-        vmovss  xmm11, dword ptr [rax+6960h]
-        vmovss  xmm13, dword ptr [rax+6964h]
-      }
-      *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-      __asm
-      {
-        vmovss  dword ptr [rbp+0F0h+box.midPoint], xmm1
-        vmovss  xmm1, dword ptr cs:?bounds_origin@@3UBounds@@B.midPoint+8; Bounds const bounds_origin
-        vmovss  dword ptr [rbp+0F0h+box.midPoint+8], xmm1
-        vmovss  dword ptr [rbp+0F0h+box.midPoint+4], xmm2
-        vmovss  dword ptr [rbp+0F0h+box.halfSize], xmm6
-        vmovss  dword ptr [rbp+0F0h+box.halfSize+4], xmm6
-        vmovss  dword ptr [rbp+0F0h+box.halfSize+8], xmm6
-        vmovss  [rsp+1F0h+pathSpec.m_maxSearchDist], xmm12
-      }
-      v29 = 0;
-      v30 = integer == 0;
-      if ( integer > 0 )
-      {
-        DefaultSpace = Nav_GetDefaultSpace();
-        if ( Nav3D_GetClosestPointOnMesh(DefaultSpace, &pathSpec, &outPos, &outClosestPos) )
-        {
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rsp+1F0h+outPos]
-            vucomiss xmm2, dword ptr [rbp+0F0h+outClosestPos]
-            vmovss  xmm5, dword ptr [rbp+0F0h+outPos+8]
-            vmovss  xmm9, dword ptr [rsp+1F0h+outPos+4]
-            vmovss  xmm4, cs:__real@41200000
-            vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+vec]
-            vaddss  xmm3, xmm1, xmm2
-            vmulss  xmm2, xmm10, xmm6
-            vsubss  xmm0, xmm3, xmm2
-            vmulss  xmm2, xmm4, dword ptr [rbp+0F0h+vec+4]
-            vaddss  xmm3, xmm2, xmm9
-            vmovss  dword ptr [rsp+1F0h+start], xmm0
-            vmulss  xmm0, xmm11, xmm6
-            vsubss  xmm1, xmm3, xmm0
-            vmulss  xmm0, xmm4, [rbp+0F0h+var_160]
-            vmovss  dword ptr [rsp+1F0h+start+4], xmm1
-            vaddss  xmm3, xmm0, xmm5
-            vmulss  xmm1, xmm13, xmm6
-            vsubss  xmm2, xmm3, xmm1
-            vmovss  dword ptr [rsp+1F0h+start+8], xmm2
-          }
-          G_DebugLine(&start, &outClosestPos, &colorRed, 1);
-          p_outClosestPos = &outClosestPos;
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm3, cs:__real@41700000
-            vmulss  xmm1, xmm3, dword ptr [rbp+0F0h+vec]
-            vaddss  xmm2, xmm1, dword ptr [rsp+1F0h+outPos]
-            vmulss  xmm1, xmm3, dword ptr [rbp+0F0h+vec+4]
-            vmovss  dword ptr [rsp+1F0h+start], xmm2
-            vaddss  xmm2, xmm1, dword ptr [rsp+1F0h+outPos+4]
-            vmulss  xmm1, xmm3, [rbp+0F0h+var_160]
-            vmovss  dword ptr [rsp+1F0h+start+4], xmm2
-            vaddss  xmm2, xmm1, dword ptr [rbp+0F0h+outPos+8]
-            vmovss  dword ptr [rsp+1F0h+start+8], xmm2
-          }
-          p_outClosestPos = &start;
-        }
-        __asm { vmovaps xmm2, xmm8; yaw }
-        G_DebugBox(p_outClosestPos, &box, *(float *)&_XMM2, &colorRed, 1, 1);
-      }
-      __asm { vcomiss xmm7, xmm12 }
-      if ( v29 | v30 )
-        goto LABEL_25;
-      __asm
-      {
-        vmovss  xmm3, cs:__real@c0400000
-        vmulss  xmm1, xmm7, dword ptr [rbp+0F0h+vec]
-        vaddss  xmm1, xmm1, dword ptr [rsp+1F0h+outPos]
-        vmulss  xmm2, xmm7, dword ptr [rbp+0F0h+vec+4]
-        vmovss  dword ptr [rsp+1F0h+start], xmm1
-        vaddss  xmm1, xmm2, dword ptr [rsp+1F0h+outPos+4]
-        vmulss  xmm2, xmm7, [rbp+0F0h+var_160]
-        vmovss  dword ptr [rsp+1F0h+start+4], xmm1
-        vaddss  xmm1, xmm2, dword ptr [rbp+0F0h+outPos+8]
-        vmulss  xmm0, xmm10, xmm3
-        vmovss  dword ptr [rsp+1F0h+start+8], xmm1
-        vaddss  xmm1, xmm0, dword ptr [rsp+1F0h+outPos]
-        vmulss  xmm2, xmm11, xmm3
-        vaddss  xmm0, xmm2, dword ptr [rsp+1F0h+outPos+4]
-        vmovss  dword ptr [rsp+1F0h+outPos], xmm1
-        vmulss  xmm1, xmm13, xmm3
-        vaddss  xmm2, xmm1, dword ptr [rbp+0F0h+outPos+8]
-        vmovss  dword ptr [rbp+0F0h+outPos+8], xmm2
-        vmovss  dword ptr [rsp+1F0h+outPos+4], xmm0
-      }
-      v70 = Nav_GetDefaultSpace();
-      if ( Nav3D_IsStraightLineReachable(v70, &outPos, &start, &pathSpec) )
-      {
-        G_DebugLine(&outPos, &start, &colorBlue, 1);
-        __asm { vmovaps xmm2, xmm8; yaw }
-        G_DebugBox(&start, &box, *(float *)&_XMM2, &colorBlue, 1, 1);
-LABEL_25:
-        __asm
-        {
-          vmovaps xmm11, [rsp+1F0h+var_68+8]
-          vmovaps xmm10, [rsp+1F0h+var_58+8]
-          vmovaps xmm9, [rsp+1F0h+var_48+8]
-          vmovaps xmm8, xmmword ptr [rsp+1F0h+var_38+8]
-          vmovaps xmm6, xmmword ptr [rsp+1F0h+var_18+8]
-          vmovaps xmm13, xmmword ptr [rsp+1F0h+var_88+8]
-        }
-        goto LABEL_26;
-      }
-      v72 = Nav_GetDefaultSpace();
-      IsPointOnMesh = Nav3D_IsPointOnMesh(v72, &outPos, &pathSpec);
-      v74 = Nav_GetDefaultSpace();
-      v75 = Nav3D_IsPointOnMesh(v74, &start, &pathSpec);
-      G_DebugLine(&outPos, &start, &colorRed, 1);
-      if ( IsPointOnMesh )
-      {
-        __asm
-        {
-          vmovaps [rsp+1F0h+var_98+8], xmm14
-          vmovaps [rsp+1F0h+var_A8+8], xmm15
-        }
-        v76 = Nav_GetDefaultSpace();
-        Nav_Trace3D(v76, &outPos, &start, &pathSpec, &pOutResults);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+1F0h+start]
-          vsubss  xmm6, xmm0, dword ptr [rsp+1F0h+outPos]
-          vmovss  xmm1, dword ptr [rsp+1F0h+start+4]
-          vsubss  xmm7, xmm1, dword ptr [rsp+1F0h+outPos+4]
-          vmovss  xmm0, dword ptr [rsp+1F0h+start+8]
-          vsubss  xmm8, xmm0, dword ptr [rbp+0F0h+outPos+8]
-          vmulss  xmm2, xmm7, xmm7
-          vmulss  xmm0, xmm8, xmm8
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm3, [rbp+0F0h+pOutResults.m_DistTraveled]
-          vsqrtss xmm4, xmm2, xmm2
-          vcmpless xmm0, xmm4, cs:__real@80000000
-          vblendvps xmm0, xmm4, xmm1, xmm0
-          vdivss  xmm5, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm5
-          vmulss  xmm0, xmm1, xmm3
-          vaddss  xmm0, xmm0, dword ptr [rsp+1F0h+outPos]
-          vmulss  xmm1, xmm7, xmm5
-          vmovss  xmm7, cs:__real@c2b40000
-          vmulss  xmm2, xmm1, xmm3
-          vaddss  xmm10, xmm2, dword ptr [rsp+1F0h+outPos+4]
-          vmovss  dword ptr [rsp+1F0h+var_1B0], xmm0
-          vmulss  xmm0, xmm8, xmm5
-          vmulss  xmm1, xmm0, xmm3
-          vaddss  xmm9, xmm1, dword ptr [rbp+0F0h+outPos+8]
-          vmovss  [rsp+1F0h+var_190], xmm9
-          vmovss  [rsp+1F0h+var_194], xmm10
-          vmovss  dword ptr [rbp+0F0h+outClosestPos], xmm7
-          vmovss  dword ptr [rbp+0F0h+outClosestPos+4], xmm12
-          vmovss  dword ptr [rbp+0F0h+outClosestPos+8], xmm12
-        }
-        AnglesToAxis(&outClosestPos, &axis);
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbp+0F0h+pOutResults.m_Normal+4]
-          vmovss  xmm6, dword ptr [rbp+0F0h+pOutResults.m_Normal]
-          vmovss  xmm4, dword ptr [rbp+0F0h+pOutResults.m_Normal+8]
-          vmulss  xmm0, xmm5, dword ptr [rbp+0F0h+axis+4]
-          vmulss  xmm1, xmm6, dword ptr [rbp+0F0h+axis]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+axis+8]
-          vmulss  xmm0, xmm5, dword ptr [rbp+0F0h+axis+10h]
-          vaddss  xmm8, xmm2, xmm1
-          vmulss  xmm2, xmm6, dword ptr [rbp+0F0h+axis+0Ch]
-          vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+axis+14h]
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm2, xmm6, dword ptr [rbp+0F0h+axis+18h]
-          vmulss  xmm0, xmm5, dword ptr [rbp+0F0h+axis+1Ch]
-          vaddss  xmm15, xmm3, xmm1
-          vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+axis+20h]
-          vaddss  xmm3, xmm2, xmm0
-          vaddss  xmm14, xmm3, xmm1
-          vmovss  [rsp+1F0h+var_198], xmm8
-          vmovss  dword ptr [rbp+0F0h+outClosestPos], xmm12
-          vmovss  dword ptr [rbp+0F0h+outClosestPos+4], xmm7
-          vmovss  dword ptr [rbp+0F0h+outClosestPos+8], xmm12
-        }
-        AnglesToAxis(&outClosestPos, &axis);
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbp+0F0h+pOutResults.m_Normal+4]
-          vmovss  xmm6, dword ptr [rbp+0F0h+pOutResults.m_Normal]
-          vmulss  xmm0, xmm5, dword ptr [rbp+0F0h+axis+4]
-          vmulss  xmm1, xmm6, dword ptr [rbp+0F0h+axis]
-          vmovss  xmm4, dword ptr [rbp+0F0h+pOutResults.m_Normal+8]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+axis+8]
-          vmulss  xmm0, xmm5, dword ptr [rbp+0F0h+axis+10h]
-          vaddss  xmm7, xmm2, xmm1
-          vmulss  xmm2, xmm6, dword ptr [rbp+0F0h+axis+0Ch]
-          vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+axis+14h]
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm0, xmm5, dword ptr [rbp+0F0h+axis+1Ch]
-          vmulss  xmm2, xmm6, dword ptr [rbp+0F0h+axis+18h]
-          vaddss  xmm13, xmm3, xmm1
-          vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+axis+20h]
-          vaddss  xmm3, xmm2, xmm0
-          vmovss  xmm0, dword ptr [rsp+1F0h+start]
-          vsubss  xmm5, xmm0, dword ptr [rsp+1F0h+outPos]
-          vmovss  xmm0, dword ptr [rsp+1F0h+start+8]
-          vsubss  xmm4, xmm0, dword ptr [rbp+0F0h+outPos+8]
-          vaddss  xmm12, xmm3, xmm1
-          vmovss  xmm1, dword ptr [rsp+1F0h+start+4]
-          vsubss  xmm2, xmm1, dword ptr [rsp+1F0h+outPos+4]
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vmulss  xmm4, xmm1, cs:__real@3e800000
-          vmulss  xmm0, xmm8, xmm4
-          vaddss  xmm2, xmm0, dword ptr [rsp+1F0h+var_1B0]
-          vmulss  xmm11, xmm7, xmm4
-          vmulss  xmm0, xmm14, xmm4
-          vaddss  xmm8, xmm0, xmm9
-          vmulss  xmm1, xmm4, xmm15
-          vaddss  xmm3, xmm1, xmm10
-          vmulss  xmm9, xmm12, xmm4
-          vmulss  xmm10, xmm13, xmm4
-          vxorps  xmm4, xmm4, cs:__xmm@80000000800000008000000080000000
-          vaddss  xmm1, xmm11, xmm2
-          vmovss  dword ptr [rbp+0F0h+var_110], xmm1
-          vaddss  xmm0, xmm10, xmm3
-          vmovss  dword ptr [rbp+0F0h+var_110+4], xmm0
-          vmulss  xmm7, xmm7, xmm4
-          vmulss  xmm6, xmm13, xmm4
-          vaddss  xmm0, xmm7, xmm2
-          vmovss  dword ptr [rbp+0F0h+end], xmm0
-          vmulss  xmm5, xmm12, xmm4
-          vaddss  xmm1, xmm9, xmm8
-          vmovss  dword ptr [rbp+0F0h+var_110+8], xmm1
-          vaddss  xmm1, xmm6, xmm3
-          vmovss  dword ptr [rbp+0F0h+end+4], xmm1
-          vmulss  xmm1, xmm4, [rsp+1F0h+var_198]
-          vaddss  xmm2, xmm1, dword ptr [rsp+1F0h+var_1B0]
-          vaddss  xmm0, xmm5, xmm8
-          vmovss  dword ptr [rbp+0F0h+end+8], xmm0
-          vmulss  xmm0, xmm4, xmm15
-          vaddss  xmm3, xmm0, [rsp+1F0h+var_194]
-          vmulss  xmm1, xmm14, xmm4
-          vaddss  xmm4, xmm1, [rsp+1F0h+var_190]
-          vaddss  xmm1, xmm6, xmm3
-          vaddss  xmm0, xmm7, xmm2
-          vmovss  dword ptr [rbp+0F0h+var_120+4], xmm1
-          vmovss  dword ptr [rbp+0F0h+var_120], xmm0
-          vaddss  xmm1, xmm11, xmm2
-          vaddss  xmm0, xmm5, xmm4
-          vmovss  dword ptr [rbp+0F0h+var_100], xmm1
-          vmovss  dword ptr [rbp+0F0h+var_120+8], xmm0
-          vaddss  xmm1, xmm9, xmm4
-          vaddss  xmm0, xmm10, xmm3
-          vmovss  dword ptr [rbp+0F0h+var_100+8], xmm1
-          vmovss  dword ptr [rbp+0F0h+var_100+4], xmm0
-        }
-        G_DebugLine(&v212, &end, &colorRed, 1);
-        G_DebugLine(&end, &v211, &colorRed, 1);
-        G_DebugLine(&v211, &v213, &colorRed, 1);
-        G_DebugLine(&v213, &v212, &colorRed, 1);
-        G_DebugLine(&v212, &v211, &colorRed, 1);
-        G_DebugLine(&end, &v213, &colorRed, 1);
-        __asm
-        {
-          vmovaps xmm15, [rsp+1F0h+var_A8+8]
-          vmovaps xmm14, [rsp+1F0h+var_98+8]
-        }
-        if ( v75 )
-        {
-          __asm { vmovss  xmm2, [rsp+1F0h+var_18C]; yaw }
-          G_DebugBox(&start, &box, *(float *)&_XMM2, &colorRed, 1, 1);
-          goto LABEL_25;
-        }
-        v186 = "End pos off mesh";
-      }
-      else
-      {
-        v186 = "Start and End pos off mesh";
-        if ( v75 )
-          v186 = "Start pos off mesh";
-      }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e4ccccd
-        vmovss  dword ptr [rsp+1F0h+fmt], xmm0
-      }
-      G_DebugStarWithText(&start, &colorRed, &colorRed, v186, fmt);
-      goto LABEL_25;
+      start.v[0] = (float)((float)(10.0 * vec.v[0]) + outPos.v[0]) - (float)(v7 * 2.5);
+      start.v[1] = (float)((float)(10.0 * vec.v[1]) + outPos.v[1]) - (float)(v8 * 2.5);
+      start.v[2] = (float)((float)(10.0 * v55) + outPos.v[2]) - (float)(v9 * 2.5);
+      G_DebugLine(&start, &outClosestPos, &colorRed, 1);
+      p_start = &outClosestPos;
     }
+    else
+    {
+      start.v[0] = (float)(15.0 * vec.v[0]) + outPos.v[0];
+      start.v[1] = (float)(15.0 * vec.v[1]) + outPos.v[1];
+      start.v[2] = (float)(15.0 * v55) + outPos.v[2];
+      p_start = &start;
+    }
+    v12 = &colorRed;
+    goto LABEL_19;
   }
-LABEL_26:
-  _R11 = &vars0;
-  __asm
+LABEL_20:
+  if ( value <= 0.0 )
+    return;
+  start.v[0] = (float)(value * vec.v[0]) + outPos.v[0];
+  start.v[1] = (float)(value * vec.v[1]) + outPos.v[1];
+  start.v[2] = (float)(value * v55) + outPos.v[2];
+  outPos.v[0] = (float)(v7 * -3.0) + outPos.v[0];
+  outPos.v[2] = (float)(v9 * -3.0) + outPos.v[2];
+  outPos.v[1] = (float)(v8 * -3.0) + outPos.v[1];
+  v13 = Nav_GetDefaultSpace();
+  if ( Nav3D_IsStraightLineReachable(v13, &outPos, &start, &pathSpec) )
   {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
+    G_DebugLine(&outPos, &start, &colorBlue, 1);
+    G_DebugBox(&start, &box, *(float *)&v5, &colorBlue, 1, 1);
+    return;
   }
+  v14 = Nav_GetDefaultSpace();
+  IsPointOnMesh = Nav3D_IsPointOnMesh(v14, &outPos, &pathSpec);
+  v16 = Nav_GetDefaultSpace();
+  v17 = Nav3D_IsPointOnMesh(v16, &start, &pathSpec);
+  G_DebugLine(&outPos, &start, &colorRed, 1);
+  if ( IsPointOnMesh )
+  {
+    v18 = Nav_GetDefaultSpace();
+    Nav_Trace3D(v18, &outPos, &start, &pathSpec, &pOutResults);
+    v19 = LODWORD(start.v[1]);
+    *(float *)&v19 = fsqrt((float)((float)((float)(start.v[1] - outPos.v[1]) * (float)(start.v[1] - outPos.v[1])) + (float)((float)(start.v[0] - outPos.v[0]) * (float)(start.v[0] - outPos.v[0]))) + (float)((float)(start.v[2] - outPos.v[2]) * (float)(start.v[2] - outPos.v[2])));
+    _XMM4 = v19;
+    __asm
+    {
+      vcmpless xmm0, xmm4, cs:__real@80000000
+      vblendvps xmm0, xmm4, xmm1, xmm0
+    }
+    v23 = (float)((float)((float)(start.v[1] - outPos.v[1]) * (float)(1.0 / *(float *)&_XMM0)) * pOutResults.m_DistTraveled) + outPos.v[1];
+    v46 = (float)((float)((float)(start.v[0] - outPos.v[0]) * (float)(1.0 / *(float *)&_XMM0)) * pOutResults.m_DistTraveled) + outPos.v[0];
+    v24 = (float)((float)((float)(start.v[2] - outPos.v[2]) * (float)(1.0 / *(float *)&_XMM0)) * pOutResults.m_DistTraveled) + outPos.v[2];
+    v50 = v24;
+    v49 = v23;
+    outClosestPos.v[0] = FLOAT_N90_0;
+    outClosestPos.v[1] = 0.0;
+    outClosestPos.v[2] = 0.0;
+    AnglesToAxis(&outClosestPos, &axis);
+    v25 = (float)((float)(pOutResults.m_Normal.v[0] * axis.m[0].v[0]) + (float)(pOutResults.m_Normal.v[1] * axis.m[0].v[1])) + (float)(pOutResults.m_Normal.v[2] * axis.m[0].v[2]);
+    v26 = (float)((float)(pOutResults.m_Normal.v[0] * axis.m[1].v[0]) + (float)(pOutResults.m_Normal.v[1] * axis.m[1].v[1])) + (float)(pOutResults.m_Normal.v[2] * axis.m[1].v[2]);
+    v27 = (float)((float)(pOutResults.m_Normal.v[0] * axis.m[2].v[0]) + (float)(pOutResults.m_Normal.v[1] * axis.m[2].v[1])) + (float)(pOutResults.m_Normal.v[2] * axis.m[2].v[2]);
+    v48 = v25;
+    outClosestPos.v[0] = 0.0;
+    outClosestPos.v[1] = FLOAT_N90_0;
+    outClosestPos.v[2] = 0.0;
+    AnglesToAxis(&outClosestPos, &axis);
+    v28 = (float)((float)(pOutResults.m_Normal.v[0] * axis.m[0].v[0]) + (float)(pOutResults.m_Normal.v[1] * axis.m[0].v[1])) + (float)(pOutResults.m_Normal.v[2] * axis.m[0].v[2]);
+    v29 = (float)((float)(pOutResults.m_Normal.v[0] * axis.m[1].v[0]) + (float)(pOutResults.m_Normal.v[1] * axis.m[1].v[1])) + (float)(pOutResults.m_Normal.v[2] * axis.m[1].v[2]);
+    v30 = (float)((float)(pOutResults.m_Normal.v[0] * axis.m[2].v[0]) + (float)(pOutResults.m_Normal.v[1] * axis.m[2].v[1])) + (float)(pOutResults.m_Normal.v[2] * axis.m[2].v[2]);
+    v31 = fsqrt((float)((float)((float)(start.v[1] - outPos.v[1]) * (float)(start.v[1] - outPos.v[1])) + (float)((float)(start.v[0] - outPos.v[0]) * (float)(start.v[0] - outPos.v[0]))) + (float)((float)(start.v[2] - outPos.v[2]) * (float)(start.v[2] - outPos.v[2]))) * 0.25;
+    v32 = (float)(v25 * v31) + v46;
+    v33 = v28 * v31;
+    v34 = (float)(v27 * v31) + v24;
+    v35 = (float)(v31 * v26) + v23;
+    v36 = v30 * v31;
+    v37 = v29 * v31;
+    LODWORD(v38) = LODWORD(v31) ^ _xmm;
+    v59.v[0] = v33 + v32;
+    v59.v[1] = v37 + v35;
+    v39 = v28 * v38;
+    v40 = v29 * v38;
+    end.v[0] = v39 + v32;
+    v41 = v30 * v38;
+    v59.v[2] = v36 + v34;
+    end.v[1] = (float)(v29 * v38) + v35;
+    v42 = (float)(v38 * v48) + v46;
+    end.v[2] = (float)(v30 * v38) + v34;
+    v43 = (float)(v38 * v26) + v49;
+    v44 = (float)(v27 * v38) + v50;
+    v58.v[1] = v40 + v43;
+    v58.v[0] = v39 + v42;
+    v60.v[0] = v33 + v42;
+    v58.v[2] = v41 + v44;
+    v60.v[2] = v36 + v44;
+    v60.v[1] = v37 + v43;
+    G_DebugLine(&v59, &end, &colorRed, 1);
+    G_DebugLine(&end, &v58, &colorRed, 1);
+    G_DebugLine(&v58, &v60, &colorRed, 1);
+    G_DebugLine(&v60, &v59, &colorRed, 1);
+    G_DebugLine(&v59, &v58, &colorRed, 1);
+    G_DebugLine(&end, &v60, &colorRed, 1);
+    if ( v17 )
+    {
+      G_DebugBox(&start, &box, v51, &colorRed, 1, 1);
+      return;
+    }
+    v45 = "End pos off mesh";
+  }
+  else
+  {
+    v45 = "Start and End pos off mesh";
+    if ( v17 )
+      v45 = "Start pos off mesh";
+  }
+  G_DebugStarWithText(&start, &colorRed, &colorRed, v45, 0.2);
 }
 
 /*
@@ -10964,16 +9323,13 @@ Path_NearestNode
 */
 pathnode_t *Path_NearestNode(const vec3_t *vOrigin, int traceMask, PathBlockPlanes *blockPlanes)
 {
-  bool v5; 
-  const Bounds *v6; 
+  bool v3; 
+  const Bounds *v4; 
   NearestNodeInput pInput; 
-  void *retaddr; 
   int returnCount; 
 
-  _RAX = &retaddr;
-  __asm { vmovss  xmm0, cs:__real@43400000 }
   pInput.vOrigin = vOrigin;
-  __asm { vmovss  dword ptr [rax-38h], xmm0 }
+  pInput.fMaxDist = FLOAT_192_0;
   pInput.typeFlags = -2;
   pInput.heightCheck = NEAREST_NODE_DO_HEIGHT_CHECK;
   pInput.entNum = 2047;
@@ -10981,11 +9337,11 @@ pathnode_t *Path_NearestNode(const vec3_t *vOrigin, int traceMask, PathBlockPlan
   pInput.bAllowFailedUnuseable = 1;
   pInput.traceMask = traceMask;
   pInput.blockPlanes = blockPlanes;
-  v5 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE);
-  v6 = &actorBox;
-  if ( v5 )
-    v6 = NULL;
-  pInput.baseBounds = v6;
+  v3 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE);
+  v4 = &actorBox;
+  if ( v3 )
+    v4 = NULL;
+  pInput.baseBounds = v4;
   return Path_NearestNodeExtended(&pInput, g_nearestNodes, 64, &returnCount, 0);
 }
 
@@ -10994,101 +9350,62 @@ pathnode_t *Path_NearestNode(const vec3_t *vOrigin, int traceMask, PathBlockPlan
 Path_NearestNodeByDistanceOnly
 ==============
 */
-
-pathnode_t *__fastcall Path_NearestNodeByDistanceOnly(const vec3_t *vOrigin, double fMaxDist)
+pathnode_t *Path_NearestNodeByDistanceOnly(const vec3_t *vOrigin, float fMaxDist)
 {
-  pathnode_t *v5; 
-  unsigned __int16 v6; 
-  unsigned int v9; 
-  pathnode_t *v10; 
-  char v11; 
-  pathnode_t *result; 
-  __int64 v27; 
-  __int64 v28; 
+  pathnode_t *v3; 
+  unsigned __int16 v4; 
+  float v5; 
+  unsigned int v6; 
+  pathnode_t *v7; 
+  float v8; 
+  __int64 v10; 
+  __int64 v11; 
   vec3_t pos; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-  }
-  _RBP = vOrigin;
-  v5 = NULL;
-  v6 = 0;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovaps xmm6, xmm1
-  }
+  v3 = NULL;
+  v4 = 0;
+  v5 = FLOAT_3_4028235e38;
   if ( (signed int)(g_path.actualNodeCount - pathData.zoneCount) > 0 )
   {
-    v9 = 0;
+    v6 = 0;
     do
     {
-      if ( Path_NodeValid(v6) )
+      if ( Path_NodeValid(v4) )
       {
-        if ( v6 == 0xFFFF )
+        if ( v4 == 0xFFFF )
         {
-          v10 = NULL;
+          v7 = NULL;
         }
         else
         {
-          if ( v9 >= g_path.actualNodeCount )
+          if ( v6 >= g_path.actualNodeCount )
           {
-            LODWORD(v28) = g_path.actualNodeCount;
-            LODWORD(v27) = v9;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v27, v28) )
+            LODWORD(v11) = g_path.actualNodeCount;
+            LODWORD(v10) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v10, v11) )
               __debugbreak();
           }
-          v10 = &pathData.nodes[v6];
+          v7 = &pathData.nodes[v4];
         }
-        if ( (v10->constant.spawnflags & 1) == 0 && v10->constant.error == PNERR_NONE )
+        if ( (v7->constant.spawnflags & 1) == 0 && v7->constant.error == PNERR_NONE )
         {
-          if ( v10->constant.totalLinkCount )
+          if ( v7->constant.totalLinkCount )
           {
-            pathnode_t::GetPos(v10, &pos);
-            __asm
+            pathnode_t::GetPos(v7, &pos);
+            v8 = (float)((float)((float)(vOrigin->v[1] - pos.v[1]) * (float)(vOrigin->v[1] - pos.v[1])) + (float)((float)(vOrigin->v[0] - pos.v[0]) * (float)(vOrigin->v[0] - pos.v[0]))) + (float)((float)(vOrigin->v[2] - pos.v[2]) * (float)(vOrigin->v[2] - pos.v[2]));
+            if ( v8 < v5 && v8 < (float)(fMaxDist * fMaxDist) )
             {
-              vmovss  xmm0, dword ptr [rbp+0]
-              vsubss  xmm3, xmm0, dword ptr [rsp+98h+pos]
-              vmovss  xmm1, dword ptr [rbp+4]
-              vmovss  xmm0, dword ptr [rbp+8]
-              vsubss  xmm2, xmm1, dword ptr [rsp+98h+pos+4]
-              vsubss  xmm4, xmm0, dword ptr [rsp+98h+pos+8]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm5, xmm3, xmm0
-              vcomiss xmm5, xmm7
-            }
-            if ( v11 )
-            {
-              __asm
-              {
-                vmulss  xmm0, xmm6, xmm6
-                vcomiss xmm5, xmm0
-              }
-              if ( v11 )
-              {
-                v5 = v10;
-                __asm { vmovaps xmm7, xmm5 }
-              }
+              v3 = v7;
+              v5 = (float)((float)((float)(vOrigin->v[1] - pos.v[1]) * (float)(vOrigin->v[1] - pos.v[1])) + (float)((float)(vOrigin->v[0] - pos.v[0]) * (float)(vOrigin->v[0] - pos.v[0]))) + (float)((float)(vOrigin->v[2] - pos.v[2]) * (float)(vOrigin->v[2] - pos.v[2]));
             }
           }
         }
       }
-      v9 = ++v6;
+      v6 = ++v4;
     }
-    while ( v6 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
+    while ( v4 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
   }
-  result = v5;
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
-  return result;
+  return v3;
 }
 
 /*
@@ -11098,611 +9415,366 @@ Path_NearestNodeExtended
 */
 pathnode_t *Path_NearestNodeExtended(const NearestNodeInput *pInput, pathsort_s *nodes, int maxNodes, int *returnCount, bool allowDontLinkNodes)
 {
-  int *v16; 
+  int *v5; 
   PathBlockPlanes *blockPlanes; 
-  unsigned __int16 v21; 
+  unsigned __int16 v10; 
   int iPlaneCount; 
-  int v30; 
-  int v31; 
-  int v32; 
-  gentity_s *Parent; 
-  const Bounds **p_baseBounds; 
-  int v90; 
-  unsigned __int16 v91; 
-  gentity_s *v101; 
-  int v126; 
-  unsigned int entNum; 
-  bool v144; 
-  bool IsNodeUseableBy; 
-  unsigned __int64 v167; 
-  bool v168; 
-  unsigned __int16 v175; 
-  pathnode_t *v177; 
-  int v178; 
-  pathnode_t *result; 
-  pathnode_t *v194; 
-  char v195; 
-  char v196; 
-  int v210; 
   const vec3_t *vOrigin; 
+  float v13; 
+  float fMaxDist; 
+  int v15; 
+  int v16; 
+  int v17; 
+  __int64 v18; 
+  pathnode_t *node; 
+  float v20; 
+  float v21; 
+  float v22; 
+  gentity_s *Parent; 
+  float *p_number; 
+  float v25; 
+  float v26; 
+  Bounds **p_baseBounds; 
+  float v28; 
+  Bounds *v29; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  int v37; 
+  unsigned __int16 v38; 
+  float v39; 
+  pathnode_t *v40; 
+  gentity_s *v41; 
+  float *v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  Bounds *v48; 
+  int v49; 
+  double v50; 
+  float v51; 
+  __int128 v53; 
+  int entNum; 
+  const vec3_t *v57; 
+  __int64 v58; 
+  PathBlockPlanes *v59; 
+  float *fDist; 
+  unsigned __int16 v63; 
+  Bounds *v64; 
+  pathnode_t *v65; 
+  int v66; 
+  double v67; 
+  float v69; 
+  __int128 v71; 
+  pathnode_t *v74; 
+  int v75; 
+  const vec3_t *v78; 
   int typeFlags; 
   unsigned int typeFlagsa; 
   unsigned int typeFlagsb; 
-  int v234; 
-  int v235; 
-  const Bounds **v236; 
-  pathnode_t **v238; 
+  int v82; 
+  int v83; 
+  const Bounds **v84; 
+  pathnode_t **v86; 
   vec3_t origin; 
-  Bounds v240; 
+  Bounds v88; 
   tmat33_t<vec3_t> axis; 
   vec3_t up; 
-  pathnode_t *v243[256]; 
-  char v247; 
-  void *retaddr; 
+  pathnode_t *v91[256]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-    vmovaps xmmword ptr [rax-0E8h], xmm15
-  }
-  v16 = returnCount;
-  _R13 = nodes;
-  _RBX = pInput;
+  v5 = returnCount;
   if ( !pInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8883, ASSERT_TYPE_ASSERT, "(pInput)", (const char *)&queryFormat, "pInput") )
     __debugbreak();
-  if ( !_RBX->vOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8884, ASSERT_TYPE_ASSERT, "(pInput->vOrigin)", (const char *)&queryFormat, "pInput->vOrigin") )
+  if ( !pInput->vOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8884, ASSERT_TYPE_ASSERT, "(pInput->vOrigin)", (const char *)&queryFormat, "pInput->vOrigin") )
     __debugbreak();
-  if ( !_RBX->traceMask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8885, ASSERT_TYPE_ASSERT, "(pInput->traceMask != 0)", (const char *)&queryFormat, "pInput->traceMask != 0") )
+  if ( !pInput->traceMask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8885, ASSERT_TYPE_ASSERT, "(pInput->traceMask != 0)", (const char *)&queryFormat, "pInput->traceMask != 0") )
     __debugbreak();
   Profile_Begin(277);
-  blockPlanes = _RBX->blockPlanes;
-  v21 = 0;
+  blockPlanes = pInput->blockPlanes;
+  v10 = 0;
   if ( blockPlanes )
     iPlaneCount = blockPlanes->iPlaneCount;
   else
     iPlaneCount = 0;
-  __asm
+  if ( pInput->heightCheck )
   {
-    vmovaps xmmword ptr [rsp+9B0h+var_78+8], xmm8
-    vmovaps [rsp+9B0h+var_88+8], xmm9
-  }
-  if ( _RBX->heightCheck )
-  {
-    __asm
-    {
-      vmovss  xmm3, cs:__real@4e6e6b28; maxHeight
-      vmovss  xmm2, dword ptr [rbx+10h]; maxDist
-    }
-    v31 = Path_NodesInCylinder(_RBX->vOrigin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, _R13, maxNodes, _RBX->typeFlags, allowDontLinkNodes);
-    v235 = v31;
+    v16 = Path_NodesInCylinder(pInput->vOrigin, NULL, pInput->fMaxDist, 1000000000.0, nodes, maxNodes, pInput->typeFlags, allowDontLinkNodes);
+    v83 = v16;
   }
   else
   {
-    _RAX = _RBX->vOrigin;
-    __asm
+    vOrigin = pInput->vOrigin;
+    v13 = pInput->vOrigin->v[1];
+    origin.v[0] = pInput->vOrigin->v[0];
+    typeFlags = pInput->typeFlags;
+    origin.v[2] = vOrigin->v[2] - 120.0;
+    fMaxDist = pInput->fMaxDist;
+    origin.v[1] = v13;
+    v15 = Path_NodesInCylinder(&origin, NULL, fMaxDist, 184.0, nodes, maxNodes, typeFlags, allowDontLinkNodes);
+    v83 = v15;
+    v16 = v15;
+    if ( v15 > 0 )
     {
-      vmovss  xmm3, cs:__real@43380000; maxHeight
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  dword ptr [rsp+9B0h+origin], xmm0
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm2, xmm0, cs:__real@42f00000
-    }
-    typeFlags = _RBX->typeFlags;
-    __asm
-    {
-      vmovss  dword ptr [rsp+9B0h+origin+8], xmm2
-      vmovss  xmm2, dword ptr [rbx+10h]; maxDist
-      vmovss  dword ptr [rsp+9B0h+origin+4], xmm1
-    }
-    v30 = Path_NodesInCylinder(&origin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, _R13, maxNodes, typeFlags, allowDontLinkNodes);
-    v235 = v30;
-    v31 = v30;
-    if ( v30 > 0 )
-    {
-      v32 = v30;
+      v17 = v15;
       do
       {
-        _RDI = 2i64 * v21;
-        _RCX = _R13[v21].node;
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rcx+20h]
-          vmovss  xmm8, dword ptr [rcx+24h]
-          vmovss  xmm6, dword ptr [rcx+28h]
-        }
-        Parent = pathnode_t::GetParent(_RCX);
-        __asm
-        {
-          vmovaps xmm5, xmm7
-          vmovaps xmm9, xmm8
-        }
+        v18 = v10;
+        node = nodes[v10].node;
+        v20 = node->constant.vLocalOrigin.v[0];
+        v21 = node->constant.vLocalOrigin.v[1];
+        v22 = node->constant.vLocalOrigin.v[2];
+        Parent = pathnode_t::GetParent(node);
+        p_number = (float *)&Parent->s.number;
+        v25 = v20;
+        v26 = v21;
         if ( Parent )
         {
           AnglesToAxis(&Parent->r.currentAngles, &axis);
-          __asm
-          {
-            vmulss  xmm0, xmm6, dword ptr [rbp+8B0h+axis+18h]
-            vmulss  xmm2, xmm7, dword ptr [rbp+8B0h+axis]
-            vmulss  xmm1, xmm8, dword ptr [rbp+8B0h+axis+0Ch]
-            vmulss  xmm4, xmm8, dword ptr [rbp+8B0h+axis+14h]
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm2, xmm7, dword ptr [rbp+8B0h+axis+4]
-            vaddss  xmm1, xmm3, xmm0
-            vaddss  xmm5, xmm1, dword ptr [rsi+130h]
-            vmulss  xmm1, xmm8, dword ptr [rbp+8B0h+axis+10h]
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm2, xmm6, dword ptr [rbp+8B0h+axis+1Ch]
-            vmulss  xmm1, xmm7, dword ptr [rbp+8B0h+axis+8]
-            vaddss  xmm0, xmm3, xmm2
-            vaddss  xmm9, xmm0, dword ptr [rsi+134h]
-            vmulss  xmm0, xmm6, dword ptr [rbp+8B0h+axis+20h]
-            vaddss  xmm2, xmm4, xmm1
-            vaddss  xmm2, xmm2, xmm0
-            vaddss  xmm6, xmm2, dword ptr [rsi+138h]
-          }
+          v25 = (float)((float)((float)(v20 * axis.m[0].v[0]) + (float)(v21 * axis.m[1].v[0])) + (float)(v22 * axis.m[2].v[0])) + p_number[76];
+          v26 = (float)((float)((float)(v20 * axis.m[0].v[1]) + (float)(v21 * axis.m[1].v[1])) + (float)(v22 * axis.m[2].v[1])) + p_number[77];
+          v22 = (float)((float)((float)(v21 * axis.m[1].v[2]) + (float)(v20 * axis.m[0].v[2])) + (float)(v22 * axis.m[2].v[2])) + p_number[78];
         }
-        _RAX = _RBX->vOrigin;
-        ++v21;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm1, dword ptr [rax+4]
-          vsubss  xmm3, xmm0, xmm5
-          vmovss  xmm0, dword ptr [rax+8]
-          vsubss  xmm2, xmm1, xmm9
-          vmulss  xmm2, xmm2, xmm2
-          vsubss  xmm4, xmm0, xmm6
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  dword ptr [r13+rdi*8+8], xmm2
-        }
+        ++v10;
+        nodes[v18].metric = (float)((float)((float)(pInput->vOrigin->v[1] - v26) * (float)(pInput->vOrigin->v[1] - v26)) + (float)((float)(pInput->vOrigin->v[0] - v25) * (float)(pInput->vOrigin->v[0] - v25))) + (float)((float)(pInput->vOrigin->v[2] - v22) * (float)(pInput->vOrigin->v[2] - v22));
       }
-      while ( v21 < v32 );
-      v16 = returnCount;
-      v31 = v235;
+      while ( v10 < v17 );
+      v5 = returnCount;
+      v16 = v83;
     }
   }
-  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(_R13, &_R13[v31], v31, Path_CompareNodesIncreasing);
-  p_baseBounds = &_RBX->baseBounds;
-  v236 = &_RBX->baseBounds;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@40000000
-    vmovss  xmm13, cs:__real@3f000000
-    vmovss  xmm14, cs:__real@3dcccccd
-  }
+  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v16], v16, Path_CompareNodesIncreasing);
+  p_baseBounds = (Bounds **)&pInput->baseBounds;
+  v84 = &pInput->baseBounds;
+  v28 = FLOAT_2_0;
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) || *p_baseBounds )
   {
-    _RAX = *p_baseBounds;
-    v236 = &_RBX->baseBounds;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+9B0h+var_948], xmm1
-      vmovsd  xmm0, qword ptr [rax+10h]
-      vmovsd  qword ptr [rsp+9B0h+var_93C+4], xmm0
-      vshufps xmm1, xmm1, xmm1, 0FFh
-      vmaxss  xmm4, xmm1, xmm0
-      vmovss  dword ptr [rsp+9B0h+var_93C], xmm4
-      vmovss  dword ptr [rsp+9B0h+var_93C+4], xmm4
-      vmulss  xmm3, xmm6, dword ptr [rax+14h]
-      vsubss  xmm0, xmm3, cs:__real@41880000
-      vmulss  xmm1, xmm3, xmm13
-      vaddss  xmm2, xmm1, cs:__real@41080000
-      vaddss  xmm1, xmm4, xmm14
-      vmulss  xmm3, xmm0, xmm13
-      vmovss  dword ptr [rsp+9B0h+var_948+8], xmm2
-      vmaxss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rsp+9B0h+var_93C+8], xmm2
-    }
+    v29 = *p_baseBounds;
+    v84 = &pInput->baseBounds;
+    v88 = **p_baseBounds;
+    _XMM1 = _mm_shuffle_ps(*(__m128 *)v88.midPoint.v, *(__m128 *)v88.midPoint.v, 255);
+    __asm { vmaxss  xmm4, xmm1, xmm0 }
+    v88.halfSize.v[0] = *(float *)&_XMM4;
+    v88.halfSize.v[1] = *(float *)&_XMM4;
+    v33 = LODWORD(FLOAT_2_0);
+    v32 = 2.0 * v29->halfSize.v[2];
+    v34 = (float)(v32 * 0.5) + 8.5;
+    *(float *)&v33 = (float)(v32 - 17.0) * 0.5;
+    _XMM3 = v33;
+    v88.midPoint.v[2] = v34;
+    __asm { vmaxss  xmm2, xmm3, xmm1 }
+    v88.halfSize.v[2] = *(float *)&_XMM2;
   }
-  *v16 = v31;
-  v90 = 0;
-  v234 = 0;
-  v91 = 0;
-  __asm
+  *v5 = v16;
+  v37 = 0;
+  v82 = 0;
+  v38 = 0;
+  v39 = FLOAT_4_5;
+  if ( v16 <= 0 )
+    goto LABEL_62;
+  v86 = v91;
+  do
   {
-    vmovaps xmmword ptr [rsp+9B0h+var_B8+8], xmm12
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm15, cs:__real@41100000
-    vmovss  xmm7, cs:__real@40900000
-    vmovss  xmm11, cs:__real@3f800000
-  }
-  if ( v31 <= 0 )
-  {
-LABEL_62:
-    v175 = 0;
-    if ( v90 <= 0 )
+    v40 = nodes[v38].node;
+    origin = v40->constant.vLocalOrigin;
+    v41 = pathnode_t::GetParent(v40);
+    v42 = (float *)&v41->s.number;
+    if ( v41 )
     {
-LABEL_87:
-      Profile_EndInternal(NULL);
-      result = NULL;
-      goto LABEL_88;
+      AnglesToAxis(&v41->r.currentAngles, &axis);
+      v43 = origin.v[0] * axis.m[0].v[1];
+      v44 = origin.v[0] * axis.m[0].v[2];
+      v28 = FLOAT_2_0;
+      origin.v[0] = (float)((float)((float)(origin.v[1] * axis.m[1].v[0]) + (float)(origin.v[0] * axis.m[0].v[0])) + (float)(origin.v[2] * axis.m[2].v[0])) + v42[76];
+      v45 = (float)(origin.v[1] * axis.m[1].v[1]) + v43;
+      v39 = FLOAT_4_5;
+      v46 = (float)(v45 + (float)(origin.v[2] * axis.m[2].v[1])) + v42[77];
+      v47 = (float)(origin.v[2] * axis.m[2].v[2]) + (float)((float)(origin.v[1] * axis.m[1].v[2]) + v44);
+      origin.v[1] = v46;
+      origin.v[2] = v47 + v42[78];
     }
-    while ( 1 )
+    if ( ((1 << LOBYTE(v40->constant.type)) & 0x62700000) != 0 )
     {
-      if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) || *p_baseBounds )
-        goto LABEL_81;
-      _R8 = &actorBox;
-      v177 = v243[v175];
-      if ( v177 && 1 << LOBYTE(v177->constant.type) == ((1 << LOBYTE(v177->constant.type)) & 0x78130002) )
-      {
-        v178 = v177->constant.spawnflags & 0x5C;
-        if ( v178 != 68 )
-        {
-          if ( v178 == 76 )
-          {
-            _R8 = &actorBoxProne;
-            goto LABEL_70;
-          }
-          if ( v178 != 84 )
-            goto LABEL_70;
-        }
-        _R8 = &actorBoxCrouch;
-      }
-LABEL_70:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r8]
-        vmovsd  xmm1, qword ptr [r8+10h]
-        vmovups xmmword ptr [rsp+9B0h+var_948], xmm0
-        vmovsd  qword ptr [rsp+9B0h+var_93C+4], xmm1
-      }
-      if ( _R8 == &actorBoxCrouch && !_RBX->bAllowCrouch || _R8 == &actorBoxProne && !_RBX->bAllowProne || _R8 == &actorBox )
-      {
-        *vec3_t::operator[](&v240.midPoint, 2) = 44.5;
-        *vec3_t::operator[](&v240.halfSize, 2) = 27.5;
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rsp+9B0h+var_93C]
-          vaddss  xmm6, xmm1, xmm15
-        }
-        _RAX = vec3_t::operator[](&v240.midPoint, 2);
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm13
-          vaddss  xmm1, xmm0, xmm7
-          vmovss  dword ptr [rax], xmm1
-        }
-        _RAX = vec3_t::operator[](&v240.halfSize, 2);
-        __asm
-        {
-          vsubss  xmm0, xmm6, xmm15
-          vmulss  xmm1, xmm0, xmm13
-          vmovss  dword ptr [rax], xmm1
-          vaddss  xmm0, xmm14, dword ptr [rsp+9B0h+var_93C]
-          vmaxss  xmm3, xmm0, dword ptr [rsp+9B0h+var_93C+8]
-          vaddss  xmm2, xmm14, dword ptr [rsp+9B0h+var_93C+4]
-          vmaxss  xmm0, xmm3, xmm2
-          vmovss  dword ptr [rsp+9B0h+var_93C+8], xmm0
-        }
-      }
-LABEL_81:
-      v194 = v243[v175];
-      pathnode_t::GetPos(v194, &origin);
-      _RAX = _RBX->vOrigin;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  xmm1, dword ptr [rax+4]
-        vsubss  xmm2, xmm0, dword ptr [rsp+9B0h+origin]
-        vsubss  xmm3, xmm1, dword ptr [rsp+9B0h+origin+4]
-        vmovss  xmm0, dword ptr [rax+8]
-        vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize; Bounds const actorBox
-        vsubss  xmm4, xmm0, dword ptr [rsp+9B0h+origin+8]
-        vandps  xmm2, xmm2, xmm10
-        vsubss  xmm2, xmm2, dword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-        vandps  xmm2, xmm2, xmm10
-        vcomiss xmm2, xmm1
-        vandps  xmm3, xmm3, xmm10
-        vandps  xmm4, xmm4, xmm10
-      }
-      v210 = 0;
-      if ( v195 | v196 )
-      {
-        __asm
-        {
-          vsubss  xmm2, xmm3, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+4; Bounds const actorBox
-          vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-          vandps  xmm2, xmm2, xmm10
-          vcomiss xmm2, xmm1
-        }
-        if ( v195 | v196 )
-        {
-          __asm
-          {
-            vsubss  xmm2, xmm4, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+8; Bounds const actorBox
-            vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox
-            vandps  xmm2, xmm2, xmm10
-            vcomiss xmm2, xmm1
-          }
-          LOBYTE(v210) = v195 | v196;
-        }
-      }
-      if ( v210 )
-        goto LABEL_89;
-      pathnode_t::GetPos(v194, &up);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+9B0h+var_93C+8]
-        vmaxss  xmm1, xmm0, dword ptr [rsp+9B0h+var_93C]
-      }
-      vOrigin = _RBX->vOrigin;
-      typeFlagsb = _RBX->traceMask & 0xFDFFBFFF;
-      __asm { vmovss  dword ptr [rsp+9B0h+var_93C+8], xmm1 }
-      if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, vOrigin, &up, &v240, 2047, 2047, typeFlagsb) )
-      {
-LABEL_89:
-        Profile_EndInternal(NULL);
-        result = v194;
-        goto LABEL_88;
-      }
-      __asm { vmovss  xmm6, cs:__real@40000000 }
-      p_baseBounds = v236;
-      if ( ++v175 >= v234 )
-        goto LABEL_87;
-    }
-  }
-  __asm { vmovss  xmm12, cs:__real@3f59999a }
-  v238 = v243;
-  while ( 1 )
-  {
-    _RDI = _R13[v91].node;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+20h]
-      vmovss  dword ptr [rsp+9B0h+origin], xmm0
-      vmovss  xmm1, dword ptr [rdi+24h]
-      vmovss  dword ptr [rsp+9B0h+origin+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovss  dword ptr [rsp+9B0h+origin+8], xmm0
-    }
-    v101 = pathnode_t::GetParent(_RDI);
-    if ( v101 )
-    {
-      AnglesToAxis(&v101->r.currentAngles, &axis);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+9B0h+origin+4]
-        vmovss  xmm2, dword ptr [rsp+9B0h+origin]
-        vmulss  xmm7, xmm2, dword ptr [rbp+8B0h+axis+4]
-        vmulss  xmm8, xmm2, dword ptr [rbp+8B0h+axis+8]
-        vmulss  xmm2, xmm2, dword ptr [rbp+8B0h+axis]
-        vmovss  xmm5, dword ptr [rsp+9B0h+origin+8]
-        vmulss  xmm3, xmm6, dword ptr [rbp+8B0h+axis+0Ch]
-        vmulss  xmm1, xmm5, dword ptr [rbp+8B0h+axis+18h]
-        vmulss  xmm0, xmm5, dword ptr [rbp+8B0h+axis+1Ch]
-        vmulss  xmm9, xmm6, dword ptr [rbp+8B0h+axis+14h]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vaddss  xmm3, xmm2, dword ptr [rsi+130h]
-        vmulss  xmm1, xmm6, dword ptr [rbp+8B0h+axis+10h]
-        vmulss  xmm2, xmm5, dword ptr [rbp+8B0h+axis+20h]
-        vmovss  xmm6, cs:__real@40000000
-        vmovss  dword ptr [rsp+9B0h+origin], xmm3
-        vaddss  xmm3, xmm1, xmm7
-        vmovss  xmm7, cs:__real@40900000
-        vaddss  xmm1, xmm3, xmm0
-        vaddss  xmm3, xmm1, dword ptr [rsi+134h]
-        vaddss  xmm1, xmm9, xmm8
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsp+9B0h+origin+4], xmm3
-        vaddss  xmm0, xmm2, dword ptr [rsi+138h]
-        vmovss  dword ptr [rsp+9B0h+origin+8], xmm0
-      }
-    }
-    if ( ((1 << LOBYTE(_RDI->constant.type)) & 0x62700000) != 0 )
-    {
-      AngleVectors((const vec3_t *)&_RDI->constant.44, NULL, NULL, &up);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+8B0h+up+8]
-        vcomiss xmm0, xmm12
-      }
-      if ( v195 | v196 )
+      AngleVectors((const vec3_t *)&v40->constant.44, NULL, NULL, &up);
+      if ( up.v[2] <= 0.85000002 )
         goto $failed_node;
     }
-    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) && !*v236 )
+    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) && !*v84 )
     {
-      _R8 = &actorBox;
-      if ( 1 << LOBYTE(_RDI->constant.type) != ((1 << LOBYTE(_RDI->constant.type)) & 0x78130002) )
+      v48 = &actorBox;
+      if ( 1 << LOBYTE(v40->constant.type) != ((1 << LOBYTE(v40->constant.type)) & 0x78130002) )
         goto LABEL_37;
-      v126 = _RDI->constant.spawnflags & 0x5C;
-      if ( v126 != 68 )
+      v49 = v40->constant.spawnflags & 0x5C;
+      if ( v49 != 68 )
       {
-        if ( v126 == 76 )
+        if ( v49 == 76 )
         {
-          _R8 = &actorBoxProne;
+          v48 = &actorBoxProne;
 LABEL_37:
-          __asm
+          v50 = *(double *)&v48->halfSize.y;
+          *(_OWORD *)v88.midPoint.v = *(_OWORD *)v48->midPoint.v;
+          *(double *)&v88.halfSize.y = v50;
+          if ( v48 == &actorBoxCrouch && !pInput->bAllowCrouch || v48 == &actorBoxProne && !pInput->bAllowProne || v48 == &actorBox )
           {
-            vmovups xmm0, xmmword ptr [r8]
-            vmovsd  xmm1, qword ptr [r8+10h]
-            vmovups xmmword ptr [rsp+9B0h+var_948], xmm0
-            vmovsd  qword ptr [rsp+9B0h+var_93C+4], xmm1
-          }
-          if ( _R8 == &actorBoxCrouch && !_RBX->bAllowCrouch || _R8 == &actorBoxProne && !_RBX->bAllowProne || _R8 == &actorBox )
-          {
-            *vec3_t::operator[](&v240.midPoint, 2) = 44.5;
-            *vec3_t::operator[](&v240.halfSize, 2) = 27.5;
+            *vec3_t::operator[](&v88.midPoint, 2) = 44.5;
+            *vec3_t::operator[](&v88.halfSize, 2) = 27.5;
           }
           else
           {
+            v51 = (float)(v28 * v88.halfSize.v[0]) + 9.0;
+            *vec3_t::operator[](&v88.midPoint, 2) = (float)(v51 * 0.5) + v39;
+            *vec3_t::operator[](&v88.halfSize, 2) = (float)(v51 - 9.0) * 0.5;
+            v53 = LODWORD(FLOAT_0_1);
+            *(float *)&v53 = v88.halfSize.v[0] + 0.1;
+            _XMM0 = v53;
             __asm
             {
-              vmulss  xmm1, xmm6, dword ptr [rsp+9B0h+var_93C]
-              vaddss  xmm6, xmm1, xmm15
-            }
-            _RAX = vec3_t::operator[](&v240.midPoint, 2);
-            __asm
-            {
-              vmulss  xmm0, xmm6, xmm13
-              vaddss  xmm1, xmm0, xmm7
-              vmovss  dword ptr [rax], xmm1
-            }
-            _RAX = vec3_t::operator[](&v240.halfSize, 2);
-            __asm
-            {
-              vsubss  xmm0, xmm6, xmm15
-              vmulss  xmm1, xmm0, xmm13
-              vmovss  dword ptr [rax], xmm1
-              vaddss  xmm0, xmm14, dword ptr [rsp+9B0h+var_93C]
               vmaxss  xmm3, xmm0, dword ptr [rsp+9B0h+var_93C+8]
-              vaddss  xmm2, xmm14, dword ptr [rsp+9B0h+var_93C+4]
               vmaxss  xmm0, xmm3, xmm2
-              vmovss  dword ptr [rsp+9B0h+var_93C+8], xmm0
             }
+            v88.halfSize.v[2] = *(float *)&_XMM0;
           }
           goto LABEL_45;
         }
-        if ( v126 != 84 )
+        if ( v49 != 84 )
           goto LABEL_37;
       }
-      _R8 = &actorBoxCrouch;
+      v48 = &actorBoxCrouch;
       goto LABEL_37;
     }
 LABEL_45:
-    if ( ((1 << LOBYTE(_RDI->constant.type)) & 0x1E300000) != 0 )
+    if ( ((1 << LOBYTE(v40->constant.type)) & 0x1E300000) != 0 )
     {
-      __asm { vmovss  xmm6, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox }
-      *vec3_t::operator[](&v240.midPoint, 2) = 0.0;
-      _RAX = vec3_t::operator[](&v240.halfSize, 2);
-      __asm { vmovss  dword ptr [rax], xmm6 }
+      *vec3_t::operator[](&v88.midPoint, 2) = 0.0;
+      *vec3_t::operator[](&v88.halfSize, 2) = actorBox.halfSize.v[2];
     }
-    entNum = _RBX->entNum;
-    v144 = entNum <= 0x7FF;
-    if ( entNum != 2047 )
+    entNum = pInput->entNum;
+    if ( entNum == 2047 || Path_IsNodeUseableBy(v40, entNum) )
     {
-      IsNodeUseableBy = Path_IsNodeUseableBy(_RDI, entNum);
-      v144 = !IsNodeUseableBy;
-      if ( !IsNodeUseableBy )
+      v57 = pInput->vOrigin;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[0] - origin.v[0]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[1] - origin.v[1]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[2] - origin.v[2]) & _xmm) - 36.0) & _xmm) <= (float)(1.0 + 36.0) )
       {
-        if ( !_RBX->bAllowFailedUnuseable )
-          goto LABEL_59;
-        goto $failed_node;
+LABEL_76:
+        Profile_EndInternal(NULL);
+        return v40;
       }
-    }
-    _R10 = _RBX->vOrigin;
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+9B0h+origin]
-      vmovss  xmm4, dword ptr [rsp+9B0h+origin+4]
-      vmovss  xmm0, dword ptr [r10]
-      vmovss  xmm1, dword ptr [r10+4]
-      vsubss  xmm2, xmm0, xmm3
-      vmovss  xmm0, dword ptr [r10+8]
-      vsubss  xmm6, xmm0, dword ptr [rsp+9B0h+origin+8]
-      vandps  xmm2, xmm2, xmm10
-      vsubss  xmm2, xmm2, dword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-      vsubss  xmm5, xmm1, xmm4
-      vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize; Bounds const actorBox
-      vandps  xmm2, xmm2, xmm10
-      vcomiss xmm2, xmm1
-      vandps  xmm5, xmm5, xmm10
-      vandps  xmm6, xmm6, xmm10
-    }
-    if ( v144 )
-    {
-      __asm
+      v58 = 0i64;
+      if ( iPlaneCount > 0i64 )
       {
-        vsubss  xmm2, xmm5, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+4; Bounds const actorBox
-        vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-        vandps  xmm2, xmm2, xmm10
-        vcomiss xmm2, xmm1
+        v59 = pInput->blockPlanes;
+        fDist = v59->fDist;
+        while ( (float)((float)(origin.v[1] * v59->vNormal[v58].v[1]) + (float)(origin.v[0] * v59->vNormal[v58].v[0])) <= *fDist )
+        {
+          ++v58;
+          ++fDist;
+          if ( v58 >= iPlaneCount )
+            goto LABEL_58;
+        }
+$failed_node:
+        v37 = ++v82;
+        *v86++ = v40;
+        goto LABEL_60;
       }
-      if ( v144 )
+LABEL_58:
+      _XMM0 = LODWORD(v88.halfSize.v[2]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsp+9B0h+var_93C] }
+      typeFlagsa = pInput->traceMask & 0xFDFFBFFF;
+      v88.halfSize.v[2] = *(float *)&_XMM1;
+      if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, v57, &origin, &v88, 2047, 2047, typeFlagsa) )
+        goto LABEL_76;
+    }
+    else if ( pInput->bAllowFailedUnuseable )
+    {
+      goto $failed_node;
+    }
+    v37 = v82;
+LABEL_60:
+    v28 = FLOAT_2_0;
+    ++v38;
+  }
+  while ( v38 < v83 );
+  p_baseBounds = (Bounds **)v84;
+LABEL_62:
+  v63 = 0;
+  if ( v37 <= 0 )
+  {
+LABEL_87:
+    Profile_EndInternal(NULL);
+    return 0i64;
+  }
+  while ( 2 )
+  {
+    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) && !*p_baseBounds )
+    {
+      v64 = &actorBox;
+      v65 = v91[v63];
+      if ( v65 && 1 << LOBYTE(v65->constant.type) == ((1 << LOBYTE(v65->constant.type)) & 0x78130002) )
       {
+        v66 = v65->constant.spawnflags & 0x5C;
+        switch ( v66 )
+        {
+          case 'D':
+            goto LABEL_78;
+          case 'L':
+            v64 = &actorBoxProne;
+            break;
+          case 'T':
+LABEL_78:
+            v64 = &actorBoxCrouch;
+            break;
+        }
+      }
+      v67 = *(double *)&v64->halfSize.y;
+      *(_OWORD *)v88.midPoint.v = *(_OWORD *)v64->midPoint.v;
+      *(double *)&v88.halfSize.y = v67;
+      if ( v64 == &actorBoxCrouch && !pInput->bAllowCrouch || v64 == &actorBoxProne && !pInput->bAllowProne || v64 == &actorBox )
+      {
+        *vec3_t::operator[](&v88.midPoint, 2) = 44.5;
+        *vec3_t::operator[](&v88.halfSize, 2) = 27.5;
+      }
+      else
+      {
+        v69 = (float)(v28 * v88.halfSize.v[0]) + 9.0;
+        *vec3_t::operator[](&v88.midPoint, 2) = (float)(v69 * 0.5) + v39;
+        *vec3_t::operator[](&v88.halfSize, 2) = (float)(v69 - 9.0) * 0.5;
+        v71 = LODWORD(FLOAT_0_1);
+        *(float *)&v71 = v88.halfSize.v[0] + 0.1;
+        _XMM0 = v71;
         __asm
         {
-          vsubss  xmm2, xmm6, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+8; Bounds const actorBox
-          vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox
-          vandps  xmm2, xmm2, xmm10
-          vcomiss xmm2, xmm1
+          vmaxss  xmm3, xmm0, dword ptr [rsp+9B0h+var_93C+8]
+          vmaxss  xmm0, xmm3, xmm2
         }
-        if ( v144 )
-          break;
+        v88.halfSize.v[2] = *(float *)&_XMM0;
       }
     }
-    v167 = 0i64;
-    v168 = iPlaneCount == 0i64;
-    if ( iPlaneCount <= 0i64 )
+    v74 = v91[v63];
+    pathnode_t::GetPos(v74, &origin);
+    v75 = 0;
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[0] - origin.v[0]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[1] - origin.v[1]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) )
+      LOBYTE(v75) = COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[2] - origin.v[2]) & _xmm) - 36.0) & _xmm) <= (float)(1.0 + 36.0);
+    if ( !v75 )
     {
-LABEL_58:
-      __asm
+      pathnode_t::GetPos(v74, &up);
+      _XMM0 = LODWORD(v88.halfSize.v[2]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsp+9B0h+var_93C] }
+      v78 = pInput->vOrigin;
+      typeFlagsb = pInput->traceMask & 0xFDFFBFFF;
+      v88.halfSize.v[2] = *(float *)&_XMM1;
+      if ( PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, v78, &up, &v88, 2047, 2047, typeFlagsb) )
       {
-        vmovss  xmm0, dword ptr [rsp+9B0h+var_93C+8]
-        vmaxss  xmm1, xmm0, dword ptr [rsp+9B0h+var_93C]
+        v28 = FLOAT_2_0;
+        p_baseBounds = (Bounds **)v84;
+        if ( ++v63 >= v82 )
+          goto LABEL_87;
+        continue;
       }
-      typeFlagsa = _RBX->traceMask & 0xFDFFBFFF;
-      __asm { vmovss  dword ptr [rsp+9B0h+var_93C+8], xmm1 }
-      if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, _R10, &origin, &v240, 2047, 2047, typeFlagsa) )
-        break;
-LABEL_59:
-      v90 = v234;
-      goto LABEL_60;
     }
-    _RCX = (__int64)_RBX->blockPlanes->fDist;
-    while ( 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm4, dword ptr [rdx+rax*8+4]
-        vmulss  xmm0, xmm3, dword ptr [rdx+rax*8]
-        vaddss  xmm1, xmm1, xmm0
-        vcomiss xmm1, dword ptr [rcx]
-      }
-      if ( !v168 )
-        break;
-      ++v167;
-      _RCX += 4i64;
-      v168 = v167 <= iPlaneCount;
-      if ( (__int64)v167 >= iPlaneCount )
-        goto LABEL_58;
-    }
-$failed_node:
-    v90 = ++v234;
-    *v238++ = _RDI;
-LABEL_60:
-    __asm { vmovss  xmm6, cs:__real@40000000 }
-    if ( ++v91 >= v235 )
-    {
-      p_baseBounds = v236;
-      goto LABEL_62;
-    }
+    break;
   }
   Profile_EndInternal(NULL);
-  result = _RDI;
-LABEL_88:
-  __asm
-  {
-    vmovaps xmm12, xmmword ptr [rsp+9B0h+var_B8+8]
-    vmovaps xmm9, [rsp+9B0h+var_88+8]
-    vmovaps xmm8, xmmword ptr [rsp+9B0h+var_78+8]
-  }
-  _R11 = &v247;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovaps xmm11, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-90h]
-    vmovaps xmm14, xmmword ptr [r11-0A0h]
-    vmovaps xmm15, xmmword ptr [r11-0B0h]
-  }
-  return result;
+  return v74;
 }
 
 /*
@@ -11712,49 +9784,36 @@ Path_NearestNodeForLineOfSight
 */
 pathnode_t *Path_NearestNodeForLineOfSight(const vec3_t *vOrigin, int traceMask, PathBlockPlanes *blockPlanes)
 {
-  int v12; 
-  NearestNodeInput v13; 
-  int v14[4]; 
-  __int128 v15; 
-  void *retaddr; 
+  float v3; 
+  float v4; 
+  int v5; 
+  int v7; 
+  NearestNodeInput v8; 
+  int v9[4]; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, cs:__real@43400000
-    vmovss  [rsp+98h+var_60], xmm0
-    vmovss  xmm0, dword ptr [rcx]
-  }
-  v13.typeFlags = -2;
-  v13.heightCheck = NEAREST_NODE_DO_HEIGHT_CHECK;
-  v13.entNum = 2047;
-  *(_WORD *)&v13.bAllowCrouch = 257;
-  v13.bAllowFailedUnuseable = 1;
-  __asm
-  {
-    vmovss  [rsp+98h+var_38], xmm0
-    vmovss  xmm0, dword ptr [rcx+8]
-    vaddss  xmm2, xmm0, cs:__real@41300000
-  }
-  v13.vOrigin = (const vec3_t *)v14;
-  v13.traceMask = traceMask;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+var_34], xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vmovups [rsp+98h+var_28], xmm1
-  }
-  v13.blockPlanes = blockPlanes;
-  v13.baseBounds = (const Bounds *)&v15;
-  __asm
-  {
-    vmovss  dword ptr [r11-18h], xmm0
-    vmovss  dword ptr [r11-14h], xmm0
-    vmovss  [rsp+98h+var_30], xmm2
-  }
-  return Path_NearestNodeForLineOfSightSystem(&v13, g_nearestNodes, 64, &v12);
+  v3 = vOrigin->v[1];
+  v8.fMaxDist = FLOAT_192_0;
+  v4 = vOrigin->v[0];
+  v8.typeFlags = -2;
+  v8.heightCheck = NEAREST_NODE_DO_HEIGHT_CHECK;
+  v8.entNum = 2047;
+  *(_WORD *)&v8.bAllowCrouch = 257;
+  v8.bAllowFailedUnuseable = 1;
+  *(float *)v9 = v4;
+  *(float *)&v5 = vOrigin->v[2] + 11.0;
+  v8.vOrigin = (const vec3_t *)v9;
+  v8.traceMask = traceMask;
+  *(float *)&v9[1] = v3;
+  v10 = 0i64;
+  v8.blockPlanes = blockPlanes;
+  v8.baseBounds = (const Bounds *)&v10;
+  v11 = 0.0;
+  v12 = 0.0;
+  v9[2] = v5;
+  return Path_NearestNodeForLineOfSightSystem(&v8, g_nearestNodes, 64, &v7);
 }
 
 /*
@@ -11764,633 +9823,386 @@ Path_NearestNodeForLineOfSightSystem
 */
 pathnode_t *Path_NearestNodeForLineOfSightSystem(const NearestNodeInput *pInput, pathsort_s *nodes, int maxNodes, int *returnCount)
 {
-  int *v15; 
+  int *v4; 
   PathBlockPlanes *blockPlanes; 
-  unsigned __int16 v20; 
+  unsigned __int16 v9; 
   int iPlaneCount; 
-  int v29; 
-  int v30; 
-  int v31; 
-  gentity_s *Parent; 
-  const Bounds **p_baseBounds; 
-  int v89; 
-  unsigned __int16 v90; 
-  gentity_s *v102; 
-  int v126; 
-  HavokPhysics_CollisionQueryResult *ClosestResult; 
-  int v130; 
-  unsigned int entNum; 
-  bool v148; 
-  bool IsNodeUseableBy; 
-  unsigned __int64 v171; 
-  bool v172; 
-  unsigned __int16 v179; 
-  pathnode_t *v181; 
-  int v182; 
-  pathnode_t *result; 
-  pathnode_t *v198; 
-  char v199; 
-  char v200; 
-  int v214; 
   const vec3_t *vOrigin; 
+  float v12; 
+  float fMaxDist; 
+  int v14; 
+  int v15; 
+  int v16; 
+  __int64 v17; 
+  pathnode_t *node; 
+  float v19; 
+  float v20; 
+  float v21; 
+  gentity_s *Parent; 
+  float *p_number; 
+  float v24; 
+  float v25; 
+  Bounds **p_baseBounds; 
+  float v27; 
+  __int128 v28; 
+  Bounds *v29; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  int v37; 
+  unsigned __int16 v38; 
+  float v39; 
+  float v40; 
+  pathnode_t *v41; 
+  gentity_s *v42; 
+  float *v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  int v48; 
+  HavokPhysics_CollisionQueryResult *ClosestResult; 
+  Bounds *v50; 
+  int v51; 
+  double v52; 
+  float v53; 
+  __int128 v55; 
+  int entNum; 
+  __int64 v59; 
+  PathBlockPlanes *v60; 
+  float *fDist; 
+  double RaycastHitFraction; 
+  unsigned __int16 v65; 
+  Bounds *v66; 
+  pathnode_t *v67; 
+  int v68; 
+  double v69; 
+  float v71; 
+  __int128 v73; 
+  pathnode_t *v76; 
+  int v77; 
+  const vec3_t *v80; 
   int typeFlags; 
   unsigned int typeFlagsa; 
-  int v237; 
-  int v238; 
-  const Bounds **v239; 
-  pathnode_t **v241; 
+  int v83; 
+  int v84; 
+  const Bounds **v85; 
+  pathnode_t **v87; 
   Physics_RaycastExtendedData extendedData; 
   vec3_t origin; 
   Bounds bounds; 
   tmat33_t<vec3_t> axis; 
   vec3_t up; 
-  pathnode_t *v247[256]; 
-  char v251; 
-  void *retaddr; 
+  pathnode_t *v93[256]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-  }
-  v15 = returnCount;
-  _R13 = nodes;
-  _RBX = pInput;
+  v4 = returnCount;
   if ( !pInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9098, ASSERT_TYPE_ASSERT, "(pInput)", (const char *)&queryFormat, "pInput") )
     __debugbreak();
-  if ( !_RBX->vOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9099, ASSERT_TYPE_ASSERT, "(pInput->vOrigin)", (const char *)&queryFormat, "pInput->vOrigin") )
+  if ( !pInput->vOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9099, ASSERT_TYPE_ASSERT, "(pInput->vOrigin)", (const char *)&queryFormat, "pInput->vOrigin") )
     __debugbreak();
-  if ( !_RBX->traceMask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9100, ASSERT_TYPE_ASSERT, "(pInput->traceMask != 0)", (const char *)&queryFormat, "pInput->traceMask != 0") )
+  if ( !pInput->traceMask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9100, ASSERT_TYPE_ASSERT, "(pInput->traceMask != 0)", (const char *)&queryFormat, "pInput->traceMask != 0") )
     __debugbreak();
   Profile_Begin(277);
-  blockPlanes = _RBX->blockPlanes;
-  v20 = 0;
+  blockPlanes = pInput->blockPlanes;
+  v9 = 0;
   if ( blockPlanes )
     iPlaneCount = blockPlanes->iPlaneCount;
   else
     iPlaneCount = 0;
-  if ( _RBX->heightCheck )
+  if ( pInput->heightCheck )
   {
-    __asm
-    {
-      vmovss  xmm3, cs:__real@4e6e6b28; maxHeight
-      vmovss  xmm2, dword ptr [rbx+10h]; maxDist
-    }
-    v30 = Path_NodesInCylinder(_RBX->vOrigin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, _R13, maxNodes, _RBX->typeFlags, 0);
-    v238 = v30;
+    v15 = Path_NodesInCylinder(pInput->vOrigin, NULL, pInput->fMaxDist, 1000000000.0, nodes, maxNodes, pInput->typeFlags, 0);
+    v84 = v15;
   }
   else
   {
-    _RAX = _RBX->vOrigin;
-    __asm
+    vOrigin = pInput->vOrigin;
+    v12 = pInput->vOrigin->v[1];
+    origin.v[0] = pInput->vOrigin->v[0];
+    typeFlags = pInput->typeFlags;
+    origin.v[2] = vOrigin->v[2] - 120.0;
+    fMaxDist = pInput->fMaxDist;
+    origin.v[1] = v12;
+    v14 = Path_NodesInCylinder(&origin, NULL, fMaxDist, 184.0, nodes, maxNodes, typeFlags, 0);
+    v84 = v14;
+    v15 = v14;
+    if ( v14 > 0 )
     {
-      vmovss  xmm3, cs:__real@43380000; maxHeight
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  dword ptr [rbp+8D0h+origin], xmm0
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm2, xmm0, cs:__real@42f00000
-    }
-    typeFlags = _RBX->typeFlags;
-    __asm
-    {
-      vmovss  dword ptr [rbp+8D0h+origin+8], xmm2
-      vmovss  xmm2, dword ptr [rbx+10h]; maxDist
-      vmovss  dword ptr [rbp+8D0h+origin+4], xmm1
-    }
-    v29 = Path_NodesInCylinder(&origin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, _R13, maxNodes, typeFlags, 0);
-    v238 = v29;
-    v30 = v29;
-    if ( v29 > 0 )
-    {
-      v31 = v29;
+      v16 = v14;
       do
       {
-        _RSI = 2i64 * v20;
-        _RCX = _R13[v20].node;
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rcx+20h]
-          vmovss  xmm8, dword ptr [rcx+24h]
-          vmovss  xmm6, dword ptr [rcx+28h]
-        }
-        Parent = pathnode_t::GetParent(_RCX);
-        __asm
-        {
-          vmovaps xmm4, xmm7
-          vmovaps xmm5, xmm8
-        }
+        v17 = v9;
+        node = nodes[v9].node;
+        v19 = node->constant.vLocalOrigin.v[0];
+        v20 = node->constant.vLocalOrigin.v[1];
+        v21 = node->constant.vLocalOrigin.v[2];
+        Parent = pathnode_t::GetParent(node);
+        p_number = (float *)&Parent->s.number;
+        v24 = v19;
+        v25 = v20;
         if ( Parent )
         {
           AnglesToAxis(&Parent->r.currentAngles, &axis);
-          __asm
-          {
-            vmulss  xmm1, xmm8, dword ptr [rbp+8D0h+axis+0Ch]
-            vmulss  xmm0, xmm7, dword ptr [rbp+8D0h+axis]
-            vmulss  xmm3, xmm8, dword ptr [rbp+8D0h+axis+10h]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+18h]
-            vmulss  xmm0, xmm7, dword ptr [rbp+8D0h+axis+4]
-            vaddss  xmm2, xmm2, xmm1
-            vaddss  xmm4, xmm2, dword ptr [rdi+130h]
-            vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+1Ch]
-            vaddss  xmm2, xmm3, xmm0
-            vmulss  xmm3, xmm8, dword ptr [rbp+8D0h+axis+14h]
-            vmulss  xmm0, xmm7, dword ptr [rbp+8D0h+axis+8]
-            vaddss  xmm2, xmm2, xmm1
-            vaddss  xmm5, xmm2, dword ptr [rdi+134h]
-            vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+20h]
-            vaddss  xmm2, xmm3, xmm0
-            vaddss  xmm2, xmm2, xmm1
-            vaddss  xmm6, xmm2, dword ptr [rdi+138h]
-          }
+          v24 = (float)((float)((float)(v20 * axis.m[1].v[0]) + (float)(v19 * axis.m[0].v[0])) + (float)(v21 * axis.m[2].v[0])) + p_number[76];
+          v25 = (float)((float)((float)(v20 * axis.m[1].v[1]) + (float)(v19 * axis.m[0].v[1])) + (float)(v21 * axis.m[2].v[1])) + p_number[77];
+          v21 = (float)((float)((float)(v20 * axis.m[1].v[2]) + (float)(v19 * axis.m[0].v[2])) + (float)(v21 * axis.m[2].v[2])) + p_number[78];
         }
-        _RAX = _RBX->vOrigin;
-        ++v20;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm1, dword ptr [rax+4]
-          vsubss  xmm3, xmm0, xmm4
-          vmovss  xmm0, dword ptr [rax+8]
-          vsubss  xmm2, xmm1, xmm5
-          vmulss  xmm2, xmm2, xmm2
-          vsubss  xmm4, xmm0, xmm6
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  dword ptr [r13+rsi*8+8], xmm2
-        }
+        ++v9;
+        nodes[v17].metric = (float)((float)((float)(pInput->vOrigin->v[1] - v25) * (float)(pInput->vOrigin->v[1] - v25)) + (float)((float)(pInput->vOrigin->v[0] - v24) * (float)(pInput->vOrigin->v[0] - v24))) + (float)((float)(pInput->vOrigin->v[2] - v21) * (float)(pInput->vOrigin->v[2] - v21));
       }
-      while ( v20 < v31 );
-      v15 = returnCount;
-      v30 = v238;
+      while ( v9 < v16 );
+      v4 = returnCount;
+      v15 = v84;
     }
   }
-  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(_R13, &_R13[v30], v30, Path_CompareNodesIncreasingDistOnly);
-  p_baseBounds = &_RBX->baseBounds;
-  v239 = &_RBX->baseBounds;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@40000000
-    vmovss  xmm12, cs:__real@3f000000
-    vmovss  xmm7, cs:__real@3dcccccd
-  }
+  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v15], v15, Path_CompareNodesIncreasingDistOnly);
+  p_baseBounds = (Bounds **)&pInput->baseBounds;
+  v85 = &pInput->baseBounds;
+  v27 = FLOAT_2_0;
+  v28 = LODWORD(FLOAT_0_1);
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) || *p_baseBounds )
   {
-    _RAX = *p_baseBounds;
-    v239 = &_RBX->baseBounds;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+8D0h+bounds.midPoint], xmm1
-      vmovsd  xmm0, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbp+8D0h+bounds.halfSize+4], xmm0
-      vshufps xmm1, xmm1, xmm1, 0FFh
-      vmaxss  xmm4, xmm1, xmm0
-      vmovss  dword ptr [rbp+8D0h+bounds.halfSize], xmm4
-      vmovss  dword ptr [rbp+8D0h+bounds.halfSize+4], xmm4
-      vmulss  xmm3, xmm6, dword ptr [rax+14h]
-      vsubss  xmm0, xmm3, cs:__real@41880000
-      vmulss  xmm1, xmm3, xmm12
-      vaddss  xmm2, xmm1, cs:__real@41080000
-      vaddss  xmm1, xmm4, xmm7
-      vmulss  xmm3, xmm0, xmm12
-      vmovss  dword ptr [rbp+8D0h+bounds.midPoint+8], xmm2
-      vmaxss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rbp+8D0h+bounds.halfSize+8], xmm2
-    }
+    v29 = *p_baseBounds;
+    v85 = &pInput->baseBounds;
+    bounds = **p_baseBounds;
+    _XMM1 = _mm_shuffle_ps(*(__m128 *)bounds.midPoint.v, *(__m128 *)bounds.midPoint.v, 255);
+    __asm { vmaxss  xmm4, xmm1, xmm0 }
+    bounds.halfSize.v[0] = *(float *)&_XMM4;
+    bounds.halfSize.v[1] = *(float *)&_XMM4;
+    v33 = LODWORD(FLOAT_2_0);
+    v32 = 2.0 * v29->halfSize.v[2];
+    v34 = (float)(v32 * 0.5) + 8.5;
+    *(float *)&v33 = (float)(v32 - 17.0) * 0.5;
+    _XMM3 = v33;
+    bounds.midPoint.v[2] = v34;
+    __asm { vmaxss  xmm2, xmm3, xmm1 }
+    bounds.halfSize.v[2] = *(float *)&_XMM2;
   }
-  __asm { vmovaps xmmword ptr [rsp+9D0h+var_C8+8], xmm13 }
-  v89 = 0;
-  __asm { vmovaps [rsp+9D0h+var_D8+8], xmm14 }
-  *v15 = v30;
-  v90 = 0;
-  __asm { vmovaps [rsp+9D0h+var_E8+8], xmm15 }
-  v237 = 0;
-  __asm
+  v37 = 0;
+  *v4 = v15;
+  v38 = 0;
+  v83 = 0;
+  v39 = FLOAT_9_0;
+  v40 = FLOAT_4_5;
+  if ( v15 <= 0 )
+    goto LABEL_66;
+  v87 = v93;
+  do
   {
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm8, cs:__real@41100000
-    vmovss  xmm9, cs:__real@40900000
-    vmovss  xmm11, cs:__real@3f800000
-  }
-  if ( v30 <= 0 )
-  {
-LABEL_66:
-    v179 = 0;
-    if ( v89 <= 0 )
+    v41 = nodes[v38].node;
+    origin = v41->constant.vLocalOrigin;
+    v42 = pathnode_t::GetParent(v41);
+    v43 = (float *)&v42->s.number;
+    if ( v42 )
     {
-LABEL_91:
-      Profile_EndInternal(NULL);
-      result = NULL;
-      goto LABEL_92;
-    }
-    while ( 1 )
-    {
-      if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) || *p_baseBounds )
-        goto LABEL_85;
-      _R8 = &actorBox;
-      v181 = v247[v179];
-      if ( v181 && 1 << LOBYTE(v181->constant.type) == ((1 << LOBYTE(v181->constant.type)) & 0x78130002) )
-      {
-        v182 = v181->constant.spawnflags & 0x5C;
-        if ( v182 != 68 )
-        {
-          if ( v182 == 76 )
-          {
-            _R8 = &actorBoxProne;
-            goto LABEL_74;
-          }
-          if ( v182 != 84 )
-            goto LABEL_74;
-        }
-        _R8 = &actorBoxCrouch;
-      }
-LABEL_74:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r8]
-        vmovsd  xmm1, qword ptr [r8+10h]
-        vmovups xmmword ptr [rbp+8D0h+bounds.midPoint], xmm0
-        vmovsd  qword ptr [rbp+8D0h+bounds.halfSize+4], xmm1
-      }
-      if ( _R8 == &actorBoxCrouch && !_RBX->bAllowCrouch || _R8 == &actorBoxProne && !_RBX->bAllowProne || _R8 == &actorBox )
-      {
-        *vec3_t::operator[](&bounds.midPoint, 2) = 44.5;
-        *vec3_t::operator[](&bounds.halfSize, 2) = 27.5;
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+bounds.halfSize]
-          vaddss  xmm6, xmm1, xmm8
-        }
-        _RAX = vec3_t::operator[](&bounds.midPoint, 2);
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm12
-          vaddss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [rax], xmm1
-        }
-        _RAX = vec3_t::operator[](&bounds.halfSize, 2);
-        __asm
-        {
-          vsubss  xmm0, xmm6, xmm8
-          vmulss  xmm1, xmm0, xmm12
-          vmovss  dword ptr [rax], xmm1
-          vaddss  xmm0, xmm7, dword ptr [rbp+8D0h+bounds.halfSize]
-          vmaxss  xmm3, xmm0, dword ptr [rbp+8D0h+bounds.halfSize+8]
-          vaddss  xmm2, xmm7, dword ptr [rbp+8D0h+bounds.halfSize+4]
-          vmaxss  xmm0, xmm3, xmm2
-          vmovss  dword ptr [rbp+8D0h+bounds.halfSize+8], xmm0
-        }
-      }
-LABEL_85:
-      v198 = v247[v179];
-      pathnode_t::GetPos(v198, &origin);
-      _RAX = _RBX->vOrigin;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  xmm1, dword ptr [rax+4]
-        vsubss  xmm2, xmm0, dword ptr [rbp+8D0h+origin]
-        vsubss  xmm3, xmm1, dword ptr [rbp+8D0h+origin+4]
-        vmovss  xmm0, dword ptr [rax+8]
-        vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize; Bounds const actorBox
-        vsubss  xmm4, xmm0, dword ptr [rbp+8D0h+origin+8]
-        vandps  xmm2, xmm2, xmm10
-        vsubss  xmm2, xmm2, dword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-        vandps  xmm2, xmm2, xmm10
-        vcomiss xmm2, xmm1
-        vandps  xmm3, xmm3, xmm10
-        vandps  xmm4, xmm4, xmm10
-      }
-      v214 = 0;
-      if ( v199 | v200 )
-      {
-        __asm
-        {
-          vsubss  xmm2, xmm3, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+4; Bounds const actorBox
-          vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-          vandps  xmm2, xmm2, xmm10
-          vcomiss xmm2, xmm1
-        }
-        if ( v199 | v200 )
-        {
-          __asm
-          {
-            vsubss  xmm2, xmm4, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+8; Bounds const actorBox
-            vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox
-            vandps  xmm2, xmm2, xmm10
-            vcomiss xmm2, xmm1
-          }
-          LOBYTE(v214) = v199 | v200;
-        }
-      }
-      if ( v214 )
-        goto LABEL_93;
-      pathnode_t::GetPos(v198, &up);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+8D0h+bounds.halfSize+8]
-        vmaxss  xmm1, xmm0, dword ptr [rbp+8D0h+bounds.halfSize]
-      }
-      vOrigin = _RBX->vOrigin;
-      typeFlagsa = _RBX->traceMask & 0xFDFFBFFF;
-      __asm { vmovss  dword ptr [rbp+8D0h+bounds.halfSize+8], xmm1 }
-      if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, vOrigin, &up, &bounds, 2047, 2047, typeFlagsa) )
-      {
-LABEL_93:
-        Profile_EndInternal(NULL);
-        result = v198;
-        goto LABEL_92;
-      }
-      __asm { vmovss  xmm6, cs:__real@40000000 }
-      p_baseBounds = v239;
-      if ( ++v179 >= v237 )
-        goto LABEL_91;
-    }
-  }
-  __asm
-  {
-    vmovss  xmm15, cs:__real@3f59999a
-    vmovss  xmm14, cs:__real@3f7ae148
-  }
-  v241 = v247;
-  __asm { vxorps  xmm13, xmm13, xmm13 }
-  while ( 1 )
-  {
-    _RDI = _R13[v90].node;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+20h]
-      vmovss  dword ptr [rbp+8D0h+origin], xmm0
-      vmovss  xmm1, dword ptr [rdi+24h]
-      vmovss  dword ptr [rbp+8D0h+origin+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovss  dword ptr [rbp+8D0h+origin+8], xmm0
-    }
-    v102 = pathnode_t::GetParent(_RDI);
-    if ( v102 )
-    {
-      AnglesToAxis(&v102->r.currentAngles, &axis);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbp+8D0h+origin+4]
-        vmovss  xmm2, dword ptr [rbp+8D0h+origin]
-        vmulss  xmm7, xmm2, dword ptr [rbp+8D0h+axis+4]
-        vmulss  xmm8, xmm2, dword ptr [rbp+8D0h+axis+8]
-        vmulss  xmm2, xmm2, dword ptr [rbp+8D0h+axis]
-        vmovss  xmm5, dword ptr [rbp+8D0h+origin+8]
-        vmulss  xmm3, xmm6, dword ptr [rbp+8D0h+axis+0Ch]
-        vmulss  xmm9, xmm6, dword ptr [rbp+8D0h+axis+14h]
-        vmulss  xmm1, xmm5, dword ptr [rbp+8D0h+axis+18h]
-        vmulss  xmm0, xmm5, dword ptr [rbp+8D0h+axis+1Ch]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vaddss  xmm3, xmm2, dword ptr [rsi+130h]
-        vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+10h]
-        vmovss  xmm6, cs:__real@40000000
-        vmovss  dword ptr [rbp+8D0h+origin], xmm3
-        vaddss  xmm3, xmm1, xmm7
-        vmovss  xmm7, cs:__real@3dcccccd
-        vaddss  xmm1, xmm3, xmm0
-        vaddss  xmm3, xmm1, dword ptr [rsi+134h]
-        vmulss  xmm1, xmm5, dword ptr [rbp+8D0h+axis+20h]
-        vaddss  xmm2, xmm9, xmm8
-        vmovss  xmm8, cs:__real@41100000
-        vmovss  xmm9, cs:__real@40900000
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rbp+8D0h+origin+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rsi+138h]
-        vmovss  dword ptr [rbp+8D0h+origin+8], xmm3
-      }
+      AnglesToAxis(&v42->r.currentAngles, &axis);
+      v44 = origin.v[0] * axis.m[0].v[1];
+      v45 = origin.v[0] * axis.m[0].v[2];
+      v27 = FLOAT_2_0;
+      origin.v[0] = (float)((float)((float)(origin.v[1] * axis.m[1].v[0]) + (float)(origin.v[0] * axis.m[0].v[0])) + (float)(origin.v[2] * axis.m[2].v[0])) + v43[76];
+      v46 = (float)(origin.v[1] * axis.m[1].v[1]) + v44;
+      v28 = LODWORD(FLOAT_0_1);
+      v47 = (float)(origin.v[1] * axis.m[1].v[2]) + v45;
+      v39 = FLOAT_9_0;
+      v40 = FLOAT_4_5;
+      origin.v[1] = (float)(v46 + (float)(origin.v[2] * axis.m[2].v[1])) + v43[77];
+      origin.v[2] = (float)(v47 + (float)(origin.v[2] * axis.m[2].v[2])) + v43[78];
     }
     extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
     extendedData.ignoreBodies = NULL;
     extendedData.phaseSelection = All;
-    v126 = _RBX->traceMask & 0xFDFFBFFF;
+    v48 = pInput->traceMask & 0xFDFFBFFF;
     extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
-    extendedData.contents = v126;
-    __asm { vmovss  [rsp+9D0h+extendedData.collisionBuffer], xmm13 }
+    extendedData.contents = v48;
+    extendedData.collisionBuffer = 0.0;
     *(_WORD *)&extendedData.collectInsideHits = 256;
     ClosestResult = PhysicsQuery_GetClosestResult(PHYSICS_WORLD_ID_FIRST);
     if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 9161, ASSERT_TYPE_ASSERT, "(castResult)", (const char *)&queryFormat, "castResult") )
       __debugbreak();
-    if ( ((1 << LOBYTE(_RDI->constant.type)) & 0x62700000) != 0 )
+    if ( ((1 << LOBYTE(v41->constant.type)) & 0x62700000) != 0 )
     {
-      AngleVectors((const vec3_t *)&_RDI->constant.44, NULL, NULL, &up);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+8D0h+up+8]
-        vcomiss xmm0, xmm15
-      }
-      if ( v199 | v200 )
+      AngleVectors((const vec3_t *)&v41->constant.44, NULL, NULL, &up);
+      if ( up.v[2] <= 0.85000002 )
         goto $failed_node_0;
     }
-    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) && !*v239 )
+    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) && !*v85 )
     {
-      _R8 = &actorBox;
-      if ( 1 << LOBYTE(_RDI->constant.type) != ((1 << LOBYTE(_RDI->constant.type)) & 0x78130002) )
+      v50 = &actorBox;
+      if ( 1 << LOBYTE(v41->constant.type) != ((1 << LOBYTE(v41->constant.type)) & 0x78130002) )
         goto LABEL_40;
-      v130 = _RDI->constant.spawnflags & 0x5C;
-      if ( v130 != 68 )
+      v51 = v41->constant.spawnflags & 0x5C;
+      if ( v51 != 68 )
       {
-        if ( v130 == 76 )
+        if ( v51 == 76 )
         {
-          _R8 = &actorBoxProne;
+          v50 = &actorBoxProne;
 LABEL_40:
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r8]
-            vmovsd  xmm1, qword ptr [r8+10h]
-            vmovups xmmword ptr [rbp+8D0h+bounds.midPoint], xmm0
-            vmovsd  qword ptr [rbp+8D0h+bounds.halfSize+4], xmm1
-          }
-          if ( _R8 == &actorBoxCrouch && !_RBX->bAllowCrouch || _R8 == &actorBoxProne && !_RBX->bAllowProne || _R8 == &actorBox )
+          v52 = *(double *)&v50->halfSize.y;
+          *(_OWORD *)bounds.midPoint.v = *(_OWORD *)v50->midPoint.v;
+          *(double *)&bounds.halfSize.y = v52;
+          if ( v50 == &actorBoxCrouch && !pInput->bAllowCrouch || v50 == &actorBoxProne && !pInput->bAllowProne || v50 == &actorBox )
           {
             *vec3_t::operator[](&bounds.midPoint, 2) = 44.5;
             *vec3_t::operator[](&bounds.halfSize, 2) = 27.5;
           }
           else
           {
+            v53 = (float)(v27 * bounds.halfSize.v[0]) + v39;
+            *vec3_t::operator[](&bounds.midPoint, 2) = (float)(v53 * 0.5) + v40;
+            *vec3_t::operator[](&bounds.halfSize, 2) = (float)(v53 - v39) * 0.5;
+            v55 = v28;
+            *(float *)&v55 = *(float *)&v28 + bounds.halfSize.v[0];
+            _XMM0 = v55;
             __asm
             {
-              vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+bounds.halfSize]
-              vaddss  xmm6, xmm1, xmm8
-            }
-            _RAX = vec3_t::operator[](&bounds.midPoint, 2);
-            __asm
-            {
-              vmulss  xmm0, xmm6, xmm12
-              vaddss  xmm1, xmm0, xmm9
-              vmovss  dword ptr [rax], xmm1
-            }
-            _RAX = vec3_t::operator[](&bounds.halfSize, 2);
-            __asm
-            {
-              vsubss  xmm0, xmm6, xmm8
-              vmulss  xmm1, xmm0, xmm12
-              vmovss  dword ptr [rax], xmm1
-              vaddss  xmm0, xmm7, dword ptr [rbp+8D0h+bounds.halfSize]
               vmaxss  xmm3, xmm0, dword ptr [rbp+8D0h+bounds.halfSize+8]
-              vaddss  xmm2, xmm7, dword ptr [rbp+8D0h+bounds.halfSize+4]
               vmaxss  xmm0, xmm3, xmm2
-              vmovss  dword ptr [rbp+8D0h+bounds.halfSize+8], xmm0
             }
+            bounds.halfSize.v[2] = *(float *)&_XMM0;
           }
           goto LABEL_48;
         }
-        if ( v130 != 84 )
+        if ( v51 != 84 )
           goto LABEL_40;
       }
-      _R8 = &actorBoxCrouch;
+      v50 = &actorBoxCrouch;
       goto LABEL_40;
     }
 LABEL_48:
-    if ( ((1 << LOBYTE(_RDI->constant.type)) & 0x1E300000) != 0 )
+    if ( ((1 << LOBYTE(v41->constant.type)) & 0x1E300000) != 0 )
     {
-      __asm { vmovss  xmm6, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox }
       *vec3_t::operator[](&bounds.midPoint, 2) = 0.0;
-      _RAX = vec3_t::operator[](&bounds.halfSize, 2);
-      __asm { vmovss  dword ptr [rax], xmm6 }
+      *vec3_t::operator[](&bounds.halfSize, 2) = actorBox.halfSize.v[2];
     }
-    entNum = _RBX->entNum;
-    v148 = entNum <= 0x7FF;
-    if ( entNum != 2047 )
+    entNum = pInput->entNum;
+    if ( entNum == 2047 || Path_IsNodeUseableBy(v41, entNum) )
     {
-      IsNodeUseableBy = Path_IsNodeUseableBy(_RDI, entNum);
-      v148 = !IsNodeUseableBy;
-      if ( !IsNodeUseableBy )
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[0] - origin.v[0]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[1] - origin.v[1]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[2] - origin.v[2]) & _xmm) - 36.0) & _xmm) <= (float)(1.0 + 36.0) )
       {
-        if ( !_RBX->bAllowFailedUnuseable )
-          goto LABEL_63;
-        goto $failed_node_0;
+LABEL_80:
+        Profile_EndInternal(NULL);
+        return v41;
       }
-    }
-    _RAX = _RBX->vOrigin;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+8D0h+origin]
-      vmovss  xmm5, dword ptr [rbp+8D0h+origin+4]
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rax+4]
-      vsubss  xmm2, xmm0, xmm4
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm6, xmm0, dword ptr [rbp+8D0h+origin+8]
-      vandps  xmm2, xmm2, xmm10
-      vsubss  xmm2, xmm2, dword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-      vsubss  xmm3, xmm1, xmm5
-      vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize; Bounds const actorBox
-      vandps  xmm2, xmm2, xmm10
-      vcomiss xmm2, xmm1
-      vandps  xmm3, xmm3, xmm10
-      vandps  xmm6, xmm6, xmm10
-    }
-    if ( v148 )
-    {
-      __asm
+      v59 = 0i64;
+      if ( iPlaneCount > 0i64 )
       {
-        vsubss  xmm2, xmm3, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+4; Bounds const actorBox
-        vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-        vandps  xmm2, xmm2, xmm10
-        vcomiss xmm2, xmm1
+        v60 = pInput->blockPlanes;
+        fDist = v60->fDist;
+        while ( (float)((float)(origin.v[1] * v60->vNormal[v59].v[1]) + (float)(origin.v[0] * v60->vNormal[v59].v[0])) <= *fDist )
+        {
+          ++v59;
+          ++fDist;
+          if ( v59 >= iPlaneCount )
+            goto LABEL_61;
+        }
+$failed_node_0:
+        v37 = ++v83;
+        *v87++ = v41;
+        goto LABEL_64;
       }
-      if ( v148 )
+LABEL_61:
+      _XMM0 = LODWORD(bounds.halfSize.v[2]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rbp+8D0h+bounds.halfSize] }
+      bounds.halfSize.v[2] = *(float *)&_XMM1;
+      HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
+      Physics_Raycast(PHYSICS_WORLD_ID_FIRST, pInput->vOrigin, &origin, &extendedData, ClosestResult);
+      if ( !HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
+        goto LABEL_80;
+      RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
+      if ( *(float *)&RaycastHitFraction >= 0.98000002 )
+        goto LABEL_80;
+    }
+    else if ( pInput->bAllowFailedUnuseable )
+    {
+      goto $failed_node_0;
+    }
+    v37 = v83;
+LABEL_64:
+    v27 = FLOAT_2_0;
+    ++v38;
+  }
+  while ( v38 < v84 );
+  p_baseBounds = (Bounds **)v85;
+LABEL_66:
+  v65 = 0;
+  if ( v37 <= 0 )
+  {
+LABEL_91:
+    Profile_EndInternal(NULL);
+    return 0i64;
+  }
+  while ( 2 )
+  {
+    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE) && !*p_baseBounds )
+    {
+      v66 = &actorBox;
+      v67 = v93[v65];
+      if ( v67 && 1 << LOBYTE(v67->constant.type) == ((1 << LOBYTE(v67->constant.type)) & 0x78130002) )
       {
+        v68 = v67->constant.spawnflags & 0x5C;
+        switch ( v68 )
+        {
+          case 'D':
+            goto LABEL_82;
+          case 'L':
+            v66 = &actorBoxProne;
+            break;
+          case 'T':
+LABEL_82:
+            v66 = &actorBoxCrouch;
+            break;
+        }
+      }
+      v69 = *(double *)&v66->halfSize.y;
+      *(_OWORD *)bounds.midPoint.v = *(_OWORD *)v66->midPoint.v;
+      *(double *)&bounds.halfSize.y = v69;
+      if ( v66 == &actorBoxCrouch && !pInput->bAllowCrouch || v66 == &actorBoxProne && !pInput->bAllowProne || v66 == &actorBox )
+      {
+        *vec3_t::operator[](&bounds.midPoint, 2) = 44.5;
+        *vec3_t::operator[](&bounds.halfSize, 2) = 27.5;
+      }
+      else
+      {
+        v71 = (float)(v27 * bounds.halfSize.v[0]) + v39;
+        *vec3_t::operator[](&bounds.midPoint, 2) = (float)(v71 * 0.5) + v40;
+        *vec3_t::operator[](&bounds.halfSize, 2) = (float)(v71 - v39) * 0.5;
+        v73 = v28;
+        *(float *)&v73 = *(float *)&v28 + bounds.halfSize.v[0];
+        _XMM0 = v73;
         __asm
         {
-          vsubss  xmm2, xmm6, dword ptr cs:?actorBox@@3UBounds@@B.midPoint+8; Bounds const actorBox
-          vaddss  xmm1, xmm11, dword ptr cs:?actorBox@@3UBounds@@B.halfSize+8; Bounds const actorBox
-          vandps  xmm2, xmm2, xmm10
-          vcomiss xmm2, xmm1
+          vmaxss  xmm3, xmm0, dword ptr [rbp+8D0h+bounds.halfSize+8]
+          vmaxss  xmm0, xmm3, xmm2
         }
-        if ( v148 )
-          break;
+        bounds.halfSize.v[2] = *(float *)&_XMM0;
       }
     }
-    v171 = 0i64;
-    v172 = iPlaneCount == 0i64;
-    if ( iPlaneCount <= 0i64 )
+    v76 = v93[v65];
+    pathnode_t::GetPos(v76, &origin);
+    v77 = 0;
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[0] - origin.v[0]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[1] - origin.v[1]) & _xmm) - 0.0) & _xmm) <= (float)(1.0 + 15.0) )
+      LOBYTE(v77) = COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(pInput->vOrigin->v[2] - origin.v[2]) & _xmm) - 36.0) & _xmm) <= (float)(1.0 + 36.0);
+    if ( !v77 )
     {
-LABEL_61:
-      __asm
+      pathnode_t::GetPos(v76, &up);
+      _XMM0 = LODWORD(bounds.halfSize.v[2]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rbp+8D0h+bounds.halfSize] }
+      v80 = pInput->vOrigin;
+      typeFlagsa = pInput->traceMask & 0xFDFFBFFF;
+      bounds.halfSize.v[2] = *(float *)&_XMM1;
+      if ( PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, v80, &up, &bounds, 2047, 2047, typeFlagsa) )
       {
-        vmovss  xmm0, dword ptr [rbp+8D0h+bounds.halfSize+8]
-        vmaxss  xmm1, xmm0, dword ptr [rbp+8D0h+bounds.halfSize]
-        vmovss  dword ptr [rbp+8D0h+bounds.halfSize+8], xmm1
+        v27 = FLOAT_2_0;
+        p_baseBounds = (Bounds **)v85;
+        if ( ++v65 >= v83 )
+          goto LABEL_91;
+        continue;
       }
-      HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
-      Physics_Raycast(PHYSICS_WORLD_ID_FIRST, _RBX->vOrigin, &origin, &extendedData, ClosestResult);
-      if ( !HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
-        break;
-      *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
-      __asm { vcomiss xmm0, xmm14 }
-      if ( !v199 )
-        break;
-LABEL_63:
-      v89 = v237;
-      goto LABEL_64;
     }
-    _RCX = (__int64)_RBX->blockPlanes->fDist;
-    while ( 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm5, dword ptr [rdx+rax*8+4]
-        vmulss  xmm0, xmm4, dword ptr [rdx+rax*8]
-        vaddss  xmm1, xmm1, xmm0
-        vcomiss xmm1, dword ptr [rcx]
-      }
-      if ( !v172 )
-        break;
-      ++v171;
-      _RCX += 4i64;
-      v172 = v171 <= iPlaneCount;
-      if ( (__int64)v171 >= iPlaneCount )
-        goto LABEL_61;
-    }
-$failed_node_0:
-    v89 = ++v237;
-    *v241++ = _RDI;
-LABEL_64:
-    __asm { vmovss  xmm6, cs:__real@40000000 }
-    if ( ++v90 >= v238 )
-    {
-      p_baseBounds = v239;
-      goto LABEL_66;
-    }
+    break;
   }
   Profile_EndInternal(NULL);
-  result = _RDI;
-LABEL_92:
-  __asm
-  {
-    vmovaps xmm15, [rsp+9D0h+var_E8+8]
-    vmovaps xmm14, [rsp+9D0h+var_D8+8]
-    vmovaps xmm13, xmmword ptr [rsp+9D0h+var_C8+8]
-  }
-  _R11 = &v251;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovaps xmm11, xmmword ptr [r11-70h]
-    vmovaps xmm12, xmmword ptr [r11-80h]
-  }
-  return result;
+  return v76;
 }
 
 /*
@@ -12400,171 +10212,85 @@ Path_NearestNodeOriented
 */
 pathnode_t *Path_NearestNodeOriented(const vec3_t *vOrigin, int traceMask, pathsort_s *nodes, int maxNodes, int typeFlags, float fMaxDist, const float boundsRadius, const vec3_t *normal, int *returnCount)
 {
-  int v23; 
-  unsigned __int16 v25; 
+  int v12; 
+  unsigned __int16 v13; 
+  pathnode_t *node; 
+  float v15; 
+  float v16; 
+  float v17; 
   gentity_s *Parent; 
-  char v44; 
-  pathnode_t *result; 
+  float *p_number; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
   vec3_t up; 
   vec3_t end; 
   vec3_t start; 
   tmat33_t<vec3_t> axis; 
   vec3_t vector; 
-  char v96; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-  }
-  _R15 = vOrigin;
   Profile_Begin(295);
-  __asm
+  v12 = Path_NodesInCylinder(vOrigin, NULL, fMaxDist, fMaxDist, nodes, maxNodes, typeFlags, 0);
+  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v12], v12, Path_CompareNodesIncreasing);
+  *returnCount = v12;
+  v13 = 0;
+  if ( v12 <= 0 )
   {
-    vmovss  xmm2, [rbp+80h+fMaxDist]; maxDist
-    vmovaps xmm3, xmm2; maxHeight
-  }
-  v23 = Path_NodesInCylinder(_R15, NULL, *(float *)&_XMM2, *(float *)&_XMM3, nodes, maxNodes, typeFlags, 0);
-  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v23], v23, Path_CompareNodesIncreasing);
-  __asm { vmovss  xmm0, [rbp+80h+boundsRadius] }
-  *returnCount = v23;
-  v25 = 0;
-  __asm { vmulss  xmm13, xmm0, xmm0 }
-  if ( v23 <= 0 )
-  {
-LABEL_9:
+LABEL_8:
     Profile_EndInternal(NULL);
-    result = NULL;
+    return 0i64;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm12, cs:__real@3f59999a
-      vmovss  xmm11, cs:__real@41200000
-    }
     while ( 1 )
     {
-      _RBX = nodes[v25].node;
-      pathnode_t::GetAngles(_RBX, &vector);
+      node = nodes[v13].node;
+      pathnode_t::GetAngles(node, &vector);
       AngleVectors(&vector, NULL, NULL, &up);
-      __asm
+      if ( (float)((float)((float)(up.v[0] * normal->v[0]) + (float)(up.v[1] * normal->v[1])) + (float)(up.v[2] * normal->v[2])) >= 0.85000002 )
       {
-        vmovss  xmm0, dword ptr [rsp+180h+up]
-        vmovss  xmm1, dword ptr [rsp+180h+up+4]
-        vmulss  xmm2, xmm1, dword ptr [rsi+4]
-        vmulss  xmm3, xmm0, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rsp+180h+up+8]
-        vmulss  xmm1, xmm0, dword ptr [rsi+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vcomiss xmm2, xmm12
-      }
-      if ( !v44 )
-      {
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rbx+20h]
-          vmovss  xmm8, dword ptr [rbx+24h]
-          vmovss  xmm6, dword ptr [rbx+28h]
-        }
-        Parent = pathnode_t::GetParent(_RBX);
-        __asm
-        {
-          vmovaps xmm5, xmm7
-          vmovaps xmm9, xmm8
-        }
-        v44 = 0;
+        v15 = node->constant.vLocalOrigin.v[0];
+        v16 = node->constant.vLocalOrigin.v[1];
+        v17 = node->constant.vLocalOrigin.v[2];
+        Parent = pathnode_t::GetParent(node);
+        p_number = (float *)&Parent->s.number;
+        v20 = v15;
+        v21 = v16;
         if ( Parent )
         {
           AnglesToAxis(&Parent->r.currentAngles, &axis);
-          __asm
-          {
-            vmulss  xmm1, xmm8, dword ptr [rbp+80h+axis+0Ch]
-            vmulss  xmm0, xmm7, dword ptr [rsp+180h+axis]
-            vmulss  xmm3, xmm8, dword ptr [rbp+80h+axis+10h]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, dword ptr [rbp+80h+axis+18h]
-            vmulss  xmm0, xmm7, dword ptr [rsp+180h+axis+4]
-            vaddss  xmm2, xmm2, xmm1
-            vaddss  xmm5, xmm2, dword ptr [r14+130h]
-            vmulss  xmm2, xmm6, dword ptr [rbp+80h+axis+1Ch]
-            vaddss  xmm4, xmm3, xmm0
-            vmulss  xmm3, xmm8, dword ptr [rbp+80h+axis+14h]
-            vaddss  xmm0, xmm4, xmm2
-            vmulss  xmm2, xmm7, dword ptr [rbp+80h+axis+8]
-            vaddss  xmm9, xmm0, dword ptr [r14+134h]
-            vmulss  xmm0, xmm6, dword ptr [rbp+80h+axis+20h]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm0
-            vaddss  xmm6, xmm2, dword ptr [r14+138h]
-          }
+          v20 = (float)((float)((float)(v16 * axis.m[1].v[0]) + (float)(v15 * axis.m[0].v[0])) + (float)(v17 * axis.m[2].v[0])) + p_number[76];
+          v21 = (float)((float)((float)(v16 * axis.m[1].v[1]) + (float)(v15 * axis.m[0].v[1])) + (float)(v17 * axis.m[2].v[1])) + p_number[77];
+          v17 = (float)((float)((float)(v16 * axis.m[1].v[2]) + (float)(v15 * axis.m[0].v[2])) + (float)(v17 * axis.m[2].v[2])) + p_number[78];
         }
-        __asm
-        {
-          vmovss  xmm8, dword ptr [r15+4]
-          vmovss  xmm7, dword ptr [r15]
-          vmovss  xmm10, dword ptr [r15+8]
-          vsubss  xmm0, xmm9, xmm8
-          vmulss  xmm1, xmm0, xmm0
-          vsubss  xmm2, xmm5, xmm7
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vsubss  xmm3, xmm6, xmm10
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm2, xmm13
-        }
-        if ( v44 )
+        v22 = vOrigin->v[1];
+        v23 = vOrigin->v[0];
+        v24 = vOrigin->v[2];
+        if ( (float)((float)((float)((float)(v21 - v22) * (float)(v21 - v22)) + (float)((float)(v20 - v23) * (float)(v20 - v23))) + (float)((float)(v17 - v24) * (float)(v17 - v24))) < (float)(boundsRadius * boundsRadius) )
           break;
-        __asm
-        {
-          vmulss  xmm4, xmm11, dword ptr [rsi]
-          vmulss  xmm3, xmm11, dword ptr [rsi+4]
-          vmulss  xmm2, xmm11, dword ptr [rsi+8]
-          vaddss  xmm1, xmm4, xmm7
-          vmovss  dword ptr [rsp+180h+start], xmm1
-          vaddss  xmm1, xmm3, xmm8
-          vmovss  dword ptr [rsp+180h+start+4], xmm1
-          vaddss  xmm1, xmm2, xmm10
-          vaddss  xmm0, xmm4, xmm5
-          vmovss  dword ptr [rsp+180h+start+8], xmm1
-          vmovss  dword ptr [rsp+180h+end], xmm0
-          vaddss  xmm1, xmm3, xmm9
-          vaddss  xmm0, xmm2, xmm6
-          vmovss  dword ptr [rsp+180h+end+4], xmm1
-          vmovss  dword ptr [rsp+180h+end+8], xmm0
-        }
+        v25 = 10.0 * normal->v[0];
+        v26 = 10.0 * normal->v[1];
+        v27 = 10.0 * normal->v[2];
+        start.v[0] = v25 + v23;
+        start.v[1] = v26 + v22;
+        start.v[2] = v27 + v24;
+        end.v[0] = v25 + v20;
+        end.v[1] = v26 + v21;
+        end.v[2] = v27 + v17;
         if ( !PhysicsQuery_LegacySightTrace(PHYSICS_WORLD_ID_FIRST, &start, &end, &bounds_origin, 2047, 2047, traceMask & 0xFDFFBFFF) )
           break;
       }
-      if ( ++v25 >= v23 )
-        goto LABEL_9;
+      if ( ++v13 >= v12 )
+        goto LABEL_8;
     }
     Profile_EndInternal(NULL);
-    result = _RBX;
+    return node;
   }
-  _R11 = &v96;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-  }
-  return result;
 }
 
 /*
@@ -12594,25 +10320,21 @@ Path_NodeActorAngleYawOffset
 */
 float Path_NodeActorAngleYawOffset(const pathnode_t *node)
 {
+  int v2; 
+
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8110, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( ((1 << LOBYTE(node->constant.type)) & 0xC0) != 0 )
+  v2 = 1 << LOBYTE(node->constant.type);
+  if ( (v2 & 0xC0) != 0 )
   {
-    __asm { vmovss  xmm2, cs:__real@c2b40000 }
-    _ECX = 0;
-    _EAX = (1 << LOBYTE(node->constant.type)) & 0x80;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@42b40000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-    }
+    _XMM0 = (unsigned __int8)v2 & 0x80;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_90_0);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(_XMM0) = 0;
   }
   return *(float *)&_XMM0;
 }
@@ -12624,14 +10346,7 @@ Path_NodeCompareCost
 */
 __int64 Path_NodeCompareCost(const void *node0, const void *node1)
 {
-  _RAX = *(_QWORD *)node0;
-  _RCX = *(_QWORD *)node1;
-  __asm
-  {
-    vcvttss2si eax, dword ptr [rax+0B0h]
-    vcvttss2si edx, dword ptr [rcx+0B0h]
-  }
-  return (unsigned int)(_RAX - _EDX);
+  return (unsigned int)((int)*(float *)(*(_QWORD *)node0 + 176i64) - (int)*(float *)(*(_QWORD *)node1 + 176i64));
 }
 
 /*
@@ -12649,61 +10364,34 @@ __int64 Path_NodeCount()
 Path_NodeExposedToPoint
 ==============
 */
-__int64 Path_NodeExposedToPoint(const pathnode_t *node, const vec3_t *point, int exposeFlags)
+_BOOL8 Path_NodeExposedToPoint(const pathnode_t *node, const vec3_t *point, int exposeFlags)
 {
-  __int64 result; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
   vec3_t pos; 
   vec2_t vec; 
+  float v16; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  _RBX = point;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
+  v6 = point->v[0] - pos.v[0];
+  v8 = LODWORD(point->v[1]);
+  v7 = point->v[1] - pos.v[1];
+  v9 = point->v[2] - pos.v[2];
+  *(float *)&v8 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v9 * v9));
+  _XMM7 = v8;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm4, xmm0, dword ptr [rsp+78h+pos]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+78h+pos+4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm6, xmm0, dword ptr [rsp+78h+pos+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm7, xmm2, xmm2
     vcmpless xmm0, xmm7, cs:__real@80000000
     vblendvps xmm0, xmm7, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+78h+vec], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  [rsp+78h+var_40], xmm0
-    vmovss  dword ptr [rsp+78h+vec+4], xmm1
   }
+  vec.v[0] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  v16 = v9 * (float)(1.0 / *(float *)&_XMM0);
+  vec.v[1] = v7 * (float)(1.0 / *(float *)&_XMM0);
   *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm { vmovaps xmm1, xmm0; yaw }
-  Path_NodeExposureGetRawMax(node, *(float *)&_XMM1, exposeFlags);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@42c80000
-    vcomiss xmm1, xmm7
-  }
-  result = 1i64;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return result;
+  *(float *)&v8 = (float)Path_NodeExposureGetRawMax(node, *(float *)&_XMM0, exposeFlags);
+  return (float)(*(float *)&v8 * 100.0) >= *(float *)&_XMM7;
 }
 
 /*
@@ -12711,76 +10399,72 @@ __int64 Path_NodeExposedToPoint(const pathnode_t *node, const vec3_t *point, int
 Path_NodeExposedToPoint_Fast
 ==============
 */
-__int64 Path_NodeExposedToPoint_Fast(const pathnode_t *node, const vec3_t *nodeWorldOrigin, const vec3_t *point, const int exposeFlags)
+_BOOL8 Path_NodeExposedToPoint_Fast(const pathnode_t *node, const vec3_t *nodeWorldOrigin, const vec3_t *point, const int exposeFlags)
 {
-  __int128 v59; 
-  char v62; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v17; 
+  __int128 v21; 
+  __int128 v24; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RDI = point;
-  __asm { vmovaps [rsp+68h+var_38], xmm8 }
-  if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8487, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node", v59) )
+  if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8487, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
+  v9 = LODWORD(point->v[0]);
+  *(float *)&v9 = point->v[0] - nodeWorldOrigin->v[0];
+  v8 = v9;
+  v10 = point->v[2] - nodeWorldOrigin->v[2];
+  v12 = LODWORD(point->v[1]);
+  *(float *)&v12 = point->v[1] - nodeWorldOrigin->v[1];
+  v11 = *(float *)&v12;
+  v14 = v12 & _xmm;
+  *(float *)&v14 = *(float *)&v14 + 1.0e-10;
+  v13 = v14;
+  _XMM5 = 0i64;
+  v17 = v8;
+  *(float *)&v17 = *(float *)&v8 + *(float *)&v13;
+  _XMM4 = v17;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm8, xmm0, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm7, xmm0, dword ptr [rsi+8]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm6, xmm1, dword ptr [rsi+4]
-    vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm3, xmm0, cs:__real@2edbe6ff
-    vxorps  xmm5, xmm5, xmm5
-    vaddss  xmm4, xmm8, xmm3
-    vsubss  xmm1, xmm8, xmm3
     vcmpless xmm0, xmm5, xmm8
     vblendvps xmm2, xmm4, xmm1, xmm0
-    vsubss  xmm1, xmm3, xmm8
-    vcmpless xmm0, xmm5, xmm8
-    vblendvps xmm0, xmm1, xmm4, xmm0
-    vdivss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm3, cs:__real@3e4902de
-    vmulss  xmm2, xmm1, xmm3
-    vsubss  xmm0, xmm2, cs:__real@3f7b50b1
-    vmovss  xmm1, cs:__real@3f490fdb
-    vmulss  xmm4, xmm0, xmm3
-    vmovss  xmm0, cs:__real@4016cbe4
-    vcmpless xmm2, xmm5, xmm8
-    vblendvps xmm1, xmm0, xmm1, xmm2
-    vaddss  xmm3, xmm4, xmm1
-    vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
-    vcmpless xmm0, xmm5, xmm6
-    vblendvps xmm0, xmm2, xmm3, xmm0
-    vmulss  xmm4, xmm0, cs:__real@42652ee0
-    vmovss  xmm0, cs:__real@43b40000
-    vcmpless xmm1, xmm5, xmm4
-    vblendvps xmm1, xmm0, xmm5, xmm1
-    vaddss  xmm1, xmm1, xmm4; yaw
   }
-  Path_NodeExposureGetRawMax(node, *(float *)&_XMM1, exposeFlags);
-  _R11 = &v62;
+  v21 = v13;
+  *(float *)&v21 = *(float *)&v13 - *(float *)&v8;
+  _XMM1 = v21;
   __asm
   {
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmulss  xmm0, xmm8, xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vaddss  xmm2, xmm1, xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vmulss  xmm1, xmm7, xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm3, xmm0, cs:__real@461c4000
-    vaddss  xmm4, xmm2, xmm1
-    vcomiss xmm3, xmm4
+    vcmpless xmm0, xmm5, xmm8
+    vblendvps xmm0, xmm1, xmm4, xmm0
   }
-  return 1i64;
+  v24 = _XMM2;
+  *(float *)&v24 = (float)((float)((float)((float)(*(float *)&_XMM2 / *(float *)&_XMM0) * 0.1963) * (float)(*(float *)&_XMM2 / *(float *)&_XMM0)) - 0.9817) * (float)(*(float *)&_XMM2 / *(float *)&_XMM0);
+  _XMM0 = LODWORD(FLOAT_2_3561945);
+  __asm
+  {
+    vcmpless xmm2, xmm5, xmm8
+    vblendvps xmm1, xmm0, xmm1, xmm2
+  }
+  *(float *)&v24 = *(float *)&v24 + *(float *)&_XMM1;
+  _XMM2 = v24 ^ _xmm;
+  __asm
+  {
+    vcmpless xmm0, xmm5, xmm6
+    vblendvps xmm0, xmm2, xmm3, xmm0
+  }
+  *(float *)&_XMM4 = *(float *)&_XMM0 * 57.295776;
+  _XMM0 = LODWORD(FLOAT_360_0);
+  __asm
+  {
+    vcmpless xmm1, xmm5, xmm4
+    vblendvps xmm1, xmm0, xmm5, xmm1
+  }
+  *(float *)&v13 = (float)Path_NodeExposureGetRawMax(node, *(float *)&_XMM1 + *(float *)&_XMM4, exposeFlags);
+  return (float)((float)(*(float *)&v13 * *(float *)&v13) * 10000.0) >= (float)((float)((float)(v11 * v11) + (float)(*(float *)&v8 * *(float *)&v8)) + (float)(v10 * v10));
 }
 
 /*
@@ -12829,14 +10513,10 @@ Path_NodeExposureGetRangeArcMax
 */
 float Path_NodeExposureGetRangeArcMax(const pathnode_t *node, float arcYaw, float coneAngle, int exposeFlags)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  Path_NodeExposureGetRawArcMax(node, arcYaw, coneAngle, exposeFlags);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@42c80000
-  }
-  return *(float *)&_XMM0;
+  float RawArcMax; 
+
+  RawArcMax = (float)Path_NodeExposureGetRawArcMax(node, arcYaw, coneAngle, exposeFlags);
+  return RawArcMax * 100.0;
 }
 
 /*
@@ -12846,14 +10526,10 @@ Path_NodeExposureGetRangeArcSum
 */
 float Path_NodeExposureGetRangeArcSum(const pathnode_t *node, float arcYaw, float coneAngle, int exposeFlags)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  Path_NodeExposureGetRawArcSum(node, arcYaw, coneAngle, exposeFlags);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@42c80000
-  }
-  return *(float *)&_XMM0;
+  float RawArcSum; 
+
+  RawArcSum = (float)Path_NodeExposureGetRawArcSum(node, arcYaw, coneAngle, exposeFlags);
+  return RawArcSum * 100.0;
 }
 
 /*
@@ -12863,14 +10539,10 @@ Path_NodeExposureGetRangeMax
 */
 float Path_NodeExposureGetRangeMax(const pathnode_t *node, float yaw, int exposeFlags)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  Path_NodeExposureGetRawMax(node, yaw, exposeFlags);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@42c80000
-  }
-  return *(float *)&_XMM0;
+  float RawMax; 
+
+  RawMax = (float)Path_NodeExposureGetRawMax(node, yaw, exposeFlags);
+  return RawMax * 100.0;
 }
 
 /*
@@ -12881,109 +10553,80 @@ Path_NodeExposureGetRawArcMax
 
 __int64 __fastcall Path_NodeExposureGetRawArcMax(const pathnode_t *node, double arcYaw, float coneAngle, int exposeFlags)
 {
-  unsigned int v12; 
-  char v13; 
-  unsigned int v21; 
+  unsigned int v4; 
+  char v5; 
+  float v6; 
+  __int128 v7; 
+  __int128 v8; 
+  unsigned int v10; 
   unsigned __int8 *pathExposure; 
-  unsigned int v23; 
-  __int64 v32; 
-  __int64 v33; 
-  unsigned int v34; 
-  unsigned int v35; 
-  unsigned int v36; 
-  bool v37; 
-  __int64 result; 
-  void *retaddr; 
+  unsigned int v12; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  __int128 v20; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v12 = 0;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm7 }
-  v13 = exposeFlags;
-  __asm
+  v4 = 0;
+  v5 = exposeFlags;
+  v6 = *(float *)&arcYaw + coneAngle;
+  v8 = *(_OWORD *)&arcYaw;
+  *(float *)&v8 = *(float *)&arcYaw - coneAngle;
+  v7 = v8;
+  if ( (float)(*(float *)&arcYaw - coneAngle) <= (float)(*(float *)&arcYaw + coneAngle) )
   {
-    vaddss  xmm7, xmm1, xmm2
-    vsubss  xmm6, xmm1, xmm2
-    vcomiss xmm6, xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm8, cs:__real@42340000
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm9, cs:__real@3b360b61
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovss  xmm10, cs:__real@3f000000
-    vmovaps [rsp+0B8h+var_88], xmm11
-    vmovss  xmm11, cs:__real@c3b40000
-  }
-  do
-  {
-    v21 = Path_ExposureSizeNodes();
-    if ( pathData.pathExposure && pathData.exposureBytes < (int)Path_ExposureSizeNodes() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8149, ASSERT_TYPE_ASSERT, "(!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() )))", (const char *)&queryFormat, "!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() ))") )
-      __debugbreak();
-    pathExposure = pathData.pathExposure;
-    v23 = 0;
-    if ( pathData.pathExposure )
+    do
     {
-      __asm
-      {
-        vmulss  xmm4, xmm6, xmm9
-        vaddss  xmm1, xmm4, xmm10
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm2, xmm0, xmm1
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm11
-        vcvttss2si eax, xmm1
-      }
-      v32 = 33 * Path_ConvertNodeToIndex(node) + (180 - _EAX) / 0x2Du;
-      if ( (unsigned int)v32 >= v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
+      v10 = Path_ExposureSizeNodes();
+      if ( pathData.pathExposure && pathData.exposureBytes < (int)Path_ExposureSizeNodes() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8149, ASSERT_TYPE_ASSERT, "(!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() )))", (const char *)&queryFormat, "!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() ))") )
         __debugbreak();
-      v33 = (unsigned int)(v32 + 24);
-      if ( (unsigned int)v33 >= v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
-        __debugbreak();
-      if ( (v13 & 1) != 0 )
-        v23 = pathExposure[v32];
-      if ( (v13 & 2) != 0 )
+      pathExposure = pathData.pathExposure;
+      v12 = 0;
+      if ( pathData.pathExposure )
       {
-        v34 = pathExposure[(unsigned int)(v32 + 8)];
-        if ( v23 > v34 )
-          v34 = v23;
-        v23 = v34;
+        _XMM1 = 0i64;
+        __asm { vroundss xmm3, xmm1, xmm2, 1 }
+        v15 = 33 * Path_ConvertNodeToIndex(node) + (180 - (int)(float)((float)((float)(*(float *)&v7 * 0.0027777778) - *(float *)&_XMM3) * -360.0)) / 0x2Du;
+        if ( (unsigned int)v15 >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
+          __debugbreak();
+        v16 = (unsigned int)(v15 + 24);
+        if ( (unsigned int)v16 >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
+          __debugbreak();
+        if ( (v5 & 1) != 0 )
+          v12 = pathExposure[v15];
+        if ( (v5 & 2) != 0 )
+        {
+          v17 = pathExposure[(unsigned int)(v15 + 8)];
+          if ( v12 > v17 )
+            v17 = v12;
+          v12 = v17;
+        }
+        if ( (v5 & 4) != 0 )
+        {
+          v18 = pathExposure[(unsigned int)(v15 + 16)];
+          if ( v12 > v18 )
+            v18 = v12;
+          v12 = v18;
+        }
+        if ( (v5 & 8) != 0 )
+        {
+          v19 = pathExposure[v16];
+          if ( v12 > v19 )
+            v19 = v12;
+          v12 = v19;
+        }
       }
-      if ( (v13 & 4) != 0 )
-      {
-        v35 = pathExposure[(unsigned int)(v32 + 16)];
-        if ( v23 > v35 )
-          v35 = v23;
-        v23 = v35;
-      }
-      if ( (v13 & 8) != 0 )
-      {
-        v36 = pathExposure[v33];
-        if ( v23 > v36 )
-          v36 = v23;
-        v23 = v36;
-      }
+      v20 = v7;
+      *(float *)&v20 = *(float *)&v7 + 45.0;
+      v7 = v20;
+      if ( v4 > v12 )
+        v12 = v4;
+      v4 = v12;
     }
-    v37 = v12 <= v23;
-    __asm { vaddss  xmm6, xmm6, xmm8 }
-    if ( v12 > v23 )
-      v23 = v12;
-    __asm { vcomiss xmm6, xmm7 }
-    v12 = v23;
+    while ( *(float *)&v20 <= v6 );
   }
-  while ( v37 );
-  __asm
-  {
-    vmovaps xmm11, [rsp+0B8h+var_88]
-    vmovaps xmm10, [rsp+0B8h+var_78]
-    vmovaps xmm9, [rsp+0B8h+var_68]
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm6, [rsp+0B8h+var_38]
-  }
-  result = v23;
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-  return result;
+  return v4;
 }
 
 /*
@@ -12994,22 +10637,80 @@ Path_NodeExposureGetRawArcMin
 
 __int64 __fastcall Path_NodeExposureGetRawArcMin(const pathnode_t *node, double arcYaw, float coneAngle, int exposeFlags)
 {
-  __int64 result; 
-  void *retaddr; 
+  char v4; 
+  float v6; 
+  __int128 v7; 
+  __int128 v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  unsigned __int8 *pathExposure; 
+  unsigned int v12; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  __int128 v20; 
 
-  _RAX = &retaddr;
-  __asm
+  v4 = exposeFlags;
+  v6 = *(float *)&arcYaw + coneAngle;
+  v8 = *(_OWORD *)&arcYaw;
+  *(float *)&v8 = *(float *)&arcYaw - coneAngle;
+  v7 = v8;
+  v9 = 255;
+  if ( (float)(*(float *)&arcYaw - coneAngle) <= (float)(*(float *)&arcYaw + coneAngle) )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vaddss  xmm7, xmm1, xmm2
-    vsubss  xmm6, xmm1, xmm2
-    vcomiss xmm6, xmm7
-    vmovaps xmm6, [rsp+0B8h+var_38]
+    do
+    {
+      v10 = Path_ExposureSizeNodes();
+      if ( pathData.pathExposure && pathData.exposureBytes < (int)Path_ExposureSizeNodes() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8149, ASSERT_TYPE_ASSERT, "(!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() )))", (const char *)&queryFormat, "!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() ))") )
+        __debugbreak();
+      pathExposure = pathData.pathExposure;
+      v12 = 0;
+      if ( pathData.pathExposure )
+      {
+        _XMM1 = 0i64;
+        __asm { vroundss xmm3, xmm1, xmm2, 1 }
+        v15 = 33 * Path_ConvertNodeToIndex(node) + (180 - (int)(float)((float)((float)(*(float *)&v7 * 0.0027777778) - *(float *)&_XMM3) * -360.0)) / 0x2Du;
+        if ( (unsigned int)v15 >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
+          __debugbreak();
+        v16 = (unsigned int)(v15 + 24);
+        if ( (unsigned int)v16 >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
+          __debugbreak();
+        if ( (v4 & 1) != 0 )
+          v12 = pathExposure[v15];
+        if ( (v4 & 2) != 0 )
+        {
+          v17 = pathExposure[(unsigned int)(v15 + 8)];
+          if ( v12 > v17 )
+            v17 = v12;
+          v12 = v17;
+        }
+        if ( (v4 & 4) != 0 )
+        {
+          v18 = pathExposure[(unsigned int)(v15 + 16)];
+          if ( v12 > v18 )
+            v18 = v12;
+          v12 = v18;
+        }
+        if ( (v4 & 8) != 0 )
+        {
+          v19 = pathExposure[v16];
+          if ( v12 > v19 )
+            v19 = v12;
+          v12 = v19;
+        }
+      }
+      v20 = v7;
+      *(float *)&v20 = *(float *)&v7 + 45.0;
+      v7 = v20;
+      if ( v12 > v9 )
+        v12 = v9;
+      v9 = v12;
+    }
+    while ( *(float *)&v20 <= v6 );
   }
-  result = 255i64;
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-  return result;
+  return v9;
 }
 
 /*
@@ -13020,110 +10721,78 @@ Path_NodeExposureGetRawArcSum
 
 __int64 __fastcall Path_NodeExposureGetRawArcSum(const pathnode_t *node, double arcYaw, float coneAngle, int exposeFlags)
 {
-  unsigned int v12; 
-  char v13; 
-  unsigned int v21; 
+  unsigned int v4; 
+  char v5; 
+  float v6; 
+  __int128 v7; 
+  __int128 v8; 
+  unsigned int v10; 
   unsigned __int8 *pathExposure; 
-  unsigned int v23; 
-  __int64 v32; 
-  __int64 v33; 
-  unsigned int v34; 
-  unsigned int v35; 
-  unsigned int v36; 
-  bool v37; 
-  __int64 result; 
-  void *retaddr; 
+  unsigned int v12; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  __int128 v20; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v12 = 0;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm7 }
-  v13 = exposeFlags;
-  __asm
+  v4 = 0;
+  v5 = exposeFlags;
+  v6 = *(float *)&arcYaw + coneAngle;
+  v8 = *(_OWORD *)&arcYaw;
+  *(float *)&v8 = *(float *)&arcYaw - coneAngle;
+  v7 = v8;
+  if ( (float)(*(float *)&arcYaw - coneAngle) <= (float)(*(float *)&arcYaw + coneAngle) )
   {
-    vaddss  xmm7, xmm1, xmm2
-    vsubss  xmm6, xmm1, xmm2
-    vcomiss xmm6, xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm8, cs:__real@42340000
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm9, cs:__real@3b360b61
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovss  xmm10, cs:__real@3f000000
-    vmovaps [rsp+0B8h+var_88], xmm11
-    vmovss  xmm11, cs:__real@c3b40000
-  }
-  do
-  {
-    v21 = Path_ExposureSizeNodes();
-    if ( pathData.pathExposure && pathData.exposureBytes < (int)Path_ExposureSizeNodes() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8149, ASSERT_TYPE_ASSERT, "(!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() )))", (const char *)&queryFormat, "!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() ))") )
-      __debugbreak();
-    pathExposure = pathData.pathExposure;
-    v23 = 0;
-    if ( pathData.pathExposure )
+    do
     {
-      __asm
-      {
-        vmulss  xmm4, xmm6, xmm9
-        vaddss  xmm1, xmm4, xmm10
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm2, xmm0, xmm1
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm11
-        vcvttss2si eax, xmm1
-      }
-      v32 = 33 * Path_ConvertNodeToIndex(node) + (180 - _EAX) / 0x2Du;
-      if ( (unsigned int)v32 >= v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
+      v10 = Path_ExposureSizeNodes();
+      if ( pathData.pathExposure && pathData.exposureBytes < (int)Path_ExposureSizeNodes() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8149, ASSERT_TYPE_ASSERT, "(!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() )))", (const char *)&queryFormat, "!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() ))") )
         __debugbreak();
-      v33 = (unsigned int)(v32 + 24);
-      if ( (unsigned int)v33 >= v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
-        __debugbreak();
-      if ( (v13 & 1) != 0 )
-        v23 = pathExposure[v32];
-      if ( (v13 & 2) != 0 )
+      pathExposure = pathData.pathExposure;
+      v12 = 0;
+      if ( pathData.pathExposure )
       {
-        v34 = pathExposure[(unsigned int)(v32 + 8)];
-        if ( v23 > v34 )
-          v34 = v23;
-        v23 = v34;
+        _XMM1 = 0i64;
+        __asm { vroundss xmm3, xmm1, xmm2, 1 }
+        v15 = 33 * Path_ConvertNodeToIndex(node) + (180 - (int)(float)((float)((float)(*(float *)&v7 * 0.0027777778) - *(float *)&_XMM3) * -360.0)) / 0x2Du;
+        if ( (unsigned int)v15 >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
+          __debugbreak();
+        v16 = (unsigned int)(v15 + 24);
+        if ( (unsigned int)v16 >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
+          __debugbreak();
+        if ( (v5 & 1) != 0 )
+          v12 = pathExposure[v15];
+        if ( (v5 & 2) != 0 )
+        {
+          v17 = pathExposure[(unsigned int)(v15 + 8)];
+          if ( v12 > v17 )
+            v17 = v12;
+          v12 = v17;
+        }
+        if ( (v5 & 4) != 0 )
+        {
+          v18 = pathExposure[(unsigned int)(v15 + 16)];
+          if ( v12 > v18 )
+            v18 = v12;
+          v12 = v18;
+        }
+        if ( (v5 & 8) != 0 )
+        {
+          v19 = pathExposure[v16];
+          if ( v12 > v19 )
+            v19 = v12;
+          v12 = v19;
+        }
       }
-      if ( (v13 & 4) != 0 )
-      {
-        v35 = pathExposure[(unsigned int)(v32 + 16)];
-        if ( v23 > v35 )
-          v35 = v23;
-        v23 = v35;
-      }
-      if ( (v13 & 8) != 0 )
-      {
-        v36 = pathExposure[v33];
-        if ( v23 > v36 )
-          v36 = v23;
-        v23 = v36;
-      }
+      v4 += v12;
+      v20 = v7;
+      *(float *)&v20 = *(float *)&v7 + 45.0;
+      v7 = v20;
     }
-    v37 = __CFADD__(v23, v12) || v23 + v12 == 0;
-    v12 += v23;
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm8
-      vcomiss xmm6, xmm7
-    }
+    while ( *(float *)&v20 <= v6 );
   }
-  while ( v37 );
-  __asm
-  {
-    vmovaps xmm11, [rsp+0B8h+var_88]
-    vmovaps xmm10, [rsp+0B8h+var_78]
-    vmovaps xmm9, [rsp+0B8h+var_68]
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm6, [rsp+0B8h+var_38]
-  }
-  result = v12;
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-  return result;
+  return v4;
 }
 
 /*
@@ -13131,79 +10800,60 @@ __int64 __fastcall Path_NodeExposureGetRawArcSum(const pathnode_t *node, double 
 Path_NodeExposureGetRawMax
 ==============
 */
-
-__int64 __fastcall Path_NodeExposureGetRawMax(const pathnode_t *node, double yaw, int exposeFlags)
+__int64 Path_NodeExposureGetRawMax(const pathnode_t *node, float yaw, int exposeFlags)
 {
-  char v5; 
-  unsigned int v8; 
+  char v3; 
+  unsigned int v5; 
   unsigned __int8 *pathExposure; 
-  __int64 result; 
-  unsigned int v20; 
-  __int64 v21; 
-  __int64 v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  unsigned int v25; 
+  float v8; 
+  unsigned int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  unsigned int v14; 
+  unsigned int v15; 
+  unsigned int v16; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  v5 = exposeFlags;
-  __asm { vmovaps xmm6, xmm1 }
-  v8 = Path_ExposureSizeNodes();
+  v3 = exposeFlags;
+  v5 = Path_ExposureSizeNodes();
   if ( pathData.pathExposure && pathData.exposureBytes < (int)Path_ExposureSizeNodes() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8149, ASSERT_TYPE_ASSERT, "(!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() )))", (const char *)&queryFormat, "!pathData.pathExposure || (pathData.exposureBytes >= static_cast<int>( Path_ExposureSizeNodes() ))") )
     __debugbreak();
   pathExposure = pathData.pathExposure;
-  if ( pathData.pathExposure )
+  if ( !pathData.pathExposure )
+    return 0i64;
+  v8 = yaw * 0.0027777778;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  v11 = 0;
+  v12 = 33 * Path_ConvertNodeToIndex(node) + (180 - (int)(float)((float)(v8 - *(float *)&_XMM3) * -360.0)) / 0x2Du;
+  if ( (unsigned int)v12 >= v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
+    __debugbreak();
+  v13 = (unsigned int)(v12 + 24);
+  if ( (unsigned int)v13 >= v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
+    __debugbreak();
+  if ( (v3 & 1) != 0 )
+    v11 = pathExposure[v12];
+  if ( (v3 & 2) != 0 )
   {
-    __asm
-    {
-      vmulss  xmm4, xmm6, cs:__real@3b360b61
-      vaddss  xmm1, xmm4, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm2, xmm0, xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vroundss xmm3, xmm1, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, cs:__real@c3b40000
-      vcvttss2si eax, xmm1
-    }
-    v20 = 0;
-    v21 = 33 * Path_ConvertNodeToIndex(node) + (180 - _EAX) / 0x2Du;
-    if ( (unsigned int)v21 >= v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8305, ASSERT_TYPE_ASSERT, "(offset < expSize)", (const char *)&queryFormat, "offset < expSize") )
-      __debugbreak();
-    v22 = (unsigned int)(v21 + 24);
-    if ( (unsigned int)v22 >= v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8306, ASSERT_TYPE_ASSERT, "(( offset + ( ( PATH_EXPOSE_MAX - 1 ) * ( ( uint(8) ) ) ) ) < expSize)", (const char *)&queryFormat, "( offset + ( ( PATH_EXPOSE_MAX - 1 ) * PATH_EXP_STRIDE_STANCE ) ) < expSize") )
-      __debugbreak();
-    if ( (v5 & 1) != 0 )
-      v20 = pathExposure[v21];
-    if ( (v5 & 2) != 0 )
-    {
-      v23 = pathExposure[(unsigned int)(v21 + 8)];
-      if ( v20 > v23 )
-        v23 = v20;
-      v20 = v23;
-    }
-    if ( (v5 & 4) != 0 )
-    {
-      v24 = pathExposure[(unsigned int)(v21 + 16)];
-      if ( v20 > v24 )
-        v24 = v20;
-      v20 = v24;
-    }
-    if ( (v5 & 8) != 0 )
-    {
-      v25 = pathExposure[v22];
-      if ( v20 > v25 )
-        v25 = v20;
-      v20 = v25;
-    }
-    result = v20;
+    v14 = pathExposure[(unsigned int)(v12 + 8)];
+    if ( v11 > v14 )
+      v14 = v11;
+    v11 = v14;
   }
-  else
+  if ( (v3 & 4) != 0 )
   {
-    result = 0i64;
+    v15 = pathExposure[(unsigned int)(v12 + 16)];
+    if ( v11 > v15 )
+      v15 = v11;
+    v11 = v15;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  return result;
+  if ( (v3 & 8) != 0 )
+  {
+    v16 = pathExposure[v13];
+    if ( v11 > v16 )
+      return v11;
+    return v16;
+  }
+  return v11;
 }
 
 /*
@@ -13259,134 +10909,69 @@ __int64 Path_NodeExposureSum360(const pathnode_t *node, path_exposure_e exposeSt
 Path_NodeInOrNearPlayerView
 ==============
 */
-
-bool __fastcall Path_NodeInOrNearPlayerView(const pathnode_t *node, const vec3_t *viewPos, const vec3_t *viewDir, double viewFovDot)
+char Path_NodeInOrNearPlayerView(const pathnode_t *node, const vec3_t *viewPos, const vec3_t *viewDir, float viewFovDot)
 {
   int wLinkCount; 
-  int v14; 
-  __int64 v17; 
+  int v9; 
+  __int64 i; 
+  pathnode_t *v11; 
+  __int128 v12; 
+  __int128 v13; 
+  float v14; 
   gentity_s *Parent; 
-  char v25; 
-  bool result; 
+  float *p_number; 
+  float v17; 
+  __int128 v18; 
+  __int128 v19; 
+  float v20; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_78], xmm11
-    vmovaps xmm11, xmm3
-  }
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 7480, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   wLinkCount = node->dynamic.wLinkCount;
-  v14 = 0;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_28], xmm6
-    vmovaps [rsp+0E8h+var_38], xmm7
-    vmovaps [rsp+0E8h+var_48], xmm8
-    vmovaps [rsp+0E8h+var_58], xmm9
-    vmovaps [rsp+0E8h+var_68], xmm10
-    vmovaps [rsp+0E8h+var_88], xmm12
-  }
+  v9 = 0;
   if ( wLinkCount + 1 <= 0 )
+    return 0;
+  for ( i = 0i64; ; ++i )
   {
-LABEL_13:
-    result = 0;
-  }
-  else
-  {
+    v11 = v9 >= (__int16)wLinkCount ? (pathnode_t *)node : &pathData.nodes[node->constant.Links[i].nodeNum];
+    v12 = LODWORD(v11->constant.vLocalOrigin.v[0]);
+    v13 = LODWORD(v11->constant.vLocalOrigin.v[1]);
+    v14 = v11->constant.vLocalOrigin.v[2];
+    Parent = pathnode_t::GetParent(v11);
+    p_number = (float *)&Parent->s.number;
+    v17 = *(float *)&v12;
+    v18 = v13;
+    if ( Parent )
+    {
+      AnglesToAxis(&Parent->r.currentAngles, &axis);
+      v19 = v12;
+      v17 = (float)((float)((float)(*(float *)&v12 * axis.m[0].v[0]) + (float)(*(float *)&v13 * axis.m[1].v[0])) + (float)(v14 * axis.m[2].v[0])) + p_number[76];
+      *(float *)&v19 = (float)((float)((float)(*(float *)&v12 * axis.m[0].v[1]) + (float)(*(float *)&v13 * axis.m[1].v[1])) + (float)(v14 * axis.m[2].v[1])) + p_number[77];
+      v18 = v19;
+      v14 = (float)((float)((float)(*(float *)&v12 * axis.m[0].v[2]) + (float)(*(float *)&v13 * axis.m[1].v[2])) + (float)(v14 * axis.m[2].v[2])) + p_number[78];
+    }
+    v20 = v17 - viewPos->v[0];
+    v22 = v18;
+    v21 = *(float *)&v18 - viewPos->v[1];
+    v23 = v14 - viewPos->v[2];
+    *(float *)&v22 = fsqrt((float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v23 * v23));
+    _XMM3 = v22;
     __asm
     {
-      vmovss  xmm12, cs:__real@80000000
-      vmovss  xmm10, cs:__real@3f800000
+      vcmpless xmm0, xmm3, xmm12
+      vblendvps xmm0, xmm3, xmm10, xmm0
     }
-    v17 = 0i64;
-    while ( 1 )
-    {
-      _RCX = v14 >= (__int16)wLinkCount ? (pathnode_t *)node : &pathData.nodes[node->constant.Links[v17].nodeNum];
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rcx+20h]
-        vmovss  xmm7, dword ptr [rcx+24h]
-        vmovss  xmm8, dword ptr [rcx+28h]
-      }
-      Parent = pathnode_t::GetParent(_RCX);
-      __asm
-      {
-        vmovaps xmm5, xmm6
-        vmovaps xmm9, xmm7
-      }
-      v25 = 0;
-      if ( Parent )
-      {
-        AnglesToAxis(&Parent->r.currentAngles, &axis);
-        __asm
-        {
-          vmulss  xmm1, xmm8, dword ptr [rsp+0E8h+axis+18h]
-          vmulss  xmm3, xmm6, dword ptr [rsp+0E8h+axis]
-          vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+axis+0Ch]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm3, xmm6, dword ptr [rsp+0E8h+axis+4]
-          vaddss  xmm2, xmm4, xmm1
-          vaddss  xmm5, xmm2, dword ptr [rbp+130h]
-          vmulss  xmm1, xmm8, dword ptr [rsp+0E8h+axis+1Ch]
-          vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+axis+10h]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm3, xmm6, dword ptr [rsp+0E8h+axis+8]
-          vaddss  xmm2, xmm4, xmm1
-          vaddss  xmm9, xmm2, dword ptr [rbp+134h]
-          vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+axis+14h]
-          vmulss  xmm1, xmm8, dword ptr [rsp+0E8h+axis+20h]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vaddss  xmm8, xmm2, dword ptr [rbp+138h]
-        }
-      }
-      __asm
-      {
-        vsubss  xmm6, xmm5, dword ptr [r15]
-        vsubss  xmm4, xmm9, dword ptr [r15+4]
-        vsubss  xmm7, xmm8, dword ptr [r15+8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
-        vcmpless xmm0, xmm3, xmm12
-        vblendvps xmm0, xmm3, xmm10, xmm0
-        vdivss  xmm5, xmm10, xmm0
-        vmulss  xmm0, xmm5, xmm4
-        vmulss  xmm3, xmm0, dword ptr [r14+4]
-        vmulss  xmm1, xmm5, xmm6
-        vmulss  xmm2, xmm1, dword ptr [r14]
-        vmulss  xmm0, xmm5, xmm7
-        vmulss  xmm1, xmm0, dword ptr [r14+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vcomiss xmm2, xmm11
-      }
-      if ( !v25 )
-        break;
-      wLinkCount = node->dynamic.wLinkCount;
-      ++v14;
-      ++v17;
-      if ( v14 >= wLinkCount + 1 )
-        goto LABEL_13;
-    }
-    result = 1;
+    if ( (float)((float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * v21) * viewDir->v[1]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v20) * viewDir->v[0])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v23) * viewDir->v[2])) >= viewFovDot )
+      break;
+    wLinkCount = node->dynamic.wLinkCount;
+    if ( ++v9 >= wLinkCount + 1 )
+      return 0;
   }
-  __asm
-  {
-    vmovaps xmm12, [rsp+0E8h+var_88]
-    vmovaps xmm10, [rsp+0E8h+var_68]
-    vmovaps xmm9, [rsp+0E8h+var_58]
-    vmovaps xmm8, [rsp+0E8h+var_48]
-    vmovaps xmm7, [rsp+0E8h+var_38]
-    vmovaps xmm6, [rsp+0E8h+var_28]
-    vmovaps xmm11, [rsp+0E8h+var_78]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -13403,8 +10988,7 @@ bool Path_NodeSafeFrom(const pathnode_t *node0, const pathnode_t *node1)
   if ( ((1 << LOBYTE(node0->constant.type)) & 0x806400FC) == 0 )
     return 0;
   pathnode_t::GetPos((pathnode_t *)node1, &pos);
-  __asm { vmovss  xmm2, cs:__real@3f000000; dotLimit }
-  return Path_IsNodeFacingToward(node0, &pos, *(float *)&_XMM2);
+  return Path_IsNodeFacingToward(node0, &pos, 0.5);
 }
 
 /*
@@ -13420,10 +11004,9 @@ bool Path_NodeSafeFrom(const pathnode_t *pNode, const tacpoint_t *pPoint)
     __debugbreak();
   if ( !TacGraph_HasVis(pPoint, pNode) )
     return 1;
-  if ( ((1 << LOBYTE(pNode->constant.type)) & 0x806400FC) == 0 )
-    return 0;
-  __asm { vmovss  xmm2, cs:__real@3f000000; dotLimit }
-  return Path_IsNodeFacingToward(pNode, &pPoint->m_Pos, *(float *)&_XMM2);
+  if ( ((1 << LOBYTE(pNode->constant.type)) & 0x806400FC) != 0 )
+    return Path_IsNodeFacingToward(pNode, &pPoint->m_Pos, 0.5);
+  return 0;
 }
 
 /*
@@ -13554,70 +11137,57 @@ int Path_NodesInCylinder(const vec3_t *origin, const vec3_t *enemyPos, float max
 Path_NodesInCylinder
 ==============
 */
-
-__int64 __fastcall Path_NodesInCylinder(const vec3_t *origin, const vec3_t *enemyPos, double maxDist, double maxHeight, pathsort_s *nodes, int maxNodes, int typeFlags, bool allowDontLinkNodes)
+__int64 Path_NodesInCylinder(const vec3_t *origin, const vec3_t *enemyPos, float maxDist, float maxHeight, pathsort_s *nodes, int maxNodes, int typeFlags, bool allowDontLinkNodes)
 {
-  pathsort_s *v18; 
+  float v8; 
+  pathsort_s *v9; 
   int nodeCount; 
-  signed int v28; 
-  __int64 v29; 
-  pathnode_t *v31; 
-  int v33; 
-  __int64 v34; 
+  signed int v12; 
+  __int64 v13; 
+  pathsort_s *v14; 
+  pathnode_t *v15; 
+  float v16; 
+  int v17; 
+  __int64 v18; 
   __int64 parentIndex; 
-  __int64 v90; 
-  __int64 v91; 
+  gentity_s *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int64 v28; 
+  __int64 v29; 
   float outDistSq; 
-  pathsort_s *v93; 
-  const vec3_t *v94; 
+  pathsort_s *v31; 
+  const vec3_t *v32; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx] }
-  v18 = nodes;
-  v94 = origin;
-  _R12 = enemyPos;
-  v93 = nodes;
-  __asm
-  {
-    vmovss  dword ptr cs:g_path.circle.origin, xmm0
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr cs:g_path.circle.origin+4, xmm1
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr cs:g_path.circle.origin+8, xmm0
-  }
+  v8 = origin->v[0];
+  v9 = nodes;
+  v32 = origin;
+  v31 = nodes;
+  g_path.circle.origin.v[0] = v8;
+  *(_QWORD *)&g_path.circle.origin.y = *(_QWORD *)&origin->y;
   if ( enemyPos )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vmovss  dword ptr cs:g_path.circle.enemyPos, xmm0
-      vmovss  xmm1, dword ptr [rdx+4]
-      vmovss  dword ptr cs:g_path.circle.enemyPos+4, xmm1
-    }
+    g_path.circle.enemyPos = *(vec2_t *)enemyPos->v;
     g_path.circle.checkEnemyPos = 1;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr cs:g_path.circle.enemyPos, xmm0
-      vmovss  dword ptr cs:g_path.circle.enemyPos+4, xmm0
-    }
+    g_path.circle.enemyPos.v[0] = 0.0;
+    g_path.circle.enemyPos.v[1] = 0.0;
     g_path.circle.checkEnemyPos = 0;
   }
   nodeCount = 0;
   if ( pathData.nodeTree )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmovss  cs:g_path.circle.maxDistSq, xmm0
-      vmovss  cs:g_path.circle.maxHeightSq, xmm1
-      vmovss  cs:g_path.circle.maxDist, xmm2
-    }
+    g_path.circle.maxDistSq = maxDist * maxDist;
+    g_path.circle.maxHeightSq = maxHeight * maxHeight;
+    g_path.circle.maxDist = maxDist;
     g_path.circle.typeFlags = typeFlags;
     g_path.circle.nodes = nodes;
     g_path.circle.maxNodes = maxNodes;
@@ -13625,64 +11195,49 @@ __int64 __fastcall Path_NodesInCylinder(const vec3_t *origin, const vec3_t *enem
     Path_NodesInCylinder_r(pathData.nodeTree, allowDontLinkNodes);
     nodeCount = g_path.circle.nodeCount;
   }
-  v28 = g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount;
-  if ( v28 < 0 )
-    LOWORD(v28) = 0;
-  if ( (unsigned __int16)v28 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) )
+  v12 = g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount;
+  if ( v12 < 0 )
+    LOWORD(v12) = 0;
+  if ( (unsigned __int16)v12 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) )
   {
-    v29 = nodeCount;
-    _RSI = &v93[nodeCount];
+    v13 = nodeCount;
+    v14 = &v31[nodeCount];
     do
     {
-      if ( v29 >= maxNodes )
+      if ( v13 >= maxNodes )
         break;
-      if ( Path_NodeValid(v28) )
+      if ( Path_NodeValid(v12) )
       {
-        v31 = &pathData.nodes[(unsigned __int16)v28];
-        if ( Path_NodesInCylinder_Evaluate(v31, &outDistSq, 1, allowDontLinkNodes) )
+        v15 = &pathData.nodes[(unsigned __int16)v12];
+        if ( Path_NodesInCylinder_Evaluate(v15, &outDistSq, 1, allowDontLinkNodes) )
         {
-          __asm { vmovss  xmm0, [rsp+178h+outDistSq] }
+          v16 = outDistSq;
           ++nodeCount;
-          _RSI->node = v31;
-          ++v29;
-          __asm { vmovss  dword ptr [rsi+8], xmm0 }
-          ++_RSI;
+          v14->node = v15;
+          ++v13;
+          v14->metric = v16;
+          ++v14;
         }
       }
-      LOWORD(v28) = v28 + 1;
+      LOWORD(v12) = v12 + 1;
     }
-    while ( (unsigned __int16)v28 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
-    v18 = v93;
+    while ( (unsigned __int16)v12 < (signed int)(g_path.actualNodeCount - pathData.zoneCount) );
+    v9 = v31;
   }
   if ( pathData.dynamicNodeGroupCount > 0 && pathData.parentIndexResolved )
   {
-    v33 = 0;
+    v17 = 0;
     if ( pathData.dynamicNodeGroupCount > 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+178h+var_48], xmm6
-        vmovaps [rsp+178h+var_58], xmm7
-        vmovaps [rsp+178h+var_68], xmm8
-        vmovaps [rsp+178h+var_78], xmm9
-      }
-      v34 = 0i64;
-      __asm
-      {
-        vmovaps [rsp+178h+var_88], xmm10
-        vmovaps [rsp+178h+var_98], xmm11
-        vmovaps [rsp+178h+var_A8], xmm12
-        vmovaps [rsp+178h+var_B8], xmm13
-        vmovaps [rsp+178h+var_C8], xmm14
-      }
+      v18 = 0i64;
       do
       {
-        parentIndex = pathData.dynamicNodeGroups[v34].parentIndex;
+        parentIndex = pathData.dynamicNodeGroups[v18].parentIndex;
         if ( (unsigned int)parentIndex >= 0x800 )
         {
-          LODWORD(v91) = 2048;
-          LODWORD(v90) = pathData.dynamicNodeGroups[v34].parentIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v90, v91) )
+          LODWORD(v29) = 2048;
+          LODWORD(v28) = pathData.dynamicNodeGroups[v18].parentIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, v29) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -13691,87 +11246,32 @@ __int64 __fastcall Path_NodesInCylinder(const vec3_t *origin, const vec3_t *enem
           __debugbreak();
         if ( !g_entityIsInUse[parentIndex] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5972, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( pathData.dynamicNodeGroups[ iNodeGroup ].parentIndex ))", (const char *)&queryFormat, "G_IsEntityInUse( pathData.dynamicNodeGroups[ iNodeGroup ].parentIndex )") )
           __debugbreak();
-        AnglesToAxis(&g_entities[pathData.dynamicNodeGroups[v34].parentIndex].r.currentAngles, &axis);
+        v20 = &g_entities[pathData.dynamicNodeGroups[v18].parentIndex];
+        AnglesToAxis(&v20->r.currentAngles, &axis);
         MatrixInverse(&axis, &out);
-        _RAX = v94;
-        __asm
+        v21 = v32->v[0] - v20->r.currentOrigin.v[0];
+        v22 = v32->v[1] - v20->r.currentOrigin.v[1];
+        v23 = v32->v[2] - v20->r.currentOrigin.v[2];
+        g_path.circle.origin.v[2] = (float)((float)(v21 * out.m[0].v[2]) + (float)(v22 * out.m[1].v[2])) + (float)(v23 * out.m[2].v[2]);
+        g_path.circle.origin.v[0] = (float)((float)(v21 * out.m[0].v[0]) + (float)(v22 * out.m[1].v[0])) + (float)(v23 * out.m[2].v[0]);
+        g_path.circle.origin.v[1] = (float)((float)(v21 * out.m[0].v[1]) + (float)(v22 * out.m[1].v[1])) + (float)(v23 * out.m[2].v[1]);
+        if ( enemyPos )
         {
-          vmovss  xmm9, dword ptr [rsp+178h+out]
-          vmovss  xmm10, dword ptr [rsp+178h+out+0Ch]
-          vmovss  xmm11, dword ptr [rsp+178h+out+18h]
-          vmovss  xmm0, dword ptr [rax]
-          vsubss  xmm8, xmm0, dword ptr [rbx+130h]
-          vmovss  xmm1, dword ptr [rax+4]
-          vsubss  xmm4, xmm1, dword ptr [rbx+134h]
-          vmovss  xmm0, dword ptr [rax+8]
-          vsubss  xmm7, xmm0, dword ptr [rbx+138h]
-          vmovss  xmm12, dword ptr [rsp+178h+out+4]
-          vmovss  xmm13, dword ptr [rsp+178h+out+10h]
-          vmovss  xmm14, dword ptr [rsp+178h+out+1Ch]
-          vmulss  xmm0, xmm4, xmm10
-          vmulss  xmm1, xmm8, xmm9
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm0, xmm4, xmm13
-          vmulss  xmm1, xmm7, xmm11
-          vaddss  xmm6, xmm2, xmm1
-          vmulss  xmm3, xmm8, xmm12
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm0, xmm4, dword ptr [rsp+178h+out+14h]
-          vmulss  xmm1, xmm7, xmm14
-          vaddss  xmm5, xmm2, xmm1
-          vmulss  xmm2, xmm8, dword ptr [rsp+178h+out+8]
-          vmulss  xmm1, xmm7, dword ptr [rsp+178h+out+20h]
-          vaddss  xmm3, xmm2, xmm0
-          vaddss  xmm4, xmm3, xmm1
-          vmovss  dword ptr cs:g_path.circle.origin+8, xmm4
-          vmovss  dword ptr cs:g_path.circle.origin, xmm6
-          vmovss  dword ptr cs:g_path.circle.origin+4, xmm5
-        }
-        if ( _R12 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r12]
-            vsubss  xmm7, xmm0, dword ptr [rbx+130h]
-            vmovss  xmm1, dword ptr [r12+4]
-            vsubss  xmm4, xmm1, dword ptr [rbx+134h]
-            vmovss  xmm0, dword ptr [r12+8]
-            vsubss  xmm6, xmm0, dword ptr [rbx+138h]
-            vmulss  xmm1, xmm4, xmm10
-            vmulss  xmm2, xmm7, xmm9
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm11
-            vaddss  xmm5, xmm3, xmm0
-            vmulss  xmm1, xmm4, xmm13
-            vmulss  xmm2, xmm7, xmm12
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm14
-            vaddss  xmm4, xmm3, xmm0
-            vmovss  dword ptr cs:g_path.circle.enemyPos+4, xmm4
-            vmovss  dword ptr cs:g_path.circle.enemyPos, xmm5
-          }
+          v24 = enemyPos->v[0] - v20->r.currentOrigin.v[0];
+          v25 = enemyPos->v[1] - v20->r.currentOrigin.v[1];
+          v26 = enemyPos->v[2] - v20->r.currentOrigin.v[2];
+          g_path.circle.enemyPos.v[1] = (float)((float)(v24 * out.m[0].v[1]) + (float)(v25 * out.m[1].v[1])) + (float)(v26 * out.m[2].v[1]);
+          g_path.circle.enemyPos.v[0] = (float)((float)(v24 * out.m[0].v[0]) + (float)(v25 * out.m[1].v[0])) + (float)(v26 * out.m[2].v[0]);
         }
         g_path.circle.nodeCount = 0;
-        g_path.circle.nodes = &v18[nodeCount];
+        g_path.circle.nodes = &v9[nodeCount];
         g_path.circle.maxNodes = maxNodes - nodeCount;
-        Path_NodesInCylinder_r(pathData.dynamicNodeGroups[v34].nodeTree, allowDontLinkNodes);
+        Path_NodesInCylinder_r(pathData.dynamicNodeGroups[v18].nodeTree, allowDontLinkNodes);
         nodeCount += g_path.circle.nodeCount;
-        ++v33;
-        ++v34;
+        ++v17;
+        ++v18;
       }
-      while ( v33 < pathData.dynamicNodeGroupCount );
-      __asm
-      {
-        vmovaps xmm14, [rsp+178h+var_C8]
-        vmovaps xmm13, [rsp+178h+var_B8]
-        vmovaps xmm12, [rsp+178h+var_A8]
-        vmovaps xmm11, [rsp+178h+var_98]
-        vmovaps xmm10, [rsp+178h+var_88]
-        vmovaps xmm9, [rsp+178h+var_78]
-        vmovaps xmm8, [rsp+178h+var_68]
-        vmovaps xmm7, [rsp+178h+var_58]
-        vmovaps xmm6, [rsp+178h+var_48]
-      }
+      while ( v17 < pathData.dynamicNodeGroupCount );
     }
   }
   g_path.circle.nodes = NULL;
@@ -13784,141 +11284,53 @@ __int64 __fastcall Path_NodesInCylinder(const vec3_t *origin, const vec3_t *enem
 Path_NodesInCylinder_Evaluate
 ==============
 */
-bool Path_NodesInCylinder_Evaluate(pathnode_t *pathNode, float *outDistSq, bool bDoHeightCheck, bool allowDontLinkNodes)
+char Path_NodesInCylinder_Evaluate(pathnode_t *pathNode, float *outDistSq, bool bDoHeightCheck, bool allowDontLinkNodes)
 {
-  bool v27; 
-  bool v28; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v11; 
+  float v12; 
+  float v13; 
   unsigned __int16 type; 
-  char v43; 
-  bool result; 
+  float v15; 
   vec3_t angles; 
   vec3_t forward; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm7, dword ptr [rcx+20h]
-    vmovss  xmm8, dword ptr [rcx+24h]
-    vmovss  xmm9, dword ptr [rcx+28h]
-  }
-  _RDI = outDistSq;
-  _RBX = pathNode;
+  v5 = pathNode->constant.vLocalOrigin.v[0];
+  v6 = pathNode->constant.vLocalOrigin.v[1];
+  v7 = pathNode->constant.vLocalOrigin.v[2];
   if ( (unsigned __int16)(pathNode->constant.type - 29) <= 1u && pathNode->constant.target )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm8, dword ptr cs:g_path.circle.origin+4
-      vsubss  xmm2, xmm7, dword ptr cs:g_path.circle.origin
-      vsubss  xmm3, xmm9, dword ptr cs:g_path.circle.origin+8
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-    }
+    v11 = (float)((float)(v6 - g_path.circle.origin.v[1]) * (float)(v6 - g_path.circle.origin.v[1])) + (float)((float)(v5 - g_path.circle.origin.v[0]) * (float)(v5 - g_path.circle.origin.v[0]));
+    v12 = (float)(v7 - g_path.circle.origin.v[2]) * (float)(v7 - g_path.circle.origin.v[2]);
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm1, xmm7, dword ptr cs:g_path.circle.origin
-      vsubss  xmm0, xmm8, dword ptr cs:g_path.circle.origin+4
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm1, xmm1
-    }
+    v11 = (float)(v6 - g_path.circle.origin.v[1]) * (float)(v6 - g_path.circle.origin.v[1]);
+    v12 = (float)(v5 - g_path.circle.origin.v[0]) * (float)(v5 - g_path.circle.origin.v[0]);
   }
-  __asm { vaddss  xmm6, xmm2, xmm1 }
-  v27 = outDistSq == NULL;
-  if ( !outDistSq )
-  {
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5785, ASSERT_TYPE_ASSERT, "(outDistSq)", (const char *)&queryFormat, "outDistSq");
-    v27 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm6
-    vcomiss xmm6, cs:g_path.circle.maxDistSq
-  }
-  if ( !v27 )
-    goto LABEL_20;
-  type = _RBX->constant.type;
-  if ( (g_path.circle.typeFlags & (1 << type)) == 0 || !allowDontLinkNodes && (_RBX->constant.spawnflags & 1) != 0 && (g_path.circle.typeFlags & 1) == 0 )
-    goto LABEL_20;
-  if ( !bDoHeightCheck )
-  {
-    if ( g_path.circle.checkEnemyPos && type != 25 && type != 20 )
-    {
-      if ( ((1 << type) & 0x62700000) != 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+2Ch]
-          vmovss  xmm1, dword ptr [rbx+30h]
-          vmovss  dword ptr [rsp+0A8h+angles], xmm0
-          vmovss  xmm0, dword ptr [rbx+34h]
-          vmovss  dword ptr [rsp+0A8h+angles+8], xmm0
-          vmovss  dword ptr [rsp+0A8h+angles+4], xmm1
-        }
-        AngleVectors(&angles, &forward, NULL, NULL);
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:g_path.circle.enemyPos
-          vmovss  xmm2, dword ptr cs:g_path.circle.enemyPos+4
-          vsubss  xmm1, xmm0, xmm7
-          vmulss  xmm3, xmm1, dword ptr [rsp+0A8h+forward]
-          vsubss  xmm0, xmm2, xmm8
-          vmulss  xmm1, xmm0, dword ptr [rsp+0A8h+forward+4]
-          vaddss  xmm3, xmm3, xmm1
-          vxorps  xmm2, xmm2, xmm2
-          vcomiss xmm3, xmm2
-        }
-        if ( v43 )
-          goto LABEL_20;
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:g_path.circle.enemyPos+4
-          vmovss  xmm2, dword ptr cs:g_path.circle.enemyPos
-          vsubss  xmm1, xmm0, xmm8
-          vmulss  xmm3, xmm1, dword ptr [rbx+34h]
-          vsubss  xmm0, xmm2, xmm7
-          vmulss  xmm1, xmm0, dword ptr [rbx+30h]
-          vaddss  xmm3, xmm3, xmm1
-          vxorps  xmm2, xmm2, xmm2
-          vcomiss xmm3, xmm2
-        }
-      }
-    }
-    result = 1;
-    goto LABEL_21;
-  }
-  __asm
-  {
-    vsubss  xmm0, xmm9, dword ptr cs:g_path.circle.origin+8
-    vmulss  xmm1, xmm0, xmm0
-    vcomiss xmm1, cs:g_path.circle.maxHeightSq
-  }
-LABEL_20:
-  result = 0;
-LABEL_21:
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  v13 = v11 + v12;
+  if ( !outDistSq && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5785, ASSERT_TYPE_ASSERT, "(outDistSq)", (const char *)&queryFormat, "outDistSq") )
+    __debugbreak();
+  *outDistSq = v13;
+  if ( v13 > g_path.circle.maxDistSq )
+    return 0;
+  type = pathNode->constant.type;
+  if ( (g_path.circle.typeFlags & (1 << type)) == 0 || !allowDontLinkNodes && (pathNode->constant.spawnflags & 1) != 0 && (g_path.circle.typeFlags & 1) == 0 )
+    return 0;
+  if ( bDoHeightCheck && (float)((float)(v7 - g_path.circle.origin.v[2]) * (float)(v7 - g_path.circle.origin.v[2])) > g_path.circle.maxHeightSq )
+    return 0;
+  if ( !g_path.circle.checkEnemyPos || type == 25 || type == 20 )
+    return 1;
+  if ( ((1 << type) & 0x62700000) == 0 )
+    return (float)((float)((float)(g_path.circle.enemyPos.v[1] - v6) * pathNode->constant.yaw_orient.localForward.v[1]) + (float)((float)(g_path.circle.enemyPos.v[0] - v5) * pathNode->constant.yaw_orient.localForward.v[0])) >= 0.0;
+  v15 = pathNode->constant.yaw_orient.localForward.v[0];
+  angles.v[0] = pathNode->constant.yaw_orient.fLocalAngle;
+  angles.v[2] = pathNode->constant.yaw_orient.localForward.v[1];
+  angles.v[1] = v15;
+  AngleVectors(&angles, &forward, NULL, NULL);
+  return (float)((float)((float)(g_path.circle.enemyPos.v[0] - v5) * forward.v[0]) + (float)((float)(g_path.circle.enemyPos.v[1] - v6) * forward.v[1])) >= 0.0;
 }
 
 /*
@@ -13929,92 +11341,59 @@ Path_NodesInCylinder_r
 void Path_NodesInCylinder_r(pathnode_tree_t *tree, bool allowDontLinkNodes)
 {
   unsigned int axis; 
-  pathnode_tree_t *v5; 
-  bool v8; 
-  bool v9; 
-  bool v10; 
+  pathnode_tree_t *v4; 
+  float v5; 
   unsigned __int16 *nodes; 
+  bool v7; 
   int i; 
-  pathnode_t *v20; 
-  __int64 v24; 
-  __int64 v25; 
+  pathnode_t *v9; 
+  float v10; 
+  __int64 v11; 
+  __int64 v12; 
   float outDistSq; 
 
   axis = tree->axis;
-  v5 = tree;
+  v4 = tree;
   if ( tree->axis >= 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+68h+var_28], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    _RSI = &g_path.circle;
     while ( 1 )
     {
-      v8 = axis < 3;
-      v9 = axis <= 3;
       if ( axis >= 3 )
       {
-        LODWORD(v25) = 3;
-        LODWORD(v24) = axis;
-        v10 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25);
-        v8 = 0;
-        v9 = !v10;
-        if ( v10 )
+        LODWORD(v12) = 3;
+        LODWORD(v11) = axis;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      __asm { vmovss  xmm2, cs:g_path.circle.maxDist }
-      _RAX = (int)axis;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rax*4]
-        vsubss  xmm1, xmm0, dword ptr [rbx+4]
-        vcomiss xmm1, xmm2
-      }
-      if ( !v9 )
-        goto LABEL_10;
-      __asm
-      {
-        vxorps  xmm0, xmm2, xmm6
-        vcomiss xmm1, xmm0
-      }
-      if ( !v8 )
+      v5 = g_path.circle.origin.v[axis] - v4->dist;
+      if ( v5 > g_path.circle.maxDist )
+        goto LABEL_9;
+      if ( v5 >= COERCE_FLOAT(LODWORD(g_path.circle.maxDist) ^ _xmm) )
         break;
-      v5 = v5->u.child[0];
-LABEL_11:
-      axis = v5->axis;
-      if ( v5->axis < 0 )
-      {
-        __asm { vmovaps xmm6, [rsp+68h+var_28] }
-        goto LABEL_13;
-      }
-    }
-    Path_NodesInCylinder_r(v5->u.child[0], allowDontLinkNodes);
+      v4 = v4->u.child[0];
 LABEL_10:
-    v5 = v5->u.child[1];
-    goto LABEL_11;
+      axis = v4->axis;
+      if ( v4->axis < 0 )
+        goto LABEL_11;
+    }
+    Path_NodesInCylinder_r(v4->u.child[0], allowDontLinkNodes);
+LABEL_9:
+    v4 = v4->u.child[1];
+    goto LABEL_10;
   }
-LABEL_13:
-  __asm
+LABEL_11:
+  nodes = v4->u.s.nodes;
+  v7 = g_path.circle.maxHeightSq < 1.0e12;
+  for ( i = 0; i < v4->u.s.nodeCount; ++nodes )
   {
-    vmovss  xmm0, cs:g_path.circle.maxHeightSq
-    vcomiss xmm0, cs:__real@5368d4a5
-  }
-  nodes = v5->u.s.nodes;
-  for ( i = 0; i < v5->u.s.nodeCount; ++nodes )
-  {
-    v20 = &pathData.nodes[*nodes];
-    if ( Path_NodesInCylinder_Evaluate(v20, &outDistSq, 0, allowDontLinkNodes) )
+    v9 = &pathData.nodes[*nodes];
+    if ( Path_NodesInCylinder_Evaluate(v9, &outDistSq, v7, allowDontLinkNodes) )
     {
       if ( g_path.circle.nodeCount == g_path.circle.maxNodes )
         return;
-      __asm { vmovss  xmm0, [rsp+68h+outDistSq] }
-      g_path.circle.nodes[g_path.circle.nodeCount].node = v20;
-      _RAX = g_path.circle.nodes;
-      _RCX = 2i64 * g_path.circle.nodeCount;
-      __asm { vmovss  dword ptr [rax+rcx*8+8], xmm0 }
-      ++g_path.circle.nodeCount;
+      v10 = outDistSq;
+      g_path.circle.nodes[g_path.circle.nodeCount].node = v9;
+      g_path.circle.nodes[g_path.circle.nodeCount++].metric = v10;
     }
     ++i;
   }
@@ -14025,15 +11404,9 @@ LABEL_13:
 Path_NodesInRadius
 ==============
 */
-
-int __fastcall Path_NodesInRadius(const vec3_t *origin, double maxDist, pathsort_s *nodes, int maxNodes, int typeFlags)
+int Path_NodesInRadius(const vec3_t *origin, float maxDist, pathsort_s *nodes, int maxNodes, int typeFlags)
 {
-  __asm
-  {
-    vmovss  xmm3, cs:__real@4e6e6b28; maxHeight
-    vmovaps xmm2, xmm1; maxDist
-  }
-  return Path_NodesInCylinder(origin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, nodes, maxNodes, typeFlags, 0);
+  return Path_NodesInCylinder(origin, NULL, maxDist, 1000000000.0, nodes, maxNodes, typeFlags, 0);
 }
 
 /*
@@ -14041,15 +11414,9 @@ int __fastcall Path_NodesInRadius(const vec3_t *origin, double maxDist, pathsort
 Path_NodesInRadius
 ==============
 */
-
-int __fastcall Path_NodesInRadius(const vec3_t *origin, double maxDist, pathsort_s *nodes, int maxNodes, int typeFlags, bool allowDontLinkNodes)
+int Path_NodesInRadius(const vec3_t *origin, float maxDist, pathsort_s *nodes, int maxNodes, int typeFlags, bool allowDontLinkNodes)
 {
-  __asm
-  {
-    vmovss  xmm3, cs:__real@4e6e6b28; maxHeight
-    vmovaps xmm2, xmm1; maxDist
-  }
-  return Path_NodesInCylinder(origin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, nodes, maxNodes, typeFlags, allowDontLinkNodes);
+  return Path_NodesInCylinder(origin, NULL, maxDist, 1000000000.0, nodes, maxNodes, typeFlags, allowDontLinkNodes);
 }
 
 /*
@@ -14193,47 +11560,36 @@ Path_NonNegativeFloat
 */
 void Path_NonNegativeFloat(scrContext_t *scrContext, pathnode_t *node, int offset)
 {
-  __int64 v6; 
-  char v10; 
+  __int64 v4; 
+  double Float; 
+  float v7; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
   const char *v11; 
   const char *v12; 
-  const char *v13; 
-  const char *v14; 
-  const char *v15; 
 
-  _RSI = node;
-  __asm { vmovaps [rsp+48h+var_28], xmm6 }
-  v6 = offset;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  v4 = offset;
+  Float = Scr_GetFloat(scrContext, 0);
+  v7 = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 )
   {
-    vmovaps xmm6, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v10 )
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( _RSI->constant.targetname )
+    v7 = 0.0;
+    if ( node->constant.targetname )
     {
-      v11 = SL_ConvertToString(*fields_2[v6].name);
-      v12 = j_va("pathnode property '%s' must be non-negative\n", v11);
-      Scr_Error(COM_ERR_2466, scrContext, v12);
+      v8 = SL_ConvertToString(*fields_2[v4].name);
+      v9 = j_va("pathnode property '%s' must be non-negative\n", v8);
+      Scr_Error(COM_ERR_2466, scrContext, v9);
     }
     else
     {
-      v13 = SL_ConvertToString((scr_string_t)0);
-      v14 = SL_ConvertToString(*fields_2[v6].name);
-      v15 = j_va("pathnode property '%s' must be non-negative for pathnode '%s'\n", v14, v13);
-      Scr_Error(COM_ERR_2467, scrContext, v15);
+      v10 = SL_ConvertToString((scr_string_t)0);
+      v11 = SL_ConvertToString(*fields_2[v4].name);
+      v12 = j_va("pathnode property '%s' must be non-negative for pathnode '%s'\n", v11, v10);
+      Scr_Error(COM_ERR_2467, scrContext, v12);
     }
   }
-  _RAX = fields_2[v6].ofs;
-  __asm
-  {
-    vmovss  dword ptr [rsi+rax], xmm6
-    vmovaps xmm6, [rsp+48h+var_28]
-  }
+  *(float *)((char *)&node->constant.spawnflags + fields_2[v4].ofs) = v7;
 }
 
 /*
@@ -14475,18 +11831,11 @@ void Path_PostSpawnInitPaths(bool snapNodesToMesh, bool bSaveLoad)
 Path_PostStep
 ==============
 */
-
-void __fastcall Path_PostStep(double _XMM0_8)
+void Path_PostStep(void)
 {
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm0, xmm0, cs:__real@3a83126f; seconds
-  }
-  Nav_SystemSimulate(*(float *)&_XMM0);
+  Nav_SystemSimulate((float)level.frameDuration * 0.001);
 }
 
 /*
@@ -15336,23 +12685,44 @@ Path_SpawnNode
 */
 __int64 Path_SpawnNode(const vec3_t *origin, const vec3_t *angles, int nodeType, unsigned int additionalSpawnflags, const scr_string_t targetname, const scr_string_t parentname)
 {
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
   unsigned int v9; 
   const vec3_t *v11; 
   unsigned __int16 v12; 
   unsigned __int16 v14; 
   pathnode_t *v16; 
   __int64 v17; 
+  gentity_s *Parent; 
+  __int64 *p_vLocalOrigin; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
   unsigned __int64 SpawnedNodeIndex; 
-  __int64 v47; 
-  __int64 v48; 
-  const vec3_t *v50; 
+  __int64 v35; 
+  __int64 v36; 
+  const vec3_t *v38; 
   tmat33_t<vec3_t> mat; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
 
   v9 = 0;
   v11 = angles;
   v12 = LOWORD(g_path.actualNodeCount) - LOWORD(pathData.zoneCount) - LOWORD(pathData.maxDynamicSpawnedNodeCount);
-  v50 = angles;
-  _R13 = origin;
+  v38 = angles;
   if ( (signed int)(g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount) < 0 )
     v12 = 0;
   v14 = v12 + LOWORD(pathData.maxDynamicSpawnedNodeCount);
@@ -15372,9 +12742,9 @@ __int64 Path_SpawnNode(const vec3_t *origin, const vec3_t *angles, int nodeType,
     {
       if ( v9 >= 0x800 )
       {
-        LODWORD(v48) = 2048;
-        LODWORD(v47) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v47, v48) )
+        LODWORD(v36) = 2048;
+        LODWORD(v35) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v35, v36) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -15389,70 +12759,52 @@ __int64 Path_SpawnNode(const vec3_t *origin, const vec3_t *angles, int nodeType,
     }
     v16->constant.parent.index = v9;
 LABEL_23:
-    v11 = v50;
+    v11 = v38;
   }
   Scr_SetString(&v16->constant.targetname, targetname);
   v16->constant.spawnflags |= additionalSpawnflags;
   if ( (unsigned int)nodeType >= 0x20 )
   {
-    LODWORD(v48) = 32;
-    LODWORD(v47) = nodeType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1797, ASSERT_TYPE_ASSERT, "(unsigned)( nodeType ) < (unsigned)( NODE_NUMTYPES )", "nodeType doesn't index NODE_NUMTYPES\n\t%i not in [0, %i)", v47, v48) )
+    LODWORD(v36) = 32;
+    LODWORD(v35) = nodeType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1797, ASSERT_TYPE_ASSERT, "(unsigned)( nodeType ) < (unsigned)( NODE_NUMTYPES )", "nodeType doesn't index NODE_NUMTYPES\n\t%i not in [0, %i)", v35, v36) )
       __debugbreak();
   }
   v16->constant.type = nodeType;
-  _RAX = pathnode_t::GetParent(v16);
-  _RDI = (__int64 *)&v16->constant.vLocalOrigin;
-  __asm { vmovss  xmm0, dword ptr [r13+0] }
-  if ( _RAX )
+  Parent = pathnode_t::GetParent(v16);
+  p_vLocalOrigin = (__int64 *)&v16->constant.vLocalOrigin;
+  v20 = origin->v[0];
+  if ( Parent )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r13+8]
-      vmovaps [rsp+0F8h+var_48], xmm6
-      vsubss  xmm6, xmm0, dword ptr [rax+130h]
-      vmovss  xmm0, dword ptr [r13+4]
-      vmovaps [rsp+0F8h+var_58], xmm7
-      vsubss  xmm7, xmm0, dword ptr [rax+134h]
-      vmovss  xmm0, dword ptr [rax+140h]
-      vmovaps [rsp+0F8h+var_68], xmm8
-      vsubss  xmm8, xmm1, dword ptr [rax+138h]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; degrees
-    }
-    MatrixRotationZ(&mat, *(float *)&_XMM1);
-    if ( &v50 == (const vec3_t **)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    v22 = origin->v[2];
+    v42 = v6;
+    v23 = v20 - Parent->r.currentOrigin.v[0];
+    v24 = origin->v[1];
+    v41 = v7;
+    v25 = v24 - Parent->r.currentOrigin.v[1];
+    v26 = Parent->r.currentAngles.v[1];
+    v40 = v8;
+    v27 = v22 - Parent->r.currentOrigin.v[2];
+    MatrixRotationZ(&mat, COERCE_FLOAT(LODWORD(v26) ^ _xmm));
+    if ( &v38 == (const vec3_t **)p_vLocalOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
-    {
-      vmulss  xmm3, xmm7, dword ptr [rsp+0F8h+mat+0Ch]
-      vmulss  xmm2, xmm6, dword ptr [rsp+0F8h+mat]
-      vmulss  xmm1, xmm8, dword ptr [rsp+0F8h+mat+18h]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm7, dword ptr [rsp+0F8h+mat+10h]
-      vaddss  xmm2, xmm4, xmm1
-      vmulss  xmm1, xmm8, dword ptr [rsp+0F8h+mat+1Ch]
-      vmovss  dword ptr [rdi], xmm2
-      vmulss  xmm2, xmm6, dword ptr [rsp+0F8h+mat+4]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm7, dword ptr [rsp+0F8h+mat+14h]
-      vmovaps xmm7, [rsp+0F8h+var_58]
-      vaddss  xmm2, xmm4, xmm1
-      vmulss  xmm1, xmm8, dword ptr [rsp+0F8h+mat+20h]
-      vmovaps xmm8, [rsp+0F8h+var_68]
-      vmovss  dword ptr [rdi+4], xmm2
-      vmulss  xmm2, xmm6, dword ptr [rsp+0F8h+mat+8]
-      vmovaps xmm6, [rsp+0F8h+var_48]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, xmm1
-    }
+    v28 = v25 * mat.m[1].v[1];
+    v29 = v27 * mat.m[2].v[1];
+    *(float *)p_vLocalOrigin = (float)((float)(v25 * mat.m[1].v[0]) + (float)(v23 * mat.m[0].v[0])) + (float)(v27 * mat.m[2].v[0]);
+    v30 = v28 + (float)(v23 * mat.m[0].v[1]);
+    v31 = v25 * mat.m[1].v[2];
+    v32 = v30 + v29;
+    v33 = v27 * mat.m[2].v[2];
+    v16->constant.vLocalOrigin.v[1] = v32;
+    v21 = (float)(v31 + (float)(v23 * mat.m[0].v[2])) + v33;
   }
   else
   {
-    __asm { vmovss  dword ptr [rdi], xmm0 }
-    v16->constant.vLocalOrigin.v[1] = _R13->v[1];
-    __asm { vmovss  xmm0, dword ptr [r13+8] }
+    *(float *)p_vLocalOrigin = v20;
+    v16->constant.vLocalOrigin.v[1] = origin->v[1];
+    v21 = origin->v[2];
   }
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
+  v16->constant.vLocalOrigin.v[2] = v21;
   pathnode_t::SetWorldAngles(v16, v11);
   SpawnedNodeIndex = (unsigned __int16)Path_GetSpawnedNodeIndex(v12);
   if ( SpawnedNodeIndex >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 159, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
@@ -15526,128 +12878,56 @@ void Path_SpawnZoneNodes(void)
 Path_TrajectoryCanAttemptAccurateJump
 ==============
 */
-__int64 Path_TrajectoryCanAttemptAccurateJump(const vec3_t *fromPoint, const vec3_t *fromNormal, const vec3_t *toPoint, const vec3_t *toNormal, float gravity, float speedScale, PathJumpLinkWorkData *workData)
+_BOOL8 Path_TrajectoryCanAttemptAccurateJump(const vec3_t *fromPoint, const vec3_t *fromNormal, const vec3_t *toPoint, const vec3_t *toNormal, float gravity, float speedScale, PathJumpLinkWorkData *workData)
 {
-  char v52; 
-  __int64 result; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  float v18; 
+  float v19; 
+  _BOOL8 result; 
   vec3_t gravityVector; 
   vec3_t returnVector; 
   trace_t results; 
-  char v61; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm8
-  }
-  _RBX = workData;
-  _RSI = toNormal;
-  _RBP = fromNormal;
   if ( !workData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10726, ASSERT_TYPE_ASSERT, "(workData)", (const char *)&queryFormat, "workData") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, cs:__real@41b80000
-    vmovss  xmm8, [rsp+0E8h+gravity]
-  }
   *(_QWORD *)workData->pointA.v = *(_QWORD *)fromPoint->v;
   workData->pointA.v[2] = fromPoint->v[2];
   workData->pointB = *toPoint;
-  __asm
-  {
-    vmulss  xmm0, xmm5, dword ptr [rbp+0]
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm3, dword ptr [rbp+8]
-    vmovss  xmm2, dword ptr [rbp+4]
-    vmovss  dword ptr [rbx], xmm1
-    vmulss  xmm2, xmm5, xmm2
-    vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm0
-    vmulss  xmm1, xmm5, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm2
-    vmulss  xmm1, xmm5, dword ptr [rsi]
-    vaddss  xmm2, xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm3, dword ptr [rsi+4]
-    vmovss  xmm4, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+0Ch], xmm2
-    vmulss  xmm0, xmm5, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rbx+10h]
-    vmulss  xmm2, xmm5, xmm4
-    vmovss  dword ptr [rbx+10h], xmm1
-    vaddss  xmm0, xmm2, dword ptr [rbx+14h]
-    vmovaps xmm2, xmm8; gravity
-    vmovss  dword ptr [rbx+14h], xmm0
-  }
-  *(double *)&_XMM0 = TrajectoryCalculateMinimumVelocity(&workData->pointA, &workData->pointB, *(const float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm2, xmm0, [rsp+0E8h+speedScale]; velocity
-    vmovaps xmm3, xmm8; gravity
-  }
-  *(double *)&_XMM0 = TrajectoryEstimateDesiredInAirTime(&workData->pointA, &workData->pointB, *(const float *)&_XMM2, *(const float *)&_XMM3);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+0E8h+gravityVector], xmm2
-    vmovss  dword ptr [rsp+0E8h+gravityVector+4], xmm2
-    vxorps  xmm2, xmm8, cs:__xmm@80000000800000008000000080000000
-    vmovaps xmm3, xmm0; totalTime
-    vmovss  dword ptr [rsp+0E8h+gravityVector+8], xmm2
-    vmovaps xmm6, xmm0
-  }
-  TrajectoryCalculateInitialVelocity(&workData->pointA, &workData->pointB, &gravityVector, *(const float *)&_XMM3, &returnVector);
-  __asm
-  {
-    vmulss  xmm2, xmm6, cs:__real@3f000000; time
-    vmovss  xmm0, dword ptr [rsp+0E8h+returnVector+8]; verticalVelocity
-    vmovaps xmm1, xmm8; gravity
-  }
-  *(double *)&_XMM0 = TrajectoryComputeDeltaHeightAtTime(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2);
-  __asm
-  {
-    vaddss  xmm4, xmm0, dword ptr [rbx+8]
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmulss  xmm3, xmm1, cs:__real@3f000000
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmulss  xmm2, xmm1, cs:__real@3f000000
-    vmovss  dword ptr [rbx+18h], xmm2
-    vmovss  dword ptr [rbx+1Ch], xmm3
-    vmovss  dword ptr [rbx+20h], xmm4
-  }
+  v11 = fromNormal->v[2];
+  v12 = fromNormal->v[1];
+  workData->pointA.v[0] = (float)(23.0 * fromNormal->v[0]) + workData->pointA.v[0];
+  workData->pointA.v[1] = (float)(23.0 * v12) + workData->pointA.v[1];
+  workData->pointA.v[2] = (float)(23.0 * v11) + workData->pointA.v[2];
+  v13 = toNormal->v[1];
+  v14 = toNormal->v[2];
+  workData->pointB.v[0] = (float)(23.0 * toNormal->v[0]) + workData->pointB.v[0];
+  workData->pointB.v[1] = (float)(23.0 * v13) + workData->pointB.v[1];
+  workData->pointB.v[2] = (float)(23.0 * v14) + workData->pointB.v[2];
+  v15 = TrajectoryCalculateMinimumVelocity(&workData->pointA, &workData->pointB, gravity);
+  v16 = TrajectoryEstimateDesiredInAirTime(&workData->pointA, &workData->pointB, *(float *)&v15 * speedScale, gravity);
+  gravityVector.v[0] = 0.0;
+  gravityVector.v[1] = 0.0;
+  LODWORD(gravityVector.v[2]) = LODWORD(gravity) ^ _xmm;
+  TrajectoryCalculateInitialVelocity(&workData->pointA, &workData->pointB, &gravityVector, *(const float *)&v16, &returnVector);
+  v17 = TrajectoryComputeDeltaHeightAtTime(returnVector.v[2], gravity, *(float *)&v16 * 0.5);
+  v18 = *(float *)&v17 + workData->pointA.v[2];
+  v19 = (float)(workData->pointB.v[1] + workData->pointA.v[1]) * 0.5;
+  workData->pointCenter.v[0] = (float)(workData->pointB.v[0] + workData->pointA.v[0]) * 0.5;
+  workData->pointCenter.v[1] = v19;
+  workData->pointCenter.v[2] = v18;
   G_Main_TraceCapsule(&results, &workData->pointA, &workData->pointCenter, &pathConnectJumpActorBox, 2047, 529);
-  __asm
+  result = 0;
+  if ( results.fraction >= 1.0 && !results.startsolid && !results.allsolid )
   {
-    vmovss  xmm0, [rsp+0E8h+results.fraction]
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm0, xmm6
-  }
-  if ( v52 )
-    goto LABEL_11;
-  if ( results.startsolid )
-    goto LABEL_11;
-  if ( results.allsolid )
-    goto LABEL_11;
-  G_Main_TraceCapsule(&results, &workData->pointCenter, &workData->pointB, &pathConnectJumpActorBox, 2047, 529);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0E8h+results.fraction]
-    vcomiss xmm0, xmm6
-  }
-  if ( v52 || results.startsolid || results.allsolid )
-LABEL_11:
-    result = 0i64;
-  else
-    result = 1i64;
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
+    G_Main_TraceCapsule(&results, &workData->pointCenter, &workData->pointB, &pathConnectJumpActorBox, 2047, 529);
+    if ( results.fraction >= 1.0 && !results.startsolid && !results.allsolid )
+      return 1;
   }
   return result;
 }
@@ -15821,71 +13101,62 @@ __int64 Path_ZoneCount()
 Path_ZoneGetIndoorPercent
 ==============
 */
-
-float __fastcall Path_ZoneGetIndoorPercent(int zoneNum, double _XMM1_8)
+float Path_ZoneGetIndoorPercent(int zoneNum)
 {
+  int v2; 
+  signed int v3; 
   int v4; 
-  signed int v5; 
-  int v6; 
-  unsigned __int16 v7; 
-  unsigned int v8; 
-  int v9; 
-  __int64 v16; 
-  __int64 v17; 
+  unsigned __int16 v5; 
+  unsigned int v6; 
+  int v7; 
+  __int64 v9; 
+  __int64 v10; 
 
   if ( !pathData.usePathExtraData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2670, ASSERT_TYPE_ASSERT, "( Path_UsePathExtraData() )", (const char *)&queryFormat, "Path_UsePathExtraData()") )
     __debugbreak();
   if ( zoneNum == 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2671, ASSERT_TYPE_ASSERT, "( zoneNum != 255 )", (const char *)&queryFormat, "zoneNum != PATH_INVALID_ZONE") )
     __debugbreak();
+  v2 = 0;
+  v3 = g_path.actualNodeCount - pathData.zoneCount;
   v4 = 0;
-  v5 = g_path.actualNodeCount - pathData.zoneCount;
-  v6 = 0;
-  v7 = 0;
+  v5 = 0;
   if ( (signed int)(g_path.actualNodeCount - pathData.zoneCount) > 0 )
   {
-    v8 = 0;
+    v6 = 0;
     do
     {
-      if ( Path_NodeValid(v7) )
+      if ( Path_NodeValid(v5) )
       {
         if ( pathData.pathZones )
         {
-          if ( v8 >= pathData.zonesBytes )
+          if ( v6 >= pathData.zonesBytes )
           {
-            LODWORD(v17) = pathData.zonesBytes;
-            LODWORD(v16) = v8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8510, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( pathData.zonesBytes )", "nodeIndex doesn't index pathData.zonesBytes\n\t%i not in [0, %i)", v16, v17) )
+            LODWORD(v10) = pathData.zonesBytes;
+            LODWORD(v9) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8510, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( pathData.zonesBytes )", "nodeIndex doesn't index pathData.zonesBytes\n\t%i not in [0, %i)", v9, v10) )
               __debugbreak();
           }
-          v9 = pathData.pathZones[v8];
+          v7 = pathData.pathZones[v6];
         }
         else
         {
-          v9 = 255;
+          v7 = 255;
         }
-        if ( v9 == zoneNum )
+        if ( v7 == zoneNum )
         {
-          if ( Path_IsNodeIndexExposedSkyBase(v8, 0) )
-            ++v6;
-          else
+          if ( Path_IsNodeIndexExposedSkyBase(v6, 0) )
             ++v4;
+          else
+            ++v2;
         }
       }
-      v8 = ++v7;
+      v6 = ++v5;
     }
-    while ( v7 < v5 );
+    while ( v5 < v3 );
   }
-  if ( v6 + v4 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2692, ASSERT_TYPE_ASSERT, "((numIndoor + numOutdoor > 0))", "%s\n\tEmpty zone", "(numIndoor + numOutdoor > 0)") )
+  if ( v4 + v2 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 2692, ASSERT_TYPE_ASSERT, "((numIndoor + numOutdoor > 0))", "%s\n\tEmpty zone", "(numIndoor + numOutdoor > 0)") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, esi
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm0, xmm1, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)v2 / (float)(v4 + v2);
 }
 
 /*
@@ -15917,93 +13188,85 @@ PrintPathNodeError
 */
 void PrintPathNodeError(const pathnode_t *node)
 {
-  scr_string_t name; 
+  float v2; 
+  PathNodeParentUnion v3; 
+  const char *v4; 
+  PathNodeParentUnion v5; 
   const char *v6; 
-  PathNodeParentUnion v7; 
-  const char *v8; 
+  const char *v7; 
+  char *v8; 
   const char *v9; 
-  char *v10; 
-  const char *v11; 
+  const char *v10; 
+  __int64 v11; 
   const char *v12; 
-  __int64 v13; 
-  const char *v14; 
   scr_string_t ParentNameFromParentIndex; 
+  const char *v14; 
+  const char *v15; 
   const char *v16; 
   const char *v17; 
-  const char *v18; 
-  const char *v19; 
-  unsigned __int16 v20; 
-  __int64 v21; 
+  unsigned __int16 v18; 
+  __int64 v19; 
   __int128 v; 
 
-  _RBP = (pathnode_t *)node;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 484, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( (_RBP->constant.spawnflags & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 485, ASSERT_TYPE_ASSERT, "(node->constant.spawnflags & PNF_ERROR)", (const char *)&queryFormat, "node->constant.spawnflags & PNF_ERROR") )
+  if ( (node->constant.spawnflags & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 485, ASSERT_TYPE_ASSERT, "(node->constant.spawnflags & PNF_ERROR)", (const char *)&queryFormat, "node->constant.spawnflags & PNF_ERROR") )
     __debugbreak();
-  if ( _RBP->constant.error >= (unsigned int)NUM_PATH_NODE_ERRORS )
+  if ( node->constant.error >= (unsigned int)NUM_PATH_NODE_ERRORS )
   {
-    LODWORD(v21) = _RBP->constant.error;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 486, ASSERT_TYPE_ASSERT, "(unsigned)( node->constant.error ) < (unsigned)( NUM_PATH_NODE_ERRORS )", "node->constant.error doesn't index NUM_PATH_NODE_ERRORS\n\t%i not in [0, %i)", v21, 11) )
+    LODWORD(v19) = node->constant.error;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 486, ASSERT_TYPE_ASSERT, "(unsigned)( node->constant.error ) < (unsigned)( NUM_PATH_NODE_ERRORS )", "node->constant.error doesn't index NUM_PATH_NODE_ERRORS\n\t%i not in [0, %i)", v19, 11) )
       __debugbreak();
   }
-  if ( !Nav_MeshLoaded() && !Nav_MeshWillBeLoaded() || _RBP->constant.error != PNERR_NOLINK )
+  if ( !Nav_MeshLoaded() && !Nav_MeshWillBeLoaded() || node->constant.error != PNERR_NOLINK )
   {
-    if ( !_RBP->constant.parent.index || pathData.parentIndexResolved )
+    if ( !node->constant.parent.index || pathData.parentIndexResolved )
     {
-      pathnode_t::GetPos(_RBP, (vec3_t *)&v);
-      if ( (unsigned int)GetParentNameFromParentIndex(_RBP) )
+      pathnode_t::GetPos((pathnode_t *)node, (vec3_t *)&v);
+      if ( (unsigned int)GetParentNameFromParentIndex(node) )
       {
-        ParentNameFromParentIndex = (unsigned int)GetParentNameFromParentIndex(_RBP);
-        v14 = SL_ConvertToString(ParentNameFromParentIndex);
+        ParentNameFromParentIndex = (unsigned int)GetParentNameFromParentIndex(node);
+        v12 = SL_ConvertToString(ParentNameFromParentIndex);
       }
       else
       {
-        v14 = (char *)&queryFormat.fmt + 3;
+        v12 = (char *)&queryFormat.fmt + 3;
       }
-      v16 = "Parent:";
-      if ( !(unsigned int)GetParentNameFromParentIndex(_RBP) )
-        v16 = (char *)&queryFormat.fmt + 3;
-      v17 = pathNodeErrorStrTable[_RBP->constant.error];
-      v18 = vtos((const vec3_t *)&v);
-      v19 = nodeStringTable[_RBP->constant.type];
-      v20 = Path_ConvertNodeToIndex(_RBP);
-      Com_PrintError(18, "ERROR: Pathnode %d (%s) at %s %s. %s%s\n", v20, v19, v18, v17, v16, v14);
+      v14 = "Parent:";
+      if ( !(unsigned int)GetParentNameFromParentIndex(node) )
+        v14 = (char *)&queryFormat.fmt + 3;
+      v15 = pathNodeErrorStrTable[node->constant.error];
+      v16 = vtos((const vec3_t *)&v);
+      v17 = nodeStringTable[node->constant.type];
+      v18 = Path_ConvertNodeToIndex(node);
+      Com_PrintError(18, "ERROR: Pathnode %d (%s) at %s %s. %s%s\n", v18, v17, v16, v15, v14, v12);
     }
     else
     {
-      __asm
+      v2 = node->constant.vLocalOrigin.v[1];
+      v3.name = (scr_string_t)node->constant.parent;
+      *(float *)&v = node->constant.vLocalOrigin.v[0];
+      DWORD2(v) = LODWORD(node->constant.vLocalOrigin.v[2]);
+      *((float *)&v + 1) = v2;
+      if ( v3.name )
       {
-        vmovss  xmm0, dword ptr [rbp+20h]
-        vmovss  xmm1, dword ptr [rbp+24h]
-      }
-      name = _RBP->constant.parent.name;
-      __asm
-      {
-        vmovss  dword ptr [rsp+88h+v], xmm0
-        vmovss  xmm0, dword ptr [rbp+28h]
-        vmovss  dword ptr [rsp+88h+v+8], xmm0
-        vmovss  dword ptr [rsp+88h+v+4], xmm1
-      }
-      if ( name )
-      {
-        v8 = SL_ConvertToString(name);
-        v7.name = (scr_string_t)_RBP->constant.parent;
-        v6 = v8;
+        v6 = SL_ConvertToString(v3.name);
+        v5.name = (scr_string_t)node->constant.parent;
+        v4 = v6;
       }
       else
       {
-        v6 = (char *)&queryFormat.fmt + 3;
-        v7.name = 0;
+        v4 = (char *)&queryFormat.fmt + 3;
+        v5.name = 0;
       }
-      v9 = pathNodeErrorStrTable[_RBP->constant.error];
-      v10 = vtos((const vec3_t *)&v);
-      v11 = nodeStringTable[_RBP->constant.type];
-      v12 = "Parent:";
-      v13 = Path_ConvertNodeToIndex(_RBP);
-      if ( !v7.name )
-        v12 = (char *)&queryFormat.fmt + 3;
-      Com_PrintError(18, "ERROR: Pathnode %d (%s) at local pos %s %s. %s%s\n", v13, v11, v10, v9, v12, v6, v);
+      v7 = pathNodeErrorStrTable[node->constant.error];
+      v8 = vtos((const vec3_t *)&v);
+      v9 = nodeStringTable[node->constant.type];
+      v10 = "Parent:";
+      v11 = Path_ConvertNodeToIndex(node);
+      if ( !v5.name )
+        v10 = (char *)&queryFormat.fmt + 3;
+      Com_PrintError(18, "ERROR: Pathnode %d (%s) at local pos %s %s. %s%s\n", v11, v9, v8, v7, v10, v4, v);
     }
   }
 }
@@ -16016,72 +13279,79 @@ ReadSpawnedPathNodes
 void ReadSpawnedPathNodes(SaveGame *save)
 {
   MemoryFile *MemoryFile; 
-  __int64 v3; 
-  int v4; 
-  signed int v5; 
+  __int64 v2; 
+  int v3; 
+  signed int v4; 
+  __int64 v5; 
   __int64 v6; 
-  __int64 v7; 
+  pathnode_t *v7; 
+  double Float; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
   const char *CString; 
   scr_string_t String; 
-  unsigned __int16 v11[2]; 
-  unsigned int v12[3]; 
-  char v13; 
-  unsigned __int16 v14; 
+  unsigned __int16 v16[2]; 
+  unsigned int v17[3]; 
+  char v18; 
+  unsigned __int16 v19; 
   int p; 
 
   MemoryFile = SaveMemory_GetMemoryFile(save);
   MemFile_ReadData(MemoryFile, 4ui64, &p);
-  v3 = p;
+  v2 = p;
   if ( pathData.maxDynamicSpawnedNodeCount != p && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 10539, ASSERT_TYPE_ASSERT, "(pathData.maxDynamicSpawnedNodeCount == maxSpawnedCount)", (const char *)&queryFormat, "pathData.maxDynamicSpawnedNodeCount == maxSpawnedCount") )
     __debugbreak();
-  v4 = 0;
-  v5 = g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount;
-  v6 = v3;
-  if ( (int)v3 > 0 )
+  v3 = 0;
+  v4 = g_path.actualNodeCount - pathData.zoneCount - pathData.maxDynamicSpawnedNodeCount;
+  v5 = v2;
+  if ( (int)v2 > 0 )
   {
-    if ( v5 < 0 )
-      v5 = 0;
-    v7 = v5;
+    if ( v4 < 0 )
+      v4 = 0;
+    v6 = v4;
     do
     {
-      MemFile_ReadData(MemoryFile, 1ui64, &v13);
-      if ( v13 )
+      MemFile_ReadData(MemoryFile, 1ui64, &v18);
+      if ( v18 )
       {
-        _RBX = &pathData.nodes[v7];
-        Path_InitSpawnNode(&pathData.nodes[v7]);
-        *(double *)&_XMM0 = MemFile_ReadFloat(MemoryFile);
-        __asm { vmovss  dword ptr [rbx+20h], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(MemoryFile);
-        __asm { vmovss  dword ptr [rbx+24h], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(MemoryFile);
-        __asm { vmovss  dword ptr [rbx+28h], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(MemoryFile);
-        __asm { vmovss  dword ptr [rbx+2Ch], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(MemoryFile);
-        __asm { vmovss  dword ptr [rbx+30h], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(MemoryFile);
-        __asm { vmovss  dword ptr [rbx+34h], xmm0 }
-        MemFile_ReadData(MemoryFile, 4ui64, v11);
-        _RBX->constant.type = v11[0];
-        MemFile_ReadData(MemoryFile, 4ui64, v12);
-        _RBX->constant.spawnflags = v12[0];
-        MemFile_ReadData(MemoryFile, 2ui64, &v14);
-        _RBX->constant.parent.index = v14;
+        v7 = &pathData.nodes[v6];
+        Path_InitSpawnNode(&pathData.nodes[v6]);
+        Float = MemFile_ReadFloat(MemoryFile);
+        v7->constant.vLocalOrigin.v[0] = *(float *)&Float;
+        v9 = MemFile_ReadFloat(MemoryFile);
+        v7->constant.vLocalOrigin.v[1] = *(float *)&v9;
+        v10 = MemFile_ReadFloat(MemoryFile);
+        v7->constant.vLocalOrigin.v[2] = *(float *)&v10;
+        v11 = MemFile_ReadFloat(MemoryFile);
+        v7->constant.yaw_orient.fLocalAngle = *(float *)&v11;
+        v12 = MemFile_ReadFloat(MemoryFile);
+        v7->constant.yaw_orient.localForward.v[0] = *(float *)&v12;
+        v13 = MemFile_ReadFloat(MemoryFile);
+        v7->constant.yaw_orient.localForward.v[1] = *(float *)&v13;
+        MemFile_ReadData(MemoryFile, 4ui64, v16);
+        v7->constant.type = v16[0];
+        MemFile_ReadData(MemoryFile, 4ui64, v17);
+        v7->constant.spawnflags = v17[0];
+        MemFile_ReadData(MemoryFile, 2ui64, &v19);
+        v7->constant.parent.index = v19;
         CString = MemFile_ReadCString(MemoryFile);
         if ( *CString )
           String = SL_GetString(CString, 0);
         else
           String = 0;
-        _RBX->constant.targetname = String;
-        if ( (unsigned __int64)v4 >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 159, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
+        v7->constant.targetname = String;
+        if ( (unsigned __int64)v3 >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 159, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
           __debugbreak();
-        g_path.spawnedNodesValid.m_data[(unsigned __int64)v4 >> 6] = (0x8000000000000000ui64 >> (v4 & 0x3F)) | g_path.spawnedNodesValid.m_data[(unsigned __int64)v4 >> 6] & ~(0x8000000000000000ui64 >> (v4 & 0x3F));
+        g_path.spawnedNodesValid.m_data[(unsigned __int64)v3 >> 6] = (0x8000000000000000ui64 >> (v3 & 0x3F)) | g_path.spawnedNodesValid.m_data[(unsigned __int64)v3 >> 6] & ~(0x8000000000000000ui64 >> (v3 & 0x3F));
       }
-      ++v4;
-      ++v7;
-      --v6;
+      ++v3;
+      ++v6;
+      --v5;
     }
-    while ( v6 );
+    while ( v5 );
   }
 }
 
@@ -16165,91 +13435,61 @@ ScrCmd_GetNodeOffset
 void ScrCmd_GetNodeOffset(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  unsigned __int16 v5; 
-  const char *v6; 
-  ComErrorCode v7; 
-  pathnode_t *v8; 
+  unsigned __int16 v4; 
+  const char *v5; 
+  ComErrorCode v6; 
+  pathnode_t *v7; 
   scr_string_t HighestNodeStance; 
-  ai_stance_e v11; 
+  ai_stance_e v9; 
   unsigned __int16 type; 
+  float v11; 
   vec3_t outEyeOffset; 
   float value; 
+  float v14; 
+  float v15; 
   tmat33_t<vec3_t> axis; 
   vec3_t vector; 
 
   entnum = entref.entnum;
   if ( entref.entclass != ENTITY_CLASS_PATHNODE )
   {
-    v6 = "GetNodeOffset_Code not called on pathnode.";
-    v7 = COM_ERR_6498;
+    v5 = "GetNodeOffset_Code not called on pathnode.";
+    v6 = COM_ERR_6498;
     goto LABEL_15;
   }
   if ( entref.entnum >= g_path.actualNodeCount - pathData.zoneCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5024, ASSERT_TYPE_ASSERT, "(unsigned)( entref.entnum ) < (unsigned)( Path_NodeCount() )", "entref.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", entref.entnum, g_path.actualNodeCount - pathData.zoneCount) )
     __debugbreak();
-  v5 = truncate_cast<unsigned short,unsigned int>(entnum);
-  if ( !Path_NodeValid(v5) )
+  v4 = truncate_cast<unsigned short,unsigned int>(entnum);
+  if ( !Path_NodeValid(v4) )
   {
-    v6 = "GetNodeOffset_Code: called on despawned pathnode.";
-    v7 = COM_ERR_6497;
+    v5 = "GetNodeOffset_Code: called on despawned pathnode.";
+    v6 = COM_ERR_6497;
 LABEL_15:
-    Scr_Error(v7, scrContext, v6);
+    Scr_Error(v6, scrContext, v5);
     return;
   }
-  v8 = &pathData.nodes[entnum];
-  if ( v8->constant.type == 21 )
+  v7 = &pathData.nodes[entnum];
+  if ( v7->constant.type == 21 )
     Scr_Error(COM_ERR_6499, scrContext, "nodes of type NODE_COVER_3D are not currently supported by GetNodeOffset_Code.");
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+57h+value], xmm0
-    vmovss  [rbp+57h+var_4C], xmm0
-    vmovss  [rbp+57h+var_48], xmm0
-  }
-  HighestNodeStance = Path_GetHighestNodeStance(v8);
+  value = 0.0;
+  v14 = 0.0;
+  v15 = 0.0;
+  HighestNodeStance = Path_GetHighestNodeStance(v7);
   if ( !HighestNodeStance )
     HighestNodeStance = scr_const.crouch;
-  v11 = AI_StringToStance(HighestNodeStance);
-  type = v8->constant.type;
+  v9 = AI_StringToStance(HighestNodeStance);
+  type = v7->constant.type;
   if ( type == 31 )
-    type = v8->dynamic.coverMultiType;
-  GetNodeExposedEyeOffset(type, v11, &outEyeOffset);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+57h+outEyeOffset]
-    vmovss  xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmovss  dword ptr [rbp+57h+outEyeOffset], xmm0
-    vmovss  dword ptr [rbp+57h+outEyeOffset+4], xmm1
-  }
-  pathnode_t::GetAngles(v8, &vector);
+    type = v7->dynamic.coverMultiType;
+  GetNodeExposedEyeOffset(type, v9, &outEyeOffset);
+  v11 = outEyeOffset.v[0];
+  outEyeOffset.v[0] = outEyeOffset.v[1];
+  outEyeOffset.v[1] = v11;
+  pathnode_t::GetAngles(v7, &vector);
   AnglesToAxis(&vector, &axis);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+57h+outEyeOffset+8]
-    vmovss  xmm0, dword ptr [rbp+57h+axis]
-    vmulss  xmm2, xmm0, dword ptr [rbp+57h+outEyeOffset]
-    vmovss  xmm1, dword ptr [rbp+57h+axis+0Ch]
-    vmulss  xmm0, xmm1, dword ptr [rbp+57h+outEyeOffset+4]
-    vmulss  xmm1, xmm5, dword ptr [rbp+57h+axis+18h]
-    vsubss  xmm2, xmm2, xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rbp+57h+axis+4]
-    vmulss  xmm3, xmm2, dword ptr [rbp+57h+outEyeOffset]
-    vmovss  xmm2, dword ptr [rbp+57h+axis+8]
-    vmovss  [rbp+57h+value], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+axis+10h]
-    vmulss  xmm1, xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmulss  xmm0, xmm5, dword ptr [rbp+57h+axis+1Ch]
-    vsubss  xmm4, xmm3, xmm1
-    vmulss  xmm3, xmm2, dword ptr [rbp+57h+outEyeOffset]
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+axis+14h]
-    vmovss  [rbp+57h+var_4C], xmm1
-    vmulss  xmm1, xmm0, dword ptr [rbp+57h+outEyeOffset+4]
-    vmulss  xmm0, xmm5, dword ptr [rbp+57h+axis+20h]
-    vsubss  xmm4, xmm3, xmm1
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  [rbp+57h+var_48], xmm1
-  }
+  value = (float)((float)(axis.m[0].v[0] * outEyeOffset.v[0]) - (float)(axis.m[1].v[0] * outEyeOffset.v[1])) + (float)(outEyeOffset.v[2] * axis.m[2].v[0]);
+  v14 = (float)((float)(axis.m[0].v[1] * outEyeOffset.v[0]) - (float)(axis.m[1].v[1] * outEyeOffset.v[1])) + (float)(outEyeOffset.v[2] * axis.m[2].v[1]);
+  v15 = (float)((float)(axis.m[0].v[2] * outEyeOffset.v[0]) - (float)(axis.m[1].v[2] * outEyeOffset.v[1])) + (float)(outEyeOffset.v[2] * axis.m[2].v[2]);
   Scr_AddVector(scrContext, &value);
 }
 
@@ -16984,45 +14224,39 @@ Scr_GetNearNodeListForSightToPathNodeCheck
 */
 void Scr_GetNearNodeListForSightToPathNodeCheck(scrContext_t *scrContext, gentity_s *const pEntity)
 {
-  unsigned int v8; 
-  __int64 v9; 
-  __int64 v11; 
-  signed int v12; 
-  const pathnode_t *v13; 
-  scrContext_t *v14; 
-  unsigned __int16 v15; 
+  __int128 v2; 
+  double Float; 
+  unsigned int v6; 
+  __int64 i; 
+  __int64 v8; 
+  signed int v9; 
+  const pathnode_t *v10; 
+  scrContext_t *v11; 
+  unsigned __int16 v12; 
   unsigned int pathNodeListOutCount[4]; 
   unsigned __int16 pathNodeIndexListOut[512]; 
+  __int128 v15; 
 
-  __asm { vmovaps [rsp+498h+var_48], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
+  v15 = v2;
+  Float = Scr_GetFloat(scrContext, 0);
   memset_0(pathNodeIndexListOut, 0, sizeof(pathNodeIndexListOut));
-  __asm { vmovaps xmm1, xmm6; maxRadius }
-  GetPathNodeListForSightToPathNodeCheck(&pEntity->r.currentOrigin, *(const float *)&_XMM1, pathNodeIndexListOut, 0x200ui64, pathNodeListOutCount);
+  GetPathNodeListForSightToPathNodeCheck(&pEntity->r.currentOrigin, *(const float *)&Float, pathNodeIndexListOut, 0x200ui64, pathNodeListOutCount);
   Scr_MakeArray(scrContext);
-  v8 = pathNodeListOutCount[0];
-  v9 = 0i64;
-  __asm { vmovaps xmm6, [rsp+498h+var_48] }
-  if ( pathNodeListOutCount[0] )
+  v6 = pathNodeListOutCount[0];
+  for ( i = 0i64; (unsigned int)i < v6; i = (unsigned int)(i + 1) )
   {
-    do
+    v8 = pathNodeIndexListOut[i];
+    v9 = g_path.actualNodeCount - pathData.zoneCount;
+    if ( Path_ConvertNodeToIndex(&pathData.nodes[v8]) >= v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4370, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( &pathData.nodes[ pathNodeIndexList[i] ] ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( &pathData.nodes[ pathNodeIndexList[i] ] ) < Path_NodeCount()") )
     {
-      v11 = pathNodeIndexListOut[v9];
-      v12 = g_path.actualNodeCount - pathData.zoneCount;
-      if ( Path_ConvertNodeToIndex(&pathData.nodes[v11]) >= v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4370, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( &pathData.nodes[ pathNodeIndexList[i] ] ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( &pathData.nodes[ pathNodeIndexList[i] ] ) < Path_NodeCount()") )
-      {
-        __debugbreak();
-        LOWORD(v11) = pathNodeIndexListOut[v9];
-      }
-      v13 = &pathData.nodes[(unsigned __int16)v11];
-      v14 = ScriptContext_Server();
-      v15 = Path_ConvertNodeToIndex(v13);
-      Scr_AddEntityNum(v14, v15, ENTITY_CLASS_PATHNODE);
-      Scr_AddArray(scrContext);
-      v9 = (unsigned int)(v9 + 1);
+      __debugbreak();
+      LOWORD(v8) = pathNodeIndexListOut[i];
     }
-    while ( (unsigned int)v9 < v8 );
+    v10 = &pathData.nodes[(unsigned __int16)v8];
+    v11 = ScriptContext_Server();
+    v12 = Path_ConvertNodeToIndex(v10);
+    Scr_AddEntityNum(v11, v12, ENTITY_CLASS_PATHNODE);
+    Scr_AddArray(scrContext);
   }
 }
 
@@ -17292,142 +14526,91 @@ Scr_GetNodesInTrigger
 */
 void Scr_GetNodesInTrigger(scrContext_t *scrContext)
 {
-  unsigned int v6; 
+  unsigned int v2; 
   const gentity_s *Entity; 
-  bool v8; 
-  unsigned __int16 v10; 
-  unsigned int v11; 
+  bool v4; 
+  pathnode_t *v5; 
+  unsigned __int16 v6; 
+  unsigned int v7; 
   gentity_s *Parent; 
+  float *p_number; 
+  float v10; 
+  float v11; 
+  float v12; 
   unsigned int Instance; 
-  int v47; 
-  scrContext_t *v48; 
-  unsigned __int16 v49; 
-  __int64 v54; 
-  __int64 v55; 
+  int v14; 
+  scrContext_t *v15; 
+  unsigned __int16 v16; 
+  __int64 v17; 
+  __int64 v18; 
   vec3_t pos; 
   Bounds bounds; 
   tmat33_t<vec3_t> axis; 
 
-  v6 = g_path.actualNodeCount - pathData.zoneCount;
+  v2 = g_path.actualNodeCount - pathData.zoneCount;
   Entity = GScr_GetEntity(0);
-  v8 = 0;
+  v4 = 0;
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) )
-    v8 = Scr_GetInt(scrContext, 1u) != 0;
+    v4 = Scr_GetInt(scrContext, 1u) != 0;
   Scr_MakeArray(scrContext);
-  _RDI = NULL;
-  v10 = 0;
-  if ( v6 )
+  v5 = NULL;
+  v6 = 0;
+  if ( v2 )
   {
-    v11 = 0;
-    __asm
-    {
-      vmovaps [rsp+100h+var_30], xmm6
-      vmovaps [rsp+100h+var_40], xmm7
-      vmovaps [rsp+100h+var_50], xmm8
-      vmovaps [rsp+100h+var_60], xmm9
-    }
+    v7 = 0;
     do
     {
-      if ( Path_NodeValid(v10) )
+      if ( Path_NodeValid(v6) )
       {
-        if ( v10 != 0xFFFF )
+        if ( v6 != 0xFFFF )
         {
-          if ( v11 >= g_path.actualNodeCount )
+          if ( v7 >= g_path.actualNodeCount )
           {
-            LODWORD(v55) = g_path.actualNodeCount;
-            LODWORD(v54) = v11;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v54, v55) )
+            LODWORD(v18) = g_path.actualNodeCount;
+            LODWORD(v17) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v17, v18) )
               __debugbreak();
           }
-          _RDI = &pathData.nodes[v10];
+          v5 = &pathData.nodes[v6];
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+20h]
-          vmovss  dword ptr [rbp+57h+pos], xmm0
-          vmovss  xmm1, dword ptr [rdi+24h]
-          vmovss  dword ptr [rbp+57h+pos+4], xmm1
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vmovss  dword ptr [rbp+57h+pos+8], xmm0
-        }
-        Parent = pathnode_t::GetParent(_RDI);
+        pos = v5->constant.vLocalOrigin;
+        Parent = pathnode_t::GetParent(v5);
+        p_number = (float *)&Parent->s.number;
         if ( Parent )
         {
           AnglesToAxis(&Parent->r.currentAngles, &axis);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbp+57h+pos]
-            vmulss  xmm7, xmm2, dword ptr [rbp+57h+axis+4]
-            vmulss  xmm8, xmm2, dword ptr [rbp+57h+axis+8]
-            vmovss  xmm6, dword ptr [rbp+57h+pos+4]
-            vmulss  xmm2, xmm2, dword ptr [rbp+57h+axis]
-            vmovss  xmm5, dword ptr [rbp+57h+pos+8]
-            vmulss  xmm3, xmm6, dword ptr [rbp+57h+axis+0Ch]
-            vmulss  xmm1, xmm5, dword ptr [rbp+57h+axis+18h]
-            vmulss  xmm0, xmm5, dword ptr [rbp+57h+axis+1Ch]
-            vmulss  xmm9, xmm6, dword ptr [rbp+57h+axis+14h]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vaddss  xmm3, xmm2, dword ptr [rbx+130h]
-            vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+10h]
-            vmulss  xmm2, xmm5, dword ptr [rbp+57h+axis+20h]
-            vmovss  dword ptr [rbp+57h+pos], xmm3
-            vaddss  xmm3, xmm1, xmm7
-            vaddss  xmm1, xmm3, xmm0
-            vaddss  xmm3, xmm1, dword ptr [rbx+134h]
-            vaddss  xmm1, xmm8, xmm9
-            vaddss  xmm2, xmm2, xmm1
-            vmovss  dword ptr [rbp+57h+pos+4], xmm3
-            vaddss  xmm0, xmm2, dword ptr [rbx+138h]
-            vmovss  dword ptr [rbp+57h+pos+8], xmm0
-          }
+          v10 = pos.v[0] * axis.m[0].v[1];
+          v11 = pos.v[0] * axis.m[0].v[2];
+          pos.v[0] = (float)((float)((float)(pos.v[1] * axis.m[1].v[0]) + (float)(pos.v[0] * axis.m[0].v[0])) + (float)(pos.v[2] * axis.m[2].v[0])) + p_number[76];
+          v12 = (float)(pos.v[2] * axis.m[2].v[2]) + (float)(v11 + (float)(pos.v[1] * axis.m[1].v[2]));
+          pos.v[1] = (float)((float)((float)(pos.v[1] * axis.m[1].v[1]) + v10) + (float)(pos.v[2] * axis.m[2].v[1])) + p_number[77];
+          pos.v[2] = v12 + p_number[78];
         }
         Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, Entity);
-        if ( v8 )
+        if ( v4 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:?playerBox@@3UBounds@@B.midPoint; Bounds const playerBox
-            vaddss  xmm1, xmm0, dword ptr [rbp+57h+pos]
-            vmovss  xmm2, dword ptr cs:?playerBox@@3UBounds@@B.midPoint+4; Bounds const playerBox
-            vaddss  xmm0, xmm2, dword ptr [rbp+57h+pos+4]
-            vmovss  dword ptr [rbp+57h+bounds.midPoint+4], xmm0
-            vmovss  xmm0, dword ptr cs:?playerBox@@3UBounds@@B.halfSize; Bounds const playerBox
-            vmovss  dword ptr [rbp+57h+bounds.midPoint], xmm1
-            vmovss  xmm1, dword ptr [rbp+57h+pos+8]
-            vaddss  xmm2, xmm1, dword ptr cs:?playerBox@@3UBounds@@B.midPoint+8; Bounds const playerBox
-            vmovss  xmm1, dword ptr cs:?playerBox@@3UBounds@@B.halfSize+4; Bounds const playerBox
-            vmovss  dword ptr [rbp+57h+bounds.halfSize], xmm0
-            vmovss  xmm0, dword ptr cs:?playerBox@@3UBounds@@B.halfSize+8; Bounds const playerBox
-            vmovss  dword ptr [rbp+57h+bounds.halfSize+8], xmm0
-            vmovss  dword ptr [rbp+57h+bounds.midPoint+8], xmm2
-            vmovss  dword ptr [rbp+57h+bounds.halfSize+4], xmm1
-          }
-          v47 = PhysicsQuery_LegacyEntityContactCapsule(PHYSICS_WORLD_ID_FIRST, &bounds, Instance, Entity);
+          bounds.midPoint.v[1] = pos.v[1] + 0.0;
+          bounds.midPoint.v[0] = pos.v[0] + 0.0;
+          bounds.halfSize = playerBox.halfSize;
+          bounds.midPoint.v[2] = pos.v[2] + 35.0;
+          v14 = PhysicsQuery_LegacyEntityContactCapsule(PHYSICS_WORLD_ID_FIRST, &bounds, Instance, Entity);
         }
         else
         {
-          v47 = PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, &pos, Instance, Entity);
+          v14 = PhysicsQuery_LegacyEntityContactPoint(PHYSICS_WORLD_ID_FIRST, &pos, Instance, Entity);
         }
-        if ( v47 )
+        if ( v14 )
         {
-          v48 = ScriptContext_Server();
-          v49 = Path_ConvertNodeToIndex(_RDI);
-          Scr_AddEntityNum(v48, v49, ENTITY_CLASS_PATHNODE);
+          v15 = ScriptContext_Server();
+          v16 = Path_ConvertNodeToIndex(v5);
+          Scr_AddEntityNum(v15, v16, ENTITY_CLASS_PATHNODE);
           Scr_AddArray(scrContext);
         }
-        _RDI = NULL;
+        v5 = NULL;
       }
-      v11 = ++v10;
+      v7 = ++v6;
     }
-    while ( v10 < v6 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+100h+var_60]
-      vmovaps xmm8, [rsp+100h+var_50]
-      vmovaps xmm7, [rsp+100h+var_40]
-      vmovaps xmm6, [rsp+100h+var_30]
-    }
+    while ( v6 < v2 );
   }
 }
 
@@ -17661,11 +14844,11 @@ Scr_GetZoneNearest
 */
 void Scr_GetZoneNearest(scrContext_t *scrContext)
 {
-  bool v3; 
-  const Bounds *v4; 
-  const pathnode_t *v5; 
-  unsigned __int16 v7; 
-  int v8; 
+  bool v2; 
+  const Bounds *v3; 
+  const pathnode_t *v4; 
+  unsigned __int16 v5; 
+  int v6; 
   int returnCount; 
   NearestNodeInput pInput; 
   vec3_t vectorValue; 
@@ -17675,35 +14858,29 @@ void Scr_GetZoneNearest(scrContext_t *scrContext)
     if ( !pathData.usePathExtraData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3523, ASSERT_TYPE_ASSERT, "( Path_UsePathExtraData() )", (const char *)&queryFormat, "Path_UsePathExtraData()") )
       __debugbreak();
     Scr_GetVector(scrContext, 0, &vectorValue);
-    __asm { vmovss  xmm0, cs:__real@43400000 }
     pInput.typeFlags = -2;
     pInput.heightCheck = NEAREST_NODE_DO_HEIGHT_CHECK;
-    __asm { vmovss  [rsp+98h+pInput.fMaxDist], xmm0 }
+    pInput.fMaxDist = FLOAT_192_0;
     pInput.entNum = 2047;
     *(_WORD *)&pInput.bAllowCrouch = 257;
     pInput.bAllowFailedUnuseable = 1;
     pInput.vOrigin = &vectorValue;
     pInput.traceMask = 33685521;
     pInput.blockPlanes = NULL;
-    v3 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE);
-    v4 = &actorBox;
-    if ( v3 )
-      v4 = NULL;
-    pInput.baseBounds = v4;
-    v5 = Path_NearestNodeExtended(&pInput, g_nearestNodes, 64, &returnCount, 0);
-    if ( v5 )
-      goto LABEL_9;
-    __asm { vmovss  xmm1, cs:__real@44fa0000; fMaxDist }
-    v5 = Path_NearestNodeByDistanceOnly(&vectorValue, *(float *)&_XMM1);
-    if ( v5 )
+    v2 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE);
+    v3 = &actorBox;
+    if ( v2 )
+      v3 = NULL;
+    pInput.baseBounds = v3;
+    v4 = Path_NearestNodeExtended(&pInput, g_nearestNodes, 64, &returnCount, 0);
+    if ( v4 || (v4 = Path_NearestNodeByDistanceOnly(&vectorValue, 2000.0)) != NULL )
     {
-LABEL_9:
       if ( pathData.pathZones )
       {
-        v7 = Path_ConvertNodeToIndex(v5);
-        v8 = Path_NodeZoneFromIndex(v7);
-        if ( v8 != 255 )
-          Scr_AddInt(scrContext, v8);
+        v5 = Path_ConvertNodeToIndex(v4);
+        v6 = Path_NodeZoneFromIndex(v5);
+        if ( v6 != 255 )
+          Scr_AddInt(scrContext, v6);
       }
     }
   }
@@ -17945,234 +15122,207 @@ Scr_GetZoneNodesByDist
 */
 void Scr_GetZoneNodesByDist(scrContext_t *scrContext)
 {
+  __int128 v1; 
   int zoneCount; 
   int Int; 
-  int v8; 
-  int v9; 
+  double Float; 
+  int v6; 
+  int v7; 
+  pathnode_t *v8; 
+  pathnode_t *pNextOpen; 
   pathnode_t *v10; 
-  pathnode_t *v13; 
-  unsigned __int16 v15; 
+  unsigned __int16 v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  bool v15; 
   int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  unsigned __int8 v20; 
-  int v21; 
-  __int64 v22; 
+  __int64 v17; 
   unsigned __int16 nodeNum; 
-  bool v24; 
-  __int64 v26; 
-  unsigned __int16 v30; 
-  __int64 v31; 
-  char v32; 
-  unsigned int v33; 
-  const pathnode_t *v34; 
-  scrContext_t *v35; 
-  unsigned __int16 v36; 
-  const char *v40; 
-  __int64 v41; 
-  __int64 v42; 
-  int v43; 
-  signed int v44; 
-  __int64 v46[4]; 
+  pathnode_t *v19; 
+  unsigned __int16 v20; 
+  __int64 v21; 
+  char v22; 
+  unsigned int v23; 
+  const pathnode_t *v24; 
+  scrContext_t *v25; 
+  unsigned __int16 v26; 
+  const char *v27; 
+  __int64 v28; 
+  __int64 v29; 
+  int v30; 
+  signed int v31; 
+  __int64 v33[4]; 
+  __int128 v34; 
 
   if ( !pathData.usePathExtraData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3756, ASSERT_TYPE_ASSERT, "( Path_UsePathExtraData() )", (const char *)&queryFormat, "Path_UsePathExtraData()") )
     __debugbreak();
   zoneCount = pathData.zoneCount;
-  v44 = g_path.actualNodeCount - pathData.zoneCount;
+  v31 = g_path.actualNodeCount - pathData.zoneCount;
   if ( pathData.zoneCount > 0 )
   {
-    __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
     Int = Scr_GetInt(scrContext, 0);
     if ( Int == 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3768, ASSERT_TYPE_ASSERT, "( zone != 255 )", (const char *)&queryFormat, "zone != PATH_INVALID_ZONE") )
       __debugbreak();
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 1u);
     if ( Int < 0 || Int >= zoneCount )
     {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovq   r8, xmm2
-      }
-      v40 = j_va("Invalid zone for GetZoneNodesByDist(zone:%d, dist:%f)", (unsigned int)Int, _R8);
-      Scr_Error(COM_ERR_2483, scrContext, v40);
+      v27 = j_va("Invalid zone for GetZoneNodesByDist(zone:%d, dist:%f)", (unsigned int)Int, *(float *)&Float);
+      Scr_Error(COM_ERR_2483, scrContext, v27);
     }
     else
     {
-      __asm { vmovaps [rsp+0C8h+var_48], xmm7 }
-      v8 = 0;
+      v34 = v1;
+      v6 = 0;
       if ( Scr_GetNumParam(scrContext) <= 2 )
-        v9 = 0;
+        v7 = 0;
       else
-        v9 = Scr_GetInt(scrContext, 2u);
-      v43 = v9;
+        v7 = Scr_GetInt(scrContext, 2u);
+      v30 = v7;
       if ( zoneCount > 0 )
       {
         do
         {
-          v10 = Path_ConvertZoneIndexToZone(v8++);
-          *(_QWORD *)&v10->transient.iSearchFrame = 0i64;
-          v10->transient.pNextOpen = NULL;
-          v10->transient.pPrevOpen = NULL;
-          v10->transient.pParent = NULL;
-          *(_QWORD *)&v10->transient.fCost = 0i64;
-          *(_QWORD *)&v10->transient.nodeCost = 0i64;
-          v10->transient.fCost = 1.1754944e-38;
+          v8 = Path_ConvertZoneIndexToZone(v6++);
+          *(_QWORD *)&v8->transient.iSearchFrame = 0i64;
+          v8->transient.pNextOpen = NULL;
+          v8->transient.pPrevOpen = NULL;
+          v8->transient.pParent = NULL;
+          *(_QWORD *)&v8->transient.fCost = 0i64;
+          *(_QWORD *)&v8->transient.nodeCost = 0i64;
+          v8->transient.fCost = 1.1754944e-38;
         }
-        while ( v8 < zoneCount );
+        while ( v6 < zoneCount );
       }
-      _RBX = Path_ConvertZoneIndexToZone(Int);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3791, ASSERT_TYPE_ASSERT, "( nodeCur )", (const char *)&queryFormat, "nodeCur") )
+      pNextOpen = Path_ConvertZoneIndexToZone(Int);
+      if ( !pNextOpen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3791, ASSERT_TYPE_ASSERT, "( nodeCur )", (const char *)&queryFormat, "nodeCur") )
         __debugbreak();
-      __asm
-      {
-        vmovss  dword ptr [rbx+0B0h], xmm6
-        vmovss  xmm6, cs:__real@00800000
-      }
-      memset(v46, 0, sizeof(v46));
-      v13 = _RBX;
-      __asm { vxorps  xmm7, xmm7, xmm7 }
+      pNextOpen->transient.fCost = *(float *)&Float;
+      memset(v33, 0, sizeof(v33));
+      v10 = pNextOpen;
       do
       {
-        if ( v9 )
+        if ( v7 || pNextOpen->transient.fCost > 0.0 )
         {
           if ( pathData.pathZones )
           {
-            v15 = Path_ConvertNodeToIndex(_RBX);
-            v16 = Path_NodeZoneFromIndex(v15);
+            v11 = Path_ConvertNodeToIndex(pNextOpen);
+            v12 = Path_NodeZoneFromIndex(v11);
           }
           else
           {
-            v16 = 255;
+            v12 = 255;
           }
-          v17 = v16 / 8;
-          v18 = v16 % 8;
-          if ( (unsigned int)(v16 / 8) >= 0x20 )
+          v13 = v12 / 8;
+          v14 = v12 % 8;
+          if ( (unsigned int)(v12 / 8) >= 0x20 )
           {
-            LODWORD(v42) = 32;
-            LODWORD(v41) = v16 / 8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3802, ASSERT_TYPE_ASSERT, "(unsigned)( nodeCurZone / 8 ) < (unsigned)( ( ( 256 ) / 8 ) )", "nodeCurZone / 8 doesn't index BOT_ZONE_STACK_VISIT_MAX\n\t%i not in [0, %i)", v41, v42) )
+            LODWORD(v29) = 32;
+            LODWORD(v28) = v12 / 8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3802, ASSERT_TYPE_ASSERT, "(unsigned)( nodeCurZone / 8 ) < (unsigned)( ( ( 256 ) / 8 ) )", "nodeCurZone / 8 doesn't index BOT_ZONE_STACK_VISIT_MAX\n\t%i not in [0, %i)", v28, v29) )
               __debugbreak();
           }
-          v19 = *((unsigned __int8 *)v46 + v17);
-          v20 = _bittestandset(&v19, v18);
-          __asm { vcomiss xmm7, dword ptr [rbx+0B0h] }
-          *((_BYTE *)v46 + v17) = v19;
-          if ( v20 )
+          v15 = pNextOpen->transient.fCost > 0.0;
+          *((_BYTE *)v33 + v13) |= 1 << v14;
+          if ( v15 )
           {
-            v21 = 0;
-            if ( _RBX->dynamic.wLinkCount > 0 )
+            v16 = 0;
+            if ( pNextOpen->dynamic.wLinkCount > 0 )
             {
-              v22 = 0i64;
+              v17 = 0i64;
               do
               {
-                nodeNum = _RBX->constant.Links[v22].nodeNum;
-                v24 = nodeNum == 0xFFFF;
+                nodeNum = pNextOpen->constant.Links[v17].nodeNum;
                 if ( nodeNum == 0xFFFF )
                 {
-                  _RCX = NULL;
+                  v19 = NULL;
                 }
                 else
                 {
                   if ( nodeNum >= g_path.actualNodeCount )
                   {
-                    LODWORD(v42) = g_path.actualNodeCount;
-                    LODWORD(v41) = nodeNum;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v41, v42) )
+                    LODWORD(v29) = g_path.actualNodeCount;
+                    LODWORD(v28) = nodeNum;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v28, v29) )
                       __debugbreak();
                   }
-                  v26 = nodeNum;
-                  v24 = &pathData.nodes[v26] == NULL;
-                  _RCX = &pathData.nodes[v26];
+                  v19 = &pathData.nodes[nodeNum];
                 }
-                __asm { vucomiss xmm6, dword ptr [rcx+0B0h] }
-                if ( v24 )
+                if ( 1.1754944e-38 == v19->transient.fCost )
                 {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbx+0B0h]
-                    vsubss  xmm1, xmm0, dword ptr [rsi+rax]
-                    vmovss  dword ptr [rcx+0B0h], xmm1
-                  }
-                  v13->transient.pNextOpen = _RCX;
-                  v13 = _RCX;
+                  v19->transient.fCost = pNextOpen->transient.fCost - pNextOpen->constant.Links[v17].fDist;
+                  v10->transient.pNextOpen = v19;
+                  v10 = v19;
                 }
-                ++v21;
-                ++v22;
+                ++v16;
+                ++v17;
               }
-              while ( v21 < _RBX->dynamic.wLinkCount );
-              v9 = v43;
+              while ( v16 < pNextOpen->dynamic.wLinkCount );
+              v7 = v30;
             }
           }
         }
-        else
-        {
-          __asm { vcomiss xmm7, dword ptr [rbx+0B0h] }
-        }
-        _RBX = _RBX->transient.pNextOpen;
+        pNextOpen = pNextOpen->transient.pNextOpen;
       }
-      while ( _RBX );
+      while ( pNextOpen );
       Scr_MakeArray(scrContext);
-      __asm { vmovaps xmm7, [rsp+0C8h+var_48] }
-      v30 = 0;
-      if ( v44 > 0 )
+      v20 = 0;
+      if ( v31 > 0 )
       {
-        v31 = 0i64;
+        v21 = 0i64;
         do
         {
           if ( pathData.pathZones )
           {
-            if ( (unsigned int)v31 >= pathData.zonesBytes )
+            if ( (unsigned int)v21 >= pathData.zonesBytes )
             {
-              LODWORD(v42) = pathData.zonesBytes;
-              LODWORD(v41) = v31;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8510, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( pathData.zonesBytes )", "nodeIndex doesn't index pathData.zonesBytes\n\t%i not in [0, %i)", v41, v42) )
+              LODWORD(v29) = pathData.zonesBytes;
+              LODWORD(v28) = v21;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 8510, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( pathData.zonesBytes )", "nodeIndex doesn't index pathData.zonesBytes\n\t%i not in [0, %i)", v28, v29) )
                 __debugbreak();
             }
-            v32 = pathData.pathZones[v31] % 8u;
-            v33 = pathData.pathZones[v31] / 8u;
-            if ( v33 >= 0x20 )
+            v22 = pathData.pathZones[v21] % 8u;
+            v23 = pathData.pathZones[v21] / 8u;
+            if ( v23 >= 0x20 )
             {
-              LODWORD(v42) = 32;
-              LODWORD(v41) = pathData.pathZones[v31] / 8u;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3828, ASSERT_TYPE_ASSERT, "(unsigned)( nodeCurZone / 8 ) < (unsigned)( ( ( 256 ) / 8 ) )", "nodeCurZone / 8 doesn't index BOT_ZONE_STACK_VISIT_MAX\n\t%i not in [0, %i)", v41, v42) )
+              LODWORD(v29) = 32;
+              LODWORD(v28) = pathData.pathZones[v21] / 8u;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 3828, ASSERT_TYPE_ASSERT, "(unsigned)( nodeCurZone / 8 ) < (unsigned)( ( ( 256 ) / 8 ) )", "nodeCurZone / 8 doesn't index BOT_ZONE_STACK_VISIT_MAX\n\t%i not in [0, %i)", v28, v29) )
                 __debugbreak();
             }
           }
           else
           {
-            v32 = 7;
-            v33 = 31;
+            v22 = 7;
+            v23 = 31;
           }
-          if ( (*((_BYTE *)v46 + (int)v33) & (unsigned __int8)(1 << v32)) != 0 )
+          if ( (*((_BYTE *)v33 + (int)v23) & (unsigned __int8)(1 << v22)) != 0 )
           {
-            if ( v30 == 0xFFFF )
+            if ( v20 == 0xFFFF )
             {
-              v34 = NULL;
+              v24 = NULL;
             }
             else
             {
-              if ( (unsigned int)v31 >= g_path.actualNodeCount )
+              if ( (unsigned int)v21 >= g_path.actualNodeCount )
               {
-                LODWORD(v42) = g_path.actualNodeCount;
-                LODWORD(v41) = v31;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v41, v42) )
+                LODWORD(v29) = g_path.actualNodeCount;
+                LODWORD(v28) = v21;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( g_path.actualNodeCount )", "index doesn't index g_path.actualNodeCount\n\t%i not in [0, %i)", v28, v29) )
                   __debugbreak();
               }
-              v34 = &pathData.nodes[v30];
+              v24 = &pathData.nodes[v20];
             }
-            v35 = ScriptContext_Server();
-            v36 = Path_ConvertNodeToIndex(v34);
-            Scr_AddEntityNum(v35, v36, ENTITY_CLASS_PATHNODE);
+            v25 = ScriptContext_Server();
+            v26 = Path_ConvertNodeToIndex(v24);
+            Scr_AddEntityNum(v25, v26, ENTITY_CLASS_PATHNODE);
             Scr_AddArray(scrContext);
           }
-          v31 = ++v30;
+          v21 = ++v20;
         }
-        while ( v30 < v44 );
+        while ( v20 < v31 );
       }
     }
-    __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
   }
   else
   {
@@ -18373,265 +15523,223 @@ Scr_NodeToEntitySightTest
 void Scr_NodeToEntitySightTest(scrContext_t *scrContext)
 {
   signed __int64 v1; 
-  void *v8; 
-  scrContext_t *v9; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  void *v6; 
+  scrContext_t *v7; 
   gentity_s *Entity; 
-  unsigned int v11; 
+  unsigned int v9; 
+  double Float; 
+  float v11; 
+  double v12; 
+  unsigned int v13; 
   unsigned int v14; 
-  unsigned int v15; 
-  unsigned int v18; 
-  __int64 v21; 
-  signed int v22; 
+  float v15; 
+  unsigned int v16; 
+  float v17; 
+  pathsort_s *p_nodes; 
+  __int64 v19; 
+  signed int v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   gentity_s *Parent; 
-  char v29; 
-  bool v30; 
-  unsigned int FirstSibling; 
-  unsigned int NextSibling; 
+  gentity_s *v25; 
+  float v26; 
+  __int64 v27; 
+  __int64 v28; 
+  unsigned int i; 
   unsigned int Object; 
   scr_entref_t EntityIdRef; 
-  unsigned int v58; 
-  const pathnode_t *v59; 
-  const pathnode_t **v60; 
-  unsigned int v61; 
-  const pathnode_t **v62; 
-  unsigned int v63; 
-  unsigned int v64; 
-  scr_entref_t v65; 
-  unsigned int v66; 
-  const pathnode_t *v67; 
-  const pathnode_t **v68; 
-  unsigned int v69; 
-  const pathnode_t **v70; 
+  unsigned int v32; 
+  const pathnode_t *v33; 
+  const pathnode_t **v34; 
+  unsigned int v35; 
+  const pathnode_t **v36; 
+  unsigned int FirstSibling; 
+  unsigned int v38; 
+  scr_entref_t v39; 
+  unsigned int v40; 
+  const pathnode_t *v41; 
+  const pathnode_t **v42; 
+  unsigned int v43; 
+  const pathnode_t **v44; 
   __int64 maxNodes; 
   __int64 typeFlags; 
   unsigned int ArrayObject; 
   unsigned int parentId; 
   tmat33_t<vec3_t> axis; 
-  __int128 v80[512]; 
-  __int128 v81[512]; 
+  __int128 v51[512]; 
+  __int128 v52[512]; 
   pathsort_s nodes; 
-  char v88; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
 
-  v8 = alloca(v1);
-  __asm { vmovaps [rsp+6108h+var_78], xmm10 }
-  v9 = scrContext;
-  __asm
-  {
-    vmovaps [rsp+6108h+var_38], xmm6
-    vmovaps [rsp+6108h+var_68], xmm9
-  }
+  v6 = alloca(v1);
+  v7 = scrContext;
+  v57 = v2;
+  v54 = v5;
   Entity = GScr_GetEntity(0);
-  ArrayObject = BGScr_Main_GetArrayObject(v9, 1u);
-  v11 = ArrayObject;
-  parentId = BGScr_Main_GetArrayObject(v9, 2u);
-  *(double *)&_XMM0 = Scr_GetFloat(v9, 3u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(v9, 4u);
-  __asm { vmovss  xmm3, cs:__real@43800000; maxHeight }
+  ArrayObject = BGScr_Main_GetArrayObject(v7, 1u);
+  v9 = ArrayObject;
+  parentId = BGScr_Main_GetArrayObject(v7, 2u);
+  Float = Scr_GetFloat(v7, 3u);
+  v11 = *(float *)&Float;
+  v12 = Scr_GetFloat(v7, 4u);
+  v13 = 0;
   v14 = 0;
-  v15 = 0;
-  __asm
+  v15 = *(float *)&v12 * *(float *)&v12;
+  v16 = Path_NodesInCylinder(&Entity->r.currentOrigin, NULL, v11, 256.0, &nodes, 512, -1, 0);
+  v17 = 0.0;
+  if ( v16 )
   {
-    vmovaps xmm2, xmm6; maxDist
-    vmulss  xmm9, xmm0, xmm0
-  }
-  v18 = Path_NodesInCylinder(&Entity->r.currentOrigin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, &nodes, 512, -1, 0);
-  __asm { vxorps  xmm10, xmm10, xmm10 }
-  if ( v18 )
-  {
-    __asm { vmovaps [rsp+6108h+var_48], xmm7 }
-    _RDI = &nodes;
-    __asm { vmovaps [rsp+6108h+var_58], xmm8 }
-    v21 = v18;
+    v56 = v3;
+    p_nodes = &nodes;
+    v55 = v4;
+    v19 = v16;
     do
     {
-      v22 = g_path.actualNodeCount - pathData.zoneCount;
-      if ( Path_ConvertNodeToIndex(_RDI->node) >= v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4070, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( nodesAll[i].node ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( nodesAll[i].node ) < Path_NodeCount()") )
+      v20 = g_path.actualNodeCount - pathData.zoneCount;
+      if ( Path_ConvertNodeToIndex(p_nodes->node) >= v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4070, ASSERT_TYPE_ASSERT, "(Path_ConvertNodeToIndex( nodesAll[i].node ) < Path_NodeCount())", (const char *)&queryFormat, "Path_ConvertNodeToIndex( nodesAll[i].node ) < Path_NodeCount()") )
         __debugbreak();
-      _RCX = _RDI->node;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rcx+20h]
-        vmovss  xmm6, dword ptr [rcx+24h]
-        vmovss  xmm8, dword ptr [rcx+28h]
-      }
-      Parent = pathnode_t::GetParent(_RDI->node);
-      __asm { vmovaps xmm4, xmm7 }
-      v29 = 0;
-      v30 = Parent == NULL;
+      v21 = p_nodes->node->constant.vLocalOrigin.v[0];
+      v22 = p_nodes->node->constant.vLocalOrigin.v[1];
+      v23 = p_nodes->node->constant.vLocalOrigin.v[2];
+      Parent = pathnode_t::GetParent(p_nodes->node);
+      v25 = Parent;
+      v26 = v21;
       if ( Parent )
       {
         AnglesToAxis(&Parent->r.currentAngles, &axis);
-        __asm
-        {
-          vmulss  xmm0, xmm6, dword ptr [rsp+6108h+axis+0Ch]
-          vmulss  xmm1, xmm7, dword ptr [rsp+6108h+axis]
-          vmulss  xmm3, xmm7, dword ptr [rsp+6108h+axis+4]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm8, dword ptr [rsp+6108h+axis+18h]
-          vmulss  xmm0, xmm6, dword ptr [rsp+6108h+axis+10h]
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm4, xmm2, dword ptr [rbx+130h]
-          vmulss  xmm1, xmm8, dword ptr [rsp+6108h+axis+1Ch]
-          vaddss  xmm2, xmm3, xmm0
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm6, xmm2, dword ptr [rbx+134h]
-        }
+        v26 = (float)((float)((float)(v21 * axis.m[0].v[0]) + (float)(v22 * axis.m[1].v[0])) + (float)(v23 * axis.m[2].v[0])) + v25->r.currentOrigin.v[0];
+        v22 = (float)((float)((float)(v21 * axis.m[0].v[1]) + (float)(v22 * axis.m[1].v[1])) + (float)(v23 * axis.m[2].v[1])) + v25->r.currentOrigin.v[1];
       }
-      __asm { vcomiss xmm9, xmm10 }
-      if ( v29 | v30 )
-        goto LABEL_11;
-      __asm
+      if ( v15 <= 0.0 || v15 <= (float)((float)((float)(v22 - Entity->r.currentOrigin.v[1]) * (float)(v22 - Entity->r.currentOrigin.v[1])) + (float)((float)(v26 - Entity->r.currentOrigin.v[0]) * (float)(v26 - Entity->r.currentOrigin.v[0]))) )
       {
-        vsubss  xmm1, xmm4, dword ptr [r12+130h]
-        vsubss  xmm0, xmm6, dword ptr [r12+134h]
-        vmulss  xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm9, xmm2
-      }
-      if ( v29 | v30 )
-      {
-LABEL_11:
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        _RAX = 2i64 * v15++;
-        __asm { vmovups [rsp+rax*8+6108h+var_6088], xmm0 }
+        v28 = v14++;
+        v51[v28] = (__int128)*p_nodes;
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        _RAX = 2i64 * v14++;
-        __asm { vmovups [rsp+rax*8+6108h+var_4088], xmm0 }
+        v27 = v13++;
+        v52[v27] = (__int128)*p_nodes;
       }
-      ++_RDI;
-      --v21;
+      ++p_nodes;
+      --v19;
     }
-    while ( v21 );
-    v9 = scrContext;
-    v11 = ArrayObject;
-    __asm
-    {
-      vmovaps xmm8, [rsp+6108h+var_58]
-      vmovaps xmm7, [rsp+6108h+var_48]
-    }
+    while ( v19 );
+    v7 = scrContext;
+    v9 = ArrayObject;
   }
-  FirstSibling = FindFirstSibling(v9, v11);
-  __asm { vmovaps xmm9, [rsp+6108h+var_68] }
-  NextSibling = FirstSibling;
-  __asm { vmovaps xmm6, [rsp+6108h+var_38] }
-  if ( FirstSibling )
+  for ( i = FindFirstSibling(v7, v9); i; i = FindNextSibling(v7, i) )
   {
-    do
+    Object = FindObject(v7, i);
+    if ( !Object && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4089, ASSERT_TYPE_ASSERT, "( objectIdPathNode )", (const char *)&queryFormat, "objectIdPathNode") )
+      __debugbreak();
+    if ( GetObjectType(v7, Object) == VAR_ENTITY )
     {
-      Object = FindObject(v9, NextSibling);
-      if ( !Object && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4089, ASSERT_TYPE_ASSERT, "( objectIdPathNode )", (const char *)&queryFormat, "objectIdPathNode") )
-        __debugbreak();
-      if ( GetObjectType(v9, Object) == VAR_ENTITY )
+      EntityIdRef = Scr_GetEntityIdRef(v7, Object);
+      if ( EntityIdRef.entclass != ENTITY_CLASS_PATHNODE )
+        Scr_ParamError(COM_ERR_2494, v7, Object, "close list included an index that is not a pathnode");
+      if ( EntityIdRef.entnum >= g_path.actualNodeCount - pathData.zoneCount )
       {
-        EntityIdRef = Scr_GetEntityIdRef(v9, Object);
-        if ( EntityIdRef.entclass != ENTITY_CLASS_PATHNODE )
-          Scr_ParamError(COM_ERR_2494, v9, Object, "close list included an index that is not a pathnode");
-        if ( EntityIdRef.entnum >= g_path.actualNodeCount - pathData.zoneCount )
-        {
-          LODWORD(typeFlags) = g_path.actualNodeCount - pathData.zoneCount;
-          LODWORD(maxNodes) = EntityIdRef.entnum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4101, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", maxNodes, typeFlags) )
-            __debugbreak();
-        }
-        v58 = 0;
-        v59 = &pathData.nodes[EntityIdRef.entnum];
-        if ( v15 )
-        {
-          v60 = (const pathnode_t **)v80;
-          do
-          {
-            if ( Path_NodesVisible(v59, *v60) )
-            {
-              __asm { vmovss  xmm10, cs:__real@3f800000 }
-              goto LABEL_57;
-            }
-            ++v58;
-            v60 += 2;
-          }
-          while ( v58 < v15 );
-        }
-        v61 = 0;
-        if ( v14 )
-        {
-          v62 = (const pathnode_t **)v81;
-          do
-          {
-            if ( Path_NodesVisible(v59, *v62) )
-              goto LABEL_35;
-            ++v61;
-            v62 += 2;
-          }
-          while ( v61 < v14 );
-        }
+        LODWORD(typeFlags) = g_path.actualNodeCount - pathData.zoneCount;
+        LODWORD(maxNodes) = EntityIdRef.entnum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4101, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", maxNodes, typeFlags) )
+          __debugbreak();
       }
-      NextSibling = FindNextSibling(v9, NextSibling);
+      v32 = 0;
+      v33 = &pathData.nodes[EntityIdRef.entnum];
+      if ( v14 )
+      {
+        v34 = (const pathnode_t **)v51;
+        do
+        {
+          if ( Path_NodesVisible(v33, *v34) )
+          {
+            v17 = FLOAT_1_0;
+            goto LABEL_57;
+          }
+          ++v32;
+          v34 += 2;
+        }
+        while ( v32 < v14 );
+      }
+      v35 = 0;
+      if ( v13 )
+      {
+        v36 = (const pathnode_t **)v52;
+        do
+        {
+          if ( Path_NodesVisible(v33, *v36) )
+            goto LABEL_35;
+          ++v35;
+          v36 += 2;
+        }
+        while ( v35 < v13 );
+      }
     }
-    while ( NextSibling );
   }
-  v63 = FindFirstSibling(v9, parentId);
-  if ( !v63 )
+  FirstSibling = FindFirstSibling(v7, parentId);
+  if ( !FirstSibling )
     goto LABEL_57;
   while ( 1 )
   {
-    v64 = FindObject(v9, v63);
-    if ( !v64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4129, ASSERT_TYPE_ASSERT, "( objectIdPathNode )", (const char *)&queryFormat, "objectIdPathNode") )
+    v38 = FindObject(v7, FirstSibling);
+    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4129, ASSERT_TYPE_ASSERT, "( objectIdPathNode )", (const char *)&queryFormat, "objectIdPathNode") )
       __debugbreak();
-    if ( GetObjectType(v9, v64) != VAR_ENTITY )
+    if ( GetObjectType(v7, v38) != VAR_ENTITY )
       goto LABEL_54;
-    v65 = Scr_GetEntityIdRef(v9, v64);
-    if ( v65.entclass != ENTITY_CLASS_PATHNODE )
-      Scr_ParamError(COM_ERR_2495, v9, v64, "far list included an index that is not a pathnode");
-    if ( v65.entnum >= g_path.actualNodeCount - pathData.zoneCount )
+    v39 = Scr_GetEntityIdRef(v7, v38);
+    if ( v39.entclass != ENTITY_CLASS_PATHNODE )
+      Scr_ParamError(COM_ERR_2495, v7, v38, "far list included an index that is not a pathnode");
+    if ( v39.entnum >= g_path.actualNodeCount - pathData.zoneCount )
     {
       LODWORD(typeFlags) = g_path.actualNodeCount - pathData.zoneCount;
-      LODWORD(maxNodes) = v65.entnum;
+      LODWORD(maxNodes) = v39.entnum;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4141, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", maxNodes, typeFlags) )
         __debugbreak();
     }
-    v66 = 0;
-    v67 = &pathData.nodes[v65.entnum];
-    if ( v15 )
+    v40 = 0;
+    v41 = &pathData.nodes[v39.entnum];
+    if ( v14 )
       break;
 LABEL_50:
-    v69 = 0;
-    if ( v14 )
+    v43 = 0;
+    if ( v13 )
     {
-      v70 = (const pathnode_t **)v81;
-      while ( !Path_NodesVisible(v67, *v70) )
+      v44 = (const pathnode_t **)v52;
+      while ( !Path_NodesVisible(v41, *v44) )
       {
-        ++v69;
-        v70 += 2;
-        if ( v69 >= v14 )
+        ++v43;
+        v44 += 2;
+        if ( v43 >= v13 )
           goto LABEL_54;
       }
-      __asm { vmovss  xmm10, cs:__real@3e800000 }
+      v17 = FLOAT_0_25;
       goto LABEL_57;
     }
 LABEL_54:
-    v63 = FindNextSibling(v9, v63);
-    if ( !v63 )
+    FirstSibling = FindNextSibling(v7, FirstSibling);
+    if ( !FirstSibling )
       goto LABEL_57;
   }
-  v68 = (const pathnode_t **)v80;
-  while ( !Path_NodesVisible(v67, *v68) )
+  v42 = (const pathnode_t **)v51;
+  while ( !Path_NodesVisible(v41, *v42) )
   {
-    ++v66;
-    v68 += 2;
-    if ( v66 >= v15 )
+    ++v40;
+    v42 += 2;
+    if ( v40 >= v14 )
       goto LABEL_50;
   }
 LABEL_35:
-  __asm { vmovss  xmm10, cs:__real@3f000000 }
+  v17 = FLOAT_0_5;
 LABEL_57:
-  __asm { vmovaps xmm1, xmm10; value }
-  Scr_AddFloat(v9, *(float *)&_XMM1);
-  _R11 = &v88;
-  __asm { vmovaps xmm10, xmmword ptr [r11-50h] }
+  Scr_AddFloat(v7, v17);
 }
 
 /*
@@ -18776,40 +15884,40 @@ Scr_PrecomputedLOSDataSightTest
 void Scr_PrecomputedLOSDataSightTest(scrContext_t *scrContext)
 {
   unsigned int ArrayObject; 
-  unsigned int v6; 
-  __int64 v7; 
-  unsigned int v8; 
+  unsigned int v3; 
+  __int64 v4; 
+  unsigned int v5; 
   unsigned int FirstSibling; 
   unsigned int Object; 
   scr_entref_t EntityIdRef; 
-  unsigned __int16 v12; 
-  __int64 v13; 
+  unsigned __int16 v9; 
+  __int64 v10; 
   unsigned int NextSibling; 
-  unsigned int v15; 
-  scr_entref_t v16; 
+  unsigned int v12; 
+  scr_entref_t v13; 
   unsigned __int16 MinimumValueBetweenNodeLists; 
-  unsigned __int8 v18; 
-  __int64 v31; 
-  __int64 v32; 
-  unsigned int v33; 
+  unsigned __int8 v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  __int64 v19; 
+  unsigned int v20; 
   unsigned __int16 pathNodeIndexListB[512]; 
   unsigned __int16 pathNodeIndexListA[4096]; 
 
   ArrayObject = BGScr_Main_GetArrayObject(scrContext, 0);
-  v6 = BGScr_Main_GetArrayObject(scrContext, 1u);
+  v3 = BGScr_Main_GetArrayObject(scrContext, 1u);
   if ( GetArraySize(scrContext, ArrayObject) )
   {
-    if ( GetArraySize(scrContext, v6) )
+    if ( GetArraySize(scrContext, v3) )
     {
       if ( LOSPrecomputeSystem::IsSystemEnabled(&g_losPrecomputeData) )
       {
         if ( LOSPrecomputeSystem::IsDataLoaded(&g_losPrecomputeData) )
         {
-          v7 = 0i64;
-          __asm { vmovaps [rsp+24A8h+var_38], xmm6 }
-          v8 = 0;
-          v33 = 0;
-          __asm { vmovaps [rsp+24A8h+var_48], xmm8 }
+          v4 = 0i64;
+          v5 = 0;
+          v20 = 0;
           memset_0(pathNodeIndexListA, 0, sizeof(pathNodeIndexListA));
           memset_0(pathNodeIndexListA, 0, 0x400ui64);
           memset_0(pathNodeIndexListB, 0, sizeof(pathNodeIndexListB));
@@ -18828,79 +15936,58 @@ void Scr_PrecomputedLOSDataSightTest(scrContext_t *scrContext)
                   Scr_ParamError(COM_ERR_2502, scrContext, Object, "entity path node list included an index that is not a pathnode");
                 if ( EntityIdRef.entnum >= g_path.actualNodeCount - pathData.zoneCount )
                 {
-                  LODWORD(v32) = g_path.actualNodeCount - pathData.zoneCount;
-                  LODWORD(v31) = EntityIdRef.entnum;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4465, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", v31, v32) )
+                  LODWORD(v19) = g_path.actualNodeCount - pathData.zoneCount;
+                  LODWORD(v18) = EntityIdRef.entnum;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4465, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", v18, v19) )
                     __debugbreak();
                 }
-                v12 = Path_ConvertNodeToIndex(&pathData.nodes[EntityIdRef.entnum]);
-                v13 = v8++;
-                pathNodeIndexListB[v13] = v12;
+                v9 = Path_ConvertNodeToIndex(&pathData.nodes[EntityIdRef.entnum]);
+                v10 = v5++;
+                pathNodeIndexListB[v10] = v9;
               }
               FirstSibling = FindNextSibling(scrContext, FirstSibling);
             }
             while ( FirstSibling );
-            v33 = v8;
-            v7 = 0i64;
+            v20 = v5;
+            v4 = 0i64;
           }
-          NextSibling = FindFirstSibling(scrContext, v6);
+          NextSibling = FindFirstSibling(scrContext, v3);
           if ( NextSibling )
           {
             do
             {
-              v15 = FindObject(scrContext, NextSibling);
-              if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4480, ASSERT_TYPE_ASSERT, "( objectIdPathNode )", (const char *)&queryFormat, "objectIdPathNode") )
+              v12 = FindObject(scrContext, NextSibling);
+              if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4480, ASSERT_TYPE_ASSERT, "( objectIdPathNode )", (const char *)&queryFormat, "objectIdPathNode") )
                 __debugbreak();
-              if ( GetObjectType(scrContext, v15) == VAR_ENTITY )
+              if ( GetObjectType(scrContext, v12) == VAR_ENTITY )
               {
-                v16 = Scr_GetEntityIdRef(scrContext, v15);
-                if ( v16.entclass != ENTITY_CLASS_PATHNODE )
-                  Scr_ParamError(COM_ERR_2503, scrContext, v15, "spawn point path node list included an index that is not a pathnode");
-                if ( v16.entnum >= g_path.actualNodeCount - pathData.zoneCount )
+                v13 = Scr_GetEntityIdRef(scrContext, v12);
+                if ( v13.entclass != ENTITY_CLASS_PATHNODE )
+                  Scr_ParamError(COM_ERR_2503, scrContext, v12, "spawn point path node list included an index that is not a pathnode");
+                if ( v13.entnum >= g_path.actualNodeCount - pathData.zoneCount )
                 {
-                  LODWORD(v32) = g_path.actualNodeCount - pathData.zoneCount;
-                  LODWORD(v31) = v16.entnum;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4492, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", v31, v32) )
+                  LODWORD(v19) = g_path.actualNodeCount - pathData.zoneCount;
+                  LODWORD(v18) = v13.entnum;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 4492, ASSERT_TYPE_ASSERT, "(unsigned)( entRefNode.entnum ) < (unsigned)( Path_NodeCount() )", "entRefNode.entnum doesn't index Path_NodeCount()\n\t%i not in [0, %i)", v18, v19) )
                     __debugbreak();
                 }
-                pathNodeIndexListA[v7] = Path_ConvertNodeToIndex(&pathData.nodes[v16.entnum]);
-                v7 = (unsigned int)(v7 + 1);
+                pathNodeIndexListA[v4] = Path_ConvertNodeToIndex(&pathData.nodes[v13.entnum]);
+                v4 = (unsigned int)(v4 + 1);
               }
               NextSibling = FindNextSibling(scrContext, NextSibling);
             }
             while ( NextSibling );
-            v8 = v33;
+            v5 = v20;
           }
-          MinimumValueBetweenNodeLists = LOSPrecomputeSystem::GetMinimumValueBetweenNodeLists(&g_losPrecomputeData, pathNodeIndexListA, v7, pathNodeIndexListB, v8);
-          v18 = MinimumValueBetweenNodeLists;
-          truncate_cast<unsigned char,int>(HIBYTE(MinimumValueBetweenNodeLists));
-          __asm
-          {
-            vmovss  xmm6, cs:__real@437f0000
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vsubss  xmm0, xmm6, xmm0
-            vmulss  xmm8, xmm0, cs:__real@3b808081
-          }
-          truncate_cast<unsigned char,int>(v18);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vsubss  xmm6, xmm6, xmm0
-          }
+          MinimumValueBetweenNodeLists = LOSPrecomputeSystem::GetMinimumValueBetweenNodeLists(&g_losPrecomputeData, pathNodeIndexListA, v4, pathNodeIndexListB, v5);
+          v15 = MinimumValueBetweenNodeLists;
+          v16 = (float)(255.0 - (float)truncate_cast<unsigned char,int>(HIBYTE(MinimumValueBetweenNodeLists))) * 0.0039215689;
+          v17 = (float)truncate_cast<unsigned char,int>(v15);
           Scr_MakeArray(scrContext);
-          __asm { vmulss  xmm1, xmm6, cs:__real@3b808081; value }
-          Scr_AddFloat(scrContext, *(float *)&_XMM1);
+          Scr_AddFloat(scrContext, (float)(255.0 - v17) * 0.0039215689);
           Scr_AddArray(scrContext);
-          __asm { vmovaps xmm1, xmm8; value }
-          Scr_AddFloat(scrContext, *(float *)&_XMM1);
+          Scr_AddFloat(scrContext, v16);
           Scr_AddArray(scrContext);
-          __asm
-          {
-            vmovaps xmm8, [rsp+24A8h+var_48]
-            vmovaps xmm6, [rsp+24A8h+var_38]
-          }
         }
         else
         {
@@ -19037,31 +16124,31 @@ Scr_SpawnCoverNode
 void Scr_SpawnCoverNode(scrContext_t *scrContext)
 {
   const char *String; 
-  const char **v4; 
-  int v5; 
-  const char *v6; 
-  __int64 v7; 
-  const char *v8; 
-  signed __int64 v9; 
-  int v10; 
-  __int64 v11; 
+  const char **v3; 
+  int v4; 
+  const char *v5; 
+  __int64 v6; 
+  const char *v7; 
+  signed __int64 v8; 
+  int v9; 
+  __int64 v10; 
+  int v11; 
   int v12; 
   int v13; 
   int v14; 
-  int v15; 
-  const char *v16; 
+  const char *v15; 
   int NumParam; 
   unsigned int Int; 
   scr_string_t ConstString; 
-  scr_string_t v20; 
-  const char *v21; 
-  char *v28; 
-  unsigned __int16 v32; 
-  const pathnode_t *v33; 
-  scrContext_t *v34; 
-  unsigned __int16 v35; 
-  pathnode_t *v36; 
-  const char *v37; 
+  scr_string_t v19; 
+  const char *v20; 
+  char *v21; 
+  unsigned __int16 v22; 
+  const pathnode_t *v23; 
+  scrContext_t *v24; 
+  unsigned __int16 v25; 
+  pathnode_t *v26; 
+  const char *v27; 
   scr_string_t from; 
   vec3_t vectorValue; 
   vec3_t start; 
@@ -19073,56 +16160,56 @@ void Scr_SpawnCoverNode(scrContext_t *scrContext)
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   String = Scr_GetString(scrContext, 2u);
-  v4 = nodeStringTable;
-  v5 = 0;
+  v3 = nodeStringTable;
+  v4 = 0;
   while ( 2 )
   {
-    v6 = *v4;
-    v7 = 0x7FFFFFFFi64;
-    v8 = String;
-    if ( !*v4 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+    v5 = *v3;
+    v6 = 0x7FFFFFFFi64;
+    v7 = String;
+    if ( !*v3 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
     if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
       __debugbreak();
-    v9 = v6 - String;
+    v8 = v5 - String;
     while ( 1 )
     {
-      v10 = (unsigned __int8)v8[v9];
-      v11 = v7;
-      v12 = *(unsigned __int8 *)v8++;
-      --v7;
-      if ( !v11 )
+      v9 = (unsigned __int8)v7[v8];
+      v10 = v6;
+      v11 = *(unsigned __int8 *)v7++;
+      --v6;
+      if ( !v10 )
       {
 LABEL_17:
-        v15 = v5;
-        if ( v5 != -1 )
+        v14 = v4;
+        if ( v4 != -1 )
           goto LABEL_22;
         goto LABEL_21;
       }
-      if ( v10 != v12 )
+      if ( v9 != v11 )
       {
-        v13 = v10 + 32;
-        if ( (unsigned int)(v10 - 65) > 0x19 )
-          v13 = v10;
-        v10 = v13;
-        v14 = v12 + 32;
-        if ( (unsigned int)(v12 - 65) > 0x19 )
-          v14 = v12;
-        if ( v10 != v14 )
+        v12 = v9 + 32;
+        if ( (unsigned int)(v9 - 65) > 0x19 )
+          v12 = v9;
+        v9 = v12;
+        v13 = v11 + 32;
+        if ( (unsigned int)(v11 - 65) > 0x19 )
+          v13 = v11;
+        if ( v9 != v13 )
           break;
       }
-      if ( !v10 )
+      if ( !v9 )
         goto LABEL_17;
     }
-    ++v5;
-    if ( (__int64)++v4 < (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_691 )
+    ++v4;
+    if ( (__int64)++v3 < (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_691 )
       continue;
     break;
   }
-  v15 = -1;
+  v14 = -1;
 LABEL_21:
-  v16 = j_va("SpawnCoverNode: Unrecognized node type %s.", String);
-  Scr_Error(COM_ERR_2461, scrContext, v16);
+  v15 = j_va("SpawnCoverNode: Unrecognized node type %s.", String);
+  Scr_Error(COM_ERR_2461, scrContext, v15);
 LABEL_22:
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam > 3 && Scr_GetType(scrContext, 3u) )
@@ -19134,69 +16221,51 @@ LABEL_22:
   else
     ConstString = 0;
   if ( NumParam > 5 && Scr_GetType(scrContext, 5u) )
-    v20 = Scr_GetConstString(scrContext, 5u);
+    v19 = Scr_GetConstString(scrContext, 5u);
   else
-    v20 = 0;
-  if ( v15 == 16 && (NumParam <= 6 || (from = Scr_GetConstString(scrContext, 6u)) == 0) )
+    v19 = 0;
+  if ( v14 == 16 && (NumParam <= 6 || (from = Scr_GetConstString(scrContext, 6u)) == 0) )
   {
-    v21 = j_va("SpawnCoverNode: node type %s must have the 'animscript' parameter passed-in.", String);
-    Scr_Error(COM_ERR_2462, scrContext, v21);
+    v20 = j_va("SpawnCoverNode: node type %s must have the 'animscript' parameter passed-in.", String);
+    Scr_Error(COM_ERR_2462, scrContext, v20);
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+120h+vectorValue+8]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-    vmovss  xmm3, dword ptr [rsp+120h+vectorValue]
-    vmovss  xmm2, dword ptr [rsp+120h+vectorValue+4]
-    vmovss  dword ptr [rbp+57h+start+8], xmm0
-    vsubss  xmm0, xmm1, cs:__real@42100000
-    vmovss  dword ptr [rbp+57h+end+8], xmm0
-    vmovss  dword ptr [rbp+57h+start], xmm3
-    vmovss  dword ptr [rbp+57h+start+4], xmm2
-    vmovss  dword ptr [rbp+57h+end], xmm3
-    vmovss  dword ptr [rbp+57h+end+4], xmm2
-  }
+  start.v[2] = vectorValue.v[2] + 12.0;
+  end.v[2] = vectorValue.v[2] - 36.0;
+  start.v[0] = vectorValue.v[0];
+  start.v[1] = vectorValue.v[1];
+  end.v[0] = vectorValue.v[0];
+  end.v[1] = vectorValue.v[1];
   G_Main_TraceCapsule(&results, &start, &end, &actorBox, 2047, 131089);
   if ( results.startsolid || results.allsolid )
   {
-    v37 = vtos(&vectorValue);
-    Com_PrintError(16, "SpawnCoverNode: pos %s is inside a solid.", v37);
+    v27 = vtos(&vectorValue);
+    Com_PrintError(16, "SpawnCoverNode: pos %s is inside a solid.", v27);
+    return;
   }
-  else
+  if ( ((1 << v14) & 0x1E300000) == 0 )
   {
-    __asm { vmovaps xmmword ptr [rsp+120h+var_38+8], xmm6 }
-    if ( ((1 << v15) & 0x1E300000) != 0 )
+    if ( results.fraction >= 1.0 )
     {
-      v32 = Path_SpawnNode(&vectorValue, &angles, v15, Int, ConstString, v20);
-      if ( v32 != 0xFFFF )
-      {
-        v33 = Path_ConvertIndexToNode(v32);
-        v34 = ScriptContext_Server();
-        v35 = Path_ConvertNodeToIndex(v33);
-        Scr_AddEntityNum(v34, v35, ENTITY_CLASS_PATHNODE);
-        if ( v15 == 16 )
-        {
-          v36 = Path_ConvertIndexToNode(v32);
-          Scr_SetString(&v36->constant.animscript, from);
-        }
-      }
+      v21 = vtos(&vectorValue);
+      Com_PrintError(16, "SpawnCoverNode: unable to find anything solid underneath pos %s within %.0f.", v21, DOUBLE_36_0);
+      return;
     }
-    else
+    vectorValue.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    vectorValue.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+    vectorValue.v[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
+  }
+  v22 = Path_SpawnNode(&vectorValue, &angles, v14, Int, ConstString, v19);
+  if ( v22 != 0xFFFF )
+  {
+    v23 = Path_ConvertIndexToNode(v22);
+    v24 = ScriptContext_Server();
+    v25 = Path_ConvertNodeToIndex(v23);
+    Scr_AddEntityNum(v24, v25, ENTITY_CLASS_PATHNODE);
+    if ( v14 == 16 )
     {
-      __asm
-      {
-        vmovss  xmm6, [rbp+57h+results.fraction]
-        vcomiss xmm6, cs:__real@3f800000
-      }
-      v28 = vtos(&vectorValue);
-      __asm
-      {
-        vmovsd  xmm3, cs:__real@4042000000000000
-        vmovq   r9, xmm3
-      }
-      Com_PrintError(16, "SpawnCoverNode: unable to find anything solid underneath pos %s within %.0f.", v28, _R9);
+      v26 = Path_ConvertIndexToNode(v22);
+      Scr_SetString(&v26->constant.animscript, from);
     }
-    __asm { vmovaps xmm6, xmmword ptr [rsp+120h+var_38+8] }
   }
 }
 
@@ -19231,134 +16300,63 @@ pathnode_t::SetWorldAngles
 void pathnode_t::SetWorldAngles(pathnode_t *this, const vec3_t *worldAngles)
 {
   gentity_s *Parent; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t angles; 
   vec4_t quat; 
-  vec4_t v67; 
-  vec4_t v68; 
+  vec4_t v14; 
+  vec4_t v15; 
   vec3_t forward; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = this;
   Parent = pathnode_t::GetParent(this);
   if ( Parent )
   {
-    __asm
-    {
-      vmovaps [rsp+110h+var_10], xmm6
-      vmovaps [rsp+110h+var_20], xmm7
-      vmovaps [rsp+110h+var_30], xmm8
-      vmovaps [rsp+110h+var_40], xmm9
-      vmovaps [rsp+110h+var_50], xmm10
-      vmovaps [rsp+110h+var_60], xmm11
-      vmovaps [rsp+110h+var_70], xmm12
-    }
     AnglesToQuat(&Parent->r.currentAngles, &quat);
-    __asm
-    {
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rsp+110h+quat]
-      vmovss  xmm1, dword ptr [rsp+110h+quat+4]
-      vmovss  xmm9, dword ptr [rsp+110h+quat+0Ch]
-      vxorps  xmm10, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rsp+110h+quat+8]
-      vxorps  xmm12, xmm0, xmm2
-      vxorps  xmm11, xmm1, xmm2
-    }
-    AnglesToQuat(worldAngles, &v67);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rsp+110h+var_D0+0Ch]
-      vmovss  xmm6, dword ptr [rsp+110h+var_D0]
-      vmovss  xmm8, dword ptr [rsp+110h+var_D0+8]
-      vmovss  xmm5, dword ptr [rsp+110h+var_D0+4]
-      vmulss  xmm1, xmm7, xmm10
-      vmulss  xmm0, xmm6, xmm9
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, xmm11
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm5, xmm12
-      vsubss  xmm1, xmm3, xmm0
-      vmovss  dword ptr [rsp+110h+var_C0], xmm1
-      vmulss  xmm0, xmm8, xmm10
-      vmulss  xmm2, xmm5, xmm9
-      vsubss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm7, xmm11
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm0, xmm6, xmm12
-      vaddss  xmm2, xmm4, xmm0
-      vmovss  dword ptr [rsp+110h+var_C0+4], xmm2
-      vmulss  xmm0, xmm8, xmm9
-      vmulss  xmm1, xmm5, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm11
-      vsubss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm12
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm0, xmm6, xmm10
-      vmulss  xmm1, xmm7, xmm9
-      vmovss  dword ptr [rsp+110h+var_C0+8], xmm2
-      vsubss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm11
-      vsubss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm8, xmm12
-      vsubss  xmm2, xmm3, xmm0
-      vmovss  dword ptr [rsp+110h+var_C0+0Ch], xmm2
-    }
-    QuatToAxis(&v68, &axis);
+    v6 = quat.v[3];
+    LODWORD(v7) = LODWORD(quat.v[0]) ^ _xmm;
+    LODWORD(v8) = LODWORD(quat.v[2]) ^ _xmm;
+    LODWORD(v9) = LODWORD(quat.v[1]) ^ _xmm;
+    AnglesToQuat(worldAngles, &v14);
+    v15.v[0] = (float)((float)((float)(v14.v[3] * v7) + (float)(v14.v[0] * v6)) + (float)(v14.v[2] * v9)) - (float)(v14.v[1] * v8);
+    v15.v[1] = (float)((float)((float)(v14.v[1] * v6) - (float)(v14.v[2] * v7)) + (float)(v14.v[3] * v9)) + (float)(v14.v[0] * v8);
+    v15.v[2] = (float)((float)((float)(v14.v[1] * v7) + (float)(v14.v[2] * v6)) - (float)(v14.v[0] * v9)) + (float)(v14.v[3] * v8);
+    v15.v[3] = (float)((float)((float)(v14.v[3] * v6) - (float)(v14.v[0] * v7)) - (float)(v14.v[1] * v9)) - (float)(v14.v[2] * v8);
+    QuatToAxis(&v15, &axis);
     AxisToAngles(&axis, &angles);
-    __asm
+    if ( ((1 << LOBYTE(this->constant.type)) & 0x62700000) != 0 )
     {
-      vmovaps xmm12, [rsp+110h+var_70]
-      vmovaps xmm11, [rsp+110h+var_60]
-      vmovaps xmm10, [rsp+110h+var_50]
-      vmovaps xmm9, [rsp+110h+var_40]
-      vmovaps xmm8, [rsp+110h+var_30]
-      vmovaps xmm7, [rsp+110h+var_20]
-      vmovaps xmm6, [rsp+110h+var_10]
-    }
-    if ( ((1 << LOBYTE(_RBX->constant.type)) & 0x62700000) != 0 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+110h+angles]
-        vmovss  xmm1, dword ptr [rsp+110h+angles+4]
-        vmovss  dword ptr [rbx+2Ch], xmm0
-        vmovss  xmm0, dword ptr [rsp+110h+angles+8]
-      }
+      v10 = angles.v[1];
+      this->constant.yaw_orient.fLocalAngle = angles.v[0];
+      v11 = angles.v[2];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+110h+angles+4]
-        vmovss  xmm1, dword ptr [rsp+110h+axis]
-        vmovss  dword ptr [rbx+2Ch], xmm0
-        vmovss  xmm0, dword ptr [rsp+110h+axis+4]
-      }
+      v10 = axis.m[0].v[0];
+      this->constant.yaw_orient.fLocalAngle = angles.v[1];
+      v11 = axis.m[0].v[1];
     }
-    __asm
-    {
-      vmovss  dword ptr [rbx+34h], xmm0
-      vmovss  dword ptr [rbx+30h], xmm1
-    }
+    this->constant.yaw_orient.localForward.v[1] = v11;
+    this->constant.yaw_orient.localForward.v[0] = v10;
   }
-  else if ( ((1 << LOBYTE(_RBX->constant.type)) & 0x62700000) != 0 )
+  else if ( ((1 << LOBYTE(this->constant.type)) & 0x62700000) != 0 )
   {
-    _RBX->constant.yaw_orient.fLocalAngle = worldAngles->v[0];
-    _RBX->constant.yaw_orient.localForward.v[0] = worldAngles->v[1];
-    _RBX->constant.yaw_orient.localForward.v[1] = worldAngles->v[2];
+    this->constant.yaw_orient.fLocalAngle = worldAngles->v[0];
+    this->constant.yaw_orient.localForward.v[0] = worldAngles->v[1];
+    this->constant.yaw_orient.localForward.v[1] = worldAngles->v[2];
   }
   else
   {
-    _RBX->constant.yaw_orient.fLocalAngle = worldAngles->v[1];
+    this->constant.yaw_orient.fLocalAngle = worldAngles->v[1];
     AngleVectors(worldAngles, &forward, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+110h+forward]
-      vmovss  xmm1, dword ptr [rsp+110h+forward+4]
-      vmovss  dword ptr [rbx+30h], xmm0
-      vmovss  dword ptr [rbx+34h], xmm1
-    }
+    v5 = forward.v[1];
+    this->constant.yaw_orient.localForward.v[0] = forward.v[0];
+    this->constant.yaw_orient.localForward.v[1] = v5;
   }
 }
 
@@ -19369,36 +16367,32 @@ pathnode_t::SetWorldPos
 */
 void pathnode_t::SetWorldPos(pathnode_t *this, const vec3_t *worldPos)
 {
+  gentity_s *Parent; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
   vec3_t in1; 
   tmat33_t<vec3_t> mat; 
 
-  _RDI = worldPos;
-  _RBX = this;
-  _RAX = pathnode_t::GetParent(this);
-  __asm { vmovss  xmm0, dword ptr [rdi] }
-  if ( _RAX )
+  Parent = pathnode_t::GetParent(this);
+  v5 = worldPos->v[0];
+  if ( Parent )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, dword ptr [rax+130h]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vsubss  xmm2, xmm1, dword ptr [rax+134h]
-      vmovss  dword ptr [rsp+68h+in1], xmm0
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm1, xmm0, dword ptr [rax+138h]
-      vmovss  dword ptr [rsp+68h+in1+4], xmm2
-      vmovss  xmm2, dword ptr [rax+140h]
-      vmovss  dword ptr [rsp+68h+in1+8], xmm1
-      vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; degrees
-    }
-    MatrixRotationZ(&mat, *(float *)&_XMM1);
-    MatrixTransformVector(&in1, &mat, &_RBX->constant.vLocalOrigin);
+    v6 = worldPos->v[1] - Parent->r.currentOrigin.v[1];
+    in1.v[0] = v5 - Parent->r.currentOrigin.v[0];
+    v7 = worldPos->v[2] - Parent->r.currentOrigin.v[2];
+    in1.v[1] = v6;
+    v8 = Parent->r.currentAngles.v[1];
+    in1.v[2] = v7;
+    MatrixRotationZ(&mat, COERCE_FLOAT(LODWORD(v8) ^ _xmm));
+    MatrixTransformVector(&in1, &mat, &this->constant.vLocalOrigin);
   }
   else
   {
-    __asm { vmovss  dword ptr [rbx+20h], xmm0 }
-    _RBX->constant.vLocalOrigin.v[1] = _RDI->v[1];
-    _RBX->constant.vLocalOrigin.v[2] = _RDI->v[2];
+    this->constant.vLocalOrigin.v[0] = v5;
+    this->constant.vLocalOrigin.v[1] = worldPos->v[1];
+    this->constant.vLocalOrigin.v[2] = worldPos->v[2];
   }
 }
 
@@ -19568,19 +16562,20 @@ TurretNode_GetAngles
 void TurretNode_GetAngles(const pathnode_t *node, float *angleMin, float *angleMax)
 {
   __int16 turretEntNumber; 
-  gentity_s *v8; 
+  gentity_s *v7; 
+  __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
+  GTurret *v10; 
+  double v11; 
+  double v12; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
 
-  _RSI = angleMax;
-  _R14 = angleMin;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1471, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1472, ASSERT_TYPE_ASSERT, "( angleMin )", (const char *)&queryFormat, "angleMin") )
+  if ( !angleMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1472, ASSERT_TYPE_ASSERT, "( angleMin )", (const char *)&queryFormat, "angleMin") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1473, ASSERT_TYPE_ASSERT, "( angleMax )", (const char *)&queryFormat, "angleMax") )
+  if ( !angleMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1473, ASSERT_TYPE_ASSERT, "( angleMax )", (const char *)&queryFormat, "angleMax") )
     __debugbreak();
   if ( node->constant.type != 18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1474, ASSERT_TYPE_ASSERT, "( node->constant.type == NODE_TURRET )", (const char *)&queryFormat, "node->constant.type == NODE_TURRET") )
     __debugbreak();
@@ -19589,42 +16584,36 @@ void TurretNode_GetAngles(const pathnode_t *node, float *angleMin, float *angleM
   {
     if ( (unsigned __int16)turretEntNumber >= 0x800u )
     {
-      LODWORD(v14) = turretEntNumber;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1483, ASSERT_TYPE_ASSERT, "(unsigned)( node->dynamic.turretEntNumber ) < (unsigned)( ( 2048 ) )", "node->dynamic.turretEntNumber doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, 2048) )
+      LODWORD(v13) = turretEntNumber;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.cpp", 1483, ASSERT_TYPE_ASSERT, "(unsigned)( node->dynamic.turretEntNumber ) < (unsigned)( ( 2048 ) )", "node->dynamic.turretEntNumber doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v13, 2048) )
         __debugbreak();
     }
-    v8 = g_entities;
-    v9 = node->dynamic.turretEntNumber;
-    if ( !g_entities[v9].turretHandle.m_objIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_object_handle.h", 36, ASSERT_TYPE_ASSERT, "(IsDefined())", "%s\n\tCan't get the index of an undefined handle", "IsDefined()") )
+    v7 = g_entities;
+    v8 = node->dynamic.turretEntNumber;
+    if ( !g_entities[v8].turretHandle.m_objIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_object_handle.h", 36, ASSERT_TYPE_ASSERT, "(IsDefined())", "%s\n\tCan't get the index of an undefined handle", "IsDefined()") )
       __debugbreak();
-    v10 = v8[v9].turretHandle.m_objIndex - 1;
+    v9 = v7[v8].turretHandle.m_objIndex - 1;
     if ( !(_BYTE)GTurret::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 226, ASSERT_TYPE_ASSERT, "( ms_allocatedType != GameModeType::NONE )", (const char *)&queryFormat, "ms_allocatedType != GameModeType::NONE") )
       __debugbreak();
-    if ( (unsigned int)v10 >= 0x80 )
+    if ( (unsigned int)v9 >= 0x80 )
     {
-      LODWORD(v15) = 128;
-      LODWORD(v14) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 227, ASSERT_TYPE_ASSERT, "(unsigned)( turretIndex ) < (unsigned)( ( sizeof( *array_counter( ms_turretArray ) ) + 0 ) )", "turretIndex doesn't index ARRAY_COUNT( ms_turretArray )\n\t%i not in [0, %i)", v14, v15) )
+      LODWORD(v14) = 128;
+      LODWORD(v13) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 227, ASSERT_TYPE_ASSERT, "(unsigned)( turretIndex ) < (unsigned)( ( sizeof( *array_counter( ms_turretArray ) ) + 0 ) )", "turretIndex doesn't index ARRAY_COUNT( ms_turretArray )\n\t%i not in [0, %i)", v13, v14) )
         __debugbreak();
     }
-    if ( !GTurret::ms_turretArray[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 228, ASSERT_TYPE_ASSERT, "( ms_turretArray[turretIndex] )", (const char *)&queryFormat, "ms_turretArray[turretIndex]") )
+    if ( !GTurret::ms_turretArray[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 228, ASSERT_TYPE_ASSERT, "( ms_turretArray[turretIndex] )", (const char *)&queryFormat, "ms_turretArray[turretIndex]") )
       __debugbreak();
-    _RBX = GTurret::ms_turretArray[v10];
-    __asm { vmovss  xmm0, dword ptr [rbx+20h]; angle }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm0, dword ptr [rbx+28h]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm { vmovss  dword ptr [rsi], xmm0 }
+    v10 = GTurret::ms_turretArray[v9];
+    v11 = AngleNormalize360(v10->m_data.arcmin.v[1]);
+    *angleMin = *(float *)&v11;
+    v12 = AngleNormalize360(v10->m_data.arcmax.v[1]);
+    *angleMax = *(float *)&v12;
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@42340000 }
-    *_R14 = 315.0;
-    __asm { vmovss  dword ptr [rsi], xmm0 }
+    *angleMin = 315.0;
+    *angleMax = FLOAT_45_0;
   }
 }
 
@@ -19636,27 +16625,23 @@ pathnode_t::WorldifyPosFromParent
 void pathnode_t::WorldifyPosFromParent(pathnode_t *this, vec3_t *pos)
 {
   gentity_s *Parent; 
+  float *p_number; 
+  float v5; 
+  float v6; 
   vec3_t out; 
   tmat33_t<vec3_t> axis; 
 
-  _RDI = pos;
   Parent = pathnode_t::GetParent(this);
+  p_number = (float *)&Parent->s.number;
   if ( Parent )
   {
     AnglesToAxis(&Parent->r.currentAngles, &axis);
-    MatrixTransformVector(_RDI, &axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+out]
-      vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-      vmovss  xmm2, dword ptr [rsp+68h+out+4]
-      vmovss  dword ptr [rdi], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rbx+134h]
-      vmovss  xmm1, dword ptr [rsp+68h+out+8]
-      vmovss  dword ptr [rdi+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rbx+138h]
-      vmovss  dword ptr [rdi+8], xmm2
-    }
+    MatrixTransformVector(pos, &axis, &out);
+    v5 = out.v[1];
+    pos->v[0] = out.v[0] + p_number[76];
+    v6 = out.v[2];
+    pos->v[1] = v5 + p_number[77];
+    pos->v[2] = v6 + p_number[78];
   }
 }
 

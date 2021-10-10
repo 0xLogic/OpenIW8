@@ -213,14 +213,10 @@ RB_TakeScreenshot
 */
 void RB_TakeScreenshot(const GfxScreenshotDesc *desc, R_RT_ColorHandle *colorRt, int x, int y, int width, int height)
 {
-  R_RT_ColorHandle v7; 
+  R_RT_ColorHandle v6; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-  }
-  R_TakeScreenshot(desc, &v7, x, y, width, height);
+  v6 = *colorRt;
+  R_TakeScreenshot(desc, &v6, x, y, width, height);
 }
 
 /*
@@ -230,14 +226,10 @@ RB_TakeScreenshot
 */
 void RB_TakeScreenshot(R_RT_ColorHandle *colorRt, int x, int y, int width, int height)
 {
-  R_RT_ColorHandle v6; 
+  R_RT_ColorHandle v5; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-  }
-  R_TakeScreenshot(&s_screenshotRequest.m_desc, &v6, x, y, width, height);
+  v5 = *colorRt;
+  R_TakeScreenshot(&s_screenshotRequest.m_desc, &v5, x, y, width, height);
 }
 
 /*
@@ -371,13 +363,8 @@ void R_ScreenshotCommand(GfxScreenshotFormat fileFormat, int pipelineStage)
       Com_Printf(8, "ScreenShot: Couldn't create a file\n");
       return;
     }
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+options.m_viewsCount]
-      vmovss  xmm1, [rsp+68h+options.m_viewID]
-      vmovss  cs:?s_screenshotInfo@@3UScreenshotGlobalInfo@@A.screenshotViews, xmm0; ScreenshotGlobalInfo s_screenshotInfo
-      vmovss  cs:?s_screenshotInfo@@3UScreenshotGlobalInfo@@A.screenshotViewID, xmm1; ScreenshotGlobalInfo s_screenshotInfo
-    }
+    s_screenshotInfo.screenshotViews = options.m_viewsCount;
+    s_screenshotInfo.screenshotViewID = options.m_viewID;
     Com_Printf(8, "ScreenShot: File '%s'\n", s_screenshotRequest.m_desc.m_filename);
     if ( options.m_hires )
     {
@@ -402,11 +389,6 @@ void R_ScreenshotCommand(GfxScreenshotFormat fileFormat, int pipelineStage)
     else
     {
       R_RT_GetGlobalColor((R_RT_ColorHandle *)&options, R_RENDERTARGET_DISPLAY_BUFFER);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+68h+options.m_type]
-        vmovups ymmword ptr [rsp+68h+options.m_type], ymm0
-      }
       R_TakeScreenshot(&s_screenshotRequest.m_desc, (R_RT_ColorHandle *)&options, 0, 0, -1, -1);
     }
   }
@@ -419,223 +401,224 @@ R_ScreenshotCommand_ParseArgs
 */
 char R_ScreenshotCommand_ParseArgs(ScreenshotCommandArguments *options)
 {
+  int v2; 
   int v3; 
-  int v4; 
+  const char *v4; 
   const char *v5; 
-  const char *v6; 
-  __int64 v7; 
-  int v8; 
-  __int64 v9; 
+  __int64 v6; 
+  int v7; 
+  __int64 v8; 
+  int v9; 
   int v10; 
   int v11; 
-  int v12; 
-  const char *v14; 
-  __int64 v15; 
-  int v16; 
-  __int64 v17; 
+  const char *v13; 
+  __int64 v14; 
+  int v15; 
+  __int64 v16; 
+  int v17; 
   int v18; 
   int v19; 
-  int v20; 
-  const char *v21; 
-  __int64 v22; 
-  int v23; 
-  __int64 v24; 
+  const char *v20; 
+  __int64 v21; 
+  int v22; 
+  __int64 v23; 
+  int v24; 
   int v25; 
   int v26; 
-  int v27; 
+  double v27; 
+  double v28; 
 
-  _RSI = options;
   if ( !options && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp", 398, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
     __debugbreak();
-  *(_QWORD *)&_RSI->m_type = 0i64;
-  *(_QWORD *)&_RSI->m_viewsCount = 0i64;
-  *(_DWORD *)&_RSI->m_silent = 16908288;
-  *(_WORD *)&_RSI->m_exrTmp = 0;
-  _RSI->m_name = NULL;
-  v3 = 1;
-  v4 = Cmd_Argc();
-  if ( v4 <= 1 )
+  *(_QWORD *)&options->m_type = 0i64;
+  *(_QWORD *)&options->m_viewsCount = 0i64;
+  *(_DWORD *)&options->m_silent = 16908288;
+  *(_WORD *)&options->m_exrTmp = 0;
+  options->m_name = NULL;
+  v2 = 1;
+  v3 = Cmd_Argc();
+  if ( v3 <= 1 )
   {
 LABEL_18:
-    if ( _RSI->m_type != SAVEGAME || _RSI->m_name )
+    if ( options->m_type != SAVEGAME || options->m_name )
       return 1;
     Com_Printf(0, "screenshot savegame option must specify a name\n");
     return 0;
   }
 LABEL_5:
-  v5 = "silent";
-  v6 = Cmd_Argv(v3);
-  v7 = 0x7FFFFFFFi64;
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+  v4 = "silent";
+  v5 = Cmd_Argv(v2);
+  v6 = 0x7FFFFFFFi64;
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
   while ( 1 )
   {
-    v8 = (unsigned __int8)v5[v6 - "silent"];
-    v9 = v7;
-    v10 = *(unsigned __int8 *)v5++;
-    --v7;
-    if ( !v9 )
+    v7 = (unsigned __int8)v4[v5 - "silent"];
+    v8 = v6;
+    v9 = *(unsigned __int8 *)v4++;
+    --v6;
+    if ( !v8 )
     {
 LABEL_16:
-      _RSI->m_silent = 1;
+      options->m_silent = 1;
       goto LABEL_17;
     }
-    if ( v8 != v10 )
+    if ( v7 != v9 )
     {
-      v11 = v8 + 32;
-      if ( (unsigned int)(v8 - 65) > 0x19 )
-        v11 = v8;
-      v8 = v11;
-      v12 = v10 + 32;
-      if ( (unsigned int)(v10 - 65) > 0x19 )
-        v12 = v10;
-      if ( v8 != v12 )
+      v10 = v7 + 32;
+      if ( (unsigned int)(v7 - 65) > 0x19 )
+        v10 = v7;
+      v7 = v10;
+      v11 = v9 + 32;
+      if ( (unsigned int)(v9 - 65) > 0x19 )
+        v11 = v9;
+      if ( v7 != v11 )
         break;
     }
-    if ( !v8 )
+    if ( !v7 )
       goto LABEL_16;
   }
-  v14 = "levelshot";
-  v15 = 0x7FFFFFFFi64;
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+  v13 = "levelshot";
+  v14 = 0x7FFFFFFFi64;
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
   while ( 1 )
   {
-    v16 = (unsigned __int8)v14[v6 - "levelshot"];
-    v17 = v15;
-    v18 = *(unsigned __int8 *)v14++;
-    --v15;
-    if ( !v17 )
+    v15 = (unsigned __int8)v13[v5 - "levelshot"];
+    v16 = v14;
+    v17 = *(unsigned __int8 *)v13++;
+    --v14;
+    if ( !v16 )
     {
 LABEL_32:
-      if ( _RSI->m_type )
+      if ( options->m_type )
 LABEL_72:
-        Com_Printf(0, "Invalid arg \"%s\", Screenshot type already set\n", v6);
+        Com_Printf(0, "Invalid arg \"%s\", Screenshot type already set\n", v5);
       else
-        _RSI->m_type = LEVELSHOT;
+        options->m_type = LEVELSHOT;
 LABEL_17:
-      if ( ++v3 >= v4 )
+      if ( ++v2 >= v3 )
         goto LABEL_18;
       goto LABEL_5;
     }
-    if ( v16 != v18 )
+    if ( v15 != v17 )
     {
-      v19 = v16 + 32;
-      if ( (unsigned int)(v16 - 65) > 0x19 )
-        v19 = v16;
-      v16 = v19;
-      v20 = v18 + 32;
-      if ( (unsigned int)(v18 - 65) > 0x19 )
-        v20 = v18;
-      if ( v16 != v20 )
+      v18 = v15 + 32;
+      if ( (unsigned int)(v15 - 65) > 0x19 )
+        v18 = v15;
+      v15 = v18;
+      v19 = v17 + 32;
+      if ( (unsigned int)(v17 - 65) > 0x19 )
+        v19 = v17;
+      if ( v15 != v19 )
         break;
     }
-    if ( !v16 )
+    if ( !v15 )
       goto LABEL_32;
   }
-  v21 = "savegame";
-  v22 = 0x7FFFFFFFi64;
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+  v20 = "savegame";
+  v21 = 0x7FFFFFFFi64;
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
   while ( 1 )
   {
-    v23 = (unsigned __int8)v21[v6 - "savegame"];
-    v24 = v22;
-    v25 = *(unsigned __int8 *)v21++;
-    --v22;
-    if ( !v24 )
+    v22 = (unsigned __int8)v20[v5 - "savegame"];
+    v23 = v21;
+    v24 = *(unsigned __int8 *)v20++;
+    --v21;
+    if ( !v23 )
     {
 LABEL_45:
-      if ( _RSI->m_type )
+      if ( options->m_type )
         goto LABEL_72;
-      _RSI->m_type = SAVEGAME;
+      options->m_type = SAVEGAME;
       goto LABEL_17;
     }
-    if ( v23 != v25 )
+    if ( v22 != v24 )
     {
-      v26 = v23 + 32;
-      if ( (unsigned int)(v23 - 65) > 0x19 )
-        v26 = v23;
-      v23 = v26;
-      v27 = v25 + 32;
-      if ( (unsigned int)(v25 - 65) > 0x19 )
-        v27 = v25;
-      if ( v23 != v27 )
+      v25 = v22 + 32;
+      if ( (unsigned int)(v22 - 65) > 0x19 )
+        v25 = v22;
+      v22 = v25;
+      v26 = v24 + 32;
+      if ( (unsigned int)(v24 - 65) > 0x19 )
+        v26 = v24;
+      if ( v22 != v26 )
         break;
     }
-    if ( !v23 )
+    if ( !v22 )
       goto LABEL_45;
   }
-  if ( !I_stricmp(v6, "noFS") )
+  if ( !I_stricmp(v5, "noFS") )
   {
-    _RSI->m_useFS = 0;
+    options->m_useFS = 0;
     goto LABEL_17;
   }
-  if ( !I_stricmp(v6, "pq") )
+  if ( !I_stricmp(v5, "pq") )
   {
-    _RSI->m_transfer = EASE_OUT_QUAD;
+    options->m_transfer = EASE_OUT_QUAD;
     goto LABEL_17;
   }
-  if ( !I_stricmp(v6, "bt709") )
+  if ( !I_stricmp(v5, "bt709") )
   {
-    _RSI->m_clutInputPrimaries[0] = 1;
+    options->m_clutInputPrimaries[0] = 1;
     goto LABEL_17;
   }
-  if ( !I_stricmp(v6, "bt2020") )
+  if ( !I_stricmp(v5, "bt2020") )
   {
-    _RSI->m_clutInputPrimaries[0] = 2;
+    options->m_clutInputPrimaries[0] = 2;
     goto LABEL_17;
   }
-  if ( !I_stricmp(v6, "exrtmp") )
+  if ( !I_stricmp(v5, "exrtmp") )
   {
-    _RSI->m_exrTmp = 1;
+    options->m_exrTmp = 1;
     goto LABEL_17;
   }
-  if ( !I_stricmp(v6, "clut") )
+  if ( !I_stricmp(v5, "clut") )
   {
     if ( vidConfig.displayWidth >= 0x400 )
-      _RSI->m_clut = 1;
+      options->m_clut = 1;
     else
       Com_Printf(0, "Can't add clut if horizontal resolution is less than %dpx.  Increase resolution.\n", 1024i64);
     goto LABEL_17;
   }
-  if ( !I_stricmp(v6, "hires") )
+  if ( !I_stricmp(v5, "hires") )
   {
-    if ( v4 > ++v3 )
+    if ( v3 > ++v2 )
     {
-      _RSI->m_hires = Cmd_ArgInt(v3);
+      options->m_hires = Cmd_ArgInt(v2);
       goto LABEL_17;
     }
 LABEL_73:
     Com_Printf(0, "subpixelX argument missing\n");
     return 0;
   }
-  if ( !I_stricmp(v6, "views") )
+  if ( !I_stricmp(v5, "views") )
   {
-    if ( v4 > ++v3 )
+    if ( v3 > ++v2 )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(v3);
-      __asm { vmovss  dword ptr [rsi+8], xmm0 }
+      v27 = Cmd_ArgFloat(v2);
+      options->m_viewsCount = *(float *)&v27;
       goto LABEL_17;
     }
     goto LABEL_73;
   }
-  if ( !I_stricmp(v6, "viewID") )
+  if ( !I_stricmp(v5, "viewID") )
   {
-    if ( v4 > ++v3 )
+    if ( v3 > ++v2 )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(v3);
-      __asm { vmovss  dword ptr [rsi+0Ch], xmm0 }
+      v28 = Cmd_ArgFloat(v2);
+      options->m_viewID = *(float *)&v28;
       goto LABEL_17;
     }
     goto LABEL_73;
   }
-  if ( !_RSI->m_name )
+  if ( !options->m_name )
   {
-    _RSI->m_name = v6;
+    options->m_name = v5;
     goto LABEL_17;
   }
-  Com_Printf(0, "Unexpected screenshot argument '%s'\n", v6);
+  Com_Printf(0, "Unexpected screenshot argument '%s'\n", v5);
   return 0;
 }
 
@@ -648,7 +631,7 @@ void R_Screenshot_ClearPending(void)
 {
   int size; 
   unsigned int v1; 
-  R_RT_Handle v5; 
+  R_RT_Handle m_colorRt; 
 
   if ( !s_R_Screenshot.m_deferredQueueCreated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp", 178, ASSERT_TYPE_ASSERT, "(s_R_Screenshot.m_deferredQueueCreated)", (const char *)&queryFormat, "s_R_Screenshot.m_deferredQueueCreated", -2i64) )
     __debugbreak();
@@ -663,20 +646,14 @@ void R_Screenshot_ClearPending(void)
     v1 = 0;
     if ( s_R_Screenshot.m_deferredQueue.size )
     {
-      _R12 = &s_R_Screenshot.m_deferredQueue.entries[0].m_colorRt;
       do
       {
         if ( !s_R_Screenshot.m_deferredQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 46, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
           __debugbreak();
         if ( v1 >= s_R_Screenshot.m_deferredQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 47, ASSERT_TYPE_ASSERT, "(index < this->size)", (const char *)&queryFormat, "index < this->size") )
           __debugbreak();
-        _RCX = 312i64 * (((_BYTE)v1 + LOBYTE(s_R_Screenshot.m_deferredQueue.start)) & 3);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx+r12]
-          vmovups ymmword ptr [rsp+88h+var_48.m_surfaceID], ymm0
-        }
-        R_RT_DestroyInternal(&v5);
+        m_colorRt = (R_RT_Handle)s_R_Screenshot.m_deferredQueue.entries[((_BYTE)v1 + LOBYTE(s_R_Screenshot.m_deferredQueue.start)) & 3].m_colorRt;
+        R_RT_DestroyInternal(&m_colorRt);
         ++v1;
       }
       while ( v1 != size );
@@ -765,60 +742,48 @@ R_Screenshot_CreateDeferredRt
 R_RT_ColorHandle *R_Screenshot_CreateDeferredRt(R_RT_ColorHandle *result, int pipelineStage, GfxRenderTargetFormat format, unsigned __int16 index, unsigned int width, unsigned int height)
 {
   R_Screenshot_DeferredQueueEntry *DeferredScreenshotEntryFromIndex; 
+  R_Screenshot_DeferredQueueEntry *v12; 
+  R_RT_Handle v13; 
   R_RT_Handle resulta; 
-  R_RT_Handle v19; 
+  R_RT_Handle v17; 
 
-  _RBX = result;
   if ( !s_R_Screenshot.m_deferredQueueCreated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp", 210, ASSERT_TYPE_ASSERT, "(s_R_Screenshot.m_deferredQueueCreated)", (const char *)&queryFormat, "s_R_Screenshot.m_deferredQueueCreated") )
     __debugbreak();
   if ( (!width || !height) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp", 211, ASSERT_TYPE_ASSERT, "(width > 0 && height > 0)", (const char *)&queryFormat, "width > 0 && height > 0") )
     __debugbreak();
-  _RBX->m_surfaceID = 0;
-  _RBX->m_tracking.m_allocCounter = 0;
-  _RBX->m_tracking.m_name = NULL;
-  _RBX->m_tracking.m_location = NULL;
+  result->m_surfaceID = 0;
+  result->m_tracking.m_allocCounter = 0;
+  result->m_tracking.m_name = NULL;
+  result->m_tracking.m_location = NULL;
   Sys_EnterCriticalSection(CRITSECT_SCREENSHOT_QUEUE);
   DeferredScreenshotEntryFromIndex = R_Screenshot_GetDeferredScreenshotEntryFromIndex(index);
-  _RDI = DeferredScreenshotEntryFromIndex;
+  v12 = DeferredScreenshotEntryFromIndex;
   if ( DeferredScreenshotEntryFromIndex && pipelineStage == *(_DWORD *)DeferredScreenshotEntryFromIndex->m_screenshotInfo.m_pipelineStage )
   {
-    *(_QWORD *)&v19.m_surfaceID = "Screenshot Temp 0";
-    *(_QWORD *)&v19.m_tracking.m_allocCounter = "Screenshot Temp 1";
-    v19.m_tracking.m_name = "Screenshot Temp 2";
-    v19.m_tracking.m_location = "Screenshot Temp 3";
-    _RAX = R_RT_CreateInternal(&resulta, width, height, width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[(unsigned __int8)format], R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, &colorBlack, D3D12_RESOURCE_STATE_RENDER_TARGET, *((const char **)&v19.m_surfaceID + index), 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp(235)");
-    __asm
+    *(_QWORD *)&v17.m_surfaceID = "Screenshot Temp 0";
+    *(_QWORD *)&v17.m_tracking.m_allocCounter = "Screenshot Temp 1";
+    v17.m_tracking.m_name = "Screenshot Temp 2";
+    v17.m_tracking.m_location = "Screenshot Temp 3";
+    v13 = *R_RT_CreateInternal(&resulta, width, height, width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[(unsigned __int8)format], R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, &colorBlack, D3D12_RESOURCE_STATE_RENDER_TARGET, *((const char **)&v17.m_surfaceID + index), 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp(235)");
+    v17 = v13;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rsp+158h+var_A8], ymm0
-      vmovups ymmword ptr [rsp+158h+var_68.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v19);
-      if ( (R_RT_Handle::GetSurface(&v19)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v17);
+      if ( (R_RT_Handle::GetSurface(&v17)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rsp+158h+var_68.m_surfaceID] }
+      v13 = v17;
     }
     else
     {
       __asm { vpextrd rax, xmm0, 2 }
-      if ( (_DWORD)_RAX )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
-          __debugbreak();
-        __asm { vmovups ymm0, [rsp+158h+var_A8] }
-      }
+      if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+        __debugbreak();
     }
-    __asm
-    {
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymmword ptr [rdi+118h], ymm0
-    }
+    *result = (R_RT_ColorHandle)v13;
+    v12->m_colorRt = (R_RT_ColorHandle)v13;
   }
   Sys_LeaveCriticalSection(CRITSECT_SCREENSHOT_QUEUE);
-  return _RBX;
+  return result;
 }
 
 /*
@@ -830,7 +795,7 @@ void R_Screenshot_DestroyDeferredQueue(void)
 {
   int size; 
   unsigned int v1; 
-  R_RT_Handle v5; 
+  R_RT_Handle m_colorRt; 
 
   if ( !s_R_Screenshot.m_deferredQueueCreated )
   {
@@ -850,20 +815,14 @@ void R_Screenshot_DestroyDeferredQueue(void)
     v1 = 0;
     if ( s_R_Screenshot.m_deferredQueue.size )
     {
-      _R12 = &s_R_Screenshot.m_deferredQueue.entries[0].m_colorRt;
       do
       {
         if ( !s_R_Screenshot.m_deferredQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 46, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
           __debugbreak();
         if ( v1 >= s_R_Screenshot.m_deferredQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 47, ASSERT_TYPE_ASSERT, "(index < this->size)", (const char *)&queryFormat, "index < this->size") )
           __debugbreak();
-        _RCX = 312i64 * (((_BYTE)v1 + LOBYTE(s_R_Screenshot.m_deferredQueue.start)) & 3);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx+r12]
-          vmovups ymmword ptr [rsp+88h+var_48.m_surfaceID], ymm0
-        }
-        R_RT_DestroyInternal(&v5);
+        m_colorRt = (R_RT_Handle)s_R_Screenshot.m_deferredQueue.entries[((_BYTE)v1 + LOBYTE(s_R_Screenshot.m_deferredQueue.start)) & 3].m_colorRt;
+        R_RT_DestroyInternal(&m_colorRt);
         ++v1;
       }
       while ( v1 != size );
@@ -932,36 +891,25 @@ R_Screenshot_DeferredQueueEntry *R_Screenshot_GetDeferredScreenshotPipelineStage
 R_Screenshot_GetInterleavedInfo
 ==============
 */
-
-vec2_t __fastcall R_Screenshot_GetInterleavedInfo(__int64 a1, double _XMM1_8)
+vec2_t R_Screenshot_GetInterleavedInfo()
 {
-  char v2; 
-  __int64 v7; 
+  float screenshotViewID; 
+  float screenshotViews; 
+  __int64 v3; 
 
-  _RAX = r_screenShotPixelOffset;
-  __asm
+  screenshotViewID = 0.0;
+  if ( r_screenShotPixelOffset->current.vector.v[2] == 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm1, dword ptr [rax+30h]
-  }
-  if ( v2 )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    screenshotViews = FLOAT_1_0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?s_screenshotInfo@@3UScreenshotGlobalInfo@@A.screenshotViews; ScreenshotGlobalInfo s_screenshotInfo
-      vmovss  xmm1, cs:?s_screenshotInfo@@3UScreenshotGlobalInfo@@A.screenshotViewID; ScreenshotGlobalInfo s_screenshotInfo
-    }
+    screenshotViews = s_screenshotInfo.screenshotViews;
+    screenshotViewID = s_screenshotInfo.screenshotViewID;
   }
-  __asm
-  {
-    vmovss  dword ptr [rsp+18h+var_18], xmm0
-    vmovss  dword ptr [rsp+18h+var_18+4], xmm1
-  }
-  return (vec2_t)v7;
+  *(float *)&v3 = screenshotViews;
+  *((float *)&v3 + 1) = screenshotViewID;
+  return (vec2_t)v3;
 }
 
 /*
@@ -979,18 +927,9 @@ bool R_Screenshot_InProcess()
 R_Screenshot_InterleavedMode
 ==============
 */
-
-bool __fastcall R_Screenshot_InterleavedMode(double _XMM0_8)
+bool R_Screenshot_InterleavedMode()
 {
-  char v1; 
-
-  _RAX = r_screenShotPixelOffset;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax+30h]
-  }
-  return !v1;
+  return r_screenShotPixelOffset->current.vector.v[2] != 0.0;
 }
 
 /*
@@ -1001,10 +940,11 @@ R_Screenshot_RequestDeferredScreenshot
 void R_Screenshot_RequestDeferredScreenshot(const GfxScreenshotRequest *request)
 {
   unsigned __int16 size; 
-  __int64 v8; 
-  __m256i v18; 
+  R_Screenshot_DeferredQueueEntry *v4; 
+  GfxScreenshotRequest *p_m_screenshotInfo; 
+  __int64 v7; 
+  R_RT_ColorHandle v8; 
 
-  _RBX = request;
   if ( !s_R_Screenshot.m_deferredQueueCreated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp", 108, ASSERT_TYPE_ASSERT, "(s_R_Screenshot.m_deferredQueueCreated)", (const char *)&queryFormat, "s_R_Screenshot.m_deferredQueueCreated", -2i64) )
     __debugbreak();
   Sys_EnterCriticalSection(CRITSECT_SCREENSHOT_QUEUE);
@@ -1026,53 +966,31 @@ void R_Screenshot_RequestDeferredScreenshot(const GfxScreenshotRequest *request)
       __debugbreak();
     if ( !s_R_Screenshot.m_deferredQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 92, ASSERT_TYPE_ASSERT, "(this->size > 0)", (const char *)&queryFormat, "this->size > 0") )
       __debugbreak();
-    _RAX = &s_R_Screenshot.m_deferredQueue.entries[(LOBYTE(s_R_Screenshot.m_deferredQueue.start) + LOBYTE(s_R_Screenshot.m_deferredQueue.size) - 1) & 3];
-    _RAX->m_age = -1;
-    v18.m256i_i16[0] = 0;
-    v18.m256i_i32[2] = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+68h+var_30+10h], xmm0
-      vmovups ymm1, ymmword ptr [rsp+68h+var_30]
-      vmovups ymmword ptr [rax+118h], ymm1
-    }
-    _RAX = &_RAX->m_screenshotInfo;
-    v8 = 2i64;
+    v4 = &s_R_Screenshot.m_deferredQueue.entries[(LOBYTE(s_R_Screenshot.m_deferredQueue.start) + LOBYTE(s_R_Screenshot.m_deferredQueue.size) - 1) & 3];
+    v4->m_age = -1;
+    v8.m_surfaceID = 0;
+    v8.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v8.m_tracking.m_name = _XMM0;
+    v4->m_colorRt = v8;
+    p_m_screenshotInfo = &v4->m_screenshotInfo;
+    v7 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rax], xmm0
-        vmovups xmm1, xmmword ptr [rbx+10h]
-        vmovups xmmword ptr [rax+10h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rax+20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+30h]
-        vmovups xmmword ptr [rax+30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+50h]
-        vmovups xmmword ptr [rax+50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX = (GfxScreenshotRequest *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RBX = (const GfxScreenshotRequest *)((char *)_RBX + 128);
-      --v8;
+      *(_OWORD *)p_m_screenshotInfo->m_pipelineStage = *(_OWORD *)request->m_pipelineStage;
+      *(_OWORD *)p_m_screenshotInfo->m_desc.m_filename = *(_OWORD *)request->m_desc.m_filename;
+      *(_OWORD *)&p_m_screenshotInfo->m_desc.m_filename[16] = *(_OWORD *)&request->m_desc.m_filename[16];
+      *(_OWORD *)&p_m_screenshotInfo->m_desc.m_filename[32] = *(_OWORD *)&request->m_desc.m_filename[32];
+      *(_OWORD *)&p_m_screenshotInfo->m_desc.m_filename[48] = *(_OWORD *)&request->m_desc.m_filename[48];
+      *(_OWORD *)&p_m_screenshotInfo->m_desc.m_filename[64] = *(_OWORD *)&request->m_desc.m_filename[64];
+      *(_OWORD *)&p_m_screenshotInfo->m_desc.m_filename[80] = *(_OWORD *)&request->m_desc.m_filename[80];
+      p_m_screenshotInfo = (GfxScreenshotRequest *)((char *)p_m_screenshotInfo + 128);
+      *(_OWORD *)&p_m_screenshotInfo[-1].m_desc.m_filename[240] = *(_OWORD *)&request->m_desc.m_filename[96];
+      request = (const GfxScreenshotRequest *)((char *)request + 128);
+      --v7;
     }
-    while ( v8 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rax], xmm0
-    }
+    while ( v7 );
+    *(_OWORD *)p_m_screenshotInfo->m_pipelineStage = *(_OWORD *)request->m_pipelineStage;
   }
   Sys_LeaveCriticalSection(CRITSECT_SCREENSHOT_QUEUE);
 }
@@ -1090,12 +1008,15 @@ void R_Screenshot_UpdatePending(void)
   int size; 
   unsigned int v4; 
   R_Screenshot_DeferredQueueEntry *v5; 
+  R_Screenshot_DeferredQueueEntry *v6; 
+  R_Screenshot_DeferredQueueEntry *v7; 
   __int64 v8; 
+  R_RT_ColorHandle *p_m_colorRt; 
   unsigned __int16 m_surfaceID; 
   int height; 
   int width; 
-  R_RT_Handle v22; 
-  R_Screenshot_DeferredQueueEntry v23; 
+  R_RT_Handle v13; 
+  R_Screenshot_DeferredQueueEntry v14; 
 
   if ( !s_R_Screenshot.m_deferredQueueCreated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot.cpp", 128, ASSERT_TYPE_ASSERT, "(s_R_Screenshot.m_deferredQueueCreated)", (const char *)&queryFormat, "s_R_Screenshot.m_deferredQueueCreated", -2i64) )
     __debugbreak();
@@ -1103,7 +1024,7 @@ void R_Screenshot_UpdatePending(void)
     __debugbreak();
   if ( s_R_Screenshot.m_deferredQueue.size )
   {
-    v0 = &v23;
+    v0 = &v14;
     v1 = 4i64;
     do
     {
@@ -1111,7 +1032,7 @@ void R_Screenshot_UpdatePending(void)
       --v1;
     }
     while ( v1 );
-    v2 = &v23;
+    v2 = &v14;
     Sys_EnterCriticalSection(CRITSECT_SCREENSHOT_QUEUE);
     if ( !s_R_Screenshot.m_deferredQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 36, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
       __debugbreak();
@@ -1142,42 +1063,26 @@ void R_Screenshot_UpdatePending(void)
         __debugbreak();
       if ( !s_R_Screenshot.m_deferredQueue.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 82, ASSERT_TYPE_ASSERT, "(this->size > 0)", (const char *)&queryFormat, "this->size > 0") )
         __debugbreak();
-      _RAX = &s_R_Screenshot.m_deferredQueue.entries[s_R_Screenshot.m_deferredQueue.start];
-      if ( _RAX->m_age == 0xFF || _RAX->m_age < s_R_Screenshot_saveFrameDelay )
+      v6 = &s_R_Screenshot.m_deferredQueue.entries[s_R_Screenshot.m_deferredQueue.start];
+      if ( v6->m_age == 0xFF || v6->m_age < s_R_Screenshot_saveFrameDelay )
         break;
-      _RDX = v2;
+      v7 = v2;
       v8 = 2i64;
       do
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rdx], ymm0
-          vmovups ymm0, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rdx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rax+40h]
-          vmovups ymmword ptr [rdx+40h], ymm0
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rdx+60h], xmm0
-        }
-        _RDX = (R_Screenshot_DeferredQueueEntry *)((char *)_RDX + 128);
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rdx-10h], xmm1
-        }
-        _RAX = (R_Screenshot_DeferredQueueEntry *)((char *)_RAX + 128);
+        *(__m256i *)&v7->m_age = *(__m256i *)&v6->m_age;
+        *(__m256i *)&v7->m_screenshotInfo.m_desc.m_filename[12] = *(__m256i *)&v6->m_screenshotInfo.m_desc.m_filename[12];
+        *(__m256i *)&v7->m_screenshotInfo.m_desc.m_filename[44] = *(__m256i *)&v6->m_screenshotInfo.m_desc.m_filename[44];
+        *(_OWORD *)&v7->m_screenshotInfo.m_desc.m_filename[76] = *(_OWORD *)&v6->m_screenshotInfo.m_desc.m_filename[76];
+        v7 = (R_Screenshot_DeferredQueueEntry *)((char *)v7 + 128);
+        *(_OWORD *)&v7[-1].m_colorRt.m_tracking.m_name = *(_OWORD *)&v6->m_screenshotInfo.m_desc.m_filename[92];
+        v6 = (R_Screenshot_DeferredQueueEntry *)((char *)v6 + 128);
         --v8;
       }
       while ( v8 );
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rdx+20h], xmm0
-      }
-      *(_QWORD *)&_RDX->m_screenshotInfo.m_desc.m_filename[28] = *(_QWORD *)&_RAX->m_screenshotInfo.m_desc.m_filename[28];
+      *(__m256i *)&v7->m_age = *(__m256i *)&v6->m_age;
+      *(_OWORD *)&v7->m_screenshotInfo.m_desc.m_filename[12] = *(_OWORD *)&v6->m_screenshotInfo.m_desc.m_filename[12];
+      *(_QWORD *)&v7->m_screenshotInfo.m_desc.m_filename[28] = *(_QWORD *)&v6->m_screenshotInfo.m_desc.m_filename[28];
       ++v2;
       if ( !s_R_Screenshot.m_deferredQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 122, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
         __debugbreak();
@@ -1187,44 +1092,36 @@ void R_Screenshot_UpdatePending(void)
       --s_R_Screenshot.m_deferredQueue.size;
     }
     Sys_LeaveCriticalSection(CRITSECT_SCREENSHOT_QUEUE);
-    if ( v2 != &v23 )
+    if ( v2 != &v14 )
     {
-      _RDI = &v23.m_colorRt;
+      p_m_colorRt = &v14.m_colorRt;
       do
       {
-        m_surfaceID = _RDI->m_surfaceID;
-        if ( _RDI->m_surfaceID )
+        m_surfaceID = p_m_colorRt->m_surfaceID;
+        if ( p_m_colorRt->m_surfaceID )
         {
-          R_RT_Handle::GetSurface(_RDI);
+          R_RT_Handle::GetSurface(p_m_colorRt);
         }
-        else if ( _RDI->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+        else if ( p_m_colorRt->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         {
           __debugbreak();
         }
         if ( m_surfaceID )
         {
-          height = R_RT_Handle::GetSurface(_RDI)->m_image.m_base.height;
-          width = R_RT_Handle::GetSurface(_RDI)->m_image.m_base.width;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi]
-            vmovups [rsp+568h+var_528], ymm0
-          }
-          R_TakeScreenshot((const GfxScreenshotDesc *)&_RDI[-9].m_tracking.m_name, (R_RT_ColorHandle *)&v22, 0, 0, width, height);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi]
-            vmovups [rsp+568h+var_528], ymm0
-          }
-          R_RT_DestroyInternal(&v22);
+          height = R_RT_Handle::GetSurface(p_m_colorRt)->m_image.m_base.height;
+          width = R_RT_Handle::GetSurface(p_m_colorRt)->m_image.m_base.width;
+          v13 = p_m_colorRt->R_RT_Handle;
+          R_TakeScreenshot((const GfxScreenshotDesc *)&p_m_colorRt[-9].m_tracking.m_name, (R_RT_ColorHandle *)&v13, 0, 0, width, height);
+          v13 = p_m_colorRt->R_RT_Handle;
+          R_RT_DestroyInternal(&v13);
         }
         else
         {
           Com_PrintWarning(8, "ScreenShot: Deferred screenshot request not processed\n");
         }
-        _RDI = (R_RT_ColorHandle *)((char *)_RDI + 312);
+        p_m_colorRt = (R_RT_ColorHandle *)((char *)p_m_colorRt + 312);
       }
-      while ( &_RDI[-9].m_tracking != (R_RT_Tracking_HandleInfo *)v2 );
+      while ( &p_m_colorRt[-9].m_tracking != (R_RT_Tracking_HandleInfo *)v2 );
     }
   }
 }
@@ -1250,16 +1147,15 @@ void R_TakeScreenshot(const GfxScreenshotDesc *desc, R_RT_ColorHandle *colorRt, 
   GfxScreenshotFormat m_fileFormat; 
   int m_useFS; 
   char *m_filename; 
-  __int64 v27; 
-  __int64 v28; 
-  int v29; 
+  __int64 v24; 
+  __int64 v25; 
+  int v26; 
   int m_addClut; 
   GfxScreenshotColorimetry m_clutInputColorimetry; 
   bool m_exrTmp; 
   GfxScreenshotColorimetry m_colorimetry; 
-  R_RT_ColorHandle v34; 
+  R_RT_ColorHandle v31; 
 
-  _R15 = colorRt;
   Value = (char *)Sys_GetValue(0);
   v11 = (unsigned int *)(Value + 12016);
   if ( (unsigned int)(*((_DWORD *)Value + 3004) + 1) >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", *((_DWORD *)Value + 3004) + 1, 3) )
@@ -1268,9 +1164,9 @@ void R_TakeScreenshot(const GfxScreenshotDesc *desc, R_RT_ColorHandle *colorRt, 
   *v11 = v12;
   if ( v12 >= 3 )
   {
-    LODWORD(v28) = 3;
-    LODWORD(v27) = v12;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v25) = 3;
+    LODWORD(v24) = v12;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v24, v25) )
       __debugbreak();
   }
   v13 = Value + 2088;
@@ -1293,10 +1189,10 @@ void R_TakeScreenshot(const GfxScreenshotDesc *desc, R_RT_ColorHandle *colorRt, 
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 248, NULL, 0);
   v18 = width;
   if ( width == -1 )
-    v18 = R_RT_Handle::GetSurface(_R15)->m_image.m_base.width;
+    v18 = R_RT_Handle::GetSurface(colorRt)->m_image.m_base.width;
   v19 = height;
   if ( height == -1 )
-    v19 = R_RT_Handle::GetSurface(_R15)->m_image.m_base.height;
+    v19 = R_RT_Handle::GetSurface(colorRt)->m_image.m_base.height;
   IsLockedGfxImmediateContext = R_IsLockedGfxImmediateContext();
   if ( IsLockedGfxImmediateContext )
   {
@@ -1311,10 +1207,9 @@ void R_TakeScreenshot(const GfxScreenshotDesc *desc, R_RT_ColorHandle *colorRt, 
     if ( m_fileFormat == TGA )
     {
       m_filename = desc->m_filename;
-      __asm { vmovups ymm0, ymmword ptr [r15] }
       m_addClut = desc->m_addClut;
-      __asm { vmovups [rsp+0A8h+var_48], ymm0 }
-      R_TakeScreenshotTga(desc->m_filename, m_useFS, &v34, x, y, v18, v19, m_addClut);
+      v31 = *colorRt;
+      R_TakeScreenshotTga(desc->m_filename, m_useFS, &v31, x, y, v18, v19, m_addClut);
     }
     else
     {
@@ -1324,21 +1219,19 @@ void R_TakeScreenshot(const GfxScreenshotDesc *desc, R_RT_ColorHandle *colorRt, 
         __debugbreak();
       }
       m_filename = desc->m_filename;
-      __asm { vmovups ymm0, ymmword ptr [r15] }
       m_colorimetry = desc->m_colorimetry;
       m_exrTmp = desc->m_exrTmp;
       m_clutInputColorimetry = desc->m_clutInputColorimetry;
-      v29 = desc->m_addClut;
-      __asm { vmovups [rsp+0A8h+var_48], ymm0 }
-      R_TakeScreenshotExr(desc->m_filename, m_useFS, &v34, x, y, v18, v19, v29, m_clutInputColorimetry, m_exrTmp, m_colorimetry);
+      v26 = desc->m_addClut;
+      v31 = *colorRt;
+      R_TakeScreenshotExr(desc->m_filename, m_useFS, &v31, x, y, v18, v19, v26, m_clutInputColorimetry, m_exrTmp, m_colorimetry);
     }
   }
   else
   {
-    __asm { vmovups ymm0, ymmword ptr [r15] }
     m_filename = desc->m_filename;
-    __asm { vmovups [rsp+0A8h+var_48], ymm0 }
-    R_TakeScreenshotJpg(desc->m_filename, m_useFS, &v34, x, y, v18, v19);
+    v31 = *colorRt;
+    R_TakeScreenshotJpg(desc->m_filename, m_useFS, &v31, x, y, v18, v19);
   }
   if ( !desc->m_silent )
     Com_Printf(8, "Wrote %s\n", m_filename);

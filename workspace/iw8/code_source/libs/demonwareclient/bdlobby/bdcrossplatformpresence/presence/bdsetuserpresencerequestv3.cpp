@@ -49,24 +49,18 @@ bdSetUserPresenceRequestV3::bdSetUserPresenceRequestV3
 */
 void bdSetUserPresenceRequestV3::bdSetUserPresenceRequestV3(bdSetUserPresenceRequestV3 *this, const bdUserPresenceV3 *userPresence)
 {
-  const bdUserPresenceV3 *v2; 
-  bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *p_m_presences; 
   bdUserPresenceV3 *p_m_userPresence; 
+  bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *p_m_presences; 
 
-  v2 = userPresence;
   this->__vftable = (bdSetUserPresenceRequestV3_vtbl *)&bdSetUserPresenceRequestV3::`vftable';
   p_m_userPresence = &this->m_userPresence;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  *(_OWORD *)this->m_userPresence.m_context.m_buffer = *(_OWORD *)userPresence->m_context.m_buffer;
   this->m_userPresence.m_context.m_buffer[16] = userPresence->m_context.m_buffer[16];
   p_m_presences = &this->m_userPresence.m_presences;
   `eh vector constructor iterator'(&this->m_userPresence.m_presences, 0x2A0ui64, 3ui64, (void (__fastcall *)(void *))bdUserPresenceInfoV3::bdUserPresenceInfoV3, (void (__fastcall *)(void *))bdUserPresenceInfoV3::~bdUserPresenceInfoV3);
   p_m_presences->m_size = 0;
-  bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::copy(p_m_presences, &v2->m_presences);
-  bdUserDetails::bdUserDetails(&p_m_userPresence->m_userDetails, &v2->m_userDetails);
+  bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::copy(p_m_presences, &userPresence->m_presences);
+  bdUserDetails::bdUserDetails(&p_m_userPresence->m_userDetails, &userPresence->m_userDetails);
 }
 
 /*
@@ -97,15 +91,16 @@ bool bdSetUserPresenceRequestV3::restSerializeRequest(bdSetUserPresenceRequestV3
   const char *Context; 
   bdRESTURI *v12; 
   bdRESTURI *v13; 
-  bool v16; 
+  const bdUserPresenceInfoV3 *Presence; 
+  bool v15; 
   char *in; 
+  bdRESTURI::bdDummyArg v18; 
   bdRESTURI::bdDummyArg v19; 
   bdRESTURI::bdDummyArg v20; 
-  bdRESTURI::bdDummyArg v21; 
-  __int64 v22; 
-  _WORD v23[339]; 
+  __int64 v21; 
+  char v22[678]; 
 
-  v22 = -2i64;
+  v21 = -2i64;
   v6 = 0;
   if ( bdRESTRequestBuilder::setServiceName(builder, "presence") && bdRESTRequestBuilder::setMethod(builder, (bdREST::bdMethod)5264724) && bdRESTRequestBuilder::setResourceName(builder, "UserPresence", "set_user_presence_v3") )
   {
@@ -130,11 +125,11 @@ bool bdSetUserPresenceRequestV3::restSerializeRequest(bdSetUserPresenceRequestV3
   bdRESTURI::appendNextBlock(v9, (const char **)&in);
   bdRESTURI::operator<<(v9, AuthInfo->m_userID);
   bdRESTURI::appendNextBlock(v9, (const char **)&in);
+  bdRESTURI::operator<<(v9, &v18);
+  bdRESTURI::appendNextBlock(v9, (const char **)&in);
   bdRESTURI::operator<<(v9, &v19);
   bdRESTURI::appendNextBlock(v9, (const char **)&in);
   bdRESTURI::operator<<(v9, &v20);
-  bdRESTURI::appendNextBlock(v9, (const char **)&in);
-  bdRESTURI::operator<<(v9, &v21);
   bdRESTURI::appendNextBlock(v9, (const char **)&in);
   if ( !bdRESTURI::isOK(v9) )
   {
@@ -154,26 +149,21 @@ bool bdSetUserPresenceRequestV3::restSerializeRequest(bdSetUserPresenceRequestV3
   v13 = bdRESTRequestBuilder::uri(builder);
   if ( !bdRESTURI::addQueryParam(v13, "titleID", AuthInfo->m_titleID) )
     return 0;
-  _RBX = bdUserPresenceV3::getPresence(&this->m_userPresence, 0);
-  v23[3] = *(_WORD *)&_RBX->m_online;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+2]
-    vmovups xmmword ptr [rsp+320h+var_2C6+8], xmm0
-  }
-  LOBYTE(v23[12]) = _RBX->m_platform.m_value.m_buffer[16];
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>((bdStructOptionalObject<bdLocalizationToken> *)&v23[15], &_RBX->m_titleToken);
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>((bdStructOptionalObject<bdLocalizationToken> *)&v23[163], &_RBX->m_presenceToken);
-  LOBYTE(v23[311]) = _RBX->m_titleID.m_hasValue;
-  *(_DWORD *)&v23[313] = _RBX->m_titleID.m_value;
-  LOBYTE(v23[315]) = _RBX->m_data.m_hasValue;
-  bdPresenceData::bdPresenceData((bdPresenceData *)&v23[319], &_RBX->m_data.m_value);
-  LOBYTE(v23[331]) = _RBX->m_updateTime.m_hasValue;
-  *(_QWORD *)&v23[335] = _RBX->m_updateTime.m_value;
+  Presence = bdUserPresenceV3::getPresence(&this->m_userPresence, 0);
+  *(_WORD *)&v22[6] = *(_WORD *)&Presence->m_online;
+  *(bdStructFixedSizeString<16> *)&v22[8] = Presence->m_platform.m_value;
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>((bdStructOptionalObject<bdLocalizationToken> *)&v22[30], &Presence->m_titleToken);
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>((bdStructOptionalObject<bdLocalizationToken> *)&v22[326], &Presence->m_presenceToken);
+  v22[622] = Presence->m_titleID.m_hasValue;
+  *(_DWORD *)&v22[626] = Presence->m_titleID.m_value;
+  v22[630] = Presence->m_data.m_hasValue;
+  bdPresenceData::bdPresenceData((bdPresenceData *)&v22[638], &Presence->m_data.m_value);
+  v22[662] = Presence->m_updateTime.m_hasValue;
+  *(_QWORD *)&v22[670] = Presence->m_updateTime.m_value;
   in = NULL;
-  v16 = bdRESTRequestBuilder::getBodyJSONSerializer(builder, (bdJSONSerializer **)&in) && bdUserPresenceInfoV3::serialize((bdUserPresenceInfoV3 *)&v23[3], (bdJSONSerializer *)in);
-  bdUserPresenceInfoV3::~bdUserPresenceInfoV3((bdUserPresenceInfoV3 *)&v23[3]);
-  return v16;
+  v15 = bdRESTRequestBuilder::getBodyJSONSerializer(builder, (bdJSONSerializer **)&in) && bdUserPresenceInfoV3::serialize((bdUserPresenceInfoV3 *)&v22[6], (bdJSONSerializer *)in);
+  bdUserPresenceInfoV3::~bdUserPresenceInfoV3((bdUserPresenceInfoV3 *)&v22[6]);
+  return v15;
 }
 
 /*
@@ -183,23 +173,15 @@ bdSetUserPresenceRequestV3::setUserPresence
 */
 void bdSetUserPresenceRequestV3::setUserPresence(bdSetUserPresenceRequestV3 *this, const bdUserPresenceV3 *userPresence)
 {
-  const bdUserPresenceV3 *v3; 
-  bdSetUserPresenceRequestV3 *v4; 
   bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *p_m_presences; 
-  bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *v6; 
+  bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *v5; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+8], xmm0
-  }
-  v3 = userPresence;
+  *(_OWORD *)this->m_userPresence.m_context.m_buffer = *(_OWORD *)userPresence->m_context.m_buffer;
   this->m_userPresence.m_context.m_buffer[16] = userPresence->m_context.m_buffer[16];
-  v4 = this;
   p_m_presences = &this->m_userPresence.m_presences;
-  v6 = &userPresence->m_presences;
-  if ( p_m_presences != v6 )
-    bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::copy(p_m_presences, v6);
-  bdUserDetails::operator=(&v4->m_userPresence.m_userDetails, &v3->m_userDetails);
+  v5 = &userPresence->m_presences;
+  if ( p_m_presences != v5 )
+    bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::copy(p_m_presences, v5);
+  bdUserDetails::operator=(&this->m_userPresence.m_userDetails, &userPresence->m_userDetails);
 }
 

@@ -203,11 +203,15 @@ BgVehiclePhysicsObjectBuffer *BgVehiclePhysicsManager::GetObjectById(BgVehiclePh
 BgVehiclePhysicsManager::GetObjectForPmove
 ==============
 */
-BgVehiclePhysics *BgVehiclePhysicsManager::GetObjectForPmove(BgVehiclePhysicsManager *this, const BgVehiclePhysics *vehObj)
+BgVehiclePhysicsObjectBuffer *BgVehiclePhysicsManager::GetObjectForPmove(BgVehiclePhysicsManager *this, const BgVehiclePhysics *vehObj)
 {
   unsigned int v4; 
+  BgVehiclePhysicsObjectBuffer *v5; 
   unsigned int v6; 
   unsigned int PhysicsBodyId; 
+  float v8; 
+  float v9; 
+  vec4_t v10; 
   vec3_t position; 
   vec4_t orientation; 
 
@@ -218,10 +222,10 @@ BgVehiclePhysics *BgVehiclePhysicsManager::GetObjectForPmove(BgVehiclePhysicsMan
   v4 = vehObj->m_vehicleId - 1;
   if ( v4 >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 263, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (1 << 7) )", "index doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", vehObj->m_vehicleId - 1, 128) )
     __debugbreak();
-  _RDI = (BgVehiclePhysics *)&this->m_vehiclePhysicsObjectsPmove[v4];
-  if ( !_RDI->m_inUse || _RDI->m_entityNumber != vehObj->m_entityNumber || (v6 = BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)vehObj), BgVehiclePhysics::GetPhysicsBodyId(_RDI) != v6) )
+  v5 = &this->m_vehiclePhysicsObjectsPmove[v4];
+  if ( !*(_DWORD *)&v5->buffer[8] || *(_DWORD *)&v5->buffer[48] != vehObj->m_entityNumber || (v6 = BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)vehObj), BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)v5) != v6) )
   {
-    memcpy_0(_RDI, vehObj, 0xD20ui64);
+    memcpy_0(v5, vehObj, sizeof(BgVehiclePhysicsObjectBuffer));
     if ( BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)vehObj) )
     {
       if ( BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)vehObj) )
@@ -229,23 +233,19 @@ BgVehiclePhysics *BgVehiclePhysicsManager::GetObjectForPmove(BgVehiclePhysicsMan
         PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)vehObj);
         Physics_GetRigidBodyTransform((const Physics_WorldId)vehObj->m_worldId, PhysicsBodyId, &position, &orientation);
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+78h+position]
-        vmovss  xmm1, dword ptr [rsp+78h+position+4]
-        vmovss  dword ptr [rdi+1D8h], xmm0
-        vmovss  xmm0, dword ptr [rsp+78h+position+8]
-        vmovss  dword ptr [rdi+1DCh], xmm1
-        vmovups xmm1, xmmword ptr [rsp+78h+orientation]
-        vmovss  dword ptr [rdi+1E0h], xmm0
-        vmovups xmmword ptr [rdi+1E4h], xmm1
-      }
+      v8 = position.v[1];
+      *(float *)&v5->buffer[472] = position.v[0];
+      v9 = position.v[2];
+      *(float *)&v5->buffer[476] = v8;
+      v10 = orientation;
+      *(float *)&v5->buffer[480] = v9;
+      *(vec4_t *)&v5->buffer[484] = v10;
     }
-    _RDI->m_pmoveObject = 1;
+    v5->buffer[612] = 1;
   }
-  if ( vehObj->__vftable != _RDI->__vftable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 286, ASSERT_TYPE_ASSERT, "( SameVirtualTablePtr( vehObj, pmoveCtxObj ) )", "BgVehiclePhysicsManager::GetObjectForPmove(). Vehicle Object being overriden with a different instance. Vtable ptr mismatch.") )
+  if ( vehObj->__vftable != *(BgVehiclePhysics_vtbl **)v5->buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 286, ASSERT_TYPE_ASSERT, "( SameVirtualTablePtr( vehObj, pmoveCtxObj ) )", "BgVehiclePhysicsManager::GetObjectForPmove(). Vehicle Object being overriden with a different instance. Vtable ptr mismatch.") )
     __debugbreak();
-  return _RDI;
+  return v5;
 }
 
 /*
@@ -380,9 +380,12 @@ BgVehicleComponentGoStraightTo *BgVehiclePhysicsManager::GetOrCreateComponent<Bg
   __int64 v15; 
   BgVehiclePhysics *ObjectById; 
   VehiclePhysicsComponentId *v17; 
+  BgVehicleComponentGoStraightTo *v18; 
+  VehiclePhysicsComponentId *v19; 
   __int64 v20; 
-  BgVehiclePhysics *v29; 
-  __int64 v30; 
+  __int128 v21; 
+  BgVehiclePhysics *v22; 
+  __int64 v23; 
 
   if ( !vehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 204, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
     __debugbreak();
@@ -406,8 +409,8 @@ BgVehicleComponentGoStraightTo *BgVehiclePhysicsManager::GetOrCreateComponent<Bg
       __debugbreak();
     if ( (unsigned int)v15 >= 2 )
     {
-      LODWORD(v30) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 127, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 2u )", "index doesn't index VEHICLE_PHYSICS_MAX_COMPONENTS_PER_VEHICLE\n\t%i not in [0, %i)", v30, 2) )
+      LODWORD(v23) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 127, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 2u )", "index doesn't index VEHICLE_PHYSICS_MAX_COMPONENTS_PER_VEHICLE\n\t%i not in [0, %i)", v23, 2) )
         __debugbreak();
     }
     ObjectById = BgVehiclePhysicsManager::GetObjectById(this, vehicleId);
@@ -418,40 +421,30 @@ BgVehicleComponentGoStraightTo *BgVehiclePhysicsManager::GetOrCreateComponent<Bg
       __debugbreak();
     if ( ComponentBy != (BgVehicleComponentGoStraightTo *)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 134, ASSERT_TYPE_ASSERT, "(reinterpret_cast<byte*>( vehComp ) == compBuffer)", "%s\n\tBgVehiclePhysicsManager::AllocateComponent() instance must be allocated in provided buffer", "reinterpret_cast<byte*>( vehComp ) == compBuffer") )
       __debugbreak();
-    _RCX = ComponentBy;
-    _RAX = outCompId + 239618;
+    v18 = ComponentBy;
+    v19 = outCompId + 239618;
     v20 = 3i64;
     do
     {
-      _RAX += 32;
-      __asm { vmovups xmm0, xmmword ptr [rcx] }
-      _RCX = (BgVehicleComponentGoStraightTo *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rax-80h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-70h]
-        vmovups xmmword ptr [rax-70h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-60h]
-        vmovups xmmword ptr [rax-60h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-50h]
-        vmovups xmmword ptr [rax-50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-40h]
-        vmovups xmmword ptr [rax-40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-30h]
-        vmovups xmmword ptr [rax-30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-20h]
-        vmovups xmmword ptr [rax-20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-10h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
+      v19 += 32;
+      v21 = *(_OWORD *)&v18->__vftable;
+      v18 = (BgVehicleComponentGoStraightTo *)((char *)v18 + 128);
+      *(_OWORD *)&v19[-32].id = v21;
+      *(_OWORD *)&v19[-28].id = *(_OWORD *)&v18[-1].__vftable;
+      *(_OWORD *)&v19[-24].id = *(_OWORD *)&v18[-1].m_vehicleSystem;
+      *(_OWORD *)&v19[-20].id = *(_OWORD *)&v18[-1].m_autoRemove;
+      *(_OWORD *)&v19[-16].id = *(_OWORD *)&v18[-1].m_inputMults[2];
+      *(_OWORD *)&v19[-12].id = *(_OWORD *)&v18[-1].m_inputMults[6];
+      *(_OWORD *)&v19[-8].id = *(_OWORD *)&v18[-1].m_goalPos.z;
+      *(_OWORD *)&v19[-4].id = *(_OWORD *)&v18[-1].m_goalPosTol;
       --v20;
     }
     while ( v20 );
     v9->id = (unsigned __int16)vehicleId | (((compType << 8) | (unsigned __int8)v15) << 16);
-    v29 = BgVehiclePhysicsManager::GetObjectById(this, (unsigned __int16)vehicleId);
-    if ( v29->m_pmoveObject && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 220, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
+    v22 = BgVehiclePhysicsManager::GetObjectById(this, (unsigned __int16)vehicleId);
+    if ( v22->m_pmoveObject && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 220, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
       __debugbreak();
-    BgVehiclePhysics::AddComponent(v29, (VehiclePhysicsComponentId)v9->id);
+    BgVehiclePhysics::AddComponent(v22, (VehiclePhysicsComponentId)v9->id);
     if ( !((unsigned __int8 (__fastcall *)(BgVehicleComponentGoStraightTo *, BGVehicles *, _QWORD))ComponentBy->Setup)(ComponentBy, vehicleSystem, v9->id) )
     {
       ((void (__fastcall *)(BGVehicles *, _QWORD))vehicleSystem->PhysicsDestroyComponent)(vehicleSystem, v9->id);
@@ -485,9 +478,12 @@ BgVehicleComponentPathFinder *BgVehiclePhysicsManager::GetOrCreateComponent<BgVe
   __int64 v19; 
   BgVehiclePhysics *ObjectById; 
   unsigned __int64 v21; 
+  char *v22; 
+  BgVehiclePhysicsComponent *v23; 
   __int64 v24; 
-  BgVehiclePhysics *v33; 
-  __int64 v34; 
+  __int128 v25; 
+  BgVehiclePhysics *v26; 
+  __int64 v27; 
 
   if ( !vehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 204, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
     __debugbreak();
@@ -504,8 +500,8 @@ BgVehicleComponentPathFinder *BgVehiclePhysicsManager::GetOrCreateComponent<BgVe
     v12 = (unsigned __int16)v11 - 1;
     if ( v12 >= 0x80 )
     {
-      LODWORD(v34) = (unsigned __int16)v11 - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 19, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (1 << 7) )", "index doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", v34, 128) )
+      LODWORD(v27) = (unsigned __int16)v11 - 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 19, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (1 << 7) )", "index doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", v27, 128) )
         __debugbreak();
     }
     v13 = v12;
@@ -527,8 +523,8 @@ BgVehicleComponentPathFinder *BgVehiclePhysicsManager::GetOrCreateComponent<BgVe
       __debugbreak();
     if ( (unsigned int)v19 >= 2 )
     {
-      LODWORD(v34) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 127, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 2u )", "index doesn't index VEHICLE_PHYSICS_MAX_COMPONENTS_PER_VEHICLE\n\t%i not in [0, %i)", v34, 2) )
+      LODWORD(v27) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 127, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 2u )", "index doesn't index VEHICLE_PHYSICS_MAX_COMPONENTS_PER_VEHICLE\n\t%i not in [0, %i)", v27, 2) )
         __debugbreak();
     }
     ObjectById = BgVehiclePhysicsManager::GetObjectById(this, vehicleId);
@@ -538,41 +534,31 @@ BgVehicleComponentPathFinder *BgVehiclePhysicsManager::GetOrCreateComponent<BgVe
       __debugbreak();
     if ( v15 != (BgVehiclePhysicsComponent *)((char *)this->m_vehiclePhysicsComponents + v21) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 134, ASSERT_TYPE_ASSERT, "(reinterpret_cast<byte*>( vehComp ) == compBuffer)", "%s\n\tBgVehiclePhysicsManager::AllocateComponent() instance must be allocated in provided buffer", "reinterpret_cast<byte*>( vehComp ) == compBuffer") )
       __debugbreak();
-    _RAX = (char *)this->m_vehiclePhysicsComponentsPmove + v21;
-    _RCX = v15;
+    v22 = (char *)this->m_vehiclePhysicsComponentsPmove + v21;
+    v23 = v15;
     v24 = 3i64;
     do
     {
-      _RAX += 128;
-      __asm { vmovups xmm0, xmmword ptr [rcx] }
-      _RCX = (BgVehiclePhysicsComponent *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rax-80h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-70h]
-        vmovups xmmword ptr [rax-70h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-60h]
-        vmovups xmmword ptr [rax-60h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-50h]
-        vmovups xmmword ptr [rax-50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-40h]
-        vmovups xmmword ptr [rax-40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-30h]
-        vmovups xmmword ptr [rax-30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-20h]
-        vmovups xmmword ptr [rax-20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-10h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
+      v22 += 128;
+      v25 = *(_OWORD *)&v23->__vftable;
+      v23 = (BgVehiclePhysicsComponent *)((char *)v23 + 128);
+      *((_OWORD *)v22 - 8) = v25;
+      *((_OWORD *)v22 - 7) = *(_OWORD *)&v23[-3].m_id.id;
+      *((_OWORD *)v22 - 6) = *(_OWORD *)&v23[-3].m_pauseTime;
+      *((_OWORD *)v22 - 5) = *(_OWORD *)&v23[-2].__vftable;
+      *((_OWORD *)v22 - 4) = *(_OWORD *)&v23[-2].m_vehicleSystem;
+      *((_OWORD *)v22 - 3) = *(_OWORD *)&v23[-2].m_autoRemove;
+      *((_OWORD *)v22 - 2) = *(_OWORD *)&v23[-1].m_id.id;
+      *((_OWORD *)v22 - 1) = *(_OWORD *)&v23[-1].m_pauseTime;
       --v24;
     }
     while ( v24 );
     v16 = compType;
     v9->id = (unsigned __int16)vehicleId | (((compType << 8) | (unsigned __int8)v19) << 16);
-    v33 = BgVehiclePhysicsManager::GetObjectById(this, (unsigned __int16)vehicleId);
-    if ( v33->m_pmoveObject && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 220, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
+    v26 = BgVehiclePhysicsManager::GetObjectById(this, (unsigned __int16)vehicleId);
+    if ( v26->m_pmoveObject && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 220, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
       __debugbreak();
-    BgVehiclePhysics::AddComponent(v33, (VehiclePhysicsComponentId)v9->id);
+    BgVehiclePhysics::AddComponent(v26, (VehiclePhysicsComponentId)v9->id);
     if ( !((unsigned __int8 (__fastcall *)(BgVehiclePhysicsComponent *, BGVehicles *, _QWORD))v15->Setup)(v15, vehicleSystem, v9->id) )
     {
       ((void (__fastcall *)(BGVehicles *, _QWORD))vehicleSystem->PhysicsDestroyComponent)(vehicleSystem, v9->id);
@@ -602,9 +588,12 @@ BgVehicleComponentPathFollower *BgVehiclePhysicsManager::GetOrCreateComponent<Bg
   __int64 v15; 
   BgVehiclePhysics *ObjectById; 
   VehiclePhysicsComponentId *v17; 
+  BgVehicleComponentPathFollower *v18; 
+  VehiclePhysicsComponentId *v19; 
   __int64 v20; 
-  BgVehiclePhysics *v29; 
-  __int64 v30; 
+  __int128 v21; 
+  BgVehiclePhysics *v22; 
+  __int64 v23; 
 
   if ( !vehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 204, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
     __debugbreak();
@@ -628,8 +617,8 @@ BgVehicleComponentPathFollower *BgVehiclePhysicsManager::GetOrCreateComponent<Bg
       __debugbreak();
     if ( (unsigned int)v15 >= 2 )
     {
-      LODWORD(v30) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 127, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 2u )", "index doesn't index VEHICLE_PHYSICS_MAX_COMPONENTS_PER_VEHICLE\n\t%i not in [0, %i)", v30, 2) )
+      LODWORD(v23) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 127, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 2u )", "index doesn't index VEHICLE_PHYSICS_MAX_COMPONENTS_PER_VEHICLE\n\t%i not in [0, %i)", v23, 2) )
         __debugbreak();
     }
     ObjectById = BgVehiclePhysicsManager::GetObjectById(this, vehicleId);
@@ -640,40 +629,30 @@ BgVehicleComponentPathFollower *BgVehiclePhysicsManager::GetOrCreateComponent<Bg
       __debugbreak();
     if ( ComponentBy != (BgVehicleComponentPathFollower *)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 134, ASSERT_TYPE_ASSERT, "(reinterpret_cast<byte*>( vehComp ) == compBuffer)", "%s\n\tBgVehiclePhysicsManager::AllocateComponent() instance must be allocated in provided buffer", "reinterpret_cast<byte*>( vehComp ) == compBuffer") )
       __debugbreak();
-    _RCX = ComponentBy;
-    _RAX = outCompId + 239618;
+    v18 = ComponentBy;
+    v19 = outCompId + 239618;
     v20 = 3i64;
     do
     {
-      _RAX += 32;
-      __asm { vmovups xmm0, xmmword ptr [rcx] }
-      _RCX = (BgVehicleComponentPathFollower *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rax-80h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-70h]
-        vmovups xmmword ptr [rax-70h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-60h]
-        vmovups xmmword ptr [rax-60h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-50h]
-        vmovups xmmword ptr [rax-50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-40h]
-        vmovups xmmword ptr [rax-40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-30h]
-        vmovups xmmword ptr [rax-30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-20h]
-        vmovups xmmword ptr [rax-20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-10h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
+      v19 += 32;
+      v21 = *(_OWORD *)&v18->__vftable;
+      v18 = (BgVehicleComponentPathFollower *)((char *)v18 + 128);
+      *(_OWORD *)&v19[-32].id = v21;
+      *(_OWORD *)&v19[-28].id = *((_OWORD *)&v18[-1].m_path.m_catmullRom + 13);
+      *(_OWORD *)&v19[-24].id = *(_OWORD *)v18[-1].m_pathPosInterpolated.v;
+      *(_OWORD *)&v19[-20].id = *(_OWORD *)&v18[-1].m_pathAnglesInterpolated.y;
+      *(_OWORD *)&v19[-16].id = *(_OWORD *)&v18[-1].m_previousLinearVelocityWs.z;
+      *(_OWORD *)&v19[-12].id = *(_OWORD *)&v18[-1].m_numNodes;
+      *(_OWORD *)&v19[-8].id = *(_OWORD *)&v18[-1].m_yawAccel;
+      *(_OWORD *)&v19[-4].id = *(_OWORD *)&v18[-1].m_manualDecel;
       --v20;
     }
     while ( v20 );
     v9->id = (unsigned __int16)vehicleId | (((compType << 8) | (unsigned __int8)v15) << 16);
-    v29 = BgVehiclePhysicsManager::GetObjectById(this, (unsigned __int16)vehicleId);
-    if ( v29->m_pmoveObject && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 220, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
+    v22 = BgVehiclePhysicsManager::GetObjectById(this, (unsigned __int16)vehicleId);
+    if ( v22->m_pmoveObject && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 220, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
       __debugbreak();
-    BgVehiclePhysics::AddComponent(v29, (VehiclePhysicsComponentId)v9->id);
+    BgVehiclePhysics::AddComponent(v22, (VehiclePhysicsComponentId)v9->id);
     if ( !((unsigned __int8 (__fastcall *)(BgVehicleComponentPathFollower *, BGVehicles *, _QWORD))ComponentBy->Setup)(ComponentBy, vehicleSystem, v9->id) )
     {
       ((void (__fastcall *)(BGVehicles *, _QWORD))vehicleSystem->PhysicsDestroyComponent)(vehicleSystem, v9->id);
@@ -865,12 +844,15 @@ void BgVehiclePhysicsManager::LoadAllFromSaveGame(BgVehiclePhysicsManager *this,
   BgVehiclePhysics *ObjectById; 
   unsigned __int8 *v22; 
   BgVehiclePhysicsComponent *v23; 
+  char *v24; 
+  BgVehiclePhysicsComponent *v25; 
   __int64 v26; 
-  int v35; 
-  int v36; 
-  int v37; 
-  unsigned __int8 *v38; 
-  BgVehiclePhysics *v39; 
+  __int128 v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  unsigned __int8 *v31; 
+  BgVehiclePhysics *v32; 
   unsigned int p; 
 
   v3 = this;
@@ -880,26 +862,26 @@ void BgVehiclePhysicsManager::LoadAllFromSaveGame(BgVehiclePhysicsManager *this,
   MemFile_ReadData(&save->memFile, 4ui64, &p);
   v6 = p;
   v7 = &v3->m_vehiclePhysicsObjects[0].buffer[36];
-  v38 = &v3->m_vehiclePhysicsObjects[0].buffer[36];
+  v31 = &v3->m_vehiclePhysicsObjects[0].buffer[36];
   for ( i = 0; i < 0x80; ++i )
   {
     v9 = (unsigned __int8 *)v3 + 3360 * i;
     v10 = (char *)(v9 + 8);
     memset_0(v9 + 8, 0, 0xD20ui64);
-    MemFile_ReadData(p_memFile, 4ui64, &v35);
-    if ( v35 )
+    MemFile_ReadData(p_memFile, 4ui64, &v28);
+    if ( v28 )
     {
-      MemFile_ReadData(p_memFile, 4ui64, &v36);
-      if ( v36 )
+      MemFile_ReadData(p_memFile, 4ui64, &v29);
+      if ( v29 )
       {
         MemFile_ReadData(p_memFile, 0xD20ui64, v7 - 36);
         v11 = v7[1];
         v12 = *v7;
         if ( !BGVehicles::PhysicsIsValid(i + 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 108, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehId )") )
           __debugbreak();
-        v39 = BGVehicles::PhysicsFactory(v9 + 8, 0xD20u, v12, v11);
-        v13 = (__int64)v39;
-        if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 114, ASSERT_TYPE_ASSERT, "(object)", "%s\n\tBgVehiclePhysicsManager::Allocate() could not create a new physics vehicle object in factory", "object") )
+        v32 = BGVehicles::PhysicsFactory(v9 + 8, 0xD20u, v12, v11);
+        v13 = (__int64)v32;
+        if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 114, ASSERT_TYPE_ASSERT, "(object)", "%s\n\tBgVehiclePhysicsManager::Allocate() could not create a new physics vehicle object in factory", "object") )
           __debugbreak();
         if ( (char *)v13 != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 115, ASSERT_TYPE_ASSERT, "(reinterpret_cast<byte*>( object ) == objBuffer)", "%s\n\tBgVehiclePhysicsManager::Allocate() instance must be allocated in provided buffer", "reinterpret_cast<byte*>( object ) == objBuffer") )
           __debugbreak();
@@ -912,9 +894,9 @@ void BgVehiclePhysicsManager::LoadAllFromSaveGame(BgVehiclePhysicsManager *this,
         v15 = *v7;
         if ( !BGVehicles::PhysicsIsValid(i + 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 108, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehId )") )
           __debugbreak();
-        v39 = BGVehicles::PhysicsFactory(v9 + 8, 0xD20u, v15, v14);
-        v13 = (__int64)v39;
-        if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 114, ASSERT_TYPE_ASSERT, "(object)", "%s\n\tBgVehiclePhysicsManager::Allocate() could not create a new physics vehicle object in factory", "object") )
+        v32 = BGVehicles::PhysicsFactory(v9 + 8, 0xD20u, v15, v14);
+        v13 = (__int64)v32;
+        if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 114, ASSERT_TYPE_ASSERT, "(object)", "%s\n\tBgVehiclePhysicsManager::Allocate() could not create a new physics vehicle object in factory", "object") )
           __debugbreak();
         if ( (char *)v13 != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 115, ASSERT_TYPE_ASSERT, "(reinterpret_cast<byte*>( object ) == objBuffer)", "%s\n\tBgVehiclePhysicsManager::Allocate() instance must be allocated in provided buffer", "reinterpret_cast<byte*>( object ) == objBuffer") )
           __debugbreak();
@@ -925,14 +907,14 @@ void BgVehiclePhysicsManager::LoadAllFromSaveGame(BgVehiclePhysicsManager *this,
       v17 = (_DWORD *)(v13 + 180);
       do
       {
-        v7 = v38;
+        v7 = v31;
         v3 = this;
         v18 = 958472i64;
-        if ( !v38[576] )
+        if ( !v31[576] )
           v18 = 430088i64;
         v19 = (BgVehiclePhysicsComponent *)((char *)this + 768 * (int)i + 384 * (int)v16 + v18);
-        MemFile_ReadData(p_memFile, 4ui64, &v37);
-        if ( v37 )
+        MemFile_ReadData(p_memFile, 4ui64, &v30);
+        if ( v30 )
         {
           BgVehiclePhysicsComponent::LoadFromMemFileHeader(v19, p_memFile, p);
           id_high = HIBYTE(v19->m_id.id);
@@ -945,32 +927,22 @@ void BgVehiclePhysicsManager::LoadAllFromSaveGame(BgVehiclePhysicsManager *this,
             __debugbreak();
           if ( v23 != (BgVehiclePhysicsComponent *)(v22 + 430088) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 134, ASSERT_TYPE_ASSERT, "(reinterpret_cast<byte*>( vehComp ) == compBuffer)", "%s\n\tBgVehiclePhysicsManager::AllocateComponent() instance must be allocated in provided buffer", "reinterpret_cast<byte*>( vehComp ) == compBuffer") )
             __debugbreak();
-          _RCX = (char *)(v22 + 958472);
-          _RAX = v23;
+          v24 = (char *)(v22 + 958472);
+          v25 = v23;
           v26 = 3i64;
           do
           {
-            _RCX += 128;
-            __asm { vmovups xmm0, xmmword ptr [rax] }
-            _RAX = (BgVehiclePhysicsComponent *)((char *)_RAX + 128);
-            __asm
-            {
-              vmovups xmmword ptr [rcx-80h], xmm0
-              vmovups xmm1, xmmword ptr [rax-70h]
-              vmovups xmmword ptr [rcx-70h], xmm1
-              vmovups xmm0, xmmword ptr [rax-60h]
-              vmovups xmmword ptr [rcx-60h], xmm0
-              vmovups xmm1, xmmword ptr [rax-50h]
-              vmovups xmmword ptr [rcx-50h], xmm1
-              vmovups xmm0, xmmword ptr [rax-40h]
-              vmovups xmmword ptr [rcx-40h], xmm0
-              vmovups xmm1, xmmword ptr [rax-30h]
-              vmovups xmmword ptr [rcx-30h], xmm1
-              vmovups xmm0, xmmword ptr [rax-20h]
-              vmovups xmmword ptr [rcx-20h], xmm0
-              vmovups xmm1, xmmword ptr [rax-10h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
+            v24 += 128;
+            v27 = *(_OWORD *)&v25->__vftable;
+            v25 = (BgVehiclePhysicsComponent *)((char *)v25 + 128);
+            *((_OWORD *)v24 - 8) = v27;
+            *((_OWORD *)v24 - 7) = *(_OWORD *)&v25[-3].m_id.id;
+            *((_OWORD *)v24 - 6) = *(_OWORD *)&v25[-3].m_pauseTime;
+            *((_OWORD *)v24 - 5) = *(_OWORD *)&v25[-2].__vftable;
+            *((_OWORD *)v24 - 4) = *(_OWORD *)&v25[-2].m_vehicleSystem;
+            *((_OWORD *)v24 - 3) = *(_OWORD *)&v25[-2].m_autoRemove;
+            *((_OWORD *)v24 - 2) = *(_OWORD *)&v25[-1].m_id.id;
+            *((_OWORD *)v24 - 1) = *(_OWORD *)&v25[-1].m_pauseTime;
             --v26;
           }
           while ( v26 );
@@ -978,18 +950,18 @@ void BgVehiclePhysicsManager::LoadAllFromSaveGame(BgVehiclePhysicsManager *this,
           v23->FixUpLoad(v23, save, vehicleSystem);
           if ( ((*v17 ^ v23->m_id.id) & 0xFF000000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 434, ASSERT_TYPE_ASSERT, "( baseObj->GetComponentId( compIndex ).GetType() == baseComp->GetId().GetType() )", "BgVehiclePhysicsManager::LoadAllFromSaveGame: Vehicle component Id type is != than component object type") )
             __debugbreak();
-          v7 = v38;
+          v7 = v31;
           v3 = this;
         }
         v16 = (unsigned int)(v16 + 1);
         ++v17;
       }
       while ( (unsigned int)v16 < 2 );
-      v39->FixUpLoad(v39, save, vehicleSystem);
+      v32->FixUpLoad(v32, save, vehicleSystem);
       v6 = p;
     }
     v7 += 3360;
-    v38 = v7;
+    v31 = v7;
   }
   memset_0(v3->m_vehiclePhysicsObjectsPmove, 0, sizeof(v3->m_vehiclePhysicsObjectsPmove));
 }

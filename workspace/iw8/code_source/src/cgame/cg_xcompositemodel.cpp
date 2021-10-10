@@ -39,23 +39,14 @@ CG_XCompositeModel_GetDObj
 DObj *CG_XCompositeModel_GetDObj(const XCompositeModelDef *compositeModel, const LocalClientNum_t localClientNum, const centity_t *cent, bool *createdNew_optionalOut)
 {
   unsigned __int16 numModels[8]; 
-  vec3_t v11; 
-  vec4_t v12; 
+  vec3_t v9; 
+  vec4_t v10; 
   DObjModel dobjModel; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovsd  xmm1, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-  }
   numModels[0] = 0;
-  v11.v[2] = vec3_origin.v[2];
-  __asm
-  {
-    vmovdqa [rsp+4FF8h+var_4F98], xmm0
-    vmovsd  [rsp+4FF8h+var_4FA8], xmm1
-  }
-  CG_XCompositeModel_InitModelsRecursive(compositeModel, -1, (const scr_string_t)0, &v11, &v12, 0xFEu, numModels, &dobjModel);
+  v9 = vec3_origin;
+  v10 = quat_identity;
+  CG_XCompositeModel_InitModelsRecursive(compositeModel, -1, (const scr_string_t)0, &v9, &v10, 0xFEu, numModels, &dobjModel);
   return CG_EntityMP_GetDObj(localClientNum, cent->nextState.number, cent->nextState.eType, &dobjModel, numModels[0], createdNew_optionalOut);
 }
 
@@ -135,17 +126,18 @@ CG_XCompositeModel_InitModelsRecursive
 */
 void CG_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *compositeModel, const int recursiveParentSlot, const scr_string_t recursiveParentBoneName, const vec3_t *recursiveOffsets, const vec4_t *recursiveQuat, const unsigned int maxNumModels, unsigned __int16 *outNumModels, DObjModel *outDobjModels)
 {
-  int v13; 
-  unsigned int v14; 
-  unsigned __int16 v15; 
-  unsigned __int16 *v16; 
+  double v9; 
+  int v11; 
+  unsigned int v12; 
+  unsigned __int16 v13; 
+  unsigned __int16 *v14; 
   unsigned int i; 
   int recursiveParentSlota; 
   scr_string_t boneName; 
   XModel *model; 
   scr_string_t recursiveParentBoneNamea; 
   XCompositeSubmodel *submodel[2]; 
-  vec3_t v25; 
+  vec3_t v21; 
   vec3_t offsets; 
   vec3_t recursiveOffsetsa; 
   vec4_t quat; 
@@ -154,32 +146,27 @@ void CG_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *compositeM
   int remap[12]; 
   BgXCompositeModelSortInfo outSortInfos; 
 
-  __asm { vmovsd  xmm0, qword ptr [r9] }
+  v9 = *(double *)recursiveOffsets->v;
   recursiveOffsetsa.v[2] = recursiveOffsets->v[2];
-  _RAX = recursiveQuat;
-  __asm { vmovsd  qword ptr [rbp+120h+recursiveOffsets], xmm0 }
+  *(double *)recursiveOffsetsa.v = v9;
   recursiveParentBoneNamea = recursiveParentBoneName;
-  *(_QWORD *)v25.v = outNumModels;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbp+120h+recursiveQuat], xmm0
-  }
+  *(_QWORD *)v21.v = outNumModels;
+  recursiveQuata = *recursiveQuat;
   BG_XCompositeModel_SortSubmodels(compositeModel, 10, 10, &outSortInfos, remap);
+  v11 = *outNumModels;
+  v12 = 0;
   v13 = *outNumModels;
-  v14 = 0;
-  v15 = *outNumModels;
   do
   {
     submodel[0] = NULL;
     model = NULL;
-    if ( !BG_XCompositeModel_GetSubmodelInfo(compositeModel, &outSortInfos, remap, v14, v13, (const XCompositeSubmodel **)submodel, &model, &offsets, &quat, &recursiveParentSlota) )
+    if ( !BG_XCompositeModel_GetSubmodelInfo(compositeModel, &outSortInfos, remap, v12, v11, (const XCompositeSubmodel **)submodel, &model, &offsets, &quat, &recursiveParentSlota) )
       break;
     if ( !submodel[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_xcompositemodel.cpp", 95, ASSERT_TYPE_ASSERT, "(submodel)", (const char *)&queryFormat, "submodel") )
       __debugbreak();
     if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_xcompositemodel.cpp", 96, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
-    if ( v15 )
+    if ( v13 )
     {
       if ( recursiveParentSlota >= 0 || submodel[0]->parentBoneName == scr_const._ )
         BG_XCompositeModel_GetParentBone(compositeModel, submodel[0], outDobjModels, recursiveParentSlota, &boneName);
@@ -190,33 +177,24 @@ void CG_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *compositeM
     {
       BG_XCompositeModel_SetupRootModel(&recursiveOffsetsa, &recursiveQuata, &offsets, &quat, &boneName, &outResultMat);
     }
-    if ( (unsigned int)v15 + 1 > maxNumModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_xcompositemodel.cpp", 118, ASSERT_TYPE_ASSERT, "( static_cast<uint>( numModels ) + 1 <= maxNumModels )", "Error: CompositeModel: %s, has too many submodels. It will stomp memory.", compositeModel->name) )
+    if ( (unsigned int)v13 + 1 > maxNumModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_xcompositemodel.cpp", 118, ASSERT_TYPE_ASSERT, "( static_cast<uint>( numModels ) + 1 <= maxNumModels )", "Error: CompositeModel: %s, has too many submodels. It will stomp memory.", compositeModel->name) )
       __debugbreak();
-    DObjInitSubmodel(model, boneName, recursiveParentSlota, &offsets, &quat, 0, 0, NULL, &outDobjModels[v15++]);
-    ++v14;
+    DObjInitSubmodel(model, boneName, recursiveParentSlota, &offsets, &quat, 0, 0, NULL, &outDobjModels[v13++]);
+    ++v12;
   }
-  while ( v14 < 0xA );
-  v16 = *(unsigned __int16 **)v25.v;
-  **(_WORD **)v25.v = v15;
+  while ( v12 < 0xA );
+  v14 = *(unsigned __int16 **)v21.v;
+  **(_WORD **)v21.v = v13;
   for ( i = 0; i < 0xA; ++i )
   {
     model = NULL;
-    if ( BG_XCompositeModel_CalculateSubCompositeModelInfo(compositeModel, remap, i, v13, recursiveParentSlot, recursiveParentBoneNamea, &recursiveOffsetsa, &recursiveQuata, (const XCompositeModelDef **)&model, &offsets, &quat, &recursiveParentSlota, &boneName) )
+    if ( BG_XCompositeModel_CalculateSubCompositeModelInfo(compositeModel, remap, i, v11, recursiveParentSlot, recursiveParentBoneNamea, &recursiveOffsetsa, &recursiveQuata, (const XCompositeModelDef **)&model, &offsets, &quat, &recursiveParentSlota, &boneName) )
     {
       if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_xcompositemodel.cpp", 141, ASSERT_TYPE_ASSERT, "(subCompositeModel)", (const char *)&queryFormat, "subCompositeModel") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+120h+quat]
-        vmovsd  xmm1, qword ptr [rbp+120h+offsets]
-      }
-      v25.v[2] = offsets.v[2];
-      __asm
-      {
-        vmovdqa xmmword ptr [rbp+120h+submodel], xmm0
-        vmovsd  [rbp+120h+var_180], xmm1
-      }
-      CG_XCompositeModel_InitModelsRecursive((const XCompositeModelDef *)model, recursiveParentSlota, boneName, &v25, (const vec4_t *)submodel, maxNumModels, v16, outDobjModels);
+      v21 = offsets;
+      *(vec4_t *)submodel = quat;
+      CG_XCompositeModel_InitModelsRecursive((const XCompositeModelDef *)model, recursiveParentSlota, boneName, &v21, (const vec4_t *)submodel, maxNumModels, v14, outDobjModels);
     }
   }
 }

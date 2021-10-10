@@ -914,25 +914,17 @@ LUI_Model_GetNumber
 */
 float LUI_Model_GetNumber(const unsigned __int16 nodeIndex)
 {
+  __int64 v2; 
+
   if ( !nodeIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 871, ASSERT_TYPE_ASSERT, "(nodeIndex != 0)", (const char *)&queryFormat, "nodeIndex != INVALID_LUI_MODEL") )
     __debugbreak();
-  _RDI = s_modelNodePool;
-  _RBX = nodeIndex;
-  if ( (unsigned int)(s_modelNodePool[_RBX].data.dataType - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 872, ASSERT_TYPE_ASSERT, "(s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_REAL || s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_INT)", (const char *)&queryFormat, "s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_REAL || s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_INT") )
+  v2 = nodeIndex;
+  if ( (unsigned int)(s_modelNodePool[v2].data.dataType - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 872, ASSERT_TYPE_ASSERT, "(s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_REAL || s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_INT)", (const char *)&queryFormat, "s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_REAL || s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_INT") )
     __debugbreak();
-  if ( s_modelNodePool[_RBX].data.dataType == LUI_MODEL_DT_REAL )
-  {
-    __asm { vmovss  xmm0, dword ptr [rbx+rdi+10h] }
-  }
+  if ( s_modelNodePool[v2].data.dataType == LUI_MODEL_DT_REAL )
+    return s_modelNodePool[v2].data.real;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+rdi+10h]
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)s_modelNodePool[v2].data.integer;
 }
 
 /*
@@ -1027,31 +1019,26 @@ LUI_Model_GetReal
 */
 float LUI_Model_GetReal(const unsigned __int16 nodeIndex)
 {
-  if ( nodeIndex )
+  __int64 v2; 
+
+  if ( !nodeIndex )
   {
-    _RDI = s_modelNodePool;
-    _RBX = nodeIndex;
-    if ( s_modelNodePool[_RBX].data.dataType == LUI_MODEL_DT_REAL )
-      goto LABEL_9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 853, ASSERT_TYPE_ASSERT, "(nodeIndex != 0)", (const char *)&queryFormat, "nodeIndex != INVALID_LUI_MODEL") )
+    {
+      __debugbreak();
+      return 0.0;
+    }
+    return 0.0;
+  }
+  v2 = nodeIndex;
+  if ( s_modelNodePool[v2].data.dataType != LUI_MODEL_DT_REAL )
+  {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 859, ASSERT_TYPE_ASSERT, "(s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_REAL)", (const char *)&queryFormat, "s_modelNodePool[nodeIndex].data.dataType == LUI_MODEL_DT_REAL") )
       __debugbreak();
-    if ( s_modelNodePool[_RBX].data.dataType == LUI_MODEL_DT_REAL )
-    {
-LABEL_9:
-      __asm { vmovss  xmm0, dword ptr [rbx+rdi+10h] }
-      return *(float *)&_XMM0;
-    }
-    goto LABEL_8;
+    if ( s_modelNodePool[v2].data.dataType != LUI_MODEL_DT_REAL )
+      return 0.0;
   }
-  if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 853, ASSERT_TYPE_ASSERT, "(nodeIndex != 0)", (const char *)&queryFormat, "nodeIndex != INVALID_LUI_MODEL") )
-  {
-LABEL_8:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    return *(float *)&_XMM0;
-  }
-  __debugbreak();
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return s_modelNodePool[v2].data.real;
 }
 
 /*
@@ -1456,51 +1443,38 @@ void LUI_Model_SetInt(const unsigned __int16 nodeIndex, int newValue)
 LUI_Model_SetReal
 ==============
 */
-
-void __fastcall LUI_Model_SetReal(const unsigned __int16 nodeIndex, double newValue)
+void LUI_Model_SetReal(const unsigned __int16 nodeIndex, float newValue)
 {
+  __int64 v3; 
   char *string; 
   float Px; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovss  [rsp+48h+Px], xmm1
-    vmovaps xmm6, xmm1
-  }
+  Px = newValue;
   if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 943, ASSERT_TYPE_ASSERT, "(!isnan( newValue ))", (const char *)&queryFormat, "!isnan( newValue )") )
     __debugbreak();
   if ( nodeIndex )
   {
-    _RBX = nodeIndex;
-    _RSI = s_modelNodePool;
-    if ( s_modelNodePool[_RBX].data.dataType != LUI_MODEL_DT_REAL )
-      goto LABEL_9;
-    __asm { vucomiss xmm6, dword ptr [rbx+rsi+10h] }
-    if ( s_modelNodePool[_RBX].data.dataType != LUI_MODEL_DT_REAL )
+    v3 = nodeIndex;
+    if ( s_modelNodePool[v3].data.dataType != LUI_MODEL_DT_REAL || newValue != s_modelNodePool[v3].data.real )
     {
-LABEL_9:
-      if ( s_modelNodePool[_RBX].data.dataType == LUI_MODEL_DT_STRING )
+      if ( s_modelNodePool[v3].data.dataType == LUI_MODEL_DT_STRING )
       {
-        string = (char *)s_modelNodePool[_RBX].data.string;
+        string = (char *)s_modelNodePool[v3].data.string;
         if ( string )
         {
           ntl::nxheap::free(&s_modelStringHeap.m_heap, string);
-          s_modelNodePool[_RBX].data.string = NULL;
+          s_modelNodePool[v3].data.string = NULL;
         }
       }
-      s_modelNodePool[_RBX].data.dataType = LUI_MODEL_DT_REAL;
-      __asm { vmovss  dword ptr [rbx+rsi+10h], xmm6 }
+      s_modelNodePool[v3].data.dataType = LUI_MODEL_DT_REAL;
+      s_modelNodePool[v3].data.real = newValue;
       LUI_Model_NotifySubscriptions(nodeIndex);
     }
   }
   else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 944, ASSERT_TYPE_ASSERT, "(nodeIndex != 0)", (const char *)&queryFormat, "nodeIndex != INVALID_LUI_MODEL") )
   {
     __debugbreak();
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    return;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1824,83 +1798,75 @@ void LUI_Model_UpdateModelFromOmnvar(LocalClientNum_t localClientNum, const Omnv
   int ControllerFromClient; 
   unsigned __int16 ModelFromOmnvar; 
   bool enabled; 
-  __int64 v11; 
+  __int64 v9; 
   char *string; 
-  char *v16; 
+  float value; 
+  __int64 v12; 
+  char *v13; 
   int Time; 
+  const char *v15; 
+  const char *v16; 
+  int v17; 
   const char *v18; 
   const char *v19; 
-  int v20; 
-  const char *v21; 
-  const char *v22; 
-  __int64 v23; 
-  unsigned __int64 v24; 
-  void *v25; 
+  __int64 v20; 
+  unsigned __int64 v21; 
+  void *v22; 
   const char *Px; 
 
-  _RSI = omnvar;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
   ModelFromOmnvar = LUI_Model_GetModelFromOmnvar(ControllerFromClient, omnvarDef);
   if ( !Com_GeneratingConstBaselines() )
   {
-    _R12 = 0x140000000ui64;
     switch ( omnvarDef->type )
     {
       case OMNVAR_TYPE_BOOL:
-        enabled = _RSI->current.enabled;
+        enabled = omnvar->current.enabled;
         if ( ModelFromOmnvar )
         {
-          v11 = ModelFromOmnvar;
-          if ( s_modelNodePool[v11].data.dataType != LUI_MODEL_DT_BOOL || s_modelNodePool[v11].data.boolean != enabled )
+          v9 = ModelFromOmnvar;
+          if ( s_modelNodePool[v9].data.dataType != LUI_MODEL_DT_BOOL || s_modelNodePool[v9].data.boolean != enabled )
           {
-            if ( s_modelNodePool[v11].data.dataType == LUI_MODEL_DT_STRING )
+            if ( s_modelNodePool[v9].data.dataType == LUI_MODEL_DT_STRING )
             {
-              string = (char *)s_modelNodePool[v11].data.string;
+              string = (char *)s_modelNodePool[v9].data.string;
               if ( string )
               {
                 ntl::nxheap::free(&s_modelStringHeap.m_heap, string);
-                s_modelNodePool[v11].data.string = NULL;
+                s_modelNodePool[v9].data.string = NULL;
               }
             }
-            s_modelNodePool[v11].data.dataType = LUI_MODEL_DT_BOOL;
-            s_modelNodePool[v11].data.boolean = enabled;
+            s_modelNodePool[v9].data.dataType = LUI_MODEL_DT_BOOL;
+            s_modelNodePool[v9].data.boolean = enabled;
             LUI_Model_NotifySubscriptions(ModelFromOmnvar);
           }
         }
         else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 965, ASSERT_TYPE_ASSERT, "(nodeIndex != 0)", (const char *)&queryFormat, "nodeIndex != INVALID_LUI_MODEL") )
         {
-          goto LABEL_53;
+          goto LABEL_52;
         }
         return;
       case OMNVAR_TYPE_FLOAT:
-        __asm
-        {
-          vmovaps [rsp+68h+var_38], xmm6; jumptable 0000000142618096 case 1
-          vmovss  xmm6, dword ptr [rsi+4]
-          vmovss  dword ptr [rsp+68h+Px], xmm6
-        }
+        value = omnvar->current.value;
+        *(float *)&Px = value;
         if ( _fdtest((float *)&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 943, ASSERT_TYPE_ASSERT, "(!isnan( newValue ))", (const char *)&queryFormat, "!isnan( newValue )") )
           __debugbreak();
         if ( ModelFromOmnvar )
         {
-          _RDI = ModelFromOmnvar;
-          if ( s_modelNodePool[_RDI].data.dataType != LUI_MODEL_DT_REAL )
-            goto LABEL_56;
-          __asm { vucomiss xmm6, dword ptr [rdi+r12+147E4B60h] }
-          if ( s_modelNodePool[_RDI].data.dataType != LUI_MODEL_DT_REAL )
+          v12 = ModelFromOmnvar;
+          if ( s_modelNodePool[v12].data.dataType != LUI_MODEL_DT_REAL || value != s_modelNodePool[v12].data.real )
           {
-LABEL_56:
-            if ( s_modelNodePool[_RDI].data.dataType == LUI_MODEL_DT_STRING )
+            if ( s_modelNodePool[v12].data.dataType == LUI_MODEL_DT_STRING )
             {
-              v16 = (char *)s_modelNodePool[_RDI].data.string;
-              if ( v16 )
+              v13 = (char *)s_modelNodePool[v12].data.string;
+              if ( v13 )
               {
-                ntl::nxheap::free(&s_modelStringHeap.m_heap, v16);
-                s_modelNodePool[_RDI].data.string = NULL;
+                ntl::nxheap::free(&s_modelStringHeap.m_heap, v13);
+                s_modelNodePool[v12].data.string = NULL;
               }
             }
-            s_modelNodePool[_RDI].data.dataType = LUI_MODEL_DT_REAL;
-            __asm { vmovss  dword ptr [rdi+r12+147E4B60h], xmm6 }
+            s_modelNodePool[v12].data.dataType = LUI_MODEL_DT_REAL;
+            s_modelNodePool[v12].data.real = value;
             LUI_Model_NotifySubscriptions(ModelFromOmnvar);
           }
         }
@@ -1908,64 +1874,63 @@ LABEL_56:
         {
           __debugbreak();
         }
-        __asm { vmovaps xmm6, [rsp+68h+var_38] }
         return;
       case OMNVAR_TYPE_INT:
-        if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+        if ( !omnvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
           __debugbreak();
         if ( omnvarDef->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 208, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
           __debugbreak();
-        LUI_Model_SetInt(ModelFromOmnvar, _RSI->current.integer + omnvarDef->minvalue);
+        LUI_Model_SetInt(ModelFromOmnvar, omnvar->current.integer + omnvarDef->minvalue);
         return;
       case OMNVAR_TYPE_UINT:
-        LUI_Model_SetInt(ModelFromOmnvar, _RSI->current.integer);
+        LUI_Model_SetInt(ModelFromOmnvar, omnvar->current.integer);
         return;
       case OMNVAR_TYPE_TIME:
-        Time = CG_Omnvar_GetTime(omnvarDef, _RSI, localClientNum);
+        Time = CG_Omnvar_GetTime(omnvarDef, omnvar, localClientNum);
         LUI_Model_SetInt(ModelFromOmnvar, Time);
         return;
       case OMNVAR_TYPE_NCS_LUI:
-        if ( !BG_Omnvar_GetNCString(omnvarDef, _RSI, &Px) )
+        if ( !BG_Omnvar_GetNCString(omnvarDef, omnvar, &Px) )
           return;
-        v18 = Px;
+        v15 = Px;
         if ( ModelFromOmnvar )
         {
           if ( Px )
           {
-            if ( s_modelNodePool[ModelFromOmnvar].data.dataType != LUI_MODEL_DT_STRING || (v22 = s_modelNodePool[ModelFromOmnvar].data.string) == NULL || I_strcmp(v22, Px) )
+            if ( s_modelNodePool[ModelFromOmnvar].data.dataType != LUI_MODEL_DT_STRING || (v19 = s_modelNodePool[ModelFromOmnvar].data.string) == NULL || I_strcmp(v19, Px) )
             {
               LUI_Model_WipeData(ModelFromOmnvar);
-              v23 = -1i64;
+              v20 = -1i64;
               do
-                ++v23;
-              while ( v18[v23] );
-              v24 = (unsigned int)(v23 + 1);
-              v25 = ntl::nxheap::allocate(&s_modelStringHeap.m_heap, v24, 4ui64, 1);
-              if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 1010, ASSERT_TYPE_ASSERT, "(newString)", (const char *)&queryFormat, "newString") )
+                ++v20;
+              while ( v15[v20] );
+              v21 = (unsigned int)(v20 + 1);
+              v22 = ntl::nxheap::allocate(&s_modelStringHeap.m_heap, v21, 4ui64, 1);
+              if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 1010, ASSERT_TYPE_ASSERT, "(newString)", (const char *)&queryFormat, "newString") )
                 __debugbreak();
-              memcpy_0(v25, v18, v24);
+              memcpy_0(v22, v15, v21);
               s_modelNodePool[ModelFromOmnvar].data.dataType = LUI_MODEL_DT_STRING;
-              s_modelNodePool[ModelFromOmnvar].data.string = (const char *)v25;
+              s_modelNodePool[ModelFromOmnvar].data.string = (const char *)v22;
               LUI_Model_NotifySubscriptions(ModelFromOmnvar);
             }
             return;
           }
-          v19 = "newValue != NULL";
-          v20 = 992;
-          v21 = "(newValue != 0)";
+          v16 = "newValue != NULL";
+          v17 = 992;
+          v18 = "(newValue != 0)";
         }
         else
         {
-          v19 = "nodeIndex != INVALID_LUI_MODEL";
-          v20 = 986;
-          v21 = "(nodeIndex != 0)";
+          v16 = "nodeIndex != INVALID_LUI_MODEL";
+          v17 = 986;
+          v18 = "(nodeIndex != 0)";
         }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", v20, ASSERT_TYPE_ASSERT, v21, (const char *)&queryFormat, v19) )
-          goto LABEL_53;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", v17, ASSERT_TYPE_ASSERT, v18, (const char *)&queryFormat, v16) )
+          goto LABEL_52;
         break;
       default:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 1228, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected omnvar type for omnvar %s", omnvarDef->name) )
-LABEL_53:
+LABEL_52:
           __debugbreak();
         return;
     }
@@ -2129,29 +2094,29 @@ LUI_Model_WriteModelValue
 */
 void LUI_Model_WriteModelValue(const unsigned __int16 model, const bool trailingComma, const fileHandle_t fileHandle)
 {
+  __int64 v4; 
   LUIModelDataType dataType; 
+  __int32 v7; 
   __int32 v8; 
   __int32 v9; 
-  __int32 v10; 
-  const char *v14; 
+  const char *v10; 
 
-  _R10 = model;
-  _RDX = s_modelNodePool;
-  dataType = s_modelNodePool[_R10].data.dataType;
+  v4 = model;
+  dataType = s_modelNodePool[v4].data.dataType;
   if ( dataType )
   {
-    v8 = dataType - 1;
-    if ( v8 )
+    v7 = dataType - 1;
+    if ( v7 )
     {
-      v9 = v8 - 1;
-      if ( v9 )
+      v8 = v7 - 1;
+      if ( v8 )
       {
-        v10 = v9 - 1;
-        if ( v10 )
+        v9 = v8 - 1;
+        if ( v9 )
         {
-          if ( v10 == 1 )
+          if ( v9 == 1 )
           {
-            LUI_Model_Write(fileHandle, 13, "\"%s\"", s_modelNodePool[_R10].data.string);
+            LUI_Model_Write(fileHandle, 13, "\"%s\"", s_modelNodePool[v4].data.string);
           }
           else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_datamodel.cpp", 484, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Model Index %d has unkown data type\n", model) )
           {
@@ -2160,26 +2125,20 @@ void LUI_Model_WriteModelValue(const unsigned __int16 model, const bool trailing
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [r10+rdx+10h]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vmovq   r9, xmm3
-          }
-          LUI_Model_Write(fileHandle, 13, "\"%f\"", _R9);
+          LUI_Model_Write(fileHandle, 13, "\"%f\"", s_modelNodePool[v4].data.real);
         }
       }
       else
       {
-        LUI_Model_Write(fileHandle, 13, "\"%d\"", (unsigned int)s_modelNodePool[_R10].data.integer);
+        LUI_Model_Write(fileHandle, 13, "\"%d\"", (unsigned int)s_modelNodePool[v4].data.integer);
       }
     }
     else
     {
-      v14 = "false";
-      if ( s_modelNodePool[_R10].data.boolean )
-        v14 = "true";
-      LUI_Model_Write(fileHandle, 13, "\"%s\"", v14);
+      v10 = "false";
+      if ( s_modelNodePool[v4].data.boolean )
+        v10 = "true";
+      LUI_Model_Write(fileHandle, 13, "\"%s\"", v10);
     }
   }
   else

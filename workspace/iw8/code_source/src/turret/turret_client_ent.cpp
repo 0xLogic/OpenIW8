@@ -255,46 +255,33 @@ CG_Turret_UpdateBarrelSpinRumble
 */
 void CG_Turret_UpdateBarrelSpinRumble(LocalClientNum_t localClientNum, centity_t *cent)
 {
-  __int64 v5; 
+  __int64 v2; 
   const Weapon *WeaponForEntity; 
-  const WeaponDef *v8; 
+  const WeaponDef *v5; 
   cg_t *LocalClientGlobals; 
-  char v12; 
-  char v13; 
-  float v15; 
+  double v7; 
 
-  v5 = localClientNum;
+  v2 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 396, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 397, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  if ( !CgWeaponMap::ms_instance[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v5], &cent->nextState);
-  v8 = BG_WeaponDef(WeaponForEntity, 0);
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 402, ASSERT_TYPE_SANITY, "( weapDef )", (const char *)&queryFormat, "weapDef") )
+  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v2], &cent->nextState);
+  v5 = BG_WeaponDef(WeaponForEntity, 0);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 402, ASSERT_TYPE_SANITY, "( weapDef )", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( v8->turretBarrelSpinEnabled && v8->turretBarrelSpinRumble )
+  if ( v5->turretBarrelSpinEnabled && v5->turretBarrelSpinRumble )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 411, ASSERT_TYPE_SANITY, "( cgameGlob )", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     if ( BG_IsTurretActive(&LocalClientGlobals->predictedPlayerState) && LocalClientGlobals->predictedPlayerState.viewlocked_entNum == cent->nextState.number )
     {
-      __asm { vmovaps [rsp+68h+var_28], xmm6 }
-      *(double *)&_XMM0 = BG_Turret_ComputeBarrelSpinRate(v8, (const LerpEntityStateTurret *)&cent->nextState.lerp.u, LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm0, xmm1
-        vmovaps xmm6, xmm0
-      }
-      if ( !(v12 | v13) && !LocalClientGlobals->IsClientGamePaused(LocalClientGlobals) )
-      {
-        __asm { vmovss  [rsp+68h+var_38], xmm6 }
-        CG_Rumble_PlayDeferred((LocalClientNum_t)v5, v8->turretBarrelSpinRumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v15, 1);
-      }
-      __asm { vmovaps xmm6, [rsp+68h+var_28] }
+      v7 = BG_Turret_ComputeBarrelSpinRate(v5, (const LerpEntityStateTurret *)&cent->nextState.lerp.u, LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime);
+      if ( *(float *)&v7 > 0.0 && !LocalClientGlobals->IsClientGamePaused(LocalClientGlobals) )
+        CG_Rumble_PlayDeferred((LocalClientNum_t)v2, v5->turretBarrelSpinRumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, *(float *)&v7, 1);
     }
   }
 }
@@ -306,76 +293,66 @@ CG_Turret_UpdateBarrelSpinSound
 */
 void CG_Turret_UpdateBarrelSpinSound(LocalClientNum_t localClientNum, centity_t *cent)
 {
-  __int64 v5; 
+  __int64 v2; 
   entityState_t *p_nextState; 
   const Weapon *WeaponForEntity; 
-  const WeaponDef *v9; 
-  int v10; 
+  const WeaponDef *v6; 
+  int v7; 
   cg_t *LocalClientGlobals; 
   int barrelRollSndTime; 
-  bool v13; 
-  int v14; 
+  bool v10; 
+  int v11; 
 
-  v5 = localClientNum;
+  v2 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 145, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 146, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  if ( !CgWeaponMap::ms_instance[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
   p_nextState = &cent->nextState;
-  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v5], &cent->nextState);
-  v9 = BG_WeaponDef(WeaponForEntity, 0);
-  v10 = 1;
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 162, ASSERT_TYPE_SANITY, "( weapDef )", (const char *)&queryFormat, "weapDef") )
+  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v2], &cent->nextState);
+  v6 = BG_WeaponDef(WeaponForEntity, 0);
+  v7 = 1;
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 162, ASSERT_TYPE_SANITY, "( weapDef )", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( v9->turretBarrelSpinEnabled )
+  if ( v6->turretBarrelSpinEnabled )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 168, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2152, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( !BG_IsTurretActiveFlags(&LocalClientGlobals->predictedPlayerState.eFlags) || LocalClientGlobals->predictedPlayerState.viewlocked_entNum != p_nextState->number )
-      v10 = 0;
+      v7 = 0;
     if ( cent == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2088, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( !BG_IsTurretActiveFlags(&cent->nextState.lerp.eFlags) || v10 || !CL_IsRenderingSplitScreen() )
+    if ( !BG_IsTurretActiveFlags(&cent->nextState.lerp.eFlags) || v7 || !CL_IsRenderingSplitScreen() )
     {
       barrelRollSndTime = cent->pose.turret.barrelRollSndTime;
-      v13 = barrelRollSndTime == 0;
+      v10 = barrelRollSndTime == 0;
       if ( barrelRollSndTime > 0 )
       {
         if ( cent->pose.turret.barrelRollSndLastRotating == (*((_BYTE *)&cent->nextState.lerp.u.infoVolumeGrapple + 20) & 1) && barrelRollSndTime > LocalClientGlobals->time + 2 * LocalClientGlobals->frametime )
           return;
-        v13 = barrelRollSndTime == 0;
+        v10 = barrelRollSndTime == 0;
       }
-      if ( v13 )
+      if ( v10 )
       {
-        __asm { vmovaps [rsp+68h+var_38], xmm6 }
-        *(double *)&_XMM0 = BG_Turret_ComputeBarrelSpinRate(v9, (const LerpEntityStateTurret *)&cent->nextState.lerp.u, LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime);
-        v14 = cent->nextState.lerp.u.anonymous.data[5];
-        __asm { vmovaps xmm6, xmm0 }
-        CG_Turret_GetSpinSoundCount((LocalClientNum_t)v5, cent);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm2, xmm1, xmm6
-          vmovaps xmm6, [rsp+68h+var_38]
-          vxorps  xmm0, xmm0, xmm0
-        }
-        if ( (v14 & 1) != 0 )
+        BG_Turret_ComputeBarrelSpinRate(v6, (const LerpEntityStateTurret *)&cent->nextState.lerp.u, LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime);
+        v11 = cent->nextState.lerp.u.anonymous.data[5];
+        CG_Turret_GetSpinSoundCount((LocalClientNum_t)v2, cent);
+        _XMM0 = 0i64;
+        if ( (v11 & 1) != 0 )
           __asm { vroundss xmm1, xmm0, xmm2, 2 }
         else
           __asm { vroundss xmm1, xmm0, xmm2, 1 }
-        __asm { vcvttss2si eax, xmm1 }
-        cent->pose.turret.barrelRollSndIndex = _EAX;
+        cent->pose.turret.barrelRollSndIndex = (int)*(float *)&_XMM1;
       }
       cent->pose.turret.barrelRollSndLastRotating = *((_BYTE *)&cent->nextState.lerp.u.infoVolumeGrapple + 20) & 1;
       cent->pose.turret.barrelRollSndTime = LocalClientGlobals->time;
-      if ( !CG_EntityWorkers_TryAddTurretBarrelSpinSoundRequest((const LocalClientNum_t)v5, p_nextState->number) )
-        CG_Turret_UpdateBarrelSpinSoundPlayback((LocalClientNum_t)v5, p_nextState->number);
+      if ( !CG_EntityWorkers_TryAddTurretBarrelSpinSoundRequest((const LocalClientNum_t)v2, p_nextState->number) )
+        CG_Turret_UpdateBarrelSpinSoundPlayback((LocalClientNum_t)v2, p_nextState->number);
     }
   }
 }
@@ -526,63 +503,47 @@ CG_Turret_UpdateHeat
 */
 void CG_Turret_UpdateHeat(LocalClientNum_t localClientNum, centity_t *cent)
 {
-  __int64 v4; 
+  __int64 v3; 
   const Weapon *WeaponForEntity; 
-  const WeaponDef *v6; 
-  char v7; 
-  char v8; 
+  const WeaponDef *v5; 
   cg_t *LocalClientGlobals; 
   vec3_t outOrigin; 
   float outAccumulationPerShot; 
   float outDissipationPerSecond; 
   FXRegisteredDef def; 
 
-  v4 = localClientNum;
+  v3 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 437, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent", -2i64) )
     __debugbreak();
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 438, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v4], &cent->nextState);
-  v6 = BG_WeaponDef(WeaponForEntity, 0);
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 443, ASSERT_TYPE_SANITY, "( weapDef )", (const char *)&queryFormat, "weapDef") )
+  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v3], &cent->nextState);
+  v5 = BG_WeaponDef(WeaponForEntity, 0);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 443, ASSERT_TYPE_SANITY, "( weapDef )", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   BG_GetHeatProperties(WeaponForEntity, 0, &outAccumulationPerShot, &outDissipationPerSecond);
-  __asm
+  if ( outAccumulationPerShot > 0.0 && outDissipationPerSecond > 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm0, [rsp+88h+outAccumulationPerShot]
-    vcomiss xmm0, xmm1
-  }
-  if ( !(v7 | v8) )
-  {
-    __asm
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
+    if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 454, ASSERT_TYPE_SANITY, "( cgameGlob )", (const char *)&queryFormat, "cgameGlob") )
+      __debugbreak();
+    if ( (*((_BYTE *)&cent->nextState.lerp.u.infoVolumeGrapple + 20) & 2) != 0 && !cent->pose.turret.wasOverheat )
     {
-      vmovss  xmm0, [rsp+88h+outDissipationPerSecond]
-      vcomiss xmm0, xmm1
-    }
-    if ( !(v7 | v8) )
-    {
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
-      if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 454, ASSERT_TYPE_SANITY, "( cgameGlob )", (const char *)&queryFormat, "cgameGlob") )
-        __debugbreak();
-      if ( (*((_BYTE *)&cent->nextState.lerp.u.infoVolumeGrapple + 20) & 2) != 0 && !cent->pose.turret.wasOverheat )
+      if ( v5->turretOverheatSound.name )
       {
-        if ( v6->turretOverheatSound.name )
-        {
-          CG_GetPoseOrigin(&cent->pose, &outOrigin);
-          CG_Turret_PlaySoundAlias((LocalClientNum_t)v4, cent->nextState.number, &outOrigin, &v6->turretOverheatSound);
-          memset(&outOrigin, 0, sizeof(outOrigin));
-        }
-        if ( v6->turretOverheatEffect.particleSystemDef )
-        {
-          def.m_particleSystemDef = v6->turretOverheatEffect.particleSystemDef;
-          FX_PlayBoltedEffect((LocalClientNum_t)v4, &def, LocalClientGlobals->time, cent->nextState.number, cent->pose.turret.tagIdx_flash, 0);
-        }
+        CG_GetPoseOrigin(&cent->pose, &outOrigin);
+        CG_Turret_PlaySoundAlias((LocalClientNum_t)v3, cent->nextState.number, &outOrigin, &v5->turretOverheatSound);
+        memset(&outOrigin, 0, sizeof(outOrigin));
       }
-      cent->pose.turret.wasOverheat = (cent->nextState.lerp.u.anonymous.data[5] & 2) != 0;
+      if ( v5->turretOverheatEffect.particleSystemDef )
+      {
+        def.m_particleSystemDef = v5->turretOverheatEffect.particleSystemDef;
+        FX_PlayBoltedEffect((LocalClientNum_t)v3, &def, LocalClientGlobals->time, cent->nextState.number, cent->pose.turret.tagIdx_flash, 0);
+      }
     }
+    cent->pose.turret.wasOverheat = (cent->nextState.lerp.u.anonymous.data[5] & 2) != 0;
   }
 }
 
@@ -593,135 +554,110 @@ CG_Turret_UpdateMotionSounds
 */
 void CG_Turret_UpdateMotionSounds(LocalClientNum_t localClientNum, centity_t *cent)
 {
-  __int64 v4; 
+  __int64 v3; 
   entityState_t *p_nextState; 
   const Weapon *WeaponForEntity; 
   const char *name; 
-  const char *v8; 
+  const char *v7; 
   centity_t *LinkToParent; 
-  const centity_t *v10; 
-  CgVehicleSystem *v11; 
-  __int64 v12; 
-  int v13; 
+  const centity_t *v9; 
+  CgVehicleSystem *v10; 
+  __int64 v11; 
+  int v12; 
+  bool v13; 
   bool v14; 
-  bool v15; 
+  VehicleClient *Client; 
   cg_t *LocalClientGlobals; 
   bool turretMoving; 
-  bool v22; 
+  bool v18; 
   SndAliasList *Alias; 
   CgSoundSystem *SoundSystem; 
-  SndAliasList *v27; 
-  CgSoundSystem *v28; 
-  int fmt; 
-  int fmta; 
-  __int64 v33; 
-  int v34; 
-  int v35; 
-  __int64 v36; 
+  SndAliasList *v21; 
+  CgSoundSystem *v22; 
+  __int64 v23; 
+  __int64 v24; 
   vec3_t outOrigin; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  v4 = localClientNum;
+  v3 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 281, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 282, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
   p_nextState = &cent->nextState;
-  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v4], &cent->nextState);
+  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v3], &cent->nextState);
   name = BG_TurretSpinSound(WeaponForEntity, 0).name;
-  v8 = BG_TurretStopSpinSound(WeaponForEntity, 0).name;
+  v7 = BG_TurretStopSpinSound(WeaponForEntity, 0).name;
   CG_GetPoseOrigin(&cent->pose, &outOrigin);
-  if ( CG_Turret_GetTurretEnt((const LocalClientNum_t)v4) == cent )
+  if ( CG_Turret_GetTurretEnt((const LocalClientNum_t)v3) == cent )
     goto LABEL_40;
-  LinkToParent = CG_Entity_GetLinkToParent((LocalClientNum_t)v4, cent);
-  v10 = LinkToParent;
+  LinkToParent = CG_Entity_GetLinkToParent((LocalClientNum_t)v3, cent);
+  v9 = LinkToParent;
   if ( LinkToParent && BG_IsVehicleEntity(&LinkToParent->nextState) )
   {
-    if ( !(_BYTE)CgVehicleSystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", v4) )
+    if ( !(_BYTE)CgVehicleSystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", v3) )
       __debugbreak();
-    if ( (unsigned int)v4 >= CgVehicleSystem::ms_allocatedCount )
+    if ( (unsigned int)v3 >= CgVehicleSystem::ms_allocatedCount )
     {
-      LODWORD(v36) = CgVehicleSystem::ms_allocatedCount;
-      LODWORD(v33) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v33, v36) )
+      LODWORD(v24) = CgVehicleSystem::ms_allocatedCount;
+      LODWORD(v23) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v23, v24) )
         __debugbreak();
     }
-    if ( !CgVehicleSystem::ms_vehicleSystemArray[v4] )
+    if ( !CgVehicleSystem::ms_vehicleSystemArray[v3] )
     {
-      LODWORD(v36) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v36) )
+      LODWORD(v24) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v24) )
         __debugbreak();
     }
-    v11 = CgVehicleSystem::ms_vehicleSystemArray[v4];
-    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 314, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
+    v10 = CgVehicleSystem::ms_vehicleSystemArray[v3];
+    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 314, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
       __debugbreak();
-    v12 = (__int64)v11->GetVehicleDef(v11, &v10->nextState);
-    if ( v12 )
+    v11 = (__int64)v10->GetVehicleDef(v10, &v9->nextState);
+    if ( v11 )
     {
-      v13 = *(_DWORD *)(v12 + 248);
-      v14 = v13 && !*(_BYTE *)(v12 + 256);
-      v15 = v13 && *(_DWORD *)(v12 + 260) == 4;
-      if ( v14 || v15 )
+      v12 = *(_DWORD *)(v11 + 248);
+      v13 = v12 && !*(_BYTE *)(v11 + 256);
+      v14 = v12 && *(_DWORD *)(v11 + 260) == 4;
+      if ( v13 || v14 )
       {
-        name = *(const char **)(v12 + 3240);
-        v8 = *(const char **)(v12 + 3248);
-        _RBP = CgVehicleSystem::GetClient(v11, v10);
-        if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 336, ASSERT_TYPE_ASSERT, "(vehClient)", (const char *)&queryFormat, "vehClient") )
+        name = *(const char **)(v11 + 3240);
+        v7 = *(const char **)(v11 + 3248);
+        Client = CgVehicleSystem::GetClient(v10, v9);
+        if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 336, ASSERT_TYPE_ASSERT, "(vehClient)", (const char *)&queryFormat, "vehClient") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+1F0h]
-          vmovss  dword ptr [rsp+98h+outOrigin], xmm0
-          vmovss  xmm1, dword ptr [rbp+1F4h]
-          vmovss  dword ptr [rsp+98h+outOrigin+4], xmm1
-          vmovss  xmm0, dword ptr [rbp+1F8h]
-          vmovss  dword ptr [rsp+98h+outOrigin+8], xmm0
-        }
+        outOrigin = Client->audioState.entOrigin;
 LABEL_40:
-        if ( name || v8 )
+        if ( name || v7 )
         {
-          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
+          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
           if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_client_ent.cpp", 351, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
             __debugbreak();
           turretMoving = LocalClientGlobals->turretMoving;
-          v22 = (cent->nextState.lerp.u.anonymous.data[5] & 0x20) != 0;
-          LocalClientGlobals->turretMoving = v22;
-          __asm { vmovss  xmm6, cs:__real@3f800000 }
+          v18 = (cent->nextState.lerp.u.anonymous.data[5] & 0x20) != 0;
+          LocalClientGlobals->turretMoving = v18;
           if ( name )
           {
-            if ( v22 )
+            if ( v18 )
             {
               Alias = SND_TryFindAlias(name);
               if ( Alias )
               {
-                SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v4);
-                __asm
-                {
-                  vmovss  dword ptr [rsp+98h+var_70], xmm6
-                  vmovss  xmm0, cs:volumeScale
-                  vmovss  dword ptr [rsp+98h+fmt], xmm0
-                }
-                ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)p_nextState->number, &outOrigin, Alias, fmt, v34, 0);
+                SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v3);
+                ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)p_nextState->number, &outOrigin, Alias, LODWORD(volumeScale), LODWORD(FLOAT_1_0), 0);
               }
             }
           }
-          if ( v8 )
+          if ( v7 )
           {
             if ( turretMoving && !LocalClientGlobals->turretMoving )
             {
-              v27 = SND_TryFindAlias(v8);
-              if ( v27 )
+              v21 = SND_TryFindAlias(v7);
+              if ( v21 )
               {
-                v28 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v4);
-                __asm
-                {
-                  vmovss  dword ptr [rsp+98h+var_70], xmm6
-                  vmovss  xmm0, cs:volumeScale
-                  vmovss  dword ptr [rsp+98h+fmt], xmm0
-                }
-                ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, _DWORD))v28->PlaySoundAliasScaledAsync)(v28, (unsigned int)p_nextState->number, &outOrigin, v27, fmta, v35, 0);
+                v22 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v3);
+                ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD))v22->PlaySoundAliasScaledAsync)(v22, (unsigned int)p_nextState->number, &outOrigin, v21, LODWORD(volumeScale), LODWORD(FLOAT_1_0), 0);
               }
             }
           }
@@ -730,6 +666,5 @@ LABEL_40:
     }
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 

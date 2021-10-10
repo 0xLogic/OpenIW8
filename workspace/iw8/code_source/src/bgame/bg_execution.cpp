@@ -281,54 +281,25 @@ void BG_Execution_MyChanges(void)
 BG_Execution_CalcRootAbs
 ==============
 */
-
-void __fastcall BG_Execution_CalcRootAbs(DObj *const obj, unsigned int animIndex, double time, tmat43_t<vec3_t> *outRootTransform)
+void BG_Execution_CalcRootAbs(DObj *const obj, unsigned int animIndex, const float time, tmat43_t<vec3_t> *outRootTransform)
 {
-  bool v11; 
-  bool v12; 
-  float fmt; 
-  double v19; 
-  double v20; 
-  __int64 v21; 
-  double v22; 
+  __int64 v9; 
   vec3_t trans; 
   vec4_t rot; 
 
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_48], xmm6
-    vmovaps xmm6, xmm2
-  }
   Sys_ProfBeginNamedEvent(0xFF808080, "BG_Execution_CalcRootAbs");
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 216, ASSERT_TYPE_ASSERT, "( obj ) != ( nullptr )", "%s != %s\n\t%p, %p", "obj", "nullptr", NULL, NULL) )
     __debugbreak();
-  v11 = animIndex == 0;
   if ( !animIndex )
   {
-    LODWORD(v21) = 0;
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 217, ASSERT_TYPE_ASSERT, "( animIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "animIndex", "0", v21, 0i64);
-    v11 = !v12;
-    if ( v12 )
+    LODWORD(v9) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 217, ASSERT_TYPE_ASSERT, "( animIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "animIndex", "0", v9, 0i64) )
       __debugbreak();
   }
-  __asm
+  if ( time < 0.0 || time > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm6, cs:__real@3f800000
-  }
-  if ( !v11 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 218, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( time ) && ( time ) <= ( 1.0f )", "time not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v19, v20, v22) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 218, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( time ) && ( time ) <= ( 1.0f )", "time not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", time, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 220, ASSERT_TYPE_ASSERT, "( obj->tree ) != ( nullptr )", "%s != %s\n\t%p, %p", "obj->tree", "nullptr", NULL, NULL) )
@@ -337,11 +308,9 @@ void __fastcall BG_Execution_CalcRootAbs(DObj *const obj, unsigned int animIndex
     __debugbreak();
   if ( !XAnimIsLeafNode(obj->tree->anims, animIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 222, ASSERT_TYPE_ASSERT, "(XAnimIsLeafNode( obj->tree->anims, animIndex ))", (const char *)&queryFormat, "XAnimIsLeafNode( obj->tree->anims, animIndex )") )
     __debugbreak();
-  __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm6 }
-  XAnimGetAbsDelta(obj->tree->anims, animIndex, &rot, &trans, fmt);
+  XAnimGetAbsDelta(obj->tree->anims, animIndex, &rot, &trans, time);
   QuatAndOriginToMatrix43(&rot, &trans, outRootTransform);
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+0D8h+var_48] }
 }
 
 /*
@@ -355,10 +324,8 @@ void BG_Execution_CalcRootOffsetAtTime(DObj *const attackerObj, const unsigned i
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> in1; 
 
-  __asm { vmovss  xmm2, [rsp+0D8h+time]; time }
-  BG_Execution_CalcRootAbs(attackerObj, attackerAnimIndex, *(const float *)&_XMM2, &outRootTransform);
-  __asm { vmovss  xmm2, [rsp+0D8h+time]; time }
-  BG_Execution_CalcRootAbs(victimObj, victimAnimIndex, *(const float *)&_XMM2, &in1);
+  BG_Execution_CalcRootAbs(attackerObj, attackerAnimIndex, time, &outRootTransform);
+  BG_Execution_CalcRootAbs(victimObj, victimAnimIndex, time, &in1);
   MatrixInverseOrthogonal43(&outRootTransform, &out);
   MatrixMultiply43(&in1, &out, outReferenceEntToMoveEnt);
 }
@@ -368,111 +335,35 @@ void BG_Execution_CalcRootOffsetAtTime(DObj *const attackerObj, const unsigned i
 BG_Execution_CalcRootRel
 ==============
 */
-
-void __fastcall BG_Execution_CalcRootRel(DObj *const obj, unsigned int animIndex, double prevTime, double curTime, tmat43_t<vec3_t> *outRootTransform)
+void BG_Execution_CalcRootRel(DObj *const obj, unsigned int animIndex, const float prevTime, const float curTime, tmat43_t<vec3_t> *outRootTransform)
 {
-  bool v15; 
-  bool v16; 
-  bool v21; 
-  float fmt; 
-  double time2; 
-  double time2a; 
-  float time2b; 
-  double v33; 
-  double v34; 
-  __int64 v35; 
-  double v36; 
-  double v37; 
+  __int64 v9; 
   vec3_t trans; 
   vec4_t rot; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmm8, xmm3
-    vmovaps xmm9, xmm2
-  }
   Sys_ProfBeginNamedEvent(0xFF808080, "BG_Execution_CalcRootRel");
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 196, ASSERT_TYPE_ASSERT, "( obj ) != ( nullptr )", "%s != %s\n\t%p, %p", "obj", "nullptr", NULL, NULL) )
     __debugbreak();
-  v15 = animIndex == 0;
   if ( !animIndex )
   {
-    LODWORD(v35) = 0;
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 197, ASSERT_TYPE_ASSERT, "( animIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "animIndex", "0", v35, 0i64);
-    v15 = !v16;
-    if ( v16 )
+    LODWORD(v9) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 197, ASSERT_TYPE_ASSERT, "( animIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "animIndex", "0", v9, 0i64) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovsd  xmm10, cs:__real@3ff0000000000000
-    vxorpd  xmm11, xmm11, xmm11
-    vcomiss xmm9, xmm7
-    vcomiss xmm9, cs:__real@3f800000
-  }
-  if ( !v15 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm9, xmm9
-      vmovsd  [rsp+118h+var_E0], xmm10
-      vmovsd  [rsp+118h+var_E8], xmm11
-      vmovsd  qword ptr [rsp+118h+time2], xmm0
-    }
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 198, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( prevTime ) && ( prevTime ) <= ( 1.0f )", "prevTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", time2, v33, v36);
-    v15 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm8, xmm7
-    vcomiss xmm8, cs:__real@3f800000
-  }
-  if ( !v15 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  [rsp+118h+var_E0], xmm10
-      vmovsd  [rsp+118h+var_E8], xmm11
-      vmovsd  qword ptr [rsp+118h+time2], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 199, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( curTime ) && ( curTime ) <= ( 1.0f )", "curTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", time2a, v34, v37) )
-      __debugbreak();
-  }
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  if ( (prevTime < 0.0 || prevTime > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 198, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( prevTime ) && ( prevTime ) <= ( 1.0f )", "prevTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", prevTime, *(double *)&_XMM11, DOUBLE_1_0) )
+    __debugbreak();
+  if ( (curTime < 0.0 || curTime > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 199, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( curTime ) && ( curTime ) <= ( 1.0f )", "curTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", curTime, *(double *)&_XMM11, DOUBLE_1_0) )
+    __debugbreak();
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 201, ASSERT_TYPE_ASSERT, "( obj->tree ) != ( nullptr )", "%s != %s\n\t%p, %p", "obj->tree", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !obj->tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 202, ASSERT_TYPE_ASSERT, "( obj->tree->anims ) != ( nullptr )", "%s != %s\n\t%p, %p", "obj->tree->anims", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !XAnimIsLeafNode(obj->tree->anims, animIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 203, ASSERT_TYPE_ASSERT, "(XAnimIsLeafNode( obj->tree->anims, animIndex ))", (const char *)&queryFormat, "XAnimIsLeafNode( obj->tree->anims, animIndex )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  [rsp+118h+time2], xmm8
-    vmovss  dword ptr [rsp+118h+fmt], xmm9
-  }
-  XAnimGetRelDelta3D(obj->tree->anims, animIndex, &rot, &trans, fmt, time2b);
+  XAnimGetRelDelta3D(obj->tree->anims, animIndex, &rot, &trans, prevTime, curTime);
   QuatAndOriginToMatrix43(&rot, &trans, outRootTransform);
   Sys_ProfEndNamedEvent();
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-18h]
-    vmovaps xmm8, xmmword ptr [r11-28h]
-    vmovaps xmm9, xmmword ptr [r11-38h]
-    vmovaps xmm10, xmmword ptr [r11-48h]
-    vmovaps xmm11, xmmword ptr [r11-58h]
-  }
 }
 
 /*
@@ -482,94 +373,38 @@ BG_Execution_CalcWorldGoal
 */
 void BG_Execution_CalcWorldGoal(const vec3_t *attackerOrigin, const vec3_t *attackerAngles, const vec3_t *victimOrigin, DObj *const attackerObj, const unsigned int attackerAnimIndex, DObj *const victimObj, const unsigned int victimAnimIndex, const float time, vec3_t *outAttackerGoalPos, vec3_t *outVictimGoalPos, vec3_t *outVictimGoalAngles)
 {
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   tmat43_t<vec3_t> result; 
-  tmat43_t<vec3_t> v70; 
+  tmat43_t<vec3_t> v21; 
   tmat33_t<vec3_t> axis; 
   tmat43_t<vec3_t> outRootTransform; 
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> in1; 
-  char v75; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R15 = outAttackerGoalPos;
-  _R12 = outVictimGoalPos;
-  _R14 = victimOrigin;
   AnglesAndOriginToMatrix43(attackerAngles, attackerOrigin, &result);
-  __asm { vmovss  xmm2, [rbp+0C0h+time]; time }
-  BG_Execution_CalcRootAbs(attackerObj, attackerAnimIndex, *(const float *)&_XMM2, &outRootTransform);
-  __asm { vmovss  xmm2, [rbp+0C0h+time]; time }
-  BG_Execution_CalcRootAbs(victimObj, victimAnimIndex, *(const float *)&_XMM2, &in1);
+  BG_Execution_CalcRootAbs(attackerObj, attackerAnimIndex, time, &outRootTransform);
+  BG_Execution_CalcRootAbs(victimObj, victimAnimIndex, time, &in1);
   MatrixInverseOrthogonal43(&outRootTransform, &out);
-  MatrixMultiply43(&in1, &out, &v70);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm7, dword ptr [rsp+1C0h+var_170+24h]
-    vmovss  xmm6, dword ptr [rsp+1C0h+var_170+28h]
-    vmulss  xmm2, xmm7, dword ptr [rsp+1C0h+result]
-    vmulss  xmm0, xmm6, dword ptr [rsp+1C0h+result+0Ch]
-    vmovss  xmm5, dword ptr [rsp+1C0h+var_170+2Ch]
-    vmulss  xmm1, xmm5, dword ptr [rsp+1C0h+result+1Ch]
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rsp+1C0h+result+18h]
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm0, dword ptr [r14]
-    vmulss  xmm3, xmm7, dword ptr [rsp+1C0h+result+4]
-    vmulss  xmm10, xmm2, xmm8
-    vmulss  xmm2, xmm6, dword ptr [rsp+1C0h+result+10h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm7, dword ptr [rsp+1C0h+result+8]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm5, dword ptr [rsp+1C0h+result+20h]
-    vmulss  xmm9, xmm2, xmm8
-    vmulss  xmm2, xmm6, dword ptr [rsp+1C0h+result+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vsubss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [r14+4]
-    vmulss  xmm7, xmm2, xmm8
-    vmulss  xmm2, xmm1, xmm8
-    vsubss  xmm1, xmm0, dword ptr [rsi+4]
-    vaddss  xmm6, xmm2, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [r14+8]
-    vmulss  xmm2, xmm1, xmm8
-    vsubss  xmm1, xmm0, dword ptr [rsi+8]
-    vaddss  xmm4, xmm2, dword ptr [rsi+4]
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, dword ptr [rsi+8]
-    vsubss  xmm0, xmm6, xmm10
-    vmovss  dword ptr [r15], xmm0
-    vsubss  xmm1, xmm4, xmm9
-    vmovss  dword ptr [r15+4], xmm1
-    vsubss  xmm0, xmm3, xmm7
-    vmovss  dword ptr [r15+8], xmm0
-    vaddss  xmm1, xmm6, xmm10
-    vmovss  dword ptr [r12], xmm1
-    vaddss  xmm1, xmm3, xmm7
-    vaddss  xmm0, xmm4, xmm9
-    vmovss  dword ptr [r12+8], xmm1
-    vmovss  dword ptr [r12+4], xmm0
-  }
-  MatrixMultiply((const tmat33_t<vec3_t> *)&v70, (const tmat33_t<vec3_t> *)&result, &axis);
+  MatrixMultiply43(&in1, &out, &v21);
+  v14 = (float)((float)((float)(v21.m[3].v[0] * result.m[0].v[0]) + (float)(v21.m[3].v[1] * result.m[1].v[0])) + (float)(v21.m[3].v[2] * result.m[2].v[0])) * 0.5;
+  v15 = (float)((float)((float)(v21.m[3].v[0] * result.m[0].v[1]) + (float)(v21.m[3].v[1] * result.m[1].v[1])) + (float)(v21.m[3].v[2] * result.m[2].v[1])) * 0.5;
+  v16 = (float)((float)((float)(v21.m[3].v[0] * result.m[0].v[2]) + (float)(v21.m[3].v[1] * result.m[1].v[2])) + (float)(v21.m[3].v[2] * result.m[2].v[2])) * 0.5;
+  v17 = (float)((float)(victimOrigin->v[0] - attackerOrigin->v[0]) * 0.5) + attackerOrigin->v[0];
+  v18 = (float)((float)(victimOrigin->v[1] - attackerOrigin->v[1]) * 0.5) + attackerOrigin->v[1];
+  v19 = (float)((float)(victimOrigin->v[2] - attackerOrigin->v[2]) * 0.5) + attackerOrigin->v[2];
+  outAttackerGoalPos->v[0] = v17 - v14;
+  outAttackerGoalPos->v[1] = v18 - v15;
+  outAttackerGoalPos->v[2] = v19 - v16;
+  outVictimGoalPos->v[0] = v17 + v14;
+  outVictimGoalPos->v[2] = v19 + v16;
+  outVictimGoalPos->v[1] = v18 + v15;
+  MatrixMultiply((const tmat33_t<vec3_t> *)&v21, (const tmat33_t<vec3_t> *)&result, &axis);
   AxisToAngles(&axis, outVictimGoalAngles);
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -603,83 +438,53 @@ BG_Execution_FindExecutionPropWeapon
 void BG_Execution_FindExecutionPropWeapon(const BgWeaponMap *const weaponMap, const playerState_s *const ps, Weapon *outPropWeapon)
 {
   const ExecutionDef *Def; 
-  const ExecutionDef *v10; 
-  const WeaponDef *v16; 
-  int v20; 
-  const WeaponDef *v22; 
+  const ExecutionDef *v7; 
+  const Weapon *Weapon; 
+  const WeaponDef *v9; 
+  int v10; 
+  const Weapon *v11; 
+  const WeaponDef *v12; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [r8], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [r8+20h], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [r8+30h], xmm0
-  }
-  *(_DWORD *)&outPropWeapon->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  _RDI = outPropWeapon;
+  *outPropWeapon = NULL_WEAPON;
   Def = BG_Execution_GetDef(ps->equippedExecution);
-  v10 = Def;
+  v7 = Def;
   if ( Def )
   {
     if ( Def->usePropWeapon )
     {
-      _RAX = BG_GetFirstEquippedWeaponBySlot(weaponMap, ps, WEAPON_SLOT_EXECUTION);
-      __asm
+      *outPropWeapon = *BG_GetFirstEquippedWeaponBySlot(weaponMap, ps, WEAPON_SLOT_EXECUTION);
+      if ( v7->propWeaponInventoryOverrideEnabled && v7->propWeaponInventoryOverrideClass != WEAPCLASS_NONE )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rdi+20h], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rdi+30h], xmm0
-      }
-      *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      if ( v10->propWeaponInventoryOverrideEnabled && v10->propWeaponInventoryOverrideClass != WEAPCLASS_NONE )
-      {
-        _RBX = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weapCommon.weaponHandle);
-        v16 = BG_WeaponDef(_RBX, 0);
-        if ( v16 && v16->inventoryType == WEAPINVENTORY_PRIMARY && v16->weapClass == v10->propWeaponInventoryOverrideClass )
+        Weapon = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weapCommon.weaponHandle);
+        v9 = BG_WeaponDef(Weapon, 0);
+        if ( v9 && v9->inventoryType == WEAPINVENTORY_PRIMARY && v9->weapClass == v7->propWeaponInventoryOverrideClass )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rdi], ymm0
-            vmovups xmm1, xmmword ptr [rbx+20h]
-            vmovups xmmword ptr [rdi+20h], xmm1
-            vmovsd  xmm0, qword ptr [rbx+30h]
-            vmovsd  qword ptr [rdi+30h], xmm0
-          }
-          *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RBX->weaponCamo;
+          *(__m256i *)&outPropWeapon->weaponIdx = *(__m256i *)&Weapon->weaponIdx;
+          *(_OWORD *)&outPropWeapon->attachmentVariationIndices[5] = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+          *(double *)&outPropWeapon->attachmentVariationIndices[21] = *(double *)&Weapon->attachmentVariationIndices[21];
+          *(_DWORD *)&outPropWeapon->weaponCamo = *(_DWORD *)&Weapon->weaponCamo;
         }
         else
         {
-          v20 = 0;
+          v10 = 0;
           while ( 1 )
           {
             if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
               __debugbreak();
-            _RSI = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weaponsEquipped[v20]);
-            v22 = BG_WeaponDef(_RSI, 0);
-            if ( v22 )
+            v11 = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weaponsEquipped[v10]);
+            v12 = BG_WeaponDef(v11, 0);
+            if ( v12 )
             {
-              if ( v22->inventoryType == WEAPINVENTORY_PRIMARY && v22->weapClass == v10->propWeaponInventoryOverrideClass )
+              if ( v12->inventoryType == WEAPINVENTORY_PRIMARY && v12->weapClass == v7->propWeaponInventoryOverrideClass )
                 break;
             }
-            if ( (unsigned int)++v20 >= 0xF )
+            if ( (unsigned int)++v10 >= 0xF )
               return;
           }
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rsi]
-            vmovups ymmword ptr [rdi], ymm0
-            vmovups xmm1, xmmword ptr [rsi+20h]
-            vmovups xmmword ptr [rdi+20h], xmm1
-            vmovsd  xmm0, qword ptr [rsi+30h]
-            vmovsd  qword ptr [rdi+30h], xmm0
-          }
-          *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RSI->weaponCamo;
+          *(__m256i *)&outPropWeapon->weaponIdx = *(__m256i *)&v11->weaponIdx;
+          *(_OWORD *)&outPropWeapon->attachmentVariationIndices[5] = *(_OWORD *)&v11->attachmentVariationIndices[5];
+          *(double *)&outPropWeapon->attachmentVariationIndices[21] = *(double *)&v11->attachmentVariationIndices[21];
+          *(_DWORD *)&outPropWeapon->weaponCamo = *(_DWORD *)&v11->weaponCamo;
         }
       }
     }
@@ -869,27 +674,34 @@ __int64 BG_Execution_GetIndexForPtr(const ExecutionDef *const def)
 BG_Execution_GetScrubTime
 ==============
 */
-float BG_Execution_GetScrubTime(const unsigned int execution, const ExecutionVictimStance stance, int startTime, int serverTime)
+float BG_Execution_GetScrubTime(const unsigned int execution, const ExecutionVictimStance stance, int startTime, int serverTime, int snapshotDeltaTime)
 {
+  int v9; 
+  int v10; 
   const ExecutionDef *Def; 
   int durationVictimLastStandMs; 
-  __int32 v10; 
-  __int64 v19; 
+  __int32 v13; 
+  double v14; 
+  __int64 v16; 
 
   if ( !BG_Execution_GetDef(execution) )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    return *(float *)&_XMM0;
+    LODWORD(v14) = 0;
+    return *(float *)&v14;
   }
+  v9 = serverTime - startTime - snapshotDeltaTime;
+  v10 = 0;
+  if ( v9 > 0 )
+    v10 = v9;
   Def = BG_Execution_GetDef(execution);
   if ( Def )
   {
     if ( (unsigned int)stance >= LONG_LONG && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 295, ASSERT_TYPE_ASSERT, "(unsigned)( stance ) < (unsigned)( static_cast<int>( ExecutionVictimStance::COUNT ) )", "stance doesn't index static_cast<int>( ExecutionVictimStance::COUNT )\n\t%i not in [0, %i)", stance, 4) )
       __debugbreak();
-    v10 = stance - 2;
-    if ( v10 )
+    v13 = stance - 2;
+    if ( v13 )
     {
-      if ( v10 == 1 )
+      if ( v13 == 1 )
         durationVictimLastStandMs = Def->durationVictimLastStandMs;
       else
         durationVictimLastStandMs = Def->durationVictimStandMs;
@@ -899,7 +711,7 @@ float BG_Execution_GetScrubTime(const unsigned int execution, const ExecutionVic
       durationVictimLastStandMs = Def->durationVictimProneMs;
     }
     if ( durationVictimLastStandMs > 0 )
-      goto LABEL_17;
+      goto LABEL_19;
   }
   else
   {
@@ -907,22 +719,12 @@ float BG_Execution_GetScrubTime(const unsigned int execution, const ExecutionVic
       __debugbreak();
     durationVictimLastStandMs = 0;
   }
-  LODWORD(v19) = durationVictimLastStandMs;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 360, ASSERT_TYPE_ASSERT, "( 0 ) < ( durationMs )", "%s < %s\n\t%i, %i", "0", "durationMs", 0i64, v19) )
+  LODWORD(v16) = durationVictimLastStandMs;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 360, ASSERT_TYPE_ASSERT, "( 0 ) < ( durationMs )", "%s < %s\n\t%i, %i", "0", "durationMs", 0i64, v16) )
     __debugbreak();
-LABEL_17:
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, ebp
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm0, xmm1, xmm0; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  return *(float *)&_XMM0;
+LABEL_19:
+  v14 = I_fclamp((float)v10 / (float)durationVictimLastStandMs, 0.0, 1.0);
+  return *(float *)&v14;
 }
 
 /*
@@ -1074,20 +876,24 @@ BG_Execution_UpdateScrubTime
 */
 void BG_Execution_UpdateScrubTime(const characterInfo_t *const ci, DObj *obj, const int serverTime, const int deltaTime)
 {
-  const dvar_t *v11; 
+  const dvar_t *v8; 
   ExecutionVictimStance executionStance; 
   unsigned int execution; 
+  int executionStartTime; 
+  float v12; 
+  int v13; 
+  int v14; 
+  int v15; 
   const ExecutionDef *Def; 
   int durationVictimLastStandMs; 
-  __int32 v17; 
-  unsigned __int16 v25; 
-  const dvar_t *v27; 
-  const char *v28; 
-  char *fmt; 
-  __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
+  __int32 v18; 
+  unsigned __int16 v19; 
+  const dvar_t *v20; 
+  const char *v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
 
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 312, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
@@ -1097,63 +903,61 @@ void BG_Execution_UpdateScrubTime(const characterInfo_t *const ci, DObj *obj, co
     __debugbreak();
   if ( BG_Execution_GetDef(ci->execution) )
     goto LABEL_15;
-  v11 = DVARBOOL_killswitch_execution_scrubtime_fix_enabled;
+  v8 = DVARBOOL_killswitch_execution_scrubtime_fix_enabled;
   if ( !DVARBOOL_killswitch_execution_scrubtime_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_execution_scrubtime_fix_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
   {
 LABEL_15:
     executionStance = ci->executionStance;
     execution = ci->execution;
-    __asm
-    {
-      vmovaps [rsp+88h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
+    executionStartTime = ci->executionStartTime;
+    v12 = 0.0;
     if ( !BG_Execution_GetDef(execution) )
     {
-LABEL_32:
-      v25 = 31;
+LABEL_34:
+      v19 = 31;
       if ( !ci->usingAnimState )
-        v25 = 50;
-      __asm { vmovaps xmm2, xmm6; value }
-      XAnimSetFloatGameParameterByIndex(obj, v25, *(float *)&_XMM2);
-      v27 = DCONST_DVARINT_execution_debug;
+        v19 = 50;
+      XAnimSetFloatGameParameterByIndex(obj, v19, v12);
+      v20 = DCONST_DVARINT_execution_debug;
       if ( !DCONST_DVARINT_execution_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "execution_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v27);
-      if ( v27->current.integer == 4 )
+      Dvar_CheckFrontendServerThread(v20);
+      if ( v20->current.integer == 4 )
       {
         if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 341, ASSERT_TYPE_ASSERT, "(obj->tree)", (const char *)&queryFormat, "obj->tree") )
           __debugbreak();
-        LODWORD(v34) = deltaTime;
-        v28 = "cli";
-        __asm { vcvtss2sd xmm0, xmm6, xmm6 }
+        LODWORD(v24) = deltaTime;
+        v21 = "cli";
         if ( !obj->tree->owner[0] )
-          v28 = "srv";
-        LODWORD(v32) = ci->entityNum;
-        __asm { vmovsd  [rsp+88h+fmt], xmm0 }
-        LODWORD(v33) = ci->executionStartTime;
-        Com_Printf(0, "[execution %s] %i UpdateScrubTime, time %.3f - player %i, startTime %i, deltaTime %i\n", v28, (unsigned int)serverTime, fmt, v32, v33, v34);
+          v21 = "srv";
+        LODWORD(v22) = ci->entityNum;
+        LODWORD(v23) = ci->executionStartTime;
+        Com_Printf(0, "[execution %s] %i UpdateScrubTime, time %.3f - player %i, startTime %i, deltaTime %i\n", v21, (unsigned int)serverTime, v12, v22, v23, v24);
       }
-      __asm { vmovaps xmm6, [rsp+88h+var_38] }
       return;
     }
+    v13 = serverTime - executionStartTime;
+    v14 = 0;
+    v15 = v13 - deltaTime;
+    if ( v15 > 0 )
+      v14 = v15;
     Def = BG_Execution_GetDef(execution);
     if ( Def )
     {
       if ( (unsigned int)executionStance >= LONG_LONG )
       {
-        LODWORD(v33) = 4;
-        LODWORD(v32) = executionStance;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 295, ASSERT_TYPE_ASSERT, "(unsigned)( stance ) < (unsigned)( static_cast<int>( ExecutionVictimStance::COUNT ) )", "stance doesn't index static_cast<int>( ExecutionVictimStance::COUNT )\n\t%i not in [0, %i)", v32, v33) )
+        LODWORD(v23) = 4;
+        LODWORD(v22) = executionStance;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 295, ASSERT_TYPE_ASSERT, "(unsigned)( stance ) < (unsigned)( static_cast<int>( ExecutionVictimStance::COUNT ) )", "stance doesn't index static_cast<int>( ExecutionVictimStance::COUNT )\n\t%i not in [0, %i)", v22, v23) )
           __debugbreak();
       }
-      v17 = executionStance - 2;
-      if ( v17 )
+      v18 = executionStance - 2;
+      if ( v18 )
       {
-        if ( v17 == 1 )
+        if ( v18 == 1 )
           durationVictimLastStandMs = Def->durationVictimLastStandMs;
         else
           durationVictimLastStandMs = Def->durationVictimStandMs;
@@ -1163,7 +967,7 @@ LABEL_32:
         durationVictimLastStandMs = Def->durationVictimProneMs;
       }
       if ( durationVictimLastStandMs > 0 )
-        goto LABEL_31;
+        goto LABEL_33;
     }
     else
     {
@@ -1171,23 +975,12 @@ LABEL_32:
         __debugbreak();
       durationVictimLastStandMs = 0;
     }
-    LODWORD(v35) = durationVictimLastStandMs;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 360, ASSERT_TYPE_ASSERT, "( 0 ) < ( durationMs )", "%s < %s\n\t%i, %i", "0", "durationMs", 0i64, v35) )
+    LODWORD(v25) = durationVictimLastStandMs;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 360, ASSERT_TYPE_ASSERT, "( 0 ) < ( durationMs )", "%s < %s\n\t%i, %i", "0", "durationMs", 0i64, v25) )
       __debugbreak();
-LABEL_31:
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, r14d
-      vcvtsi2ss xmm0, xmm0, ebx
-      vdivss  xmm0, xmm1, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
-    goto LABEL_32;
+LABEL_33:
+    LODWORD(v12) = COERCE_UNSIGNED_INT64(I_fclamp((float)v14 / (float)durationVictimLastStandMs, 0.0, 1.0));
+    goto LABEL_34;
   }
 }
 
@@ -1282,10 +1075,10 @@ BG_Weapon_UpdateExecutionWeapon
 */
 void BG_Weapon_UpdateExecutionWeapon(BgWeaponMap *const weaponMap, playerState_s *const ps)
 {
-  const dvar_t *v7; 
-  bool v8; 
+  const dvar_t *v4; 
+  bool v5; 
   const Weapon *Weapon; 
-  const Weapon *v13; 
+  const Weapon *v7; 
   int EquippedWeaponIndex; 
   Weapon outPropWeapon; 
 
@@ -1296,25 +1089,15 @@ void BG_Weapon_UpdateExecutionWeapon(BgWeaponMap *const weaponMap, playerState_s
     if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x3Au) )
     {
       GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&ps->weapCommon.weapFlags, GameModeFlagValues::ms_mpValue, 0x3Bu);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-        vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-        vmovups ymmword ptr [rsp+0B8h+outPropWeapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      }
+      memset(&outPropWeapon, 0, 48);
       *(_DWORD *)&outPropWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-      __asm
-      {
-        vmovsd  qword ptr [rsp+0B8h+outPropWeapon.attachmentVariationIndices+15h], xmm0
-        vmovups xmmword ptr [rsp+0B8h+outPropWeapon.attachmentVariationIndices+5], xmm1
-      }
+      *(double *)&outPropWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
       BG_Execution_FindExecutionPropWeapon(weaponMap, ps, &outPropWeapon);
-      v7 = DVARBOOL_killswitch_execution_prop_streaming_enabled;
+      v4 = DVARBOOL_killswitch_execution_prop_streaming_enabled;
       if ( !DVARBOOL_killswitch_execution_prop_streaming_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_execution_prop_streaming_enabled") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      if ( v7->current.enabled && BG_WeaponHasStreamedModels(&outPropWeapon) )
+      Dvar_CheckFrontendServerThread(v4);
+      if ( v4->current.enabled && BG_WeaponHasStreamedModels(&outPropWeapon) )
       {
         BG_SetExecutionWeaponForPlayer(weaponMap, ps, &outPropWeapon);
         GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagStrict(&ps->weapCommon.weapFlags, FLAG_COUNT|AIM_ASSIST|0x20);
@@ -1323,18 +1106,11 @@ void BG_Weapon_UpdateExecutionWeapon(BgWeaponMap *const weaponMap, playerState_s
     }
     if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, GameModeFlagValues::ms_mpValue, 0x3Bu) )
     {
-      v8 = !ps->activeExecutionIsPropVisible;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-        vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-        vmovups ymmword ptr [rsp+0B8h+outPropWeapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-        vmovsd  qword ptr [rsp+0B8h+outPropWeapon.attachmentVariationIndices+15h], xmm0
-        vmovups xmmword ptr [rsp+0B8h+outPropWeapon.attachmentVariationIndices+5], xmm1
-      }
+      v5 = !ps->activeExecutionIsPropVisible;
+      memset(&outPropWeapon, 0, 48);
+      *(double *)&outPropWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
       *(_DWORD *)&outPropWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-      if ( !v8 )
+      if ( !v5 )
         BG_Execution_FindExecutionPropWeapon(weaponMap, ps, &outPropWeapon);
       BG_SetExecutionWeaponForPlayer(weaponMap, ps, &outPropWeapon);
     }
@@ -1343,10 +1119,10 @@ void BG_Weapon_UpdateExecutionWeapon(BgWeaponMap *const weaponMap, playerState_s
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 822, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     Weapon = BgWeaponMap::GetWeapon(weaponMap, ps->executionWeapon);
-    v13 = Weapon;
+    v7 = Weapon;
     if ( Weapon->weaponIdx && BG_GetEquippedWeaponIndex(weaponMap, ps, Weapon) < 0 )
     {
-      EquippedWeaponIndex = BG_GetEquippedWeaponIndex(weaponMap, ps, v13);
+      EquippedWeaponIndex = BG_GetEquippedWeaponIndex(weaponMap, ps, v7);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 479, ASSERT_TYPE_ASSERT, "( 0 ) <= ( BG_GetEquippedWeaponIndex( weaponMap, ps, executionWeapon ) )", "%s <= %s\n\t%i, %i", "0", "BG_GetEquippedWeaponIndex( weaponMap, ps, executionWeapon )", 0i64, EquippedWeaponIndex) )
         __debugbreak();
     }
@@ -1365,31 +1141,20 @@ PM_Execution_UpdateViewAngles
 void PM_Execution_UpdateViewAngles(pmove_t *pm)
 {
   playerState_s *ps; 
-  const char *v14; 
-  int v15; 
-  const char *v16; 
-  const char *v17; 
-  char *v24; 
-  unsigned int v25; 
-  bool v27; 
-  __int64 v65; 
-  __int64 v66; 
-  char v69; 
-  void *retaddr; 
+  const char *v3; 
+  int v4; 
+  const char *v5; 
+  const char *v6; 
+  char *v7; 
+  unsigned int v8; 
+  float *v; 
+  bool v10; 
+  double v12; 
+  float v15; 
+  float v18; 
+  __int64 v19; 
+  __int64 v20; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovaps [rsp+0D8h+var_98], xmm14
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp", 562, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
@@ -1404,131 +1169,78 @@ void PM_Execution_UpdateViewAngles(pmove_t *pm)
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_LADDER_CLIMB|0x80) )
       goto LABEL_15;
-    v14 = "Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION )";
-    v15 = 2514;
-    v16 = "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION ))";
-    v17 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h";
+    v3 = "Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION )";
+    v4 = 2514;
+    v5 = "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION ))";
+    v6 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h";
   }
   else
   {
-    v14 = "BG_IsPlayerInExecution( ps )";
-    v15 = 563;
-    v16 = "(BG_IsPlayerInExecution( ps ))";
-    v17 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp";
+    v3 = "BG_IsPlayerInExecution( ps )";
+    v4 = 563;
+    v5 = "(BG_IsPlayerInExecution( ps ))";
+    v6 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_execution.cpp";
   }
-  if ( CoreAssert_Handler(v17, v15, ASSERT_TYPE_ASSERT, v16, (const char *)&queryFormat, v14) )
+  if ( CoreAssert_Handler(v6, v4, ASSERT_TYPE_ASSERT, v5, (const char *)&queryFormat, v3) )
     __debugbreak();
 LABEL_15:
-  __asm
-  {
-    vmovss  xmm12, cs:__real@43340000
-    vmovss  xmm11, cs:__real@3b360b61
-    vmovss  xmm9, cs:__real@3f000000
-    vmovss  xmm10, cs:__real@43b40000
-    vmovss  xmm13, cs:__real@43360b61
-    vmovss  xmm14, cs:__real@37800000
-  }
-  v24 = (char *)((char *)&pm->cmd.angles - (char *)&ps->viewangles);
-  v25 = 0;
-  _RDI = &ps->delta_angles;
-  v27 = 1;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v7 = (char *)((char *)&pm->cmd.angles - (char *)&ps->viewangles);
+  v8 = 0;
+  v = ps->delta_angles.v;
+  v10 = 1;
+  _XMM8 = 0i64;
   do
   {
-    if ( !v27 )
+    if ( !v10 )
     {
-      LODWORD(v66) = 3;
-      LODWORD(v65) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v65, v66) )
+      LODWORD(v20) = 3;
+      LODWORD(v19) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    __asm { vmovaps xmm1, xmm12; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(*(_DWORD *)&v24[(_QWORD)_RDI + 292], *(float *)&_XMM1, 0x14u);
-    __asm
+    v12 = MSG_UnpackSignedFloat(*(_DWORD *)&v7[(_QWORD)v + 292], 180.0, 0x14u);
+    __asm { vroundss xmm7, xmm8, xmm0, 1 }
+    if ( v8 >= 3 )
     {
-      vmulss  xmm6, xmm0, xmm11
-      vaddss  xmm2, xmm6, xmm9
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm7, xmm8, xmm0, 1
-    }
-    if ( v25 >= 3 )
-    {
-      LODWORD(v66) = 3;
-      LODWORD(v65) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v65, v66) )
+      LODWORD(v20) = 3;
+      LODWORD(v19) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    __asm
+    __asm { vroundss xmm2, xmm8, xmm3, 1 }
+    v15 = (float)((float)((float)(v[73] - (float)((float)((float)(*(float *)&v12 * 0.0027777778) - *(float *)&_XMM7) * 360.0)) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    if ( v8 >= 3 )
     {
-      vmovss  xmm1, dword ptr [rdi+124h]
-      vsubss  xmm0, xmm6, xmm7
-      vmulss  xmm2, xmm0, xmm10
-      vsubss  xmm2, xmm1, xmm2
-      vmulss  xmm4, xmm2, xmm11
-      vaddss  xmm3, xmm4, xmm9
-      vroundss xmm2, xmm8, xmm3, 1
-      vsubss  xmm0, xmm4, xmm2
-      vmulss  xmm6, xmm0, xmm10
-    }
-    if ( v25 >= 3 )
-    {
-      LODWORD(v66) = 3;
-      LODWORD(v65) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v65, v66) )
+      LODWORD(v20) = 3;
+      LODWORD(v19) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    if ( v25 >= 3 )
+    *v = v15;
+    if ( v8 >= 3 )
     {
-      LODWORD(v66) = 3;
-      LODWORD(v65) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v65, v66) )
+      LODWORD(v20) = 3;
+      LODWORD(v19) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
     __asm
     {
-      vmulss  xmm1, xmm13, dword ptr [rdi]
-      vaddss  xmm3, xmm1, xmm9
       vroundss xmm1, xmm8, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, xmm14
-      vaddss  xmm2, xmm4, xmm9
       vroundss xmm3, xmm8, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm6, xmm1, xmm10
     }
-    if ( v25 >= 3 )
+    v18 = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    if ( v8 >= 3 )
     {
-      LODWORD(v66) = 3;
-      LODWORD(v65) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v65, v66) )
+      LODWORD(v20) = 3;
+      LODWORD(v19) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-    v27 = ++v25 < 3;
+    *v++ = v18;
+    v10 = ++v8 < 3;
   }
-  while ( (int)v25 < 3 );
-  __asm { vmovaps xmm14, [rsp+0D8h+var_98] }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  while ( (int)v8 < 3 );
 }
 
 /*

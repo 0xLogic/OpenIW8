@@ -73,8 +73,8 @@ bitarray<224> *Com_Teams_GetEnemyTeamFlags(bitarray<224> *result, team_t team)
 {
   bool v4; 
   bool v5; 
+  const bitarray<224> *AllCombatTeamFlags; 
 
-  _RBX = result;
   *(_QWORD *)result->array = 0i64;
   *(_QWORD *)&result->array[2] = 0i64;
   *(_QWORD *)&result->array[4] = 0i64;
@@ -84,25 +84,20 @@ bitarray<224> *Com_Teams_GetEnemyTeamFlags(bitarray<224> *result, team_t team)
   if ( (!v4 || team != TEAM_FOUR) && !v5 )
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+      AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
-    _RBX->array[6] = _RAX->array[6];
-    _RBX->array[6] &= ~0x100000u;
+      AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    *(_OWORD *)result->array = *(_OWORD *)AllCombatTeamFlags->array;
+    *(double *)&result->array[4] = *(double *)&AllCombatTeamFlags->array[4];
+    result->array[6] = AllCombatTeamFlags->array[6];
+    result->array[6] &= ~0x100000u;
     if ( team )
-      bitarray_base<bitarray<224>>::resetBit(_RBX, team);
+      bitarray_base<bitarray<224>>::resetBit(result, team);
     if ( v4 )
-      _RBX->array[0] &= ~0x8000000u;
-    _RBX->array[6] &= 0xFF9FFFFF;
+      result->array[0] &= ~0x8000000u;
+    result->array[6] &= 0xFF9FFFFF;
   }
-  return _RBX;
+  return result;
 }
 
 /*

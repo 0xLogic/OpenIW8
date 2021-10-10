@@ -45,11 +45,12 @@ __int64 CgHandler::GetEntityWorldTagPosition(CgHandler *this, int entIndex, scr_
   unsigned int v11; 
   unsigned int v12; 
   const DObj *v13; 
-  __int64 v22; 
-  __int64 v23; 
-  int v24; 
+  DObjAnimMat *LocalTagMatrix; 
+  refdef_t *v15; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19; 
 
-  _RBP = outPosition;
   Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entIndex);
   p_pose = &Entity->pose;
   if ( Entity )
@@ -60,22 +61,22 @@ __int64 CgHandler::GetEntityWorldTagPosition(CgHandler *this, int entIndex, scr_
     m_localClientNum = this->m_localClientNum;
     if ( number > 0x9E4 )
     {
-      v24 = Entity->nextState.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v24) )
+      v19 = Entity->nextState.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v19) )
         __debugbreak();
     }
     if ( (unsigned int)m_localClientNum >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v23) = 2;
-      LODWORD(v22) = m_localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v18) = 2;
+      LODWORD(v17) = m_localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
     v11 = 2533 * m_localClientNum + number;
     if ( v11 >= 0x13CA )
     {
-      LODWORD(v23) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v23) )
+      LODWORD(v18) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v18) )
         __debugbreak();
     }
     v12 = clientObjMap[v11];
@@ -83,8 +84,8 @@ __int64 CgHandler::GetEntityWorldTagPosition(CgHandler *this, int entIndex, scr_
       goto LABEL_22;
     if ( v12 >= (unsigned int)s_objCount )
     {
-      LODWORD(v23) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v23) )
+      LODWORD(v18) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v18) )
         __debugbreak();
     }
     v13 = (const DObj *)s_objBuf[v12];
@@ -92,27 +93,20 @@ __int64 CgHandler::GetEntityWorldTagPosition(CgHandler *this, int entIndex, scr_
     {
       if ( !g_activeRefDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ents_inline.h", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef)", (const char *)&queryFormat, "g_activeRefDef") )
         __debugbreak();
-      if ( CG_DObjGetLocalTagMatrix(p_pose, v13, tagName) )
+      LocalTagMatrix = CG_DObjGetLocalTagMatrix(p_pose, v13, tagName);
+      if ( LocalTagMatrix )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+10h]
-          vaddss  xmm1, xmm0, dword ptr [rax+7Ch]
-          vmovss  dword ptr [rbp+0], xmm1
-          vmovss  xmm2, dword ptr [rcx+14h]
-          vaddss  xmm0, xmm2, dword ptr [rax+80h]
-          vmovss  dword ptr [rbp+4], xmm0
-          vmovss  xmm1, dword ptr [rcx+18h]
-          vaddss  xmm2, xmm1, dword ptr [rax+84h]
-          vmovss  dword ptr [rbp+8], xmm2
-        }
+        v15 = g_activeRefDef;
+        outPosition->v[0] = LocalTagMatrix->trans.v[0] + g_activeRefDef->viewOffset.v[0];
+        outPosition->v[1] = LocalTagMatrix->trans.v[1] + v15->viewOffset.v[1];
+        outPosition->v[2] = LocalTagMatrix->trans.v[2] + v15->viewOffset.v[2];
         return 1i64;
       }
     }
     else
     {
 LABEL_22:
-      CG_GetPoseOrigin(p_pose, _RBP);
+      CG_GetPoseOrigin(p_pose, outPosition);
     }
   }
   return 0i64;
@@ -133,16 +127,13 @@ centity_t *CgHandler::GetEntityOrigin(CgHandler *this, int entIndex, vec3_t *out
   float v11; 
   float v12; 
   int v13; 
+  float v14; 
   centity_t *result; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  char v22[8]; 
+  int v16; 
+  char v17[8]; 
   BgAntiLagEntityInfo outInfo; 
 
   v3 = DCONST_DVARBOOL_useBgTraceSystem;
-  _RBX = outPosition;
   if ( !DCONST_DVARBOOL_useBgTraceSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useBgTraceSystem") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v3);
@@ -164,35 +155,16 @@ centity_t *CgHandler::GetEntityOrigin(CgHandler *this, int entIndex, vec3_t *out
   {
     v11 = outInfo.origin.origin.v[1];
     v12 = outInfo.origin.origin.v[2];
-    LOWORD(v18) = (unsigned int)&outInfo >> 8;
-    BYTE2(v18) = (unsigned int)(v13 + 96) >> 24;
-    HIBYTE(v18) = (unsigned __int8)&outInfo;
-    LODWORD(_RBX->v[1]) = LODWORD(outInfo.origin.origin.v[2]) ^ v18 ^ s_antilag_aab_Y ^ LODWORD(outInfo.origin.origin.v[0]);
-    LODWORD(_RBX->v[2]) = LODWORD(v11) ^ LODWORD(v12) ^ v18 ^ s_antilag_aab_Z;
-    LODWORD(_RBX->v[0]) = LODWORD(v11) ^ v18 ^ ~s_antilag_aab_X;
-    __asm { vmovss  xmm0, dword ptr [rbx] }
-    memset(v22, 0, sizeof(v22));
-    __asm { vmovss  [rsp+128h+var_E8], xmm0 }
-    if ( (v19 & 0x7F800000) == 2139095040 )
-      goto LABEL_23;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  [rsp+128h+var_E8], xmm0
-    }
-    if ( (v20 & 0x7F800000) == 2139095040 )
-      goto LABEL_23;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  [rsp+128h+var_E8], xmm0
-    }
-    if ( (v21 & 0x7F800000) == 2139095040 )
-    {
-LABEL_23:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-        __debugbreak();
-    }
+    LOWORD(v16) = (unsigned int)&outInfo >> 8;
+    BYTE2(v16) = (unsigned int)(v13 + 96) >> 24;
+    HIBYTE(v16) = (unsigned __int8)&outInfo;
+    LODWORD(outPosition->v[1]) = LODWORD(outInfo.origin.origin.v[2]) ^ v16 ^ s_antilag_aab_Y ^ LODWORD(outInfo.origin.origin.v[0]);
+    LODWORD(outPosition->v[2]) = LODWORD(v11) ^ LODWORD(v12) ^ v16 ^ s_antilag_aab_Z;
+    LODWORD(outPosition->v[0]) = LODWORD(v11) ^ v16 ^ ~s_antilag_aab_X;
+    v14 = outPosition->v[0];
+    memset(v17, 0, sizeof(v17));
+    if ( ((LODWORD(v14) & 0x7F800000) == 2139095040 || (LODWORD(outPosition->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outPosition->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+      __debugbreak();
     return (centity_t *)1;
   }
   else
@@ -201,7 +173,7 @@ LABEL_19:
     result = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entIndex);
     if ( result )
     {
-      CG_GetPoseOrigin(&result->pose, _RBX);
+      CG_GetPoseOrigin(&result->pose, outPosition);
       return (centity_t *)1;
     }
   }

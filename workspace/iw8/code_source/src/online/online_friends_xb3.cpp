@@ -2329,26 +2329,28 @@ void Online_Friends::RequestBatchProfileInformation(Online_Friends *this, const 
   int v24; 
   Platform::String *v25; 
   Platform::String *v26; 
+  __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
-  int v30; 
+  int v29; 
   char *fmt; 
-  __int64 v32; 
+  __int64 v31; 
   Platform::String *stringXUID; 
-  friendList_t *v34; 
-  Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *v35; 
-  Microsoft::Xbox::Services::XboxLiveContext *v36; 
-  Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *v37; 
-  __int128 v38; 
-  __int64 v39; 
+  friendList_t *v33; 
+  Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *v34; 
+  Microsoft::Xbox::Services::XboxLiveContext *v35; 
+  Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *v36; 
+  Online_Friends *v37; 
+  LocalClientNum_t v38; 
+  int v39; 
   __int64 v40; 
   __int64 v41; 
-  Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *v42; 
-  Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *v43; 
+  __int64 v42; 
+  Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *v43; 
+  Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *v44; 
   LocalClientNum_t ClientFromController; 
-  Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *v46; 
+  Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *v47; 
 
-  v40 = -2i64;
+  v41 = -2i64;
   if ( (unsigned int)localControllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_friends_xb3.cpp", 239, ASSERT_TYPE_ASSERT, "(unsigned)( localControllerIndex ) < (unsigned)( 8 )", "localControllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", localControllerIndex, 8) )
     __debugbreak();
   ClientFromController = CL_Mgr_GetClientFromController(localControllerIndex);
@@ -2356,10 +2358,10 @@ void Online_Friends::RequestBatchProfileInformation(Online_Friends *this, const 
   stringXUID = v4;
   UsersXboxLiveContext = Live_GetUsersXboxLiveContext(localControllerIndex);
   v6 = (__int64)UsersXboxLiveContext;
-  v36 = UsersXboxLiveContext;
+  v35 = UsersXboxLiveContext;
   if ( UsersXboxLiveContext )
     UsersXboxLiveContext->__abi_AddRef(UsersXboxLiveContext);
-  v41 = v6;
+  v42 = v6;
   if ( v6 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
   if ( LODWORD(v4[1].__abi_reference_count.__pUnkMarshal) && !Live_UserIsGuest(localControllerIndex) && Live_IsUserSignedInToLive(localControllerIndex) )
@@ -2367,36 +2369,36 @@ void Online_Friends::RequestBatchProfileInformation(Online_Friends *this, const 
     if ( !v6 )
       return;
     v7 = &this->m_friendClientLists[ClientFromController][1];
-    v34 = v7;
+    v33 = v7;
     if ( !this->m_friendClientLists[ClientFromController][1].isUpdating )
     {
-      v46 = (Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *)Platform::Details::Heap::Allocate(0x68ui64, 0x90ui64);
-      Platform::Collections::Vector<Platform::String __gc *,std::equal_to<Platform::String __gc *>,1>::Vector<Platform::String __gc *,std::equal_to<Platform::String __gc *>,1>(v46);
+      v47 = (Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *)Platform::Details::Heap::Allocate(0x68ui64, 0x90ui64);
+      Platform::Collections::Vector<Platform::String __gc *,std::equal_to<Platform::String __gc *>,1>::Vector<Platform::String __gc *,std::equal_to<Platform::String __gc *>,1>(v47);
       v9 = (Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *)v8;
-      v39 = v8;
+      v40 = v8;
       if ( v8 )
         (*(void (__fastcall **)(__int64))(*(_QWORD *)v8 + 8i64))(v8);
-      v42 = v9;
+      v43 = v9;
       if ( v9 )
         v9->__abi_Release(v9);
-      v46 = NULL;
-      v10 = (*(__int64 (__fastcall **)(__int64, Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> **))(*(_QWORD *)v6 + 56i64))(v6, &v46);
+      v47 = NULL;
+      v10 = (*(__int64 (__fastcall **)(__int64, Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> **))(*(_QWORD *)v6 + 56i64))(v6, &v47);
       if ( v10 < 0 )
         __abi_WinRTraiseException(v10);
-      v11 = v46;
-      v12 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)v46;
-      v37 = v46;
-      if ( v46 )
+      v11 = v47;
+      v12 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)v47;
+      v36 = v47;
+      if ( v47 )
       {
-        v46->__abi_AddRef(v46);
-        v11 = v46;
+        v47->__abi_AddRef(v47);
+        v11 = v47;
       }
       if ( v11 )
         v11->__abi_Release(v11);
-      v35 = v12;
+      v34 = v12;
       if ( v12 )
         ((void (__fastcall *)(Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *))v12->__this->m_nextSystem)(v12);
-      v43 = v12;
+      v44 = v12;
       if ( v12 )
         (*(void (__fastcall **)(Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *))&v12->__this->m_dependencyFlags)(v12);
       v13 = 0;
@@ -2406,8 +2408,8 @@ void Online_Friends::RequestBatchProfileInformation(Online_Friends *this, const 
         do
         {
           stringXUID = NULL;
-          v35 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)&v7->friends[v13];
-          v15 = v35->__this;
+          v34 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)&v7->friends[v13];
+          v15 = v34->__this;
           FriendList = Online_Friends::GetFriendList(this, localControllerIndex);
           v17 = CL_Mgr_GetClientFromController(localControllerIndex);
           v18 = 0;
@@ -2429,27 +2431,27 @@ LABEL_33:
           }
           else
           {
-            Online_Friends::GetGamertag(this, localControllerIndex, v18, (char *)&v35->localClientNum, 0x44ui64);
+            Online_Friends::GetGamertag(this, localControllerIndex, v18, (char *)&v34->localClientNum, 0x44ui64);
           }
           WindowsDeleteString_0((HSTRING)stringXUID);
           ++v13;
-          v7 = v34;
+          v7 = v33;
         }
         while ( v13 < LODWORD(v14[1].__abi_reference_count.__pUnkMarshal) );
-        v6 = (__int64)v36;
-        v12 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)v37;
+        v6 = (__int64)v35;
+        v12 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)v36;
       }
       v20 = v9->m_vec._Ptr->_Mypair._Myval2._Mylast - v9->m_vec._Ptr->_Mypair._Myval2._Myfirst;
       if ( (_DWORD)v20 )
       {
         PlatformUserId = Live_GetPlatformUserId(localControllerIndex);
         LocalClientName = Live_GetLocalClientName(localControllerIndex);
-        LODWORD(v32) = v20;
+        LODWORD(v31) = v20;
         LODWORD(fmt) = localControllerIndex;
-        Com_Printf(25, "Calling GetUserProfilesAsync for %s platformId %llx controller %d, for %d platformIds\n", LocalClientName, PlatformUserId, fmt, v32);
-        v34->isUpdating = 1;
+        Com_Printf(25, "Calling GetUserProfilesAsync for %s platformId %llx controller %d, for %d platformIds\n", LocalClientName, PlatformUserId, fmt, v31);
+        v33->isUpdating = 1;
         View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)j__GetView__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ(v9);
-        v35 = View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ;
+        v34 = View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ;
         stringXUID = NULL;
         v24 = (*(__int64 (__fastcall **)(Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *, Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *, Platform::String **))&v12->__this->m_msgHeaderName[3])(v12, View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ, &stringXUID);
         if ( v24 < 0 )
@@ -2463,29 +2465,25 @@ LABEL_33:
         }
         if ( v25 )
           v25->__abi_Release(v25);
-        v34 = (friendList_t *)v26;
+        v33 = (friendList_t *)v26;
         if ( v26 )
           v26->__abi_AddRef(v26);
-        v34 = (friendList_t *)v26;
+        v33 = (friendList_t *)v26;
         if ( v26 )
           v26->__abi_Release(v26);
         if ( View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ )
           (*(void (__fastcall **)(Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *))&View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ->__this->m_dependencyFlags)(View__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAPE_AAU__IVectorView_PE_AAVString_Platform___234_XZ);
-        v35 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
-        *(_QWORD *)&v38 = this;
-        *((_QWORD *)&v38 + 1) = __PAIR64__(localControllerIndex, ClientFromController);
-        __asm
-        {
-          vmovups xmm0, [rsp+0E8h+var_78]
-          vmovdqa [rsp+0E8h+var_78], xmm0
-        }
-        Windows::Foundation::AsyncOperationCompletedHandler_Windows::Foundation::Collections::IVectorView_Microsoft::Xbox::Services::Social::XboxUserProfile______::AsyncOperationCompletedHandler_Windows::Foundation::Collections::IVectorView_Microsoft::Xbox::Services::Social::XboxUserProfile________lambda_4566892f595a03151501b28079b00ae0___(v35, (Platform::CallbackContext)&v38, 2);
-        v29 = v28;
-        v30 = ((__int64 (__fastcall *)(Platform::String *, __int64))v26->Platform::Object::__vftable[1].__abi_QueryInterface)(v26, v28);
-        if ( v30 < 0 )
-          __abi_WinRTraiseException(v30);
-        if ( v29 )
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v29 + 16i64))(v29);
+        v34 = (Online_Friends::RequestBatchProfileInformation::__l30::<lambda_4566892f595a03151501b28079b00ae0> *)Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
+        v37 = this;
+        v38 = ClientFromController;
+        v39 = localControllerIndex;
+        Windows::Foundation::AsyncOperationCompletedHandler_Windows::Foundation::Collections::IVectorView_Microsoft::Xbox::Services::Social::XboxUserProfile______::AsyncOperationCompletedHandler_Windows::Foundation::Collections::IVectorView_Microsoft::Xbox::Services::Social::XboxUserProfile________lambda_4566892f595a03151501b28079b00ae0___(v34, (Platform::CallbackContext)&v37, 2);
+        v28 = v27;
+        v29 = ((__int64 (__fastcall *)(Platform::String *, __int64))v26->Platform::Object::__vftable[1].__abi_QueryInterface)(v26, v27);
+        if ( v29 < 0 )
+          __abi_WinRTraiseException(v29);
+        if ( v28 )
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v28 + 16i64))(v28);
         v26->__abi_Release(v26);
       }
       else

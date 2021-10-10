@@ -63,21 +63,17 @@ G_LightSampler_GetNormalized
 */
 float G_LightSampler_GetNormalized(int clientNum)
 {
-  int v7; 
+  __int64 v1; 
+  int v4; 
 
+  v1 = clientNum;
   if ( (unsigned int)clientNum >= 0x18 )
   {
-    v7 = 24;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_light_sampler.cpp", 52, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 24 )", "clientNum doesn't index LIGHT_SAMPLE_MAX_CLIENTS\n\t%i not in [0, %i)", clientNum, v7) )
+    v4 = 24;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_light_sampler.cpp", 52, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 24 )", "clientNum doesn't index LIGHT_SAMPLE_MAX_CLIENTS\n\t%i not in [0, %i)", clientNum, v4) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3e124925
-  }
-  return *(float *)&_XMM0;
+  return (float)s_LightingSamples[v1].value * 0.14285715;
 }
 
 /*

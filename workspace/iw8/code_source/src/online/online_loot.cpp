@@ -1012,33 +1012,28 @@ Online_Loot::OutputCurrentState
 void Online_Loot::OutputCurrentState(Online_Loot *this, const int controllerIndex)
 {
   __int64 ClientFromController; 
-  __int64 v7; 
-  int v8; 
-  LootItem *v9; 
+  __int64 v5; 
+  int v6; 
+  LootItem *v7; 
 
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
   Com_Printf(25, "LOOT DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@4074808000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
-  v7 = ClientFromController;
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_328_03125);
+  v5 = ClientFromController;
   Com_Printf(25, "-- Contains %d items --\n", (unsigned int)this->m_numInventoryItems[ClientFromController]);
-  v8 = 0;
-  if ( this->m_numInventoryItems[v7] > 0 )
+  v6 = 0;
+  if ( this->m_numInventoryItems[v5] > 0 )
   {
-    v9 = this->m_inventoryClientItems[v7];
+    v7 = this->m_inventoryClientItems[v5];
     do
     {
-      Com_Printf(6, "Inventory item index: %d\n", (unsigned int)v8);
-      Com_Printf(6, "m_itemId: %d\n", v9->m_itemId);
-      Com_Printf(6, "m_itemQuantity: %d\n", v9->m_itemQuantity);
-      ++v8;
-      ++v9;
+      Com_Printf(6, "Inventory item index: %d\n", (unsigned int)v6);
+      Com_Printf(6, "m_itemId: %d\n", v7->m_itemId);
+      Com_Printf(6, "m_itemQuantity: %d\n", v7->m_itemQuantity);
+      ++v6;
+      ++v7;
     }
-    while ( v8 < this->m_numInventoryItems[v7] );
+    while ( v6 < this->m_numInventoryItems[v5] );
   }
   Com_Printf(25, "LOOT DUMP END\n");
 }
@@ -1118,11 +1113,10 @@ __int64 LUI_CoD_LuaCall_GiveLoot(lua_State *const luaVM)
 LUI_CoD_LuaCall_IsOwned
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_IsOwned(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_IsOwned(lua_State *const luaVM)
 {
-  const dvar_t *v5; 
-  unsigned int v9; 
+  const dvar_t *v4; 
+  unsigned int v8; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "Need 2 parameters. USAGE: Loot.IsOwned( <controller><id> )\n");
@@ -1133,23 +1127,20 @@ __int64 __fastcall LUI_CoD_LuaCall_IsOwned(lua_State *const luaVM, double _XMM1_
   *(double *)&_XMM0 = j_lua_tonumber(luaVM, 1);
   __asm { vcvttsd2si esi, xmm0 }
   *(double *)&_XMM0 = j_lua_tonumber(luaVM, 2);
-  v5 = DVARBOOL_unlock_all_loot;
+  v4 = DVARBOOL_unlock_all_loot;
   __asm { vcvttsd2si rbp, xmm0 }
   if ( !DVARBOOL_unlock_all_loot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "unlock_all_loot") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.enabled )
     Online_Loot::GetItemQuantity(&Online_Loot::s_instance, _ESI, _RBP);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, eax; n
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, eax; n }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v9 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v9);
+    v8 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v8);
   }
   return 1i64;
 }
@@ -1339,7 +1330,7 @@ __int64 LUI_CoD_LuaCall_IsLootNew(lua_State *const luaVM)
   v5 = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+98h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( Online_Loot::GetIsNewBitmask(&Online_Loot::s_instance, _EBX, _ER8, &state, &buffer, &bitMaskOut, &rowOut) )
   {
     v7 = bitMaskOut;
@@ -1380,11 +1371,8 @@ __int64 LUI_CoD_LuaCall_ClearLootNew(lua_State *const luaVM)
   state.offset = 0;
   __asm { vcvttsd2si r8d, xmm0; id }
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+98h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( Online_Loot::GetIsNewBitmask(&Online_Loot::s_instance, _EBX, _ER8, &state, &ddlContext, &bitMaskOut, &rowOut) )
     DDL_SetInt(&state, &ddlContext, ~(1 << (rowOut % 32)) & bitMaskOut);
   if ( j_lua_gettop(luaVM) < 0 )
@@ -1552,10 +1540,10 @@ __int64 LUI_CoD_LuaCall_IsContentCreatorCodeExpired(lua_State *const luaVM)
 {
   int v5; 
   StatsSource ActiveStatsSource; 
-  char *v9; 
+  char *v7; 
   unsigned __int64 UInt64; 
-  char *v11; 
-  unsigned int v12; 
+  char *v9; 
+  unsigned int v10; 
   int navStringCount; 
   int depth; 
   DDLState toState; 
@@ -1578,11 +1566,8 @@ __int64 LUI_CoD_LuaCall_IsContentCreatorCodeExpired(lua_State *const luaVM)
   v5 = 0;
   toState.isValid = 0;
   toState.offset = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+2D0h+toState.member], xmm0
-    vmovdqu xmmword ptr [rsp+2D0h+fromState.member], xmm0
-  }
+  *(_OWORD *)&toState.member = _XMM0;
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.arrayIndex = -1;
   fromState.isValid = 0;
   fromState.offset = 0;
@@ -1590,21 +1575,16 @@ __int64 LUI_CoD_LuaCall_IsContentCreatorCodeExpired(lua_State *const luaVM)
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(_EBX);
   if ( CL_PlayerData_GetDDLBuffer(&context, _EBX, ActiveStatsSource, STATSGROUP_NONGAME) )
   {
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+2D0h+fromState.isValid], ymm0
-    }
-    v9 = j_va("nonGameData.influencerCodeTime");
-    Com_ParseNavStrings(v9, (const char **)navStrings, 32, &navStringCount);
+    fromState = *DDL_GetRootState(&result, context.def);
+    v7 = j_va("nonGameData.influencerCodeTime");
+    Com_ParseNavStrings(v7, (const char **)navStrings, 32, &navStringCount);
     if ( DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     {
       UInt64 = DDL_GetUInt64(&toState, &context);
       if ( LiveStorage_GetUTC() > UInt64 )
       {
-        v11 = j_va("nonGameData.influencerCode");
-        Com_ParseNavStrings(v11, (const char **)path, 32, &depth);
+        v9 = j_va("nonGameData.influencerCode");
+        Com_ParseNavStrings(v9, (const char **)path, 32, &depth);
         if ( DDL_MoveToPath(&fromState, &toState, depth, (const char **)path) )
         {
           DDL_SetString(&toState, &context, (const char *)&queryFormat.fmt + 3);
@@ -1616,8 +1596,8 @@ __int64 LUI_CoD_LuaCall_IsContentCreatorCodeExpired(lua_State *const luaVM)
   j_lua_pushboolean(luaVM, v5);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v12 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v12);
+    v10 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v10);
   }
   return 1i64;
 }
@@ -1665,7 +1645,7 @@ Online_Loot::AchievementClaimed
 */
 void Online_Loot::AchievementClaimed(Online_Loot *this, const int controllerIndex, unsigned int numItems, const bdMarketplaceInventory *updates)
 {
-  unsigned int v7; 
+  unsigned int v6; 
   unsigned int *p_m_itemId; 
 
   Com_Printf(25, "AchievementClaimed() - controllerIndex %d\n", (unsigned int)controllerIndex);
@@ -1674,29 +1654,23 @@ void Online_Loot::AchievementClaimed(Online_Loot *this, const int controllerInde
     LUI_SetTableBool("immediate", 1, LUI_luaVM);
     LUI_SetTableInt("num", numItems, LUI_luaVM);
     LUI_BeginTable("items", LUI_luaVM);
-    v7 = 0;
+    v6 = 0;
     if ( numItems )
     {
       p_m_itemId = &updates->m_itemId;
       do
       {
-        ++v7;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, rax; n
-        }
+        ++v6;
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, rax; n }
         j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, rax; n
-        }
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, rax; n }
         j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
         j_lua_settable(LUI_luaVM, -3);
         p_m_itemId += 58;
       }
-      while ( v7 < numItems );
+      while ( v6 < numItems );
     }
     LUI_EndTable(LUI_luaVM);
     LUI_EndEvent(LUI_luaVM);
@@ -1716,8 +1690,8 @@ void Online_Loot::AddToLastLootDrops(Online_Loot *this, const int controllerInde
   int *i; 
   char *v13; 
   unsigned int Int; 
-  char *v17; 
-  bool v20; 
+  char *v15; 
+  bool v16; 
   int navStringCount; 
   int rowOut; 
   unsigned int bitMaskOut; 
@@ -1732,11 +1706,8 @@ void Online_Loot::AddToLastLootDrops(Online_Loot *this, const int controllerInde
   m_numLootRanges = this->m_numLootRanges;
   fromState.arrayIndex = -1;
   v8 = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+190h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( m_numLootRanges > 0 )
   {
     v10 = 0i64;
@@ -1751,37 +1722,24 @@ void Online_Loot::AddToLastLootDrops(Online_Loot *this, const int controllerInde
       state.isValid = 0;
       state.offset = 0;
       state.arrayIndex = -1;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+90h+state.member], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&state.member = _XMM0;
       if ( Online_Loot::GetIsNewBitmask(this, controllerIndex, itemID, &state, &ddlContext, &bitMaskOut, &rowOut) )
         DDL_SetInt(&state, &ddlContext, (1 << (rowOut % 32)) | bitMaskOut);
       if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, STATS_ONLINE, STATSGROUP_COMMON) )
       {
         v13 = j_va("commonData.lastLootDropIndex");
         Com_ParseNavStrings(v13, (const char **)navStrings, 16, &navStringCount);
-        _RAX = DDL_GetRootState(&state, context.def);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+190h+fromState.isValid], ymm0
-        }
+        fromState = *DDL_GetRootState(&state, context.def);
         if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) )
         {
           if ( DDL_GetType(&fromState) == DDL_INT_TYPE )
           {
             Int = DDL_GetInt(&fromState, &context);
             DDL_SetInt(&fromState, &context, (int)(Int + 1) % 64);
-            v17 = j_va("commonData.lastLootDrops.%d", Int);
-            Com_ParseNavStrings(v17, (const char **)navStrings, 16, &navStringCount);
-            _RAX = DDL_GetRootState(&state, context.def);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rsp+190h+fromState.isValid], ymm0
-            }
+            v15 = j_va("commonData.lastLootDrops.%d", Int);
+            Com_ParseNavStrings(v15, (const char **)navStrings, 16, &navStringCount);
+            fromState = *DDL_GetRootState(&state, context.def);
             if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) )
             {
               if ( DDL_GetType(&fromState) == DDL_INT_TYPE )
@@ -1790,23 +1748,23 @@ void Online_Loot::AddToLastLootDrops(Online_Loot *this, const int controllerInde
                 Com_Printf(25, "AddToLastLootDrops() - ID %d @ Index %d\n", itemID, Int);
                 return;
               }
-              v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1269, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "lastLootDrops must be an int");
+              v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1269, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "lastLootDrops must be an int");
             }
             else
             {
-              v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to set lastLootDrops in common data");
+              v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to set lastLootDrops in common data");
             }
           }
           else
           {
-            v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1279, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "lastLootDropIndex must be an int");
+            v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1279, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "lastLootDropIndex must be an int");
           }
         }
         else
         {
-          v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1284, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to get lastLootDropIndex from common data");
+          v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1284, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to get lastLootDropIndex from common data");
         }
-        if ( v20 )
+        if ( v16 )
           __debugbreak();
       }
     }
@@ -2153,7 +2111,7 @@ void Online_Loot::ClearNewUnlock(Online_Loot *this, const int controllerIndex, c
   state.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0A8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( Online_Loot::GetIsNewBitmask(this, controllerIndex, id, &state, &ddlContext, &v5, &v8) )
     DDL_SetInt(&state, &ddlContext, ~(1 << (v8 % 32)) & v5);
 }
@@ -2482,9 +2440,9 @@ Online_Loot::GetContentCreatorCode
 char Online_Loot::GetContentCreatorCode(Online_Loot *this, const int controllerIndex, unsigned __int64 *expiry_time, char *code, const int code_length)
 {
   StatsSource ActiveStatsSource; 
-  char *v13; 
+  char *v11; 
   const char *String; 
-  char *v15; 
+  char *v13; 
   int navStringCount; 
   DDLState toState; 
   DDLState fromState; 
@@ -2498,32 +2456,24 @@ char Online_Loot::GetContentCreatorCode(Online_Loot *this, const int controllerI
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+1F0h+fromState.member], xmm0
-    vmovdqu xmmword ptr [rsp+1F0h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
+  *(_OWORD *)&toState.member = _XMM0;
   if ( !code && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 2147, ASSERT_TYPE_ASSERT, "(code)", (const char *)&queryFormat, "code") )
     __debugbreak();
   *expiry_time = 0i64;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
     return 0;
-  _RAX = DDL_GetRootState(&result, context.def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+1F0h+fromState.isValid], ymm0
-  }
-  v13 = j_va("nonGameData.influencerCode");
-  Com_ParseNavStrings(v13, (const char **)navStrings, 32, &navStringCount);
+  fromState = *DDL_GetRootState(&result, context.def);
+  v11 = j_va("nonGameData.influencerCode");
+  Com_ParseNavStrings(v11, (const char **)navStrings, 32, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     return 0;
   String = DDL_GetString(&toState, &context);
   Core_strcpy_truncate(code, code_length, String);
-  v15 = j_va("nonGameData.influencerCodeTime");
-  Com_ParseNavStrings(v15, (const char **)navStrings, 32, &navStringCount);
+  v13 = j_va("nonGameData.influencerCodeTime");
+  Com_ParseNavStrings(v13, (const char **)navStrings, 32, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     return 0;
   *expiry_time = DDL_GetUInt64(&toState, &context);
@@ -2655,17 +2605,17 @@ char Online_Loot::GetIsNewBitmask(Online_Loot *this, const int controllerIndex, 
   int v21; 
   char v22; 
   char *v23; 
+  DDLState *RootState; 
   int v25; 
   int Int; 
   char *fmt; 
   int navStringCount; 
   StringTable *tablePtr; 
-  unsigned int *v31; 
+  unsigned int *v30; 
   DDLState result; 
   char *navStrings[6]; 
 
-  _R14 = state;
-  v31 = bitMaskOut;
+  v30 = bitMaskOut;
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1296, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 1297, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
@@ -2739,17 +2689,13 @@ LABEL_27:
     return 0;
   v23 = j_va("nonGameData.isNew.%s.unlocks.%d", ref, (unsigned int)(v21 / 32));
   Com_ParseNavStrings(v23, (const char **)navStrings, 16, &navStringCount);
-  _RAX = DDL_GetRootState(&result, buffer->def);
+  RootState = DDL_GetRootState(&result, buffer->def);
   v25 = navStringCount;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14], ymm0
-  }
-  if ( !DDL_MoveToPath(_R14, _R14, v25, (const char **)navStrings) || DDL_GetType(_R14) != DDL_INT_TYPE )
+  *state = *RootState;
+  if ( !DDL_MoveToPath(state, state, v25, (const char **)navStrings) || DDL_GetType(state) != DDL_INT_TYPE )
     return 0;
-  Int = DDL_GetInt(_R14, buffer);
-  *v31 = Int;
+  Int = DDL_GetInt(state, buffer);
+  *v30 = Int;
   return 1;
 }
 
@@ -2928,9 +2874,9 @@ Online_Loot::IsContentCreatorCodeExpired
 char Online_Loot::IsContentCreatorCodeExpired(Online_Loot *this, const int controllerIndex)
 {
   StatsSource ActiveStatsSource; 
-  char *v8; 
+  char *v6; 
   unsigned __int64 UInt64; 
-  char *v10; 
+  char *v8; 
   int navStringCount; 
   DDLState toState; 
   DDLState fromState; 
@@ -2941,30 +2887,25 @@ char Online_Loot::IsContentCreatorCodeExpired(Online_Loot *this, const int contr
   toState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+1D0h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+1D0h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.arrayIndex = -1;
   fromState.arrayIndex = -1;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
     return 0;
-  _RAX = DDL_GetRootState(&result, context.def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+1D0h+fromState.isValid], ymm0
-  }
-  v8 = j_va("nonGameData.influencerCodeTime");
-  Com_ParseNavStrings(v8, (const char **)navStrings, 32, &navStringCount);
+  fromState = *DDL_GetRootState(&result, context.def);
+  v6 = j_va("nonGameData.influencerCodeTime");
+  Com_ParseNavStrings(v6, (const char **)navStrings, 32, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     return 0;
   UInt64 = DDL_GetUInt64(&toState, &context);
   if ( LiveStorage_GetUTC() <= UInt64 )
     return 0;
-  v10 = j_va("nonGameData.influencerCode");
-  Com_ParseNavStrings(v10, (const char **)navStrings, 32, &navStringCount);
+  v8 = j_va("nonGameData.influencerCode");
+  Com_ParseNavStrings(v8, (const char **)navStrings, 32, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     return 0;
   DDL_SetString(&toState, &context, (const char *)&queryFormat.fmt + 3);
@@ -3014,7 +2955,7 @@ unsigned __int8 Online_Loot::IsNewUnlock(Online_Loot *this, const int controller
   v8.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v8.arrayIndex = -1;
-  __asm { vmovdqu [rsp+0A8h+var_50], xmm0 }
+  *(_OWORD *)&v8.member = _XMM0;
   if ( !Online_Loot::GetIsNewBitmask(this, controllerIndex, id, &v8, &buffer, &v7, &v10) )
     return 0;
   v5 = v7;
@@ -3044,25 +2985,25 @@ __int64 LUI_CoD_LuaCall_GetCategoryNewIDs_impl(lua_State *const luaVM)
   int *v17; 
   int i; 
   char *v19; 
-  int v22; 
-  int v23; 
+  int v20; 
+  int v21; 
   const char *ColumnValueForRow; 
-  int v25; 
+  int v23; 
   int RowCount; 
   int controllerIndex; 
   int navStringCount; 
   StringTable *tablePtr; 
-  const char *v31; 
-  const char *v32; 
-  lua_State *v33; 
+  const char *v29; 
+  const char *v30; 
+  lua_State *v31; 
   DDLState fromState; 
   DDLContext context; 
   DDLState result; 
-  int v37[32]; 
+  int v35[32]; 
   char *navStrings[16]; 
 
   v2 = luaVM;
-  v33 = luaVM;
+  v31 = luaVM;
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(v2, "USAGE: Loot.GetCategoryNewIDs( <controller><ref> )\n");
   if ( !j_lua_isnumber(v2, 1) )
@@ -3074,13 +3015,13 @@ __int64 LUI_CoD_LuaCall_GetCategoryNewIDs_impl(lua_State *const luaVM)
   controllerIndex = _EAX;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v5 = 0;
-  v31 = j_lua_tolstring(v2, 2, NULL);
+  v29 = j_lua_tolstring(v2, 2, NULL);
   fromState.isValid = 0;
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+200h+fromState.member], xmm0 }
-  v6 = v31;
+  *(_OWORD *)&fromState.member = _XMM0;
+  v6 = v29;
   fromState.arrayIndex = -1;
-  v7 = j_va("loot/%s_ids.csv", v31);
+  v7 = j_va("loot/%s_ids.csv", v29);
   StringTable_GetAsset(v7, (const StringTable **)&tablePtr);
   if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_loot.cpp", 2349, ASSERT_TYPE_ASSERT, "(lootTable)", (const char *)&queryFormat, "lootTable") )
     __debugbreak();
@@ -3091,7 +3032,7 @@ __int64 LUI_CoD_LuaCall_GetCategoryNewIDs_impl(lua_State *const luaVM)
   v10 = 0;
   if ( !strcmp_0(v6, "playercards") )
   {
-    v32 = "playercards2";
+    v30 = "playercards2";
   }
   else
   {
@@ -3111,7 +3052,7 @@ __int64 LUI_CoD_LuaCall_GetCategoryNewIDs_impl(lua_State *const luaVM)
     v14 = "emblems2";
     if ( !v13 )
       v14 = NULL;
-    v32 = v14;
+    v30 = v14;
     v8 = RowCount;
   }
   v15 = 1024;
@@ -3119,53 +3060,48 @@ __int64 LUI_CoD_LuaCall_GetCategoryNewIDs_impl(lua_State *const luaVM)
     v15 = v8;
   while ( 1 )
   {
-    memset_0(v37, 0, sizeof(v37));
+    memset_0(v35, 0, sizeof(v35));
     if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, STATS_ONLINE, STATSGROUP_NONGAME) )
     {
-      v16 = v31;
-      v17 = v37;
+      v16 = v29;
+      v17 = v35;
       for ( i = 0; i < 32; ++i )
       {
         v19 = j_va("nonGameData.isNew.%s.unlocks.%d", v16, (unsigned int)i);
         Com_ParseNavStrings(v19, (const char **)navStrings, 16, &navStringCount);
-        _RAX = DDL_GetRootState(&result, context.def);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+200h+fromState.isValid], ymm0
-        }
+        fromState = *DDL_GetRootState(&result, context.def);
         if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) )
           *v17 = DDL_GetInt(&fromState, &context);
         ++v17;
       }
-      v2 = v33;
-      v6 = v31;
+      v2 = v31;
+      v6 = v29;
       v8 = RowCount;
     }
     if ( v5 < v15 )
       break;
 LABEL_34:
-    v6 = v32;
+    v6 = v30;
     v10 = 1;
-    v31 = v32;
+    v29 = v30;
     v15 = v8;
-    v32 = NULL;
-    if ( !v31 )
+    v30 = NULL;
+    if ( !v29 )
       return 1i64;
   }
   while ( 1 )
   {
-    v22 = v5;
+    v20 = v5;
     if ( v10 )
-      v22 = v5 - 1024;
-    if ( v22 / 32 >= 32 )
+      v20 = v5 - 1024;
+    if ( v20 / 32 >= 32 )
       break;
-    v23 = v37[v22 / 32];
-    if ( _bittest(&v23, (unsigned __int8)(v5 % 32)) )
+    v21 = v35[v20 / 32];
+    if ( _bittest(&v21, (unsigned __int8)(v5 % 32)) )
     {
       ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v5, 0);
-      v25 = atoi(ColumnValueForRow);
-      j_lua_pushinteger(v2, v25);
+      v23 = atoi(ColumnValueForRow);
+      j_lua_pushinteger(v2, v23);
       j_lua_rawseti(v2, -2, ++v9);
     }
     if ( ++v5 >= v15 )
@@ -3380,10 +3316,10 @@ bool Online_Loot::NewOrClearCategoryByRef(Online_Loot *this, const int controlle
 {
   int i; 
   char *v9; 
-  const char *v12; 
-  __int64 v13; 
-  char v14; 
-  char *v15; 
+  const char *v10; 
+  __int64 v11; 
+  char v12; 
+  char *v13; 
   int navStringCount; 
   DDLState fromState; 
   DDLContext context; 
@@ -3394,19 +3330,14 @@ bool Online_Loot::NewOrClearCategoryByRef(Online_Loot *this, const int controlle
   fromState.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+140h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, STATS_ONLINE, STATSGROUP_NONGAME) )
     return 0;
   for ( i = 0; i < 32; ++i )
   {
     v9 = j_va("nonGameData.isNew.%s.unlocks.%d", ref, (unsigned int)i);
     Com_ParseNavStrings(v9, (const char **)navStrings, 16, &navStringCount);
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+140h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, context.def);
     if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) )
     {
       if ( clear )
@@ -3420,16 +3351,11 @@ bool Online_Loot::NewOrClearCategoryByRef(Online_Loot *this, const int controlle
     }
     if ( !strcmp_0(ref, "playercards") )
     {
-      v12 = "playercards2";
+      v10 = "playercards2";
 LABEL_13:
-      v15 = j_va("nonGameData.isNew.%s.unlocks.%d", v12, (unsigned int)i);
-      Com_ParseNavStrings(v15, (const char **)navStrings, 16, &navStringCount);
-      _RAX = DDL_GetRootState(&result, context.def);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+140h+fromState.isValid], ymm0
-      }
+      v13 = j_va("nonGameData.isNew.%s.unlocks.%d", v10, (unsigned int)i);
+      Com_ParseNavStrings(v13, (const char **)navStrings, 16, &navStringCount);
+      fromState = *DDL_GetRootState(&result, context.def);
       if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) )
       {
         if ( clear )
@@ -3444,15 +3370,15 @@ LABEL_13:
     }
     else
     {
-      v13 = 0i64;
+      v11 = 0i64;
       while ( 1 )
       {
-        v14 = ref[v13++];
-        if ( v14 != aEmblems[v13 - 1] )
+        v12 = ref[v11++];
+        if ( v12 != aEmblems[v11 - 1] )
           break;
-        if ( v13 == 8 )
+        if ( v11 == 8 )
         {
-          v12 = "emblems2";
+          v10 = "emblems2";
           goto LABEL_13;
         }
       }
@@ -3964,91 +3890,91 @@ void Online_Loot::RemoveItemFromPlayer(Online_Loot *this, const int controllerIn
   int v8; 
   __int64 kk; 
   StatsSource v12; 
-  unsigned int v14; 
+  unsigned int v13; 
   unsigned int mm; 
+  char *v15; 
+  int v16; 
   char *v17; 
-  int v18; 
-  char *v19; 
   int nn; 
-  char *v21; 
+  char *v19; 
+  char *v20; 
+  StatsSource v21; 
   char *v22; 
-  StatsSource v23; 
-  char *v26; 
+  int v23; 
+  StatsSource v24; 
+  char *v25; 
+  int v26; 
   int v27; 
-  StatsSource v28; 
-  char *v31; 
-  int v32; 
-  int v33; 
-  __int64 v34; 
-  StatsSource v35; 
+  __int64 v28; 
+  StatsSource v29; 
   int jj; 
-  char *v39; 
+  char *v31; 
+  __int64 v32; 
+  const char *v33; 
+  const char *v34; 
+  signed __int64 v35; 
+  char v36; 
+  __int64 v37; 
+  char v38; 
+  StatsSource v39; 
   __int64 v40; 
-  const char *v41; 
-  const char *v42; 
-  signed __int64 v43; 
-  char v44; 
-  __int64 v45; 
-  char v46; 
-  StatsSource v47; 
-  __int64 v49; 
-  char *v51; 
-  int v52; 
-  int v53; 
-  PlayerProfileData *v54; 
-  StatsSource v55; 
-  __int64 v57; 
-  char *v59; 
-  int v60; 
-  int v61; 
+  char *v41; 
+  int v42; 
+  int v43; 
+  PlayerProfileData *v44; 
+  StatsSource v45; 
+  __int64 v46; 
+  char *v47; 
+  int v48; 
+  int v49; 
   PlayerProfileData *Playercard_ForEdit; 
   __int64 ii; 
-  StatsSource v64; 
-  int v66; 
-  char *v68; 
+  StatsSource v52; 
+  int v53; 
+  char *v54; 
   int Int; 
-  int v70; 
+  int v56; 
   __int64 m; 
-  StatsSource v72; 
-  int v74; 
+  StatsSource v58; 
+  int v59; 
   int n; 
-  char *v77; 
-  const char *v78; 
+  char *v61; 
+  const char *v62; 
   __int64 i; 
-  StatsSource v80; 
-  int v82; 
+  StatsSource v64; 
+  int v65; 
   int j; 
   int k; 
-  char *v86; 
-  const char *v87; 
-  __int64 v88; 
+  char *v68; 
+  const char *v69; 
+  __int64 v70; 
   StatsSource ActiveStatsSource; 
-  int v91; 
-  int *v92; 
-  char *v94; 
+  int v72; 
+  int *v73; 
+  char *v74; 
   const char *Enum; 
-  int v96; 
-  int v97; 
+  int v76; 
+  int v77; 
   StatsGroup statsGroup[2]; 
   DDLState toState; 
   DDLContext context; 
   DDLState fromState; 
   int navStringCount; 
   int depth; 
-  int v104[2]; 
-  const char *v105; 
+  int v84[2]; 
+  const char *v85; 
   DDLState result; 
   char *navStrings[32]; 
 
   v6 = 0i64;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v8 = controllerIndex;
-  v97 = controllerIndex;
+  v77 = controllerIndex;
   fromState.offset = 0;
   toState.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rbp+130h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+230h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
@@ -4074,77 +4000,67 @@ void Online_Loot::RemoveItemFromPlayer(Online_Loot *this, const int controllerIn
                   {
                     if ( !I_strcmp(type, "OPERATOR") )
                     {
-                      v88 = 0i64;
-                      *(_QWORD *)v104 = "default_western";
-                      v105 = "default_eastern";
+                      v70 = 0i64;
+                      *(_QWORD *)v84 = "default_western";
+                      v85 = "default_eastern";
                       do
                       {
                         ActiveStatsSource = LiveStorage_GetActiveStatsSource(v8);
-                        if ( CL_PlayerData_GetDDLBuffer(&context, v8, ActiveStatsSource, statsGroup[v88]) )
+                        if ( CL_PlayerData_GetDDLBuffer(&context, v8, ActiveStatsSource, statsGroup[v70]) )
                         {
-                          _RAX = DDL_GetRootState(&result, context.def);
-                          v91 = 0;
-                          v92 = v104;
-                          __asm
-                          {
-                            vmovups ymm0, ymmword ptr [rax]
-                            vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-                          }
+                          v72 = 0;
+                          v73 = v84;
+                          fromState = *DDL_GetRootState(&result, context.def);
                           do
                           {
-                            v94 = j_va("customizationSetup.operators.%d", (unsigned int)v91);
-                            Com_ParseNavStrings(v94, (const char **)navStrings, 32, &v96);
-                            if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                            v74 = j_va("customizationSetup.operators.%d", (unsigned int)v72);
+                            Com_ParseNavStrings(v74, (const char **)navStrings, 32, &v76);
+                            if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                             {
                               Enum = DDL_GetEnum(&toState, &context);
                               if ( !I_strcmp(Enum, ref) )
-                                DDL_SetEnum(&toState, &context, *(const char **)v92);
+                                DDL_SetEnum(&toState, &context, *(const char **)v73);
                             }
-                            ++v91;
-                            v92 += 2;
+                            ++v72;
+                            v73 += 2;
                           }
-                          while ( v91 < 2 );
-                          v8 = v97;
+                          while ( v72 < 2 );
+                          v8 = v77;
                         }
-                        ++v88;
+                        ++v70;
                       }
-                      while ( v88 < 2 );
+                      while ( v70 < 2 );
                     }
                   }
                   else
                   {
                     for ( i = 0i64; i < 2; ++i )
                     {
-                      v80 = LiveStorage_GetActiveStatsSource(v8);
-                      if ( CL_PlayerData_GetDDLBuffer(&context, v8, v80, statsGroup[i]) )
+                      v64 = LiveStorage_GetActiveStatsSource(v8);
+                      if ( CL_PlayerData_GetDDLBuffer(&context, v8, v64, statsGroup[i]) )
                       {
-                        _RAX = DDL_GetRootState(&result, context.def);
-                        v82 = 0;
-                        __asm
-                        {
-                          vmovups ymm0, ymmword ptr [rax]
-                          vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-                        }
+                        v65 = 0;
+                        fromState = *DDL_GetRootState(&result, context.def);
                         do
                         {
                           for ( j = 0; j < 2; ++j )
                           {
                             for ( k = 0; k < 5; ++k )
                             {
-                              v86 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.sticker.%d", (unsigned int)v82, (unsigned int)j, (unsigned int)k);
-                              Com_ParseNavStrings(v86, (const char **)navStrings, 32, &v96);
-                              if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                              v68 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.sticker.%d", (unsigned int)v65, (unsigned int)j, (unsigned int)k);
+                              Com_ParseNavStrings(v68, (const char **)navStrings, 32, &v76);
+                              if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                               {
-                                v87 = DDL_GetEnum(&toState, &context);
-                                if ( !I_strcmp(v87, ref) )
+                                v69 = DDL_GetEnum(&toState, &context);
+                                if ( !I_strcmp(v69, ref) )
                                   DDL_SetEnum(&toState, &context, "none");
                               }
                             }
                           }
-                          ++v82;
+                          ++v65;
                         }
-                        while ( v82 < 10 );
-                        v8 = v97;
+                        while ( v65 < 10 );
+                        v8 = v77;
                       }
                     }
                   }
@@ -4153,33 +4069,28 @@ void Online_Loot::RemoveItemFromPlayer(Online_Loot *this, const int controllerIn
                 {
                   for ( m = 0i64; m < 2; ++m )
                   {
-                    v72 = LiveStorage_GetActiveStatsSource(v8);
-                    if ( CL_PlayerData_GetDDLBuffer(&context, v8, v72, statsGroup[m]) )
+                    v58 = LiveStorage_GetActiveStatsSource(v8);
+                    if ( CL_PlayerData_GetDDLBuffer(&context, v8, v58, statsGroup[m]) )
                     {
-                      _RAX = DDL_GetRootState(&result, context.def);
-                      v74 = 0;
-                      __asm
-                      {
-                        vmovups ymm0, ymmword ptr [rax]
-                        vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-                      }
+                      v59 = 0;
+                      fromState = *DDL_GetRootState(&result, context.def);
                       do
                       {
                         for ( n = 0; n < 2; ++n )
                         {
-                          v77 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.camo", (unsigned int)v74, (unsigned int)n);
-                          Com_ParseNavStrings(v77, (const char **)navStrings, 32, &v96);
-                          if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                          v61 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.camo", (unsigned int)v59, (unsigned int)n);
+                          Com_ParseNavStrings(v61, (const char **)navStrings, 32, &v76);
+                          if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                           {
-                            v78 = DDL_GetEnum(&toState, &context);
-                            if ( !I_strcmp(v78, ref) )
+                            v62 = DDL_GetEnum(&toState, &context);
+                            if ( !I_strcmp(v62, ref) )
                               DDL_SetEnum(&toState, &context, "none");
                           }
                         }
-                        ++v74;
+                        ++v59;
                       }
-                      while ( v74 < 10 );
-                      v8 = v97;
+                      while ( v59 < 10 );
+                      v8 = v77;
                     }
                   }
                 }
@@ -4188,66 +4099,56 @@ void Online_Loot::RemoveItemFromPlayer(Online_Loot *this, const int controllerIn
               {
                 for ( ii = 0i64; ii < 2; ++ii )
                 {
-                  v64 = LiveStorage_GetActiveStatsSource(v8);
-                  if ( CL_PlayerData_GetDDLBuffer(&context, v8, v64, statsGroup[ii]) )
+                  v52 = LiveStorage_GetActiveStatsSource(v8);
+                  if ( CL_PlayerData_GetDDLBuffer(&context, v8, v52, statsGroup[ii]) )
                   {
-                    _RAX = DDL_GetRootState(&result, context.def);
-                    v66 = 0;
-                    __asm
-                    {
-                      vmovups ymm0, ymmword ptr [rax]
-                      vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-                    }
+                    v53 = 0;
+                    fromState = *DDL_GetRootState(&result, context.def);
                     do
                     {
-                      v68 = j_va("customizationSetup.radial.%d", (unsigned int)v66);
-                      Com_ParseNavStrings(v68, (const char **)navStrings, 32, &v96);
-                      if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                      v54 = j_va("customizationSetup.radial.%d", (unsigned int)v53);
+                      Com_ParseNavStrings(v54, (const char **)navStrings, 32, &v76);
+                      if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                       {
                         Int = DDL_GetInt(&toState, &context);
                         if ( Int == atoi(ref) )
                         {
-                          v70 = atoi(replacement);
-                          DDL_SetInt(&toState, &context, v70);
+                          v56 = atoi(replacement);
+                          DDL_SetInt(&toState, &context, v56);
                         }
                       }
-                      ++v66;
+                      ++v53;
                     }
-                    while ( v66 < 8 );
-                    v8 = v97;
+                    while ( v53 < 8 );
+                    v8 = v77;
                   }
                 }
               }
             }
             else
             {
-              v55 = LiveStorage_GetActiveStatsSource(v8);
-              if ( CL_PlayerData_GetDDLBuffer(&context, v8, v55, STATSGROUP_NONGAME) )
+              v45 = LiveStorage_GetActiveStatsSource(v8);
+              if ( CL_PlayerData_GetDDLBuffer(&context, v8, v45, STATSGROUP_NONGAME) )
               {
-                _RAX = DDL_GetRootState(&result, context.def);
-                v57 = 68i64;
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-                }
+                v46 = 68i64;
+                fromState = *DDL_GetRootState(&result, context.def);
                 do
                 {
-                  v59 = j_va("nonGameData.customization_patch.%d", (unsigned int)v6);
-                  Com_ParseNavStrings(v59, (const char **)navStrings, 32, &v96);
-                  if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                  v47 = j_va("nonGameData.customization_patch.%d", (unsigned int)v6);
+                  Com_ParseNavStrings(v47, (const char **)navStrings, 32, &v76);
+                  if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                   {
-                    v60 = DDL_GetInt(&toState, &context);
-                    if ( v60 == atoi(ref) )
+                    v48 = DDL_GetInt(&toState, &context);
+                    if ( v48 == atoi(ref) )
                     {
-                      v61 = atoi(replacement);
-                      DDL_SetInt(&toState, &context, v61);
+                      v49 = atoi(replacement);
+                      DDL_SetInt(&toState, &context, v49);
                       Playercard_ForEdit = PlayercardCache_GetPlayercard_ForEdit();
-                      *(int *)((char *)&Playercard_ForEdit->rank_mp + v57) = atoi(replacement);
+                      *(int *)((char *)&Playercard_ForEdit->rank_mp + v46) = atoi(replacement);
                     }
                   }
                   LODWORD(v6) = v6 + 1;
-                  v57 += 4i64;
+                  v46 += 4i64;
                 }
                 while ( (int)v6 < 2 );
               }
@@ -4255,33 +4156,28 @@ void Online_Loot::RemoveItemFromPlayer(Online_Loot *this, const int controllerIn
           }
           else
           {
-            v47 = LiveStorage_GetActiveStatsSource(v8);
-            if ( CL_PlayerData_GetDDLBuffer(&context, v8, v47, STATSGROUP_NONGAME) )
+            v39 = LiveStorage_GetActiveStatsSource(v8);
+            if ( CL_PlayerData_GetDDLBuffer(&context, v8, v39, STATSGROUP_NONGAME) )
             {
-              _RAX = DDL_GetRootState(&result, context.def);
-              v49 = 72i64;
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-              }
+              v40 = 72i64;
+              fromState = *DDL_GetRootState(&result, context.def);
               do
               {
-                v51 = j_va("nonGameData.customization_background.%d", (unsigned int)v6);
-                Com_ParseNavStrings(v51, (const char **)navStrings, 32, &v96);
-                if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                v41 = j_va("nonGameData.customization_background.%d", (unsigned int)v6);
+                Com_ParseNavStrings(v41, (const char **)navStrings, 32, &v76);
+                if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                 {
-                  v52 = DDL_GetInt(&toState, &context);
-                  if ( v52 == atoi(ref) )
+                  v42 = DDL_GetInt(&toState, &context);
+                  if ( v42 == atoi(ref) )
                   {
-                    v53 = atoi(replacement);
-                    DDL_SetInt(&toState, &context, v53);
-                    v54 = PlayercardCache_GetPlayercard_ForEdit();
-                    *(int *)((char *)&v54->rank_mp + v49) = atoi(replacement);
+                    v43 = atoi(replacement);
+                    DDL_SetInt(&toState, &context, v43);
+                    v44 = PlayercardCache_GetPlayercard_ForEdit();
+                    *(int *)((char *)&v44->rank_mp + v40) = atoi(replacement);
                   }
                 }
                 LODWORD(v6) = v6 + 1;
-                v49 += 4i64;
+                v40 += 4i64;
               }
               while ( (int)v6 < 2 );
             }
@@ -4289,47 +4185,42 @@ void Online_Loot::RemoveItemFromPlayer(Online_Loot *this, const int controllerIn
         }
         else
         {
-          v34 = 0i64;
-          *(_QWORD *)v104 = 0i64;
+          v28 = 0i64;
+          *(_QWORD *)v84 = 0i64;
           do
           {
-            v35 = LiveStorage_GetActiveStatsSource(v8);
-            if ( CL_PlayerData_GetDDLBuffer(&context, v8, v35, statsGroup[v34]) )
+            v29 = LiveStorage_GetActiveStatsSource(v8);
+            if ( CL_PlayerData_GetDDLBuffer(&context, v8, v29, statsGroup[v28]) )
             {
-              _RAX = DDL_GetRootState(&result, context.def);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-              }
+              fromState = *DDL_GetRootState(&result, context.def);
               do
               {
                 for ( jj = 0; jj < 2; ++jj )
                 {
-                  v39 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.cosmeticAttachment", (unsigned int)v6, (unsigned int)jj);
-                  Com_ParseNavStrings(v39, (const char **)navStrings, 32, &v96);
-                  if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                  v31 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.cosmeticAttachment", (unsigned int)v6, (unsigned int)jj);
+                  Com_ParseNavStrings(v31, (const char **)navStrings, 32, &v76);
+                  if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                   {
-                    v40 = 0x7FFFFFFFi64;
-                    v41 = ref;
-                    v42 = DDL_GetEnum(&toState, &context);
-                    if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+                    v32 = 0x7FFFFFFFi64;
+                    v33 = ref;
+                    v34 = DDL_GetEnum(&toState, &context);
+                    if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                       __debugbreak();
                     if ( !ref && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                       __debugbreak();
-                    v43 = v42 - ref;
+                    v35 = v34 - ref;
                     do
                     {
-                      v44 = v41[v43];
-                      v45 = v40;
-                      v46 = *v41++;
-                      --v40;
-                      if ( !v45 )
+                      v36 = v33[v35];
+                      v37 = v32;
+                      v38 = *v33++;
+                      --v32;
+                      if ( !v37 )
                         break;
-                      if ( v44 != v46 )
+                      if ( v36 != v38 )
                         goto LABEL_51;
                     }
-                    while ( v44 );
+                    while ( v36 );
                     DDL_SetEnum(&toState, &context, "none");
                   }
 LABEL_51:
@@ -4338,37 +4229,32 @@ LABEL_51:
                 LODWORD(v6) = v6 + 1;
               }
               while ( (int)v6 < 10 );
-              v34 = *(_QWORD *)v104;
+              v28 = *(_QWORD *)v84;
               LODWORD(v6) = 0;
-              v8 = v97;
+              v8 = v77;
             }
-            *(_QWORD *)v104 = ++v34;
+            *(_QWORD *)v84 = ++v28;
           }
-          while ( v34 < 2 );
+          while ( v28 < 2 );
         }
       }
       else
       {
         do
         {
-          v28 = LiveStorage_GetActiveStatsSource(v8);
-          if ( CL_PlayerData_GetDDLBuffer(&context, v8, v28, statsGroup[v6]) )
+          v24 = LiveStorage_GetActiveStatsSource(v8);
+          if ( CL_PlayerData_GetDDLBuffer(&context, v8, v24, statsGroup[v6]) )
           {
-            _RAX = DDL_GetRootState(&result, context.def);
-            __asm
+            fromState = *DDL_GetRootState(&result, context.def);
+            v25 = j_va("customizationSetup.operatorWatch");
+            Com_ParseNavStrings(v25, (const char **)navStrings, 32, &v76);
+            if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
             {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-            }
-            v31 = j_va("customizationSetup.operatorWatch");
-            Com_ParseNavStrings(v31, (const char **)navStrings, 32, &v96);
-            if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
-            {
-              v32 = DDL_GetInt(&toState, &context);
-              if ( v32 == atoi(ref) )
+              v26 = DDL_GetInt(&toState, &context);
+              if ( v26 == atoi(ref) )
               {
-                v33 = atoi(replacement);
-                DDL_SetInt(&toState, &context, v33);
+                v27 = atoi(replacement);
+                DDL_SetInt(&toState, &context, v27);
               }
             }
           }
@@ -4381,21 +4267,16 @@ LABEL_51:
     {
       do
       {
-        v23 = LiveStorage_GetActiveStatsSource(v8);
-        if ( CL_PlayerData_GetDDLBuffer(&context, v8, v23, statsGroup[v6]) )
+        v21 = LiveStorage_GetActiveStatsSource(v8);
+        if ( CL_PlayerData_GetDDLBuffer(&context, v8, v21, statsGroup[v6]) )
         {
-          _RAX = DDL_GetRootState(&result, context.def);
-          __asm
+          fromState = *DDL_GetRootState(&result, context.def);
+          v22 = j_va("customizationSetup.operatorCustomization.%s.skin", ref);
+          Com_ParseNavStrings(v22, (const char **)navStrings, 32, &v76);
+          if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
           {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-          }
-          v26 = j_va("customizationSetup.operatorCustomization.%s.skin", ref);
-          Com_ParseNavStrings(v26, (const char **)navStrings, 32, &v96);
-          if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
-          {
-            v27 = atoi(replacement);
-            DDL_SetInt(&toState, &context, v27);
+            v23 = atoi(replacement);
+            DDL_SetInt(&toState, &context, v23);
           }
         }
         ++v6;
@@ -4410,47 +4291,42 @@ LABEL_51:
       v12 = LiveStorage_GetActiveStatsSource(v8);
       if ( CL_PlayerData_GetDDLBuffer(&context, v8, v12, statsGroup[kk]) )
       {
-        _RAX = DDL_GetRootState(&result, context.def);
-        v14 = 0;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbp+130h+fromState.isValid], ymm0
-        }
+        v13 = 0;
+        fromState = *DDL_GetRootState(&result, context.def);
         do
         {
           for ( mm = 0; (int)mm < 2; ++mm )
           {
-            v17 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.lootItemID", v14, mm);
-            Com_ParseNavStrings(v17, (const char **)navStrings, 32, &navStringCount);
+            v15 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.lootItemID", v13, mm);
+            Com_ParseNavStrings(v15, (const char **)navStrings, 32, &navStringCount);
             if ( DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
             {
-              v18 = DDL_GetInt(&toState, &context);
-              if ( v18 == atoi(ref) )
+              v16 = DDL_GetInt(&toState, &context);
+              if ( v16 == atoi(ref) )
               {
                 DDL_SetInt(&toState, &context, 0);
-                v19 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.variantID", v14, mm);
-                Com_ParseNavStrings(v19, (const char **)navStrings, 32, &depth);
+                v17 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.variantID", v13, mm);
+                Com_ParseNavStrings(v17, (const char **)navStrings, 32, &depth);
                 if ( DDL_MoveToPath(&fromState, &toState, depth, (const char **)navStrings) )
                   DDL_SetInt(&toState, &context, -1);
                 for ( nn = 0; nn < 5; ++nn )
                 {
-                  v21 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.attachmentSetup.%d.attachment", v14, mm, (unsigned int)nn);
-                  Com_ParseNavStrings(v21, (const char **)navStrings, 32, v104);
-                  if ( DDL_MoveToPath(&fromState, &toState, v104[0], (const char **)navStrings) )
+                  v19 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.attachmentSetup.%d.attachment", v13, mm, (unsigned int)nn);
+                  Com_ParseNavStrings(v19, (const char **)navStrings, 32, v84);
+                  if ( DDL_MoveToPath(&fromState, &toState, v84[0], (const char **)navStrings) )
                     DDL_SetString(&toState, &context, (const char *)&queryFormat.fmt + 3);
-                  v22 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.attachmentSetup.%d.variantID", v14, mm, (unsigned int)nn);
-                  Com_ParseNavStrings(v22, (const char **)navStrings, 32, &v96);
-                  if ( DDL_MoveToPath(&fromState, &toState, v96, (const char **)navStrings) )
+                  v20 = j_va("squadMembers.loadouts.%d.weaponSetups.%d.attachmentSetup.%d.variantID", v13, mm, (unsigned int)nn);
+                  Com_ParseNavStrings(v20, (const char **)navStrings, 32, &v76);
+                  if ( DDL_MoveToPath(&fromState, &toState, v76, (const char **)navStrings) )
                     DDL_SetInt(&toState, &context, 0);
                 }
               }
             }
           }
-          ++v14;
+          ++v13;
         }
-        while ( (int)v14 < 10 );
-        v8 = v97;
+        while ( (int)v13 < 10 );
+        v8 = v77;
       }
     }
   }
@@ -4644,7 +4520,7 @@ void Online_Loot::SetNewUnlock(Online_Loot *this, const int controllerIndex, con
   state.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0A8h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( Online_Loot::GetIsNewBitmask(this, controllerIndex, id, &state, &ddlContext, &v5, &v8) )
     DDL_SetInt(&state, &ddlContext, (1 << (v8 % 32)) | v5);
 }
@@ -5022,8 +4898,8 @@ __int64 Online_Loot::ValidateContentCreator(Online_Loot *this, const int control
   __int64 v15; 
   char v16; 
   StatsSource ActiveStatsSource; 
-  char *v20; 
-  char *v21; 
+  char *v18; 
+  char *v19; 
   int Int_Internal_DebugName; 
   unsigned int UTC; 
   int navStringCount; 
@@ -5037,11 +4913,11 @@ __int64 Online_Loot::ValidateContentCreator(Online_Loot *this, const int control
   toState.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+1120h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+1120h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( !this->m_hasContentCreatorList )
     return 3i64;
   v9 = DVARBOOL_online_content_creator_code_should_do_full_string_compare;
@@ -5087,19 +4963,14 @@ LABEL_15:
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
     return 5i64;
-  _RAX = DDL_GetRootState(&result, context.def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+1120h+fromState.isValid], ymm0
-  }
-  v20 = j_va("nonGameData.influencerCode");
-  Com_ParseNavStrings(v20, (const char **)navStrings, 32, &navStringCount);
+  fromState = *DDL_GetRootState(&result, context.def);
+  v18 = j_va("nonGameData.influencerCode");
+  Com_ParseNavStrings(v18, (const char **)navStrings, 32, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     return 5i64;
   DDL_SetString(&toState, &context, code);
-  v21 = j_va("nonGameData.influencerCodeTime");
-  Com_ParseNavStrings(v21, (const char **)navStrings, 32, &navStringCount);
+  v19 = j_va("nonGameData.influencerCodeTime");
+  Com_ParseNavStrings(v19, (const char **)navStrings, 32, &navStringCount);
   if ( !DDL_MoveToPath(&fromState, &toState, navStringCount, (const char **)navStrings) )
     return 5i64;
   Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_online_content_creator_code_expiration_time_seconds, "online_content_creator_code_expiration_time_seconds");

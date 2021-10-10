@@ -282,14 +282,9 @@ void AssertMatchRulesVersionIsSet(MatchRules *matchRules)
   DDLHeader result; 
 
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
-  _RAX = DDL_GetHeader(&result, matchRules, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vextractf128 xmm0, ymm0, 1
-    vmovd   ecx, xmm0
-  }
-  if ( (_WORD)_ECX != Asset->version && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 1370, ASSERT_TYPE_ASSERT, "(bufferHeader.version == def->version)", (const char *)&queryFormat, "bufferHeader.version == def->version") )
+  _YMM0 = *(__m256i *)DDL_GetHeader(&result, matchRules, 0);
+  __asm { vextractf128 xmm0, ymm0, 1 }
+  if ( (_WORD)_XMM0 != Asset->version && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 1370, ASSERT_TYPE_ASSERT, "(bufferHeader.version == def->version)", (const char *)&queryFormat, "bufferHeader.version == def->version") )
     __debugbreak();
 }
 
@@ -1126,101 +1121,78 @@ BG_MatchRulesHistory_SaveAppendToFront_DeleteSaveSlot
 */
 void BG_MatchRulesHistory_SaveAppendToFront_DeleteSaveSlot(int deleteIdx, MatchRulesSaveHeader *header, unsigned __int8 *saveBuffer)
 {
-  unsigned __int16 v15; 
-  int v16; 
-  int v17; 
-  __int64 v18; 
-  MatchRulesSaveHeader::SavedSlot *v19; 
-  MatchRulesSaveHeader::SavedSlot *v20; 
-  unsigned __int8 *v21; 
-  __int64 v22; 
+  int v6; 
+  int v7; 
+  __int64 v8; 
+  MatchRulesSaveHeader::SavedSlot *v9; 
+  MatchRulesSaveHeader::SavedSlot *v10; 
+  __int64 v11; 
   unsigned __int8 **p_dataStart; 
   unsigned __int8 *dataStart; 
-  __int64 v26; 
-  int v27; 
-  unsigned __int16 v28; 
-  void *v29; 
-  __int64 v30; 
-  __int64 v31; 
+  __int64 v15; 
+  int v16; 
+  __m256i v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _R9 = (__int16 *)&v28;
-  v31 = deleteIdx;
-  v30 = deleteIdx;
-  _RAX = &header->slot[v30];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [r9], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [r9+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [r9+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [r9+60h], ymm0
-    vmovups ymmword ptr [r9+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [r9+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0C0h]
-    vmovups xmmword ptr [r9+0C0h], xmm1
-  }
+  v19 = deleteIdx;
+  v18 = deleteIdx;
+  v17 = *(__m256i *)&header->slot[v18].dataLen;
   if ( (unsigned int)deleteIdx >= 0xA )
   {
-    v27 = 10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 928, ASSERT_TYPE_ASSERT, "(unsigned)( deleteIdx ) < (unsigned)( 10 )", "deleteIdx doesn't index MATCH_RULES_MAX_SAVESLOTS\n\t%i not in [0, %i)", deleteIdx, v27) )
+    v16 = 10;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 928, ASSERT_TYPE_ASSERT, "(unsigned)( deleteIdx ) < (unsigned)( 10 )", "deleteIdx doesn't index MATCH_RULES_MAX_SAVESLOTS\n\t%i not in [0, %i)", deleteIdx, v16) )
       __debugbreak();
   }
   AssertHeaderIsValid(header, saveBuffer);
-  v15 = v28;
   if ( deleteIdx < 9 )
   {
-    v16 = 9 - deleteIdx;
+    v6 = 9 - deleteIdx;
     if ( 208 * (9 - deleteIdx) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 937, ASSERT_TYPE_ASSERT, "(0 <= static_cast<int>(( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot )))", "%s\n\tMemmove has negative length. (( MATCH_RULES_MAX_SAVESLOTS - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))", "0 <= static_cast<int>(( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))") )
       __debugbreak();
-    v17 = deleteIdx + 1;
-    v18 = v16;
-    v19 = &header->slot[v17];
-    if ( (v19 < header->slot || &header->slot[v17 + (__int64)v16] > (MatchRulesSaveHeader::SavedSlot *)&header[1]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 937, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot ))))", "%s\n\tMemmove from (&header->slot[deleteIdx + 1]) exceeded bounds of header->slot", "reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot )))") )
+    v7 = deleteIdx + 1;
+    v8 = v6;
+    v9 = &header->slot[v7];
+    if ( (v9 < header->slot || &header->slot[v7 + (__int64)v6] > (MatchRulesSaveHeader::SavedSlot *)&header[1]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 937, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot ))))", "%s\n\tMemmove from (&header->slot[deleteIdx + 1]) exceeded bounds of header->slot", "reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx + 1]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot )))") )
       __debugbreak();
-    v20 = &header->slot[v30];
-    if ( (v20 < header->slot || &header->slot[v31 + v18] > (MatchRulesSaveHeader::SavedSlot *)&header[1]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 937, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((&header->slot[deleteIdx])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot ))))", "%s\n\tMemmove to (&header->slot[deleteIdx]) exceeded bounds of header->slot", "reinterpret_cast<const byte*>((&header->slot[deleteIdx])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot )))") )
+    v10 = &header->slot[v18];
+    if ( (v10 < header->slot || &header->slot[v19 + v8] > (MatchRulesSaveHeader::SavedSlot *)&header[1]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 937, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((&header->slot[deleteIdx])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot ))))", "%s\n\tMemmove to (&header->slot[deleteIdx]) exceeded bounds of header->slot", "reinterpret_cast<const byte*>((&header->slot[deleteIdx])) >= reinterpret_cast<const byte*>((header->slot)) && reinterpret_cast<const byte*>((&header->slot[deleteIdx]))+((( 10 - ( deleteIdx + 1 ) ) * sizeof( MatchRulesSaveHeader::SavedSlot ))) <= reinterpret_cast<const byte*>((header->slot))+((sizeof( header->slot )))") )
       __debugbreak();
-    memmove_0(v20, v19, 208 * v18);
-    v21 = (unsigned __int8 *)v29;
-    if ( (signed int)((int)saveBuffer + header->fileLen - v15 - (int)v29) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 942, ASSERT_TYPE_ASSERT, "(0 <= static_cast<int>(&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen )))", "%s\n\tMemmove has negative length. (&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))", "0 <= static_cast<int>(&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))") )
+    memmove_0(v10, v9, 208 * v8);
+    if ( (signed int)((int)saveBuffer + header->fileLen - v17.m256i_u16[0] - v17.m256i_i32[2]) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 942, ASSERT_TYPE_ASSERT, "(0 <= static_cast<int>(&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen )))", "%s\n\tMemmove has negative length. (&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))", "0 <= static_cast<int>(&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))") )
       __debugbreak();
-    if ( (&v21[v15] < saveBuffer || &saveBuffer[header->fileLen] > saveBuffer + 44728) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 942, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile ))))", "%s\n\tMemmove from (slot.dataStart + slot.dataLen) exceeded bounds of saveBuffer", "reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile )))") )
+    if ( (v17.m256i_i64[1] + (unsigned __int64)v17.m256i_u16[0] < (unsigned __int64)saveBuffer || &saveBuffer[header->fileLen] > saveBuffer + 44728) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 942, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile ))))", "%s\n\tMemmove from (slot.dataStart + slot.dataLen) exceeded bounds of saveBuffer", "reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart + slot.dataLen))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile )))") )
       __debugbreak();
-    if ( (v21 < saveBuffer || &saveBuffer[header->fileLen - (unsigned __int64)v15] > saveBuffer + 44728) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 942, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((slot.dataStart)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile ))))", "%s\n\tMemmove to (slot.dataStart) exceeded bounds of saveBuffer", "reinterpret_cast<const byte*>((slot.dataStart)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile )))") )
+    if ( (v17.m256i_i64[1] < (unsigned __int64)saveBuffer || &saveBuffer[header->fileLen - (unsigned __int64)v17.m256i_u16[0]] > saveBuffer + 44728) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 942, ASSERT_TYPE_ASSERT, "(reinterpret_cast<const byte*>((slot.dataStart)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile ))))", "%s\n\tMemmove to (slot.dataStart) exceeded bounds of saveBuffer", "reinterpret_cast<const byte*>((slot.dataStart)) >= reinterpret_cast<const byte*>((saveBuffer)) && reinterpret_cast<const byte*>((slot.dataStart))+((&saveBuffer[header->fileLen] - ( slot.dataStart + slot.dataLen ))) <= reinterpret_cast<const byte*>((saveBuffer))+((sizeof( max_matchrules_savefile )))") )
       __debugbreak();
-    memmove_0(v21, &v21[v15], (size_t)&saveBuffer[header->fileLen - (unsigned __int64)v15 - (_QWORD)v21]);
-    if ( v31 < 9 )
+    memmove_0((void *)v17.m256i_i64[1], (const void *)(v17.m256i_u16[0] + v17.m256i_i64[1]), (size_t)&saveBuffer[header->fileLen - (unsigned __int64)v17.m256i_u16[0] - v17.m256i_i64[1]]);
+    if ( v19 < 9 )
     {
-      v22 = 9 - v31;
-      p_dataStart = &header->slot[v30].dataStart;
+      v11 = 9 - v19;
+      p_dataStart = &header->slot[v18].dataStart;
       do
       {
-        *p_dataStart -= v15;
+        *p_dataStart -= v17.m256i_u16[0];
         p_dataStart += 26;
-        --v22;
+        --v11;
       }
-      while ( v22 );
+      while ( v11 );
     }
-    if ( header->slot[v30].dataLen )
+    if ( header->slot[v18].dataLen )
     {
-      dataStart = header->slot[v30].dataStart;
-      if ( dataStart != v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 951, ASSERT_TYPE_SANITY, "(header->slot[deleteIdx].dataLen == 0 || header->slot[deleteIdx].dataStart == slot.dataStart)", "%s\n\t\"0x%p != 0x%p\"", "header->slot[deleteIdx].dataLen == 0 || header->slot[deleteIdx].dataStart == slot.dataStart", dataStart, v21) )
+      dataStart = header->slot[v18].dataStart;
+      if ( dataStart != (unsigned __int8 *)v17.m256i_i64[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 951, ASSERT_TYPE_SANITY, "(header->slot[deleteIdx].dataLen == 0 || header->slot[deleteIdx].dataStart == slot.dataStart)", "%s\n\t\"0x%p != 0x%p\"", "header->slot[deleteIdx].dataLen == 0 || header->slot[deleteIdx].dataStart == slot.dataStart", dataStart, (const void *)v17.m256i_i64[1]) )
         __debugbreak();
     }
   }
   memset_0(&header->slot[9], 0, sizeof(header->slot[9]));
   header->slot[9].dataStart = &header->slot[8].dataStart[header->slot[8].dataLen];
-  header->fileLen -= v15;
+  header->fileLen -= v17.m256i_u16[0];
   AssertHeaderIsValid(header, saveBuffer);
   if ( header->fileLen > 0xAEB8 )
   {
-    LODWORD(v26) = v15;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 964, ASSERT_TYPE_SANITY, "(header->fileLen <= sizeof( max_matchrules_savefile ))", "%s\n\t\"dataLen=%d\"", "header->fileLen <= sizeof( max_matchrules_savefile )", v26) )
+    LODWORD(v15) = v17.m256i_u16[0];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules_history.cpp", 964, ASSERT_TYPE_SANITY, "(header->fileLen <= sizeof( max_matchrules_savefile ))", "%s\n\t\"dataLen=%d\"", "header->fileLen <= sizeof( max_matchrules_savefile )", v15) )
       __debugbreak();
   }
 }

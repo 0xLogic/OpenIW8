@@ -184,74 +184,74 @@ LuaShared_LuaCall_DataModel_GetModelValue
 */
 __int64 LuaShared_LuaCall_DataModel_GetModelValue(lua_State *const luaVM)
 {
-  unsigned int v3; 
+  unsigned int v2; 
+  unsigned __int16 v3; 
   unsigned __int16 v4; 
-  unsigned __int16 v5; 
+  __int32 v5; 
   __int32 v6; 
   __int32 v7; 
-  __int32 v8; 
   const char *String; 
+  double Real; 
   int Int; 
   bool Bool; 
-  unsigned int v13; 
+  unsigned int v12; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: DataModel.GetModelValue( <model> )");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
-    v4 = (unsigned __int16)j_lua_touserdata(luaVM, 1);
-    v5 = v4;
-    if ( !v4 )
+    v3 = (unsigned __int16)j_lua_touserdata(luaVM, 1);
+    v4 = v3;
+    if ( !v3 )
     {
 LABEL_7:
       j_lua_pushnil(luaVM);
       goto LABEL_17;
     }
-    v6 = LUI_Model_GetDataType(v4) - 1;
-    if ( v6 )
+    v5 = LUI_Model_GetDataType(v3) - 1;
+    if ( v5 )
     {
-      v7 = v6 - 1;
-      if ( v7 )
+      v6 = v5 - 1;
+      if ( v6 )
       {
-        v8 = v7 - 1;
-        if ( v8 )
+        v7 = v6 - 1;
+        if ( v7 )
         {
-          if ( v8 != 1 )
+          if ( v7 != 1 )
             goto LABEL_7;
-          String = LUI_Model_GetString(v5);
+          String = LUI_Model_GetString(v4);
           j_lua_pushstring(luaVM, String);
         }
         else
         {
-          *(double *)&_XMM0 = LUI_Model_GetReal(v5);
-          __asm { vcvtss2sd xmm1, xmm0, xmm0; n }
-          j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+          Real = LUI_Model_GetReal(v4);
+          j_lua_pushnumber(luaVM, *(float *)&Real);
         }
       }
       else
       {
-        Int = LUI_Model_GetInt(v5);
+        Int = LUI_Model_GetInt(v4);
         j_lua_pushinteger(luaVM, Int);
       }
     }
     else
     {
-      Bool = LUI_Model_GetBool(v5);
+      Bool = LUI_Model_GetBool(v4);
       j_lua_pushboolean(luaVM, Bool);
     }
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
 LABEL_17:
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v13 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v13);
+    v12 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v12);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -259,59 +259,44 @@ LABEL_17:
 LuaShared_LuaCall_DataModel_SetModelValue
 ==============
 */
-
-__int64 __fastcall LuaShared_LuaCall_DataModel_SetModelValue(lua_State *const luaVM, double _XMM1_8)
+__int64 LuaShared_LuaCall_DataModel_SetModelValue(lua_State *const luaVM)
 {
-  unsigned __int16 v4; 
+  unsigned __int16 v2; 
+  int v3; 
+  double v4; 
   int v5; 
-  char v10; 
-  char v11; 
-  int v13; 
-  const char *v14; 
-  unsigned int v15; 
+  const char *v6; 
+  unsigned int v7; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: DataModel.SetModelValue( <model>, <value> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) )
   {
-    v4 = (unsigned __int16)j_lua_touserdata(luaVM, 1);
+    v2 = (unsigned __int16)j_lua_touserdata(luaVM, 1);
     if ( j_lua_type(luaVM, 2) == 3 )
     {
-      v5 = lua_tointeger32(luaVM, 2);
-      *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, esi
-        vsubss  xmm2, xmm0, xmm1
-        vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm2, cs:__real@3a83126f
-      }
-      if ( v10 | v11 )
-      {
-        LUI_Model_SetInt(v4, v5);
-      }
+      v3 = lua_tointeger32(luaVM, 2);
+      v4 = lua_tonumber32(luaVM, 2);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v4 - (float)v3) & _xmm) > 0.001 )
+        LUI_Model_SetReal(v2, *(float *)&v4);
       else
-      {
-        __asm { vmovaps xmm1, xmm0; newValue }
-        LUI_Model_SetReal(v4, *(float *)&_XMM1);
-      }
+        LUI_Model_SetInt(v2, v3);
     }
     else if ( j_lua_type(luaVM, 2) == 1 )
     {
-      v13 = j_lua_toboolean(luaVM, 2);
-      LUI_Model_SetBool(v4, v13 != 0);
+      v5 = j_lua_toboolean(luaVM, 2);
+      LUI_Model_SetBool(v2, v5 != 0);
     }
     else if ( j_lua_isstring(luaVM, 2) )
     {
-      v14 = j_lua_tolstring(luaVM, 2, NULL);
-      LUI_Model_SetString(v4, v14);
+      v6 = j_lua_tolstring(luaVM, 2, NULL);
+      LUI_Model_SetString(v2, v6);
     }
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v15 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v15);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
   }
   return 0i64;
 }

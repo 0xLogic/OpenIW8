@@ -71,8 +71,14 @@ AIScriptedInterface::Death_ForceFall
 void AIScriptedInterface::Death_ForceFall(AIScriptedInterface *this)
 {
   gentity_s *ent; 
+  float frameDuration; 
   ai_scripted_t *m_pAI; 
+  ai_scripted_t *v5; 
   unsigned __int16 EntityHitId; 
+  ai_scripted_t *v7; 
+  gentity_s *v8; 
+  float v9; 
+  float *p_number; 
   vec3_t end; 
   trace_t results; 
 
@@ -81,84 +87,36 @@ void AIScriptedInterface::Death_ForceFall(AIScriptedInterface *this)
     __debugbreak();
   if ( (ent->flags.m_flags[1] & 8) != 0 )
   {
-    __asm { vmovaps [rsp+0C8h+var_18], xmm6 }
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    }
+    frameDuration = (float)level.frameDuration;
     AIScriptedInterface::Physics_UpdatePrevGround(&this->m_pAI->Physics);
     this->m_pAI->eScriptSetAnimMode = AI_ANIM_NOPHYSICS;
-    _RCX = this->m_pAI;
-    _RAX = _RCX->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+130h]
-      vmovss  dword ptr [rsp+0C8h+end], xmm0
-      vmovss  xmm1, dword ptr [rax+134h]
-      vmovss  dword ptr [rsp+0C8h+end+4], xmm1
-      vmovss  xmm0, dword ptr [rax+138h]
-      vmulss  xmm1, xmm6, cs:__real@3e99999a
-      vmovss  dword ptr [rsp+0C8h+end+8], xmm0
-      vmovss  xmm0, dword ptr [rcx+0A34h]
-      vsubss  xmm1, xmm0, xmm1
-      vmovss  dword ptr [rcx+0A34h], xmm1
-    }
     m_pAI = this->m_pAI;
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rdx+0A34h]
-      vmulss  xmm2, xmm0, cs:__real@3a83126f
-      vaddss  xmm2, xmm2, dword ptr [rsp+0C8h+end+8]
-      vmovss  dword ptr [rsp+0C8h+end+8], xmm2
-    }
-    G_Main_TraceCapsule(&results, &m_pAI->ent->r.currentOrigin, &end, &bounds_origin, 0, m_pAI->ent->clipmask & 0xFDFFBFFF);
+    end = m_pAI->ent->r.currentOrigin;
+    m_pAI->fallDeathSpeed = m_pAI->fallDeathSpeed - (float)(frameDuration * 0.30000001);
+    v5 = this->m_pAI;
+    end.v[2] = (float)((float)(frameDuration * v5->fallDeathSpeed) * 0.001) + end.v[2];
+    G_Main_TraceCapsule(&results, &v5->ent->r.currentOrigin, &end, &bounds_origin, 0, v5->ent->clipmask & 0xFDFFBFFF);
     EntityHitId = Trace_GetEntityHitId(&results);
-    _RCX = this->m_pAI;
+    v7 = this->m_pAI;
     if ( EntityHitId == 2046 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0C8h+end]
-        vmovss  xmm5, [rsp+0C8h+results.fraction]
-        vsubss  xmm1, xmm0, dword ptr [rax+130h]
-        vmovss  xmm0, dword ptr [rsp+0C8h+end+4]
-        vmulss  xmm1, xmm1, xmm5
-        vaddss  xmm6, xmm1, dword ptr [rax+130h]
-        vmovss  dword ptr [rsp+0C8h+end], xmm6
-        vsubss  xmm1, xmm0, dword ptr [rax+134h]
-        vmovss  xmm0, dword ptr [rsp+0C8h+end+8]
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm3, xmm2, dword ptr [rax+134h]
-        vmovss  dword ptr [rsp+0C8h+end+4], xmm3
-        vsubss  xmm1, xmm0, dword ptr [rax+138h]
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm3, xmm2, dword ptr [rax+138h]
-        vmovss  dword ptr [rsp+0C8h+end+8], xmm3
-      }
+      v8 = v7->ent;
+      v9 = (float)((float)(end.v[0] - v7->ent->r.currentOrigin.v[0]) * results.fraction) + v7->ent->r.currentOrigin.v[0];
+      end.v[0] = v9;
+      end.v[1] = (float)((float)(end.v[1] - v8->r.currentOrigin.v[1]) * results.fraction) + v8->r.currentOrigin.v[1];
+      end.v[2] = (float)((float)(end.v[2] - v8->r.currentOrigin.v[2]) * results.fraction) + v8->r.currentOrigin.v[2];
     }
     else
     {
-      __asm { vmovss  xmm6, dword ptr [rsp+0C8h+end] }
+      v9 = end.v[0];
     }
-    _RAX = _RCX->ent;
-    __asm
-    {
-      vmovss  dword ptr [rax+130h], xmm6
-      vmovss  xmm0, dword ptr [rsp+0C8h+end+4]
-      vmovaps xmm6, [rsp+0C8h+var_18]
-      vmovss  dword ptr [rax+134h], xmm0
-      vmovss  xmm1, dword ptr [rsp+0C8h+end+8]
-      vmovss  dword ptr [rax+138h], xmm1
-      vmovss  xmm0, dword ptr [rsp+0C8h+end]
-      vmovss  dword ptr [rcx+82Ch], xmm0
-      vmovss  xmm1, dword ptr [rsp+0C8h+end+4]
-      vmovss  dword ptr [rcx+830h], xmm1
-      vmovss  xmm0, dword ptr [rsp+0C8h+end+8]
-      vmovss  dword ptr [rcx+834h], xmm0
-    }
+    p_number = (float *)&v7->ent->s.number;
+    p_number[76] = v9;
+    p_number[77] = end.v[1];
+    p_number[78] = end.v[2];
+    v7->Physics.vOrigin = end;
   }
 }
 

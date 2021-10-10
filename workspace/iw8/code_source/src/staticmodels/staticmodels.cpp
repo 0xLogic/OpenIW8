@@ -699,35 +699,36 @@ void StaticModels_CreateClipmapShapes(const unsigned int staticModelZoneIdx)
   unsigned int v24; 
   __int64 v25; 
   __int64 v26; 
+  const vec3_t *v27; 
+  unsigned int v28; 
   unsigned int v29; 
-  unsigned int v31; 
-  unsigned int v33; 
+  unsigned int v30; 
+  hkMemoryAllocator *v31; 
+  __int64 v32; 
+  hkRefPtr<hknpShape const > *p_m_shape; 
   hkMemoryAllocator *v34; 
   __int64 v35; 
-  hkRefPtr<hknpShape const > *p_m_shape; 
-  hkMemoryAllocator *v37; 
-  __int64 v38; 
-  hkRefPtr<hknpShape const > *v39; 
-  __int64 v40; 
-  int v41; 
-  hkArray<hknpShapeInstance,hkContainerHeapAllocator> v43; 
+  hkRefPtr<hknpShape const > *v36; 
+  __int64 v37; 
+  int v38; 
+  hkArray<hknpShapeInstance,hkContainerHeapAllocator> v40; 
   int zoneIndex; 
-  int v45; 
+  int v42; 
   hkArray<hknpShapeInstance,hkContainerHeapAllocator> instanceArray; 
   StaticModelCollisionModelList *staticModelCollisionModelLists; 
+  __int64 v45; 
+  __int64 v46; 
+  const char *v47; 
   __int64 v48; 
-  __int64 v49; 
-  const char *v50; 
-  __int64 v51; 
   vec4_t quat; 
 
-  v51 = -2i64;
+  v48 = -2i64;
   v1 = staticModelZoneIdx;
   if ( staticModelZoneIdx < cm.numStaticModelCollisionModelLists )
   {
     v2 = staticModelZoneIdx;
     v3 = 3i64 * staticModelZoneIdx;
-    v49 = v3;
+    v46 = v3;
     staticModelCollisionModelLists = cm.staticModelCollisionModelLists;
     if ( cm.staticModelCollisionModelLists[staticModelZoneIdx].numModels )
     {
@@ -756,7 +757,7 @@ void StaticModels_CreateClipmapShapes(const unsigned int staticModelZoneIdx)
           {
             ZoneIndexFromWorldTransientIndex = DB_Zones_GetZoneIndexFromWorldTransientIndex(v1);
             ZoneNameFromIndex = DB_Zones_GetZoneNameFromIndex(ZoneIndexFromWorldTransientIndex);
-            v50 = ZoneNameFromIndex;
+            v47 = ZoneNameFromIndex;
             v15 = j_va("StaticModels_CreateClipmapShapes-%s", ZoneNameFromIndex);
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, v15);
             zoneIndex = 0xFFFF;
@@ -767,15 +768,15 @@ void StaticModels_CreateClipmapShapes(const unsigned int staticModelZoneIdx)
             }
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Collect Shape Instances");
             v16 = 0;
-            v41 = 0;
+            v38 = 0;
             instanceArray.m_data = NULL;
             instanceArray.m_size = 0;
             instanceArray.m_capacityAndFlags = 0x80000000;
-            v43.m_data = NULL;
-            v43.m_size = 0;
-            v43.m_capacityAndFlags = 0x80000000;
+            v40.m_data = NULL;
+            v40.m_size = 0;
+            v40.m_capacityAndFlags = 0x80000000;
             v17 = 0i64;
-            v45 = 0;
+            v42 = 0;
             v18 = staticModelCollisionModelLists;
             if ( staticModelCollisionModelLists[v1].numModels )
             {
@@ -783,7 +784,7 @@ void StaticModels_CreateClipmapShapes(const unsigned int staticModelZoneIdx)
               {
                 v19 = 5 * v17;
                 v20 = *((_QWORD *)&v18->models + v3);
-                v48 = v20;
+                v45 = v20;
                 modelDetailCollision = NULL;
                 v22 = *(const PhysicsAsset **)(v20 + 40 * v17 + 8);
                 if ( (_DWORD)v1 )
@@ -814,58 +815,55 @@ void StaticModels_CreateClipmapShapes(const unsigned int staticModelZoneIdx)
                   v26 = v24;
                   do
                   {
-                    _RSI = (const vec3_t *)(v25 + *(_QWORD *)(v20 + 8 * v19 + 32));
-                    AnglesToQuat(_RSI + 1, &quat);
+                    v27 = (const vec3_t *)(v25 + *(_QWORD *)(v20 + 8 * v19 + 32));
+                    AnglesToQuat(v27 + 1, &quat);
                     if ( v22 )
                     {
-                      __asm { vmovss  xmm2, dword ptr [rsi+18h]; scale }
-                      v29 = Physics_AddPhysicsAssetShapesToInstanceList(v22, _RSI, *(const float *)&_XMM2, &quat, &instanceArray);
-                      v41 |= Physics_GetPhysicsAssetContents(v22);
-                      StaticModels_Debug_AddSimulationShapeInstanceCount(staticModelZoneIdx, v29);
+                      v28 = Physics_AddPhysicsAssetShapesToInstanceList(v22, v27, v27[2].v[0], &quat, &instanceArray);
+                      v38 |= Physics_GetPhysicsAssetContents(v22);
+                      StaticModels_Debug_AddSimulationShapeInstanceCount(staticModelZoneIdx, v28);
                     }
                     if ( modelDetailCollision )
                     {
-                      __asm { vmovss  xmm2, dword ptr [rsi+18h]; scale }
-                      v31 = Physics_AddDetailCollisionShapesToInstanceList(modelDetailCollision, _RSI, *(const float *)&_XMM2, &quat, &v43);
-                      v16 = Physics_GetDetailCollisionContents(modelDetailCollision) | v41;
-                      v41 = v16;
-                      StaticModels_Debug_AddDetailShapeInstanceCount(staticModelZoneIdx, v31);
+                      v29 = Physics_AddDetailCollisionShapesToInstanceList(modelDetailCollision, v27, v27[2].v[0], &quat, &v40);
+                      v16 = Physics_GetDetailCollisionContents(modelDetailCollision) | v38;
+                      v38 = v16;
+                      StaticModels_Debug_AddDetailShapeInstanceCount(staticModelZoneIdx, v29);
                     }
                     else if ( v22 )
                     {
-                      __asm { vmovss  xmm2, dword ptr [rsi+18h]; scale }
-                      v33 = Physics_AddPhysicsAssetShapesToInstanceList(v22, _RSI, *(const float *)&_XMM2, &quat, &v43);
-                      v16 = Physics_GetPhysicsAssetContents(v22) | v41;
-                      v41 = v16;
-                      StaticModels_Debug_AddSimulationShapeInstanceCount(staticModelZoneIdx, v33);
+                      v30 = Physics_AddPhysicsAssetShapesToInstanceList(v22, v27, v27[2].v[0], &quat, &v40);
+                      v16 = Physics_GetPhysicsAssetContents(v22) | v38;
+                      v38 = v16;
+                      StaticModels_Debug_AddSimulationShapeInstanceCount(staticModelZoneIdx, v30);
                     }
                     else
                     {
-                      v16 = v41;
+                      v16 = v38;
                     }
                     v25 += 28i64;
                     --v26;
-                    v20 = v48;
+                    v20 = v45;
                   }
                   while ( v26 );
                   LODWORD(v1) = staticModelZoneIdx;
-                  v3 = v49;
+                  v3 = v46;
                 }
-                v17 = (unsigned int)(v45 + 1);
-                v45 = v17;
+                v17 = (unsigned int)(v42 + 1);
+                v42 = v17;
                 v18 = staticModelCollisionModelLists;
               }
               while ( (unsigned int)v17 < *(&staticModelCollisionModelLists->numModels + 2 * v3) );
               v2 = (unsigned int)v1;
-              ZoneNameFromIndex = v50;
+              ZoneNameFromIndex = v47;
             }
             Sys_ProfEndNamedEvent();
             if ( (_DWORD)v1 )
               DB_UnlockTableForRead();
             if ( s_staticModels_SimulationShapes[v2] )
             {
-              LODWORD(v40) = v1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 491, ASSERT_TYPE_ASSERT, "(s_staticModels_SimulationShapes[staticModelZoneIdx] == nullptr)", "%s\n\tStatic Model Sim Shape %i is not null (is %s) when loading %s", "s_staticModels_SimulationShapes[staticModelZoneIdx] == nullptr", v40, s_staticModels_ShapeNames[v2], ZoneNameFromIndex) )
+              LODWORD(v37) = v1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 491, ASSERT_TYPE_ASSERT, "(s_staticModels_SimulationShapes[staticModelZoneIdx] == nullptr)", "%s\n\tStatic Model Sim Shape %i is not null (is %s) when loading %s", "s_staticModels_SimulationShapes[staticModelZoneIdx] == nullptr", v37, s_staticModels_ShapeNames[v2], ZoneNameFromIndex) )
                 __debugbreak();
             }
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Make simulation shape");
@@ -873,52 +871,52 @@ void StaticModels_CreateClipmapShapes(const unsigned int staticModelZoneIdx)
             Sys_ProfEndNamedEvent();
             if ( s_staticModels_DetailShapes[v2] )
             {
-              LODWORD(v40) = v1;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 496, ASSERT_TYPE_ASSERT, "(s_staticModels_DetailShapes[staticModelZoneIdx] == nullptr)", "%s\n\tStatic Model Detail Shape %i is not null (is %s) when loading %s", "s_staticModels_DetailShapes[staticModelZoneIdx] == nullptr", v40, s_staticModels_ShapeNames[v2], ZoneNameFromIndex) )
+              LODWORD(v37) = v1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 496, ASSERT_TYPE_ASSERT, "(s_staticModels_DetailShapes[staticModelZoneIdx] == nullptr)", "%s\n\tStatic Model Detail Shape %i is not null (is %s) when loading %s", "s_staticModels_DetailShapes[staticModelZoneIdx] == nullptr", v37, s_staticModels_ShapeNames[v2], ZoneNameFromIndex) )
                 __debugbreak();
             }
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Make detail shape");
-            s_staticModels_DetailShapes[v2] = Physics_CreateShapeCompound(&v43);
+            s_staticModels_DetailShapes[v2] = Physics_CreateShapeCompound(&v40);
             Sys_ProfEndNamedEvent();
             s_staticModels_ShapeContents[v2] = v16;
             Core_strcpy(s_staticModels_ShapeNames[v2], 0x40ui64, ZoneNameFromIndex);
             Sys_ProfEndNamedEvent();
-            v34 = hkMemHeapAllocator();
-            v35 = v43.m_size - 1;
-            if ( v43.m_size - 1 >= 0 )
+            v31 = hkMemHeapAllocator();
+            v32 = v40.m_size - 1;
+            if ( v40.m_size - 1 >= 0 )
             {
-              p_m_shape = &v43.m_data[v35].m_shape;
+              p_m_shape = &v40.m_data[v32].m_shape;
               do
               {
                 if ( p_m_shape->m_ptr )
                   hkReferencedObject::removeReference(&p_m_shape->m_ptr->hkReferencedObject);
                 p_m_shape -= 14;
+                --v32;
+              }
+              while ( v32 >= 0 );
+            }
+            v40.m_size = 0;
+            if ( v40.m_capacityAndFlags >= 0 )
+              hkMemoryAllocator::bufFree2(v31, v40.m_data, 112, v40.m_capacityAndFlags & 0x3FFFFFFF);
+            v40.m_data = NULL;
+            v40.m_capacityAndFlags = 0x80000000;
+            v34 = hkMemHeapAllocator();
+            v35 = instanceArray.m_size - 1;
+            if ( instanceArray.m_size - 1 >= 0 )
+            {
+              v36 = &instanceArray.m_data[v35].m_shape;
+              do
+              {
+                if ( v36->m_ptr )
+                  hkReferencedObject::removeReference(&v36->m_ptr->hkReferencedObject);
+                v36 -= 14;
                 --v35;
               }
               while ( v35 >= 0 );
             }
-            v43.m_size = 0;
-            if ( v43.m_capacityAndFlags >= 0 )
-              hkMemoryAllocator::bufFree2(v34, v43.m_data, 112, v43.m_capacityAndFlags & 0x3FFFFFFF);
-            v43.m_data = NULL;
-            v43.m_capacityAndFlags = 0x80000000;
-            v37 = hkMemHeapAllocator();
-            v38 = instanceArray.m_size - 1;
-            if ( instanceArray.m_size - 1 >= 0 )
-            {
-              v39 = &instanceArray.m_data[v38].m_shape;
-              do
-              {
-                if ( v39->m_ptr )
-                  hkReferencedObject::removeReference(&v39->m_ptr->hkReferencedObject);
-                v39 -= 14;
-                --v38;
-              }
-              while ( v38 >= 0 );
-            }
             instanceArray.m_size = 0;
             if ( instanceArray.m_capacityAndFlags >= 0 )
-              hkMemoryAllocator::bufFree2(v37, instanceArray.m_data, 112, instanceArray.m_capacityAndFlags & 0x3FFFFFFF);
+              hkMemoryAllocator::bufFree2(v34, instanceArray.m_data, 112, instanceArray.m_capacityAndFlags & 0x3FFFFFFF);
             return;
           }
         }
@@ -2233,73 +2231,42 @@ StaticModels_IsCollisionReadyAt
 char StaticModels_IsCollisionReadyAt(const Physics_WorldId worldId, const vec2_t *position)
 {
   __int64 v2; 
-  int v17; 
-  int v18; 
-  const CollisionTile *v19; 
-  __int64 v20; 
-  __int64 v21; 
-  int v22; 
-  int v23; 
+  int v5; 
+  int v6; 
+  int v7; 
+  int v8; 
+  const CollisionTile *v9; 
+  __int64 v10; 
+  __int64 v11; 
 
   v2 = worldId;
-  _RDI = position;
   if ( (unsigned int)worldId >= PHYSICS_WORLD_ID_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 1056, ASSERT_TYPE_ASSERT, "(unsigned)( worldId ) < (unsigned)( PHYSICS_WORLD_ID_COUNT )", "worldId doesn't index PHYSICS_WORLD_ID_COUNT\n\t%i not in [0, %i)", worldId, 8) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-  {
-LABEL_22:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 1057, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(position->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(position->v[1]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 1057, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] )") )
+    __debugbreak();
   if ( !s_staticModels_NumTilesToExpect )
     return s_staticModels_PhysicsInstances[0][v2] != -1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm2, cs:__real@c8000000
-    vmovss  xmm3, cs:__real@39000000
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm0, xmm1, xmm3
-    vcvttss2si eax, xmm0
-  }
-  if ( (unsigned __int16)_EAX > 0x1Fu )
+  v5 = (int)(float)((float)(position->v[0] - -131072.0) * 0.00012207031);
+  if ( (unsigned __int16)v5 > 0x1Fu )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm2, xmm1, xmm3
-    vcvttss2si ecx, xmm2
-  }
-  if ( (unsigned __int16)_ECX > 0x1Fu )
+  v6 = (int)(float)((float)(position->v[1] - -131072.0) * 0.00012207031);
+  if ( (unsigned __int16)v6 > 0x1Fu )
     return 0;
-  v17 = (__int16)_EAX;
-  v18 = (__int16)_ECX;
-  v19 = g_staticModels_CollisionTiles[(__int16)_EAX + 32 * (__int16)_ECX];
-  if ( !v19 )
+  v7 = (__int16)v5;
+  v8 = (__int16)v6;
+  v9 = g_staticModels_CollisionTiles[(__int16)v5 + 32 * (__int16)v6];
+  if ( !v9 )
     return 0;
-  if ( !v19->staticModelCollision->numModels )
+  if ( !v9->staticModelCollision->numModels )
     return 1;
   if ( (unsigned int)v2 >= 8 )
   {
-    LODWORD(v21) = 8;
-    LODWORD(v20) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 1044, ASSERT_TYPE_ASSERT, "(unsigned)( worldId ) < (unsigned)( PHYSICS_WORLD_ID_COUNT )", "worldId doesn't index PHYSICS_WORLD_ID_COUNT\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v11) = 8;
+    LODWORD(v10) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels.cpp", 1044, ASSERT_TYPE_ASSERT, "(unsigned)( worldId ) < (unsigned)( PHYSICS_WORLD_ID_COUNT )", "worldId doesn't index PHYSICS_WORLD_ID_COUNT\n\t%i not in [0, %i)", v10, v11) )
       __debugbreak();
   }
-  return s_staticModels_TilePhysicsInstances[v17][v18][v2] != -1;
+  return s_staticModels_TilePhysicsInstances[v7][v8][v2] != -1;
 }
 
 /*

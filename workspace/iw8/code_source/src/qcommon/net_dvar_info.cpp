@@ -262,17 +262,11 @@ LABEL_5:
 AppendDvarInfoFloatKVP
 ==============
 */
-
-void __fastcall AppendDvarInfoFloatKVP(StringAppendBuffer *buffer, const char *key, double value, bool first)
+void AppendDvarInfoFloatKVP(StringAppendBuffer *buffer, const char *key, const float value, bool first)
 {
   char dest[16]; 
 
-  __asm
-  {
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmovq   r9, xmm3
-  }
-  Com_sprintf_truncate(dest, 0x10ui64, "%f", *(double *)&_XMM3);
+  Com_sprintf_truncate(dest, 0x10ui64, "%f", value);
   AppendDvarInfoKVP(buffer, key, dest, first);
 }
 
@@ -737,6 +731,7 @@ GetSingleDvarInfo
 void GetSingleDvarInfo(StringAppendBuffer *buffer, const char *dvarName)
 {
   const dvar_t *VarByName; 
+  const dvar_t *v5; 
   char *m_writePos; 
   const char *v7; 
   char v8; 
@@ -751,33 +746,33 @@ void GetSingleDvarInfo(StringAppendBuffer *buffer, const char *dvarName)
   const char *v17; 
   char v18; 
   const char *description; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  char *v23; 
+  const char *v24; 
+  char v25; 
+  int v26; 
+  __int64 v27; 
+  char *v28; 
   const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  char *v32; 
-  const char *v33; 
-  char v34; 
-  int v35; 
-  __int64 v36; 
+  char v30; 
+  char *v31; 
+  const char *v32; 
+  char v33; 
+  char *v34; 
+  const char *v35; 
+  char v36; 
   char *v37; 
   const char *v38; 
   char v39; 
-  char *v40; 
+  const char *v40; 
   const char *v41; 
-  char v42; 
-  char *v43; 
-  const char *v44; 
-  char v45; 
-  char *v46; 
-  const char *v47; 
-  char v48; 
-  const char *v49; 
-  const char *v50; 
-  const char *v51; 
+  const char *v42; 
   char dest[16]; 
 
   VarByName = Dvar_FindVarByName(dvarName);
-  _RDI = VarByName;
+  v5 = VarByName;
   if ( !VarByName )
   {
     m_writePos = buffer->m_writePos;
@@ -837,7 +832,7 @@ LABEL_11:
     return;
   }
   v12 = Dvar_DisplayableValue(VarByName);
-  type = _RDI->type;
+  type = v5->type;
   v14 = v12;
   AppendDvarInfoBegin(buffer, dvarName);
   if ( type )
@@ -847,60 +842,42 @@ LABEL_11:
       case 1u:
         AppendDvarInfoKVP(buffer, "Type", "float", 0);
         AppendDvarInfoKVP(buffer, "Value", v14, 0);
-        description = _RDI->description;
+        description = v5->description;
         if ( description && *description )
           AppendDvarInfoKVP(buffer, "Description", description, 0);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rdi+58h]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf_truncate(dest, 0x10ui64, "%f", *(double *)&_XMM3);
+        Com_sprintf_truncate(dest, 0x10ui64, "%f", v5->domain.value.min);
         AppendDvarInfoKVP(buffer, "Min", dest, 0);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rdi+5Ch]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf_truncate(dest, 0x10ui64, "%f", *(double *)&_XMM3);
+        Com_sprintf_truncate(dest, 0x10ui64, "%f", v5->domain.value.max);
         AppendDvarInfoKVP(buffer, "Max", dest, 0);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rdi+60h]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf_truncate(dest, 0x10ui64, "%f", *(double *)&_XMM3);
+        Com_sprintf_truncate(dest, 0x10ui64, "%f", v5->domain.value.devguiStep);
         AppendDvarInfoKVP(buffer, "Step", dest, 0);
         goto LABEL_83;
       case 5u:
         AppendDvarInfoKVP(buffer, "Type", "int", 0);
         AppendDvarInfoKVP(buffer, "Value", v14, 0);
-        v29 = _RDI->description;
-        if ( v29 && *v29 )
-          AppendDvarInfoKVP(buffer, "Description", v29, 0);
-        Com_sprintf_truncate(dest, 0x10ui64, "%d", (unsigned int)_RDI->domain.enumeration.stringCount);
+        v20 = v5->description;
+        if ( v20 && *v20 )
+          AppendDvarInfoKVP(buffer, "Description", v20, 0);
+        Com_sprintf_truncate(dest, 0x10ui64, "%d", (unsigned int)v5->domain.enumeration.stringCount);
         AppendDvarInfoKVP(buffer, "Min", dest, 0);
-        Com_sprintf_truncate(dest, 0x10ui64, "%d", (unsigned int)_RDI->domain.integer.max);
+        Com_sprintf_truncate(dest, 0x10ui64, "%d", (unsigned int)v5->domain.integer.max);
         AppendDvarInfoKVP(buffer, "Max", dest, 0);
         goto LABEL_83;
       case 9u:
-        v30 = "string";
+        v21 = "string";
         break;
       case 8u:
         AppendDvarInfoKVP(buffer, "Type", "enum", 0);
         AppendDvarInfoKVP(buffer, "Value", v14, 0);
-        v31 = _RDI->description;
-        if ( v31 && *v31 )
-          AppendDvarInfoKVP(buffer, "Description", v31, 0);
-        v32 = buffer->m_writePos;
-        v33 = ",\"Domain\":[";
-        if ( v32 )
+        v22 = v5->description;
+        if ( v22 && *v22 )
+          AppendDvarInfoKVP(buffer, "Description", v22, 0);
+        v23 = buffer->m_writePos;
+        v24 = ",\"Domain\":[";
+        if ( v23 )
         {
-          v34 = 44;
-          if ( v32 >= buffer->m_bufferEnd )
+          v25 = 44;
+          if ( v23 >= buffer->m_bufferEnd )
           {
 LABEL_41:
             buffer->m_writePos = NULL;
@@ -909,32 +886,32 @@ LABEL_41:
           {
             while ( 1 )
             {
-              *v32 = v34;
-              if ( !v34 )
+              *v23 = v25;
+              if ( !v25 )
                 break;
-              ++v33;
-              v32 = buffer->m_writePos + 1;
-              buffer->m_writePos = v32;
-              v34 = *v33;
-              if ( v32 >= buffer->m_bufferEnd )
+              ++v24;
+              v23 = buffer->m_writePos + 1;
+              buffer->m_writePos = v23;
+              v25 = *v24;
+              if ( v23 >= buffer->m_bufferEnd )
                 goto LABEL_41;
             }
           }
         }
-        v35 = 0;
-        if ( _RDI->domain.enumeration.stringCount > 0 )
+        v26 = 0;
+        if ( v5->domain.enumeration.stringCount > 0 )
         {
-          v36 = 0i64;
+          v27 = 0i64;
           do
           {
-            if ( v36 > 0 )
+            if ( v27 > 0 )
             {
-              v37 = buffer->m_writePos;
-              v38 = ",";
-              if ( v37 )
+              v28 = buffer->m_writePos;
+              v29 = ",";
+              if ( v28 )
               {
-                v39 = 44;
-                if ( v37 >= buffer->m_bufferEnd )
+                v30 = 44;
+                if ( v28 >= buffer->m_bufferEnd )
                 {
 LABEL_49:
                   buffer->m_writePos = NULL;
@@ -943,25 +920,25 @@ LABEL_49:
                 {
                   while ( 1 )
                   {
-                    *v37 = v39;
-                    if ( !v39 )
+                    *v28 = v30;
+                    if ( !v30 )
                       break;
-                    ++v38;
-                    v37 = buffer->m_writePos + 1;
-                    buffer->m_writePos = v37;
-                    v39 = *v38;
-                    if ( v37 >= buffer->m_bufferEnd )
+                    ++v29;
+                    v28 = buffer->m_writePos + 1;
+                    buffer->m_writePos = v28;
+                    v30 = *v29;
+                    if ( v28 >= buffer->m_bufferEnd )
                       goto LABEL_49;
                   }
                 }
               }
             }
-            v40 = buffer->m_writePos;
-            v41 = "\"";
-            if ( v40 )
+            v31 = buffer->m_writePos;
+            v32 = "\"";
+            if ( v31 )
             {
-              v42 = 34;
-              if ( v40 >= buffer->m_bufferEnd )
+              v33 = 34;
+              if ( v31 >= buffer->m_bufferEnd )
               {
 LABEL_54:
                 buffer->m_writePos = NULL;
@@ -970,25 +947,25 @@ LABEL_54:
               {
                 while ( 1 )
                 {
-                  *v40 = v42;
-                  if ( !v42 )
+                  *v31 = v33;
+                  if ( !v33 )
                     break;
-                  ++v41;
-                  v40 = buffer->m_writePos + 1;
-                  buffer->m_writePos = v40;
-                  v42 = *v41;
-                  if ( v40 >= buffer->m_bufferEnd )
+                  ++v32;
+                  v31 = buffer->m_writePos + 1;
+                  buffer->m_writePos = v31;
+                  v33 = *v32;
+                  if ( v31 >= buffer->m_bufferEnd )
                     goto LABEL_54;
                 }
               }
             }
-            StringAppendBuffer::TryAppendEscapedDefault(buffer, *(const char **)(_RDI->domain.integer64.max + 8 * v36));
-            v43 = buffer->m_writePos;
-            v44 = "\"";
-            if ( v43 )
+            StringAppendBuffer::TryAppendEscapedDefault(buffer, *(const char **)(v5->domain.integer64.max + 8 * v27));
+            v34 = buffer->m_writePos;
+            v35 = "\"";
+            if ( v34 )
             {
-              v45 = 34;
-              if ( v43 >= buffer->m_bufferEnd )
+              v36 = 34;
+              if ( v34 >= buffer->m_bufferEnd )
               {
 LABEL_59:
                 buffer->m_writePos = NULL;
@@ -997,29 +974,29 @@ LABEL_59:
               {
                 while ( 1 )
                 {
-                  *v43 = v45;
-                  if ( !v45 )
+                  *v34 = v36;
+                  if ( !v36 )
                     break;
-                  ++v44;
-                  v43 = buffer->m_writePos + 1;
-                  buffer->m_writePos = v43;
-                  v45 = *v44;
-                  if ( v43 >= buffer->m_bufferEnd )
+                  ++v35;
+                  v34 = buffer->m_writePos + 1;
+                  buffer->m_writePos = v34;
+                  v36 = *v35;
+                  if ( v34 >= buffer->m_bufferEnd )
                     goto LABEL_59;
                 }
               }
             }
-            ++v35;
-            ++v36;
+            ++v26;
+            ++v27;
           }
-          while ( v35 < _RDI->domain.enumeration.stringCount );
+          while ( v26 < v5->domain.enumeration.stringCount );
         }
-        v46 = buffer->m_writePos;
-        v47 = "]";
-        if ( v46 )
+        v37 = buffer->m_writePos;
+        v38 = "]";
+        if ( v37 )
         {
-          v48 = 93;
-          if ( v46 >= buffer->m_bufferEnd )
+          v39 = 93;
+          if ( v37 >= buffer->m_bufferEnd )
           {
 LABEL_65:
             buffer->m_writePos = NULL;
@@ -1028,63 +1005,61 @@ LABEL_65:
           {
             while ( 1 )
             {
-              *v46 = v48;
-              if ( !v48 )
+              *v37 = v39;
+              if ( !v39 )
                 break;
-              ++v47;
-              v46 = buffer->m_writePos + 1;
-              buffer->m_writePos = v46;
-              v48 = *v47;
-              if ( v46 >= buffer->m_bufferEnd )
+              ++v38;
+              v37 = buffer->m_writePos + 1;
+              buffer->m_writePos = v37;
+              v39 = *v38;
+              if ( v37 >= buffer->m_bufferEnd )
                 goto LABEL_65;
             }
           }
         }
         goto LABEL_83;
       case 0xAu:
-        v30 = "color";
+        v21 = "color";
         break;
       case 0xBu:
-        v30 = "vec3color";
+        v21 = "vec3color";
         break;
       default:
         switch ( type )
         {
           case 2u:
-            v50 = "float2";
+            v41 = "float2";
             break;
           case 3u:
-            v50 = "float3";
+            v41 = "float3";
             break;
           case 4u:
-            v50 = "float4";
+            v41 = "float4";
             break;
           default:
 LABEL_83:
             AppendDvarInfoEnd(buffer);
             return;
         }
-        AppendDvarInfoKVP(buffer, "Type", v50, 0);
+        AppendDvarInfoKVP(buffer, "Type", v41, 0);
         AppendDvarInfoKVP(buffer, "Value", v14, 0);
-        v51 = _RDI->description;
-        if ( v51 && *v51 )
-          AppendDvarInfoKVP(buffer, "Description", v51, 0);
-        __asm { vmovss  xmm2, dword ptr [rdi+58h]; value }
-        AppendDvarInfoFloatKVP(buffer, "Min", *(double *)&_XMM2, 0);
-        __asm { vmovss  xmm2, dword ptr [rdi+5Ch]; value }
-        AppendDvarInfoFloatKVP(buffer, "Max", *(double *)&_XMM2, 0);
+        v42 = v5->description;
+        if ( v42 && *v42 )
+          AppendDvarInfoKVP(buffer, "Description", v42, 0);
+        AppendDvarInfoFloatKVP(buffer, "Min", v5->domain.value.min, 0);
+        AppendDvarInfoFloatKVP(buffer, "Max", v5->domain.value.max, 0);
         goto LABEL_83;
     }
-    AppendDvarInfoKVP(buffer, "Type", v30, 0);
+    AppendDvarInfoKVP(buffer, "Type", v21, 0);
     AppendDvarInfoKVP(buffer, "Value", v14, 0);
-    v49 = _RDI->description;
-    if ( v49 && *v49 )
-      AppendDvarInfoKVP(buffer, "Description", v49, 0);
+    v40 = v5->description;
+    if ( v40 && *v40 )
+      AppendDvarInfoKVP(buffer, "Description", v40, 0);
     goto LABEL_83;
   }
   AppendDvarInfoKVP(buffer, "Type", "bool", 0);
   AppendDvarInfoKVP(buffer, "Value", v14, 0);
-  v15 = _RDI->description;
+  v15 = v5->description;
   if ( v15 )
   {
     if ( *v15 )

@@ -48,14 +48,18 @@ __int64 BuildAabbTree(const GenericAabbTreeOptions *options)
   char *v12; 
   int v13; 
   int *v14; 
+  char *v15; 
   int v16; 
+  __int64 v17; 
   int *v18; 
   __int64 v19; 
+  __int64 v20; 
+  Bounds *bounds; 
   __int64 result; 
   int remap[64]; 
+  __int64 v24; 
+  __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  __int64 v28; 
 
   itemCount = options->itemCount;
   if ( itemCount > 0x40 )
@@ -72,10 +76,10 @@ __int64 BuildAabbTree(const GenericAabbTreeOptions *options)
   }
   else
   {
-    sortedMins = (float *)&v26;
+    sortedMins = (float *)&v24;
     v3 = remap;
-    sortedMaxs = (float *)&v27;
-    v4 = (float *)&v28;
+    sortedMaxs = (float *)&v25;
+    v4 = (float *)&v26;
   }
   sortedCoplanar = v4;
   v9 = 0;
@@ -108,31 +112,26 @@ __int64 BuildAabbTree(const GenericAabbTreeOptions *options)
   operator delete[](v12);
   if ( options->maintainValidBounds )
   {
-    _RDI = operator new[](saturated_mul(options->itemCount, 0x18ui64));
-    memcpy_0(_RDI, options->bounds, 24i64 * options->itemCount);
+    v15 = (char *)operator new[](saturated_mul(options->itemCount, 0x18ui64));
+    memcpy_0(v15, options->bounds, 24i64 * options->itemCount);
     v16 = 0;
     if ( options->itemCount > 0 )
     {
-      _RDX = 0i64;
+      v17 = 0i64;
       v18 = v3;
       do
       {
         v19 = *v18++;
         ++v16;
-        _RDX += 24i64;
-        _RCX = 3 * v19;
-        _RAX = options->bounds;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi+rcx*8]
-          vmovups xmmword ptr [rdx+rax-18h], xmm0
-          vmovsd  xmm1, qword ptr [rdi+rcx*8+10h]
-          vmovsd  qword ptr [rdx+rax-8], xmm1
-        }
+        ++v17;
+        v20 = 3 * v19;
+        bounds = options->bounds;
+        *(_OWORD *)bounds[v17 - 1].midPoint.v = *(_OWORD *)&v15[8 * v20];
+        *(double *)&bounds[v17 - 1].halfSize.y = *(double *)&v15[8 * v20 + 16];
       }
       while ( v16 < options->itemCount );
     }
-    operator delete[](_RDI);
+    operator delete[](v15);
   }
   if ( v3 != remap )
   {
@@ -253,44 +252,12 @@ void CreateAabbSubTrees(GenericAabbTree *tree, const GenericAabbTreeOptions *opt
 GoesBeforeSplit
 ==============
 */
-
-__int64 __fastcall GoesBeforeSplit(const Bounds *bounds, int splitAxis, double splitDist)
+_BOOL8 GoesBeforeSplit(const Bounds *bounds, int splitAxis, float splitDist)
 {
-  char v8; 
-  char v9; 
-  __int64 result; 
+  double v5; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  *(double *)&_XMM0 = Bounds_Max(bounds, splitAxis);
-  __asm { vcomiss xmm0, xmm6 }
-  if ( v9 )
-    goto LABEL_5;
-  __asm { vucomiss xmm0, xmm6 }
-  if ( !v8 )
-    goto LABEL_4;
-  _RAX = vec3_t::operator[](&bounds->halfSize, splitAxis);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax]
-  }
-  if ( !v8 )
-  {
-LABEL_5:
-    result = 1i64;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
-  else
-  {
-LABEL_4:
-    result = 0i64;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
-  return result;
+  v5 = Bounds_Max(bounds, splitAxis);
+  return *(float *)&v5 < splitDist || *(float *)&v5 == splitDist && *vec3_t::operator[](&bounds->halfSize, splitAxis) != 0.0;
 }
 
 /*
@@ -298,361 +265,519 @@ LABEL_4:
 PickAabbSplitPlane
 ==============
 */
-__int64 PickAabbSplitPlane(const Bounds *bounds, int *remap, int count, int *chosenAxis)
+_BOOL8 PickAabbSplitPlane(const Bounds *bounds, int *remap, int count, int *chosenAxis, float *chosenDist)
 {
-  int *v14; 
-  __int64 v15; 
-  bool v19; 
-  unsigned __int64 v25; 
-  __int64 v26; 
+  int *v5; 
+  __int64 v6; 
+  const Bounds *v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __m128 v13; 
+  __m128 v15; 
+  __m128 v19; 
+  __m128 v23; 
+  int v32; 
+  __int64 v34; 
+  bool v35; 
+  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v37; 
+  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v38; 
+  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v39; 
+  unsigned int v40; 
+  unsigned int v41; 
+  __int64 v42; 
+  __int64 v43; 
+  __int64 v44; 
+  unsigned int v45; 
+  const Bounds *v46; 
+  const Bounds *v47; 
+  const Bounds *v48; 
+  float v49; 
+  float v50; 
+  float *v51; 
+  __int64 v52; 
+  int v53; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  __int64 v59; 
   int v60; 
-  __int64 v62; 
-  bool v63; 
-  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v70; 
-  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v71; 
-  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v72; 
-  unsigned int v75; 
-  unsigned int v76; 
+  int v61; 
+  int v62; 
+  int v63; 
+  int v64; 
+  int v65; 
+  float v66; 
+  float v67; 
+  float *v68; 
+  int v70; 
+  int v72; 
+  float *v73; 
+  int v74; 
+  signed int v76; 
   __int64 v79; 
-  unsigned int v80; 
-  bool v82; 
-  bool v83; 
-  bool v89; 
-  bool v90; 
-  __int64 result; 
-  __int64 v113; 
-  __int64 v114; 
-  __int64 v115; 
-  __int64 v116; 
-  __int64 v117; 
-  __int64 v118; 
-  double v119; 
-  double v120; 
-  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v121; 
-  unsigned int v122; 
-  __int64 v123; 
-  unsigned int v124; 
-  __int64 v126; 
-  __int128 v128; 
-  __int64 v129; 
-  __int128 v130; 
-  __int64 v131; 
-  __int128 v135; 
-  __int128 v136; 
-  char v137; 
-  void *retaddr; 
+  __int64 v80; 
+  __int64 v81; 
+  __int64 v82; 
+  __int64 v83; 
+  __int64 v84; 
+  PickAabbSplitPlane_SortFloats::__l2::PickAabbSplitPlane_FloatLess v85; 
+  unsigned int v86; 
+  int v87; 
+  int v88; 
+  __int64 v89; 
+  __int64 v90; 
+  unsigned int v91; 
+  signed int v93; 
+  __int64 v94; 
+  __int64 v97; 
+  __m128 v99; 
+  __int64 v100; 
+  __int64 v101; 
+  __m128 v102; 
+  __int64 v103; 
+  __m128 v104; 
+  __int64 v105; 
+  __m128 v106; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovss  xmm1, cs:__real@ff7fffff
-    vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-  }
-  v14 = remap;
-  v15 = count;
-  _R15 = bounds;
-  v126 = count;
-  __asm
-  {
-    vmovups [rbp+0D0h+var_F0], xmm0
-    vmovss  [rbp+0D0h+var_E0], xmm1
-    vmovss  [rbp+0D0h+var_DC], xmm1
-    vmovaps xmm2, xmm1
-    vmovaps xmm0, xmm1
-  }
-  v19 = count == 0i64;
+  v5 = remap;
+  v6 = count;
+  v7 = bounds;
+  v97 = count;
   if ( count > 0i64 )
   {
-    __asm
-    {
-      vmovdqa xmm7, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-      vmovss  xmm0, dword ptr [rbp+0D0h+var_F0+0Ch]
-      vmovss  xmm5, dword ptr [rbp+0D0h+var_F0+8]
-      vmovss  xmm4, dword ptr [rbp+0D0h+var_F0+4]
-      vmovss  xmm3, dword ptr [rbp+0D0h+var_F0]
-    }
-    v25 = 0i64;
+    v8.m128_i32[0] = HIDWORD(_xmm_ff7fffff000000000000000000000000);
+    v9.m128_i32[0] = _xmm_ff7fffff000000000000000000000000;
+    v10 = 0i64;
     do
     {
-      v26 = v14[v25++];
-      _RCX = 3 * v26;
-      HIDWORD(v136) = 0;
-      HIDWORD(v128) = 0;
-      HIDWORD(v135) = 0;
-      HIDWORD(v130) = 0;
+      v11 = v5[v10++];
+      v106.m128_i32[3] = 0;
+      v99.m128_i32[3] = 0;
+      v104.m128_i32[3] = 0;
+      v102.m128_i32[3] = 0;
+      v13 = v106;
+      v13.m128_f32[0] = v9.m128_f32[0];
+      _XMM6 = v13;
+      v15 = v99;
+      v15.m128_f32[0] = v8.m128_f32[0];
+      _XMM3 = v15;
       __asm
       {
-        vmovups xmm6, xmmword ptr [rbp+10h]
-        vmovss  xmm6, xmm6, xmm3
-        vmovups xmm3, xmmword ptr [rbp-40h]
-        vmovss  xmm3, xmm3, xmm0
-        vmovss  xmm0, dword ptr [r15+rcx*8]
         vinsertps xmm6, xmm6, xmm4, 10h
-        vmovups xmm4, xmmword ptr [rbp-30h]
         vinsertps xmm6, xmm6, xmm5, 20h ; ' '
-        vmovups xmm5, xmmword ptr [rbp+0]
-        vmovss  xmm5, xmm5, xmm0
-        vmovss  xmm0, dword ptr [r15+rcx*8+0Ch]
+      }
+      v19 = v104;
+      v19.m128_f32[0] = bounds[v11].midPoint.v[0];
+      _XMM5 = v19;
+      __asm
+      {
         vinsertps xmm5, xmm5, dword ptr [r15+rcx*8+4], 10h
         vinsertps xmm5, xmm5, dword ptr [r15+rcx*8+8], 20h ; ' '
-        vmovss  xmm4, xmm4, xmm0
+      }
+      v23 = v102;
+      v23.m128_f32[0] = bounds[v11].halfSize.v[0];
+      _XMM4 = v23;
+      __asm
+      {
         vinsertps xmm4, xmm4, dword ptr [r15+rcx*8+10h], 10h
         vinsertps xmm4, xmm4, dword ptr [r15+rcx*8+14h], 20h ; ' '
         vinsertps xmm3, xmm3, xmm1, 10h
         vinsertps xmm3, xmm3, xmm2, 20h ; ' '
-        vsubps  xmm0, xmm5, xmm4
-        vaddps  xmm1, xmm5, xmm4
-        vsubps  xmm2, xmm6, xmm3
-        vminps  xmm2, xmm0, xmm2
-        vmovups xmmword ptr [rbp-40h], xmm3
-        vaddps  xmm3, xmm6, xmm3
-        vmaxps  xmm0, xmm1, xmm3
-        vaddps  xmm1, xmm0, xmm2
-        vmulps  xmm3, xmm1, xmm7
-        vsubps  xmm0, xmm3, xmm2
-        vmovups xmmword ptr [rbp+0], xmm5
-        vmovups xmmword ptr [rbp-30h], xmm4
-        vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-        vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-        vshufps xmm4, xmm3, xmm3, 55h ; 'U'
-        vshufps xmm5, xmm3, xmm3, 0AAh ; 'ª'
-        vmovss  [rbp+0D0h+var_E0], xmm1
-        vmovss  [rbp+0D0h+var_DC], xmm2
-        vmovss  dword ptr [rbp+0D0h+var_F0], xmm3
-        vmovss  dword ptr [rbp+0D0h+var_F0+4], xmm4
-        vmovss  dword ptr [rbp+0D0h+var_F0+8], xmm5
-        vmovss  dword ptr [rbp+0D0h+var_F0+0Ch], xmm0
-        vmovups xmmword ptr [rbp+10h], xmm6
       }
-      v19 = v25 <= count;
+      _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+      _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+      _mm128_sub_ps(_XMM6, _XMM3);
+      __asm { vminps  xmm2, xmm0, xmm2 }
+      v99 = _XMM3;
+      _mm128_add_ps(_XMM6, _XMM3);
+      __asm { vmaxps  xmm0, xmm1, xmm3 }
+      v9 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM2), g_oneHalf.v);
+      v8 = _mm128_sub_ps(v9, _XMM2);
+      v104 = _XMM5;
+      v102 = _XMM4;
+      _mm_shuffle_ps(v9, v9, 85);
+      _mm_shuffle_ps(v9, v9, 170);
+      _mm_shuffle_ps(v8, v8, 85);
+      _mm_shuffle_ps(v8, v8, 170);
+      v106 = _XMM6;
     }
-    while ( (__int64)v25 < count );
+    while ( v10 < count );
   }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41200000
-    vmovss  xmm7, cs:__real@40a00000
-    vmovss  xmm10, cs:__real@3f000000
-    vcomiss xmm0, xmm1
-  }
-  _RCX = !v19;
-  v60 = 0;
-  __asm { vxorps  xmm11, xmm11, xmm11 }
-  v62 = 0i64;
-  __asm { vcomiss xmm2, dword ptr [rbp+rcx*4+0D0h+var_F0+0Ch] }
-  v63 = 1;
+  v32 = 0;
+  _XMM11 = 0i64;
+  v34 = 0i64;
+  v35 = 1;
   do
   {
-    if ( !v63 )
+    if ( !v35 )
     {
-      LODWORD(v116) = 3;
-      LODWORD(v113) = v60;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v113, v116) )
+      LODWORD(v82) = 3;
+      LODWORD(v79) = v32;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v79, v82) )
         __debugbreak();
     }
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbp+rdi+0D0h+var_F0+0Ch]
-      vaddss  xmm0, xmm10, dword ptr [rbp+rsi*4+0D0h+var_F0+0Ch]
-      vaddss  xmm3, xmm1, xmm7
-      vdivss  xmm3, xmm3, xmm0
-      vroundss xmm0, xmm11, xmm3, 2
-      vcvttss2si eax, xmm0
-    }
-    *(_DWORD *)((char *)&v136 + v62) = _EAX;
-    ++v60;
-    v62 += 4i64;
-    v63 = (unsigned int)v60 < 3;
+    __asm { vroundss xmm0, xmm11, xmm3, 2 }
+    v106.m128_i32[v34] = (int)*(float *)&_XMM0;
+    ++v32;
+    ++v34;
+    v35 = (unsigned int)v32 < 3;
   }
-  while ( v60 < 3 );
-  v70 = v121;
-  v71 = v121;
-  v72 = v121;
-  __asm { vmovss  xmm9, cs:__real@7f7fffff }
-  v124 = 0;
-  v131 = 0i64;
-  __asm { vxorps  xmm12, xmm12, xmm12 }
+  while ( v32 < 3 );
+  v37 = v85;
+  v38 = v85;
+  v39 = v85;
+  v91 = 0;
+  v103 = 0i64;
+  v93 = 0x80000000;
   do
   {
-    v122 = 0;
-    v75 = 0;
-    v76 = 0;
-    if ( v15 > 0 )
+    v86 = 0;
+    v40 = 0;
+    v41 = 0;
+    if ( v6 > 0 )
     {
-      _R13 = 0i64;
-      _RBX = v131;
-      v79 = 0i64;
-      v123 = 0i64;
-      v80 = 0;
-      v129 = v15;
+      v42 = 0i64;
+      v43 = v103;
+      v44 = 0i64;
+      v89 = 0i64;
+      v45 = 0;
+      v100 = v6;
       do
       {
-        _R14 = &_R15[*v14];
-        v82 = v124 == 3;
-        if ( v124 >= 3 )
+        v46 = &v7[*v5];
+        if ( v91 >= 3 )
         {
-          LODWORD(v116) = 3;
-          LODWORD(v113) = v124;
-          v83 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v113, v116);
-          v82 = !v83;
-          if ( v83 )
+          LODWORD(v82) = 3;
+          LODWORD(v79) = v91;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v79, v82) )
             __debugbreak();
-          v76 = v122;
-          v79 = v123;
+          v41 = v86;
+          v44 = v89;
         }
-        __asm { vucomiss xmm12, dword ptr [r14+rbx*4+0Ch] }
-        _R15 = &_R15[*v14];
-        if ( v82 )
+        v47 = &v7[*v5];
+        if ( v46->halfSize.v[v43] == 0.0 )
         {
-          if ( v124 >= 3 )
+          if ( v91 >= 3 )
           {
-            LODWORD(v116) = 3;
-            LODWORD(v113) = v124;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v113, v116) )
+            LODWORD(v82) = 3;
+            LODWORD(v79) = v91;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v79, v82) )
               __debugbreak();
-            v76 = v122;
-            v79 = v123;
+            v41 = v86;
+            v44 = v89;
           }
-          v122 = ++v76;
-          *(float *)((char *)sortedCoplanar + v79) = _R15->midPoint.v[_RBX];
-          v79 += 4i64;
-          v123 = v79;
+          v86 = ++v41;
+          *(float *)((char *)sortedCoplanar + v44) = v47->midPoint.v[v43];
+          v44 += 4i64;
+          v89 = v44;
         }
         else
         {
-          if ( v124 >= 3 )
+          if ( v91 >= 3 )
           {
-            LODWORD(v116) = 3;
-            LODWORD(v113) = v124;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v113, v116) )
+            LODWORD(v82) = 3;
+            LODWORD(v79) = v91;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v79, v82) )
               __debugbreak();
-            LODWORD(v117) = 3;
-            LODWORD(v114) = v124;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v114, v117) )
-              __debugbreak();
-          }
-          _RAX = sortedMins;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r15+rbx*4]
-            vsubss  xmm1, xmm0, dword ptr [r15+rbx*4+0Ch]
-            vmovss  dword ptr [rax+r13], xmm1
-          }
-          _R14 = &bounds[*v14];
-          v89 = v124 < 3;
-          if ( v124 >= 3 )
-          {
-            LODWORD(v116) = 3;
-            LODWORD(v113) = v124;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v113, v116) )
-              __debugbreak();
-            LODWORD(v118) = 3;
-            LODWORD(v115) = v124;
-            v90 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v115, v118);
-            v89 = 0;
-            if ( v90 )
+            LODWORD(v83) = 3;
+            LODWORD(v80) = v91;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v80, v83) )
               __debugbreak();
           }
-          _R15 = v131;
-          _RAX = sortedMaxs;
-          __asm
+          sortedMins[v42] = v47->midPoint.v[v43] - v47->halfSize.v[v43];
+          v48 = &bounds[*v5];
+          if ( v91 >= 3 )
           {
-            vmovss  xmm0, dword ptr [r14+r15*4]
-            vaddss  xmm1, xmm0, dword ptr [r14+r15*4+0Ch]
-            vmovss  dword ptr [rax+r13], xmm1
-          }
-          _RAX = sortedMins;
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rax+r13]
-            vcomiss xmm2, xmm1
-          }
-          if ( !v89 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm1, xmm1
-              vmovsd  [rsp+1D0h+var_190], xmm0
-              vcvtss2sd xmm1, xmm2, xmm2
-              vmovsd  [rsp+1D0h+var_198], xmm1
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 81, ASSERT_TYPE_ASSERT, "( sortedMins[minMaxCount] ) < ( sortedMaxs[minMaxCount] )", "%s < %s\n\t%g, %g", "sortedMins[minMaxCount]", "sortedMaxs[minMaxCount]", v119, v120) )
+            LODWORD(v82) = 3;
+            LODWORD(v79) = v91;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v79, v82) )
+              __debugbreak();
+            LODWORD(v84) = 3;
+            LODWORD(v81) = v91;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v84) )
               __debugbreak();
           }
-          v79 = v123;
-          ++v80;
-          v76 = v122;
-          _R13 += 4i64;
-          _RBX = v131;
+          v49 = v48->midPoint.v[v103] + v48->halfSize.v[v103];
+          sortedMaxs[v42] = v49;
+          v50 = sortedMins[v42];
+          if ( v50 >= v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 81, ASSERT_TYPE_ASSERT, "( sortedMins[minMaxCount] ) < ( sortedMaxs[minMaxCount] )", "%s < %s\n\t%g, %g", "sortedMins[minMaxCount]", "sortedMaxs[minMaxCount]", v50, v49) )
+            __debugbreak();
+          v44 = v89;
+          ++v45;
+          v41 = v86;
+          ++v42;
+          v43 = v103;
         }
-        _R15 = bounds;
-        ++v14;
-        --v129;
+        v7 = bounds;
+        ++v5;
+        --v100;
       }
-      while ( v129 );
-      v70 = v121;
-      v71 = v121;
-      v75 = v80;
-      v72 = v121;
+      while ( v100 );
+      v37 = v85;
+      v38 = v85;
+      v40 = v45;
+      v39 = v85;
     }
-    _R15 = sortedMins;
-    std::_Sort_unchecked_float____PickAabbSplitPlane_SortFloats_::_2_::PickAabbSplitPlane_FloatLess_(sortedMins, &sortedMins[v75], v75, v70);
-    std::_Sort_unchecked_float____PickAabbSplitPlane_SortFloats_::_2_::PickAabbSplitPlane_FloatLess_(sortedMaxs, &sortedMaxs[v75], v75, v71);
-    std::_Sort_unchecked_float____PickAabbSplitPlane_SortFloats_::_2_::PickAabbSplitPlane_FloatLess_(sortedCoplanar, &sortedCoplanar[v122], v122, v72);
-    *(_QWORD *)&v135 = 0i64;
-    if ( v75 )
+    v51 = sortedMins;
+    std::_Sort_unchecked_float____PickAabbSplitPlane_SortFloats_::_2_::PickAabbSplitPlane_FloatLess_(sortedMins, &sortedMins[v40], v40, v37);
+    std::_Sort_unchecked_float____PickAabbSplitPlane_SortFloats_::_2_::PickAabbSplitPlane_FloatLess_(sortedMaxs, &sortedMaxs[v40], v40, v38);
+    v52 = (int)v86;
+    std::_Sort_unchecked_float____PickAabbSplitPlane_SortFloats_::_2_::PickAabbSplitPlane_FloatLess_(sortedCoplanar, &sortedCoplanar[v86], v86, v39);
+    v87 = 0;
+    v53 = 0;
+    v54 = 0i64;
+    v88 = 0;
+    v55 = 0i64;
+    v94 = 0i64;
+    v56 = 0i64;
+    v105 = 0i64;
+    v90 = 0i64;
+    if ( v40 )
     {
-      if ( v122 )
+      if ( (_DWORD)v52 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vminss  xmm7, xmm0, dword ptr [r14]
-        }
+        _XMM0 = *(unsigned int *)v51;
+        __asm { vminss  xmm7, xmm0, dword ptr [r14] }
       }
       else
       {
-        _RAX = sortedMins;
-        __asm { vmovss  xmm7, dword ptr [rax] }
+        *(float *)&_XMM7 = *sortedMins;
       }
     }
-    else if ( v122 )
+    else if ( (_DWORD)v52 )
     {
-      _RAX = sortedCoplanar;
-      __asm { vmovss  xmm7, dword ptr [rax] }
+      *(float *)&_XMM7 = *sortedCoplanar;
     }
     else
     {
-      __asm { vmovaps xmm7, xmm9 }
+      *(float *)&_XMM7 = FLOAT_3_4028235e38;
     }
-    __asm { vcomiss xmm7, xmm9 }
-    ++v131;
-    _R15 = bounds;
-    v15 = v126;
-    v14 = remap;
-    ++v124;
+    v59 = v52;
+    v101 = v52;
+    if ( *(float *)&_XMM7 < 3.4028235e38 )
+    {
+      v60 = count;
+      v61 = 0;
+      v62 = 0;
+      v63 = 0;
+      v64 = 0;
+      while ( 1 )
+      {
+        v63 += v62;
+        v65 = v60 - v62;
+        v62 = 0;
+        v66 = *(float *)&_XMM7;
+        v67 = *(float *)&_XMM7;
+        *(float *)&_XMM7 = FLOAT_3_4028235e38;
+        if ( v54 < (int)v40 )
+        {
+          if ( (int)v40 - v54 >= 4 )
+          {
+            v68 = &sortedMins[v54 + 2];
+            while ( v66 == *(v68 - 2) )
+            {
+              if ( v66 != *(v68 - 1) )
+              {
+                v94 = ++v54;
+                ++v62;
+                goto LABEL_60;
+              }
+              if ( v66 != *v68 )
+              {
+                v54 += 2i64;
+                v94 = v54;
+                v62 += 2;
+                goto LABEL_60;
+              }
+              if ( v66 != v68[1] )
+              {
+                v54 += 3i64;
+                v94 = v54;
+                v62 += 3;
+                goto LABEL_60;
+              }
+              v54 += 4i64;
+              v62 += 4;
+              v94 = v54;
+              v68 += 4;
+              if ( v54 >= (int)v40 - 3i64 )
+                goto LABEL_55;
+            }
+            goto LABEL_60;
+          }
+LABEL_55:
+          if ( v54 < (int)v40 )
+          {
+            while ( v66 == sortedMins[v54] )
+            {
+              ++v54;
+              ++v62;
+              v94 = v54;
+              if ( v54 >= (int)v40 )
+                goto LABEL_62;
+            }
+LABEL_60:
+            if ( v54 < (int)v40 )
+            {
+              _XMM0 = LODWORD(sortedMins[v54]);
+              __asm { vminss  xmm7, xmm0, xmm9 }
+            }
+          }
+        }
+LABEL_62:
+        if ( v55 < (int)v40 )
+        {
+          v70 = v87;
+          while ( 1 )
+          {
+            _XMM0 = LODWORD(sortedMaxs[v55]);
+            if ( *(float *)&_XMM0 != v66 )
+              break;
+            if ( v63 <= 0 )
+            {
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 133, ASSERT_TYPE_ASSERT, "(sideSplitCount > 0)", (const char *)&queryFormat, "sideSplitCount > 0") )
+                __debugbreak();
+              v70 = v87;
+              v55 = v105;
+            }
+            ++v70;
+            ++v55;
+            --v63;
+            v87 = v70;
+            v105 = v55;
+            if ( v55 >= (int)v40 )
+            {
+              v64 = v70;
+              goto LABEL_75;
+            }
+          }
+          v64 = v87;
+          if ( v55 < (int)v40 )
+            __asm { vminss  xmm7, xmm0, xmm7 }
+LABEL_75:
+          v56 = v90;
+          v59 = v101;
+          v53 = v88;
+        }
+        v64 += v61;
+        v72 = v53 - v61;
+        v87 = v64;
+        v61 = 0;
+        if ( v56 < v59 )
+        {
+          if ( v59 - v56 < 4 )
+          {
+LABEL_84:
+            if ( v56 < v59 )
+            {
+              do
+              {
+                if ( v66 != sortedCoplanar[v56] )
+                  break;
+                ++v61;
+                ++v56;
+              }
+              while ( v56 < v59 );
+LABEL_87:
+              v90 = v56;
+            }
+          }
+          else
+          {
+            v73 = &sortedCoplanar[v56 + 2];
+            while ( v66 == *(v73 - 2) )
+            {
+              if ( v66 != *(v73 - 1) )
+              {
+                ++v56;
+                ++v61;
+                goto LABEL_87;
+              }
+              if ( v66 != *v73 )
+              {
+                v56 += 2i64;
+                v61 += 2;
+                goto LABEL_87;
+              }
+              if ( v66 != v73[1] )
+              {
+                v56 += 3i64;
+                v61 += 3;
+                goto LABEL_87;
+              }
+              v56 += 4i64;
+              v61 += 4;
+              v90 = v56;
+              v73 += 4;
+              if ( v56 >= v59 - 3 )
+                goto LABEL_84;
+            }
+          }
+        }
+        v74 = v61 + v72;
+        v60 = v65 - v61;
+        v88 = v74;
+        if ( v56 < v59 )
+        {
+          _XMM0 = LODWORD(sortedCoplanar[v56]);
+          __asm { vminss  xmm7, xmm0, xmm7 }
+        }
+        if ( v64 + v60 + v74 + v63 != count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 158, ASSERT_TYPE_ASSERT, "(sideFrontCount + sideBackCount + sideSplitCount + sideOnCount == count)", (const char *)&queryFormat, "sideFrontCount + sideBackCount + sideSplitCount + sideOnCount == count") )
+          __debugbreak();
+        if ( v64 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 159, ASSERT_TYPE_ASSERT, "(sideFrontCount >= 0)", (const char *)&queryFormat, "sideFrontCount >= 0") )
+          __debugbreak();
+        if ( v60 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 160, ASSERT_TYPE_ASSERT, "(sideBackCount >= 0)", (const char *)&queryFormat, "sideBackCount >= 0") )
+          __debugbreak();
+        if ( v63 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 161, ASSERT_TYPE_ASSERT, "(sideSplitCount >= 0)", (const char *)&queryFormat, "sideSplitCount >= 0") )
+          __debugbreak();
+        v53 = v88;
+        if ( v88 < 0 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\aabbtree.cpp", 162, ASSERT_TYPE_ASSERT, "(sideOnCount >= 0)", (const char *)&queryFormat, "sideOnCount >= 0") )
+            __debugbreak();
+          v53 = v88;
+        }
+        if ( v64 > 1 && v60 > 1 )
+        {
+          v76 = count + v106.m128_i32[v103] - 4 * v63 - v53 - abs32(v64 - v60);
+          if ( !v53 && !v63 && !v62 )
+          {
+            __asm { vroundss xmm0, xmm11, xmm2, 1 }
+            v76 += (int)*(float *)&_XMM0;
+          }
+          if ( v76 > v93 )
+          {
+            v93 = v76;
+            *chosenAxis = v91;
+            if ( v53 || v63 || v62 )
+              *chosenDist = v66;
+            else
+              *chosenDist = (float)(v67 + *(float *)&_XMM7) * 0.5;
+          }
+        }
+        v56 = v90;
+        v54 = v94;
+        v55 = v105;
+        v59 = v101;
+        if ( *(float *)&_XMM7 >= 3.4028235e38 )
+        {
+          v37 = v85;
+          v38 = v85;
+          v39 = v85;
+          break;
+        }
+      }
+    }
+    ++v103;
+    v7 = bounds;
+    v6 = v97;
+    v5 = remap;
+    ++v91;
   }
-  while ( (int)v124 < 3 );
-  result = 0i64;
-  _R11 = &v137;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
-  return result;
+  while ( (int)v91 < 3 );
+  return v93 != 0x80000000;
 }
 
 /*
@@ -662,723 +787,641 @@ SplitAabbTree
 */
 __int64 SplitAabbTree(int count, const GenericAabbTreeOptions *options, int *remap, int *midStart, int *lastStart)
 {
-  const GenericAabbTreeOptions *v17; 
-  int v18; 
-  int v21; 
-  int v22; 
-  __int64 v23; 
-  __int64 v36; 
-  __int64 v40; 
-  char v42; 
-  char v43; 
-  bool v44; 
-  bool v45; 
-  __int64 v46; 
-  char v82; 
-  bool v83; 
-  bool v84; 
-  __int64 v85; 
-  const Bounds *v117; 
-  char v118; 
-  __int64 v121; 
-  int v122; 
-  const Bounds *v123; 
-  char v124; 
-  int v127; 
-  int v128; 
-  int v130; 
+  Bounds *v5; 
+  const GenericAabbTreeOptions *v7; 
+  int v8; 
+  int v9; 
+  float v10; 
+  __int64 v11; 
+  __m128 v12; 
+  float v13; 
+  __m128 v14; 
+  __m128 v15; 
+  float v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  const Bounds *v20; 
+  double v21; 
+  __int64 v22; 
+  __m128 v24; 
+  __m128 v28; 
+  __m128 v32; 
+  __m128 v36; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  const Bounds *v48; 
+  double v49; 
+  __int64 v50; 
+  __m128 v52; 
+  __m128 v56; 
+  __m128 v61; 
+  __m128 v64; 
+  __m128 v71; 
+  __m128 v72; 
+  __m128 v73; 
+  const Bounds *v74; 
+  double v75; 
+  __int64 v76; 
+  float v77; 
+  const Bounds *v78; 
+  double v79; 
+  int v80; 
+  int v81; 
+  int v82; 
   int minItemsPerLeaf; 
-  __int64 v140; 
-  __int64 v141; 
-  bool v147; 
+  __int64 v84; 
+  __int64 v85; 
+  double v86; 
+  __int128 v87; 
+  double v88; 
+  __int128 v89; 
+  bool v90; 
+  float v91; 
+  __int64 v92; 
+  __int64 v93; 
+  __int64 v94; 
+  __m128 v96; 
+  __m128 v100; 
+  __m128 v104; 
+  __m128 v108; 
+  __m128 v115; 
+  __m128 v116; 
+  __m128 v117; 
+  __m128 v118; 
+  __m128 v119; 
+  __m128 v120; 
+  float v121; 
+  __int64 v122; 
+  __int64 v123; 
+  __int64 v124; 
+  __m128 v126; 
+  __m128 v130; 
+  __m128 v134; 
+  __m128 v138; 
+  __m128 v145; 
+  __m128 v146; 
+  __m128 v147; 
+  __m128 v148; 
+  int v149; 
+  __int64 result; 
   __int64 v151; 
   __int64 v152; 
-  __int64 v167; 
-  __int64 v210; 
-  __int64 v211; 
-  __int64 v226; 
-  int v266; 
-  __int64 result; 
-  __int64 v278; 
-  __int64 v279; 
-  int v280; 
-  int v281; 
-  int v283; 
+  float v153; 
+  int v154; 
+  float chosenDist; 
+  int v156; 
+  __m128 v157; 
+  const GenericAabbTreeOptions *v158; 
+  __m128 v159; 
   int chosenAxis[4]; 
-  int *v296; 
-  int *v297; 
-  __int128 v298; 
-  __int128 v299; 
-  __int128 v300; 
-  __int128 v301; 
-  __int128 v302; 
-  __int128 v303; 
-  __int128 v304; 
-  __int128 v305; 
+  __m128 v161; 
+  __m128 v162; 
+  __m128 v163; 
+  __m128 v164; 
+  __m128 v165; 
+  __m128 v166; 
+  __m128 v167; 
+  int *v168; 
+  int *v169; 
+  __m128 v170; 
+  __m128 v171; 
+  __m128 v172; 
+  __m128 v173; 
+  __m128 v174; 
+  __m128 v175; 
+  __m128 v176; 
+  __m128 v177; 
   Bounds bounds; 
-  Bounds v307; 
-  Bounds v308; 
-  Bounds v309; 
+  Bounds v179; 
+  Bounds v180; 
+  Bounds v181; 
+  _BYTE v182[48]; 
 
-  _RSI = options->bounds;
-  v17 = options;
-  v297 = lastStart;
-  v18 = count;
-  v296 = midStart;
-  if ( !(unsigned int)PickAabbSplitPlane(_RSI, remap, count, chosenAxis) )
+  v5 = options->bounds;
+  v7 = options;
+  v169 = lastStart;
+  v8 = count;
+  v168 = midStart;
+  v158 = options;
+  v156 = count;
+  if ( !PickAabbSplitPlane(v5, remap, count, chosenAxis, &chosenDist) )
     return 0i64;
-  __asm
+  v9 = v8 - 1;
+  v10 = 0.0;
+  v153 = 0.0;
+  v154 = v8 - 1;
+  v11 = v8 - 1;
+  *(__m256i *)v182 = _ymm;
+  v12.m128_i32[0] = _ymm.m256i_i32[3];
+  *(_OWORD *)&v182[32] = _xmm_ff7fffffff7fffffff7fffff00000000;
+  v13 = *((float *)&_xmm_ff7fffffff7fffffff7fffff00000000 + 2);
+  v14.m128_i32[0] = DWORD1(_xmm_ff7fffffff7fffffff7fffff00000000);
+  v164 = (__m128)_ymm.m256i_u32[5];
+  if ( v8 - 1 < 0 )
   {
-    vmovups ymm0, cs:__ymm@0000000000000000ff7fffffff7fffffff7fffff000000000000000000000000
-    vmovups xmm1, cs:__xmm@ff7fffffff7fffffff7fffff00000000
-  }
-  v21 = v18 - 1;
-  v22 = 0;
-  __asm
-  {
-    vmovaps [rsp+318h+var_48], xmm6
-    vmovaps [rsp+318h+var_58], xmm7
-    vmovaps [rsp+318h+var_68], xmm8
-    vmovaps [rsp+318h+var_78], xmm9
-    vmovaps [rsp+318h+var_88], xmm10
-    vmovaps [rsp+318h+var_98], xmm11
-    vmovaps [rsp+318h+var_A8], xmm12
-    vmovaps [rsp+318h+var_B8], xmm13
-    vmovaps [rsp+318h+var_C8], xmm14
-    vmovaps [rsp+318h+var_D8], xmm15
-  }
-  v280 = 0;
-  v281 = v18 - 1;
-  v23 = v18 - 1;
-  __asm
-  {
-    vmovups [rsp+318h+var_118], ymm0
-    vmovss  xmm11, dword ptr [rsp+318h+var_118+14h]
-    vmovss  xmm14, dword ptr [rsp+318h+var_118+0Ch]
-    vmovups [rsp+318h+var_F8], xmm1
-    vmovss  xmm15, dword ptr [rsp+318h+var_F8+8]
-    vmovss  xmm13, dword ptr [rsp+318h+var_F8+4]
-    vmovups [rsp+318h+var_248], xmm11
-  }
-  if ( v18 - 1 < 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+318h+var_F8]
-      vmovss  xmm5, dword ptr [rsp+318h+var_F8+0Ch]
-      vmovss  xmm6, dword ptr [rsp+318h+var_118+10h]
-      vmovups [rsp+318h+var_228], xmm0
-      vmovss  xmm0, dword ptr [rsp+318h+var_118+1Ch]
-      vmovups [rsp+318h+var_238], xmm0
-      vmovss  xmm0, dword ptr [rsp+318h+var_118+18h]
-      vmovups [rsp+318h+var_218], xmm0
-      vmovss  xmm0, dword ptr [rsp+318h+var_118+8]
-      vmovups [rsp+318h+var_258], xmm0
-      vmovss  xmm0, dword ptr [rsp+318h+var_118+4]
-      vmovups [rsp+318h+var_268], xmm0
-      vmovss  xmm0, dword ptr [rsp+318h+var_118]
-      vmovups [rsp+318h+var_278], xmm0
-      vmovups [rsp+318h+var_2B8], xmm5
-      vmovups [rsp+318h+var_298], xmm6
-    }
+    v73.m128_i32[0] = *(_DWORD *)&v182[44];
+    v47.m128_i32[0] = *(_DWORD *)&v182[16];
+    v166 = (__m128)*(unsigned int *)&v182[32];
+    v165 = (__m128)*(unsigned int *)&v182[28];
+    v167 = (__m128)*(unsigned int *)&v182[24];
+    v163 = (__m128)*(unsigned int *)&v182[8];
+    v162 = (__m128)*(unsigned int *)&v182[4];
+    v161 = (__m128)*(unsigned int *)v182;
+    v157 = (__m128)*(unsigned int *)&v182[44];
+    v159 = (__m128)*(unsigned int *)&v182[16];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsp+318h+var_F8]
-      vmovss  xmm1, dword ptr [rsp+318h+var_118+1Ch]
-      vmovss  xmm9, dword ptr [rsp+318h+var_F8+0Ch]
-      vmovss  xmm12, dword ptr [rsp+318h+var_118+18h]
-      vmovss  xmm10, dword ptr [rsp+318h+var_118+10h]
-      vmovss  xmm0, dword ptr [rsp+318h+var_118]
-      vmovss  xmm7, [rsp+318h+var_2CC]
-    }
-    _RDI = chosenAxis[0];
-    v36 = 0i64;
-    __asm
-    {
-      vmovups [rsp+318h+var_228], xmm2
-      vmovss  xmm2, dword ptr [rsp+318h+var_118+8]
-      vmovups [rsp+318h+var_238], xmm1
-      vmovss  xmm1, dword ptr [rsp+318h+var_118+4]
-      vmovups [rsp+318h+var_258], xmm2
-      vmovups [rsp+318h+var_268], xmm1
-      vxorps  xmm8, xmm8, xmm8
-      vmovups [rsp+318h+var_2B8], xmm9
-      vmovups [rsp+318h+var_218], xmm12
-      vmovups [rsp+318h+var_298], xmm10
-      vmovups [rsp+318h+var_278], xmm0
-    }
+    v15.m128_i32[0] = *(_DWORD *)&v182[24];
+    v16 = chosenDist;
+    v17 = chosenAxis[0];
+    v18 = 0i64;
+    v166 = (__m128)*(unsigned int *)&v182[32];
+    v165 = (__m128)*(unsigned int *)&v182[28];
+    v163 = (__m128)*(unsigned int *)&v182[8];
+    v162 = (__m128)*(unsigned int *)&v182[4];
+    v157 = (__m128)*(unsigned int *)&v182[44];
+    v167 = (__m128)*(unsigned int *)&v182[24];
+    v159 = (__m128)*(unsigned int *)&v182[16];
+    v161 = (__m128)*(unsigned int *)v182;
     do
     {
 LABEL_4:
-      if ( v36 > v23 )
+      if ( v18 > v11 )
         break;
       while ( 1 )
       {
-        v40 = v36;
-        _R14 = &_RSI[remap[v36]];
-        *(double *)&_XMM0 = Bounds_Max(_R14, _RDI);
-        __asm { vcomiss xmm0, xmm7 }
-        if ( !v43 )
+        v19 = v18;
+        v20 = &v5[remap[v18]];
+        v21 = Bounds_Max(v20, v17);
+        if ( *(float *)&v21 >= v16 )
         {
-          __asm { vucomiss xmm0, xmm7 }
-          if ( !v42 )
+          if ( *(float *)&v21 != v16 )
             break;
-          v44 = (_DWORD)_RDI == 3;
-          if ( (unsigned int)_RDI >= 3 )
+          if ( (unsigned int)v17 >= 3 )
           {
-            LODWORD(v279) = 3;
-            LODWORD(v278) = _RDI;
-            v45 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v278, v279);
-            v44 = !v45;
-            if ( v45 )
+            LODWORD(v152) = 3;
+            LODWORD(v151) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v151, v152) )
               __debugbreak();
           }
-          __asm { vucomiss xmm8, dword ptr [r14+rdi*4+0Ch] }
-          if ( v44 )
+          if ( v20->halfSize.v[v17] == 0.0 )
             break;
         }
-        v46 = remap[v36++];
-        __asm { vmovups xmm0, [rsp+318h+var_278] }
-        v22 = v280 + 1;
-        _RCX = 3 * v46;
-        ++v280;
-        HIDWORD(v298) = 0;
-        HIDWORD(v300) = 0;
-        HIDWORD(v299) = 0;
-        HIDWORD(v301) = 0;
+        v22 = remap[v18++];
+        LODWORD(v10) = ++LODWORD(v153);
+        v170.m128_i32[3] = 0;
+        v172.m128_i32[3] = 0;
+        v171.m128_i32[3] = 0;
+        v173.m128_i32[3] = 0;
+        v24 = v170;
+        v24.m128_f32[0] = v161.m128_f32[0];
+        _XMM6 = v24;
         __asm
         {
-          vmovups xmm6, xmmword ptr [rsp+120h]
-          vmovups xmm5, xmmword ptr [rsp+140h]
-          vmovups xmm3, xmmword ptr [rsp+130h]
-          vmovups xmm4, xmmword ptr [rsp+150h]
-          vmovss  xmm6, xmm6, xmm0
           vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_268], 10h
           vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_258], 20h
-          vmovss  xmm0, dword ptr [rsi+rcx*8]
-          vmovss  xmm5, xmm5, xmm0
-          vmovss  xmm0, dword ptr [rsi+rcx*8+0Ch]
+        }
+        v28 = v172;
+        v28.m128_f32[0] = v5[v22].midPoint.v[0];
+        _XMM5 = v28;
+        __asm
+        {
           vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+4], 10h
           vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+8], 20h ; ' '
-          vmovss  xmm4, xmm4, xmm0
+        }
+        v32 = v173;
+        v32.m128_f32[0] = v5[v22].halfSize.v[0];
+        _XMM4 = v32;
+        __asm
+        {
           vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+10h], 10h
           vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+14h], 20h ; ' '
-          vmovss  xmm3, xmm3, xmm14
-          vaddps  xmm1, xmm5, xmm4
-          vsubps  xmm0, xmm5, xmm4
+        }
+        v36 = v171;
+        v36.m128_f32[0] = v12.m128_f32[0];
+        _XMM3 = v36;
+        _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+        _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+        __asm
+        {
           vinsertps xmm3, xmm3, xmm10, 10h
           vinsertps xmm3, xmm3, xmm11, 20h ; ' '
-          vsubps  xmm2, xmm6, xmm3
-          vmovups xmmword ptr [rsp+150h], xmm4
-          vminps  xmm4, xmm0, xmm2
-          vmovups xmmword ptr [rsp+130h], xmm3
-          vaddps  xmm3, xmm6, xmm3
-          vmaxps  xmm0, xmm1, xmm3
-          vaddps  xmm1, xmm0, xmm4
-          vmulps  xmm1, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-          vsubps  xmm14, xmm1, xmm4
-          vshufps xmm0, xmm14, xmm14, 0AAh ; 'ª'
-          vshufps xmm4, xmm1, xmm1, 55h ; 'U'
-          vshufps xmm2, xmm1, xmm1, 0AAh ; 'ª'
-          vmovups xmmword ptr [rsp+120h], xmm6
-          vshufps xmm6, xmm14, xmm14, 55h ; 'U'
-          vmovss  dword ptr [rsp+318h+var_118+10h], xmm6
-          vmovss  dword ptr [rsp+318h+var_118+14h], xmm0
-          vmovups [rsp+318h+var_298], xmm6
-          vmovups [rsp+318h+var_248], xmm0
-          vmovss  dword ptr [rsp+318h+var_118], xmm1
-          vmovss  dword ptr [rsp+318h+var_118+4], xmm4
-          vmovss  dword ptr [rsp+318h+var_118+8], xmm2
-          vmovss  dword ptr [rsp+318h+var_118+0Ch], xmm14
-          vmovups xmmword ptr [rsp+140h], xmm5
-          vmovups [rsp+318h+var_278], xmm1
-          vmovups [rsp+318h+var_268], xmm4
-          vmovups [rsp+318h+var_258], xmm2
         }
-        if ( v40 >= v23 )
+        _mm128_sub_ps(_XMM6, _XMM3);
+        v173 = _XMM4;
+        __asm { vminps  xmm4, xmm0, xmm2 }
+        v171 = _XMM3;
+        _mm128_add_ps(_XMM6, _XMM3);
+        __asm { vmaxps  xmm0, xmm1, xmm3 }
+        v43 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+        v12 = _mm128_sub_ps(v43, _XMM4);
+        v44 = _mm_shuffle_ps(v12, v12, 170);
+        v45 = _mm_shuffle_ps(v43, v43, 85);
+        v46 = _mm_shuffle_ps(v43, v43, 170);
+        v170 = _XMM6;
+        v47 = _mm_shuffle_ps(v12, v12, 85);
+        *(float *)&v182[16] = v47.m128_f32[0];
+        *(float *)&v182[20] = v44.m128_f32[0];
+        v159 = v47;
+        v164 = v44;
+        *(float *)v182 = v43.m128_f32[0];
+        *(float *)&v182[4] = v45.m128_f32[0];
+        *(float *)&v182[8] = v46.m128_f32[0];
+        *(float *)&v182[12] = v12.m128_f32[0];
+        v172 = _XMM5;
+        v161 = v43;
+        v162 = v45;
+        v163 = v46;
+        if ( v19 >= v11 )
         {
-          __asm { vmovups xmm5, [rsp+318h+var_2B8] }
-          v21 = v281;
+          v73.m128_i32[0] = v157.m128_i32[0];
+          v9 = v154;
           goto LABEL_44;
         }
-        __asm
-        {
-          vmovups xmm10, xmm6
-          vmovups xmm11, xmm0
-        }
       }
-      v21 = v281;
+      v9 = v154;
       while ( 1 )
       {
-        _R14 = &_RSI[remap[v23]];
-        *(double *)&_XMM0 = Bounds_Min(_R14, _RDI);
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v43 | v82 )
+        v48 = &v5[remap[v11]];
+        v49 = Bounds_Min(v48, v17);
+        if ( *(float *)&v49 <= v16 )
         {
-          __asm { vucomiss xmm0, xmm7 }
-          if ( !v82 )
+          if ( *(float *)&v49 != v16 )
             break;
-          v83 = (_DWORD)_RDI == 3;
-          if ( (unsigned int)_RDI >= 3 )
+          if ( (unsigned int)v17 >= 3 )
           {
-            LODWORD(v279) = 3;
-            LODWORD(v278) = _RDI;
-            v84 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v278, v279);
-            v83 = !v84;
-            if ( v84 )
+            LODWORD(v152) = 3;
+            LODWORD(v151) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v151, v152) )
               __debugbreak();
           }
-          __asm { vucomiss xmm8, dword ptr [r14+rdi*4+0Ch] }
-          if ( v83 )
+          if ( v48->halfSize.v[v17] == 0.0 )
             break;
         }
-        v85 = remap[v23];
-        --v21;
-        --v23;
-        v281 = v21;
-        _RCX = 3 * v85;
-        HIDWORD(v304) = 0;
-        HIDWORD(v302) = 0;
-        HIDWORD(v303) = 0;
-        HIDWORD(v305) = 0;
+        v50 = remap[v11];
+        --v9;
+        --v11;
+        v154 = v9;
+        v176.m128_i32[3] = 0;
+        v174.m128_i32[3] = 0;
+        v175.m128_i32[3] = 0;
+        v177.m128_i32[3] = 0;
+        v52 = v176;
+        v52.m128_f32[0] = v5[v50].midPoint.v[0];
+        _XMM5 = v52;
         __asm
         {
-          vmovups xmm5, xmmword ptr [rsp+180h]
-          vmovss  xmm0, dword ptr [rsi+rcx*8]
-          vmovups xmm6, xmmword ptr [rsp+160h]
-          vmovups xmm3, xmmword ptr [rsp+170h]
-          vmovups xmm4, xmmword ptr [rsp+190h]
-          vmovss  xmm5, xmm5, xmm0
-          vmovss  xmm0, dword ptr [rsi+rcx*8+0Ch]
           vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+4], 10h
           vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+8], 20h ; ' '
-          vmovss  xmm4, xmm4, xmm0
+        }
+        v56 = v177;
+        v56.m128_f32[0] = v5[v50].halfSize.v[0];
+        _XMM4 = v56;
+        __asm
+        {
           vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+10h], 10h
           vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+14h], 20h ; ' '
-          vaddps  xmm1, xmm5, xmm4
-          vmovss  xmm3, xmm3, xmm13
-          vsubps  xmm0, xmm5, xmm4
-          vmovss  xmm6, xmm6, xmm12
+        }
+        _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+        v61 = v175;
+        v61.m128_f32[0] = v14.m128_f32[0];
+        _XMM3 = v61;
+        _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+        v64 = v174;
+        v64.m128_f32[0] = v15.m128_f32[0];
+        _XMM6 = v64;
+        __asm
+        {
           vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_238], 10h
           vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_228], 20h
           vinsertps xmm3, xmm3, xmm15, 10h
           vinsertps xmm3, xmm3, xmm9, 20h ; ' '
-          vsubps  xmm2, xmm6, xmm3
-          vmovups xmmword ptr [rsp+190h], xmm4
-          vminps  xmm4, xmm0, xmm2
-          vmovups xmmword ptr [rsp+170h], xmm3
-          vaddps  xmm3, xmm6, xmm3
-          vmaxps  xmm0, xmm1, xmm3
-          vaddps  xmm1, xmm0, xmm4
-          vmulps  xmm12, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-          vsubps  xmm13, xmm12, xmm4
-          vshufps xmm4, xmm12, xmm12, 55h ; 'U'
-          vshufps xmm2, xmm12, xmm12, 0AAh ; 'ª'
-          vmovups xmmword ptr [rsp+180h], xmm5
-          vshufps xmm5, xmm13, xmm13, 0AAh ; 'ª'
-          vshufps xmm15, xmm13, xmm13, 55h ; 'U'
-          vmovss  dword ptr [rsp+318h+var_F8+8], xmm15
-          vmovss  dword ptr [rsp+318h+var_F8+0Ch], xmm5
-          vmovups [rsp+318h+var_2B8], xmm5
-          vmovss  dword ptr [rsp+318h+var_118+18h], xmm12
-          vmovss  dword ptr [rsp+318h+var_118+1Ch], xmm4
-          vmovss  dword ptr [rsp+318h+var_F8], xmm2
-          vmovss  dword ptr [rsp+318h+var_F8+4], xmm13
-          vmovups xmmword ptr [rsp+160h], xmm6
-          vmovups [rsp+318h+var_218], xmm12
-          vmovups [rsp+318h+var_238], xmm4
-          vmovups [rsp+318h+var_228], xmm2
         }
-        if ( v36 > v23 )
+        _mm128_sub_ps(_XMM6, _XMM3);
+        v177 = _XMM4;
+        __asm { vminps  xmm4, xmm0, xmm2 }
+        v175 = _XMM3;
+        _mm128_add_ps(_XMM6, _XMM3);
+        __asm { vmaxps  xmm0, xmm1, xmm3 }
+        v15 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+        v14 = _mm128_sub_ps(v15, _XMM4);
+        v71 = _mm_shuffle_ps(v15, v15, 85);
+        v72 = _mm_shuffle_ps(v15, v15, 170);
+        v176 = _XMM5;
+        v73 = _mm_shuffle_ps(v14, v14, 170);
+        v13 = _mm_shuffle_ps(v14, v14, 85).m128_f32[0];
+        *(float *)&v182[40] = v13;
+        *(float *)&v182[44] = v73.m128_f32[0];
+        v157 = v73;
+        *(float *)&v182[24] = v15.m128_f32[0];
+        *(float *)&v182[28] = v71.m128_f32[0];
+        *(float *)&v182[32] = v72.m128_f32[0];
+        *(float *)&v182[36] = v14.m128_f32[0];
+        v174 = _XMM6;
+        v167 = v15;
+        v165 = v71;
+        v166 = v72;
+        if ( v18 > v11 )
         {
-          v22 = v280;
+          v10 = v153;
           goto LABEL_43;
         }
-        __asm { vmovups xmm9, xmm5 }
       }
-      v117 = &_RSI[remap[v36]];
-      *(double *)&_XMM0 = Bounds_Min(v117, _RDI);
-      __asm { vcomiss xmm0, xmm7 }
-      if ( !(v43 | v118) )
-        goto LABEL_39;
-      __asm { vucomiss xmm0, xmm7 }
-      if ( v118 )
+      v74 = &v5[remap[v18]];
+      v75 = Bounds_Min(v74, v17);
+      if ( *(float *)&v75 > v16 || *(float *)&v75 == v16 && *vec3_t::operator[](&v74->halfSize, v17) != 0.0 || GoesBeforeSplit(&v5[remap[v11]], v17, v16) )
       {
-        _RAX = vec3_t::operator[](&v117->halfSize, _RDI);
-        __asm { vucomiss xmm8, dword ptr [rax] }
-        if ( !v42 )
-          goto LABEL_39;
-      }
-      __asm { vmovaps xmm2, xmm7; splitDist }
-      if ( (unsigned int)GoesBeforeSplit(&_RSI[remap[v23]], _RDI, *(double *)&_XMM2) )
-      {
-LABEL_39:
-        v130 = remap[v36];
-        v22 = v280;
-        remap[v36] = remap[v23];
-        remap[v23] = v130;
+        v82 = remap[v18];
+        v10 = v153;
+        remap[v18] = remap[v11];
+        remap[v11] = v82;
         goto LABEL_4;
       }
-      v22 = v280;
-      v121 = v36;
-      v283 = v280;
-      v122 = v280;
-      if ( v36 < v23 )
+      v10 = v153;
+      v76 = v18;
+      chosenDist = v153;
+      v77 = v153;
+      if ( v18 < v11 )
       {
         while ( 1 )
         {
-          v123 = &_RSI[remap[v121]];
-          *(double *)&_XMM0 = Bounds_Min(v123, _RDI);
-          __asm { vcomiss xmm0, xmm7 }
-          if ( !(v43 | v124) )
+          v78 = &v5[remap[v76]];
+          v79 = Bounds_Min(v78, v17);
+          if ( *(float *)&v79 > v16 || *(float *)&v79 == v16 && *vec3_t::operator[](&v78->halfSize, v17) != 0.0 )
             break;
-          __asm { vucomiss xmm0, xmm7 }
-          if ( v124 )
+          if ( GoesBeforeSplit(&v5[remap[v76]], v17, v16) )
           {
-            _RAX = vec3_t::operator[](&v123->halfSize, _RDI);
-            __asm { vucomiss xmm8, dword ptr [rax] }
-            if ( !v42 )
-              break;
-          }
-          __asm { vmovaps xmm2, xmm7; splitDist }
-          if ( (unsigned int)GoesBeforeSplit(&_RSI[remap[v121]], _RDI, *(double *)&_XMM2) )
-          {
-            v127 = remap[v121];
-            remap[v121] = remap[v36];
-            remap[v36] = v127;
+            v80 = remap[v76];
+            remap[v76] = remap[v18];
+            remap[v18] = v80;
             goto LABEL_35;
           }
-          ++v121;
-          v122 = ++v283;
-          if ( v121 >= v23 )
+          ++v76;
+          LODWORD(v77) = ++LODWORD(chosenDist);
+          if ( v76 >= v11 )
             goto LABEL_36;
         }
-        v128 = remap[v121];
-        remap[v121] = remap[v23];
-        remap[v23] = v128;
+        v81 = remap[v76];
+        remap[v76] = remap[v11];
+        remap[v11] = v81;
 LABEL_35:
-        v122 = v283;
+        v77 = chosenDist;
 LABEL_36:
-        v22 = v280;
-        v21 = v281;
+        v10 = v153;
+        v9 = v154;
       }
     }
-    while ( v122 != v21 );
-    __asm { vmovups xmm5, [rsp+318h+var_2B8] }
+    while ( LODWORD(v77) != v9 );
+    v73.m128_i32[0] = v157.m128_i32[0];
 LABEL_43:
-    __asm { vmovups xmm6, [rsp+318h+var_298] }
+    v47.m128_i32[0] = v159.m128_i32[0];
 LABEL_44:
-    v18 = count;
-    v17 = options;
+    v8 = v156;
+    v7 = v158;
   }
-  if ( v22 <= v21 )
+  if ( SLODWORD(v10) <= v9 )
   {
-    minItemsPerLeaf = v17->minItemsPerLeaf;
-    if ( v22 < minItemsPerLeaf || v21 - v22 + 1 < minItemsPerLeaf || v18 - v21 - 1 < minItemsPerLeaf )
+    minItemsPerLeaf = v7->minItemsPerLeaf;
+    if ( SLODWORD(v10) < minItemsPerLeaf || v9 - LODWORD(v10) + 1 < minItemsPerLeaf || v8 - v9 - 1 < minItemsPerLeaf )
     {
-      v140 = v22;
-      v141 = v21;
-      if ( v22 <= (__int64)v21 )
+      v84 = SLODWORD(v10);
+      v85 = v9;
+      if ( SLODWORD(v10) <= (__int64)v9 )
       {
-        __asm
-        {
-          vmovss  xmm7, cs:__real@41000000
-          vmovsd  xmm8, qword ptr [rsp+318h+var_F8+8]
-          vmovups xmm9, xmmword ptr [rsp+318h+var_118+18h]
-          vmovsd  xmm10, qword ptr [rsp+318h+var_118+10h]
-          vmovups xmm11, xmmword ptr [rsp+318h+var_118]
-        }
+        v86 = *(double *)&v182[40];
+        v87 = *(_OWORD *)&v182[24];
+        v88 = *(double *)&v182[16];
+        v89 = *(_OWORD *)v182;
         while ( 1 )
         {
-          v147 = v140 <= v141;
-          if ( v140 <= v141 )
+          v90 = v84 <= v85;
+          if ( v84 <= v85 )
             break;
 LABEL_67:
-          __asm { vmovups xmm6, [rsp+318h+var_298] }
-          if ( !v147 )
+          v47.m128_i32[0] = v159.m128_i32[0];
+          if ( !v90 )
             goto LABEL_68;
         }
-        __asm
-        {
-          vmulss  xmm0, xmm15, xmm13
-          vmulss  xmm1, xmm0, xmm5
-          vmulss  xmm12, xmm1, xmm7
-        }
+        v91 = (float)((float)(v13 * v14.m128_f32[0]) * v73.m128_f32[0]) * 8.0;
         while ( 1 )
         {
-          v151 = remap[v140];
-          __asm
-          {
-            vmovups xmmword ptr [rsp+318h+bounds.midPoint], xmm11
-            vmovsd  qword ptr [rsp+318h+bounds.halfSize+4], xmm10
-          }
-          Bounds_Expand(&bounds, &_RSI[v151]);
-          v152 = remap[v140];
-          __asm
-          {
-            vmovups xmmword ptr [rsp+318h+var_160.midPoint], xmm9
-            vmovsd  qword ptr [rsp+318h+var_160.halfSize+4], xmm8
-          }
-          Bounds_Expand(&v307, &_RSI[v152]);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+318h+bounds.halfSize]
-            vmulss  xmm1, xmm0, dword ptr [rsp+318h+bounds.halfSize+4]
-            vmulss  xmm2, xmm1, dword ptr [rsp+318h+bounds.halfSize+8]
-            vmovups xmm5, [rsp+318h+var_248]
-            vmulss  xmm3, xmm2, xmm7
-            vmulss  xmm0, xmm6, xmm14
-            vmulss  xmm1, xmm0, xmm5
-            vmovss  xmm0, dword ptr [rsp+318h+var_160.halfSize]
-            vmulss  xmm2, xmm1, xmm7
-            vmulss  xmm1, xmm0, dword ptr [rsp+318h+var_160.halfSize+4]
-            vsubss  xmm4, xmm3, xmm2
-            vmulss  xmm2, xmm1, dword ptr [rsp+318h+var_160.halfSize+8]
-            vmulss  xmm3, xmm2, xmm7
-            vsubss  xmm0, xmm3, xmm12
-            vcomiss xmm4, xmm0
-          }
-          if ( !(v43 | v42) )
+          v92 = remap[v84];
+          *(_OWORD *)bounds.midPoint.v = v89;
+          *(double *)&bounds.halfSize.y = v88;
+          Bounds_Expand(&bounds, &v5[v92]);
+          v93 = remap[v84];
+          *(_OWORD *)v179.midPoint.v = v87;
+          *(double *)&v179.halfSize.y = v86;
+          Bounds_Expand(&v179, &v5[v93]);
+          if ( (float)((float)((float)((float)(bounds.halfSize.v[0] * bounds.halfSize.v[1]) * bounds.halfSize.v[2]) * 8.0) - (float)((float)((float)(v47.m128_f32[0] * v12.m128_f32[0]) * v164.m128_f32[0]) * 8.0)) > (float)((float)((float)((float)(v179.halfSize.v[0] * v179.halfSize.v[1]) * v179.halfSize.v[2]) * 8.0) - v91) )
             break;
-          v167 = remap[v140++];
-          __asm { vmovups xmm0, [rsp+318h+var_278] }
-          v22 = v280 + 1;
-          _RCX = 3 * v167;
-          ++v280;
-          HIDWORD(v304) = 0;
-          HIDWORD(v305) = 0;
-          HIDWORD(v303) = 0;
-          HIDWORD(v302) = 0;
+          v94 = remap[v84++];
+          LODWORD(v10) = ++LODWORD(v153);
+          v176.m128_i32[3] = 0;
+          v177.m128_i32[3] = 0;
+          v175.m128_i32[3] = 0;
+          v174.m128_i32[3] = 0;
+          v96 = v177;
+          v96.m128_f32[0] = v161.m128_f32[0];
+          _XMM6 = v96;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rsp+180h]
-            vmovups xmm6, xmmword ptr [rsp+190h]
-            vmovups xmm4, xmmword ptr [rsp+160h]
-            vmovss  xmm6, xmm6, xmm0
             vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_268], 10h
             vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_258], 20h
-            vmovss  xmm0, dword ptr [rsi+rcx*8]
-            vmovss  xmm3, xmm3, xmm14
+          }
+          v100 = v176;
+          v100.m128_f32[0] = v12.m128_f32[0];
+          _XMM3 = v100;
+          __asm
+          {
             vinsertps xmm3, xmm3, dword ptr [rsp+318h+var_298], 10h
             vinsertps xmm3, xmm3, xmm5, 20h ; ' '
-            vmovups xmm5, xmmword ptr [rsp+170h]
-            vmovss  xmm5, xmm5, xmm0
-            vmovss  xmm0, dword ptr [rsi+rcx*8+0Ch]
+          }
+          v104 = v175;
+          v104.m128_f32[0] = v5[v94].midPoint.v[0];
+          _XMM5 = v104;
+          __asm
+          {
             vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+4], 10h
             vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+8], 20h ; ' '
-            vmovss  xmm4, xmm4, xmm0
+          }
+          v108 = v174;
+          v108.m128_f32[0] = v5[v94].halfSize.v[0];
+          _XMM4 = v108;
+          __asm
+          {
             vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+10h], 10h
             vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+14h], 20h ; ' '
-            vaddps  xmm1, xmm5, xmm4
-            vsubps  xmm0, xmm5, xmm4
-            vsubps  xmm2, xmm6, xmm3
-            vmovups xmmword ptr [rsp+160h], xmm4
-            vminps  xmm4, xmm0, xmm2
-            vmovups xmmword ptr [rsp+180h], xmm3
-            vaddps  xmm3, xmm6, xmm3
-            vmaxps  xmm0, xmm1, xmm3
-            vaddps  xmm1, xmm0, xmm4
-            vmulps  xmm2, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-            vsubps  xmm3, xmm2, xmm4
-            vmovaps xmm4, xmm2
-            vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-            vmovss  dword ptr [rsp+318h+var_118+10h], xmm0
-            vmovss  dword ptr [rsp+318h+var_118], xmm2
-            vmovups [rsp+318h+var_278], xmm4
-            vshufps xmm4, xmm2, xmm2, 55h ; 'U'
-            vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-            vmovaps xmm2, xmm2
-            vmovaps xmm4, xmm4
-            vmovups xmmword ptr [rsp+190h], xmm6
-            vmovaps xmm6, xmm0
-            vshufps xmm0, xmm3, xmm3, 0AAh ; 'ª'
-            vmovaps xmm0, xmm0
-            vmovss  dword ptr [rsp+318h+var_118+8], xmm2
-            vmovss  dword ptr [rsp+318h+var_118+14h], xmm0
-            vmovsd  xmm10, qword ptr [rsp+318h+var_118+10h]
-            vmovss  dword ptr [rsp+318h+var_118+4], xmm4
-            vmovss  dword ptr [rsp+318h+var_118+0Ch], xmm3
-            vmovups xmm11, xmmword ptr [rsp+318h+var_118]
-            vmovups xmmword ptr [rsp+170h], xmm5
-            vmovups [rsp+318h+var_268], xmm4
-            vmovups [rsp+318h+var_258], xmm2
-            vmovaps xmm14, xmm3
-            vmovups [rsp+318h+var_298], xmm6
-            vmovups [rsp+318h+var_248], xmm0
           }
-          if ( v140 > v141 )
+          _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+          _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+          _mm128_sub_ps(_XMM6, _XMM3);
+          v174 = _XMM4;
+          __asm { vminps  xmm4, xmm0, xmm2 }
+          v176 = _XMM3;
+          _mm128_add_ps(_XMM6, _XMM3);
+          __asm { vmaxps  xmm0, xmm1, xmm3 }
+          v115 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+          v116 = _mm128_sub_ps(v115, _XMM4);
+          v117 = _mm_shuffle_ps(v116, v116, 85);
+          *(float *)&v182[16] = v117.m128_f32[0];
+          *(float *)v182 = v115.m128_f32[0];
+          v161 = v115;
+          v118 = _mm_shuffle_ps(v115, v115, 85);
+          v119 = _mm_shuffle_ps(v115, v115, 170);
+          v177 = _XMM6;
+          v47 = v117;
+          v120 = _mm_shuffle_ps(v116, v116, 170);
+          *(float *)&v182[8] = v119.m128_f32[0];
+          *(float *)&v182[20] = v120.m128_f32[0];
+          v88 = *(double *)&v182[16];
+          *(float *)&v182[4] = v118.m128_f32[0];
+          *(float *)&v182[12] = v116.m128_f32[0];
+          v89 = *(_OWORD *)v182;
+          v175 = _XMM5;
+          v162 = v118;
+          v163 = v119;
+          v12.m128_i32[0] = v116.m128_i32[0];
+          v159 = v47;
+          v164 = v120;
+          if ( v84 > v85 )
           {
-            __asm { vmovups xmm5, [rsp+318h+var_2B8] }
+            v73.m128_i32[0] = v157.m128_i32[0];
             goto LABEL_63;
           }
         }
-        if ( v140 > v141 )
+        if ( v84 > v85 )
         {
-          __asm { vmovups xmm5, [rsp+318h+var_2B8] }
+          v73.m128_i32[0] = v157.m128_i32[0];
         }
         else
         {
-          __asm
-          {
-            vmulss  xmm0, xmm6, xmm14
-            vmulss  xmm1, xmm0, xmm5
-            vmulss  xmm12, xmm1, xmm7
-          }
+          v121 = (float)((float)(v47.m128_f32[0] * v12.m128_f32[0]) * v164.m128_f32[0]) * 8.0;
           do
           {
-            v210 = remap[v141];
-            __asm
-            {
-              vmovups xmmword ptr [rsp+318h+var_148.midPoint], xmm9
-              vmovsd  qword ptr [rsp+318h+var_148.halfSize+4], xmm8
-            }
-            Bounds_Expand(&v308, &_RSI[v210]);
-            v211 = remap[v141];
-            __asm
-            {
-              vmovups xmmword ptr [rsp+318h+var_130.midPoint], xmm11
-              vmovsd  qword ptr [rsp+318h+var_130.halfSize+4], xmm10
-            }
-            Bounds_Expand(&v309, &_RSI[v211]);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+318h+var_148.halfSize]
-              vmulss  xmm1, xmm0, dword ptr [rsp+318h+var_148.halfSize+4]
-              vmulss  xmm2, xmm1, dword ptr [rsp+318h+var_148.halfSize+8]
-              vmovups xmm5, [rsp+318h+var_2B8]
-              vmulss  xmm3, xmm2, xmm7
-              vmulss  xmm0, xmm15, xmm13
-              vmulss  xmm1, xmm0, xmm5
-              vmovss  xmm0, dword ptr [rsp+318h+var_130.halfSize]
-              vmulss  xmm2, xmm1, xmm7
-              vmulss  xmm1, xmm0, dword ptr [rsp+318h+var_130.halfSize+4]
-              vsubss  xmm4, xmm3, xmm2
-              vmulss  xmm2, xmm1, dword ptr [rsp+318h+var_130.halfSize+8]
-              vmulss  xmm3, xmm2, xmm7
-              vsubss  xmm0, xmm3, xmm12
-              vcomiss xmm4, xmm0
-            }
-            if ( !(v43 | v42) )
+            v122 = remap[v85];
+            *(_OWORD *)v180.midPoint.v = v87;
+            *(double *)&v180.halfSize.y = v86;
+            Bounds_Expand(&v180, &v5[v122]);
+            v123 = remap[v85];
+            *(_OWORD *)v181.midPoint.v = v89;
+            *(double *)&v181.halfSize.y = v88;
+            Bounds_Expand(&v181, &v5[v123]);
+            v73.m128_i32[0] = v157.m128_i32[0];
+            if ( (float)((float)((float)((float)(v180.halfSize.v[0] * v180.halfSize.v[1]) * v180.halfSize.v[2]) * 8.0) - (float)((float)((float)(v13 * v14.m128_f32[0]) * v157.m128_f32[0]) * 8.0)) > (float)((float)((float)((float)(v181.halfSize.v[0] * v181.halfSize.v[1]) * v181.halfSize.v[2]) * 8.0) - v121) )
               break;
-            v226 = remap[v141];
-            --v21;
-            __asm { vmovups xmm0, [rsp+318h+var_218] }
-            --v141;
-            _RCX = 3 * v226;
-            HIDWORD(v300) = 0;
-            HIDWORD(v301) = 0;
-            HIDWORD(v299) = 0;
-            HIDWORD(v298) = 0;
+            v124 = remap[v85];
+            --v9;
+            --v85;
+            v172.m128_i32[3] = 0;
+            v173.m128_i32[3] = 0;
+            v171.m128_i32[3] = 0;
+            v170.m128_i32[3] = 0;
+            v126 = v173;
+            v126.m128_f32[0] = v167.m128_f32[0];
+            _XMM6 = v126;
             __asm
             {
-              vmovups xmm3, xmmword ptr [rsp+140h]
-              vmovups xmm6, xmmword ptr [rsp+150h]
-              vmovups xmm4, xmmword ptr [rsp+120h]
-              vmovss  xmm6, xmm6, xmm0
-              vmovss  xmm0, dword ptr [rsi+rcx*8]
               vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_238], 10h
               vinsertps xmm6, xmm6, dword ptr [rsp+318h+var_228], 20h
-              vmovss  xmm3, xmm3, xmm13
+            }
+            v130 = v172;
+            v130.m128_f32[0] = v14.m128_f32[0];
+            _XMM3 = v130;
+            __asm
+            {
               vinsertps xmm3, xmm3, xmm15, 10h
               vinsertps xmm3, xmm3, xmm5, 20h ; ' '
-              vmovups xmm5, xmmword ptr [rsp+130h]
-              vmovss  xmm5, xmm5, xmm0
+            }
+            v134 = v171;
+            v134.m128_f32[0] = v5[v124].midPoint.v[0];
+            _XMM5 = v134;
+            __asm
+            {
               vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+4], 10h
               vinsertps xmm5, xmm5, dword ptr [rsi+rcx*8+8], 20h ; ' '
-              vmovss  xmm0, dword ptr [rsi+rcx*8+0Ch]
-              vmovss  xmm4, xmm4, xmm0
+            }
+            v138 = v170;
+            v138.m128_f32[0] = v5[v124].halfSize.v[0];
+            _XMM4 = v138;
+            __asm
+            {
               vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+10h], 10h
               vinsertps xmm4, xmm4, dword ptr [rsi+rcx*8+14h], 20h ; ' '
-              vaddps  xmm1, xmm5, xmm4
-              vsubps  xmm0, xmm5, xmm4
-              vsubps  xmm2, xmm6, xmm3
-              vmovups xmmword ptr [rsp+120h], xmm4
-              vminps  xmm4, xmm0, xmm2
-              vmovups xmmword ptr [rsp+140h], xmm3
-              vaddps  xmm3, xmm6, xmm3
-              vmaxps  xmm0, xmm1, xmm3
-              vaddps  xmm1, xmm0, xmm4
-              vmulps  xmm2, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-              vsubps  xmm3, xmm2, xmm4
-              vmovaps xmm4, xmm2
-              vmovss  dword ptr [rsp+318h+var_118+18h], xmm2
-              vmovups [rsp+318h+var_218], xmm4
-              vshufps xmm4, xmm2, xmm2, 55h ; 'U'
-              vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-              vmovups xmmword ptr [rsp+130h], xmm5
-              vshufps xmm5, xmm3, xmm3, 0AAh ; 'ª'
-              vmovaps xmm2, xmm2
-              vmovaps xmm4, xmm4
-              vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-              vmovaps xmm5, xmm5
-              vmovss  dword ptr [rsp+318h+var_F8], xmm2
-              vmovss  dword ptr [rsp+318h+var_118+1Ch], xmm4
-              vmovss  dword ptr [rsp+318h+var_F8+4], xmm3
-              vmovups xmm9, xmmword ptr [rsp+318h+var_118+18h]
-              vmovss  dword ptr [rsp+318h+var_F8+8], xmm0
-              vmovss  dword ptr [rsp+318h+var_F8+0Ch], xmm5
-              vmovsd  xmm8, qword ptr [rsp+318h+var_F8+8]
-              vmovups xmmword ptr [rsp+150h], xmm6
-              vmovups [rsp+318h+var_238], xmm4
-              vmovups [rsp+318h+var_228], xmm2
-              vmovaps xmm13, xmm3
-              vmovaps xmm15, xmm0
-              vmovups [rsp+318h+var_2B8], xmm5
             }
+            _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+            _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+            _mm128_sub_ps(_XMM6, _XMM3);
+            v170 = _XMM4;
+            __asm { vminps  xmm4, xmm0, xmm2 }
+            v172 = _XMM3;
+            _mm128_add_ps(_XMM6, _XMM3);
+            __asm { vmaxps  xmm0, xmm1, xmm3 }
+            v145 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+            v146 = _mm128_sub_ps(v145, _XMM4);
+            *(float *)&v182[24] = v145.m128_f32[0];
+            v167 = v145;
+            v147 = _mm_shuffle_ps(v145, v145, 85);
+            v148 = _mm_shuffle_ps(v145, v145, 170);
+            v171 = _XMM5;
+            v73 = _mm_shuffle_ps(v146, v146, 170);
+            *(float *)&v182[32] = v148.m128_f32[0];
+            *(float *)&v182[28] = v147.m128_f32[0];
+            *(float *)&v182[36] = v146.m128_f32[0];
+            v87 = *(_OWORD *)&v182[24];
+            *(_DWORD *)&v182[40] = _mm_shuffle_ps(v146, v146, 85).m128_u32[0];
+            *(float *)&v182[44] = v73.m128_f32[0];
+            v86 = *(double *)&v182[40];
+            v173 = _XMM6;
+            v165 = v147;
+            v166 = v148;
+            v14.m128_i32[0] = v146.m128_i32[0];
+            v13 = *(float *)&v182[40];
+            v157 = v73;
           }
-          while ( v140 <= v141 );
+          while ( v84 <= v85 );
         }
-        v22 = v280;
+        v10 = v153;
 LABEL_63:
-        if ( v140 >= v141 )
+        if ( v84 >= v85 )
         {
-          if ( v140 != v141 )
+          if ( v84 != v85 )
             goto LABEL_66;
-          if ( 2 * v22 < v18 )
+          if ( 2 * LODWORD(v10) < v8 )
           {
-            v280 = ++v22;
-            ++v140;
+            ++LODWORD(v10);
+            v153 = v10;
+            ++v84;
             goto LABEL_66;
           }
         }
         else
         {
-          v266 = remap[v140];
-          ++v22;
-          remap[v140++] = remap[v141];
-          remap[v141] = v266;
-          v280 = v22;
+          v149 = remap[v84];
+          ++LODWORD(v10);
+          remap[v84++] = remap[v85];
+          remap[v85] = v149;
+          v153 = v10;
         }
-        --v21;
-        --v141;
+        --v9;
+        --v85;
 LABEL_66:
-        v147 = v140 <= v141;
+        v90 = v84 <= v85;
         goto LABEL_67;
       }
     }
   }
 LABEL_68:
-  __asm
-  {
-    vmovaps xmm15, [rsp+318h+var_D8]
-    vmovaps xmm14, [rsp+318h+var_C8]
-    vmovaps xmm13, [rsp+318h+var_B8]
-    vmovaps xmm12, [rsp+318h+var_A8]
-    vmovaps xmm11, [rsp+318h+var_98]
-    vmovaps xmm10, [rsp+318h+var_88]
-    vmovaps xmm9, [rsp+318h+var_78]
-    vmovaps xmm8, [rsp+318h+var_68]
-    vmovaps xmm7, [rsp+318h+var_58]
-    vmovaps xmm6, [rsp+318h+var_48]
-  }
-  if ( !v22 || v22 == v18 )
+  if ( v10 == 0.0 || LODWORD(v10) == v8 )
     return 0i64;
   result = 1i64;
-  *v296 = v22;
-  *v297 = v21 + 1;
+  *(float *)v168 = v10;
+  *v169 = v9 + 1;
   return result;
 }
 

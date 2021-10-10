@@ -57,62 +57,46 @@ void Resampler_Initialize(SndResamplerState *outState)
 Resampler_Resample_DrainSrc
 ==============
 */
-
-__int64 __fastcall Resampler_Resample_DrainSrc(SndResamplerState *state, double pitchRatio, const float *src, unsigned int srcCount, float *dest, unsigned int destCount)
+__int64 Resampler_Resample_DrainSrc(SndResamplerState *state, const float pitchRatio, const float *src, unsigned int srcCount, float *dest, unsigned int destCount)
 {
-  unsigned int v13; 
-  __int64 result; 
+  __int64 v6; 
+  unsigned int v8; 
+  unsigned int v9; 
+  float v10; 
+  unsigned int v11; 
   ResamplerPosition_LinearBuf position; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v6 = srcCount;
   Sys_ProfBeginNamedEvent(0xFFu, "Resampler_Resample_DrainSrc");
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 154, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
     __debugbreak();
   if ( !dest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 155, ASSERT_TYPE_ASSERT, "(dest)", (const char *)&queryFormat, "dest") )
     __debugbreak();
-  if ( !srcCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 156, ASSERT_TYPE_ASSERT, "(srcCount > 0)", (const char *)&queryFormat, "srcCount > 0") )
+  if ( !(_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 156, ASSERT_TYPE_ASSERT, "(srcCount > 0)", (const char *)&queryFormat, "srcCount > 0") )
     __debugbreak();
   if ( !destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 157, ASSERT_TYPE_ASSERT, "(destCount > 0)", (const char *)&queryFormat, "destCount > 0") )
     __debugbreak();
   if ( ((unsigned __int8)dest & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 158, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( dest ) ) & 15 ) == 0 ) )", "( ( ( uintptr_t )dest ) ) = 0x%llx", dest) )
     __debugbreak();
-  position.bufSize = srcCount;
-  __asm { vxorps  xmm2, xmm2, xmm2 }
+  position.bufSize = v6;
   position.pos = 0;
-  v13 = srcCount - 1;
+  v8 = v6 - 1;
   position.consumed = 0;
-  __asm
-  {
-    vcvttss2si eax, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vsubss  xmm1, xmm6, xmm0
-    vucomiss xmm1, xmm2
-    vmovss  [rsp+68h+position.interpStep], xmm6
-    vmovss  [rsp+68h+position.interp], xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdi
-  }
-  if ( srcCount - 1 > _EAX )
-    v13 = _EAX;
-  __asm
-  {
-    vdivss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vcvttss2si edi, xmm2
-  }
-  position.nextPos = v13;
-  if ( _EDI > destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 163, ASSERT_TYPE_ASSERT, "(samplesToGenerate <= destCount)", (const char *)&queryFormat, "samplesToGenerate <= destCount", *(_QWORD *)&position.interpStep, *(_QWORD *)&position.pos, *(_QWORD *)&position.interp) )
+  v9 = (int)pitchRatio;
+  position.interpStep = pitchRatio;
+  position.interp = 0.0;
+  if ( (float)(pitchRatio - (float)(int)pitchRatio) != 0.0 )
+    ++v9;
+  if ( v8 > v9 )
+    v8 = v9;
+  v10 = (float)v6;
+  v11 = (int)(float)((float)(v10 / pitchRatio) + 0.5);
+  position.nextPos = v8;
+  if ( v11 > destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 163, ASSERT_TYPE_ASSERT, "(samplesToGenerate <= destCount)", (const char *)&queryFormat, "samplesToGenerate <= destCount", *(_QWORD *)&position.interpStep, *(_QWORD *)&position.pos, *(_QWORD *)&position.interp) )
     __debugbreak();
-  Resampler_ResampleInternal_ResamplerPosition_LinearBuf_(&position, _EDI, src, dest);
+  Resampler_ResampleInternal_ResamplerPosition_LinearBuf_(&position, v11, src, dest);
   Sys_ProfEndNamedEvent();
-  result = _EDI;
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  return result;
+  return v11;
 }
 
 /*
@@ -120,17 +104,16 @@ __int64 __fastcall Resampler_Resample_DrainSrc(SndResamplerState *state, double 
 Resampler_Resample_DrainSrc_Stereo
 ==============
 */
-
-__int64 __fastcall Resampler_Resample_DrainSrc_Stereo(SndResamplerState *state, double pitchRatio, const float *src, unsigned int srcCount, float *destL, float *destR, unsigned int destCount)
+__int64 Resampler_Resample_DrainSrc_Stereo(SndResamplerState *state, const float pitchRatio, const float *src, unsigned int srcCount, float *destL, float *destR, unsigned int destCount)
 {
-  unsigned int v14; 
+  __int64 v7; 
+  unsigned int v9; 
+  unsigned int v10; 
+  float v11; 
+  unsigned int v12; 
   ResamplerPosition_LinearBuf position; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v7 = srcCount;
   Sys_ProfBeginNamedEvent(0xFFu, "Resampler_Resample_DrainSrc_Stereo");
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 268, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
     __debugbreak();
@@ -138,7 +121,7 @@ __int64 __fastcall Resampler_Resample_DrainSrc_Stereo(SndResamplerState *state, 
     __debugbreak();
   if ( !destR && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 270, ASSERT_TYPE_ASSERT, "(destR)", (const char *)&queryFormat, "destR") )
     __debugbreak();
-  if ( !srcCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 271, ASSERT_TYPE_ASSERT, "(srcCount > 0)", (const char *)&queryFormat, "srcCount > 0") )
+  if ( !(_DWORD)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 271, ASSERT_TYPE_ASSERT, "(srcCount > 0)", (const char *)&queryFormat, "srcCount > 0") )
     __debugbreak();
   if ( !destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 272, ASSERT_TYPE_ASSERT, "(destCount > 0)", (const char *)&queryFormat, "destCount > 0") )
     __debugbreak();
@@ -146,38 +129,25 @@ __int64 __fastcall Resampler_Resample_DrainSrc_Stereo(SndResamplerState *state, 
     __debugbreak();
   if ( ((unsigned __int8)destR & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 274, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( destR ) ) & 15 ) == 0 ) )", "( ( ( uintptr_t )destR ) ) = 0x%llx", destR) )
     __debugbreak();
-  position.bufSize = srcCount;
-  __asm { vxorps  xmm2, xmm2, xmm2 }
+  position.bufSize = v7;
   position.pos = 0;
-  v14 = srcCount - 1;
+  v9 = v7 - 1;
   position.consumed = 0;
-  __asm
-  {
-    vcvttss2si eax, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vsubss  xmm1, xmm6, xmm0
-    vucomiss xmm1, xmm2
-    vmovss  [rsp+68h+position.interpStep], xmm6
-    vmovss  [rsp+68h+position.interp], xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rsi
-  }
-  if ( srcCount - 1 > _EAX )
-    v14 = _EAX;
-  __asm
-  {
-    vdivss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vcvttss2si esi, xmm2
-  }
-  position.nextPos = v14;
-  if ( _ESI > destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 279, ASSERT_TYPE_ASSERT, "(samplesToGenerate <= destCount)", (const char *)&queryFormat, "samplesToGenerate <= destCount", *(_QWORD *)&position.interpStep, *(_QWORD *)&position.pos, *(_QWORD *)&position.interp) )
+  v10 = (int)pitchRatio;
+  position.interpStep = pitchRatio;
+  position.interp = 0.0;
+  if ( (float)(pitchRatio - (float)(int)pitchRatio) != 0.0 )
+    ++v10;
+  if ( v9 > v10 )
+    v9 = v10;
+  v11 = (float)v7;
+  v12 = (int)(float)((float)(v11 / pitchRatio) + 0.5);
+  position.nextPos = v9;
+  if ( v12 > destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 279, ASSERT_TYPE_ASSERT, "(samplesToGenerate <= destCount)", (const char *)&queryFormat, "samplesToGenerate <= destCount", *(_QWORD *)&position.interpStep, *(_QWORD *)&position.pos, *(_QWORD *)&position.interp) )
     __debugbreak();
-  Resampler_ResampleInternal_Stereo_ResamplerPosition_LinearBuf_(&position, _ESI, src, destL, destR);
+  Resampler_ResampleInternal_Stereo_ResamplerPosition_LinearBuf_(&position, v12, src, destL, destR);
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  return _ESI;
+  return v12;
 }
 
 /*
@@ -185,22 +155,14 @@ __int64 __fastcall Resampler_Resample_DrainSrc_Stereo(SndResamplerState *state, 
 Resampler_Resample_FillDest
 ==============
 */
-
-__int64 __fastcall Resampler_Resample_FillDest(SndResamplerState *state, double pitchRatio, const float *src, unsigned int *srcCount, unsigned int srcHead, const unsigned int srcSize, float *dest, unsigned int destCount)
+__int64 Resampler_Resample_FillDest(SndResamplerState *state, const float pitchRatio, const float *src, unsigned int *srcCount, unsigned int srcHead, const unsigned int srcSize, float *dest, unsigned int destCount)
 {
-  unsigned int v13; 
-  bool v14; 
-  bool v15; 
-  unsigned int v22; 
+  unsigned int v11; 
+  int v12; 
+  float v13; 
   unsigned int consumed; 
   ResamplerPosition_CircularBuf position; 
 
-  _R14 = state;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps xmm6, xmm1
-  }
   Sys_ProfBeginNamedEvent(0xFFu, "Resampler_Resample_FillDest");
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 177, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
     __debugbreak();
@@ -208,55 +170,30 @@ __int64 __fastcall Resampler_Resample_FillDest(SndResamplerState *state, double 
     __debugbreak();
   if ( !*srcCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 179, ASSERT_TYPE_ASSERT, "(srcCount > 0)", (const char *)&queryFormat, "srcCount > 0") )
     __debugbreak();
-  v13 = destCount;
+  v11 = destCount;
   if ( !destCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 180, ASSERT_TYPE_ASSERT, "(destCount > 0)", (const char *)&queryFormat, "destCount > 0") )
     __debugbreak();
-  v14 = ((unsigned __int8)dest & 0xF) == 0;
-  if ( ((unsigned __int8)dest & 0xF) != 0 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 181, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( dest ) ) & 15 ) == 0 ) )", "( ( ( uintptr_t )dest ) ) = 0x%llx", dest);
-    v14 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+78h+position.interp], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvttss2si eax, xmm6
-    vcvtsi2ss xmm0, xmm0, eax
-    vsubss  xmm2, xmm6, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm2, xmm1
-    vmovss  [rsp+78h+position.interpStep], xmm6
-  }
+  if ( ((unsigned __int8)dest & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 181, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( dest ) ) & 15 ) == 0 ) )", "( ( ( uintptr_t )dest ) ) = 0x%llx", dest) )
+    __debugbreak();
+  position.interp = state->t;
+  v12 = (int)pitchRatio;
+  position.interpStep = pitchRatio;
   position.bufSize = srcSize;
   position.pos = srcHead;
   position.consumed = 0;
-  if ( !v14 )
-    ++_EAX;
-  v22 = (srcHead + _EAX) % srcSize;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vcvttss2si eax, xmm2
-  }
-  position.nextPos = v22;
-  if ( destCount > _EAX )
-    v13 = _EAX;
-  Resampler_ResampleInternal_ResamplerPosition_CircularBuf_(&position, v13, src, dest);
-  __asm { vmovss  xmm0, [rsp+78h+position.interp] }
+  if ( (float)(pitchRatio - (float)(int)pitchRatio) != 0.0 )
+    ++v12;
+  v13 = (float)*srcCount;
+  position.nextPos = (srcHead + v12) % srcSize;
+  if ( destCount > (int)(float)((float)(v13 / pitchRatio) + 0.5) )
+    v11 = (int)(float)((float)(v13 / pitchRatio) + 0.5);
+  Resampler_ResampleInternal_ResamplerPosition_CircularBuf_(&position, v11, src, dest);
   consumed = position.consumed;
-  __asm { vmovss  dword ptr [r14], xmm0 }
+  state->t = position.interp;
   if ( consumed > *srcCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_resampler.cpp", 191, ASSERT_TYPE_ASSERT, "(position.consumed <= srcCount)", (const char *)&queryFormat, "position.consumed <= srcCount", *(_QWORD *)&position.interpStep, *(_QWORD *)&position.pos) )
     __debugbreak();
   *srcCount -= consumed;
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
-  return v13;
+  return v11;
 }
 

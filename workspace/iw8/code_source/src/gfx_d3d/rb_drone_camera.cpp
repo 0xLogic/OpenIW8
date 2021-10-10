@@ -60,108 +60,88 @@ RB_DroneCamera_Apply
 */
 void RB_DroneCamera_Apply(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, R_RT_Group *activeGroup)
 {
+  unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
   unsigned int m_allocWidth; 
   unsigned int m_allocHeight; 
   unsigned int DownsampleScale; 
-  unsigned int v13; 
-  unsigned __int16 v14; 
-  const dvar_t *v15; 
-  unsigned int v16; 
-  const dvar_t *v17; 
-  int v18; 
-  const dvar_t *v19; 
-  int v20; 
-  unsigned int v21; 
+  unsigned int v12; 
+  unsigned __int16 v13; 
+  const dvar_t *v14; 
+  unsigned int v15; 
+  const dvar_t *v16; 
+  int v17; 
+  const dvar_t *v18; 
+  int v19; 
+  unsigned int v20; 
   int rtFlags; 
-  unsigned int v47; 
+  unsigned int v26; 
   const R_RT_Surface *Surface; 
   R_RT_Handle result; 
-  R_RT_Handle v58; 
+  R_RT_Handle v29; 
   unsigned int width; 
   unsigned int allocWidth; 
-  R_RT_Handle v61; 
-  R_RT_Handle v62; 
-  R_RT_ColorHandle v64; 
+  R_RT_Handle v32; 
+  R_RT_Handle v33; 
+  R_RT_Handle v34; 
+  R_RT_Handle v35; 
   unsigned int height; 
 
-  _R13 = gfxContext;
-  _RBX = activeGroup;
-  _R12 = viewInfo;
   if ( R_DroneCamera_Enabled(viewInfo) )
   {
-    R_ProfBeginNamedEvent(_R13->state, "Drone Camera Effect");
+    R_ProfBeginNamedEvent(gfxContext->state, "Drone Camera Effect");
     R_GPU_BeginTimer(GPU_TIMER_DRONE_CAMERA);
-    if ( _RBX->m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+    if ( activeGroup->m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+8]
-      vmovups [rbp+70h+var_60], ymm0
-      vmovups ymmword ptr [rbp+70h+var_A0.m_surfaceID], ymm0
-    }
-    v8 = R_RT_Handle::GetSurface(&v61)->m_image.m_base.width;
-    v9 = R_RT_Handle::GetSurface(&v61)->m_image.m_base.height;
-    m_allocWidth = R_RT_Handle::GetSurface(&v61)->m_allocWidth;
-    m_allocHeight = R_RT_Handle::GetSurface(&v61)->m_allocHeight;
-    DownsampleScale = R_DroneCamera_GetDownsampleScale(_R12);
-    width = truncate_cast<unsigned short,unsigned int>(v8 / DownsampleScale);
-    height = truncate_cast<unsigned short,unsigned int>(v9 / DownsampleScale);
-    v13 = truncate_cast<unsigned short,unsigned int>(m_allocWidth / DownsampleScale);
-    allocWidth = v13;
-    v14 = truncate_cast<unsigned short,unsigned int>(m_allocHeight / DownsampleScale);
-    v15 = r_deviceDebug;
-    v16 = v14;
+    v34 = (R_RT_Handle)activeGroup->m_colorRts[0];
+    v32 = v34;
+    v7 = R_RT_Handle::GetSurface(&v32)->m_image.m_base.width;
+    v8 = R_RT_Handle::GetSurface(&v32)->m_image.m_base.height;
+    m_allocWidth = R_RT_Handle::GetSurface(&v32)->m_allocWidth;
+    m_allocHeight = R_RT_Handle::GetSurface(&v32)->m_allocHeight;
+    DownsampleScale = R_DroneCamera_GetDownsampleScale(viewInfo);
+    width = truncate_cast<unsigned short,unsigned int>(v7 / DownsampleScale);
+    height = truncate_cast<unsigned short,unsigned int>(v8 / DownsampleScale);
+    v12 = truncate_cast<unsigned short,unsigned int>(m_allocWidth / DownsampleScale);
+    allocWidth = v12;
+    v13 = truncate_cast<unsigned short,unsigned int>(m_allocHeight / DownsampleScale);
+    v14 = r_deviceDebug;
+    v15 = v13;
     if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v15->current.enabled )
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.enabled )
       goto LABEL_13;
-    v17 = DCONST_DVARBOOL_r_esramPostFX;
+    v16 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    v18 = 2112;
-    if ( !v17->current.enabled )
+    Dvar_CheckFrontendServerThread(v16);
+    v17 = 2112;
+    if ( !v16->current.enabled )
 LABEL_13:
-      v18 = 2048;
-    v19 = DCONST_DVARINT_r_dccPostFX;
+      v17 = 2048;
+    v18 = DCONST_DVARINT_r_dccPostFX;
     if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    v20 = 0;
-    if ( v19->current.integer == 1 )
-      v20 = 8;
-    v21 = width;
-    rtFlags = v20 | v18;
-    _RAX = R_RT_CreateInternal(&result, width, height, v13, v16, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DRONE_CAMERA_1", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(255)");
-    __asm
+    Dvar_CheckFrontendServerThread(v18);
+    v19 = 0;
+    if ( v18->current.integer == 1 )
+      v19 = 8;
+    v20 = width;
+    rtFlags = v19 | v17;
+    v32 = *R_RT_CreateInternal(&result, width, height, v12, v15, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DRONE_CAMERA_1", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(255)");
+    v33 = v32;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+70h+var_A0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+70h+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v62);
-      if ( (R_RT_Handle::GetSurface(&v62)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v33);
+      if ( (R_RT_Handle::GetSurface(&v33)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+70h+var_80.m_surfaceID]
-          vmovups ymmword ptr [rbp+70h+var_A0.m_surfaceID], ymm0
-        }
+        v32 = v33;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+70h+var_80.m_surfaceID]
-          vmovups ymmword ptr [rbp+70h+var_A0.m_surfaceID], ymm0
-        }
+        v32 = v33;
       }
     }
     else
@@ -170,33 +150,19 @@ LABEL_13:
       if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    _RAX = R_RT_CreateInternal(&result, v21, height, allocWidth, v16, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DRONE_CAMERA_2", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(256)");
-    __asm
+    v33 = *R_RT_CreateInternal(&result, v20, height, allocWidth, v15, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DRONE_CAMERA_2", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(256)");
+    v29 = v33;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+70h+var_80.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+70h+var_D0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v58);
-      if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v29);
+      if ( (R_RT_Handle::GetSurface(&v29)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+70h+var_D0.m_surfaceID]
-          vmovups ymmword ptr [rbp+70h+var_80.m_surfaceID], ymm0
-        }
+        v33 = v29;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+70h+var_D0.m_surfaceID]
-          vmovups ymmword ptr [rbp+70h+var_80.m_surfaceID], ymm0
-        }
+        v33 = v29;
       }
     }
     else
@@ -208,103 +174,47 @@ LABEL_13:
           __debugbreak();
       }
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-    }
-    R_DroneCamera_SetConstants((GfxCmdBufContext *)&v58, _R12);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+70h+var_A0.m_surfaceID]
-      vmovups ymm1, [rbp+70h+var_60]
-      vmovups [rbp+70h+var_40], ymm0
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm1
-    }
-    RB_DroneCamera_DownsampleBayerDebayer((GfxCmdBufContext *)&v58, _R12, (const R_RT_ColorHandle *)&result, &v64);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+70h+var_80.m_surfaceID]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-      vmovups ymm0, ymmword ptr [rbp+70h+var_A0.m_surfaceID]
-      vmovups [rbp+70h+var_40], ymm0
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-    }
-    RB_DroneCamera_ChromaSubsampling((GfxCmdBufContext *)&v58, _R12, &v64, (const R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+70h+var_A0.m_surfaceID]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&v58, (R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vpextrq rdi, xmm0, 1
-    }
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    R_DroneCamera_SetConstants((GfxCmdBufContext *)&v29, viewInfo);
+    v35 = v32;
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    result = v34;
+    RB_DroneCamera_DownsampleBayerDebayer((GfxCmdBufContext *)&v29, viewInfo, (const R_RT_ColorHandle *)&result, (const R_RT_ColorHandle *)&v35);
+    result = v33;
+    v35 = v32;
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    RB_DroneCamera_ChromaSubsampling((GfxCmdBufContext *)&v29, viewInfo, (const R_RT_ColorHandle *)&v35, (const R_RT_ColorHandle *)&result);
+    result = v32;
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    R_RT_Destroy((GfxCmdBufContext *)&v29, (R_RT_ColorHandle *)&result);
+    _XMM0 = *gfxContext;
+    __asm { vpextrq rdi, xmm0, 1 }
     R_ProfBeginNamedEvent(_RDI, "Drone Camera Effect - Upsampling");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+70h+var_80.m_surfaceID]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-    }
+    result = v33;
     R_AddRenderTargetTransition(_RDI, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    __asm
-    {
-      vmovups ymm0, [rbp+70h+var_60]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-    }
+    result = v34;
     R_AddRenderTargetTransition(_RDI, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(_RDI);
-    __asm
-    {
-      vmovups ymm0, [rbp+70h+var_60]
-      vmovups ymmword ptr [rbp+70h+var_A0.m_surfaceID], ymm0
-    }
-    v47 = R_RT_Handle::GetSurface(&v61)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v61);
-    R_SetRenderTargetSize(_R13->source, Surface->m_image.m_base.width, v47, GFX_USE_VIEWPORT_FULL);
-    __asm
-    {
-      vmovups ymm0, [rbp+70h+var_60]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-    }
-    R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v58, (R_RT_ColorHandle *)&result, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(217)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r12+33C0h]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-      vmovups ymm0, ymmword ptr [rbp+70h+var_80.m_surfaceID]
-      vmovups [rbp+70h+var_40], ymm0
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-    }
-    R_DroneCamera_Upsampling((GfxCmdBufContext *)&v58, _R12, &v64, (const R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups ymm0, [rbp+70h+var_60]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-    }
+    v32 = v34;
+    v26 = R_RT_Handle::GetSurface(&v32)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&v32);
+    R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, v26, GFX_USE_VIEWPORT_FULL);
+    result = v34;
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v29, (R_RT_ColorHandle *)&result, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(217)");
+    result = (R_RT_Handle)viewInfo->sceneRtInput.m_packedStencilRt;
+    v35 = v33;
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    R_DroneCamera_Upsampling((GfxCmdBufContext *)&v29, viewInfo, (const R_RT_ColorHandle *)&v35, (const R_RT_ColorHandle *)&result);
+    result = v34;
     R_AddRenderTargetTransition(_RDI, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(_RDI);
     R_ProfEndNamedEvent(_RDI);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+70h+var_80.m_surfaceID]
-      vmovups ymmword ptr [rbp+70h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rbp+70h+var_D0.m_surfaceID], xmm0
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&v58, (R_RT_ColorHandle *)&result);
+    result = v33;
+    *(GfxCmdBufContext *)&v29.m_surfaceID = *gfxContext;
+    R_RT_Destroy((GfxCmdBufContext *)&v29, (R_RT_ColorHandle *)&result);
     R_GPU_EndTimer();
-    R_ProfEndNamedEvent(_R13->state);
+    R_ProfEndNamedEvent(gfxContext->state);
   }
 }
 
@@ -317,92 +227,60 @@ void RB_DroneCamera_ChromaSubsampling(GfxCmdBufContext *gfxContext, const GfxVie
 {
   GfxCmdBufState *state; 
   const R_RT_Surface *Surface; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufContext v11; 
   R_RT_Image *p_m_image; 
-  bool v21; 
-  __int64 v29; 
-  CmdBufState *v30; 
-  R_RT_Handle v32; 
-  GfxCmdBufContext v33; 
+  bool v13; 
+  float renderTargetWidth; 
+  float renderTargetHeight; 
+  GfxCmdBufState *v16; 
+  R_RT_Handle v17; 
+  GfxCmdBufContext v18; 
 
-  __asm { vmovaps [rsp+0C8h+var_58], xmm6 }
   state = gfxContext->state;
-  _R14 = gfxContext;
-  _RDI = outputTextureHandle;
-  _RSI = inputTextureHandle;
   R_ProfBeginNamedEvent(state, "Drone Camera Effect - Chroma Subsampling");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-  }
-  R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v32, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-  }
-  R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v32, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v17 = inputTextureHandle->R_RT_Handle;
+  R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v17, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v17 = outputTextureHandle->R_RT_Handle;
+  R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v17, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-  }
-  LODWORD(state) = R_RT_Handle::GetSurface(&v32)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v32);
-  R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, (unsigned int)state, GFX_USE_VIEWPORT_FULL);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups xmm1, xmmword ptr [r14]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-    vmovups [rsp+0C8h+var_78], xmm1
-  }
-  R_SetRenderTargetsInternal_ColorOnly(&v33, (R_RT_ColorHandle *)&v32, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(177)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups xmm6, xmmword ptr [r14]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-    vmovq   rbx, xmm6
-  }
-  p_m_image = &R_RT_Handle::GetSurface(&v32)->m_image;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v17 = outputTextureHandle->R_RT_Handle;
+  LODWORD(state) = R_RT_Handle::GetSurface(&v17)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v17);
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, (unsigned int)state, GFX_USE_VIEWPORT_FULL);
+  v10 = *gfxContext;
+  v17 = outputTextureHandle->R_RT_Handle;
+  v18 = v10;
+  R_SetRenderTargetsInternal_ColorOnly(&v18, (R_RT_ColorHandle *)&v17, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(177)");
+  v11 = *gfxContext;
+  v17 = inputTextureHandle->R_RT_Handle;
+  p_m_image = &R_RT_Handle::GetSurface(&v17)->m_image;
+  if ( !v11.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  if ( _RBX == -1792 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( v11.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  *(_QWORD *)(_RBX + 8112) = p_m_image;
-  v21 = !viewInfo->thermalParams.useScopedNVG;
-  __asm { vmovdqa xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm6 }
-  if ( v21 )
+  v11.source->input.codeImages[22] = &p_m_image->m_base;
+  v13 = !viewInfo->thermalParams.useScopedNVG;
+  *(GfxCmdBufContext *)&v17.m_surfaceID = v11;
+  if ( v13 )
   {
-    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v32, rgp.dronePass1ChromaSubsamplingMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(161)");
+    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v17, rgp.dronePass1ChromaSubsamplingMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(161)");
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm0, xmm2, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmovss  dword ptr [rsp+0C8h+var_78], xmm0
-      vdivss  xmm0, xmm2, xmm1
-      vmovss  dword ptr [rsp+0C8h+var_78+4], xmm0
-    }
-    RB_ScopeSizeScreenFilter((GfxCmdBufContext *)&v32, viewInfo, rgp.dronePass1ChromaSubsamplingMaterial, (const vec2_t *)&v33);
+    renderTargetWidth = (float)v11.source->renderTargetWidth;
+    renderTargetHeight = (float)v11.source->renderTargetHeight;
+    *(float *)&v18.source = 1.0 / renderTargetWidth;
+    *((float *)&v18.source + 1) = 1.0 / renderTargetHeight;
+    RB_ScopeSizeScreenFilter((GfxCmdBufContext *)&v17, viewInfo, rgp.dronePass1ChromaSubsamplingMaterial, (const vec2_t *)&v18);
   }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source", *(_QWORD *)&v32.m_surfaceID, *(_QWORD *)&v32.m_tracking.m_allocCounter) )
+  if ( !v11.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source", *(_QWORD *)&v17.m_surfaceID, *(_QWORD *)&v17.m_tracking.m_allocCounter) )
     __debugbreak();
-  v29 = _RBX + 1792;
-  if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( v11.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v30 = _R14->state;
-  *(_QWORD *)(v29 + 6320) = 0i64;
-  R_ProfEndNamedEvent(v30);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
+  v16 = gfxContext->state;
+  v11.source->input.codeImages[22] = NULL;
+  R_ProfEndNamedEvent(v16);
 }
 
 /*
@@ -414,83 +292,54 @@ void RB_DroneCamera_DownsampleBayerDebayer(GfxCmdBufContext *gfxContext, const G
 {
   GfxCmdBufState *state; 
   const R_RT_Surface *Surface; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufContext v11; 
   R_RT_Image *p_m_image; 
-  bool v19; 
-  __int64 v24; 
-  CmdBufState *v25; 
-  R_RT_Handle v27; 
-  GfxCmdBufContext v28; 
+  bool v13; 
+  GfxCmdBufState *v14; 
+  R_RT_Handle v15; 
+  GfxCmdBufContext v16; 
 
-  __asm { vmovaps [rsp+0C8h+var_58], xmm6 }
   state = gfxContext->state;
-  _R14 = gfxContext;
-  _RDI = outputTextureHandle;
-  _RSI = inputTextureHandle;
   R_ProfBeginNamedEvent(state, "Drone Camera Effect - Downsampling, Bayer and Debayer filter");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-  }
-  R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v27, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v15 = outputTextureHandle->R_RT_Handle;
+  R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v15, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-  }
-  LODWORD(state) = R_RT_Handle::GetSurface(&v27)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v27);
-  R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, (unsigned int)state, GFX_USE_VIEWPORT_FULL);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups xmm1, xmmword ptr [r14]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-    vmovups [rsp+0C8h+var_78], xmm1
-  }
-  R_SetRenderTargetsInternal_ColorOnly(&v28, (R_RT_ColorHandle *)&v27, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(140)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups xmm6, xmmword ptr [r14]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-    vmovq   rbx, xmm6
-  }
-  p_m_image = &R_RT_Handle::GetSurface(&v27)->m_image;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v15 = outputTextureHandle->R_RT_Handle;
+  LODWORD(state) = R_RT_Handle::GetSurface(&v15)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v15);
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, (unsigned int)state, GFX_USE_VIEWPORT_FULL);
+  v10 = *gfxContext;
+  v15 = outputTextureHandle->R_RT_Handle;
+  v16 = v10;
+  R_SetRenderTargetsInternal_ColorOnly(&v16, (R_RT_ColorHandle *)&v15, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(140)");
+  v11 = *gfxContext;
+  v15 = inputTextureHandle->R_RT_Handle;
+  p_m_image = &R_RT_Handle::GetSurface(&v15)->m_image;
+  if ( !v11.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  if ( _RBX == -1792 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( v11.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  *(_QWORD *)(_RBX + 8112) = p_m_image;
-  v19 = !viewInfo->thermalParams.useScopedNVG;
-  __asm { vmovdqa xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm6 }
-  if ( v19 )
+  v11.source->input.codeImages[22] = &p_m_image->m_base;
+  v13 = !viewInfo->thermalParams.useScopedNVG;
+  *(GfxCmdBufContext *)&v15.m_surfaceID = v11;
+  if ( v13 )
   {
-    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v27, rgp.dronePass0DownsampleBayerDebayerMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(125)");
+    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v15, rgp.dronePass0DownsampleBayerDebayerMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(125)");
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm1, xmm0, dword ptr [rbp+0CF4h]
-      vaddss  xmm2, xmm1, dword ptr [rbp+0CE4h]
-      vaddss  xmm3, xmm2, dword ptr [rbp+0D24h]
-      vmovss  dword ptr [rsp+0C8h+var_78], xmm3
-      vmovss  dword ptr [rsp+0C8h+var_78+4], xmm3
-    }
-    RB_ScopeSizeScreenFilter((GfxCmdBufContext *)&v27, viewInfo, rgp.dronePass0DownsampleBayerDebayerMaterial, (const vec2_t *)&v28);
+    *(float *)&v16.source = (float)((float)(1.0 / viewInfo->droneCameraEffects.shakeCameraVal1) + viewInfo->droneCameraEffects.deformScreenThreshold) + viewInfo->droneCameraEffects.zoomUV;
+    *((float *)&v16.source + 1) = *(float *)&v16.source;
+    RB_ScopeSizeScreenFilter((GfxCmdBufContext *)&v15, viewInfo, rgp.dronePass0DownsampleBayerDebayerMaterial, (const vec2_t *)&v16);
   }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source", *(_QWORD *)&v27.m_surfaceID, *(_QWORD *)&v27.m_tracking.m_allocCounter) )
+  if ( !v11.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source", *(_QWORD *)&v15.m_surfaceID, *(_QWORD *)&v15.m_tracking.m_allocCounter) )
     __debugbreak();
-  v24 = _RBX + 1792;
-  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( v11.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v25 = _R14->state;
-  *(_QWORD *)(v24 + 6320) = 0i64;
-  R_ProfEndNamedEvent(v25);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
+  v14 = gfxContext->state;
+  v11.source->input.codeImages[22] = NULL;
+  R_ProfEndNamedEvent(v14);
 }
 
 /*
@@ -504,16 +353,17 @@ void R_DroneCamera_ChromaSubsampling(GfxCmdBufContext *gfxContext, const GfxView
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufSourceState *v20; 
-  GfxCmdBufInput *v21; 
-  GfxCmdBufContext v22; 
-  vec2_t v23; 
+  float renderTargetHeight; 
+  float renderTargetWidth; 
+  GfxCmdBufSourceState *v11; 
+  GfxCmdBufInput *v12; 
+  GfxCmdBufContext v13; 
+  vec2_t v14; 
 
-  _RBX = gfxContext;
   Surface = R_RT_Handle::GetSurface(&inputTextureHandle->R_RT_Handle);
-  source = _RBX->source;
+  source = gfxContext->source;
   p_m_image = &Surface->m_image;
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
@@ -521,38 +371,25 @@ void R_DroneCamera_ChromaSubsampling(GfxCmdBufContext *gfxContext, const GfxView
   p_input->codeImages[22] = &p_m_image->m_base;
   if ( viewInfo->thermalParams.useScopedNVG )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm0, xmm1, xmm0
-      vmovss  [rsp+88h+var_48], xmm0
-      vmovups xmm0, xmmword ptr [rbx]
-      vdivss  xmm1, xmm1, xmm2
-      vmovups [rsp+88h+var_58], xmm0
-      vmovss  [rsp+88h+var_44], xmm1
-    }
-    RB_ScopeSizeScreenFilter(&v22, viewInfo, rgp.dronePass1ChromaSubsamplingMaterial, &v23);
+    renderTargetHeight = (float)gfxContext->source->renderTargetHeight;
+    renderTargetWidth = (float)gfxContext->source->renderTargetWidth;
+    v14.v[0] = 1.0 / renderTargetWidth;
+    v13 = *gfxContext;
+    v14.v[1] = 1.0 / renderTargetHeight;
+    RB_ScopeSizeScreenFilter(&v13, viewInfo, rgp.dronePass1ChromaSubsamplingMaterial, &v14);
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+88h+var_58], xmm0
-    }
-    RB_FullScreenFilterInternal(&v22, rgp.dronePass1ChromaSubsamplingMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(161)");
+    v13 = *gfxContext;
+    RB_FullScreenFilterInternal(&v13, rgp.dronePass1ChromaSubsamplingMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(161)");
   }
-  v20 = _RBX->source;
-  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v11 = gfxContext->source;
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v21 = &v20->input;
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v12 = &v11->input;
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v21->codeImages[22] = NULL;
+  v12->codeImages[22] = NULL;
 }
 
 /*
@@ -566,16 +403,16 @@ void R_DroneCamera_DownsampleBayerDebayer(GfxCmdBufContext *gfxContext, const Gf
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufSourceState *v15; 
-  GfxCmdBufInput *v16; 
-  GfxCmdBufContext v17; 
-  vec2_t v18; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufSourceState *v10; 
+  GfxCmdBufInput *v11; 
+  GfxCmdBufContext v12; 
+  vec2_t v13; 
 
-  _RDI = gfxContext;
   Surface = R_RT_Handle::GetSurface(&inputTextureHandle->R_RT_Handle);
-  source = _RDI->source;
+  source = gfxContext->source;
   p_m_image = &Surface->m_image;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
@@ -583,35 +420,24 @@ void R_DroneCamera_DownsampleBayerDebayer(GfxCmdBufContext *gfxContext, const Gf
   p_input->codeImages[22] = &p_m_image->m_base;
   if ( viewInfo->thermalParams.useScopedNVG )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm1, xmm0, dword ptr [rsi+0CF4h]
-      vaddss  xmm2, xmm1, dword ptr [rsi+0CE4h]
-      vaddss  xmm3, xmm2, dword ptr [rsi+0D24h]
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  [rsp+88h+var_48], xmm3
-      vmovss  [rsp+88h+var_44], xmm3
-      vmovups [rsp+88h+var_58], xmm0
-    }
-    RB_ScopeSizeScreenFilter(&v17, viewInfo, rgp.dronePass0DownsampleBayerDebayerMaterial, &v18);
+    v9 = *gfxContext;
+    v13.v[0] = (float)((float)(1.0 / viewInfo->droneCameraEffects.shakeCameraVal1) + viewInfo->droneCameraEffects.deformScreenThreshold) + viewInfo->droneCameraEffects.zoomUV;
+    v13.v[1] = v13.v[0];
+    v12 = v9;
+    RB_ScopeSizeScreenFilter(&v12, viewInfo, rgp.dronePass0DownsampleBayerDebayerMaterial, &v13);
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rsp+88h+var_58], xmm0
-    }
-    RB_FullScreenFilterInternal(&v17, rgp.dronePass0DownsampleBayerDebayerMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(125)");
+    v12 = *gfxContext;
+    RB_FullScreenFilterInternal(&v12, rgp.dronePass0DownsampleBayerDebayerMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(125)");
   }
-  v15 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v10 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v16 = &v15->input;
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v11 = &v10->input;
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v16->codeImages[22] = NULL;
+  v11->codeImages[22] = NULL;
 }
 
 /*
@@ -621,155 +447,125 @@ R_DroneCamera_SetConstants
 */
 void R_DroneCamera_SetConstants(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
+  float filterShakeStrength; 
+  GfxCmdBufSourceState *source; 
+  float filterType; 
   float pixelSize; 
+  BOOL levelsOnOff; 
+  float levelsGamma; 
+  float levelsMax; 
+  BOOL posterizationOnOff; 
+  float saturation; 
+  float posterizationPower; 
+  BOOL deformScreenOnOff; 
+  float deformScreenProbability; 
+  float deformScreenScale; 
+  BOOL shakeCameraOnOff; 
+  float shakeCameraVal3; 
+  float shakeCameraVal2; 
+  BOOL scanlinesOnOff; 
+  float deformScreenSeed; 
+  float scanline2_InterpolationPower; 
+  float scanline2_Speed; 
+  float scanline2_Size; 
   float scanline1_Size; 
+  float vignetteEdges; 
+  float vignetteSmoothness; 
+  BOOL vignetteOnOff; 
+  __int64 width; 
+  __int64 v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float height; 
   float zoomUV; 
+  float v34; 
 
-  __asm { vmovss  xmm2, dword ptr [rdx+0CC8h] }
-  _R8 = gfxContext->source;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vcvtsi2ss xmm0, xmm0, eax
-  }
+  filterShakeStrength = viewInfo->droneCameraEffects.filterShakeStrength;
+  source = gfxContext->source;
+  filterType = (float)viewInfo->droneCameraEffects.filterType;
   pixelSize = viewInfo->droneCameraEffects.pixelSize;
-  __asm
-  {
-    vmovss  dword ptr [r8+964h], xmm0
-    vmovss  dword ptr [r8+968h], xmm1
-    vmovss  dword ptr [r8+96Ch], xmm2
-  }
-  _R8->input.consts[38].v[0] = pixelSize;
-  ++_R8->constVersions[38];
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+0CD4h]
-    vmovss  xmm2, dword ptr [rdx+0CD0h]
-    vmovss  xmm1, dword ptr [rdx+0CCCh]
-    vmovss  dword ptr [r8+974h], xmm1
-    vmovss  dword ptr [r8+978h], xmm2
-    vmovss  dword ptr [r8+97Ch], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r8+970h], xmm0
-  }
-  ++_R8->constVersions[39];
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+0CE0h]
-    vmovss  xmm2, dword ptr [rdx+0CDCh]
-    vmovss  xmm1, dword ptr [rdx+0CD8h]
-    vmovss  dword ptr [r8+984h], xmm1
-    vmovss  dword ptr [r8+988h], xmm2
-    vmovss  dword ptr [r8+98Ch], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r8+980h], xmm0
-  }
-  ++_R8->constVersions[40];
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+0CF0h]
-    vmovss  xmm2, dword ptr [rdx+0CE8h]
-    vmovss  xmm1, dword ptr [rdx+0CE4h]
-    vmovss  dword ptr [r8+994h], xmm1
-    vmovss  dword ptr [r8+998h], xmm2
-    vmovss  dword ptr [r8+99Ch], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r8+990h], xmm0
-  }
-  ++_R8->constVersions[41];
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+0CFCh]
-    vmovss  xmm2, dword ptr [rdx+0CF8h]
-    vmovss  xmm1, dword ptr [rdx+0CF4h]
-    vmovss  dword ptr [r8+9A4h], xmm1
-    vmovss  dword ptr [r8+9A8h], xmm2
-    vmovss  dword ptr [r8+9ACh], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r8+9A0h], xmm0
-  }
-  ++_R8->constVersions[42];
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+0CECh]
-    vmovss  xmm2, dword ptr [rdx+0D04h]
-    vmovss  xmm1, dword ptr [rdx+0D00h]
-    vmovss  dword ptr [r8+9B4h], xmm1
-    vmovss  dword ptr [r8+9B8h], xmm2
-    vmovss  dword ptr [r8+9BCh], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r8+9B0h], xmm0
-  }
-  ++_R8->constVersions[43];
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdx+0D14h]
-    vmovss  xmm1, dword ptr [rdx+0D10h]
-    vmovss  xmm0, dword ptr [rdx+0D0Ch]
-  }
+  source->input.consts[38].v[1] = (float)viewInfo->droneCameraEffects.filterMultiplier;
+  source->input.consts[38].v[2] = filterType;
+  source->input.consts[38].v[3] = filterShakeStrength;
+  source->input.consts[38].v[0] = pixelSize;
+  ++source->constVersions[38];
+  levelsOnOff = viewInfo->droneCameraEffects.levelsOnOff;
+  levelsGamma = viewInfo->droneCameraEffects.levelsGamma;
+  levelsMax = viewInfo->droneCameraEffects.levelsMax;
+  source->input.consts[39].v[1] = viewInfo->droneCameraEffects.levelsMin;
+  source->input.consts[39].v[2] = levelsMax;
+  source->input.consts[39].v[3] = levelsGamma;
+  source->input.consts[39].v[0] = (float)levelsOnOff;
+  ++source->constVersions[39];
+  posterizationOnOff = viewInfo->droneCameraEffects.posterizationOnOff;
+  saturation = viewInfo->droneCameraEffects.saturation;
+  posterizationPower = viewInfo->droneCameraEffects.posterizationPower;
+  source->input.consts[40].v[1] = viewInfo->droneCameraEffects.posterizationGamma;
+  source->input.consts[40].v[2] = posterizationPower;
+  source->input.consts[40].v[3] = saturation;
+  source->input.consts[40].v[0] = (float)posterizationOnOff;
+  ++source->constVersions[40];
+  deformScreenOnOff = viewInfo->droneCameraEffects.deformScreenOnOff;
+  deformScreenProbability = viewInfo->droneCameraEffects.deformScreenProbability;
+  deformScreenScale = viewInfo->droneCameraEffects.deformScreenScale;
+  source->input.consts[41].v[1] = viewInfo->droneCameraEffects.deformScreenThreshold;
+  source->input.consts[41].v[2] = deformScreenScale;
+  source->input.consts[41].v[3] = deformScreenProbability;
+  source->input.consts[41].v[0] = (float)deformScreenOnOff;
+  ++source->constVersions[41];
+  shakeCameraOnOff = viewInfo->droneCameraEffects.shakeCameraOnOff;
+  shakeCameraVal3 = viewInfo->droneCameraEffects.shakeCameraVal3;
+  shakeCameraVal2 = viewInfo->droneCameraEffects.shakeCameraVal2;
+  source->input.consts[42].v[1] = viewInfo->droneCameraEffects.shakeCameraVal1;
+  source->input.consts[42].v[2] = shakeCameraVal2;
+  source->input.consts[42].v[3] = shakeCameraVal3;
+  source->input.consts[42].v[0] = (float)shakeCameraOnOff;
+  ++source->constVersions[42];
+  scanlinesOnOff = viewInfo->droneCameraEffects.scanlinesOnOff;
+  deformScreenSeed = viewInfo->droneCameraEffects.deformScreenSeed;
+  scanline2_InterpolationPower = viewInfo->droneCameraEffects.scanline2_InterpolationPower;
+  source->input.consts[43].v[1] = viewInfo->droneCameraEffects.scanline1_InterpolationPower;
+  source->input.consts[43].v[2] = scanline2_InterpolationPower;
+  source->input.consts[43].v[3] = deformScreenSeed;
+  source->input.consts[43].v[0] = (float)scanlinesOnOff;
+  ++source->constVersions[43];
+  scanline2_Speed = viewInfo->droneCameraEffects.scanline2_Speed;
+  scanline2_Size = viewInfo->droneCameraEffects.scanline2_Size;
   scanline1_Size = viewInfo->droneCameraEffects.scanline1_Size;
-  __asm
+  source->input.consts[44].v[1] = viewInfo->droneCameraEffects.scanline1_Speed;
+  source->input.consts[44].v[2] = scanline2_Size;
+  source->input.consts[44].v[3] = scanline2_Speed;
+  source->input.consts[44].v[0] = scanline1_Size;
+  ++source->constVersions[44];
+  vignetteEdges = viewInfo->droneCameraEffects.vignetteEdges;
+  vignetteSmoothness = viewInfo->droneCameraEffects.vignetteSmoothness;
+  vignetteOnOff = viewInfo->droneCameraEffects.vignetteOnOff;
+  source->input.consts[45].v[1] = viewInfo->droneCameraEffects.vignetteSize;
+  source->input.consts[45].v[2] = vignetteSmoothness;
+  source->input.consts[45].v[3] = vignetteEdges;
+  source->input.consts[45].v[0] = (float)vignetteOnOff;
+  ++source->constVersions[45];
+  width = viewInfo->sceneViewport.width;
+  v28 = viewInfo->displayViewport.width;
+  if ( (unsigned int)width >= viewInfo->sceneViewport.height )
   {
-    vmovss  dword ptr [r8+9C4h], xmm0
-    vmovss  dword ptr [r8+9C8h], xmm1
-    vmovss  dword ptr [r8+9CCh], xmm2
-  }
-  _R8->input.consts[44].v[0] = scanline1_Size;
-  ++_R8->constVersions[44];
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+0D20h]
-    vmovss  xmm2, dword ptr [rdx+0D1Ch]
-    vmovss  xmm1, dword ptr [rdx+0D18h]
-    vmovss  dword ptr [r8+9D4h], xmm1
-    vmovss  dword ptr [r8+9D8h], xmm2
-    vmovss  dword ptr [r8+9DCh], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r8+9D0h], xmm0
-  }
-  ++_R8->constVersions[45];
-  if ( viewInfo->sceneViewport.width >= viewInfo->sceneViewport.height )
-  {
-    __asm { vmovss  xmm3, cs:__real@3f800000 }
+    v31 = FLOAT_1_0;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rcx
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r9
-      vdivss  xmm2, xmm1, xmm0
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm3, xmm1, xmm2
-    }
+    v29 = (float)v28;
+    v30 = (float)width;
+    v31 = 1.0 / (float)(v29 / v30);
   }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-  }
+  height = (float)viewInfo->displayViewport.height;
   zoomUV = viewInfo->droneCameraEffects.zoomUV;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vdivss  xmm2, xmm1, xmm0
-    vmovss  dword ptr [r8+9E8h], xmm2
-    vmovss  dword ptr [r8+9E4h], xmm3
-  }
-  _R8->input.consts[46].v[0] = zoomUV;
-  _R8->input.consts[46].v[3] = 0.0;
-  ++_R8->constVersions[46];
+  v34 = (float)v28;
+  source->input.consts[46].v[2] = height / v34;
+  source->input.consts[46].v[1] = v31;
+  source->input.consts[46].v[0] = zoomUV;
+  source->input.consts[46].v[3] = 0.0;
+  ++source->constVersions[46];
 }
 
 /*
@@ -787,17 +583,17 @@ void R_DroneCamera_Upsampling(GfxCmdBufContext *gfxContext, const GfxViewInfo *v
   GfxCmdBufSourceState *v12; 
   R_RT_Image *v13; 
   GfxCmdBufInput *v14; 
+  GfxCmdBufContext v15; 
   GfxCmdBufSourceState *v16; 
   GfxCmdBufInput *v17; 
-  GfxCmdBufSourceState *v19; 
-  GfxCmdBufInput *v20; 
-  GfxCmdBufContext v21[3]; 
+  GfxCmdBufSourceState *v18; 
+  GfxCmdBufInput *v19; 
+  GfxCmdBufContext v20[3]; 
 
-  _RDI = gfxContext;
   Surface = R_RT_Handle::GetSurface(&inputTextureHandle->R_RT_Handle);
-  source = _RDI->source;
+  source = gfxContext->source;
   p_m_image = &Surface->m_image;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
@@ -806,19 +602,19 @@ void R_DroneCamera_Upsampling(GfxCmdBufContext *gfxContext, const GfxViewInfo *v
   if ( viewInfo->thermalParams.useScopedNVG )
   {
     v11 = R_RT_Handle::GetSurface(&srcPackedStencil->R_RT_Handle);
-    v12 = _RDI->source;
+    v12 = gfxContext->source;
     v13 = &v11->m_image;
-    if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
     v14 = &v12->input;
     if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
+    v15 = *gfxContext;
     v14->codeImages[79] = &v13->m_base;
-    __asm { vmovups [rsp+68h+var_38], xmm0 }
-    RB_ScopeSizeScreenFilter(v21, viewInfo, rgp.dronePass2UpsampleScopedMaterial, NULL);
-    v16 = _RDI->source;
-    if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v20[0] = v15;
+    RB_ScopeSizeScreenFilter(v20, viewInfo, rgp.dronePass2UpsampleScopedMaterial, NULL);
+    v16 = gfxContext->source;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
     v17 = &v16->input;
     if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
@@ -827,19 +623,15 @@ void R_DroneCamera_Upsampling(GfxCmdBufContext *gfxContext, const GfxViewInfo *v
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rsp+68h+var_38], xmm0
-    }
-    RB_FullScreenFilterInternal(v21, rgp.dronePass2UpsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(200)");
+    v20[0] = *gfxContext;
+    RB_FullScreenFilterInternal(v20, rgp.dronePass2UpsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drone_camera.cpp(200)");
   }
-  v19 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v18 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v20 = &v19->input;
-  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v19 = &v18->input;
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v20->codeImages[22] = NULL;
+  v19->codeImages[22] = NULL;
 }
 

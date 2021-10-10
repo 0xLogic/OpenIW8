@@ -1610,10 +1610,11 @@ void LiveCommon_UpdatedXuid(const int controllerIndex, const XUID newXuid)
   unsigned __int64 v9; 
   unsigned __int64 v10; 
   ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **v11; 
-  XUID *v14; 
-  const XUID *v15; 
-  __int128 v16; 
-  ntl::integral_constant<bool,1> v17; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  XUID *v13; 
+  const XUID *v14; 
+  __int128 v15; 
+  ntl::integral_constant<bool,1> v16; 
   XUID xuid; 
   unsigned __int64 r_keyVal; 
 
@@ -1636,7 +1637,7 @@ void LiveCommon_UpdatedXuid(const int controllerIndex, const XUID newXuid)
       v7 = ((unsigned int)r_keyVal ^ HIDWORD(r_keyVal)) % 0x185;
       if ( v7 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      v8 = ntl::internal::hash_table<unsigned __int64,int,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned __int64,int>,202,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int>>,389>,ntl::hash<unsigned __int64>,ntl::equal_to<unsigned __int64>,ntl::integral_constant<bool,1>>::find_and_remove_nodes(&g_partyData.memberMap, &g_partyData.memberMap.m_buckets.m_data[v7], &r_keyVal, v17);
+      v8 = ntl::internal::hash_table<unsigned __int64,int,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned __int64,int>,202,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int>>,389>,ntl::hash<unsigned __int64>,ntl::equal_to<unsigned __int64>,ntl::integral_constant<bool,1>>::find_and_remove_nodes(&g_partyData.memberMap, &g_partyData.memberMap.m_buckets.m_data[v7], &r_keyVal, v16);
       if ( v8 > g_partyData.memberMap.m_currentNumItems && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table.h", 192, ASSERT_TYPE_ASSERT, "( removed <= m_currentNumItems )", (const char *)&queryFormat, "removed <= m_currentNumItems") )
         __debugbreak();
       g_partyData.memberMap.m_currentNumItems -= v8;
@@ -1646,13 +1647,13 @@ void LiveCommon_UpdatedXuid(const int controllerIndex, const XUID newXuid)
       if ( v10 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
       v11 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)&g_partyData.memberMap.m_buckets.m_data[v10];
-      _RBX = *v11;
+      mp_next = *v11;
       if ( *v11 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
       {
 LABEL_26:
-        *(_QWORD *)&v16 = v9;
-        DWORD2(v16) = 0;
-        if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
+        *(_QWORD *)&v15 = v9;
+        DWORD2(v15) = 0;
+        if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
         {
 LABEL_32:
           if ( !g_partyData.memberMap.m_freelist.m_head.mp_next )
@@ -1664,29 +1665,28 @@ LABEL_32:
           }
           if ( (ntl::internal::pool_allocator_freelist<24> *)g_partyData.memberMap.m_freelist.m_head.mp_next == &g_partyData.memberMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0xCAui64) )
             __debugbreak();
-          _RBX = g_partyData.memberMap.m_freelist.m_head.mp_next;
-          __asm { vmovups xmm0, [rsp+88h+var_48] }
+          mp_next = g_partyData.memberMap.m_freelist.m_head.mp_next;
           g_partyData.memberMap.m_freelist.m_head.mp_next = g_partyData.memberMap.m_freelist.m_head.mp_next->mp_next;
-          _RBX->mp_next = NULL;
-          __asm { vmovups xmmword ptr [rbx+8], xmm0 }
-          _RBX->mp_next = *v11;
-          *v11 = _RBX;
+          mp_next->mp_next = NULL;
+          *(_OWORD *)&mp_next[1].mp_next = v15;
+          mp_next->mp_next = *v11;
+          *v11 = mp_next;
           ++g_partyData.memberMap.m_currentNumItems;
         }
         else
         {
           while ( 1 )
           {
-            if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+            if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( _RBX[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v9 )
+            if ( mp_next[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v9 )
               break;
-            _RBX = _RBX->mp_next;
-            if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
+            mp_next = mp_next->mp_next;
+            if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
               goto LABEL_32;
           }
           ++g_partyData.memberMap.m_currentNumItems;
-          _RBX = NULL;
+          mp_next = NULL;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table.h", 331, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
             __debugbreak();
         }
@@ -1695,30 +1695,30 @@ LABEL_32:
       {
         while ( 1 )
         {
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          if ( _RBX[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v9 )
+          if ( mp_next[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v9 )
             break;
-          _RBX = _RBX->mp_next;
-          if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
+          mp_next = mp_next->mp_next;
+          if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v11 )
           {
-            _RBX = *v11;
+            mp_next = *v11;
             goto LABEL_26;
           }
         }
       }
-      LODWORD(_RBX[2].mp_next) = v4;
+      LODWORD(mp_next[2].mp_next) = v4;
     }
   }
-  v14 = &s_cachedOfflineXuid[v2];
+  v13 = &s_cachedOfflineXuid[v2];
   if ( Live_IsUserSignedIn(v2) )
   {
-    XUID::operator=(v14, &xuid);
+    XUID::operator=(v13, &xuid);
   }
   else
   {
-    v15 = XUID::NullXUID((XUID *)&r_keyVal);
-    XUID::operator=(v14, v15);
+    v14 = XUID::NullXUID((XUID *)&r_keyVal);
+    XUID::operator=(v13, v14);
   }
 }
 
@@ -2447,24 +2447,18 @@ Live_GenerateRandomTimeToRetryInSeconds
 */
 __int64 Live_GenerateRandomTimeToRetryInSeconds(unsigned int retryCount, unsigned int maxValue)
 {
-  int v5; 
-  unsigned int v10; 
+  unsigned int v3; 
+  double v4; 
+  float v5; 
 
   if ( retryCount >= 0x10 )
-    v5 = 0x10000;
+    v3 = 0x10000;
   else
-    v5 = 1 << retryCount;
-  *(double *)&_XMM0 = I_random();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm0, xmm1
-    vcvttss2si rcx, xmm0
-  }
-  v10 = v5 + _RCX;
-  if ( v10 < maxValue )
-    return v10;
+    v3 = 1 << retryCount;
+  v4 = I_random();
+  v5 = (float)v3;
+  if ( v3 + (int)(float)(*(float *)&v4 * v5) < maxValue )
+    return v3 + (int)(float)(*(float *)&v4 * v5);
   return maxValue;
 }
 
@@ -2734,46 +2728,43 @@ int Live_GetOurClientNum(int controllerIndex, const PartyData *party)
 Live_GetQueueWaitTimeSecs
 ==============
 */
-int Live_GetQueueWaitTimeSecs(const int controllerIndex)
+__int64 Live_GetQueueWaitTimeSecs(const int controllerIndex)
 {
   DWServicesAccess *Instance; 
   DWLogin *Login; 
   bdLoginStatus *Status; 
-  bdLoginStatus *v6; 
-  DWServicesAccess *v7; 
-  DWLogin *v8; 
-  bdLoginStatus *v9; 
-  int result; 
+  bdLoginStatus *v5; 
+  DWServicesAccess *v6; 
+  DWLogin *v7; 
+  bdLoginStatus *v8; 
+  __int64 EstimatedQueueTimeMS; 
+  float v10; 
+  float v11; 
 
   Instance = DWServicesAccess::GetInstance();
   Login = DWServicesAccess::GetLogin(Instance, controllerIndex);
   if ( !DWLogin::hasStarted(Login) )
-    return 0;
+    return 0i64;
   if ( !DWLogin::isPending(Login) )
-    return 0;
+    return 0i64;
   Status = (bdLoginStatus *)DWLogin::getStatus(Login);
   if ( bdLoginStatus::getLoginStatusCode(Status) != POLLING_LOGIN_QUEUE )
   {
-    v6 = (bdLoginStatus *)DWLogin::getStatus(Login);
-    if ( bdLoginStatus::getLoginStatusCode(v6) != POLLING_LOGIN_QUEUE_WAIT )
-      return 0;
+    v5 = (bdLoginStatus *)DWLogin::getStatus(Login);
+    if ( bdLoginStatus::getLoginStatusCode(v5) != POLLING_LOGIN_QUEUE_WAIT )
+      return 0i64;
   }
-  v7 = DWServicesAccess::GetInstance();
-  v8 = DWServicesAccess::GetLogin(v7, controllerIndex);
-  v9 = (bdLoginStatus *)DWLogin::getStatus(v8);
-  __asm
+  v6 = DWServicesAccess::GetInstance();
+  v7 = DWServicesAccess::GetLogin(v6, controllerIndex);
+  v8 = (bdLoginStatus *)DWLogin::getStatus(v7);
+  EstimatedQueueTimeMS = bdLoginStatus::getEstimatedQueueTimeMS(v8);
+  v10 = (float)EstimatedQueueTimeMS;
+  if ( EstimatedQueueTimeMS < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v11 = (float)EstimatedQueueTimeMS;
+    v10 = v11 + 1.8446744e19;
   }
-  if ( (bdLoginStatus::getEstimatedQueueTimeMS(v9) & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3a83126f
-    vcvttss2si eax, xmm0
-  }
-  return result;
+  return (unsigned int)(int)(float)(v10 * 0.001);
 }
 
 /*
@@ -3819,16 +3810,8 @@ void Live_OpenDialog(UI_LiveDialogState state, unsigned int curTime)
 Live_RegisterCommonDvars
 ==============
 */
-void Live_RegisterCommonDvars()
+void Live_RegisterCommonDvars(void)
 {
-  const dvar_t *v30; 
-
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-  }
   dwRegisterEnvironmentDvars();
   xblive_loggedin = Dvar_RegisterBool("LLOKQOSPPP", 0, 0, "User is logged into xbox live");
   LiveRegionInfo_RegisterDvars();
@@ -3909,19 +3892,8 @@ void Live_RegisterCommonDvars()
   DVARINT_ugc_update_delay = Dvar_RegisterInt("MOTMLNPRRQ", 10000, 0, 1000000, 0, "The delay between attempting to update the UGC cache from DemonWare.");
   DVARINT_online_qos_max_bandwidth = Dvar_RegisterInt("NKKTPLTMMR", 0x20000, 0, 0x7FFFFFFF, 0, "The maximum bandwidth in bits per second used for serving QoS");
   DVARINT_online_qos_backoff_success_delay = Dvar_RegisterInt("TNPNKMKSL", 1200000, 0, 0x7FFFFFFF, 0, "The minimum time (milliseconds) before refreshing the datacenter QoS after a success");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovss  xmm6, cs:__real@40000000
-    vmovss  xmm2, cs:__real@3dcccccd; min
-  }
   DVARINT_online_qos_backoff_fail_delay = Dvar_RegisterInt("NSNLTQSSKS", 1000, 0, 0x7FFFFFFF, 0, "The minimum time (milliseconds) before refreshing the datacenter QoS after a failure, used for backoff");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_online_qos_backoff_factor = Dvar_RegisterFloat("NMMNKMRRN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The refresh factor used for backoff calculation");
+  DVARFLT_online_qos_backoff_factor = Dvar_RegisterFloat("NMMNKMRRN", 2.0, 0.1, 3.4028235e38, 0, "The refresh factor used for backoff calculation");
   DVARINT_online_qos_backoff_max_attempts = Dvar_RegisterInt("LRKLPPKSMP", 4, 1, 0x7FFFFFFF, 0, "The number of attempts used for backoff");
   DVARBOOL_online_qos_backoff_stop_at_max_attempts = Dvar_RegisterBool("ROMQPQRLM", 0, 0, "Whether to stop when reaching max attempts or not");
   DVARBOOL_online_qos_allow_in_private_match_lobby = Dvar_RegisterBool("MKOMMKOQNR", 0, 0, "Whether to allow dc qos while in private match lobbies");
@@ -3935,18 +3907,8 @@ void Live_RegisterCommonDvars()
   DVARINT_dedi_relay_backoff_delay = Dvar_RegisterInt("NKKPQQKSOS", 5000, 0, 0x7FFFFFFF, 0, "Initial relay bind backoff delay in milliseconds");
   DVARINT_dedi_relay_max_backoff_delay = Dvar_RegisterInt("MOKNTNRSSN", 60000, 0, 0x7FFFFFFF, 0, "Max relay bind backoff delay in milliseconds");
   DVARINT_online_standalone_umbrella_token_refresh_s = Dvar_RegisterInt("NLQTMTNOOT", 20, 0, 0x7FFFFFFF, 0, "How long before token expiry to refresh the token in seconds. Actual value is <token expiry time> - online_standalone_umbrella_token_refresh_s.");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3ca3d70a; value
-  }
   DVARINT_online_standalone_umbrella_retry_time_ms = Dvar_RegisterInt("NPKPMKRSON", 30000, 0, 0x7FFFFFFF, 0, "How long to wait in between attempts to get an umbrella token.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_online_cohort_sample_percentage = Dvar_RegisterFloat("RPOLSKLNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Represents the percent of population that should report non-required data. Between 0 and 1.");
+  DVARFLT_online_cohort_sample_percentage = Dvar_RegisterFloat("RPOLSKLNS", 0.02, 0.0, 1.0, 0, "Represents the percent of population that should report non-required data. Between 0 and 1.");
   DVARBOOL_online_auth_skip_auth = Dvar_RegisterBool("NOSONNPTLM", 0, 0, "Will prevent the game from attempting to authenticate with Demonware.");
   DVARINT_online_auth_ticket_expiration_offset_s = Dvar_RegisterInt("LPQPTTPNRM", 20, 0, 0x7FFFFFFF, 0, "This value is subtracted from the auth ticket expiry time to determine when we should grab a new auth ticket. In seconds.");
   DVARBOOL_online_bb_console_logging = Dvar_RegisterBool("OTKMRNMPN", 0, 0, "Will log console output to blackbox.");
@@ -3972,14 +3934,8 @@ void Live_RegisterCommonDvars()
   DVARINT_xb3_meetplayer_gamertag_refresh_rate_ms = Dvar_RegisterInt("QSPLPOQQM", 30000, 0, 0x7FFFFFFF, 0, "The number of milliseconds before making another request to microsoft for fetching recently met players gamertag.");
   DVARINT_xb3_friends_joinable_refresh_rate_ms = Dvar_RegisterInt("LPOKKPRNT", 5000, 0, 0x7FFFFFFF, 0, "The number of milliseconds before making another request to microsoft for fetching platform session for currently selected friend.");
   DVARINT_xb3_content_change_cooldown = Dvar_RegisterInt("OLNSORMTPN", 30000, 0, 0x7FFFFFFF, 0, "XB3: the cooldown on how often we can check for content changes.");
-  __asm { vmovss  xmm1, cs:__real@3d8f5c29; value }
   DVARINT_xb3_mutelist_fetch_delay = Dvar_RegisterInt("SRMOSPSMT", 2000, 0, 0x7FFFFFFF, 0, "XB3: the cooldown on how often we can check for mutelist changes. (ms)");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_xb3_gpad_stick_deadzone_min = Dvar_RegisterFloat("LOTPKQTKOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "XB3: Min value for gpad deadzone, xbox specific");
+  DVARFLT_xb3_gpad_stick_deadzone_min = Dvar_RegisterFloat("LOTPKQTKOS", 0.07, 0.0, 1.0, 0, "XB3: Min value for gpad deadzone, xbox specific");
   DVARINT_gamebattle_account_refresh_interval = Dvar_RegisterInt("MQNKTKQKST", 5, 0, 0x7FFFFFFF, 0, "Interval between tries to fetch MLG GameBattle Account data (in seconds).");
   DVARINT_gamebattle_schedule_refresh_interval = Dvar_RegisterInt("NRNNMRTSMP", 5, 0, 0x7FFFFFFF, 0, "Interval between tries to fetch MLG GameBattle Schedule data (in seconds).");
   DVARINT_gamebattle_keepalive_interval = Dvar_RegisterInt("NPOKSQSNSQ", 5, 0, 0x7FFFFFFF, 0, "MLGLobby presence state refresh interval (in seconds, 0 = disable).");
@@ -4017,14 +3973,8 @@ void Live_RegisterCommonDvars()
   DVARBOOL_daily_challenge_popup_forced = Dvar_RegisterBool("MKSNTLMSQR", 0, 0, "Forces the daily challenge popup to appear.");
   DVARBOOL_survey_enabled = Dvar_RegisterBool("NTRLRTMMMP", 1, 0, "Dvar to enable surveys.");
   DVARBOOL_post_game_survey_forced = Dvar_RegisterBool("MQMQRKRNMN", 0, 0, "Dvar to force post match survey.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@3c23d70a; value
-  }
   DVARBOOL_should_show_post_game_survey = Dvar_RegisterBool("LRKSQRLNKN", 0, 0, "Dvar to be set after a game depending on the party data set by the lobby host.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_post_game_survey_chance_percentage = Dvar_RegisterFloat("MPTNPPOPRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Dvar that represents what percentage of the matches would be shown the survey, between 0 and 100");
+  DVARFLT_post_game_survey_chance_percentage = Dvar_RegisterFloat("MPTNPPOPRP", 0.0099999998, 0.0, 100.0, 0, "Dvar that represents what percentage of the matches would be shown the survey, between 0 and 100");
   DVARBOOL_cod_point_bonus_points_enabled = Dvar_RegisterBool("NOMQKRNSKQ", 0, 0, "Displays the amount of bonus points given when purchasing cod points");
   DVARBOOL_cod_point_bonus_percentage_enabled = Dvar_RegisterBool("LKKMPTPLMP", 0, 0, "Displays the bonus percentages when purchasing cod points");
   DVARBOOL_mp_menu_battle_pass_tab_reorder = Dvar_RegisterBool("NSNRTPNQPN", 0, 0, "Places the Battle Pass tab as the second tab in the MP menu");
@@ -4123,51 +4073,20 @@ void Live_RegisterCommonDvars()
   DVARBOOL_killswitch_skip_bounce_on_linked_agent_corpse_enabled = Dvar_RegisterBool("STQLSKPPL", 1, 0, "If true, will skip bounce check for agent corpses that are linked.");
   DVARBOOL_killswitch_show_full_magazine_suppress_ammo_add_enabled = Dvar_RegisterBool("NTPTLMRPKR", 1, 0, "If true, reload anims with a 'show_full_magazine' notetrack will suppress the animation effects of the Ammo Add time until the notetrack is hit.");
   DVARBOOL_killswitch_weapon_low_ammo_count_enabled = Dvar_RegisterBool("MQSRMTKKOS", 1, 0, "If true, enables the use of the 'lowAmmoCount' field in weapon and attachment assets.");
-  __asm { vmovss  xmm1, cs:__real@41200000; value }
   DVARBOOL_vehiclestate_dont_interpolate_if_player_linked_at_all = Dvar_RegisterBool("OTSQOKQNO", 1, 0, "If true, rather than skipping vehicleState interpolation when player is linked to the vehicle, skip it if the player is linked to anything.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_corpse_moving_platform_link_fix_start_offset = Dvar_RegisterFloat("LNMMKSNLSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Indicates how many inches above the player origin the trace start point should be. This is needed because of the potential difference between the player clip and what ragdolls collide with.");
+  DVARFLT_corpse_moving_platform_link_fix_start_offset = Dvar_RegisterFloat("LNMMKSNLSS", 10.0, 0.0, 3.4028235e38, 0, "Indicates how many inches above the player origin the trace start point should be. This is needed because of the potential difference between the player clip and what ragdolls collide with.");
   DVARINT_dismemberment_corpse_mutilation_timeout_ms = Dvar_RegisterInt("LRQOPTKKQS", 1000, -1, 0x7FFFFFFF, 0, "Duration after character death that dismemberment is still permitted.  -1 to unconditionally permit corpse dismemberment.");
-  __asm { vmovss  xmm1, cs:__real@40e00000; value }
   DVARBOOL_dismemberment_bone_torso_remap_enabled = Dvar_RegisterBool("NPQRMKKSNM", 1, 0, "If true, dismemberment bone remapping logic is enabled.  This remaps dismemberment hits on some bones to other bones (e.g., upper right torso hit to right arm dismemberment).");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_dismemberment_bone_torso_remap_max_dist = Dvar_RegisterFloat("LKMRKTPQQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Maximum distance from the specified offset point for a hit to use the destination bone.");
+  DVARFLT_dismemberment_bone_torso_remap_max_dist = Dvar_RegisterFloat("LKMRKTPQQK", 7.0, 0.0, 3.4028235e38, 0, "Maximum distance from the specified offset point for a hit to use the destination bone.");
   DVARBOOL_riotshield_ignoreonstick_enabled = Dvar_RegisterBool("NOPTLSQPLM", 1, 0, "Killswitch for ignoring riot shield protection if a radius damage inflictor is linked to its victim. To make sticky grenades kill when stuck on riot shields.");
   DVARBOOL_riotshield_improvedexplosionprotection_enabled = Dvar_RegisterBool("MTRQMQTSMN", 1, 0, "Killswitch doing an extra angle check on shield protection for radius damage.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43000000; max
-    vmovss  xmm1, cs:__real@41e00000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_riotshield_explosionprotection_downdist = Dvar_RegisterFloat("MRQLMLKSQS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Angle from shield center to explosions is used to determine how much the shield protects the user. Do an additional angle check this many units down from the shield center, to better protect against the ground.");
+  DVARFLT_riotshield_explosionprotection_downdist = Dvar_RegisterFloat("MRQLMLKSQS", 28.0, 0.0, 128.0, 0, "Angle from shield center to explosions is used to determine how much the shield protects the user. Do an additional angle check this many units down from the shield center, to better protect against the ground.");
   DVARBOOL_riotshield_fixstowedmodelinit = Dvar_RegisterBool("LNTPLQPNKP", 1, 4u, "Enables correctly initializing the stowed riot shield model, to set camo params and flag it as stowed.");
   DVARBOOL_jitter_mod_protection_enabled = Dvar_RegisterBool("NKKQOKMOTO", 1, 0, "Enables the code which validates the firing rate to prevent players from using jitter mods.");
   DVARBOOL_jitter_mod_rechamber_protection_enabled = Dvar_RegisterBool("NLRLLQMPKS", 1, 0, "Adds the cost of the rechamber time to the jitter mod timer which prevents players from exploiting the fire rates of weapons.");
-  __asm { vmovss  xmm1, cs:__real@43960000; value }
   DVARBOOL_fall_damage_fix_enabled = Dvar_RegisterBool("MLKOOQSQOO", 1, 0, "Enables the fall damage fix for the new collision model.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v30 = Dvar_RegisterFloat("QOQSPMMOR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "If the fall speed is below this threshold, fall damage fix is not applied. Unit is in inches/sec");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@bf800000; min
-    vmovss  xmm1, cs:__real@3eeb851f; value
-  }
-  DVARFLT_fall_damage_fix_min_fall_speed = v30;
-  __asm { vmovaps xmm3, xmm8; max }
-  DVARFLT_fall_damage_fix_min_surface_dot = Dvar_RegisterFloat("MPTMLPPRST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "If the dot result between the world up and surface normal is greater than this value, the surface is considered walkable and the fall damage fix is applied.");
+  DVARFLT_fall_damage_fix_min_fall_speed = Dvar_RegisterFloat("QOQSPMMOR", 300.0, 0.0, 3.4028235e38, 0, "If the fall speed is below this threshold, fall damage fix is not applied. Unit is in inches/sec");
+  DVARFLT_fall_damage_fix_min_surface_dot = Dvar_RegisterFloat("MPTMLPPRST", 0.46000001, -1.0, 1.0, 0, "If the dot result between the world up and surface normal is greater than this value, the surface is considered walkable and the fall damage fix is applied.");
   DVARBOOL_killswitch_agent_radius_damage_fix_enabled = Dvar_RegisterBool("LPKQRONTRS", 1, 0, "Killswitch for fixing radius damage trace fails for agents.");
   DVARBOOL_perk_quickswap_primary_item_swap_enabled = Dvar_RegisterBool("LLQMPNLKPT", 1, 0, "Enables the quickswap perk speeding up primary drop and primary raise when switching to and from item weapons (e.g. killstreaks). Note that this only speeds up the primary weapon, NOT the raise and drop of the item weapon.");
   DVARBOOL_thermal_player_fade_distance_enable = Dvar_RegisterBool("NONQMTLNNN", 1, 0, "Enables the Thermal Player Fade Distance feature for thermal optics, controlled by start and end values in attachment GDTs.");
@@ -4323,33 +4242,15 @@ void Live_RegisterCommonDvars()
   DVARSTR_experiment_name = Dvar_RegisterString("MQQPLSSSLQ", (const char *)&queryFormat.fmt + 3, 0, "Experiement name used to track online server experiments. Written to telemetry payloads");
   DVARBOOL_online_matchdata_enabled = Dvar_RegisterBool("TLRPKRKMS", 1, 0, "Enable the matchdata reads and writes");
   DVARBOOL_online_mp_clientmatchdata_enabled = Dvar_RegisterBool("MTKSQRQLKN", 1, 0, "Enable the mp clientmatchdata reads and writes");
-  __asm { vmovss  xmm1, cs:__real@40800000; value }
   DVARBOOL_online_breadcrumbing_enabled = Dvar_RegisterBool("OLKQSLNLPM", 1, 0, "Enable the logging of player movement throughout a match");
-  __asm
-  {
-    vmovaps xmm3, xmm1; max
-    vmovaps xmm2, xmm1; min
-  }
-  DVARFLT_online_br_breadcrumbing_frequency = Dvar_RegisterFloat("MQPMTNTSLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The frequency with which the player's movement is logged throughout a match in br");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_online_mp_breadcrumbing_frequency = Dvar_RegisterFloat("NSMKNLRLON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The frequency with which the player's movement is logged throughout a match in mp");
+  DVARFLT_online_br_breadcrumbing_frequency = Dvar_RegisterFloat("MQPMTNTSLO", 4.0, 4.0, 4.0, 0, "The frequency with which the player's movement is logged throughout a match in br");
+  DVARFLT_online_mp_breadcrumbing_frequency = Dvar_RegisterFloat("NSMKNLRLON", 2.0, 2.0, 2.0, 0, "The frequency with which the player's movement is logged throughout a match in mp");
   DVARBOOL_online_matchmaking_reduce_print_spam = Dvar_RegisterBool("RRMOMQOSO", 1, 0, "Reduce the number of matchmaking prints for performance reasons");
   DVARBOOL_online_party_reduce_print_spam = Dvar_RegisterBool("OKKNSTRNRS", 1, 0, "Reduce the number of matchmaking prints for performance reasons");
   DVARBOOL_online_party_print_ping = Dvar_RegisterBool("LPOTNQLLLS", 0, 0, "Prints ping based on party state acks");
   DVARINT_taskbreaker_time_min = Dvar_RegisterInt("MRNNPTTMNT", 200, 1, 30000, 0, "Minimum amount of time (in milliseconds) to delay before completing a Breaker Task");
-  __asm { vmovss  xmm1, cs:__real@3e4ccccd; value }
   DVARINT_taskbreaker_time_max = Dvar_RegisterInt("NSOQNLOROP", 1000, 1, 30000, 0, "Minimum amount of time (in milliseconds) to delay before completing a Breaker Task");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_taskbreaker_break_percentage = Dvar_RegisterFloat("OTRMORTOR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Chance ( 0.0 to 1.0 ) that a task will break when that system is registered to TaskBreaker");
+  DVARFLT_taskbreaker_break_percentage = Dvar_RegisterFloat("OTRMORTOR", 0.2, 0.0, 1.0, 0, "Chance ( 0.0 to 1.0 ) that a task will break when that system is registered to TaskBreaker");
   DVARBOOL_online_should_check_platforms_can_play_gametype_for_party_join = Dvar_RegisterBool("LRNKMRPLOR", 0, 0, "This is a bool that controls if we should check if platfroms can play the current game type");
   DVARBOOL_online_should_block_invite_joins_if_searching_invite_join_disabled_playlists = Dvar_RegisterBool("LPRPSSRRMP", 1, 0, "This is a bool that controls if we should block invites and joins if the user is searching for playlists that has inivites joins disabled flag set");
   DVARBOOL_online_invite_join_should_validate_controller_index_for_atomic_join_fence = Dvar_RegisterBool("MLSLRQNRMN", 1, 0, "This is a bool that controls if we should check for invalid controller index while doing the atomic join fence");
@@ -4416,14 +4317,8 @@ void Live_RegisterCommonDvars()
   DVARBOOL_online_challenge_upload_games_of_summer = Dvar_RegisterBool("MKRSNLSPQO", 1, 0, "Enables achievement engine for Games of Summer.");
   DVARBOOL_online_challenge_games_of_summer_parse_user_state = Dvar_RegisterBool("LSNRTOTSQS", 1, 0, "Killswitch on the user state reconcile for the GoS.");
   DVARBOOL_online_challenge_upload_killstreak_available = Dvar_RegisterBool("LLMOMMPSON", 1, 0, "Enables achievement engine killstreak available events.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@461c4000; max
-    vmovss  xmm1, cs:__real@40200000; value
-  }
   DVARINT_online_challenge_cache_flush_time = Dvar_RegisterInt("LRMPRSSSOS", 30000, 0, 0x7FFFFFFF, 0, "Time between cache flush times.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_online_challenge_ae_client_flush_time = Dvar_RegisterFloat("TRQKTNMPO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Time between ae client cache flush times.");
+  DVARFLT_online_challenge_ae_client_flush_time = Dvar_RegisterFloat("TRQKTNMPO", 2.5, 0.0, 10000.0, 0, "Time between ae client cache flush times.");
   DVARINT_online_challenge_cache_driving_flush_time = Dvar_RegisterInt("LQTMKTLRSQ", 10000, 0, 0x7FFFFFFF, 0, "Time between driving event cache flush times.");
   DVARINT_online_challenge_cache_alive_in_gas_flush_time = Dvar_RegisterInt("LRNNOTSLLK", 5000, 0, 0x7FFFFFFF, 0, "Time between alive in gas event cache flush times.");
   DVARINT_online_challenge_cache_alive_not_downed_flush_time = Dvar_RegisterInt("RKSMPSPKM", 10000, 0, 0x7FFFFFFF, 0, "Time between alive not downed event cache flush times.");
@@ -4438,14 +4333,8 @@ void Live_RegisterCommonDvars()
   DVARBOOL_online_challenge_upload_happy_hour = Dvar_RegisterBool("LSOTPRNTO", 1, 0, "Enables achievement engine happy hour event.");
   DVARINT_online_challenge_season_and_week = Dvar_RegisterInt("LSQRKOSLTP", 0, 0, 0x7FFFFFFF, 0, "Dvar that holds the current season and week i.e. 3002 is Season 3 Week 2");
   DVARINT_online_challenge_server_fetch_delay = Dvar_RegisterInt("LMQNLTLSML", 10000, 0, 0x7FFFFFFF, 0, "Amount of time in ms to wait until fetching states for a client after registering");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41bfeb85; max
-    vmovss  xmm1, cs:__real@41000000; value
-  }
   DVARINT_online_challenge_special_event_day = Dvar_RegisterInt("LKPOORNNOO", 0, 0, 0x7FFFFFFF, 0, "Special Event day number. 0 means inactive.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_online_challenge_daily_reset_time = Dvar_RegisterFloat("MMLQOSOMTQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "UTC time at which daily challenges reset. Ex. 12:30pm == 12.50f");
+  DVARFLT_online_challenge_daily_reset_time = Dvar_RegisterFloat("MMLQOSOMTQ", 8.0, 0.0, 23.99, 0, "UTC time at which daily challenges reset. Ex. 12:30pm == 12.50f");
   DVARINT_online_season_ends_epoch_time = Dvar_RegisterInt("LLTMKKPKMR", 1577836800, 0, 0x7FFFFFFF, 0, "UTC/Epoch time (seconds) that season will end");
   DVARBOOL_online_challenge_quest_auto_activate = Dvar_RegisterBool("LTLLOMMMPN", 1, 0, "Enables achievement engine quest system to always have a mission active.");
   DVARBOOL_online_challenge_quest_activate_operators = Dvar_RegisterBool("MSKSMNPTKL", 1, 0, "Enables achievement engine quest system to activate operators.");
@@ -4542,13 +4431,7 @@ void Live_RegisterCommonDvars()
   DVARSTR_online_store_tier_skip_gift_timer = Dvar_RegisterString("OKRROQNRPK", (const char *)&queryFormat.fmt + 3, 0, "UTC timestamp for when tier skip gift promo should end. Gift will only be available while this dvar is set.");
   DVARSTR_online_store_tier_skip_gift_id = Dvar_RegisterString("LQLOKOPRKS", "400107", 0, "Bundle ID for the tier skip gift");
   DVARBOOL_online_store_shuffle_recommendations = Dvar_RegisterBool("OKKOKTLTP", 0, 0, "Toggle whether to shuffle recommended sku list");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_online_store_hide_dedicated_item_chance = Dvar_RegisterFloat("OMTLRQOPLK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Chance (0.0 - 1.0) to hide the dedicated items from the recommended list");
+  DVARFLT_online_store_hide_dedicated_item_chance = Dvar_RegisterFloat("OMTLRQOPLK", 0.0, 0.0, 1.0, 0, "Chance (0.0 - 1.0) to hide the dedicated items from the recommended list");
   DVARSTR_online_store_category_5 = Dvar_RegisterString("NKORNLPMMR", (const char *)&queryFormat.fmt + 3, 0, "Comma delimitied list of category 5 items.");
   DVARSTR_online_store_category_5_warzone = Dvar_RegisterString("MPQKKKQPLS", (const char *)&queryFormat.fmt + 3, 0, "Comma delimitied list of category 5 items.");
   DVARSTR_online_store_category_6 = Dvar_RegisterString("LLMOOMOMMO", (const char *)&queryFormat.fmt + 3, 0, "Comma delimitied list of category 6 items.");
@@ -4608,21 +4491,9 @@ void Live_RegisterCommonDvars()
   DVARBOOL_online_force_party_state_on_present = Dvar_RegisterBool("NTPTOSRORL", 1, 0, "Force send a party state to the joining player when he becomes PRESENT so he gets the team and squad immediately");
   DVARBOOL_online_blueprints_enabled = Dvar_RegisterBool("NSPPTONLNP", 1, 0, "Enable gunsmith blueprint support.");
   DVARINT_online_blueprints_retry_delay = Dvar_RegisterInt("OMLNSNMLSS", 5000, 0, 0x7FFFFFFF, 0, "Initial delay before retrying blueprint operations");
-  __asm { vmovss  xmm1, cs:__real@41a00000; value }
   DVARBOOL_online_check_online_data_fence_before_showing_signin_error = Dvar_RegisterBool("LKRTMSRPRO", 1, 0, "IW8 ship hack for IWH-209383, we this switch makes it so that in case of a wan failure we dont show the not signed in message");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_mount_tuning_shapecast_cylinder_forward_distance_min = Dvar_RegisterFloat("NRSNQTTSOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Minimum distance from the edge to use when sweeping the player's worldmodel cylinder around a mount point.  Minimum distance compared with the weapon's 'mount*EdgeToEyeDistanceForward'");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41600000; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_mount_tuning_shapecast_eye_cylinder_forward_distance_min = Dvar_RegisterFloat("NTPQSNSNOR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Minimum distance from the edge to use when sweeping the player's view cylinder around a mount point.  Minimum distance compared with the weapon's 'mount*EdgeToEyeDistanceForward'");
+  DVARFLT_mount_tuning_shapecast_cylinder_forward_distance_min = Dvar_RegisterFloat("NRSNQTTSOP", 20.0, 0.0, 3.4028235e38, 0, "Minimum distance from the edge to use when sweeping the player's worldmodel cylinder around a mount point.  Minimum distance compared with the weapon's 'mount*EdgeToEyeDistanceForward'");
+  DVARFLT_mount_tuning_shapecast_eye_cylinder_forward_distance_min = Dvar_RegisterFloat("NTPQSNSNOR", 14.0, 0.0, 3.4028235e38, 0, "Minimum distance from the edge to use when sweeping the player's view cylinder around a mount point.  Minimum distance compared with the weapon's 'mount*EdgeToEyeDistanceForward'");
   DVARBOOL_killswitch_mount_eye_shapecast_clamp_enabled = Dvar_RegisterBool("OMMORPQPMQ", 1, 0, "If true, performs a yaw shapecast to explicitly prevent the Mounted eye point from penetrating world geometry.");
   DVARBOOL_online_clans_enabled = Dvar_RegisterBool("LLSSOLOMQK", 1, 0, "killswitch for clans");
   DVARINT_online_clans_happy_hour_set_threshold = Dvar_RegisterInt("NQOLNSNOSN", 86400, 0, 0x7FFFFFFF, 0, "time in seconds until we can set a new happy hour");
@@ -4634,13 +4505,7 @@ void Live_RegisterCommonDvars()
   DVARBOOL_online_commerce_check_ownership = Dvar_RegisterBool("MSRQSSNOT", 1, 0, "check that user truly owns a durable, not just shared ownership from another user on the same console");
   DVARBOOL_online_archive_streamer_enabled = Dvar_RegisterBool("PQTNSQLKP", 0, 0, "Enable streaming upload of the server archive");
   DVARBOOL_online_archive_streamer_compress = Dvar_RegisterBool("OLRPPMLTO", 0, 0, "Enable compression of the uploaded server archive data");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_online_archive_streamer_percentage = Dvar_RegisterFloat("NSSQQNPQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The percentage of games that are streamed");
+  DVARFLT_online_archive_streamer_percentage = Dvar_RegisterFloat("NSSQQNPQK", 0.0, 0.0, 1.0, 0, "The percentage of games that are streamed");
   DVARBOOL_online_archive_streamer_force = Dvar_RegisterBool("OLPRPQSPNN", 0, 0, "Force archive streaming regardless of percentage sample rate");
   DVARBOOL_online_archive_streamer_omnvar_stream_enabled = Dvar_RegisterBool("PKNPTSTLQ", 1, 0, "Enable the stream of additional omnvars through the archive streamer");
   DVARBOOL_dlog_use_bdlogin_token = Dvar_RegisterBool("MOTKOROQLL", 0, 0, "copy umbrella token directly from bdLogin into DLog whenever it changes, instead of relying on two levels of expiration logic");
@@ -4674,13 +4539,7 @@ void Live_RegisterCommonDvars()
   DVARBOOL_playlist_update_wait_on_dependencies = Dvar_RegisterBool("LMPPTMNMML", 1, 0, "Playlist update checks will wait for dependendencies to be met before proceeding.");
   DVARINT_xb3_entitlement_state_mask = Dvar_RegisterInt("NNLNSTKQNR", 63, 0, 0x7FFFFFFF, 0, "XB3: Mask of which entitlement states we should send to DW");
   DVARBOOL_online_getavailablecontentpacks_should_append_all_mappacks_if_bypass_dlc_set = Dvar_RegisterBool("MQTMTKQQQL", 1, 0, "if the bypass DLC is set we should append all mappacks to CONTENT_ALL_MAP_PACKS in the function Content_GetAvailableContentPacks.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_online_bandwith_test_f2p_pct = Dvar_RegisterFloat("NOPRTMNSLM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Percentage of f2p that will run the bandwidth test");
+  DVARFLT_online_bandwith_test_f2p_pct = Dvar_RegisterFloat("NOPRTMNSLM", 0.0, 0.0, 1.0, 0, "Percentage of f2p that will run the bandwidth test");
   DVARBOOL_online_mail_enabled = Dvar_RegisterBool("MPMTPTRLTO", 0, 0, "Mail system master kill switch");
   DVARBOOL_online_should_check_if_users_have_mappack_in_private_match = Dvar_RegisterBool("LLSLNKPRMT", 1, 0, "Switch to check if the users joining have the required map pack flags if the host is in a private match");
   DVARBOOL_online_should_copy_presence_join_flag_from_playlist_to_lobby_doc = Dvar_RegisterBool("TKNRKLRLM", 1, 0, "If this dvar is set, when we update lobby doc, if the playlist has no_join_via_presence set, we set lobby_open_for_pres_join to false in the lobby doc");
@@ -4694,12 +4553,6 @@ void Live_RegisterCommonDvars()
   DVARSTR_auto_login = Dvar_RegisterString("PMMLLKMQM", (const char *)&queryFormat.fmt + 3, 0, "This is specifically used for crosslaunch from T9 to IW8 Warzone.");
   DVARBOOL_online_tournament_ignore_rollover = Dvar_RegisterBool("LLTRTNSTNL", 1, 0, "Ignore the lobby rollover message while in a tournament to prevent clients from forming an intermediate lobby before the tournament advances to that state");
   DVARBOOL_online_userlist_dont_check_space_availability_for_removal = Dvar_RegisterBool("MQNPRSTSOT", 1, 0, "If this dvar is set, we wont check if there is space in the userlist before adding to the removal list.");
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
   Dvar_EndPermanentRegistration();
 }
 

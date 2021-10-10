@@ -141,94 +141,66 @@ GMovingPlatformsSP::HandleTrigger
 */
 __int64 GMovingPlatformsSP::HandleTrigger(GMovingPlatformsSP *this, gentity_s *ent, gentity_s *hit, Bounds *box, int *result)
 {
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   unsigned int Instance; 
   Bounds bounds; 
+  double v21; 
   tmat33_t<vec3_t> out; 
   vec4_t quat; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _RSI = hit;
   if ( hit->r.modelType != 4 || (hit->c.trigger.flags & 1) == 0 || !ent->client )
     return 0i64;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9]
-    vmovsd  xmm1, qword ptr [r9+10h]
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovups xmmword ptr [rsp+130h+bounds.midPoint+8], xmm0
-    vmovsd  qword ptr [rsp+130h+var_F0], xmm1
-  }
+  v6 = *(double *)&box->halfSize.y;
+  *(_OWORD *)&bounds.midPoint.z = *(_OWORD *)box->midPoint.v;
+  v21 = v6;
   AnglesToAxis(&hit->r.currentAngles, &axis);
   MatrixTranspose(&axis, &out);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rsi+130h]
-    vmovss  xmm9, dword ptr [rsi+134h]
-    vmovss  xmm10, dword ptr [rsi+138h]
-    vmovss  xmm0, dword ptr [rsp+130h+bounds.midPoint+8]
-    vmovss  xmm11, dword ptr [rsi+144h]
-    vmovss  xmm1, dword ptr [rsp+130h+bounds.halfSize]
-    vsubss  xmm7, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rsp+130h+bounds.halfSize+4]
-    vmulss  xmm3, xmm7, dword ptr [rsp+130h+out]
-    vsubss  xmm6, xmm0, xmm10
-    vmulss  xmm0, xmm6, dword ptr [rsp+130h+out+18h]
-    vsubss  xmm5, xmm1, xmm9
-    vmulss  xmm2, xmm5, dword ptr [rsp+130h+out+0Ch]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm7, dword ptr [rsp+130h+out+4]
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+130h+out+1Ch]
-    vmovss  dword ptr [rsp+130h+bounds.midPoint+8], xmm2
-    vmulss  xmm2, xmm5, dword ptr [rsp+130h+out+10h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm7, dword ptr [rsp+130h+out+8]
-    vmovss  xmm7, dword ptr [rsi+140h]
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+130h+out+20h]
-    vmovss  xmm6, dword ptr [rsi+13Ch]
-    vmovss  dword ptr [rsp+130h+bounds.halfSize], xmm2
-    vmulss  xmm2, xmm5, dword ptr [rsp+130h+out+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm0
-  }
-  *(_QWORD *)_RSI->r.currentOrigin.v = 0i64;
-  *(_QWORD *)&_RSI->r.currentOrigin.z = 0i64;
-  __asm { vmovss  dword ptr [rsp+130h+bounds.halfSize+4], xmm2 }
-  *(_QWORD *)&_RSI->r.currentAngles.y = 0i64;
-  Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, _RSI);
+  v7 = hit->r.currentOrigin.v[0];
+  v8 = hit->r.currentOrigin.v[1];
+  v9 = hit->r.currentOrigin.v[2];
+  v10 = hit->r.currentAngles.v[2];
+  v11 = bounds.midPoint.v[2] - v7;
+  v12 = bounds.halfSize.v[0] - v8;
+  bounds.midPoint.v[2] = (float)((float)((float)(bounds.midPoint.v[2] - v7) * out.m[0].v[0]) + (float)((float)(bounds.halfSize.v[0] - v8) * out.m[1].v[0])) + (float)((float)(bounds.halfSize.v[1] - v9) * out.m[2].v[0]);
+  v13 = (float)(v11 * out.m[0].v[1]) + (float)((float)(bounds.halfSize.v[0] - v8) * out.m[1].v[1]);
+  v14 = v11 * out.m[0].v[2];
+  v15 = hit->r.currentAngles.v[1];
+  v16 = hit->r.currentAngles.v[0];
+  bounds.halfSize.v[0] = v13 + (float)((float)(bounds.halfSize.v[1] - v9) * out.m[2].v[1]);
+  v17 = (float)(v14 + (float)(v12 * out.m[1].v[2])) + (float)((float)(bounds.halfSize.v[1] - v9) * out.m[2].v[2]);
+  *(_QWORD *)hit->r.currentOrigin.v = 0i64;
+  *(_QWORD *)&hit->r.currentOrigin.z = 0i64;
+  bounds.halfSize.v[1] = v17;
+  *(_QWORD *)&hit->r.currentAngles.y = 0i64;
+  Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, hit);
   if ( Instance != -1 )
   {
-    AnglesToQuat(&_RSI->r.currentAngles, &quat);
-    Physics_WarpInstanceTo(PHYSICS_WORLD_ID_FIRST, Instance, &_RSI->r.currentOrigin, &quat, 1);
+    AnglesToQuat(&hit->r.currentAngles, &quat);
+    Physics_WarpInstanceTo(PHYSICS_WORLD_ID_FIRST, Instance, &hit->r.currentOrigin, &quat, 1);
   }
-  *result = PhysicsQuery_LegacyEntityContactCapsule(PHYSICS_WORLD_ID_FIRST, (Bounds *)&bounds.midPoint.z, Instance, _RSI);
-  __asm
-  {
-    vmovss  dword ptr [rsi+130h], xmm8
-    vmovaps xmm8, [rsp+130h+var_58+8]
-    vmovss  dword ptr [rsi+134h], xmm9
-    vmovaps xmm9, [rsp+130h+var_68+8]
-    vmovss  dword ptr [rsi+138h], xmm10
-    vmovaps xmm10, [rsp+130h+var_78+8]
-    vmovss  dword ptr [rsi+13Ch], xmm6
-    vmovaps xmm6, [rsp+130h+var_38+8]
-    vmovss  dword ptr [rsi+140h], xmm7
-    vmovaps xmm7, [rsp+130h+var_48+8]
-    vmovss  dword ptr [rsi+144h], xmm11
-    vmovaps xmm11, [rsp+130h+var_88+8]
-  }
+  *result = PhysicsQuery_LegacyEntityContactCapsule(PHYSICS_WORLD_ID_FIRST, (Bounds *)&bounds.midPoint.z, Instance, hit);
+  hit->r.currentOrigin.v[0] = v7;
+  hit->r.currentOrigin.v[1] = v8;
+  hit->r.currentOrigin.v[2] = v9;
+  hit->r.currentAngles.v[0] = v16;
+  hit->r.currentAngles.v[1] = v15;
+  hit->r.currentAngles.v[2] = v10;
   if ( Instance != -1 )
   {
-    AnglesToQuat(&_RSI->r.currentAngles, &quat);
-    Physics_WarpInstanceTo(PHYSICS_WORLD_ID_FIRST, Instance, &_RSI->r.currentOrigin, &quat, 1);
+    AnglesToQuat(&hit->r.currentAngles, &quat);
+    Physics_WarpInstanceTo(PHYSICS_WORLD_ID_FIRST, Instance, &hit->r.currentOrigin, &quat, 1);
   }
   return 1i64;
 }
@@ -244,10 +216,12 @@ void GMovingPlatformsSP::SaveSP_Read(MemoryFile *memFile, SaveGame *save)
   unsigned int m_moverClientCount; 
   unsigned int v6; 
   const saveField_t *SaveField; 
+  __m256i v8; 
+  __int128 v9; 
   int m_lastValidGroundTime; 
   GHandler *Handler; 
   int p[4]; 
-  GMovingPlatformClient v14; 
+  GMovingPlatformClient v13; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_moving_platforms_sp.cpp", 43, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
@@ -268,28 +242,23 @@ void GMovingPlatformsSP::SaveSP_Read(MemoryFile *memFile, SaveGame *save)
   {
     do
     {
-      _RBX = &v4->m_moverClientArray[v6];
-      GMovingPlatformClient::GMovingPlatformClient(&v14);
+      GMovingPlatformClient::GMovingPlatformClient(&v13);
       SaveField = GMovingPlatforms::GetSaveField(v4);
-      G_SaveFieldSP_ReadStruct(SaveField, (unsigned __int8 *)&v14, 88, save);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0C8h+var_88.m_deferredData.backupOrigin]
-        vmovaps xmm1, xmmword ptr [rsp+0C8h+var_88.m_deferredData.deltaAngles+8]
-      }
-      v4->m_moverClientArray[v6].m_bgHandler = v14.m_bgHandler;
-      v4->m_moverClientArray[v6].m_localClientNum = v14.m_localClientNum;
-      v4->m_moverClientArray[v6].m_contactEnt = v14.m_contactEnt;
-      v4->m_moverClientArray[v6].m_clientID = v14.m_clientID;
-      v4->m_moverClientArray[v6].paddForSaveSizeAssertBase = v14.paddForSaveSizeAssertBase;
-      v4->m_moverClientArray[v6].m_moverAppliedDelta.v[2] = v14.m_moverAppliedDelta.v[2];
-      m_lastValidGroundTime = v14.m_lastValidGroundTime;
-      __asm { vmovups ymmword ptr [rbx+20h], ymm0 }
+      G_SaveFieldSP_ReadStruct(SaveField, (unsigned __int8 *)&v13, 88, save);
+      v8 = *(__m256i *)v13.m_deferredData.backupOrigin.v;
+      v9 = *(_OWORD *)&v13.m_deferredData.deltaAngles.z;
+      v4->m_moverClientArray[v6].m_bgHandler = v13.m_bgHandler;
+      v4->m_moverClientArray[v6].m_localClientNum = v13.m_localClientNum;
+      v4->m_moverClientArray[v6].m_contactEnt = v13.m_contactEnt;
+      v4->m_moverClientArray[v6].m_clientID = v13.m_clientID;
+      v4->m_moverClientArray[v6].paddForSaveSizeAssertBase = v13.paddForSaveSizeAssertBase;
+      v4->m_moverClientArray[v6].m_moverAppliedDelta.v[2] = v13.m_moverAppliedDelta.v[2];
+      m_lastValidGroundTime = v13.m_lastValidGroundTime;
+      *(__m256i *)v4->m_moverClientArray[v6].m_deferredData.backupOrigin.v = v8;
       v4->m_moverClientArray[v6].m_lastValidGroundTime = m_lastValidGroundTime;
-      __asm { vmovups xmmword ptr [rbx+40h], xmm1 }
+      *(_OWORD *)&v4->m_moverClientArray[v6].m_deferredData.deltaAngles.z = v9;
       Handler = GHandler::getHandler();
-      BGMovingPlatformClient::SetHandler(_RBX, Handler);
-      ++v6;
+      BGMovingPlatformClient::SetHandler(&v4->m_moverClientArray[v6++], Handler);
     }
     while ( v6 < v4->m_moverClientCount );
   }
@@ -305,6 +274,9 @@ void GMovingPlatformsSP::SaveSP_Write(MemoryFile *memFile)
   GMovingPlatforms *v2; 
   unsigned int i; 
   __int64 v4; 
+  const unsigned __int8 *v5; 
+  __m256i v6; 
+  __int128 v7; 
   const saveField_t *SaveField; 
   unsigned int p[4]; 
   unsigned __int8 dest[8]; 
@@ -313,6 +285,8 @@ void GMovingPlatformsSP::SaveSP_Write(MemoryFile *memFile)
   int m_contactEnt; 
   int m_clientID; 
   int paddForSaveSizeAssertBase; 
+  __m256i v16; 
+  __int128 v17; 
   float v18; 
   int m_lastValidGroundTime; 
 
@@ -328,25 +302,19 @@ void GMovingPlatformsSP::SaveSP_Write(MemoryFile *memFile)
     v4 = i;
     m_bgHandler = v2->m_moverClientArray[v4].m_bgHandler;
     m_localClientNum = v2->m_moverClientArray[v4].m_localClientNum;
-    _RBX = (const unsigned __int8 *)&v2->m_moverClientArray[v4];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+20h]
-      vmovups xmm1, xmmword ptr [rbx+40h]
-    }
+    v5 = (const unsigned __int8 *)&v2->m_moverClientArray[v4];
+    v6 = *(__m256i *)v2->m_moverClientArray[v4].m_deferredData.backupOrigin.v;
+    v7 = *(_OWORD *)&v2->m_moverClientArray[v4].m_deferredData.deltaAngles.z;
     m_contactEnt = v2->m_moverClientArray[v4].m_contactEnt;
     m_clientID = v2->m_moverClientArray[v4].m_clientID;
     paddForSaveSizeAssertBase = v2->m_moverClientArray[v4].paddForSaveSizeAssertBase;
     v18 = v2->m_moverClientArray[v4].m_moverAppliedDelta.v[2];
     m_lastValidGroundTime = v2->m_moverClientArray[v4].m_lastValidGroundTime;
     *(_QWORD *)dest = &GMovingPlatformClient::`vftable';
-    __asm
-    {
-      vmovups [rsp+0C8h+var_68], ymm0
-      vmovaps [rsp+0C8h+var_48], xmm1
-    }
+    v16 = v6;
+    v17 = v7;
     SaveField = GMovingPlatforms::GetSaveField(v2);
-    G_SaveFieldSP_WriteStruct(SaveField, _RBX, dest, 88, memFile);
+    G_SaveFieldSP_WriteStruct(SaveField, v5, dest, 88, memFile);
   }
 }
 

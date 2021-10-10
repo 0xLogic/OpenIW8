@@ -157,42 +157,33 @@ Copy_RefdefView
 void Copy_RefdefView(RefdefView *out, const RefdefView *in)
 {
   unsigned int refdefViewOrg_aab; 
+  int v5; 
   int v6; 
   int v7; 
-  int v8; 
   unsigned int refdefViewOrg_set_aab; 
-  unsigned int v13; 
+  unsigned int v9; 
 
-  _RBX = in;
-  _RDI = out;
   if ( !in && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
     __debugbreak();
-  refdefViewOrg_aab = _RBX->refdefViewOrg_aab;
-  if ( _RBX == (const RefdefView *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+  refdefViewOrg_aab = in->refdefViewOrg_aab;
+  if ( in == (const RefdefView *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbx] }
-  v6 = LODWORD(_RBX->org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 8)) + 2));
-  v7 = LODWORD(_RBX->org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 12)) * ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 12)) + 2));
-  v8 = LODWORD(_RBX->org.org.v[2]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 16)) * ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 16)) + 2));
-  __asm
-  {
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+40h], ymm0
-    vmovsd  xmm1, qword ptr [rbx+60h]
-    vmovsd  qword ptr [rdi+60h], xmm1
-  }
-  refdefViewOrg_set_aab = _RBX->refdefViewOrg_set_aab;
-  _RDI->refdefViewOrg_set_aab = refdefViewOrg_set_aab;
-  v13 = refdefViewOrg_set_aab;
-  if ( _RDI == (RefdefView *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1262, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+  v5 = LODWORD(in->org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)in + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)in + 8)) + 2));
+  v6 = LODWORD(in->org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)in + 12)) * ((refdefViewOrg_aab ^ ((_DWORD)in + 12)) + 2));
+  v7 = LODWORD(in->org.org.v[2]) ^ ((refdefViewOrg_aab ^ ((_DWORD)in + 16)) * ((refdefViewOrg_aab ^ ((_DWORD)in + 16)) + 2));
+  *(__m256i *)&out->fov.tanHalfFovX = *(__m256i *)&in->fov.tanHalfFovX;
+  *(__m256i *)out->axis.row1.v = *(__m256i *)in->axis.row1.v;
+  *(__m256i *)&out->depthHackFov.tanHalfFovY = *(__m256i *)&in->depthHackFov.tanHalfFovY;
+  *(double *)&out->visibilityOffsetApplyToRefPoint = *(double *)&in->visibilityOffsetApplyToRefPoint;
+  refdefViewOrg_set_aab = in->refdefViewOrg_set_aab;
+  out->refdefViewOrg_set_aab = refdefViewOrg_set_aab;
+  v9 = refdefViewOrg_set_aab;
+  if ( out == (RefdefView *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1262, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
     __debugbreak();
-  _RDI->refdefViewOrg_aab += v13;
-  LODWORD(_RDI->org.org.v[0]) = v6 ^ ((((_DWORD)_RDI + 8) ^ _RDI->refdefViewOrg_aab) * ((((_DWORD)_RDI + 8) ^ _RDI->refdefViewOrg_aab) + 2));
-  LODWORD(_RDI->org.org.v[1]) = v7 ^ ((((_DWORD)_RDI + 12) ^ _RDI->refdefViewOrg_aab) * ((((_DWORD)_RDI + 12) ^ _RDI->refdefViewOrg_aab) + 2));
-  LODWORD(_RDI->org.org.v[2]) = v8 ^ ((((_DWORD)_RDI + 16) ^ _RDI->refdefViewOrg_aab) * ((((_DWORD)_RDI + 16) ^ _RDI->refdefViewOrg_aab) + 2));
+  out->refdefViewOrg_aab += v9;
+  LODWORD(out->org.org.v[0]) = v5 ^ ((((_DWORD)out + 8) ^ out->refdefViewOrg_aab) * ((((_DWORD)out + 8) ^ out->refdefViewOrg_aab) + 2));
+  LODWORD(out->org.org.v[1]) = v6 ^ ((((_DWORD)out + 12) ^ out->refdefViewOrg_aab) * ((((_DWORD)out + 12) ^ out->refdefViewOrg_aab) + 2));
+  LODWORD(out->org.org.v[2]) = v7 ^ ((((_DWORD)out + 16) ^ out->refdefViewOrg_aab) * ((((_DWORD)out + 16) ^ out->refdefViewOrg_aab) + 2));
 }
 
 /*

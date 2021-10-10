@@ -184,300 +184,213 @@ void AIScriptedInterface::FireBlockedNotify(AIScriptedInterface *this, const gen
 AIScriptedInterface::GetAvoidanceDelta
 ==============
 */
-
-bool __fastcall AIScriptedInterface::GetAvoidanceDelta(AIScriptedInterface *this, double fMoveDist, const bool fullyProcess, const vec3_t *velocity, vec3_t *inOutMoveDelta)
+bool AIScriptedInterface::GetAvoidanceDelta(AIScriptedInterface *this, const float fMoveDist, const bool fullyProcess, const vec3_t *velocity, vec3_t *inOutMoveDelta)
 {
-  const dvar_t *v13; 
-  bool v15; 
+  const dvar_t *v5; 
+  bool v6; 
+  float v11; 
+  float v12; 
   ai_scripted_t *m_pAI; 
+  float v14; 
+  float v15; 
   gentity_s *TargetEntity; 
-  const dvar_t *v35; 
-  const dvar_t *v36; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
   bool drawAvoidance; 
-  ai_scripted_t *v60; 
-  ai_scripted_t *v61; 
-  AvoidanceResult v66; 
-  AvoidanceResult v87; 
-  AINavigator2D *v89; 
+  __int128 v20; 
+  float v21; 
+  float v22; 
+  ai_scripted_t *v23; 
+  __int128 v24; 
+  float pre_avoidance_desiredSpeed; 
+  float v29; 
+  float v30; 
+  float v31; 
+  ai_scripted_t *v32; 
+  ai_scripted_t *v33; 
+  AvoidanceResult v34; 
+  __int128 v36; 
+  float v39; 
+  AvoidanceResult v40; 
+  AINavigator2D *v41; 
   bool hasPlayerObstacle; 
-  ai_scripted_t *v94; 
-  ai_scripted_t *v96; 
-  bool result; 
-  ai_scripted_t *v102; 
-  ai_scripted_t *v103; 
-  float v115; 
+  ai_scripted_t *v43; 
+  ai_scripted_t *v44; 
+  float v45; 
+  ai_scripted_t *v47; 
+  ai_scripted_t *v48; 
+  ai_scripted_t *v49; 
+  float v50; 
+  float v51; 
   bool outPushingPlayer; 
   int colliderCount[3]; 
   AvoidingEntityInfo avoidingEntityInfo; 
   vec3_t outAvoidingVelocity; 
   vec3_t moveDelta; 
   int outColliderEntNums[272]; 
-  char v128; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm9 }
-  v13 = DCONST_DVARBOOL_ai_useOrca;
-  _RDI = inOutMoveDelta;
-  v15 = 0;
-  _R15 = velocity;
-  __asm { vmovaps xmm9, xmm1 }
+  v5 = DCONST_DVARBOOL_ai_useOrca;
+  v6 = 0;
   if ( !DCONST_DVARBOOL_ai_useOrca && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_useOrca") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmmword ptr [rsp+5C0h+var_38+8], xmm6
-    vmovaps [rsp+5C0h+var_48+8], xmm8
-    vmovaps xmmword ptr [rsp+5C0h+var_68+8], xmm10
-    vmovaps [rsp+5C0h+var_78+8], xmm11
-    vmovaps [rsp+5C0h+var_88+8], xmm12
-    vmovaps [rsp+5C0h+var_98+8], xmm13
-  }
-  Dvar_CheckFrontendServerThread(v13);
-  if ( !v13->current.enabled || !this->m_pAI->avoidance.avoidanceEnabled )
-    goto LABEL_41;
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled || !this->m_pAI->avoidance.avoidanceEnabled )
+    return v6;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi]
-    vmovss  xmm2, dword ptr [rdi+8]
-    vmovss  xmm0, cs:__real@447a0000
-  }
+  v11 = inOutMoveDelta->v[0];
+  v12 = inOutMoveDelta->v[2];
   m_pAI = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vdivss  xmm4, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  dword ptr [rbp+4C0h+var_4F0+4], xmm1
-    vmulss  xmm1, xmm1, xmm4
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm0, xmm3, xmm4
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  xmm1, dword ptr [r15]
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.currentVelocity], xmm1
-    vmovss  xmm1, dword ptr [r15+8]
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.currentVelocity+8], xmm1
-    vmovss  dword ptr [rbp+4C0h+var_4F0], xmm3
-    vmovss  dword ptr [rbp+4C0h+var_4F0+8], xmm2
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.currentVelocity+4], xmm0
-  }
+  v14 = 1000.0 / (float)level.frameDuration;
+  moveDelta.v[1] = inOutMoveDelta->v[1];
+  inOutMoveDelta->v[1] = moveDelta.v[1] * v14;
+  inOutMoveDelta->v[0] = v11 * v14;
+  inOutMoveDelta->v[2] = v12 * v14;
+  v15 = velocity->v[1];
+  avoidingEntityInfo.currentVelocity.v[0] = velocity->v[0];
+  avoidingEntityInfo.currentVelocity.v[2] = velocity->v[2];
+  moveDelta.v[0] = v11;
+  moveDelta.v[2] = v12;
+  avoidingEntityInfo.currentVelocity.v[1] = v15;
   if ( EntHandle::isDefined(&m_pAI->ignoreAvoidanceEnt) )
     TargetEntity = EntHandle::ent(&this->m_pAI->ignoreAvoidanceEnt);
   else
     TargetEntity = AICommonInterface::GetTargetEntity(this);
-  v35 = DCONST_DVARINT_ai_showRepulsors;
+  v17 = DCONST_DVARINT_ai_showRepulsors;
   avoidingEntityInfo.ignoreEnt = TargetEntity;
   avoidingEntityInfo.drawAvoidance = 0;
   if ( !DCONST_DVARINT_ai_showRepulsors && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showRepulsors") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v35);
-  if ( v35->current.integer == 2 )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.integer == 2 )
   {
-    v36 = DVARINT_ai_debugEntIndex;
+    v18 = DVARINT_ai_debugEntIndex;
     if ( !DVARINT_ai_debugEntIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugEntIndex") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v36);
+    Dvar_CheckFrontendServerThread(v18);
     drawAvoidance = avoidingEntityInfo.drawAvoidance;
-    if ( v36->current.integer == this->m_pAI->ent->s.number )
+    if ( v18->current.integer == this->m_pAI->ent->s.number )
       drawAvoidance = 1;
     avoidingEntityInfo.drawAvoidance = drawAvoidance;
   }
+  v20 = LODWORD(inOutMoveDelta->v[1]);
+  v21 = inOutMoveDelta->v[0];
+  v22 = inOutMoveDelta->v[2];
+  v23 = this->m_pAI;
+  v24 = v20;
+  *(float *)&v24 = fsqrt((float)((float)(*(float *)&v20 * *(float *)&v20) + (float)(v21 * v21)) + (float)(v22 * v22));
+  _XMM3 = v24;
   __asm
   {
-    vmovss  xmm5, dword ptr [rdi+4]
-    vmovss  xmm4, dword ptr [rdi]
-    vmovss  xmm6, dword ptr [rdi+8]
-  }
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
   }
   colliderCount[0] = 0;
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rax+0B54h]
-    vmulss  xmm11, xmm4, xmm1
-    vmulss  xmm13, xmm6, xmm1
-    vmulss  xmm2, xmm11, xmm10
-    vmulss  xmm0, xmm13, xmm10
-    vmulss  xmm12, xmm5, xmm1
-    vmulss  xmm1, xmm12, xmm10
-    vmovss  dword ptr [rbp+4C0h+outAvoidingVelocity], xmm2
-    vmovss  dword ptr [rbp+4C0h+outAvoidingVelocity+4], xmm1
-    vmovss  dword ptr [rbp+4C0h+outAvoidingVelocity+8], xmm0
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.desiredVelocity], xmm2
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.desiredVelocity+4], xmm1
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.desiredVelocity+8], xmm0
-  }
-  _RAX->avoidance.minSpeed = 23.0;
+  pre_avoidance_desiredSpeed = v23->pre_avoidance_desiredSpeed;
+  v29 = v21 * (float)(1.0 / *(float *)&_XMM0);
+  v30 = v22 * (float)(1.0 / *(float *)&_XMM0);
+  v31 = *(float *)&v20 * (float)(1.0 / *(float *)&_XMM0);
+  outAvoidingVelocity.v[0] = v29 * pre_avoidance_desiredSpeed;
+  outAvoidingVelocity.v[1] = v31 * pre_avoidance_desiredSpeed;
+  outAvoidingVelocity.v[2] = v30 * pre_avoidance_desiredSpeed;
+  avoidingEntityInfo.desiredVelocity.v[0] = v29 * pre_avoidance_desiredSpeed;
+  avoidingEntityInfo.desiredVelocity.v[1] = v31 * pre_avoidance_desiredSpeed;
+  avoidingEntityInfo.desiredVelocity.v[2] = v30 * pre_avoidance_desiredSpeed;
+  v23->avoidance.minSpeed = 23.0;
   *(double *)&_XMM0 = AIScriptedInterface::GetTargetSpeed(this);
-  _RAX = this->m_pAI;
-  __asm { vmovss  dword ptr [rax+1C0h], xmm0 }
-  v60 = this->m_pAI;
-  avoidingEntityInfo.ent = v60->ent;
-  Nav_GetGoalPos(v60->pNavigator, &avoidingEntityInfo.goalPosition);
-  v61 = this->m_pAI;
-  _RAX = v61->ent;
+  this->m_pAI->avoidance.maxSpeed = *(float *)&_XMM0;
+  v32 = this->m_pAI;
+  avoidingEntityInfo.ent = v32->ent;
+  Nav_GetGoalPos(v32->pNavigator, &avoidingEntityInfo.goalPosition);
+  v33 = this->m_pAI;
+  avoidingEntityInfo.position = v33->ent->r.currentOrigin;
+  v34 = ORCA_DoAvoidance(&avoidingEntityInfo, &v33->avoidance, &outAvoidingVelocity, ORCA_RateVelocity, outColliderEntNums, colliderCount);
+  v36 = LODWORD(outAvoidingVelocity.v[1]);
+  *(float *)&v36 = fsqrt((float)((float)(*(float *)&v36 * *(float *)&v36) + (float)(outAvoidingVelocity.v[0] * outAvoidingVelocity.v[0])) + (float)(outAvoidingVelocity.v[2] * outAvoidingVelocity.v[2]));
+  _XMM6 = v36;
   __asm
   {
-    vmovss  xmm0, dword ptr [rax+130h]
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.position], xmm0
-    vmovss  xmm1, dword ptr [rax+134h]
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.position+4], xmm1
-    vmovss  xmm0, dword ptr [rax+138h]
-    vmovss  dword ptr [rbp+4C0h+avoidingEntityInfo.position+8], xmm0
-  }
-  v66 = ORCA_DoAvoidance(&avoidingEntityInfo, &v61->avoidance, &outAvoidingVelocity, ORCA_RateVelocity, outColliderEntNums, colliderCount);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+4C0h+outAvoidingVelocity]
-    vmovss  xmm5, dword ptr [rbp+4C0h+outAvoidingVelocity+4]
-    vmovss  xmm4, dword ptr [rbp+4C0h+outAvoidingVelocity+8]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm6, xmm0, xmm0
     vcmpless xmm0, xmm6, cs:__real@80000000
     vblendvps xmm0, xmm6, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm2, xmm3, xmm1
-    vmulss  xmm0, xmm5, xmm1
-    vmulss  xmm3, xmm4, xmm1
-    vmulss  xmm1, xmm0, xmm12
-    vmovss  dword ptr [rbp+4C0h+outAvoidingVelocity+4], xmm0
-    vmulss  xmm0, xmm2, xmm11
-    vmovss  dword ptr [rbp+4C0h+outAvoidingVelocity], xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm13
-    vmovss  dword ptr [rbp+4C0h+outAvoidingVelocity+8], xmm3
-    vaddss  xmm3, xmm2, xmm1
   }
-  v87 = v66;
-  __asm { vmovss  xmm8, cs:__real@3f7c1bda }
-  v15 = (unsigned int)v66 <= AVOIDANCE_SPLIT_FAIL;
-  __asm { vcomiss xmm3, xmm8 }
-  this->m_pAI->avoidance_active = (unsigned int)v66 < AVOIDANCE_SPLIT_FAIL;
+  outAvoidingVelocity.v[1] = outAvoidingVelocity.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  outAvoidingVelocity.v[0] = outAvoidingVelocity.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v39 = (float)(outAvoidingVelocity.v[2] * (float)(1.0 / *(float *)&_XMM0)) * v30;
+  outAvoidingVelocity.v[2] = outAvoidingVelocity.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v40 = v34;
+  v6 = (unsigned int)v34 <= AVOIDANCE_SPLIT_FAIL;
+  this->m_pAI->avoidance_active = (float)((float)((float)(outAvoidingVelocity.v[1] * v31) + (float)(outAvoidingVelocity.v[0] * v29)) + v39) < 0.98479998;
   if ( !fullyProcess )
-    goto LABEL_41;
-  v89 = this->m_pAI->pNavigator->Get2DNavigator(this->m_pAI->pNavigator);
-  __asm { vmovss  xmm1, cs:__real@43c80000; maxDistance }
-  hasPlayerObstacle = AINavigator2D::IsApproachingPlayerObstacle(v89, *(float *)&_XMM1);
-  if ( !hasPlayerObstacle )
-    goto LABEL_27;
-  if ( this->m_pAI->avoidance.pushPlayerEnabled )
-    goto LABEL_27;
-  __asm { vmovss  xmm1, cs:__real@43c80000; dist }
-  if ( AIScriptedInterface::IsNearAnyPlayers(this, *(float *)&_XMM1) )
+    return v6;
+  v41 = this->m_pAI->pNavigator->Get2DNavigator(this->m_pAI->pNavigator);
+  hasPlayerObstacle = AINavigator2D::IsApproachingPlayerObstacle(v41, 400.0);
+  if ( hasPlayerObstacle && !this->m_pAI->avoidance.pushPlayerEnabled && AIScriptedInterface::IsNearAnyPlayers(this, 400.0) )
   {
-    v15 = 1;
+    v6 = 1;
   }
-  else
+  else if ( !v6 && (float)(*(float *)&v36 / pre_avoidance_desiredSpeed) < 0.30000001 && (float)((float)((float)(v29 * outAvoidingVelocity.v[0]) + (float)(v31 * outAvoidingVelocity.v[1])) + (float)(v30 * outAvoidingVelocity.v[2])) > 0.98479998 )
   {
-LABEL_27:
-    if ( !v15 )
+    v6 = 1;
+  }
+  v43 = this->m_pAI;
+  if ( !v43->avoidanceBlockedData.blocked || v43->avoidanceBlockedData.processingBlocking )
+  {
+    if ( !v6 )
     {
-      __asm
+LABEL_38:
+      v47 = this->m_pAI;
+      if ( *(float *)&v36 >= (float)(pre_avoidance_desiredSpeed - 0.001) )
       {
-        vdivss  xmm0, xmm6, xmm10
-        vcomiss xmm0, cs:__real@3e99999a
+        v47->avoidance_maxSpeed = -1.0;
       }
-    }
-  }
-  v94 = this->m_pAI;
-  if ( v94->avoidanceBlockedData.blocked && !v94->avoidanceBlockedData.processingBlocking )
-    goto LABEL_35;
-  if ( !v15 )
-    goto LABEL_36;
-  outPushingPlayer = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+5C0h+var_578], xmm9
-    vmovaps xmm3, xmm6; speed
-  }
-  if ( AIScriptedInterface::ProcessBlockingAvoidance(this, v87, &outAvoidingVelocity, *(float *)&_XMM3, outColliderEntNums, colliderCount[0], _R15, &avoidingEntityInfo.goalPosition, &moveDelta, v115, hasPlayerObstacle, &outPushingPlayer) )
-  {
-LABEL_35:
-    if ( v15 )
-    {
-LABEL_40:
-      __asm
+      else
       {
-        vmulss  xmm1, xmm9, dword ptr [rbp+4C0h+outAvoidingVelocity]
-        vmulss  xmm0, xmm9, dword ptr [rbp+4C0h+outAvoidingVelocity+4]
-        vmulss  xmm2, xmm9, dword ptr [rbp+4C0h+outAvoidingVelocity+8]
-        vmovss  dword ptr [rdi], xmm1
-        vmovss  dword ptr [rdi+4], xmm0
-        vmovss  dword ptr [rdi+8], xmm2
+        v47->avoidance_maxSpeed = *(float *)&v36;
+        if ( v40 == AVOIDANCE_ZERO_VELOCITY_CASE )
+        {
+          outAvoidingVelocity.v[0] = v29;
+          outAvoidingVelocity.v[1] = v31;
+          outAvoidingVelocity.v[2] = v30;
+        }
       }
-LABEL_41:
-      result = v15;
-      goto LABEL_42;
+      v48 = this->m_pAI;
+      if ( v48->avoidanceBlockedData.blocked )
+      {
+        --v48->avoidanceBlockedData.blockedCheckCount;
+        v49 = this->m_pAI;
+        if ( v49->avoidanceBlockedData.blocked && !v49->avoidanceBlockedData.blockedCheckCount )
+          AIScriptedInterface::ClearBlockingEntity(this);
+      }
+      goto LABEL_46;
     }
-LABEL_36:
-    __asm
+    outPushingPlayer = 0;
+    if ( !AIScriptedInterface::ProcessBlockingAvoidance(this, v40, &outAvoidingVelocity, *(float *)&v36, outColliderEntNums, colliderCount[0], velocity, &avoidingEntityInfo.goalPosition, &moveDelta, fMoveDist, hasPlayerObstacle, &outPushingPlayer) )
     {
-      vsubss  xmm0, xmm10, cs:__real@3a83126f
-      vcomiss xmm6, xmm0
-    }
-    this->m_pAI->avoidance_maxSpeed = -1.0;
-    v102 = this->m_pAI;
-    if ( v102->avoidanceBlockedData.blocked )
-    {
-      --v102->avoidanceBlockedData.blockedCheckCount;
-      v103 = this->m_pAI;
-      if ( v103->avoidanceBlockedData.blocked && !v103->avoidanceBlockedData.blockedCheckCount )
+      v6 = 0;
+      if ( outPushingPlayer )
+      {
+        v44 = this->m_pAI;
+        v45 = moveDelta.v[1];
+        inOutMoveDelta->v[0] = moveDelta.v[0];
+        inOutMoveDelta->v[2] = moveDelta.v[2];
+        inOutMoveDelta->v[1] = v45;
+        v44->avoidance_maxSpeed = -1.0;
+        this->m_pAI->avoidance_active = 0;
         AIScriptedInterface::ClearBlockingEntity(this);
+        return 0;
+      }
+      goto LABEL_38;
     }
-    goto LABEL_40;
   }
-  v15 = 0;
-  if ( !outPushingPlayer )
-    goto LABEL_36;
-  v96 = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4C0h+var_4F0]
-    vmovss  xmm1, dword ptr [rbp+4C0h+var_4F0+4]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rbp+4C0h+var_4F0+8]
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  dword ptr [rdi+4], xmm1
-  }
-  v96->avoidance_maxSpeed = -1.0;
-  this->m_pAI->avoidance_active = 0;
-  AIScriptedInterface::ClearBlockingEntity(this);
-  result = 0;
-LABEL_42:
-  __asm
-  {
-    vmovaps xmm13, [rsp+5C0h+var_98+8]
-    vmovaps xmm12, [rsp+5C0h+var_88+8]
-    vmovaps xmm11, [rsp+5C0h+var_78+8]
-    vmovaps xmm10, xmmword ptr [rsp+5C0h+var_68+8]
-    vmovaps xmm8, [rsp+5C0h+var_48+8]
-    vmovaps xmm6, xmmword ptr [rsp+5C0h+var_38+8]
-  }
-  _R11 = &v128;
-  __asm { vmovaps xmm9, xmmword ptr [r11-30h] }
-  return result;
+  if ( !v6 )
+    goto LABEL_38;
+LABEL_46:
+  v50 = fMoveDist * outAvoidingVelocity.v[1];
+  v51 = fMoveDist * outAvoidingVelocity.v[2];
+  inOutMoveDelta->v[0] = fMoveDist * outAvoidingVelocity.v[0];
+  inOutMoveDelta->v[1] = v50;
+  inOutMoveDelta->v[2] = v51;
+  return v6;
 }
 
 /*
@@ -674,23 +587,22 @@ AIScriptedInterface::OnScrCmd_SetAvoidanceBounds
 */
 void AIScriptedInterface::OnScrCmd_SetAvoidanceBounds(AIScriptedInterface *this, scrContext_t *scrContext)
 {
-  const dvar_t *v5; 
+  const dvar_t *v4; 
+  double Float; 
+  ai_scripted_t *m_pAI; 
 
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
-    v5 = DCONST_DVARBOOL_ai_useOrca;
+    v4 = DCONST_DVARBOOL_ai_useOrca;
     if ( !DCONST_DVARBOOL_ai_useOrca && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_useOrca") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v5);
-    if ( v5->current.enabled )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.enabled )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      _RAX = this->m_pAI;
-      __asm
-      {
-        vmovss  dword ptr [rax+1CCh], xmm0
-        vmovss  dword ptr [rax+1D0h], xmm0
-      }
+      Float = Scr_GetFloat(scrContext, 0);
+      m_pAI = this->m_pAI;
+      m_pAI->avoidance.avoidanceBoundsHalfSize.v[0] = *(float *)&Float;
+      m_pAI->avoidance.avoidanceBoundsHalfSize.v[1] = *(float *)&Float;
     }
   }
   else
@@ -721,19 +633,19 @@ AIScriptedInterface::OnScrCmd_SetAvoidanceRadius
 */
 void AIScriptedInterface::OnScrCmd_SetAvoidanceRadius(AIScriptedInterface *this, scrContext_t *scrContext)
 {
-  const dvar_t *v5; 
+  const dvar_t *v4; 
+  double Float; 
 
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
-    v5 = DCONST_DVARBOOL_ai_useOrca;
+    v4 = DCONST_DVARBOOL_ai_useOrca;
     if ( !DCONST_DVARBOOL_ai_useOrca && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_useOrca") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v5);
-    if ( v5->current.enabled )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.enabled )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      _RAX = this->m_pAI;
-      __asm { vmovss  dword ptr [rax+1C8h], xmm0 }
+      Float = Scr_GetFloat(scrContext, 0);
+      this->m_pAI->avoidance.radius = *(float *)&Float;
     }
   }
   else
@@ -749,11 +661,12 @@ AIScriptedInterface::OnScrCmd_SetAvoidanceReciprocity
 */
 void AIScriptedInterface::OnScrCmd_SetAvoidanceReciprocity(AIScriptedInterface *this, scrContext_t *scrContext)
 {
+  double Float; 
+
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    _RAX = this->m_pAI;
-    __asm { vmovss  dword ptr [rax+1BCh], xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
+    this->m_pAI->avoidance.reciprocality = *(float *)&Float;
   }
   else
   {
@@ -766,642 +679,532 @@ void AIScriptedInterface::OnScrCmd_SetAvoidanceReciprocity(AIScriptedInterface *
 AIScriptedInterface::ProcessBlockingAvoidance
 ==============
 */
-
-bool __fastcall AIScriptedInterface::ProcessBlockingAvoidance(AIScriptedInterface *this, AvoidanceResult avoidResult, vec3_t *avoidanceMoveDelta, double speed, int *colliderEntNums, int colliderCount, const vec3_t *velocity, vec3_t *goalPosition, vec3_t *moveDelta, float moveDistance, bool hasPlayerObstacle, bool *outPushingPlayer)
+char AIScriptedInterface::ProcessBlockingAvoidance(AIScriptedInterface *this, AvoidanceResult avoidResult, vec3_t *avoidanceMoveDelta, float speed, int *colliderEntNums, int colliderCount, const vec3_t *velocity, vec3_t *goalPosition, vec3_t *moveDelta, float moveDistance, bool hasPlayerObstacle, bool *outPushingPlayer)
 {
-  vec3_t *v23; 
-  int *v25; 
-  const dvar_t *v26; 
-  gentity_s *v29; 
-  bool v30; 
-  char v31; 
-  char v32; 
-  __int64 v35; 
-  __int64 v37; 
-  bool v38; 
+  vec3_t *v12; 
+  int *v14; 
+  const dvar_t *v15; 
+  float v16; 
+  float v17; 
+  gentity_s *v18; 
+  bool v19; 
+  char v20; 
+  char v21; 
+  __int64 v22; 
+  gentity_s *v23; 
+  __int64 v24; 
+  bool v25; 
+  bool v26; 
   sentient_s *sentient; 
-  sentient_s *v40; 
-  bool v41; 
-  unsigned int v45; 
+  sentient_s *v28; 
+  bool v29; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  unsigned int v31; 
   unsigned __int64 eTeam; 
   ai_scripted_t *m_pAI; 
-  bool v59; 
+  __int128 v34; 
+  __int128 v35; 
+  float v36; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v42; 
   __int16 EntityIndex; 
-  ai_scripted_t *v62; 
-  bool v63; 
-  AIScriptedInterface *v75; 
-  const ai_scripted_t *v76; 
-  bool v77; 
-  AIScriptedInterface *v105; 
-  char v161; 
-  int v162; 
-  unsigned int v163; 
-  __int64 v164; 
-  __int64 v165; 
-  unsigned int v171; 
-  AIScriptedInterface *v212; 
-  ai_scripted_t *v214; 
-  bool v215; 
-  ai_scripted_t *v216; 
-  ai_scripted_t *v217; 
-  __int64 v245; 
-  __int64 v246; 
-  __int16 v247; 
-  gentity_s *v248; 
-  char v249; 
-  __int64 v254; 
-  AIWrapper v255; 
+  ai_scripted_t *v44; 
+  AIScriptedInterface *v46; 
+  const ai_scripted_t *v47; 
+  __int128 v51; 
+  float v54; 
+  float v55; 
+  char v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  __int128 v60; 
+  __int128 v61; 
+  gclient_s *client; 
+  __int128 v66; 
+  float v67; 
+  float v68; 
+  AIScriptedInterface *v69; 
+  __int64 v70; 
+  float v71; 
+  float v73; 
+  __int128 v74; 
+  __int128 v75; 
+  float v79; 
+  float v80; 
+  float v81; 
+  __int128 v82; 
+  __int128 v83; 
+  __int128 v86; 
+  float v87; 
+  float v91; 
+  float v92; 
+  int v93; 
+  int v94; 
+  __int64 v95; 
+  __int64 v96; 
+  gentity_s *ent; 
+  int v98; 
+  char *v99; 
+  __int128 v100; 
+  __int128 v101; 
+  __int128 v102; 
+  __int128 v103; 
+  float v104; 
+  float v105; 
+  __int128 v107; 
+  float v110; 
+  float v111; 
+  float v112; 
+  __int128 v113; 
+  float v117; 
+  float v118; 
+  float *p_commandTime; 
+  float v120; 
+  float v121; 
+  float v122; 
+  AIScriptedInterface *v123; 
+  float *v124; 
+  ai_scripted_t *v125; 
+  ai_scripted_t *v126; 
+  ai_scripted_t *v127; 
+  ai_scripted_t *v128; 
+  gentity_s *v129; 
+  float v130; 
+  __int128 v131; 
+  float v132; 
+  float v133; 
+  __int64 v137; 
+  __int64 v138; 
+  __int16 v139; 
+  gentity_s *v140; 
+  char v141; 
+  float v142; 
+  __int64 v146; 
+  AIWrapper v147; 
   bitarray<224> result; 
   char ptr[400]; 
-  char v258; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-    vmovss  dword ptr [rsp+370h+var_318], xmm3
-  }
-  v23 = avoidanceMoveDelta;
-  v25 = colliderEntNums;
+  v12 = avoidanceMoveDelta;
+  v14 = colliderEntNums;
   if ( !this->m_pAI->avoidanceBlockedData.enabled )
-    goto LABEL_56;
-  v26 = DCONST_DVARBOOL_ai_enableAvoidanceBlocking;
+    return 0;
+  v15 = DCONST_DVARBOOL_ai_enableAvoidanceBlocking;
   if ( !DCONST_DVARBOOL_ai_enableAvoidanceBlocking && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_enableAvoidanceBlocking") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  if ( !v26->current.enabled )
-  {
-LABEL_56:
-    v63 = 0;
-    goto LABEL_57;
-  }
-  __asm
-  {
-    vmovss  xmm11, cs:__real@46afc800
-    vmovaps xmm10, xmm11
-    vmovss  [rsp+370h+var_31C], xmm11
-  }
-  v29 = NULL;
-  v248 = NULL;
-  v30 = 0;
-  v247 = 0;
-  v31 = 0;
-  v249 = 0;
-  v32 = 0;
-  __asm
-  {
-    vmovss  xmm12, cs:__real@80000000
-    vxorps  xmm9, xmm9, xmm9
-  }
+  Dvar_CheckFrontendServerThread(v15);
+  if ( !v15->current.enabled )
+    return 0;
+  v16 = FLOAT_22500_0;
+  v17 = FLOAT_22500_0;
+  v142 = FLOAT_22500_0;
+  v18 = NULL;
+  v140 = NULL;
+  v19 = 0;
+  v139 = 0;
+  v20 = 0;
+  v141 = 0;
+  v21 = 0;
   if ( colliderCount <= 0 )
-    goto LABEL_48;
-  v35 = 0i64;
-  v254 = 0i64;
+    goto LABEL_49;
+  v22 = 0i64;
+  v146 = 0i64;
   while ( 1 )
   {
-    _R15 = &g_entities[v25[v35]];
+    v23 = &g_entities[v14[v22]];
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v37 = _R15 - g_entities;
-    if ( (unsigned int)v37 >= 0x800 )
+    v24 = v23 - g_entities;
+    if ( (unsigned int)v24 >= 0x800 )
     {
-      LODWORD(v246) = 2048;
-      LODWORD(v245) = _R15 - g_entities;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v245, v246) )
+      LODWORD(v138) = 2048;
+      LODWORD(v137) = v23 - g_entities;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v137, v138) )
         __debugbreak();
     }
-    v37 = (__int16)v37;
-    if ( (unsigned int)(__int16)v37 >= 0x800 )
+    v24 = (__int16)v24;
+    if ( (unsigned int)(__int16)v24 >= 0x800 )
     {
-      LODWORD(v246) = 2048;
-      LODWORD(v245) = v37;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v245, v246) )
+      LODWORD(v138) = 2048;
+      LODWORD(v137) = v24;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v137, v138) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    if ( g_entities[v37].r.isInUse != g_entityIsInUse[v37] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    if ( g_entities[v24].r.isInUse != g_entityIsInUse[v24] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    v38 = g_entityIsInUse[v37] && _R15->s.eType == ET_PLAYER;
-    sentient = _R15->sentient;
+    v25 = g_entityIsInUse[v24] && v23->s.eType == ET_PLAYER;
+    v26 = 0;
+    sentient = v23->sentient;
     if ( sentient )
     {
-      v40 = this->m_pAI->ent->sentient;
-      if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 259, ASSERT_TYPE_ASSERT, "(other)", (const char *)&queryFormat, "other") )
+      v28 = this->m_pAI->ent->sentient;
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 259, ASSERT_TYPE_ASSERT, "(other)", (const char *)&queryFormat, "other") )
         __debugbreak();
       if ( level.teammode == TEAMMODE_FFA )
       {
-        v41 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
+        v29 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
         if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-          _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+          AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
         else
-          _RAX = Com_TeamsMP_GetAllTeamFlags();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+270h+result.array], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vmovsd  qword ptr [rbp+270h+result.array+10h], xmm1
-        }
-        v45 = _RAX->array[6] & 0xFFEFFFFF;
-        if ( v41 )
+          AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+        *(_OWORD *)result.array = *(_OWORD *)AllCombatTeamFlags->array;
+        *(_QWORD *)&result.array[4] = *(_QWORD *)&AllCombatTeamFlags->array[4];
+        v31 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+        if ( v29 )
           result.array[0] &= ~0x8000000u;
-        result.array[6] = v45 & 0xFF9FFFFF;
-        v31 = v249;
+        result.array[6] = v31 & 0xFF9FFFFF;
+        v20 = v141;
       }
       else
       {
-        Com_Teams_GetEnemyTeamFlags(&result, v40->eTeam);
+        Com_Teams_GetEnemyTeamFlags(&result, v28->eTeam);
       }
       eTeam = (unsigned int)sentient->eTeam;
       if ( (unsigned int)eTeam >= 0xE0 )
       {
-        LODWORD(v246) = 224;
-        LODWORD(v245) = sentient->eTeam;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v245, v246) )
+        LODWORD(v138) = 224;
+        LODWORD(v137) = sentient->eTeam;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v137, v138) )
           __debugbreak();
       }
       if ( ((0x80000000 >> (eTeam & 0x1F)) & result.array[eTeam >> 5]) != 0 )
-        goto LABEL_93;
+        goto LABEL_101;
     }
     m_pAI = this->m_pAI;
-    __asm
+    v35 = LODWORD(v23->r.currentOrigin.v[0]);
+    *(float *)&v35 = v23->r.currentOrigin.v[0] - m_pAI->ent->r.currentOrigin.v[0];
+    v34 = v35;
+    v36 = v23->r.currentOrigin.v[1] - m_pAI->ent->r.currentOrigin.v[1];
+    v38 = LODWORD(v23->r.currentOrigin.v[2]);
+    *(float *)&v38 = v23->r.currentOrigin.v[2] - m_pAI->ent->r.currentOrigin.v[2];
+    v37 = v38;
+    v39 = v34;
+    *(float *)&v39 = (float)(*(float *)&v34 * *(float *)&v34) + (float)(v36 * v36);
+    v40 = v39;
+    v42 = v37;
+    *(float *)&v42 = (float)(*(float *)&v37 * *(float *)&v37) + *(float *)&v40;
+    _XMM15 = v42;
+    if ( v25 )
+      break;
+    AIWrapper::AIWrapper(&v147, v23);
+    v46 = v147.m_pAI;
+    if ( !v147.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 185, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+      __debugbreak();
+    if ( v46->InScriptedState(v46) )
+      v20 = 1;
+    v141 = v20;
+    v26 = AIScriptedInterface::GetCoverNode(v46) != NULL;
+    v47 = (const ai_scripted_t *)v46->GetAI(v46);
+    if ( AIScriptedInterface::IsInBlockingAvoidanceChain(this, v47) )
+      goto LABEL_101;
+LABEL_64:
+    if ( *(float *)&v42 <= v17 )
     {
-      vmovss  xmm0, dword ptr [r15+130h]
-      vsubss  xmm6, xmm0, dword ptr [rax+130h]
-      vmovss  xmm0, dword ptr [r15+134h]
-      vsubss  xmm7, xmm0, dword ptr [rax+134h]
-      vmovss  xmm0, dword ptr [r15+138h]
-      vsubss  xmm3, xmm0, dword ptr [rax+138h]
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm8, xmm2, xmm1
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm15, xmm0, xmm8
-    }
-    if ( v38 )
-    {
-      v59 = !hasPlayerObstacle;
-      if ( hasPlayerObstacle )
-      {
-        v59 = !m_pAI->avoidance.pushPlayerEnabled;
-        if ( !m_pAI->avoidance.pushPlayerEnabled )
-          __asm { vcomiss xmm15, xmm11 }
-      }
-    }
-    else
-    {
-      AIWrapper::AIWrapper(&v255, _R15);
-      v75 = v255.m_pAI;
-      if ( !v255.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 185, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
-        __debugbreak();
-      if ( v75->InScriptedState(v75) )
-        v31 = 1;
-      v249 = v31;
-      AIScriptedInterface::GetCoverNode(v75);
-      v76 = (const ai_scripted_t *)v75->GetAI(v75);
-      v77 = AIScriptedInterface::IsInBlockingAvoidanceChain(this, v76);
-      v59 = !v77;
-      if ( v77 )
-        goto LABEL_93;
-    }
-    __asm { vcomiss xmm15, xmm10 }
-    if ( v59 )
-    {
-      __asm { vmovss  xmm5, cs:__real@3f70624e }
-      if ( v38 )
+      _XMM5 = LODWORD(FLOAT_0_93900001);
+      if ( v25 )
       {
         __asm
         {
           vcmpltss xmm0, xmm15, cs:__real@45afc800
-          vmovss  xmm1, cs:__real@3f34fdf4
           vblendvps xmm5, xmm5, xmm1, xmm0
         }
       }
+      v51 = v40;
+      *(float *)&v51 = fsqrt(*(float *)&v40);
+      _XMM1 = v51;
       __asm
       {
-        vsqrtss xmm1, xmm8, xmm8
         vcmpless xmm0, xmm1, xmm12
-        vmovss  xmm11, cs:__real@3f800000
         vblendvps xmm1, xmm1, xmm11, xmm0
-        vdivss  xmm0, xmm11, xmm1
-        vmulss  xmm13, xmm6, xmm0
-        vmulss  xmm14, xmm7, xmm0
       }
-      _RAX = goalPosition;
-      __asm
+      v54 = *(float *)&v34 * (float)(1.0 / *(float *)&_XMM1);
+      v55 = v36 * (float)(1.0 / *(float *)&_XMM1);
+      v56 = 0;
+      v57 = goalPosition->v[1] - v23->r.currentOrigin.v[1];
+      v58 = goalPosition->v[2] - v23->r.currentOrigin.v[2];
+      if ( (float)((float)((float)((float)(goalPosition->v[0] - v23->r.currentOrigin.v[0]) * (float)(goalPosition->v[0] - v23->r.currentOrigin.v[0])) + (float)(v57 * v57)) + (float)(v58 * v58)) <= 400.0 )
       {
-        vmovss  xmm0, dword ptr [rax]
-        vsubss  xmm2, xmm0, dword ptr [r15+130h]
-        vmovss  xmm1, dword ptr [rax+4]
-        vsubss  xmm3, xmm1, dword ptr [r15+134h]
-        vmovss  xmm0, dword ptr [rax+8]
-        vsubss  xmm4, xmm0, dword ptr [r15+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, cs:__real@43c80000
-      }
-      if ( v38 )
-      {
-        _RAX = _R15->client;
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rax+3Ch]
-          vmovss  xmm8, dword ptr [rax+40h]
-          vmovss  xmm9, dword ptr [rax+44h]
-        }
+        v56 = 1;
       }
       else
       {
-        AIWrapper::AIWrapper(&v255, _R15);
-        v105 = v255.m_pAI;
-        if ( !v255.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 234, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
-          __debugbreak();
-        _RAX = v105->GetAI(v105);
+        v59 = moveDelta->v[1];
+        v60 = LODWORD(moveDelta->v[0]);
+        v61 = v60;
+        *(float *)&v61 = fsqrt((float)(*(float *)&v60 * *(float *)&v60) + (float)(v59 * v59));
+        _XMM2 = v61;
         __asm
         {
-          vmovss  xmm7, dword ptr [rax+838h]
-          vmovss  xmm8, dword ptr [rax+83Ch]
-          vmovss  xmm9, dword ptr [rax+840h]
+          vcmpless xmm0, xmm2, xmm12
+          vblendvps xmm1, xmm2, xmm11, xmm0
         }
-        if ( v249 )
+        if ( (float)((float)((float)((float)(1.0 / *(float *)&_XMM1) * v59) * v55) + (float)((float)((float)(1.0 / *(float *)&_XMM1) * *(float *)&v60) * v54)) < *(float *)&_XMM5 )
+          goto LABEL_100;
+      }
+      if ( v25 )
+      {
+        client = v23->client;
+        v66 = LODWORD(client->ps.velocity.v[0]);
+        v67 = client->ps.velocity.v[1];
+        v68 = client->ps.velocity.v[2];
+        goto LABEL_78;
+      }
+      AIWrapper::AIWrapper(&v147, v23);
+      v69 = v147.m_pAI;
+      if ( !v147.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 234, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+        __debugbreak();
+      v70 = v69->GetAI(v69);
+      v66 = *(unsigned int *)(v70 + 2104);
+      v67 = *(float *)(v70 + 2108);
+      v68 = *(float *)(v70 + 2112);
+      if ( !v141 || (float)((float)((float)(*(float *)&v66 * *(float *)&v66) + (float)(v67 * v67)) + (float)(v68 * v68)) >= 25.0 )
+      {
+LABEL_78:
+        v71 = speed;
+        *(float *)&_XMM10 = speed;
+        if ( avoidResult )
         {
+          v81 = velocity->v[1];
+          v82 = LODWORD(velocity->v[0]);
+          v83 = v82;
+          *(float *)&v83 = fsqrt((float)((float)(*(float *)&v82 * *(float *)&v82) + (float)(v81 * v81)) + (float)(velocity->v[2] * velocity->v[2]));
+          _XMM10 = v83;
           __asm
           {
-            vmulss  xmm1, xmm7, xmm7
-            vmulss  xmm0, xmm8, xmm8
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm9, xmm9
-            vaddss  xmm2, xmm2, xmm1
-            vcomiss xmm2, cs:__real@41c80000
+            vcmpless xmm0, xmm10, xmm12
+            vblendvps xmm1, xmm10, xmm11, xmm0
           }
+          v79 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v82;
+          v80 = (float)(1.0 / *(float *)&_XMM1) * v81;
         }
-      }
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+370h+var_318]
-        vmovaps xmm10, xmm6
-      }
-      if ( avoidResult )
-      {
-        _RAX = velocity;
-        __asm
+        else
         {
-          vmovss  xmm5, dword ptr [rax+4]
-          vmovss  xmm4, dword ptr [rax]
-          vmovss  xmm3, dword ptr [rax+8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm10, xmm2, xmm2
-          vcmpless xmm0, xmm10, xmm12
-          vblendvps xmm1, xmm10, xmm11, xmm0
-          vdivss  xmm0, xmm11, xmm1
-          vmulss  xmm3, xmm0, xmm4
-          vmulss  xmm5, xmm0, xmm5
-        }
-      }
-      else
-      {
-        _RAX = avoidanceMoveDelta;
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rax+4]
-          vmovss  xmm5, dword ptr [rax]
-          vmovss  xmm3, dword ptr [rax+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
-          vcmpless xmm0, xmm4, xmm12
-          vblendvps xmm1, xmm4, xmm11, xmm0
-          vdivss  xmm0, xmm11, xmm1
-          vmulss  xmm3, xmm0, xmm5
-          vmulss  xmm5, xmm0, xmm6
-          vmovaps xmm6, xmm10
-        }
-      }
-      __asm
-      {
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm0, xmm8, xmm8
-        vaddss  xmm4, xmm1, xmm0
-        vsqrtss xmm2, xmm4, xmm4
-        vcmpless xmm0, xmm2, xmm12
-        vblendvps xmm1, xmm2, xmm11, xmm0
-        vdivss  xmm0, xmm11, xmm1
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm0, xmm0, xmm8
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm1, xmm1, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm9, xmm9
-        vaddss  xmm2, xmm0, xmm4
-        vsqrtss xmm1, xmm2, xmm2
-        vcomiss xmm3, cs:__real@3f34fdf4
-      }
-      if ( avoidResult )
-      {
-        __asm
-        {
-          vdivss  xmm2, xmm6, dword ptr [rax+0B54h]
-          vsubss  xmm0, xmm10, cs:__real@41a00000
-          vcomiss xmm1, xmm0
-          vcomiss xmm2, cs:__real@3e99999a
-          vmovss  xmm10, [rsp+370h+var_31C]
-          vxorps  xmm9, xmm9, xmm9
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm9, xmm9, xmm9
-          vcomiss xmm1, xmm9
-        }
-        `eh vector constructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::nav_cornerdata_t, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
-        __asm { vmovss  xmm3, cs:__real@43160000 }
-        v162 = ((__int64 (__fastcall *)(AINavigator *, char *, __int64))this->m_pAI->pNavigator->GetNextNCorners)(this->m_pAI->pNavigator, ptr, 10i64);
-        __asm { vcomiss xmm15, cs:__real@44c80000 }
-        v163 = 0;
-        v164 = 0i64;
-        if ( v162 > 0 )
-        {
-          v165 = v162;
-          _RDX = this->m_pAI->ent;
+          v73 = avoidanceMoveDelta->v[1];
+          v74 = LODWORD(avoidanceMoveDelta->v[0]);
+          v75 = v74;
+          *(float *)&v75 = fsqrt((float)((float)(*(float *)&v74 * *(float *)&v74) + (float)(v73 * v73)) + (float)(avoidanceMoveDelta->v[2] * avoidanceMoveDelta->v[2]));
+          _XMM4 = v75;
           __asm
           {
-            vmovss  xmm9, dword ptr [rdx+130h]
-            vmovss  xmm10, dword ptr [rdx+134h]
-            vmovss  xmm11, dword ptr [r15+130h]
-            vmovss  xmm12, dword ptr [r15+134h]
+            vcmpless xmm0, xmm4, xmm12
+            vblendvps xmm1, xmm4, xmm11, xmm0
           }
-          v171 = v162 - 1;
-          _RAX = ptr;
-          do
+          v79 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v74;
+          v80 = (float)(1.0 / *(float *)&_XMM1) * v73;
+          v71 = speed;
+        }
+        v86 = v66;
+        v87 = (float)(*(float *)&v66 * *(float *)&v66) + (float)(v67 * v67);
+        *(float *)&v86 = fsqrt(v87);
+        _XMM2 = v86;
+        __asm
+        {
+          vcmpless xmm0, xmm2, xmm12
+          vblendvps xmm1, xmm2, xmm11, xmm0
+        }
+        v91 = (float)((float)((float)(1.0 / *(float *)&_XMM1) * v67) * v80) + (float)((float)((float)(1.0 / *(float *)&_XMM1) * *(float *)&v66) * v79);
+        v92 = fsqrt((float)(v68 * v68) + v87);
+        if ( v91 > 0.70700002 && v92 > (float)(*(float *)&_XMM10 - 20.0) && (float)(v71 / this->m_pAI->pre_avoidance_desiredSpeed) > 0.30000001 )
+        {
+          v17 = v142;
+        }
+        else
+        {
+          if ( v92 > 0.0 && !v26 )
+            goto LABEL_93;
+          `eh vector constructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::nav_cornerdata_t, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
+          v93 = ((__int64 (__fastcall *)(AINavigator *, char *, __int64))this->m_pAI->pNavigator->GetNextNCorners)(this->m_pAI->pNavigator, ptr, 10i64);
+          v94 = 0;
+          v95 = 0i64;
+          if ( v93 > 0 )
           {
-            __asm
+            v96 = v93;
+            ent = this->m_pAI->ent;
+            v98 = v93 - 1;
+            v99 = ptr;
+            while ( 1 )
             {
-              vmovss  xmm3, dword ptr [rax]
-              vmovss  xmm0, dword ptr [rax+4]
-              vsubss  xmm6, xmm0, xmm10
-              vsubss  xmm4, xmm3, xmm11
-              vsubss  xmm2, xmm0, xmm12
-              vmulss  xmm1, xmm4, xmm4
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm1, xmm1, xmm0
-              vsqrtss xmm5, xmm1, xmm1
-              vcmpless xmm0, xmm5, cs:__real@80000000
-              vmovss  xmm7, cs:__real@3f800000
-              vblendvps xmm1, xmm5, xmm7, xmm0
-              vdivss  xmm0, xmm7, xmm1
-              vsubss  xmm3, xmm3, xmm9
-              vmulss  xmm7, xmm0, xmm2
-              vmulss  xmm8, xmm4, xmm0
-            }
-            if ( v163 == v171 )
-            {
-              __asm { vcomiss xmm5, cs:__real@42480000 }
-              if ( v163 < v171 )
-              {
-LABEL_85:
-                `eh vector destructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
-                __asm
-                {
-                  vmovss  xmm12, cs:__real@80000000
-                  vxorps  xmm9, xmm9, xmm9
-                }
-                v29 = _R15;
-                v248 = _R15;
-                __asm
-                {
-                  vmovaps xmm10, xmm15
-                  vmovss  [rsp+370h+var_31C], xmm15
-                }
-                v30 = v38;
-                LOBYTE(v247) = v38;
-                v32 = 1;
-                HIBYTE(v247) = 1;
-                __asm { vmovss  xmm11, cs:__real@46afc800 }
-                goto LABEL_94;
-              }
-            }
-            __asm
-            {
-              vmulss  xmm1, xmm6, xmm6
-              vmulss  xmm0, xmm3, xmm3
-              vaddss  xmm1, xmm1, xmm0
-              vsqrtss xmm2, xmm1, xmm1
-              vcmpless xmm0, xmm2, cs:__real@80000000
-              vmovss  xmm4, cs:__real@3f800000
-              vblendvps xmm1, xmm2, xmm4, xmm0
-              vdivss  xmm0, xmm4, xmm1
-              vmulss  xmm3, xmm3, xmm0
-              vmulss  xmm4, xmm6, xmm0
-              vmulss  xmm1, xmm4, xmm7
-              vmulss  xmm0, xmm3, xmm8
-              vaddss  xmm2, xmm1, xmm0
-              vxorps  xmm0, xmm0, xmm0
-              vcomiss xmm2, xmm0
-            }
-            if ( v163 <= v171 )
-            {
-              __asm { vcomiss xmm5, cs:__real@42480000 }
-              if ( v163 > v171 )
-                break;
-              if ( v161 )
-                __asm { vcomiss xmm5, cs:__real@41f00000 }
-            }
-            else
-            {
+              v100 = *(unsigned int *)v99;
+              v101 = *((unsigned int *)v99 + 1);
+              v103 = v101;
+              *(float *)&v103 = *(float *)&v101 - ent->r.currentOrigin.v[1];
+              v102 = v103;
+              v107 = v100;
+              v104 = *(float *)&v100 - v23->r.currentOrigin.v[0];
+              v105 = *(float *)&v101 - v23->r.currentOrigin.v[1];
+              *(float *)&v107 = fsqrt((float)(v104 * v104) + (float)(v105 * v105));
+              _XMM5 = v107;
               __asm
               {
-                vmulss  xmm1, xmm4, xmm14
-                vmulss  xmm0, xmm3, xmm13
-                vaddss  xmm1, xmm1, xmm0
-                vcomiss xmm1, cs:__real@3f774bc7
+                vcmpless xmm0, xmm5, cs:__real@80000000
+                vblendvps xmm1, xmm5, xmm7, xmm0
               }
-              if ( v163 > v171 )
-                goto LABEL_85;
+              v110 = *(float *)&v100 - ent->r.currentOrigin.v[0];
+              v111 = (float)(1.0 / *(float *)&_XMM1) * v105;
+              v112 = v104 * (float)(1.0 / *(float *)&_XMM1);
+              if ( v94 == v98 && *(float *)&v107 < 50.0 )
+                break;
+              v113 = v102;
+              *(float *)&v113 = fsqrt((float)(*(float *)&v102 * *(float *)&v102) + (float)(v110 * v110));
+              _XMM2 = v113;
+              __asm
+              {
+                vcmpless xmm0, xmm2, cs:__real@80000000
+                vblendvps xmm1, xmm2, xmm4, xmm0
+              }
+              v117 = v110 * (float)(1.0 / *(float *)&_XMM1);
+              v118 = *(float *)&v102 * (float)(1.0 / *(float *)&_XMM1);
+              if ( (float)((float)(v118 * v111) + (float)(v117 * v112)) <= 0.0 )
+              {
+                if ( *(float *)&_XMM5 > 50.0 )
+                  goto LABEL_98;
+                if ( *(float *)&_XMM15 < 1600.0 && *(float *)&_XMM5 < 30.0 )
+                  break;
+              }
+              else if ( (float)((float)(v118 * v55) + (float)(v117 * v54)) > 0.96600002 )
+              {
+                break;
+              }
+              ++v94;
+              ++v95;
+              v99 += 40;
+              if ( v95 >= v96 )
+                goto LABEL_98;
             }
-            ++v163;
-            ++v164;
-            _RAX += 40;
-          }
-          while ( v164 < v165 );
-          __asm
-          {
-            vxorps  xmm9, xmm9, xmm9
-            vmovss  xmm12, cs:__real@80000000
-          }
-        }
-        `eh vector destructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
-        __asm { vmovss  xmm10, [rsp+370h+var_31C] }
-      }
-      __asm { vmovss  xmm11, cs:__real@46afc800 }
-    }
+            `eh vector destructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
 LABEL_93:
-    v29 = v248;
-    v30 = v247;
-    v32 = HIBYTE(v247);
-LABEL_94:
-    v35 = v254 + 1;
-    v254 = v35;
-    if ( v35 >= colliderCount )
-      break;
-    v31 = v249;
-    v25 = colliderEntNums;
+            v18 = v23;
+            v140 = v23;
+            v17 = *(float *)&_XMM15;
+            v142 = *(float *)&_XMM15;
+            v19 = v25;
+            LOBYTE(v139) = v25;
+            v21 = v56;
+            HIBYTE(v139) = v56;
+            v16 = FLOAT_22500_0;
+            goto LABEL_102;
+          }
+LABEL_98:
+          `eh vector destructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
+          v17 = v142;
+        }
+      }
+LABEL_100:
+      v16 = FLOAT_22500_0;
+    }
+LABEL_101:
+    v18 = v140;
+    v19 = v139;
+    v21 = HIBYTE(v139);
+LABEL_102:
+    v22 = v146 + 1;
+    v146 = v22;
+    if ( v22 >= colliderCount )
+      goto LABEL_48;
+    v20 = v141;
+    v14 = colliderEntNums;
   }
-  v23 = avoidanceMoveDelta;
+  if ( !hasPlayerObstacle || m_pAI->avoidance.pushPlayerEnabled || *(float *)&v42 >= v16 )
+    goto LABEL_64;
+  v18 = v23;
+  v140 = v23;
+  v19 = v25;
+  v21 = 0;
 LABEL_48:
-  __asm { vmovss  xmm1, cs:__real@43160000 }
-  if ( !((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathDistToGoalAtLeast)(this->m_pAI->pNavigator) && !v30 && !v32 || !v29 )
-    goto LABEL_56;
-  EntityIndex = G_GetEntityIndex(v29);
-  if ( G_IsEntityInUse(EntityIndex) && v29->s.eType == ET_PLAYER )
+  v12 = avoidanceMoveDelta;
+LABEL_49:
+  if ( !((unsigned __int8 (__fastcall *)(AINavigator *))this->m_pAI->pNavigator->IsPathDistToGoalAtLeast)(this->m_pAI->pNavigator) && !v19 && !v21 || !v18 )
+    return 0;
+  EntityIndex = G_GetEntityIndex(v18);
+  if ( G_IsEntityInUse(EntityIndex) && v18->s.eType == ET_PLAYER )
   {
-    v62 = this->m_pAI;
-    if ( v62->avoidance.pushPlayerEnabled )
+    v44 = this->m_pAI;
+    if ( v44->avoidance.pushPlayerEnabled )
     {
       *outPushingPlayer = 1;
-      goto LABEL_56;
+      return 0;
     }
-    _RAX = v29->client;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+40h]
-      vmovss  xmm7, dword ptr [rax+3Ch]
-      vmovss  xmm8, dword ptr [rax+44h]
-    }
+    p_commandTime = (float *)&v18->client->ps.commandTime;
+    v120 = p_commandTime[16];
+    v121 = p_commandTime[15];
+    v122 = p_commandTime[17];
   }
   else
   {
-    AIWrapper::AIWrapper(&v255, v29);
-    v212 = v255.m_pAI;
-    if ( !v255.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 357, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+    AIWrapper::AIWrapper(&v147, v18);
+    v123 = v147.m_pAI;
+    if ( !v147.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 357, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
       __debugbreak();
-    _RAX = v212->GetAI(v212);
-    v62 = this->m_pAI;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+83Ch]
-      vmovss  xmm7, dword ptr [rax+838h]
-      vmovss  xmm8, dword ptr [rax+840h]
-    }
-    v29 = v248;
+    v124 = (float *)v123->GetAI(v123);
+    v44 = this->m_pAI;
+    v120 = v124[527];
+    v121 = v124[526];
+    v122 = v124[528];
+    v18 = v140;
   }
-  if ( EntHandle::isDefined(&v62->avoidanceBlockedData.blockingEntity) && EntHandle::ent(&this->m_pAI->avoidanceBlockedData.blockingEntity) != v29 )
+  if ( EntHandle::isDefined(&v44->avoidanceBlockedData.blockingEntity) && EntHandle::ent(&this->m_pAI->avoidanceBlockedData.blockingEntity) != v18 )
     AIScriptedInterface::ClearBlockingEntity(this);
   ++this->m_pAI->avoidanceBlockedData.blockedCheckCount;
-  v214 = this->m_pAI;
-  if ( v214->avoidanceBlockedData.blockedCheckCount < 3u )
-    goto LABEL_56;
-  v215 = !v214->avoidanceBlockedData.blocked;
-  if ( !v214->avoidanceBlockedData.blocked )
+  v125 = this->m_pAI;
+  if ( v125->avoidanceBlockedData.blockedCheckCount < 3u )
+    return 0;
+  if ( !v125->avoidanceBlockedData.blocked )
   {
-    EntHandle::setEnt(&v214->avoidanceBlockedData.blockingEntity, v29);
+    EntHandle::setEnt(&v125->avoidanceBlockedData.blockingEntity, v18);
     this->m_pAI->avoidanceBlockedData.blockedStartTime = level.time;
     this->m_pAI->avoidanceBlockedData.stationaryBlockedEntTimeout = level.time + 4000;
-    v216 = this->m_pAI;
-    v216->avoidanceBlockedData.blockedEntityPosition.v[0] = v29->r.currentOrigin.v[0];
-    v216->avoidanceBlockedData.blockedEntityPosition.v[1] = v29->r.currentOrigin.v[1];
-    v216->avoidanceBlockedData.blockedEntityPosition.v[2] = v29->r.currentOrigin.v[2];
-    v216->avoidance_maxSpeed = 0.0;
+    v126 = this->m_pAI;
+    v126->avoidanceBlockedData.blockedEntityPosition.v[0] = v18->r.currentOrigin.v[0];
+    v126->avoidanceBlockedData.blockedEntityPosition.v[1] = v18->r.currentOrigin.v[1];
+    v126->avoidanceBlockedData.blockedEntityPosition.v[2] = v18->r.currentOrigin.v[2];
+    v126->avoidance_maxSpeed = 0.0;
     this->m_pAI->avoidanceBlockedData.blocked = 1;
-    v217 = this->m_pAI;
-    v217->avoidanceBlockedData.storedVelocity = *velocity;
-    v217->avoidanceBlockedData.storedMoveDelta = *moveDelta;
-    v217->pNavigator->GetNextCorner(v217->pNavigator, &v217->avoidanceBlockedData.nextPathPoint);
-    _RCX = this->m_pAI;
+    v127 = this->m_pAI;
+    v127->avoidanceBlockedData.storedVelocity = *velocity;
+    v127->avoidanceBlockedData.storedMoveDelta = *moveDelta;
+    v127->pNavigator->GetNextCorner(v127->pNavigator, &v127->avoidanceBlockedData.nextPathPoint);
+    v128 = this->m_pAI;
+    v129 = v128->ent;
+    v131 = LODWORD(v128->avoidanceBlockedData.nextPathPoint.v[0]);
+    *(float *)&v131 = v128->avoidanceBlockedData.nextPathPoint.v[0] - v128->ent->r.currentOrigin.v[0];
+    v130 = *(float *)&v131;
+    v128->avoidanceBlockedData.nextPathPoint.v[0] = *(float *)&v131;
+    v132 = v128->avoidanceBlockedData.nextPathPoint.v[1] - v129->r.currentOrigin.v[1];
+    v128->avoidanceBlockedData.nextPathPoint.v[1] = v132;
+    v133 = v128->avoidanceBlockedData.nextPathPoint.v[2] - v129->r.currentOrigin.v[2];
+    v128->avoidanceBlockedData.nextPathPoint.v[2] = v133;
+    *(float *)&v131 = fsqrt((float)((float)(*(float *)&v131 * *(float *)&v131) + (float)(v132 * v132)) + (float)(v133 * v133));
+    _XMM3 = v131;
     __asm
     {
-      vmovss  xmm0, dword ptr [rcx+0B88h]
-      vsubss  xmm4, xmm0, dword ptr [rax+130h]
-      vmovss  dword ptr [rcx+0B88h], xmm4
-      vmovss  xmm0, dword ptr [rcx+0B8Ch]
-      vsubss  xmm2, xmm0, dword ptr [rax+134h]
-      vmovss  dword ptr [rcx+0B8Ch], xmm2
-      vmovss  xmm1, dword ptr [rcx+0B90h]
-      vsubss  xmm3, xmm1, dword ptr [rax+138h]
-      vmovss  dword ptr [rcx+0B90h], xmm3
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm12
-      vmovss  xmm1, cs:__real@3f800000
       vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rcx+0B88h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rcx+0B8Ch]
-      vmovss  dword ptr [rcx+0B8Ch], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rcx+0B90h]
-      vmovss  dword ptr [rcx+0B90h], xmm0
-      vmovss  xmm1, [rbp+270h+moveDistance]
-      vmovss  dword ptr [rcx+0B94h], xmm1
     }
+    v128->avoidanceBlockedData.nextPathPoint.v[0] = v130 * (float)(1.0 / *(float *)&_XMM0);
+    v128->avoidanceBlockedData.nextPathPoint.v[1] = (float)(1.0 / *(float *)&_XMM0) * v128->avoidanceBlockedData.nextPathPoint.v[1];
+    v128->avoidanceBlockedData.nextPathPoint.v[2] = (float)(1.0 / *(float *)&_XMM0) * v128->avoidanceBlockedData.nextPathPoint.v[2];
+    v128->avoidanceBlockedData.storedMoveDistance = moveDistance;
     this->m_pAI->avoidanceBlockedData.processingBlocking = 0;
     this->m_pAI->avoidanceBlockedData.hasNotifiedBlockingEntity = 0;
-    GScr_AddEntity(v29);
+    GScr_AddEntity(v18);
     GScr_Notify(this->m_pAI->ent, scr_const.path_blocked, 1u);
-    AIScriptedInterface::FireBlockedNotify(this, v29);
-    *(_QWORD *)v23->v = 0i64;
-    v23->v[2] = 0.0;
-    v214 = this->m_pAI;
+    AIScriptedInterface::FireBlockedNotify(this, v18);
+    *(_QWORD *)v12->v = 0i64;
+    v12->v[2] = 0.0;
+    v125 = this->m_pAI;
   }
-  __asm
+  if ( fsqrt((float)((float)(v120 * v120) + (float)(v121 * v121)) + (float)(v122 * v122)) != 0.0 )
   {
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vucomiss xmm0, xmm9
+    v125->avoidanceBlockedData.stationaryBlockedEntTimeout = level.time + 1000;
+    v125 = this->m_pAI;
   }
-  if ( !v215 )
-  {
-    v214->avoidanceBlockedData.stationaryBlockedEntTimeout = level.time + 1000;
-    v214 = this->m_pAI;
-  }
-  v214->avoidanceBlockedData.blockedCheckCount = 3;
-  v63 = 1;
-LABEL_57:
-  _R11 = &v258;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v63;
+  v125->avoidanceBlockedData.blockedCheckCount = 3;
+  return 1;
 }
 
 /*
@@ -1413,6 +1216,11 @@ void AIScriptedInterface::SetBlockingEntity(AIScriptedInterface *this, const gen
 {
   ai_scripted_t *m_pAI; 
   ai_scripted_t *v10; 
+  ai_scripted_t *v11; 
+  gentity_s *ent; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
 
   EntHandle::setEnt(&this->m_pAI->avoidanceBlockedData.blockingEntity, closestCollider);
   this->m_pAI->avoidanceBlockedData.blockedStartTime = level.time;
@@ -1425,37 +1233,26 @@ void AIScriptedInterface::SetBlockingEntity(AIScriptedInterface *this, const gen
   v10->avoidanceBlockedData.storedVelocity = *velocity;
   v10->avoidanceBlockedData.storedMoveDelta = *moveDelta;
   v10->pNavigator->GetNextCorner(v10->pNavigator, &v10->avoidanceBlockedData.nextPathPoint);
-  _RCX = this->m_pAI;
+  v11 = this->m_pAI;
+  ent = v11->ent;
+  v13 = v11->avoidanceBlockedData.nextPathPoint.v[0] - v11->ent->r.currentOrigin.v[0];
+  v11->avoidanceBlockedData.nextPathPoint.v[0] = v13;
+  v14 = LODWORD(v11->avoidanceBlockedData.nextPathPoint.v[1]);
+  *(float *)&v14 = v11->avoidanceBlockedData.nextPathPoint.v[1] - ent->r.currentOrigin.v[1];
+  v11->avoidanceBlockedData.nextPathPoint.v[1] = *(float *)&v14;
+  v15 = v11->avoidanceBlockedData.nextPathPoint.v[2] - ent->r.currentOrigin.v[2];
+  v11->avoidanceBlockedData.nextPathPoint.v[2] = v15;
+  *(float *)&v14 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(v13 * v13)) + (float)(v15 * v15));
+  _XMM3 = v14;
   __asm
   {
-    vmovss  xmm0, dword ptr [rcx+0B88h]
-    vsubss  xmm4, xmm0, dword ptr [rax+130h]
-    vmovss  dword ptr [rcx+0B88h], xmm4
-    vmovss  xmm0, dword ptr [rcx+0B8Ch]
-    vsubss  xmm2, xmm0, dword ptr [rax+134h]
-    vmovss  dword ptr [rcx+0B8Ch], xmm2
-    vmovss  xmm1, dword ptr [rcx+0B90h]
-    vsubss  xmm3, xmm1, dword ptr [rax+138h]
-    vmovss  dword ptr [rcx+0B90h], xmm3
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rcx+0B88h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rcx+0B8Ch]
-    vmovss  dword ptr [rcx+0B8Ch], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rcx+0B90h]
-    vmovss  xmm1, [rsp+28h+moveDistance]
-    vmovss  dword ptr [rcx+0B90h], xmm0
-    vmovss  dword ptr [rcx+0B94h], xmm1
   }
+  v11->avoidanceBlockedData.nextPathPoint.v[0] = v13 * (float)(1.0 / *(float *)&_XMM0);
+  v11->avoidanceBlockedData.nextPathPoint.v[1] = (float)(1.0 / *(float *)&_XMM0) * v11->avoidanceBlockedData.nextPathPoint.v[1];
+  v11->avoidanceBlockedData.nextPathPoint.v[2] = (float)(1.0 / *(float *)&_XMM0) * v11->avoidanceBlockedData.nextPathPoint.v[2];
+  v11->avoidanceBlockedData.storedMoveDistance = moveDistance;
   this->m_pAI->avoidanceBlockedData.processingBlocking = 0;
   this->m_pAI->avoidanceBlockedData.hasNotifiedBlockingEntity = 0;
   GScr_AddEntity(closestCollider);
@@ -1470,269 +1267,201 @@ AIScriptedInterface::UpdateBlockingEntity
 */
 void AIScriptedInterface::UpdateBlockingEntity(AIScriptedInterface *this)
 {
-  unsigned int v8; 
-  bool v11; 
+  __int128 v1; 
+  __int128 v2; 
+  unsigned int v4; 
+  __int64 v5; 
+  gentity_s *v6; 
+  bool v7; 
   int isDefined; 
   ai_scripted_t *m_pAI; 
   __int16 EntityIndex; 
-  bool v15; 
-  bool v16; 
-  AIScriptedInterface *v21; 
-  bool v46; 
-  char v47; 
-  int v48; 
-  ai_scripted_t *v84; 
-  const dvar_t *v86; 
-  const char *v92; 
-  const char *v100; 
-  const char *v107; 
-  ai_scripted_t *v109; 
-  bool v114; 
-  AIWrapper v115; 
+  float *p_commandTime; 
+  float v12; 
+  float v13; 
+  float v14; 
+  AIScriptedInterface *v15; 
+  ai_scripted_t *v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float *p_number; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  bool v30; 
+  char v31; 
+  int v32; 
+  ai_scripted_t *v33; 
+  gentity_s *ent; 
+  float v35; 
+  __int128 v36; 
+  float v37; 
+  ai_scripted_t *v41; 
+  float v42; 
+  float storedMoveDistance; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  ai_scripted_t *v48; 
+  const dvar_t *v49; 
+  ai_scripted_t *v50; 
+  gentity_s *v51; 
+  const char *v52; 
+  const char *v53; 
+  const char *v54; 
+  ai_scripted_t *v55; 
+  AIWrapper v56; 
   vec3_t inOutMoveDelta; 
   vec3_t velocity; 
-  char v120; 
-  void *retaddr; 
+  _QWORD v59[3]; 
+  _QWORD v60[3]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  v8 = 0;
-  _RSI = NULL;
-  _RDI = NULL;
-  v11 = 0;
+  v4 = 0;
+  v5 = 0i64;
+  v6 = NULL;
+  v7 = 0;
   isDefined = EntHandle::isDefined(&this->m_pAI->avoidanceBlockedData.blockingEntity);
   m_pAI = this->m_pAI;
   if ( isDefined )
   {
     if ( level.time < m_pAI->avoidanceBlockedData.blockedStartTime + 500 )
-      goto LABEL_44;
-    _RDI = EntHandle::ent(&m_pAI->avoidanceBlockedData.blockingEntity);
+      return;
+    v6 = EntHandle::ent(&m_pAI->avoidanceBlockedData.blockingEntity);
     this->m_pAI->avoidanceBlockedData.processingBlocking = 1;
-    if ( _RDI->health <= 0 )
+    if ( v6->health <= 0 )
     {
       AIScriptedInterface::ClearBlockingEntity(this);
-      goto LABEL_44;
+      return;
     }
-    __asm
+    *(_OWORD *)&v60[1] = v1;
+    *(_OWORD *)&v59[1] = v2;
+    EntityIndex = G_GetEntityIndex(v6);
+    if ( G_IsEntityInUse(EntityIndex) && v6->s.eType == ET_PLAYER )
     {
-      vmovaps xmmword ptr [rsp+140h+var_48+8], xmm7
-      vmovaps xmmword ptr [rsp+140h+var_68+8], xmm9
-    }
-    EntityIndex = G_GetEntityIndex(_RDI);
-    if ( G_IsEntityInUse(EntityIndex) && (v15 = _RDI->s.eType == ET_FIRST, v16 = _RDI->s.eType == ET_PLAYER) )
-    {
-      _RAX = _RDI->client;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+3Ch]
-        vmovss  xmm2, dword ptr [rax+40h]
-        vmovss  xmm3, dword ptr [rax+44h]
-      }
+      p_commandTime = (float *)&v6->client->ps.commandTime;
+      v12 = p_commandTime[15];
+      v13 = p_commandTime[16];
+      v14 = p_commandTime[17];
     }
     else
     {
-      AIWrapper::AIWrapper(&v115, _RDI);
-      v21 = v115.m_pAI;
-      if ( !v115.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 475, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+      AIWrapper::AIWrapper(&v56, v6);
+      v15 = v56.m_pAI;
+      if ( !v56.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_avoidance.cpp", 475, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
         __debugbreak();
-      _RSI = (EntHandle *)v21->GetAI(v21);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+838h]
-        vmovss  xmm2, dword ptr [rax+83Ch]
-        vmovss  xmm3, dword ptr [rax+840h]
-      }
+      v5 = v15->GetAI(v15);
+      v12 = *(float *)(v5 + 2104);
+      v13 = *(float *)(v5 + 2108);
+      v14 = *(float *)(v5 + 2112);
     }
-    __asm
+    v16 = this->m_pAI;
+    v17 = (float)(v12 * v12) + (float)(v13 * v13);
+    v18 = v6->r.currentOrigin.v[2];
+    v19 = v18 - v16->avoidanceBlockedData.blockedEntityPosition.v[2];
+    v20 = v17 + (float)(v14 * v14);
+    v21 = v6->r.currentOrigin.v[0];
+    v22 = v21 - v16->avoidanceBlockedData.blockedEntityPosition.v[0];
+    v23 = v6->r.currentOrigin.v[1];
+    v24 = v23 - v16->avoidanceBlockedData.blockedEntityPosition.v[1];
+    p_number = (float *)&v16->ent->s.number;
+    v26 = (float)((float)(v24 * v24) + (float)(v22 * v22)) + (float)(v19 * v19);
+    v27 = (float)((float)(v23 - p_number[77]) * (float)(v23 - p_number[77])) + (float)((float)(v21 - p_number[76]) * (float)(v21 - p_number[76]));
+    v28 = (float)(v18 - p_number[78]) * (float)(v18 - p_number[78]);
+    v29 = v27 + v28;
+    v30 = 0;
+    v31 = 0;
+    if ( v5 )
     {
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vsubss  xmm7, xmm0, dword ptr [rax+0B84h]
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm9, xmm2, xmm1
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vsubss  xmm8, xmm2, dword ptr [rax+0B7Ch]
-      vmovss  xmm1, dword ptr [rdi+134h]
-      vsubss  xmm6, xmm1, dword ptr [rax+0B80h]
-      vsubss  xmm3, xmm1, dword ptr [rax+134h]
-      vsubss  xmm5, xmm0, dword ptr [rax+138h]
-      vsubss  xmm4, xmm2, dword ptr [rax+130h]
-      vmulss  xmm0, xmm8, xmm8
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm8, xmm2, xmm1
-      vcomiss xmm8, cs:__real@441c4000
-      vmulss  xmm3, xmm3, xmm3
-    }
-    v114 = !v15 && !v16;
-    __asm
-    {
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm10, xmm2, xmm1
-      vcomiss xmm10, cs:__real@471c4000
-    }
-    v46 = 0;
-    v47 = 0;
-    if ( _RSI )
-    {
-      v11 = EntHandle::isDefined(_RSI + 728) != 0;
-      v48 = this->m_pAI->avoidanceBlockedData.stationaryBlockedEntTimeout - level.time;
-      if ( v48 < 0 )
-        v48 = 0;
-      v8 = v48;
-      v46 = v48 <= 0 && !v11;
+      v7 = EntHandle::isDefined((EntHandle *)(v5 + 2912)) != 0;
+      v32 = this->m_pAI->avoidanceBlockedData.stationaryBlockedEntTimeout - level.time;
+      if ( v32 < 0 )
+        v32 = 0;
+      v4 = v32;
+      v30 = v32 <= 0 && !v7;
     }
     if ( AICommonInterface::HasPath(this) )
     {
       this->m_pAI->pNavigator->GetNextCorner(this->m_pAI->pNavigator, &inOutMoveDelta);
-      __asm { vmovss  xmm0, dword ptr [rbp+40h+inOutMoveDelta] }
-      v47 = 0;
+      v33 = this->m_pAI;
+      v31 = 0;
+      ent = v33->ent;
+      v36 = LODWORD(inOutMoveDelta.v[0]);
+      inOutMoveDelta.v[0] = inOutMoveDelta.v[0] - v33->ent->r.currentOrigin.v[0];
+      v35 = inOutMoveDelta.v[0];
+      inOutMoveDelta.v[1] = inOutMoveDelta.v[1] - ent->r.currentOrigin.v[1];
+      v37 = inOutMoveDelta.v[2] - ent->r.currentOrigin.v[2];
+      *(float *)&v36 = fsqrt((float)((float)(v35 * v35) + (float)(inOutMoveDelta.v[1] * inOutMoveDelta.v[1])) + (float)(v37 * v37));
+      _XMM4 = v36;
       __asm
       {
-        vsubss  xmm7, xmm0, dword ptr [rax+130h]
-        vmovss  xmm0, dword ptr [rbp+40h+inOutMoveDelta+4]
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta], xmm7
-        vsubss  xmm6, xmm0, dword ptr [rax+134h]
-        vmovss  xmm0, dword ptr [rbp+40h+inOutMoveDelta+8]
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+4], xmm6
-        vsubss  xmm5, xmm0, dword ptr [rax+138h]
-        vmulss  xmm0, xmm5, xmm5
-        vmulss  xmm2, xmm7, xmm7
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm4, xmm2, xmm2
         vcmpless xmm0, xmm4, cs:__real@80000000
         vblendvps xmm0, xmm4, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm2, xmm6
-        vmulss  xmm3, xmm5, xmm2
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+8], xmm3
-        vmulss  xmm4, xmm2, xmm7
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta], xmm4
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+4], xmm0
-        vmulss  xmm1, xmm0, dword ptr [rcx+0B8Ch]
-        vmulss  xmm0, xmm4, dword ptr [rcx+0B88h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, dword ptr [rcx+0B90h]
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, cs:__real@3f781062
       }
-      if ( v15 )
-        v47 = 1;
+      inOutMoveDelta.v[2] = v37 * (float)(1.0 / *(float *)&_XMM0);
+      inOutMoveDelta.v[0] = (float)(1.0 / *(float *)&_XMM0) * inOutMoveDelta.v[0];
+      inOutMoveDelta.v[1] = (float)(1.0 / *(float *)&_XMM0) * inOutMoveDelta.v[1];
+      if ( (float)((float)((float)(inOutMoveDelta.v[1] * v33->avoidanceBlockedData.nextPathPoint.v[1]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v35) * v33->avoidanceBlockedData.nextPathPoint.v[0])) + (float)(inOutMoveDelta.v[2] * v33->avoidanceBlockedData.nextPathPoint.v[2])) < 0.96899998 )
+        v31 = 1;
     }
-    __asm { vmovaps xmm7, xmmword ptr [rsp+140h+var_48+8] }
-    if ( v46 )
-      goto LABEL_27;
-    if ( v114 )
-      goto LABEL_27;
-    __asm { vcomiss xmm9, cs:__real@42c80000 }
-    if ( v114 || v47 )
+    if ( v30 || (float)(v27 + v28) > 40000.0 || v20 > 100.0 || v26 > 625.0 || v31 )
     {
-LABEL_27:
-      _RAX = this->m_pAI;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+0B64h]
-        vmovss  xmm2, dword ptr [rax+0B68h]
-        vmovss  xmm1, dword ptr [rax+0B94h]; fMoveDist
-        vmovss  dword ptr [rbp+40h+velocity], xmm0
-        vmovss  xmm0, dword ptr [rax+0B6Ch]
-        vmovss  dword ptr [rbp+40h+velocity+4], xmm2
-        vmovss  xmm2, dword ptr [rax+0B70h]
-        vmovss  dword ptr [rbp+40h+velocity+8], xmm0
-        vmovss  xmm0, dword ptr [rax+0B74h]
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta], xmm2
-        vmovss  xmm2, dword ptr [rax+0B78h]
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+4], xmm0
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+8], xmm2
-      }
-      AIScriptedInterface::GetAvoidanceDelta(this, *(const float *)&_XMM1, 1, &velocity, &inOutMoveDelta);
+      v41 = this->m_pAI;
+      v42 = v41->avoidanceBlockedData.storedVelocity.v[1];
+      storedMoveDistance = v41->avoidanceBlockedData.storedMoveDistance;
+      velocity.v[0] = v41->avoidanceBlockedData.storedVelocity.v[0];
+      v44 = v41->avoidanceBlockedData.storedVelocity.v[2];
+      velocity.v[1] = v42;
+      v45 = v41->avoidanceBlockedData.storedMoveDelta.v[0];
+      velocity.v[2] = v44;
+      v46 = v41->avoidanceBlockedData.storedMoveDelta.v[1];
+      inOutMoveDelta.v[0] = v45;
+      v47 = v41->avoidanceBlockedData.storedMoveDelta.v[2];
+      inOutMoveDelta.v[1] = v46;
+      inOutMoveDelta.v[2] = v47;
+      AIScriptedInterface::GetAvoidanceDelta(this, storedMoveDistance, 1, &velocity, &inOutMoveDelta);
     }
-    v84 = this->m_pAI;
-    __asm { vmovaps xmm9, xmmword ptr [rsp+140h+var_68+8] }
-    if ( v84->avoidanceBlockedData.blocked && v84->avoidanceBlockedData.blockedNotifyTime < level.time )
-      AIScriptedInterface::FireBlockedNotify(this, _RDI);
-    v86 = DVARBOOL_ai_debugpathblocked;
+    v48 = this->m_pAI;
+    if ( v48->avoidanceBlockedData.blocked && v48->avoidanceBlockedData.blockedNotifyTime < level.time )
+      AIScriptedInterface::FireBlockedNotify(this, v6);
+    v49 = DVARBOOL_ai_debugpathblocked;
     if ( !DVARBOOL_ai_debugpathblocked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugpathblocked") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v86);
-    if ( v86->current.enabled )
+    Dvar_CheckFrontendServerThread(v49);
+    if ( v49->current.enabled )
     {
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+130h]
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta], xmm0
-        vmovss  xmm1, dword ptr [rcx+134h]
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+4], xmm1
-        vmovss  xmm0, dword ptr [rcx+138h]
-        vsubss  xmm2, xmm0, cs:__real@41000000
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+8], xmm2
-      }
-      v92 = j_va("Current timeout: %d", v8);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3ecccccd
-        vmovaps xmm2, xmm6; scale
-      }
-      G_Main_AddDebugString(&inOutMoveDelta, &colorLtGrey, *(float *)&_XMM2, v92);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+40h+inOutMoveDelta+8]
-        vaddss  xmm1, xmm0, cs:__real@c1200000
-        vsqrtss xmm2, xmm8, xmm8
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+8], xmm1
-        vcvtss2sd xmm1, xmm2, xmm2
-        vmovq   rdx, xmm1
-      }
-      v100 = j_va("Distance blocker has moved: %f", _RDX);
-      __asm { vmovaps xmm2, xmm6; scale }
-      G_Main_AddDebugString(&inOutMoveDelta, &colorLtGrey, *(float *)&_XMM2, v100);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+40h+inOutMoveDelta+8]
-        vaddss  xmm1, xmm0, cs:__real@c1400000
-        vsqrtss xmm3, xmm10, xmm10
-        vmovss  dword ptr [rbp+40h+inOutMoveDelta+8], xmm1
-        vcvtss2sd xmm1, xmm3, xmm3
-        vmovq   rdx, xmm1
-      }
-      v107 = j_va("Distance to blocker: %f", _RDX);
-      __asm { vmovaps xmm2, xmm6; scale }
-      G_Main_AddDebugString(&inOutMoveDelta, &colorLtGrey, *(float *)&_XMM2, v107);
-      G_DebugLine(&this->m_pAI->ent->r.currentOrigin, &_RDI->r.currentOrigin, &colorOrange, 0);
+      v50 = this->m_pAI;
+      v51 = v50->ent;
+      *(_QWORD *)inOutMoveDelta.v = *(_QWORD *)v50->ent->r.currentOrigin.v;
+      inOutMoveDelta.v[2] = v51->r.currentOrigin.v[2] - 8.0;
+      v52 = j_va("Current timeout: %d", v4);
+      G_Main_AddDebugString(&inOutMoveDelta, &colorLtGrey, 0.40000001, v52);
+      inOutMoveDelta.v[2] = inOutMoveDelta.v[2] + -10.0;
+      v53 = j_va("Distance blocker has moved: %f", fsqrt(v26));
+      G_Main_AddDebugString(&inOutMoveDelta, &colorLtGrey, 0.40000001, v53);
+      inOutMoveDelta.v[2] = inOutMoveDelta.v[2] + -12.0;
+      v54 = j_va("Distance to blocker: %f", fsqrt(v29));
+      G_Main_AddDebugString(&inOutMoveDelta, &colorLtGrey, 0.40000001, v54);
+      G_DebugLine(&this->m_pAI->ent->r.currentOrigin, &v6->r.currentOrigin, &colorOrange, 0);
     }
   }
   else if ( m_pAI->avoidanceBlockedData.blocked )
   {
     AIScriptedInterface::ClearBlockingEntity(this);
   }
-  v109 = this->m_pAI;
-  if ( v109->avoidanceBlockedData.blocked && !v11 && !v109->avoidanceBlockedData.hasNotifiedBlockingEntity && _RSI && level.time - v109->avoidanceBlockedData.blockedStartTime >= 3000 )
+  v55 = this->m_pAI;
+  if ( v55->avoidanceBlockedData.blocked && !v7 && !v55->avoidanceBlockedData.hasNotifiedBlockingEntity && v5 && level.time - v55->avoidanceBlockedData.blockedStartTime >= 3000 )
   {
-    AIWrapper::AIWrapper(&v115, _RDI);
-    v115.m_pAI->NotifyBlockingEntity(v115.m_pAI);
+    AIWrapper::AIWrapper(&v56, v6);
+    v56.m_pAI->NotifyBlockingEntity(v56.m_pAI);
     this->m_pAI->avoidanceBlockedData.hasNotifiedBlockingEntity = 1;
-  }
-LABEL_44:
-  _R11 = &v120;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
   }
 }
 

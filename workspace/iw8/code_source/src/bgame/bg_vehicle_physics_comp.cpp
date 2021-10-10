@@ -639,75 +639,45 @@ BgVehicleComponentGoStraightTo::AdjustInputs
 */
 void BgVehicleComponentGoStraightTo::AdjustInputs(BgVehicleComponentGoStraightTo *this, bool fw, bool steer)
 {
+  BgVehiclePhysics *Owner; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  BgVehiclePhysics *v18; 
+
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  _XMM8 = 0i64;
+  v8 = this->m_lookAheadPos.v[0] - Owner->m_transform.m[3].v[0];
+  v10 = LODWORD(this->m_lookAheadPos.v[1]);
+  v9 = this->m_lookAheadPos.v[1] - Owner->m_transform.m[3].v[1];
+  *(float *)&v10 = fsqrt((float)(v9 * v9) + (float)(v8 * v8));
+  _XMM3 = v10;
   __asm
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
-  _RDI = this;
-  BgVehiclePhysicsComponent::GetOwner(this);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+54h]
-    vmovss  xmm1, dword ptr [rdi+58h]
-    vxorps  xmm8, xmm8, xmm8
-    vsubss  xmm5, xmm0, dword ptr [rax+198h]
-    vsubss  xmm4, xmm1, dword ptr [rax+19Ch]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm4, xmm4
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  xmm2, cs:__real@3f800000; max
-    vsqrtss xmm3, xmm1, xmm1
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm2, xmm0
-    vdivss  xmm1, xmm2, xmm0
-    vmulss  xmm5, xmm1, xmm5
-    vmulss  xmm0, xmm5, dword ptr [rax+180h]
-    vmulss  xmm4, xmm4, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rax+178h]
-    vmulss  xmm3, xmm4, dword ptr [rax+184h]
-    vaddss  xmm7, xmm3, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rax+174h]
-    vaddss  xmm0, xmm1, xmm0; val
-    vxorps  xmm1, xmm1, xmm1; min
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-  __asm { vmovaps xmm6, xmm0 }
-  _RAX = BgVehiclePhysicsComponent::GetOwner(_RDI);
-  _RSI = _RAX;
+  v14 = (float)(1.0 / *(float *)&_XMM0) * v8;
+  v15 = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v16 = (float)(v15 * Owner->m_transform.m[1].v[1]) + (float)(v14 * Owner->m_transform.m[1].v[0]);
+  *(double *)&_XMM0 = I_fclamp((float)(v15 * Owner->m_transform.m[0].v[1]) + (float)(v14 * Owner->m_transform.m[0].v[0]), 0.0, 1.0);
+  v17 = cbrtf(*(float *)&_XMM0);
+  v18 = BgVehiclePhysicsComponent::GetOwner(this);
   if ( fw )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rdi+28h]
-      vmovss  dword ptr [rax+0E8h], xmm0
-    }
-  }
+    v18->m_controls.externalValues[0] = v17 * this->m_inputMults[0];
   if ( steer )
   {
+    _XMM2 = LODWORD(this->m_inputMults[2]) ^ (unsigned __int128)_xmm;
     __asm
     {
-      vandps  xmm0, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; X
-      vmovss  xmm1, cs:__real@3e4ccccd; Y
-      vmovss  xmm6, dword ptr [rdi+30h]
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm2, xmm6, cs:__xmm@80000000800000008000000080000000
       vcmpless xmm1, xmm8, xmm7
       vblendvps xmm1, xmm2, xmm6, xmm1
-      vmulss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rsi+0F0h], xmm0
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
+    v18->m_controls.externalValues[2] = powf_0(COERCE_FLOAT(LODWORD(v16) & _xmm), 0.2) * *(float *)&_XMM1;
   }
 }
 
@@ -718,41 +688,30 @@ BgVehicleComponentGoStraightTo::ComputeCosAngles
 */
 float BgVehicleComponentGoStraightTo::ComputeCosAngles(BgVehicleComponentGoStraightTo *this, const vec3_t *targetPos, float *fwDot, float *riDot)
 {
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  _RSI = riDot;
-  __asm { vmovaps [rsp+58h+var_38], xmm7 }
-  _RDI = fwDot;
-  _RBX = targetPos;
-  _RAX = BgVehiclePhysicsComponent::GetOwner(this);
+  BgVehiclePhysics *Owner; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  float v14; 
+  float v15; 
+
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  v9 = LODWORD(targetPos->v[1]);
+  v8 = targetPos->v[1] - Owner->m_transform.m[3].v[1];
+  v10 = targetPos->v[0] - Owner->m_transform.m[3].v[0];
+  *(float *)&v9 = fsqrt((float)(v8 * v8) + (float)(v10 * v10));
+  _XMM0 = v9;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm3, xmm1, dword ptr [rax+19Ch]
-    vsubss  xmm4, xmm0, dword ptr [rax+198h]
-    vmovss  xmm7, dword ptr [rax+180h]
-    vmovss  xmm6, dword ptr [rax+184h]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm3, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  xmm2, cs:__real@3f800000
-    vsqrtss xmm0, xmm1, xmm1
     vcmpless xmm1, xmm0, cs:__real@80000000
     vblendvps xmm1, xmm0, xmm2, xmm1
-    vdivss  xmm2, xmm2, xmm1
-    vmulss  xmm5, xmm4, xmm2
-    vmulss  xmm1, xmm5, dword ptr [rax+174h]
-    vmulss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm4, dword ptr [rax+178h]
-    vaddss  xmm2, xmm3, xmm1
-    vmulss  xmm1, xmm5, xmm7
-    vmovaps xmm7, [rsp+58h+var_38]
-    vmulss  xmm4, xmm4, xmm6
-    vmovaps xmm6, [rsp+58h+var_28]
-    vmovss  dword ptr [rdi], xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rsi], xmm2
   }
+  v14 = v10 * (float)(1.0 / *(float *)&_XMM1);
+  v15 = v8 * (float)(1.0 / *(float *)&_XMM1);
+  *(float *)&_XMM1 = v14 * Owner->m_transform.m[1].v[0];
+  *(float *)&v9 = v15 * Owner->m_transform.m[1].v[1];
+  *fwDot = (float)(v15 * Owner->m_transform.m[0].v[1]) + (float)(v14 * Owner->m_transform.m[0].v[0]);
+  *riDot = *(float *)&v9 + *(float *)&_XMM1;
   return *(float *)&_XMM0;
 }
 
@@ -764,39 +723,17 @@ BgVehicleComponentGoStraightTo::DebugDraw
 void BgVehicleComponentGoStraightTo::DebugDraw(BgVehicleComponentGoStraightTo *this, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   const vec3_t *OwnerPosition; 
-  int fromServer; 
-  int duration; 
   Bounds bounds; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+charHeight]
-    vmovss  xmm1, [rsp+78h+tabWidth]
-    vmovss  [rsp+78h+duration], xmm0
-    vmovss  [rsp+78h+fromServer], xmm1
-  }
-  _RSI = this;
-  BgVehiclePhysicsComponent::DebugDraw(this, scrPlace, x, y, *(float *)&fromServer, *(float *)&duration);
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  CL_AddDebugString(&_RSI->m_goalPos, &colorGreen, *(float *)&_XMM2, "Goal", 0, 0);
-  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(_RSI);
-  CG_DebugLine(OwnerPosition, &_RSI->m_lookAheadPos, &colorGreen, 0, 0);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+64h]
-    vsqrtss xmm1, xmm1, xmm1; radius
-  }
-  CG_DebugCircle(&_RSI->m_goalPos, *(float *)&_XMM1, &identityMatrix33.m[2], &colorCyan, 1, 0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40800000
-    vmovups xmm0, cs:__xmm@40800000000000000000000000000000
-    vxorps  xmm2, xmm2, xmm2; yaw
-    vmovss  dword ptr [rsp+78h+bounds.halfSize+4], xmm1
-    vmovss  dword ptr [rsp+78h+bounds.halfSize+8], xmm1
-    vmovups xmmword ptr [rsp+78h+bounds.midPoint], xmm0
-  }
-  CG_DebugBox(&_RSI->m_lookAheadPos, &bounds, *(float *)&_XMM2, &colorBlue, 0, 0);
+  BgVehiclePhysicsComponent::DebugDraw(this, scrPlace, x, y, tabWidth, charHeight);
+  CL_AddDebugString(&this->m_goalPos, &colorGreen, 0.5, "Goal", 0, 0);
+  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+  CG_DebugLine(OwnerPosition, &this->m_lookAheadPos, &colorGreen, 0, 0);
+  CG_DebugCircle(&this->m_goalPos, fsqrt(this->m_goalPosTolSq), &identityMatrix33.m[2], &colorCyan, 1, 0);
+  bounds.halfSize.v[1] = FLOAT_4_0;
+  bounds.halfSize.v[2] = FLOAT_4_0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  CG_DebugBox(&this->m_lookAheadPos, &bounds, 0.0, &colorBlue, 0, 0);
 }
 
 /*
@@ -807,95 +744,61 @@ BgVehicleComponentPathFinder::DebugDraw
 void BgVehicleComponentPathFinder::DebugDraw(BgVehicleComponentPathFinder *this, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   const vec3_t *OwnerPosition; 
-  int v17; 
-  __int64 v22; 
-  const vec3_t *v25; 
-  int fromServer; 
-  int duration; 
+  int v8; 
+  float v9; 
+  vec2_t *m_pathNodes; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  const vec3_t *v14; 
   vec3_t end; 
   vec3_t start; 
   Bounds bounds; 
-  Bounds v31; 
+  Bounds v18; 
 
-  __asm
+  BgVehiclePhysicsComponent::DebugDraw(this, scrPlace, x, y, tabWidth, charHeight);
+  CL_AddDebugString(&this->m_goalPos, &colorGreen, 0.5, "Goal", 0, 0);
+  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+  CG_DebugLine(OwnerPosition, &this->m_lookAheadPos, &colorGreen, 0, 0);
+  CG_DebugCircle(&this->m_goalPos, fsqrt(this->m_goalPosTolSq), &identityMatrix33.m[2], &colorCyan, 1, 0);
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  bounds.halfSize.v[1] = FLOAT_4_0;
+  bounds.halfSize.v[2] = FLOAT_4_0;
+  CG_DebugBox(&this->m_lookAheadPos, &bounds, 0.0, &colorBlue, 0, 0);
+  v8 = 0;
+  *(_OWORD *)v18.midPoint.v = _xmm;
+  v9 = this->m_finalGoalPos.v[2];
+  v18.halfSize.v[1] = FLOAT_4_0;
+  v18.halfSize.v[2] = FLOAT_4_0;
+  end.v[2] = v9;
+  start.v[2] = v9;
+  if ( this->m_numNodes )
   {
-    vmovss  xmm0, [rsp+0D8h+charHeight]
-    vmovss  xmm1, [rsp+0D8h+tabWidth]
-    vmovss  [rsp+0D8h+duration], xmm0
-    vmovss  [rsp+0D8h+fromServer], xmm1
-    vmovaps [rsp+0D8h+var_48], xmm6
-  }
-  _RBP = this;
-  BgVehiclePhysicsComponent::DebugDraw(this, scrPlace, x, y, *(float *)&fromServer, *(float *)&duration);
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  CL_AddDebugString(&_RBP->m_goalPos, &colorGreen, *(float *)&_XMM2, "Goal", 0, 0);
-  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(_RBP);
-  CG_DebugLine(OwnerPosition, &_RBP->m_lookAheadPos, &colorGreen, 0, 0);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+64h]
-    vsqrtss xmm1, xmm1, xmm1; radius
-  }
-  CG_DebugCircle(&_RBP->m_goalPos, *(float *)&_XMM1, &identityMatrix33.m[2], &colorCyan, 1, 0);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@40800000000000000000000000000000
-    vmovss  xmm6, cs:__real@40800000
-    vxorps  xmm2, xmm2, xmm2; yaw
-    vmovups xmmword ptr [rsp+0D8h+bounds.midPoint], xmm0
-    vmovss  dword ptr [rsp+0D8h+bounds.halfSize+4], xmm6
-    vmovss  dword ptr [rsp+0D8h+bounds.halfSize+8], xmm6
-  }
-  CG_DebugBox(&_RBP->m_lookAheadPos, &bounds, *(float *)&_XMM2, &colorBlue, 0, 0);
-  v17 = 0;
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@40800000000000000000000000000000
-    vmovups xmmword ptr [rsp+0D8h+var_70.midPoint], xmm0
-    vmovss  xmm0, dword ptr [rbp+78h]
-    vmovss  dword ptr [rsp+0D8h+var_70.halfSize+4], xmm6
-    vmovss  dword ptr [rsp+0D8h+var_70.halfSize+8], xmm6
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovss  dword ptr [rsp+0D8h+end+8], xmm0
-    vmovss  dword ptr [rsp+0D8h+start+8], xmm0
-  }
-  if ( _RBP->m_numNodes )
-  {
-    _RBX = _RBP->m_pathNodes;
-    v22 = 0i64;
+    m_pathNodes = this->m_pathNodes;
+    v11 = 0i64;
     do
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  xmm1, dword ptr [rbx+4]
-        vmovss  dword ptr [rsp+0D8h+end], xmm0
-        vmovss  dword ptr [rsp+0D8h+end+4], xmm1
-      }
-      if ( v22 > 0 )
+      v12 = m_pathNodes->v[0];
+      v13 = m_pathNodes->v[1];
+      end.v[0] = m_pathNodes->v[0];
+      end.v[1] = v13;
+      if ( v11 > 0 )
       {
         CG_DebugLine(&start, &end, &colorBlue, 0, 0);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  xmm1, dword ptr [rbx+4]
-        }
+        v12 = m_pathNodes->v[0];
+        v13 = m_pathNodes->v[1];
       }
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2; yaw
-        vmovss  dword ptr [rsp+0D8h+start], xmm0
-        vmovss  dword ptr [rsp+0D8h+start+4], xmm1
-      }
-      CG_DebugBox(&end, &v31, *(float *)&_XMM2, &colorCyan, 0, 0);
-      ++v17;
-      ++v22;
-      ++_RBX;
+      start.v[0] = v12;
+      start.v[1] = v13;
+      CG_DebugBox(&end, &v18, 0.0, &colorCyan, 0, 0);
+      ++v8;
+      ++v11;
+      ++m_pathNodes;
     }
-    while ( v17 < _RBP->m_numNodes );
+    while ( v8 < this->m_numNodes );
   }
-  v25 = BgVehiclePhysicsComponent::GetOwnerPosition(_RBP);
-  CG_DebugLine(v25, &_RBP->m_goalPos, &colorGreen, 0, 0);
+  v14 = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+  CG_DebugLine(v14, &this->m_goalPos, &colorGreen, 0, 0);
 }
 
 /*
@@ -905,91 +808,46 @@ BgVehicleComponentPathFollower::DebugDraw
 */
 void BgVehicleComponentPathFollower::DebugDraw(BgVehicleComponentPathFollower *this, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const BSplineCatmullRom *v15; 
-  char v24; 
-  char v25; 
-  const char *v32; 
-  float v38; 
+  __int128 v6; 
+  const BSplineCatmullRom *v11; 
+  const char *v12; 
   vec3_t outPos; 
   vec3_t angles; 
   vec3_t forward; 
   vec3_t up; 
   vec3_t right; 
   char dest[128]; 
-  void *retaddr; 
+  __int128 v19; 
 
-  _R11 = &retaddr;
-  _RSI = y;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  _R14 = x;
-  __asm { vmovss  xmm6, cs:__real@40a00000 }
-  _RDI = this;
-  __asm { vmovaps xmm1, xmm6; radius }
-  CG_DebugSphere(&this->m_pathPosInterpolated, *(float *)&_XMM1, &colorGreen, 0, 0);
-  if ( _RDI->m_pathType == PATH_RADIANT )
+  v19 = v6;
+  CG_DebugSphere(&this->m_pathPosInterpolated, 5.0, &colorGreen, 0, 0);
+  if ( this->m_pathType == PATH_RADIANT )
   {
-    __asm { vmovaps xmm1, xmm6; radius }
-    CG_DebugSphere(&_RDI->m_path.m_vpp.origin, *(float *)&_XMM1, &colorCyan, 0, 0);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+30h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+150h]
-    }
-    if ( v24 | v25 )
-      __asm { vmovss  xmm1, dword ptr [rdi+14Ch] }
-    __asm { vmovss  xmm3, dword ptr [rdi+160h] }
-    ((void (__fastcall *)(BGVehicles *, vec3_t *, BgVehicleComponentPathFollower::<unnamed_type_m_path> *))_RDI->m_vehicleSystem->PathComputeLookAhead)(_RDI->m_vehicleSystem, &outPos, &_RDI->m_path);
-    __asm { vmovaps xmm1, xmm6; radius }
-    CG_DebugSphere(&outPos, *(float *)&_XMM1, &colorYellow, 0, 0);
+    CG_DebugSphere(&this->m_path.m_vpp.origin, 5.0, &colorCyan, 0, 0);
+    ((void (__fastcall *)(BGVehicles *, vec3_t *, BgVehicleComponentPathFollower::<unnamed_type_m_path> *))this->m_vehicleSystem->PathComputeLookAhead)(this->m_vehicleSystem, &outPos, &this->m_path);
+    CG_DebugSphere(&outPos, 5.0, &colorYellow, 0, 0);
     AngleVectors(&angles, &forward, &right, &up);
-    __asm
-    {
-      vmovss  xmm3, cs:__real@41200000; length
-      vmovaps xmm2, xmm6; radius
-    }
-    CG_DebugCone(&outPos, &forward, *(float *)&_XMM2, *(float *)&_XMM3, &colorYellow, 0, 0);
+    CG_DebugCone(&outPos, &forward, 5.0, 10.0, &colorYellow, 0, 0);
   }
-  else if ( _RDI->m_pathType == PATH_CATMULLROM )
+  else if ( this->m_pathType == PATH_CATMULLROM )
   {
-    if ( !BG_BSpline_Data_IsValid(_RDI->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+    if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
       __debugbreak();
-    v15 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RDI->m_path.m_catmullRom.splineIndex, NULL);
-    BG_Spline_CatmullRom_DebugDraw(v15, 0x80u);
-    __asm { vmovss  xmm1, dword ptr [rdi+34h]; t }
-    BG_BSpline_CatmullRom_Evaluate(v15, *(float *)&_XMM1, &outPos, NULL, NULL, NULL);
-    __asm { vmovaps xmm1, xmm6; radius }
-    CG_DebugSphere(&outPos, *(float *)&_XMM1, &colorCyan, 0, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+144h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+34h]; t
-    }
-    BG_BSpline_CatmullRom_Evaluate(v15, *(float *)&_XMM1, &outPos, NULL, NULL, NULL);
-    __asm { vmovaps xmm1, xmm6; radius }
-    CG_DebugSphere(&outPos, *(float *)&_XMM1, &colorYellow, 0, 0);
+    v11 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+    BG_Spline_CatmullRom_DebugDraw(v11, 0x80u);
+    BG_BSpline_CatmullRom_Evaluate(v11, this->m_path.m_vpp.speedOverride, &outPos, NULL, NULL, NULL);
+    CG_DebugSphere(&outPos, 5.0, &colorCyan, 0, 0);
+    BG_BSpline_CatmullRom_Evaluate(v11, this->m_lookAheadTime + this->m_path.m_vpp.speedOverride, &outPos, NULL, NULL, NULL);
+    CG_DebugSphere(&outPos, 5.0, &colorYellow, 0, 0);
   }
-  __asm { vmovaps xmm6, [rsp+178h+var_48] }
   if ( scrPlace )
   {
-    v32 = "CatmullRom";
-    if ( _RDI->m_pathType == PATH_RADIANT )
-      v32 = "Radiant";
-    Com_sprintf<128>((char (*)[128])dest, v32);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41000000
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r14]; x
-      vmovss  [rsp+178h+var_140], xmm0
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhiteFaded, 0, 1, v38, 0);
-    __asm
-    {
-      vmovss  xmm0, [rsp+178h+charHeight]
-      vaddss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-    }
+    v12 = "CatmullRom";
+    if ( this->m_pathType == PATH_RADIANT )
+      v12 = "Radiant";
+    Com_sprintf<128>((char (*)[128])dest, v12);
+    Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhiteFaded, 0, 1, 8.0, 0);
+    *y = charHeight + *y;
   }
 }
 
@@ -998,148 +856,68 @@ void BgVehicleComponentPathFollower::DebugDraw(BgVehicleComponentPathFollower *t
 BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(BgVehicleComponentPathFollower *this, BgVehiclePhysics *vehObj, vec3_t *accelerationWS, double deltaTime, float multiplier, vec3_t *outAngularVelocity)
+void BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(BgVehicleComponentPathFollower *this, BgVehiclePhysics *vehObj, vec3_t *accelerationWS, float deltaTime, float multiplier, vec3_t *outAngularVelocity)
 {
-  unsigned int v19; 
+  float v8; 
+  unsigned int i; 
+  __int64 v10; 
+  __m256i v11; 
+  float v12; 
+  float v13; 
   unsigned int PhysicsBodyId; 
-  __int64 v52; 
   vec3_t atPointWs; 
   vec3_t impulseWs; 
   vec3_t velLs; 
   vec3_t velWs; 
   vec3_t outVelLs; 
-  __int64 v61; 
-  void *retaddr; 
+  __m256i v20; 
+  __m256i v21; 
+  __m256i v22; 
+  __int64 v23; 
 
-  _R11 = &retaddr;
-  __asm
+  if ( deltaTime > 0.0 )
   {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm8
-  }
-  _RSI = outAngularVelocity;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm3, xmm8
-    vmovaps xmm6, xmm3
-  }
-  _RBX = (BgVehiclePhysicsGround *)vehObj;
-  if ( (unsigned __int64)&v52 != _security_cookie )
-  {
-    velWs.v[2] = outAngularVelocity->v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsi]
-      vmovsd  qword ptr [rsp+1A0h+velWs], xmm0
-    }
+    velWs = *outAngularVelocity;
     if ( !vehObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 904, ASSERT_TYPE_ASSERT, "(vehGroundObj)", (const char *)&queryFormat, "vehGroundObj") )
       __debugbreak();
-    __asm { vmovaps [rsp+1A0h+var_68+8], xmm9 }
-    if ( !BgVehiclePhysicsGround::IsBraking(_RBX) || _RBX->IsInAir(_RBX) )
-      __asm { vmovss  xmm9, cs:__real@3f800000 }
+    if ( !BgVehiclePhysicsGround::IsBraking((BgVehiclePhysicsGround *)vehObj) || vehObj->IsInAir(vehObj) )
+      v8 = FLOAT_1_0;
     else
-      __asm { vmovss  xmm9, cs:__real@40000000 }
-    v19 = 0;
-    if ( _RBX->m_wheelCount )
+      v8 = FLOAT_2_0;
+    for ( i = 0; i < vehObj[4].m_controls.playerEnabledBits[0]; ++i )
     {
-      __asm
+      v10 = 38i64 * i;
+      v11 = *(__m256i *)&vehObj[1].m_driverEnterLs.v[v10];
+      v20 = *(__m256i *)((char *)&vehObj[1].m_worldId + v10 * 4);
+      v22 = *(__m256i *)&vehObj[1].m_linkedPlayers.playerPositionsWs[0].v[v10];
+      v23 = *(_QWORD *)((char *)&vehObj[1].m_linkedPlayers.frameCadence + v10 * 4);
+      v21 = v11;
+      if ( (_DWORD)v23 != 0xFFFFFF && deltaTime > 0.0 )
       {
-        vmovaps [rsp+1A0h+var_48+8], xmm7
-        vmovaps [rsp+1A0h+var_78+8], xmm10
-        vmovss  xmm10, [rbp+0A0h+arg_20]
-        vmovss  xmm7, cs:__real@40c00000
-      }
-      do
-      {
-        _RCX = 152i64 * v19;
-        __asm
+        v12 = (float)((float)((float)(fixedTorqueFactor * *(float *)&v22.m256i_i32[4]) * v8) / deltaTime) * multiplier;
+        v13 = v12 * accelerationWS->v[1];
+        impulseWs.v[0] = v12 * accelerationWS->v[0];
+        impulseWs.v[2] = v12 * accelerationWS->v[2];
+        impulseWs.v[1] = v13;
+        if ( BgVehiclePhysicsGround::IsBraking((BgVehiclePhysicsGround *)vehObj) )
         {
-          vmovups ymm1, ymmword ptr [rcx+rbx+2F8h]
-          vmovups ymm0, ymmword ptr [rcx+rbx+318h]
-          vmovups [rbp+0A0h+var_100], ymm1
-          vmovups ymm1, ymmword ptr [rcx+rbx+338h]
-          vmovups [rbp+0A0h+var_C0], ymm1
-          vmovsd  xmm1, qword ptr [rcx+rbx+368h]
-          vmovsd  [rbp+0A0h+var_90], xmm1
-          vmovups [rbp+0A0h+var_E0], ymm0
+          atPointWs.v[0] = (float)(6.0 * *(float *)&v20.m256i_i32[7]) + *(float *)&v20.m256i_i32[1];
+          atPointWs.v[1] = (float)(6.0 * *(float *)v21.m256i_i32) + *(float *)&v20.m256i_i32[2];
+          atPointWs.v[2] = (float)(6.0 * *(float *)&v21.m256i_i32[1]) + *(float *)&v20.m256i_i32[3];
         }
-        if ( (_DWORD)v61 != 0xFFFFFF )
+        else
         {
-          __asm { vcomiss xmm6, xmm8 }
-          if ( (unsigned int)v61 > 0xFFFFFF )
-          {
-            __asm
-            {
-              vmovss  xmm0, cs:fixedTorqueFactor
-              vmulss  xmm1, xmm0, dword ptr [rbp+0A0h+var_C0+10h]
-              vmulss  xmm2, xmm1, xmm9
-              vdivss  xmm3, xmm2, xmm6
-              vmulss  xmm4, xmm3, xmm10
-              vmulss  xmm0, xmm4, dword ptr [r14]
-              vmulss  xmm1, xmm4, dword ptr [r14+4]
-              vmovss  dword ptr [rsp+1A0h+impulseWs], xmm0
-              vmulss  xmm0, xmm4, dword ptr [r14+8]
-              vmovss  dword ptr [rsp+1A0h+impulseWs+8], xmm0
-              vmovss  dword ptr [rsp+1A0h+impulseWs+4], xmm1
-            }
-            if ( BgVehiclePhysicsGround::IsBraking(_RBX) )
-            {
-              __asm
-              {
-                vmulss  xmm1, xmm7, dword ptr [rbp+0A0h+var_100+1Ch]
-                vaddss  xmm2, xmm1, dword ptr [rbp+0A0h+var_100+4]
-                vmulss  xmm1, xmm7, dword ptr [rbp+0A0h+var_E0]
-                vmovss  dword ptr [rsp+1A0h+atPointWs], xmm2
-                vaddss  xmm2, xmm1, dword ptr [rbp+0A0h+var_100+8]
-                vmulss  xmm1, xmm7, dword ptr [rbp+0A0h+var_E0+4]
-                vmovss  dword ptr [rsp+1A0h+atPointWs+4], xmm2
-                vaddss  xmm2, xmm1, dword ptr [rbp+0A0h+var_100+0Ch]
-                vmovss  dword ptr [rsp+1A0h+atPointWs+8], xmm2
-              }
-            }
-            else
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+0A0h+var_100+4]
-                vmovss  xmm1, dword ptr [rbp+0A0h+var_100+8]
-                vmovss  dword ptr [rsp+1A0h+atPointWs], xmm0
-                vmovss  xmm0, dword ptr [rbp+0A0h+var_100+0Ch]
-                vmovss  dword ptr [rsp+1A0h+atPointWs+8], xmm0
-                vmovss  dword ptr [rsp+1A0h+atPointWs+4], xmm1
-              }
-            }
-            PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(_RBX);
-            Physics_AccumulateRigidBodyAngularImpulse(_RBX->m_worldId, PhysicsBodyId, &impulseWs, &atPointWs, outAngularVelocity);
-          }
+          atPointWs = *(vec3_t *)((char *)v20.m256i_i64 + 4);
         }
-        ++v19;
-      }
-      while ( v19 < _RBX->m_wheelCount );
-      __asm
-      {
-        vmovaps xmm10, [rsp+1A0h+var_78+8]
-        vmovaps xmm7, [rsp+1A0h+var_48+8]
+        PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(vehObj);
+        Physics_AccumulateRigidBodyAngularImpulse(vehObj->m_worldId, PhysicsBodyId, &impulseWs, &atPointWs, outAngularVelocity);
       }
     }
-    BgVehiclePhysics::ComputeVelocityLocalSpace(_RBX, &velWs, &outVelLs);
-    BgVehiclePhysics::ComputeVelocityLocalSpace(_RBX, outAngularVelocity, &velLs);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1A0h+outVelLs]
-      vmovss  xmm1, dword ptr [rsp+1A0h+outVelLs+8]
-      vmovss  dword ptr [rsp+1A0h+velLs], xmm0
-      vmovss  dword ptr [rsp+1A0h+velLs+8], xmm1
-    }
-    BgVehiclePhysics::ComputeVelocityWorldSpace(_RBX, &velLs, outAngularVelocity);
-    __asm { vmovaps xmm9, [rsp+1A0h+var_68+8] }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+1A0h+var_38+8]
-    vmovaps xmm8, [rsp+1A0h+var_58+8]
+    BgVehiclePhysics::ComputeVelocityLocalSpace(vehObj, &velWs, &outVelLs);
+    BgVehiclePhysics::ComputeVelocityLocalSpace(vehObj, outAngularVelocity, &velLs);
+    velLs.v[0] = outVelLs.v[0];
+    velLs.v[2] = outVelLs.v[2];
+    BgVehiclePhysics::ComputeVelocityWorldSpace(vehObj, &velLs, outAngularVelocity);
   }
 }
 
@@ -1152,190 +930,136 @@ void BgVehicleComponentPathFinder::FindPath(BgVehicleComponentPathFinder *this, 
 {
   const vec3_t *OwnerPosition; 
   nav_space_s *DefaultSpace; 
-  __int16 v14; 
-  unsigned __int16 v16; 
+  __int16 v8; 
+  float m_goalPosTolSq; 
+  unsigned __int16 v10; 
   int NumSegments; 
-  int v18; 
+  int v12; 
+  float v13; 
+  float v14; 
   bfx::SurfaceSegment *SurfaceSegment; 
-  char v25; 
-  bool v26; 
-  int v39; 
+  const bfx::Vector3 *EndPos; 
+  float m_y; 
+  float m_x; 
+  const bfx::Vector3 *StartPos; 
+  int v20; 
   int i; 
-  bfx::SurfaceSegment *v41; 
-  char v45; 
+  bfx::SurfaceSegment *v22; 
+  const bfx::Vector3 *v23; 
+  float v24; 
+  float v25; 
+  const bfx::Vector3 *v26; 
+  float v27; 
+  float v28; 
   __int64 m_numNodes; 
-  __int64 v51; 
-  unsigned __int16 v58; 
-  bool v59; 
-  __int16 v60; 
+  vec2_t *v30; 
+  __int64 v31; 
+  float v32; 
+  float v33; 
+  vec2_t *v34; 
+  unsigned __int16 v35; 
+  bool v36; 
+  __int16 v37; 
   bfx::PolylinePathRCPtr result; 
-  __int64 v67; 
-  void *retaddr; 
+  __int64 v39; 
 
-  _RAX = &retaddr;
-  v67 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0C8h+var_88], xmm10
-  }
-  _R12 = pos;
-  _RDI = this;
+  v39 = -2i64;
   if ( !Nav_GetDefaultSpace() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 392, ASSERT_TYPE_ASSERT, "(Nav_GetDefaultSpace())", "%s\n\tBgVehicleComponentPathFinder::FindPath() Navigation mesh not found", "Nav_GetDefaultSpace()") )
     __debugbreak();
   if ( layer > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 393, ASSERT_TYPE_ASSERT, "(layer <= 255)", "%s\n\tBgVehicleComponentPathFinder::FindPath() Invalid layer", "layer <= 255") )
     __debugbreak();
-  _RDI->m_layer = truncate_cast<unsigned char,unsigned int>(layer);
-  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(_RDI);
+  this->m_layer = truncate_cast<unsigned char,unsigned int>(layer);
+  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(this);
   DefaultSpace = Nav_GetDefaultSpace();
-  Nav_FindPath(&result, DefaultSpace, OwnerPosition, _R12, layer);
-  HIBYTE(v14) = 0;
-  if ( _RDI->m_originalPathNumNodes == 0xFFFF )
+  Nav_FindPath(&result, DefaultSpace, OwnerPosition, pos, layer);
+  HIBYTE(v8) = 0;
+  if ( this->m_originalPathNumNodes == 0xFFFF )
   {
-    __asm { vmovss  xmm10, dword ptr [rdi+64h] }
-    v16 = 0;
+    m_goalPosTolSq = this->m_goalPosTolSq;
+    v10 = 0;
     NumSegments = bfx::PolylinePathRCPtr::GetNumSegments(&result);
-    v18 = 0;
+    v12 = 0;
     if ( NumSegments > 0 )
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+0C8h+result.m_pProxy]
-        vmovss  xmm7, dword ptr [rsp+0C8h+result.m_pProxy]
-      }
+      v13 = *(float *)&result.m_pProxy;
+      v14 = *(float *)&result.m_pProxy;
       do
       {
-        if ( bfx::PolylinePathRCPtr::GetSegmentType(&result, v18) == SURFACE_SEGMENT )
+        if ( bfx::PolylinePathRCPtr::GetSegmentType(&result, v12) == SURFACE_SEGMENT )
         {
-          SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, v18);
-          _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
-          __asm
+          SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, v12);
+          EndPos = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+          m_y = EndPos->m_y;
+          m_x = EndPos->m_x;
+          if ( !v12 )
           {
-            vmovss  xmm8, dword ptr [rax+4]
-            vmovss  xmm9, dword ptr [rax]
+            StartPos = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+            v14 = StartPos->m_y;
+            v13 = StartPos->m_x;
+            ++v10;
           }
-          v25 = 0;
-          v26 = v18 == 0;
-          if ( !v18 )
+          if ( m_goalPosTolSq <= (float)((float)((float)(m_y - v14) * (float)(m_y - v14)) + (float)((float)(m_x - v13) * (float)(m_x - v13))) )
           {
-            _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-            __asm
-            {
-              vmovss  xmm7, dword ptr [rax+4]
-              vmovss  xmm6, dword ptr [rax]
-            }
-            v26 = ++v16 == 0;
-          }
-          __asm
-          {
-            vsubss  xmm1, xmm9, xmm6
-            vsubss  xmm0, xmm8, xmm7
-            vmulss  xmm2, xmm0, xmm0
-            vmulss  xmm1, xmm1, xmm1
-            vaddss  xmm2, xmm2, xmm1
-            vcomiss xmm10, xmm2
-          }
-          if ( v25 | v26 )
-          {
-            __asm
-            {
-              vmovaps xmm6, xmm9
-              vmovaps xmm7, xmm8
-            }
-            ++v16;
+            v13 = m_x;
+            v14 = m_y;
+            ++v10;
           }
         }
-        ++v18;
+        ++v12;
       }
-      while ( v18 < NumSegments );
+      while ( v12 < NumSegments );
     }
-    _RDI->m_originalPathNumNodes = v16;
-    _RDI->m_overallCurNode = 0;
+    this->m_originalPathNumNodes = v10;
+    this->m_overallCurNode = 0;
   }
-  _RDI->m_finalGoalPos.v[0] = _R12->v[0];
-  __asm
+  this->m_finalGoalPos.v[0] = pos->v[0];
+  this->m_finalGoalPos.v[1] = pos->v[1];
+  this->m_finalGoalPos.v[2] = pos->v[2];
+  v20 = bfx::PolylinePathRCPtr::GetNumSegments(&result);
+  this->m_numNodes = 0;
+  this->m_notifiedNodeBits[0] = 0;
+  for ( i = 0; i < v20; ++i )
   {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  dword ptr [rdi+74h], xmm0
-    vmovss  xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [rdi+78h], xmm1
-  }
-  v39 = bfx::PolylinePathRCPtr::GetNumSegments(&result);
-  _RDI->m_numNodes = 0;
-  _RDI->m_notifiedNodeBits[0] = 0;
-  for ( i = 0; i < v39; ++i )
-  {
-    if ( _RDI->m_numNodes >= 0xEu )
+    if ( this->m_numNodes >= 0xEu )
       break;
     if ( bfx::PolylinePathRCPtr::GetSegmentType(&result, i) == SURFACE_SEGMENT )
     {
-      v41 = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, i);
-      _RAX = bfx::SurfaceSegment::GetEndPos(v41);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rax+4]
-        vmovss  xmm7, dword ptr [rax]
-      }
-      v45 = 0;
+      v22 = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, i);
+      v23 = bfx::SurfaceSegment::GetEndPos(v22);
+      v24 = v23->m_y;
+      v25 = v23->m_x;
       if ( !i )
       {
-        _RAX = bfx::SurfaceSegment::GetStartPos(v41);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rax+4]
-          vmovss  xmm0, dword ptr [rax]
-        }
-        m_numNodes = _RDI->m_numNodes;
-        _RCX = (__int64)&_RDI->m_pathNodes[m_numNodes];
-        _RDI->m_numNodes = m_numNodes + 1;
-        __asm
-        {
-          vmovss  dword ptr [rcx], xmm0
-          vmovss  dword ptr [rcx+4], xmm1
-        }
+        v26 = bfx::SurfaceSegment::GetStartPos(v22);
+        v27 = v26->m_y;
+        v28 = v26->m_x;
+        m_numNodes = this->m_numNodes;
+        v30 = &this->m_pathNodes[m_numNodes];
+        this->m_numNodes = m_numNodes + 1;
+        v30->v[0] = v28;
+        v30->v[1] = v27;
       }
-      v51 = _RDI->m_numNodes;
-      __asm
+      v31 = this->m_numNodes;
+      v32 = v25 - this->m_finalGoalPos.v[2 * v31 + 1];
+      v33 = v24 - this->m_finalGoalPos.v[2 * v31 + 2];
+      if ( (float)((float)(v33 * v33) + (float)(v32 * v32)) >= this->m_goalPosTolSq )
       {
-        vsubss  xmm1, xmm7, dword ptr [rdi+rcx*8+74h]
-        vsubss  xmm0, xmm6, dword ptr [rdi+rcx*8+78h]
-        vmulss  xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, dword ptr [rdi+64h]
-      }
-      if ( !v45 )
-      {
-        _RAX = (__int64)&_RDI->m_pathNodes[v51];
-        _RDI->m_numNodes = v51 + 1;
-        __asm
-        {
-          vmovss  dword ptr [rax], xmm7
-          vmovss  dword ptr [rax+4], xmm6
-        }
+        v34 = &this->m_pathNodes[v31];
+        this->m_numNodes = v31 + 1;
+        v34->v[0] = v25;
+        v34->v[1] = v24;
       }
     }
   }
-  v58 = _RDI->m_numNodes;
-  v59 = v58 == 14 && i < v39;
-  _RDI->m_partial = v59;
-  LOBYTE(v14) = v58 != 0;
-  v60 = v14 - 1;
-  _RDI->m_curNode = v60;
-  if ( v58 )
-    BgVehicleComponentPathFinder::GoStraightToNode(_RDI, v60);
+  v35 = this->m_numNodes;
+  v36 = v35 == 14 && i < v20;
+  this->m_partial = v36;
+  LOBYTE(v8) = v35 != 0;
+  v37 = v8 - 1;
+  this->m_curNode = v37;
+  if ( v35 )
+    BgVehicleComponentPathFinder::GoStraightToNode(this, v37);
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&result);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_48]
-    vmovaps xmm7, [rsp+0C8h+var_58]
-    vmovaps xmm8, [rsp+0C8h+var_68]
-    vmovaps xmm9, [rsp+0C8h+var_78]
-    vmovaps xmm10, [rsp+0C8h+var_88]
-  }
 }
 
 /*
@@ -1372,18 +1096,10 @@ BgVehicleComponentPathFollower::GetCurrentNodeTime
 float BgVehicleComponentPathFollower::GetCurrentNodeTime(BgVehicleComponentPathFollower *this)
 {
   if ( this->m_pathType == PATH_RADIANT )
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+2Ch] }
-  }
-  else if ( this->m_pathType == PATH_CATMULLROM )
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+30h] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return this->m_path.m_vpp.frac;
+  if ( this->m_pathType == PATH_CATMULLROM )
+    return this->m_path.m_vpp.speed;
+  return 0.0;
 }
 
 /*
@@ -1394,10 +1110,9 @@ BgVehicleComponentPathFollower::GetCurrentPathTime
 float BgVehicleComponentPathFollower::GetCurrentPathTime(BgVehicleComponentPathFollower *this)
 {
   if ( this->m_pathType == PATH_RADIANT || this->m_pathType != PATH_CATMULLROM )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    return 0.0;
   else
-    __asm { vmovss  xmm0, dword ptr [rcx+34h] }
-  return *(float *)&_XMM0;
+    return this->m_path.m_vpp.speedOverride;
 }
 
 /*
@@ -1422,80 +1137,34 @@ void BgVehicleComponentPathFollower::GetPathCurrentPos(BgVehicleComponentPathFol
 BgVehicleComponentPathFollower::GetPathLookAhead
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::GetPathLookAhead(BgVehicleComponentPathFollower *this, double lookAheadTime, vec3_t *outPos, vec3_t *outAngles)
+void BgVehicleComponentPathFollower::GetPathLookAhead(BgVehicleComponentPathFollower *this, float lookAheadTime, vec3_t *outPos, vec3_t *outAngles)
 {
+  __int128 v4; 
+  float v8; 
   const BSplineCatmullRom *v9; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
+  __int64 v10; 
+  float v11; 
   vec3_t optOutDeriv; 
+  __int128 v13; 
 
-  _RDI = outPos;
   if ( this->m_pathType == PATH_CATMULLROM )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_28], xmm6
-      vaddss  xmm6, xmm1, dword ptr [rcx+34h]
-    }
+    v13 = v4;
+    v8 = lookAheadTime + this->m_path.m_vpp.speedOverride;
     if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
       __debugbreak();
     v9 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
-    __asm { vmovaps xmm1, xmm6; t }
-    BG_BSpline_CatmullRom_Evaluate(v9, *(float *)&_XMM1, _RDI, &optOutDeriv, NULL, NULL);
-    __asm
+    BG_BSpline_CatmullRom_Evaluate(v9, v8, outPos, &optOutDeriv, NULL, NULL);
+    v11 = outPos->v[0];
+    if ( (LODWORD(outPos->v[0]) & 0x7F800000) == 2139095040 || (v11 = outPos->v[1], (LODWORD(v11) & 0x7F800000) == 2139095040) || (v11 = outPos->v[2], (LODWORD(v11) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovaps xmm6, [rsp+78h+var_28]
-      vmovss  [rsp+78h+var_48], xmm0
-    }
-    if ( (v18 & 0x7F800000) == 2139095040 )
-      goto LABEL_18;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  [rsp+78h+var_48], xmm0
-    }
-    if ( (v19 & 0x7F800000) == 2139095040 )
-      goto LABEL_18;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  [rsp+78h+var_48], xmm0
-    }
-    if ( (v20 & 0x7F800000) == 2139095040 )
-    {
-LABEL_18:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 802, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outPos )[0] ) && !IS_NAN( ( outPos )[1] ) && !IS_NAN( ( outPos )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outPos )[0] ) && !IS_NAN( ( outPos )[1] ) && !IS_NAN( ( outPos )[2] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 802, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outPos )[0] ) && !IS_NAN( ( outPos )[1] ) && !IS_NAN( ( outPos )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outPos )[0] ) && !IS_NAN( ( outPos )[1] ) && !IS_NAN( ( outPos )[2] )", v11) )
         __debugbreak();
     }
-    __asm
+    *(float *)&v10 = optOutDeriv.v[0];
+    if ( (LODWORD(optOutDeriv.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v10 = optOutDeriv.v[1], (LODWORD(optOutDeriv.v[1]) & 0x7F800000) == 2139095040) || (*(float *)&v10 = optOutDeriv.v[2], (LODWORD(optOutDeriv.v[2]) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rsp+78h+optOutDeriv]
-      vmovss  [rsp+78h+var_48], xmm0
-    }
-    if ( (v21 & 0x7F800000) == 2139095040 )
-      goto LABEL_19;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+optOutDeriv+4]
-      vmovss  [rsp+78h+var_48], xmm0
-    }
-    if ( (v22 & 0x7F800000) == 2139095040 )
-      goto LABEL_19;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+optOutDeriv+8]
-      vmovss  [rsp+78h+var_48], xmm0
-    }
-    if ( (v23 & 0x7F800000) == 2139095040 )
-    {
-LABEL_19:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tangent )[0] ) && !IS_NAN( ( tangent )[1] ) && !IS_NAN( ( tangent )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tangent )[0] ) && !IS_NAN( ( tangent )[1] ) && !IS_NAN( ( tangent )[2] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tangent )[0] ) && !IS_NAN( ( tangent )[1] ) && !IS_NAN( ( tangent )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tangent )[0] ) && !IS_NAN( ( tangent )[1] ) && !IS_NAN( ( tangent )[2] )", v10) )
         __debugbreak();
     }
     vectoangles(&optOutDeriv, outAngles);
@@ -1507,43 +1176,23 @@ LABEL_19:
 BgVehicleComponentPathFollowerCP::GetResumeFactor
 ==============
 */
-
-double __fastcall BgVehicleComponentPathFollowerCP::GetResumeFactor(BgVehicleComponentPathFollowerCP *this, double _XMM1_8)
+double BgVehicleComponentPathFollowerCP::GetResumeFactor(BgVehicleComponentPathFollowerCP *this)
 {
-  char v4; 
-  char v5; 
+  const dvar_t *v1; 
+  float m_pauseTime; 
+  float value; 
+  double result; 
 
-  _RBX = DCONST_DVARMPFLT_bg_pathFollowerResumeFactorTime;
-  _RDI = this;
+  v1 = DCONST_DVARMPFLT_bg_pathFollowerResumeFactorTime;
   if ( !DCONST_DVARMPFLT_bg_pathFollowerResumeFactorTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerResumeFactorTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+18h]
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vxorps  xmm1, xmm1, xmm1; min
-    vcomiss xmm2, xmm1
-  }
-  if ( !v4 )
-    goto LABEL_7;
-  __asm { vcomiss xmm0, cs:__real@3a83126f }
-  if ( v4 | v5 )
-  {
-LABEL_7:
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  else
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm2, xmm0
-      vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000; val
-      vmovss  xmm2, cs:__real@3f800000; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
-  return *(double *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v1);
+  m_pauseTime = this->m_pauseTime;
+  value = v1->current.value;
+  if ( m_pauseTime < 0.0 && value > 0.001 )
+    return I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(m_pauseTime / value) ^ _xmm), 0.0, 1.0);
+  *(_QWORD *)&result = LODWORD(FLOAT_1_0);
+  return result;
 }
 
 /*
@@ -1553,19 +1202,10 @@ BgVehicleComponentPathFollower::GetSpeed
 */
 float BgVehicleComponentPathFollower::GetSpeed(BgVehicleComponentPathFollower *this)
 {
-  _RAX = BgVehiclePhysicsComponent::GetOwner(this);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+178h]
-    vmulss  xmm3, xmm0, dword ptr [rax+1A8h]
-    vmovss  xmm1, dword ptr [rax+174h]
-    vmovss  xmm0, dword ptr [rax+17Ch]
-    vmulss  xmm2, xmm1, dword ptr [rax+1A4h]
-    vmulss  xmm1, xmm0, dword ptr [rax+1ACh]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm0, xmm4, xmm1
-  }
-  return *(float *)&_XMM0;
+  BgVehiclePhysics *Owner; 
+
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  return (float)((float)(Owner->m_transform.m[0].v[1] * Owner->m_linearVelocityWs.v[1]) + (float)(Owner->m_transform.m[0].v[0] * Owner->m_linearVelocityWs.v[0])) + (float)(Owner->m_transform.m[0].v[2] * Owner->m_linearVelocityWs.v[2]);
 }
 
 /*
@@ -1575,50 +1215,13 @@ BgVehicleComponentGoStraightTo::GoStraightTo
 */
 void BgVehicleComponentGoStraightTo::GoStraightTo(BgVehicleComponentGoStraightTo *this, const vec3_t *pos)
 {
-  int v9; 
-  int v10; 
-  int v11; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  _RBX = pos;
-  _RDI = this;
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 192, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovsd  qword ptr [rdi+48h], xmm0
-  }
-  _RDI->m_goalPos.v[2] = _RBX->v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovsd  qword ptr [rdi+54h], xmm0
-  }
-  _RDI->m_lookAheadPos.v[2] = _RBX->v[2];
-  _RDI->m_goingStraightTo = 1;
+  if ( ((LODWORD(pos->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pos->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pos->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 192, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] )") )
+    __debugbreak();
+  *(double *)this->m_goalPos.v = *(double *)pos->v;
+  this->m_goalPos.v[2] = pos->v[2];
+  *(double *)this->m_lookAheadPos.v = *(double *)pos->v;
+  this->m_lookAheadPos.v[2] = pos->v[2];
+  this->m_goingStraightTo = 1;
 }
 
 /*
@@ -1628,44 +1231,24 @@ BgVehicleComponentPathFinder::GoStraightToNode
 */
 void BgVehicleComponentPathFinder::GoStraightToNode(BgVehicleComponentPathFinder *this, __int16 nodeIdx)
 {
-  int v8; 
-  int v9; 
-  int v10; 
-  float v12; 
+  float v3; 
+  double v4; 
+  float v5; 
 
-  __asm { vmovss  xmm1, dword ptr [rcx+78h] }
-  _RAX = nodeIdx;
-  _RBX = this;
-  __asm
+  v5 = this->m_finalGoalPos.v[2];
+  v3 = this->m_pathNodes[nodeIdx].v[0];
+  *(float *)&v4 = v3;
+  HIDWORD(v4) = LODWORD(this->m_pathNodes[nodeIdx].v[1]);
+  if ( (LODWORD(v3) & 0x7F800000) == 2139095040 || (v3 = this->m_pathNodes[nodeIdx].v[1], (LODWORD(v3) & 0x7F800000) == 2139095040) || (v3 = this->m_finalGoalPos.v[2], (LODWORD(v3) & 0x7F800000) == 2139095040) )
   {
-    vmovss  [rsp+58h+var_18], xmm1
-    vmovss  xmm0, dword ptr [rcx+rax*8+7Ch]
-    vmovss  xmm2, dword ptr [rcx+rax*8+80h]
-    vmovss  [rsp+58h+var_28], xmm0
-    vmovss  dword ptr [rsp+58h+var_20], xmm0
-    vmovss  dword ptr [rsp+58h+var_20+4], xmm2
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm { vmovss  [rsp+58h+var_28], xmm2 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm { vmovss  [rsp+58h+var_28], xmm1 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 192, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 192, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pos )[0] ) && !IS_NAN( ( pos )[1] ) && !IS_NAN( ( pos )[2] )", v3) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovsd  xmm1, [rsp+58h+var_20]
-    vmovsd  qword ptr [rbx+48h], xmm1
-    vmovsd  qword ptr [rbx+54h], xmm1
-  }
-  _RBX->m_goalPos.v[2] = v12;
-  _RBX->m_lookAheadPos.v[2] = v12;
-  _RBX->m_goingStraightTo = 1;
+  *(double *)this->m_goalPos.v = v4;
+  *(double *)this->m_lookAheadPos.v = v4;
+  this->m_goalPos.v[2] = v5;
+  this->m_lookAheadPos.v[2] = v5;
+  this->m_goingStraightTo = 1;
 }
 
 /*
@@ -1673,89 +1256,50 @@ LABEL_9:
 BgVehicleComponentGoStraightTo::IsOnGoalPos
 ==============
 */
-
-bool __fastcall BgVehicleComponentGoStraightTo::IsOnGoalPos(BgVehicleComponentGoStraightTo *this, double scale)
+bool BgVehicleComponentGoStraightTo::IsOnGoalPos(BgVehicleComponentGoStraightTo *this, float scale)
 {
-  bool v11; 
+  bool v3; 
+  const vec3_t *OwnerPosition; 
+  float v5; 
+  float v6; 
+  float v7; 
   bool result; 
+  BgVehiclePhysics *Owner; 
+  float v10; 
+  float v11; 
+  float v12; 
+  const vec3_t *v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
 
-  __asm
+  v3 = this->m_lookAheadPos.v[0] == this->m_goalPos.v[0] && this->m_lookAheadPos.v[1] == this->m_goalPos.v[1] && this->m_lookAheadPos.v[2] == this->m_goalPos.v[2];
+  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+  v5 = this->m_goalPos.v[1] - OwnerPosition->v[1];
+  v6 = scale * this->m_goalPosTolSq;
+  v7 = (float)(this->m_goalPos.v[0] - OwnerPosition->v[0]) * (float)(this->m_goalPos.v[0] - OwnerPosition->v[0]);
+  result = v6 >= (float)((float)(v5 * v5) + v7);
+  if ( !v3 && v6 < (float)((float)(v5 * v5) + v7) )
   {
-    vmovss  xmm0, dword ptr [rcx+54h]
-    vucomiss xmm0, dword ptr [rcx+48h]
-    vmovaps [rsp+88h+var_18], xmm6
-  }
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm1 }
-  BgVehiclePhysicsComponent::GetOwnerPosition(this);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vmovss  xmm1, dword ptr [rbx+4Ch]
-    vsubss  xmm4, xmm0, dword ptr [rax]
-    vsubss  xmm2, xmm1, dword ptr [rax+4]
-    vmulss  xmm1, xmm6, dword ptr [rbx+64h]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm1, xmm4
-  }
-  result = !v11;
-  if ( v11 )
-  {
+    Owner = BgVehiclePhysicsComponent::GetOwner(this);
+    v10 = Owner->m_transform.m[0].v[0];
+    v11 = Owner->m_transform.m[0].v[1];
+    v12 = Owner->m_transform.m[0].v[2];
+    v13 = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+    v14 = this->m_goalPos.v[0] - v13->v[0];
+    v16 = LODWORD(this->m_goalPos.v[1]);
+    v15 = this->m_goalPos.v[1] - v13->v[1];
+    v17 = this->m_goalPos.v[2] - v13->v[2];
+    *(float *)&v16 = fsqrt((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v17 * v17));
+    _XMM4 = v16;
     __asm
     {
-      vmovaps [rsp+88h+var_28], xmm7
-      vmovaps [rsp+88h+var_38], xmm8
-      vmovaps [rsp+88h+var_48], xmm9
-      vmovaps [rsp+88h+var_58], xmm10
-      vmovaps [rsp+88h+var_68], xmm11
-    }
-    _RAX = BgVehiclePhysicsComponent::GetOwner(_RBX);
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rax+174h]
-      vmovss  xmm10, dword ptr [rax+178h]
-      vmovss  xmm11, dword ptr [rax+17Ch]
-    }
-    BgVehiclePhysicsComponent::GetOwnerPosition(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+48h]
-      vmovss  xmm1, dword ptr [rbx+4Ch]
-      vsubss  xmm6, xmm0, dword ptr [rax]
-      vsubss  xmm7, xmm1, dword ptr [rax+4]
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vsubss  xmm8, xmm0, dword ptr [rax+8]
-      vmulss  xmm0, xmm8, xmm8
-      vmulss  xmm2, xmm7, xmm7
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm1, xmm0
-      vdivss  xmm5, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm5
-      vmovaps xmm7, [rsp+88h+var_28]
-      vmulss  xmm2, xmm1, xmm10
-      vmovaps xmm10, [rsp+88h+var_58]
-      vmulss  xmm0, xmm6, xmm5
-      vmulss  xmm3, xmm0, xmm9
-      vmovaps xmm9, [rsp+88h+var_48]
-      vmulss  xmm0, xmm8, xmm5
-      vmovaps xmm8, [rsp+88h+var_38]
-      vmulss  xmm1, xmm0, xmm11
-      vmovaps xmm11, [rsp+88h+var_68]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm3, xmm4, xmm1
-      vxorps  xmm2, xmm2, xmm2
-      vcomiss xmm3, xmm2
     }
-    result = v11;
+    return (float)((float)((float)((float)(v14 * (float)(1.0 / *(float *)&_XMM0)) * v10) + (float)((float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * v11)) + (float)((float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * v12)) < 0.0;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
   return result;
 }
 
@@ -1766,58 +1310,47 @@ BgVehicleComponentPathFinder::Notification
 */
 void BgVehicleComponentPathFinder::Notification(BgVehicleComponentPathFinder *this, __int16 nodeIdx, scr_string_t str)
 {
-  unsigned int v8; 
+  unsigned int v5; 
+  unsigned __int16 m_originalPathNumNodes; 
+  float v7; 
   int m_entityNumber; 
-  scrContext_t *v15; 
-  LocalClientNum_t v17; 
+  scrContext_t *v9; 
+  LocalClientNum_t v10; 
   unsigned int *m_notifiedNodeBits; 
   __int64 localClientNum; 
 
   if ( nodeIdx == 14 )
   {
-    v8 = 14;
+    v5 = 14;
   }
   else
   {
-    v8 = nodeIdx;
+    v5 = nodeIdx;
     if ( Com_BitCheckAssert(this->m_notifiedNodeBits, nodeIdx, 4) )
       return;
   }
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  if ( this->m_originalPathNumNodes <= 1u )
-  {
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-  }
+  m_originalPathNumNodes = this->m_originalPathNumNodes;
+  if ( m_originalPathNumNodes <= 1u )
+    v7 = FLOAT_1_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm6, xmm1, xmm0
-    }
-  }
+    v7 = (float)this->m_overallCurNode / (float)(m_originalPathNumNodes - 1);
   m_entityNumber = BgVehiclePhysicsComponent::GetOwner(this)->m_entityNumber;
   BgVehiclePhysicsComponent::GetOwner(this);
-  v15 = ScriptContext_Server();
-  Scr_AddInt(v15, this->m_overallCurNode);
-  __asm { vmovaps xmm1, xmm6; value }
-  Scr_AddFloat(v15, *(float *)&_XMM1);
-  v17 = this->m_vehicleSystem->GetLocalClientNum(this->m_vehicleSystem);
-  Scr_NotifyNum(v15, m_entityNumber, ENTITY_CLASS_GENTITY, str, 2u, v17);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  v9 = ScriptContext_Server();
+  Scr_AddInt(v9, this->m_overallCurNode);
+  Scr_AddFloat(v9, v7);
+  v10 = this->m_vehicleSystem->GetLocalClientNum(this->m_vehicleSystem);
+  Scr_NotifyNum(v9, m_entityNumber, ENTITY_CLASS_GENTITY, str, 2u, v10);
   m_notifiedNodeBits = this->m_notifiedNodeBits;
   if ( !m_notifiedNodeBits && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
     __debugbreak();
-  if ( v8 >= 0x20 )
+  if ( v5 >= 0x20 )
   {
-    LODWORD(localClientNum) = v8;
+    LODWORD(localClientNum) = v5;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", localClientNum, 32) )
       __debugbreak();
   }
-  m_notifiedNodeBits[(__int64)(int)v8 >> 5] |= 1 << (v8 & 0x1F);
+  m_notifiedNodeBits[(__int64)(int)v5 >> 5] |= 1 << (v5 & 0x1F);
 }
 
 /*
@@ -1827,42 +1360,18 @@ BgVehicleComponentPathFollowerCP::PathDistanceToGoal
 */
 float BgVehicleComponentPathFollowerCP::PathDistanceToGoal(BgVehicleComponentPathFollowerCP *this)
 {
-  const BSplineCatmullRom *v4; 
-  const BSplineCatmullRom *v6; 
-  vec3_t v19; 
+  const BSplineCatmullRom *v3; 
+  vec3_t v4; 
   vec3_t outPos; 
 
-  _RDI = this;
-  if ( this->m_pathType == PATH_CATMULLROM )
-  {
-    if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
-      __debugbreak();
-    v4 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RDI->m_path.m_catmullRom.splineIndex, NULL);
-    __asm { vmovss  xmm1, dword ptr [rdi+34h]; t }
-    v6 = v4;
-    BG_BSpline_CatmullRom_Evaluate(v4, *(float *)&_XMM1, &outPos, NULL, NULL, NULL);
-    __asm { vmovss  xmm1, dword ptr [rdi+38h]; t }
-    BG_BSpline_CatmullRom_Evaluate(v6, *(float *)&_XMM1, &v19, NULL, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+var_38]
-      vsubss  xmm3, xmm0, dword ptr [rsp+68h+outPos]
-      vmovss  xmm1, dword ptr [rsp+68h+var_38+4]
-      vmovss  xmm0, dword ptr [rsp+68h+var_38+8]
-      vsubss  xmm2, xmm1, dword ptr [rsp+68h+outPos+4]
-      vsubss  xmm4, xmm0, dword ptr [rsp+68h+outPos+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm0, xmm3, xmm0
-    }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( this->m_pathType != PATH_CATMULLROM )
+    return 0.0;
+  if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+    __debugbreak();
+  v3 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+  BG_BSpline_CatmullRom_Evaluate(v3, this->m_path.m_vpp.speedOverride, &outPos, NULL, NULL, NULL);
+  BG_BSpline_CatmullRom_Evaluate(v3, this->m_path.m_vpp.lookAhead, &v4, NULL, NULL, NULL);
+  return (float)((float)((float)(v4.v[1] - outPos.v[1]) * (float)(v4.v[1] - outPos.v[1])) + (float)((float)(v4.v[0] - outPos.v[0]) * (float)(v4.v[0] - outPos.v[0]))) + (float)((float)(v4.v[2] - outPos.v[2]) * (float)(v4.v[2] - outPos.v[2]));
 }
 
 /*
@@ -1872,23 +1381,20 @@ BgVehicleComponentPathFollower::PathIsEnd
 */
 bool BgVehicleComponentPathFollower::PathIsEnd(BgVehicleComponentPathFollower *this)
 {
-  __int32 v3; 
-  const BSplineCatmullRom *v5; 
-  char v6; 
-  char v7; 
+  __int32 v2; 
+  const BSplineCatmullRom *v4; 
+  double v5; 
 
-  _RBX = this;
-  v3 = this->m_pathType - 1;
-  if ( !v3 )
-    return _RBX->m_vehicleSystem->PathIsEnd(_RBX->m_vehicleSystem, &_RBX->m_path.m_vpp);
-  if ( v3 != 1 )
+  v2 = this->m_pathType - 1;
+  if ( !v2 )
+    return this->m_vehicleSystem->PathIsEnd(this->m_vehicleSystem, (VehiclePathPos *)&this->m_path);
+  if ( v2 != 1 )
     return 0;
-  if ( !BG_BSpline_Data_IsValid(_RBX->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+  if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
     __debugbreak();
-  v5 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RBX->m_path.m_catmullRom.splineIndex, NULL);
-  *(double *)&_XMM0 = BG_BSpline_CatmullRom_EvalDuration(v5);
-  __asm { vcomiss xmm0, dword ptr [rbx+34h] }
-  return v6 | v7;
+  v4 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+  v5 = BG_BSpline_CatmullRom_EvalDuration(v4);
+  return *(float *)&v5 <= this->m_path.m_vpp.speedOverride;
 }
 
 /*
@@ -1896,90 +1402,52 @@ bool BgVehicleComponentPathFollower::PathIsEnd(BgVehicleComponentPathFollower *t
 BgVehicleComponentPathFollowerCP::PathStep
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerCP::PathStep(BgVehicleComponentPathFollowerCP *this, double deltaTime, double timeScale0, double timeScale1)
+void BgVehicleComponentPathFollowerCP::PathStep(BgVehicleComponentPathFollowerCP *this, float deltaTime, float timeScale0, float timeScale1)
 {
-  BgVehicleComponentPathFollower::PathType m_pathType; 
-  bool v14; 
-  __int32 v15; 
+  __int32 v5; 
+  float speedOverride; 
+  double ResumeFactor; 
   unsigned int *p_curNodeIndex; 
   unsigned int curNodeIndex; 
-  const BSplineCatmullRom *v22; 
+  const BSplineCatmullRom *v10; 
   BGVehicles *m_vehicleSystem; 
   void (__fastcall *PathUpdatePos)(BGVehicles *, const int, const float, const float, VehiclePathPos *, float *, vec3_t *, vec3_t *); 
   __int64 m_entityNumber; 
   vec3_t optOutDeriv; 
-  char v37; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v5 = this->m_pathType - 1;
+  if ( v5 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RSI = this;
-  m_pathType = this->m_pathType;
-  __asm
-  {
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-  }
-  v14 = m_pathType == PATH_NONE;
-  v15 = m_pathType - 1;
-  if ( v15 )
-  {
-    if ( v15 == 1 )
+    if ( v5 == 1 )
     {
-      __asm
+      if ( this->m_manualSpeedTarget < 0.0 || COERCE_FLOAT(LODWORD(this->m_manualSpeed) & _xmm) > 0.001 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rsi+150h]
-        vmovss  xmm0, dword ptr [rsi+14Ch]
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:__real@3a83126f
-        vmovss  xmm6, dword ptr [rsi+34h]
+        ResumeFactor = BgVehicleComponentPathFollowerCP::GetResumeFactor(this);
+        speedOverride = (float)((float)(*(float *)&ResumeFactor * deltaTime) * timeScale0) + this->m_path.m_vpp.speedOverride;
+        this->m_path.m_vpp.lookAhead = (float)((float)(*(float *)&ResumeFactor * deltaTime) * timeScale1) + this->m_path.m_vpp.lookAhead;
+        this->m_path.m_vpp.speedOverride = speedOverride;
       }
-      p_curNodeIndex = &_RSI->m_path.m_catmullRom.curNodeIndex;
-      curNodeIndex = _RSI->m_path.m_catmullRom.curNodeIndex;
-      if ( !BG_BSpline_Data_IsValid(_RSI->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+      else
+      {
+        speedOverride = this->m_path.m_vpp.speedOverride;
+      }
+      p_curNodeIndex = &this->m_path.m_catmullRom.curNodeIndex;
+      curNodeIndex = this->m_path.m_catmullRom.curNodeIndex;
+      if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
         __debugbreak();
-      v22 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RSI->m_path.m_catmullRom.splineIndex, NULL);
-      __asm { vmovaps xmm1, xmm6; t }
-      BG_BSpline_CatmullRom_Evaluate(v22, *(float *)&_XMM1, &_RSI->m_pathPosInterpolated, &optOutDeriv, &_RSI->m_path.m_catmullRom.curNodeIndex, &_RSI->m_path.m_vpp.speed);
-      vectoangles(&optOutDeriv, &_RSI->m_pathAnglesInterpolated);
+      v10 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+      BG_BSpline_CatmullRom_Evaluate(v10, speedOverride, &this->m_pathPosInterpolated, &optOutDeriv, &this->m_path.m_catmullRom.curNodeIndex, &this->m_path.m_vpp.speed);
+      vectoangles(&optOutDeriv, &this->m_pathAnglesInterpolated);
       if ( *p_curNodeIndex != curNodeIndex )
-        BgVehicleComponentPathFollower::TriggerNodeNotification(_RSI, *p_curNodeIndex);
+        BgVehicleComponentPathFollower::TriggerNodeNotification(this, *p_curNodeIndex);
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsi+30h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rsi+150h]
-    }
-    if ( v14 || (unsigned __int8)v15 == 0 )
-      __asm { vmovss  xmm6, dword ptr [rsi+14Ch] }
-    m_vehicleSystem = _RSI->m_vehicleSystem;
+    m_vehicleSystem = this->m_vehicleSystem;
     PathUpdatePos = m_vehicleSystem->PathUpdatePos;
-    m_entityNumber = (unsigned int)BgVehiclePhysicsComponent::GetOwner(_RSI)->m_entityNumber;
-    __asm
-    {
-      vmovaps xmm3, xmm6
-      vmovaps xmm2, xmm7
-    }
+    m_entityNumber = (unsigned int)BgVehiclePhysicsComponent::GetOwner(this)->m_entityNumber;
     ((void (__fastcall *)(BGVehicles *, __int64))PathUpdatePos)(m_vehicleSystem, m_entityNumber);
-  }
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -1988,88 +1456,54 @@ void __fastcall BgVehicleComponentPathFollowerCP::PathStep(BgVehicleComponentPat
 BgVehicleComponentPathFollowerSP::PathStep
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerSP::PathStep(BgVehicleComponentPathFollowerSP *this, double deltaTime, __int64 a3, double _XMM3_8)
+void BgVehicleComponentPathFollowerSP::PathStep(BgVehicleComponentPathFollowerSP *this, float deltaTime)
 {
-  BgVehicleComponentPathFollower::PathType m_pathType; 
-  bool v10; 
-  __int32 v11; 
+  __int32 v4; 
   unsigned int splineIndex; 
   unsigned int *p_curNodeIndex; 
   unsigned int curNodeIndex; 
-  const BSplineCatmullRom *v23; 
+  float v11; 
+  const BSplineCatmullRom *v12; 
   BGVehicles *m_vehicleSystem; 
   void (__fastcall *PathUpdatePos)(BGVehicles *, const int, const float, const float, VehiclePathPos *, float *, vec3_t *, vec3_t *); 
   __int64 m_entityNumber; 
   vec3_t optOutDeriv; 
 
-  __asm
+  v4 = this->m_pathType - 1;
+  if ( v4 )
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
-  _RSI = this;
-  m_pathType = this->m_pathType;
-  __asm { vmovaps xmm7, xmm1 }
-  v10 = m_pathType == PATH_NONE;
-  v11 = m_pathType - 1;
-  if ( v11 )
-  {
-    if ( v11 == 1 )
+    if ( v4 == 1 )
     {
-      __asm
+      _XMM2 = LODWORD(FLOAT_1_0);
+      if ( this->m_manualSpeedTarget >= 0.0 )
       {
-        vmovss  xmm2, cs:__real@3f800000
-        vxorps  xmm3, xmm3, xmm3
-        vcomiss xmm3, dword ptr [rsi+150h]
-        vmovss  xmm0, dword ptr [rsi+14Ch]
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcmpltss xmm1, xmm0, cs:__real@3a83126f
-        vblendvps xmm2, xmm2, xmm3, xmm1
+        _XMM0 = LODWORD(this->m_manualSpeed) & (unsigned __int128)_xmm;
+        __asm
+        {
+          vcmpltss xmm1, xmm0, cs:__real@3a83126f
+          vblendvps xmm2, xmm2, xmm3, xmm1
+        }
       }
-      splineIndex = _RSI->m_path.m_catmullRom.splineIndex;
-      p_curNodeIndex = &_RSI->m_path.m_catmullRom.curNodeIndex;
-      curNodeIndex = _RSI->m_path.m_catmullRom.curNodeIndex;
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm2
-        vaddss  xmm6, xmm0, dword ptr [rsi+34h]
-        vmovss  dword ptr [rsi+34h], xmm6
-      }
+      splineIndex = this->m_path.m_catmullRom.splineIndex;
+      p_curNodeIndex = &this->m_path.m_catmullRom.curNodeIndex;
+      curNodeIndex = this->m_path.m_catmullRom.curNodeIndex;
+      v11 = (float)(deltaTime * *(float *)&_XMM2) + this->m_path.m_vpp.speedOverride;
+      this->m_path.m_vpp.speedOverride = v11;
       if ( !BG_BSpline_Data_IsValid(splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
         __debugbreak();
-      v23 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RSI->m_path.m_catmullRom.splineIndex, NULL);
-      __asm { vmovaps xmm1, xmm6; t }
-      BG_BSpline_CatmullRom_Evaluate(v23, *(float *)&_XMM1, &_RSI->m_pathPosInterpolated, &optOutDeriv, &_RSI->m_path.m_catmullRom.curNodeIndex, &_RSI->m_path.m_vpp.speed);
-      vectoangles(&optOutDeriv, &_RSI->m_pathAnglesInterpolated);
+      v12 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+      BG_BSpline_CatmullRom_Evaluate(v12, v11, &this->m_pathPosInterpolated, &optOutDeriv, &this->m_path.m_catmullRom.curNodeIndex, &this->m_path.m_vpp.speed);
+      vectoangles(&optOutDeriv, &this->m_pathAnglesInterpolated);
       if ( *p_curNodeIndex != curNodeIndex )
-        BgVehicleComponentPathFollower::TriggerNodeNotification(_RSI, *p_curNodeIndex);
+        BgVehicleComponentPathFollower::TriggerNodeNotification(this, *p_curNodeIndex);
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsi+30h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rsi+150h]
-    }
-    if ( v10 || (unsigned __int8)v11 == 0 )
-      __asm { vmovss  xmm6, dword ptr [rsi+14Ch] }
-    m_vehicleSystem = _RSI->m_vehicleSystem;
+    m_vehicleSystem = this->m_vehicleSystem;
     PathUpdatePos = m_vehicleSystem->PathUpdatePos;
-    m_entityNumber = (unsigned int)BgVehiclePhysicsComponent::GetOwner(_RSI)->m_entityNumber;
-    __asm
-    {
-      vmovaps xmm3, xmm6
-      vmovaps xmm2, xmm7
-    }
+    m_entityNumber = (unsigned int)BgVehiclePhysicsComponent::GetOwner(this)->m_entityNumber;
     ((void (__fastcall *)(BGVehicles *, __int64))PathUpdatePos)(m_vehicleSystem, m_entityNumber);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
   }
 }
 
@@ -2078,619 +1512,395 @@ void __fastcall BgVehicleComponentPathFollowerSP::PathStep(BgVehicleComponentPat
 BgVehicleComponentPathFollowerCP::PostStep
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerCP::PostStep(BgVehicleComponentPathFollowerCP *this, double deltaTime)
+void BgVehicleComponentPathFollowerCP::PostStep(BgVehicleComponentPathFollowerCP *this, float deltaTime)
 {
-  const BSplineCatmullRom *v38; 
-  const BSplineCatmullRom *v40; 
-  BgVehicleComponentPathFollower::PathType m_pathType; 
-  __int32 v59; 
-  BgVehicleComponentPathFollower::PathType v64; 
-  bool v65; 
-  __int32 v66; 
+  BgVehiclePhysics *Owner; 
+  const dvar_t *v5; 
+  vec3_t *p_m_pathPosInterpolated; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float m_timeSinceLastCollisionBody; 
+  float value; 
+  float v16; 
+  float v17; 
+  const BSplineCatmullRom *v19; 
+  __int128 v20; 
+  const dvar_t *v21; 
+  const dvar_t *v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float speedOverride; 
+  double ResumeFactor; 
   unsigned int *p_curNodeIndex; 
   unsigned int curNodeIndex; 
-  const BSplineCatmullRom *v72; 
+  const BSplineCatmullRom *v32; 
   BGVehicles *m_vehicleSystem; 
   void (__fastcall *PathUpdatePos)(BGVehicles *, const int, const float, const float, VehiclePathPos *, float *, vec3_t *, vec3_t *); 
-  BgVehiclePhysics *Owner; 
-  __int64 v78; 
-  char v110; 
-  bool v111; 
-  bool v116; 
-  float v172; 
-  float v178; 
+  __int64 v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v43; 
+  float v45; 
+  float v46; 
+  float v49; 
+  float v50; 
+  float v51; 
+  double Float_Internal_DebugName; 
+  float v53; 
+  __int128 v57; 
+  __int128 v60; 
+  __int128 v62; 
+  __int128 v64; 
+  float v65; 
+  float v67; 
+  const dvar_t *v68; 
+  float v69; 
+  float v70; 
+  const dvar_t *v71; 
+  const dvar_t *v72; 
+  float v73; 
+  const dvar_t *v74; 
+  float v75; 
+  double v76; 
+  float v77; 
+  double v78; 
+  float v79; 
+  double v80; 
+  float v81; 
+  double v82; 
+  float v83; 
+  double v84; 
+  float v85; 
+  double v86; 
+  float v87; 
+  float v88; 
   int m_entityNumber; 
-  scrContext_t *v224; 
-  LocalClientNum_t v225; 
-  __int64 v229; 
-  char *fmt; 
-  float *optOutNodeT; 
-  vec3_t *p_m_pathPosInterpolated; 
-  double v233; 
-  double v234; 
+  scrContext_t *v90; 
+  LocalClientNum_t v91; 
+  const dvar_t *v92; 
+  float v93; 
   vec3_t relativePoint; 
   vec3_t outPos; 
-  vec3_t v239; 
+  vec3_t v96; 
   vec3_t velLs; 
   vec3_t outVelLs; 
-  vec3_t v242; 
+  vec3_t v99; 
   vec3_t outVelWs; 
   vec3_t angles; 
-  char v252; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
+  v93 = FLOAT_20_0;
+  if ( deltaTime > 0.0 )
   {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovss  xmm6, cs:__real@41a00000
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm1, xmm9
-    vmovss  dword ptr [rsp+1C0h+var_170], xmm6
-    vmovaps xmm10, xmm1
-  }
-  _RSI = this;
-  if ( (unsigned __int64)&v229 != _security_cookie )
-  {
-    _R14 = BgVehiclePhysicsComponent::GetOwner(this);
-    BgVehicleComponentPathFollower::UpdateSteeringAngle(_RSI);
-    __asm { vcomiss xmm9, dword ptr [rsi+18h] }
-    if ( !v65 && !v111 )
+    Owner = BgVehiclePhysicsComponent::GetOwner(this);
+    BgVehicleComponentPathFollower::UpdateSteeringAngle(this);
+    if ( this->m_pauseTime < 0.0 )
     {
-      _RBX = DCONST_DVARMPFLT_bg_pathFollowerMaxVertSpeed;
-      __asm
-      {
-        vmovaps xmmword ptr [rsp+1C0h+var_58+8], xmm7
-        vmovaps [rsp+1C0h+var_68+8], xmm8
-        vmovaps xmmword ptr [rsp+1C0h+var_98+8], xmm11
-        vmovaps [rsp+1C0h+var_B8+8], xmm13
-        vmovaps [rsp+1C0h+var_D8+8], xmm15
-      }
+      v5 = DCONST_DVARMPFLT_bg_pathFollowerMaxVertSpeed;
       if ( !DCONST_DVARMPFLT_bg_pathFollowerMaxVertSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxVertSpeed") )
         __debugbreak();
-      __asm { vmovaps [rsp+1C0h+var_A8+8], xmm12 }
-      Dvar_CheckFrontendServerThread(_RBX);
-      v111 = _RSI->m_pathType == PATH_CATMULLROM;
-      _R15 = &_RSI->m_pathPosInterpolated;
-      __asm
+      Dvar_CheckFrontendServerThread(v5);
+      p_m_pathPosInterpolated = &this->m_pathPosInterpolated;
+      v7 = FLOAT_1_0;
+      v8 = this->m_pathPosInterpolated.v[0] - Owner->m_transform.m[3].v[0];
+      v9 = this->m_pathPosInterpolated.v[1] - Owner->m_transform.m[3].v[1];
+      v10 = (float)(v9 * v9) + (float)(v8 * v8);
+      v11 = FLOAT_1_0;
+      v12 = FLOAT_1_0;
+      if ( this->m_pathType == PATH_CATMULLROM )
       {
-        vmovss  xmm0, dword ptr [r15]
-        vmovss  xmm11, cs:__real@3f800000
-        vmovss  xmm1, dword ptr [r15+4]
-        vsubss  xmm4, xmm0, dword ptr [r14+198h]
-        vsubss  xmm2, xmm1, dword ptr [r14+19Ch]
-        vmovss  xmm5, dword ptr [rbx+28h]
-        vmovss  xmm15, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmulss  xmm3, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm13, xmm3, xmm0
-        vmovss  dword ptr [rsp+1C0h+var_170+4], xmm5
-        vmovaps xmm7, xmm11
-        vmovaps xmm8, xmm11
-      }
-      if ( v111 )
-      {
-        _RBX = DCONST_DVARMPFLT_bg_pathFollowerTimeAfterColl;
-        __asm { vmovss  xmm12, dword ptr [r14+2ACh] }
+        v13 = DCONST_DVARMPFLT_bg_pathFollowerTimeAfterColl;
+        m_timeSinceLastCollisionBody = Owner->m_timeSinceLastCollisionBody;
         if ( !DCONST_DVARMPFLT_bg_pathFollowerTimeAfterColl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerTimeAfterColl") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-        if ( Physics_IsRigidBodyValid(_R14->m_worldId, _R14->m_lastColliderBodyId) )
+        Dvar_CheckFrontendServerThread(v13);
+        value = v13->current.value;
+        if ( Physics_IsRigidBodyValid(Owner->m_worldId, Owner->m_lastColliderBodyId) )
         {
-          __asm
+          if ( v10 <= 2.0 )
           {
-            vcomiss xmm13, cs:__real@40000000
-            vmovss  xmm8, cs:__real@3e4ccccd
-            vxorps  xmm7, xmm7, xmm7
+            v16 = (float)(Owner->m_lastCollisionPosLs.v[1] * Owner->m_transform.m[0].v[1]) + (float)(Owner->m_lastCollisionPosLs.v[0] * Owner->m_transform.m[0].v[0]);
+            if ( v16 < 0.0 || v16 >= 0.69999999 )
+            {
+              v11 = FLOAT_0_1;
+              v12 = FLOAT_0_30000001;
+            }
+            else
+            {
+              v11 = FLOAT_0_2;
+              v12 = FLOAT_0_60000002;
+            }
+            if ( m_timeSinceLastCollisionBody >= value )
+            {
+              v17 = m_timeSinceLastCollisionBody - value;
+              I_fclamp(v17 + v11, 0.0, 1.0);
+              v11 = v17 + v11;
+              I_fclamp(v17 + v12, 0.0, 1.0);
+              v12 = v17 + v12;
+              v93 = 0.0;
+            }
+          }
+          else
+          {
+            v12 = FLOAT_0_2;
+            v11 = 0.0;
           }
         }
-        __asm
-        {
-          vsubss  xmm1, xmm8, xmm7
-          vandps  xmm1, xmm1, xmm15
-          vcomiss xmm1, cs:__real@3a83126f
-        }
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v12 - v11) & _xmm) < 0.001 )
+          this->m_path.m_vpp.lookAhead = this->m_path.m_vpp.speedOverride;
       }
-      if ( _RSI->m_pathType == PATH_CATMULLROM )
+      if ( this->m_pathType == PATH_CATMULLROM )
       {
-        if ( !BG_BSpline_Data_IsValid(_RSI->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+        if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
           __debugbreak();
-        v38 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RSI->m_path.m_catmullRom.splineIndex, NULL);
-        __asm { vmovss  xmm1, dword ptr [rsi+34h]; t }
-        v40 = v38;
-        BG_BSpline_CatmullRom_Evaluate(v38, *(float *)&_XMM1, &outPos, NULL, NULL, NULL);
-        __asm { vmovss  xmm1, dword ptr [rsi+38h]; t }
-        BG_BSpline_CatmullRom_Evaluate(v40, *(float *)&_XMM1, &v242, NULL, NULL, NULL);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_110]
-          vsubss  xmm3, xmm0, dword ptr [rsp+1C0h+outPos]
-          vmovss  xmm1, dword ptr [rbp+0C0h+var_110+4]
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_110+8]
-          vsubss  xmm2, xmm1, dword ptr [rsp+1C0h+outPos+4]
-          vsubss  xmm4, xmm0, dword ptr [rsp+1C0h+outPos+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm6, xmm3, xmm0
-        }
+        v19 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+        BG_BSpline_CatmullRom_Evaluate(v19, this->m_path.m_vpp.speedOverride, &outPos, NULL, NULL, NULL);
+        BG_BSpline_CatmullRom_Evaluate(v19, this->m_path.m_vpp.lookAhead, &v99, NULL, NULL, NULL);
+        v20 = LODWORD(v99.v[1]);
+        *(float *)&v20 = (float)((float)((float)(v99.v[1] - outPos.v[1]) * (float)(v99.v[1] - outPos.v[1])) + (float)((float)(v99.v[0] - outPos.v[0]) * (float)(v99.v[0] - outPos.v[0]))) + (float)((float)(v99.v[2] - outPos.v[2]) * (float)(v99.v[2] - outPos.v[2]));
+        _XMM6 = v20;
       }
       else
       {
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        _XMM6 = 0i64;
       }
-      _RBX = DCONST_DVARMPFLT_bg_pathFollowerDistToGoalToBlock;
+      v21 = DCONST_DVARMPFLT_bg_pathFollowerDistToGoalToBlock;
       if ( !DCONST_DVARMPFLT_bg_pathFollowerDistToGoalToBlock && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerDistToGoalToBlock") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm0, xmm0, xmm0
-        vmaxss  xmm1, xmm6, xmm13
-        vcomiss xmm1, xmm0
-      }
-      if ( !v65 )
-        goto LABEL_78;
-      _RBX = DCONST_DVARMPFLT_bg_pathFollowerAirTimeToBlock;
-      __asm { vmovss  xmm6, dword ptr [r14+0C88h] }
+      Dvar_CheckFrontendServerThread(v21);
+      __asm { vmaxss  xmm1, xmm6, xmm13 }
+      if ( *(float *)&_XMM1 >= (float)(v21->current.value * v21->current.value) )
+        goto LABEL_86;
+      v23 = DCONST_DVARMPFLT_bg_pathFollowerAirTimeToBlock;
+      v24 = Owner[4].m_history.m_lastPosition.v[0];
       if ( !DCONST_DVARMPFLT_bg_pathFollowerAirTimeToBlock && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerAirTimeToBlock") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( !v65 && !v111 )
+      Dvar_CheckFrontendServerThread(v23);
+      if ( v24 > v23->current.value )
       {
-LABEL_78:
-        if ( _RSI->m_pathType == PATH_CATMULLROM )
+LABEL_86:
+        if ( this->m_pathType == PATH_CATMULLROM )
         {
-          m_entityNumber = BgVehiclePhysicsComponent::GetOwner(_RSI)->m_entityNumber;
-          BgVehiclePhysicsComponent::GetOwner(_RSI);
-          v224 = ScriptContext_Server();
-          Scr_AddInt(v224, _RSI->m_path.m_catmullRom.curNodeIndex);
-          v225 = _RSI->m_vehicleSystem->GetLocalClientNum(_RSI->m_vehicleSystem);
-          Scr_NotifyNum(v224, m_entityNumber, ENTITY_CLASS_GENTITY, scr_const.path_blocked, 1u, v225);
+          m_entityNumber = BgVehiclePhysicsComponent::GetOwner(this)->m_entityNumber;
+          BgVehiclePhysicsComponent::GetOwner(this);
+          v90 = ScriptContext_Server();
+          Scr_AddInt(v90, this->m_path.m_catmullRom.curNodeIndex);
+          v91 = this->m_vehicleSystem->GetLocalClientNum(this->m_vehicleSystem);
+          Scr_NotifyNum(v90, m_entityNumber, ENTITY_CLASS_GENTITY, scr_const.path_blocked, 1u, v91);
         }
-        _RBX = DCONST_DVARMPFLT_bg_pathFollowerPauseAfterBlocked;
+        v92 = DCONST_DVARMPFLT_bg_pathFollowerPauseAfterBlocked;
         if ( !DCONST_DVARMPFLT_bg_pathFollowerPauseAfterBlocked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerPauseAfterBlocked") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx+28h]; pauseDuration
-          vmovaps xmm1, xmm10; deltaTime
-        }
-        BgVehicleComponentPathFollowerCP::StopOnEnd(_RSI, *(float *)&_XMM1, *(float *)&_XMM2);
-        goto LABEL_46;
+        Dvar_CheckFrontendServerThread(v92);
+        BgVehicleComponentPathFollowerCP::StopOnEnd(this, deltaTime, v92->current.value);
       }
-      m_pathType = _RSI->m_pathType;
-      __asm { vmovaps [rsp+1C0h+var_C8+8], xmm14 }
-      v59 = m_pathType - 1;
-      if ( v59 )
+      else
       {
-        if ( v59 == 1 )
+        if ( this->m_pathType == PATH_RADIANT )
         {
-          __asm
-          {
-            vmovss  xmm12, dword ptr [r15]
-            vmovss  xmm13, dword ptr [r15+4]
-            vmovss  xmm14, dword ptr [r15+8]
-          }
+          v25 = this->m_path.m_vpp.origin.v[0];
+          v26 = this->m_path.m_vpp.origin.v[1];
+          v27 = this->m_path.m_vpp.origin.v[2];
+        }
+        else if ( this->m_pathType == PATH_CATMULLROM )
+        {
+          v25 = p_m_pathPosInterpolated->v[0];
+          v26 = this->m_pathPosInterpolated.v[1];
+          v27 = this->m_pathPosInterpolated.v[2];
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm14, dword ptr [rsp+1C0h+var_170]
-            vmovss  xmm12, dword ptr [rsp+1C0h+var_170]
-            vmovss  xmm13, dword ptr [rsp+1C0h+var_170]
-          }
+          v27 = v93;
+          v25 = v93;
+          v26 = v93;
         }
-      }
-      else
-      {
-        __asm
+        AxisToAngles((const tmat33_t<vec3_t> *)&Owner->m_transform, &angles);
+        BgVehicleComponentPathFollower::UpdateManualSpeed(this, deltaTime);
+        if ( this->m_pathType == PATH_RADIANT )
         {
-          vmovss  xmm12, dword ptr [rsi+3Ch]
-          vmovss  xmm13, dword ptr [rsi+40h]
-          vmovss  xmm14, dword ptr [rsi+44h]
+          m_vehicleSystem = this->m_vehicleSystem;
+          PathUpdatePos = m_vehicleSystem->PathUpdatePos;
+          v35 = (unsigned int)BgVehiclePhysicsComponent::GetOwner(this)->m_entityNumber;
+          ((void (__fastcall *)(BGVehicles *, __int64))PathUpdatePos)(m_vehicleSystem, v35);
         }
-      }
-      AxisToAngles((const tmat33_t<vec3_t> *)&_R14->m_transform, &angles);
-      __asm { vmovaps xmm1, xmm10; deltaTime }
-      BgVehicleComponentPathFollower::UpdateManualSpeed(_RSI, *(float *)&_XMM1);
-      v64 = _RSI->m_pathType;
-      v65 = v64 == PATH_NONE;
-      v66 = v64 - 1;
-      if ( v66 )
-      {
-        if ( v66 == 1 )
+        else if ( this->m_pathType == PATH_CATMULLROM )
         {
-          __asm
+          if ( this->m_manualSpeedTarget < 0.0 || COERCE_FLOAT(LODWORD(this->m_manualSpeed) & _xmm) > 0.001 )
           {
-            vcomiss xmm9, dword ptr [rsi+150h]
-            vmovss  xmm0, dword ptr [rsi+14Ch]
-            vandps  xmm0, xmm0, xmm15
-            vcomiss xmm0, cs:__real@3a83126f
-            vmovss  xmm6, dword ptr [rsi+34h]
+            ResumeFactor = BgVehicleComponentPathFollowerCP::GetResumeFactor(this);
+            speedOverride = (float)((float)(*(float *)&ResumeFactor * deltaTime) * v11) + this->m_path.m_vpp.speedOverride;
+            this->m_path.m_vpp.lookAhead = (float)((float)(*(float *)&ResumeFactor * deltaTime) * v12) + this->m_path.m_vpp.lookAhead;
+            this->m_path.m_vpp.speedOverride = speedOverride;
           }
-          p_curNodeIndex = &_RSI->m_path.m_catmullRom.curNodeIndex;
-          curNodeIndex = _RSI->m_path.m_catmullRom.curNodeIndex;
-          if ( !BG_BSpline_Data_IsValid(_RSI->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+          else
+          {
+            speedOverride = this->m_path.m_vpp.speedOverride;
+          }
+          p_curNodeIndex = &this->m_path.m_catmullRom.curNodeIndex;
+          curNodeIndex = this->m_path.m_catmullRom.curNodeIndex;
+          if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
             __debugbreak();
-          v72 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RSI->m_path.m_catmullRom.splineIndex, NULL);
-          __asm { vmovaps xmm1, xmm6; t }
-          BG_BSpline_CatmullRom_Evaluate(v72, *(float *)&_XMM1, &_RSI->m_pathPosInterpolated, &outPos, &_RSI->m_path.m_catmullRom.curNodeIndex, &_RSI->m_path.m_vpp.speed);
-          vectoangles(&outPos, &_RSI->m_pathAnglesInterpolated);
+          v32 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+          BG_BSpline_CatmullRom_Evaluate(v32, speedOverride, &this->m_pathPosInterpolated, &outPos, &this->m_path.m_catmullRom.curNodeIndex, &this->m_path.m_vpp.speed);
+          vectoangles(&outPos, &this->m_pathAnglesInterpolated);
           if ( *p_curNodeIndex != curNodeIndex )
-            BgVehicleComponentPathFollower::TriggerNodeNotification(_RSI, *p_curNodeIndex);
+            BgVehicleComponentPathFollower::TriggerNodeNotification(this, *p_curNodeIndex);
         }
-      }
-      else
-      {
-        __asm
+        if ( BgVehicleComponentPathFollower::PathIsEnd(this) )
         {
-          vcomiss xmm9, dword ptr [rsi+150h]
-          vmovss  xmm6, dword ptr [rsi+30h]
-        }
-        if ( v65 || (unsigned __int8)v66 == 0 )
-          __asm { vmovss  xmm6, dword ptr [rsi+14Ch] }
-        m_vehicleSystem = _RSI->m_vehicleSystem;
-        PathUpdatePos = m_vehicleSystem->PathUpdatePos;
-        Owner = BgVehiclePhysicsComponent::GetOwner(_RSI);
-        *(_QWORD *)&v233 = _RSI->m_pathAnglesInterpolated.v;
-        p_m_pathPosInterpolated = &_RSI->m_pathPosInterpolated;
-        v78 = (unsigned int)Owner->m_entityNumber;
-        optOutNodeT = &_RSI->m_manualTime;
-        __asm
-        {
-          vmovaps xmm3, xmm6
-          vmovaps xmm2, xmm10
-        }
-        fmt = (char *)&_RSI->m_path;
-        ((void (__fastcall *)(BGVehicles *, __int64))PathUpdatePos)(m_vehicleSystem, v78);
-      }
-      if ( BgVehicleComponentPathFollower::PathIsEnd(_RSI) )
-      {
-        BgVehiclePhysicsComponent::ScrNotify(_RSI, scr_const.reached_end_node);
-        if ( _RSI->m_stopOnEnd )
-        {
-          __asm
+          BgVehiclePhysicsComponent::ScrNotify(this, scr_const.reached_end_node);
+          if ( this->m_stopOnEnd )
           {
-            vmovss  xmm2, cs:__real@7f7fffff; pauseDuration
-            vmovaps xmm1, xmm10; deltaTime
+            BgVehicleComponentPathFollowerCP::StopOnEnd(this, deltaTime, 3.4028235e38);
+            return;
           }
-          BgVehicleComponentPathFollowerCP::StopOnEnd(_RSI, *(float *)&_XMM1, *(float *)&_XMM2);
-LABEL_45:
-          __asm { vmovaps xmm14, [rsp+1C0h+var_C8+8] }
-LABEL_46:
-          __asm
-          {
-            vmovaps xmm12, [rsp+1C0h+var_A8+8]
-            vmovaps xmm11, xmmword ptr [rsp+1C0h+var_98+8]
-            vmovaps xmm8, [rsp+1C0h+var_68+8]
-            vmovaps xmm7, xmmword ptr [rsp+1C0h+var_58+8]
-            vmovaps xmm13, [rsp+1C0h+var_B8+8]
-            vmovaps xmm15, [rsp+1C0h+var_D8+8]
-          }
-          goto LABEL_47;
+          BgVehicleComponentPathFollowerCP::RestartPath(this, 1);
         }
-        BgVehicleComponentPathFollowerCP::RestartPath(_RSI, 1);
-      }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+19Ch]
-        vmovss  xmm4, dword ptr [r14+1A0h]
-        vmovss  xmm0, dword ptr [r15]
-        vsubss  xmm1, xmm0, dword ptr [r14+198h]
-        vmovss  xmm0, dword ptr [r15+4]
-        vdivss  xmm15, xmm11, xmm10
-        vmulss  xmm2, xmm1, xmm15
-        vsubss  xmm1, xmm0, xmm3
-        vmovss  xmm0, dword ptr [r15+8]
-        vmovss  dword ptr [rsp+1C0h+relativePoint], xmm2
-        vmulss  xmm2, xmm1, xmm15
-        vsubss  xmm1, xmm0, xmm4
-        vmovss  dword ptr [rsp+1C0h+relativePoint+4], xmm2
-        vmulss  xmm2, xmm1, xmm15
-        vmovss  dword ptr [rsp+1C0h+relativePoint+8], xmm2
-      }
-      ProjectPointOnPlane(&relativePoint, &identityMatrix33.m[2], &relativePoint);
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &_R14->m_linearVelocityWs, &outVelLs);
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &relativePoint, &velLs);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0C0h+velLs]
-        vmovss  xmm1, dword ptr [rbp+0C0h+velLs+4]
-        vsubss  xmm7, xmm0, dword ptr [rbp+0C0h+outVelLs]
-        vsubss  xmm8, xmm1, dword ptr [rbp+0C0h+outVelLs+4]
-      }
-      *(double *)&_XMM0 = BgVehicleComponentPathFollowerCP::GetResumeFactor(_RSI);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(_R14);
-      __asm
-      {
-        vmulss  xmm6, xmm6, xmm0
-        vcomiss xmm6, xmm9
-      }
-      if ( v110 )
-      {
-        __asm
+        v36 = Owner->m_transform.m[3].v[2];
+        v37 = this->m_pathPosInterpolated.v[1] - Owner->m_transform.m[3].v[1];
+        v38 = this->m_pathPosInterpolated.v[2];
+        relativePoint.v[0] = (float)(p_m_pathPosInterpolated->v[0] - Owner->m_transform.m[3].v[0]) * (float)(1.0 / deltaTime);
+        relativePoint.v[1] = v37 * (float)(1.0 / deltaTime);
+        relativePoint.v[2] = (float)(v38 - v36) * (float)(1.0 / deltaTime);
+        ProjectPointOnPlane(&relativePoint, &identityMatrix33.m[2], &relativePoint);
+        BgVehiclePhysics::ComputeVelocityLocalSpace(Owner, &Owner->m_linearVelocityWs, &outVelLs);
+        BgVehiclePhysics::ComputeVelocityLocalSpace(Owner, &relativePoint, &velLs);
+        _XMM0 = LODWORD(velLs.v[0]);
+        v39 = velLs.v[0] - outVelLs.v[0];
+        v40 = velLs.v[1] - outVelLs.v[1];
+        *(double *)&_XMM0 = BgVehicleComponentPathFollowerCP::GetResumeFactor(this);
+        v41 = *(float *)&_XMM0;
+        *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(Owner);
+        v43 = v41 * *(float *)&_XMM0;
+        if ( (float)(v41 * *(float *)&_XMM0) < 0.0 )
         {
-          vxorpd  xmm0, xmm0, xmm0
-          vmovsd  [rsp+1C0h+var_180], xmm0
-          vcvtss2sd xmm1, xmm6, xmm6
-          vmovsd  [rsp+1C0h+var_188], xmm1
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 24, ASSERT_TYPE_ASSERT, "( maxLength ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "maxLength", "0.0f", v43, *(double *)&_XMM0) )
+            __debugbreak();
         }
-        v116 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 24, ASSERT_TYPE_ASSERT, "( maxLength ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "maxLength", "0.0f", v233, v234);
-        v110 = 0;
-        v111 = !v116;
-        if ( v116 )
+        v45 = (float)(v39 * v39) + (float)(v40 * v40);
+        if ( v45 > (float)(v43 * v43) )
+        {
+          v46 = v43 / fsqrt(v45);
+          v39 = v39 * v46;
+          v40 = v46 * v40;
+        }
+        velLs.v[0] = v39 + outVelLs.v[0];
+        _XMM1 = LODWORD(outVelLs.v[2]);
+        __asm { vminss  xmm2, xmm1, dword ptr [rsp+1C0h+var_170+4] }
+        velLs.v[2] = *(float *)&_XMM2;
+        velLs.v[1] = v40 + outVelLs.v[1];
+        BgVehiclePhysics::ComputeVelocityWorldSpace(Owner, &velLs, &relativePoint);
+        v49 = v25 - p_m_pathPosInterpolated->v[0];
+        v50 = v26 - this->m_pathPosInterpolated.v[1];
+        v51 = v27 - this->m_pathPosInterpolated.v[2];
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_pathFollowerMinLookaheadDist, "bg_pathFollowerMinLookaheadDist");
+        if ( (float)((float)((float)(v50 * v50) + (float)(v49 * v49)) + (float)(v51 * v51)) >= (float)(*(float *)&Float_Internal_DebugName * *(float *)&Float_Internal_DebugName) )
+          v53 = this->m_pathAnglesInterpolated.v[1];
+        else
+          v53 = angles.v[1];
+        _XMM1 = 0i64;
+        __asm { vroundss xmm3, xmm1, xmm2, 1 }
+        this->m_destYawVel = (float)((float)((float)((float)(v53 - angles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 6.2831855) * (float)(1.0 / deltaTime);
+        BgVehiclePhysics::ComputeVelocityLocalSpace(Owner, &Owner->m_angularVelocityWs, &v96);
+        v57 = LODWORD(FLOAT_1_0);
+        *(float *)&v57 = 1.0 - (float)(deltaTime * rollDamp);
+        _XMM1 = v57;
+        __asm { vmaxss  xmm2, xmm1, xmm9 }
+        v96.v[0] = *(float *)&_XMM2 * v96.v[0];
+        v60 = LODWORD(FLOAT_1_0);
+        *(float *)&v60 = 1.0 - (float)(deltaTime * v93);
+        _XMM0 = v60;
+        __asm { vmaxss  xmm1, xmm0, xmm9 }
+        v96.v[1] = *(float *)&_XMM1 * v96.v[1];
+        *(double *)&_XMM0 = BgVehicleComponentPathFollowerCP::GetResumeFactor(this);
+        *(float *)&_XMM1 = this->m_yawVel;
+        v96.v[1] = *(float *)&_XMM0 * v96.v[1];
+        v96.v[0] = *(float *)&_XMM0 * v96.v[0];
+        v96.v[2] = *(float *)&_XMM1;
+        BgVehiclePhysics::ComputeVelocityWorldSpace(Owner, &v96, &outVelWs);
+        *(float *)&v60 = (float)((float)(velLs.v[1] * velLs.v[1]) + (float)(velLs.v[0] * velLs.v[0])) + (float)(velLs.v[2] * velLs.v[2]);
+        *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(Owner);
+        *(float *)&_XMM1 = *(float *)&_XMM0 * *(float *)&_XMM0;
+        v62 = LODWORD(relativePoint.v[0]);
+        this->m_maxSpeedReached = *(float *)&v60 >= *(float *)&_XMM1;
+        v64 = v62;
+        *(float *)&v64 = *(float *)&v62 - this->m_previousLinearVelocityWs.v[0];
+        _XMM7 = v64;
+        v99.v[2] = relativePoint.v[2] - this->m_previousLinearVelocityWs.v[2];
+        *(double *)&v62 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult, "bg_pathFollowerAccelAngularVelMult");
+        v65 = v99.v[2];
+        __asm { vunpcklps xmm6, xmm7, xmm6 }
+        outPos.v[2] = v99.v[2];
+        *(double *)outPos.v = *(double *)&_XMM6;
+        BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(this, Owner, &outPos, deltaTime, *(float *)&v62, &outVelWs);
+        *(double *)&v62 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerVelAngularVelMult, "bg_pathFollowerVelAngularVelMult");
+        outPos = relativePoint;
+        BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(this, Owner, &outPos, deltaTime, *(float *)&v62, &outVelWs);
+        BgVehiclePhysics::SetLinearVelocity(Owner, &relativePoint, 0);
+        BgVehiclePhysics::SetAngularVelocity(Owner, &outVelWs, 0);
+        v67 = relativePoint.v[2];
+        *(double *)this->m_previousLinearVelocityWs.v = *(double *)relativePoint.v;
+        *(double *)this->m_previousLinearAccelerationWs.v = *(double *)&_XMM6;
+        this->m_previousLinearVelocityWs.v[2] = v67;
+        this->m_previousLinearAccelerationWs.v[2] = v65;
+        *(double *)&v62 = I_fclamp((float)((float)(0.0 * Owner->m_transform.m[2].v[1]) + (float)(0.0 * Owner->m_transform.m[2].v[0])) + (float)(1.0 * Owner->m_transform.m[2].v[2]), 0.0, 1.0);
+        v68 = DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed;
+        v69 = (float)(1.0 - (float)(*(float *)&v62 * *(float *)&v62)) * 1.5;
+        if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccelSpeed") )
           __debugbreak();
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm8, xmm8
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm6, xmm6
-        vcomiss xmm2, xmm0
-      }
-      if ( !(v110 | v111) )
-      {
-        __asm
+        Dvar_CheckFrontendServerThread(v68);
+        v70 = v68->current.value;
+        v71 = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
+        if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccelSpeed") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v71);
+        if ( v70 <= v71->current.value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1318, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed, \"bg_pathFollowerMaxYawAccelSpeed\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, \"bg_pathFollowerMinYawAccelSpeed\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccelSpeed ) > Dconst_GetFloat( bg_pathFollowerMinYawAccelSpeed )") )
+          __debugbreak();
+        v72 = DCONST_DVARFLT_bg_pathFollowerMaxYawAccel;
+        if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccel") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v72);
+        v73 = v72->current.value;
+        v74 = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
+        if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccel") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v74);
+        if ( v73 <= v74->current.value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1319, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccel, \"bg_pathFollowerMaxYawAccel\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccel, \"bg_pathFollowerMinYawAccel\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccel ) > Dconst_GetFloat( bg_pathFollowerMinYawAccel )") )
+          __debugbreak();
+        v75 = fsqrt((float)((float)(relativePoint.v[1] * relativePoint.v[1]) + (float)(relativePoint.v[0] * relativePoint.v[0])) + (float)(relativePoint.v[2] * relativePoint.v[2]));
+        v76 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, "bg_pathFollowerMinYawAccelSpeed");
+        v77 = v75 - *(float *)&v76;
+        v78 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed, "bg_pathFollowerMaxYawAccelSpeed");
+        v79 = *(float *)&v78;
+        v80 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, "bg_pathFollowerMinYawAccelSpeed");
+        v81 = v79 - *(float *)&v80;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v79 - *(float *)&v80) & _xmm) > 0.001 )
         {
-          vsqrtss xmm0, xmm2, xmm2
-          vdivss  xmm1, xmm6, xmm0
-          vmulss  xmm7, xmm7, xmm1
-          vmulss  xmm8, xmm1, xmm8
+          I_fclamp(v77 / v81, 0.0, 1.0);
+          v7 = v77 / v81;
         }
+        v82 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMaxYawAccel, "bg_pathFollowerMaxYawAccel");
+        v83 = *(float *)&v82;
+        v84 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccel, "bg_pathFollowerMinYawAccel");
+        v85 = (float)(v83 - *(float *)&v84) * v7;
+        v86 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccel, "bg_pathFollowerMinYawAccel");
+        v87 = *(float *)&v86 + v85;
+        v88 = this->m_destYawVel - this->m_yawVel;
+        this->m_yawAccel = v87;
+        this->m_yawVel = (float)(v88 * deltaTime) * (float)(v69 + v87);
       }
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbp+0C0h+outVelLs]
-        vaddss  xmm0, xmm8, dword ptr [rbp+0C0h+outVelLs+4]
-        vmovss  dword ptr [rbp+0C0h+velLs], xmm1
-        vmovss  xmm1, dword ptr [rbp+0C0h+outVelLs+8]
-        vminss  xmm2, xmm1, dword ptr [rsp+1C0h+var_170+4]
-        vmovss  dword ptr [rbp+0C0h+velLs+8], xmm2
-        vmovss  dword ptr [rbp+0C0h+velLs+4], xmm0
-      }
-      BgVehiclePhysics::ComputeVelocityWorldSpace(_R14, &velLs, &relativePoint);
-      __asm
-      {
-        vsubss  xmm7, xmm12, dword ptr [r15]
-        vsubss  xmm6, xmm13, dword ptr [r15+4]
-        vsubss  xmm8, xmm14, dword ptr [r15+8]
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_pathFollowerMinLookaheadDist, "bg_pathFollowerMinLookaheadDist");
-      __asm
-      {
-        vmulss  xmm2, xmm6, xmm6
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vmovss  xmm1, dword ptr [rbp+0C0h+angles+4]
-        vmulss  xmm2, xmm8, xmm8
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm0, xmm0, xmm0
-        vcomiss xmm4, xmm0
-      }
-      if ( v65 )
-        __asm { vmovaps xmm0, xmm1 }
-      else
-        __asm { vmovss  xmm0, dword ptr [rsi+118h] }
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm1
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@40c90fdb
-        vmulss  xmm2, xmm1, xmm15
-        vmovss  dword ptr [rsi+140h], xmm2
-      }
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &_R14->m_angularVelocityWs, &v239);
-      __asm
-      {
-        vmulss  xmm0, xmm10, cs:rollDamp
-        vmulss  xmm3, xmm10, dword ptr [rsp+1C0h+var_170]
-        vsubss  xmm1, xmm11, xmm0
-        vmaxss  xmm2, xmm1, xmm9
-        vmulss  xmm1, xmm2, dword ptr [rbp+0C0h+var_140]
-        vmovss  dword ptr [rbp+0C0h+var_140], xmm1
-        vsubss  xmm0, xmm11, xmm3
-        vmaxss  xmm1, xmm0, xmm9
-        vmulss  xmm1, xmm1, dword ptr [rbp+0C0h+var_140+4]
-        vmovss  dword ptr [rbp+0C0h+var_140+4], xmm1
-      }
-      *(double *)&_XMM0 = BgVehicleComponentPathFollowerCP::GetResumeFactor(_RSI);
-      __asm
-      {
-        vmulss  xmm2, xmm0, dword ptr [rbp+0C0h+var_140]
-        vmulss  xmm0, xmm0, dword ptr [rbp+0C0h+var_140+4]
-        vmovss  xmm1, dword ptr [rsi+13Ch]
-        vmovss  dword ptr [rbp+0C0h+var_140+4], xmm0
-        vmovss  dword ptr [rbp+0C0h+var_140], xmm2
-        vmovss  dword ptr [rbp+0C0h+var_140+8], xmm1
-      }
-      BgVehiclePhysics::ComputeVelocityWorldSpace(_R14, &v239, &outVelWs);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0C0h+velLs+4]
-        vmovss  xmm1, dword ptr [rbp+0C0h+velLs]
-        vmulss  xmm3, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rbp+0C0h+velLs+8]
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm1, xmm0, xmm0
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm6, xmm4, xmm1
-      }
-      *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(_R14);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rsp+1C0h+relativePoint]
-        vcomiss xmm6, xmm1
-        vmovss  xmm1, dword ptr [rsp+1C0h+relativePoint+4]
-      }
-      _RSI->m_maxSpeedReached = !v65;
-      __asm
-      {
-        vsubss  xmm7, xmm0, dword ptr [rsi+120h]
-        vmovss  xmm0, dword ptr [rsp+1C0h+relativePoint+8]
-        vsubss  xmm2, xmm0, dword ptr [rsi+128h]
-        vsubss  xmm6, xmm1, dword ptr [rsi+124h]
-        vmovss  dword ptr [rbp+0C0h+var_110+8], xmm2
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult, "bg_pathFollowerAccelAngularVelMult");
-      v172 = v242.v[2];
-      __asm
-      {
-        vunpcklps xmm6, xmm7, xmm6
-        vmovaps xmm3, xmm10
-      }
-      outPos.v[2] = v242.v[2];
-      __asm
-      {
-        vmovss  dword ptr [rsp+1C0h+fmt], xmm0
-        vmovsd  qword ptr [rsp+1C0h+outPos], xmm6
-      }
-      BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(_RSI, _R14, &outPos, *(float *)&_XMM3, *(float *)&fmt, &outVelWs);
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerVelAngularVelMult, "bg_pathFollowerVelAngularVelMult");
-      __asm { vmovsd  xmm1, qword ptr [rsp+1C0h+relativePoint] }
-      outPos.v[2] = relativePoint.v[2];
-      __asm
-      {
-        vmovss  dword ptr [rsp+1C0h+fmt], xmm0
-        vmovsd  qword ptr [rsp+1C0h+outPos], xmm1
-        vmovaps xmm3, xmm10
-      }
-      BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(_RSI, _R14, &outPos, *(float *)&_XMM3, *(float *)&fmt, &outVelWs);
-      BgVehiclePhysics::SetLinearVelocity(_R14, &relativePoint, 0);
-      BgVehiclePhysics::SetAngularVelocity(_R14, &outVelWs, 0);
-      __asm { vmovsd  xmm0, qword ptr [rsp+1C0h+relativePoint] }
-      v178 = relativePoint.v[2];
-      __asm
-      {
-        vmovsd  qword ptr [rsi+120h], xmm0
-        vmovsd  qword ptr [rsi+12Ch], xmm6
-      }
-      _RSI->m_previousLinearVelocityWs.v[2] = v178;
-      _RSI->m_previousLinearAccelerationWs.v[2] = v172;
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm3, xmm0, dword ptr [r14+190h]
-        vmovss  xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm2, xmm1, dword ptr [r14+18Ch]
-        vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm1, xmm0, dword ptr [r14+194h]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm0, xmm4, xmm1; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm11; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed;
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vsubss  xmm1, xmm11, xmm1
-        vmulss  xmm8, xmm1, cs:__real@3fc00000
-      }
-      if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccelSpeed") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
-      if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccelSpeed") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( (v65 || v111) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1318, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed, \"bg_pathFollowerMaxYawAccelSpeed\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, \"bg_pathFollowerMinYawAccelSpeed\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccelSpeed ) > Dconst_GetFloat( bg_pathFollowerMinYawAccelSpeed )") )
-        __debugbreak();
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMaxYawAccel;
-      if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccel") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
-      if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccel") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( (v65 || v111) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1319, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccel, \"bg_pathFollowerMaxYawAccel\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccel, \"bg_pathFollowerMinYawAccel\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccel ) > Dconst_GetFloat( bg_pathFollowerMinYawAccel )") )
-        __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C0h+relativePoint+4]
-        vmovss  xmm1, dword ptr [rsp+1C0h+relativePoint]
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm3, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rsp+1C0h+relativePoint+8]
-        vmulss  xmm1, xmm0, xmm0
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vsqrtss xmm6, xmm2, xmm2
-      }
-      Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, "bg_pathFollowerMinYawAccelSpeed");
-      __asm { vsubss  xmm7, xmm6, xmm0 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed, "bg_pathFollowerMaxYawAccelSpeed");
-      __asm { vmovaps xmm6, xmm0 }
-      Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, "bg_pathFollowerMinYawAccelSpeed");
-      __asm
-      {
-        vsubss  xmm1, xmm6, xmm0
-        vandps  xmm2, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm2, cs:__real@3a83126f
-      }
-      if ( !v65 && !v111 )
-      {
-        __asm
-        {
-          vdivss  xmm0, xmm7, xmm1; val
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps xmm2, xmm11; max
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm11, xmm0 }
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMaxYawAccel, "bg_pathFollowerMaxYawAccel");
-      __asm { vmovaps xmm6, xmm0 }
-      Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccel, "bg_pathFollowerMinYawAccel");
-      __asm
-      {
-        vsubss  xmm1, xmm6, xmm0
-        vmulss  xmm6, xmm1, xmm11
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerMinYawAccel, "bg_pathFollowerMinYawAccel");
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+140h]
-        vaddss  xmm2, xmm0, xmm6
-        vsubss  xmm0, xmm1, dword ptr [rsi+13Ch]
-        vmovss  dword ptr [rsi+148h], xmm2
-        vmulss  xmm3, xmm0, xmm10
-        vaddss  xmm2, xmm8, xmm2
-        vmulss  xmm1, xmm3, xmm2
-        vmovss  dword ptr [rsi+13Ch], xmm1
-      }
-      goto LABEL_45;
     }
-  }
-LABEL_47:
-  _R11 = &v252;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-68h]
-    vmovaps xmm10, xmmword ptr [r11-78h]
   }
 }
 
@@ -2699,528 +1909,298 @@ LABEL_47:
 BgVehicleComponentPathFollowerSP::PostStep
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerSP::PostStep(BgVehicleComponentPathFollowerSP *this, double deltaTime)
+void BgVehicleComponentPathFollowerSP::PostStep(BgVehicleComponentPathFollowerSP *this, float deltaTime)
 {
   BgVehiclePhysics *Owner; 
-  char v15; 
-  BgVehicleComponentPathFollower::PathType m_pathType; 
-  __int32 v19; 
-  BgVehicleComponentPathFollower::PathType v30; 
-  bool v32; 
-  __int32 v33; 
+  BgVehiclePhysics *v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   unsigned int splineIndex; 
   unsigned int *p_curNodeIndex; 
   unsigned int curNodeIndex; 
-  const BSplineCatmullRom *v44; 
+  float v16; 
+  const BSplineCatmullRom *v17; 
   BGVehicles *m_vehicleSystem; 
   void (__fastcall *PathUpdatePos)(BGVehicles *, const int, const float, const float, VehiclePathPos *, float *, vec3_t *, vec3_t *); 
-  BgVehiclePhysics *v49; 
   __int64 m_entityNumber; 
-  float v125; 
-  float v132; 
-  const dvar_t *v154; 
-  const dvar_t *v165; 
-  const dvar_t *v176; 
-  __int64 v193; 
-  char *fmt; 
-  float *optOutNodeT; 
-  vec3_t *p_m_pathPosInterpolated; 
-  vec3_t *p_m_pathAnglesInterpolated; 
+  float v21; 
+  float v22; 
+  float v23; 
+  double Float_Internal_DebugName; 
+  float v27; 
+  float v28; 
+  float v29; 
+  const dvar_t *v32; 
+  float v33; 
+  __int128 v37; 
+  const dvar_t *v39; 
+  float value; 
+  double v41; 
+  float v42; 
+  const dvar_t *v43; 
+  float v44; 
+  double v45; 
+  const dvar_t *v46; 
+  float v47; 
+  float v48; 
+  const dvar_t *v49; 
+  const dvar_t *v50; 
+  float v51; 
+  const dvar_t *v52; 
+  const dvar_t *v53; 
+  float v54; 
+  float v55; 
+  const dvar_t *v56; 
+  float v57; 
+  const dvar_t *v58; 
+  float v59; 
+  const dvar_t *v60; 
+  float v61; 
+  const dvar_t *v62; 
+  float v63; 
+  const dvar_t *v64; 
+  float v65; 
+  float v66; 
+  float v67; 
   vec3_t relativePoint; 
   vec3_t optOutDeriv; 
   vec3_t outVelWs; 
   vec3_t velLs; 
-  vec3_t v203; 
+  vec3_t v72; 
   vec3_t angVel; 
   vec3_t outVelLs; 
-  float v206; 
-  vec3_t v207; 
+  float v75; 
+  vec3_t v76; 
   vec3_t angles; 
-  char v214; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm1, xmm8
-    vmovaps xmm9, xmm1
-  }
-  _RSI = this;
-  if ( (unsigned __int64)&v193 != _security_cookie )
+  if ( deltaTime > 0.0 )
   {
     Owner = BgVehiclePhysicsComponent::GetOwner(this);
-    __asm { vcomiss xmm8, dword ptr [rsi+18h] }
-    _R14 = Owner;
-    if ( !(v32 | v15) )
+    v5 = Owner;
+    if ( this->m_pauseTime < 0.0 )
     {
-      if ( Physics_IsRigidBodyValid(Owner->m_worldId, Owner->m_lastColliderBodyId) && Physics_IsRigidBodyDynamic(_R14->m_worldId, _R14->m_lastColliderBodyId) )
+      if ( Physics_IsRigidBodyValid(Owner->m_worldId, Owner->m_lastColliderBodyId) && Physics_IsRigidBodyDynamic(v5->m_worldId, v5->m_lastColliderBodyId) && timeToLeavePhysicsReact > v5->m_timeSinceLastCollisionBody )
       {
-        __asm
-        {
-          vmovss  xmm0, cs:timeToLeavePhysicsReact
-          vcomiss xmm0, dword ptr [r14+2ACh]
-          vmovsd  xmm0, qword ptr [r14+198h]
-          vmovsd  qword ptr [rsi+108h], xmm0
-        }
-        _RSI->m_pathPosInterpolated.v[2] = _R14->m_transform.m[3].v[2];
-        goto LABEL_80;
+        *(double *)this->m_pathPosInterpolated.v = *(double *)v5->m_transform.row3.v;
+        this->m_pathPosInterpolated.v[2] = v5->m_transform.m[3].v[2];
+        return;
       }
-      m_pathType = _RSI->m_pathType;
-      __asm
+      if ( this->m_pathType == PATH_RADIANT )
       {
-        vmovaps xmmword ptr [rsp+1A0h+var_48+8], xmm6
-        vmovaps [rsp+1A0h+var_58+8], xmm7
-        vmovaps xmmword ptr [rsp+1A0h+var_88+8], xmm10
-        vmovaps [rsp+1A0h+var_A8+8], xmm12
+        v6 = this->m_path.m_vpp.origin.v[0];
+        v7 = this->m_path.m_vpp.origin.v[1];
+        v8 = this->m_path.m_vpp.origin.v[2];
       }
-      v19 = m_pathType - 1;
-      if ( v19 )
+      else if ( this->m_pathType == PATH_CATMULLROM )
       {
-        if ( v19 == 1 )
-        {
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rsi+108h]
-            vmovss  xmm7, dword ptr [rsi+10Ch]
-            vmovss  xmm10, dword ptr [rsi+110h]
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rsp+1A0h+var_160]
-            vmovss  xmm10, dword ptr [rsp+1A0h+var_160]
-            vmovss  xmm7, dword ptr [rsp+1A0h+var_160]
-          }
-        }
+        v6 = this->m_pathPosInterpolated.v[0];
+        v7 = this->m_pathPosInterpolated.v[1];
+        v8 = this->m_pathPosInterpolated.v[2];
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rsi+3Ch]
-          vmovss  xmm7, dword ptr [rsi+40h]
-          vmovss  xmm10, dword ptr [rsi+44h]
-        }
+        v6 = v67;
+        v8 = v67;
+        v7 = v67;
       }
-      __asm { vmovaps [rsp+1A0h+var_98+8], xmm11 }
-      AxisToAngles((const tmat33_t<vec3_t> *)&_R14->m_transform, &angles);
-      __asm { vmovaps xmm1, xmm9; deltaTime }
-      BgVehicleComponentPathFollower::UpdateManualSpeed(_RSI, *(float *)&_XMM1);
-      v30 = _RSI->m_pathType;
-      __asm { vmovss  xmm12, cs:__real@3f800000 }
-      v32 = v30 == PATH_NONE;
-      v33 = v30 - 1;
-      if ( v33 )
+      AxisToAngles((const tmat33_t<vec3_t> *)&v5->m_transform, &angles);
+      BgVehicleComponentPathFollower::UpdateManualSpeed(this, deltaTime);
+      v9 = FLOAT_1_0;
+      if ( this->m_pathType == PATH_RADIANT )
       {
-        if ( v33 == 1 )
+        m_vehicleSystem = this->m_vehicleSystem;
+        PathUpdatePos = m_vehicleSystem->PathUpdatePos;
+        m_entityNumber = (unsigned int)BgVehiclePhysicsComponent::GetOwner(this)->m_entityNumber;
+        ((void (__fastcall *)(BGVehicles *, __int64))PathUpdatePos)(m_vehicleSystem, m_entityNumber);
+      }
+      else if ( this->m_pathType == PATH_CATMULLROM )
+      {
+        _XMM2 = LODWORD(FLOAT_1_0);
+        if ( this->m_manualSpeedTarget >= 0.0 )
         {
+          _XMM0 = LODWORD(this->m_manualSpeed) & (unsigned __int128)_xmm;
           __asm
           {
-            vcomiss xmm8, dword ptr [rsi+150h]
-            vmovaps xmm2, xmm12
-            vmovss  xmm0, dword ptr [rsi+14Ch]
-            vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
             vcmpltss xmm1, xmm0, cs:__real@3a83126f
             vblendvps xmm2, xmm2, xmm8, xmm1
           }
-          splineIndex = _RSI->m_path.m_catmullRom.splineIndex;
-          p_curNodeIndex = &_RSI->m_path.m_catmullRom.curNodeIndex;
-          curNodeIndex = _RSI->m_path.m_catmullRom.curNodeIndex;
-          __asm
-          {
-            vmulss  xmm0, xmm9, xmm2
-            vaddss  xmm11, xmm0, dword ptr [rsi+34h]
-            vmovss  dword ptr [rsi+34h], xmm11
-          }
-          if ( !BG_BSpline_Data_IsValid(splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
-            __debugbreak();
-          v44 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RSI->m_path.m_catmullRom.splineIndex, NULL);
-          __asm { vmovaps xmm1, xmm11; t }
-          BG_BSpline_CatmullRom_Evaluate(v44, *(float *)&_XMM1, &_RSI->m_pathPosInterpolated, &optOutDeriv, &_RSI->m_path.m_catmullRom.curNodeIndex, &_RSI->m_path.m_vpp.speed);
-          vectoangles(&optOutDeriv, &_RSI->m_pathAnglesInterpolated);
-          if ( *p_curNodeIndex != curNodeIndex )
-            BgVehicleComponentPathFollower::TriggerNodeNotification(_RSI, *p_curNodeIndex);
         }
+        splineIndex = this->m_path.m_catmullRom.splineIndex;
+        p_curNodeIndex = &this->m_path.m_catmullRom.curNodeIndex;
+        curNodeIndex = this->m_path.m_catmullRom.curNodeIndex;
+        v16 = (float)(deltaTime * *(float *)&_XMM2) + this->m_path.m_vpp.speedOverride;
+        this->m_path.m_vpp.speedOverride = v16;
+        if ( !BG_BSpline_Data_IsValid(splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+          __debugbreak();
+        v17 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+        BG_BSpline_CatmullRom_Evaluate(v17, v16, &this->m_pathPosInterpolated, &optOutDeriv, &this->m_path.m_catmullRom.curNodeIndex, &this->m_path.m_vpp.speed);
+        vectoangles(&optOutDeriv, &this->m_pathAnglesInterpolated);
+        if ( *p_curNodeIndex != curNodeIndex )
+          BgVehicleComponentPathFollower::TriggerNodeNotification(this, *p_curNodeIndex);
       }
-      else
+      v21 = this->m_pathPosInterpolated.v[0] - v6;
+      v22 = this->m_pathPosInterpolated.v[2] - v8;
+      v23 = this->m_pathPosInterpolated.v[1] - v7;
+      if ( BgVehicleComponentPathFollower::PathIsEnd(this) )
       {
-        __asm
+        BgVehiclePhysicsComponent::ScrNotify(this, scr_const.reached_end_node);
+        if ( this->m_stopOnEnd )
         {
-          vcomiss xmm8, dword ptr [rsi+150h]
-          vmovss  xmm11, dword ptr [rsi+30h]
+          outVelWs.v[0] = 0.0;
+          outVelWs.v[1] = 0.0;
+          outVelWs.v[2] = 0.0;
+          BgVehiclePhysics::ComputeVelocityLocalSpace(v5, &v5->m_angularVelocityWs, &outVelLs);
+          BgVehiclePhysics::ComputeVelocityWorldSpace(v5, &outVelLs, &outVelWs);
+          _XMM7 = LODWORD(this->m_previousLinearVelocityWs.v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
+          LODWORD(v75) = LODWORD(this->m_previousLinearVelocityWs.v[2]) ^ _xmm;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult, "bg_pathFollowerAccelAngularVelMult");
+          optOutDeriv.v[2] = v75;
+          __asm { vunpcklps xmm1, xmm7, xmm6 }
+          *(double *)optOutDeriv.v = *(double *)&_XMM1;
+          BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(this, v5, &optOutDeriv, deltaTime, *(float *)&Float_Internal_DebugName, &outVelWs);
+          optOutDeriv.v[0] = 0.0;
+          optOutDeriv.v[1] = 0.0;
+          optOutDeriv.v[2] = 0.0;
+          BgVehiclePhysics::SetLinearVelocity(v5, &optOutDeriv, 0);
+          BgVehiclePhysics::SetAngularVelocity(v5, &outVelWs, 0);
+          BgVehiclePhysicsComponent::SetPause(this, 3.4028235e38);
+          return;
         }
-        if ( v32 || (unsigned __int8)v33 == 0 )
-          __asm { vmovss  xmm11, dword ptr [rsi+14Ch] }
-        m_vehicleSystem = _RSI->m_vehicleSystem;
-        PathUpdatePos = m_vehicleSystem->PathUpdatePos;
-        v49 = BgVehiclePhysicsComponent::GetOwner(_RSI);
-        p_m_pathAnglesInterpolated = &_RSI->m_pathAnglesInterpolated;
-        p_m_pathPosInterpolated = &_RSI->m_pathPosInterpolated;
-        m_entityNumber = (unsigned int)v49->m_entityNumber;
-        optOutNodeT = &_RSI->m_manualTime;
-        __asm
-        {
-          vmovaps xmm3, xmm11
-          vmovaps xmm2, xmm9
-        }
-        fmt = (char *)&_RSI->m_path;
-        ((void (__fastcall *)(BGVehicles *, __int64))PathUpdatePos)(m_vehicleSystem, m_entityNumber);
+        BgVehicleComponentPathFollowerSP::RestartPath(this);
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+108h]
-        vmovss  xmm1, dword ptr [rsi+10Ch]
-        vsubss  xmm6, xmm0, xmm6
-        vmovss  xmm0, dword ptr [rsi+110h]
-        vsubss  xmm10, xmm0, xmm10
-        vsubss  xmm7, xmm1, xmm7
-      }
-      if ( BgVehicleComponentPathFollower::PathIsEnd(_RSI) )
-      {
-        BgVehiclePhysicsComponent::ScrNotify(_RSI, scr_const.reached_end_node);
-        if ( _RSI->m_stopOnEnd )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+1A0h+outVelWs], xmm8
-            vmovss  dword ptr [rsp+1A0h+outVelWs+4], xmm8
-            vmovss  dword ptr [rsp+1A0h+outVelWs+8], xmm8
-          }
-          BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &_R14->m_angularVelocityWs, &outVelLs);
-          BgVehiclePhysics::ComputeVelocityWorldSpace(_R14, &outVelLs, &outVelWs);
-          __asm
-          {
-            vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-            vmovss  xmm0, dword ptr [rsi+120h]
-            vmovss  xmm1, dword ptr [rsi+128h]
-            vxorps  xmm7, xmm0, xmm2
-            vmovss  xmm0, dword ptr [rsi+124h]
-            vxorps  xmm6, xmm0, xmm2
-            vxorps  xmm2, xmm1, xmm2
-            vmovss  [rbp+0A0h+var_D8], xmm2
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult, "bg_pathFollowerAccelAngularVelMult");
-          optOutDeriv.v[2] = v206;
-          __asm
-          {
-            vunpcklps xmm1, xmm7, xmm6
-            vmovaps xmm3, xmm9
-            vmovss  dword ptr [rsp+1A0h+fmt], xmm0
-            vmovsd  qword ptr [rsp+1A0h+optOutDeriv], xmm1
-          }
-          BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(_RSI, _R14, &optOutDeriv, *(float *)&_XMM3, *(float *)&fmt, &outVelWs);
-          __asm
-          {
-            vmovss  dword ptr [rsp+1A0h+optOutDeriv], xmm8
-            vmovss  dword ptr [rsp+1A0h+optOutDeriv+4], xmm8
-            vmovss  dword ptr [rsp+1A0h+optOutDeriv+8], xmm8
-          }
-          BgVehiclePhysics::SetLinearVelocity(_R14, &optOutDeriv, 0);
-          BgVehiclePhysics::SetAngularVelocity(_R14, &outVelWs, 0);
-          __asm { vmovss  xmm1, cs:__real@7f7fffff; pauseTimeInSecs }
-          BgVehiclePhysicsComponent::SetPause(_RSI, *(float *)&_XMM1);
-LABEL_79:
-          __asm
-          {
-            vmovaps xmm11, [rsp+1A0h+var_98+8]
-            vmovaps xmm6, xmmword ptr [rsp+1A0h+var_48+8]
-            vmovaps xmm7, [rsp+1A0h+var_58+8]
-            vmovaps xmm10, xmmword ptr [rsp+1A0h+var_88+8]
-            vmovaps xmm12, [rsp+1A0h+var_A8+8]
-          }
-          goto LABEL_80;
-        }
-        BgVehicleComponentPathFollowerSP::RestartPath(_RSI);
-      }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+19Ch]
-        vmovss  xmm4, dword ptr [r14+1A0h]
-        vmovss  xmm0, dword ptr [rsi+108h]
-        vsubss  xmm1, xmm0, dword ptr [r14+198h]
-        vmovss  xmm0, dword ptr [rsi+10Ch]
-        vdivss  xmm11, xmm12, xmm9
-        vmulss  xmm2, xmm1, xmm11
-        vsubss  xmm1, xmm0, xmm3
-        vmovss  xmm0, dword ptr [rsi+110h]
-        vmovss  dword ptr [rsp+1A0h+relativePoint], xmm2
-        vmulss  xmm2, xmm1, xmm11
-        vsubss  xmm1, xmm0, xmm4
-        vmovss  dword ptr [rsp+1A0h+relativePoint+4], xmm2
-        vmulss  xmm2, xmm1, xmm11
-        vmovss  dword ptr [rsp+1A0h+relativePoint+8], xmm2
-      }
+      v27 = v5->m_transform.m[3].v[2];
+      v28 = this->m_pathPosInterpolated.v[1] - v5->m_transform.m[3].v[1];
+      v29 = this->m_pathPosInterpolated.v[2];
+      relativePoint.v[0] = (float)(this->m_pathPosInterpolated.v[0] - v5->m_transform.m[3].v[0]) * (float)(1.0 / deltaTime);
+      relativePoint.v[1] = v28 * (float)(1.0 / deltaTime);
+      relativePoint.v[2] = (float)(v29 - v27) * (float)(1.0 / deltaTime);
       ProjectPointOnPlane(&relativePoint, &identityMatrix33.m[2], &relativePoint);
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &_R14->m_linearVelocityWs, &v207);
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &relativePoint, &velLs);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0A0h+var_D0+8]
-        vmovss  dword ptr [rbp+0A0h+velLs+8], xmm0
-      }
-      BgVehiclePhysics::ComputeVelocityWorldSpace(_R14, &velLs, &relativePoint);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1A0h+relativePoint+8]
-        vminss  xmm1, xmm0, cs:vertClip
-      }
-      _RBX = DCONST_DVARMPFLT_bg_pathFollowerMinLookaheadDist;
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm2, xmm7, xmm7
-        vmovss  dword ptr [rsp+1A0h+relativePoint+8], xmm1
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm1, xmm10, xmm10
-        vaddss  xmm6, xmm3, xmm1
-      }
+      BgVehiclePhysics::ComputeVelocityLocalSpace(v5, &v5->m_linearVelocityWs, &v76);
+      BgVehiclePhysics::ComputeVelocityLocalSpace(v5, &relativePoint, &velLs);
+      velLs.v[2] = v76.v[2];
+      BgVehiclePhysics::ComputeVelocityWorldSpace(v5, &velLs, &relativePoint);
+      _XMM0 = LODWORD(relativePoint.v[2]);
+      __asm { vminss  xmm1, xmm0, cs:vertClip }
+      v32 = DCONST_DVARMPFLT_bg_pathFollowerMinLookaheadDist;
+      relativePoint.v[2] = *(float *)&_XMM1;
       if ( !DCONST_DVARMPFLT_bg_pathFollowerMinLookaheadDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinLookaheadDist") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  xmm2, dword ptr [rbp+0A0h+angles+4]
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm6, xmm1
-      }
-      if ( v32 )
-        __asm { vmovaps xmm0, xmm2 }
+      Dvar_CheckFrontendServerThread(v32);
+      if ( (float)((float)((float)(v23 * v23) + (float)(v21 * v21)) + (float)(v22 * v22)) >= (float)(v32->current.value * v32->current.value) )
+        v33 = this->m_pathAnglesInterpolated.v[1];
       else
-        __asm { vmovss  xmm0, dword ptr [rsi+118h] }
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm2
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@40c90fdb
-        vmulss  xmm2, xmm1, xmm11
-        vmovss  dword ptr [rsi+140h], xmm2
-      }
-      BgVehiclePhysics::ComputeVelocityLocalSpace(_R14, &_R14->m_angularVelocityWs, &v203);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+13Ch]
-        vmulss  xmm1, xmm9, cs:facDamp
-        vmovss  dword ptr [rbp+0A0h+var_110+8], xmm0
-        vsubss  xmm0, xmm12, xmm1
-        vmaxss  xmm2, xmm0, xmm8
-        vmulss  xmm1, xmm2, dword ptr [rbp+0A0h+var_110]
-        vmovss  dword ptr [rbp+0A0h+var_110], xmm1
-      }
-      BgVehiclePhysics::ComputeVelocityWorldSpace(_R14, &v203, &angVel);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0A0h+velLs]
-        vmovss  xmm1, dword ptr [rbp+0A0h+velLs+4]
-        vmulss  xmm3, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rbp+0A0h+velLs+8]
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm1, xmm0, xmm0
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm6, xmm4, xmm1
-      }
-      *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(_R14);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsp+1A0h+relativePoint+4]
-        vmulss  xmm1, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rsp+1A0h+relativePoint]
-        vcomiss xmm6, xmm1
-      }
-      _RSI->m_maxSpeedReached = !v32;
-      __asm
-      {
-        vsubss  xmm1, xmm0, dword ptr [rsi+120h]
-        vsubss  xmm0, xmm2, dword ptr [rsi+124h]
-      }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult;
-      __asm
-      {
-        vmovss  dword ptr [rsp+1A0h+outVelWs], xmm1
-        vmovss  xmm1, dword ptr [rsp+1A0h+relativePoint+8]
-        vsubss  xmm2, xmm1, dword ptr [rsi+128h]
-        vmovss  dword ptr [rsp+1A0h+outVelWs+8], xmm2
-        vmovss  dword ptr [rsp+1A0h+outVelWs+4], xmm0
-      }
+        v33 = angles.v[1];
+      _XMM1 = 0i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 1 }
+      this->m_destYawVel = (float)((float)((float)((float)(v33 - angles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 6.2831855) * (float)(1.0 / deltaTime);
+      BgVehiclePhysics::ComputeVelocityLocalSpace(v5, &v5->m_angularVelocityWs, &v72);
+      v72.v[2] = this->m_yawVel;
+      v37 = LODWORD(FLOAT_1_0);
+      *(float *)&v37 = 1.0 - (float)(deltaTime * facDamp);
+      _XMM0 = v37;
+      __asm { vmaxss  xmm2, xmm0, xmm8 }
+      v72.v[0] = *(float *)&_XMM2 * v72.v[0];
+      BgVehiclePhysics::ComputeVelocityWorldSpace(v5, &v72, &angVel);
+      *(float *)&v37 = (float)((float)(velLs.v[0] * velLs.v[0]) + (float)(velLs.v[1] * velLs.v[1])) + (float)(velLs.v[2] * velLs.v[2]);
+      *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(v5);
+      *(float *)&_XMM2 = relativePoint.v[1];
+      *(float *)&_XMM1 = *(float *)&_XMM0 * *(float *)&_XMM0;
+      *(float *)&_XMM0 = relativePoint.v[0];
+      this->m_maxSpeedReached = *(float *)&v37 >= *(float *)&_XMM1;
+      *(float *)&_XMM1 = *(float *)&_XMM0 - this->m_previousLinearVelocityWs.v[0];
+      *(float *)&_XMM0 = *(float *)&_XMM2 - this->m_previousLinearVelocityWs.v[1];
+      v39 = DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult;
+      outVelWs.v[0] = *(float *)&_XMM1;
+      outVelWs.v[2] = relativePoint.v[2] - this->m_previousLinearVelocityWs.v[2];
+      outVelWs.v[1] = *(float *)&_XMM0;
       if ( !DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerAccelAngularVelMult") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovsd  xmm6, qword ptr [rsp+1A0h+outVelWs]
-      }
-      v125 = outVelWs.v[2];
-      __asm { vmovaps xmm3, xmm9 }
-      optOutDeriv.v[2] = outVelWs.v[2];
-      __asm
-      {
-        vmovss  dword ptr [rsp+1A0h+fmt], xmm0
-        vmovsd  qword ptr [rsp+1A0h+optOutDeriv], xmm6
-      }
-      BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(_RSI, _R14, &optOutDeriv, *(float *)&_XMM3, *(float *)&fmt, &angVel);
-      _RBX = DCONST_DVARFLT_bg_pathFollowerVelAngularVelMult;
+      Dvar_CheckFrontendServerThread(v39);
+      value = v39->current.value;
+      v41 = *(double *)outVelWs.v;
+      v42 = outVelWs.v[2];
+      optOutDeriv = outVelWs;
+      BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(this, v5, &optOutDeriv, deltaTime, value, &angVel);
+      v43 = DCONST_DVARFLT_bg_pathFollowerVelAngularVelMult;
       if ( !DCONST_DVARFLT_bg_pathFollowerVelAngularVelMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerVelAngularVelMult") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovsd  xmm0, qword ptr [rsp+1A0h+relativePoint] }
-      optOutDeriv.v[2] = relativePoint.v[2];
-      __asm
-      {
-        vmovsd  qword ptr [rsp+1A0h+optOutDeriv], xmm0
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovaps xmm3, xmm9
-        vmovss  dword ptr [rsp+1A0h+fmt], xmm0
-      }
-      BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(_RSI, _R14, &optOutDeriv, *(float *)&_XMM3, *(float *)&fmt, &angVel);
-      BgVehiclePhysics::SetLinearVelocity(_R14, &relativePoint, 0);
-      BgVehiclePhysics::SetAngularVelocity(_R14, &angVel, 0);
-      __asm { vmovsd  xmm0, qword ptr [rsp+1A0h+relativePoint] }
-      v132 = relativePoint.v[2];
-      __asm
-      {
-        vmovsd  qword ptr [rsi+120h], xmm0
-        vmovsd  qword ptr [rsi+12Ch], xmm6
-      }
-      _RSI->m_previousLinearVelocityWs.v[2] = v132;
-      _RSI->m_previousLinearAccelerationWs.v[2] = v125;
-      BgVehicleComponentPathFollower::UpdateSteeringAngle(_RSI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm3, xmm0, dword ptr [r14+190h]
-        vmovss  xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm2, xmm1, dword ptr [r14+18Ch]
-        vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm1, xmm0, dword ptr [r14+194h]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm0, xmm4, xmm1; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm12; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed;
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vsubss  xmm1, xmm12, xmm1
-        vmulss  xmm10, xmm1, cs:__real@3fc00000
-      }
+      Dvar_CheckFrontendServerThread(v43);
+      optOutDeriv = relativePoint;
+      BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(this, v5, &optOutDeriv, deltaTime, v43->current.value, &angVel);
+      BgVehiclePhysics::SetLinearVelocity(v5, &relativePoint, 0);
+      BgVehiclePhysics::SetAngularVelocity(v5, &angVel, 0);
+      v44 = relativePoint.v[2];
+      *(double *)this->m_previousLinearVelocityWs.v = *(double *)relativePoint.v;
+      *(double *)this->m_previousLinearAccelerationWs.v = v41;
+      this->m_previousLinearVelocityWs.v[2] = v44;
+      this->m_previousLinearAccelerationWs.v[2] = v42;
+      BgVehicleComponentPathFollower::UpdateSteeringAngle(this);
+      v45 = I_fclamp((float)((float)(0.0 * v5->m_transform.m[2].v[1]) + (float)(0.0 * v5->m_transform.m[2].v[0])) + (float)(1.0 * v5->m_transform.m[2].v[2]), 0.0, 1.0);
+      v46 = DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed;
+      v47 = (float)(1.0 - (float)(*(float *)&v45 * *(float *)&v45)) * 1.5;
       if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccelSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
+      Dvar_CheckFrontendServerThread(v46);
+      v48 = v46->current.value;
+      v49 = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
       if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccelSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( v32 | v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1498, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed, \"bg_pathFollowerMaxYawAccelSpeed\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, \"bg_pathFollowerMinYawAccelSpeed\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccelSpeed ) > Dconst_GetFloat( bg_pathFollowerMinYawAccelSpeed )") )
+      Dvar_CheckFrontendServerThread(v49);
+      if ( v48 <= v49->current.value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1498, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed, \"bg_pathFollowerMaxYawAccelSpeed\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed, \"bg_pathFollowerMinYawAccelSpeed\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccelSpeed ) > Dconst_GetFloat( bg_pathFollowerMinYawAccelSpeed )") )
         __debugbreak();
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMaxYawAccel;
+      v50 = DCONST_DVARFLT_bg_pathFollowerMaxYawAccel;
       if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
+      Dvar_CheckFrontendServerThread(v50);
+      v51 = v50->current.value;
+      v52 = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
       if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( v32 | v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1499, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccel, \"bg_pathFollowerMaxYawAccel\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccel, \"bg_pathFollowerMinYawAccel\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccel ) > Dconst_GetFloat( bg_pathFollowerMinYawAccel )") )
+      Dvar_CheckFrontendServerThread(v52);
+      if ( v51 <= v52->current.value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 1499, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMaxYawAccel, \"bg_pathFollowerMaxYawAccel\" ) > Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_pathFollowerMinYawAccel, \"bg_pathFollowerMinYawAccel\" ))", (const char *)&queryFormat, "Dconst_GetFloat( bg_pathFollowerMaxYawAccel ) > Dconst_GetFloat( bg_pathFollowerMinYawAccel )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1A0h+relativePoint+4]
-        vmovss  xmm1, dword ptr [rsp+1A0h+relativePoint]
-      }
-      v154 = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
-      __asm
-      {
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm3, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rsp+1A0h+relativePoint+8]
-        vmulss  xmm1, xmm0, xmm0
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vsqrtss xmm6, xmm2, xmm2
-      }
+      v53 = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
+      v54 = fsqrt((float)((float)(relativePoint.v[1] * relativePoint.v[1]) + (float)(relativePoint.v[0] * relativePoint.v[0])) + (float)(relativePoint.v[2] * relativePoint.v[2]));
       if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccelSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v154);
-      __asm { vsubss  xmm7, xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed;
+      Dvar_CheckFrontendServerThread(v53);
+      v55 = v54 - v53->current.value;
+      v56 = DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed;
       if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccelSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      v165 = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
+      Dvar_CheckFrontendServerThread(v56);
+      v57 = v56->current.value;
+      v58 = DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed;
       if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccelSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccelSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v165);
-      __asm
+      Dvar_CheckFrontendServerThread(v58);
+      v59 = v57 - v58->current.value;
+      if ( COERCE_FLOAT(LODWORD(v59) & _xmm) > 0.001 )
       {
-        vsubss  xmm2, xmm6, dword ptr [rbx+28h]
-        vandps  xmm0, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:__real@3a83126f
+        I_fclamp(v55 / v59, 0.0, 1.0);
+        v9 = v55 / v59;
       }
-      if ( !(v32 | v15) )
-      {
-        __asm
-        {
-          vdivss  xmm0, xmm7, xmm2; val
-          vmovaps xmm2, xmm12; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm12, xmm0 }
-      }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
+      v60 = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
       if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_bg_pathFollowerMaxYawAccel;
+      Dvar_CheckFrontendServerThread(v60);
+      v61 = v60->current.value;
+      v62 = DCONST_DVARFLT_bg_pathFollowerMaxYawAccel;
       if ( !DCONST_DVARFLT_bg_pathFollowerMaxYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMaxYawAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      v176 = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
+      Dvar_CheckFrontendServerThread(v62);
+      v63 = v62->current.value;
+      v64 = DCONST_DVARFLT_bg_pathFollowerMinYawAccel;
       if ( !DCONST_DVARFLT_bg_pathFollowerMinYawAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerMinYawAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v176);
-      __asm
-      {
-        vsubss  xmm0, xmm6, dword ptr [rbx+28h]
-        vmulss  xmm1, xmm0, xmm12
-        vmovss  xmm0, dword ptr [rsi+140h]
-        vaddss  xmm2, xmm1, xmm7
-        vsubss  xmm1, xmm0, dword ptr [rsi+13Ch]
-        vmovss  dword ptr [rsi+148h], xmm2
-        vmulss  xmm3, xmm1, xmm9
-        vaddss  xmm2, xmm2, xmm10
-        vmulss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [rsi+13Ch], xmm0
-      }
-      goto LABEL_79;
+      Dvar_CheckFrontendServerThread(v64);
+      v65 = (float)((float)(v63 - v64->current.value) * v9) + v61;
+      v66 = this->m_destYawVel - this->m_yawVel;
+      this->m_yawAccel = v65;
+      this->m_yawVel = (float)(v66 * deltaTime) * (float)(v65 + v47);
     }
-  }
-LABEL_80:
-  _R11 = &v214;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-58h]
-    vmovaps xmm9, xmmword ptr [r11-68h]
   }
 }
 
@@ -3287,6 +2267,7 @@ void BgVehicleComponentPathFollowerCP::Reset(BgVehicleComponentPathFollowerCP *t
   BgVehiclePhysicsGround *v3; 
   BGVehicles *m_vehicleSystem; 
   __int64 v5; 
+  __int64 v6; 
 
   Owner = BgVehiclePhysicsComponent::GetOwner(this);
   v3 = (BgVehiclePhysicsGround *)Owner;
@@ -3298,11 +2279,9 @@ void BgVehicleComponentPathFollowerCP::Reset(BgVehicleComponentPathFollowerCP *t
       v5 = Owner->m_vehicleId - 1;
       if ( (int)v5 < 0 )
         v5 = 0i64;
-      if ( m_vehicleSystem->PhysicsGetVehicleDef(m_vehicleSystem, v5) )
-      {
-        __asm { vmovss  xmm1, dword ptr [rax+1E8h]; fb }
-        BgVehiclePhysicsGround::SetFrictionBase(v3, *(float *)&_XMM1);
-      }
+      v6 = (__int64)m_vehicleSystem->PhysicsGetVehicleDef(m_vehicleSystem, v5);
+      if ( v6 )
+        BgVehiclePhysicsGround::SetFrictionBase(v3, *(float *)(v6 + 488));
     }
   }
   if ( this->m_pathType == PATH_RADIANT )
@@ -3371,58 +2350,50 @@ BgVehicleComponentPathFollowerCP::RestartPath
 */
 void BgVehicleComponentPathFollowerCP::RestartPath(BgVehicleComponentPathFollowerCP *this, bool warp)
 {
-  __int32 v5; 
-  const BSplineCatmullRom *v7; 
+  __int32 v4; 
+  const BSplineCatmullRom *v5; 
+  float v6; 
   BgVehiclePhysics *Owner; 
-  float v14; 
+  float v8; 
   vec3_t outPos; 
   vec3_t outAngles; 
 
-  _RBX = this;
-  v5 = this->m_pathType - 1;
-  if ( v5 )
+  v4 = this->m_pathType - 1;
+  if ( v4 )
   {
-    if ( v5 == 1 )
+    if ( v4 == 1 )
     {
-      __asm { vxorps  xmm1, xmm1, xmm1; lookAheadTime }
-      *(_QWORD *)&_RBX->m_path.m_catmullRom.t = 0i64;
-      *(_QWORD *)&_RBX->m_path.m_catmullRom.curNodeIndex = 0i64;
-      BgVehicleComponentPathFollower::GetPathLookAhead(_RBX, *(float *)&_XMM1, &outPos, &outAngles);
-      if ( !BG_BSpline_Data_IsValid(_RBX->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+      *(_QWORD *)&this->m_path.m_catmullRom.t = 0i64;
+      *(_QWORD *)&this->m_path.m_catmullRom.curNodeIndex = 0i64;
+      BgVehicleComponentPathFollower::GetPathLookAhead(this, 0.0, &outPos, &outAngles);
+      if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
         __debugbreak();
-      v7 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RBX->m_path.m_catmullRom.splineIndex, NULL);
-      __asm { vxorps  xmm1, xmm1, xmm1; t }
-      BG_BSpline_CatmullRom_Evaluate(v7, *(float *)&_XMM1, &outPos, NULL, NULL, NULL);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+68h+outPos]
-        vmovss  xmm1, dword ptr [rsp+68h+outPos+4]
-        vmovss  dword ptr [rbx+108h], xmm0
-        vmovss  xmm0, dword ptr [rsp+68h+outPos+8]
-        vmovss  dword ptr [rbx+110h], xmm0
-        vmovss  dword ptr [rbx+10Ch], xmm1
-      }
-      *(_QWORD *)_RBX->m_previousLinearVelocityWs.v = 0i64;
-      *(_QWORD *)&_RBX->m_previousLinearVelocityWs.z = 0i64;
-      *(_QWORD *)&_RBX->m_previousLinearAccelerationWs.y = 0i64;
+      v5 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+      BG_BSpline_CatmullRom_Evaluate(v5, 0.0, &outPos, NULL, NULL, NULL);
+      v6 = outPos.v[1];
+      this->m_pathPosInterpolated.v[0] = outPos.v[0];
+      this->m_pathPosInterpolated.v[2] = outPos.v[2];
+      this->m_pathPosInterpolated.v[1] = v6;
+      *(_QWORD *)this->m_previousLinearVelocityWs.v = 0i64;
+      *(_QWORD *)&this->m_previousLinearVelocityWs.z = 0i64;
+      *(_QWORD *)&this->m_previousLinearAccelerationWs.y = 0i64;
       if ( warp )
       {
-        Owner = BgVehiclePhysicsComponent::GetOwner(_RBX);
+        Owner = BgVehiclePhysicsComponent::GetOwner(this);
         BgVehiclePhysics::SetKeyframeTransform(Owner, &outPos, &outAngles);
-        __asm { vmovsd  xmm0, qword ptr [rsp+68h+outPos] }
-        v14 = outPos.v[2];
-        __asm { vmovsd  qword ptr [rbx+108h], xmm0 }
-        _RBX->m_pathPosInterpolated.v[2] = v14;
-        *(_QWORD *)&_RBX->m_yawVel = 0i64;
-        *(_QWORD *)_RBX->m_previousLinearVelocityWs.v = 0i64;
-        *(_QWORD *)&_RBX->m_previousLinearVelocityWs.z = 0i64;
-        *(_QWORD *)&_RBX->m_previousLinearAccelerationWs.y = 0i64;
+        v8 = outPos.v[2];
+        *(double *)this->m_pathPosInterpolated.v = *(double *)outPos.v;
+        this->m_pathPosInterpolated.v[2] = v8;
+        *(_QWORD *)&this->m_yawVel = 0i64;
+        *(_QWORD *)this->m_previousLinearVelocityWs.v = 0i64;
+        *(_QWORD *)&this->m_previousLinearVelocityWs.z = 0i64;
+        *(_QWORD *)&this->m_previousLinearAccelerationWs.y = 0i64;
       }
     }
   }
   else
   {
-    BgVehicleComponentPathFollower::StartPath(_RBX, _RBX->m_startNode);
+    BgVehicleComponentPathFollower::StartPath(this, this->m_startNode);
   }
 }
 
@@ -3431,58 +2402,49 @@ void BgVehicleComponentPathFollowerCP::RestartPath(BgVehicleComponentPathFollowe
 BgVehicleComponentPathFollowerSP::RestartPath
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerSP::RestartPath(BgVehicleComponentPathFollowerSP *this, double _XMM1_8)
+void BgVehicleComponentPathFollowerSP::RestartPath(BgVehicleComponentPathFollowerSP *this)
 {
-  __int32 v3; 
-  const BSplineCatmullRom *v5; 
+  __int32 v2; 
+  const BSplineCatmullRom *v3; 
+  float v4; 
   BgVehiclePhysics *Owner; 
-  float v12; 
+  float v6; 
   vec3_t outPos; 
   vec3_t outAngles; 
 
-  _RBX = this;
-  v3 = this->m_pathType - 1;
-  if ( v3 )
+  v2 = this->m_pathType - 1;
+  if ( v2 )
   {
-    if ( v3 == 1 )
+    if ( v2 == 1 )
     {
-      __asm { vxorps  xmm1, xmm1, xmm1; lookAheadTime }
-      *(_QWORD *)&_RBX->m_path.m_catmullRom.nodet = 0i64;
-      _RBX->m_path.m_catmullRom.curNodeIndex = 0;
-      BgVehicleComponentPathFollower::GetPathLookAhead(_RBX, *(float *)&_XMM1, &outPos, &outAngles);
-      if ( !BG_BSpline_Data_IsValid(_RBX->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+      *(_QWORD *)&this->m_path.m_catmullRom.nodet = 0i64;
+      this->m_path.m_catmullRom.curNodeIndex = 0;
+      BgVehicleComponentPathFollower::GetPathLookAhead(this, 0.0, &outPos, &outAngles);
+      if ( !BG_BSpline_Data_IsValid(this->m_path.m_catmullRom.splineIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
         __debugbreak();
-      v5 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(_RBX->m_path.m_catmullRom.splineIndex, NULL);
-      __asm { vxorps  xmm1, xmm1, xmm1; t }
-      BG_BSpline_CatmullRom_Evaluate(v5, *(float *)&_XMM1, &outPos, NULL, NULL, NULL);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+68h+outPos]
-        vmovss  xmm1, dword ptr [rsp+68h+outPos+4]
-        vmovss  dword ptr [rbx+108h], xmm0
-        vmovss  xmm0, dword ptr [rsp+68h+outPos+8]
-        vmovss  dword ptr [rbx+110h], xmm0
-        vmovss  dword ptr [rbx+10Ch], xmm1
-      }
-      *(_QWORD *)_RBX->m_previousLinearVelocityWs.v = 0i64;
-      *(_QWORD *)&_RBX->m_previousLinearVelocityWs.z = 0i64;
-      *(_QWORD *)&_RBX->m_previousLinearAccelerationWs.y = 0i64;
-      Owner = BgVehiclePhysicsComponent::GetOwner(_RBX);
+      v3 = (const BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+      BG_BSpline_CatmullRom_Evaluate(v3, 0.0, &outPos, NULL, NULL, NULL);
+      v4 = outPos.v[1];
+      this->m_pathPosInterpolated.v[0] = outPos.v[0];
+      this->m_pathPosInterpolated.v[2] = outPos.v[2];
+      this->m_pathPosInterpolated.v[1] = v4;
+      *(_QWORD *)this->m_previousLinearVelocityWs.v = 0i64;
+      *(_QWORD *)&this->m_previousLinearVelocityWs.z = 0i64;
+      *(_QWORD *)&this->m_previousLinearAccelerationWs.y = 0i64;
+      Owner = BgVehiclePhysicsComponent::GetOwner(this);
       BgVehiclePhysics::SetKeyframeTransform(Owner, &outPos, &outAngles);
-      __asm { vmovsd  xmm0, qword ptr [rsp+68h+outPos] }
-      v12 = outPos.v[2];
-      __asm { vmovsd  qword ptr [rbx+108h], xmm0 }
-      *(_QWORD *)&_RBX->m_yawVel = 0i64;
-      _RBX->m_pathPosInterpolated.v[2] = v12;
-      *(_QWORD *)_RBX->m_previousLinearVelocityWs.v = 0i64;
-      *(_QWORD *)&_RBX->m_previousLinearVelocityWs.z = 0i64;
-      *(_QWORD *)&_RBX->m_previousLinearAccelerationWs.y = 0i64;
+      v6 = outPos.v[2];
+      *(double *)this->m_pathPosInterpolated.v = *(double *)outPos.v;
+      *(_QWORD *)&this->m_yawVel = 0i64;
+      this->m_pathPosInterpolated.v[2] = v6;
+      *(_QWORD *)this->m_previousLinearVelocityWs.v = 0i64;
+      *(_QWORD *)&this->m_previousLinearVelocityWs.z = 0i64;
+      *(_QWORD *)&this->m_previousLinearAccelerationWs.y = 0i64;
     }
   }
   else
   {
-    BgVehicleComponentPathFollower::StartPath(_RBX, _RBX->m_startNode);
+    BgVehicleComponentPathFollower::StartPath(this, this->m_startNode);
   }
 }
 
@@ -3513,10 +2475,9 @@ void BgVehicleComponentPathFollowerCP::ScrNotifyPathBlocked(BgVehicleComponentPa
 BgVehicleComponentPathFollower::SetAcceleration
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::SetAcceleration(BgVehicleComponentPathFollower *this, double accelMPHPerSec)
+void BgVehicleComponentPathFollower::SetAcceleration(BgVehicleComponentPathFollower *this, float accelMPHPerSec)
 {
-  __asm { vmovss  dword ptr [rcx+154h], xmm1 }
+  this->m_manualAccel = accelMPHPerSec;
 }
 
 /*
@@ -3524,10 +2485,9 @@ void __fastcall BgVehicleComponentPathFollower::SetAcceleration(BgVehicleCompone
 BgVehicleComponentPathFollower::SetDeceleration
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::SetDeceleration(BgVehicleComponentPathFollower *this, double decelMPHPerSec)
+void BgVehicleComponentPathFollower::SetDeceleration(BgVehicleComponentPathFollower *this, float decelMPHPerSec)
 {
-  __asm { vmovss  dword ptr [rcx+158h], xmm1 }
+  this->m_manualDecel = decelMPHPerSec;
 }
 
 /*
@@ -3555,24 +2515,13 @@ void BgVehicleComponentGoStraightTo::SetNotifyOnGoal(BgVehicleComponentGoStraigh
 BgVehicleComponentPathFollower::SetSpeed
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::SetSpeed(BgVehicleComponentPathFollower *this, double speedInPerSec)
+void BgVehicleComponentPathFollower::SetSpeed(BgVehicleComponentPathFollower *this, float speedInPerSec)
 {
-  __asm { vmovss  dword ptr [rcx+150h], xmm1 }
-  _RBX = this;
-  _RAX = BgVehiclePhysicsComponent::GetOwner(this);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+178h]
-    vmovss  xmm1, dword ptr [rax+174h]
-    vmulss  xmm2, xmm1, dword ptr [rax+1A4h]
-    vmulss  xmm3, xmm0, dword ptr [rax+1A8h]
-    vmovss  xmm0, dword ptr [rax+17Ch]
-    vmulss  xmm1, xmm0, dword ptr [rax+1ACh]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rbx+14Ch], xmm2
-  }
+  BgVehiclePhysics *Owner; 
+
+  this->m_manualSpeedTarget = speedInPerSec;
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  this->m_manualSpeed = (float)((float)(Owner->m_transform.m[0].v[1] * Owner->m_linearVelocityWs.v[1]) + (float)(Owner->m_transform.m[0].v[0] * Owner->m_linearVelocityWs.v[0])) + (float)(Owner->m_transform.m[0].v[2] * Owner->m_linearVelocityWs.v[2]);
 }
 
 /*
@@ -3580,14 +2529,10 @@ void __fastcall BgVehicleComponentPathFollower::SetSpeed(BgVehicleComponentPathF
 BgVehicleComponentPathFollower::SetSpeedImmediate
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::SetSpeedImmediate(BgVehicleComponentPathFollower *this, double speedInPerSec)
+void BgVehicleComponentPathFollower::SetSpeedImmediate(BgVehicleComponentPathFollower *this, float speedInPerSec)
 {
-  __asm
-  {
-    vmovss  dword ptr [rcx+14Ch], xmm1
-    vmovss  dword ptr [rcx+150h], xmm1
-  }
+  this->m_manualSpeed = speedInPerSec;
+  this->m_manualSpeedTarget = speedInPerSec;
   this->m_manualAccel = -1.0;
   this->m_manualDecel = -1.0;
 }
@@ -3609,51 +2554,38 @@ BgVehicleComponentGoStraightTo::Setup
 */
 bool BgVehicleComponentGoStraightTo::Setup(BgVehicleComponentGoStraightTo *this, BGVehicles *vehicleSystem, VehiclePhysicsComponentId id)
 {
+  const vec3_t *OwnerPosition; 
+  float v5; 
   BgVehiclePhysics *Owner; 
   bool result; 
 
-  _RDI = this;
   BgVehiclePhysicsComponent::Setup(this, vehicleSystem, id);
-  _RDI->m_endOnGoal = 1;
-  _RDI->m_notifyOnGoal = 1;
-  _RAX = BgVehiclePhysicsComponent::GetOwnerPosition(_RDI);
-  __asm
-  {
-    vmovss  xmm1, cs:defaultGoalTol
-    vmovsd  xmm0, qword ptr [rax]
-    vmovsd  qword ptr [rdi+48h], xmm0
-  }
-  _RDI->m_goalPos.v[2] = _RAX->v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax]
-    vmovsd  qword ptr [rdi+54h], xmm0
-  }
-  *(float *)&_RAX = _RAX->v[2];
-  __asm
-  {
-    vmulss  xmm0, xmm1, xmm1
-    vmovss  dword ptr [rdi+64h], xmm0
-    vmovss  dword ptr [rdi+60h], xmm1
-  }
-  LODWORD(_RDI->m_lookAheadPos.v[2]) = (_DWORD)_RAX;
-  _RDI->m_goingStraightTo = 0;
-  _RDI->m_stopOnArriving = 0;
-  __asm { vmovss  xmm1, cs:__real@7f7fffff; minTimeDynamic }
-  Owner = BgVehiclePhysicsComponent::GetOwner(_RDI);
-  BgVehiclePhysics::SetDynamic(Owner, *(float *)&_XMM1);
+  this->m_endOnGoal = 1;
+  this->m_notifyOnGoal = 1;
+  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+  v5 = defaultGoalTol;
+  this->m_goalPos = *OwnerPosition;
+  *(double *)this->m_lookAheadPos.v = *(double *)OwnerPosition->v;
+  *(float *)&OwnerPosition = OwnerPosition->v[2];
+  this->m_goalPosTolSq = v5 * v5;
+  this->m_goalPosTol = v5;
+  LODWORD(this->m_lookAheadPos.v[2]) = (_DWORD)OwnerPosition;
+  this->m_goingStraightTo = 0;
+  this->m_stopOnArriving = 0;
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  BgVehiclePhysics::SetDynamic(Owner, 3.4028235e38);
   BgVehiclePhysics::SetActivatedAlways(Owner);
   Owner->m_controls.externalEnabledBits[0] = -1;
   result = 1;
   Owner->m_controls.playerEnabledBits[0] = 0;
-  _RDI->m_inputMults[0] = 1.0;
-  _RDI->m_inputMults[1] = 1.0;
-  _RDI->m_inputMults[2] = 1.0;
-  _RDI->m_inputMults[3] = 1.0;
-  _RDI->m_inputMults[4] = 1.0;
-  _RDI->m_inputMults[5] = 1.0;
-  _RDI->m_inputMults[6] = 1.0;
-  _RDI->m_inputMults[7] = 1.0;
+  this->m_inputMults[0] = 1.0;
+  this->m_inputMults[1] = 1.0;
+  this->m_inputMults[2] = 1.0;
+  this->m_inputMults[3] = 1.0;
+  this->m_inputMults[4] = 1.0;
+  this->m_inputMults[5] = 1.0;
+  this->m_inputMults[6] = 1.0;
+  this->m_inputMults[7] = 1.0;
   return result;
 }
 
@@ -3664,65 +2596,51 @@ BgVehicleComponentPathFinder::Setup
 */
 __int64 BgVehicleComponentPathFinder::Setup(BgVehicleComponentPathFinder *this, BGVehicles *vehicleSystem, VehiclePhysicsComponentId id)
 {
+  const vec3_t *OwnerPosition; 
+  float v5; 
   BgVehiclePhysics *Owner; 
-  BgVehiclePhysics *v11; 
+  BgVehiclePhysics *v7; 
   __int64 result; 
 
-  _RDI = this;
   BgVehiclePhysicsComponent::Setup(this, vehicleSystem, id);
-  _RDI->m_endOnGoal = 1;
-  _RDI->m_notifyOnGoal = 1;
-  _RAX = BgVehiclePhysicsComponent::GetOwnerPosition(_RDI);
-  __asm
-  {
-    vmovss  xmm1, cs:defaultGoalTol
-    vmovsd  xmm0, qword ptr [rax]
-    vmovsd  qword ptr [rdi+48h], xmm0
-  }
-  _RDI->m_goalPos.v[2] = _RAX->v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax]
-    vmovsd  qword ptr [rdi+54h], xmm0
-  }
-  *(float *)&_RAX = _RAX->v[2];
-  __asm
-  {
-    vmulss  xmm0, xmm1, xmm1
-    vmovss  dword ptr [rdi+64h], xmm0
-    vmovss  dword ptr [rdi+60h], xmm1
-  }
-  LODWORD(_RDI->m_lookAheadPos.v[2]) = (_DWORD)_RAX;
-  _RDI->m_goingStraightTo = 0;
-  _RDI->m_stopOnArriving = 0;
-  __asm { vmovss  xmm1, cs:__real@7f7fffff; minTimeDynamic }
-  Owner = BgVehiclePhysicsComponent::GetOwner(_RDI);
-  BgVehiclePhysics::SetDynamic(Owner, *(float *)&_XMM1);
+  this->m_endOnGoal = 1;
+  this->m_notifyOnGoal = 1;
+  OwnerPosition = BgVehiclePhysicsComponent::GetOwnerPosition(this);
+  v5 = defaultGoalTol;
+  this->m_goalPos = *OwnerPosition;
+  *(double *)this->m_lookAheadPos.v = *(double *)OwnerPosition->v;
+  *(float *)&OwnerPosition = OwnerPosition->v[2];
+  this->m_goalPosTolSq = v5 * v5;
+  this->m_goalPosTol = v5;
+  LODWORD(this->m_lookAheadPos.v[2]) = (_DWORD)OwnerPosition;
+  this->m_goingStraightTo = 0;
+  this->m_stopOnArriving = 0;
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  BgVehiclePhysics::SetDynamic(Owner, 3.4028235e38);
   BgVehiclePhysics::SetActivatedAlways(Owner);
   Owner->m_controls.externalEnabledBits[0] = -1;
   Owner->m_controls.playerEnabledBits[0] = 0;
-  _RDI->m_inputMults[0] = 1.0;
-  _RDI->m_inputMults[1] = 1.0;
-  _RDI->m_inputMults[2] = 1.0;
-  _RDI->m_inputMults[3] = 1.0;
-  _RDI->m_inputMults[4] = 1.0;
-  _RDI->m_inputMults[5] = 1.0;
-  _RDI->m_inputMults[6] = 1.0;
-  _RDI->m_inputMults[7] = 1.0;
-  v11 = BgVehiclePhysicsComponent::GetOwner(_RDI);
-  if ( v11->SupportsFeature(v11, VPFEAT_NAVIGATE_MESH) || (result = ((__int64 (__fastcall *)(BgVehiclePhysics *, __int64))v11->SupportsFeature)(v11, 7i64), (_BYTE)result) )
+  this->m_inputMults[0] = 1.0;
+  this->m_inputMults[1] = 1.0;
+  this->m_inputMults[2] = 1.0;
+  this->m_inputMults[3] = 1.0;
+  this->m_inputMults[4] = 1.0;
+  this->m_inputMults[5] = 1.0;
+  this->m_inputMults[6] = 1.0;
+  this->m_inputMults[7] = 1.0;
+  v7 = BgVehiclePhysicsComponent::GetOwner(this);
+  if ( v7->SupportsFeature(v7, VPFEAT_NAVIGATE_MESH) || (result = ((__int64 (__fastcall *)(BgVehiclePhysics *, __int64))v7->SupportsFeature)(v7, 7i64), (_BYTE)result) )
   {
-    __asm { vmovss  xmm1, cs:__real@7f7fffff; minTimeDynamic }
-    BgVehiclePhysics::SetDynamic(v11, *(float *)&_XMM1);
-    BgVehiclePhysics::SetActivatedAlways(v11);
+    BgVehiclePhysics::SetDynamic(v7, 3.4028235e38);
+    BgVehiclePhysics::SetActivatedAlways(v7);
     result = 65281i64;
-    _RDI->m_endOnGoal = 0;
-    _RDI->m_notifyOnGoal = 0;
-    *(_DWORD *)&_RDI->m_numNodes = -65536;
-    *(_WORD *)&_RDI->m_layer = 2;
-    *(_QWORD *)&_RDI->m_originalPathNumNodes = 0xFFFFi64;
-    _RDI->m_goalPosTolSq = 2500.0;
-    _RDI->m_goalPosTol = 50.0;
+    this->m_endOnGoal = 0;
+    this->m_notifyOnGoal = 0;
+    *(_DWORD *)&this->m_numNodes = -65536;
+    *(_WORD *)&this->m_layer = 2;
+    *(_QWORD *)&this->m_originalPathNumNodes = 0xFFFFi64;
+    this->m_goalPosTolSq = 2500.0;
+    this->m_goalPosTol = 50.0;
   }
   return result;
 }
@@ -3748,7 +2666,6 @@ bool BgVehicleComponentPathFollower::Setup(BgVehicleComponentPathFollower *this,
     __debugbreak();
   if ( BgVehiclePhysicsComponent::GetOwner(this)->m_worldId )
     Com_PrintWarning(20, "BgVehicleComponentPathFollower intended to work on Server only. Unknown behavior on Client side component");
-  __asm { vmovss  xmm1, cs:__real@7f7fffff; minTimeDynamic }
   this->m_startNode = BGVehicles::PathInvalidNodeIndex();
   this->m_lookAheadTime = 0.5;
   this->m_numNodes = 0;
@@ -3760,7 +2677,7 @@ bool BgVehicleComponentPathFollower::Setup(BgVehicleComponentPathFollower *this,
   this->m_manualSpeedTarget = -1.0;
   this->m_manualAccel = -1.0;
   this->m_manualDecel = -1.0;
-  BgVehiclePhysics::SetDynamic(v5, *(float *)&_XMM1);
+  BgVehiclePhysics::SetDynamic(v5, 3.4028235e38);
   BgVehiclePhysics::SetActivatedAlways(v5);
   PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(v5);
   PhysicsVehicle_SetSoftContacts(v5->m_worldId, PhysicsBodyId, 0);
@@ -3778,19 +2695,19 @@ bool BgVehicleComponentPathFollowerCP::Setup(BgVehicleComponentPathFollowerCP *t
 {
   bool result; 
   BgVehiclePhysics *Owner; 
+  const dvar_t *v6; 
   BgVehiclePhysicsGround *v7; 
 
   result = BgVehicleComponentPathFollower::Setup(this, vehicleSystem, id);
   if ( result )
   {
     Owner = BgVehiclePhysicsComponent::GetOwner(this);
-    _RBX = DCONST_DVARMPFLT_bg_pathFollowerFriction;
+    v6 = DCONST_DVARMPFLT_bg_pathFollowerFriction;
     v7 = (BgVehiclePhysicsGround *)Owner;
     if ( !DCONST_DVARMPFLT_bg_pathFollowerFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerFriction") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h]; fb }
-    BgVehiclePhysicsGround::SetFrictionBase(v7, *(float *)&_XMM1);
+    Dvar_CheckFrontendServerThread(v6);
+    BgVehiclePhysicsGround::SetFrictionBase(v7, v6->current.value);
     return 1;
   }
   return result;
@@ -3805,19 +2722,19 @@ bool BgVehicleComponentPathFollowerSP::Setup(BgVehicleComponentPathFollowerSP *t
 {
   bool result; 
   BgVehiclePhysics *Owner; 
+  const dvar_t *v6; 
   BgVehiclePhysicsGround *v7; 
 
   result = BgVehicleComponentPathFollower::Setup(this, vehicleSystem, id);
   if ( result )
   {
     Owner = BgVehiclePhysicsComponent::GetOwner(this);
-    _RBX = DCONST_DVARMPFLT_bg_pathFollowerFriction;
+    v6 = DCONST_DVARMPFLT_bg_pathFollowerFriction;
     v7 = (BgVehiclePhysicsGround *)Owner;
     if ( !DCONST_DVARMPFLT_bg_pathFollowerFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerFriction") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h]; fb }
-    BgVehiclePhysicsGround::SetFrictionBase(v7, *(float *)&_XMM1);
+    Dvar_CheckFrontendServerThread(v6);
+    BgVehiclePhysicsGround::SetFrictionBase(v7, v6->current.value);
     return 1;
   }
   return result;
@@ -3830,48 +2747,40 @@ BgVehicleComponentPathFollower::StartPath
 */
 void BgVehicleComponentPathFollower::StartPath(BgVehicleComponentPathFollower *this, __int16 nodeIndex)
 {
-  __int32 v5; 
+  __int32 v4; 
   BGVehicles *m_vehicleSystem; 
-  unsigned __int16 v7; 
-  char v9; 
-  char v10; 
+  unsigned __int16 v6; 
 
-  _RBX = this;
-  v5 = this->m_pathType - 1;
-  if ( v5 )
+  v4 = this->m_pathType - 1;
+  if ( v4 )
   {
-    if ( v5 == 1 )
+    if ( v4 == 1 )
     {
-      BG_BSpline_Data_Deallocate(_RBX->m_path.m_catmullRom.splineIndex);
-      _RBX->m_path.m_catmullRom.splineIndex = BG_BSpline_Data_InvalidIndex();
+      BG_BSpline_Data_Deallocate(this->m_path.m_catmullRom.splineIndex);
+      this->m_path.m_catmullRom.splineIndex = BG_BSpline_Data_InvalidIndex();
     }
   }
   else
   {
-    _RBX->m_vehicleSystem->PathReset(_RBX->m_vehicleSystem, &_RBX->m_path.m_vpp);
+    this->m_vehicleSystem->PathReset(this->m_vehicleSystem, (VehiclePathPos *)&this->m_path);
   }
-  m_vehicleSystem = _RBX->m_vehicleSystem;
-  _RBX->m_pathType = PATH_RADIANT;
-  _RBX->m_startNode = nodeIndex;
-  v7 = m_vehicleSystem->PathCountNodes(m_vehicleSystem, nodeIndex);
-  _RBX->m_numNodes = v7;
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 627, ASSERT_TYPE_ASSERT, "(m_numNodes > 0)", (const char *)&queryFormat, "m_numNodes > 0") )
+  m_vehicleSystem = this->m_vehicleSystem;
+  this->m_pathType = PATH_RADIANT;
+  this->m_startNode = nodeIndex;
+  v6 = m_vehicleSystem->PathCountNodes(m_vehicleSystem, nodeIndex);
+  this->m_numNodes = v6;
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 627, ASSERT_TYPE_ASSERT, "(m_numNodes > 0)", (const char *)&queryFormat, "m_numNodes > 0") )
     __debugbreak();
-  _RBX->m_vehicleSystem->PathInit(_RBX->m_vehicleSystem, _RBX->m_startNode, &_RBX->m_path.m_vpp);
-  _RBX->m_pathPosInterpolated.v[0] = _RBX->m_path.m_vpp.origin.v[0];
-  _RBX->m_pathPosInterpolated.v[1] = _RBX->m_path.m_vpp.origin.v[1];
-  _RBX->m_pathPosInterpolated.v[2] = _RBX->m_path.m_vpp.origin.v[2];
-  *(_QWORD *)_RBX->m_previousLinearVelocityWs.v = 0i64;
-  *(_QWORD *)&_RBX->m_previousLinearVelocityWs.z = 0i64;
-  *(_QWORD *)&_RBX->m_previousLinearAccelerationWs.y = 0i64;
-  BgVehicleComponentPathFollower::WarpTo(_RBX, &_RBX->m_path.m_vpp.origin, &_RBX->m_path.m_vpp.angles);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+18h]
-  }
-  if ( v9 | v10 )
-    BgVehiclePhysicsComponent::Resume(_RBX);
+  this->m_vehicleSystem->PathInit(this->m_vehicleSystem, this->m_startNode, (VehiclePathPos *)&this->m_path);
+  this->m_pathPosInterpolated.v[0] = this->m_path.m_vpp.origin.v[0];
+  this->m_pathPosInterpolated.v[1] = this->m_path.m_vpp.origin.v[1];
+  this->m_pathPosInterpolated.v[2] = this->m_path.m_vpp.origin.v[2];
+  *(_QWORD *)this->m_previousLinearVelocityWs.v = 0i64;
+  *(_QWORD *)&this->m_previousLinearVelocityWs.z = 0i64;
+  *(_QWORD *)&this->m_previousLinearAccelerationWs.y = 0i64;
+  BgVehicleComponentPathFollower::WarpTo(this, &this->m_path.m_vpp.origin, &this->m_path.m_vpp.angles);
+  if ( this->m_pauseTime >= 0.0 )
+    BgVehiclePhysicsComponent::Resume(this);
 }
 
 /*
@@ -3879,50 +2788,33 @@ void BgVehicleComponentPathFollower::StartPath(BgVehicleComponentPathFollower *t
 BgVehicleComponentPathFollower::StartPathNodes
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::StartPathNodes(BgVehicleComponentPathFollower *this, const vec4_t *pointTimes, unsigned int pointCount, double tau, float alpha, bool centripetal, bool looped)
+void BgVehicleComponentPathFollower::StartPathNodes(BgVehicleComponentPathFollower *this, const vec4_t *pointTimes, unsigned int pointCount, float tau, float alpha, bool centripetal, bool looped)
 {
-  unsigned int v13; 
+  unsigned int v10; 
   BSplineCatmullRom *outSpline; 
-  char v18; 
-  char v19; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !pointTimes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 647, ASSERT_TYPE_ASSERT, "(pointTimes)", (const char *)&queryFormat, "pointTimes") )
     __debugbreak();
   if ( pointCount > 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 648, ASSERT_TYPE_ASSERT, "(pointCount <= 32)", (const char *)&queryFormat, "pointCount <= MAX_BSPLINE_CATMULLROM_POINTS") )
     __debugbreak();
-  if ( _RBX->m_pathType == PATH_RADIANT )
+  if ( this->m_pathType == PATH_RADIANT )
   {
-    _RBX->m_vehicleSystem->PathReset(_RBX->m_vehicleSystem, &_RBX->m_path.m_vpp);
+    this->m_vehicleSystem->PathReset(this->m_vehicleSystem, (VehiclePathPos *)&this->m_path);
   }
-  else if ( _RBX->m_pathType == PATH_CATMULLROM )
+  else if ( this->m_pathType == PATH_CATMULLROM )
   {
-    BG_BSpline_Data_Deallocate(_RBX->m_path.m_catmullRom.splineIndex);
-    _RBX->m_path.m_catmullRom.splineIndex = BG_BSpline_Data_InvalidIndex();
+    BG_BSpline_Data_Deallocate(this->m_path.m_catmullRom.splineIndex);
+    this->m_path.m_catmullRom.splineIndex = BG_BSpline_Data_InvalidIndex();
   }
-  _RBX->m_pathType = PATH_CATMULLROM;
-  v13 = BG_BSpline_Data_Allocate(CATMULL_ROM);
-  _RBX->m_path.m_catmullRom.splineIndex = v13;
-  if ( !BG_BSpline_Data_IsValid(v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+  this->m_pathType = PATH_CATMULLROM;
+  v10 = BG_BSpline_Data_Allocate(CATMULL_ROM);
+  this->m_path.m_catmullRom.splineIndex = v10;
+  if ( !BG_BSpline_Data_IsValid(v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
     __debugbreak();
-  outSpline = (BSplineCatmullRom *)BG_BSpline_Data_Get(_RBX->m_path.m_catmullRom.splineIndex, NULL);
-  __asm
-  {
-    vmovss  xmm3, [rsp+58h+alpha]; alpha
-    vmovaps xmm2, xmm6; tau
-  }
-  BG_BSpline_CatmullRom_Build(pointTimes, pointCount, *(float *)&_XMM2, *(float *)&_XMM3, 0, (BSplineCatmullRom::Parametrization)centripetal, looped, outSpline);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+18h]
-  }
-  if ( v18 | v19 )
-    BgVehiclePhysicsComponent::Resume(_RBX);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  outSpline = (BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+  BG_BSpline_CatmullRom_Build(pointTimes, pointCount, tau, alpha, 0, (BSplineCatmullRom::Parametrization)centripetal, looped, outSpline);
+  if ( this->m_pauseTime >= 0.0 )
+    BgVehiclePhysicsComponent::Resume(this);
 }
 
 /*
@@ -3930,51 +2822,34 @@ void __fastcall BgVehicleComponentPathFollower::StartPathNodes(BgVehicleComponen
 BgVehicleComponentPathFollowerCP::StartPathNodes
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerCP::StartPathNodes(BgVehicleComponentPathFollowerCP *this, const vec4_t *pointTimes, unsigned int pointCount, double tau, float alpha, bool centripetal, bool looped, bool warp)
+void BgVehicleComponentPathFollowerCP::StartPathNodes(BgVehicleComponentPathFollowerCP *this, const vec4_t *pointTimes, unsigned int pointCount, float tau, float alpha, bool centripetal, bool looped, bool warp)
 {
-  unsigned int v14; 
+  unsigned int v11; 
   BSplineCatmullRom *outSpline; 
-  char v19; 
-  char v20; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !pointTimes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 647, ASSERT_TYPE_ASSERT, "(pointTimes)", (const char *)&queryFormat, "pointTimes") )
     __debugbreak();
   if ( pointCount > 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 648, ASSERT_TYPE_ASSERT, "(pointCount <= 32)", (const char *)&queryFormat, "pointCount <= MAX_BSPLINE_CATMULLROM_POINTS") )
     __debugbreak();
-  if ( _RBX->m_pathType == PATH_RADIANT )
+  if ( this->m_pathType == PATH_RADIANT )
   {
-    _RBX->m_vehicleSystem->PathReset(_RBX->m_vehicleSystem, &_RBX->m_path.m_vpp);
+    this->m_vehicleSystem->PathReset(this->m_vehicleSystem, (VehiclePathPos *)&this->m_path);
   }
-  else if ( _RBX->m_pathType == PATH_CATMULLROM )
+  else if ( this->m_pathType == PATH_CATMULLROM )
   {
-    BG_BSpline_Data_Deallocate(_RBX->m_path.m_catmullRom.splineIndex);
-    _RBX->m_path.m_catmullRom.splineIndex = BG_BSpline_Data_InvalidIndex();
+    BG_BSpline_Data_Deallocate(this->m_path.m_catmullRom.splineIndex);
+    this->m_path.m_catmullRom.splineIndex = BG_BSpline_Data_InvalidIndex();
   }
-  _RBX->m_pathType = PATH_CATMULLROM;
-  v14 = BG_BSpline_Data_Allocate(CATMULL_ROM);
-  _RBX->m_path.m_catmullRom.splineIndex = v14;
-  if ( !BG_BSpline_Data_IsValid(v14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
+  this->m_pathType = PATH_CATMULLROM;
+  v11 = BG_BSpline_Data_Allocate(CATMULL_ROM);
+  this->m_path.m_catmullRom.splineIndex = v11;
+  if ( !BG_BSpline_Data_IsValid(v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.cpp", 682, ASSERT_TYPE_ASSERT, "( BG_BSpline_Data_IsValid( m_path.m_catmullRom.splineIndex ) )", "BgVehicleComponentPathFollower. Invalid Catmull-Rom spline data index") )
     __debugbreak();
-  outSpline = (BSplineCatmullRom *)BG_BSpline_Data_Get(_RBX->m_path.m_catmullRom.splineIndex, NULL);
-  __asm
-  {
-    vmovss  xmm3, [rsp+58h+alpha]; alpha
-    vmovaps xmm2, xmm6; tau
-  }
-  BG_BSpline_CatmullRom_Build(pointTimes, pointCount, *(float *)&_XMM2, *(float *)&_XMM3, 0, (BSplineCatmullRom::Parametrization)centripetal, looped, outSpline);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+18h]
-  }
-  if ( v19 | v20 )
-    BgVehiclePhysicsComponent::Resume(_RBX);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  BgVehicleComponentPathFollowerCP::RestartPath(_RBX, warp);
+  outSpline = (BSplineCatmullRom *)BG_BSpline_Data_Get(this->m_path.m_catmullRom.splineIndex, NULL);
+  BG_BSpline_CatmullRom_Build(pointTimes, pointCount, tau, alpha, 0, (BSplineCatmullRom::Parametrization)centripetal, looped, outSpline);
+  if ( this->m_pauseTime >= 0.0 )
+    BgVehiclePhysicsComponent::Resume(this);
+  BgVehicleComponentPathFollowerCP::RestartPath(this, warp);
 }
 
 /*
@@ -3996,74 +2871,54 @@ BgVehicleComponentGoStraightTo::Step
 void BgVehicleComponentGoStraightTo::Step(BgVehicleComponentGoStraightTo *this, float deltaTime)
 {
   BgVehiclePhysics *Owner; 
+  BgVehiclePhysics *v4; 
+  bool v5; 
   BgVehiclePhysics *v6; 
-  char v7; 
+  bool v7; 
   bool v8; 
-  bool v11; 
-  bool v21; 
 
-  _RBX = this;
   BgVehiclePhysicsComponent::Step(this, deltaTime);
-  Owner = BgVehiclePhysicsComponent::GetOwner(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+18h]
-  }
-  v6 = Owner;
-  if ( v7 | v8 )
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  v4 = Owner;
+  if ( this->m_pauseTime >= 0.0 )
   {
     Owner->m_controls.externalValues[0] = 0.0;
     Owner->m_controls.externalValues[2] = 0.0;
     return;
   }
-  if ( _RBX->m_goingStraightTo && (_RBX->m_simCount & 1) == 0 )
+  if ( this->m_goingStraightTo && (this->m_simCount & 1) == 0 )
   {
-    __asm { vmovss  xmm1, cs:__real@40600000; scale }
-    if ( BgVehicleComponentGoStraightTo::IsOnGoalPos(_RBX, *(float *)&_XMM1) )
+    if ( BgVehicleComponentGoStraightTo::IsOnGoalPos(this, 3.5) )
     {
-      __asm { vmovss  xmm1, cs:__real@3f800000; scale }
-      v11 = BgVehicleComponentGoStraightTo::IsOnGoalPos(_RBX, *(float *)&_XMM1);
-      if ( _RBX->m_stopOnArriving )
+      v5 = BgVehicleComponentGoStraightTo::IsOnGoalPos(this, 1.0);
+      if ( this->m_stopOnArriving )
       {
-        _RAX = BgVehiclePhysicsComponent::GetOwner(_RBX);
-        __asm
+        v6 = BgVehiclePhysicsComponent::GetOwner(this);
+        if ( (float)((float)((float)(v6->m_transform.m[0].v[1] * v6->m_linearVelocityWs.v[1]) + (float)(v6->m_transform.m[0].v[0] * v6->m_linearVelocityWs.v[0])) + (float)(v6->m_transform.m[0].v[2] * v6->m_linearVelocityWs.v[2])) > threshold_0 && !v5 )
         {
-          vmovss  xmm0, dword ptr [rax+178h]
-          vmovss  xmm1, dword ptr [rax+174h]
-          vmulss  xmm2, xmm1, dword ptr [rax+1A4h]
-          vmulss  xmm3, xmm0, dword ptr [rax+1A8h]
-          vmovss  xmm0, dword ptr [rax+17Ch]
-          vmulss  xmm1, xmm0, dword ptr [rax+1ACh]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, cs:threshold_0
-        }
-        if ( !(v7 | v8) && !v11 )
-        {
-          v6->m_controls.externalValues[0] = 0.0;
-          v21 = 0;
-          v6->m_controls.externalValues[1] = _RBX->m_inputMults[1];
+          v4->m_controls.externalValues[0] = 0.0;
+          v7 = 0;
+          v4->m_controls.externalValues[1] = this->m_inputMults[1];
 LABEL_16:
-          BgVehicleComponentGoStraightTo::AdjustInputs(_RBX, v21, 1);
+          BgVehicleComponentGoStraightTo::AdjustInputs(this, v7, 1);
           return;
         }
         goto LABEL_11;
       }
-      if ( v11 )
+      if ( v5 )
       {
 LABEL_11:
-        v8 = !_RBX->m_notifyOnGoal;
-        _RBX->m_goingStraightTo = 0;
+        v8 = !this->m_notifyOnGoal;
+        this->m_goingStraightTo = 0;
         if ( !v8 )
-          BgVehiclePhysicsComponent::ScrNotify(_RBX, scr_const.reached_end_node);
-        if ( _RBX->m_endOnGoal )
-          _RBX->m_autoRemove = 1;
+          BgVehiclePhysicsComponent::ScrNotify(this, scr_const.reached_end_node);
+        if ( this->m_endOnGoal )
+          this->m_autoRemove = 1;
         return;
       }
     }
-    v6->m_controls.externalValues[1] = 0.0;
-    v21 = 1;
+    v4->m_controls.externalValues[1] = 0.0;
+    v7 = 1;
     goto LABEL_16;
   }
 }
@@ -4076,131 +2931,94 @@ BgVehicleComponentPathFinder::Step
 void BgVehicleComponentPathFinder::Step(BgVehicleComponentPathFinder *this, float deltaTime)
 {
   BgVehiclePhysics *Owner; 
+  BgVehiclePhysics *v4; 
+  bool v5; 
   BgVehiclePhysics *v6; 
-  char v7; 
+  bool v7; 
   bool v8; 
-  bool v11; 
-  bool v21; 
   unsigned __int16 m_numNodes; 
   int m_curNode; 
-  int v25; 
-  int v26; 
+  int v11; 
+  int v12; 
 
-  _RBX = this;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   BgVehiclePhysicsComponent::Step(this, deltaTime);
-  Owner = BgVehiclePhysicsComponent::GetOwner(_RBX);
-  __asm
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  v4 = Owner;
+  if ( this->m_pauseTime >= 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+18h]
-  }
-  v6 = Owner;
-  if ( v7 | v8 )
-  {
-    v7 = 0;
-    v8 = 1;
     Owner->m_controls.externalValues[0] = 0.0;
     Owner->m_controls.externalValues[2] = 0.0;
     goto LABEL_17;
   }
-  v7 = 0;
-  v8 = !_RBX->m_goingStraightTo;
-  if ( _RBX->m_goingStraightTo )
+  if ( this->m_goingStraightTo && (this->m_simCount & 1) == 0 )
   {
-    v7 = 0;
-    v8 = (_RBX->m_simCount & 1) == 0;
-    if ( (_RBX->m_simCount & 1) == 0 )
+    if ( BgVehicleComponentGoStraightTo::IsOnGoalPos(this, 3.5) )
     {
-      __asm { vmovss  xmm1, cs:__real@40600000; scale }
-      if ( BgVehicleComponentGoStraightTo::IsOnGoalPos(_RBX, *(float *)&_XMM1) )
+      v5 = BgVehicleComponentGoStraightTo::IsOnGoalPos(this, 1.0);
+      if ( this->m_stopOnArriving )
       {
-        __asm { vmovss  xmm1, cs:__real@3f800000; scale }
-        v11 = BgVehicleComponentGoStraightTo::IsOnGoalPos(_RBX, *(float *)&_XMM1);
-        if ( _RBX->m_stopOnArriving )
+        v6 = BgVehiclePhysicsComponent::GetOwner(this);
+        if ( (float)((float)((float)(v6->m_transform.m[0].v[1] * v6->m_linearVelocityWs.v[1]) + (float)(v6->m_linearVelocityWs.v[0] * v6->m_transform.m[0].v[0])) + (float)(v6->m_transform.m[0].v[2] * v6->m_linearVelocityWs.v[2])) > threshold_0 && !v5 )
         {
-          _RAX = BgVehiclePhysicsComponent::GetOwner(_RBX);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+178h]
-            vmovss  xmm1, dword ptr [rax+1A4h]
-            vmulss  xmm2, xmm1, dword ptr [rax+174h]
-            vmulss  xmm3, xmm0, dword ptr [rax+1A8h]
-            vmovss  xmm0, dword ptr [rax+17Ch]
-            vmulss  xmm1, xmm0, dword ptr [rax+1ACh]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vcomiss xmm2, cs:threshold_0
-          }
-          if ( !(v7 | v8) && !v11 )
-          {
-            v6->m_controls.externalValues[0] = 0.0;
-            v21 = 0;
-            v6->m_controls.externalValues[1] = _RBX->m_inputMults[1];
-LABEL_16:
-            BgVehicleComponentGoStraightTo::AdjustInputs(_RBX, v21, 1);
-            goto LABEL_17;
-          }
-          goto LABEL_11;
-        }
-        if ( v11 )
-        {
-LABEL_11:
-          v8 = !_RBX->m_notifyOnGoal;
-          _RBX->m_goingStraightTo = 0;
-          if ( !v8 )
-            BgVehiclePhysicsComponent::ScrNotify(_RBX, scr_const.reached_end_node);
+          v4->m_controls.externalValues[0] = 0.0;
           v7 = 0;
-          v8 = !_RBX->m_endOnGoal;
-          if ( _RBX->m_endOnGoal )
-            _RBX->m_autoRemove = 1;
+          v4->m_controls.externalValues[1] = this->m_inputMults[1];
+LABEL_16:
+          BgVehicleComponentGoStraightTo::AdjustInputs(this, v7, 1);
           goto LABEL_17;
         }
+        goto LABEL_11;
       }
-      v6->m_controls.externalValues[1] = 0.0;
-      v21 = 1;
-      goto LABEL_16;
+      if ( v5 )
+      {
+LABEL_11:
+        v8 = !this->m_notifyOnGoal;
+        this->m_goingStraightTo = 0;
+        if ( !v8 )
+          BgVehiclePhysicsComponent::ScrNotify(this, scr_const.reached_end_node);
+        if ( this->m_endOnGoal )
+          this->m_autoRemove = 1;
+        goto LABEL_17;
+      }
     }
+    v4->m_controls.externalValues[1] = 0.0;
+    v7 = 1;
+    goto LABEL_16;
   }
 LABEL_17:
-  __asm
+  if ( this->m_pauseTime < 0.0 )
   {
-    vcomiss xmm6, dword ptr [rbx+18h]
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  if ( !(v7 | v8) )
-  {
-    m_numNodes = _RBX->m_numNodes;
+    m_numNodes = this->m_numNodes;
     if ( m_numNodes )
     {
-      if ( !_RBX->m_goingStraightTo )
+      if ( !this->m_goingStraightTo )
       {
-        m_curNode = _RBX->m_curNode;
+        m_curNode = this->m_curNode;
         if ( m_curNode < m_numNodes )
         {
-          BgVehicleComponentPathFinder::Notification(_RBX, m_curNode, scr_const.trigger);
-          v25 = ++_RBX->m_curNode;
-          v26 = _RBX->m_numNodes;
-          ++_RBX->m_overallCurNode;
-          if ( v25 < v26 )
-            BgVehicleComponentPathFinder::GoStraightToNode(_RBX, v25);
+          BgVehicleComponentPathFinder::Notification(this, m_curNode, scr_const.trigger);
+          v11 = ++this->m_curNode;
+          v12 = this->m_numNodes;
+          ++this->m_overallCurNode;
+          if ( v11 < v12 )
+            BgVehicleComponentPathFinder::GoStraightToNode(this, v11);
         }
-        else if ( _RBX->m_partial )
+        else if ( this->m_partial )
         {
-          BgVehicleComponentPathFinder::Notification(_RBX, m_curNode, scr_const.trigger);
-          BgVehicleComponentPathFinder::FindPath(_RBX, &_RBX->m_finalGoalPos, _RBX->m_layer);
+          BgVehicleComponentPathFinder::Notification(this, m_curNode, scr_const.trigger);
+          BgVehicleComponentPathFinder::FindPath(this, &this->m_finalGoalPos, this->m_layer);
         }
         else
         {
-          BgVehicleComponentPathFinder::Notification(_RBX, m_curNode, scr_const.reached_end_node);
-          _RBX->m_autoRemove = 1;
+          BgVehicleComponentPathFinder::Notification(this, m_curNode, scr_const.reached_end_node);
+          this->m_autoRemove = 1;
         }
       }
     }
     else
     {
-      BgVehicleComponentPathFinder::Notification(_RBX, _RBX->m_curNode, scr_const.reached_end_node);
-      _RBX->m_autoRemove = 1;
+      BgVehicleComponentPathFinder::Notification(this, this->m_curNode, scr_const.reached_end_node);
+      this->m_autoRemove = 1;
     }
   }
 }
@@ -4210,103 +3028,43 @@ LABEL_17:
 BgVehicleComponentPathFollowerCP::StopOnEnd
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollowerCP::StopOnEnd(BgVehicleComponentPathFollowerCP *this, double deltaTime, double pauseDuration)
+void BgVehicleComponentPathFollowerCP::StopOnEnd(BgVehicleComponentPathFollowerCP *this, float deltaTime, float pauseDuration)
 {
   BgVehiclePhysics *Owner; 
-  char v23; 
-  float fmt; 
-  vec3_t v30; 
+  const dvar_t *v6; 
+  float v7; 
+  vec3_t v8; 
   vec3_t linVelWs; 
   vec3_t outVelWs; 
   vec3_t outVelLs; 
-  char v34; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm6, xmm2
-    vmovaps xmm8, xmm1
-  }
-  _RBX = this;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  dword ptr [rsp+0C8h+outVelWs], xmm7
-  }
+  outVelWs.v[0] = 0.0;
   Owner = BgVehiclePhysicsComponent::GetOwner(this);
-  __asm
-  {
-    vmovss  dword ptr [rsp+0C8h+outVelWs+4], xmm7
-    vmovss  dword ptr [rsp+0C8h+outVelWs+8], xmm7
-  }
+  outVelWs.v[1] = 0.0;
+  outVelWs.v[2] = 0.0;
   BgVehiclePhysics::ComputeVelocityLocalSpace(Owner, &Owner->m_angularVelocityWs, &outVelLs);
   BgVehiclePhysics::ComputeVelocityWorldSpace(Owner, &outVelLs, &outVelWs);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rbx+120h]
-    vmovss  xmm1, dword ptr [rbx+124h]
-  }
-  _RSI = DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm3
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+0C8h+linVelWs], xmm0
-    vmovss  xmm0, dword ptr [rbx+128h]
-    vxorps  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rsp+0C8h+linVelWs+8], xmm1
-    vmovss  dword ptr [rsp+0C8h+linVelWs+4], xmm2
-  }
+  v6 = DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult;
+  LODWORD(v7) = LODWORD(this->m_previousLinearVelocityWs.v[1]) ^ _xmm;
+  LODWORD(linVelWs.v[0]) = LODWORD(this->m_previousLinearVelocityWs.v[0]) ^ _xmm;
+  LODWORD(linVelWs.v[2]) = LODWORD(this->m_previousLinearVelocityWs.v[2]) ^ _xmm;
+  linVelWs.v[1] = v7;
   if ( !DCONST_DVARFLT_bg_pathFollowerAccelAngularVelMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerAccelAngularVelMult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovsd  xmm0, qword ptr [rsp+0C8h+linVelWs] }
-  v30.v[2] = linVelWs.v[2];
-  __asm
-  {
-    vmovsd  [rsp+0C8h+var_88], xmm0
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmovaps xmm3, xmm8
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-  }
-  BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(_RBX, Owner, &v30, *(float *)&_XMM3, fmt, &outVelWs);
-  __asm
-  {
-    vmovss  dword ptr [rsp+0C8h+linVelWs], xmm7
-    vmovss  dword ptr [rsp+0C8h+linVelWs+4], xmm7
-    vmovss  dword ptr [rsp+0C8h+linVelWs+8], xmm7
-  }
+  Dvar_CheckFrontendServerThread(v6);
+  v8 = linVelWs;
+  BgVehicleComponentPathFollower::FakeEngineAngularForceFromAcceleration(this, Owner, &v8, deltaTime, v6->current.value, &outVelWs);
+  linVelWs.v[0] = 0.0;
+  linVelWs.v[1] = 0.0;
+  linVelWs.v[2] = 0.0;
   BgVehiclePhysics::SetLinearVelocity(Owner, &linVelWs, 0);
   BgVehiclePhysics::SetAngularVelocity(Owner, &outVelWs, 0);
-  __asm { vcomiss xmm6, xmm7 }
-  if ( v23 )
-    goto LABEL_7;
-  __asm { vcomiss xmm6, cs:__real@7f7fffff }
-  if ( !v23 )
-  {
-LABEL_7:
-    _RBX->m_autoRemove = 1;
-  }
+  if ( pauseDuration < 0.0 || pauseDuration >= 3.4028235e38 )
+    this->m_autoRemove = 1;
   else
-  {
-    __asm { vmovaps xmm1, xmm6; pauseTimeInSecs }
-    BgVehiclePhysicsComponent::SetPause(_RBX, *(float *)&_XMM1);
-  }
-  if ( _RBX->m_pathType == PATH_CATMULLROM )
-    _RBX->m_path.m_vpp.lookAhead = _RBX->m_path.m_vpp.speedOverride;
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+    BgVehiclePhysicsComponent::SetPause(this, pauseDuration);
+  if ( this->m_pathType == PATH_CATMULLROM )
+    this->m_path.m_vpp.lookAhead = this->m_path.m_vpp.speedOverride;
 }
 
 /*
@@ -4335,71 +3093,45 @@ void BgVehicleComponentPathFollower::TriggerNodeNotification(BgVehicleComponentP
 BgVehicleComponentPathFollower::UpdateManualSpeed
 ==============
 */
-
-void __fastcall BgVehicleComponentPathFollower::UpdateManualSpeed(BgVehicleComponentPathFollower *this, double deltaTime)
+void BgVehicleComponentPathFollower::UpdateManualSpeed(BgVehicleComponentPathFollower *this, float deltaTime)
 {
-  char v2; 
-  char v3; 
+  float m_manualSpeed; 
+  float m_manualAccel; 
+  __int128 m_manualAccel_low; 
+  float m_manualDecel; 
+  __int128 m_manualSpeed_low; 
 
-  __asm
+  *(float *)&_XMM2 = this->m_manualSpeedTarget;
+  if ( *(float *)&_XMM2 >= 0.0 && deltaTime > 0.0 )
   {
-    vmovss  xmm2, dword ptr [rcx+150h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-  }
-  if ( !v2 )
-  {
-    __asm { vcomiss xmm1, xmm0 }
-    if ( !(v2 | v3) )
+    m_manualSpeed = this->m_manualSpeed;
+    if ( (float)(*(float *)&_XMM2 - m_manualSpeed) <= 0.0099999998 )
     {
-      __asm
+      if ( (float)(*(float *)&_XMM2 - m_manualSpeed) >= -0.0099999998 )
+        return;
+      m_manualDecel = this->m_manualDecel;
+      if ( m_manualDecel > 0.0099999998 )
       {
-        vmovss  xmm3, dword ptr [rcx+14Ch]
-        vmovss  xmm0, cs:__real@3c23d70a
-        vsubss  xmm4, xmm2, xmm3
-        vcomiss xmm4, xmm0
+        m_manualSpeed_low = LODWORD(this->m_manualSpeed);
+        *(float *)&m_manualSpeed_low = m_manualSpeed - (float)(m_manualDecel * deltaTime);
+        _XMM1 = m_manualSpeed_low;
+        __asm { vmaxss  xmm2, xmm1, xmm2 }
       }
-      if ( v2 | v3 )
-      {
-        __asm { vcomiss xmm4, cs:__real@bc23d70a }
-        if ( !v2 )
-          return;
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rcx+158h]
-          vcomiss xmm4, xmm0
-        }
-        if ( !(v2 | v3) )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm4, xmm1
-            vsubss  xmm1, xmm3, xmm0
-            vmaxss  xmm2, xmm1, xmm2
-          }
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rcx+154h]
-          vcomiss xmm5, xmm0
-        }
-        if ( !(v2 | v3) )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm5, xmm1
-            vaddss  xmm1, xmm0, xmm3
-            vminss  xmm2, xmm1, xmm2
-            vmovss  dword ptr [rcx+14Ch], xmm2
-          }
-          return;
-        }
-      }
-      __asm { vmovss  dword ptr [rcx+14Ch], xmm2 }
     }
+    else
+    {
+      m_manualAccel = this->m_manualAccel;
+      if ( m_manualAccel > 0.0099999998 )
+      {
+        m_manualAccel_low = LODWORD(this->m_manualAccel);
+        *(float *)&m_manualAccel_low = (float)(m_manualAccel * deltaTime) + m_manualSpeed;
+        _XMM1 = m_manualAccel_low;
+        __asm { vminss  xmm2, xmm1, xmm2 }
+        this->m_manualSpeed = *(float *)&_XMM2;
+        return;
+      }
+    }
+    this->m_manualSpeed = *(float *)&_XMM2;
   }
 }
 
@@ -4410,80 +3142,54 @@ BgVehicleComponentPathFollower::UpdateSteeringAngle
 */
 void BgVehicleComponentPathFollower::UpdateSteeringAngle(BgVehicleComponentPathFollower *this)
 {
-  const dvar_t *v7; 
-  const dvar_t *v8; 
+  BgVehiclePhysics *Owner; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  __int128 v5; 
+  const dvar_t *v6; 
+  float v9; 
+  float v10; 
+  __int128 v12; 
   const dvar_t *v13; 
-  const dvar_t *v23; 
+  __int128 v14; 
   vec3_t angles; 
-  char v35; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RSI = this;
-  _RDI = BgVehiclePhysicsComponent::GetOwner(this);
-  AxisToAngles((const tmat33_t<vec3_t> *)&_RDI->m_transform, &angles);
-  v7 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle;
+  Owner = BgVehiclePhysicsComponent::GetOwner(this);
+  AxisToAngles((const tmat33_t<vec3_t> *)&Owner->m_transform, &angles);
+  v3 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle;
   if ( !DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerSteeringMaxAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  v8 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxYawDiff;
+  Dvar_CheckFrontendServerThread(v3);
+  v4 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxYawDiff;
   if ( !DCONST_DVARFLT_bg_pathFollowerSteeringMaxYawDiff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerSteeringMaxYawDiff") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+118h]
-    vsubss  xmm1, xmm0, dword ptr [rsp+0B8h+angles+4]
-    vmulss  xmm5, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-  }
-  v13 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxYawDiff;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm2, 1
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm8, xmm0, cs:__real@43b40000
-    vandps  xmm6, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  v5 = LODWORD(this->m_pathAnglesInterpolated.v[1]);
+  v6 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxYawDiff;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  LODWORD(v9) = COERCE_UNSIGNED_INT((float)((float)((float)(this->m_pathAnglesInterpolated.v[1] - angles.v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0) & _xmm;
   if ( !DCONST_DVARFLT_bg_pathFollowerSteeringMaxYawDiff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerSteeringMaxYawDiff") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  v10 = v9 / v6->current.value;
+  _XMM6 = 0i64;
+  *(double *)&v12 = I_fclamp(v10, 0.0, 1.0);
+  v13 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle;
+  if ( !DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerSteeringMaxAngle") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v13);
+  *((_QWORD *)&v12 + 1) = *((_QWORD *)&v5 + 1) & *((_QWORD *)&_xmm + 1);
+  v14 = v12;
+  *(float *)&v14 = *(float *)&v12 * v13->current.value;
+  _XMM1 = v14 ^ _xmm;
   __asm
   {
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm6, xmm6, xmm6
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  v23 = DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle;
-  __asm { vmovaps xmm7, xmm0 }
-  if ( !DCONST_DVARFLT_bg_pathFollowerSteeringMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_pathFollowerSteeringMaxAngle") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  __asm
-  {
-    vmulss  xmm2, xmm7, dword ptr [rbx+28h]
-    vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
     vcmpless xmm0, xmm6, xmm8
     vblendvps xmm2, xmm1, xmm2, xmm0
-    vmovss  dword ptr [rdi+0AF0h], xmm2
-    vmovss  dword ptr [rdi+0AECh], xmm2
   }
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  Owner[3].m_pmoveTargetPosition.v[0] = *(float *)&_XMM2;
+  *(float *)&Owner[3].m_pmoveObject = *(float *)&_XMM2;
 }
 
 /*
@@ -4495,19 +3201,12 @@ void BgVehicleComponentPathFollower::WarpTo(BgVehicleComponentPathFollower *this
 {
   BgVehiclePhysics *Owner; 
 
-  _RDI = pos;
-  _RSI = this;
   Owner = BgVehiclePhysicsComponent::GetOwner(this);
-  BgVehiclePhysics::SetKeyframeTransform(Owner, _RDI, angles);
-  *(_QWORD *)&_RSI->m_yawVel = 0i64;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovsd  qword ptr [rsi+108h], xmm0
-  }
-  _RSI->m_pathPosInterpolated.v[2] = _RDI->v[2];
-  *(_QWORD *)_RSI->m_previousLinearVelocityWs.v = 0i64;
-  *(_QWORD *)&_RSI->m_previousLinearVelocityWs.z = 0i64;
-  *(_QWORD *)&_RSI->m_previousLinearAccelerationWs.y = 0i64;
+  BgVehiclePhysics::SetKeyframeTransform(Owner, pos, angles);
+  *(_QWORD *)&this->m_yawVel = 0i64;
+  this->m_pathPosInterpolated = *pos;
+  *(_QWORD *)this->m_previousLinearVelocityWs.v = 0i64;
+  *(_QWORD *)&this->m_previousLinearVelocityWs.z = 0i64;
+  *(_QWORD *)&this->m_previousLinearAccelerationWs.y = 0i64;
 }
 

@@ -83,62 +83,28 @@ R_ConvertHalfToByte
 unsigned __int8 R_ConvertHalfToByte(unsigned __int16 half)
 {
   int v1; 
-  int v2; 
+  float v3; 
+  bool v4; 
   bool v5; 
-  char v10; 
-  char v11; 
-  double v13; 
-  unsigned int v14; 
+  float v6; 
 
-  v1 = half & 0x3FF;
   if ( (half & 0x7C00) != 0 )
   {
-    v2 = (half >> 10) & 0x1F;
+    v1 = (half >> 10) & 0x1F;
   }
   else
   {
     if ( (half & 0x3FF) != 0 )
       return 0;
-    v2 = -112;
+    v1 = -112;
   }
-  __asm { vmovss  xmm2, cs:__real@437f0000 }
-  v5 = ((v1 << 13) | ((v2 + 112) << 23) | (half << 16) & 0x80000000) == 0;
-  v14 = (v1 << 13) | ((v2 + 112) << 23) | (half << 16) & 0x80000000;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+arg_0]
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vcvttss2si ebx, xmm1
-    vcomiss xmm1, cs:__real@4b800000
-  }
-  if ( v14 )
-  {
-    v10 = 0;
-    v5 = 1;
-  }
-  else
-  {
-    v10 = 1;
-  }
-  __asm
-  {
-    vcomiss xmm1, xmm0
-    vcomiss xmm1, xmm2
-  }
-  v11 = v5;
-  if ( !v10 || !v11 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm1, xmm1
-      vmovsd  [rsp+48h+var_10], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned char __cdecl float_to_integral_cast<unsigned char,float>(float)", (unsigned __int8)_EBX, v13) )
-      __debugbreak();
-  }
-  return _EBX;
+  LODWORD(v6) = ((half & 0x3FF) << 13) | ((v1 + 112) << 23) | (half << 16) & 0x80000000;
+  v3 = v6 * 255.0;
+  v4 = (float)(v6 * 255.0) >= 0.0 && v3 <= 16777216.0;
+  v5 = v3 >= 0.0 && v3 <= 255.0;
+  if ( (!v4 || !v5) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned char __cdecl float_to_integral_cast<unsigned char,float>(float)", (unsigned __int8)(int)(float)(v6 * 255.0), (float)(v6 * 255.0)) )
+    __debugbreak();
+  return (int)(float)(v6 * 255.0);
 }
 
 /*
@@ -149,34 +115,30 @@ R_CreateDriverManagedResource
 ID3D12Resource *R_CreateDriverManagedResource(D3D12_HEAP_TYPE heapType, const D3D12_RESOURCE_DESC *resourceDesc, D3D12_RESOURCE_STATES initState, D3D12_CLEAR_VALUE *clearValue)
 {
   ID3D12Device *d3d12device; 
-  HRESULT v10; 
-  const char *v11; 
-  __int64 v13; 
+  HRESULT v9; 
+  const char *v10; 
+  __int64 v12; 
+  __int128 v13; 
   __int128 v14; 
-  __int128 v15; 
-  int v16; 
+  int v15; 
 
   if ( !resourceDesc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 28, ASSERT_TYPE_ASSERT, "(resourceDesc)", (const char *)&queryFormat, "resourceDesc") )
     __debugbreak();
   d3d12device = g_dx.d3d12device;
   if ( !g_dx.d3d12device && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", LODWORD(g_dx.d3d12device) + 31, ASSERT_TYPE_ASSERT, "(device)", (const char *)&queryFormat, "device") )
     __debugbreak();
-  v16 = 1;
-  *(_QWORD *)((char *)&v14 + 4) = 0i64;
-  LODWORD(v14) = heapType;
-  HIDWORD(v14) = 1;
-  __asm
+  v15 = 1;
+  *(_QWORD *)((char *)&v13 + 4) = 0i64;
+  LODWORD(v13) = heapType;
+  HIDWORD(v13) = 1;
+  v14 = v13;
+  v9 = ((__int64 (__fastcall *)(ID3D12Device *, __int128 *, _QWORD, const D3D12_RESOURCE_DESC *, D3D12_RESOURCE_STATES, D3D12_CLEAR_VALUE *, GUID *, __int64 *))d3d12device->m_pFunction[9].QueryInterface)(d3d12device, &v14, 0i64, resourceDesc, initState, clearValue, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &v12);
+  if ( v9 < 0 )
   {
-    vmovups xmm0, [rsp+0A8h+var_60]
-    vmovups [rsp+0A8h+var_48], xmm0
+    v10 = R_ErrorDescription(v9);
+    Sys_Error((const ObfuscateErrorText)&stru_1443C9B70, 34i64, v10);
   }
-  v10 = ((__int64 (__fastcall *)(ID3D12Device *, __int128 *, _QWORD, const D3D12_RESOURCE_DESC *, D3D12_RESOURCE_STATES, D3D12_CLEAR_VALUE *, GUID *, __int64 *))d3d12device->m_pFunction[9].QueryInterface)(d3d12device, &v15, 0i64, resourceDesc, initState, clearValue, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &v13);
-  if ( v10 < 0 )
-  {
-    v11 = R_ErrorDescription(v10);
-    Sys_Error((const ObfuscateErrorText)&stru_1443C9B70, 34i64, v11);
-  }
-  return (ID3D12Resource *)v13;
+  return (ID3D12Resource *)v12;
 }
 
 /*
@@ -186,104 +148,60 @@ R_DownsamplePixelData
 */
 void R_DownsamplePixelData(int oldSize, int newSize, int stride, int bytesPerPixel, unsigned __int8 *src, unsigned __int8 *dst)
 {
-  __int64 v11; 
-  int v15; 
-  int v16; 
-  __int64 v20; 
-  __int64 v23; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
+  __int64 v7; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v14; 
+  int v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v21; 
   int i; 
-  int v32; 
+  int v23; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  v11 = (unsigned int)newSize;
+  v7 = (unsigned int)newSize;
   if ( newSize >= oldSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 91, ASSERT_TYPE_ASSERT, "(newSize < oldSize)", (const char *)&queryFormat, "newSize < oldSize") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  v15 = bytesPerPixel * stride;
-  v16 = v11;
-  __asm
+  v10 = bytesPerPixel * stride;
+  v11 = v7;
+  if ( (int)v7 > 0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r14d
-    vdivss  xmm6, xmm0, xmm1
-  }
-  if ( (int)v11 > 0 )
-  {
-    v20 = v11;
-    __asm
-    {
-      vmovaps [rsp+88h+var_48], xmm7
-      vmovaps [rsp+88h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3f000000
-    }
-    v23 = v15;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v12 = v7;
+    v14 = v10;
+    _XMM7 = 0i64;
     do
     {
-      if ( v16 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 99, ASSERT_TYPE_ASSERT, "(residual > 0)", (const char *)&queryFormat, "residual > 0") )
+      if ( v11 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 99, ASSERT_TYPE_ASSERT, "(residual > 0)", (const char *)&queryFormat, "residual > 0") )
         __debugbreak();
-      v26 = src[1];
-      v27 = src[2];
-      v28 = v11 + v16 - oldSize;
-      v29 = v16 * *src;
-      src += v23;
-      v30 = v16 * v26;
-      for ( i = v16 * v27; v28 <= 0; i += v32 )
+      v17 = src[1];
+      v18 = src[2];
+      v19 = v7 + v11 - oldSize;
+      v20 = v11 * *src;
+      src += v14;
+      v21 = v11 * v17;
+      for ( i = v11 * v18; v19 <= 0; i += v23 )
       {
-        v16 += v11;
-        v28 += v11;
-        v29 += v11 * *src;
-        v30 += v11 * src[1];
-        v32 = v11 * src[2];
-        src += v23;
+        v11 += v7;
+        v19 += v7;
+        v20 += v7 * *src;
+        v21 += v7 * src[1];
+        v23 = v7 * src[2];
+        src += v14;
       }
-      v16 += v11 - oldSize;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm7, xmm3, 1
-        vcvttss2si eax, xmm1
-      }
-      *dst = _EAX;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm7, xmm3, 1
-        vcvttss2si eax, xmm1
-      }
-      dst[1] = _EAX;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm7, xmm3, 1
-        vcvttss2si eax, xmm1
-      }
-      dst[2] = _EAX;
-      dst += v23;
-      --v20;
+      v11 += v7 - oldSize;
+      __asm { vroundss xmm1, xmm7, xmm3, 1 }
+      *dst = (int)*(float *)&_XMM1;
+      __asm { vroundss xmm1, xmm7, xmm3, 1 }
+      dst[1] = (int)*(float *)&_XMM1;
+      __asm { vroundss xmm1, xmm7, xmm3, 1 }
+      dst[2] = (int)*(float *)&_XMM1;
+      dst += v14;
+      --v12;
     }
-    while ( v20 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+88h+var_58]
-      vmovaps xmm7, [rsp+88h+var_48]
-    }
+    while ( v12 );
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
 }
 
 /*
@@ -316,380 +234,331 @@ __int64 R_GetBufferDataInternal(ID3D12Resource *sourceTexture, int x, int y, int
   int v9; 
   unsigned __int8 *v11; 
   __int64 v14; 
+  int v16; 
+  unsigned int v18; 
   int v19; 
-  int v22; 
-  D3D12_RESOURCE_STATES v28; 
-  __int32 v29; 
-  ID3D12Resource *v39; 
+  D3D12_RESOURCE_STATES v22; 
+  __int32 v23; 
+  __int128 v24; 
+  double v25; 
+  ID3D12Resource *v26; 
   __int64 result; 
-  HRESULT v44; 
-  const char *v45; 
-  int v46; 
-  unsigned __int64 v47; 
-  int v48; 
-  __int64 v49; 
-  _WORD *v50; 
+  HRESULT v28; 
+  const char *v29; 
+  int v30; 
+  unsigned __int64 v31; 
+  int v32; 
+  __int64 v33; 
+  _WORD *v34; 
+  __int64 v35; 
+  int v36; 
+  unsigned __int64 v37; 
+  unsigned __int16 *v38; 
+  __int64 v39; 
+  int v40; 
+  unsigned __int64 v41; 
+  __int64 v42; 
+  int *v43; 
+  int v44; 
+  unsigned int v45; 
+  __int64 v46; 
+  unsigned __int8 *v47; 
+  unsigned __int8 *v48; 
+  unsigned __int8 *v49; 
+  int v50; 
   __int64 v51; 
   int v52; 
-  unsigned __int64 v53; 
-  unsigned __int16 *v54; 
+  int v53; 
+  unsigned __int64 v54; 
   __int64 v55; 
-  int v56; 
-  unsigned __int64 v57; 
+  unsigned __int8 *v56; 
+  __int64 v57; 
   __int64 v58; 
-  int *v59; 
-  int v60; 
-  unsigned int v61; 
-  __int64 v62; 
-  unsigned __int8 *v63; 
-  unsigned __int8 *v64; 
-  unsigned __int8 *v65; 
+  int v59; 
+  char *v60; 
+  __int64 v61; 
+  int v62; 
+  unsigned int *v63; 
+  __int64 v64; 
+  unsigned int v65; 
   int v66; 
-  __int64 v67; 
+  unsigned __int8 *v67; 
   int v68; 
-  int v69; 
-  unsigned __int64 v70; 
-  __int64 v71; 
+  __int64 v69; 
+  char *v70; 
+  int v71; 
   unsigned __int8 *v72; 
-  __int64 v73; 
-  __int64 v74; 
-  int v75; 
-  char *v76; 
-  __int64 v77; 
+  size_t v73; 
+  int v74; 
+  __int64 v75; 
+  __int64 v76; 
+  unsigned __int8 *v77; 
   int v78; 
-  unsigned int *v79; 
+  __int64 v79; 
   __int64 v80; 
-  unsigned int v81; 
+  unsigned __int16 *v81; 
   int v82; 
-  unsigned __int8 *v83; 
-  int v84; 
-  __int64 v85; 
-  char *v86; 
-  int v87; 
-  unsigned __int8 *v88; 
-  size_t v89; 
-  int v90; 
-  __int64 v91; 
+  unsigned int v83; 
+  __int64 v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  __int64 v89; 
+  float v90; 
+  int v91; 
   __int64 v92; 
-  int v94; 
+  __int64 v93; 
+  unsigned __int64 *v94; 
   int v95; 
   __int64 v96; 
-  __int64 v97; 
-  unsigned __int16 *v98; 
-  int v99; 
-  unsigned int v100; 
-  __int64 v101; 
   __int64 v105; 
   int v106; 
-  __int64 v107; 
-  __int64 v108; 
+  int v107; 
+  unsigned __int64 v108; 
+  __int64 v109; 
   int v110; 
-  __int64 v111; 
-  __int64 v120; 
-  int v121; 
-  int v122; 
-  unsigned __int64 v123; 
-  __int64 v124; 
-  int v125; 
-  _DWORD *v126; 
-  __int64 v127; 
-  int v128; 
-  int v129; 
-  int v130; 
-  __int64 v131; 
+  _DWORD *v111; 
+  __int64 v112; 
+  int v113; 
+  int v114; 
+  int v115; 
+  __int64 v116; 
   int fmt; 
-  __int64 v133; 
-  __int64 v134; 
-  __int64 v135; 
-  unsigned int v137; 
-  unsigned int v138; 
-  unsigned int v139; 
-  unsigned int v140; 
-  unsigned int v141; 
-  __int64 v143; 
+  __int64 v118; 
+  __int64 v119; 
+  __int64 v120; 
+  __int64 v123; 
   unsigned __int64 fence; 
-  int v145; 
-  ID3D12Resource *v146; 
-  __int64 v147; 
-  unsigned __int64 v148; 
-  int v149; 
-  __int64 v150; 
-  __m256i v151; 
-  __m256i v154; 
-  __int128 v155; 
+  int v125; 
+  ID3D12Resource *v126; 
+  __int64 v127; 
+  unsigned __int64 v128; 
+  int v129; 
+  __int64 v130; 
+  __m256i v131; 
+  __int128 v132; 
+  double v133; 
+  __m256i v134; 
+  __int128 v135; 
+  double v136; 
   D3D12_RESOURCE_DESC resourceDesc; 
-  __int64 v158[2]; 
-  __int64 v159[2]; 
+  __int64 v138[2]; 
+  __int64 v139[2]; 
 
   v9 = bytesPerPixel;
   v11 = buffer;
-  v149 = bytesPerPixel;
-  v148 = (unsigned __int64)buffer;
+  v129 = bytesPerPixel;
+  v128 = (unsigned __int64)buffer;
   v14 = y;
   fence = (unsigned __int64)sourceTexture;
   if ( !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  ((void (__fastcall *)(ID3D12Resource *, __m256i *))sourceTexture->m_pFunction[3].AddRef)(sourceTexture, &v151);
-  __asm
+  ((void (__fastcall *)(ID3D12Resource *, __m256i *))sourceTexture->m_pFunction[3].AddRef)(sourceTexture, &v131);
+  v134 = v131;
+  v136 = v133;
+  v135 = v132;
+  if ( width < 1 || width > v131.m256i_i32[4] )
   {
-    vmovups ymm0, [rsp+1A8h+var_110]
-    vmovups xmm1, [rsp+1A8h+var_F0]
-    vmovups [rsp+1A8h+var_D8], ymm0
-    vmovsd  xmm0, [rsp+1A8h+var_E0]
-    vmovsd  [rsp+1A8h+var_A8], xmm0
-    vmovups [rsp+1A8h+var_B8], xmm1
-  }
-  if ( width < 1 || width > v151.m256i_i32[4] )
-  {
-    LODWORD(v133) = width;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 374, ASSERT_TYPE_ASSERT, "( 1 ) <= ( width ) && ( width ) <= ( (int)dsc.Width )", "width not in [1, (int)dsc.Width]\n\t%i not in [%i, %i]", v133, 1, v151.m256i_i32[4]) )
+    LODWORD(v118) = width;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 374, ASSERT_TYPE_ASSERT, "( 1 ) <= ( width ) && ( width ) <= ( (int)dsc.Width )", "width not in [1, (int)dsc.Width]\n\t%i not in [%i, %i]", v118, 1, v131.m256i_i32[4]) )
       __debugbreak();
   }
-  if ( height < 1 || height > v154.m256i_i32[6] )
+  if ( height < 1 || height > v134.m256i_i32[6] )
   {
-    LODWORD(v135) = v154.m256i_i32[6];
-    LODWORD(v134) = 1;
-    LODWORD(v133) = height;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 375, ASSERT_TYPE_ASSERT, "( 1 ) <= ( height ) && ( height ) <= ( (int)dsc.Height )", "height not in [1, (int)dsc.Height]\n\t%i not in [%i, %i]", v133, v134, v135) )
+    LODWORD(v120) = v134.m256i_i32[6];
+    LODWORD(v119) = 1;
+    LODWORD(v118) = height;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 375, ASSERT_TYPE_ASSERT, "( 1 ) <= ( height ) && ( height ) <= ( (int)dsc.Height )", "height not in [1, (int)dsc.Height]\n\t%i not in [%i, %i]", v118, v119, v120) )
       __debugbreak();
   }
-  __asm { vmovdqu ymm0, [rsp+1A8h+var_D8] }
-  v19 = x + width;
-  __asm
+  _YMM0 = v134;
+  v16 = x + width;
+  __asm { vextractf128 xmm1, ymm0, 1 }
+  v18 = _XMM1;
+  v125 = v16;
+  if ( v16 >= (unsigned int)(_XMM1 + 1) )
   {
-    vextractf128 xmm1, ymm0, 1
-    vmovd   ecx, xmm1
-  }
-  v145 = v19;
-  if ( v19 >= _ECX + 1 )
-  {
-    LODWORD(v134) = _ECX + 1;
-    LODWORD(v133) = v19;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 376, ASSERT_TYPE_ASSERT, "(unsigned)( x+width ) < (unsigned)( (int)dsc.Width+1 )", "x+width doesn't index (int)dsc.Width+1\n\t%i not in [0, %i)", v133, v134) )
+    LODWORD(v119) = _XMM1 + 1;
+    LODWORD(v118) = v16;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 376, ASSERT_TYPE_ASSERT, "(unsigned)( x+width ) < (unsigned)( (int)dsc.Width+1 )", "x+width doesn't index (int)dsc.Width+1\n\t%i not in [0, %i)", v118, v119) )
       __debugbreak();
-    _ECX = v154.m256i_u32[4];
+    v18 = v134.m256i_u32[4];
   }
-  v22 = v14 + height;
-  if ( (int)v14 + height >= (unsigned int)(v154.m256i_i32[6] + 1) )
+  v19 = v14 + height;
+  if ( (int)v14 + height >= (unsigned int)(v134.m256i_i32[6] + 1) )
   {
-    LODWORD(v134) = v154.m256i_i32[6] + 1;
-    LODWORD(v133) = v14 + height;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 377, ASSERT_TYPE_ASSERT, "(unsigned)( y+height ) < (unsigned)( (int)dsc.Height+1 )", "y+height doesn't index (int)dsc.Height+1\n\t%i not in [0, %i)", v133, v134) )
+    LODWORD(v119) = v134.m256i_i32[6] + 1;
+    LODWORD(v118) = v14 + height;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 377, ASSERT_TYPE_ASSERT, "(unsigned)( y+height ) < (unsigned)( (int)dsc.Height+1 )", "y+height doesn't index (int)dsc.Height+1\n\t%i not in [0, %i)", v118, v119) )
       __debugbreak();
-    _ECX = v154.m256i_u32[4];
+    v18 = v134.m256i_u32[4];
   }
-  if ( x >= _ECX )
+  if ( x >= v18 )
   {
-    LODWORD(v134) = _ECX;
-    LODWORD(v133) = x;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 378, ASSERT_TYPE_ASSERT, "(unsigned)( x ) < (unsigned)( (int)dsc.Width )", "x doesn't index (int)dsc.Width\n\t%i not in [0, %i)", v133, v134) )
+    LODWORD(v119) = v18;
+    LODWORD(v118) = x;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 378, ASSERT_TYPE_ASSERT, "(unsigned)( x ) < (unsigned)( (int)dsc.Width )", "x doesn't index (int)dsc.Width\n\t%i not in [0, %i)", v118, v119) )
       __debugbreak();
   }
-  if ( (unsigned int)v14 >= v154.m256i_i32[6] )
+  if ( (unsigned int)v14 >= v134.m256i_i32[6] )
   {
-    LODWORD(v134) = v154.m256i_i32[6];
-    LODWORD(v133) = v14;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 379, ASSERT_TYPE_ASSERT, "(unsigned)( y ) < (unsigned)( (int)dsc.Height )", "y doesn't index (int)dsc.Height\n\t%i not in [0, %i)", v133, v134) )
+    LODWORD(v119) = v134.m256i_i32[6];
+    LODWORD(v118) = v14;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 379, ASSERT_TYPE_ASSERT, "(unsigned)( y ) < (unsigned)( (int)dsc.Height )", "y doesn't index (int)dsc.Height\n\t%i not in [0, %i)", v118, v119) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, [rsp+1A8h+var_D8]
-    vmovups xmm1, [rsp+1A8h+var_B8]
-    vpextrd rax, xmm1, 1
-    vmovups ymmword ptr [rsp+1A8h+resourceDesc.Dimension], ymm0
-    vmovsd  xmm0, [rsp+1A8h+var_A8]
-    vmovsd  qword ptr [rsp+1A8h+resourceDesc.Flags], xmm0
-  }
+  _XMM1 = v135;
+  __asm { vpextrd rax, xmm1, 1 }
+  *(__m256i *)&resourceDesc.Dimension = v134;
+  *(double *)&resourceDesc.Flags = v136;
   if ( (unsigned int)_RAX <= 1 )
   {
-    __asm
-    {
-      vmovups xmm1, [rsp+1A8h+var_B8]
-      vmovd   eax, xmm1
-    }
     LOBYTE(fmt) = 0;
-    if ( _EAX == 10 )
+    if ( (_DWORD)v135 == 10 )
     {
-      __asm { vmovups xmmword ptr [rsp+1A8h+resourceDesc.Format], xmm1 }
-      resourceDesc.Format = _RT0;
+      resourceDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
       resourceDesc.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
       *(_QWORD *)&resourceDesc.Layout = 1i64;
-      v146 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-      if ( !v146 )
+      v126 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+      if ( !v126 )
         goto LABEL_36;
-      v28 = sourceTextureBeforeState;
-      v29 = sourceTextureBeforeState & 0x800;
+      v22 = sourceTextureBeforeState;
+      v23 = sourceTextureBeforeState & 0x800;
       if ( (sourceTextureBeforeState & 0x800) == 0 )
       {
-        v151.m256i_i64[3] = 2048i64;
-        v151.m256i_i32[5] = sourceTextureBeforeState;
-        v151.m256i_i64[0] = 0i64;
-        v151.m256i_i64[1] = fence;
-        v151.m256i_i32[4] = -1;
-        __asm
-        {
-          vmovups ymm0, [rsp+1A8h+var_110]
-          vmovups [rsp+1A8h+var_110], ymm0
-        }
-        ((void (__fastcall *)(GfxDevice *, _QWORD, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, (unsigned int)(v29 + 1), &v151);
+        v131.m256i_i64[3] = 2048i64;
+        v131.m256i_i32[5] = sourceTextureBeforeState;
+        v131.m256i_i64[0] = 0i64;
+        v131.m256i_i64[1] = fence;
+        v131.m256i_i32[4] = -1;
+        ((void (__fastcall *)(GfxDevice *, _QWORD, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, (unsigned int)(v23 + 1), &v131);
       }
     }
     else
     {
-      __asm
-      {
-        vmovups xmm1, [rsp+1A8h+var_B8]
-        vmovups xmmword ptr [rsp+1A8h+resourceDesc.Format], xmm1
-      }
+      *(_OWORD *)&resourceDesc.Format = v135;
       *(_QWORD *)&resourceDesc.Layout = 1i64;
-      v39 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-      v146 = v39;
-      if ( !v39 )
+      v26 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+      v126 = v26;
+      if ( !v26 )
         goto LABEL_36;
-      v28 = sourceTextureBeforeState;
-      v29 = sourceTextureBeforeState & 0x800;
+      v22 = sourceTextureBeforeState;
+      v23 = sourceTextureBeforeState & 0x800;
       if ( (sourceTextureBeforeState & 0x800) == 0 )
       {
-        v151.m256i_i64[3] = 2048i64;
-        v151.m256i_i32[5] = sourceTextureBeforeState;
-        v151.m256i_i64[0] = 0i64;
-        v151.m256i_i64[1] = fence;
-        v151.m256i_i32[4] = -1;
-        __asm
-        {
-          vmovups ymm0, [rsp+1A8h+var_110]
-          vmovups [rsp+1A8h+var_110], ymm0
-        }
-        ((void (__fastcall *)(GfxDevice *, _QWORD, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, (unsigned int)(v29 + 1), &v151);
-        v39 = v146;
+        v131.m256i_i64[3] = 2048i64;
+        v131.m256i_i32[5] = sourceTextureBeforeState;
+        v131.m256i_i64[0] = 0i64;
+        v131.m256i_i64[1] = fence;
+        v131.m256i_i32[4] = -1;
+        ((void (__fastcall *)(GfxDevice *, _QWORD, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, (unsigned int)(v23 + 1), &v131);
+        v26 = v126;
       }
-      PIXSetDebugName(v39, "Screenshot Staging");
+      PIXSetDebugName(v26, "Screenshot Staging");
     }
-    ((void (__fastcall *)(GfxDevice *, ID3D12Resource *, unsigned __int64, _QWORD, int))g_dx.immediateContext->m_pFunction[28].QueryInterface)(g_dx.immediateContext, v146, fence, 0i64, fmt);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+1A8h+resourceDesc.Dimension]
-      vmovups xmm1, xmmword ptr [rsp+1A8h+resourceDesc.Format]
-      vmovups [rsp+1A8h+var_D8], ymm0
-      vmovsd  xmm0, qword ptr [rsp+1A8h+resourceDesc.Flags]
-    }
+    ((void (__fastcall *)(GfxDevice *, ID3D12Resource *, unsigned __int64, _QWORD, int))g_dx.immediateContext->m_pFunction[28].QueryInterface)(g_dx.immediateContext, v126, fence, 0i64, fmt);
+    v24 = *(_OWORD *)&resourceDesc.Format;
+    v134 = *(__m256i *)&resourceDesc.Dimension;
+    v25 = *(double *)&resourceDesc.Flags;
     goto LABEL_41;
   }
-  __asm { vmovups xmmword ptr [rsp+1A8h+resourceDesc.Format], xmm1 }
-  resourceDesc.Format = _RT0;
-  v150 = 0i64;
-  v143 = 0i64;
+  resourceDesc.Format = v135;
+  v130 = 0i64;
+  v123 = 0i64;
   resourceDesc.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
   *(_QWORD *)&resourceDesc.Layout = 1i64;
-  v146 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-  if ( !v146 )
+  v126 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+  if ( !v126 )
   {
 LABEL_36:
     Com_PrintError(8, "ERROR: cannot take screenshot: R_CreateDriverManagedResource failed\n");
     return 0i64;
   }
-  v28 = sourceTextureBeforeState;
-  v29 = sourceTextureBeforeState & 0x800;
+  v22 = sourceTextureBeforeState;
+  v23 = sourceTextureBeforeState & 0x800;
   if ( (sourceTextureBeforeState & 0x800) == 0 )
   {
-    v151.m256i_i64[3] = 2048i64;
-    v151.m256i_i32[5] = sourceTextureBeforeState;
-    v151.m256i_i64[0] = 0i64;
-    v151.m256i_i64[1] = fence;
-    v151.m256i_i32[4] = -1;
-    __asm
-    {
-      vmovups ymm0, [rsp+1A8h+var_110]
-      vmovups [rsp+1A8h+var_110], ymm0
-    }
-    ((void (__fastcall *)(GfxDevice *, _QWORD, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, (unsigned int)(v29 + 1), &v151);
+    v131.m256i_i64[3] = 2048i64;
+    v131.m256i_i32[5] = sourceTextureBeforeState;
+    v131.m256i_i64[0] = 0i64;
+    v131.m256i_i64[1] = fence;
+    v131.m256i_i32[4] = -1;
+    ((void (__fastcall *)(GfxDevice *, _QWORD, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, (unsigned int)(v23 + 1), &v131);
   }
-  ((void (__fastcall *)(GfxDevice *, ID3D12Resource *, _QWORD, unsigned __int64, _DWORD, _DWORD))g_dx.immediateContext->m_pFunction[6].AddRef)(g_dx.immediateContext, v146, 0i64, fence, 0, v155);
-  ((void (__fastcall *)(ID3D12Resource *, __m256i *))v146->m_pFunction[3].AddRef)(v146, &v151);
-  __asm
-  {
-    vmovups ymm0, [rsp+1A8h+var_110]
-    vmovups xmm1, [rsp+1A8h+var_F0]
-    vmovups [rsp+1A8h+var_D8], ymm0
-    vmovsd  xmm0, [rsp+1A8h+var_E0]
-  }
+  ((void (__fastcall *)(GfxDevice *, ID3D12Resource *, _QWORD, unsigned __int64, _DWORD, _DWORD))g_dx.immediateContext->m_pFunction[6].AddRef)(g_dx.immediateContext, v126, 0i64, fence, 0, v135);
+  ((void (__fastcall *)(ID3D12Resource *, __m256i *))v126->m_pFunction[3].AddRef)(v126, &v131);
+  v24 = v132;
+  v134 = v131;
+  v25 = v133;
 LABEL_41:
-  __asm
+  v135 = v24;
+  v136 = v25;
+  if ( !v23 )
   {
-    vmovups [rsp+1A8h+var_B8], xmm1
-    vmovsd  [rsp+1A8h+var_A8], xmm0
-  }
-  if ( !v29 )
-  {
-    v151.m256i_i64[0] = 0i64;
-    v151.m256i_i64[1] = fence;
-    v151.m256i_i64[3] = (unsigned int)v28;
-    v151.m256i_i64[2] = 0x800FFFFFFFFi64;
-    __asm
-    {
-      vmovups ymm0, [rsp+1A8h+var_110]
-      vmovups [rsp+1A8h+var_110], ymm0
-    }
-    ((void (__fastcall *)(GfxDevice *, __int64, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, 1i64, &v151);
+    v131.m256i_i64[0] = 0i64;
+    v131.m256i_i64[1] = fence;
+    v131.m256i_i64[3] = (unsigned int)v22;
+    v131.m256i_i64[2] = 0x800FFFFFFFFi64;
+    ((void (__fastcall *)(GfxDevice *, __int64, __m256i *))g_dx.immediateContext->m_pFunction[8].Release)(g_dx.immediateContext, 1i64, &v131);
   }
   fence = R_FlushImmediateContext();
   R_HW_WaitForFence(&fence);
-  ((void (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, __int64, _QWORD, _QWORD, _QWORD, __int64 *, __int64 *))g_dx.d3d12device->m_pFunction[12].Release)(g_dx.d3d12device, &v154, 0i64, 1i64, 0i64, 0i64, 0i64, &v143, &v150);
-  v147 = 0i64;
-  v158[0] = 0i64;
-  v158[1] = v150;
-  v44 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, __int64 *, __int64 *))v146->m_pFunction[2].Release)(v146, 0i64, v158, &v147);
-  if ( v44 < 0 )
+  ((void (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, __int64, _QWORD, _QWORD, _QWORD, __int64 *, __int64 *))g_dx.d3d12device->m_pFunction[12].Release)(g_dx.d3d12device, &v134, 0i64, 1i64, 0i64, 0i64, 0i64, &v123, &v130);
+  v127 = 0i64;
+  v138[0] = 0i64;
+  v138[1] = v130;
+  v28 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, __int64 *, __int64 *))v126->m_pFunction[2].Release)(v126, 0i64, v138, &v127);
+  if ( v28 < 0 )
   {
-    v45 = R_ErrorDescription(v44);
-    Sys_Error((const ObfuscateErrorText)&stru_1443CA190, 578i64, v45);
+    v29 = R_ErrorDescription(v28);
+    Sys_Error((const ObfuscateErrorText)&stru_1443CA190, 578i64, v29);
   }
-  switch ( (int)v155 )
+  switch ( (int)v135 )
   {
     case 10:
-      v46 = x;
-      v47 = v147 + v143 * v14 + 8i64 * x;
+      v30 = x;
+      v31 = v127 + v123 * v14 + 8i64 * x;
       if ( (unsigned __int64)bytesPerPixel < 6 )
       {
         if ( (unsigned int)(bytesPerPixel - 3) > 1 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 623, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 3 || bytesPerPixel == 4)", (const char *)&queryFormat, "bytesPerPixel == 3 || bytesPerPixel == 4") )
             __debugbreak();
-          v46 = x;
+          v30 = x;
         }
         if ( (int)v14 < (int)v14 + height )
         {
-          v52 = v145;
-          v53 = (unsigned int)height;
-          v148 = (unsigned int)height;
+          v36 = v125;
+          v37 = (unsigned int)height;
+          v128 = (unsigned int)height;
           do
           {
-            v54 = (unsigned __int16 *)v47;
-            if ( v46 < v52 )
+            v38 = (unsigned __int16 *)v31;
+            if ( v30 < v36 )
             {
-              v55 = width;
+              v39 = width;
               do
               {
-                *v11 = R_ConvertHalfToByte(v54[2]);
-                v11[1] = R_ConvertHalfToByte(v54[1]);
-                v11[2] = R_ConvertHalfToByte(*v54);
+                *v11 = R_ConvertHalfToByte(v38[2]);
+                v11[1] = R_ConvertHalfToByte(v38[1]);
+                v11[2] = R_ConvertHalfToByte(*v38);
                 if ( bytesPerPixel == 4 )
-                  v11[3] = R_ConvertHalfToByte(v54[3]);
+                  v11[3] = R_ConvertHalfToByte(v38[3]);
                 v11 += bytesPerPixel;
-                v54 += 4;
-                --v55;
+                v38 += 4;
+                --v39;
               }
-              while ( v55 );
-              v53 = v148;
+              while ( v39 );
+              v37 = v128;
             }
-            v47 += v143;
-            if ( (unsigned __int64)v54 > v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 642, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
+            v31 += v123;
+            if ( (unsigned __int64)v38 > v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 642, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
               __debugbreak();
-            v46 = x;
-            v148 = --v53;
+            v30 = x;
+            v128 = --v37;
           }
-          while ( v53 );
+          while ( v37 );
         }
       }
       else
@@ -698,114 +567,114 @@ LABEL_41:
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 597, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 6 || bytesPerPixel == 8)", (const char *)&queryFormat, "bytesPerPixel == 6 || bytesPerPixel == 8") )
             __debugbreak();
-          v46 = x;
+          v30 = x;
         }
         if ( (int)v14 < (int)v14 + height )
         {
-          v48 = v145;
-          v49 = (unsigned int)height;
+          v32 = v125;
+          v33 = (unsigned int)height;
           do
           {
-            v50 = (_WORD *)v47;
-            if ( v46 < v48 )
+            v34 = (_WORD *)v31;
+            if ( v30 < v32 )
             {
-              v51 = width;
+              v35 = width;
               do
               {
-                *(_WORD *)v11 = v50[2];
-                *((_WORD *)v11 + 1) = v50[1];
-                *((_WORD *)v11 + 2) = *v50;
+                *(_WORD *)v11 = v34[2];
+                *((_WORD *)v11 + 1) = v34[1];
+                *((_WORD *)v11 + 2) = *v34;
                 if ( bytesPerPixel == 8 )
-                  *((_WORD *)v11 + 3) = v50[3];
+                  *((_WORD *)v11 + 3) = v34[3];
                 v11 += 2 * ((unsigned __int64)bytesPerPixel >> 1);
-                v50 += 4;
-                --v51;
+                v34 += 4;
+                --v35;
               }
-              while ( v51 );
+              while ( v35 );
             }
-            v47 += v143;
-            if ( (unsigned __int64)v50 > v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 616, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
+            v31 += v123;
+            if ( (unsigned __int64)v34 > v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 616, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
               __debugbreak();
-            v46 = x;
-            --v49;
+            v30 = x;
+            --v33;
           }
-          while ( v49 );
+          while ( v33 );
         }
       }
       goto LABEL_210;
     case 24:
       if ( (unsigned int)(bytesPerPixel - 3) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 966, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 3 || bytesPerPixel == 4)", (const char *)&queryFormat, "bytesPerPixel == 3 || bytesPerPixel == 4") )
         __debugbreak();
-      v122 = x;
-      v123 = v147 + v143 * v14 + 4i64 * x;
-      if ( (int)v14 < v22 )
+      v107 = x;
+      v108 = v127 + v123 * v14 + 4i64 * x;
+      if ( (int)v14 < v19 )
       {
-        v124 = (unsigned int)height;
-        v125 = v145;
+        v109 = (unsigned int)height;
+        v110 = v125;
         do
         {
-          v126 = (_DWORD *)v123;
-          if ( v122 < v125 )
+          v111 = (_DWORD *)v108;
+          if ( v107 < v110 )
           {
-            v127 = width;
+            v112 = width;
             do
             {
-              v128 = (*v126 >> 10) & 0x3FF;
-              v129 = *v126 & 0x3FF;
-              v130 = *v126 >> 30;
-              *v11 = 255 * ((*v126 >> 20) & 0x3FFu) / 0x3FF;
-              v11[1] = 255 * v128 / 0x3FFu;
-              v11[2] = 255 * v129 / 0x3FFu;
+              v113 = (*v111 >> 10) & 0x3FF;
+              v114 = *v111 & 0x3FF;
+              v115 = *v111 >> 30;
+              *v11 = 255 * ((*v111 >> 20) & 0x3FFu) / 0x3FF;
+              v11[1] = 255 * v113 / 0x3FFu;
+              v11[2] = 255 * v114 / 0x3FFu;
               if ( bytesPerPixel == 4 )
-                v11[3] = 255 * v130 / 3u;
+                v11[3] = 255 * v115 / 3u;
               v11 += bytesPerPixel;
-              ++v126;
-              --v127;
+              ++v111;
+              --v112;
             }
-            while ( v127 );
+            while ( v112 );
           }
-          v123 += v143;
-          if ( (unsigned __int64)v126 > v123 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 995, ASSERT_TYPE_ASSERT, "(( void* )srcPixel <= ( void* )srcData)", (const char *)&queryFormat, "( void* )srcPixel <= ( void* )srcData") )
+          v108 += v123;
+          if ( (unsigned __int64)v111 > v108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 995, ASSERT_TYPE_ASSERT, "(( void* )srcPixel <= ( void* )srcData)", (const char *)&queryFormat, "( void* )srcPixel <= ( void* )srcData") )
             __debugbreak();
-          v122 = x;
-          --v124;
+          v107 = x;
+          --v109;
         }
-        while ( v124 );
+        while ( v109 );
       }
       goto LABEL_210;
     case 26:
-      v74 = v143;
-      v75 = x;
-      v76 = (char *)(v147 + v143 * v14 + 4i64 * x);
+      v58 = v123;
+      v59 = x;
+      v60 = (char *)(v127 + v123 * v14 + 4i64 * x);
       if ( bytesPerPixel == 8 )
       {
-        if ( (int)v14 < v22 )
+        if ( (int)v14 < v19 )
         {
-          v77 = (unsigned int)height;
-          v78 = v145;
+          v61 = (unsigned int)height;
+          v62 = v125;
           do
           {
-            v79 = (unsigned int *)v76;
-            if ( v75 < v78 )
+            v63 = (unsigned int *)v60;
+            if ( v59 < v62 )
             {
-              v80 = width;
+              v64 = width;
               do
               {
-                v81 = *v79++;
+                v65 = *v63++;
                 *((_WORD *)v11 + 3) = 15360;
-                *(_WORD *)v11 = 16 * (v81 & 0x7FF);
-                *((_WORD *)v11 + 1) = 16 * ((v81 >> 11) & 0x7FF);
-                *((_WORD *)v11 + 2) = 32 * (v81 >> 22);
+                *(_WORD *)v11 = 16 * (v65 & 0x7FF);
+                *((_WORD *)v11 + 1) = 16 * ((v65 >> 11) & 0x7FF);
+                *((_WORD *)v11 + 2) = 32 * (v65 >> 22);
                 v11 += 8;
-                --v80;
+                --v64;
               }
-              while ( v80 );
-              v75 = x;
+              while ( v64 );
+              v59 = x;
             }
-            v76 += v74;
-            --v77;
+            v60 += v58;
+            --v61;
           }
-          while ( v77 );
+          while ( v61 );
         }
         goto LABEL_210;
       }
@@ -813,127 +682,127 @@ LABEL_41:
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 876, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 4)", (const char *)&queryFormat, "bytesPerPixel == 4") )
           __debugbreak();
-        v74 = v143;
+        v58 = v123;
       }
-      v82 = width;
-      v83 = buffer;
-      if ( (int)v14 >= v22 )
+      v66 = width;
+      v67 = buffer;
+      if ( (int)v14 >= v19 )
       {
-        v84 = height;
+        v68 = height;
       }
       else
       {
-        v84 = height;
-        v85 = (unsigned int)height;
+        v68 = height;
+        v69 = (unsigned int)height;
         do
         {
-          memcpy_0(v83, v76, 4 * width);
-          v76 += v74;
-          v83 += 4 * width;
-          --v85;
+          memcpy_0(v67, v60, 4 * width);
+          v60 += v58;
+          v67 += 4 * width;
+          --v69;
         }
-        while ( v85 );
-        v11 = (unsigned __int8 *)v148;
-        v82 = width;
+        while ( v69 );
+        v11 = (unsigned __int8 *)v128;
+        v66 = width;
       }
-      if ( v83 - v11 != 4i64 * v84 * v82 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 888, ASSERT_TYPE_ASSERT, "(static_cast< size_t >( reinterpret_cast< byte * >( dstPixel ) - buffer ) == static_cast< size_t >( width * height * sizeof( uint32_t ) ))", (const char *)&queryFormat, "static_cast< size_t >( reinterpret_cast< byte * >( dstPixel ) - buffer ) == static_cast< size_t >( width * height * sizeof( uint32_t ) )") )
+      if ( v67 - v11 != 4i64 * v68 * v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 888, ASSERT_TYPE_ASSERT, "(static_cast< size_t >( reinterpret_cast< byte * >( dstPixel ) - buffer ) == static_cast< size_t >( width * height * sizeof( uint32_t ) ))", (const char *)&queryFormat, "static_cast< size_t >( reinterpret_cast< byte * >( dstPixel ) - buffer ) == static_cast< size_t >( width * height * sizeof( uint32_t ) )") )
         goto LABEL_195;
       goto LABEL_210;
     case 27:
     case 28:
       if ( (unsigned int)(bytesPerPixel - 3) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 824, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 3 || bytesPerPixel == 4)", (const char *)&queryFormat, "bytesPerPixel == 3 || bytesPerPixel == 4") )
         __debugbreak();
-      v69 = x;
-      v70 = v147 + v143 * v14 + 4i64 * x;
-      if ( (int)v14 < v22 )
+      v53 = x;
+      v54 = v127 + v123 * v14 + 4i64 * x;
+      if ( (int)v14 < v19 )
       {
-        v71 = (unsigned int)height;
+        v55 = (unsigned int)height;
         do
         {
-          v72 = (unsigned __int8 *)v70;
-          if ( v69 < v19 )
+          v56 = (unsigned __int8 *)v54;
+          if ( v53 < v16 )
           {
-            v73 = width;
+            v57 = width;
             do
             {
-              *v11 = v72[2];
-              v11[1] = v72[1];
-              v11[2] = *v72;
+              *v11 = v56[2];
+              v11[1] = v56[1];
+              v11[2] = *v56;
               if ( bytesPerPixel == 4 )
-                v11[3] = v72[3];
+                v11[3] = v56[3];
               v11 += bytesPerPixel;
-              v72 += 4;
-              --v73;
+              v56 += 4;
+              --v57;
             }
-            while ( v73 );
+            while ( v57 );
           }
-          v70 += v143;
-          if ( (unsigned __int64)v72 > v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 845, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
+          v54 += v123;
+          if ( (unsigned __int64)v56 > v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 845, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
             __debugbreak();
-          v69 = x;
-          --v71;
+          v53 = x;
+          --v55;
         }
-        while ( v71 );
+        while ( v55 );
       }
       goto LABEL_210;
     case 39:
       if ( image_format == GFX_PF_R32F )
       {
-        v56 = x;
-        v57 = v147 + v143 * v14 + 4i64 * x;
-        if ( (int)v14 < v22 )
+        v40 = x;
+        v41 = v127 + v123 * v14 + 4i64 * x;
+        if ( (int)v14 < v19 )
         {
-          v58 = (unsigned int)height;
+          v42 = (unsigned int)height;
           do
           {
-            v59 = (int *)v57;
-            v60 = v56;
-            if ( v56 < v19 )
+            v43 = (int *)v41;
+            v44 = v40;
+            if ( v40 < v16 )
             {
               if ( width >= 4 )
               {
-                v61 = ((unsigned int)(v19 - v56 - 4) >> 2) + 1;
-                v62 = v61;
-                v60 = v56 + 4 * v61;
+                v45 = ((unsigned int)(v16 - v40 - 4) >> 2) + 1;
+                v46 = v45;
+                v44 = v40 + 4 * v45;
                 do
                 {
-                  *(_DWORD *)v11 = *v59;
-                  v63 = &v11[bytesPerPixel];
-                  *(_DWORD *)v63 = v59[1];
-                  v64 = &v63[bytesPerPixel];
-                  *(_DWORD *)v64 = v59[2];
-                  v65 = &v64[bytesPerPixel];
-                  v66 = v59[3];
-                  v59 += 4;
-                  *(_DWORD *)v65 = v66;
-                  v11 = &v65[bytesPerPixel];
-                  --v62;
+                  *(_DWORD *)v11 = *v43;
+                  v47 = &v11[bytesPerPixel];
+                  *(_DWORD *)v47 = v43[1];
+                  v48 = &v47[bytesPerPixel];
+                  *(_DWORD *)v48 = v43[2];
+                  v49 = &v48[bytesPerPixel];
+                  v50 = v43[3];
+                  v43 += 4;
+                  *(_DWORD *)v49 = v50;
+                  v11 = &v49[bytesPerPixel];
+                  --v46;
                 }
-                while ( v62 );
+                while ( v46 );
               }
-              if ( v60 < v19 )
+              if ( v44 < v16 )
               {
-                v67 = (unsigned int)(v19 - v60);
+                v51 = (unsigned int)(v16 - v44);
                 do
                 {
-                  v68 = *v59++;
-                  *(_DWORD *)v11 = v68;
+                  v52 = *v43++;
+                  *(_DWORD *)v11 = v52;
                   v11 += bytesPerPixel;
-                  --v67;
+                  --v51;
                 }
-                while ( v67 );
+                while ( v51 );
               }
             }
-            v57 += v143;
-            if ( (unsigned __int64)v59 > v57 )
+            v41 += v123;
+            if ( (unsigned __int64)v43 > v41 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 810, ASSERT_TYPE_ASSERT, "((void*)srcPixel <= (void*)srcData)", (const char *)&queryFormat, "(void*)srcPixel <= (void*)srcData") )
                 __debugbreak();
-              v56 = x;
+              v40 = x;
             }
-            --v58;
+            --v42;
           }
-          while ( v58 );
+          while ( v42 );
         }
       }
       goto LABEL_210;
@@ -941,33 +810,33 @@ LABEL_41:
     case 54:
       if ( ((bytesPerPixel - 2) & 0xFFFFFFFD) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 898, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 2 || bytesPerPixel == 4)", (const char *)&queryFormat, "bytesPerPixel == 2 || bytesPerPixel == 4") )
         __debugbreak();
-      v86 = (char *)(v147 + 2i64 * x + v143 * v14);
+      v70 = (char *)(v127 + 2i64 * x + v123 * v14);
       if ( bytesPerPixel == 2 )
       {
-        v87 = width;
-        v88 = buffer;
-        v89 = 2i64 * width;
-        if ( (int)v14 >= v22 )
+        v71 = width;
+        v72 = buffer;
+        v73 = 2i64 * width;
+        if ( (int)v14 >= v19 )
         {
-          v90 = height;
+          v74 = height;
         }
         else
         {
-          v90 = height;
-          v91 = v143;
-          v92 = (unsigned int)height;
+          v74 = height;
+          v75 = v123;
+          v76 = (unsigned int)height;
           do
           {
-            memcpy_0(v88, v86, v89);
-            v86 += v91;
-            v88 += v89;
-            --v92;
+            memcpy_0(v72, v70, v73);
+            v70 += v75;
+            v72 += v73;
+            --v76;
           }
-          while ( v92 );
-          v11 = (unsigned __int8 *)v148;
-          v87 = width;
+          while ( v76 );
+          v11 = (unsigned __int8 *)v128;
+          v71 = width;
         }
-        if ( v88 - v11 != 2 * v90 * v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 915, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel ))", (const char *)&queryFormat, "static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel )") )
+        if ( v72 - v11 != 2 * v74 * v71 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 915, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel ))", (const char *)&queryFormat, "static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel )") )
 LABEL_195:
           __debugbreak();
       }
@@ -975,188 +844,160 @@ LABEL_195:
       {
         if ( bytesPerPixel != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 919, ASSERT_TYPE_ASSERT, "(bytesPerPixel == 4)", (const char *)&queryFormat, "bytesPerPixel == 4") )
           __debugbreak();
-        _R8 = buffer;
+        v77 = buffer;
         if ( image_format == GFX_PF_R16F )
         {
-          if ( (int)v14 >= v22 )
+          if ( (int)v14 >= v19 )
           {
-            v94 = height;
+            v78 = height;
           }
           else
           {
-            v94 = height;
-            v95 = x;
-            v96 = (unsigned int)height;
-            v97 = v143;
+            v78 = height;
+            v79 = (unsigned int)height;
+            v80 = v123;
             do
             {
-              v98 = (unsigned __int16 *)v86;
-              v99 = v95;
-              if ( v95 < v19 )
+              v81 = (unsigned __int16 *)v70;
+              v82 = x;
+              if ( x < v16 )
               {
                 if ( width >= 4 )
                 {
-                  v100 = ((unsigned int)(v19 - v95 - 4) >> 2) + 1;
-                  v101 = v100;
-                  v99 = v95 + 4 * v100;
+                  v83 = ((unsigned int)(v16 - x - 4) >> 2) + 1;
+                  v84 = v83;
+                  v82 = x + 4 * v83;
                   do
                   {
-                    if ( *v98 )
-                    {
-                      v137 = ((*v98 & 0x8000) << 16) | (((((*v98 & 0x3FFF) << 14) - (~(*v98 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-                      __asm { vmovss  xmm0, [rsp+1A8h+var_158] }
-                    }
+                    if ( *v81 )
+                      LODWORD(v85) = ((*v81 & 0x8000) << 16) | (((((*v81 & 0x3FFF) << 14) - (~(*v81 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
                     else
-                    {
-                      __asm { vxorps  xmm0, xmm0, xmm0 }
-                    }
-                    __asm { vmovss  dword ptr [r8], xmm0 }
-                    if ( v98[1] )
-                    {
-                      v138 = ((v98[1] & 0x8000) << 16) | (((((v98[1] & 0x3FFF) << 14) - (~(v98[1] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-                      __asm { vmovss  xmm0, [rsp+1A8h+var_158] }
-                    }
+                      v85 = 0.0;
+                    *(float *)v77 = v85;
+                    if ( v81[1] )
+                      LODWORD(v86) = ((v81[1] & 0x8000) << 16) | (((((v81[1] & 0x3FFF) << 14) - (~(v81[1] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
                     else
-                    {
-                      __asm { vxorps  xmm0, xmm0, xmm0 }
-                    }
-                    __asm { vmovss  dword ptr [r8+4], xmm0 }
-                    if ( v98[2] )
-                    {
-                      v139 = ((v98[2] & 0x8000) << 16) | (((((v98[2] & 0x3FFF) << 14) - (~(v98[2] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-                      __asm { vmovss  xmm0, [rsp+1A8h+var_158] }
-                    }
+                      v86 = 0.0;
+                    *((float *)v77 + 1) = v86;
+                    if ( v81[2] )
+                      LODWORD(v87) = ((v81[2] & 0x8000) << 16) | (((((v81[2] & 0x3FFF) << 14) - (~(v81[2] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
                     else
-                    {
-                      __asm { vxorps  xmm0, xmm0, xmm0 }
-                    }
-                    __asm { vmovss  dword ptr [r8+8], xmm0 }
-                    if ( v98[3] )
-                    {
-                      v140 = ((v98[3] & 0x8000) << 16) | (((((v98[3] & 0x3FFF) << 14) - (~(v98[3] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-                      __asm { vmovss  xmm0, [rsp+1A8h+var_158] }
-                    }
+                      v87 = 0.0;
+                    *((float *)v77 + 2) = v87;
+                    if ( v81[3] )
+                      LODWORD(v88) = ((v81[3] & 0x8000) << 16) | (((((v81[3] & 0x3FFF) << 14) - (~(v81[3] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
                     else
-                    {
-                      __asm { vxorps  xmm0, xmm0, xmm0 }
-                    }
-                    __asm { vmovss  dword ptr [r8+0Ch], xmm0 }
-                    _R8 += 16;
-                    v98 += 4;
-                    --v101;
+                      v88 = 0.0;
+                    *((float *)v77 + 3) = v88;
+                    v77 += 16;
+                    v81 += 4;
+                    --v84;
                   }
-                  while ( v101 );
+                  while ( v84 );
                 }
-                if ( v99 < v19 )
+                if ( v82 < v16 )
                 {
-                  v105 = (unsigned int)(v19 - v99);
+                  v89 = (unsigned int)(v16 - v82);
                   do
                   {
-                    if ( *v98 )
-                    {
-                      v141 = ((*v98 & 0x8000) << 16) | (((((*v98 & 0x3FFF) << 14) - (~(*v98 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-                      __asm { vmovss  xmm0, [rsp+1A8h+var_158] }
-                    }
+                    if ( *v81 )
+                      LODWORD(v90) = ((*v81 & 0x8000) << 16) | (((((*v81 & 0x3FFF) << 14) - (~(*v81 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
                     else
-                    {
-                      __asm { vxorps  xmm0, xmm0, xmm0 }
-                    }
-                    __asm { vmovss  dword ptr [r8], xmm0 }
-                    _R8 += 4;
-                    ++v98;
-                    --v105;
+                      v90 = 0.0;
+                    *(float *)v77 = v90;
+                    v77 += 4;
+                    ++v81;
+                    --v89;
                   }
-                  while ( v105 );
+                  while ( v89 );
                 }
-                v97 = v143;
+                v80 = v123;
               }
-              v86 += v97;
-              --v96;
+              v70 += v80;
+              --v79;
             }
-            while ( v96 );
-            v11 = (unsigned __int8 *)v148;
-            v9 = v149;
+            while ( v79 );
+            v11 = (unsigned __int8 *)v128;
+            v9 = v129;
           }
-          if ( _R8 - v11 != v94 * width * v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 936, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel ))", (const char *)&queryFormat, "static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel )") )
+          if ( v77 - v11 != v78 * width * v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 936, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel ))", (const char *)&queryFormat, "static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel )") )
             goto LABEL_195;
         }
         else
         {
-          if ( (int)v14 >= v22 )
+          if ( (int)v14 >= v19 )
           {
-            v106 = height;
+            v91 = height;
           }
           else
           {
-            v106 = height;
-            v107 = (unsigned int)height;
-            v108 = v143;
+            v91 = height;
+            v92 = (unsigned int)height;
+            v93 = v123;
             do
             {
-              _R9 = (unsigned __int16 *)v86;
-              v110 = x;
-              if ( x < v19 )
+              v94 = (unsigned __int64 *)v70;
+              v95 = x;
+              if ( x < v16 )
               {
                 if ( (unsigned int)width >= 0x10 )
                 {
-                  v111 = v19 - 1;
-                  if ( &_R8[4 * x] > (unsigned __int8 *)&v86[2 * v111] || &_R8[4 * v111] < (unsigned __int8 *)&v86[2 * x] )
+                  v96 = v16 - 1;
+                  if ( &v77[4 * x] > (unsigned __int8 *)&v70[2 * v96] || &v77[4 * v96] < (unsigned __int8 *)&v70[2 * x] )
                   {
                     do
                     {
-                      __asm
-                      {
-                        vmovq   xmm0, qword ptr [r9]
-                        vpmovzxwd xmm1, xmm0
-                        vmovq   xmm0, qword ptr [r9+8]
-                        vmovdqu xmmword ptr [r8], xmm1
-                        vpmovzxwd xmm1, xmm0
-                        vmovq   xmm0, qword ptr [r9+10h]
-                        vmovdqu xmmword ptr [r8+10h], xmm1
-                        vpmovzxwd xmm1, xmm0
-                        vmovq   xmm0, qword ptr [r9+18h]
-                        vmovdqu xmmword ptr [r8+20h], xmm1
-                        vpmovzxwd xmm1, xmm0
-                        vmovdqu xmmword ptr [r8+30h], xmm1
-                      }
-                      _R8 += 64;
-                      _R9 += 16;
-                      v110 += 16;
+                      _XMM0 = *v94;
+                      __asm { vpmovzxwd xmm1, xmm0 }
+                      _XMM0 = v94[1];
+                      *(_OWORD *)v77 = _XMM1;
+                      __asm { vpmovzxwd xmm1, xmm0 }
+                      _XMM0 = v94[2];
+                      *((_OWORD *)v77 + 1) = _XMM1;
+                      __asm { vpmovzxwd xmm1, xmm0 }
+                      _XMM0 = v94[3];
+                      *((_OWORD *)v77 + 2) = _XMM1;
+                      __asm { vpmovzxwd xmm1, xmm0 }
+                      *((_OWORD *)v77 + 3) = _XMM1;
+                      v77 += 64;
+                      v94 += 4;
+                      v95 += 16;
                     }
-                    while ( v110 < v19 - width % 16 );
+                    while ( v95 < v16 - width % 16 );
                   }
                 }
-                if ( v110 < v19 )
+                if ( v95 < v16 )
                 {
-                  v120 = (unsigned int)(v19 - v110);
+                  v105 = (unsigned int)(v16 - v95);
                   do
                   {
-                    v121 = *_R9++;
-                    *(_DWORD *)_R8 = v121;
-                    _R8 += 4;
-                    --v120;
+                    v106 = *(unsigned __int16 *)v94;
+                    v94 = (unsigned __int64 *)((char *)v94 + 2);
+                    *(_DWORD *)v77 = v106;
+                    v77 += 4;
+                    --v105;
                   }
-                  while ( v120 );
+                  while ( v105 );
                 }
-                v108 = v143;
+                v93 = v123;
               }
-              v86 += v108;
-              --v107;
+              v70 += v93;
+              --v92;
             }
-            while ( v107 );
-            v11 = (unsigned __int8 *)v148;
-            v9 = v149;
+            while ( v92 );
+            v11 = (unsigned __int8 *)v128;
+            v9 = v129;
           }
-          if ( _R8 - v11 != v106 * width * v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 953, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel ))", (const char *)&queryFormat, "static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel )") )
+          if ( v77 - v11 != v91 * width * v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 953, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel ))", (const char *)&queryFormat, "static_cast<size_t>( reinterpret_cast<byte *>( dstPixel ) - buffer ) == static_cast<size_t>( width * height * bytesPerPixel )") )
             goto LABEL_195;
         }
       }
 LABEL_210:
-      v131 = (__int64)v146;
-      v159[0] = 0i64;
-      v159[1] = 0i64;
-      v146->m_pFunction[3].QueryInterface(v146, NULL, (void **)v159);
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v131 + 16i64))(v131);
+      v116 = (__int64)v126;
+      v139[0] = 0i64;
+      v139[1] = 0i64;
+      v126->m_pFunction[3].QueryInterface(v126, NULL, (void **)v139);
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v116 + 16i64))(v116);
       result = 1i64;
       break;
     default:
@@ -1175,99 +1016,90 @@ __int64 R_GetFloat32BufferData(R_RT_DepthHandle *depthRt, int width, int height,
 {
   __int64 v7; 
   ID3D12Resource *D3DTextureResource; 
-  ID3D12Resource *v16; 
-  ID3D12Resource *v17; 
-  HRESULT v19; 
-  const char *v20; 
-  char *v21; 
-  size_t v22; 
+  ID3D12Resource *v9; 
+  ID3D12Resource *v10; 
+  HRESULT v12; 
+  const char *v13; 
+  char *v14; 
+  size_t v15; 
   int fmt; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
   void *Src; 
   size_t Size; 
   unsigned __int64 fence; 
-  __int64 v30[2]; 
-  __m256i v31; 
+  __int64 v23[2]; 
+  __m256i v24; 
+  __int128 v25; 
+  double v26; 
   D3D12_RESOURCE_DESC resourceDesc; 
-  __m256i v35; 
+  __m256i v28; 
+  __int128 v29; 
+  double v30; 
 
   v7 = (unsigned int)height;
   D3DTextureResource = R_RT_Handle::GetD3DTextureResource(depthRt);
   if ( !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  ((void (__fastcall *)(ID3D12Resource *, __m256i *))D3DTextureResource->m_pFunction[3].AddRef)(D3DTextureResource, &v35);
-  __asm
+  ((void (__fastcall *)(ID3D12Resource *, __m256i *))D3DTextureResource->m_pFunction[3].AddRef)(D3DTextureResource, &v28);
+  v24 = v28;
+  v26 = v30;
+  v25 = v29;
+  if ( width < 1 || width > v28.m256i_i32[4] )
   {
-    vmovups ymm0, [rbp+60h+var_78]
-    vmovups xmm1, [rbp+60h+var_58]
-    vmovups [rsp+160h+var_E8], ymm0
-    vmovsd  xmm0, [rbp+60h+var_48]
-    vmovsd  [rbp+60h+var_B8], xmm0
-    vmovups [rbp+60h+var_C8], xmm1
-  }
-  if ( width < 1 || width > v35.m256i_i32[4] )
-  {
-    LODWORD(v24) = width;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 280, ASSERT_TYPE_ASSERT, "( 1 ) <= ( width ) && ( width ) <= ( (int)dsc.Width )", "width not in [1, (int)dsc.Width]\n\t%i not in [%i, %i]", v24, 1, v35.m256i_i32[4]) )
+    LODWORD(v17) = width;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 280, ASSERT_TYPE_ASSERT, "( 1 ) <= ( width ) && ( width ) <= ( (int)dsc.Width )", "width not in [1, (int)dsc.Width]\n\t%i not in [%i, %i]", v17, 1, v28.m256i_i32[4]) )
       __debugbreak();
   }
-  if ( (int)v7 < 1 || (int)v7 > v31.m256i_i32[6] )
+  if ( (int)v7 < 1 || (int)v7 > v24.m256i_i32[6] )
   {
-    LODWORD(v26) = v31.m256i_i32[6];
-    LODWORD(v25) = 1;
-    LODWORD(v24) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 281, ASSERT_TYPE_ASSERT, "( 1 ) <= ( height ) && ( height ) <= ( (int)dsc.Height )", "height not in [1, (int)dsc.Height]\n\t%i not in [%i, %i]", v24, v25, v26) )
+    LODWORD(v19) = v24.m256i_i32[6];
+    LODWORD(v18) = 1;
+    LODWORD(v17) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 281, ASSERT_TYPE_ASSERT, "( 1 ) <= ( height ) && ( height ) <= ( (int)dsc.Height )", "height not in [1, (int)dsc.Height]\n\t%i not in [%i, %i]", v17, v18, v19) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, [rsp+160h+var_E8]
-    vmovups xmm1, [rbp+60h+var_C8]
-    vmovups ymmword ptr [rbp+60h+resourceDesc.Dimension], ymm0
-    vmovsd  xmm0, [rbp+60h+var_B8]
-    vmovsd  qword ptr [rbp+60h+resourceDesc.Flags], xmm0
-  }
-  *((_DWORD *)&resourceDesc.Flags + 1) = HIDWORD(_RT0);
-  __asm { vmovups xmmword ptr [rbp+60h+resourceDesc.Format], xmm1 }
+  *(__m256i *)&resourceDesc.Dimension = v24;
+  *(double *)&resourceDesc.Flags = v26;
+  *(_OWORD *)&resourceDesc.Format = v25;
   resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
   resourceDesc.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
   LOBYTE(fmt) = 0;
-  v16 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-  v17 = v16;
-  if ( v16 )
+  v9 = R_CreateDriverManagedResource(D3D12_HEAP_TYPE_READBACK, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+  v10 = v9;
+  if ( v9 )
   {
-    PIXSetDebugName(v16, "ExtractBufferData");
-    ((void (__fastcall *)(GfxDevice *, ID3D12Resource *, ID3D12Resource *, _QWORD, int))g_dx.immediateContext->m_pFunction[28].QueryInterface)(g_dx.immediateContext, v17, D3DTextureResource, 0i64, fmt);
+    PIXSetDebugName(v9, "ExtractBufferData");
+    ((void (__fastcall *)(GfxDevice *, ID3D12Resource *, ID3D12Resource *, _QWORD, int))g_dx.immediateContext->m_pFunction[28].QueryInterface)(g_dx.immediateContext, v10, D3DTextureResource, 0i64, fmt);
     Src = NULL;
-    v19 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, _QWORD, void **))v17->m_pFunction[2].Release)(v17, 0i64, 0i64, &Src);
-    if ( v19 < 0 )
+    v12 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, _QWORD, void **))v10->m_pFunction[2].Release)(v10, 0i64, 0i64, &Src);
+    if ( v12 < 0 )
     {
-      v20 = R_ErrorDescription(v19);
-      Sys_Error((const ObfuscateErrorText)&stru_1443C9ED0, 327i64, v20);
+      v13 = R_ErrorDescription(v12);
+      Sys_Error((const ObfuscateErrorText)&stru_1443C9ED0, 327i64, v13);
     }
-    ((void (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, __int64, _QWORD, _QWORD, _QWORD, size_t *, _QWORD))g_dx.d3d12device->m_pFunction[12].Release)(g_dx.d3d12device, &v31, 0i64, 1i64, 0i64, 0i64, 0i64, &Size, 0i64);
+    ((void (__fastcall *)(ID3D12Device *, __m256i *, _QWORD, __int64, _QWORD, _QWORD, _QWORD, size_t *, _QWORD))g_dx.d3d12device->m_pFunction[12].Release)(g_dx.d3d12device, &v24, 0i64, 1i64, 0i64, 0i64, 0i64, &Size, 0i64);
     fence = R_FlushImmediateContext();
     R_HW_WaitForFence(&fence);
-    v21 = (char *)Src;
+    v14 = (char *)Src;
     if ( (int)v7 > 0 )
     {
-      v22 = Size;
+      v15 = Size;
       do
       {
-        memcpy_0(buffer, v21, v22);
-        v22 = Size;
-        v21 += Size;
+        memcpy_0(buffer, v14, v15);
+        v15 = Size;
+        v14 += Size;
         buffer += Size;
         --v7;
       }
       while ( v7 );
     }
-    v30[0] = 0i64;
-    v30[1] = 0i64;
-    v17->m_pFunction[3].QueryInterface(v17, NULL, (void **)v30);
-    v17->m_pFunction->Release(v17);
+    v23[0] = 0i64;
+    v23[1] = 0i64;
+    v10->m_pFunction[3].QueryInterface(v10, NULL, (void **)v23);
+    v10->m_pFunction->Release(v10);
     return 1i64;
   }
   else
@@ -1384,31 +1216,31 @@ unsigned __int8 *R_TakeResampledScreenshot(int width, int height, int bytesPerPi
   __int64 v8; 
   __int64 v9; 
   unsigned __int8 *v10; 
+  int v11; 
   int v12; 
-  int v13; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
   ID3D12Resource *basemap; 
-  const R_RT_Surface *v17; 
-  int v19; 
-  unsigned __int8 *v20; 
-  int v21; 
+  const R_RT_Surface *v16; 
+  int v18; 
+  unsigned __int8 *v19; 
+  int v20; 
+  unsigned __int8 *v21; 
   unsigned __int8 *v22; 
-  unsigned __int8 *v23; 
+  __int64 v23; 
   __int64 v24; 
-  __int64 v25; 
-  signed int v26; 
+  signed int v25; 
+  unsigned __int8 *v26; 
   unsigned __int8 *v27; 
-  unsigned __int8 *v28; 
+  __int64 v28; 
   __int64 v29; 
-  __int64 v30; 
-  int v31; 
+  int v30; 
   unsigned __int8 *i; 
   unsigned __int8 *buffer; 
-  unsigned __int8 *v34; 
+  unsigned __int8 *v33; 
   R_RT_ColorHandle result; 
   GfxPixelFormat image_format; 
-  unsigned int v37; 
+  unsigned int v36; 
 
   displayHeight = vidConfig.displayHeight;
   v5 = height;
@@ -1423,10 +1255,8 @@ unsigned __int8 *R_TakeResampledScreenshot(int width, int height, int bytesPerPi
   buffer = (unsigned __int8 *)Mem_Virtual_Alloc((int)(headerSize + v6 * displayWidth * displayHeight), "R_TakeResampledScreenshot", TRACK_RENDERER_MISC);
   v10 = buffer;
   R_RT_GetGlobalColor(&result, R_RENDERTARGET_DISPLAY_BUFFER);
-  __asm { vmovups ymm0, ymmword ptr [rsp+0C8h+result.baseclass_0.m_surfaceID] }
-  v12 = vidConfig.displayHeight;
-  v13 = vidConfig.displayWidth;
-  __asm { vmovups ymmword ptr [rsp+0C8h+result.baseclass_0.m_surfaceID], ymm0 }
+  v11 = vidConfig.displayHeight;
+  v12 = vidConfig.displayWidth;
   R_LockGfxImmediateContext();
   image_format = R_RT_Handle::GetSurface(&result)->m_image.m_base.format;
   Surface = R_RT_Handle::GetSurface(&result);
@@ -1434,89 +1264,89 @@ unsigned __int8 *R_TakeResampledScreenshot(int width, int height, int bytesPerPi
   if ( !Resident->basemap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 300, ASSERT_TYPE_ASSERT, "(texture->map)", (const char *)&queryFormat, "texture->map") )
     __debugbreak();
   basemap = Resident->basemap;
-  v17 = R_RT_Handle::GetSurface(&result);
-  LODWORD(basemap) = R_GetBufferDataInternal(basemap, 0, 0, v13, v12, v6, buffer, image_format, (D3D12_RESOURCE_STATES)(((v17->m_rtFlagsInternal & 0x40) == 0) << 11));
+  v16 = R_RT_Handle::GetSurface(&result);
+  LODWORD(basemap) = R_GetBufferDataInternal(basemap, 0, 0, v12, v11, v6, buffer, image_format, (D3D12_RESOURCE_STATES)(((v16->m_rtFlagsInternal & 0x40) == 0) << 11));
   R_UnlockGfxImmediateContext();
   if ( !(_DWORD)basemap )
   {
     Mem_Virtual_Free(buffer);
     return 0i64;
   }
-  v19 = vidConfig.displayHeight;
-  v20 = &buffer[v8];
-  v21 = vidConfig.displayWidth;
-  v34 = v20;
-  v37 = vidConfig.displayHeight;
+  v18 = vidConfig.displayHeight;
+  v19 = &buffer[v8];
+  v20 = vidConfig.displayWidth;
+  v33 = v19;
+  v36 = vidConfig.displayHeight;
   if ( (int)vidConfig.displayWidth > (int)v9 )
   {
-    v22 = v20;
-    v23 = v20;
+    v21 = v19;
+    v22 = v19;
     if ( (int)vidConfig.displayHeight <= 0 )
     {
 LABEL_21:
       v10 = buffer;
       goto LABEL_22;
     }
-    v24 = vidConfig.displayHeight;
-    v25 = (int)v6 * vidConfig.displayWidth;
+    v23 = vidConfig.displayHeight;
+    v24 = (int)v6 * vidConfig.displayWidth;
     do
     {
-      R_DownsamplePixelData(v21, v9, 1, v6, v22, v23);
-      v22 += v25;
-      v23 += (int)v6 * (int)v9;
-      --v24;
+      R_DownsamplePixelData(v20, v9, 1, v6, v21, v22);
+      v21 += v24;
+      v22 += (int)v6 * (int)v9;
+      --v23;
     }
-    while ( v24 );
+    while ( v23 );
     goto LABEL_19;
   }
   if ( (int)vidConfig.displayWidth < (int)v9 )
   {
-    v26 = vidConfig.displayHeight - 1;
-    v27 = &v20[(int)v6 * vidConfig.displayWidth * (vidConfig.displayHeight - 1)];
-    v28 = &v20[(int)v6 * (int)v9 * (vidConfig.displayHeight - 1)];
+    v25 = vidConfig.displayHeight - 1;
+    v26 = &v19[(int)v6 * vidConfig.displayWidth * (vidConfig.displayHeight - 1)];
+    v27 = &v19[(int)v6 * (int)v9 * (vidConfig.displayHeight - 1)];
     if ( (signed int)(vidConfig.displayHeight - 1) < 0 )
     {
 LABEL_20:
       v5 = height;
       goto LABEL_21;
     }
-    v29 = (int)v6 * vidConfig.displayWidth;
+    v28 = (int)v6 * vidConfig.displayWidth;
     do
     {
-      R_UpsamplePixelData(v21, v9, 1, v6, v27, v28);
-      v27 -= v29;
-      v28 -= (int)v6 * (int)v9;
-      --v26;
+      R_UpsamplePixelData(v20, v9, 1, v6, v26, v27);
+      v26 -= v28;
+      v27 -= (int)v6 * (int)v9;
+      --v25;
     }
-    while ( v26 >= 0 );
+    while ( v25 >= 0 );
 LABEL_19:
-    v19 = v37;
-    v20 = v34;
+    v18 = v36;
+    v19 = v33;
     goto LABEL_20;
   }
 LABEL_22:
-  if ( v19 <= v5 )
+  if ( v18 <= v5 )
   {
-    if ( v19 < v5 )
+    if ( v18 < v5 )
     {
-      v31 = v9 - 1;
-      for ( i = &v20[(int)v6 * ((int)v9 - 1)]; v31 >= 0; --v31 )
+      v30 = v9 - 1;
+      for ( i = &v19[(int)v6 * ((int)v9 - 1)]; v30 >= 0; --v30 )
       {
-        R_UpsamplePixelData(v19, v5, v9, v6, i, i);
+        R_UpsamplePixelData(v18, v5, v9, v6, i, i);
         i -= v6;
       }
     }
   }
   else if ( (int)v9 > 0 )
   {
-    v30 = v9;
+    v29 = v9;
     do
     {
-      R_DownsamplePixelData(v19, v5, v9, v6, v20, v20);
-      v20 += v6;
-      --v30;
+      R_DownsamplePixelData(v18, v5, v9, v6, v19, v19);
+      v19 += v6;
+      --v29;
     }
-    while ( v30 );
+    while ( v29 );
   }
   return v10;
 }
@@ -1528,120 +1358,63 @@ R_UpsamplePixelData
 */
 void R_UpsamplePixelData(int oldSize, int newSize, int stride, int bytesPerPixel, unsigned __int8 *src, unsigned __int8 *dst)
 {
+  int v10; 
+  int v11; 
+  int v12; 
   int v13; 
-  int v15; 
-  int v16; 
+  unsigned __int8 *v14; 
+  unsigned __int8 *v15; 
   int v17; 
-  unsigned __int8 *v21; 
-  unsigned __int8 *v22; 
-  int v24; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( newSize <= oldSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_data.cpp", 139, ASSERT_TYPE_ASSERT, "(newSize > oldSize)", (const char *)&queryFormat, "newSize > oldSize") )
     __debugbreak();
-  v13 = oldSize + newSize;
-  __asm { vmovss  xmm4, cs:__real@3f000000 }
-  v15 = bytesPerPixel * stride;
-  v16 = newSize - 1;
-  v17 = newSize - oldSize;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r14d
-    vdivss  xmm6, xmm4, xmm0
-  }
-  v21 = &src[v15 * (oldSize - 1)];
-  v22 = &dst[v15 * (newSize - 1)];
-  v21[v15] = *v21;
-  v21[v15 + 1] = v21[1];
-  v21[v15 + 2] = v21[2];
+  v10 = oldSize + newSize;
+  v11 = bytesPerPixel * stride;
+  v12 = newSize - 1;
+  v13 = newSize - oldSize;
+  v14 = &src[v11 * (oldSize - 1)];
+  v15 = &dst[v11 * (newSize - 1)];
+  v14[v11] = *v14;
+  v14[v11 + 1] = v14[1];
+  v14[v11 + 2] = v14[2];
   if ( newSize - 1 >= 0 )
   {
-    __asm { vxorps  xmm5, xmm5, xmm5 }
-    v24 = 2 * oldSize;
+    _XMM5 = 0i64;
+    v17 = 2 * oldSize;
     do
     {
-      if ( v21 < src )
+      if ( v14 < src )
       {
-        _EAX = (v13 + v17) * *src;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm1, xmm0, xmm6
-          vaddss  xmm3, xmm1, xmm4
-          vroundss xmm1, xmm5, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
-        *v22 = _EAX;
-        _EAX = (v13 + v17) * src[1];
-        __asm
-        {
-          vmovd   xmm0, eax
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm1, xmm0, xmm6
-          vaddss  xmm3, xmm1, xmm4
-          vroundss xmm1, xmm5, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
-        v22[1] = _EAX;
-        _EAX = (v13 + v17) * src[2];
-        __asm
-        {
-          vmovd   xmm0, eax
-          vcvtdq2ps xmm0, xmm0
-        }
+        _mm_cvtepi32_ps((__m128i)((v10 + v13) * (unsigned int)*src));
+        __asm { vroundss xmm1, xmm5, xmm3, 1 }
+        *v15 = (int)*(float *)&_XMM1;
+        _mm_cvtepi32_ps((__m128i)((v10 + v13) * (unsigned int)src[1]));
+        __asm { vroundss xmm1, xmm5, xmm3, 1 }
+        v15[1] = (int)*(float *)&_XMM1;
+        _mm_cvtepi32_ps((__m128i)((v10 + v13) * (unsigned int)src[2]));
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm1, xmm0, xmm6
-          vaddss  xmm3, xmm1, xmm4
-          vroundss xmm1, xmm5, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
-        *v22 = _EAX;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm1, xmm0, xmm6
-          vaddss  xmm3, xmm1, xmm4
-          vroundss xmm1, xmm5, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
-        v22[1] = _EAX;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-        }
+        __asm { vroundss xmm1, xmm5, xmm3, 1 }
+        *v15 = (int)*(float *)&_XMM1;
+        __asm { vroundss xmm1, xmm5, xmm3, 1 }
+        v15[1] = (int)*(float *)&_XMM1;
       }
-      __asm
+      __asm { vroundss xmm1, xmm5, xmm3, 1 }
+      v15[2] = (int)*(float *)&_XMM1;
+      v10 += v17;
+      v15 -= v11;
+      v13 -= v17;
+      if ( v13 < 0 )
       {
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm3, xmm1, xmm4
-        vroundss xmm1, xmm5, xmm3, 1
-        vcvttss2si eax, xmm1
+        v10 -= 2 * newSize;
+        v13 += 2 * newSize;
+        v14 -= v11;
       }
-      v22[2] = _EAX;
-      v13 += v24;
-      v22 -= v15;
-      v17 -= v24;
-      if ( v17 < 0 )
-      {
-        v13 -= 2 * newSize;
-        v17 += 2 * newSize;
-        v21 -= v15;
-      }
-      --v16;
+      --v12;
     }
-    while ( v16 >= 0 );
+    while ( v12 >= 0 );
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*

@@ -1568,13 +1568,7 @@ void ScriptableCl_GetInstanceOrientation(const LocalClientNum_t localClientNum, 
   {
     InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
     ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, outPos);
-    _RAX = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax+2Ch]
-      vmovsd  qword ptr [rsp+68h+angles], xmm0
-    }
-    angles.v[2] = _RAX->angles.v[2];
+    angles = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->angles;
     AnglesToAxis(&angles, outAxis);
   }
   else
@@ -1930,24 +1924,23 @@ void ScriptableCl_GetPartUsePosition(const LocalClientNum_t localClientNum, cons
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   const ScriptablePartDef *PartDefForServerFlatId; 
-  const ScriptablePartDef *v11; 
+  const ScriptablePartDef *v10; 
   ScriptablePartRuntime *PartRuntime; 
-  __int64 v13; 
-  bool v15; 
-  bool v16; 
-  char v18; 
+  __int64 v12; 
+  ScriptableStateUsableDef *v13; 
+  bool v14; 
   scr_string_t hintTag; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
   ScriptableStateUsableDef *outUsableDef[4]; 
   tmat43_t<vec3_t> outTransform; 
 
   outUsableDef[1] = (ScriptableStateUsableDef *)-2i64;
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
   PartDefForServerFlatId = ScriptableCl_GetPartDefForServerFlatId(localClientNum, scriptableIndex, serverFlatPartId);
-  v11 = PartDefForServerFlatId;
+  v10 = PartDefForServerFlatId;
   if ( (PartDefForServerFlatId->flags & 0x40000) != 0 )
   {
     if ( !ScriptableCommon_GetPartFirstUsableState(PartDefForServerFlatId, (const ScriptableStateUsableDef **)outUsableDef) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1057, ASSERT_TYPE_ASSERT, "(ScriptableCommon_GetPartFirstUsableState( partDef, usableStateDef ))", (const char *)&queryFormat, "ScriptableCommon_GetPartFirstUsableState( partDef, usableStateDef )") )
@@ -1958,56 +1951,35 @@ void ScriptableCl_GetPartUsePosition(const LocalClientNum_t localClientNum, cons
     PartRuntime = ScriptableCl_GetPartRuntime(localClientNum, scriptableIndex, PartDefForServerFlatId);
     if ( !PartRuntime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1062, ASSERT_TYPE_ASSERT, "( partRuntime ) != ( nullptr )", "%s != %s\n\t%p, %p", "partRuntime", "nullptr", NULL, NULL) )
       __debugbreak();
-    if ( PartRuntime->stateId >= v11->numStates )
+    if ( PartRuntime->stateId >= v10->numStates )
     {
-      LODWORD(v21) = v11->numStates;
-      LODWORD(v20) = PartRuntime->stateId;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1063, ASSERT_TYPE_ASSERT, "(unsigned)( partRuntime->stateId ) < (unsigned)( partDef.numStates )", "partRuntime->stateId doesn't index partDef.numStates\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v17) = v10->numStates;
+      LODWORD(v16) = PartRuntime->stateId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1063, ASSERT_TYPE_ASSERT, "(unsigned)( partRuntime->stateId ) < (unsigned)( partDef.numStates )", "partRuntime->stateId doesn't index partDef.numStates\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
-    v13 = (__int64)&v11->states[PartRuntime->stateId];
-    if ( *(_DWORD *)(v13 + 24) != 3 )
+    v12 = (__int64)&v10->states[PartRuntime->stateId];
+    if ( *(_DWORD *)(v12 + 24) != 3 )
     {
-      LODWORD(v23) = 3;
-      LODWORD(v22) = *(_DWORD *)(v13 + 24);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1065, ASSERT_TYPE_ASSERT, "( stateDef.type ) == ( Scriptable_StateType_Usable )", "%s == %s\n\t%i, %i", "stateDef.type", "Scriptable_StateType_Usable", v22, v23) )
+      LODWORD(v19) = 3;
+      LODWORD(v18) = *(_DWORD *)(v12 + 24);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1065, ASSERT_TYPE_ASSERT, "( stateDef.type ) == ( Scriptable_StateType_Usable )", "%s == %s\n\t%i, %i", "stateDef.type", "Scriptable_StateType_Usable", v18, v19) )
         __debugbreak();
     }
-    outUsableDef[0] = (ScriptableStateUsableDef *)(v13 + 32);
+    outUsableDef[0] = (ScriptableStateUsableDef *)(v12 + 32);
   }
-  _RBX = outUsableDef[0];
-  v15 = outUsableDef[0] == NULL;
-  if ( !outUsableDef[0] )
+  v13 = outUsableDef[0];
+  if ( !outUsableDef[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1110, ASSERT_TYPE_ASSERT, "(stateUsableDef != nullptr)", (const char *)&queryFormat, "stateUsableDef != nullptr") )
+    __debugbreak();
+  v14 = v13->useOffset.v[0] != 0.0 || v13->useOffset.v[1] != 0.0 || v13->useOffset.v[2] != 0.0;
+  hintTag = v13->hintTag;
+  if ( hintTag || (hintTag = v10->scrTagName) != 0 )
   {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 1110, ASSERT_TYPE_ASSERT, "(stateUsableDef != nullptr)", (const char *)&queryFormat, "stateUsableDef != nullptr");
-    v15 = !v16;
-    if ( v16 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+2Ch]
-  }
-  if ( !v15 )
-    goto LABEL_22;
-  __asm { vucomiss xmm0, dword ptr [rbx+30h] }
-  if ( !v15 )
-    goto LABEL_22;
-  __asm { vucomiss xmm0, dword ptr [rbx+34h] }
-  if ( v15 )
-    v18 = 0;
-  else
-LABEL_22:
-    v18 = 1;
-  hintTag = _RBX->hintTag;
-  if ( hintTag || (hintTag = v11->scrTagName) != 0 )
-  {
-    if ( v18 )
+    if ( v14 )
     {
-      if ( ScriptableCl_GetBoneTransform(localClientNum, scriptableIndex, hintTag, &outTransform, _RBX->allowMissingTag) )
+      if ( ScriptableCl_GetBoneTransform(localClientNum, scriptableIndex, hintTag, &outTransform, v13->allowMissingTag) )
       {
-        MatrixTransformVector43(&_RBX->useOffset, &outTransform, out_usePosition);
+        MatrixTransformVector43(&v13->useOffset, &outTransform, out_usePosition);
         return;
       }
     }
@@ -2017,10 +1989,10 @@ LABEL_22:
     }
   }
   ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, out_usePosition);
-  if ( v18 )
+  if ( v14 )
   {
     AnglesAndOriginToMatrix43(&InstanceCommonContext->angles, out_usePosition, &outTransform);
-    MatrixTransformVector43(&_RBX->useOffset, &outTransform, out_usePosition);
+    MatrixTransformVector43(&v13->useOffset, &outTransform, out_usePosition);
   }
   memset(&outUsableDef[2], 0, 0xCui64);
 }
@@ -2601,25 +2573,24 @@ void ScriptableCl_SetOriginAndAngles(const LocalClientNum_t localClientNum, unsi
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   unsigned int linkedObjectIndex; 
   ScriptableLinkType LinkType; 
-  bool v12; 
-  __int64 v13; 
-  unsigned int v14; 
-  int v15; 
+  bool v11; 
+  __int64 v12; 
+  unsigned int v13; 
+  int v14; 
   vec3_t outOrigin; 
 
   ScriptableCommon_AssertCountsInitialized();
   if ( scriptableIndex >= g_scriptableWorldCounts.runtimeInstanceCount )
   {
-    v14 = scriptableIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 918, ASSERT_TYPE_ASSERT, "( ( scriptableIndex < ScriptableCommon_GetReservedInstanceCount() ) )", "( scriptableIndex ) = %i", v14) )
+    v13 = scriptableIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 918, ASSERT_TYPE_ASSERT, "( ( scriptableIndex < ScriptableCommon_GetReservedInstanceCount() ) )", "( scriptableIndex ) = %i", v13) )
       __debugbreak();
   }
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
   if ( !ScriptableCl_ObjectiveChanged(localClientNum) && ScriptableCl_ObjectiveActiveForInstance(localClientNum, scriptableIndex) )
   {
     ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
-    __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-    if ( !VecNCompareCustomEpsilon(outOrigin.v, origin->v, *(float *)&_XMM2, 3) )
+    if ( !VecNCompareCustomEpsilon(outOrigin.v, origin->v, 0.001, 3) )
       ScriptableCl_ObjectiveChangedSet(localClientNum);
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
@@ -2629,9 +2600,9 @@ void ScriptableCl_SetOriginAndAngles(const LocalClientNum_t localClientNum, unsi
   InstanceCommonContext->angles.v[2] = angles->v[2];
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v15 = 2;
-    LODWORD(v13) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 228, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, v15) )
+    v14 = 2;
+    LODWORD(v12) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 228, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v12, v14) )
       __debugbreak();
   }
   linkedObjectIndex = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->linkedObjectIndex;
@@ -2641,7 +2612,7 @@ void ScriptableCl_SetOriginAndAngles(const LocalClientNum_t localClientNum, unsi
     switch ( LinkType )
     {
       case SCRIPTABLE_LINK_ENTITY:
-        v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 950, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Should not be updating entity origins directly");
+        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 950, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Should not be updating entity origins directly");
         break;
       case SCRIPTABLE_LINK_DYNENT:
         return;
@@ -2650,11 +2621,11 @@ void ScriptableCl_SetOriginAndAngles(const LocalClientNum_t localClientNum, unsi
         CG_ClientModel_SetAngles(localClientNum, linkedObjectIndex, angles);
         return;
       default:
-        LODWORD(v13) = (unsigned __int8)LinkType;
-        v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 958, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected link type %i", v13);
+        LODWORD(v12) = (unsigned __int8)LinkType;
+        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 958, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected link type %i", v12);
         break;
     }
-    if ( v12 )
+    if ( v11 )
       __debugbreak();
   }
 }
@@ -2667,11 +2638,13 @@ ScriptableCl_UpdateTransformParentEntity
 void ScriptableCl_UpdateTransformParentEntity(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const centity_t *parent, vec3_t *inOutOrigin, vec3_t *inOutAngles)
 {
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v12; 
+  float v21; 
+  float v22; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v28; 
+  tmat43_t<vec3_t> v24; 
   tmat43_t<vec3_t> out; 
 
-  _RDI = inOutOrigin;
   if ( !parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.cpp", 970, ASSERT_TYPE_ASSERT, "(parent)", (const char *)&queryFormat, "parent") )
     __debugbreak();
   AnglesToAxis(&parent->pose.angles, (tmat33_t<vec3_t> *)&axis);
@@ -2683,46 +2656,44 @@ void ScriptableCl_UpdateTransformParentEntity(const LocalClientNum_t localClient
   FunctionPointer_origin(&parent->pose.origin.origin.origin, &axis.m[3]);
   if ( parent->pose.isPosePrecise )
   {
+    _XMM0 = LODWORD(axis.m[3].v[0]);
+    _XMM2 = LODWORD(axis.m[3].v[1]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v12;
     __asm
     {
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmovd   xmm0, [rsp+0E8h+var_94]
-      vmovd   xmm2, [rsp+0E8h+var_90]
-      vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm0, xmm0, xmm3
       vcvtsd2ss xmm1, xmm0, xmm0
       vcvtdq2pd xmm2, xmm2
-      vmulsd  xmm0, xmm2, xmm3
-      vmovd   xmm2, [rsp+0E8h+var_8C]
-      vmovss  [rsp+0E8h+var_94], xmm1
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vcvtdq2pd xmm2, xmm2
-      vmulsd  xmm0, xmm2, xmm3
-      vmovss  [rsp+0E8h+var_90], xmm1
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  [rsp+0E8h+var_8C], xmm1
     }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM2 + 1);
+    *(double *)&v12 = *(double *)&_XMM2 * 0.000244140625;
+    _XMM0 = v12;
+    _XMM2 = LODWORD(axis.m[3].v[2]);
+    axis.m[3].v[0] = *(float *)&_XMM1;
+    __asm
+    {
+      vcvtsd2ss xmm1, xmm0, xmm0
+      vcvtdq2pd xmm2, xmm2
+    }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM2 + 1);
+    *(double *)&v12 = *(double *)&_XMM2 * 0.000244140625;
+    _XMM0 = v12;
+    axis.m[3].v[1] = *(float *)&_XMM1;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    axis.m[3].v[2] = *(float *)&_XMM1;
   }
-  AnglesToAxis(inOutAngles, (tmat33_t<vec3_t> *)&v28);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  [rsp+0E8h+var_64], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0E8h+var_5C], xmm0
-    vmovss  [rsp+0E8h+var_60], xmm1
-  }
-  MatrixMultiply43(&v28, &axis, &out);
+  AnglesToAxis(inOutAngles, (tmat33_t<vec3_t> *)&v24);
+  v21 = inOutOrigin->v[1];
+  v24.m[3].v[0] = inOutOrigin->v[0];
+  v24.m[3].v[2] = inOutOrigin->v[2];
+  v24.m[3].v[1] = v21;
+  MatrixMultiply43(&v24, &axis, &out);
   AxisToAngles((const tmat33_t<vec3_t> *)&out, inOutAngles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+out+24h]
-    vmovss  xmm1, dword ptr [rsp+0E8h+out+28h]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rsp+0E8h+out+2Ch]
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  dword ptr [rdi+4], xmm1
-  }
+  v22 = out.m[3].v[1];
+  inOutOrigin->v[0] = out.m[3].v[0];
+  inOutOrigin->v[2] = out.m[3].v[2];
+  inOutOrigin->v[1] = v22;
 }
 

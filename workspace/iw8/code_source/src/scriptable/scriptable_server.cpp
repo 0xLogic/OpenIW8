@@ -896,87 +896,99 @@ ScriptableSv_RunStateEvents
 */
 void ScriptableSv_RunStateEvents(ScriptableEventParams *eventParams, unsigned int *holdrand, ScriptableEventDef *events, unsigned int numEvents)
 {
-  unsigned int v10; 
-  __int64 v11; 
-  bool v15; 
-  bool v16; 
+  unsigned int v4; 
+  __int64 v5; 
+  ScriptableEventDef *v8; 
   ScriptableEventDefUnion *p_data; 
   const ScriptablePartDef *part; 
   unsigned int stateIdx; 
   unsigned int scriptableIndex; 
   unsigned int numStates; 
-  unsigned int v23; 
+  unsigned int v14; 
   ScriptableInstanceContext *InstanceCommonContext; 
   const char *name; 
-  bool v27; 
-  ScriptableInstanceContext *v28; 
-  __int64 v29; 
-  ScriptableInstanceContext *v30; 
-  __int64 v31; 
-  unsigned int v32; 
+  double v17; 
+  bool v18; 
+  ScriptableInstanceContext *v19; 
+  __int64 v20; 
+  ScriptableInstanceContext *v21; 
+  __int64 v22; 
+  unsigned int v23; 
   const gentity_s *Entity; 
-  scrContext_t *v34; 
-  scrContext_t *v35; 
-  unsigned int v36; 
-  gentity_s *v37; 
+  scrContext_t *v25; 
+  scrContext_t *v26; 
+  unsigned int v27; 
+  gentity_s *v28; 
   GameScriptData *GameScriptDataCommon; 
-  unsigned int v39; 
-  unsigned int v40; 
-  const gentity_s *v41; 
+  unsigned int v30; 
+  unsigned int v31; 
+  const gentity_s *v32; 
   const DObj *ServerDObjForEnt; 
   XAnimTree *Tree; 
-  unsigned int v63; 
-  ScriptableInstanceContext *v67; 
+  float v35; 
+  float v36; 
+  float startTimeMin; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  unsigned int v47; 
+  double v48; 
+  float v49; 
+  double v50; 
+  float v51; 
+  double v52; 
+  float v53; 
+  ScriptableInstanceContext *v54; 
   __int64 eventStreamBufferOffsetClient; 
-  ScriptableInstanceContext *v69; 
-  const ScriptableEventGravityArcDef *v72; 
-  unsigned int v73; 
+  ScriptableInstanceContext *v56; 
+  __int64 v57; 
+  unsigned __int8 *eventStreamBuffer; 
+  const ScriptableEventGravityArcDef *v59; 
+  unsigned int v60; 
+  ScriptableInstanceContext *v61; 
   ScriptableCollisionServerContext *InstanceCollisionContext; 
   unsigned int scriptableCollisionMain; 
   unsigned int scriptableCollisionDetail; 
-  bool v83; 
-  unsigned int v84; 
-  gentity_s *v85; 
+  bool v65; 
+  unsigned int v66; 
+  gentity_s *v67; 
   Vehicle *vehicle; 
-  BgVehiclePhysicsManager *v87; 
+  BgVehiclePhysicsManager *v69; 
   BgVehiclePhysics *ObjectById; 
-  ScriptableInstanceContext *v92; 
+  float delayMax; 
+  float delayMin; 
+  ScriptableInstanceContext *v73; 
   __int64 eventStreamBufferOffsetServer; 
-  ScriptableInstanceContext *v94; 
+  ScriptableInstanceContext *v75; 
+  __int64 v76; 
   unsigned __int64 eventStreamBufferSize; 
   char *fmt; 
-  __int64 v103; 
-  __int64 v104; 
-  __int64 v106; 
-  ScriptableEventDef *v107; 
+  __int64 v79; 
+  __int64 v80; 
+  __int64 v82; 
+  ScriptableEventDef *v83; 
   vec4_t quat; 
   ScriptableGravityArcRuntimeData outParams; 
-  void *retaddr; 
 
   if ( numEvents )
   {
-    _R11 = &retaddr;
-    v10 = 0;
-    v11 = 0i64;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-    }
-    v107 = events;
-    v106 = 0i64;
+    v4 = 0;
+    v5 = 0i64;
+    v83 = events;
+    v82 = 0i64;
     while ( 1 )
     {
-      v15 = __CFADD__(events, 176 * v11);
-      v16 = &events[v11] == NULL;
-      _RSI = &events[v11];
-      switch ( _RSI->type )
+      v8 = &events[v5];
+      switch ( v8->type )
       {
         case Scriptable_EventType_StateChange:
-          p_data = &_RSI->data;
+          p_data = &v8->data;
           if ( !p_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 76, ASSERT_TYPE_ASSERT, "( stateChange )", (const char *)&queryFormat, "stateChange") )
             __debugbreak();
           if ( !p_data->disablePhysicsSubShape.mutableShapeHash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 77, ASSERT_TYPE_ASSERT, "( stateChange->part )", (const char *)&queryFormat, "stateChange->part") )
@@ -991,15 +1003,15 @@ void ScriptableSv_RunStateEvents(ScriptableEventParams *eventParams, unsigned in
             numStates = part->numStates;
             if ( stateIdx >= numStates )
             {
-              v23 = numStates - 1;
+              v14 = numStates - 1;
               InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
               if ( InstanceCommonContext->def )
                 name = InstanceCommonContext->def->name;
               else
                 name = "<Unknown>";
-              LODWORD(v103) = v23;
+              LODWORD(v79) = v14;
               LODWORD(fmt) = stateIdx;
-              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144081F40, 190i64, name, fmt, v103);
+              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144081F40, 190i64, name, fmt, v79);
               part = p_data->stateChange.part;
             }
             ScriptableSv_InitEventParams((ScriptableEventParams *)&outParams, scriptableIndex, part);
@@ -1007,119 +1019,104 @@ void ScriptableSv_RunStateEvents(ScriptableEventParams *eventParams, unsigned in
           }
           goto $LN11_79;
         case Scriptable_EventType_Wait:
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+24h]; jumptable 00000001414E6BBC case 1
-            vmovss  xmm6, dword ptr [rsi+20h]
-            vcomiss xmm1, xmm6
-          }
-          if ( !__CFADD__(events, 176 * v11) && &events[v11] != NULL )
-          {
-            __asm { vmovaps xmm0, xmm6; min }
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-            __asm { vmovaps xmm6, xmm0 }
-          }
+          delayMax = v8->data.wait.delayMax;
+          delayMin = v8->data.wait.delayMin;
+          if ( delayMax > delayMin )
+            BG_flrand(v8->data.wait.delayMin, delayMax, holdrand);
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 114, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          v92 = ScriptableSv_GetInstanceCommonContext(eventParams->scriptableIndex);
-          eventStreamBufferOffsetServer = _RSI->data.wait.eventStreamBufferOffsetServer;
-          v94 = v92;
-          _RDI = eventStreamBufferOffsetServer;
-          eventStreamBufferSize = v92->eventStreamBufferSize;
+          v73 = ScriptableSv_GetInstanceCommonContext(eventParams->scriptableIndex);
+          eventStreamBufferOffsetServer = v8->data.wait.eventStreamBufferOffsetServer;
+          v75 = v73;
+          v76 = eventStreamBufferOffsetServer;
+          eventStreamBufferSize = v73->eventStreamBufferSize;
           if ( eventStreamBufferOffsetServer + 4 > eventStreamBufferSize )
           {
-            LODWORD(v104) = eventStreamBufferSize;
-            LODWORD(v103) = eventStreamBufferOffsetServer + 4;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 120, ASSERT_TYPE_ASSERT, "( eventBufferOffset + sizeof( float ) ) <= ( context.eventStreamBufferSize )", "eventBufferOffset + sizeof( float ) <= context.eventStreamBufferSize\n\t%i, %i", v103, v104) )
+            LODWORD(v80) = eventStreamBufferSize;
+            LODWORD(v79) = eventStreamBufferOffsetServer + 4;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 120, ASSERT_TYPE_ASSERT, "( eventBufferOffset + sizeof( float ) ) <= ( context.eventStreamBufferSize )", "eventBufferOffset + sizeof( float ) <= context.eventStreamBufferSize\n\t%i, %i", v79, v80) )
               __debugbreak();
           }
-          _RAX = v94->eventStreamBuffer;
-          __asm { vmovss  dword ptr [rdi+rax], xmm6 }
-          goto LABEL_136;
+          *(float *)&v75->eventStreamBuffer[v76] = delayMin;
+          return;
         case Scriptable_EventType_Random:
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 132, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          __asm
-          {
-            vmovaps xmm1, xmm9; max
-            vxorps  xmm0, xmm0, xmm0; min
-          }
-          *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-          __asm { vcomiss xmm0, dword ptr [rsi+20h] }
-          v27 = v15 || v16;
+          v17 = BG_flrand(0.0, 1.0, holdrand);
+          v18 = *(float *)&v17 <= v8->data.wait.delayMin;
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 140, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          v28 = ScriptableSv_GetInstanceCommonContext(eventParams->scriptableIndex);
-          v29 = _RSI->data.random.eventStreamBufferOffsetServer;
-          v30 = v28;
-          v31 = v29;
-          if ( v29 + 4 > (unsigned __int64)v28->eventStreamBufferSize )
+          v19 = ScriptableSv_GetInstanceCommonContext(eventParams->scriptableIndex);
+          v20 = v8->data.random.eventStreamBufferOffsetServer;
+          v21 = v19;
+          v22 = v20;
+          if ( v20 + 4 > (unsigned __int64)v19->eventStreamBufferSize )
           {
-            LODWORD(v104) = v28->eventStreamBufferSize;
-            LODWORD(v103) = v29 + 4;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 146, ASSERT_TYPE_ASSERT, "( eventBufferOffset + sizeof( float ) ) <= ( context.eventStreamBufferSize )", "eventBufferOffset + sizeof( float ) <= context.eventStreamBufferSize\n\t%i, %i", v103, v104) )
+            LODWORD(v80) = v19->eventStreamBufferSize;
+            LODWORD(v79) = v20 + 4;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 146, ASSERT_TYPE_ASSERT, "( eventBufferOffset + sizeof( float ) ) <= ( context.eventStreamBufferSize )", "eventBufferOffset + sizeof( float ) <= context.eventStreamBufferSize\n\t%i, %i", v79, v80) )
               __debugbreak();
           }
-          v30->eventStreamBuffer[v31] = v27;
-          if ( v27 )
-            ScriptableSv_RunStateEvents(eventParams, holdrand, _RSI->data.random.eventsA, _RSI->data.stateChange.stateIdx);
+          v21->eventStreamBuffer[v22] = v18;
+          if ( v18 )
+            ScriptableSv_RunStateEvents(eventParams, holdrand, v8->data.random.eventsA, v8->data.stateChange.stateIdx);
           else
-            ScriptableSv_RunStateEvents(eventParams, holdrand, _RSI->data.random.eventsB, _RSI->data.random.eventBCount);
+            ScriptableSv_RunStateEvents(eventParams, holdrand, v8->data.random.eventsB, v8->data.random.eventBCount);
           goto $LN11_79;
         case Scriptable_EventType_Script:
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 168, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          v32 = eventParams->scriptableIndex;
-          if ( ScriptableSv_GetInstanceHasEntity(v32) )
+          v23 = eventParams->scriptableIndex;
+          if ( ScriptableSv_GetInstanceHasEntity(v23) )
           {
-            Entity = ScriptableSv_GetEntity(v32);
-            v34 = ScriptContext_Server();
-            Scr_AddInt(v34, _RSI->data.script.param);
-            Scr_AddConstString(v34, _RSI->data.script.scrNotification);
+            Entity = ScriptableSv_GetEntity(v23);
+            v25 = ScriptContext_Server();
+            Scr_AddInt(v25, v8->data.script.param);
+            Scr_AddConstString(v25, v8->data.script.scrNotification);
             GScr_Notify(Entity, scr_const.scriptableNotification, 2u);
           }
-          if ( _RSI->data.anonymous.buffer[16] )
+          if ( v8->data.anonymous.buffer[16] )
           {
-            v35 = ScriptContext_Server();
-            v36 = 2;
-            if ( ScriptableSv_GetInstanceHasEntity(v32) )
+            v26 = ScriptContext_Server();
+            v27 = 2;
+            if ( ScriptableSv_GetInstanceHasEntity(v23) )
             {
-              v37 = ScriptableSv_GetEntity(v32);
-              Scr_AddEntityNum(v35, v37->s.number, ENTITY_CLASS_GENTITY);
-              v36 = 3;
+              v28 = ScriptableSv_GetEntity(v23);
+              Scr_AddEntityNum(v26, v28->s.number, ENTITY_CLASS_GENTITY);
+              v27 = 3;
             }
-            Scr_AddInt(v35, _RSI->data.script.param);
-            Scr_AddConstString(v35, _RSI->data.script.scrNotification);
+            Scr_AddInt(v26, v8->data.script.param);
+            Scr_AddConstString(v26, v8->data.script.scrNotification);
             GameScriptDataCommon = GameScriptData::GetGameScriptDataCommon();
             if ( !GameScriptDataCommon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 203, ASSERT_TYPE_ASSERT, "( gScrData )", (const char *)&queryFormat, "gScrData") )
               __debugbreak();
-            v39 = Scr_ExecThread(v35, GameScriptDataCommon->scriptable_notify_callback, v36);
-            Scr_FreeThread(v35, v39);
+            v30 = Scr_ExecThread(v26, GameScriptDataCommon->scriptable_notify_callback, v27);
+            Scr_FreeThread(v26, v30);
           }
           goto $LN11_79;
         case Scriptable_EventType_Model:
-          ScriptableSv_RunStateEventModel(eventParams, (const ScriptableEventModelDef *)&_RSI->data);
+          ScriptableSv_RunStateEventModel(eventParams, (const ScriptableEventModelDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_Collision:
-          ScriptableSv_RunStateEventCollision(eventParams, (const ScriptableEventCollisionDef *)&_RSI->data);
+          ScriptableSv_RunStateEventCollision(eventParams, (const ScriptableEventCollisionDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_Animation:
-          ScriptableSv_RunStateEventAnimation(eventParams, holdrand, (const ScriptableEventAnimationDef *)&_RSI->data);
+          ScriptableSv_RunStateEventAnimation(eventParams, holdrand, (const ScriptableEventAnimationDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_HideShowBone:
-          ScriptableSv_RunStateEventHideShowBone(eventParams, (const ScriptableEventHideShowBoneDef *)&_RSI->data);
+          ScriptableSv_RunStateEventHideShowBone(eventParams, (const ScriptableEventHideShowBoneDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_DisablePhysicsSubShape:
-          ScriptableSv_RunStateEventDisablePhysicsSubShape(eventParams, (const ScriptableEventDisablePhysicsSubShapeDef *)&_RSI->data);
+          ScriptableSv_RunStateEventDisablePhysicsSubShape(eventParams, (const ScriptableEventDisablePhysicsSubShapeDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_NoteTrack:
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 929, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          v40 = eventParams->scriptableIndex;
-          if ( ScriptableSv_GetInstanceHasEntity(v40) )
+          v31 = eventParams->scriptableIndex;
+          if ( ScriptableSv_GetInstanceHasEntity(v31) )
           {
-            v41 = ScriptableSv_GetEntity(v40);
-            ServerDObjForEnt = Com_GetServerDObjForEnt(v41);
+            v32 = ScriptableSv_GetEntity(v31);
+            ServerDObjForEnt = Com_GetServerDObjForEnt(v32);
             if ( ServerDObjForEnt )
             {
               Tree = DObjGetTree(ServerDObjForEnt);
@@ -1149,239 +1146,139 @@ void ScriptableSv_RunStateEvents(ScriptableEventParams *eventParams, unsigned in
         case Scriptable_EventType_Dlc1:
           goto $LN11_79;
         case Scriptable_EventType_SpawnDynent:
-          if ( _RSI->data.anonymous.buffer[32] )
+          if ( v8->data.anonymous.buffer[32] )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+5Ch]; max
-              vmovss  xmm0, dword ptr [rsi+44h]; min
-            }
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+60h]; max
-              vmovss  xmm0, dword ptr [rsi+48h]; min
-            }
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+64h]; max
-              vmovss  xmm0, dword ptr [rsi+4Ch]; min
-            }
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+            BG_flrand(v8->data.spawnDynent.launchLinVel.v[0], v8->data.spawnDynent.launchLinVel2.v[0], holdrand);
+            BG_flrand(v8->data.spawnDynent.launchLinVel.v[1], v8->data.spawnDynent.launchLinVel2.v[1], holdrand);
+            BG_flrand(v8->data.spawnDynent.launchLinVel.v[2], v8->data.spawnDynent.launchLinVel2.v[2], holdrand);
           }
-          if ( _RSI->data.anonymous.buffer[33] )
+          if ( v8->data.anonymous.buffer[33] )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+68h]; max
-              vmovss  xmm0, dword ptr [rsi+50h]; min
-            }
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+6Ch]; max
-              vmovss  xmm0, dword ptr [rsi+54h]; min
-            }
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+70h]; max
-              vmovss  xmm0, dword ptr [rsi+58h]; min
-            }
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+            BG_flrand(v8->data.spawnDynent.launchAngVel.v[0], v8->data.spawnDynent.launchAngVel2.v[0], holdrand);
+            BG_flrand(v8->data.spawnDynent.launchAngVel.v[1], v8->data.spawnDynent.launchAngVel2.v[1], holdrand);
+            BG_flrand(v8->data.spawnDynent.launchAngVel.v[2], v8->data.spawnDynent.launchAngVel2.v[2], holdrand);
           }
           goto $LN11_79;
         case Scriptable_EventType_Explosion:
-          ScriptableSv_RunStateEventExplosion(eventParams, (const ScriptableEventExplosionDef *)&_RSI->data);
+          ScriptableSv_RunStateEventExplosion(eventParams, (const ScriptableEventExplosionDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_Light:
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+4Ch]; jumptable 00000001414E6BBC case 15
-            vmovss  xmm0, dword ptr [rsi+48h]; min
-            vcomiss xmm1, xmm0
-          }
-          if ( !__CFADD__(events, 176 * v11) && &events[v11] != NULL )
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+2Ch]; max
-            vmovss  xmm0, dword ptr [rsi+28h]; min
-            vcomiss xmm1, xmm0
-          }
-          if ( !v15 && !v16 )
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+24h]; max
-            vmovss  xmm0, dword ptr [rsi+20h]; min
-          }
+          v35 = v8->data.spawnDynent.launchLinVel.v[2];
+          v36 = v8->data.spawnDynent.launchLinVel.v[1];
+          if ( v35 > v36 )
+            BG_flrand(v36, v35, holdrand);
+          startTimeMin = v8->data.animation.startTimeMin;
+          v38 = v8->data.chunkDynent.launchLinVel.v[0];
+          if ( startTimeMin > v38 )
+            BG_flrand(v38, startTimeMin, holdrand);
+          v39 = v8->data.wait.delayMax;
+          v40 = v8->data.wait.delayMin;
           goto LABEL_66;
         case Scriptable_EventType_Sun:
-          if ( _RSI->data.anonymous.buffer[32] )
+          if ( v8->data.anonymous.buffer[32] )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+48h]; max
-              vmovss  xmm0, dword ptr [rsi+44h]; min
-              vcomiss xmm1, xmm0
-            }
-            if ( _RSI->data.anonymous.buffer[32] )
-              *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+            v41 = v8->data.spawnDynent.launchLinVel.v[1];
+            v42 = v8->data.spawnDynent.launchLinVel.v[0];
+            if ( v41 > v42 )
+              BG_flrand(v42, v41, holdrand);
           }
-          if ( _RSI->data.anonymous.buffer[0] )
+          if ( v8->data.anonymous.buffer[0] )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+28h]; max
-              vmovss  xmm0, dword ptr [rsi+24h]; min
-              vcomiss xmm1, xmm0
-            }
-            if ( _RSI->data.anonymous.buffer[0] )
-              *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+            v43 = v8->data.chunkDynent.launchLinVel.v[0];
+            v44 = v8->data.wait.delayMax;
+            if ( v43 > v44 )
+              BG_flrand(v44, v43, holdrand);
           }
-          v15 = 0;
-          v16 = _RSI->data.anonymous.buffer[60] == 0;
-          if ( !_RSI->data.anonymous.buffer[60] )
+          if ( !v8->data.anonymous.buffer[60] )
             goto $LN11_79;
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+50h]; max
-            vmovss  xmm0, dword ptr [rsi+4Ch]; min
-            vcomiss xmm1, xmm0
-          }
-          if ( _RSI->data.anonymous.buffer[60] )
-            BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+58h]
-            vmovss  xmm0, dword ptr [rsi+54h]
-          }
+          v45 = v8->data.spawnDynent.launchAngVel.v[0];
+          v46 = v8->data.spawnDynent.launchLinVel.v[2];
+          if ( v45 > v46 )
+            BG_flrand(v46, v45, holdrand);
+          v39 = v8->data.spawnDynent.launchAngVel.v[2];
+          v40 = v8->data.spawnDynent.launchAngVel.v[1];
 LABEL_66:
-          __asm { vcomiss xmm1, xmm0 }
-          if ( !v15 && !v16 )
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+          if ( v39 > v40 )
+            BG_flrand(v40, v39, holdrand);
           goto $LN11_79;
         case Scriptable_EventType_PartDamage:
-          ScriptableSv_RunStateEventPartDamage(eventParams, (const ScriptableEventPartDamageDef *)&_RSI->data);
+          ScriptableSv_RunStateEventPartDamage(eventParams, (const ScriptableEventPartDamageDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_AddModel:
-          ScriptableSv_RunStateEventAddModel(eventParams, (const ScriptableEventAddModelDef *)&_RSI->data);
+          ScriptableSv_RunStateEventAddModel(eventParams, (const ScriptableEventAddModelDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_ApplyForce:
-          ScriptableSv_RunStateEventApplyForce(eventParams, holdrand, (const ScriptableEventApplyForceDef *)&_RSI->data);
+          ScriptableSv_RunStateEventApplyForce(eventParams, holdrand, (const ScriptableEventApplyForceDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_ApplyAngularForce:
-          ScriptableSv_RunStateEventApplyAngularForce(eventParams, holdrand, (const ScriptableEventApplyAngularForceDef *)&_RSI->data);
+          ScriptableSv_RunStateEventApplyAngularForce(eventParams, holdrand, (const ScriptableEventApplyAngularForceDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_ApplyConstantForce:
-          ScriptableSv_RunStateEventApplyConstantForce(eventParams, holdrand, (const ScriptableEventApplyConstantForceDef *)&_RSI->data);
+          ScriptableSv_RunStateEventApplyConstantForce(eventParams, holdrand, (const ScriptableEventApplyConstantForceDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_ApplyConstantAngularForce:
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 1635, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          v63 = eventParams->scriptableIndex;
-          if ( !_RSI->data.anonymous.buffer[1] )
+          v47 = eventParams->scriptableIndex;
+          if ( !v8->data.anonymous.buffer[1] )
           {
-            __asm { vxorps  xmm8, xmm8, xmm8 }
+            v49 = 0.0;
 LABEL_91:
-            __asm { vxorps  xmm7, xmm7, xmm7 }
+            v51 = 0.0;
             goto LABEL_92;
           }
-          __asm
-          {
-            vmovaps xmm1, xmm9; max
-            vxorps  xmm0, xmm0, xmm0; min
-          }
-          *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-          __asm { vmovaps xmm8, xmm0 }
-          if ( !_RSI->data.anonymous.buffer[1] )
+          v48 = BG_flrand(0.0, 1.0, holdrand);
+          v49 = *(float *)&v48;
+          if ( !v8->data.anonymous.buffer[1] )
             goto LABEL_91;
-          __asm
+          v50 = BG_flrand(0.0, 1.0, holdrand);
+          v51 = *(float *)&v50;
+          if ( v8->data.anonymous.buffer[1] )
           {
-            vmovaps xmm1, xmm9; max
-            vxorps  xmm0, xmm0, xmm0; min
-          }
-          *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-          __asm { vmovaps xmm7, xmm0 }
-          if ( _RSI->data.anonymous.buffer[1] )
-          {
-            __asm
-            {
-              vmovaps xmm1, xmm9; max
-              vxorps  xmm0, xmm0, xmm0; min
-            }
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-            __asm { vmovaps xmm6, xmm0 }
+            v52 = BG_flrand(0.0, 1.0, holdrand);
+            v53 = *(float *)&v52;
             goto LABEL_93;
           }
 LABEL_92:
-          __asm { vxorps  xmm6, xmm6, xmm6 }
+          v53 = 0.0;
 LABEL_93:
-          v67 = ScriptableSv_GetInstanceCommonContext(v63);
-          eventStreamBufferOffsetClient = _RSI->data.viewmodelShaderParam.eventStreamBufferOffsetClient;
-          v69 = v67;
-          _RBX = eventStreamBufferOffsetClient;
-          if ( eventStreamBufferOffsetClient + 12 > (unsigned __int64)v67->eventStreamBufferSize )
+          v54 = ScriptableSv_GetInstanceCommonContext(v47);
+          eventStreamBufferOffsetClient = v8->data.viewmodelShaderParam.eventStreamBufferOffsetClient;
+          v56 = v54;
+          v57 = eventStreamBufferOffsetClient;
+          if ( eventStreamBufferOffsetClient + 12 > (unsigned __int64)v54->eventStreamBufferSize )
           {
-            LODWORD(v104) = v67->eventStreamBufferSize;
-            LODWORD(v103) = eventStreamBufferOffsetClient + 12;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 1647, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 3 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "eventBufferOffset + 3 * sizeof( float ) <= r_context.eventStreamBufferSize\n\t%i, %i", v103, v104) )
+            LODWORD(v80) = v54->eventStreamBufferSize;
+            LODWORD(v79) = eventStreamBufferOffsetClient + 12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 1647, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 3 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "eventBufferOffset + 3 * sizeof( float ) <= r_context.eventStreamBufferSize\n\t%i, %i", v79, v80) )
               __debugbreak();
           }
-          _RAX = v69->eventStreamBuffer;
-          __asm
-          {
-            vmovss  dword ptr [rbx+rax], xmm8
-            vmovss  dword ptr [rbx+rax+4], xmm7
-            vmovss  dword ptr [rbx+rax+8], xmm6
-          }
+          eventStreamBuffer = v56->eventStreamBuffer;
+          *(float *)&eventStreamBuffer[v57] = v49;
+          *(float *)&eventStreamBuffer[v57 + 4] = v51;
+          *(float *)&eventStreamBuffer[v57 + 8] = v53;
 $LN11_79:
-          ++v10;
-          v11 = ++v106;
-          if ( v10 >= numEvents )
-          {
-LABEL_136:
-            __asm
-            {
-              vmovaps xmm8, [rsp+148h+var_68]
-              vmovaps xmm7, [rsp+148h+var_58]
-              vmovaps xmm6, [rsp+148h+var_48]
-              vmovaps xmm9, [rsp+148h+var_78]
-            }
+          ++v4;
+          v5 = ++v82;
+          if ( v4 >= numEvents )
             return;
-          }
-          events = v107;
+          events = v83;
           break;
         case Scriptable_EventType_Move:
-          ScriptableSv_RunStateEventMove(eventParams, (const ScriptableEventMoveDef *)&_RSI->data);
+          ScriptableSv_RunStateEventMove(eventParams, (const ScriptableEventMoveDef *)&v8->data);
           goto $LN11_79;
         case Scriptable_EventType_GravityArc:
-          v72 = (const ScriptableEventGravityArcDef *)&_RSI->data;
-          if ( (!eventParams || !v72) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2099, ASSERT_TYPE_ASSERT, "( eventParams && moveDef )", (const char *)&queryFormat, "eventParams && moveDef") )
+          v59 = (const ScriptableEventGravityArcDef *)&v8->data;
+          if ( (!eventParams || !v59) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2099, ASSERT_TYPE_ASSERT, "( eventParams && moveDef )", (const char *)&queryFormat, "eventParams && moveDef") )
             __debugbreak();
-          v73 = eventParams->scriptableIndex;
-          _RBX = ScriptableSv_GetInstanceCommonContext(v73);
-          ScriptableSv_GravityArcCalcData(v73, _RBX, v72, &outParams);
-          *((_BYTE *)&_RBX->ScriptableInstanceContextSecure + 61) |= 2u;
-          *ScriptableSv_StateEventGravityArcGetData(_RBX, v72) = level.time;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+148h+outParams.partDef+4]
-            vmovss  dword ptr [rbx+20h], xmm0
-            vmovss  xmm1, dword ptr [rsp+148h+outParams.damageEvent]
-            vmovss  dword ptr [rbx+24h], xmm1
-            vmovss  xmm0, dword ptr [rsp+148h+outParams.damageEvent+4]
-            vmovss  dword ptr [rbx+28h], xmm0
-            vmovss  xmm1, dword ptr [rsp+148h+outParams.teamEvent]
-            vmovss  dword ptr [rbx+2Ch], xmm1
-            vmovss  xmm0, dword ptr [rsp+148h+outParams.teamEvent+4]
-            vmovss  dword ptr [rbx+30h], xmm0
-            vmovss  xmm1, [rsp+148h+var_B0]
-            vmovss  dword ptr [rbx+34h], xmm1
-          }
-          InstanceCollisionContext = ScriptableSv_GetInstanceCollisionContext(v73);
+          v60 = eventParams->scriptableIndex;
+          v61 = ScriptableSv_GetInstanceCommonContext(v60);
+          ScriptableSv_GravityArcCalcData(v60, v61, v59, &outParams);
+          *((_BYTE *)&v61->ScriptableInstanceContextSecure + 61) |= 2u;
+          *ScriptableSv_StateEventGravityArcGetData(v61, v59) = level.time;
+          v61->origin = outParams.startOrigin;
+          v61->angles = outParams.startAngles;
+          InstanceCollisionContext = ScriptableSv_GetInstanceCollisionContext(v60);
           scriptableCollisionMain = InstanceCollisionContext->scriptableCollisionMain;
           scriptableCollisionDetail = InstanceCollisionContext->scriptableCollisionDetail;
           if ( InstanceCollisionContext->scriptableCollisionMain != -1 || scriptableCollisionDetail != -1 )
@@ -1394,41 +1291,41 @@ LABEL_136:
           }
           goto $LN11_79;
         case Scriptable_EventType_ViewTrigger:
-          v83 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2532, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScriptableSv_RunStateEvents: ViewTrigger events are client-only.");
+          v65 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2532, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScriptableSv_RunStateEvents: ViewTrigger events are client-only.");
           goto LABEL_123;
         case Scriptable_EventType_VehicleBlowUpTire:
           if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2180, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
             __debugbreak();
-          v84 = eventParams->scriptableIndex;
-          if ( ScriptableSv_GetInstanceHasEntity(v84) )
+          v66 = eventParams->scriptableIndex;
+          if ( ScriptableSv_GetInstanceHasEntity(v66) )
           {
-            v85 = ScriptableSv_GetEntity(v84);
-            if ( !v85 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2191, ASSERT_TYPE_ASSERT, "( entity )", (const char *)&queryFormat, "entity") )
+            v67 = ScriptableSv_GetEntity(v66);
+            if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2191, ASSERT_TYPE_ASSERT, "( entity )", (const char *)&queryFormat, "entity") )
               __debugbreak();
-            vehicle = v85->vehicle;
+            vehicle = v67->vehicle;
             if ( vehicle )
             {
               if ( BGVehicles::PhysicsIsValid(vehicle->physicsVehicle) )
               {
                 if ( GVehicles::ms_gVehiclesSystem )
                 {
-                  v87 = GVehicles::ms_gVehiclesSystem->PhysicsGetVehiclePhysicsManager(GVehicles::ms_gVehiclesSystem);
-                  ObjectById = BgVehiclePhysicsManager::GetObjectById(v87, v85->vehicle->physicsVehicle);
+                  v69 = GVehicles::ms_gVehiclesSystem->PhysicsGetVehiclePhysicsManager(GVehicles::ms_gVehiclesSystem);
+                  ObjectById = BgVehiclePhysicsManager::GetObjectById(v69, v67->vehicle->physicsVehicle);
                   if ( ObjectById )
-                    ObjectById->ReactToScriptableEvent(ObjectById, eventParams, _RSI);
+                    ObjectById->ReactToScriptableEvent(ObjectById, eventParams, v8);
                 }
               }
             }
           }
           goto $LN11_79;
         case Scriptable_EventType_ScriptDamage:
-          ScriptableSv_RunStateEventScriptDamage(eventParams, (const ScriptableEventScriptDef *)&_RSI->data);
+          ScriptableSv_RunStateEventScriptDamage(eventParams, (const ScriptableEventScriptDef *)&v8->data);
           goto $LN11_79;
         default:
-          LODWORD(v103) = _RSI->type;
-          v83 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2561, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScriptableSv_RunStateEvents: Unknown event type %i", v103);
+          LODWORD(v79) = v8->type;
+          v65 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_sv.cpp", 2561, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScriptableSv_RunStateEvents: Unknown event type %i", v79);
 LABEL_123:
-          if ( v83 )
+          if ( v65 )
             __debugbreak();
           goto $LN11_79;
       }
@@ -1469,21 +1366,22 @@ void ScriptableSv_SetState(ScriptableEventParams *eventParams, unsigned int newS
   const ScriptablePartDef *partDef; 
   __int64 scriptableIndex; 
   ScriptablePartRuntime *PartRuntime; 
-  unsigned int v8; 
-  const ScriptablePartDef *v9; 
-  __int64 v10; 
+  unsigned int v7; 
+  const ScriptablePartDef *v8; 
+  __int64 v9; 
   ScriptableInstanceContext *InstanceCommonContext; 
+  __int64 eventStreamBufferOffsetServer; 
   int flags; 
-  int v17; 
-  unsigned __int8 v18; 
+  int v13; 
+  unsigned __int8 v14; 
   unsigned int partIndex; 
-  unsigned int v20; 
-  ScriptablePartData *v21; 
+  unsigned int v16; 
+  ScriptablePartData *v17; 
   unsigned __int8 data; 
-  ScriptableInstanceContext *v23; 
-  Scriptable_Analytics_Zone v24; 
-  __int64 v25; 
-  __int64 v26; 
+  ScriptableInstanceContext *v19; 
+  Scriptable_Analytics_Zone v20; 
+  __int64 v21; 
+  __int64 v22; 
 
   if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3620, ASSERT_TYPE_ASSERT, "( eventParams )", (const char *)&queryFormat, "eventParams") )
     __debugbreak();
@@ -1496,8 +1394,8 @@ void ScriptableSv_SetState(ScriptableEventParams *eventParams, unsigned int newS
     __debugbreak();
   if ( newState >= eventParams->partDef->numStates )
   {
-    LODWORD(v25) = newState;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3623, ASSERT_TYPE_ASSERT, "(unsigned)( newState ) < (unsigned)( eventParams->partDef->numStates )", "newState doesn't index eventParams->partDef->numStates\n\t%i not in [0, %i)", v25, eventParams->partDef->numStates) )
+    LODWORD(v21) = newState;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3623, ASSERT_TYPE_ASSERT, "(unsigned)( newState ) < (unsigned)( eventParams->partDef->numStates )", "newState doesn't index eventParams->partDef->numStates\n\t%i not in [0, %i)", v21, eventParams->partDef->numStates) )
       __debugbreak();
   }
   scriptableIndex = eventParams->scriptableIndex;
@@ -1505,9 +1403,9 @@ void ScriptableSv_SetState(ScriptableEventParams *eventParams, unsigned int newS
   if ( (unsigned int)scriptableIndex >= g_scriptableWorldCounts.serverInstanceCount )
   {
     ScriptableCommon_AssertCountsInitialized();
-    LODWORD(v26) = g_scriptableWorldCounts.serverInstanceCount;
-    LODWORD(v25) = scriptableIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3626, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v25, v26) )
+    LODWORD(v22) = g_scriptableWorldCounts.serverInstanceCount;
+    LODWORD(v21) = scriptableIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3626, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
   PartRuntime = ScriptableSv_GetPartRuntime(scriptableIndex, eventParams->partDef);
@@ -1515,75 +1413,69 @@ void ScriptableSv_SetState(ScriptableEventParams *eventParams, unsigned int newS
     __debugbreak();
   if ( newState >= 0x80 )
   {
-    LODWORD(v26) = 128;
-    LODWORD(v25) = newState;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3634, ASSERT_TYPE_ASSERT, "( newState ) < ( 128 )", "newState < 128\n\t%i, %i", v25, v26) )
+    LODWORD(v22) = 128;
+    LODWORD(v21) = newState;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3634, ASSERT_TYPE_ASSERT, "( newState ) < ( 128 )", "newState < 128\n\t%i, %i", v21, v22) )
       __debugbreak();
   }
-  v8 = newState & 0x7F;
-  PartRuntime->stateId = truncate_cast<unsigned short,unsigned int>(v8);
+  v7 = newState & 0x7F;
+  PartRuntime->stateId = truncate_cast<unsigned short,unsigned int>(v7);
   if ( !eventParams->partDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3640, ASSERT_TYPE_ASSERT, "( eventParams->partDef )", (const char *)&queryFormat, "eventParams->partDef") )
     __debugbreak();
-  v9 = eventParams->partDef;
-  v10 = (__int64)&v9->states[v8];
+  v8 = eventParams->partDef;
+  v9 = (__int64)&v8->states[v7];
   InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-  if ( (*(_DWORD *)(v10 + 8) & 0x80) != 0 )
+  if ( (*(_DWORD *)(v9 + 8) & 0x80) != 0 )
   {
-    if ( *(_DWORD *)(v10 + 24) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3650, ASSERT_TYPE_ASSERT, "( newStateDef.type == Scriptable_StateType_Health )", (const char *)&queryFormat, "newStateDef.type == Scriptable_StateType_Health") )
+    if ( *(_DWORD *)(v9 + 24) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3650, ASSERT_TYPE_ASSERT, "( newStateDef.type == Scriptable_StateType_Health )", (const char *)&queryFormat, "newStateDef.type == Scriptable_StateType_Health") )
       __debugbreak();
-    _RBX = v9->eventStreamBufferOffsetServer;
-    if ( _RBX + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3654, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+    eventStreamBufferOffsetServer = v8->eventStreamBufferOffsetServer;
+    if ( eventStreamBufferOffsetServer + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3654, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
-    _RAX = InstanceCommonContext->eventStreamBuffer;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbp+28h]
-      vmovss  dword ptr [rbx+rax], xmm0
-    }
+    *(float *)&InstanceCommonContext->eventStreamBuffer[eventStreamBufferOffsetServer] = (float)*(int *)(v9 + 40);
   }
-  flags = v9->flags;
-  LOWORD(v17) = flags;
+  flags = v8->flags;
+  LOWORD(v13) = flags;
   if ( (flags & 4) != 0 && (flags & 0x40000) == 0 )
   {
     ScriptableCommon_AssertCountsInitialized();
     if ( (unsigned int)scriptableIndex >= g_scriptableWorldCounts.runtimeInstanceCount )
     {
-      v18 = 0;
+      v14 = 0;
       if ( !g_scriptableSv_fixedWorldMap.indices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3689, ASSERT_TYPE_ASSERT, "( g_scriptableSv_fixedWorldMap.indices )", (const char *)&queryFormat, "g_scriptableSv_fixedWorldMap.indices") )
         __debugbreak();
       if ( (unsigned int)scriptableIndex >= g_scriptableSv_fixedWorldMap.indicesCount )
       {
-        LODWORD(v26) = g_scriptableSv_fixedWorldMap.indicesCount;
-        LODWORD(v25) = scriptableIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3690, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( g_scriptableSv_fixedWorldMap.indicesCount )", "scriptableIndex doesn't index g_scriptableSv_fixedWorldMap.indicesCount\n\t%i not in [0, %i)", v25, v26) )
+        LODWORD(v22) = g_scriptableSv_fixedWorldMap.indicesCount;
+        LODWORD(v21) = scriptableIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3690, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( g_scriptableSv_fixedWorldMap.indicesCount )", "scriptableIndex doesn't index g_scriptableSv_fixedWorldMap.indicesCount\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
       partIndex = g_scriptableSv_fixedWorldMap.indices[scriptableIndex];
     }
     else
     {
-      v18 = 1;
+      v14 = 1;
       partIndex = ScriptableSv_GetReplicatedInstance(scriptableIndex)->partIndex;
     }
-    v20 = partIndex + v9->serverControlledFlatId;
-    v21 = &ScriptableSv_GetPartDataGroup((const ScriptableWorldType)v18)->partData[v20];
-    data = v21->data;
-    v21->data = v8 | 0x80;
-    ScriptableSv_SetEventExpiration((const ScriptableWorldType)v18, v20, data >> 7, g_scriptableSv_eventTracking.groups[v18].itemLists.currentIndex);
-    v17 = v9->flags;
+    v16 = partIndex + v8->serverControlledFlatId;
+    v17 = &ScriptableSv_GetPartDataGroup((const ScriptableWorldType)v14)->partData[v16];
+    data = v17->data;
+    v17->data = v7 | 0x80;
+    ScriptableSv_SetEventExpiration((const ScriptableWorldType)v14, v16, data >> 7, g_scriptableSv_eventTracking.groups[v14].itemLists.currentIndex);
+    v13 = v8->flags;
   }
-  if ( (v17 & 0x200) != 0 )
+  if ( (v13 & 0x200) != 0 )
   {
-    v23 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-    ScriptableSv_RefreshEventUpdateList(scriptableIndex, v23->def, (const ScriptableStateDef *)v10);
+    v19 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+    ScriptableSv_RefreshEventUpdateList(scriptableIndex, v19->def, (const ScriptableStateDef *)v9);
   }
   ScriptableCommon_AssertCountsInitialized();
-  v24 = Scriptable_Analytics_Zone_SC_Clipmap_S;
+  v20 = Scriptable_Analytics_Zone_SC_Clipmap_S;
   if ( (unsigned int)scriptableIndex < g_scriptableWorldCounts.runtimeInstanceCount )
-    v24 = Scriptable_Analytics_Zone_SC_Reserved_S;
-  Scriptable_Analytics_AddStateChangeCount(v24, 1);
-  ScriptableBg_DebugTrackStateChange(0, scriptableIndex, v9->flatId, v8, level.time);
+    v20 = Scriptable_Analytics_Zone_SC_Reserved_S;
+  Scriptable_Analytics_AddStateChangeCount(v20, 1);
+  ScriptableBg_DebugTrackStateChange(0, scriptableIndex, v8->flatId, v7, level.time);
 }
 
 /*
@@ -1845,78 +1737,86 @@ ScriptableSv_ArchiveState
 */
 void ScriptableSv_ArchiveState(MemoryFile *memFile)
 {
+  unsigned int v2; 
   unsigned int v3; 
-  unsigned int v4; 
-  __int64 v5; 
-  char v6; 
-  const ScriptableDef *v7; 
+  __int64 v4; 
+  char v5; 
+  const ScriptableDef *v6; 
+  ScriptableInstanceServerContext *v7; 
   ScriptableInstanceServerContext *v8; 
-  ScriptableInstanceServerContext *v9; 
-  unsigned __int16 v10; 
-  __int16 v11; 
+  unsigned __int16 v9; 
+  __int16 v10; 
   const char **p_name; 
-  const char *v13; 
-  unsigned __int8 v14; 
-  bitarray<2048> *v15; 
-  __int64 v16; 
-  unsigned int v17; 
-  __int64 v18; 
-  unsigned __int64 v19; 
-  unsigned int v20; 
+  const char *v12; 
+  unsigned __int8 v13; 
+  bitarray<2048> *v14; 
+  __int64 v15; 
+  unsigned int v16; 
+  __int64 v17; 
+  unsigned __int64 v18; 
+  unsigned int v19; 
   const char *CString; 
-  ScriptableDef *v22; 
-  const ScriptableDef *v25; 
-  char v26; 
+  ScriptableDef *v21; 
+  ScriptableInstanceServerContext *v22; 
+  __int64 v23; 
+  const ScriptableDef *v24; 
+  char v25; 
   unsigned __int64 linkedObjectIndex; 
-  unsigned __int64 v28; 
-  char v29; 
+  unsigned __int64 v27; 
+  char v28; 
   unsigned __int16 eventStreamSizeRequiredServer; 
   ScriptableLinkType linkedObjectType; 
   ScriptableInstanceContext *InstanceCommonContext; 
   bool IsCharacterEntityIndex; 
   unsigned __int8 *EventStreamBuffer; 
   unsigned __int16 eventStreamBufferSize; 
-  ScriptableInstanceServerContext *v36; 
-  const char *v37; 
-  XAssetHeader v38; 
-  const char *v39; 
-  int v40; 
-  const char *v41; 
-  XAssetHeader v42; 
-  unsigned __int64 v43; 
-  unsigned int v44; 
+  double Float; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  ScriptableInstanceServerContext *v41; 
+  const char *v42; 
+  XAssetHeader v43; 
+  const char *v44; 
+  int v45; 
+  const char *v46; 
+  XAssetHeader v47; 
+  unsigned __int64 v48; 
+  unsigned int v49; 
   char *fmt; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
-  char v50; 
-  char v51; 
-  char v52; 
-  char v53; 
-  unsigned __int16 v54; 
-  unsigned __int16 v55[2]; 
-  unsigned int v56; 
-  unsigned int v57; 
-  unsigned int v58; 
-  unsigned int v59; 
-  int v60; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
+  __int64 v54; 
+  char v55; 
+  char v56; 
+  char v57; 
+  char v58; 
+  unsigned __int16 v59; 
+  unsigned __int16 v60[2]; 
   unsigned int v61; 
+  unsigned int v62; 
+  unsigned int v63; 
+  unsigned int v64; 
+  int v65; 
+  unsigned int v66; 
   unsigned int serverInstanceCount; 
   ScriptableDef *def; 
-  __int64 v64; 
-  ScriptableInstanceServerContext *v65; 
+  __int64 v69; 
+  ScriptableInstanceServerContext *v70; 
   unsigned int p; 
   unsigned int outEntNum; 
-  unsigned __int8 v68; 
-  bool v69; 
+  unsigned __int8 v73; 
+  bool v74; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2303, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   if ( !MemFile_IsWriting(memFile) )
   {
     MemFile_ReadData(memFile, 1ui64, &p);
-    v14 = p;
+    v13 = p;
     if ( (_BYTE)p != 2 )
     {
       if ( (_BYTE)p == 1 && (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
@@ -1926,7 +1826,7 @@ void ScriptableSv_ArchiveState(MemoryFile *memFile)
       else
       {
         LODWORD(fmt) = 2;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A4F0, 6194i64, v14, fmt);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14406A4F0, 6194i64, v13, fmt);
       }
     }
     ScriptableCommon_ArchiveReplicatedLimits(memFile, &g_scriptableSv_replicatedLimits);
@@ -1934,7 +1834,7 @@ void ScriptableSv_ArchiveState(MemoryFile *memFile)
     ScriptableCommon_ArchivePartWorldstate(memFile, &g_scriptableSv_replicatedLimits, &g_scriptableSv_partWorldState);
     ScriptableCommon_ArchiveWorldMap(memFile, &g_scriptableSv_fixedWorldMap);
     ScriptableServer_ArchiveWorldEvents(memFile, &g_scriptableSv_eventTracking);
-    ScriptableSv_ArchiveReservedAllocators(memFile, v14);
+    ScriptableSv_ArchiveReservedAllocators(memFile, v13);
     MemFile_ReadData(memFile, 4ui64, &p);
     MemFile_ReadData(memFile, 4ui64, &outEntNum);
     if ( p != g_svScriptableRuntimePartStatesCount )
@@ -1964,24 +1864,24 @@ void ScriptableSv_ArchiveState(MemoryFile *memFile)
     MemFile_ReadData(memFile, 0x2000ui64, g_scriptableIndexEntLookup);
     if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
       MemFile_ReadData(memFile, 0x7A14ui64, &s_scriptableSv_standaloneParentUpdateBits);
-    v15 = &s_scriptableNetworkLODOverrideEntities;
-    v16 = 4i64;
+    v14 = &s_scriptableNetworkLODOverrideEntities;
+    v15 = 4i64;
     do
     {
-      *(_QWORD *)v15->array = 0i64;
-      *(_QWORD *)&v15->array[2] = 0i64;
-      *(_QWORD *)&v15->array[4] = 0i64;
-      v15 = (bitarray<2048> *)((char *)v15 + 64);
-      *(_QWORD *)&v15[-1].array[54] = 0i64;
-      *(_QWORD *)&v15[-1].array[56] = 0i64;
-      *(_QWORD *)&v15[-1].array[58] = 0i64;
-      *(_QWORD *)&v15[-1].array[60] = 0i64;
-      *(_QWORD *)&v15[-1].array[62] = 0i64;
-      --v16;
+      *(_QWORD *)v14->array = 0i64;
+      *(_QWORD *)&v14->array[2] = 0i64;
+      *(_QWORD *)&v14->array[4] = 0i64;
+      v14 = (bitarray<2048> *)((char *)v14 + 64);
+      *(_QWORD *)&v14[-1].array[54] = 0i64;
+      *(_QWORD *)&v14[-1].array[56] = 0i64;
+      *(_QWORD *)&v14[-1].array[58] = 0i64;
+      *(_QWORD *)&v14[-1].array[60] = 0i64;
+      *(_QWORD *)&v14[-1].array[62] = 0i64;
+      --v15;
     }
-    while ( v16 );
+    while ( v15 );
     ScriptableCommon_AssertCountsInitialized();
-    v17 = 0;
+    v16 = 0;
     serverInstanceCount = g_scriptableWorldCounts.serverInstanceCount;
     if ( !g_scriptableWorldCounts.serverInstanceCount )
     {
@@ -1989,157 +1889,157 @@ LABEL_165:
       ScriptableSv_ValidateUpdateLists();
       return;
     }
-    v18 = 0i64;
-    v64 = 0i64;
+    v17 = 0i64;
+    v69 = 0i64;
     while ( 1 )
     {
       MemFile_ReadData(memFile, 1ui64, &p);
       if ( (_BYTE)p )
         break;
-      if ( ScriptableSv_GetInstanceInUse(v17) )
+      if ( ScriptableSv_GetInstanceInUse(v16) )
       {
-        LODWORD(v47) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2537, ASSERT_TYPE_ASSERT, "( ( !ScriptableSv_GetInstanceInUse( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !ScriptableSv_GetInstanceInUse( scriptableIndex ) )", v47) )
+        LODWORD(v52) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2537, ASSERT_TYPE_ASSERT, "( ( !ScriptableSv_GetInstanceInUse( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !ScriptableSv_GetInstanceInUse( scriptableIndex ) )", v52) )
           __debugbreak();
       }
-      if ( v17 >= 0x3D0A0 )
+      if ( v16 >= 0x3D0A0 )
       {
-        LODWORD(v47) = 250016;
-        LODWORD(v46) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
+        LODWORD(v52) = 250016;
+        LODWORD(v51) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v51, v52) )
           __debugbreak();
       }
-      v19 = (unsigned __int64)v17 >> 5;
-      v20 = 0x80000000 >> (v17 & 0x1F);
-      if ( (v20 & s_scriptableSv_eventUpdateBits.array[v19]) != 0 )
+      v18 = (unsigned __int64)v16 >> 5;
+      v19 = 0x80000000 >> (v16 & 0x1F);
+      if ( (v19 & s_scriptableSv_eventUpdateBits.array[v18]) != 0 )
       {
-        LODWORD(v47) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2538, ASSERT_TYPE_ASSERT, "( ( !s_scriptableSv_eventUpdateBits.testBit( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !s_scriptableSv_eventUpdateBits.testBit( scriptableIndex ) )", v47) )
+        LODWORD(v52) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2538, ASSERT_TYPE_ASSERT, "( ( !s_scriptableSv_eventUpdateBits.testBit( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !s_scriptableSv_eventUpdateBits.testBit( scriptableIndex ) )", v52) )
           __debugbreak();
       }
-      if ( v17 >= 0x3D0A0 )
+      if ( v16 >= 0x3D0A0 )
       {
-        LODWORD(v47) = 250016;
-        LODWORD(v46) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
+        LODWORD(v52) = 250016;
+        LODWORD(v51) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v51, v52) )
           __debugbreak();
       }
-      if ( (v20 & s_scriptableSv_entityPositionUpdateBits.array[v19]) != 0 )
+      if ( (v19 & s_scriptableSv_entityPositionUpdateBits.array[v18]) != 0 )
       {
-        LODWORD(v47) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2539, ASSERT_TYPE_ASSERT, "( ( !s_scriptableSv_entityPositionUpdateBits.testBit( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !s_scriptableSv_entityPositionUpdateBits.testBit( scriptableIndex ) )", v47) )
+        LODWORD(v52) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2539, ASSERT_TYPE_ASSERT, "( ( !s_scriptableSv_entityPositionUpdateBits.testBit( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !s_scriptableSv_entityPositionUpdateBits.testBit( scriptableIndex ) )", v52) )
           __debugbreak();
       }
-      if ( v17 >= 0x3D0A0 )
+      if ( v16 >= 0x3D0A0 )
       {
-        LODWORD(v47) = 250016;
-        LODWORD(v46) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
+        LODWORD(v52) = 250016;
+        LODWORD(v51) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v51, v52) )
           __debugbreak();
       }
-      if ( (v20 & s_scriptableSv_standaloneParentUpdateBits.array[v19]) != 0 )
+      if ( (v19 & s_scriptableSv_standaloneParentUpdateBits.array[v18]) != 0 )
       {
-        LODWORD(v47) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2540, ASSERT_TYPE_ASSERT, "( ( !s_scriptableSv_standaloneParentUpdateBits.testBit( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !s_scriptableSv_standaloneParentUpdateBits.testBit( scriptableIndex ) )", v47) )
+        LODWORD(v52) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2540, ASSERT_TYPE_ASSERT, "( ( !s_scriptableSv_standaloneParentUpdateBits.testBit( scriptableIndex ) ) )", "%s\n\t( scriptableIndex ) = %i", "( !s_scriptableSv_standaloneParentUpdateBits.testBit( scriptableIndex ) )", v52) )
           __debugbreak();
       }
 LABEL_164:
-      ++v17;
-      v18 = ++v64;
-      if ( v17 >= serverInstanceCount )
+      ++v16;
+      v17 = ++v69;
+      if ( v16 >= serverInstanceCount )
         goto LABEL_165;
     }
     CString = MemFile_ReadCString(memFile);
     def = DB_FindXAssetHeader(ASSET_TYPE_SCRIPTABLE, CString, 0).scriptable;
-    v22 = def;
+    v21 = def;
     if ( !def )
     {
-      LODWORD(fmt) = v17;
+      LODWORD(fmt) = v16;
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408C400, 5864i64, CString, fmt);
     }
     if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 81, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
       __debugbreak();
     ScriptableCommon_AssertCountsInitialized();
-    if ( v17 >= g_scriptableWorldCounts.serverInstanceCount )
+    if ( v16 >= g_scriptableWorldCounts.serverInstanceCount )
     {
       ScriptableCommon_AssertCountsInitialized();
-      LODWORD(v47) = g_scriptableWorldCounts.serverInstanceCount;
-      LODWORD(v46) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
+      LODWORD(v52) = g_scriptableWorldCounts.serverInstanceCount;
+      LODWORD(v51) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v51, v52) )
         __debugbreak();
     }
-    _R12 = g_scriptableSv_instanceContexts;
-    _R14 = v18;
+    v22 = g_scriptableSv_instanceContexts;
+    v23 = v17;
     if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 90, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
       __debugbreak();
     ScriptableCommon_AssertCountsInitialized();
-    if ( v17 >= g_scriptableWorldCounts.serverInstanceCount )
+    if ( v16 >= g_scriptableWorldCounts.serverInstanceCount )
     {
       ScriptableCommon_AssertCountsInitialized();
-      LODWORD(v47) = g_scriptableWorldCounts.serverInstanceCount;
-      LODWORD(v46) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
+      LODWORD(v52) = g_scriptableWorldCounts.serverInstanceCount;
+      LODWORD(v51) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v51, v52) )
         __debugbreak();
     }
-    v65 = g_scriptableSv_instanceContexts;
-    _R12[_R14].commonContext.def = v22;
-    if ( !ScriptableSv_IsServerInstance(v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2564, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
+    v70 = g_scriptableSv_instanceContexts;
+    v22[v23].commonContext.def = v21;
+    if ( !ScriptableSv_IsServerInstance(v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2564, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
       __debugbreak();
-    MemFile_ReadData(memFile, 4ui64, &v56);
-    _R12[_R14].commonContext.linkedObjectIndex = v56;
+    MemFile_ReadData(memFile, 4ui64, &v61);
+    v22[v23].commonContext.linkedObjectIndex = v61;
     MemFile_ReadData(memFile, 1ui64, &outEntNum);
-    v25 = _R12[_R14].commonContext.def;
-    v26 = outEntNum;
-    _R12[_R14].commonContext.linkedObjectType = outEntNum;
-    if ( v25->networkLODRangeOverride && v26 == 1 )
+    v24 = v22[v23].commonContext.def;
+    v25 = outEntNum;
+    v22[v23].commonContext.linkedObjectType = outEntNum;
+    if ( v24->networkLODRangeOverride && v25 == 1 )
     {
-      linkedObjectIndex = _R12[_R14].commonContext.linkedObjectIndex;
+      linkedObjectIndex = v22[v23].commonContext.linkedObjectIndex;
       if ( (unsigned int)linkedObjectIndex >= 0x800 )
       {
-        LODWORD(v49) = 2048;
-        LODWORD(v48) = _R12[_R14].commonContext.linkedObjectIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v48, v49) )
+        LODWORD(v54) = 2048;
+        LODWORD(v53) = v22[v23].commonContext.linkedObjectIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v53, v54) )
           __debugbreak();
       }
-      v28 = linkedObjectIndex >> 5;
-      v29 = linkedObjectIndex & 0x1F;
-      v22 = def;
-      s_scriptableNetworkLODOverrideEntities.array[v28] |= 0x80000000 >> v29;
+      v27 = linkedObjectIndex >> 5;
+      v28 = linkedObjectIndex & 0x1F;
+      v21 = def;
+      s_scriptableNetworkLODOverrideEntities.array[v27] |= 0x80000000 >> v28;
     }
-    if ( ScriptableSv_GetInstanceHasEntity(v17) )
+    if ( ScriptableSv_GetInstanceHasEntity(v16) )
     {
-      if ( ScriptableSv_GetInstanceCommonContext(v17)->linkedObjectIndex >= 0x800 )
+      if ( ScriptableSv_GetInstanceCommonContext(v16)->linkedObjectIndex >= 0x800 )
       {
-        LODWORD(v47) = 2048;
-        LODWORD(v46) = ScriptableSv_GetInstanceCommonContext(v17)->linkedObjectIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2578, ASSERT_TYPE_ASSERT, "(unsigned)( ScriptableSv_GetLinkObject( scriptableIndex ) ) < (unsigned)( ( sizeof( *array_counter( g_scriptableIndexEntLookup ) ) + 0 ) )", "ScriptableSv_GetLinkObject( scriptableIndex ) doesn't index ARRAY_COUNT( g_scriptableIndexEntLookup )\n\t%i not in [0, %i)", v46, v47) )
+        LODWORD(v52) = 2048;
+        LODWORD(v51) = ScriptableSv_GetInstanceCommonContext(v16)->linkedObjectIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2578, ASSERT_TYPE_ASSERT, "(unsigned)( ScriptableSv_GetLinkObject( scriptableIndex ) ) < (unsigned)( ( sizeof( *array_counter( g_scriptableIndexEntLookup ) ) + 0 ) )", "ScriptableSv_GetLinkObject( scriptableIndex ) doesn't index ARRAY_COUNT( g_scriptableIndexEntLookup )\n\t%i not in [0, %i)", v51, v52) )
           __debugbreak();
       }
-      if ( g_scriptableIndexEntLookup[ScriptableSv_GetInstanceCommonContext(v17)->linkedObjectIndex] != v17 )
+      if ( g_scriptableIndexEntLookup[ScriptableSv_GetInstanceCommonContext(v16)->linkedObjectIndex] != v16 )
       {
-        LODWORD(v47) = v17;
-        LODWORD(v46) = g_scriptableIndexEntLookup[ScriptableSv_GetInstanceCommonContext(v17)->linkedObjectIndex];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2579, ASSERT_TYPE_ASSERT, "( g_scriptableIndexEntLookup[ ScriptableSv_GetLinkObject( scriptableIndex ) ] ) == ( scriptableIndex )", "g_scriptableIndexEntLookup[ ScriptableSv_GetLinkObject( scriptableIndex ) ] == scriptableIndex\n\t%i, %i", v46, v47) )
+        LODWORD(v52) = v16;
+        LODWORD(v51) = g_scriptableIndexEntLookup[ScriptableSv_GetInstanceCommonContext(v16)->linkedObjectIndex];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2579, ASSERT_TYPE_ASSERT, "( g_scriptableIndexEntLookup[ ScriptableSv_GetLinkObject( scriptableIndex ) ] ) == ( scriptableIndex )", "g_scriptableIndexEntLookup[ ScriptableSv_GetLinkObject( scriptableIndex ) ] == scriptableIndex\n\t%i, %i", v51, v52) )
           __debugbreak();
       }
     }
-    MemFile_ReadData(memFile, 2ui64, &v54);
-    eventStreamSizeRequiredServer = v22->eventStreamSizeRequiredServer;
-    if ( eventStreamSizeRequiredServer != v54 )
+    MemFile_ReadData(memFile, 2ui64, &v59);
+    eventStreamSizeRequiredServer = v21->eventStreamSizeRequiredServer;
+    if ( eventStreamSizeRequiredServer != v59 )
     {
-      LODWORD(v46) = eventStreamSizeRequiredServer;
-      LODWORD(fmt) = v54;
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408C6C0, 6166i64, CString, fmt, v46);
-      eventStreamSizeRequiredServer = v22->eventStreamSizeRequiredServer;
+      LODWORD(v51) = eventStreamSizeRequiredServer;
+      LODWORD(fmt) = v59;
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408C6C0, 6166i64, CString, fmt, v51);
+      eventStreamSizeRequiredServer = v21->eventStreamSizeRequiredServer;
     }
-    _R12[_R14].commonContext.eventStreamBufferSize = eventStreamSizeRequiredServer;
+    v22[v23].commonContext.eventStreamBufferSize = eventStreamSizeRequiredServer;
     if ( eventStreamSizeRequiredServer )
     {
       ScriptableCommon_AssertCountsInitialized();
-      if ( v17 < g_scriptableWorldCounts.runtimeInstanceCount )
+      if ( v16 < g_scriptableWorldCounts.runtimeInstanceCount )
       {
-        linkedObjectType = ScriptableSv_GetInstanceCommonContext(v17)->linkedObjectType;
-        InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v17);
+        linkedObjectType = ScriptableSv_GetInstanceCommonContext(v16)->linkedObjectType;
+        InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v16);
         if ( linkedObjectType == SCRIPTABLE_LINK_ENTITY )
         {
           IsCharacterEntityIndex = BG_IsCharacterEntityIndex(InstanceCommonContext->linkedObjectIndex);
@@ -2150,133 +2050,133 @@ LABEL_164:
             __debugbreak();
           IsCharacterEntityIndex = 0;
         }
-        EventStreamBuffer = Scriptable_Bg_AllocateEventStreamBuffer(IsCharacterEntityIndex, 1, LOCAL_CLIENT_0, _R12[_R14].commonContext.eventStreamBufferSize);
-        _R12[_R14].commonContext.eventStreamBuffer = EventStreamBuffer;
+        EventStreamBuffer = Scriptable_Bg_AllocateEventStreamBuffer(IsCharacterEntityIndex, 1, LOCAL_CLIENT_0, v22[v23].commonContext.eventStreamBufferSize);
+        v22[v23].commonContext.eventStreamBuffer = EventStreamBuffer;
         if ( !EventStreamBuffer )
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408C800, 773i64, _R12[_R14].commonContext.eventStreamBufferSize);
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14408C800, 773i64, v22[v23].commonContext.eventStreamBufferSize);
       }
     }
-    eventStreamBufferSize = _R12[_R14].commonContext.eventStreamBufferSize;
+    eventStreamBufferSize = v22[v23].commonContext.eventStreamBufferSize;
     if ( eventStreamBufferSize )
-      MemFile_ReadData(memFile, eventStreamBufferSize, _R12[_R14].commonContext.eventStreamBuffer);
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r12+r14*8+20h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r12+r14*8+24h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r12+r14*8+28h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r12+r14*8+2Ch], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r12+r14*8+30h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r12+r14*8+34h], xmm0 }
-    MemFile_ReadData(memFile, 4ui64, &v57);
-    _R12[_R14].commonContext.partStateIndex = v57;
-    MemFile_ReadData(memFile, 1ui64, &v68);
-    _R12[_R14].commonContext.initializationCount = v68;
-    MemFile_ReadData(memFile, 4ui64, &v58);
-    v36 = v65;
-    v65[_R14].collisionContext.scriptableCollisionMain = v58;
-    MemFile_ReadData(memFile, 4ui64, &v59);
-    v36[_R14].collisionContext.scriptableCollisionDetail = v59;
-    MemFile_ReadData(memFile, 1ui64, &v69);
-    v36[_R14].collisionContext.neverMoves = v69;
-    MemFile_ReadData(memFile, 4ui64, &v60);
-    v36[_R14].collisionContext.navmeshObstacleId = v60;
+      MemFile_ReadData(memFile, eventStreamBufferSize, v22[v23].commonContext.eventStreamBuffer);
+    Float = MemFile_ReadFloat(memFile);
+    v22[v23].commonContext.origin.v[0] = *(float *)&Float;
+    v36 = MemFile_ReadFloat(memFile);
+    v22[v23].commonContext.origin.v[1] = *(float *)&v36;
+    v37 = MemFile_ReadFloat(memFile);
+    v22[v23].commonContext.origin.v[2] = *(float *)&v37;
+    v38 = MemFile_ReadFloat(memFile);
+    v22[v23].commonContext.angles.v[0] = *(float *)&v38;
+    v39 = MemFile_ReadFloat(memFile);
+    v22[v23].commonContext.angles.v[1] = *(float *)&v39;
+    v40 = MemFile_ReadFloat(memFile);
+    v22[v23].commonContext.angles.v[2] = *(float *)&v40;
+    MemFile_ReadData(memFile, 4ui64, &v62);
+    v22[v23].commonContext.partStateIndex = v62;
+    MemFile_ReadData(memFile, 1ui64, &v73);
+    v22[v23].commonContext.initializationCount = v73;
+    MemFile_ReadData(memFile, 4ui64, &v63);
+    v41 = v70;
+    v70[v23].collisionContext.scriptableCollisionMain = v63;
+    MemFile_ReadData(memFile, 4ui64, &v64);
+    v41[v23].collisionContext.scriptableCollisionDetail = v64;
+    MemFile_ReadData(memFile, 1ui64, &v74);
+    v41[v23].collisionContext.neverMoves = v74;
+    MemFile_ReadData(memFile, 4ui64, &v65);
+    v41[v23].collisionContext.navmeshObstacleId = v65;
     if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
     {
-      MemFile_ReadData(memFile, 1ui64, &v50);
-      *((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) ^= (*((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) ^ (32 * v50)) & 0x20;
+      MemFile_ReadData(memFile, 1ui64, &v55);
+      *((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) ^= (*((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) ^ (32 * v55)) & 0x20;
     }
     else
     {
-      *((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) &= ~0x20u;
+      *((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) &= ~0x20u;
     }
-    MemFile_ReadData(memFile, 2ui64, v55);
-    if ( v55[0] < 0x7FFu )
-      ScriptableSv_SetDamageOwner(v17, &g_entities[v55[0]]);
-    _R12[_R14].commonContext.data.compositeModel = NULL;
-    MemFile_ReadData(memFile, 1ui64, &v51);
-    v37 = MemFile_ReadCString(memFile);
-    if ( v51 )
+    MemFile_ReadData(memFile, 2ui64, v60);
+    if ( v60[0] < 0x7FFu )
+      ScriptableSv_SetDamageOwner(v16, &g_entities[v60[0]]);
+    v22[v23].commonContext.data.compositeModel = NULL;
+    MemFile_ReadData(memFile, 1ui64, &v56);
+    v42 = MemFile_ReadCString(memFile);
+    if ( v56 )
     {
-      if ( v37 )
+      if ( v42 )
       {
-        if ( *v37 )
+        if ( *v42 )
         {
-          _R12[_R14].commonContext.dataType = SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
-          v38.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XCOMPOSITEMODEL, v37, 0).physicsLibrary;
-          _R12[_R14].commonContext.data.compositeModel = v38.compositeModel;
-          if ( !v38.physicsLibrary )
+          v22[v23].commonContext.dataType = SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
+          v43.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XCOMPOSITEMODEL, v42, 0).physicsLibrary;
+          v22[v23].commonContext.data.compositeModel = v43.compositeModel;
+          if ( !v43.physicsLibrary )
           {
-            v39 = "r_context.data.compositeModel";
-            v40 = 2672;
-            v41 = "( r_context.data.compositeModel )";
+            v44 = "r_context.data.compositeModel";
+            v45 = 2672;
+            v46 = "( r_context.data.compositeModel )";
             goto LABEL_149;
           }
         }
       }
     }
-    else if ( v37 )
+    else if ( v42 )
     {
-      if ( *v37 )
+      if ( *v42 )
       {
-        _R12[_R14].commonContext.dataType = SCRIPTABLE_DATA_TYPE_XMODEL;
-        v42.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XMODEL, v37, 0).physicsLibrary;
-        _R12[_R14].commonContext.data.compositeModel = v42.compositeModel;
-        if ( !v42.physicsLibrary )
+        v22[v23].commonContext.dataType = SCRIPTABLE_DATA_TYPE_XMODEL;
+        v47.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_XMODEL, v42, 0).physicsLibrary;
+        v22[v23].commonContext.data.compositeModel = v47.compositeModel;
+        if ( !v47.physicsLibrary )
         {
-          v39 = "r_context.data.model";
-          v40 = 2682;
-          v41 = "( r_context.data.model )";
+          v44 = "r_context.data.model";
+          v45 = 2682;
+          v46 = "( r_context.data.model )";
 LABEL_149:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", v40, ASSERT_TYPE_ASSERT, v41, (const char *)&queryFormat, v39) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", v45, ASSERT_TYPE_ASSERT, v46, (const char *)&queryFormat, v44) )
             __debugbreak();
         }
       }
     }
-    MemFile_ReadData(memFile, 1ui64, &v52);
-    *((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) ^= (*((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) ^ (v52 << 6)) & 0x40;
-    MemFile_ReadData(memFile, 1ui64, &v53);
-    *((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) = *((_BYTE *)&_R12[_R14].commonContext.ScriptableInstanceContextSecure + 60) & 0x7F | (v53 << 7);
-    MemFile_ReadData(memFile, 4ui64, &v61);
-    _R12[_R14].commonContext.reservedStateListHeader = v61;
-    if ( v17 >= 0x3D0A0 )
+    MemFile_ReadData(memFile, 1ui64, &v57);
+    *((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) ^= (*((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) ^ (v57 << 6)) & 0x40;
+    MemFile_ReadData(memFile, 1ui64, &v58);
+    *((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) = *((_BYTE *)&v22[v23].commonContext.ScriptableInstanceContextSecure + 60) & 0x7F | (v58 << 7);
+    MemFile_ReadData(memFile, 4ui64, &v66);
+    v22[v23].commonContext.reservedStateListHeader = v66;
+    if ( v16 >= 0x3D0A0 )
     {
-      LODWORD(v49) = 250016;
-      LODWORD(v48) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v48, v49) )
+      LODWORD(v54) = 250016;
+      LODWORD(v53) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v53, v54) )
         __debugbreak();
     }
-    v43 = (unsigned __int64)v17 >> 5;
-    v44 = ~(0x80000000 >> (v17 & 0x1F));
-    s_scriptableSv_eventUpdateBits.array[v43] &= v44;
-    if ( v17 >= 0x3D0A0 )
+    v48 = (unsigned __int64)v16 >> 5;
+    v49 = ~(0x80000000 >> (v16 & 0x1F));
+    s_scriptableSv_eventUpdateBits.array[v48] &= v49;
+    if ( v16 >= 0x3D0A0 )
     {
-      LODWORD(v49) = 250016;
-      LODWORD(v48) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v48, v49) )
+      LODWORD(v54) = 250016;
+      LODWORD(v53) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v53, v54) )
         __debugbreak();
     }
-    s_scriptableSv_entityPositionUpdateBits.array[v43] &= v44;
-    if ( v17 >= 0x3D0A0 )
+    s_scriptableSv_entityPositionUpdateBits.array[v48] &= v49;
+    if ( v16 >= 0x3D0A0 )
     {
-      LODWORD(v49) = 250016;
-      LODWORD(v48) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v48, v49) )
+      LODWORD(v54) = 250016;
+      LODWORD(v53) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v53, v54) )
         __debugbreak();
     }
-    s_scriptableSv_standaloneParentUpdateBits.array[v43] &= v44;
-    if ( v17 >= 0x3D0A0 )
+    s_scriptableSv_standaloneParentUpdateBits.array[v48] &= v49;
+    if ( v16 >= 0x3D0A0 )
     {
-      LODWORD(v49) = 250016;
-      LODWORD(v48) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v48, v49) )
+      LODWORD(v54) = 250016;
+      LODWORD(v53) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v53, v54) )
         __debugbreak();
     }
-    s_scriptableSv_eventUpdateListCompletedBits.array[v43] &= v44;
-    ScriptableSv_AddToUpdateLists(v17, def);
+    s_scriptableSv_eventUpdateListCompletedBits.array[v48] &= v49;
+    ScriptableSv_AddToUpdateLists(v16, def);
     goto LABEL_164;
   }
   LOBYTE(p) = 2;
@@ -2311,102 +2211,102 @@ LABEL_149:
   if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
     MemFile_WriteData(memFile, 0x7A14ui64, &s_scriptableSv_standaloneParentUpdateBits);
   ScriptableCommon_AssertCountsInitialized();
-  v3 = g_scriptableWorldCounts.serverInstanceCount;
-  v4 = 0;
+  v2 = g_scriptableWorldCounts.serverInstanceCount;
+  v3 = 0;
   if ( g_scriptableWorldCounts.serverInstanceCount )
   {
-    v5 = 0i64;
+    v4 = 0i64;
     do
     {
-      LOBYTE(p) = ScriptableSv_GetInstanceInUse(v4);
-      v6 = p;
+      LOBYTE(p) = ScriptableSv_GetInstanceInUse(v3);
+      v5 = p;
       MemFile_WriteData(memFile, 1ui64, &p);
-      if ( v6 )
+      if ( v5 )
       {
-        if ( !ScriptableSv_IsServerInstance(v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2365, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIdx ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIdx )") )
+        if ( !ScriptableSv_IsServerInstance(v3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2365, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIdx ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIdx )") )
           __debugbreak();
-        v7 = ScriptableSv_GetInstanceCommonContext(v4)->def;
-        if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2369, ASSERT_TYPE_ASSERT, "( def != nullptr )", (const char *)&queryFormat, "def != nullptr") )
+        v6 = ScriptableSv_GetInstanceCommonContext(v3)->def;
+        if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2369, ASSERT_TYPE_ASSERT, "( def != nullptr )", (const char *)&queryFormat, "def != nullptr") )
           __debugbreak();
-        if ( !v7->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2370, ASSERT_TYPE_ASSERT, "( def->name != nullptr )", (const char *)&queryFormat, "def->name != nullptr") )
+        if ( !v6->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2370, ASSERT_TYPE_ASSERT, "( def->name != nullptr )", (const char *)&queryFormat, "def->name != nullptr") )
           __debugbreak();
-        MemFile_WriteCString(memFile, v7->name);
+        MemFile_WriteCString(memFile, v6->name);
         if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 81, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
           __debugbreak();
         ScriptableCommon_AssertCountsInitialized();
-        if ( v4 >= g_scriptableWorldCounts.serverInstanceCount )
+        if ( v3 >= g_scriptableWorldCounts.serverInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          LODWORD(v47) = g_scriptableWorldCounts.serverInstanceCount;
-          LODWORD(v46) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
+          LODWORD(v52) = g_scriptableWorldCounts.serverInstanceCount;
+          LODWORD(v51) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v51, v52) )
             __debugbreak();
         }
-        v8 = g_scriptableSv_instanceContexts;
+        v7 = g_scriptableSv_instanceContexts;
         if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 90, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
           __debugbreak();
         ScriptableCommon_AssertCountsInitialized();
-        if ( v4 >= g_scriptableWorldCounts.serverInstanceCount )
+        if ( v3 >= g_scriptableWorldCounts.serverInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          LODWORD(v47) = g_scriptableWorldCounts.serverInstanceCount;
-          LODWORD(v46) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v46, v47) )
+          LODWORD(v52) = g_scriptableWorldCounts.serverInstanceCount;
+          LODWORD(v51) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v51, v52) )
             __debugbreak();
         }
-        v9 = g_scriptableSv_instanceContexts;
-        p = v8[v5].commonContext.linkedObjectIndex;
+        v8 = g_scriptableSv_instanceContexts;
+        p = v7[v4].commonContext.linkedObjectIndex;
         MemFile_WriteData(memFile, 4ui64, &p);
-        LOBYTE(p) = v8[v5].commonContext.linkedObjectType;
+        LOBYTE(p) = v7[v4].commonContext.linkedObjectType;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOWORD(p) = v8[v5].commonContext.eventStreamBufferSize;
+        LOWORD(p) = v7[v4].commonContext.eventStreamBufferSize;
         MemFile_WriteData(memFile, 2ui64, &p);
-        v10 = v8[v5].commonContext.eventStreamBufferSize;
-        if ( v10 )
-          MemFile_WriteData(memFile, v10, v8[v5].commonContext.eventStreamBuffer);
-        MemFile_WriteData(memFile, 0xCui64, &v8[v5].commonContext.origin);
-        MemFile_WriteData(memFile, 0xCui64, &v8[v5].commonContext.angles);
-        p = v8[v5].commonContext.partStateIndex;
+        v9 = v7[v4].commonContext.eventStreamBufferSize;
+        if ( v9 )
+          MemFile_WriteData(memFile, v9, v7[v4].commonContext.eventStreamBuffer);
+        MemFile_WriteData(memFile, 0xCui64, &v7[v4].commonContext.origin);
+        MemFile_WriteData(memFile, 0xCui64, &v7[v4].commonContext.angles);
+        p = v7[v4].commonContext.partStateIndex;
         MemFile_WriteData(memFile, 4ui64, &p);
-        LOBYTE(p) = v8[v5].commonContext.initializationCount;
+        LOBYTE(p) = v7[v4].commonContext.initializationCount;
         MemFile_WriteData(memFile, 1ui64, &p);
-        p = v9[v5].collisionContext.scriptableCollisionMain;
+        p = v8[v4].collisionContext.scriptableCollisionMain;
         MemFile_WriteData(memFile, 4ui64, &p);
-        p = v9[v5].collisionContext.scriptableCollisionDetail;
+        p = v8[v4].collisionContext.scriptableCollisionDetail;
         MemFile_WriteData(memFile, 4ui64, &p);
-        LOBYTE(p) = v9[v5].collisionContext.neverMoves;
+        LOBYTE(p) = v8[v4].collisionContext.neverMoves;
         MemFile_WriteData(memFile, 1ui64, &p);
-        p = v9[v5].collisionContext.navmeshObstacleId;
+        p = v8[v4].collisionContext.navmeshObstacleId;
         MemFile_WriteData(memFile, 4ui64, &p);
         if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
         {
-          LOBYTE(p) = (*((_BYTE *)&v8[v5].commonContext.ScriptableInstanceContextSecure + 60) & 0x20) != 0;
+          LOBYTE(p) = (*((_BYTE *)&v7[v4].commonContext.ScriptableInstanceContextSecure + 60) & 0x20) != 0;
           MemFile_WriteData(memFile, 1ui64, &p);
         }
-        ScriptableSv_GetDamageOwner(v4, &outEntNum);
-        v11 = outEntNum;
+        ScriptableSv_GetDamageOwner(v3, &outEntNum);
+        v10 = outEntNum;
         if ( outEntNum > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)outEntNum, "unsigned", outEntNum) )
           __debugbreak();
-        LOWORD(p) = v11;
+        LOWORD(p) = v10;
         MemFile_WriteData(memFile, 2ui64, &p);
-        LOBYTE(p) = v8[v5].commonContext.dataType == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
+        LOBYTE(p) = v7[v4].commonContext.dataType == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL;
         MemFile_WriteData(memFile, 1ui64, &p);
-        p_name = &v8[v5].commonContext.data.compositeModel->name;
-        v13 = (char *)&queryFormat.fmt + 3;
+        p_name = &v7[v4].commonContext.data.compositeModel->name;
+        v12 = (char *)&queryFormat.fmt + 3;
         if ( p_name )
-          v13 = *p_name;
-        MemFile_WriteCString(memFile, v13);
-        LOBYTE(p) = (*((_BYTE *)&v8[v5].commonContext.ScriptableInstanceContextSecure + 60) & 0x40) != 0;
+          v12 = *p_name;
+        MemFile_WriteCString(memFile, v12);
+        LOBYTE(p) = (*((_BYTE *)&v7[v4].commonContext.ScriptableInstanceContextSecure + 60) & 0x40) != 0;
         MemFile_WriteData(memFile, 1ui64, &p);
-        LOBYTE(p) = *((_BYTE *)&v8[v5].commonContext.ScriptableInstanceContextSecure + 60) >> 7;
+        LOBYTE(p) = *((_BYTE *)&v7[v4].commonContext.ScriptableInstanceContextSecure + 60) >> 7;
         MemFile_WriteData(memFile, 1ui64, &p);
-        p = v8[v5].commonContext.reservedStateListHeader;
+        p = v7[v4].commonContext.reservedStateListHeader;
         MemFile_WriteData(memFile, 4ui64, &p);
       }
+      ++v3;
       ++v4;
-      ++v5;
     }
-    while ( v4 < v3 );
+    while ( v3 < v2 );
   }
 }
 
@@ -2588,48 +2488,33 @@ ScriptableSv_ConvertStandaloneParentEntityPoseToWorldSpace
 */
 void ScriptableSv_ConvertStandaloneParentEntityPoseToWorldSpace(const unsigned int scriptableIndex, const gentity_s *const parent, const vec3_t *localOrigin, const vec3_t *localAngles, vec3_t *outWorldOrigin, vec3_t *outWorldAngles)
 {
+  float v9; 
+  float v10; 
+  float v11; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v20; 
+  tmat43_t<vec3_t> v13; 
   tmat43_t<vec3_t> out; 
 
-  _RSI = outWorldOrigin;
-  _RDI = localOrigin;
-  _RBX = parent;
   if ( !parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2160, ASSERT_TYPE_ASSERT, "( parent )", (const char *)&queryFormat, "parent") )
     __debugbreak();
-  if ( !_RBX->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2161, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
+  if ( !parent->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2161, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
     __debugbreak();
-  AnglesToAxis(&_RBX->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vmovss  xmm1, dword ptr [rbx+134h]
-    vmovss  [rsp+0F8h+var_A4], xmm0
-    vmovss  xmm0, dword ptr [rbx+138h]
-    vmovss  [rsp+0F8h+var_9C], xmm0
-    vmovss  [rsp+0F8h+var_A0], xmm1
-  }
-  AnglesToAxis(localAngles, (tmat33_t<vec3_t> *)&v20);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  [rsp+0F8h+var_74], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0F8h+var_6C], xmm0
-    vmovss  [rsp+0F8h+var_70], xmm1
-  }
-  MatrixMultiply43(&v20, &axis, &out);
+  AnglesToAxis(&parent->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
+  v9 = parent->r.currentOrigin.v[1];
+  axis.m[3].v[0] = parent->r.currentOrigin.v[0];
+  axis.m[3].v[2] = parent->r.currentOrigin.v[2];
+  axis.m[3].v[1] = v9;
+  AnglesToAxis(localAngles, (tmat33_t<vec3_t> *)&v13);
+  v10 = localOrigin->v[1];
+  v13.m[3].v[0] = localOrigin->v[0];
+  v13.m[3].v[2] = localOrigin->v[2];
+  v13.m[3].v[1] = v10;
+  MatrixMultiply43(&v13, &axis, &out);
   AxisToAngles((const tmat33_t<vec3_t> *)&out, outWorldAngles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0F8h+out+24h]
-    vmovss  xmm1, dword ptr [rsp+0F8h+out+28h]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsp+0F8h+out+2Ch]
-    vmovss  dword ptr [rsi+8], xmm0
-    vmovss  dword ptr [rsi+4], xmm1
-  }
+  v11 = out.m[3].v[1];
+  outWorldOrigin->v[0] = out.m[3].v[0];
+  outWorldOrigin->v[2] = out.m[3].v[2];
+  outWorldOrigin->v[1] = v11;
 }
 
 /*
@@ -4379,72 +4264,58 @@ ScriptableSv_InitializeEntity
 */
 void ScriptableSv_InitializeEntity(gentity_s *const ent)
 {
+  trajectory_t_secure *p_pos; 
+  float v3; 
+  unsigned int v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  unsigned int v8; 
-  __int64 v9; 
+  __int64 v7; 
 
-  _RBX = ent;
   Scr_SetString(&ent->classname, scr_const.scriptable);
-  Scr_SetString(&_RBX->script_classname, scr_const.scriptable);
-  _RBX->handler = 29;
-  *(_QWORD *)&_RBX->hint.hintString = 0i64;
-  _RBX->s.eType = ET_SCRIPTMOVER;
-  _RSI = &_RBX->s.lerp.pos;
-  *(_QWORD *)&_RBX->s.lerp.u.scriptMover.animIndex = 0i64;
-  _RBX->s.un.scriptMoverType = 2;
-  _RBX->s.lerp.u.anonymous.data[0] = 2047;
-  _RBX->s.otherEntityNum = 2047;
-  _RBX->s.lerp.u.anonymous.data[5] = 0;
-  *((_QWORD *)&_RBX->s.lerp.u.infoVolumeGrapple + 3) = 1000i64;
-  _RBX->s.lerp.u.anonymous.data[2] = 0;
-  if ( _RBX == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+  Scr_SetString(&ent->script_classname, scr_const.scriptable);
+  ent->handler = 29;
+  *(_QWORD *)&ent->hint.hintString = 0i64;
+  ent->s.eType = ET_SCRIPTMOVER;
+  p_pos = &ent->s.lerp.pos;
+  *(_QWORD *)&ent->s.lerp.u.scriptMover.animIndex = 0i64;
+  ent->s.un.scriptMoverType = 2;
+  ent->s.lerp.u.anonymous.data[0] = 2047;
+  ent->s.otherEntityNum = 2047;
+  ent->s.lerp.u.anonymous.data[5] = 0;
+  *((_QWORD *)&ent->s.lerp.u.infoVolumeGrapple + 3) = 1000i64;
+  ent->s.lerp.u.anonymous.data[2] = 0;
+  if ( ent == (gentity_s *const)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx+130h] }
-  if ( _RSI->trType == TR_LINEAR_STOP_SECURE )
+  v3 = ent->r.currentOrigin.v[0];
+  if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
   {
-    __asm { vmovss  dword ptr [rsp+38h+arg_0], xmm0 }
-    if ( (v9 & 0x7F800000) == 2139095040 )
-      goto LABEL_15;
-    __asm
+    *(float *)&v7 = ent->r.currentOrigin.v[0];
+    if ( (LODWORD(v3) & 0x7F800000) == 2139095040 || (*(float *)&v7 = ent->r.currentOrigin.v[1], (v7 & 0x7F800000) == 2139095040) || (*(float *)&v7 = ent->r.currentOrigin.v[2], (v7 & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rbx+134h]
-      vmovss  dword ptr [rsp+38h+arg_0], xmm0
-    }
-    if ( (v9 & 0x7F800000) == 2139095040 )
-      goto LABEL_15;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  dword ptr [rsp+38h+arg_0], xmm0
-    }
-    if ( (v9 & 0x7F800000) == 2139095040 )
-    {
-LABEL_15:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 24, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
         __debugbreak();
     }
-    v6 = LODWORD(_RBX->r.currentOrigin.v[0]) ^ ~s_trbase_aab_X;
-    v7 = v6 ^ s_trbase_aab_Y ^ LODWORD(_RBX->r.currentOrigin.v[1]);
-    v8 = v7 ^ s_trbase_aab_Z ^ LODWORD(_RBX->r.currentOrigin.v[2]);
-    LODWORD(_RBX->s.lerp.pos.trBase.v[1]) = v7;
-    LODWORD(_RBX->s.lerp.pos.trBase.v[2]) = v8;
-    LODWORD(_RBX->s.lerp.pos.trBase.v[0]) = v6;
-    memset(&v9, 0, sizeof(v9));
+    v4 = LODWORD(ent->r.currentOrigin.v[0]) ^ ~s_trbase_aab_X;
+    v5 = v4 ^ s_trbase_aab_Y ^ LODWORD(ent->r.currentOrigin.v[1]);
+    v6 = v5 ^ s_trbase_aab_Z ^ LODWORD(ent->r.currentOrigin.v[2]);
+    LODWORD(ent->s.lerp.pos.trBase.v[1]) = v5;
+    LODWORD(ent->s.lerp.pos.trBase.v[2]) = v6;
+    LODWORD(ent->s.lerp.pos.trBase.v[0]) = v4;
+    memset(&v7, 0, sizeof(v7));
   }
   else
   {
-    __asm { vmovss  dword ptr [rsi+0Ch], xmm0 }
-    _RBX->s.lerp.pos.trBase.v[1] = _RBX->r.currentOrigin.v[1];
-    _RBX->s.lerp.pos.trBase.v[2] = _RBX->r.currentOrigin.v[2];
+    ent->s.lerp.pos.trBase.v[0] = v3;
+    ent->s.lerp.pos.trBase.v[1] = ent->r.currentOrigin.v[1];
+    ent->s.lerp.pos.trBase.v[2] = ent->r.currentOrigin.v[2];
   }
-  _RSI->trType = TR_STATIONARY;
-  _RBX->s.lerp.apos.trBase.v[0] = _RBX->r.currentAngles.v[0];
-  _RBX->s.lerp.apos.trBase.v[1] = _RBX->r.currentAngles.v[1];
-  _RBX->s.lerp.apos.trBase.v[2] = _RBX->r.currentAngles.v[2];
-  _RBX->s.lerp.apos.trType = TR_STATIONARY;
-  _RBX->nextthink = 0;
-  _RBX->r.svFlags = 4;
+  p_pos->trType = TR_STATIONARY;
+  ent->s.lerp.apos.trBase.v[0] = ent->r.currentAngles.v[0];
+  ent->s.lerp.apos.trBase.v[1] = ent->r.currentAngles.v[1];
+  ent->s.lerp.apos.trBase.v[2] = ent->r.currentAngles.v[2];
+  ent->s.lerp.apos.trType = TR_STATIONARY;
+  ent->nextthink = 0;
+  ent->r.svFlags = 4;
 }
 
 /*
@@ -4459,7 +4330,9 @@ void ScriptableSv_InitializeState(const unsigned int scriptableIndex, const Scri
   ScriptablePartRuntime *PartRuntime; 
   ScriptableStateDef *states; 
   ScriptableInstanceContext *InstanceCommonContext; 
+  __int64 eventStreamBufferOffsetServer; 
   ScriptableInstanceContext *v11; 
+  __int128 v12; 
   unsigned int j; 
   ScriptableEventParams eventParams; 
 
@@ -4487,23 +4360,20 @@ void ScriptableSv_InitializeState(const unsigned int scriptableIndex, const Scri
           if ( states->type != Scriptable_StateType_Health && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2951, ASSERT_TYPE_ASSERT, "( stateDef->type == Scriptable_StateType_Health )", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
             __debugbreak();
           InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-          _RBP = v6->eventStreamBufferOffsetServer;
+          eventStreamBufferOffsetServer = v6->eventStreamBufferOffsetServer;
           v11 = InstanceCommonContext;
-          if ( _RBP + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2957, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", "%s\n\tScriptable %s doesn't have enough eventBuffer - this usually implies a patch has changed the definition of the scriptable in a way it shouldn't.\n", "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize", def->name) )
+          if ( eventStreamBufferOffsetServer + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2957, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", "%s\n\tScriptable %s doesn't have enough eventBuffer - this usually implies a patch has changed the definition of the scriptable in a way it shouldn't.\n", "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize", def->name) )
             __debugbreak();
-          _RAX = v11->eventStreamBuffer;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-            vmovss  dword ptr [rax+rbp], xmm0
-          }
+          v12 = 0i64;
+          *(float *)&v12 = (float)states->data.health.health;
+          _XMM0 = v12;
+          *(float *)&v11->eventStreamBuffer[eventStreamBufferOffsetServer] = *(float *)&v12;
         }
         eventParams.context = SBL_CONTEXT_SERVER;
         __asm { vpxor   xmm0, xmm0, xmm0 }
         eventParams.callbacks = &s_svCallbackTable;
         eventParams.scriptableIndex = scriptableIndex;
-        __asm { vmovdqu xmmword ptr [rsp+98h+eventParams.damageEvent], xmm0 }
+        *(_OWORD *)&eventParams.damageEvent = _XMM0;
         eventParams.partDef = v6;
         ScriptableBg_EnterState(&eventParams, 1);
       }
@@ -5056,73 +4926,73 @@ void ScriptableSv_ResetLootGlobals(void)
 ScriptableSv_RunFrame
 ==============
 */
-
-void __fastcall ScriptableSv_RunFrame(double _XMM0_8)
+void ScriptableSv_RunFrame(void)
 {
-  const dvar_t *v2; 
+  const dvar_t *v0; 
   char *Value; 
-  int *v4; 
-  _QWORD *v5; 
-  char *v6; 
-  __int64 v7; 
-  unsigned __int64 v8; 
+  int *v2; 
+  _QWORD *v3; 
+  char *v4; 
+  __int64 v5; 
+  unsigned __int64 v6; 
   ThreadContext CurrentThreadContext; 
   unsigned int i; 
+  float v9; 
+  double TimeScale; 
+  unsigned int v11; 
+  unsigned int v12; 
+  __int64 v13; 
+  unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  unsigned int v18; 
-  unsigned int v19; 
   gentity_s *Entity; 
   const vec3_t *p_currentAngles; 
   const vec3_t *p_currentOrigin; 
-  __int64 v23; 
+  __int64 v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  unsigned int v22; 
+  unsigned int v23; 
   unsigned int v24; 
-  __int64 v25; 
+  unsigned int v25; 
   unsigned int v26; 
-  unsigned int v27; 
-  unsigned int v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  __int64 v33; 
-  __int64 v34; 
+  __int64 v27; 
+  __int64 v28; 
 
-  v2 = DCONST_DVARBOOL_scriptable_enable;
+  v0 = DCONST_DVARBOOL_scriptable_enable;
   if ( !DCONST_DVARBOOL_scriptable_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled && g_svScriptablesInitialized && s_svScriptablesCreated && s_svScriptablesStateEntered )
+  Dvar_CheckFrontendServerThread(v0);
+  if ( v0->current.enabled && g_svScriptablesInitialized && s_svScriptablesCreated && s_svScriptablesStateEntered )
   {
-    __asm { vmovaps [rsp+78h+var_38], xmm6 }
     Value = (char *)Sys_GetValue(0);
-    v4 = (int *)(Value + 33056);
+    v2 = (int *)(Value + 33056);
     if ( (unsigned int)(*((_DWORD *)Value + 8264) + 1) >= 3 )
     {
-      LODWORD(v34) = 3;
-      LODWORD(v33) = *((_DWORD *)Value + 8264) + 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v33, v34) )
+      LODWORD(v28) = 3;
+      LODWORD(v27) = *((_DWORD *)Value + 8264) + 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v27, v28) )
         __debugbreak();
     }
-    if ( (unsigned int)++*v4 >= 3 )
+    if ( (unsigned int)++*v2 >= 3 )
     {
-      LODWORD(v34) = 3;
-      LODWORD(v33) = *v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v33, v34) )
+      LODWORD(v28) = 3;
+      LODWORD(v27) = *v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v27, v28) )
         __debugbreak();
     }
-    v5 = Value + 2088;
-    v6 = Value + 40;
-    if ( *v5 < (unsigned __int64)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+    v3 = Value + 2088;
+    v4 = Value + 40;
+    if ( *v3 < (unsigned __int64)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
       __debugbreak();
-    *v5 += 8i64;
-    if ( *v5 >= (unsigned __int64)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+    *v3 += 8i64;
+    if ( *v3 >= (unsigned __int64)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
       __debugbreak();
-    *(_QWORD *)*v5 = v4;
-    if ( *v5 <= (unsigned __int64)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+    *(_QWORD *)*v3 = v2;
+    if ( *v3 <= (unsigned __int64)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
       __debugbreak();
-    v7 = *v4;
-    v8 = __rdtsc();
-    v4[v7 + 2] = v8;
+    v5 = *v2;
+    v6 = __rdtsc();
+    v2[v5 + 2] = v6;
     if ( Sys_HasValidCurrentThreadContext() )
       CurrentThreadContext = Sys_GetCurrentThreadContext();
     else
@@ -5131,175 +5001,164 @@ void __fastcall ScriptableSv_RunFrame(double _XMM0_8)
     ScriptableSv_ValidateEntityLinks();
     for ( i = 0; i < 2; ++i )
       ScriptableSv_UpdateEventExpiration((const ScriptableWorldType)(unsigned __int8)i);
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, eax
-    }
-    _XMM0_8 = Com_GetTimeScale();
-    __asm
-    {
-      vmulss  xmm1, xmm6, cs:__real@3a83126f
-      vmulss  xmm6, xmm0, xmm1
-    }
+    v9 = (float)(level.time - s_svScriptablesLastUpdateTime);
+    TimeScale = Com_GetTimeScale();
     s_svScriptablesLastUpdateTime = level.time;
     ScriptableSv_ValidateUpdateLists();
     ScriptableCommon_AssertCountsInitialized();
-    v15 = (g_scriptableWorldCounts.serverInstanceCount + 31) >> 5;
+    v11 = (g_scriptableWorldCounts.serverInstanceCount + 31) >> 5;
     Sys_ProfBeginNamedEvent(0xFF808080, "ScriptableSv_UpdateEntityPosition");
-    if ( v15 > 0x1E85 )
+    if ( v11 > 0x1E85 )
     {
-      LODWORD(v34) = 7813;
-      LODWORD(v33) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2859, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( s_scriptableSv_entityPositionUpdateBits.getWordCount() )", "updateWordCount <= s_scriptableSv_entityPositionUpdateBits.getWordCount()\n\t%i, %i", v33, v34) )
+      LODWORD(v28) = 7813;
+      LODWORD(v27) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2859, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( s_scriptableSv_entityPositionUpdateBits.getWordCount() )", "updateWordCount <= s_scriptableSv_entityPositionUpdateBits.getWordCount()\n\t%i, %i", v27, v28) )
         __debugbreak();
     }
-    v16 = 0;
-    LODWORD(v17) = 0;
-    if ( v15 )
-      v16 = s_scriptableSv_entityPositionUpdateBits.array[0];
-    while ( v16 )
+    v12 = 0;
+    LODWORD(v13) = 0;
+    if ( v11 )
+      v12 = s_scriptableSv_entityPositionUpdateBits.array[0];
+    while ( v12 )
     {
 LABEL_36:
-      v18 = __lzcnt(v16);
-      v19 = v18 + 32 * v17;
-      if ( v18 >= 0x20 )
+      v14 = __lzcnt(v12);
+      v15 = v14 + 32 * v13;
+      if ( v14 >= 0x20 )
       {
-        LODWORD(v34) = 32;
-        LODWORD(v33) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v33, v34) )
+        LODWORD(v28) = 32;
+        LODWORD(v27) = v14;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
           __debugbreak();
       }
-      if ( (v16 & (0x80000000 >> v18)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+      if ( (v12 & (0x80000000 >> v14)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
-      v16 &= ~(0x80000000 >> v18);
-      if ( !ScriptableSv_GetInstanceInUse(v19) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2864, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetInstanceInUse( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_GetInstanceInUse( scriptableIndex )") )
+      v12 &= ~(0x80000000 >> v14);
+      if ( !ScriptableSv_GetInstanceInUse(v15) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2864, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetInstanceInUse( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_GetInstanceInUse( scriptableIndex )") )
         __debugbreak();
-      if ( !ScriptableSv_IsServerInstance(v19) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2865, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
+      if ( !ScriptableSv_IsServerInstance(v15) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2865, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
         __debugbreak();
-      Entity = ScriptableSv_GetEntity(v19);
+      Entity = ScriptableSv_GetEntity(v15);
       p_currentAngles = &Entity->r.currentAngles;
       p_currentOrigin = &Entity->r.currentOrigin;
-      if ( ScriptableSv_HasParentEntity(v19) )
+      if ( ScriptableSv_HasParentEntity(v15) )
       {
-        LODWORD(v33) = v19;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3484, ASSERT_TYPE_ASSERT, "( !ScriptableSv_HasParentEntity( scriptableIndex ) )", "Can't update origin and angles on standalone parented to an entity [%d] ", v33) )
+        LODWORD(v27) = v15;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3484, ASSERT_TYPE_ASSERT, "( !ScriptableSv_HasParentEntity( scriptableIndex ) )", "Can't update origin and angles on standalone parented to an entity [%d] ", v27) )
           __debugbreak();
       }
-      ScriptableSv_UpdateReplicatedTransform(v19, p_currentOrigin, p_currentAngles);
-      ScriptableSv_UpdateWorldTransform(v19, p_currentOrigin, p_currentAngles);
+      ScriptableSv_UpdateReplicatedTransform(v15, p_currentOrigin, p_currentAngles);
+      ScriptableSv_UpdateWorldTransform(v15, p_currentOrigin, p_currentAngles);
     }
     while ( 1 )
     {
-      v17 = (unsigned int)(v17 + 1);
-      if ( (unsigned int)v17 >= v15 )
+      v13 = (unsigned int)(v13 + 1);
+      if ( (unsigned int)v13 >= v11 )
         break;
-      v16 = s_scriptableSv_entityPositionUpdateBits.array[v17];
-      if ( v16 )
+      v12 = s_scriptableSv_entityPositionUpdateBits.array[v13];
+      if ( v12 )
         goto LABEL_36;
     }
     Sys_ProfEndNamedEvent();
-    LODWORD(v23) = 0;
+    LODWORD(v19) = 0;
     if ( Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
     {
       Sys_ProfBeginNamedEvent(0xFF808080, "ScriptableSv_UpdateParentPosition");
-      if ( v15 > 0x1E85 )
+      if ( v11 > 0x1E85 )
       {
-        LODWORD(v34) = 7813;
-        LODWORD(v33) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2878, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( s_scriptableSv_standaloneParentUpdateBits.getWordCount() )", "updateWordCount <= s_scriptableSv_standaloneParentUpdateBits.getWordCount()\n\t%i, %i", v33, v34) )
+        LODWORD(v28) = 7813;
+        LODWORD(v27) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2878, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( s_scriptableSv_standaloneParentUpdateBits.getWordCount() )", "updateWordCount <= s_scriptableSv_standaloneParentUpdateBits.getWordCount()\n\t%i, %i", v27, v28) )
           __debugbreak();
       }
-      v24 = 0;
-      LODWORD(v25) = 0;
-      if ( v15 )
-        v24 = s_scriptableSv_standaloneParentUpdateBits.array[0];
-      while ( v24 )
+      v20 = 0;
+      LODWORD(v21) = 0;
+      if ( v11 )
+        v20 = s_scriptableSv_standaloneParentUpdateBits.array[0];
+      while ( v20 )
       {
 LABEL_61:
-        v26 = __lzcnt(v24);
-        v27 = v26 + 32 * v25;
-        if ( v26 >= 0x20 )
+        v22 = __lzcnt(v20);
+        v23 = v22 + 32 * v21;
+        if ( v22 >= 0x20 )
         {
-          LODWORD(v34) = 32;
-          LODWORD(v33) = v26;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v33, v34) )
+          LODWORD(v28) = 32;
+          LODWORD(v27) = v22;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
             __debugbreak();
         }
-        if ( (v24 & (0x80000000 >> v26)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+        if ( (v20 & (0x80000000 >> v22)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
           __debugbreak();
-        v24 &= ~(0x80000000 >> v26);
-        if ( !ScriptableSv_GetInstanceInUse(v27) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2883, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetInstanceInUse( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_GetInstanceInUse( scriptableIndex )") )
+        v20 &= ~(0x80000000 >> v22);
+        if ( !ScriptableSv_GetInstanceInUse(v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2883, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetInstanceInUse( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_GetInstanceInUse( scriptableIndex )") )
           __debugbreak();
-        if ( !ScriptableSv_IsServerInstance(v27) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2884, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
+        if ( !ScriptableSv_IsServerInstance(v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2884, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
           __debugbreak();
-        if ( !ScriptableSv_UpdateParentedInstanceTransform(v27) )
+        if ( !ScriptableSv_UpdateParentedInstanceTransform(v23) )
         {
-          Com_PrintWarning(29, "Scriptable %d parent entity could not be found. Clearing parent entity.\n", v27);
-          if ( !ScriptableSv_StandaloneClearParentEntity(v27) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2889, ASSERT_TYPE_ASSERT, "(ScriptableSv_StandaloneClearParentEntity( scriptableIndex ))", (const char *)&queryFormat, "ScriptableSv_StandaloneClearParentEntity( scriptableIndex )") )
+          Com_PrintWarning(29, "Scriptable %d parent entity could not be found. Clearing parent entity.\n", v23);
+          if ( !ScriptableSv_StandaloneClearParentEntity(v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2889, ASSERT_TYPE_ASSERT, "(ScriptableSv_StandaloneClearParentEntity( scriptableIndex ))", (const char *)&queryFormat, "ScriptableSv_StandaloneClearParentEntity( scriptableIndex )") )
             __debugbreak();
         }
       }
       while ( 1 )
       {
-        v25 = (unsigned int)(v25 + 1);
-        if ( (unsigned int)v25 >= v15 )
+        v21 = (unsigned int)(v21 + 1);
+        if ( (unsigned int)v21 >= v11 )
           break;
-        v24 = s_scriptableSv_standaloneParentUpdateBits.array[v25];
-        if ( v24 )
+        v20 = s_scriptableSv_standaloneParentUpdateBits.array[v21];
+        if ( v20 )
           goto LABEL_61;
       }
       Sys_ProfEndNamedEvent();
-      LODWORD(v23) = 0;
+      LODWORD(v19) = 0;
     }
     Sys_ProfBeginNamedEvent(0xFF808080, "ScriptableSv_UpdateEvents");
-    if ( v15 > 0x1E85 )
+    if ( v11 > 0x1E85 )
     {
-      LODWORD(v34) = 7813;
-      LODWORD(v33) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2898, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( s_scriptableSv_eventUpdateBits.getWordCount() )", "updateWordCount <= s_scriptableSv_eventUpdateBits.getWordCount()\n\t%i, %i", v33, v34) )
+      LODWORD(v28) = 7813;
+      LODWORD(v27) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2898, ASSERT_TYPE_ASSERT, "( updateWordCount ) <= ( s_scriptableSv_eventUpdateBits.getWordCount() )", "updateWordCount <= s_scriptableSv_eventUpdateBits.getWordCount()\n\t%i, %i", v27, v28) )
         __debugbreak();
     }
-    v28 = 0;
-    if ( v15 )
-      v28 = s_scriptableSv_eventUpdateBits.array[0];
-    while ( v28 )
+    v24 = 0;
+    if ( v11 )
+      v24 = s_scriptableSv_eventUpdateBits.array[0];
+    while ( v24 )
     {
 LABEL_86:
-      v29 = __lzcnt(v28);
-      v30 = v29 + 32 * v23;
-      if ( v29 >= 0x20 )
+      v25 = __lzcnt(v24);
+      v26 = v25 + 32 * v19;
+      if ( v25 >= 0x20 )
       {
-        LODWORD(v34) = 32;
-        LODWORD(v33) = v29;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v33, v34) )
+        LODWORD(v28) = 32;
+        LODWORD(v27) = v25;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
           __debugbreak();
       }
-      if ( (v28 & (0x80000000 >> v29)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+      if ( (v24 & (0x80000000 >> v25)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
-      v28 &= ~(0x80000000 >> v29);
-      if ( !ScriptableSv_GetInstanceInUse(v30) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2903, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetInstanceInUse( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_GetInstanceInUse( scriptableIndex )") )
+      v24 &= ~(0x80000000 >> v25);
+      if ( !ScriptableSv_GetInstanceInUse(v26) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2903, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetInstanceInUse( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_GetInstanceInUse( scriptableIndex )") )
         __debugbreak();
-      if ( !ScriptableSv_IsServerInstance(v30) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2904, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
+      if ( !ScriptableSv_IsServerInstance(v26) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2904, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
         __debugbreak();
-      g_scriptableSv_updatingIndex = v29 + 32 * v23;
-      __asm { vmovaps xmm0, xmm6; deltaTime }
-      ScriptableSv_UpdateInstanceEvents(*(const float *)&_XMM0, v30);
+      g_scriptableSv_updatingIndex = v25 + 32 * v19;
+      ScriptableSv_UpdateInstanceEvents(*(float *)&TimeScale * (float)(v9 * 0.001), v26);
     }
     while ( 1 )
     {
-      v23 = (unsigned int)(v23 + 1);
-      if ( (unsigned int)v23 >= v15 )
+      v19 = (unsigned int)(v19 + 1);
+      if ( (unsigned int)v19 >= v11 )
         break;
-      v28 = s_scriptableSv_eventUpdateBits.array[v23];
-      if ( v28 )
+      v24 = s_scriptableSv_eventUpdateBits.array[v19];
+      if ( v24 )
         goto LABEL_86;
     }
     Sys_ProfEndNamedEvent();
     g_scriptableSv_updatingIndex = -1;
     Scriptable_Analytics_FlipServerFrame();
     Profile_EndInternal(NULL);
-    __asm { vmovaps xmm6, [rsp+78h+var_38] }
   }
 }
 
@@ -5665,7 +5524,7 @@ LABEL_27:
   __asm { vpxor   xmm0, xmm0, xmm0 }
   eventParams.callbacks = &s_svCallbackTable;
   eventParams.context = SBL_CONTEXT_SERVER;
-  __asm { vmovdqu xmmword ptr [rsp+98h+eventParams.damageEvent], xmm0 }
+  *(_OWORD *)&eventParams.damageEvent = _XMM0;
   eventParams.scriptableIndex = scriptableIndex;
   eventParams.partDef = PartScriptedDefFromName;
   ScriptableBg_ChangePartState(&eventParams, stateIdx, 1);
@@ -5683,7 +5542,9 @@ void ScriptableSv_SetPartStateFirst(const unsigned int scriptableIndex, const Sc
   unsigned int v8; 
   ScriptableStateDef *states; 
   ScriptableInstanceContext *InstanceCommonContext; 
+  __int64 eventStreamBufferOffsetServer; 
   ScriptableInstanceContext *v12; 
+  __int128 v13; 
   ScriptableEventParams eventParams; 
 
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2928, ASSERT_TYPE_ASSERT, "( def )", (const char *)&queryFormat, "def") )
@@ -5710,23 +5571,20 @@ void ScriptableSv_SetPartStateFirst(const unsigned int scriptableIndex, const Sc
         if ( states->type != Scriptable_StateType_Health && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2951, ASSERT_TYPE_ASSERT, "( stateDef->type == Scriptable_StateType_Health )", (const char *)&queryFormat, "stateDef->type == Scriptable_StateType_Health") )
           __debugbreak();
         InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-        _R13 = partDef->eventStreamBufferOffsetServer;
+        eventStreamBufferOffsetServer = partDef->eventStreamBufferOffsetServer;
         v12 = InstanceCommonContext;
-        if ( _R13 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2957, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", "%s\n\tScriptable %s doesn't have enough eventBuffer - this usually implies a patch has changed the definition of the scriptable in a way it shouldn't.\n", "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize", def->name) )
+        if ( eventStreamBufferOffsetServer + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2957, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", "%s\n\tScriptable %s doesn't have enough eventBuffer - this usually implies a patch has changed the definition of the scriptable in a way it shouldn't.\n", "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize", def->name) )
           __debugbreak();
-        _RAX = v12->eventStreamBuffer;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbp+28h]
-          vmovss  dword ptr [rax+r13], xmm0
-        }
+        v13 = 0i64;
+        *(float *)&v13 = (float)states->data.health.health;
+        _XMM0 = v13;
+        *(float *)&v12->eventStreamBuffer[eventStreamBufferOffsetServer] = *(float *)&v13;
       }
       eventParams.context = SBL_CONTEXT_SERVER;
       __asm { vpxor   xmm0, xmm0, xmm0 }
       eventParams.callbacks = &s_svCallbackTable;
       eventParams.scriptableIndex = scriptableIndex;
-      __asm { vmovdqu xmmword ptr [rsp+98h+eventParams.damageEvent], xmm0 }
+      *(_OWORD *)&eventParams.damageEvent = _XMM0;
       eventParams.partDef = partDef;
       ScriptableBg_EnterState(&eventParams, 1);
     }
@@ -6003,7 +5861,7 @@ void ScriptableSv_ShutdownInstancePart(const unsigned int scriptableIndex, const
     eventParams.context = SBL_CONTEXT_SERVER;
     __asm { vpxor   xmm0, xmm0, xmm0 }
     eventParams.callbacks = &s_svCallbackTable;
-    __asm { vmovdqu xmmword ptr [rsp+68h+eventParams.damageEvent], xmm0 }
+    *(_OWORD *)&eventParams.damageEvent = _XMM0;
     eventParams.scriptableIndex = scriptableIndex;
     eventParams.partDef = partDef;
     ScriptableBg_ExitState(&eventParams);
@@ -6163,11 +6021,8 @@ void ScriptableSv_ShutdownInternal(const bool isMyChanges)
         ScriptableCommon_AssertCountsInitialized();
       }
     }
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:?g_scriptableSv_partWorldState@@3UScriptablePartWorldState@@A.groups.partData, xmm0; ScriptablePartWorldState g_scriptableSv_partWorldState
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    g_scriptableSv_partWorldState = _XMM0;
     g_scriptableSv_reservedInstances = NULL;
     ScriptableSV_ShutdownReservedAllocators();
     v14 = &s_scriptableNetworkLODOverrideEntities;
@@ -6335,66 +6190,70 @@ void ScriptableSv_SpawnLootInstances()
   ntl::internal::pool_allocator_freelist<48> *v25; 
   unsigned int v26; 
   BG_SpawnGroup_Loot_Table *v27; 
+  BG_SpawnGroup_Loot_Counts *v28; 
   __int64 v29; 
-  unsigned __int8 v36; 
-  unsigned __int64 v37; 
-  const BG_SpawnGroup_Loot_ItemDef *v38; 
-  bool v39; 
+  BG_SpawnGroup_Loot_Counts *p_itemCounts; 
+  __m256i v31; 
+  __int128 v32; 
+  unsigned __int8 v33; 
+  unsigned __int64 v34; 
+  const BG_SpawnGroup_Loot_ItemDef *v35; 
+  bool v36; 
   const ScriptableDef *scriptableDef; 
   ntl::fixed_map<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *,200,ntl::less<ScriptableDef const *,ScriptableDef const *> > *scriptableDefMap; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *j; 
-  ntl::red_black_tree_node_base *v46; 
+  ntl::red_black_tree_node_base *v43; 
   GWeaponMap *Instance; 
-  BG_SpawnGroup_Loot_Table *v48; 
-  unsigned __int8 v49; 
+  BG_SpawnGroup_Loot_Table *v45; 
+  unsigned __int8 v46; 
   GWeaponMap *k; 
-  unsigned __int64 v51; 
-  _BYTE *v52; 
-  int v54; 
+  unsigned __int64 v48; 
+  _BYTE *v49; 
+  int v51; 
   bool IsDualWield; 
-  int v56; 
-  int v57; 
+  int v53; 
+  int v54; 
+  unsigned int v55; 
+  MapEnts *v56; 
+  unsigned int v57; 
   unsigned int v58; 
-  MapEnts *v59; 
-  unsigned int v60; 
-  unsigned int v61; 
   unsigned int m; 
-  __int64 v63; 
-  unsigned __int8 v64; 
+  __int64 v60; 
+  unsigned __int8 v61; 
   unsigned __int8 itemDefCount; 
-  BG_SpawnGroup_Loot_Table *v66; 
-  unsigned __int64 v67; 
-  unsigned __int64 v68; 
-  SpawnGroupPoint *v69; 
-  const ScriptableDef *v70; 
-  ScriptableInstanceServerContext *v71; 
-  unsigned __int64 v72; 
+  BG_SpawnGroup_Loot_Table *v63; 
+  unsigned __int64 v64; 
+  unsigned __int64 v65; 
+  SpawnGroupPoint *v66; 
+  const ScriptableDef *v67; 
+  ScriptableInstanceServerContext *v68; 
+  unsigned __int64 v69; 
   const ScriptableDef *def; 
-  const ScriptableDef *v74; 
+  const ScriptableDef *v71; 
   ScriptableInstanceContext *InstanceCommonContext; 
+  const SpawnGroupPoint *v73; 
+  unsigned __int16 v74; 
+  MapEnts *v75; 
   const SpawnGroupPoint *v76; 
   unsigned __int16 v77; 
-  MapEnts *v78; 
-  const SpawnGroupPoint *v79; 
-  unsigned __int16 v80; 
-  unsigned __int16 v81; 
+  unsigned __int16 v78; 
   BG_SpawnGroup_Loot_Table *table; 
   BG_SpawnGroup_Loot_Table *tablea; 
   __int64 printResultsToConsole; 
   __int64 printResultsToConsolea; 
   BgWeaponHandle handle; 
-  unsigned int v87; 
+  unsigned int v84; 
   char *saveptrctx; 
   StringTable *tablePtr; 
   StringTable *zoneMapTable; 
-  ntl::red_black_tree_iterator<ScriptableDef const *,ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> >,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> &> v91; 
+  ntl::red_black_tree_iterator<ScriptableDef const *,ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> >,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> &> v88; 
   ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> r_element; 
   BG_SpawnGroup_Loot loot; 
   Weapon outWeapon; 
-  __int64 v95[50]; 
+  __int64 v92[50]; 
   char dest[272]; 
 
   s_scriptableSvLootQuestPointIndices = NULL;
@@ -6442,7 +6301,7 @@ void ScriptableSv_SpawnLootInstances()
     {
       if ( i >= 0x32u )
         break;
-      v95[i] = (__int64)v6;
+      v92[i] = (__int64)v6;
       v6 = I_strtok_r(NULL, " ", &saveptrctx);
     }
     v8 = i;
@@ -6456,7 +6315,7 @@ void ScriptableSv_SpawnLootInstances()
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1351, ASSERT_TYPE_ASSERT, "(unsigned)( tokenIndex ) < (unsigned)( tokenCount )", "tokenIndex doesn't index tokenCount\n\t%i not in [0, %i)", table, printResultsToConsole) )
         __debugbreak();
     }
-    v12 = v95[v11];
+    v12 = v92[v11];
     v13 = &s_svScriptableLootTableZone[-v12];
     do
     {
@@ -6555,66 +6414,57 @@ LABEL_50:
   v27->scriptableDefMap = v23;
   loot.cacheBuffer = &s_svScriptableLootCaches;
   BG_SpawnGroup_Loot_Spawn(&loot, v26, tablePtr, zoneMapTable, v3, v27, 1);
-  _RCX = &s_svScriptableLootCounts;
+  v28 = &s_svScriptableLootCounts;
   v29 = 4i64;
-  _RAX = &loot.itemCounts;
+  p_itemCounts = &loot.itemCounts;
   do
   {
-    _RCX = (BG_SpawnGroup_Loot_Counts *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (BG_SpawnGroup_Loot_Counts *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v28 = (BG_SpawnGroup_Loot_Counts *)((char *)v28 + 128);
+    v31 = *(__m256i *)&p_itemCounts->itemCount;
+    v32 = *(_OWORD *)&p_itemCounts->itemCountByDef[4];
+    p_itemCounts = (BG_SpawnGroup_Loot_Counts *)((char *)p_itemCounts + 128);
+    *(__m256i *)&v28[-1].itemCountByDef[144] = v31;
+    *(__m256i *)&v28[-1].itemCountByDef[160] = *(__m256i *)&p_itemCounts[-1].itemCountByDef[160];
+    *(__m256i *)&v28[-1].itemCountByDef[176] = *(__m256i *)&p_itemCounts[-1].itemCountByDef[176];
+    *(_OWORD *)&v28[-1].itemCountByDef[192] = *(_OWORD *)&p_itemCounts[-1].itemCountByDef[192];
+    *(_OWORD *)v28[-1].itemCountByRarity = v32;
     --v29;
   }
   while ( v29 );
-  v36 = 1;
-  *(_QWORD *)&_RCX->itemCount = *(_QWORD *)&_RAX->itemCount;
+  v33 = 1;
+  *(_QWORD *)&v28->itemCount = *(_QWORD *)&p_itemCounts->itemCount;
   if ( s_scriptableSvLootTable->itemDefCount > 1u )
   {
     while ( 1 )
     {
-      v37 = (unsigned __int64)v36 << 8;
-      v38 = (BG_SpawnGroup_Loot_ItemDef *)((char *)s_scriptableSvLootTable->itemDefs + v37);
-      if ( ((BG_SpawnGroup_Loot_Table *)((char *)s_scriptableSvLootTable + v37) == (BG_SpawnGroup_Loot_Table *)-472i64 || !v38->scriptableDef) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1427, ASSERT_TYPE_ASSERT, "(itemDef && itemDef->scriptableDef)", (const char *)&queryFormat, "itemDef && itemDef->scriptableDef") )
+      v34 = (unsigned __int64)v33 << 8;
+      v35 = (BG_SpawnGroup_Loot_ItemDef *)((char *)s_scriptableSvLootTable->itemDefs + v34);
+      if ( ((BG_SpawnGroup_Loot_Table *)((char *)s_scriptableSvLootTable + v34) == (BG_SpawnGroup_Loot_Table *)-472i64 || !v35->scriptableDef) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1427, ASSERT_TYPE_ASSERT, "(itemDef && itemDef->scriptableDef)", (const char *)&queryFormat, "itemDef && itemDef->scriptableDef") )
         __debugbreak();
-      v39 = 1;
-      scriptableDef = v38->scriptableDef;
-      r_element.first = v38->scriptableDef;
-      r_element.second = v38;
+      v36 = 1;
+      scriptableDef = v35->scriptableDef;
+      r_element.first = v35->scriptableDef;
+      r_element.second = v35;
       scriptableDefMap = s_scriptableSvLootTable->scriptableDefMap;
       mp_parent = scriptableDefMap->m_endNodeBase.mp_parent;
       p_m_endNodeBase = &scriptableDefMap->m_endNodeBase;
       while ( mp_parent )
       {
         p_m_endNodeBase = mp_parent;
-        v39 = (unsigned __int64)scriptableDef < *(_QWORD *)&mp_parent[1].m_color;
+        v36 = (unsigned __int64)scriptableDef < *(_QWORD *)&mp_parent[1].m_color;
         if ( (unsigned __int64)scriptableDef >= *(_QWORD *)&mp_parent[1].m_color )
           mp_parent = mp_parent->mp_right;
         else
           mp_parent = mp_parent->mp_left;
       }
       mp_left = p_m_endNodeBase;
-      if ( !v39 )
+      if ( !v36 )
         goto LABEL_82;
       if ( p_m_endNodeBase != scriptableDefMap->m_endNodeBase.mp_left )
         break;
-      ntl::red_black_tree<ScriptableDef const *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>>,200,8>,ntl::return_pair_first<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::less<ScriptableDef const *,ScriptableDef const *>>::insert_node(scriptableDefMap, &v91, p_m_endNodeBase, &r_element, 1, 0);
+      ntl::red_black_tree<ScriptableDef const *,ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>>,200,8>,ntl::return_pair_first<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *>,ntl::less<ScriptableDef const *,ScriptableDef const *>>::insert_node(scriptableDefMap, &v88, p_m_endNodeBase, &r_element, 1, 0);
 LABEL_87:
-      if ( ++v36 >= s_scriptableSvLootTable->itemDefCount )
+      if ( ++v33 >= s_scriptableSvLootTable->itemDefCount )
         goto LABEL_88;
     }
     if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
@@ -6634,10 +6484,10 @@ LABEL_87:
         {
           do
           {
-            v46 = mp_left;
+            v43 = mp_left;
             mp_left = mp_left->mp_parent;
           }
-          while ( v46 == mp_left->mp_left );
+          while ( v43 == mp_left->mp_left );
         }
       }
     }
@@ -6654,67 +6504,67 @@ LABEL_82:
   }
 LABEL_88:
   Instance = GWeaponMap::GetInstance();
-  v48 = s_scriptableSvLootTable;
-  v49 = 1;
-  for ( k = Instance; v49 < v48->itemDefCount; ++v49 )
+  v45 = s_scriptableSvLootTable;
+  v46 = 1;
+  for ( k = Instance; v46 < v45->itemDefCount; ++v46 )
   {
-    v51 = (unsigned __int64)v49 << 8;
-    v52 = *(const char **)((char *)&v48->itemDefs[0].weaponFullString + v51);
-    if ( v52 && *v52 )
+    v48 = (unsigned __int64)v46 << 8;
+    v49 = *(const char **)((char *)&v45->itemDefs[0].weaponFullString + v48);
+    if ( v49 && *v49 )
     {
       handle.m_mapEntryId = 0;
-      BG_Weapons_GetFullWeaponForName(*(const char **)((char *)&v48->itemDefs[0].weaponFullString + v51), &outWeapon, BG_FindBaseWeaponForName);
+      BG_Weapons_GetFullWeaponForName(*(const char **)((char *)&v45->itemDefs[0].weaponFullString + v48), &outWeapon, BG_FindBaseWeaponForName);
       GWeaponMap::SetWeapon(k, &handle, &outWeapon);
-      *(BgWeaponHandle *)((char *)&v48->itemDefs[0].weaponIndex + v51) = handle;
+      *(BgWeaponHandle *)((char *)&v45->itemDefs[0].weaponIndex + v48) = handle;
       if ( !handle.m_mapEntryId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1444, ASSERT_TYPE_ASSERT, "(itemDef.weaponIndex != BgWeaponHandle::INVALID_HANDLE)", (const char *)&queryFormat, "itemDef.weaponIndex != BgWeaponHandle::INVALID_HANDLE") )
         __debugbreak();
-      if ( !*(unsigned int *)((char *)&v48->itemDefs[0].scriptableDefParm + v51) )
+      if ( !*(unsigned int *)((char *)&v45->itemDefs[0].scriptableDefParm + v48) )
       {
-        v54 = BG_GetClipSize(NULL, &outWeapon, 0) & 0x7FF;
+        v51 = BG_GetClipSize(NULL, &outWeapon, 0) & 0x7FF;
         IsDualWield = BG_WeaponIsDualWield(&outWeapon);
-        v56 = v54;
+        v53 = v51;
         if ( IsDualWield )
-          v56 = v54 | (v54 << 11);
-        *(unsigned int *)((char *)&v48->itemDefs[0].scriptableDefParm + v51) = v56;
+          v53 = v51 | (v51 << 11);
+        *(unsigned int *)((char *)&v45->itemDefs[0].scriptableDefParm + v48) = v53;
       }
-      v57 = s_lootTableWeaponHandleCount;
-      v58 = *(unsigned int *)((char *)&v48->itemDefs[0].weaponIndex + v51);
+      v54 = s_lootTableWeaponHandleCount;
+      v55 = *(unsigned int *)((char *)&v45->itemDefs[0].weaponIndex + v48);
       if ( (unsigned int)s_lootTableWeaponHandleCount >= 0xC8 )
       {
         LODWORD(printResultsToConsolea) = 200;
         LODWORD(tablea) = s_lootTableWeaponHandleCount;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1094, ASSERT_TYPE_ASSERT, "(unsigned)( s_lootTableWeaponHandleCount ) < (unsigned)( ( sizeof( *array_counter( s_lootTableWeaponHandles ) ) + 0 ) )", "s_lootTableWeaponHandleCount doesn't index ARRAY_COUNT( s_lootTableWeaponHandles )\n\t%i not in [0, %i)", tablea, printResultsToConsolea) )
           __debugbreak();
-        v57 = s_lootTableWeaponHandleCount;
+        v54 = s_lootTableWeaponHandleCount;
       }
-      s_lootTableWeaponHandleCount = v57 + 1;
-      s_lootTableWeaponHandles[v57] = v58;
-      v48 = s_scriptableSvLootTable;
+      s_lootTableWeaponHandleCount = v54 + 1;
+      s_lootTableWeaponHandles[v54] = v55;
+      v45 = s_scriptableSvLootTable;
     }
   }
-  BG_BrAmmoOverrideAll((const GameTypeQuick_t)(unsigned __int8)level.gameTypeQuick[0], v48);
-  v59 = cm.mapEnts;
-  v60 = 0;
-  v87 = 0;
-  v61 = 0;
+  BG_BrAmmoOverrideAll((const GameTypeQuick_t)(unsigned __int8)level.gameTypeQuick[0], v45);
+  v56 = cm.mapEnts;
+  v57 = 0;
+  v84 = 0;
+  v58 = 0;
   LODWORD(saveptrctx) = 0;
-  for ( m = 0; v60 < cm.mapEnts->spawnGroupLoot.pointCount; LODWORD(saveptrctx) = v60 )
+  for ( m = 0; v57 < cm.mapEnts->spawnGroupLoot.pointCount; LODWORD(saveptrctx) = v57 )
   {
-    v63 = v60;
-    v64 = loot.pointToDefBuffer->points[v60];
-    if ( v64 )
+    v60 = v57;
+    v61 = loot.pointToDefBuffer->points[v57];
+    if ( v61 )
     {
       itemDefCount = s_scriptableSvLootTable->itemDefCount;
-      if ( v64 >= itemDefCount )
+      if ( v61 >= itemDefCount )
       {
         LODWORD(printResultsToConsolea) = itemDefCount;
-        LODWORD(tablea) = v64;
+        LODWORD(tablea) = v61;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1471, ASSERT_TYPE_ASSERT, "(unsigned)( itemDefIndex ) < (unsigned)( s_scriptableSvLootTable->itemDefCount )", "itemDefIndex doesn't index s_scriptableSvLootTable->itemDefCount\n\t%i not in [0, %i)", tablea, printResultsToConsolea) )
           __debugbreak();
       }
-      v66 = s_scriptableSvLootTable;
-      v67 = (unsigned __int64)v64 << 8;
-      v91.mp_node = (ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> > *)s_scriptableSvLootTable;
+      v63 = s_scriptableSvLootTable;
+      v64 = (unsigned __int64)v61 << 8;
+      v88.mp_node = (ntl::red_black_tree_node<ntl::pair<ScriptableDef const *,BG_SpawnGroup_Loot_ItemDef const *> > *)s_scriptableSvLootTable;
       if ( m >= loot.itemCounts.itemCount )
       {
         LODWORD(printResultsToConsolea) = loot.itemCounts.itemCount;
@@ -6723,71 +6573,71 @@ LABEL_88:
           __debugbreak();
       }
       ScriptableCommon_AssertCountsInitialized();
-      v68 = m + g_scriptableWorldCounts.runtimeInstanceCount;
-      v69 = &cm.mapEnts->spawnGroupLoot.points[v63];
-      if ( !v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1478, ASSERT_TYPE_ASSERT, "( point )", (const char *)&queryFormat, "point") )
+      v65 = m + g_scriptableWorldCounts.runtimeInstanceCount;
+      v66 = &cm.mapEnts->spawnGroupLoot.points[v60];
+      if ( !v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1478, ASSERT_TYPE_ASSERT, "( point )", (const char *)&queryFormat, "point") )
         __debugbreak();
       if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 81, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
         __debugbreak();
       ScriptableCommon_AssertCountsInitialized();
-      if ( (unsigned int)v68 >= g_scriptableWorldCounts.serverInstanceCount )
+      if ( (unsigned int)v65 >= g_scriptableWorldCounts.serverInstanceCount )
       {
         ScriptableCommon_AssertCountsInitialized();
         LODWORD(printResultsToConsolea) = g_scriptableWorldCounts.serverInstanceCount;
-        LODWORD(tablea) = v68;
+        LODWORD(tablea) = v65;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", tablea, printResultsToConsolea) )
           __debugbreak();
       }
-      v70 = *(const ScriptableDef **)((char *)&v66->itemDefs[0].scriptableDef + v67);
-      v71 = g_scriptableSv_instanceContexts;
-      v72 = v68;
-      g_scriptableSv_instanceContexts[v68].commonContext.def = v70;
-      if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_load_query.h", 276, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
+      v67 = *(const ScriptableDef **)((char *)&v63->itemDefs[0].scriptableDef + v64);
+      v68 = g_scriptableSv_instanceContexts;
+      v69 = v65;
+      g_scriptableSv_instanceContexts[v65].commonContext.def = v67;
+      if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_load_query.h", 276, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
-      if ( (v70->flags & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1485, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_HasServerInstance( r_context.def ) ) )", "%s\n\t( r_context.def->name ) = %s", "( ScriptableDef_HasServerInstance( r_context.def ) )", v71[v68].commonContext.def->name) )
+      if ( (v67->flags & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1485, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_HasServerInstance( r_context.def ) ) )", "%s\n\t( r_context.def->name ) = %s", "( ScriptableDef_HasServerInstance( r_context.def ) )", v68[v65].commonContext.def->name) )
         __debugbreak();
-      def = v71[v68].commonContext.def;
+      def = v68[v65].commonContext.def;
       if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_load_query.h", 284, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
-      if ( (def->flags & 4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1486, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_IsServerControlled( r_context.def ) ) )", "%s\n\t( r_context.def->name ) = %s", "( ScriptableDef_IsServerControlled( r_context.def ) )", v71[v68].commonContext.def->name) )
+      if ( (def->flags & 4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1486, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_IsServerControlled( r_context.def ) ) )", "%s\n\t( r_context.def->name ) = %s", "( ScriptableDef_IsServerControlled( r_context.def ) )", v68[v65].commonContext.def->name) )
         __debugbreak();
-      v74 = v71[v68].commonContext.def;
-      if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_load_query.h", 363, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
+      v71 = v68[v65].commonContext.def;
+      if ( !v71 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_load_query.h", 363, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
-      if ( (v74->flags & 0x2000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1487, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_IsStandaloneRequested( r_context.def ) ) )", "%s\n\t( r_context.def->name ) = %s", "( ScriptableDef_IsStandaloneRequested( r_context.def ) )", v71[v68].commonContext.def->name) )
+      if ( (v71->flags & 0x2000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1487, ASSERT_TYPE_ASSERT, "( ( ScriptableDef_IsStandaloneRequested( r_context.def ) ) )", "%s\n\t( r_context.def->name ) = %s", "( ScriptableDef_IsStandaloneRequested( r_context.def ) )", v68[v65].commonContext.def->name) )
         __debugbreak();
-      v71[v72].commonContext.origin.v[0] = v69->origin.v[0];
-      v71[v72].commonContext.origin.v[1] = v69->origin.v[1];
-      v71[v72].commonContext.origin.v[2] = v69->origin.v[2];
-      v71[v72].commonContext.angles.v[0] = v69->angles.v[0];
-      v71[v72].commonContext.angles.v[1] = v69->angles.v[1];
-      v71[v72].commonContext.angles.v[2] = v69->angles.v[2];
-      InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v68);
-      InstanceCommonContext->originInitial = v69->origin;
-      InstanceCommonContext->anglesInitial = v69->angles;
+      v68[v69].commonContext.origin.v[0] = v66->origin.v[0];
+      v68[v69].commonContext.origin.v[1] = v66->origin.v[1];
+      v68[v69].commonContext.origin.v[2] = v66->origin.v[2];
+      v68[v69].commonContext.angles.v[0] = v66->angles.v[0];
+      v68[v69].commonContext.angles.v[1] = v66->angles.v[1];
+      v68[v69].commonContext.angles.v[2] = v66->angles.v[2];
+      InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v65);
+      InstanceCommonContext->originInitial = v66->origin;
+      InstanceCommonContext->anglesInitial = v66->angles;
       if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 99, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
         __debugbreak();
       ScriptableCommon_AssertCountsInitialized();
-      if ( (unsigned int)v68 >= g_scriptableWorldCounts.serverInstanceCount )
+      if ( (unsigned int)v65 >= g_scriptableWorldCounts.serverInstanceCount )
       {
         ScriptableCommon_AssertCountsInitialized();
         LODWORD(printResultsToConsolea) = g_scriptableWorldCounts.serverInstanceCount;
-        LODWORD(tablea) = v68;
+        LODWORD(tablea) = v65;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 100, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", tablea, printResultsToConsolea) )
           __debugbreak();
       }
       ++m;
-      v61 = v87;
-      g_scriptableSv_instanceContexts[v72].serverContext.cursorHintParm = *(_DWORD *)((char *)&v91.mp_node[10].mp_parent + v67);
+      v58 = v84;
+      g_scriptableSv_instanceContexts[v69].serverContext.cursorHintParm = *(_DWORD *)((char *)&v88.mp_node[10].mp_parent + v64);
     }
     else
     {
-      v76 = &v59->spawnGroupLoot.points[v60];
-      if ( BG_SpawnGroup_IsPointLootCacheCluster(v76) || v76->cluster == 0xFFFB )
-        v87 = ++v61;
+      v73 = &v56->spawnGroupLoot.points[v57];
+      if ( BG_SpawnGroup_IsPointLootCacheCluster(v73) || v73->cluster == 0xFFFB )
+        v84 = ++v58;
     }
-    v59 = cm.mapEnts;
-    v60 = (_DWORD)saveptrctx + 1;
+    v56 = cm.mapEnts;
+    v57 = (_DWORD)saveptrctx + 1;
   }
   if ( m != loot.itemCounts.itemCount )
   {
@@ -6796,54 +6646,54 @@ LABEL_88:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1507, ASSERT_TYPE_ASSERT, "( itemIndex ) == ( loot.itemCounts.itemCount )", "itemIndex == loot.itemCounts.itemCount\n\t%i, %i", tablea, printResultsToConsolea) )
       __debugbreak();
   }
-  if ( v61 )
+  if ( v58 )
   {
-    s_scriptableSvLootQuestPointIndices = (unsigned __int16 *)Mem_HunkUser_AllocInternal(s_svScriptableRuntimeHunk, 2i64 * v61, 2ui64, "ScriptableSv_SpawnLootInstances");
-    v77 = 0;
-    v78 = cm.mapEnts;
+    s_scriptableSvLootQuestPointIndices = (unsigned __int16 *)Mem_HunkUser_AllocInternal(s_svScriptableRuntimeHunk, 2i64 * v58, 2ui64, "ScriptableSv_SpawnLootInstances");
+    v74 = 0;
+    v75 = cm.mapEnts;
     if ( cm.mapEnts->spawnGroupLoot.pointCount )
     {
       do
       {
-        v79 = &v78->spawnGroupLoot.points[v77];
-        if ( !BG_SpawnGroup_IsPointLootCacheCluster(v79) && v79->cluster != 0xFFFB )
+        v76 = &v75->spawnGroupLoot.points[v74];
+        if ( !BG_SpawnGroup_IsPointLootCacheCluster(v76) && v76->cluster != 0xFFFB )
           goto LABEL_165;
-        if ( !BG_SpawnGroup_IsPointLootCacheCluster(v79) )
+        if ( !BG_SpawnGroup_IsPointLootCacheCluster(v76) )
           goto LABEL_166;
-        if ( v77 == 0xFFFF )
+        if ( v74 == 0xFFFF )
         {
           LODWORD(printResultsToConsolea) = 0xFFFF;
           LODWORD(tablea) = 0xFFFF;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1150, ASSERT_TYPE_ASSERT, "(unsigned)( pointIndex ) < (unsigned)( 65535 )", "pointIndex doesn't index SPAWNGROUP_LOOT_MAX_POINTS\n\t%i not in [0, %i)", tablea, printResultsToConsolea) )
             __debugbreak();
         }
-        if ( !s_lootPointToDefBuffer.points[v77] )
+        if ( !s_lootPointToDefBuffer.points[v74] )
         {
 LABEL_166:
-          v81 = s_scriptableSvLootQuestPointCount;
-          s_scriptableSvLootQuestPointIndices[s_scriptableSvLootQuestPointCount] = v77;
-          v80 = v81 + 1;
-          s_scriptableSvLootQuestPointCount = v80;
+          v78 = s_scriptableSvLootQuestPointCount;
+          s_scriptableSvLootQuestPointIndices[s_scriptableSvLootQuestPointCount] = v74;
+          v77 = v78 + 1;
+          s_scriptableSvLootQuestPointCount = v77;
         }
         else
         {
 LABEL_165:
-          v80 = s_scriptableSvLootQuestPointCount;
+          v77 = s_scriptableSvLootQuestPointCount;
         }
-        v78 = cm.mapEnts;
-        ++v77;
+        v75 = cm.mapEnts;
+        ++v74;
       }
-      while ( v77 < cm.mapEnts->spawnGroupLoot.pointCount );
-      v61 = v87;
+      while ( v74 < cm.mapEnts->spawnGroupLoot.pointCount );
+      v58 = v84;
     }
     else
     {
-      v80 = s_scriptableSvLootQuestPointCount;
+      v77 = s_scriptableSvLootQuestPointCount;
     }
-    if ( v80 != v61 )
+    if ( v77 != v58 )
     {
-      LODWORD(printResultsToConsolea) = v61;
-      LODWORD(tablea) = v80;
+      LODWORD(printResultsToConsolea) = v58;
+      LODWORD(tablea) = v77;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 1530, ASSERT_TYPE_ASSERT, "( s_scriptableSvLootQuestPointCount ) == ( questPointCount )", "s_scriptableSvLootQuestPointCount == questPointCount\n\t%i, %i", tablea, printResultsToConsolea) )
         __debugbreak();
     }
@@ -6859,89 +6709,67 @@ ScriptableSv_StandaloneClearParentEntity
 */
 char ScriptableSv_StandaloneClearParentEntity(const unsigned int instanceIndex)
 {
-  unsigned __int64 v2; 
+  unsigned __int64 v1; 
   ScriptableReplicatedInstance *ReplicatedInstance; 
   ScriptableInstanceContext *InstanceCommonContext; 
-  ScriptableInstanceContext *v5; 
-  char v6; 
-  ScriptableInstanceContext *v23; 
-  __int64 v25; 
-  __int64 v26; 
+  ScriptableInstanceContext *v4; 
+  char v5; 
+  ScriptableInstanceContext *v11; 
+  __int64 v12; 
+  __int64 v13; 
 
-  v2 = instanceIndex;
+  v1 = instanceIndex;
   ScriptableCommon_AssertCountsInitialized();
-  if ( (unsigned int)v2 >= g_scriptableWorldCounts.runtimeInstanceCount )
+  if ( (unsigned int)v1 >= g_scriptableWorldCounts.runtimeInstanceCount )
   {
     ScriptableCommon_AssertCountsInitialized();
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2223, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( ScriptableCommon_GetReservedInstanceCount() )", "instanceIndex doesn't index ScriptableCommon_GetReservedInstanceCount()\n\t%i not in [0, %i)", v2, g_scriptableWorldCounts.runtimeInstanceCount) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2223, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( ScriptableCommon_GetReservedInstanceCount() )", "instanceIndex doesn't index ScriptableCommon_GetReservedInstanceCount()\n\t%i not in [0, %i)", v1, g_scriptableWorldCounts.runtimeInstanceCount) )
       __debugbreak();
   }
-  ReplicatedInstance = ScriptableSv_GetReplicatedInstance(v2);
+  ReplicatedInstance = ScriptableSv_GetReplicatedInstance(v1);
   if ( !ReplicatedInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2226, ASSERT_TYPE_ASSERT, "( replicatedInstance )", (const char *)&queryFormat, "replicatedInstance") )
     __debugbreak();
   if ( !ReplicatedInstance->replicatedType[0] )
   {
-    LODWORD(v25) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2227, ASSERT_TYPE_ASSERT, "( replicatedInstance->replicatedType ) != ( ScriptableReplicatedType::ENTITY )", "replicatedInstance->replicatedType != ScriptableReplicatedType::ENTITY\n\t%i, %i", v25, 0i64) )
+    LODWORD(v12) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2227, ASSERT_TYPE_ASSERT, "( replicatedInstance->replicatedType ) != ( ScriptableReplicatedType::ENTITY )", "replicatedInstance->replicatedType != ScriptableReplicatedType::ENTITY\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
-  if ( ReplicatedInstance->instanceIndex != (_DWORD)v2 )
+  if ( ReplicatedInstance->instanceIndex != (_DWORD)v1 )
   {
-    LODWORD(v26) = v2;
-    LODWORD(v25) = ReplicatedInstance->instanceIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2228, ASSERT_TYPE_ASSERT, "( replicatedInstance->instanceIndex ) == ( instanceIndex )", "replicatedInstance->instanceIndex == instanceIndex\n\t%i, %i", v25, v26) )
+    LODWORD(v13) = v1;
+    LODWORD(v12) = ReplicatedInstance->instanceIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2228, ASSERT_TYPE_ASSERT, "( replicatedInstance->instanceIndex ) == ( instanceIndex )", "replicatedInstance->instanceIndex == instanceIndex\n\t%i, %i", v12, v13) )
       __debugbreak();
   }
-  InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v2);
-  v5 = InstanceCommonContext;
-  v6 = *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60);
-  if ( (v6 & 0x20) != 0 )
+  InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v1);
+  v4 = InstanceCommonContext;
+  v5 = *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60);
+  if ( (v5 & 0x20) != 0 )
   {
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
-    *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60) = v6 & 0xDF;
+    *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60) = v5 & 0xDF;
     if ( !ReplicatedInstance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2240, ASSERT_TYPE_ASSERT, "( replicatedInstance->parent.HasEntity() )", (const char *)&queryFormat, "replicatedInstance->parent.HasEntity()") )
       __debugbreak();
     ReplicatedInstance->parent.m_data = 0;
-    ScriptableReplicatedOrigin::Set(&ReplicatedInstance->origin, &v5->origin);
-    __asm
-    {
-      vmovss  xmm5, cs:__real@43360b61
-      vmulss  xmm1, xmm5, dword ptr [rbp+2Ch]
-      vmovss  xmm4, cs:__real@3f000000
-      vaddss  xmm2, xmm1, xmm4
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm3, xmm6, xmm2, 1
-      vcvttss2si eax, xmm3
-    }
-    ReplicatedInstance->angles.m_pitch = _EAX;
-    __asm
-    {
-      vmulss  xmm1, xmm5, dword ptr [rbp+30h]
-      vaddss  xmm3, xmm1, xmm4
-      vroundss xmm1, xmm6, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
-    ReplicatedInstance->angles.m_yaw = _EAX;
-    __asm
-    {
-      vmulss  xmm1, xmm5, dword ptr [rbp+34h]
-      vaddss  xmm3, xmm1, xmm4
-      vroundss xmm1, xmm6, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
-    ReplicatedInstance->angles.m_roll = _EAX;
-    v23 = ScriptableSv_GetInstanceCommonContext(v2);
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
-    v23->originInitial = v5->origin;
-    v23->anglesInitial = v5->angles;
-    if ( (unsigned int)v2 >= 0x3D0A0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v2, 250016) )
+    ScriptableReplicatedOrigin::Set(&ReplicatedInstance->origin, &v4->origin);
+    _XMM6 = 0i64;
+    __asm { vroundss xmm3, xmm6, xmm2, 1 }
+    ReplicatedInstance->angles.m_pitch = (int)*(float *)&_XMM3;
+    __asm { vroundss xmm1, xmm6, xmm3, 1 }
+    ReplicatedInstance->angles.m_yaw = (int)*(float *)&_XMM1;
+    __asm { vroundss xmm1, xmm6, xmm3, 1 }
+    ReplicatedInstance->angles.m_roll = (int)*(float *)&_XMM1;
+    v11 = ScriptableSv_GetInstanceCommonContext(v1);
+    v11->originInitial = v4->origin;
+    v11->anglesInitial = v4->angles;
+    if ( (unsigned int)v1 >= 0x3D0A0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v1, 250016) )
       __debugbreak();
-    s_scriptableSv_standaloneParentUpdateBits.array[v2 >> 5] &= ~(0x80000000 >> (v2 & 0x1F));
+    s_scriptableSv_standaloneParentUpdateBits.array[v1 >> 5] &= ~(0x80000000 >> (v1 & 0x1F));
     return 1;
   }
   else
   {
-    Com_Printf(15, "ScriptableSv_StandaloneClearParentEntity failed, scriptable %d Does not have a parent\n", (unsigned int)v2);
+    Com_Printf(15, "ScriptableSv_StandaloneClearParentEntity failed, scriptable %d Does not have a parent\n", (unsigned int)v1);
     if ( ReplicatedInstance->parent.m_data )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2234, ASSERT_TYPE_ASSERT, "( !replicatedInstance->parent.HasEntity() )", (const char *)&queryFormat, "!replicatedInstance->parent.HasEntity()") )
@@ -6981,66 +6809,65 @@ ScriptableSv_StandaloneSetParentEntity
 */
 char ScriptableSv_StandaloneSetParentEntity(const unsigned int instanceIndex, const gentity_s *parent, const vec3_t *offset, const vec3_t *deltaAngles)
 {
-  unsigned __int64 v5; 
+  unsigned __int64 v4; 
   ScriptableReplicatedInstance *ReplicatedInstance; 
   ScriptableInstanceContext *InstanceCommonContext; 
-  char v11; 
+  char v10; 
   __int16 number; 
-  ScriptableInstanceContext *v29; 
-  unsigned int v31; 
-  __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
+  ScriptableInstanceContext *v17; 
+  unsigned int v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
 
-  v5 = instanceIndex;
+  v4 = instanceIndex;
   if ( !parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2178, ASSERT_TYPE_ASSERT, "( parent )", (const char *)&queryFormat, "parent") )
     __debugbreak();
   if ( !parent->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2179, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
     __debugbreak();
   ScriptableCommon_AssertCountsInitialized();
-  if ( (unsigned int)v5 >= g_scriptableWorldCounts.runtimeInstanceCount )
+  if ( (unsigned int)v4 >= g_scriptableWorldCounts.runtimeInstanceCount )
   {
     ScriptableCommon_AssertCountsInitialized();
-    LODWORD(v32) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2180, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( ScriptableCommon_GetReservedInstanceCount() )", "instanceIndex doesn't index ScriptableCommon_GetReservedInstanceCount()\n\t%i not in [0, %i)", v32, g_scriptableWorldCounts.runtimeInstanceCount) )
+    LODWORD(v19) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2180, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( ScriptableCommon_GetReservedInstanceCount() )", "instanceIndex doesn't index ScriptableCommon_GetReservedInstanceCount()\n\t%i not in [0, %i)", v19, g_scriptableWorldCounts.runtimeInstanceCount) )
       __debugbreak();
   }
-  ReplicatedInstance = ScriptableSv_GetReplicatedInstance(v5);
+  ReplicatedInstance = ScriptableSv_GetReplicatedInstance(v4);
   if ( !ReplicatedInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2183, ASSERT_TYPE_ASSERT, "( replicatedInstance )", (const char *)&queryFormat, "replicatedInstance") )
     __debugbreak();
   if ( !ReplicatedInstance->replicatedType[0] )
   {
-    LODWORD(v32) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2184, ASSERT_TYPE_ASSERT, "( replicatedInstance->replicatedType ) != ( ScriptableReplicatedType::ENTITY )", "replicatedInstance->replicatedType != ScriptableReplicatedType::ENTITY\n\t%i, %i", v32, 0i64) )
+    LODWORD(v19) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2184, ASSERT_TYPE_ASSERT, "( replicatedInstance->replicatedType ) != ( ScriptableReplicatedType::ENTITY )", "replicatedInstance->replicatedType != ScriptableReplicatedType::ENTITY\n\t%i, %i", v19, 0i64) )
       __debugbreak();
   }
-  if ( ReplicatedInstance->instanceIndex != (_DWORD)v5 )
+  if ( ReplicatedInstance->instanceIndex != (_DWORD)v4 )
   {
-    LODWORD(v33) = v5;
-    LODWORD(v32) = ReplicatedInstance->instanceIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2185, ASSERT_TYPE_ASSERT, "( replicatedInstance->instanceIndex ) == ( instanceIndex )", "replicatedInstance->instanceIndex == instanceIndex\n\t%i, %i", v32, v33) )
+    LODWORD(v20) = v4;
+    LODWORD(v19) = ReplicatedInstance->instanceIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2185, ASSERT_TYPE_ASSERT, "( replicatedInstance->instanceIndex ) == ( instanceIndex )", "replicatedInstance->instanceIndex == instanceIndex\n\t%i, %i", v19, v20) )
       __debugbreak();
   }
-  InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v5);
-  v11 = *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60);
-  if ( (v11 & 0x20) != 0 )
+  InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v4);
+  v10 = *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60);
+  if ( (v10 & 0x20) != 0 )
   {
     if ( !ReplicatedInstance->parent.m_data )
     {
-      LODWORD(v33) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2190, ASSERT_TYPE_ASSERT, "( ( replicatedInstance->parent.HasEntity() ) )", "%s\n\t( instanceIndex ) = %i", "( replicatedInstance->parent.HasEntity() )", v33) )
+      LODWORD(v20) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2190, ASSERT_TYPE_ASSERT, "( ( replicatedInstance->parent.HasEntity() ) )", "%s\n\t( instanceIndex ) = %i", "( replicatedInstance->parent.HasEntity() )", v20) )
         __debugbreak();
       if ( !ReplicatedInstance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 323, ASSERT_TYPE_ASSERT, "(HasEntity())", (const char *)&queryFormat, "HasEntity()") )
         __debugbreak();
     }
-    Com_PrintError(15, "ScriptableSv_StandaloneSetParentEntity: Scriptable %d Already has parent (%d)\n", (unsigned int)v5, (unsigned __int16)(ReplicatedInstance->parent.m_data - 1));
+    Com_PrintError(15, "ScriptableSv_StandaloneSetParentEntity: Scriptable %d Already has parent (%d)\n", (unsigned int)v4, (unsigned __int16)(ReplicatedInstance->parent.m_data - 1));
     return 0;
   }
   else
   {
-    __asm { vmovaps [rsp+78h+var_28], xmm6 }
-    *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60) = v11 | 0x20;
+    *((_BYTE *)&InstanceCommonContext->ScriptableInstanceContextSecure + 60) = v10 | 0x20;
     if ( ReplicatedInstance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2200, ASSERT_TYPE_ASSERT, "( !replicatedInstance->parent.HasEntity() )", (const char *)&queryFormat, "!replicatedInstance->parent.HasEntity()") )
       __debugbreak();
     number = parent->s.number;
@@ -7048,64 +6875,43 @@ char ScriptableSv_StandaloneSetParentEntity(const unsigned int instanceIndex, co
       __debugbreak();
     if ( (unsigned __int16)number >= 0x7FEu )
     {
-      LODWORD(v33) = 2046;
-      LODWORD(v32) = (unsigned __int16)number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 330, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entNum doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v32, v33) )
+      LODWORD(v20) = 2046;
+      LODWORD(v19) = (unsigned __int16)number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 330, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entNum doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
     ReplicatedInstance->parent.m_data = number + 1;
     ScriptableReplicatedOrigin::Set(&ReplicatedInstance->origin, offset);
-    __asm
-    {
-      vmovss  xmm5, cs:__real@43360b61
-      vmulss  xmm1, xmm5, dword ptr [r14]
-      vmovss  xmm4, cs:__real@3f000000
-      vaddss  xmm2, xmm1, xmm4
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm3, xmm6, xmm2, 1
-      vcvttss2si eax, xmm3
-    }
-    ReplicatedInstance->angles.m_pitch = _EAX;
-    __asm
-    {
-      vmulss  xmm1, xmm5, dword ptr [r14+4]
-      vaddss  xmm3, xmm1, xmm4
-      vroundss xmm1, xmm6, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
-    ReplicatedInstance->angles.m_yaw = _EAX;
-    __asm
-    {
-      vmulss  xmm1, xmm5, dword ptr [r14+8]
-      vaddss  xmm3, xmm1, xmm4
-      vroundss xmm1, xmm6, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
-    ReplicatedInstance->angles.m_roll = _EAX;
-    v29 = ScriptableSv_GetInstanceCommonContext(v5);
-    v29->originInitial = *offset;
-    v29->anglesInitial = *deltaAngles;
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
-    if ( !ScriptableSv_UpdateParentedInstanceTransform(v5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2211, ASSERT_TYPE_ASSERT, "(ScriptableSv_UpdateParentedInstanceTransform( instanceIndex ))", (const char *)&queryFormat, "ScriptableSv_UpdateParentedInstanceTransform( instanceIndex )") )
+    _XMM6 = 0i64;
+    __asm { vroundss xmm3, xmm6, xmm2, 1 }
+    ReplicatedInstance->angles.m_pitch = (int)*(float *)&_XMM3;
+    __asm { vroundss xmm1, xmm6, xmm3, 1 }
+    ReplicatedInstance->angles.m_yaw = (int)*(float *)&_XMM1;
+    __asm { vroundss xmm1, xmm6, xmm3, 1 }
+    ReplicatedInstance->angles.m_roll = (int)*(float *)&_XMM1;
+    v17 = ScriptableSv_GetInstanceCommonContext(v4);
+    v17->originInitial = *offset;
+    v17->anglesInitial = *deltaAngles;
+    if ( !ScriptableSv_UpdateParentedInstanceTransform(v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2211, ASSERT_TYPE_ASSERT, "(ScriptableSv_UpdateParentedInstanceTransform( instanceIndex ))", (const char *)&queryFormat, "ScriptableSv_UpdateParentedInstanceTransform( instanceIndex )") )
       __debugbreak();
-    if ( (unsigned int)v5 >= 0x3D0A0 )
+    if ( (unsigned int)v4 >= 0x3D0A0 )
     {
-      LODWORD(v33) = 250016;
-      LODWORD(v32) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v32, v33) )
+      LODWORD(v20) = 250016;
+      LODWORD(v19) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v19, v20) )
         __debugbreak();
     }
-    v31 = 0x80000000 >> (v5 & 0x1F);
-    if ( (v31 & s_scriptableSv_standaloneParentUpdateBits.array[v5 >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2214, ASSERT_TYPE_ASSERT, "(!s_scriptableSv_standaloneParentUpdateBits.testBit( instanceIndex ))", (const char *)&queryFormat, "!s_scriptableSv_standaloneParentUpdateBits.testBit( instanceIndex )") )
+    v18 = 0x80000000 >> (v4 & 0x1F);
+    if ( (v18 & s_scriptableSv_standaloneParentUpdateBits.array[v4 >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2214, ASSERT_TYPE_ASSERT, "(!s_scriptableSv_standaloneParentUpdateBits.testBit( instanceIndex ))", (const char *)&queryFormat, "!s_scriptableSv_standaloneParentUpdateBits.testBit( instanceIndex )") )
       __debugbreak();
-    if ( (unsigned int)v5 >= 0x3D0A0 )
+    if ( (unsigned int)v4 >= 0x3D0A0 )
     {
-      LODWORD(v35) = 250016;
-      LODWORD(v34) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v34, v35) )
+      LODWORD(v22) = 250016;
+      LODWORD(v21) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v21, v22) )
         __debugbreak();
     }
-    s_scriptableSv_standaloneParentUpdateBits.array[v5 >> 5] |= v31;
+    s_scriptableSv_standaloneParentUpdateBits.array[v4 >> 5] |= v18;
     return 1;
   }
 }
@@ -7186,136 +6992,62 @@ char ScriptableSv_StandaloneSpawnInstance_Internal(const char *defName, const ve
 ScriptableSv_UnitTest
 ==============
 */
-void ScriptableSv_UnitTest()
+void ScriptableSv_UnitTest(void)
 {
   int time; 
-  GAntiLag *v14; 
-  int v21; 
+  GAntiLag *v1; 
+  int i; 
+  float v3; 
+  float v4; 
+  float v5; 
+  int v6; 
+  _BYTE v7[24]; 
   BgAntiLagLerpMoverCmd cmd; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   if ( SCRIPTABLESV_UNIT_TEST_LERP_MOVERS )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-18h], xmm6
-      vmovaps xmmword ptr [r11-28h], xmm7
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vmovaps xmmword ptr [r11-48h], xmm9
-      vmovaps xmmword ptr [r11-58h], xmm10
-      vmovaps xmmword ptr [r11-68h], xmm11
-      vmovaps xmmword ptr [r11-78h], xmm12
-      vmovaps xmmword ptr [r11-88h], xmm13
-      vmovaps xmmword ptr [r11-98h], xmm14
-      vmovaps xmmword ptr [r11-0A8h], xmm15
-    }
     Com_Printf(29, "Running SCRIPTABLESV_UNIT_TEST_LERP_MOVERS\n");
     time = level.time;
     if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.h", 209, ASSERT_TYPE_ASSERT, "( ms_gAntiLagData )", (const char *)&queryFormat, "ms_gAntiLagData") )
       __debugbreak();
-    __asm
+    v1 = GAntiLag::ms_gAntiLagData;
+    *(float *)&v7[12] = FLOAT_100_0;
+    *(float *)&v7[16] = FLOAT_100_0;
+    *(float *)&v7[20] = FLOAT_100_0;
+    *(float *)v7 = FLOAT_10_0;
+    *(float *)&v7[4] = FLOAT_10_0;
+    *(float *)&v7[8] = FLOAT_10_0;
+    for ( i = 0; i < 100; ++i )
     {
-      vmovss  xmm0, cs:__real@42c80000
-      vmovss  xmm1, cs:__real@41200000
-    }
-    v14 = GAntiLag::ms_gAntiLagData;
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3cfa01f4
-      vmovss  xmm11, cs:__real@43fa0000
-      vmovss  xmm12, cs:__real@3c340168
-      vmovss  xmm13, cs:__real@3dcccccd
-      vmovss  dword ptr [rsp+180h+var_150+0Ch], xmm0
-      vmovss  dword ptr [rsp+180h+var_140], xmm0
-      vmovss  dword ptr [rsp+180h+var_140+4], xmm0
-      vmovsd  xmm14, [rsp+180h+var_140]
-      vmovss  dword ptr [rsp+180h+var_150], xmm1
-      vmovss  dword ptr [rsp+180h+var_150+4], xmm1
-      vmovss  dword ptr [rsp+180h+var_150+8], xmm1
-      vmovups xmm15, [rsp+180h+var_150]
-    }
-    v21 = 0;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-    do
-    {
-      rand();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm10
-        vsubss  xmm8, xmm1, xmm11
-      }
-      rand();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm10
-        vsubss  xmm7, xmm1, xmm11
-      }
-      rand();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm6, xmm0, xmm12
-      }
-      rand();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm12
-        vmovss  xmm0, cs:__real@3f000000
-        vmovss  [rbp+80h+cmd.seconds], xmm0
-        vmovss  xmm0, cs:__real@431b9041
-        vmovss  [rbp+80h+cmd.radius], xmm0
-        vmovss  xmm0, cs:__real@42dc0000
-      }
+      v3 = (float)((float)rand() * 0.030518509) - 500.0;
+      v4 = (float)((float)rand() * 0.030518509) - 500.0;
+      v5 = (float)rand() * 0.010986663;
+      v6 = rand();
+      cmd.seconds = FLOAT_0_5;
+      cmd.radius = FLOAT_155_56349;
       cmd.startTime = time;
-      cmd.userId = v21 + 500000;
+      cmd.userId = i + 500000;
       cmd.endTime = time + 500;
-      __asm
-      {
-        vmovss  [rbp+80h+cmd.height], xmm0
-        vmovss  dword ptr [rsp+180h+cmd.startOrigin], xmm7
-        vmovss  dword ptr [rsp+180h+cmd.startOrigin+4], xmm8
-        vmovss  dword ptr [rsp+180h+cmd.startOrigin+8], xmm9
-        vmovss  dword ptr [rsp+180h+cmd.startAngles], xmm9
-        vmovss  dword ptr [rbp+80h+cmd.startAngles+4], xmm6
-        vmovss  dword ptr [rbp+80h+cmd.startAngles+8], xmm9
-        vmovss  dword ptr [rbp+80h+cmd.endOrigin], xmm7
-        vmovss  dword ptr [rbp+80h+cmd.endOrigin+4], xmm8
-        vmovss  dword ptr [rbp+80h+cmd.endOrigin+8], xmm9
-        vmovss  dword ptr [rbp+80h+cmd.endAngles], xmm9
-        vmovss  dword ptr [rbp+80h+cmd.endAngles+4], xmm1
-        vmovss  dword ptr [rbp+80h+cmd.endAngles+8], xmm9
-        vmovss  [rbp+80h+cmd.secondsAccel], xmm13
-        vmovss  [rbp+80h+cmd.secondsDecel], xmm13
-        vmovss  dword ptr [rbp+80h+cmd.origin], xmm7
-        vmovss  dword ptr [rbp+80h+cmd.origin+4], xmm8
-        vmovss  dword ptr [rbp+80h+cmd.origin+8], xmm9
-        vmovups xmmword ptr [rsp+180h+cmd.bounds.midPoint], xmm15
-        vmovsd  qword ptr [rsp+180h+cmd.bounds.halfSize+4], xmm14
-      }
-      BgAntiLag::AddLerpMoverCommand(v14, &cmd);
-      ++v21;
-    }
-    while ( v21 < 100 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+180h+var_A0]
-      vmovaps xmm14, [rsp+180h+var_90]
-      vmovaps xmm13, [rsp+180h+var_80]
-      vmovaps xmm12, [rsp+180h+var_70]
-      vmovaps xmm11, [rsp+180h+var_60]
-      vmovaps xmm10, [rsp+180h+var_50]
-      vmovaps xmm9, [rsp+180h+var_40]
-      vmovaps xmm8, [rsp+180h+var_30]
-      vmovaps xmm7, [rsp+180h+var_20]
-      vmovaps xmm6, [rsp+180h+var_10]
+      cmd.height = FLOAT_110_0;
+      cmd.startOrigin.v[0] = v4;
+      cmd.startOrigin.v[1] = v3;
+      cmd.startOrigin.v[2] = 0.0;
+      cmd.startAngles.v[0] = 0.0;
+      cmd.startAngles.v[1] = v5;
+      cmd.startAngles.v[2] = 0.0;
+      cmd.endOrigin.v[0] = v4;
+      cmd.endOrigin.v[1] = v3;
+      cmd.endOrigin.v[2] = 0.0;
+      cmd.endAngles.v[0] = 0.0;
+      cmd.endAngles.v[1] = (float)v6 * 0.010986663;
+      cmd.endAngles.v[2] = 0.0;
+      cmd.secondsAccel = FLOAT_0_1;
+      cmd.secondsDecel = FLOAT_0_1;
+      cmd.origin.v[0] = v4;
+      cmd.origin.v[1] = v3;
+      cmd.origin.v[2] = 0.0;
+      cmd.bounds = *(Bounds *)v7;
+      BgAntiLag::AddLerpMoverCommand(v1, &cmd);
     }
   }
 }
@@ -7472,18 +7204,22 @@ void ScriptableSv_UpdateEventExpiration(const ScriptableWorldType partTypeIndex)
 ScriptableSv_UpdateParentedInstanceTransform
 ==============
 */
-
-bool __fastcall ScriptableSv_UpdateParentedInstanceTransform(const unsigned int scriptableIndex, double _XMM1_8)
+bool ScriptableSv_UpdateParentedInstanceTransform(const unsigned int scriptableIndex)
 {
   int IsEntityInUse; 
   ScriptableReplicatedInstance *ReplicatedInstance; 
-  int v6; 
-  __int64 v34; 
-  __int64 v35; 
+  int v4; 
+  gentity_s *GEntity; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int64 v11; 
+  __int64 v12; 
   vec3_t origin; 
   vec3_t angles; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v39; 
+  tmat43_t<vec3_t> v16; 
   tmat43_t<vec3_t> out; 
 
   ScriptableCommon_AssertCountsInitialized();
@@ -7504,92 +7240,55 @@ bool __fastcall ScriptableSv_UpdateParentedInstanceTransform(const unsigned int 
       __debugbreak();
     if ( !ReplicatedInstance->replicatedType[0] )
     {
-      LODWORD(v34) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3512, ASSERT_TYPE_ASSERT, "( replicatedInstance->replicatedType ) != ( ScriptableReplicatedType::ENTITY )", "replicatedInstance->replicatedType != ScriptableReplicatedType::ENTITY\n\t%i, %i", v34, 0i64) )
+      LODWORD(v11) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3512, ASSERT_TYPE_ASSERT, "( replicatedInstance->replicatedType ) != ( ScriptableReplicatedType::ENTITY )", "replicatedInstance->replicatedType != ScriptableReplicatedType::ENTITY\n\t%i, %i", v11, 0i64) )
         __debugbreak();
     }
     if ( ReplicatedInstance->instanceIndex != scriptableIndex )
     {
-      LODWORD(v35) = scriptableIndex;
-      LODWORD(v34) = ReplicatedInstance->instanceIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3513, ASSERT_TYPE_ASSERT, "( replicatedInstance->instanceIndex ) == ( scriptableIndex )", "replicatedInstance->instanceIndex == scriptableIndex\n\t%i, %i", v34, v35) )
+      LODWORD(v12) = scriptableIndex;
+      LODWORD(v11) = ReplicatedInstance->instanceIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3513, ASSERT_TYPE_ASSERT, "( replicatedInstance->instanceIndex ) == ( scriptableIndex )", "replicatedInstance->instanceIndex == scriptableIndex\n\t%i, %i", v11, v12) )
         __debugbreak();
     }
     if ( !ReplicatedInstance->parent.m_data )
     {
-      LODWORD(v35) = scriptableIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3514, ASSERT_TYPE_ASSERT, "( ( replicatedInstance->parent.HasEntity() ) )", "%s\n\t( scriptableIndex ) = %i", "( replicatedInstance->parent.HasEntity() )", v35) )
+      LODWORD(v12) = scriptableIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3514, ASSERT_TYPE_ASSERT, "( ( replicatedInstance->parent.HasEntity() ) )", "%s\n\t( scriptableIndex ) = %i", "( replicatedInstance->parent.HasEntity() )", v12) )
         __debugbreak();
       if ( !ReplicatedInstance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 323, ASSERT_TYPE_ASSERT, "(HasEntity())", (const char *)&queryFormat, "HasEntity()") )
         __debugbreak();
     }
-    v6 = (unsigned __int16)(ReplicatedInstance->parent.m_data - 1);
-    IsEntityInUse = G_IsEntityInUse(v6);
+    v4 = (unsigned __int16)(ReplicatedInstance->parent.m_data - 1);
+    IsEntityInUse = G_IsEntityInUse(v4);
     if ( IsEntityInUse )
     {
-      _RSI = G_GetGEntity(v6);
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3524, ASSERT_TYPE_ASSERT, "( parent )", (const char *)&queryFormat, "parent") )
+      GEntity = G_GetGEntity(v4);
+      if ( !GEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3524, ASSERT_TYPE_ASSERT, "( parent )", (const char *)&queryFormat, "parent") )
         __debugbreak();
-      if ( !_RSI->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3525, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
+      if ( !GEntity->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3525, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3bb40000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  dword ptr [rsp+110h+origin], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  dword ptr [rsp+110h+origin+4], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmovss  dword ptr [rsp+110h+origin+8], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rsp+110h+angles], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rsp+110h+angles+4], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rsp+110h+angles+8], xmm0
-      }
-      if ( !_RSI->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2161, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
+      v6 = (float)((__int64)(ReplicatedInstance->origin.m_data << 42) >> 42);
+      origin.v[0] = v6;
+      v7 = (float)((__int64)(ReplicatedInstance->origin.m_data << 20) >> 42);
+      origin.v[1] = v7;
+      v8 = (float)((__int64)ReplicatedInstance->origin.m_data >> 44);
+      origin.v[2] = v8;
+      angles.v[0] = (float)ReplicatedInstance->angles.m_pitch * 0.0054931641;
+      angles.v[1] = (float)ReplicatedInstance->angles.m_yaw * 0.0054931641;
+      angles.v[2] = (float)ReplicatedInstance->angles.m_roll * 0.0054931641;
+      if ( !GEntity->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 2161, ASSERT_TYPE_ASSERT, "( parent->r.isInUse )", (const char *)&queryFormat, "parent->r.isInUse") )
         __debugbreak();
-      AnglesToAxis(&_RSI->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+130h]
-        vmovss  xmm1, dword ptr [rsi+134h]
-        vmovss  [rbp+10h+var_8C], xmm0
-        vmovss  xmm0, dword ptr [rsi+138h]
-        vmovss  [rbp+10h+var_84], xmm0
-        vmovss  [rbp+10h+var_88], xmm1
-      }
-      AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&v39);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+110h+origin]
-        vmovss  xmm1, dword ptr [rsp+110h+origin+4]
-        vmovss  [rbp+10h+var_5C], xmm0
-        vmovss  xmm0, dword ptr [rsp+110h+origin+8]
-        vmovss  [rbp+10h+var_54], xmm0
-        vmovss  [rbp+10h+var_58], xmm1
-      }
-      MatrixMultiply43(&v39, &axis, &out);
+      AnglesToAxis(&GEntity->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
+      v9 = GEntity->r.currentOrigin.v[1];
+      axis.m[3].v[0] = GEntity->r.currentOrigin.v[0];
+      axis.m[3].v[2] = GEntity->r.currentOrigin.v[2];
+      axis.m[3].v[1] = v9;
+      AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&v16);
+      v16.m[3] = origin;
+      MatrixMultiply43(&v16, &axis, &out);
       AxisToAngles((const tmat33_t<vec3_t> *)&out, &angles);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+10h+out+24h]
-        vmovss  xmm1, dword ptr [rbp+10h+out+28h]
-        vmovss  dword ptr [rsp+110h+origin], xmm0
-        vmovss  xmm0, dword ptr [rbp+10h+out+2Ch]
-        vmovss  dword ptr [rsp+110h+origin+8], xmm0
-        vmovss  dword ptr [rsp+110h+origin+4], xmm1
-      }
+      origin = out.m[3];
       ScriptableSv_UpdateWorldTransform(scriptableIndex, &origin, &angles);
       LOBYTE(IsEntityInUse) = 1;
     }
@@ -7615,7 +7314,6 @@ void ScriptableSv_UpdateReplicatedTransform(const unsigned int scriptableIndex, 
       __debugbreak();
     if ( ReplicatedInstance->replicatedType[0] && ReplicatedInstance->instanceIndex == scriptableIndex )
     {
-      __asm { vmovaps [rsp+58h+var_18], xmm6 }
       if ( ReplicatedInstance->parent.m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3452, ASSERT_TYPE_ASSERT, "( ( !replicatedInstance->parent.HasEntity() ) )", "%s\n\t( scriptableIndex ) = %i", "( !replicatedInstance->parent.HasEntity() )", scriptableIndex) )
         __debugbreak();
       InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
@@ -7624,34 +7322,13 @@ void ScriptableSv_UpdateReplicatedTransform(const unsigned int scriptableIndex, 
       if ( !InstanceCommonContext->def->serverControlledPartCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3457, ASSERT_TYPE_ASSERT, "( context.def->serverControlledPartCount > 0 )", (const char *)&queryFormat, "context.def->serverControlledPartCount > 0") )
         __debugbreak();
       ScriptableReplicatedOrigin::Set(&ReplicatedInstance->origin, origin);
-      __asm
-      {
-        vmovss  xmm5, cs:__real@43360b61
-        vmulss  xmm1, xmm5, dword ptr [rsi]
-        vmovss  xmm4, cs:__real@3f000000
-        vaddss  xmm2, xmm1, xmm4
-        vxorps  xmm6, xmm6, xmm6
-        vroundss xmm3, xmm6, xmm2, 1
-        vcvttss2si eax, xmm3
-      }
-      ReplicatedInstance->angles.m_pitch = _EAX;
-      __asm
-      {
-        vmulss  xmm1, xmm5, dword ptr [rsi+4]
-        vaddss  xmm3, xmm1, xmm4
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si eax, xmm1
-      }
-      ReplicatedInstance->angles.m_yaw = _EAX;
-      __asm
-      {
-        vmulss  xmm1, xmm5, dword ptr [rsi+8]
-        vaddss  xmm3, xmm1, xmm4
-        vroundss xmm1, xmm6, xmm3, 1
-        vmovaps xmm6, [rsp+58h+var_18]
-        vcvttss2si eax, xmm1
-      }
-      ReplicatedInstance->angles.m_roll = _EAX;
+      _XMM6 = 0i64;
+      __asm { vroundss xmm3, xmm6, xmm2, 1 }
+      ReplicatedInstance->angles.m_pitch = (int)*(float *)&_XMM3;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      ReplicatedInstance->angles.m_yaw = (int)*(float *)&_XMM1;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      ReplicatedInstance->angles.m_roll = (int)*(float *)&_XMM1;
     }
   }
 }
@@ -7664,39 +7341,38 @@ ScriptableSv_UpdateWorldTransform
 void ScriptableSv_UpdateWorldTransform(const unsigned int scriptableIndex, const vec3_t *origin, const vec3_t *angles)
 {
   ScriptableInstanceContext *InstanceCommonContext; 
-  bool v8; 
-  ScriptableInstanceContext *v9; 
+  bool v7; 
+  ScriptableInstanceContext *v8; 
   const ScriptableDef *def; 
   unsigned int i; 
-  __int64 v12; 
+  __int64 v11; 
   ScriptablePartRuntime *PartRuntime; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
 
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
   InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-  v8 = VecNCompareCustomEpsilon(origin->v, InstanceCommonContext->origin.v, *(float *)&_XMM2, 3);
+  v7 = VecNCompareCustomEpsilon(origin->v, InstanceCommonContext->origin.v, 0.001, 3);
   ScriptableSv_SetPose(scriptableIndex, InstanceCommonContext, origin, angles, 1);
-  if ( !v8 && scriptableIndex <= 0xFDE8 )
+  if ( !v7 && scriptableIndex <= 0xFDE8 )
   {
-    v9 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-    def = v9->def;
-    if ( v9->def->usablePartCount )
+    v8 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+    def = v8->def;
+    if ( v8->def->usablePartCount )
     {
       for ( i = 0; i < def->numParts; ++i )
       {
-        v12 = (__int64)&def->parts[i];
-        if ( (*(_DWORD *)(v12 + 12) & 2) != 0 )
+        v11 = (__int64)&def->parts[i];
+        if ( (*(_DWORD *)(v11 + 12) & 2) != 0 )
         {
           PartRuntime = ScriptableSv_GetPartRuntime(scriptableIndex, &def->parts[i]);
-          if ( (unsigned int)PartRuntime->stateId >= *(_DWORD *)(v12 + 44) )
+          if ( (unsigned int)PartRuntime->stateId >= *(_DWORD *)(v11 + 44) )
           {
-            LODWORD(v15) = *(_DWORD *)(v12 + 44);
-            LODWORD(v14) = PartRuntime->stateId;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3419, ASSERT_TYPE_ASSERT, "(unsigned)( partRuntime->stateId ) < (unsigned)( partDef->numStates )", "partRuntime->stateId doesn't index partDef->numStates\n\t%i not in [0, %i)", v14, v15) )
+            LODWORD(v14) = *(_DWORD *)(v11 + 44);
+            LODWORD(v13) = PartRuntime->stateId;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server.cpp", 3419, ASSERT_TYPE_ASSERT, "(unsigned)( partRuntime->stateId ) < (unsigned)( partDef->numStates )", "partRuntime->stateId doesn't index partDef->numStates\n\t%i not in [0, %i)", v13, v14) )
               __debugbreak();
           }
-          if ( *(_DWORD *)(160i64 * PartRuntime->stateId + *(_QWORD *)(v12 + 48) + 24) == 3 )
+          if ( *(_DWORD *)(160i64 * PartRuntime->stateId + *(_QWORD *)(v11 + 48) + 24) == 3 )
             G_PlayerUse_SetObjectMoved(scriptableIndex, USE_CLASS_SCRIPTABLE, i, origin);
         }
       }

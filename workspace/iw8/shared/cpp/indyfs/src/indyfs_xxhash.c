@@ -87,13 +87,7 @@ indyfs_XXH32_copyState
 */
 void indyfs_XXH32_copyState(indyfs_XXH32_state_s *dstState, const indyfs_XXH32_state_s *srcState)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-  }
+  *dstState = *srcState;
 }
 
 /*
@@ -185,24 +179,18 @@ indyfs_XXH32_reset
 __int64 indyfs_XXH32_reset(indyfs_XXH32_state_s *statePtr, unsigned int seed)
 {
   __int64 result; 
-  _BYTE v7[48]; 
+  indyfs_XXH32_state_s v5; 
 
-  *(_DWORD *)&v7[16] = seed;
-  *(_QWORD *)v7 = 0i64;
-  *(_DWORD *)&v7[40] = 0;
-  *(_DWORD *)&v7[8] = seed + 606290984;
-  *(_DWORD *)&v7[12] = seed - 2048144777;
+  v5.v3 = seed;
+  *(_QWORD *)&v5.total_len_32 = 0i64;
+  v5.memsize = 0;
+  v5.v1 = seed + 606290984;
+  v5.v2 = seed - 2048144777;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  *(_DWORD *)&v7[20] = seed + 1640531535;
+  v5.v4 = seed + 1640531535;
   result = 0i64;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+38h+var_38+18h], xmm0
-    vmovups ymm0, [rsp+38h+var_38]
-    vmovups xmm1, xmmword ptr [rsp+20h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmmword ptr [rcx+20h], xmm1
-  }
+  *(_OWORD *)v5.mem32 = _XMM0;
+  *statePtr = v5;
   return result;
 }
 
@@ -388,17 +376,7 @@ indyfs_XXH64_copyState
 */
 void indyfs_XXH64_copyState(indyfs_XXH64_state_s *dstState, const indyfs_XXH64_state_s *srcState)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+50h]
-    vmovsd  qword ptr [rcx+50h], xmm1
-  }
+  *dstState = *srcState;
 }
 
 /*
@@ -497,31 +475,23 @@ indyfs_XXH64_reset
 __int64 __fastcall indyfs_XXH64_reset(indyfs_XXH64_state_s *statePtr, unsigned __int64 seed, double _XMM2_8)
 {
   __int64 result; 
-  __m256i v10; 
-  __m256i v11; 
+  __m256i v7; 
+  __m256i v8; 
+  double v9; 
 
-  v10.m256i_i64[3] = seed;
-  v10.m256i_i64[0] = 0i64;
-  v10.m256i_i64[1] = seed + 0x60EA27EEADC0B5D6i64;
-  v10.m256i_i64[2] = seed - 0x3D4D51C2D82B14B1i64;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+68h+var_48+10h], xmm0
-    vmovups ymm0, [rsp+68h+var_68]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovsd  xmm0, [rsp+68h+var_18]
-  }
-  *(_OWORD *)v11.m256i_i8 = seed + 0x61C8864E7A143579i64;
+  v7.m256i_i64[3] = seed;
+  v7.m256i_i64[0] = 0i64;
+  v7.m256i_i64[1] = seed + 0x60EA27EEADC0B5D6i64;
+  v7.m256i_i64[2] = seed - 0x3D4D51C2D82B14B1i64;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v8.m256i_u64[2] = _XMM0;
+  *(__m256i *)&statePtr->total_len = v7;
+  *(_OWORD *)v8.m256i_i8 = seed + 0x61C8864E7A143579i64;
   result = 0i64;
-  __asm
-  {
-    vmovups ymm1, [rsp+68h+var_48]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vpxor   xmm2, xmm2, xmm2
-    vmovups xmmword ptr [rcx+40h], xmm2
-    vmovsd  qword ptr [rcx+50h], xmm0
-  }
+  *(__m256i *)&statePtr->v4 = v8;
+  __asm { vpxor   xmm2, xmm2, xmm2 }
+  *(_OWORD *)&statePtr->mem64[3] = _XMM2;
+  *(double *)&statePtr->reserved[1] = v9;
   return result;
 }
 

@@ -403,81 +403,76 @@ _BOOL8 bdAddressMap::getAddrHandle(bdAddressMap *this, const bdReference<bdCommo
   const bdSecurityID *v10; 
   bool v11; 
   bool AddrHandleInternal; 
-  bdAddr *v14; 
+  bdAddr *v13; 
   int Port; 
-  bdAddr *v16; 
-  bdAddrHandle *v17; 
-  bdCommonAddr *v18; 
+  bdAddr *v15; 
+  bdAddrHandle *v16; 
+  bdCommonAddr *v17; 
+  bdAddrHandle *v18; 
   bdAddrHandle *v19; 
-  bdAddrHandle *v20; 
-  int v22; 
+  int v21; 
   bdReference<bdCommonAddr> caa; 
-  __int64 v24; 
-  bdSharedMutex *v25; 
-  __int64 v26; 
+  bdSecurityID v23; 
+  bdSharedMutex *v24; 
+  __int64 v25; 
   bdCommonAddr *m_ptr; 
   bdSharedMutex *p_m_mutex; 
-  bdAddrHandle *v29; 
-  bdSecurityID v30; 
-  char v31[24]; 
+  bdAddrHandle *v28; 
+  bdSecurityID v29; 
+  char v30[24]; 
   char str[24]; 
 
-  v26 = -2i64;
-  _R15 = (bdSecurityID *)id;
+  v25 = -2i64;
   m_ptr = ca.m_ptr;
   LocalAddrByIndex = (bdAddr *)bdCommonAddr::getLocalAddrByIndex((bdCommonAddr *)ca.m_ptr->__vftable, 0);
   bdSockAddr::toString(&LocalAddrByIndex->m_address, str, 0x16ui64);
   PublicAddr = (bdAddr *)bdCommonAddr::getPublicAddr((bdCommonAddr *)ca.m_ptr->__vftable);
-  bdSockAddr::toString(&PublicAddr->m_address, v31, 0x16ui64);
-  bdSecurityID::bdSecurityID(&v30);
-  v11 = bdSecurityID::operator!=(_R15, v10);
+  bdSockAddr::toString(&PublicAddr->m_address, v30, 0x16ui64);
+  bdSecurityID::bdSecurityID(&v29);
+  v11 = bdSecurityID::operator!=((bdSecurityID *)id, v10);
   bdHandleAssert(v11, "id != bdSecurityID()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdaddressmap.cpp", "bdAddressMap::getAddrHandle", 0x21u, "Invalid security ID");
-  bdSecurityID::~bdSecurityID(&v30);
+  bdSecurityID::~bdSecurityID(&v29);
   p_m_mutex = &this->m_mutex;
   bdSharedMutex::lock_shared(&this->m_mutex);
-  AddrHandleInternal = bdAddressMap::findAddrHandleInternal(this, (const bdReference<bdCommonAddr> *)ca.m_ptr, _R15, addrHandle);
+  AddrHandleInternal = bdAddressMap::findAddrHandleInternal(this, (const bdReference<bdCommonAddr> *)ca.m_ptr, id, addrHandle);
   bdSharedMutex::unlock_shared(&this->m_mutex);
   if ( !AddrHandleInternal )
   {
-    v25 = &this->m_mutex;
+    v24 = &this->m_mutex;
     bdSharedMutex::lock(&this->m_mutex);
-    AddrHandleInternal = bdAddressMap::findAddrHandleInternal(this, (const bdReference<bdCommonAddr> *)ca.m_ptr, _R15, addrHandle);
+    AddrHandleInternal = bdAddressMap::findAddrHandleInternal(this, (const bdReference<bdCommonAddr> *)ca.m_ptr, id, addrHandle);
     if ( !AddrHandleInternal )
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [r15]
-        vmovsd  [rsp+128h+var_C0], xmm0
-      }
-      v14 = (bdAddr *)bdCommonAddr::getPublicAddr((bdCommonAddr *)ca.m_ptr->__vftable);
-      Port = bdSockAddr::getPort(&v14->m_address);
-      v16 = (bdAddr *)bdCommonAddr::getLocalAddrByIndex((bdCommonAddr *)ca.m_ptr->__vftable, 0);
-      v22 = bdSockAddr::getPort(&v16->m_address);
-      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/socket", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdaddressmap.cpp", "bdAddressMap::getAddrHandle", 0x39u, "getAddrHandle LocalIP: %s:%d Public IP: %s:%d id: %I64u not found - creating!", str, v22, v31, Port, v24);
+      v23 = *id;
+      v13 = (bdAddr *)bdCommonAddr::getPublicAddr((bdCommonAddr *)ca.m_ptr->__vftable);
+      Port = bdSockAddr::getPort(&v13->m_address);
+      v15 = (bdAddr *)bdCommonAddr::getLocalAddrByIndex((bdCommonAddr *)ca.m_ptr->__vftable, 0);
+      v21 = bdSockAddr::getPort(&v15->m_address);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/socket", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdaddressmap.cpp", "bdAddressMap::getAddrHandle", 0x39u, "getAddrHandle LocalIP: %s:%d Public IP: %s:%d id: %I64u not found - creating!", str, v21, v30, Port, v23);
       AddrHandleInternal = 1;
-      v17 = (bdAddrHandle *)bdMemory::allocate(0xC8ui64);
-      v29 = v17;
-      if ( v17 )
+      v16 = (bdAddrHandle *)bdMemory::allocate(0xC8ui64);
+      v28 = v16;
+      if ( v16 )
       {
-        v18 = (bdCommonAddr *)ca.m_ptr->__vftable;
-        caa.m_ptr = v18;
-        if ( v18 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
-        bdAddrHandle::bdAddrHandle(v17, (bdReference<bdCommonAddr>)&caa, _R15);
-        v20 = v19;
+        v17 = (bdCommonAddr *)ca.m_ptr->__vftable;
+        caa.m_ptr = v17;
+        if ( v17 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 1u);
+        bdAddrHandle::bdAddrHandle(v16, (bdReference<bdCommonAddr>)&caa, id);
+        v19 = v18;
       }
       else
       {
-        v20 = NULL;
+        v19 = NULL;
       }
       if ( addrHandle->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&addrHandle->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && addrHandle->m_ptr )
         ((void (__fastcall *)(bdAddrHandle *, __int64))addrHandle->m_ptr->~bdReferencable)(addrHandle->m_ptr, 1i64);
-      addrHandle->m_ptr = v20;
-      if ( v20 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 1u);
+      addrHandle->m_ptr = v19;
+      if ( v19 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
       bdArray<bdReference<bdAddrHandle>>::pushBack(&this->m_addrHandles, addrHandle);
     }
-    bdSharedMutex::unlock(v25);
+    bdSharedMutex::unlock(v24);
   }
   if ( ca.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&ca.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
   {

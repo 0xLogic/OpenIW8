@@ -97,32 +97,22 @@ bdTokenBucket::fillBucket
 void bdTokenBucket::fillBucket(bdTokenBucket *this)
 {
   unsigned __int64 HiResTimeStamp; 
-  char v4; 
-  int v8; 
+  double ElapsedTime; 
+  float v4; 
+  int v5; 
+  unsigned int v6; 
   unsigned int m_capacity; 
 
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_lastUpdateTime, HiResTimeStamp);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcomiss xmm1, cs:__real@477de800
-  }
-  if ( !v4 )
-    goto LABEL_4;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( v4 )
-LABEL_4:
-    LODWORD(_RDX) = 0;
+  ElapsedTime = bdPlatformTiming::getElapsedTime(this->m_lastUpdateTime, HiResTimeStamp);
+  v4 = *(float *)&ElapsedTime * 1000.0;
+  if ( (float)(*(float *)&ElapsedTime * 1000.0) >= 65000.0 || v4 < 0.0 )
+    v5 = 0;
   else
-    __asm { vcvttss2si rdx, xmm1 }
-  v8 = this->m_tokensPerMs * _RDX;
+    v5 = (int)v4;
+  v6 = this->m_tokensPerMs * v5;
   this->m_lastUpdateTime = HiResTimeStamp;
-  m_capacity = this->m_tokens + v8;
+  m_capacity = this->m_tokens + v6;
   if ( m_capacity >= this->m_capacity )
     m_capacity = this->m_capacity;
   this->m_tokens = m_capacity;
@@ -182,43 +172,33 @@ bdTokenBucket::setRates
 */
 void bdTokenBucket::setRates(bdTokenBucket *this, unsigned int tokensPerMs, unsigned int bucketSize)
 {
-  unsigned int v5; 
+  unsigned int v4; 
   unsigned __int64 HiResTimeStamp; 
-  char v8; 
-  int v12; 
+  double ElapsedTime; 
+  float v8; 
+  int v9; 
+  unsigned int v10; 
   unsigned int m_capacity; 
 
-  v5 = bucketSize;
+  v4 = bucketSize;
   bdHandleAssert(this->m_minFragment <= bucketSize, "m_minFragment <= bucketSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdtokenbucket.cpp", "bdTokenBucket::setRates", 0x67u, "Bucket size must be bigger than minFragmentTokens");
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_lastUpdateTime, HiResTimeStamp);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcomiss xmm1, cs:__real@477de800
-  }
-  if ( !v8 )
-    goto LABEL_4;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( v8 )
-LABEL_4:
-    LODWORD(_RDX) = 0;
+  ElapsedTime = bdPlatformTiming::getElapsedTime(this->m_lastUpdateTime, HiResTimeStamp);
+  v8 = *(float *)&ElapsedTime * 1000.0;
+  if ( (float)(*(float *)&ElapsedTime * 1000.0) >= 65000.0 || v8 < 0.0 )
+    v9 = 0;
   else
-    __asm { vcvttss2si rdx, xmm1 }
-  v12 = this->m_tokensPerMs * _RDX;
+    v9 = (int)v8;
+  v10 = this->m_tokensPerMs * v9;
   this->m_lastUpdateTime = HiResTimeStamp;
   this->m_tokensPerMs = tokensPerMs;
-  m_capacity = this->m_tokens + v12;
+  m_capacity = this->m_tokens + v10;
   if ( m_capacity >= this->m_capacity )
     m_capacity = this->m_capacity;
-  this->m_capacity = v5;
-  if ( m_capacity < v5 )
-    v5 = m_capacity;
-  this->m_tokens = v5;
+  this->m_capacity = v4;
+  if ( m_capacity < v4 )
+    v4 = m_capacity;
+  this->m_tokens = v4;
 }
 
 /*

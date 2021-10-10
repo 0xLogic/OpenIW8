@@ -181,8 +181,7 @@ ViewJostleState::ViewJostleState
 */
 void ViewJostleState::ViewJostleState(ViewJostleState *this)
 {
-  __asm { vmovss  xmm3, cs:__real@3f800000; scale }
-  MatrixSet43(&this->viewToLinkedTagTransform, &vec3_origin, &identityMatrix33, *(float *)&_XMM3);
+  MatrixSet43(&this->viewToLinkedTagTransform, &vec3_origin, &identityMatrix33, 1.0);
   *(_QWORD *)this->oldViewanglesLocal.v = 0i64;
   *(_QWORD *)&this->oldViewanglesLocal.z = 0i64;
   *(_QWORD *)&this->oldLinkedTagAnglesLocal.y = 0i64;
@@ -419,135 +418,128 @@ void CG_Globals_InitOperatorSkinEvMap(ntl::fixed_hash_map<unsigned int,float,100
 {
   ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *p_m_buckets; 
   unsigned __int64 *p_m_currentNumItems; 
-  ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *v6; 
+  ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *v5; 
   ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *mp_next; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v8; 
-  int v9; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v7; 
+  int i; 
   const char *ColumnValueForRow; 
-  const char *v11; 
-  __int64 v12; 
-  unsigned __int64 v13; 
-  unsigned int v14; 
-  unsigned __int64 v16; 
-  ntl::internal::slist_node_base *v17; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> > *v18; 
-  ntl::internal::slist_node_base *v19; 
-  ntl::internal::slist_node_base *v21; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> > *v22; 
+  const char *v10; 
+  __int64 v11; 
+  unsigned __int64 v12; 
+  unsigned int v13; 
+  unsigned __int64 v15; 
+  ntl::internal::slist_node_base *v16; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> > *v17; 
+  ntl::internal::slist_node_base *v18; 
+  __int64 v19; 
+  ntl::internal::slist_node_base *v20; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> > *v21; 
   ntl::internal::pool_allocator_freelist<16> *p_m_freelist; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v24; 
-  __int64 v25; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v23; 
+  __int64 v24; 
   int RowCount; 
   StringTable *tablePtr; 
-  __int64 v30; 
+  __int64 v27; 
 
   p_m_buckets = &operatorSkinEvOffsetMap->m_buckets;
   p_m_currentNumItems = &operatorSkinEvOffsetMap->m_currentNumItems;
-  v6 = &operatorSkinEvOffsetMap->m_buckets;
+  v5 = &operatorSkinEvOffsetMap->m_buckets;
   if ( &operatorSkinEvOffsetMap->m_buckets != (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)&operatorSkinEvOffsetMap->m_currentNumItems )
   {
     do
     {
-      mp_next = (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)v6->m_data[0].m_listHead.m_sentinel.mp_next;
-      if ( (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)v6->m_data[0].m_listHead.m_sentinel.mp_next != v6 )
+      mp_next = (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)v5->m_data[0].m_listHead.m_sentinel.mp_next;
+      if ( (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)v5->m_data[0].m_listHead.m_sentinel.mp_next != v5 )
       {
         do
         {
           if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 72, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v8 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_next;
+          v7 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_next;
           if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 93, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
           mp_next = (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)mp_next->m_data[0].m_listHead.m_sentinel.mp_next;
-          v8->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)operatorSkinEvOffsetMap->m_freelist.m_head;
-          operatorSkinEvOffsetMap->m_freelist.m_head.mp_next = v8;
+          v7->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)operatorSkinEvOffsetMap->m_freelist.m_head;
+          operatorSkinEvOffsetMap->m_freelist.m_head.mp_next = v7;
         }
-        while ( mp_next != v6 );
+        while ( mp_next != v5 );
         p_m_currentNumItems = &operatorSkinEvOffsetMap->m_currentNumItems;
       }
-      v6->m_data[0].m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)v6;
-      v6 = (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)((char *)v6 + 8);
+      v5->m_data[0].m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)v5;
+      v5 = (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)((char *)v5 + 8);
     }
-    while ( v6 != (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)p_m_currentNumItems );
+    while ( v5 != (ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,float> >,1543> *)p_m_currentNumItems );
     p_m_buckets = &operatorSkinEvOffsetMap->m_buckets;
   }
   *p_m_currentNumItems = 0i64;
   tablePtr = NULL;
   StringTable_GetAsset("operatorSkins.csv", (const StringTable **)&tablePtr);
-  if ( !tablePtr )
+  if ( tablePtr )
   {
-    Com_PrintWarning(14, "Could not initialize operatorSkinEvOffsetMap.  Failed to get operatorSkins.csv asset in StringTable_GetAsset\n");
-    return;
-  }
-  RowCount = StringTable_GetRowCount(tablePtr);
-  v9 = 0;
-  if ( RowCount > 0 )
-  {
-    __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-    while ( 1 )
+    RowCount = StringTable_GetRowCount(tablePtr);
+    for ( i = 0; i < RowCount; ++i )
     {
-      ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v9, 4);
-      v11 = StringTable_GetColumnValueForRow(tablePtr, v9, 19);
-      v12 = -1i64;
+      ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, i, 4);
+      v10 = StringTable_GetColumnValueForRow(tablePtr, i, 19);
+      v11 = -1i64;
       do
-        ++v12;
-      while ( ColumnValueForRow[v12] );
-      v13 = j_CoD_XXH64(ColumnValueForRow, (unsigned int)v12, 0i64);
-      v14 = HIDWORD(v13) + 37 * (v13 + 629);
-      *(double *)&_XMM0 = strtod(v11, NULL);
+        ++v11;
+      while ( ColumnValueForRow[v11] );
+      v12 = j_CoD_XXH64(ColumnValueForRow, (unsigned int)v11, 0i64);
+      v13 = HIDWORD(v12) + 37 * (v12 + 629);
+      *(double *)&_XMM0 = strtod(v10, NULL);
       __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-      v16 = v14 % 0x607ui64;
-      if ( v16 >= 0x607 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+      v15 = v13 % 0x607ui64;
+      if ( v15 >= 0x607 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      v17 = p_m_buckets->m_data[v16].m_listHead.m_sentinel.mp_next;
-      v18 = &p_m_buckets->m_data[v16];
-      if ( v17 == (ntl::internal::slist_node_base *)v18 )
+      v16 = p_m_buckets->m_data[v15].m_listHead.m_sentinel.mp_next;
+      v17 = &p_m_buckets->m_data[v15];
+      if ( v16 == (ntl::internal::slist_node_base *)v17 )
       {
-LABEL_27:
-        v17 = NULL;
+LABEL_26:
+        v16 = NULL;
       }
       else
       {
         while ( 1 )
         {
-          if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          if ( LODWORD(v17[1].mp_next) == v14 )
+          if ( LODWORD(v16[1].mp_next) == v13 )
             break;
-          v17 = v17->mp_next;
-          if ( v17 == (ntl::internal::slist_node_base *)v18 )
-            goto LABEL_27;
+          v16 = v16->mp_next;
+          if ( v16 == (ntl::internal::slist_node_base *)v17 )
+            goto LABEL_26;
         }
-        if ( v17 )
+        if ( v16 )
         {
-          v19 = v17;
-          goto LABEL_29;
+          v18 = v16;
+          goto LABEL_28;
         }
       }
-      v19 = NULL;
-LABEL_29:
-      if ( v17 )
+      v18 = NULL;
+LABEL_28:
+      if ( v16 )
       {
-        if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        _RAX = (__int64)&v19[1].mp_next + 4;
-        if ( !v19 )
-          _RAX = 4i64;
-        __asm { vucomiss xmm6, dword ptr [rax] }
-        if ( v19 )
+        v19 = (__int64)&v18[1].mp_next + 4;
+        if ( !v18 )
+          v19 = 4i64;
+        if ( *(float *)&_XMM6 != *(float *)v19 )
           Com_PrintWarning(14, "CG_Globals_InitOperatorSkinEvMap.  Multiple bodies with the same name (%s) have different evOffset values.\n", ColumnValueForRow);
       }
       else
       {
-        LODWORD(v30) = v14;
-        __asm { vmovss  dword ptr [rsp+0A8h+arg_10+4], xmm6 }
-        if ( v16 >= 0x607 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+        LODWORD(v27) = v13;
+        *((float *)&v27 + 1) = *(float *)&_XMM6;
+        if ( v15 >= 0x607 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
-        v21 = p_m_buckets->m_data[v16].m_listHead.m_sentinel.mp_next;
-        v22 = &p_m_buckets->m_data[v16];
-        if ( v21 == (ntl::internal::slist_node_base *)v22 )
+        v20 = p_m_buckets->m_data[v15].m_listHead.m_sentinel.mp_next;
+        v21 = &p_m_buckets->m_data[v15];
+        if ( v20 == (ntl::internal::slist_node_base *)v21 )
         {
-LABEL_48:
+LABEL_47:
           p_m_freelist = &operatorSkinEvOffsetMap->m_freelist;
           if ( !operatorSkinEvOffsetMap->m_freelist.m_head.mp_next )
           {
@@ -558,35 +550,34 @@ LABEL_48:
           }
           if ( (ntl::internal::pool_allocator_freelist<16> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x10ui64, 0x3E8ui64) )
             __debugbreak();
-          v24 = p_m_freelist->m_head.mp_next;
+          v23 = p_m_freelist->m_head.mp_next;
           p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-          v25 = v30;
-          v24->mp_next = NULL;
-          v24[1].mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v25;
-          v24->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v22->m_listHead.m_sentinel.mp_next;
-          v22->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)v24;
+          v24 = v27;
+          v23->mp_next = NULL;
+          v23[1].mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v24;
+          v23->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v21->m_listHead.m_sentinel.mp_next;
+          v21->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)v23;
           ++operatorSkinEvOffsetMap->m_currentNumItems;
         }
         else
         {
           while ( 1 )
           {
-            if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+            if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( LODWORD(v21[1].mp_next) == v14 )
+            if ( LODWORD(v20[1].mp_next) == v13 )
               break;
-            v21 = v21->mp_next;
-            if ( v21 == (ntl::internal::slist_node_base *)v22 )
-              goto LABEL_48;
+            v20 = v20->mp_next;
+            if ( v20 == (ntl::internal::slist_node_base *)v21 )
+              goto LABEL_47;
           }
         }
       }
-      if ( ++v9 >= RowCount )
-      {
-        __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
-        return;
-      }
     }
+  }
+  else
+  {
+    Com_PrintWarning(14, "Could not initialize operatorSkinEvOffsetMap.  Failed to get operatorSkins.csv asset in StringTable_GetAsset\n");
   }
 }
 
@@ -597,47 +588,22 @@ CG_Globals_ResetPlayerWeaponInfo
 */
 void CG_Globals_ResetPlayerWeaponInfo(const LocalClientNum_t localClientNum)
 {
-  _RDX = CG_GetLocalClientGlobals(localClientNum);
-  _RDX->playerWeaponInfo.handModel = NULL;
-  _RDX->playerWeaponInfo.gogglesModel = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rax+182B0h], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rax+182D0h], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rax+182E0h], xmm0
-  }
-  *(_DWORD *)&_RDX->playerWeaponInfo.weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rax+182ECh], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rax+1830Ch], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rax+1831Ch], xmm0
-  }
-  *(_DWORD *)&_RDX->playerWeaponInfo.turretWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rdx+18328h], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rdx+18348h], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rdx+18358h], xmm0
-  }
-  *(_DWORD *)&_RDX->playerWeaponInfo.accessoryWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  *(_WORD *)&_RDX->playerWeaponInfo.isWeaponDefault = 0;
-  *(_WORD *)&_RDX->playerWeaponInfo.hideReticle = 0;
-  _RDX->playerWeaponInfo.isWeaponHidden = 0;
-  *(_WORD *)&_RDX->playerWeaponInfo.isAccessoryHidden = 257;
-  _RDX->playerWeaponInfo.skydiveViewmodelState = All;
-  _RDX->playerWeaponInfo.carryObjectIndex = 0;
-  *(_QWORD *)&_RDX->playerWeaponInfo.meleeComboSeqIdx = 0i64;
-  _RDX->playerWeaponInfo.meleeStartTime[1] = 0;
+  cg_t *LocalClientGlobals; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals->playerWeaponInfo.handModel = NULL;
+  LocalClientGlobals->playerWeaponInfo.gogglesModel = NULL;
+  LocalClientGlobals->playerWeaponInfo.weapon = NULL_WEAPON;
+  LocalClientGlobals->playerWeaponInfo.turretWeapon = NULL_WEAPON;
+  LocalClientGlobals->playerWeaponInfo.accessoryWeapon = NULL_WEAPON;
+  *(_WORD *)&LocalClientGlobals->playerWeaponInfo.isWeaponDefault = 0;
+  *(_WORD *)&LocalClientGlobals->playerWeaponInfo.hideReticle = 0;
+  LocalClientGlobals->playerWeaponInfo.isWeaponHidden = 0;
+  *(_WORD *)&LocalClientGlobals->playerWeaponInfo.isAccessoryHidden = 257;
+  LocalClientGlobals->playerWeaponInfo.skydiveViewmodelState = All;
+  LocalClientGlobals->playerWeaponInfo.carryObjectIndex = 0;
+  *(_QWORD *)&LocalClientGlobals->playerWeaponInfo.meleeComboSeqIdx = 0i64;
+  LocalClientGlobals->playerWeaponInfo.meleeStartTime[1] = 0;
 }
 
 /*
@@ -734,8 +700,7 @@ ViewJostleState::Reset
 */
 void ViewJostleState::Reset(ViewJostleState *this)
 {
-  __asm { vmovss  xmm3, cs:__real@3f800000; scale }
-  MatrixSet43(&this->viewToLinkedTagTransform, &vec3_origin, &identityMatrix33, *(float *)&_XMM3);
+  MatrixSet43(&this->viewToLinkedTagTransform, &vec3_origin, &identityMatrix33, 1.0);
   *(_QWORD *)this->oldViewanglesLocal.v = 0i64;
   *(_QWORD *)&this->oldViewanglesLocal.z = 0i64;
   *(_QWORD *)&this->oldLinkedTagAnglesLocal.y = 0i64;

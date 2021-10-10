@@ -808,12 +808,8 @@ void I_strcat(char *dest, unsigned __int64 destsize, const char *src)
   if ( v6 >= destsize && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 415, ASSERT_TYPE_SANITY, "( destLen < destsize )", "%s", "destLen < destsize") )
     __debugbreak();
   v7 = destsize - v6;
-  _RAX = Core_strcpy_internal(&result, &dest[v6], v7, src);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strcpy_internal(&result, &dest[v6], v7, src);
+  __asm { vpextrb rax, xmm0, 8 }
   if ( (_BYTE)_RAX )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 140, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_strcpy: provided buffer of size %zu did not fit string. Source string: '%s'", v7, src) )
@@ -837,12 +833,8 @@ bool I_strcat_truncate(char *dest, unsigned __int64 destsize, const char *src)
   while ( dest[v6] );
   if ( v6 >= destsize && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 423, ASSERT_TYPE_SANITY, "( destLen < destsize )", "%s", "destLen < destsize") )
     __debugbreak();
-  _RAX = Core_strcpy_internal(&result, &dest[v6], destsize - v6, src);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strcpy_internal(&result, &dest[v6], destsize - v6, src);
+  __asm { vpextrb rax, xmm0, 8 }
   return (_BYTE)_RAX == 0;
 }
 
@@ -864,12 +856,8 @@ void I_strncat(char *dest, unsigned __int64 destsize, const char *src, unsigned 
   if ( v8 >= destsize && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 431, ASSERT_TYPE_SANITY, "( destLen < destsize )", "%s", "destLen < destsize") )
     __debugbreak();
   v9 = destsize - v8;
-  _RAX = Core_strncpy_internal(&result, &dest[v8], v9, src, count);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strncpy_internal(&result, &dest[v8], v9, src, count);
+  __asm { vpextrb rax, xmm0, 8 }
   if ( (_BYTE)_RAX )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 200, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_strncpy: provided buffer of size %zu did not fit string. Source string: '%s'", v9, src) )
@@ -893,12 +881,8 @@ bool I_strncat_truncate(char *dest, unsigned __int64 destsize, const char *src, 
   while ( dest[v8] );
   if ( v8 >= destsize && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 439, ASSERT_TYPE_SANITY, "( destLen < destsize )", "%s", "destLen < destsize") )
     __debugbreak();
-  _RAX = Core_strncpy_internal(&result, &dest[v8], destsize - v8, src, count);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strncpy_internal(&result, &dest[v8], destsize - v8, src, count);
+  __asm { vpextrb rax, xmm0, 8 }
   return (_BYTE)_RAX == 0;
 }
 
@@ -911,12 +895,8 @@ void Core_strcpy(char *dest, unsigned __int64 destsize, const char *src)
 {
   Core_strcpy_result result; 
 
-  _RAX = Core_strcpy_internal(&result, dest, destsize, src);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strcpy_internal(&result, dest, destsize, src);
+  __asm { vpextrb rax, xmm0, 8 }
   if ( (_BYTE)_RAX )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 140, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_strcpy: provided buffer of size %zu did not fit string. Source string: '%s'", destsize, src) )
@@ -933,12 +913,8 @@ bool Core_strcpy_truncate(char *dest, unsigned __int64 destsize, const char *src
 {
   Core_strcpy_result result; 
 
-  _RAX = Core_strcpy_internal(&result, dest, destsize, src);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strcpy_internal(&result, dest, destsize, src);
+  __asm { vpextrb rax, xmm0, 8 }
   return (_BYTE)_RAX == 0;
 }
 
@@ -951,13 +927,9 @@ void Core_strcpy_and_fill_zero(char *dest, unsigned __int64 destsize, const char
 {
   Core_strcpy_result result; 
 
-  _RAX = Core_strcpy_internal(&result, dest, destsize, src);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-    vmovups xmmword ptr [rsp+58h+result.remainingDestSize], xmm0
-  }
+  _XMM0 = *Core_strcpy_internal(&result, dest, destsize, src);
+  __asm { vpextrb rax, xmm0, 8 }
+  result = _XMM0;
   if ( (_BYTE)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 155, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_strcpy: provided buffer of size %zu did not fit string. Source string: '%s'", destsize, src) )
     __debugbreak();
   if ( result.remainingDestSize )
@@ -971,19 +943,15 @@ Core_strcpy_truncate_or_fill_zero
 */
 bool Core_strcpy_truncate_or_fill_zero(char *dest, unsigned __int64 destsize, const char *src)
 {
-  __int128 v9; 
+  Core_strcpy_result *v5; 
+  Core_strcpy_result v7; 
   Core_strcpy_result result; 
 
-  _RAX = Core_strcpy_internal(&result, dest, destsize, src);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   r8, xmm0; Size
-    vmovups [rsp+48h+var_28], xmm0
-  }
-  if ( _R8 )
-    memset_0(&dest[destsize - _R8], 0, _R8);
-  return BYTE8(v9) == 0;
+  v5 = Core_strcpy_internal(&result, dest, destsize, src);
+  v7 = *v5;
+  if ( v5->remainingDestSize )
+    memset_0(&dest[destsize - v7.remainingDestSize], 0, v5->remainingDestSize);
+  return !v7.wasTruncated;
 }
 
 /*
@@ -995,12 +963,8 @@ void Core_strncpy(char *dest, unsigned __int64 destsize, const char *src, unsign
 {
   Core_strcpy_result result; 
 
-  _RAX = Core_strncpy_internal(&result, dest, destsize, src, count);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strncpy_internal(&result, dest, destsize, src, count);
+  __asm { vpextrb rax, xmm0, 8 }
   if ( (_BYTE)_RAX )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 200, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_strncpy: provided buffer of size %zu did not fit string. Source string: '%s'", destsize, src) )
@@ -1017,12 +981,8 @@ bool Core_strncpy_truncate(char *dest, unsigned __int64 destsize, const char *sr
 {
   Core_strcpy_result result; 
 
-  _RAX = Core_strncpy_internal(&result, dest, destsize, src, count);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-  }
+  _XMM0 = (__int128)*Core_strncpy_internal(&result, dest, destsize, src, count);
+  __asm { vpextrb rax, xmm0, 8 }
   return (_BYTE)_RAX == 0;
 }
 
@@ -1035,13 +995,9 @@ void Core_strncpy_and_fill_zero(char *dest, unsigned __int64 destsize, const cha
 {
   Core_strcpy_result result; 
 
-  _RAX = Core_strncpy_internal(&result, dest, destsize, src, count);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrb rax, xmm0, 8
-    vmovups xmmword ptr [rsp+58h+result.remainingDestSize], xmm0
-  }
+  _XMM0 = *Core_strncpy_internal(&result, dest, destsize, src, count);
+  __asm { vpextrb rax, xmm0, 8 }
+  result = _XMM0;
   if ( (_BYTE)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 215, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_strncpy: provided buffer of size %zu did not fit string. Source string: '%s'", destsize, src) )
     __debugbreak();
   if ( result.remainingDestSize )
@@ -1055,19 +1011,15 @@ Core_strncpy_truncate_or_fill_zero
 */
 bool Core_strncpy_truncate_or_fill_zero(char *dest, unsigned __int64 destsize, const char *src, unsigned __int64 count)
 {
-  __int128 v10; 
+  Core_strcpy_result *v6; 
+  Core_strcpy_result v8; 
   Core_strcpy_result result; 
 
-  _RAX = Core_strncpy_internal(&result, dest, destsize, src, count);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   r8, xmm0; Size
-    vmovups [rsp+58h+var_28], xmm0
-  }
-  if ( _R8 )
-    memset_0(&dest[destsize - _R8], 0, _R8);
-  return BYTE8(v10) == 0;
+  v6 = Core_strncpy_internal(&result, dest, destsize, src, count);
+  v8 = *v6;
+  if ( v6->remainingDestSize )
+    memset_0(&dest[destsize - v8.remainingDestSize], 0, v6->remainingDestSize);
+  return !v8.wasTruncated;
 }
 
 /*
@@ -1265,10 +1217,11 @@ void Core_ReplaceAll_Copy(char *dest, unsigned __int64 destSize, const char *src
   const char *v13; 
   __int64 v14; 
   char v15; 
-  unsigned __int64 v18; 
-  char *v19; 
+  Core_strcpy_result *v16; 
+  unsigned __int64 v17; 
+  char *v18; 
+  Core_strcpy_result v19; 
   Core_strcpy_result v20; 
-  Core_strcpy_result v21; 
   Core_strcpy_result result; 
 
   v6 = src;
@@ -1310,37 +1263,33 @@ LABEL_11:
         goto LABEL_15;
       if ( v8 <= v12 )
       {
-        _RAX = Core_strncpy_internal(&v21, dest, v8, v6, v12);
+        v16 = Core_strncpy_internal(&v20, dest, v8, v6, v12);
       }
       else
       {
         memcpy_0(dest, v6, v12);
-        v18 = v8 - v12;
-        v19 = &dest[v12];
-        if ( v18 > v11 )
+        v17 = v8 - v12;
+        v18 = &dest[v12];
+        if ( v17 > v11 )
         {
-          memcpy_0(v19, format, v11);
-          v8 = v18 - v11;
-          dest = &v19[v11];
+          memcpy_0(v18, format, v11);
+          v8 = v17 - v11;
+          dest = &v18[v11];
           v6 += v12 + v9;
           continue;
         }
-        _RAX = Core_strncpy_internal(&v20, v19, v18, format, v11);
+        v16 = Core_strncpy_internal(&v19, v18, v17, format, v11);
       }
     }
     else
     {
 LABEL_15:
-      _RAX = Core_strcpy_internal(&result, dest, v8, v6);
+      v16 = Core_strcpy_internal(&result, dest, v8, v6);
     }
     break;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0B8h+var_68.remainingDestSize], xmm0
-  }
-  if ( v20.wasTruncated && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 572, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_ReplaceAll_Copy: provided buffer of size %zu did not fit string. Source string: '%s', Search string: '%s', Format string: '%s'", destSize, src, search, format) )
+  v19 = *v16;
+  if ( v19.wasTruncated && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.cpp", 572, ASSERT_TYPE_SANITY, "( !result.wasTruncated )", "Core_ReplaceAll_Copy: provided buffer of size %zu did not fit string. Source string: '%s', Search string: '%s', Format string: '%s'", destSize, src, search, format) )
     __debugbreak();
 }
 

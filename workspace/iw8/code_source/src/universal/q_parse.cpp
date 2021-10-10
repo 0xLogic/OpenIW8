@@ -747,6 +747,7 @@ void Com_Parse1DMatrix(const char **buf_p, int x, float *m)
 {
   __int64 v5; 
   __int64 v7; 
+  __int64 v8; 
   ParseThreadInfo *ParseThreadInfo; 
   parseInfo_t *v10; 
   const char *backup_text; 
@@ -756,13 +757,12 @@ void Com_Parse1DMatrix(const char **buf_p, int x, float *m)
   const char *v16; 
   char *v17; 
 
-  _RBP = m;
   v5 = x;
   Com_MatchToken(buf_p, "(", 0);
   v7 = v5;
   if ( (int)v5 > 0 )
   {
-    _RBX = 0i64;
+    v8 = 0i64;
     do
     {
       ParseThreadInfo = Com_GetParseThreadInfo();
@@ -776,14 +776,10 @@ void Com_Parse1DMatrix(const char **buf_p, int x, float *m)
       }
       v12 = Com_ParseExt(buf_p, 1);
       *(double *)&_XMM0 = atof(v12);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rbp+rbx*4+0], xmm1
-      }
-      ++_RBX;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      m[v8++] = *(float *)&_XMM1;
     }
-    while ( _RBX < v7 );
+    while ( v8 < v7 );
   }
   v14 = Com_GetParseThreadInfo();
   v15 = &v14->parseInfo[v14->parseInfoNum];
@@ -814,6 +810,7 @@ void Com_Parse2DMatrix(const char **buf_p, int y, int x, float *m)
   parseInfo_t *v13; 
   const char *backup_text; 
   char *v15; 
+  float *v16; 
   __int64 v17; 
   ParseThreadInfo *v18; 
   parseInfo_t *v19; 
@@ -851,7 +848,7 @@ void Com_Parse2DMatrix(const char **buf_p, int y, int x, float *m)
         Com_ScriptErrorDrop("MatchToken: got '%s', expected '%s'\n", v15, "(");
       if ( v10 > 0 )
       {
-        _RBX = m;
+        v16 = m;
         v17 = v10;
         do
         {
@@ -887,12 +884,8 @@ void Com_Parse2DMatrix(const char **buf_p, int y, int x, float *m)
           }
           v21 = Com_ParseExt(buf_p, 1);
           *(double *)&_XMM0 = atof(v21);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rbx], xmm1
-          }
-          ++_RBX;
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          *v16++ = *(float *)&_XMM1;
           --v17;
         }
         while ( v17 );

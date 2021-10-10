@@ -148,6 +148,8 @@ bdClansAddOrUpdateGroupMemberResponse::getProposal
 */
 bdClansGroupMembershipProposal *bdClansAddOrUpdateGroupMemberResponse::getProposal(bdClansAddOrUpdateGroupMemberResponse *this, bdClansGroupMembershipProposal *result)
 {
+  unsigned __int8 *m_attachment; 
+  unsigned __int8 *v5; 
   __int64 v6; 
 
   bdHandleAssert(this->m_proposal.m_hasValue, "m_hasValue", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructoptionalobject.inl", "bdStructOptionalObject<class bdClansGroupMembershipProposal>::getValue", 0x3Cu, "Has no value", 0, -2i64);
@@ -162,35 +164,21 @@ bdClansGroupMembershipProposal *bdClansAddOrUpdateGroupMemberResponse::getPropos
   bdClansGroupIdentifier::bdClansGroupIdentifier(&result->m_group, &this->m_proposal.m_value.m_group);
   result->m_replacesGroupID = this->m_proposal.m_value.m_replacesGroupID;
   result->m_attachmentSize = this->m_proposal.m_value.m_attachmentSize;
-  _RCX = result->m_attachment;
-  _RAX = this->m_proposal.m_value.m_attachment;
+  m_attachment = result->m_attachment;
+  v5 = this->m_proposal.m_value.m_attachment;
   v6 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
+    *(_OWORD *)m_attachment = *(_OWORD *)v5;
+    *((_OWORD *)m_attachment + 1) = *((_OWORD *)v5 + 1);
+    *((_OWORD *)m_attachment + 2) = *((_OWORD *)v5 + 2);
+    *((_OWORD *)m_attachment + 3) = *((_OWORD *)v5 + 3);
+    *((_OWORD *)m_attachment + 4) = *((_OWORD *)v5 + 4);
+    *((_OWORD *)m_attachment + 5) = *((_OWORD *)v5 + 5);
+    *((_OWORD *)m_attachment + 6) = *((_OWORD *)v5 + 6);
+    m_attachment += 128;
+    *((_OWORD *)m_attachment - 1) = *((_OWORD *)v5 + 7);
+    v5 += 128;
     --v6;
   }
   while ( v6 );

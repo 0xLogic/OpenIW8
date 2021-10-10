@@ -902,170 +902,131 @@ ScriptableSv_GetPartUsePositionAndAngles
 */
 void ScriptableSv_GetPartUsePositionAndAngles(const unsigned int scriptableIndex, const unsigned int flatPartId, vec3_t *out_usePosition, vec3_t *out_useAnglesOptional)
 {
+  ScriptableInstanceContext *InstanceCommonContext; 
   const ScriptablePartDef *PartDef; 
   ScriptablePartRuntime *PartRuntime; 
   __int64 stateId; 
+  ScriptableStateDef *states; 
+  __int64 v13; 
+  const vec3_t *p_useOffset; 
   scr_string_t hintTag; 
   const gentity_s *Entity; 
   int WorldTagPos; 
   const XModel *ScriptableModel; 
   const char *name; 
-  const char *v30; 
-  ScriptableInstanceContext *InstanceCommonContext; 
-  const char *v32; 
-  bool v33; 
-  const char *v34; 
-  ScriptableInstanceContext *v35; 
-  const char *v36; 
+  const char *v20; 
+  ScriptableInstanceContext *v21; 
+  const char *v22; 
+  bool v23; 
+  const char *v24; 
+  ScriptableInstanceContext *v25; 
+  const char *v26; 
   const vec3_t *p_origin; 
-  __int64 v44; 
-  __int64 v45; 
-  char v46; 
-  char v47; 
+  __int64 v28; 
+  __int64 v29; 
+  char v30; 
+  char v31; 
   tmat33_t<vec3_t> axis; 
   tmat43_t<vec3_t> outTagMat; 
 
-  _RDI = out_useAnglesOptional;
-  _RBP = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+  InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
   PartDef = ScriptableSv_GetPartDef(scriptableIndex, flatPartId);
   PartRuntime = ScriptableSv_GetPartRuntime(scriptableIndex, PartDef);
   if ( !PartRuntime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 470, ASSERT_TYPE_ASSERT, "( partRuntime )", (const char *)&queryFormat, "partRuntime") )
     __debugbreak();
   if ( PartRuntime->stateId >= PartDef->numStates )
   {
-    LODWORD(v44) = PartRuntime->stateId;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 471, ASSERT_TYPE_ASSERT, "(unsigned)( partRuntime->stateId ) < (unsigned)( partDef.numStates )", "partRuntime->stateId doesn't index partDef.numStates\n\t%i not in [0, %i)", v44, PartDef->numStates) )
+    LODWORD(v28) = PartRuntime->stateId;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 471, ASSERT_TYPE_ASSERT, "(unsigned)( partRuntime->stateId ) < (unsigned)( partDef.numStates )", "partRuntime->stateId doesn't index partDef.numStates\n\t%i not in [0, %i)", v28, PartDef->numStates) )
       __debugbreak();
   }
   if ( PartDef->states[PartRuntime->stateId].type != Scriptable_StateType_Usable )
   {
-    LODWORD(v45) = 3;
-    LODWORD(v44) = PartDef->states[PartRuntime->stateId].type;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 472, ASSERT_TYPE_ASSERT, "( partDef.states[partRuntime->stateId].type ) == ( Scriptable_StateType_Usable )", "partDef.states[partRuntime->stateId].type == Scriptable_StateType_Usable\n\t%i, %i", v44, v45) )
+    LODWORD(v29) = 3;
+    LODWORD(v28) = PartDef->states[PartRuntime->stateId].type;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 472, ASSERT_TYPE_ASSERT, "( partDef.states[partRuntime->stateId].type ) == ( Scriptable_StateType_Usable )", "partDef.states[partRuntime->stateId].type == Scriptable_StateType_Usable\n\t%i, %i", v28, v29) )
       __debugbreak();
   }
   stateId = PartRuntime->stateId;
-  _RSI = PartDef->states;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _RBX = stateId;
-  _R12 = &_RSI[stateId].data.usable.useOffset;
-  __asm { vucomiss xmm0, dword ptr [r12] }
-  if ( 160 * stateId )
-    goto LABEL_13;
-  __asm { vucomiss xmm0, dword ptr [r12+4] }
-  if ( 160 * stateId )
-    goto LABEL_13;
-  __asm { vucomiss xmm0, dword ptr [r12+8] }
-  v46 = 0;
-  if ( 160 * stateId )
-LABEL_13:
-    v46 = 1;
-  __asm { vucomiss xmm0, dword ptr [rbx+rsi+58h] }
-  if ( 160 * stateId )
-    goto LABEL_17;
-  __asm { vucomiss xmm0, dword ptr [rbx+rsi+5Ch] }
-  if ( 160 * stateId )
-    goto LABEL_17;
-  __asm { vucomiss xmm0, dword ptr [rbx+rsi+60h] }
-  v47 = 0;
-  if ( 160 * stateId )
-LABEL_17:
-    v47 = 1;
-  hintTag = _RSI[_RBX].data.usable.hintTag;
+  states = PartDef->states;
+  v13 = stateId;
+  p_useOffset = &states[stateId].data.usable.useOffset;
+  if ( p_useOffset->v[0] != 0.0 || states[stateId].data.usable.useOffset.v[1] != 0.0 || (v30 = 0, states[stateId].data.usable.useOffset.v[2] != 0.0) )
+    v30 = 1;
+  if ( states[v13].data.usable.angleOffset.v[0] != 0.0 || states[v13].data.health.damagePropagationToParent != 0.0 || (v31 = 0, states[v13].data.health.damagePropagationToChild != 0.0) )
+    v31 = 1;
+  hintTag = states[v13].data.usable.hintTag;
   if ( (hintTag || (hintTag = PartDef->scrTagName) != 0) && ScriptableSv_GetInstanceCommonContext(scriptableIndex)->linkedObjectType == SCRIPTABLE_LINK_ENTITY )
   {
     Entity = ScriptableSv_GetEntity(scriptableIndex);
-    if ( v46 )
-      WorldTagPos = G_Utils_DObjBoneSpacePosToWorld(Entity, hintTag, _R12, out_usePosition);
+    if ( v30 )
+      WorldTagPos = G_Utils_DObjBoneSpacePosToWorld(Entity, hintTag, p_useOffset, out_usePosition);
     else
       WorldTagPos = G_Utils_DObjGetWorldTagPos(Entity, hintTag, out_usePosition);
     if ( WorldTagPos )
     {
-      if ( _RDI )
+      if ( out_useAnglesOptional )
       {
         G_Utils_DObjGetWorldTagMatrix(Entity, hintTag, &outTagMat);
-        __asm
+        *(__m256i *)axis.m[0].v = *(__m256i *)outTagMat.m[0].v;
+        axis.m[2].v[2] = outTagMat.m[2].v[2];
+        AxisToAngles(&axis, out_useAnglesOptional);
+        if ( v31 )
         {
-          vmovups ymm0, ymmword ptr [rsp+0F8h+outTagMat]
-          vmovups ymmword ptr [rsp+0F8h+axis], ymm0
-          vmovss  xmm0, dword ptr [rsp+0F8h+outTagMat+20h]
-          vmovss  dword ptr [rsp+0F8h+axis+20h], xmm0
-        }
-        AxisToAngles(&axis, _RDI);
-        if ( v47 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi]
-            vaddss  xmm1, xmm0, dword ptr [rbx+rsi+58h]
-            vmovss  dword ptr [rdi], xmm1
-            vmovss  xmm0, dword ptr [rbx+rsi+5Ch]
-            vaddss  xmm1, xmm0, dword ptr [rdi+4]
-            vmovss  dword ptr [rdi+4], xmm1
-            vmovss  xmm0, dword ptr [rbx+rsi+60h]
-            vaddss  xmm1, xmm0, dword ptr [rdi+8]
-            vmovss  dword ptr [rdi+8], xmm1
-          }
+          out_useAnglesOptional->v[0] = out_useAnglesOptional->v[0] + states[v13].data.usable.angleOffset.v[0];
+          out_useAnglesOptional->v[1] = states[v13].data.health.damagePropagationToParent + out_useAnglesOptional->v[1];
+          out_useAnglesOptional->v[2] = states[v13].data.health.damagePropagationToChild + out_useAnglesOptional->v[2];
         }
       }
       return;
     }
-    if ( !_RSI[_RBX].data.usable.allowMissingTag )
+    if ( !states[v13].data.usable.allowMissingTag )
     {
-      ScriptableModel = BG_XCompositeModel_GetScriptableModel(_RBP);
+      ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
       if ( ScriptableModel )
       {
         name = ScriptableModel->name;
-        v30 = SL_ConvertToString(hintTag);
-        InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-        v32 = InstanceCommonContext->def ? InstanceCommonContext->def->name : "<Unknown>";
-        v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 519, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scriptable %s tried to find bone %s in model %s and failed", v32, v30, name);
+        v20 = SL_ConvertToString(hintTag);
+        v21 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+        v22 = v21->def ? v21->def->name : "<Unknown>";
+        v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 519, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scriptable %s tried to find bone %s in model %s and failed", v22, v20, name);
       }
       else
       {
-        v34 = SL_ConvertToString(hintTag);
-        v35 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
-        v36 = v35->def ? v35->def->name : "<Unknown>";
-        v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 523, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scriptable %s tried to find bone %s but had no model", v36, v34);
+        v24 = SL_ConvertToString(hintTag);
+        v25 = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
+        v26 = v25->def ? v25->def->name : "<Unknown>";
+        v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.cpp", 523, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scriptable %s tried to find bone %s but had no model", v26, v24);
       }
-      if ( v33 )
+      if ( v23 )
         __debugbreak();
     }
   }
-  p_origin = &_RBP->origin;
-  if ( v46 )
+  p_origin = &InstanceCommonContext->origin;
+  if ( v30 )
   {
-    AnglesAndOriginToMatrix43(&_RBP->angles, p_origin, &outTagMat);
-    MatrixTransformVector43(_R12, &outTagMat, out_usePosition);
+    AnglesAndOriginToMatrix43(&InstanceCommonContext->angles, p_origin, &outTagMat);
+    MatrixTransformVector43(p_useOffset, &outTagMat, out_usePosition);
   }
   else
   {
     out_usePosition->v[0] = p_origin->v[0];
-    out_usePosition->v[1] = _RBP->origin.v[1];
-    out_usePosition->v[2] = _RBP->origin.v[2];
+    out_usePosition->v[1] = InstanceCommonContext->origin.v[1];
+    out_usePosition->v[2] = InstanceCommonContext->origin.v[2];
   }
-  if ( _RDI )
+  if ( out_useAnglesOptional )
   {
-    if ( v47 )
+    if ( v31 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2Ch]
-        vaddss  xmm1, xmm0, dword ptr [rbx+rsi+58h]
-        vmovss  dword ptr [rdi], xmm1
-        vmovss  xmm2, dword ptr [rbx+rsi+5Ch]
-        vaddss  xmm0, xmm2, dword ptr [rbp+30h]
-        vmovss  dword ptr [rdi+4], xmm0
-        vmovss  xmm1, dword ptr [rbx+rsi+60h]
-        vaddss  xmm2, xmm1, dword ptr [rbp+34h]
-        vmovss  dword ptr [rdi+8], xmm2
-      }
+      out_useAnglesOptional->v[0] = InstanceCommonContext->angles.v[0] + states[v13].data.usable.angleOffset.v[0];
+      out_useAnglesOptional->v[1] = states[v13].data.health.damagePropagationToParent + InstanceCommonContext->angles.v[1];
+      out_useAnglesOptional->v[2] = states[v13].data.health.damagePropagationToChild + InstanceCommonContext->angles.v[2];
     }
     else
     {
-      _RDI->v[0] = _RBP->angles.v[0];
-      _RDI->v[1] = _RBP->angles.v[1];
-      _RDI->v[2] = _RBP->angles.v[2];
+      out_useAnglesOptional->v[0] = InstanceCommonContext->angles.v[0];
+      out_useAnglesOptional->v[1] = InstanceCommonContext->angles.v[1];
+      out_useAnglesOptional->v[2] = InstanceCommonContext->angles.v[2];
     }
   }
 }

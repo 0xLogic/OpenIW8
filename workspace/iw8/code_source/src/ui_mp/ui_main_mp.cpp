@@ -833,25 +833,16 @@ CL_SelectStringTableEntryInDvar
 */
 void CL_SelectStringTableEntryInDvar(const char *tableName, int column, const char *dvarName)
 {
-  unsigned int v7; 
+  unsigned int v5; 
+  int v6; 
   const char *ColumnValueForRow; 
   StringTable *tablePtr; 
 
   StringTable_GetAsset(tableName, (const StringTable **)&tablePtr);
-  v7 = Sys_Milliseconds();
-  srand(v7);
-  rand();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, eax
-    vcvtsi2ss xmm0, xmm0, dword ptr [rcx+0Ch]
-    vmulss  xmm1, xmm0, xmm1
-    vmulss  xmm2, xmm1, cs:__real@38000100
-    vcvttss2si edx, xmm2; row
-  }
-  ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, _EDX, column);
+  v5 = Sys_Milliseconds();
+  srand(v5);
+  v6 = rand();
+  ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, (int)(float)((float)((float)tablePtr->rowCount * (float)v6) * 0.000030518509), column);
   Dvar_SetStringByName(dvarName, ColumnValueForRow);
 }
 
@@ -860,37 +851,27 @@ void CL_SelectStringTableEntryInDvar(const char *tableName, int column, const ch
 CL_SelectStringTableEntryInDvar_f
 ==============
 */
-
-void __fastcall CL_SelectStringTableEntryInDvar_f(double _XMM0_8, double _XMM1_8)
+void CL_SelectStringTableEntryInDvar_f(void)
 {
+  const char *v0; 
+  int v1; 
   const char *v2; 
-  int v3; 
-  const char *v4; 
-  unsigned int v5; 
+  unsigned int v3; 
+  int v4; 
   const char *ColumnValueForRow; 
   StringTable *tablePtr; 
 
   if ( Cmd_Argc() >= 4 )
   {
-    v2 = Cmd_Argv(3);
-    v3 = Cmd_ArgInt(2);
-    v4 = Cmd_Argv(1);
-    StringTable_GetAsset(v4, (const StringTable **)&tablePtr);
-    v5 = Sys_Milliseconds();
-    srand(v5);
-    rand();
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, dword ptr [rcx+0Ch]
-      vmulss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, cs:__real@38000100
-      vcvttss2si edx, xmm2; row
-    }
-    ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, _EDX, v3);
-    Dvar_SetStringByName(v2, ColumnValueForRow);
+    v0 = Cmd_Argv(3);
+    v1 = Cmd_ArgInt(2);
+    v2 = Cmd_Argv(1);
+    StringTable_GetAsset(v2, (const StringTable **)&tablePtr);
+    v3 = Sys_Milliseconds();
+    srand(v3);
+    v4 = rand();
+    ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, (int)(float)((float)((float)tablePtr->rowCount * (float)v4) * 0.000030518509), v1);
+    Dvar_SetStringByName(v0, ColumnValueForRow);
   }
   else
   {
@@ -1197,8 +1178,8 @@ const char *UI_CheckStringTranslation(const char *reference, const char *transla
 {
   const dvar_t *v3; 
   const dvar_t *v4; 
-  signed __int64 v6; 
-  char v7; 
+  signed __int64 v5; 
+  char v6; 
 
   if ( translation )
     return translation;
@@ -1216,22 +1197,20 @@ const char *UI_CheckStringTranslation(const char *reference, const char *transla
       Com_Error_impl(ERR_LOCALIZATION, (const ObfuscateErrorText)&stru_1444F7F80, 518i64, reference);
     else
       Com_PrintWarning(13, "WARNING: Could not translate string \"%s\"\n", reference);
-    __asm { vmovups xmm0, xmmword ptr cs:a1unlocalized7; "^1UNLOCALIZED(^7" }
-    errorString[16] = a1unlocalized7[16];
-    __asm { vmovups xmmword ptr cs:errorString, xmm0 }
+    strcpy(errorString, "^1UNLOCALIZED(^7");
     I_strcat(errorString, 0x400ui64, reference);
     I_strcat(errorString, 0x400ui64, "^1)^7");
   }
   else
   {
-    v6 = errorString - reference;
+    v5 = errorString - reference;
     do
     {
-      v7 = *reference;
-      reference[v6] = *reference;
+      v6 = *reference;
+      reference[v5] = *reference;
       ++reference;
     }
-    while ( v7 );
+    while ( v6 );
   }
   return errorString;
 }
@@ -1320,67 +1299,39 @@ void UI_DoServerRefreshOnClient(LocalClientNum_t localClientNum)
 UI_DrawBuildNumber
 ==============
 */
-
-void __fastcall UI_DrawBuildNumber(const LocalClientNum_t localClientNum, __int64 a2, __int64 a3, double _XMM3_8)
+void UI_DrawBuildNumber(const LocalClientNum_t localClientNum)
 {
+  int integer; 
+  float value; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  const char *v14; 
-  const ScreenPlacement *v16; 
-  float h; 
-  int horzAlign; 
-  int vertAlign; 
+  const char *v6; 
+  const ScreenPlacement *v7; 
+  double v8; 
   float w[4]; 
   float x; 
   float y; 
-  float v35; 
+  float h; 
 
-  _RAX = ui_buildSize;
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovss  xmm6, dword ptr [rax+28h]
-  }
-  _RAX = ui_buildLocation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+2Ch]
-    vmovss  xmm2, dword ptr [rax+28h]
-    vmovss  [rsp+88h+y], xmm0
-    vmovss  [rsp+88h+x], xmm2
-  }
+  integer = ui_buildSize->current.integer;
+  value = ui_buildLocation->current.value;
+  y = ui_buildLocation->current.vector.v[1];
+  x = value;
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm { vmovaps xmm2, xmm6; scale }
-  FontHandle = UI_GetFontHandle(ActivePlacement, 0, *(float *)&_XMM2);
-  v14 = UI_FormattedBuildNumber();
-  __asm { vmovaps xmm1, xmm6; scale }
-  v16 = ScrPlace_GetActivePlacement(localClientNum);
-  *(double *)&_XMM0 = R_NormalizedTextScale(FontHandle, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  [rsp+88h+w], xmm0
-    vmovss  [rsp+88h+arg_18], xmm0
-  }
-  ScrPlace_ApplyRect(v16, &x, &y, w, &v35, 3, 0);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f000000
-    vaddss  xmm1, xmm2, [rsp+88h+x]
-    vmovss  xmm0, [rsp+88h+arg_18]
-    vmovss  [rsp+88h+vertAlign], xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm1, 1; x
-    vaddss  xmm1, xmm2, [rsp+88h+y]
-    vxorps  xmm4, xmm4, xmm4
-    vroundss xmm4, xmm4, xmm1, 1
-    vmovss  xmm1, [rsp+88h+w]
-    vmovss  [rsp+88h+horzAlign], xmm1
-    vmovss  dword ptr [rsp+88h+h], xmm4
-    vmovss  [rsp+88h+x], xmm3
-    vmovss  [rsp+88h+y], xmm4
-  }
-  CL_DrawTextPhysical(v14, 64, FontHandle, *(float *)&_XMM3, h, *(float *)&horzAlign, *(float *)&vertAlign, &colorLtGrey, 0);
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  FontHandle = UI_GetFontHandle(ActivePlacement, 0, *(float *)&integer);
+  v6 = UI_FormattedBuildNumber();
+  v7 = ScrPlace_GetActivePlacement(localClientNum);
+  v8 = R_NormalizedTextScale(FontHandle, *(float *)&integer);
+  w[0] = *(float *)&v8;
+  h = *(float *)&v8;
+  ScrPlace_ApplyRect(v7, &x, &y, w, &h, 3, 0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm1, 1; x }
+  _XMM4 = 0i64;
+  __asm { vroundss xmm4, xmm4, xmm1, 1 }
+  x = *(float *)&_XMM3;
+  y = *(float *)&_XMM4;
+  CL_DrawTextPhysical(v6, 64, FontHandle, *(float *)&_XMM3, *(float *)&_XMM4, w[0], h, &colorLtGrey, 0);
 }
 
 /*
@@ -1401,85 +1352,62 @@ UI_DrawCinematicSubtitles
 */
 void UI_DrawCinematicSubtitles(LocalClientNum_t localClientNum)
 {
+  __int128 v1; 
+  unsigned int CurrentLanguage; 
   GfxFont *subtitleFont; 
   const char *String; 
   const ScreenPlacement *ActivePlacement; 
-  char v17; 
+  char v11; 
   char *p_outText; 
-  char v19; 
+  char v13; 
   char *p_pszReference; 
-  float fmt; 
   int outVerticalOffset; 
+  float v16; 
   rectDef_s rect; 
-  int v29; 
+  int v18; 
   vec4_t subtitleGlowColor; 
   char outText; 
   char pszReference; 
   char reference; 
+  __int128 v23; 
 
   if ( !R_Cinematic_GetPaused() )
   {
-    __asm
-    {
-      vmovaps [rsp+4D8h+var_18], xmm6
-      vmovups xmm6, cs:__xmm@0000000043e1000043b00000c3610000
-    }
-    LOWORD(v29) = 258;
-    _EAX = SEH_GetCurrentLanguage();
-    __asm { vmovss  xmm2, cs:__real@3f2147ae }
+    v23 = v1;
+    LOWORD(v18) = 258;
+    CurrentLanguage = SEH_GetCurrentLanguage();
     subtitleFont = sharedUiInfo.assets.subtitleFont;
-    _ECX = 17;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-    }
+    _XMM0 = CurrentLanguage;
     String = NULL;
-    __asm
-    {
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3e8f5c29
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovups xmm2, cs:__xmm@3f800000000000003e99999a00000000
-    }
-    *(_DWORD *)&rect.horzAlign = v29;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+4D8h+var_440], xmm2
-      vmovss  [rsp+4D8h+var_484], xmm0
-      vmovups xmmword ptr [rsp+4D8h+rect.x], xmm6
-    }
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_0_28);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    *(_DWORD *)&rect.horzAlign = v18;
+    subtitleGlowColor = (vec4_t)_xmm;
+    v16 = *(float *)&_XMM0;
+    *(_OWORD *)&rect.x = _xmm;
     outVerticalOffset = 0;
-    __asm { vmovaps xmm6, [rsp+4D8h+var_18] }
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
       __debugbreak();
     UI_GetSubtitleData(localClientNum, s_cinematicSubtitles, &outText, 0x400ui64, &outVerticalOffset);
-    v17 = outText;
+    v11 = outText;
     p_outText = &outText;
     if ( outText == 64 )
     {
-      v19 = pszReference;
+      v13 = pszReference;
       if ( pszReference != 31 )
         String = SEH_StringEd_GetString(&pszReference);
       p_pszReference = &pszReference;
-      if ( v19 == 31 )
+      if ( v13 == 31 )
         p_pszReference = &reference;
       p_outText = (char *)UI_CheckStringTranslation(p_pszReference, String);
-      v17 = *p_outText;
+      v11 = *p_outText;
     }
-    if ( v17 )
+    if ( v11 )
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+4D8h+var_484]
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, [rsp+4D8h+outVerticalOffset]
-        vaddss  xmm1, xmm1, [rsp+4D8h+rect.y]
-        vmovss  [rsp+4D8h+rect.y], xmm1
-        vmovss  dword ptr [rsp+4D8h+fmt], xmm0
-      }
-      UI_DrawWrappedTextSubtitled(ActivePlacement, p_outText, &rect, subtitleFont, fmt, &colorWhite, 3, 5, &subtitleGlowColor, 1);
+      rect.y = (float)outVerticalOffset + rect.y;
+      UI_DrawWrappedTextSubtitled(ActivePlacement, p_outText, &rect, subtitleFont, v16, &colorWhite, 3, 5, &subtitleGlowColor, 1);
     }
   }
 }
@@ -1503,17 +1431,12 @@ UI_DrawInterpolatedCinematicElements
 void UI_DrawInterpolatedCinematicElements(LocalClientNum_t localClientNum)
 {
   bool started; 
+  const dvar_t *v3; 
+  char v4; 
   const dvar_t *v5; 
-  char v6; 
-  char v10; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v9; 
+  __int64 v10; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
   started = R_Cinematic_StartNextPlayback();
   if ( R_Cinematic_IsFinished() )
   {
@@ -1526,45 +1449,39 @@ void UI_DrawInterpolatedCinematicElements(LocalClientNum_t localClientNum)
   if ( !started )
   {
 LABEL_11:
-    v6 = 0;
+    v4 = 0;
     goto LABEL_12;
   }
 LABEL_6:
-  v5 = DVARBOOL_bg_cinematicFullscreen;
+  v3 = DVARBOOL_bg_cinematicFullscreen;
   if ( !DVARBOOL_bg_cinematicFullscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicFullscreen") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( !v3->current.enabled )
     goto LABEL_11;
-  v6 = 1;
+  v4 = 1;
 LABEL_12:
-  _RDI = DVARFLT_bg_cinematicAspectRatio;
+  v5 = DVARFLT_bg_cinematicAspectRatio;
   if ( !DVARFLT_bg_cinematicAspectRatio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicAspectRatio") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vxorps  xmm7, xmm7, xmm7
-  }
+  Dvar_CheckFrontendServerThread(v5);
+  _XMM6 = v5->current.unsignedInt;
   if ( Sys_IsMainThread() )
   {
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v18) = 2;
-      LODWORD(v17) = localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v18) )
+      LODWORD(v10) = 2;
+      LODWORD(v9) = localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v9, v10) )
         __debugbreak();
     }
     if ( localClientNum < cg_t::ms_allocatedCount )
     {
       UI_InterpolateCinematicLetterboxingParams(localClientNum);
-      __asm { vcomiss xmm6, xmm7 }
-      if ( !v10 )
+      if ( *(float *)&_XMM6 >= 0.0 )
       {
         __asm
         {
-          vmovss  xmm0, cs:__real@40166666
           vcmpeqss xmm1, xmm6, xmm7
           vblendvps xmm1, xmm6, xmm0, xmm1; aspectRatio
         }
@@ -1572,20 +1489,12 @@ LABEL_12:
       }
     }
   }
-  if ( v6 )
+  if ( v4 )
   {
-    __asm
-    {
-      vucomiss xmm6, xmm7
-      vandps  xmm1, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; aspectRatio
-      vcomiss xmm6, xmm7
-    }
-    R_Cinematic_DrawStretchPic_Letterboxed(0, *(float *)&_XMM1);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    if ( *(float *)&_XMM6 == 0.0 )
+      R_Cinematic_DrawFullscreen_Letterboxed();
+    else
+      R_Cinematic_DrawStretchPic_Letterboxed(*(float *)&_XMM6 < 0.0, COERCE_FLOAT(_XMM6 & _xmm));
   }
 }
 
@@ -1594,114 +1503,65 @@ LABEL_12:
 UI_DrawInterpolatedCinematicLetterbox
 ==============
 */
-
-void __fastcall UI_DrawInterpolatedCinematicLetterbox(LocalClientNum_t localClientNum, double aspectRatio)
+void UI_DrawInterpolatedCinematicLetterbox(LocalClientNum_t localClientNum, float aspectRatio)
 {
   int *LocalClientGlobals; 
-  int v10; 
-  __int64 v38; 
-  int v39; 
+  int v4; 
+  float v5; 
+  int v6; 
+  float v7; 
+  float v8; 
+  int v9; 
+  float v10; 
+  __int64 v11; 
+  int v12; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps xmm9, xmm1
-  }
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 1816, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v39 = 2;
-    LODWORD(v38) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v38, v39) )
+    v12 = 2;
+    LODWORD(v11) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   if ( localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 1817, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( localClientNum )") )
     __debugbreak();
   LocalClientGlobals = (int *)CG_GetLocalClientGlobals(localClientNum);
-  v10 = LocalClientGlobals[105113];
-  if ( v10 != 3 )
+  v4 = LocalClientGlobals[105113];
+  if ( v4 != 3 )
   {
-    if ( v10 == 1 )
+    if ( v4 == 1 )
     {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000; alpha
-        vmovaps xmm2, xmm1; lerp
-        vmovaps xmm0, xmm9; aspectRatio
-      }
-      R_Cinematic_DrawLetterbox_Only(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      R_Cinematic_DrawLetterbox_Only(aspectRatio, 1.0, 1.0);
     }
     else
     {
-      __asm
-      {
-        vmovaps [rsp+88h+var_18], xmm6
-        vmovaps [rsp+88h+var_28], xmm7
-        vmovaps [rsp+88h+var_38], xmm8
-      }
-      if ( (v10 & 0xFFFFFFFD) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 1832, ASSERT_TYPE_ASSERT, "(letterboxInfo.currentState == CINEMATIC_LETTER_BOX_IN || letterboxInfo.currentState == CINEMATIC_LETTER_BOX_OUT)", (const char *)&queryFormat, "letterboxInfo.currentState == CINEMATIC_LETTER_BOX_IN || letterboxInfo.currentState == CINEMATIC_LETTER_BOX_OUT") )
+      if ( (v4 & 0xFFFFFFFD) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 1832, ASSERT_TYPE_ASSERT, "(letterboxInfo.currentState == CINEMATIC_LETTER_BOX_IN || letterboxInfo.currentState == CINEMATIC_LETTER_BOX_OUT)", (const char *)&queryFormat, "letterboxInfo.currentState == CINEMATIC_LETTER_BOX_IN || letterboxInfo.currentState == CINEMATIC_LETTER_BOX_OUT") )
         __debugbreak();
-      __asm
+      v5 = FLOAT_1_0;
+      v6 = LocalClientGlobals[105112];
+      v7 = FLOAT_1_0;
+      if ( v6 > 0 )
       {
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  xmm6, cs:__real@3f000000
-        vmovaps xmm8, xmm7
-      }
-      if ( LocalClientGlobals[105112] > 0 )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, dword ptr [rbx+66A5Ch]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm1, xmm1, xmm0
-          vsubss  xmm2, xmm1, xmm6
-          vmulss  xmm0, xmm2, cs:__real@40490fdb; X
-        }
-        *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-        __asm { vmulss  xmm1, xmm0, xmm6 }
+        v8 = sinf_0((float)((float)((float)LocalClientGlobals[105111] / (float)v6) - 0.5) * 3.1415927);
         if ( LocalClientGlobals[105113] )
-          __asm { vaddss  xmm7, xmm1, xmm6 }
+          v5 = (float)(v8 * 0.5) + 0.5;
         else
-          __asm { vsubss  xmm7, xmm6, xmm1 }
+          v5 = 0.5 - (float)(v8 * 0.5);
       }
-      if ( LocalClientGlobals[105110] > 0 )
+      v9 = LocalClientGlobals[105110];
+      if ( v9 > 0 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, dword ptr [rbx+66A54h]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm1, xmm1, xmm0
-          vsubss  xmm2, xmm1, xmm6
-          vmulss  xmm0, xmm2, cs:__real@40490fdb; X
-        }
-        *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-        __asm { vmulss  xmm1, xmm0, xmm6 }
+        v10 = sinf_0((float)((float)((float)LocalClientGlobals[105109] / (float)v9) - 0.5) * 3.1415927);
         if ( LocalClientGlobals[105113] )
-          __asm { vaddss  xmm8, xmm1, xmm6 }
+          v7 = (float)(v10 * 0.5) + 0.5;
         else
-          __asm { vsubss  xmm8, xmm6, xmm1 }
+          v7 = 0.5 - (float)(v10 * 0.5);
       }
-      __asm
-      {
-        vmovaps xmm2, xmm8; lerp
-        vmovaps xmm1, xmm7; alpha
-        vmovaps xmm0, xmm9; aspectRatio
-      }
-      R_Cinematic_DrawLetterbox_Only(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm8, [rsp+88h+var_38]
-        vmovaps xmm7, [rsp+88h+var_28]
-        vmovaps xmm6, [rsp+88h+var_18]
-      }
+      R_Cinematic_DrawLetterbox_Only(aspectRatio, v5, v7);
     }
   }
-  __asm { vmovaps xmm9, [rsp+88h+var_48] }
 }
 
 /*
@@ -1711,48 +1571,38 @@ UI_DrawLoadingScreenInternal
 */
 void UI_DrawLoadingScreenInternal()
 {
-  LocalClientNum_t v4; 
+  LocalClientNum_t v0; 
   const ScreenPlacement *ActivePlacement; 
-  LocalClientNum_t v8; 
-  __int64 v9; 
-  __int64 v10; 
-  char v11; 
-  __int64 v12; 
-  char v13; 
+  LocalClientNum_t v2; 
+  __int64 v3; 
+  __int64 v4; 
+  char v5; 
+  __int64 v6; 
+  char v7; 
   LocalClientNum_t OnlyLocalClientNum; 
-  const dvar_t *v25; 
+  const dvar_t *v9; 
   bool started; 
-  const dvar_t *v27; 
-  char v28; 
-  char v32; 
-  float fmt; 
-  float fmta; 
+  const dvar_t *v11; 
+  char v12; 
+  const dvar_t *v13; 
   __int64 horzAlign; 
   __int64 vertAlign; 
   unsigned int outTimeInMsec; 
   rectDef_s rect; 
   vec4_t color; 
   char outName[256]; 
-  char v49; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
   if ( DB_IsDoingSPHotLoad() )
   {
     OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
     if ( !CL_SubtitlesEnabled(OnlyLocalClientNum) )
-      goto LABEL_40;
-    v25 = DVARBOOL_cg_cinematic_subtitles;
+      return;
+    v9 = DVARBOOL_cg_cinematic_subtitles;
     if ( !DVARBOOL_cg_cinematic_subtitles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cinematic_subtitles") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    if ( !v25->current.enabled )
-      goto LABEL_40;
+    Dvar_CheckFrontendServerThread(v9);
+    if ( !v9->current.enabled )
+      return;
     started = R_Cinematic_StartNextPlayback();
     if ( R_Cinematic_IsFinished() )
     {
@@ -1761,27 +1611,23 @@ void UI_DrawLoadingScreenInternal()
     else if ( R_Cinematic_IsStarted() || R_Cinematic_IsPending() )
     {
 LABEL_21:
-      v27 = DVARBOOL_bg_cinematicFullscreen;
+      v11 = DVARBOOL_bg_cinematicFullscreen;
       if ( !DVARBOOL_bg_cinematicFullscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicFullscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v27);
-      if ( v27->current.enabled )
+      Dvar_CheckFrontendServerThread(v11);
+      if ( v11->current.enabled )
       {
-        v28 = 1;
+        v12 = 1;
         goto LABEL_27;
       }
 LABEL_26:
-      v28 = 0;
+      v12 = 0;
 LABEL_27:
-      _RDI = DVARFLT_bg_cinematicAspectRatio;
+      v13 = DVARFLT_bg_cinematicAspectRatio;
       if ( !DVARFLT_bg_cinematicAspectRatio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicAspectRatio") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rdi+28h]
-        vxorps  xmm7, xmm7, xmm7
-      }
+      Dvar_CheckFrontendServerThread(v13);
+      _XMM6 = v13->current.unsignedInt;
       if ( Sys_IsMainThread() )
       {
         if ( (unsigned int)OnlyLocalClientNum >= LOCAL_CLIENT_COUNT )
@@ -1794,98 +1640,62 @@ LABEL_27:
         if ( OnlyLocalClientNum < cg_t::ms_allocatedCount )
         {
           UI_InterpolateCinematicLetterboxingParams(OnlyLocalClientNum);
-          __asm { vcomiss xmm6, xmm7 }
-          if ( !v32 )
+          if ( *(float *)&_XMM6 >= 0.0 )
           {
             __asm
             {
-              vmovss  xmm0, cs:__real@40166666
               vcmpeqss xmm1, xmm6, xmm7
               vblendvps xmm1, xmm6, xmm0, xmm1; aspectRatio
             }
-            UI_DrawInterpolatedCinematicLetterbox(OnlyLocalClientNum, *(double *)&_XMM1);
+            UI_DrawInterpolatedCinematicLetterbox(OnlyLocalClientNum, *(float *)&_XMM1);
           }
         }
       }
-      if ( v28 )
+      if ( v12 )
       {
-        __asm
-        {
-          vucomiss xmm6, xmm7
-          vandps  xmm1, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; aspectRatio
-          vcomiss xmm6, xmm7
-        }
-        R_Cinematic_DrawStretchPic_Letterboxed(0, *(float *)&_XMM1);
+        if ( *(float *)&_XMM6 == 0.0 )
+          R_Cinematic_DrawFullscreen_Letterboxed();
+        else
+          R_Cinematic_DrawStretchPic_Letterboxed(*(float *)&_XMM6 < 0.0, COERCE_FLOAT(_XMM6 & _xmm));
       }
       UI_DrawCinematicSubtitles(OnlyLocalClientNum);
-      goto LABEL_40;
+      return;
     }
     if ( !started )
       goto LABEL_26;
     goto LABEL_21;
   }
-  v4 = CL_GetOnlyLocalClientNum();
-  __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-  ActivePlacement = ScrPlace_GetActivePlacement(v4);
-  UI_GetFontHandle(ActivePlacement, 0, *(float *)&_XMM2);
-  __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-  UI_GetFontHandle(ActivePlacement, 9, *(float *)&_XMM2);
-  v8 = CL_GetOnlyLocalClientNum();
-  UI_DrawCinematicSubtitles(v8);
+  v0 = CL_GetOnlyLocalClientNum();
+  ActivePlacement = ScrPlace_GetActivePlacement(v0);
+  UI_GetFontHandle(ActivePlacement, 0, 1.0);
+  UI_GetFontHandle(ActivePlacement, 9, 1.0);
+  v2 = CL_GetOnlyLocalClientNum();
+  UI_DrawCinematicSubtitles(v2);
   R_Cinematic_GetFilenameAndTimeInMsec(outName, 0x100ui64, &outTimeInMsec);
-  v9 = 0i64;
-  v10 = 0x7FFFFFFFi64;
+  v3 = 0i64;
+  v4 = 0x7FFFFFFFi64;
   do
   {
-    v11 = outName[v9];
-    v12 = v10;
-    v13 = aSpProxywarCine[v9++];
-    --v10;
-    if ( !v12 )
+    v5 = outName[v3];
+    v6 = v4;
+    v7 = aSpProxywarCine[v3++];
+    --v4;
+    if ( !v6 )
       break;
-    if ( v11 != v13 )
+    if ( v5 != v7 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@43c80000440c00004220000042200000
-        vmovups xmmword ptr [rsp+1C8h+rect.x], xmm0
-        vmovups xmm0, cs:__xmm@3f8000003e4ccccd3e4ccccd3e4ccccd
-        vmovups xmmword ptr [rsp+1C8h+var_158], xmm0
-        vmovaps [rsp+1C8h+var_38], xmm9
-      }
+      *(_OWORD *)&rect.x = _xmm;
+      color = (vec4_t)_xmm;
       *(_WORD *)&rect.horzAlign = 513;
       if ( !cls.whiteMaterial && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 1979, ASSERT_TYPE_ASSERT, "(cls.whiteMaterial)", (const char *)&queryFormat, "cls.whiteMaterial") )
         __debugbreak();
       ProfLoad_DrawOverlay(ActivePlacement, &rect);
-      __asm
-      {
-        vmovss  xmm9, cs:__real@40000000
-        vmovss  xmm3, cs:__real@43800000; width
-        vmovss  xmm2, cs:__real@43d70000; y
-        vmovss  xmm1, cs:__real@43400000; x
-        vmovss  dword ptr [rsp+1C8h+fmt], xmm9
-      }
-      UI_FillRect(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, 0, 0, &color);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@43800000; w
-        vmovss  xmm2, cs:__real@43d70000; y
-        vmovss  xmm1, cs:__real@43400000; x
-        vmovss  dword ptr [rsp+1C8h+fmt], xmm9
-      }
-      UI_DrawLoadBar(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 0, 0, &colorWhite, cls.whiteMaterial);
-      __asm { vmovaps xmm9, [rsp+1C8h+var_38] }
-      break;
+      UI_FillRect(ActivePlacement, 192.0, 430.0, 256.0, 2.0, 0, 0, &color);
+      UI_DrawLoadBar(ActivePlacement, 192.0, 430.0, 256.0, 2.0, 0, 0, &colorWhite, cls.whiteMaterial);
+      return;
     }
   }
-  while ( v11 );
-LABEL_40:
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  while ( v5 );
 }
 
 /*
@@ -1904,56 +1714,43 @@ void UI_DrawScreenShotLoadingScreen(void)
 UI_DrawSubtitle
 ==============
 */
-
-void __fastcall UI_DrawSubtitle(LocalClientNum_t localClientNum, rectDef_s *rect, double scale, int textStyle, int textAlignMode, const vec4_t *glowColor, int horzAlign, int vertAlign, GfxFont *font)
+void UI_DrawSubtitle(LocalClientNum_t localClientNum, rectDef_s *rect, float scale, int textStyle, int textAlignMode, const vec4_t *glowColor, int horzAlign, int vertAlign, GfxFont *font)
 {
   const char *String; 
   const ScreenPlacement *ActivePlacement; 
-  char v17; 
+  char v14; 
   char *p_outText; 
-  char v19; 
+  char v16; 
   char *p_pszReference; 
-  float fmt; 
   int outVerticalOffset[4]; 
   char outText; 
   char pszReference; 
   char reference; 
 
-  __asm { vmovaps [rsp+4B8h+var_48], xmm6 }
   String = NULL;
   outVerticalOffset[0] = 0;
-  _RSI = rect;
-  __asm { vmovaps xmm6, xmm2 }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   UI_GetSubtitleData(localClientNum, s_cinematicSubtitles, &outText, 0x400ui64, outVerticalOffset);
-  v17 = outText;
+  v14 = outText;
   p_outText = &outText;
   if ( outText == 64 )
   {
-    v19 = pszReference;
+    v16 = pszReference;
     if ( pszReference != 31 )
       String = SEH_StringEd_GetString(&pszReference);
     p_pszReference = &pszReference;
-    if ( v19 == 31 )
+    if ( v16 == 31 )
       p_pszReference = &reference;
     p_outText = (char *)UI_CheckStringTranslation(p_pszReference, String);
-    v17 = *p_outText;
+    v14 = *p_outText;
   }
-  if ( v17 )
+  if ( v14 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rsp+4B8h+outVerticalOffset]
-      vaddss  xmm1, xmm0, dword ptr [rsi+4]
-      vmovss  dword ptr [rsi+4], xmm1
-      vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-    }
-    UI_DrawWrappedTextSubtitled(ActivePlacement, p_outText, _RSI, font, fmt, &colorWhite, textStyle, textAlignMode, glowColor, 1);
+    rect->y = (float)outVerticalOffset[0] + rect->y;
+    UI_DrawWrappedTextSubtitled(ActivePlacement, p_outText, rect, font, scale, &colorWhite, textStyle, textAlignMode, glowColor, 1);
   }
-  __asm { vmovaps xmm6, [rsp+4B8h+var_48] }
 }
 
 /*
@@ -1961,47 +1758,44 @@ void __fastcall UI_DrawSubtitle(LocalClientNum_t localClientNum, rectDef_s *rect
 UI_DrawTempConnectScreen
 ==============
 */
-
-void __fastcall UI_DrawTempConnectScreen(LocalClientNum_t localClientNum, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void UI_DrawTempConnectScreen(LocalClientNum_t localClientNum)
 {
-  __int64 v11; 
+  __int64 v1; 
+  float displayWidth; 
+  float displayHeight; 
   const char *MapName; 
   const mapInfo *MapInfoForLoadName; 
   Material *material; 
   ScreenPlacement *ActivePlacement; 
   GfxFont *boldFont; 
-  ScreenPlacement *v23; 
+  ScreenPlacement *v9; 
+  double v10; 
+  int v11; 
+  double v14; 
   char *messageString; 
-  int v51; 
+  __int128 v20; 
+  int v21; 
   const char *String; 
-  const char *v53; 
-  const char *v54; 
-  unsigned __int64 v55; 
-  int v56; 
-  __int64 v57; 
-  int v58; 
-  __int64 v60; 
-  __int64 v61; 
-  __int64 v62; 
-  unsigned __int64 v63; 
-  const dvar_t *v85; 
+  const char *v23; 
+  const char *v24; 
+  unsigned __int64 v25; 
+  int v26; 
+  __int64 v27; 
+  int v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  unsigned __int64 v32; 
+  double v33; 
+  int v34; 
+  double v37; 
+  __int128 v42; 
+  const dvar_t *v43; 
   const char *ConnectInfoString; 
-  char v87; 
-  const char *v88; 
-  const char *v90; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float t1; 
-  float t1a; 
-  float t1b; 
-  float t1c; 
-  float s2; 
-  float s2a; 
-  float s2b; 
-  float v112; 
-  float color; 
+  char v45; 
+  const char *v46; 
+  int v47; 
+  const char *v48; 
   float x; 
   float y; 
   float h; 
@@ -2011,129 +1805,60 @@ void __fastcall UI_DrawTempConnectScreen(LocalClientNum_t localClientNum, double
   char text[64]; 
   char dest[64]; 
 
-  v11 = localClientNum;
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 254, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  if ( clientUIActives[v11].migrationState == CMSTATE_INACTIVE )
+  if ( clientUIActives[v1].migrationState == CMSTATE_INACTIVE )
   {
-    __asm
-    {
-      vmovaps [rsp+9C0h+var_30], xmm6
-      vmovaps [rsp+9C0h+var_40], xmm7
-      vmovaps [rsp+9C0h+var_50], xmm8
-      vmovaps [rsp+9C0h+var_70], xmm10
-    }
     if ( Com_Frontend_LoadFastfile_IsInUse() )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, rax
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, rax
-      }
+      displayWidth = (float)cls.vidConfig.displayWidth;
+      displayHeight = (float)cls.vidConfig.displayHeight;
       MapName = Party_GetMapName();
       MapInfoForLoadName = Com_GameInfo_GetMapInfoForLoadName(MapName);
       if ( MapInfoForLoadName )
       {
         Com_sprintf(dest, 0x40ui64, "loadscreen_%s", MapInfoForLoadName->mapLoadName);
         material = Material_RegisterHandle(dest, IMAGE_TRACK_UI);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  dword ptr [rsp+9C0h+var_988], xmm0
-          vmovss  [rsp+9C0h+s2], xmm0
-          vxorps  xmm0, xmm0, xmm0; x
-          vmovss  [rsp+9C0h+t1], xmm0
-          vmovaps xmm3, xmm7; h
-          vmovaps xmm2, xmm6; w
-          vxorps  xmm1, xmm1, xmm1; y
-          vmovss  dword ptr [rsp+9C0h+fmt], xmm0
-        }
-        CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2_8, *(float *)&_XMM3_8, fmt, t1, s2, v112, &colorWhite, material);
+        CL_DrawStretchPicPhysical(0.0, 0.0, displayWidth, displayHeight, 0.0, 0.0, 1.0, 1.0, &colorWhite, material);
       }
     }
-    CG_DrawInformation((LocalClientNum_t)v11);
-    ActivePlacement = (ScreenPlacement *)ScrPlace_GetActivePlacement((const LocalClientNum_t)v11);
+    CG_DrawInformation((LocalClientNum_t)v1);
+    ActivePlacement = (ScreenPlacement *)ScrPlace_GetActivePlacement((const LocalClientNum_t)v1);
     boldFont = sharedUiInfo.assets.boldFont;
-    v23 = ActivePlacement;
+    v9 = ActivePlacement;
     scrPlace = ActivePlacement;
     if ( !sharedUiInfo.assets.boldFont && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 2211, ASSERT_TYPE_ASSERT, "(font)", (const char *)&queryFormat, "font") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3e4ccccd
-      vmovss  xmm8, cs:__real@3f000000
-      vmovss  xmm10, cs:__real@43a00000
-    }
     if ( Com_GameStart_GetLoadInfoString(state.messageString, 0x400u) )
     {
-      __asm { vmovaps xmm1, xmm7; scale }
-      *(double *)&_XMM0 = R_NormalizedTextScale(boldFont, *(float *)&_XMM1);
-      __asm { vmovaps xmm6, xmm0 }
-      R_TextHeight(boldFont);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@425c0000
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vcvttss2si r9d, xmm0; textHeight
-        vmovss  [rbp+8C0h+y], xmm2
-      }
-      R_TextWidth(state.messageString, 0, boldFont, _ER9);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm1, xmm0, xmm8
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm2, xmm2, xmm2
-        vroundss xmm2, xmm2, xmm1, 1
-        vcvttss2si eax, xmm2
-        vcvtsi2ss xmm0, xmm0, eax
-        vsubss  xmm0, xmm10, xmm0
-        vmovaps xmm1, xmm7; scale
-        vmovss  [rbp+8C0h+x], xmm0
-      }
-      *(double *)&_XMM0 = R_NormalizedTextScale(boldFont, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  [rbp+8C0h+w], xmm0
-        vmovss  [rbp+8C0h+h], xmm0
-      }
-      ScrPlace_ApplyRect(v23, &x, &y, &w, &h, 0, 0);
-      __asm
-      {
-        vaddss  xmm1, xmm8, [rbp+8C0h+x]
-        vmovss  xmm0, [rbp+8C0h+h]
-        vmovss  [rsp+9C0h+s2], xmm0
-        vxorps  xmm3, xmm3, xmm3
-        vroundss xmm3, xmm3, xmm1, 1; x
-        vaddss  xmm1, xmm8, [rbp+8C0h+y]
-        vxorps  xmm2, xmm2, xmm2
-        vroundss xmm2, xmm2, xmm1, 1
-        vmovss  xmm1, [rbp+8C0h+w]
-        vmovss  [rsp+9C0h+t1], xmm1
-        vmovss  dword ptr [rsp+9C0h+fmt], xmm2
-        vmovss  [rbp+8C0h+x], xmm3
-        vmovss  [rbp+8C0h+y], xmm2
-      }
-      CL_DrawTextPhysicalWithEffects(state.messageString, 0x7FFFFFFF, boldFont, *(float *)&_XMM3_8, fmta, t1a, s2a, &colorYellow, 6, &colorWhite, NULL, NULL, 0, 0);
+      v10 = R_NormalizedTextScale(boldFont, 0.2);
+      v11 = R_TextHeight(boldFont);
+      y = FLOAT_55_0;
+      R_TextWidth(state.messageString, 0, boldFont, (int)(float)((float)v11 * *(float *)&v10));
+      _XMM2 = 0i64;
+      __asm { vroundss xmm2, xmm2, xmm1, 1 }
+      x = 320.0 - (float)((int)*(float *)&_XMM2 / 2);
+      v14 = R_NormalizedTextScale(boldFont, 0.2);
+      w = *(float *)&v14;
+      h = *(float *)&v14;
+      ScrPlace_ApplyRect(v9, &x, &y, &w, &h, 0, 0);
+      _XMM3 = 0i64;
+      __asm { vroundss xmm3, xmm3, xmm1, 1; x }
+      _XMM2 = 0i64;
+      __asm { vroundss xmm2, xmm2, xmm1, 1 }
+      x = *(float *)&_XMM3;
+      y = *(float *)&_XMM2;
+      CL_DrawTextPhysicalWithEffects(state.messageString, 0x7FFFFFFF, boldFont, *(float *)&_XMM3, *(float *)&_XMM2, w, h, &colorYellow, 6, &colorWhite, NULL, NULL, 0, 0);
     }
     if ( !Com_GameStart_UseNewLoadingSystem() || Com_GameStart_ShouldDrawConnectText() )
     {
-      __asm
-      {
-        vmovaps [rsp+9C0h+var_60], xmm9
-        vmovaps [rsp+9C0h+var_80], xmm11
-      }
-      CL_GetClientState((LocalClientNum_t)v11, &state);
+      CL_GetClientState((LocalClientNum_t)v1, &state);
       if ( (unsigned int)(state.connState - 1) <= 1 )
       {
         messageString = state.messageString;
-        __asm { vmovss  xmm9, cs:__real@43958000 }
-        v51 = 0;
+        v20 = LODWORD(FLOAT_299_0);
+        v21 = 0;
         if ( state.messageString[0] == 31 )
         {
           messageString = &state.messageString[1];
@@ -2143,154 +1868,99 @@ void __fastcall UI_DrawTempConnectScreen(LocalClientNum_t localClientNum, double
         {
           String = SEH_StringEd_GetString(state.messageString);
         }
-        v53 = UI_CheckStringTranslation(messageString, String);
-        v54 = v53;
-        v55 = -1i64;
+        v23 = UI_CheckStringTranslation(messageString, String);
+        v24 = v23;
+        v25 = -1i64;
         do
-          ++v55;
-        while ( v53[v55] );
-        v56 = truncate_cast<int,unsigned __int64>(v55);
-        v57 = v56;
-        v58 = 0;
-        if ( v56 > 0 )
+          ++v25;
+        while ( v23[v25] );
+        v26 = truncate_cast<int,unsigned __int64>(v25);
+        v27 = v26;
+        v28 = 0;
+        if ( v26 > 0 )
         {
-          __asm { vmovss  xmm11, cs:__real@41b00000 }
-          v60 = 0i64;
-          v61 = 0i64;
+          v29 = 0i64;
+          v30 = 0i64;
           do
           {
-            v62 = (unsigned __int8)v54[v61];
-            text[v60] = v62;
-            if ( v60 > 40 && v61 > 0 )
-              v51 = 1;
-            if ( v60 >= 58 || v58 == (_DWORD)v57 - 1 || v51 && v54[v61] == 32 )
+            v31 = (unsigned __int8)v24[v30];
+            text[v29] = v31;
+            if ( v29 > 40 && v30 > 0 )
+              v21 = 1;
+            if ( v29 >= 58 || v28 == (_DWORD)v27 - 1 || v21 && v24[v30] == 32 )
             {
-              v63 = v60 + 1;
-              if ( v63 >= 0x3C )
+              v32 = v29 + 1;
+              if ( v32 >= 0x3C )
               {
-                j___report_rangecheckfailure(v62);
+                j___report_rangecheckfailure(v31);
                 JUMPOUT(0x1427838D7i64);
               }
-              __asm { vmovaps xmm1, xmm7; scale }
-              text[v63] = 0;
-              *(double *)&_XMM0 = R_NormalizedTextScale(boldFont, *(float *)&_XMM1);
-              __asm { vmovaps xmm6, xmm0 }
-              R_TextHeight(boldFont);
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2ss xmm1, xmm1, eax
-                vmulss  xmm0, xmm1, xmm6
-                vcvttss2si r9d, xmm0; textHeight
-                vmovss  [rbp+8C0h+x], xmm9
-              }
-              R_TextWidth(text, 0, boldFont, _ER9);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vaddss  xmm1, xmm0, xmm8
-                vxorps  xmm0, xmm0, xmm0
-                vxorps  xmm2, xmm2, xmm2
-                vroundss xmm2, xmm2, xmm1, 1
-                vcvttss2si eax, xmm2
-                vcvtsi2ss xmm0, xmm0, eax
-                vsubss  xmm0, xmm10, xmm0
-                vmovaps xmm1, xmm7; scale
-                vmovss  [rbp+8C0h+y], xmm0
-              }
-              *(double *)&_XMM0 = R_NormalizedTextScale(boldFont, *(float *)&_XMM1);
-              v51 = 0;
-              __asm
-              {
-                vmovss  [rbp+8C0h+h], xmm0
-                vmovss  [rbp+8C0h+w], xmm0
-              }
+              text[v32] = 0;
+              v33 = R_NormalizedTextScale(boldFont, 0.2);
+              v34 = R_TextHeight(boldFont);
+              x = *(float *)&v20;
+              R_TextWidth(text, 0, boldFont, (int)(float)((float)v34 * *(float *)&v33));
+              _XMM2 = 0i64;
+              __asm { vroundss xmm2, xmm2, xmm1, 1 }
+              y = 320.0 - (float)((int)*(float *)&_XMM2 / 2);
+              v37 = R_NormalizedTextScale(boldFont, 0.2);
+              v21 = 0;
+              h = *(float *)&v37;
+              w = *(float *)&v37;
               ScrPlace_ApplyRect(scrPlace, &y, &x, &h, &w, 0, 0);
-              __asm
-              {
-                vaddss  xmm1, xmm8, [rbp+8C0h+y]
-                vmovss  xmm0, [rbp+8C0h+w]
-                vmovss  [rsp+9C0h+s2], xmm0
-                vxorps  xmm3, xmm3, xmm3
-                vroundss xmm3, xmm3, xmm1, 1; x
-                vaddss  xmm1, xmm8, [rbp+8C0h+x]
-                vxorps  xmm2, xmm2, xmm2
-                vroundss xmm2, xmm2, xmm1, 1
-                vmovss  xmm1, [rbp+8C0h+h]
-                vmovss  [rsp+9C0h+t1], xmm1
-                vmovss  dword ptr [rsp+9C0h+fmt], xmm2
-                vmovss  [rbp+8C0h+y], xmm3
-                vmovss  [rbp+8C0h+x], xmm2
-              }
-              CL_DrawTextPhysicalWithEffects(text, 0x7FFFFFFF, boldFont, *(float *)&_XMM3_8, fmtb, t1b, s2b, &colorYellow, 6, &colorWhite, NULL, NULL, 0, 0);
-              v60 = -1i64;
-              __asm { vaddss  xmm9, xmm9, xmm11 }
+              _XMM3 = 0i64;
+              __asm { vroundss xmm3, xmm3, xmm1, 1; x }
+              _XMM2 = 0i64;
+              __asm { vroundss xmm2, xmm2, xmm1, 1 }
+              y = *(float *)&_XMM3;
+              x = *(float *)&_XMM2;
+              CL_DrawTextPhysicalWithEffects(text, 0x7FFFFFFF, boldFont, *(float *)&_XMM3, *(float *)&_XMM2, h, w, &colorYellow, 6, &colorWhite, NULL, NULL, 0, 0);
+              v29 = -1i64;
+              v42 = v20;
+              *(float *)&v42 = *(float *)&v20 + 22.0;
+              v20 = v42;
             }
-            ++v58;
-            ++v61;
-            ++v60;
+            ++v28;
+            ++v30;
+            ++v29;
           }
-          while ( v61 < v57 );
+          while ( v30 < v27 );
         }
-        v23 = scrPlace;
+        v9 = scrPlace;
       }
-      v85 = DVARBOOL_systemlink;
+      v43 = DVARBOOL_systemlink;
       if ( !DVARBOOL_systemlink && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "systemlink") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v85);
-      if ( v85->current.enabled && (unsigned int)(state.connState - 1) <= 5 )
+      Dvar_CheckFrontendServerThread(v43);
+      if ( v43->current.enabled && (unsigned int)(state.connState - 1) <= 5 )
       {
         ConnectInfoString = UI_GetConnectInfoString(&state);
         if ( ConnectInfoString )
         {
           if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_systemlink_host, "systemlink_host") || state.connState == CA_CONNECTING )
           {
-            v87 = Sys_Milliseconds();
-            switch ( (v87 / -12) & 3 )
+            v45 = Sys_Milliseconds();
+            switch ( (v45 / -12) & 3 )
             {
               case 1:
-                v88 = ".  ";
+                v46 = ".  ";
                 break;
               case 2:
-                v88 = ".. ";
+                v46 = ".. ";
                 break;
               case 3:
-                v88 = "...";
+                v46 = "...";
                 break;
               default:
-                v88 = "   ";
+                v46 = "   ";
                 break;
             }
-            __asm { vmovaps xmm3, xmm7; scale }
-            UI_TextWidth(ConnectInfoString, 0, boldFont, *(float *)&_XMM3);
-            v90 = j_va("%s%s", ConnectInfoString, v88);
-            __asm
-            {
-              vmovss  dword ptr [rsp+9C0h+color], xmm7
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vsubss  xmm1, xmm10, xmm0
-              vmovss  xmm0, cs:__real@43110000
-              vmovss  [rsp+9C0h+t1], xmm0
-              vmovss  dword ptr [rsp+9C0h+fmt], xmm1
-            }
-            UI_DrawTextWithGlow(v23, v90, 0x7FFFFFFF, boldFont, fmtc, t1c, 0, 0, color, &colorWhite, 6, &colorWhite, NULL, NULL, 0, 0);
+            v47 = UI_TextWidth(ConnectInfoString, 0, boldFont, 0.2);
+            v48 = j_va("%s%s", ConnectInfoString, v46);
+            UI_DrawTextWithGlow(v9, v48, 0x7FFFFFFF, boldFont, 320.0 - (float)(v47 / 2), 145.0, 0, 0, 0.2, &colorWhite, 6, &colorWhite, NULL, NULL, 0, 0);
           }
         }
       }
-      __asm
-      {
-        vmovaps xmm9, [rsp+9C0h+var_60]
-        vmovaps xmm11, [rsp+9C0h+var_80]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+9C0h+var_40]
-      vmovaps xmm6, [rsp+9C0h+var_30]
-      vmovaps xmm8, [rsp+9C0h+var_50]
-      vmovaps xmm10, [rsp+9C0h+var_70]
     }
   }
 }
@@ -2302,38 +1972,21 @@ UI_DrawText
 */
 void UI_DrawText(const ScreenPlacement *scrPlace, const char *text, int maxChars, GfxFont *font, float x, float y, int horzAlign, int vertAlign, float scale, const vec4_t *color, int style)
 {
+  double v15; 
   float h; 
-  float xScale; 
-  float yScale; 
-  float v31; 
   float w[5]; 
 
-  __asm { vmovss  xmm1, [rsp+68h+scale]; scale }
-  *(double *)&_XMM0 = R_NormalizedTextScale(font, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  [rsp+68h+w], xmm0
-    vmovss  [rsp+68h+var_18], xmm0
-  }
-  ScrPlace_ApplyRect(scrPlace, &x, &y, w, &v31, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f000000
-    vaddss  xmm1, xmm2, [rsp+68h+x]
-    vmovss  xmm0, [rsp+68h+var_18]
-    vmovss  [rsp+68h+yScale], xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm1, 1; x
-    vaddss  xmm1, xmm2, [rsp+68h+y]
-    vxorps  xmm4, xmm4, xmm4
-    vroundss xmm4, xmm4, xmm1, 1
-    vmovss  xmm1, [rsp+68h+w]
-    vmovss  [rsp+68h+xScale], xmm1
-    vmovss  dword ptr [rsp+68h+h], xmm4
-    vmovss  [rsp+68h+x], xmm3
-    vmovss  [rsp+68h+y], xmm4
-  }
-  CL_DrawTextPhysical(text, maxChars, font, *(float *)&_XMM3, h, xScale, yScale, color, style);
+  v15 = R_NormalizedTextScale(font, scale);
+  w[0] = *(float *)&v15;
+  h = *(float *)&v15;
+  ScrPlace_ApplyRect(scrPlace, &x, &y, w, &h, horzAlign, vertAlign);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm1, 1; x }
+  _XMM4 = 0i64;
+  __asm { vroundss xmm4, xmm4, xmm1, 1 }
+  x = *(float *)&_XMM3;
+  y = *(float *)&_XMM4;
+  CL_DrawTextPhysical(text, maxChars, font, *(float *)&_XMM3, *(float *)&_XMM4, w[0], h, color, style);
 }
 
 /*
@@ -2343,38 +1996,21 @@ UI_DrawTextWithGlow
 */
 void UI_DrawTextWithGlow(const ScreenPlacement *scrPlace, const char *text, int maxChars, GfxFont *font, float x, float y, int horzAlign, int vertAlign, float scale, const vec4_t *color, int style, const vec4_t *glowColor, Material *fxMaterial, Material *fxMaterialGlow, int fxBirthTime, int fxLetterTime)
 {
+  double v20; 
   float h; 
-  float xScale; 
-  float yScale; 
-  float v36; 
   float w[3]; 
 
-  __asm { vmovss  xmm1, [rsp+88h+scale]; scale }
-  *(double *)&_XMM0 = R_NormalizedTextScale(font, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  [rsp+88h+w], xmm0
-    vmovss  [rsp+88h+var_18], xmm0
-  }
-  ScrPlace_ApplyRect(scrPlace, &x, &y, w, &v36, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f000000
-    vaddss  xmm1, xmm2, [rsp+88h+x]
-    vmovss  xmm0, [rsp+88h+var_18]
-    vmovss  [rsp+88h+yScale], xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm1, 1; x
-    vaddss  xmm1, xmm2, [rsp+88h+y]
-    vxorps  xmm4, xmm4, xmm4
-    vroundss xmm4, xmm4, xmm1, 1
-    vmovss  xmm1, [rsp+88h+w]
-    vmovss  [rsp+88h+xScale], xmm1
-    vmovss  dword ptr [rsp+88h+h], xmm4
-    vmovss  [rsp+88h+x], xmm3
-    vmovss  [rsp+88h+y], xmm4
-  }
-  CL_DrawTextPhysicalWithEffects(text, maxChars, font, *(float *)&_XMM3, h, xScale, yScale, color, style, glowColor, fxMaterial, fxMaterialGlow, fxBirthTime, fxLetterTime);
+  v20 = R_NormalizedTextScale(font, scale);
+  w[0] = *(float *)&v20;
+  h = *(float *)&v20;
+  ScrPlace_ApplyRect(scrPlace, &x, &y, w, &h, horzAlign, vertAlign);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm1, 1; x }
+  _XMM4 = 0i64;
+  __asm { vroundss xmm4, xmm4, xmm1, 1 }
+  x = *(float *)&_XMM3;
+  y = *(float *)&_XMM4;
+  CL_DrawTextPhysicalWithEffects(text, maxChars, font, *(float *)&_XMM3, *(float *)&_XMM4, w[0], h, color, style, glowColor, fxMaterial, fxMaterialGlow, fxBirthTime, fxLetterTime);
 }
 
 /*
@@ -2393,12 +2029,107 @@ void __fastcall UI_EndReadingSaveDeviceUI(LocalClientNum_t localClientNum)
 UI_FeederItemText
 ==============
 */
-
-const char *__fastcall UI_FeederItemText(LocalClientNum_t localClientNum, double feederID, int index, int column, float *s0, float *t0, float *s1, float *t1, Material **material)
+char *UI_FeederItemText(LocalClientNum_t localClientNum, const float feederID, int index, int column, float *s0, float *t0, float *s1, float *t1, Material **material)
 {
-  __asm { vucomiss xmm1, cs:__real@40000000 }
+  __int64 v10; 
+  uiInfo_t *ClientInfo; 
+  int ServerCount; 
+  const char *v13; 
+  int v14; 
+  char *result; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  int v19; 
+  const char *v20; 
+  unsigned int v21; 
+  const char *v22; 
+  int v23; 
+  __int64 v24; 
+
+  v10 = index;
   *material = NULL;
-  return (char *)&queryFormat.fmt + 3;
+  if ( feederID != 2.0 )
+    return (char *)&queryFormat.fmt + 3;
+  ClientInfo = UI_GetClientInfo(localClientNum);
+  ServerCount = LAN_GetServerCount();
+  if ( sharedUiInfo.serverStatus.serverCount != ServerCount )
+  {
+    sharedUiInfo.serverStatus.serverCount = ServerCount;
+    if ( sharedUiInfo.serverStatus.numDisplayServers )
+    {
+      sharedUiInfo.serverStatus.currentServer = 0;
+      UI_BuildServerDisplayList(ClientInfo, 1);
+    }
+  }
+  if ( (int)v10 < 0 || (int)v10 >= sharedUiInfo.serverStatus.numDisplayServers )
+    return (char *)&queryFormat.fmt + 3;
+  if ( lastColumn != column || lastTime_1 > ClientInfo->uiDC.realTime + 5000 )
+  {
+    LAN_GetServerInfo(sharedUiInfo.serverStatus.displayServers[v10], info_0, 0x400ui64);
+    lastTime_1 = ClientInfo->uiDC.realTime;
+    lastColumn = column;
+  }
+  v13 = Info_ValueForKey(info_0, "ping");
+  v14 = atoi(v13);
+  switch ( column )
+  {
+    case 0:
+      if ( v14 > 0 )
+      {
+        v16 = Info_ValueForKey(info_0, "hostname");
+        Core_strcpy_truncate(clientBuff, 0x2Fui64, v16);
+        result = clientBuff;
+      }
+      else
+      {
+        result = (char *)Info_ValueForKey(info_0, "addr");
+      }
+      break;
+    case 1:
+      v17 = Info_ValueForKey(info_0, "mapname");
+      Core_strcpy_truncate(mapName_0, 0x20ui64, v17);
+      result = mapName_0;
+      break;
+    case 2:
+      v18 = Info_ValueForKey(info_0, "botcount");
+      v19 = atoi(v18);
+      v20 = Info_ValueForKey(info_0, "clients");
+      v21 = atoi(v20);
+      v22 = Info_ValueForKey(info_0, "maxclients");
+      v23 = atoi(v22);
+      if ( v19 )
+      {
+        v24 = (unsigned int)(v23 - 1);
+        if ( (int)v21 < (int)v24 )
+          v24 = v21;
+      }
+      else
+      {
+        v24 = v21;
+      }
+      Com_sprintf(clientBuff, 0x2Fui64, "%i (%i)", v24, v23);
+      result = clientBuff;
+      break;
+    case 3:
+      if ( Info_ValueForKey(info_0, "gametype") && *Info_ValueForKey(info_0, "gametype") )
+        result = (char *)Info_ValueForKey(info_0, "gametype");
+      else
+        result = "?";
+      break;
+    case 4:
+      if ( v14 > 0 )
+        result = (char *)Info_ValueForKey(info_0, "ping");
+      else
+        result = "...";
+      break;
+    case 5:
+      result = (char *)Info_ValueForKey(info_0, "islobby");
+      break;
+    default:
+      return (char *)&queryFormat.fmt + 3;
+  }
+  return result;
 }
 
 /*
@@ -2509,41 +2240,31 @@ LABEL_37:
 UI_FeederSelection
 ==============
 */
-
-void __fastcall UI_FeederSelection(LocalClientNum_t localClientNum, double feederID, int index)
+void UI_FeederSelection(LocalClientNum_t localClientNum, float feederID, int index)
 {
-  __int64 v5; 
-  bool v7; 
-  bool v8; 
+  __int64 v4; 
   int currentServer; 
-  __int64 v11; 
-  int v12; 
+  __int64 v6; 
+  int v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v5 = index;
-  __asm { vmovaps xmm6, xmm1 }
+  v4 = index;
   if ( index < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 1547, ASSERT_TYPE_ASSERT, "(index >= 0)", (const char *)&queryFormat, "index >= 0") )
     __debugbreak();
-  v7 = localClientNum == LOCAL_CLIENT_COUNT;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v12 = 2;
-    LODWORD(v11) = localClientNum;
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, v12);
-    v7 = !v8;
-    if ( v8 )
+    v7 = 2;
+    LODWORD(v6) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
-  __asm { vucomiss xmm6, cs:__real@40000000 }
-  if ( v7 )
+  if ( feederID == 2.0 )
   {
     currentServer = sharedUiInfo.serverStatus.currentServer;
     if ( sharedUiInfo.serverStatus.numDisplayServers > 0 )
-      currentServer = v5;
+      currentServer = v4;
     sharedUiInfo.serverStatus.currentServer = currentServer;
-    LAN_GetServerInfo(sharedUiInfo.serverStatus.displayServers[v5], info_1, 0x400ui64);
+    LAN_GetServerInfo(sharedUiInfo.serverStatus.displayServers[v4], info_1, 0x400ui64);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -2594,15 +2315,15 @@ UI_GetBlurRadius
 float UI_GetBlurRadius(LocalClientNum_t localClientNum)
 {
   __int64 v1; 
+  uiInfo_t *v2; 
 
   v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RBX = &uiInfoArray[v1];
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 2282, ASSERT_TYPE_ASSERT, "(uiInfo)", (const char *)&queryFormat, "uiInfo") )
+  v2 = &uiInfoArray[v1];
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 2282, ASSERT_TYPE_ASSERT, "(uiInfo)", (const char *)&queryFormat, "uiInfo") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx+20h] }
-  return *(float *)&_XMM0;
+  return v2->uiDC.blurRadiusOut;
 }
 
 /*
@@ -3162,23 +2883,18 @@ bool UI_GetSubtitlesVisible(LocalClientNum_t localClientNum)
 UI_Init
 ==============
 */
-
-void __fastcall UI_Init(double _XMM0_8, __int64 a2, double _XMM2_8)
+void UI_Init(void)
 {
-  const XUID *v6; 
-  int v10; 
-  bool v11; 
-  __int64 v22; 
-  __int64 v23; 
-  char v27; 
+  const XUID *v0; 
+  int *p_screenHeight; 
+  int v2; 
+  bool v3; 
+  int v4; 
+  float v5; 
+  __int64 v6; 
+  __int64 v7; 
   XUID result; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-    vmovaps [rsp+88h+var_48], xmm8
-  }
   sharedUiInfo.assets.whiteMaterial = Material_RegisterHandle("white", IMAGE_TRACK_UI);
   sharedUiInfo.assets.scrollBar = Material_RegisterHandle("ui_scrollbar", IMAGE_TRACK_UI);
   sharedUiInfo.assets.scrollBarArrowDown = Material_RegisterHandle("ui_scrollbar_arrow_dwn_a", IMAGE_TRACK_UI);
@@ -3186,62 +2902,37 @@ void __fastcall UI_Init(double _XMM0_8, __int64 a2, double _XMM2_8)
   sharedUiInfo.assets.scrollBarArrowLeft = Material_RegisterHandle("ui_scrollbar_arrow_left", IMAGE_TRACK_UI);
   sharedUiInfo.assets.scrollBarArrowRight = Material_RegisterHandle("ui_scrollbar_arrow_right", IMAGE_TRACK_UI);
   UI_RegisterFonts();
-  v6 = XUID::NullXUID(&result);
-  XUID::operator=(&sharedUiInfo.partyMemberXuid, v6);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3faaaaab
-    vmovss  xmm8, cs:__real@3f000000
-  }
-  _RDI = &uiInfoArray[0].uiDC.screenHeight;
-  v10 = 0;
-  v11 = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v0 = XUID::NullXUID(&result);
+  XUID::operator=(&sharedUiInfo.partyMemberXuid, v0);
+  p_screenHeight = &uiInfoArray[0].uiDC.screenHeight;
+  v2 = 0;
+  v3 = 1;
   do
   {
-    if ( !v11 )
+    if ( !v3 )
     {
-      LODWORD(v23) = 2;
-      LODWORD(v22) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v7) = 2;
+      LODWORD(v6) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 273, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v7) )
         __debugbreak();
     }
-    *(_QWORD *)(_RDI - 5) = 0i64;
-    *(_QWORD *)(_RDI - 3) = 0i64;
-    *(_QWORD *)(_RDI - 1) = 0i64;
-    *(_QWORD *)(_RDI + 1) = 0i64;
-    *(_QWORD *)(_RDI + 3) = 0i64;
-    *(_RDI - 6) = v10;
-    CL_GetScreenDimensions(_RDI - 1, _RDI, (float *)_RDI + 1);
-    if ( 480 * *(_RDI - 1) <= 640 * *_RDI )
-    {
-      __asm { vmovaps xmm3, xmm6 }
-    }
+    *(_QWORD *)(p_screenHeight - 5) = 0i64;
+    *(_QWORD *)(p_screenHeight - 3) = 0i64;
+    *(_QWORD *)(p_screenHeight - 1) = 0i64;
+    *(_QWORD *)(p_screenHeight + 1) = 0i64;
+    *(_QWORD *)(p_screenHeight + 3) = 0i64;
+    *(p_screenHeight - 6) = v2;
+    CL_GetScreenDimensions(p_screenHeight - 1, p_screenHeight, (float *)p_screenHeight + 1);
+    v4 = *(p_screenHeight - 1);
+    if ( 480 * v4 <= 640 * *p_screenHeight )
+      v5 = 0.0;
     else
-    {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edx
-        vmulss  xmm1, xmm0, xmm7
-        vcvtsi2ss xmm2, xmm2, r8d
-        vsubss  xmm2, xmm2, xmm1
-        vmulss  xmm3, xmm2, xmm8
-      }
-    }
-    __asm { vmovss  dword ptr [rdi-14h], xmm3 }
-    _RDI += 11;
-    v11 = (unsigned int)++v10 < 2;
+      v5 = (float)((float)v4 - (float)((float)*p_screenHeight * 1.3333334)) * 0.5;
+    *((float *)p_screenHeight - 5) = v5;
+    p_screenHeight += 11;
+    v3 = (unsigned int)++v2 < 2;
   }
-  while ( v10 < 2 );
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  _R11 = &v27;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  while ( v2 < 2 );
 }
 
 /*
@@ -3376,126 +3067,75 @@ void UI_MissingMapError(void)
 UI_OwnerDraw
 ==============
 */
-
-void __fastcall UI_OwnerDraw(LocalClientNum_t localClientNum, double x, double y, double w, float h, int horzAlign, int vertAlign, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int itemAlignment, float special, GfxFont *font, float scale, const vec4_t *color, int textStyle, rectDef_s *parentRect)
+void UI_OwnerDraw(LocalClientNum_t localClientNum, float x, float y, float w, float h, int horzAlign, int vertAlign, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int itemAlignment, float special, GfxFont *font, float scale, const vec4_t *color, int textStyle, rectDef_s *parentRect)
 {
-  __int64 v26; 
-  CgDrawSystem *v33; 
-  CgDrawSystem_vtbl *v35; 
+  __int64 v18; 
+  CgDrawSystem *v19; 
+  __int128 v20; 
+  CgDrawSystem_vtbl *v21; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v40; 
-  __int64 v51; 
-  __int64 v53; 
-  __int128 v57; 
-  int v58; 
+  const ScreenPlacement *v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int128 v26; 
+  int v27; 
   rectDef_s rect; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-  }
-  _R15 = parentRect;
-  v26 = localClientNum;
-  __asm
-  {
-    vmovaps xmm11, xmm3
-    vmovaps xmm10, xmm2
-    vmovaps xmm9, xmm1
-  }
+  v18 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  __asm
+  if ( !clientUIActives[v18].frontEndSceneState[0] && clientUIActives[v18].cgameInitialized )
   {
-    vmovss  xmm6, [rsp+168h+arg_40]
-    vmovss  xmm7, [rsp+168h+arg_38]
-    vmovss  xmm8, [rsp+168h+arg_20]
-  }
-  if ( !clientUIActives[v26].frontEndSceneState[0] && clientUIActives[v26].cgameInitialized )
-  {
-    if ( (unsigned int)v26 >= 2 )
+    if ( (unsigned int)v18 >= 2 )
     {
-      LODWORD(v53) = 2;
-      LODWORD(v51) = v26;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v51, v53) )
+      LODWORD(v25) = 2;
+      LODWORD(v24) = v18;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
-    if ( (int)v26 < cg_t::ms_allocatedCount && CG_GetLocalClientGlobals((const LocalClientNum_t)v26)->nextSnap )
+    if ( (int)v18 < cg_t::ms_allocatedCount && CG_GetLocalClientGlobals((const LocalClientNum_t)v18)->nextSnap )
     {
       if ( !(_BYTE)CgDrawSystem::ms_allocatedType )
       {
-        LODWORD(v53) = v26;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 176, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the draw system for localClientNum %d but the draw system type is not known\n", "ms_allocatedType != GameModeType::NONE", v53) )
+        LODWORD(v25) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 176, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the draw system for localClientNum %d but the draw system type is not known\n", "ms_allocatedType != GameModeType::NONE", v25) )
           __debugbreak();
       }
-      if ( (unsigned int)v26 >= CgDrawSystem::ms_allocatedCount )
+      if ( (unsigned int)v18 >= CgDrawSystem::ms_allocatedCount )
       {
-        LODWORD(v53) = CgDrawSystem::ms_allocatedCount;
-        LODWORD(v51) = v26;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 177, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v51, v53) )
+        LODWORD(v25) = CgDrawSystem::ms_allocatedCount;
+        LODWORD(v24) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 177, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      if ( !CgDrawSystem::ms_drawSystemArray[v26] )
+      if ( !CgDrawSystem::ms_drawSystemArray[v18] )
       {
-        LODWORD(v53) = v26;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 178, ASSERT_TYPE_ASSERT, "(ms_drawSystemArray[localClientNum])", "%s\n\tTrying to access unallocated draw system for localClientNum %d\n", "ms_drawSystemArray[localClientNum]", v53) )
+        LODWORD(v25) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 178, ASSERT_TYPE_ASSERT, "(ms_drawSystemArray[localClientNum])", "%s\n\tTrying to access unallocated draw system for localClientNum %d\n", "ms_drawSystemArray[localClientNum]", v25) )
           __debugbreak();
       }
-      v33 = CgDrawSystem::ms_drawSystemArray[v26];
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v58 = *(_DWORD *)&parentRect->horzAlign;
-      v35 = v33->__vftable;
-      __asm
-      {
-        vmovups [rsp+168h+var_E8], xmm0
-        vmovss  xmm0, [rsp+168h+arg_70]
-        vmovss  [rsp+168h+var_108], xmm0
-        vmovss  [rsp+168h+var_120], xmm6
-        vmovss  [rsp+168h+var_128], xmm7
-        vmovss  dword ptr [rsp+168h+var_140], xmm8
-        vmovaps xmm3, xmm10
-        vmovaps xmm2, xmm9
-        vmovss  dword ptr [rsp+168h+fmt], xmm11
-      }
-      ((void (__fastcall *)(CgDrawSystem *, __int128 *))v35->OwnerDraw)(v33, &v57);
+      v19 = CgDrawSystem::ms_drawSystemArray[v18];
+      v20 = *(_OWORD *)&parentRect->x;
+      v27 = *(_DWORD *)&parentRect->horzAlign;
+      v21 = v19->__vftable;
+      v26 = v20;
+      ((void (__fastcall *)(CgDrawSystem *, __int128 *))v21->OwnerDraw)(v19, &v26);
     }
   }
-  ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v26);
+  ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v18);
   rect.horzAlign = horzAlign;
-  v40 = ActivePlacement;
+  v23 = ActivePlacement;
   rect.vertAlign = vertAlign;
-  __asm
-  {
-    vaddss  xmm0, xmm9, xmm7
-    vaddss  xmm1, xmm10, xmm6
-    vmovss  [rsp+168h+rect.x], xmm0
-    vmovss  [rsp+168h+rect.y], xmm1
-    vmovss  [rsp+168h+rect.w], xmm11
-    vmovss  [rsp+168h+rect.h], xmm8
-  }
+  rect.x = x + text_x;
+  rect.y = y + text_y;
+  rect.w = w;
+  rect.h = h;
   if ( (unsigned __int8)horzAlign != horzAlign && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 874, ASSERT_TYPE_ASSERT, "(rect.horzAlign == horzAlign)", (const char *)&queryFormat, "rect.horzAlign == horzAlign") )
     __debugbreak();
   if ( rect.vertAlign != vertAlign && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui_mp\\ui_main_mp.cpp", 875, ASSERT_TYPE_ASSERT, "(rect.vertAlign == vertAlign)", (const char *)&queryFormat, "rect.vertAlign == vertAlign") )
     __debugbreak();
   if ( ownerDraw == 364 )
-    ProfLoad_DrawOverlay(v40, &rect);
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-  }
+    ProfLoad_DrawOverlay(v23, &rect);
 }
 
 /*
@@ -3503,44 +3143,13 @@ void __fastcall UI_OwnerDraw(LocalClientNum_t localClientNum, double x, double y
 UI_RegisterDvars
 ==============
 */
-
-void __fastcall UI_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void UI_RegisterDvars(void)
 {
-  const dvar_t *v8; 
-  const dvar_t *v19; 
-  const dvar_t *v23; 
-  float flags; 
-  float flagsa; 
-
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3f1020c5; value
-  }
   ui_play_credits = Dvar_RegisterInt("ROQSKRSPL", 0, 0, 2, 0, "Should we play the credits");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v8 = Dvar_RegisterFloat("MNQNRQRKQM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Small font scale");
-  __asm { vmovss  xmm1, cs:__real@3f3020c5; value }
-  ui_smallFont = v8;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  ui_bigFont = Dvar_RegisterFloat("PQSRTPQP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Big font scale");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  ui_extraBigFont = Dvar_RegisterFloat("MSTLNMPLSN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Extra big font scale");
+  ui_smallFont = Dvar_RegisterFloat("MNQNRQRKQM", 0.56300002, 0.0, 1.0, 0, "Small font scale");
+  ui_bigFont = Dvar_RegisterFloat("PQSRTPQP", 0.68800002, 0.0, 1.0, 0, "Big font scale");
+  ui_extraBigFont = Dvar_RegisterFloat("MSTLNMPLSN", 1.0, 0.0, 1.0, 0, "Extra big font scale");
   ui_mapvote_entrya_mapname = Dvar_RegisterString("NSMOLKMMPM", (const char *)&queryFormat.fmt + 3, 0, "Primary map vote entry map name");
   ui_mapvote_entryb_mapname = Dvar_RegisterString("MSQROKTRSN", (const char *)&queryFormat.fmt + 3, 0, "Secondary map vote entry map name");
   ui_mapvote_entryc_mapname = Dvar_RegisterString("ROLQKTOMM", (const char *)&queryFormat.fmt + 3, 0, "Random map vote entry map name");
@@ -3548,42 +3157,15 @@ void __fastcall UI_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   ui_mapvote_entryb_gametype = Dvar_RegisterString("LLQTQTNMTK", (const char *)&queryFormat.fmt + 3, 0, "Secondary map vote entry game type");
   ui_mapvote_entryc_gametype = Dvar_RegisterString("MKPKSTLTTT", (const char *)&queryFormat.fmt + 3, 0, "Random map vote entry game type");
   ui_missingMapName = Dvar_RegisterString("LNKPRSTSOL", (const char *)&queryFormat.fmt + 3, 0, "Name of map to show in missing content error");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@461c4000
-    vmovss  xmm3, cs:__real@c61c4000; min
-    vmovss  xmm2, cs:__real@42340000; y
-    vmovss  xmm1, cs:__real@c2480000; x
-  }
   ui_letterBoxFadeTime = Dvar_RegisterInt("NPPRNLKOMQ", 1000, 0, 100000, 0, "The time for the letter box to fade after slam zoom");
-  __asm { vmovss  [rsp+58h+flags], xmm0 }
-  v19 = Dvar_RegisterVec2("LNRQMSLQT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, 0, "Where to draw the build number");
-  __asm { vmovss  xmm1, cs:__real@3e6b851f; value }
-  ui_buildLocation = v19;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v23 = Dvar_RegisterFloat("MMMPOKRSML", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Font size to use for the build number");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3ecccccd; b
-    vmovss  xmm2, cs:__real@3f4ccccd; g
-  }
-  ui_buildSize = v23;
-  __asm
-  {
-    vmovaps xmm1, xmm6; r
-    vmovss  [rsp+58h+flags], xmm6
-  }
-  ui_myPartyColor = Dvar_RegisterColor("MTSKSOSTML", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, 0, "Player name font color when in the same party as the local player");
+  ui_buildLocation = Dvar_RegisterVec2("LNRQMSLQT", -50.0, 45.0, -10000.0, 10000.0, 0, "Where to draw the build number");
+  ui_buildSize = Dvar_RegisterFloat("MMMPOKRSML", 0.23, 0.0, 1.0, 0, "Font size to use for the build number");
+  ui_myPartyColor = Dvar_RegisterColor("MTSKSOSTML", 1.0, 0.80000001, 0.40000001, 1.0, 0, "Player name font color when in the same party as the local player");
   ui_partyFull = Dvar_RegisterBool("MQRSQKTLON", 0, 0, "True if the current party is full.");
   ui_cinematicsTimestamp = Dvar_RegisterBool("LTPPTQSOKK", 0, 0, "Shows cinematics timestamp on subtitle UI elements.");
   ui_showDLCMaps = Dvar_RegisterBool("LQKPOSTSMP", 0, 0, "Whether to display the DLC maps.");
   ui_editSquadMemberIndex = Dvar_RegisterInt("MLRONRKSOQ", 0, 0, 128, 0, "Which squad member is currently being edited");
   uiscript_verbose = Dvar_RegisterBool("TRMKKRQRT", 0, 0, "Turns on extra ui script debugging console prints");
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
   Dvar_EndPermanentRegistration();
 }
 
@@ -3604,13 +3186,10 @@ char *UI_ReplaceConversionInt(const char *sourceString, int replaceInt)
     vpxor   xmm1, xmm1, xmm1
   }
   *(_QWORD *)&arguments.argCount = 1i64;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+4B8h+arguments.args+8], xmm0
-    vmovdqu xmmword ptr [rsp+4B8h+arguments.args+18h], xmm1
-    vmovdqu xmmword ptr [rsp+4B8h+arguments.args+28h], xmm0
-    vmovdqu xmmword ptr [rsp+4B8h+arguments.args+38h], xmm1
-  }
+  *(_OWORD *)&arguments.args[1] = _XMM0;
+  *(_OWORD *)&arguments.args[3] = _XMM1;
+  *(_OWORD *)&arguments.args[5] = _XMM0;
+  *(_OWORD *)&arguments.args[7] = _XMM1;
   j_sprintf(_Buffer, "%d", (unsigned int)replaceInt);
   arguments.args[0] = _Buffer;
   UI_ReplaceConversions(sourceString, &arguments, outputString, 0x400ui64);
@@ -3771,13 +3350,10 @@ char *UI_ReplaceConversionString(const char *sourceString, const char *replaceSt
   }
   arguments.args[0] = replaceString;
   *(_QWORD *)&arguments.argCount = 1i64;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+488h+arguments.args+8], xmm0
-    vmovdqu xmmword ptr [rsp+488h+arguments.args+18h], xmm1
-    vmovdqu xmmword ptr [rsp+488h+arguments.args+28h], xmm0
-    vmovdqu xmmword ptr [rsp+488h+arguments.args+38h], xmm1
-  }
+  *(_OWORD *)&arguments.args[1] = _XMM0;
+  *(_OWORD *)&arguments.args[3] = _XMM1;
+  *(_OWORD *)&arguments.args[5] = _XMM0;
+  *(_OWORD *)&arguments.args[7] = _XMM1;
   UI_ReplaceConversions(sourceString, &arguments, outputString, 0x400ui64);
   return j_va((const char *)&queryFormat, outputString);
 }
@@ -4234,27 +3810,13 @@ void UI_StartServerRefresh(LocalClientNum_t localClientNum, int full)
 UI_TextHeight
 ==============
 */
-
-int __fastcall UI_TextHeight(GfxFont *font, double scale, __int64 a3, double _XMM3_8)
+__int64 UI_TextHeight(GfxFont *font, float scale)
 {
-  int result; 
-
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = R_NormalizedTextScale(font, *(float *)&scale);
-  __asm { vmovaps xmm6, xmm0 }
+  R_NormalizedTextScale(font, scale);
   R_TextHeight(font);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm6
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vmovaps xmm6, [rsp+38h+var_18]
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si eax, xmm3
-  }
-  return result;
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  return (unsigned int)(int)*(float *)&_XMM3;
 }
 
 /*
@@ -4262,38 +3824,17 @@ int __fastcall UI_TextHeight(GfxFont *font, double scale, __int64 a3, double _XM
 UI_TextWidth
 ==============
 */
-
-int __fastcall UI_TextWidth(const char *text, int maxChars, GfxFont *font, double scale)
+__int64 UI_TextWidth(const char *text, int maxChars, GfxFont *font, float scale)
 {
-  int result; 
+  double v7; 
+  int v8; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm1, xmm3; scale
-  }
-  *(double *)&_XMM0 = R_NormalizedTextScale(font, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, xmm0 }
-  R_TextHeight(font);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm6
-    vcvttss2si r9d, xmm0; textHeight
-  }
-  R_TextWidth(text, maxChars, font, _ER9);
-  __asm
-  {
-    vmovaps xmm6, [rsp+38h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  v7 = R_NormalizedTextScale(font, scale);
+  v8 = R_TextHeight(font);
+  R_TextWidth(text, maxChars, font, (int)(float)((float)v8 * *(float *)&v7));
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -4301,60 +3842,38 @@ int __fastcall UI_TextWidth(const char *text, int maxChars, GfxFont *font, doubl
 UI_TruncateEscapeCharacterTextWithEllipsis
 ==============
 */
-
-const char *__fastcall UI_TruncateEscapeCharacterTextWithEllipsis(const char *sourceString, GfxFont *font, double fontScale, int maxScreenWidth)
+const char *UI_TruncateEscapeCharacterTextWithEllipsis(const char *sourceString, GfxFont *font, float fontScale, int maxScreenWidth)
 {
-  char *v10; 
+  char *v7; 
+  char *v8; 
+  const char *v9; 
+  const char *v10; 
   char *v11; 
   const char *v12; 
-  const char *v14; 
-  char *v15; 
-  const char *v17; 
-  const char *result; 
-  char v20[1024]; 
+  char v14[1024]; 
   char dest[1024]; 
 
-  __asm
+  if ( !sourceString || !*sourceString || UI_TextWidth(sourceString, 0, font, fontScale) <= maxScreenWidth )
+    return sourceString;
+  Core_strcpy(dest, 0x400ui64, sourceString);
+  v7 = dest;
+  v8 = strchr_0(dest, 10);
+  for ( v14[0] = 0; v8; v8 = strchr_0(v9, 10) )
   {
-    vmovaps [rsp+868h+var_38], xmm6
-    vmovaps xmm6, xmm2
+    v9 = v8 + 1;
+    if ( !v8[1] )
+      break;
+    *v8 = 0;
+    v10 = UI_TruncateTextWithEllipsis(v7, font, fontScale, maxScreenWidth);
+    v11 = strrchr_0(v7, 94);
+    if ( v11 )
+      v10 = j_va("%s%c%c", v10, 94i64, (unsigned int)v11[1]);
+    I_strcat(v14, 0x400ui64, v10);
+    I_strcat(v14, 0x400ui64, "\n");
+    v7 = (char *)v9;
   }
-  if ( !sourceString )
-    goto LABEL_10;
-  if ( !*sourceString )
-    goto LABEL_10;
-  __asm { vmovaps xmm3, xmm2; scale }
-  if ( UI_TextWidth(sourceString, 0, font, *(float *)&_XMM3) > maxScreenWidth )
-  {
-    Core_strcpy(dest, 0x400ui64, sourceString);
-    v10 = dest;
-    v11 = strchr_0(dest, 10);
-    for ( v20[0] = 0; v11; v11 = strchr_0(v12, 10) )
-    {
-      v12 = v11 + 1;
-      if ( !v11[1] )
-        break;
-      *v11 = 0;
-      __asm { vmovaps xmm2, xmm6; fontScale }
-      v14 = UI_TruncateTextWithEllipsis(v10, font, *(float *)&_XMM2, maxScreenWidth);
-      v15 = strrchr_0(v10, 94);
-      if ( v15 )
-        v14 = j_va("%s%c%c", v14, 94i64, (unsigned int)v15[1]);
-      I_strcat(v20, 0x400ui64, v14);
-      I_strcat(v20, 0x400ui64, "\n");
-      v10 = (char *)v12;
-    }
-    __asm { vmovaps xmm2, xmm6; fontScale }
-    v17 = UI_TruncateTextWithEllipsis(v10, font, *(float *)&_XMM2, maxScreenWidth);
-    result = j_va("%s%s", v20, v17);
-  }
-  else
-  {
-LABEL_10:
-    result = sourceString;
-  }
-  __asm { vmovaps xmm6, [rsp+868h+var_38] }
-  return result;
+  v12 = UI_TruncateTextWithEllipsis(v7, font, fontScale, maxScreenWidth);
+  return j_va("%s%s", v14, v12);
 }
 
 /*
@@ -4362,95 +3881,67 @@ LABEL_10:
 UI_TruncateTextWithEllipsis
 ==============
 */
-
-const char *__fastcall UI_TruncateTextWithEllipsis(const char *sourceString, GfxFont *font, double fontScale, int maxScreenWidth)
+const char *UI_TruncateTextWithEllipsis(const char *sourceString, GfxFont *font, float fontScale, int maxScreenWidth)
 {
-  unsigned __int64 v12; 
+  int v7; 
+  unsigned __int64 v8; 
   const char *String; 
+  const char *v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  const char *v14; 
   const char *v15; 
-  int v25; 
-  int v26; 
-  const char *v27; 
-  const char *v29; 
-  int v30; 
-  int v31; 
-  const char *v32; 
-  const char *result; 
-  int v37; 
+  int v16; 
+  int v17; 
+  const char *v18; 
+  int v20; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_38], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !sourceString )
-    goto LABEL_23;
-  if ( !*sourceString )
-    goto LABEL_23;
-  __asm { vmovaps xmm3, xmm2; scale }
-  if ( UI_TextWidth(sourceString, 0, font, *(float *)&_XMM3) > maxScreenWidth )
-  {
-    v12 = -1i64;
-    do
-      ++v12;
-    while ( sourceString[v12] );
-    v37 = truncate_cast<int,unsigned __int64>(v12);
-    String = SEH_StringEd_GetString("MENU/ELLIPSIS");
-    __asm { vmovaps xmm3, xmm6; scale }
-    v15 = UI_CheckStringTranslation("MENU/ELLIPSIS", String);
-    UI_TextWidth(v15, 0, font, *(float *)&_XMM3);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vdivss  xmm2, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, esi
-      vmulss  xmm2, xmm2, xmm1
-      vcvttss2si ebp, xmm2
-    }
-    if ( v37 < _EBP )
-      _EBP = v37;
-    if ( _EBP < 0 )
-      _EBP = 0;
-    v25 = _EBP;
-    do
-    {
-      v26 = _EBP;
-      _EBP = v25;
-      v27 = j_va((const char *)&queryFormat, sourceString);
-      v27[v25] = 0;
-      __asm { vmovaps xmm3, xmm6; scale }
-      v29 = j_va("%s%s", v27, v15);
-      v30 = UI_TextWidth(v29, 0, font, *(float *)&_XMM3);
-      v31 = -1;
-      if ( v30 <= maxScreenWidth )
-        v31 = 1;
-      v25 += v31;
-      if ( v37 < v25 )
-        v25 = v37;
-      if ( v25 < 0 )
-        v25 = 0;
-      if ( v25 == _EBP || v25 == v26 )
-      {
-        v32 = j_va((const char *)&queryFormat, sourceString);
-        v32[v25] = 0;
-        v29 = j_va("%s%s", v32, v15);
-      }
-    }
-    while ( v25 != _EBP && v25 != v26 );
-    result = v29;
-    __asm { vmovaps xmm6, [rsp+58h+var_38] }
-  }
-  else
-  {
-LABEL_23:
-    __asm { vmovaps xmm6, [rsp+58h+var_38] }
     return sourceString;
+  if ( !*sourceString )
+    return sourceString;
+  v7 = UI_TextWidth(sourceString, 0, font, fontScale);
+  if ( v7 <= maxScreenWidth )
+    return sourceString;
+  v8 = -1i64;
+  do
+    ++v8;
+  while ( sourceString[v8] );
+  v20 = truncate_cast<int,unsigned __int64>(v8);
+  String = SEH_StringEd_GetString("MENU/ELLIPSIS");
+  v10 = UI_CheckStringTranslation("MENU/ELLIPSIS", String);
+  v11 = (int)(float)((float)((float)(maxScreenWidth - UI_TextWidth(v10, 0, font, fontScale)) / (float)v7) * (float)v20);
+  if ( v20 < v11 )
+    v11 = v20;
+  if ( v11 < 0 )
+    v11 = 0;
+  v12 = v11;
+  do
+  {
+    v13 = v11;
+    v11 = v12;
+    v14 = j_va((const char *)&queryFormat, sourceString);
+    v14[v12] = 0;
+    v15 = j_va("%s%s", v14, v10);
+    v16 = UI_TextWidth(v15, 0, font, fontScale);
+    v17 = -1;
+    if ( v16 <= maxScreenWidth )
+      v17 = 1;
+    v12 += v17;
+    if ( v20 < v12 )
+      v12 = v20;
+    if ( v12 < 0 )
+      v12 = 0;
+    if ( v12 == v11 || v12 == v13 )
+    {
+      v18 = j_va((const char *)&queryFormat, sourceString);
+      v18[v12] = 0;
+      v15 = j_va("%s%s", v18, v10);
+    }
   }
-  return result;
+  while ( v12 != v11 && v12 != v13 );
+  return v15;
 }
 
 /*

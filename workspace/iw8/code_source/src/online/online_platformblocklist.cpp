@@ -323,11 +323,8 @@ void PlatformBlocklist::FetchXUIDs(PlatformBlocklist *this, const int controller
   request.m_appTaskType = -1;
   request.m_appData = this;
   request.m_appSecondaryCallback = NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+request.m_asyncInfo], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&request.m_asyncInfo = _XMM0;
   request.m_onCompletionCallback = PlatformBlocklist::FetchXUIDsComplete;
   request.m_onUpdateCallback = NULL;
   request.m_cancelTaskOnSignoutEvent = 1;

@@ -520,21 +520,20 @@ __int64 bdCommonAddr::deserialize(bdCommonAddr *this, bdReference<bdCommonAddr> 
   char v6; 
   __int64 v7; 
   __int64 m_size; 
-  __int64 v16; 
-  unsigned int v17; 
-  unsigned int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned __int8 v21; 
+  __int64 v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  unsigned __int8 v14; 
   unsigned int offset; 
-  char v24; 
-  bdPlatformID v25; 
-  __int64 v26; 
+  char v17; 
+  bdPlatformID v18; 
+  __int64 v19; 
   bdCommonAddr *m_ptr; 
-  bdAddr v28; 
+  bdAddr v21; 
 
-  v26 = -2i64;
-  _RDI = this;
+  v19 = -2i64;
   m_ptr = me.m_ptr;
   offset = 0;
   v6 = 1;
@@ -542,33 +541,18 @@ __int64 bdCommonAddr::deserialize(bdCommonAddr *this, bdReference<bdCommonAddr> 
   v7 = 5i64;
   do
   {
-    bdAddr::bdAddr(&v28);
-    if ( v6 && bdAddr::deserialize(&v28, buffer, 0x54u, offset, &offset) )
+    bdAddr::bdAddr(&v21);
+    if ( v6 && bdAddr::deserialize(&v21, buffer, 0x54u, offset, &offset) )
     {
       v6 = 1;
-      if ( bdSockAddr::isValid(&v28.m_address) )
+      if ( bdSockAddr::isValid(&v21.m_address) )
       {
-        bdHandleAssert(_RDI->m_localAddrs.m_size < 5, "(m_size < MAX_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfixedarray.inl", "bdFixedArray<class bdAddr,5>::pushBack", 0xBEu, "Cannot add, too many elements");
-        m_size = _RDI->m_localAddrs.m_size;
+        bdHandleAssert(this->m_localAddrs.m_size < 5, "(m_size < MAX_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfixedarray.inl", "bdFixedArray<class bdAddr,5>::pushBack", 0xBEu, "Cannot add, too many elements");
+        m_size = this->m_localAddrs.m_size;
         if ( (unsigned int)m_size < 5 )
         {
-          _RCX = 152 * m_size;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rsp+140h+var_E0.m_address.inUn]
-            vmovups ymmword ptr [rcx+rdi+10h], ymm0
-            vmovups ymm1, ymmword ptr [rbp+40h+var_E0.m_address.inUn+20h]
-            vmovups ymmword ptr [rcx+rdi+30h], ymm1
-            vmovups ymm0, ymmword ptr [rbp+40h+var_E0.m_address.inUn+40h]
-            vmovups ymmword ptr [rcx+rdi+50h], ymm0
-            vmovups ymm1, ymmword ptr [rbp+40h+var_E0.m_address.inUn+60h]
-            vmovups ymmword ptr [rcx+rdi+70h], ymm1
-            vmovups xmm0, xmmword ptr [rbp+40h+var_E0.m_relayRoute.m_relayID]
-            vmovups xmmword ptr [rcx+rdi+90h], xmm0
-            vmovsd  xmm1, qword ptr [rbp+40h+var_E0.m_type]
-            vmovsd  qword ptr [rcx+rdi+0A0h], xmm1
-          }
-          ++_RDI->m_localAddrs.m_size;
+          this->m_localAddrs.m_array[m_size] = v21;
+          ++this->m_localAddrs.m_size;
         }
       }
     }
@@ -579,53 +563,53 @@ __int64 bdCommonAddr::deserialize(bdCommonAddr *this, bdReference<bdCommonAddr> 
     --v7;
   }
   while ( v7 );
-  if ( !v6 || !bdAddr::deserialize(&_RDI->m_publicAddr, buffer, 0x54u, offset, &offset) )
+  if ( !v6 || !bdAddr::deserialize(&this->m_publicAddr, buffer, 0x54u, offset, &offset) )
     goto LABEL_28;
-  v16 = offset;
-  v17 = offset + 1;
-  v18 = ++offset;
+  v9 = offset;
+  v10 = offset + 1;
+  v11 = ++offset;
   if ( buffer )
   {
-    if ( v17 > 0x54 )
+    if ( v10 > 0x54 )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 1i64);
-      v18 = offset;
+      v11 = offset;
     }
     else
     {
-      LOBYTE(v7) = buffer[v16];
-      v24 = v7;
+      LOBYTE(v7) = buffer[v9];
+      v17 = v7;
     }
   }
-  if ( v17 > 0x54 && buffer )
+  if ( v10 > 0x54 && buffer )
     goto LABEL_28;
-  v19 = v18 + 4;
-  v20 = v18 + 4;
-  offset = v18 + 4;
+  v12 = v11 + 4;
+  v13 = v11 + 4;
+  offset = v11 + 4;
   if ( buffer )
   {
-    if ( v19 > 0x54 )
+    if ( v12 > 0x54 )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 4i64);
-      v20 = offset;
+      v13 = offset;
     }
     else
     {
-      v25 = *(_DWORD *)&buffer[v18];
-      _RDI->m_platformID = v25;
+      v18 = *(_DWORD *)&buffer[v11];
+      this->m_platformID = v18;
     }
   }
-  if ( (v19 <= 0x54 || !buffer) && bdRelayJoinData::deserialize(&_RDI->m_joinData, buffer, 0x54u, v20, &offset) )
+  if ( (v12 <= 0x54 || !buffer) && bdRelayJoinData::deserialize(&this->m_joinData, buffer, 0x54u, v13, &offset) )
   {
-    v21 = 1;
-    _RDI->m_natType = (char)v7;
-    bdCommonAddr::calculateHash(_RDI);
-    _RDI->m_isLoopback = me.m_ptr->__vftable && bdCommonAddr::hasSameAddr((bdCommonAddr *)me.m_ptr->__vftable, _RDI);
+    v14 = 1;
+    this->m_natType = (char)v7;
+    bdCommonAddr::calculateHash(this);
+    this->m_isLoopback = me.m_ptr->__vftable && bdCommonAddr::hasSameAddr((bdCommonAddr *)me.m_ptr->__vftable, this);
   }
   else
   {
 LABEL_28:
-    v21 = 0;
+    v14 = 0;
   }
   if ( me.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&me.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
   {
@@ -633,7 +617,7 @@ LABEL_28:
       (*(void (__fastcall **)(bdCommonAddr_vtbl *, __int64))me.m_ptr->~bdReferencable)(me.m_ptr->__vftable, 1i64);
     me.m_ptr->__vftable = NULL;
   }
-  return v21;
+  return v14;
 }
 
 /*

@@ -684,105 +684,77 @@ void Load_DeriveMaterialPipelineState(MaterialPipelineState *pipelineState, cons
   ID3D12PipelineState **p_derivedPso; 
   GfxOtherStateBits otherBits; 
   GfxBlendStateBits blendBits; 
-  __int64 v14; 
-  __int64 v35; 
-  __int64 v53; 
-  HRESULT v54; 
-  const char *v55; 
-  __int64 v56; 
-  _BYTE v57[48]; 
+  __int64 v13; 
+  float v14; 
+  D3D12_BLEND_DESC *v15; 
+  char *v16; 
+  __int64 v17; 
+  __int128 v18; 
+  __int64 v19; 
+  HRESULT v20; 
+  const char *v21; 
+  __int64 v22; 
+  __m256i v23; 
+  __m256i v24; 
+  __int128 v25; 
   D3D12_BLEND_DESC result; 
-  int v59; 
+  int v27; 
   D3D12XBOX_GRAPHICS_SHADER_LIMITS_DESC shaderLimitsDesc; 
-  int v61; 
+  int v29; 
   D3D12XBOX_TESSELLATION_PARAMETERS_DESC shaderTessFactorsDesc; 
-  int v63; 
-  __m256i v64; 
-  int v66; 
-  int v67; 
-  char v68; 
-  int v69; 
-  D3D12_COMPARISON_FUNC v72; 
-  int v73; 
-  int v76; 
-  __m256i v77; 
+  int v31; 
+  __m256i v32; 
+  double v33; 
+  int v34; 
+  int v35; 
+  char v36; 
+  int v37; 
+  __m256i v38; 
+  __int128 v39; 
+  D3D12_COMPARISON_FUNC v40; 
+  int v41; 
+  __int128 v42; 
+  __int64 v43; 
+  int v44; 
+  __m256i v45; 
 
   p_derivedPso = &pipelineState->derivedPso;
   if ( pipelineState->derivedPso && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 2801, ASSERT_TYPE_ASSERT, "(pipelineState->derivedPso == nullptr)", (const char *)&queryFormat, "pipelineState->derivedPso == nullptr") )
     __debugbreak();
-  v59 = 6;
+  v27 = 6;
   Material_SetupPassLimits(&shaderLimitsDesc, materialType, techniqueType);
-  v61 = 7;
+  v29 = 7;
   Material_SetupTessParams(&shaderTessFactorsDesc, materialType);
   otherBits = stateBits->otherBits;
   blendBits = stateBits->blendBits;
-  v63 = 1;
-  *(_DWORD *)v57 = ((otherBits & 4) == 0) | 2;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+0B20h+var_AE0+4], ymm0
-  }
+  v31 = 1;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   if ( ((unsigned __int8)otherBits & 3u) >= 3 )
   {
-    LODWORD(v56) = otherBits & 3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 741, ASSERT_TYPE_ASSERT, "(unsigned)( stateBits & GFXS_CULL_MASK ) < (unsigned)( ( sizeof( *array_counter( s_cullTable ) ) + 0 ) )", "stateBits & GFXS_CULL_MASK doesn't index ARRAY_COUNT( s_cullTable )\n\t%i not in [0, %i)", v56, 3) )
+    LODWORD(v22) = otherBits & 3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 741, ASSERT_TYPE_ASSERT, "(unsigned)( stateBits & GFXS_CULL_MASK ) < (unsigned)( ( sizeof( *array_counter( s_cullTable ) ) + 0 ) )", "stateBits & GFXS_CULL_MASK doesn't index ARRAY_COUNT( s_cullTable )\n\t%i not in [0, %i)", v22, 3) )
       __debugbreak();
   }
-  *(_DWORD *)&v57[8] = 0;
-  *(D3D12_CULL_MODE *)&v57[4] = s_cullTable[otherBits & 3];
-  v14 = otherBits & 0x30;
+  *(__int64 *)((char *)v23.m256i_i64 + 4) = (unsigned int)s_cullTable[otherBits & 3];
+  v13 = otherBits & 0x30;
   if ( (otherBits & 0x30) != 0 )
   {
-    switch ( v14 )
+    switch ( v13 )
     {
       case 16i64:
-        _RAX = r_polygonOffsetScale;
-        *(_DWORD *)&v57[12] = -r_polygonOffsetBias->current.integer;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+28h]
-          vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-        }
-        _RAX = r_polygonOffsetClamp;
-        __asm
-        {
-          vmovss  dword ptr [rsp+0B20h+var_AE0+14h], xmm0
-          vmovss  xmm1, dword ptr [rax+28h]
-          vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-        }
+        v23.m256i_i32[3] = -r_polygonOffsetBias->current.integer;
+        v23.m256i_i32[5] = r_polygonOffsetScale->current.integer ^ _xmm;
+        LODWORD(v14) = r_polygonOffsetClamp->current.integer ^ _xmm;
         break;
       case 32i64:
-        _RAX = sm_polygonOffsetScale;
-        *(_DWORD *)&v57[12] = -sm_polygonOffsetBias->current.integer;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+28h]
-          vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-        }
-        _RAX = sm_polygonOffsetClamp;
-        __asm
-        {
-          vmovss  dword ptr [rsp+0B20h+var_AE0+14h], xmm0
-          vmovss  xmm1, dword ptr [rax+28h]
-          vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-        }
+        v23.m256i_i32[3] = -sm_polygonOffsetBias->current.integer;
+        v23.m256i_i32[5] = sm_polygonOffsetScale->current.integer ^ _xmm;
+        LODWORD(v14) = sm_polygonOffsetClamp->current.integer ^ _xmm;
         break;
       case 48i64:
-        _RAX = r_st_sm_polygonOffsetScale;
-        *(_DWORD *)&v57[12] = -r_st_sm_polygonOffsetBias->current.integer;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+28h]
-          vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-        }
-        _RAX = r_st_sm_polygonOffsetClamp;
-        __asm
-        {
-          vmovss  dword ptr [rsp+0B20h+var_AE0+14h], xmm0
-          vmovss  xmm1, dword ptr [rax+28h]
-          vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-        }
+        v23.m256i_i32[3] = -r_st_sm_polygonOffsetBias->current.integer;
+        v23.m256i_i32[5] = r_st_sm_polygonOffsetScale->current.integer ^ _xmm;
+        LODWORD(v14) = r_st_sm_polygonOffsetClamp->current.integer ^ _xmm;
         break;
       default:
         CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 729, ASSERT_TYPE_ASSERT, "(( 0, ( 0 ) ))", (const char *)&queryFormat, "C4127_DISABLE( 0 )");
@@ -791,136 +763,95 @@ void Load_DeriveMaterialPipelineState(MaterialPipelineState *pipelineState, cons
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0B20h+var_AE0+14h], xmm0
-    }
-    *(_DWORD *)&v57[12] = 0;
+    v14 = 0.0;
+    *(float *)&v23.m256i_i32[5] = 0.0;
+    v23.m256i_i32[3] = 0;
   }
-  __asm { vmovss  dword ptr [rsp+0B20h+var_AE0+10h], xmm0 }
-  *(_QWORD *)&v57[32] = 0i64;
-  __asm { vmovsd  xmm1, qword ptr [rsp+0B20h+var_AC0] }
-  v67 = 2;
-  *(_QWORD *)&v57[24] = (otherBits & 8) == 0;
-  __asm
-  {
-    vmovups ymm0, [rsp+0B20h+var_AE0]
-    vmovups [rbp+0A20h+var_6C4], ymm0
-    vmovsd  [rbp+0A20h+var_6A4], xmm1
-  }
-  v66 = 0;
-  _RAX = R_HW_CreateBlendStateDesc(&result, blendBits);
-  _RCX = &v68;
-  v35 = 2i64;
+  *(float *)&v23.m256i_i32[4] = v14;
+  v35 = 2;
+  v23.m256i_i64[3] = (otherBits & 8) == 0;
+  v23.m256i_i32[0] = ((otherBits & 4) == 0) | 2;
+  v32 = v23;
+  v33 = 0.0;
+  v34 = 0;
+  v15 = R_HW_CreateBlendStateDesc(&result, blendBits);
+  v16 = &v36;
+  v17 = 2i64;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (D3D12_BLEND_DESC *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v35;
+    v16 += 128;
+    v18 = *(_OWORD *)&v15->AlphaToCoverageEnable;
+    v15 = (D3D12_BLEND_DESC *)((char *)v15 + 128);
+    *((_OWORD *)v16 - 8) = v18;
+    *((_OWORD *)v16 - 7) = *(_OWORD *)&v15[-1].RenderTarget[5].SrcBlend;
+    *((_OWORD *)v16 - 6) = *(_OWORD *)&v15[-1].RenderTarget[5].DestBlendAlpha;
+    *((_OWORD *)v16 - 5) = *(_OWORD *)&v15[-1].RenderTarget[6].BlendEnable;
+    *((_OWORD *)v16 - 4) = *(_OWORD *)&v15[-1].RenderTarget[6].BlendOp;
+    *((_OWORD *)v16 - 3) = *(_OWORD *)&v15[-1].RenderTarget[6].LogicOp;
+    *((_OWORD *)v16 - 2) = *(_OWORD *)&v15[-1].RenderTarget[7].SrcBlend;
+    *((_OWORD *)v16 - 1) = *(_OWORD *)&v15[-1].RenderTarget[7].DestBlendAlpha;
+    --v17;
   }
-  while ( v35 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-  }
-  *((_QWORD *)_RCX + 8) = *(_QWORD *)&_RAX->RenderTarget[1].BlendOp;
-  *(_DWORD *)&v57[4] = ((unsigned __int64)otherBits >> 9) & 1;
-  *(_WORD *)&v57[18] = 0;
-  v57[16] = BYTE6(otherBits);
-  *(_DWORD *)v57 = (otherBits & 0xE00) != 0;
-  v57[17] = HIBYTE(otherBits);
-  v69 = 0;
-  v73 = 5;
-  *(D3D12_COMPARISON_FUNC *)&v57[8] = s_depthTestTable[((unsigned __int64)otherBits >> 10) & 3];
-  *(_DWORD *)&v57[12] = (otherBits & 0xFFFFFF000i64) != 0;
-  *(D3D12_STENCIL_OP *)&v57[28] = s_stencilOpTable[((unsigned __int64)otherBits >> 12) & 7];
-  *(D3D12_STENCIL_OP *)&v57[20] = s_stencilOpTable[((unsigned __int64)otherBits >> 15) & 7];
-  *(D3D12_STENCIL_OP *)&v57[24] = s_stencilOpTable[((unsigned __int64)otherBits >> 18) & 7];
-  __asm
-  {
-    vmovups ymm0, [rsp+0B20h+var_AE0]
-    vmovups [rbp+0A20h+var_42C], ymm0
-  }
-  *(D3D12_STENCIL_OP *)&v57[44] = s_stencilOpTable[((unsigned __int64)otherBits >> 24) & 7];
-  *(D3D12_STENCIL_OP *)&v57[36] = s_stencilOpTable[((unsigned __int64)otherBits >> 27) & 7];
-  *(D3D12_STENCIL_OP *)&v57[40] = s_stencilOpTable[((unsigned __int64)otherBits >> 30) & 7];
-  *(D3D12_COMPARISON_FUNC *)&v57[32] = s_stencilFuncTable[((unsigned __int64)otherBits >> 21) & 7];
-  __asm
-  {
-    vmovups xmm1, [rsp+0B20h+var_AC0]
-    vmovups [rbp+0A20h+var_40C], xmm1
-  }
-  v72 = s_stencilFuncTable[((unsigned __int64)otherBits >> 33) & 7];
-  *(_OWORD *)v57 = 0ui64;
-  __asm { vmovups xmm0, xmmword ptr [rsp+0B20h+var_AE0] }
-  v57[16] = BYTE6(otherBits);
-  v57[17] = HIBYTE(otherBits);
-  *(_DWORD *)&v57[18] = 16842752;
-  __asm { vmovsd  xmm1, qword ptr [rsp+0B20h+var_AE0+10h] }
-  memset(v57, 0, 32);
-  v76 = 4;
-  __asm
-  {
-    vmovups [rbp+0A20h+var_2E0], xmm0
-    vmovups ymm0, [rsp+0B20h+var_AE0]
-    vmovups [rbp+0A20h+var_194], ymm0
-    vmovsd  [rbp+0A20h+var_2D0], xmm1
-  }
-  v53 = otherBits & 0x180;
+  while ( v17 );
+  *(_OWORD *)v16 = *(_OWORD *)&v15->AlphaToCoverageEnable;
+  *((_OWORD *)v16 + 1) = *(_OWORD *)&v15->RenderTarget[0].SrcBlend;
+  *((_OWORD *)v16 + 2) = *(_OWORD *)&v15->RenderTarget[0].DestBlendAlpha;
+  *((_OWORD *)v16 + 3) = *(_OWORD *)&v15->RenderTarget[1].BlendEnable;
+  *((_QWORD *)v16 + 8) = *(_QWORD *)&v15->RenderTarget[1].BlendOp;
+  v24.m256i_i32[1] = ((unsigned __int64)otherBits >> 9) & 1;
+  v24.m256i_i16[9] = 0;
+  v24.m256i_i8[16] = BYTE6(otherBits);
+  v24.m256i_i32[0] = (otherBits & 0xE00) != 0;
+  v24.m256i_i8[17] = HIBYTE(otherBits);
+  v37 = 0;
+  v41 = 5;
+  v24.m256i_i32[2] = s_depthTestTable[((unsigned __int64)otherBits >> 10) & 3];
+  v24.m256i_i32[3] = (otherBits & 0xFFFFFF000i64) != 0;
+  v24.m256i_i32[7] = s_stencilOpTable[((unsigned __int64)otherBits >> 12) & 7];
+  v24.m256i_i32[5] = s_stencilOpTable[((unsigned __int64)otherBits >> 15) & 7];
+  v24.m256i_i32[6] = s_stencilOpTable[((unsigned __int64)otherBits >> 18) & 7];
+  v38 = v24;
+  SHIDWORD(v25) = s_stencilOpTable[((unsigned __int64)otherBits >> 24) & 7];
+  SDWORD1(v25) = s_stencilOpTable[((unsigned __int64)otherBits >> 27) & 7];
+  SDWORD2(v25) = s_stencilOpTable[((unsigned __int64)otherBits >> 30) & 7];
+  SLODWORD(v25) = s_stencilFuncTable[((unsigned __int64)otherBits >> 21) & 7];
+  v39 = v25;
+  v40 = s_stencilFuncTable[((unsigned __int64)otherBits >> 33) & 7];
+  v24.m256i_i8[16] = BYTE6(otherBits);
+  v24.m256i_i8[17] = HIBYTE(otherBits);
+  *(int *)((char *)&v24.m256i_i32[4] + 2) = 16842752;
+  v44 = 4;
+  v42 = 0u;
+  v45 = (__m256i)0;
+  v43 = v24.m256i_i64[2];
+  v19 = otherBits & 0x180;
   if ( (otherBits & 0x180) == 0 )
   {
-    v64.m256i_i32[7] = 0;
+    v32.m256i_i32[7] = 0;
     goto LABEL_26;
   }
-  if ( v53 == 128 )
+  if ( v19 == 128 )
   {
-    v77.m256i_i32[0] = 1;
-    v64.m256i_i32[7] = 1;
+    v45.m256i_i32[0] = 1;
+    v32.m256i_i32[7] = 1;
     goto LABEL_27;
   }
-  if ( v53 == 256 )
+  if ( v19 == 256 )
   {
-    v64.m256i_i32[7] = 1;
+    v32.m256i_i32[7] = 1;
 LABEL_26:
-    v77.m256i_i32[0] = 2;
+    v45.m256i_i32[0] = 2;
     goto LABEL_27;
   }
-  LODWORD(v56) = otherBits & 0x180;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 2850, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp(2850): unhandled case %d in switch statement", v56) )
+  LODWORD(v22) = otherBits & 0x180;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 2850, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp(2850): unhandled case %d in switch statement", v22) )
     __debugbreak();
 LABEL_27:
-  v54 = ((__int64 (__fastcall *)(ID3D12Device *, ID3D12PipelineState *, __int64, int *, GUID *, ID3D12PipelineState **))g_dx.d3d12device->m_pFunction[18].AddRef)(g_dx.d3d12device, pipelineState->pso, 7i64, &v59, &GUID_765a30f3_f624_4c6f_a828_ace948622445, p_derivedPso);
-  if ( v54 < 0 )
+  v20 = ((__int64 (__fastcall *)(ID3D12Device *, ID3D12PipelineState *, __int64, int *, GUID *, ID3D12PipelineState **))g_dx.d3d12device->m_pFunction[18].AddRef)(g_dx.d3d12device, pipelineState->pso, 7i64, &v27, &GUID_765a30f3_f624_4c6f_a828_ace948622445, p_derivedPso);
+  if ( v20 < 0 )
   {
-    v55 = R_ErrorDescription(v54);
-    Sys_Error((const ObfuscateErrorText)&stru_1444150F0, 2854i64, v55);
+    v21 = R_ErrorDescription(v20);
+    Sys_Error((const ObfuscateErrorText)&stru_1444150F0, 2854i64, v21);
   }
   R_GetTrackingZoneName();
 }
@@ -959,11 +890,11 @@ void Load_MaterialConstantBufferTable(MaterialConstantBufferDef **__formal, Mate
   unsigned __int8 *dsData; 
   unsigned int psDataSize; 
   unsigned __int8 *psData; 
-  __int128 v20; 
-  __int128 v21; 
-  __int128 v22; 
-  __int128 v23; 
-  GfxBufferCreationContext v24[2]; 
+  GfxBufferCreationContext v16; 
+  GfxBufferCreationContext v17; 
+  GfxBufferCreationContext v18; 
+  GfxBufferCreationContext v19; 
+  GfxBufferCreationContext v20[2]; 
 
   name = material->name;
   v4 = 0;
@@ -978,53 +909,37 @@ void Load_MaterialConstantBufferTable(MaterialConstantBufferDef **__formal, Mate
       if ( vsDataSize )
       {
         vsData = constantBufferTable[v6].vsData;
-        *(_QWORD *)&v20 = TrackingZoneName;
-        *((_QWORD *)&v20 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_68]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(vsData, vsDataSize, &constantBufferTable[v6].vsConstantBuffer, v24);
+        v16.zoneName = TrackingZoneName;
+        v16.objectName = name;
+        v20[0] = v16;
+        Material_CreateConstantBuffer(vsData, vsDataSize, &constantBufferTable[v6].vsConstantBuffer, v20);
       }
       hsDataSize = constantBufferTable[v6].hsDataSize;
       if ( hsDataSize )
       {
         hsData = constantBufferTable[v6].hsData;
-        *(_QWORD *)&v21 = TrackingZoneName;
-        *((_QWORD *)&v21 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_58]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(hsData, hsDataSize, &constantBufferTable[v6].hsConstantBuffer, v24);
+        v17.zoneName = TrackingZoneName;
+        v17.objectName = name;
+        v20[0] = v17;
+        Material_CreateConstantBuffer(hsData, hsDataSize, &constantBufferTable[v6].hsConstantBuffer, v20);
       }
       dsDataSize = constantBufferTable[v6].dsDataSize;
       if ( dsDataSize )
       {
         dsData = constantBufferTable[v6].dsData;
-        *(_QWORD *)&v22 = TrackingZoneName;
-        *((_QWORD *)&v22 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_48]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(dsData, dsDataSize, &constantBufferTable[v6].dsConstantBuffer, v24);
+        v18.zoneName = TrackingZoneName;
+        v18.objectName = name;
+        v20[0] = v18;
+        Material_CreateConstantBuffer(dsData, dsDataSize, &constantBufferTable[v6].dsConstantBuffer, v20);
       }
       psDataSize = constantBufferTable[v6].psDataSize;
       if ( psDataSize )
       {
         psData = constantBufferTable[v6].psData;
-        *(_QWORD *)&v23 = TrackingZoneName;
-        *((_QWORD *)&v23 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_38]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(psData, psDataSize, &constantBufferTable[v6].psConstantBuffer, v24);
+        v19.zoneName = TrackingZoneName;
+        v19.objectName = name;
+        v20[0] = v19;
+        Material_CreateConstantBuffer(psData, psDataSize, &constantBufferTable[v6].psConstantBuffer, v20);
       }
       ++v4;
       ++v6;
@@ -1050,6 +965,7 @@ Material_CreateComputePipelineState
 */
 void Material_CreateComputePipelineState(ComputeShader *computeShader)
 {
+  __m256i v2; 
   HRESULT v5; 
   const char *v6; 
   ID3D12DeviceChild *v7; 
@@ -1060,6 +976,7 @@ void Material_CreateComputePipelineState(ComputeShader *computeShader)
   __int64 v12[3]; 
   int v13; 
   __int64 v14[3]; 
+  __m256i v15; 
   ID3D12DeviceChild *resource; 
 
   if ( !computeShader && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 2253, ASSERT_TYPE_ASSERT, "(computeShader)", (const char *)&queryFormat, "computeShader") )
@@ -1072,11 +989,8 @@ void Material_CreateComputePipelineState(ComputeShader *computeShader)
     v14[2] = computeShader->prog.loadDef.programSize;
     v14[0] = 0i64;
     resource = NULL;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+0A8h+var_40], ymm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    v15 = v2;
     v5 = ((__int64 (__fastcall *)(ID3D12Device *, __int64 *, _QWORD, _QWORD, GUID *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[20].Release)(g_dx.d3d12device, v14, 0i64, 0i64, &GUID_765a30f3_f624_4c6f_a828_ace948622445, &resource);
     if ( v5 < 0 )
     {
@@ -1120,21 +1034,16 @@ Material_CreateConstantBuffer
 */
 void Material_CreateConstantBuffer(const void *data, unsigned int dataSize, GfxConstantBuffer *constantBuffer, GfxBufferCreationContext *context)
 {
-  GfxBufferCreationContext v9; 
+  GfxBufferCreationContext v8; 
 
-  _RBP = context;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 3273, ASSERT_TYPE_ASSERT, "(data != 0)", (const char *)&queryFormat, "data != NULL") )
     __debugbreak();
   if ( !dataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 3274, ASSERT_TYPE_ASSERT, "(dataSize > 0)", (const char *)&queryFormat, "dataSize > 0") )
     __debugbreak();
   if ( !constantBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 3275, ASSERT_TYPE_ASSERT, "(constantBuffer != 0)", (const char *)&queryFormat, "constantBuffer != NULL") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups xmmword ptr [rsp+48h+var_18.zoneName], xmm0
-  }
-  R_CreateConstantBuffer(dataSize, 1u, 0, data, constantBuffer, &v9);
+  v8 = *context;
+  R_CreateConstantBuffer(dataSize, 1u, 0, data, constantBuffer, &v8);
 }
 
 /*
@@ -1433,7 +1342,8 @@ void Material_Init(void)
   const BuiltinComputeShaderTable *v0; 
   const BuiltInMaterialTable *v1; 
   unsigned int i; 
-  char *v10; 
+  Material *MaterialAtIndex; 
+  char *v4; 
 
   Com_Printf(8, "Loading %d built in compute shaders\n", 533i64);
   v0 = s_builtInComputeShaders;
@@ -1461,29 +1371,16 @@ void Material_Init(void)
   R_DecalVolumes_InitDefaultMask();
   for ( i = 0; i < 0x800; ++i )
   {
-    _RDI = DB_GetMaterialAtIndex(i);
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4573, ASSERT_TYPE_ASSERT, "(physicalMaterial)", (const char *)&queryFormat, "physicalMaterial") )
+    MaterialAtIndex = DB_GetMaterialAtIndex(i);
+    if ( !MaterialAtIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4573, ASSERT_TYPE_ASSERT, "(physicalMaterial)", (const char *)&queryFormat, "physicalMaterial") )
       __debugbreak();
-    _RAX = rgp.overrideMaterial;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rdi+40h], ymm0
-      vmovups xmm1, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rdi+60h], xmm1
-      vmovsd  xmm0, qword ptr [rax+70h]
-      vmovsd  qword ptr [rdi+70h], xmm0
-    }
+    *MaterialAtIndex = *rgp.overrideMaterial;
     rgp.physicalMaterialsForSort[i] = i;
     rgp.physicalMaterialSortedIndex[i] = i;
-    v10 = name_0[i];
-    Com_sprintf(v10, 0x10ui64, "mtl_ovrd_%d", i);
-    _RDI->name = v10;
-    _RDI->sortKey = 63;
+    v4 = name_0[i];
+    Com_sprintf(v4, 0x10ui64, "mtl_ovrd_%d", i);
+    MaterialAtIndex->name = v4;
+    MaterialAtIndex->sortKey = 63;
   }
 }
 
@@ -1507,11 +1404,11 @@ void Material_InitConstantBuffers(Material *material)
   unsigned __int8 *dsData; 
   unsigned int psDataSize; 
   unsigned __int8 *psData; 
-  __int128 v19; 
-  __int128 v20; 
-  __int128 v21; 
-  __int128 v22; 
-  GfxBufferCreationContext v23[2]; 
+  GfxBufferCreationContext v15; 
+  GfxBufferCreationContext v16; 
+  GfxBufferCreationContext v17; 
+  GfxBufferCreationContext v18; 
+  GfxBufferCreationContext v19[2]; 
 
   name = material->name;
   v3 = 0;
@@ -1526,53 +1423,37 @@ void Material_InitConstantBuffers(Material *material)
       if ( vsDataSize )
       {
         vsData = constantBufferTable[v5].vsData;
-        *(_QWORD *)&v19 = TrackingZoneName;
-        *((_QWORD *)&v19 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_68]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(vsData, vsDataSize, &constantBufferTable[v5].vsConstantBuffer, v23);
+        v15.zoneName = TrackingZoneName;
+        v15.objectName = name;
+        v19[0] = v15;
+        Material_CreateConstantBuffer(vsData, vsDataSize, &constantBufferTable[v5].vsConstantBuffer, v19);
       }
       hsDataSize = constantBufferTable[v5].hsDataSize;
       if ( hsDataSize )
       {
         hsData = constantBufferTable[v5].hsData;
-        *(_QWORD *)&v20 = TrackingZoneName;
-        *((_QWORD *)&v20 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_58]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(hsData, hsDataSize, &constantBufferTable[v5].hsConstantBuffer, v23);
+        v16.zoneName = TrackingZoneName;
+        v16.objectName = name;
+        v19[0] = v16;
+        Material_CreateConstantBuffer(hsData, hsDataSize, &constantBufferTable[v5].hsConstantBuffer, v19);
       }
       dsDataSize = constantBufferTable[v5].dsDataSize;
       if ( dsDataSize )
       {
         dsData = constantBufferTable[v5].dsData;
-        *(_QWORD *)&v21 = TrackingZoneName;
-        *((_QWORD *)&v21 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_48]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(dsData, dsDataSize, &constantBufferTable[v5].dsConstantBuffer, v23);
+        v17.zoneName = TrackingZoneName;
+        v17.objectName = name;
+        v19[0] = v17;
+        Material_CreateConstantBuffer(dsData, dsDataSize, &constantBufferTable[v5].dsConstantBuffer, v19);
       }
       psDataSize = constantBufferTable[v5].psDataSize;
       if ( psDataSize )
       {
         psData = constantBufferTable[v5].psData;
-        *(_QWORD *)&v22 = TrackingZoneName;
-        *((_QWORD *)&v22 + 1) = name;
-        __asm
-        {
-          vmovups xmm0, [rsp+88h+var_38]
-          vmovdqa [rsp+88h+var_28], xmm0
-        }
-        Material_CreateConstantBuffer(psData, psDataSize, &constantBufferTable[v5].psConstantBuffer, v23);
+        v18.zoneName = TrackingZoneName;
+        v18.objectName = name;
+        v19[0] = v18;
+        Material_CreateConstantBuffer(psData, psDataSize, &constantBufferTable[v5].psConstantBuffer, v19);
       }
       ++v3;
       ++v5;
@@ -1613,6 +1494,7 @@ Material_Process2DTextureCoordsForAtlasing
 */
 void Material_Process2DTextureCoordsForAtlasing(const Material *material, float *s0, float *s1, float *t0, float *t1)
 {
+  float *v8; 
   unsigned int unsignedInt; 
   unsigned __int8 textureAtlasColumnCount; 
   unsigned __int8 textureAtlasRowCount; 
@@ -1620,21 +1502,21 @@ void Material_Process2DTextureCoordsForAtlasing(const Material *material, float 
   unsigned int textureAtlasTime; 
   unsigned int v14; 
   unsigned int v15; 
+  float v16; 
+  float v17; 
   float s0a; 
-  float *v28; 
+  float *v19; 
   float dt; 
-  float v30; 
+  float v21; 
 
-  v28 = s0;
-  _R12 = t0;
-  _R13 = s1;
+  v19 = s0;
   if ( !s0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4708, ASSERT_TYPE_ASSERT, "(s0)", (const char *)&queryFormat, "s0") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4709, ASSERT_TYPE_ASSERT, "(s1)", (const char *)&queryFormat, "s1") )
+  if ( !s1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4709, ASSERT_TYPE_ASSERT, "(s1)", (const char *)&queryFormat, "s1") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4710, ASSERT_TYPE_ASSERT, "(t0)", (const char *)&queryFormat, "t0") )
+  if ( !t0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4710, ASSERT_TYPE_ASSERT, "(t0)", (const char *)&queryFormat, "t0") )
     __debugbreak();
-  _R15 = t1;
+  v8 = t1;
   if ( !t1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4711, ASSERT_TYPE_ASSERT, "(t1)", (const char *)&queryFormat, "t1") )
     __debugbreak();
   if ( material && (material->textureAtlasColumnCount != 1 || material->textureAtlasRowCount != 1) )
@@ -1662,25 +1544,13 @@ void Material_Process2DTextureCoordsForAtlasing(const Material *material, float 
           v15 = unsignedInt * (textureAtlasTime % v14) / 0x3E8;
           if ( v15 >= v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material.cpp", 4746, ASSERT_TYPE_ASSERT, "((frame < frameCount))", "%s\n\tframe:%i  ms:%i  fps:%i  fc:%i  msTtP:%i  msSLB:%i\n", "(frame < frameCount)", unsignedInt * (textureAtlasTime % v14) / 0x3E8, textureAtlasTime, unsignedInt, v12, 1000 * v12 / unsignedInt, textureAtlasTime % v14) )
             __debugbreak();
-          TextureAtlas_GetCoords_ByIndex(v15, material->textureAtlasColumnCount, material->textureAtlasRowCount, &s0a, (float *)&t1, &v30, &dt);
-          __asm { vmovss  xmm1, dword ptr [rsp+0A8h+t1] }
-          _RAX = v28;
-          __asm
-          {
-            vmovss  xmm3, [rsp+0A8h+arg_10]
-            vmulss  xmm0, xmm1, dword ptr [rax]
-            vaddss  xmm0, xmm0, [rsp+0A8h+s0]
-            vmovss  dword ptr [rax], xmm0
-            vmulss  xmm1, xmm1, dword ptr [r13+0]
-            vaddss  xmm0, xmm1, [rsp+0A8h+s0]
-            vmovss  dword ptr [r13+0], xmm0
-            vmulss  xmm0, xmm3, dword ptr [r12]
-            vaddss  xmm0, xmm0, [rsp+0A8h+arg_18]
-            vmovss  dword ptr [r12], xmm0
-            vmulss  xmm1, xmm3, dword ptr [r15]
-            vaddss  xmm0, xmm1, [rsp+0A8h+arg_18]
-            vmovss  dword ptr [r15], xmm0
-          }
+          TextureAtlas_GetCoords_ByIndex(v15, material->textureAtlasColumnCount, material->textureAtlasRowCount, &s0a, (float *)&t1, &v21, &dt);
+          v16 = *(float *)&t1;
+          v17 = dt;
+          *v19 = (float)(*(float *)&t1 * *v19) + s0a;
+          *s1 = (float)(v16 * *s1) + s0a;
+          *t0 = (float)(v17 * *t0) + v21;
+          *v8 = (float)(v17 * *v8) + v21;
         }
       }
     }

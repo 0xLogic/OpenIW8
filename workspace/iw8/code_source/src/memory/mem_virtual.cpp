@@ -476,8 +476,11 @@ void Mem_Virtual_Free(void *ptr)
   Mem_Virtual_Allocator *v3; 
   unsigned __int64 m_commitSize; 
   ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *v5; 
+  char *v6; 
   ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *v7; 
   bool v8; 
+  ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *v9; 
+  double v10; 
 
   Profile_Begin(569);
   if ( (_WORD)ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_virtual.cpp", 493, ASSERT_TYPE_ASSERT, "(IsAligned( basePtr, MEM_VIRTUAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( basePtr, MEM_VIRTUAL_PAGE_SIZE )") )
@@ -504,37 +507,32 @@ void Mem_Virtual_Free(void *ptr)
   v5 = &s_virtualAllocations;
   if ( s_virtualAllocations.m_size )
     v5 = (ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *)((char *)&s_virtualAllocations + 72 * (((char *)v3 - (char *)&s_virtualAllocations) / 72));
-  _RBX = &v5->m_data.m_buffer[72];
+  v6 = &v5->m_data.m_buffer[72];
   v7 = (ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *)((char *)&s_virtualAllocations + 72 * s_virtualAllocations.m_size);
   if ( &v5->m_data.m_buffer[72] == (char *)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
     __debugbreak();
   if ( v7 == v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
     __debugbreak();
-  v8 = _RBX < (char *)v7;
-  if ( _RBX > (char *)v7 )
+  v8 = v6 < (char *)v7;
+  if ( v6 > (char *)v7 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
       __debugbreak();
-    v8 = _RBX < (char *)v7;
+    v8 = v6 < (char *)v7;
   }
   if ( v8 )
   {
-    _RAX = v5;
+    v9 = v5;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rax+20h], ymm1
-        vmovsd  xmm0, qword ptr [rbx+40h]
-      }
-      _RBX += 72;
-      __asm { vmovsd  qword ptr [rax+40h], xmm0 }
-      _RAX = (ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *)((char *)_RAX + 72);
+      *(__m256i *)v9->m_data.m_buffer = *(__m256i *)v6;
+      *(__m256i *)&v9->m_data.m_buffer[32] = *((__m256i *)v6 + 1);
+      v10 = *((double *)v6 + 8);
+      v6 += 72;
+      *(double *)&v9->m_data.m_buffer[64] = v10;
+      v9 = (ntl::fixed_vector<Mem_Virtual_Allocator,64,0> *)((char *)v9 + 72);
     }
-    while ( _RBX < (char *)v7 );
+    while ( v6 < (char *)v7 );
   }
   --s_virtualAllocations.m_size;
   s_virtualAllocLock.writeThreadId = 0;
@@ -798,9 +796,11 @@ Mem_Virtual_Allocator *Mem_Virtual_Managed_ReserveInternal(unsigned __int64 size
   unsigned __int64 v4; 
   PagedHeap<65536,64,1> *v5; 
   unsigned __int64 v6; 
-  unsigned __int64 v12; 
-  __m256i v14; 
-  __m256i v15; 
+  unsigned __int64 v7; 
+  unsigned __int64 v8; 
+  __m256i v10; 
+  __m256i v11; 
+  double v12; 
 
   v1 = (size + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64;
   v2 = PagedHeap<65536,64,1>::Allocate(&s_virtualReserveHeap, v1);
@@ -827,32 +827,22 @@ Mem_Virtual_Allocator *Mem_Virtual_Managed_ReserveInternal(unsigned __int64 size
     }
     Mem_Error_CannotAlloc_Dev(COUNT, "Mem_Virtual_Managed_ReserveInternal", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_virtual.cpp", 135, "alignedSize=%zu largestfree=%zu freeblocks=%zu usedblocks=%zu", v1, v4 << 16, s_virtualReserveHeap.freeBlocks.m_size, s_virtualReserveHeap.usedBlocks.m_size);
   }
-  v14.m256i_i64[0] = (__int64)v2;
-  v14.m256i_u64[3] = (unsigned __int64)MEM_PAGE_RANGE_INVALID_2;
-  *(_OWORD *)&v14.m256i_u64[1] = v1;
-  v15.m256i_i8[0] = 0;
+  v10.m256i_i64[0] = (__int64)v2;
+  v10.m256i_u64[3] = (unsigned __int64)MEM_PAGE_RANGE_INVALID_2;
+  *(_OWORD *)&v10.m256i_u64[1] = v1;
+  v11.m256i_i8[0] = 0;
   if ( s_virtualAllocations.m_size >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
     __debugbreak();
-  _RSI = &s_virtualAllocations;
-  __asm
-  {
-    vmovups ymm0, [rsp+0A8h+var_58]
-    vmovups ymm1, [rsp+0A8h+var_38]
-  }
-  _RCX = 9 * s_virtualAllocations.m_size;
-  __asm
-  {
-    vmovups ymmword ptr [rsi+rcx*8], ymm0
-    vmovsd  xmm0, [rsp+0A8h+var_18]
-    vmovups ymmword ptr [rsi+rcx*8+20h], ymm1
-    vmovsd  qword ptr [rsi+rcx*8+40h], xmm0
-  }
+  v7 = 9 * s_virtualAllocations.m_size;
+  *(__m256i *)&s_virtualAllocations.m_data.m_buffer[8 * v7] = v10;
+  *(__m256i *)&s_virtualAllocations.m_data.m_buffer[8 * v7 + 32] = v11;
+  *(double *)&s_virtualAllocations.m_data.m_buffer[8 * v7 + 64] = v12;
   if ( !++s_virtualAllocations.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 139, ASSERT_TYPE_ASSERT, "( !empty() )", (const char *)&queryFormat, "!empty()") )
     __debugbreak();
-  v12 = s_virtualAllocations.m_size - 1;
+  v8 = s_virtualAllocations.m_size - 1;
   if ( s_virtualAllocations.m_size - 1 >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
     __debugbreak();
-  return (Mem_Virtual_Allocator *)((char *)&s_virtualAllocations + 72 * v12);
+  return (Mem_Virtual_Allocator *)((char *)&s_virtualAllocations + 72 * v8);
 }
 
 /*

@@ -290,45 +290,31 @@ AgentUnreplicatedFieldFloat::Update
 */
 void AgentUnreplicatedFieldFloat::Update(AgentUnreplicatedFieldFloat *this, gentity_s *pEnt)
 {
+  float *v4; 
+  float v5; 
   DObj *ServerDObjForEnt; 
-  const dvar_t *v10; 
-  const char *v13; 
+  const dvar_t *v7; 
+  double v8; 
+  const char *v9; 
   unsigned int Time; 
-  char *fmt; 
-  double v19; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  _RBP = ((__int64 (*)(void))this->GetManagedSource)() + this->m_sourceFieldOffset;
-  __asm { vmovss  xmm7, dword ptr [rbp+0] }
+  v4 = (float *)(((__int64 (*)(void))this->GetManagedSource)() + this->m_sourceFieldOffset);
+  v5 = *v4;
   ServerDObjForEnt = Com_GetServerDObjForEnt(pEnt);
   if ( !ServerDObjForEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 175, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm { vmovaps xmm2, xmm7 }
   ((void (__fastcall *)(AgentUnreplicatedFieldFloat *, DObj *))this->UpdateParameter)(this, ServerDObjForEnt);
-  v10 = DCONST_DVARINT_xanim_debugReplicationOnEnt;
+  v7 = DCONST_DVARINT_xanim_debugReplicationOnEnt;
   if ( !DCONST_DVARINT_xanim_debugReplicationOnEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugReplicationOnEnt") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.integer == pEnt->s.number )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.integer == pEnt->s.number )
   {
-    __asm
-    {
-      vmovaps [rsp+68h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rbp+0]
-      vcvtss2sd xmm6, xmm6, xmm6
-    }
-    v13 = SL_ConvertToString(*g_agentAnimParameterNames[this->m_paramIndex]);
+    v8 = *v4;
+    v9 = SL_ConvertToString(*g_agentAnimParameterNames[this->m_paramIndex]);
     Time = G_Main_GetTime();
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+68h+var_40], xmm0
-      vmovsd  [rsp+68h+fmt], xmm6
-    }
-    Com_Printf(19, "%i: Replication Update (unreplicated) %s. S: %f, Q: %f\n", Time, v13, *(double *)&fmt, v19);
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
+    Com_Printf(19, "%i: Replication Update (unreplicated) %s. S: %f, Q: %f\n", Time, v9, v8, v5);
   }
-  __asm { vmovaps xmm7, [rsp+68h+var_28] }
 }
 
 /*
@@ -391,116 +377,62 @@ AgentReplicatedFieldCompressedFloat::Update
 */
 void AgentReplicatedFieldCompressedFloat::Update(AgentReplicatedFieldCompressedFloat *this, gentity_s *pEnt)
 {
-  __int64 v6; 
-  __int64 v7; 
-  __int64 v9; 
-  bool v20; 
-  char v21; 
-  unsigned __int8 v32; 
+  __int64 v4; 
+  _BYTE *v5; 
+  float *v6; 
+  float v7; 
+  float m_minValue; 
+  double v9; 
+  double v11; 
+  unsigned __int8 v15; 
   DObj *ServerDObjForEnt; 
-  const dvar_t *v34; 
-  const char *v37; 
+  const dvar_t *v17; 
+  double v18; 
+  const char *v19; 
   unsigned int Time; 
-  char *fmt; 
-  __int64 v41; 
-  double v42; 
-  double v43; 
-  double v44; 
+  __int64 v21; 
 
-  _RBX = (int *)this;
-  v6 = ((__int64 (__fastcall *)(AgentReplicatedFieldCompressedFloat *))this->GetManagedSource)(this);
-  v7 = (*(__int64 (__fastcall **)(int *, gentity_s *))(*(_QWORD *)_RBX + 16i64))(_RBX, pEnt);
-  if ( v6 )
+  v4 = ((__int64 (__fastcall *)(AgentReplicatedFieldCompressedFloat *))this->GetManagedSource)(this);
+  v5 = this->GetManagedDest(this, pEnt);
+  if ( v4 )
   {
-    __asm { vmovss  xmm0, dword ptr [rbx+18h] }
-    v9 = _RBX[2];
-    v20 = __CFADD__(v6, v9);
-    _R14 = v6 + v9;
-    __asm
-    {
-      vcomiss xmm0, dword ptr [rbx+1Ch]
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovaps [rsp+78h+var_38], xmm7
-      vmovss  xmm7, dword ptr [r14]
-    }
-    if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 246, ASSERT_TYPE_ASSERT, "(m_maxValue > m_minValue)", (const char *)&queryFormat, "m_maxValue > m_minValue") )
+    v6 = (float *)(v4 + this->m_sourceFieldOffset);
+    v7 = *v6;
+    if ( this->m_minValue >= this->m_maxValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 246, ASSERT_TYPE_ASSERT, "(m_maxValue > m_minValue)", (const char *)&queryFormat, "m_maxValue > m_minValue") )
       __debugbreak();
-    __asm
+    m_minValue = this->m_minValue;
+    v9 = I_fclamp(v7, m_minValue, this->m_maxValue);
+    _XMM2 = LODWORD(this->m_maxValue);
+    v11 = I_fclamp((float)(*(float *)&v9 - m_minValue) / (float)(*(float *)&_XMM2 - m_minValue), m_minValue, *(float *)&_XMM2);
+    if ( *(float *)&v11 < 0.0 || *(float *)&v11 > 1.0 )
     {
-      vmovss  xmm6, dword ptr [rbx+18h]
-      vmovss  xmm2, dword ptr [rbx+1Ch]; max
-      vmovaps xmm1, xmm6; min
-      vmovaps xmm0, xmm7; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+1Ch]; max
-      vsubss  xmm3, xmm2, xmm6
-      vsubss  xmm4, xmm0, xmm6
-      vdivss  xmm0, xmm4, xmm3; val
-      vmovaps xmm1, xmm6; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm7, [rsp+78h+var_38]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v20 )
-      goto LABEL_24;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v20 | v21) )
-    {
-LABEL_24:
-      __asm
-      {
-        vmovsd  xmm1, cs:__real@3ff0000000000000
-        vmovsd  [rsp+78h+var_40], xmm1
-        vxorpd  xmm2, xmm2, xmm2
-        vmovsd  [rsp+78h+var_48], xmm2
-        vcvtss2sd xmm3, xmm6, xmm6
-        vmovsd  [rsp+78h+var_50], xmm3
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", v42, v43, v44) )
+      __asm { vxorpd  xmm2, xmm2, xmm2 }
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", *(float *)&v11, *(double *)&_XMM2, DOUBLE_1_0) )
         __debugbreak();
     }
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@43800000
-      vxorps  xmm1, xmm1, xmm1
-      vroundss xmm1, xmm1, xmm0, 1
-      vcvttss2si eax, xmm1
-    }
-    v32 = _EAX;
-    if ( _EAX > 255 )
-      v32 = -1;
-    if ( v7 )
-      *(_BYTE *)(_RBX[3] + v7) = v32;
+    _XMM1 = 0i64;
+    __asm { vroundss xmm1, xmm1, xmm0, 1 }
+    v15 = (int)*(float *)&_XMM1;
+    if ( (int)*(float *)&_XMM1 > 255 )
+      v15 = -1;
+    if ( v5 )
+      v5[this->m_destFieldOffset] = v15;
     ServerDObjForEnt = Com_GetServerDObjForEnt(pEnt);
     if ( !ServerDObjForEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 258, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
       __debugbreak();
-    (*(void (__fastcall **)(int *, DObj *, _QWORD))(*(_QWORD *)_RBX + 40i64))(_RBX, ServerDObjForEnt, v32);
-    v34 = DCONST_DVARINT_xanim_debugReplicationOnEnt;
+    this->UpdateParameter(this, ServerDObjForEnt, v15);
+    v17 = DCONST_DVARINT_xanim_debugReplicationOnEnt;
     if ( !DCONST_DVARINT_xanim_debugReplicationOnEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugReplicationOnEnt") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    if ( v34->current.integer == pEnt->s.number )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v17->current.integer == pEnt->s.number )
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [r14]
-        vcvtss2sd xmm6, xmm6, xmm6
-      }
-      v37 = SL_ConvertToString(*g_agentAnimParameterNames[_RBX[4]]);
+      v18 = *v6;
+      v19 = SL_ConvertToString(*g_agentAnimParameterNames[this->m_paramIndex]);
       Time = G_Main_GetTime();
-      LODWORD(v41) = v32;
-      __asm { vmovsd  [rsp+78h+fmt], xmm6 }
-      Com_Printf(19, "%i: Replication Update %s. S: %f, Q: %i\n", Time, v37, *(double *)&fmt, v41);
+      LODWORD(v21) = v15;
+      Com_Printf(19, "%i: Replication Update %s. S: %f, Q: %i\n", Time, v19, v18, v21);
     }
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
   }
 }
 
@@ -879,7 +811,6 @@ BG_AIAnim_ClearFingerPose
 */
 void BG_AIAnim_ClearFingerPose(DObj *obj, const Animset *pAnimset, const scr_string_t fingerKnobName)
 {
-  float fmt; 
   AnimsetState *outState; 
   AnimsetAlias *outAlias; 
   int pOutStateIndex; 
@@ -889,12 +820,7 @@ void BG_AIAnim_ClearFingerPose(DObj *obj, const Animset *pAnimset, const scr_str
   {
     if ( !outAlias->numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 516, ASSERT_TYPE_ASSERT, "(pAlias->numAnims > 0)", (const char *)&queryFormat, "pAlias->numAnims > 0") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e4ccccd
-      vmovss  dword ptr [rsp+48h+fmt], xmm0
-    }
-    XAnimClearGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, outAlias->anims->anim.index, fmt, LINEAR);
+    XAnimClearGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, outAlias->anims->anim.index, 0.2, LINEAR);
   }
 }
 
@@ -933,93 +859,37 @@ void BG_AIAnim_UpdateExecutionParameter(DObj *obj, const characterInfo_t *ci)
 BG_AIAnim_UpdateFingerPose
 ==============
 */
-
-void __fastcall BG_AIAnim_UpdateFingerPose(DObj *obj, double ikWeight, const char *szWeaponName, const Animset *pAnimset, const scr_string_t stateName, const scr_string_t knobName)
+void BG_AIAnim_UpdateFingerPose(DObj *obj, float ikWeight, const char *szWeaponName, const Animset *pAnimset, const scr_string_t stateName, const scr_string_t knobName)
 {
   scr_string_t String; 
   unsigned int index; 
   unsigned int TreeParent; 
-  char v22; 
-  char v23; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float v35; 
-  float v36; 
-  float v37; 
-  int v38; 
+  double v12; 
+  double GoalWeight; 
+  int v14; 
   AnimsetState *pState; 
   AnimsetAlias *outAlias; 
-  char v43; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
   pState = NULL;
-  __asm { vmovaps xmm6, xmm1 }
-  if ( BG_Animset_GetStateInfoByName(pAnimset, stateName, &pState, &v38) )
+  if ( BG_Animset_GetStateInfoByName(pAnimset, stateName, &pState, &v14) )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_28], xmm7
-      vmovaps [rsp+0B8h+var_38], xmm8
-    }
     String = SL_GetString(szWeaponName, 0);
     if ( BG_Animset_GetCompleteAliasInfo(pAnimset, pState, String, &outAlias) )
     {
       if ( !outAlias->numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 536, ASSERT_TYPE_ASSERT, "(pAlias->numAnims > 0)", (const char *)&queryFormat, "pAlias->numAnims > 0") )
         __debugbreak();
       index = outAlias->anims->anim.index;
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3f800000
-        vmovaps xmm2, xmm8; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm0, xmm6; val
-      }
       TreeParent = XAnimGetTreeParent(obj->tree->anims, index);
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
+      v12 = I_fclamp(ikWeight, 0.0, 1.0);
+      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, TreeParent, *(float *)&v12, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      GoalWeight = XAnimGetGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, index);
+      if ( *(float *)&GoalWeight == 0.0 && ikWeight > 0.0 )
       {
-        vmovss  [rsp+0B8h+var_88], xmm8
-        vmovss  [rsp+0B8h+goalTime], xmm7
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-        vmovaps xmm6, xmm0
+        XAnimSetGoalWeightKnob(obj, 0, XANIM_SUBTREE_DEFAULT, index, ikWeight, 0.0, 1.0, (scr_string_t)0, 0, LINEAR);
       }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, TreeParent, fmt, goalTime, v35, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      *(double *)&_XMM0 = XAnimGetGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, index);
-      __asm { vucomiss xmm0, xmm7 }
-      if ( !v23 )
-        goto LABEL_9;
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v22 | v23 )
+      else if ( *(float *)&GoalWeight != ikWeight )
       {
-LABEL_9:
-        __asm { vucomiss xmm0, xmm6 }
-        if ( !v23 )
-        {
-          __asm
-          {
-            vmovss  [rsp+0B8h+var_88], xmm8
-            vmovss  [rsp+0B8h+goalTime], xmm7
-            vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, index, fmtb, goalTimeb, v37, (scr_string_t)0, 0, 0, LINEAR, NULL);
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  [rsp+0B8h+var_88], xmm8
-          vmovss  [rsp+0B8h+goalTime], xmm7
-          vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-        }
-        XAnimSetGoalWeightKnob(obj, 0, XANIM_SUBTREE_DEFAULT, index, fmta, goalTimea, v36, (scr_string_t)0, 0, LINEAR);
+        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, index, ikWeight, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
       }
     }
     else
@@ -1029,14 +899,7 @@ LABEL_9:
       BG_AIAnim_ClearFingerPose(obj, pAnimset, knobName);
     }
     SL_RemoveRefToString(String);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0B8h+var_38]
-      vmovaps xmm7, [rsp+0B8h+var_28]
-    }
   }
-  _R11 = &v43;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -1058,11 +921,11 @@ void BG_AIAnim_UpdateFingerPoses(BgWeaponMap *pWeaponMap, DObj *obj, const entit
   const XAnimInfo *AnimInfo; 
   const char *v16; 
   const char *v17; 
-  AIAnim_XAnimFingerNotetrackLeafFunctor v20; 
+  AIAnim_XAnimFingerNotetrackLeafFunctor v18; 
   float parentNTWeights[2]; 
-  __int64 v22; 
+  __int64 v20; 
   float parentAnimWeights[2]; 
-  __int64 v24; 
+  __int64 v22; 
   char dest[136]; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "AIAnim_UpdateFingerPoses");
@@ -1092,21 +955,19 @@ LABEL_24:
     {
 LABEL_20:
       *(_QWORD *)parentNTWeights = 0i64;
-      v22 = 0i64;
+      v20 = 0i64;
       *(_QWORD *)parentAnimWeights = 0i64;
-      v24 = 0i64;
+      v22 = 0i64;
       if ( !obj->tree->children && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 630, ASSERT_TYPE_ASSERT, "(obj->tree->children)", (const char *)&queryFormat, "obj->tree->children") )
         __debugbreak();
       AnimInfo = GetAnimInfo(obj->tree->children);
       Sys_ProfBeginNamedEvent(0xFF808080, "AICalcFingerPose");
-      XAnimCalcNotetrackWeights<2,AIAnim_XAnimFingerNotetrackLeafFunctor>(AnimInfo, parentNTWeights, parentAnimWeights, v20);
+      XAnimCalcNotetrackWeights<2,AIAnim_XAnimFingerNotetrackLeafFunctor>(AnimInfo, parentNTWeights, parentAnimWeights, v18);
       Sys_ProfEndNamedEvent();
       v16 = AIAnim_FingerPose_GetAliasCheckAttachments(dest, v9, 1);
       v17 = AIAnim_FingerPose_GetAliasCheckAttachments(dest, v9, 0);
-      __asm { vmovss  xmm1, [rsp+108h+parentNTWeights]; ikWeight }
-      BG_AIAnim_UpdateFingerPose(obj, *(double *)&_XMM1, v16, v7, (const scr_string_t)scr_const.ik_finger_pose_l, (const scr_string_t)scr_const.ik_fingers_l);
-      __asm { vmovss  xmm1, [rsp+108h+parentNTWeights+4]; ikWeight }
-      BG_AIAnim_UpdateFingerPose(obj, *(double *)&_XMM1, v17, v7, (const scr_string_t)scr_const.ik_finger_pose_r, (const scr_string_t)scr_const.ik_fingers_r);
+      BG_AIAnim_UpdateFingerPose(obj, parentNTWeights[0], v16, v7, (const scr_string_t)scr_const.ik_finger_pose_l, (const scr_string_t)scr_const.ik_fingers_l);
+      BG_AIAnim_UpdateFingerPose(obj, parentNTWeights[1], v17, v7, (const scr_string_t)scr_const.ik_finger_pose_r, (const scr_string_t)scr_const.ik_fingers_r);
       goto LABEL_24;
     }
     v14 = dest[v12 - 2];
@@ -1147,31 +1008,13 @@ void CG_AIAnim_UpdateGroundTurretParameter(LocalClientNum_t localClientNum, DObj
   if ( agentGroundTurret != 2047 )
   {
     EntitySystem = CgEntitySystem::GetEntitySystem(localClientNum);
-    _RBX = CgEntitySystem::GetEntity(EntitySystem, agentGroundTurret);
-    if ( _RBX->nextState.eType == ET_TURRET )
+    if ( CgEntitySystem::GetEntity(EntitySystem, agentGroundTurret)->nextState.eType == ET_TURRET )
     {
       CG_GetLocalClientGlobals(localClientNum);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1ECh]
-        vmovss  xmm4, dword ptr [rbx+170h]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm5, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm5, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm0, xmm1, xmm2, 1
-      }
+      _XMM1 = 0i64;
+      __asm { vroundss xmm0, xmm1, xmm2, 1 }
       if ( g_replicationLookupTable[32].pManagedField )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm5, xmm0
-          vmulss  xmm1, xmm0, cs:__real@43b40000
-          vmulss  xmm2, xmm1, dword ptr [rdx+65E0h]
-          vaddss  xmm2, xmm2, xmm4
-        }
         ((void (__fastcall *)(IManagedField *, DObj *))g_replicationLookupTable[32].pManagedField->UpdateParameter)(g_replicationLookupTable[32].pManagedField, obj);
-      }
     }
   }
 }
@@ -1183,7 +1026,8 @@ CG_AIAnim_UpdateParametersFromFields
 */
 void CG_AIAnim_UpdateParametersFromFields(LocalClientNum_t localClientNum, DObj *obj, const agentState_s *const pAgentState, const entityState_t *const pEntityState)
 {
-  __int64 v5; 
+  __int64 v4; 
+  int moveSpeedForAnimBlend; 
   __int64 v9; 
   __int64 v10; 
   CgStatic *v11; 
@@ -1192,13 +1036,14 @@ void CG_AIAnim_UpdateParametersFromFields(LocalClientNum_t localClientNum, DObj 
   characterInfo_t *CharacterInfo; 
   int entityNum; 
   BgStatic *ActiveStatics; 
+  __int64 v17; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
 
-  v5 = localClientNum;
+  v4 = localClientNum;
   if ( !pAgentState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_replication.cpp", 646, ASSERT_TYPE_ASSERT, "(pAgentState)", (const char *)&queryFormat, "pAgentState") )
     __debugbreak();
+  moveSpeedForAnimBlend = 0;
   if ( *g_replicationLookupTable[0].name != scr_const.none )
   {
     v9 = 0i64;
@@ -1212,25 +1057,26 @@ void CG_AIAnim_UpdateParametersFromFields(LocalClientNum_t localClientNum, DObj 
   }
   if ( pEntityState )
   {
-    if ( !CgWeaponMap::ms_instance[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+    moveSpeedForAnimBlend = pEntityState->lerp.u.player.moveSpeedForAnimBlend;
+    if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
       __debugbreak();
-    BG_AIAnim_UpdateFingerPoses(CgWeaponMap::ms_instance[v5], obj, pEntityState);
-    if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v5) )
+    BG_AIAnim_UpdateFingerPoses(CgWeaponMap::ms_instance[v4], obj, pEntityState);
+    if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v4) )
       __debugbreak();
-    if ( (unsigned int)v5 >= LODWORD(CgStatic::ms_allocatedCount) )
+    if ( (unsigned int)v4 >= LODWORD(CgStatic::ms_allocatedCount) )
     {
-      *(float *)&v21 = CgStatic::ms_allocatedCount;
-      LODWORD(v20) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v20, v21) )
+      *(float *)&v19 = CgStatic::ms_allocatedCount;
+      LODWORD(v18) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    if ( !CgStatic::ms_cgameStaticsArray[v5] )
+    if ( !CgStatic::ms_cgameStaticsArray[v4] )
     {
-      LODWORD(v21) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v21) )
+      LODWORD(v19) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v19) )
         __debugbreak();
     }
-    v11 = CgStatic::ms_cgameStaticsArray[v5];
+    v11 = CgStatic::ms_cgameStaticsArray[v4];
     clientNum = pEntityState->clientNum;
     LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v11->m_localClientNum);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 25, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
@@ -1239,9 +1085,9 @@ void CG_AIAnim_UpdateParametersFromFields(LocalClientNum_t localClientNum, DObj 
     {
       if ( (unsigned int)clientNum >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
       {
-        LODWORD(v21) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-        LODWORD(v20) = clientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v20, v21) )
+        LODWORD(v19) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+        LODWORD(v18) = clientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
       CharacterInfo = (characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
@@ -1252,17 +1098,12 @@ void CG_AIAnim_UpdateParametersFromFields(LocalClientNum_t localClientNum, DObj 
     }
     CharacterInfo->agentGroundTurret = pAgentState->groundTurretEntNum;
   }
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, r14d; value
-  }
-  XAnimSetFloatGameParameterByIndex(obj, 0x1Eu, *(float *)&_XMM2);
+  XAnimSetFloatGameParameterByIndex(obj, 0x1Eu, (float)moveSpeedForAnimBlend);
   XAnimSetByteGameParameterByIndex(obj, 0x12u, pAgentState->facialIndex);
   entityNum = pAgentState->entityNum;
   ActiveStatics = BgStatic::GetActiveStatics();
-  v19 = (__int64)ActiveStatics->GetCharacterAnimState(ActiveStatics, entityNum);
-  XAnimSetIntGameParameterByIndex(obj, 0x15u, *(_DWORD *)(v19 + 8));
+  v17 = (__int64)ActiveStatics->GetCharacterAnimState(ActiveStatics, entityNum);
+  XAnimSetIntGameParameterByIndex(obj, 0x15u, *(_DWORD *)(v17 + 8));
 }
 
 /*

@@ -983,63 +983,94 @@ BG_ChooseEquipmentSound
 */
 SndAliasList *BG_ChooseEquipmentSound(unsigned int clothType, unsigned int weaponRattleType, EquipmentMoveType_t moveType, int isPlayerView, unsigned int *holdRand)
 {
+  __int64 v6; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
-  __int64 v10; 
+  double v9; 
   EquipmentSoundTable *equipmentSoundTable; 
   EquipmentChanceRattleTypes *chancesPLR; 
-  SndAliasList *result; 
-  __int64 v20; 
-  __int64 v21; 
+  EquipmentSndChance *chances; 
+  EquipmentSoundTable *v13; 
+  EquipmentSoundSet *v14; 
+  EquipmentSoundTable *v16; 
+  EquipmentSoundSet *soundSets; 
+  __int64 v18; 
+  __int64 v19; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  v8 = moveType;
-  v9 = weaponRattleType;
-  v10 = clothType;
-  if ( weaponRattleType != 15 )
+  v6 = moveType;
+  v7 = weaponRattleType;
+  v8 = clothType;
+  if ( weaponRattleType == 15 )
+    return 0i64;
+  v9 = BG_flrand(0.0, 1.0, holdRand);
+  equipmentSoundTable = cgMedia.equipmentSoundTable;
+  if ( !cgMedia.equipmentSoundTable )
+    return 0i64;
+  if ( (unsigned int)v8 >= cgMedia.equipmentSoundTable->numClothTypes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1065, ASSERT_TYPE_ASSERT, "(unsigned)( clothType ) < (unsigned)( soundTable->numClothTypes )", "clothType doesn't index soundTable->numClothTypes\n\t%i not in [0, %i)", v8, cgMedia.equipmentSoundTable->numClothTypes) )
+    __debugbreak();
+  if ( (unsigned int)v7 >= equipmentSoundTable->numWeaponRattleTypes )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000; max
-      vxorps  xmm0, xmm0, xmm0; min
-    }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdRand);
-    equipmentSoundTable = cgMedia.equipmentSoundTable;
-    __asm { vmovaps xmm6, xmm0 }
+    LODWORD(v19) = equipmentSoundTable->numWeaponRattleTypes;
+    LODWORD(v18) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1066, ASSERT_TYPE_ASSERT, "(unsigned)( weaponRattleType ) < (unsigned)( soundTable->numWeaponRattleTypes )", "weaponRattleType doesn't index soundTable->numWeaponRattleTypes\n\t%i not in [0, %i)", v18, v19) )
+      __debugbreak();
+  }
+  if ( (unsigned int)v6 >= 8 )
+  {
+    LODWORD(v19) = 8;
+    LODWORD(v18) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1067, ASSERT_TYPE_ASSERT, "(unsigned)( moveType ) < (unsigned)( EQUIPMENT_MOVE_TYPE_TOTAL )", "moveType doesn't index EQUIPMENT_MOVE_TYPE_TOTAL\n\t%i not in [0, %i)", v18, v19) )
+      __debugbreak();
+  }
+  if ( isPlayerView )
+    chancesPLR = equipmentSoundTable->chancesPLR;
+  else
+    chancesPLR = equipmentSoundTable->chancesNPC;
+  chances = chancesPLR[v8].chances[v7].chances;
+  if ( *(float *)&v9 < chances[v6].rattleChance )
+  {
+    v13 = cgMedia.equipmentSoundTable;
     if ( cgMedia.equipmentSoundTable )
     {
-      if ( (unsigned int)v10 >= cgMedia.equipmentSoundTable->numClothTypes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1065, ASSERT_TYPE_ASSERT, "(unsigned)( clothType ) < (unsigned)( soundTable->numClothTypes )", "clothType doesn't index soundTable->numClothTypes\n\t%i not in [0, %i)", v10, cgMedia.equipmentSoundTable->numClothTypes) )
-        __debugbreak();
-      if ( (unsigned int)v9 >= equipmentSoundTable->numWeaponRattleTypes )
+      if ( (unsigned int)v7 >= cgMedia.equipmentSoundTable->numWeaponRattleTypes )
       {
-        LODWORD(v21) = equipmentSoundTable->numWeaponRattleTypes;
-        LODWORD(v20) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1066, ASSERT_TYPE_ASSERT, "(unsigned)( weaponRattleType ) < (unsigned)( soundTable->numWeaponRattleTypes )", "weaponRattleType doesn't index soundTable->numWeaponRattleTypes\n\t%i not in [0, %i)", v20, v21) )
+        LODWORD(v19) = cgMedia.equipmentSoundTable->numWeaponRattleTypes;
+        LODWORD(v18) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 979, ASSERT_TYPE_ASSERT, "(unsigned)( weaponRattleType ) < (unsigned)( soundTable->numWeaponRattleTypes )", "weaponRattleType doesn't index soundTable->numWeaponRattleTypes\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
-      if ( (unsigned int)v8 >= 8 )
+      if ( (unsigned int)v6 >= 8 )
       {
-        LODWORD(v21) = 8;
-        LODWORD(v20) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1067, ASSERT_TYPE_ASSERT, "(unsigned)( moveType ) < (unsigned)( EQUIPMENT_MOVE_TYPE_TOTAL )", "moveType doesn't index EQUIPMENT_MOVE_TYPE_TOTAL\n\t%i not in [0, %i)", v20, v21) )
+        LODWORD(v19) = 8;
+        LODWORD(v18) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 980, ASSERT_TYPE_ASSERT, "(unsigned)( moveType ) < (unsigned)( EQUIPMENT_MOVE_TYPE_TOTAL )", "moveType doesn't index EQUIPMENT_MOVE_TYPE_TOTAL\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
+      v14 = &v13->mvmtRattleSoundSets[v7].soundSets[v6];
       if ( isPlayerView )
-        chancesPLR = equipmentSoundTable->chancesPLR;
+        return v14->soundPLR;
       else
-        chancesPLR = equipmentSoundTable->chancesNPC;
-      _RAX = 3 * v8;
-      _RDX = chancesPLR[v10].chances[v9].chances;
-      __asm
-      {
-        vcomiss xmm6, dword ptr [rdx+rax*4]
-        vcomiss xmm6, dword ptr [rdx+rax*4+4]
-      }
+        return v14->soundNPC;
     }
+    return 0i64;
   }
-  result = NULL;
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  if ( *(float *)&v9 >= chances[v6].accentChance )
+    return 0i64;
+  v16 = cgMedia.equipmentSoundTable;
+  if ( !cgMedia.equipmentSoundTable )
+    return 0i64;
+  if ( (unsigned int)v6 >= 8 )
+  {
+    LODWORD(v19) = 8;
+    LODWORD(v18) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 994, ASSERT_TYPE_ASSERT, "(unsigned)( moveType ) < (unsigned)( EQUIPMENT_MOVE_TYPE_TOTAL )", "moveType doesn't index EQUIPMENT_MOVE_TYPE_TOTAL\n\t%i not in [0, %i)", v18, v19) )
+      __debugbreak();
+  }
+  soundSets = v16->mvmtAccentSoundSets.soundSets;
+  if ( isPlayerView )
+    return soundSets[v6].soundPLR;
+  else
+    return soundSets[v6].soundNPC;
 }
 
 /*
@@ -1049,21 +1080,21 @@ BG_ChooseWeaponRattleTypeForEquipmentSound
 */
 unsigned __int8 BG_ChooseWeaponRattleTypeForEquipmentSound(const BgWeaponMap *weaponMap, const playerState_s *ps)
 {
-  unsigned __int8 v6; 
+  char v4; 
   EquipmentSoundTable *equipmentSoundTable; 
-  unsigned __int8 result; 
-  int v11; 
+  float v6; 
+  int v8; 
   BgWeaponHandle *weaponsEquipped; 
   const Weapon *Weapon; 
-  const WeaponDef *v14; 
-  const WeaponDef *v15; 
+  const WeaponDef *v11; 
+  const WeaponDef *v12; 
   WeaponSFXPackage *sfxPackage; 
   unsigned __int8 rattleSoundType; 
-  bool v18; 
-  const Weapon *v21; 
-  WeaponSFXPackage *v22; 
-  __int64 v23; 
-  __int64 v24; 
+  float priority; 
+  const Weapon *v16; 
+  WeaponSFXPackage *v17; 
+  __int64 v18; 
+  __int64 v19; 
 
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1092, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
@@ -1071,16 +1102,12 @@ unsigned __int8 BG_ChooseWeaponRattleTypeForEquipmentSound(const BgWeaponMap *we
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80) )
   {
-    v6 = 15;
+    v4 = 15;
     equipmentSoundTable = cgMedia.equipmentSoundTable;
-    __asm
-    {
-      vmovaps [rsp+78h+var_38], xmm6
-      vmovss  xmm6, cs:__real@bf800000
-    }
+    v6 = FLOAT_N1_0;
     if ( cgMedia.equipmentSoundTable )
     {
-      v11 = 0;
+      v8 = 0;
       weaponsEquipped = ps->weaponsEquipped;
       do
       {
@@ -1088,65 +1115,58 @@ unsigned __int8 BG_ChooseWeaponRattleTypeForEquipmentSound(const BgWeaponMap *we
           __debugbreak();
         if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        if ( (unsigned int)v11 >= 0xF )
+        if ( (unsigned int)v8 >= 0xF )
         {
-          LODWORD(v24) = 15;
-          LODWORD(v23) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v23, v24) )
+          LODWORD(v19) = 15;
+          LODWORD(v18) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v18, v19) )
             __debugbreak();
         }
         Weapon = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, (BgWeaponHandle)weaponsEquipped->m_mapEntryId);
         if ( Weapon->weaponIdx )
         {
-          v14 = BG_WeaponDef(Weapon, 0);
-          v15 = v14;
-          sfxPackage = v14->sfxPackage;
+          v11 = BG_WeaponDef(Weapon, 0);
+          v12 = v11;
+          sfxPackage = v11->sfxPackage;
           if ( sfxPackage )
           {
-            if ( v14->weapType != WEAPTYPE_GRENADE )
+            if ( v11->weapType != WEAPTYPE_GRENADE )
             {
               rattleSoundType = sfxPackage->rattleSoundType;
-              v18 = rattleSoundType <= 0xFu;
               if ( rattleSoundType == 15 )
               {
-                __asm { vxorps  xmm0, xmm0, xmm0 }
+                priority = 0.0;
               }
               else
               {
                 if ( rattleSoundType >= equipmentSoundTable->numWeaponRattleTypes )
                 {
-                  LODWORD(v24) = equipmentSoundTable->numWeaponRattleTypes;
-                  LODWORD(v23) = rattleSoundType;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1131, ASSERT_TYPE_ASSERT, "(unsigned)( weapDef->sfxPackage->rattleSoundType ) < (unsigned)( soundTable->numWeaponRattleTypes )", "weapDef->sfxPackage->rattleSoundType doesn't index soundTable->numWeaponRattleTypes\n\t%i not in [0, %i)", v23, v24) )
+                  LODWORD(v19) = equipmentSoundTable->numWeaponRattleTypes;
+                  LODWORD(v18) = rattleSoundType;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1131, ASSERT_TYPE_ASSERT, "(unsigned)( weapDef->sfxPackage->rattleSoundType ) < (unsigned)( soundTable->numWeaponRattleTypes )", "weapDef->sfxPackage->rattleSoundType doesn't index soundTable->numWeaponRattleTypes\n\t%i not in [0, %i)", v18, v19) )
                     __debugbreak();
                 }
-                sfxPackage = v15->sfxPackage;
-                _RAX = equipmentSoundTable->weaponRattleTypes;
-                _RCX = sfxPackage->rattleSoundType;
-                v18 = __CFADD__(_RCX, _RCX) || 2 * _RCX == 0;
-                _RCX *= 2i64;
-                __asm { vmovss  xmm0, dword ptr [rax+rcx*8+8] }
+                sfxPackage = v12->sfxPackage;
+                priority = equipmentSoundTable->weaponRattleTypes[sfxPackage->rattleSoundType].priority;
               }
-              __asm { vcomiss xmm0, xmm6 }
-              if ( !v18 )
+              if ( priority > v6 )
               {
-                v6 = sfxPackage->rattleSoundType;
-                __asm { vmovaps xmm6, xmm0 }
+                v4 = sfxPackage->rattleSoundType;
+                v6 = priority;
               }
             }
           }
         }
-        ++v11;
+        ++v8;
         ++weaponsEquipped;
       }
-      while ( v11 < 15 );
-      result = v6;
+      while ( v8 < 15 );
+      return v4;
     }
     else
     {
-      result = 0;
+      return 0;
     }
-    __asm { vmovaps xmm6, [rsp+78h+var_38] }
   }
   else
   {
@@ -1154,13 +1174,12 @@ unsigned __int8 BG_ChooseWeaponRattleTypeForEquipmentSound(const BgWeaponMap *we
       __debugbreak();
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 886, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v21 = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weapCommon.weaponHandle);
-    if ( v21->weaponIdx && (v22 = BG_WeaponDef(v21, 0)->sfxPackage) != NULL )
-      return v22->rattleSoundType;
+    v16 = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weapCommon.weaponHandle);
+    if ( v16->weaponIdx && (v17 = BG_WeaponDef(v16, 0)->sfxPackage) != NULL )
+      return v17->rattleSoundType;
     else
       return 15;
   }
-  return result;
 }
 
 /*
@@ -2784,64 +2803,58 @@ BG_PackMeleeCharacterImpactParam
 */
 __int64 BG_PackMeleeCharacterImpactParam(int clothType, MeleeAnimType attackerAnim, WeaponMaterialType material, bool isAltMelee, int variant, MeleeResult result, float impactHeight)
 {
-  __int32 v16; 
-  __int64 v18; 
-  __int64 v20; 
-  int v21; 
-  __int32 v22; 
-  int v23; 
+  double v11; 
+  __int32 v12; 
+  __int64 v14; 
+  __int64 v16; 
+  int v17; 
+  __int32 v18; 
+  int v19; 
 
   if ( (unsigned int)clothType >= 0x10 )
   {
-    v21 = 16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1373, ASSERT_TYPE_ASSERT, "(unsigned)( clothType ) < (unsigned)( ( 1 << 4 ) )", "clothType doesn't index MAX_CLOTH_TYPE\n\t%i not in [0, %i)", clothType, v21) )
+    v17 = 16;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1373, ASSERT_TYPE_ASSERT, "(unsigned)( clothType ) < (unsigned)( ( 1 << 4 ) )", "clothType doesn't index MAX_CLOTH_TYPE\n\t%i not in [0, %i)", clothType, v17) )
       __debugbreak();
   }
   if ( (unsigned int)attackerAnim >= 8 )
   {
-    LODWORD(v20) = 8;
-    LODWORD(v18) = attackerAnim;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1374, ASSERT_TYPE_ASSERT, "(unsigned)( attackerAnim ) < (unsigned)( static_cast<int>( MeleeAnimType::COUNT ) )", "attackerAnim doesn't index static_cast<int>( MeleeAnimType::COUNT )\n\t%i not in [0, %i)", v18, v20) )
+    LODWORD(v16) = 8;
+    LODWORD(v14) = attackerAnim;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1374, ASSERT_TYPE_ASSERT, "(unsigned)( attackerAnim ) < (unsigned)( static_cast<int>( MeleeAnimType::COUNT ) )", "attackerAnim doesn't index static_cast<int>( MeleeAnimType::COUNT )\n\t%i not in [0, %i)", v14, v16) )
       __debugbreak();
   }
   if ( (unsigned int)material >= (COUNT|DODGE) )
   {
-    LODWORD(v20) = 3;
-    LODWORD(v18) = material;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1375, ASSERT_TYPE_ASSERT, "(unsigned)( material ) < (unsigned)( static_cast<int>( WeaponMaterialType::COUNT ) )", "material doesn't index static_cast<int>( WeaponMaterialType::COUNT )\n\t%i not in [0, %i)", v18, v20) )
+    LODWORD(v16) = 3;
+    LODWORD(v14) = material;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1375, ASSERT_TYPE_ASSERT, "(unsigned)( material ) < (unsigned)( static_cast<int>( WeaponMaterialType::COUNT ) )", "material doesn't index static_cast<int>( WeaponMaterialType::COUNT )\n\t%i not in [0, %i)", v14, v16) )
       __debugbreak();
   }
   if ( (unsigned int)variant >= 4 )
   {
-    LODWORD(v20) = 4;
-    LODWORD(v18) = variant;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1376, ASSERT_TYPE_ASSERT, "(unsigned)( variant ) < (unsigned)( (4) )", "variant doesn't index MAX_RANDOM_MELEE_ANIM_PACKAGES\n\t%i not in [0, %i)", v18, v20) )
+    LODWORD(v16) = 4;
+    LODWORD(v14) = variant;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1376, ASSERT_TYPE_ASSERT, "(unsigned)( variant ) < (unsigned)( (4) )", "variant doesn't index MAX_RANDOM_MELEE_ANIM_PACKAGES\n\t%i not in [0, %i)", v14, v16) )
       __debugbreak();
   }
   if ( (unsigned int)result >= NUM_RESULT )
   {
-    LODWORD(v20) = 3;
-    LODWORD(v18) = result;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1377, ASSERT_TYPE_ASSERT, "(unsigned)( result ) < (unsigned)( static_cast<int>( MeleeResult::NUM_RESULT ) )", "result doesn't index static_cast<int>( MeleeResult::NUM_RESULT )\n\t%i not in [0, %i)", v18, v20) )
+    LODWORD(v16) = 3;
+    LODWORD(v14) = result;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1377, ASSERT_TYPE_ASSERT, "(unsigned)( result ) < (unsigned)( static_cast<int>( MeleeResult::NUM_RESULT ) )", "result doesn't index static_cast<int>( MeleeResult::NUM_RESULT )\n\t%i not in [0, %i)", v14, v16) )
       __debugbreak();
   }
-  __asm
+  v11 = I_fclamp(impactHeight, 0.0, 60.0);
+  v12 = (16 * (result | (4 * (variant | (4 * (isAltMelee | (2 * (material | (4 * (attackerAnim | (8 * clothType))))))))))) | MSG_PackUnsignedFloat(*(float *)&v11, 60.0, 4u);
+  if ( v12 > 0x3FFFF )
   {
-    vmovss  xmm2, cs:__real@42700000; max
-    vmovss  xmm0, [rsp+68h+impactHeight]; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm1, cs:__real@42700000; maxAbsValueSize }
-  v16 = (16 * (result | (4 * (variant | (4 * (isAltMelee | (2 * (material | (4 * (attackerAnim | (8 * clothType))))))))))) | MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 4u);
-  if ( v16 > 0x3FFFF )
-  {
-    v23 = 0x3FFFF;
-    v22 = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1392, ASSERT_TYPE_ASSERT, "( packed ) <= ( ((0x1 << (4 + (3) + (2) + 1 + (2) + (2) + (4))) - 1) )", "%s <= %s\n\t%i, %i", "packed", "((0x1 << MELEE_CHARACTER_IMPACT_BITS) - 1)", v22, v23) )
+    v19 = 0x3FFFF;
+    v18 = v12;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1392, ASSERT_TYPE_ASSERT, "( packed ) <= ( ((0x1 << (4 + (3) + (2) + 1 + (2) + (2) + (4))) - 1) )", "%s <= %s\n\t%i, %i", "packed", "((0x1 << MELEE_CHARACTER_IMPACT_BITS) - 1)", v18, v19) )
       __debugbreak();
   }
-  return (unsigned int)v16;
+  return (unsigned int)v12;
 }
 
 /*
@@ -3053,58 +3066,60 @@ BG_UnpackMeleeCharacterImpactParam
 */
 void BG_UnpackMeleeCharacterImpactParam(int param, int *outClothType, MeleeAnimType *outAttackerAnim, WeaponMaterialType *outMaterial, bool *outIsAltMelee, int *outVariant, MeleeResult *outResult, float *outImpactHeight)
 {
+  double v12; 
+  int v13; 
+  char v14; 
   int v15; 
   bool v16; 
-  __int64 v17; 
+  int v17; 
   __int64 v18; 
+  __int64 v19; 
 
   if ( param > 0x3FFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1399, ASSERT_TYPE_ASSERT, "( param ) <= ( ((0x1 << (4 + (3) + (2) + 1 + (2) + (2) + (4))) - 1) )", "%s <= %s\n\t%i, %i", "param", "((0x1 << MELEE_CHARACTER_IMPACT_BITS) - 1)", param, 0x3FFFF) )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@42700000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(param & 0xF, *(float *)&_XMM1, 4u);
-  _RAX = outImpactHeight;
-  v15 = param >> 4;
-  __asm { vmovss  dword ptr [rax], xmm0 }
-  LOBYTE(_RAX) = v15;
-  v15 >>= 2;
-  *outResult = (unsigned __int8)_RAX & 3;
-  LODWORD(_RAX) = v15 & 3;
-  v15 >>= 2;
-  *outVariant = (int)_RAX;
-  v16 = v15 & 1;
-  v15 >>= 1;
+  v12 = MSG_UnpackUnsignedFloat(param & 0xF, 60.0, 4u);
+  v13 = param >> 4;
+  *outImpactHeight = *(float *)&v12;
+  v14 = v13;
+  v13 >>= 2;
+  *outResult = v14 & 3;
+  v15 = v13 & 3;
+  v13 >>= 2;
+  *outVariant = v15;
+  v16 = v13 & 1;
+  v13 >>= 1;
   *outIsAltMelee = v16;
-  LODWORD(_RAX) = v15 & 3;
-  v15 >>= 2;
-  *outMaterial = (int)_RAX;
-  *outAttackerAnim = v15 & 7;
-  *outClothType = (v15 >> 3) & 0xF;
+  v17 = v13 & 3;
+  v13 >>= 2;
+  *outMaterial = v17;
+  *outAttackerAnim = v13 & 7;
+  *outClothType = (v13 >> 3) & 0xF;
   if ( *outAttackerAnim >= 8u )
   {
-    LODWORD(v18) = 8;
-    SLODWORD(v17) = *outAttackerAnim;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1424, ASSERT_TYPE_ASSERT, "(unsigned)( *outAttackerAnim ) < (unsigned)( static_cast<int>(MeleeAnimType::COUNT) )", "*outAttackerAnim doesn't index static_cast<int>(MeleeAnimType::COUNT)\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v19) = 8;
+    SLODWORD(v18) = *outAttackerAnim;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1424, ASSERT_TYPE_ASSERT, "(unsigned)( *outAttackerAnim ) < (unsigned)( static_cast<int>(MeleeAnimType::COUNT) )", "*outAttackerAnim doesn't index static_cast<int>(MeleeAnimType::COUNT)\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
   if ( *outMaterial >= (unsigned int)(COUNT|DODGE) )
   {
-    LODWORD(v18) = 3;
-    SLODWORD(v17) = *outMaterial;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1425, ASSERT_TYPE_ASSERT, "(unsigned)( *outMaterial ) < (unsigned)( static_cast<int>(WeaponMaterialType::COUNT) )", "*outMaterial doesn't index static_cast<int>(WeaponMaterialType::COUNT)\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v19) = 3;
+    SLODWORD(v18) = *outMaterial;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1425, ASSERT_TYPE_ASSERT, "(unsigned)( *outMaterial ) < (unsigned)( static_cast<int>(WeaponMaterialType::COUNT) )", "*outMaterial doesn't index static_cast<int>(WeaponMaterialType::COUNT)\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
   if ( (unsigned int)*outVariant >= 4 )
   {
-    LODWORD(v18) = 4;
-    LODWORD(v17) = *outVariant;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1426, ASSERT_TYPE_ASSERT, "(unsigned)( *outVariant ) < (unsigned)( (4) )", "*outVariant doesn't index MAX_RANDOM_MELEE_ANIM_PACKAGES\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v19) = 4;
+    LODWORD(v18) = *outVariant;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1426, ASSERT_TYPE_ASSERT, "(unsigned)( *outVariant ) < (unsigned)( (4) )", "*outVariant doesn't index MAX_RANDOM_MELEE_ANIM_PACKAGES\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
   if ( *outResult >= (unsigned int)NUM_RESULT )
   {
-    LODWORD(v18) = 3;
-    SLODWORD(v17) = *outResult;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1427, ASSERT_TYPE_ASSERT, "(unsigned)( *outResult ) < (unsigned)( static_cast<int>(MeleeResult::NUM_RESULT) )", "*outResult doesn't index static_cast<int>(MeleeResult::NUM_RESULT)\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v19) = 3;
+    SLODWORD(v18) = *outResult;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equipment_snd.cpp", 1427, ASSERT_TYPE_ASSERT, "(unsigned)( *outResult ) < (unsigned)( static_cast<int>(MeleeResult::NUM_RESULT) )", "*outResult doesn't index static_cast<int>(MeleeResult::NUM_RESULT)\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
 }

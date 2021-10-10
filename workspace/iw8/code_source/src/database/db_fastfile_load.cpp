@@ -541,57 +541,57 @@ __int64 DB_ReadFastfileHeaderData(const char *const zoneName, unsigned int zoneF
   DB_AsyncIWFileLoad *v10; 
   DBFileHandle *p_dbFileHandle; 
   __int64 v12; 
+  DB_FFHeader *p_topHeader; 
   DB_AsyncIWFileLoad *v14; 
   __int64 v15; 
   unsigned __int8 v16; 
   int v18; 
   bool v19; 
-  const char **v30; 
+  const char **v20; 
   __int64 diffCount; 
+  __int64 v22; 
+  __int64 v23; 
+  DB_FFDiffData *v24; 
+  char *v25; 
+  DB_AsyncIWFileLoad *v26; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  const void *v30; 
+  unsigned int v31; 
   __int64 v32; 
   __int64 v33; 
-  DBFile *p_file; 
-  __int64 v35; 
-  DB_AsyncIWFileLoad *v36; 
-  int v37; 
-  __int64 v38; 
-  __int64 v39; 
-  const void *v41; 
-  unsigned int v53; 
-  __int64 v54; 
-  __int64 v55; 
-  const char *v56; 
-  const DBFileHandle *v57; 
-  const char *v58; 
-  __int64 v59; 
+  DB_FFOpenData *v34; 
+  DBFileHandle *v35; 
+  DB_FFOpenData *v36; 
+  __int64 v37; 
   XZoneTemporaryLoadData *tempData; 
-  DB_AsyncIWFileLoad *v61; 
-  DB_AsyncIWFileLoad *v62; 
-  __int64 v63; 
+  DB_AsyncIWFileLoad *v39; 
+  DB_AsyncIWFileLoad *v40; 
+  __int64 v41; 
   char *fmt; 
-  __int64 v65; 
-  __int64 v66; 
-  unsigned int v67; 
+  __int64 v43; 
+  __int64 v44; 
+  unsigned int v45; 
   const char *const *i; 
-  char *v69; 
+  char *v47; 
   DB_AsyncIWFileLoad other; 
   _QWORD ptr[67]; 
-  char v74; 
+  char v52; 
 
-  _RBX = outOpenData;
   v6 = outZoneMem;
   v8 = zoneName;
   if ( !zoneName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 512, ASSERT_TYPE_ASSERT, "(zoneName)", (const char *)&queryFormat, "zoneName") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "DB_ReadFastfileHeaderData");
-  memset_0(_RBX, 0, sizeof(DB_FFOpenData));
+  memset_0(outOpenData, 0, sizeof(DB_FFOpenData));
   v9 = 0;
   other.m_bufferCount = 0;
   `eh vector constructor iterator'(ptr, 0xE8ui64, 2ui64, (void (__fastcall *)(void *))DB_AsyncIWFileLoad::DB_AsyncIWFileLoad, (void (__fastcall *)(void *))DB_AsyncIWFileLoad::~DB_AsyncIWFileLoad);
-  *(_DWORD *)_RBX->baseFastfile.dbFileHandle.fileID = -16777217;
+  *(_DWORD *)outOpenData->baseFastfile.dbFileHandle.fileID = -16777217;
   DB_AsyncIWFileLoad::Init(&other);
   v10 = (DB_AsyncIWFileLoad *)ptr;
-  p_dbFileHandle = &_RBX->diff[0].file.dbFileHandle;
+  p_dbFileHandle = &outOpenData->diff[0].file.dbFileHandle;
   v12 = 2i64;
   do
   {
@@ -601,21 +601,21 @@ __int64 DB_ReadFastfileHeaderData(const char *const zoneName, unsigned int zoneF
     --v12;
   }
   while ( v12 );
-  _RSI = &_RBX->topHeader;
-  DB_FormatFastfilePathFromZoneName(_RBX->baseFastfile.name, 64, v8, ".ff");
-  if ( !DB_File_OpenDBFile(&_RBX->baseFastfile.dbFileHandle, _RBX->baseFastfile.name) )
+  p_topHeader = &outOpenData->topHeader;
+  DB_FormatFastfilePathFromZoneName(outOpenData->baseFastfile.name, 64, v8, ".ff");
+  if ( !DB_File_OpenDBFile(&outOpenData->baseFastfile.dbFileHandle, outOpenData->baseFastfile.name) )
   {
-    DB_SetFastfileErrorString(COM_ERR_6036, _RBX->baseFastfile.name, "Unable to open");
+    DB_SetFastfileErrorString(COM_ERR_6036, outOpenData->baseFastfile.name, "Unable to open");
     goto $on_read_failure;
   }
   v18 = -1;
   v19 = initForLoading;
   if ( !initForLoading )
     v18 = 160;
-  DB_AsyncIWFileLoad::PrepareToRead(&other, &_RBX->baseFastfile, v18);
-  if ( !DB_AsyncIWFileLoad::ReadHeader(&other, &_RBX->baseHeader, 0xA0ui64) )
+  DB_AsyncIWFileLoad::PrepareToRead(&other, &outOpenData->baseFastfile, v18);
+  if ( !DB_AsyncIWFileLoad::ReadHeader(&other, &outOpenData->baseHeader, 0xA0ui64) )
   {
-    DB_SetFastfileErrorString(COM_ERR_6037, _RBX->baseFastfile.name, "Unable to read header");
+    DB_SetFastfileErrorString(COM_ERR_6037, outOpenData->baseFastfile.name, "Unable to read header");
 $on_read_failure:
     v14 = (DB_AsyncIWFileLoad *)ptr;
     v15 = 2i64;
@@ -629,217 +629,186 @@ $on_read_failure:
     v16 = 0;
     goto LABEL_11;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+88h]
-    vmovups xmmword ptr [rsi], xmm0
-    vmovups xmm1, xmmword ptr [rbx+98h]
-    vmovups xmmword ptr [rsi+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0A8h]
-    vmovups xmmword ptr [rsi+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0B8h]
-    vmovups xmmword ptr [rsi+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0C8h]
-    vmovups xmmword ptr [rsi+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0D8h]
-    vmovups xmmword ptr [rsi+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0E8h]
-    vmovups xmmword ptr [rsi+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+0F8h]
-    vmovups xmmword ptr [rsi+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+108h]
-    vmovups xmmword ptr [rsi+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+118h]
-    vmovups xmmword ptr [rsi+90h], xmm0
-  }
-  if ( !DB_CheckFastfileHeaderVersionAndMagic(&_RBX->baseHeader, &_RBX->baseFastfile) )
+  *(_OWORD *)p_topHeader->magic = *(_OWORD *)outOpenData->baseHeader.magic;
+  *(_OWORD *)&outOpenData->topHeader.dashCompressBuild = *(_OWORD *)&outOpenData->baseHeader.dashCompressBuild;
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.size = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.size;
+  *(_OWORD *)outOpenData->topHeader.xfileHeader.blockSize = *(_OWORD *)outOpenData->baseHeader.xfileHeader.blockSize;
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[2] = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.blockSize[2];
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[4] = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.blockSize[4];
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[6] = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.blockSize[6];
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[8] = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.blockSize[8];
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[10] = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.blockSize[10];
+  *(_OWORD *)&outOpenData->topHeader.xfileHeader.encryption.IV[4] = *(_OWORD *)&outOpenData->baseHeader.xfileHeader.encryption.IV[4];
+  if ( !DB_CheckFastfileHeaderVersionAndMagic(&outOpenData->baseHeader, &outOpenData->baseFastfile) )
     goto $on_read_failure;
   if ( (zoneFlags & 0x3CFF000) == 0 || (zoneFlags & 0x404000) == zoneFlags )
   {
-    v74 = 0;
-    v67 = 0;
-    v30 = (const char **)FASTFILE_DIFF_EXTS;
-    for ( i = FASTFILE_DIFF_EXTS; ; v30 = (const char **)i )
+    v52 = 0;
+    v45 = 0;
+    v20 = (const char **)FASTFILE_DIFF_EXTS;
+    for ( i = FASTFILE_DIFF_EXTS; ; v20 = (const char **)i )
     {
-      diffCount = _RBX->diffCount;
+      diffCount = outOpenData->diffCount;
       if ( (unsigned int)diffCount >= 2 )
       {
-        LODWORD(v66) = 2;
-        LODWORD(v65) = _RBX->diffCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 580, ASSERT_TYPE_ASSERT, "(unsigned)( diffIndex ) < (unsigned)( ( sizeof( *array_counter( outOpenData.diff ) ) + 0 ) )", "diffIndex doesn't index ARRAY_COUNT( outOpenData.diff )\n\t%i not in [0, %i)", v65, v66) )
+        LODWORD(v44) = 2;
+        LODWORD(v43) = outOpenData->diffCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 580, ASSERT_TYPE_ASSERT, "(unsigned)( diffIndex ) < (unsigned)( ( sizeof( *array_counter( outOpenData.diff ) ) + 0 ) )", "diffIndex doesn't index ARRAY_COUNT( outOpenData.diff )\n\t%i not in [0, %i)", v43, v44) )
           __debugbreak();
       }
-      v32 = diffCount;
-      v33 = diffCount << 9;
-      p_file = &_RBX->diff[diffCount].file;
-      v69 = &_RBX->baseFastfile.name[v33];
-      v35 = (__int64)&_RBX->diff[0].header.magic[v33];
-      *(_DWORD *)p_file->dbFileHandle.fileID = -16777217;
-      Com_sprintf(p_file->name, 0x40ui64, "%s%s", zoneName, *v30);
-      if ( DB_File_OpenDBFile(&p_file->dbFileHandle, p_file->name) )
+      v22 = diffCount;
+      v23 = diffCount << 9;
+      v24 = &outOpenData->diff[diffCount];
+      v47 = &outOpenData->baseFastfile.name[v23];
+      v25 = &outOpenData->diff[0].header.magic[v23];
+      *(_DWORD *)v24->file.dbFileHandle.fileID = -16777217;
+      Com_sprintf(v24->file.name, 0x40ui64, "%s%s", zoneName, *v20);
+      if ( DB_File_OpenDBFile(&v24->file.dbFileHandle, v24->file.name) )
       {
-        v36 = (DB_AsyncIWFileLoad *)&ptr[29 * v32];
-        v37 = -1;
+        v26 = (DB_AsyncIWFileLoad *)&ptr[29 * v22];
+        v27 = -1;
         if ( !initForLoading )
-          v37 = 376;
-        DB_AsyncIWFileLoad::PrepareToRead(v36, p_file, v37);
-        if ( DB_AsyncIWFileLoad::ReadHeader(v36, (void *const)v35, 0x178ui64) )
+          v27 = 376;
+        DB_AsyncIWFileLoad::PrepareToRead(v26, &v24->file, v27);
+        if ( DB_AsyncIWFileLoad::ReadHeader(v26, v25, 0x178ui64) )
         {
-          ++_RBX->diffCount;
-          v38 = *(unsigned int *)(v35 + 8);
-          if ( (_DWORD)v38 != 6 )
+          ++outOpenData->diffCount;
+          v28 = *((unsigned int *)v25 + 2);
+          if ( (_DWORD)v28 != 6 )
           {
             LODWORD(fmt) = 6;
-            DB_SetFastfileErrorString(COM_ERR_6039, p_file->name, "XFILE_FD_HEADER_VERSION mismatch. Has '%d', wanted '%d'", v38, fmt);
+            DB_SetFastfileErrorString(COM_ERR_6039, v24->file.name, "XFILE_FD_HEADER_VERSION mismatch. Has '%d', wanted '%d'", v28, fmt);
             goto $on_read_failure;
           }
-          v39 = *(unsigned int *)(v35 + 12);
-          if ( (_DWORD)v39 != 4 )
+          v29 = *((unsigned int *)v25 + 3);
+          if ( (_DWORD)v29 != 4 )
           {
             LODWORD(fmt) = 4;
-            DB_SetFastfileErrorString(COM_ERR_6040, p_file->name, "XFILE_DIFF_VERSION version mismatch. Has '%d', wanted '%d'", v39, fmt);
+            DB_SetFastfileErrorString(COM_ERR_6040, v24->file.name, "XFILE_DIFF_VERSION version mismatch. Has '%d', wanted '%d'", v29, fmt);
             goto $on_read_failure;
           }
-          _RBP = v35 + 216;
-          if ( !DB_CheckFastfileHeaderVersionAndMagic((const DB_FFHeader *)(v35 + 216), p_file) || !DB_CheckFastfileHeaderVersionAndMagic((const DB_FFHeader *)(v35 + 56), p_file) )
+          if ( !DB_CheckFastfileHeaderVersionAndMagic((const DB_FFHeader *)(v25 + 216), &v24->file) || !DB_CheckFastfileHeaderVersionAndMagic((const DB_FFHeader *)(v25 + 56), &v24->file) )
             goto $on_read_failure;
-          v41 = (const void *)(v35 + 56);
-          if ( v74 )
+          v30 = v25 + 56;
+          if ( v52 )
           {
-            if ( memcmp_0(v41, &_RBX->topHeader, 0xA0ui64) )
+            if ( memcmp_0(v30, &outOpenData->topHeader, 0xA0ui64) )
             {
-              DB_SetFastfileErrorString(COM_ERR_6041, p_file->name, "Patch header data mismatch between current and prior patch");
+              DB_SetFastfileErrorString(COM_ERR_6041, v24->file.name, "Patch header data mismatch between current and prior patch");
               goto $on_read_failure;
             }
           }
-          else if ( memcmp_0(v41, &_RBX->baseHeader, 0xA0ui64) )
+          else if ( memcmp_0(v30, &outOpenData->baseHeader, 0xA0ui64) )
           {
-            DB_SetFastfileErrorString(COM_ERR_6042, p_file->name, "Patch header data mismatch between base FF '%s' and current patch", _RBX->baseFastfile.name);
+            DB_SetFastfileErrorString(COM_ERR_6042, v24->file.name, "Patch header data mismatch between base FF '%s' and current patch", outOpenData->baseFastfile.name);
             goto $on_read_failure;
           }
-          v74 = 1;
-          __asm
+          v52 = 1;
+          *(_OWORD *)outOpenData->topHeader.magic = *(_OWORD *)(v25 + 216);
+          *(_OWORD *)&outOpenData->topHeader.dashCompressBuild = *(_OWORD *)(v25 + 232);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.size = *(_OWORD *)(v25 + 248);
+          *(_OWORD *)outOpenData->topHeader.xfileHeader.blockSize = *(_OWORD *)(v25 + 264);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[2] = *(_OWORD *)(v25 + 280);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[4] = *(_OWORD *)(v25 + 296);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[6] = *(_OWORD *)(v25 + 312);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[8] = *(_OWORD *)(v25 + 328);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.blockSize[10] = *(_OWORD *)(v25 + 344);
+          *(_OWORD *)&outOpenData->topHeader.xfileHeader.encryption.IV[4] = *(_OWORD *)(v25 + 360);
+          if ( !*((_QWORD *)v25 + 6) )
           {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vmovups xmmword ptr [rbx+128h], xmm0
-            vmovups xmm1, xmmword ptr [rbp+10h]
-            vmovups xmmword ptr [rbx+138h], xmm1
-            vmovups xmm0, xmmword ptr [rbp+20h]
-            vmovups xmmword ptr [rbx+148h], xmm0
-            vmovups xmm1, xmmword ptr [rbp+30h]
-            vmovups xmmword ptr [rbx+158h], xmm1
-            vmovups xmm0, xmmword ptr [rbp+40h]
-            vmovups xmmword ptr [rbx+168h], xmm0
-            vmovups xmm1, xmmword ptr [rbp+50h]
-            vmovups xmmword ptr [rbx+178h], xmm1
-            vmovups xmm0, xmmword ptr [rbp+60h]
-            vmovups xmmword ptr [rbx+188h], xmm0
-            vmovups xmm1, xmmword ptr [rbp+70h]
-            vmovups xmmword ptr [rbx+198h], xmm1
-          }
-          _RBP = v35 + 344;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vmovups xmmword ptr [rbx+1A8h], xmm0
-            vmovups xmm1, xmmword ptr [rbp+10h]
-            vmovups xmmword ptr [rbx+1B8h], xmm1
-          }
-          if ( !*(_QWORD *)(v35 + 48) )
-          {
-            if ( *(_QWORD *)(v35 + 40) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 682, ASSERT_TYPE_ASSERT, "(fdHeader.residentDiffCompSize == 0)", (const char *)&queryFormat, "fdHeader.residentDiffCompSize == 0") )
+            if ( *((_QWORD *)v25 + 5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 682, ASSERT_TYPE_ASSERT, "(fdHeader.residentDiffCompSize == 0)", (const char *)&queryFormat, "fdHeader.residentDiffCompSize == 0") )
               __debugbreak();
-            DB_AsyncIWFileLoad::Shutdown(v36);
-            DB_File_CloseDBFile(&p_file->dbFileHandle);
-            memset_0(p_file, 0, 0x200ui64);
-            *((_DWORD *)v69 + 130) = -16777217;
-            if ( !_RBX->diffCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 691, ASSERT_TYPE_ASSERT, "(outOpenData.diffCount > 0)", (const char *)&queryFormat, "outOpenData.diffCount > 0") )
+            DB_AsyncIWFileLoad::Shutdown(v26);
+            DB_File_CloseDBFile(&v24->file.dbFileHandle);
+            memset_0(v24, 0, sizeof(DB_FFDiffData));
+            *((_DWORD *)v47 + 130) = -16777217;
+            if ( !outOpenData->diffCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 691, ASSERT_TYPE_ASSERT, "(outOpenData.diffCount > 0)", (const char *)&queryFormat, "outOpenData.diffCount > 0") )
               __debugbreak();
-            --_RBX->diffCount;
+            --outOpenData->diffCount;
           }
         }
         else
         {
-          if ( DB_File_GetDBFileSize(&p_file->dbFileHandle) )
+          if ( DB_File_GetDBFileSize(&v24->file.dbFileHandle) )
           {
-            DB_SetFastfileErrorString(COM_ERR_6038, p_file->name, "Unable to read header");
-            DB_AsyncIWFileLoad::Shutdown(v36);
-            DB_File_CloseDBFile(&p_file->dbFileHandle);
+            DB_SetFastfileErrorString(COM_ERR_6038, v24->file.name, "Unable to read header");
+            DB_AsyncIWFileLoad::Shutdown(v26);
+            DB_File_CloseDBFile(&v24->file.dbFileHandle);
             goto $on_read_failure;
           }
-          Com_PrintWarning(10, "WARNING: '%s' is a zero byte file.\n", p_file->name);
-          Com_PrintWarning(10, "WARNING: Unable to read header for '%s'.\n", p_file->name);
-          DB_AsyncIWFileLoad::Shutdown(v36);
-          DB_File_CloseDBFile(&p_file->dbFileHandle);
+          Com_PrintWarning(10, "WARNING: '%s' is a zero byte file.\n", v24->file.name);
+          Com_PrintWarning(10, "WARNING: Unable to read header for '%s'.\n", v24->file.name);
+          DB_AsyncIWFileLoad::Shutdown(v26);
+          DB_File_CloseDBFile(&v24->file.dbFileHandle);
         }
       }
       else
       {
-        p_file->name[0] = 0;
+        v24->file.name[0] = 0;
       }
-      ++v67;
+      ++v45;
       ++i;
-      if ( v67 >= 2 )
+      if ( v45 >= 2 )
         break;
     }
-    _RSI = &_RBX->topHeader;
+    p_topHeader = &outOpenData->topHeader;
     v6 = outZoneMem;
     v8 = zoneName;
     v19 = initForLoading;
   }
-  v53 = _RBX->diffCount;
-  if ( v53 )
+  v31 = outOpenData->diffCount;
+  if ( v31 )
   {
-    v54 = v53 - 1;
-    if ( (unsigned int)v54 >= 2 )
+    v32 = v31 - 1;
+    if ( (unsigned int)v32 >= 2 )
     {
-      LODWORD(v66) = 2;
-      LODWORD(v65) = v54;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 707, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( outOpenData.diff ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( outOpenData.diff )\n\t%i not in [0, %i)", v65, v66) )
+      LODWORD(v44) = 2;
+      LODWORD(v43) = v32;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 707, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( outOpenData.diff ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( outOpenData.diff )\n\t%i not in [0, %i)", v43, v44) )
         __debugbreak();
     }
-    v55 = v54 << 9;
-    if ( memcmp_0(&_RBX->diff[0].header.newHeader.magic[v55], _RSI, 0xA0ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 711, ASSERT_TYPE_ASSERT, "(I_memcmp( &fdHeader.newHeader, &topFFHeader, sizeof( topFFHeader ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &fdHeader.newHeader, &topFFHeader, sizeof( topFFHeader ) ) == 0") )
+    v33 = v32 << 9;
+    if ( memcmp_0(&outOpenData->diff[0].header.newHeader.magic[v33], p_topHeader, 0xA0ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 711, ASSERT_TYPE_ASSERT, "(I_memcmp( &fdHeader.newHeader, &topFFHeader, sizeof( topFFHeader ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &fdHeader.newHeader, &topFFHeader, sizeof( topFFHeader ) ) == 0") )
       __debugbreak();
-    v56 = &_RBX->diff[0].file.name[v55];
-    v57 = (DBFileHandle *)((char *)&_RBX->diff[0].file.dbFileHandle + v55);
-    v58 = (const char *)_RBX;
+    v34 = (DB_FFOpenData *)((char *)outOpenData->diff + v33);
+    v35 = (DBFileHandle *)((char *)&outOpenData->diff[0].file.dbFileHandle + v33);
+    v36 = outOpenData;
   }
   else
   {
-    v58 = NULL;
-    v56 = (const char *)_RBX;
-    v57 = &_RBX->baseFastfile.dbFileHandle;
+    v36 = NULL;
+    v34 = outOpenData;
+    v35 = &outOpenData->baseFastfile.dbFileHandle;
   }
-  if ( !DB_CheckXFileVersion(_RSI, v57, v56, v58) )
+  if ( !DB_CheckXFileVersion(p_topHeader, v35, v34->baseFastfile.name, v36->baseFastfile.name) )
     goto $on_read_failure;
   if ( v19 )
   {
-    DB_AllocateFastfileMemory(_RSI, _RBX, v6, v8);
+    DB_AllocateFastfileMemory(p_topHeader, outOpenData, v6, v8);
     DB_AsyncIWFileLoad::CopyFrom(v6->tempData->residentLoader, &other, &v6->tempData->openData.baseFastfile);
-    v59 = 1712i64;
+    v37 = 1712i64;
     do
     {
       tempData = v6->tempData;
-      v61 = *(DB_AsyncIWFileLoad **)&tempData->openData.baseFastfile.name[v59];
-      if ( v61 )
-        DB_AsyncIWFileLoad::CopyFrom(v61, (DB_AsyncIWFileLoad *)&ptr[29 * v9], &tempData->openData.diff[(unsigned __int64)v9].file);
+      v39 = *(DB_AsyncIWFileLoad **)&tempData->openData.baseFastfile.name[v37];
+      if ( v39 )
+        DB_AsyncIWFileLoad::CopyFrom(v39, (DB_AsyncIWFileLoad *)&ptr[29 * v9], &tempData->openData.diff[(unsigned __int64)v9].file);
       ++v9;
-      v59 += 8i64;
+      v37 += 8i64;
     }
     while ( v9 < 2 );
     v16 = 1;
   }
   else
   {
-    v62 = (DB_AsyncIWFileLoad *)ptr;
-    v63 = 2i64;
+    v40 = (DB_AsyncIWFileLoad *)ptr;
+    v41 = 2i64;
     do
     {
-      DB_AsyncIWFileLoad::Shutdown(v62++);
-      --v63;
+      DB_AsyncIWFileLoad::Shutdown(v40++);
+      --v41;
     }
-    while ( v63 );
+    while ( v41 );
     DB_AsyncIWFileLoad::Shutdown(&other);
     v16 = 1;
   }
@@ -878,11 +847,12 @@ void DB_SetFastfileErrorString(ComErrorCode uniqueErrorCode, const char *const f
 DB_SetupTempLoadData
 ==============
 */
-XZoneTemporaryLoadData *DB_SetupTempLoadData(DB_FFOpenData *outOpenData, const XArchiveBlocks *archiveBlocks)
+XBlock *DB_SetupTempLoadData(DB_FFOpenData *outOpenData, const XArchiveBlocks *archiveBlocks)
 {
   unsigned __int8 *data; 
+  XBlock *v5; 
   unsigned __int8 *v6; 
-  unsigned __int64 v7; 
+  unsigned __int8 *v7; 
   const dvar_t *v8; 
   unsigned __int64 v9; 
   __int64 v10; 
@@ -890,22 +860,21 @@ XZoneTemporaryLoadData *DB_SetupTempLoadData(DB_FFOpenData *outOpenData, const X
   unsigned __int64 BDiffWindowSizeAlloc; 
   unsigned __int64 v13; 
 
-  _R14 = archiveBlocks;
   if ( !archiveBlocks->blocks[0].data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 302, ASSERT_TYPE_ASSERT, "(archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].data)", (const char *)&queryFormat, "archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].data") )
     __debugbreak();
-  if ( _R14->blocks[0].size < 0x6C0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 303, ASSERT_TYPE_ASSERT, "(archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size >= sizeof( XZoneTemporaryLoadData ))", (const char *)&queryFormat, "archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size >= sizeof( XZoneTemporaryLoadData )") )
+  if ( archiveBlocks->blocks[0].size < 0x6C0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 303, ASSERT_TYPE_ASSERT, "(archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size >= sizeof( XZoneTemporaryLoadData ))", (const char *)&queryFormat, "archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size >= sizeof( XZoneTemporaryLoadData )") )
     __debugbreak();
-  data = _R14->blocks[0].data;
-  if ( (unsigned __int16)_R14->blocks[0].data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 307, ASSERT_TYPE_ASSERT, "(IsAligned( tempDataPtr, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( tempDataPtr, MEM_PHYSICAL_PAGE_SIZE )") )
+  data = archiveBlocks->blocks[0].data;
+  if ( (unsigned __int16)archiveBlocks->blocks[0].data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 307, ASSERT_TYPE_ASSERT, "(IsAligned( tempDataPtr, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( tempDataPtr, MEM_PHYSICAL_PAGE_SIZE )") )
     __debugbreak();
-  _R15 = data;
+  v5 = (XBlock *)data;
   v6 = data;
-  v7 = (unsigned __int64)(data + 1728);
+  v7 = data + 1728;
   memset_0(v6, 0, 0x6C0ui64);
   if ( g_dbPreloading )
   {
-    *((_QWORD *)_R15 + 210) = v7;
-    *((_QWORD *)_R15 + 211) = outOpenData->topHeader.xfileHeader.preloadWalkSize;
+    v5[105].data = v7;
+    v5[105].size = outOpenData->topHeader.xfileHeader.preloadWalkSize;
     v7 += outOpenData->topHeader.xfileHeader.preloadWalkSize;
     v8 = DCONST_DVARBOOL_db_patchmem_preload;
     if ( !DCONST_DVARBOOL_db_patchmem_preload && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_patchmem_preload") )
@@ -913,9 +882,9 @@ XZoneTemporaryLoadData *DB_SetupTempLoadData(DB_FFOpenData *outOpenData, const X
     Dvar_CheckFrontendServerThread(v8);
     if ( v8->current.enabled )
     {
-      v9 = (v7 + 7) & 0xFFFFFFFFFFFFFFF8ui64;
-      *((_QWORD *)_R15 + 213) = v9;
-      v7 = v9 + 147920;
+      v9 = (unsigned __int64)(v7 + 7) & 0xFFFFFFFFFFFFFFF8ui64;
+      v5[106].size = v9;
+      v7 = (unsigned __int8 *)(v9 + 147920);
     }
   }
   if ( outOpenData->diffCount )
@@ -923,46 +892,32 @@ XZoneTemporaryLoadData *DB_SetupTempLoadData(DB_FFOpenData *outOpenData, const X
     v10 = 0i64;
     do
     {
-      v11 = (DBBinaryPatchStream *)((v7 + 7) & 0xFFFFFFFFFFFFFFF8ui64);
-      *(_QWORD *)&_R15[8 * v10 + 1712] = v11;
+      v11 = (DBBinaryPatchStream *)((unsigned __int64)(v7 + 7) & 0xFFFFFFFFFFFFFFF8ui64);
+      *((_QWORD *)&v5[107].data + v10) = v11;
       DB_BinaryPatch_MemSetClear(v11);
       BDiffWindowSizeAlloc = DB_BinaryPatch_GetBDiffWindowSizeAlloc(&outOpenData->diff[(unsigned __int64)(unsigned int)v10].header.residentWindowSizes);
       DB_BinaryPatch_SetWindowAllocs(v11, &outOpenData->diff[(unsigned __int64)(unsigned int)v10].header.residentWindowSizes, (unsigned __int8 *)(((unsigned __int64)&v11[10].asyncFileLoad.m_readBuffers[15] + 7) & 0xFFFFFFFFFFFFF000ui64), BDiffWindowSizeAlloc);
-      v7 = BDiffWindowSizeAlloc + (((unsigned __int64)&v11[10].asyncFileLoad.m_readBuffers[15] + 7) & 0xFFFFFFFFFFFFF000ui64);
+      v7 = (unsigned __int8 *)(BDiffWindowSizeAlloc + (((unsigned __int64)&v11[10].asyncFileLoad.m_readBuffers[15] + 7) & 0xFFFFFFFFFFFFF000ui64));
       v10 = (unsigned int)(v10 + 1);
     }
     while ( (unsigned int)v10 < outOpenData->diffCount );
   }
-  v13 = (v7 + 7) & 0xFFFFFFFFFFFFFFF8ui64;
-  *((_QWORD *)_R15 + 209) = v13;
-  if ( ((v13 + 247) & 0xFFFFFFFFFFFFFFF0ui64) - (unsigned __int64)_R14->blocks[0].data != _R14->blocks[0].size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 361, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( tempDataPtr - archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].data ) == archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size)", (const char *)&queryFormat, "static_cast<size_t>( tempDataPtr - archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].data ) == archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size") )
+  v13 = (unsigned __int64)(v7 + 7) & 0xFFFFFFFFFFFFFFF8ui64;
+  v5[104].size = v13;
+  if ( ((v13 + 247) & 0xFFFFFFFFFFFFFFF0ui64) - (unsigned __int64)archiveBlocks->blocks[0].data != archiveBlocks->blocks[0].size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_fastfile_load.cpp", 361, ASSERT_TYPE_ASSERT, "(static_cast<size_t>( tempDataPtr - archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].data ) == archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size)", (const char *)&queryFormat, "static_cast<size_t>( tempDataPtr - archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].data ) == archiveBlocks.blocks[XFILE_BLOCK_TEMP_ADDITIONAL].size") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [r15+5D0h], xmm0
-    vmovups xmm1, xmmword ptr [r14+10h]
-    vmovups xmmword ptr [r15+5E0h], xmm1
-    vmovups xmm0, xmmword ptr [r14+20h]
-    vmovups xmmword ptr [r15+5F0h], xmm0
-    vmovups xmm1, xmmword ptr [r14+30h]
-    vmovups xmmword ptr [r15+600h], xmm1
-    vmovups xmm0, xmmword ptr [r14+40h]
-    vmovups xmmword ptr [r15+610h], xmm0
-    vmovups xmm1, xmmword ptr [r14+50h]
-    vmovups xmmword ptr [r15+620h], xmm1
-    vmovups xmm0, xmmword ptr [r14+60h]
-    vmovups xmmword ptr [r15+630h], xmm0
-    vmovups xmm0, xmmword ptr [r14+70h]
-    vmovups xmmword ptr [r15+640h], xmm0
-    vmovups xmm1, xmmword ptr [r14+80h]
-    vmovups xmmword ptr [r15+650h], xmm1
-    vmovups xmm0, xmmword ptr [r14+90h]
-    vmovups xmmword ptr [r15+660h], xmm0
-    vmovups xmm1, xmmword ptr [r14+0A0h]
-    vmovups xmmword ptr [r15+670h], xmm1
-  }
-  return (XZoneTemporaryLoadData *)_R15;
+  v5[93] = archiveBlocks->blocks[0];
+  v5[94] = archiveBlocks->blocks[1];
+  v5[95] = archiveBlocks->blocks[2];
+  v5[96] = archiveBlocks->blocks[3];
+  v5[97] = archiveBlocks->blocks[4];
+  v5[98] = archiveBlocks->blocks[5];
+  v5[99] = archiveBlocks->blocks[6];
+  v5[100] = archiveBlocks->blocks[7];
+  v5[101] = archiveBlocks->blocks[8];
+  v5[102] = archiveBlocks->blocks[9];
+  v5[103] = archiveBlocks->blocks[10];
+  return v5;
 }
 
 /*

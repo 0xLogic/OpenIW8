@@ -2282,15 +2282,15 @@ void MatchmakingRegisterComplete(GenericTask *task, eTaskManagerTaskState taskSt
   int v17; 
   bool v18; 
   PartyData *ActiveParty; 
-  __int64 v24; 
+  __int64 v20; 
   float value; 
-  __int64 v26; 
-  bdJSONDeserializer v27; 
+  __int64 v22; 
+  bdJSONDeserializer v23; 
   DLogContext context; 
   char dest[256]; 
   char buffer[4096]; 
 
-  v26 = -2i64;
+  v22 = -2i64;
   m_controllerIndex = task->m_controllerIndex;
   m_appData = task->m_appData;
   if ( s_lobbyTaskID != task->m_localTaskId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 1764, ASSERT_TYPE_ASSERT, "(s_lobbyTaskID == task->m_localTaskId)", (const char *)&queryFormat, "s_lobbyTaskID == task->m_localTaskId") )
@@ -2315,18 +2315,11 @@ void MatchmakingRegisterComplete(GenericTask *task, eTaskManagerTaskState taskSt
     }
     Com_Printf(25, "Tournament: registered for upcoming tournament.\n");
     m_appData[8] = 0;
-    bdJSONDeserializer::bdJSONDeserializer(&v27, *(const char **)s_tournamentRegistrationResult._bytes_20);
-    if ( !bdJSONDeserializer::getFloat32(&v27, "start_search_offset_seconds", &value) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 1787, ASSERT_TYPE_ASSERT, "(resultDoc.getFloat32( \"start_search_offset_seconds\", startSearchOffset ))", (const char *)&queryFormat, "resultDoc.getFloat32( \"start_search_offset_seconds\", startSearchOffset )") )
+    bdJSONDeserializer::bdJSONDeserializer(&v23, *(const char **)s_tournamentRegistrationResult._bytes_20);
+    if ( !bdJSONDeserializer::getFloat32(&v23, "start_search_offset_seconds", &value) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 1787, ASSERT_TYPE_ASSERT, "(resultDoc.getFloat32( \"start_search_offset_seconds\", startSearchOffset ))", (const char *)&queryFormat, "resultDoc.getFloat32( \"start_search_offset_seconds\", startSearchOffset )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm2, [rsp+12F8h+value]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    Com_Printf(25, "Tournament: start search offset = %f\n", *(double *)&_XMM2);
-    __asm { vcvttss2si eax, [rsp+12F8h+value] }
-    s_matchmakingStartOffset = _EAX;
+    Com_Printf(25, "Tournament: start search offset = %f\n", value);
+    s_matchmakingStartOffset = (int)value;
     s_enteredStateTime = Sys_Milliseconds();
     Com_Printf(25, "Tournament: changing state from %d to %d\n", (unsigned __int8)s_tournamentState, 2i64);
     LOBYTE(s_tournamentState) = 2;
@@ -2334,7 +2327,7 @@ void MatchmakingRegisterComplete(GenericTask *task, eTaskManagerTaskState taskSt
     if ( Party_AreWeHost(ActiveParty) )
       PartyHost_GamestateChanged(ActiveParty);
     s_myTournamentTime += s_matchmakingStartOffset;
-    bdJSONDeserializer::~bdJSONDeserializer(&v27);
+    bdJSONDeserializer::~bdJSONDeserializer(&v23);
     goto LABEL_37;
   }
   if ( taskState == TASKSTATE_ERROR )
@@ -2387,8 +2380,8 @@ LABEL_22:
   if ( taskState != TASKSTATE_PENDING )
   {
 LABEL_11:
-    LODWORD(v24) = taskState;
-    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 1845, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v24) )
+    LODWORD(v20) = taskState;
+    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 1845, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v20) )
       goto LABEL_37;
     goto LABEL_10;
   }
@@ -2657,9 +2650,9 @@ __int64 OnlineTournament_CanContinueInviteJoin(InviteHSMApplicationSpecificPreJo
 {
   InitialDataTypeForJoining m_initialDataTypeForJoining; 
   const char *v3; 
-  int v5; 
-  const dvar_t *v6; 
-  unsigned int v7; 
+  int v4; 
+  const dvar_t *v5; 
+  unsigned int v6; 
   PartyData *ActiveParty; 
   __m256i controllerIndex; 
 
@@ -2671,12 +2664,8 @@ __int64 OnlineTournament_CanContinueInviteJoin(InviteHSMApplicationSpecificPreJo
       Com_PrintError(25, "Tournament: OnlineTournament_CanContinueInviteJoin Unsupported join type\n");
       return 2i64;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rsp+68h+controllerIndex], ymm0
-    }
-    v5 = Sys_Milliseconds();
+    controllerIndex = *(__m256i *)data;
+    v4 = Sys_Milliseconds();
     if ( !(_BYTE)s_tournamentState )
     {
       if ( !controllerIndex.m256i_i64[2] )
@@ -2684,18 +2673,18 @@ __int64 OnlineTournament_CanContinueInviteJoin(InviteHSMApplicationSpecificPreJo
         Com_Printf(25, "Tournament: OnlineTournament_CanContinueInviteJoinWithUniversalId The invite has no tournament id set and we are not active, so let the invite join continue\n");
         return 1;
       }
-      v6 = DVARINT_online_tournament_invite_join_refresh_time_to_wait_for_tournament_state;
+      v5 = DVARINT_online_tournament_invite_join_refresh_time_to_wait_for_tournament_state;
       if ( !DVARINT_online_tournament_invite_join_refresh_time_to_wait_for_tournament_state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_tournament_invite_join_refresh_time_to_wait_for_tournament_state") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v6);
-      if ( v5 - s_lastTimeTournamentStateFetched < v6->current.integer )
+      Dvar_CheckFrontendServerThread(v5);
+      if ( v4 - s_lastTimeTournamentStateFetched < v5->current.integer )
       {
         if ( s_rejoinTournamentID )
         {
           Com_Printf(25, "Tournament: OnlineTournament_CanContinueInviteJoinWithUniversalId There is a rejoin id, so starting rejoin process and cancelling the invite\n");
           if ( s_uiNavigationDestination && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 3782, ASSERT_TYPE_ASSERT, "(s_uiNavigationDestination == static_cast<int>(PartyUIRoot::FREE))", (const char *)&queryFormat, "s_uiNavigationDestination == static_cast<int>(PartyUIRoot::FREE)") )
             __debugbreak();
-          v7 = 3;
+          v6 = 3;
           if ( !OnlineTournament_CanDoRejoin(controllerIndex.m256i_i32[0]) )
           {
             Com_PrintError(25, "Tournament: not doing rejoin because the target controller is not active.");
@@ -2712,7 +2701,7 @@ __int64 OnlineTournament_CanContinueInviteJoin(InviteHSMApplicationSpecificPreJo
             PartyHost_GamestateChanged(ActiveParty);
             return 3i64;
           }
-          return v7;
+          return v6;
         }
         Com_Printf(25, "Tournament: OnlineTournament_CanContinueInviteJoinWithUniversalId There is no rejoin id, so letting the invite join process continuing as usual\n");
         return 1;
@@ -3143,6 +3132,8 @@ void OnlineTournament_EnqueueTask(const LobbyQueuedTask *task)
   int v1; 
   __int64 v2; 
   __int64 v3; 
+  LobbyQueuedTask *v4; 
+  __int128 v5; 
 
   v1 = 0;
   while ( 1 )
@@ -3157,49 +3148,28 @@ void OnlineTournament_EnqueueTask(const LobbyQueuedTask *task)
     }
   }
   v3 = 8i64;
-  _RAX = &s_lobbyTaskQueue[v2];
+  v4 = &s_lobbyTaskQueue[v2];
   do
   {
-    _RAX = (LobbyQueuedTask *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
+    v4 = (LobbyQueuedTask *)((char *)v4 + 128);
+    v5 = *(_OWORD *)task->taskType;
     task = (const LobbyQueuedTask *)((char *)task + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    *(_OWORD *)&v4[-1].message[896] = v5;
+    *(_OWORD *)&v4[-1].message[912] = *(_OWORD *)&task[-1].message[912];
+    *(_OWORD *)&v4[-1].message[928] = *(_OWORD *)&task[-1].message[928];
+    *(_OWORD *)&v4[-1].message[944] = *(_OWORD *)&task[-1].message[944];
+    *(_OWORD *)&v4[-1].message[960] = *(_OWORD *)&task[-1].message[960];
+    *(_OWORD *)&v4[-1].message[976] = *(_OWORD *)&task[-1].message[976];
+    *(_OWORD *)&v4[-1].message[992] = *(_OWORD *)&task[-1].message[992];
+    *(_OWORD *)&v4[-1].message[1008] = *(_OWORD *)&task[-1].message[1008];
     --v3;
   }
   while ( v3 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rax], xmm0
-    vmovups xmm1, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rax+10h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+20h]
-    vmovups xmmword ptr [rax+20h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+30h]
-    vmovups xmmword ptr [rax+30h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vmovups xmmword ptr [rax+40h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+50h]
-    vmovups xmmword ptr [rax+50h], xmm1
-  }
-  _RAX->messageSize = task->messageSize;
+  *(_OWORD *)v4->taskType = *(_OWORD *)task->taskType;
+  *(_OWORD *)&v4->winningTeamID = *(_OWORD *)&task->winningTeamID;
+  v4->fileData = task->fileData;
+  *(_OWORD *)&v4->recipient.m_id = *(_OWORD *)&task->recipient.m_id;
+  v4->messageSize = task->messageSize;
 }
 
 /*
@@ -3274,6 +3244,8 @@ void OnlineTournament_Frame(void)
   int v6; 
   const dvar_t *v7; 
   const XUID *v8; 
+  unsigned __int8 *message; 
+  LobbyMessageMatchUpdate *v10; 
   __int64 v11; 
   PartyData *PartyData; 
   XUID result; 
@@ -3308,29 +3280,18 @@ void OnlineTournament_Frame(void)
       task.taskType[0] = 2;
       v8 = XUID::NullXUID(&result);
       XUID::operator=(&task.recipient, v8);
-      _RAX = task.message;
-      _RCX = &s_currentMatchStatus;
+      message = task.message;
+      v10 = &s_currentMatchStatus;
       v11 = 3i64;
       do
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm0, ymmword ptr [rcx+20h]
-          vmovups ymmword ptr [rax+20h], ymm0
-          vmovups ymm0, ymmword ptr [rcx+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-          vmovups xmm0, xmmword ptr [rcx+60h]
-          vmovups xmmword ptr [rax+60h], xmm0
-        }
-        _RAX += 128;
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rcx+70h]
-          vmovups xmmword ptr [rax-10h], xmm1
-        }
-        _RCX = (LobbyMessageMatchUpdate *)((char *)_RCX + 128);
+        *(__m256i *)message = *(__m256i *)&v10->mmLobbyID;
+        *((__m256i *)message + 1) = *(__m256i *)&v10->statusUpdate.teamStatus[0].playerStatus[0].killer.m_id;
+        *((__m256i *)message + 2) = *(__m256i *)&v10->statusUpdate.teamStatus[0].playerStatus[1].killer.m_id;
+        *((_OWORD *)message + 6) = *(_OWORD *)&v10->statusUpdate.teamStatus[0].playerStatus[2].killer.m_id;
+        message += 128;
+        *((_OWORD *)message - 1) = *(_OWORD *)&v10->statusUpdate.teamStatus[0].playerStatus[3].xuid.m_id;
+        v10 = (LobbyMessageMatchUpdate *)((char *)v10 + 128);
         --v11;
       }
       while ( v11 );
@@ -3381,33 +3342,22 @@ OnlineTournament_GetBracket
 */
 void OnlineTournament_GetBracket(OnlineTournamentBracket *bracket)
 {
+  OnlineTournamentBracket *v1; 
   __int64 v2; 
+  __int128 v3; 
 
-  _RAX = &s_currentBracket;
+  v1 = &s_currentBracket;
   v2 = 9i64;
   do
   {
     bracket = (OnlineTournamentBracket *)((char *)bracket + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (OnlineTournamentBracket *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v3 = *(_OWORD *)&v1->tournamentID;
+    v1 = (OnlineTournamentBracket *)((char *)v1 + 128);
+    *(_OWORD *)bracket[-1].matchStatus[11].readyStatus = v3;
+    *(_OWORD *)bracket[-1].matchStatus[11].scores = *(_OWORD *)v1[-1].matchStatus[11].scores;
+    bracket[-1].matchStatus[12] = v1[-1].matchStatus[12];
+    bracket[-1].matchStatus[13] = v1[-1].matchStatus[13];
+    bracket[-1].matchStatus[14] = v1[-1].matchStatus[14];
     --v2;
   }
   while ( v2 );
@@ -3941,15 +3891,9 @@ OnlineTournament_GetStatusUpdateIndex
 */
 void OnlineTournament_GetStatusUpdateIndex(int *statusUpdateIndex)
 {
-  __asm
-  {
-    vmovups ymm0, cs:s_statusUpdateIndex
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, cs:xmmword_14B6B3B78
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, cs:qword_14B6B3B88
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
+  *(__m256i *)statusUpdateIndex = *(__m256i *)s_statusUpdateIndex;
+  *((_OWORD *)statusUpdateIndex + 2) = xmmword_14B6B3B78;
+  *((double *)statusUpdateIndex + 6) = *(double *)&qword_14B6B3B88;
   statusUpdateIndex[14] = dword_14B6B3B90;
 }
 
@@ -5450,7 +5394,10 @@ void OnlineTournament_OnChatChannelMessage(unsigned __int64 channelID, unsigned 
   __int64 v12; 
   int v13; 
   __int64 v14; 
-  __int64 v32; 
+  char *v15; 
+  char *v16; 
+  __int128 v17; 
+  __int64 v18; 
   char dest[128]; 
 
   v6 = chatMessageType;
@@ -5493,54 +5440,34 @@ void OnlineTournament_OnChatChannelMessage(unsigned __int64 channelID, unsigned 
       v13 = ((int)v11 + 1) % 6;
       s_statusUpdateIndex[v10] = v13;
       v14 = 376 * (6 * v10 + v13);
-      _RAX = (char *)message + 8;
-      _RCX = (char *)&s_statusUpdates + v14;
+      v15 = (char *)message + 8;
+      v16 = (char *)&s_statusUpdates + v14;
       do
       {
-        _RCX += 128;
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RAX += 128;
-        __asm
-        {
-          vmovups xmmword ptr [rcx-80h], xmm0
-          vmovups xmm1, xmmword ptr [rax-70h]
-          vmovups xmmword ptr [rcx-70h], xmm1
-          vmovups xmm0, xmmword ptr [rax-60h]
-          vmovups xmmword ptr [rcx-60h], xmm0
-          vmovups xmm1, xmmword ptr [rax-50h]
-          vmovups xmmword ptr [rcx-50h], xmm1
-          vmovups xmm0, xmmword ptr [rax-40h]
-          vmovups xmmword ptr [rcx-40h], xmm0
-          vmovups xmm1, xmmword ptr [rax-30h]
-          vmovups xmmword ptr [rcx-30h], xmm1
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmm1, xmmword ptr [rax-10h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
+        v16 += 128;
+        v17 = *(_OWORD *)v15;
+        v15 += 128;
+        *((_OWORD *)v16 - 8) = v17;
+        *((_OWORD *)v16 - 7) = *((_OWORD *)v15 - 7);
+        *((_OWORD *)v16 - 6) = *((_OWORD *)v15 - 6);
+        *((_OWORD *)v16 - 5) = *((_OWORD *)v15 - 5);
+        *((_OWORD *)v16 - 4) = *((_OWORD *)v15 - 4);
+        *((_OWORD *)v16 - 3) = *((_OWORD *)v15 - 3);
+        *((_OWORD *)v16 - 2) = *((_OWORD *)v15 - 2);
+        *((_OWORD *)v16 - 1) = *((_OWORD *)v15 - 1);
         --v12;
       }
       while ( v12 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups xmmword ptr [rcx+50h], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      *((_QWORD *)_RCX + 14) = *((_QWORD *)_RAX + 14);
-      v32 = 376 * (6 * v10 + v11);
-      if ( *(_DWORD *)&s_statusUpdates.scoreHistory[v14 + 32] != *(_DWORD *)&s_statusUpdates.scoreHistory[v32 + 32] || *((_BYTE *)&s_statusUpdates.timeMode + v14) != *((_BYTE *)&s_statusUpdates.timeMode + v32) || *(&s_statusUpdates.roundNumber + v14) != *(&s_statusUpdates.roundNumber + v32) )
+      *(_OWORD *)v16 = *(_OWORD *)v15;
+      *((_OWORD *)v16 + 1) = *((_OWORD *)v15 + 1);
+      *((_OWORD *)v16 + 2) = *((_OWORD *)v15 + 2);
+      *((_OWORD *)v16 + 3) = *((_OWORD *)v15 + 3);
+      *((_OWORD *)v16 + 4) = *((_OWORD *)v15 + 4);
+      *((_OWORD *)v16 + 5) = *((_OWORD *)v15 + 5);
+      *((_OWORD *)v16 + 6) = *((_OWORD *)v15 + 6);
+      *((_QWORD *)v16 + 14) = *((_QWORD *)v15 + 14);
+      v18 = 376 * (6 * v10 + v11);
+      if ( *(_DWORD *)&s_statusUpdates.scoreHistory[v14 + 32] != *(_DWORD *)&s_statusUpdates.scoreHistory[v18 + 32] || *((_BYTE *)&s_statusUpdates.timeMode + v14) != *((_BYTE *)&s_statusUpdates.timeMode + v18) || *(&s_statusUpdates.roundNumber + v14) != *(&s_statusUpdates.roundNumber + v18) )
         s_statusTimeUpdates[v10] = Sys_Milliseconds();
       s_currentBracket.matchStatus[v10].hasStarted = 1;
     }
@@ -7574,33 +7501,22 @@ OnlineTournament_SetBracket
 */
 void OnlineTournament_SetBracket(const OnlineTournamentBracket *fakeBracket)
 {
+  OnlineTournamentBracket *v1; 
   __int64 v2; 
+  __int128 v3; 
 
-  _RAX = &s_currentBracket;
+  v1 = &s_currentBracket;
   v2 = 9i64;
   do
   {
-    _RAX = (OnlineTournamentBracket *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
+    v1 = (OnlineTournamentBracket *)((char *)v1 + 128);
+    v3 = *(_OWORD *)&fakeBracket->tournamentID;
     fakeBracket = (const OnlineTournamentBracket *)((char *)fakeBracket + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    *(_OWORD *)v1[-1].matchStatus[11].readyStatus = v3;
+    *(_OWORD *)v1[-1].matchStatus[11].scores = *(_OWORD *)fakeBracket[-1].matchStatus[11].scores;
+    v1[-1].matchStatus[12] = fakeBracket[-1].matchStatus[12];
+    v1[-1].matchStatus[13] = fakeBracket[-1].matchStatus[13];
+    v1[-1].matchStatus[14] = fakeBracket[-1].matchStatus[14];
     --v2;
   }
   while ( v2 );
@@ -8033,66 +7949,52 @@ void OnlineTournament_UpdateMatchStatus(int matchStorageIndex, const MatchStatus
   int v5; 
   __int64 v6; 
   __int64 v7; 
-  __int64 v24; 
+  char *v8; 
+  __int128 v9; 
+  __int64 v10; 
+  int v12; 
 
   v2 = matchStorageIndex;
-  _RBX = matchStatus;
   v4 = s_statusUpdateIndex[matchStorageIndex];
-  if ( (unsigned int)matchStorageIndex >= 0xF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 4851, ASSERT_TYPE_ASSERT, "(unsigned)( matchStorageIndex ) < (unsigned)( ( sizeof( *array_counter( s_statusUpdates ) ) + 0 ) )", "matchStorageIndex doesn't index ARRAY_COUNT( s_statusUpdates )\n\t%i not in [0, %i)", matchStorageIndex, 15) )
-    __debugbreak();
+  if ( (unsigned int)matchStorageIndex >= 0xF )
+  {
+    v12 = 15;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 4851, ASSERT_TYPE_ASSERT, "(unsigned)( matchStorageIndex ) < (unsigned)( ( sizeof( *array_counter( s_statusUpdates ) ) + 0 ) )", "matchStorageIndex doesn't index ARRAY_COUNT( s_statusUpdates )\n\t%i not in [0, %i)", matchStorageIndex, v12) )
+      __debugbreak();
+  }
   if ( s_currentBracket.teamSize > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_tournament.cpp", 4852, ASSERT_TYPE_ASSERT, "(s_currentBracket.teamSize <= 5)", (const char *)&queryFormat, "s_currentBracket.teamSize <= MAX_TOURNAMENT_TEAM_SIZE") )
     __debugbreak();
   v5 = ((int)v4 + 1) % 6;
   s_statusUpdateIndex[v2] = v5;
   v6 = 376 * (6 * v2 + v5);
   v7 = 2i64;
-  _RCX = (char *)&s_statusUpdates + v6;
+  v8 = (char *)&s_statusUpdates + v6;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (const MatchStatusUpdate *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v8 += 128;
+    v9 = *(_OWORD *)&matchStatus->teamStatus[0].score;
+    matchStatus = (const MatchStatusUpdate *)((char *)matchStatus + 128);
+    *((_OWORD *)v8 - 8) = v9;
+    *((_OWORD *)v8 - 7) = *(_OWORD *)&matchStatus[-1].teamStatus[1].playerStatus[2].killerWeapon;
+    *((_OWORD *)v8 - 6) = *(_OWORD *)&matchStatus[-1].teamStatus[1].playerStatus[3].health;
+    *((_OWORD *)v8 - 5) = *(_OWORD *)&matchStatus[-1].teamStatus[1].playerStatus[3].killerWeapon;
+    *((_OWORD *)v8 - 4) = *(_OWORD *)&matchStatus[-1].teamStatus[1].playerStatus[4].health;
+    *((_OWORD *)v8 - 3) = *(_OWORD *)&matchStatus[-1].teamStatus[1].playerStatus[4].killerWeapon;
+    *((_OWORD *)v8 - 2) = *(_OWORD *)&matchStatus[-1].scoreHistory[8];
+    *((_OWORD *)v8 - 1) = *(_OWORD *)&matchStatus[-1].scoreHistory[24];
     --v7;
   }
   while ( v7 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rcx+60h], xmm0
-  }
-  *((_QWORD *)_RCX + 14) = *(_QWORD *)&_RBX->teamStatus[0].playerStatus[3].health;
-  v24 = 376 * (6 * v2 + v4);
-  if ( *(_DWORD *)&s_statusUpdates.scoreHistory[v6 + 32] != *(_DWORD *)&s_statusUpdates.scoreHistory[v24 + 32] || *((_BYTE *)&s_statusUpdates.timeMode + v6) != *((_BYTE *)&s_statusUpdates.timeMode + v24) || *(&s_statusUpdates.roundNumber + v6) != *(&s_statusUpdates.roundNumber + v24) )
+  *(_OWORD *)v8 = *(_OWORD *)&matchStatus->teamStatus[0].score;
+  *((_OWORD *)v8 + 1) = *(_OWORD *)&matchStatus->teamStatus[0].playerStatus[0].health;
+  *((_OWORD *)v8 + 2) = *(_OWORD *)&matchStatus->teamStatus[0].playerStatus[0].killerWeapon;
+  *((_OWORD *)v8 + 3) = *(_OWORD *)&matchStatus->teamStatus[0].playerStatus[1].health;
+  *((_OWORD *)v8 + 4) = *(_OWORD *)&matchStatus->teamStatus[0].playerStatus[1].killerWeapon;
+  *((_OWORD *)v8 + 5) = *(_OWORD *)&matchStatus->teamStatus[0].playerStatus[2].health;
+  *((_OWORD *)v8 + 6) = *(_OWORD *)&matchStatus->teamStatus[0].playerStatus[2].killerWeapon;
+  *((_QWORD *)v8 + 14) = *(_QWORD *)&matchStatus->teamStatus[0].playerStatus[3].health;
+  v10 = 376 * (6 * v2 + v4);
+  if ( *(_DWORD *)&s_statusUpdates.scoreHistory[v6 + 32] != *(_DWORD *)&s_statusUpdates.scoreHistory[v10 + 32] || *((_BYTE *)&s_statusUpdates.timeMode + v6) != *((_BYTE *)&s_statusUpdates.timeMode + v10) || *(&s_statusUpdates.roundNumber + v6) != *(&s_statusUpdates.roundNumber + v10) )
     s_statusTimeUpdates[v2] = Sys_Milliseconds();
   s_currentBracket.matchStatus[v2].hasStarted = 1;
 }

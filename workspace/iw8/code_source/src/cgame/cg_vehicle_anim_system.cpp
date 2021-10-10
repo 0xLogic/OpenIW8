@@ -124,102 +124,100 @@ void __fastcall CgVehicleAnimSystem::DoPoseDoors(CgVehicleAnimSystem *this, cons
 CgVehicleAnimSystem::AnimateAngularImpulse
 ==============
 */
-
-void __fastcall CgVehicleAnimSystem::AnimateAngularImpulse(CgVehicleAnimSystem *this, int playerEntNum, double impK)
+void CgVehicleAnimSystem::AnimateAngularImpulse(CgVehicleAnimSystem *this, int playerEntNum, float impK)
 {
-  const centity_t *v8; 
-  const cpose_t *v9; 
+  __int128 v3; 
+  const centity_t *v6; 
+  const cpose_t *v7; 
   CgVehicleSystem *VehicleSystem; 
   VehicleClient *Client; 
-  CgVehicleSystem_vtbl *v12; 
-  BgVehiclePhysicsManager *v13; 
-  const dvar_t *v15; 
+  CgVehicleSystem_vtbl *v10; 
+  BgVehiclePhysicsManager *v11; 
+  BgVehiclePhysics *ObjectById; 
+  const dvar_t *v13; 
+  float m_mass; 
+  float v15; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v21; 
   animScriptVehicleSeat_t outVehSeat; 
   vec3_t outPlayerEnt; 
   vec3_t outVehEnt; 
+  __int128 v33; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( playerEntNum == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 135, ASSERT_TYPE_ASSERT, "(playerEntNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "playerEntNum != ENTITYNUM_NONE") )
     __debugbreak();
   *(_QWORD *)outVehEnt.v = 0i64;
   *(_QWORD *)outPlayerEnt.v = 0i64;
   if ( CgVehicleAnimSystem::GetPlayerAndVehicleEntities(this, playerEntNum, (centity_t **)&outPlayerEnt, (centity_t **)&outVehEnt, &outVehSeat) )
   {
-    v8 = *(const centity_t **)outVehEnt.v;
+    v6 = *(const centity_t **)outVehEnt.v;
     if ( !*(_QWORD *)outVehEnt.v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 144, ASSERT_TYPE_ASSERT, "(centVeh)", (const char *)&queryFormat, "centVeh") )
       __debugbreak();
-    v9 = *(const cpose_t **)outPlayerEnt.v;
+    v7 = *(const cpose_t **)outPlayerEnt.v;
     if ( !*(_QWORD *)outPlayerEnt.v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 145, ASSERT_TYPE_ASSERT, "(centPlayer)", (const char *)&queryFormat, "centPlayer") )
       __debugbreak();
     VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum);
     if ( !VehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 148, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
       __debugbreak();
-    Client = CgVehicleSystem::GetClient(VehicleSystem, v8);
+    Client = CgVehicleSystem::GetClient(VehicleSystem, v6);
     if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 151, ASSERT_TYPE_ASSERT, "(vehClient)", (const char *)&queryFormat, "vehClient") )
       __debugbreak();
     if ( BGVehicles::PhysicsIsValid(Client->physicsId) )
     {
-      v12 = VehicleSystem->__vftable;
-      __asm { vmovaps [rsp+0A8h+var_28], xmm6 }
-      v13 = v12->PhysicsGetVehiclePhysicsManager(VehicleSystem);
-      _RSI = BgVehiclePhysicsManager::GetObjectById(v13, Client->physicsId);
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 156, ASSERT_TYPE_ASSERT, "(vehObj)", (const char *)&queryFormat, "vehObj") )
+      v10 = VehicleSystem->__vftable;
+      v33 = v3;
+      v11 = v10->PhysicsGetVehiclePhysicsManager(VehicleSystem);
+      ObjectById = BgVehiclePhysicsManager::GetObjectById(v11, Client->physicsId);
+      if ( !ObjectById && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 156, ASSERT_TYPE_ASSERT, "(vehObj)", (const char *)&queryFormat, "vehObj") )
         __debugbreak();
-      v15 = DCONST_DVARFLT_bg_vehicleImpKNotetrack;
-      __asm { vmovss  xmm6, dword ptr [rsi+260h] }
+      v13 = DCONST_DVARFLT_bg_vehicleImpKNotetrack;
+      m_mass = ObjectById->m_mass;
       if ( !DCONST_DVARFLT_bg_vehicleImpKNotetrack && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicleImpKNotetrack") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v15);
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm7
-        vmovaps xmm6, [rsp+0A8h+var_28]
-        vmulss  xmm1, xmm0, dword ptr [rdi+28h]
-        vxorps  xmm3, xmm1, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm0, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm2, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vmulss  xmm1, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vmovss  dword ptr [rsp+0A8h+outVehEnt], xmm0
-        vmovss  dword ptr [rsp+0A8h+outVehEnt+4], xmm2
-        vmovss  [rsp+0A8h+var_48], xmm1
-      }
-      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+      Dvar_CheckFrontendServerThread(v13);
+      LODWORD(v15) = COERCE_UNSIGNED_INT((float)(m_mass * impK) * v13->current.value) ^ _xmm;
+      outVehEnt.v[0] = v15 * 0.0;
+      outVehEnt.v[1] = v15 * 0.0;
+      outVehEnt.v[2] = v15 * 1.0;
+      if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
         __debugbreak();
-      if ( !v9->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+      if ( !v7->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
         __debugbreak();
-      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v9->origin.Get_origin, v9);
-      FunctionPointer_origin(&v9->origin.origin.origin, &outPlayerEnt);
-      if ( v9->isPosePrecise )
+      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v7->origin.Get_origin, v7);
+      FunctionPointer_origin(&v7->origin.origin.origin, &outPlayerEnt);
+      if ( v7->isPosePrecise )
       {
+        _XMM0 = LODWORD(outPlayerEnt.v[0]);
+        _XMM2 = LODWORD(outPlayerEnt.v[1]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v21 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM0 = v21;
         __asm
         {
-          vmovsd  xmm3, cs:__real@3f30000000000000
-          vmovd   xmm0, dword ptr [rsp+0A8h+outPlayerEnt]
-          vmovd   xmm2, dword ptr [rsp+0A8h+outPlayerEnt+4]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm0, xmm0, xmm3
           vcvtsd2ss xmm1, xmm0, xmm0
           vcvtdq2pd xmm2, xmm2
-          vmulsd  xmm0, xmm2, xmm3
-          vmovd   xmm2, [rsp+0A8h+var_58]
-          vmovss  dword ptr [rsp+0A8h+outPlayerEnt], xmm1
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vcvtdq2pd xmm2, xmm2
-          vmulsd  xmm0, xmm2, xmm3
-          vmovss  dword ptr [rsp+0A8h+outPlayerEnt+4], xmm1
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  [rsp+0A8h+var_58], xmm1
         }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v21 = *(double *)&_XMM2 * 0.000244140625;
+        _XMM0 = v21;
+        _XMM2 = LODWORD(outPlayerEnt.v[2]);
+        outPlayerEnt.v[0] = *(float *)&_XMM1;
+        __asm
+        {
+          vcvtsd2ss xmm1, xmm0, xmm0
+          vcvtdq2pd xmm2, xmm2
+        }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v21 = *(double *)&_XMM2 * 0.000244140625;
+        _XMM0 = v21;
+        outPlayerEnt.v[1] = *(float *)&_XMM1;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        outPlayerEnt.v[2] = *(float *)&_XMM1;
       }
-      BgVehiclePhysics::DeferAngularImpulse(_RSI, &outVehEnt, &outPlayerEnt);
+      BgVehiclePhysics::DeferAngularImpulse(ObjectById, &outVehEnt, &outPlayerEnt);
     }
   }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -230,9 +228,11 @@ CgVehicleAnimSystem::AnimateDoorNotetrack
 void CgVehicleAnimSystem::AnimateDoorNotetrack(CgVehicleAnimSystem *this, int playerEntNum, const char *noteTrackParam, bool flipped)
 {
   CgVehicleSystem *VehicleSystem; 
+  const VehicleClient *Client; 
   __int64 v10; 
   const VehicleDef *ClientDef; 
   unsigned int numDoors; 
+  __int64 v13; 
   XAnimCurveID IDFromAssetName; 
   centity_t *outPlayerEnt; 
   animScriptVehicleSeat_t outVehSeat; 
@@ -247,15 +247,15 @@ void CgVehicleAnimSystem::AnimateDoorNotetrack(CgVehicleAnimSystem *this, int pl
     VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum);
     if ( !VehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 184, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
       __debugbreak();
-    _RBX = CgVehicleSystem::GetClient(VehicleSystem, outVehEnt);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 187, ASSERT_TYPE_ASSERT, "(vehClient)", (const char *)&queryFormat, "vehClient") )
+    Client = CgVehicleSystem::GetClient(VehicleSystem, outVehEnt);
+    if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 187, ASSERT_TYPE_ASSERT, "(vehClient)", (const char *)&queryFormat, "vehClient") )
       __debugbreak();
     v10 = (unsigned int)(outVehSeat - 1);
     if ( !noteTrackParam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 74, ASSERT_TYPE_ASSERT, "(curveAssetName)", (const char *)&queryFormat, "curveAssetName") )
       __debugbreak();
     if ( !CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 54, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
       __debugbreak();
-    ClientDef = CgVehicleSystem::GetClientDef(_RBX);
+    ClientDef = CgVehicleSystem::GetClientDef(Client);
     if ( !ClientDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 57, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
       __debugbreak();
     numDoors = 4;
@@ -263,34 +263,27 @@ void CgVehicleAnimSystem::AnimateDoorNotetrack(CgVehicleAnimSystem *this, int pl
       numDoors = ClientDef->numDoors;
     if ( (unsigned int)v10 < numDoors )
     {
-      _RDI = 5 * v10 + 30;
-      _ER14 = 0;
-      LOWORD(_RBX->wheelSpinAngle[_RDI]) = -512;
-      _RBX->wheelSpinAngle[_RDI + 3] = 0.0;
-      *(_QWORD *)&_RBX->wheelSpinAngle[_RDI + 1] = 2047i64;
-      BYTE2(_RBX->wheelSpinAngle[_RDI]) = 42;
-      _RBX->wheelSpinAngle[_RDI + 4] = 1.0;
+      v13 = 5 * v10 + 30;
+      LOWORD(Client->wheelSpinAngle[v13]) = -512;
+      Client->wheelSpinAngle[v13 + 3] = 0.0;
+      *(_QWORD *)&Client->wheelSpinAngle[v13 + 1] = 2047i64;
+      BYTE2(Client->wheelSpinAngle[v13]) = 42;
+      Client->wheelSpinAngle[v13 + 4] = 1.0;
       IDFromAssetName = XAnimCurve_GetIDFromAssetName(noteTrackParam);
-      _ECX = flipped;
-      BYTE2(_RBX->wheelSpinAngle[_RDI]) = IDFromAssetName;
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000
-        vmovd   xmm0, ecx
-        vmovd   xmm1, r14d
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@bf800000
-        vblendvps xmm0, xmm1, xmm2, xmm3
-        vmovss  dword ptr [rbx+rdi*4+10h], xmm0
-      }
+      BYTE2(Client->wheelSpinAngle[v13]) = IDFromAssetName;
+      _XMM0 = flipped;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_N1_0);
+      __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+      Client->wheelSpinAngle[v13 + 4] = *(float *)&_XMM0;
       if ( IDFromAssetName == CURVE_ASSET_END )
       {
         Com_PrintWarning(19, "XAnim Curve asset '%s' not found.", noteTrackParam);
       }
       else
       {
-        LOBYTE(_RBX->wheelSpinAngle[_RDI]) = 1;
-        LODWORD(_RBX->wheelSpinAngle[_RDI + 1]) = playerEntNum;
+        LOBYTE(Client->wheelSpinAngle[v13]) = 1;
+        LODWORD(Client->wheelSpinAngle[v13 + 1]) = playerEntNum;
       }
     }
   }
@@ -306,15 +299,15 @@ void CgVehicleAnimSystem::AnimateDoorWithCurve(CgVehicleAnimSystem *this, Vehicl
   __int64 v6; 
   const VehicleDef *ClientDef; 
   unsigned int numDoors; 
+  __int64 v12; 
   XAnimCurveID IDFromAssetName; 
 
   v6 = doorIndex;
-  _RBX = vehClient;
   if ( !curveAssetName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 74, ASSERT_TYPE_ASSERT, "(curveAssetName)", (const char *)&queryFormat, "curveAssetName") )
     __debugbreak();
   if ( !CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 54, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
     __debugbreak();
-  ClientDef = CgVehicleSystem::GetClientDef(_RBX);
+  ClientDef = CgVehicleSystem::GetClientDef(vehClient);
   if ( !ClientDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 57, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
     __debugbreak();
   numDoors = 4;
@@ -322,34 +315,27 @@ void CgVehicleAnimSystem::AnimateDoorWithCurve(CgVehicleAnimSystem *this, Vehicl
     numDoors = ClientDef->numDoors;
   if ( (unsigned int)v6 < numDoors )
   {
-    _RDI = 5 * v6 + 30;
-    _EBP = 0;
-    LOWORD(_RBX->wheelSpinAngle[_RDI]) = -512;
-    _RBX->wheelSpinAngle[_RDI + 3] = 0.0;
-    *(_QWORD *)&_RBX->wheelSpinAngle[_RDI + 1] = 2047i64;
-    BYTE2(_RBX->wheelSpinAngle[_RDI]) = 42;
-    _RBX->wheelSpinAngle[_RDI + 4] = 1.0;
+    v12 = 5 * v6 + 30;
+    LOWORD(vehClient->wheelSpinAngle[v12]) = -512;
+    vehClient->wheelSpinAngle[v12 + 3] = 0.0;
+    *(_QWORD *)&vehClient->wheelSpinAngle[v12 + 1] = 2047i64;
+    BYTE2(vehClient->wheelSpinAngle[v12]) = 42;
+    vehClient->wheelSpinAngle[v12 + 4] = 1.0;
     IDFromAssetName = XAnimCurve_GetIDFromAssetName(curveAssetName);
-    _ECX = flipped;
-    BYTE2(_RBX->wheelSpinAngle[_RDI]) = IDFromAssetName;
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vmovd   xmm0, ecx
-      vmovd   xmm1, ebp
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@bf800000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  dword ptr [rbx+rdi*4+10h], xmm0
-    }
+    BYTE2(vehClient->wheelSpinAngle[v12]) = IDFromAssetName;
+    _XMM0 = flipped;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_N1_0);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    vehClient->wheelSpinAngle[v12 + 4] = *(float *)&_XMM0;
     if ( IDFromAssetName == CURVE_ASSET_END )
     {
       Com_PrintWarning(19, "XAnim Curve asset '%s' not found.", curveAssetName);
     }
     else
     {
-      LODWORD(_RBX->wheelSpinAngle[_RDI + 1]) = playerEntNum;
-      LOBYTE(_RBX->wheelSpinAngle[_RDI]) = 1;
+      LODWORD(vehClient->wheelSpinAngle[v12 + 1]) = playerEntNum;
+      LOBYTE(vehClient->wheelSpinAngle[v12]) = 1;
     }
   }
 }
@@ -394,11 +380,13 @@ void CgVehicleAnimSystem::DoPose(CgVehicleAnimSystem *this, const DObj *obj, con
   const centity_t *Entity; 
   CgVehicleSystem *VehicleSystem; 
   const VehicleClient *ClientSafeConst; 
+  const VehicleClient *v11; 
   const VehicleDef *ClientDef; 
-  const VehicleDef *v15; 
-  unsigned int v17; 
-  __int64 v19; 
-  unsigned __int8 v21; 
+  const VehicleDef *v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned __int8 v17; 
   vec3_t angles; 
 
   physicsId = pose->physicsId;
@@ -411,51 +399,35 @@ void CgVehicleAnimSystem::DoPose(CgVehicleAnimSystem *this, const DObj *obj, con
       if ( !VehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 215, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
         __debugbreak();
       ClientSafeConst = CgVehicleSystem::GetClientSafeConst(VehicleSystem, Entity);
-      _RDI = ClientSafeConst;
+      v11 = ClientSafeConst;
       if ( ClientSafeConst )
       {
         ClientDef = CgVehicleSystem::GetClientDef(ClientSafeConst);
-        v15 = ClientDef;
+        v13 = ClientDef;
         if ( ClientDef )
         {
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-          v17 = 0;
-          __asm
-          {
-            vmovss  dword ptr [rsp+88h+angles], xmm0
-            vmovss  dword ptr [rsp+88h+angles+4], xmm0
-            vmovss  dword ptr [rsp+88h+angles+8], xmm0
-          }
+          v14 = 0;
+          angles.v[0] = 0.0;
+          angles.v[1] = 0.0;
+          angles.v[2] = 0.0;
           if ( ClientDef->numDoors )
           {
-            __asm
-            {
-              vmovaps [rsp+88h+var_38], xmm6
-              vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-            }
             do
             {
-              v19 = v17 + 6i64;
-              _RCX = 5 * v19;
-              if ( LOBYTE(_RDI->wheelSpinAngle[5 * v19]) )
+              v15 = v14 + 6i64;
+              v16 = 5 * v15;
+              if ( LOBYTE(v11->wheelSpinAngle[5 * v15]) )
               {
-                v21 = BYTE1(_RDI->wheelSpinAngle[5 * v19]);
-                if ( v21 < 0xFEu )
+                v17 = BYTE1(v11->wheelSpinAngle[5 * v15]);
+                if ( v17 < 0xFEu )
                 {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rdi+rcx*4+10h]
-                    vmulss  xmm1, xmm0, dword ptr [rdi+rcx*4+8]
-                    vxorps  xmm2, xmm1, xmm6
-                    vmovss  dword ptr [rsp+88h+angles+4], xmm2
-                  }
-                  DObjSetLocalTag(obj, partBits, v21, &vec3_origin, &angles);
+                  LODWORD(angles.v[1]) = COERCE_UNSIGNED_INT(v11->wheelSpinAngle[v16 + 4] * v11->wheelSpinAngle[v16 + 2]) ^ _xmm;
+                  DObjSetLocalTag(obj, partBits, v17, &vec3_origin, &angles);
                 }
               }
-              ++v17;
+              ++v14;
             }
-            while ( v17 < v15->numDoors );
-            __asm { vmovaps xmm6, [rsp+88h+var_38] }
+            while ( v14 < v13->numDoors );
           }
         }
       }
@@ -470,50 +442,28 @@ CgVehicleAnimSystem::DoPoseDoors
 */
 void CgVehicleAnimSystem::DoPoseDoors(CgVehicleAnimSystem *this, const VehicleClient *vehClient, const VehicleDef *vehDef, const DObj *obj, const cpose_t *pose, DObjPartBits *partBits)
 {
-  unsigned int v8; 
-  __int64 v14; 
-  unsigned __int8 v16; 
+  unsigned int v6; 
+  __int64 v10; 
+  __int64 v11; 
+  unsigned __int8 v12; 
   vec3_t angles; 
 
-  v8 = 0;
-  _RDI = vehClient;
-  __asm
+  v6 = 0;
+  angles.v[0] = 0.0;
+  angles.v[1] = 0.0;
+  for ( angles.v[2] = 0.0; v6 < vehDef->numDoors; ++v6 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+78h+var_48], xmm0
-    vmovss  dword ptr [rsp+78h+var_48+4], xmm0
-    vmovss  dword ptr [rsp+78h+var_48+8], xmm0
-  }
-  if ( vehDef->numDoors )
-  {
-    __asm
+    v10 = v6 + 6i64;
+    v11 = 5 * v10;
+    if ( LOBYTE(vehClient->wheelSpinAngle[5 * v10]) )
     {
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    do
-    {
-      v14 = v8 + 6i64;
-      _RCX = 5 * v14;
-      if ( LOBYTE(_RDI->wheelSpinAngle[5 * v14]) )
+      v12 = BYTE1(vehClient->wheelSpinAngle[5 * v10]);
+      if ( v12 < 0xFEu )
       {
-        v16 = BYTE1(_RDI->wheelSpinAngle[5 * v14]);
-        if ( v16 < 0xFEu )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+rcx*4+10h]
-            vmulss  xmm1, xmm0, dword ptr [rdi+rcx*4+8]
-            vxorps  xmm2, xmm1, xmm6
-            vmovss  dword ptr [rsp+78h+var_48+4], xmm2
-          }
-          DObjSetLocalTag(obj, partBits, v16, &vec3_origin, &angles);
-        }
+        LODWORD(angles.v[1]) = COERCE_UNSIGNED_INT(vehClient->wheelSpinAngle[v11 + 4] * vehClient->wheelSpinAngle[v11 + 2]) ^ _xmm;
+        DObjSetLocalTag(obj, partBits, v12, &vec3_origin, &angles);
       }
-      ++v8;
     }
-    while ( v8 < vehDef->numDoors );
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
   }
 }
 
@@ -626,89 +576,60 @@ CgVehicleAnimSystem::UpdateBoneController
 */
 void CgVehicleAnimSystem::UpdateBoneController(CgVehicleAnimSystem *this, VehicleClient *vehClient, DObj *obj, centity_t *cent)
 {
-  unsigned int v12; 
-  unsigned __int8 *v17; 
-  XAnimCurveID v18; 
-  const XAnimCurve *AssetFromID; 
-  char v27; 
+  __int128 v4; 
+  cg_t *LocalClientGlobals; 
+  const VehicleDef *ClientDef; 
+  unsigned int i; 
+  __int64 v11; 
+  unsigned __int8 *v12; 
+  XAnimCurveID v13; 
+  XAnimCurve *AssetFromID; 
+  __int128 v15; 
+  __int128 v16; 
   int modelIndex; 
 
-  _RSI = vehClient;
-  CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( !CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 248, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
     __debugbreak();
-  _R14 = CgVehicleSystem::GetClientDef(_RSI);
-  v12 = 0;
-  if ( _R14->numDoors )
+  ClientDef = CgVehicleSystem::GetClientDef(vehClient);
+  for ( i = 0; i < ClientDef->numDoors; ++i )
   {
-    __asm
+    v11 = 5i64 * i + 30;
+    if ( LOBYTE(vehClient->wheelSpinAngle[v11]) )
     {
-      vmovaps [rsp+88h+var_38], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+88h+var_48], xmm7
-      vmovss  xmm7, cs:__real@c3340000
-      vmovaps [rsp+88h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3a83126f
-    }
-    do
-    {
-      _RDI = 5i64 * v12 + 30;
-      if ( LOBYTE(_RSI->wheelSpinAngle[_RDI]) )
+      if ( ClientDef->doorBones[i] )
       {
-        if ( _R14->doorBones[v12] )
+        v12 = (unsigned __int8 *)&vehClient->wheelSpinAngle[v11] + 1;
+        if ( *v12 >= 0xFEu )
         {
-          v17 = (unsigned __int8 *)&_RSI->wheelSpinAngle[_RDI] + 1;
-          if ( *v17 >= 0xFEu )
-          {
-            *v17 = -2;
-            DObjGetBoneIndexInternal_4(obj, _R14->doorBones[v12], v17, &modelIndex);
-          }
-        }
-        if ( BYTE1(_RSI->wheelSpinAngle[_RDI]) >= 0xFEu || (v18 = BYTE2(_RSI->wheelSpinAngle[_RDI]), v18 == CURVE_ASSET_END) )
-        {
-          LOBYTE(_RSI->wheelSpinAngle[_RDI]) = 0;
-        }
-        else
-        {
-          AssetFromID = XAnimCurve_GetAssetFromID(v18);
-          __asm { vmovss  xmm1, dword ptr [rsi+rdi*4+0Ch]; time }
-          _RBX = AssetFromID;
-          *(double *)&_XMM0 = XAnimCurve_GetValue(AssetFromID, *(const float *)&_XMM1);
-          __asm
-          {
-            vmulss  xmm3, xmm0, xmm7
-            vmovss  dword ptr [rsi+rdi*4+8], xmm3
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [r12+65E4h]
-            vmulss  xmm1, xmm0, xmm8
-            vaddss  xmm2, xmm1, dword ptr [rsi+rdi*4+0Ch]
-            vmovss  dword ptr [rsi+rdi*4+0Ch], xmm2
-            vcomiss xmm2, dword ptr [rbx+18h]
-          }
-          if ( !v27 )
-          {
-            _RSI->wheelSpinAngle[_RDI + 2] = 0.0;
-            LOBYTE(_RSI->wheelSpinAngle[_RDI]) = 0;
-            __asm { vxorps  xmm3, xmm3, xmm3 }
-          }
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r14+30h]; max
-            vxorps  xmm1, xmm2, xmm6; min
-            vmovaps xmm0, xmm3; val
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovss  dword ptr [rsi+rdi*4+8], xmm0 }
+          *v12 = -2;
+          DObjGetBoneIndexInternal_4(obj, ClientDef->doorBones[i], v12, &modelIndex);
         }
       }
-      ++v12;
-    }
-    while ( v12 < _R14->numDoors );
-    __asm
-    {
-      vmovaps xmm8, [rsp+88h+var_58]
-      vmovaps xmm7, [rsp+88h+var_48]
-      vmovaps xmm6, [rsp+88h+var_38]
+      if ( BYTE1(vehClient->wheelSpinAngle[v11]) >= 0xFEu || (v13 = BYTE2(vehClient->wheelSpinAngle[v11]), v13 == CURVE_ASSET_END) )
+      {
+        LOBYTE(vehClient->wheelSpinAngle[v11]) = 0;
+      }
+      else
+      {
+        AssetFromID = XAnimCurve_GetAssetFromID(v13);
+        *(double *)&v4 = XAnimCurve_GetValue(AssetFromID, vehClient->wheelSpinAngle[v11 + 3]);
+        v16 = v4;
+        *(float *)&v16 = *(float *)&v4 * -180.0;
+        v15 = v16;
+        vehClient->wheelSpinAngle[v11 + 2] = *(float *)&v4 * -180.0;
+        *(float *)&v16 = (float)((float)LocalClientGlobals->frametime * 0.001) + vehClient->wheelSpinAngle[v11 + 3];
+        vehClient->wheelSpinAngle[v11 + 3] = *(float *)&v16;
+        if ( *(float *)&v16 >= AssetFromID->duration )
+        {
+          vehClient->wheelSpinAngle[v11 + 2] = 0.0;
+          LOBYTE(vehClient->wheelSpinAngle[v11]) = 0;
+          v15 = 0i64;
+        }
+        *((_QWORD *)&v4 + 1) = *((_QWORD *)&v15 + 1);
+        *(double *)&v4 = I_fclamp(*(float *)&v15, COERCE_FLOAT(LODWORD(ClientDef->maxDoorAngle) ^ _xmm), ClientDef->maxDoorAngle);
+        vehClient->wheelSpinAngle[v11 + 2] = *(float *)&v4;
+      }
     }
   }
 }
@@ -720,89 +641,60 @@ CgVehicleAnimSystem::UpdateDoors
 */
 void CgVehicleAnimSystem::UpdateDoors(CgVehicleAnimSystem *this, VehicleClient *vehClient, DObj *obj, centity_t *cent)
 {
-  unsigned int v12; 
-  unsigned __int8 *v17; 
-  XAnimCurveID v18; 
-  const XAnimCurve *AssetFromID; 
-  char v27; 
+  __int128 v4; 
+  cg_t *LocalClientGlobals; 
+  const VehicleDef *ClientDef; 
+  unsigned int i; 
+  __int64 v11; 
+  unsigned __int8 *v12; 
+  XAnimCurveID v13; 
+  XAnimCurve *AssetFromID; 
+  __int128 v15; 
+  __int128 v16; 
   int modelIndex; 
 
-  _RSI = vehClient;
-  CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( !CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_anim_system.cpp", 248, ASSERT_TYPE_ASSERT, "(vehSystem)", (const char *)&queryFormat, "vehSystem") )
     __debugbreak();
-  _R14 = CgVehicleSystem::GetClientDef(_RSI);
-  v12 = 0;
-  if ( _R14->numDoors )
+  ClientDef = CgVehicleSystem::GetClientDef(vehClient);
+  for ( i = 0; i < ClientDef->numDoors; ++i )
   {
-    __asm
+    v11 = 5i64 * i + 30;
+    if ( LOBYTE(vehClient->wheelSpinAngle[v11]) )
     {
-      vmovaps [rsp+88h+var_38], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+88h+var_48], xmm7
-      vmovss  xmm7, cs:__real@c3340000
-      vmovaps [rsp+88h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3a83126f
-    }
-    do
-    {
-      _RDI = 5i64 * v12 + 30;
-      if ( LOBYTE(_RSI->wheelSpinAngle[_RDI]) )
+      if ( ClientDef->doorBones[i] )
       {
-        if ( _R14->doorBones[v12] )
+        v12 = (unsigned __int8 *)&vehClient->wheelSpinAngle[v11] + 1;
+        if ( *v12 >= 0xFEu )
         {
-          v17 = (unsigned __int8 *)&_RSI->wheelSpinAngle[_RDI] + 1;
-          if ( *v17 >= 0xFEu )
-          {
-            *v17 = -2;
-            DObjGetBoneIndexInternal_4(obj, _R14->doorBones[v12], v17, &modelIndex);
-          }
-        }
-        if ( BYTE1(_RSI->wheelSpinAngle[_RDI]) >= 0xFEu || (v18 = BYTE2(_RSI->wheelSpinAngle[_RDI]), v18 == CURVE_ASSET_END) )
-        {
-          LOBYTE(_RSI->wheelSpinAngle[_RDI]) = 0;
-        }
-        else
-        {
-          AssetFromID = XAnimCurve_GetAssetFromID(v18);
-          __asm { vmovss  xmm1, dword ptr [rsi+rdi*4+0Ch]; time }
-          _RBX = AssetFromID;
-          *(double *)&_XMM0 = XAnimCurve_GetValue(AssetFromID, *(const float *)&_XMM1);
-          __asm
-          {
-            vmulss  xmm3, xmm0, xmm7
-            vmovss  dword ptr [rsi+rdi*4+8], xmm3
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [r12+65E4h]
-            vmulss  xmm1, xmm0, xmm8
-            vaddss  xmm2, xmm1, dword ptr [rsi+rdi*4+0Ch]
-            vmovss  dword ptr [rsi+rdi*4+0Ch], xmm2
-            vcomiss xmm2, dword ptr [rbx+18h]
-          }
-          if ( !v27 )
-          {
-            _RSI->wheelSpinAngle[_RDI + 2] = 0.0;
-            LOBYTE(_RSI->wheelSpinAngle[_RDI]) = 0;
-            __asm { vxorps  xmm3, xmm3, xmm3 }
-          }
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r14+30h]; max
-            vxorps  xmm1, xmm2, xmm6; min
-            vmovaps xmm0, xmm3; val
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovss  dword ptr [rsi+rdi*4+8], xmm0 }
+          *v12 = -2;
+          DObjGetBoneIndexInternal_4(obj, ClientDef->doorBones[i], v12, &modelIndex);
         }
       }
-      ++v12;
-    }
-    while ( v12 < _R14->numDoors );
-    __asm
-    {
-      vmovaps xmm8, [rsp+88h+var_58]
-      vmovaps xmm7, [rsp+88h+var_48]
-      vmovaps xmm6, [rsp+88h+var_38]
+      if ( BYTE1(vehClient->wheelSpinAngle[v11]) >= 0xFEu || (v13 = BYTE2(vehClient->wheelSpinAngle[v11]), v13 == CURVE_ASSET_END) )
+      {
+        LOBYTE(vehClient->wheelSpinAngle[v11]) = 0;
+      }
+      else
+      {
+        AssetFromID = XAnimCurve_GetAssetFromID(v13);
+        *(double *)&v4 = XAnimCurve_GetValue(AssetFromID, vehClient->wheelSpinAngle[v11 + 3]);
+        v16 = v4;
+        *(float *)&v16 = *(float *)&v4 * -180.0;
+        v15 = v16;
+        vehClient->wheelSpinAngle[v11 + 2] = *(float *)&v4 * -180.0;
+        *(float *)&v16 = (float)((float)LocalClientGlobals->frametime * 0.001) + vehClient->wheelSpinAngle[v11 + 3];
+        vehClient->wheelSpinAngle[v11 + 3] = *(float *)&v16;
+        if ( *(float *)&v16 >= AssetFromID->duration )
+        {
+          vehClient->wheelSpinAngle[v11 + 2] = 0.0;
+          LOBYTE(vehClient->wheelSpinAngle[v11]) = 0;
+          v15 = 0i64;
+        }
+        *((_QWORD *)&v4 + 1) = *((_QWORD *)&v15 + 1);
+        *(double *)&v4 = I_fclamp(*(float *)&v15, COERCE_FLOAT(LODWORD(ClientDef->maxDoorAngle) ^ _xmm), ClientDef->maxDoorAngle);
+        vehClient->wheelSpinAngle[v11 + 2] = *(float *)&v4;
+      }
     }
   }
 }

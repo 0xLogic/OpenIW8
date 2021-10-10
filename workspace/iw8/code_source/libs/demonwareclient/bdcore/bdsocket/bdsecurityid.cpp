@@ -71,11 +71,7 @@ bdSecurityID::bdSecurityID
 */
 void bdSecurityID::bdSecurityID(bdSecurityID *this, const bdSecurityID *other)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdx]
-    vmovsd  qword ptr [rcx], xmm0
-  }
+  *this = *other;
 }
 
 /*

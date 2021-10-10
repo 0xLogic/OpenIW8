@@ -119,36 +119,26 @@ bdNATTypeDiscoveryTelemetry::addSend
 void bdNATTypeDiscoveryTelemetry::addSend(bdNATTypeDiscoveryTelemetry *this, bdNATTypeDiscoveryPacket::bdNATTypeDiscoveryPacketRequest packetType, const bdAddr *dst, bool sendSuccess)
 {
   __int64 m_sendCount; 
-  char v8; 
+  char v7; 
+  bdNATTypeDiscoveryTelemetry::bdNATTypeDiscoverySendData *v8; 
+  double ElapsedTimeInSeconds; 
 
   m_sendCount = this->m_sendCount;
-  _RDI = dst;
-  v8 = packetType;
+  v7 = packetType;
   if ( (unsigned int)m_sendCount < 0x10 )
   {
     this->m_sendCount = m_sendCount + 1;
-    _RBX = &this->m_sends[m_sendCount];
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-    __asm { vmulss  xmm1, xmm0, cs:__real@447a0000 }
-    _RBX->packetType = v8;
-    __asm { vcvttss2si rax, xmm1 }
-    _RBX->msSinceStart = _RAX;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx+8], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rbx+28h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rbx+48h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rbx+68h], ymm1
-      vmovups xmm0, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rbx+88h], xmm0
-      vmovsd  xmm1, qword ptr [rdi+90h]
-      vmovsd  qword ptr [rbx+98h], xmm1
-    }
-    _RBX->sendSuccess = sendSuccess;
+    v8 = &this->m_sends[m_sendCount];
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+    v8->packetType = v7;
+    v8->msSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+    *(__m256i *)&v8->dst.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&dst->m_address.inUn.m_sockaddrStorage.ss_family;
+    *((__m256i *)&v8->dst.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&dst->m_address.inUn.m_ipv6Sockaddr + 1);
+    *((__m256i *)&v8->dst.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&dst->m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&v8->dst.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&dst->m_address.inUn.m_ipv6Sockaddr + 3);
+    v8->dst.m_relayRoute = dst->m_relayRoute;
+    *(double *)&v8->dst.m_type = *(double *)&dst->m_type;
+    v8->sendSuccess = sendSuccess;
   }
 }
 
@@ -159,13 +149,10 @@ bdNATTypeDiscoveryTelemetry::setResultFailure
 */
 void bdNATTypeDiscoveryTelemetry::setResultFailure(bdNATTypeDiscoveryTelemetry *this)
 {
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_duration = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_duration = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
   *(_WORD *)&this->m_result = 2;
 }
 
@@ -176,18 +163,14 @@ bdNATTypeDiscoveryTelemetry::setResultSuccess
 */
 void bdNATTypeDiscoveryTelemetry::setResultSuccess(bdNATTypeDiscoveryTelemetry *this, bdNATType natType)
 {
-  unsigned __int8 v4; 
+  unsigned __int8 v3; 
+  double ElapsedTimeInSeconds; 
 
-  v4 = natType;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_duration = _RAX;
+  v3 = natType;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_duration = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
   this->m_result = 1;
-  this->m_natType = v4;
+  this->m_natType = v3;
 }
 
 /*
@@ -197,62 +180,13 @@ bdNATTypeDiscoveryTelemetry::setTest1Result
 */
 void bdNATTypeDiscoveryTelemetry::setTest1Result(bdNATTypeDiscoveryTelemetry *this, const bdAddr *fromAddr, const bdNATTypeDiscoveryPacketReply *reply)
 {
-  _RSI = this;
-  _RBX = fromAddr;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  _RSI->m_test1Result.msSinceStart = _RAX;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsi+0B38h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rsi+0B58h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rsi+0B78h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rsi+0B98h], ymm1
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rsi+0BB8h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+90h]
-    vmovsd  qword ptr [rsi+0BC8h], xmm1
-  }
-  _RAX = bdNATTypeDiscoveryPacketReply::getSecAddr((bdNATTypeDiscoveryPacketReply *)reply);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi+0C68h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+0C88h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+0CA8h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+0CC8h], ymm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rsi+0CE8h], xmm0
-    vmovsd  xmm1, qword ptr [rax+90h]
-    vmovsd  qword ptr [rsi+0CF8h], xmm1
-  }
-  _RAX = bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi+0BD0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+0BF0h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+0C10h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+0C30h], ymm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rsi+0C50h], xmm0
-    vmovsd  xmm1, qword ptr [rax+90h]
-    vmovsd  qword ptr [rsi+0C60h], xmm1
-  }
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_test1Result.msSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  this->m_test1Result.fromAddr = *fromAddr;
+  this->m_test1Result.secAddr = *bdNATTypeDiscoveryPacketReply::getSecAddr((bdNATTypeDiscoveryPacketReply *)reply);
+  this->m_test1Result.mappedAddr = *bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
 }
 
 /*
@@ -262,30 +196,11 @@ bdNATTypeDiscoveryTelemetry::setTest2Result
 */
 void bdNATTypeDiscoveryTelemetry::setTest2Result(bdNATTypeDiscoveryTelemetry *this, const bdAddr *fromAddr)
 {
-  _RDI = this;
-  _RBX = fromAddr;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  _RDI->m_test2Result.msSinceStart = _RAX;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi+0D08h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+0D28h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+0D48h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rdi+0D68h], ymm1
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rdi+0D88h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+90h]
-    vmovsd  qword ptr [rdi+0D98h], xmm1
-  }
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_test2Result.msSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  this->m_test2Result.fromAddr = *fromAddr;
 }
 
 /*
@@ -295,45 +210,11 @@ bdNATTypeDiscoveryTelemetry::setTest3Result
 */
 void bdNATTypeDiscoveryTelemetry::setTest3Result(bdNATTypeDiscoveryTelemetry *this, const bdAddr *fromAddr, const bdNATTypeDiscoveryPacketReply *reply)
 {
-  _RSI = this;
-  _RBX = fromAddr;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  _RSI->m_test3Result.msSinceStart = _RAX;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsi+0D08h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rsi+0D28h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rsi+0D48h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rsi+0D68h], ymm1
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rsi+0D88h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+90h]
-    vmovsd  qword ptr [rsi+0D98h], xmm1
-  }
-  _RAX = bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi+0E40h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+0E60h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+0E80h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+0EA0h], ymm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rsi+0EC0h], xmm0
-    vmovsd  xmm1, qword ptr [rax+90h]
-    vmovsd  qword ptr [rsi+0ED0h], xmm1
-  }
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_test3Result.msSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  this->m_test2Result.fromAddr = *fromAddr;
+  this->m_test3Result.mappedAddr = *bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
 }
 

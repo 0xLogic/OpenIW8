@@ -288,129 +288,90 @@ void G_FXEntity_ClearSystem(void)
 G_FXEntity_PlayLoopedFX
 ==============
 */
-
-void __fastcall G_FXEntity_PlayLoopedFX(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void G_FXEntity_PlayLoopedFX(scrContext_t *scrContext)
 {
   int givenAxisCount; 
+  float v3; 
   int fxId; 
-  unsigned int v11; 
-  unsigned int v13; 
-  char v29; 
-  int v52; 
-  tmat33_t<vec3_t> v56; 
+  unsigned int v5; 
+  unsigned int v6; 
+  __int128 v7; 
+  __int128 v11; 
+  double Float; 
+  int v18; 
+  FxEntity *v19; 
+  tmat33_t<vec3_t> v20; 
   vec3_t pos; 
-  char v61; 
 
-  __asm { vmovaps [rsp+0B8h+var_38], xmm7 }
   if ( Scr_GetNumParam(scrContext) < 3 || Scr_GetNumParam(scrContext) > 6 )
     Scr_Error(COM_ERR_5273, scrContext, "Incorrect number of parameters");
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_28], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm8
-  }
   givenAxisCount = 0;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v3 = 0.0;
   fxId = Scr_GetInt(scrContext, 0);
-  v11 = Scr_GetNumParam(scrContext) - 4;
-  if ( v11 )
+  v5 = Scr_GetNumParam(scrContext) - 4;
+  if ( v5 )
   {
-    __asm { vmovss  xmm8, cs:__real@3f800000 }
-    v13 = v11 - 1;
-    if ( v13 )
+    v6 = v5 - 1;
+    if ( v6 )
     {
-      if ( v13 != 1 )
+      if ( v6 != 1 )
         goto LABEL_13;
       givenAxisCount = 1;
-      Scr_GetVector(scrContext, 5u, &v56.m[2]);
+      Scr_GetVector(scrContext, 5u, &v20.m[2]);
+      v7 = LODWORD(v20.m[2].v[0]);
+      *(float *)&v7 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v20.m[2].v[1] * v20.m[2].v[1])) + (float)(v20.m[2].v[2] * v20.m[2].v[2]));
+      _XMM4 = v7;
       __asm
       {
-        vmovss  xmm5, dword ptr [rsp+0B8h+vectorValue]
-        vmovss  xmm6, dword ptr [rsp+0B8h+vectorValue+4]
-        vmovss  xmm3, dword ptr [rsp+0B8h+vectorValue+8]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm4, xmm0, xmm0
-        vucomiss xmm4, xmm7
         vcmpless xmm0, xmm4, cs:__real@80000000
         vblendvps xmm0, xmm4, xmm8, xmm0
-        vdivss  xmm2, xmm8, xmm0
-        vmulss  xmm0, xmm5, xmm2
-        vmovss  dword ptr [rsp+0B8h+vectorValue], xmm0
-        vmulss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm6, xmm2
-        vmovss  dword ptr [rsp+0B8h+vectorValue+8], xmm0
-        vmovss  dword ptr [rsp+0B8h+vectorValue+4], xmm1
       }
-      if ( v29 )
+      v20.m[2].v[0] = v20.m[2].v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v20.m[2].v[2] = v20.m[2].v[2] * (float)(1.0 / *(float *)&_XMM0);
+      v20.m[2].v[1] = v20.m[2].v[1] * (float)(1.0 / *(float *)&_XMM0);
+      if ( *(float *)&v7 == 0.0 )
         Scr_FxParamError(COM_ERR_5387, scrContext, 5, "playLoopedFx called with (0 0 0) up direction", fxId);
     }
-    Scr_GetVector(scrContext, 4u, v56.m);
+    Scr_GetVector(scrContext, 4u, v20.m);
+    v11 = LODWORD(v20.m[0].v[0]);
+    *(float *)&v11 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(v20.m[0].v[1] * v20.m[0].v[1])) + (float)(v20.m[0].v[2] * v20.m[0].v[2]));
+    _XMM4 = v11;
     __asm
     {
-      vmovss  xmm5, dword ptr [rsp+0B8h+var_88]
-      vmovss  xmm6, dword ptr [rsp+0B8h+var_88+4]
-      vmovss  xmm3, dword ptr [rsp+0B8h+var_88+8]
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm4, xmm0, xmm0
-      vucomiss xmm4, xmm7
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm8, xmm0
-      vdivss  xmm2, xmm8, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rsp+0B8h+var_88], xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rsp+0B8h+var_88+8], xmm0
-      vmovss  dword ptr [rsp+0B8h+var_88+4], xmm1
     }
-    if ( v29 )
+    v20.m[0].v[0] = v20.m[0].v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v20.m[0].v[2] = v20.m[0].v[2] * (float)(1.0 / *(float *)&_XMM0);
+    v20.m[0].v[1] = v20.m[0].v[1] * (float)(1.0 / *(float *)&_XMM0);
+    if ( *(float *)&v11 == 0.0 )
       Scr_FxParamError(COM_ERR_5388, scrContext, 4, "playLoopedFx called with (0 0 0) forward direction", fxId);
     ++givenAxisCount;
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm7, xmm0 }
+  Float = Scr_GetFloat(scrContext, 3u);
+  v3 = *(float *)&Float;
 LABEL_13:
   Scr_GetVector(scrContext, 2u, &pos);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vmovaps xmm8, [rsp+0B8h+var_48]
-    vmovaps xmm6, [rsp+0B8h+var_28]
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm4, 1
-    vcvttss2si r14d, xmm1
-  }
-  if ( _ER14 <= 0 )
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm4, 1 }
+  if ( (int)*(float *)&_XMM1 <= 0 )
     Scr_FxParamError(COM_ERR_5389, scrContext, 1, "playLoopedFx called with repeat < 0.001 seconds", fxId);
-  v52 = ReserveNewIndex_0();
+  v18 = ReserveNewIndex_0();
   ++g_fxEntsCount;
-  _RBX = &g_fxEntities[v52];
-  LOBYTE(v52) = _RBX->flags;
-  *(_QWORD *)_RBX->origin.v = 0i64;
-  *(_QWORD *)&_RBX->origin.z = 0i64;
-  *(_QWORD *)&_RBX->angles.y = 0i64;
-  *(_QWORD *)&_RBX->loopingCullDist = 0i64;
-  *(_DWORD *)&_RBX->fxId = 0;
-  _RBX->flags |= (v52 + 1) & 0xF | 0x10;
-  ScrCmd_FXEntityInit(scrContext, _RBX, fxId, &pos, &v56, givenAxisCount);
-  _RBX->flags |= 0x20u;
-  _RBX->un1.triggerTime = _ER14;
-  __asm { vmovss  dword ptr [rbx+18h], xmm7 }
-  Scr_FXEntityAdd(scrContext, _RBX);
-  _R11 = &v61;
-  __asm { vmovaps xmm7, xmmword ptr [r11-20h] }
+  v19 = &g_fxEntities[v18];
+  LOBYTE(v18) = v19->flags;
+  *(_QWORD *)v19->origin.v = 0i64;
+  *(_QWORD *)&v19->origin.z = 0i64;
+  *(_QWORD *)&v19->angles.y = 0i64;
+  *(_QWORD *)&v19->loopingCullDist = 0i64;
+  *(_DWORD *)&v19->fxId = 0;
+  v19->flags |= (v18 + 1) & 0xF | 0x10;
+  ScrCmd_FXEntityInit(scrContext, v19, fxId, &pos, &v20, givenAxisCount);
+  v19->flags |= 0x20u;
+  v19->un1.triggerTime = (int)*(float *)&_XMM1;
+  v19->loopingCullDist = v3;
+  Scr_FXEntityAdd(scrContext, v19);
 }
 
 /*
@@ -422,110 +383,68 @@ void G_FXEntity_SpawnFX(scrContext_t *scrContext)
 {
   int givenAxisCount; 
   int fxId; 
-  unsigned int v10; 
-  char v26; 
-  int v42; 
-  FxEntity *v43; 
-  tmat33_t<vec3_t> v48; 
+  unsigned int v4; 
+  __int128 v5; 
+  __int128 v9; 
+  int v13; 
+  FxEntity *v14; 
+  tmat33_t<vec3_t> v15; 
   vec3_t pos; 
-  char v51; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm9
-  }
   if ( Scr_GetNumParam(scrContext) < 2 || Scr_GetNumParam(scrContext) > 4 )
     Scr_Error(COM_ERR_5270, scrContext, "Incorrect number of parameters");
-  __asm { vmovaps [rsp+0A8h+var_18], xmm6 }
   givenAxisCount = 0;
   fxId = Scr_GetInt(scrContext, 0);
-  __asm
+  v4 = Scr_GetNumParam(scrContext) - 3;
+  if ( v4 )
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-  }
-  v10 = Scr_GetNumParam(scrContext) - 3;
-  if ( v10 )
-  {
-    if ( v10 != 1 )
+    if ( v4 != 1 )
       goto LABEL_12;
-    Scr_GetVector(scrContext, 3u, &v48.m[2]);
+    Scr_GetVector(scrContext, 3u, &v15.m[2]);
+    v5 = LODWORD(v15.m[2].v[0]);
+    *(float *)&v5 = fsqrt((float)((float)(*(float *)&v5 * *(float *)&v5) + (float)(v15.m[2].v[1] * v15.m[2].v[1])) + (float)(v15.m[2].v[2] * v15.m[2].v[2]));
+    _XMM4 = v5;
     __asm
     {
-      vmovss  xmm5, dword ptr [rsp+0A8h+vectorValue]
-      vmovss  xmm6, dword ptr [rsp+0A8h+vectorValue+4]
-      vmovss  xmm3, dword ptr [rsp+0A8h+vectorValue+8]
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm4, xmm0, xmm0
-      vucomiss xmm4, xmm9
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rsp+0A8h+vectorValue], xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rsp+0A8h+vectorValue+8], xmm0
-      vmovss  dword ptr [rsp+0A8h+vectorValue+4], xmm1
     }
-    if ( v26 )
+    v15.m[2].v[0] = v15.m[2].v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v15.m[2].v[2] = v15.m[2].v[2] * (float)(1.0 / *(float *)&_XMM0);
+    v15.m[2].v[1] = v15.m[2].v[1] * (float)(1.0 / *(float *)&_XMM0);
+    if ( *(float *)&v5 == 0.0 )
       Scr_FxParamError(COM_ERR_5385, scrContext, 3, "spawnFx called with (0 0 0) up direction", fxId);
     givenAxisCount = 1;
   }
-  Scr_GetVector(scrContext, 2u, v48.m);
+  Scr_GetVector(scrContext, 2u, v15.m);
+  v9 = LODWORD(v15.m[0].v[0]);
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v15.m[0].v[1] * v15.m[0].v[1])) + (float)(v15.m[0].v[2] * v15.m[0].v[2]));
+  _XMM4 = v9;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+0A8h+var_78]
-    vmovss  xmm6, dword ptr [rsp+0A8h+var_78+4]
-    vmovss  xmm3, dword ptr [rsp+0A8h+var_78+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm4, xmm0, xmm0
-    vucomiss xmm4, xmm9
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+0A8h+var_78], xmm0
-    vmulss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0A8h+var_78+8], xmm0
-    vmovss  dword ptr [rsp+0A8h+var_78+4], xmm1
   }
-  if ( v26 )
+  v15.m[0].v[0] = v15.m[0].v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v15.m[0].v[2] = v15.m[0].v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v15.m[0].v[1] = v15.m[0].v[1] * (float)(1.0 / *(float *)&_XMM0);
+  if ( *(float *)&v9 == 0.0 )
     Scr_FxParamError(COM_ERR_5386, scrContext, 2, "spawnFx called with (0 0 0) forward direction", fxId);
   ++givenAxisCount;
 LABEL_12:
   Scr_GetVector(scrContext, 1u, &pos);
-  v42 = ReserveNewIndex_0();
+  v13 = ReserveNewIndex_0();
   ++g_fxEntsCount;
-  v43 = &g_fxEntities[v42];
-  LOBYTE(v42) = v43->flags;
-  *(_QWORD *)v43->origin.v = 0i64;
-  *(_QWORD *)&v43->origin.z = 0i64;
-  *(_QWORD *)&v43->angles.y = 0i64;
-  *(_QWORD *)&v43->loopingCullDist = 0i64;
-  *(_DWORD *)&v43->fxId = 0;
-  v43->flags |= (v42 + 1) & 0xF | 0x10;
-  ScrCmd_FXEntityInit(scrContext, v43, fxId, &pos, &v48, givenAxisCount);
-  Scr_FXEntityAdd(scrContext, v43);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
+  v14 = &g_fxEntities[v13];
+  LOBYTE(v13) = v14->flags;
+  *(_QWORD *)v14->origin.v = 0i64;
+  *(_QWORD *)&v14->origin.z = 0i64;
+  *(_QWORD *)&v14->angles.y = 0i64;
+  *(_QWORD *)&v14->loopingCullDist = 0i64;
+  *(_DWORD *)&v14->fxId = 0;
+  v14->flags |= (v13 + 1) & 0xF | 0x10;
+  ScrCmd_FXEntityInit(scrContext, v14, fxId, &pos, &v15, givenAxisCount);
+  Scr_FXEntityAdd(scrContext, v14);
 }
 
 /*
@@ -533,15 +452,14 @@ LABEL_12:
 G_FXEntity_TriggerFX
 ==============
 */
-
-void __fastcall G_FXEntity_TriggerFX(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void G_FXEntity_TriggerFX(scrContext_t *scrContext)
 {
   scr_entref_t EntityRef; 
-  FxEntity *v6; 
-  const char *v7; 
-  const char *v8; 
-  int v9; 
-  bool v10; 
+  FxEntity *v3; 
+  const char *v4; 
+  const char *v5; 
+  int v6; 
+  bool v7; 
 
   if ( !Scr_GetNumParam(scrContext) || Scr_GetNumParam(scrContext) > 2 )
     Scr_Error(COM_ERR_5271, scrContext, "Incorrect number of parameters");
@@ -549,45 +467,37 @@ void __fastcall G_FXEntity_TriggerFX(scrContext_t *scrContext, __int64 a2, doubl
   if ( EntityRef.entclass != ENTITY_CLASS_FXENTITY )
   {
     Scr_ParamError(COM_ERR_5269, scrContext, 0, "Not an FXEntity");
-    v6 = NULL;
-    v7 = "fxEnt";
-    v8 = "(fxEnt)";
-    v9 = 355;
+    v3 = NULL;
+    v4 = "fxEnt";
+    v5 = "(fxEnt)";
+    v6 = 355;
     goto LABEL_11;
   }
   if ( EntityRef.entnum >= 0x500 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity_server.cpp", 260, ASSERT_TYPE_ASSERT, "(unsigned)( entref.entnum ) < (unsigned)( 1280 )", "entref.entnum doesn't index FX_ENTITY_MAX\n\t%i not in [0, %i)", EntityRef.entnum, 1280) )
     __debugbreak();
-  v10 = (g_fxEntities[EntityRef.entnum].flags & 0x10) == 0;
-  v6 = &g_fxEntities[EntityRef.entnum];
-  if ( v10 )
+  v7 = (g_fxEntities[EntityRef.entnum].flags & 0x10) == 0;
+  v3 = &g_fxEntities[EntityRef.entnum];
+  if ( v7 )
   {
-    v7 = "FXEntity_IsValid( result )";
-    v9 = 263;
-    v8 = "(FXEntity_IsValid( result ))";
+    v4 = "FXEntity_IsValid( result )";
+    v6 = 263;
+    v5 = "(FXEntity_IsValid( result ))";
 LABEL_11:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity_server.cpp", v9, ASSERT_TYPE_ASSERT, v8, (const char *)&queryFormat, v7) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity_server.cpp", v6, ASSERT_TYPE_ASSERT, v5, (const char *)&queryFormat, v4) )
       __debugbreak();
   }
-  if ( (v6->flags & 0x20) != 0 )
+  if ( (v3->flags & 0x20) != 0 )
     Scr_ParamError(COM_ERR_5272, scrContext, 0, "Not valid to call this with looping fxents.");
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vaddss  xmm3, xmm1, cs:__real@3f000000
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm4, xmm2, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm4, 1
-      vcvttss2si edx, xmm1; triggerTime
-    }
-    FXEntity_SetTriggerTime(v6, _EDX);
+    Scr_GetFloat(scrContext, 1u);
+    _XMM0 = 0i64;
+    __asm { vroundss xmm1, xmm0, xmm4, 1 }
+    FXEntity_SetTriggerTime(v3, (int)*(float *)&_XMM1);
   }
   else
   {
-    FXEntity_SetTriggerTime(v6, level.time);
+    FXEntity_SetTriggerTime(v3, level.time);
   }
 }
 

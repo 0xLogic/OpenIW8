@@ -673,23 +673,26 @@ void Scr_CalcLocalVarsSwitchStatement(scrContext_t *scrContext, sval_u stmtlist,
   ScriptAbort abortLevel; 
   char v14; 
   __int64 v15; 
+  scr_block_t *v16; 
   __int64 v17; 
-  sval_u v28; 
-  scr_block_t **v29; 
+  scr_block_t *v18; 
+  __int128 v19; 
+  sval_u v20; 
+  scr_block_t **v21; 
   scr_block_t **childBlocks; 
-  char v31; 
+  char v23; 
   int childCount; 
   int *breakChildCount; 
 
   breakChildBlocks = scrContext->m_compileGlob.breakChildBlocks;
-  v29 = breakChildBlocks;
+  v21 = breakChildBlocks;
   breakChildCount = scrContext->m_compileGlob.breakChildCount;
   childCount = 0;
   v7 = 3;
   childBlocks = (scr_block_t **)Scr_Mem_TempAlloc(scrContext, 0x2000ui64, "Scr_CalcLocalVarsSwitchStatement");
   scrContext->m_compileGlob.breakChildBlocks = childBlocks;
   v8 = NULL;
-  v31 = 0;
+  v23 = 0;
   scrContext->m_compileGlob.breakChildCount = &childCount;
   v9 = 0;
   v10 = (scr_block_t **)Scr_Mem_TempAlloc(scrContext, 0x2000ui64, "Scr_CalcLocalVarsSwitchStatement");
@@ -729,53 +732,39 @@ void Scr_CalcLocalVarsSwitchStatement(scrContext_t *scrContext, sval_u stmtlist,
       goto LABEL_13;
     }
     v8 = (scr_block_t *)Scr_Mem_TempAlloc(scrContext, 0x218ui64, "Scr_CopyBlock");
-    _RDX = v8;
+    v16 = v8;
     v17 = 4i64;
-    _RCX = block;
+    v18 = block;
     do
     {
-      _RDX = (scr_block_t *)((char *)_RDX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rcx] }
-      _RCX = (scr_block_t *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rdx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-70h]
-        vmovups xmmword ptr [rdx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-60h]
-        vmovups xmmword ptr [rdx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-50h]
-        vmovups xmmword ptr [rdx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-40h]
-        vmovups xmmword ptr [rdx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-30h]
-        vmovups xmmword ptr [rdx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx-10h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v16 = (scr_block_t *)((char *)v16 + 128);
+      v19 = *(_OWORD *)&v18->abortLevel;
+      v18 = (scr_block_t *)((char *)v18 + 128);
+      *(_OWORD *)&v16[-1].localVars[48].canonicalStr = v19;
+      *(_OWORD *)&v16[-1].localVars[50].canonicalStr = *(_OWORD *)&v18[-1].localVars[50].canonicalStr;
+      *(_OWORD *)&v16[-1].localVars[52].canonicalStr = *(_OWORD *)&v18[-1].localVars[52].canonicalStr;
+      *(_OWORD *)&v16[-1].localVars[54].canonicalStr = *(_OWORD *)&v18[-1].localVars[54].canonicalStr;
+      *(_OWORD *)&v16[-1].localVars[56].canonicalStr = *(_OWORD *)&v18[-1].localVars[56].canonicalStr;
+      *(_OWORD *)&v16[-1].localVars[58].canonicalStr = *(_OWORD *)&v18[-1].localVars[58].canonicalStr;
+      *(_OWORD *)&v16[-1].localVars[60].canonicalStr = *(_OWORD *)&v18[-1].localVars[60].canonicalStr;
+      *(_OWORD *)&v16[-1].localVars[62].canonicalStr = *(_OWORD *)&v18[-1].localVars[62].canonicalStr;
       --v17;
     }
     while ( v17 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rdx], xmm0
-    }
-    *(_QWORD *)_RDX->localVarsInitBits = *(_QWORD *)_RCX->localVarsInitBits;
+    *(_OWORD *)&v16->abortLevel = *(_OWORD *)&v18->abortLevel;
+    *(_QWORD *)v16->localVarsInitBits = *(_QWORD *)v18->localVarsInitBits;
     v8->localVarsPublicCount = 0;
-    v28 = *node;
+    v20 = *node;
     if ( node->node->type == 70 )
     {
-      v28.node[3].node = (sval_u *)v8;
+      v20.node[3].node = (sval_u *)v8;
 LABEL_13:
-      v14 = v31;
+      v14 = v23;
       goto LABEL_14;
     }
-    v28.node[2].node = (sval_u *)v8;
+    v20.node[2].node = (sval_u *)v8;
     v14 = 1;
-    v31 = 1;
+    v23 = 1;
 LABEL_14:
     node = node[1].node;
   }
@@ -795,7 +784,7 @@ LABEL_14:
     Scr_AppendChildBlocks(childBlocks, childCount, block);
     Scr_MergeChildBlocks(v10, v9, block);
   }
-  scrContext->m_compileGlob.breakChildBlocks = v29;
+  scrContext->m_compileGlob.breakChildBlocks = v21;
 LABEL_30:
   scrContext->m_compileGlob.breakChildCount = breakChildCount;
 }
@@ -895,44 +884,31 @@ Scr_CopyBlock
 */
 void Scr_CopyBlock(scrContext_t *scrContext, const scr_block_t *from, scr_block_t **to)
 {
+  scr_block_t *v5; 
   __int64 v6; 
+  __int128 v7; 
 
-  _RBX = from;
-  _RAX = (scr_block_t *)Scr_Mem_TempAlloc(scrContext, 0x218ui64, "Scr_CopyBlock");
-  *to = _RAX;
+  v5 = (scr_block_t *)Scr_Mem_TempAlloc(scrContext, 0x218ui64, "Scr_CopyBlock");
+  *to = v5;
   v6 = 4i64;
   do
   {
-    _RAX = (scr_block_t *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (const scr_block_t *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v5 = (scr_block_t *)((char *)v5 + 128);
+    v7 = *(_OWORD *)&from->abortLevel;
+    from = (const scr_block_t *)((char *)from + 128);
+    *(_OWORD *)&v5[-1].localVars[48].canonicalStr = v7;
+    *(_OWORD *)&v5[-1].localVars[50].canonicalStr = *(_OWORD *)&from[-1].localVars[50].canonicalStr;
+    *(_OWORD *)&v5[-1].localVars[52].canonicalStr = *(_OWORD *)&from[-1].localVars[52].canonicalStr;
+    *(_OWORD *)&v5[-1].localVars[54].canonicalStr = *(_OWORD *)&from[-1].localVars[54].canonicalStr;
+    *(_OWORD *)&v5[-1].localVars[56].canonicalStr = *(_OWORD *)&from[-1].localVars[56].canonicalStr;
+    *(_OWORD *)&v5[-1].localVars[58].canonicalStr = *(_OWORD *)&from[-1].localVars[58].canonicalStr;
+    *(_OWORD *)&v5[-1].localVars[60].canonicalStr = *(_OWORD *)&from[-1].localVars[60].canonicalStr;
+    *(_OWORD *)&v5[-1].localVars[62].canonicalStr = *(_OWORD *)&from[-1].localVars[62].canonicalStr;
     --v6;
   }
   while ( v6 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rax], xmm0
-  }
-  *(_QWORD *)_RAX->localVarsInitBits = *(_QWORD *)_RBX->localVarsInitBits;
+  *(_OWORD *)&v5->abortLevel = *(_OWORD *)&from->abortLevel;
+  *(_QWORD *)v5->localVarsInitBits = *(_QWORD *)from->localVarsInitBits;
   (*to)->localVarsPublicCount = 0;
 }
 
@@ -943,72 +919,52 @@ Scr_CreateVector
 */
 void Scr_CreateVector(scrContext_t *scrContext, VariableCompileValue *constValue, VariableValue *value)
 {
-  int v6; 
+  float *v4; 
+  int v5; 
+  VariableCompileValue *v6; 
   __int64 i; 
   VariableType type; 
+  float floatValue; 
+  int v12; 
   const char *NameForType; 
+  int v14; 
+  float v; 
+  int v16; 
   int v17; 
-  int v18; 
-  int v19; 
-  float v[2]; 
-  int v21; 
 
-  _R9 = &v21;
-  v6 = 0;
-  _RAX = constValue;
+  v4 = (float *)&v17;
+  v5 = 0;
+  v6 = constValue;
   for ( i = 0i64; i < 3; ++i )
   {
-    type = _RAX->value.type;
+    type = v6->value.type;
     if ( type == VAR_FLOAT )
     {
-      __asm { vmovss  xmm0, dword ptr [rax] }
+      floatValue = v6->value.u.floatValue;
     }
     else
     {
       if ( type != VAR_INTEGER )
       {
         NameForType = Scr_GetNameForType(type);
-        CompileError(scrContext, constValue[v6].sourcePos.canonicalString, "type %s is not a float", NameForType);
+        CompileError(scrContext, constValue[v5].sourcePos.canonicalString, "type %s is not a float", NameForType);
         return;
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax]
-      }
+      floatValue = (float)v6->value.u.intValue;
     }
-    __asm { vmovss  dword ptr [r9], xmm0 }
-    --_R9;
+    *v4-- = floatValue;
+    ++v5;
     ++v6;
-    ++_RAX;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+v]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
+  *(float *)&v14 = v;
+  v12 = LODWORD(v) & 0x7F800000;
   value->type = VAR_VECTOR;
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_16;
-  __asm
+  if ( v12 == 2139095040 || (v14 = v16, (v16 & 0x7F800000) == 2139095040) || (v14 = v17, (v17 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, [rsp+68h+var_2C]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_16;
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+var_28]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-  {
-LABEL_16:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 329, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 329, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] )", v14) )
       __debugbreak();
   }
-  value->u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(scrContext, v);
+  value->u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(scrContext, &v);
 }
 
 /*
@@ -1055,21 +1011,13 @@ LABEL_7:
 Scr_EvalFloat
 ==============
 */
-
-void __fastcall Scr_EvalFloat(double value, sval_u sourcePos, VariableCompileValue *constValue)
+void Scr_EvalFloat(float value, sval_u sourcePos, VariableCompileValue *constValue)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = constValue;
-  __asm { vmovaps xmm6, xmm0 }
   if ( !constValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 346, ASSERT_TYPE_ASSERT, "( constValue )", (const char *)&queryFormat, "constValue") )
     __debugbreak();
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  _RDI->sourcePos = sourcePos;
-  _RDI->value.type = VAR_FLOAT;
+  constValue->value.u.floatValue = value;
+  constValue->sourcePos = sourcePos;
+  constValue->value.type = VAR_FLOAT;
 }
 
 /*
@@ -1094,106 +1042,84 @@ Scr_EvalPrimitiveExpressionList
 bool Scr_EvalPrimitiveExpressionList(scrContext_t *scrContext, sval_u exprlist, sval_u sourcePos, VariableCompileValue *constValue)
 {
   sval_u *node; 
+  int v9; 
   int v10; 
-  int v11; 
-  sval_u *v12; 
+  sval_u *v11; 
   bool result; 
-  int v14; 
-  __int64 v15; 
+  int i; 
+  __int64 v14; 
+  VariableCompileValue *v15; 
+  float *v16; 
   VariableType type; 
+  float floatValue; 
+  int v19; 
   const char *NameForType; 
+  int v21; 
+  float v; 
+  int v23; 
   int v24; 
-  int v25; 
-  int v26; 
-  float v[2]; 
-  int v28; 
   VariableCompileValue constValuea[3]; 
 
   if ( !constValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 400, ASSERT_TYPE_ASSERT, "( constValue )", (const char *)&queryFormat, "constValue") )
     __debugbreak();
   node = exprlist.node->node;
+  v9 = 0;
   v10 = 0;
-  v11 = 0;
-  v12 = node;
+  v11 = node;
   if ( node )
   {
     do
     {
-      v12 = v12[1].node;
-      ++v11;
+      v11 = v11[1].node;
+      ++v10;
     }
-    while ( v12 );
-    if ( v11 == 1 )
+    while ( v11 );
+    if ( v10 == 1 )
       return Scr_EvalExpression(scrContext, *node->node, constValue);
-    if ( v11 == 3 )
+    if ( v10 == 3 )
     {
-      v14 = 0;
-      while ( Scr_EvalExpression(scrContext, *node->node, &constValuea[v14]) )
+      for ( i = 0; Scr_EvalExpression(scrContext, *node->node, &constValuea[i]); ++i )
       {
         node = node[1].node;
-        ++v14;
         if ( !node )
         {
-          v15 = 0i64;
-          _RAX = constValuea;
-          _R8 = &v28;
+          v14 = 0i64;
+          v15 = constValuea;
+          v16 = (float *)&v24;
           do
           {
-            type = _RAX->value.type;
+            type = v15->value.type;
             if ( type == VAR_FLOAT )
             {
-              __asm { vmovss  xmm0, dword ptr [rax] }
+              floatValue = v15->value.u.floatValue;
             }
             else
             {
               if ( type != VAR_INTEGER )
               {
                 NameForType = Scr_GetNameForType(type);
-                CompileError(scrContext, constValuea[v10].sourcePos.canonicalString, "type %s is not a float", NameForType);
+                CompileError(scrContext, constValuea[v9].sourcePos.canonicalString, "type %s is not a float", NameForType);
                 result = 1;
                 constValue->sourcePos = sourcePos;
                 return result;
               }
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, dword ptr [rax]
-              }
+              floatValue = (float)v15->value.u.intValue;
             }
-            __asm { vmovss  dword ptr [r8], xmm0 }
-            --_R8;
-            ++v10;
+            *v16-- = floatValue;
+            ++v9;
+            ++v14;
             ++v15;
-            ++_RAX;
           }
-          while ( v15 < 3 );
-          __asm
-          {
-            vmovss  xmm0, [rsp+0E8h+v]
-            vmovss  [rsp+0E8h+var_B8], xmm0
-          }
+          while ( v14 < 3 );
+          *(float *)&v21 = v;
+          v19 = LODWORD(v) & 0x7F800000;
           constValue->value.type = VAR_VECTOR;
-          if ( (v24 & 0x7F800000) == 2139095040 )
-            goto LABEL_28;
-          __asm
+          if ( v19 == 2139095040 || (v21 = v23, (v23 & 0x7F800000) == 2139095040) || (v21 = v24, (v24 & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, [rsp+0E8h+var_AC]
-            vmovss  [rsp+0E8h+var_B8], xmm0
-          }
-          if ( (v25 & 0x7F800000) == 2139095040 )
-            goto LABEL_28;
-          __asm
-          {
-            vmovss  xmm0, [rsp+0E8h+var_A8]
-            vmovss  [rsp+0E8h+var_B8], xmm0
-          }
-          if ( (v26 & 0x7F800000) == 2139095040 )
-          {
-LABEL_28:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 329, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] )") )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_compile_util.cpp", 329, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec )[0] ) && !IS_NAN( ( vec )[1] ) && !IS_NAN( ( vec )[2] )", v21) )
               __debugbreak();
           }
-          constValue->value.u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(scrContext, v);
+          constValue->value.u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(scrContext, &v);
           result = 1;
           constValue->sourcePos = sourcePos;
           return result;

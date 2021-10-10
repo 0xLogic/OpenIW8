@@ -460,64 +460,42 @@ GStaticMP::GetPlayerWorldIkStatus
 */
 void GStaticMP::GetPlayerWorldIkStatus(GStaticMP *this, const int entNum, bool (*outWorldIKEnabled)[2])
 {
-  __int64 v4; 
-  gentity_s *v7; 
+  __int64 v3; 
+  gentity_s *v6; 
   const DObj *ServerDObjForEnt; 
   characterInfo_t *CharacterInfo; 
-  characterInfo_t *v10; 
+  characterInfo_t *v9; 
+  float *control; 
+  bool v11; 
+  bool v12; 
   bool v13; 
-  bool v14; 
-  bool v15; 
   CEntPlayerInfo info; 
 
-  v4 = entNum;
+  v3 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_static_mp.cpp", 154, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  BgStatic::GetPlayerWorldIkStatus(this, v4, outWorldIKEnabled);
-  v7 = &g_entities[v4];
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1969, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  BgStatic::GetPlayerWorldIkStatus(this, v3, outWorldIKEnabled);
+  v6 = &g_entities[v3];
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1969, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  if ( ((v7->s.eType - 1) & 0xFFEF) == 0 )
+  if ( ((v6->s.eType - 1) & 0xFFEF) == 0 )
   {
-    ServerDObjForEnt = Com_GetServerDObjForEnt(v7);
+    ServerDObjForEnt = Com_GetServerDObjForEnt(v6);
     if ( ServerDObjForEnt )
     {
-      CharacterInfo = GStaticMP::GetCharacterInfo(this, v4);
-      v10 = CharacterInfo;
+      CharacterInfo = GStaticMP::GetCharacterInfo(this, v3);
+      v9 = CharacterInfo;
       if ( (!CharacterInfo || !CharacterInfo->infoValid) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_static_mp.cpp", 172, ASSERT_TYPE_ASSERT, "( ci && ci->infoValid )", (const char *)&queryFormat, "ci && ci->infoValid") )
         __debugbreak();
-      if ( !v10->usingAnimState )
+      if ( !v9->usingAnimState )
       {
-        BG_Player_SetPlayerInfo(ServerDObjForEnt, &v10->control, &info);
-        _RAX = info.control;
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        if ( info.IKHandBone[0] == 0xFE )
-        {
-          v13 = 0;
-        }
-        else
-        {
-          __asm { vucomiss xmm0, dword ptr [rax+48h] }
-          v13 = 1;
-        }
-        v14 = info.IKHandBone[1] == 0xFE;
-        (*outWorldIKEnabled)[0] = v13;
-        if ( v14 )
-        {
-          v15 = 0;
-        }
-        else
-        {
-          __asm { vucomiss xmm0, dword ptr [rax+54h] }
-          if ( v14 )
-          {
-            __asm { vucomiss xmm0, dword ptr [rax+58h] }
-            if ( v14 )
-              __asm { vucomiss xmm0, dword ptr [rax+5Ch] }
-          }
-          v15 = 1;
-        }
-        (*outWorldIKEnabled)[1] = v15;
+        BG_Player_SetPlayerInfo(ServerDObjForEnt, &v9->control, &info);
+        control = (float *)info.control;
+        v11 = info.IKHandBone[0] != 0xFE && (info.control->hand_ik_local_pos[0].v[0] != 0.0 || info.control->hand_ik_local_pos[0].v[1] != 0.0 || info.control->hand_ik_local_pos[0].v[2] != 0.0);
+        v12 = info.IKHandBone[1] == 0xFE;
+        (*outWorldIKEnabled)[0] = v11;
+        v13 = !v12 && (control[21] != 0.0 || control[22] != 0.0 || control[23] != 0.0);
+        (*outWorldIKEnabled)[1] = v13;
       }
     }
   }

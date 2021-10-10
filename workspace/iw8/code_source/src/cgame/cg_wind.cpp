@@ -283,72 +283,66 @@ CG_Wind_GetDefaultParams
 */
 void CG_Wind_GetDefaultParams(WindParams *outParams)
 {
-  const dvar_t *v20; 
-  const dvar_t *v21; 
-  const dvar_t *v22; 
-  const dvar_t *v23; 
-  const dvar_t *v24; 
+  const dvar_t *v2; 
+  float value; 
+  __int128 v4; 
+  float v5; 
+  __int128 v6; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = outParams;
   if ( !outParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 227, ASSERT_TYPE_ASSERT, "(outParams)", (const char *)&queryFormat, "outParams") )
     __debugbreak();
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 228, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", "%s\n\tAccessing networked dvars must be done from the main thread", "Sys_IsMainThread()") )
     __debugbreak();
-  _RDI = DVARVEC3_cg_defaultWindDir;
+  v2 = DVARVEC3_cg_defaultWindDir;
   if ( !DVARVEC3_cg_defaultWindDir && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_defaultWindDir") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  outParams->defaultDir.v[0] = value;
+  v4 = LODWORD(v2->current.vector.v[1]);
+  outParams->defaultDir.v[1] = *(float *)&v4;
+  v5 = v2->current.vector.v[2];
+  v6 = v4;
+  *(float *)&v6 = fsqrt((float)((float)(*(float *)&v4 * *(float *)&v4) + (float)(value * value)) + (float)(v5 * v5));
+  _XMM3 = v6;
   __asm
   {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbx], xmm6
-    vmovss  xmm5, dword ptr [rdi+2Ch]
-    vmovss  dword ptr [rbx+4], xmm5
-    vmovss  xmm4, dword ptr [rdi+30h]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
   }
-  v20 = DVARFLT_cg_defaultWindStrength;
+  outParams->defaultDir.v[0] = value * (float)(1.0 / *(float *)&_XMM0);
+  outParams->defaultDir.v[2] = v5 * (float)(1.0 / *(float *)&_XMM0);
+  outParams->defaultDir.v[1] = *(float *)&v4 * (float)(1.0 / *(float *)&_XMM0);
+  v10 = DVARFLT_cg_defaultWindStrength;
   if ( !DVARFLT_cg_defaultWindStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_defaultWindStrength") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  LODWORD(_RBX->defaultStrength) = v20->current.integer;
-  v21 = DVARFLT_cg_defaultWindAreaScale;
+  Dvar_CheckFrontendServerThread(v10);
+  LODWORD(outParams->defaultStrength) = v10->current.integer;
+  v11 = DVARFLT_cg_defaultWindAreaScale;
   if ( !DVARFLT_cg_defaultWindAreaScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_defaultWindAreaScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  LODWORD(_RBX->defaultAreaScale) = v21->current.integer;
-  v22 = DVARFLT_cg_defaultWindAmplitudeScale;
+  Dvar_CheckFrontendServerThread(v11);
+  LODWORD(outParams->defaultAreaScale) = v11->current.integer;
+  v12 = DVARFLT_cg_defaultWindAmplitudeScale;
   if ( !DVARFLT_cg_defaultWindAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_defaultWindAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  LODWORD(_RBX->defaultAmplitudeScale) = v22->current.integer;
-  v23 = DVARFLT_cg_defaultWindFrequencyScale;
+  Dvar_CheckFrontendServerThread(v12);
+  LODWORD(outParams->defaultAmplitudeScale) = v12->current.integer;
+  v13 = DVARFLT_cg_defaultWindFrequencyScale;
   if ( !DVARFLT_cg_defaultWindFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_defaultWindFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  LODWORD(_RBX->defaultFrequencyScale) = v23->current.integer;
-  v24 = DVARFLT_cg_defaultWindNoiseScale;
+  Dvar_CheckFrontendServerThread(v13);
+  LODWORD(outParams->defaultFrequencyScale) = v13->current.integer;
+  v14 = DVARFLT_cg_defaultWindNoiseScale;
   if ( !DVARFLT_cg_defaultWindNoiseScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_defaultWindNoiseScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  LODWORD(_RBX->defaultNoiseStrength) = v24->current.integer;
+  Dvar_CheckFrontendServerThread(v14);
+  LODWORD(outParams->defaultNoiseStrength) = v14->current.integer;
 }
 
 /*
@@ -382,32 +376,33 @@ CG_Wind_GetVectorFieldGridCoords
 */
 void CG_Wind_GetVectorFieldGridCoords(const VectorFieldInstance *vfInstance, base_vec2_t<unsigned int> *outIterStart, base_vec2_t<unsigned int> *outIterEnd)
 {
-  __int64 v15; 
-  __int128 v102; 
-  __int128 v103; 
-  __int128 v104; 
-  __int128 v105; 
-  __int128 v106; 
-  __int128 v107; 
-  char v111; 
-  void *retaddr; 
+  __int64 v4; 
+  __m128 v9; 
+  __m128 v12; 
+  __m128 v14; 
+  __m128 v18; 
+  __m128 v22; 
+  __m128 v26; 
+  __m128 v30; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v60; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rsp+100h+var_98+8], xmm12
-    vmovaps [rsp+100h+var_A8+8], xmm13
-    vmovaps [rsp+100h+var_B8+8], xmm14
-    vmovaps [rsp+100h+var_C8+8], xmm15
-  }
   _RSI = outIterEnd;
-  v15 = tls_index;
+  v4 = tls_index;
   _RDI = outIterStart;
   _R14 = vfInstance;
   if ( dword_15132F284 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
@@ -415,157 +410,118 @@ void CG_Wind_GetVectorFieldGridCoords(const VectorFieldInstance *vfInstance, bas
     j__Init_thread_header(&dword_15132F284);
     if ( dword_15132F284 == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@0000000047fe000047fe000047fe0000
-        vmovups xmmword ptr cs:maxWorldClamp.v, xmm0
-      }
+      maxWorldClamp.v = (__m128)_xmm;
       j__Init_thread_footer(&dword_15132F284);
     }
   }
-  if ( dword_15132F2A4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v15) + 1772i64) )
+  if ( dword_15132F2A4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v4) + 1772i64) )
   {
     j__Init_thread_header(&dword_15132F2A4);
     if ( dword_15132F2A4 == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@00000000c7fe0000c7fe0000c7fe0000
-        vmovups xmmword ptr cs:minWorldClamp.v, xmm0
-      }
+      minWorldClamp.v = (__m128)_xmm;
       j__Init_thread_footer(&dword_15132F2A4);
     }
   }
-  _RAX = _R14->vf;
   __asm { vbroadcastss xmm5, dword ptr [r14+3Ch] }
-  HIDWORD(v102) = 0;
+  v55.m128_i32[3] = 0;
+  v9 = v55;
+  v9.m128_f32[0] = _R14->vf->worldBounds.mins.v[0];
+  _XMM3 = v9;
   __asm
   {
-    vmovups xmm3, [rsp+100h+var_E8+8]
-    vmovss  xmm0, dword ptr [rax+10h]
-    vmovss  xmm1, dword ptr [rax+20h]
-    vmovss  xmm2, dword ptr [rax+24h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rax+14h], 10h
     vinsertps xmm3, xmm3, dword ptr [rax+18h], 20h ; ' '
-    vmovss  xmm0, dword ptr [rax+1Ch]
-    vmovups [rsp+100h+var_E8+8], xmm3
-    vmulps  xmm3, xmm5, xmm3
   }
-  HIDWORD(v103) = 0;
+  v56 = _XMM3;
+  v12 = _mm128_mul_ps(_XMM5, _XMM3);
+  v56.m128_i32[3] = 0;
+  v14 = v56;
+  v14.m128_f32[0] = _R14->vf->worldBounds.maxs.v[0];
+  _XMM4 = v14;
   __asm
   {
-    vmovups xmm4, [rsp+100h+var_E8+8]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [r14+14h]
     vinsertps xmm4, xmm4, xmm1, 10h
     vinsertps xmm4, xmm4, xmm2, 20h ; ' '
-    vmovups [rsp+100h+var_E8+8], xmm4
   }
-  HIDWORD(v104) = 0;
+  v57 = _XMM4;
+  v57.m128_i32[3] = 0;
+  v18 = v57;
+  v18.m128_f32[0] = _R14->orient.axis.m[0].v[0];
+  _XMM15 = v18;
   __asm
   {
-    vmovups xmm15, [rsp+100h+var_E8+8]
-    vmovss  xmm15, xmm15, xmm0
-    vmovss  xmm0, dword ptr [r14+20h]
     vinsertps xmm15, xmm15, dword ptr [r14+18h], 10h
     vinsertps xmm15, xmm15, dword ptr [r14+1Ch], 20h ; ' '
-    vmovups [rsp+100h+var_E8+8], xmm15
   }
-  HIDWORD(v105) = 0;
+  v58 = _XMM15;
+  v58.m128_i32[3] = 0;
+  v22 = v58;
+  v22.m128_f32[0] = _R14->orient.axis.m[1].v[0];
+  _XMM14 = v22;
   __asm
   {
-    vmovups xmm14, [rsp+100h+var_E8+8]
-    vmovss  xmm14, xmm14, xmm0
-    vmovss  xmm0, dword ptr [r14+2Ch]
     vinsertps xmm14, xmm14, dword ptr [r14+24h], 10h
     vinsertps xmm14, xmm14, dword ptr [r14+28h], 20h ; ' '
-    vmovups [rsp+100h+var_E8+8], xmm14
   }
-  HIDWORD(v106) = 0;
+  v59 = _XMM14;
+  v59.m128_i32[3] = 0;
+  v26 = v59;
+  v26.m128_f32[0] = _R14->orient.axis.m[2].v[0];
+  _XMM13 = v26;
   __asm
   {
-    vmovups xmm13, [rsp+100h+var_E8+8]
-    vmovss  xmm13, xmm13, xmm0
-    vmovss  xmm0, dword ptr [r14+8]
     vinsertps xmm13, xmm13, dword ptr [r14+30h], 10h
     vinsertps xmm13, xmm13, dword ptr [r14+34h], 20h ; ' '
-    vmovups [rsp+100h+var_E8+8], xmm13
   }
-  HIDWORD(v107) = 0;
+  v60 = _XMM13;
+  v60.m128_i32[3] = 0;
+  v30 = v60;
+  v30.m128_f32[0] = _R14->orient.origin.v[0];
+  _XMM12 = v30;
   __asm
   {
-    vmovups xmm12, [rsp+100h+var_E8+8]
-    vmovss  xmm12, xmm12, xmm0
     vinsertps xmm12, xmm12, dword ptr [r14+0Ch], 10h
     vinsertps xmm12, xmm12, dword ptr [r14+10h], 20h ; ' '
-    vmulps  xmm0, xmm5, xmm4
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm4, xmm2, cs:__xmm@3f0000003f0000003f0000003f000000
-    vaddps  xmm0, xmm3, xmm4
-    vshufps xmm3, xmm0, xmm0, 55h ; 'U'
-    vshufps xmm1, xmm0, xmm0, 0
-    vshufps xmm8, xmm0, xmm0, 0AAh ; 'ª'
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
+  }
+  v33 = _mm128_mul_ps(_mm128_sub_ps(_mm128_mul_ps(_XMM5, _XMM4), v12), (__m128)_xmm);
+  v34 = _mm128_add_ps(v12, v33);
+  v35 = _mm_shuffle_ps(v34, v34, 85);
+  v36 = _mm_shuffle_ps(v34, v34, 0);
+  v37 = _mm_shuffle_ps(v34, v34, 170);
+  _XMM0 = g_negativeZero.v;
+  __asm
+  {
     vandnps xmm7, xmm0, xmm13
     vandnps xmm5, xmm0, xmm15
     vandnps xmm6, xmm0, xmm14
-    vmulps  xmm0, xmm15, xmm1
-    vaddps  xmm2, xmm12, xmm0
-    vmulps  xmm1, xmm14, xmm3
-    vaddps  xmm3, xmm2, xmm1
-    vmulps  xmm0, xmm13, xmm8
-    vshufps xmm9, xmm4, xmm4, 0
-    vshufps xmm10, xmm4, xmm4, 55h ; 'U'
-    vshufps xmm11, xmm4, xmm4, 0AAh ; 'ª'
-    vaddps  xmm4, xmm3, xmm0
-    vmulps  xmm0, xmm10, xmm6
-    vmulps  xmm1, xmm9, xmm5
-    vaddps  xmm2, xmm1, xmm0
-    vmulps  xmm1, xmm11, xmm7
-    vaddps  xmm0, xmm2, xmm1
-    vsubps  xmm3, xmm4, xmm0
-    vmaxps  xmm7, xmm3, xmmword ptr cs:minWorldClamp.v
-    vaddps  xmm0, xmm4, xmm0
-    vminps  xmm6, xmm0, xmmword ptr cs:maxWorldClamp.v
   }
-  if ( dword_15132F264 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v15) + 1772i64) )
+  v42 = _mm_shuffle_ps(v33, v33, 0);
+  v43 = _mm_shuffle_ps(v33, v33, 85);
+  v44 = _mm_shuffle_ps(v33, v33, 170);
+  v45 = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_XMM12, _mm128_mul_ps(_XMM15, v36)), _mm128_mul_ps(_XMM14, v35)), _mm128_mul_ps(_XMM13, v37));
+  v46 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(v42, _XMM5), _mm128_mul_ps(v43, _XMM6)), _mm128_mul_ps(v44, _XMM7));
+  _XMM3 = _mm128_sub_ps(v45, v46);
+  __asm { vmaxps  xmm7, xmm3, xmmword ptr cs:minWorldClamp.v }
+  _XMM0 = _mm128_add_ps(v45, v46);
+  __asm { vminps  xmm6, xmm0, xmmword ptr cs:maxWorldClamp.v }
+  if ( dword_15132F264 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v4) + 1772i64) )
   {
     j__Init_thread_header(&dword_15132F264);
     if ( dword_15132F264 == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@47fe000047fe000047fe000047fe0000
-        vmovups cs:xmmword_15132F250, xmm0
-      }
+      xmmword_15132F250 = _xmm;
       j__Init_thread_footer(&dword_15132F264);
     }
   }
+  _XMM1 = _mm128_add_ps(_mm_shuffle_ps(_XMM7, _XMM6, 68), (__m128)xmmword_15132F250);
   __asm
   {
-    vshufps xmm0, xmm7, xmm6, 44h ; 'D'
-    vaddps  xmm1, xmm0, cs:xmmword_15132F250
-    vxorps  xmm0, xmm0, xmm0
     vmaxps  xmm1, xmm1, xmm0
     vcvttps2dq xmm2, xmm1
     vpsrld  xmm3, xmm2, 0Ah
     vmovlps qword ptr [rdi], xmm3
     vmovhps qword ptr [rsi], xmm3
-  }
-  _R11 = &v111;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+100h+var_B8+8]
-    vmovaps xmm15, [rsp+100h+var_C8+8]
   }
 }
 
@@ -632,191 +588,160 @@ CG_Wind_QueryRegion
 ==============
 */
 
-__int64 __fastcall CG_Wind_QueryRegion(const vec3_t *worldPos, double radius, ParticleSystemHandle restrictToSystem, unsigned __int8 *outHandles)
+__int64 __fastcall CG_Wind_QueryRegion(const vec3_t *worldPos, double radius, ParticleSystemHandle restrictToSystem, unsigned __int8 *outHandles, int maxOutHandles)
 {
-  __int64 v18; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
-  unsigned int v32; 
-  __int64 v33; 
-  unsigned int v34; 
-  __int64 v35; 
-  __int64 result; 
-  unsigned int v75; 
-  unsigned int v76; 
-  __int64 v78; 
-  __int64 v79; 
-  __int128 v80; 
-  __int64 v81[4]; 
-  unsigned int v82; 
-  __int64 v83; 
-  char v86; 
-  void *retaddr; 
+  __int64 v5; 
+  unsigned int v8; 
+  float v9; 
+  __int128 v11; 
+  __int64 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v17; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  unsigned int v25; 
+  __int64 v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  unsigned __int64 v29; 
+  int v30; 
+  const VectorFieldInstance *Instance; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float sizeScale; 
+  float *vf; 
+  float v41; 
+  unsigned int v43; 
+  unsigned int v44; 
+  __int64 v47; 
+  __int64 v48; 
+  __int128 v49; 
+  __int64 v50[4]; 
+  unsigned int v51; 
+  __int64 v52; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RBX = worldPos;
-  __asm { vmovaps xmm7, xmm1 }
+  v5 = 0i64;
+  v8 = 0;
+  v9 = *(float *)&radius;
   if ( !outHandles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 478, ASSERT_TYPE_ASSERT, "(outHandles)", (const char *)&queryFormat, "outHandles") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx] }
-  HIDWORD(v80) = 0;
+  HIDWORD(v49) = 0;
+  v11 = v49;
+  *(float *)&v11 = worldPos->v[0];
+  _XMM3 = v11;
   __asm
   {
-    vmovups xmm3, [rsp+130h+var_D8+8]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rbx+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rbx+8], 20h ; ' '
   }
-  v18 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-  __asm
-  {
-    vmovaps xmm4, xmm7
-    vshufps xmm4, xmm4, xmm4, 0
-  }
-  memset(v81, 0, sizeof(v81));
-  __asm
-  {
-    vsubps  xmm6, xmm3, xmm4
-    vaddps  xmm8, xmm4, xmm3
-  }
-  if ( dword_15132F264 > *(_DWORD *)(v18 + 1772) )
+  v14 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+  v15 = _mm_shuffle_ps(*(__m128 *)&radius, *(__m128 *)&radius, 0);
+  memset(v50, 0, sizeof(v50));
+  v16 = _mm128_sub_ps(_XMM3, v15);
+  v17 = _mm128_add_ps(v15, _XMM3);
+  if ( dword_15132F264 > *(_DWORD *)(v14 + 1772) )
   {
     j__Init_thread_header(&dword_15132F264);
     if ( dword_15132F264 == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@47fe000047fe000047fe000047fe0000
-        vmovups cs:xmmword_15132F250, xmm0
-      }
+      xmmword_15132F250 = _xmm;
       j__Init_thread_footer(&dword_15132F264);
     }
   }
+  _XMM1 = _mm128_add_ps(_mm_shuffle_ps(v16, v17, 68), (__m128)xmmword_15132F250);
   __asm
   {
-    vshufps xmm0, xmm6, xmm8, 44h ; 'D'
-    vaddps  xmm1, xmm0, cs:xmmword_15132F250
-    vxorps  xmm0, xmm0, xmm0
     vmaxps  xmm1, xmm1, xmm0
     vcvttps2dq xmm2, xmm1
     vpsrld  xmm3, xmm2, 0Ah
     vmovlps [rsp+130h+var_E0], xmm3
   }
-  v29 = v79;
+  v22 = v48;
   __asm { vmovhps [rsp+130h+var_E8], xmm3 }
-  v30 = v78;
-  __asm
+  v23 = v47;
+  v44 = v48;
+  if ( (unsigned int)v48 <= (unsigned int)v47 )
   {
-    vmovaps xmmword ptr [rsp+130h+var_78+8], xmm9
-    vmovaps [rsp+130h+var_88+8], xmm10
-  }
-  v76 = v79;
-  if ( (unsigned int)v79 <= (unsigned int)v78 )
-  {
-    v31 = HIDWORD(v78);
+    v24 = HIDWORD(v47);
     do
     {
-      v32 = HIDWORD(v79);
-      v75 = HIDWORD(v79);
-      if ( HIDWORD(v79) <= v31 )
+      v25 = HIDWORD(v48);
+      v43 = HIDWORD(v48);
+      if ( HIDWORD(v48) <= v24 )
       {
         do
         {
-          if ( v29 < 0x100 && v32 < 0x100 )
+          if ( v22 < 0x100 && v25 < 0x100 )
           {
             if ( !s_windGridCountData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 95, ASSERT_TYPE_ASSERT, "(s_windGridCountData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridCountData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
               __debugbreak();
-            v33 = (v29 << 8) + v32;
-            v34 = s_windGridCountData[v33];
-            v82 = v34;
+            v26 = (v22 << 8) + v25;
+            v27 = s_windGridCountData[v26];
+            v51 = v27;
             if ( !s_windGridFieldData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 109, ASSERT_TYPE_ASSERT, "(s_windGridFieldData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridFieldData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
               __debugbreak();
-            v35 = 0i64;
-            v83 = *((_QWORD *)s_windGridFieldData + v33);
-            if ( v34 )
+            v28 = 0i64;
+            v52 = *((_QWORD *)s_windGridFieldData + v26);
+            if ( v27 )
             {
               do
               {
-                if ( ((0x80000000 >> (*((_BYTE *)&v83 + v35) & 0x1F)) & *((_DWORD *)v81 + ((unsigned __int64)*((unsigned __int8 *)&v83 + v35) >> 5))) == 0 )
+                v29 = *((unsigned __int8 *)&v52 + v28);
+                v30 = *((_DWORD *)v50 + (v29 >> 5));
+                if ( ((0x80000000 >> (*((_BYTE *)&v52 + v28) & 0x1F)) & v30) == 0 )
                 {
-                  _RAX = CG_VectorField_GetInstance(*((_BYTE *)&v83 + v35));
-                  if ( restrictToSystem == PARTICLE_SYSTEM_INVALID_HANDLE || _RAX->systemOwner == restrictToSystem )
+                  Instance = CG_VectorField_GetInstance(v29);
+                  if ( restrictToSystem == PARTICLE_SYSTEM_INVALID_HANDLE || Instance->systemOwner == restrictToSystem )
                   {
-                    if ( _RAX->inUse )
+                    if ( Instance->inUse )
                     {
-                      _RCX = worldPos;
-                      __asm
+                      v32 = worldPos->v[0] - Instance->orient.origin.v[0];
+                      v33 = worldPos->v[1] - Instance->orient.origin.v[1];
+                      v34 = worldPos->v[2] - Instance->orient.origin.v[2];
+                      v35 = (float)((float)(v33 * Instance->orient.axis.m[1].v[0]) + (float)(v32 * Instance->orient.axis.m[0].v[0])) + (float)(v34 * Instance->orient.axis.m[2].v[0]);
+                      v36 = (float)((float)(v33 * Instance->orient.axis.m[1].v[1]) + (float)(v32 * Instance->orient.axis.m[0].v[1])) + (float)(v34 * Instance->orient.axis.m[2].v[1]);
+                      v37 = v34 * Instance->orient.axis.m[2].v[2];
+                      v38 = (float)(v33 * Instance->orient.axis.m[1].v[2]) + (float)(v32 * Instance->orient.axis.m[0].v[2]);
+                      sizeScale = Instance->sizeScale;
+                      vf = (float *)Instance->vf;
+                      v41 = v38 + v37;
+                      if ( v35 < (float)((float)(sizeScale * vf[7]) + v9) && v36 < (float)((float)(sizeScale * vf[8]) + v9) && v41 < (float)((float)(sizeScale * vf[9]) + v9) && v35 > (float)((float)(sizeScale * vf[4]) - v9) && v36 > (float)((float)(sizeScale * vf[5]) - v9) && v41 > (float)((float)(sizeScale * vf[6]) - v9) )
                       {
-                        vmovss  xmm0, dword ptr [rcx]
-                        vsubss  xmm6, xmm0, dword ptr [rax+8]
-                        vmovss  xmm1, dword ptr [rcx+4]
-                        vsubss  xmm4, xmm1, dword ptr [rax+0Ch]
-                        vmulss  xmm1, xmm4, dword ptr [rax+20h]
-                        vmulss  xmm3, xmm4, dword ptr [rax+24h]
-                        vmovss  xmm0, dword ptr [rcx+8]
-                        vsubss  xmm5, xmm0, dword ptr [rax+10h]
-                        vmulss  xmm0, xmm6, dword ptr [rax+14h]
-                        vaddss  xmm2, xmm1, xmm0
-                        vmulss  xmm1, xmm5, dword ptr [rax+2Ch]
-                        vmulss  xmm0, xmm6, dword ptr [rax+18h]
-                        vaddss  xmm9, xmm2, xmm1
-                        vmulss  xmm1, xmm5, dword ptr [rax+30h]
-                        vaddss  xmm2, xmm3, xmm0
-                        vmulss  xmm3, xmm4, dword ptr [rax+28h]
-                        vmulss  xmm0, xmm6, dword ptr [rax+1Ch]
-                        vaddss  xmm8, xmm2, xmm1
-                        vmulss  xmm1, xmm5, dword ptr [rax+34h]
-                        vaddss  xmm2, xmm3, xmm0
-                        vmovss  xmm0, dword ptr [rax+3Ch]
-                        vaddss  xmm3, xmm2, xmm1
-                        vmulss  xmm2, xmm0, dword ptr [rax+20h]
-                        vmulss  xmm4, xmm0, dword ptr [rax+24h]
-                        vmulss  xmm5, xmm0, dword ptr [rax+10h]
-                        vmulss  xmm6, xmm0, dword ptr [rax+14h]
-                        vmulss  xmm10, xmm0, dword ptr [rax+18h]
-                        vmulss  xmm0, xmm0, dword ptr [rax+1Ch]
-                        vaddss  xmm1, xmm0, xmm7
-                        vcomiss xmm9, xmm1
+                        ++v8;
+                        *((_DWORD *)v50 + (v29 >> 5)) = v30 | (0x80000000 >> (v29 & 0x1F));
+                        outHandles[v5] = v29;
+                        if ( ++v5 >= maxOutHandles )
+                          return v8;
                       }
                     }
-                    v34 = v82;
+                    v27 = v51;
                   }
                 }
-                v35 = (unsigned int)(v35 + 1);
+                v28 = (unsigned int)(v28 + 1);
               }
-              while ( (unsigned int)v35 < v34 );
-              v31 = HIDWORD(v78);
+              while ( (unsigned int)v28 < v27 );
+              v24 = HIDWORD(v47);
             }
-            v29 = v76;
-            v32 = v75;
+            v22 = v44;
+            v25 = v43;
           }
-          v75 = ++v32;
+          v43 = ++v25;
         }
-        while ( v32 <= v31 );
-        v30 = v78;
+        while ( v25 <= v24 );
+        v23 = v47;
       }
-      v76 = ++v29;
+      v44 = ++v22;
     }
-    while ( v29 <= v30 );
+    while ( v22 <= v23 );
   }
-  __asm { vmovaps xmm10, [rsp+130h+var_88+8] }
-  result = 0i64;
-  __asm { vmovaps xmm9, xmmword ptr [rsp+130h+var_78+8] }
-  _R11 = &v86;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return v8;
 }
 
 /*
@@ -829,17 +754,17 @@ void CG_Wind_RemoveVectorField(const unsigned __int8 handle)
   const VectorFieldInstance *Instance; 
   unsigned int v4; 
   unsigned int v5; 
+  unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
-  __int64 v9; 
-  unsigned int v10; 
-  __int64 v11; 
-  unsigned __int8 v21; 
-  bool v22; 
+  __int64 v8; 
+  unsigned int v9; 
+  unsigned __int64 v10; 
+  unsigned __int8 v18; 
+  bool v19; 
   base_vec2_t<unsigned int> outIterEnd; 
   base_vec2_t<unsigned int> outIterStart; 
-  unsigned int v25; 
-  __int64 v26; 
+  unsigned int v22; 
+  unsigned __int64 v23; 
 
   Instance = CG_VectorField_GetInstance(handle);
   outIterStart = 0i64;
@@ -849,67 +774,60 @@ void CG_Wind_RemoveVectorField(const unsigned __int8 handle)
   v5 = outIterStart.v[0];
   if ( outIterStart.v[0] <= outIterEnd.v[0] )
   {
-    _RBP = &`Int4RequeueByteXY'::`2'::cShuffles;
-    v7 = outIterEnd.v[1];
+    v6 = outIterEnd.v[1];
     do
     {
-      v8 = outIterStart.v[1];
-      if ( outIterStart.v[1] <= v7 )
+      v7 = outIterStart.v[1];
+      if ( outIterStart.v[1] <= v6 )
       {
         do
         {
-          if ( v5 < 0x100 && v8 < 0x100 )
+          if ( v5 < 0x100 && v7 < 0x100 )
           {
             if ( !s_windGridCountData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 95, ASSERT_TYPE_ASSERT, "(s_windGridCountData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridCountData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
               __debugbreak();
-            v9 = v8 + (v5 << 8);
-            v10 = s_windGridCountData[v9];
-            v25 = v10;
+            v8 = v7 + (v5 << 8);
+            v9 = s_windGridCountData[v8];
+            v22 = v9;
             if ( !s_windGridFieldData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 109, ASSERT_TYPE_ASSERT, "(s_windGridFieldData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridFieldData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
               __debugbreak();
-            v11 = *((_QWORD *)s_windGridFieldData + v9);
-            v26 = v11;
-            if ( v10 )
+            v10 = *((_QWORD *)s_windGridFieldData + v8);
+            v23 = v10;
+            if ( v9 )
             {
-              __asm { vmovq   xmm2, [rsp+0A8h+var_40] }
-              _EAX = (char)handle;
+              _XMM2 = v23;
+              _XMM1 = (unsigned int)(char)handle;
               __asm
               {
-                vmovd   xmm1, eax
                 vpxor   xmm0, xmm0, xmm0
                 vpshufb xmm1, xmm1, xmm0
                 vpcmpeqb xmm1, xmm1, xmm2
                 vpmovmskb eax, xmm1
                 tzcnt   ecx, eax
               }
-              if ( _ECX < v10 )
+              if ( _ECX < v9 )
               {
-                _RAX = _ECX & 7;
-                v25 = --v10;
-                __asm
-                {
-                  vmovq   xmm0, qword ptr [rbp+rax*8+0]
-                  vpshufb xmm1, xmm2, xmm0
-                  vmovq   [rsp+0A8h+var_40], xmm1
-                }
-                v11 = v26;
+                v22 = --v9;
+                _XMM0 = *((unsigned __int64 *)&`Int4RequeueByteXY'::`2'::cShuffles + (_ECX & 7));
+                __asm { vpshufb xmm1, xmm2, xmm0 }
+                v23 = _XMM1;
+                v10 = _XMM1;
               }
             }
-            v21 = v25;
-            if ( v10 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v25, "unsigned", v10) )
+            v18 = v22;
+            if ( v9 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v22, "unsigned", v9) )
               __debugbreak();
             if ( !s_windGridCountData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 102, ASSERT_TYPE_ASSERT, "(s_windGridCountData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridCountData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
               __debugbreak();
-            v22 = s_windGridFieldData == NULL;
-            s_windGridCountData[v9] = v21;
-            if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 116, ASSERT_TYPE_ASSERT, "(s_windGridFieldData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridFieldData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
+            v19 = s_windGridFieldData == NULL;
+            s_windGridCountData[v8] = v18;
+            if ( v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_wind.cpp", 116, ASSERT_TYPE_ASSERT, "(s_windGridFieldData && (x <= 256U) && (y <= 256U))", (const char *)&queryFormat, "s_windGridFieldData && (x <= WIND_GRID_DIM) && (y <= WIND_GRID_DIM)") )
               __debugbreak();
-            _RBP = &`Int4RequeueByteXY'::`2'::cShuffles;
-            *((_QWORD *)s_windGridFieldData + v9) = v11;
+            *((_QWORD *)s_windGridFieldData + v8) = v10;
           }
-          ++v8;
+          ++v7;
         }
-        while ( v8 <= v7 );
+        while ( v7 <= v6 );
         v4 = outIterEnd.v[0];
       }
       ++v5;
@@ -925,51 +843,35 @@ CG_Wind_Sample
 */
 bool CG_Wind_Sample(const vec3_t *worldPos, vec3_t *outSample, WindSampleType windSampleType)
 {
-  __int64 v6; 
-  unsigned int v8; 
-  unsigned int v12; 
+  __int64 v4; 
+  unsigned int v5; 
+  unsigned int v7; 
   bool result; 
-  int v14; 
+  int v9; 
+  float v10; 
   vec3_t outSamplea; 
   WindGridCell outCell; 
 
-  __asm
-  {
-    vmovss  xmm1, cs:__real@47fe0000
-    vaddss  xmm0, xmm1, dword ptr [rcx]
-  }
-  v6 = (unsigned int)windSampleType;
-  __asm { vcvttss2si rcx, xmm0 }
-  v8 = (unsigned int)_RCX >> 10;
-  _RBX = outSample;
-  __asm
-  {
-    vaddss  xmm1, xmm1, dword ptr [rdi+4]
-    vcvttss2si rax, xmm1
-  }
-  v12 = (unsigned int)_RAX >> 10;
-  if ( v8 >= 0x100 || v12 >= 0x100 )
+  v4 = (unsigned int)windSampleType;
+  v5 = (unsigned int)(int)(float)(worldPos->v[0] + 130048.0) >> 10;
+  v7 = (unsigned int)(int)(float)(worldPos->v[1] + 130048.0) >> 10;
+  if ( v5 >= 0x100 || v7 >= 0x100 )
     return 0;
-  CG_Wind_GetGridCell(v8, v12, &outCell);
+  CG_Wind_GetGridCell(v5, v7, &outCell);
   if ( outCell.numVecFields )
   {
-    v14 = CG_VectorField_SamplePosAgainstInstances(worldPos, &outSamplea, outCell.numVecFields, (unsigned __int8 *)&outCell.8, s_windTypeVFMap[v6]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+outSample]
-      vmovss  xmm1, dword ptr [rsp+78h+outSample+4]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+78h+outSample+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-    return v14 != 0;
+    v9 = CG_VectorField_SamplePosAgainstInstances(worldPos, &outSamplea, outCell.numVecFields, (unsigned __int8 *)&outCell.8, s_windTypeVFMap[v4]);
+    v10 = outSamplea.v[1];
+    outSample->v[0] = outSamplea.v[0];
+    outSample->v[2] = outSamplea.v[2];
+    outSample->v[1] = v10;
+    return v9 != 0;
   }
   else
   {
     result = 0;
-    *(_QWORD *)_RBX->v = 0i64;
-    _RBX->v[2] = 0.0;
+    *(_QWORD *)outSample->v = 0i64;
+    outSample->v[2] = 0.0;
   }
   return result;
 }
@@ -981,48 +883,35 @@ CG_Wind_SampleCapsule
 */
 bool CG_Wind_SampleCapsule(const vec3_t *worldPos, const CapsuleBounds *cpBounds, vec3_t *outSample, WindSampleType windSampleType)
 {
-  unsigned int v9; 
-  unsigned int v11; 
-  __int64 v13; 
+  unsigned int v4; 
+  unsigned int v6; 
+  __int64 v8; 
   bool result; 
-  int v15; 
+  int v10; 
+  float v11; 
   vec3_t outSamplea; 
   WindGridCell outCell; 
 
-  __asm
-  {
-    vmovss  xmm1, cs:__real@47fe0000
-    vaddss  xmm0, xmm1, dword ptr [rcx]
-    vaddss  xmm1, xmm1, dword ptr [rcx+4]
-    vcvttss2si rax, xmm1
-    vcvttss2si r10, xmm0
-  }
-  v9 = (unsigned int)_RAX >> 10;
-  _RBX = outSample;
-  v11 = (unsigned int)_R10 >> 10;
-  v13 = (unsigned int)windSampleType;
-  if ( v11 >= 0x100 || v9 >= 0x100 )
+  v4 = (unsigned int)(int)(float)(worldPos->v[1] + 130048.0) >> 10;
+  v6 = (unsigned int)(int)(float)(worldPos->v[0] + 130048.0) >> 10;
+  v8 = (unsigned int)windSampleType;
+  if ( v6 >= 0x100 || v4 >= 0x100 )
     return 0;
-  CG_Wind_GetGridCell(v11, v9, &outCell);
+  CG_Wind_GetGridCell(v6, v4, &outCell);
   if ( outCell.numVecFields )
   {
-    v15 = CG_VectorField_SampleFoliagePosAgainstInstancesWithRadius(cpBounds, &outSamplea, outCell.numVecFields, (const unsigned __int8 *const)&outCell.8, s_windTypeVFMap[v13]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+outSample]
-      vmovss  xmm1, dword ptr [rsp+78h+outSample+4]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+78h+outSample+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-    return v15 != 0;
+    v10 = CG_VectorField_SampleFoliagePosAgainstInstancesWithRadius(cpBounds, &outSamplea, outCell.numVecFields, (const unsigned __int8 *const)&outCell.8, s_windTypeVFMap[v8]);
+    v11 = outSamplea.v[1];
+    outSample->v[0] = outSamplea.v[0];
+    outSample->v[2] = outSamplea.v[2];
+    outSample->v[1] = v11;
+    return v10 != 0;
   }
   else
   {
     result = 0;
-    *(_QWORD *)_RBX->v = 0i64;
-    _RBX->v[2] = 0.0;
+    *(_QWORD *)outSample->v = 0i64;
+    outSample->v[2] = 0.0;
   }
   return result;
 }

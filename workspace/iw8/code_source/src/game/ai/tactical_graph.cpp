@@ -680,17 +680,11 @@ void tacpoint_ref_t::SetPoint(tacpoint_ref_t *this, const tacpoint_t *pPoint)
 TacGraph_CalcOpenView
 ==============
 */
-
-void __fastcall TacGraph_CalcOpenView(const vec3_t *origin, double radius, const bfx::AreaHandle *hArea, float *pResults, int numSlices)
+void TacGraph_CalcOpenView(const vec3_t *origin, float radius, const bfx::AreaHandle *hArea, float *pResults, int numSlices)
 {
   const tacpoint_t *ClosestPointWithStaticNavLos; 
   __int64 i; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( bfx::AreaHandle::IsValid((bfx::AreaHandle *)hArea) )
   {
     if ( g_TacGraphData.m_NumTacGraphs <= 0 )
@@ -705,9 +699,8 @@ void __fastcall TacGraph_CalcOpenView(const vec3_t *origin, double radius, const
   }
   if ( ClosestPointWithStaticNavLos )
   {
-    __asm { vmovaps xmm2, xmm6; radius }
-    TacGraphSearch_CalcOpenView(&g_TacGraphData.m_TacGraphs[ClosestPointWithStaticNavLos->m_GraphIdx], origin, *(float *)&_XMM2, ClosestPointWithStaticNavLos, pResults, numSlices);
-    goto LABEL_12;
+    TacGraphSearch_CalcOpenView(&g_TacGraphData.m_TacGraphs[ClosestPointWithStaticNavLos->m_GraphIdx], origin, radius, ClosestPointWithStaticNavLos, pResults, numSlices);
+    return;
   }
 LABEL_8:
   if ( numSlices > 0 )
@@ -715,8 +708,6 @@ LABEL_8:
     for ( i = numSlices; i; --i )
       *pResults++ = 0.0;
   }
-LABEL_12:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -724,36 +715,28 @@ LABEL_12:
 TacGraph_CalcOpenView
 ==============
 */
-
-void __fastcall TacGraph_CalcOpenView(const vec3_t *origin, double radius, float *pResults, int numSlices)
+void TacGraph_CalcOpenView(const vec3_t *origin, float radius, float *pResults, int numSlices)
 {
-  __int64 v8; 
+  __int64 v6; 
   const tacpoint_t *ClosestPoint; 
-  __int64 v11; 
-  float *v12; 
+  __int64 v8; 
+  float *v9; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v8 = numSlices;
+  v6 = numSlices;
   if ( g_TacGraphData.m_NumTacGraphs > 0 && (ClosestPoint = TacGraphSearch_FindClosestPoint(&g_TacGraphData, origin)) != NULL )
   {
-    __asm { vmovaps xmm2, xmm6; radius }
-    TacGraphSearch_CalcOpenView(&g_TacGraphData.m_TacGraphs[ClosestPoint->m_GraphIdx], origin, *(float *)&_XMM2, ClosestPoint, pResults, v8);
+    TacGraphSearch_CalcOpenView(&g_TacGraphData.m_TacGraphs[ClosestPoint->m_GraphIdx], origin, radius, ClosestPoint, pResults, v6);
   }
-  else if ( (int)v8 > 0 )
+  else if ( (int)v6 > 0 )
   {
-    v11 = v8;
-    v12 = pResults;
-    while ( v11 )
+    v8 = v6;
+    v9 = pResults;
+    while ( v8 )
     {
-      *v12++ = 0.0;
-      --v11;
+      *v9++ = 0.0;
+      --v8;
     }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -797,58 +780,16 @@ const tacpoint_t *TacGraph_FindClosestPointWithStaticNavLos(const vec3_t *pos, c
 TacGraph_FindClosestPointWithVisNearConeWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisNearConeWithinRadius(const vec3_t *origin, double radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float dot, float weight, bool bCheckNodeClaim, team_t nodeClaimTeam)
+const tacpoint_t *TacGraph_FindClosestPointWithVisNearConeWithinRadius(const vec3_t *origin, float radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float dot, float weight, bool bCheckNodeClaim, team_t nodeClaimTeam)
 {
-  bool v16; 
-  bool v17; 
-  const tacpoint_t *result; 
-  float v25; 
-  float v26; 
-
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
-  v16 = pTargetPoint == NULL;
-  if ( !pTargetPoint )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 508, ASSERT_TYPE_ASSERT, "(pTargetPoint)", (const char *)&queryFormat, "pTargetPoint");
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+78h+weight]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 509, ASSERT_TYPE_ASSERT, "(weight > 0.f)", (const char *)&queryFormat, "weight > 0.f") )
+  if ( !pTargetPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 508, ASSERT_TYPE_ASSERT, "(pTargetPoint)", (const char *)&queryFormat, "pTargetPoint") )
+    __debugbreak();
+  if ( weight <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 509, ASSERT_TYPE_ASSERT, "(weight > 0.f)", (const char *)&queryFormat, "weight > 0.f") )
     __debugbreak();
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+78h+dot]
-      vmovss  [rsp+78h+var_40], xmm6
-      vmovss  [rsp+78h+var_48], xmm0
-      vmovaps xmm2, xmm7; radius
-    }
-    result = TacGraphSearch_FindClosestPointWithVisNearConeWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, pos, pTargetPoint, dir, v25, v26, bCheckNodeClaim, nodeClaimTeam);
-  }
+    return TacGraphSearch_FindClosestPointWithVisNearConeWithinRadius(&g_TacGraphData, origin, radius, pos, pTargetPoint, dir, dot, weight, bCheckNodeClaim, nodeClaimTeam);
   else
-  {
-    result = NULL;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return result;
+    return 0i64;
 }
 
 /*
@@ -856,21 +797,12 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisNearConeWithinRadiu
 TacGraph_FindClosestPointWithVisWithinConeWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinConeWithinRadius(const vec3_t *origin, double minRadius, double maxRadius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float dot, bool b3D)
+const tacpoint_t *TacGraph_FindClosestPointWithVisWithinConeWithinRadius(const vec3_t *origin, float minRadius, float maxRadius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float dot, bool b3D)
 {
-  float v12; 
-
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithVisWithinConeWithinRadius(&g_TacGraphData, origin, minRadius, maxRadius, pos, pTargetPoint, dir, dot, b3D);
+  else
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+dot]
-    vmovss  [rsp+58h+var_20], xmm0
-    vmovaps xmm3, xmm2; maxRadius
-    vmovaps xmm2, xmm1; minRadius
-  }
-  return TacGraphSearch_FindClosestPointWithVisWithinConeWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, pos, pTargetPoint, dir, v12, b3D);
 }
 
 /*
@@ -878,23 +810,13 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinConeWithinRad
 TacGraph_FindClosestPointWithVisWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadius(const vec3_t *origin, double radius, const vec3_t *pos, const tacpoint_t *pTargetPoint)
+const tacpoint_t *TacGraph_FindClosestPointWithVisWithinRadius(const vec3_t *origin, float radius, const vec3_t *pos, const tacpoint_t *pTargetPoint)
 {
   const tacpoint_t *result; 
-  float v8; 
 
   result = NULL;
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+48h+var_10], xmm0
-      vmovaps xmm2, xmm1; radius
-    }
-    return TacGraphSearch_FindClosestPointWithVisWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, pos, pTargetPoint, NULL, 0, v8);
-  }
+    return TacGraphSearch_FindClosestPointWithVisWithinRadius(&g_TacGraphData, origin, radius, pos, pTargetPoint, NULL, 0, 0.0);
   return result;
 }
 
@@ -903,26 +825,13 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadius(const 
 TacGraph_FindClosestPointWithVisWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadius(const vec3_t *origin, double minRadius, double maxRadius, double minRadiusZ, const vec3_t *pos, const tacpoint_t *pTargetPoint)
+const tacpoint_t *TacGraph_FindClosestPointWithVisWithinRadius(const vec3_t *origin, float minRadius, float maxRadius, float minRadiusZ, const vec3_t *pos, const tacpoint_t *pTargetPoint)
 {
   const tacpoint_t *result; 
-  float v11; 
-  float v12; 
 
   result = NULL;
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+58h+var_10], xmm0
-      vmovss  [rsp+58h+var_38], xmm3
-      vmovaps xmm3, xmm2; maxRadius
-      vmovaps xmm2, xmm1; minRadius
-    }
-    return TacGraphSearch_FindClosestPointWithVisWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, v11, pos, pTargetPoint, NULL, 0, v12);
-  }
+    return TacGraphSearch_FindClosestPointWithVisWithinRadius(&g_TacGraphData, origin, minRadius, maxRadius, minRadiusZ, pos, pTargetPoint, NULL, 0, 0.0);
   return result;
 }
 
@@ -931,20 +840,12 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadius(const 
 TacGraph_FindClosestPointWithVisWithinRadiusIgnorePoints
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadiusIgnorePoints(const vec3_t *origin, double radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *pIgnoreVecs, int numIgnoreVecs, float ignoreRadius)
+const tacpoint_t *TacGraph_FindClosestPointWithVisWithinRadiusIgnorePoints(const vec3_t *origin, float radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *pIgnoreVecs, int numIgnoreVecs, float ignoreRadius)
 {
-  float v10; 
-
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithVisWithinRadius(&g_TacGraphData, origin, radius, pos, pTargetPoint, pIgnoreVecs, numIgnoreVecs, ignoreRadius);
+  else
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+ignoreRadius]
-    vmovss  [rsp+48h+var_10], xmm0
-    vmovaps xmm2, xmm1; radius
-  }
-  return TacGraphSearch_FindClosestPointWithVisWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, pos, pTargetPoint, pIgnoreVecs, numIgnoreVecs, v10);
 }
 
 /*
@@ -952,17 +853,12 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadiusIgnoreP
 TacGraph_FindClosestPointWithVisWithinRadiusWithNavLos
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithVisWithinRadiusWithNavLos(const vec3_t *origin, double minRadius, double maxRadius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *losPos, const bfx::AreaHandle *hArea, bool bCheckNodeClaim, team_t nodeClaimTeam)
+const tacpoint_t *TacGraph_FindClosestPointWithVisWithinRadiusWithNavLos(const vec3_t *origin, float minRadius, float maxRadius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *losPos, const bfx::AreaHandle *hArea, bool bCheckNodeClaim, team_t nodeClaimTeam)
 {
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithVisWithinRadiusWithNavLos(&g_TacGraphData, origin, minRadius, maxRadius, pos, pTargetPoint, losPos, hArea, bCheckNodeClaim, nodeClaimTeam);
+  else
     return 0i64;
-  __asm
-  {
-    vmovaps xmm3, xmm2; maxRadius
-    vmovaps xmm2, xmm1; minRadius
-  }
-  return TacGraphSearch_FindClosestPointWithVisWithinRadiusWithNavLos(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, pos, pTargetPoint, losPos, hArea, bCheckNodeClaim, nodeClaimTeam);
 }
 
 /*
@@ -973,18 +869,10 @@ TacGraph_FindClosestPointWithVisWithinVolume
 const tacpoint_t *TacGraph_FindClosestPointWithVisWithinVolume(const gentity_s *pVolume, const vec3_t *pos, const tacpoint_t *pTargetPoint)
 {
   const tacpoint_t *result; 
-  float v6; 
 
   result = NULL;
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    return TacGraphSearch_FindClosestPointWithVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, NULL, 0, v6);
-  }
+    return TacGraphSearch_FindClosestPointWithVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, NULL, 0, 0.0);
   return result;
 }
 
@@ -995,16 +883,10 @@ TacGraph_FindClosestPointWithVisWithinVolumeIgnorePoints
 */
 const tacpoint_t *TacGraph_FindClosestPointWithVisWithinVolumeIgnorePoints(const gentity_s *pVolume, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *pIgnoreVecs, int numIgnoreVecs, float ignoreRadius)
 {
-  float v8; 
-
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, pIgnoreVecs, numIgnoreVecs, ignoreRadius);
+  else
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+ignoreRadius]
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  return TacGraphSearch_FindClosestPointWithVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, pIgnoreVecs, numIgnoreVecs, v8);
 }
 
 /*
@@ -1012,55 +894,16 @@ const tacpoint_t *TacGraph_FindClosestPointWithVisWithinVolumeIgnorePoints(const
 TacGraph_FindClosestPointWithoutVisNearConeWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisNearConeWithinRadius(const vec3_t *origin, double radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float weight)
+const tacpoint_t *TacGraph_FindClosestPointWithoutVisNearConeWithinRadius(const vec3_t *origin, float radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float weight)
 {
-  bool v13; 
-  bool v14; 
-  const tacpoint_t *result; 
-  float v21; 
-
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
-  v13 = pTargetPoint == NULL;
-  if ( !pTargetPoint )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 497, ASSERT_TYPE_ASSERT, "(pTargetPoint)", (const char *)&queryFormat, "pTargetPoint");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+68h+weight]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 498, ASSERT_TYPE_ASSERT, "(weight > 0.f)", (const char *)&queryFormat, "weight > 0.f") )
+  if ( !pTargetPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 497, ASSERT_TYPE_ASSERT, "(pTargetPoint)", (const char *)&queryFormat, "pTargetPoint") )
+    __debugbreak();
+  if ( weight <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 498, ASSERT_TYPE_ASSERT, "(weight > 0.f)", (const char *)&queryFormat, "weight > 0.f") )
     __debugbreak();
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+68h+var_38], xmm6
-      vmovaps xmm2, xmm7; radius
-    }
-    result = TacGraphSearch_FindClosestPointWithoutVisNearConeWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, pos, pTargetPoint, dir, v21);
-  }
+    return TacGraphSearch_FindClosestPointWithoutVisNearConeWithinRadius(&g_TacGraphData, origin, radius, pos, pTargetPoint, dir, weight);
   else
-  {
-    result = NULL;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+    return 0i64;
 }
 
 /*
@@ -1070,41 +913,16 @@ TacGraph_FindClosestPointWithoutVisNearConeWithinVolume
 */
 const tacpoint_t *TacGraph_FindClosestPointWithoutVisNearConeWithinVolume(const gentity_s *pVolume, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float weight)
 {
-  bool v11; 
-  bool v12; 
-  const tacpoint_t *result; 
-  float v17; 
-
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( !pVolume && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 485, ASSERT_TYPE_ASSERT, "(pVolume)", (const char *)&queryFormat, "pVolume") )
     __debugbreak();
-  v11 = pTargetPoint == NULL;
-  if ( !pTargetPoint )
-  {
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 486, ASSERT_TYPE_ASSERT, "(pTargetPoint)", (const char *)&queryFormat, "pTargetPoint");
-    v11 = !v12;
-    if ( v12 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+48h+weight]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 487, ASSERT_TYPE_ASSERT, "(weight > 0.f)", (const char *)&queryFormat, "weight > 0.f") )
+  if ( !pTargetPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 486, ASSERT_TYPE_ASSERT, "(pTargetPoint)", (const char *)&queryFormat, "pTargetPoint") )
+    __debugbreak();
+  if ( weight <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 487, ASSERT_TYPE_ASSERT, "(weight > 0.f)", (const char *)&queryFormat, "weight > 0.f") )
     __debugbreak();
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm { vmovss  [rsp+48h+var_20], xmm6 }
-    result = TacGraphSearch_FindClosestPointWithoutVisNearConeWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, dir, v17);
-  }
+    return TacGraphSearch_FindClosestPointWithoutVisNearConeWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, dir, weight);
   else
-  {
-    result = NULL;
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    return 0i64;
 }
 
 /*
@@ -1112,21 +930,12 @@ const tacpoint_t *TacGraph_FindClosestPointWithoutVisNearConeWithinVolume(const 
 TacGraph_FindClosestPointWithoutVisWithinConeWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinConeWithinRadius(const vec3_t *origin, double minRadius, double maxRadius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float dot, bool b3D)
+const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinConeWithinRadius(const vec3_t *origin, float minRadius, float maxRadius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *dir, float dot, bool b3D)
 {
-  float v12; 
-
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithoutVisWithinConeWithinRadius(&g_TacGraphData, origin, minRadius, maxRadius, pos, pTargetPoint, dir, dot, b3D);
+  else
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+dot]
-    vmovss  [rsp+58h+var_20], xmm0
-    vmovaps xmm3, xmm2; maxRadius
-    vmovaps xmm2, xmm1; minRadius
-  }
-  return TacGraphSearch_FindClosestPointWithoutVisWithinConeWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, pos, pTargetPoint, dir, v12, b3D);
 }
 
 /*
@@ -1134,25 +943,13 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinConeWithin
 TacGraph_FindClosestPointWithoutVisWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinRadius(const vec3_t *origin, double radius, const vec3_t *pos, const tacpoint_t *pTargetPoint)
+const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinRadius(const vec3_t *origin, float radius, const vec3_t *pos, const tacpoint_t *pTargetPoint)
 {
   const tacpoint_t *result; 
-  float v8; 
-  float v9; 
 
   result = NULL;
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2; minRadius
-      vmovss  [rsp+58h+var_10], xmm2
-      vmovss  [rsp+58h+var_30], xmm2
-      vmovaps xmm3, xmm1; maxRadius
-    }
-    return TacGraphSearch_FindClosestPointWithoutVisWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, pos, v8, pTargetPoint, NULL, 0, v9);
-  }
+    return TacGraphSearch_FindClosestPointWithoutVisWithinRadius(&g_TacGraphData, origin, 0.0, radius, pos, 0.0, pTargetPoint, NULL, 0, 0.0);
   return result;
 }
 
@@ -1161,27 +958,13 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinRadius(con
 TacGraph_FindClosestPointWithoutVisWithinRadius
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinRadius(const vec3_t *origin, double minRadius, double maxRadius, const vec3_t *pos, float minDistFromPos, const tacpoint_t *pTargetPoint)
+const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinRadius(const vec3_t *origin, float minRadius, float maxRadius, const vec3_t *pos, float minDistFromPos, const tacpoint_t *pTargetPoint)
 {
   const tacpoint_t *result; 
-  float v12; 
-  float v13; 
 
   result = NULL;
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+58h+var_10], xmm0
-      vmovss  xmm0, [rsp+58h+minDistFromPos]
-      vmovaps xmm3, xmm2; maxRadius
-      vmovss  [rsp+58h+var_30], xmm0
-      vmovaps xmm2, xmm1; minRadius
-    }
-    return TacGraphSearch_FindClosestPointWithoutVisWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, pos, v12, pTargetPoint, NULL, 0, v13);
-  }
+    return TacGraphSearch_FindClosestPointWithoutVisWithinRadius(&g_TacGraphData, origin, minRadius, maxRadius, pos, minDistFromPos, pTargetPoint, NULL, 0, 0.0);
   return result;
 }
 
@@ -1190,23 +973,12 @@ const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinRadius(con
 TacGraph_FindClosestPointWithoutVisWithinRadiusIgnorePoints
 ==============
 */
-
-const tacpoint_t *__fastcall TacGraph_FindClosestPointWithoutVisWithinRadiusIgnorePoints(const vec3_t *origin, double radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *pIgnoreVecs, int numIgnoreVecs, float ignoreRadius)
+const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinRadiusIgnorePoints(const vec3_t *origin, float radius, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *pIgnoreVecs, int numIgnoreVecs, float ignoreRadius)
 {
-  float v12; 
-  float v13; 
-
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithoutVisWithinRadius(&g_TacGraphData, origin, 0.0, radius, pos, 0.0, pTargetPoint, pIgnoreVecs, numIgnoreVecs, ignoreRadius);
+  else
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+ignoreRadius]
-    vmovss  [rsp+58h+var_10], xmm0
-    vxorps  xmm2, xmm2, xmm2; minRadius
-    vmovss  [rsp+58h+var_30], xmm2
-    vmovaps xmm3, xmm1; maxRadius
-  }
-  return TacGraphSearch_FindClosestPointWithoutVisWithinRadius(&g_TacGraphData, origin, *(float *)&_XMM2, *(float *)&_XMM3, pos, v12, pTargetPoint, pIgnoreVecs, numIgnoreVecs, v13);
 }
 
 /*
@@ -1217,18 +989,10 @@ TacGraph_FindClosestPointWithoutVisWithinVolume
 const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinVolume(const gentity_s *pVolume, const vec3_t *pos, const tacpoint_t *pTargetPoint)
 {
   const tacpoint_t *result; 
-  float v6; 
 
   result = NULL;
   if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    return TacGraphSearch_FindClosestPointWithoutVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, NULL, 0, v6);
-  }
+    return TacGraphSearch_FindClosestPointWithoutVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, NULL, 0, 0.0);
   return result;
 }
 
@@ -1239,16 +1003,10 @@ TacGraph_FindClosestPointWithoutVisWithinVolumeIgnorePoints
 */
 const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinVolumeIgnorePoints(const gentity_s *pVolume, const vec3_t *pos, const tacpoint_t *pTargetPoint, const vec3_t *pIgnoreVecs, int numIgnoreVecs, float ignoreRadius)
 {
-  float v8; 
-
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+    return TacGraphSearch_FindClosestPointWithoutVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, pIgnoreVecs, numIgnoreVecs, ignoreRadius);
+  else
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+ignoreRadius]
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  return TacGraphSearch_FindClosestPointWithoutVisWithinVolume(&g_TacGraphData, pVolume, pos, pTargetPoint, pIgnoreVecs, numIgnoreVecs, v8);
 }
 
 /*
@@ -1256,59 +1014,27 @@ const tacpoint_t *TacGraph_FindClosestPointWithoutVisWithinVolumeIgnorePoints(co
 TacGraph_FindPointsInRadiusWithVis_Sorted
 ==============
 */
-
-int __fastcall TacGraph_FindPointsInRadiusWithVis_Sorted(const vec3_t *pos, double minRadius, double maxRadius, double minRadiusZ, const tacpoint_t *pVisPoint, const tacpoint_t **ppOutPoints, int maxNumPoints)
+int TacGraph_FindPointsInRadiusWithVis_Sorted(const vec3_t *pos, float minRadius, float maxRadius, float minRadiusZ, const tacpoint_t *pVisPoint, const tacpoint_t **ppOutPoints, int maxNumPoints)
 {
-  int result; 
   unsigned int m_GraphIdx; 
-  const TacticalGraph *v16; 
-  float fmt; 
-  tacpoint_t *v24; 
-  char v28; 
+  const TacticalGraph *v10; 
+  tacpoint_t *v11; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
   if ( !pVisPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 568, ASSERT_TYPE_ASSERT, "(pVisPoint)", (const char *)&queryFormat, "pVisPoint") )
     __debugbreak();
-  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+    return 0;
+  m_GraphIdx = pVisPoint->m_GraphIdx;
+  if ( m_GraphIdx >= g_TacGraphData.m_NumTacGraphs )
   {
-    m_GraphIdx = pVisPoint->m_GraphIdx;
-    if ( m_GraphIdx >= g_TacGraphData.m_NumTacGraphs )
-    {
-      LODWORD(v24) = pVisPoint->m_GraphIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 576, ASSERT_TYPE_ASSERT, "(unsigned)( graphIdx ) < (unsigned)( g_TacGraphData.m_NumTacGraphs )", "graphIdx doesn't index g_TacGraphData.m_NumTacGraphs\n\t%i not in [0, %i)", v24, g_TacGraphData.m_NumTacGraphs) )
-        __debugbreak();
-    }
-    v16 = &g_TacGraphData.m_TacGraphs[(unsigned __int8)m_GraphIdx];
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 578, ASSERT_TYPE_ASSERT, "( pGraph )", (const char *)&queryFormat, "pGraph") )
+    LODWORD(v11) = pVisPoint->m_GraphIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 576, ASSERT_TYPE_ASSERT, "(unsigned)( graphIdx ) < (unsigned)( g_TacGraphData.m_NumTacGraphs )", "graphIdx doesn't index g_TacGraphData.m_NumTacGraphs\n\t%i not in [0, %i)", v11, g_TacGraphData.m_NumTacGraphs) )
       __debugbreak();
-    __asm
-    {
-      vmovaps xmm3, xmm7; maxRadius
-      vmovaps xmm2, xmm8; minRadius
-      vmovss  dword ptr [rsp+78h+fmt], xmm6
-    }
-    result = TacGraphSearch_FindPointsInRadiusWithVis_Sorted(v16, pos, *(float *)&_XMM2, *(float *)&_XMM3, fmt, pVisPoint, ppOutPoints, maxNumPoints);
   }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return result;
+  v10 = &g_TacGraphData.m_TacGraphs[(unsigned __int8)m_GraphIdx];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 578, ASSERT_TYPE_ASSERT, "( pGraph )", (const char *)&queryFormat, "pGraph") )
+    __debugbreak();
+  return TacGraphSearch_FindPointsInRadiusWithVis_Sorted(v10, pos, minRadius, maxRadius, minRadiusZ, pVisPoint, ppOutPoints, maxNumPoints);
 }
 
 /*
@@ -1316,42 +1042,27 @@ int __fastcall TacGraph_FindPointsInRadiusWithVis_Sorted(const vec3_t *pos, doub
 TacGraph_FindPointsInRadius_Sorted
 ==============
 */
-
-int __fastcall TacGraph_FindPointsInRadius_Sorted(const tacpoint_t *sourcePoint, const vec3_t *pos, double maxRadius, const tacpoint_t **ppOutPoints, int maxNumPoints)
+int TacGraph_FindPointsInRadius_Sorted(const tacpoint_t *sourcePoint, const vec3_t *pos, float maxRadius, const tacpoint_t **ppOutPoints, int maxNumPoints)
 {
-  int result; 
   unsigned int m_GraphIdx; 
-  const TacticalGraph *v12; 
-  __int64 v15; 
+  const TacticalGraph *v10; 
+  __int64 v11; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !sourcePoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 551, ASSERT_TYPE_ASSERT, "(sourcePoint)", (const char *)&queryFormat, "sourcePoint") )
     __debugbreak();
-  if ( g_TacGraphData.m_NumTacGraphs > 0 )
+  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
+    return 0;
+  m_GraphIdx = sourcePoint->m_GraphIdx;
+  if ( m_GraphIdx >= g_TacGraphData.m_NumTacGraphs )
   {
-    m_GraphIdx = sourcePoint->m_GraphIdx;
-    if ( m_GraphIdx >= g_TacGraphData.m_NumTacGraphs )
-    {
-      LODWORD(v15) = m_GraphIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 559, ASSERT_TYPE_ASSERT, "(unsigned)( graphIdx ) < (unsigned)( g_TacGraphData.m_NumTacGraphs )", "graphIdx doesn't index g_TacGraphData.m_NumTacGraphs\n\t%i not in [0, %i)", v15, g_TacGraphData.m_NumTacGraphs) )
-        __debugbreak();
-    }
-    v12 = &g_TacGraphData.m_TacGraphs[(unsigned __int8)m_GraphIdx];
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 561, ASSERT_TYPE_ASSERT, "( pGraph )", (const char *)&queryFormat, "pGraph") )
+    LODWORD(v11) = m_GraphIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 559, ASSERT_TYPE_ASSERT, "(unsigned)( graphIdx ) < (unsigned)( g_TacGraphData.m_NumTacGraphs )", "graphIdx doesn't index g_TacGraphData.m_NumTacGraphs\n\t%i not in [0, %i)", v11, g_TacGraphData.m_NumTacGraphs) )
       __debugbreak();
-    __asm { vmovaps xmm2, xmm6; maxRadius }
-    result = TacGraphSearch_FindPointsInRadius_Sorted(v12, pos, *(float *)&_XMM2, ppOutPoints, maxNumPoints);
   }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  v10 = &g_TacGraphData.m_TacGraphs[(unsigned __int8)m_GraphIdx];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 561, ASSERT_TYPE_ASSERT, "( pGraph )", (const char *)&queryFormat, "pGraph") )
+    __debugbreak();
+  return TacGraphSearch_FindPointsInRadius_Sorted(v10, pos, maxRadius, ppOutPoints, maxNumPoints);
 }
 
 /*
@@ -1430,46 +1141,30 @@ TacGraph_GetApproxGroundPosForPoint
 */
 void TacGraph_GetApproxGroundPosForPoint(const tacpoint_t *pPoint, vec3_t *outPos)
 {
+  float v4; 
   unsigned __int8 m_Type; 
   const char *MapName; 
   bool v7; 
 
-  _RBX = outPos;
-  _RDI = pPoint;
   if ( !pPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 344, ASSERT_TYPE_ASSERT, "(pPoint)", (const char *)&queryFormat, "pPoint") )
     __debugbreak();
-  _RBX->v[0] = _RDI->m_Pos.v[0];
-  _RBX->v[1] = _RDI->m_Pos.v[1];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  m_Type = _RDI->m_Type;
+  outPos->v[0] = pPoint->m_Pos.v[0];
+  outPos->v[1] = pPoint->m_Pos.v[1];
+  v4 = pPoint->m_Pos.v[2];
+  outPos->v[2] = v4;
+  m_Type = pPoint->m_Type;
   if ( !m_Type )
     goto LABEL_8;
   if ( m_Type == 2 )
     return;
   MapName = SV_Game_GetMapName();
   v7 = Com_MapUsesPlayerViewHeight(MapName);
-  __asm { vmovss  xmm0, dword ptr [rbx+8] }
+  v4 = outPos->v[2];
   if ( v7 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm0, cs:__real@42700000
-      vmovss  dword ptr [rbx+8], xmm0
-    }
-  }
+    outPos->v[2] = v4 - 60.0;
   else
-  {
 LABEL_8:
-    __asm
-    {
-      vsubss  xmm0, xmm0, cs:__real@42600000
-      vmovss  dword ptr [rbx+8], xmm0
-    }
-  }
+    outPos->v[2] = v4 - 56.0;
 }
 
 /*
@@ -1481,69 +1176,58 @@ bfx::AreaHandle *TacGraph_GetAreaForPoint(const tacpoint_t *pPoint)
 {
   nav_space_s *DefaultSpace; 
   unsigned __int8 m_Type; 
+  float v4; 
+  float v5; 
   const char *MapName; 
+  float v7; 
   vec3_t targetPos; 
   vec3_t outUp; 
   bfx::PathSpec pPathSpec; 
   vec3_t outClosestPos; 
 
-  _RBX = pPoint;
   if ( !pPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 319, ASSERT_TYPE_ASSERT, "(pPoint)", (const char *)&queryFormat, "pPoint") )
     __debugbreak();
-  if ( !bfx::AreaHandle::IsValid(&_RBX->m_hArea) )
+  if ( !bfx::AreaHandle::IsValid(&pPoint->m_hArea) )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
     pPathSpec.m_areaUsageFlags = -1;
     pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
     pPathSpec.m_usePathSharingPenalty = 0;
-    __asm
-    {
-      vmovss  [rbp+57h+pPathSpec.m_pathSharingPenalty], xmm0
-      vmovss  [rbp+57h+pPathSpec.m_maxPathSharingPenalty], xmm0
-      vmovss  [rbp+57h+pPathSpec.m_maxSearchDist], xmm0
-    }
+    pPathSpec.m_pathSharingPenalty = 0.0;
+    pPathSpec.m_maxPathSharingPenalty = 0.0;
+    pPathSpec.m_maxSearchDist = 0.0;
     *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
     bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
     pPathSpec.m_snapMode = SNAP_CLOSEST;
     pPathSpec.m_obstacleBlockageFlags = 0;
     DefaultSpace = Nav_GetDefaultSpace();
     Nav_GetSpaceUp(DefaultSpace, &outUp);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 344, ASSERT_TYPE_ASSERT, "(pPoint)", (const char *)&queryFormat, "pPoint") )
+    if ( !pPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 344, ASSERT_TYPE_ASSERT, "(pPoint)", (const char *)&queryFormat, "pPoint") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx] }
-    m_Type = _RBX->m_Type;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbp+57h+targetPos], xmm0
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbp+57h+targetPos+8], xmm0
-      vmovss  dword ptr [rbp+57h+targetPos+4], xmm1
-    }
+    m_Type = pPoint->m_Type;
+    v4 = pPoint->m_Pos.v[1];
+    targetPos.v[0] = pPoint->m_Pos.v[0];
+    v5 = pPoint->m_Pos.v[2];
+    targetPos.v[2] = v5;
+    targetPos.v[1] = v4;
     if ( m_Type )
     {
       if ( m_Type != 2 )
       {
         MapName = SV_Game_GetMapName();
-        __asm { vmovss  xmm0, dword ptr [rbp+57h+targetPos+8] }
         if ( Com_MapUsesPlayerViewHeight(MapName) )
-          __asm { vaddss  xmm1, xmm0, cs:__real@c2700000 }
+          v7 = targetPos.v[2] + -60.0;
         else
-          __asm { vaddss  xmm1, xmm0, cs:__real@c2600000 }
-        __asm { vmovss  dword ptr [rbp+57h+targetPos+8], xmm1 }
+          v7 = targetPos.v[2] + -56.0;
+        targetPos.v[2] = v7;
       }
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm0, xmm0, cs:__real@42600000
-        vmovss  dword ptr [rbp+57h+targetPos+8], xmm0
-      }
+      targetPos.v[2] = v5 - 56.0;
     }
-    Nav_GetClosestVerticalPos(&targetPos, &outUp, 0, &DefaultSpace->hSpace, &pPathSpec, &outClosestPos, &_RBX->m_hArea);
+    Nav_GetClosestVerticalPos(&targetPos, &outUp, 0, &DefaultSpace->hSpace, &pPathSpec, &outClosestPos, &pPoint->m_hArea);
   }
-  return &_RBX->m_hArea;
+  return &pPoint->m_hArea;
 }
 
 /*
@@ -1651,66 +1335,15 @@ __int64 TacGraph_GetPointIndex(const tacpoint_t *pPoint)
 TacGraph_HasAllVis
 ==============
 */
-
-bool __fastcall TacGraph_HasAllVis(const tacpoint_t *pFromPoint, const vec3_t *pos, double radius)
+bool TacGraph_HasAllVis(const tacpoint_t *pFromPoint, const vec3_t *pos, float radius)
 {
-  bool v8; 
-  bool v9; 
-  bool result; 
-  float fmt; 
-  float fmta; 
   tacpoint_t *ppOutPoints; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm2
-  }
-  v8 = pFromPoint == NULL;
-  if ( !pFromPoint )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 299, ASSERT_TYPE_ASSERT, "(pFromPoint)", (const char *)&queryFormat, "pFromPoint");
-    v8 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
-  if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 300, ASSERT_TYPE_ASSERT, "(radius > 0.f)", (const char *)&queryFormat, "radius > 0.f") )
+  if ( !pFromPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 299, ASSERT_TYPE_ASSERT, "(pFromPoint)", (const char *)&queryFormat, "pFromPoint") )
     __debugbreak();
-  if ( g_TacGraphData.m_NumTacGraphs <= 0 )
-    goto LABEL_10;
-  __asm
-  {
-    vmovaps xmm3, xmm7; maxRadius
-    vxorps  xmm2, xmm2, xmm2; minRadius
-    vmovss  dword ptr [rsp+68h+fmt], xmm6
-  }
-  if ( TacGraphSearch_FindPointsInRadiusWithoutVis(&g_TacGraphData.m_TacGraphs[pFromPoint->m_GraphIdx], pos, *(float *)&_XMM2, *(float *)&_XMM3, fmt, pFromPoint, (const tacpoint_t **)&ppOutPoints, 1) > 0 )
-  {
-LABEL_10:
-    result = 0;
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm3, xmm7; maxRadius
-      vxorps  xmm2, xmm2, xmm2; minRadius
-      vmovss  dword ptr [rsp+68h+fmt], xmm6
-    }
-    result = TacGraphSearch_FindPointsInRadiusWithVis(&g_TacGraphData.m_TacGraphs[pFromPoint->m_GraphIdx], pos, *(float *)&_XMM2, *(float *)&_XMM3, fmta, pFromPoint, (const tacpoint_t **)&ppOutPoints, 1) > 0;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  if ( radius <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 300, ASSERT_TYPE_ASSERT, "(radius > 0.f)", (const char *)&queryFormat, "radius > 0.f") )
+    __debugbreak();
+  return g_TacGraphData.m_NumTacGraphs > 0 && TacGraphSearch_FindPointsInRadiusWithoutVis(&g_TacGraphData.m_TacGraphs[pFromPoint->m_GraphIdx], pos, 0.0, radius, 0.0, pFromPoint, (const tacpoint_t **)&ppOutPoints, 1) <= 0 && TacGraphSearch_FindPointsInRadiusWithVis(&g_TacGraphData.m_TacGraphs[pFromPoint->m_GraphIdx], pos, 0.0, radius, 0.0, pFromPoint, (const tacpoint_t **)&ppOutPoints, 1) > 0;
 }
 
 /*
@@ -1718,56 +1351,15 @@ LABEL_10:
 TacGraph_HasAnyVis
 ==============
 */
-
-bool __fastcall TacGraph_HasAnyVis(const tacpoint_t *pFromPoint, const vec3_t *pos, double radius)
+bool TacGraph_HasAnyVis(const tacpoint_t *pFromPoint, const vec3_t *pos, float radius)
 {
-  bool v8; 
-  bool v9; 
-  bool result; 
-  float fmt; 
   tacpoint_t *ppOutPoints; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm2
-  }
-  v8 = pFromPoint == NULL;
-  if ( !pFromPoint )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 285, ASSERT_TYPE_ASSERT, "(pFromPoint)", (const char *)&queryFormat, "pFromPoint");
-    v8 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
-  if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 286, ASSERT_TYPE_ASSERT, "(radius > 0.f)", (const char *)&queryFormat, "radius > 0.f") )
+  if ( !pFromPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 285, ASSERT_TYPE_ASSERT, "(pFromPoint)", (const char *)&queryFormat, "pFromPoint") )
     __debugbreak();
-  if ( g_TacGraphData.m_NumTacGraphs > 0 )
-  {
-    __asm
-    {
-      vmovaps xmm3, xmm7; maxRadius
-      vxorps  xmm2, xmm2, xmm2; minRadius
-      vmovss  dword ptr [rsp+68h+fmt], xmm6
-    }
-    result = TacGraphSearch_FindPointsInRadiusWithVis(&g_TacGraphData.m_TacGraphs[pFromPoint->m_GraphIdx], pos, *(float *)&_XMM2, *(float *)&_XMM3, fmt, pFromPoint, (const tacpoint_t **)&ppOutPoints, 1) > 0;
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  if ( radius <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph.cpp", 286, ASSERT_TYPE_ASSERT, "(radius > 0.f)", (const char *)&queryFormat, "radius > 0.f") )
+    __debugbreak();
+  return g_TacGraphData.m_NumTacGraphs > 0 && TacGraphSearch_FindPointsInRadiusWithVis(&g_TacGraphData.m_TacGraphs[pFromPoint->m_GraphIdx], pos, 0.0, radius, 0.0, pFromPoint, (const tacpoint_t **)&ppOutPoints, 1) > 0;
 }
 
 /*

@@ -1545,56 +1545,26 @@ BG_ApplyLinkAngles
 */
 void BG_ApplyLinkAngles(const vec3_t *linkAngles, vec3_t *inOutViewAngles)
 {
-  char v4; 
-  char v6; 
+  const dvar_t *v3; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> in1; 
-  tmat33_t<vec3_t> v17; 
+  tmat33_t<vec3_t> v8; 
 
-  _RBX = inOutViewAngles;
   AnglesToAxis(linkAngles, &axis);
   MatrixTranspose(&axis, &out);
-  AnglesToAxis(_RBX, &in1);
-  MatrixMultiply(&in1, &out, &v17);
-  AxisToAngles(&v17, &angles);
-  _RDI = DCONST_DVARMPFLT_player_view_pitch_up;
+  AnglesToAxis(inOutViewAngles, &in1);
+  MatrixMultiply(&in1, &out, &v8);
+  AxisToAngles(&v8, &angles);
+  v3 = DCONST_DVARMPFLT_player_view_pitch_up;
   if ( !DCONST_DVARMPFLT_player_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@c2b40000
-    vcomiss xmm0, dword ptr [rbx]
-  }
-  if ( v4 | v6 )
-    goto LABEL_7;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42aa0000
-    vcomiss xmm0, dword ptr [rdi+28h]
-  }
-  if ( !v4 )
-  {
-LABEL_7:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+108h+angles+8]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rbx+8], xmm1
-    }
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  if ( inOutViewAngles->v[0] >= -90.0 || v3->current.value <= 85.0 )
+    inOutViewAngles->v[2] = COERCE_FLOAT(LODWORD(angles.v[2]) ^ _xmm);
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+108h+angles+8]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vsubss  xmm2, xmm1, cs:__real@43340000
-      vmovss  dword ptr [rbx+8], xmm2
-    }
-  }
+    inOutViewAngles->v[2] = COERCE_FLOAT(LODWORD(angles.v[2]) ^ _xmm) - 180.0;
 }
 
 /*
@@ -1604,82 +1574,86 @@ BG_AxisFromForward
 */
 void BG_AxisFromForward(const vec3_t *forward, const vec3_t *up, tmat33_t<vec3_t> *outAxis)
 {
+  __int128 v7; 
+  __int128 v8; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v19; 
+  __int128 v20; 
   vec3_t v1; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-    vmovss  xmm7, cs:__real@3a83126f
-    vxorps  xmm6, xmm6, xmm6
-  }
-  _RSI = up;
-  __asm { vmovaps xmm2, xmm7; epsilon }
-  _RDI = outAxis;
-  __asm
-  {
-    vmovss  [rsp+88h+v1], xmm6
-    vmovss  [rsp+88h+var_54], xmm6
-    vmovss  [rsp+88h+var_50], xmm6
-  }
-  _RBX = forward;
-  if ( VecNCompareCustomEpsilon(forward->v, v1.v, *(float *)&_XMM2, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2925, ASSERT_TYPE_ASSERT, "(Vec3NotZeroEpsilon( forward ))", (const char *)&queryFormat, "Vec3NotZeroEpsilon( forward )") )
+  _XMM6 = 0i64;
+  v1.v[0] = 0.0;
+  v1.v[1] = 0.0;
+  v1.v[2] = 0.0;
+  if ( VecNCompareCustomEpsilon(forward->v, v1.v, 0.001, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2925, ASSERT_TYPE_ASSERT, "(Vec3NotZeroEpsilon( forward ))", (const char *)&queryFormat, "Vec3NotZeroEpsilon( forward )") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm2, xmm7; epsilon
-    vmovss  [rsp+88h+v1], xmm6
-    vmovss  [rsp+88h+var_54], xmm6
-    vmovss  [rsp+88h+var_50], xmm6
-  }
-  if ( VecNCompareCustomEpsilon(_RSI->v, v1.v, *(float *)&_XMM2, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2926, ASSERT_TYPE_ASSERT, "(Vec3NotZeroEpsilon( up ))", (const char *)&queryFormat, "Vec3NotZeroEpsilon( up )") )
+  v1.v[0] = 0.0;
+  v1.v[1] = 0.0;
+  v1.v[2] = 0.0;
+  if ( VecNCompareCustomEpsilon(up->v, v1.v, 0.001, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2926, ASSERT_TYPE_ASSERT, "(Vec3NotZeroEpsilon( up ))", (const char *)&queryFormat, "Vec3NotZeroEpsilon( up )") )
     __debugbreak();
+  v7 = LODWORD(forward->v[0]);
+  v8 = v7;
+  *(float *)&v8 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(forward->v[1] * forward->v[1])) + (float)(forward->v[2] * forward->v[2]));
+  _XMM4 = v8;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  xmm5, dword ptr [rbx]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  xmm2, dword ptr [rsi]
-    vmovss  dword ptr [rdi+18h], xmm2
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rdi+1Ch], xmm0
-    vmovss  xmm3, dword ptr [rsi+8]
-    vmovss  dword ptr [rdi+20h], xmm3
-    vmulss  xmm1, xmm0, dword ptr [rdi+4]
-    vmulss  xmm0, xmm2, dword ptr [rdi]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, dword ptr [rdi+8]
-    vaddss  xmm4, xmm2, xmm1
-    vandps  xmm0, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3f7fbe77
-    vmovss  xmm0, cs:__real@bf800000
-    vcmpless xmm1, xmm6, xmm4
-    vblendvps xmm1, xmm0, xmm7, xmm1
-    vmovss  [rsp+88h+var_54], xmm1
-    vmovss  [rsp+88h+v1], xmm6
-    vmovss  [rsp+88h+var_50], xmm6
   }
-  BG_AxisFromForward(_RBX, &v1, _RDI);
-  __asm
+  outAxis->m[0].v[0] = *(float *)&v7 * (float)(1.0 / *(float *)&_XMM0);
+  outAxis->m[0].v[1] = (float)(1.0 / *(float *)&_XMM0) * forward->v[1];
+  outAxis->m[0].v[2] = (float)(1.0 / *(float *)&_XMM0) * forward->v[2];
+  v12 = up->v[0];
+  outAxis->m[2].v[0] = up->v[0];
+  *(float *)&_XMM0 = up->v[1];
+  outAxis->m[2].v[1] = *(float *)&_XMM0;
+  v13 = up->v[2];
+  outAxis->m[2].v[2] = v13;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(*(float *)&_XMM0 * outAxis->m[0].v[1]) + (float)(v12 * outAxis->m[0].v[0])) + (float)(v13 * outAxis->m[0].v[2])) & _xmm) >= 0.99900001 )
   {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
+    _XMM0 = LODWORD(FLOAT_N1_0);
+    __asm
+    {
+      vcmpless xmm1, xmm6, xmm4
+      vblendvps xmm1, xmm0, xmm7, xmm1
+    }
+    v1.v[1] = *(float *)&_XMM1;
+    v1.v[0] = 0.0;
+    v1.v[2] = 0.0;
+    BG_AxisFromForward(forward, &v1, outAxis);
+  }
+  else
+  {
+    Vec3Cross(&outAxis->m[2], outAxis->m, &outAxis->m[1]);
+    Vec3Cross(outAxis->m, &outAxis->m[1], &outAxis->m[2]);
+    v14 = LODWORD(outAxis->m[1].v[0]);
+    v15 = v14;
+    *(float *)&v15 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(outAxis->m[1].v[1] * outAxis->m[1].v[1])) + (float)(outAxis->m[1].v[2] * outAxis->m[1].v[2]));
+    _XMM4 = v15;
+    __asm
+    {
+      vcmpless xmm0, xmm4, cs:__real@80000000
+      vblendvps xmm0, xmm4, xmm7, xmm0
+    }
+    outAxis->m[1].v[0] = *(float *)&v14 * (float)(1.0 / *(float *)&_XMM0);
+    outAxis->m[1].v[1] = (float)(1.0 / *(float *)&_XMM0) * outAxis->m[1].v[1];
+    outAxis->m[1].v[2] = (float)(1.0 / *(float *)&_XMM0) * outAxis->m[1].v[2];
+    v19 = LODWORD(outAxis->m[2].v[0]);
+    v20 = v19;
+    *(float *)&v20 = fsqrt((float)((float)(*(float *)&v19 * *(float *)&v19) + (float)(outAxis->m[2].v[1] * outAxis->m[2].v[1])) + (float)(outAxis->m[2].v[2] * outAxis->m[2].v[2]));
+    _XMM4 = v20;
+    __asm
+    {
+      vcmpless xmm0, xmm4, cs:__real@80000000
+      vblendvps xmm0, xmm4, xmm7, xmm0
+    }
+    outAxis->m[2].v[0] = *(float *)&v19 * (float)(1.0 / *(float *)&_XMM0);
+    outAxis->m[2].v[1] = (float)(1.0 / *(float *)&_XMM0) * outAxis->m[2].v[1];
+    outAxis->m[2].v[2] = (float)(1.0 / *(float *)&_XMM0) * outAxis->m[2].v[2];
   }
 }
 
@@ -1890,57 +1864,48 @@ BG_BuildRandomPatternSpline
 */
 void BG_BuildRandomPatternSpline(unsigned int seed, BSplineRelaxedCBezier *outSpline)
 {
-  int v5; 
+  int v4; 
+  float *v5; 
+  __int64 v6; 
+  int v7; 
   __int64 v8; 
-  int v9; 
+  __int64 v9; 
+  double v10; 
+  float maxValue; 
+  double v12; 
+  float v13; 
+  double v14; 
   unsigned int pHoldrand[4]; 
   vec3_t points; 
-  char v20; 
+  char v17; 
 
   if ( !outSpline && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4696, ASSERT_TYPE_ASSERT, "(outSpline)", (const char *)&queryFormat, "outSpline") )
     __debugbreak();
   pHoldrand[0] = seed;
   BG_srand(pHoldrand);
-  v5 = BG_irand(0, 1, pHoldrand);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _RSI = &v20;
-  __asm
-  {
-    vmovss  dword ptr [rsp+138h+points], xmm0
-    vmovss  dword ptr [rsp+138h+points+4], xmm0
-    vmovss  dword ptr [rsp+138h+points+8], xmm0
-  }
-  v8 = 4i64 * v5;
-  v9 = 0;
-  _R15 = RANDOM_PATTERNS;
+  v4 = BG_irand(0, 1, pHoldrand);
+  v5 = (float *)&v17;
+  points.v[0] = 0.0;
+  points.v[1] = 0.0;
+  points.v[2] = 0.0;
+  v6 = 4i64 * v4;
+  v7 = 0;
   do
   {
-    _RBX = 3 * (v8 + v9 % 4);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r15+rbx*8+4]; max
-      vmovss  xmm0, dword ptr [r15+rbx*8]; min
-    }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, pHoldrand);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r15+rbx*8+0Ch]; max
-      vmovss  dword ptr [rsi-4], xmm0
-      vmovss  xmm0, dword ptr [r15+rbx*8+8]; min
-    }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, pHoldrand);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r15+rbx*8+14h]; max
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  xmm0, dword ptr [r15+rbx*8+10h]; min
-    }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, pHoldrand);
-    ++v9;
-    __asm { vmovss  dword ptr [rsi+4], xmm0 }
-    _RSI += 12;
+    v8 = v6 + v7 % 4;
+    v9 = v8;
+    v10 = BG_flrand(RANDOM_PATTERNS[0].pointRanges[v8].limits[0].minValue, RANDOM_PATTERNS[0].pointRanges[v8].limits[0].maxValue, pHoldrand);
+    maxValue = RANDOM_PATTERNS[0].pointRanges[v9].limits[1].maxValue;
+    *(v5 - 1) = *(float *)&v10;
+    v12 = BG_flrand(RANDOM_PATTERNS[0].pointRanges[v9].limits[1].minValue, maxValue, pHoldrand);
+    v13 = RANDOM_PATTERNS[0].pointRanges[v9].limits[2].maxValue;
+    *v5 = *(float *)&v12;
+    v14 = BG_flrand(RANDOM_PATTERNS[0].pointRanges[v9].limits[2].minValue, v13, pHoldrand);
+    ++v7;
+    v5[1] = *(float *)&v14;
+    v5 += 3;
   }
-  while ( (unsigned int)(v9 + 1) < 0xF );
+  while ( (unsigned int)(v7 + 1) < 0xF );
   BG_BSpline_RelaxedCBezier_Build(&points, 0xFu, 0, 1, outSpline);
 }
 
@@ -1952,59 +1917,29 @@ BG_CalcLinkedViewValues
 void BG_CalcLinkedViewValues(const playerState_s *ps, vec3_t *inOutViewAngles)
 {
   int pm_type; 
-  char v6; 
-  char v8; 
+  const dvar_t *v5; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> in1; 
-  tmat33_t<vec3_t> v19; 
+  tmat33_t<vec3_t> v10; 
 
   pm_type = ps->pm_type;
-  _RDI = inOutViewAngles;
   if ( (pm_type == 1 || pm_type == 8 || GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 2u)) && !BG_IsVehicleActive(ps) && (!BG_IsTurretActive(ps) || GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, GameModeFlagValues::ms_spValue, 7u)) )
   {
     AnglesToAxis(&ps->linkAngles, &axis);
     MatrixTranspose(&axis, &out);
-    AnglesToAxis(_RDI, &in1);
-    MatrixMultiply(&in1, &out, &v19);
-    AxisToAngles(&v19, &angles);
-    _RBX = DCONST_DVARMPFLT_player_view_pitch_up;
+    AnglesToAxis(inOutViewAngles, &in1);
+    MatrixMultiply(&in1, &out, &v10);
+    AxisToAngles(&v10, &angles);
+    v5 = DCONST_DVARMPFLT_player_view_pitch_up;
     if ( !DCONST_DVARMPFLT_player_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@c2b40000
-      vcomiss xmm0, dword ptr [rdi]
-    }
-    if ( v6 | v8 )
-      goto LABEL_13;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@42aa0000
-      vcomiss xmm0, dword ptr [rbx+28h]
-    }
-    if ( !v6 )
-    {
-LABEL_13:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+108h+angles+8]
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  dword ptr [rdi+8], xmm1
-      }
-    }
+    Dvar_CheckFrontendServerThread(v5);
+    if ( inOutViewAngles->v[0] >= -90.0 || v5->current.value <= 85.0 )
+      inOutViewAngles->v[2] = COERCE_FLOAT(LODWORD(angles.v[2]) ^ _xmm);
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+108h+angles+8]
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vsubss  xmm2, xmm1, cs:__real@43340000
-        vmovss  dword ptr [rdi+8], xmm2
-      }
-    }
+      inOutViewAngles->v[2] = COERCE_FLOAT(LODWORD(angles.v[2]) ^ _xmm) - 180.0;
   }
 }
 
@@ -2014,60 +1949,76 @@ BG_CalcViewClampLerpFraction
 ==============
 */
 
-float __fastcall BG_CalcViewClampLerpFraction(double currentTime, double startTime, double totalAccelTime, double totalDecelTime, const float totalTime)
+float __fastcall BG_CalcViewClampLerpFraction(double currentTime, const float startTime, const float totalAccelTime, const float totalDecelTime, const float totalTime)
 {
+  float v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v12; 
+  __int128 v13; 
+  bool v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+
+  if ( totalTime <= 0.001 )
+    return FLOAT_1_0;
+  v7 = 2.0 / (float)((float)((float)(totalTime * 2.0) - totalAccelTime) - totalDecelTime);
+  v9 = *(_OWORD *)&currentTime;
+  *(float *)&v9 = *(float *)&currentTime - startTime;
+  v8 = v9;
+  if ( (float)(*(float *)&currentTime - startTime) >= totalAccelTime )
+  {
+    v13 = LODWORD(totalTime);
+    *(float *)&v13 = totalTime - totalDecelTime;
+    v12 = v13;
+    v14 = *(float *)&v8 < (float)(totalTime - totalDecelTime);
+    v16 = v8;
+    *(float *)&v16 = *(float *)&v8 - totalAccelTime;
+    v15 = v16;
+    *(float *)&v8 = totalAccelTime;
+    if ( v14 )
+    {
+      v10 = v16;
+      LODWORD(_XMM8) = 0;
+    }
+    else
+    {
+      v17 = v12;
+      *(float *)&v17 = *(float *)&v12 - totalAccelTime;
+      v10 = v17;
+      v19 = v15;
+      *(float *)&v19 = *(float *)&v15 - *(float *)&v10;
+      _XMM0 = v19;
+      __asm { vminss  xmm8, xmm0, xmm7 }
+    }
+  }
+  else
+  {
+    v10 = 0i64;
+    LODWORD(_XMM8) = 0;
+  }
+  if ( totalAccelTime == 0.0 )
+    v20 = 0.0;
+  else
+    v20 = (float)((float)((float)(v7 / totalAccelTime) * 0.5) * *(float *)&v8) * *(float *)&v8;
+  v21 = v10;
+  *(float *)&v21 = *(float *)&v10 * v7;
+  if ( totalDecelTime == 0.0 )
+    v22 = 0.0;
+  else
+    v22 = (float)(v7 - (float)((float)((float)(0.5 / totalDecelTime) * v7) * *(float *)&_XMM8)) * *(float *)&_XMM8;
+  *(float *)&v21 = (float)(*(float *)&v21 + v20) + v22;
+  _XMM1 = v21;
   __asm
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovss  xmm6, [rsp+68h+totalTime]
-    vcomiss xmm6, cs:__real@3a83126f
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm7, xmm3
-    vmovaps xmm5, xmm2
-    vmovaps xmm4, xmm1
-    vmovaps xmm8, xmm0
-    vmovss  xmm3, cs:__real@40000000
-    vmulss  xmm0, xmm6, xmm3
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovaps [rsp+68h+var_58], xmm10
-    vsubss  xmm1, xmm0, xmm5
-    vsubss  xmm2, xmm1, xmm7
-    vdivss  xmm10, xmm3, xmm2
-    vsubss  xmm3, xmm8, xmm4
-    vcomiss xmm3, xmm5
-    vmovaps [rsp+68h+var_68], xmm11
-    vxorps  xmm4, xmm4, xmm4
-    vsubss  xmm1, xmm6, xmm7
-    vcomiss xmm3, xmm1
-    vsubss  xmm0, xmm3, xmm5
-    vmovaps xmm3, xmm5
-    vsubss  xmm6, xmm1, xmm5
-    vsubss  xmm0, xmm0, xmm6
-    vminss  xmm8, xmm0, xmm7
-    vucomiss xmm5, xmm4
-    vmovss  xmm11, cs:__real@3f000000
-    vdivss  xmm0, xmm10, xmm5
-    vmulss  xmm1, xmm0, xmm11
-    vmulss  xmm2, xmm1, xmm3
-    vmulss  xmm9, xmm2, xmm3
-    vucomiss xmm7, xmm4
-    vmulss  xmm6, xmm6, xmm10
-    vdivss  xmm0, xmm11, xmm7
-    vmulss  xmm1, xmm0, xmm10
-    vmulss  xmm2, xmm1, xmm8
-    vsubss  xmm3, xmm10, xmm2
-    vmulss  xmm5, xmm3, xmm8
-    vmovaps xmm11, [rsp+68h+var_68]
-    vmovaps xmm10, [rsp+68h+var_58]
-    vaddss  xmm0, xmm6, xmm9
-    vmovaps xmm9, [rsp+68h+var_48]
-    vaddss  xmm1, xmm0, xmm5
     vmaxss  xmm1, xmm1, xmm4
     vminss  xmm0, xmm1, cs:__real@3f800000
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
   }
   return *(float *)&_XMM0;
 }
@@ -2079,10 +2030,11 @@ BG_CanItemBeGrabbed
 */
 __int64 BG_CanItemBeGrabbed(const BgWeaponMap *weaponMap, const entityState_t *ent, const playerState_s *ps, int touched)
 {
+  __int16 v4; 
   const Weapon *WeaponForEntity; 
   const WeaponDef *v10; 
   int HasRoomForScavengerPickup; 
-  __int64 v17; 
+  __int64 v13; 
   Weapon weapon; 
 
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1014, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
@@ -2106,8 +2058,8 @@ __int64 BG_CanItemBeGrabbed(const BgWeaponMap *weaponMap, const entityState_t *e
       __debugbreak();
     if ( WeaponForEntity->weaponIdx >= 0x226u )
     {
-      LODWORD(v17) = WeaponForEntity->weaponIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 993, ASSERT_TYPE_ASSERT, "(unsigned)( weapon.weaponIdx ) < (unsigned)( 550 )", "weapon.weaponIdx doesn't index MAX_WEAPONS\n\t%i not in [0, %i)", v17, 550) )
+      LODWORD(v13) = WeaponForEntity->weaponIdx;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 993, ASSERT_TYPE_ASSERT, "(unsigned)( weapon.weaponIdx ) < (unsigned)( 550 )", "weapon.weaponIdx doesn't index MAX_WEAPONS\n\t%i not in [0, %i)", v13, 550) )
         __debugbreak();
     }
     if ( !WeaponForEntity->weaponIdx )
@@ -2124,19 +2076,8 @@ __int64 BG_CanItemBeGrabbed(const BgWeaponMap *weaponMap, const entityState_t *e
   }
   if ( BG_WeaponEntCanBeGrabbed(weaponMap, ent, ps, touched, WeaponForEntity) )
     return 1i64;
-  _RAX = BG_GetAltWeapon(WeaponForEntity);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0C8h+weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0C8h+weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( (_WORD)_RAX )
+  weapon = *BG_GetAltWeapon(WeaponForEntity);
+  if ( v4 )
   {
     HasRoomForScavengerPickup = BG_WeaponEntCanBeGrabbed(weaponMap, ent, ps, touched, &weapon);
 LABEL_40:
@@ -2151,78 +2092,34 @@ LABEL_40:
 BG_CheckProne
 ==============
 */
-
-bool __fastcall BG_CheckProne(const playerState_s *ps, int passEntityNum, const vec3_t *vPos, double fSize, const float fHeight, const float fYaw, float *pfTorsoPitch, float *pfWaistPitch, int isAlreadyProne, int isOnGround, int groundIsWalkable, const BgHandler *handler, Physics_WorldId worldId, proneCheckType_t proneCheckType, float prone_feet_dist, FeetDirection feetDirection, int *penetratedTouchEntReturn, int *proneValidFlags)
+bool BG_CheckProne(const playerState_s *ps, int passEntityNum, const vec3_t *vPos, const float fSize, const float fHeight, const float fYaw, float *pfTorsoPitch, float *pfWaistPitch, int isAlreadyProne, int isOnGround, int groundIsWalkable, const BgHandler *handler, Physics_WorldId worldId, proneCheckType_t proneCheckType, float prone_feet_dist, FeetDirection feetDirection, int *penetratedTouchEntReturn, int *proneValidFlags)
 {
-  const dvar_t *v24; 
+  const dvar_t *v21; 
   bool result; 
-  float fmt; 
-  float fmta; 
-  float v38; 
-  float v39; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( proneValidFlags )
     *proneValidFlags = 0;
   if ( feetDirection == FEETDIR_FRONT && ps && proneCheckType == PCT_CLIENT )
   {
-    v24 = DVARBOOL_killswitch_last_stand_rewrite_enabled;
+    v21 = DVARBOOL_killswitch_last_stand_rewrite_enabled;
     if ( !DVARBOOL_killswitch_last_stand_rewrite_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_last_stand_rewrite_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    if ( v24->current.enabled )
-    {
-LABEL_17:
-      result = 1;
-      goto LABEL_18;
-    }
+    Dvar_CheckFrontendServerThread(v21);
+    if ( v21->current.enabled )
+      return 1;
   }
-  if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
+    return BG_CheckProneValid(passEntityNum, vPos, fSize, fHeight, fYaw, pfTorsoPitch, pfWaistPitch, isAlreadyProne, isOnGround, groundIsWalkable, handler, worldId, proneCheckType, prone_feet_dist, feetDirection, penetratedTouchEntReturn, proneValidFlags);
+  if ( BG_IsPlayerLinked(ps) )
+    return 1;
+  if ( isOnGround )
   {
-    if ( !BG_IsPlayerLinked(ps) )
-    {
-      if ( isOnGround )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rsp+0B8h+prone_feet_dist]
-          vmovss  xmm3, [rsp+0B8h+fHeight]; fHeight
-          vmovss  [rsp+0B8h+var_50], xmm0
-          vmovss  xmm0, [rsp+0B8h+fYaw]
-          vmovaps xmm2, xmm6; fSize
-          vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-        }
-        BG_CheckProne_AdjustAngles(passEntityNum, vPos, *(const float *)&_XMM2, *(const float *)&_XMM3, fmta, pfTorsoPitch, pfWaistPitch, isAlreadyProne, isOnGround, groundIsWalkable, handler, worldId, proneCheckType, v39, feetDirection, penetratedTouchEntReturn);
-      }
-      else
-      {
-        result = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 2u);
-        if ( !result )
-          goto LABEL_18;
-      }
-    }
-    goto LABEL_17;
+    BG_CheckProne_AdjustAngles(passEntityNum, vPos, fSize, fHeight, fYaw, pfTorsoPitch, pfWaistPitch, isAlreadyProne, isOnGround, groundIsWalkable, handler, worldId, proneCheckType, prone_feet_dist, feetDirection, penetratedTouchEntReturn);
+    return 1;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+0B8h+prone_feet_dist]
-    vmovss  xmm3, [rsp+0B8h+fHeight]; fHeight
-    vmovss  [rsp+0B8h+var_50], xmm0
-    vmovss  xmm0, [rsp+0B8h+fYaw]
-    vmovaps xmm2, xmm6; fSize
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-  }
-  result = BG_CheckProneValid(passEntityNum, vPos, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, pfTorsoPitch, pfWaistPitch, isAlreadyProne, isOnGround, groundIsWalkable, handler, worldId, proneCheckType, v38, feetDirection, penetratedTouchEntReturn, proneValidFlags);
-LABEL_18:
-  _R11 = &v40;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  result = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 2u);
+  if ( result )
+    return 1;
   return result;
 }
 
@@ -2231,83 +2128,113 @@ LABEL_18:
 BG_CheckProneValid
 ==============
 */
-
-bool __fastcall BG_CheckProneValid(int passEntityNum, const vec3_t *vPos, double fSize, double fHeight, const float fYaw, float *pfTorsoPitch, float *pfWaistPitch, int isAlreadyProne, int isOnGround, int groundIsWalkable, const BgHandler *handler, Physics_WorldId worldId, proneCheckType_t proneCheckType, float prone_feet_dist, FeetDirection feetDirection, int *penetratedTouchEntReturn, int *proneValidFlags)
+char BG_CheckProneValid(int passEntityNum, const vec3_t *vPos, const float fSize, const float fHeight, const float fYaw, float *pfTorsoPitch, float *pfWaistPitch, int isAlreadyProne, int isOnGround, int groundIsWalkable, const BgHandler *handler, Physics_WorldId worldId, proneCheckType_t proneCheckType, float prone_feet_dist, FeetDirection feetDirection, int *penetratedTouchEntReturn, int *proneValidFlags)
 {
-  int v30; 
-  const dvar_t *v33; 
+  int v18; 
+  const dvar_t *v21; 
   int contentMask; 
-  BgHandler_vtbl *v37; 
-  Physics_WorldId v42; 
-  BgHandler_vtbl *v55; 
-  Physics_WorldId v65; 
-  const dvar_t *v66; 
-  int v74; 
-  bool result; 
-  BgHandler_vtbl *v110; 
+  float v23; 
+  float v24; 
+  BgHandler_vtbl *v25; 
+  Physics_WorldId v26; 
+  float v31; 
+  BgHandler_vtbl *v32; 
+  float v33; 
+  float v34; 
+  Physics_WorldId v35; 
+  const dvar_t *v36; 
+  float fraction; 
+  float v38; 
+  int v39; 
+  float v40; 
+  float v41; 
+  __int128 v43; 
+  BgHandler_vtbl *v46; 
+  Physics_WorldId v47; 
+  __int128 v49; 
+  float v50; 
+  __int128 v51; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  BgHandler_vtbl *v57; 
+  float v61; 
+  Physics_WorldId v62; 
+  const dvar_t *v63; 
+  float *v64; 
+  float *v65; 
+  float v66; 
+  float v67; 
+  __int128 v68; 
+  float v69; 
+  __int128 v70; 
+  BgHandler_vtbl *v71; 
+  int v72; 
+  __int128 v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v80; 
+  Physics_WorldId v81; 
+  float v82; 
+  BgHandler_vtbl *v83; 
+  Physics_WorldId v84; 
+  BgHandler_vtbl *v85; 
+  Physics_WorldId v86; 
+  float v87; 
+  float v88; 
+  __int128 v89; 
+  float v90; 
+  __int128 v91; 
+  __int128 v92; 
+  float v93; 
+  __int128 v94; 
+  __int128 v98; 
+  bool v99; 
+  float v101; 
+  __int128 v102; 
+  __int128 v103; 
+  float v104; 
+  __int128 v105; 
+  __int128 v106; 
+  float v111; 
+  float v114; 
+  BgHandler_vtbl *v115; 
+  Physics_WorldId v116; 
+  BgHandler_vtbl *v117; 
   Physics_WorldId v118; 
-  const dvar_t *v119; 
-  BgHandler_vtbl *v140; 
-  int v141; 
-  Physics_WorldId v183; 
-  BgHandler_vtbl *v189; 
-  Physics_WorldId v200; 
-  char v201; 
-  BgHandler_vtbl *v212; 
-  Physics_WorldId v217; 
-  bool Bool_Internal_DebugName; 
-  bool v248; 
-  char v249; 
-  char v259; 
-  char v260; 
-  BgHandler_vtbl *v279; 
-  Physics_WorldId v284; 
-  BgHandler_vtbl *v287; 
-  Physics_WorldId v289; 
-  int v292; 
+  int v119; 
+  float v120; 
   int skipEntities; 
-  int v296; 
-  int v297; 
-  int v298; 
-  float *v299; 
-  float *v300; 
+  int v123; 
+  int v124; 
+  int v125; 
+  float *v126; 
+  float *v127; 
   vec3_t end; 
   vec3_t start; 
   vec3_t vec; 
   vec3_t forward; 
   Bounds bounds; 
   trace_t results; 
-  char v315; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
-  _R12 = vPos;
-  v30 = 1;
-  v300 = pfTorsoPitch;
-  v299 = pfWaistPitch;
-  v292 = 0;
-  __asm
-  {
-    vmovss  [rsp+220h+var_1A8], xmm2
-    vmovaps xmm6, xmm3
-    vmovaps xmm12, xmm2
-  }
+  v18 = 1;
+  v127 = pfTorsoPitch;
+  v126 = pfWaistPitch;
+  v119 = 0;
+  *(float *)&v124 = fSize;
   if ( (unsigned int)feetDirection >= FEETDIR_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2498, ASSERT_TYPE_ASSERT, "(unsigned)( feetDirection ) < (unsigned)( FEETDIR_COUNT )", "feetDirection doesn't index FEETDIR_COUNT\n\t%i not in [0, %i)", feetDirection, 2) )
     __debugbreak();
   if ( proneValidFlags )
     *proneValidFlags = 0;
   if ( proneCheckType == PCT_CLIENT )
   {
-    v33 = DVARBOOL_killswitch_last_stand_rewrite_enabled;
+    v21 = DVARBOOL_killswitch_last_stand_rewrite_enabled;
     if ( !DVARBOOL_killswitch_last_stand_rewrite_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_last_stand_rewrite_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v33);
-    if ( v33->current.enabled && feetDirection == FEETDIR_FRONT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2510, ASSERT_TYPE_ASSERT, "( feetDirection ) != ( FEETDIR_FRONT )", "%s != %s\n\t%i, %i", "feetDirection", "FEETDIR_FRONT", 0, 0i64) )
+    Dvar_CheckFrontendServerThread(v21);
+    if ( v21->current.enabled && feetDirection == FEETDIR_FRONT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2510, ASSERT_TYPE_ASSERT, "( feetDirection ) != ( FEETDIR_FRONT )", "%s != %s\n\t%i, %i", "feetDirection", "FEETDIR_FRONT", 0, 0i64) )
       __debugbreak();
   }
   Physics_GetLocalClientForWorld(worldId);
@@ -2315,640 +2242,364 @@ bool __fastcall BG_CheckProneValid(int passEntityNum, const vec3_t *vPos, double
     *penetratedTouchEntReturn = 2047;
   if ( proneCheckType == PCT_CLIENT )
     Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80);
-  __asm
-  {
-    vmovaps xmmword ptr [rsp+220h+var_48+8], xmm7
-    vmovaps [rsp+220h+var_58+8], xmm8
-  }
   contentMask = 65553;
-  __asm { vmovaps [rsp+220h+var_68+8], xmm9 }
   if ( proneCheckType )
     contentMask = 131089;
-  __asm
-  {
-    vmovaps [rsp+220h+var_78+8], xmm10
-    vmovaps [rsp+220h+var_88+8], xmm11
-    vmovaps xmmword ptr [rsp+220h+var_A8+8], xmm13
-    vmovaps [rsp+220h+var_B8+8], xmm14
-    vmovaps [rsp+220h+var_C8+8], xmm15
-  }
   if ( !isAlreadyProne )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r12]
-      vmovss  xmm1, dword ptr [r12+4]
-    }
-    v37 = handler->__vftable;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rbp+120h+bounds.midPoint], xmm0
-      vmovss  dword ptr [rbp+120h+bounds.midPoint+4], xmm0
-      vmulss  xmm0, xmm6, cs:__real@3f000000
-      vmovss  dword ptr [rbp+120h+bounds.midPoint+8], xmm0
-      vmovss  dword ptr [rbp+120h+bounds.halfSize+8], xmm0
-      vmovss  xmm0, dword ptr [r12+8]
-      vmovss  dword ptr [rbp+120h+start+8], xmm0
-      vaddss  xmm0, xmm0, cs:__real@41200000
-      vmovss  dword ptr [rbp+120h+end+8], xmm0
-      vmovss  dword ptr [rbp+120h+bounds.halfSize], xmm12
-      vmovss  dword ptr [rbp+120h+bounds.halfSize+4], xmm12
-      vmovss  dword ptr [rbp+120h+start], xmm2
-      vmovss  dword ptr [rbp+120h+start+4], xmm1
-      vmovss  dword ptr [rbp+120h+end], xmm2
-      vmovss  dword ptr [rbp+120h+end+4], xmm1
-    }
+    v23 = vPos->v[0];
+    v24 = vPos->v[1];
+    v25 = handler->__vftable;
+    bounds.midPoint.v[0] = 0.0;
+    bounds.midPoint.v[1] = 0.0;
+    bounds.midPoint.v[2] = fHeight * 0.5;
+    bounds.halfSize.v[2] = fHeight * 0.5;
+    start.v[2] = vPos->v[2];
+    end.v[2] = start.v[2] + 10.0;
+    bounds.halfSize.v[0] = fSize;
+    bounds.halfSize.v[1] = fSize;
+    start.v[0] = v23;
+    start.v[1] = v24;
+    end.v[0] = v23;
+    end.v[1] = v24;
     skipEntities = passEntityNum;
-    v42 = v37->GetPhysicsWorldId((BgHandler *)handler);
-    PhysicsQuery_LegacyCapsuleTrace(v42, &results, &start, &end, &bounds, &skipEntities, 1, contentMask, NULL, 0, NULL, NULL);
+    v26 = v25->GetPhysicsWorldId((BgHandler *)handler);
+    PhysicsQuery_LegacyCapsuleTrace(v26, &results, &start, &end, &bounds, &skipEntities, 1, contentMask, NULL, 0, NULL, NULL);
     if ( penetratedTouchEntReturn )
       *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
     if ( results.allsolid )
-      goto LABEL_34;
+      return 0;
   }
   if ( isOnGround && !groundIsWalkable )
-    goto LABEL_34;
+    return 0;
+  _XMM4 = LODWORD(fYaw);
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  _XMM0 = (unsigned int)feetDirection;
   __asm
   {
-    vmovups xmm0, cs:__xmm@40c00000000000000000000000000000
-    vmovss  xmm4, [rbp+120h+fYaw]
-    vsubss  xmm3, xmm4, cs:__real@43340000
-    vmovss  xmm13, cs:__real@40c00000
-    vmovups xmmword ptr [rbp+120h+bounds.midPoint], xmm0
-    vmovd   xmm0, [rbp+120h+feetDirection]
-  }
-  _EAX = 1;
-  __asm
-  {
-    vmovd   xmm1, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm4, xmm3, xmm2; yaw
-    vmovss  dword ptr [rbp+120h+bounds.halfSize+4], xmm13
-    vmovss  dword ptr [rbp+120h+bounds.halfSize+8], xmm13
   }
+  bounds.halfSize.v[1] = FLOAT_6_0;
+  bounds.halfSize.v[2] = FLOAT_6_0;
   YawVectors(*(float *)&_XMM0, &forward, NULL);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r12]
-    vmovss  xmm3, dword ptr [r12+4]
-    vmovss  xmm10, [rbp+120h+prone_feet_dist]
-  }
-  v55 = handler->__vftable;
-  __asm
-  {
-    vmovss  dword ptr [rbp+120h+start], xmm2
-    vsubss  xmm14, xmm6, xmm13
-    vaddss  xmm4, xmm14, dword ptr [r12+8]
-    vsubss  xmm6, xmm10, xmm13
-    vmulss  xmm1, xmm6, dword ptr [rbp+120h+forward]
-    vaddss  xmm2, xmm1, xmm2
-    vmulss  xmm1, xmm6, dword ptr [rbp+120h+forward+4]
-    vmovss  dword ptr [rbp+120h+end], xmm2
-    vaddss  xmm2, xmm1, xmm3
-    vmulss  xmm1, xmm6, dword ptr [rbp+120h+forward+8]
-    vmovss  dword ptr [rbp+120h+end+4], xmm2
-    vaddss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [rbp+120h+end+8], xmm2
-    vmovss  dword ptr [rbp+120h+start+4], xmm3
-    vmovss  dword ptr [rbp+120h+start+8], xmm4
-    vmovss  [rsp+220h+var_1B8], xmm6
-  }
-  v298 = passEntityNum;
-  v65 = v55->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v65, &results, &start, &end, &bounds, &v298, 1, contentMask, NULL, 0, NULL, NULL);
+  v31 = vPos->v[1];
+  v32 = handler->__vftable;
+  start.v[0] = vPos->v[0];
+  v33 = fHeight - 6.0;
+  v34 = (float)(fHeight - 6.0) + vPos->v[2];
+  end.v[0] = (float)((float)(prone_feet_dist - 6.0) * forward.v[0]) + start.v[0];
+  end.v[1] = (float)((float)(prone_feet_dist - 6.0) * forward.v[1]) + v31;
+  end.v[2] = (float)((float)(prone_feet_dist - 6.0) * forward.v[2]) + v34;
+  start.v[1] = v31;
+  start.v[2] = v34;
+  *(float *)&skipEntities = prone_feet_dist - 6.0;
+  v125 = passEntityNum;
+  v35 = v32->GetPhysicsWorldId((BgHandler *)handler);
+  PhysicsQuery_LegacyCapsuleTrace(v35, &results, &start, &end, &bounds, &v125, 1, contentMask, NULL, 0, NULL, NULL);
   if ( penetratedTouchEntReturn )
     *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
-  v66 = DVARBOOL_bg_debugProne;
+  v36 = DVARBOOL_bg_debugProne;
   if ( !DVARBOOL_bg_debugProne && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugProne") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v66);
+  Dvar_CheckFrontendServerThread(v36);
+  fraction = results.fraction;
+  if ( results.fraction >= 1.0 )
+  {
+    v39 = passEntityNum;
+    goto LABEL_41;
+  }
+  if ( !isOnGround )
+    return 0;
+  v38 = (float)((float)(prone_feet_dist - 6.0) * results.fraction) + 6.0;
+  v119 = 1;
+  if ( v38 < (float)(fSize + 2.0) )
+    return 0;
+  v39 = passEntityNum;
+  v40 = (float)(v33 * 0.69999999) + 18.0;
+  if ( v38 >= v40 )
+    goto LABEL_42;
+  v41 = (float)(end.v[2] + 22.0) - start.v[2];
+  v43 = LODWORD(end.v[1]);
+  end.v[2] = end.v[2] + 22.0;
+  *(float *)&v43 = fsqrt((float)((float)((float)(end.v[1] - start.v[1]) * (float)(end.v[1] - start.v[1])) + (float)((float)(end.v[0] - start.v[0]) * (float)(end.v[0] - start.v[0]))) + (float)(v41 * v41));
+  _XMM9 = v43;
   __asm
   {
-    vmovss  xmm5, [rbp+120h+results.fraction]
-    vmovss  xmm11, cs:__real@3f800000
-    vcomiss xmm5, xmm11
-    vmovss  xmm8, cs:__real@41900000
+    vcmpless xmm0, xmm9, cs:__real@80000000
+    vblendvps xmm0, xmm9, xmm11, xmm0
   }
-  if ( v201 )
-  {
-    if ( !isOnGround )
-      goto LABEL_34;
-    __asm
-    {
-      vaddss  xmm1, xmm12, cs:__real@40000000
-      vmulss  xmm0, xmm6, xmm5
-      vaddss  xmm6, xmm0, xmm13
-      vcomiss xmm6, xmm1
-    }
-    v292 = 1;
-    __asm { vmulss  xmm0, xmm14, cs:__real@3f333333 }
-    v74 = passEntityNum;
-    __asm
-    {
-      vaddss  xmm7, xmm0, xmm8
-      vcomiss xmm6, xmm7
-    }
-  }
-  else
-  {
-    v74 = passEntityNum;
-    __asm { vmovaps xmm6, xmm10 }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+end]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start]
-    vmovss  xmm0, dword ptr [rbp+120h+end+4]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+4]
-    vaddss  xmm9, xmm2, dword ptr [rbp+120h+start]
-    vmovss  xmm0, dword ptr [rbp+120h+end+8]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+8]
-    vaddss  xmm10, xmm2, dword ptr [rbp+120h+start+4]
-    vmovd   xmm0, [rbp+120h+isOnGround]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm7, xmm2, dword ptr [rbp+120h+start+8]
-    vmulss  xmm1, xmm8, dword ptr [rbp+120h+forward]
-    vaddss  xmm4, xmm1, dword ptr [r12]
-    vmulss  xmm1, xmm8, dword ptr [rbp+120h+forward+4]
-    vaddss  xmm3, xmm1, dword ptr [r12+4]
-    vmulss  xmm1, xmm8, dword ptr [rbp+120h+forward+8]
-    vaddss  xmm2, xmm1, dword ptr [r12+8]
-    vaddss  xmm5, xmm2, xmm14
-  }
-  _EAX = 0;
-  v298 = v74;
-  __asm { vmovd   xmm1, eax }
-  v110 = handler->__vftable;
-  __asm
-  {
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@40200000
-    vblendvps xmm0, xmm1, xmm11, xmm2
-    vmulss  xmm2, xmm0, xmm12
-    vmovss  dword ptr [rbp+120h+start+4], xmm3
-    vmovss  dword ptr [rbp+120h+end+4], xmm3
-    vaddss  xmm3, xmm2, xmm14
-    vsubss  xmm8, xmm3, xmm13
-    vsubss  xmm0, xmm5, xmm8
-    vmovss  dword ptr [rbp+120h+end+8], xmm0
-    vmovss  [rsp+220h+var_1B0], xmm7
-    vmovss  dword ptr [rbp+120h+start], xmm4
-    vmovss  dword ptr [rbp+120h+start+8], xmm5
-    vmovss  dword ptr [rbp+120h+end], xmm4
-  }
-  v118 = v110->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v118, &results, &start, &end, &bounds, &v298, 1, contentMask, NULL, 0, NULL, NULL);
+  v125 = passEntityNum;
+  v119 = 0;
+  v46 = handler->__vftable;
+  forward.v[0] = (float)(1.0 / *(float *)&_XMM0) * (float)(end.v[0] - start.v[0]);
+  forward.v[2] = (float)(1.0 / *(float *)&_XMM0) * v41;
+  forward.v[1] = (float)(1.0 / *(float *)&_XMM0) * (float)(end.v[1] - start.v[1]);
+  v47 = v46->GetPhysicsWorldId((BgHandler *)handler);
+  PhysicsQuery_LegacyCapsuleTrace(v47, &results, &start, &end, &bounds, &v125, 1, contentMask, NULL, 0, NULL, NULL);
   if ( penetratedTouchEntReturn )
     *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
-  v119 = DVARBOOL_bg_debugProne;
+  Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
+  fraction = results.fraction;
+  if ( results.fraction >= 1.0 )
+  {
+LABEL_41:
+    v38 = prone_feet_dist;
+    goto LABEL_42;
+  }
+  v38 = (float)(*(float *)&v43 * results.fraction) + 6.0;
+  v119 = 1;
+  if ( v38 < v40 )
+    return 0;
+LABEL_42:
+  v49 = LODWORD(end.v[1]);
+  v50 = (float)((float)(end.v[0] - start.v[0]) * fraction) + start.v[0];
+  *(float *)&v49 = (float)((float)(end.v[1] - start.v[1]) * fraction) + start.v[1];
+  v51 = v49;
+  _XMM0 = (unsigned int)isOnGround;
+  v53 = (float)((float)(end.v[2] - start.v[2]) * fraction) + start.v[2];
+  v54 = (float)(18.0 * forward.v[0]) + vPos->v[0];
+  v55 = (float)(18.0 * forward.v[1]) + vPos->v[1];
+  v56 = (float)((float)(18.0 * forward.v[2]) + vPos->v[2]) + v33;
+  v125 = v39;
+  v57 = handler->__vftable;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_2_5);
+  __asm { vblendvps xmm0, xmm1, xmm11, xmm2 }
+  start.v[1] = v55;
+  end.v[1] = v55;
+  v61 = (float)((float)(*(float *)&_XMM0 * fSize) + v33) - 6.0;
+  end.v[2] = v56 - v61;
+  *(float *)&v123 = v53;
+  start.v[0] = v54;
+  start.v[2] = v56;
+  end.v[0] = v54;
+  v62 = v57->GetPhysicsWorldId((BgHandler *)handler);
+  PhysicsQuery_LegacyCapsuleTrace(v62, &results, &start, &end, &bounds, &v125, 1, contentMask, NULL, 0, NULL, NULL);
+  if ( penetratedTouchEntReturn )
+    *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
+  v63 = DVARBOOL_bg_debugProne;
   if ( !DVARBOOL_bg_debugProne && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugProne") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v119);
-  __asm
+  Dvar_CheckFrontendServerThread(v63);
+  if ( results.fraction == 1.0 )
   {
-    vmovss  xmm3, [rbp+120h+results.fraction]
-    vucomiss xmm3, xmm11
-  }
-  if ( v248 )
-  {
-    _RAX = v299;
-    _RCX = v300;
+    v64 = v126;
+    v65 = v127;
     if ( proneValidFlags )
       *proneValidFlags |= 1u;
     goto $fail;
   }
   if ( !results.walkable )
   {
-LABEL_59:
+LABEL_65:
     if ( proneValidFlags )
       *proneValidFlags |= 2u;
-    goto LABEL_34;
+    return 0;
   }
-  __asm
+  v66 = (float)(v61 * results.fraction) + 6.0;
+  v67 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+  v68 = LODWORD(end.v[2]);
+  v69 = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+  *(float *)&v68 = (float)((float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2]) - 6.0;
+  v70 = v68;
+  if ( v119 )
   {
-    vmovss  xmm1, dword ptr [rbp+120h+end]
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm4, xmm0, xmm13
-    vsubss  xmm0, xmm1, dword ptr [rbp+120h+start]
-    vmulss  xmm2, xmm0, xmm3
-    vmovss  xmm0, dword ptr [rbp+120h+end+4]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+4]
-    vaddss  xmm14, xmm2, dword ptr [rbp+120h+start]
-    vmovss  xmm0, dword ptr [rbp+120h+end+8]
-    vmulss  xmm2, xmm1, xmm3
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+8]
-    vaddss  xmm15, xmm2, dword ptr [rbp+120h+start+4]
-    vmulss  xmm2, xmm1, xmm3
-    vaddss  xmm3, xmm2, dword ptr [rbp+120h+start+8]
-    vsubss  xmm12, xmm3, xmm13
-  }
-  if ( v292 )
-  {
+    if ( (float)(v38 - v66) < (float)(v66 * -0.75) )
+      goto LABEL_101;
+    v71 = handler->__vftable;
+    v72 = passEntityNum;
+    v73 = v51;
+    v74 = (float)(v50 - v67) + (float)(6.0 * forward.v[0]);
+    v75 = (float)(*(float *)&v51 - v69) + (float)(6.0 * forward.v[1]);
+    v76 = (float)((float)(*(float *)&v123 - *(float *)&v70) + (float)(6.0 * forward.v[2])) + 6.0;
+    *(float *)&v73 = fsqrt((float)((float)(v75 * v75) + (float)(v74 * v74)) + (float)(v76 * v76));
+    _XMM3 = v73;
     __asm
     {
-      vmulss  xmm0, xmm4, cs:__real@bf400000
-      vsubss  xmm1, xmm6, xmm4
-      vcomiss xmm1, xmm0
-    }
-    v140 = handler->__vftable;
-    v141 = passEntityNum;
-    __asm
-    {
-      vsubss  xmm1, xmm9, xmm14
-      vmovss  xmm9, dword ptr [rbp+120h+forward]
-      vsubss  xmm2, xmm10, xmm15
-      vmovss  xmm10, dword ptr [rbp+120h+forward+4]
-      vmulss  xmm0, xmm13, xmm9
-      vaddss  xmm7, xmm1, xmm0
-      vmovss  xmm1, [rsp+220h+var_1B0]
-      vsubss  xmm3, xmm1, xmm12
-      vmulss  xmm0, xmm13, xmm10
-      vaddss  xmm8, xmm2, xmm0
-      vmulss  xmm0, xmm13, dword ptr [rbp+120h+forward+8]
-      vaddss  xmm2, xmm3, xmm0
-      vaddss  xmm6, xmm2, xmm13
-      vmulss  xmm0, xmm7, xmm7
-      vmulss  xmm1, xmm8, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, [rsp+220h+var_1B8]
-      vsubss  xmm5, xmm1, cs:__real@41900000
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm11, xmm0
-      vdivss  xmm4, xmm11, xmm0
-      vmulss  xmm0, xmm4, xmm6
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm2, xmm1, dword ptr [rbp+120h+start+8]
-      vmulss  xmm0, xmm7, xmm4
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm3, xmm1, dword ptr [rbp+120h+start]
-      vmovss  dword ptr [rbp+120h+end+8], xmm2
-      vmulss  xmm2, xmm9, [rsp+220h+var_1B8]
-      vaddss  xmm0, xmm2, dword ptr [r12]
-      vmulss  xmm2, xmm10, [rsp+220h+var_1B8]
-      vaddss  xmm1, xmm3, xmm0
-      vmulss  xmm3, xmm1, cs:__real@3f000000
-      vmulss  xmm0, xmm8, xmm4
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm0, xmm2, dword ptr [r12+4]
-      vmovss  dword ptr [rbp+120h+end], xmm3
-      vaddss  xmm3, xmm1, dword ptr [rbp+120h+start+4]
-      vaddss  xmm1, xmm3, xmm0
-      vmulss  xmm3, xmm1, cs:__real@3f000000
-      vmovss  dword ptr [rbp+120h+end+4], xmm3
     }
-    v296 = passEntityNum;
-    v183 = v140->GetPhysicsWorldId((BgHandler *)handler);
-    PhysicsQuery_LegacyCapsuleTrace(v183, &results, &start, &end, &bounds, &v296, 1, contentMask, NULL, 0, NULL, NULL);
+    end.v[2] = (float)((float)((float)(1.0 / *(float *)&_XMM0) * v76) * (float)(*(float *)&skipEntities - 18.0)) + start.v[2];
+    *(float *)&_XMM3 = (float)((float)((float)((float)(v74 * (float)(1.0 / *(float *)&_XMM0)) * (float)(*(float *)&skipEntities - 18.0)) + start.v[0]) + (float)((float)(forward.v[0] * *(float *)&skipEntities) + vPos->v[0])) * 0.5;
+    v80 = (float)(v75 * (float)(1.0 / *(float *)&_XMM0)) * (float)(*(float *)&skipEntities - 18.0);
+    *(float *)&_XMM0 = (float)(forward.v[1] * *(float *)&skipEntities) + vPos->v[1];
+    end.v[0] = *(float *)&_XMM3;
+    end.v[1] = (float)((float)(v80 + start.v[1]) + *(float *)&_XMM0) * 0.5;
+    v123 = passEntityNum;
+    v81 = v71->GetPhysicsWorldId((BgHandler *)handler);
+    PhysicsQuery_LegacyCapsuleTrace(v81, &results, &start, &end, &bounds, &v123, 1, contentMask, NULL, 0, NULL, NULL);
     if ( penetratedTouchEntReturn )
       *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
     Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
-    __asm
+    v82 = results.fraction;
+    if ( results.fraction < 1.0 )
     {
-      vmovss  xmm6, [rbp+120h+results.fraction]
-      vcomiss xmm6, xmm11
-    }
-    if ( v201 )
-    {
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbp+120h+end+8]
-        vmovss  xmm0, dword ptr [rbp+120h+end]
-        vsubss  xmm1, xmm0, dword ptr [rbp+120h+start]
-        vmovss  xmm0, dword ptr [rbp+120h+end+4]
-      }
-      v189 = handler->__vftable;
-      __asm
-      {
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+4]
-        vaddss  xmm3, xmm2, dword ptr [rbp+120h+start]
-        vsubss  xmm0, xmm5, dword ptr [rbp+120h+start+8]
-        vmulss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rbp+120h+start], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rbp+120h+start+4]
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm2, xmm1, dword ptr [rbp+120h+start+8]
-        vaddss  xmm0, xmm5, cs:__real@41900000
-        vmovss  dword ptr [rbp+120h+start+4], xmm3
-        vaddss  xmm3, xmm2, cs:__real@41900000
-        vmovss  dword ptr [rbp+120h+start+8], xmm3
-        vmovss  dword ptr [rbp+120h+end+8], xmm0
-      }
-      v296 = passEntityNum;
-      v200 = v189->GetPhysicsWorldId((BgHandler *)handler);
-      PhysicsQuery_LegacyCapsuleTrace(v200, &results, &start, &end, &bounds, &v296, 1, contentMask, NULL, 0, NULL, NULL);
-      v201 = 0;
+      v83 = handler->__vftable;
+      start.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      start.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+      start.v[2] = (float)((float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2]) + 18.0;
+      end.v[2] = end.v[2] + 18.0;
+      v123 = passEntityNum;
+      v84 = v83->GetPhysicsWorldId((BgHandler *)handler);
+      PhysicsQuery_LegacyCapsuleTrace(v84, &results, &start, &end, &bounds, &v123, 1, contentMask, NULL, 0, NULL, NULL);
       if ( penetratedTouchEntReturn )
         *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
-      __asm
+      v82 = results.fraction;
+      if ( results.fraction < 1.0 )
+        goto LABEL_101;
+    }
+    v50 = (float)((float)(end.v[0] - start.v[0]) * v82) + start.v[0];
+    *(float *)&v51 = (float)((float)(end.v[1] - start.v[1]) * v82) + start.v[1];
+    v53 = (float)((float)(end.v[2] - start.v[2]) * v82) + start.v[2];
+  }
+  else
+  {
+    v72 = passEntityNum;
+  }
+  v85 = handler->__vftable;
+  end.v[2] = v53 - (float)((float)((float)(v53 - *(float *)&v70) * 2.0) + *(float *)&v124);
+  start.v[0] = v50;
+  start.v[1] = *(float *)&v51;
+  start.v[2] = v53;
+  end.v[0] = v50;
+  end.v[1] = *(float *)&v51;
+  v124 = v72;
+  v86 = v85->GetPhysicsWorldId((BgHandler *)handler);
+  PhysicsQuery_LegacyCapsuleTrace(v86, &results, &start, &end, &bounds, &v124, 1, contentMask, NULL, 0, NULL, NULL);
+  if ( penetratedTouchEntReturn )
+    *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
+  Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
+  if ( results.fraction != 1.0 )
+  {
+    if ( results.walkable )
+    {
+      v87 = vPos->v[0];
+      v88 = vPos->v[1];
+      v89 = LODWORD(vPos->v[2]);
+      v90 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      *(float *)&skipEntities = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+      v120 = (float)((float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2]) - 6.0;
+      if ( feetDirection == FEETDIR_BACK )
       {
-        vmovss  xmm6, [rbp+120h+results.fraction]
-        vcomiss xmm6, xmm11
+        vec.v[0] = v87 - v67;
+        v92 = v89;
+        *(float *)&v92 = *(float *)&v89 - *(float *)&v70;
+        v91 = v92;
+        v93 = v88 - v69;
       }
-      if ( v201 )
-        goto LABEL_95;
+      else
+      {
+        vec.v[0] = v67 - v87;
+        v94 = v70;
+        *(float *)&v94 = *(float *)&v70 - *(float *)&v89;
+        v91 = v94;
+        v93 = v69 - v88;
+      }
+      vec.v[2] = *(float *)&v91;
+      vec.v[1] = v93;
+      *(double *)&v91 = vectopitch(&vec);
+      v98 = v91;
+      _XMM2 = 0i64;
+      __asm { vroundss xmm2, xmm2, xmm1, 1 }
+      *(float *)&v98 = (float)((float)(*(float *)&v91 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+      _XMM6 = v98;
+      v99 = Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) && isAlreadyProne && Dvar_GetBool_Internal_DebugName(DVARBOOL_playerCharacterCollisionProneStuckFix, "playerCharacterCollisionProneStuckFix");
+      if ( *(float *)&v98 > 45.0 || *(float *)&v98 < -45.0 )
+      {
+        __asm { vmaxss  xmm0, xmm6, xmm0 }
+        if ( !v99 )
+          v18 = 0;
+        __asm { vminss  xmm6, xmm0, xmm1 }
+      }
+      v101 = *(float *)&skipEntities;
+      if ( feetDirection == FEETDIR_BACK )
+      {
+        vec.v[0] = v67 - v90;
+        v103 = v70;
+        *(float *)&v103 = *(float *)&v70 - v120;
+        v102 = v103;
+        v104 = v69 - *(float *)&skipEntities;
+      }
+      else
+      {
+        vec.v[0] = v90 - v67;
+        v105 = LODWORD(v120);
+        *(float *)&v105 = v120 - *(float *)&v70;
+        v102 = v105;
+        v104 = *(float *)&skipEntities - v69;
+      }
+      vec.v[2] = *(float *)&v102;
+      vec.v[1] = v104;
+      *(double *)&v102 = vectopitch(&vec);
+      v106 = v102;
+      _XMM3 = 0i64;
+      __asm { vroundss xmm3, xmm3, xmm0, 1 }
+      *(float *)&v106 = (float)((float)(*(float *)&v102 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      _XMM2 = v106;
+      __asm { vminss  xmm0, xmm2, xmm0 }
+      v111 = (float)(*(float *)&_XMM6 - *(float *)&_XMM0) * 0.0027777778;
+      v123 = _XMM0;
+      _XMM0 = 0i64;
+      __asm { vroundss xmm3, xmm0, xmm1, 1 }
+      v114 = (float)(v111 - *(float *)&_XMM3) * 360.0;
+      if ( (v114 < -50.0 || v114 > 70.0) && !v99 )
+        v18 = 0;
+      v115 = handler->__vftable;
+      bounds.halfSize.v[1] = 0.0;
+      bounds.halfSize.v[2] = 0.0;
+      *(_OWORD *)bounds.midPoint.v = 0i64;
+      start.v[0] = v87;
+      start.v[2] = *(float *)&v89 + 5.0;
+      end.v[2] = *(float *)&v70 + 5.0;
+      start.v[1] = v88;
+      end.v[0] = v67;
+      end.v[1] = v69;
+      v124 = v72;
+      v116 = v115->GetPhysicsWorldId((BgHandler *)handler);
+      PhysicsQuery_LegacyCapsuleTrace(v116, &results, &start, &end, &bounds, &v124, 1, contentMask, NULL, 0, NULL, NULL);
+      if ( penetratedTouchEntReturn )
+        *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
+      Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
+      start.v[2] = end.v[2];
+      if ( results.fraction < 1.0 )
+        v18 = 0;
+      v117 = handler->__vftable;
+      *(double *)start.v = *(double *)end.v;
+      end.v[2] = v120 + 5.0;
+      end.v[0] = v90;
+      end.v[1] = v101;
+      v124 = v72;
+      v118 = v117->GetPhysicsWorldId((BgHandler *)handler);
+      PhysicsQuery_LegacyCapsuleTrace(v118, &results, &start, &end, &bounds, &v124, 1, contentMask, NULL, 0, NULL, NULL);
+      if ( penetratedTouchEntReturn )
+        *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
+      Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
+      v65 = v127;
+      if ( results.fraction < 1.0 )
+        v18 = 0;
+      if ( v127 )
+        *v127 = *(float *)&_XMM6;
+      v64 = v126;
+      if ( v126 )
+        *v126 = *(float *)&v123;
+      if ( v18 )
+        return 1;
+      goto $fail;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+120h+end]
-      vsubss  xmm1, xmm0, dword ptr [rbp+120h+start]
-      vmovss  xmm0, dword ptr [rbp+120h+end+4]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+4]
-      vaddss  xmm9, xmm2, dword ptr [rbp+120h+start]
-      vmovss  xmm0, dword ptr [rbp+120h+end+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+8]
-      vaddss  xmm10, xmm2, dword ptr [rbp+120h+start+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm7, xmm2, dword ptr [rbp+120h+start+8]
-    }
+    goto LABEL_65;
   }
-  else
-  {
-    v141 = passEntityNum;
-  }
-  v212 = handler->__vftable;
-  __asm
-  {
-    vsubss  xmm0, xmm7, xmm12
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vaddss  xmm2, xmm1, [rsp+220h+var_1A8]
-    vsubss  xmm3, xmm7, xmm2
-    vmovss  dword ptr [rbp+120h+end+8], xmm3
-    vmovss  dword ptr [rbp+120h+start], xmm9
-    vmovss  dword ptr [rbp+120h+start+4], xmm10
-    vmovss  dword ptr [rbp+120h+start+8], xmm7
-    vmovss  dword ptr [rbp+120h+end], xmm9
-    vmovss  dword ptr [rbp+120h+end+4], xmm10
-  }
-  v297 = v141;
-  v217 = v212->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v217, &results, &start, &end, &bounds, &v297, 1, contentMask, NULL, 0, NULL, NULL);
-  if ( penetratedTouchEntReturn )
-    *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
-  Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
-  __asm
-  {
-    vmovss  xmm5, [rbp+120h+results.fraction]
-    vucomiss xmm5, xmm11
-  }
-  if ( v248 )
-  {
-LABEL_95:
-    _RAX = v299;
-    _RCX = v300;
-    goto $fail;
-  }
-  if ( !results.walkable )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+end]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start]
-    vmovss  xmm0, dword ptr [rbp+120h+end+4]
-    vmovss  xmm7, dword ptr [r12]
-    vmovss  xmm8, dword ptr [r12+4]
-    vmovss  xmm9, dword ptr [r12+8]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+4]
-    vaddss  xmm10, xmm2, dword ptr [rbp+120h+start]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rbp+120h+start+4]
-    vmovss  [rsp+220h+var_1B8], xmm0
-    vmovss  xmm0, dword ptr [rbp+120h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rbp+120h+start+8]
-    vsubss  xmm0, xmm3, xmm13
-    vmovss  [rsp+220h+var_1C0], xmm0
-  }
-  if ( feetDirection == FEETDIR_BACK )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm7, xmm14
-      vmovss  dword ptr [rbp+120h+vec], xmm0
-      vsubss  xmm0, xmm9, xmm12
-      vsubss  xmm1, xmm8, xmm15
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm14, xmm7
-      vmovss  dword ptr [rbp+120h+vec], xmm0
-      vsubss  xmm0, xmm12, xmm9
-      vsubss  xmm1, xmm15, xmm8
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbp+120h+vec+8], xmm0
-    vmovss  dword ptr [rbp+120h+vec+4], xmm1
-  }
-  *(double *)&_XMM0 = vectopitch(&vec);
-  __asm
-  {
-    vmulss  xmm3, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm6, xmm0, cs:__real@43b40000
-  }
-  if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) && isAlreadyProne && (Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_playerCharacterCollisionProneStuckFix, "playerCharacterCollisionProneStuckFix"), v248 = !Bool_Internal_DebugName, Bool_Internal_DebugName) )
-  {
-    v249 = 1;
-  }
-  else
-  {
-    v249 = 0;
-    v248 = 1;
-  }
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42340000
-    vcomiss xmm6, xmm1
-    vmovss  xmm0, cs:__real@c2340000
-  }
-  if ( v248 )
-  {
-    __asm { vcomiss xmm6, xmm0 }
-  }
-  else
-  {
-    __asm { vmaxss  xmm0, xmm6, xmm0 }
-    if ( !v249 )
-      v30 = 0;
-    __asm { vminss  xmm6, xmm0, xmm1 }
-  }
-  __asm { vmovss  xmm13, [rsp+220h+var_1B8] }
-  if ( feetDirection == FEETDIR_BACK )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm14, xmm10
-      vmovss  dword ptr [rbp+120h+vec], xmm0
-      vsubss  xmm0, xmm12, [rsp+220h+var_1C0]
-      vsubss  xmm1, xmm15, xmm13
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm10, xmm14
-      vmovss  dword ptr [rbp+120h+vec], xmm0
-      vmovss  xmm0, [rsp+220h+var_1C0]
-      vsubss  xmm0, xmm0, xmm12
-      vsubss  xmm1, xmm13, xmm15
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbp+120h+vec+8], xmm0
-    vmovss  dword ptr [rbp+120h+vec+4], xmm1
-  }
-  *(double *)&_XMM0 = vectopitch(&vec);
-  __asm
-  {
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm0, xmm1, xmm2
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm0, 1
-    vaddss  xmm0, xmm6, cs:__real@41200000
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm2, xmm1, cs:__real@43b40000
-    vminss  xmm0, xmm2, xmm0
-    vsubss  xmm1, xmm6, xmm0
-    vmulss  xmm4, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vmovss  [rsp+220h+var_1B0], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm2
-    vroundss xmm3, xmm0, xmm1, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vcomiss xmm1, cs:__real@c2480000
-  }
-  if ( v259 )
-    goto LABEL_79;
-  __asm { vcomiss xmm1, cs:__real@428c0000 }
-  if ( !(v259 | v260) )
-  {
-LABEL_79:
-    if ( !v249 )
-      v30 = 0;
-  }
-  v279 = handler->__vftable;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+120h+bounds.halfSize+4], xmm0
-    vmovss  dword ptr [rbp+120h+bounds.halfSize+8], xmm0
-    vmovups xmmword ptr [rbp+120h+bounds.midPoint], xmm0
-    vmovss  dword ptr [rbp+120h+start], xmm7
-    vmovss  xmm7, cs:__real@40a00000
-    vaddss  xmm0, xmm9, xmm7
-    vmovss  dword ptr [rbp+120h+start+8], xmm0
-    vaddss  xmm0, xmm12, xmm7
-    vmovss  dword ptr [rbp+120h+end+8], xmm0
-    vmovss  dword ptr [rbp+120h+start+4], xmm8
-    vmovss  dword ptr [rbp+120h+end], xmm14
-    vmovss  dword ptr [rbp+120h+end+4], xmm15
-  }
-  v297 = v141;
-  v284 = v279->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v284, &results, &start, &end, &bounds, &v297, 1, contentMask, NULL, 0, NULL, NULL);
-  if ( penetratedTouchEntReturn )
-    *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
-  Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
-  __asm
-  {
-    vmovss  xmm0, [rbp+120h+results.fraction]
-    vcomiss xmm0, xmm11
-    vmovsd  xmm0, qword ptr [rbp+120h+end]
-  }
-  start.v[2] = end.v[2];
-  if ( v201 )
-    v30 = 0;
-  v287 = handler->__vftable;
-  __asm
-  {
-    vmovsd  qword ptr [rbp+120h+start], xmm0
-    vaddss  xmm0, xmm7, [rsp+220h+var_1C0]
-    vmovss  dword ptr [rbp+120h+end+8], xmm0
-    vmovss  dword ptr [rbp+120h+end], xmm10
-    vmovss  dword ptr [rbp+120h+end+4], xmm13
-  }
-  v297 = v141;
-  v289 = v287->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v289, &results, &start, &end, &bounds, &v297, 1, contentMask, NULL, 0, NULL, NULL);
-  if ( penetratedTouchEntReturn )
-    *penetratedTouchEntReturn = Trace_GetEntityHitId(&results);
-  Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_debugProne, "bg_debugProne");
-  __asm { vmovss  xmm0, [rbp+120h+results.fraction] }
-  _RCX = v300;
-  __asm { vcomiss xmm0, xmm11 }
-  if ( v201 )
-    v30 = 0;
-  if ( v300 )
-    __asm { vmovss  dword ptr [rcx], xmm6 }
-  _RAX = v299;
-  if ( v299 )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+220h+var_1B0]
-      vmovss  dword ptr [rax], xmm0
-    }
-  }
-  if ( v30 )
-    goto LABEL_101;
-$fail:
-  if ( !isOnGround )
-  {
-    if ( _RCX )
-      *_RCX = 0.0;
-    if ( _RAX )
-      *_RAX = 0.0;
 LABEL_101:
-    result = 1;
-    goto LABEL_35;
-  }
-LABEL_34:
-  result = 0;
-LABEL_35:
-  __asm
-  {
-    vmovaps xmm15, [rsp+220h+var_C8+8]
-    vmovaps xmm14, [rsp+220h+var_B8+8]
-    vmovaps xmm13, xmmword ptr [rsp+220h+var_A8+8]
-    vmovaps xmm11, [rsp+220h+var_88+8]
-    vmovaps xmm10, [rsp+220h+var_78+8]
-    vmovaps xmm9, [rsp+220h+var_68+8]
-    vmovaps xmm8, [rsp+220h+var_58+8]
-    vmovaps xmm7, xmmword ptr [rsp+220h+var_48+8]
-  }
-  _R11 = &v315;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
-  return result;
+  v64 = v126;
+  v65 = v127;
+$fail:
+  if ( isOnGround )
+    return 0;
+  if ( v65 )
+    *v65 = 0.0;
+  if ( v64 )
+    *v64 = 0.0;
+  return 1;
 }
 
 /*
@@ -2956,16 +2607,35 @@ LABEL_35:
 BG_CheckProne_AdjustAngles
 ==============
 */
-
-void __fastcall BG_CheckProne_AdjustAngles(int passEntityNum, const vec3_t *vPos, const float fSize, double fHeight, const float fYaw, float *pfTorsoPitch, float *pfWaistPitch, int isAlreadyProne, int isOnGround, int groundIsWalkable, const BgHandler *handler, Physics_WorldId worldId, proneCheckType_t proneCheckType, float prone_feet_dist, FeetDirection feetDirection, int *penetratedTouchEntReturn)
+void BG_CheckProne_AdjustAngles(int passEntityNum, const vec3_t *vPos, const float fSize, const float fHeight, const float fYaw, float *pfTorsoPitch, float *pfWaistPitch, int isAlreadyProne, int isOnGround, int groundIsWalkable, const BgHandler *handler, Physics_WorldId worldId, proneCheckType_t proneCheckType, float prone_feet_dist, FeetDirection feetDirection, int *penetratedTouchEntReturn)
 {
   int contentMask; 
-  BgHandler_vtbl *v52; 
-  Physics_WorldId v53; 
-  BgHandler_vtbl *v71; 
-  Physics_WorldId v81; 
-  char v119; 
-  char v120; 
+  float v24; 
+  float v25; 
+  BgHandler_vtbl *v26; 
+  Physics_WorldId v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  BgHandler_vtbl *v32; 
+  float v33; 
+  Physics_WorldId v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  double v42; 
+  float v45; 
+  float v46; 
+  float v47; 
+  double v48; 
+  float v50; 
+  float v52; 
+  float v53; 
   int skipEntities; 
   vec3_t start; 
   vec3_t end; 
@@ -2973,28 +2643,7 @@ void __fastcall BG_CheckProne_AdjustAngles(int passEntityNum, const vec3_t *vPos
   vec3_t forward; 
   Bounds bounds; 
   trace_t results; 
-  char v163; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _ER14 = feetDirection;
-  _RBX = vPos;
-  _RSI = pfTorsoPitch;
-  _RDI = pfWaistPitch;
-  __asm { vmovaps xmm7, xmm3 }
   if ( (unsigned int)feetDirection >= FEETDIR_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3314, ASSERT_TYPE_ASSERT, "(unsigned)( feetDirection ) < (unsigned)( FEETDIR_COUNT )", "feetDirection doesn't index FEETDIR_COUNT\n\t%i not in [0, %i)", feetDirection, 2) )
     __debugbreak();
   if ( penetratedTouchEntReturn )
@@ -3006,262 +2655,103 @@ void __fastcall BG_CheckProne_AdjustAngles(int passEntityNum, const vec3_t *vPos
     *pfTorsoPitch = 0.0;
   if ( pfWaistPitch )
     *pfWaistPitch = 0.0;
+  _XMM4 = LODWORD(fYaw);
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  _XMM0 = (unsigned int)feetDirection;
   __asm
   {
-    vmovups xmm0, cs:__xmm@40c00000000000000000000000000000
-    vmovss  xmm4, [rbp+0F0h+fYaw]
-    vsubss  xmm3, xmm4, cs:__real@43340000
-    vmovss  xmm8, cs:__real@40c00000
-    vmovups xmmword ptr [rbp+0F0h+bounds.midPoint], xmm0
-    vmovd   xmm0, r14d
-  }
-  _EAX = 1;
-  __asm
-  {
-    vmovd   xmm1, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm4, xmm3, xmm2; yaw
-    vmovss  dword ptr [rbp+0F0h+bounds.halfSize+4], xmm8
-    vmovss  dword ptr [rbp+0F0h+bounds.halfSize+8], xmm8
   }
+  bounds.halfSize.v[1] = FLOAT_6_0;
+  bounds.halfSize.v[2] = FLOAT_6_0;
   YawVectors(*(float *)&_XMM0, &forward, NULL);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41900000
-    vmulss  xmm1, xmm2, dword ptr [rbp+0F0h+forward]
-    vaddss  xmm4, xmm1, dword ptr [rbx]
-    vmulss  xmm1, xmm2, dword ptr [rbp+0F0h+forward+4]
-    vaddss  xmm3, xmm1, dword ptr [rbx+4]
-    vmulss  xmm1, xmm2, dword ptr [rbp+0F0h+forward+8]
-    vaddss  xmm2, xmm1, dword ptr [rbx+8]
-    vaddss  xmm0, xmm2, xmm7
-    vsubss  xmm1, xmm2, xmm7
-    vmovss  dword ptr [rsp+1F0h+start+8], xmm0
-    vmovss  dword ptr [rbp+0F0h+end+8], xmm1
-    vmovss  dword ptr [rsp+1F0h+start], xmm4
-    vmovss  dword ptr [rsp+1F0h+start+4], xmm3
-    vmovss  dword ptr [rsp+1F0h+end], xmm4
-    vmovss  dword ptr [rsp+1F0h+end+4], xmm3
-  }
+  v24 = (float)(18.0 * forward.v[0]) + vPos->v[0];
+  v25 = (float)(18.0 * forward.v[1]) + vPos->v[1];
+  *(float *)&_XMM2 = (float)(18.0 * forward.v[2]) + vPos->v[2];
+  start.v[2] = *(float *)&_XMM2 + fHeight;
+  end.v[2] = *(float *)&_XMM2 - fHeight;
+  start.v[0] = v24;
+  start.v[1] = v25;
+  end.v[0] = v24;
+  end.v[1] = v25;
   Physics_GetLocalClientForWorld(worldId);
-  v52 = handler->__vftable;
+  v26 = handler->__vftable;
   skipEntities = passEntityNum;
-  v53 = v52->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v53, &results, &start, &end, &bounds, &skipEntities, 1, contentMask, NULL, 0, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm5, [rbp+0F0h+results.fraction]
-    vmovss  xmm0, dword ptr [rsp+1F0h+end]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+start]
-    vmovss  xmm0, dword ptr [rsp+1F0h+end+4]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm12, xmm1, dword ptr [rsp+1F0h+start]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+start+4]
-    vmovss  xmm0, dword ptr [rbp+0F0h+end+8]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+start+8]
-    vaddss  xmm13, xmm2, dword ptr [rsp+1F0h+start+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rsp+1F0h+start+8]
-    vsubss  xmm6, xmm3, xmm8
-  }
+  v27 = v26->GetPhysicsWorldId((BgHandler *)handler);
+  PhysicsQuery_LegacyCapsuleTrace(v27, &results, &start, &end, &bounds, &skipEntities, 1, contentMask, NULL, 0, NULL, NULL);
+  v28 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+  v29 = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+  v30 = (float)((float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2]) - 6.0;
   if ( *(_WORD *)&results.allsolid )
-  {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+8]
-      vmovaps xmm5, xmm6
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm5, dword ptr [rbx+8] }
-  }
-  __asm { vmovss  xmm0, [rbp+0F0h+prone_feet_dist] }
-  v71 = handler->__vftable;
-  __asm
-  {
-    vsubss  xmm4, xmm0, xmm8
-    vmulss  xmm2, xmm4, dword ptr [rbp+0F0h+forward]
-    vaddss  xmm3, xmm2, dword ptr [rbx]
-    vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+forward+4]
-    vaddss  xmm2, xmm1, dword ptr [rbx+4]
-    vmulss  xmm1, xmm4, dword ptr [rbp+0F0h+forward+8]
-    vmovss  dword ptr [rsp+1F0h+start+4], xmm2
-    vmovss  dword ptr [rsp+1F0h+end+4], xmm2
-    vaddss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rsp+1F0h+start], xmm3
-    vmovss  dword ptr [rsp+1F0h+end], xmm3
-    vaddss  xmm3, xmm2, xmm7
-    vsubss  xmm0, xmm6, xmm7
-    vmovss  dword ptr [rsp+1F0h+start+8], xmm3
-    vmovss  dword ptr [rbp+0F0h+end+8], xmm0
-  }
+    v30 = vPos->v[2];
+  v31 = vPos->v[2];
+  v32 = handler->__vftable;
+  v33 = (float)((float)(prone_feet_dist - 6.0) * forward.v[0]) + vPos->v[0];
+  start.v[1] = (float)((float)(prone_feet_dist - 6.0) * forward.v[1]) + vPos->v[1];
+  end.v[1] = start.v[1];
+  start.v[0] = v33;
+  end.v[0] = v33;
+  start.v[2] = (float)((float)((float)(prone_feet_dist - 6.0) * forward.v[2]) + v31) + fHeight;
+  end.v[2] = v30 - fHeight;
   skipEntities = passEntityNum;
-  v81 = v71->GetPhysicsWorldId((BgHandler *)handler);
-  PhysicsQuery_LegacyCapsuleTrace(v81, &results, &start, &end, &bounds, &skipEntities, 1, contentMask, NULL, 0, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm5, [rbp+0F0h+results.fraction]
-    vmovss  xmm0, dword ptr [rsp+1F0h+end]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+start]
-    vmovss  xmm0, dword ptr [rsp+1F0h+end+4]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm15, xmm1, dword ptr [rsp+1F0h+start]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+start+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rsp+1F0h+start+4]
-    vmovss  [rsp+1F0h+var_190], xmm0
-    vmovss  xmm0, dword ptr [rbp+0F0h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+start+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rsp+1F0h+start+8]
-    vsubss  xmm14, xmm3, xmm8
-  }
+  v34 = v32->GetPhysicsWorldId((BgHandler *)handler);
+  PhysicsQuery_LegacyCapsuleTrace(v34, &results, &start, &end, &bounds, &skipEntities, 1, contentMask, NULL, 0, NULL, NULL);
+  v35 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+  *(float *)&skipEntities = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+  v36 = (float)((float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2]) - 6.0;
+  v37 = vPos->v[2];
   if ( *(_WORD *)&results.allsolid )
-  {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+8]
-      vmovaps xmm14, xmm2
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm2, dword ptr [rbx+8] }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
+    v36 = vPos->v[2];
+  v38 = vPos->v[0];
+  v39 = vPos->v[1];
   if ( feetDirection == FEETDIR_BACK )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm12
-      vmovss  dword ptr [rbp+0F0h+vec], xmm0
-      vsubss  xmm0, xmm2, xmm6
-      vsubss  xmm1, xmm1, xmm13
-    }
+    vec.v[0] = v38 - v28;
+    v40 = v37 - v30;
+    v41 = v39 - v29;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm12, xmm0
-      vmovss  dword ptr [rbp+0F0h+vec], xmm0
-      vsubss  xmm0, xmm6, xmm2
-      vsubss  xmm1, xmm13, xmm1
-    }
+    vec.v[0] = v28 - v38;
+    v40 = v30 - v37;
+    v41 = v29 - v39;
   }
-  __asm
-  {
-    vmovss  dword ptr [rbp+0F0h+vec+8], xmm0
-    vmovss  dword ptr [rbp+0F0h+vec+4], xmm1
-  }
-  *(double *)&_XMM0 = vectopitch(&vec);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3b360b61
-    vmovss  xmm9, cs:__real@3f000000
-    vmovss  xmm10, cs:__real@43b40000
-    vmulss  xmm3, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm3, xmm9
-    vmovss  xmm1, xmm0, xmm1
-    vxorps  xmm8, xmm8, xmm8
-    vroundss xmm2, xmm8, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm11, xmm0, xmm10
-  }
+  vec.v[2] = v40;
+  vec.v[1] = v41;
+  v42 = vectopitch(&vec);
+  _XMM8 = 0i64;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  v45 = (float)((float)(*(float *)&v42 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
   if ( feetDirection == FEETDIR_BACK )
   {
-    __asm
-    {
-      vsubss  xmm1, xmm13, [rsp+1F0h+var_190]
-      vsubss  xmm0, xmm12, xmm15
-      vmovss  dword ptr [rbp+0F0h+vec], xmm0
-      vsubss  xmm0, xmm6, xmm14
-    }
+    v46 = v29 - *(float *)&skipEntities;
+    vec.v[0] = v28 - v35;
+    v47 = v30 - v36;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, [rsp+1F0h+var_190]
-      vsubss  xmm0, xmm15, xmm12
-      vmovss  dword ptr [rbp+0F0h+vec], xmm0
-      vsubss  xmm0, xmm14, xmm6
-      vsubss  xmm1, xmm1, xmm13
-    }
+    vec.v[0] = v35 - v28;
+    v47 = v36 - v30;
+    v46 = *(float *)&skipEntities - v29;
   }
-  __asm
+  vec.v[2] = v47;
+  vec.v[1] = v46;
+  v48 = vectopitch(&vec);
+  __asm { vroundss xmm3, xmm8, xmm0, 1 }
+  v50 = (float)((float)(*(float *)&v48 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  __asm { vroundss xmm3, xmm8, xmm0, 1 }
+  v52 = FLOAT_N50_0;
+  v53 = (float)((float)((float)(v45 - v50) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  if ( v53 < -50.0 || (v52 = FLOAT_70_0, v53 > 70.0) )
   {
-    vmovss  dword ptr [rbp+0F0h+vec+8], xmm0
-    vmovss  dword ptr [rbp+0F0h+vec+4], xmm1
-  }
-  *(double *)&_XMM0 = vectopitch(&vec);
-  __asm
-  {
-    vmulss  xmm4, xmm0, xmm7
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm4, xmm9
-    vmovss  xmm0, xmm1, xmm2
-    vroundss xmm3, xmm8, xmm0, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm5, xmm1, xmm10
-    vsubss  xmm0, xmm11, xmm5
-    vmulss  xmm4, xmm0, xmm7
-    vaddss  xmm2, xmm4, xmm9
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm0, xmm1, xmm2
-    vroundss xmm3, xmm8, xmm0, 1
-    vmovss  xmm0, cs:__real@c2480000
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm2, xmm1, xmm10
-    vcomiss xmm2, xmm0
-  }
-  if ( v119 )
-    goto LABEL_26;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@428c0000
-    vcomiss xmm2, xmm0
-  }
-  if ( !(v119 | v120) )
-  {
-LABEL_26:
-    __asm
-    {
-      vsubss  xmm0, xmm11, xmm0
-      vmulss  xmm4, xmm0, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm4, xmm9
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm8, xmm0, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm5, xmm1, xmm10
-    }
+    __asm { vroundss xmm3, xmm8, xmm0, 1 }
+    v50 = (float)((float)((float)(v45 - v52) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
   }
   if ( pfTorsoPitch )
-    __asm { vmovss  dword ptr [rsi], xmm11 }
+    *pfTorsoPitch = v45;
   if ( pfWaistPitch )
-    __asm { vmovss  dword ptr [rdi], xmm5 }
-  _R11 = &v163;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+    *pfWaistPitch = v50;
 }
 
 /*
@@ -3520,7 +3010,7 @@ BG_CopyEvent
 void BG_CopyEvent(BgWeaponMap *dstWeaponMap, EntityEvent *dstEvent, const BgWeaponMap *srcWeaponMap, const EntityEvent *srcEvent)
 {
   __int64 eventType; 
-  __int64 v13; 
+  __int64 v9; 
   Weapon r_weapon; 
 
   if ( !dstWeaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1194, ASSERT_TYPE_ASSERT, "(dstWeaponMap)", (const char *)&queryFormat, "dstWeaponMap") )
@@ -3537,25 +3027,15 @@ void BG_CopyEvent(BgWeaponMap *dstWeaponMap, EntityEvent *dstEvent, const BgWeap
   eventType = srcEvent->eventType;
   if ( (unsigned int)eventType >= 0xE3 )
   {
-    LODWORD(v13) = srcEvent->eventType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1147, ASSERT_TYPE_ASSERT, "(unsigned)( eventType ) < (unsigned)( ( sizeof( *array_counter( s_bgEventParmType ) ) + 0 ) )", "eventType doesn't index ARRAY_COUNT( s_bgEventParmType )\n\t%i not in [0, %i)", v13, 227) )
+    LODWORD(v9) = srcEvent->eventType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1147, ASSERT_TYPE_ASSERT, "(unsigned)( eventType ) < (unsigned)( ( sizeof( *array_counter( s_bgEventParmType ) ) + 0 ) )", "eventType doesn't index ARRAY_COUNT( s_bgEventParmType )\n\t%i not in [0, %i)", v9, 227) )
       __debugbreak();
   }
   if ( s_bgEventParmType[eventType] == EVENT_PARAM_WEAPON )
   {
     if ( !srcWeaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 478, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    _RAX = BgWeaponMap::GetWeapon((BgWeaponMap *)srcWeaponMap, (BgWeaponHandle)srcEvent->eventParm);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0C8h+r_weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0C8h+r_weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+0C8h+r_weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    r_weapon = *BgWeaponMap::GetWeapon((BgWeaponMap *)srcWeaponMap, (BgWeaponHandle)srcEvent->eventParm);
     BG_SetWeaponForEntityEventParm(dstWeaponMap, &dstEvent->eventParm, &r_weapon);
   }
   else
@@ -5995,82 +5475,51 @@ __int64 BG_GetBotsTeamLimit(int relativeTeam)
 BG_GetCardinalYawOfIncomingVector
 ==============
 */
-
-float __fastcall BG_GetCardinalYawOfIncomingVector(const vec3_t *targetAngles, const vec3_t *incomingVector, double cosineDividingAngle)
+float BG_GetCardinalYawOfIncomingVector(const vec3_t *targetAngles, const vec3_t *incomingVector, float cosineDividingAngle)
 {
-  char v15; 
-  double v31; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  float v8; 
+  float v9; 
+  double v10; 
   float c; 
   float s; 
   vec2_t vec; 
   vec3_t forward; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  _RBX = incomingVector;
-  __asm { vmovaps xmm6, xmm2 }
   AngleVectors(targetAngles, &forward, NULL, NULL);
-  __asm
+  v4 = incomingVector->v[1];
+  v5 = incomingVector->v[0];
+  v6 = (float)(incomingVector->v[0] * forward.v[0]) + (float)(v4 * forward.v[1]);
+  if ( (float)(v6 * v6) >= (float)(cosineDividingAngle * cosineDividingAngle) )
   {
-    vmovss  xmm3, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx]
-    vmovss  xmm7, dword ptr [rsp+78h+forward]
-    vmulss  xmm0, xmm3, dword ptr [rsp+78h+forward+4]
-    vmulss  xmm1, xmm4, xmm7
-    vaddss  xmm5, xmm1, xmm0
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vcomiss xmm2, xmm1
-  }
-  if ( v15 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm4, dword ptr [rsp+78h+forward+4]
-      vmulss  xmm1, xmm3, xmm7
-      vsubss  xmm2, xmm1, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm2, xmm0
-    }
+    v7 = 2;
+    if ( v6 < 0.0 )
+      v7 = 0;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm5, xmm0
-    }
+    v7 = 3;
+    if ( (float)((float)(v4 * forward.v[0]) - (float)(v5 * forward.v[1])) > 0.0 )
+      v7 = 1;
   }
-  __asm
+  LODWORD(v8) = LODWORD(v5) ^ _xmm;
+  LODWORD(v9) = LODWORD(v4) ^ _xmm;
+  if ( v7 )
   {
-    vxorps  xmm6, xmm4, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm7, xmm3, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3fc90fdb; radians
+    FastSinCos((float)v7 * 1.5707964, &s, &c);
+    vec.v[0] = (float)(v8 * c) - (float)(v9 * s);
+    vec.v[1] = (float)(v8 * s) + (float)(v9 * c);
   }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
+  else
   {
-    vmulss  xmm1, xmm6, [rsp+78h+c]
-    vmulss  xmm0, xmm7, [rsp+78h+s]
-    vmulss  xmm2, xmm6, [rsp+78h+s]
-    vsubss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm7, [rsp+78h+c]
-    vmovss  dword ptr [rsp+78h+vec], xmm1
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rsp+78h+vec+4], xmm1
+    LODWORD(vec.v[0]) = LODWORD(v5) ^ _xmm;
+    LODWORD(vec.v[1]) = LODWORD(v4) ^ _xmm;
   }
-  v31 = vectoyaw(&vec);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return *(float *)&v31;
+  v10 = vectoyaw(&vec);
+  return *(float *)&v10;
 }
 
 /*
@@ -6115,26 +5564,28 @@ BG_GetEdgePhysicsProxyAsset
 */
 const PhysicsAsset *BG_GetEdgePhysicsProxyAsset(const BgHandler *const handler, const entityState_t *const es)
 {
+  __int128 v2; 
   cmodel_t *v5; 
   signed int v6; 
   unsigned int v7; 
-  const dvar_t *v9; 
+  const dvar_t *v8; 
   unsigned int EdgeIndex; 
-  unsigned int v11; 
-  unsigned int v13; 
-  unsigned int v19; 
-  __int64 v25; 
-  const dvar_t *v36; 
+  unsigned int v10; 
+  __m128 *v11; 
+  unsigned int v12; 
+  unsigned int v17; 
+  float4 *v18; 
+  __int64 v22; 
+  const dvar_t *v23; 
   bool enabled; 
-  BG_GetEdgePhysicsProxyAsset::__l2::EdgeProxy *v38; 
-  bool v39; 
-  int v40; 
-  __int64 v44; 
-  XAssetHeader v45; 
-  XAssetHeader v47; 
-  double v49; 
+  BG_GetEdgePhysicsProxyAsset::__l2::EdgeProxy *v25; 
+  int v26; 
+  float *p_radiusSq; 
+  __int64 v28; 
+  XAssetHeader v29; 
   EdgeId edgeId; 
   float4 r_outLineSegment[2]; 
+  __int128 v33; 
 
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 657, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
@@ -6149,178 +5600,130 @@ const PhysicsAsset *BG_GetEdgePhysicsProxyAsset(const BgHandler *const handler, 
     return 0i64;
   v6 = 0;
   v7 = 0;
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_48], xmm6
-    vmovss  xmm6, cs:__real@ff7fffff
-  }
+  v33 = v2;
   do
   {
     if ( MapEdgeList_GetListIndex(v7 + v5->edgeFirstIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 679, ASSERT_TYPE_ASSERT, "(MapEdgeList_GetListIndex( index ) == TRANSIENT_ZONE_ALWAYSLOADED)", (const char *)&queryFormat, "MapEdgeList_GetListIndex( index ) == TRANSIENT_ZONE_ALWAYSLOADED") )
       __debugbreak();
     EdgeId::Set(&edgeId, v7, es->number);
-    v9 = DVARBOOL_killswitch_edge_patch_proxy_fix_enabled;
+    v8 = DVARBOOL_killswitch_edge_patch_proxy_fix_enabled;
     if ( !DVARBOOL_killswitch_edge_patch_proxy_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_edge_patch_proxy_fix_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    if ( v9->current.enabled )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled )
     {
       if ( !EdgeId::GetIsDynamic(&edgeId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 687, ASSERT_TYPE_SANITY, "( edgeId.GetIsDynamic() )", (const char *)&queryFormat, "edgeId.GetIsDynamic()") )
         __debugbreak();
       EdgeIndex = EdgeId::GetEdgeIndex(&edgeId);
       if ( MapEdgeList_GetListIndex(EdgeIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 688, ASSERT_TYPE_ASSERT, "(MapEdgeList_GetListIndex( edgeId.GetEdgeIndex() ) == TRANSIENT_ZONE_ALWAYSLOADED)", (const char *)&queryFormat, "MapEdgeList_GetListIndex( edgeId.GetEdgeIndex() ) == TRANSIENT_ZONE_ALWAYSLOADED") )
         __debugbreak();
-      v11 = EdgeId::GetEdgeIndex(&edgeId);
-      _RAX = MapEdgeList_LookupSegment(v11);
-      v13 = 0;
+      v10 = EdgeId::GetEdgeIndex(&edgeId);
+      v11 = (__m128 *)MapEdgeList_LookupSegment(v10);
+      v12 = 0;
       do
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmulps  xmm1, xmm0, xmm0
-          vhaddps xmm2, xmm1, xmm1
-        }
-        ++v13;
-        _RAX = (const float4 (*)[2])((char *)_RAX + 16);
+        _XMM1 = _mm128_mul_ps(*v11, *v11);
+        __asm { vhaddps xmm2, xmm1, xmm1 }
+        ++v12;
+        ++v11;
         __asm
         {
           vhaddps xmm0, xmm2, xmm2
           vmaxss  xmm6, xmm0, xmm6
         }
       }
-      while ( v13 < 2 );
+      while ( v12 < 2 );
     }
     else
     {
       Edge_GetLineSegment(handler, edgeId, (float4 (*)[2])r_outLineSegment);
-      v19 = 0;
-      _RCX = r_outLineSegment;
+      v17 = 0;
+      v18 = r_outLineSegment;
       do
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmulps  xmm1, xmm0, xmm0
-          vhaddps xmm2, xmm1, xmm1
-        }
-        ++v19;
-        ++_RCX;
+        _XMM1 = _mm128_mul_ps(v18->v, v18->v);
+        __asm { vhaddps xmm2, xmm1, xmm1 }
+        ++v17;
+        ++v18;
         __asm
         {
           vhaddps xmm0, xmm2, xmm2
           vmaxss  xmm6, xmm0, xmm6
         }
       }
-      while ( v19 < 2 );
+      while ( v17 < 2 );
     }
     ++v7;
   }
   while ( v7 < v5->edgeTotalCount );
-  v25 = tls_index;
+  v22 = tls_index;
   if ( dword_14BB3414C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14BB3414C);
     if ( dword_14BB3414C == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@45800000
-        vmovss  xmm1, cs:__real@47000000
-        vmovss  cs:s_edgeProxiesLegacy.radiusSq, xmm0
-        vmovss  xmm0, cs:__real@4a000000
-        vmovss  cs:s_edgeProxiesLegacy.radiusSq+10h, xmm1
-        vmovss  xmm1, cs:__real@4d000000
-      }
+      s_edgeProxiesLegacy[0].radiusSq = FLOAT_4096_0;
+      s_edgeProxiesLegacy[1].radiusSq = FLOAT_32768_0;
       s_edgeProxiesLegacy[0].assetName = "havok_test_cube_32";
-      __asm
-      {
-        vmovss  cs:s_edgeProxiesLegacy.radiusSq+20h, xmm0
-        vmovss  cs:s_edgeProxiesLegacy.radiusSq+30h, xmm1
-      }
+      s_edgeProxiesLegacy[2].radiusSq = FLOAT_2097152_0;
+      s_edgeProxiesLegacy[3].radiusSq = FLOAT_1_3421773e8;
       s_edgeProxiesLegacy[1].assetName = "havok_test_cube_64";
       s_edgeProxiesLegacy[2].assetName = "havok_test_cube_256";
       s_edgeProxiesLegacy[3].assetName = "havok_test_cube_1024";
       j__Init_thread_footer(&dword_14BB3414C);
     }
   }
-  if ( dword_14BB341C4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v25) + 1772i64) )
+  if ( dword_14BB341C4 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v22) + 1772i64) )
   {
     j__Init_thread_header(&dword_14BB341C4);
     if ( dword_14BB341C4 == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@43800000
-        vmovss  xmm1, cs:__real@44800000
-        vmovss  cs:s_edgeProxies.radiusSq, xmm0
-        vmovss  xmm0, cs:__real@46800000
-        vmovss  cs:s_edgeProxies.radiusSq+20h, xmm0
-        vmovss  xmm0, cs:__real@49800000
-      }
+      s_edgeProxies[0].radiusSq = FLOAT_256_0;
+      s_edgeProxies[2].radiusSq = FLOAT_16384_0;
       s_edgeProxies[0].assetName = "havok_test_cube_32";
-      __asm
-      {
-        vmovss  cs:s_edgeProxies.radiusSq+40h, xmm0
-        vmovss  xmm0, cs:__real@4a800000
-        vmovss  cs:s_edgeProxies.radiusSq+10h, xmm1
-        vmovss  xmm1, cs:__real@48800000
-      }
+      s_edgeProxies[4].radiusSq = FLOAT_1048576_0;
+      s_edgeProxies[1].radiusSq = FLOAT_1024_0;
       s_edgeProxies[4].assetName = "havok_test_cube_2048";
       s_edgeProxies[1].assetName = "havok_test_cube_64";
-      __asm
-      {
-        vmovss  cs:s_edgeProxies.radiusSq+50h, xmm0
-        vmovss  cs:s_edgeProxies.radiusSq+30h, xmm1
-      }
+      s_edgeProxies[5].radiusSq = FLOAT_4194304_0;
+      s_edgeProxies[3].radiusSq = FLOAT_262144_0;
       s_edgeProxies[2].assetName = "havok_test_cube_256";
       s_edgeProxies[3].assetName = "havok_test_cube_1024";
       s_edgeProxies[5].assetName = "havok_test_cube_4096";
       j__Init_thread_footer(&dword_14BB341C4);
     }
   }
-  v36 = DVARBOOL_killswitch_edge_patch_proxy_fix_enabled;
+  v23 = DVARBOOL_killswitch_edge_patch_proxy_fix_enabled;
   if ( !DVARBOOL_killswitch_edge_patch_proxy_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_edge_patch_proxy_fix_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v36);
-  enabled = v36->current.enabled;
-  v38 = s_edgeProxiesLegacy;
-  v39 = !enabled;
-  v40 = 4;
+  Dvar_CheckFrontendServerThread(v23);
+  enabled = v23->current.enabled;
+  v25 = s_edgeProxiesLegacy;
+  v26 = 4;
   if ( enabled )
-    v40 = 6;
+    v26 = 6;
   if ( enabled )
-    v38 = s_edgeProxies;
-  _RAX = v38;
+    v25 = s_edgeProxies;
+  p_radiusSq = &v25->radiusSq;
   do
   {
-    __asm { vcomiss xmm6, dword ptr [rax] }
-    if ( v39 )
+    if ( *(float *)&_XMM6 <= *p_radiusSq )
       break;
     ++v6;
-    ++_RAX;
-    v39 = (unsigned int)v6 <= 6;
+    p_radiusSq += 4;
   }
   while ( (unsigned int)v6 < 6 );
-  if ( v40 <= v6 )
+  if ( v26 <= v6 )
   {
-    __asm
-    {
-      vsqrtss xmm0, xmm6, xmm6
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0C8h+var_A0], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 759, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Patchable collision has huge bounds (furthest edge vertex from origin is %.2f units).  Please add another entry in code.", v49) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 759, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Patchable collision has huge bounds (furthest edge vertex from origin is %.2f units).  Please add another entry in code.", fsqrt(*(float *)&_XMM6)) )
       __debugbreak();
-    v6 = v40 - 1;
+    v6 = v26 - 1;
   }
-  v44 = v6;
-  v45.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_PHYSICSASSET, v38[v6].assetName, 0).physicsLibrary;
-  __asm { vmovaps xmm6, [rsp+0C8h+var_48] }
-  v47.physicsLibrary = v45.physicsLibrary;
-  if ( !v45.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 766, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to find required physicsasset '%s' for patchable collision.  Please add to a common fastfile.", v38[v44].assetName) )
+  v28 = v6;
+  v29.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_PHYSICSASSET, v25[v6].assetName, 0).physicsLibrary;
+  if ( !v29.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 766, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to find required physicsasset '%s' for patchable collision.  Please add to a common fastfile.", v25[v28].assetName) )
     __debugbreak();
-  return (const PhysicsAsset *)v47.physicsLibrary;
+  return (const PhysicsAsset *)v29.physicsLibrary;
 }
 
 /*
@@ -6374,66 +5777,30 @@ BG_GetExtrapolatedPlayerEyePosition
 */
 void BG_GetExtrapolatedPlayerEyePosition(const BgWeaponMap *weaponMap, const playerState_s *ps, const ClientExtrapData *extrapData, vec3_t *outOrigin, const BgHandler *handler)
 {
-  char v21; 
-  double v34; 
-  double v35; 
-  double v36; 
+  const dvar_t *v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float value; 
+  float v14; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBP = outOrigin;
-  _RBX = extrapData;
-  _RSI = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3035, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
+  v9 = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
   if ( !DCONST_DVARFLT_com_userCmdMaxExtrapTranslation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxExtrapTranslation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+4]
-    vmovss  xmm5, dword ptr [rbx]
-    vmovss  xmm6, dword ptr [rbx+8]
-    vmovss  xmm3, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm0, xmm3
-  }
-  if ( !v21 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm3
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+68h+var_28], xmm0
-      vcvtss2sd xmm1, xmm4, xmm4
-      vmovsd  [rsp+68h+var_30], xmm1
-      vcvtss2sd xmm2, xmm5, xmm5
-      vmovsd  [rsp+68h+var_38], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3039, ASSERT_TYPE_ASSERT, "(I_isnearOrSmaller( Vec3Length( extrapData.offset ), Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_com_userCmdMaxExtrapTranslation, \"com_userCmdMaxExtrapTranslation\" ) ))", "%s\n\tIllegal extrapolation:[%f %f %f]", "I_isnearOrSmaller( Vec3Length( extrapData.offset ), Dconst_GetFloat( com_userCmdMaxExtrapTranslation ) )", v34, v35, v36) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  xmm2, dword ptr [rsi+34h]
-    vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+38h]
-    vaddss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+8], xmm2
-  }
-  BG_GetPlayerEyePosition_Internal(weaponMap, _RSI, (const int (*)[2])_RBX->packedBobCycle, 1, _RBP, handler);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = extrapData->offset.v[1];
+  v11 = extrapData->offset.v[0];
+  v12 = extrapData->offset.v[2];
+  value = v9->current.value;
+  v14 = fsqrt((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v12 * v12));
+  if ( v14 >= value && COERCE_FLOAT(COERCE_UNSIGNED_INT(v14 - value) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3039, ASSERT_TYPE_ASSERT, "(I_isnearOrSmaller( Vec3Length( extrapData.offset ), Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_com_userCmdMaxExtrapTranslation, \"com_userCmdMaxExtrapTranslation\" ) ))", "%s\n\tIllegal extrapolation:[%f %f %f]", "I_isnearOrSmaller( Vec3Length( extrapData.offset ), Dconst_GetFloat( com_userCmdMaxExtrapTranslation ) )", v11, v10, v12) )
+    __debugbreak();
+  outOrigin->v[0] = ps->origin.v[0] + extrapData->offset.v[0];
+  outOrigin->v[1] = ps->origin.v[1] + extrapData->offset.v[1];
+  outOrigin->v[2] = ps->origin.v[2] + extrapData->offset.v[2];
+  BG_GetPlayerEyePosition_Internal(weaponMap, ps, (const int (*)[2])extrapData->packedBobCycle, 1, outOrigin, handler);
 }
 
 /*
@@ -6506,80 +5873,57 @@ JammingType BG_GetJammingType(const entityState_t *es)
 BG_GetLandingEvent
 ==============
 */
-
-__int64 __fastcall BG_GetLandingEvent(double fallHeight, const bool damageApplied)
+__int64 BG_GetLandingEvent(const float fallHeight, const bool damageApplied)
 {
-  char v14; 
-  __int64 result; 
-  char v24; 
-  void *retaddr; 
+  const dvar_t *v2; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
 
-  _R11 = &retaddr;
-  _RBX = DCONST_DVARFLT_player_lowHeightLandingMaxHeight;
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmm6, xmm0
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_lowHeightLandingMaxHeight") )
+  v2 = DCONST_DVARFLT_player_lowHeightLandingMaxHeight;
+  if ( !DCONST_DVARFLT_player_lowHeightLandingMaxHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_lowHeightLandingMaxHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_mediumHeightLandingMaxHeight;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v5 = DCONST_DVARFLT_player_mediumHeightLandingMaxHeight;
   if ( !DCONST_DVARFLT_player_mediumHeightLandingMaxHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_mediumHeightLandingMaxHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_highHeightLandingMaxHeight;
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  v7 = DCONST_DVARFLT_player_highHeightLandingMaxHeight;
   if ( !DCONST_DVARFLT_player_highHeightLandingMaxHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_highHeightLandingMaxHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vcomiss xmm9, xmm7
-    vmovss  xmm8, dword ptr [rbx+28h]
-  }
-  if ( !v14 )
-    goto LABEL_20;
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v14 )
-  {
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1321, ASSERT_TYPE_ASSERT, "(( lowMaxHeight < mediumMaxHeight ) && ( mediumMaxHeight < highMaxHeight ))", (const char *)&queryFormat, "( lowMaxHeight < mediumMaxHeight ) && ( mediumMaxHeight < highMaxHeight )") )
-      __debugbreak();
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.value;
+  if ( (value >= v6 || v6 >= v8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1321, ASSERT_TYPE_ASSERT, "(( lowMaxHeight < mediumMaxHeight ) && ( mediumMaxHeight < highMaxHeight ))", (const char *)&queryFormat, "( lowMaxHeight < mediumMaxHeight ) && ( mediumMaxHeight < highMaxHeight )") )
+    __debugbreak();
   if ( damageApplied )
   {
-    __asm
+    if ( fallHeight >= value )
     {
-      vcomiss xmm6, xmm9
-      vcomiss xmm6, xmm7
-      vcomiss xmm8, xmm6
+      if ( fallHeight >= v6 )
+        return (unsigned int)(v8 <= fallHeight) + 187;
+      else
+        return 186i64;
     }
-    result = 188i64;
+    else
+    {
+      return 185i64;
+    }
+  }
+  else if ( fallHeight >= value )
+  {
+    if ( fallHeight >= v6 )
+      return (unsigned int)(v8 <= fallHeight) + 183;
+    else
+      return 182i64;
   }
   else
   {
-    __asm
-    {
-      vcomiss xmm6, xmm9
-      vcomiss xmm6, xmm7
-      vcomiss xmm8, xmm6
-    }
-    result = 184i64;
+    return 181i64;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v24;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return result;
 }
 
 /*
@@ -6589,80 +5933,86 @@ BG_GetMarkDir
 */
 void BG_GetMarkDir(const vec3_t *dir, const vec3_t *normal, vec3_t *out)
 {
-  void *retaddr; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  unsigned __int128 v7; 
+  float v8; 
+  unsigned __int128 v9; 
+  float v13; 
+  float v15; 
+  unsigned __int128 v16; 
+  unsigned __int128 v17; 
+  float v18; 
+  float v22; 
+  float v23; 
+  unsigned __int128 v24; 
+  float v25; 
+  unsigned __int128 v29; 
 
-  _RAX = &retaddr;
+  v3 = normal->v[1];
+  v4 = normal->v[0];
+  if ( (float)((float)((float)(v4 * v4) + (float)(v3 * v3)) + (float)(normal->v[2] * normal->v[2])) >= 1.0 )
+  {
+    v5 = normal->v[2];
+  }
+  else
+  {
+    v3 = 0.0;
+    v4 = 0.0;
+    v5 = FLOAT_1_0;
+  }
+  LODWORD(v6) = LODWORD(dir->v[0]) ^ _xmm;
+  v7 = LODWORD(dir->v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+  LODWORD(v8) = LODWORD(dir->v[2]) ^ _xmm;
+  v9 = v7;
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v6 * v6)) + (float)(v8 * v8));
+  _XMM4 = v9;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, dword ptr [rdx+4]
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm9, dword ptr [rdx]
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovss  xmm10, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovss  xmm12, dword ptr [rdx+8]
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm12, xmm12
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, xmm10
-    vmovaps [rsp+0B8h+var_98], xmm14
-    vmovaps [rsp+0B8h+var_A8], xmm15
-    vmovaps xmm11, xmm12
-    vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+8]
-    vmovss  xmm15, cs:__real@80000000
-    vxorps  xmm5, xmm0, xmm2
-    vmovss  xmm0, dword ptr [rcx+4]
-    vxorps  xmm6, xmm0, xmm2
-    vxorps  xmm7, xmm1, xmm2
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vmovss  xmm2, cs:__real@3f333333
     vcmpless xmm0, xmm4, xmm15
     vblendvps xmm0, xmm4, xmm10, xmm0
-    vdivss  xmm1, xmm10, xmm0
-    vmovss  xmm0, cs:__real@3f4ccccd
-    vmulss  xmm4, xmm5, xmm1
-    vmulss  xmm5, xmm6, xmm1
-    vmulss  xmm6, xmm7, xmm1
-    vmovss  xmm1, cs:__real@3e99999a
-    vcmpltss xmm3, xmm0, xmm12
-    vblendvps xmm14, xmm1, xmm2, xmm3
-    vmulss  xmm1, xmm8, xmm5
-    vmulss  xmm0, xmm9, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, xmm14
-    vmovss  [rsp+0B8h+var_B8], xmm14
-    vmovaps xmm14, [rsp+0B8h+var_98]
   }
-  _R11 = &retaddr;
+  v13 = 1.0 / *(float *)&_XMM0;
+  _XMM0 = LODWORD(FLOAT_0_80000001);
+  v15 = v6 * v13;
+  v17 = v7;
+  *(float *)&v17 = *(float *)&v7 * v13;
+  v16 = v17;
+  v18 = v8 * v13;
+  _XMM1 = LODWORD(FLOAT_0_30000001);
   __asm
   {
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm15, [rsp+0B8h+var_A8]
-    vmovss  dword ptr [r8+8], xmm6
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovss  dword ptr [r8], xmm4
-    vmovss  dword ptr [r8+4], xmm5
+    vcmpltss xmm3, xmm0, xmm12
+    vblendvps xmm14, xmm1, xmm2, xmm3
   }
+  if ( (float)((float)((float)(v3 * *(float *)&v17) + (float)(v4 * v15)) + (float)(v5 * v18)) < *(float *)&_XMM14 )
+  {
+    do
+    {
+      v22 = v15 + (float)(v4 * 0.5);
+      v24 = v16;
+      v23 = *(float *)&v16 + (float)(v3 * 0.5);
+      v25 = (float)(v5 * 0.5) + v18;
+      *(float *)&v24 = fsqrt((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v25 * v25));
+      _XMM3 = v24;
+      __asm
+      {
+        vcmpless xmm0, xmm3, xmm15
+        vblendvps xmm0, xmm3, xmm10, xmm0
+      }
+      v29 = LODWORD(FLOAT_1_0);
+      v15 = (float)(1.0 / *(float *)&_XMM0) * v22;
+      *(float *)&v29 = (float)(1.0 / *(float *)&_XMM0) * v23;
+      v16 = v29;
+      v18 = (float)(1.0 / *(float *)&_XMM0) * v25;
+    }
+    while ( (float)((float)((float)(v3 * *(float *)&v29) + (float)(v4 * v15)) + (float)(v5 * v18)) < *(float *)&_XMM14 );
+  }
+  out->v[2] = v18;
+  out->v[0] = v15;
+  out->v[1] = *(float *)&v16;
 }
 
 /*
@@ -6673,12 +6023,16 @@ BG_GetMaxSprintTime
 __int64 BG_GetMaxSprintTime(const BgWeaponMap *weaponMap, const playerState_s *ps)
 {
   const Weapon *CurrentWeaponForPlayer; 
-  bool v7; 
-  bool v12; 
-  const dvar_t *v14; 
+  bool v5; 
+  const WeaponDef *v6; 
+  double Time; 
+  float v8; 
+  const dvar_t *v9; 
+  float value; 
+  bool v11; 
+  const dvar_t *v12; 
   __int64 result; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3670, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3671, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -6686,46 +6040,32 @@ __int64 BG_GetMaxSprintTime(const BgWeaponMap *weaponMap, const playerState_s *p
   CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
   if ( BG_GameInterface_HasPerk_SuperSprintEnhanced(ps) )
   {
-    v7 = BG_UsingAlternate(ps);
-    BG_WeaponDef(CurrentWeaponForPlayer, v7);
-    *(double *)&_XMM0 = BG_GameInterface_SuperSprint_Enhanced_GetTime();
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vmulss  xmm6, xmm1, dword ptr [rbx+428h]
-    }
+    v5 = BG_UsingAlternate(ps);
+    v6 = BG_WeaponDef(CurrentWeaponForPlayer, v5);
+    Time = BG_GameInterface_SuperSprint_Enhanced_GetTime();
+    v8 = (float)(*(float *)&Time * 1000.0) * v6->sprintDurationScale;
   }
   else
   {
-    _RBX = DVARFLT_player_sprintTime;
+    v9 = DVARFLT_player_sprintTime;
     if ( !DVARFLT_player_sprintTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v12 = BG_UsingAlternate(ps);
-    BG_WeaponDef(CurrentWeaponForPlayer, v12);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rax+428h]
-      vmulss  xmm6, xmm0, cs:__real@447a0000
-    }
+    Dvar_CheckFrontendServerThread(v9);
+    value = v9->current.value;
+    v11 = BG_UsingAlternate(ps);
+    v8 = (float)(value * BG_WeaponDef(CurrentWeaponForPlayer, v11)->sprintDurationScale) * 1000.0;
   }
   if ( BG_HasPerk(&ps->perks, 5u) )
   {
-    v14 = DVARFLT_perk_sprintMultiplier;
+    v12 = DVARFLT_perk_sprintMultiplier;
     if ( !DVARFLT_perk_sprintMultiplier && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_sprintMultiplier") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v12);
+    v8 = v8 * v12->current.value;
   }
   result = 0x3FFFi64;
-  __asm
-  {
-    vcvttss2si ecx, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  if ( _ECX < 0x3FFF )
-    return (unsigned int)_ECX;
+  if ( (int)v8 < 0x3FFF )
+    return (unsigned int)(int)v8;
   return result;
 }
 
@@ -6736,21 +6076,14 @@ BG_GetNormalizedMovementCmd
 */
 void BG_GetNormalizedMovementCmd(const usercmd_s *cmd, vec3_t *outMove)
 {
-  _RDI = outMove;
+  float v4; 
+
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4685, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, cs:__real@3c010204
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3c010204
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  dword ptr [rdi+4], xmm2
-  }
-  _RDI->v[2] = 0.0;
+  v4 = (float)cmd->rightmove * 0.0078740157;
+  outMove->v[0] = (float)cmd->forwardmove * 0.0078740157;
+  outMove->v[1] = v4;
+  outMove->v[2] = 0.0;
 }
 
 /*
@@ -6775,15 +6108,9 @@ BG_GetPlayerEyePosition
 */
 void BG_GetPlayerEyePosition(const BgWeaponMap *weaponMap, const playerState_s *ps, const vec3_t *playerOrigin, const BgHandler *handler, vec3_t *outOrigin)
 {
-  char *fmt; 
-
-  _RDI = playerOrigin;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3015, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  fmt = (char *)outOrigin;
-  __asm { vmovsd  qword ptr [rcx], xmm0 }
-  outOrigin->v[2] = _RDI->v[2];
+  *outOrigin = *playerOrigin;
   BG_GetPlayerEyePosition_Internal(weaponMap, ps, (const int (*)[2])ps->packedBobCycle, 1, outOrigin, handler);
 }
 
@@ -6795,12 +6122,13 @@ BG_GetPlayerEyePosition_Internal
 void BG_GetPlayerEyePosition_Internal(const BgWeaponMap *weaponMap, const playerState_s *ps, const int (*packedBobCycle)[2], bool bIncludeViewBob, vec3_t *outOrigin, const BgHandler *handler)
 {
   const Weapon *CurrentWeaponForPlayer; 
-  bool v13; 
-  char v16; 
+  bool v11; 
+  double UpContribution; 
+  float v13; 
+  double v14; 
   vec3_t outUp; 
   WorldUpReferenceFrame refFrame; 
 
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2951, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2952, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -6813,22 +6141,13 @@ void BG_GetPlayerEyePosition_Internal(const BgWeaponMap *weaponMap, const player
     BG_ApplyViewBobAndScriptOffsets(ps, ps->serverTime, packedBobCycle, handler, outOrigin);
   WorldUpReferenceFrame::GetUpVector(&refFrame, &outUp);
   CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
-  v13 = BG_UsingAlternate(ps);
-  BG_ContextMount_GetEyePoint(handler, &ps->mountState, &outUp, CurrentWeaponForPlayer, v13, outOrigin);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&refFrame, &ps->origin);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&refFrame, outOrigin);
-  __asm
-  {
-    vaddss  xmm1, xmm6, cs:__real@3f800000
-    vcomiss xmm0, xmm1
-  }
-  if ( v16 )
-  {
-    __asm { vsubss  xmm1, xmm1, xmm0; height }
-    WorldUpReferenceFrame::AddUpContribution(&refFrame, *(float *)&_XMM1, outOrigin);
-  }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
+  v11 = BG_UsingAlternate(ps);
+  BG_ContextMount_GetEyePoint(handler, &ps->mountState, &outUp, CurrentWeaponForPlayer, v11, outOrigin);
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&refFrame, &ps->origin);
+  v13 = *(float *)&UpContribution;
+  v14 = WorldUpReferenceFrame::GetUpContribution(&refFrame, outOrigin);
+  if ( *(float *)&v14 < (float)(v13 + 1.0) )
+    WorldUpReferenceFrame::AddUpContribution(&refFrame, (float)(v13 + 1.0) - *(float *)&v14, outOrigin);
 }
 
 /*
@@ -6853,146 +6172,90 @@ BG_GetPlayerViewDirection
 */
 void BG_GetPlayerViewDirection(const playerState_s *ps, vec3_t *forward, vec3_t *right, vec3_t *up, const BgHandler *handler, bool ignoreArbitraryUp)
 {
+  bool v10; 
   bool v11; 
-  bool v12; 
   BgStatic *ActiveStatics; 
-  bool v18; 
-  vec3_t v39; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  vec3_t v18; 
   vec3_t angles; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> in1; 
-  WorldUpReferenceFrame v44; 
+  WorldUpReferenceFrame v23; 
 
-  __asm { vmovaps [rsp+140h+var_40], xmm6 }
-  _RDI = ps;
-  _RSI = up;
-  _R15 = right;
-  _R14 = forward;
-  v11 = Com_GameMode_SupportsFeature(WEAPON_MELEE);
-  v12 = Com_GameMode_SupportsFeature(WEAPON_RELOAD_END_RECHAMBER);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v11 )
+  v10 = Com_GameMode_SupportsFeature(WEAPON_MELEE);
+  v11 = Com_GameMode_SupportsFeature(WEAPON_RELOAD_END_RECHAMBER);
+  if ( v10 )
   {
-    if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3060, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF )") )
+    if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3060, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF )") )
       __debugbreak();
-    if ( _RDI->groundRefEnt == 2047 || !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) )
+    if ( ps->groundRefEnt == 2047 || !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+140h+var_110], xmm6
-        vmovss  dword ptr [rsp+140h+var_110+4], xmm6
-        vmovss  dword ptr [rsp+140h+var_110+8], xmm6
-      }
+      v18.v[0] = 0.0;
+      v18.v[1] = 0.0;
+      v18.v[2] = 0.0;
     }
     else
     {
       ActiveStatics = BgStatic::GetActiveStatics();
-      ActiveStatics->GetAngles(ActiveStatics, _RDI->groundRefEnt, &v39);
+      ActiveStatics->GetAngles(ActiveStatics, ps->groundRefEnt, &v18);
     }
   }
-  else if ( v12 )
+  else if ( v11 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+2A0h]
-      vmovss  xmm1, dword ptr [rdi+2A4h]
-      vmovss  dword ptr [rsp+140h+var_110], xmm0
-      vmovss  xmm0, dword ptr [rdi+2A8h]
-      vmovss  dword ptr [rsp+140h+var_110+8], xmm0
-      vmovss  dword ptr [rsp+140h+var_110+4], xmm1
-    }
+    v13 = ps->groundTiltAngles.v[1];
+    v18.v[0] = ps->groundTiltAngles.v[0];
+    v18.v[2] = ps->groundTiltAngles.v[2];
+    v18.v[1] = v13;
   }
   else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3077, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
   {
     __debugbreak();
   }
-  v18 = !ignoreArbitraryUp;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1D8h]
-    vmovss  xmm1, dword ptr [rdi+1DCh]
-    vmovss  dword ptr [rsp+140h+angles], xmm0
-    vmovss  xmm0, dword ptr [rdi+1E0h]
-    vmovss  dword ptr [rsp+140h+angles+8], xmm0
-    vmovss  dword ptr [rsp+140h+angles+4], xmm1
-  }
+  v14 = ps->viewangles.v[1];
+  angles.v[0] = ps->viewangles.v[0];
+  angles.v[2] = ps->viewangles.v[2];
+  angles.v[1] = v14;
   if ( !ignoreArbitraryUp )
   {
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v44, _RDI, handler);
-    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v44, &angles);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v23, ps, handler);
+    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v23, &angles);
   }
-  __asm
+  if ( v18.v[0] == 0.0 && v18.v[1] == 0.0 && v18.v[2] == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+140h+var_110]
-    vucomiss xmm0, xmm6
-  }
-  if ( !v18 )
-    goto LABEL_19;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+140h+var_110+4]
-    vucomiss xmm0, xmm6
-  }
-  if ( !v18 )
-    goto LABEL_19;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+140h+var_110+8]
-    vucomiss xmm0, xmm6
-  }
-  if ( v18 )
-  {
-    AngleVectors(&angles, _R14, _R15, _RSI);
+    AngleVectors(&angles, forward, right, up);
   }
   else
   {
-LABEL_19:
-    AnglesToAxis(&v39, &axis);
+    AnglesToAxis(&v18, &axis);
     AnglesToAxis(&angles, &in1);
     MatrixMultiply(&in1, &axis, &out);
-    if ( _R14 )
+    if ( forward )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+140h+out]
-        vmovss  xmm1, dword ptr [rsp+140h+out+4]
-        vmovss  dword ptr [r14], xmm0
-        vmovss  xmm0, dword ptr [rsp+140h+out+8]
-        vmovss  dword ptr [r14+8], xmm0
-        vmovss  dword ptr [r14+4], xmm1
-      }
+      v15 = out.m[0].v[1];
+      forward->v[0] = out.m[0].v[0];
+      forward->v[2] = out.m[0].v[2];
+      forward->v[1] = v15;
     }
-    if ( _R15 )
+    if ( right )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm0, dword ptr [rsp+140h+out+0Ch]
-        vmovss  xmm2, dword ptr [rsp+140h+out+10h]
-        vxorps  xmm1, xmm0, xmm3
-        vxorps  xmm0, xmm2, xmm3
-        vmovss  dword ptr [r15], xmm1
-        vmovss  xmm1, dword ptr [rsp+140h+out+14h]
-        vxorps  xmm2, xmm1, xmm3
-        vmovss  dword ptr [r15+8], xmm2
-        vmovss  dword ptr [r15+4], xmm0
-      }
+      LODWORD(v16) = LODWORD(out.m[1].v[1]) ^ _xmm;
+      right->v[0] = COERCE_FLOAT(LODWORD(out.m[1].v[0]) ^ _xmm);
+      right->v[2] = COERCE_FLOAT(LODWORD(out.m[1].v[2]) ^ _xmm);
+      right->v[1] = v16;
     }
-    if ( _RSI )
+    if ( up )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+140h+out+18h]
-        vmovss  xmm1, dword ptr [rsp+140h+out+1Ch]
-        vmovss  dword ptr [rsi], xmm0
-        vmovss  xmm0, dword ptr [rsp+140h+out+20h]
-        vmovss  dword ptr [rsi+8], xmm0
-        vmovss  dword ptr [rsi+4], xmm1
-      }
+      v17 = out.m[2].v[1];
+      up->v[0] = out.m[2].v[0];
+      up->v[2] = out.m[2].v[2];
+      up->v[1] = v17;
     }
   }
-  __asm { vmovaps xmm6, [rsp+140h+var_40] }
 }
 
 /*
@@ -7053,20 +6316,11 @@ BG_GetStickCartesianCoords
 */
 vec2_t BG_GetStickCartesianCoords(const char x, const char y)
 {
-  __int64 v11; 
+  __int64 v3; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3c010204
-    vmovss  dword ptr [rsp+arg_10], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, cs:__real@3c010204
-    vmovss  dword ptr [rsp+arg_10+4], xmm0
-  }
-  return (vec2_t)v11;
+  *(float *)&v3 = (float)x * 0.0078740157;
+  *((float *)&v3 + 1) = (float)y * 0.0078740157;
+  return (vec2_t)v3;
 }
 
 /*
@@ -7076,31 +6330,26 @@ BG_GetThirdPersonCrosshairOffset
 */
 float BG_GetThirdPersonCrosshairOffset(const BgWeaponMap *weaponMap, const playerState_s *ps)
 {
-  const dvar_t *v5; 
+  const dvar_t *v4; 
+  const dvar_t *v6; 
 
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3914, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3915, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v5 = DVARBOOL_camera_thirdPerson;
+  v4 = DVARBOOL_camera_thirdPerson;
   if ( !DVARBOOL_camera_thirdPerson && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_thirdPerson") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x2Du) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3916, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DVARBOOL_camera_thirdPerson, \"camera_thirdPerson\" ) || ps->otherFlags.TestFlag( POtherFlagsMP::CAMERA_THIRD_PERSON ))", (const char *)&queryFormat, "Dvar_GetBool( camera_thirdPerson ) || ps->otherFlags.TestFlag( POtherFlagsMP::CAMERA_THIRD_PERSON )") )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.enabled && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x2Du) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3916, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DVARBOOL_camera_thirdPerson, \"camera_thirdPerson\" ) || ps->otherFlags.TestFlag( POtherFlagsMP::CAMERA_THIRD_PERSON ))", (const char *)&queryFormat, "Dvar_GetBool( camera_thirdPerson ) || ps->otherFlags.TestFlag( POtherFlagsMP::CAMERA_THIRD_PERSON )") )
     __debugbreak();
-  if ( BG_IsThirdPersonMode(weaponMap, ps) )
-  {
-    _RBX = DCONST_DVARMPSPFLT_camera_thirdPersonCrosshairOffset;
-    if ( !DCONST_DVARMPSPFLT_camera_thirdPersonCrosshairOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_thirdPersonCrosshairOffset") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !BG_IsThirdPersonMode(weaponMap, ps) )
+    return 0.0;
+  v6 = DCONST_DVARMPSPFLT_camera_thirdPersonCrosshairOffset;
+  if ( !DCONST_DVARMPSPFLT_camera_thirdPersonCrosshairOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_thirdPersonCrosshairOffset") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  return v6->current.value;
 }
 
 /*
@@ -7110,38 +6359,31 @@ BG_GetThirdPersonMeleeCone
 */
 void BG_GetThirdPersonMeleeCone(const BgHandler *pmoveHandler, const playerState_s *ps, vec3_t *outConeOrigin, vec3_t *outConeForward, vec3_t *outConeRight, vec3_t *outConeUp)
 {
+  const dvar_t *v9; 
+  float value; 
+  float v11; 
+  float v12; 
+  double v13; 
   vec3_t outUp; 
   vec3_t angles; 
-  WorldUpReferenceFrame v21; 
+  WorldUpReferenceFrame v16; 
 
-  _RSI = outConeOrigin;
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v21, ps, pmoveHandler);
-  WorldUpReferenceFrame::GetUpVector(&v21, &outUp);
-  _RDI = DCONST_DVARFLT_bg_thirdPersonMeleeHeightOffset;
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v16, ps, pmoveHandler);
+  WorldUpReferenceFrame::GetUpVector(&v16, &outUp);
+  v9 = DCONST_DVARFLT_bg_thirdPersonMeleeHeightOffset;
   if ( !DCONST_DVARFLT_bg_thirdPersonMeleeHeightOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_thirdPersonMeleeHeightOffset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+0C8h+outUp]
-    vaddss  xmm2, xmm1, dword ptr [rbx+30h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+0C8h+outUp+4]
-    vmovss  dword ptr [rsi], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+34h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+0C8h+outUp+8]
-    vmovss  dword ptr [rsi+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+38h]
-    vmovss  dword ptr [rsi+8], xmm2
-  }
-  *(double *)&_XMM0 = BG_MovementDirToDegrees(ps->movementDir);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rsp+0C8h+angles], xmm1
-    vmovss  dword ptr [rsp+0C8h+angles+8], xmm1
-    vmovss  dword ptr [rsp+0C8h+angles+4], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v9);
+  value = v9->current.value;
+  v11 = value * outUp.v[1];
+  outConeOrigin->v[0] = (float)(value * outUp.v[0]) + ps->origin.v[0];
+  v12 = value * outUp.v[2];
+  outConeOrigin->v[1] = v11 + ps->origin.v[1];
+  outConeOrigin->v[2] = v12 + ps->origin.v[2];
+  v13 = BG_MovementDirToDegrees(ps->movementDir);
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
+  angles.v[1] = *(float *)&v13;
   AngleVectors(&angles, outConeForward, outConeRight, outConeUp);
 }
 
@@ -7152,24 +6394,9 @@ BG_Glass_CanBreakGlass
 */
 bool BG_Glass_CanBreakGlass(const trace_t *trace)
 {
-  bool v2; 
-  bool v3; 
-
-  _RBX = trace;
-  v2 = trace == NULL;
-  if ( !trace )
-  {
-    v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4310, ASSERT_TYPE_ASSERT, "(trace)", (const char *)&queryFormat, "trace");
-    v2 = !v3;
-    if ( v3 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vucomiss xmm0, dword ptr [rbx]
-  }
-  return !v2 && (_RBX->contents & 0x10) != 0 && Trace_GetGlassHitId(_RBX) && Com_IsSurfaceTypeBreakableGlass(_RBX->surfaceFlags);
+  if ( !trace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4310, ASSERT_TYPE_ASSERT, "(trace)", (const char *)&queryFormat, "trace") )
+    __debugbreak();
+  return 1.0 != trace->fraction && (trace->contents & 0x10) != 0 && Trace_GetGlassHitId(trace) && Com_IsSurfaceTypeBreakableGlass(trace->surfaceFlags);
 }
 
 /*
@@ -7289,9 +6516,9 @@ BG_InitPlayerState_OnConnect
 */
 void BG_InitPlayerState_OnConnect(playerState_s *ps, int clientNum)
 {
-  __int64 v5; 
+  __int64 v4; 
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_eFlags; 
-  __int64 v7; 
+  __int64 v6; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4518, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -7301,22 +6528,21 @@ void BG_InitPlayerState_OnConnect(playerState_s *ps, int clientNum)
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v7) = clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4519, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v7, ComCharacterLimits::ms_gameData.m_clientCount) )
+    LODWORD(v6) = clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4519, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v6, ComCharacterLimits::ms_gameData.m_clientCount) )
       __debugbreak();
   }
   ps->clientNum = clientNum;
   ps->corpseIndex = 15;
   BG_InitPlayerstateVehicle(ps);
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  BG_SetSpeedScaleMultiplier(ps, *(float *)&_XMM1);
-  v5 = 0i64;
+  BG_SetSpeedScaleMultiplier(ps, 1.0);
+  v4 = 0i64;
   p_eFlags = &ps->eFlags;
   while ( !p_eFlags->m_flags[0] )
   {
-    ++v5;
+    ++v4;
     ++p_eFlags;
-    if ( v5 >= 1 )
+    if ( v4 >= 1 )
       goto LABEL_19;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4530, ASSERT_TYPE_ASSERT, "(!ps->eFlags.TestAnyFlags())", (const char *)&queryFormat, "!ps->eFlags.TestAnyFlags()") )
@@ -7334,7 +6560,7 @@ void BG_InitPlayerState_OnSpawn(playerState_s *ps, int clientNum, bool dummyInit
 {
   unsigned int v6; 
   GHandler *Handler; 
-  __int64 v10; 
+  __int64 v8; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4592, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -7347,8 +6573,8 @@ void BG_InitPlayerState_OnSpawn(playerState_s *ps, int clientNum, bool dummyInit
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v10) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4593, ASSERT_TYPE_ASSERT, "(unsigned)( dummyInit ? 0 : clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "dummyInit ? 0 : clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v10, ComCharacterLimits::ms_gameData.m_clientCount) )
+    LODWORD(v8) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4593, ASSERT_TYPE_ASSERT, "(unsigned)( dummyInit ? 0 : clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "dummyInit ? 0 : clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v8, ComCharacterLimits::ms_gameData.m_clientCount) )
       __debugbreak();
   }
   BG_InitPlayerState(ps);
@@ -7361,17 +6587,12 @@ void BG_InitPlayerState_OnSpawn(playerState_s *ps, int clientNum, bool dummyInit
   *(_DWORD *)&ps->remoteEyesEnt = 134154239;
   Handler = GHandler::getHandler();
   BGMovingPlatformPS::Init(&ps->movingPlatforms, ps, Handler);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40a00000; maxAbsValueSize
-    vmovss  xmm0, cs:__real@3f800000; value
-  }
   *(_QWORD *)&ps->weapCommon.spreadOverride = 0i64;
   ps->weapCommon.adsStartTime = 0;
   ps->weapCommon.fAimSpreadMovementScale = 1.0;
   ps->throwbackGrenadeTimeLeft = 0;
   ps->throwbackGrenadeOwner = 2047;
-  ps->grenadeCookScale = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xCu);
+  ps->grenadeCookScale = MSG_PackSignedFloat(1.0, 5.0, 0xCu);
   ps->viewKickScale = 1.0;
   ps->turnStartTime = 0;
   *(_QWORD *)&ps->lastStandTime = 0i64;
@@ -7392,8 +6613,8 @@ void BG_InitPlayerState_PrepareForUseAsDelta(playerState_s *ps, int clientNum, b
 {
   unsigned int v6; 
   GHandler *Handler; 
-  __int64 v11; 
-  __int64 v12; 
+  __int64 v8; 
+  __int64 v9; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4643, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -7406,8 +6627,8 @@ void BG_InitPlayerState_PrepareForUseAsDelta(playerState_s *ps, int clientNum, b
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v11) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4644, ASSERT_TYPE_ASSERT, "(unsigned)( dummyInit ? 0 : clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "dummyInit ? 0 : clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v11, ComCharacterLimits::ms_gameData.m_clientCount) )
+    LODWORD(v8) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4644, ASSERT_TYPE_ASSERT, "(unsigned)( dummyInit ? 0 : clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "dummyInit ? 0 : clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v8, ComCharacterLimits::ms_gameData.m_clientCount) )
       __debugbreak();
   }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4592, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -7418,9 +6639,9 @@ void BG_InitPlayerState_PrepareForUseAsDelta(playerState_s *ps, int clientNum, b
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v12) = ComCharacterLimits::ms_gameData.m_clientCount;
-    LODWORD(v11) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4593, ASSERT_TYPE_ASSERT, "(unsigned)( dummyInit ? 0 : clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "dummyInit ? 0 : clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v11, v12) )
+    LODWORD(v9) = ComCharacterLimits::ms_gameData.m_clientCount;
+    LODWORD(v8) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 4593, ASSERT_TYPE_ASSERT, "(unsigned)( dummyInit ? 0 : clientNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "dummyInit ? 0 : clientNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
   BG_InitPlayerState(ps);
@@ -7433,31 +6654,25 @@ void BG_InitPlayerState_PrepareForUseAsDelta(playerState_s *ps, int clientNum, b
   *(_DWORD *)&ps->remoteEyesEnt = 134154239;
   Handler = GHandler::getHandler();
   BGMovingPlatformPS::Init(&ps->movingPlatforms, ps, Handler);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40a00000; maxAbsValueSize
-    vmovss  xmm0, cs:__real@3f800000; value
-  }
   *(_QWORD *)&ps->weapCommon.spreadOverride = 0i64;
   ps->weapCommon.adsStartTime = 0;
   ps->weapCommon.fAimSpreadMovementScale = 1.0;
   ps->throwbackGrenadeTimeLeft = 0;
   ps->throwbackGrenadeOwner = 2047;
-  ps->grenadeCookScale = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xCu);
+  ps->grenadeCookScale = MSG_PackSignedFloat(1.0, 5.0, 0xCu);
   ps->viewKickScale = 1.0;
   ps->turnStartTime = 0;
   *(_QWORD *)&ps->lastStandTime = 0i64;
   ps->lastStandMoveStopTime = 0;
   BG_InitPlayerstateVehicle(ps);
   ps->pm_flags.m_flags[0] |= 0x8000u;
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
   ps->gravity = 800;
   ps->legsTimer = 0;
   ps->torsoTimer = 0;
   ps->viewHeightLerpTime = 0;
   ps->pm_type = 5;
   ps->pm_flags.m_flags[0] &= ~0x8000u;
-  BG_SetSpeedScaleMultiplier(ps, *(float *)&_XMM1);
+  BG_SetSpeedScaleMultiplier(ps, 1.0);
 }
 
 /*
@@ -7700,38 +6915,29 @@ _BOOL8 BG_IsScavengerPickup(const Weapon *weapon)
 BG_IsThirdPersonMode
 ==============
 */
-char BG_IsThirdPersonMode(const BgWeaponMap *weaponMap, const playerState_s *ps)
+bool BG_IsThirdPersonMode(const BgWeaponMap *weaponMap, const playerState_s *ps)
 {
   const dvar_t *v4; 
 
-  _RBX = ps;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3881, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3882, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3882, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   v4 = DVARBOOL_camera_thirdPerson;
   if ( !DVARBOOL_camera_thirdPerson && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_thirdPerson") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.enabled && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, GameModeFlagValues::ms_mpValue, 0x2Du) || (unsigned int)(_RBX->pm_type - 5) <= 1 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, ACTIVE, 1u) || GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&_RBX->linkFlags, ACTIVE, 2u) || BG_IsVehicleActive(_RBX) )
+  if ( !v4->current.enabled && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x2Du) || (unsigned int)(ps->pm_type - 5) <= 1 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 1u) || GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 2u) || BG_IsVehicleActive(ps) )
     return 0;
-  if ( _RBX == (const playerState_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2072, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
+  if ( ps == (const playerState_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2072, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->eFlags, ACTIVE, 7u) )
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 7u) )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2076, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL )") )
       __debugbreak();
     return 0;
   }
-  if ( BG_UsingSniperScope(weaponMap, _RBX) )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vucomiss xmm0, dword ptr [rbx+730h]
-    }
-  }
-  return 1;
+  return !BG_UsingSniperScope(weaponMap, ps) || 1.0 != ps->weapCommon.fWeaponPosFrac;
 }
 
 /*
@@ -7809,55 +7015,26 @@ BG_LerpFontScale
 */
 void BG_LerpFontScale(const hudelem_t *elem, int time, float *toScale)
 {
-  int v6; 
+  int v3; 
   int fontScaleTime; 
-  double v23; 
+  int v7; 
+  float v8; 
 
-  v6 = time - elem->fontScaleStartTime;
-  _RBX = elem;
+  v3 = time - elem->fontScaleStartTime;
   fontScaleTime = elem->fontScaleTime;
-  _RDI = toScale;
-  if ( fontScaleTime <= 0 || v6 >= fontScaleTime )
+  if ( fontScaleTime <= 0 || v3 >= fontScaleTime )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vmovss  dword ptr [r8], xmm0
-    }
+    *toScale = elem->fontScale;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vdivss  xmm6, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm6, xmm1
-      vcomiss xmm6, cs:__real@3f800000
-    }
-    if ( v6 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+48h+var_20], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3473, ASSERT_TYPE_ASSERT, "( ( lerp >= 0.0f && lerp <= 1.0f ) )", "( lerp ) = %g", v23) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+28h]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbx+28h]
-      vmovss  dword ptr [rdi], xmm3
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    v7 = 0;
+    if ( v3 >= 0 )
+      v7 = v3;
+    v8 = (float)v7 / (float)fontScaleTime;
+    if ( (v8 < 0.0 || v8 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3473, ASSERT_TYPE_ASSERT, "( ( lerp >= 0.0f && lerp <= 1.0f ) )", "( lerp ) = %g", v8) )
+      __debugbreak();
+    *toScale = (float)((float)(elem->fontScale - elem->fromFontScale) * v8) + elem->fromFontScale;
   }
 }
 
@@ -7868,85 +7045,29 @@ BG_LerpHudColors
 */
 void BG_LerpHudColors(const hudelem_t *elem, int time, hudelem_color_t *toColor)
 {
-  int v6; 
+  int v3; 
   int fadeTime; 
-  double v45; 
+  int v7; 
+  float v8; 
 
-  v6 = time - elem->fadeStartTime;
+  v3 = time - elem->fadeStartTime;
   fadeTime = elem->fadeTime;
-  if ( fadeTime <= 0 || v6 >= fadeTime )
+  if ( fadeTime <= 0 || v3 >= fadeTime )
   {
     *toColor = elem->color;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vdivss  xmm6, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm6, xmm1
-      vcomiss xmm6, cs:__real@3f800000
-    }
-    if ( v6 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+48h+var_20], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3496, ASSERT_TYPE_ASSERT, "( ( lerp >= 0.0f && lerp <= 1.0f ) )", "( lerp ) = %g", v45) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vaddss  xmm2, xmm2, xmm1
-      vcvttss2si eax, xmm2
-    }
-    toColor->r = _EAX;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vaddss  xmm2, xmm2, xmm1
-      vcvttss2si eax, xmm2
-    }
-    toColor->g = _EAX;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vaddss  xmm2, xmm2, xmm1
-      vcvttss2si eax, xmm2
-    }
-    toColor->b = _EAX;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vaddss  xmm2, xmm2, xmm1
-      vcvttss2si eax, xmm2
-    }
-    toColor->a = _EAX;
+    v7 = 0;
+    if ( v3 >= 0 )
+      v7 = v3;
+    v8 = (float)v7 / (float)fadeTime;
+    if ( (v8 < 0.0 || v8 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3496, ASSERT_TYPE_ASSERT, "( ( lerp >= 0.0f && lerp <= 1.0f ) )", "( lerp ) = %g", v8) )
+      __debugbreak();
+    toColor->r = (int)(float)((float)((float)(elem->color.r - elem->fromColor.r) * v8) + (float)elem->fromColor.r);
+    toColor->g = (int)(float)((float)((float)(elem->color.g - elem->fromColor.g) * v8) + (float)elem->fromColor.g);
+    toColor->b = (int)(float)((float)((float)(elem->color.b - elem->fromColor.b) * v8) + (float)elem->fromColor.b);
+    toColor->a = (int)(float)((float)((float)(elem->color.a - elem->fromColor.a) * v8) + (float)elem->fromColor.a);
   }
 }
 
@@ -7958,105 +7079,97 @@ BG_LerpViewClampState
 
 void __fastcall BG_LerpViewClampState(double currentTime, viewClampState *clamp)
 {
-  __asm
+  float accelTime; 
+  float decelTime; 
+  float totalTime; 
+  float v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v12; 
+  __int128 totalTime_low; 
+  bool v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+
+  accelTime = clamp->accelTime;
+  decelTime = clamp->decelTime;
+  totalTime = clamp->totalTime;
+  if ( totalTime > 0.001 )
   {
-    vmovss  xmm5, dword ptr [rdx+60h]
-    vmovaps [rsp+78h+var_18], xmm6
-  }
-  _RBX = clamp;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdx+64h]
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovss  xmm7, dword ptr [rdx+68h]
-    vcomiss xmm7, cs:__real@3a83126f
-    vmovaps xmm4, xmm0
-    vmovss  xmm3, cs:__real@40000000
-    vmulss  xmm0, xmm7, xmm3
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vsubss  xmm1, xmm0, xmm5
-    vsubss  xmm2, xmm1, xmm6
-    vdivss  xmm9, xmm3, xmm2
-    vsubss  xmm3, xmm4, dword ptr [rdx+6Ch]
-    vcomiss xmm3, xmm5
-    vmovaps [rsp+78h+var_58], xmm10
-    vxorps  xmm4, xmm4, xmm4
-    vsubss  xmm1, xmm7, xmm6
-    vcomiss xmm3, xmm1
-    vsubss  xmm0, xmm3, xmm5
-    vmovaps xmm3, xmm5
-    vsubss  xmm7, xmm1, xmm5
-    vsubss  xmm0, xmm0, xmm7
-    vminss  xmm8, xmm0, xmm6
-    vucomiss xmm5, xmm4
-    vdivss  xmm0, xmm9, xmm5
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmulss  xmm2, xmm1, xmm3
-    vmulss  xmm10, xmm2, xmm3
-    vucomiss xmm6, xmm4
-    vmulss  xmm7, xmm7, xmm9
-    vdivss  xmm0, xmm9, xmm6
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmulss  xmm2, xmm1, xmm8
-    vsubss  xmm3, xmm9, xmm2
-    vmulss  xmm5, xmm3, xmm8
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vaddss  xmm0, xmm7, xmm10
-    vmovaps xmm10, [rsp+78h+var_58]
-    vaddss  xmm1, xmm0, xmm5
-    vmaxss  xmm1, xmm1, xmm4
-    vminss  xmm6, xmm1, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rdx+10h]
-    vsubss  xmm1, xmm0, dword ptr [rdx]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rdx]
-    vmovss  dword ptr [rdx+8], xmm3
-    vmovss  xmm0, dword ptr [rdx+14h]
-    vsubss  xmm1, xmm0, dword ptr [rdx+4]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [rdx+0Ch], xmm3
-    vmovss  xmm0, dword ptr [rdx+28h]
-    vsubss  xmm1, xmm0, dword ptr [rdx+18h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rdx+18h]
-    vmovss  dword ptr [rdx+20h], xmm3
-    vmovss  xmm0, dword ptr [rdx+2Ch]
-    vsubss  xmm1, xmm0, dword ptr [rdx+1Ch]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rdx+1Ch]
-    vmovss  dword ptr [rdx+24h], xmm3
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
-  {
+    v7 = 2.0 / (float)((float)((float)(totalTime * 2.0) - accelTime) - decelTime);
+    v9 = *(_OWORD *)&currentTime;
+    *(float *)&v9 = *(float *)&currentTime - clamp->startTime;
+    v8 = v9;
+    if ( *(float *)&v9 >= accelTime )
+    {
+      totalTime_low = LODWORD(clamp->totalTime);
+      *(float *)&totalTime_low = totalTime - decelTime;
+      v12 = totalTime_low;
+      v14 = *(float *)&v8 < (float)(totalTime - decelTime);
+      v16 = v8;
+      *(float *)&v16 = *(float *)&v8 - accelTime;
+      v15 = v16;
+      *(float *)&v8 = clamp->accelTime;
+      if ( v14 )
+      {
+        v10 = v16;
+        LODWORD(_XMM8) = 0;
+      }
+      else
+      {
+        v17 = v12;
+        *(float *)&v17 = *(float *)&v12 - accelTime;
+        v10 = v17;
+        v19 = v15;
+        *(float *)&v19 = *(float *)&v15 - *(float *)&v10;
+        _XMM0 = v19;
+        __asm { vminss  xmm8, xmm0, xmm6 }
+      }
+    }
+    else
+    {
+      v10 = 0i64;
+      LODWORD(_XMM8) = 0;
+    }
+    if ( accelTime == 0.0 )
+      v20 = 0.0;
+    else
+      v20 = (float)((float)((float)(v7 / accelTime) * 0.5) * *(float *)&v8) * *(float *)&v8;
+    v21 = v10;
+    *(float *)&v21 = *(float *)&v10 * v7;
+    if ( decelTime == 0.0 )
+      v22 = 0.0;
+    else
+      v22 = (float)(v7 - (float)((float)((float)(v7 / decelTime) * 0.5) * *(float *)&_XMM8)) * *(float *)&_XMM8;
+    *(float *)&v21 = (float)(*(float *)&v21 + v20) + v22;
+    _XMM1 = v21;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+58h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+48h]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbx+48h]
-      vmovss  dword ptr [rbx+50h], xmm3
-      vmovss  xmm0, dword ptr [rbx+5Ch]
-      vsubss  xmm1, xmm0, dword ptr [rbx+4Ch]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbx+4Ch]
-      vmovss  dword ptr [rbx+54h], xmm3
-      vmovss  xmm0, dword ptr [rbx+40h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+30h]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbx+30h]
-      vmovss  dword ptr [rbx+38h], xmm3
-      vmovss  xmm0, dword ptr [rbx+44h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+34h]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbx+34h]
-      vmovss  dword ptr [rbx+3Ch], xmm3
+      vmaxss  xmm1, xmm1, xmm4
+      vminss  xmm6, xmm1, cs:__real@3f800000
     }
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  else
+  {
+    *(float *)&_XMM6 = FLOAT_1_0;
+  }
+  clamp->min.current.v[0] = (float)((float)(clamp->min.goal.v[0] - clamp->min.start.v[0]) * *(float *)&_XMM6) + clamp->min.start.v[0];
+  clamp->min.current.v[1] = (float)((float)(clamp->min.goal.v[1] - clamp->min.start.v[1]) * *(float *)&_XMM6) + clamp->min.start.v[1];
+  clamp->max.current.v[0] = (float)((float)(clamp->max.goal.v[0] - clamp->max.start.v[0]) * *(float *)&_XMM6) + clamp->max.start.v[0];
+  clamp->max.current.v[1] = (float)((float)(clamp->max.goal.v[1] - clamp->max.start.v[1]) * *(float *)&_XMM6) + clamp->max.start.v[1];
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
+  {
+    clamp->resistMin.current.v[0] = (float)((float)(clamp->resistMin.goal.v[0] - clamp->resistMin.start.v[0]) * *(float *)&_XMM6) + clamp->resistMin.start.v[0];
+    clamp->resistMin.current.v[1] = (float)((float)(clamp->resistMin.goal.v[1] - clamp->resistMin.start.v[1]) * *(float *)&_XMM6) + clamp->resistMin.start.v[1];
+    clamp->resistMax.current.v[0] = (float)((float)(clamp->resistMax.goal.v[0] - clamp->resistMax.start.v[0]) * *(float *)&_XMM6) + clamp->resistMax.start.v[0];
+    clamp->resistMax.current.v[1] = (float)((float)(clamp->resistMax.goal.v[1] - clamp->resistMax.start.v[1]) * *(float *)&_XMM6) + clamp->resistMax.start.v[1];
+  }
 }
 
 /*
@@ -8253,10 +7366,12 @@ BG_PlayerHasRoomForAmmo
 */
 char BG_PlayerHasRoomForAmmo(const BgWeaponMap *weaponMap, const playerState_s *ps, const Weapon *weapon, bool isAlternate)
 {
+  __int16 v4; 
+  AmmoStore *v9; 
   unsigned int v10; 
-  __int64 v24; 
-  __int64 v25; 
-  AmmoStore v26; 
+  __int64 v12; 
+  __int64 v13; 
+  AmmoStore v14; 
   Weapon weapona; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
@@ -8267,15 +7382,9 @@ char BG_PlayerHasRoomForAmmo(const BgWeaponMap *weaponMap, const playerState_s *
     __debugbreak();
   if ( !BG_WeaponAllowsAmmoPickup(weapon, isAlternate) )
     return 0;
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
+  v9 = BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
   v10 = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+90h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+90h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammo2 = *v9;
   while ( 1 )
   {
     if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
@@ -8284,33 +7393,15 @@ char BG_PlayerHasRoomForAmmo(const BgWeaponMap *weaponMap, const playerState_s *
       __debugbreak();
     if ( v10 >= 0xF )
     {
-      LODWORD(v25) = 15;
-      LODWORD(v24) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v24, v25) )
+      LODWORD(v13) = 15;
+      LODWORD(v12) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weaponsEquipped[v10]);
-    __asm
+    weapona = *BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weaponsEquipped[v10]);
+    if ( v4 )
     {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+90h+weapon.weaponIdx], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbp+90h+weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovsd  qword ptr [rbp+90h+weapon.attachmentVariationIndices+15h], xmm1
-    }
-    *(_DWORD *)&weapona.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm { vmovd   eax, xmm2 }
-    if ( (_WORD)_RAX )
-    {
-      _RAX = BG_AmmoStoreForWeapon(&v26, &weapona, 0);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+90h+result.weapon.weaponIdx], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbp+90h+result.weapon.attachmentVariationIndices+5], ymm1
-      }
+      result = *BG_AmmoStoreForWeapon(&v14, &weapona, 0);
       if ( BG_IsAmmoCompatible(&result, &r_ammo2) )
       {
         if ( BG_GetMaxPickupableAmmo(weaponMap, ps, &weapona, 0) > 0 )
@@ -8318,14 +7409,7 @@ char BG_PlayerHasRoomForAmmo(const BgWeaponMap *weaponMap, const playerState_s *
       }
       if ( BG_HasUnderbarrelAmmo(&weapona) )
       {
-        _RAX = BG_AmmoStoreForWeapon(&v26, &weapona, 1);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbp+90h+result.weapon.weaponIdx], ymm0
-          vmovups ymm1, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rbp+90h+result.weapon.attachmentVariationIndices+5], ymm1
-        }
+        result = *BG_AmmoStoreForWeapon(&v14, &weapona, 1);
         if ( BG_IsAmmoCompatible(&result, &r_ammo2) )
         {
           if ( BG_GetMaxPickupableAmmo(weaponMap, ps, &weapona, 1) > 0 )
@@ -8368,77 +7452,49 @@ BG_PlayerStateToEntityState
 void BG_PlayerStateToEntityState(BgWeaponMap *weaponMap, const playerState_s *ps, entityState_t *s, const int snap, const BgHandler *handler)
 {
   LerpEntityState *p_lerp; 
-  char v12; 
-  LerpEntityState *v13; 
+  LerpEntityState *v10; 
   bool IsPlayerPositionQuantized; 
-  LerpEntityState *v16; 
-  __int16 v22; 
+  LerpEntityState *v12; 
+  double v13; 
+  double v14; 
+  double TrackedThrottleValue; 
+  double v16; 
 
-  _RBX = ps;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2394, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2395, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2395, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2396, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
     __debugbreak();
-  BG_PlayerToEntity_SetTrajectory(_RBX, s, snap, handler);
+  BG_PlayerToEntity_SetTrajectory(ps, s, snap, handler);
   p_lerp = &s->lerp;
-  s->lerp.eFlags.m_flags[0] = _RBX->eFlags.m_flags[0];
-  if ( _RBX->pm_type < 7 )
+  s->lerp.eFlags.m_flags[0] = ps->eFlags.m_flags[0];
+  if ( ps->pm_type < 7 )
     GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&p_lerp->eFlags, ACTIVE, 0x11u);
   else
     GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&p_lerp->eFlags, ACTIVE, 0x11u);
-  v13 = &s->lerp;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+730h]
-  }
-  if ( v12 )
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v13->eFlags, GameModeFlagValues::ms_mpValue, 0x19u);
+  v10 = &s->lerp;
+  if ( ps->weapCommon.fWeaponPosFrac <= 0.0 )
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v10->eFlags, GameModeFlagValues::ms_mpValue, 0x19u);
   else
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v13->eFlags, GameModeFlagValues::ms_mpValue, 0x19u);
-  IsPlayerPositionQuantized = BG_IsPlayerPositionQuantized(_RBX);
-  v16 = &s->lerp;
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v10->eFlags, GameModeFlagValues::ms_mpValue, 0x19u);
+  IsPlayerPositionQuantized = BG_IsPlayerPositionQuantized(ps);
+  v12 = &s->lerp;
   if ( IsPlayerPositionQuantized )
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v16->eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v12->eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
   else
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v16->eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
-  BG_PlayerToEntity_SetMisc(weaponMap, _RBX, s, handler);
-  BG_PlayerToEntity_SetStickInput(_RBX, s);
-  if ( BG_Skydive_IsSkydiving(_RBX) || BG_Skydive_IsWeaponRaise(_RBX) )
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v12->eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+  BG_PlayerToEntity_SetMisc(weaponMap, ps, s, handler);
+  BG_PlayerToEntity_SetStickInput(ps, s);
+  if ( BG_Skydive_IsSkydiving(ps) || BG_Skydive_IsWeaponRaise(ps) )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@bf800000; min
-      vmovss  xmm0, dword ptr [rbx+2F5Ch]; val
-      vmovaps [rsp+48h+var_18], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vmovaps xmm2, xmm7; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm7; maxAbsValueSize }
-    v22 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
-    __asm { vmovss  xmm1, cs:__real@bf800000; min }
-    s->lerp.u.player.extraAnimData.anonymous.data[0] = v22;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2F64h]; val
-      vmovaps xmm2, xmm7; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm7; maxAbsValueSize }
-    s->lerp.u.player.extraAnimData.anonymous.data[1] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
-    *(double *)&_XMM0 = BG_Skydive_GetTrackedThrottleValue(_RBX);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@bf800000; min
-      vmovaps xmm2, xmm7; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm7; maxAbsValueSize }
-    s->lerp.u.player.extraAnimData.anonymous.data[2] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
-    __asm { vmovaps xmm7, [rsp+48h+var_18] }
+    v13 = I_fclamp(ps->skydivePlayerState.pitch, -1.0, 1.0);
+    s->lerp.u.player.extraAnimData.anonymous.data[0] = MSG_PackSignedFloat(*(float *)&v13, 1.0, 0x10u);
+    v14 = I_fclamp(ps->skydivePlayerState.roll, -1.0, 1.0);
+    s->lerp.u.player.extraAnimData.anonymous.data[1] = MSG_PackSignedFloat(*(float *)&v14, 1.0, 0x10u);
+    TrackedThrottleValue = BG_Skydive_GetTrackedThrottleValue(ps);
+    v16 = I_fclamp(*(float *)&TrackedThrottleValue, -1.0, 1.0);
+    s->lerp.u.player.extraAnimData.anonymous.data[2] = MSG_PackSignedFloat(*(float *)&v16, 1.0, 0x10u);
   }
   else
   {
@@ -8737,50 +7793,49 @@ void BG_PlayerToEntity_SetMisc(BgWeaponMap *weaponMap, const playerState_s *ps, 
   const Weapon *CurrentWeaponForPlayerThirdPerson; 
   bool AltWeaponModeAsStoredInEntityState; 
   __int16 playerFlags; 
+  __int16 v13; 
+  __int16 v14; 
   __int16 v15; 
-  __int16 v17; 
-  BOOL v19; 
-  unsigned int v20; 
+  BOOL v16; 
+  unsigned int v17; 
+  __int16 v20; 
+  int v21; 
+  bool v22; 
   __int16 v23; 
-  int v24; 
-  bool v25; 
-  __int16 v26; 
+  __int16 v24; 
+  __int16 v25; 
+  bool IsSkydiving; 
   __int16 v27; 
   __int16 v28; 
-  bool IsSkydiving; 
+  __int16 v29; 
   __int16 v30; 
   __int16 v31; 
-  __int16 v32; 
-  __int16 v33; 
-  __int16 v34; 
   const Weapon *Weapon; 
   unsigned int eType; 
-  const Weapon *v37; 
-  int v38; 
-  const Weapon *v39; 
-  bool v40; 
-  __int16 v41; 
-  __int16 v42; 
-  __int16 v43; 
+  const Weapon *v34; 
+  int v35; 
+  const Weapon *v36; 
+  bool v37; 
+  __int16 v38; 
+  __int16 v39; 
+  __int16 v40; 
   vec3_t outAngles; 
-  WorldUpReferenceFrame v46; 
+  WorldUpReferenceFrame v42; 
 
-  __asm { vmovaps [rsp+0D8h+var_58], xmm6 }
-  _RDI = s;
   _RSI = ps;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2007, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2008, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2009, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
+  if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2009, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
   {
-    BG_PlayerToEntity_SetCharacterMP(handler, _RSI, _RDI);
+    BG_PlayerToEntity_SetCharacterMP(handler, _RSI, s);
   }
   else
   {
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1722, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
+    if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1722, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
       __debugbreak();
     if ( !_RSI )
     {
@@ -8791,131 +7846,122 @@ void BG_PlayerToEntity_SetMisc(BgWeaponMap *weaponMap, const playerState_s *ps, 
     }
     if ( GameModeFlagValues::ms_mpValue == ACTIVE && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x22u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 1725, ASSERT_TYPE_ASSERT, "(BG_IsPlayer( ps ))", (const char *)&queryFormat, "BG_IsPlayer( ps )") )
       __debugbreak();
-    _RDI->eType = ET_PLAYER;
+    s->eType = ET_PLAYER;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
     {
       if ( *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) )
       {
         ActiveStatics = BgStatic::GetActiveStatics();
-        CharacterInfo = BG_GetCharacterInfo(ActiveStatics, _RDI->clientNum);
+        CharacterInfo = BG_GetCharacterInfo(ActiveStatics, s->clientNum);
         CharacterInfo->meleeChargeEnt = _RSI->meleeChargeEnt;
         CharacterInfo->meleeAnimDataPacked = BG_GetMeleeAnimConditionsPacked(_RSI);
       }
-      BG_AnimationMP_PlayerToEntityAnimation(_RSI, _RDI);
+      BG_AnimationMP_PlayerToEntityAnimation(_RSI, s);
     }
   }
   if ( BG_IsPlayer(_RSI) )
-    _RDI->hudData.data = _RSI->hudData.data;
+    s->hudData.data = _RSI->hudData.data;
   CurrentWeaponForPlayerThirdPerson = BG_GetCurrentWeaponForPlayerThirdPerson(weaponMap, _RSI);
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 447, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 448, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 448, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  weaponMap->SetWeapon(weaponMap, &_RDI->weaponHandle, CurrentWeaponForPlayerThirdPerson);
+  weaponMap->SetWeapon(weaponMap, &s->weaponHandle, CurrentWeaponForPlayerThirdPerson);
   AltWeaponModeAsStoredInEntityState = BG_GetAltWeaponModeAsStoredInEntityState(_RSI, weaponMap);
-  playerFlags = _RDI->lerp.u.player.playerFlags;
-  _RDI->inAltWeaponMode = AltWeaponModeAsStoredInEntityState;
-  v15 = playerFlags;
-  __asm { vmovss  xmm1, dword ptr [rsi+4C0h] }
-  v17 = playerFlags | 2;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( (v15 & 0xFFFD) == 0 )
-    v17 = 0;
-  _RDI->lerp.u.player.playerFlags = v17;
+  playerFlags = s->lerp.u.player.playerFlags;
+  s->inAltWeaponMode = AltWeaponModeAsStoredInEntityState;
+  v13 = playerFlags;
+  v14 = playerFlags | 2;
+  v15 = v13 & 0xFFFD;
+  if ( _RSI->mountState.mountFraction <= 0.0 )
+    v14 = v15;
+  s->lerp.u.player.playerFlags = v14;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
-    BG_PlayerToEntity_SetStowedWeaponMP(weaponMap, _RSI, _RDI);
-  v19 = 0;
-  _RDI->groundEntityNum = _RSI->groundEntityNum;
-  v20 = 0;
+    BG_PlayerToEntity_SetStowedWeaponMP(weaponMap, _RSI, s);
+  v16 = 0;
+  s->groundEntityNum = _RSI->groundEntityNum;
+  v17 = 0;
   _RBP = 0i64;
   do
   {
-    __asm
-    {
-      vlddqu  xmm6, xmmword ptr [rsi+rbp+5250h]
-      vmovdqu xmmword ptr [rdi+rbp+0D8h], xmm6
-    }
-    _RBP += 16i64;
-    ++v20;
+    __asm { vlddqu  xmm6, xmmword ptr [rsi+rbp+5250h] }
+    *(_OWORD *)&s->partBits.array[_RBP] = _XMM6;
+    _RBP += 4i64;
+    ++v17;
   }
-  while ( v20 < 2 );
-  if ( ((_RDI->eType - 1) & 0xFFEF) != 0 )
+  while ( v17 < 2 );
+  if ( ((s->eType - 1) & 0xFFEF) != 0 )
   {
-    v23 = _RDI->lerp.u.player.playerFlags;
+    v20 = s->lerp.u.player.playerFlags;
   }
   else
   {
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v46, _RSI, handler);
-    WorldUpReferenceFrame::GetAngles(&v46, &outAngles);
-    v24 = WorldUpReferenceFrame::PackEntityStateAngles(&outAngles);
-    _RDI->lerp.u.player.playerFlags &= 0xFFE3u;
-    _RDI->lerp.u.anonymous.data[3] = v24;
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v42, _RSI, handler);
+    WorldUpReferenceFrame::GetAngles(&v42, &outAngles);
+    v21 = WorldUpReferenceFrame::PackEntityStateAngles(&outAngles);
+    s->lerp.u.player.playerFlags &= 0xFFE3u;
+    s->lerp.u.anonymous.data[3] = v21;
     if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0xBu) )
     {
-      _RDI->lerp.u.player.playerFlags |= 0x10u;
+      s->lerp.u.player.playerFlags |= 0x10u;
     }
     else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 1u) )
     {
-      _RDI->lerp.u.player.playerFlags |= 4u;
+      s->lerp.u.player.playerFlags |= 4u;
     }
     else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0) )
     {
-      _RDI->lerp.u.player.playerFlags |= 8u;
+      s->lerp.u.player.playerFlags |= 8u;
     }
-    v25 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, GameModeFlagValues::ms_mpValue, 0x3Au);
-    v26 = _RDI->lerp.u.player.playerFlags;
-    v27 = v26 | 0x8000;
-    v28 = v26 & 0x7FFF;
-    if ( v25 )
-      v28 = v27;
-    _RDI->lerp.u.player.playerFlags = v28;
+    v22 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, GameModeFlagValues::ms_mpValue, 0x3Au);
+    v23 = s->lerp.u.player.playerFlags;
+    v24 = v23 | 0x8000;
+    v25 = v23 & 0x7FFF;
+    if ( v22 )
+      v25 = v24;
+    s->lerp.u.player.playerFlags = v25;
     IsSkydiving = BG_Skydive_IsSkydiving(_RSI);
-    v30 = _RDI->lerp.u.player.playerFlags;
-    v31 = v30 | 0x100;
-    v32 = v30 & 0xFEFF;
+    v27 = s->lerp.u.player.playerFlags;
+    v28 = v27 | 0x100;
+    v29 = v27 & 0xFEFF;
     if ( IsSkydiving )
-      v32 = v31;
-    _RDI->lerp.u.player.playerFlags = v32;
+      v29 = v28;
+    s->lerp.u.player.playerFlags = v29;
     if ( !BG_HasPerk(&_RSI->perks, 0x2Cu) )
-      v19 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0xAu);
-    v33 = _RDI->lerp.u.player.playerFlags;
-    v34 = v33 | 0x200;
-    v23 = v33 & 0xFDFF;
-    if ( v19 )
-      v23 = v34;
+      v16 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0xAu);
+    v30 = s->lerp.u.player.playerFlags;
+    v31 = v30 | 0x200;
+    v20 = v30 & 0xFDFF;
+    if ( v16 )
+      v20 = v31;
   }
-  _RDI->lerp.u.player.playerFlags = v23 & 0xFF9F;
+  s->lerp.u.player.playerFlags = v20 & 0xFF9F;
   if ( BG_IsPlayerInExecution(_RSI) )
-    BG_SetExecutionFlagsForPlayerEntity(_RDI, !_RSI->activeExecutionIsVictim, _RSI->activeExecutionIsVictim, _RSI->activeExecutionIsPropVisible);
+    BG_SetExecutionFlagsForPlayerEntity(s, !_RSI->activeExecutionIsVictim, _RSI->activeExecutionIsVictim, _RSI->activeExecutionIsPropVisible);
   Weapon = BgWeaponMap::GetWeapon(weaponMap, _RSI->executionWeapon);
-  eType = (unsigned __int16)_RDI->eType;
-  v37 = Weapon;
-  if ( (unsigned __int16)eType > 0x11u || (v38 = 131111, !_bittest(&v38, eType)) )
+  eType = (unsigned __int16)s->eType;
+  v34 = Weapon;
+  if ( (unsigned __int16)eType > 0x11u || (v35 = 131111, !_bittest(&v35, eType)) )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 554, ASSERT_TYPE_ASSERT, "(es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE)", (const char *)&queryFormat, "es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE") )
       __debugbreak();
   }
-  weaponMap->SetWeapon(weaponMap, (BgWeaponHandle *)((char *)&_RDI->lerp.u.infoVolumeGrapple + 20), v37);
-  _RDI->lerp.u.player.playerFlags &= 0xC7FFu;
-  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x1Cu) || BG_IsPlayerInExecution(_RSI) && (!_RSI->activeExecutionIsVictim || (v39 = BG_GetCurrentWeaponForPlayerThirdPerson(weaponMap, _RSI), BG_WeaponDef(v39, 0)->executionVictimHiddenWeapon) || _RSI->activeExecutionIsPrimaryHidden) )
-    _RDI->lerp.u.player.playerFlags |= 0x800u;
+  weaponMap->SetWeapon(weaponMap, (BgWeaponHandle *)((char *)&s->lerp.u.infoVolumeGrapple + 20), v34);
+  s->lerp.u.player.playerFlags &= 0xC7FFu;
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x1Cu) || BG_IsPlayerInExecution(_RSI) && (!_RSI->activeExecutionIsVictim || (v36 = BG_GetCurrentWeaponForPlayerThirdPerson(weaponMap, _RSI), BG_WeaponDef(v36, 0)->executionVictimHiddenWeapon) || _RSI->activeExecutionIsPrimaryHidden) )
+    s->lerp.u.player.playerFlags |= 0x800u;
   if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x1Du) || BG_IsPlayerInExecution(_RSI) && _RSI->activeExecutionIsVictim )
-    _RDI->lerp.u.player.playerFlags |= 0x1000u;
+    s->lerp.u.player.playerFlags |= 0x1000u;
   if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, GameModeFlagValues::ms_mpValue, 0x39u) )
-    _RDI->lerp.u.player.playerFlags |= 0x2000u;
-  v40 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x1Eu);
-  v41 = _RDI->lerp.u.player.playerFlags;
-  v42 = v41 | 0x80;
-  v43 = v41 & 0xFF7F;
-  if ( v40 )
-    v43 = v42;
-  _RDI->lerp.u.player.playerFlags = v43;
-  _RDI->lerp.u.player.moveSpeedForAnimBlend = _RSI->moveSpeedForAnimBlend;
-  __asm { vmovaps xmm6, [rsp+0D8h+var_58] }
+    s->lerp.u.player.playerFlags |= 0x2000u;
+  v37 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x1Eu);
+  v38 = s->lerp.u.player.playerFlags;
+  v39 = v38 | 0x80;
+  v40 = v38 & 0xFF7F;
+  if ( v37 )
+    v40 = v39;
+  s->lerp.u.player.playerFlags = v40;
+  s->lerp.u.player.moveSpeedForAnimBlend = _RSI->moveSpeedForAnimBlend;
 }
 
 /*
@@ -8925,98 +7971,51 @@ BG_PlayerToEntity_SetStickInput
 */
 void BG_PlayerToEntity_SetStickInput(const playerState_s *ps, entityState_t *s)
 {
-  bool IsPlayer; 
-  unsigned __int16 v10; 
-  char v25; 
-  char v26; 
+  unsigned __int16 v4; 
+  int forwardmove; 
+  unsigned __int16 v6; 
+  int pitchmove; 
   float outRadius; 
   float outAngleInDegrees; 
-  vec2_t v45; 
+  vec2_t v14; 
   vec2_t cartesianCoords; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2325, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2326, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
     __debugbreak();
-  IsPlayer = BG_IsPlayer(ps);
-  v10 = 0;
-  if ( IsPlayer )
+  v4 = 0;
+  if ( BG_IsPlayer(ps) )
   {
-    __asm
+    forwardmove = ps->lastInput.forwardmove;
+    v14.v[0] = (float)ps->lastInput.rightmove * 0.0078740157;
+    v14.v[1] = (float)forwardmove * 0.0078740157;
+    cartesianCoords = v14;
+    if ( (float)(v14.v[0] * v14.v[0]) > 0.0000010000001 || (float)(cartesianCoords.v[1] * cartesianCoords.v[1]) > 0.0000010000001 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovaps [rsp+80h+var_10], xmm6
-      vmovss  xmm6, cs:__real@358637be
-      vmovaps [rsp+80h+var_20], xmm7
-      vmovss  xmm7, cs:__real@3c010204
-      vmulss  xmm0, xmm0, xmm7
-      vmovss  dword ptr [rbp+var_48], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm1, xmm7
-      vmovss  dword ptr [rbp+var_48+4], xmm0
+      CartesianToPolar(&cartesianCoords, &outAngleInDegrees, &outRadius);
+      _XMM0 = LODWORD(outRadius);
+      __asm { vminss  xmm1, xmm0, xmm8; radius }
+      outRadius = *(float *)&_XMM1;
+      v6 = MSG_PackPolarToShort(outAngleInDegrees, *(const float *)&_XMM1);
     }
-    cartesianCoords = v45;
-    __asm
+    else
     {
-      vmovss  xmm0, dword ptr [rbp+cartesianCoords]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm1, xmm6
-      vmovaps [rsp+80h+var_30], xmm8
-      vmovss  xmm8, cs:__real@3f800000
+      v6 = 0;
     }
-    CartesianToPolar(&cartesianCoords, &outAngleInDegrees, &outRadius);
-    __asm
+    s->lerp.u.player.leftStickPolarPacked = v6;
+    pitchmove = ps->lastInput.pitchmove;
+    v14.v[0] = (float)ps->lastInput.yawmove * 0.0078740157;
+    v14.v[1] = (float)pitchmove * 0.0078740157;
+    if ( (float)(v14.v[0] * v14.v[0]) > 0.0000010000001 || (float)(v14.v[1] * v14.v[1]) > 0.0000010000001 )
     {
-      vmovss  xmm0, [rbp+outRadius]
-      vminss  xmm1, xmm0, xmm8; radius
-      vmovss  xmm0, [rbp+outAngleInDegrees]; anglesInDegrees
-      vmovss  [rbp+outRadius], xmm1
+      CartesianToPolar(&v14, &outAngleInDegrees, &outRadius);
+      _XMM0 = LODWORD(outRadius);
+      __asm { vminss  xmm1, xmm0, xmm8; radius }
+      outRadius = *(float *)&_XMM1;
+      v4 = MSG_PackPolarToShort(outAngleInDegrees, *(const float *)&_XMM1);
     }
-    s->lerp.u.player.leftStickPolarPacked = MSG_PackPolarToShort(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rbp+var_48], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm7
-      vmovaps xmm7, [rsp+80h+var_20]
-      vmovss  dword ptr [rbp+var_48+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+var_48]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm1, xmm6
-    }
-    if ( !(v25 | v26) )
-      goto LABEL_10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+var_48+4]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm1, xmm6
-    }
-    if ( !(v25 | v26) )
-    {
-LABEL_10:
-      CartesianToPolar(&v45, &outAngleInDegrees, &outRadius);
-      __asm
-      {
-        vmovss  xmm0, [rbp+outRadius]
-        vminss  xmm1, xmm0, xmm8; radius
-        vmovss  xmm0, [rbp+outAngleInDegrees]; anglesInDegrees
-        vmovss  [rbp+outRadius], xmm1
-      }
-      v10 = MSG_PackPolarToShort(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    }
-    s->lerp.u.player.rightStickPolarPacked = v10;
-    __asm
-    {
-      vmovaps xmm8, [rsp+80h+var_30]
-      vmovaps xmm6, [rsp+80h+var_10]
-    }
+    s->lerp.u.player.rightStickPolarPacked = v4;
   }
   else
   {
@@ -9032,99 +8031,87 @@ BG_PlayerToEntity_SetStowedWeaponMP
 void BG_PlayerToEntity_SetStowedWeaponMP(BgWeaponMap *weaponMap, const playerState_s *ps, entityState_t *const s)
 {
   const Weapon *WeaponForEntity; 
-  const dvar_t *v8; 
-  bool v15; 
-  int v16; 
+  const dvar_t *v7; 
+  const Weapon *CurrentWeaponForPlayerThirdPerson; 
+  bool v9; 
+  int v10; 
   const Weapon *EquippedWeaponForPlayer; 
-  bool v19; 
+  const Weapon *v12; 
+  bool v13; 
   int weaponState; 
-  const WeaponDef *v21; 
+  const WeaponDef *v15; 
   unsigned int eType; 
-  int v26; 
-  int v28; 
-  const Weapon *v32; 
-  const WeaponDef *v34; 
-  entityType_s v38; 
-  int v39; 
+  int v17; 
+  const Weapon *Weapon; 
+  int v19; 
+  const Weapon *v20; 
+  const Weapon *v21; 
+  const WeaponDef *v22; 
+  entityType_s v23; 
+  int v24; 
   const Weapon *OffHandWeaponForPlayer; 
-  entityType_s v44; 
-  __m256i v45; 
-  int v48; 
+  entityType_s v26; 
+  __m256i v27; 
+  __int128 v28; 
+  __int64 v29; 
+  int v30; 
   Weapon outAccessoryWeapon; 
 
   WeaponForEntity = BG_GetWeaponForEntity(weaponMap, s);
   BG_WeaponDef(WeaponForEntity, 0);
-  __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-  v8 = DVARBOOL_bg_enable_stowed_weapons;
-  v48 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups [rbp+57h+var_C0], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  [rbp+57h+var_90], xmm0
-    vmovups [rbp+57h+var_A0], xmm1
-  }
+  v7 = DVARBOOL_bg_enable_stowed_weapons;
+  v30 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+  v27 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+  v29 = *(__int64 *)&NULL_WEAPON.attachmentVariationIndices[21];
+  v28 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
   if ( !DVARBOOL_bg_enable_stowed_weapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_enable_stowed_weapons") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    _R15 = BG_GetCurrentWeaponForPlayerThirdPerson(weaponMap, ps);
-    if ( BG_IsRiotShield(_R15, 0) && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 1u) )
+    CurrentWeaponForPlayerThirdPerson = BG_GetCurrentWeaponForPlayerThirdPerson(weaponMap, ps);
+    if ( BG_IsRiotShield(CurrentWeaponForPlayerThirdPerson, 0) && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 1u) )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r15]
-        vmovups [rbp+57h+var_C0], ymm0
-        vmovups xmm1, xmmword ptr [r15+20h]
-        vmovups [rbp+57h+var_A0], xmm1
-        vmovsd  xmm0, qword ptr [r15+30h]
-        vmovsd  [rbp+57h+var_90], xmm0
-      }
-      v48 = *(_DWORD *)&_R15->weaponCamo;
+      v27 = *(__m256i *)&CurrentWeaponForPlayerThirdPerson->weaponIdx;
+      v28 = *(_OWORD *)&CurrentWeaponForPlayerThirdPerson->attachmentVariationIndices[5];
+      v29 = *(__int64 *)&CurrentWeaponForPlayerThirdPerson->attachmentVariationIndices[21];
+      v30 = *(_DWORD *)&CurrentWeaponForPlayerThirdPerson->weaponCamo;
       goto LABEL_49;
     }
-    if ( BG_WeaponDef(_R15, 0)->inventoryType != WEAPINVENTORY_OFFHAND )
+    if ( BG_WeaponDef(CurrentWeaponForPlayerThirdPerson, 0)->inventoryType != WEAPINVENTORY_OFFHAND )
     {
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2526, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      v15 = BG_IsPlayerInExecution(ps) && !ps->activeExecutionIsVictim;
-      v16 = 0;
+      v9 = BG_IsPlayerInExecution(ps) && !ps->activeExecutionIsVictim;
+      v10 = 0;
       while ( 1 )
       {
-        EquippedWeaponForPlayer = BG_GetEquippedWeaponForPlayer(weaponMap, ps, v16);
-        _RDI = EquippedWeaponForPlayer;
+        EquippedWeaponForPlayer = BG_GetEquippedWeaponForPlayer(weaponMap, ps, v10);
+        v12 = EquippedWeaponForPlayer;
         if ( EquippedWeaponForPlayer->weaponIdx )
         {
-          v19 = memcmp_0(EquippedWeaponForPlayer, _R15, 0x3Cui64) == 0;
-          if ( v15 && ((weaponState = ps->weapState[0].weaponState, (unsigned int)(weaponState - 7) <= 5) || weaponState == 50 || ps->activeExecutionStartTime == ps->serverTime) )
+          v13 = memcmp_0(EquippedWeaponForPlayer, CurrentWeaponForPlayerThirdPerson, 0x3Cui64) == 0;
+          if ( v9 && ((weaponState = ps->weapState[0].weaponState, (unsigned int)(weaponState - 7) <= 5) || weaponState == 50 || ps->activeExecutionStartTime == ps->serverTime) )
           {
-            if ( !v19 )
+            if ( !v13 )
               goto LABEL_27;
           }
-          else if ( v19 )
+          else if ( v13 )
           {
             goto LABEL_27;
           }
-          v21 = BG_WeaponDef(_RDI, 0);
-          if ( v21->inventoryType == WEAPINVENTORY_PRIMARY && v21->stowTag != scr_const.none && v21->slot != WEAPON_SLOT_MELEE )
+          v15 = BG_WeaponDef(v12, 0);
+          if ( v15->inventoryType == WEAPINVENTORY_PRIMARY && v15->stowTag != scr_const.none && v15->slot != WEAPON_SLOT_MELEE )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdi]
-              vmovups [rbp+57h+var_C0], ymm0
-              vmovups xmm1, xmmword ptr [rdi+20h]
-              vmovups [rbp+57h+var_A0], xmm1
-              vmovsd  xmm0, qword ptr [rdi+30h]
-              vmovsd  [rbp+57h+var_90], xmm0
-            }
-            v48 = *(_DWORD *)&_RDI->weaponCamo;
+            v27 = *(__m256i *)&v12->weaponIdx;
+            v28 = *(_OWORD *)&v12->attachmentVariationIndices[5];
+            v29 = *(__int64 *)&v12->attachmentVariationIndices[21];
+            v30 = *(_DWORD *)&v12->weaponCamo;
             goto LABEL_49;
           }
         }
 LABEL_27:
-        if ( ++v16 >= 15 )
+        if ( ++v10 >= 15 )
           goto LABEL_49;
       }
     }
@@ -9133,60 +8120,48 @@ LABEL_27:
     if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 523, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
     eType = (unsigned __int16)s->eType;
-    if ( (unsigned __int16)eType > 0x11u || (v26 = 131111, !_bittest(&v26, eType)) )
+    if ( (unsigned __int16)eType > 0x11u || (v17 = 131111, !_bittest(&v17, eType)) )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 524, ASSERT_TYPE_ASSERT, "(es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE)", (const char *)&queryFormat, "es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE") )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon(weaponMap, s->staticState.player.stowedWeaponHandle);
-    v28 = 0;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+57h+var_C0], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups [rbp+57h+var_A0], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  [rbp+57h+var_90], xmm0
-    }
-    v48 = *(_DWORD *)&_RAX->weaponCamo;
+    Weapon = BgWeaponMap::GetWeapon(weaponMap, s->staticState.player.stowedWeaponHandle);
+    v19 = 0;
+    v27 = *(__m256i *)&Weapon->weaponIdx;
+    v28 = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+    v29 = *(__int64 *)&Weapon->attachmentVariationIndices[21];
+    v30 = *(_DWORD *)&Weapon->weaponCamo;
     while ( 1 )
     {
-      v32 = BG_GetEquippedWeaponForPlayer(weaponMap, ps, v28);
-      _RDI = v32;
-      if ( v32->weaponIdx )
+      v20 = BG_GetEquippedWeaponForPlayer(weaponMap, ps, v19);
+      v21 = v20;
+      if ( v20->weaponIdx )
       {
-        if ( BG_IsRiotShield(v32, 0) )
+        if ( BG_IsRiotShield(v20, 0) )
         {
-          v34 = BG_WeaponDef(_RDI, 0);
-          if ( v34->inventoryType == WEAPINVENTORY_PRIMARY && v34->stowTag != scr_const.none && v34->slot != WEAPON_SLOT_MELEE )
+          v22 = BG_WeaponDef(v21, 0);
+          if ( v22->inventoryType == WEAPINVENTORY_PRIMARY && v22->stowTag != scr_const.none && v22->slot != WEAPON_SLOT_MELEE )
             break;
         }
       }
-      if ( ++v28 >= 15 )
+      if ( ++v19 >= 15 )
         goto LABEL_49;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups [rbp+57h+var_C0], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups [rbp+57h+var_A0], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  [rbp+57h+var_90], xmm0
-    }
-    v48 = *(_DWORD *)&_RDI->weaponCamo;
+    v27 = *(__m256i *)&v21->weaponIdx;
+    v28 = *(_OWORD *)&v21->attachmentVariationIndices[5];
+    v29 = *(__int64 *)&v21->attachmentVariationIndices[21];
+    v30 = *(_DWORD *)&v21->weaponCamo;
   }
 LABEL_49:
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !s && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 533, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  v38 = s->eType;
-  v39 = 131111;
-  if ( ((unsigned __int16)v38 > ET_AGENT || !_bittest(&v39, v38)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 534, ASSERT_TYPE_ASSERT, "(es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE)", (const char *)&queryFormat, "es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE") )
+  v23 = s->eType;
+  v24 = 131111;
+  if ( ((unsigned __int16)v23 > ET_AGENT || !_bittest(&v24, v23)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 534, ASSERT_TYPE_ASSERT, "(es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE)", (const char *)&queryFormat, "es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE") )
     __debugbreak();
-  weaponMap->SetWeapon(weaponMap, (BgWeaponHandle *)&s->staticState.turret.carrierEntNum, (const Weapon *)&v45);
+  weaponMap->SetWeapon(weaponMap, (BgWeaponHandle *)&s->staticState.turret.carrierEntNum, (const Weapon *)&v27);
   if ( (unsigned int)(ps->weapState[0].weaponState - 27) > 4 )
   {
     if ( !BG_IsUsingOffhandGestureWeapon(ps) && !BG_IsUsingScripteOffhandWeaponWithScriptedAnimType(ps) )
@@ -9207,22 +8182,12 @@ LABEL_66:
   OffHandWeaponForPlayer = &NULL_WEAPON;
 LABEL_68:
   BG_SetOffHandWeaponForPlayerEntity(weaponMap, s, OffHandWeaponForPlayer);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rbp+57h+outAccessoryWeapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-  }
+  memset(&outAccessoryWeapon, 0, 48);
   *(_DWORD *)&outAccessoryWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovsd  qword ptr [rbp+57h+outAccessoryWeapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rbp+57h+outAccessoryWeapon.attachmentVariationIndices+5], xmm1
-  }
+  *(double *)&outAccessoryWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   BG_Accessory_GetWeapon(weaponMap, ps, &outAccessoryWeapon);
-  v44 = s->eType;
-  if ( ((unsigned __int16)v44 > ET_AGENT || !_bittest(&v39, v44)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 729, ASSERT_TYPE_ASSERT, "(es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE)", (const char *)&queryFormat, "es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE") )
+  v26 = s->eType;
+  if ( ((unsigned __int16)v26 > ET_AGENT || !_bittest(&v24, v26)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 729, ASSERT_TYPE_ASSERT, "(es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE)", (const char *)&queryFormat, "es->eType == ET_GENERAL || es->eType == ET_PLAYER || es->eType == ET_PLAYER_CORPSE || es->eType == ET_AGENT || es->eType == ET_INVISIBLE") )
     __debugbreak();
   weaponMap->SetWeapon(weaponMap, (BgWeaponHandle *)((char *)&s->lerp.u.infoVolumeGrapple + 24), &outAccessoryWeapon);
 }
@@ -9234,141 +8199,72 @@ BG_PlayerToEntity_SetTrajectory
 */
 void BG_PlayerToEntity_SetTrajectory(const playerState_s *ps, entityState_t *s, int snap, const BgHandler *handler)
 {
-  const BgGroundPersistentState *v58; 
+  trajectory_t_secure *p_pos; 
+  const BgGroundPersistentState *v17; 
   vec3_t trBase; 
-  void *retaddr; 
-  __int64 v63; 
-  int v64; 
+  __int64 v19; 
+  float v20; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm7 }
-  _RBX = s;
-  _RSI = &s->lerp.pos;
+  p_pos = &s->lerp.pos;
   s->lerp.pos.trType = TR_INTERPOLATE;
-  _ER15 = 0;
   *(_QWORD *)&s->lerp.pos.trTime = 0i64;
   *(_QWORD *)s->lerp.pos.trDelta.v = 0i64;
   s->lerp.pos.trDelta.v[2] = 0.0;
   Trajectory_SetTrBase(&s->lerp.pos, &ps->origin);
   if ( ps->pm_type != 7 )
-    BG_PlayerToEntity_SetTrajectory_Angles(ps, &_RBX->lerp, snap, handler);
+    BG_PlayerToEntity_SetTrajectory_Angles(ps, &s->lerp, snap, handler);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
     if ( (unsigned __int8)ps->movementDir != ps->movementDir && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 2279, ASSERT_TYPE_ASSERT, "((ps->movementDir & ((1 << 8) - 1)) == ps->movementDir)", (const char *)&queryFormat, "(ps->movementDir & ((1 << MOVEMENTDIR_BITS) - 1)) == ps->movementDir", -2i64) )
       __debugbreak();
-    _RBX->lerp.u.player.movementDir = ps->movementDir;
+    s->lerp.u.player.movementDir = ps->movementDir;
     if ( PlayerASM_IsEnabled() )
-      _RBX->lerp.u.player.velocityDir = BG_PlayerASM_GetVelocityDir(ps, handler);
+      s->lerp.u.player.velocityDir = BG_PlayerASM_GetVelocityDir(ps, handler);
   }
   if ( snap && BG_IsPlayerPositionQuantized(ps) )
   {
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+    if ( !p_pos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
       __debugbreak();
-    if ( _RSI->trType == TR_LINEAR_STOP_SECURE )
+    if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
     {
-      *(_QWORD *)&trBase.y = *(_QWORD *)_RSI->trBase.v ^ __PAIR64__(LODWORD(_RSI->trBase.v[2]) ^ s_trbase_aab_Z, LODWORD(_RSI->trBase.v[1]) ^ s_trbase_aab_Y);
-      LODWORD(trBase.v[0]) = LODWORD(_RSI->trBase.v[0]) ^ ~s_trbase_aab_X;
-      memset(&v63, 0, sizeof(v63));
-      __asm
+      *(_QWORD *)&trBase.y = *(_QWORD *)p_pos->trBase.v ^ __PAIR64__(LODWORD(p_pos->trBase.v[2]) ^ s_trbase_aab_Z, LODWORD(p_pos->trBase.v[1]) ^ s_trbase_aab_Y);
+      LODWORD(trBase.v[0]) = LODWORD(p_pos->trBase.v[0]) ^ ~s_trbase_aab_X;
+      memset(&v19, 0, sizeof(v19));
+      v20 = trBase.v[0];
+      if ( (LODWORD(trBase.v[0]) & 0x7F800000) == 2139095040 || (v20 = trBase.v[1], (LODWORD(trBase.v[1]) & 0x7F800000) == 2139095040) || (v20 = trBase.v[2], (LODWORD(trBase.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rsp+88h+trBase]
-        vmovss  [rsp+88h+arg_10], xmm0
-      }
-      if ( (v64 & 0x7F800000) == 2139095040 )
-        goto LABEL_26;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+trBase+4]
-        vmovss  [rsp+88h+arg_10], xmm0
-      }
-      if ( (v64 & 0x7F800000) == 2139095040 )
-        goto LABEL_26;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+trBase+8]
-        vmovss  [rsp+88h+arg_10], xmm0
-      }
-      if ( (v64 & 0x7F800000) == 2139095040 )
-      {
-LABEL_26:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
           __debugbreak();
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vmovss  dword ptr [rsp+88h+trBase], xmm0
-        vmovss  xmm1, dword ptr [rsi+10h]
-        vmovss  dword ptr [rsp+88h+trBase+4], xmm1
-        vmovss  xmm0, dword ptr [rsi+14h]
-        vmovss  dword ptr [rsp+88h+trBase+8], xmm0
-      }
+      trBase = p_pos->trBase;
     }
-    _EAX = MSG_UsingHighPrecisionPlayerOrigin();
-    __asm
-    {
-      vmovd   xmm1, r15d
-      vmovd   xmm0, eax
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm3, cs:__real@3f800000
-      vmovss  xmm0, cs:__real@41000000
-      vblendvps xmm7, xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm7, dword ptr [rsp+88h+trBase]
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm4, xmm4, xmm4
-      vroundss xmm0, xmm4, xmm1, 1
-      vdivss  xmm5, xmm3, xmm7
-      vcvttss2si eax, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rsp+88h+trBase], xmm1
-      vmulss  xmm2, xmm7, dword ptr [rsp+88h+trBase+4]
-      vaddss  xmm3, xmm2, cs:__real@3f000000
-      vroundss xmm2, xmm4, xmm3, 1
-      vcvttss2si eax, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rsp+88h+trBase+4], xmm1
-      vmulss  xmm2, xmm7, dword ptr [rsp+88h+trBase+8]
-      vaddss  xmm3, xmm2, cs:__real@3f000000
-      vroundss xmm2, xmm4, xmm3, 1
-      vcvttss2si eax, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rsp+88h+trBase+8], xmm1
-    }
-    Trajectory_SetTrBase(_RSI, &trBase);
-    __asm
-    {
-      vcvttss2si eax, dword ptr [rbx+40h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+40h], xmm0
-      vcvttss2si eax, dword ptr [rbx+44h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+44h], xmm0
-      vcvttss2si eax, dword ptr [rbx+48h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+48h], xmm0
-    }
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RBX->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    _XMM0 = MSG_UsingHighPrecisionPlayerOrigin();
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM0 = LODWORD(FLOAT_8_0);
+    __asm { vblendvps xmm7, xmm0, xmm3, xmm2 }
+    _XMM4 = 0i64;
+    __asm { vroundss xmm0, xmm4, xmm1, 1 }
+    trBase.v[0] = (float)(int)*(float *)&_XMM0 * (float)(1.0 / *(float *)&_XMM7);
+    __asm { vroundss xmm2, xmm4, xmm3, 1 }
+    trBase.v[1] = (float)(int)*(float *)&_XMM2 * (float)(1.0 / *(float *)&_XMM7);
+    __asm { vroundss xmm2, xmm4, xmm3, 1 }
+    trBase.v[2] = (float)(int)*(float *)&_XMM2 * (float)(1.0 / *(float *)&_XMM7);
+    Trajectory_SetTrBase(p_pos, &trBase);
+    s->lerp.apos.trBase.v[0] = (float)(int)s->lerp.apos.trBase.v[0];
+    s->lerp.apos.trBase.v[1] = (float)(int)s->lerp.apos.trBase.v[1];
+    s->lerp.apos.trBase.v[2] = (float)(int)s->lerp.apos.trBase.v[2];
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&s->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
     memset(&trBase, 0, sizeof(trBase));
   }
   else
   {
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RBX->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&s->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
   }
-  v58 = handler->GetGroundPersistentState(handler, ps);
-  __asm { vmovaps xmm7, [rsp+88h+var_38] }
-  BG_SlopeWorldmodel_Pack(&v58->smoothedNormal, &_RBX->lerp.u.player.slopePacked);
+  v17 = handler->GetGroundPersistentState(handler, ps);
+  BG_SlopeWorldmodel_Pack(&v17->smoothedNormal, &s->lerp.u.player.slopePacked);
 }
 
 /*
@@ -9379,19 +8275,22 @@ BG_PlayerToEntity_SetTrajectory_Angles
 void BG_PlayerToEntity_SetTrajectory_Angles(const playerState_s *ps, LerpEntityState *lerp, int snap, const BgHandler *handler)
 {
   const SuitDef *SuitDef; 
-  float v11; 
+  double v9; 
+  float v10; 
+  int v11; 
+  float v12; 
+  int v13; 
   tmat33_t<vec3_t> axis; 
 
-  _RDI = lerp;
   *(_QWORD *)&lerp->apos.trType = 1i64;
   lerp->apos.trDuration = 0;
   *(_QWORD *)lerp->apos.trDelta.v = 0i64;
   lerp->apos.trDelta.v[2] = 0.0;
   if ( BG_IsTurretActive(ps) )
   {
-    _RDI->apos.trBase.v[0] = ps->viewangles.v[0];
-    _RDI->apos.trBase.v[1] = ps->viewangles.v[1];
-    _RDI->apos.trBase.v[2] = ps->viewangles.v[2];
+    lerp->apos.trBase.v[0] = ps->viewangles.v[0];
+    lerp->apos.trBase.v[1] = ps->viewangles.v[1];
+    lerp->apos.trBase.v[2] = ps->viewangles.v[2];
     goto LABEL_22;
   }
   SuitDef = BG_GetSuitDef(ps->suitIndex);
@@ -9399,9 +8298,9 @@ void BG_PlayerToEntity_SetTrajectory_Angles(const playerState_s *ps, LerpEntityS
     __debugbreak();
   if ( GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 2u) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 1u) )
   {
-    _RDI->apos.trBase.v[0] = ps->linkWeaponAngles.v[0];
-    _RDI->apos.trBase.v[1] = ps->linkWeaponAngles.v[1];
-    v11 = ps->linkWeaponAngles.v[2];
+    lerp->apos.trBase.v[0] = ps->linkWeaponAngles.v[0];
+    lerp->apos.trBase.v[1] = ps->linkWeaponAngles.v[1];
+    v10 = ps->linkWeaponAngles.v[2];
     goto LABEL_21;
   }
   if ( BG_IsScriptedSceneAnimFlagEnabled(ps) && BG_IsPlayerLinked(ps) )
@@ -9410,24 +8309,23 @@ void BG_PlayerToEntity_SetTrajectory_Angles(const playerState_s *ps, LerpEntityS
       __debugbreak();
     if ( handler->GetParentAxis((BgHandler *)handler, ps->clientNum, (tmat43_t<vec3_t> *)&axis) )
     {
-      AxisToAngles(&axis, &_RDI->apos.trBase);
+      AxisToAngles(&axis, &lerp->apos.trBase);
       goto LABEL_22;
     }
 LABEL_19:
-    _RDI->apos.trBase.v[0] = ps->viewangles.v[0];
-    _RDI->apos.trBase.v[1] = ps->viewangles.v[1];
-    v11 = ps->viewangles.v[2];
+    lerp->apos.trBase.v[0] = ps->viewangles.v[0];
+    lerp->apos.trBase.v[1] = ps->viewangles.v[1];
+    v10 = ps->viewangles.v[2];
 LABEL_21:
-    _RDI->apos.trBase.v[2] = v11;
+    lerp->apos.trBase.v[2] = v10;
     goto LABEL_22;
   }
   if ( SuitDef->isMovementCameraIndependent )
   {
-    __asm { vmovss  xmm1, cs:__real@43b40000; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(ps->movementDirPrecise, *(float *)&_XMM1, 0x10u);
-    __asm { vmovss  dword ptr [rdi+38h], xmm0 }
-    _RDI->apos.trBase.v[0] = 0.0;
-    _RDI->apos.trBase.v[2] = 0.0;
+    v9 = MSG_UnpackUnsignedFloat(ps->movementDirPrecise, 360.0, 0x10u);
+    lerp->apos.trBase.v[1] = *(float *)&v9;
+    lerp->apos.trBase.v[0] = 0.0;
+    lerp->apos.trBase.v[2] = 0.0;
     goto LABEL_22;
   }
   if ( ps->vehicleState.entity == 2047 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x1Bu) )
@@ -9437,21 +8335,12 @@ LABEL_22:
   {
     if ( BG_IsPlayerPositionQuantized(ps) )
     {
-      __asm
-      {
-        vcvttss2si eax, dword ptr [rdi+34h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcvttss2si eax, dword ptr [rdi+38h]
-        vmovss  dword ptr [rdi+34h], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcvttss2si eax, dword ptr [rdi+3Ch]
-        vmovss  dword ptr [rdi+38h], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  dword ptr [rdi+3Ch], xmm0
-      }
+      v11 = (int)lerp->apos.trBase.v[1];
+      lerp->apos.trBase.v[0] = (float)(int)lerp->apos.trBase.v[0];
+      v12 = (float)v11;
+      v13 = (int)lerp->apos.trBase.v[2];
+      lerp->apos.trBase.v[1] = v12;
+      lerp->apos.trBase.v[2] = (float)v13;
     }
   }
 }
@@ -9461,51 +8350,30 @@ LABEL_22:
 BG_PlayerTouchesItem
 ==============
 */
-__int64 BG_PlayerTouchesItem(const playerState_s *ps, const entityState_t *item, int atTime, BgTrajectory *traj)
+_BOOL8 BG_PlayerTouchesItem(const playerState_s *ps, const entityState_t *item, int atTime, BgTrajectory *traj)
 {
-  char v7; 
-  char v8; 
+  float v7; 
+  float v8; 
+  float v9; 
+  _BOOL8 result; 
   vec3_t outPos; 
 
-  _RBX = ps;
   if ( !traj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 777, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
     __debugbreak();
   BgTrajectory::EvaluatePosTrajectory(traj, atTime, &outPos);
-  __asm
+  v7 = ps->origin.v[0] - outPos.v[0];
+  result = 0;
+  if ( v7 <= 36.0 && v7 >= -36.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vsubss  xmm2, xmm0, dword ptr [rsp+58h+outPos]
-    vmovss  xmm3, cs:__real@42100000
-    vcomiss xmm2, xmm3
+    v8 = ps->origin.v[1] - outPos.v[1];
+    if ( v8 <= 36.0 && v8 >= -36.0 )
+    {
+      v9 = ps->origin.v[2] - outPos.v[2];
+      if ( v9 <= 18.0 && v9 >= -88.0 )
+        return 1;
+    }
   }
-  if ( !(v7 | v8) )
-    return 0i64;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@c2100000
-    vcomiss xmm2, xmm1
-  }
-  if ( v7 )
-    return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vsubss  xmm2, xmm0, dword ptr [rsp+58h+outPos+4]
-    vcomiss xmm2, xmm3
-  }
-  if ( !(v7 | v8) )
-    return 0i64;
-  __asm
-  {
-    vcomiss xmm2, xmm1
-    vmovss  xmm0, dword ptr [rbx+38h]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+outPos+8]
-    vcomiss xmm1, cs:__real@41900000
-  }
-  if ( !(v7 | v8) )
-    return 0i64;
-  __asm { vcomiss xmm1, cs:__real@c2b00000 }
-  return 1i64;
+  return result;
 }
 
 /*
@@ -9573,214 +8441,135 @@ void BG_RegisterCommonDvars(void)
 BG_RegisterNetworkDvars
 ==============
 */
-
-void __fastcall BG_RegisterNetworkDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void BG_RegisterNetworkDvars(void)
 {
   char ActiveGameMode; 
-  unsigned int v6; 
-  unsigned int v7; 
-  char v8; 
-  unsigned int v9; 
+  unsigned int v1; 
+  unsigned int v2; 
+  char v3; 
+  unsigned int v4; 
   unsigned int flags; 
+  char v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  char v9; 
+  unsigned int v10; 
   char v11; 
   unsigned int v12; 
-  unsigned int v13; 
-  char v14; 
-  unsigned int v15; 
-  char v16; 
-  unsigned int v17; 
-  char v18; 
-  unsigned int v19; 
-  char v20; 
+  char v13; 
+  unsigned int v14; 
+  char v15; 
+  unsigned int v16; 
+  char v17; 
+  unsigned int v18; 
+  bool v19; 
+  unsigned int v20; 
   unsigned int v21; 
-  char v22; 
+  unsigned int v22; 
   unsigned int v23; 
-  bool v26; 
+  unsigned int v24; 
+  unsigned int v25; 
+  unsigned int v26; 
   unsigned int v27; 
-  unsigned int v31; 
-  unsigned int v35; 
-  unsigned int v39; 
-  unsigned int v48; 
-  unsigned int v49; 
-  unsigned int v54; 
-  unsigned int v58; 
-  unsigned int v62; 
+  unsigned int v28; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm7
-    vmovaps [rsp+58h+var_28], xmm8
-  }
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
-  v6 = 68;
-  v7 = 68;
+  v1 = 68;
+  v2 = 68;
   if ( ActiveGameMode != 1 )
-    v7 = 140;
-  DVARBOOL_bg_compassShowEnemies = Dvar_RegisterBool("MPOKQNLPRM", 0, v7, "Whether enemies are visible on the compass at all times");
-  v8 = Com_GameMode_GetActiveGameMode();
-  v9 = 64;
+    v2 = 140;
+  DVARBOOL_bg_compassShowEnemies = Dvar_RegisterBool("MPOKQNLPRM", 0, v2, "Whether enemies are visible on the compass at all times");
+  v3 = Com_GameMode_GetActiveGameMode();
+  v4 = 64;
   flags = 64;
-  if ( v8 != 1 )
+  if ( v3 != 1 )
     flags = 140;
   DVARINT_bg_objectivePingDuration = Dvar_RegisterInt("MLQLSTKPMM", 3000, 0, 60000, flags, "How long (in ms) objectives should be visible on screen after they are pinged from GSC");
+  v6 = Com_GameMode_GetActiveGameMode();
+  v7 = 0;
+  v8 = 0;
+  if ( v6 != 1 )
+    v8 = 140;
+  DVARBOOL_camera_thirdPerson = Dvar_RegisterBool("NOSLRNTRKL", 0, v8, "Use third person view globally");
+  v9 = Com_GameMode_GetActiveGameMode();
+  v10 = 0;
+  if ( v9 != 1 )
+    v10 = 140;
+  DVARBOOL_camera_allow3rdspectate = Dvar_RegisterBool("LKNNQKNTS", 1, v10, "to allow a spectating player to toggle the camera in third person");
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v1 = 140;
+  DVARBOOL_disable_energy_bullet_ricochet = Dvar_RegisterBool("NTTPPOLPLL", 0, v1, "When true, prevents weapons marked with 'Energy Bullet' from ricocheting.  This DVar is replicated to clients.");
   v11 = Com_GameMode_GetActiveGameMode();
   v12 = 0;
-  v13 = 0;
   if ( v11 != 1 )
-    v13 = 140;
-  DVARBOOL_camera_thirdPerson = Dvar_RegisterBool("NOSLRNTRKL", 0, v13, "Use third person view globally");
-  v14 = Com_GameMode_GetActiveGameMode();
-  v15 = 0;
-  if ( v14 != 1 )
-    v15 = 140;
-  DVARBOOL_camera_allow3rdspectate = Dvar_RegisterBool("LKNNQKNTS", 1, v15, "to allow a spectating player to toggle the camera in third person");
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v6 = 140;
-  DVARBOOL_disable_energy_bullet_ricochet = Dvar_RegisterBool("NTTPPOLPLL", 0, v6, "When true, prevents weapons marked with 'Energy Bullet' from ricocheting.  This DVar is replicated to clients.");
-  v16 = Com_GameMode_GetActiveGameMode();
-  v17 = 0;
-  if ( v16 != 1 )
-    v17 = 140;
-  DVARBOOL_bg_enableClientNetPerf = Dvar_RegisterBool("MQKRMPMRKP", 1, v17, "When true, the client network performance monitoring system is enabled.  This DVar is replicated to clients.");
-  v18 = Com_GameMode_GetActiveGameMode();
-  v19 = 0;
-  if ( v18 != 1 )
-    v19 = 140;
-  DVARSTR_bg_TeamName_Allies = Dvar_RegisterString("MQKSOKLPNQ", "MENU/FACTION_UNSA_SHORT", v19, "Allied team name");
-  v20 = Com_GameMode_GetActiveGameMode();
-  v21 = 0;
-  if ( v20 != 1 )
-    v21 = 140;
-  DVARSTR_bg_TeamName_Axis = Dvar_RegisterString("NNTNLNQLPR", "MENU/FACTION_SDF_SHORT", v21, "Axis team name");
-  v22 = Com_GameMode_GetActiveGameMode();
-  v23 = 0;
-  if ( v22 != 1 )
-    v23 = 140;
-  DVARBOOL_deploy_allowInWater = Dvar_RegisterBool("NPRRROOTTK", 0, v23, "Allow for deploy in water");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@43390000; value
-  }
-  v26 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v27 = 64;
-  if ( !v26 )
-    v27 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_bg_fallDamageMinHeight = Dvar_RegisterFloat("NKTQRKRMTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v27, "The height that a player will start to take minimum damage if they fall");
-  __asm { vmovss  xmm1, cs:__real@43960000; value }
-  v26 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v31 = 64;
-  if ( !v26 )
-    v31 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_bg_fallDamageMaxHeight = Dvar_RegisterFloat("LKMOLLSKKO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v31, "The height that a player will take maximum damage when falling");
-  __asm { vmovss  xmm1, cs:__real@43390000; value }
-  v26 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v35 = 64;
-  if ( !v26 )
-    v35 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_bg_softLandingMinHeight = Dvar_RegisterFloat("OMLLLQKQSR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v35, "The height that a player will start to take minimum damage if soft landing is in effect");
-  __asm { vmovss  xmm1, cs:__real@43960000; value }
-  v26 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v39 = 64;
-  if ( !v26 )
-    v39 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_bg_softLandingMaxHeight = Dvar_RegisterFloat("LTMMLKRKTR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v39, "The height that a player will start to take max damage if soft landing is in effect");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v9 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_bg_softLandingMaxDamage = Dvar_RegisterFloat("NQTPPSQROP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v9, "The max amount of damage (as % of max health) if soft landing is in effect");
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
     v12 = 140;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@49742400; value
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_sv_netfieldHighLoDDistSq = Dvar_RegisterFloat("OLQLPNSQLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v12, "Entities within this squared dist will be High LoD, otherwise they will be Low LoD.");
-  v48 = 262340;
-  v49 = 262340;
+  DVARBOOL_bg_enableClientNetPerf = Dvar_RegisterBool("MQKRMPMRKP", 1, v12, "When true, the client network performance monitoring system is enabled.  This DVar is replicated to clients.");
+  v13 = Com_GameMode_GetActiveGameMode();
+  v14 = 0;
+  if ( v13 != 1 )
+    v14 = 140;
+  DVARSTR_bg_TeamName_Allies = Dvar_RegisterString("MQKSOKLPNQ", "MENU/FACTION_UNSA_SHORT", v14, "Allied team name");
+  v15 = Com_GameMode_GetActiveGameMode();
+  v16 = 0;
+  if ( v15 != 1 )
+    v16 = 140;
+  DVARSTR_bg_TeamName_Axis = Dvar_RegisterString("NNTNLNQLPR", "MENU/FACTION_SDF_SHORT", v16, "Axis team name");
+  v17 = Com_GameMode_GetActiveGameMode();
+  v18 = 0;
+  if ( v17 != 1 )
+    v18 = 140;
+  DVARBOOL_deploy_allowInWater = Dvar_RegisterBool("NPRRROOTTK", 0, v18, "Allow for deploy in water");
+  v19 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v20 = 64;
+  if ( !v19 )
+    v20 = 140;
+  DVARFLT_bg_fallDamageMinHeight = Dvar_RegisterFloat("NKTQRKRMTS", 185.0, 0.0, 3.4028235e38, v20, "The height that a player will start to take minimum damage if they fall");
+  v19 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v21 = 64;
+  if ( !v19 )
+    v21 = 140;
+  DVARFLT_bg_fallDamageMaxHeight = Dvar_RegisterFloat("LKMOLLSKKO", 300.0, 0.0, 3.4028235e38, v21, "The height that a player will take maximum damage when falling");
+  v19 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v22 = 64;
+  if ( !v19 )
+    v22 = 140;
+  DVARFLT_bg_softLandingMinHeight = Dvar_RegisterFloat("OMLLLQKQSR", 185.0, 0.0, 3.4028235e38, v22, "The height that a player will start to take minimum damage if soft landing is in effect");
+  v19 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v23 = 64;
+  if ( !v19 )
+    v23 = 140;
+  DVARFLT_bg_softLandingMaxHeight = Dvar_RegisterFloat("LTMMLKRKTR", 300.0, 0.0, 3.4028235e38, v23, "The height that a player will start to take max damage if soft landing is in effect");
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v49 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3dcccccd; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_trackTrajectory1 = Dvar_RegisterFloat("QOPKTQPM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v49, "Track strength at this key from 0-1.");
-  v54 = 262340;
+    v4 = 140;
+  DVARFLT_bg_softLandingMaxDamage = Dvar_RegisterFloat("NQTPPSQROP", 0.1, 0.0, 3.4028235e38, v4, "The max amount of damage (as % of max health) if soft landing is in effect");
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v54 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e99999a; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_trackTrajectory2 = Dvar_RegisterFloat("LTSROKKQPP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v54, "Same as trackTrajectory1.");
-  v58 = 262340;
+    v7 = 140;
+  DVARFLT_sv_netfieldHighLoDDistSq = Dvar_RegisterFloat("OLQLPNSQLL", 1000000.0, 0.0, 3.4028235e38, v7, "Entities within this squared dist will be High LoD, otherwise they will be Low LoD.");
+  v24 = 262340;
+  v25 = 262340;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v58 = 262276;
+    v25 = 262276;
   Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_trackTrajectory3 = Dvar_RegisterFloat("OMKTROSPLS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v58, "Same as trackTrajectory1.");
-  v62 = 262340;
+  DCONST_DVARMPFLT_trackTrajectory1 = Dvar_RegisterFloat("QOPKTQPM", 0.1, 0.0, 1.0, v25, "Track strength at this key from 0-1.");
+  v26 = 262340;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v62 = 262276;
+    v26 = 262276;
   Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f333333; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_trackTrajectory4 = Dvar_RegisterFloat("MONQPSPTOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v62, "Same as trackTrajectory1.");
+  DCONST_DVARMPFLT_trackTrajectory2 = Dvar_RegisterFloat("LTSROKKQPP", 0.30000001, 0.0, 1.0, v26, "Same as trackTrajectory1.");
+  v27 = 262340;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v48 = 262276;
+    v27 = 262276;
   Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f666666; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm7, [rsp+58h+var_18]
-    vmovaps xmm8, [rsp+58h+var_28]
-  }
-  DCONST_DVARMPFLT_trackTrajectory5 = Dvar_RegisterFloat("NQNTQQPLM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v48, "Same as trackTrajectory1.");
+  DCONST_DVARMPFLT_trackTrajectory3 = Dvar_RegisterFloat("OMKTROSPLS", 0.5, 0.0, 1.0, v27, "Same as trackTrajectory1.");
+  v28 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v28 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPFLT_trackTrajectory4 = Dvar_RegisterFloat("MONQPSPTOP", 0.69999999, 0.0, 1.0, v28, "Same as trackTrajectory1.");
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v24 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPFLT_trackTrajectory5 = Dvar_RegisterFloat("NQNTQQPLM", 0.89999998, 0.0, 1.0, v24, "Same as trackTrajectory1.");
 }
 
 /*
@@ -10045,8 +8834,9 @@ BG_SetPlayerDamageFlinch
 void BG_SetPlayerDamageFlinch(playerState_s *ps, int damage)
 {
   const dvar_t *v4; 
-  char v13; 
-  char v14; 
+  const dvar_t *v5; 
+  int damageTimer; 
+  const dvar_t *v7; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
@@ -10056,35 +8846,22 @@ void BG_SetPlayerDamageFlinch(playerState_s *ps, int damage)
     if ( !DCONST_DVARFLT_player_dmgtimer_timePerPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_timePerPoint") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v4);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm0, xmm0, dword ptr [rdi+28h]
-      vcvttss2si eax, xmm0
-    }
-    ps->damageTimer += _EAX;
-    _RDI = DCONST_DVARFLT_player_dmgtimer_maxTime;
+    ps->damageTimer += (int)(float)((float)damage * v4->current.value);
+    v5 = DCONST_DVARFLT_player_dmgtimer_maxTime;
     if ( !DCONST_DVARFLT_player_dmgtimer_maxTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_maxTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    _EAX = ps->damageTimer;
-    __asm
+    Dvar_CheckFrontendServerThread(v5);
+    damageTimer = ps->damageTimer;
+    if ( (float)damageTimer > v5->current.value )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vcomiss xmm0, dword ptr [rdi+28h]
-    }
-    if ( !(v13 | v14) )
-    {
-      _RDI = DCONST_DVARFLT_player_dmgtimer_maxTime;
+      v7 = DCONST_DVARFLT_player_dmgtimer_maxTime;
       if ( !DCONST_DVARFLT_player_dmgtimer_maxTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_maxTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vcvttss2si eax, dword ptr [rdi+28h] }
-      ps->damageTimer = _EAX;
+      Dvar_CheckFrontendServerThread(v7);
+      damageTimer = (int)v7->current.value;
+      ps->damageTimer = damageTimer;
     }
-    ps->damageDuration = _EAX;
+    ps->damageDuration = damageTimer;
     ps->flinch = 1;
   }
 }
@@ -10175,338 +8952,268 @@ BG_SetShellShockParmsFromDvars
 */
 void BG_SetShellShockParmsFromDvars(shellshock_parms_t *parms)
 {
+  const dvar_t *v2; 
+  const dvar_t *v7; 
+  const dvar_t *v11; 
+  const dvar_t *v13; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v20; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
   const dvar_t *v25; 
-  const dvar_t *v30; 
-  const dvar_t *v35; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  const dvar_t *v33; 
+  const dvar_t *v37; 
+  const dvar_t *v41; 
+  const dvar_t *v43; 
+  const dvar_t *v44; 
+  const dvar_t *v46; 
   const dvar_t *v47; 
-  const dvar_t *v48; 
   const dvar_t *v49; 
   const dvar_t *v50; 
   const dvar_t *v51; 
   const dvar_t *v52; 
-  const dvar_t *v74; 
-  const dvar_t *v79; 
-  const dvar_t *v80; 
-  const dvar_t *v85; 
-  const dvar_t *v86; 
-  const dvar_t *v91; 
-  const dvar_t *v92; 
-  const dvar_t *v93; 
-  const dvar_t *v94; 
-  const dvar_t *v95; 
-  const dvar_t *v96; 
-  const dvar_t *v97; 
-  __int64 v103; 
-  char v106; 
-  void *retaddr; 
+  const dvar_t *v53; 
+  const dvar_t *v54; 
+  const dvar_t *v55; 
+  __int64 v56; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = parms;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3544, ASSERT_TYPE_ASSERT, "(parms)", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  _RDI = DVARFLT_bg_shock_screenBlurBlendTime;
+  v2 = DVARFLT_bg_shock_screenBlurBlendTime;
   if ( !DVARFLT_bg_shock_screenBlurBlendTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_screenBlurBlendTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  xmm6, cs:__real@3a83126f
-    vmovss  xmm8, cs:__real@447a0000
-    vmovss  xmm9, cs:__real@3f000000
-    vmaxss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, xmm9
-    vxorps  xmm7, xmm7, xmm7
-    vroundss xmm2, xmm7, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  _RBX->screenBlend.blurredEffectTime = _EAX;
-  _RDI = DVARFLT_bg_shock_screenBlurBlendFadeTime;
+  Dvar_CheckFrontendServerThread(v2);
+  _XMM0 = v2->current.unsignedInt;
+  __asm { vmaxss  xmm1, xmm0, xmm6 }
+  _XMM7 = 0i64;
+  __asm { vroundss xmm2, xmm7, xmm3, 1 }
+  parms->screenBlend.blurredEffectTime = (int)*(float *)&_XMM2;
+  v7 = DVARFLT_bg_shock_screenBlurBlendFadeTime;
   if ( !DVARFLT_bg_shock_screenBlurBlendFadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_screenBlurBlendFadeTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v7);
+  _XMM0 = v7->current.unsignedInt;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
     vmaxss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, xmm9
     vroundss xmm2, xmm7, xmm3, 1
-    vcvttss2si eax, xmm2
   }
-  _RBX->screenBlend.blurredFadeTime = _EAX;
-  v25 = DVARFLT_bg_shock_screenFlashShotFadeTime;
+  parms->screenBlend.blurredFadeTime = (int)*(float *)&_XMM2;
+  v11 = DVARFLT_bg_shock_screenFlashShotFadeTime;
   if ( !DVARFLT_bg_shock_screenFlashShotFadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_screenFlashShotFadeTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v25);
-  __asm
-  {
-    vmulss  xmm1, xmm8, dword ptr [rdi+28h]
-    vaddss  xmm3, xmm1, xmm9
-    vroundss xmm1, xmm7, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  _RBX->screenBlend.flashShotFadeTime = _EAX;
-  v30 = DVARFLT_bg_shock_screenFlashWhiteFadeTime;
+  Dvar_CheckFrontendServerThread(v11);
+  __asm { vroundss xmm1, xmm7, xmm3, 1 }
+  parms->screenBlend.flashShotFadeTime = (int)*(float *)&_XMM1;
+  v13 = DVARFLT_bg_shock_screenFlashWhiteFadeTime;
   if ( !DVARFLT_bg_shock_screenFlashWhiteFadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_screenFlashWhiteFadeTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v30);
-  __asm
+  Dvar_CheckFrontendServerThread(v13);
+  __asm { vroundss xmm1, xmm7, xmm3, 1 }
+  parms->screenBlend.flashWhiteFadeTime = (int)*(float *)&_XMM1;
+  if ( parms->screenBlend.blurredFadeTime <= 0 )
   {
-    vmulss  xmm1, xmm8, dword ptr [rdi+28h]
-    vaddss  xmm3, xmm1, xmm9
-    vroundss xmm1, xmm7, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  _RBX->screenBlend.flashWhiteFadeTime = _EAX;
-  if ( _RBX->screenBlend.blurredFadeTime <= 0 )
-  {
-    LODWORD(v103) = _RBX->screenBlend.blurredFadeTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3550, ASSERT_TYPE_ASSERT, "( ( parms->screenBlend.blurredFadeTime > 0 ) )", "( parms->screenBlend.blurredFadeTime ) = %i", v103) )
+    LODWORD(v56) = parms->screenBlend.blurredFadeTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3550, ASSERT_TYPE_ASSERT, "( ( parms->screenBlend.blurredFadeTime > 0 ) )", "( parms->screenBlend.blurredFadeTime ) = %i", v56) )
       __debugbreak();
   }
-  if ( _RBX->screenBlend.blurredEffectTime <= 0 )
+  if ( parms->screenBlend.blurredEffectTime <= 0 )
   {
-    LODWORD(v103) = _RBX->screenBlend.blurredEffectTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3551, ASSERT_TYPE_ASSERT, "( ( parms->screenBlend.blurredEffectTime > 0 ) )", "( parms->screenBlend.blurredEffectTime ) = %i", v103) )
+    LODWORD(v56) = parms->screenBlend.blurredEffectTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3551, ASSERT_TYPE_ASSERT, "( ( parms->screenBlend.blurredEffectTime > 0 ) )", "( parms->screenBlend.blurredEffectTime ) = %i", v56) )
       __debugbreak();
   }
-  v35 = DVARINT_bg_shock_screenType;
+  v15 = DVARINT_bg_shock_screenType;
   if ( !DVARINT_bg_shock_screenType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_screenType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v35);
-  _RBX->screenBlend.type = v35->current.integer;
+  Dvar_CheckFrontendServerThread(v15);
+  parms->screenBlend.type = v15->current.integer;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
   {
-    _RBX->view.fadeTime = 3000;
+    parms->view.fadeTime = 3000;
   }
   else
   {
-    _RDI = DVARFLT_bg_shock_viewKickFadeTime;
+    v16 = DVARFLT_bg_shock_viewKickFadeTime;
     if ( !DVARFLT_bg_shock_viewKickFadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_viewKickFadeTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
+    Dvar_CheckFrontendServerThread(v16);
+    _XMM0 = v16->current.unsignedInt;
     __asm
     {
-      vmovss  xmm0, dword ptr [rdi+28h]
       vmaxss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, xmm9
       vroundss xmm2, xmm7, xmm3, 1
-      vcvttss2si eax, xmm2
     }
-    _RBX->view.fadeTime = _EAX;
-    if ( _EAX <= 0 )
+    parms->view.fadeTime = (int)*(float *)&_XMM2;
+    if ( (int)*(float *)&_XMM2 <= 0 )
     {
-      LODWORD(v103) = _EAX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3562, ASSERT_TYPE_ASSERT, "( ( parms->view.fadeTime > 0 ) )", "( parms->view.fadeTime ) = %i", v103) )
+      LODWORD(v56) = (int)*(float *)&_XMM2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3562, ASSERT_TYPE_ASSERT, "( ( parms->view.fadeTime > 0 ) )", "( parms->view.fadeTime ) = %i", v56) )
         __debugbreak();
     }
   }
-  _RDI = DVARFLT_bg_shock_viewKickPeriod;
+  v20 = DVARFLT_bg_shock_viewKickPeriod;
   if ( !DVARFLT_bg_shock_viewKickPeriod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_viewKickPeriod") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmaxss  xmm1, xmm0, xmm6
-    vdivss  xmm1, xmm6, xmm1
-    vmovss  dword ptr [rbx+18h], xmm1
-  }
-  v47 = DVARFLT_bg_shock_viewKickRadius;
+  Dvar_CheckFrontendServerThread(v20);
+  _XMM0 = v20->current.unsignedInt;
+  __asm { vmaxss  xmm1, xmm0, xmm6 }
+  parms->view.kickRate = 0.001 / *(float *)&_XMM1;
+  v23 = DVARFLT_bg_shock_viewKickRadius;
   if ( !DVARFLT_bg_shock_viewKickRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_viewKickRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v47);
-  LODWORD(_RBX->view.kickRadius) = v47->current.integer;
-  v48 = DVARBOOL_bg_shock_sound;
+  Dvar_CheckFrontendServerThread(v23);
+  LODWORD(parms->view.kickRadius) = v23->current.integer;
+  v24 = DVARBOOL_bg_shock_sound;
   if ( !DVARBOOL_bg_shock_sound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_sound") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  _RBX->sound.affect = v48->current.enabled;
-  v49 = DVARSTR_bg_shock_soundLoop;
+  Dvar_CheckFrontendServerThread(v24);
+  parms->sound.affect = v24->current.enabled;
+  v25 = DVARSTR_bg_shock_soundLoop;
   if ( !DVARSTR_bg_shock_soundLoop && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundLoop") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v49);
-  strncpy(_RBX->sound.loop, v49->current.string, 0x40ui64);
-  v50 = DVARSTR_bg_shock_soundLoopSilent;
+  Dvar_CheckFrontendServerThread(v25);
+  strncpy(parms->sound.loop, v25->current.string, 0x40ui64);
+  v26 = DVARSTR_bg_shock_soundLoopSilent;
   if ( !DVARSTR_bg_shock_soundLoopSilent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundLoopSilent") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v50);
-  strncpy(_RBX->sound.loopSilent, v50->current.string, 0x40ui64);
-  v51 = DVARSTR_bg_shock_soundEnd;
+  Dvar_CheckFrontendServerThread(v26);
+  strncpy(parms->sound.loopSilent, v26->current.string, 0x40ui64);
+  v27 = DVARSTR_bg_shock_soundEnd;
   if ( !DVARSTR_bg_shock_soundEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundEnd") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v51);
-  strncpy(_RBX->sound.end, v51->current.string, 0x40ui64);
-  v52 = DVARSTR_bg_shock_soundEndAbort;
+  Dvar_CheckFrontendServerThread(v27);
+  strncpy(parms->sound.end, v27->current.string, 0x40ui64);
+  v28 = DVARSTR_bg_shock_soundEndAbort;
   if ( !DVARSTR_bg_shock_soundEndAbort && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundEndAbort") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v52);
-  strncpy(_RBX->sound.endAbort, v52->current.string, 0x40ui64);
-  _RDI = DVARFLT_bg_shock_soundFadeInTime;
+  Dvar_CheckFrontendServerThread(v28);
+  strncpy(parms->sound.endAbort, v28->current.string, 0x40ui64);
+  v29 = DVARFLT_bg_shock_soundFadeInTime;
   if ( !DVARFLT_bg_shock_soundFadeInTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundFadeInTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v29);
+  _XMM0 = v29->current.unsignedInt;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
     vmaxss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, xmm9
     vroundss xmm2, xmm7, xmm3, 1
-    vcvttss2si eax, xmm2
   }
-  _RBX->sound.fadeInTime = _EAX;
-  _RDI = DVARFLT_bg_shock_soundFadeOutTime;
+  parms->sound.fadeInTime = (int)*(float *)&_XMM2;
+  v33 = DVARFLT_bg_shock_soundFadeOutTime;
   if ( !DVARFLT_bg_shock_soundFadeOutTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundFadeOutTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v33);
+  _XMM0 = v33->current.unsignedInt;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
     vmaxss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, xmm9
     vroundss xmm2, xmm7, xmm3, 1
-    vcvttss2si eax, xmm2
   }
-  _RBX->sound.fadeOutTime = _EAX;
-  _RDI = DVARFLT_bg_shock_soundLoopFadeTime;
+  parms->sound.fadeOutTime = (int)*(float *)&_XMM2;
+  v37 = DVARFLT_bg_shock_soundLoopFadeTime;
   if ( !DVARFLT_bg_shock_soundLoopFadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundLoopFadeTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v37);
+  _XMM0 = v37->current.unsignedInt;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
     vmaxss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, xmm9
     vroundss xmm2, xmm7, xmm3, 1
-    vcvttss2si eax, xmm2
   }
-  _RBX->sound.loopFadeTime = _EAX;
-  v74 = DVARFLT_bg_shock_soundLoopEndDelay;
+  parms->sound.loopFadeTime = (int)*(float *)&_XMM2;
+  v41 = DVARFLT_bg_shock_soundLoopEndDelay;
   if ( !DVARFLT_bg_shock_soundLoopEndDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundLoopEndDelay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v74);
-  __asm
-  {
-    vmulss  xmm1, xmm8, dword ptr [rdi+28h]
-    vaddss  xmm3, xmm1, xmm9
-    vroundss xmm1, xmm7, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  _RBX->sound.loopEndDelay = _EAX;
-  v79 = DVARSTR_bg_shock_soundAudioZone;
+  Dvar_CheckFrontendServerThread(v41);
+  __asm { vroundss xmm1, xmm7, xmm3, 1 }
+  parms->sound.loopEndDelay = (int)*(float *)&_XMM1;
+  v43 = DVARSTR_bg_shock_soundAudioZone;
   if ( !DVARSTR_bg_shock_soundAudioZone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundAudioZone") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v79);
-  Core_strcpy(_RBX->sound.audioZone, 0x40ui64, v79->current.string);
-  v80 = DVARFLT_bg_shock_soundModEndDelay;
+  Dvar_CheckFrontendServerThread(v43);
+  Core_strcpy(parms->sound.audioZone, 0x40ui64, v43->current.string);
+  v44 = DVARFLT_bg_shock_soundModEndDelay;
   if ( !DVARFLT_bg_shock_soundModEndDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_soundModEndDelay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v80);
-  __asm
+  Dvar_CheckFrontendServerThread(v44);
+  __asm { vroundss xmm1, xmm7, xmm3, 1 }
+  parms->sound.modEndDelay = (int)*(float *)&_XMM1;
+  if ( parms->sound.fadeInTime <= 0 )
   {
-    vmulss  xmm1, xmm8, dword ptr [rdi+28h]
-    vaddss  xmm3, xmm1, xmm9
-    vroundss xmm1, xmm7, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  _RBX->sound.modEndDelay = _EAX;
-  if ( _RBX->sound.fadeInTime <= 0 )
-  {
-    LODWORD(v103) = _RBX->sound.fadeInTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3582, ASSERT_TYPE_ASSERT, "( ( parms->sound.fadeInTime > 0 ) )", "( parms->sound.fadeInTime ) = %i", v103) )
+    LODWORD(v56) = parms->sound.fadeInTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3582, ASSERT_TYPE_ASSERT, "( ( parms->sound.fadeInTime > 0 ) )", "( parms->sound.fadeInTime ) = %i", v56) )
       __debugbreak();
   }
-  if ( _RBX->sound.fadeOutTime <= 0 )
+  if ( parms->sound.fadeOutTime <= 0 )
   {
-    LODWORD(v103) = _RBX->sound.fadeOutTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3583, ASSERT_TYPE_ASSERT, "( ( parms->sound.fadeOutTime > 0 ) )", "( parms->sound.fadeOutTime ) = %i", v103) )
+    LODWORD(v56) = parms->sound.fadeOutTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3583, ASSERT_TYPE_ASSERT, "( ( parms->sound.fadeOutTime > 0 ) )", "( parms->sound.fadeOutTime ) = %i", v56) )
       __debugbreak();
   }
-  if ( _RBX->sound.loopFadeTime <= 0 )
+  if ( parms->sound.loopFadeTime <= 0 )
   {
-    LODWORD(v103) = _RBX->sound.loopFadeTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3584, ASSERT_TYPE_ASSERT, "( ( parms->sound.loopFadeTime > 0 ) )", "( parms->sound.loopFadeTime ) = %i", v103) )
+    LODWORD(v56) = parms->sound.loopFadeTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3584, ASSERT_TYPE_ASSERT, "( ( parms->sound.loopFadeTime > 0 ) )", "( parms->sound.loopFadeTime ) = %i", v56) )
       __debugbreak();
   }
-  v85 = DVARBOOL_bg_shock_lookControl;
+  v46 = DVARBOOL_bg_shock_lookControl;
   if ( !DVARBOOL_bg_shock_lookControl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_lookControl") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v85);
-  _RBX->lookControl.affect = v85->current.enabled;
-  v86 = DVARFLT_bg_shock_lookControl_fadeTime;
+  Dvar_CheckFrontendServerThread(v46);
+  parms->lookControl.affect = v46->current.enabled;
+  v47 = DVARFLT_bg_shock_lookControl_fadeTime;
   if ( !DVARFLT_bg_shock_lookControl_fadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_lookControl_fadeTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v86);
-  __asm
+  Dvar_CheckFrontendServerThread(v47);
+  __asm { vroundss xmm1, xmm7, xmm3, 1 }
+  parms->lookControl.fadeTime = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 <= 0 )
   {
-    vmulss  xmm1, xmm8, dword ptr [rdi+28h]
-    vaddss  xmm3, xmm1, xmm9
-    vroundss xmm1, xmm7, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  _RBX->lookControl.fadeTime = _EAX;
-  if ( _EAX <= 0 )
-  {
-    LODWORD(v103) = _EAX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3588, ASSERT_TYPE_ASSERT, "( ( parms->lookControl.fadeTime > 0 ) )", "( parms->lookControl.fadeTime ) = %i", v103) )
+    LODWORD(v56) = (int)*(float *)&_XMM1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3588, ASSERT_TYPE_ASSERT, "( ( parms->lookControl.fadeTime > 0 ) )", "( parms->lookControl.fadeTime ) = %i", v56) )
       __debugbreak();
   }
-  v91 = DVARFLT_bg_shock_lookControl_maxpitchspeed;
+  v49 = DVARFLT_bg_shock_lookControl_maxpitchspeed;
   if ( !DVARFLT_bg_shock_lookControl_maxpitchspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_lookControl_maxpitchspeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v91);
-  LODWORD(_RBX->lookControl.maxPitchSpeed) = v91->current.integer;
-  v92 = DVARFLT_bg_shock_lookControl_maxyawspeed;
+  Dvar_CheckFrontendServerThread(v49);
+  LODWORD(parms->lookControl.maxPitchSpeed) = v49->current.integer;
+  v50 = DVARFLT_bg_shock_lookControl_maxyawspeed;
   if ( !DVARFLT_bg_shock_lookControl_maxyawspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_lookControl_maxyawspeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v92);
-  LODWORD(_RBX->lookControl.maxYawSpeed) = v92->current.integer;
-  v93 = DVARFLT_bg_shock_lookControl_mousesensitivityscale;
+  Dvar_CheckFrontendServerThread(v50);
+  LODWORD(parms->lookControl.maxYawSpeed) = v50->current.integer;
+  v51 = DVARFLT_bg_shock_lookControl_mousesensitivityscale;
   if ( !DVARFLT_bg_shock_lookControl_mousesensitivityscale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_lookControl_mousesensitivityscale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v93);
-  LODWORD(_RBX->lookControl.mouseSensitivity) = v93->current.integer;
-  v94 = DVARBOOL_bg_shock_movement;
+  Dvar_CheckFrontendServerThread(v51);
+  LODWORD(parms->lookControl.mouseSensitivity) = v51->current.integer;
+  v52 = DVARBOOL_bg_shock_movement;
   if ( !DVARBOOL_bg_shock_movement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_movement") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v94);
-  _RBX->movement.affect = v94->current.enabled;
-  v95 = DVARBOOL_bg_shock_sprint;
+  Dvar_CheckFrontendServerThread(v52);
+  parms->movement.affect = v52->current.enabled;
+  v53 = DVARBOOL_bg_shock_sprint;
   if ( !DVARBOOL_bg_shock_sprint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_sprint") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v95);
-  _RBX->movement.breakSprint = v95->current.enabled;
-  v96 = DVARBOOL_bg_shock_jog;
+  Dvar_CheckFrontendServerThread(v53);
+  parms->movement.breakSprint = v53->current.enabled;
+  v54 = DVARBOOL_bg_shock_jog;
   if ( !DVARBOOL_bg_shock_jog && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_jog") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v96);
-  _RBX->movement.breakJog = v96->current.enabled;
-  v97 = DVARBOOL_bg_shock_mount;
+  Dvar_CheckFrontendServerThread(v54);
+  parms->movement.breakJog = v54->current.enabled;
+  v55 = DVARBOOL_bg_shock_mount;
   if ( !DVARBOOL_bg_shock_mount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shock_mount") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v97);
-  _R11 = &v106;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  _RBX->mount.affect = v97->current.enabled;
+  Dvar_CheckFrontendServerThread(v55);
+  parms->mount.affect = v55->current.enabled;
 }
 
 /*
@@ -10516,77 +9223,45 @@ BG_ShieldHitDecode
 */
 void BG_ShieldHitDecode(unsigned int encoded, vec3_t *result, bool *resultHitFront)
 {
-  int v17; 
-  unsigned int v18; 
-  bool v19; 
-  int v20; 
+  const dvar_t *v3; 
+  float value; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
+  float v11; 
+  int v12; 
+  unsigned int v13; 
+  bool v14; 
+  int v15; 
 
-  _RBX = DVARVEC2_bg_shieldHitEncodeWidthVM;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-  }
-  _RSI = result;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovaps [rsp+0A8h+var_68], xmm9
-  }
+  v3 = DVARVEC2_bg_shieldHitEncodeWidthVM;
   if ( !DVARVEC2_bg_shieldHitEncodeWidthVM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shieldHitEncodeWidthVM") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbx+28h]
-    vmovss  xmm9, dword ptr [rbx+2Ch]
-  }
-  _RBX = DVARVEC2_bg_shieldHitEncodeHeightVM;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v8 = v3->current.vector.v[1];
+  v9 = DVARVEC2_bg_shieldHitEncodeHeightVM;
   if ( !DVARVEC2_bg_shieldHitEncodeHeightVM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shieldHitEncodeHeightVM") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vmovss  xmm7, dword ptr [rbx+2Ch]
-  }
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = v9->current.value;
+  v11 = v9->current.vector.v[1];
   if ( encoded >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3867, ASSERT_TYPE_ASSERT, "(encoded < 256)", (const char *)&queryFormat, "encoded < 256") )
     __debugbreak();
-  __asm { vmovss  xmm4, cs:__real@bf800000 }
-  v17 = (encoded >> 4) & ((unsigned int)MY_MASK_Y >> 4);
-  v18 = encoded;
-  v19 = encoded & 1;
-  v20 = (v18 >> 1) & ((unsigned int)MY_MASK_Z >> 1);
-  _EAX = 0;
-  __asm { vmovd   xmm3, eax }
-  _EAX = v19;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm5, xmm0, xmm3
-    vmovss  xmm3, cs:__real@3f800000
-    vblendvps xmm0, xmm3, xmm4, xmm5
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm8; min
-    vmovss  dword ptr [rsi], xmm0
-  }
-  *(double *)&_XMM0 = DecodeShieldSegmentToPos(v17, *(float *)&_XMM1, *(float *)&_XMM2, 16);
-  __asm
-  {
-    vmovaps xmm2, xmm7; max
-    vmovaps xmm1, xmm6; min
-    vmovss  dword ptr [rsi+4], xmm0
-  }
-  *(double *)&_XMM0 = DecodeShieldSegmentToPos(v20, *(float *)&_XMM1, *(float *)&_XMM2, 8);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-    vmovaps xmm9, [rsp+0A8h+var_68]
-    vmovss  dword ptr [rsi+8], xmm0
-  }
-  *resultHitFront = v19;
+  v12 = (encoded >> 4) & ((unsigned int)MY_MASK_Y >> 4);
+  v13 = encoded;
+  v14 = encoded & 1;
+  v15 = (v13 >> 1) & ((unsigned int)MY_MASK_Z >> 1);
+  _XMM0 = v14;
+  __asm { vpcmpeqd xmm5, xmm0, xmm3 }
+  _XMM3 = LODWORD(FLOAT_1_0);
+  __asm { vblendvps xmm0, xmm3, xmm4, xmm5 }
+  result->v[0] = *(float *)&_XMM0;
+  *(double *)&_XMM0 = DecodeShieldSegmentToPos(v12, value, v8, 16);
+  result->v[1] = *(float *)&_XMM0;
+  *(double *)&_XMM0 = DecodeShieldSegmentToPos(v15, v10, v11, 8);
+  result->v[2] = *(float *)&_XMM0;
+  *resultHitFront = v14;
 }
 
 /*
@@ -10596,78 +9271,45 @@ BG_ShieldHitEncode
 */
 unsigned __int8 BG_ShieldHitEncode(const vec3_t *hitPos, bool fromTheFront)
 {
-  int v18; 
-  unsigned int v20; 
-  unsigned int v23; 
-  __int64 v30; 
-  __int64 v31; 
-  char v34; 
-  void *retaddr; 
+  const dvar_t *v2; 
+  float value; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
+  float v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  __int64 v13; 
+  __int64 v14; 
 
-  _R11 = &retaddr;
-  _RBX = DVARVEC2_bg_shieldHitEncodeWidthWorld;
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-  }
-  _RDI = hitPos;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-58h], xmm9
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shieldHitEncodeWidthWorld") )
+  v2 = DVARVEC2_bg_shieldHitEncodeWidthWorld;
+  if ( !DVARVEC2_bg_shieldHitEncodeWidthWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shieldHitEncodeWidthWorld") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbx+28h]
-    vmovss  xmm9, dword ptr [rbx+2Ch]
-  }
-  _RBX = DVARVEC2_bg_shieldHitEncodeHeightWorld;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v6 = v2->current.vector.v[1];
+  v7 = DVARVEC2_bg_shieldHitEncodeHeightWorld;
   if ( !DVARVEC2_bg_shieldHitEncodeHeightWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_shieldHitEncodeHeightWorld") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.value;
+  v9 = v7->current.vector.v[1];
+  v10 = EncodeShieldPosToSegment(hitPos->v[1], value, v6, 16);
+  v11 = EncodeShieldPosToSegment(hitPos->v[2], v8, v9, 8);
+  if ( v10 > 0xF )
   {
-    vmovss  xmm0, dword ptr [rdi+4]; pos
-    vmovss  xmm7, dword ptr [rbx+28h]
-    vmovss  xmm6, dword ptr [rbx+2Ch]
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm8; min
-  }
-  v18 = EncodeShieldPosToSegment(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, 16);
-  __asm { vmovss  xmm0, dword ptr [rdi+8]; pos }
-  v20 = v18;
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vmovaps xmm1, xmm7; min
-  }
-  v23 = EncodeShieldPosToSegment(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, 8);
-  if ( v20 > 0xF )
-  {
-    LODWORD(v30) = v20;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3810, ASSERT_TYPE_ASSERT, "( 0 ) <= ( segY ) && ( segY ) <= ( (SHIELD_SEGCOUNT_Y - 1) )", "segY not in [0, (SHIELD_SEGCOUNT_Y - 1)]\n\t%i not in [%i, %i]", v30, 0i64, 15) )
+    LODWORD(v13) = v10;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3810, ASSERT_TYPE_ASSERT, "( 0 ) <= ( segY ) && ( segY ) <= ( (SHIELD_SEGCOUNT_Y - 1) )", "segY not in [0, (SHIELD_SEGCOUNT_Y - 1)]\n\t%i not in [%i, %i]", v13, 0i64, 15) )
       __debugbreak();
   }
-  if ( v23 > 7 )
+  if ( v11 > 7 )
   {
-    LODWORD(v31) = 7;
-    LODWORD(v30) = v23;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3811, ASSERT_TYPE_ASSERT, "( 0 ) <= ( segZ ) && ( segZ ) <= ( (SHIELD_SEGCOUNT_Z - 1) )", "segZ not in [0, (SHIELD_SEGCOUNT_Z - 1)]\n\t%i not in [%i, %i]", v30, 0i64, v31) )
+    LODWORD(v14) = 7;
+    LODWORD(v13) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3811, ASSERT_TYPE_ASSERT, "( 0 ) <= ( segZ ) && ( segZ ) <= ( (SHIELD_SEGCOUNT_Z - 1) )", "segZ not in [0, (SHIELD_SEGCOUNT_Z - 1)]\n\t%i not in [%i, %i]", v13, 0i64, v14) )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm7, [rsp+98h+var_38]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return fromTheFront | (2 * (v23 | (8 * v20)));
+  return fromTheFront | (2 * (v11 | (8 * v10)));
 }
 
 /*
@@ -10677,43 +9319,30 @@ BG_ShieldHitEncodeHitMarker
 */
 __int64 BG_ShieldHitEncodeHitMarker(const vec3_t *startPos, const vec3_t *hitPos)
 {
-  int v15; 
+  float v2; 
+  int v3; 
+  int v4; 
+  int v5; 
   vec3_t vec; 
   vec3_t angles; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rdx+4]
-    vsubss  xmm0, xmm2, dword ptr [rcx+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rdx+8]
-    vsubss  xmm2, xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+58h+vec+8], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
+  v2 = hitPos->v[1] - startPos->v[1];
+  vec.v[0] = hitPos->v[0] - startPos->v[0];
+  vec.v[2] = hitPos->v[2] - startPos->v[2];
+  vec.v[1] = v2;
   vectoangles(&vec, &angles);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3b360b61
-    vmulss  xmm1, xmm3, dword ptr [rsp+58h+angles]
-    vmulss  xmm1, xmm1, cs:__real@437f0000
-    vcvttss2si rcx, xmm1
-    vmulss  xmm1, xmm3, dword ptr [rsp+58h+angles+4]
-    vmulss  xmm2, xmm1, cs:__real@437f0000
-    vcvttss2si rax, xmm2
-  }
-  if ( (int)_RCX > 255 )
-    LODWORD(_RCX) = 255;
-  if ( (int)_RAX > 255 )
-    LODWORD(_RAX) = 255;
-  if ( (int)_RAX < 0 )
-    LODWORD(_RAX) = 0;
-  v15 = (_DWORD)_RAX << 8;
-  if ( (int)_RCX < 0 )
-    LODWORD(_RCX) = 0;
-  return ((unsigned int)_RCX | v15) << 8;
+  v3 = (int)(float)((float)(0.0027777778 * angles.v[0]) * 255.0);
+  v4 = (int)(float)((float)(0.0027777778 * angles.v[1]) * 255.0);
+  if ( v3 > 255 )
+    v3 = 255;
+  if ( v4 > 255 )
+    v4 = 255;
+  if ( v4 < 0 )
+    v4 = 0;
+  v5 = v4 << 8;
+  if ( v3 < 0 )
+    v3 = 0;
+  return (v3 | (unsigned int)v5) << 8;
 }
 
 /*
@@ -10766,106 +9395,58 @@ BG_UpdateClientControlledMissile
 */
 void BG_UpdateClientControlledMissile(vec3_t *angles, const char *remoteControlAngles, int msec)
 {
-  const dvar_t *v14; 
-  const dvar_t *v20; 
-  char v28; 
-  char v38; 
+  float v6; 
+  const dvar_t *v7; 
+  int v8; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  float v11; 
+  float value; 
+  float v15; 
   vec3_t anglesa; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> in2; 
   tmat33_t<vec3_t> out; 
-  tmat33_t<vec3_t> v46; 
-  char v47; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v20; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBX = angles;
   if ( !remoteControlAngles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3952, ASSERT_TYPE_ASSERT, "(remoteControlAngles)", (const char *)&queryFormat, "remoteControlAngles") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@bc010204
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vmulss  xmm7, xmm0, cs:__real@3a83126f
-  }
-  v14 = DVARFLT_missileRemoteSteerPitchRate;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rsp+138h+angles], xmm0
-  }
+  v6 = (float)msec * 0.001;
+  v7 = DVARFLT_missileRemoteSteerPitchRate;
+  anglesa.v[0] = (float)*remoteControlAngles * -0.0078740157;
   if ( !DVARFLT_missileRemoteSteerPitchRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSteerPitchRate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  __asm
-  {
-    vmulss  xmm1, xmm7, dword ptr [rsi+28h]
-    vmulss  xmm1, xmm1, dword ptr [rsp+138h+angles]
-  }
-  v20 = DVARFLT_missileRemoteSteerYawRate;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rsp+138h+angles], xmm1
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rsp+138h+angles+4], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = remoteControlAngles[1];
+  v9 = DVARFLT_missileRemoteSteerYawRate;
+  anglesa.v[0] = (float)(v6 * v7->current.value) * anglesa.v[0];
+  anglesa.v[1] = (float)v8 * -0.0078740157;
   if ( !DVARFLT_missileRemoteSteerYawRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSteerYawRate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  __asm
-  {
-    vmulss  xmm1, xmm7, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm1, dword ptr [rsp+138h+angles+4]
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+138h+angles+4], xmm1
-    vmovss  dword ptr [rsp+138h+angles+8], xmm2
-  }
+  Dvar_CheckFrontendServerThread(v9);
+  anglesa.v[1] = (float)(v6 * v9->current.value) * anglesa.v[1];
+  anglesa.v[2] = 0.0;
   AnglesToAxis(&anglesa, &axis);
-  AnglesToAxis(_RBX, &in2);
+  AnglesToAxis(angles, &in2);
   MatrixTranspose(&axis, &out);
-  MatrixMultiply(&out, &in2, &v46);
-  AxisToAngles(&v46, _RBX);
-  _RDI = DVARVEC2_missileRemoteSteerPitchRange;
+  MatrixMultiply(&out, &in2, &v20);
+  AxisToAngles(&v20, angles);
+  v10 = DVARVEC2_missileRemoteSteerPitchRange;
   if ( !DVARVEC2_missileRemoteSteerPitchRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSteerPitchRange") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vmovss  xmm6, dword ptr [rdi+2Ch]
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vmovss  xmm7, dword ptr [rdi+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
-  if ( v28 | v38 )
-    __asm { vmovaps xmm6, xmm0 }
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.vector.v[1];
+  value = v10->current.value;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v15 = (float)((float)(angles->v[0] * 0.0027777778) - *(float *)&_XMM4) * 360.0;
+  angles->v[0] = v15;
+  if ( v15 <= v11 )
+    v11 = v15;
   else
-    __asm { vmovss  dword ptr [rbx], xmm6 }
-  __asm { vcomiss xmm6, xmm7 }
-  if ( v28 )
-    __asm { vmovss  dword ptr [rbx], xmm7 }
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+    angles->v[0] = v11;
+  if ( v11 < value )
+    angles->v[0] = value;
 }
 
 /*
@@ -10873,71 +9454,43 @@ void BG_UpdateClientControlledMissile(vec3_t *angles, const char *remoteControlA
 BG_UpdateViewAngleClamp
 ==============
 */
-
-void __fastcall BG_UpdateViewAngleClamp(double currentTime, const vec3_t *worldAnglesCenter, viewClampState *const clamp, playerState_s *const ps)
+void BG_UpdateViewAngleClamp(const float currentTime, const vec3_t *worldAnglesCenter, viewClampState *const clamp, playerState_s *const ps)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = ps;
-  _RDI = clamp;
-  _RSI = worldAnglesCenter;
-  __asm { vmovaps xmm6, xmm0 }
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+
   if ( !clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3232, ASSERT_TYPE_ASSERT, "(clamp)", (const char *)&queryFormat, "clamp") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3233, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3233, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm6; currentTime }
-  BG_LerpViewClampState(*(const float *)&_XMM0, _RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+20h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+8]
-    vmulss  xmm1, xmm1, cs:__real@3f000000
-    vmovss  dword ptr [rbx+200h], xmm1
-    vmovss  xmm0, dword ptr [rsi]
-    vaddss  xmm2, xmm0, dword ptr [rdi+20h]
-    vmovss  dword ptr [rbx+1F8h], xmm2
-    vsubss  xmm0, xmm2, dword ptr [rbx+200h]; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+1F8h], xmm0
-    vmovss  xmm0, dword ptr [rdi+24h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+0Ch]
-    vmulss  xmm2, xmm1, cs:__real@3f000000
-    vmovss  dword ptr [rbx+204h], xmm2
-    vmovss  xmm0, dword ptr [rsi+4]
-    vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-    vmovss  dword ptr [rbx+1FCh], xmm1
-    vsubss  xmm0, xmm1, dword ptr [rbx+204h]; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm { vmovss  dword ptr [rbx+1FCh], xmm0 }
+  BG_LerpViewClampState(currentTime, clamp);
+  ps->viewAngleClampRange.v[0] = (float)(clamp->max.current.v[0] - clamp->min.current.v[0]) * 0.5;
+  v7 = worldAnglesCenter->v[0] + clamp->max.current.v[0];
+  ps->viewAngleClampBase.v[0] = v7;
+  v8 = AngleNormalize360(v7 - ps->viewAngleClampRange.v[0]);
+  ps->viewAngleClampBase.v[0] = *(float *)&v8;
+  ps->viewAngleClampRange.v[1] = (float)(clamp->max.current.v[1] - clamp->min.current.v[1]) * 0.5;
+  v9 = worldAnglesCenter->v[1] + clamp->max.current.v[1];
+  ps->viewAngleClampBase.v[1] = v9;
+  v10 = AngleNormalize360(v9 - ps->viewAngleClampRange.v[1]);
+  ps->viewAngleClampBase.v[1] = *(float *)&v10;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+38h]; angle }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rbx+208h], xmm0
-      vmovss  xmm0, dword ptr [rdi+50h]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rbx+210h], xmm0
-      vmovss  xmm0, dword ptr [rdi+3Ch]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rbx+20Ch], xmm0
-      vmovss  xmm0, dword ptr [rdi+54h]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm { vmovss  dword ptr [rbx+214h], xmm0 }
+    v11 = AngleNormalize360(clamp->resistMax.current.v[0]);
+    ps->viewAngleResistMax.v[0] = *(float *)&v11;
+    v12 = AngleNormalize360(clamp->resistMin.current.v[0]);
+    ps->viewAngleResistMin.v[0] = *(float *)&v12;
+    v13 = AngleNormalize360(clamp->resistMax.current.v[1]);
+    ps->viewAngleResistMax.v[1] = *(float *)&v13;
+    v14 = AngleNormalize360(clamp->resistMin.current.v[1]);
+    ps->viewAngleResistMin.v[1] = *(float *)&v14;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -10948,93 +9501,67 @@ BG_UpdateViewLinkedModelTransform
 void BG_UpdateViewLinkedModelTransform(const ViewLinkedData *data, const tmat43_t<vec3_t> *world, vec3_t *outOrigin, vec3_t *outAngles)
 {
   bool v8; 
-  unsigned __int8 v16; 
-  tmat33_t<vec3_t> *v37; 
+  float v9; 
+  unsigned __int8 flags; 
+  float v21; 
+  const tmat43_t<vec3_t> *v22; 
+  float v23; 
   vec3_t angles; 
   tmat43_t<vec3_t> axis; 
   tmat43_t<vec3_t> out; 
-  tmat33_t<vec3_t> v44; 
+  tmat33_t<vec3_t> v27; 
+  float v28; 
+  float v29; 
+  float v30; 
 
-  _RBX = data;
-  _RDI = outOrigin;
-  _RSI = (const tmat33_t<vec3_t> *)world;
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND|WEAPON_OFFHAND_END) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3999, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_LINKED_ENTITIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_LINKED_ENTITIES )") )
     __debugbreak();
-  AnglesToAxis(&_RBX->angleOffset, (tmat33_t<vec3_t> *)&axis);
-  v8 = (_RBX->flags & 0xE) == 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  [rbp+57h+var_9C], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rbp+57h+var_94], xmm0
-    vmovss  [rbp+57h+var_98], xmm1
-  }
+  AnglesToAxis(&data->angleOffset, (tmat33_t<vec3_t> *)&axis);
+  v8 = (data->flags & 0xE) == 0;
+  v9 = data->posOffset.v[1];
+  axis.m[3].v[0] = data->posOffset.v[0];
+  axis.m[3].v[2] = data->posOffset.v[2];
+  axis.m[3].v[1] = v9;
   if ( v8 )
   {
-    v37 = (tmat33_t<vec3_t> *)_RSI;
+    v22 = world;
   }
   else
   {
-    AxisToAngles(_RSI, &angles);
-    _EDX = 0;
-    __asm { vmovss  xmm2, dword ptr [rbp+57h+angles] }
-    _EAX = _RBX->flags & 2;
-    __asm { vmovd   xmm0, eax }
-    LOBYTE(_EAX) = _RBX->flags;
-    v16 = _EAX & 8;
+    AxisToAngles((const tmat33_t<vec3_t> *)world, &angles);
+    _XMM0 = data->flags & 2;
+    flags = data->flags;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM4 = 0i64;
+    __asm { vblendvps xmm0, xmm4, xmm2, xmm3 }
+    angles.v[0] = *(float *)&_XMM0;
+    _XMM0 = flags & 4;
     __asm
     {
-      vmovd   xmm1, edx
-      vpcmpeqd xmm3, xmm0, xmm1
-      vxorps  xmm4, xmm4, xmm4
-      vblendvps xmm0, xmm4, xmm2, xmm3
-      vmovss  dword ptr [rbp+57h+angles], xmm0
-      vmovd   xmm1, edx
-    }
-    _EAX = _EAX & 4;
-    __asm
-    {
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, dword ptr [rbp+57h+angles+4]
       vblendvps xmm0, xmm4, xmm1, xmm2
-      vmovd   xmm1, edx
     }
-    _EAX = v16;
+    angles.v[1] = *(float *)&_XMM0;
+    _XMM0 = flags & 8;
     __asm
     {
-      vmovss  dword ptr [rbp+57h+angles+4], xmm0
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, dword ptr [rbp+57h+angles+8]
       vblendvps xmm0, xmm4, xmm1, xmm2
-      vmovss  dword ptr [rbp+57h+angles+8], xmm0
     }
-    AnglesToAxis(&angles, &v44);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vmovss  xmm1, dword ptr [rsi+28h]
-      vmovss  [rbp+57h+var_3C], xmm0
-      vmovss  xmm0, dword ptr [rsi+2Ch]
-      vmovss  [rbp+57h+var_34], xmm0
-      vmovss  [rbp+57h+var_38], xmm1
-    }
-    v37 = &v44;
+    angles.v[2] = *(float *)&_XMM0;
+    AnglesToAxis(&angles, &v27);
+    v21 = world->m[3].v[1];
+    v28 = world->m[3].v[0];
+    v30 = world->m[3].v[2];
+    v29 = v21;
+    v22 = (const tmat43_t<vec3_t> *)&v27;
   }
-  MatrixMultiply43(&axis, (const tmat43_t<vec3_t> *)v37, &out);
+  MatrixMultiply43(&axis, v22, &out);
   AxisToAngles((const tmat33_t<vec3_t> *)&out, outAngles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+out+24h]
-    vmovss  xmm1, dword ptr [rbp+57h+out+28h]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+out+2Ch]
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  dword ptr [rdi+4], xmm1
-  }
+  v23 = out.m[3].v[1];
+  outOrigin->v[0] = out.m[3].v[0];
+  outOrigin->v[2] = out.m[3].v[2];
+  outOrigin->v[1] = v23;
 }
 
 /*
@@ -11133,52 +9660,28 @@ _BOOL8 BG_WeaponEntCanBeGrabbed(const BgWeaponMap *weaponMap, const entityState_
 DecodeShieldSegmentToPos
 ==============
 */
-
-float __fastcall DecodeShieldSegmentToPos(int segment, double min, double max, int segmentCount)
+float DecodeShieldSegmentToPos(int segment, float min, float max, int segmentCount)
 {
-  __int64 v22; 
-  __int64 v24; 
-  __int64 v25; 
-  int v26; 
+  __int64 v7; 
+  __int64 v9; 
+  __int64 v10; 
+  int v11; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _EBX = segmentCount;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  _EDI = segment;
-  __asm
-  {
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( (unsigned int)segment > 0xF )
   {
-    v26 = 15;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3844, ASSERT_TYPE_ASSERT, "( 0 ) <= ( segment ) && ( segment ) <= ( 15 )", "segment not in [0, 15]\n\t%i not in [%i, %i]", segment, 0i64, v26) )
+    v11 = 15;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3844, ASSERT_TYPE_ASSERT, "( 0 ) <= ( segment ) && ( segment ) <= ( 15 )", "segment not in [0, 15]\n\t%i not in [%i, %i]", segment, 0i64, v11) )
       __debugbreak();
   }
-  if ( (unsigned int)(_EBX - 1) > 0xF )
+  if ( (unsigned int)(segmentCount - 1) > 0xF )
   {
-    LODWORD(v25) = 16;
-    LODWORD(v24) = 1;
-    LODWORD(v22) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3845, ASSERT_TYPE_ASSERT, "( 1 ) <= ( segmentCount ) && ( segmentCount ) <= ( 16 )", "segmentCount not in [1, 16]\n\t%i not in [%i, %i]", v22, v24, v25) )
+    LODWORD(v10) = 16;
+    LODWORD(v9) = 1;
+    LODWORD(v7) = segmentCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3845, ASSERT_TYPE_ASSERT, "( 1 ) <= ( segmentCount ) && ( segmentCount ) <= ( 16 )", "segmentCount not in [1, 16]\n\t%i not in [%i, %i]", v7, v9, v10) )
       __debugbreak();
   }
-  __asm
-  {
-    vsubss  xmm1, xmm7, xmm6
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovd   xmm0, ebx
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm3, xmm1, xmm0
-    vmovd   xmm1, edi
-    vcvtdq2ps xmm1, xmm1
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vmulss  xmm0, xmm3, xmm2
-    vaddss  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)(max - min) / _mm_cvtepi32_ps((__m128i)(unsigned int)segmentCount).m128_f32[0]) * (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)segment).m128_f32[0] + 0.5)) + min;
 }
 
 /*
@@ -11186,59 +9689,29 @@ float __fastcall DecodeShieldSegmentToPos(int segment, double min, double max, i
 EncodeShieldPosToSegment
 ==============
 */
-
-__int64 __fastcall EncodeShieldPosToSegment(double pos, double min, double max, int segmentCount)
+__int64 EncodeShieldPosToSegment(float pos, float min, float max, int segmentCount)
 {
-  __int64 result; 
-  __int64 v28; 
-  int v29; 
+  float v5; 
+  double v6; 
+  float v7; 
+  int v8; 
+  __int64 v10; 
+  int v11; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-  }
   if ( segmentCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3754, ASSERT_TYPE_ASSERT, "(segmentCount > 0)", (const char *)&queryFormat, "segmentCount > 0") )
     __debugbreak();
-  __asm
+  v5 = (float)(max - min) / (float)segmentCount;
+  v6 = I_fclamp(pos, min, max - (float)(v5 * 0.5));
+  v7 = (float)(*(float *)&v6 - min) / v5;
+  v8 = (int)v7;
+  if ( (int)v7 < 0 || v8 > segmentCount )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vsubss  xmm1, xmm8, xmm7
-    vdivss  xmm6, xmm1, xmm0
-    vmulss  xmm1, xmm6, cs:__real@3f000000
-    vsubss  xmm2, xmm8, xmm1; max
-    vmovaps xmm1, xmm7; min
-    vmovaps xmm0, xmm9; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm7
-    vdivss  xmm2, xmm1, xmm6
-    vcvttss2si ebx, xmm2
-  }
-  if ( _EBX < 0 || _EBX > segmentCount )
-  {
-    v29 = segmentCount;
-    LODWORD(v28) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3760, ASSERT_TYPE_ASSERT, "( 0 ) <= ( result ) && ( result ) <= ( segmentCount )", "result not in [0, segmentCount]\n\t%i not in [%i, %i]", v28, 0i64, v29) )
+    v11 = segmentCount;
+    LODWORD(v10) = (int)v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_misc.cpp", 3760, ASSERT_TYPE_ASSERT, "( 0 ) <= ( result ) && ( result ) <= ( segmentCount )", "result not in [0, segmentCount]\n\t%i not in [%i, %i]", v10, 0i64, v11) )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  result = (unsigned int)_EBX;
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-  }
-  return result;
+  return (unsigned int)v8;
 }
 
 /*

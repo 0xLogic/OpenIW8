@@ -257,52 +257,25 @@ ScriptableBg_ChooseAnimationStartTimeAndRate
 */
 void ScriptableBg_ChooseAnimationStartTimeAndRate(const ScriptableEventAnimationDef *animation, unsigned int *holdrand, float *outStartTime, float *outRate)
 {
-  char v9; 
-  bool v10; 
-  bool v11; 
+  float startTimeMin; 
+  float startTimeMax; 
+  double v10; 
+  float playbackRateMax; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = outRate;
-  _RSI = outStartTime;
-  _RBX = animation;
   if ( !outStartTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 322, ASSERT_TYPE_ASSERT, "(outStartTime)", (const char *)&queryFormat, "outStartTime") )
     __debugbreak();
-  v9 = 0;
-  v10 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 323, ASSERT_TYPE_ASSERT, "(outRate)", (const char *)&queryFormat, "outRate");
-    v9 = 0;
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+14h]
-    vmovss  xmm1, dword ptr [rbx+18h]; max
-    vcomiss xmm1, xmm6
-  }
-  if ( !v10 )
-  {
-    __asm { vmovaps xmm0, xmm6; min }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-    __asm { vmovaps xmm6, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]; min
-    vmovss  xmm1, dword ptr [rbx+24h]; max
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v9 | v10) )
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rdi], xmm0
-  }
+  if ( !outRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 323, ASSERT_TYPE_ASSERT, "(outRate)", (const char *)&queryFormat, "outRate") )
+    __debugbreak();
+  startTimeMin = animation->startTimeMin;
+  startTimeMax = animation->startTimeMax;
+  if ( startTimeMax > startTimeMin )
+    BG_flrand(animation->startTimeMin, startTimeMax, holdrand);
+  *(float *)&v10 = animation->playbackRateMin;
+  playbackRateMax = animation->playbackRateMax;
+  if ( playbackRateMax > *(float *)&v10 )
+    v10 = BG_flrand(*(float *)&v10, playbackRateMax, holdrand);
+  *outStartTime = startTimeMin;
+  *outRate = *(float *)&v10;
 }
 
 /*
@@ -874,222 +847,110 @@ ScriptableBg_GravityArcCalcData
 */
 void ScriptableBg_GravityArcCalcData(const ScriptableEventGravityArcDef *const moveDef, unsigned __int16 payload, const vec3_t *originInitial, const vec3_t *anglesInitial, ScriptableGravityArcRuntimeData *arcData)
 {
-  const dvar_t *v16; 
-  const dvar_t *v19; 
-  bool v32; 
-  char v34; 
-  bool v35; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  __int128 upwardVelocity_low; 
+  const dvar_t *v15; 
+  float value; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
   vec3_t forward; 
-  char v103; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-  }
-  _RBX = arcData;
-  _RDI = moveDef;
-  _R15 = anglesInitial;
-  _R13 = originInitial;
   if ( payload )
   {
-    v16 = DCONST_DVARFLT_bg_maxLootDropDistanceXY;
+    v8 = DCONST_DVARFLT_bg_maxLootDropDistanceXY;
     if ( !DCONST_DVARFLT_bg_maxLootDropDistanceXY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_maxLootDropDistanceXY") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3b808081
-      vmulss  xmm1, xmm6, dword ptr [r14+28h]
-    }
-    v19 = DCONST_DVARFLT_bg_maxLootDropHeight;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm1, xmm0
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm8, xmm8, xmm1, 1
-    }
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = DCONST_DVARFLT_bg_maxLootDropHeight;
+    _XMM8 = 0i64;
+    __asm { vroundss xmm8, xmm8, xmm1, 1 }
     if ( !DCONST_DVARFLT_bg_maxLootDropHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_maxLootDropHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    __asm
-    {
-      vmulss  xmm2, xmm6, dword ptr [rbp+28h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm2, xmm1
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm6, xmm6, xmm0, 1
-    }
+    Dvar_CheckFrontendServerThread(v9);
+    _XMM6 = 0i64;
+    __asm { vroundss xmm6, xmm6, xmm0, 1 }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@42200000
-      vmovss  xmm6, cs:__real@42480000
-    }
+    *(float *)&_XMM8 = FLOAT_40_0;
+    *(float *)&_XMM6 = FLOAT_50_0;
   }
-  __asm { vmovss  xmm7, dword ptr [rdi+18h] }
-  v32 = Com_GameMode_SupportsFeature(WEAPON_SPRINT_RAISE);
-  v34 = 0;
-  v35 = !v32;
-  if ( v32 )
+  upwardVelocity_low = LODWORD(moveDef->upwardVelocity);
+  if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_RAISE) )
   {
-    _RSI = DVARFLT_bg_gravity;
+    v15 = DVARFLT_bg_gravity;
     if ( !DVARFLT_bg_gravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gravity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
+    Dvar_CheckFrontendServerThread(v15);
+    value = v15->current.value;
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@44480000 }
+    value = FLOAT_800_0;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm0, dword ptr [rdi+14h]
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovaps [rsp+0E8h+var_88], xmm10
-    vxorps  xmm9, xmm0, xmm3
-    vmulss  xmm0, xmm6, cs:__real@40000000
-    vmulss  xmm1, xmm0, xmm9
-    vmulss  xmm2, xmm7, xmm7
-    vsubss  xmm4, xmm2, xmm1
-    vxorps  xmm5, xmm5, xmm5
-    vcomiss xmm4, xmm5
-  }
-  if ( v34 | v35 )
+  LODWORD(v17) = COERCE_UNSIGNED_INT(value * moveDef->gravityScale) ^ _xmm;
+  v18 = (float)(*(float *)&upwardVelocity_low * *(float *)&upwardVelocity_low) - (float)((float)(*(float *)&_XMM6 * 2.0) * v17);
+  if ( v18 <= 0.0 )
     goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vxorps  xmm0, xmm7, xmm3
-    vsqrtss xmm2, xmm4, xmm4
-    vsubss  xmm1, xmm0, xmm2
-    vsubss  xmm2, xmm2, xmm7
-    vdivss  xmm4, xmm10, xmm9
-    vmulss  xmm0, xmm2, xmm4
-    vmulss  xmm3, xmm1, xmm4
-    vmaxss  xmm7, xmm3, xmm0
-    vcomiss xmm7, xmm5
-  }
-  if ( v34 | v35 )
+  v19 = fsqrt(v18);
+  v20 = upwardVelocity_low ^ (unsigned int)_xmm;
+  *(float *)&v20 = (float)(COERCE_FLOAT(upwardVelocity_low ^ _xmm) - v19) * (float)(1.0 / v17);
+  _XMM3 = v20;
+  __asm { vmaxss  xmm7, xmm3, xmm0 }
+  if ( *(float *)&_XMM7 <= 0.0 )
   {
 LABEL_24:
-    ScriptableBg_GravityArcSetDefaultData(_R13, _R15, arcData);
+    ScriptableBg_GravityArcSetDefaultData(originInitial, anglesInitial, arcData);
   }
   else
   {
-    __asm
+    YawVectors(anglesInitial->v[1] + moveDef->yawOffsetForXYDirection, &forward, NULL);
+    v23 = *(float *)&_XMM8 * forward.v[0];
+    v25 = *(float *)&_XMM8 * forward.v[1];
+    v24 = *(float *)&_XMM8 * forward.v[1];
+    v26 = originInitial->v[0];
+    if ( moveDef->endAtInitialPose )
     {
-      vmovss  xmm0, dword ptr [r15+4]
-      vaddss  xmm0, xmm0, dword ptr [rdi+1Ch]; yaw
-    }
-    YawVectors(*(float *)&_XMM0, &forward, NULL);
-    __asm
-    {
-      vmulss  xmm3, xmm8, dword ptr [rsp+0E8h+forward]
-      vmulss  xmm4, xmm8, dword ptr [rsp+0E8h+forward+4]
-      vmovss  xmm0, dword ptr [r13+0]
-    }
-    if ( _RDI->endAtInitialPose )
-    {
-      __asm { vmovss  dword ptr [rbx+2Ch], xmm0 }
-      *(_QWORD *)&arcData->endOrigin.y = *(_QWORD *)&_R13->y;
-      arcData->endAngles = *_R15;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+2Ch]
-        vsubss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rbx+14h], xmm1
-        vmovss  xmm2, dword ptr [rbx+30h]
-        vsubss  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rbx+18h], xmm0
-        vaddss  xmm1, xmm6, dword ptr [rbx+34h]
-        vmovss  dword ptr [rbx+1Ch], xmm1
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vsubss  xmm1, xmm0, dword ptr [rdi+8]
-        vmovss  dword ptr [rbx+20h], xmm1
-        vmovss  xmm2, dword ptr [rbx+3Ch]
-        vsubss  xmm0, xmm2, dword ptr [rdi+0Ch]
-        vmovss  dword ptr [rbx+24h], xmm0
-        vmovss  xmm1, dword ptr [rbx+40h]
-        vsubss  xmm2, xmm1, dword ptr [rdi+10h]
-        vmovss  dword ptr [rbx+28h], xmm2
-      }
+      arcData->endOrigin.v[0] = v26;
+      *(_QWORD *)&arcData->endOrigin.y = *(_QWORD *)&originInitial->y;
+      arcData->endAngles = *anglesInitial;
+      arcData->startOrigin.v[0] = arcData->endOrigin.v[0] - v23;
+      arcData->startOrigin.v[1] = arcData->endOrigin.v[1] - v25;
+      arcData->startOrigin.v[2] = *(float *)&_XMM6 + arcData->endOrigin.v[2];
+      arcData->startAngles.v[0] = arcData->endAngles.v[0] - moveDef->angleOffset.v[0];
+      arcData->startAngles.v[1] = arcData->endAngles.v[1] - moveDef->angleOffset.v[1];
+      arcData->startAngles.v[2] = arcData->endAngles.v[2] - moveDef->angleOffset.v[2];
     }
     else
     {
-      __asm { vmovss  dword ptr [rbx+14h], xmm0 }
-      *(_QWORD *)&arcData->startOrigin.y = *(_QWORD *)&_R13->y;
-      arcData->startAngles = *_R15;
-      __asm
-      {
-        vaddss  xmm0, xmm3, dword ptr [rbx+14h]
-        vmovss  dword ptr [rbx+2Ch], xmm0
-        vaddss  xmm1, xmm4, dword ptr [rbx+18h]
-        vmovss  dword ptr [rbx+30h], xmm1
-        vmovss  xmm0, dword ptr [rbx+1Ch]
-        vsubss  xmm2, xmm0, xmm6
-        vmovss  dword ptr [rbx+34h], xmm2
-        vmovss  xmm0, dword ptr [rdi+8]
-        vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-        vmovss  dword ptr [rbx+38h], xmm1
-        vmovss  xmm2, dword ptr [rdi+0Ch]
-        vaddss  xmm0, xmm2, dword ptr [rbx+24h]
-        vmovss  dword ptr [rbx+3Ch], xmm0
-        vmovss  xmm1, dword ptr [rdi+10h]
-        vaddss  xmm2, xmm1, dword ptr [rbx+28h]
-        vmovss  dword ptr [rbx+40h], xmm2
-      }
+      arcData->startOrigin.v[0] = v26;
+      *(_QWORD *)&arcData->startOrigin.y = *(_QWORD *)&originInitial->y;
+      arcData->startAngles = *anglesInitial;
+      arcData->endOrigin.v[0] = v23 + arcData->startOrigin.v[0];
+      arcData->endOrigin.v[1] = v25 + arcData->startOrigin.v[1];
+      arcData->endOrigin.v[2] = arcData->startOrigin.v[2] - *(float *)&_XMM6;
+      arcData->endAngles.v[0] = moveDef->angleOffset.v[0] + arcData->startAngles.v[0];
+      arcData->endAngles.v[1] = moveDef->angleOffset.v[1] + arcData->startAngles.v[1];
+      arcData->endAngles.v[2] = moveDef->angleOffset.v[2] + arcData->startAngles.v[2];
     }
-    if ( _RDI->randomSpin )
+    if ( moveDef->randomSpin )
     {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@41a00000
-        vmulss  xmm0, xmm2, dword ptr [rbx+14h]
-        vcvttss2si r8d, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r8d
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmulss  xmm2, xmm2, dword ptr [rbx+18h]
-        vcvttss2si ecx, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmovss  dword ptr [rbx+24h], xmm0
-      }
+      arcData->startAngles.v[0] = (float)((int)(float)(20.0 * arcData->startOrigin.v[0]) % 360);
+      arcData->startAngles.v[1] = (float)((int)(float)(20.0 * arcData->startOrigin.v[1]) % 360);
       arcData->startAngles.v[2] = 0.0;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm7, cs:__real@447a0000
-      vcvttss2si eax, xmm0
-      vdivss  xmm1, xmm10, xmm7
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm1, xmm4, xmm1
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  dword ptr [rbx+10h], xmm9
-      vmovss  dword ptr [rbx+4], xmm0
-    }
-    arcData->durationMS = _EAX;
-    arcData->velocity.v[2] = _RDI->upwardVelocity;
-  }
-  __asm { vmovaps xmm10, [rsp+0E8h+var_88] }
-  _R11 = &v103;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm9, xmmword ptr [r11-58h]
+    arcData->velocity.v[1] = v24 * (float)(1.0 / *(float *)&_XMM7);
+    arcData->gravity = v17;
+    arcData->velocity.v[0] = v23 * (float)(1.0 / *(float *)&_XMM7);
+    arcData->durationMS = (int)(float)(*(float *)&_XMM7 * 1000.0);
+    arcData->velocity.v[2] = moveDef->upwardVelocity;
   }
 }
 
@@ -1098,24 +959,14 @@ LABEL_24:
 ScriptableBg_GravityArcCalcDelta
 ==============
 */
-
-void __fastcall ScriptableBg_GravityArcCalcDelta(const vec3_t *velocity, const int durationMS, double gravity, vec3_t *out_result)
+void ScriptableBg_GravityArcCalcDelta(const vec3_t *velocity, const int durationMS, const float gravity, vec3_t *out_result)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vmulss  xmm3, xmm0, cs:__real@3a83126f
-    vmulss  xmm1, xmm3, dword ptr [rcx]
-    vmovss  dword ptr [r9], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rcx+4]
-    vmulss  xmm1, xmm2, cs:__real@3f000000
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [r9+4], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rcx+8]
-    vmulss  xmm3, xmm0, xmm3
-    vmovss  dword ptr [r9+8], xmm3
-  }
+  float v4; 
+
+  v4 = (float)durationMS * 0.001;
+  out_result->v[0] = v4 * velocity->v[0];
+  out_result->v[1] = v4 * velocity->v[1];
+  out_result->v[2] = (float)((float)((float)(gravity * 0.5) * v4) + velocity->v[2]) * v4;
 }
 
 /*
@@ -1123,65 +974,39 @@ void __fastcall ScriptableBg_GravityArcCalcDelta(const vec3_t *velocity, const i
 ScriptableBg_GravityArcEncodePayload
 ==============
 */
-
-unsigned __int16 __fastcall ScriptableBg_GravityArcEncodePayload(const vec3_t *begin, const vec3_t *end, double _XMM2_8)
+unsigned __int16 ScriptableBg_GravityArcEncodePayload(const vec3_t *begin, const vec3_t *end)
 {
-  const dvar_t *v8; 
-  const dvar_t *v19; 
+  const dvar_t *v5; 
+  float v6; 
+  float v9; 
+  const dvar_t *v10; 
+  int v11; 
 
-  __asm
+  if ( begin->v[2] >= end->v[2] )
   {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  xmm1, dword ptr [rdx+8]
-    vcomiss xmm0, xmm1
+    v5 = DCONST_DVARFLT_bg_maxLootDropHeight;
+    if ( !DCONST_DVARFLT_bg_maxLootDropHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_maxLootDropHeight") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v5);
+    v6 = end->v[0] - begin->v[0];
+    _XMM2 = 0i64;
+    __asm { vroundss xmm2, xmm2, xmm1, 1 }
+    v9 = end->v[1];
+    v10 = DCONST_DVARFLT_bg_maxLootDropDistanceXY;
+    v11 = (int)*(float *)&_XMM2;
+    fsqrt((float)((float)(v9 - begin->v[1]) * (float)(v9 - begin->v[1])) + (float)(v6 * v6));
+    if ( !DCONST_DVARFLT_bg_maxLootDropDistanceXY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_maxLootDropDistanceXY") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v10);
+    _XMM2 = 0i64;
+    __asm { vroundss xmm2, xmm2, xmm1, 1 }
+    return v11 | ((unsigned __int16)(int)*(float *)&_XMM2 << 8);
   }
-  _RBX = end;
-  v8 = DCONST_DVARFLT_bg_maxLootDropHeight;
-  __asm
+  else
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vsubss  xmm6, xmm0, xmm1
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
+    Com_PrintError(29, "ScriptableBg_GravityArcEncodePayload: begin point is below end point.\n");
+    return 0;
   }
-  if ( !DCONST_DVARFLT_bg_maxLootDropHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_maxLootDropHeight") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@437f0000
-    vdivss  xmm0, xmm7, dword ptr [rsi+28h]
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm4, xmm0, dword ptr [rdi]
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
-  v19 = DCONST_DVARFLT_bg_maxLootDropDistanceXY;
-  __asm
-  {
-    vcvttss2si esi, xmm2
-    vsubss  xmm2, xmm1, dword ptr [rdi+4]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vsqrtss xmm6, xmm1, xmm1
-  }
-  if ( !DCONST_DVARFLT_bg_maxLootDropDistanceXY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_maxLootDropDistanceXY") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  __asm
-  {
-    vdivss  xmm0, xmm7, dword ptr [rbx+28h]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmulss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si eax, xmm2
-  }
-  return _ESI | ((_WORD)_EAX << 8);
 }
 
 /*
@@ -1208,127 +1033,58 @@ ScriptableBg_LerpCalcEndPoints
 */
 void ScriptableBg_LerpCalcEndPoints(const vec3_t *originInitial, const vec3_t *anglesInitial, const ScriptableEventMoveDef *const moveDef, vec3_t *out_endOrigin, vec3_t *out_endAngles)
 {
-  bool v9; 
-  bool v17; 
-  char v41; 
+  vec3_t *p_originOffset; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  bool v19; 
+  float v20; 
   tmat33_t<vec3_t> axis; 
-  char v51[16]; 
-  void *retaddr; 
+  char v22; 
 
-  _R11 = &retaddr;
-  _RBX = out_endAngles;
-  _RSI = moveDef;
-  _RDI = anglesInitial;
-  _RBP = (char *)&moveDef->originOffset;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm8 }
-  _R15 = out_endOrigin;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm8, dword ptr [rbp+0]
-  }
-  if ( !v9 )
-    goto LABEL_5;
-  __asm { vucomiss xmm8, dword ptr [rbp+4] }
-  if ( !v9 )
-    goto LABEL_5;
-  __asm { vucomiss xmm8, dword ptr [rbp+8] }
-  if ( v9 )
+  p_originOffset = &moveDef->originOffset;
+  if ( moveDef->originOffset.v[0] == 0.0 && moveDef->originOffset.v[1] == 0.0 && moveDef->originOffset.v[2] == 0.0 )
   {
     *(_QWORD *)out_endOrigin->v = *(_QWORD *)originInitial->v;
-    __asm { vmovss  xmm0, dword ptr [rcx+8] }
+    v10 = originInitial->v[2];
   }
   else
   {
-LABEL_5:
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovaps [rsp+0C8h+var_48], xmm7
-    }
     AnglesToAxis(anglesInitial, &axis);
-    v9 = _RBP == v51;
-    if ( _RBP == v51 )
-    {
-      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out");
-      v9 = !v17;
-      if ( v17 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+4]
-      vmovss  xmm7, dword ptr [rbp+8]
-      vmovss  xmm5, dword ptr [rbp+0]
-      vmulss  xmm0, xmm6, dword ptr [rsp+0C8h+axis+0Ch]
-      vmulss  xmm1, xmm5, dword ptr [rsp+0C8h+axis]
-      vmulss  xmm3, xmm5, dword ptr [rsp+0C8h+axis+4]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, dword ptr [rsp+0C8h+axis+18h]
-      vaddss  xmm2, xmm2, xmm1
-      vaddss  xmm0, xmm2, dword ptr [r14]
-      vmulss  xmm1, xmm6, dword ptr [rsp+0C8h+axis+10h]
-      vmulss  xmm2, xmm7, dword ptr [rsp+0C8h+axis+1Ch]
-      vaddss  xmm4, xmm3, xmm1
-      vaddss  xmm1, xmm4, xmm2
-      vmulss  xmm2, xmm6, dword ptr [rsp+0C8h+axis+14h]
-      vmulss  xmm4, xmm5, dword ptr [rsp+0C8h+axis+8]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-      vmovss  dword ptr [r15], xmm0
-      vaddss  xmm3, xmm1, dword ptr [r14+4]
-      vmulss  xmm1, xmm7, dword ptr [rsp+0C8h+axis+20h]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovss  dword ptr [r15+4], xmm3
-      vaddss  xmm3, xmm4, xmm2
-      vaddss  xmm2, xmm3, xmm1
-      vaddss  xmm0, xmm2, dword ptr [r14+8]
-    }
+    if ( p_originOffset == (vec3_t *)&v22 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+      __debugbreak();
+    v11 = p_originOffset->v[1];
+    v12 = p_originOffset->v[2];
+    v13 = (float)((float)(p_originOffset->v[0] * axis.m[0].v[1]) + (float)(v11 * axis.m[1].v[1])) + (float)(v12 * axis.m[2].v[1]);
+    v14 = v11 * axis.m[1].v[2];
+    v15 = p_originOffset->v[0] * axis.m[0].v[2];
+    out_endOrigin->v[0] = (float)((float)((float)(p_originOffset->v[0] * axis.m[0].v[0]) + (float)(v11 * axis.m[1].v[0])) + (float)(v12 * axis.m[2].v[0])) + originInitial->v[0];
+    v16 = v13 + originInitial->v[1];
+    v17 = v12 * axis.m[2].v[2];
+    out_endOrigin->v[1] = v16;
+    v10 = (float)((float)(v15 + v14) + v17) + originInitial->v[2];
   }
-  __asm
+  out_endOrigin->v[2] = v10;
+  v18 = moveDef->angleOffset.v[0];
+  v19 = v18 != 0.0 || moveDef->angleOffset.v[1] != 0.0 || moveDef->angleOffset.v[2] != 0.0;
+  v20 = anglesInitial->v[0];
+  if ( v19 )
   {
-    vmovss  dword ptr [r15+8], xmm0
-    vmovss  xmm1, dword ptr [rsi+14h]
-    vucomiss xmm1, xmm8
-  }
-  if ( !v9 )
-    goto LABEL_13;
-  __asm { vucomiss xmm8, dword ptr [rsi+18h] }
-  if ( !v9 )
-    goto LABEL_13;
-  __asm { vucomiss xmm8, dword ptr [rsi+1Ch] }
-  if ( v9 )
-    v41 = 0;
-  else
-LABEL_13:
-    v41 = 1;
-  __asm
-  {
-    vmovaps xmm8, [rsp+0C8h+var_58]
-    vmovss  xmm0, dword ptr [rdi]
-  }
-  if ( v41 )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr [rsi+18h]
-      vaddss  xmm2, xmm1, dword ptr [rdi+4]
-      vmovss  dword ptr [rbx+4], xmm2
-      vmovss  xmm0, dword ptr [rsi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    out_endAngles->v[0] = v20 + v18;
+    out_endAngles->v[1] = moveDef->angleOffset.v[1] + anglesInitial->v[1];
+    out_endAngles->v[2] = moveDef->angleOffset.v[2] + anglesInitial->v[2];
   }
   else
   {
-    __asm { vmovss  dword ptr [rbx], xmm0 }
-    out_endAngles->v[1] = _RDI->v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    out_endAngles->v[0] = v20;
+    out_endAngles->v[1] = anglesInitial->v[1];
+    out_endAngles->v[2] = anglesInitial->v[2];
   }
 }
 
@@ -1337,318 +1093,145 @@ LABEL_13:
 ScriptableBg_LerpVector
 ==============
 */
-bool ScriptableBg_LerpVector(const vec3_t *begin, const vec3_t *end, const int beginLerpTime, const int currTime, const float fTotalTimeSec, const float fAccelTimeSec, const float fDecelTimeSec, vec3_t *out_result)
+char ScriptableBg_LerpVector(const vec3_t *begin, const vec3_t *end, const int beginLerpTime, const int currTime, const float fTotalTimeSec, const float fAccelTimeSec, const float fDecelTimeSec, vec3_t *out_result)
 {
-  bool v20; 
-  int v26; 
-  bool v28; 
-  bool v30; 
-  int v57; 
-  int v59; 
-  bool v60; 
-  bool v61; 
-  bool v62; 
-  bool v75; 
-  int v81; 
-  int v100; 
-  _BYTE v115[24]; 
-  __int64 v116; 
-  int v117; 
+  int v10; 
+  double v13; 
+  int v14; 
+  int v15; 
+  int v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  float v22; 
+  int v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int64 v34; 
   int atTime; 
   trajectory_t_secure tr; 
   vec3_t result; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v10 = beginLerpTime;
+  if ( fTotalTimeSec <= 0.0 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v20 = (unsigned __int64)v115 == _security_cookie;
-  __asm { vmovss  xmm7, [rbp+50h+fTotalTimeSec] }
-  _RDI = out_result;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
-  _R15 = begin;
-  v117 = beginLerpTime;
-  v26 = beginLerpTime;
-  _RBX = end;
-  if ( (unsigned __int64)v115 == _security_cookie )
-  {
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 525, ASSERT_TYPE_ASSERT, "(fTotalTimeSec > 0.0f)", (const char *)&queryFormat, "fTotalTimeSec > 0.0f");
-    v20 = !v28;
-    if ( v28 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 525, ASSERT_TYPE_ASSERT, "(fTotalTimeSec > 0.0f)", (const char *)&queryFormat, "fTotalTimeSec > 0.0f") )
       __debugbreak();
-    v26 = v117;
+    v10 = beginLerpTime;
   }
-  __asm
+  if ( end->v[0] == begin->v[0] && end->v[1] == begin->v[1] && end->v[2] == begin->v[2] )
   {
-    vmovss  xmm1, dword ptr [rbx]
-    vucomiss xmm1, dword ptr [r15]
+    *out_result = *end;
+    return 0;
   }
-  if ( !v20 )
-    goto LABEL_9;
-  __asm
+  if ( fAccelTimeSec > 0.0 || fDecelTimeSec > 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vucomiss xmm0, dword ptr [r15+4]
-  }
-  if ( !v20 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vucomiss xmm0, dword ptr [r15+8]
-  }
-  if ( !v20 )
-  {
-LABEL_9:
-    __asm
+    v14 = (int)(float)(fDecelTimeSec * 1000.0);
+    v15 = v10 - (int)(float)(fTotalTimeSec * -1000.0);
+    v16 = (int)(float)(fAccelTimeSec * 1000.0);
+    atTime = I_clamp(currTime, v10, v15);
+    if ( v16 < 0 )
     {
-      vmovaps [rsp+150h+var_68+8], xmm8
-      vmovss  xmm8, [rbp+50h+fDecelTimeSec]
-      vmovaps [rsp+150h+var_78+8], xmm9
-      vmovss  xmm9, [rbp+50h+fAccelTimeSec]
-      vcomiss xmm9, xmm6
-    }
-    if ( v20 )
-    {
-      __asm { vcomiss xmm8, xmm6 }
-      if ( v20 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm2, xmm0, cs:__real@3a83126f
-          vdivss  xmm0, xmm2, xmm7; val
-          vmovss  xmm2, cs:__real@3f800000; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx]
-          vsubss  xmm2, xmm1, dword ptr [r15]
-          vmulss  xmm3, xmm2, xmm0
-          vaddss  xmm4, xmm3, dword ptr [r15]
-          vmovss  dword ptr [rdi], xmm4
-          vmovss  xmm1, dword ptr [rbx+4]
-          vsubss  xmm2, xmm1, dword ptr [r15+4]
-          vmulss  xmm3, xmm2, xmm0
-          vaddss  xmm4, xmm3, dword ptr [r15+4]
-          vmovss  dword ptr [rdi+4], xmm4
-          vmovss  xmm1, dword ptr [rbx+8]
-          vmovaps xmm6, xmm0
-          vsubss  xmm0, xmm1, dword ptr [r15+8]
-          vmulss  xmm2, xmm0, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r15+8]
-          vmovss  dword ptr [rdi+8], xmm3
-        }
-LABEL_38:
-        __asm { vmovaps xmm9, [rsp+150h+var_78+8] }
-        v30 = 1;
-        __asm { vmovaps xmm8, [rsp+150h+var_68+8] }
-        goto LABEL_39;
-      }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm8, cs:__real@447a0000
-      vmulss  xmm1, xmm9, cs:__real@447a0000
-      vmovaps [rsp+150h+var_88+8], xmm10
-      vmovaps [rsp+150h+var_98+8], xmm11
-      vmovaps [rsp+150h+var_A8+8], xmm12
-      vcvttss2si r14d, xmm0
-      vmulss  xmm0, xmm7, cs:__real@c47a0000
-      vcvttss2si eax, xmm0
-    }
-    v57 = v26 - _EAX;
-    __asm
-    {
-      vmovaps [rsp+150h+var_B8+8], xmm13
-      vmovaps [rsp+150h+var_C8+8], xmm14
-      vmovaps [rsp+150h+var_D8+8], xmm15
-      vcvttss2si r13d, xmm1
-    }
-    atTime = I_clamp(currTime, v26, v26 - _EAX);
-    if ( _ER13 < 0 )
-    {
-      LODWORD(v116) = _ER13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 540, ASSERT_TYPE_ASSERT, "( ( accelLerpTime >= 0 ) )", "( accelLerpTime ) = %i", v116) )
+      LODWORD(v34) = (int)(float)(fAccelTimeSec * 1000.0);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 540, ASSERT_TYPE_ASSERT, "( ( accelLerpTime >= 0 ) )", "( accelLerpTime ) = %i", v34) )
         __debugbreak();
     }
-    if ( _ER14 < 0 )
+    if ( v14 < 0 )
     {
-      LODWORD(v116) = _ER14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 541, ASSERT_TYPE_ASSERT, "( ( decelLerpTime >= 0 ) )", "( decelLerpTime ) = %i", v116) )
+      LODWORD(v34) = (int)(float)(fDecelTimeSec * 1000.0);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 541, ASSERT_TYPE_ASSERT, "( ( decelLerpTime >= 0 ) )", "( decelLerpTime ) = %i", v34) )
         __debugbreak();
     }
-    v59 = v57 - v117;
-    v60 = _ER13 + _ER14 == v57 - v117;
-    v61 = _ER13 + _ER14 <= (unsigned int)(v57 - v117);
-    if ( _ER13 + _ER14 > v57 - v117 )
-    {
-      v62 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 542, ASSERT_TYPE_ASSERT, "((accelLerpTime + decelLerpTime) <= (endLerpTime - beginLerpTime))", (const char *)&queryFormat, "(accelLerpTime + decelLerpTime) <= (endLerpTime - beginLerpTime)");
-      v60 = !v62;
-      v61 = !v62;
-      if ( v62 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm12, xmm0, dword ptr [r15]
-      vmovss  xmm0, dword ptr [rbx+4]
-      vsubss  xmm13, xmm0, dword ptr [r15+4]
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm14, xmm0, dword ptr [r15+8]
-      vmulss  xmm1, xmm13, xmm13
-      vmulss  xmm0, xmm12, xmm12
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm14, xmm14
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm15, xmm2, xmm2
-      vcomiss xmm15, xmm6
-    }
-    if ( v61 )
-    {
-      v75 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 547, ASSERT_TYPE_ASSERT, "(fDist > 0.0f)", (const char *)&queryFormat, "fDist > 0.0f");
-      v60 = !v75;
-      if ( v75 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm10, cs:__real@40000000
-      vmulss  xmm0, xmm7, xmm10
-      vsubss  xmm1, xmm0, xmm9
-      vsubss  xmm11, xmm1, xmm8
-      vucomiss xmm11, xmm6
-    }
-    if ( v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 550, ASSERT_TYPE_ASSERT, "(fSpeedQuotient)", (const char *)&queryFormat, "fSpeedQuotient") )
+    if ( v16 + v14 > v15 - beginLerpTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 542, ASSERT_TYPE_ASSERT, "((accelLerpTime + decelLerpTime) <= (endLerpTime - beginLerpTime))", (const char *)&queryFormat, "(accelLerpTime + decelLerpTime) <= (endLerpTime - beginLerpTime)") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:__real@3f800000 }
-    v81 = atTime;
+    v17 = end->v[0] - begin->v[0];
+    v19 = LODWORD(end->v[1]);
+    v18 = end->v[1] - begin->v[1];
+    v20 = end->v[2] - begin->v[2];
+    *(float *)&v19 = fsqrt((float)((float)(v18 * v18) + (float)(v17 * v17)) + (float)(v20 * v20));
+    _XMM15 = v19;
+    if ( *(float *)&v19 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 547, ASSERT_TYPE_ASSERT, "(fDist > 0.0f)", (const char *)&queryFormat, "fDist > 0.0f") )
+      __debugbreak();
+    v22 = (float)((float)(fTotalTimeSec * 2.0) - fAccelTimeSec) - fDecelTimeSec;
+    if ( v22 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 550, ASSERT_TYPE_ASSERT, "(fSpeedQuotient)", (const char *)&queryFormat, "fSpeedQuotient") )
+      __debugbreak();
+    v23 = atTime;
+    v24 = begin->v[1];
+    v25 = begin->v[2];
+    v26 = (float)(*(float *)&_XMM15 * 2.0) / v22;
     __asm
     {
-      vmovss  xmm5, dword ptr [r15+4]
-      vmovss  xmm4, dword ptr [r15+8]
-      vmulss  xmm0, xmm15, xmm10
-      vdivss  xmm3, xmm0, xmm11
       vcmpless xmm0, xmm15, cs:__real@80000000
       vblendvps xmm0, xmm15, xmm1, xmm0
-      vmovaps xmm15, [rsp+150h+var_D8+8]
     }
     tr.trType = TR_ACCELERATE;
-    tr.trTime = v117;
-    tr.trDuration = _ER13;
-    __asm
+    tr.trTime = beginLerpTime;
+    tr.trDuration = (int)(float)(fAccelTimeSec * 1000.0);
+    v29 = (float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * v26;
+    v30 = begin->v[0];
+    v31 = (float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * v26;
+    v32 = (float)(v18 * (float)(1.0 / *(float *)&_XMM0)) * v26;
+    tr.trDelta.v[2] = v31;
+    tr.trBase.v[0] = v30;
+    tr.trBase.v[1] = v24;
+    tr.trBase.v[2] = v25;
+    tr.trDelta.v[0] = v29;
+    tr.trDelta.v[1] = v32;
+    if ( atTime - beginLerpTime >= v16 )
     {
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm12, xmm2
-      vmovaps xmm12, [rsp+150h+var_A8+8]
-      vmulss  xmm1, xmm13, xmm2
-      vmovaps xmm13, [rsp+150h+var_B8+8]
-      vmulss  xmm6, xmm0, xmm3
-      vmulss  xmm0, xmm14, xmm2
-      vmovaps xmm14, [rsp+150h+var_C8+8]
-      vmovss  xmm2, dword ptr [r15]
-      vmulss  xmm11, xmm0, xmm3
-      vmulss  xmm10, xmm1, xmm3
-      vmovss  dword ptr [rsp+150h+tr.trDelta+8], xmm11
-      vmovss  dword ptr [rsp+150h+tr.trBase], xmm2
-      vmovss  dword ptr [rsp+150h+tr.trBase+4], xmm5
-      vmovss  dword ptr [rsp+150h+tr.trBase+8], xmm4
-      vmovss  dword ptr [rsp+150h+tr.trDelta], xmm6
-      vmovss  dword ptr [rsp+150h+tr.trDelta+4], xmm10
-    }
-    if ( atTime - v117 >= _ER13 )
-    {
-      v100 = v117 + _ER13;
-      if ( _ER13 <= 0 )
+      if ( v16 <= 0 )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsp+150h+result], xmm2
-          vmovss  dword ptr [rsp+150h+result+4], xmm5
-          vmovss  dword ptr [rsp+150h+result+8], xmm4
-        }
+        result.v[0] = v30;
+        result.v[1] = v24;
+        result.v[2] = v25;
       }
       else
       {
-        BgTrajectory::LegacyEvaluateTrajectory(&tr, v100, &result);
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+150h+result+8]
-          vmovss  xmm5, dword ptr [rsp+150h+result+4]
-          vmovss  xmm2, dword ptr [rsp+150h+result]
-        }
-        v81 = atTime;
+        BgTrajectory::LegacyEvaluateTrajectory(&tr, beginLerpTime + v16, &result);
+        v25 = result.v[2];
+        v24 = result.v[1];
+        v30 = result.v[0];
+        v23 = atTime;
       }
-      if ( v57 - v81 > _ER14 )
+      if ( v15 - v23 > v14 )
       {
         tr.trType = TR_LINEAR;
-        tr.trTime = v100;
-        tr.trDuration = v59 - _ER13 - _ER14;
-        __asm
-        {
-          vmovss  dword ptr [rsp+150h+tr.trBase], xmm2
-          vmovss  dword ptr [rsp+150h+tr.trBase+4], xmm5
-          vmovss  dword ptr [rsp+150h+tr.trBase+8], xmm4
-        }
-        BgTrajectory::LegacyEvaluateTrajectory(&tr, v81, out_result);
-LABEL_37:
-        __asm
-        {
-          vmovaps xmm10, [rsp+150h+var_88+8]
-          vmovaps xmm11, [rsp+150h+var_98+8]
-        }
-        goto LABEL_38;
+        tr.trTime = beginLerpTime + v16;
+        tr.trDuration = v15 - beginLerpTime - v16 - v14;
+        tr.trBase.v[0] = v30;
+        tr.trBase.v[1] = v24;
+        tr.trBase.v[2] = v25;
+        BgTrajectory::LegacyEvaluateTrajectory(&tr, v23, out_result);
+        return 1;
       }
-      if ( _ER14 <= 0 )
+      if ( v14 <= 0 )
       {
-        *out_result = *_RBX;
-        goto LABEL_37;
+        *out_result = *end;
+        return 1;
       }
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm9
-        vsubss  xmm3, xmm0, xmm8
-        vmulss  xmm1, xmm6, xmm3
-        vaddss  xmm2, xmm1, xmm2
-        vmulss  xmm0, xmm10, xmm3
-        vaddss  xmm1, xmm0, xmm5
-        vmovss  dword ptr [rsp+150h+tr.trBase], xmm2
-        vmulss  xmm2, xmm11, xmm3
-        vaddss  xmm0, xmm2, xmm4
-      }
+      v33 = (float)(fTotalTimeSec - fAccelTimeSec) - fDecelTimeSec;
+      tr.trBase.v[0] = (float)(v29 * v33) + v30;
       tr.trType = TR_DECELERATE;
-      __asm
-      {
-        vmovss  dword ptr [rsp+150h+tr.trBase+8], xmm0
-        vmovss  dword ptr [rsp+150h+tr.trBase+4], xmm1
-      }
-      tr.trTime = v57 - _ER14;
-      tr.trDuration = _ER14;
+      tr.trBase.v[2] = (float)(v31 * v33) + v25;
+      tr.trBase.v[1] = (float)(v32 * v33) + v24;
+      tr.trTime = v15 - v14;
+      tr.trDuration = (int)(float)(fDecelTimeSec * 1000.0);
     }
-    BgTrajectory::LegacyEvaluateTrajectory(&tr, v81, out_result);
-    goto LABEL_37;
+    BgTrajectory::LegacyEvaluateTrajectory(&tr, v23, out_result);
+    return 1;
   }
-  __asm { vmovss  dword ptr [rdi], xmm1 }
-  *(_QWORD *)&out_result->y = *(_QWORD *)&_RBX->y;
-  v30 = 0;
-LABEL_39:
-  __asm
-  {
-    vmovaps xmm6, [rsp+150h+var_48+8]
-    vmovaps xmm7, [rsp+150h+var_58+8]
-  }
-  return v30;
+  v13 = I_fclamp((float)((float)(currTime - v10) * 0.001) / fTotalTimeSec, 0.0, 1.0);
+  out_result->v[0] = (float)((float)(end->v[0] - begin->v[0]) * *(float *)&v13) + begin->v[0];
+  out_result->v[1] = (float)((float)(end->v[1] - begin->v[1]) * *(float *)&v13) + begin->v[1];
+  out_result->v[2] = (float)((float)(end->v[2] - begin->v[2]) * *(float *)&v13) + begin->v[2];
+  return 1;
 }
 
 /*
@@ -1658,11 +1241,11 @@ ScriptableBg_PhysicsClearVelocity
 */
 void ScriptableBg_PhysicsClearVelocity(Physics_WorldId physicsWorld, unsigned int physicsInstance)
 {
-  unsigned int v5; 
+  unsigned int v4; 
   unsigned int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
   unsigned int m_serialAndIndex; 
-  __int64 v11; 
+  __int64 v8; 
   hknpBodyId result; 
   vec3_t angVel; 
   vec3_t linVel; 
@@ -1671,59 +1254,50 @@ void ScriptableBg_PhysicsClearVelocity(Physics_WorldId physicsWorld, unsigned in
     __debugbreak();
   if ( physicsInstance == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.cpp", 817, ASSERT_TYPE_ASSERT, "(physicsInstance != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstance != PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
-  v5 = 0;
+  v4 = 0;
   NumRigidBodys = Physics_GetNumRigidBodys(physicsWorld, physicsInstance);
   if ( NumRigidBodys )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_48], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     do
     {
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)physicsWorld > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(v11) = physicsWorld;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v11) )
+        LODWORD(v8) = physicsWorld;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v8) )
           __debugbreak();
       }
       if ( physicsInstance == -1 )
       {
-        LODWORD(v11) = physicsWorld;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v11) )
+        LODWORD(v8) = physicsWorld;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v8) )
           __debugbreak();
       }
       if ( !g_physicsClientWorldsCreated && (unsigned int)(physicsWorld - 2) <= 5 )
       {
-        LODWORD(v11) = physicsWorld;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v11) )
+        LODWORD(v8) = physicsWorld;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v8) )
           __debugbreak();
       }
       if ( !g_physicsServerWorldsCreated && (unsigned int)physicsWorld <= PHYSICS_WORLD_ID_SERVER_DETAIL )
       {
-        LODWORD(v11) = physicsWorld;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v11) )
+        LODWORD(v8) = physicsWorld;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v8) )
           __debugbreak();
       }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, physicsWorld, physicsInstance, v5);
-      __asm { vmovss  dword ptr [rsp+0B8h+angVel], xmm6 }
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, physicsWorld, physicsInstance, v4);
+      angVel.v[0] = 0.0;
       m_serialAndIndex = RigidBodyID->m_serialAndIndex;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+angVel+4], xmm6
-        vmovss  dword ptr [rsp+0B8h+angVel+8], xmm6
-        vmovss  dword ptr [rsp+0B8h+linVel], xmm6
-        vmovss  dword ptr [rsp+0B8h+linVel+4], xmm6
-        vmovss  dword ptr [rsp+0B8h+linVel+8], xmm6
-      }
+      angVel.v[1] = 0.0;
+      angVel.v[2] = 0.0;
+      linVel.v[0] = 0.0;
+      linVel.v[1] = 0.0;
+      linVel.v[2] = 0.0;
       Physics_SetRigidBodyLinAngVel(physicsWorld, m_serialAndIndex, &linVel, &angVel);
-      ++v5;
+      ++v4;
     }
-    while ( v5 < NumRigidBodys );
-    __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
+    while ( v4 < NumRigidBodys );
   }
 }
 
@@ -1751,64 +1325,29 @@ ScriptableBg_SetupAntilagCommand
 */
 void ScriptableBg_SetupAntilagCommand(BgAntiLagLerpMoverCmd *out_cmd, const unsigned int userId, const Bounds *bounds, const unsigned int startTime, const vec3_t *startOrigin, const vec3_t *startAngles, const vec3_t *endOrigin, const vec3_t *endAngles, const ScriptableEventMoveDef *const moveDef)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+0Ch]
-    vaddss  xmm4, xmm0, dword ptr [r8]
-  }
-  _RBX = out_cmd;
-  _R10 = endOrigin;
-  __asm
-  {
-    vmulss  xmm4, xmm4, xmm4
-    vmovss  xmm0, dword ptr [r10+4]
-    vsubss  xmm2, xmm0, dword ptr [r11+4]
-    vmovss  xmm0, dword ptr [r10+8]
-    vsubss  xmm3, xmm0, dword ptr [r11+8]
-    vmovss  xmm1, dword ptr [r10]
-    vsubss  xmm5, xmm1, dword ptr [r11]
-  }
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+
+  v9 = (float)(bounds->halfSize.v[0] + bounds->midPoint.v[0]) * (float)(bounds->halfSize.v[0] + bounds->midPoint.v[0]);
+  v10 = endOrigin->v[1] - startOrigin->v[1];
+  v11 = endOrigin->v[2] - startOrigin->v[2];
+  v12 = endOrigin->v[0] - startOrigin->v[0];
   out_cmd->userId = userId;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rcx+4], xmm0
-    vmovsd  xmm1, qword ptr [r8+10h]
-    vmovsd  qword ptr [rcx+14h], xmm1
-  }
+  out_cmd->bounds = *bounds;
   out_cmd->startTime = startTime;
   out_cmd->startOrigin = *startOrigin;
-  _RDX = moveDef;
   out_cmd->startAngles = *startAngles;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+20h]
-    vmulss  xmm1, xmm0, cs:__real@c47a0000
-    vcvttss2si eax, xmm1
-  }
-  out_cmd->endTime = startTime - _EAX;
+  out_cmd->endTime = startTime - (int)(float)(moveDef->seconds * -1000.0);
   out_cmd->endOrigin = *endOrigin;
   out_cmd->endAngles = *endAngles;
   out_cmd->seconds = moveDef->seconds;
   out_cmd->secondsAccel = moveDef->secondsAccel;
   out_cmd->secondsDecel = moveDef->secondsDecel;
   out_cmd->origin = *startOrigin;
-  __asm
-  {
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, cs:__real@40000000
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm1, xmm0, xmm0
-    vsqrtss xmm3, xmm2, xmm2
-    vaddss  xmm2, xmm3, xmm1
-    vmovss  dword ptr [rbx+60h], xmm2
-    vmovss  xmm0, dword ptr [r8+14h]
-    vaddss  xmm1, xmm0, dword ptr [r8+8]
-    vmovss  dword ptr [rbx+64h], xmm1
-  }
+  out_cmd->radius = fsqrt((float)((float)(v10 * v10) + (float)(v12 * v12)) + (float)(v11 * v11)) + fsqrt(v9 * 2.0);
+  out_cmd->height = bounds->halfSize.v[2] + bounds->midPoint.v[2];
 }
 
 /*

@@ -219,72 +219,47 @@ void ActiveSet::Allocate(ActiveSet *this, HunkUser *hunkUser, unsigned int idMax
 ActiveSet::BroadphaseAdd
 ==============
 */
-
-void __fastcall ActiveSet::BroadphaseAdd(ActiveSet *this, unsigned int id, const vec3_t *origin, double radius)
+void ActiveSet::BroadphaseAdd(ActiveSet *this, unsigned int id, const vec3_t *origin, float radius, const vec3_t *viewPos)
 {
-  __int64 v7; 
-  bool v9; 
-  bool v10; 
-  int v24; 
-  __int64 v25; 
-  __int64 v26; 
-  int v27; 
+  __int64 v6; 
+  float v8; 
+  float v9; 
+  int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RSI = origin;
-  __asm { vmovaps xmm6, xmm3 }
-  v7 = (int)id;
+  v6 = (int)id;
   if ( !this->m_bitsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 163, ASSERT_TYPE_ASSERT, "(m_bitsActive)", (const char *)&queryFormat, "m_bitsActive") )
     __debugbreak();
-  v9 = (unsigned int)v7 <= this->m_idMax;
-  if ( (unsigned int)v7 >= this->m_idMax )
+  if ( (unsigned int)v6 >= this->m_idMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 164, ASSERT_TYPE_ASSERT, "(id < m_idMax)", (const char *)&queryFormat, "id < m_idMax") )
+    __debugbreak();
+  v8 = origin->v[1] - viewPos->v[1];
+  v9 = origin->v[2] - viewPos->v[2];
+  if ( (float)((float)((float)(v8 * v8) + (float)((float)(origin->v[0] - viewPos->v[0]) * (float)(origin->v[0] - viewPos->v[0]))) + (float)(v9 * v9)) <= (float)(radius * radius) )
   {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 164, ASSERT_TYPE_ASSERT, "(id < m_idMax)", (const char *)&queryFormat, "id < m_idMax");
-    v9 = !v10;
-    if ( v10 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+8]
-    vsubss  xmm3, xmm0, dword ptr [rax]
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm2, xmm0, dword ptr [rax+4]
-    vsubss  xmm4, xmm1, dword ptr [rax+8]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm0, xmm6, xmm6
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm1
-    vcomiss xmm4, xmm0
-  }
-  if ( v9 )
-  {
-    if ( (unsigned int)v7 >= 0x1D4C0 )
+    if ( (unsigned int)v6 >= 0x1D4C0 )
     {
-      v27 = 120000;
-      LODWORD(v25) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v25, v27) )
+      v13 = 120000;
+      LODWORD(v11) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v11, v13) )
         __debugbreak();
     }
-    v24 = 1 << (v7 & 0x1F);
-    if ( (v24 & s_activeSetPendingBits[v7 >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 178, ASSERT_TYPE_ASSERT, "(!Com_BitCheckAssert( s_activeSetPendingBits, id, std::extent<decltype( s_activeSetPendingBits )>::value ? sizeof( decltype( s_activeSetPendingBits ) ) : 0 ))", (const char *)&queryFormat, "!Com_BitCheck( s_activeSetPendingBits, id )") )
+    v10 = 1 << (v6 & 0x1F);
+    if ( (v10 & s_activeSetPendingBits[v6 >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 178, ASSERT_TYPE_ASSERT, "(!Com_BitCheckAssert( s_activeSetPendingBits, id, std::extent<decltype( s_activeSetPendingBits )>::value ? sizeof( decltype( s_activeSetPendingBits ) ) : 0 ))", (const char *)&queryFormat, "!Com_BitCheck( s_activeSetPendingBits, id )") )
       __debugbreak();
-    if ( (unsigned int)v7 >= 0x1D4C0 )
+    if ( (unsigned int)v6 >= 0x1D4C0 )
     {
-      LODWORD(v26) = 120000;
-      LODWORD(v25) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v25, v26) )
+      LODWORD(v12) = 120000;
+      LODWORD(v11) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    s_activeSetPendingBits[v7 >> 5] |= v24;
-    if ( !s_activeSetPendingCount || s_activeSetPendingSmallest > (unsigned int)v7 )
-      s_activeSetPendingSmallest = v7;
-    if ( !s_activeSetPendingCount || s_activeSetPendingBiggest < (unsigned int)v7 )
-      s_activeSetPendingBiggest = v7;
+    s_activeSetPendingBits[v6 >> 5] |= v10;
+    if ( !s_activeSetPendingCount || s_activeSetPendingSmallest > (unsigned int)v6 )
+      s_activeSetPendingSmallest = v6;
+    if ( !s_activeSetPendingCount || s_activeSetPendingBiggest < (unsigned int)v6 )
+      s_activeSetPendingBiggest = v6;
     ++s_activeSetPendingCount;
   }
 }
@@ -553,160 +528,87 @@ ActiveSet::Draw3d
 */
 void ActiveSet::Draw3d(ActiveSet *this, const LocalClientNum_t localClientNum, const vec3_t *viewPos, bool (*const funcValid)(const LocalClientNum_t, unsigned int), void (*funcGetOrigin)(const LocalClientNum_t, unsigned int, vec3_t *), float (*funcGetRadius)(const LocalClientNum_t, unsigned int))
 {
-  float (__fastcall *v16)(const LocalClientNum_t, unsigned int); 
-  unsigned int v17; 
+  float (__fastcall *v6)(const LocalClientNum_t, unsigned int); 
+  unsigned int i; 
+  double v12; 
+  float v13; 
+  float v14; 
   unsigned int *m_bitsActive; 
-  __int64 v40; 
-  int v41; 
+  int v16; 
   unsigned int m_idMax; 
-  const vec4_t *v45; 
-  bool v46; 
-  bool v47; 
-  char v48; 
-  const char *v49; 
+  const vec4_t *v18; 
+  const char *v19; 
   vec3_t start; 
   vec3_t end; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v16 = funcGetRadius;
-  v17 = 0;
-  if ( this->m_idMax )
+  v6 = funcGetRadius;
+  for ( i = 0; i < this->m_idMax; ++i )
   {
-    __asm
+    funcGetOrigin(localClientNum, i, &start);
+    v12 = ((double (__fastcall *)(_QWORD, _QWORD))v6)((unsigned int)localClientNum, i);
+    v13 = (float)((float)((float)(start.v[1] - viewPos->v[1]) * (float)(start.v[1] - viewPos->v[1])) + (float)((float)(start.v[0] - viewPos->v[0]) * (float)(start.v[0] - viewPos->v[0]))) + (float)((float)(start.v[2] - viewPos->v[2]) * (float)(start.v[2] - viewPos->v[2]));
+    v14 = *(float *)&v12 * *(float *)&v12;
+    if ( !this->m_bitsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 115, ASSERT_TYPE_ASSERT, "(m_bitsActive)", (const char *)&queryFormat, "m_bitsActive") )
+      __debugbreak();
+    if ( i >= this->m_idMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 116, ASSERT_TYPE_ASSERT, "(id < m_idMax)", (const char *)&queryFormat, "id < m_idMax") )
+      __debugbreak();
+    m_bitsActive = this->m_bitsActive;
+    if ( !this->m_bitsActive && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      __debugbreak();
+    v16 = m_bitsActive[(__int64)(int)i >> 5] & (1 << (i & 0x1F));
+    if ( v16 || v13 <= 16000000.0 )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vmovss  xmm10, cs:__real@4b742400
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovss  xmm11, cs:__real@4a095440
-      vmovaps [rsp+118h+var_A8], xmm12
-      vmovss  xmm12, cs:__real@3e800000
-      vmovaps [rsp+118h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@41a00000
-      vxorps  xmm9, xmm9, xmm9
-    }
-    do
-    {
-      funcGetOrigin(localClientNum, v17, &start);
-      *(double *)&_XMM0 = ((double (__fastcall *)(_QWORD, _QWORD))v16)((unsigned int)localClientNum, v17);
-      __asm
+      m_idMax = this->m_idMax;
+      end.v[0] = start.v[0];
+      end.v[1] = start.v[1];
+      end.v[2] = start.v[2] + 20.0;
+      if ( this->m_globalCount < m_idMax )
       {
-        vmovss  xmm1, dword ptr [rsp+118h+start]
-        vsubss  xmm4, xmm1, dword ptr [r12]
-        vmovss  xmm2, dword ptr [rsp+118h+start+4]
-        vmovss  xmm1, dword ptr [rsp+118h+start+8]
-        vsubss  xmm3, xmm2, dword ptr [r12+4]
-        vsubss  xmm5, xmm1, dword ptr [r12+8]
-        vmulss  xmm3, xmm3, xmm3
-        vmulss  xmm2, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm6, xmm4, xmm1
-        vmovaps xmm7, xmm0
-        vmulss  xmm8, xmm0, xmm0
-      }
-      if ( !this->m_bitsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 115, ASSERT_TYPE_ASSERT, "(m_bitsActive)", (const char *)&queryFormat, "m_bitsActive") )
-        __debugbreak();
-      if ( v17 >= this->m_idMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 116, ASSERT_TYPE_ASSERT, "(id < m_idMax)", (const char *)&queryFormat, "id < m_idMax") )
-        __debugbreak();
-      m_bitsActive = this->m_bitsActive;
-      if ( !this->m_bitsActive && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-        __debugbreak();
-      v40 = (__int64)(int)v17 >> 5;
-      v41 = m_bitsActive[v40] & (1 << (v17 & 0x1F));
-      if ( v41 )
-        goto LABEL_14;
-      __asm { vcomiss xmm6, xmm10 }
-      if ( (m_bitsActive[v40] & (1 << (v17 & 0x1F))) == 0 )
-      {
-LABEL_14:
-        __asm
+        if ( !funcValid || funcValid(localClientNum, i) )
         {
-          vmovss  xmm0, dword ptr [rsp+118h+start]
-          vmovss  xmm1, dword ptr [rsp+118h+start+4]
-          vaddss  xmm2, xmm13, dword ptr [rsp+118h+start+8]
-        }
-        m_idMax = this->m_idMax;
-        __asm
-        {
-          vmovss  dword ptr [rsp+118h+end], xmm0
-          vmovss  dword ptr [rsp+118h+end+4], xmm1
-          vmovss  dword ptr [rsp+118h+end+8], xmm2
-        }
-        if ( this->m_globalCount < m_idMax )
-        {
-          v46 = funcValid == NULL;
-          if ( !funcValid || (v47 = funcValid(localClientNum, v17), v46 = !v47, v47) )
+          if ( *(float *)&v12 > 0.0 )
           {
-            __asm { vcomiss xmm7, xmm9 }
-            if ( v46 )
+            v18 = &colorRed;
+            if ( v16 )
             {
-              v45 = &colorPurple;
+              if ( v13 <= v14 )
+                v18 = &colorGreen;
             }
-            else
+            else if ( v14 <= v13 )
             {
-              v45 = &colorRed;
-              if ( v41 )
-              {
-                __asm { vcomiss xmm6, xmm8 }
-              }
-              else
-              {
-                __asm { vcomiss xmm8, xmm6 }
-                v45 = &colorWhite;
-              }
+              v18 = &colorWhite;
             }
           }
           else
           {
-            v45 = &colorRed;
-            if ( !v41 )
-              v45 = &colorBlue;
+            v18 = &colorPurple;
           }
         }
         else
         {
-          __asm { vcomiss xmm7, xmm9 }
-          if ( this->m_globalCount > m_idMax )
-          {
-            __asm { vcomiss xmm8, xmm6 }
-            v45 = &colorGreen;
-            if ( this->m_globalCount <= m_idMax )
-              v45 = &colorYellow;
-          }
-          else
-          {
-            v45 = &colorPurple;
-          }
-        }
-        CG_DebugLine(&start, &end, v45, 0, 0);
-        __asm { vcomiss xmm6, xmm11 }
-        if ( v48 )
-        {
-          v49 = j_va("%d", v17);
-          __asm { vmovaps xmm2, xmm12; scale }
-          CL_AddDebugStringCentered(&start, &colorWhite, *(float *)&_XMM2, v49, 0, 0);
+          v18 = &colorRed;
+          if ( !v16 )
+            v18 = &colorBlue;
         }
       }
-      v16 = funcGetRadius;
-      ++v17;
+      else if ( *(float *)&v12 > 0.0 )
+      {
+        v18 = &colorGreen;
+        if ( v14 <= v13 )
+          v18 = &colorYellow;
+      }
+      else
+      {
+        v18 = &colorPurple;
+      }
+      CG_DebugLine(&start, &end, v18, 0, 0);
+      if ( v13 < 2250000.0 )
+      {
+        v19 = j_va("%d", i);
+        CL_AddDebugStringCentered(&start, &colorWhite, 0.25, v19, 0, 0);
+      }
     }
-    while ( v17 < this->m_idMax );
-    __asm
-    {
-      vmovaps xmm13, [rsp+118h+var_B8]
-      vmovaps xmm12, [rsp+118h+var_A8]
-      vmovaps xmm11, [rsp+118h+var_98]
-      vmovaps xmm10, [rsp+118h+var_88]
-      vmovaps xmm9, [rsp+118h+var_78]
-      vmovaps xmm8, [rsp+118h+var_68]
-      vmovaps xmm7, [rsp+118h+var_58]
-      vmovaps xmm6, [rsp+118h+var_48]
-    }
+    v6 = funcGetRadius;
   }
 }
 
@@ -717,89 +619,53 @@ ActiveSet::DrawOverlay
 */
 void ActiveSet::DrawOverlay(ActiveSet *this, const LocalClientNum_t localClientNum, float *x, float *y, const char *name)
 {
-  bool v9; 
-  const ScreenPlacement *v10; 
+  bool v8; 
+  const ScreenPlacement *v9; 
   unsigned int m_countMax; 
-  unsigned int v19; 
+  unsigned int v11; 
   char *fmt; 
   __int64 forceColor; 
-  float v29; 
-  float v30; 
   vec4_t setColor; 
   char dest[256]; 
 
-  __asm { vmovaps [rsp+1A8h+var_38], xmm6 }
-  _RBP = y;
-  _RSI = x;
   if ( activeScreenPlacementMode == SCRMODE_FULL )
   {
 LABEL_7:
-    v10 = &scrPlaceFull;
+    v9 = &scrPlaceFull;
     goto LABEL_8;
   }
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v9 )
+      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v8 )
       __debugbreak();
     goto LABEL_7;
   }
-  v10 = &scrPlaceViewDisplay[localClientNum];
+  v9 = &scrPlaceViewDisplay[localClientNum];
 LABEL_8:
   Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, name);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-    vmovss  [rsp+1A8h+var_170], xmm6
-  }
-  CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v29, 0);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rbp+0]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vaddss  xmm0, xmm2, cs:__real@41800000
-    vmovss  dword ptr [rsi], xmm0
-    vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-  }
+  CG_DrawStringExt(v9, *x, *y, dest, &colorWhite, 0, 1, 8.0, 0);
+  *y = *y + 8.0;
+  *x = *x + 16.0;
   m_countMax = this->m_countMax;
-  __asm { vmovups xmmword ptr [rsp+1A8h+setColor], xmm1 }
+  setColor = colorWhite;
   if ( !m_countMax )
     m_countMax = this->m_idMax;
   LODWORD(forceColor) = m_countMax;
   LODWORD(fmt) = this->m_globalCount;
   Com_sprintf(dest, 0x100ui64, "active = %d local + %d global / %d max", this->m_count, fmt, forceColor);
-  v19 = this->m_countMax;
-  if ( v19 && this->m_count == v19 )
+  v11 = this->m_countMax;
+  if ( v11 && this->m_count == v11 )
   {
     I_strcat(dest, 0x100ui64, " <WARNING> max active reached, results will be erratic");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-      vmovups xmmword ptr [rsp+1A8h+setColor], xmm0
-    }
+    setColor = colorRed;
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-    vmovss  [rsp+1A8h+var_170], xmm6
-  }
-  CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &setColor, 0, 1, v30, 0);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rbp+0]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vsubss  xmm0, xmm2, cs:__real@41800000
-    vmovss  dword ptr [rsi], xmm0
-    vmovaps xmm6, [rsp+1A8h+var_38]
-  }
+  CG_DrawStringExt(v9, *x, *y, dest, &setColor, 0, 1, 8.0, 0);
+  *y = *y + 8.0;
+  *x = *x - 16.0;
 }
 
 /*
@@ -830,47 +696,46 @@ __int64 ActiveSet::MaxID(ActiveSet *this)
 ActiveSet::Update
 ==============
 */
-
-void __fastcall ActiveSet::Update(ActiveSet *this, LocalClientNum_t localClientNum, const vec3_t *viewPos, double viewRadius, bool (__fastcall *const funcValid)(const LocalClientNum_t, unsigned int), bool (__fastcall *const funcActivate)(const LocalClientNum_t, unsigned int), bool (__fastcall *funcDeactivate)(const LocalClientNum_t, unsigned int), void (__fastcall *funcGetOrigin)(const LocalClientNum_t, unsigned int, vec3_t *), float (__fastcall *funcGetRadius)(const LocalClientNum_t, unsigned int), const SpatialPartition_Tree *ssrTree)
+void ActiveSet::Update(ActiveSet *this, LocalClientNum_t localClientNum, const vec3_t *viewPos, float viewRadius, bool (*const funcValid)(const LocalClientNum_t, unsigned int), bool (*const funcActivate)(const LocalClientNum_t, unsigned int), bool (*funcDeactivate)(const LocalClientNum_t, unsigned int), void (*funcGetOrigin)(const LocalClientNum_t, unsigned int, vec3_t *), float (*funcGetRadius)(const LocalClientNum_t, unsigned int), const SpatialPartition_Tree *ssrTree)
 {
   signed __int64 v10; 
-  void *v12; 
-  void (__fastcall *v16)(const LocalClientNum_t, unsigned int, vec3_t *); 
-  float (__fastcall *v18)(const LocalClientNum_t, unsigned int); 
+  void *v11; 
+  unsigned __int64 v12; 
+  void (__fastcall *v15)(const LocalClientNum_t, unsigned int, vec3_t *); 
+  float (__fastcall *v17)(const LocalClientNum_t, unsigned int); 
   unsigned int m_idMax; 
-  float v22; 
-  const char *v23; 
+  double v19; 
+  float v20; 
+  const char *v21; 
   unsigned int m_countMax; 
+  unsigned int v23; 
+  unsigned int v24; 
   unsigned int v25; 
-  unsigned int v26; 
-  unsigned int v27; 
-  bool v29; 
-  bool v30; 
-  __int64 v42; 
-  int v43; 
-  bool v44; 
-  bool (__fastcall *v45)(const LocalClientNum_t, unsigned int); 
-  bool (__fastcall *v46)(const LocalClientNum_t, unsigned int); 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v50; 
-  char v51[4432]; 
+  double v26; 
+  float v27; 
+  float v28; 
+  __int64 v29; 
+  int v30; 
+  bool v31; 
+  bool (__fastcall *v32)(const LocalClientNum_t, unsigned int); 
+  bool (__fastcall *v33)(const LocalClientNum_t, unsigned int); 
+  __int64 v34; 
+  __int64 v35; 
+  __int64 v36; 
+  char v37[4432]; 
 
-  v12 = alloca(v10);
-  __asm { vmovaps [rsp+1208h+var_58], xmm6 }
-  _RBP = (unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4416) = (unsigned __int64)&v48 ^ _security_cookie;
-  _R13 = viewPos;
-  v16 = funcGetOrigin;
-  v18 = funcGetRadius;
-  *(_QWORD *)_RBP = funcDeactivate;
-  *(_QWORD *)(_RBP + 24) = funcActivate;
-  *(_QWORD *)(_RBP + 8) = funcGetOrigin;
-  *(_QWORD *)(_RBP + 16) = funcGetRadius;
-  __asm { vmovaps xmm6, xmm3 }
+  v11 = alloca(v10);
+  v12 = (unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v12 + 4416) = (unsigned __int64)&v34 ^ _security_cookie;
+  v15 = funcGetOrigin;
+  v17 = funcGetRadius;
+  *(_QWORD *)v12 = funcDeactivate;
+  *(_QWORD *)(v12 + 24) = funcActivate;
+  *(_QWORD *)(v12 + 8) = funcGetOrigin;
+  *(_QWORD *)(v12 + 16) = funcGetRadius;
   if ( !funcActivate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 366, ASSERT_TYPE_ASSERT, "(funcActivate)", (const char *)&queryFormat, "funcActivate") )
     __debugbreak();
-  if ( !*(_QWORD *)_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 367, ASSERT_TYPE_ASSERT, "(funcDeactivate)", (const char *)&queryFormat, "funcDeactivate") )
+  if ( !*(_QWORD *)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 367, ASSERT_TYPE_ASSERT, "(funcDeactivate)", (const char *)&queryFormat, "funcDeactivate") )
     __debugbreak();
   if ( !funcGetOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 368, ASSERT_TYPE_ASSERT, "(funcGetOrigin)", (const char *)&queryFormat, "funcGetOrigin") )
     __debugbreak();
@@ -898,128 +763,103 @@ void __fastcall ActiveSet::Update(ActiveSet *this, LocalClientNum_t localClientN
     s_activeSetPendingBiggest = 0;
     if ( !ssrTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 388, ASSERT_TYPE_ASSERT, "(ssrTree)", (const char *)&queryFormat, "ssrTree") )
       __debugbreak();
-    __asm { vmovsd  xmm0, qword ptr [r13+0] }
-    v22 = _R13->v[2];
-    *(_DWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128) = 0;
-    *(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) = 0i64;
-    *(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) = 0i64;
-    __asm
+    v19 = *(double *)viewPos->v;
+    v20 = viewPos->v[2];
+    *(_DWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128) = 0;
+    *(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) = 0i64;
+    *(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) = 0i64;
+    *(double *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = v19;
+    *(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3C) = viewRadius;
+    *(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40) = viewRadius;
+    *(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x44) = viewRadius;
+    *(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38) = v20;
+    *(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) = 0i64;
+    SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(v12 + 96), ssrTree, (const Bounds *)(v12 + 48));
+    if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v12 + 96)) )
     {
-      vmovsd  qword ptr [rbp+30h], xmm0
-      vmovss  dword ptr [rbp+3Ch], xmm6
-      vmovss  dword ptr [rbp+40h], xmm6
-      vmovss  dword ptr [rbp+44h], xmm6
-    }
-    *(float *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38) = v22;
-    *(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) = 0i64;
-    SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 96), ssrTree, (const Bounds *)(_RBP + 48));
-    if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 96)) )
-    {
-      v23 = "m_alwaysIndex < m_spatialTree->alwaysListLength";
+      v21 = "m_alwaysIndex < m_spatialTree->alwaysListLength";
       do
       {
         m_countMax = this->m_countMax;
         if ( m_countMax && s_activeSetPendingCount >= m_countMax )
           break;
-        if ( !*(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) )
+        if ( !*(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
             __debugbreak();
-          v23 = "m_alwaysIndex < m_spatialTree->alwaysListLength";
+          v21 = "m_alwaysIndex < m_spatialTree->alwaysListLength";
         }
-        v25 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 20i64);
-        v26 = *(_DWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
-        if ( v26 == v25 )
+        v23 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 20i64);
+        v24 = *(_DWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
+        if ( v24 == v23 )
         {
-          if ( !*(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+          if ( !*(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
             __debugbreak();
-          if ( (**(_BYTE **)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+          if ( (**(_BYTE **)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
             __debugbreak();
-          if ( *(_DWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) >= **(unsigned __int8 **)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+          if ( *(_DWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) >= **(unsigned __int8 **)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
             __debugbreak();
-          v27 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) + 4i64 * *(unsigned int *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) + 4);
+          v25 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) + 4i64 * *(unsigned int *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) + 4);
         }
         else
         {
-          if ( v26 >= v25 )
+          if ( v24 >= v23 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
               __debugbreak();
-            v26 = *(_DWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
+            v24 = *(_DWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
           }
-          v27 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 8i64) + 4i64 * v26);
+          v25 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) + 8i64) + 4i64 * v24);
         }
-        if ( v27 < this->m_idMax && (!funcValid || ((unsigned __int8 (__fastcall *)(_QWORD, _QWORD, const char *))funcValid)((unsigned int)localClientNum, v27, v23)) )
+        if ( v25 < this->m_idMax && (!funcValid || ((unsigned __int8 (__fastcall *)(_QWORD, _QWORD, const char *))funcValid)((unsigned int)localClientNum, v25, v21)) )
         {
-          v16((const LocalClientNum_t)localClientNum, v27, (vec3_t *)(_RBP + 32));
-          *(double *)&_XMM0 = ((double (__fastcall *)(_QWORD, _QWORD))v18)((unsigned int)localClientNum, v27);
-          __asm { vmovaps xmm6, xmm0 }
+          v15((const LocalClientNum_t)localClientNum, v25, (vec3_t *)(v12 + 32));
+          v26 = ((double (__fastcall *)(_QWORD, _QWORD))v17)((unsigned int)localClientNum, v25);
           if ( !this->m_bitsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 163, ASSERT_TYPE_ASSERT, "(m_bitsActive)", (const char *)&queryFormat, "m_bitsActive") )
             __debugbreak();
-          v29 = v27 <= this->m_idMax;
-          if ( v27 >= this->m_idMax )
+          if ( v25 >= this->m_idMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 164, ASSERT_TYPE_ASSERT, "(id < m_idMax)", (const char *)&queryFormat, "id < m_idMax") )
+            __debugbreak();
+          v27 = *(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24) - viewPos->v[1];
+          v28 = *(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28) - viewPos->v[2];
+          if ( (float)((float)((float)(v27 * v27) + (float)((float)(*(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) - viewPos->v[0]) * (float)(*(float *)(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) - viewPos->v[0]))) + (float)(v28 * v28)) <= (float)(*(float *)&v26 * *(float *)&v26) )
           {
-            v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 164, ASSERT_TYPE_ASSERT, "(id < m_idMax)", (const char *)&queryFormat, "id < m_idMax");
-            v29 = !v30;
-            if ( v30 )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+20h]
-            vsubss  xmm3, xmm0, dword ptr [r13+0]
-            vmovss  xmm1, dword ptr [rbp+24h]
-            vsubss  xmm2, xmm1, dword ptr [r13+4]
-            vmovss  xmm0, dword ptr [rbp+28h]
-            vsubss  xmm4, xmm0, dword ptr [r13+8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm4, xmm3, xmm0
-            vmulss  xmm1, xmm6, xmm6
-            vcomiss xmm4, xmm1
-          }
-          if ( v29 )
-          {
-            if ( v27 >= 0x1D4C0 )
+            if ( v25 >= 0x1D4C0 )
             {
-              LODWORD(v50) = 120000;
-              LODWORD(v49) = v27;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v49, v50) )
+              LODWORD(v36) = 120000;
+              LODWORD(v35) = v25;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v35, v36) )
                 __debugbreak();
             }
-            v42 = (__int64)(int)v27 >> 5;
-            v43 = 1 << (v27 & 0x1F);
-            if ( (v43 & s_activeSetPendingBits[v42]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 178, ASSERT_TYPE_ASSERT, "(!Com_BitCheckAssert( s_activeSetPendingBits, id, std::extent<decltype( s_activeSetPendingBits )>::value ? sizeof( decltype( s_activeSetPendingBits ) ) : 0 ))", (const char *)&queryFormat, "!Com_BitCheck( s_activeSetPendingBits, id )") )
+            v29 = (__int64)(int)v25 >> 5;
+            v30 = 1 << (v25 & 0x1F);
+            if ( (v30 & s_activeSetPendingBits[v29]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_activeset.cpp", 178, ASSERT_TYPE_ASSERT, "(!Com_BitCheckAssert( s_activeSetPendingBits, id, std::extent<decltype( s_activeSetPendingBits )>::value ? sizeof( decltype( s_activeSetPendingBits ) ) : 0 ))", (const char *)&queryFormat, "!Com_BitCheck( s_activeSetPendingBits, id )") )
               __debugbreak();
-            if ( v27 >= 0x1D4C0 )
+            if ( v25 >= 0x1D4C0 )
             {
-              LODWORD(v50) = 120000;
-              LODWORD(v49) = v27;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v49, v50) )
+              LODWORD(v36) = 120000;
+              LODWORD(v35) = v25;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v35, v36) )
                 __debugbreak();
             }
-            s_activeSetPendingBits[v42] |= v43;
-            if ( !s_activeSetPendingCount || s_activeSetPendingSmallest > v27 )
-              s_activeSetPendingSmallest = v27;
-            if ( !s_activeSetPendingCount || s_activeSetPendingBiggest < v27 )
-              s_activeSetPendingBiggest = v27;
-            v16 = *(void (__fastcall **)(const LocalClientNum_t, unsigned int, vec3_t *))(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-            v18 = *(float (__fastcall **)(const LocalClientNum_t, unsigned int))(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+            s_activeSetPendingBits[v29] |= v30;
+            if ( !s_activeSetPendingCount || s_activeSetPendingSmallest > v25 )
+              s_activeSetPendingSmallest = v25;
+            if ( !s_activeSetPendingCount || s_activeSetPendingBiggest < v25 )
+              s_activeSetPendingBiggest = v25;
+            v15 = *(void (__fastcall **)(const LocalClientNum_t, unsigned int, vec3_t *))(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+            v17 = *(float (__fastcall **)(const LocalClientNum_t, unsigned int))(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
             ++s_activeSetPendingCount;
           }
         }
-        v44 = SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 96));
-        v23 = "m_alwaysIndex < m_spatialTree->alwaysListLength";
+        v31 = SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v12 + 96));
+        v21 = "m_alwaysIndex < m_spatialTree->alwaysListLength";
       }
-      while ( v44 );
+      while ( v31 );
     }
-    v45 = *(bool (__fastcall **)(const LocalClientNum_t, unsigned int))_RBP;
-    v46 = *(bool (__fastcall **)(const LocalClientNum_t, unsigned int))(((unsigned __int64)v51 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+    v32 = *(bool (__fastcall **)(const LocalClientNum_t, unsigned int))v12;
+    v33 = *(bool (__fastcall **)(const LocalClientNum_t, unsigned int))(((unsigned __int64)v37 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
     s_activeSetPendingInUse = 0;
-    ActiveSet::DeltaIterate(this, localClientNum, v46, v45);
+    ActiveSet::DeltaIterate(this, localClientNum, v33, v32);
   }
-  __asm { vmovaps xmm6, [rsp+1208h+var_58] }
 }
 

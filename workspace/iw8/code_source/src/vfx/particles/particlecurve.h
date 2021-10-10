@@ -64,144 +64,111 @@ double __fastcall Particle_GetCurveValueFloatRandomize(const ParticleCurveDef *r
 Particle_GetCurveValue
 ==============
 */
-
-float __fastcall Particle_GetCurveValue(const ParticleCurveDef *rCurve, double time)
+float Particle_GetCurveValue(const ParticleCurveDef *rCurve, const float time)
 {
   __int64 numControlPoints; 
-  signed __int64 v6; 
+  __int64 v4; 
+  ParticleCurveControlPointDef *controlPoints; 
+  int v6; 
+  int v7; 
   int v8; 
-  int v9; 
-  int v10; 
-  bool v12; 
-  bool v22; 
-  bool v24; 
+  bool v9; 
+  float v11; 
+  float *v12; 
+  float *p_time; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( rCurve->numControlPoints < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 17, ASSERT_TYPE_ASSERT, "(rCurve.numControlPoints >= 2)", (const char *)&queryFormat, "rCurve.numControlPoints >= 2") )
     __debugbreak();
   numControlPoints = rCurve->numControlPoints;
-  v6 = 0i64;
-  _RDI = rCurve->controlPoints;
-  v8 = 0;
+  v4 = 0i64;
+  controlPoints = rCurve->controlPoints;
+  v6 = 0;
   if ( (int)numControlPoints <= 8 )
   {
-    v22 = (unsigned __int64)numControlPoints <= 4;
     if ( numControlPoints < 4 )
     {
-LABEL_28:
-      if ( v6 < numControlPoints )
+LABEL_31:
+      if ( v4 < numControlPoints )
       {
-        v24 = __CFADD__(_RDI, 16 * v6) || &_RDI[v6] == NULL;
-        _RAX = &_RDI[v6];
+        p_time = &controlPoints[v4].time;
         do
         {
-          __asm { vcomiss xmm6, dword ptr [rax] }
-          if ( v24 )
+          if ( time <= *p_time )
             break;
-          ++v8;
           ++v6;
-          ++_RAX;
-          v24 = v6 <= (unsigned __int64)numControlPoints;
+          ++v4;
+          p_time += 4;
         }
-        while ( v6 < numControlPoints );
+        while ( v4 < numControlPoints );
       }
     }
     else
     {
-      _RDX = _RDI + 2;
-      while ( 1 )
+      v12 = &controlPoints[2].time;
+      while ( time > *(v12 - 8) )
       {
-        __asm { vcomiss xmm6, dword ptr [rdx-20h] }
-        if ( v22 )
-          break;
-        __asm
+        if ( time <= *(v12 - 4) )
         {
-          vcomiss xmm6, dword ptr [rdx-10h]
-          vcomiss xmm6, dword ptr [rdx]
-          vcomiss xmm6, dword ptr [rdx+10h]
+          ++v6;
+          break;
         }
-        v8 += 4;
-        v6 += 4i64;
-        _RDX += 4;
-        v22 = v6 <= (unsigned __int64)(numControlPoints - 3);
-        if ( v6 >= numControlPoints - 3 )
-          goto LABEL_28;
+        if ( time <= *v12 )
+        {
+          v6 += 2;
+          break;
+        }
+        if ( time <= v12[4] )
+        {
+          v6 += 3;
+          break;
+        }
+        v6 += 4;
+        v4 += 4i64;
+        v12 += 16;
+        if ( v4 >= numControlPoints - 3 )
+          goto LABEL_31;
       }
     }
-    if ( v8 == (_DWORD)numControlPoints )
-    {
-      _RAX = 2i64 * v8;
-      __asm { vmovss  xmm0, dword ptr [rdi+rax*8-0Ch] }
-      goto LABEL_35;
-    }
+    if ( v6 == (_DWORD)numControlPoints )
+      return controlPoints[v6 - 1].value;
   }
   else
   {
-    v9 = numControlPoints - 1;
+    v7 = numControlPoints - 1;
     if ( (int)numControlPoints - 1 >= 0 )
     {
       do
       {
-        v10 = (v9 + v8) >> 1;
-        _RAX = 2i64 * v10;
-        __asm { vcomiss xmm6, dword ptr [rdi+rax*8] }
-        if ( __CFADD__(v10, v10) || _RAX == 0 )
+        v8 = (v7 + v6) >> 1;
+        if ( time <= controlPoints[v8].time )
         {
-          if ( !__CFADD__(v10, v10) )
-          {
-            _RAX = 2i64 * v8;
-            __asm { vmovss  xmm0, dword ptr [rdi+rax*8+4] }
-            goto LABEL_35;
-          }
-          v9 = v10 - 1;
+          if ( time >= controlPoints[v8].time )
+            return controlPoints[v6].value;
+          v7 = v8 - 1;
         }
         else
         {
-          v8 = v10 + 1;
+          v6 = v8 + 1;
         }
       }
-      while ( v8 <= v9 );
+      while ( v6 <= v7 );
     }
-    v12 = v8 == (_DWORD)numControlPoints;
-    if ( v8 > (int)numControlPoints )
+    v9 = v6 == (_DWORD)numControlPoints;
+    if ( v6 > (int)numControlPoints )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 47, ASSERT_TYPE_ASSERT, "(controlPointIndex <= numControlPoints)", (const char *)&queryFormat, "controlPointIndex <= numControlPoints") )
         __debugbreak();
-      v12 = v8 == (_DWORD)numControlPoints;
+      v9 = v6 == (_DWORD)numControlPoints;
     }
-    if ( v12 )
-    {
-      _RAX = 2 * numControlPoints;
-      __asm { vmovss  xmm0, dword ptr [rdi+rax*8-0Ch] }
-      goto LABEL_35;
-    }
-    if ( (v8 < 0 || v8 >= (int)numControlPoints) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 53, ASSERT_TYPE_ASSERT, "(controlPointIndex >= 0 && controlPointIndex < numControlPoints)", (const char *)&queryFormat, "controlPointIndex >= 0 && controlPointIndex < numControlPoints") )
+    if ( v9 )
+      return controlPoints[numControlPoints - 1].value;
+    if ( (v6 < 0 || v6 >= (int)numControlPoints) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 53, ASSERT_TYPE_ASSERT, "(controlPointIndex >= 0 && controlPointIndex < numControlPoints)", (const char *)&queryFormat, "controlPointIndex >= 0 && controlPointIndex < numControlPoints") )
       __debugbreak();
   }
-  if ( v8 <= 0 )
-  {
-    __asm { vmovss  xmm0, dword ptr [rdi+4] }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vsubss  xmm0, xmm6, dword ptr [rdi+rax*8-10h]
-      vmulss  xmm4, xmm0, dword ptr [rdi+rax*8+8]
-      vmulss  xmm0, xmm4, dword ptr [rdi+rax*8+4]
-      vsubss  xmm2, xmm1, xmm4
-      vmulss  xmm3, xmm2, dword ptr [rdi+rax*8-0Ch]
-      vaddss  xmm0, xmm3, xmm0
-    }
-  }
-LABEL_35:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return *(float *)&_XMM0;
+  if ( v6 <= 0 )
+    return controlPoints->value;
+  v11 = (float)(time - controlPoints[v6 - 1].time) * controlPoints[v6].invTimeDelta;
+  return (float)((float)(1.0 - v11) * controlPoints[v6 - 1].value) + (float)(v11 * controlPoints[v6].value);
 }
 
 /*
@@ -209,51 +176,25 @@ LABEL_35:
 Particle_GetCurveValueFloat4
 ==============
 */
-
-float4 *__fastcall Particle_GetCurveValueFloat4(float4 *result, const ParticleCurveDef *pCurveList, double life)
+float4 *Particle_GetCurveValueFloat4(float4 *result, const ParticleCurveDef *pCurveList, float life)
 {
-  float4 *v15; 
+  float4 *v5; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RDI = result;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm2
-  }
   if ( !pCurveList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 179, ASSERT_TYPE_ASSERT, "(pCurveList)", (const char *)&queryFormat, "pCurveList") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm8; time }
-  *(double *)&_XMM0 = Particle_GetCurveValue(pCurveList + 2, *(const float *)&_XMM1);
+  Particle_GetCurveValue(pCurveList + 2, life);
+  Particle_GetCurveValue(pCurveList + 1, life);
+  Particle_GetCurveValue(pCurveList, life);
+  v5 = result;
+  _XMM1 = 0i64;
   __asm
   {
-    vmovaps xmm1, xmm8; time
-    vmovaps xmm7, xmm0
-  }
-  *(double *)&_XMM0 = Particle_GetCurveValue(pCurveList + 1, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm1, xmm8; time
-    vmovaps xmm6, xmm0
-  }
-  Particle_GetCurveValue(pCurveList, *(const float *)&_XMM1);
-  v15 = _RDI;
-  __asm
-  {
-    vmovaps xmm8, [rsp+68h+var_38]
-    vxorps  xmm1, xmm1, xmm1
     vinsertps xmm1, xmm1, xmm0, 0
     vinsertps xmm1, xmm1, xmm6, 10h
-    vmovaps xmm6, [rsp+68h+var_18]
     vinsertps xmm1, xmm1, xmm7, 20h ; ' '
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovups xmmword ptr [rdi], xmm1
   }
-  return v15;
+  *result = (float4)_XMM1.v;
+  return v5;
 }
 
 /*
@@ -265,14 +206,15 @@ Particle_GetColorValueFromCurveList
 void __fastcall Particle_GetColorValueFromCurveList(const ParticleCurveDef *pCurveList, double time, float4 *outCurve)
 {
   __int64 numControlPoints; 
-  int v10; 
-  signed __int64 v12; 
-  bool v14; 
-  bool v16; 
+  int v6; 
+  ParticleCurveControlPointDef *controlPoints; 
+  __int64 v8; 
+  float *v9; 
+  float *p_time; 
+  __int64 v14; 
+  __int64 v15; 
+  __m128 v24; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = outCurve;
-  __asm { vmovaps xmm6, xmm1 }
   if ( pCurveList->numControlPoints < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 87, ASSERT_TYPE_ASSERT, "(pCurveList[0].numControlPoints >= 2)", (const char *)&queryFormat, "pCurveList[0].numControlPoints >= 2") )
     __debugbreak();
   if ( pCurveList[1].numControlPoints < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 88, ASSERT_TYPE_ASSERT, "(pCurveList[1].numControlPoints >= 2)", (const char *)&queryFormat, "pCurveList[1].numControlPoints >= 2") )
@@ -281,120 +223,96 @@ void __fastcall Particle_GetColorValueFromCurveList(const ParticleCurveDef *pCur
     __debugbreak();
   if ( pCurveList[3].numControlPoints < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 90, ASSERT_TYPE_ASSERT, "(pCurveList[3].numControlPoints >= 2)", (const char *)&queryFormat, "pCurveList[3].numControlPoints >= 2") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm6; time }
-  *(double *)&_XMM0 = Particle_GetCurveValue(pCurveList + 3, *(const float *)&_XMM1);
+  Particle_GetCurveValue(pCurveList + 3, *(const float *)&time);
   numControlPoints = pCurveList->numControlPoints;
-  v10 = 0;
-  _R10 = pCurveList->controlPoints;
-  v12 = 0i64;
-  __asm { vmovaps xmm2, xmm0 }
-  v14 = (unsigned __int64)numControlPoints <= 4;
+  v6 = 0;
+  controlPoints = pCurveList->controlPoints;
+  v8 = 0i64;
   if ( numControlPoints < 4 )
   {
 LABEL_20:
-    if ( v12 < numControlPoints )
+    if ( v8 < numControlPoints )
     {
-      v16 = __CFADD__(_R10, 16 * v12) || &_R10[v12] == NULL;
-      _RAX = &_R10[v12];
+      p_time = &controlPoints[v8].time;
       do
       {
-        __asm { vcomiss xmm6, dword ptr [rax] }
-        if ( v16 )
+        if ( *(float *)&time <= *p_time )
           break;
-        ++v10;
-        ++v12;
-        ++_RAX;
-        v16 = v12 <= (unsigned __int64)numControlPoints;
+        ++v6;
+        ++v8;
+        p_time += 4;
       }
-      while ( v12 < numControlPoints );
+      while ( v8 < numControlPoints );
     }
   }
   else
   {
-    _R8 = _R10 + 2;
-    while ( 1 )
+    v9 = &controlPoints[2].time;
+    while ( *(float *)&time > *(v9 - 8) )
     {
-      __asm { vcomiss xmm6, dword ptr [r8-20h] }
-      if ( v14 )
-        break;
-      __asm { vcomiss xmm6, dword ptr [r8-10h] }
-      if ( v14 )
+      if ( *(float *)&time <= *(v9 - 4) )
       {
-        ++v10;
+        ++v6;
         break;
       }
-      __asm { vcomiss xmm6, dword ptr [r8] }
-      if ( v14 )
+      if ( *(float *)&time <= *v9 )
       {
-        v10 += 2;
+        v6 += 2;
         break;
       }
-      __asm { vcomiss xmm6, dword ptr [r8+10h] }
-      if ( v14 )
+      if ( *(float *)&time <= v9[4] )
       {
-        v10 += 3;
+        v6 += 3;
         break;
       }
-      v10 += 4;
-      v12 += 4i64;
-      _R8 += 4;
-      v14 = v12 <= (unsigned __int64)(numControlPoints - 3);
-      if ( v12 >= numControlPoints - 3 )
+      v6 += 4;
+      v8 += 4i64;
+      v9 += 16;
+      if ( v8 >= numControlPoints - 3 )
         goto LABEL_20;
     }
   }
-  if ( v10 == (_DWORD)numControlPoints )
+  if ( v6 == (_DWORD)numControlPoints )
   {
-    _RCX = 2i64 * v10;
+    _XMM0 = LODWORD(controlPoints[v6 - 1].value);
     __asm
     {
-      vmovss  xmm0, dword ptr [r10+rcx*8-0Ch]
       vinsertps xmm0, xmm0, dword ptr [rax+rcx*8-0Ch], 10h
       vinsertps xmm0, xmm0, dword ptr [r8+rcx*8-0Ch], 20h ; ' '
     }
-LABEL_32:
-    __asm
-    {
-      vinsertps xmm0, xmm0, xmm2, 30h ; '0'
-      vmovups xmmword ptr [rdi], xmm0
-    }
-    goto LABEL_33;
   }
-  if ( v10 <= 0 )
+  else
   {
+    if ( v6 > 0 )
+    {
+      v14 = v6;
+      v15 = v6;
+      v14 *= 2i64;
+      _XMM4 = LODWORD(controlPoints[v15 - 1].value);
+      __asm { vinsertps xmm4, xmm4, dword ptr [rax+rcx*8-0Ch], 10h }
+      _XMM0 = *((unsigned int *)&controlPoints->value + 2 * v14);
+      __asm
+      {
+        vinsertps xmm0, xmm0, dword ptr [rax+rdx*8+4], 10h
+        vinsertps xmm0, xmm0, dword ptr [r8+rdx*8+4], 20h ; ' '
+        vinsertps xmm4, xmm4, dword ptr [r8+rcx*8-0Ch], 20h ; ' '
+        vinsertps xmm0, xmm0, xmm2, 30h ; '0'
+        vinsertps xmm4, xmm4, xmm2, 30h ; '0'
+      }
+      v24 = *(__m128 *)&time;
+      v24.m128_f32[0] = (float)(*(float *)&time - controlPoints[v15 - 1].time) / (float)(*(&controlPoints->time + 2 * v14) - controlPoints[v15 - 1].time);
+      outCurve->v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM0, _XMM4), _mm_shuffle_ps(v24, v24, 0)), _XMM4);
+      return;
+    }
+    _XMM0 = LODWORD(controlPoints->value);
     __asm
     {
-      vmovss  xmm0, dword ptr [r10+4]
       vinsertps xmm0, xmm0, dword ptr [rax+4], 10h
       vinsertps xmm0, xmm0, dword ptr [r8+4], 20h ; ' '
     }
-    goto LABEL_32;
   }
-  _RDX = v10;
-  _RCX = 2i64 * v10;
-  _RDX *= 2i64;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [r10+rcx*8-0Ch]
-    vinsertps xmm4, xmm4, dword ptr [rax+rcx*8-0Ch], 10h
-    vmovss  xmm0, dword ptr [r10+rdx*8+4]
-    vinsertps xmm0, xmm0, dword ptr [rax+rdx*8+4], 10h
-    vinsertps xmm0, xmm0, dword ptr [r8+rdx*8+4], 20h ; ' '
-    vinsertps xmm4, xmm4, dword ptr [r8+rcx*8-0Ch], 20h ; ' '
-    vinsertps xmm0, xmm0, xmm2, 30h ; '0'
-    vinsertps xmm4, xmm4, xmm2, 30h ; '0'
-    vsubss  xmm2, xmm6, dword ptr [r10+rcx*8-10h]
-    vsubps  xmm3, xmm0, xmm4
-    vmovss  xmm0, dword ptr [r10+rdx*8]
-    vsubss  xmm1, xmm0, dword ptr [r10+rcx*8-10h]
-    vdivss  xmm2, xmm2, xmm1
-    vshufps xmm2, xmm2, xmm2, 0
-    vmulps  xmm0, xmm3, xmm2
-    vaddps  xmm1, xmm0, xmm4
-    vmovups xmmword ptr [rdi], xmm1
-  }
-LABEL_33:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  __asm { vinsertps xmm0, xmm0, xmm2, 30h ; '0' }
+  *outCurve = (float4)_XMM0.v;
 }
 
 /*
@@ -402,21 +320,8 @@ LABEL_33:
 Particle_GetCurveValueFloat4WithScale
 ==============
 */
-
-float4 *__fastcall Particle_GetCurveValueFloat4WithScale(float4 *result, const ParticleCurveDef *pCurveList, double life, const float4 *scale)
+float4 *Particle_GetCurveValueFloat4WithScale(float4 *result, const ParticleCurveDef *pCurveList, float life, const float4 *scale)
 {
-  float4 *v22; 
-  void *retaddr; 
-
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-  }
-  _RDI = result;
-  __asm { vmovaps xmm8, xmm2 }
   if ( !pCurveList )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 194, ASSERT_TYPE_ASSERT, "(pCurveList)", (const char *)&queryFormat, "pCurveList") )
@@ -424,38 +329,19 @@ float4 *__fastcall Particle_GetCurveValueFloat4WithScale(float4 *result, const P
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlecurve.h", 179, ASSERT_TYPE_ASSERT, "(pCurveList)", (const char *)&queryFormat, "pCurveList") )
       __debugbreak();
   }
-  __asm { vmovaps xmm1, xmm8; time }
-  *(double *)&_XMM0 = Particle_GetCurveValue(pCurveList + 2, *(const float *)&_XMM1);
+  Particle_GetCurveValue(pCurveList + 2, life);
+  Particle_GetCurveValue(pCurveList + 1, life);
+  Particle_GetCurveValue(pCurveList, life);
+  _XMM1 = 0i64;
   __asm
   {
-    vmovaps xmm1, xmm8; time
-    vmovaps xmm7, xmm0
-  }
-  *(double *)&_XMM0 = Particle_GetCurveValue(pCurveList + 1, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm1, xmm8; time
-    vmovaps xmm6, xmm0
-  }
-  Particle_GetCurveValue(pCurveList, *(const float *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
     vinsertps xmm1, xmm1, xmm0, 0
     vinsertps xmm1, xmm1, xmm6, 10h
     vinsertps xmm1, xmm1, xmm7, 20h ; ' '
-    vmovups xmmword ptr [rdi], xmm1
-    vmulps  xmm0, xmm1, xmmword ptr [rsi]
-    vmovups xmmword ptr [rdi], xmm0
   }
-  v22 = _RDI;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-    vmovaps xmm8, [rsp+88h+var_48]
-  }
-  return v22;
+  *result = (float4)_XMM1.v;
+  result->v = _mm128_mul_ps(_XMM1.v, scale->v);
+  return result;
 }
 
 /*
@@ -465,28 +351,13 @@ Particle_GetCurveValueFloatRandomize
 */
 float Particle_GetCurveValueFloatRandomize(const ParticleCurveDef *rCurve1, const ParticleCurveDef *rCurve2, FxRandKey key, int seed, float life)
 {
-  __asm
-  {
-    vmovss  xmm1, [rsp+38h+life]; time
-    vmovaps [rsp+38h+var_18], xmm7
-  }
-  *(double *)&_XMM0 = Particle_GetCurveValue(rCurve1, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+38h+life]; time
-    vmulss  xmm7, xmm0, dword ptr [rbx+0Ch]
-  }
-  *(double *)&_XMM0 = Particle_GetCurveValue(rCurve2, *(const float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm4, xmm0, dword ptr [rdi+0Ch]
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm1, xmm0, dword ptr [rax+rcx*4]
-    vmulss  xmm2, xmm4, dword ptr [rax+rcx*4]
-    vmulss  xmm3, xmm1, xmm7
-    vmovaps xmm7, [rsp+38h+var_18]
-    vaddss  xmm0, xmm3, xmm2
-  }
-  return *(float *)&_XMM0;
+  double CurveValue; 
+  float v10; 
+  double v11; 
+
+  CurveValue = Particle_GetCurveValue(rCurve1, life);
+  v10 = *(float *)&CurveValue * rCurve1->scale;
+  v11 = Particle_GetCurveValue(rCurve2, life);
+  return (float)((float)(1.0 - fx_randomTable[key + seed]) * v10) + (float)((float)(*(float *)&v11 * rCurve2->scale) * fx_randomTable[key + seed]);
 }
 

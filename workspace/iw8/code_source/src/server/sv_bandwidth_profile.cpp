@@ -2140,6 +2140,7 @@ void SV_BandwidthProfile_RecordEvent(const int clientNum, const char *fmt, ...)
   bool BaselineValidState; 
   const char *v15; 
   const char *NetFieldConfigHash; 
+  int *v17; 
   char *v18; 
   char *v19; 
   const char *v20; 
@@ -2220,7 +2221,7 @@ LABEL_13:
         NetFieldConfigHash = SV_BandwidthProfile_GetNetFieldConfigHash();
         OnlineTimeSeriesLog::AddMetaTag(v10, v11, "netFieldConfigHash", NetFieldConfigHash);
         saveptrctx[0] = NULL;
-        va_copy((va_list)_RDI, va);
+        va_copy((va_list)v17, va);
         v18 = strtok(NULL, ":");
         v19 = I_strtok_r(v18, ",", saveptrctx);
         if ( v19 )
@@ -2242,8 +2243,8 @@ LABEL_13:
               if ( !v25 )
               {
 LABEL_36:
-                v27 = *_RDI;
-                _RDI += 2;
+                v27 = *v17;
+                v17 += 2;
                 OnlineTimeSeriesLog::AddFieldValue(v10, v11, v21, v27);
                 goto LABEL_37;
               }
@@ -2260,28 +2261,28 @@ LABEL_36:
                 {
                   if ( !I_strcmp(v22, (const char *)&queryFormat) )
                   {
-                    v31 = *(const char **)_RDI;
-                    _RDI += 2;
+                    v31 = *(const char **)v17;
+                    v17 += 2;
                     OnlineTimeSeriesLog::AddFieldValue(v10, v11, v21, v31);
                   }
                 }
                 else
                 {
-                  v30 = *_RDI;
-                  _RDI += 2;
+                  v30 = *v17;
+                  v17 += 2;
                   OnlineTimeSeriesLog::AddFieldValue(v10, v11, v21, v30);
                 }
               }
               else
               {
-                _RDI += 2;
-                OnlineTimeSeriesLog::AddFieldValue(v10, v11, v21, *(_RDI - 2) != 0);
+                v17 += 2;
+                OnlineTimeSeriesLog::AddFieldValue(v10, v11, v21, *(v17 - 2) != 0);
               }
             }
             else
             {
-              __asm { vmovsd  xmm3, qword ptr [rdi] }
-              _RDI += 2;
+              _XMM3 = *(unsigned __int64 *)v17;
+              v17 += 2;
               __asm { vcvtpd2ps xmm3, xmm3; value }
               OnlineTimeSeriesLog::AddFieldValue(v10, v11, v21, *(const float *)&_XMM3);
             }

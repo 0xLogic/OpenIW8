@@ -688,18 +688,21 @@ G_SaveMemorySP_CreateHeaderInternal
 */
 void G_SaveMemorySP_CreateHeaderInternal(const char *cleanUserName, const char *description, const char *screenshot, int checksum, bool demoPlayback, bool suppressPlayerNotify, SaveType saveType, int saveId, SaveHeader *header, MemoryFile *memFile)
 {
-  unsigned int v16; 
+  unsigned int v14; 
   bool *transientLoaded; 
-  unsigned __int64 v18; 
+  unsigned __int64 v16; 
+  int health; 
+  int maxHealth; 
+  int v19; 
 
   if ( !header && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\savememory_sp.cpp", 357, ASSERT_TYPE_ASSERT, "( header )", (const char *)&queryFormat, "header") )
     __debugbreak();
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\savememory_sp.cpp", 358, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   G_SaveMemory_CreateHeaderCommon(cleanUserName, description, screenshot, checksum, demoPlayback, saveType, saveId, header, memFile);
-  v16 = 0;
+  v14 = 0;
   transientLoaded = level.transientLoaded;
-  v18 = 0i64;
+  v16 = 0i64;
   do
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\savememory_sp.cpp", 368, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRANSIENT_LEVELZONES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRANSIENT_LEVELZONES )") )
@@ -707,39 +710,23 @@ void G_SaveMemorySP_CreateHeaderInternal(const char *cleanUserName, const char *
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\savememory_sp.cpp", 369, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRANSIENT_SERVERCLIENTSYNC ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRANSIENT_SERVERCLIENTSYNC )") )
       __debugbreak();
     if ( *transientLoaded )
-      header->sp.transientLoaded.array[v18 >> 5] |= 0x80000000 >> (v16 & 0x1F);
+      header->sp.transientLoaded.array[v16 >> 5] |= 0x80000000 >> (v14 & 0x1F);
     else
-      header->sp.transientLoaded.array[v18 >> 5] &= ~(0x80000000 >> (v16 & 0x1F));
+      header->sp.transientLoaded.array[v16 >> 5] &= ~(0x80000000 >> (v14 & 0x1F));
+    ++v14;
     ++v16;
-    ++v18;
     ++transientLoaded;
   }
-  while ( v16 < 0x20 );
-  if ( !G_IsEntityInUse(0) )
-    goto LABEL_25;
-  if ( !g_entities->health )
-    goto LABEL_25;
-  if ( !g_entities->client->sess.maxHealth )
-    goto LABEL_25;
-  __asm
+  while ( v14 < 0x20 );
+  if ( G_IsEntityInUse(0) && (health = g_entities->health) != 0 && (maxHealth = g_entities->client->sess.maxHealth) != 0 && (v19 = (int)(float)((float)(100 * health) / (float)maxHealth), v19 >= 1) )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vcvtsi2ss xmm1, xmm1, eax
-    vdivss  xmm1, xmm1, xmm0
-    vcvttss2si eax, xmm1
-  }
-  if ( _EAX >= 1 )
-  {
-    if ( _EAX <= 100 )
-      header->sp.health = _EAX;
+    if ( v19 <= 100 )
+      header->sp.health = v19;
     else
       header->sp.health = 100;
   }
   else
   {
-LABEL_25:
     header->sp.health = 1;
   }
 }

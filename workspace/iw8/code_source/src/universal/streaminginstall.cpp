@@ -155,11 +155,11 @@ SI_CheckInstall
 char SI_CheckInstall(float *progress, __int64 *secondsRemaining)
 {
   char result; 
-  int v6; 
-  char v7; 
-  const char *v8; 
+  int v5; 
+  char v6; 
+  const char *v7; 
+  float percentComplete; 
 
-  _RSI = progress;
   if ( !progress && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\streaminginstall.cpp", 1022, ASSERT_TYPE_ASSERT, "(progress)", (const char *)&queryFormat, "progress") )
     __debugbreak();
   if ( !secondsRemaining && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\streaminginstall.cpp", 1023, ASSERT_TYPE_ASSERT, "(secondsRemaining)", (const char *)&queryFormat, "secondsRemaining") )
@@ -170,9 +170,9 @@ char SI_CheckInstall(float *progress, __int64 *secondsRemaining)
   {
     if ( g_siGlob.transferWatcher && g_siGlob.percentComplete >= 0x64 )
     {
-      v6 = ((__int64 (__fastcall *)(Windows::Xbox::Management::Deployment::PackageTransferWatcher *, Platform::Object_vtbl *))g_siGlob.transferWatcher->__abi_remove_ProgressChanged)(g_siGlob.transferWatcher, g_siGlob.cookie.__vftable);
-      if ( v6 < 0 )
-        __abi_WinRTraiseException(v6);
+      v5 = ((__int64 (__fastcall *)(Windows::Xbox::Management::Deployment::PackageTransferWatcher *, Platform::Object_vtbl *))g_siGlob.transferWatcher->__abi_remove_ProgressChanged)(g_siGlob.transferWatcher, g_siGlob.cookie.__vftable);
+      if ( v5 < 0 )
+        __abi_WinRTraiseException(v5);
       g_siGlob.cookie.__vftable = NULL;
       if ( g_siGlob.transferWatcher )
       {
@@ -180,34 +180,29 @@ char SI_CheckInstall(float *progress, __int64 *secondsRemaining)
         g_siGlob.transferWatcher = NULL;
       }
     }
-    v7 = SI_AreChunksInstalledCached(&g_siGlob.requiredList);
-    if ( v7 )
+    v6 = SI_AreChunksInstalledCached(&g_siGlob.requiredList);
+    if ( v6 )
     {
-      *_RSI = 1.0;
+      *progress = 1.0;
       *secondsRemaining = 0i64;
       if ( g_siGlob.postInstallCmd[0] )
       {
-        v8 = j_va("%s\n", g_siGlob.postInstallCmd);
-        Cbuf_AddText(LOCAL_CLIENT_0, v8);
+        v7 = j_va("%s\n", g_siGlob.postInstallCmd);
+        Cbuf_AddText(LOCAL_CLIENT_0, v7);
         g_siGlob.postInstallCmd[0] = 0;
       }
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, cs:__real@3c23d70a
-        vmovss  dword ptr [rsi], xmm1
-      }
+      percentComplete = (float)g_siGlob.percentComplete;
+      *progress = percentComplete * 0.0099999998;
       *secondsRemaining = 0i64;
     }
-    return v7;
+    return v6;
   }
   else
   {
-    *_RSI = 1.0;
+    *progress = 1.0;
     result = 1;
     *secondsRemaining = 0i64;
   }
@@ -447,39 +442,40 @@ __int64 SI_Dump_Platform_f()
 SI_Dump_f
 ==============
 */
-
-void __fastcall SI_Dump_f(double _XMM0_8)
+void SI_Dump_f()
 {
-  int v1; 
+  int v0; 
   ChunkList *p_priorityList; 
-  unsigned int v3; 
-  char v5; 
-  int v6; 
-  const char *v7; 
-  const char *v12; 
-  __int64 v14; 
-  __int64 v15; 
+  unsigned int v2; 
+  float v3; 
+  char v4; 
+  int v5; 
+  const char *v6; 
+  float percentComplete; 
+  const char *v8; 
+  __int64 v9; 
+  __int64 v10; 
 
   Com_Printf(16, "priority list:");
-  v1 = 0;
+  v0 = 0;
   if ( g_siGlob.priorityList.count > 0 )
   {
     p_priorityList = &g_siGlob.priorityList;
     do
     {
-      v3 = p_priorityList->internalId[0];
-      if ( v3 >= g_siGlob.masterChunkIdCount )
+      v2 = p_priorityList->internalId[0];
+      if ( v2 >= g_siGlob.masterChunkIdCount )
       {
-        LODWORD(v15) = g_siGlob.masterChunkIdCount;
-        LODWORD(v14) = p_priorityList->internalId[0];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\streaminginstall.cpp", 182, ASSERT_TYPE_ASSERT, "(unsigned)( internalId ) < (unsigned)( g_siGlob.masterChunkIdCount )", "internalId doesn't index g_siGlob.masterChunkIdCount\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v10) = g_siGlob.masterChunkIdCount;
+        LODWORD(v9) = p_priorityList->internalId[0];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\streaminginstall.cpp", 182, ASSERT_TYPE_ASSERT, "(unsigned)( internalId ) < (unsigned)( g_siGlob.masterChunkIdCount )", "internalId doesn't index g_siGlob.masterChunkIdCount\n\t%i not in [0, %i)", v9, v10) )
           __debugbreak();
       }
-      Com_Printf(16, " %d:%d", p_priorityList->internalId[0], g_siGlob.masterChunkIDs[(unsigned __int8)v3]);
-      ++v1;
+      Com_Printf(16, " %d:%d", p_priorityList->internalId[0], g_siGlob.masterChunkIDs[(unsigned __int8)v2]);
+      ++v0;
       p_priorityList = (ChunkList *)((char *)p_priorityList + 1);
     }
-    while ( v1 < g_siGlob.priorityList.count );
+    while ( v0 < g_siGlob.priorityList.count );
   }
   Com_Printf(16, "\n");
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\streaminginstall.cpp", 1024, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
@@ -488,9 +484,9 @@ void __fastcall SI_Dump_f(double _XMM0_8)
   {
     if ( g_siGlob.transferWatcher && g_siGlob.percentComplete >= 0x64 )
     {
-      v6 = ((__int64 (__fastcall *)(Windows::Xbox::Management::Deployment::PackageTransferWatcher *, Platform::Object_vtbl *))g_siGlob.transferWatcher->__abi_remove_ProgressChanged)(g_siGlob.transferWatcher, g_siGlob.cookie.__vftable);
-      if ( v6 < 0 )
-        __abi_WinRTraiseException(v6);
+      v5 = ((__int64 (__fastcall *)(Windows::Xbox::Management::Deployment::PackageTransferWatcher *, Platform::Object_vtbl *))g_siGlob.transferWatcher->__abi_remove_ProgressChanged)(g_siGlob.transferWatcher, g_siGlob.cookie.__vftable);
+      if ( v5 < 0 )
+        __abi_WinRTraiseException(v5);
       g_siGlob.cookie.__vftable = NULL;
       if ( g_siGlob.transferWatcher )
       {
@@ -498,42 +494,32 @@ void __fastcall SI_Dump_f(double _XMM0_8)
         g_siGlob.transferWatcher = NULL;
       }
     }
-    v5 = SI_AreChunksInstalledCached(&g_siGlob.requiredList);
-    if ( v5 )
+    v4 = SI_AreChunksInstalledCached(&g_siGlob.requiredList);
+    if ( v4 )
     {
       if ( g_siGlob.postInstallCmd[0] )
       {
-        v7 = j_va("%s\n", g_siGlob.postInstallCmd);
-        Cbuf_AddText(LOCAL_CLIENT_0, v7);
+        v6 = j_va("%s\n", g_siGlob.postInstallCmd);
+        Cbuf_AddText(LOCAL_CLIENT_0, v6);
         g_siGlob.postInstallCmd[0] = 0;
       }
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
+      v3 = FLOAT_1_0;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm0, xmm0, cs:__real@3c23d70a
-      }
+      percentComplete = (float)g_siGlob.percentComplete;
+      v3 = percentComplete * 0.0099999998;
     }
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    v5 = 1;
+    v3 = FLOAT_1_0;
+    v4 = 1;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@42c80000
-    vcvtss2sd xmm3, xmm0, xmm0
-  }
-  v12 = "in progress";
-  __asm { vmovq   r9, xmm3 }
-  if ( v5 )
-    v12 = "complete";
-  Com_Printf(16, "progress: %s (%f %%, %zd seconds remain)\n", v12, *(double *)&_XMM3, 0i64);
+  v8 = "in progress";
+  if ( v4 )
+    v8 = "complete";
+  Com_Printf(16, "progress: %s (%f %%, %zd seconds remain)\n", v8, (float)(v3 * 100.0), 0i64);
   SI_Dump_Platform_f();
 }
 
@@ -683,7 +669,7 @@ void SI_Init(void)
     g_siGlob.namedChunkListCount = SI_ReadChunkList(dest, g_siGlob.namedChunkLists, 5);
     LODWORD(fmt) = 100 * g_siGlob.namedChunkBufferIndex / 0x2800;
     Com_Printf(16, "StreamingInstall Buffer Used: %i / %i (%i%%)\n", g_siGlob.namedChunkBufferIndex, 10240i64, fmt);
-    Cmd_AddCommandInternal("si_dump", (void (__fastcall *)())SI_Dump_f, &SI_Dump_f_VAR);
+    Cmd_AddCommandInternal("si_dump", SI_Dump_f, &SI_Dump_f_VAR);
     Cmd_AddCommandInternal("si_isFullyInstalled", SI_IsFullyInstalled_f, &SI_IsFullyInstalled_f_VAR);
     Cmd_AddCommandInternal("si_fetch", SI_Fetch_f, &SI_Fetch_f_VAR);
     if ( g_siGlob.namedChunkListCount )

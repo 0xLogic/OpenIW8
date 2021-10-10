@@ -78,8 +78,10 @@ bool bdRedeemCodeResult::deserialize(bdRedeemCodeResult *this, bdStructBufferDes
   char *v8; 
   unsigned int v9; 
   __int64 v10; 
+  char *v11; 
+  bdRedeemCodeGrantedItem *v12; 
   __int64 v13; 
-  bdRedeemCodeGrantedItem v26; 
+  bdRedeemCodeGrantedItem v15; 
 
   bdMemory::deallocate(*((void **)&this->__vftable + 2));
   *((_QWORD *)&this->__vftable + 2) = 0i64;
@@ -87,8 +89,8 @@ bool bdRedeemCodeResult::deserialize(bdRedeemCodeResult *this, bdStructBufferDes
   v4 = 0;
   while ( !v4 )
   {
-    bdRedeemCodeGrantedItem::bdRedeemCodeGrantedItem(&v26);
-    if ( bdStructBufferDeserializer::readObject(deserializer, 1u, &v26) )
+    bdRedeemCodeGrantedItem::bdRedeemCodeGrantedItem(&v15);
+    if ( bdStructBufferDeserializer::readObject(deserializer, 1u, &v15) )
     {
       v5 = 1;
       if ( bdStructBufferDeserializer::getLastReadResult(deserializer) == BD_READ_SUCCESS_TAG_NOT_FOUND )
@@ -120,47 +122,27 @@ bool bdRedeemCodeResult::deserialize(bdRedeemCodeResult *this, bdStructBufferDes
         {
           v8 = (char *)*((_QWORD *)&this->__vftable + 2);
         }
-        _RAX = &v8[944 * *((unsigned int *)&this->__vftable + 7)];
-        _RCX = &v26;
+        v11 = &v8[944 * *((unsigned int *)&this->__vftable + 7)];
+        v12 = &v15;
         v13 = 7i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx]
-            vmovups xmmword ptr [rax], xmm0
-            vmovups xmm1, xmmword ptr [rcx+10h]
-            vmovups xmmword ptr [rax+10h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+20h]
-            vmovups xmmword ptr [rax+20h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+30h]
-            vmovups xmmword ptr [rax+30h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+40h]
-            vmovups xmmword ptr [rax+40h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+50h]
-            vmovups xmmword ptr [rax+50h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+60h]
-            vmovups xmmword ptr [rax+60h], xmm0
-          }
-          _RAX += 128;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rcx+70h]
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          _RCX = (bdRedeemCodeGrantedItem *)((char *)_RCX + 128);
+          *(_OWORD *)v11 = *(_OWORD *)&v12->__vftable;
+          *((_OWORD *)v11 + 1) = *((_OWORD *)&v12->__vftable + 1);
+          *((_OWORD *)v11 + 2) = *(_OWORD *)v12->m_itemName;
+          *((_OWORD *)v11 + 3) = *(_OWORD *)&v12->m_itemName[16];
+          *((_OWORD *)v11 + 4) = *(_OWORD *)&v12->m_itemName[32];
+          *((_OWORD *)v11 + 5) = *(_OWORD *)&v12->m_itemName[48];
+          *((_OWORD *)v11 + 6) = *(_OWORD *)&v12->m_itemName[64];
+          v11 += 128;
+          *((_OWORD *)v11 - 1) = *(_OWORD *)&v12->m_itemName[80];
+          v12 = (bdRedeemCodeGrantedItem *)((char *)v12 + 128);
           --v13;
         }
         while ( v13 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups xmm1, xmmword ptr [rcx+10h]
-          vmovups xmmword ptr [rax+10h], xmm1
-          vmovups xmm0, xmmword ptr [rcx+20h]
-          vmovups xmmword ptr [rax+20h], xmm0
-        }
+        *(_OWORD *)v11 = *(_OWORD *)&v12->__vftable;
+        *((_OWORD *)v11 + 1) = *((_OWORD *)&v12->__vftable + 1);
+        *((_OWORD *)v11 + 2) = *(_OWORD *)v12->m_itemName;
         ++*((_DWORD *)&this->__vftable + 7);
       }
     }
@@ -168,8 +150,8 @@ bool bdRedeemCodeResult::deserialize(bdRedeemCodeResult *this, bdStructBufferDes
     {
       v5 = 0;
     }
-    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v26.__vftable + 2));
-    bdReferencable::~bdReferencable((bdReferencable *)&v26.gap39C[4]);
+    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v15.__vftable + 2));
+    bdReferencable::~bdReferencable((bdReferencable *)&v15.gap39C[4]);
     if ( !v5 )
       return 0;
   }

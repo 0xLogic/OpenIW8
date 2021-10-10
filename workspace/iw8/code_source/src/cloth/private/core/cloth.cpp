@@ -502,7 +502,6 @@ void Cloth_GetInstanceOrientation(const unsigned int globalWorldId, const unsign
 {
   hkQuaternionf orientationa; 
 
-  _RDI = orientation;
   if ( !s_clothInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 494, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", "%s\n\tCloth: Trying to GetOrientation when system is not initialized", "Cloth_IsInitialized()") )
     __debugbreak();
   if ( globalWorldId > s_clothMaxSupportedGlobalWorlds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 495, ASSERT_TYPE_ASSERT, "(globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds())", "%s\n\tCloth: Trying to GetOrientation with invalid globalWorldId %i", "globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds()", globalWorldId) )
@@ -510,11 +509,7 @@ void Cloth_GetInstanceOrientation(const unsigned int globalWorldId, const unsign
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 496, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
     __debugbreak();
   HavokCloth_GetInstanceOrientation(globalWorldId, instanceId, &orientationa);
-  __asm
-  {
-    vmovaps xmm0, xmmword ptr [rsp+78h+orientation.m_vec.m_quad]
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  *(hkQuaternionf *)orientation = (hkQuaternionf)orientationa.m_vec.m_quad;
 }
 
 /*
@@ -524,9 +519,10 @@ Cloth_GetInstancePosition
 */
 void Cloth_GetInstancePosition(const unsigned int globalWorldId, const unsigned int instanceId, vec3_t *position)
 {
+  float v6; 
+  float v7; 
   hkVector4f positiona; 
 
-  _RSI = position;
   if ( !s_clothInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 479, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", "%s\n\tCloth: Trying to GetPosition when system is not initialized", "Cloth_IsInitialized()") )
     __debugbreak();
   if ( globalWorldId > s_clothMaxSupportedGlobalWorlds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 480, ASSERT_TYPE_ASSERT, "(globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds())", "%s\n\tCloth: Trying to GetPosition with invalid globalWorldId %i", "globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds()", globalWorldId) )
@@ -534,16 +530,11 @@ void Cloth_GetInstancePosition(const unsigned int globalWorldId, const unsigned 
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 481, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
     __debugbreak();
   HavokCloth_GetInstancePosition(globalWorldId, instanceId, &positiona);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42000000
-    vmulss  xmm1, xmm3, dword ptr [rsp+78h+position.m_quad]
-    vmulss  xmm0, xmm3, dword ptr [rsp+78h+position.m_quad+4]
-    vmulss  xmm2, xmm3, dword ptr [rsp+78h+position.m_quad+8]
-    vmovss  dword ptr [rsi], xmm1
-    vmovss  dword ptr [rsi+4], xmm0
-    vmovss  dword ptr [rsi+8], xmm2
-  }
+  v6 = 32.0 * positiona.m_quad.m128_f32[1];
+  v7 = 32.0 * positiona.m_quad.m128_f32[2];
+  position->v[0] = 32.0 * positiona.m_quad.m128_f32[0];
+  position->v[1] = v6;
+  position->v[2] = v7;
 }
 
 /*
@@ -698,19 +689,13 @@ Cloth_InstantiateAsset
 */
 unsigned int Cloth_InstantiateAsset(const unsigned int globalWorldId, const ClothAsset *const clothAsset, const unsigned int refId, const Cloth_OwnerType ownerType, const vec3_t *position, const vec4_t *orientationAsQuat, const DObj *dObj, const bool bindPoseBased)
 {
-  bool v21; 
-  bool v22; 
+  float v12; 
+  float v13; 
+  __m128 v14; 
   hkQuaternionf *orientation; 
-  DObj *v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  hkQuaternionf v52; 
-  hkVector4f v53; 
+  DObj *v17; 
+  hkQuaternionf v18; 
+  hkVector4f v19; 
 
   if ( !s_clothInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 292, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", "%s\n\tCloth: Trying to InstantiateAsset when system is not initialized", "Cloth_IsInitialized()") )
     __debugbreak();
@@ -720,109 +705,28 @@ unsigned int Cloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
     __debugbreak();
   if ( (unsigned int)ownerType >= Cloth_OwnerType_Count )
   {
-    LODWORD(v44) = 2;
+    LODWORD(v17) = 2;
     LODWORD(orientation) = ownerType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 295, ASSERT_TYPE_ASSERT, "(unsigned)( ownerType ) < (unsigned)( Cloth_OwnerType_Count )", "ownerType doesn't index Cloth_OwnerType_Count\n\t%i not in [0, %i)", orientation, v44) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 295, ASSERT_TYPE_ASSERT, "(unsigned)( ownerType ) < (unsigned)( Cloth_OwnerType_Count )", "ownerType doesn't index Cloth_OwnerType_Count\n\t%i not in [0, %i)", orientation, v17) )
       __debugbreak();
   }
-  _RDI = position;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  if ( (v45 & 0x7F800000) == 2139095040 )
-    goto LABEL_33;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  if ( (v46 & 0x7F800000) == 2139095040 )
-    goto LABEL_33;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  if ( (v47 & 0x7F800000) == 2139095040 )
-  {
-LABEL_33:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 296, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )") )
-      __debugbreak();
-  }
-  _RBX = orientationAsQuat;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  if ( (v48 & 0x7F800000) == 2139095040 )
-    goto LABEL_34;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  if ( (v49 & 0x7F800000) == 2139095040 )
-    goto LABEL_34;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  if ( (v50 & 0x7F800000) == 2139095040 )
-    goto LABEL_34;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+0C8h+var_88], xmm0
-  }
-  v21 = (v51 & 0x7F800000u) < 0x7F800000;
-  if ( (v51 & 0x7F800000) == 2139095040 )
-  {
-LABEL_34:
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 297, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", (const char *)&queryFormat, "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )");
-    v21 = 0;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vmovss  xmm4, dword ptr [rbx+0Ch]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, cs:__real@3f800000
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-  }
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 298, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( orientationAsQuat ))", (const char *)&queryFormat, "Vec4IsNormalized( orientationAsQuat )") )
+  if ( ((LODWORD(position->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(position->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(position->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 296, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(orientationAsQuat->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orientationAsQuat->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orientationAsQuat->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(orientationAsQuat->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 297, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", (const char *)&queryFormat, "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )") )
+    __debugbreak();
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(orientationAsQuat->v[0] * orientationAsQuat->v[0]) + (float)(orientationAsQuat->v[1] * orientationAsQuat->v[1])) + (float)(orientationAsQuat->v[2] * orientationAsQuat->v[2])) + (float)(orientationAsQuat->v[3] * orientationAsQuat->v[3])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 298, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( orientationAsQuat ))", (const char *)&queryFormat, "Vec4IsNormalized( orientationAsQuat )") )
     __debugbreak();
   if ( !dObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 299, ASSERT_TYPE_ASSERT, "(dObj)", (const char *)&queryFormat, "dObj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d000000
-    vmulss  xmm0, xmm3, dword ptr [rdi]
-    vmulss  xmm2, xmm3, dword ptr [rdi+4]
-    vmulss  xmm1, xmm3, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+0C8h+var_68.m_quad], xmm0
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovss  dword ptr [rsp+0C8h+var_68.m_quad+4], xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+0C8h+var_68.m_quad+8], xmm1
-    vmovss  dword ptr [rsp+0C8h+var_68.m_quad+0Ch], xmm2
-    vmovaps xmmword ptr [rsp+0C8h+var_78.m_vec.m_quad], xmm0
-  }
-  return HavokCloth_InstantiateAsset(globalWorldId, clothAsset, refId, ownerType, &v53, &v52, dObj, bindPoseBased);
+  v12 = 0.03125 * position->v[1];
+  v13 = 0.03125 * position->v[2];
+  v19.m_quad.m128_f32[0] = 0.03125 * position->v[0];
+  v14 = *(__m128 *)orientationAsQuat;
+  v19.m_quad.m128_f32[1] = v12;
+  v19.m_quad.m128_f32[2] = v13;
+  v19.m_quad.m128_f32[3] = 0.0;
+  v18.m_vec.m_quad = v14;
+  return HavokCloth_InstantiateAsset(globalWorldId, clothAsset, refId, ownerType, &v19, &v18, dObj, bindPoseBased);
 }
 
 /*
@@ -858,119 +762,32 @@ Cloth_RebindInstance
 */
 void Cloth_RebindInstance(const unsigned int globalWorldId, const unsigned int instanceId, const vec3_t *position, const vec4_t *orientationAsQuat, const DObj *dObj, const bool bindPoseBased)
 {
-  bool v17; 
-  bool v18; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
+  float v10; 
+  float v11; 
+  __m128 v12; 
   hkQuaternionf orientation; 
   hkVector4f positiona; 
 
-  _RBX = orientationAsQuat;
-  _RDI = position;
   if ( !s_clothInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 331, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", "%s\n\tCloth: Trying to InstantiateAsset when system is not initialized", "Cloth_IsInitialized()") )
     __debugbreak();
   if ( globalWorldId > s_clothMaxSupportedGlobalWorlds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 332, ASSERT_TYPE_ASSERT, "(globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds())", "%s\n\tCloth: Trying to InstantiateAsset with invalid globalWorldId %i", "globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds()", globalWorldId) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 )
-  {
-LABEL_27:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 333, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v41 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v42 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v43 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  v17 = (v44 & 0x7F800000u) < 0x7F800000;
-  if ( (v44 & 0x7F800000) == 2139095040 )
-  {
-LABEL_28:
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 334, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", (const char *)&queryFormat, "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )");
-    v17 = 0;
-    if ( v18 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  xmm2, dword ptr [rbx]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vmovss  xmm4, dword ptr [rbx+0Ch]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, cs:__real@3f800000
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-  }
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 335, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( orientationAsQuat ))", (const char *)&queryFormat, "Vec4IsNormalized( orientationAsQuat )") )
+  if ( ((LODWORD(position->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(position->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(position->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 333, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(orientationAsQuat->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orientationAsQuat->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orientationAsQuat->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(orientationAsQuat->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 334, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", (const char *)&queryFormat, "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )") )
+    __debugbreak();
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(orientationAsQuat->v[1] * orientationAsQuat->v[1]) + (float)(orientationAsQuat->v[0] * orientationAsQuat->v[0])) + (float)(orientationAsQuat->v[2] * orientationAsQuat->v[2])) + (float)(orientationAsQuat->v[3] * orientationAsQuat->v[3])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 335, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( orientationAsQuat ))", (const char *)&queryFormat, "Vec4IsNormalized( orientationAsQuat )") )
     __debugbreak();
   if ( !dObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\cloth.cpp", 336, ASSERT_TYPE_ASSERT, "(dObj)", (const char *)&queryFormat, "dObj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d000000
-    vmulss  xmm0, xmm3, dword ptr [rdi]
-    vmulss  xmm2, xmm3, dword ptr [rdi+4]
-    vmulss  xmm1, xmm3, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+0A8h+position.m_quad], xmm0
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovss  dword ptr [rsp+0A8h+position.m_quad+4], xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+0A8h+position.m_quad+0Ch], xmm2
-    vmovaps xmmword ptr [rsp+0A8h+orientation.m_vec.m_quad], xmm0
-    vmovss  dword ptr [rsp+0A8h+position.m_quad+8], xmm1
-  }
+  v10 = 0.03125 * position->v[1];
+  v11 = 0.03125 * position->v[2];
+  positiona.m_quad.m128_f32[0] = 0.03125 * position->v[0];
+  v12 = *(__m128 *)orientationAsQuat;
+  positiona.m_quad.m128_f32[1] = v10;
+  positiona.m_quad.m128_f32[3] = 0.0;
+  orientation.m_vec.m_quad = v12;
+  positiona.m_quad.m128_f32[2] = v11;
   HavokCloth_RebindInstance(globalWorldId, instanceId, &positiona, &orientation, dObj, bindPoseBased);
 }
 
@@ -989,11 +806,8 @@ void Cloth_SetupBootDvars(void)
 Cloth_SetupDvars
 ==============
 */
-
-void __fastcall Cloth_SetupDvars(__int64 a1, double _XMM1_8)
+void Cloth_SetupDvars()
 {
-  const dvar_t *v5; 
-
   Dvar_BeginPermanentRegistration();
   DCONST_DVARINT_cloth_MaxInstances = Dvar_RegisterInt("cloth_MaxInstances", 256, 1, 1024, 0x40004u, "Cloth: Maximum number of Instances Per Global World");
   DCONST_DVARINT_cloth_LODOverride = Dvar_RegisterInt("cloth_LODOverride", -1, -1, 6, 0x40004u, "Cloth: Override the Simulation LOD level");
@@ -1003,22 +817,9 @@ void __fastcall Cloth_SetupDvars(__int64 a1, double _XMM1_8)
   DVARINT_cloth_Debug_ShowInstanceDetails = Dvar_RegisterInt("LOMLPTLMLM", -1, -1, 512, 4u, "Cloth: Debug draw: Show details for a specific instance");
   DVARBOOL_cloth_Debug_ShowInstanceSkeleton = Dvar_RegisterBool("NQTTLORPNP", 0, 4u, "Cloth: Debug draw: Show skeleton for selected instance - may affect cloth state");
   DVARBOOL_cloth_debug_displayVectorField = Dvar_RegisterBool("LNSSKKKKP", 0, 4u, "Cloth: Debug draw: Vector field data");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40800000; max
-    vmovss  xmm2, cs:__real@c0800000; min
-  }
   DCONST_DVARBOOL_cloth_VectorFieldOverride = Dvar_RegisterBool("cloth_VectorFieldOverride", 0, 0x40004u, "Cloth: Override the VectorField with Debug values for testing");
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v5 = Dvar_RegisterFloat("cloth_VectorFieldOverrideDirection", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Cloth: When overriding the vector field code, what direction is the wind coming from");
-  __asm { vmovss  xmm3, cs:__real@459c4000; max }
-  DCONST_DVARFLT_cloth_VectorFieldOverrideDirection = v5;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm1, cs:__real@43480000; value
-  }
-  DCONST_DVARFLT_cloth_VectorFieldOverrideStrength = Dvar_RegisterFloat("cloth_VectorFieldOverrideStrength", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Cloth: When overriding the vector field code, what strength is the wind");
+  DCONST_DVARFLT_cloth_VectorFieldOverrideDirection = Dvar_RegisterFloat("cloth_VectorFieldOverrideDirection", 0.0, -4.0, 4.0, 0x40004u, "Cloth: When overriding the vector field code, what direction is the wind coming from");
+  DCONST_DVARFLT_cloth_VectorFieldOverrideStrength = Dvar_RegisterFloat("cloth_VectorFieldOverrideStrength", 200.0, 0.0, 5000.0, 0x40004u, "Cloth: When overriding the vector field code, what strength is the wind");
   DVARBOOL_cloth_Debug_Speed_ShowSpeeds = Dvar_RegisterBool("RNKNLTNRT", 0, 4u, "Cloth: Debug draw: Show cloth speeds");
   DVARINT_cloth_Debug_Speed_ShowInstanceSpeed = Dvar_RegisterInt("MKOSKSMRR", -1, -1, 512, 4u, "Cloth: Debug draw: Show speed for a specific instance");
   DVARBOOL_cloth_Debug_Sound_ShowSounds = Dvar_RegisterBool("MQMPKTPTNT", 0, 4u, "Cloth: Debug draw: Show sound for a specific instance");

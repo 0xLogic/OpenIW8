@@ -61,129 +61,48 @@ Com_CanPrimaryLightAffectPoint
 bool Com_CanPrimaryLightAffectPoint(const ComPrimaryLight *light, const vec3_t *point)
 {
   unsigned __int8 type; 
-  bool v10; 
-  bool v11; 
-  bool result; 
-  __int64 v52; 
-  void *retaddr; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float radius; 
+  float v9; 
+  float cosHalfFovOuter; 
+  float rotationLimit; 
+  float v12; 
+  float v13; 
+  __int64 v15; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps [rsp+88h+var_28], xmm7 }
-  _RBX = light;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmmword ptr [r11-58h], xmm10
-  }
   if ( !light && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp.cpp", 28, ASSERT_TYPE_ASSERT, "(light)", (const char *)&queryFormat, "light") )
     __debugbreak();
-  type = _RBX->type;
-  v10 = type == 2;
+  type = light->type;
   if ( (unsigned __int8)(type - 2) > 1u )
   {
-    LODWORD(v52) = type;
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp.cpp", 29, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", v52);
-    v10 = 0;
-    if ( v11 )
+    LODWORD(v15) = type;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp.cpp", 29, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", v15) )
       __debugbreak();
   }
-  __asm
+  v5 = light->origin.v[0] - point->v[0];
+  v6 = light->origin.v[1] - point->v[1];
+  v7 = light->origin.v[2] - point->v[2];
+  radius = light->radius;
+  v9 = (float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7);
+  if ( v9 >= (float)(radius * radius) )
+    return 0;
+  if ( light->type == 3 )
+    return 1;
+  cosHalfFovOuter = light->cosHalfFovOuter;
+  rotationLimit = light->rotationLimit;
+  if ( rotationLimit <= COERCE_FLOAT(LODWORD(cosHalfFovOuter) ^ _xmm) )
+    return 1;
+  v12 = (float)((float)(v6 * light->dir.v[1]) + (float)(v5 * light->dir.v[0])) + (float)(v7 * light->dir.v[2]);
+  if ( rotationLimit != 1.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vsubss  xmm5, xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rbx+48h]
-    vsubss  xmm8, xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rbx+4Ch]
-    vsubss  xmm9, xmm0, dword ptr [rdi+8]
-    vmovss  xmm7, dword ptr [rbx+50h]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm2, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm10, xmm3, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vcomiss xmm10, xmm1
-    vmovaps [rsp+88h+var_18], xmm6
+    v13 = (float)(cosHalfFovOuter * rotationLimit) - fsqrt((float)(1.0 - (float)(cosHalfFovOuter * cosHalfFovOuter)) * (float)(1.0 - (float)(rotationLimit * rotationLimit)));
+    cosHalfFovOuter = v13;
+    if ( v13 <= 0.0 )
+      return (float)(radius * v13) >= v12;
   }
-  if ( !v10 )
-    goto LABEL_16;
-  if ( _RBX->type == 3 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+6Ch]
-    vxorps  xmm0, xmm4, cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm6, dword ptr [rbx+8Ch]
-    vcomiss xmm6, xmm0
-  }
-  if ( _RBX->type <= 3u )
-    goto LABEL_15;
-  __asm
-  {
-    vmulss  xmm1, xmm8, dword ptr [rbx+30h]
-    vmulss  xmm0, xmm5, dword ptr [rbx+2Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rbx+34h]
-    vmovss  xmm9, cs:__real@3f800000
-    vucomiss xmm6, xmm9
-    vaddss  xmm5, xmm2, xmm1
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( _RBX->type == 3 )
-    goto LABEL_13;
-  __asm
-  {
-    vmulss  xmm0, xmm4, xmm4
-    vsubss  xmm2, xmm9, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vsubss  xmm0, xmm9, xmm1
-    vmulss  xmm1, xmm2, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm4, xmm6
-    vsubss  xmm4, xmm3, xmm2
-    vcomiss xmm4, xmm8
-  }
-  if ( _RBX->type > 3u )
-  {
-LABEL_13:
-    __asm { vcomiss xmm5, xmm8 }
-    if ( _RBX->type > 3u )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm5, xmm5
-        vcomiss xmm2, xmm1
-      }
-      if ( _RBX->type >= 3u )
-      {
-LABEL_15:
-        result = 1;
-        goto LABEL_17;
-      }
-    }
-LABEL_16:
-    result = 0;
-    goto LABEL_17;
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm7, xmm4
-    vcomiss xmm0, xmm5
-  }
-  result = _RBX->type >= 3u;
-LABEL_17:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-  }
-  return result;
+  return v12 > 0.0 && (float)(v12 * v12) >= (float)((float)(cosHalfFovOuter * cosHalfFovOuter) * v9);
 }
 
 /*
@@ -193,156 +112,114 @@ Com_FindClosestPrimaryLight
 */
 __int64 Com_FindClosestPrimaryLight(const vec3_t *origin)
 {
-  unsigned int v1; 
-  unsigned int v3; 
-  int v4; 
+  unsigned int v2; 
+  float v3; 
+  unsigned int v4; 
+  int v5; 
+  float *v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
 
   if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp.cpp", 67, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
     __debugbreak();
-  v1 = 0;
-  __asm { vmovss  xmm5, cs:__real@7f7fffff }
-  v3 = 1;
+  v2 = 0;
+  v3 = FLOAT_3_4028235e38;
+  v4 = 1;
   if ( comWorld.primaryLightCount > 1 )
   {
     if ( comWorld.primaryLightCount - 1 >= 4 )
     {
-      v4 = 3;
-      _RAX = (char *)&comWorld.primaryLights[1].origin.z;
+      v5 = 3;
+      v6 = &comWorld.primaryLights[1].origin.v[2];
       do
       {
-        if ( *(_RAX - 75) != 1 )
+        if ( *((_BYTE *)v6 - 75) != 1 )
         {
-          __asm
+          v7 = *(v6 - 1) - origin->v[1];
+          v8 = v7 * v7;
+          v9 = (float)(*v6 - origin->v[2]) * (float)(*v6 - origin->v[2]);
+          if ( (float)((float)(v8 + (float)((float)(*(v6 - 2) - origin->v[0]) * (float)(*(v6 - 2) - origin->v[0]))) + v9) < v3 )
           {
-            vmovss  xmm0, dword ptr [rax-8]
-            vsubss  xmm3, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [rax-4]
-            vsubss  xmm2, xmm1, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [rax]
-            vsubss  xmm4, xmm0, dword ptr [rbx+8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, xmm5
-          }
-          if ( !*(_RAX - 75) )
-          {
-            __asm { vmovaps xmm5, xmm1 }
-            v1 = v3;
+            v3 = (float)(v8 + (float)((float)(*(v6 - 2) - origin->v[0]) * (float)(*(v6 - 2) - origin->v[0]))) + v9;
+            v2 = v4;
           }
         }
-        if ( _RAX[85] != 1 )
+        if ( *((_BYTE *)v6 + 85) != 1 )
         {
-          __asm
+          v10 = v6[39] - origin->v[1];
+          v11 = v6[40] - origin->v[2];
+          v12 = v10 * v10;
+          if ( (float)((float)(v12 + (float)((float)(v6[38] - origin->v[0]) * (float)(v6[38] - origin->v[0]))) + (float)(v11 * v11)) < v3 )
           {
-            vmovss  xmm0, dword ptr [rax+98h]
-            vsubss  xmm3, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [rax+9Ch]
-            vsubss  xmm2, xmm1, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [rax+0A0h]
-            vsubss  xmm4, xmm0, dword ptr [rbx+8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, xmm5
-          }
-          if ( !_RAX[85] )
-          {
-            __asm { vmovaps xmm5, xmm1 }
-            v1 = v4 - 1;
+            v3 = (float)(v12 + (float)((float)(v6[38] - origin->v[0]) * (float)(v6[38] - origin->v[0]))) + (float)(v11 * v11);
+            v2 = v5 - 1;
           }
         }
-        if ( _RAX[245] != 1 )
+        if ( *((_BYTE *)v6 + 245) != 1 )
         {
-          __asm
+          v13 = v6[79] - origin->v[1];
+          v14 = v6[80] - origin->v[2];
+          v15 = v13 * v13;
+          if ( (float)((float)(v15 + (float)((float)(v6[78] - origin->v[0]) * (float)(v6[78] - origin->v[0]))) + (float)(v14 * v14)) < v3 )
           {
-            vmovss  xmm0, dword ptr [rax+138h]
-            vsubss  xmm3, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [rax+13Ch]
-            vsubss  xmm2, xmm1, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [rax+140h]
-            vsubss  xmm4, xmm0, dword ptr [rbx+8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, xmm5
-          }
-          if ( !_RAX[245] )
-          {
-            __asm { vmovaps xmm5, xmm1 }
-            v1 = v4;
+            v3 = (float)(v15 + (float)((float)(v6[78] - origin->v[0]) * (float)(v6[78] - origin->v[0]))) + (float)(v14 * v14);
+            v2 = v5;
           }
         }
-        if ( _RAX[405] != 1 )
+        if ( *((_BYTE *)v6 + 405) != 1 )
         {
-          __asm
+          v16 = v6[119] - origin->v[1];
+          v17 = v6[120] - origin->v[2];
+          v18 = v16 * v16;
+          if ( (float)((float)(v18 + (float)((float)(v6[118] - origin->v[0]) * (float)(v6[118] - origin->v[0]))) + (float)(v17 * v17)) < v3 )
           {
-            vmovss  xmm0, dword ptr [rax+1D8h]
-            vsubss  xmm3, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [rax+1DCh]
-            vsubss  xmm2, xmm1, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [rax+1E0h]
-            vsubss  xmm4, xmm0, dword ptr [rbx+8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, xmm5
-          }
-          if ( !_RAX[405] )
-          {
-            __asm { vmovaps xmm5, xmm1 }
-            v1 = v4 + 1;
+            v3 = (float)(v18 + (float)((float)(v6[118] - origin->v[0]) * (float)(v6[118] - origin->v[0]))) + (float)(v17 * v17);
+            v2 = v5 + 1;
           }
         }
-        _RAX += 640;
-        v3 += 4;
+        v6 += 160;
         v4 += 4;
+        v5 += 4;
       }
-      while ( v3 < comWorld.primaryLightCount - 3 );
+      while ( v4 < comWorld.primaryLightCount - 3 );
     }
-    if ( v3 < comWorld.primaryLightCount )
+    if ( v4 < comWorld.primaryLightCount )
     {
-      _R8 = &comWorld.primaryLights[v3].origin.v[2];
+      v19 = &comWorld.primaryLights[v4].origin.v[2];
       do
       {
-        if ( *((_BYTE *)_R8 - 75) != 1 )
+        if ( *((_BYTE *)v19 - 75) != 1 )
         {
-          __asm
+          v20 = *(v19 - 1) - origin->v[1];
+          v21 = v20 * v20;
+          v22 = (float)(*v19 - origin->v[2]) * (float)(*v19 - origin->v[2]);
+          if ( (float)((float)(v21 + (float)((float)(*(v19 - 2) - origin->v[0]) * (float)(*(v19 - 2) - origin->v[0]))) + v22) < v3 )
           {
-            vmovss  xmm0, dword ptr [r8-8]
-            vsubss  xmm3, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [r8-4]
-            vsubss  xmm2, xmm1, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [r8]
-            vsubss  xmm4, xmm0, dword ptr [rbx+8]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, xmm5
-          }
-          if ( !*((_BYTE *)_R8 - 75) )
-          {
-            __asm { vmovaps xmm5, xmm1 }
-            v1 = v3;
+            v3 = (float)(v21 + (float)((float)(*(v19 - 2) - origin->v[0]) * (float)(*(v19 - 2) - origin->v[0]))) + v22;
+            v2 = v4;
           }
         }
-        _R8 += 40;
-        ++v3;
+        v19 += 40;
+        ++v4;
       }
-      while ( v3 < comWorld.primaryLightCount );
+      while ( v4 < comWorld.primaryLightCount );
     }
   }
-  return v1;
+  return v2;
 }
 
 /*
@@ -405,49 +282,52 @@ Com_GetUsedTechniques
 */
 __int64 Com_GetUsedTechniques(int *usedTechniques)
 {
-  int *v19; 
+  int v1; 
+  int *v2; 
+  int i; 
+  int *v16; 
 
-  __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-  _EDX = 0;
-  _R9 = usedTechniques + 8;
-  _ER8 = 8;
-  do
+  v1 = 0;
+  v2 = usedTechniques + 8;
+  for ( i = 8; i < 200; i += 16 )
   {
-    _EAX = _ER8 - 4;
+    _XMM0 = (unsigned int)v1;
     __asm
     {
-      vmovd   xmm0, edx
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [r9-20h], xmm1
-      vmovd   xmm0, eax
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [r9-10h], xmm1
-      vmovd   xmm0, r8d
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [r9], xmm1
-    }
-    _EAX = _ER8 + 4;
-    _EDX += 16;
-    __asm
-    {
-      vmovd   xmm0, eax
       vpshufd xmm0, xmm0, 0
       vpaddd  xmm1, xmm0, xmm2
     }
-    _ER8 += 16;
-    __asm { vmovdqu xmmword ptr [r9+10h], xmm1 }
-    _R9 += 16;
+    *((_OWORD *)v2 - 2) = _XMM1;
+    _XMM0 = (unsigned int)(i - 4);
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm1, xmm0, xmm2
+    }
+    *((_OWORD *)v2 - 1) = _XMM1;
+    _XMM0 = (unsigned int)i;
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm1, xmm0, xmm2
+    }
+    *(_OWORD *)v2 = _XMM1;
+    v1 += 16;
+    _XMM0 = (unsigned int)(i + 4);
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm1, xmm0, xmm2
+    }
+    *((_OWORD *)v2 + 1) = _XMM1;
+    v2 += 16;
   }
-  while ( _ER8 < 200 );
-  if ( _EDX < 195 )
+  if ( v1 < 195 )
   {
-    v19 = &usedTechniques[_EDX];
+    v16 = &usedTechniques[v1];
     do
-      *v19++ = _EDX++;
-    while ( _EDX < 195 );
+      *v16++ = v1++;
+    while ( v1 < 195 );
   }
   return 195i64;
 }

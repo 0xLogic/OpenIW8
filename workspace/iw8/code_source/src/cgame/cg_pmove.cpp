@@ -306,225 +306,122 @@ void CG_PMove_ApplyPMoveFlags(const pmove_t *const pm)
 CG_PMove_UpdateZSmoothing
 ==============
 */
-
-void __fastcall CG_PMove_UpdateZSmoothing(const pmove_t *const pm, __int64 a2, double _XMM2_8)
+void CG_PMove_UpdateZSmoothing(const pmove_t *const pm)
 {
+  cg_t *LocalClientGlobals; 
   CgHandler *Handler; 
-  int v16; 
-  bool v17; 
-  unsigned int pm_type; 
-  char v23; 
-  char v24; 
-  const dvar_t *v34; 
-  const char *v35; 
-  char v48; 
-  char v49; 
+  double UpContribution; 
+  int v5; 
+  float v6; 
+  float prevViewHeight; 
+  int pm_type; 
+  const dvar_t *v9; 
+  float v10; 
+  float stepLerpTime; 
+  float v13; 
+  float v14; 
+  float v15; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v18; 
+  const char *v19; 
+  float v22; 
+  double v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v28; 
   int time; 
-  double v82; 
-  double v83; 
-  WorldUpReferenceFrame v84; 
-  char v92; 
-  void *retaddr; 
+  bool v31; 
+  WorldUpReferenceFrame v32; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = CG_GetLocalClientGlobals((const LocalClientNum_t)pm->localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)pm->localClientNum);
   Handler = CgHandler::getHandler(pm->localClientNum);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v84, &_RDI->predictedPlayerState, Handler);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v84, &_RDI->predictedPlayerState.origin);
-  v16 = _RDI->time - _RDI->stepViewStart;
-  v17 = (pm->m_flags & 0x100) == 0;
-  __asm { vmovaps xmm6, xmm0 }
-  if ( (pm->m_flags & 0x100) == 0 )
-    goto LABEL_27;
-  __asm
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v32, &LocalClientGlobals->predictedPlayerState, Handler);
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&v32, &LocalClientGlobals->predictedPlayerState.origin);
+  v5 = LocalClientGlobals->time - LocalClientGlobals->stepViewStart;
+  v6 = *(float *)&UpContribution;
+  if ( (pm->m_flags & 0x100) == 0 || (prevViewHeight = LocalClientGlobals->prevViewHeight, v6 == prevViewHeight) || (pm_type = LocalClientGlobals->predictedPlayerState.pm_type, (pm_type & 0xFFFFFFFC) != 0) || pm_type == 1 )
   {
-    vmovss  xmm0, dword ptr [rdi+59698h]
-    vucomiss xmm6, xmm0
-  }
-  if ( (pm->m_flags & 0x100) == 0 || (pm_type = _RDI->predictedPlayerState.pm_type, v17 = (pm_type & 0xFFFFFFFC) == 0, (pm_type & 0xFFFFFFFC) != 0) || (v17 = pm_type <= 1, pm_type == 1) )
-  {
-LABEL_27:
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vcomiss xmm0, dword ptr [rdi+5969Ch]
-      vmovss  dword ptr [rdi+59698h], xmm6
-    }
-    if ( !v17 )
-      _RDI->stepViewChange = 0.0;
+    v31 = (float)v5 <= LocalClientGlobals->stepLerpTime;
+    LocalClientGlobals->prevViewHeight = v6;
+    if ( !v31 )
+      LocalClientGlobals->stepViewChange = 0.0;
   }
   else
   {
-    _RBX = DCONST_DVARFLT_cg_viewZSmoothingMin;
-    __asm
-    {
-      vmovaps [rsp+108h+var_28], xmm7
-      vmovaps [rsp+108h+var_38], xmm8
-      vsubss  xmm8, xmm6, xmm0
-      vandps  xmm7, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
+    v9 = DCONST_DVARFLT_cg_viewZSmoothingMin;
+    v10 = v6 - prevViewHeight;
     if ( !DCONST_DVARFLT_cg_viewZSmoothingMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_viewZSmoothingMin") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v9);
+    stepLerpTime = LocalClientGlobals->stepLerpTime;
+    v13 = (float)v5;
+    *((_QWORD *)&_XMM0 + 1) = 0i64;
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v6 - prevViewHeight) & _xmm) < v9->current.value )
     {
-      vcomiss xmm7, dword ptr [rbx+28h]
-      vmovss  xmm1, dword ptr [rdi+5969Ch]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-    }
-    if ( v23 )
-    {
-      __asm
-      {
-        vcomiss xmm0, xmm1
-        vmovss  dword ptr [rdi+59698h], xmm6
-      }
-      if ( !(v23 | v24) )
-        _RDI->stepViewChange = 0.0;
+      LocalClientGlobals->prevViewHeight = v6;
+      if ( v13 > stepLerpTime )
+        LocalClientGlobals->stepViewChange = 0.0;
     }
     else
     {
-      __asm
+      v14 = 0.0;
+      v15 = 0.0;
+      if ( v13 < stepLerpTime && v5 >= 0 )
       {
-        vcomiss xmm0, xmm1
-        vmovaps [rsp+108h+var_48], xmm9
-        vmovss  xmm9, cs:__real@3f800000
-        vmovaps [rsp+108h+var_58], xmm10
-        vmovaps [rsp+108h+var_68], xmm11
-        vmovaps [rsp+108h+var_78], xmm12
-        vmovaps [rsp+108h+var_88], xmm13
-        vxorps  xmm7, xmm7, xmm7
-        vxorps  xmm2, xmm2, xmm2
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        v15 = (float)(1.0 - (float)(v13 / stepLerpTime)) * LocalClientGlobals->stepViewChange;
       }
-      if ( v23 && v16 >= 0 )
-      {
-        __asm
-        {
-          vdivss  xmm0, xmm0, xmm1
-          vsubss  xmm0, xmm9, xmm0
-          vmulss  xmm2, xmm0, dword ptr [rdi+59694h]
-        }
-      }
-      __asm { vaddss  xmm8, xmm2, xmm8 }
       *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingMax, "cg_viewZSmoothingMax");
-      __asm { vcomiss xmm8, xmm7 }
-      if ( v23 | v24 )
+      if ( (float)(v15 + v10) <= 0.0 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-          vmaxss  xmm2, xmm1, xmm8
-          vmovss  dword ptr [rdi+59694h], xmm2
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingDownTimeMin, "cg_viewZSmoothingDownTimeMin");
-        v34 = DCONST_DVARFLT_cg_viewZSmoothingDownTimeMax;
-        v35 = "cg_viewZSmoothingDownTimeMax";
+        _XMM1 = _XMM0 ^ _xmm;
+        __asm { vmaxss  xmm2, xmm1, xmm8 }
+        LocalClientGlobals->stepViewChange = *(float *)&_XMM2;
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingDownTimeMin, "cg_viewZSmoothingDownTimeMin");
+        v18 = DCONST_DVARFLT_cg_viewZSmoothingDownTimeMax;
+        v19 = "cg_viewZSmoothingDownTimeMax";
       }
       else
       {
-        __asm
-        {
-          vminss  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rdi+59694h], xmm1
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingUpTimeMin, "cg_viewZSmoothingUpTimeMin");
-        v34 = DCONST_DVARFLT_cg_viewZSmoothingUpTimeMax;
-        v35 = "cg_viewZSmoothingUpTimeMax";
+        __asm { vminss  xmm1, xmm0, xmm8 }
+        LocalClientGlobals->stepViewChange = *(float *)&_XMM1;
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingUpTimeMin, "cg_viewZSmoothingUpTimeMin");
+        v18 = DCONST_DVARFLT_cg_viewZSmoothingUpTimeMax;
+        v19 = "cg_viewZSmoothingUpTimeMax";
       }
-      __asm { vmovaps xmm12, xmm0 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v34, v35);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi+48h]
-        vmovss  xmm3, dword ptr [rdi+4Ch]
-        vmovaps xmm13, xmm0
-        vmovss  xmm0, dword ptr [rdi+44h]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm11, xmm2, xmm1
-      }
+      v22 = *(float *)&Float_Internal_DebugName;
+      v23 = Dvar_GetFloat_Internal_DebugName(v18, v19);
+      v24 = *(float *)&v23;
+      *((_QWORD *)&_XMM0 + 1) = 0i64;
+      v25 = (float)((float)(LocalClientGlobals->predictedPlayerState.velocity.v[0] * LocalClientGlobals->predictedPlayerState.velocity.v[0]) + (float)(LocalClientGlobals->predictedPlayerState.velocity.v[1] * LocalClientGlobals->predictedPlayerState.velocity.v[1])) + (float)(LocalClientGlobals->predictedPlayerState.velocity.v[2] * LocalClientGlobals->predictedPlayerState.velocity.v[2]);
       *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingPlayerSpeedFloor, "cg_viewZSmoothingPlayerSpeedFloor");
-      __asm { vmulss  xmm10, xmm0, xmm0 }
+      v26 = *(float *)&_XMM0 * *(float *)&_XMM0;
       *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_viewZSmoothingPlayerSpeedCeil, "cg_viewZSmoothingPlayerSpeedCeil");
-      __asm
+      if ( v25 < (float)(*(float *)&_XMM0 * *(float *)&_XMM0) )
       {
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm11, xmm1
-      }
-      if ( v48 )
-      {
-        __asm { vcomiss xmm11, xmm10 }
-        if ( v48 | v49 )
+        if ( v25 > v26 )
         {
-          __asm { vmovaps xmm7, xmm9 }
+          v28 = (float)(*(float *)&_XMM0 * *(float *)&_XMM0) - v26;
+          if ( v28 == 0.0 )
+          {
+            __asm { vxorpd  xmm0, xmm0, xmm0 }
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 452, ASSERT_TYPE_ASSERT, "( maxSpeedSquared - minSpeedSquared ) != ( 0.0f )", "%s != %s\n\t%g, %g", "maxSpeedSquared - minSpeedSquared", "0.0f", v28, *(double *)&_XMM0) )
+              __debugbreak();
+          }
+          v14 = 1.0 - (float)((float)(v25 - v26) / v28);
         }
         else
         {
-          __asm
-          {
-            vsubss  xmm8, xmm1, xmm10
-            vucomiss xmm8, xmm7
-          }
-          if ( v49 )
-          {
-            __asm
-            {
-              vxorpd  xmm0, xmm0, xmm0
-              vmovsd  [rsp+108h+var_C8], xmm0
-              vcvtss2sd xmm1, xmm8, xmm8
-              vmovsd  [rsp+108h+var_D0], xmm1
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 452, ASSERT_TYPE_ASSERT, "( maxSpeedSquared - minSpeedSquared ) != ( 0.0f )", "%s != %s\n\t%g, %g", "maxSpeedSquared - minSpeedSquared", "0.0f", v82, v83) )
-              __debugbreak();
-          }
-          __asm
-          {
-            vsubss  xmm0, xmm11, xmm10
-            vdivss  xmm1, xmm0, xmm8
-            vsubss  xmm7, xmm9, xmm1
-          }
+          v14 = FLOAT_1_0;
         }
       }
-      __asm
-      {
-        vmulss  xmm0, xmm12, cs:__real@447a0000
-        vmulss  xmm1, xmm13, cs:__real@447a0000
-        vmovaps xmm13, [rsp+108h+var_88]
-        vmovaps xmm12, [rsp+108h+var_78]
-        vmovaps xmm11, [rsp+108h+var_68]
-        vmovaps xmm10, [rsp+108h+var_58]
-        vmovaps xmm9, [rsp+108h+var_48]
-        vcvttss2si ecx, xmm0
-        vcvttss2si eax, xmm1
-        vmovd   xmm2, ecx
-      }
-      _ECX = _ECX - _EAX;
-      time = _RDI->time;
-      __asm
-      {
-        vmovd   xmm0, ecx
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm1, xmm0, xmm7
-        vcvtdq2ps xmm2, xmm2
-        vsubss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rdi+5969Ch], xmm2
-        vmovss  dword ptr [rdi+59698h], xmm6
-      }
-      _RDI->stepViewStart = time;
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+108h+var_28]
-      vmovaps xmm8, [rsp+108h+var_38]
+      time = LocalClientGlobals->time;
+      LocalClientGlobals->stepLerpTime = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)(float)(v22 * 1000.0)).m128_f32[0] - (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)((int)(float)(v22 * 1000.0) - (int)(float)(v24 * 1000.0))).m128_f32[0] * v14);
+      LocalClientGlobals->prevViewHeight = v6;
+      LocalClientGlobals->stepViewStart = time;
     }
   }
-  _R11 = &v92;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -552,162 +449,94 @@ CgPMove::DebugPrintRigidBodyTransform
 */
 void CgPMove::DebugPrintRigidBodyTransform(CgPMove *this, const int commandTime, const int entityId)
 {
-  CG_PhysicsObject *v16; 
-  unsigned int v17; 
-  unsigned int v18; 
+  CG_PhysicsObject *v6; 
+  unsigned int v7; 
+  unsigned int v8; 
   unsigned int NumRigidBodys; 
   unsigned int m_serialAndIndex; 
   hknpWorld *world; 
-  bool v35; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  float v21; 
+  float v22; 
+  bool v23; 
+  __int128 v24; 
   char *fmt; 
-  double v67; 
-  __int64 v68; 
-  double v69; 
-  double v70; 
-  double v71; 
-  double v72; 
-  double v73; 
-  double v74; 
-  double v75; 
-  double v76; 
-  double v77; 
-  double v78; 
-  double v79; 
-  double v80; 
-  double v81; 
-  double v82; 
-  double v83; 
+  __int64 v28; 
+  float v29; 
+  float v30; 
   hknpBodyId result; 
 
-  v16 = CG_PhysicsObject_Get(entityId, this->localClientNum);
-  if ( v16 )
+  v6 = CG_PhysicsObject_Get(entityId, this->localClientNum);
+  if ( v6 )
   {
-    v17 = v16->physicsInstances[2];
-    if ( v17 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 500, ASSERT_TYPE_ASSERT, "( physicsInstance != 0xFFFFFFFF )", (const char *)&queryFormat, "physicsInstance != PHYSICSINSTANCEID_INVALID") )
+    v7 = v6->physicsInstances[2];
+    if ( v7 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 500, ASSERT_TYPE_ASSERT, "( physicsInstance != 0xFFFFFFFF )", (const char *)&queryFormat, "physicsInstance != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v18 = 0;
-    NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_CLIENT_FIRST, v17);
+    v8 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_CLIENT_FIRST, v7);
     if ( NumRigidBodys )
     {
-      __asm
-      {
-        vmovaps [rsp+1A8h+var_48], xmm6
-        vmovaps [rsp+1A8h+var_58], xmm7
-        vmovaps [rsp+1A8h+var_68], xmm8
-        vmovaps [rsp+1A8h+var_78], xmm9
-        vmovaps [rsp+1A8h+var_88], xmm10
-        vmovaps [rsp+1A8h+var_98], xmm11
-        vmovaps [rsp+1A8h+var_A8], xmm12
-        vmovaps [rsp+1A8h+var_B8], xmm13
-        vmovaps [rsp+1A8h+var_C8], xmm14
-        vmovaps [rsp+1A8h+var_D8], xmm15
-      }
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( v17 == -1 )
+        if ( v7 == -1 )
         {
-          LODWORD(v68) = 2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v68) )
+          LODWORD(v28) = 2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
         if ( !g_physicsClientWorldsCreated )
         {
-          LODWORD(v68) = 2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v68) )
+          LODWORD(v28) = 2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
-        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_CLIENT_FIRST, v17, v18)->m_serialAndIndex;
+        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_CLIENT_FIRST, v7, v8)->m_serialAndIndex;
         if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
         {
-          LODWORD(v68) = 2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 851, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid body id for world %i", "bodyId.isValid()", v68) )
+          LODWORD(v28) = 2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 851, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid body id for world %i", "bodyId.isValid()", v28) )
             __debugbreak();
         }
         world = g_havokPhysicsWorlds[2].world;
         if ( !g_havokPhysicsWorlds[2].world )
         {
-          LODWORD(v68) = 2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 855, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v68) )
+          LODWORD(v28) = 2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 855, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v28) )
             __debugbreak();
         }
-        _RAX = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, m_serialAndIndex);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm15, dword ptr [rax+8]
-          vmovss  xmm14, dword ptr [rax+10h]
-          vmovss  xmm13, dword ptr [rax+14h]
-          vmovss  xmm12, dword ptr [rax+18h]
-          vmovss  xmm11, dword ptr [rax+20h]
-          vmovss  xmm10, dword ptr [rax+24h]
-          vmovss  xmm9, dword ptr [rax+28h]
-          vmovss  xmm8, dword ptr [rax+30h]
-          vmovss  xmm7, dword ptr [rax+34h]
-          vmovss  xmm6, dword ptr [rax+38h]
-          vmovss  [rsp+1A8h+var_F4], xmm0
-          vmovss  xmm0, dword ptr [rax+4]
-          vmovss  [rsp+1A8h+var_F8], xmm0
-        }
-        v35 = this->m_bgHandler->IsClient((BgHandler *)this->m_bgHandler);
-        __asm
-        {
-          vmovss  xmm2, cs:__real@42000000
-          vmulss  xmm0, xmm6, xmm2
-          vmulss  xmm1, xmm7, xmm2
-          vcvtss2sd xmm4, xmm0, xmm0
-          vmulss  xmm0, xmm8, xmm2
-          vcvtss2sd xmm2, xmm0, xmm0
-          vcvtss2sd xmm5, xmm10, xmm10
-          vmovss  xmm10, [rsp+1A8h+var_F8]
-          vcvtss2sd xmm0, xmm11, xmm11
-          vmovss  xmm11, [rsp+1A8h+var_F4]
-          vcvtss2sd xmm3, xmm1, xmm1
-          vcvtss2sd xmm1, xmm9, xmm9
-          vcvtss2sd xmm6, xmm12, xmm12
-          vmovsd  xmm12, cs:__real@3ff0000000000000
-          vmovsd  [rsp+1A8h+var_108], xmm12
-          vmovsd  [rsp+1A8h+var_110], xmm4
-          vmovsd  [rsp+1A8h+var_118], xmm3
-          vmovsd  [rsp+1A8h+var_120], xmm2
-          vxorpd  xmm2, xmm2, xmm2
-          vmovsd  [rsp+1A8h+var_128], xmm2
-          vmovsd  [rsp+1A8h+var_130], xmm1
-          vmovsd  [rsp+1A8h+var_138], xmm5
-          vmovsd  [rsp+1A8h+var_140], xmm0
-          vmovsd  [rsp+1A8h+var_148], xmm2
-          vmovsd  [rsp+1A8h+var_150], xmm6
-          vcvtss2sd xmm7, xmm13, xmm13
-          vmovsd  [rsp+1A8h+var_158], xmm7
-          vcvtss2sd xmm8, xmm14, xmm14
-          vmovsd  [rsp+1A8h+var_160], xmm8
-          vmovsd  [rsp+1A8h+var_168], xmm2
-          vcvtss2sd xmm9, xmm15, xmm15
-          vmovsd  [rsp+1A8h+var_170], xmm9
-          vcvtss2sd xmm10, xmm10, xmm10
-          vmovsd  [rsp+1A8h+var_178], xmm10
-          vcvtss2sd xmm11, xmm11, xmm11
-          vmovsd  [rsp+1A8h+var_180], xmm11
-        }
-        LODWORD(fmt) = v18;
-        j_printf("   t: %i, h: %i, e: %i, idx: %i, trans: %a,%a,%a,%a, %a,%a,%a,%a, %a,%a,%a,%a, %a,%a,%a,%a\n", (unsigned int)commandTime, !v35, (unsigned int)entityId, fmt, v67, v69, v70, v71, v72, v73, v74, v75, v76, v77, v78, v79, v80, v81, v82, v83);
-        ++v18;
+        v12 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, m_serialAndIndex);
+        v13 = *(float *)(v12 + 8);
+        v14 = *(float *)(v12 + 16);
+        v15 = *(float *)(v12 + 20);
+        v16 = *(float *)(v12 + 24);
+        v17 = *(float *)(v12 + 32);
+        v18 = *(float *)(v12 + 36);
+        v19 = *(float *)(v12 + 40);
+        v20 = *(unsigned int *)(v12 + 48);
+        v21 = *(float *)(v12 + 52);
+        v22 = *(float *)(v12 + 56);
+        v30 = *(float *)v12;
+        v29 = *(float *)(v12 + 4);
+        v23 = this->m_bgHandler->IsClient((BgHandler *)this->m_bgHandler);
+        *((_QWORD *)&v24 + 1) = *((_QWORD *)&v20 + 1);
+        *(double *)&v24 = (float)(*(float *)&v20 * 32.0);
+        _XMM2 = v24;
+        __asm { vxorpd  xmm2, xmm2, xmm2 }
+        LODWORD(fmt) = v8;
+        j_printf("   t: %i, h: %i, e: %i, idx: %i, trans: %a,%a,%a,%a, %a,%a,%a,%a, %a,%a,%a,%a, %a,%a,%a,%a\n", (unsigned int)commandTime, !v23, (unsigned int)entityId, fmt, v30, v29, v13, *(double *)&_XMM2, v14, v15, v16, *(double *)&_XMM2, v17, v18, v19, *(double *)&_XMM2, *(double *)&v24, (float)(v21 * 32.0), (float)(v22 * 32.0), DOUBLE_1_0);
+        ++v8;
       }
-      while ( v18 < NumRigidBodys );
-      __asm
-      {
-        vmovaps xmm15, [rsp+1A8h+var_D8]
-        vmovaps xmm14, [rsp+1A8h+var_C8]
-        vmovaps xmm13, [rsp+1A8h+var_B8]
-        vmovaps xmm12, [rsp+1A8h+var_A8]
-        vmovaps xmm11, [rsp+1A8h+var_98]
-        vmovaps xmm10, [rsp+1A8h+var_88]
-        vmovaps xmm9, [rsp+1A8h+var_78]
-        vmovaps xmm8, [rsp+1A8h+var_68]
-        vmovaps xmm7, [rsp+1A8h+var_58]
-        vmovaps xmm6, [rsp+1A8h+var_48]
-      }
+      while ( v8 < NumRigidBodys );
     }
   }
 }
@@ -734,11 +563,13 @@ void CgPMove::GetEntityBounds(CgPMove *this, int entId, int suitIndex, Effective
   LocalClientNum_t localClientNum; 
   const entityState_t *p_nextState; 
   unsigned int number; 
-  unsigned int v16; 
-  unsigned int v17; 
-  const DObj *v18; 
+  unsigned int v13; 
+  unsigned int v14; 
+  const DObj *v15; 
+  const dvar_t *v16; 
+  float value; 
   Bounds *outCollisionBounds; 
-  __int64 v26; 
+  __int64 v19; 
 
   Entity = CG_GetEntity((const LocalClientNum_t)this->localClientNum, entId);
   if ( (Entity->flags & 1) != 0 )
@@ -750,63 +581,49 @@ void CgPMove::GetEntityBounds(CgPMove *this, int entId, int suitIndex, Effective
       __debugbreak();
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v26) = 2;
+      LODWORD(v19) = 2;
       LODWORD(outCollisionBounds) = localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", outCollisionBounds, v26) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", outCollisionBounds, v19) )
         __debugbreak();
     }
-    v16 = 2533 * localClientNum + number;
-    if ( v16 >= 0x13CA )
+    v13 = 2533 * localClientNum + number;
+    if ( v13 >= 0x13CA )
     {
-      LODWORD(v26) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v26) )
+      LODWORD(v19) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v19) )
         __debugbreak();
     }
-    v17 = clientObjMap[v16];
-    if ( v17 )
+    v14 = clientObjMap[v13];
+    if ( v14 )
     {
-      if ( v17 >= (unsigned int)s_objCount )
+      if ( v14 >= (unsigned int)s_objCount )
       {
-        LODWORD(v26) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v26) )
+        LODWORD(v19) = v14;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v19) )
           __debugbreak();
       }
-      v18 = (const DObj *)s_objBuf[v17];
+      v15 = (const DObj *)s_objBuf[v14];
     }
     else
     {
-      v18 = NULL;
+      v15 = NULL;
     }
-    _RBX = outBounds;
-    CG_PhysicsCharacterProxy_GetCollisionBounds(v18, p_nextState, suitIndex, stance, 0, outBounds);
+    CG_PhysicsCharacterProxy_GetCollisionBounds(v15, p_nextState, suitIndex, stance, 0, outBounds);
     if ( hasShield )
     {
-      _RDI = DCONST_DVARMPFLT_playerCharacterCollisionShieldOffset;
+      v16 = DCONST_DVARMPFLT_playerCharacterCollisionShieldOffset;
       if ( !DCONST_DVARMPFLT_playerCharacterCollisionShieldOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionShieldOffset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi+28h]
-        vaddss  xmm0, xmm2, dword ptr [rbx+0Ch]
-        vmovss  dword ptr [rbx+0Ch], xmm0
-        vaddss  xmm1, xmm2, dword ptr [rbx+10h]
-        vmovss  dword ptr [rbx+10h], xmm1
-        vaddss  xmm0, xmm2, dword ptr [rbx+14h]
-        vmovss  dword ptr [rbx+14h], xmm0
-      }
+      Dvar_CheckFrontendServerThread(v16);
+      value = v16->current.value;
+      outBounds->halfSize.v[0] = value + outBounds->halfSize.v[0];
+      outBounds->halfSize.v[1] = value + outBounds->halfSize.v[1];
+      outBounds->halfSize.v[2] = value + outBounds->halfSize.v[2];
     }
   }
   else
   {
-    _RAX = outBounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?playerBox@@3UBounds@@B.midPoint; Bounds const playerBox
-      vmovups xmmword ptr [rax], xmm0
-      vmovsd  xmm1, qword ptr cs:?playerBox@@3UBounds@@B.halfSize+4; Bounds const playerBox
-      vmovsd  qword ptr [rax+10h], xmm1
-    }
+    *outBounds = playerBox;
   }
 }
 
@@ -824,15 +641,15 @@ char CgPMove::GetWorldUpParentOrientation(CgPMove *this, int entId, vec3_t *outO
   entityState_t *p_nextState; 
   entityType_s eType; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v18; 
 
-  _RSI = outOrigin;
   Entity = CG_GetEntity((const LocalClientNum_t)this->localClientNum, entId);
   if ( ((Entity->flags & 1) == 0 || !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 0xFu)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 59, ASSERT_TYPE_ASSERT, "(IsWorldUpVolume( entId ))", (const char *)&queryFormat, "IsWorldUpVolume( entId )") )
     __debugbreak();
   *(_QWORD *)outAngles->v = 0i64;
   outAngles->v[2] = 0.0;
-  *(_QWORD *)_RSI->v = 0i64;
-  _RSI->v[2] = 0.0;
+  *(_QWORD *)outOrigin->v = 0i64;
+  outOrigin->v[2] = 0.0;
   v9 = CG_GetEntity((const LocalClientNum_t)this->localClientNum, entId);
   if ( (v9->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 65, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
@@ -851,28 +668,33 @@ char CgPMove::GetWorldUpParentOrientation(CgPMove *this, int entId, vec3_t *outO
   if ( !p_pose->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(p_pose->origin.Get_origin, p_pose);
-  FunctionPointer_origin(&p_pose->origin.origin.origin, _RSI);
+  FunctionPointer_origin(&p_pose->origin.origin.origin, outOrigin);
   if ( p_pose->isPosePrecise )
   {
+    _XMM0 = LODWORD(outOrigin->v[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v18 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v18;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    _XMM0 = LODWORD(outOrigin->v[1]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    outOrigin->v[0] = *(float *)&_XMM1;
+    *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v18 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v18;
+    _XMM0 = LODWORD(outOrigin->v[2]);
     __asm
     {
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmovd   xmm0, dword ptr [rsi]
-      vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovd   xmm0, dword ptr [rsi+4]
-      vcvtdq2pd xmm0, xmm0
-      vmovss  dword ptr [rsi], xmm1
-      vmulsd  xmm1, xmm0, xmm3
-      vmovd   xmm0, dword ptr [rsi+8]
       vcvtsd2ss xmm2, xmm1, xmm1
       vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsi+4], xmm2
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vmovss  dword ptr [rsi+8], xmm2
     }
+    *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v18 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v18;
+    outOrigin->v[1] = *(float *)&_XMM2;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    outOrigin->v[2] = *(float *)&_XMM2;
   }
   outAngles->v[0] = p_pose->angles.v[0];
   outAngles->v[1] = p_pose->angles.v[1];
@@ -1023,33 +845,20 @@ void CgPMove::SetMantleHint(CgPMove *this, bool enabled)
 CgPMove::SetSkydiveBasejumpGroundHeight
 ==============
 */
-
-void __fastcall CgPMove::SetSkydiveBasejumpGroundHeight(CgPMove *this, double height)
+void CgPMove::SetSkydiveBasejumpGroundHeight(CgPMove *this, const float height)
 {
-  __asm
+  cg_t *LocalClientGlobals; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->localClientNum);
+  if ( LocalClientGlobals )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)this->localClientNum);
-  _RBX = _RAX;
-  if ( _RAX )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rax+0BA1C8h], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    LocalClientGlobals->skydiveClientState.debugBaseJumpHeight = height;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pmove.cpp", 523, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
-    __asm
-    {
-      vmovss  dword ptr [rbx+0BA1C8h], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    MEMORY[0xBA1C8] = height;
   }
 }
 
@@ -1072,55 +881,63 @@ CgPMove::UpdatePredictionError
 void CgPMove::UpdatePredictionError(CgPMove *this, const bool isOnMovingPlatform, const bool isTeleported)
 {
   cg_t *LocalClientGlobals; 
-  int time; 
-  const vec3_t *p_origin; 
-  LocalClientNum_t localClientNum; 
-  CGMovingPlatformClient *p_movingPlatforms; 
-  int toTime; 
+  cg_t *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  double Float_Internal_DebugName; 
+  int v14; 
+  float v15; 
+  __int128 v16; 
   vec3_t out; 
   vec3_t outDeltaAngles; 
   vec3_t outDeltaPlatformOrigin; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->localClientNum);
-  _RDI = LocalClientGlobals;
+  v7 = LocalClientGlobals;
   if ( LocalClientGlobals->predictedPlayerState.commandTime == LocalClientGlobals->oldCommandTime )
   {
-    time = LocalClientGlobals->time;
-    p_origin = &LocalClientGlobals->predictedPlayerState.origin;
-    localClientNum = this->localClientNum;
-    p_movingPlatforms = &LocalClientGlobals->movingPlatforms;
-    __asm { vmovaps [rsp+0E8h+var_18], xmm6 }
-    toTime = LocalClientGlobals->oldTime;
-    __asm
+    CGMovingPlatformClient::AdjustPositionForMover(&LocalClientGlobals->movingPlatforms, this->localClientNum, &LocalClientGlobals->predictedPlayerState.origin, LocalClientGlobals->time, LocalClientGlobals->oldTime, &out, &outDeltaPlatformOrigin, &outDeltaAngles, this);
+    v8 = v7->oldOrigin.v[0] - out.v[0];
+    v9 = v7->oldOrigin.v[1] - out.v[1];
+    v10 = v7->oldOrigin.v[2] - out.v[2];
+    *((_QWORD *)&v11 + 1) = 0i64;
+    v12 = fsqrt((float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10));
+    if ( !isTeleported && !isOnMovingPlatform && v12 > 0.1 )
     {
-      vmovaps [rsp+0E8h+var_38], xmm8
-      vmovaps [rsp+0E8h+var_48], xmm9
-      vmovaps [rsp+0E8h+var_58], xmm10
-    }
-    CGMovingPlatformClient::AdjustPositionForMover(p_movingPlatforms, localClientNum, p_origin, time, toTime, &out, &outDeltaPlatformOrigin, &outDeltaAngles, this);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+596A8h]
-      vsubss  xmm8, xmm0, dword ptr [rsp+0E8h+var_98]
-      vmovss  xmm1, dword ptr [rdi+596ACh]
-      vmovss  xmm0, dword ptr [rdi+596B0h]
-      vsubss  xmm9, xmm1, dword ptr [rsp+0E8h+var_98+4]
-      vsubss  xmm10, xmm0, dword ptr [rsp+0E8h+var_98+8]
-      vmulss  xmm1, xmm9, xmm9
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm10, xmm10
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm6, xmm2, xmm2
-    }
-    if ( !isTeleported && !isOnMovingPlatform )
-      __asm { vcomiss xmm6, cs:__real@3dcccccd }
-    __asm
-    {
-      vmovaps xmm9, [rsp+0E8h+var_48]
-      vmovaps xmm8, [rsp+0E8h+var_38]
-      vmovaps xmm6, [rsp+0E8h+var_18]
-      vmovaps xmm10, [rsp+0E8h+var_58]
+      if ( Dvar_GetInt_Internal_DebugName(DVARINT_cg_showmiss, "cg_showmiss") )
+        Com_PrintError(17, "Prediction miss: %f\n", v12);
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_errordecay, "cg_errordecay");
+      if ( *(float *)&Float_Internal_DebugName == 0.0 )
+      {
+        *(_QWORD *)v7->predictedError.v = 0i64;
+        v7->predictedError.v[2] = 0.0;
+      }
+      else
+      {
+        v14 = v7->time - v7->predictedErrorTime;
+        *(double *)&v11 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_errordecay, "cg_errordecay");
+        v15 = 1.0 / *(float *)&v11;
+        *(double *)&v11 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_errordecay, "cg_errordecay");
+        v16 = v11;
+        *(float *)&v16 = (float)(*(float *)&v11 - (float)v14) * v15;
+        _XMM2 = v16;
+        __asm { vmaxss  xmm6, xmm2, xmm7 }
+        if ( *(float *)&_XMM6 > 0.0 )
+        {
+          if ( Dvar_GetInt_Internal_DebugName(DVARINT_cg_showmiss, "cg_showmiss") )
+            Com_Printf(17, "Double prediction decay: %f\n", *(float *)&_XMM6);
+        }
+        v7->predictedError.v[0] = *(float *)&_XMM6 * v7->predictedError.v[0];
+        v7->predictedError.v[1] = *(float *)&_XMM6 * v7->predictedError.v[1];
+        v7->predictedError.v[2] = *(float *)&_XMM6 * v7->predictedError.v[2];
+      }
+      v7->predictedError.v[0] = v8 + v7->predictedError.v[0];
+      v7->predictedError.v[1] = v9 + v7->predictedError.v[1];
+      v7->predictedError.v[2] = v10 + v7->predictedError.v[2];
+      v7->predictedErrorTime = v7->oldTime;
     }
   }
 }

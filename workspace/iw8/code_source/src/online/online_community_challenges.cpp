@@ -322,64 +322,60 @@ void OnlineCommunityChallenges::OutputCurrentState(OnlineCommunityChallenges *th
 LUI_CoD_LuaCall_GetCommunityInfo
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetCommunityInfo(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetCommunityInfo(lua_State *const luaVM)
 {
-  unsigned int v3; 
-  __int64 v4; 
+  unsigned int v2; 
+  __int64 v3; 
+  int v4; 
   int v5; 
   int v6; 
-  int v7; 
-  __int64 v8; 
-  CommunityProgression *v9; 
-  unsigned int v10; 
-  CommunityProgression *v12; 
+  __int64 v7; 
+  CommunityProgression *v8; 
+  unsigned int v9; 
+  CommunityProgression *v11; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "USAGE: CommunityChallenges.GetCommunityInfo( <controllerIndex>, <operator_id> )\n");
-  v3 = 1;
+  v2 = 1;
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: CommunityChallenges.GetCommunityInfo( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: CommunityChallenges.GetCommunityInfo( <id> )\n");
-  v4 = lui_tointeger32(luaVM, 1);
-  v5 = lui_tointeger32(luaVM, 2);
-  v6 = 0;
-  v7 = OnlineCommunityChallenges::s_instance.m_numCommunityProgressions[v4];
-  if ( v7 <= 0 )
+  v3 = lui_tointeger32(luaVM, 1);
+  v4 = lui_tointeger32(luaVM, 2);
+  v5 = 0;
+  v6 = OnlineCommunityChallenges::s_instance.m_numCommunityProgressions[v3];
+  if ( v6 <= 0 )
     goto LABEL_11;
-  v8 = v5;
-  v9 = OnlineCommunityChallenges::s_instance.m_communityProgression[v4];
-  while ( v9->id != v8 )
+  v7 = v4;
+  v8 = OnlineCommunityChallenges::s_instance.m_communityProgression[v3];
+  while ( v8->id != v7 )
   {
-    ++v6;
-    ++v9;
-    if ( v6 >= v7 )
+    ++v5;
+    ++v8;
+    if ( v5 >= v6 )
       goto LABEL_11;
   }
-  v12 = &OnlineCommunityChallenges::s_instance.m_communityProgression[v4][v6];
-  if ( v12 )
+  v11 = &OnlineCommunityChallenges::s_instance.m_communityProgression[v3][v5];
+  if ( v11 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rax
-    }
-    if ( (v12->progress & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rax }
+    if ( (v11->progress & 0x8000000000000000ui64) != 0i64 )
+      *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
     j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   }
   else
   {
 LABEL_11:
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v10);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v9);
   }
-  return v3;
+  return v2;
 }
 
 /*

@@ -99,38 +99,35 @@ void R_SetupSphereStaticGeo(R_CollInfo *collInfo, const GfxWorldTransientDrawCon
   GfxWorldDrawCells *v15; 
   unsigned int aabbTreeIndex; 
   const GfxAabbTree *aabbTree; 
-  char *fmt; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  unsigned int *v34; 
+  __int64 v18; 
+  __int64 v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned int *v22; 
   unsigned int cellBits[32]; 
 
-  _R14 = collInfo;
   Profile_Begin(234);
   Sys_ProfBeginNamedEvent(0xFFF08080, "R_SetupSphereStaticGeo0");
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 184, ASSERT_TYPE_ASSERT, "(collInfo)", (const char *)&queryFormat, "collInfo") )
+  if ( !collInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 184, ASSERT_TYPE_ASSERT, "(collInfo)", (const char *)&queryFormat, "collInfo") )
     __debugbreak();
   world = rgp.world;
   if ( rgp.world->dpvsPlanes.cellCount > 0x400 )
   {
-    LODWORD(v29) = rgp.world->dpvsPlanes.cellCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 187, ASSERT_TYPE_ASSERT, "( ( worldDpvsPlanes->cellCount <= (1024) ) )", "( worldDpvsPlanes->cellCount ) = %i", v29) )
+    LODWORD(v18) = rgp.world->dpvsPlanes.cellCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 187, ASSERT_TYPE_ASSERT, "( ( worldDpvsPlanes->cellCount <= (1024) ) )", "( worldDpvsPlanes->cellCount ) = %i", v18) )
       __debugbreak();
   }
   v5 = (world->dpvsPlanes.cellCount + 31) >> 5;
-  v33 = v5;
+  v21 = v5;
   memset_0(cellBits, 0, 4i64 * v5);
-  R_SphereStaticGeo_r((const mnode_t *)world->dpvsPlanes.nodes, &_R14->sphere, cellBits);
+  R_SphereStaticGeo_r((const mnode_t *)world->dpvsPlanes.nodes, &collInfo->sphere, cellBits);
   v6 = 0;
-  v32 = 0;
-  _R14->nodeCount = 0;
+  v20 = 0;
+  collInfo->nodeCount = 0;
   if ( v5 )
   {
     v7 = cellBits;
-    v34 = cellBits;
+    v22 = cellBits;
     do
     {
       v8 = *v7;
@@ -146,9 +143,9 @@ void R_SetupSphereStaticGeo(R_CollInfo *collInfo, const GfxWorldTransientDrawCon
           v8 &= ~(0x80000000 >> v9);
           if ( v11 >= s_world.dpvsPlanes.cellCount )
           {
-            LODWORD(v31) = s_world.dpvsPlanes.cellCount;
-            LODWORD(v29) = v10 + v9;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( cellIndex ) < (unsigned)( world->dpvsPlanes.cellCount )", "cellIndex doesn't index world->dpvsPlanes.cellCount\n\t%i not in [0, %i)", v29, v31) )
+            LODWORD(v19) = s_world.dpvsPlanes.cellCount;
+            LODWORD(v18) = v10 + v9;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( cellIndex ) < (unsigned)( world->dpvsPlanes.cellCount )", "cellIndex doesn't index world->dpvsPlanes.cellCount\n\t%i not in [0, %i)", v18, v19) )
               __debugbreak();
           }
           v12 = v11;
@@ -156,9 +153,9 @@ void R_SetupSphereStaticGeo(R_CollInfo *collInfo, const GfxWorldTransientDrawCon
           transientZone = s_world.cellTransientInfos[v12].transientZone;
           if ( transientZone >= transientDrawContext->zoneCount )
           {
-            LODWORD(v31) = transientDrawContext->zoneCount;
-            LODWORD(v29) = s_world.cellTransientInfos[v12].transientZone;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 117, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( worldTransientContext.zoneCount )", "transientZoneIndex doesn't index worldTransientContext.zoneCount\n\t%i not in [0, %i)", v29, v31) )
+            LODWORD(v19) = transientDrawContext->zoneCount;
+            LODWORD(v18) = s_world.cellTransientInfos[v12].transientZone;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 117, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( worldTransientContext.zoneCount )", "transientZoneIndex doesn't index worldTransientContext.zoneCount\n\t%i not in [0, %i)", v18, v19) )
               __debugbreak();
           }
           v15 = transientDrawContext->drawCellsPtrs[(unsigned __int16)transientZone];
@@ -167,55 +164,37 @@ void R_SetupSphereStaticGeo(R_CollInfo *collInfo, const GfxWorldTransientDrawCon
             aabbTreeIndex = cellTransientInfos[v12].aabbTreeIndex;
             if ( aabbTreeIndex >= v15->cellCount )
             {
-              LODWORD(v31) = v15->cellCount;
-              LODWORD(v29) = aabbTreeIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( aabbTreeIndex ) < (unsigned)( drawCells.cellCount )", "aabbTreeIndex doesn't index drawCells.cellCount\n\t%i not in [0, %i)", v29, v31) )
+              LODWORD(v19) = v15->cellCount;
+              LODWORD(v18) = aabbTreeIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( aabbTreeIndex ) < (unsigned)( drawCells.cellCount )", "aabbTreeIndex doesn't index drawCells.cellCount\n\t%i not in [0, %i)", v18, v19) )
                 __debugbreak();
             }
             aabbTree = v15->aabbTrees[(unsigned __int16)aabbTreeIndex].aabbTree;
             if ( aabbTree )
-              R_AABBTreeStaticGeo_r(aabbTree, _R14);
+              R_AABBTreeStaticGeo_r(aabbTree, collInfo);
           }
           v9 = __lzcnt(v8);
         }
         while ( v9 < 0x20 );
-        v6 = v32;
-        v5 = v33;
-        v7 = v34;
+        v6 = v20;
+        v5 = v21;
+        v7 = v22;
       }
       ++v6;
       ++v7;
-      v32 = v6;
-      v34 = v7;
+      v20 = v6;
+      v22 = v7;
     }
     while ( v6 < v5 );
-    if ( _R14->nodeCount > 0x800 )
+    if ( collInfo->nodeCount > 0x800 )
     {
       if ( nextPrintTime_7 < Sys_Milliseconds() )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+4010h]
-          vmovss  xmm3, dword ptr [r14+4008h]
-          vmovss  xmm2, dword ptr [r14+4004h]
-          vmovss  xmm1, dword ptr [r14+400Ch]
-        }
-        LODWORD(v31) = _R14->nodeCount;
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+118h+var_F0], xmm0
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovsd  [rsp+118h+fmt], xmm1
-        }
-        Com_PrintWarning(16, "R_SetupSphereStaticGeo query for sphere (%f,%f,%f,%f) returned too many GfxAabbTree nodes (%u) for MAX_NODES capacity (%u) - will be discarding results\n", _R8, _R9, fmt, v30, v31, 2048);
+        LODWORD(v19) = collInfo->nodeCount;
+        Com_PrintWarning(16, "R_SetupSphereStaticGeo query for sphere (%f,%f,%f,%f) returned too many GfxAabbTree nodes (%u) for MAX_NODES capacity (%u) - will be discarding results\n", collInfo->sphere.origin.v[0], collInfo->sphere.origin.v[1], collInfo->sphere.origin.v[2], collInfo->sphere.radius, v19, 2048);
         nextPrintTime_7 = Sys_Milliseconds() + 2000;
       }
-      _R14->nodeCount = 2048;
+      collInfo->nodeCount = 2048;
     }
   }
   Sys_ProfEndNamedEvent();
@@ -230,79 +209,47 @@ R_SphereStaticGeo_r
 void R_SphereStaticGeo_r(const mnode_t *node, const Sphere *sphere, unsigned int *cellBits)
 {
   unsigned int planeOrCellIndex; 
-  unsigned int v8; 
-  int v9; 
-  bool v11; 
-  bool v12; 
-  bool v13; 
-  __int64 v27; 
-  __int64 v29; 
-  __int64 v30; 
+  unsigned int v7; 
+  int v8; 
+  float radius; 
+  float v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
 
-  _RSI = sphere;
   if ( rgp.world != &s_world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 54, ASSERT_TYPE_ASSERT, "(rgp.world == &s_world)", (const char *)&queryFormat, "rgp.world == &s_world") )
     __debugbreak();
   planeOrCellIndex = node->planeOrCellIndex;
-  v8 = s_world.dpvsPlanes.cellCount + 1;
-  v9 = planeOrCellIndex - (s_world.dpvsPlanes.cellCount + 1);
-  if ( v9 >= 0 )
+  v7 = s_world.dpvsPlanes.cellCount + 1;
+  v8 = planeOrCellIndex - (s_world.dpvsPlanes.cellCount + 1);
+  if ( v8 >= 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+68h+var_28], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
     do
     {
-      v11 = v9 < (unsigned int)s_world.dpvsPlanes.planeCount;
-      v12 = v9 <= (unsigned int)s_world.dpvsPlanes.planeCount;
-      if ( v9 >= (unsigned int)s_world.dpvsPlanes.planeCount )
+      if ( v8 >= (unsigned int)s_world.dpvsPlanes.planeCount )
       {
-        LODWORD(v30) = s_world.dpvsPlanes.planeCount;
-        LODWORD(v29) = v9;
-        v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 66, ASSERT_TYPE_ASSERT, "(unsigned)( planeIndex ) < (unsigned)( s_world.dpvsPlanes.planeCount )", "planeIndex doesn't index s_world.dpvsPlanes.planeCount\n\t%i not in [0, %i)", v29, v30);
-        v11 = 0;
-        v12 = !v13;
-        if ( v13 )
+        LODWORD(v13) = s_world.dpvsPlanes.planeCount;
+        LODWORD(v12) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 66, ASSERT_TYPE_ASSERT, "(unsigned)( planeIndex ) < (unsigned)( s_world.dpvsPlanes.planeCount )", "planeIndex doesn't index s_world.dpvsPlanes.planeCount\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      _RCX = 5i64 * v9;
-      _RAX = s_world.dpvsPlanes.planes;
-      __asm
+      radius = sphere->radius;
+      v10 = (float)((float)((float)(s_world.dpvsPlanes.planes[v8].normal.v[1] * sphere->origin.v[1]) + (float)(s_world.dpvsPlanes.planes[v8].normal.v[0] * sphere->origin.v[0])) + (float)(s_world.dpvsPlanes.planes[v8].normal.v[2] * sphere->origin.v[2])) - s_world.dpvsPlanes.planes[v8].dist;
+      if ( v10 >= radius )
       {
-        vmovss  xmm0, dword ptr [rax+rcx*4+4]
-        vmulss  xmm3, xmm0, dword ptr [rsi+4]
-        vmovss  xmm1, dword ptr [rax+rcx*4]
-        vmulss  xmm2, xmm1, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rax+rcx*4+8]
-        vmulss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vsubss  xmm3, xmm2, dword ptr [rax+rcx*4+0Ch]
-        vcomiss xmm3, xmm0
-      }
-      if ( v11 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm6
-          vcomiss xmm3, xmm0
-        }
-        if ( !v12 )
-          R_SphereStaticGeo_r(node + 1, _RSI, cellBits);
-        v27 = 2i64 * node->rightChildOffset;
+        v11 = 4i64;
       }
       else
       {
-        v27 = 4i64;
+        if ( v10 > COERCE_FLOAT(LODWORD(radius) ^ _xmm) )
+          R_SphereStaticGeo_r(node + 1, sphere, cellBits);
+        v11 = 2i64 * node->rightChildOffset;
       }
-      node = (const mnode_t *)((char *)node + v27);
+      node = (const mnode_t *)((char *)node + v11);
       planeOrCellIndex = node->planeOrCellIndex;
-      v9 = planeOrCellIndex - v8;
+      v8 = planeOrCellIndex - v7;
     }
-    while ( (int)(planeOrCellIndex - v8) >= 0 );
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
+    while ( (int)(planeOrCellIndex - v7) >= 0 );
   }
   if ( planeOrCellIndex )
     cellBits[(planeOrCellIndex - 1i64) >> 5] |= 0x80000000 >> ((planeOrCellIndex - 1) & 0x1F);
@@ -315,131 +262,136 @@ R_SphereStaticModels
 */
 __int64 R_SphereStaticModels(const R_CollInfo *collInfo, int (*allowSModel)(int, void *), void *callbackContext, unsigned __int16 *smodelList, unsigned int smodelListSize)
 {
-  const R_CollInfo *v6; 
-  __int64 v7; 
+  const R_CollInfo *v5; 
+  __int64 v6; 
   Bounds *collectionBounds; 
   unsigned int nodeCount; 
-  const ObfuscateErrorText *v10; 
-  const R_CollInfo *v11; 
-  __int64 v12; 
-  const GfxAabbTree *v13; 
-  unsigned int v14; 
+  const ObfuscateErrorText *v9; 
+  const R_CollInfo *v10; 
+  __int64 v11; 
+  const GfxAabbTree *v12; 
+  unsigned int v13; 
   unsigned int smodelIndexCount; 
+  float *v; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  Bounds *v45; 
-  const R_CollInfo *v46; 
-  __int64 v47; 
-  __int128 v52; 
-  __int128 v53; 
-  __int128 v54; 
+  float *v18; 
+  __m128 v20; 
+  __m128 v24; 
+  __m128 v28; 
+  Bounds *v39; 
+  const R_CollInfo *v40; 
+  __int64 v41; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v48; 
 
-  v6 = collInfo;
+  v5 = collInfo;
   Profile_Begin(236);
   Sys_ProfBeginNamedEvent(0xFFF08080, "R_SphereStaticModels");
-  v7 = 0i64;
+  v6 = 0i64;
   collectionBounds = rgp.world->smodels.collectionBounds;
-  nodeCount = v6->nodeCount;
-  v45 = collectionBounds;
+  nodeCount = v5->nodeCount;
+  v39 = collectionBounds;
   if ( nodeCount )
   {
-    v10 = &queryFormat;
-    v11 = v6;
-    v12 = nodeCount;
-    __asm { vmovaps [rsp+108h+var_58], xmm6 }
-    v46 = v6;
-    v47 = v6->nodeCount;
+    v9 = &queryFormat;
+    v10 = v5;
+    v11 = nodeCount;
+    v40 = v5;
+    v41 = v5->nodeCount;
     do
     {
-      v13 = v11->nodes[0];
-      v14 = 0;
-      smodelIndexCount = v11->nodes[0]->smodelIndexCount;
-      if ( v11->nodes[0]->smodelIndexCount )
+      v12 = v10->nodes[0];
+      v13 = 0;
+      smodelIndexCount = v10->nodes[0]->smodelIndexCount;
+      if ( v10->nodes[0]->smodelIndexCount )
       {
-        _R15 = &v6->sphere;
-        v17 = 0i64;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v = v5->sphere.origin.v;
+        v16 = 0i64;
         while ( 1 )
         {
-          v18 = v13->smodelIndexes[v17];
-          if ( !&collectionBounds[v18] )
+          v17 = v12->smodelIndexes[v16];
+          v18 = collectionBounds[v17].midPoint.v;
+          if ( !v18 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
               __debugbreak();
-            v10 = &queryFormat;
+            v9 = &queryFormat;
           }
-          if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
+          if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
             __debugbreak();
-          __asm { vmovss  xmm0, dword ptr [r15] }
-          HIDWORD(v52) = 0;
+          v46.m128_i32[3] = 0;
+          v20 = v46;
+          v20.m128_f32[0] = *v;
+          _XMM5 = v20;
           __asm
           {
-            vmovups xmm5, xmmword ptr [rsp+70h]
-            vmovss  xmm5, xmm5, xmm0
-            vmovss  xmm0, dword ptr [r14]
             vinsertps xmm5, xmm5, dword ptr [r15+4], 10h
             vinsertps xmm5, xmm5, dword ptr [r15+8], 20h ; ' '
           }
-          HIDWORD(v53) = 0;
+          v47.m128_i32[3] = 0;
+          v24 = v47;
+          v24.m128_f32[0] = *v18;
+          _XMM4 = v24;
           __asm
           {
-            vmovups xmm4, xmmword ptr [rsp+80h]
-            vmovss  xmm4, xmm4, xmm0
-            vmovss  xmm0, dword ptr [r14+0Ch]
             vinsertps xmm4, xmm4, dword ptr [r14+4], 10h
             vinsertps xmm4, xmm4, dword ptr [r14+8], 20h ; ' '
           }
-          HIDWORD(v54) = 0;
+          v48.m128_i32[3] = 0;
+          v28 = v48;
+          v28.m128_f32[0] = v18[3];
+          _XMM3 = v28;
+          _XMM0 = g_negativeZero.v;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rsp+90h]
-            vmovss  xmm3, xmm3, xmm0
-            vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
             vinsertps xmm3, xmm3, dword ptr [r14+10h], 10h
             vinsertps xmm3, xmm3, dword ptr [r14+14h], 20h ; ' '
-            vsubps  xmm1, xmm5, xmm4
-            vandnps xmm2, xmm0, xmm1
-            vsubps  xmm1, xmm2, xmm3
-            vmaxps  xmm0, xmm1, xmm6
-            vmulps  xmm2, xmm0, xmm0
+          }
+          _mm128_sub_ps(_XMM5, _XMM4);
+          __asm { vandnps xmm2, xmm0, xmm1 }
+          _XMM1 = _mm128_sub_ps(_XMM2, _XMM3);
+          __asm { vmaxps  xmm0, xmm1, xmm6 }
+          _XMM2 = _mm128_mul_ps(_XMM0, _XMM0);
+          __asm
+          {
             vhaddps xmm1, xmm2, xmm2
             vhaddps xmm0, xmm1, xmm1
-            vcomiss xmm0, dword ptr [r15+10h]
-            vmovups xmmword ptr [rsp+70h], xmm5
-            vmovups xmmword ptr [rsp+80h], xmm4
-            vmovups xmmword ptr [rsp+90h], xmm3
           }
-          if ( ((unsigned int (__fastcall *)(_QWORD, void *, __int64, const ObfuscateErrorText *))allowSModel)((unsigned int)v18, callbackContext, v12, v10) )
+          v46 = _XMM5;
+          v47 = _XMM4;
+          v48 = _XMM3;
+          if ( *(float *)&_XMM0 <= v[4] && ((unsigned int (__fastcall *)(_QWORD, void *, __int64, const ObfuscateErrorText *))allowSModel)((unsigned int)v17, callbackContext, v11, v9) )
           {
-            if ( (_DWORD)v7 == smodelListSize )
+            if ( (_DWORD)v6 == smodelListSize )
               break;
-            smodelList[v7] = v18;
-            v7 = (unsigned int)(v7 + 1);
+            smodelList[v6] = v17;
+            v6 = (unsigned int)(v6 + 1);
           }
-          ++v14;
-          ++v17;
-          if ( v14 >= smodelIndexCount )
+          ++v13;
+          ++v16;
+          if ( v13 >= smodelIndexCount )
             break;
-          collectionBounds = v45;
-          v10 = &queryFormat;
+          collectionBounds = v39;
+          v9 = &queryFormat;
         }
-        collectionBounds = v45;
-        v10 = &queryFormat;
-        v11 = v46;
-        v12 = v47;
-        v6 = collInfo;
+        collectionBounds = v39;
+        v9 = &queryFormat;
+        v10 = v40;
+        v11 = v41;
+        v5 = collInfo;
       }
-      v11 = (const R_CollInfo *)((char *)v11 + 8);
-      --v12;
-      v46 = v11;
-      v47 = v12;
+      v10 = (const R_CollInfo *)((char *)v10 + 8);
+      --v11;
+      v40 = v10;
+      v41 = v11;
     }
-    while ( v12 );
-    __asm { vmovaps xmm6, [rsp+108h+var_58] }
+    while ( v11 );
   }
   Sys_ProfEndNamedEvent();
   Profile_EndInternal(NULL);
-  return (unsigned int)v7;
+  return (unsigned int)v6;
 }
 
 /*
@@ -449,143 +401,150 @@ R_SphereSurfaces
 */
 __int64 R_SphereSurfaces(const R_CollInfo *collInfo, int (*const *allowSurf)(int, void *), void *callbackContext, GfxSurface ***surfLists, unsigned int surfListSize, unsigned int *surfCounts, unsigned int listCount)
 {
-  const R_CollInfo *v8; 
+  const R_CollInfo *v7; 
   unsigned int *sortedSurfIndex; 
   GfxSurfaceBounds *surfaceBounds; 
-  unsigned int v11; 
-  const R_CollInfo *v12; 
-  const GfxAabbTree *v13; 
-  unsigned int v14; 
-  __int64 v16; 
-  __int64 v41; 
-  unsigned __int8 v42; 
-  __int64 result; 
-  unsigned int v45; 
-  const R_CollInfo *v46; 
-  const GfxAabbTree *v47; 
-  unsigned int v48; 
-  __int64 v49; 
-  __int64 v75; 
-  __int64 v76; 
-  GfxSurface ***v77; 
-  unsigned int v78; 
-  unsigned int v79; 
-  unsigned int v80; 
+  unsigned int v10; 
+  const R_CollInfo *v11; 
+  const GfxAabbTree *v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  float *v; 
+  __m128 v17; 
+  __m128 v21; 
+  __m128 v25; 
+  __int64 v35; 
+  unsigned __int8 v36; 
+  unsigned int v38; 
+  const R_CollInfo *v39; 
+  const GfxAabbTree *v40; 
+  unsigned int v41; 
+  __int64 v42; 
+  float *v43; 
+  float *v44; 
+  __m128 v46; 
+  __m128 v50; 
+  __m128 v54; 
+  __int64 v64; 
+  __int64 v65; 
+  GfxSurface ***v66; 
+  unsigned int v67; 
+  unsigned int v68; 
+  unsigned int v69; 
   unsigned int surfaceCount; 
-  unsigned int v82; 
+  unsigned int v71; 
   unsigned int nodeCount; 
-  unsigned int v84; 
-  const R_CollInfo *v85; 
+  unsigned int v73; 
+  const R_CollInfo *v74; 
   Sphere *p_sphere; 
-  unsigned int *v87; 
-  GfxSurfaceBounds *v88; 
-  const GfxAabbTree *v89; 
-  const R_CollInfo *v90; 
+  unsigned int *v76; 
+  GfxSurfaceBounds *v77; 
+  const GfxAabbTree *v78; 
+  const R_CollInfo *v79; 
   GfxSurface *surfaces; 
-  __int128 v96; 
-  __int128 v97; 
-  __int128 v98; 
-  const GfxAabbTree *v99; 
-  __int128 v100; 
+  __m128 v85; 
+  __m128 v86; 
+  __m128 v87; 
+  const GfxAabbTree *v88; 
+  __m128 v89; 
 
-  __asm { vmovaps [rsp+130h+var_50], xmm6 }
-  v8 = collInfo;
+  v7 = collInfo;
   Profile_Begin(235);
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "R_SphereSurfaces");
   sortedSurfIndex = rgp.world->dpvs.sortedSurfIndex;
-  v87 = sortedSurfIndex;
+  v76 = sortedSurfIndex;
   surfaces = rgp.world->surfaces.surfaces;
   surfaceBounds = rgp.world->surfaces.surfaceBounds;
-  v88 = surfaceBounds;
+  v77 = surfaceBounds;
   *surfCounts = 0;
   if ( listCount == 1 )
   {
-    nodeCount = v8->nodeCount;
-    v11 = 0;
-    v79 = 0;
+    nodeCount = v7->nodeCount;
+    v10 = 0;
+    v68 = 0;
     if ( nodeCount )
     {
-      v12 = v8;
-      v85 = v8;
+      v11 = v7;
+      v74 = v7;
       do
       {
-        v13 = v12->nodes[0];
-        v89 = v13;
-        surfaceCount = v13->surfaceCount;
-        v14 = 0;
+        v12 = v11->nodes[0];
+        v78 = v12;
+        surfaceCount = v12->surfaceCount;
+        v13 = 0;
         if ( surfaceCount )
         {
-          _R13 = &v8->sphere;
-          __asm { vxorps  xmm6, xmm6, xmm6 }
           do
           {
-            v16 = sortedSurfIndex[v14 + v13->startSurfIndex];
-            _R15 = &surfaceBounds[v16];
-            if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
+            v14 = sortedSurfIndex[v13 + v12->startSurfIndex];
+            v = surfaceBounds[v14].bounds.midPoint.v;
+            if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
               __debugbreak();
-            if ( v8 == (const R_CollInfo *)-16388i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
+            if ( v7 == (const R_CollInfo *)-16388i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
               __debugbreak();
-            __asm { vmovss  xmm0, dword ptr [r13+0] }
-            HIDWORD(v98) = 0;
+            v87.m128_i32[3] = 0;
+            v17 = v87;
+            v17.m128_f32[0] = v7->sphere.origin.v[0];
+            _XMM5 = v17;
             __asm
             {
-              vmovups xmm5, xmmword ptr [rbp-41h]
-              vmovss  xmm5, xmm5, xmm0
               vinsertps xmm5, xmm5, dword ptr [r13+4], 10h
               vinsertps xmm5, xmm5, dword ptr [r13+8], 20h ; ' '
-              vmovups xmmword ptr [rbp-41h], xmm5
-              vmovss  xmm0, dword ptr [r15]
             }
-            HIDWORD(v96) = 0;
+            v87 = _XMM5;
+            v85.m128_i32[3] = 0;
+            v21 = v85;
+            v21.m128_f32[0] = *v;
+            _XMM4 = v21;
             __asm
             {
-              vmovups xmm4, xmmword ptr [rbp-61h]
-              vmovss  xmm4, xmm4, xmm0
               vinsertps xmm4, xmm4, dword ptr [r15+4], 10h
               vinsertps xmm4, xmm4, dword ptr [r15+8], 20h ; ' '
-              vmovups xmmword ptr [rbp-61h], xmm4
-              vmovss  xmm0, dword ptr [r15+0Ch]
             }
-            HIDWORD(v97) = 0;
+            v85 = _XMM4;
+            v86.m128_i32[3] = 0;
+            v25 = v86;
+            v25.m128_f32[0] = v[3];
+            _XMM3 = v25;
             __asm
             {
-              vmovups xmm3, xmmword ptr [rbp-51h]
-              vmovss  xmm3, xmm3, xmm0
               vinsertps xmm3, xmm3, dword ptr [r15+10h], 10h
               vinsertps xmm3, xmm3, dword ptr [r15+14h], 20h ; ' '
-              vmovups xmmword ptr [rbp-51h], xmm3
-              vsubps  xmm1, xmm5, xmm4
-              vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-              vandnps xmm1, xmm0, xmm1
-              vsubps  xmm2, xmm1, xmm3
-              vmaxps  xmm0, xmm2, xmm6
-              vmulps  xmm1, xmm0, xmm0
+            }
+            v86 = _XMM3;
+            _mm128_sub_ps(_XMM5, _XMM4);
+            _XMM0 = g_negativeZero.v;
+            __asm { vandnps xmm1, xmm0, xmm1 }
+            _XMM2 = _mm128_sub_ps(_XMM1, _XMM3);
+            __asm { vmaxps  xmm0, xmm2, xmm6 }
+            _XMM1 = _mm128_mul_ps(_XMM0, _XMM0);
+            __asm
+            {
               vhaddps xmm2, xmm1, xmm1
               vhaddps xmm0, xmm2, xmm2
-              vcomiss xmm0, dword ptr [r13+10h]
             }
-            if ( (*allowSurf)(v16, callbackContext) )
+            if ( *(float *)&_XMM0 <= v7->sphere.radiusSq && (*allowSurf)(v14, callbackContext) )
             {
-              v41 = *surfCounts;
-              if ( (_DWORD)v41 == surfListSize )
-                goto LABEL_46;
-              (*surfLists)[v41] = &surfaces[v16];
+              v35 = *surfCounts;
+              if ( (_DWORD)v35 == surfListSize )
+                goto LABEL_47;
+              (*surfLists)[v35] = &surfaces[v14];
               ++*surfCounts;
             }
-            ++v14;
-            v13 = v89;
-            sortedSurfIndex = v87;
-            surfaceBounds = v88;
+            ++v13;
+            v12 = v78;
+            sortedSurfIndex = v76;
+            surfaceBounds = v77;
           }
-          while ( v14 < surfaceCount );
-          v11 = v79;
-          v8 = collInfo;
+          while ( v13 < surfaceCount );
+          v10 = v68;
+          v7 = collInfo;
         }
-        v79 = ++v11;
-        v12 = (const R_CollInfo *)&v85->nodes[1];
-        v85 = (const R_CollInfo *)((char *)v85 + 8);
+        v68 = ++v10;
+        v11 = (const R_CollInfo *)&v74->nodes[1];
+        v74 = (const R_CollInfo *)((char *)v74 + 8);
       }
-      while ( v11 < nodeCount );
+      while ( v10 < nodeCount );
     }
   }
   else
@@ -594,134 +553,136 @@ __int64 R_SphereSurfaces(const R_CollInfo *collInfo, int (*const *allowSurf)(int
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_collision.cpp", 135, ASSERT_TYPE_ASSERT, "(listCount == 2)", (const char *)&queryFormat, "listCount == 2") )
         __debugbreak();
-      surfaceBounds = v88;
-      sortedSurfIndex = v87;
+      surfaceBounds = v77;
+      sortedSurfIndex = v76;
     }
     surfCounts[1] = 0;
-    v82 = v8->nodeCount;
-    v45 = 0;
-    v80 = 0;
-    if ( v82 )
+    v71 = v7->nodeCount;
+    v38 = 0;
+    v69 = 0;
+    if ( v71 )
     {
-      v46 = v8;
-      v90 = v8;
+      v39 = v7;
+      v79 = v7;
       while ( 1 )
       {
-        v47 = v46->nodes[0];
-        v99 = v46->nodes[0];
-        v84 = v46->nodes[0]->surfaceCount;
-        v48 = 0;
-        if ( v84 )
+        v40 = v39->nodes[0];
+        v88 = v39->nodes[0];
+        v73 = v39->nodes[0]->surfaceCount;
+        v41 = 0;
+        if ( v73 )
         {
-          p_sphere = &v8->sphere;
-          __asm { vxorps  xmm6, xmm6, xmm6 }
+          p_sphere = &v7->sphere;
           while ( 1 )
           {
-            v49 = sortedSurfIndex[v48 + v47->startSurfIndex];
-            _R15 = &surfaceBounds[v49];
-            if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
+            v42 = sortedSurfIndex[v41 + v40->startSurfIndex];
+            v43 = surfaceBounds[v42].bounds.midPoint.v;
+            if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
               __debugbreak();
-            _RAX = p_sphere;
+            v44 = (float *)p_sphere;
             if ( !p_sphere )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
                 __debugbreak();
-              _RAX = NULL;
+              v44 = NULL;
             }
-            __asm { vmovss  xmm0, dword ptr [rax] }
-            HIDWORD(v97) = 0;
+            v86.m128_i32[3] = 0;
+            v46 = v86;
+            v46.m128_f32[0] = *v44;
+            _XMM5 = v46;
             __asm
             {
-              vmovups xmm5, xmmword ptr [rbp-51h]
-              vmovss  xmm5, xmm5, xmm0
               vinsertps xmm5, xmm5, dword ptr [rax+4], 10h
               vinsertps xmm5, xmm5, dword ptr [rax+8], 20h ; ' '
-              vmovups xmmword ptr [rbp-51h], xmm5
-              vmovss  xmm0, dword ptr [r15]
             }
-            HIDWORD(v96) = 0;
+            v86 = _XMM5;
+            v85.m128_i32[3] = 0;
+            v50 = v85;
+            v50.m128_f32[0] = *v43;
+            _XMM4 = v50;
             __asm
             {
-              vmovups xmm4, xmmword ptr [rbp-61h]
-              vmovss  xmm4, xmm4, xmm0
               vinsertps xmm4, xmm4, dword ptr [r15+4], 10h
               vinsertps xmm4, xmm4, dword ptr [r15+8], 20h ; ' '
-              vmovups xmmword ptr [rbp-61h], xmm4
-              vmovss  xmm0, dword ptr [r15+0Ch]
             }
-            HIDWORD(v100) = 0;
+            v85 = _XMM4;
+            v89.m128_i32[3] = 0;
+            v54 = v89;
+            v54.m128_f32[0] = v43[3];
+            _XMM3 = v54;
             __asm
             {
-              vmovups xmm3, xmmword ptr [rbp-31h]
-              vmovss  xmm3, xmm3, xmm0
               vinsertps xmm3, xmm3, dword ptr [r15+10h], 10h
               vinsertps xmm3, xmm3, dword ptr [r15+14h], 20h ; ' '
-              vmovups xmmword ptr [rbp-31h], xmm3
-              vsubps  xmm1, xmm5, xmm4
-              vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-              vandnps xmm1, xmm0, xmm1
-              vsubps  xmm2, xmm1, xmm3
-              vmaxps  xmm0, xmm2, xmm6
-              vmulps  xmm1, xmm0, xmm0
+            }
+            v89 = _XMM3;
+            _mm128_sub_ps(_XMM5, _XMM4);
+            _XMM0 = g_negativeZero.v;
+            __asm { vandnps xmm1, xmm0, xmm1 }
+            _XMM2 = _mm128_sub_ps(_XMM1, _XMM3);
+            __asm { vmaxps  xmm0, xmm2, xmm6 }
+            _XMM1 = _mm128_mul_ps(_XMM0, _XMM0);
+            __asm
+            {
               vhaddps xmm2, xmm1, xmm1
               vhaddps xmm0, xmm2, xmm2
-              vcomiss xmm0, dword ptr [rax+10h]
             }
-            if ( (*allowSurf)(v49, callbackContext) )
+            if ( *(float *)&_XMM0 <= v44[4] )
             {
-              v75 = *surfCounts;
-              if ( (_DWORD)v75 == surfListSize )
-                goto LABEL_46;
-              v76 = v49;
-              v77 = surfLists;
-              (*surfLists)[v75] = &surfaces[v49];
-              ++*surfCounts;
-            }
-            else
-            {
-              v76 = v49;
-              v77 = surfLists;
-            }
-            if ( allowSurf[1](v49, callbackContext) )
-            {
-              v78 = surfCounts[1];
-              if ( v78 == surfListSize )
+              if ( (*allowSurf)(v42, callbackContext) )
               {
-LABEL_46:
-                v42 = 1;
-                goto LABEL_19;
+                v64 = *surfCounts;
+                if ( (_DWORD)v64 == surfListSize )
+                  goto LABEL_47;
+                v65 = v42;
+                v66 = surfLists;
+                (*surfLists)[v64] = &surfaces[v42];
+                ++*surfCounts;
               }
-              v77[1][v78] = &surfaces[v76];
-              ++surfCounts[1];
+              else
+              {
+                v65 = v42;
+                v66 = surfLists;
+              }
+              if ( allowSurf[1](v42, callbackContext) )
+              {
+                v67 = surfCounts[1];
+                if ( v67 == surfListSize )
+                {
+LABEL_47:
+                  v36 = 1;
+                  goto LABEL_19;
+                }
+                v66[1][v67] = &surfaces[v65];
+                ++surfCounts[1];
+              }
             }
-            ++v48;
-            v47 = v99;
-            sortedSurfIndex = v87;
-            surfaceBounds = v88;
-            if ( v48 >= v84 )
+            ++v41;
+            v40 = v88;
+            sortedSurfIndex = v76;
+            surfaceBounds = v77;
+            if ( v41 >= v73 )
             {
-              v45 = v80;
-              v8 = collInfo;
+              v38 = v69;
+              v7 = collInfo;
               break;
             }
           }
         }
-        v80 = ++v45;
-        v46 = (const R_CollInfo *)&v90->nodes[1];
-        v90 = (const R_CollInfo *)((char *)v90 + 8);
-        if ( v45 >= v82 )
+        v69 = ++v38;
+        v39 = (const R_CollInfo *)&v79->nodes[1];
+        v79 = (const R_CollInfo *)((char *)v79 + 8);
+        if ( v38 >= v71 )
           break;
-        sortedSurfIndex = v87;
-        surfaceBounds = v88;
+        sortedSurfIndex = v76;
+        surfaceBounds = v77;
       }
     }
   }
-  v42 = 0;
+  v36 = 0;
 LABEL_19:
   Sys_ProfEndNamedEvent();
   Profile_EndInternal(NULL);
-  result = v42;
-  __asm { vmovaps xmm6, [rsp+130h+var_50] }
-  return result;
+  return v36;
 }
 

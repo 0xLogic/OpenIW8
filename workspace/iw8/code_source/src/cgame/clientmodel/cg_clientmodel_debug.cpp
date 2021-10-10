@@ -38,61 +38,47 @@ CG_ClientModel_DebugDraw
 */
 void CG_ClientModel_DebugDraw(const ScreenPlacement *scrPlace)
 {
-  const dvar_t *v2; 
+  const dvar_t *v1; 
+  float integer; 
+  const dvar_t *v4; 
+  float v5; 
   const dvar_t *v6; 
-  const dvar_t *v10; 
-  const dvar_t *v12; 
-  signed int integer; 
-  const dvar_t *v14; 
+  const dvar_t *v7; 
+  signed int v8; 
+  const dvar_t *v9; 
   float y; 
   float x; 
 
-  v2 = DVARINT_cg_ClientModel_Debug_DisplayOffsetX;
+  v1 = DVARINT_cg_ClientModel_Debug_DisplayOffsetX;
   if ( !DVARINT_cg_ClientModel_Debug_DisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_DisplayOffsetX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-  }
-  v6 = DVARINT_cg_ClientModel_Debug_DisplayOffsetY;
-  __asm
-  {
-    vaddss  xmm0, xmm0, cs:__real@41000000
-    vmovss  [rsp+58h+x], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v1);
+  integer = (float)v1->current.integer;
+  v4 = DVARINT_cg_ClientModel_Debug_DisplayOffsetY;
+  x = integer + 8.0;
   if ( !DVARINT_cg_ClientModel_Debug_DisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_DisplayOffsetY") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-  }
-  v10 = DVARBOOL_cg_ClientModel_Debug_ShowModels;
-  __asm
-  {
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  [rsp+58h+y], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  v5 = (float)v4->current.integer;
+  v6 = DVARBOOL_cg_ClientModel_Debug_ShowModels;
+  y = v5 + 8.0;
   if ( !DVARBOOL_cg_ClientModel_Debug_ShowModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_ShowModels") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
     CG_ClientModel_Debug_ShowModels(scrPlace, &x, &y);
-  v12 = DVARINT_cg_ClientModel_Debug_ShowModelDetails;
+  v7 = DVARINT_cg_ClientModel_Debug_ShowModelDetails;
   if ( !DVARINT_cg_ClientModel_Debug_ShowModelDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_ShowModelDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  integer = v12->current.integer;
-  if ( integer >= 0 )
-    CG_ClientModel_Debug_ShowModelDetails(scrPlace, &x, &y, integer);
-  v14 = DVARBOOL_cg_ClientModel_Debug_Dump;
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.integer;
+  if ( v8 >= 0 )
+    CG_ClientModel_Debug_ShowModelDetails(scrPlace, &x, &y, v8);
+  v9 = DVARBOOL_cg_ClientModel_Debug_Dump;
   if ( !DVARBOOL_cg_ClientModel_Debug_Dump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_Dump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
     Dvar_SetBool_Internal(DVARBOOL_cg_ClientModel_Debug_Dump, 0);
 }
 
@@ -102,66 +88,41 @@ CG_ClientModel_DebugDrawString
 ==============
 */
 
-void __fastcall CG_ClientModel_DebugDrawString(const ScreenPlacement *scrPlace, double x, double y, const char *string)
+void __fastcall CG_ClientModel_DebugDrawString(const ScreenPlacement *scrPlace, double x, float y, const char *string, const vec4_t *setColor)
 {
-  const dvar_t *v12; 
-  const dvar_t *v13; 
-  char v17; 
-  char v18; 
+  __int128 v6; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  float v9; 
+  __int128 v10; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovss  xmm7, cs:__real@41000000
-    vmovaps xmm6, xmm1
-    vcomiss xmm2, cs:__real@44870000
-  }
-  v12 = DVARBOOL_cg_ClientModel_Debug_Dump;
+  v6 = *(_OWORD *)&x;
+  if ( y > 0.0 && y < 1080.0 )
+    CG_DrawStringExt(scrPlace, *(float *)&x, y, string, setColor, 0, 1, 8.0, 0);
+  v7 = DVARBOOL_cg_ClientModel_Debug_Dump;
   if ( !DVARBOOL_cg_ClientModel_Debug_Dump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_Dump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    v13 = DVARINT_cg_ClientModel_Debug_DisplayOffsetX;
+    v8 = DVARINT_cg_ClientModel_Debug_DisplayOffsetX;
     if ( !DVARINT_cg_ClientModel_Debug_DisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ClientModel_Debug_DisplayOffsetX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    __asm
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = (float)v8->current.integer + 8.0;
+    if ( *(float *)&x > v9 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vaddss  xmm7, xmm0, xmm7
-      vcomiss xmm6, xmm7
-    }
-    if ( !(v17 | v18) )
-    {
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm8
-        vmovss  xmm8, cs:__real@c1400000
-      }
       do
       {
         Com_Printf(14, " ");
-        __asm
-        {
-          vaddss  xmm6, xmm6, xmm8
-          vcomiss xmm6, xmm7
-        }
+        v10 = v6;
+        *(float *)&v10 = *(float *)&v6 + -12.0;
+        v6 = v10;
       }
-      while ( !(v17 | v18) );
-      __asm { vmovaps xmm8, [rsp+88h+var_38] }
+      while ( *(float *)&v10 > v9 );
     }
     Com_Printf(14, (const char *)&queryFormat, string);
     Com_Printf(14, "\n");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
   }
 }
 
@@ -205,58 +166,46 @@ CG_ClientModel_Debug_ShowModelDetails
 void CG_ClientModel_Debug_ShowModelDetails(const ScreenPlacement *scrPlace, float *x, float *y, unsigned int clientModelIdx)
 {
   unsigned int Count; 
-  unsigned int v12; 
-  const char *v13; 
+  unsigned int v9; 
+  const char *v10; 
   const XModel *Model; 
   scr_string_t Name; 
   const cpose_t *Pose; 
+  const char *v14; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
+  const char *v20; 
   const char *v21; 
   const char *v22; 
-  const char *v23; 
+  const vec4_t *v23; 
+  unsigned int v24; 
+  const char *v25; 
   const char *v26; 
   const char *v27; 
   const char *v28; 
   const char *v29; 
-  const char *v30; 
-  const char *v33; 
-  const vec4_t *v34; 
-  unsigned int v35; 
-  const char *v41; 
-  const char *v61; 
-  const char *v65; 
-  const char *v66; 
-  const char *v67; 
   const char **p_name; 
-  const char *v78; 
-  const char *v79; 
+  const char *v31; 
+  const char *v32; 
   scr_string_t numClothAssets; 
-  const char *v84; 
-  __int64 v90; 
-  const char **v91; 
-  const char *v92; 
-  vec4_t *setColor; 
-  __int64 duration; 
-  __int64 v104; 
+  const char *v34; 
+  float v35; 
+  __int64 v36; 
+  const char **v37; 
+  const char *v38; 
   scr_string_t AnimationTreeName; 
-  scr_string_t v106; 
-  const cpose_t *v107; 
+  scr_string_t v40; 
+  float *p_eType; 
   unsigned int *instanceIds[2]; 
   vec3_t outOrigin; 
-  char v111; 
-  void *retaddr; 
   unsigned int instanceCount; 
 
-  _RAX = &retaddr;
   instanceIds[1] = (unsigned int *)-2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RBX = y;
-  _R14 = x;
   Count = CG_ClientModel_GetCount(LOCAL_CLIENT_0);
-  v12 = Count;
+  v9 = Count;
   if ( clientModelIdx < Count )
   {
     Model = CG_ClientModel_GetModel(LOCAL_CLIENT_0, clientModelIdx, 0);
@@ -264,7 +213,7 @@ void CG_ClientModel_Debug_ShowModelDetails(const ScreenPlacement *scrPlace, floa
     AnimationTreeName = CG_ClientModel_GetAnimationTreeName(LOCAL_CLIENT_0, clientModelIdx);
     instanceIds[0] = (unsigned int *)CG_ClientModel_GetAnimation(LOCAL_CLIENT_0, clientModelIdx);
     Pose = CG_ClientModel_GetPose(LOCAL_CLIENT_0, clientModelIdx);
-    v107 = Pose;
+    p_eType = (float *)&Pose->eType;
     if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel_debug.cpp", 154, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
       __debugbreak();
     LOBYTE(instanceCount) = CG_ClientModel_IsLoaded(LOCAL_CLIENT_0, clientModelIdx);
@@ -272,165 +221,71 @@ void CG_ClientModel_Debug_ShowModelDetails(const ScreenPlacement *scrPlace, floa
     if ( Name )
     {
       if ( Model )
-        v21 = Model->name;
+        v14 = Model->name;
       else
-        v21 = "Unknown";
-      v22 = SL_ConvertToString(Name);
-      v23 = j_va("ClientModel %i/%i - '%s' using %s", clientModelIdx, v12, v22, v21);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite);
-      v26 = "UNKNOWN";
+        v14 = "Unknown";
+      v15 = SL_ConvertToString(Name);
+      v16 = j_va("ClientModel %i/%i - '%s' using %s", clientModelIdx, v9, v15, v14);
+      CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v16, &colorWhite);
+      v17 = "UNKNOWN";
       if ( Model )
-        v26 = Model->name;
-      v27 = SL_ConvertToString(Name);
-      v28 = j_va("%i(%i) - '%s' using %s", clientModelIdx, clientModelIdx + 2117, v27, v26);
+        v17 = Model->name;
+      v18 = SL_ConvertToString(Name);
+      v19 = j_va("%i(%i) - '%s' using %s", clientModelIdx, clientModelIdx + 2117, v18, v17);
     }
     else
     {
       if ( Model )
-        v29 = Model->name;
+        v20 = Model->name;
       else
-        v29 = "Unknown";
-      v30 = j_va("ClientModel %i/%i - using %s", clientModelIdx, v12, v29);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v30, &colorWhite);
-      v33 = "UNKNOWN";
+        v20 = "Unknown";
+      v21 = j_va("ClientModel %i/%i - using %s", clientModelIdx, v9, v20);
+      CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v21, &colorWhite);
+      v22 = "UNKNOWN";
       if ( Model )
-        v33 = Model->name;
-      v28 = j_va("%i(%i) - using %s", clientModelIdx, clientModelIdx + 2117, v33);
+        v22 = Model->name;
+      v19 = j_va("%i(%i) - using %s", clientModelIdx, clientModelIdx + 2117, v22);
     }
-    v34 = &colorRed;
+    v23 = &colorRed;
     if ( (_BYTE)instanceCount )
-      v34 = &colorWhite;
-    v35 = 0;
-    __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-    CL_AddDebugString(&outOrigin, v34, *(float *)&_XMM2, v28, 0, 0);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@41000000
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm7, cs:__real@41400000
-      vaddss  xmm0, xmm7, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm0
-    }
-    v41 = j_va("Entity Num %i", clientModelIdx + 2117);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r14]; x
-    }
-    CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v41, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
-    _RAX = v107;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rax+50h]
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovss  xmm5, dword ptr [rax+4Ch]
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovss  xmm0, dword ptr [rax+48h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsp+0B8h+outOrigin+8]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsp+0B8h+outOrigin+4]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovss  xmm1, dword ptr [rsp+0B8h+outOrigin]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+0B8h+var_88], xmm4
-      vmovsd  qword ptr [rsp+0B8h+duration], xmm5
-      vmovsd  [rsp+0B8h+setColor], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-    }
-    v61 = j_va("Origin(%.2f,%.2f,%.2f) Angles(%.2f,%.2f,%.2f)", _RDX, _R8, _R9, setColor, duration, v104);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r14]; x
-    }
-    CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v61, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
+      v23 = &colorWhite;
+    v24 = 0;
+    CL_AddDebugString(&outOrigin, v23, 1.0, v19, 0, 0);
+    *y = *y + 8.0;
+    *x = *x + 12.0;
+    v25 = j_va("Entity Num %i", clientModelIdx + 2117);
+    CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v25, &colorWhite);
+    *y = *y + 8.0;
+    v26 = j_va("Origin(%.2f,%.2f,%.2f) Angles(%.2f,%.2f,%.2f)", outOrigin.v[0], outOrigin.v[1], outOrigin.v[2], p_eType[18], p_eType[19], p_eType[20]);
+    CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v26, &colorWhite);
+    *y = *y + 8.0;
     if ( instanceIds[0] )
     {
-      v65 = *(const char **)instanceIds[0];
-      v66 = SL_ConvertToString(AnimationTreeName);
-      v67 = j_va("AnimTree:%s Animation:%s", v66, v65);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v67, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      v27 = *(const char **)instanceIds[0];
+      v28 = SL_ConvertToString(AnimationTreeName);
+      v29 = j_va("AnimTree:%s Animation:%s", v28, v27);
+      CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v29, &colorWhite);
+      *y = *y + 8.0;
     }
     if ( CG_ClientModel_NoPhysics(LOCAL_CLIENT_0, clientModelIdx) )
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Flagged to not spawn Physics", &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      CG_ClientModel_DebugDrawString(scrPlace, *x, *y, "Flagged to not spawn Physics", &colorWhite);
+      *y = *y + 8.0;
     }
     if ( CG_ClientModel_NoCloth(LOCAL_CLIENT_0, clientModelIdx) )
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Flagged to not spawn Cloth", &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+      CG_ClientModel_DebugDrawString(scrPlace, *x, *y, "Flagged to not spawn Cloth", &colorWhite);
+      *y = *y + 8.0;
     }
     if ( CG_ClientModel_Physics_GetInstanceId(LOCAL_CLIENT_0, clientModelIdx) != -1 )
     {
       if ( Model && (p_name = &Model->physicsAsset->name) != NULL )
-        v78 = *p_name;
+        v31 = *p_name;
       else
-        v78 = "UNKNOWN";
-      v79 = j_va("Physics setup using asset %s", v78);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v79, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
+        v31 = "UNKNOWN";
+      v32 = j_va("Physics setup using asset %s", v31);
+      CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v32, &colorWhite);
+      *y = *y + 8.0;
     }
     if ( CG_ClientModel_IsLoaded(LOCAL_CLIENT_0, clientModelIdx) )
     {
@@ -440,86 +295,42 @@ void CG_ClientModel_Debug_ShowModelDetails(const ScreenPlacement *scrPlace, floa
       if ( instanceCount )
       {
         numClothAssets = Model->numClothAssets;
-        v106 = numClothAssets;
+        v40 = numClothAssets;
         if ( instanceCount != numClothAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel_debug.cpp", 220, ASSERT_TYPE_ASSERT, "(clothInstanceCount == numClothAssets)", (const char *)&queryFormat, "clothInstanceCount == numClothAssets") )
           __debugbreak();
-        v84 = j_va("Cloth setup using %i assets", (unsigned int)numClothAssets);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx]; y
-          vmovss  xmm1, dword ptr [r14]; x
-        }
-        CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v84, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rbx]
-          vmovss  dword ptr [rbx], xmm1
-          vmovss  xmm2, dword ptr [r14]
-          vaddss  xmm0, xmm2, xmm7
-          vmovss  dword ptr [r14], xmm0
-        }
+        v34 = j_va("Cloth setup using %i assets", (unsigned int)numClothAssets);
+        CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v34, &colorWhite);
+        *y = *y + 8.0;
+        v35 = *x + 12.0;
+        *x = v35;
         if ( numClothAssets )
         {
-          v90 = 0i64;
+          v36 = 0i64;
           do
           {
-            v91 = &Model->clothAssets[v90]->name;
-            if ( !v91 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel_debug.cpp", 229, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+            v37 = &Model->clothAssets[v36]->name;
+            if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel_debug.cpp", 229, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
               __debugbreak();
-            v92 = j_va("Cloth asset %i: %s", v35, *v91);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbx]; y
-              vmovss  xmm1, dword ptr [r14]; x
-            }
-            CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v92, &colorWhite);
-            __asm
-            {
-              vaddss  xmm1, xmm6, dword ptr [rbx]
-              vmovss  dword ptr [rbx], xmm1
-            }
-            ++v35;
-            ++v90;
+            v38 = j_va("Cloth asset %i: %s", v24, *v37);
+            CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v38, &colorWhite);
+            *y = *y + 8.0;
+            ++v24;
+            ++v36;
           }
-          while ( v35 < v106 );
-          __asm { vmovss  xmm0, dword ptr [r14] }
+          while ( v24 < v40 );
+          v35 = *x;
         }
-        __asm
-        {
-          vsubss  xmm0, xmm0, xmm7
-          vmovss  dword ptr [r14], xmm0
-        }
+        *x = v35 - 12.0;
       }
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [r14], xmm1
-    }
+    *x = *x - 12.0;
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
   else
   {
-    v13 = j_va("ClientModel %i/%i - Out of range", clientModelIdx, Count);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r14]; x
-    }
-    CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rbx], xmm1
-    }
-  }
-  _R11 = &v111;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
+    v10 = j_va("ClientModel %i/%i - Out of range", clientModelIdx, Count);
+    CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v10, &colorWhite);
+    *y = *y + 8.0;
   }
 }
 
@@ -531,75 +342,51 @@ CG_ClientModel_Debug_ShowModels
 void CG_ClientModel_Debug_ShowModels(const ScreenPlacement *scrPlace, float *x, float *y)
 {
   unsigned int Count; 
-  const char *v11; 
-  unsigned int v18; 
+  const char *v7; 
+  float v8; 
+  unsigned int v9; 
   const XModel *Model; 
   scr_string_t Name; 
   cpose_t *Pose; 
   bool IsLoaded; 
-  bool v25; 
+  bool v14; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v19; 
   const vec4_t *setColor; 
-  const char *v40; 
-  const char *v41; 
-  const char *v42; 
-  const char *v45; 
-  const char *v46; 
-  const char *v47; 
-  const char *v49; 
-  const char *v50; 
-  const char *v53; 
-  const char *v54; 
-  __int64 v61; 
+  const char *v30; 
+  const char *v31; 
+  const char *v32; 
+  const char *v33; 
+  const char *v34; 
+  const char *v35; 
+  const char *v36; 
+  const char *v37; 
+  const char *v38; 
+  const char *v39; 
+  __int64 v40; 
   vec3_t xyz; 
-  void *retaddr; 
-  unsigned int v68; 
+  unsigned int v43; 
 
-  _RAX = &retaddr;
-  v61 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  _R12 = y;
-  _R13 = x;
+  v40 = -2i64;
   Count = CG_ClientModel_GetCount(LOCAL_CLIENT_0);
-  v68 = Count;
-  v11 = j_va("ClientModels - %i entries found", Count);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r12]; y
-    vmovss  xmm1, dword ptr [r13+0]; x
-  }
-  CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v11, &colorWhite);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@41000000
-    vaddss  xmm0, xmm9, dword ptr [r12]
-    vmovss  dword ptr [r12], xmm0
-    vmovss  xmm1, dword ptr [r13+0]
-    vaddss  xmm0, xmm1, cs:__real@41c00000
-    vmovss  dword ptr [r13+0], xmm0
-  }
-  v18 = 0;
+  v43 = Count;
+  v7 = j_va("ClientModels - %i entries found", Count);
+  CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v7, &colorWhite);
+  *y = *y + 8.0;
+  v8 = *x + 24.0;
+  *x = v8;
+  v9 = 0;
   if ( Count )
   {
-    __asm
-    {
-      vmovsd  xmm6, cs:__real@3f30000000000000
-      vmovss  xmm7, cs:__real@3f800000
-    }
     do
     {
-      Model = CG_ClientModel_GetModel(LOCAL_CLIENT_0, v18, 0);
-      Name = CG_ClientModel_GetName(LOCAL_CLIENT_0, v18);
-      Pose = CG_ClientModel_GetPose(LOCAL_CLIENT_0, v18);
-      if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel_debug.cpp", 98, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose", v61) )
+      Model = CG_ClientModel_GetModel(LOCAL_CLIENT_0, v9, 0);
+      Name = CG_ClientModel_GetName(LOCAL_CLIENT_0, v9);
+      Pose = CG_ClientModel_GetPose(LOCAL_CLIENT_0, v9);
+      if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel_debug.cpp", 98, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose", v40) )
         __debugbreak();
-      IsLoaded = CG_ClientModel_IsLoaded(LOCAL_CLIENT_0, v18);
-      v25 = IsLoaded;
+      IsLoaded = CG_ClientModel_IsLoaded(LOCAL_CLIENT_0, v9);
+      v14 = IsLoaded;
       if ( Model || Name || IsLoaded )
       {
         if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
@@ -610,94 +397,74 @@ void CG_ClientModel_Debug_ShowModels(const ScreenPlacement *scrPlace, float *x, 
         FunctionPointer_origin(&Pose->origin.origin.origin, &xyz);
         if ( Pose->isPosePrecise )
         {
-          __asm
-          {
-            vmovd   xmm0, dword ptr [rsp+0B8h+xyz]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0B8h+xyz], xmm2
-            vmovd   xmm0, dword ptr [rsp+0B8h+xyz+4]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0B8h+xyz+4], xmm2
-            vmovd   xmm0, dword ptr [rsp+0B8h+xyz+8]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm2, xmm1, xmm1
-            vmovss  dword ptr [rsp+0B8h+xyz+8], xmm2
-          }
+          _XMM0 = LODWORD(xyz.v[0]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v19 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v19;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          xyz.v[0] = *(float *)&_XMM2;
+          _XMM0 = LODWORD(xyz.v[1]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v19 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v19;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          xyz.v[1] = *(float *)&_XMM2;
+          _XMM0 = LODWORD(xyz.v[2]);
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v19 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v19;
+          __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+          xyz.v[2] = *(float *)&_XMM2;
         }
         setColor = &colorRed;
         if ( Name )
         {
-          if ( v25 )
+          if ( v14 )
             setColor = &colorWhite;
           if ( Model )
-            v40 = Model->name;
+            v30 = Model->name;
           else
-            v40 = "UNKNOWN";
-          v41 = SL_ConvertToString(Name);
-          v42 = j_va("%i(entNum %i) - '%s' using %s", v18, v18 + 2117, v41, v40);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r12]; y
-            vmovss  xmm1, dword ptr [r13+0]; x
-          }
-          CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v42, setColor);
+            v30 = "UNKNOWN";
+          v31 = SL_ConvertToString(Name);
+          v32 = j_va("%i(entNum %i) - '%s' using %s", v9, v9 + 2117, v31, v30);
+          CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v32, setColor);
           if ( Model )
-            v45 = Model->name;
+            v33 = Model->name;
           else
-            v45 = "UNKNOWN";
-          v46 = SL_ConvertToString(Name);
-          v47 = j_va("%i(%i) - '%s' using %s", v18, v18 + 2117, v46, v45);
-          __asm { vmovaps xmm2, xmm7; scale }
-          CL_AddDebugString(&xyz, setColor, *(float *)&_XMM2, v47, 0, 0);
-          Count = v68;
+            v33 = "UNKNOWN";
+          v34 = SL_ConvertToString(Name);
+          v35 = j_va("%i(%i) - '%s' using %s", v9, v9 + 2117, v34, v33);
+          CL_AddDebugString(&xyz, setColor, 1.0, v35, 0, 0);
+          Count = v43;
         }
         else
         {
-          if ( v25 )
+          if ( v14 )
             setColor = &colorWhite;
           if ( Model )
-            v49 = Model->name;
+            v36 = Model->name;
           else
-            v49 = "UNKNOWN";
-          v50 = j_va("%i(entNum %i) - using %s", v18, v18 + 2117, v49);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r12]; y
-            vmovss  xmm1, dword ptr [r13+0]; x
-          }
-          CG_ClientModel_DebugDrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v50, setColor);
+            v36 = "UNKNOWN";
+          v37 = j_va("%i(entNum %i) - using %s", v9, v9 + 2117, v36);
+          CG_ClientModel_DebugDrawString(scrPlace, *x, *y, v37, setColor);
           if ( Model )
-            v53 = Model->name;
+            v38 = Model->name;
           else
-            v53 = "UNKNOWN";
-          v54 = j_va("%i(%i) - using %s", v18, v18 + 2117, v53);
-          __asm { vmovaps xmm2, xmm7; scale }
-          CL_AddDebugString(&xyz, setColor, *(float *)&_XMM2, v54, 0, 0);
+            v38 = "UNKNOWN";
+          v39 = j_va("%i(%i) - using %s", v9, v9 + 2117, v38);
+          CL_AddDebugString(&xyz, setColor, 1.0, v39, 0, 0);
         }
-        __asm
-        {
-          vaddss  xmm1, xmm9, dword ptr [r12]
-          vmovss  dword ptr [r12], xmm1
-        }
+        *y = *y + 8.0;
         memset(&xyz, 0, sizeof(xyz));
       }
-      ++v18;
+      ++v9;
     }
-    while ( v18 < Count );
-    __asm { vmovss  xmm0, dword ptr [r13+0] }
+    while ( v9 < Count );
+    v8 = *x;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@41c00000
-    vmovss  dword ptr [r13+0], xmm1
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-    vmovaps xmm9, [rsp+0B8h+var_68]
-  }
+  *x = v8 - 24.0;
 }
 

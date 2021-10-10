@@ -230,21 +230,7 @@ bdAddrHandle::setRealAddr
 */
 void bdAddrHandle::setRealAddr(bdAddrHandle *this, const bdAddr *realAddr)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+28h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+48h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+68h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+60h]
-    vmovups ymmword ptr [rcx+88h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [rcx+0A8h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+90h]
-    vmovsd  qword ptr [rcx+0B8h], xmm1
-  }
+  this->m_realAddr = *realAddr;
   this->m_status = BD_ADDR_RESOLVED;
 }
 

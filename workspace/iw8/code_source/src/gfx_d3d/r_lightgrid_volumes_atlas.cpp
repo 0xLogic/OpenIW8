@@ -1440,22 +1440,23 @@ __int64 __fastcall GfxLightGridVolumeAtlas::TextureAllocator::CreatePartialAlloc
   __int64 v12; 
   __int64 v13; 
   _DWORD *v14; 
+  signed __int64 v15; 
+  __int128 *v16; 
   __int64 v17; 
-  GfxLightGridVolumeAtlas::TextureAllocator *v32; 
-  __int64 v33; 
+  GfxLightGridVolumeAtlas::TextureAllocator *v31; 
+  __int64 v32; 
   __int64 m_numPartialAllocSlices; 
-  __int64 v43; 
+  __int64 v42; 
   __int64 result; 
-  __int128 v45; 
-  __int128 v46[2]; 
-  __int128 v47; 
+  __int128 v44; 
+  __int128 v45[2]; 
+  __int128 v46; 
 
   v4 = depthSlice;
   v5 = 512;
-  v45 = 0ui64;
-  _RBX = this;
-  memset(v46, 0, sizeof(v46));
-  v47 = 0ui64;
+  v44 = 0ui64;
+  memset(v45, 0, sizeof(v45));
+  v46 = 0ui64;
   if ( depthSlice >= 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 315, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", depthSlice, 512) )
     __debugbreak();
   if ( (unsigned int)(v4 + 4) < 0x200 )
@@ -1463,30 +1464,30 @@ __int64 __fastcall GfxLightGridVolumeAtlas::TextureAllocator::CreatePartialAlloc
   v7 = (unsigned int)v4 >> 5;
   v8 = 0xFFFFFFFF >> (v4 & 0x1F);
   v9 = (unsigned int)(v5 - 1) >> 5;
-  v10 = *((_DWORD *)&v46[-1] + v7);
+  v10 = *((_DWORD *)&v45[-1] + v7);
   v11 = -1 << (31 - ((v5 - 1) & 0x1F));
   if ( (_DWORD)v7 == (_DWORD)v9 )
   {
-    *((_DWORD *)&v46[-1] + v7) = v10 | v8 & v11;
+    *((_DWORD *)&v45[-1] + v7) = v10 | v8 & v11;
   }
   else
   {
     v12 = (unsigned int)(v7 + 1);
-    *((_DWORD *)&v46[-1] + v7) = v8 | v10;
+    *((_DWORD *)&v45[-1] + v7) = v8 | v10;
     if ( (unsigned int)v12 < (unsigned int)v9 )
     {
       v13 = (unsigned int)(v9 - v12);
-      v14 = (_DWORD *)&v46[-1] + v12;
+      v14 = (_DWORD *)&v45[-1] + v12;
       while ( v13 )
       {
         *v14++ = -1;
         --v13;
       }
     }
-    *((_DWORD *)&v46[-1] + v9) |= v11;
+    *((_DWORD *)&v45[-1] + v9) |= v11;
   }
-  _RCX = (char *)_RBX - (char *)v46;
-  _RAX = v46;
+  v15 = (char *)this - (char *)v45;
+  v16 = v45;
   v17 = 2i64;
   __asm
   {
@@ -1495,16 +1496,13 @@ __int64 __fastcall GfxLightGridVolumeAtlas::TextureAllocator::CreatePartialAlloc
   }
   do
   {
+    _XMM1 = *(__int128 *)((char *)v16 + v15);
+    __asm { vpand   xmm1, xmm1, xmmword ptr [rax-10h] }
+    v16 += 2;
+    __asm { vpor    xmm2, xmm1, xmm2 }
+    _XMM1 = *(__int128 *)((char *)v16 + v15 - 16);
     __asm
     {
-      vmovdqu xmm1, xmmword ptr [rcx+rax]
-      vpand   xmm1, xmm1, xmmword ptr [rax-10h]
-    }
-    _RAX += 2;
-    __asm
-    {
-      vpor    xmm2, xmm1, xmm2
-      vmovdqu xmm1, xmmword ptr [rcx+rax-10h]
       vpand   xmm1, xmm1, xmmword ptr [rax-20h]
       vpor    xmm3, xmm1, xmm3
     }
@@ -1518,51 +1516,47 @@ __int64 __fastcall GfxLightGridVolumeAtlas::TextureAllocator::CreatePartialAlloc
     vpor    xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpor    xmm0, xmm2, xmm0
-    vmovd   eax, xmm0
   }
-  if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1385, ASSERT_TYPE_ASSERT, "(!m_allocationUnits.testAnyBits( allocMask ))", (const char *)&queryFormat, "!m_allocationUnits.testAnyBits( allocMask )") )
+  if ( (_DWORD)_XMM0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1385, ASSERT_TYPE_ASSERT, "(!m_allocationUnits.testAnyBits( allocMask ))", (const char *)&queryFormat, "!m_allocationUnits.testAnyBits( allocMask )") )
     __debugbreak();
-  if ( _RBX > (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)&v47 + 12) || &_RBX->m_allocationUnits.array[15] < (unsigned int *)&v45 )
+  if ( this > (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)&v46 + 12) || &this->m_allocationUnits.array[15] < (unsigned int *)&v44 )
   {
-    __asm
-    {
-      vmovdqu xmm1, xmmword ptr [rbx]
-      vpor    xmm2, xmm1, [rbp+57h+var_70]
-      vmovdqu xmmword ptr [rbx], xmm2
-      vmovdqu xmm1, xmmword ptr [rbx+10h]
-      vpor    xmm2, xmm1, [rbp+57h+var_60]
-      vmovdqu xmmword ptr [rbx+10h], xmm2
-      vmovdqu xmm0, xmmword ptr [rbx+20h]
-      vpor    xmm1, xmm0, [rbp+57h+var_50]
-      vmovdqu xmmword ptr [rbx+20h], xmm1
-      vmovdqu xmm1, xmmword ptr [rbx+30h]
-      vpor    xmm2, xmm1, [rbp+57h+var_40]
-      vmovdqu xmmword ptr [rbx+30h], xmm2
-    }
+    _XMM1 = *(_OWORD *)this->m_allocationUnits.array;
+    __asm { vpor    xmm2, xmm1, [rbp+57h+var_70] }
+    *(_OWORD *)this->m_allocationUnits.array = _XMM2;
+    _XMM1 = *(_OWORD *)&this->m_allocationUnits.array[4];
+    __asm { vpor    xmm2, xmm1, [rbp+57h+var_60] }
+    *(_OWORD *)&this->m_allocationUnits.array[4] = _XMM2;
+    _XMM0 = *(_OWORD *)&this->m_allocationUnits.array[8];
+    __asm { vpor    xmm1, xmm0, [rbp+57h+var_50] }
+    *(_OWORD *)&this->m_allocationUnits.array[8] = _XMM1;
+    _XMM1 = *(_OWORD *)&this->m_allocationUnits.array[12];
+    __asm { vpor    xmm2, xmm1, [rbp+57h+var_40] }
+    *(_OWORD *)&this->m_allocationUnits.array[12] = _XMM2;
   }
   else
   {
-    v32 = _RBX;
-    v33 = 16i64;
+    v31 = this;
+    v32 = 16i64;
     do
     {
-      v32->m_allocationUnits.array[0] |= *(unsigned int *)((char *)v32->m_allocationUnits.array + (char *)&v45 - (char *)_RBX);
-      v32 = (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)v32 + 4);
-      --v33;
+      v31->m_allocationUnits.array[0] |= *(unsigned int *)((char *)v31->m_allocationUnits.array + (char *)&v44 - (char *)this);
+      v31 = (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)v31 + 4);
+      --v32;
     }
-    while ( v33 );
+    while ( v32 );
   }
-  if ( _RBX->m_numPartialAllocSlices >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1389, ASSERT_TYPE_ASSERT, "(m_numPartialAllocSlices < MAX_PARTIAL_ALLOC_SLICES)", (const char *)&queryFormat, "m_numPartialAllocSlices < MAX_PARTIAL_ALLOC_SLICES") )
+  if ( this->m_numPartialAllocSlices >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1389, ASSERT_TYPE_ASSERT, "(m_numPartialAllocSlices < MAX_PARTIAL_ALLOC_SLICES)", (const char *)&queryFormat, "m_numPartialAllocSlices < MAX_PARTIAL_ALLOC_SLICES") )
     __debugbreak();
-  m_numPartialAllocSlices = _RBX->m_numPartialAllocSlices;
-  v43 = 3 * m_numPartialAllocSlices + 18;
-  *(_QWORD *)&_RBX->m_allocationUnits.array[v43] = 0i64;
-  _RBX->m_allocationUnits.array[v43 + 2] = v4;
-  if ( _RBX->m_partialSliceIndex[v4] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1397, ASSERT_TYPE_ASSERT, "(m_partialSliceIndex[depthSlice] == 0xFFFFFFFF)", (const char *)&queryFormat, "m_partialSliceIndex[depthSlice] == 0xFFFFFFFF") )
+  m_numPartialAllocSlices = this->m_numPartialAllocSlices;
+  v42 = 3 * m_numPartialAllocSlices + 18;
+  *(_QWORD *)&this->m_allocationUnits.array[v42] = 0i64;
+  this->m_allocationUnits.array[v42 + 2] = v4;
+  if ( this->m_partialSliceIndex[v4] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1397, ASSERT_TYPE_ASSERT, "(m_partialSliceIndex[depthSlice] == 0xFFFFFFFF)", (const char *)&queryFormat, "m_partialSliceIndex[depthSlice] == 0xFFFFFFFF") )
     __debugbreak();
-  _RBX->m_partialSliceIndex[v4] = m_numPartialAllocSlices;
+  this->m_partialSliceIndex[v4] = m_numPartialAllocSlices;
   result = (unsigned int)m_numPartialAllocSlices;
-  ++_RBX->m_numPartialAllocSlices;
+  ++this->m_numPartialAllocSlices;
   return result;
 }
 
@@ -1833,21 +1827,22 @@ void GfxLightGridVolumeAtlas::TextureAllocator::FreePartialAllocSlice(GfxLightGr
   __int64 v19; 
   int v20; 
   unsigned int m_numPartialAllocSlices; 
+  __int64 v34; 
   __int64 v35; 
+  GfxLightGridVolumeAtlas::TextureAllocator::PartialAllocSlice *v36; 
+  __int128 v37; 
+  __int128 v38; 
   __int128 v39; 
   __int128 v40; 
-  __int128 v41; 
-  __int128 v42; 
 
   v2 = 0;
   v3 = partialSliceIndex;
   v4 = 512;
-  v39 = 0ui64;
-  _RSI = this;
-  v40 = 0ui64;
+  v37 = 0ui64;
+  v38 = 0ui64;
   m_depthSlice = this->m_partialAllocSlices[partialSliceIndex].m_depthSlice;
-  v41 = 0ui64;
-  v42 = 0ui64;
+  v39 = 0ui64;
+  v40 = 0ui64;
   if ( (unsigned int)m_depthSlice >= 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 315, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", m_depthSlice, 512) )
     __debugbreak();
   if ( (unsigned int)(m_depthSlice + 4) < 0x200 )
@@ -1855,31 +1850,31 @@ void GfxLightGridVolumeAtlas::TextureAllocator::FreePartialAllocSlice(GfxLightGr
   v7 = (unsigned int)m_depthSlice >> 5;
   v8 = 0xFFFFFFFF >> (m_depthSlice & 0x1F);
   v9 = (unsigned int)(v4 - 1) >> 5;
-  v10 = *((_DWORD *)&v39 + v7);
+  v10 = *((_DWORD *)&v37 + v7);
   v11 = -1 << (31 - ((v4 - 1) & 0x1F));
   if ( (_DWORD)v7 == (_DWORD)v9 )
   {
-    *((_DWORD *)&v39 + v7) = v10 | v8 & v11;
+    *((_DWORD *)&v37 + v7) = v10 | v8 & v11;
   }
   else
   {
     v12 = (unsigned int)(v7 + 1);
-    *((_DWORD *)&v39 + v7) = v8 | v10;
+    *((_DWORD *)&v37 + v7) = v8 | v10;
     if ( (unsigned int)v12 < (unsigned int)v9 )
     {
       v13 = (unsigned int)(v9 - v12);
-      v14 = (_DWORD *)&v39 + v12;
+      v14 = (_DWORD *)&v37 + v12;
       while ( v13 )
       {
         *v14++ = -1;
         --v13;
       }
     }
-    *((_DWORD *)&v39 + v9) |= v11;
+    *((_DWORD *)&v37 + v9) |= v11;
   }
   v15 = 0;
   v16 = 0i64;
-  while ( !_RSI->m_partialAllocSlices[0].m_used.array[2 * v3 + v16 + v3] )
+  while ( !this->m_partialAllocSlices[0].m_used.array[2 * v3 + v16 + v3] )
   {
     ++v15;
     ++v16;
@@ -1889,8 +1884,8 @@ void GfxLightGridVolumeAtlas::TextureAllocator::FreePartialAllocSlice(GfxLightGr
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1414, ASSERT_TYPE_ASSERT, "(m_partialAllocSlices[partialSliceIndex].m_used.noBitsOn())", (const char *)&queryFormat, "m_partialAllocSlices[partialSliceIndex].m_used.noBitsOn()") )
     __debugbreak();
 LABEL_19:
-  v17 = &v39;
-  while ( (~*(_DWORD *)((char *)v17 + (char *)_RSI - (char *)&v39) & *(_DWORD *)v17) == 0 )
+  v17 = &v37;
+  while ( (~*(_DWORD *)((char *)v17 + (char *)this - (char *)&v37) & *(_DWORD *)v17) == 0 )
   {
     ++v2;
     v17 = (__int128 *)((char *)v17 + 4);
@@ -1900,62 +1895,69 @@ LABEL_19:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1415, ASSERT_TYPE_ASSERT, "(allocMask.testAllBits( m_allocationUnits ))", (const char *)&queryFormat, "allocMask.testAllBits( m_allocationUnits )") )
     __debugbreak();
 LABEL_25:
-  if ( _RSI->m_partialSliceIndex[m_depthSlice] != (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1416, ASSERT_TYPE_ASSERT, "(m_partialSliceIndex[depthSlice] == partialSliceIndex)", (const char *)&queryFormat, "m_partialSliceIndex[depthSlice] == partialSliceIndex") )
+  if ( this->m_partialSliceIndex[m_depthSlice] != (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1416, ASSERT_TYPE_ASSERT, "(m_partialSliceIndex[depthSlice] == partialSliceIndex)", (const char *)&queryFormat, "m_partialSliceIndex[depthSlice] == partialSliceIndex") )
     __debugbreak();
-  if ( _RSI > (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)&v42 + 12) || &_RSI->m_allocationUnits.array[15] < (unsigned int *)&v39 )
+  if ( this > (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)&v40 + 12) || &this->m_allocationUnits.array[15] < (unsigned int *)&v37 )
   {
+    _XMM0 = v37;
     __asm
     {
-      vmovdqu xmm3, cs:__xmm@ffffffffffffffffffffffffffffffff
-      vmovdqu xmm0, [rbp+57h+var_80]
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rsi]
-      vmovdqu xmmword ptr [rsi], xmm0
-      vmovdqu xmm0, [rbp+57h+var_70]
+    }
+    *(_OWORD *)this->m_allocationUnits.array = _XMM0;
+    _XMM0 = v38;
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rsi+10h]
-      vmovdqu xmmword ptr [rsi+10h], xmm0
-      vmovdqu xmm0, [rbp+57h+var_60]
+    }
+    *(_OWORD *)&this->m_allocationUnits.array[4] = _XMM0;
+    _XMM0 = v39;
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rsi+20h]
-      vmovdqu xmmword ptr [rsi+20h], xmm0
-      vmovdqu xmm0, [rbp+57h+var_50]
+    }
+    *(_OWORD *)&this->m_allocationUnits.array[8] = _XMM0;
+    _XMM0 = v40;
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rsi+30h]
-      vmovdqu xmmword ptr [rsi+30h], xmm0
     }
+    *(_OWORD *)&this->m_allocationUnits.array[12] = _XMM0;
   }
   else
   {
-    v18 = _RSI;
+    v18 = this;
     v19 = 16i64;
     do
     {
-      v20 = *(unsigned int *)((char *)v18->m_allocationUnits.array + (char *)&v39 - (char *)_RSI);
+      v20 = *(unsigned int *)((char *)v18->m_allocationUnits.array + (char *)&v37 - (char *)this);
       v18 = (GfxLightGridVolumeAtlas::TextureAllocator *)((char *)v18 + 4);
       v18[-1].m_partialSliceIndex[511] &= ~v20;
       --v19;
     }
     while ( v19 );
   }
-  _RSI->m_partialSliceIndex[m_depthSlice] = -1;
-  m_numPartialAllocSlices = _RSI->m_numPartialAllocSlices;
-  v35 = m_numPartialAllocSlices - 1;
-  if ( (_DWORD)v3 == (_DWORD)v35 )
+  this->m_partialSliceIndex[m_depthSlice] = -1;
+  m_numPartialAllocSlices = this->m_numPartialAllocSlices;
+  v34 = m_numPartialAllocSlices - 1;
+  if ( (_DWORD)v3 == (_DWORD)v34 )
   {
-    _RSI->m_numPartialAllocSlices = m_numPartialAllocSlices - 1;
+    this->m_numPartialAllocSlices = m_numPartialAllocSlices - 1;
   }
   else
   {
-    if ( _RSI->m_partialSliceIndex[_RSI->m_partialAllocSlices[v35].m_depthSlice] != (_DWORD)v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1423, ASSERT_TYPE_ASSERT, "(m_partialSliceIndex[m_partialAllocSlices[m_numPartialAllocSlices - 1].m_depthSlice] == m_numPartialAllocSlices - 1)", (const char *)&queryFormat, "m_partialSliceIndex[m_partialAllocSlices[m_numPartialAllocSlices - 1].m_depthSlice] == m_numPartialAllocSlices - 1") )
+    if ( this->m_partialSliceIndex[this->m_partialAllocSlices[v34].m_depthSlice] != (_DWORD)v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1423, ASSERT_TYPE_ASSERT, "(m_partialSliceIndex[m_partialAllocSlices[m_numPartialAllocSlices - 1].m_depthSlice] == m_numPartialAllocSlices - 1)", (const char *)&queryFormat, "m_partialSliceIndex[m_partialAllocSlices[m_numPartialAllocSlices - 1].m_depthSlice] == m_numPartialAllocSlices - 1") )
       __debugbreak();
-    _RSI->m_partialSliceIndex[_RSI->m_partialAllocSlices[_RSI->m_numPartialAllocSlices - 1].m_depthSlice] = v3;
-    _RDX = 3i64 * (_RSI->m_numPartialAllocSlices - 1) + 18;
-    __asm { vmovsd  xmm0, qword ptr [rsi+rdx*4] }
-    _RCX = &_RSI->m_partialAllocSlices[v3];
-    __asm { vmovsd  qword ptr [rcx], xmm0 }
-    _RCX->m_depthSlice = _RSI->m_allocationUnits.array[_RDX + 2];
-    --_RSI->m_numPartialAllocSlices;
+    this->m_partialSliceIndex[this->m_partialAllocSlices[this->m_numPartialAllocSlices - 1].m_depthSlice] = v3;
+    v35 = 3i64 * (this->m_numPartialAllocSlices - 1) + 18;
+    v36 = &this->m_partialAllocSlices[v3];
+    v36->m_used = *(bitarray<64> *)&this->m_allocationUnits.array[v35];
+    v36->m_depthSlice = this->m_allocationUnits.array[v35 + 2];
+    --this->m_numPartialAllocSlices;
   }
 }
 
@@ -1995,39 +1997,34 @@ __int64 GfxLightGridVolumeAtlas::ParamsAllocator::GetTotalSize(GfxLightGridVolum
 GfxLightGridVolumeAtlas::ParamsAllocator::GetUtilization
 ==============
 */
-
-float __fastcall GfxLightGridVolumeAtlas::ParamsAllocator::GetUtilization(GfxLightGridVolumeAtlas::ParamsAllocator *this, double _XMM1_8)
+float GfxLightGridVolumeAtlas::ParamsAllocator::GetUtilization(GfxLightGridVolumeAtlas::ParamsAllocator *this)
 {
   unsigned int m_numRanges; 
-  int v4; 
-  __int64 v5; 
+  unsigned int v2; 
+  __int64 end; 
+  __int64 v4; 
+  float v5; 
+  float v6; 
 
   m_numRanges = this->m_numRanges;
-  if ( m_numRanges && (v4 = 0, this->m_ranges[m_numRanges - 1].end) )
+  if ( !m_numRanges )
+    return FLOAT_1_0;
+  v2 = 0;
+  end = this->m_ranges[m_numRanges - 1].end;
+  if ( !(_DWORD)end )
+    return FLOAT_1_0;
+  v4 = m_numRanges;
+  do
   {
-    v5 = m_numRanges;
-    do
-    {
-      if ( (*(_DWORD *)this->m_ranges & 1) != 0 )
-        v4 += (*(_DWORD *)this->m_ranges >> 1) - this->m_ranges[0].end;
-      this = (GfxLightGridVolumeAtlas::ParamsAllocator *)((char *)this + 8);
-      --v5;
-    }
-    while ( v5 );
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtsi2ss xmm0, xmm0, r10
-      vdivss  xmm0, xmm1, xmm0
-    }
+    if ( (*(_DWORD *)this->m_ranges & 1) != 0 )
+      v2 += (*(_DWORD *)this->m_ranges >> 1) - this->m_ranges[0].end;
+    this = (GfxLightGridVolumeAtlas::ParamsAllocator *)((char *)this + 8);
+    --v4;
   }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+  while ( v4 );
+  v5 = (float)v2;
+  v6 = (float)end;
+  return v5 / v6;
 }
 
 /*
@@ -2035,10 +2032,11 @@ float __fastcall GfxLightGridVolumeAtlas::ParamsAllocator::GetUtilization(GfxLig
 GfxLightGridVolumeAtlas::TextureAllocator::GetUtilization
 ==============
 */
-
-float __fastcall GfxLightGridVolumeAtlas::TextureAllocator::GetUtilization(GfxLightGridVolumeAtlas::TextureAllocator *this, double _XMM1_8)
+float GfxLightGridVolumeAtlas::TextureAllocator::GetUtilization(GfxLightGridVolumeAtlas::TextureAllocator *this)
 {
-  unsigned int m_numUnits; 
+  int m_numUnits; 
+  unsigned int v4; 
+  int v5; 
   int v6; 
   int v7; 
   int v8; 
@@ -2047,11 +2045,11 @@ float __fastcall GfxLightGridVolumeAtlas::TextureAllocator::GetUtilization(GfxLi
   int v11; 
   int v12; 
   int v13; 
-  int v14; 
-  int v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  unsigned __int64 *v18; 
+  unsigned int v14; 
+  __int64 v15; 
+  unsigned __int64 *v16; 
+  unsigned int v17; 
+  unsigned int v18; 
   unsigned int v19; 
   unsigned int v20; 
   unsigned int v21; 
@@ -2061,111 +2059,98 @@ float __fastcall GfxLightGridVolumeAtlas::TextureAllocator::GetUtilization(GfxLi
   unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
-  unsigned int v28; 
-  unsigned int v29; 
-  __int64 v30; 
-  unsigned int *v31; 
-  int v37; 
-  unsigned __int64 v38; 
-  unsigned __int64 v39; 
-  unsigned __int64 v40; 
-  __int64 v41; 
-  unsigned __int64 v42; 
-  __int64 v43; 
-  __int64 v44; 
-  unsigned int v45; 
+  __int64 v28; 
+  unsigned int *v29; 
+  float v30; 
+  int v31; 
+  unsigned __int64 v32; 
+  unsigned __int64 v33; 
+  unsigned __int64 v34; 
+  __int64 v35; 
+  unsigned __int64 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  unsigned int v39; 
 
   m_numUnits = this->m_numUnits;
-  if ( m_numUnits )
+  if ( !m_numUnits )
+    return FLOAT_1_0;
+  v4 = 0;
+  v5 = 0;
+  v6 = 0;
+  v7 = 0;
+  v8 = 0;
+  v9 = 0;
+  v32 = 0i64;
+  v10 = 0;
+  v33 = 0i64;
+  v11 = 0;
+  v34 = 0i64;
+  v35 = 0i64;
+  v36 = 0i64;
+  v37 = 0i64;
+  v38 = 0i64;
+  v39 = 0;
+  v12 = 512;
+  if ( (unsigned int)m_numUnits < 0x200 )
+    v12 = m_numUnits;
+  v13 = -1 << (31 - ((v12 - 1) & 0x1F));
+  v14 = (unsigned int)(v12 - 1) >> 5;
+  if ( v14 )
   {
-    v6 = 0;
-    v7 = 0;
-    v8 = 0;
-    v9 = 0;
-    v10 = 0;
-    v11 = 0;
-    v38 = 0i64;
-    v12 = 0;
-    v39 = 0i64;
-    v13 = 0;
-    v40 = 0i64;
-    v41 = 0i64;
-    v42 = 0i64;
-    v43 = 0i64;
-    v44 = 0i64;
-    v45 = 0;
-    v14 = 512;
-    if ( m_numUnits < 0x200 )
-      v14 = m_numUnits;
-    v15 = -1 << (31 - ((v14 - 1) & 0x1F));
-    v16 = (unsigned int)(v14 - 1) >> 5;
-    if ( v16 )
+    v31 = -1;
+    if ( v14 > 1 )
     {
-      v37 = -1;
-      if ( v16 > 1 )
+      v15 = v14 - 1;
+      v16 = &v32;
+      while ( v15 )
       {
-        v17 = v16 - 1;
-        v18 = &v38;
-        while ( v17 )
-        {
-          *(_DWORD *)v18 = -1;
-          v18 = (unsigned __int64 *)((char *)v18 + 4);
-          --v17;
-        }
+        *(_DWORD *)v16 = -1;
+        v16 = (unsigned __int64 *)((char *)v16 + 4);
+        --v15;
       }
-      *(&v37 + v16) |= v15;
-      v13 = v41;
-      v12 = HIDWORD(v40);
-      v11 = v40;
-      v10 = HIDWORD(v39);
-      v9 = v39;
-      v8 = HIDWORD(v38);
-      v7 = v38;
-      v15 = v37;
     }
-    v19 = this->m_allocationUnits.array[1] & v7;
-    v20 = this->m_allocationUnits.array[2] & v8;
-    v21 = this->m_allocationUnits.array[3] & v9;
-    v22 = this->m_allocationUnits.array[4] & v10;
-    v23 = this->m_allocationUnits.array[5] & v11;
-    v24 = this->m_allocationUnits.array[6] & v12;
-    v25 = this->m_allocationUnits.array[7] & v13;
-    v26 = this->m_allocationUnits.array[9] & v42;
-    v27 = this->m_allocationUnits.array[0] & v15;
-    v28 = this->m_allocationUnits.array[10] & HIDWORD(v42);
-    HIDWORD(v41) &= this->m_allocationUnits.array[8];
-    v43 &= *(_QWORD *)&this->m_allocationUnits.array[11];
-    v44 &= *(_QWORD *)&this->m_allocationUnits.array[13];
-    v29 = this->m_allocationUnits.array[15] & v45;
-    v38 = __PAIR64__(v20, v19);
-    v30 = 16i64;
-    v39 = __PAIR64__(v22, v21);
-    v40 = __PAIR64__(v24, v23);
-    LODWORD(v41) = v25;
-    v42 = __PAIR64__(v28, v26);
-    v31 = (unsigned int *)&v37;
-    v45 = v29;
-    v37 = v27;
-    do
-    {
-      v6 += __popcnt(*v31++);
-      --v30;
-    }
-    while ( v30 );
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtsi2ss xmm0, xmm0, r9d
-      vdivss  xmm0, xmm1, xmm0
-    }
+    *(&v31 + v14) |= v13;
+    v11 = v35;
+    v10 = HIDWORD(v34);
+    v9 = v34;
+    v8 = HIDWORD(v33);
+    v7 = v33;
+    v6 = HIDWORD(v32);
+    v5 = v32;
+    v13 = v31;
   }
-  else
+  v17 = this->m_allocationUnits.array[1] & v5;
+  v18 = this->m_allocationUnits.array[2] & v6;
+  v19 = this->m_allocationUnits.array[3] & v7;
+  v20 = this->m_allocationUnits.array[4] & v8;
+  v21 = this->m_allocationUnits.array[5] & v9;
+  v22 = this->m_allocationUnits.array[6] & v10;
+  v23 = this->m_allocationUnits.array[7] & v11;
+  v24 = this->m_allocationUnits.array[9] & v36;
+  v25 = this->m_allocationUnits.array[0] & v13;
+  v26 = this->m_allocationUnits.array[10] & HIDWORD(v36);
+  HIDWORD(v35) &= this->m_allocationUnits.array[8];
+  v37 &= *(_QWORD *)&this->m_allocationUnits.array[11];
+  v38 &= *(_QWORD *)&this->m_allocationUnits.array[13];
+  v27 = this->m_allocationUnits.array[15] & v39;
+  v32 = __PAIR64__(v18, v17);
+  v28 = 16i64;
+  v33 = __PAIR64__(v20, v19);
+  v34 = __PAIR64__(v22, v21);
+  LODWORD(v35) = v23;
+  v36 = __PAIR64__(v26, v24);
+  v29 = (unsigned int *)&v31;
+  v39 = v27;
+  v31 = v25;
+  do
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    v4 += __popcnt(*v29++);
+    --v28;
   }
-  return *(float *)&_XMM0;
+  while ( v28 );
+  v30 = (float)v4;
+  return v30 / (float)m_numUnits;
 }
 
 /*
@@ -2509,52 +2494,53 @@ void GfxLightGridVolumeAtlas::Pack(GfxLightGridVolumeAtlas *this, const GfxLight
   __int64 v18; 
   __int64 v19; 
   __int64 v20; 
-  unsigned __int16 v25; 
-  int v26; 
-  GfxLightGridVolumeAtlas::AtlasState *v27; 
-  __int64 v28; 
+  unsigned __int16 depth; 
+  unsigned int numVolumes; 
+  GfxLightGridVolumeAtlas::AtlasState *v23; 
+  __int64 v24; 
   unsigned int PartialAllocSlice; 
-  int v30; 
-  __int64 v31; 
-  unsigned int v36; 
-  unsigned int v37; 
-  unsigned int v38; 
-  GfxLightGridVolumeAtlas::AtlasState *v39; 
-  unsigned int *v40; 
-  int v41; 
-  GfxLightGridVolumeAtlas *v42; 
-  GfxLightGridVolumeAtlas::AtlasState *v43; 
-  int v44; 
+  int v26; 
+  __int64 v27; 
+  unsigned __int16 widthHeight; 
+  unsigned int v29; 
+  unsigned int v30; 
+  unsigned int v31; 
+  GfxLightGridVolumeAtlas::AtlasState *v32; 
+  unsigned int *v33; 
+  unsigned int v34; 
+  GfxLightGridVolumeAtlas *v35; 
+  GfxLightGridVolumeAtlas::AtlasState *v36; 
+  int v37; 
   unsigned int m_numVolumes; 
   __int64 Z; 
-  __int64 v47; 
+  __int64 v40; 
   unsigned int first; 
   unsigned int outX; 
   unsigned int outY; 
-  __int64 v51; 
-  GfxLightGridVolumeAtlas::AtlasState *v52; 
+  __int64 v44; 
+  GfxLightGridVolumeAtlas::AtlasState *v45; 
   GfxLightGridVolumeAtlas::Pack::__l2::<lambda_dd302e57db63eae9ed8bbe4dad8daf6e> _Pred; 
-  GfxLightGridVolumeAtlas::TextureAllocator *v54; 
-  __int128 v55; 
-  GfxLightGridVolumeAtlas *v56; 
+  GfxLightGridVolumeAtlas::TextureAllocator *v47; 
+  GfxLightGridVolumeAtlas::LGVBlock v48; 
+  GfxLightGridVolumeAtlas *v49; 
   int _Last[1536]; 
 
   v4 = blocksUsed->array[0];
   v5 = 0;
   LODWORD(v6) = 0;
-  v52 = targetState;
+  v45 = targetState;
   v7 = 0i64;
   _Pred.blocksToPack = blocksToPack;
-  v56 = this;
+  v49 = this;
   while ( v4 )
   {
 LABEL_5:
     v9 = __lzcnt(v4);
     if ( v9 >= 0x20 )
     {
-      LODWORD(v47) = 32;
+      LODWORD(v40) = 32;
       LODWORD(Z) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", Z, v47) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", Z, v40) )
         __debugbreak();
     }
     if ( ((0x80000000 >> v9) & v4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
@@ -2573,13 +2559,13 @@ LABEL_5:
     if ( v4 )
       goto LABEL_5;
   }
-  v51 = v7;
+  v44 = v7;
   std::_Sort_unchecked_int____lambda_dd302e57db63eae9ed8bbe4dad8daf6e___(_Last, &_Last[v5], v5, _Pred);
-  v10 = v52;
-  p_m_textureAllocator = &v52->m_textureAllocator;
-  v12 = (bitarray_base<bitarray<512> > *)&v52->m_textureAllocator;
-  v54 = &v52->m_textureAllocator;
-  v52->m_textureAllocator.m_numUnits = 512;
+  v10 = v45;
+  p_m_textureAllocator = &v45->m_textureAllocator;
+  v12 = (bitarray_base<bitarray<512> > *)&v45->m_textureAllocator;
+  v47 = &v45->m_textureAllocator;
+  v45->m_textureAllocator.m_numUnits = 512;
   bitarray_base<bitarray<512>>::resetBits(v12, 0, 0x200u);
   v13 = 2048;
   p_m_textureAllocator->m_numPartialAllocSlices = 0;
@@ -2590,7 +2576,7 @@ LABEL_5:
   v16 = 0;
   *(_DWORD *)v10->m_paramsAllocator.m_ranges = 0;
   LODWORD(v17) = 0;
-  v18 = v51;
+  v18 = v44;
   v10->m_paramsAllocator.m_ranges[0].end = 1572864;
   first = 0;
   if ( v18 > 0 )
@@ -2599,40 +2585,33 @@ LABEL_5:
     do
     {
       v20 = _Last[v19];
-      _RCX = _Pred.blocksToPack;
-      _RAX = 2 * v20;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+rax*8]
-        vmovq   rax, xmm0
-        vmovups [rsp+18D8h+var_1868], xmm0
-      }
-      if ( (unsigned __int16)_RAX < 0x40u )
+      v48 = _Pred.blocksToPack[v20];
+      if ( v48.widthHeight < 0x40u )
         break;
-      if ( (_RAX & 0x30000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1188, ASSERT_TYPE_ASSERT, "(( blockToPack.depth & TextureAllocator::DEPTH_ALLOCATION_UNIT_MASK ) == 0)", (const char *)&queryFormat, "( blockToPack.depth & TextureAllocator::DEPTH_ALLOCATION_UNIT_MASK ) == 0") )
+      if ( (v48.depth & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1188, ASSERT_TYPE_ASSERT, "(( blockToPack.depth & TextureAllocator::DEPTH_ALLOCATION_UNIT_MASK ) == 0)", (const char *)&queryFormat, "( blockToPack.depth & TextureAllocator::DEPTH_ALLOCATION_UNIT_MASK ) == 0") )
         __debugbreak();
-      v25 = WORD1(v55);
-      if ( v16 + WORD1(v55) > 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1189, ASSERT_TYPE_ASSERT, "(packedDepth + blockToPack.depth <= MAX_ATLAS_DEPTH)", (const char *)&queryFormat, "packedDepth + blockToPack.depth <= MAX_ATLAS_DEPTH") )
+      depth = v48.depth;
+      if ( v16 + v48.depth > 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1189, ASSERT_TYPE_ASSERT, "(packedDepth + blockToPack.depth <= MAX_ATLAS_DEPTH)", (const char *)&queryFormat, "packedDepth + blockToPack.depth <= MAX_ATLAS_DEPTH") )
         __debugbreak();
-      v26 = DWORD1(v55);
-      if ( DWORD1(v55) + first > 0x180000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1190, ASSERT_TYPE_ASSERT, "(packedOffset + blockToPack.numVolumes <= MAX_ATLASED_VOLUMES)", (const char *)&queryFormat, "packedOffset + blockToPack.numVolumes <= MAX_ATLASED_VOLUMES") )
+      numVolumes = v48.numVolumes;
+      if ( v48.numVolumes + first > 0x180000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1190, ASSERT_TYPE_ASSERT, "(packedOffset + blockToPack.numVolumes <= MAX_ATLASED_VOLUMES)", (const char *)&queryFormat, "packedOffset + blockToPack.numVolumes <= MAX_ATLASED_VOLUMES") )
         __debugbreak();
-      v27 = v52;
-      v28 = v20;
-      v52->m_packing[v20].textureX = 0;
-      v27->m_packing[v28].textureY = 0;
-      v27->m_packing[v20].textureDepth = v16;
-      v15 = first + v26;
-      v27->m_packing[v28].paramsOffset = first;
+      v23 = v45;
+      v24 = v20;
+      v45->m_packing[v20].textureX = 0;
+      v23->m_packing[v24].textureY = 0;
+      v23->m_packing[v20].textureDepth = v16;
+      v15 = first + numVolumes;
+      v23->m_packing[v24].paramsOffset = first;
       GfxLightGridVolumeAtlas::ParamsAllocator::MarkUsed(p_m_paramsAllocator, first, v15);
-      v16 += v25;
+      v16 += depth;
       first = v15;
       LODWORD(v17) = v17 + 1;
       ++v19;
     }
-    while ( v19 < v51 );
-    p_m_textureAllocator = v54;
-    v18 = v51;
+    while ( v19 < v44 );
+    p_m_textureAllocator = v47;
+    v18 = v44;
   }
   if ( (v16 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1205, ASSERT_TYPE_ASSERT, "(( packedDepth & TextureAllocator::DEPTH_ALLOCATION_UNIT_MASK ) == 0)", (const char *)&queryFormat, "( packedDepth & TextureAllocator::DEPTH_ALLOCATION_UNIT_MASK ) == 0") )
     __debugbreak();
@@ -2641,63 +2620,57 @@ LABEL_5:
   PartialAllocSlice = -1;
   if ( (int)v17 < v18 )
   {
-    v30 = -1;
+    v26 = -1;
     do
     {
-      v31 = _Last[v17];
-      _RCX = _Pred.blocksToPack;
-      _RAX = 2 * v31;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+rax*8]
-        vmovd   ebx, xmm0
-        vmovups [rsp+18D8h+var_1868], xmm0
-      }
-      if ( (unsigned __int16)_EBX >= 0x40u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1217, ASSERT_TYPE_ASSERT, "(blockToPack.widthHeight < ATLAS_WIDTH)", (const char *)&queryFormat, "blockToPack.widthHeight < ATLAS_WIDTH") )
+      v27 = _Last[v17];
+      v48 = _Pred.blocksToPack[v27];
+      widthHeight = v48.widthHeight;
+      if ( v48.widthHeight >= 0x40u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1217, ASSERT_TYPE_ASSERT, "(blockToPack.widthHeight < ATLAS_WIDTH)", (const char *)&queryFormat, "blockToPack.widthHeight < ATLAS_WIDTH") )
         __debugbreak();
       outX = 0;
       outY = 0;
-      if ( PartialAllocSlice == -1 || !GfxLightGridVolumeAtlas::TextureAllocator::PreallocateInPartialAllocSlice(p_m_textureAllocator, PartialAllocSlice, (unsigned __int16)_EBX, &outX, &outY) )
+      if ( PartialAllocSlice == -1 || !GfxLightGridVolumeAtlas::TextureAllocator::PreallocateInPartialAllocSlice(p_m_textureAllocator, PartialAllocSlice, widthHeight, &outX, &outY) )
       {
         PartialAllocSlice = GfxLightGridVolumeAtlas::TextureAllocator::CreatePartialAllocSlice(p_m_textureAllocator, v16 >> 2);
-        v30 = v16;
+        v26 = v16;
         v16 += 16;
-        if ( !GfxLightGridVolumeAtlas::TextureAllocator::PreallocateInPartialAllocSlice(p_m_textureAllocator, PartialAllocSlice, (unsigned __int16)_EBX, &outX, &outY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1232, ASSERT_TYPE_ASSERT, "(packedToNew)", (const char *)&queryFormat, "packedToNew") )
+        if ( !GfxLightGridVolumeAtlas::TextureAllocator::PreallocateInPartialAllocSlice(p_m_textureAllocator, PartialAllocSlice, widthHeight, &outX, &outY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1232, ASSERT_TYPE_ASSERT, "(packedToNew)", (const char *)&queryFormat, "packedToNew") )
           __debugbreak();
       }
-      v36 = outY;
-      v37 = (unsigned __int16)_EBX;
-      v38 = outX;
-      GfxLightGridVolumeAtlas::TextureAllocator::CommitInPartialAllocSlice(v54, PartialAllocSlice, v37, outX, outY);
-      v39 = v52;
-      v40 = &v52->m_depth + 4 * v31;
-      v40[134] = v38;
-      v41 = DWORD1(v55);
-      v40[135] = v36;
-      v39->m_packing[v31].textureDepth = v30;
-      v15 = first + v41;
-      v40[137] = first;
+      v29 = outY;
+      v30 = widthHeight;
+      v31 = outX;
+      GfxLightGridVolumeAtlas::TextureAllocator::CommitInPartialAllocSlice(v47, PartialAllocSlice, v30, outX, outY);
+      v32 = v45;
+      v33 = &v45->m_depth + 4 * v27;
+      v33[134] = v31;
+      v34 = v48.numVolumes;
+      v33[135] = v29;
+      v32->m_packing[v27].textureDepth = v26;
+      v15 = first + v34;
+      v33[137] = first;
       GfxLightGridVolumeAtlas::ParamsAllocator::MarkUsed(p_m_paramsAllocator, first, v15);
-      p_m_textureAllocator = v54;
+      p_m_textureAllocator = v47;
       ++v17;
       first = v15;
     }
-    while ( v17 < v51 );
+    while ( v17 < v44 );
     v13 = 2048;
   }
-  v42 = v56;
-  v43 = v52;
-  v44 = 1572864;
-  if ( (int)(v16 + v56->m_repackExtraSlicesAlloc) < 2048 )
-    v13 = v16 + v56->m_repackExtraSlicesAlloc;
-  v52->m_depth = v13;
-  if ( (int)(v15 + v42->m_repackExtraVolumeSlotsAlloc) < 1572864 )
-    v44 = v15 + v42->m_repackExtraVolumeSlotsAlloc;
-  v43->m_numVolumes = v44;
+  v35 = v49;
+  v36 = v45;
+  v37 = 1572864;
+  if ( (int)(v16 + v49->m_repackExtraSlicesAlloc) < 2048 )
+    v13 = v16 + v49->m_repackExtraSlicesAlloc;
+  v45->m_depth = v13;
+  if ( (int)(v15 + v35->m_repackExtraVolumeSlotsAlloc) < 1572864 )
+    v37 = v15 + v35->m_repackExtraVolumeSlotsAlloc;
+  v36->m_numVolumes = v37;
   if ( (v13 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1351, ASSERT_TYPE_ASSERT, "(( depth & DEPTH_ALLOCATION_UNIT_MASK ) == 0)", (const char *)&queryFormat, "( depth & DEPTH_ALLOCATION_UNIT_MASK ) == 0") )
     __debugbreak();
-  v43->m_textureAllocator.m_numUnits = v13 >> 2;
-  m_numVolumes = v43->m_numVolumes;
+  v36->m_textureAllocator.m_numUnits = v13 >> 2;
+  m_numVolumes = v36->m_numVolumes;
   if ( !p_m_paramsAllocator->m_numRanges && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1718, ASSERT_TYPE_ASSERT, "(m_numRanges > 0)", (const char *)&queryFormat, "m_numRanges > 0") )
     __debugbreak();
   if ( p_m_paramsAllocator->m_ranges[p_m_paramsAllocator->m_numRanges - 1].end < m_numVolumes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 1719, ASSERT_TYPE_ASSERT, "(m_ranges[m_numRanges - 1].end >= size)", (const char *)&queryFormat, "m_ranges[m_numRanges - 1].end >= size") )
@@ -3093,6 +3066,9 @@ GfxLightGridVolumeAtlas::PrepareForCopy
 void GfxLightGridVolumeAtlas::PrepareForCopy(GfxLightGridVolumeAtlas *this, GfxLightGridVolumeAtlas::AtlasState *targetState)
 {
   __int64 v4; 
+  char *v5; 
+  signed __int64 v6; 
+  double v8; 
   unsigned int v9; 
   unsigned int v10; 
   unsigned int v11; 
@@ -3100,96 +3076,83 @@ void GfxLightGridVolumeAtlas::PrepareForCopy(GfxLightGridVolumeAtlas *this, GfxL
   __int64 v13; 
   int v14; 
   int v15; 
-  unsigned int v16; 
   unsigned int CardMemoryAmount; 
-  __int64 v20; 
+  __int64 v17; 
   unsigned __int64 m_textureVARangeAllocOffset; 
   unsigned __int8 *initialData; 
-  char *v23; 
+  char *v20; 
+  int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
   int v24; 
-  unsigned int v25; 
   unsigned int v26; 
   int v27; 
-  unsigned int v29; 
-  int v33; 
-  unsigned int v36; 
-  __int64 v37; 
+  unsigned int v28; 
+  __int64 v29; 
   unsigned int i; 
   unsigned int numElems; 
-  unsigned __int8 *v40; 
-  __m256i v41; 
-  __m256i v42; 
-  Image_SetupParams v45; 
+  unsigned __int8 *v32; 
+  __m256i v33; 
+  __m256i v34; 
+  Image_SetupParams v37; 
   Image_SetupParams params; 
-  Image_SetupParams v47; 
-  char v48; 
-  char v49; 
-  char v50; 
-  char v51; 
+  Image_SetupParams v39; 
+  char v40; 
+  char v41; 
+  char v42; 
+  char v43; 
 
   if ( this->m_state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 743, ASSERT_TYPE_ASSERT, "(m_state == State::IDLE)", (const char *)&queryFormat, "m_state == State::IDLE") )
     __debugbreak();
   GfxLightGridVolumeAtlas::InitAtlasState(this, targetState);
   GfxLightGridVolumeAtlas::Pack(this, this->m_lgvBlocks, &this->m_lgvBlocksUsed, targetState);
   v4 = 2i64;
-  _RBX = &v50;
-  _R13 = (char *)this - &v48;
+  v5 = &v42;
+  v6 = (char *)this - &v40;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+r13-0Ch]
-      vmovsd  xmm1, qword ptr [rbx+r13+4]
-      vmovups xmmword ptr [rbx-0Ch], xmm0
-      vmovsd  qword ptr [rbx+4], xmm1
-    }
-    v9 = *(unsigned __int16 *)_RBX << 6;
+    _XMM0 = *(_OWORD *)&v5[v6 - 12];
+    v8 = *(double *)&v5[v6 + 4];
+    *(_OWORD *)(v5 - 12) = _XMM0;
+    *(double *)(v5 + 4) = v8;
+    v9 = *(unsigned __int16 *)v5 << 6;
     if ( v9 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v9, "signed", v9) )
       __debugbreak();
-    *(_WORD *)_RBX = v9;
-    v10 = *((unsigned __int16 *)_RBX + 1) << 6;
+    *(_WORD *)v5 = v9;
+    v10 = *((unsigned __int16 *)v5 + 1) << 6;
     if ( v10 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v10, "signed", v10) )
       __debugbreak();
-    *((_WORD *)_RBX + 1) = v10;
-    v11 = targetState->m_depth * *((unsigned __int16 *)_RBX + 2);
+    *((_WORD *)v5 + 1) = v10;
+    v11 = targetState->m_depth * *((unsigned __int16 *)v5 + 2);
     if ( v11 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v11, "unsigned", v11) )
       __debugbreak();
-    *((_WORD *)_RBX + 2) = v11;
-    _RBX += 24;
+    *((_WORD *)v5 + 2) = v11;
+    v5 += 24;
     --v4;
   }
   while ( v4 );
-  v12 = &v51;
+  v12 = &v43;
   v13 = 2i64;
   numElems = targetState->m_numVolumes;
   v14 = 0;
   do
   {
     v15 = (unsigned __int8)v12[6];
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+0E0h+var_160+8], xmm0
-    }
-    v41.m256i_i32[0] = *((unsigned __int16 *)v12 - 1);
-    v41.m256i_i32[1] = *(unsigned __int16 *)v12;
-    v41.m256i_i32[2] = *((unsigned __int16 *)v12 + 1);
-    v41.m256i_i32[3] = *((unsigned __int16 *)v12 + 2);
-    v42.m256i_i64[0] = 0i64;
-    v42.m256i_i32[6] = -1;
-    v16 = Image_CountMipmaps(v41.m256i_u32[0], v41.m256i_u32[1], v41.m256i_u32[2]);
-    __asm { vmovups ymm1, [rbp+0E0h+var_160] }
-    v41.m256i_i32[5] = *(_DWORD *)(v12 - 10);
-    if ( v16 == v15 )
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v34.m256i_u64[1] = _XMM0;
+    v33.m256i_i32[0] = *((unsigned __int16 *)v12 - 1);
+    v33.m256i_i32[1] = *(unsigned __int16 *)v12;
+    v33.m256i_i32[2] = *((unsigned __int16 *)v12 + 1);
+    v33.m256i_i32[3] = *((unsigned __int16 *)v12 + 2);
+    v34.m256i_i64[0] = 0i64;
+    v34.m256i_i32[6] = -1;
+    if ( Image_CountMipmaps(v33.m256i_u32[0], v33.m256i_u32[1], v33.m256i_u32[2]) == v15 )
       v15 = 0;
-    v41.m256i_i32[6] = *(_DWORD *)(v12 - 14);
-    v41.m256i_i32[4] = v15;
-    __asm
-    {
-      vmovups ymm0, [rsp+1E0h+var_180]
-      vmovups ymmword ptr [rbp+0E0h+params.width], ymm0
-      vmovups ymmword ptr [rbp+0E0h+params.customAllocFunc], ymm1
-    }
+    v33.m256i_i32[6] = *(_DWORD *)(v12 - 14);
+    v33.m256i_i32[4] = v15;
+    v33.m256i_i32[5] = *(_DWORD *)(v12 - 10);
+    *(__m256i *)&params.width = v33;
+    *(__m256i *)&params.customAllocFunc = v34;
     CardMemoryAmount = Image_GetCardMemoryAmount(&params);
     if ( (_BYTE)CardMemoryAmount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 766, ASSERT_TYPE_ASSERT, "(IsAligned( size, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( size, R_IMAGE_ALIGNMENT )") )
       __debugbreak();
@@ -3198,11 +3161,11 @@ void GfxLightGridVolumeAtlas::PrepareForCopy(GfxLightGridVolumeAtlas *this, GfxL
     --v13;
   }
   while ( v13 );
-  v20 = (96 * numElems + 0xFFFF + v14) & 0xFFFF0000;
-  if ( (unsigned int)v20 > this->m_textureVARangeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 773, ASSERT_TYPE_ASSERT, "( vaSize ) <= ( m_textureVARangeSize )", "%s <= %s\n\t%llu, %llu", "vaSize", "m_textureVARangeSize", (unsigned int)v20, this->m_textureVARangeSize) )
+  v17 = (96 * numElems + 0xFFFF + v14) & 0xFFFF0000;
+  if ( (unsigned int)v17 > this->m_textureVARangeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 773, ASSERT_TYPE_ASSERT, "( vaSize ) <= ( m_textureVARangeSize )", "%s <= %s\n\t%llu, %llu", "vaSize", "m_textureVARangeSize", (unsigned int)v17, this->m_textureVARangeSize) )
     __debugbreak();
   m_textureVARangeAllocOffset = this->m_textureVARangeAllocOffset;
-  if ( m_textureVARangeAllocOffset + v20 > this->m_textureVARangeSize )
+  if ( m_textureVARangeAllocOffset + v17 > this->m_textureVARangeSize )
   {
     if ( g_gpuSwapFrame - this->m_textureVARangeWrapFrame < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 779, ASSERT_TYPE_ASSERT, "(g_gpuSwapFrame - m_textureVARangeWrapFrame >= 3)", (const char *)&queryFormat, "g_gpuSwapFrame - m_textureVARangeWrapFrame >= 3") )
       __debugbreak();
@@ -3211,77 +3174,59 @@ void GfxLightGridVolumeAtlas::PrepareForCopy(GfxLightGridVolumeAtlas *this, GfxL
     this->m_textureVARangeWrapFrame = g_gpuSwapFrame;
   }
   initialData = &this->m_textureVARangeStart[m_textureVARangeAllocOffset];
-  v40 = initialData;
-  RB_BackendDataCopier::CommitMem(&rbBackendDataCopier, 1u, initialData, &initialData[v20], &targetState->m_streamerMemLoan, &targetState->m_texturePageRange, "lgv atlas");
+  v32 = initialData;
+  RB_BackendDataCopier::CommitMem(&rbBackendDataCopier, 1u, initialData, &initialData[v17], &targetState->m_streamerMemLoan, &targetState->m_texturePageRange, "lgv atlas");
   if ( ((unsigned __int8)&s_lightgridCommitTotal & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_lightgridCommitTotal) )
     __debugbreak();
-  _InterlockedExchangeAdd(&s_lightgridCommitTotal, v20);
+  _InterlockedExchangeAdd(&s_lightgridCommitTotal, v17);
   targetState->m_textureMem = initialData;
-  v23 = &v49;
-  targetState->m_textureMemSize = (unsigned int)v20;
-  this->m_textureVARangeAllocOffset += (unsigned int)v20;
+  v20 = &v41;
+  targetState->m_textureMemSize = (unsigned int)v17;
+  this->m_textureVARangeAllocOffset += (unsigned int)v17;
   for ( i = 0; i < 2; ++i )
   {
-    v24 = *(_DWORD *)v23;
-    if ( (*(_DWORD *)v23 & 0x10000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 808, ASSERT_TYPE_ASSERT, "(desc.flags & IMG_DISK_FLAG_MAPTYPE_3D)", (const char *)&queryFormat, "desc.flags & IMG_DISK_FLAG_MAPTYPE_3D") )
+    v21 = *(_DWORD *)v20;
+    if ( (*(_DWORD *)v20 & 0x10000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 808, ASSERT_TYPE_ASSERT, "(desc.flags & IMG_DISK_FLAG_MAPTYPE_3D)", (const char *)&queryFormat, "desc.flags & IMG_DISK_FLAG_MAPTYPE_3D") )
       __debugbreak();
-    v25 = *((unsigned __int16 *)v23 + 5);
-    v26 = *((unsigned __int16 *)v23 + 6);
-    v27 = *((_DWORD *)v23 - 1);
-    v41.m256i_i32[5] = v24 | 0x10000;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+0E0h+var_160+8], xmm0
-    }
-    v42.m256i_i64[0] = 0i64;
-    v29 = *((unsigned __int16 *)v23 + 4);
-    v42.m256i_i32[6] = -1;
-    __asm
-    {
-      vmovups ymm1, [rbp+0E0h+var_160]
-      vmovups ymmword ptr [rbp+0E0h+var_130.customAllocFunc], ymm1
-    }
-    *(_OWORD *)&v45.customLayout = *(_OWORD *)&_RT0.m256i_u64[2];
-    v45.customAllocFunc = lambda_88778504a5b7e76e23af5feb0e5be0e9_::_lambda_invoker_cdecl_;
-    *(__int64 *)((char *)&v41.m256i_i64[1] + 4) = 1i64;
-    v41.m256i_i64[0] = __PAIR64__(v25, v29);
-    v41.m256i_i32[2] = v26;
-    v41.m256i_i32[6] = v27;
-    __asm
-    {
-      vmovups ymm0, [rsp+1E0h+var_180]
-      vmovups ymmword ptr [rbp+0E0h+var_130.width], ymm0
-    }
-    v45.customAllocUserData = initialData;
-    Image_Setup(&targetState->m_texture[i], &v45);
-    v33 = (unsigned __int8)v23[16];
+    v22 = *((unsigned __int16 *)v20 + 5);
+    v23 = *((unsigned __int16 *)v20 + 6);
+    v24 = *((_DWORD *)v20 - 1);
+    v33.m256i_i32[5] = v21 | 0x10000;
     __asm { vpxor   xmm0, xmm0, xmm0 }
-    v41.m256i_i32[3] = *((unsigned __int16 *)v23 + 7);
-    __asm { vmovdqu xmmword ptr [rbp+0E0h+var_160+8], xmm0 }
-    v42.m256i_i64[0] = 0i64;
-    v42.m256i_i32[6] = -1;
-    v41.m256i_i64[0] = __PAIR64__(v25, v29);
-    v41.m256i_i32[2] = v26;
-    __asm { vmovups ymm1, [rbp+0E0h+var_160] }
-    v41.m256i_i32[5] = v24;
-    v41.m256i_i32[6] = v27;
-    if ( Image_CountMipmaps(v29, v25, v26) == v33 )
-      v33 = 0;
-    v41.m256i_i32[4] = v33;
-    __asm
-    {
-      vmovups ymm0, [rsp+1E0h+var_180]
-      vmovups ymmword ptr [rbp+0E0h+var_B0.width], ymm0
-      vmovups ymmword ptr [rbp+0E0h+var_B0.customAllocFunc], ymm1
-    }
-    v36 = Image_GetCardMemoryAmount(&v47);
-    v37 = v36;
-    if ( (_BYTE)v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 820, ASSERT_TYPE_ASSERT, "(IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT )") )
+    v34.m256i_i64[2] = *((_QWORD *)&_XMM0 + 1);
+    v26 = *((unsigned __int16 *)v20 + 4);
+    v34.m256i_i32[6] = -1;
+    *(_OWORD *)&v37.customLayout = *(_OWORD *)&v34.m256i_u64[2];
+    v37.customAllocFunc = lambda_88778504a5b7e76e23af5feb0e5be0e9_::_lambda_invoker_cdecl_;
+    *(__int64 *)((char *)&v33.m256i_i64[1] + 4) = 1i64;
+    v33.m256i_i64[0] = __PAIR64__(v22, v26);
+    v33.m256i_i32[2] = v23;
+    v33.m256i_i32[6] = v24;
+    *(__m256i *)&v37.width = v33;
+    v37.customAllocUserData = initialData;
+    Image_Setup(&targetState->m_texture[i], &v37);
+    v27 = (unsigned __int8)v20[16];
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    v33.m256i_i32[3] = *((unsigned __int16 *)v20 + 7);
+    *(_OWORD *)&v34.m256i_u64[1] = _XMM0;
+    v34.m256i_i64[0] = 0i64;
+    v34.m256i_i32[6] = -1;
+    v33.m256i_i64[0] = __PAIR64__(v22, v26);
+    v33.m256i_i32[2] = v23;
+    v33.m256i_i32[5] = v21;
+    v33.m256i_i32[6] = v24;
+    if ( Image_CountMipmaps(v26, v22, v23) == v27 )
+      v27 = 0;
+    v33.m256i_i32[4] = v27;
+    *(__m256i *)&v39.width = v33;
+    *(__m256i *)&v39.customAllocFunc = v34;
+    v28 = Image_GetCardMemoryAmount(&v39);
+    v29 = v28;
+    if ( (_BYTE)v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightgrid_volumes_atlas.cpp", 820, ASSERT_TYPE_ASSERT, "(IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT )") )
       __debugbreak();
-    v23 += 24;
-    initialData = &v40[v37];
-    v40 = initialData;
+    v20 += 24;
+    initialData = &v32[v29];
+    v32 = initialData;
   }
   R_CreateGfxWrappedBuffer(&targetState->m_lgvTransformParams, GfxWrappedBuffer_Structured, 64, numElems, GFX_DATA_FORMAT_R32_UINT, 8u, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, NULL, initialData, "LGV atlas transform params");
   R_CreateGfxWrappedBuffer(&targetState->m_lgvPackingParams, GfxWrappedBuffer_Structured, 32, numElems, GFX_DATA_FORMAT_R32_UINT, 8u, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, NULL, &initialData[64 * (unsigned __int64)numElems], "LGV atlas packing params");
@@ -3895,24 +3840,27 @@ void GfxLightGridVolumeAtlas::ScheduleWaitForCopies(GfxLightGridVolumeAtlas *thi
 GfxLightGridVolumeAtlas::ShouldDefragment
 ==============
 */
-
-bool __fastcall GfxLightGridVolumeAtlas::ShouldDefragment(GfxLightGridVolumeAtlas *this, double _XMM1_8)
+bool GfxLightGridVolumeAtlas::ShouldDefragment(GfxLightGridVolumeAtlas *this)
 {
-  int v3; 
+  unsigned int v1; 
+  float v2; 
   __int64 m_activeAtlasState; 
-  unsigned int m_numUnits; 
-  GfxLightGridVolumeAtlas::AtlasState *v7; 
+  int m_numUnits; 
+  GfxLightGridVolumeAtlas::AtlasState *v5; 
+  float v7; 
+  int v8; 
+  int v9; 
   int v10; 
   int v11; 
   int v12; 
   int v13; 
   int v14; 
   int v15; 
-  int v16; 
-  int v17; 
-  unsigned int v18; 
-  __int64 v19; 
-  unsigned __int64 *v20; 
+  unsigned int v16; 
+  __int64 v17; 
+  unsigned __int64 *v18; 
+  int v19; 
+  int v20; 
   int v21; 
   int v22; 
   int v23; 
@@ -3921,163 +3869,138 @@ bool __fastcall GfxLightGridVolumeAtlas::ShouldDefragment(GfxLightGridVolumeAtla
   int v26; 
   int v27; 
   int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  __int64 v32; 
-  unsigned int *v33; 
+  unsigned int v29; 
+  __int64 v30; 
+  unsigned int *v31; 
+  float v32; 
   unsigned int m_numRanges; 
   GfxLightGridVolumeAtlas::ParamsAllocator *p_m_paramsAllocator; 
-  bool v38; 
-  unsigned int v39; 
-  __int64 v40; 
-  bool v41; 
-  int v48; 
-  unsigned __int64 v49; 
-  unsigned __int64 v50; 
-  unsigned __int64 v51; 
-  int v52; 
-  int v53; 
-  int v54; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
+  __int64 v35; 
+  __int64 v36; 
+  float v37; 
+  float v38; 
+  float m_defragmentationUtilizationThreshold; 
+  int v41; 
+  unsigned __int64 v42; 
+  unsigned __int64 v43; 
+  unsigned __int64 v44; 
+  int v45; 
+  int v46; 
+  int v47; 
+  __int64 v48; 
+  __int64 v49; 
+  __int64 v50; 
 
-  v3 = 0;
-  __asm { vmovss  xmm2, cs:__real@3f800000 }
+  v1 = 0;
+  v2 = FLOAT_1_0;
   m_activeAtlasState = this->m_activeAtlasState;
   m_numUnits = this->m_atlasState[m_activeAtlasState].m_textureAllocator.m_numUnits;
-  v7 = &this->m_atlasState[m_activeAtlasState];
-  _R10 = this;
+  v5 = &this->m_atlasState[m_activeAtlasState];
   if ( m_numUnits )
   {
+    v8 = 0;
+    v9 = 0;
+    v42 = 0i64;
     v10 = 0;
+    v43 = 0i64;
     v11 = 0;
-    v49 = 0i64;
+    v44 = 0i64;
     v12 = 0;
-    v50 = 0i64;
+    v45 = 0;
     v13 = 0;
-    v51 = 0i64;
-    v14 = 0;
-    v52 = 0;
-    v15 = 0;
-    v53 = 0;
-    v54 = 0;
-    v55 = 0i64;
-    v56 = 0i64;
-    v57 = 0i64;
-    v16 = 512;
-    if ( m_numUnits < 0x200 )
-      v16 = m_numUnits;
-    v17 = -1 << (31 - ((v16 - 1) & 0x1F));
-    v18 = (unsigned int)(v16 - 1) >> 5;
-    if ( v18 )
+    v46 = 0;
+    v47 = 0;
+    v48 = 0i64;
+    v49 = 0i64;
+    v50 = 0i64;
+    v14 = 512;
+    if ( (unsigned int)m_numUnits < 0x200 )
+      v14 = m_numUnits;
+    v15 = -1 << (31 - ((v14 - 1) & 0x1F));
+    v16 = (unsigned int)(v14 - 1) >> 5;
+    if ( v16 )
     {
-      v48 = -1;
-      if ( v18 > 1 )
+      v41 = -1;
+      if ( v16 > 1 )
       {
-        v19 = v18 - 1;
-        v20 = &v49;
-        while ( v19 )
+        v17 = v16 - 1;
+        v18 = &v42;
+        while ( v17 )
         {
-          *(_DWORD *)v20 = -1;
-          v20 = (unsigned __int64 *)((char *)v20 + 4);
-          --v19;
+          *(_DWORD *)v18 = -1;
+          v18 = (unsigned __int64 *)((char *)v18 + 4);
+          --v17;
         }
       }
-      *(&v48 + v18) |= v17;
-      v15 = HIDWORD(v51);
-      v14 = v51;
-      v11 = HIDWORD(v50);
-      v13 = v50;
-      v12 = HIDWORD(v49);
-      v10 = v49;
-      v17 = v48;
+      *(&v41 + v16) |= v15;
+      v13 = HIDWORD(v44);
+      v12 = v44;
+      v9 = HIDWORD(v43);
+      v11 = v43;
+      v10 = HIDWORD(v42);
+      v8 = v42;
+      v15 = v41;
     }
-    v21 = v7->m_textureAllocator.m_allocationUnits.array[0] & v17;
-    v22 = v7->m_textureAllocator.m_allocationUnits.array[1] & v10;
-    v23 = v7->m_textureAllocator.m_allocationUnits.array[2] & v12;
-    v24 = v7->m_textureAllocator.m_allocationUnits.array[3] & v13;
-    v25 = v7->m_textureAllocator.m_allocationUnits.array[4] & v11;
-    v26 = v7->m_textureAllocator.m_allocationUnits.array[5] & v14;
-    v27 = v7->m_textureAllocator.m_allocationUnits.array[6] & v15;
-    v28 = v7->m_textureAllocator.m_allocationUnits.array[8] & v53;
-    v29 = v7->m_textureAllocator.m_allocationUnits.array[9] & v54;
-    v52 &= v7->m_textureAllocator.m_allocationUnits.array[7];
-    v55 &= *(_QWORD *)&v7->m_textureAllocator.m_allocationUnits.array[10];
-    v56 &= *(_QWORD *)&v7->m_textureAllocator.m_allocationUnits.array[12];
-    LODWORD(v57) = v7->m_textureAllocator.m_allocationUnits.array[14] & v57;
-    v30 = v7->m_textureAllocator.m_allocationUnits.array[15] & HIDWORD(v57);
-    v48 = v21;
-    v31 = 0;
-    v49 = __PAIR64__(v23, v22);
-    v32 = 16i64;
-    v50 = __PAIR64__(v25, v24);
-    v51 = __PAIR64__(v27, v26);
-    v53 = v28;
-    v33 = (unsigned int *)&v48;
-    v54 = v29;
-    HIDWORD(v57) = v30;
+    v19 = v5->m_textureAllocator.m_allocationUnits.array[0] & v15;
+    v20 = v5->m_textureAllocator.m_allocationUnits.array[1] & v8;
+    v21 = v5->m_textureAllocator.m_allocationUnits.array[2] & v10;
+    v22 = v5->m_textureAllocator.m_allocationUnits.array[3] & v11;
+    v23 = v5->m_textureAllocator.m_allocationUnits.array[4] & v9;
+    v24 = v5->m_textureAllocator.m_allocationUnits.array[5] & v12;
+    v25 = v5->m_textureAllocator.m_allocationUnits.array[6] & v13;
+    v26 = v5->m_textureAllocator.m_allocationUnits.array[8] & v46;
+    v27 = v5->m_textureAllocator.m_allocationUnits.array[9] & v47;
+    v45 &= v5->m_textureAllocator.m_allocationUnits.array[7];
+    v48 &= *(_QWORD *)&v5->m_textureAllocator.m_allocationUnits.array[10];
+    v49 &= *(_QWORD *)&v5->m_textureAllocator.m_allocationUnits.array[12];
+    LODWORD(v50) = v5->m_textureAllocator.m_allocationUnits.array[14] & v50;
+    v28 = v5->m_textureAllocator.m_allocationUnits.array[15] & HIDWORD(v50);
+    v41 = v19;
+    v29 = 0;
+    v42 = __PAIR64__(v21, v20);
+    v30 = 16i64;
+    v43 = __PAIR64__(v23, v22);
+    v44 = __PAIR64__(v25, v24);
+    v46 = v26;
+    v31 = (unsigned int *)&v41;
+    v47 = v27;
+    HIDWORD(v50) = v28;
     do
     {
-      v31 += __popcnt(*v33++);
-      --v32;
+      v29 += __popcnt(*v31++);
+      --v30;
     }
-    while ( v32 );
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtsi2ss xmm0, xmm0, r11d
-      vdivss  xmm3, xmm1, xmm0
-    }
+    while ( v30 );
+    v32 = (float)v29;
+    v7 = v32 / (float)m_numUnits;
   }
   else
   {
-    __asm { vmovaps xmm3, xmm2 }
+    v7 = FLOAT_1_0;
   }
-  m_numRanges = v7->m_paramsAllocator.m_numRanges;
-  p_m_paramsAllocator = &v7->m_paramsAllocator;
-  v38 = m_numRanges == 0;
+  m_numRanges = v5->m_paramsAllocator.m_numRanges;
+  p_m_paramsAllocator = &v5->m_paramsAllocator;
   if ( m_numRanges )
   {
-    v39 = v7->m_textureAllocator.m_partialSliceIndex[2 * m_numRanges + 511];
-    v38 = v39 == 0;
-    if ( v39 )
+    v35 = v5->m_textureAllocator.m_partialSliceIndex[2 * m_numRanges + 511];
+    if ( (_DWORD)v35 )
     {
-      v40 = m_numRanges;
+      v36 = m_numRanges;
       do
       {
         if ( (*(_DWORD *)p_m_paramsAllocator->m_ranges & 1) != 0 )
-          v3 += (*(_DWORD *)p_m_paramsAllocator->m_ranges >> 1) - p_m_paramsAllocator->m_ranges[0].end;
+          v1 += (*(_DWORD *)p_m_paramsAllocator->m_ranges >> 1) - p_m_paramsAllocator->m_ranges[0].end;
         p_m_paramsAllocator = (GfxLightGridVolumeAtlas::ParamsAllocator *)((char *)p_m_paramsAllocator + 8);
-        v41 = v40-- == 0;
-        v38 = v41 || v40 == 0;
+        --v36;
       }
-      while ( v40 );
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm2, xmm1, xmm0
-      }
+      while ( v36 );
+      v37 = (float)v1;
+      v38 = (float)v35;
+      v2 = v37 / v38;
     }
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r10+8Ch]
-    vcomiss xmm3, xmm0
-  }
-  if ( !v38 )
-  {
-    __asm { vcomiss xmm2, xmm0 }
-    if ( !v38 )
-      return 0;
-  }
-  return v7->m_depth > 2 * _R10->m_repackExtraSlicesAlloc;
+  m_defragmentationUtilizationThreshold = this->m_defragmentationUtilizationThreshold;
+  return (v7 <= m_defragmentationUtilizationThreshold || v2 <= m_defragmentationUtilizationThreshold) && v5->m_depth > 2 * this->m_repackExtraSlicesAlloc;
 }
 
 /*

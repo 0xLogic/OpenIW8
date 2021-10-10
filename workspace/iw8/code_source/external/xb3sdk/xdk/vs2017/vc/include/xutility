@@ -11,17 +11,6 @@ std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_move_cat<EntityNa
 
 /*
 ==============
-std::_Ptr_move_cat<EntityNameplate,EntityNameplate>
-==============
-*/
-
-std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_move_cat<EntityNameplate,EntityNameplate>(EntityNameplate *const *__formal, EntityNameplate *const *a2)
-{
-  return ??$_Ptr_move_cat@UEntityNameplate@@U1@@std@@YA?AU_Trivially_copyable_ptr_iterator_tag@0@AEBQEAUEntityNameplate@@0@Z(__formal, a2);
-}
-
-/*
-==============
 std::_Ptr_move_cat<flatbuffers::FlatBufferBuilder::FieldLoc,flatbuffers::FlatBufferBuilder::FieldLoc>
 ==============
 */

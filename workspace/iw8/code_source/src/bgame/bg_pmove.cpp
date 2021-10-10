@@ -1219,18 +1219,15 @@ double __fastcall BG_crandom(unsigned int *pHoldrand)
 BG_CalcViewspeedBobRatio
 ==============
 */
-
-float __fastcall BG_CalcViewspeedBobRatio(double yaw, double prevYaw, const playerState_s *ps, const int frametimeMs)
+float BG_CalcViewspeedBobRatio(const float yaw, const float prevYaw, const playerState_s *ps, const int frametimeMs)
 {
   const SuitDef *SuitDef; 
+  double v7; 
+  float v8; 
+  double Float_Internal_DebugName; 
+  float v10; 
+  double ValueFromFraction; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps xmm7, xmm0
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8253, ASSERT_TYPE_ASSERT, "( ps ) != ( nullptr )", "%s != %s\n\t%p, %p", "ps", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( frametimeMs <= 0 || BG_IsInAir(ps, 0) )
@@ -1241,42 +1238,18 @@ float __fastcall BG_CalcViewspeedBobRatio(double yaw, double prevYaw, const play
   if ( ps->viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
   {
 LABEL_13:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(ValueFromFraction) = 0;
   }
   else
   {
-    __asm
-    {
-      vmovaps xmm1, xmm6; angle2
-      vmovaps xmm0, xmm7; angle1
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@447a0000
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, esi
-      vdivss  xmm2, xmm1, xmm2
-      vmulss  xmm6, xmm0, xmm2
-      vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_viewBobMaxTurnSpeed, "bg_viewBobMaxTurnSpeed");
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vdivss  xmm0, xmm6, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm2, xmm0; fraction }
-    *(double *)&_XMM0 = GraphGetValueFromFraction(4, knots, *(const float *)&_XMM2);
+    v7 = AngleDelta(yaw, prevYaw);
+    v8 = *(float *)&v7 * (float)(1000.0 / (float)frametimeMs);
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_viewBobMaxTurnSpeed, "bg_viewBobMaxTurnSpeed");
+    v10 = COERCE_FLOAT(LODWORD(v8) & _xmm) / *(float *)&Float_Internal_DebugName;
+    I_fclamp(v10, 0.0, 1.0);
+    ValueFromFraction = GraphGetValueFromFraction(4, knots, v10);
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&ValueFromFraction;
 }
 
 /*
@@ -1318,74 +1291,27 @@ char BG_CanJog(const BgWeaponMap *const weaponMap, const playerState_s *const ps
 BG_CheckProneTurned
 ==============
 */
-
-__int64 __fastcall BG_CheckProneTurned(pmove_t *pm, playerState_s *ps, double newProneYaw, const BgHandler *handler)
+_BOOL8 BG_CheckProneTurned(pmove_t *pm, playerState_s *ps, float newProneYaw, const BgHandler *handler)
 {
+  double v7; 
+  float v8; 
+  float fYaw; 
   FeetDirection feetDirection; 
   Physics_WorldId worldId; 
   int isOnGround; 
-  __int64 result; 
-  float fmt; 
-  float fYaw; 
-  float v35; 
-  char v36; 
-  void *retaddr; 
+  double BoundsHeight; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBP = ps;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm2
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9809, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+1DCh]; angle2
-    vmovaps xmm0, xmm8; angle1
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm
-  {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm7, xmm1, cs:__real@3b888889
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm6, xmm1, xmm7
-    vmulss  xmm0, xmm6, xmm0
-    vsubss  xmm0, xmm8, xmm0; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm { vmovaps xmm8, xmm0 }
-  feetDirection = PM_GetProneFeetDirection(_RBP);
+  v7 = AngleDelta(newProneYaw, ps->viewangles.v[1]);
+  v8 = COERCE_FLOAT(LODWORD(v7) & _xmm) * 0.0041666669;
+  fYaw = newProneYaw - (float)((float)(1.0 - v8) * *(float *)&v7);
+  AngleNormalize360(fYaw);
+  feetDirection = PM_GetProneFeetDirection(ps);
   worldId = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
-  isOnGround = _RBP->groundEntityNum != 2047;
-  *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_RBP, PM_EFF_STANCE_PRONE);
-  __asm
-  {
-    vmulss  xmm2, xmm6, cs:__real@42480000
-    vmulss  xmm1, xmm7, cs:__real@42340000
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  [rsp+0D8h+var_68], xmm3
-    vmovss  xmm3, cs:__real@41700000; fSize
-    vmovss  [rsp+0D8h+fYaw], xmm8
-    vmovss  dword ptr [rsp+0D8h+fmt], xmm0
-  }
-  LOBYTE(result) = BG_CheckProne(_RBP, _RBP->clientNum, &_RBP->origin, *(const float *)&_XMM3, fmt, fYaw, &pm->fTorsoPitch, &pm->fWaistPitch, 1, isOnGround, 1, handler, worldId, PCT_CLIENT, v35, feetDirection, NULL, NULL);
-  _R11 = &v36;
-  result = (unsigned __int8)result;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  isOnGround = ps->groundEntityNum != 2047;
+  BoundsHeight = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_PRONE);
+  return BG_CheckProne(ps, ps->clientNum, &ps->origin, 15.0, *(const float *)&BoundsHeight, fYaw, &pm->fTorsoPitch, &pm->fWaistPitch, 1, isOnGround, 1, handler, worldId, PCT_CLIENT, (float)((float)(1.0 - v8) * 50.0) + (float)(v8 * 45.0), feetDirection, NULL, NULL);
 }
 
 /*
@@ -1411,24 +1337,22 @@ BG_CmdScale_CalcCmdScale
 */
 float BG_CmdScale_CalcCmdScale(const char forwardMove, const char rightMove)
 {
-  __asm
+  int v2; 
+  int v3; 
+  float v4; 
+  float result; 
+
+  v2 = abs8(rightMove);
+  v3 = abs8(forwardMove);
+  v4 = fsqrt((float)(rightMove * rightMove + forwardMove * forwardMove));
+  result = 0.0;
+  if ( v4 > 0.000001 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r8d
-    vsqrtss xmm2, xmm0, xmm0
-    vcvtss2sd xmm1, xmm2, xmm2
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-    vxorps  xmm0, xmm0, xmm0
+    if ( v3 > v2 )
+      v2 = v3;
+    return (float)v2 / v4;
   }
-  if ( !__CFADD__(rightMove * rightMove, forwardMove * forwardMove) && rightMove * rightMove + forwardMove * forwardMove != 0 )
-  {
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, r10d
-      vdivss  xmm0, xmm0, xmm2
-    }
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1436,52 +1360,19 @@ float BG_CmdScale_CalcCmdScale(const char forwardMove, const char rightMove)
 BG_CmdScale_CalcInputScale
 ==============
 */
-
-float __fastcall BG_CmdScale_CalcInputScale(double forward, double side)
+float BG_CmdScale_CalcInputScale(float forward, float side)
 {
-  char v2; 
-  char v3; 
+  float result; 
 
-  __asm
+  result = 0.0;
+  if ( side != 0.0 || forward != 0.0 )
   {
-    vmovaps xmm3, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( !v3 )
-    goto LABEL_3;
-  __asm { vucomiss xmm3, xmm0 }
-  if ( !v3 )
-  {
-LABEL_3:
-    __asm
-    {
-      vandps  xmm2, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm0, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm2, xmm0
-    }
-    if ( v2 | v3 )
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm1, xmm3
-        vmulss  xmm0, xmm0, xmm0
-        vaddss  xmm1, xmm0, cs:__real@3f800000
-        vsqrtss xmm0, xmm1, xmm1
-      }
-    }
+    if ( COERCE_FLOAT(LODWORD(side) & _xmm) <= COERCE_FLOAT(LODWORD(forward) & _xmm) )
+      return fsqrt((float)((float)(side / forward) * (float)(side / forward)) + 1.0);
     else
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm3, xmm1
-        vmulss  xmm0, xmm0, xmm0
-        vaddss  xmm1, xmm0, cs:__real@3f800000
-        vsqrtss xmm0, xmm1, xmm1
-      }
-    }
+      return fsqrt((float)((float)(forward / side) * (float)(forward / side)) + 1.0);
   }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1508,38 +1399,16 @@ __int64 BG_EstimateEffectiveStance(const entityState_t *es)
 BG_GetBobCycleAnimTime
 ==============
 */
-
-float __fastcall BG_GetBobCycleAnimTime(const int (*packedBobCycle)[2], double _XMM1_8)
+float BG_GetBobCycleAnimTime(const int (*packedBobCycle)[2])
 {
-  BobCycle v13; 
+  float v1; 
+  BobCycle v3; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  BobCycle::BobCycle(&v13, packedBobCycle);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm6, xmm1, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm6, xmm1
-  }
-  if ( __CFSHL__(v13.maxGeneration + 1, 9) )
-    goto LABEL_9;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !__CFSHL__(v13.maxGeneration + 1, 9) && (v13.maxGeneration + 1) << 9 != 0 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5296, ASSERT_TYPE_ASSERT, "(0.0f <= animTime && animTime <= 1.0f)", (const char *)&queryFormat, "0.0f <= animTime && animTime <= 1.0f") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  return *(float *)&_XMM0;
+  BobCycle::BobCycle(&v3, packedBobCycle);
+  v1 = (float)(v3.animCycle + (v3.generation << 9)) / (float)((v3.maxGeneration + 1) << 9);
+  if ( (v1 < 0.0 || v1 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5296, ASSERT_TYPE_ASSERT, "(0.0f <= animTime && animTime <= 1.0f)", (const char *)&queryFormat, "0.0f <= animTime && animTime <= 1.0f") )
+    __debugbreak();
+  return v1;
 }
 
 /*
@@ -1549,71 +1418,47 @@ BG_GetBobValue
 */
 void BG_GetBobValue(const int (*packedBobCycle)[2], float *outViewCycle, float *outViewAmplitude, float *outAnimCycle)
 {
-  const dvar_t *v12; 
-  const dvar_t *v13; 
-  const dvar_t *v15; 
-  const dvar_t *v16; 
-  BobCycle v22; 
+  __int16 animCycle; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  BobCycle v12; 
 
-  _RBP = outAnimCycle;
-  _RSI = outViewCycle;
-  _R14 = outViewAmplitude;
-  BobCycle::BobCycle(&v22, packedBobCycle);
-  if ( _RSI )
+  BobCycle::BobCycle(&v12, packedBobCycle);
+  animCycle = v12.animCycle;
+  if ( outViewCycle )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3bc9d9b5
-      vmulss  xmm2, xmm1, cs:__real@40000000
-      vaddss  xmm3, xmm2, cs:__real@40c90fdb
-      vmovss  dword ptr [rsi], xmm3
-    }
-    v12 = DCONST_DVARBOOL_bg_viewBobDisable;
+    *outViewCycle = (float)((float)((float)(v12.animCycle & 0x1FF) * 0.0061599859) * 2.0) + 6.2831855;
+    v8 = DCONST_DVARBOOL_bg_viewBobDisable;
     if ( !DCONST_DVARBOOL_bg_viewBobDisable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobDisable") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    if ( v12->current.enabled )
-      *_RSI = 0.0;
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled )
+      *outViewCycle = 0.0;
   }
-  if ( _R14 )
+  if ( outViewAmplitude )
   {
-    v13 = DCONST_DVARMPFLT_bg_viewBobMax;
+    v9 = DCONST_DVARMPFLT_bg_viewBobMax;
     if ( !DCONST_DVARMPFLT_bg_viewBobMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobMax") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    __asm
-    {
-      vmovss  xmm0, [rsp+78h+var_2C]
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [r14], xmm1
-    }
-    v15 = DCONST_DVARMPBOOL_bg_viewBobConstantAmplitude;
+    Dvar_CheckFrontendServerThread(v9);
+    *outViewAmplitude = v12.amplitudeRatio * v9->current.value;
+    v10 = DCONST_DVARMPBOOL_bg_viewBobConstantAmplitude;
     if ( !DCONST_DVARMPBOOL_bg_viewBobConstantAmplitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobConstantAmplitude") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v15->current.enabled )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled )
     {
-      v16 = DCONST_DVARMPFLT_bg_viewBobMax;
+      v11 = DCONST_DVARMPFLT_bg_viewBobMax;
       if ( !DCONST_DVARMPFLT_bg_viewBobMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobMax") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      *_R14 = v16->current.value;
+      Dvar_CheckFrontendServerThread(v11);
+      *outViewAmplitude = v11->current.value;
     }
   }
-  if ( _RBP )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm1, xmm0, cs:__real@3bc9d9b5
-      vmulss  xmm2, xmm1, cs:__real@40000000
-      vaddss  xmm3, xmm2, cs:__real@40c90fdb
-      vmovss  dword ptr [rbp+0], xmm3
-    }
-  }
+  if ( outAnimCycle )
+    *outAnimCycle = (float)((float)((float)(animCycle & 0x1FF) * 0.0061599859) * 2.0) + 6.2831855;
 }
 
 /*
@@ -1623,45 +1468,40 @@ BG_GetLateralSpeed
 */
 float BG_GetLateralSpeed(const playerState_s *ps, const BgHandler *handler)
 {
-  const dvar_t *v6; 
+  const dvar_t *v4; 
   int integer; 
   vec3_t *p_velocity; 
-  WorldUpReferenceFrame v16; 
+  double v7; 
+  float v8; 
+  double UpContribution; 
+  double ForwardContribution; 
+  WorldUpReferenceFrame v12; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12897, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v16, ps, handler);
-  v6 = DCONST_DVARINT_player_lateralPlane;
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v12, ps, handler);
+  v4 = DCONST_DVARINT_player_lateralPlane;
   if ( !DCONST_DVARINT_player_lateralPlane && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_lateralPlane") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  integer = v6->current.integer;
+  Dvar_CheckFrontendServerThread(v4);
+  integer = v4->current.integer;
   p_velocity = &ps->velocity;
   if ( integer )
   {
     if ( integer == 1 )
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v16, p_velocity);
+      ForwardContribution = WorldUpReferenceFrame::GetForwardContribution(&v12, p_velocity);
     else
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v16, p_velocity);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v16, &ps->velocity);
+      ForwardContribution = WorldUpReferenceFrame::GetRightContribution(&v12, p_velocity);
+    v8 = *(float *)&ForwardContribution;
+    UpContribution = WorldUpReferenceFrame::GetUpContribution(&v12, &ps->velocity);
   }
   else
   {
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v16, p_velocity);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v16, &ps->velocity);
+    v7 = WorldUpReferenceFrame::GetForwardContribution(&v12, p_velocity);
+    v8 = *(float *)&v7;
+    UpContribution = WorldUpReferenceFrame::GetRightContribution(&v12, &ps->velocity);
   }
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm0, xmm1, xmm1
-    vmovaps xmm6, [rsp+88h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return fsqrt((float)(*(float *)&UpContribution * *(float *)&UpContribution) + (float)(v8 * v8));
 }
 
 /*
@@ -1750,76 +1590,60 @@ BG_GetSpeed
 */
 float BG_GetSpeed(const playerState_s *ps, const int time, const BgHandler *handler)
 {
-  const dvar_t *v17; 
+  double UpContribution; 
+  const dvar_t *v7; 
   int integer; 
-  const vec3_t *p_velocity; 
-  WorldUpReferenceFrame v26; 
+  vec3_t *p_velocity; 
+  double v10; 
+  float v11; 
+  double ForwardContribution; 
+  WorldUpReferenceFrame v14; 
 
-  _RBX = ps;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
   {
-    if ( time - _RBX->jumpState.jumpTime >= 500 )
+    if ( time - ps->jumpState.jumpTime >= 500 )
     {
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v26, _RBX, handler);
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v26, &_RBX->velocity);
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v14, ps, handler);
+      UpContribution = WorldUpReferenceFrame::GetUpContribution(&v14, &ps->velocity);
     }
     else
     {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      LODWORD(UpContribution) = 0;
     }
   }
-  else if ( BG_IsPlayerZeroG(_RBX) )
+  else if ( BG_IsPlayerZeroG(ps) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+3Ch]
-      vmovss  xmm2, dword ptr [rbx+40h]
-      vmovss  xmm3, dword ptr [rbx+44h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-    }
+    LODWORD(UpContribution) = fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
   }
   else
   {
-    __asm { vmovaps [rsp+88h+var_18], xmm6 }
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12897, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12897, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v26, _RBX, handler);
-    v17 = DCONST_DVARINT_player_lateralPlane;
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v14, ps, handler);
+    v7 = DCONST_DVARINT_player_lateralPlane;
     if ( !DCONST_DVARINT_player_lateralPlane && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_lateralPlane") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    integer = v17->current.integer;
-    p_velocity = &_RBX->velocity;
+    Dvar_CheckFrontendServerThread(v7);
+    integer = v7->current.integer;
+    p_velocity = &ps->velocity;
     if ( integer )
     {
       if ( integer == 1 )
-        *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v26, p_velocity);
+        ForwardContribution = WorldUpReferenceFrame::GetForwardContribution(&v14, p_velocity);
       else
-        *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v26, p_velocity);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v26, p_velocity);
+        ForwardContribution = WorldUpReferenceFrame::GetRightContribution(&v14, p_velocity);
+      v11 = *(float *)&ForwardContribution;
+      UpContribution = WorldUpReferenceFrame::GetUpContribution(&v14, p_velocity);
     }
     else
     {
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v26, p_velocity);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v26, p_velocity);
+      v10 = WorldUpReferenceFrame::GetForwardContribution(&v14, p_velocity);
+      v11 = *(float *)&v10;
+      UpContribution = WorldUpReferenceFrame::GetRightContribution(&v14, p_velocity);
     }
-    __asm
-    {
-      vmulss  xmm1, xmm6, xmm6
-      vmovaps xmm6, [rsp+88h+var_18]
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm0, xmm1, xmm1
-    }
+    LODWORD(UpContribution) = fsqrt((float)(v11 * v11) + (float)(*(float *)&UpContribution * *(float *)&UpContribution));
   }
-  return *(float *)&_XMM0;
+  return *(float *)&UpContribution;
 }
 
 /*
@@ -1864,61 +1688,31 @@ BG_GetViewDip
 ==============
 */
 
-int __fastcall BG_GetViewDip(const playerState_s *ps, double fallHeight)
+__int64 __fastcall BG_GetViewDip(const playerState_s *ps, double fallHeight)
 {
-  bool v6; 
-  bool v7; 
-  int result; 
+  __int128 v5; 
 
-  __asm
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5182, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  _XMM4 = 0i64;
+  if ( *(float *)&fallHeight > 12.0 )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = ps == NULL;
-  if ( !ps )
-  {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5182, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps");
-    v6 = !v7;
-    if ( v7 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41400000
-    vcomiss xmm6, xmm0
-    vxorps  xmm4, xmm4, xmm4
-  }
-  if ( v6 )
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
+    v5 = *(_OWORD *)&fallHeight;
+    *(float *)&v5 = (float)((float)(*(float *)&fallHeight - 12.0) * 0.15384616) + 4.0;
+    _XMM1 = v5;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm0
-      vmulss  xmm1, xmm0, cs:__real@3e1d89d9
-      vaddss  xmm1, xmm1, cs:__real@40800000
-    }
+    _XMM1 = 0i64;
   }
+  __asm { vminss  xmm3, xmm1, cs:__real@41c00000 }
+  _XMM0 = ps->slideState.flags & 0x20;
   __asm
   {
-    vminss  xmm3, xmm1, cs:__real@41c00000
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  _EAX = ps->slideState.flags & 0x20;
-  _ECX = 0;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ecx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm4, xmm3, xmm2
-    vmovss  [rsp+48h+arg_8], xmm0
-    vcvttss2si eax, [rsp+48h+arg_8]
   }
-  return result;
+  return (unsigned int)(int)*(float *)&_XMM0;
 }
 
 /*
@@ -1968,167 +1762,122 @@ __int64 BG_GetViewHeightSprint(const playerState_s *ps, const SuitDef *const sui
 BG_InterpolateBobCycle
 ==============
 */
-
-BobCycle *__fastcall BG_InterpolateBobCycle(BobCycle *result, const playerState_s *prevPs, const playerState_s *nextPs, double fraction)
+BobCycle *BG_InterpolateBobCycle(BobCycle *result, const playerState_s *prevPs, const playerState_s *nextPs, float fraction)
 {
+  __int128 v4; 
   int commandTime; 
-  int v13; 
-  int maxGeneration; 
+  int v9; 
+  __int128 v10; 
+  double v11; 
+  signed int maxGeneration; 
   int generation; 
+  int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  bool isAnimDecreasing; 
   int v21; 
   int v22; 
-  int v23; 
+  __int64 v23; 
   int v24; 
-  __int64 v29; 
-  int v30; 
-  unsigned int v31; 
-  bool v32; 
-  bool v33; 
-  bool v34; 
-  bool v44; 
-  BobCycle *v48; 
-  BobCycle v50; 
-  __int128 v51; 
-  BobCycle v53; 
-  char v56; 
-  void *retaddr; 
+  unsigned int v25; 
+  float v26; 
+  float v27; 
+  BobCycle *v28; 
+  BobCycle v29; 
+  BobCycle v30; 
+  BobCycle v31; 
+  _QWORD v32[3]; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm7 }
-  _R15 = result;
-  __asm { vmovaps xmm7, xmm3 }
   if ( !prevPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5303, ASSERT_TYPE_ASSERT, "(prevPs)", (const char *)&queryFormat, "prevPs") )
     __debugbreak();
   if ( !nextPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5304, ASSERT_TYPE_ASSERT, "(nextPs)", (const char *)&queryFormat, "nextPs") )
     __debugbreak();
   commandTime = prevPs->commandTime;
-  v13 = nextPs->commandTime;
+  v9 = nextPs->commandTime;
   if ( prevPs->clientNum != nextPs->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5311, ASSERT_TYPE_ASSERT, "(prevPs->clientNum == nextPs->clientNum)", "%s\n\tAttempted to interpolate between playerStates belonging to different entities, (%i, %i), times: (%i, %i)", "prevPs->clientNum == nextPs->clientNum", prevPs->clientNum, nextPs->clientNum, prevPs->commandTime, nextPs->commandTime) )
     __debugbreak();
-  BobCycle::BobCycle(&v53, (const int (*)[2])prevPs->packedBobCycle);
-  BobCycle::BobCycle(&v50, (const int (*)[2])nextPs->packedBobCycle);
-  if ( commandTime < v13 )
+  BobCycle::BobCycle(&v31, (const int (*)[2])prevPs->packedBobCycle);
+  BobCycle::BobCycle(&v29, (const int (*)[2])nextPs->packedBobCycle);
+  if ( commandTime < v9 )
   {
-    __asm
+    _XMM1 = *(_OWORD *)&v31.animCycle;
+    maxGeneration = v29.maxGeneration;
+    generation = v29.generation;
+    __asm { vpextrd rax, xmm1, 2 }
+    *(_OWORD *)&v32[1] = v4;
+    v30 = v31;
+    if ( (_DWORD)_RAX == v29.maxGeneration )
     {
-      vmovups xmm1, xmmword ptr [rbp+57h+var_70.animCycle]
-      vmovsd  xmm0, qword ptr [rbp+57h+var_70.amplitudeRatioGun]
-    }
-    maxGeneration = v50.maxGeneration;
-    generation = v50.generation;
-    __asm
-    {
-      vpextrd rax, xmm1, 2
-      vmovaps xmmword ptr [rsp+0F0h+var_38+8], xmm6
-      vmovaps xmmword ptr [rsp+0F0h+var_58+8], xmm8
-      vmovups [rbp+57h+var_88], xmm1
-      vmovsd  [rbp+57h+var_78], xmm0
-    }
-    if ( (_DWORD)_RAX == v50.maxGeneration )
-    {
-      v21 = v53.generation;
+      v16 = v31.generation;
     }
     else
     {
-      v21 = v50.generation;
-      if ( v50.maxGeneration > 0xFu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5332, ASSERT_TYPE_ASSERT, "(0 <= prevBobCycle.maxGeneration && prevBobCycle.maxGeneration <= ((0x1 << 4) - 1))", (const char *)&queryFormat, "0 <= prevBobCycle.maxGeneration && prevBobCycle.maxGeneration <= MAX_BOB_GENERATION") )
+      v16 = v29.generation;
+      if ( v29.maxGeneration > 0xFu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5332, ASSERT_TYPE_ASSERT, "(0 <= prevBobCycle.maxGeneration && prevBobCycle.maxGeneration <= ((0x1 << 4) - 1))", (const char *)&queryFormat, "0 <= prevBobCycle.maxGeneration && prevBobCycle.maxGeneration <= MAX_BOB_GENERATION") )
         __debugbreak();
       if ( (generation < 0 || generation > maxGeneration) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5333, ASSERT_TYPE_ASSERT, "(0 <= prevBobCycle.generation && prevBobCycle.generation <= prevBobCycle.maxGeneration)", (const char *)&queryFormat, "0 <= prevBobCycle.generation && prevBobCycle.generation <= prevBobCycle.maxGeneration") )
         __debugbreak();
     }
-    v22 = (maxGeneration + 1) << 9;
-    v23 = ModuloWrap<int>(v53.animCycle + (v21 << 9), v22);
-    v24 = ModuloWrap<int>(v50.animCycle + (generation << 9), v22);
-    if ( v23 >= v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 580, ASSERT_TYPE_ASSERT, "(startVal < divisor)", (const char *)&queryFormat, "startVal < divisor") )
-      __debugbreak();
-    if ( v24 >= v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 581, ASSERT_TYPE_ASSERT, "(endVal < divisor)", (const char *)&queryFormat, "endVal < divisor") )
-      __debugbreak();
-    __asm
+    v17 = (maxGeneration + 1) << 9;
+    v18 = ModuloWrap<int>(v31.animCycle + (v16 << 9), v17);
+    v19 = ModuloWrap<int>(v29.animCycle + (generation << 9), v17);
+    isAnimDecreasing = v29.isAnimDecreasing;
+    v21 = v19;
+    if ( v31.isAnimDecreasing != v29.isAnimDecreasing )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm1, xmm0, xmm7
-      vcvttss2si ebx, xmm1
+      if ( (int)abs32(v19 - v18) > v17 / 2 )
+        isAnimDecreasing = v19 > v18;
+      else
+        isAnimDecreasing = v19 < v18;
     }
-    if ( v22 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 572, ASSERT_TYPE_ASSERT, "(divisor > 0)", (const char *)&queryFormat, "divisor > 0") )
+    if ( v18 >= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 580, ASSERT_TYPE_ASSERT, "(startVal < divisor)", (const char *)&queryFormat, "startVal < divisor") )
       __debugbreak();
-    v29 = (v22 + (_EBX + v23) % v22) % v22;
-    v30 = (v22 + (_EBX + v23) % v22) % v22 / 512;
-    v31 = (int)((((WORD2(v29) & 0x1FF) + v29) & 0x1FF) - (WORD2(v29) & 0x1FF) + 512) % 512;
-    *(_QWORD *)&v51 = __PAIR64__(v30, v31);
-    DWORD2(v51) = maxGeneration;
+    if ( v21 >= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 581, ASSERT_TYPE_ASSERT, "(endVal < divisor)", (const char *)&queryFormat, "endVal < divisor") )
+      __debugbreak();
+    if ( isAnimDecreasing )
+    {
+      if ( v21 > v18 )
+        v21 -= v17;
+    }
+    else if ( v21 < v18 )
+    {
+      v21 += v17;
+    }
+    v22 = (int)(float)((float)(v21 - v18) * fraction);
+    if ( v17 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 572, ASSERT_TYPE_ASSERT, "(divisor > 0)", (const char *)&queryFormat, "divisor > 0") )
+      __debugbreak();
+    v23 = (v17 + (v22 + v18) % v17) % v17;
+    v24 = (v17 + (v22 + v18) % v17) % v17 / 512;
+    v25 = (int)((((WORD2(v23) & 0x1FF) + v23) & 0x1FF) - (WORD2(v23) & 0x1FF) + 512) % 512;
+    *(_QWORD *)&v30.animCycle = __PAIR64__(v24, v25);
+    v30.maxGeneration = maxGeneration;
     if ( (unsigned int)maxGeneration > 0xF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5363, ASSERT_TYPE_ASSERT, "(0 <= interpBobCycle.maxGeneration && interpBobCycle.maxGeneration <= ((0x1 << 4) - 1))", (const char *)&queryFormat, "0 <= interpBobCycle.maxGeneration && interpBobCycle.maxGeneration <= MAX_BOB_GENERATION") )
       __debugbreak();
-    if ( (v30 < 0 || v30 > maxGeneration) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5364, ASSERT_TYPE_ASSERT, "(0 <= interpBobCycle.generation && interpBobCycle.generation <= interpBobCycle.maxGeneration)", (const char *)&queryFormat, "0 <= interpBobCycle.generation && interpBobCycle.generation <= interpBobCycle.maxGeneration") )
+    if ( (v24 < 0 || v24 > maxGeneration) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5364, ASSERT_TYPE_ASSERT, "(0 <= interpBobCycle.generation && interpBobCycle.generation <= interpBobCycle.maxGeneration)", (const char *)&queryFormat, "0 <= interpBobCycle.generation && interpBobCycle.generation <= interpBobCycle.maxGeneration") )
       __debugbreak();
-    v32 = v31 < 0x1FF;
-    v33 = v31 <= 0x1FF;
-    if ( v31 > 0x1FF )
-    {
-      v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5365, ASSERT_TYPE_ASSERT, "(0 <= interpBobCycle.animCycle && interpBobCycle.animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= interpBobCycle.animCycle && interpBobCycle.animCycle <= MAX_BOB_CYCLE");
-      v32 = 0;
-      v33 = !v34;
-      if ( v34 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmulss  xmm1, xmm7, [rbp+57h+var_A0.amplitudeRatio]
-      vmovss  xmm6, cs:__real@3f800000
-      vsubss  xmm3, xmm6, xmm7
-      vmulss  xmm2, xmm3, [rbp+57h+var_70.amplitudeRatio]
-      vmulss  xmm3, xmm3, [rbp+57h+var_70.amplitudeRatioGun]
-      vaddss  xmm4, xmm2, xmm1
-      vmulss  xmm1, xmm7, [rbp+57h+var_A0.amplitudeRatioGun]
-      vxorps  xmm8, xmm8, xmm8
-      vcomiss xmm4, xmm8
-      vaddss  xmm7, xmm3, xmm1
-      vmovss  dword ptr [rbp+57h+var_78], xmm7
-      vmovss  dword ptr [rbp+57h+var_88+0Ch], xmm4
-    }
-    if ( v32 )
-      goto LABEL_51;
-    __asm { vcomiss xmm4, xmm6 }
-    if ( !v33 )
-    {
-LABEL_51:
-      v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5370, ASSERT_TYPE_ASSERT, "(0.0f <= interpBobCycle.amplitudeRatio && interpBobCycle.amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= interpBobCycle.amplitudeRatio && interpBobCycle.amplitudeRatio <= 1.0f");
-      v33 = !v44;
-      if ( v44 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vcomiss xmm7, xmm8
-      vmovaps xmm8, xmmword ptr [rsp+0F0h+var_58+8]
-      vcomiss xmm7, xmm6
-    }
-    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5371, ASSERT_TYPE_ASSERT, "(0.0f <= interpBobCycle.amplitudeRatioGun && interpBobCycle.amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= interpBobCycle.amplitudeRatioGun && interpBobCycle.amplitudeRatioGun <= 1.0f") )
+    if ( v25 > 0x1FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5365, ASSERT_TYPE_ASSERT, "(0 <= interpBobCycle.animCycle && interpBobCycle.animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= interpBobCycle.animCycle && interpBobCycle.animCycle <= MAX_BOB_CYCLE") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, [rbp+57h+var_88]
-      vmovsd  xmm1, [rbp+57h+var_78]
-      vmovaps xmm6, xmmword ptr [rsp+0F0h+var_38+8]
-    }
+    v26 = (float)((float)(1.0 - fraction) * v31.amplitudeRatio) + (float)(fraction * v29.amplitudeRatio);
+    v27 = (float)((float)(1.0 - fraction) * v31.amplitudeRatioGun) + (float)(fraction * v29.amplitudeRatioGun);
+    v30.amplitudeRatioGun = v27;
+    v30.amplitudeRatio = v26;
+    if ( (v26 < 0.0 || v26 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5370, ASSERT_TYPE_ASSERT, "(0.0f <= interpBobCycle.amplitudeRatio && interpBobCycle.amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= interpBobCycle.amplitudeRatio && interpBobCycle.amplitudeRatio <= 1.0f") )
+      __debugbreak();
+    if ( (v27 < 0.0 || v27 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5371, ASSERT_TYPE_ASSERT, "(0.0f <= interpBobCycle.amplitudeRatioGun && interpBobCycle.amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= interpBobCycle.amplitudeRatioGun && interpBobCycle.amplitudeRatioGun <= 1.0f") )
+      __debugbreak();
+    v10 = *(_OWORD *)&v30.animCycle;
+    v11 = *(double *)&v30.amplitudeRatioGun;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+57h+var_A0.animCycle]
-      vmovsd  xmm1, qword ptr [rbp+57h+var_A0.amplitudeRatioGun]
-    }
+    v10 = *(_OWORD *)&v29.animCycle;
+    v11 = *(double *)&v29.amplitudeRatioGun;
   }
-  _R11 = &v56;
-  v48 = _R15;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovups xmmword ptr [r15], xmm0
-    vmovsd  qword ptr [r15+10h], xmm1
-  }
-  return v48;
+  v28 = result;
+  *(_OWORD *)&result->animCycle = v10;
+  *(double *)&result->amplitudeRatioGun = v11;
+  return v28;
 }
 
 /*
@@ -2247,44 +1996,40 @@ BG_LateralVelocityVecDot
 */
 float BG_LateralVelocityVecDot(const playerState_s *ps, const vec3_t *otherVector, const BgHandler *handler)
 {
-  const dvar_t *v7; 
+  const dvar_t *v6; 
   int integer; 
   vec3_t *p_velocity; 
-  WorldUpReferenceFrame v16; 
+  double v9; 
+  float v10; 
+  double UpContribution; 
+  double ForwardContribution; 
+  WorldUpReferenceFrame v14; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12927, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v16, ps, handler);
-  v7 = DCONST_DVARINT_player_lateralPlane;
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v14, ps, handler);
+  v6 = DCONST_DVARINT_player_lateralPlane;
   if ( !DCONST_DVARINT_player_lateralPlane && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_lateralPlane") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  integer = v7->current.integer;
+  Dvar_CheckFrontendServerThread(v6);
+  integer = v6->current.integer;
   p_velocity = &ps->velocity;
   if ( integer )
   {
     if ( integer == 1 )
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v16, p_velocity);
+      ForwardContribution = WorldUpReferenceFrame::GetForwardContribution(&v14, p_velocity);
     else
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v16, p_velocity);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v16, &ps->velocity);
+      ForwardContribution = WorldUpReferenceFrame::GetRightContribution(&v14, p_velocity);
+    v10 = *(float *)&ForwardContribution;
+    UpContribution = WorldUpReferenceFrame::GetUpContribution(&v14, &ps->velocity);
   }
   else
   {
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&v16, p_velocity);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&v16, &ps->velocity);
+    v9 = WorldUpReferenceFrame::GetForwardContribution(&v14, p_velocity);
+    v10 = *(float *)&v9;
+    UpContribution = WorldUpReferenceFrame::GetRightContribution(&v14, &ps->velocity);
   }
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rsi+4]
-    vmulss  xmm0, xmm6, dword ptr [rsi]
-    vaddss  xmm0, xmm1, xmm0
-    vmovaps xmm6, [rsp+88h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return (float)(*(float *)&UpContribution * otherVector->v[1]) + (float)(v10 * otherVector->v[0]);
 }
 
 /*
@@ -2294,23 +2039,19 @@ BG_PlayerIsLinkedOrNotMoving
 */
 bool BG_PlayerIsLinkedOrNotMoving(const playerState_s *ps, const int gameTime, const BgHandler *handler)
 {
-  char v11; 
+  const dvar_t *v6; 
+  float value; 
+  double Speed; 
 
   if ( ps->pm_type == 1 && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, GameModeFlagValues::ms_spValue, 8u) )
     return 1;
-  _RBX = DCONST_DVARFLT_player_moveThreshhold;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v6 = DCONST_DVARFLT_player_moveThreshhold;
   if ( !DCONST_DVARFLT_player_moveThreshhold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_moveThreshhold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  *(double *)&_XMM0 = BG_GetSpeed(ps, gameTime, handler);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return v11 != 0;
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  Speed = BG_GetSpeed(ps, gameTime, handler);
+  return *(float *)&Speed < value;
 }
 
 /*
@@ -2356,50 +2097,32 @@ _BOOL8 BG_Pmove_PlayerProneAllowed(pmove_t *pm)
 BG_Pmove_PlayerPronePossible
 ==============
 */
-__int64 BG_Pmove_PlayerPronePossible(pmove_t *pm)
+_BOOL8 BG_Pmove_PlayerPronePossible(pmove_t *pm)
 {
+  playerState_s *ps; 
   FeetDirection feetDirection; 
-  Physics_WorldId v7; 
+  Physics_WorldId v4; 
   const BgHandler *handler; 
+  float fYaw; 
   Physics_WorldId worldId; 
   int isOnGround; 
-  __int64 result; 
-  float fmt; 
-  float fYaw; 
-  float v20; 
-  char v21; 
-  void *retaddr; 
+  double BoundsHeight; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6369, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6370, ASSERT_TYPE_ASSERT, "(pm->bounds)", (const char *)&queryFormat, "pm->bounds") )
     __debugbreak();
-  _R15 = pm->ps;
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6372, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6372, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  feetDirection = PM_GetProneFeetDirection(_R15);
-  v7 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
+  feetDirection = PM_GetProneFeetDirection(ps);
+  v4 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
   handler = pm->m_bgHandler;
-  __asm { vmovss  xmm6, dword ptr [r15+1DCh] }
-  worldId = v7;
-  isOnGround = _R15->groundEntityNum != 2047;
-  *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_R15, PM_EFF_STANCE_PRONE);
-  __asm { vmovss  xmm1, cs:__real@42480000 }
-  _R9 = pm->bounds;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r9+0Ch]; fSize
-    vmovss  [rsp+0B8h+var_48], xmm1
-    vmovss  [rsp+0B8h+fYaw], xmm6
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-  }
-  LOBYTE(result) = BG_CheckProne(_R15, _R15->clientNum, &_R15->origin, *(const float *)&_XMM3, fmt, fYaw, &pm->fTorsoPitch, &pm->fWaistPitch, 0, isOnGround, 1, handler, worldId, PCT_CLIENT, v20, feetDirection, NULL, NULL);
-  _R11 = &v21;
-  result = (unsigned __int8)result;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  fYaw = ps->viewangles.v[1];
+  worldId = v4;
+  isOnGround = ps->groundEntityNum != 2047;
+  BoundsHeight = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_PRONE);
+  return BG_CheckProne(ps, ps->clientNum, &ps->origin, pm->bounds->halfSize.v[0], *(const float *)&BoundsHeight, fYaw, &pm->fTorsoPitch, &pm->fWaistPitch, 0, isOnGround, 1, handler, worldId, PCT_CLIENT, 50.0, feetDirection, NULL, NULL);
 }
 
 /*
@@ -2498,221 +2221,143 @@ BG_UpdateViewAngles_ClampDefault
 */
 void BG_UpdateViewAngles_ClampDefault(playerState_s *ps, const usercmd_s *cmd)
 {
+  __int128 v2; 
+  const dvar_t *v3; 
+  __int128 unsignedInt; 
+  const dvar_t *v7; 
+  __int128 v8; 
   int pm_type; 
-  bool v21; 
-  char v22; 
+  bool v10; 
+  char v11; 
   base_vec3_t<int> *p_angles; 
-  int v29; 
-  signed __int64 v30; 
-  bool v31; 
-  bool v50; 
-  bool v51; 
+  int v13; 
+  signed __int64 v14; 
+  bool v15; 
+  vec3_t *p_delta_angles; 
+  __int128 v18; 
+  __int128 v21; 
   __int16 groundRefEnt; 
-  bool IsPlayerZeroGWalking; 
-  int v54; 
-  __int64 v95; 
-  __int64 v96; 
-  char v101; 
-  void *retaddr; 
+  int v23; 
+  int v27; 
+  double v28; 
+  __int64 v32; 
+  __int64 v33; 
 
-  _RAX = &retaddr;
-  _RBX = DCONST_DVARMPFLT_player_view_pitch_up;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps [rsp+108h+var_98], xmm12
-    vmovaps [rsp+108h+var_A8], xmm13
-    vmovaps [rsp+108h+var_B8], xmm14
-    vmovaps [rsp+108h+var_C8], xmm15
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
+  v3 = DCONST_DVARMPFLT_player_view_pitch_up;
+  if ( !DCONST_DVARMPFLT_player_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm13, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_player_view_pitch_down;
+  Dvar_CheckFrontendServerThread(v3);
+  unsignedInt = v3->current.unsignedInt;
+  v7 = DCONST_DVARMPFLT_player_view_pitch_down;
   if ( !DCONST_DVARMPFLT_player_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_down") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm12, dword ptr [rbx+28h] }
-  v21 = 0;
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.unsignedInt;
+  v10 = 0;
   if ( GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 0) )
   {
     pm_type = ps->pm_type;
     if ( pm_type == 1 || pm_type == 8 )
-      v21 = 1;
+      v10 = 1;
   }
-  v22 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x38u) || v21;
+  v11 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x38u) || v10;
   if ( ps->vehicleState.entity != 2047 )
-    v22 = 1;
+    v11 = 1;
   if ( GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 2u) )
   {
-    __asm
-    {
-      vmovss  xmm13, cs:__real@42aa0000
-      vmovaps xmm12, xmm13
-    }
-  }
-  __asm
-  {
-    vmovss  xmm15, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm14, cs:__real@43340000
-    vmovss  xmm10, cs:__real@3b360b61
-    vmovss  xmm9, cs:__real@3f000000
-    vmovss  xmm11, cs:__real@43b40000
+    unsignedInt = LODWORD(FLOAT_85_0);
+    v8 = LODWORD(FLOAT_85_0);
   }
   p_angles = &cmd->angles;
-  v29 = 0;
-  v30 = (char *)&cmd->angles - (char *)&ps->delta_angles;
-  v31 = 1;
-  _RDI = &ps->delta_angles;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v13 = 0;
+  v14 = (char *)&cmd->angles - (char *)&ps->delta_angles;
+  v15 = 1;
+  p_delta_angles = &ps->delta_angles;
+  _XMM8 = 0i64;
   do
   {
-    if ( !v31 )
+    if ( !v15 )
     {
-      LODWORD(v96) = 3;
-      LODWORD(v95) = v29;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 38, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v95, v96) )
+      LODWORD(v33) = 3;
+      LODWORD(v32) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 38, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
     }
-    __asm { vmovaps xmm1, xmm14; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)_RDI->v + v30), *(float *)&_XMM1, 0x14u);
-    __asm
+    *(double *)&v2 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)p_delta_angles->v + v14), 180.0, 0x14u);
+    v18 = v2;
+    *(float *)&v18 = *(float *)&v2 * 0.0027777778;
+    __asm { vroundss xmm7, xmm8, xmm0, 1 }
+    if ( (unsigned int)v13 >= 3 )
     {
-      vmulss  xmm6, xmm0, xmm10
-      vaddss  xmm2, xmm6, xmm9
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm7, xmm8, xmm0, 1
-    }
-    if ( (unsigned int)v29 >= 3 )
-    {
-      LODWORD(v96) = 3;
-      LODWORD(v95) = v29;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v95, v96) )
+      LODWORD(v33) = 3;
+      LODWORD(v32) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
     }
-    __asm
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    *(float *)&v18 = (float)((float)((float)((float)(*(float *)&v18 - *(float *)&_XMM7) * 1.0) + (float)(0.0027777778 * p_delta_angles->v[0])) - *(float *)&_XMM2) * 360.0;
+    v21 = v18;
+    if ( !v11 && !v13 )
     {
-      vmulss  xmm2, xmm10, dword ptr [rdi]
-      vsubss  xmm0, xmm6, xmm7
-      vmulss  xmm3, xmm0, cs:__real@3f800000
-      vaddss  xmm4, xmm3, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm3, xmm4, xmm9
-      vmovss  xmm1, xmm0, xmm3
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm4, xmm2
-      vmulss  xmm6, xmm0, xmm11
-    }
-    if ( !v22 && !v29 )
-    {
-      v50 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au);
-      v51 = !v50;
-      if ( !v50 )
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
         goto LABEL_32;
       groundRefEnt = ps->groundRefEnt;
       if ( groundRefEnt != 2047 )
       {
-        v51 = groundRefEnt == 0;
         if ( groundRefEnt )
           goto LABEL_32;
       }
       if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
         __debugbreak();
-      IsPlayerZeroGWalking = BG_IsPlayerZeroGWalking(ps);
-      v51 = !IsPlayerZeroGWalking;
-      if ( IsPlayerZeroGWalking )
+      if ( BG_IsPlayerZeroGWalking(ps) )
       {
 LABEL_32:
-        __asm { vcomiss xmm6, xmm12 }
-        if ( v51 )
+        if ( *(float *)&v18 <= *(float *)&v8 )
         {
-          __asm
+          if ( *(float *)&v18 < COERCE_FLOAT(unsignedInt ^ _xmm) )
           {
-            vxorps  xmm7, xmm13, xmm15
-            vcomiss xmm6, xmm7
+            v27 = base_vec3_t<int>::operator[](p_angles, 0);
+            v28 = BG_UsrCmdUnpackAngle(v27);
+            *vec3_t::operator[](&ps->delta_angles, 0) = COERCE_FLOAT(unsignedInt ^ _xmm) - *(float *)&v28;
+            vec3_t::operator[](&ps->delta_angles, 0);
+            __asm
+            {
+              vroundss xmm1, xmm8, xmm3, 1
+              vroundss xmm2, xmm8, xmm1, 1
+            }
+            *vec3_t::operator[](&ps->delta_angles, 0) = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM1 * 0.000015258789) - *(float *)&_XMM2) * 360.0;
+            v21 = unsignedInt ^ (unsigned int)_xmm;
           }
         }
         else
         {
-          v54 = base_vec3_t<int>::operator[](p_angles, 0);
-          __asm { vmovaps xmm1, xmm14; maxAbsValueSize }
-          *(double *)&_XMM0 = MSG_UnpackSignedFloat(v54, *(float *)&_XMM1, 0x14u);
+          v23 = base_vec3_t<int>::operator[](p_angles, 0);
+          MSG_UnpackSignedFloat(v23, 180.0, 0x14u);
           __asm
           {
-            vmulss  xmm4, xmm0, xmm10
-            vxorps  xmm1, xmm1, xmm1
-            vaddss  xmm2, xmm4, xmm9
-            vmovss  xmm0, xmm1, xmm2
             vroundss xmm3, xmm8, xmm0, 1
-            vsubss  xmm1, xmm4, xmm3
-            vmulss  xmm0, xmm1, xmm11
-            vsubss  xmm2, xmm12, xmm0
-            vmulss  xmm3, xmm2, cs:__real@43360b61
-            vxorps  xmm0, xmm0, xmm0
-            vaddss  xmm1, xmm3, xmm9
-            vmovss  xmm1, xmm0, xmm1
             vroundss xmm2, xmm8, xmm1, 1
-            vcvttss2si eax, xmm2
-          }
-          _ECX = (unsigned __int16)_EAX;
-          __asm
-          {
-            vmovd   xmm0, ecx
-            vcvtdq2ps xmm0, xmm0
-            vmulss  xmm4, xmm0, cs:__real@37800000
-            vaddss  xmm2, xmm4, xmm9
             vroundss xmm3, xmm8, xmm2, 1
-            vsubss  xmm1, xmm4, xmm3
-            vmulss  xmm0, xmm1, xmm11
-            vmovss  dword ptr [rdi], xmm0
-            vmovaps xmm6, xmm12
           }
+          p_delta_angles->v[0] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+          v21 = v8;
         }
       }
     }
-    __asm
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    *((_QWORD *)&v2 + 1) = *((_QWORD *)&v21 + 1);
+    if ( (unsigned int)v13 >= 3 )
     {
-      vmulss  xmm3, xmm6, xmm10
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm1, xmm3, xmm9
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm6, xmm0, xmm11
-    }
-    if ( (unsigned int)v29 >= 3 )
-    {
-      LODWORD(v96) = 3;
-      LODWORD(v95) = v29;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v95, v96) )
+      LODWORD(v33) = 3;
+      LODWORD(v32) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi+124h], xmm6 }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-    v31 = (unsigned int)++v29 < 3;
+    p_delta_angles[24].v[1] = (float)((float)(*(float *)&v21 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    p_delta_angles = (vec3_t *)((char *)p_delta_angles + 4);
+    v15 = (unsigned int)++v13 < 3;
   }
-  while ( v29 < 3 );
-  __asm { vmovaps xmm14, [rsp+108h+var_B8] }
-  _R11 = &v101;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+108h+var_C8]
-  }
+  while ( v13 < 3 );
 }
 
 /*
@@ -2722,16 +2367,11 @@ BG_crandom
 */
 float BG_crandom(unsigned int *pHoldrand)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  *pHoldrand = 214013 * *pHoldrand + 2531011;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@38000000
-    vmulss  xmm2, xmm1, cs:__real@40000000
-    vsubss  xmm0, xmm2, cs:__real@3f800000
-  }
-  return *(float *)&_XMM0;
+  unsigned int v1; 
+
+  v1 = 214013 * *pHoldrand + 2531011;
+  *pHoldrand = v1;
+  return (float)((float)((float)(v1 >> 17) * 0.000030517578) * 2.0) - 1.0;
 }
 
 /*
@@ -2739,23 +2379,13 @@ float BG_crandom(unsigned int *pHoldrand)
 BG_flrand
 ==============
 */
-
-float __fastcall BG_flrand(float min, double max, unsigned int *pHoldrand)
+float BG_flrand(float min, float max, unsigned int *pHoldrand)
 {
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vsubss  xmm1, xmm1, xmm0
-  }
-  *pHoldrand = 214013 * *pHoldrand + 2531011;
-  __asm
-  {
-    vcvtsi2ss xmm2, xmm2, eax
-    vmulss  xmm2, xmm2, xmm1
-    vmulss  xmm3, xmm2, cs:__real@38000000
-    vaddss  xmm0, xmm3, xmm0
-  }
-  return *(float *)&_XMM0;
+  unsigned int v3; 
+
+  v3 = 214013 * *pHoldrand + 2531011;
+  *pHoldrand = v3;
+  return (float)((float)((float)(v3 >> 17) * (float)(max - min)) * 0.000030517578) + min;
 }
 
 /*
@@ -2793,14 +2423,11 @@ BG_random
 */
 float BG_random(unsigned int *pHoldrand)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  *pHoldrand = 214013 * *pHoldrand + 2531011;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@38000000
-  }
-  return *(float *)&_XMM0;
+  unsigned int v1; 
+
+  v1 = 214013 * *pHoldrand + 2531011;
+  *pHoldrand = v1;
+  return (float)(v1 >> 17) * 0.000030517578;
 }
 
 /*
@@ -2818,46 +2445,24 @@ void BG_srand(unsigned int *pHoldrand)
 BG_srand_timeangles
 ==============
 */
-
-__int64 __fastcall BG_srand_timeangles(const int commandTime, const vec3_t *viewangles, double _XMM2_8, double _XMM3_8)
+__int64 BG_srand_timeangles(const int commandTime, const vec3_t *viewangles)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm4, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm0, xmm2, xmm1, 1
-    vmovss  xmm1, cs:precision
-    vcomiss xmm1, xmm2
-    vsubss  xmm0, xmm4, xmm0
-    vmovaps [rsp+48h+var_18], xmm7
-    vmulss  xmm7, xmm0, cs:__real@43b40000
-  }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm0, xmm2, xmm1, 1 }
+  if ( precision <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12970, ASSERT_TYPE_ASSERT, "(precision > 0.0f)", (const char *)&queryFormat, "precision > 0.0f") )
+    __debugbreak();
   if ( dword_14BB4768C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14BB4768C);
     if ( dword_14BB4768C == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm1, xmm0, cs:precision
-        vmovss  cs:invPrecision, xmm1
-      }
+      invPrecision = 1.0 / precision;
       j__Init_thread_footer(&dword_14BB4768C);
     }
   }
-  __asm
-  {
-    vmulss  xmm1, xmm7, cs:invPrecision
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vmovaps xmm7, [rsp+48h+var_18]
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si eax, xmm3
-  }
-  return (unsigned int)(159719620 - 570470319 * (commandTime + _EAX));
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  return (unsigned int)(159719620 - 570470319 * (commandTime + (int)*(float *)&_XMM3));
 }
 
 /*
@@ -2867,20 +2472,14 @@ BgScopedCrouchAndProneBlendMapUpdate
 */
 void BgScopedCrouchAndProneBlendMapUpdate(pmove_t *pm, pml_t *pml)
 {
+  __int128 v2; 
   playerState_s *ps; 
-  char v20; 
-  char v23; 
-  bool v24; 
-  int v31; 
-  char v39; 
+  __int128 v6; 
+  const dvar_t *v11; 
+  float value; 
+  __int128 frametime_low; 
+  __int128 v17; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RSI = pml;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6604, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
@@ -2891,79 +2490,42 @@ void BgScopedCrouchAndProneBlendMapUpdate(pmove_t *pm, pml_t *pml)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1188, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(ps->weapCommon.crouchProneBlendMap, *(float *)&_XMM1, 0xCu);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
+  *(double *)&v2 = MSG_UnpackUnsignedFloat(ps->weapCommon.crouchProneBlendMap, 1.0, 0xCu);
+  v6 = v2;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
   {
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    *(float *)&_XMM6 = FLOAT_1_0;
   }
   else
   {
-    _EAX = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u);
-    _ECX = 0;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3f000000
-      vblendvps xmm6, xmm1, xmm6, xmm2
-    }
+    _XMM0 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_0_5);
+    __asm { vblendvps xmm6, xmm1, xmm6, xmm2 }
   }
-  _RBX = DCONST_DVARFLT_player_crouchProneBlendTransitionTime;
+  v11 = DCONST_DVARFLT_player_crouchProneBlendTransitionTime;
   if ( !DCONST_DVARFLT_player_crouchProneBlendTransitionTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_crouchProneBlendTransitionTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  if ( value <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6620, ASSERT_TYPE_ASSERT, "(interpolationTimeSeconds > 1.0E-6)", (const char *)&queryFormat, "interpolationTimeSeconds > ZERO_EPSILON") )
+    __debugbreak();
+  frametime_low = LODWORD(pml->frametime);
+  *(float *)&frametime_low = pml->frametime / value;
+  if ( *(float *)&v6 >= *(float *)&_XMM6 )
   {
-    vmovss  xmm8, dword ptr [rbx+28h]
-    vcvtss2sd xmm0, xmm8, xmm8
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v20 | v23 )
-  {
-    v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6620, ASSERT_TYPE_ASSERT, "(interpolationTimeSeconds > 1.0E-6)", (const char *)&queryFormat, "interpolationTimeSeconds > ZERO_EPSILON");
-    v20 = 0;
-    if ( v24 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm7, xmm6
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vdivss  xmm1, xmm0, xmm8
-  }
-  if ( v20 )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm1, xmm7
-      vminss  xmm0, xmm0, xmm6
-    }
+    v17 = v6;
+    *(float *)&v17 = *(float *)&v6 - (float)(pml->frametime / value);
+    _XMM0 = v17;
+    __asm { vmaxss  xmm0, xmm0, xmm6; value }
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm7, xmm1
-      vmaxss  xmm0, xmm0, xmm6; value
-    }
+    *(float *)&frametime_low = *(float *)&frametime_low + *(float *)&v6;
+    _XMM0 = frametime_low;
+    __asm { vminss  xmm0, xmm0, xmm6 }
   }
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  v31 = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xCu);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v39;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  ps->weapCommon.crouchProneBlendMap = v31;
+  ps->weapCommon.crouchProneBlendMap = MSG_PackUnsignedFloat(*(float *)&_XMM0, 1.0, 0xCu);
 }
 
 /*
@@ -2972,93 +2534,61 @@ ClampAngleDeltaOverTime
 ==============
 */
 
-float __fastcall ClampAngleDeltaOverTime(double angleDelta, double curAngle, double minAngle, double maxAngle, float angleRate)
+float __fastcall ClampAngleDeltaOverTime(double angleDelta, float curAngle, double minAngle, double maxAngle, float angleRate)
 {
-  bool v16; 
-  void *retaddr; 
+  __int128 v6; 
+  float v10; 
+  __int128 v12; 
+  __int128 v14; 
+  __int128 v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vcomiss xmm2, xmm3
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmm11, xmm1
-    vmovaps xmm7, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm6, xmm0
-  }
-  v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4193, ASSERT_TYPE_ASSERT, "(minAngle <= maxAngle)", (const char *)&queryFormat, "minAngle <= maxAngle");
-  if ( v16 )
+  v6 = *(_OWORD *)&maxAngle;
+  _XMM6 = *(_OWORD *)&angleDelta;
+  if ( *(float *)&minAngle > *(float *)&maxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4193, ASSERT_TYPE_ASSERT, "(minAngle <= maxAngle)", (const char *)&queryFormat, "minAngle <= maxAngle") )
     __debugbreak();
-  __asm
+  if ( angleRate < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4194, ASSERT_TYPE_ASSERT, "(angleRate >= 0.0f)", (const char *)&queryFormat, "angleRate >= 0.0f") )
+    __debugbreak();
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  v10 = (float)((float)(curAngle * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  v12 = *(_OWORD *)&minAngle;
+  *(float *)&v12 = *(float *)&minAngle - v10;
+  _XMM2 = v12;
+  if ( (float)(v10 - *(float *)&v6) <= 0.001 )
   {
-    vmovss  xmm10, [rsp+98h+angleRate]
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm10, xmm8
-    vmulss  xmm4, xmm11, cs:__real@3b360b61
-    vaddss  xmm1, xmm4, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm5, xmm0, cs:__real@43b40000
-    vmovss  xmm3, cs:__real@3a83126f
-    vsubss  xmm1, xmm5, xmm7
-    vcomiss xmm1, xmm3
-    vsubss  xmm2, xmm9, xmm5
-  }
-  if ( v16 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm10, cs:__xmm@80000000800000008000000080000000
-      vsubss  xmm1, xmm7, xmm5
-      vmaxss  xmm3, xmm1, xmm0
-    }
+    if ( *(float *)&v12 <= 0.001 )
+      LODWORD(_XMM3) = 0;
+    else
+      __asm { vminss  xmm3, xmm2, xmm10 }
   }
   else
   {
-    __asm
+    v14 = v6;
+    *(float *)&v14 = *(float *)&v6 - v10;
+    _XMM1 = v14;
+    __asm { vmaxss  xmm3, xmm1, xmm0 }
+  }
+  if ( COERCE_FLOAT(_XMM3 & _xmm) > 0.0 )
+    return *(float *)&angleDelta + *(float *)&_XMM3;
+  if ( COERCE_FLOAT(LODWORD(angleDelta) & _xmm) > 0.0 )
+  {
+    v17 = *(_OWORD *)&angleDelta;
+    *(float *)&v17 = *(float *)&angleDelta + v10;
+    _XMM0 = v17;
+    if ( (float)(*(float *)&_XMM6 + v10) <= *(float *)&v6 )
     {
-      vcomiss xmm2, xmm3
-      vxorps  xmm3, xmm3, xmm3
+      __asm
+      {
+        vcmpltss xmm0, xmm0, xmm9
+        vblendvps xmm0, xmm6, xmm2, xmm0
+      }
+    }
+    else
+    {
+      *(float *)&angleDelta = *(float *)&v6 - v10;
     }
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm0, xmm3, xmm1
-    vcomiss xmm0, xmm8
-  }
-  if ( v16 )
-  {
-    __asm { vaddss  xmm0, xmm6, xmm3 }
-  }
-  else
-  {
-    __asm
-    {
-      vandps  xmm0, xmm6, xmm1
-      vcomiss xmm0, xmm8
-      vmovaps xmm0, xmm6
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm10, [rsp+98h+var_58]
-    vmovaps xmm11, [rsp+98h+var_68]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&angleDelta;
 }
 
 /*
@@ -3076,11 +2606,18 @@ void pmove_t::OnPMoveSingleEnd(pmove_t *this, pmove_t *pm, pml_t *pml)
   const WeaponDef *v11; 
   __int64 v12; 
   int *p_weaponState; 
-  unsigned int v33; 
-  const dvar_t *v34; 
+  playerState_s *v14; 
+  const dvar_t *v15; 
+  float value; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  double v21; 
+  unsigned int v22; 
+  const dvar_t *v23; 
   vec3_t outOrigin; 
 
-  _R14 = pml;
   Sys_ProfBeginNamedEvent(0xFF808080, "OnPMoveSingleEnd");
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&this->ps->eFlags, ACTIVE, 0xAu);
   ps = this->ps;
@@ -3130,60 +2667,36 @@ void pmove_t::OnPMoveSingleEnd(pmove_t *this, pmove_t *pm, pml_t *pml)
   }
 LABEL_26:
   BG_FovLerp_Update(this);
-  _RSI = this->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 13133, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v14 = this->ps;
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 13133, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_player_viewMotionImpactSpeedThreshold;
+  v15 = DCONST_DVARFLT_player_viewMotionImpactSpeedThreshold;
   if ( !DCONST_DVARFLT_player_viewMotionImpactSpeedThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_viewMotionImpactSpeedThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm5, dword ptr [rbx+28h] }
-  if ( !this->initialCall )
+  Dvar_CheckFrontendServerThread(v15);
+  value = v15->current.value;
+  if ( !this->initialCall && value <= pml->impactSpeed )
   {
-    __asm { vcomiss xmm5, dword ptr [r14+2Ch] }
-    if ( !this->initialCall )
+    v17 = v14->velocity.v[0] - pml->previous_velocity.v[0];
+    v18 = v14->velocity.v[1] - pml->previous_velocity.v[1];
+    v19 = v14->velocity.v[2] - pml->previous_velocity.v[2];
+    v20 = (float)(v18 * v18) + (float)(v17 * v17);
+    if ( (float)(value * value) <= (float)((float)(v19 * v19) + v20) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+3Ch]
-        vsubss  xmm4, xmm0, dword ptr [r14+4Ch]
-        vmovss  xmm1, dword ptr [rsi+40h]
-        vsubss  xmm2, xmm1, dword ptr [r14+50h]
-        vmovss  xmm0, dword ptr [rsi+44h]
-        vsubss  xmm3, xmm0, dword ptr [r14+54h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm4, xmm2, xmm1
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm3, xmm0, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vcomiss xmm1, xmm3
-      }
-      if ( !this->initialCall )
-      {
-        __asm
-        {
-          vsqrtss xmm0, xmm4, xmm4; val
-          vmovss  xmm2, cs:__real@43960000; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovss  xmm1, cs:__real@43960000; maxAbsValueSize }
-        v33 = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 8u);
-        BG_AddPredictableEventToPlayerstate(EV_MOVEMENT_IMPACT, v33, this->cmd.serverTime, this->weaponMap, _RSI);
-      }
+      v21 = I_fclamp(fsqrt(v20), 0.0, 300.0);
+      v22 = MSG_PackUnsignedFloat(*(float *)&v21, 300.0, 8u);
+      BG_AddPredictableEventToPlayerstate(EV_MOVEMENT_IMPACT, v22, this->cmd.serverTime, this->weaponMap, v14);
     }
   }
-  if ( !_R14->ranSlopeUpdate )
-    PM_SlopeWorldmodel_Update(pm, _R14);
-  v34 = DCONST_DVARINT_bg_slope_debug;
+  if ( !pml->ranSlopeUpdate )
+    PM_SlopeWorldmodel_Update(pm, pml);
+  v23 = DCONST_DVARINT_bg_slope_debug;
   if ( !DCONST_DVARINT_bg_slope_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  if ( v34->current.integer == this->ps->clientNum && !pm->isExtrapolation && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
+  Dvar_CheckFrontendServerThread(v23);
+  if ( v23->current.integer == this->ps->clientNum && !pm->isExtrapolation && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
   {
     BG_GetPlayerEyePosition(pm->weaponMap, pm->ps, &outOrigin, pm->m_bgHandler);
-    __asm { vmovss  xmm2, cs:__real@3fc00000 }
     ((void (__fastcall *)(const BgHandler *, vec3_t *))pm->m_bgHandler->DebugSphereAll)(pm->m_bgHandler, &outOrigin);
   }
   Sys_ProfEndNamedEvent();
@@ -3197,121 +2710,88 @@ PM_Accelerate
 
 void __fastcall PM_Accelerate(pmove_t *pm, const pml_t *pml, const vec3_t *wishdir, double wishspeed, float accel)
 {
-  const dvar_t *v17; 
-  float fmt; 
+  float v8; 
+  playerState_s *ps; 
+  const dvar_t *v10; 
+  __int128 v12; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v27; 
   vec3_t vec; 
 
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_88], xmm9
-    vmovaps [rsp+0F8h+var_98], xmm10
-  }
-  _RDI = wishdir;
-  __asm { vmovaps xmm9, xmm3 }
+  v8 = *(float *)&wishspeed;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2472, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2472, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2472, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
+  if ( !PM_GameInterface_Accelerate(pm, pml, wishdir, *(float *)&wishspeed, accel) )
   {
-    vmovss  xmm10, [rsp+0F8h+accel]
-    vmovaps xmm3, xmm9; wishspeed
-    vmovss  dword ptr [rsp+0F8h+fmt], xmm10
-  }
-  if ( !PM_GameInterface_Accelerate(pm, pml, _RDI, *(float *)&_XMM3, fmt) )
-  {
-    __asm { vmovaps [rsp+0F8h+var_58], xmm6 }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) )
-      goto LABEL_18;
-    v17 = DCONST_DVARMPBOOL_player_altAcceleration;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
+      goto LABEL_19;
+    v10 = DCONST_DVARMPBOOL_player_altAcceleration;
     if ( !DCONST_DVARMPBOOL_player_altAcceleration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_altAcceleration") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    if ( v17->current.enabled )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled )
     {
-LABEL_18:
+LABEL_19:
+      v16 = ps->velocity.v[1];
+      v17 = *(float *)&wishspeed * wishdir->v[0];
+      v18 = *(_OWORD *)&wishspeed;
+      *(float *)&v18 = *(float *)&wishspeed * wishdir->v[1];
+      vec.v[0] = ps->velocity.v[0];
+      v19 = ps->velocity.v[2];
+      v20 = *(float *)&wishspeed * wishdir->v[2];
+      vec.v[1] = v16;
+      vec.v[2] = v19;
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
+        WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+      v21 = *(float *)&v18 - vec.v[1];
+      v22 = v20 - vec.v[2];
+      v23 = v17 - vec.v[0];
+      *(float *)&v18 = fsqrt((float)((float)(v21 * v21) + (float)(v23 * v23)) + (float)(v22 * v22));
+      _XMM3 = v18;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbx+3Ch]
-        vmovss  xmm1, dword ptr [rbx+40h]
-        vmulss  xmm6, xmm9, dword ptr [rdi]
-        vmovaps [rsp+0F8h+var_68], xmm7
-        vmulss  xmm7, xmm9, dword ptr [rdi+4]
-        vmovss  dword ptr [rsp+0F8h+vec], xmm0
-        vmovss  xmm0, dword ptr [rbx+44h]
-        vmovaps [rsp+0F8h+var_78], xmm8
-        vmulss  xmm8, xmm9, dword ptr [rdi+8]
-        vmovss  dword ptr [rsp+0F8h+vec+4], xmm1
-        vmovss  dword ptr [rsp+0F8h+vec+8], xmm0
-      }
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 6u) )
-      {
-        __asm { vxorps  xmm1, xmm1, xmm1; height }
-        WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-      }
-      __asm
-      {
-        vsubss  xmm7, xmm7, dword ptr [rsp+0F8h+vec+4]
-        vsubss  xmm8, xmm8, dword ptr [rsp+0F8h+vec+8]
-        vsubss  xmm6, xmm6, dword ptr [rsp+0F8h+vec]
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm8, xmm8
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm5, xmm1, xmm0
-        vmulss  xmm0, xmm10, dword ptr [r15+24h]
-        vmulss  xmm1, xmm0, xmm9
-        vminss  xmm4, xmm1, xmm3
-        vmulss  xmm0, xmm6, xmm5
-        vmulss  xmm1, xmm0, xmm4
-        vaddss  xmm2, xmm1, dword ptr [rbx+3Ch]
-        vmulss  xmm0, xmm7, xmm5
-        vmovaps xmm7, [rsp+0F8h+var_68]
-        vmulss  xmm1, xmm0, xmm4
-        vmovss  dword ptr [rbx+3Ch], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbx+40h]
-        vmulss  xmm0, xmm8, xmm5
-        vmovaps xmm8, [rsp+0F8h+var_78]
-        vmulss  xmm1, xmm0, xmm4
-        vmovss  dword ptr [rbx+40h], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbx+44h]
-        vmovss  dword ptr [rbx+44h], xmm2
       }
+      v27 = LODWORD(accel);
+      *(float *)&v27 = (float)(accel * pml->frametime) * v8;
+      _XMM1 = v27;
+      __asm { vminss  xmm4, xmm1, xmm3 }
+      ps->velocity.v[0] = (float)((float)(v23 * (float)(1.0 / *(float *)&_XMM0)) * *(float *)&_XMM4) + ps->velocity.v[0];
+      ps->velocity.v[1] = (float)((float)(v21 * (float)(1.0 / *(float *)&_XMM0)) * *(float *)&_XMM4) + ps->velocity.v[1];
+      ps->velocity.v[2] = (float)((float)(v22 * (float)(1.0 / *(float *)&_XMM0)) * *(float *)&_XMM4) + ps->velocity.v[2];
     }
     else
     {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2488, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2488, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x16u) )
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x16u) )
       {
-        __asm
+        _XMM0 = 0i64;
+        if ( (float)(*(float *)&wishspeed - (float)((float)((float)(ps->velocity.v[1] * wishdir->v[1]) + (float)(wishdir->v[0] * ps->velocity.v[0])) + (float)(ps->velocity.v[2] * wishdir->v[2]))) > 0.0 )
         {
-          vmovss  xmm0, dword ptr [rbx+40h]
-          vmulss  xmm3, xmm0, dword ptr [rdi+4]
-          vmovss  xmm1, dword ptr [rdi]
-          vmulss  xmm2, xmm1, dword ptr [rbx+3Ch]
-          vmovss  xmm0, dword ptr [rbx+44h]
-          vmulss  xmm1, xmm0, dword ptr [rdi+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vsubss  xmm6, xmm9, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm6, xmm0
+          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_stopspeed, "stopspeed");
+          v12 = LODWORD(accel);
+          __asm { vmaxss  xmm2, xmm0, xmm9 }
+          *(float *)&v12 = (float)(accel * pml->frametime) * *(float *)&_XMM2;
+          _XMM0 = v12;
+          __asm { vminss  xmm3, xmm0, xmm6 }
+          ps->velocity.v[0] = (float)(*(float *)&_XMM3 * wishdir->v[0]) + ps->velocity.v[0];
+          ps->velocity.v[1] = (float)(*(float *)&_XMM3 * wishdir->v[1]) + ps->velocity.v[1];
+          ps->velocity.v[2] = (float)(*(float *)&_XMM3 * wishdir->v[2]) + ps->velocity.v[2];
         }
       }
     }
-    __asm { vmovaps xmm6, [rsp+0F8h+var_58] }
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0F8h+var_88]
-    vmovaps xmm10, [rsp+0F8h+var_98]
   }
 }
 
@@ -3428,226 +2908,146 @@ PM_AirMove
 */
 void PM_AirMove(pmove_t *pm, pml_t *pml)
 {
-  __int64 v17; 
+  playerState_s *ps; 
+  float forwardmove; 
+  __int128 v6; 
+  __int128 v7; 
+  usercmd_s *p_cmd; 
+  usercmd_s *v9; 
+  __int64 v10; 
+  double v11; 
+  float v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v23; 
   BgGroundState *ground; 
+  float frametime; 
+  double BoundsHeight; 
+  float v30; 
+  double BoundsRadius; 
   const SuitDef *SuitDef; 
-  float fmt; 
-  float fmta; 
   usercmd_s cmd; 
   Bounds bounds; 
   trace_t results; 
-  char v105; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _RBP = pml;
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_AirMove");
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3076, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3076, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3076, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !WorldUpReferenceFramePM::IsLockedTransitionActive(&pm->refFrame, pm->ps) )
   {
-    PM_Friction(pm, _RBP);
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vcvtsi2ss xmm9, xmm9, eax
-      vxorps  xmm10, xmm10, xmm10
-      vcvtsi2ss xmm10, xmm10, eax
-    }
-    _RAX = &pm->cmd;
-    _RCX = &cmd;
-    v17 = 2i64;
+    PM_Friction(pm, pml);
+    forwardmove = (float)pm->cmd.forwardmove;
+    v7 = 0i64;
+    *(float *)&v7 = (float)pm->cmd.rightmove;
+    v6 = v7;
+    p_cmd = &pm->cmd;
+    v9 = &cmd;
+    v10 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      _RCX = (usercmd_s *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      --v17;
+      *(__m256i *)&v9->buttons = *(__m256i *)&p_cmd->buttons;
+      *(__m256i *)(&v9->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+      *(__m256i *)&v9->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+      *(_OWORD *)&v9->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+      v9 = (usercmd_s *)((char *)v9 + 128);
+      *(_OWORD *)&v9[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+      p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+      --v10;
     }
-    while ( v17 );
-    _RCX->buttons = _RAX->buttons;
-    *(double *)&_XMM0 = PM_CmdScale(_RDI, &cmd);
+    while ( v10 );
+    v9->buttons = p_cmd->buttons;
+    v11 = PM_CmdScale(ps, &cmd);
+    v12 = *(float *)&v11;
+    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &pml->forward);
+    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &pml->right);
+    v13 = LODWORD(pml->forward.v[0]);
+    v14 = v13;
+    *(float *)&v14 = fsqrt((float)((float)(*(float *)&v13 * *(float *)&v13) + (float)(pml->forward.v[1] * pml->forward.v[1])) + (float)(pml->forward.v[2] * pml->forward.v[2]));
+    _XMM4 = v14;
     __asm
     {
-      vmovaps xmm8, xmm0
-      vxorps  xmm1, xmm1, xmm1; height
-    }
-    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RBP->forward);
-    __asm { vxorps  xmm1, xmm1, xmm1; height }
-    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RBP->right);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+4]
-      vmovss  xmm5, dword ptr [rbp+0]
-      vmovss  xmm3, dword ptr [rbp+8]
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm4, xmm2, xmm2
-      vmovss  xmm6, cs:__real@80000000
-      vcmpless xmm0, xmm4, xmm6
-      vmovss  xmm7, cs:__real@3f800000
-      vblendvps xmm1, xmm4, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm1
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbp+0], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbp+4]
-      vmovss  dword ptr [rbp+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbp+8]
-      vmovss  dword ptr [rbp+8], xmm0
-      vmovss  xmm0, dword ptr [rbp+10h]
-      vmovss  xmm5, dword ptr [rbp+0Ch]
-      vmovss  xmm3, dword ptr [rbp+14h]
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, xmm6
       vblendvps xmm1, xmm4, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm1
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbp+0Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbp+10h]
-      vmovss  dword ptr [rbp+10h], xmm1
-      vmulss  xmm4, xmm2, dword ptr [rbp+14h]
-      vmovss  dword ptr [rbp+14h], xmm4
-      vmulss  xmm1, xmm9, dword ptr [rbp+0]
-      vmulss  xmm0, xmm10, dword ptr [rbp+0Ch]
-      vaddss  xmm5, xmm1, xmm0
-      vmulss  xmm1, xmm10, dword ptr [rbp+10h]
-      vmulss  xmm0, xmm9, dword ptr [rbp+4]
-      vaddss  xmm3, xmm1, xmm0
-      vmulss  xmm2, xmm4, xmm10
-      vmulss  xmm1, xmm9, dword ptr [rbp+8]
-      vaddss  xmm4, xmm2, xmm1
     }
-    _R8 = &_RBP->wishdir;
+    pml->forward.v[0] = *(float *)&v13 * (float)(1.0 / *(float *)&_XMM1);
+    pml->forward.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->forward.v[1];
+    pml->forward.v[2] = (float)(1.0 / *(float *)&_XMM1) * pml->forward.v[2];
+    v18 = LODWORD(pml->right.v[0]);
+    v19 = v18;
+    *(float *)&v19 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(pml->right.v[1] * pml->right.v[1])) + (float)(pml->right.v[2] * pml->right.v[2]));
+    _XMM4 = v19;
     __asm
     {
-      vmovss  dword ptr [r8+4], xmm3
-      vmovss  dword ptr [r8+8], xmm4
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
+      vcmpless xmm0, xmm4, xmm6
+      vblendvps xmm1, xmm4, xmm7, xmm0
+    }
+    pml->right.v[0] = *(float *)&v18 * (float)(1.0 / *(float *)&_XMM1);
+    pml->right.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->right.v[1];
+    *(float *)&_XMM4 = (float)(1.0 / *(float *)&_XMM1) * pml->right.v[2];
+    pml->right.v[2] = *(float *)&_XMM4;
+    *(float *)&v18 = (float)(forwardmove * pml->forward.v[0]) + (float)(*(float *)&v6 * pml->right.v[0]);
+    v23 = v6;
+    *(float *)&v23 = (float)(*(float *)&v6 * pml->right.v[1]) + (float)(forwardmove * pml->forward.v[1]);
+    *(float *)&_XMM4 = (float)(*(float *)&_XMM4 * *(float *)&v6) + (float)(forwardmove * pml->forward.v[2]);
+    pml->wishdir.v[1] = *(float *)&v23;
+    pml->wishdir.v[2] = *(float *)&_XMM4;
+    *(float *)&v23 = fsqrt((float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(*(float *)&v18 * *(float *)&v18)) + (float)(*(float *)&_XMM4 * *(float *)&_XMM4));
+    _XMM3 = v23;
+    __asm
+    {
       vcmpless xmm0, xmm3, xmm6
       vblendvps xmm1, xmm3, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm1
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [r8], xmm0
-      vmulss  xmm1, xmm2, dword ptr [r8+4]
-      vmovss  dword ptr [r8+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r8+8]
-      vmovss  dword ptr [r8+8], xmm0
-      vmulss  xmm3, xmm3, xmm8; wishspeed
-      vmovss  dword ptr [rsp+268h+fmt], xmm7
     }
-    PM_Accelerate(pm, _RBP, &_RBP->wishdir, *(float *)&_XMM3, fmt);
+    pml->wishdir.v[0] = *(float *)&v18 * (float)(1.0 / *(float *)&_XMM1);
+    pml->wishdir.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->wishdir.v[1];
+    pml->wishdir.v[2] = (float)(1.0 / *(float *)&_XMM1) * pml->wishdir.v[2];
+    PM_Accelerate(pm, pml, &pml->wishdir, *(float *)&v23 * v12, 1.0);
     ground = pm->ground;
     if ( ground->groundPlane )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3a83126f
-        vmovss  dword ptr [rsp+268h+fmt], xmm0
-      }
-      PM_ClipVelocityOverClip(NULL, &_RDI->velocity, &ground->trace.normal, NULL, fmta, &_RDI->velocity);
-    }
-    if ( BG_IsPushAffectingAirMovement(_RDI) )
+      PM_ClipVelocityOverClip(NULL, &ps->velocity, &ground->trace.normal, NULL, 0.001, &ps->velocity);
+    if ( BG_IsPushAffectingAirMovement(ps) )
     {
       if ( !Com_GameMode_SupportsFeature(WEAPONSTATES_NUM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3137, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_PUSH ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_PUSH )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+24h]
-        vmulss  xmm0, xmm2, dword ptr [rdi+5274h]
-        vaddss  xmm1, xmm0, dword ptr [rdi+3Ch]
-        vmovss  dword ptr [rdi+3Ch], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdi+5278h]
-        vaddss  xmm1, xmm0, dword ptr [rdi+40h]
-        vmovss  dword ptr [rdi+40h], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdi+527Ch]
-        vaddss  xmm1, xmm0, dword ptr [rdi+44h]
-        vmovss  dword ptr [rdi+44h], xmm1
-      }
+      frametime = pml->frametime;
+      ps->velocity.v[0] = (float)(frametime * ps->pushVector.v[0]) + ps->velocity.v[0];
+      ps->velocity.v[1] = (float)(frametime * ps->pushVector.v[1]) + ps->velocity.v[1];
+      ps->velocity.v[2] = (float)(frametime * ps->pushVector.v[2]) + ps->velocity.v[2];
     }
-    PM_UpdatePlayerCollision(pm, _RBP, 1, 1, 0, 1);
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0) && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0xBu) && _RDI->pm_type < 7 && !(unsigned int)BG_Pmove_PlayerPronePossible(pm) )
+    PM_UpdatePlayerCollision(pm, pml, 1, 1, 0, 1);
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) && ps->pm_type < 7 && !BG_Pmove_PlayerPronePossible(pm) )
     {
-      *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_RDI, PM_EFF_STANCE_DUCKED);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(_RDI);
-      __asm
-      {
-        vmulss  xmm4, xmm6, cs:__real@3f000000
-        vaddss  xmm3, xmm4, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-        vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-        vmovss  dword ptr [rsp+268h+bounds.midPoint], xmm1
-        vmovss  xmm2, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-        vmovss  dword ptr [rsp+268h+bounds.midPoint+4], xmm2
-        vmovss  dword ptr [rsp+268h+bounds.midPoint+8], xmm3
-        vmovss  dword ptr [rsp+268h+bounds.halfSize], xmm0
-        vmovss  dword ptr [rsp+268h+bounds.halfSize+4], xmm0
-        vmovss  dword ptr [rsp+268h+bounds.halfSize+8], xmm4
-      }
-      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &_RDI->origin, &_RDI->origin, &bounds, _RDI->clientNum, pm->tracemask & 0xFDFFBFFF);
+      BoundsHeight = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_DUCKED);
+      v30 = *(float *)&BoundsHeight;
+      BoundsRadius = BG_Suit_GetBoundsRadius(ps);
+      bounds.midPoint.v[0] = vec3_origin.v[0];
+      bounds.midPoint.v[1] = vec3_origin.v[1];
+      bounds.midPoint.v[2] = (float)(v30 * 0.5) + 0.0;
+      bounds.halfSize.v[0] = *(float *)&BoundsRadius;
+      bounds.halfSize.v[1] = *(float *)&BoundsRadius;
+      bounds.halfSize.v[2] = v30 * 0.5;
+      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &ps->origin, &ps->origin, &bounds, ps->clientNum, pm->tracemask & 0xFDFFBFFF);
       if ( !results.allsolid )
       {
-        SuitDef = BG_GetSuitDef(_RDI->suitIndex);
+        SuitDef = BG_GetSuitDef(ps->suitIndex);
         if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3153, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
           __debugbreak();
-        _RDI->viewHeightTarget = SuitDef->viewheight_crouch;
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RDI->pm_flags, ACTIVE, 1u);
-        BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_CROUCH, 0, pm->cmd.serverTime, pm->weaponMap, _RDI);
+        ps->viewHeightTarget = SuitDef->viewheight_crouch;
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_CROUCH, 0, pm->cmd.serverTime, pm->weaponMap, ps);
       }
     }
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-      BG_UpdateMovementDir(pm, _RBP, 1);
+      BG_UpdateMovementDir(pm, pml, 1);
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v105;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -3674,114 +3074,69 @@ PM_ApplyCollisionAvoid
 */
 void PM_ApplyCollisionAvoid(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
+  float v5; 
+  float v6; 
+  __int128 v7; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t vec; 
-  vec3_t v75; 
+  vec3_t v22; 
 
-  _RBP = pml;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_HARD_LAND|WEAPON_FIRING) )
   {
     if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2172, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
       __debugbreak();
-    _RSI = pm->ps;
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2172, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    ps = pm->ps;
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2172, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( (pm->tracemask & 0x2004000) != 0 )
     {
+      v5 = pml->forward.v[1];
+      vec.v[0] = pml->forward.v[0];
+      v6 = pml->forward.v[2];
+      vec.v[1] = v5;
+      vec.v[2] = v6;
+      WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+      v7 = LODWORD(vec.v[1]);
+      *(float *)&v7 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+      _XMM3 = v7;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  xmm1, dword ptr [rbp+4]
-        vmovaps [rsp+0B8h+var_18], xmm6
-        vmovaps [rsp+0B8h+var_28], xmm7
-        vmovss  dword ptr [rsp+0B8h+vec], xmm0
-        vmovss  xmm0, dword ptr [rbp+8]
-        vmovss  dword ptr [rsp+0B8h+vec+4], xmm1
-        vmovaps [rsp+0B8h+var_38], xmm8
-        vmovaps [rsp+0B8h+var_48], xmm9
-        vxorps  xmm1, xmm1, xmm1; height
-        vmovss  dword ptr [rsp+0B8h+vec+8], xmm0
-        vmovaps [rsp+0B8h+var_58], xmm10
-      }
-      WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+0B8h+vec]
-        vmovss  xmm6, dword ptr [rsp+0B8h+vec+4]
-        vmovss  xmm5, dword ptr [rsp+0B8h+vec+8]
-        vmovss  xmm10, cs:__real@3f800000
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm10, xmm0
-        vdivss  xmm3, xmm10, xmm0
-        vmulss  xmm0, xmm4, xmm3
-        vmulss  xmm2, xmm6, xmm3
-        vmovss  dword ptr [rsp+0B8h+vec], xmm0
-        vmovss  dword ptr [rsp+0B8h+vec+4], xmm2
-        vmovss  xmm2, dword ptr [rbp+0Ch]
-        vmulss  xmm0, xmm5, xmm3
-        vmovss  dword ptr [rsp+0B8h+vec+8], xmm0
-        vmovss  xmm0, dword ptr [rbp+10h]
-        vmovss  dword ptr [rsp+0B8h+var_78], xmm2
-        vmovss  xmm2, dword ptr [rbp+14h]
-        vxorps  xmm1, xmm1, xmm1; height
-        vmovss  dword ptr [rsp+0B8h+var_78+4], xmm0
-        vmovss  dword ptr [rsp+0B8h+var_78+8], xmm2
       }
-      WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &v75);
-      _EAX = pm->cmd.avoidForward;
+      vec.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      vec.v[1] = vec.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      v11 = pml->right.v[0];
+      vec.v[2] = vec.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      *(float *)&_XMM0 = pml->right.v[1];
+      v22.v[0] = v11;
+      v12 = pml->right.v[2];
+      v22.v[1] = *(float *)&_XMM0;
+      v22.v[2] = v12;
+      WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &v22);
+      v13 = LODWORD(v22.v[1]);
+      *(float *)&v13 = fsqrt((float)((float)(*(float *)&v13 * *(float *)&v13) + (float)(v22.v[0] * v22.v[0])) + (float)(v22.v[2] * v22.v[2]));
+      _XMM3 = v13;
       __asm
       {
-        vmovss  xmm4, dword ptr [rsp+0B8h+var_78]
-        vmovss  xmm8, dword ptr [rsp+0B8h+var_78+4]
-        vmovss  xmm9, dword ptr [rsp+0B8h+var_78+8]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm8, xmm8
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, xmm9
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm10, xmm0
-        vdivss  xmm7, xmm10, xmm0
-        vmovd   xmm1, eax
       }
-      _EAX = pm->cmd.avoidRight;
-      __asm
-      {
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm6, xmm1, cs:__real@3c23d70a
-        vmulss  xmm2, xmm6, dword ptr [rsp+0B8h+vec]
-        vmulss  xmm1, xmm8, xmm7
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm5, xmm0, cs:__real@3c23d70a
-        vmulss  xmm0, xmm4, xmm7
-        vmulss  xmm3, xmm0, xmm5
-        vaddss  xmm0, xmm3, xmm2
-        vaddss  xmm3, xmm0, dword ptr [rsi+3Ch]
-        vmulss  xmm2, xmm6, dword ptr [rsp+0B8h+vec+4]
-        vmulss  xmm4, xmm1, xmm5
-        vaddss  xmm1, xmm4, xmm2
-        vmulss  xmm2, xmm6, dword ptr [rsp+0B8h+vec+8]
-        vmulss  xmm0, xmm9, xmm7
-        vmovss  dword ptr [rsi+3Ch], xmm3
-        vaddss  xmm3, xmm1, dword ptr [rsi+40h]
-        vmulss  xmm4, xmm0, xmm5
-        vaddss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rsi+40h], xmm3
-        vaddss  xmm3, xmm0, dword ptr [rsi+44h]
-        vmovaps xmm10, [rsp+0B8h+var_58]
-        vmovaps xmm9, [rsp+0B8h+var_48]
-        vmovaps xmm8, [rsp+0B8h+var_38]
-        vmovaps xmm7, [rsp+0B8h+var_28]
-        vmovaps xmm6, [rsp+0B8h+var_18]
-        vmovss  dword ptr [rsi+44h], xmm3
-      }
+      v17 = _mm_cvtepi32_ps((__m128i)(unsigned int)pm->cmd.avoidForward).m128_f32[0] * 0.0099999998;
+      v18 = _mm_cvtepi32_ps((__m128i)(unsigned int)pm->cmd.avoidRight).m128_f32[0] * 0.0099999998;
+      v19 = (float)((float)(v22.v[1] * (float)(1.0 / *(float *)&_XMM0)) * v18) + (float)(v17 * vec.v[1]);
+      v20 = v17 * vec.v[2];
+      *(float *)&v13 = v22.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      ps->velocity.v[0] = (float)((float)((float)(v22.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v18) + (float)(v17 * vec.v[0])) + ps->velocity.v[0];
+      ps->velocity.v[1] = v19 + ps->velocity.v[1];
+      ps->velocity.v[2] = (float)((float)(*(float *)&v13 * v18) + v20) + ps->velocity.v[2];
     }
   }
 }
@@ -3823,54 +3178,36 @@ PM_CanStartSprint
 bool PM_CanStartSprint(pmove_t *pm, const pml_t *pml, bool ignoreReloadChecks)
 {
   playerState_s *ps; 
-  bool v9; 
+  playerState_s *v7; 
+  bool v8; 
+  const SuitDef *SuitDef; 
   const dvar_t *v10; 
-  char v13; 
-  bool v15; 
-  float fmt; 
+  const SuitDef *v11; 
+  bool v12; 
+  bool v14; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1502, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1502, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1464, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v7 = pm->ps;
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1464, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = BG_IsQASBoth(_RDI, QAS_STATE_NONE) && _RDI->sprintState.sprintRestore != 0;
-  BG_GetSuitDef(_RDI->suitIndex);
+  v8 = BG_IsQASBoth(v7, QAS_STATE_NONE) && v7->sprintState.sprintRestore != 0;
+  SuitDef = BG_GetSuitDef(v7->suitIndex);
   v10 = DVARBOOL_auto_sprint_enabled;
+  v11 = SuitDef;
   if ( !DVARBOOL_auto_sprint_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "auto_sprint_enabled") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v10);
-  if ( !v10->current.enabled )
-    goto LABEL_20;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r15+200h]
-    vucomiss xmm0, dword ptr [rdi+1E8h]
-  }
-  if ( v10->current.enabled )
-    goto LABEL_20;
-  if ( (pm->cmd.buttons & 0x4000000000000i64) != 0 )
-    v13 = 1;
-  else
-LABEL_20:
-    v13 = 0;
-  if ( !v9 && ((pm->cmd.buttons & 2) == 0 && !v13 || _RDI->sprintState.sprintButtonUpRequired) || PM_SprintStartInterferingButtons(pm, pm->cmd.forwardmove, pm->cmd.buttons, pm->cmd.serverTime) )
+  v12 = v10->current.enabled && (float)v11->viewheight_stand == v7->viewHeightCurrent && (pm->cmd.buttons & 0x4000000000000i64) != 0;
+  if ( !v8 && ((pm->cmd.buttons & 2) == 0 && !v12 || v7->sprintState.sprintButtonUpRequired) || PM_SprintStartInterferingButtons(pm, pm->cmd.forwardmove, pm->cmd.buttons, pm->cmd.serverTime) )
     return 0;
-  v15 = PM_CanStartSprintStateCheck(pm, pml, ignoreReloadChecks);
-  if ( !v15 && BG_Skydive_CanQueueSprint(ps) )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@7f7fffff
-      vmovss  dword ptr [rsp+68h+fmt], xmm0
-    }
-    PM_SetSprintRestore(pm, ps, 1, 0, fmt);
-  }
-  return v15;
+  v14 = PM_CanStartSprintStateCheck(pm, pml, ignoreReloadChecks);
+  if ( !v14 && BG_Skydive_CanQueueSprint(ps) )
+    PM_SetSprintRestore(pm, ps, 1, 0, 3.4028235e38);
+  return v14;
 }
 
 /*
@@ -3889,8 +3226,7 @@ bool PM_CanStartSprintStateCheck(pmove_t *pm, const pml_t *pml, bool ignoreReloa
   __int64 v11; 
   int *i; 
   __int64 v13; 
-  float fmt; 
-  bool v17; 
+  bool v15; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1340, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -3919,7 +3255,7 @@ bool PM_CanStartSprintStateCheck(pmove_t *pm, const pml_t *pml, bool ignoreReloa
     if ( ignoreReloadChecks )
       return PM_DoesSprintMeterTestPass(pm);
     ViewmodelWeapon = BG_GetViewmodelWeapon(pm->weaponMap, ps);
-    v17 = BG_UsingAlternate(ps);
+    v15 = BG_UsingAlternate(ps);
     v8 = WEAPON_HAND_DEFAULT;
     WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, ps);
     v10 = WeaponHand;
@@ -3929,7 +3265,7 @@ bool PM_CanStartSprintStateCheck(pmove_t *pm, const pml_t *pml, bool ignoreReloa
     for ( i = &ps->weapState[0].weaponState; ; i += 20 )
     {
       v13 = v11;
-      if ( (unsigned int)(*i - 18) <= 3 && (BG_GetReloadType(ViewmodelWeapon, v17) == RELOAD_TYPE_SEGMENTED && (unsigned int)(*i - 20) > 1 || !PM_Weapon_IsInInterruptibleState(pm->weaponMap, ps, v8, pm->m_bgHandler)) )
+      if ( (unsigned int)(*i - 18) <= 3 && (BG_GetReloadType(ViewmodelWeapon, v15) == RELOAD_TYPE_SEGMENTED && (unsigned int)(*i - 20) > 1 || !PM_Weapon_IsInInterruptibleState(pm->weaponMap, ps, v8, pm->m_bgHandler)) )
         break;
       ++v8;
       ++v11;
@@ -3937,12 +3273,7 @@ bool PM_CanStartSprintStateCheck(pmove_t *pm, const pml_t *pml, bool ignoreReloa
         return PM_DoesSprintMeterTestPass(pm);
     }
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@7f7fffff
-    vmovss  dword ptr [rsp+58h+fmt], xmm0
-  }
-  PM_SetSprintRestore(pm, ps, 1, 0, fmt);
+  PM_SetSprintRestore(pm, ps, 1, 0, 3.4028235e38);
   return 0;
 }
 
@@ -3970,512 +3301,457 @@ PM_CheckDuck
 */
 void PM_CheckDuck(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   const SuitDef *SuitDef; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
+  Bounds *v6; 
+  float v7; 
+  float v8; 
   unsigned __int64 buttons; 
-  const dvar_t *v22; 
-  Bounds *v23; 
+  const dvar_t *v10; 
+  Bounds *v11; 
   int Int_Internal_DebugName; 
+  double Float_Internal_DebugName; 
+  Bounds *v14; 
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_eFlags; 
-  char v28; 
-  playerState_s *ps; 
-  GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *v30; 
-  const dvar_t *v31; 
+  char v16; 
+  playerState_s *v17; 
+  GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *v18; 
+  const dvar_t *v19; 
   BgTrace *m_trace; 
   int contentMask; 
   int passEntityNum; 
   const Bounds *bounds; 
+  bool v24; 
+  bool v25; 
+  bool v26; 
+  GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *v27; 
+  float ProneViewHeight; 
+  float viewHeightCurrent; 
+  entity_event_t v30; 
+  int v31; 
+  GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *v32; 
+  unsigned __int64 v33; 
+  unsigned __int64 v34; 
+  unsigned int v35; 
   bool v36; 
-  bool v37; 
-  bool v38; 
-  GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *v39; 
-  char v40; 
-  entity_event_t v46; 
-  int v47; 
-  GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *v48; 
-  unsigned __int64 v49; 
-  unsigned __int64 v50; 
-  unsigned int v51; 
-  bool v52; 
   BgWeaponMap *weaponMap; 
   int serverTime; 
-  entity_event_t v55; 
-  unsigned __int64 v60; 
+  entity_event_t v39; 
+  unsigned __int64 v40; 
   int viewHeightTarget; 
   int viewheight_laststand; 
   int viewheight_crouch; 
-  __int32 v68; 
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v69; 
-  __int32 v70; 
-  EffectiveStance v71; 
+  __int32 v44; 
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v45; 
+  __int32 v46; 
+  EffectiveStance v47; 
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v48; 
   char *fmt; 
-  bool v82; 
-  bool v83; 
-  char v85; 
+  bool v50; 
+  bool v51; 
+  char v53; 
   trace_t results; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6779, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6780, ASSERT_TYPE_ASSERT, "(pm->bounds)", (const char *)&queryFormat, "pm->bounds") )
     __debugbreak();
-  _R14 = pm->ps;
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6782, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6782, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  SuitDef = BG_GetSuitDef(_R14->suitIndex);
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6785, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
   Suit_Validate_ViewHeights("current", SuitDef);
   pm->m_flags &= ~0x80u;
-  p_pm_flags = &_R14->pm_flags;
-  if ( _R14->pm_type == 5 )
+  p_pm_flags = &ps->pm_flags;
+  if ( ps->pm_type == 5 )
   {
-    _RAX = pm->bounds;
-    *(_QWORD *)_RAX->midPoint.v = 0i64;
-    __asm
-    {
-      vmovss  xmm3, cs:SPECTATOR_TOP
-      vaddss  xmm0, xmm3, cs:SPECTATOR_BOTTOM
-      vmulss  xmm0, xmm0, cs:__real@3f000000
-      vmovss  dword ptr [rax+8], xmm0
-      vmovss  xmm1, cs:SPECTATOR_RADIUS
-      vmovss  dword ptr [rax+0Ch], xmm1
-      vmovss  dword ptr [rax+10h], xmm1
-      vsubss  xmm0, xmm3, cs:SPECTATOR_BOTTOM
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vmovss  dword ptr [rax+14h], xmm1
-    }
+    v6 = pm->bounds;
+    *(_QWORD *)v6->midPoint.v = 0i64;
+    v7 = SPECTATOR_TOP;
+    v6->midPoint.v[2] = (float)(SPECTATOR_TOP + SPECTATOR_BOTTOM) * 0.5;
+    v8 = SPECTATOR_RADIUS;
+    v6->halfSize.v[0] = SPECTATOR_RADIUS;
+    v6->halfSize.v[1] = v8;
+    v6->halfSize.v[2] = (float)(v7 - SPECTATOR_BOTTOM) * 0.5;
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(p_pm_flags, ACTIVE, 0);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
     buttons = pm->cmd.buttons;
     if ( (buttons & 0x40) != 0 )
       pm->cmd.buttons = buttons & 0xFFFFFFFFFFFFFFBFui64;
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 2u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 3u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 4u);
-    *(_QWORD *)&_R14->viewHeightTarget = 0i64;
-    goto LABEL_198;
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 2u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 3u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 4u);
+    *(_QWORD *)&ps->viewHeightTarget = 0i64;
+    goto LABEL_200;
   }
-  v83 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 0);
-  _RAX = BG_Suit_GetBounds(_R14->suitIndex, PM_EFF_STANCE_DEFAULT);
-  _RCX = pm->bounds;
-  __asm
+  v51 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 0);
+  *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
+  if ( ps->pm_type == 7 )
   {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
-  if ( _R14->pm_type == 7 )
-  {
-    _R14->viewHeightTarget = SuitDef->viewheight_dead;
-    _RAX = BG_Suit_GetBounds(_R14->suitIndex, PM_EFF_STANCE_PRONE);
-    _RCX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 2u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 3u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 4u);
-LABEL_197:
+    ps->viewHeightTarget = SuitDef->viewheight_dead;
+    *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_PRONE);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 2u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 3u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 4u);
+LABEL_199:
     PM_ViewHeightAdjust(pm, pml);
-    goto LABEL_198;
+    goto LABEL_200;
   }
-  if ( BG_IsPlayerSwimming(_R14) )
+  if ( BG_IsPlayerSwimming(ps) )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6840, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING )") )
       __debugbreak();
-    v22 = DCONST_DVARBOOL_player_alwaysUseSpaceCapsuleAndViewHeightWhileSwimming;
+    v10 = DCONST_DVARBOOL_player_alwaysUseSpaceCapsuleAndViewHeightWhileSwimming;
     if ( !DCONST_DVARBOOL_player_alwaysUseSpaceCapsuleAndViewHeightWhileSwimming && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_alwaysUseSpaceCapsuleAndViewHeightWhileSwimming") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled || Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_player_spaceEnabled, "player_spaceEnabled") )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled || Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_player_spaceEnabled, "player_spaceEnabled") )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_player_spaceCapsuleHeight, "player_spaceCapsuleHeight");
-      _RAX = pm->bounds;
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vmovss  dword ptr [rax+8], xmm1
-        vmovss  dword ptr [rax+14h], xmm1
-      }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_player_spaceCapsuleHeight, "player_spaceCapsuleHeight");
+      v14 = pm->bounds;
+      v14->midPoint.v[2] = *(float *)&Float_Internal_DebugName * 0.5;
+      v14->halfSize.v[2] = *(float *)&Float_Internal_DebugName * 0.5;
       Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DCONST_DVARMPINT_player_spaceViewHeight, "player_spaceViewHeight");
     }
     else
     {
-      v23 = pm->bounds;
-      v23->midPoint.v[2] = 15.0;
-      v23->halfSize.v[2] = 15.0;
+      v11 = pm->bounds;
+      v11->midPoint.v[2] = 15.0;
+      v11->halfSize.v[2] = 15.0;
       Int_Internal_DebugName = SuitDef->viewheight_swim;
     }
-    _R14->viewHeightTarget = Int_Internal_DebugName;
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-    p_eFlags = &_R14->eFlags;
+    ps->viewHeightTarget = Int_Internal_DebugName;
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+    p_eFlags = &ps->eFlags;
     goto LABEL_31;
   }
-  if ( BG_IsPlayerZeroG(_R14) )
+  if ( BG_IsPlayerZeroG(ps) )
   {
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-    BG_ResetForcedStances(_R14);
-    if ( !BG_IsPlayerZeroGWalking(_R14) )
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+    BG_ResetForcedStances(ps);
+    if ( !BG_IsPlayerZeroGWalking(ps) )
     {
-      _R14->viewHeightTarget = SuitDef->viewheight_stand;
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 3u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-      goto LABEL_197;
+      ps->viewHeightTarget = SuitDef->viewheight_stand;
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 3u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+      goto LABEL_199;
     }
   }
-  v28 = 0;
-  v85 = 0;
-  if ( BG_IsVehicleActive(_R14) )
+  v16 = 0;
+  v53 = 0;
+  if ( BG_IsVehicleActive(ps) )
   {
-    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) && _R14->vehicleType == VEH_HELICOPTER && Dvar_GetInt_Internal_DebugName(DVARINT_vehHelicopterControlsAltitude, "vehHelicopterControlsAltitude") == 3 )
+    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) && ps->vehicleType == VEH_HELICOPTER && Dvar_GetInt_Internal_DebugName(DVARINT_vehHelicopterControlsAltitude, "vehHelicopterControlsAltitude") == 3 )
     {
-      _R14->viewHeightTarget = SuitDef->viewheight_stand;
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-      p_eFlags = &_R14->eFlags;
+      ps->viewHeightTarget = SuitDef->viewheight_stand;
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+      p_eFlags = &ps->eFlags;
 LABEL_31:
       GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(p_eFlags, ACTIVE, 3u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-      BG_ResetForcedStances(_R14);
-      goto LABEL_197;
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+      BG_ResetForcedStances(ps);
+      goto LABEL_199;
     }
-    v28 = 1;
-    v85 = 1;
+    v16 = 1;
+    v53 = 1;
   }
-  if ( !BGVehicles::IsRemoteDrivingVehicle(_R14) )
+  if ( !BGVehicles::IsRemoteDrivingVehicle(ps) )
   {
-    ps = pm->ps;
-    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6728, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v17 = pm->ps;
+    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6728, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v30 = &ps->pm_flags;
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) || BG_ContextMount_IsActive(ps) )
+    v18 = &v17->pm_flags;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v17->pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v17->pm_flags, ACTIVE, 1u) || BG_ContextMount_IsActive(v17) )
     {
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) && !BG_IsRemoteTurretActive(ps) )
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v17->pm_flags, ACTIVE, 0x14u) && !BG_IsRemoteTurretActive(v17) )
       {
-        v31 = DVARBOOL_auto_sprint_enabled;
+        v19 = DVARBOOL_auto_sprint_enabled;
         if ( !DVARBOOL_auto_sprint_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "auto_sprint_enabled") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v31);
-        if ( !v31->current.enabled || (pm->cmd.buttons & 0x4000000000002i64) != 0x4000000000000i64 )
+        Dvar_CheckFrontendServerThread(v19);
+        if ( !v19->current.enabled || (pm->cmd.buttons & 0x4000000000002i64) != 0x4000000000000i64 )
           goto LABEL_57;
       }
-      if ( PM_IsInAir(pm) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(v30, ACTIVE, 0x13u) )
+      if ( PM_IsInAir(pm) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(v18, ACTIVE, 0x13u) )
       {
 LABEL_57:
         m_trace = pm->m_trace;
         contentMask = pm->tracemask & 0xFDFFBFFF;
-        passEntityNum = _R14->clientNum;
-        bounds = BG_Suit_GetBounds(_R14->suitIndex, PM_EFF_STANCE_DEFAULT);
-        BgTrace::LegacyTrace(m_trace, pm, &results, &_R14->origin, &_R14->origin, bounds, passEntityNum, contentMask);
-        v28 = v85;
+        passEntityNum = ps->clientNum;
+        bounds = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
+        BgTrace::LegacyTrace(m_trace, pm, &results, &ps->origin, &ps->origin, bounds, passEntityNum, contentMask);
+        v16 = v53;
         if ( !results.allsolid )
-          v28 = 1;
+          v16 = 1;
       }
     }
   }
-  v82 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 5u);
-  v36 = v82 && (_R14->mantleState.flags & 2) != 0;
-  v37 = 0;
-  if ( pm->cmd.serverTime == _R14->slideState.slideEndTime && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 1u) )
-    v37 = !PM_CanStand(_R14, pm, 1);
-  v38 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0x14u);
-  v39 = &_R14->pm_flags;
-  if ( v38 )
+  v50 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u);
+  v24 = v50 && (ps->mantleState.flags & 2) != 0;
+  v25 = 0;
+  if ( pm->cmd.serverTime == ps->slideState.slideEndTime && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) )
+    v25 = !PM_CanStand(ps, pm, 1);
+  v26 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
+  v27 = &ps->pm_flags;
+  if ( v26 )
   {
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(v39, ACTIVE, 0) )
-      goto LABEL_201;
-    BG_Suit_GetProneViewHeight(SuitDef);
-    __asm
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(v27, ACTIVE, 0) || (ProneViewHeight = (float)BG_Suit_GetProneViewHeight(SuitDef), viewHeightCurrent = ps->viewHeightCurrent, viewHeightCurrent >= ProneViewHeight) && viewHeightCurrent < (float)SuitDef->viewheight_crouch )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  xmm1, dword ptr [r14+1E8h]
-      vcomiss xmm1, xmm0
-    }
-    if ( !v40 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [r13+204h]
-        vcomiss xmm1, xmm0
-      }
-      if ( v40 )
-      {
-LABEL_201:
-        if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_proneToSprintActive, "proneToSprintActive") )
-          GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 0x37u);
-      }
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_proneToSprintActive, "proneToSprintActive") )
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0x37u);
     }
   }
   else
   {
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(v39, ACTIVE, 0x37u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(v27, ACTIVE, 0x37u);
   }
-  if ( v37 || v36 )
+  if ( v25 || v24 )
   {
-    _R14->viewHeightTarget = SuitDef->viewheight_crouch;
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_R14->eFlags, ACTIVE, 3u);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-    v46 = EV_STANCE_FORCE_CROUCH;
-    goto LABEL_196;
+    ps->viewHeightTarget = SuitDef->viewheight_crouch;
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&ps->eFlags, ACTIVE, 3u);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+    v30 = EV_STANCE_FORCE_CROUCH;
+    goto LABEL_198;
   }
-  if ( v28 && (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 1u) || BG_ContextMount_IsActive(_R14)) )
+  if ( v16 && (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) || BG_ContextMount_IsActive(ps)) )
   {
-    _R14->viewHeightTarget = SuitDef->viewheight_stand;
-    BG_ResetForcedStances(_R14);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 3u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-    v46 = EV_STANCE_FORCE_STAND;
-LABEL_196:
-    BG_AddPredictableEventToPlayerstate(v46, 0, pm->cmd.serverTime, pm->weaponMap, _R14);
-    goto LABEL_197;
+    ps->viewHeightTarget = SuitDef->viewheight_stand;
+    BG_ResetForcedStances(ps);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 3u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+    v30 = EV_STANCE_FORCE_STAND;
+LABEL_198:
+    BG_AddPredictableEventToPlayerstate(v30, 0, pm->cmd.serverTime, pm->weaponMap, ps);
+    goto LABEL_199;
   }
-  v47 = 0;
-  if ( BG_Turret_IsUsingNonRemoteTurret(_R14) )
+  v31 = 0;
+  if ( BG_Turret_IsUsingNonRemoteTurret(ps) )
   {
-    BG_ResetForcedStances(_R14);
-    if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_R14->eFlags, ACTIVE, 5u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_R14->eFlags, ACTIVE, 6u) )
+    BG_ResetForcedStances(ps);
+    if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 5u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 6u) )
     {
-      if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_R14->eFlags, ACTIVE, 6u) && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_R14->eFlags, ACTIVE, 5u) )
+      if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 6u) && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 5u) )
       {
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
         goto LABEL_153;
       }
-      v48 = &_R14->pm_flags;
+      v32 = &ps->pm_flags;
 LABEL_88:
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(v48, ACTIVE, 0);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(v32, ACTIVE, 0);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
       goto LABEL_153;
     }
 LABEL_101:
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
     goto LABEL_153;
   }
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0x10u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0xFu) && !PM_IsPlayerFrozenByWeapon(pm->weaponMap, _R14) && _R14->vehicleState.entity == 2047 && !BG_IsRemoteTurretActive(_R14) )
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x10u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xFu) && !PM_IsPlayerFrozenByWeapon(pm->weaponMap, ps) && ps->vehicleState.entity == 2047 && !BG_IsRemoteTurretActive(ps) )
   {
-    if ( _R14->pm_type == 1 )
+    if ( ps->pm_type == 1 )
     {
       PM_HandleDisabledStances(pm, pml);
-      if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R14->otherFlags, ACTIVE, 0xBu) )
+      if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
         goto LABEL_101;
-      v49 = pm->cmd.buttons;
-      if ( (v49 & 0x40) != 0 )
+      v33 = pm->cmd.buttons;
+      if ( (v33 & 0x40) != 0 )
         goto LABEL_101;
-      v48 = &_R14->pm_flags;
-      if ( (v49 & 0x80u) == 0i64 )
+      v32 = &ps->pm_flags;
+      if ( (v33 & 0x80u) == 0i64 )
         goto LABEL_88;
 LABEL_98:
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(v48, ACTIVE, 0);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(v32, ACTIVE, 0);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
       goto LABEL_153;
     }
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R14->otherFlags, ACTIVE, 0xBu) )
+    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
     {
-      BG_ResetForcedStances(_R14);
+      BG_ResetForcedStances(ps);
       goto LABEL_101;
     }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 6u) )
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
     {
-      v50 = pm->cmd.buttons;
-      if ( (v50 & 0xC0) != 0 )
+      v34 = pm->cmd.buttons;
+      if ( (v34 & 0xC0) != 0 )
       {
-        pm->cmd.buttons = v50 & 0xFFFFFFFFFFFFFF3Fui64;
-        BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_STAND, 0, pm->cmd.serverTime, pm->weaponMap, _R14);
+        pm->cmd.buttons = v34 & 0xFFFFFFFFFFFFFF3Fui64;
+        BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_STAND, 0, pm->cmd.serverTime, pm->weaponMap, ps);
       }
     }
     PM_HandleDisabledStances(pm, pml);
-    if ( (pm->cmd.buttons & 0x40) != 0 && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0xFu) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 4u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 3u) )
+    if ( (pm->cmd.buttons & 0x40) != 0 && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xFu) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 4u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 3u) )
     {
-      if ( _R14->groundEntityNum != 2047 )
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 2u);
+      if ( ps->groundEntityNum != 2047 )
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 2u);
       if ( BG_Pmove_PlayerProneAllowed(pm) )
       {
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-        if ( !Slide_IsInSprintDelay(_R14, pm->cmd.serverTime) )
-          *(_QWORD *)&_R14->sprintState.sprintRestore = 0i64;
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        if ( !Slide_IsInSprintDelay(ps, pm->cmd.serverTime) )
+          *(_QWORD *)&ps->sprintState.sprintRestore = 0i64;
         if ( (pm->cmd.buttons & 0x100000000000000i64) != 0 )
-          GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
+          GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
         goto LABEL_153;
       }
-      if ( _R14->groundEntityNum == 2047 )
+      if ( ps->groundEntityNum == 2047 )
         goto LABEL_153;
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) )
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
       {
-        v52 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-        fmt = (char *)_R14;
+        v36 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        fmt = (char *)ps;
         weaponMap = pm->weaponMap;
         serverTime = pm->cmd.serverTime;
-        v51 = 3;
-        if ( !v52 )
+        v35 = 3;
+        if ( !v36 )
         {
-          v55 = EV_STANCE_FORCE_STAND;
+          v39 = EV_STANCE_FORCE_STAND;
 LABEL_152:
-          BG_AddPredictableEventToPlayerstate(v55, v51, serverTime, weaponMap, (playerState_s *)fmt);
+          BG_AddPredictableEventToPlayerstate(v39, v35, serverTime, weaponMap, (playerState_s *)fmt);
           goto LABEL_153;
         }
 LABEL_151:
-        v55 = EV_STANCE_FORCE_CROUCH;
+        v39 = EV_STANCE_FORCE_CROUCH;
         goto LABEL_152;
       }
-      v51 = 3;
+      v35 = 3;
 LABEL_150:
-      fmt = (char *)_R14;
+      fmt = (char *)ps;
       weaponMap = pm->weaponMap;
       serverTime = pm->cmd.serverTime;
       goto LABEL_151;
     }
-    if ( SLOBYTE(pm->cmd.buttons) >= 0 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 2u) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 4u) )
+    if ( SLOBYTE(pm->cmd.buttons) >= 0 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 2u) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 4u) )
     {
-      v60 = pm->cmd.buttons;
-      if ( (v60 & 0x80u) == 0i64 && (v60 & 0x40) == 0 )
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 4u);
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 2u) )
+      v40 = pm->cmd.buttons;
+      if ( (v40 & 0x80u) == 0i64 && (v40 & 0x40) == 0 )
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 4u);
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 2u) )
       {
-        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 1u) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 3u) || v82 )
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 3u) || v50 )
           goto LABEL_153;
-        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &_R14->origin, &_R14->origin, pm->bounds, _R14->clientNum, pm->tracemask & 0xFDFFBFFF);
+        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &ps->origin, &ps->origin, pm->bounds, ps->clientNum, pm->tracemask & 0xFDFFBFFF);
         if ( !results.allsolid )
         {
-          GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
+          GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
           goto LABEL_153;
         }
         if ( (pm->cmd.buttons & 0x400) != 0 )
           goto LABEL_153;
-        v51 = 1;
+        v35 = 1;
         goto LABEL_150;
       }
-      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &_R14->origin, &_R14->origin, pm->bounds, _R14->clientNum, pm->tracemask & 0xFDFFBFFF);
+      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &ps->origin, &ps->origin, pm->bounds, ps->clientNum, pm->tracemask & 0xFDFFBFFF);
       if ( !results.allsolid )
       {
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
         goto LABEL_153;
       }
-      _RAX = BG_Suit_GetBounds(_R14->suitIndex, PM_EFF_STANCE_DUCKED);
-      _RCX = pm->bounds;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rcx+10h], xmm1
-      }
-      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &_R14->origin, &_R14->origin, pm->bounds, _R14->clientNum, pm->tracemask & 0xFDFFBFFF);
+      *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
+      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &ps->origin, &ps->origin, pm->bounds, ps->clientNum, pm->tracemask & 0xFDFFBFFF);
       if ( !results.allsolid )
       {
-        v48 = &_R14->pm_flags;
+        v32 = &ps->pm_flags;
         goto LABEL_98;
       }
       if ( (pm->cmd.buttons & 0x400) == 0 )
-        BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_PRONE, 1u, pm->cmd.serverTime, pm->weaponMap, _R14);
+        BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_PRONE, 1u, pm->cmd.serverTime, pm->weaponMap, ps);
     }
     else
     {
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 3u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 3u);
       if ( PM_IsInAir(pm) )
         goto LABEL_153;
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) )
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
       {
-        _RAX = BG_Suit_GetBounds(_R14->suitIndex, PM_EFF_STANCE_DUCKED);
-        _RCX = pm->bounds;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vmovsd  qword ptr [rcx+10h], xmm1
-        }
-        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &_R14->origin, &_R14->origin, pm->bounds, _R14->clientNum, pm->tracemask & 0xFDFFBFFF);
+        *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
+        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &ps->origin, &ps->origin, pm->bounds, ps->clientNum, pm->tracemask & 0xFDFFBFFF);
         if ( !results.allsolid )
         {
-          v48 = &_R14->pm_flags;
+          v32 = &ps->pm_flags;
           goto LABEL_98;
         }
         if ( (pm->cmd.buttons & 0x400) == 0 )
-          BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_PRONE, 2u, pm->cmd.serverTime, pm->weaponMap, _R14);
+          BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_PRONE, 2u, pm->cmd.serverTime, pm->weaponMap, ps);
       }
       else
       {
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-        if ( !Slide_IsInSprintDelay(_R14, pm->cmd.serverTime) )
-          *(_QWORD *)&_R14->sprintState.sprintRestore = 0i64;
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        if ( !Slide_IsInSprintDelay(ps, pm->cmd.serverTime) )
+          *(_QWORD *)&ps->sprintState.sprintRestore = 0i64;
       }
     }
   }
 LABEL_153:
-  if ( !_R14->viewHeightLerpTime && !BG_ContextMount_IsActive(_R14) )
+  if ( !ps->viewHeightLerpTime && !BG_ContextMount_IsActive(ps) )
   {
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R14->otherFlags, ACTIVE, 0xBu) )
+    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
     {
-      if ( _R14->viewHeightTarget != SuitDef->viewheight_laststand )
+      if ( ps->viewHeightTarget != SuitDef->viewheight_laststand )
       {
         if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-          v47 = 1;
-        _R14->viewHeightTarget = SuitDef->viewheight_laststand;
+          v31 = 1;
+        ps->viewHeightTarget = SuitDef->viewheight_laststand;
         goto LABEL_176;
       }
     }
     else
     {
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0x1Du) )
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
       {
-        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) )
+        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
         {
-          if ( _R14->viewHeightTarget == SuitDef->viewheight_stand )
+          if ( ps->viewHeightTarget == SuitDef->viewheight_stand )
           {
-            _R14->viewHeightTarget = SuitDef->viewheight_crouch;
+            ps->viewHeightTarget = SuitDef->viewheight_crouch;
             goto LABEL_181;
           }
-          if ( _R14->viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef) )
+          if ( ps->viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef) )
             goto LABEL_181;
-          _R14->viewHeightTarget = BG_Suit_GetProneViewHeight(SuitDef);
+          ps->viewHeightTarget = BG_Suit_GetProneViewHeight(SuitDef);
         }
         else
         {
-          viewHeightTarget = _R14->viewHeightTarget;
+          viewHeightTarget = ps->viewHeightTarget;
           viewheight_laststand = SuitDef->viewheight_laststand;
           if ( viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef) )
           {
-            _R14->viewHeightTarget = SuitDef->viewheight_crouch;
+            ps->viewHeightTarget = SuitDef->viewheight_crouch;
           }
           else
           {
-            if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 1u) )
+            if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) )
             {
               viewheight_crouch = SuitDef->viewheight_crouch;
             }
-            else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0x14u) && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_enableSprintViewHeight, "enableSprintViewHeight") )
+            else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_enableSprintViewHeight, "enableSprintViewHeight") )
             {
-              viewheight_crouch = BG_GetViewHeightSprint(_R14, SuitDef);
+              viewheight_crouch = BG_GetViewHeightSprint(ps, SuitDef);
             }
             else
             {
               viewheight_crouch = SuitDef->viewheight_stand;
             }
-            _R14->viewHeightTarget = viewheight_crouch;
+            ps->viewHeightTarget = viewheight_crouch;
             if ( viewHeightTarget != viewheight_laststand )
               goto LABEL_181;
           }
@@ -4485,9 +3761,9 @@ LABEL_176:
         {
           pm->m_flags |= 0x80u;
           if ( !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_playerasm_disable_cancel_torso_stance_change, "playerasm_disable_cancel_torso_stance_change") )
-            BG_ClearTorsoAnim(pm->m_bgHandler, _R14);
-          if ( v47 )
-            BG_AnimScriptEvent(pm->m_bgHandler, _R14, ANIM_ET_ENTER_LAST_STAND, 0, 1, &pml->holdrand);
+            BG_ClearTorsoAnim(pm->m_bgHandler, ps);
+          if ( v31 )
+            BG_AnimScriptEvent(pm->m_bgHandler, ps, ANIM_ET_ENTER_LAST_STAND, 0, 1, &pml->holdrand);
         }
         goto LABEL_181;
       }
@@ -4496,85 +3772,70 @@ LABEL_176:
   }
 LABEL_181:
   PM_ViewHeightAdjust(pm, pml);
-  v68 = PM_GetEffectiveStance(_R14) - 1;
-  v69 = &_R14->eFlags;
-  if ( v68 )
+  v44 = PM_GetEffectiveStance(ps) - 1;
+  v45 = &ps->eFlags;
+  if ( v44 )
   {
-    v70 = v68 - 1;
-    if ( v70 )
+    v46 = v44 - 1;
+    if ( v46 )
     {
-      if ( v70 == 1 )
+      if ( v46 == 1 )
       {
-        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v69, ACTIVE, 4u);
-        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 3u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-        v71 = PM_EFF_STANCE_LASTSTANDCRAWL;
+        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v45, ACTIVE, 4u);
+        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 3u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+        v47 = PM_EFF_STANCE_LASTSTANDCRAWL;
       }
       else
       {
-        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(v69, ACTIVE, 3u);
-        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-        v71 = PM_EFF_STANCE_DEFAULT;
+        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(v45, ACTIVE, 3u);
+        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+        v47 = PM_EFF_STANCE_DEFAULT;
       }
     }
     else
     {
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v69, ACTIVE, 3u);
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u);
-      v71 = PM_EFF_STANCE_DUCKED;
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v45, ACTIVE, 3u);
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+      v47 = PM_EFF_STANCE_DUCKED;
     }
   }
   else
   {
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v69, ACTIVE, 4u);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 3u);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_R14->pm_flags, ACTIVE, 0);
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_R14->pm_flags, ACTIVE, 1u);
-    v71 = PM_EFF_STANCE_PRONE;
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v45, ACTIVE, 4u);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 3u);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+    v47 = PM_EFF_STANCE_PRONE;
   }
-  _RAX = BG_Suit_GetBounds(_R14->suitIndex, v71);
-  _RCX = pm->bounds;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0x1Du) )
-  {
-    _RAX = BG_Suit_GetBounds(_R14->suitIndex, PM_EFF_STANCE_DUCKED);
-    _RCX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-  }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0) && !v83 )
+  *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, v47);
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
+    *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && !v51 )
     PM_CheckDuck_InitProne(pm);
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 0x36u) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
   {
-    __asm
+    v48 = &ps->eFlags;
+    if ( (float)SuitDef->viewheight_crouch > ps->viewHeightCurrent )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r13+204h]
-      vcomiss xmm0, dword ptr [r14+1E8h]
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v48, ACTIVE, 4u);
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 3u);
     }
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_R14->eFlags, ACTIVE, 4u);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_R14->eFlags, ACTIVE, 3u);
+    else
+    {
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(v48, ACTIVE, 3u);
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 4u);
+    }
   }
-LABEL_198:
+LABEL_200:
   BgScopedCrouchAndProneBlendMapUpdate(pm, pml);
 }
 
@@ -4585,191 +3846,114 @@ PM_CheckDuck_InitProne
 */
 void PM_CheckDuck_InitProne(pmove_t *pm)
 {
+  playerState_s *ps; 
+  float *v; 
   BgTrace *m_trace; 
   int tracemask; 
-  BgTrace *v15; 
-  BgTrace *v41; 
-  char v51; 
-  const dvar_t *v52; 
-  char v56; 
+  BgTrace *v6; 
+  float fraction; 
+  BgTrace *v8; 
+  double v9; 
+  double v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
   unsigned int contentMask; 
   unsigned int contentMaska; 
-  int v65; 
   vec3_t end; 
-  vec3_t v67; 
+  vec3_t v18; 
   trace_t results; 
-  char v69; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6482, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6483, ASSERT_TYPE_ASSERT, "(pm->bounds)", (const char *)&queryFormat, "pm->bounds") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6485, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6485, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6487, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE ))", "%s\n\t%08x %08x", "ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE )", _RBX->pm_flags.m_flags[0], _RBX->pm_flags.m_flags[1]) )
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6487, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE ))", "%s\n\t%08x %08x", "ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE )", ps->pm_flags.m_flags[0], ps->pm_flags.m_flags[1]) )
     __debugbreak();
-  if ( (pm->cmd.forwardmove || pm->cmd.rightmove) && !BG_UsingSniperScope(pm->weaponMap, _RBX) && _RBX->vehicleState.entity == 2047 )
+  if ( (pm->cmd.forwardmove || pm->cmd.rightmove) && !BG_UsingSniperScope(pm->weaponMap, ps) && ps->vehicleState.entity == 2047 )
   {
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RBX->pm_flags, ACTIVE, 0xEu);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0xEu);
     PM_ExitAimDownSight(pm);
   }
-  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBX->weapCommon.weapFlags, ACTIVE, 1u) )
+  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 1u) )
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10587, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10587, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0) )
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RBX->pm_flags, ACTIVE, 0xEu);
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0xEu);
   }
-  _RSI = &_RBX->origin;
-  __asm { vmovss  xmm0, dword ptr [rsi] }
+  v = ps->origin.v;
   m_trace = pm->m_trace;
   contentMask = pm->tracemask & 0xFDFFBFFF;
-  __asm
-  {
-    vmovss  dword ptr [rbp+57h+end], xmm0
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+57h+end+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+8]
-    vaddss  xmm2, xmm0, cs:__real@41200000
-    vmovss  dword ptr [rbp+57h+end+8], xmm2
-  }
-  BgTrace::LegacyTrace(m_trace, pm, &results, &_RBX->origin, &end, pm->bounds, _RBX->clientNum, contentMask);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+end]
-    vsubss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  xmm5, [rbp+57h+results.fraction]
-  }
+  *(_QWORD *)end.v = *(_QWORD *)ps->origin.v;
+  end.v[2] = ps->origin.v[2] + 10.0;
+  BgTrace::LegacyTrace(m_trace, pm, &results, &ps->origin, &end, pm->bounds, ps->clientNum, contentMask);
   tracemask = pm->tracemask;
-  v15 = pm->m_trace;
-  __asm
-  {
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rbp+57h+end+4]
-    vmovss  dword ptr [rbp+57h+end], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rsi+4]
-    vmulss  xmm2, xmm0, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rbp+57h+end+8]
-    vmovss  dword ptr [rbp+57h+end+4], xmm3
-    vsubss  xmm1, xmm0, dword ptr [rsi+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+57h+end+8], xmm3
-  }
-  BgTrace::LegacyTrace(v15, pm, &results, &end, &_RBX->origin, pm->bounds, _RBX->clientNum, tracemask & 0xFDFFBFFF);
-  __asm
-  {
-    vmovss  xmm4, [rbp+57h+results.fraction]
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm0, xmm0, dword ptr [rbp+57h+end]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rbp+57h+end]
-    vmovss  dword ptr [rsi], xmm2
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm0, xmm0, dword ptr [rbp+57h+end+4]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rbp+57h+end+4]
-    vmovss  dword ptr [rsi+4], xmm2
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm0, xmm0, dword ptr [rbp+57h+end+8]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rbp+57h+end+8]
-    vmovss  dword ptr [rsi+8], xmm2
-    vmovss  xmm0, dword ptr [rbx+1DCh]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v65 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6509, ASSERT_TYPE_ASSERT, "(!IS_NAN( ps->viewangles[YAW] ))", (const char *)&queryFormat, "!IS_NAN( ps->viewangles[YAW] )") )
+  v6 = pm->m_trace;
+  end.v[0] = (float)((float)(end.v[0] - *v) * results.fraction) + *v;
+  end.v[1] = (float)((float)(end.v[1] - ps->origin.v[1]) * results.fraction) + ps->origin.v[1];
+  end.v[2] = (float)((float)(end.v[2] - ps->origin.v[2]) * results.fraction) + ps->origin.v[2];
+  BgTrace::LegacyTrace(v6, pm, &results, &end, &ps->origin, pm->bounds, ps->clientNum, tracemask & 0xFDFFBFFF);
+  fraction = results.fraction;
+  ps->origin.v[0] = (float)((float)(ps->origin.v[0] - end.v[0]) * results.fraction) + end.v[0];
+  ps->origin.v[1] = (float)((float)(ps->origin.v[1] - end.v[1]) * fraction) + end.v[1];
+  ps->origin.v[2] = (float)((float)(ps->origin.v[2] - end.v[2]) * fraction) + end.v[2];
+  if ( (LODWORD(ps->viewangles.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6509, ASSERT_TYPE_ASSERT, "(!IS_NAN( ps->viewangles[YAW] ))", (const char *)&queryFormat, "!IS_NAN( ps->viewangles[YAW] )") )
     __debugbreak();
-  _RBX->proneDirection = _RBX->viewangles.v[1];
-  __asm { vmovss  xmm0, dword ptr [rsi] }
-  v41 = pm->m_trace;
+  ps->proneDirection = ps->viewangles.v[1];
+  v8 = pm->m_trace;
   contentMaska = pm->tracemask & 0xFDFFBFFF;
-  __asm
+  v18.v[0] = *v;
+  v18.v[1] = ps->origin.v[1];
+  v18.v[2] = ps->origin.v[2] - 0.25;
+  BgTrace::LegacyTrace(v8, pm, &results, &ps->origin, &v18, pm->bounds, ps->clientNum, contentMaska);
+  if ( results.startsolid || results.fraction >= 1.0 )
   {
-    vmovss  dword ptr [rbp+57h+var_A8], xmm0
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+57h+var_A8+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm2, xmm0, cs:__real@3e800000
-    vmovss  dword ptr [rbp+57h+var_A8+8], xmm2
+    LODWORD(v9) = 0;
   }
-  BgTrace::LegacyTrace(v41, pm, &results, &_RBX->origin, &v67, pm->bounds, _RBX->clientNum, contentMaska);
-  if ( !results.startsolid )
+  else
   {
-    __asm
-    {
-      vmovss  xmm0, [rbp+57h+results.fraction]
-      vcomiss xmm0, cs:__real@3f800000
-    }
+    if ( results.normal.v[0] == 0.0 && results.normal.v[1] == 0.0 && results.normal.v[2] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6519, ASSERT_TYPE_ASSERT, "(trace.normal[0] || trace.normal[1] || trace.normal[2])", (const char *)&queryFormat, "trace.normal[0] || trace.normal[1] || trace.normal[2]") )
+      __debugbreak();
+    v9 = PitchForYawOnNormal(ps->proneDirection, &results.normal);
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0; angle1
-    vmovss  dword ptr [rbx+270h], xmm0
-    vmovss  xmm1, dword ptr [rbx+1D8h]; angle2
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  _RDI = DCONST_DVARFLT_player_prone_view_pitch_down;
-  __asm { vmovaps xmm6, xmm0 }
+  ps->proneDirectionPitch = *(float *)&v9;
+  v10 = AngleDelta(*(const float *)&v9, ps->viewangles.v[0]);
+  v11 = DCONST_DVARFLT_player_prone_view_pitch_down;
   if ( !DCONST_DVARFLT_player_prone_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_down") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v11);
+  if ( *(float *)&v10 >= COERCE_FLOAT(v11->current.integer ^ _xmm) )
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vcomiss xmm6, xmm1
-  }
-  if ( v51 )
-  {
-    v52 = DCONST_DVARFLT_player_prone_view_pitch_down;
-    if ( !DCONST_DVARFLT_player_prone_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_down") )
+    v13 = DCONST_DVARFLT_player_prone_view_pitch_up;
+    if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v52);
-    __asm
+    Dvar_CheckFrontendServerThread(v13);
+    if ( *(float *)&v10 <= v13->current.value )
     {
-      vmovss  xmm0, dword ptr [rbx+1D8h]
-      vsubss  xmm1, xmm0, dword ptr [rdi+28h]
-      vmovss  dword ptr [rbx+274h], xmm1
+      ps->proneTorsoPitch = ps->proneDirectionPitch;
+    }
+    else
+    {
+      v14 = DCONST_DVARFLT_player_prone_view_pitch_up;
+      if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v14);
+      ps->proneTorsoPitch = v14->current.value + ps->viewangles.v[0];
     }
   }
   else
   {
-    _RDI = DCONST_DVARFLT_player_prone_view_pitch_up;
-    if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
+    v12 = DCONST_DVARFLT_player_prone_view_pitch_down;
+    if ( !DCONST_DVARFLT_player_prone_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_down") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-    if ( v51 | v56 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+270h]
-        vmovss  dword ptr [rbx+274h], xmm0
-      }
-    }
-    else
-    {
-      _RDI = DCONST_DVARFLT_player_prone_view_pitch_up;
-      if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+1D8h]
-        vmovss  dword ptr [rbx+274h], xmm1
-      }
-    }
+    Dvar_CheckFrontendServerThread(v12);
+    ps->proneTorsoPitch = ps->viewangles.v[0] - v12->current.value;
   }
-  _R11 = &v69;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -4799,11 +3983,13 @@ void PM_CheckStairsMove(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
+  bool v5; 
   bool v6; 
-  bool v7; 
   BgGroundState *ground; 
-  unsigned int v9; 
-  char v22; 
+  unsigned int v8; 
+  BgGroundState *v9; 
+  const dvar_t *v10; 
+  float v11; 
   vec3_t outUp; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10686, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -4814,56 +4000,32 @@ void PM_CheckStairsMove(pmove_t *pm, pml_t *pml)
   p_pm_flags = &ps->pm_flags;
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(p_pm_flags, ACTIVE, 7u);
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(p_pm_flags, ACTIVE, 8u);
-  v6 = PM_IsInAir(pm);
-  v7 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 6u);
+  v5 = PM_IsInAir(pm);
+  v6 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 6u);
   if ( !pm->ground && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10695, ASSERT_TYPE_ASSERT, "( pm->ground ) != ( nullptr )", "%s != %s\n\t%p, %p", "pm->ground", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( !v6 && !v7 )
+  if ( !v5 && !v6 )
   {
     ground = pm->ground;
     if ( ground->groundPlane )
     {
       if ( (ground->trace.surfaceFlags & 0x200) != 0 )
       {
-        v9 = 8;
+        v8 = 8;
 LABEL_20:
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(p_pm_flags, ACTIVE, v9);
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(p_pm_flags, ACTIVE, v8);
         return;
       }
-      __asm { vmovaps [rsp+88h+var_18], xmm6 }
       WorldUpReferenceFrame::GetUpVector(&pm->refFrame, &outUp);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+outUp+4]
-        vmovss  xmm1, dword ptr [rsp+88h+outUp]
-      }
-      _RBX = DCONST_DVARFLT_player_slope_minAngle;
-      __asm
-      {
-        vmulss  xmm3, xmm0, dword ptr [rax+14h]
-        vmulss  xmm2, xmm1, dword ptr [rax+10h]
-        vmovss  xmm0, dword ptr [rsp+88h+outUp+8]
-        vmulss  xmm1, xmm0, dword ptr [rax+18h]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm6, xmm4, xmm1
-      }
+      v9 = pm->ground;
+      v10 = DCONST_DVARFLT_player_slope_minAngle;
+      v11 = (float)((float)(outUp.v[1] * v9->trace.normal.v[1]) + (float)(outUp.v[0] * v9->trace.normal.v[0])) + (float)(outUp.v[2] * v9->trace.normal.v[2]);
       if ( !DCONST_DVARFLT_player_slope_minAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_minAngle") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
+      Dvar_CheckFrontendServerThread(v10);
+      if ( v11 < cosf_0(v10->current.value * 0.017453292) )
       {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vcomiss xmm6, xmm0
-        vmovaps xmm6, [rsp+88h+var_18]
-      }
-      if ( v22 )
-      {
-        v9 = 7;
+        v8 = 7;
         goto LABEL_20;
       }
     }
@@ -4877,14 +4039,7 @@ PM_ClipVelocity
 */
 void PM_ClipVelocity(const vec3_t *in, const vec3_t *normal, vec3_t *out)
 {
-  float v4; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  PM_ClipVelocityOverClip(NULL, in, normal, NULL, v4, out);
+  PM_ClipVelocityOverClip(NULL, in, normal, NULL, 0.001, out);
 }
 
 /*
@@ -4894,77 +4049,68 @@ PM_ClipVelocityOverClip
 */
 void PM_ClipVelocityOverClip(const pmove_t *pm, const vec3_t *in, const vec3_t *normal, const vec3_t *walkableRefUp, const float overclip, vec3_t *out)
 {
-  const dvar_t *v13; 
-  bool v16; 
-  __int64 v48; 
-  void *retaddr; 
+  const dvar_t *v8; 
+  bool v11; 
+  __int128 v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  float v16; 
+  const vec3_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int64 v24; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-  }
-  _R12 = out;
-  _RSI = walkableRefUp;
-  _RBX = normal;
-  v13 = DCONST_DVARBOOL_playerCharacterCollisionJumpCornerFix;
-  _R14 = in;
-  v16 = 1;
+  v8 = DCONST_DVARBOOL_playerCharacterCollisionJumpCornerFix;
+  v11 = 1;
   if ( !DCONST_DVARBOOL_playerCharacterCollisionJumpCornerFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionJumpCornerFix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.enabled && pm )
-    v16 = !BG_IsInAir(pm->ps, 0);
-  __asm { vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  v48 = 0i64;
-  __asm
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled && pm )
+    v11 = !BG_IsInAir(pm->ps, 0);
+  v24 = 0i64;
+  v23 = 0.0;
+  if ( walkableRefUp )
   {
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  [rsp+0C8h+var_88], xmm8
-  }
-  if ( _RSI && v16 )
-  {
-    __asm
+    if ( v11 )
     {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmulss  xmm3, xmm0, dword ptr [rsi]
-      vmulss  xmm2, xmm1, dword ptr [rbx+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmulss  xmm1, xmm0, dword ptr [rbx+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm6, xmm4, xmm1
-      vcomiss xmm6, cs:__real@3f333333
+      v12 = LODWORD(normal->v[0]);
+      *(float *)&v12 = (float)((float)(normal->v[0] * walkableRefUp->v[0]) + (float)(walkableRefUp->v[1] * normal->v[1])) + (float)(walkableRefUp->v[2] * normal->v[2]);
+      if ( *(float *)&v12 <= 0.69999999 && COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v12 - -1.0) & _xmm) >= 0.001 )
+      {
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(v12 & _xmm) - 1.0) & _xmm) < 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 422, ASSERT_TYPE_ASSERT, "(!Vec3IsParallel( normal, *walkableRefUp ))", (const char *)&queryFormat, "!Vec3IsParallel( normal, *walkableRefUp )") )
+          __debugbreak();
+        v13 = (float)(COERCE_FLOAT(v12 ^ _xmm) * walkableRefUp->v[0]) + normal->v[0];
+        v14 = v12 ^ _xmm;
+        v15 = (float)(*(float *)&v14 * walkableRefUp->v[1]) + normal->v[1];
+        v16 = (float)(*(float *)&v14 * walkableRefUp->v[2]) + normal->v[2];
+        *(float *)&v14 = fsqrt((float)((float)(v15 * v15) + (float)(v13 * v13)) + (float)(v16 * v16));
+        _XMM1 = v14;
+        __asm
+        {
+          vcmpless xmm0, xmm1, cs:__real@80000000
+          vblendvps xmm0, xmm1, xmm9, xmm0
+        }
+        *(float *)&_XMM1 = 1.0 / *(float *)&_XMM0;
+        v20 = (const vec3_t *)&v23;
+        v21 = v16 * (float)(1.0 / *(float *)&_XMM0);
+        *(float *)&v14 = (float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * in->v[1];
+        *(float *)&v24 = v15 * (float)(1.0 / *(float *)&_XMM0);
+        *(float *)&_XMM0 = (float)(v13 * (float)(1.0 / *(float *)&_XMM0)) * in->v[0];
+        v23 = v13 * *(float *)&_XMM1;
+        *(float *)&_XMM1 = (float)(v16 * *(float *)&_XMM1) * in->v[2];
+        *((float *)&v24 + 1) = v21;
+        if ( (float)((float)(*(float *)&v14 + *(float *)&_XMM0) + *(float *)&_XMM1) > 0.0 )
+          v20 = normal;
+        normal = v20;
+      }
     }
   }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r14]
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm0, dword ptr [r14+4]
-    vmulss  xmm2, xmm6, dword ptr [rbx]
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rbx+8]
-    vmulss  xmm0, xmm2, dword ptr [r14+8]
-    vaddss  xmm4, xmm3, xmm0
-    vandps  xmm1, xmm4, xmm7
-    vmulss  xmm0, xmm1, [rsp+0C8h+overclip]
-    vsubss  xmm3, xmm0, xmm4
-    vmulss  xmm1, xmm3, dword ptr [rbx]
-    vaddss  xmm2, xmm1, xmm6
-    vmovss  dword ptr [r12], xmm2
-    vmulss  xmm0, xmm3, dword ptr [rbx+4]
-    vaddss  xmm1, xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [r12+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rbx+8]
-    vaddss  xmm1, xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [r12+8], xmm1
-    vmovaps xmm6, [rsp+0C8h+var_38]
-    vmovaps xmm7, [rsp+0C8h+var_48]
-    vmovaps xmm8, [rsp+0C8h+var_58]
-  }
+  v22 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(in->v[0] * normal->v[0]) + (float)(normal->v[1] * in->v[1])) + (float)(normal->v[2] * in->v[2])) & _xmm) * overclip) - (float)((float)((float)(in->v[0] * normal->v[0]) + (float)(normal->v[1] * in->v[1])) + (float)(normal->v[2] * in->v[2]));
+  out->v[0] = (float)(v22 * normal->v[0]) + in->v[0];
+  out->v[1] = (float)(v22 * normal->v[1]) + in->v[1];
+  out->v[2] = (float)(v22 * normal->v[2]) + in->v[2];
 }
 
 /*
@@ -4985,43 +4131,30 @@ PM_CmdHasMinimumSprintMovement
 char PM_CmdHasMinimumSprintMovement(const playerState_s *ps, const usercmd_s *cmd)
 {
   const SuitDef *SuitDef; 
-  bool v6; 
-  const dvar_t *v7; 
-  char v15; 
+  bool v4; 
+  const dvar_t *v5; 
+  float v7; 
 
   SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 840, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  v6 = !SuitDef->isMovementCameraIndependent;
-  v7 = DCONST_DVARINT_player_sprintForwardMinimum;
-  if ( v6 )
+  v4 = !SuitDef->isMovementCameraIndependent;
+  v5 = DCONST_DVARINT_player_sprintForwardMinimum;
+  if ( v4 )
   {
     if ( !DCONST_DVARINT_player_sprintForwardMinimum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintForwardMinimum") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( cmd->forwardmove >= v7->current.integer )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( cmd->forwardmove >= v5->current.integer )
       return 1;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps [rsp+58h+var_18], xmm6
-      vcvtsi2ss xmm0, xmm0, ecx
-      vsqrtss xmm6, xmm0, xmm0
-    }
+    v7 = fsqrt((float)(cmd->rightmove * cmd->rightmove + cmd->forwardmove * cmd->forwardmove));
     if ( !DCONST_DVARINT_player_sprintForwardMinimum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintForwardMinimum") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vcomiss xmm6, xmm0
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-    if ( !v15 )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( v7 >= (float)v5->current.integer )
       return 1;
   }
   return 0;
@@ -5034,83 +4167,46 @@ PM_CmdScale
 */
 float PM_CmdScale(playerState_s *ps, usercmd_s *cmd)
 {
-  int v6; 
-  int v7; 
+  int v4; 
+  int v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   int pm_type; 
-  const dvar_t *v23; 
+  const dvar_t *v12; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2639, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = cmd->rightmove * cmd->rightmove;
-  v7 = cmd->forwardmove * cmd->forwardmove;
-  __asm
+  v4 = abs8(cmd->rightmove);
+  v5 = abs8(cmd->forwardmove);
+  v6 = fsqrt((float)(cmd->rightmove * cmd->rightmove + cmd->forwardmove * cmd->forwardmove));
+  if ( v6 > 0.000001 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vsqrtss xmm2, xmm0, xmm0
-    vcvtss2sd xmm1, xmm2, xmm2
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( __CFADD__(v6, v7) || v6 + v7 == 0 )
-  {
-    __asm { vxorps  xmm2, xmm2, xmm2 }
+    if ( v5 > v4 )
+      v4 = v5;
+    v7 = (float)v4 / v6;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r9d
-      vdivss  xmm2, xmm0, xmm2
-    }
+    v7 = 0.0;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3c010204
-    vmulss  xmm6, xmm1, xmm2
-  }
+  v9 = (float)((float)ps->speed * 0.0078740157) * v7;
+  v8 = v9;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) )
-    __asm { vmulss  xmm6, xmm6, cs:__real@3ecccccd }
+    v8 = v9 * 0.40000001;
   pm_type = ps->pm_type;
-  switch ( pm_type )
-  {
-    case 2:
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@40400000
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
-      break;
-    case 3:
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@40c00000
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
-      break;
-    case 5:
-      v23 = DCONST_DVARFLT_player_spectateSpeedScale;
-      if ( !DCONST_DVARFLT_player_spectateSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_spectateSpeedScale") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v23);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
-      break;
-    default:
-      __asm
-      {
-        vmovaps xmm0, xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
-      break;
-  }
-  return *(float *)&_XMM0;
+  if ( pm_type == 2 )
+    return v8 * 3.0;
+  if ( pm_type == 3 )
+    return v8 * 6.0;
+  if ( pm_type != 5 )
+    return v8;
+  v12 = DCONST_DVARFLT_player_spectateSpeedScale;
+  if ( !DCONST_DVARFLT_player_spectateSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_spectateSpeedScale") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v12);
+  return v8 * v12->current.value;
 }
 
 /*
@@ -5122,15 +4218,22 @@ float PM_CmdScaleForStance(const pmove_t *pm)
 {
   playerState_s *ps; 
   const SuitDef *SuitDef; 
+  const dvar_t *v4; 
+  const SuitDef *v6; 
+  const dvar_t *v7; 
+  float v8; 
+  const SuitDef *v9; 
   const dvar_t *v10; 
-  const dvar_t *v14; 
+  float v11; 
   int ProneViewHeight; 
-  char v19; 
+  float ViewHeightLerp; 
   int viewheight_crouch; 
-  int v25; 
-  __int32 v30; 
-  __int32 v31; 
-  const dvar_t *v33; 
+  int v15; 
+  float v16; 
+  __int32 v17; 
+  __int32 v18; 
+  const SuitDef *v19; 
+  const dvar_t *v20; 
 
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2712, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -5140,128 +4243,83 @@ float PM_CmdScaleForStance(const pmove_t *pm)
     __debugbreak();
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x37u) )
   {
-    _RBX = DCONST_DVARFLT_proneToSprintSpeedScale;
+    v4 = DCONST_DVARFLT_proneToSprintSpeedScale;
     if ( !DCONST_DVARFLT_proneToSprintSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "proneToSprintSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v4);
+    return v4->current.value;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-      vmovaps [rsp+98h+var_58], xmm8
-    }
-    _R15 = BG_GetSuitDef(ps->suitIndex);
-    if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2671, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+    v6 = BG_GetSuitDef(ps->suitIndex);
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2671, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    v10 = DCONST_DVARMPFLT_player_crouchSpeedScale;
+    v7 = DCONST_DVARMPFLT_player_crouchSpeedScale;
     if ( !DCONST_DVARMPFLT_player_crouchSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_crouchSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+4Ch]
-      vmulss  xmm7, xmm0, dword ptr [rbx+28h]
-    }
-    _R15 = BG_GetSuitDef(ps->suitIndex);
-    if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2682, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+    Dvar_CheckFrontendServerThread(v7);
+    v8 = v6->player_crouchSpeedScale * v7->current.value;
+    v9 = BG_GetSuitDef(ps->suitIndex);
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2682, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    v14 = DCONST_DVARMPFLT_player_proneSpeedScale;
+    v10 = DCONST_DVARMPFLT_player_proneSpeedScale;
     if ( !DCONST_DVARMPFLT_player_proneSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_proneSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+50h]
-      vmulss  xmm6, xmm0, dword ptr [rbx+28h]
-    }
+    Dvar_CheckFrontendServerThread(v10);
+    v11 = v9->player_proneSpeedScale * v10->current.value;
     ProneViewHeight = BG_Suit_GetProneViewHeight(SuitDef);
-    *(float *)&_XMM0 = PM_GetViewHeightLerp(pm, SuitDef->viewheight_crouch, ProneViewHeight);
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vucomiss xmm0, xmm8
-    }
-    if ( v19 )
+    ViewHeightLerp = PM_GetViewHeightLerp(pm, SuitDef->viewheight_crouch, ProneViewHeight);
+    if ( ViewHeightLerp == 0.0 )
     {
       viewheight_crouch = SuitDef->viewheight_crouch;
-      v25 = BG_Suit_GetProneViewHeight(SuitDef);
-      *(float *)&_XMM0 = PM_GetViewHeightLerp(pm, v25, viewheight_crouch);
-      __asm { vucomiss xmm0, xmm8 }
-      if ( v19 )
+      v15 = BG_Suit_GetProneViewHeight(SuitDef);
+      v16 = PM_GetViewHeightLerp(pm, v15, viewheight_crouch);
+      if ( v16 == 0.0 )
       {
         if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2737, ASSERT_TYPE_ASSERT, "(pm->ps)", (const char *)&queryFormat, "pm->ps") )
           __debugbreak();
-        v30 = PM_GetEffectiveStance(pm->ps) - 1;
-        if ( v30 )
+        v17 = PM_GetEffectiveStance(pm->ps) - 1;
+        if ( v17 )
         {
-          v31 = v30 - 1;
-          if ( v31 )
+          v18 = v17 - 1;
+          if ( v18 )
           {
-            if ( v31 == 1 )
+            if ( v18 == 1 )
             {
-              _RDI = BG_GetSuitDef(ps->suitIndex);
-              if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2693, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+              v19 = BG_GetSuitDef(ps->suitIndex);
+              if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2693, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
                 __debugbreak();
-              v33 = DCONST_DVARFLT_player_lastStandCrawlSpeedScale;
+              v20 = DCONST_DVARFLT_player_lastStandCrawlSpeedScale;
               if ( !DCONST_DVARFLT_player_lastStandCrawlSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_lastStandCrawlSpeedScale") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v33);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+54h]
-                vmulss  xmm0, xmm0, dword ptr [rbx+28h]
-              }
+              Dvar_CheckFrontendServerThread(v20);
+              return v19->player_lastStandCrawlSpeedScale * v20->current.value;
             }
             else
             {
-              __asm { vmovss  xmm0, cs:__real@3f800000 }
+              return FLOAT_1_0;
             }
           }
           else
           {
-            __asm { vmovaps xmm0, xmm7 }
+            return v8;
           }
         }
         else
         {
-          __asm { vmovaps xmm0, xmm6 }
+          return v11;
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm1, cs:__real@3f800000
-          vsubss  xmm2, xmm1, xmm0
-          vmulss  xmm3, xmm2, xmm6
-          vmulss  xmm0, xmm0, xmm7
-          vaddss  xmm0, xmm3, xmm0
-        }
+        return (float)((float)(1.0 - v16) * v11) + (float)(v16 * v8);
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000
-        vsubss  xmm2, xmm1, xmm0
-        vmulss  xmm3, xmm2, xmm7
-        vmulss  xmm0, xmm0, xmm6
-        vaddss  xmm0, xmm3, xmm0
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
-      vmovaps xmm8, [rsp+98h+var_58]
+      return (float)((float)(1.0 - ViewHeightLerp) * v8) + (float)(ViewHeightLerp * v11);
     }
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -5271,44 +4329,68 @@ PM_CmdScale_Walk
 */
 void PM_CmdScale_Walk(const pmove_t *pm, const pml_t *pml, const usercmd_s *cmd, float *outForwardScale, float *outSideScale)
 {
+  __int128 v6; 
+  __int128 v7; 
   playerState_s *ps; 
-  char v16; 
-  int v17; 
-  int v18; 
-  unsigned int v19; 
-  unsigned int v21; 
-  bool v22; 
+  double WeaponOrOffhandAdsFrac; 
+  bool v13; 
+  int v14; 
+  int v15; 
+  float v16; 
+  float v17; 
+  int speed; 
+  float v19; 
+  float v20; 
   int pm_type; 
-  const dvar_t *v36; 
+  float v22; 
+  const dvar_t *v23; 
+  double SpeedScale; 
+  int damageTimer; 
+  float v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float value; 
+  const dvar_t *v30; 
+  float v31; 
+  float v32; 
+  float v33; 
   const Weapon *CurrentWeaponForPlayer; 
-  bool v51; 
-  bool v52; 
-  bool v53; 
-  const usercmd_s *v57; 
-  char v96; 
-  bool CanJog; 
-  const dvar_t *v104; 
-  const char *v105; 
-  bool v116; 
-  double v121; 
-  double v122; 
-  double v123; 
-  double v124; 
-  double v125; 
-  double v126; 
-  bool v127; 
+  bool v35; 
+  bool v36; 
+  float v37; 
+  double v38; 
+  const usercmd_s *v39; 
+  float v40; 
+  double v41; 
+  float v42; 
+  double v43; 
+  float v44; 
+  __m128 v45; 
+  float v46; 
+  float v47; 
+  __m128 v48; 
+  __m128 v49; 
+  float v50; 
+  double v51; 
+  __m128 v52; 
+  float v56; 
+  const dvar_t *v57; 
+  const char *v58; 
+  const dvar_t *v59; 
+  float slide_strafe_speed_scale; 
+  bool v62; 
   float moveSpeedScaleOut; 
   float adsMoveSpeedScaleOut; 
-  const usercmd_s *v130; 
-  const pml_t *v131; 
+  const usercmd_s *v65; 
+  const pml_t *v66; 
   const SuitDef *SuitDef; 
   vec3_t wishDir; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
 
-  __asm { vmovaps [rsp+108h+var_58], xmm7 }
-  _R15 = outSideScale;
-  _RSI = outForwardScale;
-  v130 = cmd;
-  v131 = pml;
+  v65 = cmd;
+  v66 = pml;
   if ( !outForwardScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2789, ASSERT_TYPE_ASSERT, "(outForwardScale)", (const char *)&queryFormat, "outForwardScale") )
     __debugbreak();
   if ( !outSideScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2790, ASSERT_TYPE_ASSERT, "(outSideScale)", (const char *)&queryFormat, "outSideScale") )
@@ -5321,351 +4403,189 @@ void PM_CmdScale_Walk(const pmove_t *pm, const pml_t *pml, const usercmd_s *cmd,
   SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2796, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  v127 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du);
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
-    goto LABEL_19;
-  *(double *)&_XMM0 = BG_GetWeaponOrOffhandAdsFrac(pm->weaponMap, pm->ps);
-  __asm { vcomiss xmm0, xmm7 }
-  if ( v96 | v22 )
-LABEL_19:
-    v16 = 0;
-  else
-    v16 = 1;
-  __asm { vmovaps [rsp+108h+var_48], xmm6 }
-  *_RSI = 0.0;
-  *outSideScale = 0.0;
-  v17 = cmd->rightmove * cmd->rightmove;
-  v18 = cmd->forwardmove * cmd->forwardmove;
-  v19 = abs8(cmd->rightmove);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v21 = abs8(cmd->forwardmove);
-  v22 = v17 + v18 == 0;
-  __asm
+  v62 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du);
+  v13 = 0;
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
   {
-    vcvtsi2ss xmm0, xmm0, ecx
-    vsqrtss xmm2, xmm0, xmm0
-    vcvtss2sd xmm1, xmm2, xmm2
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
+    WeaponOrOffhandAdsFrac = BG_GetWeaponOrOffhandAdsFrac(pm->weaponMap, pm->ps);
+    if ( *(float *)&WeaponOrOffhandAdsFrac > 0.0 )
+      v13 = 1;
   }
-  if ( !__CFADD__(v17, v18) && !v22 )
+  v71 = _XMM6;
+  *outForwardScale = 0.0;
+  *outSideScale = 0.0;
+  v14 = abs8(cmd->rightmove);
+  v15 = abs8(cmd->forwardmove);
+  v16 = fsqrt((float)(cmd->rightmove * cmd->rightmove + cmd->forwardmove * cmd->forwardmove));
+  if ( v16 > 0.000001 )
   {
-    v22 = v21 == v19;
-    __asm
+    if ( v15 > v14 )
+      v14 = v15;
+    v17 = (float)v14 / v16;
+    if ( v17 > 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r9d
-      vdivss  xmm2, xmm0, xmm2
-      vcomiss xmm2, xmm7
-    }
-    if ( v21 > v19 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm2, cs:__real@3c010204
-        vmovaps [rsp+108h+var_68], xmm8
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovaps [rsp+108h+var_78], xmm9
-        vmulss  xmm6, xmm1, xmm0
-        vmovss  xmm9, cs:__real@3ecccccd
-      }
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) || v16 )
-        __asm { vmulss  xmm6, xmm6, xmm9 }
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) || v127 )
-      {
-        PM_SprintScale(ps);
-        __asm { vmulss  xmm6, xmm6, xmm0 }
-      }
+      speed = ps->speed;
+      v70 = v6;
+      v69 = v7;
+      v20 = (float)speed * (float)(v17 * 0.0078740157);
+      v19 = v20;
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) || v13 )
+        v19 = v20 * 0.40000001;
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) || v62 )
+        v19 = v19 * PM_SprintScale(ps);
       pm_type = ps->pm_type;
       if ( pm_type == 2 )
       {
-        __asm { vmulss  xmm6, xmm6, cs:__real@40400000 }
+        v22 = v19 * 3.0;
       }
       else if ( pm_type == 3 )
       {
-        __asm { vmulss  xmm6, xmm6, cs:__real@40c00000 }
+        v22 = v19 * 6.0;
       }
       else
       {
-        PM_CmdScaleForStance(pm);
-        __asm { vmulss  xmm6, xmm6, xmm0 }
+        v22 = v19 * PM_CmdScaleForStance(pm);
       }
       if ( BG_IsSuperSprinting(ps) )
       {
-        v36 = DCONST_DVARFLT_superSprintSpeedScale;
+        v23 = DCONST_DVARFLT_superSprintSpeedScale;
         if ( !DCONST_DVARFLT_superSprintSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintSpeedScale") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v36);
-        __asm { vmulss  xmm6, xmm6, dword ptr [r14+28h] }
+        Dvar_CheckFrontendServerThread(v23);
+        v22 = v22 * v23->current.value;
       }
       if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) && BG_GameInterface_HasPerk_FastCrouch(ps) )
       {
-        BG_GameInterface_FastCrouch_GetSpeedScale();
-        __asm { vmulss  xmm6, xmm6, xmm0 }
+        SpeedScale = BG_GameInterface_FastCrouch_GetSpeedScale();
+        v22 = v22 * *(float *)&SpeedScale;
       }
-      if ( ps->damageTimer )
+      damageTimer = ps->damageTimer;
+      if ( damageTimer )
       {
-        _R14 = DCONST_DVARFLT_player_dmgtimer_maxTime;
+        v28 = DCONST_DVARFLT_player_dmgtimer_maxTime;
         if ( !DCONST_DVARFLT_player_dmgtimer_maxTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_maxTime") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R14);
-        __asm
+        Dvar_CheckFrontendServerThread(v28);
+        value = v28->current.value;
+        if ( value == 0.0 )
         {
-          vmovss  xmm8, dword ptr [r14+28h]
-          vucomiss xmm8, xmm7
-        }
-        if ( v22 )
-        {
-          __asm
-          {
-            vmovss  xmm8, cs:__real@3f800000
-            vmovaps xmm0, xmm8
-          }
+          v26 = FLOAT_1_0;
+          v27 = FLOAT_1_0;
         }
         else
         {
-          _R14 = DCONST_DVARFLT_player_dmgtimer_minScale;
+          v30 = DCONST_DVARFLT_player_dmgtimer_minScale;
           if ( !DCONST_DVARFLT_player_dmgtimer_minScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_minScale") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_R14);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14+28h]
-            vdivss  xmm2, xmm0, xmm8
-            vmovss  xmm8, cs:__real@3f800000
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, r13d
-            vmulss  xmm3, xmm2, xmm1
-            vsubss  xmm0, xmm8, xmm3
-          }
+          Dvar_CheckFrontendServerThread(v30);
+          v31 = v30->current.value / value;
+          v26 = FLOAT_1_0;
+          v27 = 1.0 - (float)(v31 * (float)damageTimer);
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm8, cs:__real@3f800000
-          vmovaps xmm0, xmm8
-        }
+        v26 = FLOAT_1_0;
+        v27 = FLOAT_1_0;
       }
-      __asm { vmulss  xmm6, xmm6, xmm0 }
+      v33 = v22 * v27;
+      v32 = v22 * v27;
       CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
-      v51 = BG_UsingAlternate(ps);
-      BG_GetMoveSpeedScale(pm->weaponMap, ps, CurrentWeaponForPlayer, v51, &moveSpeedScaleOut, &adsMoveSpeedScaleOut);
-      v52 = !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) && !v16;
-      v53 = CurrentWeaponForPlayer->weaponIdx == 0;
+      v35 = BG_UsingAlternate(ps);
+      BG_GetMoveSpeedScale(pm->weaponMap, ps, CurrentWeaponForPlayer, v35, &moveSpeedScaleOut, &adsMoveSpeedScaleOut);
+      v36 = !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) && !v13;
       if ( CurrentWeaponForPlayer->weaponIdx )
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+108h+moveSpeedScaleOut]
-          vcomiss xmm0, xmm7
-        }
-        if ( CurrentWeaponForPlayer->weaponIdx )
-        {
-          v53 = !v52;
-          if ( v52 )
-            goto LABEL_60;
-        }
-        __asm
-        {
-          vmovss  xmm0, [rsp+108h+var_B0]
-          vcomiss xmm0, xmm7
-        }
-        if ( !v53 )
-LABEL_60:
-          __asm { vmulss  xmm6, xmm6, xmm0 }
+        if ( (v37 = moveSpeedScaleOut, moveSpeedScaleOut > 0.0) && v36 || (v37 = adsMoveSpeedScaleOut, adsMoveSpeedScaleOut > 0.0) )
+          v32 = v33 * v37;
       }
       if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x15u) && BG_GetShellshockParms(ps->shellshockIndex)->movement.affect )
-        __asm { vmulss  xmm6, xmm6, xmm9 }
-      __asm { vmovss  xmm1, cs:__real@40a00000; maxAbsValueSize }
-      MSG_UnpackUnsignedFloat(ps->moveSpeedScaleMultiplier, *(float *)&_XMM1, 0xCu);
-      v57 = v130;
-      __asm { vmulss  xmm6, xmm6, xmm0 }
-      Slide_SlideOutSpeedScale(ps, v130->serverTime);
-      __asm { vmulss  xmm6, xmm6, xmm0 }
-      Slide_SlideInSpeedScale(ps, v57->serverTime);
-      _EAX = v57->rightmove;
-      __asm
+        v32 = v32 * 0.40000001;
+      v38 = MSG_UnpackUnsignedFloat(ps->moveSpeedScaleMultiplier, 5.0, 0xCu);
+      v39 = v65;
+      v40 = v32 * *(float *)&v38;
+      v41 = Slide_SlideOutSpeedScale(ps, v65->serverTime);
+      v42 = v40 * *(float *)&v41;
+      v43 = Slide_SlideInSpeedScale(ps, v39->serverTime);
+      v44 = v42 * *(float *)&v43;
+      v45 = _mm_cvtepi32_ps((__m128i)(unsigned int)v39->rightmove);
+      v46 = _mm_cvtepi32_ps((__m128i)(unsigned int)v39->forwardmove).m128_f32[0];
+      v47 = (float)(v46 * v66->forward.v[0]) + (float)(v45.m128_f32[0] * v66->right.v[0]);
+      v48 = v45;
+      v48.m128_f32[0] = (float)(v45.m128_f32[0] * v66->right.v[1]) + (float)(v46 * v66->forward.v[1]);
+      v49 = v48;
+      v50 = (float)(v45.m128_f32[0] * v66->right.v[2]) + (float)(v46 * v66->forward.v[2]);
+      v51 = fsqrt((float)((float)(v49.m128_f32[0] * v49.m128_f32[0]) + (float)(v47 * v47)) + (float)(v50 * v50));
+      wishDir.v[0] = v47;
+      wishDir.v[1] = v49.m128_f32[0];
+      wishDir.v[2] = v50;
+      if ( v51 <= 0.000001 )
       {
-        vmulss  xmm9, xmm6, xmm0
-        vmovd   xmm2, eax
-      }
-      _EAX = v57->forwardmove;
-      __asm
-      {
-        vcvtdq2ps xmm2, xmm2
-        vmovd   xmm3, eax
-        vcvtdq2ps xmm3, xmm3
-        vmulss  xmm0, xmm2, dword ptr [rax+0Ch]
-        vmulss  xmm1, xmm3, dword ptr [rax]
-        vaddss  xmm4, xmm1, xmm0
-        vmulss  xmm1, xmm2, dword ptr [rax+10h]
-        vmulss  xmm0, xmm3, dword ptr [rax+4]
-        vaddss  xmm5, xmm1, xmm0
-        vmulss  xmm1, xmm2, dword ptr [rax+14h]
-        vmulss  xmm0, xmm3, dword ptr [rax+8]
-        vaddss  xmm6, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vcvtss2sd xmm3, xmm0, xmm0
-        vcomisd xmm3, cs:__real@3eb0c6f7a0b5ed8d
-        vmovss  dword ptr [rsp+108h+wishDir], xmm4
-        vmovss  dword ptr [rsp+108h+wishDir+4], xmm5
-        vmovss  dword ptr [rsp+108h+wishDir+8], xmm6
-      }
-      if ( v96 | v22 )
-      {
-        __asm
-        {
-          vmovsd  xmm0, cs:__real@3eb0c6f7a0000000
-          vmovsd  [rsp+108h+var_C8], xmm3
-          vmovsd  [rsp+108h+var_D0], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2917, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( Vec3Length( roughWishDir ) )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "Vec3Length( roughWishDir )", v121, v124) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2917, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( Vec3Length( roughWishDir ) )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "Vec3Length( roughWishDir )", DOUBLE_9_999999974752427eN7, v51) )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+108h+wishDir]
-          vmovss  xmm5, dword ptr [rsp+108h+wishDir+4]
-          vmovss  xmm6, dword ptr [rsp+108h+wishDir+8]
-        }
+        v47 = wishDir.v[0];
+        v49 = (__m128)LODWORD(wishDir.v[1]);
+        v50 = wishDir.v[2];
       }
+      v52 = v49;
+      v52.m128_f32[0] = fsqrt((float)((float)(v49.m128_f32[0] * v49.m128_f32[0]) + (float)(v47 * v47)) + (float)(v50 * v50));
+      _XMM3 = v52;
       __asm
       {
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm8, xmm0
-        vdivss  xmm2, xmm8, xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rsp+108h+wishDir], xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rsp+108h+wishDir+8], xmm0
-        vmovss  dword ptr [rsp+108h+wishDir+4], xmm1
       }
-      PM_Slope_GetSpeedScale(&wishDir, pm);
-      __asm
+      wishDir.v[0] = v47 * (float)(v26 / *(float *)&_XMM0);
+      wishDir.v[2] = v50 * (float)(v26 / *(float *)&_XMM0);
+      wishDir.v[1] = v49.m128_f32[0] * (float)(v26 / *(float *)&_XMM0);
+      *(double *)&_XMM0 = PM_Slope_GetSpeedScale(&wishDir, pm);
+      v56 = v44 * *(float *)&_XMM0;
+      *outForwardScale = 1.0;
+      if ( _mm_cvtepi32_ps((__m128i)(unsigned int)v39->forwardmove).m128_f32[0] > 0.0 && BG_CanJog(pm->weaponMap, ps) )
       {
-        vmovaps xmm8, [rsp+108h+var_68]
-        vmulss  xmm6, xmm9, xmm0
-        vmovaps xmm9, [rsp+108h+var_78]
-      }
-      *_RSI = 1.0;
-      _EAX = v57->forwardmove;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vcomiss xmm0, xmm7
-      }
-      if ( v96 | v22 || (CanJog = BG_CanJog(pm->weaponMap, ps), v96 = 0, !CanJog) )
-      {
-        __asm
+        v57 = DCONST_DVARFLT_player_jogForwardSpeedScale;
+        if ( !DCONST_DVARFLT_player_jogForwardSpeedScale )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vcomiss xmm0, xmm7
+          v58 = "player_jogForwardSpeedScale";
+          goto LABEL_77;
         }
-        if ( !v96 )
-          goto LABEL_78;
-        v104 = DCONST_DVARFLT_player_backSpeedScale;
+      }
+      else
+      {
+        if ( (float)v39->forwardmove >= 0.0 )
+          goto LABEL_80;
+        v57 = DCONST_DVARFLT_player_backSpeedScale;
         if ( !DCONST_DVARFLT_player_backSpeedScale )
         {
-          v105 = "player_backSpeedScale";
-LABEL_75:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v105) )
+          v58 = "player_backSpeedScale";
+LABEL_77:
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v58) )
             __debugbreak();
         }
       }
-      else
-      {
-        v104 = DCONST_DVARFLT_player_jogForwardSpeedScale;
-        if ( !DCONST_DVARFLT_player_jogForwardSpeedScale )
-        {
-          v105 = "player_jogForwardSpeedScale";
-          goto LABEL_75;
-        }
-      }
-      Dvar_CheckFrontendServerThread(v104);
-      *_RSI = v104->current.value;
-LABEL_78:
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm0
-      }
-      _RBX = DCONST_DVARFLT_player_strafeSpeedScale;
+      Dvar_CheckFrontendServerThread(v57);
+      *outForwardScale = v57->current.value;
+LABEL_80:
+      *outForwardScale = v56 * *outForwardScale;
+      v59 = DCONST_DVARFLT_player_strafeSpeedScale;
       if ( !DCONST_DVARFLT_player_strafeSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_strafeSpeedScale") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  dword ptr [r15], xmm0
-      }
-      if ( v127 )
-      {
-        _RAX = SuitDef;
-        __asm { vmovss  xmm0, dword ptr [rax+0F0h] }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [r15], xmm0
-      }
-      goto LABEL_90;
+      Dvar_CheckFrontendServerThread(v59);
+      slide_strafe_speed_scale = v59->current.value;
+      *outSideScale = slide_strafe_speed_scale;
+      if ( v62 )
+        slide_strafe_speed_scale = SuitDef->slide_strafe_speed_scale;
+      *outSideScale = slide_strafe_speed_scale * v56;
+      return;
     }
   }
-  __asm
+  if ( *outForwardScale != 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vucomiss xmm0, xmm7
-  }
-  if ( !v22 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vxorpd  xmm6, xmm6, xmm6
-      vmovsd  [rsp+108h+var_C8], xmm6
-      vmovsd  [rsp+108h+var_D0], xmm0
-    }
-    v116 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2810, ASSERT_TYPE_ASSERT, "( *outForwardScale ) == ( 0.0f )", "%s == %s\n\t%g, %g", "*outForwardScale", "0.0f", v122, v125);
-    if ( v116 )
+    __asm { vxorpd  xmm6, xmm6, xmm6 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2810, ASSERT_TYPE_ASSERT, "( *outForwardScale ) == ( 0.0f )", "%s == %s\n\t%g, %g", "*outForwardScale", "0.0f", *outForwardScale, *(double *)&_XMM6) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15]
-      vucomiss xmm0, xmm7
-    }
-    if ( v116 )
-    {
-      __asm
-      {
-        vmovsd  [rsp+108h+var_C8], xmm6
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+108h+var_D0], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2811, ASSERT_TYPE_ASSERT, "( *outSideScale ) == ( 0.0f )", "%s == %s\n\t%g, %g", "*outSideScale", "0.0f", v123, v126) )
-        __debugbreak();
-    }
-  }
-LABEL_90:
-  __asm
-  {
-    vmovaps xmm6, [rsp+108h+var_48]
-    vmovaps xmm7, [rsp+108h+var_58]
+    if ( *outSideScale != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2811, ASSERT_TYPE_ASSERT, "( *outSideScale ) == ( 0.0f )", "%s == %s\n\t%g, %g", "*outSideScale", "0.0f", *outSideScale, *(double *)&_XMM6) )
+      __debugbreak();
   }
 }
 
@@ -5674,48 +4594,26 @@ LABEL_90:
 PM_DamageScale_Walk
 ==============
 */
-
-float __fastcall PM_DamageScale_Walk(int damage_timer, double _XMM1_8)
+float PM_DamageScale_Walk(int damage_timer)
 {
-  char v7; 
+  const dvar_t *v2; 
+  float value; 
+  const dvar_t *v4; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !damage_timer )
-    goto LABEL_10;
-  _RBX = DCONST_DVARFLT_player_dmgtimer_maxTime;
+    return FLOAT_1_0;
+  v2 = DCONST_DVARFLT_player_dmgtimer_maxTime;
   if ( !DCONST_DVARFLT_player_dmgtimer_maxTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_maxTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( v7 )
-  {
-LABEL_10:
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  else
-  {
-    _RBX = DCONST_DVARFLT_player_dmgtimer_minScale;
-    if ( !DCONST_DVARFLT_player_dmgtimer_minScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_minScale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vdivss  xmm2, xmm0, xmm6
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edi
-      vmulss  xmm3, xmm2, xmm1
-      vsubss  xmm0, xmm0, xmm3
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  if ( value == 0.0 )
+    return FLOAT_1_0;
+  v4 = DCONST_DVARFLT_player_dmgtimer_minScale;
+  if ( !DCONST_DVARFLT_player_dmgtimer_minScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_dmgtimer_minScale") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v4);
+  return 1.0 - (float)((float)(v4->current.value / value) * (float)damage_timer);
 }
 
 /*
@@ -5725,6 +4623,11 @@ PM_DeadMove
 */
 void PM_DeadMove(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
+  __int128 v4; 
+  __int128 v5; 
+  float v7; 
+
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_DeadMove");
   if ( !pm )
   {
@@ -5733,28 +4636,35 @@ void PM_DeadMove(pmove_t *pm, pml_t *pml)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4663, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
       __debugbreak();
   }
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4663, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4663, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( pm->ground->walking && !BG_IsPlayerSwimming(_RBX) )
+  if ( pm->ground->walking && !BG_IsPlayerSwimming(ps) )
   {
-    __asm
+    v4 = LODWORD(ps->velocity.v[0]);
+    v5 = v4;
+    *(float *)&v5 = fsqrt((float)((float)(*(float *)&v4 * *(float *)&v4) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+    _XMM3 = v5;
+    v7 = *(float *)&v5 - 15.0;
+    if ( v7 > 0.0 )
     {
-      vmovss  xmm0, dword ptr [rbx+40h]
-      vmovss  xmm4, dword ptr [rbx+3Ch]
-      vmovss  xmm3, dword ptr [rbx+44h]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vsubss  xmm5, xmm3, cs:__real@41700000
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm5, xmm0
+      __asm
+      {
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm1, xmm3, xmm2, xmm0
+      }
+      ps->velocity.v[0] = *(float *)&v4 * (float)(1.0 / *(float *)&_XMM1);
+      ps->velocity.v[1] = (float)(1.0 / *(float *)&_XMM1) * ps->velocity.v[1];
+      ps->velocity.v[2] = (float)(1.0 / *(float *)&_XMM1) * ps->velocity.v[2];
+      ps->velocity.v[0] = v7 * ps->velocity.v[0];
+      ps->velocity.v[1] = v7 * ps->velocity.v[1];
+      ps->velocity.v[2] = v7 * ps->velocity.v[2];
     }
-    *(_QWORD *)_RBX->velocity.v = 0i64;
-    _RBX->velocity.v[2] = 0.0;
+    else
+    {
+      *(_QWORD *)ps->velocity.v = 0i64;
+      ps->velocity.v[2] = 0.0;
+    }
   }
   Sys_ProfEndNamedEvent();
 }
@@ -5766,115 +4676,77 @@ PM_DebugMispredict
 */
 void PM_DebugMispredict(const pmove_t *pm, int uniqueId, const char *message)
 {
+  const dvar_t *v3; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
   const dvar_t *v10; 
-  const dvar_t *v14; 
-  const dvar_t *v15; 
-  const dvar_t *v16; 
-  const dvar_t *v17; 
+  playerState_s *ps; 
+  BgGroundState *ground; 
   BOOL walkable; 
   _BOOL8 isExtrapolation; 
-  bool v36; 
-  const char *v37; 
-  const char *v38; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  bool v22; 
+  const char *v23; 
+  const char *v24; 
 
-  v10 = DCONST_DVARBOOL_debugMispredict;
+  v3 = DCONST_DVARBOOL_debugMispredict;
   if ( !DCONST_DVARBOOL_debugMispredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugMispredict") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    v14 = DCONST_DVARINT_debugMispredictSpecificId;
+    v7 = DCONST_DVARINT_debugMispredictSpecificId;
     if ( !DCONST_DVARINT_debugMispredictSpecificId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugMispredictSpecificId") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    if ( v14->current.integer <= -1 )
+    Dvar_CheckFrontendServerThread(v7);
+    if ( v7->current.integer <= -1 )
       goto LABEL_13;
-    v15 = DCONST_DVARINT_debugMispredictSpecificId;
+    v8 = DCONST_DVARINT_debugMispredictSpecificId;
     if ( !DCONST_DVARINT_debugMispredictSpecificId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugMispredictSpecificId") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v15->current.integer == uniqueId )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.integer == uniqueId )
     {
 LABEL_13:
-      v16 = DCONST_DVARINT_debugMispredictSpecificThread;
+      v9 = DCONST_DVARINT_debugMispredictSpecificThread;
       if ( !DCONST_DVARINT_debugMispredictSpecificThread && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugMispredictSpecificThread") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      if ( v16->current.integer <= -1 )
+      Dvar_CheckFrontendServerThread(v9);
+      if ( v9->current.integer <= -1 )
         goto LABEL_23;
-      v17 = DCONST_DVARINT_debugMispredictSpecificThread;
+      v10 = DCONST_DVARINT_debugMispredictSpecificThread;
       if ( !DCONST_DVARINT_debugMispredictSpecificThread && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugMispredictSpecificThread") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v17);
-      if ( (v17->current.integer || pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler)) && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
+      Dvar_CheckFrontendServerThread(v10);
+      if ( (v10->current.integer || pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler)) && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
       {
 LABEL_23:
-        _RSI = pm->ps;
-        _RAX = pm->ground;
-        __asm
-        {
-          vmovaps [rsp+108h+var_28], xmm6
-          vmovss  xmm6, dword ptr [rax+18h]
-        }
-        walkable = _RAX->trace.walkable;
+        ps = pm->ps;
+        ground = pm->ground;
+        walkable = ground->trace.walkable;
         isExtrapolation = pm->isExtrapolation;
-        __asm
-        {
-          vmovaps [rsp+108h+var_38], xmm7
-          vmovss  xmm7, dword ptr [rsi+44h]
-          vmovaps [rsp+108h+var_48], xmm8
-          vmovss  xmm8, dword ptr [rsi+40h]
-          vmovaps [rsp+108h+var_58], xmm9
-          vmovss  xmm9, dword ptr [rsi+3Ch]
-          vmovaps [rsp+108h+var_68], xmm10
-          vmovss  xmm10, dword ptr [rsi+38h]
-          vmovaps [rsp+108h+var_78], xmm11
-          vmovss  xmm11, dword ptr [rsi+34h]
-          vmovaps [rsp+108h+var_88], xmm12
-          vmovss  xmm12, dword ptr [rsi+30h]
-          vcvtss2sd xmm6, xmm6, xmm6
-          vcvtss2sd xmm7, xmm7, xmm7
-          vcvtss2sd xmm8, xmm8, xmm8
-          vcvtss2sd xmm9, xmm9, xmm9
-          vcvtss2sd xmm10, xmm10, xmm10
-          vcvtss2sd xmm11, xmm11, xmm11
-          vcvtss2sd xmm12, xmm12, xmm12
-        }
-        v36 = !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler);
-        v37 = "server";
-        v38 = (char *)&queryFormat.fmt + 3;
-        if ( !v36 )
-          v37 = "client";
+        v15 = ground->trace.normal.v[2];
+        v16 = ps->velocity.v[2];
+        v17 = ps->velocity.v[1];
+        v18 = ps->velocity.v[0];
+        v19 = ps->origin.v[2];
+        v20 = ps->origin.v[1];
+        v21 = ps->origin.v[0];
+        v22 = !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler);
+        v23 = "server";
+        v24 = (char *)&queryFormat.fmt + 3;
+        if ( !v22 )
+          v23 = "client";
         if ( message )
-          v38 = message;
-        __asm
-        {
-          vmovsd  [rsp+108h+var_B0], xmm6
-          vmovsd  [rsp+108h+var_B8], xmm7
-          vmovsd  [rsp+108h+var_C0], xmm8
-          vmovsd  [rsp+108h+var_C8], xmm9
-          vmovsd  [rsp+108h+var_D0], xmm10
-          vmovsd  [rsp+108h+var_D8], xmm11
-          vmovsd  [rsp+108h+var_E0], xmm12
-        }
-        Com_Printf(0, "\nTrack Mispredict: %d %d %s: %f %f %f: %f %f %f: %f %d: %d %s", (unsigned int)uniqueId, (unsigned int)_RSI->serverTime, v37, v46, v47, v48, v49, v50, v51, v52, walkable, isExtrapolation, v38);
-        __asm
-        {
-          vmovaps xmm12, [rsp+108h+var_88]
-          vmovaps xmm11, [rsp+108h+var_78]
-          vmovaps xmm10, [rsp+108h+var_68]
-          vmovaps xmm9, [rsp+108h+var_58]
-          vmovaps xmm8, [rsp+108h+var_48]
-          vmovaps xmm7, [rsp+108h+var_38]
-          vmovaps xmm6, [rsp+108h+var_28]
-        }
+          v24 = message;
+        Com_Printf(0, "\nTrack Mispredict: %d %d %s: %f %f %f: %f %f %f: %f %d: %d %s", (unsigned int)uniqueId, (unsigned int)ps->serverTime, v23, v21, v20, v19, v18, v17, v16, v15, walkable, isExtrapolation, v24);
       }
     }
   }
@@ -5888,41 +4760,31 @@ PM_DoesSprintMeterTestPass
 bool PM_DoesSprintMeterTestPass(pmove_t *pm)
 {
   int MaxSprintTime; 
-  const dvar_t *v7; 
+  int v3; 
+  const dvar_t *v4; 
+  float value; 
+  const dvar_t *v6; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1315, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   MaxSprintTime = BG_GetMaxSprintTime(pm->weaponMap, pm->ps);
+  v3 = MaxSprintTime;
   if ( MaxSprintTime )
   {
-    _RDI = DCONST_DVARFLT_player_sprintMinActivationTime;
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
+    v4 = DCONST_DVARFLT_player_sprintMinActivationTime;
     if ( !DCONST_DVARFLT_player_sprintMinActivationTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintMinActivationTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v4);
+    value = v4->current.value;
     if ( (pm->cmd.buttons & 0x800000000000i64) != 0 )
     {
-      v7 = DVARFLT_superSprintMinActivationChargePercent;
+      v6 = DVARFLT_superSprintMinActivationChargePercent;
       if ( !DVARFLT_superSprintMinActivationChargePercent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintMinActivationChargePercent") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmulss  xmm0, xmm0, dword ptr [rdi+28h]
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
+      Dvar_CheckFrontendServerThread(v6);
+      value = (float)((float)v3 * v6->current.value) * 0.001;
     }
-    MaxSprintTime = PM_GetSprintLeft(pm->weaponMap, pm, pm->cmd.serverTime);
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@447a0000
-      vmovaps xmm6, [rsp+58h+var_18]
-      vcvttss2si ecx, xmm0
-    }
-    LOBYTE(MaxSprintTime) = MaxSprintTime >= _ECX;
+    LOBYTE(MaxSprintTime) = PM_GetSprintLeft(pm->weaponMap, pm, pm->cmd.serverTime) >= (int)(float)(value * 1000.0);
   }
   return MaxSprintTime;
 }
@@ -5934,81 +4796,62 @@ PM_DropAnimTimers
 */
 void PM_DropAnimTimers(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   SuitAnimType SuitAnimIndexFromPlayerState; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  double v10; 
+  double v11; 
+  int v12; 
   int clientNum; 
   int torsoTimer; 
-  int v31; 
-  int v32; 
+  int v15; 
+  int v16; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9449, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9450, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  _RBX = pm->ps;
+  ps = pm->ps;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
-    if ( _RBX->legsTimer > 0 )
+    if ( ps->legsTimer > 0 )
     {
-      SuitAnimIndexFromPlayerState = BG_GetSuitAnimIndexFromPlayerState(_RBX);
-      if ( BG_ShouldScaleTimedAnim(_RBX->legsAnim & 0xFFFFEFFF, SuitAnimIndexFromPlayerState) )
+      SuitAnimIndexFromPlayerState = BG_GetSuitAnimIndexFromPlayerState(ps);
+      if ( BG_ShouldScaleTimedAnim(ps->legsAnim & 0xFFFFEFFF, SuitAnimIndexFromPlayerState) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vsubss  xmm3, xmm0, dword ptr [rdi+40h]
-          vmovss  xmm1, dword ptr [rbx+34h]
-          vsubss  xmm2, xmm1, dword ptr [rdi+44h]
-          vmovss  xmm0, dword ptr [rbx+38h]
-          vsubss  xmm4, xmm0, dword ptr [rdi+48h]
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vaddss  xmm2, xmm3, xmm0
-          vdivss  xmm0, xmm1, dword ptr [rdi+24h]
-          vsqrtss xmm4, xmm2, xmm2
-          vmovaps [rsp+48h+var_18], xmm6
-          vmulss  xmm6, xmm4, xmm0
-        }
-        *(double *)&_XMM0 = BG_CalculateDurationIntoAnimFromLegsTimer(_RBX->legsTimer, _RBX->legsAnim & 0xFFFFEFFF, SuitAnimIndexFromPlayerState);
-        __asm
-        {
-          vmovaps xmm2, xmm0; durationIntoAnim
-          vmovaps xmm0, xmm6; characterSpeed
-        }
-        BG_CalculateAnimRateFromCharacterSpeed(*(float *)&_XMM0, _RBX->legsAnim & 0xFFFFEFFF, *(float *)&_XMM2, SuitAnimIndexFromPlayerState);
-        __asm
-        {
-          vmovaps xmm6, [rsp+48h+var_18]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm0, xmm1, xmm0
-          vcvttss2si eax, xmm0
-        }
+        v6 = ps->origin.v[0] - pml->previous_origin.v[0];
+        v7 = ps->origin.v[1] - pml->previous_origin.v[1];
+        v8 = ps->origin.v[2] - pml->previous_origin.v[2];
+        v9 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v8 * v8)) * (float)(1.0 / pml->frametime);
+        v10 = BG_CalculateDurationIntoAnimFromLegsTimer(ps->legsTimer, ps->legsAnim & 0xFFFFEFFF, SuitAnimIndexFromPlayerState);
+        v11 = BG_CalculateAnimRateFromCharacterSpeed(v9, ps->legsAnim & 0xFFFFEFFF, *(float *)&v10, SuitAnimIndexFromPlayerState);
+        v12 = (int)(float)((float)(-10 * pml->msec) * *(float *)&v11);
       }
       else
       {
-        _EAX = -10 * pml->msec;
+        v12 = -10 * pml->msec;
       }
-      _RBX->legsTimer += _EAX;
-      if ( _RBX->legsTimer < 0 )
+      ps->legsTimer += v12;
+      if ( ps->legsTimer < 0 )
       {
-        clientNum = _RBX->clientNum;
-        _RBX->legsTimer = 0;
+        clientNum = ps->clientNum;
+        ps->legsTimer = 0;
         G_DebugPlayerAnimScript_Print(clientNum, "end legs\n");
       }
     }
-    torsoTimer = _RBX->torsoTimer;
+    torsoTimer = ps->torsoTimer;
     if ( torsoTimer > 0 )
     {
-      v31 = torsoTimer - 10 * pml->msec;
-      _RBX->torsoTimer = v31;
-      if ( v31 < 0 )
+      v15 = torsoTimer - 10 * pml->msec;
+      ps->torsoTimer = v15;
+      if ( v15 < 0 )
       {
-        v32 = _RBX->clientNum;
-        _RBX->torsoTimer = 0;
-        G_DebugPlayerAnimScript_Print(v32, "end torso\n");
+        v16 = ps->clientNum;
+        ps->torsoTimer = 0;
+        G_DebugPlayerAnimScript_Print(v16, "end torso\n");
       }
     }
   }
@@ -6083,45 +4926,39 @@ PM_ExecutionMove
 void PM_ExecutionMove(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
-  playerState_s *v7; 
-  bool v9; 
+  playerState_s *v5; 
+  bool v6; 
   bool IsPlayerZeroG; 
-  bool v12; 
+  bool v8; 
   WorldUpReferenceFramePM *p_refFrame; 
+  vec3_t *p_velocity; 
+  float frametime; 
   bool performSlideMove; 
-  char v25; 
+  double ForwardContribution; 
+  double RightContribution; 
   __int128 vec; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RSI = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3537, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3537, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  PM_Friction(pm, _RSI);
-  v7 = pm->ps;
-  DWORD2(vec) = LODWORD(vec3_origin.v[2]);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vmovsd  qword ptr [rsp+88h+vec], xmm0
-  }
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3205, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps", vec) )
+  PM_Friction(pm, pml);
+  v5 = pm->ps;
+  *(vec3_t *)&vec = vec3_origin;
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3205, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps", vec) )
     __debugbreak();
-  v9 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm->ps->pm_flags, ACTIVE, 0x1Eu);
-  IsPlayerZeroG = BG_IsPlayerZeroG(v7);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v12 = BGMovingPlatforms::IsOnMovingPlatform(v7) != 0;
-  if ( !v9 )
+  v6 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm->ps->pm_flags, ACTIVE, 0x1Eu);
+  IsPlayerZeroG = BG_IsPlayerZeroG(v5);
+  v8 = BGMovingPlatforms::IsOnMovingPlatform(v5) != 0;
+  if ( !v6 )
   {
     p_refFrame = &pm->refFrame;
 LABEL_16:
-    __asm { vxorps  xmm1, xmm1, xmm1; height }
-    WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&_XMM1, (vec3_t *)&vec);
+    WorldUpReferenceFrame::SetUpContribution(p_refFrame, 0.0, (vec3_t *)&vec);
     goto LABEL_17;
   }
-  if ( !IsPlayerZeroG && !v12 )
+  if ( !IsPlayerZeroG && !v8 )
   {
     p_refFrame = &pm->refFrame;
     if ( !pm->refFrame.m_axisAdjusted )
@@ -6129,62 +4966,31 @@ LABEL_16:
   }
   p_refFrame = &pm->refFrame;
 LABEL_17:
-  *(_QWORD *)&_RSI->walkForwardScale = 0i64;
+  *(_QWORD *)&pml->walkForwardScale = 0i64;
   if ( (pm->ground->trace.surfaceFlags & 2) != 0 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xDu) )
   {
-    _RBX = &ps->velocity;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, dword ptr [rsi+24h]; height
-    }
-    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, *(float *)&_XMM1, &ps->velocity);
+    p_velocity = &ps->velocity;
+    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, (float)-ps->gravity * pml->frametime, &ps->velocity);
   }
   else
   {
-    _RBX = &ps->velocity;
+    p_velocity = &ps->velocity;
   }
-  PM_ProjectVelocity(pm, _RBX, &pm->ground->trace.normal, _RBX);
+  PM_ProjectVelocity(pm, p_velocity, &pm->ground->trace.normal, p_velocity);
   if ( Com_GameMode_SupportsFeature(WEAPONSTATES_NUM) )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+24h]
-      vmulss  xmm0, xmm2, dword ptr [r14+5274h]
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r14+5278h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r14+527Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    frametime = pml->frametime;
+    p_velocity->v[0] = (float)(frametime * ps->pushVector.v[0]) + p_velocity->v[0];
+    p_velocity->v[1] = (float)(frametime * ps->pushVector.v[1]) + p_velocity->v[1];
+    p_velocity->v[2] = (float)(frametime * ps->pushVector.v[2]) + p_velocity->v[2];
   }
   performSlideMove = 0;
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(p_refFrame, _RBX);
-  __asm { vucomiss xmm0, xmm6 }
-  if ( !v25 )
-    goto LABEL_29;
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(p_refFrame, _RBX);
-  __asm { vucomiss xmm0, xmm6 }
-  if ( !v25 )
-    goto LABEL_29;
-  __asm { vucomiss xmm6, dword ptr [rsi+200h] }
-  if ( !v25 )
-    goto LABEL_29;
-  __asm { vucomiss xmm6, dword ptr [rsi+204h] }
-  if ( !v25 )
-    goto LABEL_29;
-  __asm { vucomiss xmm6, dword ptr [rsi+208h] }
-  if ( !v25 || PM_CmdHasCollisionAvoid(&pm->cmd) )
-LABEL_29:
+  ForwardContribution = WorldUpReferenceFrame::GetForwardContribution(p_refFrame, p_velocity);
+  if ( *(float *)&ForwardContribution != 0.0 || (RightContribution = WorldUpReferenceFrame::GetRightContribution(p_refFrame, p_velocity), *(float *)&RightContribution != 0.0) || pml->impulseFieldVelocity.v[0] != 0.0 || pml->impulseFieldVelocity.v[1] != 0.0 || pml->impulseFieldVelocity.v[2] != 0.0 || PM_CmdHasCollisionAvoid(&pm->cmd) )
     performSlideMove = 1;
-  PM_UpdatePlayerCollision(pm, _RSI, 0, 1, 0, performSlideMove);
+  PM_UpdatePlayerCollision(pm, pml, 0, 1, 0, performSlideMove);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-    BG_UpdateMovementDir(pm, _RSI, 0);
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
+    BG_UpdateMovementDir(pm, pml, 0);
 }
 
 /*
@@ -6373,120 +5179,83 @@ PM_FlyMove
 void PM_FlyMove(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
-  char v12; 
-  int v15; 
-  bool v17; 
-  float fmt; 
+  double v5; 
+  float v6; 
+  __int128 v7; 
+  float v8; 
+  int v9; 
+  bool v10; 
+  pml_t *v11; 
+  float v12; 
+  __int128 v13; 
   __int64 performSlideMove; 
   __int64 performSlideMovea; 
-  __int64 v45; 
-  __int64 v46; 
-  int v47[4]; 
+  __int64 v19; 
+  __int64 v20; 
+  int v21[4]; 
   vec3_t wishdir; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3026, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3026, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   PM_Friction(pm, pml);
-  *(double *)&_XMM0 = PM_CmdScale(ps, &pm->cmd);
-  __asm
+  v5 = PM_CmdScale(ps, &pm->cmd);
+  v6 = 0.0;
+  if ( *(float *)&v5 == 0.0 )
   {
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm0, xmm4
-    vmovaps xmm7, xmm0
-  }
-  if ( v12 )
-  {
-    __asm
-    {
-      vxorps  xmm5, xmm5, xmm5
-      vxorps  xmm6, xmm6, xmm6
-    }
+    v7 = 0i64;
+    v8 = 0.0;
   }
   else
   {
-    v15 = 0;
-    _RBP = (char *)v47 - (char *)pml;
-    v17 = 1;
-    _RDI = pml;
+    v9 = 0;
+    v10 = 1;
+    v11 = pml;
     do
     {
-      if ( !v17 )
+      if ( !v10 )
       {
-        LODWORD(v45) = 3;
-        LODWORD(performSlideMove) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", performSlideMove, v45) )
+        LODWORD(v19) = 3;
+        LODWORD(performSlideMove) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", performSlideMove, v19) )
           __debugbreak();
-        LODWORD(v46) = 3;
-        LODWORD(performSlideMovea) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", performSlideMovea, v46) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm2, xmm0, dword ptr [rdi+0Ch]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, dword ptr [rdi]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm6, xmm2, xmm7
-      }
-      if ( (unsigned int)v15 >= 3 )
-      {
-        LODWORD(v45) = 3;
-        LODWORD(performSlideMove) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", performSlideMove, v45) )
+        LODWORD(v20) = 3;
+        LODWORD(performSlideMovea) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", performSlideMovea, v20) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi+rbp], xmm6 }
-      _RDI = (pml_t *)((char *)_RDI + 4);
-      v17 = (unsigned int)++v15 < 3;
+      v12 = (float)((float)((float)pm->cmd.rightmove * v11->right.v[0]) + (float)((float)pm->cmd.forwardmove * v11->forward.v[0])) * *(float *)&v5;
+      if ( (unsigned int)v9 >= 3 )
+      {
+        LODWORD(v19) = 3;
+        LODWORD(performSlideMove) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", performSlideMove, v19) )
+          __debugbreak();
+      }
+      *(float *)((char *)v11->forward.v + (char *)v21 - (char *)pml) = v12;
+      v11 = (pml_t *)((char *)v11 + 4);
+      v10 = (unsigned int)++v9 < 3;
     }
-    while ( v15 < 3 );
-    __asm
-    {
-      vmovss  xmm6, [rsp+0B8h+var_70]
-      vmovss  xmm5, [rsp+0B8h+var_74]
-      vmovss  xmm4, [rsp+0B8h+var_78]
-    }
+    while ( v9 < 3 );
+    v8 = *(float *)&v21[2];
+    v7 = (unsigned int)v21[1];
+    v6 = *(float *)v21;
   }
+  v13 = v7;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v6 * v6)) + (float)(v8 * v8));
+  _XMM3 = v13;
   __asm
   {
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2; wishspeed
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+0B8h+wishdir], xmm0
-    vmovss  dword ptr [rsp+0B8h+wishdir+4], xmm1
-    vmovss  xmm1, cs:__real@41000000
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rsp+0B8h+wishdir+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm1
   }
-  PM_Accelerate(pm, pml, &wishdir, *(float *)&_XMM3, fmt);
+  wishdir.v[0] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  wishdir.v[1] = *(float *)&v7 * (float)(1.0 / *(float *)&_XMM0);
+  wishdir.v[2] = v8 * (float)(1.0 / *(float *)&_XMM0);
+  PM_Accelerate(pm, pml, &wishdir, *(float *)&v13, 8.0);
   PM_UpdatePlayerCollision(pm, pml, 0, 1, 1, 1);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-  }
 }
 
 /*
@@ -6494,126 +5263,89 @@ void PM_FlyMove(pmove_t *pm, pml_t *pml)
 PM_FootstepEvent
 ==============
 */
-
-void __fastcall PM_FootstepEvent(pmove_t *pm, pml_t *pml, bool isOnStairs, double stairsAscentRatio, float prevTime, float curTime, const FootstepTime *times, const MovementTime *mvmtTimes)
+void PM_FootstepEvent(pmove_t *pm, pml_t *pml, bool isOnStairs, float stairsAscentRatio, float prevTime, float curTime, const FootstepTime *times, const MovementTime *mvmtTimes)
 {
   playerState_s *ps; 
+  const FootstepTime *v10; 
+  float v11; 
+  float v12; 
   entity_event_t *footstepEventType; 
-  bool v20; 
-  entity_event_t v21; 
-  __int64 v24; 
-  signed __int64 v26; 
-  unsigned int v28; 
-  const dvar_t *v29; 
+  entity_event_t v14; 
+  __int64 v15; 
+  float time; 
+  unsigned int v17; 
+  const dvar_t *v18; 
   bool isLeft; 
-  int v31; 
-  unsigned int v32; 
-  playerState_s *v33; 
-  bool v34; 
-  bool v36; 
-  char v37; 
-  char v38; 
-  FootstepActionType_t v40; 
-  bool v42; 
-  int v43; 
-  unsigned int v44; 
-  __int64 v48; 
-  EquipmentMoveType_t v49; 
-  unsigned int v50; 
-  __int64 v55; 
+  int v20; 
+  unsigned int v21; 
+  playerState_s *v22; 
+  bool v23; 
+  const dvar_t *v24; 
+  bool v25; 
+  float value; 
+  FootstepActionType_t v27; 
+  bool v28; 
+  int v29; 
+  unsigned int v30; 
+  const MovementTime *v31; 
+  float v32; 
+  __int64 v33; 
+  EquipmentMoveType_t v34; 
+  unsigned int v35; 
+  __int64 v36; 
 
-  __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-  _RSI = pm;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm7
-    vmovaps [rsp+0B8h+var_68], xmm9
-    vmovaps xmm9, xmm3
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7602, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  ps = _RSI->ps;
+  ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7602, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _R15 = defaultTimes;
-  __asm
-  {
-    vmovss  xmm6, [rsp+0B8h+prevTime]
-    vmovss  xmm7, [rsp+0B8h+curTime]
-  }
+  v10 = defaultTimes;
+  v11 = prevTime;
+  v12 = curTime;
   if ( times )
-    _R15 = times;
-  __asm { vucomiss xmm6, xmm7 }
-  if ( times )
+    v10 = times;
+  if ( prevTime != curTime )
   {
-    footstepEventType = _RSI->footstepEventType;
-    __asm { vmovaps [rsp+0B8h+var_58], xmm8 }
+    footstepEventType = pm->footstepEventType;
     prevTime = 0.0;
-    v20 = footstepEventType == NULL;
     if ( footstepEventType )
-    {
-      v21 = *footstepEventType;
-    }
+      v14 = *footstepEventType;
     else
+      v14 = PM_FootstepType(pm, pm->speed, (FootstepMoveType_t *)&prevTime);
+    if ( -3.4028235e38 != v10->time )
     {
-      __asm { vmovss  xmm1, dword ptr [rsi+330h]; speed }
-      v21 = PM_FootstepType(_RSI, *(const float *)&_XMM1, (FootstepMoveType_t *)&prevTime);
-    }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@ff7fffff
-      vucomiss xmm8, dword ptr [r15]
-    }
-    if ( !v20 )
-    {
-      __asm { vmovaps [rsp+0B8h+var_78], xmm10 }
-      v24 = -4i64 - (_QWORD)_R15;
-      __asm { vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000 }
+      v15 = -4i64 - (_QWORD)v10;
       do
       {
-        v26 = (unsigned __int64)(&_R15->isLeft + v24) & 0xFFFFFFFFFFFFFFF8ui64;
-        if ( v26 >= 256 )
+        if ( (__int64)((unsigned __int64)(&v10->isLeft + v15) & 0xFFFFFFFFFFFFFFF8ui64) >= 256 )
           break;
-        __asm
+        time = v10->time;
+        if ( v11 < v10->time && time <= v12 || v12 < v11 && v11 < time || time <= v12 && v12 < v11 )
         {
-          vmovss  xmm0, dword ptr [r15]
-          vcomiss xmm6, xmm0
-        }
-        if ( (unsigned __int64)v26 >= 0x100 )
-        {
-          __asm
-          {
-            vcomiss xmm7, xmm6
-            vcomiss xmm0, xmm7
-          }
-        }
-        else
-        {
-          __asm { vcomiss xmm0, xmm7 }
           ++ps->footstepCount;
-          if ( PM_ShouldMakeFootsteps(_RSI) )
+          if ( PM_ShouldMakeFootsteps(pm) )
           {
             if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, GameModeFlagValues::ms_spValue, 0x3Au) )
             {
               if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2559, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING )") )
                 __debugbreak();
-              v28 = BG_PackFootstepEventParm(_RSI->weaponMap, ps, 21, FOOTSTEP_ACTION_TYPE_STEP, _R15->isLeft);
-              BG_AddPredictableEventToPlayerstate(EV_FOOTSTEP_PRONE, v28, _RSI->cmd.serverTime, _RSI->weaponMap, ps);
+              v17 = BG_PackFootstepEventParm(pm->weaponMap, ps, 21, FOOTSTEP_ACTION_TYPE_STEP, v10->isLeft);
+              BG_AddPredictableEventToPlayerstate(EV_FOOTSTEP_PRONE, v17, pm->cmd.serverTime, pm->weaponMap, ps);
             }
             else if ( ps->groundEntityNum == 2047 )
             {
               if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
               {
-                v29 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+                v18 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
                 if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v29);
-                if ( !v29->current.enabled )
+                Dvar_CheckFrontendServerThread(v18);
+                if ( !v18->current.enabled )
                 {
-                  isLeft = _R15->isLeft;
-                  v31 = PM_GroundSurfaceType(_RSI);
-                  v32 = BG_PackFootstepEventParm(_RSI->weaponMap, ps, v31, FOOTSTEP_ACTION_TYPE_STEP, isLeft);
-                  BG_AddPredictableEventToPlayerstate(EV_FOOTSTEP_RUN, v32, _RSI->cmd.serverTime, _RSI->weaponMap, ps);
+                  isLeft = v10->isLeft;
+                  v20 = PM_GroundSurfaceType(pm);
+                  v21 = BG_PackFootstepEventParm(pm->weaponMap, ps, v20, FOOTSTEP_ACTION_TYPE_STEP, isLeft);
+                  BG_AddPredictableEventToPlayerstate(EV_FOOTSTEP_RUN, v21, pm->cmd.serverTime, pm->weaponMap, ps);
                 }
               }
             }
@@ -6621,133 +5353,88 @@ void __fastcall PM_FootstepEvent(pmove_t *pm, pml_t *pml, bool isOnStairs, doubl
             {
               if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE) && (PM_GetEffectiveStance(ps) == PM_EFF_STANCE_DUCKED || PM_GetEffectiveStance(ps) == PM_EFF_STANCE_PRONE) )
               {
-                LODWORD(v55) = PM_GetEffectiveStance(ps);
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7659, ASSERT_TYPE_ASSERT, "( ( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_CROUCH_PRONE_FOOTSTEPS ) || ((PM_GetEffectiveStance( ps ) != PM_EFF_STANCE_DUCKED) && (PM_GetEffectiveStance( ps ) != PM_EFF_STANCE_PRONE)) ) )", "( PM_GetEffectiveStance( ps ) ) = %i", v55) )
+                LODWORD(v36) = PM_GetEffectiveStance(ps);
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7659, ASSERT_TYPE_ASSERT, "( ( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_CROUCH_PRONE_FOOTSTEPS ) || ((PM_GetEffectiveStance( ps ) != PM_EFF_STANCE_DUCKED) && (PM_GetEffectiveStance( ps ) != PM_EFF_STANCE_PRONE)) ) )", "( PM_GetEffectiveStance( ps ) ) = %i", v36) )
                   __debugbreak();
               }
-              v33 = _RSI->ps;
-              if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7572, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+              v22 = pm->ps;
+              if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7572, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
                 __debugbreak();
-              v34 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v33->pm_flags, ACTIVE, 8u);
-              _RBX = DCONST_DVARFLT_player_stairs_footstep_sound_minratio;
-              v36 = v34;
+              v23 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v22->pm_flags, ACTIVE, 8u);
+              v24 = DCONST_DVARFLT_player_stairs_footstep_sound_minratio;
+              v25 = v23;
               if ( !DCONST_DVARFLT_player_stairs_footstep_sound_minratio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_footstep_sound_minratio") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(_RBX);
-              __asm
+              Dvar_CheckFrontendServerThread(v24);
+              value = v24->current.value;
+              if ( value > stairsAscentRatio )
               {
-                vmovss  xmm0, dword ptr [rbx+28h]
-                vcomiss xmm0, xmm9
-              }
-              if ( v37 | v38 )
-              {
-                v40 = FOOTSTEP_ACTION_TYPE_STEP_STAIR_UP;
+                if ( stairsAscentRatio > COERCE_FLOAT(LODWORD(value) ^ _xmm) )
+                  v27 = v25;
+                else
+                  v27 = FOOTSTEP_ACTION_TYPE_STEP_STAIR_DOWN;
               }
               else
               {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm10
-                  vcomiss xmm9, xmm0
-                }
-                if ( v37 | v38 )
-                  v40 = FOOTSTEP_ACTION_TYPE_STEP_STAIR_DOWN;
-                else
-                  v40 = v36;
+                v27 = FOOTSTEP_ACTION_TYPE_STEP_STAIR_UP;
               }
-              v42 = _R15->isLeft;
-              v43 = PM_GroundSurfaceType(_RSI);
-              v44 = BG_PackFootstepEventParm(_RSI->weaponMap, ps, v43, v40, v42);
-              BG_AddPredictableEventToPlayerstate(v21, v44, _RSI->cmd.serverTime, _RSI->weaponMap, ps);
+              v28 = v10->isLeft;
+              v29 = PM_GroundSurfaceType(pm);
+              v30 = BG_PackFootstepEventParm(pm->weaponMap, ps, v29, v27, v28);
+              BG_AddPredictableEventToPlayerstate(v14, v30, pm->cmd.serverTime, pm->weaponMap, ps);
             }
           }
         }
-        v20 = &_R15[1] == NULL;
-        ++_R15;
-        __asm { vucomiss xmm8, dword ptr [r15] }
+        ++v10;
       }
-      while ( !v20 );
-      __asm { vmovaps xmm10, [rsp+0B8h+var_78] }
+      while ( -3.4028235e38 != v10->time );
     }
-    _RBX = mvmtTimes;
+    v31 = mvmtTimes;
     if ( mvmtTimes )
     {
-      __asm
+      v32 = mvmtTimes->time;
+      if ( mvmtTimes->time != -3.4028235e38 )
       {
-        vmovss  xmm0, dword ptr [rbx]
-        vucomiss xmm0, xmm8
-      }
-      v48 = 0i64;
-      do
-      {
-        if ( (__int64)(v48 & 0xFFFFFFFFFFFFFFF8ui64) >= 256 )
-          break;
-        __asm { vcomiss xmm6, xmm0 }
-        if ( (v48 & 0xFFFFFFFFFFFFFFF8ui64) < 0x100 )
+        v33 = 0i64;
+        do
         {
-          __asm { vcomiss xmm0, xmm7 }
-          if ( (v48 & 0xFFFFFFFFFFFFFFF8ui64) <= 0x100 )
-            goto LABEL_61;
-        }
-        __asm { vcomiss xmm7, xmm6 }
-        if ( (v48 & 0xFFFFFFFFFFFFFFF8ui64) < 0x100 )
-        {
-          __asm { vcomiss xmm6, xmm0 }
-          if ( (v48 & 0xFFFFFFFFFFFFFFF8ui64) < 0x100 )
-            goto LABEL_61;
-        }
-        __asm { vcomiss xmm0, xmm7 }
-        if ( (v48 & 0xFFFFFFFFFFFFFFF8ui64) <= 0x100 )
-        {
-          __asm { vcomiss xmm7, xmm6 }
-          if ( (v48 & 0xFFFFFFFFFFFFFFF8ui64) < 0x100 )
+          if ( (__int64)(v33 & 0xFFFFFFFFFFFFFFF8ui64) >= 256 )
+            break;
+          if ( (v11 < v32 && v32 <= v12 || v12 < v11 && v11 < v32 || v32 <= v12 && v12 < v11) && PM_ShouldMakeFootsteps(pm) && v14 )
           {
-LABEL_61:
-            if ( PM_ShouldMakeFootsteps(_RSI) && v21 )
+            switch ( v14 )
             {
-              switch ( v21 )
-              {
-                case EV_FOOTSTEP_SUPERSPRINT:
-                case EV_FOOTSTEP_SPRINT:
-                  v49 = EQUIPMENT_MOVE_TYPE_SPRINT;
-                  break;
-                case EV_FOOTSTEP_RUN:
-                case EV_JUMP:
-                  v49 = EQUIPMENT_MOVE_TYPE_RUN;
-                  break;
-                case EV_FOOTSTEP_WALK:
-                  v49 = EQUIPMENT_MOVE_TYPE_WALK;
-                  break;
-                case EV_FOOTSTEP_CREEP:
-                  v49 = EQUIPMENT_MOVE_TYPE_CREEP;
-                  break;
-                case EV_FOOTSTEP_PRONE:
-                  v49 = EQUIPMENT_MOVE_TYPE_PRONE;
-                  break;
-                default:
-                  v49 = EQUIPMENT_MOVE_TYPE_INVALID;
-                  break;
-              }
-              v50 = BG_PackEquipSoundEventParam((MovementLeadType_t)(2 - _RBX->isLeadIn), ps->clothType, 0, v49);
-              BG_AddPredictableEventToPlayerstate(EV_CLOTH_MOVE_SOUND, v50, _RSI->cmd.serverTime, _RSI->weaponMap, ps);
+              case EV_FOOTSTEP_SUPERSPRINT:
+              case EV_FOOTSTEP_SPRINT:
+                v34 = EQUIPMENT_MOVE_TYPE_SPRINT;
+                break;
+              case EV_FOOTSTEP_RUN:
+              case EV_JUMP:
+                v34 = EQUIPMENT_MOVE_TYPE_RUN;
+                break;
+              case EV_FOOTSTEP_WALK:
+                v34 = EQUIPMENT_MOVE_TYPE_WALK;
+                break;
+              case EV_FOOTSTEP_CREEP:
+                v34 = EQUIPMENT_MOVE_TYPE_CREEP;
+                break;
+              case EV_FOOTSTEP_PRONE:
+                v34 = EQUIPMENT_MOVE_TYPE_PRONE;
+                break;
+              default:
+                v34 = EQUIPMENT_MOVE_TYPE_INVALID;
+                break;
             }
+            v35 = BG_PackEquipSoundEventParam((MovementLeadType_t)(2 - v31->isLeadIn), ps->clothType, 0, v34);
+            BG_AddPredictableEventToPlayerstate(EV_CLOTH_MOVE_SOUND, v35, pm->cmd.serverTime, pm->weaponMap, ps);
           }
+          v32 = v31[1].time;
+          ++v31;
+          v33 += 8i64;
         }
-        __asm { vmovss  xmm0, dword ptr [rbx+8] }
-        ++_RBX;
-        v20 = v48 == -8;
-        v48 += 8i64;
-        __asm { vucomiss xmm0, xmm8 }
+        while ( v32 != -3.4028235e38 );
       }
-      while ( !v20 );
     }
-    __asm { vmovaps xmm8, [rsp+0B8h+var_58] }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm9, [rsp+0B8h+var_68]
   }
 }
 
@@ -6756,65 +5443,58 @@ LABEL_61:
 PM_FootstepType
 ==============
 */
-
-__int64 __fastcall PM_FootstepType(pmove_t *pm, double speed, FootstepMoveType_t *outMoveType)
+__int64 PM_FootstepType(pmove_t *pm, const float speed, FootstepMoveType_t *outMoveType)
 {
   playerState_s *ps; 
-  FootstepMoveType_t v9; 
-  unsigned int v10; 
-  char v11; 
+  FootstepMoveType_t v6; 
+  unsigned int v7; 
+  double Float_Internal_DebugName; 
   int lastSprintStart; 
   __int64 result; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4957, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4957, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = FOOTSTEP_MOVE_TYPE_WALK;
+  v6 = FOOTSTEP_MOVE_TYPE_WALK;
   if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
   {
-    v10 = 175;
-    v9 = FOOTSTEP_MOVE_TYPE_PRONE;
+    v7 = 175;
+    v6 = FOOTSTEP_MOVE_TYPE_PRONE;
     goto LABEL_29;
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
   {
-    v10 = 175;
-    v9 = FOOTSTEP_MOVE_TYPE_PRONE;
+    v7 = 175;
+    v6 = FOOTSTEP_MOVE_TYPE_PRONE;
     goto LABEL_29;
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
   {
-    v10 = 172;
-    v9 = FOOTSTEP_MOVE_TYPE_RUN;
+    v7 = 172;
+    v6 = FOOTSTEP_MOVE_TYPE_RUN;
     goto LABEL_29;
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) )
   {
-    v10 = 174;
-    v9 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
+    v7 = 174;
+    v6 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
     goto LABEL_29;
   }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_creepThreshhold, "player_creepThreshhold");
-  __asm { vcomiss xmm6, xmm0 }
-  if ( v11 )
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_creepThreshhold, "player_creepThreshhold");
+  if ( speed < *(float *)&Float_Internal_DebugName )
   {
-    v10 = 174;
-    v9 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
+    v7 = 174;
+    v6 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
     goto LABEL_29;
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 9u) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) )
   {
     if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_ads_footstep_creep, "killswitch_ads_footstep_creep") )
     {
-      v10 = 174;
-      v9 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
+      v7 = 174;
+      v6 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
       goto LABEL_29;
     }
   }
@@ -6822,32 +5502,31 @@ __int64 __fastcall PM_FootstepType(pmove_t *pm, double speed, FootstepMoveType_t
   {
     if ( BG_IsSuperSprinting(ps) )
     {
-      v10 = 170;
-      v9 = FOOTSTEP_MOVE_TYPE_SUPERSPRINT;
+      v7 = 170;
+      v6 = FOOTSTEP_MOVE_TYPE_SUPERSPRINT;
       goto LABEL_29;
     }
     lastSprintStart = ps->sprintState.lastSprintStart;
     if ( lastSprintStart && lastSprintStart > ps->sprintState.lastSprintEnd )
     {
-      v10 = 171;
-      v9 = FOOTSTEP_MOVE_TYPE_SPRINT;
+      v7 = 171;
+      v6 = FOOTSTEP_MOVE_TYPE_SPRINT;
       goto LABEL_29;
     }
     if ( (pm->cmd.buttons & 0x400000000i64) != 0 )
     {
-      v10 = 172;
-      v9 = FOOTSTEP_MOVE_TYPE_RUN;
+      v7 = 172;
+      v6 = FOOTSTEP_MOVE_TYPE_RUN;
       goto LABEL_29;
     }
   }
-  v10 = 173;
+  v7 = 173;
 LABEL_29:
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
   if ( !PM_GroundSurfaceType(pm) )
-    v10 = 0;
-  result = v10;
+    v7 = 0;
+  result = v7;
   if ( outMoveType )
-    *outMoveType = v9;
+    *outMoveType = v6;
   return result;
 }
 
@@ -6857,133 +5536,101 @@ PM_Footstep_MoveTypeWeightToEvent
 ==============
 */
 
-__int64 __fastcall PM_Footstep_MoveTypeWeightToEvent(double curMoveTypeWeight, FootstepMoveType_t *outMoveType, double _XMM2_8)
+__int64 __fastcall PM_Footstep_MoveTypeWeightToEvent(const float curMoveTypeWeight, FootstepMoveType_t *outMoveType, double _XMM2_8)
 {
-  const dvar_t *v14; 
-  char v16; 
-  FootstepMoveType_t v17; 
+  const dvar_t *v5; 
+  float value; 
+  const dvar_t *v7; 
+  FootstepMoveType_t v8; 
   __int64 result; 
-  const dvar_t *v21; 
-  const dvar_t *v25; 
-  const dvar_t *v29; 
-  double v33; 
-  double v34; 
-  double v35; 
+  const dvar_t *v10; 
+  float v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  float v17; 
+  const dvar_t *v18; 
 
-  __asm
+  if ( curMoveTypeWeight < 0.0 || curMoveTypeWeight > 1.0 )
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@3f800000
-    vmovsd  xmm1, cs:__real@3ff0000000000000
-    vmovsd  [rsp+68h+var_30], xmm1
-    vxorpd  xmm2, xmm2, xmm2
-    vmovsd  [rsp+68h+var_38], xmm2
-    vcvtss2sd xmm3, xmm6, xmm6
-    vmovsd  [rsp+68h+var_40], xmm3
+    __asm { vxorpd  xmm2, xmm2, xmm2 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5082, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( curMoveTypeWeight ) && ( curMoveTypeWeight ) <= ( 1.0f )", "curMoveTypeWeight not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", curMoveTypeWeight, *(double *)&_XMM2, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5082, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( curMoveTypeWeight ) && ( curMoveTypeWeight ) <= ( 1.0f )", "curMoveTypeWeight not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v33, v34, v35) )
-    __debugbreak();
-  _RBX = DCONST_DVARFLT_snd_footstep_movetypeblend_value_creep;
+  v5 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_creep;
   if ( !DCONST_DVARFLT_snd_footstep_movetypeblend_value_creep && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_movetypeblend_value_creep") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  v14 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  v7 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
   if ( !DCONST_DVARFLT_snd_foosteps_movetypeblend_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_foosteps_movetypeblend_bias") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  if ( curMoveTypeWeight >= (float)(value + v7->current.value) )
   {
-    vaddss  xmm0, xmm7, dword ptr [rbx+28h]
-    vcomiss xmm6, xmm0
-  }
-  if ( v16 )
-  {
-    v17 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
-    result = 174i64;
-  }
-  else
-  {
-    _RBX = DCONST_DVARFLT_snd_footstep_movetypeblend_value_walk;
+    v10 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_walk;
     if ( !DCONST_DVARFLT_snd_footstep_movetypeblend_value_walk && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_movetypeblend_value_walk") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    v21 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
+    Dvar_CheckFrontendServerThread(v10);
+    v11 = v10->current.value;
+    v12 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
     if ( !DCONST_DVARFLT_snd_foosteps_movetypeblend_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_foosteps_movetypeblend_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    __asm
+    Dvar_CheckFrontendServerThread(v12);
+    if ( curMoveTypeWeight >= (float)(v11 + v12->current.value) )
     {
-      vaddss  xmm0, xmm7, dword ptr [rbx+28h]
-      vcomiss xmm6, xmm0
-    }
-    if ( v16 )
-    {
-      v17 = FOOTSTEP_MOVE_TYPE_WALK;
-      result = 173i64;
-    }
-    else
-    {
-      _RBX = DCONST_DVARFLT_snd_footstep_movetypeblend_value_run;
+      v13 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_run;
       if ( !DCONST_DVARFLT_snd_footstep_movetypeblend_value_run && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_movetypeblend_value_run") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      v25 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
+      Dvar_CheckFrontendServerThread(v13);
+      v14 = v13->current.value;
+      v15 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
       if ( !DCONST_DVARFLT_snd_foosteps_movetypeblend_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_foosteps_movetypeblend_bias") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      __asm
+      Dvar_CheckFrontendServerThread(v15);
+      if ( curMoveTypeWeight >= (float)(v14 + v15->current.value) )
       {
-        vaddss  xmm0, xmm7, dword ptr [rbx+28h]
-        vcomiss xmm6, xmm0
-      }
-      if ( v16 )
-      {
-        v17 = FOOTSTEP_MOVE_TYPE_RUN;
-        result = 172i64;
-      }
-      else
-      {
-        _RBX = DCONST_DVARFLT_snd_footstep_movetypeblend_value_sprint;
+        v16 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_sprint;
         if ( !DCONST_DVARFLT_snd_footstep_movetypeblend_value_sprint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_movetypeblend_value_sprint") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-        v29 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
+        Dvar_CheckFrontendServerThread(v16);
+        v17 = v16->current.value;
+        v18 = DCONST_DVARFLT_snd_foosteps_movetypeblend_bias;
         if ( !DCONST_DVARFLT_snd_foosteps_movetypeblend_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_foosteps_movetypeblend_bias") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v29);
-        __asm
+        Dvar_CheckFrontendServerThread(v18);
+        if ( curMoveTypeWeight >= (float)(v17 + v18->current.value) )
         {
-          vaddss  xmm0, xmm7, dword ptr [rbx+28h]
-          vcomiss xmm6, xmm0
-        }
-        if ( v16 )
-        {
-          v17 = FOOTSTEP_MOVE_TYPE_SPRINT;
-          result = 171i64;
+          v8 = FOOTSTEP_MOVE_TYPE_SUPERSPRINT;
+          result = 170i64;
         }
         else
         {
-          v17 = FOOTSTEP_MOVE_TYPE_SUPERSPRINT;
-          result = 170i64;
+          v8 = FOOTSTEP_MOVE_TYPE_SPRINT;
+          result = 171i64;
         }
       }
+      else
+      {
+        v8 = FOOTSTEP_MOVE_TYPE_RUN;
+        result = 172i64;
+      }
+    }
+    else
+    {
+      v8 = FOOTSTEP_MOVE_TYPE_WALK;
+      result = 173i64;
     }
   }
-  if ( outMoveType )
-    *outMoveType = v17;
-  __asm
+  else
   {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    v8 = FOOTSTEP_MOVE_TYPE_STATE_BEGIN;
+    result = 174i64;
   }
+  if ( outMoveType )
+    *outMoveType = v8;
   return result;
 }
 
@@ -6995,13 +5642,12 @@ PM_Footstep_NotTryingToMove
 void PM_Footstep_NotTryingToMove(pmove_t *pm, pml_t *pml, EffectiveStance effStance)
 {
   playerState_s *ps; 
-  PlayerAnimScriptMoveType v8; 
+  int v7; 
   __int64 turn; 
 
-  _RBX = pm;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8756, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  ps = _RBX->ps;
+  ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8756, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (unsigned int)effStance >= PM_EFF_STANCE_COUNT )
@@ -7013,31 +5659,41 @@ void PM_Footstep_NotTryingToMove(pmove_t *pm, pml_t *pml, EffectiveStance effSta
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8759, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION )") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_Footstep_NotTryingToMove");
-  __asm
+  if ( pm->speed <= 120.0 )
   {
-    vmovss  xmm0, cs:__real@42f00000
-    vcomiss xmm0, dword ptr [rbx+330h]
-  }
-  switch ( effStance )
-  {
-    case PM_EFF_STANCE_PRONE:
-      v8 = ANIM_MT_IDLEPRONE;
-LABEL_19:
-      if ( BG_AnimScriptAnimation(_RBX->m_bgHandler, ps, AISTATE_COMBAT, v8, 0, pml->turning) >= 0 )
+    switch ( effStance )
+    {
+      case PM_EFF_STANCE_PRONE:
+        v7 = 3;
+        break;
+      case PM_EFF_STANCE_DUCKED:
+        v7 = 2;
+        break;
+      case PM_EFF_STANCE_LASTSTANDCRAWL:
+        v7 = 21;
+        break;
+      default:
         goto LABEL_24;
-      break;
-    case PM_EFF_STANCE_DUCKED:
-      v8 = ANIM_MT_IDLECR;
-      goto LABEL_19;
-    case PM_EFF_STANCE_LASTSTANDCRAWL:
-      v8 = ANIM_MT_IDLELASTSTAND;
-      goto LABEL_19;
-  }
-  if ( effStance == PM_EFF_STANCE_LASTSTANDCRAWL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8800, ASSERT_TYPE_ASSERT, "(effStance != PM_EFF_STANCE_LASTSTANDCRAWL)", (const char *)&queryFormat, "effStance != PM_EFF_STANCE_LASTSTANDCRAWL") )
-    __debugbreak();
-  BG_AnimScriptAnimation(_RBX->m_bgHandler, ps, AISTATE_COMBAT, ANIM_MT_IDLE, 0, pml->turning);
+    }
+LABEL_23:
+    if ( BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, (PlayerAnimScriptMoveType)v7, 0, pml->turning) >= 0 )
+    {
+LABEL_28:
+      PM_UpdateFlinch(pm, ps, pml);
+      goto LABEL_29;
+    }
 LABEL_24:
-  PM_UpdateFlinch(_RBX, ps, pml);
+    if ( effStance == PM_EFF_STANCE_LASTSTANDCRAWL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8800, ASSERT_TYPE_ASSERT, "(effStance != PM_EFF_STANCE_LASTSTANDCRAWL)", (const char *)&queryFormat, "effStance != PM_EFF_STANCE_LASTSTANDCRAWL") )
+      __debugbreak();
+    BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, ANIM_MT_IDLE, 0, pml->turning);
+    goto LABEL_28;
+  }
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) && effStance == PM_EFF_STANCE_DEFAULT )
+  {
+    v7 = PM_GetSlideBackwards(pm, pml) + 24;
+    goto LABEL_23;
+  }
+LABEL_29:
   Sys_ProfEndNamedEvent();
 }
 
@@ -7049,150 +5705,124 @@ PM_Footstep_UpdateMoveType
 
 __int64 __fastcall PM_Footstep_UpdateMoveType(const int msec, pmove_t *pm, double speed, float *inOutMoveTypeWeight)
 {
-  unsigned int v11; 
-  const dvar_t *v12; 
-  FootstepMoveType_t v19; 
-  char v20; 
-  bool v21; 
-  const dvar_t *v23; 
-  const char *v24; 
-  const dvar_t *v25; 
-  const char *v26; 
-  __int64 result; 
-  double v40; 
-  __int64 v41; 
-  double v42; 
-  double v43; 
-  __int64 v44; 
+  unsigned int v8; 
+  const dvar_t *v9; 
+  float v10; 
+  float value; 
+  FootstepMoveType_t v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  const char *v16; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v18; 
+  const char *v19; 
+  int Int_Internal_DebugName; 
+  double v21; 
+  float v22; 
+  double v23; 
+  __int64 v25; 
+  __int64 v26; 
   FootstepMoveType_t outMoveType; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RBX = inOutMoveTypeWeight;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5123, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm6; speed }
-  v11 = PM_FootstepType(pm, *(double *)&_XMM1, &outMoveType);
-  if ( !_RBX )
-    goto LABEL_39;
-  v12 = DVARBOOL_killswitch_footstep_player_moveblend_enabled;
+  _XMM1 = *(_OWORD *)&speed;
+  v8 = PM_FootstepType(pm, *(const float *)&speed, &outMoveType);
+  if ( !inOutMoveTypeWeight )
+    return v8;
+  v9 = DVARBOOL_killswitch_footstep_player_moveblend_enabled;
   if ( !DVARBOOL_killswitch_footstep_player_moveblend_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_footstep_player_moveblend_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( !v12->current.enabled || !Com_GameMode_SupportsFeature(WEAPON_ANIM_SCRIPTED|0x80) )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled || !Com_GameMode_SupportsFeature(WEAPON_ANIM_SCRIPTED|0x80) )
   {
-    *_RBX = 0.0;
-LABEL_39:
-    result = v11;
-    goto LABEL_40;
+    *inOutMoveTypeWeight = 0.0;
+    return v8;
   }
-  __asm
+  v10 = *inOutMoveTypeWeight;
+  value = 0.0;
+  if ( *inOutMoveTypeWeight < 0.0 || v10 > 1.0 )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm0, xmm7
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vmovsd  [rsp+88h+var_50], xmm0
-    vxorpd  xmm1, xmm1, xmm1
-    vmovsd  [rsp+88h+var_58], xmm1
-    vmovsd  [rsp+88h+var_60], xmm2
+    speed = v10;
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5141, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *inOutMoveTypeWeight ) && ( *inOutMoveTypeWeight ) <= ( 1.0f )", "*inOutMoveTypeWeight not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v10, *(double *)&_XMM1, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5141, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *inOutMoveTypeWeight ) && ( *inOutMoveTypeWeight ) <= ( 1.0f )", "*inOutMoveTypeWeight not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v40, v42, v43) )
-    __debugbreak();
-  v19 = outMoveType;
-  v20 = 0;
-  v21 = msec == 0;
+  v13 = outMoveType;
   if ( msec > 0 )
   {
     switch ( outMoveType )
     {
       case FOOTSTEP_MOVE_TYPE_STATE_BEGIN:
       case FOOTSTEP_MOVE_TYPE_PRONE:
-        _RSI = DCONST_DVARFLT_snd_footstep_movetypeblend_value_creep;
+        v14 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_creep;
         if ( !DCONST_DVARFLT_snd_footstep_movetypeblend_value_creep && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_movetypeblend_value_creep") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RSI);
-        __asm { vmovss  xmm6, dword ptr [rsi+28h] }
+        Dvar_CheckFrontendServerThread(v14);
+        value = v14->current.value;
         break;
       case FOOTSTEP_MOVE_TYPE_WALK:
-        v23 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_walk;
-        v24 = "snd_footstep_movetypeblend_value_walk";
-        goto LABEL_23;
+        v15 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_walk;
+        v16 = "snd_footstep_movetypeblend_value_walk";
+        goto LABEL_24;
       case FOOTSTEP_MOVE_TYPE_RUN:
-        v23 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_run;
-        v24 = "snd_footstep_movetypeblend_value_run";
-        goto LABEL_23;
+        v15 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_run;
+        v16 = "snd_footstep_movetypeblend_value_run";
+        goto LABEL_24;
       case FOOTSTEP_MOVE_TYPE_SPRINT:
-        v23 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_sprint;
-        v24 = "snd_footstep_movetypeblend_value_sprint";
-        goto LABEL_23;
+        v15 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_sprint;
+        v16 = "snd_footstep_movetypeblend_value_sprint";
+        goto LABEL_24;
       case FOOTSTEP_MOVE_TYPE_SUPERSPRINT:
-        v23 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_supersprint;
-        v24 = "snd_footstep_movetypeblend_value_supersprint";
-LABEL_23:
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v23, v24);
-        __asm { vmovaps xmm6, xmm0 }
+        v15 = DCONST_DVARFLT_snd_footstep_movetypeblend_value_supersprint;
+        v16 = "snd_footstep_movetypeblend_value_supersprint";
+LABEL_24:
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v15, v16);
+        value = *(float *)&Float_Internal_DebugName;
         break;
       default:
         break;
     }
-    __asm { vcomiss xmm6, dword ptr [rbx]; jumptable 0000000141059585 default case }
-    if ( v20 | v21 )
+    if ( value > *inOutMoveTypeWeight )
     {
-      v25 = DCONST_DVARINT_snd_footstep_movetypeblend_window_down_ms;
-      v26 = "snd_footstep_movetypeblend_window_down_ms";
+      v18 = DCONST_DVARINT_snd_footstep_movetypeblend_window_up_ms;
+      v19 = "snd_footstep_movetypeblend_window_up_ms";
     }
     else
     {
-      v25 = DCONST_DVARINT_snd_footstep_movetypeblend_window_up_ms;
-      v26 = "snd_footstep_movetypeblend_window_up_ms";
+      v18 = DCONST_DVARINT_snd_footstep_movetypeblend_window_down_ms;
+      v19 = "snd_footstep_movetypeblend_window_down_ms";
     }
-    if ( Dvar_GetInt_Internal_DebugName(v25, v26) > 0 )
+    Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(v18, v19);
+    if ( Int_Internal_DebugName > 0 )
     {
-      __asm
+      HIDWORD(v21) = 0;
+      *(float *)&v21 = (float)Int_Internal_DebugName / (float)msec;
+      speed = v21;
+      if ( *(float *)&v21 > 1.0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtsi2ss xmm0, xmm0, r14d
-        vdivss  xmm2, xmm1, xmm0
-        vcomiss xmm2, xmm7
-        vmovss  xmm1, dword ptr [rbx]
-        vdivss  xmm3, xmm7, xmm2
-        vmulss  xmm0, xmm3, xmm1
-        vsubss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm6
-        vaddss  xmm6, xmm2, xmm1
+        v22 = 1.0 / *(float *)&v21;
+        *(_QWORD *)&v23 = *(unsigned int *)inOutMoveTypeWeight;
+        *(float *)&v23 = *inOutMoveTypeWeight - (float)((float)(1.0 / *(float *)&speed) * *inOutMoveTypeWeight);
+        speed = v23;
+        value = *(float *)&v23 + (float)(v22 * value);
       }
     }
-    __asm { vmovss  dword ptr [rbx], xmm6 }
+    *inOutMoveTypeWeight = value;
   }
-  __asm { vmovaps xmm7, [rsp+88h+var_48] }
-  if ( (unsigned int)v19 > FOOTSTEP_MOVE_TYPE_STATE_END )
+  if ( (unsigned int)v13 > FOOTSTEP_MOVE_TYPE_STATE_END )
   {
-    LODWORD(v44) = 6;
-    LODWORD(v41) = v19;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5161, ASSERT_TYPE_ASSERT, "( FOOTSTEP_MOVE_TYPE_STATE_BEGIN ) <= ( goalMoveType ) && ( goalMoveType ) <= ( FOOTSTEP_MOVE_TYPE_STATE_END )", "goalMoveType not in [FOOTSTEP_MOVE_TYPE_STATE_BEGIN, FOOTSTEP_MOVE_TYPE_STATE_END]\n\t%i not in [%i, %i]", v41, 0i64, v44) )
+    LODWORD(v26) = 6;
+    LODWORD(v25) = v13;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5161, ASSERT_TYPE_ASSERT, "( FOOTSTEP_MOVE_TYPE_STATE_BEGIN ) <= ( goalMoveType ) && ( goalMoveType ) <= ( FOOTSTEP_MOVE_TYPE_STATE_END )", "goalMoveType not in [FOOTSTEP_MOVE_TYPE_STATE_BEGIN, FOOTSTEP_MOVE_TYPE_STATE_END]\n\t%i not in [%i, %i]", v25, 0i64, v26) )
       __debugbreak();
   }
-  if ( (unsigned int)v19 > FOOTSTEP_MOVE_TYPE_SUPERSPRINT )
-    goto LABEL_39;
-  if ( v11 )
-  {
-    __asm { vmovss  xmm0, dword ptr [rbx]; curMoveTypeWeight }
-    result = PM_Footstep_MoveTypeWeightToEvent(*(double *)&_XMM0, NULL, *(double *)&_XMM2);
-  }
+  if ( (unsigned int)v13 > FOOTSTEP_MOVE_TYPE_SUPERSPRINT )
+    return v8;
+  if ( v8 )
+    return PM_Footstep_MoveTypeWeightToEvent(*inOutMoveTypeWeight, NULL, speed);
   else
-  {
-    result = 0i64;
-  }
-LABEL_40:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  return result;
+    return 0i64;
 }
 
 /*
@@ -7202,104 +5832,83 @@ PM_Footsteps
 */
 void PM_Footsteps(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
+  double v5; 
   EffectiveStance EffectiveStance; 
   const SuitDef *SuitDef; 
   int viewHeightTarget; 
   int viewHeightLerpTarget; 
   PlayerAnimScriptMoveType NotMovingAnim; 
-  int v29; 
-  int v30; 
-  BOOL v31; 
-  bool v32; 
-  bool IsActive; 
-  pmove_t *v34; 
-  char v35; 
-  bool v36; 
-  playerState_s *v38; 
+  int v11; 
+  int v12; 
+  BOOL v13; 
+  bool v14; 
+  double Float_Internal_DebugName; 
+  playerState_s *v16; 
   int turning; 
-  PlayerAnimScriptMoveType v40; 
-  PlayerAnimScriptMoveType v41; 
-  char v42; 
-  playerState_s *ps; 
-  char v51; 
+  PlayerAnimScriptMoveType v18; 
+  PlayerAnimScriptMoveType v19; 
+  char v20; 
+  playerState_s *v21; 
+  bool v22; 
   bool IsMoving; 
-  int v53; 
-  float v54; 
+  bool v24; 
+  int v25; 
+  float v26; 
+  float rightmove; 
+  float forwardmove; 
   BgStatic *ActiveStatics; 
   characterInfo_t *CharacterInfo; 
-  PlayerAnimStrafeStates v64; 
-  __int64 v65; 
-  unsigned int v66; 
-  const dvar_t *v67; 
-  bool v68; 
-  int v69; 
-  PlayerAnimScriptMoveType v70; 
-  float fmt; 
-  float moveRight; 
+  PlayerAnimStrafeStates v31; 
+  __int64 v32; 
+  unsigned int v33; 
+  double v34; 
+  const dvar_t *v35; 
+  bool v36; 
+  int v37; 
+  PlayerAnimScriptMoveType v38; 
   __int64 sprinting; 
   int sprintinga; 
   int timeMs; 
-  bool v80; 
+  bool v42; 
   bool IsSuperSprinting; 
-  bool v82; 
+  bool v44; 
   bool SlideBackwards; 
   PmStanceFrontBack stance; 
   float outMoveRight; 
-  int v86; 
+  int v48; 
   float outMoveForward; 
   int outRunBackwards; 
-  __int64 v89; 
+  __int64 v51; 
   vec3_t maxSpeeds; 
-  char v91; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v89 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _RBP = pml;
-  _RDI = pm;
+  v51 = -2i64;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9197, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = _RDI->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9197, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9197, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   BG_CheckThread();
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_Footsteps");
-  if ( _RSI->pm_type >= 7 || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, GameModeFlagValues::ms_mpValue, 0x18u) )
-    goto LABEL_142;
-  __asm
+  if ( ps->pm_type >= 7 || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, GameModeFlagValues::ms_mpValue, 0x18u) )
+    goto LABEL_141;
+  pm->speed = fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+  if ( BG_ContextMount_IsActive(ps) )
   {
-    vmovss  xmm2, dword ptr [rsi+40h]
-    vmovss  xmm0, dword ptr [rsi+3Ch]
-    vmovss  xmm3, dword ptr [rsi+44h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vsqrtss xmm0, xmm3, xmm3
-    vmovss  dword ptr [rdi+330h], xmm0
+    v5 = PM_ContextMount_CalcPlayerSpeed(pm, pml);
+    pm->speed = *(float *)&v5;
   }
-  if ( BG_ContextMount_IsActive(_RSI) )
+  if ( !BG_ContextMount_IsActive(ps) )
   {
-    *(double *)&_XMM0 = PM_ContextMount_CalcPlayerSpeed(_RDI, _RBP);
-    __asm { vmovss  dword ptr [rdi+330h], xmm0 }
-  }
-  if ( !BG_ContextMount_IsActive(_RSI) )
-  {
-    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0xBu) )
+    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
     {
-      SuitDef = BG_GetSuitDef(_RSI->suitIndex);
+      SuitDef = BG_GetSuitDef(ps->suitIndex);
       if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 578, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
         __debugbreak();
-      viewHeightTarget = _RSI->viewHeightTarget;
+      viewHeightTarget = ps->viewHeightTarget;
       if ( !viewHeightTarget || viewHeightTarget == SuitDef->viewheight_stand || viewHeightTarget == SuitDef->viewheight_crouch || viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef) )
       {
-        viewHeightLerpTarget = _RSI->viewHeightLerpTarget;
+        viewHeightLerpTarget = ps->viewHeightLerpTarget;
         if ( viewHeightLerpTarget == BG_Suit_GetProneViewHeight(SuitDef) )
         {
           EffectiveStance = PM_EFF_STANCE_PRONE;
@@ -7317,270 +5926,206 @@ void PM_Footsteps(pmove_t *pm, pml_t *pml)
         }
       }
     }
-    EffectiveStance = PM_GetEffectiveStance(_RSI);
+    EffectiveStance = PM_GetEffectiveStance(ps);
     goto LABEL_28;
   }
   EffectiveStance = PM_EFF_STANCE_DEFAULT;
 LABEL_28:
   if ( PlayerASM_IsEnabled() )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, ecx; oldMoveRight
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, ecx; oldMoveForward
-      vmovss  [rsp+0D8h+moveRight], xmm1
-      vmovss  dword ptr [rsp+0D8h+fmt], xmm0
-    }
-    BG_PlayerASM_StoreCommandDir(_RSI->clientNum, _RSI->serverTime, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, moveRight);
-  }
-  if ( BG_Skydive_IsSkydiving(_RSI) && EffectiveStance != PM_EFF_STANCE_LASTSTANDCRAWL )
+    BG_PlayerASM_StoreCommandDir(ps->clientNum, ps->serverTime, (float)pm->oldcmd.forwardmove, (float)pm->oldcmd.rightmove, (float)pm->cmd.forwardmove, (float)pm->cmd.rightmove);
+  if ( BG_Skydive_IsSkydiving(ps) && EffectiveStance != PM_EFF_STANCE_LASTSTANDCRAWL )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "PM_Footsteps in Parachute mode");
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
     {
-      BG_AnimScriptAnimation(_RDI->m_bgHandler, _RSI, AISTATE_COMBAT, ANIM_MT_PARACHUTE, 1, 0);
-      PM_UpdateFlinch(_RDI, _RSI, _RBP);
+      BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, ANIM_MT_PARACHUTE, 1, 0);
+      PM_UpdateFlinch(pm, ps, pml);
     }
 LABEL_34:
     Sys_ProfEndNamedEvent();
-    goto LABEL_142;
+    goto LABEL_141;
   }
-  if ( BG_IsTurretActive(_RSI) )
+  if ( BG_IsTurretActive(ps) )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "PM_Footsteps in Turret");
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
     {
       NotMovingAnim = PM_GetNotMovingAnim(EffectiveStance);
-      BG_AnimScriptAnimation(_RDI->m_bgHandler, _RSI, AISTATE_COMBAT, NotMovingAnim, 0, 0);
-      PM_UpdateFlinch(_RDI, _RSI, _RBP);
+      BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, NotMovingAnim, 0, 0);
+      PM_UpdateFlinch(pm, ps, pml);
     }
     goto LABEL_34;
   }
-  v29 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0xBu);
-  v30 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x14u);
-  v86 = v30;
-  v31 = _RSI->pm_type == 1 && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&_RSI->linkFlags, GameModeFlagValues::ms_spValue, 8u);
-  if ( v30 && v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9270, ASSERT_TYPE_ASSERT, "(!sprinting || !walking)", (const char *)&queryFormat, "!sprinting || !walking") )
+  v11 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu);
+  v12 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
+  v48 = v12;
+  v13 = ps->pm_type == 1 && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, GameModeFlagValues::ms_spValue, 8u);
+  if ( v12 && v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9270, ASSERT_TYPE_ASSERT, "(!sprinting || !walking)", (const char *)&queryFormat, "!sprinting || !walking") )
     __debugbreak();
-  outRunBackwards = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0xAu);
-  PM_GetNominalMaxSpeed(_RDI, _RBP, &maxSpeeds);
+  outRunBackwards = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xAu);
+  PM_GetNominalMaxSpeed(pm, pml, &maxSpeeds);
   stance = PM_GetStanceEx(EffectiveStance, outRunBackwards);
-  v32 = EffectiveStance == PM_EFF_STANCE_LASTSTANDCRAWL && Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_last_stand_wm_restless_legs_enabled, "killswitch_last_stand_wm_restless_legs_enabled");
-  v80 = v32;
-  IsActive = BG_ContextMount_IsActive(_RSI);
-  v34 = _RDI;
-  if ( IsActive )
+  v14 = EffectiveStance == PM_EFF_STANCE_LASTSTANDCRAWL && Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_last_stand_wm_restless_legs_enabled, "killswitch_last_stand_wm_restless_legs_enabled");
+  v42 = v14;
+  if ( BG_ContextMount_IsActive(ps) )
   {
-    timeMs = _RBP->msec;
-    sprintinga = v30;
-LABEL_141:
-    __asm { vmovss  xmm3, dword ptr [rdi+330h]; speed }
-    PM_UpdateBobCycle(v34, _RBP, stance, *(float *)&_XMM3, &maxSpeeds, v29, sprintinga, timeMs);
-    goto LABEL_142;
-  }
-  if ( (PM_IsInAir(_RDI) || BG_Ladder_IsActive(_RSI)) && !BG_IsPlayerZeroGFloating(_RSI) )
-  {
-    PM_KnockbackAnim(_RDI, _RBP);
-    PM_Footstep_LadderMove(_RDI, _RBP);
-    timeMs = _RBP->msec;
-    sprintinga = v30;
-LABEL_140:
-    v34 = _RDI;
+    PM_UpdateBobCycle(pm, pml, stance, pm->speed, &maxSpeeds, v11, v12, pml->msec);
     goto LABEL_141;
   }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_moveThreshhold, "player_moveThreshhold");
-  __asm { vcomiss xmm0, dword ptr [rdi+330h] }
-  if ( v35 | v36 && !v31 || v32 || BG_IsPlayerZeroGFloating(_RSI) )
+  if ( (PM_IsInAir(pm) || BG_Ladder_IsActive(ps)) && !BG_IsPlayerZeroGFloating(ps) )
   {
-    LODWORD(outMoveRight) = PM_IsAffectedByBlackHole(_RBP);
-    v42 = _RDI->cmd.forwardmove || _RDI->cmd.rightmove;
-    ps = _RDI->ps;
-    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9167, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    PM_KnockbackAnim(pm, pml);
+    PM_Footstep_LadderMove(pm, pml);
+    timeMs = pml->msec;
+    sprintinga = v12;
+LABEL_140:
+    PM_UpdateBobCycle(pm, pml, stance, pm->speed, &maxSpeeds, v11, sprintinga, timeMs);
+    goto LABEL_141;
+  }
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_moveThreshhold, "player_moveThreshhold");
+  if ( *(float *)&Float_Internal_DebugName <= pm->speed && !v13 || v14 || BG_IsPlayerZeroGFloating(ps) )
+  {
+    outMoveRight = COERCE_FLOAT(PM_IsAffectedByBlackHole(pml));
+    v20 = pm->cmd.forwardmove || pm->cmd.rightmove;
+    v21 = pm->ps;
+    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9167, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
+    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v21->otherFlags, ACTIVE, 0xBu) )
     {
-      if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9175, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
+      if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9175, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+50h]
-        vmovss  xmm0, dword ptr [rbp+4Ch]
-        vmovss  xmm3, dword ptr [rbp+54h]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm4, xmm2, xmm1
-      }
-      if ( _RDI->oldcmd.forwardmove )
-        goto LABEL_88;
-      if ( _RDI->oldcmd.rightmove )
-        goto LABEL_88;
-      __asm { vcomiss xmm4, cs:__real@2b8cbccc }
-      if ( _RDI->oldcmd.rightmove )
-LABEL_88:
-        v51 = 1;
-      else
-        v51 = 0;
-      IsMoving = PM_LastStand_IsMoving(_RDI);
-      v36 = v51 == 0;
-      v30 = v86;
-      if ( !v36 && !IsMoving )
-        ps->lastStandMoveStopTime = ps->serverTime;
+      v22 = pm->oldcmd.forwardmove || pm->oldcmd.rightmove || (float)((float)((float)(pml->previous_velocity.v[0] * pml->previous_velocity.v[0]) + (float)(pml->previous_velocity.v[1] * pml->previous_velocity.v[1])) + (float)(pml->previous_velocity.v[2] * pml->previous_velocity.v[2])) > 1.0e-12;
+      IsMoving = PM_LastStand_IsMoving(pm);
+      v24 = !v22;
+      v12 = v48;
+      if ( !v24 && !IsMoving )
+        v21->lastStandMoveStopTime = v21->serverTime;
     }
     else
     {
-      ps->lastStandMoveStopTime = 0;
+      v21->lastStandMoveStopTime = 0;
     }
-    if ( v80 )
+    if ( v42 )
     {
-      v53 = _RSI->serverTime - _RSI->lastStandMoveStopTime;
-      LOBYTE(v53) = v53 < Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_playerLastStandMovementRestlessLegsTimeMs, "playerLastStandMovementRestlessLegsTimeMs");
-      v42 |= v53 | PM_LastStand_IsMoving(_RDI);
+      v25 = ps->serverTime - ps->lastStandMoveStopTime;
+      LOBYTE(v25) = v25 < Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_playerLastStandMovementRestlessLegsTimeMs, "playerLastStandMovementRestlessLegsTimeMs");
+      v20 |= v25 | PM_LastStand_IsMoving(pm);
     }
-    v54 = outMoveRight;
-    if ( v42 || LODWORD(outMoveRight) || BG_IsPlayerZeroGFloating(_RSI) )
+    v26 = outMoveRight;
+    if ( v20 || outMoveRight != 0.0 || BG_IsPlayerZeroGFloating(ps) )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
       {
-        __asm
+        rightmove = (float)pm->cmd.rightmove;
+        outMoveRight = rightmove;
+        forwardmove = (float)pm->cmd.forwardmove;
+        outMoveForward = forwardmove;
+        if ( !v20 && v26 != 0.0 )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-          vmovss  [rsp+0D8h+outMoveRight], xmm6
-          vxorps  xmm7, xmm7, xmm7
-          vcvtsi2ss xmm7, xmm7, eax
-          vmovss  [rsp+0D8h+outMoveForward], xmm7
+          PM_GetBlackHoleStrafeData(pml, &outRunBackwards, &outMoveForward, &outMoveRight);
+          rightmove = outMoveRight;
+          forwardmove = outMoveForward;
         }
-        if ( !v42 && v54 != 0.0 )
-        {
-          PM_GetBlackHoleStrafeData(_RBP, &outRunBackwards, &outMoveForward, &outMoveRight);
-          __asm
-          {
-            vmovss  xmm6, [rsp+0D8h+outMoveRight]
-            vmovss  xmm7, [rsp+0D8h+outMoveForward]
-          }
-        }
-        if ( !_RDI->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8675, ASSERT_TYPE_ASSERT, "(pm->ps)", (const char *)&queryFormat, "pm->ps") )
+        if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8675, ASSERT_TYPE_ASSERT, "(pm->ps)", (const char *)&queryFormat, "pm->ps") )
           __debugbreak();
         if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8676, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION )") )
           __debugbreak();
         ActiveStatics = BgStatic::GetActiveStatics();
-        CharacterInfo = BG_GetCharacterInfo(ActiveStatics, _RDI->ps->clientNum);
-        BG_SetConditionValue(CharacterInfo, 17, LODWORD(v54) != 0);
-        __asm
-        {
-          vmovaps xmm2, xmm6; rightMove
-          vmovaps xmm1, xmm7; forwardMove
-        }
-        v64 = BG_DetermineStrafeCondition(_RDI, *(const float *)&_XMM1, *(const float *)&_XMM2);
-        PM_SetStrafeCondition(_RDI, v64);
-        v65 = PM_GetStanceEx(EffectiveStance, outRunBackwards);
-        SlideBackwards = PM_GetSlideBackwards(_RDI, _RBP);
-        v66 = v29;
+        CharacterInfo = BG_GetCharacterInfo(ActiveStatics, pm->ps->clientNum);
+        BG_SetConditionValue(CharacterInfo, 17, LODWORD(v26) != 0);
+        v31 = BG_DetermineStrafeCondition(pm, forwardmove, rightmove);
+        PM_SetStrafeCondition(pm, v31);
+        v32 = PM_GetStanceEx(EffectiveStance, outRunBackwards);
+        SlideBackwards = PM_GetSlideBackwards(pm, pml);
+        v33 = v11;
         if ( EffectiveStance == PM_EFF_STANCE_DEFAULT )
         {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_runbkThreshhold, "player_runbkThreshhold");
-          __asm { vcomiss xmm0, dword ptr [rdi+330h] }
-          if ( !v35 )
-            v66 = 1;
+          v34 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_runbkThreshhold, "player_runbkThreshhold");
+          if ( *(float *)&v34 >= pm->speed )
+            v33 = 1;
         }
-        IsSuperSprinting = BG_IsSuperSprinting(_RSI);
-        v82 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x14u);
+        IsSuperSprinting = BG_IsSuperSprinting(ps);
+        v44 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
         if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8565, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION )") )
           __debugbreak();
-        v67 = DCONST_DVARMPBOOL_animscript_supersprint_enable;
+        v35 = DCONST_DVARMPBOOL_animscript_supersprint_enable;
         if ( !DCONST_DVARMPBOOL_animscript_supersprint_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "animscript_supersprint_enable") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v67);
-        v68 = v67->current.enabled || PlayerASM_IsEnabled();
-        v69 = *(_DWORD *)&asc_143F489A0[8 * v65 + 4 * v66];
-        if ( !(_DWORD)v65 )
+        Dvar_CheckFrontendServerThread(v35);
+        v36 = v35->current.enabled || PlayerASM_IsEnabled();
+        v37 = *(_DWORD *)&asc_143F489A0[8 * v32 + 4 * v33];
+        if ( !(_DWORD)v32 )
         {
-          if ( IsSuperSprinting && v68 )
+          if ( IsSuperSprinting && v36 )
           {
-            v69 = 19;
+            v37 = 19;
           }
-          else if ( v82 )
+          else if ( v44 )
           {
-            v69 = 18;
+            v37 = 18;
           }
         }
-        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x1Du) )
-          v69 = SlideBackwards + 24;
-        if ( BG_AnimScriptAnimation(_RDI->m_bgHandler, _RSI, AISTATE_COMBAT, (PlayerAnimScriptMoveType)v69, 0, 0) < 0 )
+        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
+          v37 = SlideBackwards + 24;
+        if ( BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, (PlayerAnimScriptMoveType)v37, 0, 0) < 0 )
         {
           if ( EffectiveStance == PM_EFF_STANCE_LASTSTANDCRAWL )
           {
-            if ( (unsigned int)(v69 - 22) > 1 )
+            if ( (unsigned int)(v37 - 22) > 1 )
             {
-              LODWORD(sprinting) = v69;
+              LODWORD(sprinting) = v37;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9389, ASSERT_TYPE_ASSERT, "(animType == ANIM_MT_CRAWLLASTSTAND || animType == ANIM_MT_CRAWLLASTSTANDBK)", "%s\n\tanimType == %d", "animType == ANIM_MT_CRAWLLASTSTAND || animType == ANIM_MT_CRAWLLASTSTANDBK", sprinting) )
                 __debugbreak();
             }
-            v70 = v69;
+            v38 = v37;
           }
           else
           {
-            v70 = ANIM_MT_IDLE;
+            v38 = ANIM_MT_IDLE;
           }
-          BG_AnimScriptAnimation(_RDI->m_bgHandler, _RSI, AISTATE_COMBAT, v70, 0, 0);
+          BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, v38, 0, 0);
         }
-        PM_UpdateFlinch(_RDI, _RSI, _RBP);
+        PM_UpdateFlinch(pm, ps, pml);
       }
-      timeMs = _RBP->msec;
-      sprintinga = v86;
+      timeMs = pml->msec;
+      sprintinga = v48;
       goto LABEL_140;
     }
-    __asm { vmovss  xmm3, dword ptr [rdi+330h]; speed }
-    PM_UpdateBobCycle(_RDI, _RBP, stance, *(float *)&_XMM3, &maxSpeeds, v29, v30, _RBP->msec);
+    PM_UpdateBobCycle(pm, pml, stance, pm->speed, &maxSpeeds, v11, v12, pml->msec);
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-      PM_Footstep_NotTryingToMove(_RDI, _RBP, EffectiveStance);
+      PM_Footstep_NotTryingToMove(pm, pml, EffectiveStance);
   }
   else
   {
-    __asm { vmovss  xmm3, dword ptr [rdi+330h]; speed }
-    PM_UpdateBobCycle(_RDI, _RBP, stance, *(float *)&_XMM3, &maxSpeeds, v29, v30, _RBP->msec);
-    v38 = _RDI->ps;
-    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7747, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    PM_UpdateBobCycle(pm, pml, stance, pm->speed, &maxSpeeds, v11, v12, pml->msec);
+    v16 = pm->ps;
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7747, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
     {
       Sys_ProfBeginNamedEvent(0xFF808080, "PM_Footsteps_NotMoving");
-      turning = _RBP->turning;
-      v40 = PM_GetNotMovingAnim(EffectiveStance);
-      if ( BG_AnimScriptAnimation(_RDI->m_bgHandler, v38, AISTATE_COMBAT, v40, 0, turning) < 0 )
+      turning = pml->turning;
+      v18 = PM_GetNotMovingAnim(EffectiveStance);
+      if ( BG_AnimScriptAnimation(pm->m_bgHandler, v16, AISTATE_COMBAT, v18, 0, turning) < 0 )
       {
         if ( EffectiveStance == PM_EFF_STANCE_LASTSTANDCRAWL )
         {
-          v41 = ANIM_MT_IDLELASTSTAND;
+          v19 = ANIM_MT_IDLELASTSTAND;
         }
         else
         {
-          v41 = ANIM_MT_IDLECR;
+          v19 = ANIM_MT_IDLECR;
           if ( EffectiveStance != PM_EFF_STANCE_DUCKED )
-            v41 = ANIM_MT_IDLE;
+            v19 = ANIM_MT_IDLE;
         }
-        BG_AnimScriptAnimation(_RDI->m_bgHandler, v38, AISTATE_COMBAT, v41, 0, _RBP->turning);
+        BG_AnimScriptAnimation(pm->m_bgHandler, v16, AISTATE_COMBAT, v19, 0, pml->turning);
       }
-      PM_UpdateFlinch(_RDI, v38, _RBP);
+      PM_UpdateFlinch(pm, v16, pml);
       Sys_ProfEndNamedEvent();
     }
   }
-LABEL_142:
+LABEL_141:
   Sys_ProfEndNamedEvent();
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -7617,174 +6162,127 @@ PM_Friction
 */
 void PM_Friction(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
+  float v5; 
   BgGroundState *ground; 
-  char v14; 
-  bool v24; 
-  bool v25; 
-  BgGroundState *v26; 
-  bool v27; 
-  bool v28; 
+  __int128 v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  bool v12; 
+  bool v13; 
+  BgGroundState *v14; 
+  bool v15; 
+  bool v16; 
+  double v17; 
+  const dvar_t *v18; 
+  float v19; 
+  double Float_Internal_DebugName; 
+  float v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  float v29; 
   vec3_t vec; 
 
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_58], xmm7
-    vmovaps [rsp+0E8h+var_88], xmm10
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2374, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->ground && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2375, ASSERT_TYPE_ASSERT, "(pm->ground)", (const char *)&queryFormat, "pm->ground") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2379, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2379, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx+3Ch] }
+  v5 = ps->velocity.v[0];
   ground = pm->ground;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0E8h+vec], xmm0
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vmovss  dword ptr [rsp+0E8h+vec+4], xmm1
-    vmovss  xmm3, dword ptr [rbx+44h]
-    vmovss  dword ptr [rsp+0E8h+vec+8], xmm3
-  }
-  v14 = 0;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
+  vec.v[0] = v5;
+  v7 = LODWORD(ps->velocity.v[1]);
+  vec.v[1] = ps->velocity.v[1];
+  v8 = ps->velocity.v[2];
+  vec.v[2] = v8;
   if ( ground->walking )
   {
-    __asm { vxorps  xmm1, xmm1, xmm1; height }
-    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+0E8h+vec+8]
-      vmovss  xmm1, dword ptr [rsp+0E8h+vec+4]
-      vmovss  xmm0, dword ptr [rsp+0E8h+vec]
-    }
+    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+    v8 = vec.v[2];
+    v7 = LODWORD(vec.v[1]);
+    v5 = vec.v[0];
   }
-  __asm
+  v10 = v7;
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v5 * v5)) + (float)(v8 * v8));
+  v9 = *(float *)&v10;
+  if ( *(float *)&v10 < 1.0 )
   {
-    vmulss  xmm1, xmm1, xmm1
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm7, xmm2, xmm2
-    vcomiss xmm7, cs:__real@3f800000
+    *(_QWORD *)ps->velocity.v = 0i64;
+    ps->velocity.v[2] = 0.0;
+    return;
   }
-  if ( !v14 )
+  v11 = 0.0;
+  v12 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xDu);
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x16u) )
   {
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_68], xmm8
-      vxorps  xmm8, xmm8, xmm8
-    }
-    v24 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0xDu);
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x16u) )
-    {
-      PM_MeleeChargeFriction(pm, pml);
-LABEL_44:
-      __asm { vmovaps xmm8, [rsp+0E8h+var_68] }
-      goto LABEL_45;
-    }
-    if ( v24 )
-    {
-LABEL_41:
-      if ( _RBX->pm_type == 5 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm7, dword ptr [rbp+24h]
-          vmulss  xmm1, xmm0, cs:__real@40a00000
-          vaddss  xmm8, xmm8, xmm1
-        }
-      }
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm8
-        vmaxss  xmm0, xmm0, xmm10
-        vdivss  xmm2, xmm0, xmm7
-        vmulss  xmm1, xmm2, dword ptr [rbx+3Ch]
-        vmulss  xmm0, xmm2, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbx+3Ch], xmm1
-        vmulss  xmm1, xmm2, dword ptr [rbx+44h]
-        vmovss  dword ptr [rbx+44h], xmm1
-        vmovss  dword ptr [rbx+40h], xmm0
-      }
-      goto LABEL_44;
-    }
-    __asm { vmovaps [rsp+0E8h+var_78], xmm9 }
-    v25 = PM_IsInAir(pm);
-    v26 = pm->ground;
-    v27 = (_RBX->slideState.flags & 0x40) != 0;
-    v28 = v26->walking && (v26->trace.surfaceFlags & 2) == 0;
-    *(double *)&_XMM0 = Slide_SlideOutInAirFrictionScale(_RBX, pm->cmd.serverTime);
-    _R15 = DCONST_DVARFLT_stopspeed;
-    __asm { vmovaps xmm9, xmm0 }
+    PM_MeleeChargeFriction(pm, pml);
+    return;
+  }
+  if ( !v12 )
+  {
+    v13 = PM_IsInAir(pm);
+    v14 = pm->ground;
+    v15 = (ps->slideState.flags & 0x40) != 0;
+    v16 = v14->walking && (v14->trace.surfaceFlags & 2) == 0;
+    v17 = Slide_SlideOutInAirFrictionScale(ps, pm->cmd.serverTime);
+    v18 = DCONST_DVARFLT_stopspeed;
+    v19 = *(float *)&v17;
     if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
       __debugbreak();
-    __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
-    Dvar_CheckFrontendServerThread(_R15);
-    __asm { vcomiss xmm7, dword ptr [r15+28h] }
-    if ( v14 )
+    Dvar_CheckFrontendServerThread(v18);
+    if ( *(float *)&v10 >= v18->current.value )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_stopspeed, "stopspeed");
-      __asm { vmovaps xmm6, xmm0 }
+      v21 = *(float *)&v10;
     }
     else
     {
-      __asm { vmovaps xmm6, xmm7 }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_stopspeed, "stopspeed");
+      v21 = *(float *)&Float_Internal_DebugName;
     }
-    if ( v28 )
+    if ( v16 )
     {
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0xCu) )
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xCu) )
       {
-        __asm { vmulss  xmm6, xmm6, cs:__real@3e99999a }
+        v21 = v21 * 0.30000001;
       }
-      else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x13u) )
+      else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) )
       {
-        Jump_ReduceFriction(pm, _RBX);
-        __asm { vmulss  xmm6, xmm6, xmm0 }
+        v22 = Jump_ReduceFriction(pm, ps);
+        v21 = v21 * *(float *)&v22;
       }
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x1Du) )
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
       {
-        Slide_FrictionScale(pm, pml);
-        __asm { vmulss  xmm6, xmm6, xmm0 }
+        v23 = Slide_FrictionScale(pm, pml);
+        v21 = v21 * *(float *)&v23;
       }
-      Slide_SlideOutFrictionScale(_RBX, pm->cmd.serverTime);
-      __asm { vmulss  xmm6, xmm6, xmm0 }
+      v24 = Slide_SlideOutFrictionScale(ps, pm->cmd.serverTime);
+      v25 = v21 * *(float *)&v24;
+      goto LABEL_39;
     }
-    else
+    if ( v13 && v15 && v19 != -3.4028235e38 )
     {
-      if ( !v25 || !v27 )
-        goto LABEL_40;
-      __asm
-      {
-        vucomiss xmm9, cs:__real@ff7fffff
-        vmulss  xmm6, xmm6, xmm9
-      }
+      v25 = v21 * v19;
+LABEL_39:
+      v26 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_friction, "friction");
+      v11 = (float)(*(float *)&v26 * v25) * pml->frametime;
     }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_friction, "friction");
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm8, xmm1, dword ptr [rbp+24h]
-    }
-LABEL_40:
-    __asm
-    {
-      vmovaps xmm6, [rsp+0E8h+var_48]
-      vmovaps xmm9, [rsp+0E8h+var_78]
-    }
-    goto LABEL_41;
   }
-  *(_QWORD *)_RBX->velocity.v = 0i64;
-  _RBX->velocity.v[2] = 0.0;
-LABEL_45:
-  __asm
-  {
-    vmovaps xmm7, [rsp+0E8h+var_58]
-    vmovaps xmm10, [rsp+0E8h+var_88]
-  }
+  if ( ps->pm_type == 5 )
+    v11 = v11 + (float)((float)(*(float *)&v10 * pml->frametime) * 5.0);
+  *(float *)&v10 = *(float *)&v10 - v11;
+  _XMM0 = v10;
+  __asm { vmaxss  xmm0, xmm0, xmm10 }
+  v29 = (float)(*(float *)&_XMM0 / v9) * ps->velocity.v[1];
+  ps->velocity.v[0] = (float)(*(float *)&_XMM0 / v9) * ps->velocity.v[0];
+  ps->velocity.v[2] = (float)(*(float *)&_XMM0 / v9) * ps->velocity.v[2];
+  ps->velocity.v[1] = v29;
 }
 
 /*
@@ -7794,41 +6292,39 @@ PM_GetAccelerationForStance
 */
 float PM_GetAccelerationForStance(const playerState_s *ps)
 {
+  __int32 v2; 
   __int32 v3; 
-  __int32 v4; 
+  float v4; 
+  const SuitDef *SuitDef; 
+  float v6; 
   const dvar_t *v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v3 = PM_GetEffectiveStance(ps) - 1;
-  if ( !v3 )
+  v2 = PM_GetEffectiveStance(ps) - 1;
+  if ( !v2 )
     goto LABEL_6;
-  v4 = v3 - 1;
-  if ( !v4 )
+  v3 = v2 - 1;
+  if ( !v3 )
   {
-    __asm { vmovss  xmm6, cs:__real@41400000 }
+    v4 = FLOAT_12_0;
     goto LABEL_7;
   }
-  if ( v4 == 1 )
+  if ( v3 == 1 )
   {
 LABEL_6:
-    __asm { vmovss  xmm6, cs:__real@41980000 }
+    v4 = FLOAT_19_0;
     goto LABEL_7;
   }
-  __asm { vmovss  xmm6, cs:__real@41100000 }
+  v4 = FLOAT_9_0;
 LABEL_7:
-  if ( !BG_GetSuitDef(ps->suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3194, ASSERT_TYPE_ASSERT, "(suit)", (const char *)&queryFormat, "suit") )
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3194, ASSERT_TYPE_ASSERT, "(suit)", (const char *)&queryFormat, "suit") )
     __debugbreak();
-  __asm { vmulss  xmm6, xmm6, dword ptr [rbx+48h] }
+  v6 = v4 * SuitDef->player_globalAccelScale;
   v7 = DCONST_DVARMPFLT_player_globalAccelScale;
   if ( !DCONST_DVARMPFLT_player_globalAccelScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_globalAccelScale") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v7);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return v6 * v7->current.value;
 }
 
 /*
@@ -7838,84 +6334,47 @@ PM_GetBlackHoleStrafeData
 */
 void PM_GetBlackHoleStrafeData(const pml_t *pml, int *outRunBackwards, float *outMoveForward, float *outMoveRight)
 {
-  bool v10; 
-  bool v11; 
+  __int128 v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _RBP = outMoveRight;
-  __asm { vmovaps [rsp+78h+var_48], xmm7 }
-  _RSI = outMoveForward;
-  _RBX = pml;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8709, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !outRunBackwards && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8710, ASSERT_TYPE_ASSERT, "(outRunBackwards)", (const char *)&queryFormat, "outRunBackwards") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8711, ASSERT_TYPE_ASSERT, "(outMoveForward)", (const char *)&queryFormat, "outMoveForward") )
+  if ( !outMoveForward && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8711, ASSERT_TYPE_ASSERT, "(outMoveForward)", (const char *)&queryFormat, "outMoveForward") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8712, ASSERT_TYPE_ASSERT, "(outMoveRight)", (const char *)&queryFormat, "outMoveRight") )
+  if ( !outMoveRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8712, ASSERT_TYPE_ASSERT, "(outMoveRight)", (const char *)&queryFormat, "outMoveRight") )
     __debugbreak();
-  v10 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8692, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
+  if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8692, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
+    __debugbreak();
+  if ( pml->impulseFieldVelocity.v[0] == 0.0 && pml->impulseFieldVelocity.v[1] == 0.0 && pml->impulseFieldVelocity.v[2] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8713, ASSERT_TYPE_ASSERT, "(PM_IsAffectedByBlackHole( pml ))", (const char *)&queryFormat, "PM_IsAffectedByBlackHole( pml )") )
+    __debugbreak();
+  v8 = LODWORD(pml->impulseFieldVelocity.v[1]);
+  v9 = pml->impulseFieldVelocity.v[2];
+  v10 = pml->impulseFieldVelocity.v[0];
+  v11 = v8;
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(v10 * v10)) + (float)(v9 * v9));
+  _XMM3 = v11;
   __asm
   {
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm7, dword ptr [rbx+200h]
-  }
-  if ( v10 )
-  {
-    __asm { vucomiss xmm7, dword ptr [rbx+204h] }
-    if ( v10 )
-    {
-      __asm { vucomiss xmm7, dword ptr [rbx+208h] }
-      if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8713, ASSERT_TYPE_ASSERT, "(PM_IsAffectedByBlackHole( pml ))", (const char *)&queryFormat, "PM_IsAffectedByBlackHole( pml )") )
-        __debugbreak();
-    }
-  }
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbx+204h]
-    vmovss  xmm6, dword ptr [rbx+208h]
-    vmovss  xmm4, dword ptr [rbx+200h]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm4, xmm4, xmm1
-    vmulss  xmm0, xmm4, dword ptr [rbx]
-    vmulss  xmm3, xmm5, xmm1
-    vmulss  xmm5, xmm6, xmm1
-    vmulss  xmm1, xmm3, dword ptr [rbx+4]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rbx+8]
-    vmulss  xmm0, xmm4, dword ptr [rbx+0Ch]
-    vaddss  xmm6, xmm2, xmm1
-    vmulss  xmm1, xmm3, dword ptr [rbx+10h]
-    vcomiss xmm6, xmm7
-    vmovaps xmm7, [rsp+78h+var_48]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rbx+14h]
   }
-  *outRunBackwards = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm6
-    vmovaps xmm6, [rsp+78h+var_38]
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rbp+0], xmm3
-  }
+  v15 = v10 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&v11 = *(float *)&v8 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&v8 = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v16 = (float)((float)(*(float *)&v11 * pml->forward.v[1]) + (float)(v15 * pml->forward.v[0])) + (float)(*(float *)&v8 * pml->forward.v[2]);
+  v17 = (float)(*(float *)&v11 * pml->right.v[1]) + (float)(v15 * pml->right.v[0]);
+  v18 = *(float *)&v8 * pml->right.v[2];
+  *outRunBackwards = v16 > 0.0;
+  *outMoveForward = v16;
+  *outMoveRight = COERCE_FLOAT(COERCE_UNSIGNED_INT(v17 + v18) ^ _xmm);
 }
 
 /*
@@ -7976,61 +6435,31 @@ EffectiveStance PM_GetEffectiveStanceForWorldModelAnimation(const playerState_s 
 PM_GetFootstepActionType
 ==============
 */
-
-__int64 __fastcall PM_GetFootstepActionType(pmove_t *pm, double stairsAscentRatio)
+__int64 PM_GetFootstepActionType(pmove_t *pm, float stairsAscentRatio)
 {
   playerState_s *ps; 
+  bool v4; 
+  const dvar_t *v5; 
   bool v6; 
-  bool v8; 
-  char v9; 
-  char v10; 
-  __int64 result; 
+  float value; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7572, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7572, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 8u);
-  _RBX = DCONST_DVARFLT_player_stairs_footstep_sound_minratio;
-  v8 = v6;
+  v4 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 8u);
+  v5 = DCONST_DVARFLT_player_stairs_footstep_sound_minratio;
+  v6 = v4;
   if ( !DCONST_DVARFLT_player_stairs_footstep_sound_minratio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_footstep_sound_minratio") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vcomiss xmm0, xmm6
-  }
-  if ( v9 | v10 )
-  {
-    result = 2i64;
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  }
-  else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-      vcomiss xmm6, xmm0
-    }
-    if ( v9 | v10 )
-    {
-      result = 3i64;
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
-    }
-    else
-    {
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
-      return v8;
-    }
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  if ( value <= stairsAscentRatio )
+    return 2i64;
+  if ( stairsAscentRatio > COERCE_FLOAT(LODWORD(value) ^ _xmm) )
+    return v6;
+  return 3i64;
 }
 
 /*
@@ -8100,398 +6529,256 @@ __int64 PM_GetFootstepAnimType(const pmove_t *pm)
 PM_GetNominalMaxSpeed
 ==============
 */
-
-void __fastcall PM_GetNominalMaxSpeed(const pmove_t *const pm, const pml_t *const pml, vec3_t *maxSpeeds, double _XMM3_8)
+void PM_GetNominalMaxSpeed(const pmove_t *const pm, const pml_t *const pml, vec3_t *maxSpeeds)
 {
-  unsigned int v24; 
-  unsigned int v25; 
-  bool v28; 
   playerState_s *ps; 
-  const dvar_t *v57; 
+  float speed; 
+  const SuitDef *SuitDef; 
+  unsigned int rightmove; 
+  unsigned int forwardmove; 
+  int v11; 
+  int v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  playerState_s *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  const dvar_t *v25; 
   bool IsUsingOffhandGestureWeaponADSSupport; 
-  playerState_s *v59; 
-  bool v60; 
+  playerState_s *v27; 
+  bool v28; 
   BgWeaponMap *weaponMap; 
   const Weapon *OffhandGestureWeapon; 
-  const Weapon *v63; 
-  bool v64; 
-  const dvar_t *v73; 
-  char v77; 
-  bool v78; 
-  bool CanJog; 
-  const char *v108; 
-  unsigned int v128; 
+  const Weapon *v31; 
+  bool v32; 
+  double WeaponOrOffhandAdsFrac; 
+  float v34; 
+  float v35; 
+  float v36; 
+  double v37; 
+  float v38; 
+  float v39; 
+  float bobScale; 
+  const dvar_t *v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  unsigned int v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  double SpeedScale; 
+  const dvar_t *v53; 
+  const char *v54; 
+  float value; 
+  const dvar_t *v56; 
+  float v57; 
+  float slide_strafe_speed_scale; 
+  unsigned int i; 
+  __int64 v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
   float adsMoveSpeedScaleOut; 
+  float v67; 
   float moveSpeedScaleOut; 
   vec3_t wishDir; 
-  char v163; 
-  void *retaddr; 
+  int v70[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R15 = maxSpeeds;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7788, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7789, ASSERT_TYPE_ASSERT, "(pm->ps)", (const char *)&queryFormat, "pm->ps") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm14, xmm14, xmm14
-    vcvtsi2ss xmm14, xmm14, eax
-  }
-  _R14 = BG_GetSuitDef(pm->ps->suitIndex);
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7796, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-    __debugbreak();
-  _ER9 = pm->cmd.rightmove;
-  _ER10 = pm->cmd.forwardmove;
-  __asm { vmovsd  xmm6, cs:__real@3eb0c6f7a0b5ed8d }
-  v24 = abs8(pm->cmd.rightmove);
-  v25 = abs8(pm->cmd.forwardmove);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm12, xmm12, xmm12
-  }
-  v28 = __CFADD__(_ER9 * _ER9, _ER10 * _ER10) || _ER9 * _ER9 + _ER10 * _ER10 == 0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, edx
-    vsqrtss xmm2, xmm0, xmm0
-    vcvtss2sd xmm1, xmm2, xmm2
-    vcomisd xmm1, xmm6
-  }
-  if ( v28 )
-  {
-    __asm { vxorps  xmm3, xmm3, xmm3 }
-  }
-  else
-  {
-    v28 = v25 <= v24;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r8d
-      vdivss  xmm3, xmm0, xmm2
-    }
-  }
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f800000
-    vmovd   xmm0, r10d
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm0, xmm0, cs:__real@3c010204
-    vmulss  xmm4, xmm0, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vmovd   xmm1, r9d
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm2, xmm1, cs:__real@3c010204
-    vmulss  xmm5, xmm2, xmm3
-    vmulss  xmm3, xmm5, xmm5
-    vaddss  xmm1, xmm3, xmm0
-    vsqrtss xmm0, xmm1, xmm1
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcomisd xmm2, xmm6
-  }
-  if ( v28 )
-  {
-    __asm
-    {
-      vmovaps xmm15, xmm13
-      vxorps  xmm1, xmm1, xmm1
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm13, xmm0
-      vmulss  xmm15, xmm4, xmm0
-      vmulss  xmm1, xmm5, xmm0
-    }
-  }
   ps = pm->ps;
-  __asm
+  speed = (float)ps->speed;
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7796, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+    __debugbreak();
+  rightmove = pm->cmd.rightmove;
+  forwardmove = pm->cmd.forwardmove;
+  v11 = abs8(pm->cmd.rightmove);
+  v12 = abs8(pm->cmd.forwardmove);
+  v13 = fsqrt((float)(int)(rightmove * rightmove + forwardmove * forwardmove));
+  if ( v13 > 0.000001 )
   {
-    vmovss  xmm9, cs:__real@3ecccccd
-    vmovss  [rsp+158h+var_114], xmm1
-    vmovaps xmm7, xmm13
+    if ( v12 > v11 )
+      v11 = v12;
+    v14 = (float)v11 / v13;
   }
-  *(float *)&_XMM0 = PM_SprintScale(ps);
-  __asm { vmovaps xmm8, xmm0 }
+  else
+  {
+    v14 = 0.0;
+  }
+  v15 = (float)(_mm_cvtepi32_ps((__m128i)forwardmove).m128_f32[0] * 0.0078740157) * v14;
+  v16 = (float)(_mm_cvtepi32_ps((__m128i)rightmove).m128_f32[0] * 0.0078740157) * v14;
+  v17 = fsqrt((float)(v16 * v16) + (float)(v15 * v15));
+  if ( v17 <= 0.000001 )
+  {
+    v18 = FLOAT_1_0;
+    v19 = 0.0;
+  }
+  else
+  {
+    v18 = v15 * (float)(1.0 / v17);
+    v19 = v16 * (float)(1.0 / v17);
+  }
+  v20 = pm->ps;
+  v21 = FLOAT_0_40000001;
+  v67 = v19;
+  v22 = FLOAT_1_0;
+  v23 = PM_SprintScale(v20);
+  v24 = v23;
   if ( BG_IsSuperSprinting(pm->ps) )
   {
-    v57 = DCONST_DVARFLT_superSprintSpeedScale;
+    v25 = DCONST_DVARFLT_superSprintSpeedScale;
     if ( !DCONST_DVARFLT_superSprintSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v57);
-    __asm { vmulss  xmm8, xmm8, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v25);
+    v24 = v23 * v25->current.value;
   }
   IsUsingOffhandGestureWeaponADSSupport = BG_IsUsingOffhandGestureWeaponADSSupport(pm->weaponMap, pm->ps);
-  v59 = pm->ps;
-  v60 = IsUsingOffhandGestureWeaponADSSupport;
+  v27 = pm->ps;
+  v28 = IsUsingOffhandGestureWeaponADSSupport;
   weaponMap = pm->weaponMap;
   if ( IsUsingOffhandGestureWeaponADSSupport )
-    OffhandGestureWeapon = BG_GetOffhandGestureWeapon(weaponMap, v59);
+    OffhandGestureWeapon = BG_GetOffhandGestureWeapon(weaponMap, v27);
   else
-    OffhandGestureWeapon = BG_GetCurrentWeaponForPlayer(weaponMap, v59);
-  v63 = OffhandGestureWeapon;
-  v64 = BG_UsingAlternate(pm->ps) && !v60;
-  if ( v63->weaponIdx )
+    OffhandGestureWeapon = BG_GetCurrentWeaponForPlayer(weaponMap, v27);
+  v31 = OffhandGestureWeapon;
+  v32 = BG_UsingAlternate(pm->ps) && !v28;
+  if ( v31->weaponIdx )
   {
-    BG_GetMoveSpeedScale(pm->weaponMap, pm->ps, v63, v64, &moveSpeedScaleOut, &adsMoveSpeedScaleOut);
-    *(double *)&_XMM0 = BG_GetWeaponOrOffhandAdsFrac(pm->weaponMap, pm->ps);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm->ps->pm_flags, ACTIVE, 0) )
+    BG_GetMoveSpeedScale(pm->weaponMap, pm->ps, v31, v32, &moveSpeedScaleOut, &adsMoveSpeedScaleOut);
+    WeaponOrOffhandAdsFrac = BG_GetWeaponOrOffhandAdsFrac(pm->weaponMap, pm->ps);
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm->ps->pm_flags, ACTIVE, 0) && *(float *)&WeaponOrOffhandAdsFrac > 0.0 )
     {
-      __asm
+      v22 = adsMoveSpeedScaleOut;
+      v21 = adsMoveSpeedScaleOut * 0.40000001;
+    }
+    else
+    {
+      v22 = moveSpeedScaleOut;
+      v21 = adsMoveSpeedScaleOut * 0.40000001;
+    }
+    v24 = v24 * v22;
+  }
+  v34 = PM_CmdScaleForStance(pm);
+  v35 = v22 * v34;
+  v36 = v24 * v34;
+  v37 = BG_ADSBobRate(v31, v32);
+  v39 = *(float *)&v37 * (float)(v21 * v34);
+  v38 = v39;
+  bobScale = pm->ps->bobScale;
+  if ( bobScale > 0.0 )
+  {
+    v35 = bobScale * v35;
+    v38 = v39 * bobScale;
+    v36 = v36 * bobScale;
+  }
+  v41 = DCONST_DVARBOOL_maxSpeedCalcDirectionIndependent;
+  v42 = v35;
+  v43 = v38;
+  v44 = v36;
+  if ( !DCONST_DVARBOOL_maxSpeedCalcDirectionIndependent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "maxSpeedCalcDirectionIndependent") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v41);
+  if ( v41->current.enabled )
+  {
+    v45 = pm->cmd.forwardmove;
+    v46 = _mm_cvtepi32_ps((__m128i)(unsigned int)pm->cmd.rightmove).m128_f32[0];
+    v47 = _mm_cvtepi32_ps((__m128i)v45).m128_f32[0];
+    v48 = (float)(v47 * pml->forward.v[0]) + (float)(v46 * pml->right.v[0]);
+    v49 = (float)(v46 * pml->right.v[1]) + (float)(v47 * pml->forward.v[1]);
+    v50 = (float)(v46 * pml->right.v[2]) + (float)(v47 * pml->forward.v[2]);
+    v51 = fsqrt((float)((float)(v49 * v49) + (float)(v48 * v48)) + (float)(v50 * v50));
+    wishDir.v[0] = v48;
+    wishDir.v[1] = v49;
+    wishDir.v[2] = v50;
+    if ( v51 > 0.000001 )
+    {
+      wishDir.v[0] = (float)(1.0 / v51) * v48;
+      wishDir.v[2] = (float)(1.0 / v51) * v50;
+      wishDir.v[1] = (float)(1.0 / v51) * v49;
+      SpeedScale = PM_Slope_GetSpeedScale(&wishDir, pm);
+      LOBYTE(v45) = pm->cmd.forwardmove;
+      v35 = v35 * *(float *)&SpeedScale;
+      v38 = v38 * *(float *)&SpeedScale;
+      v36 = v36 * *(float *)&SpeedScale;
+      v42 = v42 * *(float *)&SpeedScale;
+      v43 = v43 * *(float *)&SpeedScale;
+      v44 = v44 * *(float *)&SpeedScale;
+    }
+    if ( (float)(char)v45 > 0.0 && BG_CanJog(pm->weaponMap, pm->ps) )
+    {
+      v53 = DCONST_DVARFLT_player_jogForwardSpeedScale;
+      if ( !DCONST_DVARFLT_player_jogForwardSpeedScale )
       {
-        vcomiss xmm6, xmm12
-        vmovss  xmm7, [rsp+158h+var_118]
-        vmulss  xmm9, xmm7, xmm9
+        v54 = "player_jogForwardSpeedScale";
+        goto LABEL_51;
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+158h+var_118]
-        vmovss  xmm7, [rsp+158h+moveSpeedScaleOut]
-        vmulss  xmm9, xmm0, xmm9
-      }
-    }
-    __asm { vmulss  xmm8, xmm8, xmm7 }
-  }
-  *(float *)&_XMM0 = PM_CmdScaleForStance(pm);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmulss  xmm7, xmm7, xmm0
-    vmulss  xmm8, xmm8, xmm0
-  }
-  *(double *)&_XMM0 = BG_ADSBobRate(v63, v64);
-  _RAX = pm->ps;
-  __asm
-  {
-    vmulss  xmm1, xmm9, xmm6
-    vmulss  xmm6, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rax+52E0h]
-    vcomiss xmm0, xmm12
-  }
-  if ( !(v77 | v78) )
-  {
-    __asm
-    {
-      vmulss  xmm7, xmm0, xmm7
-      vmulss  xmm6, xmm6, xmm0
-      vmulss  xmm8, xmm8, xmm0
-    }
-  }
-  v73 = DCONST_DVARBOOL_maxSpeedCalcDirectionIndependent;
-  __asm
-  {
-    vmovaps xmm9, xmm7
-    vmovaps xmm10, xmm6
-    vmovaps xmm11, xmm8
-  }
-  if ( !DCONST_DVARBOOL_maxSpeedCalcDirectionIndependent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "maxSpeedCalcDirectionIndependent") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v73);
-  v77 = 0;
-  v78 = !v73->current.enabled;
-  if ( v73->current.enabled )
-  {
-    _EAX = pm->cmd.rightmove;
-    _ECX = pm->cmd.forwardmove;
-    __asm
-    {
-      vmovd   xmm3, eax
-      vcvtdq2ps xmm3, xmm3
-      vmulss  xmm0, xmm3, dword ptr [rsi+0Ch]
-      vmovd   xmm2, ecx
-      vcvtdq2ps xmm2, xmm2
-      vmulss  xmm1, xmm2, dword ptr [rsi]
-      vaddss  xmm4, xmm1, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rsi+4]
-      vmulss  xmm1, xmm3, dword ptr [rsi+10h]
-      vaddss  xmm5, xmm1, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rsi+8]
-      vmulss  xmm1, xmm3, dword ptr [rsi+14h]
-      vaddss  xmm3, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm1, xmm2, xmm2
-      vcvtss2sd xmm0, xmm1, xmm1
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-      vmovss  dword ptr [rsp+158h+wishDir], xmm4
-      vmovss  dword ptr [rsp+158h+wishDir+4], xmm5
-      vmovss  dword ptr [rsp+158h+wishDir+8], xmm3
-    }
-    if ( !v78 )
-    {
-      __asm
-      {
-        vdivss  xmm2, xmm13, xmm1
-        vmulss  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rsp+158h+wishDir], xmm0
-        vmulss  xmm0, xmm2, xmm3
-        vmulss  xmm1, xmm2, xmm5
-        vmovss  dword ptr [rsp+158h+wishDir+8], xmm0
-        vmovss  dword ptr [rsp+158h+wishDir+4], xmm1
-      }
-      *(double *)&_XMM0 = PM_Slope_GetSpeedScale(&wishDir, pm);
-      __asm
-      {
-        vmulss  xmm7, xmm7, xmm0
-        vmulss  xmm6, xmm6, xmm0
-        vmulss  xmm8, xmm8, xmm0
-        vmulss  xmm9, xmm9, xmm0
-        vmulss  xmm10, xmm10, xmm0
-        vmulss  xmm11, xmm11, xmm0
-      }
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vcomiss xmm0, xmm12
-    }
-    if ( v77 | v78 || (CanJog = BG_CanJog(pm->weaponMap, pm->ps), v77 = 0, !CanJog) )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcomiss xmm0, xmm12
-      }
-      if ( !v77 )
-        goto LABEL_51;
-      _RDI = DCONST_DVARFLT_player_backSpeedScale;
+      if ( (float)pm->cmd.forwardmove >= 0.0 )
+        goto LABEL_54;
+      v53 = DCONST_DVARFLT_player_backSpeedScale;
       if ( !DCONST_DVARFLT_player_backSpeedScale )
       {
-        v108 = "player_backSpeedScale";
-LABEL_48:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v108) )
+        v54 = "player_backSpeedScale";
+LABEL_51:
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v54) )
           __debugbreak();
       }
     }
-    else
-    {
-      _RDI = DCONST_DVARFLT_player_jogForwardSpeedScale;
-      if ( !DCONST_DVARFLT_player_jogForwardSpeedScale )
-      {
-        v108 = "player_jogForwardSpeedScale";
-        goto LABEL_48;
-      }
-    }
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm8, xmm8, xmm0
-      vmulss  xmm6, xmm6, xmm0
-      vmulss  xmm7, xmm7, xmm0
-    }
-LABEL_51:
-    _RDI = DCONST_DVARFLT_player_strafeSpeedScale;
+    Dvar_CheckFrontendServerThread(v53);
+    value = v53->current.value;
+    v36 = v36 * value;
+    v38 = v38 * value;
+    v35 = v35 * value;
+LABEL_54:
+    v56 = DCONST_DVARFLT_player_strafeSpeedScale;
     if ( !DCONST_DVARFLT_player_strafeSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_strafeSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm9, xmm9, xmm0
-      vmulss  xmm10, xmm10, xmm0
-      vmulss  xmm11, xmm11, xmm0
-    }
+    Dvar_CheckFrontendServerThread(v56);
+    v57 = v56->current.value;
+    v42 = v42 * v57;
+    v43 = v43 * v57;
+    v44 = v44 * v57;
     if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&pm->ps->pm_flags, ACTIVE, 0x1Du) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+0F0h]
-        vmulss  xmm9, xmm0, xmm9
-        vmulss  xmm10, xmm0, xmm10
-        vmulss  xmm11, xmm0, xmm11
-      }
+      slide_strafe_speed_scale = SuitDef->slide_strafe_speed_scale;
+      v42 = slide_strafe_speed_scale * v42;
+      v43 = slide_strafe_speed_scale * v43;
+      v44 = slide_strafe_speed_scale * v44;
     }
   }
-  __asm
+  *(float *)v70 = (float)(v35 * speed) * v18;
+  *(float *)&v70[1] = (float)(v38 * speed) * v18;
+  *(float *)&v70[2] = (float)(v36 * speed) * v18;
+  wishDir.v[0] = (float)(v42 * speed) * v67;
+  wishDir.v[2] = (float)(v44 * speed) * v67;
+  wishDir.v[1] = (float)(v43 * speed) * v67;
+  for ( i = 0; i <= 2; ++i )
   {
-    vmovss  xmm3, [rsp+158h+var_114]
-    vmulss  xmm0, xmm7, xmm14
-    vmulss  xmm1, xmm0, xmm15
-    vmovss  [rsp+158h+var_F8], xmm1
-    vmulss  xmm2, xmm6, xmm14
-    vmulss  xmm0, xmm2, xmm15
-    vmovss  [rsp+158h+var_F4], xmm0
-    vmulss  xmm1, xmm8, xmm14
-    vmulss  xmm2, xmm1, xmm15
-    vmulss  xmm0, xmm9, xmm14
-    vmulss  xmm1, xmm0, xmm3
-    vmovss  [rsp+158h+var_F0], xmm2
-    vmulss  xmm2, xmm10, xmm14
-    vmulss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+158h+wishDir], xmm1
-    vmulss  xmm1, xmm11, xmm14
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+158h+wishDir+8], xmm2
-    vmovss  dword ptr [rsp+158h+wishDir+4], xmm0
-  }
-  v128 = 0;
-  do
-  {
-    _RDI = (int)v128;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+rdi*4+158h+wishDir]
-      vmovss  xmm4, [rsp+rdi*4+158h+var_F8]
-      vmulss  xmm1, xmm4, dword ptr [rsi]
-      vmulss  xmm0, xmm6, dword ptr [rsi+0Ch]
-      vmulss  xmm2, xmm4, dword ptr [rsi+4]
-      vaddss  xmm5, xmm1, xmm0
-      vmulss  xmm0, xmm6, dword ptr [rsi+10h]
-      vmulss  xmm1, xmm6, dword ptr [rsi+14h]
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rsi+8]
-      vaddss  xmm4, xmm1, xmm0
-      vmulss  xmm2, xmm3, xmm3
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm6, xmm2, xmm2
-    }
-    ++v128;
-    __asm { vmovss  dword ptr [r15+rdi*4], xmm6 }
-  }
-  while ( v128 <= 2 );
-  _R11 = &v163;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    v60 = (int)i;
+    v61 = wishDir.v[i];
+    v62 = *(float *)&v70[i];
+    v63 = (float)(v62 * pml->forward.v[0]) + (float)(v61 * pml->right.v[0]);
+    v64 = (float)(v62 * pml->forward.v[1]) + (float)(v61 * pml->right.v[1]);
+    v65 = (float)(v61 * pml->right.v[2]) + (float)(v62 * pml->forward.v[2]);
+    maxSpeeds->v[v60] = fsqrt((float)((float)(v64 * v64) + (float)(v63 * v63)) + (float)(v65 * v65));
   }
 }
 
@@ -8524,45 +6811,29 @@ PM_GetSlideBackwards
 */
 bool PM_GetSlideBackwards(pmove_t *pm, pml_t *pml)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
+  playerState_s *ps; 
+  float v5; 
+  __int128 v6; 
+  float v7; 
+  __int128 v8; 
+
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8736, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8736, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8736, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
+  v5 = ps->velocity.v[0];
+  v6 = LODWORD(ps->velocity.v[1]);
+  v7 = ps->velocity.v[2];
+  v8 = v6;
+  *(float *)&v8 = fsqrt((float)((float)(*(float *)&v6 * *(float *)&v6) + (float)(v5 * v5)) + (float)(v7 * v7));
+  _XMM3 = v8;
   __asm
   {
-    vmovss  xmm6, dword ptr [rbx+3Ch]
-    vmovss  xmm4, dword ptr [rbx+40h]
-    vmovss  xmm7, dword ptr [rbx+44h]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm3, xmm0, dword ptr [rdi+4]
-    vmulss  xmm1, xmm6, xmm5
-    vmulss  xmm2, xmm1, dword ptr [rdi]
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmulss  xmm0, xmm7, xmm5
-    vmulss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm3, xmm4, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcomiss xmm3, xmm2
   }
-  return 0;
+  return (float)((float)((float)((float)(*(float *)&v6 * (float)(1.0 / *(float *)&_XMM0)) * pml->forward.v[1]) + (float)((float)(v5 * (float)(1.0 / *(float *)&_XMM0)) * pml->forward.v[0])) + (float)((float)(v7 * (float)(1.0 / *(float *)&_XMM0)) * pml->forward.v[2])) < 0.0;
 }
 
 /*
@@ -8630,16 +6901,20 @@ __int64 PM_GetSprintLeftRaw(const BgWeaponMap *weaponMap, const playerState_s *p
   int MaxSprintTime; 
   int lastSprintStart; 
   int lastSprintEnd; 
-  int v11; 
+  int v9; 
+  int v10; 
+  const dvar_t *v11; 
   int v12; 
+  const dvar_t *v13; 
+  bool v14; 
   const dvar_t *v15; 
-  bool v16; 
+  int v16; 
   const dvar_t *v17; 
-  const dvar_t *v20; 
-  int v21; 
-  int v26; 
-  const dvar_t *v27; 
-  int v33; 
+  int v18; 
+  double RechargeScale; 
+  int v20; 
+  const dvar_t *v21; 
+  int v23; 
   int sprintStartMaxLength; 
   int lastSuperSprintStart; 
   int lastSuperSprintEnd; 
@@ -8651,100 +6926,75 @@ __int64 PM_GetSprintLeftRaw(const BgWeaponMap *weaponMap, const playerState_s *p
   MaxSprintTime = BG_GetMaxSprintTime(weaponMap, ps);
   lastSprintStart = ps->sprintState.lastSprintStart;
   lastSprintEnd = ps->sprintState.lastSprintEnd;
-  v11 = MaxSprintTime;
-  v33 = lastSprintStart;
-  v12 = 0;
+  v9 = MaxSprintTime;
+  v23 = lastSprintStart;
+  v10 = 0;
   lastSuperSprintEnd = ps->sprintState.lastSuperSprintEnd;
   lastSuperSprintStart = ps->sprintState.lastSuperSprintStart;
   sprintStartMaxLength = ps->sprintState.sprintStartMaxLength;
   if ( ps->sprintState.sprintDelay )
   {
-    _RBX = DCONST_DVARFLT_player_sprintRechargePause;
+    v11 = DCONST_DVARFLT_player_sprintRechargePause;
     if ( !DCONST_DVARFLT_player_sprintRechargePause && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintRechargePause") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si r12d, xmm1
-    }
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = (int)(float)(v11->current.value * 1000.0);
   }
   else
   {
-    _ER12 = 0;
+    v12 = 0;
   }
-  v15 = DVARBOOL_killswitch_sprint_slide_exploit_fix;
+  v13 = DVARBOOL_killswitch_sprint_slide_exploit_fix;
   if ( !DVARBOOL_killswitch_sprint_slide_exploit_fix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_sprint_slide_exploit_fix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  v16 = !v15->current.enabled && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du);
-  if ( lastSprintEnd < lastSprintStart || v16 )
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = !v13->current.enabled && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du);
+  if ( lastSprintEnd < lastSprintStart || v14 )
   {
-    _EBX = 0;
+    v16 = 0;
   }
   else
   {
-    v17 = DCONST_DVARFLT_player_sprintRechargeScale;
+    v15 = DCONST_DVARFLT_player_sprintRechargeScale;
     if ( !DCONST_DVARFLT_player_sprintRechargeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintRechargeScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-      vcvttss2si ebx, xmm1
-    }
+    Dvar_CheckFrontendServerThread(v15);
+    v16 = (int)(float)((float)(gametime - ps->sprintState.lastSprintEnd) * v15->current.value);
   }
-  v20 = DCONST_DVARMPBOOL_superSprintEnable;
+  v17 = DCONST_DVARMPBOOL_superSprintEnable;
   if ( !DCONST_DVARMPBOOL_superSprintEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( v20->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled )
   {
     if ( lastSuperSprintEnd >= lastSuperSprintStart )
       gametime = ps->sprintState.lastSuperSprintEnd;
-    v21 = I_clamp(gametime - ps->sprintState.lastSuperSprintStart, 0, v11);
+    v18 = I_clamp(gametime - ps->sprintState.lastSuperSprintStart, 0, v9);
     if ( BG_GameInterface_HasPerk_SuperSprintEnhanced(ps) )
     {
-      *(double *)&_XMM0 = BG_GameInterface_SuperSprint_Enhanced_GetRechargeScale();
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebx
-        vmulss  xmm2, xmm0, xmm1
-        vcvttss2si ebx, xmm2
-      }
-      v26 = sprintStartMaxLength + _EBX - v21 - _ER12;
+      RechargeScale = BG_GameInterface_SuperSprint_Enhanced_GetRechargeScale();
+      v20 = sprintStartMaxLength + (int)(float)(*(float *)&RechargeScale * (float)v16) - v18 - v12;
     }
     else
     {
-      v27 = DVARFLT_superSprintRechargeScale;
+      v21 = DVARFLT_superSprintRechargeScale;
       if ( !DVARFLT_superSprintRechargeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintRechargeScale") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v27);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vmulss  xmm2, xmm0, dword ptr [rdi+28h]
-        vcvttss2si ebx, xmm2
-      }
-      v26 = sprintStartMaxLength + _EBX - v21 - _ER12;
+      Dvar_CheckFrontendServerThread(v21);
+      v20 = sprintStartMaxLength + (int)(float)((float)v16 * v21->current.value) - v18 - v12;
     }
   }
   else
   {
-    if ( lastSprintEnd >= v33 )
+    if ( lastSprintEnd >= v23 )
       gametime = ps->sprintState.lastSprintEnd;
-    v26 = sprintStartMaxLength + _EBX - _ER12 - I_clamp(gametime - ps->sprintState.lastSprintStart, 0, v11);
+    v20 = sprintStartMaxLength + v16 - v12 - I_clamp(gametime - ps->sprintState.lastSprintStart, 0, v9);
   }
-  if ( v26 > 0 )
-    v12 = v26;
-  if ( v12 < v11 )
-    return (unsigned int)v12;
-  return (unsigned int)v11;
+  if ( v20 > 0 )
+    v10 = v20;
+  if ( v10 < v9 )
+    return (unsigned int)v10;
+  return (unsigned int)v9;
 }
 
 /*
@@ -8773,6 +7023,7 @@ float PM_GetViewHeightLerp(const pmove_t *pm, int iFromHeight, int iToHeight)
 {
   playerState_s *ps; 
   const SuitDef *SuitDef; 
+  __int128 v9; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5773, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -8784,23 +7035,16 @@ float PM_GetViewHeightLerp(const pmove_t *pm, int iFromHeight, int iToHeight)
     __debugbreak();
   if ( ps->viewHeightLerpTime && (iFromHeight == -1 || iToHeight == -1 || iToHeight == ps->viewHeightLerpTarget && (iToHeight != SuitDef->viewheight_crouch || iFromHeight == BG_Suit_GetProneViewHeight(SuitDef) && !ps->viewHeightLerpDown || iFromHeight == SuitDef->viewheight_stand && ps->viewHeightLerpDown)) )
   {
-    PM_GetViewHeightLerpTime(ps, ps->viewHeightLerpTarget, ps->viewHeightLerpDown);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vdivss  xmm2, xmm1, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm2, xmm0
-    }
-    if ( pm->cmd.serverTime >= (unsigned int)ps->viewHeightLerpTime )
+    v9 = 0i64;
+    *(float *)&v9 = (float)(pm->cmd.serverTime - ps->viewHeightLerpTime) / (float)PM_GetViewHeightLerpTime(ps, ps->viewHeightLerpTarget, ps->viewHeightLerpDown);
+    _XMM2 = v9;
+    LODWORD(_XMM0) = 0;
+    if ( *(float *)&v9 >= 0.0 )
       __asm { vminss  xmm0, xmm2, cs:__real@3f800000 }
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(_XMM0) = 0;
   }
   return *(float *)&_XMM0;
 }
@@ -8813,58 +7057,45 @@ PM_GetViewHeightLerpTime
 int PM_GetViewHeightLerpTime(const playerState_s *ps, int iTarget, int bDown)
 {
   const SuitDef *SuitDef; 
+  const dvar_t *v7; 
   const dvar_t *v8; 
-  const dvar_t *v9; 
-  int v15; 
+  int v10; 
+  int v11; 
 
   SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5654, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
   if ( iTarget == BG_Suit_GetProneViewHeight(SuitDef) )
   {
-    v8 = DCONST_DVARBOOL_stretchDirectStandToProneTime;
+    v7 = DCONST_DVARBOOL_stretchDirectStandToProneTime;
     if ( !DCONST_DVARBOOL_stretchDirectStandToProneTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stretchDirectStandToProneTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( v8->current.enabled && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
+    Dvar_CheckFrontendServerThread(v7);
+    if ( v7->current.enabled && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
     {
-      v9 = DCONST_DVARINT_stanceStandToProneHoldTime;
+      v8 = DCONST_DVARINT_stanceStandToProneHoldTime;
       if ( !DCONST_DVARINT_stanceStandToProneHoldTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stanceStandToProneHoldTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v9);
-      if ( v9->current.integer - 200 > 0 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@bf2aaaab
-          vcvttss2si ecx, xmm1
-        }
-        return 400 - _ECX;
-      }
+      Dvar_CheckFrontendServerThread(v8);
+      if ( v8->current.integer - 200 > 0 )
+        return 400 - (int)(float)((float)(v8->current.integer - 200) * -0.66666669);
     }
     return 400;
   }
-  v15 = 200;
+  v10 = 200;
   if ( iTarget != SuitDef->viewheight_crouch )
-    return v15;
+    return v10;
   if ( bDown )
   {
     if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
       return Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_mantle_standToCrouchViewHeightLerpTimeMs, "mantle_standToCrouchViewHeightLerpTimeMs");
-    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_stretchDirectStandToProneTime, "stretchDirectStandToProneTime") && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) && Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_stanceStandToProneHoldTime, "stanceStandToProneHoldTime") - 200 > 0 )
+    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_stretchDirectStandToProneTime, "stretchDirectStandToProneTime") && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, cs:__real@beaaaaab
-        vcvttss2si ecx, xmm1
-      }
-      return 200 - _ECX;
+      v11 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_stanceStandToProneHoldTime, "stanceStandToProneHoldTime") - 200;
+      if ( v11 > 0 )
+        return 200 - (int)(float)((float)v11 * -0.33333334);
     }
-    return v15;
+    return v10;
   }
   return 400;
 }
@@ -9007,30 +7238,9 @@ PM_IsAffectedByBlackHole
 */
 _BOOL8 PM_IsAffectedByBlackHole(const pml_t *pml)
 {
-  bool v3; 
-  bool v4; 
-
-  _RBX = pml;
-  v3 = pml == NULL;
-  if ( !pml )
-  {
-    v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8692, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml");
-    v3 = !v4;
-    if ( v4 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+200h]
-  }
-  if ( !v3 )
-    return 1i64;
-  __asm { vucomiss xmm0, dword ptr [rbx+204h] }
-  if ( !v3 )
-    return 1i64;
-  __asm { vucomiss xmm0, dword ptr [rbx+208h] }
-  return !v3;
+  if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8692, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
+    __debugbreak();
+  return pml->impulseFieldVelocity.v[0] != 0.0 || pml->impulseFieldVelocity.v[1] != 0.0 || pml->impulseFieldVelocity.v[2] != 0.0;
 }
 
 /*
@@ -9117,120 +7327,84 @@ PM_KnockbackAnim
 */
 void PM_KnockbackAnim(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   unsigned int Animset; 
   unsigned int Anim; 
   bool IsKnockbackAnim; 
   const SuitDef *SuitDef; 
-  char v49; 
-  char v50; 
-  PlayerAnimStrafeStates v55; 
+  __int128 v9; 
+  float v10; 
+  const dvar_t *v11; 
+  float v12; 
+  __int128 v13; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v24; 
+  const dvar_t *v25; 
+  int v26; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5408, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5408, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5408, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x29u) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x29u) )
   {
     if ( PlayerASM_IsEnabled() )
     {
-      Animset = BG_PlayerASM_GetAnimset(_RDI);
-      Anim = BG_PlayerASM_GetAnim(_RDI, MOVEMENT);
+      Animset = BG_PlayerASM_GetAnimset(ps);
+      Anim = BG_PlayerASM_GetAnim(ps, MOVEMENT);
       IsKnockbackAnim = BG_PlayerASM_IsKnockbackAlias(Anim, Animset) != 0;
     }
     else
     {
-      SuitDef = BG_GetSuitDef(_RDI->suitIndex);
-      IsKnockbackAnim = BG_IsKnockbackAnim(_RDI->legsAnim, SuitDef->suitAnimType);
+      SuitDef = BG_GetSuitDef(ps->suitIndex);
+      IsKnockbackAnim = BG_IsKnockbackAnim(ps->legsAnim, SuitDef->suitAnimType);
     }
     if ( !IsKnockbackAnim )
     {
+      v9 = LODWORD(ps->velocity.v[1]);
+      v10 = ps->velocity.v[0];
+      v11 = DCONST_DVARFLT_player_strafeAnimCosAngle;
+      v12 = ps->velocity.v[2];
+      v13 = v9;
+      *(float *)&v13 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v10 * v10)) + (float)(v12 * v12));
+      _XMM3 = v13;
       __asm
       {
-        vmovss  xmm5, dword ptr [rdi+40h]
-        vmovss  xmm4, dword ptr [rdi+3Ch]
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm0, xmm3, xmm7, xmm0
       }
-      _RBX = DCONST_DVARFLT_player_strafeAnimCosAngle;
+      v17 = v10 * (float)(1.0 / *(float *)&_XMM0);
+      v18 = v9;
+      v19 = (float)((float)((float)(*(float *)&v9 * (float)(1.0 / *(float *)&_XMM0)) * pml->forward.v[1]) + (float)(v17 * pml->forward.v[0])) + (float)((float)(v12 * (float)(1.0 / *(float *)&_XMM0)) * pml->forward.v[2]);
+      v20 = (float)((float)((float)(*(float *)&v9 * (float)(1.0 / *(float *)&_XMM0)) * pml->right.v[1]) + (float)(v17 * pml->right.v[0])) + (float)((float)(v12 * (float)(1.0 / *(float *)&_XMM0)) * pml->right.v[2]);
+      *(float *)&v18 = fsqrt((float)(v20 * v20) + (float)(COERCE_FLOAT(LODWORD(v19) ^ _xmm) * COERCE_FLOAT(LODWORD(v19) ^ _xmm)));
+      _XMM3 = v18;
       __asm
       {
-        vmovaps [rsp+0A8h+var_38], xmm6
-        vmovaps [rsp+0A8h+var_48], xmm7
-        vmovaps [rsp+0A8h+var_58], xmm8
-        vmovaps [rsp+0A8h+var_68], xmm11
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  xmm6, dword ptr [rdi+44h]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm1, xmm7, xmm0
-        vmulss  xmm4, xmm4, xmm1
-        vmulss  xmm0, xmm4, dword ptr [rbp+0]
-        vmulss  xmm3, xmm5, xmm1
-        vmulss  xmm5, xmm6, xmm1
-        vmulss  xmm1, xmm3, dword ptr [rbp+4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rbp+8]
-        vmulss  xmm0, xmm4, dword ptr [rbp+0Ch]
-        vaddss  xmm11, xmm2, xmm1
-        vmulss  xmm1, xmm3, dword ptr [rbp+10h]
-        vxorps  xmm6, xmm11, cs:__xmm@80000000800000008000000080000000
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rbp+14h]
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm8, xmm2, xmm1
-        vmulss  xmm2, xmm8, xmm8
-        vaddss  xmm1, xmm2, xmm0
-        vsqrtss xmm3, xmm1, xmm1
-        vcmpless xmm0, xmm3, cs:__real@80000000
-        vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm0, xmm7, xmm0
-        vmovaps xmm7, [rsp+0A8h+var_48]
-        vmulss  xmm6, xmm0, xmm6
       }
+      v24 = (float)(1.0 / *(float *)&_XMM0) * COERCE_FLOAT(LODWORD(v19) ^ _xmm);
       if ( !DCONST_DVARFLT_player_strafeAnimCosAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_strafeAnimCosAngle") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( !(v49 | v50) )
+      Dvar_CheckFrontendServerThread(v11);
+      if ( v24 > v11->current.value )
         goto LABEL_21;
-      _RBX = DCONST_DVARFLT_player_strafeAnimCosAngle;
+      v25 = DCONST_DVARFLT_player_strafeAnimCosAngle;
       if ( !DCONST_DVARFLT_player_strafeAnimCosAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_strafeAnimCosAngle") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vcomiss xmm6, xmm1
-      }
-      if ( v49 )
-      {
+      Dvar_CheckFrontendServerThread(v25);
+      if ( v24 < COERCE_FLOAT(v25->current.integer ^ _xmm) )
 LABEL_21:
-        v55 = ANIM_STRAFE_NOT;
-      }
+        v26 = 0;
       else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm8, xmm0
-        }
-        v55 = ANIM_STRAFE_LEFT;
-      }
-      PM_SetStrafeCondition(pm, v55);
-      __asm { vcomiss xmm11, cs:__real@80000000 }
-      BG_AnimScriptAnimation(pm->m_bgHandler, _RDI, AISTATE_COMBAT, ANIM_MT_KNOCKBACK, 0, 0);
-      __asm
-      {
-        vmovaps xmm11, [rsp+0A8h+var_68]
-        vmovaps xmm8, [rsp+0A8h+var_58]
-        vmovaps xmm6, [rsp+0A8h+var_38]
-      }
+        v26 = (v20 > 0.0) + 1;
+      PM_SetStrafeCondition(pm, (const PlayerAnimStrafeStates)v26);
+      BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, (PlayerAnimScriptMoveType)((v19 < -0.0) + 35), 0, 0);
     }
   }
 }
@@ -9242,28 +7416,14 @@ PM_LastStand_IsMoving
 */
 bool PM_LastStand_IsMoving(pmove_t *pm)
 {
+  playerState_s *ps; 
+
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9157, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9157, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9157, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( pm->cmd.forwardmove )
-    return 1;
-  if ( pm->cmd.rightmove )
-    return 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+3Ch]
-    vmovss  xmm2, dword ptr [rdi+40h]
-    vmovss  xmm3, dword ptr [rdi+44h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@2b8cbccc
-  }
-  return pm->cmd.rightmove != 0;
+  return pm->cmd.forwardmove || pm->cmd.rightmove || (float)((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2])) > 1.0e-12;
 }
 
 /*
@@ -9321,47 +7481,28 @@ void PM_Linked_Update(pmove_t *pm, pml_t *pml, const bool lastSprinting, const S
 PM_LocalCheckProne
 ==============
 */
-__int64 PM_LocalCheckProne(pmove_t *pm, pml_t *pml, playerState_s *ps, int *penetrationEntity)
+_BOOL8 PM_LocalCheckProne(pmove_t *pm, pml_t *pml, playerState_s *ps, int *penetrationEntity)
 {
   Physics_WorldId worldId; 
   FeetDirection ProneFeetDirection; 
   BgGroundState *ground; 
   FeetDirection feetDirection; 
   const BgHandler *handler; 
-  unsigned __int8 v15; 
+  unsigned __int8 v12; 
+  float proneDirection; 
   int isOnGround; 
-  __int64 result; 
-  float v23; 
-  float v24; 
-  float v25; 
-  char v26; 
-  void *retaddr; 
+  double BoundsHeight; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RBP = ps;
   worldId = ((unsigned int (__fastcall *)(const BgHandler *, pml_t *))pm->m_bgHandler->GetPhysicsWorldId)(pm->m_bgHandler, pml);
-  ProneFeetDirection = PM_GetProneFeetDirection(_RBP);
+  ProneFeetDirection = PM_GetProneFeetDirection(ps);
   ground = pm->ground;
   feetDirection = ProneFeetDirection;
   handler = pm->m_bgHandler;
-  v15 = !ground->groundPlane || ground->trace.walkable;
-  __asm { vmovss  xmm6, dword ptr [rbp+26Ch] }
-  isOnGround = _RBP->groundEntityNum != 2047;
-  *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_RBP, PM_EFF_STANCE_PRONE);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42480000
-    vmovss  xmm3, cs:__real@41700000; fSize
-    vmovss  [rsp+0C8h+var_58], xmm1
-    vmovss  [rsp+0C8h+var_A0], xmm6
-    vmovss  [rsp+0C8h+var_A8], xmm0
-  }
-  LOBYTE(result) = BG_CheckProne(_RBP, _RBP->clientNum, &_RBP->origin, *(const float *)&_XMM3, v23, v24, &pm->fTorsoPitch, &pm->fWaistPitch, 1, isOnGround, v15, handler, worldId, PCT_CLIENT, v25, feetDirection, penetrationEntity, NULL);
-  _R11 = &v26;
-  result = (unsigned __int8)result;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  v12 = !ground->groundPlane || ground->trace.walkable;
+  proneDirection = ps->proneDirection;
+  isOnGround = ps->groundEntityNum != 2047;
+  BoundsHeight = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_PRONE);
+  return BG_CheckProne(ps, ps->clientNum, &ps->origin, 15.0, *(const float *)&BoundsHeight, proneDirection, &pm->fTorsoPitch, &pm->fWaistPitch, 1, isOnGround, v12, handler, worldId, PCT_CLIENT, 50.0, feetDirection, penetrationEntity, NULL);
 }
 
 /*
@@ -9371,98 +7512,69 @@ PM_MeleeCalcChargeDist
 */
 unsigned __int8 PM_MeleeCalcChargeDist(const pmove_t *pm, const pml_t *pml, int meleeChargeEnt)
 {
-  int v7; 
+  int v5; 
+  __int64 v6; 
+  float v7; 
   Bounds *bounds; 
-  int v11; 
+  int v9; 
+  float v10; 
+  double v11; 
   unsigned int serverTime; 
-  bool v32; 
-  __int64 v33; 
+  bool v13; 
+  __int64 v14; 
+  int v15; 
   BOOL fmt; 
-  char *fmta; 
   BgAntiLagEntityInfo *outInfo; 
   vec3_t outVictimPos; 
   vec3_t outAttackerPos; 
-  char v44[12]; 
+  char v21[12]; 
   vec2_t dir; 
-  BgAntiLagEntityInfo v46; 
+  BgAntiLagEntityInfo v23; 
 
-  v46.boneInfo.boneList.m_usedSize = 0;
-  v46.boneInfo.boneList.m_maxSize = 0;
+  v23.boneInfo.boneList.m_usedSize = 0;
+  v23.boneInfo.boneList.m_maxSize = 0;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10782, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10782, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+168h+var_28], xmm6
-    vmovaps [rsp+168h+var_38], xmm7
-  }
-  if ( meleeChargeEnt < 0 || (unsigned int)meleeChargeEnt > 0x7FE || !BgAntiLag::GetEntityInfoAtTime((BgAntiLag *)pm->antiLag, pm->ps->clientNum, meleeChargeEnt, 0, pm->cmd.serverTime, &v46) )
+  if ( meleeChargeEnt < 0 || (unsigned int)meleeChargeEnt > 0x7FE || !BgAntiLag::GetEntityInfoAtTime((BgAntiLag *)pm->antiLag, pm->ps->clientNum, meleeChargeEnt, 0, pm->cmd.serverTime, &v23) )
     goto LABEL_24;
-  LOBYTE(fmt) = (v46.flags & 4) != 0;
-  pm->GetEntityBounds((pmove_t *)pm, meleeChargeEnt, v46.suitIndex, PM_EFF_STANCE_DEFAULT, fmt, (Bounds *)v44);
-  v7 = Vec2MinorAxis(&dir);
-  _RBX = v7;
-  if ( (unsigned int)v7 >= 3 )
+  LOBYTE(fmt) = (v23.flags & 4) != 0;
+  pm->GetEntityBounds((pmove_t *)pm, meleeChargeEnt, v23.suitIndex, PM_EFF_STANCE_DEFAULT, fmt, (Bounds *)v21);
+  v5 = Vec2MinorAxis(&dir);
+  v6 = v5;
+  if ( (unsigned int)v5 >= 3 )
   {
-    LODWORD(outInfo) = v7;
+    LODWORD(outInfo) = v5;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outInfo, 3) )
       __debugbreak();
   }
-  __asm { vmovss  xmm6, dword ptr [rsp+rbx*4+168h+dir] }
+  v7 = dir.v[v6];
   bounds = pm->bounds;
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10798, ASSERT_TYPE_ASSERT, "( playerBounds ) != ( nullptr )", "%s != %s\n\t%p, %p", "playerBounds", "nullptr", NULL, NULL) )
     __debugbreak();
-  v11 = Vec2MinorAxis((const vec2_t *)&bounds->halfSize);
-  _RAX = vec3_t::operator[](&bounds->halfSize, v11);
-  __asm { vmovss  xmm7, dword ptr [rax] }
+  v9 = Vec2MinorAxis((const vec2_t *)&bounds->halfSize);
+  v10 = *vec3_t::operator[](&bounds->halfSize, v9);
   if ( PM_MeleeGetEntityOriginVelocity(pm, meleeChargeEnt, &outAttackerPos, &outVictimPos, NULL) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+168h+outVictimPos]
-      vsubss  xmm3, xmm0, dword ptr [rsp+168h+outAttackerPos]
-      vmovss  xmm1, dword ptr [rsp+168h+outVictimPos+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+168h+outAttackerPos+4]
-      vmovss  xmm0, dword ptr [rsp+168h+outVictimPos+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+168h+outAttackerPos+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vmovss  xmm2, cs:__real@437f0000; max
-      vsubss  xmm3, xmm1, xmm6
-      vsubss  xmm0, xmm3, xmm7; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    v11 = I_fclamp((float)(fsqrt((float)((float)((float)(outVictimPos.v[1] - outAttackerPos.v[1]) * (float)(outVictimPos.v[1] - outAttackerPos.v[1])) + (float)((float)(outVictimPos.v[0] - outAttackerPos.v[0]) * (float)(outVictimPos.v[0] - outAttackerPos.v[0]))) + (float)((float)(outVictimPos.v[2] - outAttackerPos.v[2]) * (float)(outVictimPos.v[2] - outAttackerPos.v[2]))) - v7) - v10, 0.0, 255.0);
     if ( !pm->isExtrapolation && !pm->initialCall && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_melee_debug, "melee_debug") )
     {
       serverTime = pm->cmd.serverTime;
-      v32 = pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler);
-      v33 = 67i64;
-      __asm { vcvtss2sd xmm0, xmm6, xmm6 }
-      if ( v32 )
-        v33 = 83i64;
-      __asm { vmovsd  [rsp+168h+fmt], xmm0 }
-      Com_Printf(0, "CHARGEDIST [%c %i] dist %.2f\n", v33, serverTime, fmta);
+      v13 = pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler);
+      v14 = 67i64;
+      if ( v13 )
+        v14 = 83i64;
+      Com_Printf(0, "CHARGEDIST [%c %i] dist %.2f\n", v14, serverTime, *(float *)&v11);
     }
-    __asm { vcvttss2si eax, xmm6 }
+    return (int)*(float *)&v11;
   }
   else
   {
 LABEL_24:
-    LOBYTE(_EAX) = 0;
+    LOBYTE(v15) = 0;
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+168h+var_38]
-    vmovaps xmm6, [rsp+168h+var_28]
-  }
-  return _EAX;
+  return v15;
 }
 
 /*
@@ -9485,27 +7597,33 @@ PM_MeleeChargeFriction
 */
 void PM_MeleeChargeFriction(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   __int16 groundRefEnt; 
   __int16 meleeChargeEnt; 
-  bool v8; 
-  int EntityOriginVelocity; 
+  const dvar_t *v7; 
+  float value; 
+  float frametime; 
+  float v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  const dvar_t *v14; 
   vec3_t outAttackerPos; 
   vec3_t outVictimPos; 
 
-  _RBP = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2302, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX )
+  ps = pm->ps;
+  if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2302, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x2Au) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
   {
-    groundRefEnt = _RBX->groundRefEnt;
+    groundRefEnt = ps->groundRefEnt;
     if ( groundRefEnt == 2047 || !groundRefEnt )
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
@@ -9514,80 +7632,42 @@ void PM_MeleeChargeFriction(pmove_t *pm, pml_t *pml)
         __debugbreak();
     }
   }
-  meleeChargeEnt = _RBX->meleeChargeEnt;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  v8 = 0;
-  if ( meleeChargeEnt < 0 )
-    goto LABEL_25;
-  v8 = (unsigned __int16)meleeChargeEnt < 0x7FEu;
-  if ( (unsigned __int16)meleeChargeEnt > 0x7FEu )
-    goto LABEL_25;
-  _RDI = DCONST_DVARFLT_player_meleeIdealEndDistance;
-  if ( !DCONST_DVARFLT_player_meleeIdealEndDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeIdealEndDistance") )
+  meleeChargeEnt = ps->meleeChargeEnt;
+  if ( meleeChargeEnt >= 0 && (unsigned __int16)meleeChargeEnt <= 0x7FEu )
+  {
+    v7 = DCONST_DVARFLT_player_meleeIdealEndDistance;
+    if ( !DCONST_DVARFLT_player_meleeIdealEndDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeIdealEndDistance") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v7);
+    value = v7->current.value;
+    if ( PM_MeleeGetEntityOriginVelocity(pm, ps->meleeChargeEnt, &outAttackerPos, &outVictimPos, NULL) )
+    {
+      frametime = pml->frametime;
+      v10 = outVictimPos.v[0] - (float)((float)(frametime * ps->velocity.v[0]) + outAttackerPos.v[0]);
+      v11 = outVictimPos.v[1] - (float)((float)(frametime * ps->velocity.v[1]) + outAttackerPos.v[1]);
+      if ( (float)((float)(v11 * v11) + (float)(v10 * v10)) > (float)(value * value) )
+        return;
+      goto LABEL_24;
+    }
+  }
+  v13 = LODWORD(ps->velocity.v[0]);
+  *(float *)&v13 = fsqrt((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1]));
+  v12 = *(float *)&v13;
+  if ( *(float *)&v13 < 1.0 )
+  {
+LABEL_24:
+    *(_QWORD *)ps->velocity.v = 0i64;
+    return;
+  }
+  v14 = DCONST_DVARFLT_player_meleeChargeFriction;
+  if ( !DCONST_DVARFLT_player_meleeChargeFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeChargeFriction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  EntityOriginVelocity = PM_MeleeGetEntityOriginVelocity(pm, _RBX->meleeChargeEnt, &outAttackerPos, &outVictimPos, NULL);
-  v8 = 0;
-  if ( EntityOriginVelocity )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbp+24h]
-      vmulss  xmm0, xmm3, dword ptr [rbx+3Ch]
-      vaddss  xmm2, xmm0, dword ptr [rsp+0A8h+outAttackerPos]
-      vmulss  xmm0, xmm3, dword ptr [rbx+40h]
-      vmovss  xmm1, dword ptr [rsp+0A8h+outVictimPos]
-      vsubss  xmm4, xmm1, xmm2
-      vaddss  xmm2, xmm0, dword ptr [rsp+0A8h+outAttackerPos+4]
-      vmovss  xmm1, dword ptr [rsp+0A8h+outVictimPos+4]
-      vsubss  xmm2, xmm1, xmm2
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vcomiss xmm4, xmm1
-    }
-  }
-  else
-  {
-LABEL_25:
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+40h]
-      vmovss  xmm0, dword ptr [rbx+3Ch]
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm6, xmm2, xmm2
-      vcomiss xmm6, cs:__real@3f800000
-    }
-    if ( v8 )
-    {
-      *(_QWORD *)_RBX->velocity.v = 0i64;
-    }
-    else
-    {
-      _RDI = DCONST_DVARFLT_player_meleeChargeFriction;
-      if ( !DCONST_DVARFLT_player_meleeChargeFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeChargeFriction") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmulss  xmm1, xmm0, dword ptr [rbp+24h]
-        vsubss  xmm3, xmm6, xmm1
-        vxorps  xmm2, xmm2, xmm2
-        vmaxss  xmm0, xmm3, xmm2
-        vdivss  xmm4, xmm0, xmm6
-        vmulss  xmm1, xmm4, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbx+3Ch], xmm1
-        vmulss  xmm0, xmm4, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbx+40h], xmm0
-      }
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+  Dvar_CheckFrontendServerThread(v14);
+  *(float *)&v13 = *(float *)&v13 - (float)(v14->current.value * pml->frametime);
+  _XMM3 = v13;
+  __asm { vmaxss  xmm0, xmm3, xmm2 }
+  ps->velocity.v[0] = (float)(*(float *)&_XMM0 / v12) * ps->velocity.v[0];
+  ps->velocity.v[1] = (float)(*(float *)&_XMM0 / v12) * ps->velocity.v[1];
 }
 
 /*
@@ -9631,257 +7711,153 @@ PM_MeleeChargeUpdateVelocity
 */
 void PM_MeleeChargeUpdateVelocity(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   __int16 meleeChargeEnt; 
   int weaponDelay; 
+  float v6; 
   __int16 groundRefEnt; 
-  char v41; 
-  char v42; 
-  bool v44; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  const dvar_t *v16; 
+  __int128 v17; 
+  float value; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
+  float v22; 
+  bool v23; 
+  float v24; 
+  float v25; 
+  float v28; 
+  float v29; 
+  float v30; 
   unsigned int serverTime; 
-  BgHandler_vtbl *v84; 
-  char v95; 
-  __int64 v98; 
-  char *fmt; 
-  __int64 v119; 
-  __int64 v120; 
-  __int64 v121; 
-  __int64 v122; 
-  __int64 v123; 
-  __int64 v124; 
-  __int64 v125; 
-  __int64 v126; 
-  __int64 v127; 
-  __int64 v128; 
-  __int64 v129; 
-  __int64 v130; 
-  __int64 v131; 
-  __int64 v132; 
+  float v32; 
+  double v33; 
+  float v34; 
+  float v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  char v42; 
+  __int64 v43; 
+  double v44; 
+  double v45; 
   vec3_t outVictimPos; 
   vec3_t outAttackerPos; 
   vec3_t outVictimVel; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10876, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10876, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10876, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !PM_MeleeIsValidCharge(pm) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10878, ASSERT_TYPE_ASSERT, "(PM_MeleeIsValidCharge( pm ))", (const char *)&queryFormat, "PM_MeleeIsValidCharge( pm )") )
     __debugbreak();
-  meleeChargeEnt = _RBX->meleeChargeEnt;
+  meleeChargeEnt = ps->meleeChargeEnt;
   if ( (meleeChargeEnt < 0 || (unsigned __int16)meleeChargeEnt > 0x7FEu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10879, ASSERT_TYPE_ASSERT, "(PM_MeleeValidChargeTarget( ps->meleeChargeEnt ))", (const char *)&queryFormat, "PM_MeleeValidChargeTarget( ps->meleeChargeEnt )") )
     __debugbreak();
-  if ( (PM_GetEffectiveStance(_RBX) & 0xFFFFFFFD) == 0 && PM_MeleeGetEntityOriginVelocity(pm, _RBX->meleeChargeEnt, &outAttackerPos, &outVictimPos, &outVictimVel) )
+  if ( (PM_GetEffectiveStance(ps) & 0xFFFFFFFD) == 0 )
   {
-    weaponDelay = _RBX->weapState[0].weaponDelay;
-    __asm
+    if ( PM_MeleeGetEntityOriginVelocity(pm, ps->meleeChargeEnt, &outAttackerPos, &outVictimPos, &outVictimVel) )
     {
-      vmovaps [rsp+1C8h+var_68], xmm9
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebp
-      vmulss  xmm9, xmm0, cs:__real@3a83126f
-      vmovaps [rsp+1C8h+var_88], xmm11
-      vxorps  xmm11, xmm11, xmm11
-      vcomiss xmm9, xmm11
-      vmovaps [rsp+1C8h+var_38], xmm6
-      vmovaps [rsp+1C8h+var_48], xmm7
-      vmovaps [rsp+1C8h+var_58], xmm8
-      vmovaps [rsp+1C8h+var_78], xmm10
-      vmovaps [rsp+1C8h+var_98], xmm12
-      vmovaps [rsp+1C8h+var_A8], xmm13
-    }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x2Au) )
-    {
-      groundRefEnt = _RBX->groundRefEnt;
-      if ( groundRefEnt == 2047 || !groundRefEnt )
+      weaponDelay = ps->weapState[0].weaponDelay;
+      v6 = (float)weaponDelay * 0.001;
+      if ( v6 > 0.0 )
       {
-        if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
-          __debugbreak();
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10902, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerZeroG( ps ))", "%s\n\tZero-G melee not supported.", "!BG_IsPlayerZeroG( ps )") )
-          __debugbreak();
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1C8h+outAttackerPos]
-      vsubss  xmm3, xmm0, dword ptr [rsp+1C8h+outVictimPos]
-      vmovss  xmm1, dword ptr [rsp+1C8h+outAttackerPos+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+1C8h+outVictimPos+4]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm6, xmm1, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vcmpless xmm0, xmm6, cs:__real@80000000
-      vblendvps xmm0, xmm6, xmm1, xmm0
-      vdivss  xmm1, xmm1, xmm0
-    }
-    *(_QWORD *)_RBX->velocity.v = 0i64;
-    _RSI = DCONST_DVARFLT_player_meleeIdealEndDistance;
-    __asm
-    {
-      vmulss  xmm12, xmm3, xmm1
-      vmulss  xmm13, xmm2, xmm1
-    }
-    if ( !DCONST_DVARFLT_player_meleeIdealEndDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeIdealEndDistance") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_player_meleeChargeMaxSpeed;
-    if ( !DCONST_DVARFLT_player_meleeChargeMaxSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeChargeMaxSpeed") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm10, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_player_meleeChargeMaxSpeedUp;
-    if ( !DCONST_DVARFLT_player_meleeChargeMaxSpeedUp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeChargeMaxSpeedUp") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rsi+28h]
-      vcomiss xmm6, xmm7
-    }
-    v44 = !(v41 | v42);
-    if ( !(v41 | v42) )
-    {
-      __asm
-      {
-        vmulss  xmm2, xmm9, dword ptr [rsp+1C8h+outVictimVel]
-        vmulss  xmm0, xmm12, xmm7
-        vaddss  xmm1, xmm0, dword ptr [rsp+1C8h+outVictimPos]
-        vsubss  xmm3, xmm1, dword ptr [rsp+1C8h+outAttackerPos]
-        vaddss  xmm0, xmm3, xmm2
-        vmulss  xmm2, xmm9, dword ptr [rsp+1C8h+outVictimVel+4]
-        vdivss  xmm6, xmm0, xmm9
-        vmulss  xmm1, xmm13, xmm7
-        vaddss  xmm0, xmm1, dword ptr [rsp+1C8h+outVictimPos+4]
-        vsubss  xmm3, xmm0, dword ptr [rsp+1C8h+outAttackerPos+4]
-        vmovss  xmm0, dword ptr [rsp+1C8h+outVictimPos+8]
-        vaddss  xmm1, xmm3, xmm2
-        vsubss  xmm2, xmm0, dword ptr [rsp+1C8h+outAttackerPos+8]
-        vdivss  xmm7, xmm1, xmm9
-        vmulss  xmm1, xmm11, xmm9
-        vaddss  xmm2, xmm2, xmm1
-        vdivss  xmm4, xmm2, xmm9
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm3, xmm7, xmm7
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm9, xmm2, xmm1
-        vsqrtss xmm0, xmm9, xmm9
-        vcomiss xmm0, xmm10
-      }
-      if ( !(v41 | v42) )
-      {
+        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
+        {
+          groundRefEnt = ps->groundRefEnt;
+          if ( groundRefEnt == 2047 || !groundRefEnt )
+          {
+            if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
+              __debugbreak();
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10902, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerZeroG( ps ))", "%s\n\tZero-G melee not supported.", "!BG_IsPlayerZeroG( ps )") )
+              __debugbreak();
+          }
+        }
+        v9 = LODWORD(outAttackerPos.v[0]);
+        *(float *)&v9 = outAttackerPos.v[0] - outVictimPos.v[0];
+        v8 = v9;
+        v11 = LODWORD(outAttackerPos.v[1]);
+        *(float *)&v11 = outAttackerPos.v[1] - outVictimPos.v[1];
+        v10 = v11;
+        v12 = v8;
+        *(float *)&v12 = fsqrt((float)(*(float *)&v8 * *(float *)&v8) + (float)(*(float *)&v10 * *(float *)&v10));
+        _XMM6 = v12;
         __asm
         {
-          vcomiss xmm9, xmm11
-          vmovaps xmm1, xmm9
-          vrsqrtss xmm2, xmm1, xmm1
-          vmulss  xmm0, xmm2, xmm6
-          vmulss  xmm1, xmm2, xmm7
-          vmulss  xmm6, xmm0, xmm10
-          vmulss  xmm7, xmm1, xmm10
+          vcmpless xmm0, xmm6, cs:__real@80000000
+          vblendvps xmm0, xmm6, xmm1, xmm0
+        }
+        *(_QWORD *)ps->velocity.v = 0i64;
+        v16 = DCONST_DVARFLT_player_meleeIdealEndDistance;
+        v17 = v10;
+        if ( !DCONST_DVARFLT_player_meleeIdealEndDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeIdealEndDistance") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v16);
+        value = v16->current.value;
+        v19 = DCONST_DVARFLT_player_meleeChargeMaxSpeed;
+        if ( !DCONST_DVARFLT_player_meleeChargeMaxSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeChargeMaxSpeed") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v19);
+        v20 = v19->current.value;
+        v21 = DCONST_DVARFLT_player_meleeChargeMaxSpeedUp;
+        if ( !DCONST_DVARFLT_player_meleeChargeMaxSpeedUp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_meleeChargeMaxSpeedUp") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v21);
+        v22 = v21->current.value;
+        v23 = *(float *)&_XMM6 > value;
+        if ( *(float *)&_XMM6 > value )
+        {
+          v24 = (float)((float)((float)((float)((float)(*(float *)&v8 * (float)(1.0 / *(float *)&_XMM0)) * value) + outVictimPos.v[0]) - outAttackerPos.v[0]) + (float)(v6 * outVictimVel.v[0])) / v6;
+          v25 = (float)((float)((float)((float)((float)(*(float *)&v10 * (float)(1.0 / *(float *)&_XMM0)) * value) + outVictimPos.v[1]) - outAttackerPos.v[1]) + (float)(v6 * outVictimVel.v[1])) / v6;
+          *(float *)&v17 = (float)((float)(v25 * v25) + (float)(v24 * v24)) + (float)((float)((float)((float)(outVictimPos.v[2] - outAttackerPos.v[2]) + (float)(0.0 * v6)) / v6) * (float)((float)((float)(outVictimPos.v[2] - outAttackerPos.v[2]) + (float)(0.0 * v6)) / v6));
+          if ( fsqrt(*(float *)&v17) > v20 )
+          {
+            if ( *(float *)&v17 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+              __debugbreak();
+            _XMM1 = v17;
+            __asm { vrsqrtss xmm2, xmm1, xmm1 }
+            v24 = (float)(*(float *)&_XMM2 * v24) * v20;
+            v25 = (float)(*(float *)&_XMM2 * v25) * v20;
+          }
+          ps->velocity.v[0] = v24;
+          ps->velocity.v[1] = v25;
+        }
+        if ( !PM_IsInAir(pm) && v22 < ps->velocity.v[2] )
+          ps->velocity.v[2] = v22;
+        if ( !pm->isExtrapolation && !pm->initialCall && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_melee_debug, "melee_debug") )
+        {
+          v28 = ps->velocity.v[2];
+          v29 = ps->velocity.v[1];
+          v30 = ps->velocity.v[0];
+          serverTime = pm->cmd.serverTime;
+          v32 = outVictimPos.v[2] - outAttackerPos.v[2];
+          v33 = outVictimPos.v[2];
+          v44 = outAttackerPos.v[1];
+          v45 = outAttackerPos.v[0];
+          v34 = outVictimPos.v[0] - outAttackerPos.v[0];
+          v35 = outVictimPos.v[1] - outAttackerPos.v[1];
+          v36 = v28;
+          v37 = v29;
+          v38 = v30;
+          v39 = outVictimPos.v[1];
+          v40 = outVictimPos.v[0];
+          v41 = outAttackerPos.v[2];
+          v42 = ((__int64 (*)(void))pm->m_bgHandler->IsServer)();
+          v43 = 67i64;
+          if ( v42 )
+            v43 = 83i64;
+          Com_Printf(0, "MELEE [%c %i] attOrg %.2f %.2f %.2f | vicOrg %.2f %.2f %.2f | tarVel %.2f %.2f %.2f | attToVic %.2f, %.2f, %.2f | %c attVel %.2f %.2f %.2f | remain %i\n", v43, serverTime, v45, v44, v41, v40, v39, v33, outVictimVel.v[0], outVictimVel.v[1], 0.0, v34, v35, v32, v23 + 48, v38, v37, v36, weaponDelay);
         }
       }
-      __asm
-      {
-        vmovss  dword ptr [rbx+3Ch], xmm6
-        vmovss  dword ptr [rbx+40h], xmm7
-      }
-    }
-    if ( !PM_IsInAir(pm) )
-      __asm { vcomiss xmm8, dword ptr [rbx+44h] }
-    if ( !pm->isExtrapolation && !pm->initialCall && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_melee_debug, "melee_debug") )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C8h+outVictimPos+8]
-        vmovss  xmm1, dword ptr [rsp+1C8h+outAttackerPos+8]
-        vmovss  xmm3, dword ptr [rsp+1C8h+outAttackerPos+4]
-        vmovss  xmm5, dword ptr [rsp+1C8h+outAttackerPos]
-        vmovss  xmm4, dword ptr [rsp+1C8h+outVictimPos]
-        vmovss  xmm2, dword ptr [rsp+1C8h+outVictimPos+4]
-        vmovss  xmm8, dword ptr [rbx+44h]
-        vmovss  xmm9, dword ptr [rbx+40h]
-        vmovss  xmm10, dword ptr [rbx+3Ch]
-      }
-      serverTime = pm->cmd.serverTime;
-      __asm
-      {
-        vsubss  xmm6, xmm0, xmm1
-        vcvtss2sd xmm12, xmm0, xmm0
-      }
-      v84 = pm->m_bgHandler->__vftable;
-      __asm
-      {
-        vcvtss2sd xmm0, xmm3, xmm3
-        vmovsd  [rsp+1C8h+var_118], xmm0
-        vmovaps [rsp+1C8h+var_B8], xmm14
-        vcvtss2sd xmm0, xmm5, xmm5
-        vmovaps [rsp+1C8h+var_C8], xmm15
-        vmovsd  [rsp+1C8h+var_110], xmm0
-        vsubss  xmm11, xmm4, xmm5
-        vsubss  xmm7, xmm2, xmm3
-        vcvtss2sd xmm8, xmm8, xmm8
-        vcvtss2sd xmm9, xmm9, xmm9
-        vcvtss2sd xmm10, xmm10, xmm10
-        vcvtss2sd xmm13, xmm2, xmm2
-        vcvtss2sd xmm14, xmm4, xmm4
-        vcvtss2sd xmm15, xmm1, xmm1
-      }
-      v95 = ((__int64 (*)(void))v84->IsServer)();
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+1C8h+outVictimVel+4]
-        vmovss  xmm5, dword ptr [rsp+1C8h+outVictimVel]
-        vmovsd  [rsp+1C8h+var_130], xmm8
-        vmovsd  [rsp+1C8h+var_138], xmm9
-        vmovsd  [rsp+1C8h+var_140], xmm10
-      }
-      v98 = 67i64;
-      __asm { vcvtss2sd xmm0, xmm6, xmm6 }
-      if ( v95 )
-        v98 = 83i64;
-      __asm
-      {
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+1C8h+var_150], xmm0
-        vmovsd  xmm0, [rsp+1C8h+var_118]
-        vmovsd  [rsp+1C8h+var_158], xmm1
-        vmovsd  xmm1, [rsp+1C8h+var_110]
-        vxorps  xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm11, xmm11
-        vmovsd  [rsp+1C8h+var_160], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+1C8h+var_168], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+1C8h+var_170], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+1C8h+var_178], xmm5
-        vmovsd  [rsp+1C8h+var_180], xmm12
-        vmovsd  [rsp+1C8h+var_188], xmm13
-        vmovsd  [rsp+1C8h+var_190], xmm14
-        vmovsd  [rsp+1C8h+var_198], xmm15
-        vmovsd  [rsp+1C8h+var_1A0], xmm0
-        vmovsd  [rsp+1C8h+fmt], xmm1
-      }
-      Com_Printf(0, "MELEE [%c %i] attOrg %.2f %.2f %.2f | vicOrg %.2f %.2f %.2f | tarVel %.2f %.2f %.2f | attToVic %.2f, %.2f, %.2f | %c attVel %.2f %.2f %.2f | remain %i\n", v98, serverTime, fmt, v119, v120, v121, v122, v123, v124, v125, v126, v127, v128, v129, v44 + 48, v130, v131, v132, weaponDelay);
-      __asm
-      {
-        vmovaps xmm15, [rsp+1C8h+var_C8]
-        vmovaps xmm14, [rsp+1C8h+var_B8]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm12, [rsp+1C8h+var_98]
-      vmovaps xmm10, [rsp+1C8h+var_78]
-      vmovaps xmm8, [rsp+1C8h+var_58]
-      vmovaps xmm7, [rsp+1C8h+var_48]
-      vmovaps xmm6, [rsp+1C8h+var_38]
-      vmovaps xmm13, [rsp+1C8h+var_A8]
-      vmovaps xmm9, [rsp+1C8h+var_68]
-      vmovaps xmm11, [rsp+1C8h+var_88]
     }
   }
 }
@@ -9893,156 +7869,118 @@ PM_MeleeGetEntityOriginVelocity
 */
 __int64 PM_MeleeGetEntityOriginVelocity(const pmove_t *pm, int meleeChargeEnt, vec3_t *outAttackerPos, vec3_t *outVictimPos, vec3_t *outVictimVel)
 {
+  playerState_s *ps; 
   __int16 groundRefEnt; 
   int serverTime; 
-  const dvar_t *v19; 
-  const dvar_t *v26; 
-  __int64 v28; 
-  __int64 v30; 
-  __int64 v31; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  __int64 v15; 
+  __int64 v16; 
   vec3_t outOrigin; 
-  __int64 v34; 
+  __int64 v19; 
   vec3_t origin; 
   vec3_t angles; 
-  BgAntiLagEntityInfo v37; 
+  BgAntiLagEntityInfo v22; 
   BgAntiLagEntityInfo outInfo; 
   tmat43_t<vec3_t> result; 
   tmat43_t<vec3_t> out; 
   tmat43_t<vec3_t> in1; 
   tmat43_t<vec3_t> in2; 
 
-  v34 = -2i64;
-  __asm { vmovaps [rsp+2D0h+var_50], xmm6 }
-  _R12 = outAttackerPos;
-  _RDI = outVictimVel;
+  v19 = -2i64;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2199, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2199, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2199, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( meleeChargeEnt < 0 || (unsigned int)meleeChargeEnt > 0x7FE )
-    goto LABEL_52;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-    __debugbreak();
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x2Au) )
+  if ( meleeChargeEnt >= 0 && (unsigned int)meleeChargeEnt <= 0x7FE )
   {
-    groundRefEnt = _RBX->groundRefEnt;
-    if ( groundRefEnt == 2047 || !groundRefEnt )
-    {
-      if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
-        __debugbreak();
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2206, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerZeroG( ps ))", "%s\n\tZero-G melee not supported.", "!BG_IsPlayerZeroG( ps )") )
-        __debugbreak();
-    }
-  }
-  if ( !pm->antiLag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2207, ASSERT_TYPE_ASSERT, "( pm->antiLag ) != ( nullptr )", "%s != %s\n\t%p, %p", "pm->antiLag", "nullptr", NULL, NULL) )
-    __debugbreak();
-  _R12->v[0] = _RBX->origin.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vmovss  dword ptr [r12+4], xmm0
-    vmovss  xmm1, dword ptr [rbx+38h]
-    vmovss  dword ptr [r12+8], xmm1
-  }
-  serverTime = pm->cmd.serverTime;
-  outInfo.boneInfo.boneList.m_usedSize = 0;
-  outInfo.boneInfo.boneList.m_maxSize = 0;
-  if ( !BgAntiLag::GetEntityInfoAtTime((BgAntiLag *)pm->antiLag, _RBX->clientNum, meleeChargeEnt, 9u, serverTime, &outInfo) )
-    goto LABEL_52;
-  if ( meleeChargeEnt != outInfo.entityIndex )
-  {
-    LODWORD(v31) = outInfo.entityIndex;
-    LODWORD(v30) = meleeChargeEnt;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2220, ASSERT_TYPE_ASSERT, "( meleeChargeEnt ) == ( victimInfo.entityIndex )", "%s == %s\n\t%i, %i", "meleeChargeEnt", "victimInfo.entityIndex", v30, v31) )
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-  }
-  BgAntiLagEntity_GetOrigin(&outInfo, outVictimPos);
-  if ( outVictimVel )
-  {
-    __asm
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
     {
-      vmovss  xmm0, dword ptr [rbp+1D0h+var_1B0.velocity]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [rbp+1D0h+var_1B0.velocity+4]
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+1D0h+var_1B0.velocity+8]
-      vmovss  dword ptr [rdi+8], xmm0
+      groundRefEnt = ps->groundRefEnt;
+      if ( groundRefEnt == 2047 || !groundRefEnt )
+      {
+        if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
+          __debugbreak();
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2206, ASSERT_TYPE_ASSERT, "(!BG_IsPlayerZeroG( ps ))", "%s\n\tZero-G melee not supported.", "!BG_IsPlayerZeroG( ps )") )
+          __debugbreak();
+      }
     }
-  }
-  if ( !BGMovingPlatformPS::IsOnMovingPlatform(&_RBX->movingPlatforms) )
-    goto LABEL_51;
-  v19 = DVARBOOL_killswitch_mover_melee_fix_enabled;
-  if ( !DVARBOOL_killswitch_mover_melee_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_mover_melee_fix_enabled") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( !v19->current.enabled || !Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_OUT|0x80) )
-    goto LABEL_51;
-  v37.boneInfo.boneList.m_usedSize = 0;
-  v37.boneInfo.boneList.m_maxSize = 0;
-  if ( !pm->antiLag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2234, ASSERT_TYPE_ASSERT, "( pm->antiLag ) != ( nullptr )", "%s != %s\n\t%p, %p", "pm->antiLag", "nullptr", NULL, NULL) )
-    __debugbreak();
-  if ( !BgAntiLag::GetEntityInfoAtTime((BgAntiLag *)pm->antiLag, _RBX->clientNum, _RBX->movingPlatforms.m_movingPlatformEntity, 0xBu, serverTime, &v37) )
-  {
-LABEL_52:
-    v28 = 0i64;
-    goto LABEL_53;
-  }
-  if ( outVictimVel )
-  {
-    if ( _RBX->movingPlatforms.m_movingPlatformEntity != v37.entityIndex )
+    if ( !pm->antiLag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2207, ASSERT_TYPE_ASSERT, "( pm->antiLag ) != ( nullptr )", "%s != %s\n\t%p, %p", "pm->antiLag", "nullptr", NULL, NULL) )
+      __debugbreak();
+    outAttackerPos->v[0] = ps->origin.v[0];
+    outAttackerPos->v[1] = ps->origin.v[1];
+    outAttackerPos->v[2] = ps->origin.v[2];
+    serverTime = pm->cmd.serverTime;
+    outInfo.boneInfo.boneList.m_usedSize = 0;
+    outInfo.boneInfo.boneList.m_maxSize = 0;
+    if ( BgAntiLag::GetEntityInfoAtTime((BgAntiLag *)pm->antiLag, ps->clientNum, meleeChargeEnt, 9u, serverTime, &outInfo) )
     {
-      LODWORD(v31) = v37.entityIndex;
-      LODWORD(v30) = _RBX->movingPlatforms.m_movingPlatformEntity;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2250, ASSERT_TYPE_ASSERT, "( ps->movingPlatforms.GetMoverEntityID() ) == ( moverInfo.entityIndex )", "%s == %s\n\t%i, %i", "ps->movingPlatforms.GetMoverEntityID()", "moverInfo.entityIndex", v30, v31) )
+      if ( meleeChargeEnt != outInfo.entityIndex )
+      {
+        LODWORD(v16) = outInfo.entityIndex;
+        LODWORD(v15) = meleeChargeEnt;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2220, ASSERT_TYPE_ASSERT, "( meleeChargeEnt ) == ( victimInfo.entityIndex )", "%s == %s\n\t%i, %i", "meleeChargeEnt", "victimInfo.entityIndex", v15, v16) )
+          __debugbreak();
+      }
+      BgAntiLagEntity_GetOrigin(&outInfo, outVictimPos);
+      if ( outVictimVel )
+        *outVictimVel = outInfo.velocity;
+      if ( !BGMovingPlatformPS::IsOnMovingPlatform(&ps->movingPlatforms) )
+        return 1i64;
+      v12 = DVARBOOL_killswitch_mover_melee_fix_enabled;
+      if ( !DVARBOOL_killswitch_mover_melee_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_mover_melee_fix_enabled") )
         __debugbreak();
+      Dvar_CheckFrontendServerThread(v12);
+      if ( !v12->current.enabled || !Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_OUT|0x80) )
+        return 1i64;
+      v22.boneInfo.boneList.m_usedSize = 0;
+      v22.boneInfo.boneList.m_maxSize = 0;
+      if ( !pm->antiLag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2234, ASSERT_TYPE_ASSERT, "( pm->antiLag ) != ( nullptr )", "%s != %s\n\t%p, %p", "pm->antiLag", "nullptr", NULL, NULL) )
+        __debugbreak();
+      if ( BgAntiLag::GetEntityInfoAtTime((BgAntiLag *)pm->antiLag, ps->clientNum, ps->movingPlatforms.m_movingPlatformEntity, 0xBu, serverTime, &v22) )
+      {
+        if ( outVictimVel )
+        {
+          if ( ps->movingPlatforms.m_movingPlatformEntity != v22.entityIndex )
+          {
+            LODWORD(v16) = v22.entityIndex;
+            LODWORD(v15) = ps->movingPlatforms.m_movingPlatformEntity;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2250, ASSERT_TYPE_ASSERT, "( ps->movingPlatforms.GetMoverEntityID() ) == ( moverInfo.entityIndex )", "%s == %s\n\t%i, %i", "ps->movingPlatforms.GetMoverEntityID()", "moverInfo.entityIndex", v15, v16) )
+              __debugbreak();
+          }
+          outVictimVel->v[0] = outVictimVel->v[0] - v22.velocity.v[0];
+          outVictimVel->v[1] = outVictimVel->v[1] - v22.velocity.v[1];
+          outVictimVel->v[2] = outVictimVel->v[2] - v22.velocity.v[2];
+        }
+        v13 = DCONST_DVARBOOL_usePmoveMoverSystem;
+        if ( !DCONST_DVARBOOL_usePmoveMoverSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "usePmoveMoverSystem") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v13);
+        if ( v13->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2258, ASSERT_TYPE_ASSERT, "(!Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_usePmoveMoverSystem, \"usePmoveMoverSystem\" ))", (const char *)&queryFormat, "!Dconst_GetBool( usePmoveMoverSystem )") )
+          __debugbreak();
+        angles.v[0] = 0.0;
+        angles.v[1] = 0.0;
+        angles.v[2] = 0.0;
+        pm->m_bgHandler->GetEntityAngles((BgHandler *)pm->m_bgHandler, ps->movingPlatforms.m_movingPlatformEntity, &angles);
+        origin.v[0] = 0.0;
+        origin.v[1] = 0.0;
+        origin.v[2] = 0.0;
+        pm->m_bgHandler->GetEntityOrigin((BgHandler *)pm->m_bgHandler, ps->movingPlatforms.m_movingPlatformEntity, &origin);
+        AnglesAndOriginToMatrix43(&angles, &origin, &result);
+        MatrixInverseOrthogonal43(&result, &out);
+        BgAntiLagEntity_GetOrigin(&v22, &outOrigin);
+        AnglesAndOriginToMatrix43(&v22.angles, &outOrigin, &in1);
+        memset(&outOrigin, 0, sizeof(outOrigin));
+        MatrixMultiply43(&in1, &out, &in2);
+        MatrixTransformVector43(&ps->origin, &in2, outAttackerPos);
+        return 1i64;
+      }
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, dword ptr [rbp+1D0h+var_240.velocity]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm0, dword ptr [rdi+4]
-      vsubss  xmm1, xmm0, dword ptr [rbp+1D0h+var_240.velocity+4]
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+1D0h+var_240.velocity+8]
-      vmovss  dword ptr [rdi+8], xmm1
-    }
   }
-  v26 = DCONST_DVARBOOL_usePmoveMoverSystem;
-  if ( !DCONST_DVARBOOL_usePmoveMoverSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "usePmoveMoverSystem") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  if ( v26->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2258, ASSERT_TYPE_ASSERT, "(!Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_usePmoveMoverSystem, \"usePmoveMoverSystem\" ))", (const char *)&queryFormat, "!Dconst_GetBool( usePmoveMoverSystem )") )
-    __debugbreak();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rbp+1D0h+angles], xmm6
-    vmovss  dword ptr [rbp+1D0h+angles+4], xmm6
-    vmovss  dword ptr [rbp+1D0h+angles+8], xmm6
-  }
-  pm->m_bgHandler->GetEntityAngles((BgHandler *)pm->m_bgHandler, _RBX->movingPlatforms.m_movingPlatformEntity, &angles);
-  __asm
-  {
-    vmovss  dword ptr [rsp+2D0h+origin], xmm6
-    vmovss  dword ptr [rsp+2D0h+origin+4], xmm6
-    vmovss  dword ptr [rsp+2D0h+origin+8], xmm6
-  }
-  pm->m_bgHandler->GetEntityOrigin((BgHandler *)pm->m_bgHandler, _RBX->movingPlatforms.m_movingPlatformEntity, &origin);
-  AnglesAndOriginToMatrix43(&angles, &origin, &result);
-  MatrixInverseOrthogonal43(&result, &out);
-  BgAntiLagEntity_GetOrigin(&v37, &outOrigin);
-  AnglesAndOriginToMatrix43(&v37.angles, &outOrigin, &in1);
-  memset(&outOrigin, 0, sizeof(outOrigin));
-  MatrixMultiply43(&in1, &out, &in2);
-  MatrixTransformVector43(&_RBX->origin, &in2, outAttackerPos);
-LABEL_51:
-  v28 = 1i64;
-LABEL_53:
-  __asm { vmovaps xmm6, [rsp+2D0h+var_50] }
-  return v28;
+  return 0i64;
 }
 
 /*
@@ -10180,77 +8118,48 @@ PM_MoveScale
 ==============
 */
 
-float __fastcall PM_MoveScale(playerState_s *ps, double fmove, double rmove, double umove)
+float __fastcall PM_MoveScale(playerState_s *ps, double fmove, float rmove, float umove)
 {
+  float result; 
+  float v12; 
+  float v13; 
   int pm_type; 
-  const dvar_t *v35; 
+  const dvar_t *v15; 
 
+  _XMM5 = *(_OWORD *)&fmove & (unsigned int)_xmm;
   __asm
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm5, xmm1, xmm6
-    vandps  xmm4, xmm2, xmm6
-    vmovaps [rsp+88h+var_28], xmm7
     vcmpltss xmm0, xmm5, xmm4
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps xmm8, xmm2
     vblendvps xmm2, xmm5, xmm4, xmm0
-    vmovaps xmm9, xmm1
-    vandps  xmm1, xmm3, xmm6
     vcmpltss xmm0, xmm2, xmm1
     vblendvps xmm6, xmm2, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-    vmovaps xmm7, xmm3
   }
-  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2606, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-    __debugbreak();
-  _EAX = ps->speed;
-  __asm
+  result = 0.0;
+  if ( *(float *)&_XMM6 != 0.0 )
   {
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, cs:__real@3c010204
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vmovd   xmm1, eax
-    vsqrtss xmm3, xmm2, xmm2
-    vdivss  xmm4, xmm0, xmm3
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm0, xmm1, xmm6
-    vmulss  xmm6, xmm4, xmm0
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2606, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      __debugbreak();
+    v13 = (float)(0.0078740157 / fsqrt((float)((float)(*(float *)&fmove * *(float *)&fmove) + (float)(rmove * rmove)) + (float)(umove * umove))) * (float)(_mm_cvtepi32_ps((__m128i)ps->speed).m128_f32[0] * *(float *)&_XMM6);
+    v12 = v13;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) )
+      v12 = v13 * 0.40000001;
+    pm_type = ps->pm_type;
+    switch ( pm_type )
+    {
+      case 2:
+        return v12 * 3.0;
+      case 3:
+        return v12 * 6.0;
+      case 5:
+        v15 = DCONST_DVARFLT_player_spectateSpeedScale;
+        if ( !DCONST_DVARFLT_player_spectateSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_spectateSpeedScale") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v15);
+        return v12 * v15->current.value;
+    }
+    return v12;
   }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xBu) )
-    __asm { vmulss  xmm6, xmm6, cs:__real@3ecccccd }
-  pm_type = ps->pm_type;
-  switch ( pm_type )
-  {
-    case 2:
-      __asm { vmulss  xmm6, xmm6, cs:__real@40400000 }
-      break;
-    case 3:
-      __asm { vmulss  xmm6, xmm6, cs:__real@40c00000 }
-      break;
-    case 5:
-      v35 = DCONST_DVARFLT_player_spectateSpeedScale;
-      if ( !DCONST_DVARFLT_player_spectateSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_spectateSpeedScale") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v35);
-      __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
-      break;
-  }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -10315,242 +8224,192 @@ PM_NoclipMove
 */
 void PM_NoclipMove(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   const SuitDef *SuitDef; 
+  float v6; 
+  __int128 v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  float v13; 
+  float v16; 
+  double v17; 
+  float rightmove; 
+  int v19; 
+  int v20; 
+  char v21; 
+  float v22; 
+  float v27; 
+  float v28; 
   const Weapon *CurrentWeaponForPlayer; 
   unsigned __int64 buttons; 
-  const Weapon *v56; 
-  bool v57; 
-  bool v58; 
-  unsigned __int64 v59; 
-  bool v64; 
-  float fmt; 
-  __int64 v102; 
-  __int64 v103; 
-  __int64 v104; 
-  __int64 v105; 
-  __int64 v106; 
-  __int64 v107; 
-  int v109[4]; 
+  const Weapon *v31; 
+  bool v32; 
+  bool v33; 
+  unsigned __int64 v34; 
+  pml_t *v35; 
+  bool v36; 
+  float v37; 
+  __int128 v38; 
+  float frametime; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
+  __int64 v46; 
+  __int64 v47; 
+  __int64 v48; 
+  float v49; 
+  float v50; 
+  float v51; 
   vec3_t wishdir; 
-  char v112; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0F8h+var_88], xmm11
-  }
-  _R15 = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4708, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4708, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4708, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  SuitDef = BG_GetSuitDef(_RSI->suitIndex);
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4711, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  __asm { vmovss  xmm11, cs:__real@3f800000 }
-  _RSI->viewHeightTarget = SuitDef->viewheight_stand;
-  __asm
+  ps->viewHeightTarget = SuitDef->viewheight_stand;
+  v7 = LODWORD(ps->velocity.v[0]);
+  *(float *)&v7 = fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+  v6 = *(float *)&v7;
+  if ( *(float *)&v7 >= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rsi+3Ch]
-    vmovss  xmm2, dword ptr [rsi+40h]
-    vmovss  xmm3, dword ptr [rsi+44h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-    vcomiss xmm6, xmm11
-    vxorps  xmm7, xmm7, xmm7
-  }
-  _RBX = DCONST_DVARMPFLT_friction;
-  if ( !DCONST_DVARMPFLT_friction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "friction") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm8, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_stopspeed;
-  if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-  if ( v64 )
-  {
-    _RBX = DCONST_DVARFLT_stopspeed;
+    v9 = DCONST_DVARMPFLT_friction;
+    if ( !DCONST_DVARMPFLT_friction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "friction") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v9);
+    value = v9->current.value;
+    v11 = DCONST_DVARFLT_stopspeed;
     if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v11);
+    if ( *(float *)&v7 >= v11->current.value )
+    {
+      v13 = *(float *)&v7;
+    }
+    else
+    {
+      v12 = DCONST_DVARFLT_stopspeed;
+      if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v12);
+      v13 = v12->current.value;
+    }
+    *(float *)&v7 = *(float *)&v7 - (float)((float)((float)(v13 * value) * 1.5) * pml->frametime);
+    _XMM3 = v7;
+    __asm { vmaxss  xmm0, xmm3, xmm7 }
+    ps->velocity.v[0] = (float)(*(float *)&_XMM0 / v6) * ps->velocity.v[0];
+    ps->velocity.v[1] = (float)(*(float *)&_XMM0 / v6) * ps->velocity.v[1];
+    v8 = (float)(*(float *)&_XMM0 / v6) * ps->velocity.v[2];
   }
   else
   {
-    __asm { vmovaps xmm0, xmm6 }
+    ps->velocity.v[0] = vec3_origin.v[0];
+    ps->velocity.v[1] = vec3_origin.v[1];
+    v8 = vec3_origin.v[2];
   }
-  __asm
-  {
-    vmulss  xmm0, xmm0, xmm8
-    vmulss  xmm1, xmm0, cs:__real@3fc00000
-    vmulss  xmm2, xmm1, dword ptr [r15+24h]
-    vsubss  xmm3, xmm6, xmm2
-    vmaxss  xmm0, xmm3, xmm7
-    vdivss  xmm2, xmm0, xmm6
-    vmulss  xmm0, xmm2, dword ptr [rsi+3Ch]
-    vmovss  dword ptr [rsi+3Ch], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rsi+40h]
-    vmovss  dword ptr [rsi+40h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rsi+44h]
-    vmovss  dword ptr [rsi+44h], xmm0
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, eax
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, eax
-  }
-  _RBX = 0i64;
+  ps->velocity.v[2] = v8;
+  HIDWORD(v17) = 0;
+  *(float *)&v17 = (float)pm->cmd.forwardmove;
+  v16 = *(float *)&v17;
+  rightmove = (float)pm->cmd.rightmove;
+  v19 = 0;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_HARD_LAND|0x80) )
   {
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, eax
-    }
+    v20 = pm->cmd.upmove - pm->cmd.downmove;
+    if ( v20 > 127 )
+      v20 = 127;
+    v21 = v20;
+    if ( v20 < -128 )
+      v21 = 0x80;
+    v22 = (float)v21;
   }
   else
   {
-    __asm { vmovss  xmm3, cs:__real@42fe0000 }
-    _RAX = pm->cmd.buttons & 1;
+    _XMM3 = LODWORD(FLOAT_127_0);
+    _XMM0 = pm->cmd.buttons & 1;
     __asm
     {
-      vmovq   xmm0, rax
-      vmovq   xmm1, rbx
       vpcmpeqq xmm2, xmm0, xmm1
       vblendvps xmm0, xmm3, xmm7, xmm2
-      vmovaps xmm7, xmm0
-      vmovss  [rsp+0F8h+var_B8], xmm0
     }
+    v22 = *(float *)&_XMM0;
     if ( (pm->cmd.buttons & 0x20000) != 0 )
-      __asm { vsubss  xmm7, xmm0, xmm3 }
+      v22 = *(float *)&_XMM0 - 127.0;
   }
-  __asm
-  {
-    vmovaps xmm3, xmm7; umove
-    vmovaps xmm2, xmm10; rmove
-    vmovaps xmm1, xmm9; fmove
-  }
-  *(float *)&_XMM0 = PM_MoveScale(_RSI, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm { vmovaps xmm8, xmm0 }
-  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, _RSI);
+  v27 = PM_MoveScale(ps, v17, rightmove, v22);
+  v28 = v27;
+  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
   buttons = pm->cmd.buttons;
-  v56 = CurrentWeaponForPlayer;
-  v58 = 0;
+  v31 = CurrentWeaponForPlayer;
+  v33 = 0;
   if ( (buttons & 4) != 0 )
   {
-    if ( (buttons & 1) == 0 || (v57 = BG_UsingAlternate(_RSI), !BG_IsMeleeOnlyWeapon(v56, v57)) )
-      v58 = 1;
+    if ( (buttons & 1) == 0 || (v32 = BG_UsingAlternate(ps), !BG_IsMeleeOnlyWeapon(v31, v32)) )
+      v33 = 1;
   }
-  v59 = pm->cmd.buttons;
-  if ( (v59 & 2) != 0 || v58 )
+  v34 = pm->cmd.buttons;
+  if ( (v34 & 2) != 0 || v33 )
   {
-    __asm { vmulss  xmm8, xmm8, cs:__real@41700000 }
+    v28 = v27 * 15.0;
   }
-  else if ( (v59 & 0xC0) != 0 )
+  else if ( (v34 & 0xC0) != 0 )
   {
-    __asm { vmulss  xmm8, xmm8, cs:__real@3dcccccd }
+    v28 = v27 * 0.1;
   }
-  _RDI = _R15;
-  _R14 = (char *)((char *)v109 - (char *)_R15);
-  v64 = 1;
+  v35 = pml;
+  v36 = 1;
   do
   {
-    if ( !v64 )
+    if ( !v36 )
     {
-      LODWORD(v105) = 3;
-      LODWORD(v102) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v102, v105) )
+      LODWORD(v46) = 3;
+      LODWORD(v43) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v43, v46) )
         __debugbreak();
-      LODWORD(v106) = 3;
-      LODWORD(v103) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v103, v106) )
+      LODWORD(v47) = 3;
+      LODWORD(v44) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v47) )
         __debugbreak();
-      LODWORD(v107) = 3;
-      LODWORD(v104) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v104, v107) )
+      LODWORD(v48) = 3;
+      LODWORD(v45) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v45, v48) )
         __debugbreak();
     }
-    __asm
+    v37 = (float)((float)(rightmove * v35->right.v[0]) + (float)(v16 * v35->forward.v[0])) + (float)(v22 * v35->up.v[0]);
+    if ( (unsigned int)v19 >= 3 )
     {
-      vmulss  xmm1, xmm10, dword ptr [rdi+0Ch]
-      vmulss  xmm0, xmm9, dword ptr [rdi]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, dword ptr [rdi+18h]
-      vaddss  xmm6, xmm2, xmm1
-    }
-    if ( (unsigned int)_RBX >= 3 )
-    {
-      LODWORD(v105) = 3;
-      LODWORD(v102) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v102, v105) )
+      LODWORD(v46) = 3;
+      LODWORD(v43) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v43, v46) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [r14+rdi], xmm6 }
-    _RDI = (pml_t *)((char *)_RDI + 4);
-    LODWORD(_RBX) = _RBX + 1;
-    v64 = (unsigned int)_RBX < 3;
+    *(float *)((char *)v35->forward.v + (char *)&v49 - (char *)pml) = v37;
+    v35 = (pml_t *)((char *)v35 + 4);
+    v36 = (unsigned int)++v19 < 3;
   }
-  while ( (int)_RBX < 3 );
+  while ( v19 < 3 );
+  v38 = LODWORD(v50);
+  *(float *)&v38 = fsqrt((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(v49 * v49)) + (float)(v51 * v51));
+  _XMM4 = v38;
   __asm
   {
-    vmovss  xmm3, [rsp+0F8h+var_B0]
-    vmovss  xmm5, [rsp+0F8h+var_A8]
-    vmovss  xmm6, [rsp+0F8h+var_AC]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm4, xmm0, xmm0
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm11, xmm0
-    vdivss  xmm2, xmm11, xmm0
-    vmulss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0F8h+wishdir], xmm0
-    vmovss  dword ptr [rsp+0F8h+wishdir+4], xmm1
-    vmovss  xmm1, cs:__real@41100000
-    vmulss  xmm0, xmm5, xmm2
-    vmulss  xmm3, xmm4, xmm8; wishspeed
-    vmovss  dword ptr [rsp+0F8h+wishdir+8], xmm0
-    vmovss  dword ptr [rsp+0F8h+fmt], xmm1
   }
-  PM_Accelerate(pm, _R15, &wishdir, *(float *)&_XMM3, fmt);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r15+24h]
-    vmulss  xmm0, xmm2, dword ptr [rsi+3Ch]
-    vaddss  xmm1, xmm0, dword ptr [rsi+30h]
-    vmovss  dword ptr [rsi+30h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rsi+40h]
-    vaddss  xmm1, xmm0, dword ptr [rsi+34h]
-    vmovss  dword ptr [rsi+34h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rsi+44h]
-    vaddss  xmm1, xmm0, dword ptr [rsi+38h]
-    vmovss  dword ptr [rsi+38h], xmm1
-  }
-  _R11 = &v112;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  wishdir.v[0] = v49 * (float)(1.0 / *(float *)&_XMM0);
+  wishdir.v[1] = v50 * (float)(1.0 / *(float *)&_XMM0);
+  wishdir.v[2] = v51 * (float)(1.0 / *(float *)&_XMM0);
+  PM_Accelerate(pm, pml, &wishdir, *(float *)&v38 * v28, 9.0);
+  frametime = pml->frametime;
+  ps->origin.v[0] = (float)(frametime * ps->velocity.v[0]) + ps->origin.v[0];
+  ps->origin.v[1] = (float)(frametime * ps->velocity.v[1]) + ps->origin.v[1];
+  ps->origin.v[2] = (float)(frametime * ps->velocity.v[2]) + ps->origin.v[2];
 }
 
 /*
@@ -10703,132 +8562,94 @@ LABEL_15:
 PM_Normal_UpdateCollide
 ==============
 */
-
-void __fastcall PM_Normal_UpdateCollide(pmove_t *pm, pml_t *pml, const EffectiveStance prevEffStance, double _XMM3_8)
+void PM_Normal_UpdateCollide(pmove_t *pm, pml_t *pml, const EffectiveStance prevEffStance)
 {
-  const dvar_t *v19; 
+  playerState_s *ps; 
+  const dvar_t *v7; 
   bool enabled; 
-  char v68; 
-  void *retaddr; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float frametime; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps [rsp+108h+var_98], xmm12
-    vmovaps [rsp+108h+var_A8], xmm13
-    vmovaps [rsp+108h+var_B8], xmm14
-  }
-  _RDI = pml;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11988, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_Normal_UpdateCollide");
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11992, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11992, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11992, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF008008, "PM_Normal_UpdateCollide Update States");
-  PM_UpdateImpulseFields(pm, _RDI);
-  PM_UpdatePronePitch(pm, _RDI);
-  PM_DropTimers(pm, _RDI);
-  if ( _RSI->pm_type >= 7 )
-    PM_DeadMove(pm, _RDI);
-  PM_CheckLadderMove(pm, _RDI);
-  PM_CheckStairsMove(pm, _RDI);
-  Slide_Update(pm, _RDI);
-  Jump_HandleLateJump(pm, _RDI);
-  PM_Skydive_Update(pm, _RDI);
+  PM_UpdateImpulseFields(pm, pml);
+  PM_UpdatePronePitch(pm, pml);
+  PM_DropTimers(pm, pml);
+  if ( ps->pm_type >= 7 )
+    PM_DeadMove(pm, pml);
+  PM_CheckLadderMove(pm, pml);
+  PM_CheckStairsMove(pm, pml);
+  Slide_Update(pm, pml);
+  Jump_HandleLateJump(pm, pml);
+  PM_Skydive_Update(pm, pml);
   Sys_ProfEndNamedEvent();
-  PM_PlayerMoveCollide(pm, _RDI);
-  v19 = DCONST_DVARBOOL_bg_slope_use_cylinder_trace_normal;
+  PM_PlayerMoveCollide(pm, pml);
+  v7 = DCONST_DVARBOOL_bg_slope_use_cylinder_trace_normal;
   if ( !DCONST_DVARBOOL_bg_slope_use_cylinder_trace_normal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_use_cylinder_trace_normal") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  enabled = v19->current.enabled;
+  Dvar_CheckFrontendServerThread(v7);
+  enabled = v7->current.enabled;
   if ( enabled )
-    PM_SlopeWorldmodel_Update(pm, _RDI);
-  PM_GroundTrace(pm, _RDI, 1);
+    PM_SlopeWorldmodel_Update(pm, pml);
+  PM_GroundTrace(pm, pml, 1);
   if ( !enabled )
-    PM_SlopeWorldmodel_Update(pm, _RDI);
-  PM_Skydive_UpdatePostGroundTrace(pm, _RDI);
-  PM_CheckKnockbackFlag(pm, _RDI);
+    PM_SlopeWorldmodel_Update(pm, pml);
+  PM_Skydive_UpdatePostGroundTrace(pm, pml);
+  PM_CheckKnockbackFlag(pm, pml);
   PM_UpdateCustomAnimFlags(pm);
-  PM_Footsteps(pm, _RDI);
-  PM_StanceSounds(prevEffStance, pm, _RDI);
-  PM_Weapon(pm, _RDI);
-  if ( !BG_IsPlayerZeroG(_RSI) )
+  PM_Footsteps(pm, pml);
+  PM_StanceSounds(prevEffStance, pm, pml);
+  PM_Weapon(pm, pml);
+  if ( !BG_IsPlayerZeroG(ps) )
   {
-    __asm
+    v9 = ps->velocity.v[0];
+    v10 = ps->velocity.v[1];
+    v11 = ps->velocity.v[2];
+    v12 = ps->origin.v[0] - pml->previous_origin.v[0];
+    v13 = ps->origin.v[1] - pml->previous_origin.v[1];
+    v14 = ps->origin.v[2] - pml->previous_origin.v[2];
+    frametime = pml->frametime;
+    if ( (float)((float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) / (float)(frametime * frametime)) < (float)((float)((float)((float)((float)(v10 + pml->impulseFieldVelocity.v[1]) * (float)(v10 + pml->impulseFieldVelocity.v[1])) + (float)((float)(v9 + pml->impulseFieldVelocity.v[0]) * (float)(v9 + pml->impulseFieldVelocity.v[0]))) + (float)((float)(v11 + pml->impulseFieldVelocity.v[2]) * (float)(v11 + pml->impulseFieldVelocity.v[2]))) * 0.25) )
     {
-      vmovss  xmm12, dword ptr [rsi+3Ch]
-      vaddss  xmm7, xmm12, dword ptr [rdi+200h]
-      vmovss  xmm13, dword ptr [rsi+40h]
-      vaddss  xmm5, xmm13, dword ptr [rdi+204h]
-      vmovss  xmm14, dword ptr [rsi+44h]
-      vaddss  xmm6, xmm14, dword ptr [rdi+208h]
-      vmovss  xmm0, dword ptr [rsi+30h]
-      vsubss  xmm8, xmm0, dword ptr [rdi+40h]
-      vmovss  xmm1, dword ptr [rsi+34h]
-      vsubss  xmm9, xmm1, dword ptr [rdi+44h]
-      vmovss  xmm0, dword ptr [rsi+38h]
-      vsubss  xmm10, xmm0, dword ptr [rdi+48h]
-      vmovss  xmm11, dword ptr [rdi+24h]
-      vmulss  xmm1, xmm9, xmm9
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm10, xmm10
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm11, xmm11
-      vdivss  xmm4, xmm3, xmm0
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm2, cs:__real@3e800000
-      vcomiss xmm4, xmm1
+      if ( (float)((float)((float)(v13 * v10) + (float)(v12 * v9)) + (float)(v14 * v11)) >= 0.0 )
+      {
+        ps->velocity.v[0] = (float)(1.0 / frametime) * v12;
+        ps->velocity.v[1] = v13 * (float)(1.0 / frametime);
+        ps->velocity.v[2] = v14 * (float)(1.0 / frametime);
+      }
+      else
+      {
+        *(_QWORD *)ps->velocity.v = 0i64;
+        ps->velocity.v[2] = 0.0;
+      }
     }
   }
-  PM_DropAnimTimers(pm, _RDI);
-  if ( BG_IsPlayerVelocityQuantized(_RSI) )
+  PM_DropAnimTimers(pm, pml);
+  if ( BG_IsPlayerVelocityQuantized(ps) )
   {
-    __asm
-    {
-      vmovss  xmm4, cs:__real@3f000000
-      vaddss  xmm0, xmm4, dword ptr [rsi+3Ch]
-      vxorps  xmm2, xmm2, xmm2
-      vroundss xmm2, xmm2, xmm0, 1
-      vmovss  dword ptr [rsi+3Ch], xmm2
-      vaddss  xmm1, xmm4, dword ptr [rsi+40h]
-      vxorps  xmm3, xmm3, xmm3
-      vroundss xmm3, xmm3, xmm1, 1
-      vmovss  dword ptr [rsi+40h], xmm3
-      vaddss  xmm1, xmm4, dword ptr [rsi+44h]
-      vxorps  xmm3, xmm3, xmm3
-      vroundss xmm3, xmm3, xmm1, 1
-      vmovss  dword ptr [rsi+44h], xmm3
-    }
+    _XMM2 = 0i64;
+    __asm { vroundss xmm2, xmm2, xmm0, 1 }
+    ps->velocity.v[0] = *(float *)&_XMM2;
+    _XMM3 = 0i64;
+    __asm { vroundss xmm3, xmm3, xmm1, 1 }
+    ps->velocity.v[1] = *(float *)&_XMM3;
+    _XMM3 = 0i64;
+    __asm { vroundss xmm3, xmm3, xmm1, 1 }
+    ps->velocity.v[2] = *(float *)&_XMM3;
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_B8]
-  }
 }
 
 /*
@@ -10939,16 +8760,16 @@ void PM_PmoveLocal_Init(pmove_t *pm, pml_t *pml)
   playerState_s *ps; 
   int WeaponHand; 
   int *prevWeaponStates; 
-  __int64 v8; 
+  __int64 v7; 
   int *p_weaponState; 
-  int v10; 
-  const dvar_t *v11; 
+  int v9; 
+  const dvar_t *v10; 
   int integer; 
-  const dvar_t *v13; 
-  int v14; 
+  const dvar_t *v12; 
+  int v13; 
   int commandTime; 
+  int v15; 
 
-  _RDI = pml;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11594, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11596, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -10956,54 +8777,49 @@ void PM_PmoveLocal_Init(pmove_t *pm, pml_t *pml)
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11596, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  memset_0(_RDI, 0, sizeof(pml_t));
+  memset_0(pml, 0, sizeof(pml_t));
   WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, ps);
   if ( WeaponHand >= 0 )
   {
-    prevWeaponStates = _RDI->prevWeaponStates;
-    v8 = WeaponHand + 1i64;
+    prevWeaponStates = pml->prevWeaponStates;
+    v7 = WeaponHand + 1i64;
     p_weaponState = &ps->weapState[0].weaponState;
     do
     {
-      v10 = *p_weaponState;
+      v9 = *p_weaponState;
       p_weaponState += 20;
-      *prevWeaponStates++ = v10;
-      --v8;
+      *prevWeaponStates++ = v9;
+      --v7;
     }
-    while ( v8 );
+    while ( v7 );
   }
-  v11 = DCONST_DVARINT_com_userCmdMaxTimeStep;
+  v10 = DCONST_DVARINT_com_userCmdMaxTimeStep;
   if ( !DCONST_DVARINT_com_userCmdMaxTimeStep && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxTimeStep") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  integer = v11->current.integer;
-  v13 = DCONST_DVARINT_com_userCmdMinTimeStep;
+  Dvar_CheckFrontendServerThread(v10);
+  integer = v10->current.integer;
+  v12 = DCONST_DVARINT_com_userCmdMinTimeStep;
   if ( !DCONST_DVARINT_com_userCmdMinTimeStep && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMinTimeStep") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  v14 = v13->current.integer;
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = v12->current.integer;
   commandTime = ps->commandTime;
   if ( pm == (pmove_t *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  _RDI->msec = I_clamp(pm->cmd.commandTime - commandTime, v14, integer);
-  _RDI->meleeFired = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  dword ptr [rdi+24h], xmm1
-  }
-  _RDI->previous_origin.v[0] = ps->origin.v[0];
-  _RDI->previous_origin.v[1] = ps->origin.v[1];
-  _RDI->previous_origin.v[2] = ps->origin.v[2];
-  _RDI->previous_velocity.v[0] = ps->velocity.v[0];
-  _RDI->previous_velocity.v[1] = ps->velocity.v[1];
-  _RDI->previous_velocity.v[2] = ps->velocity.v[2];
-  PM_ContextMount_CachePrevViewAngles(pm, _RDI);
-  BGMovingPlatformClient::ResolvePlatformUp(pm->movingPlatforms, ps, &_RDI->platformUp);
-  _RDI->prevEffectiveStance = PM_GetEffectiveStance(ps);
-  _RDI->ladderWidth = 15.2496;
+  v15 = I_clamp(pm->cmd.commandTime - commandTime, v13, integer);
+  pml->msec = v15;
+  pml->meleeFired = 0;
+  pml->frametime = (float)v15 * 0.001;
+  pml->previous_origin.v[0] = ps->origin.v[0];
+  pml->previous_origin.v[1] = ps->origin.v[1];
+  pml->previous_origin.v[2] = ps->origin.v[2];
+  pml->previous_velocity.v[0] = ps->velocity.v[0];
+  pml->previous_velocity.v[1] = ps->velocity.v[1];
+  pml->previous_velocity.v[2] = ps->velocity.v[2];
+  PM_ContextMount_CachePrevViewAngles(pm, pml);
+  BGMovingPlatformClient::ResolvePlatformUp(pm->movingPlatforms, ps, &pml->platformUp);
+  pml->prevEffectiveStance = PM_GetEffectiveStance(ps);
+  pml->ladderWidth = 15.2496;
 }
 
 /*
@@ -11011,83 +8827,41 @@ void PM_PmoveLocal_Init(pmove_t *pm, pml_t *pml)
 PM_PmoveLocal_SetViewAngles
 ==============
 */
-
-void __fastcall PM_PmoveLocal_SetViewAngles(pmove_t *pm, pml_t *pml, double _XMM2_8, double _XMM3_8)
+void PM_PmoveLocal_SetViewAngles(pmove_t *pm, pml_t *pml)
 {
-  bool v8; 
-  bool v9; 
+  playerState_s *ps; 
   int commandTime; 
   vec3_t angles; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm7 }
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11645, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11647, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11647, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11647, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v8 = &pm->cmd == NULL;
-  if ( pm == (pmove_t *)-16i64 )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd");
-    v8 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1DCh]
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm4, cs:__real@3f000000
-  }
+  if ( pm == (pmove_t *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
+    __debugbreak();
   commandTime = pm->cmd.commandTime;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm0, xmm2, xmm1, 1
-    vmovss  xmm1, cs:precision
-    vcomiss xmm1, xmm2
-    vsubss  xmm0, xmm4, xmm0
-    vmulss  xmm7, xmm0, cs:__real@43b40000
-  }
-  if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12970, ASSERT_TYPE_ASSERT, "(precision > 0.0f)", (const char *)&queryFormat, "precision > 0.0f") )
+  _XMM2 = 0i64;
+  __asm { vroundss xmm0, xmm2, xmm1, 1 }
+  if ( precision <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12970, ASSERT_TYPE_ASSERT, "(precision > 0.0f)", (const char *)&queryFormat, "precision > 0.0f") )
     __debugbreak();
   if ( dword_14BB4768C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14BB4768C);
     if ( dword_14BB4768C == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm1, xmm0, cs:precision
-        vmovss  cs:invPrecision, xmm1
-      }
+      invPrecision = 1.0 / precision;
       j__Init_thread_footer(&dword_14BB4768C);
     }
   }
-  __asm
-  {
-    vmulss  xmm1, xmm7, cs:invPrecision
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si eax, xmm3
-  }
-  pml->holdrand = 159719620 - 570470319 * (commandTime + _EAX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1D8h]
-    vmovss  dword ptr [rsp+78h+angles], xmm0
-    vmovss  xmm1, dword ptr [rdi+1DCh]
-    vmovss  dword ptr [rsp+78h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+1E0h]
-    vmovss  dword ptr [rsp+78h+angles+8], xmm0
-  }
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  pml->holdrand = 159719620 - 570470319 * (commandTime + (int)*(float *)&_XMM3);
+  angles = ps->viewangles;
   WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&pm->refFrame, &angles);
   AngleVectors(&angles, &pml->forward, &pml->right, &pml->up);
-  __asm { vmovaps xmm7, [rsp+78h+var_28] }
 }
 
 /*
@@ -11095,65 +8869,29 @@ void __fastcall PM_PmoveLocal_SetViewAngles(pmove_t *pm, pml_t *pml, double _XMM
 PM_Pmove_GetHoldRand
 ==============
 */
-
-__int64 __fastcall PM_Pmove_GetHoldRand(const usercmd_s *const cmd, playerState_s *ps, double _XMM2_8, double _XMM3_8)
+__int64 PM_Pmove_GetHoldRand(const usercmd_s *const cmd, playerState_s *ps)
 {
-  bool v7; 
-  bool v8; 
   int commandTime; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
-  _RDI = ps;
-  v7 = cmd == NULL;
-  if ( !cmd )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd");
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1DCh]
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm4, cs:__real@3f000000
-  }
+  if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
+    __debugbreak();
   commandTime = cmd->commandTime;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm0, xmm2, xmm1, 1
-    vmovss  xmm1, cs:precision
-    vcomiss xmm1, xmm2
-    vsubss  xmm0, xmm4, xmm0
-    vmulss  xmm7, xmm0, cs:__real@43b40000
-  }
-  if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12970, ASSERT_TYPE_ASSERT, "(precision > 0.0f)", (const char *)&queryFormat, "precision > 0.0f") )
+  _XMM2 = 0i64;
+  __asm { vroundss xmm0, xmm2, xmm1, 1 }
+  if ( precision <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12970, ASSERT_TYPE_ASSERT, "(precision > 0.0f)", (const char *)&queryFormat, "precision > 0.0f") )
     __debugbreak();
   if ( dword_14BB4768C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14BB4768C);
     if ( dword_14BB4768C == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm1, xmm0, cs:precision
-        vmovss  cs:invPrecision, xmm1
-      }
+      invPrecision = 1.0 / precision;
       j__Init_thread_footer(&dword_14BB4768C);
     }
   }
-  __asm
-  {
-    vmulss  xmm1, xmm7, cs:invPrecision
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vmovaps xmm7, [rsp+48h+var_18]
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si eax, xmm3
-  }
-  return (unsigned int)(159719620 - 570470319 * (commandTime + _EAX));
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  return (unsigned int)(159719620 - 570470319 * (commandTime + (int)*(float *)&_XMM3));
 }
 
 /*
@@ -11178,119 +8916,44 @@ PM_ProjectVelocity
 */
 void PM_ProjectVelocity(const pmove_t *pm, const vec3_t *velInConst, const vec3_t *normalConst, vec3_t *velOut)
 {
+  float v4; 
   WorldUpReferenceFramePM *p_refFrame; 
-  const vec3_t *v14; 
-  char v20; 
-  char v21; 
-  vec3_t v51; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  vec3_t v13; 
   vec3_t vec; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovss  dword ptr [rsp+0B8h+vec], xmm0
-    vmovss  xmm0, dword ptr [rdx+8]
-  }
+  v4 = velInConst->v[1];
+  vec.v[0] = velInConst->v[0];
   p_refFrame = &pm->refFrame;
-  v14 = velInConst;
-  _RDI = velOut;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+vec+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+vec+4], xmm1
-  }
-  _RBX = normalConst;
+  vec.v[2] = velInConst->v[2];
+  vec.v[1] = v4;
   WorldUpReferenceFrame::RemoveReferenceFrameFromVector(&pm->refFrame, &vec);
-  __asm
+  v9 = normalConst->v[1];
+  v13.v[0] = normalConst->v[0];
+  v13.v[2] = normalConst->v[2];
+  v13.v[1] = v9;
+  WorldUpReferenceFrame::RemoveReferenceFrameFromVector(p_refFrame, &v13);
+  v10 = vec.v[1];
+  if ( COERCE_FLOAT(LODWORD(v13.v[2]) & _xmm) < 0.001 || (float)((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0])) == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+0B8h+var_98], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0B8h+var_98+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+var_98+4], xmm1
-  }
-  WorldUpReferenceFrame::RemoveReferenceFrameFromVector(p_refFrame, &v51);
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rsp+0B8h+vec+4]
-    vmovss  xmm10, dword ptr [rsp+0B8h+vec]
-    vmovss  xmm6, dword ptr [rsp+0B8h+var_98+8]
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm10, xmm10
-    vaddss  xmm4, xmm1, xmm0
-    vandps  xmm1, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
-  }
-  if ( v20 )
-    goto LABEL_9;
-  __asm
-  {
-    vxorps  xmm5, xmm5, xmm5
-    vucomiss xmm4, xmm5
-  }
-  if ( v21 )
-  {
-LABEL_9:
-    _RDI->v[0] = v14->v[0];
-    _RDI->v[1] = v14->v[1];
-    _RDI->v[2] = v14->v[2];
+    velOut->v[0] = velInConst->v[0];
+    velOut->v[1] = velInConst->v[1];
+    velOut->v[2] = velInConst->v[2];
   }
   else
   {
-    __asm
+    LODWORD(v11) = COERCE_UNSIGNED_INT((float)((float)(vec.v[1] * v13.v[1]) + (float)(vec.v[0] * v13.v[0])) / v13.v[2]) ^ _xmm;
+    v12 = fsqrt((float)((float)(vec.v[2] * vec.v[2]) + (float)((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0]))) / (float)((float)(v11 * v11) + (float)((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0]))));
+    if ( v12 < 1.0 || (float)((float)((float)(vec.v[1] * v13.v[1]) + (float)(vec.v[0] * v13.v[0])) / v13.v[2]) > -0.0 || vec.v[2] > 0.0 )
     {
-      vmulss  xmm3, xmm9, dword ptr [rsp+0B8h+var_98+4]
-      vmulss  xmm2, xmm10, dword ptr [rsp+0B8h+var_98]
-      vaddss  xmm0, xmm3, xmm2
-      vmovaps [rsp+0B8h+var_38], xmm7
-      vmovaps [rsp+0B8h+var_48], xmm8
-      vdivss  xmm8, xmm0, xmm6
-      vxorps  xmm7, xmm8, cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm6, dword ptr [rsp+0B8h+vec+8]
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm3, xmm0, xmm4
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm2, xmm1, xmm4
-      vdivss  xmm0, xmm3, xmm2
-      vsqrtss xmm4, xmm0, xmm0
-      vcomiss xmm4, cs:__real@3f800000
-      vcomiss xmm8, cs:__real@80000000
+      velOut->v[0] = vec.v[0] * v12;
+      velOut->v[2] = v11 * v12;
+      velOut->v[1] = v10 * v12;
+      WorldUpReferenceFrame::ApplyReferenceFrameToVector(p_refFrame, velOut);
     }
-    if ( !(v20 | v21) )
-      goto LABEL_6;
-    __asm { vcomiss xmm6, xmm5 }
-    if ( !(v20 | v21) )
-    {
-LABEL_6:
-      __asm
-      {
-        vmulss  xmm0, xmm10, xmm4
-        vmovss  dword ptr [rdi], xmm0
-        vmulss  xmm0, xmm7, xmm4
-        vmulss  xmm1, xmm9, xmm4
-        vmovss  dword ptr [rdi+8], xmm0
-        vmovss  dword ptr [rdi+4], xmm1
-      }
-      WorldUpReferenceFrame::ApplyReferenceFrameToVector(p_refFrame, _RDI);
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_38]
-      vmovaps xmm8, [rsp+0B8h+var_48]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_28]
-    vmovaps xmm9, [rsp+0B8h+var_58]
-    vmovaps xmm10, [rsp+0B8h+var_68]
   }
 }
 
@@ -11301,74 +8964,37 @@ PM_ProjectVelocityWallRunZeroGrav
 */
 void PM_ProjectVelocityWallRunZeroGrav(const pmove_t *pm, const vec3_t *velInConst, const vec3_t *normalConst, vec3_t *velOut)
 {
-  __int64 v41; 
-  float v42; 
+  float v4; 
+  float v5; 
+  float v7; 
+  __int128 v8; 
   vec3_t out; 
 
-  __asm
+  v4 = velInConst->v[0];
+  v5 = fsqrt((float)((float)(v4 * v4) + (float)(velInConst->v[1] * velInConst->v[1])) + (float)(velInConst->v[2] * velInConst->v[2]));
+  if ( v5 == 0.0 )
   {
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  xmm4, dword ptr [rdx]
-    vmovss  xmm3, dword ptr [rdx+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm8, xmm2, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm8, xmm0
-  }
-  _RBX = velOut;
-  if ( (unsigned __int64)&v41 != _security_cookie )
-  {
-    __asm
-    {
-      vmovaps [rsp+88h+var_18], xmm6
-      vmovaps [rsp+88h+var_28], xmm7
-      vmovss  [rsp+88h+var_68], xmm0
-    }
-    PM_ClipVelocityOverClip(NULL, velInConst, normalConst, NULL, v42, &out);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+88h+var_58+4]
-      vmovss  xmm7, dword ptr [rsp+88h+var_58+8]
-      vmovss  xmm5, dword ptr [rsp+88h+var_58]
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm3, xmm0, xmm0
-      vcmpless xmm0, xmm3, cs:__real@80000000
-      vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm4, xmm1, xmm0
-      vmulss  xmm2, xmm6, xmm4
-      vmulss  xmm0, xmm5, xmm4
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rbx], xmm1
-      vmulss  xmm1, xmm7, xmm4
-      vmulss  xmm0, xmm2, xmm8
-      vmulss  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rbx+4], xmm0
-      vmovss  dword ptr [rbx+8], xmm2
-      vmovaps xmm7, [rsp+88h+var_28]
-      vmovaps xmm6, [rsp+88h+var_18]
-    }
+    velOut->v[0] = v4;
+    velOut->v[1] = velInConst->v[1];
+    velOut->v[2] = velInConst->v[2];
   }
   else
   {
-    __asm { vmovss  dword ptr [r9], xmm4 }
-    velOut->v[1] = velInConst->v[1];
+    PM_ClipVelocityOverClip(NULL, velInConst, normalConst, NULL, 0.0, &out);
+    v7 = out.v[2];
+    v8 = LODWORD(out.v[0]);
+    *(float *)&v8 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(out.v[1] * out.v[1])) + (float)(v7 * v7));
+    _XMM3 = v8;
     __asm
     {
-      vmovss  xmm0, dword ptr [rdx+8]
-      vmovss  dword ptr [r9+8], xmm0
+      vcmpless xmm0, xmm3, cs:__real@80000000
+      vblendvps xmm0, xmm3, xmm1, xmm0
     }
+    *(float *)&v8 = out.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    velOut->v[0] = (float)(out.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v5;
+    velOut->v[1] = *(float *)&v8 * v5;
+    velOut->v[2] = (float)(v7 * (float)(1.0 / *(float *)&_XMM0)) * v5;
   }
-  __asm { vmovaps xmm8, [rsp+88h+var_38] }
 }
 
 /*
@@ -11546,24 +9172,18 @@ void PM_RestartSprintTimers(pmove_t *pm, const pml_t *pml, const bool startSuper
 PM_SetJumpStrafeCondition
 ==============
 */
-
-void __fastcall PM_SetJumpStrafeCondition(pmove_t *pm, double _XMM1_8, double _XMM2_8)
+void PM_SetJumpStrafeCondition(pmove_t *pm)
 {
-  PlayerAnimStrafeStates v8; 
+  char forwardmove; 
+  PlayerAnimStrafeStates v3; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8609, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( pm->cmd.forwardmove || pm->cmd.rightmove )
+  forwardmove = pm->cmd.forwardmove;
+  if ( forwardmove || pm->cmd.rightmove )
   {
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, eax; rightMove
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax; forwardMove
-    }
-    v8 = BG_DetermineStrafeCondition(pm, *(const float *)&_XMM1, *(const float *)&_XMM2);
-    PM_SetStrafeCondition(pm, v8);
+    v3 = BG_DetermineStrafeCondition(pm, (float)forwardmove, (float)pm->cmd.rightmove);
+    PM_SetStrafeCondition(pm, v3);
   }
 }
 
@@ -11574,80 +9194,45 @@ PM_SetPitchValues
 */
 void PM_SetPitchValues(const playerState_s *ps, pmove_t *pm)
 {
-  _RDI = pm;
-  _RBX = ps;
+  __int128 v4; 
+  float v12; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12491, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12492, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
+  if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12492, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( ((PM_GetEffectiveStance(_RBX) - 1) & 0xFFFFFFFD) != 0 )
+  if ( ((PM_GetEffectiveStance(ps) - 1) & 0xFFFFFFFD) != 0 )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RDI->fTorsoPitch = 0.0;
-    __asm { vmovss  dword ptr [rdi+348h], xmm0 }
+    pm->fTorsoPitch = 0.0;
+    pm->fWaistPitch = 0;
   }
   else
   {
-    __asm
+    if ( ps->viewHeightLerpTime )
     {
-      vmovaps [rsp+58h+var_18], xmm7
-      vmovaps [rsp+58h+var_28], xmm8
-    }
-    if ( _RBX->viewHeightLerpTime )
-    {
-      PM_GetViewHeightLerpTime(_RBX, _RBX->viewHeightLerpTarget, _RBX->viewHeightLerpDown);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vdivss  xmm2, xmm1, xmm0
-        vmovss  xmm0, cs:__real@3f800000
-        vxorps  xmm4, xmm4, xmm4
-        vcomiss xmm2, xmm4
-      }
-      if ( _RDI->cmd.serverTime >= (unsigned int)_RBX->viewHeightLerpTime )
+      v4 = 0i64;
+      *(float *)&v4 = (float)(pm->cmd.serverTime - ps->viewHeightLerpTime) / (float)PM_GetViewHeightLerpTime(ps, ps->viewHeightLerpTarget, ps->viewHeightLerpDown);
+      _XMM2 = v4;
+      _XMM4 = 0i64;
+      if ( *(float *)&v4 >= 0.0 )
         __asm { vminss  xmm4, xmm2, xmm0 }
+      _XMM0 = (unsigned int)ps->viewHeightLerpDown;
       __asm
       {
-        vsubss  xmm3, xmm0, xmm4
-        vmovd   xmm0, dword ptr [rbx+1F4h]
-      }
-      _EAX = 0;
-      __asm
-      {
-        vmovd   xmm1, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm8, xmm4, xmm3, xmm2
       }
     }
     else
     {
-      __asm { vmovss  xmm8, cs:__real@3f800000 }
+      *(float *)&_XMM8 = FLOAT_1_0;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+344h]
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm2, xmm7, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vmovss  xmm2, dword ptr [rdi+348h]
-      vmulss  xmm3, xmm2, cs:__real@3b360b61
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rdi+344h], xmm1
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vroundss xmm2, xmm7, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, cs:__real@43b40000
-      vmulss  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rdi+348h], xmm2
-      vmovaps xmm8, [rsp+58h+var_28]
-      vmovaps xmm7, [rsp+58h+var_18]
-    }
+    _XMM7 = 0i64;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    v12 = pm->fWaistPitch * 0.0027777778;
+    pm->fTorsoPitch = (float)((float)((float)(pm->fTorsoPitch * 0.0027777778) - *(float *)&_XMM2) * 360.0) * *(float *)&_XMM8;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    pm->fWaistPitch = (float)((float)(v12 - *(float *)&_XMM2) * 360.0) * *(float *)&_XMM8;
   }
 }
 
@@ -11704,8 +9289,6 @@ void PM_SetSprintRestore(pmove_t *pm, playerState_s *ps, const bool sprintRestor
   const dvar_t *v8; 
   const Weapon *ViewmodelWeapon; 
   bool v10; 
-  char v17; 
-  char v18; 
 
   if ( !sprintRestore )
     goto LABEL_10;
@@ -11717,26 +9300,18 @@ void PM_SetSprintRestore(pmove_t *pm, playerState_s *ps, const bool sprintRestor
   {
     ViewmodelWeapon = BG_GetViewmodelWeapon(pm->weaponMap, ps);
     v10 = BG_UsingAlternate(ps);
-    _RAX = BG_WeaponDef(ViewmodelWeapon, v10);
-    __asm
+    _XMM1 = LODWORD(delayOverride);
+    __asm { vcmpneqss xmm0, xmm1, cs:__real@7f7fffff }
+    _XMM2 = LODWORD(BG_WeaponDef(ViewmodelWeapon, v10)->sprintRestoreDelay);
+    __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+    if ( *(float *)&_XMM3 > 0.0 && useDelay )
     {
-      vmovss  xmm1, [rsp+48h+delayOverride]
-      vcmpneqss xmm0, xmm1, cs:__real@7f7fffff
-      vmovss  xmm2, dword ptr [rax+42Ch]
-      vblendvps xmm3, xmm2, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm3, xmm1
-    }
-    if ( v17 | v18 || !useDelay )
-    {
-      *(_QWORD *)&ps->sprintState.sprintRestore = 1i64;
+      ps->sprintState.sprintRestore = 0;
+      ps->sprintState.sprintRestoreDelayStart = pm->cmd.serverTime - (int)(float)(*(float *)&_XMM3 * -1000.0);
     }
     else
     {
-      __asm { vmulss  xmm0, xmm3, cs:__real@c47a0000 }
-      ps->sprintState.sprintRestore = 0;
-      __asm { vcvttss2si eax, xmm0 }
-      ps->sprintState.sprintRestoreDelayStart = pm->cmd.serverTime - _EAX;
+      *(_QWORD *)&ps->sprintState.sprintRestore = 1i64;
     }
   }
   else
@@ -11758,7 +9333,7 @@ void PM_SetStance(pmove_t *pm, pml_t *pml, const EffectiveStance stance)
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_eFlags; 
   __int32 v9; 
   __int32 v10; 
-  entity_event_t v15; 
+  entity_event_t v11; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6542, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -11778,16 +9353,8 @@ void PM_SetStance(pmove_t *pm, pml_t *pml, const EffectiveStance stance)
     GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, ACTIVE, 3u);
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0);
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
-    _RAX = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_PRONE);
-    _RCX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-    v15 = EV_STANCE_FORCE_PRONE;
+    *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_PRONE);
+    v11 = EV_STANCE_FORCE_PRONE;
     goto LABEL_20;
   }
   v10 = v9 - 1;
@@ -11798,16 +9365,8 @@ void PM_SetStance(pmove_t *pm, pml_t *pml, const EffectiveStance stance)
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 1u);
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
-    _RAX = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
-    _RCX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-    v15 = EV_STANCE_FORCE_CROUCH;
+    *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
+    v11 = EV_STANCE_FORCE_CROUCH;
     goto LABEL_20;
   }
   if ( v10 != 1 )
@@ -11817,18 +9376,10 @@ void PM_SetStance(pmove_t *pm, pml_t *pml, const EffectiveStance stance)
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0);
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
-    _RAX = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
-    _RCX = pm->bounds;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-    v15 = EV_STANCE_FORCE_STAND;
+    *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
+    v11 = EV_STANCE_FORCE_STAND;
 LABEL_20:
-    BG_AddPredictableEventToPlayerstate(v15, 0, pm->cmd.serverTime, pm->weaponMap, ps);
+    BG_AddPredictableEventToPlayerstate(v11, 0, pm->cmd.serverTime, pm->weaponMap, ps);
     goto LABEL_21;
   }
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(p_eFlags, ACTIVE, 4u);
@@ -11836,15 +9387,7 @@ LABEL_20:
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0);
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 1u);
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
-  _RAX = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_LASTSTANDCRAWL);
-  _RCX = pm->bounds;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *pm->bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_LASTSTANDCRAWL);
 LABEL_21:
   ps->viewHeightTarget = SuitDef->viewheight_stand;
   PM_ViewHeightAdjust(pm, pml);
@@ -11943,30 +9486,31 @@ LABEL_21:
 PM_SetupMoveState
 ==============
 */
-
-void __fastcall PM_SetupMoveState(pmove_t *pm, double _XMM1_8)
+void PM_SetupMoveState(pmove_t *pm)
 {
+  __int128 v1; 
   playerState_s *ps; 
-  playerState_s *v6; 
+  playerState_s *v4; 
   usercmd_s *p_cmd; 
-  const dvar_t *v8; 
+  const dvar_t *v6; 
   _QWORD *v; 
-  char v11; 
-  char v12; 
+  double UpContribution; 
+  double Float_Internal_DebugName; 
   unsigned __int64 buttons; 
-  bool v25; 
+  bool v11; 
   bool IsUsingOffhandGestureWeaponADSActive; 
   char forwardmove; 
-  WorldUpReferenceFrame v28; 
+  WorldUpReferenceFrame v14; 
+  __int128 v15; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11324, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11324, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = pm->ps;
+  v4 = pm->ps;
   p_cmd = &pm->cmd;
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11307, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11307, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( pm == (pmove_t *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11308, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
@@ -11974,7 +9518,7 @@ void __fastcall PM_SetupMoveState(pmove_t *pm, double _XMM1_8)
   {
     if ( GameModeFlagValues::ms_spValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 138, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a SP-only context", "IsFlagActive( index )") )
       __debugbreak();
-    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(&v6->otherFlags, ACTIVE, 0x2Eu);
+    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(&v4->otherFlags, ACTIVE, 0x2Eu);
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x16u) && !BG_IsPlayerZeroGFloating(ps) && !BG_IsThirdPersonMode(pm->weaponMap, ps) )
     *(_WORD *)&pm->cmd.forwardmove = 127;
@@ -12000,11 +9544,11 @@ void __fastcall PM_SetupMoveState(pmove_t *pm, double _XMM1_8)
     {
       GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0);
       *(_WORD *)&pm->cmd.forwardmove = 0;
-      v8 = DCONST_DVARMPBOOL_cursorHintControlLockSnapVelocity;
+      v6 = DCONST_DVARMPBOOL_cursorHintControlLockSnapVelocity;
       if ( !DCONST_DVARMPBOOL_cursorHintControlLockSnapVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cursorHintControlLockSnapVelocity") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v8);
-      if ( v8->current.enabled )
+      Dvar_CheckFrontendServerThread(v6);
+      if ( v6->current.enabled )
       {
         v = (_QWORD *)ps->velocity.v;
         if ( BG_IsPlayerZeroGFloating(ps) )
@@ -12014,12 +9558,11 @@ void __fastcall PM_SetupMoveState(pmove_t *pm, double _XMM1_8)
         }
         else
         {
-          WorldUpReferenceFrame::WorldUpReferenceFrame(&v28, ps, pm->m_bgHandler);
-          *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v28, &ps->velocity);
+          WorldUpReferenceFrame::WorldUpReferenceFrame(&v14, ps, pm->m_bgHandler);
+          UpContribution = WorldUpReferenceFrame::GetUpContribution(&v14, &ps->velocity);
           *v = 0i64;
-          __asm { vmovaps xmm1, xmm0; height }
           ps->velocity.v[2] = 0.0;
-          WorldUpReferenceFrame::SetUpContribution(&v28, *(float *)&_XMM1, &ps->velocity);
+          WorldUpReferenceFrame::SetUpContribution(&v14, *(float *)&UpContribution, &ps->velocity);
         }
       }
       goto LABEL_50;
@@ -12045,40 +9588,12 @@ LABEL_41:
   }
   else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Bu) )
   {
-    __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_player_limitedMovementLeftStickInputScale, "player_limitedMovementLeftStickInputScale");
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v11 )
-      goto LABEL_88;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v11 | v12) )
-    {
-LABEL_88:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11415, ASSERT_TYPE_ASSERT, "((leftStickInputScale >= 0.f) && (leftStickInputScale <= 1.f))", (const char *)&queryFormat, "(leftStickInputScale >= 0.f) && (leftStickInputScale <= 1.f)") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-      vcvttss2si eax, xmm1
-    }
-    pm->cmd.forwardmove = _EAX;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+0A8h+var_38]
-      vcvttss2si eax, xmm1
-    }
-    pm->cmd.rightmove = _EAX;
+    v15 = v1;
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_player_limitedMovementLeftStickInputScale, "player_limitedMovementLeftStickInputScale");
+    if ( (*(float *)&Float_Internal_DebugName < 0.0 || *(float *)&Float_Internal_DebugName > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11415, ASSERT_TYPE_ASSERT, "((leftStickInputScale >= 0.f) && (leftStickInputScale <= 1.f))", (const char *)&queryFormat, "(leftStickInputScale >= 0.f) && (leftStickInputScale <= 1.f)") )
+      __debugbreak();
+    pm->cmd.forwardmove = (int)(float)((float)pm->cmd.forwardmove * *(float *)&Float_Internal_DebugName);
+    pm->cmd.rightmove = (int)(float)((float)pm->cmd.rightmove * *(float *)&Float_Internal_DebugName);
   }
 LABEL_50:
   buttons = p_cmd->buttons;
@@ -12096,10 +9611,10 @@ LABEL_50:
     p_cmd->buttons &= ~1ui64;
   if ( ps->pm_type >= 7 )
     pm->tracemask &= 0xFDFFBFFF;
-  v25 = ((PM_GetEffectiveStance(ps) - 1) & 0xFFFFFFFD) == 0;
+  v11 = ((PM_GetEffectiveStance(ps) - 1) & 0xFFFFFFFD) == 0;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 9u) || (IsUsingOffhandGestureWeaponADSActive = BG_IsUsingOffhandGestureWeaponADSActive(ps)) )
     IsUsingOffhandGestureWeaponADSActive = 1;
-  if ( v25 && IsUsingOffhandGestureWeaponADSActive && !BG_UsingSniperScope(pm->weaponMap, ps) && ps->vehicleState.entity == 2047 )
+  if ( v11 && IsUsingOffhandGestureWeaponADSActive && !BG_UsingSniperScope(pm->weaponMap, ps) && ps->vehicleState.entity == 2047 )
     *(_WORD *)&pm->cmd.forwardmove = 0;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) )
   {
@@ -12131,87 +9646,73 @@ LABEL_84:
 PM_ShouldMakeFootsteps
 ==============
 */
-__int64 PM_ShouldMakeFootsteps(pmove_t *pm)
+_BOOL8 PM_ShouldMakeFootsteps(pmove_t *pm)
 {
-  const playerState_s *ps; 
+  playerState_s *ps; 
   const SuitDef *SuitDef; 
   EffectiveStance EffectiveStance; 
-  __int32 v7; 
-  __int32 v8; 
-  __int64 result; 
-  const dvar_t *v10; 
-  const char *v11; 
+  __int32 v5; 
+  __int32 v6; 
+  const dvar_t *v8; 
+  const char *v9; 
+  double Float_Internal_DebugName; 
+  float v11; 
+  double SpeedScale; 
 
-  _RBX = pm;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
-    goto LABEL_31;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7476, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
-    __debugbreak();
-  ps = _RBX->ps;
-  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7476, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-    __debugbreak();
-  if ( PM_IsInAir(_RBX) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
-    goto LABEL_20;
-  SuitDef = BG_GetSuitDef(ps->suitIndex);
-  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7485, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-    __debugbreak();
-  if ( SuitDef->suitAnimType == ANIM_SUIT_C8 )
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
   {
-LABEL_31:
-    result = 1i64;
-    goto LABEL_32;
-  }
-  EffectiveStance = PM_GetEffectiveStance(ps);
-  if ( EffectiveStance == PM_EFF_STANCE_DEFAULT )
-  {
-    v10 = DCONST_DVARMPSPFLT_player_footstepsThreshhold;
-    v11 = "player_footstepsThreshhold";
-    goto LABEL_30;
-  }
-  v7 = EffectiveStance - 1;
-  if ( !v7 )
-  {
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7507, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE )") )
+    if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7476, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
       __debugbreak();
-    goto LABEL_28;
-  }
-  v8 = v7 - 1;
-  if ( !v8 )
-  {
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
+    ps = pm->ps;
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7476, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      __debugbreak();
+    if ( PM_IsInAir(pm) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
+      return 0i64;
+    SuitDef = BG_GetSuitDef(ps->suitIndex);
+    if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7485, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+      __debugbreak();
+    if ( SuitDef->suitAnimType != ANIM_SUIT_C8 )
     {
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7503, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::DUCKED ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::DUCKED )") )
-        __debugbreak();
-      v10 = DCONST_DVARMPSPFLT_player_footstepsThreshholdCrouch;
-      v11 = "player_footstepsThreshholdCrouch";
-      goto LABEL_30;
-    }
-LABEL_20:
-    result = 0i64;
-    goto LABEL_32;
-  }
-  if ( v8 == 1 )
-  {
+      EffectiveStance = PM_GetEffectiveStance(ps);
+      if ( EffectiveStance == PM_EFF_STANCE_DEFAULT )
+      {
+        v8 = DCONST_DVARMPSPFLT_player_footstepsThreshhold;
+        v9 = "player_footstepsThreshhold";
+        goto LABEL_30;
+      }
+      v5 = EffectiveStance - 1;
+      if ( !v5 )
+      {
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7507, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::PRONE )") )
+          __debugbreak();
 LABEL_28:
-    v10 = DCONST_DVARMPSPFLT_player_footstepsThreshholdProne;
-    v11 = "player_footstepsThreshholdProne";
+        v8 = DCONST_DVARMPSPFLT_player_footstepsThreshholdProne;
+        v9 = "player_footstepsThreshholdProne";
 LABEL_30:
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v10, v11);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = PM_Slope_GetSpeedScale(&ps->velocity, _RBX);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vcomiss xmm1, dword ptr [rbx+330h]
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v8, v9);
+        v11 = *(float *)&Float_Internal_DebugName;
+        SpeedScale = PM_Slope_GetSpeedScale(&ps->velocity, pm);
+        return (float)(*(float *)&SpeedScale * v11) <= pm->speed;
+      }
+      v6 = v5 - 1;
+      if ( v6 )
+      {
+        if ( v6 != 1 )
+          return 0i64;
+        goto LABEL_28;
+      }
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
+      {
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7503, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::DUCKED ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::DUCKED )") )
+          __debugbreak();
+        v8 = DCONST_DVARMPSPFLT_player_footstepsThreshholdCrouch;
+        v9 = "player_footstepsThreshholdCrouch";
+        goto LABEL_30;
+      }
+      return 0i64;
     }
-    result = 1i64;
-    goto LABEL_32;
   }
-  result = 0i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -12223,13 +9724,13 @@ char PM_ShouldSprintEnd(pmove_t *pm, const pml_t *pml)
 {
   playerState_s *ps; 
   unsigned __int64 buttons; 
-  bool v9; 
-  bool v10; 
-  const dvar_t *v11; 
-  playerState_s *v12; 
-  unsigned __int64 v13; 
-  bool v15; 
-  float fmt; 
+  bool v7; 
+  bool v8; 
+  const dvar_t *v9; 
+  playerState_s *v10; 
+  unsigned __int64 v11; 
+  float v12; 
+  bool v13; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1799, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -12242,50 +9743,38 @@ char PM_ShouldSprintEnd(pmove_t *pm, const pml_t *pml)
     return 1;
   }
   buttons = pm->cmd.buttons;
-  v9 = (buttons & 0x8000000000000i64) != 0;
-  v10 = (pm->oldcmd.buttons & 2) == 0 && (buttons & 2) != 0;
-  v11 = DCONST_DVARINT_bg_disableToggleSprint;
+  v7 = (buttons & 0x8000000000000i64) != 0;
+  v8 = (pm->oldcmd.buttons & 2) == 0 && (buttons & 2) != 0;
+  v9 = DCONST_DVARINT_bg_disableToggleSprint;
   if ( !DCONST_DVARINT_bg_disableToggleSprint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_disableToggleSprint") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.integer == 1 || v9 || !v10 || PM_IsInAir(pm) )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.integer == 1 || v7 || !v8 || PM_IsInAir(pm) )
   {
     if ( PM_SprintEndingButtons(pm, pml) )
       goto LABEL_48;
-    v12 = pm->ps;
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1704, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v10 = pm->ps;
+    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1704, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v12->pm_flags, ACTIVE, 0x1Du) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v12->pm_flags, ACTIVE, 0x1Eu) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v12->pm_flags, ACTIVE, 0x19u) || (unsigned int)(v12->weapState[0].weaponState - 22) <= 2 && !BG_CanSprintMelee(v12) || PM_IsInAir(pm) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v12->pm_flags, ACTIVE, 0x13u) )
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v10->pm_flags, ACTIVE, 0x1Du) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v10->pm_flags, ACTIVE, 0x1Eu) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v10->pm_flags, ACTIVE, 0x19u) || (unsigned int)(v10->weapState[0].weaponState - 22) <= 2 && !BG_CanSprintMelee(v10) || PM_IsInAir(pm) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v10->pm_flags, ACTIVE, 0x13u) )
     {
 LABEL_48:
       if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
       {
-        __asm
-        {
-          vmovaps [rsp+78h+var_38], xmm6
-          vmovss  xmm6, cs:__real@7f7fffff
-        }
-        v15 = PM_AnyAttackButtonPressed(pm);
+        v12 = FLOAT_3_4028235e38;
+        v13 = PM_AnyAttackButtonPressed(pm);
         if ( !BG_CanSprintReload(ps) && (pm->cmd.buttons & 0x20) != 0 )
         {
-          v15 = 1;
-          Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_sprintReloadPredictionFixSprintRestoreDelay, "bg_sprintReloadPredictionFixSprintRestoreDelay");
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm6, xmm0, cs:__real@3a83126f
-          }
+          v13 = 1;
+          v12 = (float)Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_sprintReloadPredictionFixSprintRestoreDelay, "bg_sprintReloadPredictionFixSprintRestoreDelay") * 0.001;
         }
-        __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
-        PM_SetSprintRestore(pm, ps, 1, v15, fmt);
-        __asm { vmovaps xmm6, [rsp+78h+var_38] }
+        PM_SetSprintRestore(pm, ps, 1, v13, v12);
       }
     }
     else if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) && !BG_IsPlayerInExecution(ps) && ps->pm_type <= 1u && BG_GetMaxSprintTime(pm->weaponMap, ps) > 0 )
     {
-      v13 = pm->cmd.buttons;
-      if ( (v13 & 0x400000000000i64) == 0 || (pm->oldcmd.buttons & 2) == 0 || (v13 & 2) != 0 )
+      v11 = pm->cmd.buttons;
+      if ( (v11 & 0x400000000000i64) == 0 || (pm->oldcmd.buttons & 2) == 0 || (v11 & 2) != 0 )
         return 0;
     }
   }
@@ -12420,6 +9909,8 @@ PM_SprintScale
 float PM_SprintScale(const playerState_s *ps)
 {
   const dvar_t *v2; 
+  const SuitDef *SuitDef; 
+  const dvar_t *v5; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2765, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -12429,20 +9920,19 @@ float PM_SprintScale(const playerState_s *ps)
   Dvar_CheckFrontendServerThread(v2);
   if ( v2->current.enabled )
   {
-    _RBX = BG_GetSuitDef(ps->suitIndex);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2769, ASSERT_TYPE_ASSERT, "(suit)", (const char *)&queryFormat, "suit") )
+    SuitDef = BG_GetSuitDef(ps->suitIndex);
+    if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2769, ASSERT_TYPE_ASSERT, "(suit)", (const char *)&queryFormat, "suit") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+58h] }
+    return SuitDef->player_sprintSpeedScale;
   }
   else
   {
-    _RBX = DCONST_DVARMPFLT_player_sprintSpeedScale;
+    v5 = DCONST_DVARMPFLT_player_sprintSpeedScale;
     if ( !DCONST_DVARMPFLT_player_sprintSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v5);
+    return v5->current.value;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -12626,57 +10116,64 @@ PM_SwimFriction
 */
 void PM_SwimFriction(pmove_t *pm, pml_t *pml)
 {
-  const dvar_t *v9; 
+  playerState_s *ps; 
+  const dvar_t *v5; 
+  float value; 
+  const dvar_t *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float frametime; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  _RSI = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3588, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3588, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3588, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3590, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING )") )
     __debugbreak();
-  _RDI = DCONST_DVARMPFLT_player_swimFriction;
+  v5 = DCONST_DVARMPFLT_player_swimFriction;
   if ( !DCONST_DVARMPFLT_player_swimFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimFriction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  v9 = DCONST_DVARMPFLT_player_swimVerticalFriction;
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  v7 = DCONST_DVARMPFLT_player_swimVerticalFriction;
   if ( !DCONST_DVARMPFLT_player_swimVerticalFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimVerticalFriction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = ps->velocity.v[0];
+  v10 = fsqrt((float)((float)(v8 * v8) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+  v9 = v10;
+  if ( v10 >= 0.001 )
   {
-    vmovss  xmm0, dword ptr [rbx+40h]
-    vmovss  xmm5, dword ptr [rbx+3Ch]
-    vmovss  xmm3, dword ptr [rbx+44h]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vcomiss xmm4, cs:__real@3a83126f
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vmovaps [rsp+68h+var_18], xmm6
-    vmulss  xmm6, xmm0, dword ptr [rdi+28h]
-    vmulss  xmm0, xmm0, xmm7
-    vsubss  xmm1, xmm4, xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcomiss xmm1, xmm2
+    frametime = pml->frametime;
+    v12 = frametime * v7->current.value;
+    v13 = v10 - (float)(frametime * value);
+    if ( v13 <= 0.0 )
+    {
+      ps->velocity.v[0] = 0.0;
+      v14 = 0.0;
+    }
+    else
+    {
+      ps->velocity.v[0] = v8 * (float)(v13 / v9);
+      v14 = (float)(v13 / v9) * ps->velocity.v[1];
+    }
+    ps->velocity.v[1] = v14;
+    if ( (float)(v9 - v12) > 0.0 )
+    {
+      ps->velocity.v[2] = (float)((float)(v9 - v12) / v9) * ps->velocity.v[2];
+      return;
+    }
   }
-  _RBX->velocity.v[0] = 0.0;
-  __asm
+  else
   {
-    vxorps  xmm3, xmm3, xmm3
-    vsubss  xmm0, xmm4, xmm6
-    vcomiss xmm0, xmm2
-    vmovss  dword ptr [rbx+40h], xmm3
-    vmovaps xmm6, [rsp+68h+var_18]
+    *(_QWORD *)ps->velocity.v = 0i64;
   }
-  _RBX->velocity.v[2] = 0.0;
-  __asm { vmovaps xmm7, [rsp+68h+var_28] }
+  ps->velocity.v[2] = 0.0;
 }
 
 /*
@@ -12686,324 +10183,214 @@ PM_SwimMove
 */
 void PM_SwimMove(pmove_t *pm, pml_t *pml)
 {
-  char v25; 
-  int v30; 
-  unsigned __int64 v31; 
-  int v32; 
-  shellshock_parms_t *ShellshockParms; 
-  char v70; 
-  bool v71; 
-  bool v72; 
-  const dvar_t *v97; 
-  char v138; 
-  void *retaddr; 
+  playerState_s *ps; 
+  const dvar_t *v5; 
+  float value; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
+  const dvar_t *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  BOOL v16; 
+  unsigned __int64 v17; 
+  int v18; 
+  char forwardmove; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __m128 v23; 
+  __m128 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  double v29; 
+  __m128 v31; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  __int128 v39; 
+  float v42; 
+  float v43; 
+  const dvar_t *v44; 
+  float v45; 
+  float v46; 
+  double v47; 
+  float frametime; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps [rsp+148h+var_D8], xmm15
-  }
-  _RSI = pml;
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_SwimMove");
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3653, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING )") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3655, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3655, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3655, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBP = DCONST_DVARMPFLT_player_swimSpeed;
+  v5 = DCONST_DVARMPFLT_player_swimSpeed;
   if ( !DCONST_DVARMPFLT_player_swimSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  __asm { vmovss  xmm7, dword ptr [rbp+28h] }
-  _RBP = DCONST_DVARMPFLT_player_swimAcceleration;
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  v7 = DCONST_DVARMPFLT_player_swimAcceleration;
   if ( !DCONST_DVARMPFLT_player_swimAcceleration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimAcceleration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+28h]
-    vmovss  [rsp+148h+var_104], xmm0
-  }
-  _RBP = DCONST_DVARMPFLT_player_swimVerticalSpeed;
+  Dvar_CheckFrontendServerThread(v7);
+  v51 = v7->current.value;
+  v8 = DCONST_DVARMPFLT_player_swimVerticalSpeed;
   if ( !DCONST_DVARMPFLT_player_swimVerticalSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimVerticalSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  __asm { vmovss  xmm8, dword ptr [rbp+28h] }
-  _RBP = DCONST_DVARMPFLT_player_swimVerticalAcceleration;
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = v8->current.value;
+  v10 = DCONST_DVARMPFLT_player_swimVerticalAcceleration;
   if ( !DCONST_DVARMPFLT_player_swimVerticalAcceleration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimVerticalAcceleration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  __asm { vmovss  xmm10, dword ptr [rbp+28h] }
-  _RBP = DCONST_DVARMPVEC3_player_swimWaterCurrent;
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.value;
+  v12 = DCONST_DVARMPVEC3_player_swimWaterCurrent;
   if ( !DCONST_DVARMPVEC3_player_swimWaterCurrent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_swimWaterCurrent") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  __asm
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = v12->current.value;
+  v14 = v12->current.vector.v[1];
+  v15 = v12->current.vector.v[2];
+  v16 = v13 != 0.0 || v14 != 0.0 || v15 != 0.0;
+  v17 = (pm->cmd.buttons >> 8) & 1;
+  v18 = (pm->cmd.buttons & 0x480) != 0;
+  forwardmove = pm->cmd.forwardmove;
+  if ( (forwardmove || pm->cmd.rightmove || (_DWORD)v17 != v18) && ps->pm_type < 7 )
   {
-    vmovss  xmm14, dword ptr [rbp+28h]
-    vmovss  xmm13, dword ptr [rbp+2Ch]
-    vmovss  xmm12, dword ptr [rbp+30h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm14, xmm6
-  }
-  if ( !v25 )
-    goto LABEL_29;
-  __asm { vucomiss xmm13, xmm6 }
-  if ( !v25 )
-    goto LABEL_29;
-  __asm { vucomiss xmm12, xmm6 }
-  if ( v25 )
-    v30 = 0;
-  else
-LABEL_29:
-    v30 = 1;
-  v31 = (pm->cmd.buttons >> 8) & 1;
-  v32 = (pm->cmd.buttons & 0x480) != 0;
-  LOBYTE(_EAX) = pm->cmd.forwardmove;
-  if ( ((_BYTE)_EAX || pm->cmd.rightmove || (_DWORD)v31 != v32) && _RBX->pm_type < 7 )
-  {
-    _EAX = (char)_EAX;
-    __asm
+    v20 = _mm_cvtepi32_ps((__m128i)(unsigned int)forwardmove).m128_f32[0] * 0.0078740157;
+    v24 = _mm_cvtepi32_ps((__m128i)(unsigned int)pm->cmd.rightmove);
+    v21 = v24.m128_f32[0] * 0.0078740157;
+    v22 = (float)(v20 * pml->forward.v[0]) + (float)((float)(v24.m128_f32[0] * 0.0078740157) * pml->right.v[0]);
+    v24.m128_f32[0] = (float)((float)(v24.m128_f32[0] * 0.0078740157) * pml->right.v[1]) + (float)(v20 * pml->forward.v[1]);
+    v23 = v24;
+    v50 = v24.m128_f32[0];
+    v25 = (float)(v21 * pml->right.v[2]) + (float)(v20 * pml->forward.v[2]);
+    v26 = ps->velocity.v[2];
+    if ( (_DWORD)v17 != v18 )
     {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, cs:__real@3c010204
-    }
-    _EAX = pm->cmd.rightmove;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm3, xmm0, cs:__real@3c010204
-      vmulss  xmm1, xmm4, dword ptr [rsi]
-      vmulss  xmm0, xmm3, dword ptr [rsi+0Ch]
-      vaddss  xmm15, xmm1, xmm0
-      vmulss  xmm2, xmm3, dword ptr [rsi+10h]
-      vmulss  xmm0, xmm4, dword ptr [rsi+4]
-      vaddss  xmm5, xmm2, xmm0
-      vmovss  [rsp+148h+var_108], xmm5
-      vmulss  xmm1, xmm3, dword ptr [rsi+14h]
-      vmulss  xmm0, xmm4, dword ptr [rsi+8]
-      vaddss  xmm11, xmm1, xmm0
-      vmovss  xmm9, dword ptr [rbx+44h]
-    }
-    if ( (_DWORD)v31 != v32 )
-    {
-      __asm { vmulss  xmm0, xmm10, dword ptr [rsi+24h] }
-      if ( (_DWORD)v31 )
-        __asm { vaddss  xmm0, xmm9, xmm0 }
+      v27 = v11 * pml->frametime;
+      if ( (_DWORD)v17 )
+        v28 = v26 + v27;
       else
-        __asm { vsubss  xmm0, xmm9, xmm0; val }
-      __asm { vcomiss xmm8, xmm6 }
-      if ( (_DWORD)v31 )
+        v28 = v26 - v27;
+      if ( v9 <= 0.0 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm8, cs:__xmm@80000000800000008000000080000000; min
-          vmovaps xmm2, xmm8; max
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm9, xmm0
-          vmovss  xmm5, [rsp+148h+var_108]
-        }
+        v26 = 0.0;
       }
       else
       {
-        __asm { vxorps  xmm9, xmm9, xmm9 }
+        v29 = I_fclamp(v28, COERCE_FLOAT(LODWORD(v9) ^ _xmm), v9);
+        v26 = *(float *)&v29;
+        v23 = (__m128)v24.m128_u32[0];
       }
-      __asm { vxorps  xmm11, xmm11, xmm11 }
-      _RBX->velocity.v[2] = 0.0;
+      v25 = 0.0;
+      ps->velocity.v[2] = 0.0;
     }
+    v31 = v23;
+    v31.m128_f32[0] = fsqrt((float)((float)(v23.m128_f32[0] * v23.m128_f32[0]) + (float)(v22 * v22)) + (float)(v25 * v25));
+    _XMM8 = v31;
     __asm
     {
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm15, xmm15
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm11, xmm11
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm8, xmm2, xmm2
       vcmpless xmm0, xmm8, cs:__real@80000000
-      vmovss  xmm10, cs:__real@3f800000
       vblendvps xmm1, xmm8, xmm10, xmm0
-      vmovss  [rsp+148h+var_100], xmm1
-      vdivss  xmm0, xmm10, xmm1
-      vmulss  xmm1, xmm15, xmm0
-      vmovss  [rsp+148h+var_F8], xmm1
-      vmulss  xmm1, xmm5, xmm0
-      vmovss  [rsp+148h+var_FC], xmm1
-      vmulss  xmm0, xmm0, xmm11
-      vmovss  [rsp+148h+var_100], xmm0
     }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x15u) && (ShellshockParms = BG_GetShellshockParms(_RBX->shellshockIndex), v70 = 0, v71 = !ShellshockParms->movement.affect, ShellshockParms->movement.affect) )
+    v54 = v22 * (float)(1.0 / *(float *)&_XMM1);
+    v53 = v23.m128_f32[0] * (float)(1.0 / *(float *)&_XMM1);
+    v52 = (float)(1.0 / *(float *)&_XMM1) * v25;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x15u) && BG_GetShellshockParms(ps->shellshockIndex)->movement.affect )
     {
-      __asm
-      {
-        vmulss  xmm8, xmm8, cs:__real@3ecccccd
-        vmulss  xmm7, xmm7, cs:__real@3ecccccd
-      }
+      _XMM8.m128_f32[0] = v31.m128_f32[0] * 0.40000001;
+      value = value * 0.40000001;
     }
-    else
+    else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) )
     {
-      v72 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x14u);
-      v70 = 0;
-      v71 = !v72;
-      if ( v72 )
-      {
-        *(float *)&_XMM0 = PM_SprintScale(_RBX);
-        __asm { vmulss  xmm8, xmm0, xmm8 }
-        PM_SprintScale(_RBX);
-        __asm { vmulss  xmm7, xmm7, xmm0 }
-      }
+      _XMM8.m128_f32[0] = PM_SprintScale(ps) * v31.m128_f32[0];
+      value = value * PM_SprintScale(ps);
     }
+    v39 = LODWORD(v51);
+    v34 = v51 * pml->frametime;
+    v35 = (float)(v22 * v34) + ps->velocity.v[0];
+    ps->velocity.v[0] = v35;
+    v36 = (float)(v34 * v50) + ps->velocity.v[1];
+    ps->velocity.v[1] = v36;
+    v37 = (float)(v34 * v25) + ps->velocity.v[2];
+    ps->velocity.v[2] = v37;
+    *(float *)&v39 = fsqrt((float)((float)(v36 * v36) + (float)(v35 * v35)) + (float)(v37 * v37));
+    _XMM2 = v39;
     __asm
     {
-      vmovss  xmm0, [rsp+148h+var_104]
-      vmulss  xmm1, xmm0, dword ptr [rsi+24h]
-      vmulss  xmm0, xmm15, xmm1
-      vaddss  xmm5, xmm0, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rbx+3Ch], xmm5
-      vmulss  xmm0, xmm1, [rsp+148h+var_108]
-      vaddss  xmm4, xmm0, dword ptr [rbx+40h]
-      vmovss  dword ptr [rbx+40h], xmm4
-      vmulss  xmm0, xmm1, xmm11
-      vaddss  xmm3, xmm0, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm3
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm2, xmm2, xmm2
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm1, xmm2, xmm10, xmm0
-      vdivss  xmm0, xmm10, xmm1
-      vmulss  xmm1, xmm5, xmm0
-      vmulss  xmm5, xmm4, xmm0
-      vmulss  xmm4, xmm3, xmm0
-      vcomiss xmm2, xmm7
     }
-    if ( !(v70 | v71) )
+    v42 = 1.0 / *(float *)&_XMM1;
+    v43 = v35 * (float)(1.0 / *(float *)&_XMM1);
+    if ( *(float *)&v39 > value )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm7
-        vmovss  dword ptr [rbx+3Ch], xmm0
-        vmulss  xmm1, xmm5, xmm7
-        vmovss  dword ptr [rbx+40h], xmm1
-        vmulss  xmm0, xmm4, xmm7
-        vmovss  dword ptr [rbx+44h], xmm0
-      }
+      ps->velocity.v[0] = v43 * value;
+      ps->velocity.v[1] = (float)(v36 * v42) * value;
+      ps->velocity.v[2] = (float)(v37 * v42) * value;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm8, xmm7
-      vcomiss xmm2, xmm0
-    }
-    if ( !(v70 | v71) )
-      PM_SwimFriction(pm, _RSI);
-    if ( (_DWORD)v31 != v32 )
-      __asm { vmovss  dword ptr [rbx+44h], xmm9 }
+    if ( *(float *)&v39 > (float)(_XMM8.m128_f32[0] * value) )
+      PM_SwimFriction(pm, pml);
+    if ( (_DWORD)v17 != v18 )
+      ps->velocity.v[2] = v26;
     if ( pm->ground->groundPlane )
     {
-      v97 = DCONST_DVARMPBOOL_player_spaceEnabled;
+      v44 = DCONST_DVARMPBOOL_player_spaceEnabled;
       if ( !DCONST_DVARMPBOOL_player_spaceEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_spaceEnabled") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v97);
-      if ( !v97->current.enabled )
+      Dvar_CheckFrontendServerThread(v44);
+      if ( !v44->current.enabled )
       {
-        __asm
+        v45 = (float)((float)(v53 * pm->ground->trace.normal.v[1]) + (float)(v54 * pm->ground->trace.normal.v[0])) + (float)(v52 * pm->ground->trace.normal.v[2]);
+        if ( v45 < 0.0 )
         {
-          vmovss  xmm0, [rsp+148h+var_FC]
-          vmulss  xmm1, xmm0, dword ptr [rax+14h]
-          vmovss  xmm0, [rsp+148h+var_F8]
-          vmulss  xmm0, xmm0, dword ptr [rax+10h]
-          vaddss  xmm2, xmm1, xmm0
-          vmovss  xmm3, [rsp+148h+var_100]
-          vmulss  xmm1, xmm3, dword ptr [rax+18h]
-          vaddss  xmm0, xmm2, xmm1
-          vcomiss xmm0, xmm6
+          v46 = acosf_0(COERCE_FLOAT(LODWORD(v45) & _xmm)) * 57.295776;
+          if ( v46 < 45.0 )
+          {
+            v47 = I_fclamp(v46 * 0.022222223, 0.5, 1.0);
+            ps->velocity.v[0] = *(float *)&v47 * ps->velocity.v[0];
+            ps->velocity.v[1] = *(float *)&v47 * ps->velocity.v[1];
+            ps->velocity.v[2] = *(float *)&v47 * ps->velocity.v[2];
+          }
         }
       }
     }
   }
   else
   {
-    PM_SwimFriction(pm, _RSI);
+    PM_SwimFriction(pm, pml);
   }
-  if ( v30 )
+  if ( v16 )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+24h]
-      vmulss  xmm0, xmm3, xmm14
-      vaddss  xmm1, xmm0, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rbx+3Ch], xmm1
-      vmulss  xmm2, xmm13, xmm3
-      vaddss  xmm0, xmm2, dword ptr [rbx+40h]
-      vmovss  dword ptr [rbx+40h], xmm0
-      vmulss  xmm1, xmm12, xmm3
-      vaddss  xmm2, xmm1, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm2
-    }
+    frametime = pml->frametime;
+    ps->velocity.v[0] = (float)(frametime * v13) + ps->velocity.v[0];
+    ps->velocity.v[1] = (float)(v14 * frametime) + ps->velocity.v[1];
+    ps->velocity.v[2] = (float)(v15 * frametime) + ps->velocity.v[2];
   }
-  __asm { vucomiss xmm6, dword ptr [rbx+3Ch] }
-  if ( v30 )
+  if ( ps->velocity.v[0] != 0.0 || ps->velocity.v[1] != 0.0 || ps->velocity.v[2] != 0.0 )
+    PM_PlayerSwimSlideMove(pm, pml);
+  if ( v16 )
   {
-    PM_PlayerSwimSlideMove(pm, _RSI);
-  }
-  else
-  {
-    __asm
-    {
-      vucomiss xmm6, dword ptr [rbx+40h]
-      vucomiss xmm6, dword ptr [rbx+44h]
-    }
-  }
-  if ( v30 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm1, xmm3, xmm14
-      vaddss  xmm0, xmm1, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rbx+3Ch], xmm0
-      vmulss  xmm2, xmm13, xmm3
-      vaddss  xmm1, xmm2, dword ptr [rbx+40h]
-      vmovss  dword ptr [rbx+40h], xmm1
-      vmulss  xmm0, xmm12, xmm3
-      vaddss  xmm2, xmm0, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm2
-    }
+    LODWORD(v49) = LODWORD(pml->frametime) ^ _xmm;
+    ps->velocity.v[0] = (float)(v49 * v13) + ps->velocity.v[0];
+    ps->velocity.v[1] = (float)(v14 * v49) + ps->velocity.v[1];
+    ps->velocity.v[2] = (float)(v15 * v49) + ps->velocity.v[2];
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v138;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, [rsp+148h+var_D8]
-  }
 }
 
 /*
@@ -13037,344 +10424,248 @@ PM_UFOMove
 */
 void PM_UFOMove(pmove_t *pm, pml_t *pml)
 {
+  __int128 v2; 
+  playerState_s *ps; 
   const SuitDef *SuitDef; 
-  bool v28; 
-  bool v29; 
+  double v7; 
+  double v8; 
+  float rightmove; 
+  int v11; 
+  int v12; 
+  char v13; 
+  float v14; 
   unsigned __int64 buttons; 
-  unsigned __int64 v65; 
+  float *v; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  const dvar_t *v27; 
+  float value; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  float v31; 
+  unsigned __int64 v34; 
+  double v35; 
+  double v36; 
   const Weapon *CurrentWeaponForPlayer; 
-  unsigned __int64 v71; 
-  const Weapon *v72; 
-  bool v73; 
-  bool v74; 
-  unsigned __int64 v75; 
-  bool v84; 
-  float fmt; 
-  __int64 v122; 
-  __int64 v123; 
-  __int64 v124; 
-  __int64 v125; 
-  __int64 v126; 
-  __int64 v127; 
+  unsigned __int64 v38; 
+  const Weapon *v39; 
+  bool v40; 
+  __int64 v44; 
+  bool v45; 
+  float v46; 
+  __int128 v47; 
+  float frametime; 
+  __int64 v52; 
+  __int64 v53; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  __int64 v57; 
+  float v58; 
   vec3_t vec; 
+  float v60; 
+  float v61; 
+  float v62; 
   vec3_t wishdir; 
   vec3_t cross; 
-  char v138; 
-  void *retaddr; 
+  __int128 v65; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R13 = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4804, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4804, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4804, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  SuitDef = BG_GetSuitDef(_RSI->suitIndex);
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4807, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  _RSI->viewHeightTarget = SuitDef->viewheight_stand;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, eax
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, eax
-    vmovaps [rsp+138h+var_48], xmm6
-    vmovss  xmm8, cs:__real@42fe0000
-  }
-  _RBX = 0i64;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  ps->viewHeightTarget = SuitDef->viewheight_stand;
+  HIDWORD(v8) = 0;
+  *(float *)&v8 = (float)pm->cmd.forwardmove;
+  v7 = v8;
+  rightmove = (float)pm->cmd.rightmove;
+  _XMM8 = LODWORD(FLOAT_127_0);
+  v11 = 0;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_HARD_LAND|0x80) )
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, eax
-    }
+    v12 = pm->cmd.upmove - pm->cmd.downmove;
+    if ( v12 > 127 )
+      v12 = 127;
+    v13 = v12;
+    if ( v12 < -128 )
+      v13 = 0x80;
+    v14 = (float)v13;
   }
   else
   {
-    _RAX = pm->cmd.buttons & 1;
+    _XMM0 = pm->cmd.buttons & 1;
     __asm
     {
-      vmovq   xmm0, rax
-      vmovq   xmm1, rbx
       vpcmpeqq xmm2, xmm0, xmm1
       vblendvps xmm0, xmm8, xmm7, xmm2
-      vmovaps xmm6, xmm0
-      vmovss  [rsp+138h+var_F8], xmm0
     }
+    v14 = *(float *)&_XMM0;
     if ( (pm->cmd.buttons & 0x20000) != 0 )
-      __asm { vsubss  xmm6, xmm0, xmm8 }
+      v14 = *(float *)&_XMM0 - 127.0;
   }
-  v28 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x20u);
-  v29 = !v28;
-  if ( v28 )
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x20u) )
   {
     if ( pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
     {
-      *(_QWORD *)_RSI->velocity.v = 0i64;
-      _RSI->velocity.v[2] = 0.0;
-      goto LABEL_64;
+      *(_QWORD *)ps->velocity.v = 0i64;
+      ps->velocity.v[2] = 0.0;
+      return;
     }
     buttons = pm->cmd.buttons;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    v29 = (buttons & 2) == 0;
+    v14 = 0.0;
     if ( (buttons & 2) == 0 )
     {
-      _RAX = pm->cmd.buttons & 0x100;
+      _XMM0 = buttons & 0x100;
       __asm
       {
-        vmovq   xmm0, rax
-        vmovq   xmm1, rbx
         vpcmpeqq xmm2, xmm0, xmm1
         vblendvps xmm0, xmm8, xmm7, xmm2
-        vmovaps xmm6, xmm0
-        vmovss  [rsp+138h+var_F8], xmm0
       }
-      v29 = (buttons & 0xC0) == 0;
+      v14 = *(float *)&_XMM0;
       if ( (buttons & 0xC0) != 0 )
-        __asm { vsubss  xmm6, xmm0, xmm8 }
+        v14 = *(float *)&_XMM0 - 127.0;
     }
   }
-  __asm
+  _XMM12 = LODWORD(FLOAT_1_0);
+  if ( *(float *)&v8 == 0.0 && rightmove == 0.0 && v14 == 0.0 )
   {
-    vucomiss xmm9, xmm7
-    vmovaps [rsp+138h+var_A8], xmm12
-    vmovss  xmm12, cs:__real@3f800000
-  }
-  if ( !v29 )
-    goto LABEL_24;
-  __asm { vucomiss xmm10, xmm7 }
-  if ( !v29 )
-    goto LABEL_24;
-  __asm { vucomiss xmm6, xmm7 }
-  if ( v29 )
-  {
-    _R14 = &_RSI->velocity;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  dword ptr [r14+4], xmm1
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-    }
+    v = ps->velocity.v;
   }
   else
   {
-LABEL_24:
-    _R14 = &_RSI->velocity;
-    __asm
+    v = ps->velocity.v;
+    v25 = LODWORD(ps->velocity.v[0]);
+    *(float *)&v25 = fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+    v24 = *(float *)&v25;
+    if ( *(float *)&v25 >= 1.0 )
     {
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  xmm2, dword ptr [r14+4]
-      vmovss  xmm3, dword ptr [r14+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm8, xmm2, xmm2
-      vcomiss xmm8, xmm12
-    }
-    _RDI = DCONST_DVARMPFLT_friction;
-    __asm { vmovaps [rsp+138h+var_98], xmm11 }
-    if ( !DCONST_DVARMPFLT_friction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "friction") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm11, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARFLT_stopspeed;
-    if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm8, dword ptr [rdi+28h] }
-    if ( v84 )
-    {
-      _RDI = DCONST_DVARFLT_stopspeed;
+      v27 = DCONST_DVARMPFLT_friction;
+      v65 = v2;
+      if ( !DCONST_DVARMPFLT_friction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "friction") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v27);
+      value = v27->current.value;
+      v29 = DCONST_DVARFLT_stopspeed;
       if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-    }
-    else
-    {
-      __asm { vmovaps xmm0, xmm8 }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm11, xmm0
-      vmulss  xmm1, xmm0, cs:__real@3fc00000
-      vmulss  xmm2, xmm1, dword ptr [r13+24h]
-      vmovaps xmm11, [rsp+138h+var_98]
-      vsubss  xmm3, xmm8, xmm2
-      vmaxss  xmm0, xmm3, xmm7
-      vdivss  xmm2, xmm0, xmm8
-      vmulss  xmm0, xmm2, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm0
-      vmulss  xmm1, xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [r14+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r14+8]
+      Dvar_CheckFrontendServerThread(v29);
+      if ( *(float *)&v25 >= v29->current.value )
+      {
+        v31 = *(float *)&v25;
+      }
+      else
+      {
+        v30 = DCONST_DVARFLT_stopspeed;
+        if ( !DCONST_DVARFLT_stopspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stopspeed") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v30);
+        v31 = v30->current.value;
+      }
+      *(float *)&v25 = *(float *)&v25 - (float)((float)((float)(value * v31) * 1.5) * pml->frametime);
+      _XMM3 = v25;
+      __asm { vmaxss  xmm0, xmm3, xmm7 }
+      *v = (float)(*(float *)&_XMM0 / v24) * *v;
+      ps->velocity.v[1] = (float)(*(float *)&_XMM0 / v24) * ps->velocity.v[1];
+      v26 = (float)(*(float *)&_XMM0 / v24) * ps->velocity.v[2];
+      goto LABEL_43;
     }
   }
-  __asm { vmovss  dword ptr [r14+8], xmm0 }
-  v65 = pm->cmd.buttons;
-  if ( (v65 & 0x1000) != 0 )
+  *v = vec3_origin.v[0];
+  v[1] = vec3_origin.v[1];
+  v26 = vec3_origin.v[2];
+LABEL_43:
+  v[2] = v26;
+  v34 = pm->cmd.buttons;
+  if ( (v34 & 0x1000) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e800000
-      vmulss  xmm9, xmm9, xmm0
-      vmulss  xmm10, xmm10, xmm0
-      vmulss  xmm6, xmm6, xmm0
-    }
+    HIDWORD(v35) = HIDWORD(v7);
+    *(float *)&v35 = *(float *)&v7 * 0.25;
+    v7 = v35;
+    rightmove = rightmove * 0.25;
+    v14 = v14 * 0.25;
   }
-  if ( (v65 & 0x2000) != 0 )
+  if ( (v34 & 0x2000) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f000000
-      vmulss  xmm9, xmm9, xmm0
-      vmulss  xmm10, xmm10, xmm0
-      vmulss  xmm6, xmm6, xmm0
-    }
+    HIDWORD(v36) = HIDWORD(v7);
+    *(float *)&v36 = *(float *)&v7 * 0.5;
+    v7 = v36;
+    rightmove = rightmove * 0.5;
+    v14 = v14 * 0.5;
   }
+  PM_MoveScale(ps, v7, rightmove, v14);
+  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
+  v38 = pm->cmd.buttons;
+  v39 = CurrentWeaponForPlayer;
+  if ( (v38 & 4) != 0 && (v38 & 1) != 0 )
+  {
+    v40 = BG_UsingAlternate(ps);
+    BG_IsMeleeOnlyWeapon(v39, v40);
+  }
+  _XMM0 = BG_IsUfoViewmodel(ps);
   __asm
   {
-    vmovaps xmm3, xmm6; umove
-    vmovaps xmm2, xmm10; rmove
-    vmovaps xmm1, xmm9; fmove
-  }
-  *(float *)&_XMM0 = PM_MoveScale(_RSI, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm { vmovaps xmm8, xmm0 }
-  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, _RSI);
-  v71 = pm->cmd.buttons;
-  v72 = CurrentWeaponForPlayer;
-  v74 = 0;
-  if ( (v71 & 4) != 0 )
-  {
-    if ( (v71 & 1) == 0 || (v73 = BG_UsingAlternate(_RSI), !BG_IsMeleeOnlyWeapon(v72, v73)) )
-      v74 = 1;
-  }
-  v75 = pm->cmd.buttons;
-  if ( (v75 & 2) != 0 || v74 )
-  {
-    __asm { vmulss  xmm8, xmm8, cs:__real@41700000 }
-  }
-  else if ( (v75 & 0xC0) != 0 )
-  {
-    __asm { vmulss  xmm8, xmm8, cs:__real@3dcccccd }
-  }
-  _EAX = BG_IsUfoViewmodel(_RSI);
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ebx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm12, xmm8, xmm2
-    vmovss  [rsp+138h+var_F8], xmm0
-    vmovss  dword ptr [rsp+138h+vec+4], xmm7
-    vmovss  dword ptr [rsp+138h+vec], xmm7
-    vmovss  dword ptr [rsp+138h+vec+8], xmm12
   }
+  v58 = *(float *)&_XMM0;
+  vec.v[1] = 0.0;
+  vec.v[0] = 0.0;
+  vec.v[2] = FLOAT_1_0;
   WorldUpReferenceFrame::ApplyReferenceFrameToVector(&pm->refFrame, &vec);
-  Vec3Cross(&vec, &_R13->right, &cross);
-  _RDI = 0i64;
-  v84 = 1;
+  Vec3Cross(&vec, &pml->right, &cross);
+  v44 = 0i64;
+  v45 = 1;
   do
   {
-    if ( !v84 )
+    if ( !v45 )
     {
-      LODWORD(v125) = 3;
-      LODWORD(v122) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v122, v125) )
+      LODWORD(v55) = 3;
+      LODWORD(v52) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v55) )
         __debugbreak();
-      LODWORD(v126) = 3;
-      LODWORD(v123) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v123, v126) )
+      LODWORD(v56) = 3;
+      LODWORD(v53) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v53, v56) )
         __debugbreak();
-      LODWORD(v127) = 3;
-      LODWORD(v124) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v124, v127) )
+      LODWORD(v57) = 3;
+      LODWORD(v54) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v54, v57) )
         __debugbreak();
     }
-    __asm
+    v46 = (float)((float)(rightmove * *(float *)((char *)&cross.v[v44] + (char *)&pml->right - (char *)&cross)) + (float)(*(float *)&v7 * cross.v[v44])) + (float)(v14 * vec.v[v44]);
+    if ( (unsigned int)v11 >= 3 )
     {
-      vmulss  xmm1, xmm10, dword ptr [r15+rax]
-      vmulss  xmm0, xmm9, dword ptr [rax]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, dword ptr [rsp+rdi+138h+vec]
-      vaddss  xmm7, xmm2, xmm1
-    }
-    if ( (unsigned int)_RBX >= 3 )
-    {
-      LODWORD(v125) = 3;
-      LODWORD(v122) = _RBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v122, v125) )
+      LODWORD(v55) = 3;
+      LODWORD(v52) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v55) )
         __debugbreak();
     }
-    __asm { vmovss  [rsp+rdi+138h+var_E0], xmm7 }
-    _RDI += 4i64;
-    LODWORD(_RBX) = _RBX + 1;
-    v84 = (unsigned int)_RBX < 3;
+    *(float *)((char *)&v60 + v44 * 4) = v46;
+    ++v44;
+    v45 = (unsigned int)++v11 < 3;
   }
-  while ( (int)_RBX < 3 );
+  while ( v11 < 3 );
+  v47 = LODWORD(v61);
+  *(float *)&v47 = fsqrt((float)((float)(*(float *)&v47 * *(float *)&v47) + (float)(v60 * v60)) + (float)(v62 * v62));
+  _XMM4 = v47;
   __asm
   {
-    vmovss  xmm3, [rsp+138h+var_E0]
-    vmovss  xmm5, [rsp+138h+var_D8]
-    vmovss  xmm6, [rsp+138h+var_DC]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm4, xmm0, xmm0
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm12, xmm0
-    vdivss  xmm2, xmm12, xmm0
-    vmulss  xmm0, xmm3, xmm2
-    vmulss  xmm3, xmm4, [rsp+138h+var_F8]; wishspeed
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+138h+wishdir], xmm0
-    vmovss  dword ptr [rsp+138h+wishdir+4], xmm1
-    vmovss  xmm1, cs:__real@41100000
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+138h+wishdir+8], xmm0
-    vmovss  dword ptr [rsp+138h+fmt], xmm1
   }
-  PM_Accelerate(pm, _R13, &wishdir, *(float *)&_XMM3, fmt);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r13+24h]
-    vmulss  xmm0, xmm2, dword ptr [r14]
-    vaddss  xmm1, xmm0, dword ptr [rsi+30h]
-    vmovaps xmm12, [rsp+138h+var_A8]
-    vmovss  dword ptr [rsi+30h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r14+4]
-    vaddss  xmm1, xmm0, dword ptr [rsi+34h]
-    vmovss  dword ptr [rsi+34h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r14+8]
-    vaddss  xmm1, xmm0, dword ptr [rsi+38h]
-    vmovss  dword ptr [rsi+38h], xmm1
-  }
-LABEL_64:
-  __asm { vmovaps xmm6, [rsp+138h+var_48] }
-  _R11 = &v138;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-  }
+  wishdir.v[0] = v60 * (float)(1.0 / *(float *)&_XMM0);
+  wishdir.v[1] = v61 * (float)(1.0 / *(float *)&_XMM0);
+  wishdir.v[2] = v62 * (float)(1.0 / *(float *)&_XMM0);
+  PM_Accelerate(pm, pml, &wishdir, *(float *)&v47 * v58, 9.0);
+  frametime = pml->frametime;
+  ps->origin.v[0] = (float)(frametime * *v) + ps->origin.v[0];
+  ps->origin.v[1] = (float)(frametime * v[1]) + ps->origin.v[1];
+  ps->origin.v[2] = (float)(frametime * v[2]) + ps->origin.v[2];
 }
 
 /*
@@ -13433,10 +10724,11 @@ void PM_UpdateASM(pmove_t *pm, pml_t *pml)
   BgPlayer_Asm *v5; 
   BgGroundState *ground; 
   bool v7; 
+  float walkForwardScale; 
+  float walkSideScale; 
   const dvar_t *v10; 
   PmoveASMArgs pmoveArgs; 
 
-  _RSI = pml;
   if ( PlayerASM_IsEnabled() )
   {
     if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9509, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -13456,21 +10748,15 @@ void PM_UpdateASM(pmove_t *pm, pml_t *pml)
     ground = pm->ground;
     if ( !ground || (v7 = !ground->walking, pmoveArgs.walking = 1, v7) )
       pmoveArgs.walking = 0;
-    v7 = _RSI->initialSlideMoveBumped == 1;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+30h]
-      vmovss  xmm1, dword ptr [rsi+34h]
-    }
-    pmoveArgs.delta = _RSI->msec;
+    v7 = pml->initialSlideMoveBumped == 1;
+    walkForwardScale = pml->walkForwardScale;
+    walkSideScale = pml->walkSideScale;
+    pmoveArgs.delta = pml->msec;
     pmoveArgs.initialSlideMoveBumped = v7;
     pmoveArgs.handler = pm->m_bgHandler;
-    pmoveArgs.holdrand = &_RSI->holdrand;
-    __asm
-    {
-      vmovss  [rsp+78h+pmoveArgs.walkForwardScale], xmm0
-      vmovss  [rsp+78h+pmoveArgs.walkSideScale], xmm1
-    }
+    pmoveArgs.holdrand = &pml->holdrand;
+    pmoveArgs.walkForwardScale = walkForwardScale;
+    pmoveArgs.walkSideScale = walkSideScale;
     if ( Com_GameMode_SupportsFeature(WEAPON_SCOPE_TOGGLE_OFF|WEAPON_LADDER_AIM|0x80) || Com_GameMode_SupportsFeature(WEAPON_INSPECT|WEAPON_LADDER_AIM|0x80) )
     {
       v10 = DVARBOOL_killswitch_butt_collision_asm_predicted_velocity_correction_enabled;
@@ -13480,7 +10766,7 @@ void PM_UpdateASM(pmove_t *pm, pml_t *pml)
       if ( v10->current.enabled )
         pmoveArgs.initialSlideMoveBumped |= GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&ps->otherFlags, DEAD|0x20);
     }
-    BG_AnimUpdatePlayerStateConditions(pm, _RSI);
+    BG_AnimUpdatePlayerStateConditions(pm, pml);
     BgPlayer_Asm::TickPS(v5, ps, &pmoveArgs, 0, 0);
   }
 }
@@ -13490,788 +10776,541 @@ void PM_UpdateASM(pmove_t *pm, pml_t *pml)
 PM_UpdateBobCycle
 ==============
 */
-
-void __fastcall PM_UpdateBobCycle(pmove_t *pm, pml_t *pml, PmStanceFrontBack stance, double speed, const vec3_t *maxSpeeds, int walking, int sprinting, int timeMs)
+void PM_UpdateBobCycle(pmove_t *pm, pml_t *pml, PmStanceFrontBack stance, float speed, const vec3_t *maxSpeeds, int walking, int sprinting, int timeMs)
 {
-  __int64 v22; 
-  bool v26; 
-  bool v27; 
-  char v36; 
-  char v37; 
-  const SuitDef *v67; 
-  const dvar_t *v78; 
+  __int64 v8; 
+  playerState_s *ps; 
+  float v12; 
+  const vec3_t *v13; 
+  double v14; 
+  float v15; 
+  float v18; 
+  double v19; 
+  __int128 v22; 
+  const SuitDef *v23; 
+  double v24; 
+  __int128 v25; 
+  double Float_Internal_DebugName; 
+  __int128 v27; 
+  __int128 v28; 
+  const dvar_t *v29; 
+  bool v32; 
+  float v37; 
   FootstepAnimType FootstepAnimType; 
   int generation; 
   int leftCount; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
-  bool v94; 
-  bool v95; 
-  const dvar_t *v96; 
+  bool v42; 
+  bool v43; 
+  const dvar_t *v44; 
   int integer; 
-  const char *v100; 
-  const dvar_t *v101; 
-  int v103; 
-  playerState_s *ps; 
-  const dvar_t *v106; 
+  const char *v46; 
+  const dvar_t *v47; 
+  int v48; 
+  playerState_s *v49; 
+  const dvar_t *v50; 
   unsigned __int64 weaponState; 
-  __int64 v109; 
-  int v115; 
-  bool v116; 
-  int v117; 
-  SuitDef *v121; 
+  __int64 v52; 
+  int v53; 
+  float v54; 
+  __int128 v55; 
+  int v56; 
+  double WeaponOrOffhandAdsFrac; 
+  float v58; 
+  const dvar_t *v59; 
+  float value; 
+  SuitDef *v61; 
   int ProneViewHeight; 
-  unsigned int viewHeightTarget; 
-  unsigned int viewheight_crouch; 
+  int viewHeightTarget; 
+  int viewheight_crouch; 
   int viewheight_stand; 
-  const dvar_t *v129; 
-  const dvar_t *v134; 
-  const dvar_t *v140; 
-  const dvar_t *v152; 
-  const dvar_t *v153; 
-  bool v155; 
-  bool v156; 
-  bool v157; 
-  const dvar_t *v158; 
-  bool v163; 
-  const dvar_t *v166; 
-  const dvar_t *v173; 
-  char v174; 
-  char v175; 
-  const dvar_t *v180; 
-  const dvar_t *v187; 
-  bool v193; 
-  bool v194; 
-  float fmt; 
-  double curTimea; 
-  float curTime; 
-  FootstepTime *timesa; 
-  const FootstepTime *times; 
-  const MovementTime *mvmtTimes; 
-  BobCycle v216; 
-  unsigned int maxGeneration; 
+  const dvar_t *v66; 
+  const dvar_t *v67; 
+  float v68; 
+  const dvar_t *v69; 
+  const dvar_t *v70; 
+  const dvar_t *v71; 
+  __int128 unsignedInt; 
+  const dvar_t *v73; 
+  __int128 v74; 
+  __int128 v75; 
+  float v76; 
+  double v77; 
+  __int128 v78; 
+  __int128 v79; 
+  __int128 v80; 
+  __int128 v81; 
+  float v82; 
+  float v83; 
+  const dvar_t *v84; 
+  const dvar_t *v85; 
+  bool v87; 
+  const dvar_t *v88; 
+  __int128 v89; 
+  double v90; 
+  __int128 v91; 
+  __int128 v97; 
+  const dvar_t *v100; 
+  float v101; 
+  float amplitudeRatio; 
+  float v103; 
+  float v104; 
+  double v105; 
+  const dvar_t *v106; 
+  float v107; 
+  float v108; 
+  __int128 amplitudeRatioGun_low; 
+  const dvar_t *v110; 
+  const dvar_t *v112; 
+  __int128 v114; 
+  __int128 curTime; 
+  BobCycle v117; 
+  int maxGeneration; 
   float outStairsAscentRatio; 
-  MovementTime *movement; 
-  FootstepTime *step; 
+  MovementTime *mvmtTimes; 
+  FootstepTime *times; 
   float outFrequencyScale; 
   float outAmplitudeScale; 
   SuitDef *suitDef; 
   FootstepInfo outInfo; 
   int (*outPackedBobCycle)[2]; 
   int packedBobCycle[2]; 
-  __int64 v227; 
-  char v228; 
-  void *retaddr; 
+  __int64 v128; 
+  float v129; 
+  float timeMsa; 
+  int timeMsb; 
 
-  _RAX = &retaddr;
-  v227 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-    vmovaps xmm14, xmm3
-  }
-  v22 = stance;
-  _RBX = maxSpeeds;
+  v128 = -2i64;
+  v8 = stance;
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_UpdateBobCycle");
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8322, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  v26 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps");
-    v26 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vmovss  [rbp+80h+timeMs], xmm0
-    vxorps  xmm11, xmm11, xmm11
-    vcomiss xmm0, xmm11
-  }
-  if ( v26 )
-    goto LABEL_173;
-  if ( walking )
-  {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+4]
-      vmovss  [rbp+80h+arg_0], xmm6
-    }
-  }
-  else
-  {
-    _RAX = (const vec3_t *)&maxSpeeds->v[2];
-    if ( !sprinting )
-      _RAX = maxSpeeds;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax]
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  [rbp+80h+arg_0], xmm0
-    }
-  }
-  suitDef = (SuitDef *)BG_GetSuitDef(_RDI->suitIndex);
-  if ( !suitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8334, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-    __debugbreak();
-  _RBX = _RDI->packedBobCycle;
-  outPackedBobCycle = (int (*)[2])_RDI->packedBobCycle;
-  BobCycle::BobCycle(&v216, (const int (*)[2])_RDI->packedBobCycle);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vmovsd  qword ptr [rbp+80h+packedBobCycle], xmm0
-  }
-  maxGeneration = v216.maxGeneration;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovss  xmm15, cs:__real@3f800000
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v36 | v37 )
-  {
-    __asm { vxorps  xmm12, xmm12, xmm12 }
-  }
-  else
-  {
-    __asm { vcomiss xmm6, xmm14 }
-    if ( v36 | v37 )
-    {
-      __asm { vdivss  xmm12, xmm14, xmm6 }
-    }
-    else
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm14, xmm6; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm2, xmm0; fraction }
-      *(double *)&_XMM0 = GraphGetValueFromFraction(4, &stru_147EB8E68, *(const float *)&_XMM2);
-      __asm { vmovaps xmm12, xmm0 }
-    }
-  }
-  __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(pm->oldcmd.angles.v[1], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm3, xmm0, xmm2
-    vxorps  xmm7, xmm7, xmm7
-    vroundss xmm0, xmm7, xmm3, 1
-    vsubss  xmm0, xmm4, xmm0
-    vmulss  xmm13, xmm0, cs:__real@43b40000
-    vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(pm->cmd.angles.v[1], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm0, xmm1, xmm2
-    vroundss xmm3, xmm7, xmm0, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm6, xmm0, cs:__real@43b40000
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  if ( timeMs > 0 )
-  {
-    if ( BG_IsInAir(_RDI, 0) )
-    {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  xmm13, [rbp+80h+timeMs]
-      }
-    }
-    else
-    {
-      v67 = BG_GetSuitDef(_RDI->suitIndex);
-      if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8269, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-        __debugbreak();
-      if ( _RDI->viewHeightTarget == BG_Suit_GetProneViewHeight(v67) )
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  xmm13, [rbp+80h+timeMs]
-        }
-      }
-      else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x14u) )
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  xmm13, [rbp+80h+timeMs]
-        }
-      }
-      else if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0xBu) )
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  xmm13, [rbp+80h+timeMs]
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovaps xmm1, xmm13; angle2
-          vmovaps xmm0, xmm6; angle1
-        }
-        AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        __asm
-        {
-          vmovss  xmm1, cs:__real@447a0000
-          vmovss  xmm13, [rbp+80h+timeMs]
-          vdivss  xmm2, xmm1, xmm13
-          vmulss  xmm6, xmm2, xmm0
-        }
-        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_viewBobMaxTurnSpeed, "bg_viewBobMaxTurnSpeed");
-        __asm
-        {
-          vandps  xmm6, xmm6, xmm7
-          vdivss  xmm0, xmm6, xmm0; val
-          vmovaps xmm2, xmm15; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm2, xmm0; fraction }
-        *(double *)&_XMM0 = GraphGetValueFromFraction(4, knots, *(const float *)&_XMM2);
-        __asm { vmovaps xmm6, xmm0 }
-      }
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  xmm13, [rbp+80h+timeMs]
-    }
-  }
-  v78 = DVARFLT_player_viewmodelMoveAnimScale;
-  if ( !DVARFLT_player_viewmodelMoveAnimScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_viewmodelMoveAnimScale") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v78);
-  __asm
-  {
-    vmaxss  xmm0, xmm6, xmm12
-    vmulss  xmm8, xmm0, dword ptr [rbx+28h]
-  }
-  LOBYTE(_EAX) = BG_ShouldPlayAdditiveCrawlAnim(_RDI, WEAPON_HAND_DEFAULT, pm->m_bgHandler) && (int)v22 >= 4;
-  _EBX = 0;
-  __asm { vmovd   xmm1, ebx }
-  _EAX = (unsigned __int8)_EAX;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@bf800000
-    vblendvps xmm0, xmm1, xmm15, xmm2
-    vmovss  [rbp+80h+timeMs], xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
-  step = NULL;
-  movement = NULL;
-  PM_Slope_GetBobCycleScale(pm, &outStairsAscentRatio, &outFrequencyScale, &outAmplitudeScale);
-  FootstepAnimType = (unsigned int)PM_GetFootstepAnimType(pm);
-  if ( FootstepAnimType == FOOTSTEP_ANIM_INVALID || !BG_Suit_GetAnimFootstepInfo(_RDI, pm->m_bgHandler, pm->weaponMap, FootstepAnimType, &outInfo) )
-  {
-    generation = v216.generation;
-  }
-  else
-  {
-    if ( outInfo.animDurationMs <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8365, ASSERT_TYPE_ASSERT, "(footstepInfo.animDurationMs > 0)", (const char *)&queryFormat, "footstepInfo.animDurationMs > 0") )
-      __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rbp+80h+outInfo.animDurationMs]
-      vdivss  xmm6, xmm13, xmm0
-    }
-    v216.maxGeneration = I_clamp(outInfo.footstepAnim->leftCount - 1, 0, 15);
-    generation = I_clamp(v216.generation, 0, v216.maxGeneration);
-    leftCount = outInfo.footstepAnim->leftCount;
-    if ( outInfo.footstepAnim->leftCount <= 0 )
-      step = NULL;
-    else
-      step = outInfo.footstepAnim->step;
-    if ( leftCount <= 0 )
-      movement = NULL;
-    else
-      movement = outInfo.footstepAnim->movement;
-  }
-  p_pm_flags = &_RDI->pm_flags;
-  v94 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x14u);
-  v95 = v94;
-  __asm { vucomiss xmm6, xmm11 }
-  if ( v26 )
-  {
-    if ( v94 )
-    {
-      v96 = DCONST_DVARMPINT_player_viewmodelNoWeaponSprintCycleMs;
-      if ( !DCONST_DVARMPINT_player_viewmodelNoWeaponSprintCycleMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_viewmodelNoWeaponSprintCycleMs") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v96);
-      integer = v96->current.integer;
-    }
-    else
-    {
-      integer = *(_DWORD *)((char *)&dword_143F488B0[2 * v22] + (walking != 0 ? 4 : 0));
-    }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 6u) )
-    {
-      __asm
-      {
-        vmovss  xmm14, dword ptr [rdi+44h]
-        vandps  xmm14, xmm14, xmm7
-      }
-      if ( walking )
-      {
-        v100 = "player_ladderBobCycleDurationADS";
-        v101 = DVARINT_player_ladderBobCycleDurationADS;
-      }
-      else
-      {
-        v100 = "player_ladderBobCycleDuration";
-        v101 = DVARINT_player_ladderBobCycleDuration;
-      }
-      integer = Dvar_GetInt_Internal_DebugName(v101, v100);
-    }
-    if ( integer <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8387, ASSERT_TYPE_ASSERT, "(cycleDuration > 0)", (const char *)&queryFormat, "cycleDuration > 0") )
-      __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vdivss  xmm6, xmm13, xmm0
-    }
-    v103 = 0;
-    v216.maxGeneration = 0;
-    generation = 0;
-    step = NULL;
-    movement = NULL;
-    p_pm_flags = &_RDI->pm_flags;
-  }
-  else
-  {
-    v103 = v216.maxGeneration;
-  }
-  if ( PM_IsInAir(pm) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 6u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 5u) )
-  {
-    Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_inAirBobCycleScale, "player_inAirBobCycleScale");
-    __asm { vmulss  xmm6, xmm6, xmm0 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_inAirMaxScaledSpeedRatio, "player_inAirMaxScaledSpeedRatio");
-    __asm { vminss  xmm8, xmm0, xmm8 }
-  }
   ps = pm->ps;
-  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7986, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v106 = DCONST_DVARMPBOOL_movementAnimProto;
-  if ( !DCONST_DVARMPBOOL_movementAnimProto && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "movementAnimProto") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v106);
-  __asm { vmovss  xmm7, [rbp+80h+timeMs] }
-  if ( !v106->current.enabled && ((weaponState = ps->weapState[0].weaponState, (unsigned int)weaponState <= 0x3D) && (v109 = 0x2200001400000E1Ci64, _bittest64(&v109, weaponState)) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du)) || maxGeneration != v103 )
+  timeMsa = (float)timeMs;
+  if ( timeMsa > 0.0 )
   {
-    __asm { vxorps  xmm10, xmm10, xmm10 }
-    v116 = 0;
-    if ( v103 <= 0 )
-      v216.generation = 0;
+    if ( walking )
+    {
+      v12 = maxSpeeds->v[1];
+      v129 = v12;
+    }
     else
-      v216.generation = generation % v103;
-  }
-  else
-  {
-    __asm
     {
-      vmulss  xmm10, xmm6, xmm7
-      vmulss  xmm0, xmm10, xmm8
-      vmulss  xmm2, xmm0, [rsp+180h+outFrequencyScale]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edx
-      vmulss  xmm2, xmm2, xmm1
-      vcvttss2si ecx, xmm2
+      v13 = (const vec3_t *)&maxSpeeds->v[2];
+      if ( !sprinting )
+        v13 = maxSpeeds;
+      v12 = v13->v[0];
+      v129 = maxSpeeds->v[1];
     }
-    v115 = _ECX + v216.animCycle;
-    v216.generation = ModuloWrap<int>(_ECX + v216.animCycle + (generation << 9), (v103 + 1) << 9) / 512;
-    v117 = (v115 % 512 + 512) & 0x800001FF;
-    v116 = 0;
-    if ( v117 < 0 )
-    {
-      v116 = 0;
-      v117 = (((_WORD)v117 - 1) | 0xFFFFFE00) + 1;
-    }
-    v216.animCycle = v117;
-  }
-  __asm { vcomiss xmm7, xmm11 }
-  v216.isAnimDecreasing = v116;
-  *(double *)&_XMM0 = BG_GetWeaponOrOffhandAdsFrac(pm->weaponMap, _RDI);
-  __asm { vmovaps xmm8, xmm0 }
-  _RBX = DCONST_DVARMPFLT_bg_viewBobMax;
-  if ( !DCONST_DVARMPFLT_bg_viewBobMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobMax") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm12, dword ptr [rbx+28h] }
-  v121 = suitDef;
-  ProneViewHeight = BG_Suit_GetProneViewHeight(suitDef);
-  viewHeightTarget = _RDI->viewHeightTarget;
-  viewheight_crouch = v121->viewheight_crouch;
-  viewheight_stand = v121->viewheight_stand;
-  if ( viewHeightTarget == ProneViewHeight )
-  {
-    _RBX = DCONST_DVARMPFLT_bg_viewBobAmplitudeProne;
-    if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeProne && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeProne") )
+    suitDef = (SuitDef *)BG_GetSuitDef(ps->suitIndex);
+    if ( !suitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8334, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    outPackedBobCycle = (int (*)[2])ps->packedBobCycle;
+    BobCycle::BobCycle(&v117, (const int (*)[2])ps->packedBobCycle);
+    *(_QWORD *)packedBobCycle = *(_QWORD *)ps->packedBobCycle;
+    maxGeneration = v117.maxGeneration;
+    if ( v12 > 0.000001 && v12 > speed )
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm9, xmm0, xmm14
+      I_fclamp(speed / v12, 0.0, 1.0);
+      GraphGetValueFromFraction(4, &stru_147EB8E68, speed / v12);
     }
-    v129 = DCONST_DVARMPFLT_bg_viewBobAmplitudeProne;
-    if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeProne && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeProne") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v129);
-    __asm
+    v14 = MSG_UnpackSignedFloat(pm->oldcmd.angles.v[1], 180.0, 0x14u);
+    v15 = *(float *)&v14 * 0.0027777778;
+    _XMM7 = 0i64;
+    __asm { vroundss xmm0, xmm7, xmm3, 1 }
+    v18 = (float)(v15 - *(float *)&_XMM0) * 360.0;
+    v19 = MSG_UnpackSignedFloat(pm->cmd.angles.v[1], 180.0, 0x14u);
+    __asm { vroundss xmm3, xmm7, xmm0, 1 }
+    if ( timeMs > 0 )
     {
-      vmovss  xmm2, [rbp+80h+arg_0]
-      vmulss  xmm2, xmm2, dword ptr [rbx+28h]
-    }
-    goto LABEL_121;
-  }
-  if ( viewHeightTarget == viewheight_crouch )
-  {
-    _RBX = DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds;
-    if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDuckedAds") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    v134 = DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked;
-    if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDucked") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v134);
-    __asm
-    {
-      vsubss  xmm6, xmm15, xmm8
-      vmulss  xmm1, xmm7, xmm8
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm9, xmm1, xmm14
-    }
-    _RBX = DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds;
-    if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDuckedAds") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    v140 = DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked;
-    if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDucked") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v140);
-    __asm
-    {
-      vmulss  xmm1, xmm7, xmm8
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-    }
-    goto LABEL_120;
-  }
-  if ( !v95 )
-  {
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStandingAds, "bg_viewBobAmplitudeStandingAds");
-    __asm { vmovaps xmm6, xmm0 }
-    Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStanding, "bg_viewBobAmplitudeStanding");
-    __asm
-    {
-      vsubss  xmm7, xmm15, xmm8
-      vmulss  xmm1, xmm6, xmm8
-      vmulss  xmm0, xmm7, xmm0
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm9, xmm1, xmm14
-    }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStandingAds, "bg_viewBobAmplitudeStandingAds");
-    __asm { vmovaps xmm6, xmm0 }
-    Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStanding, "bg_viewBobAmplitudeStanding");
-    __asm
-    {
-      vmulss  xmm1, xmm6, xmm8
-      vmulss  xmm0, xmm7, xmm0
-    }
-LABEL_120:
-    __asm
-    {
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, [rbp+80h+arg_0]
-    }
-    goto LABEL_121;
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeSprinting, "bg_viewBobAmplitudeSprinting");
-  __asm { vmulss  xmm9, xmm0, xmm14 }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeSprinting, "bg_viewBobAmplitudeSprinting");
-  __asm { vmulss  xmm2, xmm0, [rbp+80h+arg_0] }
-LABEL_121:
-  __asm
-  {
-    vmulss  xmm0, xmm9, [rsp+180h+outAmplitudeScale]
-    vmulss  xmm9, xmm0, dword ptr [rax+60h]
-    vmulss  xmm6, xmm2, dword ptr [rax+60h]
-  }
-  if ( BG_HasPerk(&_RDI->perks, 0xFu) )
-  {
-    v152 = DVARFLT_perk_lightWeightViewBobScale;
-    if ( !DVARFLT_perk_lightWeightViewBobScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_lightWeightViewBobScale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v152);
-    __asm { vmulss  xmm9, xmm9, dword ptr [rbx+28h] }
-    v153 = DVARFLT_perk_lightWeightViewBobScale;
-    if ( !DVARFLT_perk_lightWeightViewBobScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_lightWeightViewBobScale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v153);
-    __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
-  }
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  v155 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 8u);
-  v156 = 0;
-  v157 = !v155;
-  if ( v155 )
-  {
-    if ( viewHeightTarget == viewheight_stand )
-    {
-      v158 = DCONST_DVARFLT_player_stairs_bobAmplitudeMinimum_stand;
-      if ( !DCONST_DVARFLT_player_stairs_bobAmplitudeMinimum_stand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_bobAmplitudeMinimum_stand") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v158);
-      __asm
+      if ( BG_IsInAir(ps, 0) )
       {
-        vsubss  xmm0, xmm15, xmm8
-        vmulss  xmm7, xmm0, dword ptr [rbx+28h]
+        _XMM6 = 0i64;
+        v22 = LODWORD(timeMsa);
       }
-    }
-    else
-    {
-      v156 = viewHeightTarget < viewheight_crouch;
-      v157 = viewHeightTarget == viewheight_crouch;
-      if ( viewHeightTarget == viewheight_crouch )
+      else
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_stairs_bobAmplitudeMinimum_crouch, "player_stairs_bobAmplitudeMinimum_crouch");
-        __asm
+        v23 = BG_GetSuitDef(ps->suitIndex);
+        if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8269, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+          __debugbreak();
+        if ( ps->viewHeightTarget == BG_Suit_GetProneViewHeight(v23) )
         {
-          vsubss  xmm1, xmm15, xmm8
-          vmulss  xmm7, xmm1, xmm0
+          _XMM6 = 0i64;
+          v22 = LODWORD(timeMsa);
+        }
+        else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) )
+        {
+          _XMM6 = 0i64;
+          v22 = LODWORD(timeMsa);
+        }
+        else if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
+        {
+          _XMM6 = 0i64;
+          v22 = LODWORD(timeMsa);
+        }
+        else
+        {
+          v24 = AngleDelta((float)((float)(*(float *)&v19 * 0.0027777778) - *(float *)&_XMM3) * 360.0, v18);
+          v22 = LODWORD(timeMsa);
+          v25 = LODWORD(FLOAT_1000_0);
+          *(float *)&v25 = (float)(1000.0 / timeMsa) * *(float *)&v24;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_viewBobMaxTurnSpeed, "bg_viewBobMaxTurnSpeed");
+          v28 = v25 & (unsigned int)_xmm;
+          *(float *)&v28 = *(float *)&v28 / *(float *)&Float_Internal_DebugName;
+          *((_QWORD *)&v27 + 1) = *((_QWORD *)&v28 + 1);
+          I_fclamp(*(float *)&v28, 0.0, 1.0);
+          *(double *)&v27 = GraphGetValueFromFraction(4, knots, *(const float *)&v28);
+          _XMM6 = v27;
         }
       }
     }
-  }
-  __asm
-  {
-    vmaxss  xmm7, xmm7, xmm9
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm8, xmm11
-  }
-  if ( !v156 && !v157 )
-  {
-    __asm { vcomiss xmm6, xmm11 }
-    if ( v156 )
+    else
     {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+180h+times], xmm0
-        vxorpd  xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+180h+curTime], xmm1
-      }
-      v163 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", curTimea, *(double *)&timesa);
-      v156 = 0;
-      v157 = !v163;
-      if ( v163 )
+      _XMM6 = 0i64;
+      v22 = LODWORD(timeMsa);
+    }
+    v29 = DVARFLT_player_viewmodelMoveAnimScale;
+    if ( !DVARFLT_player_viewmodelMoveAnimScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_viewmodelMoveAnimScale") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v29);
+    __asm { vmaxss  xmm0, xmm6, xmm12 }
+    *(float *)&_XMM8 = *(float *)&_XMM0 * v29->current.value;
+    v32 = BG_ShouldPlayAdditiveCrawlAnim(ps, WEAPON_HAND_DEFAULT, pm->m_bgHandler) && (int)v8 >= 4;
+    _XMM0 = v32;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_N1_0);
+    __asm { vblendvps xmm0, xmm1, xmm15, xmm2 }
+    timeMsb = _XMM0;
+    v37 = 0.0;
+    times = NULL;
+    mvmtTimes = NULL;
+    PM_Slope_GetBobCycleScale(pm, &outStairsAscentRatio, &outFrequencyScale, &outAmplitudeScale);
+    FootstepAnimType = (unsigned int)PM_GetFootstepAnimType(pm);
+    if ( FootstepAnimType == FOOTSTEP_ANIM_INVALID || !BG_Suit_GetAnimFootstepInfo(ps, pm->m_bgHandler, pm->weaponMap, FootstepAnimType, &outInfo) )
+    {
+      generation = v117.generation;
+    }
+    else
+    {
+      if ( outInfo.animDurationMs <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8365, ASSERT_TYPE_ASSERT, "(footstepInfo.animDurationMs > 0)", (const char *)&queryFormat, "footstepInfo.animDurationMs > 0") )
         __debugbreak();
+      *((_QWORD *)&_XMM0 + 1) = 0i64;
+      v37 = *(float *)&v22 / (float)outInfo.animDurationMs;
+      v117.maxGeneration = I_clamp(outInfo.footstepAnim->leftCount - 1, 0, 15);
+      generation = I_clamp(v117.generation, 0, v117.maxGeneration);
+      leftCount = outInfo.footstepAnim->leftCount;
+      if ( outInfo.footstepAnim->leftCount <= 0 )
+        times = NULL;
+      else
+        times = outInfo.footstepAnim->step;
+      if ( leftCount <= 0 )
+        mvmtTimes = NULL;
+      else
+        mvmtTimes = outInfo.footstepAnim->movement;
     }
-    __asm
+    p_pm_flags = &ps->pm_flags;
+    v42 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
+    v43 = v42;
+    if ( v37 == 0.0 )
     {
-      vmaxss  xmm0, xmm7, xmm11
-      vminss  xmm9, xmm0, xmm6
+      if ( v42 )
+      {
+        v44 = DCONST_DVARMPINT_player_viewmodelNoWeaponSprintCycleMs;
+        if ( !DCONST_DVARMPINT_player_viewmodelNoWeaponSprintCycleMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_viewmodelNoWeaponSprintCycleMs") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v44);
+        integer = v44->current.integer;
+      }
+      else
+      {
+        integer = *(_DWORD *)((char *)&dword_143F488B0[2 * v8] + (walking != 0 ? 4 : 0));
+      }
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
+      {
+        if ( walking )
+        {
+          v46 = "player_ladderBobCycleDurationADS";
+          v47 = DVARINT_player_ladderBobCycleDurationADS;
+        }
+        else
+        {
+          v46 = "player_ladderBobCycleDuration";
+          v47 = DVARINT_player_ladderBobCycleDuration;
+        }
+        integer = Dvar_GetInt_Internal_DebugName(v47, v46);
+      }
+      if ( integer <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8387, ASSERT_TYPE_ASSERT, "(cycleDuration > 0)", (const char *)&queryFormat, "cycleDuration > 0") )
+        __debugbreak();
+      *((_QWORD *)&_XMM0 + 1) = 0i64;
+      v37 = *(float *)&v22 / (float)integer;
+      v48 = 0;
+      v117.maxGeneration = 0;
+      generation = 0;
+      times = NULL;
+      mvmtTimes = NULL;
+      p_pm_flags = &ps->pm_flags;
     }
-  }
-  __asm { vcomiss xmm12, xmm11 }
-  if ( v156 || v157 )
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-  }
-  else
-  {
-    __asm
+    else
     {
-      vdivss  xmm0, xmm7, xmm12
-      vmaxss  xmm0, xmm0, xmm11
-      vminss  xmm6, xmm0, xmm15
+      v48 = v117.maxGeneration;
     }
-  }
-  v166 = DCONST_DVARMPINT_bg_viewBobTransTime;
-  if ( !DCONST_DVARMPINT_bg_viewBobTransTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobTransTime") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v166);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-    vdivss  xmm2, xmm13, xmm0
-    vmovss  xmm1, [rsp+180h+var_140.amplitudeRatio]
-    vcomiss xmm6, xmm1
-  }
-  if ( v36 | v26 )
-  {
-    __asm
+    if ( PM_IsInAir(pm) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 6u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 5u) )
     {
-      vsubss  xmm0, xmm1, xmm2; val
-      vmovaps xmm2, xmm1; max
-      vmovaps xmm1, xmm6; min
+      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_inAirBobCycleScale, "player_inAirBobCycleScale");
+      v37 = v37 * *(float *)&_XMM0;
+      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_inAirMaxScaledSpeedRatio, "player_inAirMaxScaledSpeedRatio");
+      __asm { vminss  xmm8, xmm0, xmm8 }
     }
-  }
-  else
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm1, xmm2
-      vmovaps xmm2, xmm6
-    }
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  [rsp+180h+var_140.amplitudeRatio], xmm0 }
-  v173 = DCONST_DVARMPFLT_bg_gunBobMax;
-  if ( !DCONST_DVARMPFLT_bg_gunBobMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gunBobMax") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v173);
-  __asm { vcomiss xmm12, xmm11 }
-  if ( v174 | v175 )
-  {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-  }
-  else
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm9, dword ptr [rbx+28h]; val
-      vmovaps xmm2, xmm15; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm7, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+180h+var_140.amplitudeRatioGun]
-    vcomiss xmm7, xmm6
-  }
-  if ( v174 | v175 )
-  {
-    v187 = DCONST_DVARMPINT_bg_gunBobTransOutTime;
-    if ( !DCONST_DVARMPINT_bg_gunBobTransOutTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gunBobTransOutTime") )
+    v49 = pm->ps;
+    if ( !v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 7986, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v187);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vdivss  xmm1, xmm13, xmm0
-      vsubss  xmm2, xmm6, xmm1
-      vmaxss  xmm0, xmm2, xmm11
-    }
-  }
-  else
-  {
-    v180 = DCONST_DVARMPINT_bg_gunBobTransInTime;
-    if ( !DCONST_DVARMPINT_bg_gunBobTransInTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gunBobTransInTime") )
+    v50 = DCONST_DVARMPBOOL_movementAnimProto;
+    if ( !DCONST_DVARMPBOOL_movementAnimProto && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "movementAnimProto") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v180);
-    __asm
+    Dvar_CheckFrontendServerThread(v50);
+    if ( !v50->current.enabled && ((weaponState = v49->weapState[0].weaponState, (unsigned int)weaponState <= 0x3D) && (v52 = 0x2200001400000E1Ci64, _bittest64(&v52, weaponState)) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v49->pm_flags, ACTIVE, 0x1Du)) || maxGeneration != v48 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vdivss  xmm2, xmm13, xmm0
-      vaddss  xmm0, xmm2, xmm6; val
-      vmovaps xmm2, xmm7; max
-      vmovaps xmm1, xmm6; min
+      v54 = 0.0;
+      if ( v48 <= 0 )
+        v117.generation = 0;
+      else
+        v117.generation = generation % v48;
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
-  __asm { vmovss  [rsp+180h+var_140.amplitudeRatioGun], xmm0 }
-  BobCycle::PackBobCycle(&v216, outPackedBobCycle);
-  *(double *)&_XMM0 = BG_GetBobCycleAnimTime(outPackedBobCycle);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = BG_GetBobCycleAnimTime((const int (*)[2])packedBobCycle);
-  v193 = maxGeneration < v216.maxGeneration;
-  v194 = maxGeneration == v216.maxGeneration;
-  if ( maxGeneration != v216.maxGeneration )
-  {
-    __asm
+    else
     {
-      vsubss  xmm1, xmm6, xmm10
-      vcvtss2sd xmm0, xmm1, xmm1; val
-      vmovsd  xmm1, cs:__real@3ff0000000000000; divisor
+      v53 = (v48 + 1) << 9;
+      v54 = v37 * *(float *)&timeMsb;
+      v55 = 0i64;
+      *(float *)&v55 = (float)v53;
+      _XMM1 = v55;
+      v56 = (int)(float)((float)((float)((float)(v37 * *(float *)&timeMsb) * *(float *)&_XMM8) * outFrequencyScale) * *(float *)&v55) + v117.animCycle;
+      v117.generation = ModuloWrap<int>(v56 + (generation << 9), v53) / 512;
+      v117.animCycle = (v56 % 512 + 512) % 512;
     }
-    *(double *)&_XMM0 = ModuloWrapD(*(long double *)&_XMM0, *(long double *)&_XMM1);
-    __asm { vcvtsd2ss xmm0, xmm0, xmm0 }
-  }
-  __asm { vcomiss xmm10, xmm11 }
-  if ( !v193 && !v194 )
-  {
-    mvmtTimes = movement;
-    times = step;
-    __asm
+    v117.isAnimDecreasing = *(float *)&timeMsb < 0.0;
+    WeaponOrOffhandAdsFrac = BG_GetWeaponOrOffhandAdsFrac(pm->weaponMap, ps);
+    v58 = *(float *)&WeaponOrOffhandAdsFrac;
+    v59 = DCONST_DVARMPFLT_bg_viewBobMax;
+    if ( !DCONST_DVARMPFLT_bg_viewBobMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobMax") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v59);
+    value = v59->current.value;
+    v61 = suitDef;
+    ProneViewHeight = BG_Suit_GetProneViewHeight(suitDef);
+    viewHeightTarget = ps->viewHeightTarget;
+    viewheight_crouch = v61->viewheight_crouch;
+    viewheight_stand = v61->viewheight_stand;
+    if ( viewHeightTarget == ProneViewHeight )
     {
-      vmovss  [rsp+180h+curTime], xmm6
-      vmovss  dword ptr [rsp+180h+fmt], xmm0
+      v66 = DCONST_DVARMPFLT_bg_viewBobAmplitudeProne;
+      if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeProne && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeProne") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v66);
+      v67 = DCONST_DVARMPFLT_bg_viewBobAmplitudeProne;
+      if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeProne && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeProne") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v67);
+      v68 = v129 * v67->current.value;
+      goto LABEL_117;
     }
-LABEL_172:
-    __asm { vmovss  xmm3, [rsp+180h+outStairsAscentRatio]; stairsAscentRatio }
-    PM_FootstepEvent(pm, pml, v155, *(float *)&_XMM3, fmt, curTime, times, mvmtTimes);
-    goto LABEL_173;
-  }
-  if ( v193 )
-  {
-    mvmtTimes = movement;
-    times = step;
-    __asm
+    if ( viewHeightTarget == viewheight_crouch )
     {
-      vmovss  [rsp+180h+curTime], xmm0
-      vmovss  dword ptr [rsp+180h+fmt], xmm6
+      v69 = DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds;
+      if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDuckedAds") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v69);
+      v70 = DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked;
+      if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDucked") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v70);
+      v71 = DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds;
+      if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDuckedAds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDuckedAds") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v71);
+      unsignedInt = v71->current.unsignedInt;
+      v73 = DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked;
+      if ( !DCONST_DVARMPFLT_bg_viewBobAmplitudeDucked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobAmplitudeDucked") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v73);
+      v75 = unsignedInt;
+      *(float *)&v75 = *(float *)&unsignedInt * *(float *)&WeaponOrOffhandAdsFrac;
+      v74 = v75;
+      v76 = (float)(1.0 - *(float *)&WeaponOrOffhandAdsFrac) * v73->current.value;
     }
-    goto LABEL_172;
+    else
+    {
+      if ( v43 )
+      {
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeSprinting, "bg_viewBobAmplitudeSprinting");
+        v77 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeSprinting, "bg_viewBobAmplitudeSprinting");
+        v68 = *(float *)&v77 * v129;
+LABEL_117:
+        v83 = v68 * suitDef->player_viewBobScale;
+        v82 = v83;
+        if ( BG_HasPerk(&ps->perks, 0xFu) )
+        {
+          v84 = DVARFLT_perk_lightWeightViewBobScale;
+          if ( !DVARFLT_perk_lightWeightViewBobScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_lightWeightViewBobScale") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v84);
+          v85 = DVARFLT_perk_lightWeightViewBobScale;
+          if ( !DVARFLT_perk_lightWeightViewBobScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_lightWeightViewBobScale") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v85);
+          v82 = v83 * v85->current.value;
+        }
+        _XMM7 = 0i64;
+        v87 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 8u);
+        if ( v87 )
+        {
+          if ( viewHeightTarget == viewheight_stand )
+          {
+            v88 = DCONST_DVARFLT_player_stairs_bobAmplitudeMinimum_stand;
+            if ( !DCONST_DVARFLT_player_stairs_bobAmplitudeMinimum_stand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_bobAmplitudeMinimum_stand") )
+              __debugbreak();
+            Dvar_CheckFrontendServerThread(v88);
+            v89 = LODWORD(FLOAT_1_0);
+            *(float *)&v89 = (float)(1.0 - v58) * v88->current.value;
+            _XMM7 = v89;
+          }
+          else if ( viewHeightTarget == viewheight_crouch )
+          {
+            v90 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_stairs_bobAmplitudeMinimum_crouch, "player_stairs_bobAmplitudeMinimum_crouch");
+            v91 = LODWORD(FLOAT_1_0);
+            *(float *)&v91 = 1.0 - v58;
+            _XMM1 = v91;
+            *(float *)&v91 = (float)(1.0 - v58) * *(float *)&v90;
+            _XMM7 = v91;
+          }
+        }
+        __asm { vmaxss  xmm7, xmm7, xmm9 }
+        LODWORD(_XMM9) = 0;
+        if ( v58 > 0.0 )
+        {
+          if ( v82 < 0.0 )
+          {
+            __asm { vxorpd  xmm1, xmm1, xmm1 }
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM1, v82) )
+              __debugbreak();
+          }
+          __asm
+          {
+            vmaxss  xmm0, xmm7, xmm11
+            vminss  xmm9, xmm0, xmm6
+          }
+        }
+        if ( value <= 0.0 )
+        {
+          LODWORD(_XMM6) = 0;
+        }
+        else
+        {
+          v97 = _XMM7;
+          *(float *)&v97 = *(float *)&_XMM7 / value;
+          _XMM0 = v97;
+          __asm
+          {
+            vmaxss  xmm0, xmm0, xmm11
+            vminss  xmm6, xmm0, xmm15
+          }
+        }
+        v100 = DCONST_DVARMPINT_bg_viewBobTransTime;
+        if ( !DCONST_DVARMPINT_bg_viewBobTransTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_viewBobTransTime") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v100);
+        v101 = *(float *)&v22 / (float)v100->current.integer;
+        amplitudeRatio = v117.amplitudeRatio;
+        if ( *(float *)&_XMM6 <= v117.amplitudeRatio )
+        {
+          v103 = v117.amplitudeRatio - v101;
+          v104 = v117.amplitudeRatio;
+          amplitudeRatio = *(float *)&_XMM6;
+        }
+        else
+        {
+          v103 = v117.amplitudeRatio + v101;
+          v104 = *(float *)&_XMM6;
+        }
+        v105 = I_fclamp(v103, amplitudeRatio, v104);
+        v117.amplitudeRatio = *(float *)&v105;
+        v106 = DCONST_DVARMPFLT_bg_gunBobMax;
+        if ( !DCONST_DVARMPFLT_bg_gunBobMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gunBobMax") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v106);
+        if ( value <= 0.0 )
+        {
+          v108 = 0.0;
+        }
+        else
+        {
+          v107 = *(float *)&_XMM9 / v106->current.value;
+          I_fclamp(v107, 0.0, 1.0);
+          v108 = v107;
+        }
+        amplitudeRatioGun_low = LODWORD(v117.amplitudeRatioGun);
+        if ( v108 <= v117.amplitudeRatioGun )
+        {
+          v112 = DCONST_DVARMPINT_bg_gunBobTransOutTime;
+          if ( !DCONST_DVARMPINT_bg_gunBobTransOutTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gunBobTransOutTime") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v112);
+          v114 = amplitudeRatioGun_low;
+          *(float *)&v114 = *(float *)&amplitudeRatioGun_low - (float)(*(float *)&v22 / (float)v112->current.integer);
+          _XMM2 = v114;
+          __asm { vmaxss  xmm0, xmm2, xmm11 }
+        }
+        else
+        {
+          v110 = DCONST_DVARMPINT_bg_gunBobTransInTime;
+          if ( !DCONST_DVARMPINT_bg_gunBobTransInTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gunBobTransInTime") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v110);
+          *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&v22 + 1);
+          *(double *)&_XMM0 = I_fclamp((float)(*(float *)&v22 / (float)v110->current.integer) + *(float *)&amplitudeRatioGun_low, *(float *)&amplitudeRatioGun_low, v108);
+        }
+        v117.amplitudeRatioGun = *(float *)&_XMM0;
+        BobCycle::PackBobCycle(&v117, outPackedBobCycle);
+        *(double *)&_XMM0 = BG_GetBobCycleAnimTime(outPackedBobCycle);
+        curTime = _XMM0;
+        *(double *)&_XMM0 = BG_GetBobCycleAnimTime((const int (*)[2])packedBobCycle);
+        if ( maxGeneration != v117.maxGeneration )
+        {
+          *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&curTime + 1);
+          *(double *)&_XMM0 = ModuloWrapD((float)(*(float *)&curTime - v54), 1.0);
+          __asm { vcvtsd2ss xmm0, xmm0, xmm0 }
+        }
+        if ( v54 <= 0.0 )
+        {
+          if ( v54 < 0.0 )
+            PM_FootstepEvent(pm, pml, v87, outStairsAscentRatio, *(float *)&curTime, *(float *)&_XMM0, times, mvmtTimes);
+        }
+        else
+        {
+          PM_FootstepEvent(pm, pml, v87, outStairsAscentRatio, *(float *)&_XMM0, *(float *)&curTime, times, mvmtTimes);
+        }
+        goto LABEL_168;
+      }
+      Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStandingAds, "bg_viewBobAmplitudeStandingAds");
+      Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStanding, "bg_viewBobAmplitudeStanding");
+      *((_QWORD *)&v78 + 1) = 0i64;
+      *(double *)&v78 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStandingAds, "bg_viewBobAmplitudeStandingAds");
+      v79 = v78;
+      *(double *)&v78 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_viewBobAmplitudeStanding, "bg_viewBobAmplitudeStanding");
+      v80 = v79;
+      *(float *)&v80 = *(float *)&v79 * v58;
+      v74 = v80;
+      v76 = (float)(1.0 - v58) * *(float *)&v78;
+    }
+    v81 = v74;
+    *(float *)&v81 = *(float *)&v74 + v76;
+    _XMM1 = v81;
+    v68 = *(float *)&v81 * v129;
+    goto LABEL_117;
   }
-LABEL_173:
+LABEL_168:
   Sys_ProfEndNamedEvent();
-  _R11 = &v228;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -14318,7 +11357,9 @@ void PM_UpdateCustomAnimFlags(pmove_t *pm)
   playerState_s *ps; 
   const BgHandler *m_bgHandler; 
   int serverTime; 
-  char v10; 
+  const dvar_t *v5; 
+  float value; 
+  double Speed; 
   SuitAnimType SuitAnimIndexFromPlayerState; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 8961, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -14334,19 +11375,13 @@ void PM_UpdateCustomAnimFlags(pmove_t *pm)
       serverTime = pm->cmd.serverTime;
       if ( ps->pm_type != 1 || GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, GameModeFlagValues::ms_spValue, 8u) )
       {
-        _RBX = DCONST_DVARFLT_player_moveThreshhold;
-        __asm { vmovaps [rsp+58h+var_18], xmm6 }
+        v5 = DCONST_DVARFLT_player_moveThreshhold;
         if ( !DCONST_DVARFLT_player_moveThreshhold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_moveThreshhold") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-        *(double *)&_XMM0 = BG_GetSpeed(ps, serverTime, m_bgHandler);
-        __asm
-        {
-          vcomiss xmm0, xmm6
-          vmovaps xmm6, [rsp+58h+var_18]
-        }
-        if ( !v10 )
+        Dvar_CheckFrontendServerThread(v5);
+        value = v5->current.value;
+        Speed = BG_GetSpeed(ps, serverTime, m_bgHandler);
+        if ( *(float *)&Speed >= value )
           goto LABEL_18;
       }
       if ( ps->pm_type >= 7 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
@@ -14432,173 +11467,108 @@ PM_UpdatePronePitch
 */
 void PM_UpdatePronePitch(pmove_t *pm, pml_t *pml)
 {
-  bool v8; 
-  int v9; 
+  playerState_s *ps; 
+  bool v5; 
+  BOOL v6; 
   BgGroundState *ground; 
-  unsigned int v11; 
-  int v12; 
-  char v20; 
-  char v21; 
-  char v40; 
-  char v41; 
+  unsigned int v8; 
+  BOOL v9; 
+  double v11; 
+  double v12; 
+  float v14; 
+  float v15; 
+  double v20; 
+  float v22; 
+  float v24; 
   int penetrationEntity; 
   vec3_t vec; 
 
-  _RBP = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10498, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10498, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10498, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
   {
-    __asm
+    v5 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu);
+    if ( ps->groundEntityNum == 2047 )
     {
-      vmovaps [rsp+88h+var_18], xmm6
-      vmovaps [rsp+88h+var_28], xmm9
-      vmovaps [rsp+88h+var_38], xmm10
-    }
-    v8 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0xBu);
-    if ( _RDI->groundEntityNum == 2047 )
-    {
-      v9 = PM_LocalCheckProne(pm, _RBP, _RDI, NULL);
-      if ( !v8 && !v9 )
+      v6 = PM_LocalCheckProne(pm, pml, ps, NULL);
+      if ( !v5 && !v6 )
         goto LABEL_20;
     }
     else
     {
-      if ( !v8 )
+      if ( !v5 )
       {
         ground = pm->ground;
         if ( ground->groundPlane && !ground->trace.walkable )
         {
-          v11 = 0;
+          v8 = 0;
 LABEL_21:
-          BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_CROUCH, v11, pm->cmd.serverTime, pm->weaponMap, _RDI);
+          BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_CROUCH, v8, pm->cmd.serverTime, pm->weaponMap, ps);
           goto LABEL_22;
         }
       }
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH|0x80) )
       {
-        v12 = PM_LocalCheckProne(pm, _RBP, _RDI, &penetrationEntity);
-        if ( !v8 && !v12 && BGMovingPlatforms::IsMovingPlatform(penetrationEntity) )
+        v9 = PM_LocalCheckProne(pm, pml, ps, &penetrationEntity);
+        if ( !v5 && !v9 && BGMovingPlatforms::IsMovingPlatform(penetrationEntity) )
         {
 LABEL_20:
-          v11 = 3;
+          v8 = 3;
           goto LABEL_21;
         }
       }
     }
 LABEL_22:
-    _RAX = pm->ground;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+10h]
-      vmovss  dword ptr [rsp+88h+vec], xmm0
-      vmovss  xmm1, dword ptr [rax+14h]
-      vmovss  dword ptr [rsp+88h+vec+4], xmm1
-      vmovss  xmm0, dword ptr [rax+18h]
-      vmovss  dword ptr [rsp+88h+vec+8], xmm0
-    }
+    vec = pm->ground->trace.normal;
     WorldUpReferenceFrame::RemoveReferenceFrameFromVector(&pm->refFrame, &vec);
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    _XMM6 = 0i64;
     if ( pm->ground->groundPlane )
-    {
-      __asm { vmovss  xmm0, dword ptr [rdi+26Ch]; fYaw }
-      *(double *)&_XMM0 = PitchForYawOnNormal(*(const float *)&_XMM0, &vec);
-    }
+      v11 = PitchForYawOnNormal(ps->proneDirection, &vec);
     else
+      LODWORD(v11) = 0;
+    v12 = AngleDelta(*(const float *)&v11, ps->proneDirectionPitch);
+    _XMM10 = LODWORD(FLOAT_N1_0);
+    v14 = *(float *)&v12;
+    if ( *(float *)&v12 != 0.0 )
     {
-      __asm { vxorps  xmm0, xmm0, xmm0; angle1 }
-    }
-    __asm { vmovss  xmm1, dword ptr [rdi+270h]; angle2 }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vucomiss xmm0, xmm6
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm10, cs:__real@bf800000
-      vmovaps xmm2, xmm0
-    }
-    if ( !v21 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+24h]
-        vmulss  xmm3, xmm1, cs:__real@428c0000
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, xmm3
-        vmovss  xmm4, dword ptr [rdi+270h]
-      }
-      if ( !(v20 | v21) )
+      v15 = pml->frametime * 70.0;
+      if ( COERCE_FLOAT(LODWORD(v12) & _xmm) > v15 )
       {
         __asm
         {
           vcmpless xmm0, xmm6, xmm2
           vblendvps xmm0, xmm10, xmm9, xmm0
-          vmulss  xmm2, xmm0, xmm3
         }
+        v14 = *(float *)&_XMM0 * v15;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm4, xmm2
-        vmulss  xmm5, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm5, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vsubss  xmm1, xmm5, xmm4
-        vmulss  xmm0, xmm1, cs:__real@43b40000
-        vmovss  dword ptr [rdi+270h], xmm0
-      }
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      ps->proneDirectionPitch = (float)((float)((float)(ps->proneDirectionPitch + v14) * 0.0027777778) - *(float *)&_XMM4) * 360.0;
     }
     if ( pm->ground->groundPlane )
-    {
-      __asm { vmovss  xmm0, dword ptr [rdi+1DCh]; fYaw }
-      *(double *)&_XMM0 = PitchForYawOnNormal(*(const float *)&_XMM0, &vec);
-    }
+      v20 = PitchForYawOnNormal(ps->viewangles.v[1], &vec);
     else
+      LODWORD(v20) = 0;
+    *(double *)&_XMM0 = AngleDelta(*(const float *)&v20, ps->proneTorsoPitch);
+    if ( *(float *)&_XMM0 != 0.0 )
     {
-      __asm { vxorps  xmm0, xmm0, xmm0; angle1 }
-    }
-    __asm { vmovss  xmm1, dword ptr [rdi+274h]; angle2 }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm { vucomiss xmm0, xmm6 }
-    if ( !v41 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+24h]
-        vmulss  xmm3, xmm1, cs:__real@428c0000
-        vandps  xmm2, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm2, xmm3
-        vmovss  xmm4, dword ptr [rdi+274h]
-      }
-      if ( !(v40 | v41) )
+      v22 = pml->frametime * 70.0;
+      if ( COERCE_FLOAT(_XMM0 & _xmm) > v22 )
       {
         __asm
         {
           vcmpless xmm0, xmm6, xmm0
           vblendvps xmm0, xmm10, xmm9, xmm0
-          vmulss  xmm0, xmm0, xmm3
         }
+        *(float *)&_XMM0 = *(float *)&_XMM0 * v22;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm4, xmm0
-        vmulss  xmm5, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm5, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vsubss  xmm1, xmm5, xmm4
-        vmulss  xmm0, xmm1, cs:__real@43b40000
-        vmovss  dword ptr [rdi+274h], xmm0
-      }
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+88h+var_28]
-      vmovaps xmm6, [rsp+88h+var_18]
-      vmovaps xmm10, [rsp+88h+var_38]
+      v24 = (float)(ps->proneTorsoPitch + *(float *)&_XMM0) * 0.0027777778;
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      ps->proneTorsoPitch = (float)(v24 - *(float *)&_XMM4) * 360.0;
     }
   }
 }
@@ -14608,38 +11578,38 @@ LABEL_22:
 PM_UpdateSprint
 ==============
 */
-
-void __fastcall PM_UpdateSprint(pmove_t *pm, const pml_t *pml, double _XMM2_8)
+void PM_UpdateSprint(pmove_t *pm, const pml_t *pml)
 {
   playerState_s *ps; 
-  const dvar_t *v6; 
+  const dvar_t *v5; 
   int integer; 
-  playerState_s *v8; 
+  playerState_s *v7; 
   unsigned __int64 buttons; 
   int serverTime; 
   int sprintRestoreDelayStart; 
-  playerState_s *v12; 
-  __int64 v13; 
-  bool v14; 
+  playerState_s *v11; 
+  __int64 v12; 
+  bool v13; 
+  const dvar_t *v14; 
   bool CanStartSprint; 
-  bool v23; 
-  char v26; 
+  playerState_s *v16; 
+  bool v17; 
+  const dvar_t *v18; 
   int WeaponHand; 
-  __int64 v28; 
+  __int64 v20; 
   int *p_weaponState; 
-  char v30; 
-  float fmt; 
+  char v22; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2001, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2001, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = DCONST_DVARINT_bg_disableToggleSprint;
+  v5 = DCONST_DVARINT_bg_disableToggleSprint;
   if ( !DCONST_DVARINT_bg_disableToggleSprint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_disableToggleSprint") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  integer = v6->current.integer;
+  Dvar_CheckFrontendServerThread(v5);
+  integer = v5->current.integer;
   if ( ps->sprintState.sprintButtonUpRequired && (pm->cmd.buttons & 2) == 0 )
     ps->sprintState.sprintButtonUpRequired = 0;
   if ( (pm->cmd.buttons & 0x800000000000i64) != 0 && !PM_DoesSprintMeterTestPass(pm) )
@@ -14648,15 +11618,15 @@ void __fastcall PM_UpdateSprint(pmove_t *pm, const pml_t *pml, double _XMM2_8)
   {
     if ( PM_UpdateSprint_IsInspecting(pm, pml) )
       PM_Weapon_CancelInspect(pm);
-    v8 = pm->ps;
-    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1771, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v7 = pm->ps;
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1771, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v8->pm_flags, ACTIVE, 0x14u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1774, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::SPRINTING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::SPRINTING )") )
+    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v7->pm_flags, ACTIVE, 0x14u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1774, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::SPRINTING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::SPRINTING )") )
       __debugbreak();
-    if ( BG_IsSuperSprinting(v8) )
+    if ( BG_IsSuperSprinting(v7) )
     {
       if ( PM_GetSprintLeft(pm->weaponMap, pm, pm->cmd.serverTime) <= 0 )
-        v8->sprintState.lastSuperSprintEnd = pm->cmd.serverTime;
+        v7->sprintState.lastSuperSprintEnd = pm->cmd.serverTime;
     }
     else
     {
@@ -14692,23 +11662,18 @@ void __fastcall PM_UpdateSprint(pmove_t *pm, const pml_t *pml, double _XMM2_8)
       {
         if ( sprintRestoreDelayStart >= pm->cmd.serverTime )
         {
-          v12 = pm->ps;
-          if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1642, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+          v11 = pm->ps;
+          if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1642, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
             __debugbreak();
-          if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v12->pm_flags, ACTIVE, 0x1Du) )
+          if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v11->pm_flags, ACTIVE, 0x1Du) )
           {
-            v13 = 4329733i64;
+            v12 = 4329733i64;
             if ( PM_IsInAir(pm) )
-              v13 = 4329861i64;
-            if ( (v13 & pm->cmd.buttons) != 0 )
+              v12 = 4329861i64;
+            if ( (v12 & pm->cmd.buttons) != 0 )
             {
-              v14 = PM_AnyAttackButtonPressed(pm);
-              __asm
-              {
-                vmovss  xmm0, cs:__real@7f7fffff
-                vmovss  dword ptr [rsp+68h+fmt], xmm0
-              }
-              PM_SetSprintRestore(pm, ps, 1, v14, fmt);
+              v13 = PM_AnyAttackButtonPressed(pm);
+              PM_SetSprintRestore(pm, ps, 1, v13, 3.4028235e38);
             }
           }
         }
@@ -14720,64 +11685,51 @@ void __fastcall PM_UpdateSprint(pmove_t *pm, const pml_t *pml, double _XMM2_8)
     }
     if ( !ps->sprintState.sprintDelay )
       goto LABEL_57;
-    _RBX = DCONST_DVARFLT_player_sprintRechargePause;
+    v14 = DCONST_DVARFLT_player_sprintRechargePause;
     if ( !DCONST_DVARFLT_player_sprintRechargePause && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintRechargePause") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, eax
-      vcomiss xmm2, xmm1
-    }
-    if ( pm->cmd.serverTime >= (unsigned int)ps->sprintState.lastSprintEnd )
+    Dvar_CheckFrontendServerThread(v14);
+    if ( (float)(pm->cmd.serverTime - ps->sprintState.lastSprintEnd) >= (float)(v14->current.value * 1000.0) )
     {
 LABEL_57:
       CanStartSprint = PM_CanStartSprint(pm, pml, 1);
-      _RBX = pm->ps;
-      v23 = CanStartSprint;
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1926, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      v16 = pm->ps;
+      v17 = CanStartSprint;
+      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 1926, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( !PM_Weapon_SprintCancelsReload(pm) || ((LOBYTE(pm->cmd.buttons) >> 1) & ((unsigned __int8)~LOBYTE(pm->oldcmd.buttons) >> 1) & 1) == 0 || BG_CanSprintReload(_RBX) )
+      if ( !PM_Weapon_SprintCancelsReload(pm) || ((LOBYTE(pm->cmd.buttons) >> 1) & ((unsigned __int8)~LOBYTE(pm->oldcmd.buttons) >> 1) & 1) == 0 || BG_CanSprintReload(v16) )
         goto LABEL_71;
-      _RBP = DCONST_DVARMODEFLT_adsReloadSprintCancelMaxFraction;
+      v18 = DCONST_DVARMODEFLT_adsReloadSprintCancelMaxFraction;
       if ( !DCONST_DVARMODEFLT_adsReloadSprintCancelMaxFraction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "adsReloadSprintCancelMaxFraction") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBP);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+730h]
-        vcomiss xmm0, dword ptr [rbp+28h]
-      }
-      if ( !v26 )
+      Dvar_CheckFrontendServerThread(v18);
+      if ( v16->weapCommon.fWeaponPosFrac >= v18->current.value )
         goto LABEL_71;
-      WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, _RBX);
+      WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, v16);
       if ( WeaponHand < 0 )
         goto LABEL_71;
-      v28 = 0i64;
-      p_weaponState = &_RBX->weapState[0].weaponState;
+      v20 = 0i64;
+      p_weaponState = &v16->weapState[0].weaponState;
       while ( (unsigned int)(*p_weaponState - 18) > 3 )
       {
-        ++v28;
+        ++v20;
         p_weaponState += 20;
-        if ( v28 > WeaponHand )
+        if ( v20 > WeaponHand )
           goto LABEL_71;
       }
-      if ( v23 )
+      if ( v17 )
       {
-        v30 = 1;
+        v22 = 1;
         PM_Weapon_ReloadCancel(pm, pml);
       }
       else
       {
 LABEL_71:
-        v30 = 0;
+        v22 = 0;
       }
-      if ( v23 && PM_UpdateSprint_IsInspecting(pm, pml) )
+      if ( v17 && PM_UpdateSprint_IsInspecting(pm, pml) )
         PM_Weapon_CancelInspect(pm);
-      if ( v30 || PM_CanStartSprint(pm, pml, 0) )
+      if ( v22 || PM_CanStartSprint(pm, pml, 0) )
       {
         *(_QWORD *)&ps->sprintState.sprintRestore = 0i64;
         PM_StartSprint(ps, pm, pml);
@@ -14799,7 +11751,6 @@ void PM_UpdateSprintRestore(playerState_s *ps, pmove_t *pm, const pml_t *pml)
   playerState_s *v6; 
   __int64 v7; 
   bool v8; 
-  float fmt; 
 
   if ( ps->sprintState.sprintRestore )
   {
@@ -14824,12 +11775,7 @@ void PM_UpdateSprintRestore(playerState_s *ps, pmove_t *pm, const pml_t *pml)
           if ( (v7 & pm->cmd.buttons) != 0 )
           {
             v8 = PM_AnyAttackButtonPressed(pm);
-            __asm
-            {
-              vmovss  xmm0, cs:__real@7f7fffff
-              vmovss  dword ptr [rsp+38h+fmt], xmm0
-            }
-            PM_SetSprintRestore(pm, ps, 1, v8, fmt);
+            PM_SetSprintRestore(pm, ps, 1, v8, 3.4028235e38);
           }
         }
       }
@@ -14879,219 +11825,159 @@ PM_UpdateViewAngles
 */
 void PM_UpdateViewAngles(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   const BgHandler *m_bgHandler; 
   usercmd_s *p_cmd; 
+  float msec; 
   unsigned __int64 buttons; 
-  BOOL v19; 
-  bool v20; 
+  BOOL v9; 
+  bool v10; 
   __int16 viewlocked_entNum; 
   bool IsClientVehicleTurretCamera; 
-  int v23; 
-  char *v30; 
-  bool v31; 
+  int v13; 
+  float *v; 
+  char *v15; 
+  bool v16; 
+  double v18; 
+  float v21; 
+  float v22; 
+  double Float_Internal_DebugName; 
   EViewAngleEaseMode Int_Internal_DebugName; 
-  EViewAngleEaseMode v60; 
-  int v61; 
+  EViewAngleEaseMode v25; 
+  int v26; 
   int pm_type; 
   GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32> *p_linkFlags; 
   __int64 flags; 
-  int flagsa; 
-  __int64 v68; 
+  __int64 v30; 
   vec2_t goalAngles; 
 
-  __asm { vmovaps [rsp+108h+var_58], xmm7 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10295, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10295, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10295, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10296, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   m_bgHandler = pm->m_bgHandler;
   p_cmd = &pm->cmd;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, dword ptr [rbx+28h]
-  }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2425, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  msec = (float)pml->msec;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2425, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x20u) )
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x20u) )
   {
     buttons = p_cmd->buttons;
-    v19 = pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler);
-    if ( (buttons & 0x800) != 0 || !v19 )
-      BG_UpdateViewAngles_ClampDefault(_RSI, &pm->cmd);
-    goto LABEL_45;
+    v9 = pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler);
+    if ( (buttons & 0x800) != 0 || !v9 )
+      BG_UpdateViewAngles_ClampDefault(ps, &pm->cmd);
+    return;
   }
-  if ( _RSI->pm_type > 5 )
-    goto LABEL_45;
-  if ( !BG_Skydive_IsSkydiving(_RSI) && !BG_Skydive_IsWeaponRaise(_RSI) )
+  if ( ps->pm_type > 5 )
+    return;
+  if ( !BG_Skydive_IsSkydiving(ps) && !BG_Skydive_IsWeaponRaise(ps) )
   {
-    if ( BG_IsPlayerInExecution(_RSI) && BG_Execution_CanUpdateViewangles(_RSI) )
+    if ( BG_IsPlayerInExecution(ps) && BG_Execution_CanUpdateViewangles(ps) )
     {
       PM_Execution_UpdateViewAngles(pm);
-      goto LABEL_45;
+      return;
     }
-    v20 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x1Cu) || (p_cmd->buttons & 0x40000) != 0;
-    viewlocked_entNum = _RSI->viewlocked_entNum;
-    __asm { vmovaps [rsp+108h+var_48], xmm6 }
-    IsClientVehicleTurretCamera = BG_IsClientVehicleTurretCamera(_RSI, m_bgHandler);
-    if ( viewlocked_entNum == 2047 && v20 || IsClientVehicleTurretCamera )
+    v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Cu) || (p_cmd->buttons & 0x40000) != 0;
+    viewlocked_entNum = ps->viewlocked_entNum;
+    IsClientVehicleTurretCamera = BG_IsClientVehicleTurretCamera(ps, m_bgHandler);
+    if ( viewlocked_entNum == 2047 && v10 || IsClientVehicleTurretCamera )
     {
-      __asm
+      v13 = 0;
+      if ( BG_IsClientVehicleCamera(ps, m_bgHandler) )
       {
-        vmovaps [rsp+108h+var_68], xmm8
-        vmovaps [rsp+108h+var_78], xmm9
-        vmovaps [rsp+108h+var_88], xmm10
-        vmovaps [rsp+108h+var_98], xmm11
-        vmovaps [rsp+108h+var_A8], xmm12
-        vmovaps [rsp+108h+var_B8], xmm13
+        *(_QWORD *)ps->delta_angles.v = 0i64;
+        ps->delta_angles.v[2] = 0.0;
       }
-      v23 = 0;
-      if ( BG_IsClientVehicleCamera(_RSI, m_bgHandler) )
-      {
-        *(_QWORD *)_RSI->delta_angles.v = 0i64;
-        _RSI->delta_angles.v[2] = 0.0;
-      }
-      __asm
-      {
-        vmovss  xmm11, cs:__real@43340000
-        vmovss  xmm9, cs:__real@3b360b61
-        vmovss  xmm10, cs:__real@3f000000
-        vmovss  xmm12, cs:__real@3f800000
-        vmovss  xmm13, cs:__real@43b40000
-      }
-      _RSI = &_RSI->delta_angles;
-      v30 = (char *)((char *)&pm->cmd.angles - (char *)_RSI);
-      v31 = 1;
-      __asm { vxorps  xmm8, xmm8, xmm8 }
+      v = ps->delta_angles.v;
+      v15 = (char *)((char *)&pm->cmd.angles - (char *)v);
+      v16 = 1;
+      _XMM8 = 0i64;
       do
       {
-        if ( !v31 )
+        if ( !v16 )
         {
-          LODWORD(v68) = 3;
-          LODWORD(flags) = v23;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", flags, v68) )
+          LODWORD(v30) = 3;
+          LODWORD(flags) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", flags, v30) )
             __debugbreak();
         }
-        __asm { vmovaps xmm1, xmm11; maxAbsValueSize }
-        *(double *)&_XMM0 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)_RSI->v + (_QWORD)v30), *(float *)&_XMM1, 0x14u);
-        __asm
+        v18 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)v + (_QWORD)v15), 180.0, 0x14u);
+        __asm { vroundss xmm7, xmm8, xmm0, 1 }
+        if ( (unsigned int)v13 >= 3 )
         {
-          vmulss  xmm6, xmm0, xmm9
-          vaddss  xmm2, xmm6, xmm10
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  xmm0, xmm1, xmm2
-          vroundss xmm7, xmm8, xmm0, 1
-        }
-        if ( (unsigned int)v23 >= 3 )
-        {
-          LODWORD(v68) = 3;
-          LODWORD(flags) = v23;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", flags, v68) )
+          LODWORD(v30) = 3;
+          LODWORD(flags) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", flags, v30) )
             __debugbreak();
         }
-        __asm
+        __asm { vroundss xmm2, xmm8, xmm1, 1 }
+        v21 = (float)((float)((float)((float)((float)(*(float *)&v18 * 0.0027777778) - *(float *)&_XMM7) * 1.0) + (float)(0.0027777778 * *v)) - *(float *)&_XMM2) * 360.0;
+        if ( (unsigned int)v13 >= 3 )
         {
-          vmulss  xmm2, xmm9, dword ptr [rsi]
-          vsubss  xmm0, xmm6, xmm7
-          vmulss  xmm3, xmm0, xmm12
-          vaddss  xmm4, xmm3, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vaddss  xmm3, xmm4, xmm10
-          vmovss  xmm1, xmm0, xmm3
-          vroundss xmm2, xmm8, xmm1, 1
-          vsubss  xmm0, xmm4, xmm2
-          vmulss  xmm6, xmm0, xmm13
-        }
-        if ( (unsigned int)v23 >= 3 )
-        {
-          LODWORD(v68) = 3;
-          LODWORD(flags) = v23;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", flags, v68) )
+          LODWORD(v30) = 3;
+          LODWORD(flags) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", flags, v30) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rsi+124h], xmm6 }
-        _RSI = (vec3_t *)((char *)_RSI + 4);
-        v31 = (unsigned int)++v23 < 3;
+        v[73] = v21;
+        ++v;
+        v16 = (unsigned int)++v13 < 3;
       }
-      while ( v23 < 3 );
-      __asm
-      {
-        vmovaps xmm13, [rsp+108h+var_B8]
-        vmovaps xmm12, [rsp+108h+var_A8]
-        vmovaps xmm11, [rsp+108h+var_98]
-        vmovaps xmm10, [rsp+108h+var_88]
-        vmovaps xmm9, [rsp+108h+var_78]
-        vmovaps xmm8, [rsp+108h+var_68]
-      }
-LABEL_44:
-      __asm { vmovaps xmm6, [rsp+108h+var_48] }
-      goto LABEL_45;
+      while ( v13 < 3 );
+      return;
     }
-    __asm { vmovss  xmm6, dword ptr [rsi+1DCh] }
-    if ( BG_IsRemoteTurretActive(_RSI) && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&_RSI->linkFlags, ACTIVE, 2u) )
-    {
-      __asm { vmovaps xmm1, xmm7; msec }
-      TurretUpdateViewClamp(pm, *(float *)&_XMM1);
-    }
+    v22 = ps->viewangles.v[1];
+    if ( BG_IsRemoteTurretActive(ps) && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 2u) )
+      TurretUpdateViewClamp(pm, msec);
     PM_GameInterface_UpdateViewClamp(pm);
-    BG_UpdateViewAngles_ClampDefault(_RSI, &pm->cmd);
+    BG_UpdateViewAngles_ClampDefault(ps, &pm->cmd);
     if ( (p_cmd->buttons & 0x4000000) != 0 )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_centerview_cameraPitchOffset, "centerview_cameraPitchOffset");
-      __asm
-      {
-        vmovss  dword ptr [rsp+108h+goalAngles], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+108h+goalAngles+4], xmm0
-      }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_centerview_cameraPitchOffset, "centerview_cameraPitchOffset");
+      goalAngles.v[0] = *(float *)&Float_Internal_DebugName;
+      goalAngles.v[1] = 0.0;
       Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_centerview_cameraAlignmentEaseModeOut, "centerview_cameraAlignmentEaseModeOut");
-      v60 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_centerview_cameraAlignmentEaseModeIn, "centerview_cameraAlignmentEaseModeIn");
-      v61 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_centerview_cameraRotateTimeMs, "centerview_cameraRotateTimeMs");
-      PM_StartViewAngleTransition(pm, v61, v60, Int_Internal_DebugName, &goalAngles, 1);
+      v25 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_centerview_cameraAlignmentEaseModeIn, "centerview_cameraAlignmentEaseModeIn");
+      v26 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_centerview_cameraRotateTimeMs, "centerview_cameraRotateTimeMs");
+      PM_StartViewAngleTransition(pm, v26, v25, Int_Internal_DebugName, &goalAngles, 1);
     }
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x10u) )
+    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x10u) )
       PM_UpdateViewAnglesOverride(pm, &pm->cmd);
-    pm_type = _RSI->pm_type;
+    pm_type = ps->pm_type;
     if ( pm_type == 1 || pm_type == 8 )
     {
-      p_linkFlags = &_RSI->linkFlags;
-      if ( !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&_RSI->linkFlags, ACTIVE, 0) )
-        goto LABEL_67;
+      p_linkFlags = &ps->linkFlags;
+      if ( !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&ps->linkFlags, ACTIVE, 0) )
+      {
+LABEL_65:
+        PM_UpdateViewAngles_RangeLimited(ps, v22);
+        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x21u) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x22u) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(p_linkFlags, ACTIVE, 2u) )
+          ps->proneDirection = ps->viewangles.v[1];
+        return;
+      }
     }
     else
     {
-      p_linkFlags = &_RSI->linkFlags;
+      p_linkFlags = &ps->linkFlags;
     }
-    if ( !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(p_linkFlags, ACTIVE, 2u) && !BG_IsTurretActive(_RSI) && !BG_Ladder_IsActive(_RSI) && !BG_ContextMount_IsActive(_RSI) )
+    if ( !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(p_linkFlags, ACTIVE, 2u) && !BG_IsTurretActive(ps) && !BG_Ladder_IsActive(ps) && !BG_ContextMount_IsActive(ps) )
     {
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0) && _RSI->vehicleState.entity == 2047 )
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && ps->vehicleState.entity == 2047 )
       {
-        if ( BG_IsTurretActive(_RSI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10424, ASSERT_TYPE_ASSERT, "(!BG_IsTurretActive( ps ))", (const char *)&queryFormat, "!BG_IsTurretActive( ps )") )
+        if ( BG_IsTurretActive(ps) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10424, ASSERT_TYPE_ASSERT, "(!BG_IsTurretActive( ps ))", (const char *)&queryFormat, "!BG_IsTurretActive( ps )") )
           __debugbreak();
-        __asm
-        {
-          vmovss  [rsp+108h+flags], xmm6
-          vmovaps xmm2, xmm7; msec
-        }
-        PM_UpdateViewAngles_Prone(pm, _RSI, *(float *)&_XMM2, &pm->cmd, m_bgHandler, *(float *)&flagsa);
+        PM_UpdateViewAngles_Prone(pm, ps, msec, &pm->cmd, m_bgHandler, v22);
       }
-      goto LABEL_44;
+      return;
     }
-LABEL_67:
-    __asm { vmovaps xmm1, xmm6; oldYaw }
-    PM_UpdateViewAngles_RangeLimited(_RSI, *(const float *)&_XMM1);
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x21u) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0x22u) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 0) && !GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(p_linkFlags, ACTIVE, 2u) )
-      _RSI->proneDirection = _RSI->viewangles.v[1];
-    goto LABEL_44;
+    goto LABEL_65;
   }
-  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x10u) )
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x10u) )
     PM_UpdateViewAnglesOverride(pm, &pm->cmd);
   PM_Skydive_UpdateViewAngles(pm, pml);
-LABEL_45:
-  __asm { vmovaps xmm7, [rsp+108h+var_58] }
 }
 
 /*
@@ -15099,408 +11985,248 @@ LABEL_45:
 PM_UpdateViewAngles_Prone
 ==============
 */
-
-void __fastcall PM_UpdateViewAngles_Prone(pmove_t *pm, playerState_s *ps, double msec, usercmd_s *cmd, const BgHandler *handler, float oldViewYaw)
+void PM_UpdateViewAngles_Prone(pmove_t *pm, playerState_s *ps, float msec, usercmd_s *cmd, const BgHandler *handler, float oldViewYaw)
 {
-  int v24; 
-  const dvar_t *v30; 
-  int v32; 
-  bool v34; 
-  int v35; 
-  bool v36; 
-  BOOL v37; 
-  bool v44; 
-  char v45; 
-  bool v46; 
-  int v59; 
-  int isOnGround; 
-  const vec3_t *p_origin; 
-  FeetDirection v68; 
-  int v71; 
-  int v80; 
-  int v82; 
-  int v87; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
+  float v9; 
+  int v10; 
+  double v11; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  int v15; 
+  BOOL v17; 
+  bool v18; 
+  BOOL v19; 
+  float v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  __int128 v25; 
+  float proneDirection; 
+  __int128 v27; 
+  __int128 proneDirection_low; 
+  BOOL v29; 
+  double v30; 
+  __int128 v33; 
   float fYaw; 
-  float fYawa; 
-  float fYawb; 
-  float v125; 
-  float v126; 
-  float v127; 
-  void *retaddr; 
+  int isOnGround; 
+  double BoundsHeight; 
+  float v37; 
+  double BoundsRadius; 
+  vec3_t *p_origin; 
+  FeetDirection v40; 
+  float v41; 
+  int v42; 
+  double v43; 
+  float v44; 
+  double v45; 
+  double v46; 
+  __int128 v48; 
+  BOOL v49; 
+  int v50; 
+  double v51; 
+  float v52; 
+  double v53; 
+  int v54; 
+  float v59; 
+  double v60; 
+  double v61; 
+  __int128 v62; 
   FeetDirection feetDirection; 
-  FeetDirection v140; 
-  FeetDirection v141; 
   Physics_WorldId worldId; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  _R13 = pm;
-  __asm { vmovaps xmmword ptr [rax-0C8h], xmm14 }
-  _RDI = ps;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmm11, xmm2
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10137, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10138, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm14, dword ptr [rdi+1DCh]
-    vmovss  xmm0, dword ptr [rdi+26Ch]; angle1
-    vmovaps xmm1, xmm14; angle2
-    vmovss  [rsp+178h+arg_18], xmm14
-  }
-  v24 = 0;
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  _RSI = DCONST_DVARFLT_bg_prone_yawcap;
-  __asm { vmovaps xmm6, xmm0 }
+  v9 = ps->viewangles.v[1];
+  v10 = 0;
+  v11 = AngleDelta(ps->proneDirection, v9);
+  v12 = DCONST_DVARFLT_bg_prone_yawcap;
+  v13 = *(float *)&v11;
   if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmovss  xmm7, cs:__real@40a00000
-    vsubss  xmm1, xmm0, xmm7
-    vcomiss xmm6, xmm1
-  }
-  if ( !(v45 | v34) )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( *(float *)&v11 > (float)(v12->current.value - 5.0) )
     goto LABEL_16;
-  v30 = DCONST_DVARFLT_bg_prone_yawcap;
+  v14 = DCONST_DVARFLT_bg_prone_yawcap;
   if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v30);
-  __asm
-  {
-    vsubss  xmm0, xmm7, dword ptr [rsi+28h]
-    vcomiss xmm6, xmm0
-  }
-  if ( v45 )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( *(float *)&v11 < (float)(5.0 - v14->current.value) )
 LABEL_16:
-    v32 = 1;
+    v15 = 1;
   else
-    v32 = 0;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
-  v34 = cmd->forwardmove == 0;
-  if ( !cmd->forwardmove )
+    v15 = 0;
+  _XMM10 = 0i64;
+  v17 = (cmd->forwardmove || cmd->rightmove) && *(float *)&v11 != 0.0;
+  v18 = (cmd->buttons & 0x40) != 0;
+  feetDirection = PM_GetProneFeetDirection(ps);
+  v19 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) || feetDirection == FEETDIR_FRONT;
+  worldId = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
+  _XMM13 = LODWORD(FLOAT_N1_0);
+  if ( v15 || v17 || v18 )
   {
-    v34 = cmd->rightmove == 0;
-    if ( !cmd->rightmove )
-      goto LABEL_21;
-  }
-  __asm { vucomiss xmm6, xmm10 }
-  if ( !v34 )
-    v35 = 1;
-  else
-LABEL_21:
-    v35 = 0;
-  v36 = (cmd->buttons & 0x40) != 0;
-  feetDirection = PM_GetProneFeetDirection(_RDI);
-  v37 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0xBu) || feetDirection == FEETDIR_FRONT;
-  __asm { vmovaps [rsp+178h+var_68], xmm8 }
-  worldId = _R13->m_bgHandler->GetPhysicsWorldId((BgHandler *)_R13->m_bgHandler);
-  __asm
-  {
-    vmovss  xmm12, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm13, cs:__real@bf800000
-  }
-  if ( v32 || v35 || v36 )
-  {
-    __asm
+    v21 = FLOAT_55_0;
+    LODWORD(v22) = LODWORD(pm->fWaistPitch) & _xmm;
+    if ( Com_GameMode_SupportsFeature(WEAPON_STUNNED_START|0x80) && v22 >= 10.0 )
     {
-      vmovss  xmm7, dword ptr [r13+348h]
-      vmovss  xmm8, cs:__real@425c0000
-      vandps  xmm7, xmm7, xmm12
+      v23 = I_fclamp((float)(v22 - 10.0) * 0.050000001, 0.0, 1.0);
+      v21 = (float)((float)(1.0 - *(float *)&v23) * 55.0) + (float)(*(float *)&v23 * 360.0);
     }
-    v44 = Com_GameMode_SupportsFeature(WEAPON_STUNNED_START|0x80);
-    v45 = 0;
-    v46 = !v44;
-    if ( v44 )
+    v24 = (float)(v21 * msec) * 0.001;
+    if ( COERCE_FLOAT(LODWORD(v13) & _xmm) >= v24 )
     {
-      __asm
+      proneDirection = ps->proneDirection;
+      if ( v13 <= 0.0 )
       {
-        vmovss  xmm0, cs:__real@41200000
-        vcomiss xmm7, xmm0
-        vsubss  xmm0, xmm7, xmm0
-        vmulss  xmm0, xmm0, cs:__real@3d4ccccd; val
-        vmovaps xmm2, xmm9; max
-        vxorps  xmm1, xmm1, xmm1; min
+        proneDirection_low = LODWORD(ps->proneDirection);
+        *(float *)&proneDirection_low = proneDirection + v24;
+        v25 = proneDirection_low;
       }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
+      else
       {
-        vsubss  xmm1, xmm9, xmm0
-        vmulss  xmm0, xmm0, cs:__real@43b40000
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm8, xmm2, xmm0
+        v27 = LODWORD(ps->proneDirection);
+        *(float *)&v27 = proneDirection - v24;
+        v25 = v27;
       }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm8, xmm11
-      vmulss  xmm2, xmm0, cs:__real@3a83126f
-      vandps  xmm1, xmm6, xmm12
-      vcomiss xmm1, xmm2
-    }
-    if ( v45 )
-    {
-      __asm { vmovss  xmm8, dword ptr [rdi+1DCh] }
     }
     else
     {
-      __asm
+      v25 = LODWORD(ps->viewangles.v[1]);
+    }
+    v29 = 1;
+    if ( !BG_CheckProneTurned(pm, ps, *(float *)&v25, handler) )
+    {
+      while ( !v19 )
       {
-        vcomiss xmm6, xmm10
-        vmovss  xmm0, dword ptr [rdi+26Ch]
+        if ( !v29 )
+          goto LABEL_55;
+        v30 = AngleDelta(ps->proneDirection, *(const float *)&v25);
+        LODWORD(_XMM2) = LODWORD(v30);
+        v29 = COERCE_FLOAT(LODWORD(v30) & _xmm) > 1.0;
+        if ( COERCE_FLOAT(LODWORD(v30) & _xmm) <= 1.0 )
+        {
+          v10 = 1;
+        }
+        else
+        {
+          __asm
+          {
+            vcmpltss xmm0, xmm10, xmm2
+            vblendvps xmm2, xmm13, xmm9, xmm0
+          }
+        }
+        v33 = v25;
+        *(float *)&v33 = *(float *)&v25 + *(float *)&_XMM2;
+        AngleNormalize360(*(float *)&v25 + *(float *)&_XMM2);
+        v25 = v33;
+        if ( BG_CheckProneTurned(pm, ps, *(float *)&v33, handler) )
+          goto LABEL_44;
       }
-      if ( v45 | v46 )
-        __asm { vaddss  xmm8, xmm0, xmm2 }
-      else
-        __asm { vsubss  xmm8, xmm0, xmm2 }
+      goto LABEL_47;
     }
-    __asm { vmovaps xmm2, xmm8; newProneYaw }
-    v59 = 1;
-    if ( !(unsigned int)BG_CheckProneTurned(_R13, _RDI, msec, handler) )
-    {
-      while ( !v37 )
-      {
-        if ( !v59 )
-          goto LABEL_51;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+26Ch]; angle1
-          vmovaps xmm1, xmm8; angle2
-        }
-        *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        __asm
-        {
-          vandps  xmm1, xmm0, xmm12
-          vcomiss xmm1, xmm9
-          vmovaps xmm2, xmm0
-        }
-        v59 = 0;
-        v24 = 1;
-        __asm { vaddss  xmm0, xmm8, xmm2; angle }
-        *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-        __asm
-        {
-          vmovaps xmm2, xmm0; newProneYaw
-          vmovaps xmm8, xmm0
-        }
-        if ( (unsigned int)BG_CheckProneTurned(_R13, _RDI, msec, handler) )
-          goto LABEL_40;
-      }
-      goto LABEL_43;
-    }
-LABEL_40:
-    if ( v37 )
-    {
-LABEL_43:
-      __asm { vmovss  xmm11, cs:__real@42340000 }
-      v68 = feetDirection;
-      p_origin = &_RDI->origin;
-      goto LABEL_44;
-    }
-    __asm { vmovss  xmm7, dword ptr [rdi+1DCh] }
-    isOnGround = _RDI->groundEntityNum != 2047;
-    *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_RDI, (const EffectiveStance)(v37 + 1));
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(_RDI);
-    p_origin = &_RDI->origin;
-    v68 = feetDirection;
-    __asm
-    {
-      vmovss  xmm11, cs:__real@42340000
-      vmovss  [rsp+178h+var_108], xmm11
-      vmovss  [rsp+178h+fYaw], xmm7
-      vmovaps xmm3, xmm0; fSize
-      vmovss  dword ptr [rsp+178h+fmt], xmm6
-    }
-    if ( BG_CheckProne(_RDI, _RDI->clientNum, &_RDI->origin, *(const float *)&_XMM3, fmt, fYaw, NULL, NULL, 1, isOnGround, 1, handler, worldId, PCT_CLIENT, v125, feetDirection, NULL, NULL) )
-    {
 LABEL_44:
-      if ( v37 )
-        goto LABEL_47;
-      v71 = _RDI->groundEntityNum != 2047;
-      *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_RDI, PM_EFF_STANCE_PRONE);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(_RDI);
-      __asm
-      {
-        vmovss  [rsp+178h+var_108], xmm11
-        vmovss  [rsp+178h+fYaw], xmm8
-        vmovaps xmm3, xmm0; fSize
-        vmovss  dword ptr [rsp+178h+fmt], xmm6
-      }
-      if ( BG_CheckProne(_RDI, _RDI->clientNum, p_origin, *(const float *)&_XMM3, fmta, fYawa, NULL, NULL, 1, v71, 1, handler, worldId, PCT_CLIENT, v126, v68, NULL, NULL) )
-      {
+    if ( v19 )
+    {
 LABEL_47:
-        __asm { vmovss  [rsp+178h+arg_0], xmm8 }
-        if ( (v140 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10199, ASSERT_TYPE_ASSERT, "(!IS_NAN( newProneYaw ))", (const char *)&queryFormat, "!IS_NAN( newProneYaw )") )
+      v41 = FLOAT_45_0;
+      v40 = feetDirection;
+      p_origin = &ps->origin;
+      goto LABEL_48;
+    }
+    fYaw = ps->viewangles.v[1];
+    isOnGround = ps->groundEntityNum != 2047;
+    BoundsHeight = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_PRONE);
+    v37 = *(float *)&BoundsHeight;
+    BoundsRadius = BG_Suit_GetBoundsRadius(ps);
+    p_origin = &ps->origin;
+    v40 = feetDirection;
+    v41 = FLOAT_45_0;
+    if ( BG_CheckProne(ps, ps->clientNum, &ps->origin, *(const float *)&BoundsRadius, v37, fYaw, NULL, NULL, 1, isOnGround, 1, handler, worldId, PCT_CLIENT, 45.0, feetDirection, NULL, NULL) )
+    {
+LABEL_48:
+      if ( v19 || (v42 = ps->groundEntityNum != 2047, v43 = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_PRONE), v44 = *(float *)&v43, v45 = BG_Suit_GetBoundsRadius(ps), BG_CheckProne(ps, ps->clientNum, p_origin, *(const float *)&v45, v44, *(const float *)&v25, NULL, NULL, 1, v42, 1, handler, worldId, PCT_CLIENT, v41, v40, NULL, NULL)) )
+      {
+        if ( (v25 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10199, ASSERT_TYPE_ASSERT, "(!IS_NAN( newProneYaw ))", (const char *)&queryFormat, "!IS_NAN( newProneYaw )") )
           __debugbreak();
-        __asm { vmovss  dword ptr [rdi+26Ch], xmm8 }
+        ps->proneDirection = *(float *)&v25;
       }
       else
       {
-        v24 = 1;
+        v10 = 1;
       }
-      goto LABEL_52;
+      goto LABEL_56;
     }
-    v24 = 1;
+    v10 = 1;
   }
   else
   {
-LABEL_51:
-    v68 = feetDirection;
+LABEL_55:
+    v40 = feetDirection;
   }
-LABEL_52:
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+1DCh]; angle2
-    vmovss  xmm0, dword ptr [rdi+26Ch]; angle1
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm
-  {
-    vucomiss xmm0, xmm10
-    vmovaps xmm7, xmm0
-  }
-  if ( v34 )
-    goto LABEL_67;
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rdi+26Ch]
-    vmovss  xmm14, cs:__real@43360b61
-    vmovss  xmm11, cs:__real@3f000000
-    vmovaps [rsp+178h+var_D8], xmm15
-  }
-  v80 = 1;
-  __asm { vmovss  xmm15, cs:__real@37800000 }
+LABEL_56:
+  v46 = AngleDelta(ps->proneDirection, ps->viewangles.v[1]);
+  LODWORD(_XMM7) = LODWORD(v46);
+  if ( *(float *)&v46 == 0.0 )
+    goto LABEL_72;
+  v48 = LODWORD(ps->proneDirection);
+  v49 = 1;
   while ( 1 )
   {
-    if ( !v37 )
+    if ( !v19 )
     {
-      v82 = _RDI->groundEntityNum != 2047;
-      *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(_RDI, PM_EFF_STANCE_PRONE);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(_RDI);
+      v50 = ps->groundEntityNum != 2047;
+      v51 = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_PRONE);
+      v52 = *(float *)&v51;
+      v53 = BG_Suit_GetBoundsRadius(ps);
+      if ( !BG_CheckProne(ps, ps->clientNum, &ps->origin, *(const float *)&v53, v52, *(const float *)&v48, NULL, NULL, 1, v50, 1, handler, worldId, PCT_CLIENT, 45.0, v40, NULL, NULL) )
+      {
+        v54 = 0;
+        goto LABEL_63;
+      }
+    }
+    v54 = 1;
+    if ( BG_CheckProneTurned(pm, ps, *(float *)&v48, handler) || v19 )
+      break;
+LABEL_63:
+    if ( !v49 )
+      goto LABEL_72;
+    v49 = COERCE_FLOAT(_XMM7 & _xmm) > 1.0;
+    if ( COERCE_FLOAT(_XMM7 & _xmm) > 1.0 )
+    {
       __asm
       {
-        vmovss  xmm1, cs:__real@42340000
-        vmovss  [rsp+178h+var_108], xmm1
-        vmovss  [rsp+178h+fYaw], xmm8
-        vmovaps xmm3, xmm0; fSize
-        vmovss  dword ptr [rsp+178h+fmt], xmm6
-      }
-      if ( !BG_CheckProne(_RDI, _RDI->clientNum, &_RDI->origin, *(const float *)&_XMM3, fmtb, fYawb, NULL, NULL, 1, v82, 1, handler, worldId, PCT_CLIENT, v127, v68, NULL, NULL) )
-      {
-        v87 = 0;
-        goto LABEL_59;
+        vcmpltss xmm0, xmm10, xmm7
+        vblendvps xmm7, xmm13, xmm9, xmm0
       }
     }
-    __asm { vmovaps xmm2, xmm8; newProneYaw }
-    v87 = 1;
-    if ( (unsigned int)BG_CheckProneTurned(_R13, _RDI, msec, handler) || v37 )
-      break;
-LABEL_59:
-    if ( !v80 )
-      goto LABEL_66;
-    __asm
+    _XMM5 = 0i64;
+    __asm { vroundss xmm1, xmm5, xmm0, 1 }
+    v10 = 1;
+    __asm { vroundss xmm3, xmm5, xmm2, 1 }
+    ps->delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    v59 = *(float *)&_XMM7 + ps->viewangles.v[1];
+    v60 = AngleNormalize360(v59);
+    ps->viewangles.v[1] = *(float *)&v60;
+    v61 = AngleDelta(ps->proneDirection, v59);
+    LODWORD(_XMM7) = LODWORD(v61);
+    if ( !v54 )
     {
-      vandps  xmm0, xmm7, xmm12
-      vcomiss xmm0, xmm9
-    }
-    v80 = 0;
-    __asm
-    {
-      vaddss  xmm0, xmm7, dword ptr [rdi+0B8h]
-      vmulss  xmm1, xmm0, xmm14
-      vaddss  xmm3, xmm1, xmm11
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm0, xmm2, xmm3
-      vxorps  xmm5, xmm5, xmm5
-      vroundss xmm1, xmm5, xmm0, 1
-      vcvttss2si eax, xmm1
-    }
-    _ECX = (unsigned __int16)_EAX;
-    v24 = 1;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, xmm15
-      vaddss  xmm2, xmm4, xmm11
-      vroundss xmm3, xmm5, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  dword ptr [rdi+0B8h], xmm0
-      vaddss  xmm0, xmm7, dword ptr [rdi+1DCh]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rdi+1DCh], xmm0
-      vmovaps xmm1, xmm0; angle2
-      vmovss  xmm0, dword ptr [rdi+26Ch]; angle1
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm { vmovaps xmm7, xmm0 }
-    if ( !v87 )
-    {
-      __asm { vaddss  xmm0, xmm8, xmm0; angle }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm { vmovaps xmm8, xmm0 }
+      v62 = v48;
+      *(float *)&v62 = *(float *)&v48 + *(float *)&v61;
+      AngleNormalize360(*(float *)&v48 + *(float *)&v61);
+      v48 = v62;
     }
   }
-  __asm { vmovss  [rsp+178h+arg_0], xmm8 }
-  if ( (v141 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10244, ASSERT_TYPE_ASSERT, "(!IS_NAN( newProneYaw ))", (const char *)&queryFormat, "!IS_NAN( newProneYaw )") )
+  if ( (v48 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10244, ASSERT_TYPE_ASSERT, "(!IS_NAN( newProneYaw ))", (const char *)&queryFormat, "!IS_NAN( newProneYaw )") )
     __debugbreak();
-  __asm { vmovss  dword ptr [rdi+26Ch], xmm8 }
-LABEL_66:
-  __asm
-  {
-    vmovss  xmm14, [rsp+178h+arg_18]
-    vmovaps xmm15, [rsp+178h+var_D8]
-  }
-LABEL_67:
-  __asm
-  {
-    vmovaps xmm13, [rsp+178h+var_B8]
-    vmovaps xmm12, [rsp+178h+var_A8]
-    vmovaps xmm11, [rsp+178h+var_98]
-    vmovaps xmm10, [rsp+178h+var_88]
-    vmovaps xmm9, [rsp+178h+var_78]
-    vmovaps xmm8, [rsp+178h+var_68]
-    vmovaps xmm6, [rsp+178h+var_48]
-  }
-  if ( v37 && v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10275, ASSERT_TYPE_ASSERT, "(!ignoreValidityResults || !proneBlocked)", (const char *)&queryFormat, "!ignoreValidityResults || !proneBlocked") )
+  ps->proneDirection = *(float *)&v48;
+LABEL_72:
+  if ( v19 && v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10275, ASSERT_TYPE_ASSERT, "(!ignoreValidityResults || !proneBlocked)", (const char *)&queryFormat, "!ignoreValidityResults || !proneBlocked") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, [rsp+178h+oldViewYaw]; oldViewYaw
-    vmovaps xmm1, xmm7; delta
-    vmovss  dword ptr [rsp+178h+fmt], xmm14
-  }
-  PM_UpdateViewAngles_ProneYawClamp(_R13, *(float *)&_XMM1, v24, *(float *)&_XMM3, fmtc);
-  __asm
-  {
-    vmovaps xmm7, [rsp+178h+var_58]
-    vmovaps xmm14, [rsp+178h+var_C8]
-  }
-  PM_UpdateViewAngles_PronePitchClamp(_RDI);
+  PM_UpdateViewAngles_ProneYawClamp(pm, *(float *)&_XMM7, v10, oldViewYaw, v9);
+  PM_UpdateViewAngles_PronePitchClamp(ps);
 }
 
 /*
@@ -15510,125 +12236,76 @@ PM_UpdateViewAngles_PronePitchClamp
 */
 void PM_UpdateViewAngles_PronePitchClamp(playerState_s *ps)
 {
-  const dvar_t *v12; 
-  char v13; 
-  char v14; 
-  const dvar_t *v16; 
-  const dvar_t *v35; 
+  double v2; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
+  float v7; 
+  const dvar_t *v8; 
+  float v11; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v15; 
 
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rcx+1D8h]; angle2
-    vmovss  xmm0, dword ptr [rcx+274h]; angle1
-    vmovaps [rsp+78h+var_28], xmm6
-  }
-  _RBX = ps;
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  _RDI = DCONST_DVARFLT_player_prone_view_pitch_up;
-  __asm { vmovaps xmm6, xmm0 }
+  v2 = AngleDelta(ps->proneTorsoPitch, ps->viewangles.v[0]);
+  v3 = DCONST_DVARFLT_player_prone_view_pitch_up;
   if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-  if ( !(v13 | v14) )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( *(float *)&v2 > v3->current.value )
     goto LABEL_9;
-  _RDI = DCONST_DVARFLT_player_prone_view_pitch_down;
+  v4 = DCONST_DVARFLT_player_prone_view_pitch_down;
   if ( !DCONST_DVARFLT_player_prone_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_down") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vcomiss xmm6, xmm1
-  }
-  if ( v13 )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( *(float *)&v2 < COERCE_FLOAT(v4->current.integer ^ _xmm) )
   {
 LABEL_9:
-    _RDI = DCONST_DVARFLT_player_prone_view_pitch_up;
-    __asm { vmovaps [rsp+78h+var_38], xmm7 }
+    v5 = DCONST_DVARFLT_player_prone_view_pitch_up;
     if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-    if ( v13 | v14 )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( *(float *)&v2 <= v5->current.value )
     {
-      v16 = DCONST_DVARFLT_player_prone_view_pitch_down;
+      v8 = DCONST_DVARFLT_player_prone_view_pitch_down;
       if ( !DCONST_DVARFLT_player_prone_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_down") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      __asm { vaddss  xmm5, xmm6, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v8);
+      v7 = *(float *)&v2 + v8->current.value;
     }
     else
     {
-      v12 = DCONST_DVARFLT_player_prone_view_pitch_up;
+      v6 = DCONST_DVARFLT_player_prone_view_pitch_up;
       if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v12);
-      __asm { vsubss  xmm5, xmm6, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v6);
+      v7 = *(float *)&v2 - v6->current.value;
     }
-    __asm
+    _XMM6 = 0i64;
+    __asm { vroundss xmm3, xmm6, xmm1, 1 }
+    v11 = _mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM3).m128_f32[0] * 0.000015258789;
+    __asm { vroundss xmm3, xmm6, xmm2, 1 }
+    ps->delta_angles.v[0] = (float)(v11 - *(float *)&_XMM3) * 360.0;
+    if ( v7 <= 0.0 )
     {
-      vaddss  xmm0, xmm5, dword ptr [rbx+0B4h]
-      vmulss  xmm1, xmm0, cs:__real@43360b61
-      vmovss  xmm7, cs:__real@3f000000
-      vaddss  xmm2, xmm1, xmm7
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm2
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm3, xmm6, xmm1, 1
-      vcvttss2si eax, xmm3
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
-      vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm5, xmm1
-      vmovss  dword ptr [rbx+0B4h], xmm0
-    }
-    if ( v13 | v14 )
-    {
-      _RDI = DCONST_DVARFLT_player_prone_view_pitch_down;
+      v15 = DCONST_DVARFLT_player_prone_view_pitch_down;
       if ( !DCONST_DVARFLT_player_prone_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_down") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+274h]
-      }
+      Dvar_CheckFrontendServerThread(v15);
+      v14 = v15->current.value + ps->proneTorsoPitch;
     }
     else
     {
-      v35 = DCONST_DVARFLT_player_prone_view_pitch_up;
+      v13 = DCONST_DVARFLT_player_prone_view_pitch_up;
       if ( !DCONST_DVARFLT_player_prone_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_prone_view_pitch_up") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v35);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+274h]
-        vsubss  xmm1, xmm0, dword ptr [rdi+28h]
-      }
+      Dvar_CheckFrontendServerThread(v13);
+      v14 = ps->proneTorsoPitch - v13->current.value;
     }
-    __asm
-    {
-      vmulss  xmm4, xmm1, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, xmm7
-      vmovaps xmm7, [rsp+78h+var_38]
-      vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, cs:__real@43b40000
-      vmovss  dword ptr [rbx+1D8h], xmm1
-    }
+    __asm { vroundss xmm3, xmm6, xmm2, 1 }
+    ps->viewangles.v[0] = (float)((float)(v14 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -15636,199 +12313,109 @@ LABEL_9:
 PM_UpdateViewAngles_ProneYawClamp
 ==============
 */
-
-void __fastcall PM_UpdateViewAngles_ProneYawClamp(pmove_t *pm, double delta, int proneBlocked, double oldViewYaw, float newViewYaw)
+void PM_UpdateViewAngles_ProneYawClamp(pmove_t *pm, float delta, int proneBlocked, float oldViewYaw, float newViewYaw)
 {
   BgWeaponMap *weaponMap; 
-  const dvar_t *v24; 
-  char v25; 
-  char v26; 
-  char v81; 
-  void *retaddr; 
+  playerState_s *ps; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  bool v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v19; 
+  float v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmm9, xmm3
-    vmovaps xmm6, xmm1
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10043, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   weaponMap = pm->weaponMap;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10046, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10049, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 10049, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_bg_prone_yawcap;
+  v10 = DCONST_DVARFLT_bg_prone_yawcap;
   if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rdi+28h]
-    vmovss  xmm8, cs:__real@3f000000
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( !(v25 | v26) )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( delta > v10->current.value )
     goto LABEL_18;
-  _RDI = DCONST_DVARFLT_bg_prone_yawcap;
+  v11 = DCONST_DVARFLT_bg_prone_yawcap;
   if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vcomiss xmm6, xmm1
-  }
-  if ( v25 )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( delta < COERCE_FLOAT(v11->current.integer ^ _xmm) )
   {
 LABEL_18:
-    _RDI = DCONST_DVARFLT_bg_prone_yawcap;
+    v12 = DCONST_DVARFLT_bg_prone_yawcap;
     if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-    v24 = DCONST_DVARFLT_bg_prone_yawcap;
-    if ( v25 | v26 )
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = delta <= v12->current.value;
+    v14 = DCONST_DVARFLT_bg_prone_yawcap;
+    if ( v13 )
     {
       if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v24);
-      __asm { vaddss  xmm6, xmm6, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v14);
+      v15 = delta + v14->current.value;
     }
     else
     {
       if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v24);
-      __asm { vsubss  xmm6, xmm6, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v14);
+      v15 = delta - v14->current.value;
     }
+    _XMM5 = 0i64;
     __asm
     {
-      vcomiss xmm6, xmm7
-      vaddss  xmm0, xmm6, dword ptr [rbx+0B8h]
-      vmulss  xmm1, xmm0, cs:__real@43360b61
-      vaddss  xmm3, xmm1, xmm8
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm0, xmm2, xmm3
-      vxorps  xmm5, xmm5, xmm5
       vroundss xmm1, xmm5, xmm0, 1
-      vcvttss2si eax, xmm1
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm8
       vroundss xmm3, xmm5, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovss  dword ptr [rbx+0B8h], xmm0
     }
-    _RDI = DCONST_DVARFLT_bg_prone_yawcap;
-    if ( v25 | v26 )
+    ps->delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    v19 = DCONST_DVARFLT_bg_prone_yawcap;
+    if ( v15 <= 0.0 )
     {
       if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vaddss  xmm0, xmm0, dword ptr [rbx+26Ch]; angle
-      }
+      Dvar_CheckFrontendServerThread(v19);
+      v20 = v19->current.value + ps->proneDirection;
     }
     else
     {
       if ( !DCONST_DVARFLT_bg_prone_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_prone_yawcap") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+26Ch]
-        vsubss  xmm0, xmm0, dword ptr [rdi+28h]
-      }
+      Dvar_CheckFrontendServerThread(v19);
+      v20 = ps->proneDirection - v19->current.value;
     }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm { vmovss  dword ptr [rbx+1DCh], xmm0 }
+    v21 = AngleNormalize360(v20);
+    ps->viewangles.v[1] = *(float *)&v21;
   }
   if ( proneBlocked )
   {
-    BG_AddPredictableEventToPlayerstate(EV_STANCE_INVALID, 3u, pm->cmd.serverTime, weaponMap, _RBX);
-    __asm
+    BG_AddPredictableEventToPlayerstate(EV_STANCE_INVALID, 3u, pm->cmd.serverTime, weaponMap, ps);
+    v22 = AngleDelta(oldViewYaw, ps->viewangles.v[1]);
+    if ( COERCE_FLOAT(LODWORD(v22) & _xmm) <= 1.0 )
     {
-      vmovss  xmm1, dword ptr [rbx+1DCh]; angle2
-      vmovaps xmm0, xmm9; angle1
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, cs:__real@3f800000
-      vmovaps xmm6, xmm0
-    }
-    if ( v25 | v26 )
-    {
-      __asm
+      v23 = AngleDelta(newViewYaw, ps->viewangles.v[1]);
+      if ( (float)(*(float *)&v23 * oldViewYaw) > 0.0 )
       {
-        vmovss  xmm1, dword ptr [rbx+1DCh]; angle2
-        vmovss  xmm0, [rsp+0A8h+newViewYaw]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcomiss xmm1, xmm7
-      }
-      if ( !(v25 | v26) )
-      {
+        v24 = AngleNormalize360((float)(oldViewYaw * 0.98000002) + ps->viewangles.v[1]);
+        ps->viewangles.v[1] = *(float *)&v24;
+        _XMM5 = 0i64;
         __asm
         {
-          vmulss  xmm6, xmm6, cs:__real@3f7ae148
-          vaddss  xmm0, xmm6, dword ptr [rbx+1DCh]; angle
-        }
-        *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-        __asm
-        {
-          vmovss  dword ptr [rbx+1DCh], xmm0
-          vaddss  xmm0, xmm6, dword ptr [rbx+0B8h]
-          vmulss  xmm1, xmm0, cs:__real@43360b61
-          vaddss  xmm3, xmm1, xmm8
-          vxorps  xmm2, xmm2, xmm2
-          vmovss  xmm0, xmm2, xmm3
-          vxorps  xmm5, xmm5, xmm5
           vroundss xmm1, xmm5, xmm0, 1
-          vcvttss2si eax, xmm1
-        }
-        _ECX = (unsigned __int16)_EAX;
-        __asm
-        {
-          vmovd   xmm0, ecx
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm4, xmm0, cs:__real@37800000
-          vaddss  xmm2, xmm4, xmm8
           vroundss xmm3, xmm5, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, cs:__real@43b40000
-          vmovss  dword ptr [rbx+0B8h], xmm0
         }
+        ps->delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
       }
     }
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v81;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
   }
 }
 
@@ -15837,336 +12424,206 @@ LABEL_18:
 PM_UpdateViewAngles_RangeLimited
 ==============
 */
-
-void __fastcall PM_UpdateViewAngles_RangeLimited(playerState_s *ps, double oldYaw)
+void PM_UpdateViewAngles_RangeLimited(playerState_s *ps, const float oldYaw)
 {
-  unsigned int v16; 
-  bool v21; 
-  bool v22; 
-  bool v26; 
-  const dvar_t *v32; 
-  bool v35; 
-  bool IsActive; 
-  bool v47; 
-  bool v48; 
-  bool v49; 
-  bool v52; 
-  bool v53; 
-  bool v69; 
-  bool v70; 
-  __int64 v86; 
-  __int64 v87; 
-  __int64 v88; 
-  __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  char v98; 
-  void *retaddr; 
+  unsigned int v2; 
+  __int64 v4; 
+  bool v5; 
+  double v7; 
+  float v8; 
+  double v9; 
+  const dvar_t *v10; 
+  float v11; 
+  float v12; 
+  float v15; 
+  double v16; 
+  float v17; 
+  float v21; 
+  float v22; 
+  double v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm9, cs:__real@3f000000
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovss  xmm10, cs:__real@43b40000
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovss  xmm11, cs:__real@43340000
-    vmovaps [rsp+108h+var_98], xmm12
-  }
-  v16 = 0;
-  __asm
-  {
-    vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovaps [rsp+108h+var_A8], xmm13
-  }
-  _RDI = ps;
-  __asm { vmovaps [rsp+108h+var_B8], xmm14 }
-  _RSI = 0i64;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3b360b61
-    vmovaps [rsp+108h+var_C8], xmm15
-  }
-  v21 = 1;
-  v22 = 1;
-  __asm
-  {
-    vmovss  xmm15, cs:__real@43360b61
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmm8, xmm1
-    vxorps  xmm13, xmm13, xmm13
-  }
+  v2 = 0;
+  v4 = 0i64;
+  v5 = 1;
   do
   {
-    if ( !v21 )
+    if ( !v5 )
     {
-      LODWORD(v89) = 2;
-      LODWORD(v86) = v16;
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89);
-      v22 = !v26;
-      if ( v26 )
+      LODWORD(v27) = 2;
+      LODWORD(v24) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
         __debugbreak();
     }
-    __asm { vcomiss xmm11, dword ptr [rsi+rdi+200h] }
-    if ( !v22 )
+    if ( ps->viewAngleClampRange.v[v4] < 180.0 )
     {
-      if ( v16 == 1 )
+      if ( v2 == 1 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+1FCh]; angle1
-          vmovaps xmm1, xmm8; angle2
-        }
-        *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi+1DCh]; angle2
-          vmovaps xmm6, xmm0
-          vmovaps xmm0, xmm8; angle1
-        }
-        *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        v32 = DVARBOOL_bg_ladder_get_smaller_view_clamp_delta_angle;
-        __asm { vaddss  xmm6, xmm6, xmm0 }
+        v7 = AngleDelta(ps->viewAngleClampBase.v[1], oldYaw);
+        v8 = *(float *)&v7;
+        v9 = AngleDelta(oldYaw, ps->viewangles.v[1]);
+        v10 = DVARBOOL_bg_ladder_get_smaller_view_clamp_delta_angle;
+        v12 = v8 + *(float *)&v9;
+        v11 = v8 + *(float *)&v9;
         if ( !DVARBOOL_bg_ladder_get_smaller_view_clamp_delta_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ladder_get_smaller_view_clamp_delta_angle") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v32);
-        v35 = !v32->current.enabled;
-        if ( v32->current.enabled )
+        Dvar_CheckFrontendServerThread(v10);
+        if ( v10->current.enabled && BG_Ladder_IsActive(ps) )
         {
-          IsActive = BG_Ladder_IsActive(_RDI);
-          v35 = !IsActive;
-          if ( IsActive )
-          {
-            __asm
-            {
-              vmulss  xmm4, xmm6, xmm14
-              vaddss  xmm1, xmm4, xmm9
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  xmm2, xmm0, xmm1
-              vxorps  xmm1, xmm1, xmm1
-              vroundss xmm3, xmm1, xmm2, 1
-              vsubss  xmm0, xmm4, xmm3
-              vmulss  xmm6, xmm0, xmm10
-            }
-          }
+          _XMM1 = 0i64;
+          __asm { vroundss xmm3, xmm1, xmm2, 1 }
+          v11 = (float)((float)(v12 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
         }
       }
       else
       {
-        if ( v16 >= 3 )
+        if ( v2 >= 3 )
         {
-          LODWORD(v89) = 3;
-          LODWORD(v86) = v16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+          LODWORD(v27) = 3;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
-        __asm { vmovss  xmm6, dword ptr [rsi+rdi+1D8h] }
-        if ( v16 >= 2 )
+        v15 = ps->viewangles.v[v4];
+        if ( v2 >= 2 )
         {
-          LODWORD(v89) = 2;
-          LODWORD(v86) = v16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+          LODWORD(v27) = 2;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
-        __asm
+        v16 = AngleDelta(ps->viewAngleClampBase.v[v4], v15);
+        v11 = *(float *)&v16;
+        if ( v2 >= 2 )
         {
-          vmovss  xmm0, dword ptr [rsi+rdi+1F8h]; angle1
-          vmovaps xmm1, xmm6; angle2
-        }
-        *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        __asm { vmovaps xmm6, xmm0 }
-        v35 = v16 <= 2;
-        if ( v16 >= 2 )
-        {
-          LODWORD(v89) = 2;
-          LODWORD(v86) = v16;
-          v47 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89);
-          v35 = !v47;
-          if ( v47 )
+          LODWORD(v27) = 2;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
       }
-      __asm { vcomiss xmm6, dword ptr [rsi+rdi+200h] }
-      if ( !v35 )
-        goto LABEL_27;
-      v48 = v16 < 2;
-      if ( v16 >= 2 )
+      if ( v11 > ps->viewAngleClampRange.v[v4] )
+        goto LABEL_68;
+      if ( v2 >= 2 )
       {
-        LODWORD(v89) = 2;
-        LODWORD(v86) = v16;
-        v49 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89);
-        v48 = 0;
-        if ( v49 )
+        LODWORD(v27) = 2;
+        LODWORD(v24) = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
           __debugbreak();
       }
-      __asm
+      if ( v11 < COERCE_FLOAT(LODWORD(ps->viewAngleClampRange.v[v4]) ^ _xmm) )
       {
-        vmovss  xmm0, dword ptr [rsi+rdi+200h]
-        vxorps  xmm1, xmm0, xmm12
-        vcomiss xmm6, xmm1
-      }
-      if ( v48 )
-      {
-LABEL_27:
-        v52 = v16 <= 2;
-        if ( v16 >= 2 )
+LABEL_68:
+        if ( v2 >= 2 )
         {
-          LODWORD(v89) = 2;
-          LODWORD(v86) = v16;
-          v53 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89);
-          v52 = !v53;
-          if ( v53 )
+          LODWORD(v27) = 2;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
-        __asm { vcomiss xmm6, dword ptr [rsi+rdi+200h] }
-        if ( v52 )
+        if ( v11 <= ps->viewAngleClampRange.v[v4] )
         {
-          if ( v16 >= 2 )
+          if ( v2 >= 2 )
           {
-            LODWORD(v89) = 2;
-            LODWORD(v86) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+            LODWORD(v27) = 2;
+            LODWORD(v24) = v2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
               __debugbreak();
           }
-          __asm { vaddss  xmm6, xmm6, dword ptr [rsi+rdi+200h] }
+          v17 = v11 + ps->viewAngleClampRange.v[v4];
         }
         else
         {
-          if ( v16 >= 2 )
+          if ( v2 >= 2 )
           {
-            LODWORD(v89) = 2;
-            LODWORD(v86) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+            LODWORD(v27) = 2;
+            LODWORD(v24) = v2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
               __debugbreak();
           }
-          __asm { vsubss  xmm6, xmm6, dword ptr [rsi+rdi+200h] }
+          v17 = v11 - ps->viewAngleClampRange.v[v4];
         }
-        if ( v16 >= 3 )
+        if ( v2 >= 3 )
         {
-          LODWORD(v89) = 3;
-          LODWORD(v86) = v16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+          LODWORD(v27) = 3;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
-        __asm
+        ps->delta_angles.v[v4] = v17 + ps->delta_angles.v[v4];
+        if ( v2 >= 3 )
         {
-          vaddss  xmm0, xmm6, dword ptr [rsi+rdi+0B4h]
-          vmovss  dword ptr [rsi+rdi+0B4h], xmm0
-        }
-        if ( v16 >= 3 )
-        {
-          LODWORD(v89) = 3;
-          LODWORD(v86) = v16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+          LODWORD(v27) = 3;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
+        _XMM5 = 0i64;
         __asm
         {
-          vmulss  xmm1, xmm15, dword ptr [rsi+rdi+0B4h]
-          vaddss  xmm3, xmm1, xmm9
-          vxorps  xmm5, xmm5, xmm5
           vroundss xmm1, xmm5, xmm3, 1
-          vcvttss2si eax, xmm1
-        }
-        _ECX = (unsigned __int16)_EAX;
-        __asm
-        {
-          vmovd   xmm0, ecx
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm4, xmm0, cs:__real@37800000
-          vaddss  xmm2, xmm4, xmm9
           vroundss xmm3, xmm5, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm7, xmm1, xmm10
         }
-        v69 = v16 <= 3;
-        if ( v16 >= 3 )
+        v21 = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+        if ( v2 >= 3 )
         {
-          LODWORD(v89) = 3;
-          LODWORD(v86) = v16;
-          v70 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89);
-          v69 = !v70;
-          if ( v70 )
+          LODWORD(v27) = 3;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
-        __asm
+        ps->delta_angles.v[v4] = v21;
+        if ( v17 <= 0.0 )
         {
-          vcomiss xmm6, xmm13
-          vmovss  dword ptr [rsi+rdi+0B4h], xmm7
-        }
-        if ( v69 )
-        {
-          if ( v16 >= 2 )
+          if ( v2 >= 2 )
           {
-            LODWORD(v89) = 2;
-            LODWORD(v86) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+            LODWORD(v27) = 2;
+            LODWORD(v24) = v2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
               __debugbreak();
-            LODWORD(v91) = 2;
-            LODWORD(v88) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v88, v91) )
+            LODWORD(v29) = 2;
+            LODWORD(v26) = v2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v29) )
               __debugbreak();
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+rdi+1F8h]
-            vaddss  xmm0, xmm0, dword ptr [rsi+rdi+200h]; angle
-          }
+          v22 = ps->viewAngleClampBase.v[v4] + ps->viewAngleClampRange.v[v4];
         }
         else
         {
-          if ( v16 >= 2 )
+          if ( v2 >= 2 )
           {
-            LODWORD(v89) = 2;
-            LODWORD(v86) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+            LODWORD(v27) = 2;
+            LODWORD(v24) = v2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
               __debugbreak();
-            LODWORD(v90) = 2;
-            LODWORD(v87) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v87, v90) )
+            LODWORD(v28) = 2;
+            LODWORD(v25) = v2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v25, v28) )
               __debugbreak();
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+rdi+1F8h]
-            vsubss  xmm0, xmm0, dword ptr [rsi+rdi+200h]
-          }
+          v22 = ps->viewAngleClampBase.v[v4] - ps->viewAngleClampRange.v[v4];
         }
-        *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-        __asm { vmovaps xmm6, xmm0 }
-        if ( v16 >= 3 )
+        v23 = AngleNormalize360(v22);
+        if ( v2 >= 3 )
         {
-          LODWORD(v89) = 3;
-          LODWORD(v86) = v16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v86, v89) )
+          LODWORD(v27) = 3;
+          LODWORD(v24) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rsi+rdi+1D8h], xmm6 }
+        ps->viewangles.v[v4] = *(float *)&v23;
       }
     }
-    ++v16;
-    _RSI += 4i64;
-    v21 = v16 < 2;
-    v22 = v16 <= 2;
+    ++v2;
+    ++v4;
+    v5 = v2 < 2;
   }
-  while ( (int)v16 < 2 );
-  __asm { vmovaps xmm7, [rsp+108h+var_48] }
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm6, [rsp+108h+var_38]
-    vmovaps xmm14, [rsp+108h+var_B8]
-    vmovaps xmm15, [rsp+108h+var_C8]
-  }
+  while ( (int)v2 < 2 );
 }
 
 /*
@@ -16174,860 +12631,608 @@ LABEL_27:
 PM_ViewHeightAdjust
 ==============
 */
-
-void __fastcall PM_ViewHeightAdjust(pmove_t *pm, pml_t *pml, double _XMM2_8, double _XMM3_8)
+void PM_ViewHeightAdjust(pmove_t *pm, pml_t *pml)
 {
+  playerState_s *ps; 
   const SuitDef *SuitDef; 
   int viewHeightTarget; 
-  const dvar_t *v20; 
-  bool Bool_Internal_DebugName; 
-  bool v43; 
-  bool IsSeated; 
-  bool v52; 
-  bool v53; 
+  double v6; 
+  const dvar_t *v7; 
+  int v8; 
+  int Int_Internal_DebugName; 
+  float v10; 
+  double v11; 
+  float v12; 
+  bool v13; 
+  float viewheight_laststand; 
+  int v15; 
+  __int128 v17; 
+  int v18; 
+  bool v19; 
+  bool v20; 
+  double Float_Internal_DebugName; 
   int lastSprintEnd; 
-  int v55; 
-  int v59; 
-  bool v60; 
-  bool v61; 
+  float v23; 
+  int v24; 
+  __int128 v25; 
+  int v26; 
+  bool v27; 
+  bool v28; 
   GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *p_otherFlags; 
-  char v63; 
-  bool v64; 
-  char v68; 
-  unsigned int v70; 
-  unsigned int viewheight_slide; 
-  unsigned int ViewHeightSprint; 
-  unsigned int v78; 
-  bool v79; 
-  bool v80; 
-  bool v81; 
-  unsigned int v82; 
-  bool v86; 
-  bool v87; 
-  int v92; 
-  const dvar_t *v94; 
-  const char *v95; 
+  bool v30; 
+  float viewHeightCurrent; 
+  __int128 v32; 
+  __int128 v33; 
+  bool v34; 
+  float v35; 
+  int v36; 
+  int viewheight_slide; 
+  int slide_viewBlendInTimeMs; 
+  float v39; 
+  int v40; 
+  float v41; 
+  float v42; 
+  int v43; 
+  const dvar_t *v44; 
+  const char *v45; 
+  int v46; 
+  float v47; 
+  float v48; 
+  __int64 v49; 
+  float v50; 
+  float v51; 
   int viewHeightLerpTarget; 
-  bool v105; 
-  const char *v106; 
+  double v53; 
+  bool v54; 
+  const char *v55; 
   int viewHeightLerpTime; 
-  viewLerpWaypoint_s *v112; 
-  int v114; 
-  int v115; 
-  bool v118; 
-  bool v119; 
-  bool v120; 
-  int ProneViewHeight; 
-  unsigned int v125; 
-  unsigned int viewheight_crouch; 
-  bool v129; 
-  bool v130; 
-  bool v131; 
-  viewLerpWaypoint_s *v132; 
-  bool v134; 
-  int v143; 
+  viewLerpWaypoint_s *v57; 
+  int v58; 
+  int v59; 
+  float v60; 
+  int v61; 
+  int v62; 
+  int v63; 
+  float v64; 
+  viewLerpWaypoint_s *v65; 
+  int v67; 
   int viewheight_stand; 
-  bool v145; 
+  bool v69; 
   int viewHeightLerpDown; 
-  int v147; 
-  int v148; 
-  int v149; 
-  int v150; 
-  int v151; 
-  int v156; 
-  int v159; 
-  const dvar_t *v181; 
-  const dvar_t *v186; 
+  int v71; 
+  int v72; 
+  int viewheight_crouch; 
+  int ProneViewHeight; 
+  int v75; 
+  int v76; 
+  int v77; 
+  float v78; 
+  int v79; 
+  float v80; 
+  int v81; 
+  float v82; 
+  float v83; 
+  int v84; 
+  bool v85; 
+  int v86; 
+  int v87; 
+  int v88; 
+  bool Bool_Internal_DebugName; 
+  int v90; 
+  const char *v91; 
+  const dvar_t *v92; 
+  const dvar_t *v93; 
   char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  char *fmte; 
-  __int64 v195; 
-  double v196; 
-  double v197; 
-  double v198; 
-  __int64 v199; 
-  __int64 v200; 
-  double v201; 
-  __int64 v202; 
-  __int64 v203; 
-  double v204; 
-  double v205; 
-  bool v206; 
-  int v207; 
+  __int64 v95; 
+  __int64 v96; 
+  bool v97; 
+  int v98; 
+  int v99; 
   vec3_t outUp; 
 
   *(_QWORD *)outUp.v = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5868, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5868, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5868, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  SuitDef = BG_GetSuitDef(_RDI->suitIndex);
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
   if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5871, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  viewHeightTarget = _RDI->viewHeightTarget;
-  __asm { vmovaps [rsp+0C8h+var_48], xmm7 }
-  if ( viewHeightTarget )
+  viewHeightTarget = ps->viewHeightTarget;
+  if ( !viewHeightTarget || ps->viewHeightCurrent == 0.0 )
   {
-    __asm
+    if ( ps->pm_type == 5 )
     {
-      vxorps  xmm7, xmm7, xmm7
-      vucomiss xmm7, dword ptr [rdi+1E8h]
-      vmovaps [rsp+0C8h+var_38], xmm6
-    }
-    if ( BG_ContextMount_IsActive(_RDI) )
-    {
-      WorldUpReferenceFrame::GetUpVector(&pm->refFrame, &outUp);
-      *(double *)&_XMM0 = BG_ContextMount_GetViewHeightTarget(pm->weaponMap, _RDI, &outUp);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+4C0h]
-        vmovss  xmm1, cs:__real@3f800000
-        vsubss  xmm2, xmm1, xmm3
-        vmulss  xmm4, xmm2, dword ptr [rdi+4F0h]
-        vmulss  xmm3, xmm3, xmm0
-        vaddss  xmm1, xmm4, xmm3
-        vmovss  dword ptr [rdi+1E8h], xmm1
-      }
-      v20 = DCONST_DVARBOOL_viewHeightDebugLogEnabled;
-      __asm { vmovaps xmm6, xmm0 }
+      ps->viewHeightCurrent = 0.0;
+      v92 = DCONST_DVARBOOL_viewHeightDebugLogEnabled;
       if ( !DCONST_DVARBOOL_viewHeightDebugLogEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "viewHeightDebugLogEnabled") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      if ( v20->current.enabled && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+      Dvar_CheckFrontendServerThread(v92);
+      if ( v92->current.enabled && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi+1E8h]
-          vcvtss2sd xmm0, xmm6, xmm6
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+0C8h+var_A0], xmm0
-          vmovsd  [rsp+0C8h+fmt], xmm1
-        }
-        Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Contextual mount set current view height to: %.2f. Target: %.2f\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, *(double *)&fmta, v196);
+        LODWORD(v95) = ps->viewHeightTarget;
+        Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Spectator set current view height to: %.2f. Target: %d\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, ps->viewHeightCurrent, v95);
       }
-      goto LABEL_104;
-    }
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0xBu) && Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_last_stand_rewrite_enabled, "killswitch_last_stand_rewrite_enabled") )
-    {
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-      if ( Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_lastStandViewHeightLerpTime, "lastStandViewHeightLerpTime") <= 0 )
-      {
-        __asm { vmovaps xmm0, xmm6; val }
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ebp
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm0, xmm1, xmm0
-        }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm1, xmm0
-        vcomiss xmm1, xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx+20Ch]
-      }
-      if ( v63 )
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+360h]; startHeight
-          vmovaps xmm3, xmm0; endHeight
-          vmovaps xmm0, xmm1; fFrac
-        }
-        *(float *)&_XMM0 = PM_ViewHeightTableLerp(*(float *)&_XMM0, viewLerp_lastStand, *(float *)&_XMM2, *(float *)&_XMM3);
-      }
-      __asm { vmovss  dword ptr [rdi+1E8h], xmm0 }
-      _RDI->viewHeightLerpTime = 0;
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+1E8h]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+20Ch]
-          vcvtss2sd xmm1, xmm0, xmm0
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0C8h+var_A0], xmm1
-          vmovsd  [rsp+0C8h+fmt], xmm2
-        }
-        Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Last Stand set current view height to: %.2f. Target: %.2f\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, *(double *)&fmtb, v197);
-      }
-      goto LABEL_104;
-    }
-    Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_player_vehicleSeatViewHeightLerpFixEnabled, "player_vehicleSeatViewHeightLerpFixEnabled");
-    v43 = !Bool_Internal_DebugName;
-    if ( Bool_Internal_DebugName )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1E4h]
-        vucomiss xmm0, dword ptr [rdi+1E8h]
-      }
-      IsSeated = BG_VehicleOccupancy_PlayerIsSeated(_RDI);
-      v43 = !IsSeated;
-      if ( IsSeated )
-      {
-        _RDI->viewHeightLerpTarget = _RDI->viewHeightTarget;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-        }
-        _RDI->viewHeightLerpTime = 0;
-        __asm { vmovss  dword ptr [rdi+1E8h], xmm0 }
-        GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&_RDI->otherFlags, ACTIVE, 0x1Au);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x37u);
-        _RDI->mountState.flags &= ~8u;
-        if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+1E8h]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+0C8h+var_A0], xmm0
-          }
-          LODWORD(fmt) = _RDI->viewHeightTarget;
-          Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Player's vehicle occupancy set view height to: %d from the current value of %.2f\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, fmt, v198);
-        }
-        goto LABEL_104;
-      }
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1E4h]
-      vucomiss xmm0, dword ptr [rdi+1E8h]
-    }
-    if ( v43 && !_RDI->viewHeightLerpTime )
-    {
-LABEL_104:
-      __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
-      goto LABEL_105;
-    }
-    v207 = 0;
-    v52 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x1Du);
-    if ( !v52 )
-      v52 = pm->cmd.serverTime - _RDI->slideState.slideEndTime <= SuitDef->slide_viewBlendOutTimeMs;
-    v53 = 0;
-    if ( !v52 && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_enableSprintViewHeight, "enableSprintViewHeight") )
-    {
-      v53 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x14u);
-      if ( !v53 && _RDI->viewHeightTarget >= SuitDef->bounds_height_crouch )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_sprintViewHeightLerpSpeed, "sprintViewHeightLerpSpeed");
-        lastSprintEnd = _RDI->sprintState.lastSprintEnd;
-        __asm { vmovaps xmm6, xmm0 }
-        v55 = pm->ps->viewHeightTarget - BG_GetViewHeightSprint(_RDI, SuitDef);
-        __asm { vcomiss xmm6, xmm7 }
-        if ( ((v55 >> 31) ^ (unsigned int)v55) <= v55 >> 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5822, ASSERT_TYPE_ASSERT, "(lerpSpeed > 0.0f)", (const char *)&queryFormat, "lerpSpeed > 0.0f") )
-          __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebp
-          vdivss  xmm1, xmm0, xmm6
-          vmulss  xmm2, xmm1, cs:__real@447a0000
-          vcvttss2si ecx, xmm2
-        }
-        v53 = pm->cmd.serverTime - *(_DWORD *)(*(_QWORD *)outUp.v + 40i64) - lastSprintEnd <= _ECX;
-      }
-    }
-    v59 = _RDI->viewHeightTarget;
-    v60 = (_RDI->mountState.flags & 8) != 0;
-    if ( v59 == BG_Suit_GetProneViewHeight(SuitDef) || v59 == SuitDef->viewheight_crouch || v59 == SuitDef->viewheight_stand )
-    {
-      if ( v52 )
-        v61 = 1;
-      else
-        v61 = v53 || v60 || BG_IsPlayerSwimming(_RDI);
     }
     else
     {
-      v61 = 1;
+      ps->viewHeightCurrent = (float)viewHeightTarget;
+      v93 = DCONST_DVARBOOL_viewHeightDebugLogEnabled;
+      if ( !DCONST_DVARBOOL_viewHeightDebugLogEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "viewHeightDebugLogEnabled") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v93);
+      if ( v93->current.enabled && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+      {
+        LODWORD(v95) = ps->viewHeightTarget;
+        Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Current view height is set to: %.2f. Target: %d\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, ps->viewHeightCurrent, v95);
+      }
     }
-    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_allowSimpleLerpToProne, "allowSimpleLerpToProne") )
-    {
-      p_otherFlags = &_RDI->otherFlags;
-    }
+    return;
+  }
+  if ( BG_ContextMount_IsActive(ps) )
+  {
+    WorldUpReferenceFrame::GetUpVector(&pm->refFrame, &outUp);
+    v6 = BG_ContextMount_GetViewHeightTarget(pm->weaponMap, ps, &outUp);
+    ps->viewHeightCurrent = (float)((float)(1.0 - ps->mountState.mountFraction) * ps->mountState.mountViewHeight) + (float)(ps->mountState.mountFraction * *(float *)&v6);
+    v7 = DCONST_DVARBOOL_viewHeightDebugLogEnabled;
+    if ( !DCONST_DVARBOOL_viewHeightDebugLogEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "viewHeightDebugLogEnabled") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v7);
+    if ( v7->current.enabled && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Contextual mount set current view height to: %.2f. Target: %.2f\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, ps->viewHeightCurrent, *(float *)&v6);
+    return;
+  }
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) && Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_last_stand_rewrite_enabled, "killswitch_last_stand_rewrite_enabled") )
+  {
+    v8 = ps->serverTime - ps->lastStandTime;
+    Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_lastStandViewHeightLerpTime, "lastStandViewHeightLerpTime");
+    if ( Int_Internal_DebugName <= 0 )
+      v10 = FLOAT_1_0;
     else
+      v10 = (float)v8 / (float)Int_Internal_DebugName;
+    v11 = I_fclamp(v10, 0.0, 1.0);
+    v12 = *(float *)&v11;
+    v13 = *(float *)&v11 < 1.0;
+    viewheight_laststand = (float)SuitDef->viewheight_laststand;
+    if ( v13 )
+      viewheight_laststand = PM_ViewHeightTableLerp(v12, viewLerp_lastStand, ps->lastStandStartViewHeight, (float)SuitDef->viewheight_laststand);
+    ps->viewHeightCurrent = viewheight_laststand;
+    ps->viewHeightLerpTime = 0;
+    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Last Stand set current view height to: %.2f. Target: %.2f\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, ps->viewHeightCurrent, (float)SuitDef->viewheight_laststand);
+    return;
+  }
+  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_player_vehicleSeatViewHeightLerpFixEnabled, "player_vehicleSeatViewHeightLerpFixEnabled") && (float)ps->viewHeightTarget != ps->viewHeightCurrent && BG_VehicleOccupancy_PlayerIsSeated(ps) )
+  {
+    v15 = ps->viewHeightTarget;
+    ps->viewHeightLerpTarget = v15;
+    ps->viewHeightLerpTime = 0;
+    ps->viewHeightCurrent = (float)v15;
+    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&ps->otherFlags, ACTIVE, 0x1Au);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x37u);
+    ps->mountState.flags &= ~8u;
+    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
     {
-      p_otherFlags = &_RDI->otherFlags;
-      v64 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0x1Au);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+1E8h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1E4h]
-        vcomiss xmm0, xmm1
-      }
-      v206 = v64;
-      if ( !v63 )
-        goto LABEL_62;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx+204h]
-        vcomiss xmm1, xmm0
-      }
-      if ( v63 )
-        goto LABEL_62;
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u) || _RDI->viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef) )
-        v68 = 1;
-      else
-LABEL_62:
-        v68 = 0;
-      if ( !v61 && !v206 )
-        goto LABEL_70;
-      if ( v68 )
-      {
-        GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&_RDI->otherFlags, ACTIVE, 0x1Au);
-        goto LABEL_70;
-      }
+      LODWORD(fmt) = ps->viewHeightTarget;
+      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Player's vehicle occupancy set view height to: %d from the current value of %.2f\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, fmt, ps->viewHeightCurrent);
     }
-    if ( v61 )
-      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(p_otherFlags, ACTIVE, 0x1Au);
+    return;
+  }
+  v17 = 0i64;
+  *(float *)&v17 = (float)ps->viewHeightTarget;
+  _XMM0 = v17;
+  if ( *(float *)&v17 == ps->viewHeightCurrent && !ps->viewHeightLerpTime )
+    return;
+  v18 = 0;
+  v98 = 0;
+  v19 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du);
+  if ( !v19 )
+    v19 = pm->cmd.serverTime - ps->slideState.slideEndTime <= SuitDef->slide_viewBlendOutTimeMs;
+  v20 = 0;
+  if ( !v19 && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_enableSprintViewHeight, "enableSprintViewHeight") )
+  {
+    v20 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
+    if ( !v20 && ps->viewHeightTarget >= SuitDef->bounds_height_crouch )
+    {
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_sprintViewHeightLerpSpeed, "sprintViewHeightLerpSpeed");
+      lastSprintEnd = ps->sprintState.lastSprintEnd;
+      v23 = *(float *)&Float_Internal_DebugName;
+      v24 = abs32(pm->ps->viewHeightTarget - BG_GetViewHeightSprint(ps, SuitDef));
+      if ( *(float *)&Float_Internal_DebugName <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5822, ASSERT_TYPE_ASSERT, "(lerpSpeed > 0.0f)", (const char *)&queryFormat, "lerpSpeed > 0.0f") )
+        __debugbreak();
+      v25 = 0i64;
+      *(float *)&v25 = (float)v24;
+      _XMM0 = v25;
+      v20 = pm->cmd.serverTime - *(_DWORD *)(*(_QWORD *)outUp.v + 40i64) - lastSprintEnd <= (int)(float)((float)(*(float *)&v25 / v23) * 1000.0);
+    }
+  }
+  v26 = ps->viewHeightTarget;
+  v27 = (ps->mountState.flags & 8) != 0;
+  if ( v26 == BG_Suit_GetProneViewHeight(SuitDef) || v26 == SuitDef->viewheight_crouch || v26 == SuitDef->viewheight_stand )
+  {
+    if ( v19 )
+      v28 = 1;
+    else
+      v28 = v20 || v27 || BG_IsPlayerSwimming(ps);
+  }
+  else
+  {
+    v28 = 1;
+  }
+  if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_allowSimpleLerpToProne, "allowSimpleLerpToProne") )
+  {
+    p_otherFlags = &ps->otherFlags;
+    goto LABEL_70;
+  }
+  p_otherFlags = &ps->otherFlags;
+  v30 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x1Au);
+  viewHeightCurrent = ps->viewHeightCurrent;
+  v32 = 0i64;
+  *(float *)&v32 = (float)ps->viewHeightTarget;
+  _XMM0 = v32;
+  v97 = v30;
+  v34 = 0;
+  if ( *(float *)&v32 < viewHeightCurrent )
+  {
+    v33 = 0i64;
+    *(float *)&v33 = (float)SuitDef->viewheight_crouch;
+    _XMM0 = v33;
+    if ( viewHeightCurrent >= *(float *)&v33 && (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) || ps->viewHeightTarget == BG_Suit_GetProneViewHeight(SuitDef)) )
+      v34 = 1;
+  }
+  if ( !v28 && !v97 )
+    goto LABEL_72;
+  if ( !v34 )
+  {
 LABEL_70:
-    __asm { vmovaps [rsp+0C8h+var_58], xmm8 }
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(p_otherFlags, ACTIVE, 0x1Au) )
+    if ( v28 )
+      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(p_otherFlags, ACTIVE, 0x1Au);
+    goto LABEL_72;
+  }
+  GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&ps->otherFlags, ACTIVE, 0x1Au);
+LABEL_72:
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(p_otherFlags, ACTIVE, 0x1Au) )
+  {
+    v35 = FLOAT_180_0;
+    if ( v19 )
     {
-      __asm { vmovss  xmm7, cs:__real@43340000 }
-      if ( v52 )
+      v36 = ps->viewHeightTarget;
+      viewheight_slide = SuitDef->viewheight_slide;
+      if ( v36 == viewheight_slide )
+        slide_viewBlendInTimeMs = SuitDef->slide_viewBlendInTimeMs;
+      else
+        slide_viewBlendInTimeMs = SuitDef->slide_viewBlendOutTimeMs;
+      v39 = (float)slide_viewBlendInTimeMs * 0.001;
+      if ( v39 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6024, ASSERT_TYPE_ASSERT, "(viewAnglesBlendTimeSec > 1.0E-6)", (const char *)&queryFormat, "viewAnglesBlendTimeSec > ZERO_EPSILON") )
+        __debugbreak();
+      if ( v36 == viewheight_slide )
+        v40 = SuitDef->viewheight_slide - BG_GetViewHeightSprint(ps, SuitDef);
+      else
+        v40 = SuitDef->viewheight_slide - ps->viewHeightTarget;
+      LODWORD(v41) = COERCE_UNSIGNED_INT((float)v40) & _xmm;
+      if ( v41 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6035, ASSERT_TYPE_ASSERT, "(distanceInInches > 1.0E-6)", (const char *)&queryFormat, "distanceInInches > ZERO_EPSILON") )
+        __debugbreak();
+      v35 = v41 / v39;
+      p_otherFlags = &ps->otherFlags;
+    }
+    else if ( v20 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x37u) )
+    {
+      LODWORD(v42) = COERCE_UNSIGNED_INT((float)ps->viewHeightTarget - ps->viewHeightCurrent) & _xmm;
+      v43 = abs32(SuitDef->viewheight_crouch - BG_GetViewHeightSprint(ps, SuitDef));
+      if ( (float)ps->viewHeightTarget < ps->viewHeightCurrent && BG_IsSuperSprinting(ps) )
       {
-        v70 = _RDI->viewHeightTarget;
-        viewheight_slide = SuitDef->viewheight_slide;
-        __asm
-        {
-          vmovsd  xmm7, cs:__real@3eb0c6f7a0b5ed8d
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm8, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm1, xmm8, xmm8
-          vcomisd xmm1, xmm7
-        }
-        if ( v70 <= viewheight_slide && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6024, ASSERT_TYPE_ASSERT, "(viewAnglesBlendTimeSec > 1.0E-6)", (const char *)&queryFormat, "viewAnglesBlendTimeSec > ZERO_EPSILON") )
-          __debugbreak();
-        if ( v70 == viewheight_slide )
-        {
-          ViewHeightSprint = BG_GetViewHeightSprint(_RDI, SuitDef);
-          v78 = SuitDef->viewheight_slide;
-          v79 = v78 < ViewHeightSprint;
-          v80 = v78 == ViewHeightSprint;
-          v81 = v78 <= ViewHeightSprint;
-        }
-        else
-        {
-          v82 = SuitDef->viewheight_slide;
-          v79 = v82 < _RDI->viewHeightTarget;
-          v80 = v82 == _RDI->viewHeightTarget;
-          v81 = v82 <= _RDI->viewHeightTarget;
-        }
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, ecx
-          vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcvtss2sd xmm0, xmm6, xmm6
-          vcomisd xmm0, xmm7
-        }
-        if ( v81 )
-        {
-          v86 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6035, ASSERT_TYPE_ASSERT, "(distanceInInches > 1.0E-6)", (const char *)&queryFormat, "distanceInInches > ZERO_EPSILON");
-          v79 = 0;
-          v80 = !v86;
-          if ( v86 )
-            __debugbreak();
-        }
-        __asm { vdivss  xmm7, xmm6, xmm8 }
-        p_otherFlags = &_RDI->otherFlags;
+        v44 = DCONST_DVARFLT_superSprintHeightBlendSpeed;
+        v45 = "superSprintHeightBlendSpeed";
       }
-      else if ( v53 || (v87 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x37u), v79 = 0, v80 = !v87, v87) )
+      else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x37u) )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1E4h]
-          vsubss  xmm6, xmm0, dword ptr [rdi+1E8h]
-          vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        }
-        v92 = SuitDef->viewheight_crouch - BG_GetViewHeightSprint(_RDI, SuitDef);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1E4h]
-          vcomiss xmm0, dword ptr [rdi+1E8h]
-        }
-        if ( ((v92 >> 31) ^ (unsigned int)v92) < v92 >> 31 && BG_IsSuperSprinting(_RDI) )
-        {
-          v94 = DCONST_DVARFLT_superSprintHeightBlendSpeed;
-          v95 = "superSprintHeightBlendSpeed";
-        }
-        else if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x37u) )
-        {
-          v94 = DCONST_DVARFLT_proneToSprintStandSpeed;
-          v95 = "proneToSprintStandSpeed";
-        }
-        else
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ebx
-            vcomiss xmm6, xmm0
-          }
-          v94 = DCONST_DVARFLT_sprintViewHeightLerpSpeed;
-          v95 = "sprintViewHeightLerpSpeed";
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v94, v95);
-        __asm { vmovaps xmm7, xmm0 }
-      }
-      __asm { vmovss  xmm1, dword ptr [rdi+1E8h] }
-      _RDI->viewHeightLerpTarget = _RDI->viewHeightTarget;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcomiss xmm1, xmm0
-      }
-      _RDI->viewHeightLerpTime = 0;
-      __asm { vmulss  xmm2, xmm7, dword ptr [rax+24h] }
-      if ( v79 )
-      {
-        __asm
-        {
-          vaddss  xmm1, xmm1, xmm2
-          vcomiss xmm1, xmm0
-          vmovss  dword ptr [rdi+1E8h], xmm1
-        }
-        if ( !v79 )
-          goto LABEL_95;
+        v44 = DCONST_DVARFLT_proneToSprintStandSpeed;
+        v45 = "proneToSprintStandSpeed";
       }
       else
       {
-        __asm
-        {
-          vsubss  xmm1, xmm1, xmm2
-          vcomiss xmm1, xmm0
-          vmovss  dword ptr [rdi+1E8h], xmm1
-        }
-        if ( v79 || v80 )
-        {
-LABEL_95:
-          __asm
-          {
-            vmovss  dword ptr [rdi+1E8h], xmm0
-            vmovaps xmm1, xmm0
-          }
-        }
+        if ( v42 > (float)v43 )
+          goto LABEL_97;
+        v44 = DCONST_DVARFLT_sprintViewHeightLerpSpeed;
+        v45 = "sprintViewHeightLerpSpeed";
       }
-      __asm { vucomiss xmm1, xmm0 }
-      if ( v80 )
-      {
-        GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(p_otherFlags, ACTIVE, 0x1Au);
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x37u);
-        _RDI->mountState.flags &= ~8u;
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-      {
-        __asm { vmovss  xmm6, dword ptr [rdi+1E8h] }
-        viewHeightLerpTarget = _RDI->viewHeightLerpTarget;
-        __asm { vcvtss2sd xmm6, xmm6, xmm6 }
-        v105 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(p_otherFlags, ACTIVE, 0x1Au);
-        v106 = "Finished";
-        __asm { vmovsd  [rsp+0C8h+var_98], xmm6 }
-        if ( v105 )
-          v106 = "Active";
-        __asm
-        {
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+0C8h+var_A0], xmm0
-        }
-        Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Simple lerp status: %s Lerp Speed: %.2f Current: %.2f Target: %d\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, v106, v199, v200, viewHeightLerpTarget);
-      }
-      goto LABEL_103;
+      LODWORD(v35) = COERCE_UNSIGNED_INT64(Dvar_GetFloat_Internal_DebugName(v44, v45));
     }
-    viewHeightLerpTime = _RDI->viewHeightLerpTime;
-    v112 = viewLerp_CrouchProneDirect;
-    __asm { vmovss  xmm8, cs:__real@3c23d70a }
+LABEL_97:
+    v46 = ps->viewHeightTarget;
+    v47 = ps->viewHeightCurrent;
+    ps->viewHeightLerpTarget = v46;
+    v48 = (float)v46;
+    v49 = *(_QWORD *)outUp.v;
+    ps->viewHeightLerpTime = 0;
+    v50 = v35 * *(float *)(v49 + 36);
+    if ( v47 >= v48 )
+    {
+      v51 = v47 - v50;
+      ps->viewHeightCurrent = v51;
+      if ( v51 <= v48 )
+      {
+LABEL_101:
+        ps->viewHeightCurrent = v48;
+        v51 = v48;
+      }
+    }
+    else
+    {
+      v51 = v47 + v50;
+      ps->viewHeightCurrent = v51;
+      if ( v51 >= v48 )
+        goto LABEL_101;
+    }
+    if ( v51 == v48 )
+    {
+      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(p_otherFlags, ACTIVE, 0x1Au);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x37u);
+      ps->mountState.flags &= ~8u;
+    }
+    if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+    {
+      viewHeightLerpTarget = ps->viewHeightLerpTarget;
+      v53 = ps->viewHeightCurrent;
+      v54 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(p_otherFlags, ACTIVE, 0x1Au);
+      v55 = "Finished";
+      if ( v54 )
+        v55 = "Active";
+      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Simple lerp status: %s Lerp Speed: %.2f Current: %.2f Target: %d\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, v55, v35, v53, viewHeightLerpTarget);
+    }
+    return;
+  }
+  viewHeightLerpTime = ps->viewHeightLerpTime;
+  v57 = viewLerp_CrouchProneDirect;
+  if ( !viewHeightLerpTime )
+  {
+LABEL_136:
+    v67 = ps->viewHeightTarget;
     if ( viewHeightLerpTime )
     {
-      v114 = PM_GetViewHeightLerpTime(_RDI, _RDI->viewHeightLerpTarget, _RDI->viewHeightLerpDown);
-      v115 = pm->cmd.serverTime - _RDI->viewHeightLerpTime;
-      LODWORD(outUp.v[0]) = v114;
-      v207 = I_clamp(100 * v115 / v114, 0, 100);
-      if ( v207 == 100 )
+      viewheight_stand = ps->viewHeightLerpTarget;
+      v69 = v67 <= viewheight_stand;
+      if ( v67 == viewheight_stand )
+        return;
+      if ( v67 < viewheight_stand )
       {
-        __asm
+        viewHeightLerpDown = ps->viewHeightLerpDown;
+        if ( !viewHeightLerpDown )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1F0h]
-        }
-        _RDI->viewHeightLerpTime = 0;
-        __asm { vmovss  dword ptr [rdi+1E8h], xmm0 }
-        v118 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u);
-        v119 = !v118;
-        if ( v118 )
-        {
-          v120 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0);
-          v119 = !v120;
-          if ( v120 )
+LABEL_143:
+          v71 = 100 - v98;
+          v72 = viewHeightLerpDown ^ 1;
+          ps->viewHeightLerpDown = v72;
+          if ( v72 )
           {
-            __asm
+            viewheight_crouch = SuitDef->viewheight_crouch;
+            if ( viewheight_stand == SuitDef->viewheight_stand )
             {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rbx+204h]
-              vucomiss xmm0, dword ptr [rdi+1E8h]
+              ps->viewHeightLerpTarget = viewheight_crouch;
+              viewheight_stand = viewheight_crouch;
             }
-          }
-        }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1E4h]
-          vucomiss xmm0, dword ptr [rdi+1E8h]
-        }
-        if ( v119 )
-          GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x37u);
-      }
-      else
-      {
-        ProneViewHeight = BG_Suit_GetProneViewHeight(SuitDef);
-        v125 = _RDI->viewHeightLerpTarget;
-        viewheight_crouch = SuitDef->viewheight_crouch;
-        if ( v125 == ProneViewHeight )
-        {
-          __asm
-          {
-            vxorps  xmm6, xmm6, xmm6
-            vcvtsi2ss xmm6, xmm6, ecx
-          }
-          v129 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u);
-          v130 = 0;
-          v131 = !v129;
-          v132 = viewLerp_CrouchProneDirect;
-          if ( !v129 )
-            v132 = viewLerp_CrouchProne;
-        }
-        else
-        {
-          v130 = v125 < viewheight_crouch;
-          v131 = v125 == viewheight_crouch;
-          if ( v125 == viewheight_crouch )
-          {
-            if ( _RDI->viewHeightLerpDown )
+            else if ( viewheight_stand == viewheight_crouch )
             {
-              __asm
-              {
-                vxorps  xmm6, xmm6, xmm6
-                vcvtsi2ss xmm6, xmm6, dword ptr [rbx+200h]
-              }
-              v134 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u);
-              v130 = 0;
-              v131 = !v134;
-              v132 = viewLerp_StandCrouchDirect;
-              if ( !v134 )
-                v132 = viewLerp_StandCrouch;
-            }
-            else
-            {
-              BG_Suit_GetProneViewHeight(SuitDef);
-              __asm
-              {
-                vxorps  xmm6, xmm6, xmm6
-                vcvtsi2ss xmm6, xmm6, eax
-              }
-              v132 = viewLerp_ProneCrouch;
+              ProneViewHeight = BG_Suit_GetProneViewHeight(SuitDef);
+              ps->viewHeightLerpTarget = ProneViewHeight;
+              viewheight_stand = ProneViewHeight;
             }
           }
           else
           {
-            __asm
+            v75 = BG_Suit_GetProneViewHeight(SuitDef);
+            viewheight_stand = ps->viewHeightLerpTarget;
+            v76 = SuitDef->viewheight_crouch;
+            if ( viewheight_stand == v75 )
             {
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, ecx
+              ps->viewHeightLerpTarget = v76;
+              viewheight_stand = v76;
             }
-            v132 = viewLerp_CrouchStand;
-          }
-        }
-        __asm { vcomiss xmm6, xmm7 }
-        if ( v130 || v131 )
-        {
-          __asm
-          {
-            vxorpd  xmm0, xmm0, xmm0
-            vmovsd  [rsp+0C8h+var_88], xmm0
-            vcvtss2sd xmm1, xmm6, xmm6
-            vmovsd  [rsp+0C8h+var_90], xmm1
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6171, ASSERT_TYPE_ASSERT, "( startHeight ) > ( 0.0f )", "%s > %s\n\t%g, %g", "startHeight", "0.0f", v204, v205) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, [rsp+0C8h+var_74]
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2ss xmm3, xmm3, dword ptr [rdi+1F0h]; endHeight
-          vmulss  xmm0, xmm0, xmm8; fFrac
-          vmovaps xmm2, xmm6; startHeight
-        }
-        *(float *)&_XMM0 = PM_ViewHeightTableLerp(*(float *)&_XMM0, v132, *(float *)&_XMM2_8, *(float *)&_XMM3_8);
-        __asm { vmovss  dword ptr [rdi+1E8h], xmm0 }
-      }
-      if ( !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") || !pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-        goto LABEL_103;
-      __asm { vmovss  xmm0, dword ptr [rdi+1E8h] }
-      LODWORD(v203) = _RDI->viewHeightLerpTarget;
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0C8h+var_98], xmm0
-      }
-      *(float *)&v195 = outUp.v[0];
-      LODWORD(fmt) = _RDI->viewHeightLerpTime;
-      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Complex lerp start time: %d Lerp Completion Time: %d Current: %.2f Target: %d\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, fmt, v195, v201, v203);
-      viewHeightLerpTime = _RDI->viewHeightLerpTime;
-    }
-    v143 = _RDI->viewHeightTarget;
-    if ( viewHeightLerpTime )
-    {
-      viewheight_stand = _RDI->viewHeightLerpTarget;
-      v145 = v143 <= viewheight_stand;
-      if ( v143 != viewheight_stand )
-      {
-        if ( v143 < viewheight_stand )
-        {
-          viewHeightLerpDown = _RDI->viewHeightLerpDown;
-          if ( !viewHeightLerpDown )
-          {
-LABEL_138:
-            v147 = viewHeightLerpDown ^ 1;
-            _RDI->viewHeightLerpDown = v147;
-            if ( v147 )
+            else if ( viewheight_stand == v76 )
             {
-              v148 = SuitDef->viewheight_crouch;
-              if ( viewheight_stand == SuitDef->viewheight_stand )
-              {
-                _RDI->viewHeightLerpTarget = v148;
-                viewheight_stand = v148;
-              }
-              else if ( viewheight_stand == v148 )
-              {
-                v149 = BG_Suit_GetProneViewHeight(SuitDef);
-                _RDI->viewHeightLerpTarget = v149;
-                viewheight_stand = v149;
-              }
+              viewheight_stand = SuitDef->viewheight_stand;
+              ps->viewHeightLerpTarget = viewheight_stand;
+            }
+          }
+          if ( v71 == 100 )
+          {
+            ps->viewHeightCurrent = (float)viewheight_stand;
+            ps->viewHeightLerpTime = 0;
+            if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+            {
+              LODWORD(v95) = ps->viewHeightLerpTarget;
+              Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Complex lerp direction changed but goal is already reached. Current: %.2f Target: %d\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, ps->viewHeightCurrent, v95);
+            }
+          }
+          else
+          {
+            v77 = PM_GetViewHeightLerpTime(ps, viewheight_stand, ps->viewHeightLerpDown);
+            v78 = (float)v71;
+            v79 = ps->viewHeightLerpTarget;
+            v99 = v77;
+            ps->viewHeightLerpTime = pm->cmd.serverTime - (int)(float)((float)(v78 * 0.0099999998) * (float)v77);
+            v80 = v78 * 0.0099999998;
+            if ( v79 == BG_Suit_GetProneViewHeight(SuitDef) )
+            {
+              if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
+                v57 = viewLerp_CrouchProne;
+              v81 = BG_Suit_GetProneViewHeight(SuitDef);
+              v82 = (float)SuitDef->viewheight_crouch;
+              v83 = (float)v81;
             }
             else
             {
-              v150 = BG_Suit_GetProneViewHeight(SuitDef);
-              viewheight_stand = _RDI->viewHeightLerpTarget;
-              v151 = SuitDef->viewheight_crouch;
-              if ( viewheight_stand == v150 )
+              v84 = SuitDef->viewheight_crouch;
+              if ( v79 == v84 )
               {
-                _RDI->viewHeightLerpTarget = v151;
-                viewheight_stand = v151;
-              }
-              else if ( viewheight_stand == v151 )
-              {
-                viewheight_stand = SuitDef->viewheight_stand;
-                _RDI->viewHeightLerpTarget = viewheight_stand;
-              }
-            }
-            if ( v207 == 0 )
-            {
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, edx
-                vmovss  dword ptr [rdi+1E8h], xmm0
-              }
-              _RDI->viewHeightLerpTime = 0;
-              if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-              {
-                __asm
+                if ( ps->viewHeightLerpDown )
                 {
-                  vmovss  xmm0, dword ptr [rdi+1E8h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                }
-                LODWORD(v195) = _RDI->viewHeightLerpTarget;
-                __asm { vmovsd  [rsp+0C8h+fmt], xmm0 }
-                Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Complex lerp direction changed but goal is already reached. Current: %.2f Target: %d\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, *(double *)&fmtc, v195);
-              }
-            }
-            else
-            {
-              v156 = PM_GetViewHeightLerpTime(_RDI, viewheight_stand, _RDI->viewHeightLerpDown);
-              __asm
-              {
-                vxorps  xmm2, xmm2, xmm2
-                vcvtsi2ss xmm2, xmm2, r13d
-              }
-              v159 = _RDI->viewHeightLerpTarget;
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vmulss  xmm1, xmm2, xmm8
-                vcvtsi2ss xmm0, xmm0, eax
-                vmulss  xmm1, xmm1, xmm0
-                vcvttss2si ecx, xmm1
-              }
-              _RDI->viewHeightLerpTime = pm->cmd.serverTime - _ECX;
-              __asm { vmulss  xmm6, xmm2, xmm8 }
-              if ( v159 == BG_Suit_GetProneViewHeight(SuitDef) )
-              {
-                if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u) )
-                  v112 = viewLerp_CrouchProne;
-                BG_Suit_GetProneViewHeight(SuitDef);
-                __asm
-                {
-                  vxorps  xmm3, xmm3, xmm3
-                  vxorps  xmm2, xmm2, xmm2
-                  vcvtsi2ss xmm2, xmm2, dword ptr [rbx+204h]
-                  vcvtsi2ss xmm3, xmm3, eax
-                }
-              }
-              else if ( v159 == SuitDef->viewheight_crouch )
-              {
-                if ( _RDI->viewHeightLerpDown )
-                {
-                  v112 = viewLerp_StandCrouchDirect;
-                  __asm
-                  {
-                    vxorps  xmm2, xmm2, xmm2
-                    vcvtsi2ss xmm2, xmm2, dword ptr [rbx+200h]
-                    vxorps  xmm3, xmm3, xmm3
-                  }
-                  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x36u) )
-                    v112 = viewLerp_StandCrouch;
-                  __asm { vcvtsi2ss xmm3, xmm3, r14d }
+                  v85 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u);
+                  v57 = viewLerp_StandCrouchDirect;
+                  v82 = (float)SuitDef->viewheight_stand;
+                  if ( !v85 )
+                    v57 = viewLerp_StandCrouch;
+                  v83 = (float)SuitDef->viewheight_crouch;
                 }
                 else
                 {
-                  v112 = viewLerp_ProneCrouch;
-                  BG_Suit_GetProneViewHeight(SuitDef);
-                  __asm
-                  {
-                    vxorps  xmm2, xmm2, xmm2
-                    vxorps  xmm3, xmm3, xmm3
-                    vcvtsi2ss xmm2, xmm2, eax
-                    vcvtsi2ss xmm3, xmm3, r14d
-                  }
+                  v57 = viewLerp_ProneCrouch;
+                  v82 = (float)BG_Suit_GetProneViewHeight(SuitDef);
+                  v83 = (float)v84;
                 }
               }
               else
               {
-                __asm
-                {
-                  vxorps  xmm2, xmm2, xmm2
-                  vxorps  xmm3, xmm3, xmm3
-                  vcvtsi2ss xmm3, xmm3, dword ptr [rbx+200h]; endHeight
-                  vcvtsi2ss xmm2, xmm2, r14d; startHeight
-                }
-                v112 = viewLerp_CrouchStand;
+                v83 = (float)SuitDef->viewheight_stand;
+                v82 = (float)v84;
+                v57 = viewLerp_CrouchStand;
               }
-              __asm { vmovaps xmm0, xmm6; fFrac }
-              PM_ViewHeightTableLerp(*(float *)&_XMM0, v112, *(float *)&_XMM2, *(float *)&_XMM3);
-              if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-              {
-                __asm { vmovss  xmm0, dword ptr [rdi+1E8h] }
-                LODWORD(v203) = _RDI->viewHeightLerpTarget;
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmovsd  [rsp+0C8h+var_98], xmm0
-                }
-                LODWORD(v195) = v156;
-                LODWORD(fmt) = _RDI->viewHeightLerpTime;
-                Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Complex lerp direction changed. Complex lerp start time: %d Lerp Completion Time: %d Current: %.2f Target: %d\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, fmt, v195, v202, v203);
-              }
+              v77 = v99;
             }
-            goto LABEL_103;
+            PM_ViewHeightTableLerp(v80, v57, v82, v83);
+            if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+            {
+              LODWORD(v96) = ps->viewHeightLerpTarget;
+              LODWORD(v95) = v77;
+              LODWORD(fmt) = ps->viewHeightLerpTime;
+              Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Complex lerp direction changed. Complex lerp start time: %d Lerp Completion Time: %d Current: %.2f Target: %d\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, fmt, v95, ps->viewHeightCurrent, v96);
+            }
           }
-          v145 = v143 <= viewheight_stand;
+          return;
         }
-        if ( !v145 )
+        v69 = v67 <= viewheight_stand;
+      }
+      if ( v69 )
+        return;
+      viewHeightLerpDown = ps->viewHeightLerpDown;
+      if ( !viewHeightLerpDown )
+        return;
+      goto LABEL_143;
+    }
+    if ( (float)v67 == ps->viewHeightCurrent )
+      return;
+    ps->viewHeightLerpTime = pm->cmd.serverTime;
+    v86 = BG_Suit_GetProneViewHeight(SuitDef);
+    v87 = ps->viewHeightTarget;
+    if ( v87 == v86 )
+    {
+      ps->viewHeightLerpDown = 1;
+      v88 = SuitDef->viewheight_crouch;
+      if ( (float)v88 >= ps->viewHeightCurrent )
+      {
+        ps->viewHeightLerpTarget = BG_Suit_GetProneViewHeight(SuitDef);
+LABEL_185:
+        if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
         {
-          viewHeightLerpDown = _RDI->viewHeightLerpDown;
-          if ( viewHeightLerpDown )
-            goto LABEL_138;
+          v91 = "Up";
+          if ( ps->viewHeightLerpDown )
+            v91 = "Down";
+          LODWORD(v95) = ps->viewHeightLerpTarget;
+          Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d New lerp started. Current: %.2f Target: %d Dir: %s\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, ps->viewHeightCurrent, v95, v91);
         }
+        return;
       }
     }
     else
     {
-      __asm
+      if ( v87 == SuitDef->viewheight_crouch )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vucomiss xmm0, dword ptr [rdi+1E8h]
+        LOBYTE(v18) = (float)v87 < ps->viewHeightCurrent;
+        ps->viewHeightLerpDown = v18;
+        ps->viewHeightLerpTarget = SuitDef->viewheight_crouch;
+        goto LABEL_185;
       }
+      if ( v87 != SuitDef->viewheight_stand )
+      {
+        Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_viewheight_assert_fix_enabled, "killswitch_viewheight_assert_fix_enabled");
+        v90 = ps->viewHeightTarget;
+        if ( Bool_Internal_DebugName )
+        {
+          ps->viewHeightCurrent = (float)v90;
+          ps->viewHeightLerpTime = 0;
+          ps->viewHeightLerpTarget = v90;
+          ps->viewHeightLerpDown = 0;
+        }
+        else
+        {
+          LODWORD(v95) = ps->viewHeightTarget;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6350, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "View height lerp to %i reached bad place\n", v95) )
+            __debugbreak();
+        }
+        goto LABEL_185;
+      }
+      ps->viewHeightLerpDown = 0;
+      v88 = SuitDef->viewheight_crouch;
+      if ( (float)v88 <= ps->viewHeightCurrent )
+        v88 = SuitDef->viewheight_stand;
     }
-LABEL_103:
-    __asm { vmovaps xmm8, [rsp+0C8h+var_58] }
-    goto LABEL_104;
+    ps->viewHeightLerpTarget = v88;
+    goto LABEL_185;
   }
-  if ( _RDI->pm_type == 5 )
+  v58 = PM_GetViewHeightLerpTime(ps, ps->viewHeightLerpTarget, ps->viewHeightLerpDown);
+  v59 = pm->cmd.serverTime - ps->viewHeightLerpTime;
+  LODWORD(outUp.v[0]) = v58;
+  v98 = I_clamp(100 * v59 / v58, 0, 100);
+  if ( v98 == 100 )
   {
-    _RDI->viewHeightCurrent = 0.0;
-    v181 = DCONST_DVARBOOL_viewHeightDebugLogEnabled;
-    if ( !DCONST_DVARBOOL_viewHeightDebugLogEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "viewHeightDebugLogEnabled") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v181);
-    if ( v181->current.enabled && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1E8h]
-        vcvtss2sd xmm0, xmm0, xmm0
-      }
-      LODWORD(v195) = _RDI->viewHeightTarget;
-      __asm { vmovsd  [rsp+0C8h+fmt], xmm0 }
-      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Spectator set current view height to: %.2f. Target: %d\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, *(double *)&fmtd, v195);
-    }
+    v60 = (float)ps->viewHeightLerpTarget;
+    ps->viewHeightLerpTime = 0;
+    ps->viewHeightCurrent = v60;
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) && (float)SuitDef->viewheight_crouch == ps->viewHeightCurrent )
+      ps->viewHeightTarget = BG_Suit_GetProneViewHeight(SuitDef);
+    if ( (float)ps->viewHeightTarget == ps->viewHeightCurrent )
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&ps->pm_flags, ACTIVE, 0x37u);
   }
   else
   {
-    __asm
+    v61 = BG_Suit_GetProneViewHeight(SuitDef);
+    v62 = ps->viewHeightLerpTarget;
+    v63 = SuitDef->viewheight_crouch;
+    if ( v62 == v61 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rdi+1E8h], xmm0
+      v64 = (float)v63;
+      v65 = viewLerp_CrouchProneDirect;
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
+        v65 = viewLerp_CrouchProne;
     }
-    v186 = DCONST_DVARBOOL_viewHeightDebugLogEnabled;
-    if ( !DCONST_DVARBOOL_viewHeightDebugLogEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "viewHeightDebugLogEnabled") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v186);
-    if ( v186->current.enabled && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+    else if ( v62 == v63 )
     {
-      __asm
+      if ( ps->viewHeightLerpDown )
       {
-        vmovss  xmm0, dword ptr [rdi+1E8h]
-        vcvtss2sd xmm0, xmm0, xmm0
+        v64 = (float)SuitDef->viewheight_stand;
+        v65 = viewLerp_StandCrouchDirect;
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x36u) )
+          v65 = viewLerp_StandCrouch;
       }
-      LODWORD(v195) = _RDI->viewHeightTarget;
-      __asm { vmovsd  [rsp+0C8h+fmt], xmm0 }
-      Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Current view height is set to: %.2f. Target: %d\n", (unsigned int)_RDI->clientNum, (unsigned int)pm->cmd.serverTime, *(double *)&fmte, v195);
+      else
+      {
+        v64 = (float)BG_Suit_GetProneViewHeight(SuitDef);
+        v65 = viewLerp_ProneCrouch;
+      }
     }
+    else
+    {
+      v64 = (float)v63;
+      v65 = viewLerp_CrouchStand;
+    }
+    if ( v64 <= 0.0 )
+    {
+      __asm { vxorpd  xmm0, xmm0, xmm0 }
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 6171, ASSERT_TYPE_ASSERT, "( startHeight ) > ( 0.0f )", "%s > %s\n\t%g, %g", "startHeight", "0.0f", v64, *(double *)&_XMM0) )
+        __debugbreak();
+    }
+    ps->viewHeightCurrent = PM_ViewHeightTableLerp((float)v98 * 0.0099999998, v65, v64, (float)ps->viewHeightLerpTarget);
   }
-LABEL_105:
-  __asm { vmovaps xmm7, [rsp+0C8h+var_48] }
+  if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_viewHeightDebugLogEnabled, "viewHeightDebugLogEnabled") && pm->m_bgHandler->IsServer((BgHandler *)pm->m_bgHandler) )
+  {
+    LODWORD(v96) = ps->viewHeightLerpTarget;
+    *(float *)&v95 = outUp.v[0];
+    LODWORD(fmt) = ps->viewHeightLerpTime;
+    Com_Printf(34, "[VIEW_HEIGHT_LOG] Client: %d Server Time: %d Complex lerp start time: %d Lerp Completion Time: %d Current: %.2f Target: %d\n", (unsigned int)ps->clientNum, (unsigned int)pm->cmd.serverTime, fmt, v95, ps->viewHeightCurrent, v96);
+    viewHeightLerpTime = ps->viewHeightLerpTime;
+    goto LABEL_136;
+  }
 }
 
 /*
@@ -17035,114 +13240,61 @@ LABEL_105:
 PM_ViewHeightTableLerp
 ==============
 */
-
-float __fastcall PM_ViewHeightTableLerp(double fFrac, viewLerpWaypoint_s *pTable, double startHeight, double endHeight)
+float PM_ViewHeightTableLerp(float fFrac, viewLerpWaypoint_s *pTable, float startHeight, float endHeight)
 {
-  bool v15; 
-  char v16; 
-  int v18; 
-  bool v22; 
-  double v45; 
+  viewLerpWaypoint_s *v7; 
+  int v8; 
+  float v9; 
+  int v10; 
+  viewLerpWaypoint_s *v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  float v15; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps [rsp+88h+var_58], xmm10
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm0, xmm10
-    vmovaps xmm8, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm6, xmm0
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm6, xmm7
-  }
-  v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5727, ASSERT_TYPE_ASSERT, "(fFrac < 1.0f)", (const char *)&queryFormat, "fFrac < 1.0f");
-  v16 = !v15;
-  if ( v15 )
+  if ( fFrac <= 0.0 )
+    return (float)((float)(1.0 - pTable->fLerp) * startHeight) + (float)(endHeight * pTable->fLerp);
+  if ( fFrac >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5727, ASSERT_TYPE_ASSERT, "(fFrac < 1.0f)", (const char *)&queryFormat, "fFrac < 1.0f") )
     __debugbreak();
-  _RBX = pTable + 1;
-  v18 = 1;
-  __asm
+  v7 = pTable + 1;
+  v8 = 1;
+  v9 = pTable[1].fFrac;
+  v10 = 1;
+  if ( fFrac == v9 )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vucomiss xmm6, xmm0
-  }
-  if ( v15 )
-  {
-    __asm { vmovss  xmm1, cs:__real@bf800000 }
-    _RAX = pTable + 1;
-    while ( 1 )
-    {
-      __asm { vcomiss xmm0, xmm6 }
-      if ( !v16 )
-        break;
-      __asm { vmovss  xmm0, dword ptr [rax+8] }
-      v22 = __CFADD__(_RAX++, 8i64);
-      v16 = v22 | (++v18 == 0);
-      __asm { vucomiss xmm0, xmm1 }
-      _RBX = _RAX;
-      if ( !v18 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+88h+var_60], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5757, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "No encapsulating table entries found for fraction %f", v45) )
-          __debugbreak();
-        __asm
-        {
-          vsubss  xmm0, xmm7, dword ptr [rdi+4]
-          vmulss  xmm1, xmm8, dword ptr [rdi+4]
-        }
-        goto LABEL_9;
-      }
-      __asm { vucomiss xmm6, xmm0 }
-    }
-    __asm
-    {
-      vsubss  xmm0, xmm0, dword ptr [rdi+rsi*8-8]
-      vcomiss xmm0, xmm10
-    }
-    if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5746, ASSERT_TYPE_ASSERT, "((pCurr->fFrac - pPrev->fFrac) > 0.0f)", (const char *)&queryFormat, "(pCurr->fFrac - pPrev->fFrac) > 0.0f") )
-      __debugbreak();
-    __asm
-    {
-      vsubss  xmm2, xmm6, dword ptr [rdi+rsi*8-8]
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm1, xmm0, dword ptr [rdi+rsi*8-8]
-      vdivss  xmm3, xmm2, xmm1
-      vmovss  xmm2, dword ptr [rbx+4]
-      vsubss  xmm0, xmm2, dword ptr [rdi+rsi*8-4]
-      vmulss  xmm1, xmm3, xmm0
-      vaddss  xmm4, xmm1, dword ptr [rdi+rsi*8-4]
-      vsubss  xmm0, xmm7, xmm4
-      vmulss  xmm1, xmm4, xmm8
-    }
+LABEL_11:
+    v12 = 1.0 - v7->fLerp;
+    v13 = endHeight * v7->fLerp;
   }
   else
   {
-    __asm
+    v11 = pTable + 1;
+    while ( v9 <= fFrac )
     {
-      vsubss  xmm0, xmm7, dword ptr [rbx+4]
-      vmulss  xmm1, xmm8, dword ptr [rbx+4]
+      v9 = v11[1].fFrac;
+      ++v11;
+      ++v8;
+      v7 = v11;
+      if ( v9 == -1.0 )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5757, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "No encapsulating table entries found for fraction %f", fFrac) )
+          __debugbreak();
+        v12 = 1.0 - pTable->fLerp;
+        v13 = endHeight * pTable->fLerp;
+        return (float)(v12 * startHeight) + v13;
+      }
+      v10 = v8;
+      if ( fFrac == v9 )
+        goto LABEL_11;
     }
+    v14 = v10;
+    if ( (float)(v9 - pTable[v10 - 1].fFrac) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5746, ASSERT_TYPE_ASSERT, "((pCurr->fFrac - pPrev->fFrac) > 0.0f)", (const char *)&queryFormat, "(pCurr->fFrac - pPrev->fFrac) > 0.0f") )
+      __debugbreak();
+    v15 = (float)((float)((float)(fFrac - pTable[v14 - 1].fFrac) / (float)(v7->fFrac - pTable[v14 - 1].fFrac)) * (float)(v7->fLerp - pTable[v14 - 1].fLerp)) + pTable[v14 - 1].fLerp;
+    v12 = 1.0 - v15;
+    v13 = v15 * endHeight;
   }
-LABEL_9:
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmulss  xmm2, xmm0, xmm9
-    vaddss  xmm0, xmm2, xmm1
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-  }
-  return *(float *)&_XMM0;
+  return (float)(v12 * startHeight) + v13;
 }
 
 /*
@@ -17189,223 +13341,152 @@ PM_WalkMove
 void PM_WalkMove(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
-  const dvar_t *v13; 
-  __int64 v26; 
+  const SuitDef *SuitDef; 
+  const dvar_t *v6; 
+  double v7; 
+  float forwardmove; 
+  float rightmove; 
+  usercmd_s *p_cmd; 
+  usercmd_s *v11; 
+  __int64 v12; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v20; 
+  __int128 v21; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  __int128 v29; 
+  float v30; 
   int damageTimer; 
-  __int32 v102; 
-  __int32 v103; 
-  playerState_s *v108; 
+  __int32 v35; 
+  __int32 v36; 
+  float v37; 
+  const SuitDef *v38; 
+  float v39; 
+  const dvar_t *v40; 
+  __int128 unsignedInt; 
+  __int128 v42; 
+  playerState_s *v44; 
   int weaponState; 
+  double v46; 
+  vec3_t *p_velocity; 
+  float frametime; 
   bool performSlideMove; 
-  char v121; 
-  float fmt; 
+  double ForwardContribution; 
+  double RightContribution; 
   float outForwardScale; 
   float outSideScale; 
-  __int64 v131; 
+  __int64 v54; 
   usercmd_s cmd; 
   vec3_t vec; 
   vec3_t velInConst; 
-  char v135; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v131 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  _RBP = pml;
+  v54 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "PM_WalkMove");
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3273, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3273, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _R15 = BG_GetSuitDef(ps->suitIndex);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3276, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3276, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) )
     Jump_ApplySlowdown(pm, ps);
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) && !_R15->isMovementCameraIndependent )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) && !SuitDef->isMovementCameraIndependent )
   {
-    v13 = DCONST_DVARFLT_player_sprintStrafeSpeedScale;
+    v6 = DCONST_DVARFLT_player_sprintStrafeSpeedScale;
     if ( !DCONST_DVARFLT_player_sprintStrafeSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintStrafeSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, dword ptr [rbx+28h]; val
-      vmovss  xmm2, cs:__real@42fe0000; max
-      vmovss  xmm1, cs:__real@c3000000; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvttss2si eax, xmm0 }
-    pm->cmd.rightmove = _EAX;
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = I_fclamp((float)pm->cmd.rightmove * v6->current.value, -128.0, 127.0);
+    pm->cmd.rightmove = (int)*(float *)&v7;
   }
-  if ( Jump_Check(pm, _RBP) )
+  if ( Jump_Check(pm, pml) )
   {
-    PM_AirMove(pm, _RBP);
+    PM_AirMove(pm, pml);
     goto LABEL_73;
   }
-  PM_Friction(pm, _RBP);
-  __asm
-  {
-    vxorps  xmm11, xmm11, xmm11
-    vcvtsi2ss xmm11, xmm11, eax
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-  }
-  _RAX = &pm->cmd;
-  _RCX = &cmd;
-  v26 = 2i64;
+  PM_Friction(pm, pml);
+  forwardmove = (float)pm->cmd.forwardmove;
+  rightmove = (float)pm->cmd.rightmove;
+  p_cmd = &pm->cmd;
+  v11 = &cmd;
+  v12 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
-    --v26;
+    *(__m256i *)&v11->buttons = *(__m256i *)&p_cmd->buttons;
+    *(__m256i *)(&v11->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+    *(__m256i *)&v11->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+    *(_OWORD *)&v11->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+    v11 = (usercmd_s *)((char *)v11 + 128);
+    *(_OWORD *)&v11[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+    p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+    --v12;
   }
-  while ( v26 );
-  _RCX->buttons = _RAX->buttons;
+  while ( v12 );
+  v11->buttons = p_cmd->buttons;
+  _XMM9 = 0i64;
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &pml->forward);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &pml->right);
+  v14 = LODWORD(pml->forward.v[0]);
+  v15 = v14;
+  *(float *)&v15 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(pml->forward.v[1] * pml->forward.v[1])) + (float)(pml->forward.v[2] * pml->forward.v[2]));
+  _XMM4 = v15;
+  __asm { vcmpless xmm0, xmm4, cs:__real@80000000 }
+  _XMM10 = LODWORD(FLOAT_1_0);
+  __asm { vblendvps xmm1, xmm4, xmm10, xmm0 }
+  outForwardScale = *(float *)&_XMM1;
+  pml->forward.v[0] = *(float *)&v14 * (float)(1.0 / *(float *)&_XMM1);
+  pml->forward.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->forward.v[1];
+  pml->forward.v[2] = (float)(1.0 / *(float *)&_XMM1) * pml->forward.v[2];
+  v20 = LODWORD(pml->right.v[0]);
+  v21 = v20;
+  *(float *)&v21 = fsqrt((float)((float)(*(float *)&v20 * *(float *)&v20) + (float)(pml->right.v[1] * pml->right.v[1])) + (float)(pml->right.v[2] * pml->right.v[2]));
+  _XMM4 = v21;
   __asm
   {
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm1, xmm1, xmm1; height
-  }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RBP->forward);
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RBP->right);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  xmm5, dword ptr [rbp+0]
-    vmovss  xmm3, dword ptr [rbp+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vcmpless xmm0, xmm4, cs:__real@80000000
-    vmovss  xmm10, cs:__real@3f800000
-    vblendvps xmm1, xmm4, xmm10, xmm0
-    vmovss  [rsp+218h+outForwardScale], xmm1
-    vdivss  xmm2, xmm10, xmm1
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+0], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbp+4]
-    vmovss  dword ptr [rbp+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbp+8]
-    vmovss  dword ptr [rbp+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+10h]
-    vmovss  xmm5, dword ptr [rbp+0Ch]
-    vmovss  xmm3, dword ptr [rbp+14h]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm1, xmm4, xmm10, xmm0
-    vmovss  [rsp+218h+outForwardScale], xmm1
-    vdivss  xmm2, xmm10, xmm1
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+0Ch], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbp+10h]
-    vmovss  dword ptr [rbp+10h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbp+14h]
-    vmovss  dword ptr [rbp+14h], xmm0
   }
-  PM_CmdScale_Walk(pm, _RBP, &cmd, &outForwardScale, &outSideScale);
+  outForwardScale = *(float *)&_XMM1;
+  pml->right.v[0] = *(float *)&v20 * (float)(1.0 / *(float *)&_XMM1);
+  pml->right.v[1] = (float)(1.0 / *(float *)&_XMM1) * pml->right.v[1];
+  pml->right.v[2] = (float)(1.0 / *(float *)&_XMM1) * pml->right.v[2];
+  PM_CmdScale_Walk(pm, pml, &cmd, &outForwardScale, &outSideScale);
+  v25 = outSideScale;
+  v26 = rightmove * outSideScale;
+  v27 = outForwardScale;
+  vec.v[0] = (float)(v26 * pml->right.v[0]) + (float)((float)(forwardmove * outForwardScale) * pml->forward.v[0]);
+  vec.v[1] = (float)(v26 * pml->right.v[1]) + (float)((float)(forwardmove * outForwardScale) * pml->forward.v[1]);
+  vec.v[2] = (float)(v26 * pml->right.v[2]) + (float)((float)(forwardmove * outForwardScale) * pml->forward.v[2]);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+  v28 = LODWORD(vec.v[1]);
+  v29 = v28;
+  v30 = vec.v[2];
+  *(float *)&v29 = fsqrt((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(vec.v[0] * vec.v[0])) + (float)(v30 * v30));
+  _XMM11 = v29;
   __asm
   {
-    vmovss  xmm7, [rsp+218h+outSideScale]
-    vmulss  xmm3, xmm6, xmm7
-    vmovss  xmm6, [rsp+218h+outForwardScale]
-    vmulss  xmm4, xmm11, xmm6
-    vmulss  xmm1, xmm3, dword ptr [rbp+0Ch]
-    vmulss  xmm0, xmm4, dword ptr [rbp+0]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rsp+218h+vec], xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+10h]
-    vmulss  xmm0, xmm4, dword ptr [rbp+4]
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rsp+218h+vec+4], xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+14h]
-    vmulss  xmm0, xmm4, dword ptr [rbp+8]
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rsp+218h+vec+8], xmm1
-    vxorps  xmm1, xmm1, xmm1; height
-  }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+218h+vec+4]
-    vmulss  xmm1, xmm5, xmm5
-    vmovss  xmm3, dword ptr [rsp+218h+vec]
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm4, dword ptr [rsp+218h+vec+8]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm11, xmm0, xmm0
     vcmpless xmm0, xmm11, cs:__real@80000000
     vblendvps xmm1, xmm11, xmm10, xmm0
-    vdivss  xmm2, xmm10, xmm1
-    vmulss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rbp+58h], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rbp+5Ch], xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rbp+60h], xmm0
-    vmovss  dword ptr [rbp+30h], xmm6
-    vmovss  dword ptr [rbp+34h], xmm7
   }
+  pml->wishdir.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM1);
+  pml->wishdir.v[1] = *(float *)&v28 * (float)(1.0 / *(float *)&_XMM1);
+  pml->wishdir.v[2] = v30 * (float)(1.0 / *(float *)&_XMM1);
+  pml->walkForwardScale = v27;
+  pml->walkSideScale = v25;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+24h]
-      vmulss  xmm1, xmm0, cs:__real@c47a0000
-      vcvttss2si eax, xmm1
-    }
-    ps->damageTimer += _EAX;
+    ps->damageTimer += (int)(float)(pml->frametime * -1000.0);
     damageTimer = ps->damageTimer;
     if ( damageTimer <= 0 )
       damageTimer = 0;
     ps->damageTimer = damageTimer;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+58h]
-    vmovss  dword ptr [rsp+218h+velInConst], xmm0
-    vmovss  xmm1, dword ptr [rbp+5Ch]
-    vmovss  dword ptr [rsp+218h+velInConst+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+60h]
-    vmovss  dword ptr [rsp+218h+velInConst+8], xmm0
-  }
+  velInConst = pml->wishdir;
   PM_ProjectVelocity(pm, &velInConst, &pm->ground->trace.normal, &velInConst);
   if ( BG_IsPlayerZeroG(ps) )
   {
@@ -17414,141 +13495,99 @@ void PM_WalkMove(pmove_t *pm, pml_t *pml)
   }
   if ( (pm->ground->trace.surfaceFlags & 2) == 0 && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xDu) )
   {
-    v102 = PM_GetEffectiveStance(ps) - 1;
-    if ( v102 )
+    v35 = PM_GetEffectiveStance(ps) - 1;
+    if ( v35 )
     {
-      v103 = v102 - 1;
-      if ( !v103 )
+      v36 = v35 - 1;
+      if ( !v36 )
       {
-        __asm { vmovss  xmm6, cs:__real@41400000 }
+        v37 = FLOAT_12_0;
         goto LABEL_36;
       }
-      if ( v103 != 1 )
+      if ( v36 != 1 )
       {
-        __asm { vmovss  xmm6, cs:__real@41100000 }
+        v37 = FLOAT_9_0;
         goto LABEL_36;
       }
     }
-    __asm { vmovss  xmm6, cs:__real@41980000 }
+    v37 = FLOAT_19_0;
 LABEL_36:
-    if ( !BG_GetSuitDef(ps->suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3194, ASSERT_TYPE_ASSERT, "(suit)", (const char *)&queryFormat, "suit") )
+    v38 = BG_GetSuitDef(ps->suitIndex);
+    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3194, ASSERT_TYPE_ASSERT, "(suit)", (const char *)&queryFormat, "suit") )
       __debugbreak();
-    __asm { vmulss  xmm6, xmm6, dword ptr [rbx+48h] }
-    _RBX = DCONST_DVARMPFLT_player_globalAccelScale;
+    v39 = v37 * v38->player_globalAccelScale;
+    v40 = DCONST_DVARMPFLT_player_globalAccelScale;
     if ( !DCONST_DVARMPFLT_player_globalAccelScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_globalAccelScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm10, xmm0, xmm6
-    }
+    Dvar_CheckFrontendServerThread(v40);
+    unsignedInt = v40->current.unsignedInt;
+    *(float *)&unsignedInt = v40->current.value * v39;
+    _XMM10 = unsignedInt;
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xCu) )
-    __asm { vmulss  xmm10, xmm10, cs:__real@3e800000 }
+  {
+    v42 = _XMM10;
+    *(float *)&v42 = *(float *)&_XMM10 * 0.25;
+    _XMM10 = v42;
+  }
   if ( Slide_IsInSlideInState(ps, pm->cmd.serverTime) )
   {
     __asm
     {
-      vmovss  xmm1, dword ptr [r15+118h]
       vcmpltss xmm0, xmm9, xmm1
       vblendvps xmm10, xmm10, xmm1, xmm0
     }
   }
-  v108 = pm->ps;
-  if ( !v108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3225, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v44 = pm->ps;
+  if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3225, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  weaponState = v108->weapState[0].weaponState;
+  weaponState = v44->weapState[0].weaponState;
   if ( (unsigned int)(weaponState - 69) > 2 )
     goto LABEL_58;
-  __asm { vxorps  xmm11, xmm11, xmm11 }
+  LODWORD(_XMM11) = 0;
   switch ( weaponState )
   {
     case 'G':
-      *(double *)&_XMM0 = BG_SkydiveParachuteFastLandingVelocity(v108);
+      v46 = BG_SkydiveParachuteFastLandingVelocity(v44);
       break;
     case 'E':
-      *(double *)&_XMM0 = BG_SkydiveParachuteSlowSoftLandingVelocity(v108);
+      v46 = BG_SkydiveParachuteSlowSoftLandingVelocity(v44);
       break;
     case 'F':
-      *(double *)&_XMM0 = BG_SkydiveParachuteSlowHardLandingVelocity(v108);
+      v46 = BG_SkydiveParachuteSlowHardLandingVelocity(v44);
       break;
     default:
       goto LABEL_58;
   }
-  __asm { vmovaps xmm11, xmm0 }
+  LODWORD(_XMM11) = LODWORD(v46);
 LABEL_58:
-  __asm
-  {
-    vmovss  dword ptr [rsp+218h+fmt], xmm10
-    vmovaps xmm3, xmm11; wishspeed
-  }
-  PM_Accelerate(pm, _RBP, &velInConst, *(float *)&_XMM3, fmt);
+  PM_Accelerate(pm, pml, &velInConst, *(float *)&_XMM11, *(float *)&_XMM10);
   if ( (pm->ground->trace.surfaceFlags & 2) != 0 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xDu) )
   {
-    _RBX = &ps->velocity;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, dword ptr [rbp+24h]; height
-    }
-    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, *(float *)&_XMM1, &ps->velocity);
+    p_velocity = &ps->velocity;
+    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, (float)-ps->gravity * pml->frametime, &ps->velocity);
   }
   else
   {
-    _RBX = &ps->velocity;
+    p_velocity = &ps->velocity;
   }
-  PM_ProjectVelocity(pm, _RBX, &pm->ground->trace.normal, _RBX);
+  PM_ProjectVelocity(pm, p_velocity, &pm->ground->trace.normal, p_velocity);
   if ( Com_GameMode_SupportsFeature(WEAPONSTATES_NUM) )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+24h]
-      vmulss  xmm0, xmm2, dword ptr [rsi+5274h]
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+5278h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+527Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    frametime = pml->frametime;
+    p_velocity->v[0] = (float)(frametime * ps->pushVector.v[0]) + p_velocity->v[0];
+    p_velocity->v[1] = (float)(frametime * ps->pushVector.v[1]) + p_velocity->v[1];
+    p_velocity->v[2] = (float)(frametime * ps->pushVector.v[2]) + p_velocity->v[2];
   }
   performSlideMove = 0;
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetForwardContribution(&pm->refFrame, _RBX);
-  __asm { vucomiss xmm0, xmm9 }
-  if ( !v121 )
-    goto LABEL_70;
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetRightContribution(&pm->refFrame, _RBX);
-  __asm { vucomiss xmm0, xmm9 }
-  if ( !v121 )
-    goto LABEL_70;
-  __asm { vucomiss xmm9, dword ptr [rbp+200h] }
-  if ( !v121 )
-    goto LABEL_70;
-  __asm { vucomiss xmm9, dword ptr [rbp+204h] }
-  if ( !v121 )
-    goto LABEL_70;
-  __asm { vucomiss xmm9, dword ptr [rbp+208h] }
-  if ( !v121 || PM_CmdHasCollisionAvoid(&pm->cmd) )
-LABEL_70:
+  ForwardContribution = WorldUpReferenceFrame::GetForwardContribution(&pm->refFrame, p_velocity);
+  if ( *(float *)&ForwardContribution != 0.0 || (RightContribution = WorldUpReferenceFrame::GetRightContribution(&pm->refFrame, p_velocity), *(float *)&RightContribution != 0.0) || pml->impulseFieldVelocity.v[0] != 0.0 || pml->impulseFieldVelocity.v[1] != 0.0 || pml->impulseFieldVelocity.v[2] != 0.0 || PM_CmdHasCollisionAvoid(&pm->cmd) )
     performSlideMove = 1;
-  PM_UpdatePlayerCollision(pm, _RBP, 0, 1, 0, performSlideMove);
+  PM_UpdatePlayerCollision(pm, pml, 0, 1, 0, performSlideMove);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-    BG_UpdateMovementDir(pm, _RBP, 0);
+    BG_UpdateMovementDir(pm, pml, 0);
 LABEL_73:
   Sys_ProfEndNamedEvent();
-  _R11 = &v135;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -17558,68 +13597,47 @@ PM_ZeroGravityFriction
 */
 void PM_ZeroGravityFriction(pmove_t *pm, const pml_t *pml)
 {
-  char v6; 
-  char v7; 
+  playerState_s *ps; 
+  const dvar_t *v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3800, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3800, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3800, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI = DVARFLT_player_zeroGravFriction;
+  v5 = DVARFLT_player_zeroGravFriction;
   if ( !DVARFLT_player_zeroGravFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravFriction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = ps->velocity.v[0];
+  v7 = ps->velocity.v[2];
+  v9 = fsqrt((float)((float)(v6 * v6) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(v7 * v7));
+  v8 = v9;
+  if ( v9 >= 0.001 )
   {
-    vmovss  xmm0, dword ptr [rbx+40h]
-    vmovss  xmm5, dword ptr [rbx+3Ch]
-    vmovss  xmm3, dword ptr [rbx+44h]
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vcomiss xmm4, cs:__real@3a83126f
-  }
-  if ( v6 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    *(_QWORD *)_RBX->velocity.v = 0i64;
-    __asm { vmovss  dword ptr [rbx+44h], xmm0 }
-  }
-  else
-  {
-    __asm
+    v10 = v9 - (float)(v5->current.value * pml->frametime);
+    if ( v10 <= 0.0 )
     {
-      vmulss  xmm0, xmm6, dword ptr [rsi+24h]
-      vsubss  xmm2, xmm4, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm2, xmm1
-    }
-    if ( v6 | v7 )
-    {
-      *(_QWORD *)_RBX->velocity.v = 0i64;
-      __asm { vmovss  dword ptr [rbx+44h], xmm1 }
+      *(_QWORD *)ps->velocity.v = 0i64;
+      ps->velocity.v[2] = 0;
     }
     else
     {
-      __asm
-      {
-        vdivss  xmm2, xmm2, xmm4
-        vmulss  xmm0, xmm5, xmm2
-        vmovss  dword ptr [rbx+3Ch], xmm0
-        vmulss  xmm1, xmm2, dword ptr [rbx+40h]
-        vmulss  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rbx+40h], xmm1
-        vmovss  dword ptr [rbx+44h], xmm0
-      }
+      ps->velocity.v[0] = v6 * (float)(v10 / v8);
+      ps->velocity.v[1] = (float)(v10 / v8) * ps->velocity.v[1];
+      ps->velocity.v[2] = (float)(v10 / v8) * v7;
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  else
+  {
+    *(_QWORD *)ps->velocity.v = 0i64;
+    ps->velocity.v[2] = 0;
+  }
 }
 
 /*
@@ -17647,602 +13665,377 @@ PM_ZeroGravityMoveAngular
 */
 void PM_ZeroGravityMoveAngular(pmove_t *pm, pml_t *pml)
 {
-  bool v15; 
-  char v32; 
-  unsigned int v40; 
-  signed __int64 v42; 
-  bool v43; 
-  __int64 v97; 
-  char v149; 
-  char v150; 
-  const BgHandler *v172; 
-  const BgWeaponMap *v173; 
+  playerState_s *ps; 
+  bool v4; 
+  const dvar_t *v5; 
+  float value; 
+  __int128 v7; 
+  float v8; 
+  __int128 v9; 
+  char v13; 
+  unsigned int v15; 
+  __int64 v16; 
+  signed __int64 v17; 
+  bool v18; 
+  float *v20; 
+  double v21; 
+  float v23; 
+  double v24; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v30; 
+  float v33; 
+  float v35; 
+  pml_t *v36; 
+  float v37; 
+  __int64 v38; 
+  const dvar_t *v39; 
+  __int128 unsignedInt; 
+  float v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  float v49; 
+  float v52; 
+  float v53; 
+  playerState_s *v58; 
+  const BgHandler *v59; 
+  const BgWeaponMap *v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
   vec3_t *inAngleDelta; 
   tmat33_t<vec3_t> *outDeltaAxis; 
-  bool v202; 
+  bool v72; 
   vec3_t pmla; 
-  vec3_t v204; 
+  vec3_t v74; 
   vec3_t angles; 
   vec3_t outFixedDir; 
   tmat33_t<vec3_t> v1; 
   vec3_t fixedUp; 
   tmat33_t<vec3_t> out; 
   vec3_t outAngles; 
-  vec3_t v211; 
+  vec3_t v81; 
   tmat33_t<vec3_t> in2; 
   vec4_t to; 
   vec4_t result; 
   tmat33_t<vec3_t> worldUpAxisView; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> in1; 
-  tmat33_t<vec3_t> v218; 
-  tmat33_t<vec3_t> v219; 
-  char v220; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v88; 
+  tmat33_t<vec3_t> v89; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
   *(_QWORD *)angles.v = pm;
   *(_QWORD *)pmla.v = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4415, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4415, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4415, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v15 = PM_ZeroGravity_UseForcedDirection(&outFixedDir);
-  _RBX = DVARVEC3_player_zeroGravWorldUp;
-  v202 = v15;
+  v4 = PM_ZeroGravity_UseForcedDirection(&outFixedDir);
+  v5 = DVARVEC3_player_zeroGravWorldUp;
+  v72 = v4;
   if ( !DVARVEC3_player_zeroGravWorldUp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravWorldUp") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  v7 = LODWORD(v5->current.vector.v[1]);
+  v8 = v5->current.vector.v[2];
+  v9 = v7;
+  *(float *)&v9 = (float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(value * value)) + (float)(v8 * v8);
+  if ( *(float *)&v9 <= 0.001 )
   {
-    vmovss  xmm3, dword ptr [rbx+28h]
-    vmovss  xmm4, dword ptr [rbx+2Ch]
-    vmovss  xmm5, dword ptr [rbx+30h]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vcomiss xmm0, cs:__real@3a83126f
-  }
-  if ( v43 | v150 )
-  {
-    v32 = 0;
+    v13 = 0;
   }
   else
   {
+    *(float *)&v9 = fsqrt(*(float *)&v9);
+    _XMM1 = v9;
     __asm
     {
-      vmovss  xmm2, cs:__real@3f800000
-      vsqrtss xmm1, xmm0, xmm0
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm2, xmm0
-      vdivss  xmm2, xmm2, xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [rbp+1F0h+fixedUp], xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmulss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rbp+1F0h+fixedUp+8], xmm0
-      vmovss  dword ptr [rbp+1F0h+fixedUp+4], xmm1
     }
-    v32 = 1;
+    fixedUp.v[0] = value * (float)(1.0 / *(float *)&_XMM0);
+    fixedUp.v[2] = v8 * (float)(1.0 / *(float *)&_XMM0);
+    fixedUp.v[1] = *(float *)&v7 * (float)(1.0 / *(float *)&_XMM0);
+    v13 = 1;
   }
-  __asm
-  {
-    vmovss  xmm10, cs:__real@43340000
-    vmovss  xmm14, cs:__real@3b360b61
-    vmovss  xmm9, cs:__real@3f000000
-    vmovss  xmm11, cs:__real@43b40000
-    vmovss  xmm12, cs:__real@43360b61
-    vmovss  xmm13, cs:__real@37800000
-    vxorps  xmm15, xmm15, xmm15
-  }
-  v40 = 0;
-  _RDI = 0i64;
-  v42 = (char *)&pm->cmd.angles - (char *)&v204;
-  v43 = 1;
-  __asm
-  {
-    vmovss  dword ptr [rsp+2F0h+var_298], xmm15
-    vmovss  dword ptr [rsp+2F0h+var_298+4], xmm15
-    vmovss  dword ptr [rsp+2F0h+var_298+8], xmm15
-    vxorps  xmm8, xmm8, xmm8
-  }
+  _XMM15 = 0i64;
+  v15 = 0;
+  v16 = 0i64;
+  v17 = (char *)&pm->cmd.angles - (char *)&v74;
+  v18 = 1;
+  v74.v[0] = 0.0;
+  v74.v[1] = 0.0;
+  v74.v[2] = 0.0;
+  _XMM8 = 0i64;
   do
   {
-    if ( !v43 )
+    if ( !v18 )
     {
       LODWORD(outDeltaAxis) = 3;
-      LODWORD(inAngleDelta) = v40;
+      LODWORD(inAngleDelta) = v15;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
         __debugbreak();
     }
-    _R14 = (char *)&v204 + _RDI;
-    __asm { vmovaps xmm1, xmm10; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)&v204 + _RDI + v42 + 264), *(float *)&_XMM1, 0x14u);
-    __asm
-    {
-      vmulss  xmm4, xmm0, xmm14
-      vxorps  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm4, xmm9
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm8, xmm0, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm6, xmm1, xmm11
-    }
-    if ( v40 >= 3 )
+    v20 = &v74.v[v16];
+    v21 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)&v74 + v16 * 4 + v17 + 264), 180.0, 0x14u);
+    __asm { vroundss xmm3, xmm8, xmm0, 1 }
+    v23 = (float)((float)(*(float *)&v21 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    if ( v15 >= 3 )
     {
       LODWORD(outDeltaAxis) = 3;
-      LODWORD(inAngleDelta) = v40;
+      LODWORD(inAngleDelta) = v15;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
         __debugbreak();
     }
-    __asm { vmovaps xmm1, xmm10; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(*(_DWORD *)&_R14[v42], *(float *)&_XMM1, 0x14u);
-    __asm
+    v24 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)v20 + v17), 180.0, 0x14u);
+    __asm { vroundss xmm4, xmm8, xmm0, 1 }
+    v27 = (float)((float)(*(float *)&v24 * 0.0027777778) - *(float *)&_XMM4) * 360.0;
+    v26 = v27;
+    if ( v23 != v27 )
     {
-      vmulss  xmm5, xmm0, xmm14
-      vxorps  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm5, xmm9
-      vmovss  xmm0, xmm2, xmm3
-      vroundss xmm4, xmm8, xmm0, 1
-      vsubss  xmm2, xmm5, xmm4
-      vmulss  xmm7, xmm2, xmm11
-      vucomiss xmm6, xmm7
-    }
-    if ( !v150 )
-    {
-      __asm
-      {
-        vmovaps xmm1, xmm6; angle2
-        vmovaps xmm0, xmm7; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm { vmovaps xmm6, xmm0 }
-      if ( v40 >= 3 )
+      AngleDelta(v27, v23);
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [r14], xmm6 }
-      if ( v40 >= 3 )
+      *v20 = v27;
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
-      __asm { vmovss  xmm6, dword ptr [r14] }
-      if ( v40 >= 3 )
+      v28 = *v20;
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rdi+0B4h]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rsi+rdi+0B4h], xmm1
-      }
-      if ( v40 >= 3 )
+      ps->delta_angles.v[v16] = ps->delta_angles.v[v16] - v28;
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
+          __debugbreak();
+      }
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      v30 = (float)((float)(0.0027777778 * ps->delta_angles.v[v16]) - *(float *)&_XMM3) * 360.0;
+      if ( v15 >= 3 )
+      {
+        LODWORD(outDeltaAxis) = 3;
+        LODWORD(inAngleDelta) = v15;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
+          __debugbreak();
+      }
+      ps->delta_angles.v[v16] = v30;
+      if ( v15 >= 3 )
+      {
+        LODWORD(outDeltaAxis) = 3;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
       __asm
       {
-        vmulss  xmm4, xmm14, dword ptr [rsi+rdi+0B4h]
-        vaddss  xmm2, xmm4, xmm9
-        vroundss xmm3, xmm8, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm6, xmm1, xmm11
-      }
-      if ( v40 >= 3 )
-      {
-        LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
-          __debugbreak();
-      }
-      __asm { vmovss  dword ptr [rsi+rdi+0B4h], xmm6 }
-      if ( v40 >= 3 )
-      {
-        LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmulss  xmm1, xmm12, dword ptr [rsi+rdi+0B4h]
-        vaddss  xmm3, xmm1, xmm9
         vroundss xmm1, xmm8, xmm3, 1
-        vcvttss2si eax, xmm1
-      }
-      _ECX = (unsigned __int16)_EAX;
-      __asm
-      {
-        vmovd   xmm0, ecx
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm4, xmm0, xmm13
-        vaddss  xmm2, xmm4, xmm9
         vroundss xmm3, xmm8, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm6, xmm1, xmm11
       }
-      if ( v40 >= 3 )
+      v33 = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rsi+rdi+0B4h], xmm6 }
-      if ( v40 >= 3 )
+      ps->delta_angles.v[v16] = v33;
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
-      __asm
-      {
-        vaddss  xmm0, xmm7, dword ptr [rsi+rdi+0B4h]
-        vmulss  xmm4, xmm0, xmm14
-        vxorps  xmm1, xmm1, xmm1
-        vaddss  xmm2, xmm4, xmm9
-        vmovss  xmm0, xmm1, xmm2
-        vroundss xmm3, xmm8, xmm0, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm6, xmm1, xmm11
-      }
-      if ( v40 >= 3 )
+      __asm { vroundss xmm3, xmm8, xmm0, 1 }
+      v35 = (float)((float)((float)(v26 + ps->delta_angles.v[v16]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      if ( v15 >= 3 )
       {
         LODWORD(outDeltaAxis) = 3;
-        LODWORD(inAngleDelta) = v40;
+        LODWORD(inAngleDelta) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inAngleDelta, outDeltaAxis) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rsi+rdi+1D8h], xmm6 }
+      ps->viewangles.v[v16] = v35;
     }
-    ++v40;
-    _RDI += 4i64;
-    v43 = v40 < 3;
+    ++v15;
+    ++v16;
+    v18 = v15 < 3;
   }
-  while ( (int)v40 < 3 );
-  _RDI = *(pml_t **)pmla.v;
-  if ( v32 )
+  while ( (int)v15 < 3 );
+  v36 = *(pml_t **)pmla.v;
+  if ( v13 )
   {
-    __asm { vmovss  xmm3, dword ptr [rsp+2F0h+var_298+8] }
+    v37 = v74.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+2F0h+var_298+8]
-      vmovss  xmm0, dword ptr [rdi+24h]
-      vmulss  xmm2, xmm0, dword ptr [rsi+48h]
-      vaddss  xmm3, xmm1, xmm2
-      vmovss  dword ptr [rsp+2F0h+var_298+8], xmm3
-    }
+    v37 = v74.v[2] + (float)(*(float *)(*(_QWORD *)pmla.v + 36i64) * ps->rollVelocity);
+    v74.v[2] = v37;
   }
-  __asm
+  v38 = *(_QWORD *)angles.v;
+  if ( v74.v[0] != 0.0 || v74.v[1] != 0.0 || v37 != 0.0 || v13 || v72 )
   {
-    vmovss  xmm0, dword ptr [rsp+2F0h+var_298]
-    vucomiss xmm0, xmm15
-  }
-  v97 = *(_QWORD *)angles.v;
-  if ( v32 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+2F0h+var_298+4]
-    vucomiss xmm0, xmm15
-    vucomiss xmm3, xmm15
-  }
-  if ( v202 )
-  {
-LABEL_55:
-    AnglesToAxis(&_RSI->viewangles, &axis);
-    WorldUpReferenceFrame::ApplyReferenceFrameToAxis((WorldUpReferenceFrame *)(v97 + 852), &axis);
+    AnglesToAxis(&ps->viewangles, &axis);
+    WorldUpReferenceFrame::ApplyReferenceFrameToAxis((WorldUpReferenceFrame *)(v38 + 852), &axis);
     MatrixTranspose(&axis, &out);
-    WorldUpReferenceFrame::GetAngles((WorldUpReferenceFrame *)(v97 + 852), &outAngles);
+    WorldUpReferenceFrame::GetAngles((WorldUpReferenceFrame *)(v38 + 852), &outAngles);
     AnglesToAxis(&outAngles, &in1);
     MatrixMultiply(&in1, &out, &worldUpAxisView);
-    if ( v202 )
+    if ( v72 )
     {
-      _RBX = DVARFLT_player_zeroGravWorldUpRate;
+      v39 = DVARFLT_player_zeroGravWorldUpRate;
       if ( !DVARFLT_player_zeroGravWorldUpRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravWorldUpRate") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm12, dword ptr [rbx+28h]
-        vmovss  xmm5, dword ptr [rbp+1F0h+outFixedDir+8]
-        vmovss  xmm6, dword ptr [rsp+2F0h+outFixedDir]
-        vmovss  xmm7, dword ptr [rsp+2F0h+outFixedDir+4]
-        vmulss  xmm2, xmm6, dword ptr [rbp+1F0h+out]
-        vmulss  xmm1, xmm7, dword ptr [rbp+1F0h+out+0Ch]
-        vmovss  xmm13, dword ptr [rdi+24h]
-        vmulss  xmm0, xmm12, cs:__real@40000000
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm1, xmm5, dword ptr [rbp+1F0h+out+18h]
-        vaddss  xmm2, xmm3, xmm1
-        vmulss  xmm3, xmm6, dword ptr [rbp+1F0h+out+4]
-        vmulss  xmm1, xmm5, dword ptr [rbp+1F0h+out+1Ch]
-        vmovss  dword ptr [rbp+1F0h+v1], xmm2
-        vmulss  xmm2, xmm7, dword ptr [rbp+1F0h+out+10h]
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm3, xmm6, dword ptr [rbp+1F0h+out+8]
-        vaddss  xmm2, xmm4, xmm1
-        vmulss  xmm1, xmm5, dword ptr [rbp+1F0h+out+20h]
-        vmovss  dword ptr [rbp+1F0h+v1+4], xmm2
-        vmulss  xmm2, xmm7, dword ptr [rbp+1F0h+out+14h]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vmovss  dword ptr [rbp+1F0h+v1+8], xmm2
-        vmulss  xmm10, xmm0, xmm13
-      }
+      Dvar_CheckFrontendServerThread(v39);
+      unsignedInt = v39->current.unsignedInt;
+      v41 = *(float *)(*(_QWORD *)pmla.v + 36i64);
+      v42 = unsignedInt;
+      v1.m[0].v[0] = (float)((float)(outFixedDir.v[0] * out.m[0].v[0]) + (float)(outFixedDir.v[1] * out.m[1].v[0])) + (float)(outFixedDir.v[2] * out.m[2].v[0]);
+      v1.m[0].v[1] = (float)((float)(outFixedDir.v[0] * out.m[0].v[1]) + (float)(outFixedDir.v[1] * out.m[1].v[1])) + (float)(outFixedDir.v[2] * out.m[2].v[1]);
+      v1.m[0].v[2] = (float)((float)(outFixedDir.v[0] * out.m[0].v[2]) + (float)(outFixedDir.v[1] * out.m[1].v[2])) + (float)(outFixedDir.v[2] * out.m[2].v[2]);
+      *(float *)&v42 = (float)(*(float *)&unsignedInt * 2.0) * v41;
+      v43 = v42;
       Vec3Cross(&worldUpAxisView.m[2], v1.m, &v1.m[1]);
+      v44 = LODWORD(v1.m[1].v[1]);
+      *(float *)&v44 = fsqrt((float)((float)(*(float *)&v44 * *(float *)&v44) + (float)(v1.m[1].v[0] * v1.m[1].v[0])) + (float)(v1.m[1].v[2] * v1.m[1].v[2]));
+      _XMM3 = v44;
       __asm
       {
-        vmovss  xmm4, dword ptr [rbp+1F0h+cross]
-        vmovss  xmm6, dword ptr [rbp+1F0h+cross+4]
-        vmovss  xmm5, dword ptr [rbp+1F0h+cross+8]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm3, xmm0, xmm0
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rbp+1F0h+cross], xmm0
-        vmulss  xmm0, xmm5, xmm2
-        vmulss  xmm1, xmm6, xmm2
-        vmovss  dword ptr [rbp+1F0h+cross+8], xmm0
-        vmovss  dword ptr [rbp+1F0h+cross+4], xmm1
       }
+      v1.m[1].v[0] = v1.m[1].v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v1.m[1].v[2] = v1.m[1].v[2] * (float)(1.0 / *(float *)&_XMM0);
+      v1.m[1].v[1] = v1.m[1].v[1] * (float)(1.0 / *(float *)&_XMM0);
       Vec3Cross(v1.m, &v1.m[1], &v1.m[2]);
-      __asm
+      pmla.v[0] = v1.m[0].v[0];
+      if ( (LODWORD(v1.m[0].v[0]) & 0x7F800000) == 2139095040 || (pmla.v[0] = v1.m[0].v[1], (LODWORD(v1.m[0].v[1]) & 0x7F800000) == 2139095040) || (pmla.v[0] = v1.m[0].v[2], (LODWORD(v1.m[0].v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+1F0h+v1]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_98;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1F0h+v1+4]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_98;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1F0h+v1+8]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-      {
-LABEL_98:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4490, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localForcedAxis[0] )[0] ) && !IS_NAN( ( localForcedAxis[0] )[1] ) && !IS_NAN( ( localForcedAxis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localForcedAxis[0] )[0] ) && !IS_NAN( ( localForcedAxis[0] )[1] ) && !IS_NAN( ( localForcedAxis[0] )[2] )") )
           __debugbreak();
       }
-      __asm
+      pmla.v[0] = v1.m[1].v[0];
+      if ( (LODWORD(v1.m[1].v[0]) & 0x7F800000) == 2139095040 || (pmla.v[0] = v1.m[1].v[1], (LODWORD(v1.m[1].v[1]) & 0x7F800000) == 2139095040) || (pmla.v[0] = v1.m[1].v[2], (LODWORD(v1.m[1].v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+1F0h+cross]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_99;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1F0h+cross+4]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_99;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1F0h+cross+8]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-      {
-LABEL_99:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4491, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localForcedAxis[1] )[0] ) && !IS_NAN( ( localForcedAxis[1] )[1] ) && !IS_NAN( ( localForcedAxis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localForcedAxis[1] )[0] ) && !IS_NAN( ( localForcedAxis[1] )[1] ) && !IS_NAN( ( localForcedAxis[1] )[2] )") )
           __debugbreak();
       }
-      __asm
+      pmla.v[0] = v1.m[2].v[0];
+      if ( (LODWORD(v1.m[2].v[0]) & 0x7F800000) == 2139095040 || (pmla.v[0] = v1.m[2].v[1], (LODWORD(v1.m[2].v[1]) & 0x7F800000) == 2139095040) || (pmla.v[0] = v1.m[2].v[2], (LODWORD(v1.m[2].v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+1F0h+var_250]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_100;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1F0h+var_250+4]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_100;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1F0h+var_250+8]
-        vmovss  dword ptr [rsp+2F0h+pml], xmm0
-      }
-      if ( (LODWORD(pmla.v[0]) & 0x7F800000) == 2139095040 )
-      {
-LABEL_100:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4492, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localForcedAxis[2] )[0] ) && !IS_NAN( ( localForcedAxis[2] )[1] ) && !IS_NAN( ( localForcedAxis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localForcedAxis[2] )[0] ) && !IS_NAN( ( localForcedAxis[2] )[1] ) && !IS_NAN( ( localForcedAxis[2] )[2] )") )
           __debugbreak();
       }
       AxisToQuat(&v1, &to);
-      __asm
-      {
-        vmulss  xmm0, xmm12, cs:__real@3d0efa35
-        vmulss  xmm2, xmm0, xmm13; limit
-      }
-      QuatSlerpLimited(&quat_identity, &to, *(float *)&_XMM2, &result);
+      QuatSlerpLimited(&quat_identity, &to, (float)(*(float *)&unsignedInt * 0.034906585) * v41, &result);
       QuatToAxis(&result, &in2);
       AxisToAngles(&in2, &angles);
-      __asm
-      {
-        vmulss  xmm4, xmm14, dword ptr [rsp+2F0h+angles]
-        vaddss  xmm2, xmm4, xmm9
-        vroundss xmm3, xmm8, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm4, xmm14, dword ptr [rsp+2F0h+angles+4]
-        vaddss  xmm2, xmm4, xmm9
-        vroundss xmm3, xmm8, xmm2, 1
-        vxorps  xmm2, xmm10, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm6, xmm1, xmm11
-        vsubss  xmm1, xmm4, xmm3
-        vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vandps  xmm0, xmm6, xmm3
-        vcomiss xmm0, xmm10
-        vmovss  dword ptr [rsp+2F0h+angles+8], xmm15
-        vmulss  xmm5, xmm1, xmm11
-      }
-      if ( !(v149 | v150) )
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      v49 = (float)(0.0027777778 * angles.v[0]) - *(float *)&_XMM3;
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      _XMM2 = v43 ^ _xmm;
+      v52 = v49 * 360.0;
+      angles.v[2] = 0.0;
+      v53 = (float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * 360.0;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v49 * 360.0) & _xmm) > *(float *)&v43 )
       {
         __asm
         {
           vcmpless xmm0, xmm15, xmm6
           vblendvps xmm1, xmm2, xmm10, xmm0
-          vmovaps xmm6, xmm1
-          vmovss  dword ptr [rsp+2F0h+angles], xmm1
         }
+        v52 = *(float *)&_XMM1;
+        angles.v[0] = *(float *)&_XMM1;
       }
-      __asm
-      {
-        vandps  xmm0, xmm5, xmm3
-        vcomiss xmm0, xmm10
-      }
-      if ( !(v149 | v150) )
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * 360.0) & _xmm) > *(float *)&v43 )
       {
         __asm
         {
           vcmpless xmm0, xmm15, xmm5
           vblendvps xmm0, xmm2, xmm10, xmm0
-          vmovaps xmm5, xmm0
-          vmovss  dword ptr [rsp+2F0h+angles+4], xmm0
         }
+        v53 = *(float *)&_XMM0;
+        angles.v[1] = *(float *)&_XMM0;
       }
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rsp+2F0h+var_298]
-        vaddss  xmm0, xmm5, dword ptr [rsp+2F0h+var_298+4]
-        vmovss  dword ptr [rsp+2F0h+var_298], xmm1
-        vmovss  dword ptr [rsp+2F0h+var_298+4], xmm0
-      }
+      v74.v[0] = v52 + v74.v[0];
+      v74.v[1] = v53 + v74.v[1];
     }
-    if ( v32 )
-      PM_ZeroGravityMoveAngular_FixedWorldUp(_RDI, &fixedUp, &in1, &worldUpAxisView, &out, &v204, &in2);
+    if ( v13 )
+      PM_ZeroGravityMoveAngular_FixedWorldUp(v36, &fixedUp, &in1, &worldUpAxisView, &out, &v74, &in2);
     else
-      AnglesToAxis(&v204, &in2);
-    MatrixMultiply(&worldUpAxisView, &in2, &v218);
-    MatrixMultiply(&v218, &axis, &v219);
-    AxisToAngles(&v219, &v211);
-    _RBX = *(playerState_s **)(v97 + 8);
-    v172 = *(const BgHandler **)(v97 + 904);
-    v173 = *(const BgWeaponMap **)(v97 + 968);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4282, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      AnglesToAxis(&v74, &in2);
+    MatrixMultiply(&worldUpAxisView, &in2, &v88);
+    MatrixMultiply(&v88, &axis, &v89);
+    AxisToAngles(&v89, &v81);
+    v58 = *(playerState_s **)(v38 + 8);
+    v59 = *(const BgHandler **)(v38 + 904);
+    v60 = *(const BgWeaponMap **)(v38 + 968);
+    if ( !v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4282, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( v97 == -852 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4283, ASSERT_TYPE_ASSERT, "(refFrame)", (const char *)&queryFormat, "refFrame") )
+    if ( v38 == -852 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4283, ASSERT_TYPE_ASSERT, "(refFrame)", (const char *)&queryFormat, "refFrame") )
       __debugbreak();
-    if ( !v173 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4284, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4284, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    __asm
+    v61 = v58->origin.v[0];
+    v62 = v58->origin.v[1];
+    v63 = v58->origin.v[2];
+    v64 = v58->worldUpAngles.v[0];
+    v65 = v58->worldUpAngles.v[1];
+    v66 = v58->worldUpAngles.v[2];
+    pmla.v[0] = v61;
+    pmla.v[1] = v62;
+    pmla.v[2] = v63;
+    BG_GetPlayerEyePosition(v60, v58, &outFixedDir, v59);
+    WorldUpReferenceFrame::SetAngles((WorldUpReferenceFrame *)(v38 + 852), v58, v59, &v81);
+    BG_GetPlayerEyePosition(v60, v58, &angles, v59);
+    v67 = outFixedDir.v[1] - angles.v[1];
+    v68 = outFixedDir.v[2];
+    v58->origin.v[0] = (float)(outFixedDir.v[0] - angles.v[0]) + v58->origin.v[0];
+    v69 = v68 - angles.v[2];
+    v58->origin.v[1] = v67 + v58->origin.v[1];
+    v58->origin.v[2] = v69 + v58->origin.v[2];
+    if ( !PM_ZeroGravityMoveHandleAngularPenetration(v58, v59, &pmla) )
     {
-      vmovss  xmm6, dword ptr [rbx+30h]
-      vmovss  xmm7, dword ptr [rbx+34h]
-      vmovss  xmm8, dword ptr [rbx+38h]
-      vmovss  xmm9, dword ptr [rbx+2ACh]
-      vmovss  xmm10, dword ptr [rbx+2B0h]
-      vmovss  xmm11, dword ptr [rbx+2B4h]
-      vmovss  dword ptr [rsp+2F0h+pml], xmm6
-      vmovss  dword ptr [rsp+2F0h+pml+4], xmm7
-      vmovss  [rsp+2F0h+var_2A0], xmm8
+      v58->worldUpAngles.v[0] = v64;
+      v58->worldUpAngles.v[1] = v65;
+      v58->worldUpAngles.v[2] = v66;
+      WorldUpReferenceFrame::Init((WorldUpReferenceFrame *)(v38 + 852), v58, v59);
+      v58->origin.v[0] = v61;
+      v58->origin.v[1] = v62;
+      v58->origin.v[2] = v63;
     }
-    BG_GetPlayerEyePosition(v173, _RBX, &outFixedDir, v172);
-    WorldUpReferenceFrame::SetAngles((WorldUpReferenceFrame *)(v97 + 852), _RBX, v172, &v211);
-    BG_GetPlayerEyePosition(v173, _RBX, &angles, v172);
-    __asm
+    if ( v72 )
     {
-      vmovss  xmm0, dword ptr [rsp+2F0h+outFixedDir]
-      vsubss  xmm1, xmm0, dword ptr [rsp+2F0h+angles]
-      vaddss  xmm2, xmm1, dword ptr [rbx+30h]
-      vmovss  xmm0, dword ptr [rsp+2F0h+outFixedDir+4]
-      vsubss  xmm1, xmm0, dword ptr [rsp+2F0h+angles+4]
-      vmovss  xmm0, dword ptr [rbp+1F0h+outFixedDir+8]
-      vmovss  dword ptr [rbx+30h], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+34h]
-      vsubss  xmm1, xmm0, dword ptr [rsp+2F0h+angles+8]
-      vmovss  dword ptr [rbx+34h], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+38h]
-      vmovss  dword ptr [rbx+38h], xmm2
+      *(_DWORD *)(*(_QWORD *)(v38 + 8) + 21176i64) = 0;
+      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal((GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *)(*(_QWORD *)(v38 + 8) + 28i64), GameModeFlagValues::ms_spValue, 0x2Du);
     }
-    if ( !PM_ZeroGravityMoveHandleAngularPenetration(_RBX, v172, &pmla) )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rbx+2ACh], xmm9
-        vmovss  dword ptr [rbx+2B0h], xmm10
-        vmovss  dword ptr [rbx+2B4h], xmm11
-      }
-      WorldUpReferenceFrame::Init((WorldUpReferenceFrame *)(v97 + 852), _RBX, v172);
-      __asm
-      {
-        vmovss  dword ptr [rbx+30h], xmm6
-        vmovss  dword ptr [rbx+34h], xmm7
-        vmovss  dword ptr [rbx+38h], xmm8
-      }
-    }
-    if ( v202 )
-    {
-      *(_DWORD *)(*(_QWORD *)(v97 + 8) + 21176i64) = 0;
-      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal((GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *)(*(_QWORD *)(v97 + 8) + 28i64), GameModeFlagValues::ms_spValue, 0x2Du);
-    }
-  }
-  _R11 = &v220;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -18253,85 +14046,50 @@ PM_ZeroGravityMoveAngular_FixedWorldUp
 */
 void PM_ZeroGravityMoveAngular_FixedWorldUp(pml_t *pml, const vec3_t *fixedUp, const tmat33_t<vec3_t> *worldUpAxis, const tmat33_t<vec3_t> *worldUpAxisView, const tmat33_t<vec3_t> *invViewAxis, const vec3_t *inAngleDelta, tmat33_t<vec3_t> *outDeltaAxis)
 {
-  float fmt; 
-  float fmta; 
-  vec3_t v38; 
+  const dvar_t *v11; 
+  float value; 
+  const dvar_t *v13; 
+  float v14; 
+  __int64 unsignedInt; 
+  const dvar_t *v16; 
+  double v17; 
+  vec3_t v18; 
   vec3_t angles; 
   tmat33_t<vec3_t> outAxis; 
   tmat33_t<vec3_t> aroundAxes; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> inAxis; 
-  char v45; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4246, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  _RBX = DVARFLT_player_zeroGravWorldUpRate;
+  v11 = DVARFLT_player_zeroGravWorldUpRate;
   if ( !DVARFLT_player_zeroGravWorldUpRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravWorldUpRate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_player_view_pitch_up;
-  __asm { vmulss  xmm8, xmm0, dword ptr [rdi+24h] }
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  v13 = DCONST_DVARMPFLT_player_view_pitch_up;
+  v14 = value * pml->frametime;
   if ( !DCONST_DVARMPFLT_player_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_player_view_pitch_down;
-  __asm { vxorps  xmm7, xmm0, cs:__xmm@80000000800000008000000080000000 }
+  Dvar_CheckFrontendServerThread(v13);
+  unsignedInt = v13->current.unsignedInt;
+  v16 = DCONST_DVARMPFLT_player_view_pitch_down;
   if ( !DCONST_DVARMPFLT_player_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_down") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v16);
+  *(_QWORD *)&v17 = v16->current.unsignedInt;
   GenerateAxisFromUpVector(fixedUp, worldUpAxis, &outAxis);
   MatrixTranspose(&outAxis, &out);
   MatrixMultiply(worldUpAxis, &out, &axis);
   AxisToAngles(&axis, &angles);
-  _RBX = inAngleDelta;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+198h+angles]; curAngle
-    vmovaps xmm3, xmm6; maxAngle
-    vmovaps xmm2, xmm7; minAngle
-    vmovss  xmm0, dword ptr [rbx]; angleDelta
-    vmovss  dword ptr [rsp+198h+fmt], xmm8
-  }
-  *(float *)&_XMM0 = ClampAngleDeltaOverTime(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, fmt);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+198h+angles+8]; curAngle
-    vmovss  dword ptr [rsp+198h+var_158], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]; angleDelta
-    vxorps  xmm3, xmm3, xmm3; maxAngle
-    vxorps  xmm2, xmm2, xmm2; minAngle
-    vmovss  dword ptr [rsp+198h+fmt], xmm8
-  }
-  *(float *)&_XMM0 = ClampAngleDeltaOverTime(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, fmta);
-  __asm
-  {
-    vmovss  dword ptr [rsp+198h+var_158+8], xmm0
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+198h+var_158+4], xmm0
-  }
+  v18.v[0] = ClampAngleDeltaOverTime(COERCE_DOUBLE((unsigned __int64)LODWORD(inAngleDelta->v[0])), angles.v[0], COERCE_DOUBLE(unsignedInt ^ _xmm), v17, v14);
+  v18.v[2] = ClampAngleDeltaOverTime(COERCE_DOUBLE((unsigned __int64)LODWORD(inAngleDelta->v[2])), angles.v[2], 0.0, 0.0, v14);
+  v18.v[1] = inAngleDelta->v[1];
   AxisCopy(worldUpAxisView, &aroundAxes);
   MatrixTransformVector(&outAxis.m[2], invViewAxis, &aroundAxes.m[2]);
   AxisClear(&inAxis);
-  RotateAxisAroundVectors(&inAxis, &aroundAxes, &v38, outDeltaAxis);
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  RotateAxisAroundVectors(&inAxis, &aroundAxes, &v18, outDeltaAxis);
 }
 
 /*
@@ -18341,358 +14099,194 @@ PM_ZeroGravityMoveCorrectWorldUp
 */
 void PM_ZeroGravityMoveCorrectWorldUp(pmove_t *pm)
 {
-  char v17; 
-  char v18; 
+  playerState_s *ps; 
   const BgHandler *m_bgHandler; 
   BgWeaponMap *weaponMap; 
-  unsigned int v49; 
-  bool v52; 
-  const BgHandler *v95; 
-  int v99; 
-  const BgHandler *v108; 
-  __int64 v155; 
-  __int64 v156; 
-  __int64 v157; 
-  __int64 v158; 
+  float *v; 
+  unsigned int v6; 
+  bool v8; 
+  float v10; 
+  float v12; 
+  double v14; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const BgHandler *v20; 
+  float v21; 
+  const BgHandler *v22; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
   vec3_t v3; 
   vec3_t v2; 
   vec3_t v1; 
   vec3_t outOrigin; 
-  vec3_t v175; 
+  vec3_t v48; 
   vec3_t originalOrigin; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4556, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4556, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4556, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+1D8h]
-    vmovss  dword ptr [rbp+0E0h+v2], xmm0
-    vmovss  xmm1, dword ptr [rsi+1DCh]
-    vmovss  dword ptr [rbp+0E0h+v2+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+1E0h]
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rbp+0E0h+v2+8], xmm0
-    vmovss  dword ptr [rbp+0E0h+v1], xmm1
-    vmovss  dword ptr [rbp+0E0h+v1+4], xmm1
-    vmovss  dword ptr [rbp+0E0h+v1+8], xmm1
-  }
+  v2 = ps->viewangles;
+  v1.v[0] = 0.0;
+  v1.v[1] = 0.0;
+  v1.v[2] = 0.0;
   AnglesSubtract(&v1, &v2, &v3);
-  __asm
+  if ( COERCE_FLOAT(LODWORD(v3.v[0]) & _xmm) > 0.001 || COERCE_FLOAT(LODWORD(v3.v[1]) & _xmm) > 0.001 || COERCE_FLOAT(LODWORD(v3.v[2]) & _xmm) > 0.001 )
   {
-    vmovss  xmm0, dword ptr [rsp+1E0h+v3]
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm2, cs:__real@3a83126f
-    vandps  xmm0, xmm0, xmm1
-    vcomiss xmm0, xmm2
-  }
-  if ( !(v17 | v18) )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+1E0h+v3+4]
-    vandps  xmm0, xmm0, xmm1
-    vcomiss xmm0, xmm2
-  }
-  if ( !(v17 | v18) )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0E0h+v3+8]
-    vandps  xmm0, xmm0, xmm1
-    vcomiss xmm0, xmm2
-  }
-  if ( !(v17 | v18) )
-  {
-LABEL_10:
-    __asm { vmovss  xmm0, dword ptr [rsi+30h] }
     m_bgHandler = pm->m_bgHandler;
     weaponMap = pm->weaponMap;
-    _RDI = &_RSI->delta_angles;
-    __asm
-    {
-      vmovss  [rsp+1E0h+var_194], xmm0
-      vmovss  dword ptr [rbp+0E0h+originalOrigin], xmm0
-      vmovss  xmm0, dword ptr [rsi+34h]
-      vmovss  [rsp+1E0h+var_190], xmm0
-      vmovss  dword ptr [rbp+0E0h+originalOrigin+4], xmm0
-      vmovss  xmm0, dword ptr [rsi+38h]
-      vmovss  [rsp+1E0h+var_18C], xmm0
-      vmovss  dword ptr [rbp+0E0h+originalOrigin+8], xmm0
-      vmovss  xmm0, dword ptr [rsi+2ACh]
-      vmovss  [rsp+1E0h+var_1A0], xmm0
-      vmovss  xmm0, dword ptr [rsi+2B0h]
-      vmovaps [rsp+1E0h+var_30], xmm6
-      vmovss  [rsp+1E0h+var_19C], xmm0
-      vmovss  xmm0, dword ptr [rsi+2B4h]
-      vmovaps [rsp+1E0h+var_40], xmm7
-      vmovss  [rsp+1E0h+var_198], xmm0
-      vmovss  xmm0, dword ptr [rdi]
-      vmovaps [rsp+1E0h+var_50], xmm8
-      vmovss  [rsp+1E0h+var_180], xmm0
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovaps [rsp+1E0h+var_60], xmm9
-      vmovss  [rsp+1E0h+var_188], xmm0
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovaps [rsp+1E0h+var_70], xmm10
-      vmovss  [rsp+1E0h+var_184], xmm0
-      vmovss  xmm0, dword ptr [rsi+1D8h]
-      vmovaps [rsp+1E0h+var_80], xmm11
-      vmovss  [rsp+1E0h+var_17C], xmm0
-      vmovss  xmm0, dword ptr [rsi+1DCh]
-      vmovaps [rsp+1E0h+var_90], xmm12
-      vmovss  [rsp+1E0h+var_178], xmm0
-      vmovss  xmm0, dword ptr [rsi+1E0h]
-      vmovaps [rsp+1E0h+var_A0], xmm13
-      vmovaps [rsp+1E0h+var_B0], xmm14
-      vmovss  [rsp+1E0h+var_174], xmm0
-      vmovaps [rsp+1E0h+var_C0], xmm15
-    }
-    BG_GetPlayerEyePosition(weaponMap, _RSI, &outOrigin, m_bgHandler);
-    AnglesToAxis(&_RSI->viewangles, &axis);
+    v = ps->delta_angles.v;
+    v36 = ps->origin.v[0];
+    originalOrigin.v[0] = v36;
+    v37 = ps->origin.v[1];
+    originalOrigin.v[1] = v37;
+    v38 = ps->origin.v[2];
+    originalOrigin.v[2] = v38;
+    v33 = ps->worldUpAngles.v[0];
+    v34 = ps->worldUpAngles.v[1];
+    v35 = ps->worldUpAngles.v[2];
+    v39 = ps->delta_angles.v[1];
+    v40 = ps->delta_angles.v[2];
+    v41 = ps->viewangles.v[0];
+    v42 = ps->viewangles.v[1];
+    v43 = ps->viewangles.v[2];
+    BG_GetPlayerEyePosition(weaponMap, ps, &outOrigin, m_bgHandler);
+    AnglesToAxis(&ps->viewangles, &axis);
     WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&pm->refFrame, &axis);
     AxisToAngles(&axis, &angles);
-    WorldUpReferenceFrame::SetAngles(&pm->refFrame, _RSI, pm->m_bgHandler, &angles);
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3b360b61
-      vmovss  xmm8, cs:__real@3f000000
-      vmovss  xmm11, cs:__real@43b40000
-      vmovss  xmm14, cs:__real@43360b61
-      vmovss  xmm15, cs:__real@37800000
-      vmovss  xmm12, cs:__real@43340000
-      vmovss  xmm13, cs:__real@3f800000
-    }
-    v49 = 0;
-    _R12 = (char *)&v3 - (char *)&pm->cmd.angles;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    v52 = 1;
+    WorldUpReferenceFrame::SetAngles(&pm->refFrame, ps, pm->m_bgHandler, &angles);
+    v6 = 0;
+    _XMM7 = 0i64;
+    v8 = 1;
     do
     {
-      if ( !v52 )
+      if ( !v8 )
       {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
           __debugbreak();
-        LODWORD(v158) = 3;
-        LODWORD(v156) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v156, v158) )
-          __debugbreak();
-      }
-      _R14 = (int *)((char *)_RDI + (char *)&pm->cmd.angles - (char *)&_RSI->delta_angles);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+r12]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmulss  xmm4, xmm1, xmm10
-        vaddss  xmm2, xmm4, xmm8
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm6, xmm0, xmm11
-      }
-      if ( v49 >= 3 )
-      {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v32) = 3;
+        LODWORD(v30) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v32) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi], xmm6 }
-      if ( v49 >= 3 )
+      __asm { vroundss xmm3, xmm7, xmm2, 1 }
+      v10 = (float)((float)((float)(*(float *)((char *)v3.v + (char *)v - (char *)&ps->delta_angles) + *v) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      if ( v6 >= 3 )
       {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
           __debugbreak();
       }
-      __asm
+      *v = v10;
+      if ( v6 >= 3 )
       {
-        vmulss  xmm1, xmm14, dword ptr [rdi]
-        vaddss  xmm3, xmm1, xmm8
-        vroundss xmm1, xmm7, xmm3, 1
-        vcvttss2si eax, xmm1
-      }
-      _ECX = (unsigned __int16)_EAX;
-      __asm
-      {
-        vmovd   xmm0, ecx
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm4, xmm0, xmm15
-        vaddss  xmm2, xmm4, xmm8
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm6, xmm1, xmm11
-      }
-      if ( v49 >= 3 )
-      {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi], xmm6 }
-      if ( v49 >= 3 )
+      __asm { vroundss xmm1, xmm7, xmm3, 1 }
+      LODWORD(v12) = _mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_u32[0];
+      __asm { vroundss xmm3, xmm7, xmm2, 1 }
+      if ( v6 >= 3 )
       {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
           __debugbreak();
       }
-      __asm { vmovaps xmm1, xmm12; maxAbsValueSize }
-      *(double *)&_XMM0 = MSG_UnpackSignedFloat(*_R14, *(float *)&_XMM1, 0x14u);
-      __asm
+      *v = (float)((float)(v12 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+      if ( v6 >= 3 )
       {
-        vmulss  xmm6, xmm0, xmm10
-        vaddss  xmm2, xmm6, xmm8
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm0, xmm1, xmm2
-        vroundss xmm9, xmm7, xmm0, 1
-      }
-      if ( v49 >= 3 )
-      {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
           __debugbreak();
       }
-      __asm
+      v14 = MSG_UnpackSignedFloat(*(_DWORD *)((char *)v + (char *)&pm->cmd.angles - (char *)&ps->delta_angles), 180.0, 0x14u);
+      __asm { vroundss xmm9, xmm7, xmm0, 1 }
+      if ( v6 >= 3 )
       {
-        vmulss  xmm2, xmm10, dword ptr [rdi]
-        vsubss  xmm0, xmm6, xmm9
-        vmulss  xmm3, xmm0, xmm13
-        vaddss  xmm4, xmm3, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vaddss  xmm3, xmm4, xmm8
-        vmovss  xmm1, xmm0, xmm3
-        vroundss xmm2, xmm7, xmm1, 1
-        vsubss  xmm0, xmm4, xmm2
-        vmulss  xmm6, xmm0, xmm11
-      }
-      if ( v49 >= 3 )
-      {
-        LODWORD(v157) = 3;
-        LODWORD(v155) = v49;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v155, v157) )
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi+124h], xmm6 }
-      _RDI = (vec3_t *)((char *)_RDI + 4);
-      v52 = ++v49 < 3;
+      __asm { vroundss xmm2, xmm7, xmm1, 1 }
+      v17 = (float)((float)((float)((float)((float)(*(float *)&v14 * 0.0027777778) - *(float *)&_XMM9) * 1.0) + (float)(0.0027777778 * *v)) - *(float *)&_XMM2) * 360.0;
+      if ( v6 >= 3 )
+      {
+        LODWORD(v31) = 3;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v31) )
+          __debugbreak();
+      }
+      v[73] = v17;
+      ++v;
+      v8 = ++v6 < 3;
     }
-    while ( (int)v49 < 3 );
-    BG_GetPlayerEyePosition(pm->weaponMap, _RSI, &v175, pm->m_bgHandler);
-    __asm
+    while ( (int)v6 < 3 );
+    BG_GetPlayerEyePosition(pm->weaponMap, ps, &v48, pm->m_bgHandler);
+    v18 = outOrigin.v[1] - v48.v[1];
+    v19 = outOrigin.v[2];
+    v20 = pm->m_bgHandler;
+    ps->origin.v[0] = (float)(outOrigin.v[0] - v48.v[0]) + ps->origin.v[0];
+    v21 = v19 - v48.v[2];
+    ps->origin.v[1] = v18 + ps->origin.v[1];
+    ps->origin.v[2] = v21 + ps->origin.v[2];
+    if ( !PM_ZeroGravityMoveHandleAngularPenetration(ps, v20, &originalOrigin) )
     {
-      vmovss  xmm0, dword ptr [rbp+0E0h+outOrigin]
-      vsubss  xmm1, xmm0, dword ptr [rbp+0E0h+var_128]
-      vaddss  xmm2, xmm1, dword ptr [rsi+30h]
-      vmovss  xmm0, dword ptr [rbp+0E0h+outOrigin+4]
-      vsubss  xmm1, xmm0, dword ptr [rbp+0E0h+var_128+4]
-      vmovss  xmm0, dword ptr [rbp+0E0h+outOrigin+8]
-    }
-    v95 = pm->m_bgHandler;
-    __asm
-    {
-      vmovss  dword ptr [rsi+30h], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rsi+34h]
-      vsubss  xmm1, xmm0, dword ptr [rbp+0E0h+var_128+8]
-      vmovss  dword ptr [rsi+34h], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rsi+38h]
-      vmovss  dword ptr [rsi+38h], xmm2
-    }
-    v99 = PM_ZeroGravityMoveHandleAngularPenetration(_RSI, v95, &originalOrigin);
-    __asm
-    {
-      vmovaps xmm13, [rsp+1E0h+var_A0]
-      vmovaps xmm12, [rsp+1E0h+var_90]
-      vmovaps xmm10, [rsp+1E0h+var_70]
-      vmovaps xmm9, [rsp+1E0h+var_60]
-      vmovaps xmm6, [rsp+1E0h+var_30]
-    }
-    if ( !v99 )
-    {
+      v22 = pm->m_bgHandler;
+      ps->worldUpAngles.v[0] = v33;
+      ps->worldUpAngles.v[1] = v34;
+      ps->worldUpAngles.v[2] = v35;
+      WorldUpReferenceFrame::Init(&pm->refFrame, ps, v22);
+      ps->origin.v[0] = v36;
+      ps->origin.v[1] = v37;
+      ps->origin.v[2] = v38;
+      ps->delta_angles.v[1] = v39;
+      ps->delta_angles.v[2] = v40;
       __asm
       {
-        vmovss  xmm0, [rsp+1E0h+var_1A0]
-        vmovss  xmm1, [rsp+1E0h+var_19C]
-        vmovss  xmm2, [rsp+1E0h+var_198]
-      }
-      v108 = pm->m_bgHandler;
-      __asm
-      {
-        vmovss  dword ptr [rsi+2ACh], xmm0
-        vmovss  dword ptr [rsi+2B0h], xmm1
-        vmovss  dword ptr [rsi+2B4h], xmm2
-      }
-      WorldUpReferenceFrame::Init(&pm->refFrame, _RSI, v108);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+var_194]
-        vmovss  xmm1, [rsp+1E0h+var_190]
-        vmovss  xmm2, [rsp+1E0h+var_18C]
-        vmovss  dword ptr [rsi+30h], xmm0
-        vmovss  xmm0, [rsp+1E0h+var_188]
-        vmovss  dword ptr [rsi+34h], xmm1
-        vmovss  xmm1, [rsp+1E0h+var_184]
-        vmovss  dword ptr [rsi+38h], xmm2
-        vmovss  dword ptr [rsi+0B8h], xmm0
-        vmulss  xmm0, xmm14, [rsp+1E0h+var_180]
-        vaddss  xmm2, xmm0, xmm8
-        vmovss  dword ptr [rsi+0BCh], xmm1
         vroundss xmm0, xmm7, xmm2, 1
-        vcvttss2si eax, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm4, xmm0, xmm15
-        vaddss  xmm2, xmm4, xmm8
         vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm11
-        vmovss  dword ptr [rsi+0B4h], xmm0
-        vmulss  xmm0, xmm14, dword ptr [rsi+0B8h]
-        vaddss  xmm3, xmm0, xmm8
-        vroundss xmm0, xmm7, xmm3, 1
-        vcvttss2si eax, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm4, xmm0, xmm15
-        vaddss  xmm2, xmm4, xmm8
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm11
-        vmovss  dword ptr [rsi+0B8h], xmm0
-        vmulss  xmm0, xmm14, dword ptr [rsi+0BCh]
-        vaddss  xmm3, xmm0, xmm8
-        vroundss xmm0, xmm7, xmm3, 1
-        vcvttss2si eax, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm4, xmm0, xmm15
-        vaddss  xmm2, xmm4, xmm8
-        vroundss xmm3, xmm7, xmm2, 1
-        vmovss  xmm2, [rsp+1E0h+var_174]
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm11
-        vmovss  xmm1, [rsp+1E0h+var_17C]
-        vmovss  dword ptr [rsi+0BCh], xmm0
-        vmovss  xmm0, [rsp+1E0h+var_178]
-        vmovss  dword ptr [rsi+1DCh], xmm0
-        vmovss  dword ptr [rsi+1D8h], xmm1
-        vmovss  dword ptr [rsi+1E0h], xmm2
       }
-    }
-    __asm
-    {
-      vmovaps xmm14, [rsp+1E0h+var_B0]
-      vmovaps xmm11, [rsp+1E0h+var_80]
-      vmovaps xmm8, [rsp+1E0h+var_50]
-      vmovaps xmm7, [rsp+1E0h+var_40]
-      vmovaps xmm15, [rsp+1E0h+var_C0]
+      ps->delta_angles.v[0] = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM0 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+      __asm
+      {
+        vroundss xmm0, xmm7, xmm3, 1
+        vroundss xmm3, xmm7, xmm2, 1
+      }
+      ps->delta_angles.v[1] = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM0 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+      __asm
+      {
+        vroundss xmm0, xmm7, xmm3, 1
+        vroundss xmm3, xmm7, xmm2, 1
+      }
+      ps->delta_angles.v[2] = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM0 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+      ps->viewangles.v[1] = v42;
+      ps->viewangles.v[0] = v41;
+      ps->viewangles.v[2] = v43;
     }
   }
 }
@@ -18704,107 +14298,78 @@ PM_ZeroGravityMoveHandleAngularPenetration
 */
 __int64 PM_ZeroGravityMoveHandleAngularPenetration(playerState_s *ps, const BgHandler *handler, const vec3_t *originalOrigin)
 {
-  Physics_WorldId v10; 
-  const BgPlayerTraceInfo *v11; 
-  int v15; 
-  __int64 result; 
+  Physics_WorldId v6; 
+  const BgPlayerTraceInfo *v7; 
+  int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  vec3_t *p_hintNormal; 
+  float v20; 
   bool outHadPenetration; 
-  BgTrace v46; 
+  BgTrace v23; 
   vec3_t hintNormal; 
   vec3_t outOrigin; 
   trace_t results; 
-  char v50; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RDI = ps;
-  _R15 = originalOrigin;
-  v10 = handler->GetPhysicsWorldId((BgHandler *)handler);
-  v11 = handler->GetPlayerTraceInfo(handler, (unsigned int)_RDI->clientNum);
-  BgTrace::BgTrace(&v46, v11);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3a83126f
-    vmovss  xmm8, cs:__real@80000000
-    vmovss  xmm6, cs:__real@3f800000
-  }
-  v15 = 0;
+  v6 = handler->GetPhysicsWorldId((BgHandler *)handler);
+  v7 = handler->GetPlayerTraceInfo(handler, (unsigned int)ps->clientNum);
+  BgTrace::BgTrace(&v23, v7);
+  v8 = 0;
   while ( 1 )
   {
-    BgTrace::LegacyTraceHandler(&v46, v10, &results, &_RDI->origin, &_RDI->origin, &playerBox, _RDI->clientNum, 33636369, _RDI);
+    BgTrace::LegacyTraceHandler(&v23, v6, &results, &ps->origin, &ps->origin, &playerBox, ps->clientNum, 33636369, ps);
     if ( !results.allsolid )
       break;
-    __asm
+    v9 = ps->origin.v[1];
+    v10 = ps->origin.v[2];
+    v15 = LODWORD(originalOrigin->v[0]);
+    v11 = originalOrigin->v[0] - ps->origin.v[0];
+    v12 = originalOrigin->v[2];
+    outOrigin.v[0] = ps->origin.v[0];
+    v13 = originalOrigin->v[1] - v9;
+    outOrigin.v[2] = v10;
+    v14 = v12 - v10;
+    outOrigin.v[1] = v9;
+    *(float *)&v15 = (float)((float)(v11 * v11) + (float)(v13 * v13)) + (float)(v14 * v14);
+    hintNormal.v[0] = v11;
+    hintNormal.v[1] = v13;
+    hintNormal.v[2] = v14;
+    if ( *(float *)&v15 <= 0.001 )
     {
-      vmovss  xmm1, dword ptr [rdi+30h]
-      vmovss  xmm2, dword ptr [rdi+34h]
-      vmovss  xmm0, dword ptr [r15]
-      vmovss  xmm3, dword ptr [rdi+38h]
-      vsubss  xmm4, xmm0, xmm1
-      vmovss  xmm0, dword ptr [r15+8]
-      vmovss  dword ptr [rsp+178h+outOrigin], xmm1
-      vmovss  xmm1, dword ptr [r15+4]
-      vsubss  xmm5, xmm1, xmm2
-      vmulss  xmm1, xmm4, xmm4
-      vmovss  dword ptr [rsp+178h+outOrigin+8], xmm3
-      vsubss  xmm3, xmm0, xmm3
-      vmulss  xmm0, xmm5, xmm5
-      vmovss  dword ptr [rsp+178h+outOrigin+4], xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm0, xmm2, xmm1
-      vcomiss xmm0, xmm7
-      vmovss  dword ptr [rsp+178h+hintNormal], xmm4
-      vmovss  dword ptr [rsp+178h+hintNormal+4], xmm5
-      vmovss  dword ptr [rsp+178h+hintNormal+8], xmm3
-      vsqrtss xmm1, xmm0, xmm0
-      vcmpless xmm0, xmm1, xmm8
-      vblendvps xmm0, xmm1, xmm6, xmm0
-      vdivss  xmm2, xmm6, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rsp+178h+hintNormal], xmm0
-      vmulss  xmm0, xmm2, xmm3
-      vmulss  xmm1, xmm2, xmm5
-      vmovss  dword ptr [rsp+178h+hintNormal+8], xmm0
-      vmovss  dword ptr [rsp+178h+hintNormal+4], xmm1
+      p_hintNormal = NULL;
     }
-    if ( BG_ResolvePlayerPenetration(v10, _RDI, &playerBox, &_RDI->origin, NULL, &hintNormal, 33636369, 0, &outOrigin, &outHadPenetration) )
+    else
     {
+      *(float *)&v15 = fsqrt(*(float *)&v15);
+      _XMM1 = v15;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsp+178h+outOrigin]
-        vmovss  xmm1, dword ptr [rsp+178h+outOrigin+4]
-        vmovss  dword ptr [rdi+30h], xmm0
-        vmovss  xmm0, dword ptr [rsp+178h+outOrigin+8]
+        vcmpless xmm0, xmm1, xmm8
+        vblendvps xmm0, xmm1, xmm6, xmm0
       }
-      ++v15;
-      __asm
-      {
-        vmovss  dword ptr [rdi+38h], xmm0
-        vmovss  dword ptr [rdi+34h], xmm1
-      }
-      if ( v15 < 5 )
+      hintNormal.v[0] = v11 * (float)(1.0 / *(float *)&_XMM0);
+      hintNormal.v[2] = (float)(1.0 / *(float *)&_XMM0) * v14;
+      hintNormal.v[1] = (float)(1.0 / *(float *)&_XMM0) * v13;
+      p_hintNormal = &hintNormal;
+    }
+    if ( BG_ResolvePlayerPenetration(v6, ps, &playerBox, &ps->origin, NULL, p_hintNormal, 33636369, 0, &outOrigin, &outHadPenetration) )
+    {
+      v20 = outOrigin.v[1];
+      ps->origin.v[0] = outOrigin.v[0];
+      ++v8;
+      ps->origin.v[2] = outOrigin.v[2];
+      ps->origin.v[1] = v20;
+      if ( v8 < 5 )
         continue;
     }
-    result = 0i64;
-    goto LABEL_7;
+    return 0i64;
   }
-  result = 1i64;
-LABEL_7:
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -18814,258 +14379,180 @@ PM_ZeroGravityMoveLinear
 */
 void PM_ZeroGravityMoveLinear(pmove_t *pm, pml_t *pml)
 {
-  unsigned __int64 v14; 
-  int v16; 
-  int v17; 
-  bool v18; 
-  BOOL v20; 
-  const dvar_t *v65; 
-  const dvar_t *v67; 
-  bool IsPushAffectingAirMovement; 
-  bool v124; 
-  bool v125; 
-  bool v126; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  playerState_s *ps; 
+  unsigned __int64 v12; 
+  unsigned __int64 v13; 
+  int v14; 
+  int v15; 
+  bool v16; 
+  BOOL v17; 
+  unsigned int forwardmove; 
+  float v21; 
+  float v22; 
+  float v27; 
+  float v28; 
+  float v29; 
+  __int128 unsignedInt; 
+  const dvar_t *v31; 
+  const dvar_t *v32; 
+  __int128 v34; 
+  const dvar_t *v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __int128 v47; 
+  __int128 v49; 
+  float v52; 
+  float v53; 
+  float frametime; 
   vec3_t outFixedDir; 
-  void *retaddr; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-88h], xmm10 }
-  _RBP = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3861, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3861, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3861, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v14 = (pm->cmd.buttons >> 8) & 1;
-  _R14 = pm->cmd.buttons & 0xC0;
-  v16 = (pm->cmd.buttons & 0xC0) != 0;
-  if ( pm->cmd.forwardmove || pm->cmd.rightmove || (v17 = 0, (_DWORD)v14 != v16) )
-    v17 = 1;
-  v18 = PM_ZeroGravity_UseForcedDirection(&outFixedDir);
-  v20 = v18;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
-  if ( !v17 && !v18 || _RBX->pm_type >= 7 )
-    goto LABEL_34;
-  _EAX = pm->cmd.forwardmove;
-  __asm
+  v12 = (pm->cmd.buttons >> 8) & 1;
+  v13 = pm->cmd.buttons & 0xC0;
+  v14 = (pm->cmd.buttons & 0xC0) != 0;
+  if ( pm->cmd.forwardmove || pm->cmd.rightmove || (v15 = 0, (_DWORD)v12 != v14) )
+    v15 = 1;
+  v16 = PM_ZeroGravity_UseForcedDirection(&outFixedDir);
+  v17 = v16;
+  if ( !v15 && !v16 || ps->pm_type >= 7 )
+    goto LABEL_36;
+  forwardmove = pm->cmd.forwardmove;
+  v63 = v2;
+  v62 = v3;
+  v61 = v4;
+  v60 = v5;
+  v59 = v6;
+  v58 = v7;
+  v57 = v8;
+  fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+  _XMM13 = 0i64;
+  __asm { vroundss xmm13, xmm13, xmm0, 1 }
+  v21 = _mm_cvtepi32_ps((__m128i)forwardmove).m128_f32[0] * 0.0078740157;
+  v22 = _mm_cvtepi32_ps((__m128i)(unsigned int)pm->cmd.rightmove).m128_f32[0] * 0.0078740157;
+  LODWORD(_XMM4) = 0;
+  if ( (_DWORD)v12 != v14 )
   {
-    vmovaps [rsp+118h+var_48], xmm6
-    vmovaps [rsp+118h+var_58], xmm7
-    vmovaps [rsp+118h+var_68], xmm8
-    vmovaps [rsp+118h+var_78], xmm9
-    vmovaps [rsp+118h+var_98], xmm11
-    vmovaps [rsp+118h+var_A8], xmm12
-    vmovaps [rsp+118h+var_B8], xmm13
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vmovss  xmm2, dword ptr [rbx+40h]
-    vmovss  xmm3, dword ptr [rbx+44h]
-    vmovss  xmm12, cs:__real@3f800000
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vxorps  xmm13, xmm13, xmm13
-    vroundss xmm13, xmm13, xmm0, 1
-    vmovd   xmm0, eax
-  }
-  _EAX = pm->cmd.rightmove;
-  __asm
-  {
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm5, xmm0, cs:__real@3c010204
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm6, xmm0, cs:__real@3c010204
-    vxorps  xmm4, xmm4, xmm4
-  }
-  if ( (_DWORD)v14 != v16 )
-  {
-    _R15 = 0i64;
-    if ( (_DWORD)v14 )
+    if ( (_DWORD)v12 )
     {
-      __asm { vmovaps xmm4, xmm12 }
+      *(float *)&_XMM4 = FLOAT_1_0;
     }
     else
     {
-      __asm
-      {
-        vmovq   xmm1, r15
-        vmovq   xmm0, r14
-        vpcmpeqq xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@bf800000
-        vblendvps xmm4, xmm1, xmm4, xmm2
-      }
+      _XMM0 = v13;
+      __asm { vpcmpeqq xmm2, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_N1_0);
+      __asm { vblendvps xmm4, xmm1, xmm4, xmm2 }
     }
   }
-  __asm
-  {
-    vmulss  xmm1, xmm6, dword ptr [rbp+0Ch]
-    vmulss  xmm0, xmm5, dword ptr [rbp+0]
-    vmulss  xmm3, xmm5, dword ptr [rbp+4]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rbp+10h]
-    vmulss  xmm1, xmm4, dword ptr [rbp+18h]
-    vaddss  xmm7, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rbp+1Ch]
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rbp+14h]
-    vmulss  xmm3, xmm5, dword ptr [rbp+8]
-    vaddss  xmm8, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rbp+20h]
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm9, xmm2, xmm1
-    vmovaps xmm6, xmm12
-  }
+  v27 = (float)((float)(v22 * pml->right.v[0]) + (float)(v21 * pml->forward.v[0])) + (float)(*(float *)&_XMM4 * pml->up.v[0]);
+  v28 = (float)((float)(v21 * pml->forward.v[1]) + (float)(v22 * pml->right.v[1])) + (float)(*(float *)&_XMM4 * pml->up.v[1]);
+  v29 = (float)((float)(v21 * pml->forward.v[2]) + (float)(v22 * pml->right.v[2])) + (float)(*(float *)&_XMM4 * pml->up.v[2]);
+  unsignedInt = LODWORD(FLOAT_1_0);
   if ( (pm->cmd.buttons & 2) != 0 )
   {
-    _RSI = DVARFLT_player_zeroGravBoostScalar;
+    v31 = DVARFLT_player_zeroGravBoostScalar;
     if ( !DVARFLT_player_zeroGravBoostScalar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravBoostScalar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm6, dword ptr [rsi+28h] }
+    Dvar_CheckFrontendServerThread(v31);
+    unsignedInt = v31->current.unsignedInt;
   }
-  v65 = DVARFLT_player_zeroGravSpeed;
+  v32 = DVARFLT_player_zeroGravSpeed;
   if ( !DVARFLT_player_zeroGravSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v65);
-  __asm { vmulss  xmm11, xmm6, dword ptr [rsi+28h] }
-  v67 = DVARFLT_player_zeroGravAcceleration;
+  Dvar_CheckFrontendServerThread(v32);
+  v34 = unsignedInt;
+  *(float *)&v34 = *(float *)&unsignedInt * v32->current.value;
+  _XMM11 = v34;
+  v35 = DVARFLT_player_zeroGravAcceleration;
   if ( !DVARFLT_player_zeroGravAcceleration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravAcceleration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v67);
-  __asm
+  Dvar_CheckFrontendServerThread(v35);
+  v36 = *(float *)&unsignedInt * v35->current.value;
+  v37 = v36 * pml->frametime;
+  v38 = (float)(v27 * v37) + ps->velocity.v[0];
+  ps->velocity.v[0] = v38;
+  ps->velocity.v[1] = (float)(v28 * v37) + ps->velocity.v[1];
+  v39 = (float)(v29 * v37) + ps->velocity.v[2];
+  ps->velocity.v[2] = v39;
+  if ( v17 )
   {
-    vmulss  xmm3, xmm6, dword ptr [rsi+28h]
-    vmulss  xmm2, xmm3, dword ptr [rbp+24h]
-    vmulss  xmm0, xmm7, xmm2
-    vaddss  xmm4, xmm0, dword ptr [rbx+3Ch]
-    vmulss  xmm0, xmm8, xmm2
-    vmovss  dword ptr [rbx+3Ch], xmm4
-    vaddss  xmm1, xmm0, dword ptr [rbx+40h]
-    vmulss  xmm2, xmm9, xmm2
-    vmovss  dword ptr [rbx+40h], xmm1
-    vaddss  xmm5, xmm2, dword ptr [rbx+44h]
-    vmovss  dword ptr [rbx+44h], xmm5
-  }
-  if ( v20 )
-  {
-    __asm
+    v40 = (float)(v36 * pml->frametime) * 0.25;
+    v41 = outFixedDir.v[0];
+    v42 = outFixedDir.v[2];
+    v43 = (float)(outFixedDir.v[0] * v40) + v38;
+    v44 = outFixedDir.v[1];
+    v45 = outFixedDir.v[1] * v40;
+    ps->velocity.v[0] = v43;
+    v39 = (float)(v42 * v40) + v39;
+    ps->velocity.v[1] = v45 + ps->velocity.v[1];
+    ps->velocity.v[2] = v39;
+    if ( (float)((float)((float)(v28 * v28) + (float)(v27 * v27)) + (float)(v29 * v29)) < 0.001 )
     {
-      vmulss  xmm0, xmm3, dword ptr [rbp+24h]
-      vmulss  xmm2, xmm0, cs:__real@3e800000
-      vmovss  xmm3, dword ptr [rsp+118h+outFixedDir]
-      vmovss  xmm6, dword ptr [rsp+118h+outFixedDir+8]
-      vmulss  xmm1, xmm3, xmm2
-      vaddss  xmm0, xmm1, xmm4
-      vmovss  xmm4, dword ptr [rsp+118h+outFixedDir+4]
-      vmulss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rbx+3Ch], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rbx+40h]
-      vmulss  xmm1, xmm6, xmm2
-      vaddss  xmm5, xmm1, xmm5
-      vmulss  xmm1, xmm8, xmm8
-      vmovss  dword ptr [rbx+40h], xmm0
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm9, xmm9
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@3a83126f
-      vmovss  dword ptr [rbx+44h], xmm5
+      v27 = v41;
+      v28 = v44;
+      v29 = v42;
     }
   }
+  v46 = ps->velocity.v[1];
+  v47 = LODWORD(ps->velocity.v[0]);
+  v49 = v47;
+  *(float *)&v49 = fsqrt((float)((float)(*(float *)&v47 * *(float *)&v47) + (float)(v46 * v46)) + (float)(v39 * v39));
+  _XMM6 = v49;
   __asm
   {
-    vmovss  xmm4, dword ptr [rbx+40h]
-    vmovss  xmm3, dword ptr [rbx+3Ch]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-    vcomiss xmm6, xmm13
     vcmpless xmm0, xmm6, cs:__real@80000000
     vblendvps xmm0, xmm6, xmm12, xmm0
-    vdivss  xmm1, xmm12, xmm0
-    vmovaps xmm12, [rsp+118h+var_A8]
-    vmulss  xmm0, xmm1, xmm3
-    vmulss  xmm3, xmm1, xmm4
-    vmulss  xmm4, xmm5, xmm1
-    vcomiss xmm6, xmm11
   }
-  if ( v20 )
+  v52 = 1.0 / *(float *)&_XMM0;
+  v53 = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v47;
+  if ( *(float *)&v49 >= *(float *)&_XMM13 && *(float *)&v49 > *(float *)&_XMM11 )
   {
-    __asm
-    {
-      vmaxss  xmm2, xmm11, xmm13
-      vmulss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rbx+3Ch], xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmulss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rbx+44h], xmm0
-      vmovss  dword ptr [rbx+40h], xmm1
-    }
+    __asm { vmaxss  xmm2, xmm11, xmm13 }
+    ps->velocity.v[0] = v53 * *(float *)&_XMM2;
+    ps->velocity.v[2] = (float)(v39 * v52) * *(float *)&_XMM2;
+    ps->velocity.v[1] = (float)(v52 * v46) * *(float *)&_XMM2;
   }
-  __asm
+  if ( *(float *)&v49 > (float)(fsqrt((float)((float)(v28 * v28) + (float)(v27 * v27)) + (float)(v29 * v29)) * *(float *)&_XMM11) )
+LABEL_36:
+    PM_ZeroGravityFriction(pm, pml);
+  if ( BG_IsPushAffectingAirMovement(ps) )
   {
-    vmovaps xmm13, [rsp+118h+var_B8]
-    vmulss  xmm1, xmm8, xmm8
-    vmovaps xmm8, [rsp+118h+var_68]
-    vmulss  xmm0, xmm7, xmm7
-    vmovaps xmm7, [rsp+118h+var_58]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vmovaps xmm9, [rsp+118h+var_78]
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmulss  xmm3, xmm0, xmm11
-    vmovaps xmm11, [rsp+118h+var_98]
-    vcomiss xmm6, xmm3
-    vmovaps xmm6, [rsp+118h+var_48]
+    if ( !Com_GameMode_SupportsFeature(WEAPONSTATES_NUM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3950, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_PUSH ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_PUSH )") )
+      __debugbreak();
+    frametime = pml->frametime;
+    ps->velocity.v[0] = (float)(frametime * ps->pushVector.v[0]) + ps->velocity.v[0];
+    ps->velocity.v[1] = (float)(frametime * ps->pushVector.v[1]) + ps->velocity.v[1];
+    ps->velocity.v[2] = (float)(frametime * ps->pushVector.v[2]) + ps->velocity.v[2];
   }
-  if ( v20 )
-LABEL_34:
-    PM_ZeroGravityFriction(pm, _RBP);
-  IsPushAffectingAirMovement = BG_IsPushAffectingAirMovement(_RBX);
-  v124 = !IsPushAffectingAirMovement;
-  if ( IsPushAffectingAirMovement )
-  {
-    v125 = Com_GameMode_SupportsFeature(WEAPONSTATES_NUM);
-    v124 = !v125;
-    if ( !v125 )
-    {
-      v126 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 3950, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_PUSH ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_PUSH )");
-      v124 = !v126;
-      if ( v126 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+24h]
-      vmulss  xmm0, xmm2, dword ptr [rbx+5274h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rbx+3Ch], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+5278h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+40h]
-      vmovss  dword ptr [rbx+40h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+527Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm1
-    }
-  }
-  __asm { vucomiss xmm10, dword ptr [rbx+3Ch] }
-  if ( !v124 )
-    goto LABEL_43;
-  __asm { vucomiss xmm10, dword ptr [rbx+40h] }
-  if ( !v124 )
-    goto LABEL_43;
-  __asm { vucomiss xmm10, dword ptr [rbx+44h] }
-  if ( !v124 )
-LABEL_43:
-    PM_UpdatePlayerCollision(pm, _RBP, 0, 0, 0, 1);
-  __asm { vmovaps xmm10, [rsp+118h+var_88] }
+  if ( ps->velocity.v[0] != 0.0 || ps->velocity.v[1] != 0.0 || ps->velocity.v[2] != 0.0 )
+    PM_UpdatePlayerCollision(pm, pml, 0, 0, 0, 1);
 }
 
 /*
@@ -19087,42 +14574,31 @@ void PM_ZeroGravityPlayerTriggerTrace(const pmove_t *pm, const vec3_t *start, co
 {
   playerState_s *ps; 
   __int16 groundRefEnt; 
-  const char *v15; 
-  const char *v16; 
-  int v17; 
-  const char *v18; 
-  Physics_WorldId v19; 
+  const char *v10; 
+  const char *v11; 
+  int v12; 
+  const char *v13; 
+  Physics_WorldId v14; 
   CgHandler *Handler; 
-  const BgHandler *v21; 
-  const dvar_t *v23; 
+  const BgHandler *v16; 
+  const dvar_t *v17; 
+  Bounds *bounds; 
+  float v23; 
+  float v24; 
   hknpShape *ShapeCylinder; 
-  hknpShape *v42; 
-  char v43; 
-  hkMemoryAllocator *v48; 
-  hkMemoryAllocator *v49; 
-  float fmt; 
-  char v56; 
+  hknpShape *v26; 
+  hkMemoryAllocator *v27; 
+  hkMemoryAllocator *v28; 
+  char v29; 
   hknpShape *ShapeCapsuleUpAxis; 
   Physics_ShapecastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v60; 
-  __int64 v61; 
+  HavokPhysics_IgnoreBodies v32; 
+  __int64 v33; 
   vec4_t quat; 
-  WorldUpReferenceFrame v63; 
+  WorldUpReferenceFrame v35; 
   char optionalInplaceBuffer[432]; 
-  char v65; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v61 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
-  _R13 = end;
-  _R15 = start;
+  v33 = -2i64;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5479, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !outResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5480, ASSERT_TYPE_ASSERT, "(outResults)", (const char *)&queryFormat, "outResults") )
@@ -19141,159 +14617,102 @@ void PM_ZeroGravityPlayerTriggerTrace(const pmove_t *pm, const vec3_t *start, co
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) )
       goto LABEL_23;
-    v15 = "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )";
-    v16 = "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))";
-    v17 = 2575;
-    v18 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h";
+    v10 = "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )";
+    v11 = "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))";
+    v12 = 2575;
+    v13 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h";
   }
   else
   {
-    v15 = "BG_IsPlayerZeroG( ps )";
-    v16 = "(BG_IsPlayerZeroG( ps ))";
-    v17 = 5484;
-    v18 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp";
+    v10 = "BG_IsPlayerZeroG( ps )";
+    v11 = "(BG_IsPlayerZeroG( ps ))";
+    v12 = 5484;
+    v13 = "c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp";
   }
-  if ( CoreAssert_Handler(v18, v17, ASSERT_TYPE_ASSERT, v16, (const char *)&queryFormat, v15) )
+  if ( CoreAssert_Handler(v13, v12, ASSERT_TYPE_ASSERT, v11, (const char *)&queryFormat, v10) )
     __debugbreak();
 LABEL_23:
-  v19 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
-  if ( !Physics_IsPredictiveWorld(v19) || Sys_IsMainThread() )
+  v14 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
+  if ( !Physics_IsPredictiveWorld(v14) || Sys_IsMainThread() )
   {
-    v56 = 0;
+    v29 = 0;
   }
   else
   {
-    v56 = 1;
-    Physics_LockWorld(v19);
+    v29 = 1;
+    Physics_LockWorld(v14);
   }
   HavokPhysics_CollisionQueryResult::Reset(outResults, 1);
-  if ( (unsigned int)v19 > PHYSICS_WORLD_ID_SERVER_DETAIL )
+  if ( (unsigned int)v14 > PHYSICS_WORLD_ID_SERVER_DETAIL )
     Handler = CgHandler::getHandler(pm->localClientNum);
   else
     Handler = (CgHandler *)GHandler::getHandler();
-  v21 = Handler;
+  v16 = Handler;
   if ( !Handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5515, ASSERT_TYPE_ASSERT, "(handler != nullptr)", (const char *)&queryFormat, "handler != nullptr") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v63, ps, v21);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovups xmmword ptr [rbp+240h+quat], xmm0
-  }
-  WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v63, &quat);
-  v23 = DCONST_DVARMPBOOL_antilagZeroG;
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v35, ps, v16);
+  quat = quat_identity;
+  WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v35, &quat);
+  v17 = DCONST_DVARMPBOOL_antilagZeroG;
   if ( !DCONST_DVARMPBOOL_antilagZeroG && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "antilagZeroG") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  _EAX = 0;
-  __asm { vmovd   xmm1, eax }
-  _EAX = v23->current.color[0];
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  xmm0, cs:__real@41200000
-    vblendvps xmm1, xmm0, xmm8, xmm2
-    vmovss  dword ptr [rsp+340h+var_2F8], xmm1
-    vaddss  xmm7, xmm1, dword ptr [rdx+0Ch]
-    vaddss  xmm6, xmm1, dword ptr [rdx+14h]
-    vsubss  xmm2, xmm6, xmm7; halfHeight
-    vmovaps xmm3, xmm7; radius
-  }
-  ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis(v19, &pm->bounds->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, optionalInplaceBuffer, 432, Temporary);
-  __asm
-  {
-    vmovaps xmm2, xmm7; radius
-    vmovaps xmm1, xmm6; halfHeight
-  }
-  ShapeCylinder = Physics_CreateShapeCylinder(&pm->bounds->midPoint, *(float *)&_XMM1, *(float *)&_XMM2, 32, 1);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3e000000
-    vaddss  xmm2, xmm7, xmm9; radius
-    vaddss  xmm1, xmm6, xmm9; halfHeight
-  }
-  v42 = Physics_CreateShapeCylinder(&pm->bounds->midPoint, *(float *)&_XMM1, *(float *)&_XMM2, 32, 1);
+  Dvar_CheckFrontendServerThread(v17);
+  _XMM0 = v17->current.color[0];
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = LODWORD(FLOAT_10_0);
+  __asm { vblendvps xmm1, xmm0, xmm8, xmm2 }
+  bounds = pm->bounds;
+  v23 = *(float *)&_XMM1 + bounds->halfSize.v[0];
+  v24 = *(float *)&_XMM1 + bounds->halfSize.v[2];
+  ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis(v14, &bounds->midPoint, v24 - v23, v23, optionalInplaceBuffer, 432, Temporary);
+  ShapeCylinder = Physics_CreateShapeCylinder(&pm->bounds->midPoint, v24, v23, 32, 1);
+  v26 = Physics_CreateShapeCylinder(&pm->bounds->midPoint, v24 + 0.125, v23 + 0.125, 32, 1);
   if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5541, ASSERT_TYPE_ASSERT, "(nonBrushShape)", (const char *)&queryFormat, "nonBrushShape") )
     __debugbreak();
   if ( !ShapeCylinder && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5542, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5543, ASSERT_TYPE_ASSERT, "(paddedShape)", (const char *)&queryFormat, "paddedShape") )
+  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5543, ASSERT_TYPE_ASSERT, "(paddedShape)", (const char *)&queryFormat, "paddedShape") )
     __debugbreak();
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v60, 1, 0);
-  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v60, 0, ps->clientNum, 1, 0, 0, 0, 0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0]
-    vucomiss xmm0, dword ptr [r15]
-  }
-  if ( !v43 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+4]
-    vucomiss xmm0, dword ptr [r15+4]
-  }
-  if ( !v43 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+8]
-    vucomiss xmm0, dword ptr [r15+8]
-  }
-  if ( v43 )
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v32, 1, 0);
+  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v32, 0, ps->clientNum, 1, 0, 0, 0, 0);
+  if ( end->v[0] == start->v[0] && end->v[1] == start->v[1] && end->v[2] == start->v[2] )
   {
     LOBYTE(extendedData.startTolerance) = 0;
-    __asm { vmovss  [rsp+340h+extendedData.collisionBuffer], xmm8 }
+    *(float *)&extendedData.ignoreBodies = 0.0;
     LODWORD(extendedData.nonBrushShape) = 0;
     extendedData.contents = 1078198280;
-    *(_QWORD *)&extendedData.accuracy = &v60;
+    *(_QWORD *)&extendedData.accuracy = &v32;
     *(_QWORD *)&extendedData.collisionBuffer = ShapeCapsuleUpAxis;
-    __asm { vmovss  dword ptr [rsp+340h+fmt], xmm8 }
-    Physics_GetClosestPoints(v19, ShapeCylinder, _R15, &quat, fmt, (Physics_GetClosestPointsExtendedData *)&extendedData, outResults);
+    Physics_GetClosestPoints(v14, ShapeCylinder, start, &quat, 0.0, (Physics_GetClosestPointsExtendedData *)&extendedData, outResults);
   }
   else
   {
-LABEL_49:
-    __asm
-    {
-      vmovss  dword ptr [rsp+340h+extendedData.simplify], xmm8
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  dword ptr [rsp+340h+extendedData.ignoreBodies], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
     extendedData.phaseSelection = All;
     extendedData.contents = 1078198280;
-    extendedData.ignoreBodies = &v60;
-    __asm { vmovss  dword ptr [rsp+340h+extendedData.nonBrushShape], xmm9 }
+    extendedData.ignoreBodies = &v32;
+    extendedData.collisionBuffer = FLOAT_0_125;
     extendedData.nonBrushShape = ShapeCapsuleUpAxis;
-    extendedData.secondPassShape = v42;
+    extendedData.secondPassShape = v26;
     extendedData.permitOutwardTrace = 1;
-    Physics_Shapecast(v19, ShapeCylinder, _R15, _R13, &quat, &extendedData, outResults, NULL);
+    Physics_Shapecast(v14, ShapeCylinder, start, end, &quat, &extendedData, outResults, NULL);
   }
-  Physics_ReleaseShape(v19, ShapeCylinder, 0);
-  Physics_ReleaseShape(v19, v42, 0);
-  if ( v56 )
-    Physics_UnlockWorld(v19);
-  v48 = hkMemHeapAllocator();
-  v60.m_ignoreBodies.m_size = 0;
-  if ( v60.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v48, v60.m_ignoreBodies.m_data, 4, v60.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v60.m_ignoreBodies.m_data = NULL;
-  v60.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v49 = hkMemHeapAllocator();
-  v60.m_ignoreEntities.m_size = 0;
-  if ( v60.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v49, v60.m_ignoreEntities.m_data, 8, v60.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
+  Physics_ReleaseShape(v14, ShapeCylinder, 0);
+  Physics_ReleaseShape(v14, v26, 0);
+  if ( v29 )
+    Physics_UnlockWorld(v14);
+  v27 = hkMemHeapAllocator();
+  v32.m_ignoreBodies.m_size = 0;
+  if ( v32.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v27, v32.m_ignoreBodies.m_data, 4, v32.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v32.m_ignoreBodies.m_data = NULL;
+  v32.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v28 = hkMemHeapAllocator();
+  v32.m_ignoreEntities.m_size = 0;
+  if ( v32.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v28, v32.m_ignoreEntities.m_data, 8, v32.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -19303,84 +14722,52 @@ PM_ZeroGravity_SetWorldUpAngles
 */
 void PM_ZeroGravity_SetWorldUpAngles(playerState_s *ps, BgWeaponMap *weaponMap, WorldUpReferenceFrame *refFrame, const BgHandler *handler, const vec3_t *newWorldUpAngles)
 {
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   vec3_t outOrigin; 
-  vec3_t v39; 
+  vec3_t v19; 
   vec3_t originalOrigin; 
-  char v42; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps [rsp+108h+var_98], xmm11
-  }
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4282, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !refFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4283, ASSERT_TYPE_ASSERT, "(refFrame)", (const char *)&queryFormat, "refFrame") )
     __debugbreak();
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4284, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  __asm
+  v9 = ps->origin.v[0];
+  v10 = ps->origin.v[1];
+  v11 = ps->origin.v[2];
+  v12 = ps->worldUpAngles.v[0];
+  v13 = ps->worldUpAngles.v[1];
+  v14 = ps->worldUpAngles.v[2];
+  originalOrigin.v[0] = v9;
+  originalOrigin.v[1] = v10;
+  originalOrigin.v[2] = v11;
+  BG_GetPlayerEyePosition(weaponMap, ps, &outOrigin, handler);
+  WorldUpReferenceFrame::SetAngles(refFrame, ps, handler, newWorldUpAngles);
+  BG_GetPlayerEyePosition(weaponMap, ps, &v19, handler);
+  v15 = outOrigin.v[1] - v19.v[1];
+  v16 = outOrigin.v[2];
+  ps->origin.v[0] = (float)(outOrigin.v[0] - v19.v[0]) + ps->origin.v[0];
+  v17 = v16 - v19.v[2];
+  ps->origin.v[1] = v15 + ps->origin.v[1];
+  ps->origin.v[2] = v17 + ps->origin.v[2];
+  if ( !(unsigned int)PM_ZeroGravityMoveHandleAngularPenetration(ps, handler, &originalOrigin) )
   {
-    vmovss  xmm6, dword ptr [rbx+30h]
-    vmovss  xmm7, dword ptr [rbx+34h]
-    vmovss  xmm8, dword ptr [rbx+38h]
-    vmovss  xmm9, dword ptr [rbx+2ACh]
-    vmovss  xmm10, dword ptr [rbx+2B0h]
-    vmovss  xmm11, dword ptr [rbx+2B4h]
-    vmovss  dword ptr [rsp+108h+originalOrigin], xmm6
-    vmovss  dword ptr [rsp+108h+originalOrigin+4], xmm7
-    vmovss  dword ptr [rsp+108h+originalOrigin+8], xmm8
-  }
-  BG_GetPlayerEyePosition(weaponMap, _RBX, &outOrigin, handler);
-  WorldUpReferenceFrame::SetAngles(refFrame, _RBX, handler, newWorldUpAngles);
-  BG_GetPlayerEyePosition(weaponMap, _RBX, &v39, handler);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+108h+outOrigin]
-    vsubss  xmm1, xmm0, dword ptr [rsp+108h+var_C8]
-    vaddss  xmm2, xmm1, dword ptr [rbx+30h]
-    vmovss  xmm0, dword ptr [rsp+108h+outOrigin+4]
-    vsubss  xmm1, xmm0, dword ptr [rsp+108h+var_C8+4]
-    vmovss  xmm0, dword ptr [rsp+108h+outOrigin+8]
-    vmovss  dword ptr [rbx+30h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+34h]
-    vsubss  xmm1, xmm0, dword ptr [rsp+108h+var_C8+8]
-    vmovss  dword ptr [rbx+34h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+38h]
-    vmovss  dword ptr [rbx+38h], xmm2
-  }
-  if ( !(unsigned int)PM_ZeroGravityMoveHandleAngularPenetration(_RBX, handler, &originalOrigin) )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbx+2ACh], xmm9
-      vmovss  dword ptr [rbx+2B0h], xmm10
-      vmovss  dword ptr [rbx+2B4h], xmm11
-    }
-    WorldUpReferenceFrame::Init(refFrame, _RBX, handler);
-    __asm
-    {
-      vmovss  dword ptr [rbx+30h], xmm6
-      vmovss  dword ptr [rbx+34h], xmm7
-      vmovss  dword ptr [rbx+38h], xmm8
-    }
-  }
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
+    ps->worldUpAngles.v[0] = v12;
+    ps->worldUpAngles.v[1] = v13;
+    ps->worldUpAngles.v[2] = v14;
+    WorldUpReferenceFrame::Init(refFrame, ps, handler);
+    ps->origin.v[0] = v9;
+    ps->origin.v[1] = v10;
+    ps->origin.v[2] = v11;
   }
 }
 
@@ -19391,42 +14778,33 @@ PM_ZeroGravity_UseForcedDirection
 */
 char PM_ZeroGravity_UseForcedDirection(vec3_t *outFixedDir)
 {
-  char v11; 
-  char v12; 
+  const dvar_t *v1; 
+  float value; 
+  __int128 v4; 
+  float v5; 
+  __int128 v6; 
 
-  _RBX = DVARVEC3_player_zeroGravForceDir;
-  _RDI = outFixedDir;
+  v1 = DVARVEC3_player_zeroGravForceDir;
   if ( !DVARVEC3_player_zeroGravForceDir && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravForceDir") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+28h]
-    vmovss  xmm4, dword ptr [rbx+2Ch]
-    vmovss  xmm5, dword ptr [rbx+30h]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vcomiss xmm0, cs:__real@3a83126f
-  }
-  if ( v11 | v12 )
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  v4 = LODWORD(v1->current.vector.v[1]);
+  v5 = v1->current.vector.v[2];
+  v6 = v4;
+  *(float *)&v6 = (float)((float)(*(float *)&v4 * *(float *)&v4) + (float)(value * value)) + (float)(v5 * v5);
+  if ( *(float *)&v6 <= 0.001 )
     return 0;
+  *(float *)&v6 = fsqrt(*(float *)&v6);
+  _XMM2 = v6;
   __asm
   {
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm2, xmm0, xmm0
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vmulss  xmm1, xmm2, xmm4
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  dword ptr [rdi+4], xmm1
   }
+  outFixedDir->v[0] = (float)(1.0 / *(float *)&_XMM0) * value;
+  outFixedDir->v[2] = (float)(1.0 / *(float *)&_XMM0) * v5;
+  outFixedDir->v[1] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v4;
   return 1;
 }
 
@@ -19438,110 +14816,71 @@ BobCycle::PackBobCycle
 void BobCycle::PackBobCycle(BobCycle *this, int (*outPackedBobCycle)[2])
 {
   int generation; 
-  bool v6; 
-  bool v7; 
-  bool v8; 
-  bool v11; 
-  int v19; 
+  float amplitudeRatio; 
+  float amplitudeRatioGun; 
+  int v7; 
+  int v8; 
   bool isAnimDecreasing; 
-  __int64 v25; 
-  __int64 v26; 
-  BobCycle v27; 
+  __int64 v10; 
+  int v11; 
+  __int64 v12; 
+  int animCycle; 
+  BobCycle v14; 
 
-  v7 = this->maxGeneration <= 0xFu;
-  __asm { vmovaps [rsp+88h+var_18], xmm7 }
-  _RBX = this;
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5215, ASSERT_TYPE_ASSERT, "(0 <= maxGeneration && maxGeneration <= ((0x1 << 4) - 1))", (const char *)&queryFormat, "0 <= maxGeneration && maxGeneration <= MAX_BOB_GENERATION") )
+  if ( this->maxGeneration > 0xFu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5215, ASSERT_TYPE_ASSERT, "(0 <= maxGeneration && maxGeneration <= ((0x1 << 4) - 1))", (const char *)&queryFormat, "0 <= maxGeneration && maxGeneration <= MAX_BOB_GENERATION") )
     __debugbreak();
-  generation = _RBX->generation;
-  if ( (generation < 0 || generation > _RBX->maxGeneration) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5216, ASSERT_TYPE_ASSERT, "(0 <= generation && generation <= maxGeneration)", (const char *)&queryFormat, "0 <= generation && generation <= maxGeneration") )
+  generation = this->generation;
+  if ( (generation < 0 || generation > this->maxGeneration) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5216, ASSERT_TYPE_ASSERT, "(0 <= generation && generation <= maxGeneration)", (const char *)&queryFormat, "0 <= generation && generation <= maxGeneration") )
     __debugbreak();
-  v6 = _RBX->animCycle < 0x1FFu;
-  v7 = _RBX->animCycle <= 0x1FFu;
-  if ( _RBX->animCycle > 0x1FFu )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5217, ASSERT_TYPE_ASSERT, "(0 <= animCycle && animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= animCycle && animCycle <= MAX_BOB_CYCLE");
-    v6 = 0;
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-  }
-  if ( v6 )
-    goto LABEL_37;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !v7 )
-  {
-LABEL_37:
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5218, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f");
-    v7 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5219, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f") )
+  if ( this->animCycle > 0x1FFu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5217, ASSERT_TYPE_ASSERT, "(0 <= animCycle && animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= animCycle && animCycle <= MAX_BOB_CYCLE") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+10h]
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmulss  xmm2, xmm1, cs:__real@447fc000
-    vmulss  xmm0, xmm0, cs:__real@437f0000
-    vcvttss2si edx, xmm2
-    vcvttss2si edi, xmm0
-  }
-  v19 = _RBX->animCycle & 0x1FF | (((unsigned __int8)_EDI | (_RBX->isAnimDecreasing << 8)) << 9);
-  (*outPackedBobCycle)[1] = _RBX->generation & 0xF | (16 * (_RBX->maxGeneration & 0xF | (16 * (_EDX & 0x3FF))));
-  (*outPackedBobCycle)[0] = v19;
-  BobCycle::BobCycle(&v27, outPackedBobCycle);
-  if ( _RBX->animCycle != v27.animCycle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5244, ASSERT_TYPE_ASSERT, "( animCycle ) == ( validateBobCycle.animCycle )", "%s == %s\n\t%i, %i", "animCycle", "validateBobCycle.animCycle", _RBX->animCycle, v27.animCycle) )
+  amplitudeRatio = this->amplitudeRatio;
+  if ( (amplitudeRatio < 0.0 || amplitudeRatio > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5218, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f") )
     __debugbreak();
-  if ( _RBX->generation != v27.generation )
+  amplitudeRatioGun = this->amplitudeRatioGun;
+  if ( (amplitudeRatioGun < 0.0 || amplitudeRatioGun > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5219, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f") )
+    __debugbreak();
+  v7 = (int)(float)(this->amplitudeRatio * 255.0);
+  v8 = this->animCycle & 0x1FF | (((unsigned __int8)v7 | (this->isAnimDecreasing << 8)) << 9);
+  (*outPackedBobCycle)[1] = this->generation & 0xF | (16 * (this->maxGeneration & 0xF | (16 * ((int)(float)(this->amplitudeRatioGun * 1023.0) & 0x3FF))));
+  (*outPackedBobCycle)[0] = v8;
+  BobCycle::BobCycle(&v14, outPackedBobCycle);
+  if ( this->animCycle != v14.animCycle )
   {
-    LODWORD(v26) = v27.generation;
-    LODWORD(v25) = _RBX->generation;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5245, ASSERT_TYPE_ASSERT, "( generation ) == ( validateBobCycle.generation )", "%s == %s\n\t%i, %i", "generation", "validateBobCycle.generation", v25, v26) )
+    animCycle = v14.animCycle;
+    v11 = this->animCycle;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5244, ASSERT_TYPE_ASSERT, "( animCycle ) == ( validateBobCycle.animCycle )", "%s == %s\n\t%i, %i", "animCycle", "validateBobCycle.animCycle", v11, animCycle) )
       __debugbreak();
   }
-  if ( _RBX->maxGeneration != v27.maxGeneration )
+  if ( this->generation != v14.generation )
   {
-    LODWORD(v26) = v27.maxGeneration;
-    LODWORD(v25) = _RBX->maxGeneration;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5246, ASSERT_TYPE_ASSERT, "( maxGeneration ) == ( validateBobCycle.maxGeneration )", "%s == %s\n\t%i, %i", "maxGeneration", "validateBobCycle.maxGeneration", v25, v26) )
+    LODWORD(v12) = v14.generation;
+    LODWORD(v10) = this->generation;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5245, ASSERT_TYPE_ASSERT, "( generation ) == ( validateBobCycle.generation )", "%s == %s\n\t%i, %i", "generation", "validateBobCycle.generation", v10, v12) )
       __debugbreak();
   }
-  __asm
+  if ( this->maxGeneration != v14.maxGeneration )
   {
-    vmovss  xmm0, [rsp+88h+var_38.amplitudeRatio]
-    vmulss  xmm1, xmm0, cs:__real@437f0000
-    vcvttss2si eax, xmm1
-  }
-  if ( _EDI != _EAX )
-  {
-    LODWORD(v26) = _EAX;
-    LODWORD(v25) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5248, ASSERT_TYPE_ASSERT, "( iAmplitude ) == ( iAmplitudeValidate )", "%s == %s\n\t%i, %i", "iAmplitude", "iAmplitudeValidate", v25, v26) )
+    LODWORD(v12) = v14.maxGeneration;
+    LODWORD(v10) = this->maxGeneration;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5246, ASSERT_TYPE_ASSERT, "( maxGeneration ) == ( validateBobCycle.maxGeneration )", "%s == %s\n\t%i, %i", "maxGeneration", "validateBobCycle.maxGeneration", v10, v12) )
       __debugbreak();
   }
-  isAnimDecreasing = _RBX->isAnimDecreasing;
-  if ( isAnimDecreasing != v27.isAnimDecreasing )
+  if ( v7 != (int)(float)(v14.amplitudeRatio * 255.0) )
   {
-    LODWORD(v26) = v27.isAnimDecreasing;
-    LODWORD(v25) = isAnimDecreasing;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5251, ASSERT_TYPE_ASSERT, "( isAnimDecreasing ) == ( validateBobCycle.isAnimDecreasing )", "%s == %s\n\t%i, %i", "isAnimDecreasing", "validateBobCycle.isAnimDecreasing", v25, v26) )
+    LODWORD(v12) = (int)(float)(v14.amplitudeRatio * 255.0);
+    LODWORD(v10) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5248, ASSERT_TYPE_ASSERT, "( iAmplitude ) == ( iAmplitudeValidate )", "%s == %s\n\t%i, %i", "iAmplitude", "iAmplitudeValidate", v10, v12) )
       __debugbreak();
   }
-  __asm { vmovaps xmm7, [rsp+88h+var_18] }
+  isAnimDecreasing = this->isAnimDecreasing;
+  if ( isAnimDecreasing != v14.isAnimDecreasing )
+  {
+    LODWORD(v12) = v14.isAnimDecreasing;
+    LODWORD(v10) = isAnimDecreasing;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5251, ASSERT_TYPE_ASSERT, "( isAnimDecreasing ) == ( validateBobCycle.isAnimDecreasing )", "%s == %s\n\t%i, %i", "isAnimDecreasing", "validateBobCycle.isAnimDecreasing", v10, v12) )
+      __debugbreak();
+  }
 }
 
 /*
@@ -19549,98 +14888,80 @@ LABEL_37:
 PmoveSingle
 ==============
 */
-void PmoveSingle(pmove_t *pm, __int64 a2, double a3, double a4)
+void PmoveSingle(pmove_t *pm)
 {
+  playerState_s *ps; 
   EffectiveStance EffectiveStance; 
   int sprintStartMaxLength; 
-  bool v10; 
+  bool v5; 
   int commandTime; 
   int serverTime; 
   int inputTime; 
-  playerState_s *ps; 
-  const dvar_t *v24; 
-  const dvar_t *v25; 
-  playerState_s *v26; 
-  playerState_s *v27; 
-  playerState_s *v28; 
-  playerState_s *v29; 
-  SprintState v32; 
-  __int64 v33; 
+  playerState_s *v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  playerState_s *v12; 
+  playerState_s *v13; 
+  playerState_s *v14; 
+  playerState_s *v15; 
+  SprintState v16; 
+  __int64 v17; 
   pml_t pml; 
 
-  v33 = -2i64;
+  v17 = -2i64;
   pml.isSkydiveTraced = 0;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12360, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12360, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 12360, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF008008, "PM_PreUpdate");
-  EffectiveStance = PM_GetEffectiveStance(_RDI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+328h]
-    vmovups ymmword ptr [rsp+370h+var_338.sprintRestoreDelayStart], ymm0
-  }
-  sprintStartMaxLength = _RDI->sprintState.sprintStartMaxLength;
-  v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x14u);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm0, xmm0, cs:__real@3e828f5c
-    vcvttss2si ecx, xmm0
-  }
-  _RDI->netPerf.maxExtrapolationMs = _ECX;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, cs:__real@3e828f5c
-    vcvttss2si ecx, xmm1
-  }
-  _RDI->netPerf.maxInterpolationMs = _ECX;
-  BG_UpdateWeaponAnimArrays(pm->weaponMap, _RDI, pm->m_bgHandler);
+  EffectiveStance = PM_GetEffectiveStance(ps);
+  *(__m256i *)&v16.sprintButtonUpRequired = *(__m256i *)&ps->sprintState.sprintButtonUpRequired;
+  sprintStartMaxLength = ps->sprintState.sprintStartMaxLength;
+  v5 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
+  ps->netPerf.maxExtrapolationMs = (int)(float)((float)pm->cmd.extrapolationMax * 0.255);
+  ps->netPerf.maxInterpolationMs = (int)(float)((float)pm->cmd.interpolationMax * 0.255);
+  BG_UpdateWeaponAnimArrays(pm->weaponMap, ps, pm->m_bgHandler);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
     BG_AnimClearDirtyPlayerStateConditions(pm);
-  PM_SetupMoveState(pm, *(double *)&_XMM1);
+  PM_SetupMoveState(pm);
   PM_PmoveLocal_Init(pm, &pml);
   commandTime = pm->cmd.commandTime;
-  _RDI->commandTime = commandTime;
-  _RDI->commandTimeInterpolated = commandTime;
+  ps->commandTime = commandTime;
+  ps->commandTimeInterpolated = commandTime;
   serverTime = pm->cmd.serverTime;
-  _RDI->serverTime = serverTime;
-  _RDI->serverTimeInterpolated = serverTime;
+  ps->serverTime = serverTime;
+  ps->serverTimeInterpolated = serverTime;
   inputTime = pm->cmd.inputTime;
-  _RDI->inputTime = inputTime;
-  _RDI->inputTimeInterpolated = inputTime;
-  _RDI->lastInput.forwardmove = pm->cmd.forwardmove;
-  _RDI->lastInput.rightmove = pm->cmd.rightmove;
-  _RDI->lastInput.yawmove = pm->cmd.yawmove;
-  _RDI->lastInput.pitchmove = pm->cmd.pitchmove;
-  __asm { vmovss  xmm1, [rbp+270h+pml.frametime]; frametime }
-  PM_AdjustAimSpreadScale(pm, *(float *)&_XMM1);
-  ps = pm->ps;
-  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2154, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps->inputTime = inputTime;
+  ps->inputTimeInterpolated = inputTime;
+  ps->lastInput.forwardmove = pm->cmd.forwardmove;
+  ps->lastInput.rightmove = pm->cmd.rightmove;
+  ps->lastInput.yawmove = pm->cmd.yawmove;
+  ps->lastInput.pitchmove = pm->cmd.pitchmove;
+  PM_AdjustAimSpreadScale(pm, pml.frametime);
+  v9 = pm->ps;
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 2154, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_HARD_LAND|WEAPON_FIRING) && (pm->cmd.avoidForward || pm->cmd.avoidRight) )
   {
-    v24 = DCONST_DVARBOOL_collAvoid_useHardLanding;
+    v10 = DCONST_DVARBOOL_collAvoid_useHardLanding;
     if ( !DCONST_DVARBOOL_collAvoid_useHardLanding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_useHardLanding") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    if ( v24->current.enabled )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled )
     {
-      v25 = DCONST_DVARINT_collAvoid_hardLandingTimeMs;
+      v11 = DCONST_DVARINT_collAvoid_hardLandingTimeMs;
       if ( !DCONST_DVARINT_collAvoid_hardLandingTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_hardLandingTimeMs") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      ps->pm_time = v25->current.integer;
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&ps->pm_flags, ACTIVE, 0xCu);
+      Dvar_CheckFrontendServerThread(v11);
+      v9->pm_time = v11->current.integer;
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&v9->pm_flags, ACTIVE, 0xCu);
     }
   }
   PM_UpdateViewAngles(pm, &pml);
-  PM_PmoveLocal_SetViewAngles(pm, &pml, a3, a4);
+  PM_PmoveLocal_SetViewAngles(pm, &pml);
   PM_Debug_TestPlayerCollisionPoint(pm);
   PM_ProneOverride_Update(pm);
   PM_Debug_TestPlayerCollisionPoint(pm);
@@ -19654,26 +14975,21 @@ void PmoveSingle(pmove_t *pm, __int64 a2, double a3, double a4)
   PM_PlayerSecondaryCollision_UpdateState(pm);
   Sys_ProfEndNamedEvent();
   PM_Debug_TestPlayerCollisionPoint(pm);
-  switch ( _RDI->pm_type )
+  switch ( ps->pm_type )
   {
     case 1:
     case 8:
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+370h+var_338.sprintRestoreDelayStart]; jumptable 0000000141073EFA cases 1,8
-        vmovups ymmword ptr [rsp+370h+var_338.sprintRestoreDelayStart], ymm0
-      }
-      v32.sprintStartMaxLength = sprintStartMaxLength;
-      PM_Linked_Update(pm, &pml, v10, &v32);
+      v16.sprintStartMaxLength = sprintStartMaxLength;
+      PM_Linked_Update(pm, &pml, v5, &v16);
       break;
     case 2:
       Sys_ProfBeginNamedEvent(0xFF808080, "PM_NoClip_Update");
-      v27 = pm->ps;
-      if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11688, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      v13 = pm->ps;
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11688, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      PM_ClearLadderFlag(pm->weaponMap, v27);
+      PM_ClearLadderFlag(pm->weaponMap, v13);
       PM_UpdateAimDownSightFlag(pm, &pml);
-      PM_UpdateSprint(pm, &pml, a3);
+      PM_UpdateSprint(pm, &pml);
       PM_UpdatePlayerWalkingFlag(pm);
       PM_UpdateCustomAnimFlags(pm);
       PM_DropTimers(pm, &pml);
@@ -19687,19 +15003,19 @@ void PmoveSingle(pmove_t *pm, __int64 a2, double a3, double a4)
       break;
     case 4:
       Sys_ProfBeginNamedEvent(0xFF808080, "PM_MPViewer_Update");
-      v28 = pm->ps;
-      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11759, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      v14 = pm->ps;
+      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11759, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      PM_ClearLadderFlag(pm->weaponMap, v28);
+      PM_ClearLadderFlag(pm->weaponMap, v14);
       PM_UpdateAimDownSightFlag(pm, &pml);
-      PM_UpdateSprint(pm, &pml, a3);
+      PM_UpdateSprint(pm, &pml);
       PM_UpdatePlayerWalkingFlag(pm);
       PM_UpdateCustomAnimFlags(pm);
       PM_DropTimers(pm, &pml);
-      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4940, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 4940, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      *(_QWORD *)&v28->velocity.y = 0i64;
-      v28->velocity.v[0] = 0.0;
+      *(_QWORD *)&v14->velocity.y = 0i64;
+      v14->velocity.v[0] = 0.0;
       PM_UpdateAimDownSightLerp(pm, pml.msec);
       PM_DropAnimTimers(pm, &pml);
       Sys_ProfEndNamedEvent();
@@ -19708,13 +15024,13 @@ void PmoveSingle(pmove_t *pm, __int64 a2, double a3, double a4)
       Sys_ProfBeginNamedEvent(0xFF808080, "PM_Spectator_Update");
       if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11663, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SPECTATOR ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SPECTATOR )") )
         __debugbreak();
-      v26 = pm->ps;
-      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11665, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      v12 = pm->ps;
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11665, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      PM_ClearLadderFlag(pm->weaponMap, v26);
+      PM_ClearLadderFlag(pm->weaponMap, v12);
       Mantle_CancelMantle(pm->m_bgHandler, pm->weaponMap, pm->ps, pm->cmd.serverTime);
       PM_UpdateAimDownSightFlag(pm, &pml);
-      PM_UpdateSprint(pm, &pml, a3);
+      PM_UpdateSprint(pm, &pml);
       PM_UpdatePlayerWalkingFlag(pm);
       PM_UpdateCustomAnimFlags(pm);
       PM_CheckDuck(pm, &pml);
@@ -19728,23 +15044,18 @@ void PmoveSingle(pmove_t *pm, __int64 a2, double a3, double a4)
       Sys_ProfBeginNamedEvent(0xFF808080, "PM_Intermission_Update");
       if ( !Com_GameMode_SupportsFeature(WEAPON_INSPECT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11780, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_INTERMISSION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_INTERMISSION )") )
         __debugbreak();
-      v29 = pm->ps;
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11782, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      v15 = pm->ps;
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 11782, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      PM_ClearLadderFlag(pm->weaponMap, v29);
+      PM_ClearLadderFlag(pm->weaponMap, v15);
       PM_UpdateAimDownSightFlag(pm, &pml);
-      PM_UpdateSprint(pm, &pml, a3);
+      PM_UpdateSprint(pm, &pml);
       PM_UpdateAimDownSightLerp(pm, pml.msec);
       Sys_ProfEndNamedEvent();
       break;
     default:
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+370h+var_338.sprintRestoreDelayStart]; jumptable 0000000141073EFA default case, case 7
-        vmovups ymmword ptr [rsp+370h+var_338.sprintRestoreDelayStart], ymm0
-      }
-      v32.sprintStartMaxLength = sprintStartMaxLength;
-      PM_Normal_Update(pm, &pml, v10, &v32, EffectiveStance);
+      v16.sprintStartMaxLength = sprintStartMaxLength;
+      PM_Normal_Update(pm, &pml, v5, &v16, EffectiveStance);
       PM_Debug_TestPlayerCollisionPoint(pm);
       break;
   }
@@ -19758,220 +15069,113 @@ void PmoveSingle(pmove_t *pm, __int64 a2, double a3, double a4)
 TurretUpdateViewClamp
 ==============
 */
-
-void __fastcall TurretUpdateViewClamp(pmove_t *pm, double msec)
+void TurretUpdateViewClamp(pmove_t *pm, float msec)
 {
+  playerState_s *ps; 
   __int16 viewlocked_entNum; 
-  int v13; 
-  char v68; 
-  __int64 v83; 
-  double v84; 
-  __int64 v85; 
-  double v86; 
-  double v87; 
-  double v88; 
-  double v89; 
+  int v5; 
+  WeaponDef *v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float viewClampPitchCatchUpTimeSec; 
+  float v13; 
+  double v14; 
+  float viewClampYawCatchUpTimeSec; 
+  double v16; 
+  double v17; 
+  __int64 v18; 
+  __int64 v19; 
   vec4_t out; 
-  vec3_t v91; 
-  vec3_t v92; 
-  vec3_t v93; 
+  vec3_t v21; 
+  vec3_t v22; 
+  vec3_t v23; 
   vec4_t in2; 
   vec3_t angles; 
   vec3_t up; 
   vec4_t quat; 
-  vec4_t v98; 
+  vec4_t v28; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> outAxis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovaps xmm11, xmm1
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9836, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9836, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9836, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  viewlocked_entNum = _RBX->viewlocked_entNum;
+  viewlocked_entNum = ps->viewlocked_entNum;
   if ( (unsigned __int16)viewlocked_entNum >= 0x800u )
   {
-    LODWORD(v83) = viewlocked_entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9838, ASSERT_TYPE_ASSERT, "(unsigned)( ps->viewlocked_entNum ) < (unsigned)( ( 2048 ) )", "ps->viewlocked_entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v83, 2048) )
+    LODWORD(v18) = viewlocked_entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 9838, ASSERT_TYPE_ASSERT, "(unsigned)( ps->viewlocked_entNum ) < (unsigned)( ( 2048 ) )", "ps->viewlocked_entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
       __debugbreak();
   }
-  v13 = *(_DWORD *)&pm->m_bgHandler->PlayerTurret(pm->m_bgHandler, _RBX)->weaponIdx;
-  if ( (unsigned __int16)v13 > bg_lastParsedWeaponIndex )
+  v5 = *(_DWORD *)&pm->m_bgHandler->PlayerTurret(pm->m_bgHandler, ps)->weaponIdx;
+  if ( (unsigned __int16)v5 > bg_lastParsedWeaponIndex )
   {
-    LODWORD(v85) = bg_lastParsedWeaponIndex;
-    LODWORD(v83) = (unsigned __int16)v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v83, v85) )
+    LODWORD(v19) = bg_lastParsedWeaponIndex;
+    LODWORD(v18) = (unsigned __int16)v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v18, v19) )
       __debugbreak();
   }
-  if ( !bg_weaponDefs[(unsigned __int16)v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+  if ( !bg_weaponDefs[(unsigned __int16)v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
-  _RSI = bg_weaponDefs[(unsigned __int16)v13];
-  if ( pm->m_bgHandler->GetEntityAngles((BgHandler *)pm->m_bgHandler, _RBX->viewlocked_entNum, &angles) )
+  v6 = bg_weaponDefs[(unsigned __int16)v5];
+  if ( pm->m_bgHandler->GetEntityAngles((BgHandler *)pm->m_bgHandler, ps->viewlocked_entNum, &angles) )
   {
-    __asm
-    {
-      vmovaps [rsp+200h+var_38+8], xmm6
-      vmovaps [rsp+200h+var_68+8], xmm9
-    }
     AngleVectors(&angles, NULL, NULL, &up);
-    AnglesToAxis(&_RBX->viewangles, &axis);
+    AnglesToAxis(&ps->viewangles, &axis);
     GenerateAxisFromUpVector(&up, &axis, &outAxis);
     AxisToQuat(&outAxis, &out);
-    __asm
+    v22.v[0] = v6->bottomArc - (float)((float)(v6->bottomArc + v6->topArc) * 0.5);
+    v22.v[1] = v6->leftArc - (float)((float)(v6->leftArc + v6->rightArc) * 0.5);
+    v22.v[2] = 0.0;
+    AnglesToQuat(&v22, &quat);
+    if ( v6->softLeftRightArc )
     {
-      vmovss  xmm1, dword ptr [rsi+0C54h]
-      vaddss  xmm0, xmm1, dword ptr [rsi+0C50h]
-      vmulss  xmm0, xmm0, cs:__real@3f000000
-      vsubss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbp+100h+var_150], xmm1
-      vmovss  xmm2, dword ptr [rsi+0C48h]
-      vaddss  xmm0, xmm2, dword ptr [rsi+0C4Ch]
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vsubss  xmm2, xmm2, xmm1
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  dword ptr [rbp+100h+var_150+4], xmm2
-      vmovss  dword ptr [rbp+100h+var_150+8], xmm9
-    }
-    AnglesToQuat(&v92, &quat);
-    if ( _RSI->softLeftRightArc )
-    {
-      __asm
+      v7 = out.v[0];
+      v8 = out.v[1];
+      v9 = out.v[2];
+      v10 = out.v[3];
+      v11 = (float)((float)((float)(v7 * v7) + (float)(v8 * v8)) + (float)(v9 * v9)) + (float)(v10 * v10);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v11 - 1.0) & _xmm) >= 0.0020000001 )
       {
-        vmovss  xmm5, dword ptr [rbp+100h+out]
-        vmovss  xmm6, dword ptr [rbp+100h+out+4]
-        vmovaps [rsp+200h+var_48+8], xmm7
-        vmovss  xmm7, dword ptr [rbp+100h+out+8]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmovaps [rsp+200h+var_58+8], xmm8
-        vmovss  xmm8, dword ptr [rbp+100h+out+0Ch]
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm8, xmm8
-        vmovaps [rsp+200h+var_78+8], xmm10
-        vmovss  xmm10, cs:__real@3f800000
-        vaddss  xmm2, xmm3, xmm0
-        vsubss  xmm1, xmm2, xmm10
-        vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm1, cs:__real@3b03126f
-        vsqrtss xmm0, xmm2, xmm2
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  qword ptr [rsp+48h], xmm1
-        vcvtss2sd xmm2, xmm8, xmm8
-        vmovsd  [rsp+200h+var_1C0], xmm2
-        vcvtss2sd xmm3, xmm7, xmm7
-        vmovsd  [rsp+200h+var_1C8], xmm3
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+200h+var_1D0], xmm0
-        vcvtss2sd xmm4, xmm5, xmm5
-        vmovsd  [rsp+200h+var_1D8], xmm4
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", out.v[0], out.v[1], out.v[2], out.v[3], fsqrt(v11)) )
+          __debugbreak();
+        v7 = out.v[0];
+        v8 = out.v[1];
+        v9 = out.v[2];
+        v10 = out.v[3];
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v84, v86, v87, v88, v89) )
-        __debugbreak();
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbp+100h+out]
-        vmovss  xmm6, dword ptr [rbp+100h+out+4]
-        vmovss  xmm7, dword ptr [rbp+100h+out+8]
-        vmovss  xmm8, dword ptr [rbp+100h+out+0Ch]
-        vmovss  xmm4, cs:__real@40000000
-        vmulss  xmm1, xmm5, xmm7
-        vmulss  xmm0, xmm6, xmm8
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm2, xmm4
-        vmovss  dword ptr [rbp+100h+var_140], xmm1
-        vmulss  xmm3, xmm6, xmm7
-        vmulss  xmm0, xmm5, xmm8
-        vsubss  xmm1, xmm3, xmm0
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm0, xmm6, xmm6
-        vmovss  dword ptr [rbp+100h+var_140+4], xmm2
-        vmulss  xmm3, xmm5, xmm5
-        vaddss  xmm1, xmm3, xmm0
-        vmulss  xmm2, xmm1, xmm4
-        vsubss  xmm0, xmm10, xmm2
-        vmovss  dword ptr [rbp+100h+var_140+8], xmm0
-        vmovss  xmm1, dword ptr [rbx+1DCh]
-        vmulss  xmm0, xmm1, cs:__real@3c8efa35; radians
-      }
-      AngleRadAxisToQuat(*(float *)&_XMM0, &v93, &in2);
-      __asm
-      {
-        vmovaps xmm10, [rsp+200h+var_78+8]
-        vmovaps xmm8, [rsp+200h+var_58+8]
-        vmovaps xmm7, [rsp+200h+var_48+8]
-      }
+      v23.v[0] = (float)((float)(v7 * v9) + (float)(v8 * v10)) * 2.0;
+      v23.v[1] = (float)((float)(v8 * v9) - (float)(v7 * v10)) * 2.0;
+      v23.v[2] = 1.0 - (float)((float)((float)(v7 * v7) + (float)(v8 * v8)) * 2.0);
+      AngleRadAxisToQuat(ps->viewangles.v[1] * 0.017453292, &v23, &in2);
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+100h+out]
-        vmovdqa xmmword ptr [rbp+100h+in2], xmm0
-      }
+      in2 = out;
     }
-    QuatMultiply(&quat, &in2, &v98);
-    UnitQuatToAngles(&v98, &v91);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+1308h]; rate
-      vucomiss xmm2, xmm9
-      vmulss  xmm6, xmm11, cs:__real@3a83126f
-      vmovss  xmm0, dword ptr [rbp+100h+var_160]; tgt
-    }
-    if ( !v68 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+1F8h]; cur
-        vmovaps xmm3, xmm6; deltaTime
-      }
-      *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    }
-    __asm
-    {
-      vmovss  dword ptr [rbx+1F8h], xmm0
-      vmovss  xmm2, dword ptr [rsi+130Ch]; rate
-      vmovss  xmm0, dword ptr [rbp+100h+var_160+4]; tgt
-      vucomiss xmm2, xmm9
-      vmovaps xmm9, [rsp+200h+var_68+8]
-    }
-    if ( !v68 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+1FCh]; cur
-        vmovaps xmm3, xmm6; deltaTime
-      }
-      *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    }
-    __asm
-    {
-      vmovss  dword ptr [rbx+1FCh], xmm0
-      vmovss  xmm0, dword ptr [rbx+1F8h]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rbx+1F8h], xmm0
-      vmovss  xmm0, dword ptr [rbx+1FCh]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm6, [rsp+200h+var_38+8]
-      vmovss  dword ptr [rbx+1FCh], xmm0
-    }
+    QuatMultiply(&quat, &in2, &v28);
+    UnitQuatToAngles(&v28, &v21);
+    viewClampPitchCatchUpTimeSec = v6->viewClampPitchCatchUpTimeSec;
+    v13 = msec * 0.001;
+    *(float *)&v14 = v21.v[0];
+    if ( viewClampPitchCatchUpTimeSec != 0.0 )
+      v14 = DiffTrackAngle(v21.v[0], ps->viewAngleClampBase.v[0], viewClampPitchCatchUpTimeSec, v13);
+    ps->viewAngleClampBase.v[0] = *(float *)&v14;
+    viewClampYawCatchUpTimeSec = v6->viewClampYawCatchUpTimeSec;
+    *(float *)&v14 = v21.v[1];
+    if ( viewClampYawCatchUpTimeSec != 0.0 )
+      v14 = DiffTrackAngle(v21.v[1], ps->viewAngleClampBase.v[1], viewClampYawCatchUpTimeSec, v13);
+    ps->viewAngleClampBase.v[1] = *(float *)&v14;
+    v16 = AngleNormalize360(ps->viewAngleClampBase.v[0]);
+    ps->viewAngleClampBase.v[0] = *(float *)&v16;
+    v17 = AngleNormalize360(ps->viewAngleClampBase.v[1]);
+    ps->viewAngleClampBase.v[1] = *(float *)&v17;
   }
-  __asm { vmovaps xmm11, [rsp+200h+var_88+8] }
 }
 
 /*
@@ -19981,76 +15185,35 @@ BobCycle::UnpackBobCycle
 */
 void BobCycle::UnpackBobCycle(BobCycle *this, const int (*packedBobCycle)[2])
 {
-  int v4; 
-  int v5; 
-  int v10; 
-  int v11; 
-  bool v15; 
-  bool v16; 
-  bool v17; 
-  bool v20; 
+  int v2; 
+  int v3; 
+  char v5; 
+  int v6; 
+  int v7; 
+  float amplitudeRatio; 
+  float amplitudeRatioGun; 
 
-  v4 = (*packedBobCycle)[1];
-  v5 = (*packedBobCycle)[0] >> 9;
+  v2 = (*packedBobCycle)[1];
+  v3 = (*packedBobCycle)[0] >> 9;
   this->animCycle = (*packedBobCycle)[0] & 0x1FF;
-  _RBX = this;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-  }
-  v10 = v4 & 0xF;
-  __asm { vmovss  dword ptr [rcx+0Ch], xmm1 }
-  this->generation = v10;
-  this->isAnimDecreasing = BYTE1(v5) & 1;
-  v11 = (v4 >> 4) & 0xF;
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
-  _RBX->maxGeneration = v11;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vmulss  xmm1, xmm0, cs:__real@3a802008
-    vmovss  dword ptr [rbx+10h], xmm1
-  }
-  if ( v10 > v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5281, ASSERT_TYPE_ASSERT, "(0 <= generation && generation <= maxGeneration)", (const char *)&queryFormat, "0 <= generation && generation <= maxGeneration") )
+  v5 = v2;
+  v2 >>= 4;
+  v6 = v5 & 0xF;
+  this->amplitudeRatio = (float)(unsigned __int8)v3 * 0.0039215689;
+  this->generation = v6;
+  this->isAnimDecreasing = BYTE1(v3) & 1;
+  v7 = v2 & 0xF;
+  this->maxGeneration = v7;
+  this->amplitudeRatioGun = (float)((v2 >> 4) & 0x3FF) * 0.00097751711;
+  if ( v6 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5281, ASSERT_TYPE_ASSERT, "(0 <= generation && generation <= maxGeneration)", (const char *)&queryFormat, "0 <= generation && generation <= maxGeneration") )
     __debugbreak();
-  v15 = _RBX->animCycle < 0x1FFu;
-  v16 = _RBX->animCycle <= 0x1FFu;
-  if ( _RBX->animCycle > 0x1FFu )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5282, ASSERT_TYPE_ASSERT, "(0 <= animCycle && animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= animCycle && animCycle <= MAX_BOB_CYCLE");
-    v15 = 0;
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-  }
-  if ( v15 )
-    goto LABEL_18;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !v16 )
-  {
-LABEL_18:
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5283, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f");
-    v16 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5284, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f") )
+  if ( this->animCycle > 0x1FFu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5282, ASSERT_TYPE_ASSERT, "(0 <= animCycle && animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= animCycle && animCycle <= MAX_BOB_CYCLE") )
     __debugbreak();
-  __asm { vmovaps xmm7, [rsp+48h+var_18] }
+  amplitudeRatio = this->amplitudeRatio;
+  if ( (amplitudeRatio < 0.0 || amplitudeRatio > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5283, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f") )
+    __debugbreak();
+  amplitudeRatioGun = this->amplitudeRatioGun;
+  if ( (amplitudeRatioGun < 0.0 || amplitudeRatioGun > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5284, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f") )
+    __debugbreak();
 }
 

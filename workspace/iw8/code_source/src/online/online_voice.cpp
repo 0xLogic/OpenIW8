@@ -19,34 +19,34 @@ void Voice_HandlePacket(PartyData *party, const LocalClientNum_t localClientNum,
   LocalClientNum_t v4; 
   __int64 Byte; 
   int v7; 
-  unsigned int v9; 
+  unsigned int v8; 
   int i; 
-  unsigned int v11; 
-  int v12; 
-  unsigned int v13; 
-  __m256i *v14; 
+  unsigned int v10; 
+  int v11; 
+  unsigned int v12; 
+  __m256i *v13; 
+  int v14; 
   int v15; 
-  int v16; 
-  unsigned int v17; 
-  __m256i *v18; 
-  unsigned int v19; 
+  unsigned int v16; 
+  __m256i *v17; 
+  unsigned int v18; 
   __m256i *p_buffer; 
-  int v21; 
+  int v20; 
   __m256i *j; 
   const char *MemberName; 
-  const char *v24; 
+  const char *v23; 
   NetConnection *MemberConnection; 
   __int64 voiceData; 
   __int64 canRelay; 
+  __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
-  char v30; 
+  char v29; 
   msg_t buf; 
-  __int64 v33[4]; 
-  __m256i v34; 
+  __int64 v32[4]; 
+  __m256i v33; 
   __m256i buffer; 
-  unsigned __int8 v36; 
-  char v37[142]; 
+  unsigned __int8 v35; 
+  char v36[142]; 
   unsigned __int8 data[2480]; 
 
   v4 = localClientNum;
@@ -68,10 +68,9 @@ void Voice_HandlePacket(PartyData *party, const LocalClientNum_t localClientNum,
       else
       {
         MSG_ReadData(msg, 32, &buffer, 32);
-        __asm { vmovups ymm0, ymmword ptr [rbp+0A70h+buffer] }
-        v9 = 0;
-        v30 = 0;
-        __asm { vmovups [rbp+0A70h+var_AC0], ymm0 }
+        v8 = 0;
+        v29 = 0;
+        v33 = buffer;
         for ( i = 0; i < 200; ++i )
         {
           if ( Party_IsMemberPresent(party, i) && Party_MemberHasLoopbackAddr(party, i) )
@@ -83,143 +82,143 @@ void Voice_HandlePacket(PartyData *party, const LocalClientNum_t localClientNum,
             }
             if ( (unsigned int)i >= 0x100 )
             {
-              LODWORD(v29) = 256;
-              LODWORD(v28) = i;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+              LODWORD(v28) = 256;
+              LODWORD(v27) = i;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v27, v28) )
                 __debugbreak();
             }
-            v30 = 1;
-            v34.m256i_i32[(unsigned __int64)(unsigned int)i >> 5] &= ~(0x80000000 >> (i & 0x1F));
+            v29 = 1;
+            v33.m256i_i32[(unsigned __int64)(unsigned int)i >> 5] &= ~(0x80000000 >> (i & 0x1F));
           }
         }
-        v11 = MSG_ReadByte(msg);
-        v12 = v11;
-        if ( v11 - 1 > 0x27 )
+        v10 = MSG_ReadByte(msg);
+        v11 = v10;
+        if ( v10 - 1 > 0x27 )
         {
-          Com_Printf(25, "Received invalid number of packets in a voice packet: %i\n", v11);
+          Com_Printf(25, "Received invalid number of packets in a voice packet: %i\n", v10);
         }
         else
         {
           MSG_Init(&buf, data, 2474);
-          v13 = 0;
-          v14 = &v34;
-          while ( !v14->m256i_i32[0] )
+          v12 = 0;
+          v13 = &v33;
+          while ( !v13->m256i_i32[0] )
           {
-            ++v13;
-            v14 = (__m256i *)((char *)v14 + 4);
-            if ( v13 >= 8 )
+            ++v12;
+            v13 = (__m256i *)((char *)v13 + 4);
+            if ( v12 >= 8 )
               goto LABEL_24;
           }
           MSG_WriteString(&buf, "v");
           MSG_WriteByte(&buf, Byte);
-          memset(v33, 0, sizeof(v33));
-          MSG_WriteData(&buf, v33, 32);
-          MSG_WriteByte(&buf, (unsigned __int8)v12);
+          memset(v32, 0, sizeof(v32));
+          MSG_WriteData(&buf, v32, 32);
+          MSG_WriteByte(&buf, (unsigned __int8)v11);
 LABEL_24:
-          v15 = 0;
-          if ( v12 <= 0 )
+          v14 = 0;
+          if ( v11 <= 0 )
           {
 LABEL_43:
-            v21 = 0;
-            for ( j = &v34; !j->m256i_i32[0]; j = (__m256i *)((char *)j + 4) )
+            v20 = 0;
+            for ( j = &v33; !j->m256i_i32[0]; j = (__m256i *)((char *)j + 4) )
             {
-              if ( (unsigned int)++v21 >= 8 )
+              if ( (unsigned int)++v20 >= 8 )
                 return;
             }
             do
             {
-              if ( v9 >= 0x100 )
+              if ( v8 >= 0x100 )
               {
                 LODWORD(canRelay) = 256;
-                LODWORD(voiceData) = v9;
+                LODWORD(voiceData) = v8;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", voiceData, canRelay) )
                   __debugbreak();
               }
-              if ( ((0x80000000 >> (v9 & 0x1F)) & v34.m256i_i32[(unsigned __int64)v9 >> 5]) != 0 )
+              if ( ((0x80000000 >> (v8 & 0x1F)) & v33.m256i_i32[(unsigned __int64)v8 >> 5]) != 0 )
               {
-                if ( Party_IsMemberRegistered(party, v9) )
+                if ( Party_IsMemberRegistered(party, v8) )
                 {
-                  if ( Party_MemberHasLoopbackAddr(party, v9) )
+                  if ( Party_MemberHasLoopbackAddr(party, v8) )
                   {
-                    Com_PrintWarning(25, "Invalid relay voice packet - we were asked to relay voice to local client %i in session %s\n", v9, party->partyName);
+                    Com_PrintWarning(25, "Invalid relay voice packet - we were asked to relay voice to local client %i in session %s\n", v8, party->partyName);
                   }
                   else
                   {
                     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_debug, "voice_debug") )
                     {
                       MemberName = Party_GetMemberName(party, Byte);
-                      v24 = Party_GetMemberName(party, v9);
+                      v23 = Party_GetMemberName(party, v8);
                       LODWORD(voiceData) = Byte;
-                      Com_Printf(25, "relaying voice: %i to client %i (%s) from client %i (%s)\n", (unsigned int)buf.cursize, v9, v24, voiceData, MemberName);
+                      Com_Printf(25, "relaying voice: %i to client %i (%s) from client %i (%s)\n", (unsigned int)buf.cursize, v8, v23, voiceData, MemberName);
                     }
                     if ( PeerMesh_IsEnabled(party) )
                     {
-                      PeerMesh_Send(party, v4, v9, buf.data, buf.cursize, 1, 0);
+                      PeerMesh_Send(party, v4, v8, buf.data, buf.cursize, 1, 0);
                     }
                     else
                     {
-                      MemberConnection = (NetConnection *)Party_GetMemberConnection(party, v9);
+                      MemberConnection = (NetConnection *)Party_GetMemberConnection(party, v8);
                       if ( NetConnection::IsOpened(MemberConnection) )
                         NetConnection::SendUnreliable(MemberConnection, buf.data, buf.cursize, 0x10u);
                       else
-                        Com_PrintWarning(25, "[NET] Received voice packet relay request for client %d when connection closed\n", v9);
+                        Com_PrintWarning(25, "[NET] Received voice packet relay request for client %d when connection closed\n", v8);
                     }
                   }
                 }
                 else
                 {
-                  Com_PrintWarning(25, "Invalid relay voice packet - we were asked to relay voice to unregistered client %i in session %s\n", v9, party->partyName);
+                  Com_PrintWarning(25, "Invalid relay voice packet - we were asked to relay voice to unregistered client %i in session %s\n", v8, party->partyName);
                 }
               }
-              ++v9;
+              ++v8;
             }
-            while ( (int)v9 < 200 );
+            while ( (int)v8 < 200 );
           }
           else
           {
             while ( 1 )
             {
-              MSG_ReadData(msg, 1, &v36, 1);
-              if ( msg->overflowed || (unsigned __int8)(v36 - 3) > 0x7Du )
+              MSG_ReadData(msg, 1, &v35, 1);
+              if ( msg->overflowed || (unsigned __int8)(v35 - 3) > 0x7Du )
                 break;
-              v16 = v36;
-              MSG_ReadData(msg, v36 - 1, v37, 127);
-              v17 = 0;
-              v18 = &v34;
-              while ( !v18->m256i_i32[0] )
+              v15 = v35;
+              MSG_ReadData(msg, v35 - 1, v36, 127);
+              v16 = 0;
+              v17 = &v33;
+              while ( !v17->m256i_i32[0] )
               {
-                ++v17;
-                v18 = (__m256i *)((char *)v18 + 4);
-                if ( v17 >= 8 )
+                ++v16;
+                v17 = (__m256i *)((char *)v17 + 4);
+                if ( v16 >= 8 )
                   goto LABEL_32;
               }
-              MSG_WriteData(&buf, &v36, v16);
+              MSG_WriteData(&buf, &v35, v15);
 LABEL_32:
               if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_voice_mute, "cl_voice_mute") && !CL_IsPlayerMuted(party, Byte) )
               {
-                v19 = 0;
+                v18 = 0;
                 p_buffer = &buffer;
                 while ( !p_buffer->m256i_i32[0] )
                 {
-                  ++v19;
+                  ++v18;
                   p_buffer = (__m256i *)((char *)p_buffer + 4);
-                  if ( v19 >= 8 )
+                  if ( v18 >= 8 )
                     goto LABEL_39;
                 }
-                if ( !v30 )
+                if ( !v29 )
                   goto LABEL_41;
 LABEL_39:
                 if ( !Party_IsMemberHeadless(party, Byte) )
-                  Voice_IncomingVoiceData(party, Byte, &v36, v16, localClientNum);
+                  Voice_IncomingVoiceData(party, Byte, &v35, v15, localClientNum);
               }
 LABEL_41:
-              if ( ++v15 >= v12 )
+              if ( ++v14 >= v11 )
               {
                 v4 = localClientNum;
                 goto LABEL_43;
               }
             }
-            Com_PrintWarning(25, "Corrupt voice packet, packet size was %d\n", v36);
+            Com_PrintWarning(25, "Corrupt voice packet, packet size was %d\n", v35);
           }
         }
       }

@@ -156,91 +156,61 @@ bdIPDiscoveryClient::init
 */
 _BOOL8 bdIPDiscoveryClient::init(bdIPDiscoveryClient *this, bdSocket *socket, const bdAddr *server, bdIPDiscoveryConfig *config)
 {
+  _OWORD *v8; 
+  bdIPDiscoveryTelemetry *p_m_telemetry; 
   __int64 v10; 
-  bool v19; 
-  int v35; 
-  bdIPDiscoveryTelemetry v36; 
+  __int128 v11; 
+  bool v12; 
+  int v14; 
+  bdIPDiscoveryTelemetry v15; 
 
-  _RBX = this;
-  _RBP = config;
-  _RSI = server;
-  bdIPDiscoveryTelemetry::bdIPDiscoveryTelemetry(&v36);
-  _R10 = &_RBX->m_telemetry;
+  bdIPDiscoveryTelemetry::bdIPDiscoveryTelemetry(&v15);
+  p_m_telemetry = &this->m_telemetry;
   v10 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [r10], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [r10+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [r10+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [r10+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [r10+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [r10+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [r10+60h], xmm0
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 128i64;
-    _R10 = (bdIPDiscoveryTelemetry *)((char *)_R10 + 128);
-    __asm { vmovups xmmword ptr [r10-10h], xmm1 }
+    *(_OWORD *)&p_m_telemetry->m_age.m_start = *v8;
+    *(_OWORD *)&p_m_telemetry->m_retryTimes[2] = v8[1];
+    *(_OWORD *)&p_m_telemetry->m_retryTimes[6] = v8[2];
+    *(_OWORD *)&p_m_telemetry->m_retryTimesCount = v8[3];
+    *(_OWORD *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_sockaddrStorage.ss_family = v8[4];
+    *(in6_addr *)((char *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_ipv6Sockaddr.sin6_addr + 8) = (in6_addr)v8[5];
+    *((_OWORD *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v8[6];
+    v11 = v8[7];
+    v8 += 8;
+    p_m_telemetry = (bdIPDiscoveryTelemetry *)((char *)p_m_telemetry + 128);
+    *(_OWORD *)&p_m_telemetry[-1].m_publicAddr.m_type = v11;
     --v10;
   }
   while ( v10 );
-  v19 = _RBX->m_status == BD_IP_DISC_UNINITIALIZED;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [r10], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [r10+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [r10+20h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [r10+30h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [r10+40h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [r10+50h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [r10+60h], xmm0
-  }
-  *((_QWORD *)&_R10->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 6) = *(_QWORD *)(_RAX + 112);
-  _RBX->m_telemetryPending = 1;
-  if ( v19 )
+  v12 = this->m_status == BD_IP_DISC_UNINITIALIZED;
+  *(_OWORD *)&p_m_telemetry->m_age.m_start = *v8;
+  *(_OWORD *)&p_m_telemetry->m_retryTimes[2] = v8[1];
+  *(_OWORD *)&p_m_telemetry->m_retryTimes[6] = v8[2];
+  *(_OWORD *)&p_m_telemetry->m_retryTimesCount = v8[3];
+  *(_OWORD *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_sockaddrStorage.ss_family = v8[4];
+  *(in6_addr *)((char *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_ipv6Sockaddr.sin6_addr + 8) = (in6_addr)v8[5];
+  *((_OWORD *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v8[6];
+  *((_QWORD *)&p_m_telemetry->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 6) = *((_QWORD *)v8 + 14);
+  this->m_telemetryPending = 1;
+  if ( v12 )
   {
     if ( socket )
     {
-      _RBX->m_socket = socket;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rbx+8], ymm0
-        vmovups ymm1, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rbx+28h], ymm1
-        vmovups ymm0, ymmword ptr [rsi+40h]
-        vmovups ymmword ptr [rbx+48h], ymm0
-        vmovups ymm1, ymmword ptr [rsi+60h]
-        vmovups ymmword ptr [rbx+68h], ymm1
-        vmovups xmm0, xmmword ptr [rsi+80h]
-        vmovups xmmword ptr [rbx+88h], xmm0
-        vmovsd  xmm1, qword ptr [rsi+90h]
-        vmovsd  qword ptr [rbx+98h], xmm1
-      }
-      _RBX->m_retries = 0;
-      bdIPDiscoveryConfig::sanityCheckConfig(_RBP);
-      __asm { vmovsd  xmm0, qword ptr [rbp+0] }
-      v35 = *(_DWORD *)&_RBP->m_version;
-      __asm { vmovsd  qword ptr [rbx+144h], xmm0 }
-      *(_DWORD *)&_RBX->m_config.m_version = v35;
-      bdIPDiscoveryClient::setStatus(_RBX, BD_IP_DISC_RUNNING);
-      return bdIPDiscoveryClient::sendIPDiscoveryPacket(_RBX);
+      this->m_socket = socket;
+      *(__m256i *)&this->m_serverAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&server->m_address.inUn.m_sockaddrStorage.ss_family;
+      *((__m256i *)&this->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&server->m_address.inUn.m_ipv6Sockaddr + 1);
+      *((__m256i *)&this->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&server->m_address.inUn.m_ipv6Sockaddr + 2);
+      *((__m256i *)&this->m_serverAddr.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&server->m_address.inUn.m_ipv6Sockaddr + 3);
+      this->m_serverAddr.m_relayRoute = server->m_relayRoute;
+      *(double *)&this->m_serverAddr.m_type = *(double *)&server->m_type;
+      this->m_retries = 0;
+      bdIPDiscoveryConfig::sanityCheckConfig(config);
+      v14 = *(_DWORD *)&config->m_version;
+      *(double *)&this->m_config.m_retries = *(double *)&config->m_retries;
+      *(_DWORD *)&this->m_config.m_version = v14;
+      bdIPDiscoveryClient::setStatus(this, BD_IP_DISC_RUNNING);
+      return bdIPDiscoveryClient::sendIPDiscoveryPacket(this);
     }
     else
     {
@@ -264,99 +234,66 @@ void bdIPDiscoveryClient::pump(bdIPDiscoveryClient *this, bdAddr *fromAddr, unsi
 {
   const bdAddr *ProtectedAddr; 
   bdAddr *Addr; 
-  bdAddr *v23; 
-  bdAddrString *v24; 
+  bdAddr *v10; 
+  bdAddrString *v11; 
   const char *String; 
-  char v26; 
-  char v27; 
+  double ElapsedTimeInSeconds; 
   unsigned int m_retries; 
-  unsigned int v29; 
-  __int64 v30; 
-  __int64 v31; 
+  unsigned int v15; 
+  __int64 v16; 
+  __int64 v17; 
   unsigned int newOffset; 
-  bdAddrString v33; 
-  bdIPDiscoveryPacketReply v34; 
-  char v35[112]; 
+  bdAddrString v19; 
+  bdIPDiscoveryPacketReply v20; 
+  char v21[112]; 
   char str[112]; 
 
-  _RBX = this;
   if ( this->m_status == BD_IP_DISC_RUNNING && dataSize > 0 )
   {
-    bdIPDiscoveryPacketReply::bdIPDiscoveryPacketReply(&v34);
-    if ( bdSockAddr::compare(&fromAddr->m_address, &_RBX->m_serverAddr.m_address, 1) && bdIPDiscoveryPacketReply::deserialize(&v34, data, dataSize, 0, &newOffset) )
+    bdIPDiscoveryPacketReply::bdIPDiscoveryPacketReply(&v20);
+    if ( bdSockAddr::compare(&fromAddr->m_address, &this->m_serverAddr.m_address, 1) && bdIPDiscoveryPacketReply::deserialize(&v20, data, dataSize, 0, &newOffset) )
     {
-      _RAX = bdIPDiscoveryPacketReply::getAddr(&v34);
-      __asm
+      this->m_publicAddr = *bdIPDiscoveryPacketReply::getAddr(&v20);
+      if ( bdIPDiscoveryPacketReply::getProtocolVersion(&v20) >= 3u )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbx+0A0h], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbx+0C0h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rbx+0E0h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rbx+100h], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rbx+120h], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  qword ptr [rbx+130h], xmm1
-      }
-      if ( bdIPDiscoveryPacketReply::getProtocolVersion(&v34) >= 3u )
-      {
-        ProtectedAddr = bdIPDiscoveryPacketReply::getProtectedAddr(&v34);
-        if ( !bdSockAddr::compare(&_RBX->m_publicAddr.m_address, &ProtectedAddr->m_address, 1) )
+        ProtectedAddr = bdIPDiscoveryPacketReply::getProtectedAddr(&v20);
+        if ( !bdSockAddr::compare(&this->m_publicAddr.m_address, &ProtectedAddr->m_address, 1) )
         {
-          _RAX = bdIPDiscoveryPacketReply::getProtectedAddr(&v34);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rbx+0A0h], ymm0
-            vmovups ymm1, ymmword ptr [rax+20h]
-            vmovups ymmword ptr [rbx+0C0h], ymm1
-            vmovups ymm0, ymmword ptr [rax+40h]
-            vmovups ymmword ptr [rbx+0E0h], ymm0
-            vmovups ymm1, ymmword ptr [rax+60h]
-            vmovups ymmword ptr [rbx+100h], ymm1
-            vmovups xmm0, xmmword ptr [rax+80h]
-            vmovups xmmword ptr [rbx+120h], xmm0
-            vmovsd  xmm1, qword ptr [rax+90h]
-            vmovsd  qword ptr [rbx+130h], xmm1
-          }
+          this->m_publicAddr = *bdIPDiscoveryPacketReply::getProtectedAddr(&v20);
           memset_0(str, 0, 0x64ui64);
-          memset_0(v35, 0, 0x64ui64);
-          Addr = (bdAddr *)bdIPDiscoveryPacketReply::getAddr(&v34);
+          memset_0(v21, 0, 0x64ui64);
+          Addr = (bdAddr *)bdIPDiscoveryPacketReply::getAddr(&v20);
           bdAddr::toString(Addr, str, 0x64ui64);
-          v23 = (bdAddr *)bdIPDiscoveryPacketReply::getProtectedAddr(&v34);
-          bdAddr::toString(v23, v35, 0x64ui64);
-          bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x6Bu, "Provided Public address (%s) doesn't match the protected version (%s), using protected version.", str, v35);
+          v10 = (bdAddr *)bdIPDiscoveryPacketReply::getProtectedAddr(&v20);
+          bdAddr::toString(v10, v21, 0x64ui64);
+          bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x6Bu, "Provided Public address (%s) doesn't match the protected version (%s), using protected version.", str, v21);
         }
       }
-      bdIPDiscoveryClient::setStatus(_RBX, BD_IP_DISC_SUCCESS);
-      bdAddrString::bdAddrString(&v33, &_RBX->m_publicAddr);
-      String = bdAddrString::getString(v24);
+      bdIPDiscoveryClient::setStatus(this, BD_IP_DISC_SUCCESS);
+      bdAddrString::bdAddrString(&v19, &this->m_publicAddr);
+      String = bdAddrString::getString(v11);
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x70u, "Public IP discovered: %s", String);
     }
   }
-  if ( _RBX->m_status == BD_IP_DISC_RUNNING )
+  if ( this->m_status == BD_IP_DISC_RUNNING )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_timer);
-    __asm { vcomiss xmm0, dword ptr [rbx+148h] }
-    if ( v26 | v27 || (m_retries = _RBX->m_retries, v29 = _RBX->m_config.m_retries, _RBX->m_retries = m_retries + 1, m_retries >= v29) )
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    if ( *(float *)&ElapsedTimeInSeconds <= this->m_config.m_requestTimeout || (m_retries = this->m_retries, v15 = this->m_config.m_retries, this->m_retries = m_retries + 1, m_retries >= v15) )
     {
-      if ( _RBX->m_retries >= _RBX->m_config.m_retries )
+      if ( this->m_retries >= this->m_config.m_retries )
       {
-        LODWORD(v30) = _RBX->m_config.m_retries;
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x80u, "IP Discovery failed with %u retries, giving up.  This may be due to the port already in use (try +set net_port <xxxxx>) or you have two network adapters (Docker)", v30);
-        bdIPDiscoveryClient::setStatus(_RBX, BD_IP_DISC_FAIL);
+        LODWORD(v16) = this->m_config.m_retries;
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x80u, "IP Discovery failed with %u retries, giving up.  This may be due to the port already in use (try +set net_port <xxxxx>) or you have two network adapters (Docker)", v16);
+        bdIPDiscoveryClient::setStatus(this, BD_IP_DISC_FAIL);
       }
     }
     else
     {
-      LODWORD(v31) = v29;
-      LODWORD(v30) = m_retries + 1;
-      bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x7Au, "IP Discovery failed. Retrying. (%u/%u). This may be due to the port already in use (try +set net_port <xxxxx>) or you have two network adapters (Docker)", v30, v31);
-      bdIPDiscoveryTelemetry::addRetry(&_RBX->m_telemetry);
-      bdIPDiscoveryClient::sendIPDiscoveryPacket(_RBX);
+      LODWORD(v17) = v15;
+      LODWORD(v16) = m_retries + 1;
+      bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdipdiscoveryclient.cpp", "bdIPDiscoveryClient::pump", 0x7Au, "IP Discovery failed. Retrying. (%u/%u). This may be due to the port already in use (try +set net_port <xxxxx>) or you have two network adapters (Docker)", v16, v17);
+      bdIPDiscoveryTelemetry::addRetry(&this->m_telemetry);
+      bdIPDiscoveryClient::sendIPDiscoveryPacket(this);
     }
   }
 }
@@ -368,45 +305,18 @@ bdIPDiscoveryClient::quit
 */
 void bdIPDiscoveryClient::quit(bdIPDiscoveryClient *this)
 {
-  bdAddr v16; 
+  bdAddr *v2; 
+  bdAddr *v3; 
+  bdAddr v4; 
 
-  _RBX = this;
   this->m_socket = NULL;
-  bdAddr::bdAddr(&v16);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+8], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+28h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+48h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+68h], ymm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+88h], xmm0
-    vmovsd  xmm1, qword ptr [rax+90h]
-    vmovsd  qword ptr [rbx+98h], xmm1
-  }
-  bdAddr::bdAddr(&v16);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+0A0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+0C0h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+0E0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+100h], ymm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+120h], xmm0
-    vmovsd  xmm1, qword ptr [rax+90h]
-    vmovsd  qword ptr [rbx+130h], xmm1
-  }
-  bdStopwatch::reset(&_RBX->m_timer);
-  bdIPDiscoveryClient::setStatus(_RBX, BD_IP_DISC_UNINITIALIZED);
-  _RBX->m_retries = 0;
+  bdAddr::bdAddr(&v4);
+  this->m_serverAddr = *v2;
+  bdAddr::bdAddr(&v4);
+  this->m_publicAddr = *v3;
+  bdStopwatch::reset(&this->m_timer);
+  bdIPDiscoveryClient::setStatus(this, BD_IP_DISC_UNINITIALIZED);
+  this->m_retries = 0;
 }
 
 /*

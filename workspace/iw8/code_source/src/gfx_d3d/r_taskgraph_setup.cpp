@@ -208,11 +208,7 @@ R_TG_GetScriptOptions
 */
 R_TG_ScriptOptions *R_TG_GetScriptOptions(R_TG_ScriptOptions *result)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:g_R_TG_scriptOptions.dwords
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *result = g_R_TG_scriptOptions;
   return result;
 }
 
@@ -309,10 +305,10 @@ __int64 R_TG_SetScript(unsigned int scriptIndex, unsigned int sceneWidth, unsign
   unsigned __int64 v29; 
   unsigned int v30; 
   const char *v31; 
-  unsigned int v34; 
+  unsigned int v33; 
   unsigned int _displayWidth; 
   unsigned __int64 prev; 
-  R_TG_ScriptOptions v37; 
+  R_TG_ScriptOptions v36; 
   R_TG_Script script; 
 
   v8 = g_R_TG_taskGraphViewCount;
@@ -327,9 +323,9 @@ __int64 R_TG_SetScript(unsigned int scriptIndex, unsigned int sceneWidth, unsign
   if ( g_R_TG_taskGraphViewCount > 1 )
     v15 = 4;
   v17 = 0;
-  v37 = (R_TG_ScriptOptions)0i64;
+  v36 = (R_TG_ScriptOptions)0i64;
   v18 = 0;
-  v34 = v15 | v16;
+  v33 = v15 | v16;
   v19 = 0;
   v20 = 0;
   if ( (unsigned int)v10 < 5 )
@@ -337,13 +333,13 @@ __int64 R_TG_SetScript(unsigned int scriptIndex, unsigned int sceneWidth, unsign
     pOptions = g_R_TG_scriptFuncs[(unsigned int)v10].pOptions;
     if ( pOptions )
     {
-      pOptions(features, (const R_TG_ScriptSystemOptions *)&v34, &v37);
-      v19 = v37.dwords[1];
-      v17 = v37.dwords[0];
+      pOptions(features, (const R_TG_ScriptSystemOptions *)&v33, &v36);
+      v19 = v36.dwords[1];
+      v17 = v36.dwords[0];
       v8 = g_R_TG_taskGraphViewCount;
       raw = options->raw;
-      v20 = v37.dwords[3];
-      v18 = v37.dwords[2];
+      v20 = v36.dwords[3];
+      v18 = v36.dwords[2];
     }
   }
   v22 = g_R_TG_scriptIndex;
@@ -389,14 +385,13 @@ LABEL_24:
       v31 = g_R_TG_scriptNames[v10];
       prev = v29;
       R_TG_Script::Init(&script, v31, sceneWidth, sceneHeight, _displayWidth, displayHeight, g_R_TG_taskGraphViewCount);
-      __asm { vmovups xmm0, xmmword ptr [rsp+32108h+var_320B0.dwords] }
       g_R_TG_compileSettings = raw;
       g_R_TG_displayWidth = v30;
       g_R_TG_displayHeight = displayHeight;
       g_R_TG_sceneWidth = sceneWidth;
-      __asm { vmovups xmmword ptr cs:g_R_TG_scriptOptions.dwords, xmm0 }
+      g_R_TG_scriptOptions = v36;
       g_R_TG_sceneHeight = sceneHeight;
-      g_R_TG_scriptFuncs[v10].pScript(&script, &v37);
+      g_R_TG_scriptFuncs[v10].pScript(&script, &v36);
       memset_0(g_R_TG_taskGraphViewInfo, 0, sizeof(g_R_TG_taskGraphViewInfo));
       g_R_TG_taskGraphViewInfo[0].permutationMask = -1;
       g_R_TG_taskGraphViewInfo[1].permutationMask = -1;

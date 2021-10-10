@@ -1208,16 +1208,16 @@ void CL_PlayerData_ApplyValidationHints(int controllerIndex, StatsSource statsSo
   StatsBlobId StatsBlob; 
   StatsSource ActiveStatsSource; 
   unsigned int RawHash; 
-  unsigned int v13; 
-  unsigned int v14; 
+  unsigned int v11; 
+  unsigned int v12; 
   bool IsStatsBlobStatsReset; 
-  unsigned int v16; 
+  unsigned int v14; 
   bool IsStatsBlobPrestigeReset; 
-  unsigned int v18; 
+  unsigned int v16; 
   bool IsStatsBlobFirstUpload; 
-  unsigned int v20; 
+  unsigned int v18; 
   bool IsStatsBlobFailedUpload; 
-  unsigned int v22; 
+  unsigned int v20; 
   bool IsStatsBlobDoubleXPUsed; 
   DDLState fromState; 
   DDLState toState; 
@@ -1228,52 +1228,47 @@ void CL_PlayerData_ApplyValidationHints(int controllerIndex, StatsSource statsSo
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
   toState.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
   StatsBlob = Com_PlayerData_GetStatsBlob(statsGroup);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, statsGroup);
-  _RAX = DDL_GetRootState(&result, context.def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+57h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, context.def);
   RawHash = j_SL_GetRawHash(scr_const.validationData);
   if ( !DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 107, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &validationHintsState, SL_GetRawHash( scr_const.validationData ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &validationHintsState, SL_GetRawHash( scr_const.validationData ) )", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef, *(_QWORD *)&toState.isValid, *(_QWORD *)&toState.arrayIndex, toState.member) )
     __debugbreak();
-  v13 = j_SL_GetRawHash(scr_const.validationHint);
-  if ( !DDL_MoveToNameByHash(&fromState, &fromState, v13, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 108, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &validationHintsState, SL_GetRawHash( scr_const.validationHint ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &validationHintsState, SL_GetRawHash( scr_const.validationHint ) )") )
+  v11 = j_SL_GetRawHash(scr_const.validationHint);
+  if ( !DDL_MoveToNameByHash(&fromState, &fromState, v11, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 108, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &validationHintsState, SL_GetRawHash( scr_const.validationHint ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &validationHintsState, SL_GetRawHash( scr_const.validationHint ) )") )
     __debugbreak();
-  v14 = j_SL_GetRawHash(scr_const.StatsReset);
-  if ( !DDL_MoveToNameByHash(&fromState, &toState, v14, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 110, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.StatsReset ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.StatsReset ) )") )
+  v12 = j_SL_GetRawHash(scr_const.StatsReset);
+  if ( !DDL_MoveToNameByHash(&fromState, &toState, v12, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 110, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.StatsReset ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.StatsReset ) )") )
     __debugbreak();
   IsStatsBlobStatsReset = LiveStorage_IsStatsBlobStatsReset(controllerIndex, statsSource, StatsBlob);
   if ( !DDL_SetBool(&toState, &context, IsStatsBlobStatsReset) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 111, ASSERT_TYPE_ASSERT, "(DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobStatsReset( controllerIndex, statsSource, statsBlob) ))", (const char *)&queryFormat, "DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobStatsReset( controllerIndex, statsSource, statsBlob) )") )
     __debugbreak();
-  v16 = j_SL_GetRawHash(scr_const.PrestigeReset);
-  if ( !DDL_MoveToNameByHash(&fromState, &toState, v16, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 113, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.PrestigeReset ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.PrestigeReset ) )") )
+  v14 = j_SL_GetRawHash(scr_const.PrestigeReset);
+  if ( !DDL_MoveToNameByHash(&fromState, &toState, v14, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 113, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.PrestigeReset ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.PrestigeReset ) )") )
     __debugbreak();
   IsStatsBlobPrestigeReset = LiveStorage_IsStatsBlobPrestigeReset(controllerIndex, statsSource, StatsBlob);
   if ( !DDL_SetBool(&toState, &context, IsStatsBlobPrestigeReset) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 114, ASSERT_TYPE_ASSERT, "(DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobPrestigeReset( controllerIndex, statsSource, statsBlob ) ))", (const char *)&queryFormat, "DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobPrestigeReset( controllerIndex, statsSource, statsBlob ) )") )
     __debugbreak();
-  v18 = j_SL_GetRawHash(scr_const.FirstUpload);
-  if ( !DDL_MoveToNameByHash(&fromState, &toState, v18, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 116, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FirstUpload ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FirstUpload ) )") )
+  v16 = j_SL_GetRawHash(scr_const.FirstUpload);
+  if ( !DDL_MoveToNameByHash(&fromState, &toState, v16, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 116, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FirstUpload ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FirstUpload ) )") )
     __debugbreak();
   IsStatsBlobFirstUpload = LiveStorage_IsStatsBlobFirstUpload(controllerIndex, statsSource, StatsBlob);
   if ( !DDL_SetBool(&toState, &context, IsStatsBlobFirstUpload) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 117, ASSERT_TYPE_ASSERT, "(DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobFirstUpload( controllerIndex, statsSource, statsBlob ) ))", (const char *)&queryFormat, "DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobFirstUpload( controllerIndex, statsSource, statsBlob ) )") )
     __debugbreak();
-  v20 = j_SL_GetRawHash(scr_const.FailedUpload);
-  if ( !DDL_MoveToNameByHash(&fromState, &toState, v20, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 119, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FailedUpload ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FailedUpload ) )") )
+  v18 = j_SL_GetRawHash(scr_const.FailedUpload);
+  if ( !DDL_MoveToNameByHash(&fromState, &toState, v18, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 119, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FailedUpload ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.FailedUpload ) )") )
     __debugbreak();
   IsStatsBlobFailedUpload = LiveStorage_IsStatsBlobFailedUpload(controllerIndex, statsSource, StatsBlob);
   if ( !DDL_SetBool(&toState, &context, IsStatsBlobFailedUpload) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 120, ASSERT_TYPE_ASSERT, "(DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobFailedUpload( controllerIndex, statsSource, statsBlob ) ))", (const char *)&queryFormat, "DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobFailedUpload( controllerIndex, statsSource, statsBlob ) )") )
     __debugbreak();
-  v22 = j_SL_GetRawHash(scr_const.DoubleXPUsed);
-  if ( !DDL_MoveToNameByHash(&fromState, &toState, v22, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 122, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.DoubleXPUsed) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.DoubleXPUsed) )") )
+  v20 = j_SL_GetRawHash(scr_const.DoubleXPUsed);
+  if ( !DDL_MoveToNameByHash(&fromState, &toState, v20, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 122, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.DoubleXPUsed) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &validationHintsState, &curState, SL_GetRawHash( scr_const.DoubleXPUsed) )") )
     __debugbreak();
   IsStatsBlobDoubleXPUsed = LiveStorage_IsStatsBlobDoubleXPUsed(controllerIndex, statsSource, StatsBlob);
   if ( !DDL_SetBool(&toState, &context, IsStatsBlobDoubleXPUsed) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 123, ASSERT_TYPE_ASSERT, "(DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobDoubleXPUsed( controllerIndex, statsSource, statsBlob ) ))", (const char *)&queryFormat, "DDL_SetBool( &curState, &context, LiveStorage_IsStatsBlobDoubleXPUsed( controllerIndex, statsSource, statsBlob ) )") )
@@ -1291,13 +1286,13 @@ void CL_PlayerData_CloneLoadouts(const int controllerIndex, bool clonePrivateLoa
   int v5; 
   StatsSource ActiveStatsSource; 
   int ArraySize; 
-  int v10; 
+  int v8; 
+  int v9; 
+  StatsSource v10; 
   int v11; 
-  StatsSource v12; 
-  int v15; 
   DDLState result; 
   DDLState toState; 
-  DDLState v18; 
+  DDLState v14; 
   DDLState fromState; 
   DDLContext context; 
   DDLContext fromDDLContext; 
@@ -1308,22 +1303,17 @@ void CL_PlayerData_CloneLoadouts(const int controllerIndex, bool clonePrivateLoa
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
   v4 = clonePrivateLoadouts;
-  __asm { vmovdqu xmmword ptr [rbp+40h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.isValid = 0;
   v5 = controllerIndex;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+140h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( !CL_PlayerData_GetDDLBuffer(&context, v5, ActiveStatsSource, STATSGROUP_RANKEDLOADOUTS) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1577, ASSERT_TYPE_ASSERT, "(CL_PlayerData_GetDDLBuffer( &rankedLoadoutsBuffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_RANKEDLOADOUTS ))", (const char *)&queryFormat, "CL_PlayerData_GetDDLBuffer( &rankedLoadoutsBuffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_RANKEDLOADOUTS )") )
     __debugbreak();
-  _RAX = DDL_GetRootState(&result, context.def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+40h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, context.def);
   path = j_SL_GetRawHash(scr_const.squadMembers);
   RawHash = j_SL_GetRawHash(scr_const.loadouts);
   if ( !DDL_MoveToPathByHash(&fromState, &toState, 2, &path) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1584, ASSERT_TYPE_ASSERT, "(DDL_MoveToPathByHash( &rootState, &loadoutsState, 2, navStrings ))", (const char *)&queryFormat, "DDL_MoveToPathByHash( &rootState, &loadoutsState, 2, navStrings )") )
@@ -1331,51 +1321,46 @@ void CL_PlayerData_CloneLoadouts(const int controllerIndex, bool clonePrivateLoa
   ArraySize = DDL_StateGetArraySize(&toState);
   if ( ArraySize > 100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1588, ASSERT_TYPE_ASSERT, "(totalLoadoutCount <= 100)", (const char *)&queryFormat, "totalLoadoutCount <= MAX_TOTAL_LOADOUT_COUNT") )
     __debugbreak();
-  v10 = 10;
-  v11 = 10;
+  v8 = 10;
+  v9 = 10;
   if ( ArraySize > 10 )
   {
     do
     {
       __asm { vpxor   xmm0, xmm0, xmm0 }
-      v18.isValid = 0;
-      v18.offset = 0;
-      v18.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rbp+40h+var_D0.member], xmm0 }
+      v14.isValid = 0;
+      v14.offset = 0;
+      v14.arrayIndex = -1;
+      *(_OWORD *)&v14.member = _XMM0;
       result.isValid = 0;
       result.offset = 0;
       result.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rsp+140h+result.member], xmm0 }
-      if ( !DDL_MoveToIndex(&toState, &result, v11 % 0xAu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1597, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex )") )
+      *(_OWORD *)&result.member = _XMM0;
+      if ( !DDL_MoveToIndex(&toState, &result, v9 % 0xAu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1597, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex )") )
         __debugbreak();
-      if ( !DDL_MoveToIndex(&toState, &v18, v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1598, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex )") )
+      if ( !DDL_MoveToIndex(&toState, &v14, v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1598, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex )") )
         __debugbreak();
-      if ( !DDL_Copy(&result, &context, &v18, &context) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1600, ASSERT_TYPE_ASSERT, "(DDL_Copy( &sourceState, &rankedLoadoutsBuffer, &targetState, &rankedLoadoutsBuffer ))", (const char *)&queryFormat, "DDL_Copy( &sourceState, &rankedLoadoutsBuffer, &targetState, &rankedLoadoutsBuffer )") )
+      if ( !DDL_Copy(&result, &context, &v14, &context) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1600, ASSERT_TYPE_ASSERT, "(DDL_Copy( &sourceState, &rankedLoadoutsBuffer, &targetState, &rankedLoadoutsBuffer ))", (const char *)&queryFormat, "DDL_Copy( &sourceState, &rankedLoadoutsBuffer, &targetState, &rankedLoadoutsBuffer )") )
         __debugbreak();
-      ++v11;
+      ++v9;
     }
-    while ( v11 < ArraySize );
+    while ( v9 < ArraySize );
     v5 = controllerIndex;
-    v10 = 10;
+    v8 = 10;
     v4 = clonePrivateLoadouts;
   }
   if ( v4 )
   {
-    v12 = LiveStorage_GetActiveStatsSource(v5);
-    if ( !CL_PlayerData_GetDDLBuffer(&fromDDLContext, v5, v12, STATSGROUP_PRIVATELOADOUTS) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1605, ASSERT_TYPE_ASSERT, "(CL_PlayerData_GetDDLBuffer( &privateLoadoutsBuffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_PRIVATELOADOUTS ))", (const char *)&queryFormat, "CL_PlayerData_GetDDLBuffer( &privateLoadoutsBuffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_PRIVATELOADOUTS )") )
+    v10 = LiveStorage_GetActiveStatsSource(v5);
+    if ( !CL_PlayerData_GetDDLBuffer(&fromDDLContext, v5, v10, STATSGROUP_PRIVATELOADOUTS) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1605, ASSERT_TYPE_ASSERT, "(CL_PlayerData_GetDDLBuffer( &privateLoadoutsBuffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_PRIVATELOADOUTS ))", (const char *)&queryFormat, "CL_PlayerData_GetDDLBuffer( &privateLoadoutsBuffer, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_PRIVATELOADOUTS )") )
       __debugbreak();
-    _RAX = DDL_GetRootState(&result, fromDDLContext.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+40h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, fromDDLContext.def);
     if ( !DDL_MoveToPathByHash(&fromState, &toState, 2, &path) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1612, ASSERT_TYPE_ASSERT, "(DDL_MoveToPathByHash( &rootState, &loadoutsState, 2, navStrings ))", (const char *)&queryFormat, "DDL_MoveToPathByHash( &rootState, &loadoutsState, 2, navStrings )") )
       __debugbreak();
-    v15 = DDL_StateGetArraySize(&toState);
-    if ( v15 > 100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1616, ASSERT_TYPE_ASSERT, "(totalLoadoutCount <= 100)", (const char *)&queryFormat, "totalLoadoutCount <= MAX_TOTAL_LOADOUT_COUNT") )
+    v11 = DDL_StateGetArraySize(&toState);
+    if ( v11 > 100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1616, ASSERT_TYPE_ASSERT, "(totalLoadoutCount <= 100)", (const char *)&queryFormat, "totalLoadoutCount <= MAX_TOTAL_LOADOUT_COUNT") )
       __debugbreak();
-    if ( v15 > 10 )
+    if ( v11 > 10 )
     {
       do
       {
@@ -1383,20 +1368,20 @@ void CL_PlayerData_CloneLoadouts(const int controllerIndex, bool clonePrivateLoa
         result.isValid = 0;
         result.offset = 0;
         result.arrayIndex = -1;
-        __asm { vmovdqu xmmword ptr [rsp+140h+result.member], xmm0 }
-        v18.isValid = 0;
-        v18.offset = 0;
-        v18.arrayIndex = -1;
-        __asm { vmovdqu xmmword ptr [rbp+40h+var_D0.member], xmm0 }
-        if ( !DDL_MoveToIndex(&toState, &v18, v10 % 0xAu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1625, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex )") )
+        *(_OWORD *)&result.member = _XMM0;
+        v14.isValid = 0;
+        v14.offset = 0;
+        v14.arrayIndex = -1;
+        *(_OWORD *)&v14.member = _XMM0;
+        if ( !DDL_MoveToIndex(&toState, &v14, v8 % 0xAu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1625, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &sourceState, sourceIndex )") )
           __debugbreak();
-        if ( !DDL_MoveToIndex(&toState, &result, v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1626, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex )") )
+        if ( !DDL_MoveToIndex(&toState, &result, v8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1626, ASSERT_TYPE_ASSERT, "(DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex ))", (const char *)&queryFormat, "DDL_MoveToIndex( &loadoutsState, &targetState, loadoutIndex )") )
           __debugbreak();
-        if ( !DDL_Copy(&v18, &fromDDLContext, &result, &fromDDLContext) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1628, ASSERT_TYPE_ASSERT, "(DDL_Copy( &sourceState, &privateLoadoutsBuffer, &targetState, &privateLoadoutsBuffer ))", (const char *)&queryFormat, "DDL_Copy( &sourceState, &privateLoadoutsBuffer, &targetState, &privateLoadoutsBuffer )") )
+        if ( !DDL_Copy(&v14, &fromDDLContext, &result, &fromDDLContext) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1628, ASSERT_TYPE_ASSERT, "(DDL_Copy( &sourceState, &privateLoadoutsBuffer, &targetState, &privateLoadoutsBuffer ))", (const char *)&queryFormat, "DDL_Copy( &sourceState, &privateLoadoutsBuffer, &targetState, &privateLoadoutsBuffer )") )
           __debugbreak();
-        ++v10;
+        ++v8;
       }
-      while ( v10 < v15 );
+      while ( v8 < v11 );
     }
   }
 }
@@ -1470,11 +1455,8 @@ char *CL_PlayerData_GetClanTag(const int controllerIndex)
   unsigned __int64 clanIdOut; 
 
   clanTagType = scr_const.clanTagType;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1517,11 +1499,8 @@ unsigned __int8 CL_PlayerData_GetClanTagType(const int controllerIndex)
   DDLContext context; 
 
   clanTagType = scr_const.clanTagType;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1578,27 +1557,19 @@ void CL_PlayerData_GetCustomization(const int controllerIndex, ClientCustomizati
   __int64 v2; 
 
   v2 = controllerIndex;
-  _RBX = outInfo;
   if ( !outInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 971, ASSERT_TYPE_ASSERT, "(outInfo)", (const char *)&queryFormat, "outInfo") )
     __debugbreak();
   if ( LiveStorage_PersistentDataEnabled() )
   {
     LiveStorage_UpdateCustomizationModelsFromSquad(v2);
-    _RCX = 3 * v2;
-    _RAX = s_activeCustomization;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+rcx*8]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+rcx*8+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
+    *(_OWORD *)outInfo->modelIndex = *(_OWORD *)s_activeCustomization[v2].modelIndex;
+    *(double *)&outInfo->modelIndexMLG[1] = *(double *)&s_activeCustomization[v2].modelIndexMLG[1];
   }
   else
   {
-    *(_QWORD *)_RBX->modelIndex = 0i64;
-    *(_QWORD *)&_RBX->modelIndex[2] = 0i64;
-    *(_QWORD *)&_RBX->modelIndexMLG[1] = 0i64;
+    *(_QWORD *)outInfo->modelIndex = 0i64;
+    *(_QWORD *)&outInfo->modelIndex[2] = 0i64;
+    *(_QWORD *)&outInfo->modelIndexMLG[1] = 0i64;
   }
 }
 
@@ -1636,8 +1607,8 @@ void CL_PlayerData_GetCustomizationForMPPrivate(const int controllerIndex, bool 
   StatsSource ActiveStatsSource; 
   DDLState state; 
   DDLContext context; 
-  DDLState v16; 
-  DDLContext v17; 
+  DDLState v13; 
+  DDLContext v14; 
 
   if ( !outInfoWest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1200, ASSERT_TYPE_ASSERT, "(outInfoWest)", (const char *)&queryFormat, "outInfoWest") )
     __debugbreak();
@@ -1645,11 +1616,8 @@ void CL_PlayerData_GetCustomizationForMPPrivate(const int controllerIndex, bool 
     __debugbreak();
   if ( LiveStorage_PersistentDataEnabled() )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
@@ -1659,16 +1627,9 @@ void CL_PlayerData_GetCustomizationForMPPrivate(const int controllerIndex, bool 
       if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_PRIVATELOADOUTS) )
       {
         LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_PRIVATELOADOUTS);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0D8h+state.isValid]
-          vmovups ymm1, ymmword ptr [rsp+0D8h+context.buff]
-          vmovups [rsp+0D8h+var_58], ymm0
-          vmovups xmm0, xmmword ptr [rsp+0D8h+context.userData]
-          vmovups [rsp+0D8h+var_18], xmm0
-          vmovups [rsp+0D8h+var_38], ymm1
-        }
-        CL_PlayerData_GetCustomizationFromLoadouts(controllerIndex, outSelectedOperatorIndex, outInfoWest, outInfoEast, &v17, &v16);
+        v13 = state;
+        v14 = context;
+        CL_PlayerData_GetCustomizationFromLoadouts(controllerIndex, outSelectedOperatorIndex, outInfoWest, outInfoEast, &v14, &v13);
       }
       else
       {
@@ -1695,8 +1656,8 @@ void CL_PlayerData_GetCustomizationForMPPublic(const int controllerIndex, bool *
   StatsSource ActiveStatsSource; 
   DDLState state; 
   DDLContext context; 
-  DDLState v16; 
-  DDLContext v17; 
+  DDLState v13; 
+  DDLContext v14; 
 
   if ( !outInfoWest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1235, ASSERT_TYPE_ASSERT, "(outInfoWest)", (const char *)&queryFormat, "outInfoWest") )
     __debugbreak();
@@ -1704,11 +1665,8 @@ void CL_PlayerData_GetCustomizationForMPPublic(const int controllerIndex, bool *
     __debugbreak();
   if ( LiveStorage_PersistentDataEnabled() )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0D8h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
@@ -1718,16 +1676,9 @@ void CL_PlayerData_GetCustomizationForMPPublic(const int controllerIndex, bool *
       if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_RANKEDLOADOUTS) )
       {
         LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_RANKEDLOADOUTS);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0D8h+state.isValid]
-          vmovups ymm1, ymmword ptr [rsp+0D8h+context.buff]
-          vmovups [rsp+0D8h+var_58], ymm0
-          vmovups xmm0, xmmword ptr [rsp+0D8h+context.userData]
-          vmovups [rsp+0D8h+var_18], xmm0
-          vmovups [rsp+0D8h+var_38], ymm1
-        }
-        CL_PlayerData_GetCustomizationFromLoadouts(controllerIndex, outSelectedOperatorIndex, outInfoWest, outInfoEast, &v17, &v16);
+        v13 = state;
+        v14 = context;
+        CL_PlayerData_GetCustomizationFromLoadouts(controllerIndex, outSelectedOperatorIndex, outInfoWest, outInfoEast, &v14, &v13);
       }
       else
       {
@@ -1797,17 +1748,14 @@ void CL_PlayerData_GetCustomizationFromLoadouts(const int controllerIndex, bool 
   toState.offset = 0;
   v50.isValid = 0;
   v50.offset = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+47h+toState.member], xmm0
-    vmovdqu xmmword ptr [rbp+47h+var_48.member], xmm0
-  }
+  *(_OWORD *)&toState.member = _XMM0;
+  *(_OWORD *)&v50.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+47h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v49.isValid = 0;
   v49.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+47h+var_68.member], xmm0 }
+  *(_OWORD *)&v49.member = _XMM0;
   toState.arrayIndex = -1;
   v50.arrayIndex = -1;
   state.arrayIndex = -1;
@@ -1929,19 +1877,19 @@ void CL_PlayerData_GetCustomizationWeaponSetup(const int controllerIndex, UIWeap
   const DDLDef *DefForStatsGroup; 
   unsigned int RawHash; 
   int Int; 
-  unsigned int v14; 
+  unsigned int v13; 
+  unsigned int v15; 
   unsigned int v16; 
-  unsigned int v17; 
   int ArraySize; 
-  unsigned int v20; 
+  unsigned int v19; 
   unsigned int *attachEnum; 
+  unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
   DDLState toState; 
   DDLState state; 
   DDLState fromState; 
+  DDLState v26; 
   DDLState v27; 
-  DDLState v28; 
   DDLContext context; 
   unsigned int path[4]; 
 
@@ -1955,7 +1903,7 @@ void CL_PlayerData_GetCustomizationWeaponSetup(const int controllerIndex, UIWeap
     state.offset = 0;
     state.isValid = 0;
     state.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+140h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     LoadoutStatsGroupForGameMode = Com_PlayerData_GetLoadoutStatsGroupForGameMode();
     if ( (unsigned int)(LoadoutStatsGroupForGameMode - 3) <= 1 )
     {
@@ -1966,7 +1914,7 @@ void CL_PlayerData_GetCustomizationWeaponSetup(const int controllerIndex, UIWeap
       {
         __asm { vpxor   xmm0, xmm0, xmm0 }
         fromState.isValid = 0;
-        __asm { vmovdqu xmmword ptr [rbp+40h+fromState.member], xmm0 }
+        *(_OWORD *)&fromState.member = _XMM0;
         fromState.offset = 0;
         fromState.arrayIndex = -1;
         DefForStatsGroup = Com_PlayerData_GetDefForStatsGroup(LoadoutStatsGroupForGameMode);
@@ -1974,11 +1922,10 @@ void CL_PlayerData_GetCustomizationWeaponSetup(const int controllerIndex, UIWeap
         RawHash = j_SL_GetRawHash(scr_const.squadMembers);
         if ( DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
         {
-          __asm { vmovups ymm0, ymmword ptr [rsp+140h+state.isValid] }
           Int = 0;
-          __asm { vmovups ymmword ptr [rsp+140h+fromState.isValid], ymm0 }
-          v14 = j_SL_GetRawHash(scr_const.ai_loadout);
-          DDL_MoveToNameByHash(&fromState, &fromState, v14, NULL);
+          fromState = state;
+          v13 = j_SL_GetRawHash(scr_const.ai_loadout);
+          DDL_MoveToNameByHash(&fromState, &fromState, v13, NULL);
           if ( DDL_StateIsLeaf(&fromState) )
             Int = DDL_GetInt(&fromState, &context);
           path[0] = j_SL_GetRawHash(scr_const.loadouts);
@@ -1987,59 +1934,53 @@ void CL_PlayerData_GetCustomizationWeaponSetup(const int controllerIndex, UIWeap
           path[3] = 0;
           if ( DDL_MoveToPathByHash(&state, &state, 4, path) )
           {
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr [rsp+140h+toState.member], xmm0
-            }
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            *(_OWORD *)&toState.member = _XMM0;
             toState.isValid = 0;
             toState.offset = 0;
             toState.arrayIndex = -1;
-            v16 = j_SL_GetRawHash(scr_const.weapon);
-            DDL_MoveToNameByHash(&state, &toState, v16, NULL);
+            v15 = j_SL_GetRawHash(scr_const.weapon);
+            DDL_MoveToNameByHash(&state, &toState, v15, NULL);
             if ( DDL_StateIsLeaf(&toState) )
               setup->weaponEnum = DDL_GetInt(&toState, &context);
-            v17 = j_SL_GetRawHash(scr_const.attachmentSetup);
-            if ( !DDL_MoveToNameByHash(&state, &toState, v17, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1043, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &activeSquadState, &tmpState, SL_GetRawHash( scr_const.attachmentSetup ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &activeSquadState, &tmpState, SL_GetRawHash( scr_const.attachmentSetup ) )", *(_QWORD *)&toState.isValid, *(_QWORD *)&toState.arrayIndex, toState.member, toState.ddlDef) )
+            v16 = j_SL_GetRawHash(scr_const.attachmentSetup);
+            if ( !DDL_MoveToNameByHash(&state, &toState, v16, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1043, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &activeSquadState, &tmpState, SL_GetRawHash( scr_const.attachmentSetup ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &activeSquadState, &tmpState, SL_GetRawHash( scr_const.attachmentSetup ) )", *(_QWORD *)&toState.isValid, *(_QWORD *)&toState.arrayIndex, toState.member, toState.ddlDef) )
               __debugbreak();
             if ( !DDL_StateIsLeaf(&toState) )
             {
               __asm { vpxor   xmm0, xmm0, xmm0 }
-              v28.isValid = 0;
-              __asm
-              {
-                vmovdqu xmmword ptr [rbp+40h+var_90.member], xmm0
-                vmovdqu xmmword ptr [rbp+40h+var_B0.member], xmm0
-              }
-              v28.offset = 0;
-              v28.arrayIndex = -1;
               v27.isValid = 0;
+              *(_OWORD *)&v27.member = _XMM0;
+              *(_OWORD *)&v26.member = _XMM0;
               v27.offset = 0;
               v27.arrayIndex = -1;
+              v26.isValid = 0;
+              v26.offset = 0;
+              v26.arrayIndex = -1;
               ArraySize = DDL_StateGetArraySize(&toState);
-              v20 = 29;
+              v19 = 29;
               if ( ArraySize < 29 )
-                v20 = ArraySize;
-              if ( v20 )
+                v19 = ArraySize;
+              if ( v19 )
               {
                 attachEnum = setup->attachEnum;
                 do
                 {
-                  if ( !DDL_MoveToIndex(&toState, &v28, v5) )
+                  if ( !DDL_MoveToIndex(&toState, &v27, v5) )
                     break;
-                  v22 = j_SL_GetRawHash(scr_const.attachment);
-                  if ( !DDL_MoveToNameByHash(&v28, &v27, v22, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1058, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &attachIndexState, &attachState, SL_GetRawHash( scr_const.attachment ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &attachIndexState, &attachState, SL_GetRawHash( scr_const.attachment ) )") )
+                  v21 = j_SL_GetRawHash(scr_const.attachment);
+                  if ( !DDL_MoveToNameByHash(&v27, &v26, v21, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1058, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &attachIndexState, &attachState, SL_GetRawHash( scr_const.attachment ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &attachIndexState, &attachState, SL_GetRawHash( scr_const.attachment ) )") )
                     __debugbreak();
-                  if ( DDL_StateIsLeaf(&v27) )
-                    *attachEnum = DDL_GetInt(&v27, &context);
+                  if ( DDL_StateIsLeaf(&v26) )
+                    *attachEnum = DDL_GetInt(&v26, &context);
                   ++v5;
                   ++attachEnum;
                 }
-                while ( v5 < v20 );
+                while ( v5 < v19 );
               }
             }
-            v23 = j_SL_GetRawHash(scr_const.camo);
-            DDL_MoveToNameByHash(&state, &toState, v23, NULL);
+            v22 = j_SL_GetRawHash(scr_const.camo);
+            DDL_MoveToNameByHash(&state, &toState, v22, NULL);
             if ( DDL_StateIsLeaf(&toState) )
               setup->camoEnum = DDL_GetInt(&toState, &context);
           }
@@ -2593,26 +2534,23 @@ CL_PlayerData_InitializeNewLoadoutSlots
 void CL_PlayerData_InitializeNewLoadoutSlots(const int controllerIndex)
 {
   StatsSource ActiveStatsSource; 
-  const char *v7; 
-  __int64 v8; 
+  const char *v5; 
+  __int64 v6; 
   const char *Enum; 
-  signed __int64 v10; 
+  signed __int64 v8; 
+  char v9; 
+  __int64 v10; 
   char v11; 
-  __int64 v12; 
-  char v13; 
-  const char *v14; 
+  const char *v12; 
   DDLState fromState; 
   DDLState toState; 
   DDLContext context; 
   DDLState result; 
   unsigned int path[6]; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0F8h+fromState.member], xmm0
-    vmovdqu xmmword ptr [rsp+0F8h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
@@ -2622,12 +2560,7 @@ void CL_PlayerData_InitializeNewLoadoutSlots(const int controllerIndex)
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_PRIVATELOADOUTS) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 1641, ASSERT_TYPE_ASSERT, "(CL_PlayerData_GetDDLBuffer( &privateLoadoutsContext, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_PRIVATELOADOUTS ))", (const char *)&queryFormat, "CL_PlayerData_GetDDLBuffer( &privateLoadoutsContext, controllerIndex, LiveStorage_GetActiveStatsSource( controllerIndex ), STATSGROUP_PRIVATELOADOUTS )", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef, *(_QWORD *)&toState.isValid, *(_QWORD *)&toState.arrayIndex, toState.member, toState.ddlDef) )
     __debugbreak();
-  _RAX = DDL_GetRootState(&result, context.def);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0F8h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, context.def);
   path[0] = j_SL_GetRawHash(scr_const.squadMembers);
   path[1] = j_SL_GetRawHash(scr_const.loadouts);
   path[2] = 9;
@@ -2635,24 +2568,24 @@ void CL_PlayerData_InitializeNewLoadoutSlots(const int controllerIndex)
   path[4] = 2;
   if ( DDL_MoveToPathByHash(&fromState, &toState, 5, path) )
   {
-    v7 = "specialty_null";
-    v8 = 0x7FFFFFFFi64;
+    v5 = "specialty_null";
+    v6 = 0x7FFFFFFFi64;
     Enum = DDL_GetEnum(&toState, &context);
     if ( !Enum && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
       __debugbreak();
-    v10 = Enum - "specialty_null";
+    v8 = Enum - "specialty_null";
     do
     {
-      v11 = v7[v10];
-      v12 = v8;
-      v13 = *v7++;
-      --v8;
-      if ( !v12 )
+      v9 = v5[v8];
+      v10 = v6;
+      v11 = *v5++;
+      --v6;
+      if ( !v10 )
         break;
-      if ( v11 != v13 )
+      if ( v9 != v11 )
         return;
     }
-    while ( v11 );
+    while ( v9 );
     if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cmd.h", 552, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
       __debugbreak();
     Cmd_TokenizeString("exec mp/stats_init_new_loadouts.cfg");
@@ -2660,8 +2593,8 @@ void CL_PlayerData_InitializeNewLoadoutSlots(const int controllerIndex)
     {
       cmd_args.localClientNum[cmd_args.nesting] = LOCAL_CLIENT_0;
       cmd_args.controllerIndex[cmd_args.nesting] = controllerIndex;
-      v14 = Cmd_Argv(0);
-      if ( !Cmd_ExecuteCommandFunctions(v14, "exec mp/stats_init_new_loadouts.cfg", &s_cmd_functions) && !Dvar_Command(0) )
+      v12 = Cmd_Argv(0);
+      if ( !Cmd_ExecuteCommandFunctions(v12, "exec mp/stats_init_new_loadouts.cfg", &s_cmd_functions) && !Dvar_Command(0) )
         CL_Main_ForwardCommandToServer(LOCAL_CLIENT_0, "exec mp/stats_init_new_loadouts.cfg");
     }
     Cmd_EndTokenizedString();
@@ -2799,11 +2732,8 @@ LABEL_5:
 LABEL_7:
   eliteClanTag = scr_const.eliteClanTag;
   *v6 = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+88h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -2865,11 +2795,8 @@ LABEL_5:
 LABEL_7:
   eliteClanTag = scr_const.eliteClanTag;
   *v7 = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+88h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -2901,11 +2828,8 @@ void CL_PlayerData_SetClanTagType(const int controllerIndex, const int typeValue
 
   clanTagType = scr_const.clanTagType;
   v4 = typeValue;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -2965,11 +2889,8 @@ LABEL_5:
 LABEL_7:
   eliteClanTag = scr_const.eliteClanTag;
   *v7 = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+88h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3282,11 +3203,8 @@ void LiveStorage_GetPlayerDataCmdInternal(const StatsGroup statsGroup)
   DDLContext context; 
   unsigned int path[16]; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0C8h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3325,39 +3243,34 @@ LiveStorage_PlayerDataSetCmd_Internal
 */
 void LiveStorage_PlayerDataSetCmd_Internal(int (*argc)(), const char *(*argv)(int), StatsGroup statsGroup, bool localize)
 {
-  int v11; 
-  LocalClientNum_t v12; 
+  int v10; 
+  LocalClientNum_t v11; 
   StatsSource ActiveStatsSource; 
-  int v14; 
-  const char *v15; 
+  int v13; 
+  const char *v14; 
   DDLState state; 
   DDLContext context; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-48h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  v11 = Cmd_LocalControllerIndex();
-  v12 = Cmd_LocalClientNum();
-  LiveStorage_EnsureMaySetPersistentData(v12, "LiveStorage_LoadoutSetCmd");
-  ActiveStatsSource = LiveStorage_GetActiveStatsSource(v11);
-  if ( CL_PlayerData_GetDDLBuffer(&context, v11, ActiveStatsSource, statsGroup) )
+  v10 = Cmd_LocalControllerIndex();
+  v11 = Cmd_LocalClientNum();
+  LiveStorage_EnsureMaySetPersistentData(v11, "LiveStorage_LoadoutSetCmd");
+  ActiveStatsSource = LiveStorage_GetActiveStatsSource(v10);
+  if ( CL_PlayerData_GetDDLBuffer(&context, v10, ActiveStatsSource, statsGroup) )
   {
     if ( Com_DDL_NavigateFromCmd(context.def, argc, argv, &state, 1) )
     {
       if ( DDL_StateIsLeaf(&state) )
       {
-        v14 = argc();
-        v15 = argv(v14 - 1);
+        v13 = argc();
+        v14 = argv(v13 - 1);
         if ( localize )
-          v15 = UI_SafeTranslateString(v15);
-        if ( !Com_DDL_SetDataFromString(&state, &context, v15) )
+          v14 = UI_SafeTranslateString(v14);
+        if ( !Com_DDL_SetDataFromString(&state, &context, v14) )
         {
           Com_PrintError(16, "setPlayerData:\n");
           PrintArgs();
@@ -3484,11 +3397,8 @@ void LiveStorage_SetPlayerDataCmdInternal(const StatsGroup statsGroup)
   DDLContext context; 
   unsigned int path[16]; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0C8h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3740,12 +3650,12 @@ void LiveStorage_UpdateCustomizationModelsFromSquad(const int controllerIndex)
   unsigned int RawHash; 
   unsigned int v8; 
   __int64 v9; 
-  scr_string_t v11; 
-  unsigned int v12; 
+  scr_string_t v10; 
+  unsigned int v11; 
+  const char *v12; 
   const char *v13; 
-  const char *v14; 
-  __int64 v15; 
-  int v16; 
+  __int64 v14; 
+  int v15; 
   DDLState state; 
   DDLState fromState; 
   DDLContext context; 
@@ -3760,7 +3670,7 @@ void LiveStorage_UpdateCustomizationModelsFromSquad(const int controllerIndex)
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+57h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( !s_activeCustomizationDevOverride )
   {
     LoadoutStatsGroupForGameMode = Com_PlayerData_GetLoadoutStatsGroupForGameMode();
@@ -3780,21 +3690,20 @@ void LiveStorage_UpdateCustomizationModelsFromSquad(const int controllerIndex)
           v9 = 0i64;
           do
           {
-            __asm { vmovups ymm0, ymmword ptr [rbp+57h+state.isValid] }
-            v11 = stringValue[v9];
-            __asm { vmovups ymmword ptr [rbp+57h+fromState.isValid], ymm0 }
-            v12 = j_SL_GetRawHash(v11);
-            DDL_MoveToNameByHash(&fromState, &fromState, v12, NULL);
+            v10 = stringValue[v9];
+            fromState = state;
+            v11 = j_SL_GetRawHash(v10);
+            DDL_MoveToNameByHash(&fromState, &fromState, v11, NULL);
             if ( !DDL_StateIsLeaf(&fromState) )
             {
-              v14 = SL_ConvertToString(stringValue[v8]);
-              Com_PrintWarning(16, "LiveStorage_UpdateCustomizationModelsFromSquad: Couldn't get to the squad member field %i (%s).\n", v8, v14);
+              v13 = SL_ConvertToString(stringValue[v8]);
+              Com_PrintWarning(16, "LiveStorage_UpdateCustomizationModelsFromSquad: Couldn't get to the squad member field %i (%s).\n", v8, v13);
               return;
             }
             if ( DDL_GetType(&fromState) != DDL_SHORT_TYPE )
             {
-              v13 = SL_ConvertToString(stringValue[v8]);
-              Com_PrintWarning(16, "LiveStorage_UpdateCustomizationModelsFromSquad: Wrong type for squad member field %i (%s)\n", v8, v13);
+              v12 = SL_ConvertToString(stringValue[v8]);
+              Com_PrintWarning(16, "LiveStorage_UpdateCustomizationModelsFromSquad: Wrong type for squad member field %i (%s)\n", v8, v12);
               return;
             }
             ++v8;
@@ -3803,9 +3712,9 @@ void LiveStorage_UpdateCustomizationModelsFromSquad(const int controllerIndex)
           while ( v8 < 3 );
           if ( (unsigned int)v3 >= 8 )
           {
-            v16 = 8;
-            LODWORD(v15) = v3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 962, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( ( sizeof( *array_counter( s_activeCustomization ) ) + 0 ) )", "controllerIndex doesn't index ARRAY_COUNT( s_activeCustomization )\n\t%i not in [0, %i)", v15, v16) )
+            v15 = 8;
+            LODWORD(v14) = v3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_player_data.cpp", 962, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( ( sizeof( *array_counter( s_activeCustomization ) ) + 0 ) )", "controllerIndex doesn't index ARRAY_COUNT( s_activeCustomization )\n\t%i not in [0, %i)", v14, v15) )
               __debugbreak();
           }
           BG_Customization_BuildClientCustomization(&s_activeCustomization[v3], headIndex[0], headIndex[1], headIndex[2], NULL);
@@ -3836,11 +3745,8 @@ unsigned __int8 PlayerDataGetByteByName(const int controllerIndex, const scr_str
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3868,11 +3774,8 @@ int PlayerDataGetIntByName(const int controllerIndex, const scr_string_t name, c
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3897,11 +3800,8 @@ const char *PlayerDataGetStringByName(const int controllerIndex, const scr_strin
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3921,21 +3821,16 @@ PlayerDataSetByteByName
 */
 bool PlayerDataSetByteByName(const int controllerIndex, const scr_string_t name, const StatsGroup statsGroup, int value)
 {
-  unsigned __int8 v7; 
+  unsigned __int8 v6; 
   StatsSource ActiveStatsSource; 
   bool result; 
   unsigned int RawHash; 
   DDLState state; 
   DDLContext context; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-48h], xmm0
-  }
-  v7 = value;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  v6 = value;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3946,7 +3841,7 @@ bool PlayerDataSetByteByName(const int controllerIndex, const scr_string_t name,
     LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, statsGroup);
     RawHash = j_SL_GetRawHash(name);
     DDL_MoveToNameByHash(&state, &state, RawHash, NULL);
-    return DDL_SetByte(&state, &context, v7);
+    return DDL_SetByte(&state, &context, v6);
   }
   return result;
 }
@@ -3963,14 +3858,9 @@ bool PlayerDataSetIntByName(const int controllerIndex, const scr_string_t name, 
   unsigned int RawHash; 
   DDLState state; 
   DDLContext context; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-48h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -3998,14 +3888,9 @@ bool PlayerDataSetStringByName(const int controllerIndex, const scr_string_t nam
   unsigned int RawHash; 
   DDLState state; 
   DDLContext context; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-48h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;

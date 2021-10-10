@@ -29,106 +29,74 @@ void CG_EventMP_FinalizeEventLodData(CgEventLodData *eventLodData)
 {
   const dvar_t *v1; 
   CgEventLod enabled; 
-  char v6; 
-  CgEventLodFOV v9; 
+  const dvar_t *v4; 
+  CgEventLodFOV v5; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  double Float_Internal_DebugName; 
 
   v1 = DCONST_DVARINT_cg_event_forceLod;
-  _RBX = eventLodData;
   if ( !DCONST_DVARINT_cg_event_forceLod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_event_forceLod") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v1);
   enabled = v1->current.enabled;
-  if ( enabled == CG_EVENT_LOD_FULL_RES )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, cs:?g_cgEventCosHalfNarrowFOVAngle@@3MA; float g_cgEventCosHalfNarrowFOVAngle
-    vcomiss xmm0, dword ptr [rbx+8]
-  }
-  _RSI = DCONST_DVARFLT_cg_eventLod_FOVbubble;
+  if ( enabled == CG_EVENT_LOD_FULL_RES || g_cgEventCosHalfNarrowFOVAngle < eventLodData->cosAngleFromLookAt )
+    goto LABEL_11;
+  v4 = DCONST_DVARFLT_cg_eventLod_FOVbubble;
   if ( !DCONST_DVARFLT_cg_eventLod_FOVbubble && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_eventLod_FOVbubble") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vcomiss xmm0, dword ptr [rbx+4]
-  }
-  if ( v6 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f000000
-      vcomiss xmm0, dword ptr [rbx+8]
-    }
-    v9 = !v6 + 1;
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.value < eventLodData->distance )
+    v5 = (eventLodData->cosAngleFromLookAt <= 0.5) + 1;
   else
-  {
-LABEL_10:
-    v9 = CG_EVENT_LOD_NARROW_FOV;
-  }
-  _RBX->fovLod = v9;
+LABEL_11:
+    v5 = CG_EVENT_LOD_NARROW_FOV;
+  eventLodData->fovLod = v5;
   if ( enabled == CG_EVENT_LOD_COUNT )
   {
-    _RDI = DCONST_DVARFLT_cg_eventLodDistance_Lod0;
+    v6 = DCONST_DVARFLT_cg_eventLodDistance_Lod0;
     if ( !DCONST_DVARFLT_cg_eventLodDistance_Lod0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_eventLodDistance_Lod0") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
+    Dvar_CheckFrontendServerThread(v6);
+    if ( v6->current.value < eventLodData->distance )
     {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, dword ptr [rbx+4]
-    }
-    if ( v6 )
-    {
-      _RDI = DCONST_DVARFLT_cg_eventLodDistance_Lod1;
+      v7 = DCONST_DVARFLT_cg_eventLodDistance_Lod1;
       if ( !DCONST_DVARFLT_cg_eventLodDistance_Lod1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_eventLodDistance_Lod1") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
+      Dvar_CheckFrontendServerThread(v7);
+      if ( v7->current.value < eventLodData->distance )
       {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vcomiss xmm0, dword ptr [rbx+4]
-      }
-      if ( v6 )
-      {
-        _RDI = DCONST_DVARFLT_cg_eventLodDistance_Lod2;
+        v8 = DCONST_DVARFLT_cg_eventLodDistance_Lod2;
         if ( !DCONST_DVARFLT_cg_eventLodDistance_Lod2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_eventLodDistance_Lod2") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm
+        Dvar_CheckFrontendServerThread(v8);
+        if ( v8->current.value < eventLodData->distance )
         {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vcomiss xmm0, dword ptr [rbx+4]
-        }
-        if ( v6 )
-        {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_eventLodDistance_Lod3, "cg_eventLodDistance_Lod3");
-          __asm { vcomiss xmm0, dword ptr [rbx+4] }
-          if ( v6 )
-            _RBX->distanceLod = CG_EVENT_LOD4;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_eventLodDistance_Lod3, "cg_eventLodDistance_Lod3");
+          if ( *(float *)&Float_Internal_DebugName < eventLodData->distance )
+            eventLodData->distanceLod = CG_EVENT_LOD4;
           else
-            _RBX->distanceLod = CG_EVENT_LOD3;
+            eventLodData->distanceLod = CG_EVENT_LOD3;
         }
         else
         {
-          _RBX->distanceLod = CG_EVENT_LOD2;
+          eventLodData->distanceLod = CG_EVENT_LOD2;
         }
       }
       else
       {
-        _RBX->distanceLod = CG_EVENT_LOD1;
+        eventLodData->distanceLod = CG_EVENT_LOD1;
       }
     }
     else
     {
-      _RBX->distanceLod = CG_EVENT_LOD0;
+      eventLodData->distanceLod = CG_EVENT_LOD0;
     }
   }
   else
   {
-    _RBX->distanceLod = enabled;
+    eventLodData->distanceLod = enabled;
   }
 }
 

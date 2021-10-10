@@ -138,31 +138,11 @@ bdRelayAuthToken::operator=
 */
 bdRelayAuthToken *bdRelayAuthToken::operator=(bdRelayAuthToken *this, const bdRelayAuthToken *other)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+8]
-    vmovups ymmword ptr [rcx+8], ymm0
-    vmovups xmm1, xmmword ptr [rdx+28h]
-    vmovups xmmword ptr [rcx+28h], xmm1
-  }
+  *(__m256i *)this->m_encrypted = *(__m256i *)other->m_encrypted;
+  *(_OWORD *)&this->m_encrypted[32] = *(_OWORD *)&other->m_encrypted[32];
   *(_DWORD *)&this->m_encrypted[48] = *(_DWORD *)&other->m_encrypted[48];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+0E0h]
-    vmovups xmmword ptr [rcx+0E0h], xmm0
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+60h]
-    vmovups ymmword ptr [rcx+60h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+0C0h]
-    vmovups xmmword ptr [rcx+0C0h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+0D0h]
-    vmovsd  qword ptr [rcx+0D0h], xmm1
-  }
+  *(_OWORD *)this->m_secret = *(_OWORD *)other->m_secret;
+  this->m_relayAddr = other->m_relayAddr;
   this->m_relayID = other->m_relayID;
   this->m_version = other->m_version;
   return this;
@@ -186,22 +166,21 @@ bdRelayAuthToken::deserialize
 bool bdRelayAuthToken::deserialize(bdRelayAuthToken *this, const void *buffer, unsigned int bufferSize, unsigned int offset, unsigned int *newOffset)
 {
   unsigned __int8 *p_m_version; 
+  __int64 v9; 
   unsigned int v10; 
   unsigned int v11; 
   bool result; 
-  unsigned __int64 v14; 
   unsigned int offseta; 
 
   p_m_version = &this->m_version;
   offseta = offset;
-  _RBX = buffer;
-  if ( !bdBytePacker::removeBasicType<unsigned char>(buffer, bufferSize, offset, &offseta, &this->m_version) || *p_m_version != 1 || !bdBytePacker::removeBuffer(_RBX, bufferSize, offseta, &offseta, this->m_encrypted, 0x34u) || !bdBytePacker::removeBuffer(_RBX, bufferSize, offseta, &offseta, this->m_secret, 0x10u) || !bdAddr::deserialize(&this->m_relayAddr, _RBX, bufferSize, offseta, &offseta) )
+  if ( !bdBytePacker::removeBasicType<unsigned char>(buffer, bufferSize, offset, &offseta, &this->m_version) || *p_m_version != 1 || !bdBytePacker::removeBuffer(buffer, bufferSize, offseta, &offseta, this->m_encrypted, 0x34u) || !bdBytePacker::removeBuffer(buffer, bufferSize, offseta, &offseta, this->m_secret, 0x10u) || !bdAddr::deserialize(&this->m_relayAddr, buffer, bufferSize, offseta, &offseta) )
     goto LABEL_13;
-  _RAX = offseta;
+  v9 = offseta;
   v10 = offseta + 8;
   v11 = offseta + 8;
   offseta += 8;
-  if ( _RBX )
+  if ( buffer )
   {
     if ( v10 > bufferSize )
     {
@@ -210,15 +189,10 @@ bool bdRelayAuthToken::deserialize(bdRelayAuthToken *this, const void *buffer, u
     }
     else
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+rbx]
-        vmovsd  [rsp+58h+var_18], xmm0
-      }
-      this->m_relayID = v14;
+      this->m_relayID = *(_QWORD *)((char *)buffer + v9);
     }
   }
-  if ( v10 <= bufferSize || !_RBX )
+  if ( v10 <= bufferSize || !buffer )
   {
     result = 1;
     *newOffset = v11;

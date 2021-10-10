@@ -5,25 +5,28 @@ LUIElement_RepeatedImage_SetOffsetXY
 */
 __int64 LUIElement_RepeatedImage_SetOffsetXY(lua_State *const luaVM)
 {
-  LUIElement *v3; 
-  unsigned int v5; 
+  LUIElement *v2; 
+  RepeatedImageData *CustomElement; 
+  double v4; 
+  double v5; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: SetOffsetXY( <float>, <float> )");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
   {
-    v3 = LUI_ToElement(luaVM, 1);
-    _RBX = LUI_LUIElement_RetrieveCustomElementData<RepeatedImageData>(v3, luaVM);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovss  dword ptr [rbx], xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovss  dword ptr [rbx+4], xmm0 }
-    LUI_QuadCache_Element_Invalidate(v3);
+    v2 = LUI_ToElement(luaVM, 1);
+    CustomElement = LUI_LUIElement_RetrieveCustomElementData<RepeatedImageData>(v2, luaVM);
+    v4 = lui_tonumber32(luaVM, 2);
+    CustomElement->offset[0] = *(float *)&v4;
+    v5 = lui_tonumber32(luaVM, 3);
+    CustomElement->offset[1] = *(float *)&v5;
+    LUI_QuadCache_Element_Invalidate(v2);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
   }
   return 0i64;
 }
@@ -60,69 +63,31 @@ __int64 LUIElement_RepeatedImage_SetCount(lua_State *const luaVM)
 LUIElement_RepeatedImageRender
 ==============
 */
-
-void __fastcall LUIElement_RepeatedImageRender(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha, float red, float green, float blue, lua_State *luaVM)
+void LUIElement_RepeatedImageRender(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
-  _DWORD *customElementData; 
-  float fmt; 
-  float vMin; 
-  float v34; 
-  float v35; 
+  double CurrentUnitScale; 
+  float *customElementData; 
+  unsigned int i; 
+  float v13; 
   vec4_t color; 
   vec4_t quadVerts[4]; 
 
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_48], xmm6
-    vmovss  xmm0, [rsp+0F8h+red]
-    vmovss  xmm1, [rsp+0F8h+green]
-  }
-  _RBX = element;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+var_A8], xmm0
-    vmovss  xmm0, [rsp+0F8h+blue]
-    vmovss  dword ptr [rsp+0F8h+var_A8+8], xmm0
-    vmovss  dword ptr [rsp+0F8h+var_A8+4], xmm1
-    vmovss  dword ptr [rsp+0F8h+var_A8+0Ch], xmm3
-  }
-  *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-  __asm { vmovaps xmm6, xmm0 }
-  if ( !_RBX->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  color.v[0] = red;
+  color.v[2] = blue;
+  color.v[1] = green;
+  color.v[3] = alpha;
+  CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  customElementData = _RBX->customElementData;
-  for ( _EDI = 0; _EDI < customElementData[2]; ++_EDI )
+  customElementData = (float *)element->customElementData;
+  for ( i = 0; (signed int)i < *((_DWORD *)customElementData + 2); ++i )
   {
-    __asm
-    {
-      vmovd   xmm3, edi
-      vcvtdq2ps xmm3, xmm3
-      vmulss  xmm0, xmm3, dword ptr [rsi]
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm0, xmm1, dword ptr [rbx+0CCh]; left
-      vaddss  xmm2, xmm1, dword ptr [rbx+0D4h]; right
-      vmulss  xmm1, xmm3, dword ptr [rsi+4]
-      vmulss  xmm3, xmm1, xmm6
-      vaddss  xmm1, xmm3, dword ptr [rbx+0D0h]; top
-      vaddss  xmm3, xmm3, dword ptr [rbx+0D8h]; bottom
-    }
-    LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-    if ( !LUIElement_IsImageLike(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_repeatedimage.cpp", 79, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( element ))", (const char *)&queryFormat, "LUIElement_IsImageLike( element )") )
+    v13 = _mm_cvtepi32_ps((__m128i)i).m128_f32[0];
+    LUI_CoD_GenerateQuadVerts((float)((float)(v13 * *customElementData) * *(float *)&CurrentUnitScale) + element->left, (float)((float)(v13 * customElementData[1]) * *(float *)&CurrentUnitScale) + element->top, (float)((float)(v13 * *customElementData) * *(float *)&CurrentUnitScale) + element->right, (float)((float)(v13 * customElementData[1]) * *(float *)&CurrentUnitScale) + element->bottom, (vec4_t (*)[4])quadVerts);
+    if ( !LUIElement_IsImageLike(element) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_repeatedimage.cpp", 79, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( element ))", (const char *)&queryFormat, "LUIElement_IsImageLike( element )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+124h]
-      vmovss  xmm1, dword ptr [rbx+11Ch]
-      vmovss  [rsp+0F8h+var_C0], xmm0
-      vmovss  xmm0, dword ptr [rbx+120h]
-      vmovss  [rsp+0F8h+var_C8], xmm1
-      vmovss  xmm1, dword ptr [rbx+118h]
-      vmovss  [rsp+0F8h+vMin], xmm0
-      vmovss  dword ptr [rsp+0F8h+fmt], xmm1
-    }
-    LUI_Render_DrawImage(localClientNum, _RBX, luaVM, (const vec4_t (*)[4])quadVerts, fmt, vMin, v34, v35, &color, _RBX->imageData.image);
+    LUI_Render_DrawImage(localClientNum, element, luaVM, (const vec4_t (*)[4])quadVerts, element->imageData.uMin, element->imageData.vMin, element->imageData.uMax, element->imageData.vMax, &color, element->imageData.image);
   }
-  __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
 }
 
 /*
@@ -157,7 +122,7 @@ __int64 LUI_LuaCall_LUIElement_SetupRepeatedImage(lua_State *luaVM)
   v2->customElementData = v3;
   *v3 = 0i64;
   *((_DWORD *)v3 + 2) = 0;
-  v2->renderFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *))LUIElement_RepeatedImageRender;
+  v2->renderFunction = LUIElement_RepeatedImageRender;
   if ( j_lua_gettop(luaVM) < 0 )
   {
     v4 = j_lua_gettop(luaVM);

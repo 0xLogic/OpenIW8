@@ -151,27 +151,20 @@ bdChannelMember::bdChannelMember
 */
 void bdChannelMember::bdChannelMember(bdChannelMember *this, const bdChannelMember *__that, int a3)
 {
-  _RSI = __that;
-  _RDI = this;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdChannelMember::`vbtable'{for `bdTaskResult'};
     *((_QWORD *)&this->__vftable + 3) = &bdChannelMember::`vbtable'{for `bdStructBufferSerializable'};
     bdReferencable::bdReferencable((bdReferencable *)(&this->m_subscribedTimestamp + 2), (const bdReferencable *)((char *)&__that->__vftable + *(int *)(*((_QWORD *)&__that->__vftable + 1) + 4i64) + 8));
   }
-  bdTaskResult::bdTaskResult(_RDI, _RSI);
-  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(&_RDI->__vftable + 2), (const bdStructBufferSerializable *)(&_RSI->__vftable + 2));
-  _RDI->__vftable = (bdChannelMember_vtbl *)&bdChannelMember::`vftable'{for `bdTaskResult'};
-  *((_QWORD *)&_RDI->__vftable + 2) = &bdChannelMember::`vftable'{for `bdStructBufferSerializable'};
-  *(bdChannelMember_vtbl **)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8) = (bdChannelMember_vtbl *)&bdChannelMember::`vftable'{for `bdReferencable'};
-  *(_QWORD *)_RDI->_bytes_20 = *(_QWORD *)_RSI->_bytes_20;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+28h]
-    vmovups ymmword ptr [rdi+28h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+48h]
-    vmovups ymmword ptr [rdi+48h], ymm1
-  }
-  _RDI->m_subscribedTimestamp = _RSI->m_subscribedTimestamp;
+  bdTaskResult::bdTaskResult(this, __that);
+  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(&this->__vftable + 2), (const bdStructBufferSerializable *)(&__that->__vftable + 2));
+  this->__vftable = (bdChannelMember_vtbl *)&bdChannelMember::`vftable'{for `bdTaskResult'};
+  *((_QWORD *)&this->__vftable + 2) = &bdChannelMember::`vftable'{for `bdStructBufferSerializable'};
+  *(bdChannelMember_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdChannelMember_vtbl *)&bdChannelMember::`vftable'{for `bdReferencable'};
+  *(_QWORD *)this->_bytes_20 = *(_QWORD *)__that->_bytes_20;
+  *(__m256i *)&this->_bytes_20[8] = *(__m256i *)&__that->_bytes_20[8];
+  *(__m256i *)&this->m_userName[24] = *(__m256i *)&__that->m_userName[24];
+  this->m_subscribedTimestamp = __that->m_subscribedTimestamp;
 }
 

@@ -139,23 +139,25 @@ DDL::DDL_Converter_CopyStates
 void DDL::DDL_Converter_CopyStates(DDLState *const fromState, DDLContext *fromDDLCtx, DDLState *const toState, DDLContext *toDDLCtx)
 {
   int type; 
-  int v9; 
+  int v8; 
   const char *String; 
   unsigned __int64 UInt64; 
   const char *Enum; 
+  double Float; 
+  double FixedPoint; 
   int Int; 
   unsigned int UInt; 
 
   type = fromState->member->type;
-  v9 = toState->member->type;
-  if ( type != v9 )
+  v8 = toState->member->type;
+  if ( type != v8 )
   {
     if ( type )
     {
-      if ( type != 1 || v9 != 2 )
+      if ( type != 1 || v8 != 2 )
         return;
     }
-    else if ( (unsigned int)(v9 - 1) > 1 )
+    else if ( (unsigned int)(v8 - 1) > 1 )
     {
       return;
     }
@@ -180,14 +182,12 @@ $LN22_251:
       DDL_SetUInt64(toState, toDDLCtx, UInt64);
       break;
     case 6u:
-      *(double *)&_XMM0 = DDL_GetFloat(fromState, fromDDLCtx);
-      __asm { vmovaps xmm2, xmm0; val }
-      DDL_SetFloat(toState, toDDLCtx, *(float *)&_XMM2);
+      Float = DDL_GetFloat(fromState, fromDDLCtx);
+      DDL_SetFloat(toState, toDDLCtx, *(float *)&Float);
       break;
     case 7u:
-      *(double *)&_XMM0 = DDL_GetFixedPoint(fromState, fromDDLCtx);
-      __asm { vmovaps xmm2, xmm0; val }
-      DDL_SetFixedPoint(toState, toDDLCtx, *(const float *)&_XMM2);
+      FixedPoint = DDL_GetFixedPoint(fromState, fromDDLCtx);
+      DDL_SetFixedPoint(toState, toDDLCtx, *(const float *)&FixedPoint);
       break;
     case 8u:
       String = DDL_GetString(fromState, fromDDLCtx);
@@ -211,12 +211,10 @@ char *DDL::DDL_Converter_GetValue(const DDLState *state, const DDLContext *ddlCo
 {
   DDLValue Value; 
   char *result; 
-  int intValue; 
 
   if ( !ddlContext )
     return DDL::DDL_va((const char *)&queryFormat.fmt + 3);
   Value = DDL_GetValue(state, ddlContext);
-  intValue = Value.intValue;
   switch ( state->member->type )
   {
     case 0:
@@ -230,13 +228,7 @@ char *DDL::DDL_Converter_GetValue(const DDLState *state, const DDLContext *ddlCo
       result = DDL::DDL_va("%llu", Value.uint64Value);
       break;
     case 6:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+28h+arg_8]; jumptable 000000014379C00B case 6
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      result = DDL::DDL_va("%f", _RDX);
+      result = DDL::DDL_va("%f", Value.fixedPointValue);
       break;
     case 8:
       result = DDL::DDL_va((const char *)&queryFormat, Value.uint64Value);
@@ -281,10 +273,12 @@ DDL::DDL_Converter_ProcessStates
 void DDL::DDL_Converter_ProcessStates(const DDLStruct *const structDef, const int structMemberItr, DDLState *const oldState, DDLState *const newState, DDLContext *fromDDLCtx, DDLContext *toDDLCtx)
 {
   int type; 
-  int v10; 
+  int v9; 
   const char *String; 
   unsigned __int64 UInt64; 
   const char *Enum; 
+  double Float; 
+  double FixedPoint; 
   int Int; 
   unsigned int UInt; 
 
@@ -296,15 +290,15 @@ void DDL::DDL_Converter_ProcessStates(const DDLStruct *const structDef, const in
   if ( DDL_StateIsLeaf(oldState) && DDL_StateIsLeaf(newState) )
   {
     type = oldState->member->type;
-    v10 = newState->member->type;
-    if ( type != v10 )
+    v9 = newState->member->type;
+    if ( type != v9 )
     {
       if ( type )
       {
-        if ( type != 1 || v10 != 2 )
+        if ( type != 1 || v9 != 2 )
           return;
       }
-      else if ( (unsigned int)(v10 - 1) > 1 )
+      else if ( (unsigned int)(v9 - 1) > 1 )
       {
         return;
       }
@@ -329,14 +323,12 @@ LABEL_19:
         DDL_SetUInt64(newState, toDDLCtx, UInt64);
         break;
       case 6:
-        *(double *)&_XMM0 = DDL_GetFloat(oldState, fromDDLCtx);
-        __asm { vmovaps xmm2, xmm0; val }
-        DDL_SetFloat(newState, toDDLCtx, *(float *)&_XMM2);
+        Float = DDL_GetFloat(oldState, fromDDLCtx);
+        DDL_SetFloat(newState, toDDLCtx, *(float *)&Float);
         break;
       case 7:
-        *(double *)&_XMM0 = DDL_GetFixedPoint(oldState, fromDDLCtx);
-        __asm { vmovaps xmm2, xmm0; val }
-        DDL_SetFixedPoint(newState, toDDLCtx, *(const float *)&_XMM2);
+        FixedPoint = DDL_GetFixedPoint(oldState, fromDDLCtx);
+        DDL_SetFixedPoint(newState, toDDLCtx, *(const float *)&FixedPoint);
         break;
       case 8:
         String = DDL_GetString(oldState, fromDDLCtx);
@@ -382,19 +374,19 @@ void DDL::DDL_Converter_TraverseStruct(const DDLStruct *const structDef, const D
   __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+130h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+4Fh+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   v24.isValid = 0;
   v24.offset = 0;
   v24.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+4Fh+var_90.member], xmm0 }
+  *(_OWORD *)&v24.member = _XMM0;
   v23.isValid = 0;
   v23.offset = 0;
   v23.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+4Fh+var_B0.member], xmm0 }
+  *(_OWORD *)&v23.member = _XMM0;
   if ( structDef->memberCount <= 0 )
     return;
   v12 = 0i64;
@@ -416,7 +408,7 @@ void DDL::DDL_Converter_TraverseStruct(const DDLStruct *const structDef, const D
           v25.isValid = 0;
           v25.offset = 0;
           v25.arrayIndex = -1;
-          __asm { vmovdqu xmmword ptr [rbp+4Fh+var_70.member], xmm0 }
+          *(_OWORD *)&v25.member = _XMM0;
           if ( !DDL_MoveToIndex(&fromState, &v25, 0) )
             goto LABEL_26;
           p_fromState = &v25;
@@ -508,10 +500,10 @@ void DDL::DDL_Converter_TraverseStructForPaths(const DDLStruct *const structDef,
   toState.arrayIndex = -1;
   v11 = 0;
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rbp+4Fh+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+4Fh+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   structMemberItr = 0;
   if ( structDef->memberCount > 0 )
   {

@@ -1251,7 +1251,6 @@ float CgMLGSpectator::GetLocationSelectorAngle(CgMLGSpectator *this, int clientN
   __int64 v3; 
   int maxClients; 
 
-  _RDI = this;
   v3 = clientNum;
   if ( (unsigned int)clientNum >= cls.maxClients )
   {
@@ -1259,9 +1258,7 @@ float CgMLGSpectator::GetLocationSelectorAngle(CgMLGSpectator *this, int clientN
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator.cpp", 225, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( cls.maxClients )", "clientIndex doesn't index cls.maxClients\n\t%i not in [0, %i)", clientNum, maxClients) )
       __debugbreak();
   }
-  _RCX = 216 * v3;
-  __asm { vmovss  xmm0, dword ptr [rcx+rdi+0DCh] }
-  return *(float *)&_XMM0;
+  return this->m_mlgSpectatorClientInfo[v3].locationSelectorAngle;
 }
 
 /*
@@ -1691,37 +1688,7 @@ CgMLGSpectator::SetMLGSpectatorClientInfo
 */
 void CgMLGSpectator::SetMLGSpectatorClientInfo(CgMLGSpectator *this, const int clientIndex, const MLGSpectatorClientInfo *mlgSpectatorClientInfo)
 {
-  __asm { vmovups xmm0, xmmword ptr [r8] }
-  _R9 = &this->m_mlgSpectatorClientInfo[clientIndex];
-  __asm
-  {
-    vmovups xmmword ptr [r9], xmm0
-    vmovups xmm1, xmmword ptr [r8+10h]
-    vmovups xmmword ptr [r9+10h], xmm1
-    vmovups xmm0, xmmword ptr [r8+20h]
-    vmovups xmmword ptr [r9+20h], xmm0
-    vmovups xmm1, xmmword ptr [r8+30h]
-    vmovups xmmword ptr [r9+30h], xmm1
-    vmovups xmm0, xmmword ptr [r8+40h]
-    vmovups xmmword ptr [r9+40h], xmm0
-    vmovups xmm1, xmmword ptr [r8+50h]
-    vmovups xmmword ptr [r9+50h], xmm1
-    vmovups xmm0, xmmword ptr [r8+60h]
-    vmovups xmmword ptr [r9+60h], xmm0
-    vmovups xmm0, xmmword ptr [r8+70h]
-    vmovups xmmword ptr [r9+70h], xmm0
-    vmovups xmm1, xmmword ptr [r8+80h]
-    vmovups xmmword ptr [r9+80h], xmm1
-    vmovups xmm0, xmmword ptr [r8+90h]
-    vmovups xmmword ptr [r9+90h], xmm0
-    vmovups xmm1, xmmword ptr [r8+0A0h]
-    vmovups xmmword ptr [r9+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [r8+0B0h]
-    vmovups xmmword ptr [r9+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [r8+0C0h]
-    vmovups xmmword ptr [r9+0C0h], xmm1
-  }
-  *(_QWORD *)&_R9->clientFoV = *(_QWORD *)&mlgSpectatorClientInfo->clientFoV;
+  this->m_mlgSpectatorClientInfo[clientIndex] = *mlgSpectatorClientInfo;
 }
 
 /*

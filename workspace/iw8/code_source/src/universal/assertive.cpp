@@ -50,40 +50,35 @@ BuildAssertMessage
 void BuildAssertMessage(unsigned int checksum, const char *exprText, const char *separator, const char *expr, const char *filename, int line, AssertType type, int skipLevels, char *message, int messageSize, const char *webLink)
 {
   const char *v11; 
-  const char *v13; 
-  int v17; 
-  const char *v18; 
-  char *v19; 
+  const char *v12; 
+  int v15; 
+  const char *v16; 
+  char *v17; 
   const char *BuildVersion; 
-  char *v21; 
-  int v22; 
-  __int64 v25; 
-  char v26[8]; 
+  char *v19; 
+  int v20; 
+  __int64 v23; 
+  char v24[8]; 
 
-  v11 = (const char *)&v25;
-  __asm { vmovsd  xmm0, qword ptr cs:aUnknown_2; "<unknown>" }
-  v13 = (const char *)&v25;
+  v11 = (const char *)&v23;
+  v12 = (const char *)&v23;
   if ( filename )
     v11 = filename;
   if ( expr )
-    v13 = expr;
-  strcpy(v26, ">");
-  __asm { vmovsd  [rsp+0C8h+var_60], xmm0 }
+    v12 = expr;
+  strcpy(v24, ">");
+  v23 = *(__int64 *)"<unknown>";
   if ( !GetModuleFileNameA(NULL, g_module, 0x104u) )
-  {
-    __asm { vmovups xmm0, xmmword ptr cs:aUnknownApplica; "<unknown application>" }
-    strcpy(&g_module[16], "tion>");
-    __asm { vmovups xmmword ptr cs:g_module, xmm0 }
-  }
-  v17 = Com_sprintf(message, messageSize, "[0x%08X]\n", checksum);
-  v18 = "(mychanges)";
-  v19 = &message[v17 + Com_sprintf(&message[v17], messageSize - (__int64)v17, "WebLink:    %s\n", webLink)];
+    strcpy(g_module, "<unknown application>");
+  v15 = Com_sprintf(message, messageSize, "[0x%08X]\n", checksum);
+  v16 = "(mychanges)";
+  v17 = &message[v15 + Com_sprintf(&message[v15], messageSize - (__int64)v15, "WebLink:    %s\n", webLink)];
   if ( !g_usedDebugZone )
-    v18 = (char *)&queryFormat.fmt + 3;
+    v16 = (char *)&queryFormat.fmt + 3;
   BuildVersion = Com_GetBuildVersion();
-  v21 = &v19[Com_sprintf(v19, (unsigned __int64)&message[messageSize - (_QWORD)v19], "Compiled: %s %s\nBuild: %s%s\n", "Aug  9 2020", "12:31:44", BuildVersion, v18)];
-  v22 = Com_sprintf(v21, (unsigned __int64)&message[messageSize - (_QWORD)v21], "Expression:\n    %s%s%s\n\nModule:  %s\n%s(%d)\n", exprText, separator, v13, g_module, v11, line);
-  Callstack_StackTraceToString(skipLevels + 1, &v21[v22], messageSize + (int)message - (v22 + (int)v21));
+  v19 = &v17[Com_sprintf(v17, (unsigned __int64)&message[messageSize - (_QWORD)v17], "Compiled: %s %s\nBuild: %s%s\n", "Aug  9 2020", "12:31:44", BuildVersion, v16)];
+  v20 = Com_sprintf(v19, (unsigned __int64)&message[messageSize - (_QWORD)v19], "Expression:\n    %s%s%s\n\nModule:  %s\n%s(%d)\n", exprText, separator, v12, g_module, v11, line);
+  Callstack_StackTraceToString(skipLevels + 1, &v19[v20], messageSize + (int)message - (v20 + (int)v19));
 }
 
 /*

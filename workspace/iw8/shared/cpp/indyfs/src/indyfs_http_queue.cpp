@@ -176,81 +176,68 @@ __int64 indyfs_http_queue_push(IndyFsHttpTaskQueue *taskQueue, IndyFsChunk *chun
 {
   unsigned __int64 readCursor; 
   unsigned __int64 writeCursor; 
-  unsigned int v15; 
-  __m256i v17; 
-  __int64 v18; 
-  IndyFsScopedEvent v19; 
-  IndyFsScopedEvent v20; 
+  IndyFsHttpTask *v10; 
+  unsigned int v11; 
+  IndyFsHttpTaskHandleImpl *v13; 
+  IndyFsScopedEvent v14; 
+  IndyFsScopedEvent v15; 
 
-  _RDI = chunk;
-  _RBX = taskQueue;
-  IndyFsScopedEvent::IndyFsScopedEvent(&v20, "HttpQueue", "Push");
-  indyfs_mutex_lock((LPCRITICAL_SECTION)&_RBX->lock);
-  readCursor = _RBX->readCursor;
-  writeCursor = _RBX->writeCursor;
+  IndyFsScopedEvent::IndyFsScopedEvent(&v15, "HttpQueue", "Push");
+  indyfs_mutex_lock((LPCRITICAL_SECTION)&taskQueue->lock);
+  readCursor = taskQueue->readCursor;
+  writeCursor = taskQueue->writeCursor;
   if ( readCursor >= writeCursor )
   {
 LABEL_7:
     if ( writeCursor - readCursor <= 0x3F )
     {
 LABEL_10:
-      _RCX = &_RBX->data[writeCursor & 0x3F];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rcx], xmm0
-      }
-      *(_DWORD *)&_RCX->chunkSha1[16] = *(_DWORD *)&_RDI->sha1[16];
-      _RCX->chunkSize = _RDI->size;
-      _RCX->waitHandle = (IndyFsHttpTaskHandleImpl *)waitHandle;
-      v15 = 0;
+      v10 = &taskQueue->data[writeCursor & 0x3F];
+      *(_OWORD *)v10->chunkSha1 = *(_OWORD *)chunk->sha1;
+      *(_DWORD *)&v10->chunkSha1[16] = *(_DWORD *)&chunk->sha1[16];
+      v10->chunkSize = chunk->size;
+      v10->waitHandle = (IndyFsHttpTaskHandleImpl *)waitHandle;
+      v11 = 0;
       *(_DWORD *)waitHandle->impl = 0;
-      ++_RBX->writeCursor;
+      ++taskQueue->writeCursor;
       *outputHandle = waitHandle;
-      indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
-      indyfs_condition_variable_signal_one((PCONDITION_VARIABLE)&_RBX->notEmptyCV);
+      indyfs_mutex_unlock((LPCRITICAL_SECTION)&taskQueue->lock);
+      indyfs_condition_variable_signal_one((PCONDITION_VARIABLE)&taskQueue->notEmptyCV);
     }
     else
     {
-      while ( !_RBX->shouldQuit )
+      while ( !taskQueue->shouldQuit )
       {
-        IndyFsScopedEvent::IndyFsScopedEvent(&v19, "HttpQueue", "WaitNotFull");
-        indyfs_condition_variable_wait(&_RBX->notFullCV, &_RBX->lock);
-        IndyFsScopedEvent::~IndyFsScopedEvent(&v19);
-        writeCursor = _RBX->writeCursor;
-        if ( writeCursor - _RBX->readCursor <= 0x3F )
+        IndyFsScopedEvent::IndyFsScopedEvent(&v14, "HttpQueue", "WaitNotFull");
+        indyfs_condition_variable_wait(&taskQueue->notFullCV, &taskQueue->lock);
+        IndyFsScopedEvent::~IndyFsScopedEvent(&v14);
+        writeCursor = taskQueue->writeCursor;
+        if ( writeCursor - taskQueue->readCursor <= 0x3F )
           goto LABEL_10;
       }
-      indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
+      indyfs_mutex_unlock((LPCRITICAL_SECTION)&taskQueue->lock);
       indyfs_log_message(Completed, "A chunk was requested for download while IndyFs is shutting down");
-      v15 = -1;
+      v11 = -1;
     }
   }
   else
   {
-    _RAX = 5 * (_RBX->readCursor & 0x3F);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+rax*8]
-      vmovups [rsp+4A8h+var_480], ymm0
-      vmovsd  xmm1, qword ptr [rbx+rax*8+20h]
-      vmovsd  [rsp+4A8h+var_460], xmm1
-    }
-    while ( *(_OWORD *)v17.m256i_i8 != *(_OWORD *)_RDI->sha1 || v17.m256i_i32[4] != *(_DWORD *)&_RDI->sha1[16] )
+    v13 = taskQueue->data[taskQueue->readCursor & 0x3F].waitHandle;
+    while ( *(_OWORD *)taskQueue->data[taskQueue->readCursor & 0x3F].chunkSha1 != *(_OWORD *)chunk->sha1 || (unsigned int)*(_OWORD *)&taskQueue->data[taskQueue->readCursor & 0x3F].chunkSha1[16] != *(_DWORD *)&chunk->sha1[16] )
     {
       if ( ++readCursor >= writeCursor )
       {
-        readCursor = _RBX->readCursor;
+        readCursor = taskQueue->readCursor;
         goto LABEL_7;
       }
     }
-    ++*(_DWORD *)(v18 + 4);
-    *outputHandle = (IndyFsHttpTaskHandle *)v18;
-    indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
-    v15 = 0;
+    ++v13->refCount;
+    *outputHandle = (IndyFsHttpTaskHandle *)v13;
+    indyfs_mutex_unlock((LPCRITICAL_SECTION)&taskQueue->lock);
+    v11 = 0;
   }
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v20);
-  return v15;
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v15);
+  return v11;
 }
 
 /*
@@ -280,7 +267,7 @@ __int64 indyfs_http_queue_remove(IndyFsHttpTaskQueue *taskQueue, IndyFsHttpTaskH
 {
   unsigned __int64 readCursor; 
   unsigned __int64 writeCursor; 
-  IndyFsHttpTaskHandle **p_waitHandle; 
+  IndyFsHttpTaskHandleImpl **p_waitHandle; 
   IndyFsHttpTaskHandle *v7; 
   unsigned __int8 v8; 
   bool v10; 
@@ -288,24 +275,24 @@ __int64 indyfs_http_queue_remove(IndyFsHttpTaskQueue *taskQueue, IndyFsHttpTaskH
   unsigned __int64 v12; 
   unsigned __int64 v13; 
   unsigned __int64 v14; 
-  IndyFsScopedEvent v19; 
+  unsigned __int64 v15; 
+  IndyFsScopedEvent v16; 
 
-  _RBX = taskQueue;
-  IndyFsScopedEvent::IndyFsScopedEvent(&v19, "HttpQueue", "Remove");
-  indyfs_mutex_lock((LPCRITICAL_SECTION)&_RBX->lock);
-  readCursor = _RBX->readCursor;
-  writeCursor = _RBX->writeCursor;
+  IndyFsScopedEvent::IndyFsScopedEvent(&v16, "HttpQueue", "Remove");
+  indyfs_mutex_lock((LPCRITICAL_SECTION)&taskQueue->lock);
+  readCursor = taskQueue->readCursor;
+  writeCursor = taskQueue->writeCursor;
   if ( readCursor >= writeCursor )
   {
 LABEL_5:
-    indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
+    indyfs_mutex_unlock((LPCRITICAL_SECTION)&taskQueue->lock);
     goto LABEL_6;
   }
-  p_waitHandle = (IndyFsHttpTaskHandle **)&_RBX->data[readCursor].waitHandle;
+  p_waitHandle = &taskQueue->data[readCursor].waitHandle;
   while ( 1 )
   {
-    v7 = *p_waitHandle;
-    if ( *p_waitHandle == waitHandle )
+    v7 = (IndyFsHttpTaskHandle *)*p_waitHandle;
+    if ( *p_waitHandle == (IndyFsHttpTaskHandleImpl *)waitHandle )
       break;
     ++readCursor;
     p_waitHandle += 5;
@@ -320,7 +307,7 @@ LABEL_5:
     {
       if ( v11 )
       {
-        indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
+        indyfs_mutex_unlock((LPCRITICAL_SECTION)&taskQueue->lock);
         v8 = 1;
         goto LABEL_7;
       }
@@ -334,33 +321,26 @@ LABEL_6:
   *(_DWORD *)&v7->impl[4] = -99;
 LABEL_13:
   v12 = readCursor - 1;
-  v13 = _RBX->readCursor;
+  v13 = taskQueue->readCursor;
   if ( readCursor - 1 >= v13 )
   {
     v14 = readCursor;
     do
     {
-      _RDX = 5 * (v12 & 0x3F);
-      _RAX = 5 * (v14 & 0x3F);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+rdx*8]
-        vmovups ymmword ptr [rbx+rax*8], ymm0
-        vmovsd  xmm1, qword ptr [rbx+rdx*8+20h]
-        vmovsd  qword ptr [rbx+rax*8+20h], xmm1
-      }
-      --v12;
+      v15 = v14 & 0x3F;
+      *(__m256i *)taskQueue->data[v15].chunkSha1 = *(__m256i *)taskQueue->data[v12 & 0x3F].chunkSha1;
+      taskQueue->data[v15].waitHandle = taskQueue->data[v12-- & 0x3F].waitHandle;
       --v14;
-      v13 = _RBX->readCursor;
+      v13 = taskQueue->readCursor;
     }
     while ( v12 >= v13 );
   }
-  _RBX->readCursor = v13 + 1;
-  indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
-  indyfs_condition_variable_signal_one((PCONDITION_VARIABLE)&_RBX->notFullCV);
+  taskQueue->readCursor = v13 + 1;
+  indyfs_mutex_unlock((LPCRITICAL_SECTION)&taskQueue->lock);
+  indyfs_condition_variable_signal_one((PCONDITION_VARIABLE)&taskQueue->notFullCV);
   v8 = 1;
 LABEL_7:
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v19);
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v16);
   return v8;
 }
 
@@ -415,71 +395,66 @@ indyfs_http_queue_thread_main
 */
 void indyfs_http_queue_thread_main(const char *threadName)
 {
+  IndyFsHttpTaskQueue *http_task_queue; 
   IndyFsFileCache *filecache; 
   IndyFsStorageServerInfo *storageServerInfo; 
   unsigned __int64 taskId; 
   bool connectionGood; 
-  __int64 v9; 
+  __int64 v6; 
   unsigned __int8 chunkSha1[32]; 
-  _DWORD *v11; 
-  IndyFsScopedEvent v12; 
-  IndyFsScopedEvent v13; 
+  IndyFsHttpTaskHandleImpl *waitHandle; 
+  IndyFsScopedEvent v9; 
+  IndyFsScopedEvent v10; 
   SimpleHttpConnection connection; 
 
-  v9 = -2i64;
+  v6 = -2i64;
   if ( threadName )
     indyfs_profiler_set_current_thread_name(threadName);
   indyfs_profiler_internal_instant_event("HttpQueue", "ThreadStart");
-  _RBX = indyfs_get_http_task_queue();
+  http_task_queue = indyfs_get_http_task_queue();
   filecache = indyfs_get_filecache();
   storageServerInfo = indyfs_get_storage_server_info();
   connectionGood = 0;
   while ( 1 )
   {
-    IndyFsScopedEvent::IndyFsScopedEvent(&v13, "HttpQueue", "TaskLoop");
-    indyfs_mutex_lock((LPCRITICAL_SECTION)&_RBX->lock);
-    if ( _RBX->writeCursor == _RBX->readCursor )
+    IndyFsScopedEvent::IndyFsScopedEvent(&v10, "HttpQueue", "TaskLoop");
+    indyfs_mutex_lock((LPCRITICAL_SECTION)&http_task_queue->lock);
+    if ( http_task_queue->writeCursor == http_task_queue->readCursor )
     {
       while ( 1 )
       {
-        IndyFsScopedEvent::IndyFsScopedEvent(&v12, "HttpQueue", "WaitNotEmpty");
+        IndyFsScopedEvent::IndyFsScopedEvent(&v9, "HttpQueue", "WaitNotEmpty");
         indyfs_statistics_internal_add_count("HttpQueue", "QueueSize", 0i64);
-        if ( _RBX->shouldQuit )
+        if ( http_task_queue->shouldQuit )
           break;
-        indyfs_condition_variable_wait(&_RBX->notEmptyCV, &_RBX->lock);
-        IndyFsScopedEvent::~IndyFsScopedEvent(&v12);
-        if ( _RBX->writeCursor != _RBX->readCursor )
+        indyfs_condition_variable_wait(&http_task_queue->notEmptyCV, &http_task_queue->lock);
+        IndyFsScopedEvent::~IndyFsScopedEvent(&v9);
+        if ( http_task_queue->writeCursor != http_task_queue->readCursor )
           goto LABEL_9;
       }
-      IndyFsScopedEvent::~IndyFsScopedEvent(&v12);
+      IndyFsScopedEvent::~IndyFsScopedEvent(&v9);
     }
 LABEL_9:
-    if ( _RBX->shouldQuit )
+    if ( http_task_queue->shouldQuit )
       break;
-    indyfs_statistics_internal_add_count("HttpQueue", "QueueSize", _RBX->writeCursor - _RBX->readCursor);
-    taskId = _RBX->readCursor;
-    _RAX = 5 * (taskId & 0x3F);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+rax*8]
-      vmovups ymmword ptr [rsp+28F8h+chunkSha1], ymm0
-      vmovsd  xmm1, qword ptr [rbx+rax*8+20h]
-      vmovsd  [rsp+28F8h+var_2888], xmm1
-    }
-    _RBX->readCursor = taskId + 1;
-    indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
-    indyfs_condition_variable_signal_one((PCONDITION_VARIABLE)&_RBX->notFullCV);
+    indyfs_statistics_internal_add_count("HttpQueue", "QueueSize", http_task_queue->writeCursor - http_task_queue->readCursor);
+    taskId = http_task_queue->readCursor;
+    *(__m256i *)chunkSha1 = *(__m256i *)http_task_queue->data[taskId & 0x3F].chunkSha1;
+    waitHandle = http_task_queue->data[taskId & 0x3F].waitHandle;
+    http_task_queue->readCursor = taskId + 1;
+    indyfs_mutex_unlock((LPCRITICAL_SECTION)&http_task_queue->lock);
+    indyfs_condition_variable_signal_one((PCONDITION_VARIABLE)&http_task_queue->notFullCV);
     LODWORD(taskId) = fetch_chunk(filecache, &connection, &connectionGood, chunkSha1, *(unsigned __int64 *)&chunkSha1[24], storageServerInfo, taskId);
-    indyfs_mutex_lock((LPCRITICAL_SECTION)&_RBX->lock);
-    *v11 = ((_DWORD)taskId != 0) + 1;
-    indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
-    indyfs_condition_variable_signal_all((PCONDITION_VARIABLE)&_RBX->notFinishedCV);
-    IndyFsScopedEvent::~IndyFsScopedEvent(&v13);
+    indyfs_mutex_lock((LPCRITICAL_SECTION)&http_task_queue->lock);
+    waitHandle->status = ((_DWORD)taskId != 0) + 1;
+    indyfs_mutex_unlock((LPCRITICAL_SECTION)&http_task_queue->lock);
+    indyfs_condition_variable_signal_all((PCONDITION_VARIABLE)&http_task_queue->notFinishedCV);
+    IndyFsScopedEvent::~IndyFsScopedEvent(&v10);
   }
-  indyfs_mutex_unlock((LPCRITICAL_SECTION)&_RBX->lock);
+  indyfs_mutex_unlock((LPCRITICAL_SECTION)&http_task_queue->lock);
   if ( connectionGood )
     simplehttp_close_connection(&connection);
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v13);
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v10);
 }
 
 /*

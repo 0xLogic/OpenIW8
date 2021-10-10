@@ -93,19 +93,13 @@ bdDTLSInit::bdDTLSInit
 */
 void bdDTLSInit::bdDTLSInit(bdDTLSInit *this, unsigned __int16 initTag, const bdSecurityID *secID, const bdDTLSRandom *randomData, const unsigned __int16 *cypherSuite)
 {
-  _RSI = randomData;
-  _R14 = this;
   bdDTLSHeader::bdDTLSHeader(this, BD_DTLS_INIT, 0, 0);
-  _R14->__vftable = (bdDTLSInit_vtbl *)&bdDTLSInit::`vftable';
-  _R14->m_initTag = initTag;
-  bdSecurityID::bdSecurityID(&_R14->m_secID, secID);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [r14+1Ah], ymm0
-  }
-  _R14->m_random.m_initialized = 1;
-  _R14->m_cypherSuite = *cypherSuite;
+  this->__vftable = (bdDTLSInit_vtbl *)&bdDTLSInit::`vftable';
+  this->m_initTag = initTag;
+  bdSecurityID::bdSecurityID(&this->m_secID, secID);
+  *(__m256i *)this->m_random.m_dtlsRandom = *(__m256i *)randomData->m_dtlsRandom;
+  this->m_random.m_initialized = 1;
+  this->m_cypherSuite = *cypherSuite;
 }
 
 /*
@@ -150,9 +144,8 @@ bool bdDTLSInit::deserialize(bdDTLSInit *this, const void *data, const unsigned 
   bool result; 
   __m256i dest; 
 
-  _RDI = this;
   *newOffset = offset;
-  result = bdDTLSHeader::deserialize(this, data, size, offset, newOffset) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_initTag) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &_RDI->m_secID, 8u);
+  result = bdDTLSHeader::deserialize(this, data, size, offset, newOffset) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_initTag) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &this->m_secID, 8u);
   if ( BD_DTLS_VERSION < 3u )
   {
     if ( result )
@@ -160,14 +153,10 @@ bool bdDTLSInit::deserialize(bdDTLSInit *this, const void *data, const unsigned 
   }
   else
   {
-    if ( result && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_cypherSuite) && expectedCypherSuite == _RDI->m_cypherSuite && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &dest, 0x20u) )
+    if ( result && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_cypherSuite) && expectedCypherSuite == this->m_cypherSuite && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &dest, 0x20u) )
     {
-      __asm
-      {
-        vmovups ymm0, [rsp+88h+dest]
-        vmovups ymmword ptr [rdi+1Ah], ymm0
-      }
-      _RDI->m_random.m_initialized = 1;
+      *(__m256i *)this->m_random.m_dtlsRandom = dest;
+      this->m_random.m_initialized = 1;
       return 1;
     }
     result = 0;

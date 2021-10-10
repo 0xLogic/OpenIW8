@@ -19,7 +19,9 @@ void hknpStaticBodyResetUtil::~hknpStaticBodyResetUtil(hknpStaticBodyResetUtil *
   __int64 m_size; 
   int v3; 
   __int64 v4; 
-  hkMemoryAllocator *v9; 
+  __int64 v5; 
+  hknpBody *v6; 
+  hkMemoryAllocator *v7; 
   int m_capacityAndFlags; 
 
   m_size = (unsigned int)this->m_batchedIds.m_size;
@@ -31,13 +33,10 @@ void hknpStaticBodyResetUtil::~hknpStaticBodyResetUtil(hknpStaticBodyResetUtil *
       v4 = 0i64;
       do
       {
-        _RCX = this->m_batchedIds.m_data[v4].m_serialAndIndex & 0xFFFFFF;
-        _RAX = &this->m_bodies.m_begin[_RCX];
-        *(_QWORD *)&_RAX->m_collisionControl.m_storage = 0i64;
-        __asm { vmovups xmm0, xmmword ptr [rax+50h] }
-        _RCX *= 2i64;
-        _RAX = this->m_previousAabbs.m_begin;
-        __asm { vmovups xmmword ptr [rax+rcx*8], xmm0 }
+        v5 = this->m_batchedIds.m_data[v4].m_serialAndIndex & 0xFFFFFF;
+        v6 = &this->m_bodies.m_begin[v5];
+        *(_QWORD *)&v6->m_collisionControl.m_storage = 0i64;
+        this->m_previousAabbs.m_begin[v5] = v6->m_aabb;
         ++v3;
         ++v4;
         m_size = (unsigned int)this->m_batchedIds.m_size;
@@ -48,11 +47,11 @@ void hknpStaticBodyResetUtil::~hknpStaticBodyResetUtil(hknpStaticBodyResetUtil *
     hkMemHeapAllocator();
     this->m_batchedIds.m_size = 0;
   }
-  v9 = hkMemHeapAllocator();
+  v7 = hkMemHeapAllocator();
   this->m_batchedIds.m_size = 0;
   m_capacityAndFlags = this->m_batchedIds.m_capacityAndFlags;
   if ( m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v9, this->m_batchedIds.m_data, 4, m_capacityAndFlags & 0x3FFFFFFF);
+    hkMemoryAllocator::bufFree2(v7, this->m_batchedIds.m_data, 4, m_capacityAndFlags & 0x3FFFFFFF);
   this->m_batchedIds.m_data = NULL;
   this->m_batchedIds.m_capacityAndFlags = 0x80000000;
 }

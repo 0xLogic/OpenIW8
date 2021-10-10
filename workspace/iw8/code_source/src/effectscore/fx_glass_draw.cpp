@@ -100,204 +100,103 @@ Material *FX_GlassPieceMaterial(unsigned int pieceIndex)
 FX_GlassPiecesInSphere
 ==============
 */
-bool FX_GlassPiecesInSphere(const Sphere *sphere, unsigned __int16 *pieceIndices, unsigned int maxPieces, unsigned int *pieceCount)
+char FX_GlassPiecesInSphere(const Sphere *sphere, unsigned __int16 *pieceIndices, unsigned int maxPieces, unsigned int *pieceCount)
 {
-  __int64 v16; 
-  unsigned int v21; 
-  int v22; 
-  unsigned int v23; 
-  bool v62; 
-  bool result; 
-  __int64 v97; 
-  double v98; 
-  __int64 v99; 
-  double v100; 
-  double v101; 
-  double v102; 
-  double v103; 
-  int v104; 
-  int v105; 
+  __int64 v6; 
+  unsigned int v7; 
+  int v8; 
+  unsigned int v9; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int64 v27; 
+  __int64 v28; 
+  int v29; 
+  int v30; 
   unsigned int pieceWordCount; 
-  char v110; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R13 = sphere;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps [rsp+138h+var_C8], xmm14
-    prefetcht0 byte ptr cs:?fxWorld@@3UFxWorld@@A.glassSys.time; FxWorld fxWorld
-  }
-  v16 = 0i64;
+  __asm { prefetcht0 byte ptr cs:?fxWorld@@3UFxWorld@@A.glassSys.time; FxWorld fxWorld }
+  v6 = 0i64;
   *pieceCount = 0;
-  v105 = 0;
+  v30 = 0;
   pieceWordCount = fxWorld.glassSys.pieceWordCount;
-  if ( fxWorld.glassSys.pieceWordCount )
+  if ( !fxWorld.glassSys.pieceWordCount )
+    return 1;
+  while ( 1 )
   {
-    __asm
-    {
-      vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm12, cs:__real@3f800000
-      vmovss  xmm13, cs:__real@3b03126f
-      vmovss  xmm14, cs:__real@40000000
-    }
-    do
-    {
-      v21 = fxWorld.glassSys.isInUse[v16];
-      if ( v21 )
-      {
-        v22 = 32 * v16;
-        v104 = 32 * v16;
-        while ( 1 )
-        {
-          v23 = __lzcnt(v21);
-          if ( v23 >= 0x20 )
-          {
-            LODWORD(v99) = 32;
-            LODWORD(v97) = v23;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v97, v99) )
-              __debugbreak();
-          }
-          _RSI = v23 | v22;
-          v21 &= ~(0x80000000 >> v23);
-          _RAX = fxWorld.glassSys.pieceStates;
-          _RBX = _RSI;
-          __asm { prefetcht0 byte ptr [rbx+rax] }
-          if ( (fxWorld.glassSys.pieceStates[_RSI].flags & 0x48) == 0 )
-          {
-            _RDI = fxWorld.glassSys.piecePlaces;
-            __asm
-            {
-              prefetcht0 byte ptr [rbx+rdi]
-              vmovss  xmm0, dword ptr [r13+0]
-              vsubss  xmm8, xmm0, dword ptr [rbx+rdi+10h]
-              vmovss  xmm0, dword ptr [r13+8]
-              vmovss  xmm1, dword ptr [r13+4]
-              vsubss  xmm9, xmm1, dword ptr [rbx+rdi+14h]
-              vsubss  xmm10, xmm0, dword ptr [rbx+rdi+18h]
-              vmovss  xmm0, dword ptr [rbx+rdi+1Ch]
-              vaddss  xmm5, xmm0, dword ptr [r13+0Ch]
-              vmulss  xmm1, xmm8, xmm8
-              vmulss  xmm2, xmm9, xmm9
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm10, xmm10
-              vaddss  xmm4, xmm3, xmm0
-              vmulss  xmm1, xmm5, xmm5
-              vcomiss xmm4, xmm1
-            }
-            if ( (fxWorld.glassSys.pieceStates[_RBX].flags & 0x48) == 0 )
-            {
-              _R12 = fxWorld.glassSys.halfThickness;
-              __asm
-              {
-                prefetcht0 byte ptr [r12+rsi*4]
-                vmovss  xmm4, dword ptr [rbx+rdi+4]
-                vmovss  xmm5, dword ptr [rbx+rdi]
-                vmovss  xmm6, dword ptr [rbx+rdi+8]
-                vmovss  xmm7, dword ptr [rbx+rdi+0Ch]
-                vmulss  xmm1, xmm5, xmm5
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm6, xmm6
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm7, xmm7
-                vaddss  xmm2, xmm3, xmm0
-                vsubss  xmm1, xmm2, xmm12
-                vandps  xmm1, xmm1, xmm11
-                vcomiss xmm1, xmm13
-                vsqrtss xmm0, xmm2, xmm2
-                vcvtss2sd xmm1, xmm0, xmm0
-                vmovsd  [rsp+138h+var_F0], xmm1
-                vcvtss2sd xmm0, xmm4, xmm4
-                vcvtss2sd xmm2, xmm7, xmm7
-                vmovsd  [rsp+138h+var_F8], xmm2
-                vcvtss2sd xmm3, xmm6, xmm6
-                vmovsd  [rsp+138h+var_100], xmm3
-                vmovsd  [rsp+138h+var_108], xmm0
-                vcvtss2sd xmm4, xmm5, xmm5
-                vmovsd  [rsp+138h+var_110], xmm4
-              }
-              v62 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v98, v100, v101, v102, v103);
-              if ( v62 )
-                __debugbreak();
-              __asm
-              {
-                vmovss  xmm7, dword ptr [rbx+rdi+4]
-                vmovss  xmm6, dword ptr [rbx+rdi]
-                vmulss  xmm1, xmm7, dword ptr [rbx+rdi+8]
-                vmulss  xmm0, xmm6, dword ptr [rbx+rdi+0Ch]
-                vmulss  xmm3, xmm6, dword ptr [rbx+rdi+8]
-                vsubss  xmm1, xmm1, xmm0
-                vmulss  xmm0, xmm7, dword ptr [rbx+rdi+0Ch]
-                vmulss  xmm2, xmm1, xmm14
-                vaddss  xmm1, xmm3, xmm0
-                vmulss  xmm4, xmm2, xmm9
-                vmulss  xmm2, xmm1, xmm14
-                vmulss  xmm3, xmm2, xmm8
-                vmulss  xmm1, xmm6, xmm6
-                vmulss  xmm0, xmm7, xmm7
-                vaddss  xmm1, xmm1, xmm0
-                vmulss  xmm2, xmm1, xmm14
-                vsubss  xmm0, xmm12, xmm2
-                vmulss  xmm1, xmm0, xmm10
-                vmovss  xmm0, dword ptr [r13+0Ch]
-                vaddss  xmm5, xmm4, xmm3
-                vaddss  xmm3, xmm5, xmm1
-                vaddss  xmm1, xmm0, dword ptr [r12+rsi*4]
-                vandps  xmm3, xmm3, xmm11
-                vcomiss xmm3, xmm1
-              }
-              if ( !v62 )
-              {
-                if ( *pieceCount >= maxPieces )
-                {
-                  result = 0;
-                  goto LABEL_20;
-                }
-                pieceIndices[(*pieceCount)++] = truncate_cast<unsigned short,unsigned int>(_RSI);
-              }
-            }
-            v22 = v104;
-          }
-          if ( !v21 )
-          {
-            LODWORD(v16) = v105;
-            break;
-          }
-        }
-      }
-      v16 = (unsigned int)(v16 + 1);
-      v105 = v16;
-    }
-    while ( (unsigned int)v16 < pieceWordCount );
+    v7 = fxWorld.glassSys.isInUse[v6];
+    if ( v7 )
+      break;
+LABEL_18:
+    v6 = (unsigned int)(v6 + 1);
+    v30 = v6;
+    if ( (unsigned int)v6 >= pieceWordCount )
+      return 1;
   }
-  result = 1;
-LABEL_20:
-  __asm { vmovaps xmm14, [rsp+138h+var_C8] }
-  _R11 = &v110;
-  __asm
+  v8 = 32 * v6;
+  v29 = 32 * v6;
+  while ( 1 )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
+    v9 = __lzcnt(v7);
+    if ( v9 >= 0x20 )
+    {
+      LODWORD(v28) = 32;
+      LODWORD(v27) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
+        __debugbreak();
+    }
+    _RSI = v9 | v8;
+    v7 &= ~(0x80000000 >> v9);
+    _RAX = fxWorld.glassSys.pieceStates;
+    _RBX = _RSI;
+    __asm { prefetcht0 byte ptr [rbx+rax] }
+    if ( (fxWorld.glassSys.pieceStates[_RSI].flags & 0x48) != 0 )
+      goto LABEL_16;
+    _RDI = fxWorld.glassSys.piecePlaces;
+    __asm { prefetcht0 byte ptr [rbx+rdi] }
+    v14 = sphere->origin.v[0] - fxWorld.glassSys.piecePlaces[_RBX].frame.origin.v[0];
+    v15 = sphere->origin.v[1] - fxWorld.glassSys.piecePlaces[_RBX].frame.origin.v[1];
+    v16 = sphere->origin.v[2] - fxWorld.glassSys.piecePlaces[_RBX].frame.origin.v[2];
+    v17 = fxWorld.glassSys.piecePlaces[_RBX].radius + sphere->radius;
+    if ( (float)((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16)) <= (float)(v17 * v17) )
+    {
+      _R12 = fxWorld.glassSys.halfThickness;
+      __asm { prefetcht0 byte ptr [r12+rsi*4] }
+      v19 = fxWorld.glassSys.piecePlaces[_RBX].frame.quat.v[1];
+      v20 = fxWorld.glassSys.piecePlaces[_RBX].frame.quat.v[0];
+      v21 = fxWorld.glassSys.piecePlaces[_RBX].frame.quat.v[2];
+      v22 = fxWorld.glassSys.piecePlaces[_RBX].frame.quat.v[3];
+      v23 = (float)((float)((float)(v20 * v20) + (float)(v19 * v19)) + (float)(v21 * v21)) + (float)(v22 * v22);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v23 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v20, v19, v21, v22, fsqrt(v23)) )
+        __debugbreak();
+      v24 = _RDI[_RBX].frame.quat.v[1];
+      v25 = _RDI[_RBX].frame.quat.v[0];
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)((float)(v24 * _RDI[_RBX].frame.quat.v[2]) - (float)(v25 * _RDI[_RBX].frame.quat.v[3])) * 2.0) * v15) + (float)((float)((float)((float)(v25 * _RDI[_RBX].frame.quat.v[2]) + (float)(v24 * _RDI[_RBX].frame.quat.v[3])) * 2.0) * v14)) + (float)((float)(1.0 - (float)((float)((float)(v25 * v25) + (float)(v24 * v24)) * 2.0)) * v16)) & _xmm) <= (float)(sphere->radius + _R12[_RSI]) )
+        break;
+    }
+LABEL_15:
+    v8 = v29;
+LABEL_16:
+    if ( !v7 )
+    {
+      LODWORD(v6) = v30;
+      goto LABEL_18;
+    }
   }
-  return result;
+  if ( *pieceCount < maxPieces )
+  {
+    pieceIndices[(*pieceCount)++] = truncate_cast<unsigned short,unsigned int>(_RSI);
+    goto LABEL_15;
+  }
+  return 0;
 }
 
 /*
@@ -305,24 +204,25 @@ LABEL_20:
 FX_GlassTrisInPiece
 ==============
 */
-bool FX_GlassTrisInPiece(unsigned int pieceIndex, const vec3_t *normal, GlassTri *tris, unsigned int maxTris, vec3_t *verts, unsigned int maxVerts, unsigned int *triCount, vec3_t *outGlassNormal)
+char FX_GlassTrisInPiece(unsigned int pieceIndex, const vec3_t *normal, GlassTri *tris, unsigned int maxTris, vec3_t *verts, unsigned int maxVerts, unsigned int *triCount, vec3_t *outGlassNormal)
 {
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  FxGlassGeometryData *v23; 
-  bool result; 
-  float v37; 
-  float v38; 
+  float v15; 
+  __m128 v16; 
+  float v17; 
+  vec3_t *v18; 
+  float v19; 
+  FxGlassGeometryData *v20; 
   unsigned int vertIndex; 
-  vec3_t *v40; 
-  vec3_t *v41; 
+  vec3_t *v27; 
+  vec3_t *v28; 
   FxGlassGeometryData *geoData; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+0F8h+var_48], xmm6 }
-  v41 = verts;
-  v40 = outGlassNormal;
-  v11 = pieceIndex;
+  v28 = verts;
+  v27 = outGlassNormal;
+  v10 = pieceIndex;
   if ( maxVerts > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1357, ASSERT_TYPE_ASSERT, "(maxVerts <= 0xffff)", (const char *)&queryFormat, "maxVerts <= USHRT_MAX") )
     __debugbreak();
   __asm
@@ -331,67 +231,40 @@ bool FX_GlassTrisInPiece(unsigned int pieceIndex, const vec3_t *normal, GlassTri
     prefetcht0 byte ptr cs:?fxWorld@@3UFxWorld@@A.glassSys.time; FxWorld fxWorld
   }
   *triCount = 0;
-  v12 = v11;
-  _R14 = &fxWorld.glassSys.pieceStates[v11];
+  v11 = v10;
+  _R14 = &fxWorld.glassSys.pieceStates[v10];
   vertIndex = 0;
   __asm { prefetcht0 byte ptr [r14] }
-  _R12 = &fxWorld.glassSys.piecePlaces[v12];
+  _R12 = &fxWorld.glassSys.piecePlaces[v11];
   __asm { prefetcht0 byte ptr [r12] }
-  _R15 = &fxWorld.glassGlob.defs[fxWorld.glassSys.pieceStates[v12].defIndex];
+  _R15 = &fxWorld.glassGlob.defs[fxWorld.glassSys.pieceStates[v11].defIndex];
   __asm { prefetcht0 byte ptr [r15] }
-  geoData = &fxWorld.glassSys.geoData[fxWorld.glassSys.pieceStates[v12].geoDataStart];
+  geoData = &fxWorld.glassSys.geoData[fxWorld.glassSys.pieceStates[v11].geoDataStart];
   __asm { prefetcht0 byte ptr [rax] }
-  UnitQuatToAxis(&fxWorld.glassSys.piecePlaces[v12].frame.quat, &axis);
+  UnitQuatToAxis(&fxWorld.glassSys.piecePlaces[v11].frame.quat, &axis);
+  v15 = 0.03125 * axis.m[1].v[1];
+  v16 = _mm128_mul_ps((__m128)_xmm, *(__m128 *)axis.m[0].v);
+  v17 = 0.03125 * axis.m[1].v[2];
+  v18 = v27;
+  v19 = axis.m[2].v[2];
+  v20 = geoData;
+  v27->v[0] = axis.m[2].v[0];
+  v18->v[2] = v19;
+  axis.m[1].v[1] = v15;
+  v18->v[1] = axis.m[2].v[1];
+  *(__m128 *)axis.m[0].v = v16;
+  axis.m[1].v[2] = v17;
+  _XMM1 = LODWORD(FLOAT_N1_0);
+  _XMM0 = 0i64;
   __asm
   {
-    vmovaps xmm3, cs:__xmm@3d0000003d0000003d0000003d000000
-    vmulss  xmm0, xmm3, dword ptr [rsp+0F8h+axis+10h]
-    vmulps  xmm1, xmm3, xmmword ptr [rsp+0F8h+axis]
-    vmulss  xmm2, xmm3, dword ptr [rsp+0F8h+axis+14h]
-  }
-  _RAX = v40;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rsp+0F8h+axis+18h]
-    vmovss  xmm3, dword ptr [rsp+0F8h+axis+20h]
-  }
-  v23 = geoData;
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm4
-    vmovss  dword ptr [rax+8], xmm3
-    vmovss  dword ptr [rsp+0F8h+axis+10h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0F8h+axis+1Ch]
-    vmovss  dword ptr [rax+4], xmm0
-    vmovups xmmword ptr [rsp+0F8h+axis], xmm1
-    vmulss  xmm1, xmm0, dword ptr [r13+4]
-    vmulss  xmm0, xmm4, dword ptr [r13+0]
-    vmovss  dword ptr [rsp+0F8h+axis+14h], xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, dword ptr [r13+8]
-    vmovss  xmm3, cs:__real@3f800000
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@bf800000
-    vxorps  xmm0, xmm0, xmm0
     vcmpltss xmm4, xmm0, xmm2
     vblendvps xmm6, xmm1, xmm3, xmm4
-    vmovss  [rsp+0F8h+var_C8], xmm6
   }
-  if ( !FX_GlassTris_AddGlassPieceVerts(&fxWorld.glassSys, _R15, _R14, _R12, v23, &axis, v37, v41, &vertIndex, maxVerts) )
-    goto LABEL_5;
-  __asm { vmovss  [rsp+0F8h+var_C8], xmm6 }
-  if ( FX_GlassTris_AddGlassPieceTris(&fxWorld.glassSys, _R15, _R14, _R12, v23, &axis, v38, 0, tris, triCount, maxTris) )
-  {
-    result = 1;
-  }
-  else
-  {
-LABEL_5:
-    *triCount = 0;
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
-  return result;
+  if ( FX_GlassTris_AddGlassPieceVerts(&fxWorld.glassSys, _R15, _R14, _R12, v20, &axis, *(float *)&_XMM6, v28, &vertIndex, maxVerts) && FX_GlassTris_AddGlassPieceTris(&fxWorld.glassSys, _R15, _R14, _R12, v20, &axis, *(float *)&_XMM6, 0, tris, triCount, maxTris) )
+    return 1;
+  *triCount = 0;
+  return 0;
 }
 
 /*
@@ -399,148 +272,113 @@ LABEL_5:
 FX_GlassTris_AddGlassPieceTris
 ==============
 */
-bool FX_GlassTris_AddGlassPieceTris(const FxGlassSystem *glassSys, const FxGlassDef *def, const FxGlassPieceState *pieceState, const FxGlassPiecePlace *piecePlace, const FxGlassGeometryData *geoData, const tmat33_t<vec3_t> *axis, float side, unsigned int startVertIndex, GlassTri *tris, unsigned int *triIndex, unsigned int maxTris)
+char FX_GlassTris_AddGlassPieceTris(const FxGlassSystem *glassSys, const FxGlassDef *def, const FxGlassPieceState *pieceState, const FxGlassPiecePlace *piecePlace, const FxGlassGeometryData *geoData, const tmat33_t<vec3_t> *axis, float side, unsigned int startVertIndex, GlassTri *tris, unsigned int *triIndex, unsigned int maxTris)
 {
   unsigned __int8 fanDataCount; 
   int vertCount; 
-  unsigned int v17; 
-  unsigned int v18; 
-  GlassTri *v21; 
-  unsigned __int16 v22; 
-  unsigned __int16 v23; 
-  bool result; 
-  unsigned int *v25; 
-  const FxGlassGeometryData *v28; 
-  __int64 v29; 
-  unsigned int v30; 
-  unsigned __int8 v31; 
-  __int64 v32; 
-  unsigned __int16 v33; 
-  GlassTri *v34; 
-  __int16 v35; 
-  __int64 v36; 
-  bool v37; 
-  unsigned __int16 v38; 
-  __int16 v39; 
-  __int64 v40; 
-  unsigned __int16 v41; 
-  __int64 v44; 
-  __int64 v45; 
-  const FxGlassGeometryData *v48; 
+  unsigned int v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  __int64 v17; 
+  GlassTri *v18; 
+  unsigned __int16 v19; 
+  unsigned __int16 v20; 
+  unsigned int *v22; 
+  const FxGlassGeometryData *v23; 
+  __int64 v24; 
+  unsigned int v25; 
+  unsigned __int8 v26; 
+  __int64 v27; 
+  unsigned __int16 v28; 
+  GlassTri *v29; 
+  __int64 v30; 
+  __int64 v31; 
+  unsigned __int16 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
+  const FxGlassGeometryData *v36; 
 
   fanDataCount = pieceState->fanDataCount;
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-  }
   if ( fanDataCount )
   {
-    v25 = triIndex;
-    __asm
+    v22 = triIndex;
+    v23 = &geoData[pieceState->vertCount + pieceState->holeDataCount + (unsigned __int64)pieceState->crackDataCount];
+    v24 = fanDataCount;
+    v25 = *triIndex;
+    v36 = &v23[v24];
+    v26 = v23->asBytes[0];
+LABEL_15:
+    LODWORD(v27) = 2;
+    v28 = startVertIndex + v26;
+    while ( v25 + 1 <= maxTris )
     {
-      vmovss  xmm6, [rsp+88h+side]
-      vxorps  xmm7, xmm7, xmm7
-    }
-    v28 = &geoData[pieceState->vertCount + pieceState->holeDataCount + (unsigned __int64)pieceState->crackDataCount];
-    v29 = fanDataCount;
-    v30 = *triIndex;
-    v48 = &v28[v29];
-    v31 = v28->asBytes[0];
-LABEL_11:
-    LODWORD(v32) = 2;
-    v33 = startVertIndex + v31;
-    while ( v30 + 1 <= maxTris )
-    {
-      if ( v30 >= maxTris )
+      if ( v25 >= maxTris )
       {
-        LODWORD(v45) = maxTris;
-        LODWORD(v44) = v30;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1279, ASSERT_TYPE_ASSERT, "(unsigned)( *triIndex ) < (unsigned)( maxTris )", "*triIndex doesn't index maxTris\n\t%i not in [0, %i)", v44, v45) )
+        LODWORD(v34) = maxTris;
+        LODWORD(v33) = v25;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1279, ASSERT_TYPE_ASSERT, "(unsigned)( *triIndex ) < (unsigned)( maxTris )", "*triIndex doesn't index maxTris\n\t%i not in [0, %i)", v33, v34) )
           __debugbreak();
-        v25 = triIndex;
+        v22 = triIndex;
       }
-      v34 = &tris[*v25];
-      v34->indices[0] = v33;
-      v35 = v28->asBytes[(unsigned int)(v32 - 1)];
-      v36 = 1i64;
-      v37 = __CFADD__((_WORD)startVertIndex, v35) || (_WORD)startVertIndex + v35 == 0;
-      v38 = startVertIndex + v35;
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v37 )
-        v36 = 2i64;
-      v34->indices[v36] = v38;
-      v39 = v28->asBytes[(unsigned int)v32];
-      v40 = 2i64;
-      v37 = __CFADD__((_WORD)startVertIndex, v39) || (_WORD)startVertIndex + v39 == 0;
-      v41 = startVertIndex + v39;
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v37 )
-        v40 = 1i64;
-      v32 = (unsigned int)(v32 + 1);
-      v34->indices[v40] = v41;
-      v30 = *v25 + 1;
-      *v25 = v30;
-      if ( v28->asBytes[v32] == 0xFF )
+      v29 = &tris[*v22];
+      v29->indices[0] = v28;
+      v30 = 1i64;
+      if ( side <= 0.0 )
+        v30 = 2i64;
+      v29->indices[v30] = startVertIndex + v23->asBytes[(unsigned int)(v27 - 1)];
+      v31 = 2i64;
+      v32 = startVertIndex + v23->asBytes[(unsigned int)v27];
+      if ( side <= 0.0 )
+        v31 = 1i64;
+      v27 = (unsigned int)(v27 + 1);
+      v29->indices[v31] = v32;
+      v25 = *v22 + 1;
+      *v22 = v25;
+      if ( v23->asBytes[v27] == 0xFF )
       {
-        v28 = (const FxGlassGeometryData *)((char *)v28 + (unsigned int)(v32 + 1));
-        v31 = v28->asBytes[0];
-        if ( v28->asBytes[0] != 0xFF && v28 != v48 )
-          goto LABEL_11;
-        goto LABEL_24;
+        v23 = (const FxGlassGeometryData *)((char *)v23 + (unsigned int)(v27 + 1));
+        v26 = v23->asBytes[0];
+        if ( v23->asBytes[0] != 0xFF && v23 != v36 )
+          goto LABEL_15;
+        return 1;
       }
     }
-    goto LABEL_25;
+    return 0;
   }
   vertCount = pieceState->vertCount;
-  v17 = *triIndex;
+  v14 = *triIndex;
   if ( vertCount + *triIndex - 2 > maxTris )
-  {
-LABEL_25:
-    result = 0;
-    goto LABEL_26;
-  }
-  v18 = 2;
+    return 0;
+  v15 = 2;
   if ( (unsigned __int8)vertCount <= 2u )
+    return 1;
+  v16 = 4i64;
+  v17 = 1i64;
+  if ( side <= 0.0 )
+    v17 = 2i64;
+  if ( side <= 0.0 )
+    v16 = 2i64;
+  v35 = v16;
+  do
   {
-LABEL_24:
-    result = 1;
-  }
-  else
-  {
-    __asm
+    if ( v14 >= maxTris )
     {
-      vmovss  xmm0, [rsp+88h+side]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
+      LODWORD(v34) = maxTris;
+      LODWORD(v33) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1254, ASSERT_TYPE_ASSERT, "(unsigned)( *triIndex ) < (unsigned)( maxTris )", "*triIndex doesn't index maxTris\n\t%i not in [0, %i)", v33, v34) )
+        __debugbreak();
     }
-    do
-    {
-      if ( v17 >= maxTris )
-      {
-        LODWORD(v45) = maxTris;
-        LODWORD(v44) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1254, ASSERT_TYPE_ASSERT, "(unsigned)( *triIndex ) < (unsigned)( maxTris )", "*triIndex doesn't index maxTris\n\t%i not in [0, %i)", v44, v45) )
-          __debugbreak();
-      }
-      v21 = &tris[*triIndex];
-      v21->indices[0] = startVertIndex;
-      v22 = startVertIndex + v18;
-      v23 = startVertIndex + v18++ - 1;
-      v21->indices[1] = v23;
-      v21->indices[2] = v22;
-      v17 = ++*triIndex;
-    }
-    while ( v18 < pieceState->vertCount );
-    result = 1;
+    v18 = &tris[*triIndex];
+    v18->indices[0] = startVertIndex;
+    v19 = startVertIndex + v15;
+    v20 = startVertIndex + v15++ - 1;
+    v18->indices[v17] = v20;
+    *(unsigned __int16 *)((char *)v18->indices + v35) = v19;
+    v14 = ++*triIndex;
   }
-LABEL_26:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
-  }
-  return result;
+  while ( v15 < pieceState->vertCount );
+  return 1;
 }
 
 /*
@@ -551,126 +389,88 @@ FX_GlassTris_AddGlassPieceVerts
 char FX_GlassTris_AddGlassPieceVerts(const FxGlassSystem *glassSys, const FxGlassDef *def, const FxGlassPieceState *pieceState, const FxGlassPiecePlace *piecePlace, const FxGlassGeometryData *geoData, const tmat33_t<vec3_t> *axis, float side, vec3_t *verts, unsigned int *vertIndex, unsigned int maxVerts)
 {
   unsigned int vertCount; 
-  unsigned int v15; 
-  unsigned int v17; 
-  const FxGlassGeometryData *v33; 
+  unsigned int v14; 
+  __int64 v15; 
+  __int64 v16; 
+  float x; 
+  int y; 
+  const FxGlassGeometryData *v19; 
   unsigned int uniqueVertCount; 
-  unsigned int v35; 
-  unsigned int v36; 
-  __int64 v53; 
-  __int64 v54; 
+  unsigned int v21; 
+  __int64 v22; 
+  __int64 v23; 
+  float v24; 
+  int v25; 
+  __int64 v27; 
+  __int64 v28; 
   unsigned int *vertIndexa; 
 
   vertCount = pieceState->vertCount;
-  v15 = *vertIndex;
+  v14 = *vertIndex;
   if ( vertCount + *vertIndex <= maxVerts )
   {
-    _R13 = verts;
-    v17 = 0;
+    v15 = 0i64;
     if ( pieceState->vertCount )
     {
       do
       {
-        if ( v15 >= maxVerts )
+        if ( v14 >= maxVerts )
         {
-          LODWORD(v54) = maxVerts;
-          LODWORD(v53) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1181, ASSERT_TYPE_ASSERT, "(unsigned)( *vertIndex ) < (unsigned)( maxVerts )", "*vertIndex doesn't index maxVerts\n\t%i not in [0, %i)", v53, v54) )
+          LODWORD(v28) = maxVerts;
+          LODWORD(v27) = v14;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1181, ASSERT_TYPE_ASSERT, "(unsigned)( *vertIndex ) < (unsigned)( maxVerts )", "*vertIndex doesn't index maxVerts\n\t%i not in [0, %i)", v27, v28) )
             __debugbreak();
         }
-        __asm
-        {
-          vxorps  xmm3, xmm3, xmm3
-          vxorps  xmm4, xmm4, xmm4
-        }
-        _RDX = 3i64 * *vertIndex;
-        __asm
-        {
-          vcvtsi2ss xmm3, xmm3, eax
-          vmulss  xmm0, xmm3, dword ptr [rbp+0]
-          vaddss  xmm2, xmm0, dword ptr [r12+10h]
-        }
-        ++v17;
-        __asm
-        {
-          vcvtsi2ss xmm4, xmm4, eax
-          vmulss  xmm1, xmm4, dword ptr [rbp+0Ch]
-          vaddss  xmm0, xmm2, xmm1
-          vmovss  dword ptr [r13+rdx*4+0], xmm0
-          vmulss  xmm2, xmm3, dword ptr [rbp+4]
-          vaddss  xmm1, xmm2, dword ptr [r12+14h]
-          vmulss  xmm0, xmm4, dword ptr [rbp+10h]
-          vaddss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [r13+rdx*4+4], xmm1
-          vmulss  xmm0, xmm3, dword ptr [rbp+8]
-          vaddss  xmm2, xmm0, dword ptr [r12+18h]
-          vmulss  xmm1, xmm4, dword ptr [rbp+14h]
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  dword ptr [r13+rdx*4+8], xmm2
-        }
+        v16 = *vertIndex;
+        x = (float)geoData[v15].vert.x;
+        y = geoData[v15].vert.y;
+        v15 = (unsigned int)(v15 + 1);
+        verts[v16].v[0] = (float)((float)(x * axis->m[0].v[0]) + piecePlace->frame.origin.v[0]) + (float)((float)y * axis->m[1].v[0]);
+        verts[v16].v[1] = (float)((float)(x * axis->m[0].v[1]) + piecePlace->frame.origin.v[1]) + (float)((float)y * axis->m[1].v[1]);
+        verts[v16].v[2] = (float)((float)(x * axis->m[0].v[2]) + piecePlace->frame.origin.v[2]) + (float)((float)y * axis->m[1].v[2]);
         ++*vertIndex;
         vertCount = pieceState->vertCount;
-        v15 = *vertIndex;
+        v14 = *vertIndex;
       }
-      while ( v17 < vertCount );
+      while ( (unsigned int)v15 < vertCount );
     }
-    v33 = &geoData[(unsigned __int8)vertCount];
-    vertIndexa = (unsigned int *)&v33[pieceState->holeDataCount];
-    if ( v33 == (const FxGlassGeometryData *)vertIndexa )
+    v19 = &geoData[(unsigned __int8)vertCount];
+    vertIndexa = (unsigned int *)&v19[pieceState->holeDataCount];
+    if ( v19 == (const FxGlassGeometryData *)vertIndexa )
       return 1;
     while ( 1 )
     {
-      uniqueVertCount = v33->hole.uniqueVertCount;
-      v35 = *vertIndex;
+      uniqueVertCount = v19->hole.uniqueVertCount;
+      v21 = *vertIndex;
       if ( *vertIndex + uniqueVertCount > maxVerts )
         break;
-      v36 = 0;
-      if ( v33->vert.x )
+      v22 = 0i64;
+      if ( v19->vert.x )
       {
         do
         {
-          if ( v35 >= maxVerts )
+          if ( v21 >= maxVerts )
           {
-            LODWORD(v54) = maxVerts;
-            LODWORD(v53) = v35;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1207, ASSERT_TYPE_ASSERT, "(unsigned)( *vertIndex ) < (unsigned)( maxVerts )", "*vertIndex doesn't index maxVerts\n\t%i not in [0, %i)", v53, v54) )
+            LODWORD(v28) = maxVerts;
+            LODWORD(v27) = v21;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1207, ASSERT_TYPE_ASSERT, "(unsigned)( *vertIndex ) < (unsigned)( maxVerts )", "*vertIndex doesn't index maxVerts\n\t%i not in [0, %i)", v27, v28) )
               __debugbreak();
           }
-          __asm
-          {
-            vxorps  xmm3, xmm3, xmm3
-            vxorps  xmm4, xmm4, xmm4
-          }
-          _RDX = 3i64 * *vertIndex;
-          __asm { vcvtsi2ss xmm3, xmm3, eax }
-          ++v36;
-          __asm
-          {
-            vmulss  xmm0, xmm3, dword ptr [rbp+0]
-            vaddss  xmm2, xmm0, dword ptr [r12+10h]
-            vcvtsi2ss xmm4, xmm4, eax
-            vmulss  xmm1, xmm4, dword ptr [rbp+0Ch]
-            vaddss  xmm0, xmm2, xmm1
-            vmovss  dword ptr [r13+rdx*4+0], xmm0
-            vmulss  xmm2, xmm3, dword ptr [rbp+4]
-            vaddss  xmm1, xmm2, dword ptr [r12+14h]
-            vmulss  xmm0, xmm4, dword ptr [rbp+10h]
-            vaddss  xmm1, xmm1, xmm0
-            vmovss  dword ptr [r13+rdx*4+4], xmm1
-            vmulss  xmm0, xmm3, dword ptr [rbp+8]
-            vaddss  xmm2, xmm0, dword ptr [r12+18h]
-            vmulss  xmm1, xmm4, dword ptr [rbp+14h]
-            vaddss  xmm2, xmm2, xmm1
-            vmovss  dword ptr [r13+rdx*4+8], xmm2
-          }
+          v23 = *vertIndex;
+          v24 = (float)v19[v22 + 1].vert.x;
+          v25 = v19[v22 + 1].vert.y;
+          v22 = (unsigned int)(v22 + 1);
+          verts[v23].v[0] = (float)((float)(v24 * axis->m[0].v[0]) + piecePlace->frame.origin.v[0]) + (float)((float)v25 * axis->m[1].v[0]);
+          verts[v23].v[1] = (float)((float)(v24 * axis->m[0].v[1]) + piecePlace->frame.origin.v[1]) + (float)((float)v25 * axis->m[1].v[1]);
+          verts[v23].v[2] = (float)((float)(v24 * axis->m[0].v[2]) + piecePlace->frame.origin.v[2]) + (float)((float)v25 * axis->m[1].v[2]);
           ++*vertIndex;
-          uniqueVertCount = v33->hole.uniqueVertCount;
-          v35 = *vertIndex;
+          uniqueVertCount = v19->hole.uniqueVertCount;
+          v21 = *vertIndex;
         }
-        while ( v36 < uniqueVertCount );
+        while ( (unsigned int)v22 < uniqueVertCount );
       }
-      v33 += (unsigned __int16)uniqueVertCount + 1;
-      if ( v33 == (const FxGlassGeometryData *)vertIndexa )
+      v19 += (unsigned __int16)uniqueVertCount + 1;
+      if ( v19 == (const FxGlassGeometryData *)vertIndexa )
         return 1;
     }
   }
@@ -684,6 +484,7 @@ FX_GlassUpdatePieceLightingCmd
 */
 void FX_GlassUpdatePieceLightingCmd(const void *const cmd)
 {
+  FxGlassVisInfo *v1; 
   int v2; 
   unsigned __int16 *activeTransientZones; 
   unsigned __int16 v4; 
@@ -701,43 +502,45 @@ void FX_GlassUpdatePieceLightingCmd(const void *const cmd)
   __int64 v17; 
   unsigned int v18; 
   unsigned __int8 v19; 
-  unsigned int v33; 
-  unsigned __int16 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  char v38; 
-  int v39; 
-  unsigned __int16 v40; 
-  __int64 v41; 
-  unsigned __int16 *v42; 
-  _DWORD *v43; 
-  __int64 v44; 
+  float v20; 
+  float v21; 
+  unsigned int v22; 
+  unsigned __int16 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  char v27; 
+  int v28; 
+  unsigned __int16 v29; 
+  __int64 v30; 
+  unsigned __int16 *v31; 
+  _DWORD *v32; 
+  __int64 v33; 
 
-  _R13 = (FxGlassVisInfo *)*((_QWORD *)cmd + 2);
-  _R13->visCount = 0;
-  FX_GlassUpdatePieceLightingForGlassSystem(&fxWorld.glassSys, 0, (const vec3_t *)cmd, _R13);
+  v1 = (FxGlassVisInfo *)*((_QWORD *)cmd + 2);
+  v1->visCount = 0;
+  FX_GlassUpdatePieceLightingForGlassSystem(&fxWorld.glassSys, 0, (const vec3_t *)cmd, v1);
   v2 = 0;
-  v39 = 0;
+  v28 = 0;
   if ( fxWorld.activeTransientZoneCount )
   {
     activeTransientZones = fxWorld.activeTransientZones;
-    v42 = fxWorld.activeTransientZones;
+    v31 = fxWorld.activeTransientZones;
     do
     {
-      if ( _R13->visCount == 65520 )
+      if ( v1->visCount == 65520 )
         break;
-      v40 = *activeTransientZones;
+      v29 = *activeTransientZones;
       v4 = *activeTransientZones;
       if ( *activeTransientZones >= fxWorld.transientZoneCount )
       {
-        LODWORD(v36) = fxWorld.transientZoneCount;
-        LODWORD(v35) = v40;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1159, ASSERT_TYPE_ASSERT, "(unsigned)( transientIndex ) < (unsigned)( fxWorld.transientZoneCount )", "transientIndex doesn't index fxWorld.transientZoneCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v25) = fxWorld.transientZoneCount;
+        LODWORD(v24) = v29;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1159, ASSERT_TYPE_ASSERT, "(unsigned)( transientIndex ) < (unsigned)( fxWorld.transientZoneCount )", "transientIndex doesn't index fxWorld.transientZoneCount\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
       v5 = *(_QWORD *)&fxWorld.activeTransientZones[4 * v4 - 6144];
-      v41 = v5;
+      v30 = v5;
       if ( v5 )
       {
         v6 = *(_DWORD *)(v5 + 28);
@@ -745,7 +548,7 @@ void FX_GlassUpdatePieceLightingCmd(const void *const cmd)
         {
           v7 = *(_DWORD **)(v5 + 88);
           LODWORD(v8) = 0;
-          v43 = v7;
+          v32 = v7;
           if ( !*v7 )
           {
             do
@@ -765,27 +568,27 @@ void FX_GlassUpdatePieceLightingCmd(const void *const cmd)
             _R14 = *(_QWORD *)(v5 + 56) + 32i64 * v12;
             __asm { prefetcht0 byte ptr [r14] }
             v14 = 0;
-            v38 = 0;
+            v27 = 0;
             while ( 1 )
             {
               v15 = v12;
-              v44 = _R14;
+              v33 = _R14;
               if ( v11 )
               {
 LABEL_17:
                 v16 = __lzcnt(v11);
                 if ( v16 >= 0x20 )
                 {
-                  LODWORD(v36) = 32;
-                  LODWORD(v35) = v16;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v35, v36) )
+                  LODWORD(v25) = 32;
+                  LODWORD(v24) = v16;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v24, v25) )
                     __debugbreak();
-                  v14 = v38;
+                  v14 = v27;
                 }
                 v11 &= ~(0x80000000 >> v16);
                 v12 = v16 | (32 * v8);
-                v17 = v41;
-                _R14 = *(_QWORD *)(v41 + 56) + 32i64 * v12;
+                v17 = v30;
+                _R14 = *(_QWORD *)(v30 + 56) + 32i64 * v12;
                 __asm { prefetcht0 byte ptr [r14] }
               }
               else
@@ -795,81 +598,64 @@ LABEL_17:
                   v8 = (unsigned int)(v8 + 1);
                   if ( (_DWORD)v8 == v6 )
                     break;
-                  v11 = v43[v8];
+                  v11 = v32[v8];
                   if ( v11 )
                     goto LABEL_17;
                 }
-                v17 = v41;
+                v17 = v30;
                 v14 = 1;
-                v38 = 1;
+                v27 = 1;
               }
               v18 = *(_DWORD *)(v17 + 24);
               if ( (unsigned int)v15 >= v18 )
               {
-                LODWORD(v36) = v18;
-                LODWORD(v35) = v15;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1121, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( glassSys->pieceLimit )", "pieceIndex doesn't index glassSys->pieceLimit\n\t%i not in [0, %i)", v35, v36) )
+                LODWORD(v25) = v18;
+                LODWORD(v24) = v15;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1121, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( glassSys->pieceLimit )", "pieceIndex doesn't index glassSys->pieceLimit\n\t%i not in [0, %i)", v24, v25) )
                   __debugbreak();
-                v14 = v38;
+                v14 = v27;
               }
-              v19 = *(_BYTE *)(v15 + *(_QWORD *)(v41 + 104));
+              v19 = *(_BYTE *)(v15 + *(_QWORD *)(v30 + 104));
               if ( v19 )
               {
                 if ( v19 > 3u )
                 {
-                  LODWORD(v37) = v15;
-                  LODWORD(v36) = v19;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1125, ASSERT_TYPE_ASSERT, "(glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES))", "%s\n\tvalue: %d, pieceIndex: %d", "glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES)", v36, v37) )
+                  LODWORD(v26) = v15;
+                  LODWORD(v25) = v19;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1125, ASSERT_TYPE_ASSERT, "(glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES))", "%s\n\tvalue: %d, pieceIndex: %d", "glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES)", v25, v26) )
                     __debugbreak();
                 }
-                _R13->visList[_R13->visCount].pieceIndex = v15;
-                _R13->visList[_R13->visCount].transientIndex = v40;
-                _R13->visList[_R13->visCount].drawFlags = *(_BYTE *)(v15 + *(_QWORD *)(v41 + 104));
-                _RAX = cmd;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rax]
-                  vmovss  xmm1, dword ptr [rax+4]
-                  vsubss  xmm3, xmm0, dword ptr [rcx]
-                  vmovss  xmm0, dword ptr [rax+8]
-                  vsubss  xmm2, xmm1, dword ptr [rcx+4]
-                  vsubss  xmm4, xmm0, dword ptr [rcx+8]
-                  vmulss  xmm2, xmm2, xmm2
-                  vmulss  xmm1, xmm3, xmm3
-                }
-                _RAX = 2i64 * _R13->visCount;
-                __asm
-                {
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm3, xmm2, xmm1
-                  vaddss  xmm4, xmm3, xmm0
-                  vmovss  dword ptr [r13+rax*8+4], xmm4
-                }
-                v33 = R_AddGlassProbeLighting((const vec3_t *)(v44 + 16));
-                v34 = v33;
-                if ( v33 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v33, "unsigned", v33) )
+                v1->visList[v1->visCount].pieceIndex = v15;
+                v1->visList[v1->visCount].transientIndex = v29;
+                v1->visList[v1->visCount].drawFlags = *(_BYTE *)(v15 + *(_QWORD *)(v30 + 104));
+                v20 = *((float *)cmd + 1) - *(float *)(v33 + 20);
+                v21 = *((float *)cmd + 2) - *(float *)(v33 + 24);
+                v1->visList[v1->visCount].distSq = (float)((float)(v20 * v20) + (float)((float)(*(float *)cmd - *(float *)(v33 + 16)) * (float)(*(float *)cmd - *(float *)(v33 + 16)))) + (float)(v21 * v21);
+                v22 = R_AddGlassProbeLighting((const vec3_t *)(v33 + 16));
+                v23 = v22;
+                if ( v22 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v22, "unsigned", v22) )
                   __debugbreak();
-                _R13->visList[_R13->visCount++].lightingHandle = v34;
-                if ( _R13->visCount == 65520 )
+                v1->visList[v1->visCount++].lightingHandle = v23;
+                if ( v1->visCount == 65520 )
                 {
 LABEL_36:
-                  activeTransientZones = v42;
+                  activeTransientZones = v31;
                   break;
                 }
-                v14 = v38;
+                v14 = v27;
               }
               if ( v14 )
                 goto LABEL_36;
             }
           }
 LABEL_37:
-          v2 = v39;
+          v2 = v28;
         }
       }
       ++v2;
       ++activeTransientZones;
-      v39 = v2;
-      v42 = activeTransientZones;
+      v28 = v2;
+      v31 = activeTransientZones;
     }
     while ( v2 < fxWorld.activeTransientZoneCount );
   }
@@ -896,17 +682,18 @@ void FX_GlassUpdatePieceLightingForGlassSystem(const FxGlassSystem *glassSys, co
   unsigned int v17; 
   unsigned __int8 *visData; 
   unsigned __int8 v19; 
-  unsigned int v33; 
-  unsigned __int16 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  char v38; 
-  unsigned int v39; 
-  FxGlassPiecePlace *v42; 
+  float v20; 
+  float v21; 
+  unsigned int v22; 
+  unsigned __int16 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  char v27; 
+  unsigned int v28; 
+  FxGlassPiecePlace *v31; 
 
   pieceWordCount = glassSys->pieceWordCount;
-  _R13 = visInfo;
   if ( pieceWordCount )
   {
     v6 = 0i64;
@@ -924,23 +711,23 @@ LABEL_5:
         _R12 = &glassSys->piecePlaces[v11];
         __asm { prefetcht0 byte ptr [r12] }
         v14 = 0;
-        v38 = 0;
+        v27 = 0;
         do
         {
-          v42 = _R12;
+          v31 = _R12;
           v15 = v11;
-          v39 = v11;
+          v28 = v11;
           if ( v10 )
           {
 LABEL_10:
             v16 = __lzcnt(v10);
             if ( v16 >= 0x20 )
             {
-              LODWORD(v36) = 32;
-              LODWORD(v35) = v16;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v35, v36) )
+              LODWORD(v25) = 32;
+              LODWORD(v24) = v16;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v24, v25) )
                 __debugbreak();
-              v14 = v38;
+              v14 = v27;
               v15 = v11;
             }
             v11 = v16 | (32 * v6);
@@ -962,16 +749,16 @@ LABEL_10:
                 goto LABEL_10;
             }
             v14 = 1;
-            v38 = 1;
+            v27 = 1;
           }
           if ( v15 >= v12->pieceLimit )
           {
-            LODWORD(v36) = v12->pieceLimit;
-            LODWORD(v35) = v15;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1121, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( glassSys->pieceLimit )", "pieceIndex doesn't index glassSys->pieceLimit\n\t%i not in [0, %i)", v35, v36) )
+            LODWORD(v25) = v12->pieceLimit;
+            LODWORD(v24) = v15;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1121, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( glassSys->pieceLimit )", "pieceIndex doesn't index glassSys->pieceLimit\n\t%i not in [0, %i)", v24, v25) )
               __debugbreak();
-            v14 = v38;
-            v15 = v39;
+            v14 = v27;
+            v15 = v28;
           }
           visData = v12->visData;
           v19 = visData[v15];
@@ -979,46 +766,29 @@ LABEL_10:
           {
             if ( v19 > 3u )
             {
-              LODWORD(v37) = v15;
-              LODWORD(v36) = v19;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1125, ASSERT_TYPE_ASSERT, "(glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES))", "%s\n\tvalue: %d, pieceIndex: %d", "glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES)", v36, v37) )
+              LODWORD(v26) = v15;
+              LODWORD(v25) = v19;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 1125, ASSERT_TYPE_ASSERT, "(glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES))", "%s\n\tvalue: %d, pieceIndex: %d", "glassSys->visData[pieceIndex] <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES)", v25, v26) )
               {
                 __debugbreak();
                 visData = glassSys->visData;
               }
-              v15 = v39;
+              v15 = v28;
             }
-            _R13->visList[_R13->visCount].pieceIndex = v15;
-            _R13->visList[_R13->visCount].transientIndex = transientIndex;
-            _R13->visList[_R13->visCount].drawFlags = visData[v15];
-            _RAX = viewOrg;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  xmm1, dword ptr [rax+4]
-              vsubss  xmm3, xmm0, dword ptr [rcx]
-              vmovss  xmm0, dword ptr [rax+8]
-              vsubss  xmm2, xmm1, dword ptr [rcx+4]
-              vsubss  xmm4, xmm0, dword ptr [rcx+8]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-            }
-            _RAX = 2i64 * _R13->visCount;
-            __asm
-            {
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm4, xmm3, xmm0
-              vmovss  dword ptr [r13+rax*8+4], xmm4
-            }
-            v33 = R_AddGlassProbeLighting(&v42->frame.origin);
-            v34 = v33;
-            if ( v33 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v33, "unsigned", v33) )
+            visInfo->visList[visInfo->visCount].pieceIndex = v15;
+            visInfo->visList[visInfo->visCount].transientIndex = transientIndex;
+            visInfo->visList[visInfo->visCount].drawFlags = visData[v15];
+            v20 = viewOrg->v[1] - v31->frame.origin.v[1];
+            v21 = viewOrg->v[2] - v31->frame.origin.v[2];
+            visInfo->visList[visInfo->visCount].distSq = (float)((float)(v20 * v20) + (float)((float)(viewOrg->v[0] - v31->frame.origin.v[0]) * (float)(viewOrg->v[0] - v31->frame.origin.v[0]))) + (float)(v21 * v21);
+            v22 = R_AddGlassProbeLighting(&v31->frame.origin);
+            v23 = v22;
+            if ( v22 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v22, "unsigned", v22) )
               __debugbreak();
-            _R13->visList[_R13->visCount++].lightingHandle = v34;
-            if ( _R13->visCount == 65520 )
+            visInfo->visList[visInfo->visCount++].lightingHandle = v23;
+            if ( visInfo->visCount == 65520 )
               return;
-            v14 = v38;
+            v14 = v27;
           }
           v12 = glassSys;
         }
@@ -1046,18 +816,14 @@ bool Glass_CompareVisRefs(FxGlassPieceVisRef *visRef0, FxGlassPieceVisRef *visRe
 {
   unsigned __int16 materialSortedIndex; 
   unsigned __int16 v3; 
+  bool v4; 
 
   materialSortedIndex = visRef0->materialSortedIndex;
   v3 = visRef1->materialSortedIndex;
+  v4 = materialSortedIndex < v3;
   if ( materialSortedIndex == v3 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vcomiss xmm0, dword ptr [rcx]
-    }
-  }
-  return materialSortedIndex < v3;
+    return visRef1->distSq < visRef0->distSq;
+  return v4;
 }
 
 /*
@@ -1068,331 +834,211 @@ Glass_DrawBorderSegment
 void Glass_DrawBorderSegment(FxGlassDrawState *drawState, unsigned int i0, unsigned int i1, unsigned int i2, unsigned int i3, bool usedLastEdge)
 {
   unsigned __int16 baseVertex; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v8; 
+  __int64 v9; 
+  GfxGlassVertex *v10; 
+  GfxColor color; 
+  __int64 v13; 
   unsigned int packed; 
-  __int64 v23; 
-  PackedUnitVec v38; 
-  PackedQuatDec3n v65; 
-  PackedQuatDec3n v69; 
-  __int64 v70; 
-  unsigned int v78; 
+  __int128 v18; 
+  PackedQuatDec3n v22; 
+  float v23; 
+  float v24; 
+  PackedQuatDec3n v25; 
+  __int64 v26; 
+  __int64 v27; 
+  float v28; 
+  unsigned int v29; 
+  GfxGlassVertex *v30; 
+  float v31; 
+  __int64 v32; 
   unsigned int lightingHandle; 
-  PackedUnitVec v99; 
-  PackedQuatDec3n v126; 
-  unsigned int v132; 
+  unsigned int v37; 
+  __int128 v38; 
+  PackedQuatDec3n v42; 
+  __int64 v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  unsigned int v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  GfxGlassVertex *v53; 
+  float v54; 
   r_double_index_t *dstIndices; 
   unsigned int totalIndexCount; 
-  unsigned __int64 v144; 
+  unsigned __int64 v57; 
   unsigned int totalVertCount; 
-  unsigned int v153; 
-  __int64 v155; 
+  unsigned int v60; 
+  __int64 v61; 
+  __int64 v62; 
   vec3_t cross; 
   vec3_t out; 
   vec3_t v1; 
   vec3_t mat1; 
   vec4_t quat; 
-  char v161; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
   baseVertex = drawState->baseVertex;
-  _R15 = drawState;
-  v15 = i2;
-  v16 = i1;
-  _R13 = R_GlassMeshVertIter_Begin(baseVertex);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@bf800000
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm11, cs:__real@80000000
-  }
-  packed = _R15->def->color.packed;
-  _EAX = 0;
-  v23 = (unsigned int)v15;
-  v155 = v15;
+  v8 = i2;
+  v9 = i1;
+  v10 = R_GlassMeshVertIter_Begin(baseVertex);
+  _XMM9 = LODWORD(FLOAT_1_0);
+  color = drawState->def->color;
+  v13 = (unsigned int)v8;
+  v62 = v8;
   if ( usedLastEdge )
   {
-    lightingHandle = _R15->lightingHandle;
-    v153 = lightingHandle;
+    v32 = v9;
+    lightingHandle = drawState->lightingHandle;
+    v60 = lightingHandle;
   }
   else
   {
+    _XMM0 = 0u;
     __asm
     {
-      vmovd   xmm1, dword ptr [r15+860h]
-      vmovd   xmm0, eax
       vpcmpgtd xmm2, xmm0, xmm1
       vblendvps xmm8, xmm9, xmm10, xmm2
     }
-    _RAX = 3 * v15;
+    *(float *)&_XMM0 = drawState->localVerts[v8].v[1] - drawState->localVerts[i0].v[1];
+    v1.v[0] = drawState->localVerts[v8].v[0] - drawState->localVerts[i0].v[0];
+    v1.v[2] = drawState->localVerts[v8].v[2] - drawState->localVerts[i0].v[2];
+    v1.v[1] = *(float *)&_XMM0;
+    Vec3Cross(&drawState->axis.m[2], &v1, &cross);
+    packed = drawState->packedTangentBinormalSign.packed;
+    v18 = LODWORD(cross.v[0]);
+    *(float *)&v18 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(cross.v[1] * cross.v[1])) + (float)(cross.v[2] * cross.v[2]));
+    _XMM3 = v18;
     __asm
     {
-      vmovss  xmm0, dword ptr [r15+rax*4]
-      vsubss  xmm1, xmm0, dword ptr [r15+rcx*4]
-      vmovss  xmm2, dword ptr [r15+rax*4+4]
-      vsubss  xmm0, xmm2, dword ptr [r15+rcx*4+4]
-      vmovss  dword ptr [rbp+47h+v1], xmm1
-      vmovss  xmm1, dword ptr [r15+rax*4+8]
-      vsubss  xmm2, xmm1, dword ptr [r15+rcx*4+8]
-      vmovss  dword ptr [rbp+47h+v1+8], xmm2
-      vmovss  dword ptr [rbp+47h+v1+4], xmm0
-    }
-    Vec3Cross(&_R15->axis.m[2], &v1, &cross);
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsp+110h+cross]
-      vmovss  xmm6, dword ptr [rsp+110h+cross+4]
-      vmovss  xmm4, dword ptr [rsp+110h+cross+8]
-    }
-    v38.packed = _R15->packedTangentBinormalSign.packed;
-    __asm
-    {
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, xmm11
       vblendvps xmm0, xmm3, xmm9, xmm0
-      vdivss  xmm2, xmm9, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rsp+110h+cross], xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rsp+110h+cross+8], xmm0
-      vmovss  dword ptr [rsp+110h+cross+4], xmm1
     }
-    Vec3UnpackUnitVec(v38, &out);
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbp+47h+out+8]
-      vmovss  xmm2, dword ptr [rsp+110h+cross+8]
-      vmovss  xmm7, dword ptr [rsp+110h+cross+4]
-      vmovss  xmm6, dword ptr [rbp+47h+out+4]
-      vmulss  xmm0, xmm2, xmm6
-      vmulss  xmm2, xmm2, dword ptr [rsp+110h+out]
-      vmulss  xmm1, xmm7, xmm5
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm5, dword ptr [rsp+110h+cross]
-      vmovss  dword ptr [rbp+47h+mat1], xmm1
-      vsubss  xmm1, xmm2, xmm0
-      vmulss  xmm2, xmm6, dword ptr [rsp+110h+cross]
-      vmulss  xmm0, xmm7, dword ptr [rsp+110h+out]
-      vmovss  dword ptr [rbp+47h+mat1+4], xmm1
-      vsubss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbp+47h+mat1+8], xmm1
-    }
+    cross.v[0] = cross.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    cross.v[2] = cross.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    cross.v[1] = cross.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    Vec3UnpackUnitVec((const PackedUnitVec)packed, &out);
+    mat1.v[0] = (float)(cross.v[1] * out.v[2]) - (float)(cross.v[2] * out.v[1]);
+    mat1.v[1] = (float)(cross.v[2] * out.v[0]) - (float)(out.v[2] * cross.v[0]);
+    mat1.v[2] = (float)(out.v[1] * cross.v[0]) - (float)(cross.v[1] * out.v[0]);
     AxisComponentsToQuat(&out, &mat1, &cross, &quat);
-    __asm
-    {
-      vmovaps xmm1, xmm8; binormalSign
-      vmovss  dword ptr [rsp+110h+var_E8], xmm8
-    }
-    v65.packed = UnitQuatToQuatDec3n(&quat, *(float *)&_XMM1).packed;
-    __asm
-    {
-      vmovss  xmm8, dword ptr [r15+854h]
-      vmovss  xmm7, dword ptr [r15+858h]
-      vmovss  xmm6, dword ptr [r15+85Ch]
-    }
-    v69.packed = v65.packed;
-    v70 = (unsigned int)v16;
-    _R14 = 3 * v16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+r14*4]
-      vsubss  xmm1, xmm0, xmm8
-      vmovss  xmm0, dword ptr [r15+r14*4+4]
-      vmovss  dword ptr [r13+0], xmm1
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  xmm0, dword ptr [r15+r14*4+8]
-      vmovss  dword ptr [r13+4], xmm1
-      vsubss  xmm1, xmm0, xmm6
-    }
-    v78 = _R15->texCoords[v70].packed;
-    LODWORD(v70) = _R15->lightingHandle;
-    __asm { vmovss  dword ptr [r13+8], xmm1 }
-    v153 = v70;
-    _R13->lgvIndex = v70;
-    _R13->color = packed;
-    _R13->texcoord = v78;
-    _R13->tangentFrame = v69.packed;
-    __asm
-    {
-      vaddss  xmm0, xmm8, dword ptr [r15+r14*4]
-      vaddss  xmm1, xmm7, dword ptr [r15+r14*4+4]
-    }
-    _R13 = R_GlassMeshVertIter_Next(_R13);
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vaddss  xmm0, xmm6, dword ptr [r15+r14*4+8]
-    }
-    _R15->totalVertCount += 2;
-    lightingHandle = _R15->lightingHandle;
+    v22.packed = UnitQuatToQuatDec3n(&quat, *(float *)&_XMM8).packed;
+    *(float *)&_XMM8 = drawState->thicknessOffset.v[0];
+    v23 = drawState->thicknessOffset.v[1];
+    v24 = drawState->thicknessOffset.v[2];
+    v25.packed = v22.packed;
+    v26 = (unsigned int)v9;
+    v27 = v9;
+    v61 = v26;
+    *(float *)&_XMM0 = drawState->localVerts[v27].v[1];
+    v10->position.v[0] = drawState->localVerts[v27].v[0] - *(float *)&_XMM8;
+    v28 = *(float *)&_XMM0 - v23;
+    *(float *)&_XMM0 = drawState->localVerts[v27].v[2];
+    v10->position.v[1] = v28;
+    v29 = drawState->texCoords[v26].packed;
+    LODWORD(v26) = drawState->lightingHandle;
+    v10->position.v[2] = *(float *)&_XMM0 - v24;
+    v60 = v26;
+    v10->lgvIndex = v26;
+    v10->color = color.packed;
+    v10->texcoord = v29;
+    v10->tangentFrame = v25.packed;
+    v30 = R_GlassMeshVertIter_Next(v10);
+    v31 = v23 + drawState->localVerts[v27].v[1];
+    v32 = v61;
+    v10 = v30;
+    v30->position.v[0] = *(float *)&_XMM8 + drawState->localVerts[v27].v[0];
+    *(float *)&v18 = v24 + drawState->localVerts[v27].v[2];
+    drawState->totalVertCount += 2;
+    lightingHandle = drawState->lightingHandle;
     baseVertex += 2;
-    __asm
-    {
-      vmovss  dword ptr [rax+4], xmm1
-      vmovss  dword ptr [rax+8], xmm0
-    }
-    _R13->texcoord = v78;
-    v23 = v155;
-    _R15->baseVertex = baseVertex;
-    _R13->color = packed;
-    _R13->tangentFrame = v69.packed;
-    _R13->lgvIndex = lightingHandle;
+    v30->position.v[1] = v31;
+    v30->position.v[2] = *(float *)&v18;
+    v30->texcoord = v29;
+    v13 = v62;
+    drawState->baseVertex = baseVertex;
+    v30->color = color.packed;
+    v30->tangentFrame = v25.packed;
+    v30->lgvIndex = lightingHandle;
   }
-  _EDX = _R15->packedTangentBinormalSign.packed;
-  __asm { vmovd   xmm1, edx }
-  totalVertCount = _R15->totalVertCount;
-  _EAX = 0;
+  totalVertCount = drawState->totalVertCount;
+  _XMM0 = 0u;
   __asm
   {
-    vmovd   xmm0, eax
     vpcmpgtd xmm2, xmm0, xmm1
     vblendvps xmm8, xmm9, xmm10, xmm2
   }
-  _RDX = 3i64 * i3;
+  *(float *)&_XMM0 = drawState->localVerts[i3].v[1] - drawState->localVerts[v32].v[1];
+  v1.v[0] = drawState->localVerts[i3].v[0] - drawState->localVerts[v32].v[0];
+  v1.v[2] = drawState->localVerts[i3].v[2] - drawState->localVerts[v32].v[2];
+  v1.v[1] = *(float *)&_XMM0;
+  Vec3Cross(&drawState->axis.m[2], &v1, &cross);
+  v37 = drawState->packedTangentBinormalSign.packed;
+  v38 = LODWORD(cross.v[0]);
+  *(float *)&v38 = fsqrt((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(cross.v[1] * cross.v[1])) + (float)(cross.v[2] * cross.v[2]));
+  _XMM3 = v38;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+rdx*4]
-    vsubss  xmm1, xmm0, dword ptr [r15+r8*4]
-    vmovss  xmm2, dword ptr [r15+rdx*4+4]
-    vsubss  xmm0, xmm2, dword ptr [r15+r8*4+4]
-    vmovss  dword ptr [rbp+47h+v1], xmm1
-    vmovss  xmm1, dword ptr [r15+rdx*4+8]
-    vsubss  xmm2, xmm1, dword ptr [r15+r8*4+8]
-    vmovss  dword ptr [rbp+47h+v1+8], xmm2
-    vmovss  dword ptr [rbp+47h+v1+4], xmm0
-  }
-  Vec3Cross(&_R15->axis.m[2], &v1, &cross);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+110h+cross]
-    vmovss  xmm6, dword ptr [rsp+110h+cross+4]
-    vmovss  xmm4, dword ptr [rsp+110h+cross+8]
-  }
-  v99.packed = _R15->packedTangentBinormalSign.packed;
-  __asm
-  {
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm11
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm2, xmm9, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+110h+cross], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+110h+cross+8], xmm0
-    vmovss  dword ptr [rsp+110h+cross+4], xmm1
   }
-  Vec3UnpackUnitVec(v99, &out);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+47h+out+8]
-    vmovss  xmm2, dword ptr [rsp+110h+cross+8]
-    vmovss  xmm7, dword ptr [rsp+110h+cross+4]
-    vmovss  xmm6, dword ptr [rbp+47h+out+4]
-    vmulss  xmm0, xmm2, xmm6
-    vmulss  xmm2, xmm2, dword ptr [rsp+110h+out]
-    vmulss  xmm1, xmm7, xmm5
-    vsubss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rsp+110h+cross]
-    vmovss  dword ptr [rbp+47h+mat1], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vmulss  xmm2, xmm6, dword ptr [rsp+110h+cross]
-    vmulss  xmm0, xmm7, dword ptr [rsp+110h+out]
-    vmovss  dword ptr [rbp+47h+mat1+4], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rbp+47h+mat1+8], xmm1
-  }
+  cross.v[0] = cross.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  cross.v[2] = cross.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  cross.v[1] = cross.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  Vec3UnpackUnitVec((const PackedUnitVec)v37, &out);
+  mat1.v[0] = (float)(cross.v[1] * out.v[2]) - (float)(cross.v[2] * out.v[1]);
+  mat1.v[1] = (float)(cross.v[2] * out.v[0]) - (float)(out.v[2] * cross.v[0]);
+  mat1.v[2] = (float)(out.v[1] * cross.v[0]) - (float)(cross.v[1] * out.v[0]);
   AxisComponentsToQuat(&out, &mat1, &cross, &quat);
-  __asm { vmovaps xmm1, xmm8; binormalSign }
-  v126.packed = UnitQuatToQuatDec3n(&quat, *(float *)&_XMM1).packed;
+  v42.packed = UnitQuatToQuatDec3n(&quat, *(float *)&_XMM8).packed;
   if ( !usedLastEdge )
   {
-    _R13 = R_GlassMeshVertIter_Next(_R13);
-    v153 = lightingHandle;
-    totalVertCount = _R15->totalVertCount;
+    v10 = R_GlassMeshVertIter_Next(v10);
+    v60 = lightingHandle;
+    totalVertCount = drawState->totalVertCount;
   }
-  _R14 = 3 * v23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+r14*4]
-    vmovss  xmm8, dword ptr [r15+854h]
-    vmovss  xmm7, dword ptr [r15+858h]
-    vmovss  xmm6, dword ptr [r15+85Ch]
-  }
-  v132 = _R15->texCoords[v23].packed;
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm8
-    vmovss  xmm0, dword ptr [r15+r14*4+4]
-    vmovss  dword ptr [r13+0], xmm1
-    vsubss  xmm1, xmm0, xmm7
-    vmovss  xmm0, dword ptr [r15+r14*4+8]
-    vmovss  dword ptr [r13+4], xmm1
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r13+8], xmm1
-  }
-  _R13->color = packed;
-  _R13->texcoord = v132;
-  _R13->tangentFrame = v126.packed;
-  _R13->lgvIndex = v153;
-  _RAX = R_GlassMeshVertIter_Next(_R13);
-  __asm
-  {
-    vaddss  xmm0, xmm8, dword ptr [r15+r14*4]
-    vaddss  xmm1, xmm7, dword ptr [r15+r14*4+4]
-    vmovss  dword ptr [rax], xmm0
-    vaddss  xmm0, xmm6, dword ptr [r15+r14*4+8]
-    vmovss  dword ptr [rax+8], xmm0
-    vmovss  dword ptr [rax+4], xmm1
-  }
-  _RAX->lgvIndex = v153;
-  _RAX->color = packed;
-  _RAX->texcoord = v132;
-  _RAX->tangentFrame = v126.packed;
-  R_GlassMeshVertIter_End(_RAX);
-  dstIndices = _R15->dstIndices;
-  totalIndexCount = _R15->totalIndexCount;
-  v144 = (unsigned __int64)totalIndexCount >> 1;
-  _R15->totalVertCount = totalVertCount + 2;
-  _R15->baseVertex = baseVertex + 2;
-  dstIndices[v144].value[0] = baseVertex - 1;
-  dstIndices[v144 + 1].value[0] = baseVertex + 1;
-  dstIndices[v144 + 1].value[1] = baseVertex + 1;
-  _R15->totalIndexCount = totalIndexCount + 6;
-  dstIndices[v144].value[1] = baseVertex - 2;
-  dstIndices[v144 + 2].value[0] = baseVertex - 2;
-  dstIndices[v144 + 2].value[1] = baseVertex;
-  _R11 = &v161;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  v43 = v13;
+  v44 = drawState->localVerts[v13].v[0];
+  v45 = drawState->thicknessOffset.v[0];
+  v46 = drawState->thicknessOffset.v[1];
+  v47 = drawState->thicknessOffset.v[2];
+  v48 = drawState->texCoords[v13].packed;
+  v49 = v44 - v45;
+  v50 = drawState->localVerts[v43].v[1];
+  v10->position.v[0] = v49;
+  v51 = v50 - v46;
+  v52 = drawState->localVerts[v43].v[2];
+  v10->position.v[1] = v51;
+  v10->position.v[2] = v52 - v47;
+  v10->color = color.packed;
+  v10->texcoord = v48;
+  v10->tangentFrame = v42.packed;
+  v10->lgvIndex = v60;
+  v53 = R_GlassMeshVertIter_Next(v10);
+  v54 = v46 + drawState->localVerts[v43].v[1];
+  v53->position.v[0] = v45 + drawState->localVerts[v43].v[0];
+  v53->position.v[2] = v47 + drawState->localVerts[v43].v[2];
+  v53->position.v[1] = v54;
+  v53->lgvIndex = v60;
+  v53->color = color.packed;
+  v53->texcoord = v48;
+  v53->tangentFrame = v42.packed;
+  R_GlassMeshVertIter_End(v53);
+  dstIndices = drawState->dstIndices;
+  totalIndexCount = drawState->totalIndexCount;
+  v57 = (unsigned __int64)totalIndexCount >> 1;
+  drawState->totalVertCount = totalVertCount + 2;
+  drawState->baseVertex = baseVertex + 2;
+  dstIndices[v57].value[0] = baseVertex - 1;
+  dstIndices[v57 + 1].value[0] = baseVertex + 1;
+  dstIndices[v57 + 1].value[1] = baseVertex + 1;
+  drawState->totalIndexCount = totalIndexCount + 6;
+  dstIndices[v57].value[1] = baseVertex - 2;
+  dstIndices[v57 + 2].value[0] = baseVertex - 2;
+  dstIndices[v57 + 2].value[1] = baseVertex;
 }
 
 /*
@@ -1405,27 +1051,33 @@ void Glass_DrawPiece(unsigned int pieceIndex, const FxGlassPiecePlace *piecePlac
   const GfxBackEndData *backendData; 
   Material *materialShattered; 
   unsigned __int64 p1; 
+  float shatteredScale; 
+  unsigned int v17; 
   unsigned int v18; 
-  unsigned int v19; 
-  bool v28; 
-  unsigned int v29; 
+  const FxGlassDef *v19; 
+  FxGlassPiecePlace *v20; 
+  __int64 defIndex; 
+  float v22; 
+  float v23; 
+  float v24; 
+  bool v25; 
+  unsigned int v26; 
   unsigned int totalIndexCount; 
   r_double_index_t *dstIndices; 
   vec3_t *camOrg; 
-  __int64 v43; 
-  __int64 v44; 
+  __int64 v32; 
+  __int64 v33; 
   unsigned int reserveIndexCount; 
   unsigned int reserveVertCount; 
   unsigned int pieceIndexa; 
   FxGlassPiecePlace *piecePlacea; 
-  float *v49; 
+  float *v38; 
   FxGlassDrawState drawState; 
 
-  _RBP = cmd;
   backendData = cmd->backendData;
   piecePlacea = (FxGlassPiecePlace *)piecePlace;
   pieceIndexa = pieceIndex;
-  v49 = glassDist;
+  v38 = glassDist;
   if ( !backendData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_backend_data.h", 447, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( transientIndex >= 0x600u )
@@ -1445,70 +1097,55 @@ void Glass_DrawPiece(unsigned int pieceIndex, const FxGlassPiecePlace *piecePlac
     p1 = materialShattered->drawSurf.packed.p1;
     if ( (_WORD)p1 != materialSortedIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 850, ASSERT_TYPE_ASSERT, "( material->drawSurf.fields.materialSortedIndex ) == ( materialSortedIndex )", "%s == %s\n\t%u, %u", "material->drawSurf.fields.materialSortedIndex", "materialSortedIndex", (unsigned __int16)p1, materialSortedIndex) )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbp+78h] }
+    shatteredScale = cmd->shatteredScale;
     drawState.lightingHandle = lightingHandle;
-    __asm { vmovss  [rsp+948h+drawState.shatteredScale], xmm0 }
+    drawState.shatteredScale = shatteredScale;
     Glass_GetBufferReserveCounts(pieceState, geoData, drawFlags, &reserveVertCount, &reserveIndexCount);
-    v18 = reserveIndexCount;
+    v17 = reserveIndexCount;
     if ( !reserveIndexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 856, ASSERT_TYPE_ASSERT, "(reserveIndexCount)", (const char *)&queryFormat, "reserveIndexCount") )
       __debugbreak();
-    v19 = reserveVertCount;
-    if ( R_ReserveGlassMeshVerts(reserveVertCount, &drawState.baseVertex) && R_ReserveGlassMeshIndices(v18, &drawState.dstIndices) )
+    v18 = reserveVertCount;
+    if ( R_ReserveGlassMeshVerts(reserveVertCount, &drawState.baseVertex) && R_ReserveGlassMeshIndices(v17, &drawState.dstIndices) )
     {
-      Glass_MakePieceGeometry(&drawState, piecePlacea, pieceState, def, geoData, &cmd->viewOrg, drawFlags);
+      v19 = def;
+      v20 = piecePlacea;
+      Glass_MakePieceGeometry(&drawState, piecePlacea, pieceState, v19, geoData, &cmd->viewOrg, drawFlags);
       if ( drawState.totalIndexCount )
       {
-        if ( drawState.totalIndexCount > v18 )
+        if ( drawState.totalIndexCount > v17 )
         {
-          LODWORD(v44) = v18;
-          LODWORD(v43) = drawState.totalIndexCount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 865, ASSERT_TYPE_ASSERT, "( drawState.totalIndexCount ) <= ( reserveIndexCount )", "%s <= %s\n\t%i, %i", "drawState.totalIndexCount", "reserveIndexCount", v43, v44) )
+          LODWORD(v33) = v17;
+          LODWORD(v32) = drawState.totalIndexCount;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 865, ASSERT_TYPE_ASSERT, "( drawState.totalIndexCount ) <= ( reserveIndexCount )", "%s <= %s\n\t%i, %i", "drawState.totalIndexCount", "reserveIndexCount", v32, v33) )
             __debugbreak();
         }
-        if ( drawState.totalVertCount > v19 )
+        if ( drawState.totalVertCount > v18 )
         {
-          LODWORD(v44) = v19;
-          LODWORD(v43) = drawState.totalVertCount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 866, ASSERT_TYPE_ASSERT, "( drawState.totalVertCount ) <= ( reserveVertCount )", "%s <= %s\n\t%i, %i", "drawState.totalVertCount", "reserveVertCount", v43, v44) )
+          LODWORD(v33) = v18;
+          LODWORD(v32) = drawState.totalVertCount;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 866, ASSERT_TYPE_ASSERT, "( drawState.totalVertCount ) <= ( reserveVertCount )", "%s <= %s\n\t%i, %i", "drawState.totalVertCount", "reserveVertCount", v32, v33) )
             __debugbreak();
         }
         if ( !cmd->lodParms.valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 869, ASSERT_TYPE_ASSERT, "(cmd->lodParms.valid)", (const char *)&queryFormat, "cmd->lodParms.valid") )
           __debugbreak();
-        _RAX = pieceState->defIndex;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0Ch]
-          vsubss  xmm3, xmm0, dword ptr [r14+10h]
-          vmovss  xmm1, dword ptr [rbp+10h]
-          vsubss  xmm2, xmm1, dword ptr [r14+14h]
-          vmovss  xmm0, dword ptr [rbp+14h]
-          vsubss  xmm4, xmm0, dword ptr [r14+18h]
-        }
-        _RCX = v49;
-        v28 = (pieceState->flags & 0x48) == 0;
-        v29 = pieceIndexa;
+        defIndex = pieceState->defIndex;
+        v22 = cmd->lodParms.origin.v[0] - v20->frame.origin.v[0];
+        v23 = cmd->lodParms.origin.v[1] - v20->frame.origin.v[1];
+        v24 = cmd->lodParms.origin.v[2] - v20->frame.origin.v[2];
+        v25 = (pieceState->flags & 0x48) == 0;
+        v26 = pieceIndexa;
         totalIndexCount = drawState.totalIndexCount;
         dstIndices = drawState.dstIndices;
-        __asm
-        {
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm2, xmm2, xmm2
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm0, dword ptr [rcx+rax*4]
-          vsqrtss xmm1, xmm2, xmm2
-          vsubss  xmm3, xmm1, dword ptr [r14+1Ch]
-          vmulss  xmm4, xmm3, dword ptr [rbp+4Ch]
-          vminss  xmm1, xmm0, xmm4
-          vmovss  dword ptr [rcx+rax*4], xmm1
-        }
-        R_AddGlassSurf(materialShattered, dstIndices, totalIndexCount, v29, v28);
+        _XMM0 = LODWORD(v38[defIndex]);
+        fsqrt((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v24 * v24));
+        __asm { vminss  xmm1, xmm0, xmm4 }
+        v38[defIndex] = *(float *)&_XMM1;
+        R_AddGlassSurf(materialShattered, dstIndices, totalIndexCount, v26, v25);
       }
-      if ( drawState.totalVertCount < v19 )
-        R_ReturnGlassMeshVerts(v19 - drawState.totalVertCount);
-      if ( drawState.totalIndexCount < v18 )
-        R_ReturnGlassMeshIndices(v18 - drawState.totalIndexCount);
+      if ( drawState.totalVertCount < v18 )
+        R_ReturnGlassMeshVerts(v18 - drawState.totalVertCount);
+      if ( drawState.totalIndexCount < v17 )
+        R_ReturnGlassMeshIndices(v17 - drawState.totalIndexCount);
     }
   }
 }
@@ -1859,205 +1496,155 @@ Glass_MakeAllCrackBorderGeometry
 */
 void Glass_MakeAllCrackBorderGeometry(FxGlassDrawState *drawState, const vec3_t *camOrg, const FxGlassGeometryData *geoData, unsigned int crackDataCount)
 {
+  const vec3_t *v4; 
+  const FxGlassGeometryData *v6; 
   const FxGlassGeometryData *v7; 
-  const FxGlassGeometryData *v9; 
-  const FxGlassGeometryData *v10; 
-  __int64 v11; 
-  unsigned int v12; 
-  char v20; 
-  char v21; 
-  unsigned int v33; 
+  const FxGlassGeometryData *v8; 
+  __int64 v9; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
+  unsigned int v13; 
   unsigned int vertCount; 
   unsigned __int8 touchVert; 
-  char v36; 
+  char v16; 
   unsigned __int64 uniqueVertCount; 
-  _BOOL8 v38; 
+  _BOOL8 v18; 
   unsigned __int64 i; 
-  char v40; 
-  unsigned __int64 v41; 
-  unsigned int v42; 
-  bool v43; 
-  unsigned __int64 v44; 
-  const vec3_t *v45; 
-  unsigned int v46; 
-  unsigned int v66; 
-  __int64 v67; 
-  unsigned int v68; 
-  __int64 v69; 
+  char v20; 
+  unsigned __int64 v21; 
+  unsigned int v22; 
+  bool v23; 
+  unsigned __int64 v24; 
+  vec3_t *v25; 
+  __int64 v26; 
+  __int64 v27; 
+  float v28; 
+  unsigned int v29; 
+  __int64 v30; 
+  unsigned int v31; 
+  __int64 v32; 
   __int64 usedLastEdge; 
-  __int64 v72; 
-  const FxGlassGeometryData *v74; 
-  const FxGlassGeometryData *v75; 
-  const FxGlassGeometryData *v76; 
+  __int64 v34; 
+  const FxGlassGeometryData *v36; 
+  const FxGlassGeometryData *v37; 
+  const FxGlassGeometryData *v38; 
   vec3_t v1; 
   vec3_t cross; 
-  vec3_t v79; 
-  vec3_t v80; 
-  char v81; 
-  char v82; 
-  char v83[39]; 
+  vec3_t v41; 
+  vec3_t v42; 
+  char v43; 
+  char v44; 
+  char v45[39]; 
 
-  __asm { vmovaps [rsp+120h+var_40], xmm6 }
-  _R14 = camOrg;
-  _R15 = drawState;
-  v7 = geoData;
-  v76 = &geoData[crackDataCount];
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v4 = camOrg;
+  v6 = geoData;
+  v38 = &geoData[crackDataCount];
   do
   {
-    v9 = v7;
-    v74 = v7;
-    v10 = v7++;
-    v75 = v7;
-    if ( v9->vert.x )
+    v7 = v6;
+    v36 = v6;
+    v8 = v6++;
+    v37 = v6;
+    if ( v7->vert.x )
     {
-      vertCount = _R15->vertCount;
-      Glass_TransformVertexArray(_R15, &v7->vert, v9->hole.uniqueVertCount);
-      touchVert = v9->hole.touchVert;
-      v36 = v83[0];
-      uniqueVertCount = v10->hole.uniqueVertCount;
+      vertCount = drawState->vertCount;
+      Glass_TransformVertexArray(drawState, &v6->vert, v7->hole.uniqueVertCount);
+      touchVert = v7->hole.touchVert;
+      v16 = v45[0];
+      uniqueVertCount = v8->hole.uniqueVertCount;
       if ( touchVert != 0xFF )
-        v36 = v9->hole.touchVert;
-      v83[0] = v36;
-      v38 = touchVert != 0xFF;
+        v16 = v7->hole.touchVert;
+      v45[0] = v16;
+      v18 = touchVert != 0xFF;
       for ( i = 0i64; i < uniqueVertCount; ++i )
-        v83[v38 + i] = vertCount + i;
-      v40 = v10->hole.pad[0];
-      v41 = v38 + uniqueVertCount;
-      if ( v40 != -1 )
-        v83[v41++] = v40;
-      v42 = 0;
-      v82 = v83[0];
-      v43 = 0;
-      v44 = 1i64;
-      v83[v41] = v83[v41 - 1];
-      if ( v41 > 1 )
+        v45[v18 + i] = vertCount + i;
+      v20 = v8->hole.pad[0];
+      v21 = v18 + uniqueVertCount;
+      if ( v20 != -1 )
+        v45[v21++] = v20;
+      v22 = 0;
+      v44 = v45[0];
+      v23 = 0;
+      v24 = 1i64;
+      v45[v21] = v45[v21 - 1];
+      if ( v21 > 1 )
       {
-        v45 = &_R15->axis.m[2];
+        v25 = &drawState->axis.m[2];
         do
         {
-          v46 = (unsigned __int8)v83[v44 - 1];
-          _RAX = 3i64 * (unsigned __int8)v83[v44];
-          __asm
+          v26 = (unsigned __int8)v45[v24 - 1];
+          v27 = (unsigned __int8)v45[v24];
+          v28 = drawState->localVerts[(unsigned __int8)v45[v24]].v[1] - drawState->localVerts[v26].v[1];
+          v41.v[0] = drawState->localVerts[(unsigned __int8)v45[v24]].v[0] - drawState->localVerts[v26].v[0];
+          v41.v[2] = drawState->localVerts[v27].v[2] - drawState->localVerts[v26].v[2];
+          v41.v[1] = v28;
+          Vec3Cross(v25, &v41, &v42);
+          if ( (float)((float)((float)((float)(camOrg->v[1] - drawState->localVerts[v26].v[1]) * v42.v[1]) + (float)((float)(camOrg->v[0] - drawState->localVerts[v26].v[0]) * v42.v[0])) + (float)((float)(camOrg->v[2] - drawState->localVerts[v26].v[2]) * v42.v[2])) > 0.0 )
           {
-            vmovss  xmm0, dword ptr [r15+rax*4]
-            vmovss  xmm2, dword ptr [r15+rax*4+4]
-            vsubss  xmm1, xmm0, dword ptr [r15+rbx*4]
-            vsubss  xmm0, xmm2, dword ptr [r15+rbx*4+4]
-            vmovss  dword ptr [rbp+57h+var_90], xmm1
-            vmovss  xmm1, dword ptr [r15+rax*4+8]
-            vsubss  xmm2, xmm1, dword ptr [r15+rbx*4+8]
-            vmovss  dword ptr [rbp+57h+var_90+8], xmm2
-            vmovss  dword ptr [rbp+57h+var_90+4], xmm0
-          }
-          Vec3Cross(v45, &v79, &v80);
-          _RAX = camOrg;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vsubss  xmm4, xmm0, dword ptr [r15+rbx*4]
-            vmovss  xmm0, dword ptr [rax+4]
-            vsubss  xmm2, xmm0, dword ptr [r15+rbx*4+4]
-            vmovss  xmm1, dword ptr [rax+8]
-            vmulss  xmm0, xmm4, dword ptr [rbp+57h+var_80]
-            vmulss  xmm3, xmm2, dword ptr [rbp+57h+var_80+4]
-            vsubss  xmm5, xmm1, dword ptr [r15+rbx*4+8]
-            vmulss  xmm1, xmm5, dword ptr [rbp+57h+var_80+8]
-            vaddss  xmm4, xmm3, xmm0
-            vaddss  xmm0, xmm4, xmm1
-            vcomiss xmm0, xmm6
-          }
-          if ( v20 | v21 )
-          {
-            v66 = v41 - v44;
-            if ( v41 - v44 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", v66, "unsigned", v41 - v44) )
-              __debugbreak();
-            if ( v66 >= 0x20 )
-            {
-              LODWORD(v72) = 32;
-              LODWORD(usedLastEdge) = v41 - v44;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", usedLastEdge, v72) )
-                __debugbreak();
-            }
-            v42 |= 0x80000000 >> v66;
-            v43 = 0;
+            Glass_DrawBorderSegment(drawState, (unsigned __int8)*(&v43 + v24), v26, (unsigned __int8)v45[v24], (unsigned __int8)v45[v24 + 1], v23);
+            v23 = 1;
           }
           else
           {
-            Glass_DrawBorderSegment(_R15, (unsigned __int8)*(&v81 + v44), v46, (unsigned __int8)v83[v44], (unsigned __int8)v83[v44 + 1], v43);
-            v43 = 1;
+            v29 = v21 - v24;
+            if ( v21 - v24 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", v29, "unsigned", v21 - v24) )
+              __debugbreak();
+            if ( v29 >= 0x20 )
+            {
+              LODWORD(v34) = 32;
+              LODWORD(usedLastEdge) = v21 - v24;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", usedLastEdge, v34) )
+                __debugbreak();
+            }
+            v22 |= 0x80000000 >> v29;
+            v23 = 0;
           }
-          ++v44;
-          v45 = &_R15->axis.m[2];
+          ++v24;
+          v25 = &drawState->axis.m[2];
         }
-        while ( v44 < v41 );
+        while ( v24 < v21 );
       }
-      v67 = -1i64;
-      while ( v42 )
+      v30 = -1i64;
+      while ( v22 )
       {
-        v68 = __lzcnt(v42);
-        if ( v68 >= 0x20 )
+        v31 = __lzcnt(v22);
+        if ( v31 >= 0x20 )
         {
-          LODWORD(v72) = 32;
-          LODWORD(usedLastEdge) = v68;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", usedLastEdge, v72) )
+          LODWORD(v34) = 32;
+          LODWORD(usedLastEdge) = v31;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", usedLastEdge, v34) )
             __debugbreak();
         }
-        v42 &= ~(0x80000000 >> v68);
-        v69 = v41 - v68;
-        Glass_DrawBorderSegment(_R15, (unsigned __int8)v83[v69 + 1], (unsigned __int8)v83[v69], (unsigned __int8)v83[v69 - 1], (unsigned __int8)*(&v81 + v69), v69 == v67 - 1);
-        v67 = v69;
+        v22 &= ~(0x80000000 >> v31);
+        v32 = v21 - v31;
+        Glass_DrawBorderSegment(drawState, (unsigned __int8)v45[v32 + 1], (unsigned __int8)v45[v32], (unsigned __int8)v45[v32 - 1], (unsigned __int8)*(&v43 + v32), v32 == v30 - 1);
+        v30 = v32;
       }
-      _R14 = camOrg;
-      v7 = &v75[v74->hole.uniqueVertCount];
+      v4 = camOrg;
+      v6 = &v37[v36->hole.uniqueVertCount];
     }
     else
     {
-      if ( (v9->hole.touchVert == 0xFF || v9->hole.pad[0] == 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 626, ASSERT_TYPE_ASSERT, "(crack->beginVertIndex != 0xff && crack->endVertIndex != 0xff)", (const char *)&queryFormat, "crack->beginVertIndex != GLASS_VERT_INDEX_NONE && crack->endVertIndex != GLASS_VERT_INDEX_NONE") )
+      if ( (v7->hole.touchVert == 0xFF || v7->hole.pad[0] == 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 626, ASSERT_TYPE_ASSERT, "(crack->beginVertIndex != 0xff && crack->endVertIndex != 0xff)", (const char *)&queryFormat, "crack->beginVertIndex != GLASS_VERT_INDEX_NONE && crack->endVertIndex != GLASS_VERT_INDEX_NONE") )
         __debugbreak();
-      v11 = v10->hole.pad[0];
-      v12 = v10->hole.touchVert;
-      _RAX = 3 * v11;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+rax*4]
-        vmovss  xmm2, dword ptr [r15+rax*4+4]
-        vsubss  xmm1, xmm0, dword ptr [r15+rcx*4]
-        vsubss  xmm0, xmm2, dword ptr [r15+rcx*4+4]
-        vmovss  dword ptr [rbp+57h+v1], xmm1
-        vmovss  xmm1, dword ptr [r15+rax*4+8]
-        vsubss  xmm2, xmm1, dword ptr [r15+rcx*4+8]
-        vmovss  dword ptr [rbp+57h+v1+8], xmm2
-        vmovss  dword ptr [rbp+57h+v1+4], xmm0
-      }
-      Vec3Cross(&_R15->axis.m[2], &v1, &cross);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14]
-        vmovss  xmm1, dword ptr [r14+4]
-        vsubss  xmm2, xmm0, dword ptr [r15+rax*4]
-        vmulss  xmm3, xmm2, dword ptr [rbp+57h+cross]
-        vmovss  xmm0, dword ptr [r14+8]
-        vsubss  xmm4, xmm1, dword ptr [r15+rax*4+4]
-        vmulss  xmm2, xmm4, dword ptr [rbp+57h+cross+4]
-        vsubss  xmm5, xmm0, dword ptr [r15+rax*4+8]
-        vmulss  xmm0, xmm5, dword ptr [rbp+57h+cross+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm0
-        vcomiss xmm2, xmm6
-      }
-      v33 = v12;
-      if ( !(v20 | v21) )
-      {
-        v33 = v11;
-        if ( !(v20 | v21) )
-          LODWORD(v11) = v12;
-      }
-      Glass_DrawBorderSegment(_R15, v11, v11, v33, v33, 0);
+      v9 = v8->hole.pad[0];
+      v10 = v8->hole.touchVert;
+      v11 = drawState->localVerts[v9].v[1] - drawState->localVerts[v10].v[1];
+      v1.v[0] = drawState->localVerts[v9].v[0] - drawState->localVerts[v10].v[0];
+      v1.v[2] = drawState->localVerts[v9].v[2] - drawState->localVerts[v10].v[2];
+      v1.v[1] = v11;
+      Vec3Cross(&drawState->axis.m[2], &v1, &cross);
+      v12 = (float)((float)((float)(v4->v[0] - drawState->localVerts[v10].v[0]) * cross.v[0]) + (float)((float)(v4->v[1] - drawState->localVerts[v10].v[1]) * cross.v[1])) + (float)((float)(v4->v[2] - drawState->localVerts[v10].v[2]) * cross.v[2]);
+      v13 = v10;
+      if ( v12 > 0.0 )
+        v13 = v9;
+      if ( v12 > 0.0 )
+        LODWORD(v9) = v10;
+      Glass_DrawBorderSegment(drawState, v9, v9, v13, v13, 0);
     }
   }
-  while ( v7 != v76 );
-  __asm { vmovaps xmm6, [rsp+120h+var_40] }
+  while ( v6 != v38 );
 }
 
 /*
@@ -2067,47 +1654,43 @@ Glass_MakeAllHoleBorderGeometry
 */
 void Glass_MakeAllHoleBorderGeometry(FxGlassDrawState *drawState, const vec3_t *camOrg, const FxGlassGeometryData *geoData, unsigned int holeDataCount, unsigned int firstVert)
 {
-  const FxGlassGeometryData *v8; 
-  const vec3_t *v9; 
-  unsigned int v11; 
+  const FxGlassGeometryData *v6; 
+  const vec3_t *v7; 
+  unsigned int v8; 
   unsigned int touchVert; 
   unsigned int uniqueVertCount; 
-  unsigned int v14; 
+  unsigned int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  bool usedLastEdge; 
   unsigned int v15; 
   unsigned int v16; 
-  char v17; 
-  char v18; 
-  bool usedLastEdge; 
-  unsigned int v20; 
-  unsigned int v21; 
-  __int64 v22; 
-  const FxGlassGeometryData *v24; 
-  const FxGlassGeometryData *v27; 
+  __int64 v17; 
+  const FxGlassGeometryData *v18; 
+  const FxGlassGeometryData *v20; 
 
-  v27 = geoData;
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
-  v8 = geoData;
-  v9 = camOrg;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v24 = &geoData[holeDataCount];
-  v11 = firstVert;
+  v20 = geoData;
+  v6 = geoData;
+  v7 = camOrg;
+  v18 = &geoData[holeDataCount];
+  v8 = firstVert;
   do
   {
-    touchVert = v8->hole.touchVert;
-    uniqueVertCount = v8->hole.uniqueVertCount;
+    touchVert = v6->hole.touchVert;
+    uniqueVertCount = v6->hole.uniqueVertCount;
     if ( touchVert == 255 )
     {
       if ( uniqueVertCount < 3 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 561, ASSERT_TYPE_ASSERT, "(uniqueVertCount >= 3)", (const char *)&queryFormat, "uniqueVertCount >= 3") )
           __debugbreak();
-        v11 = firstVert;
+        v8 = firstVert;
       }
-      v14 = uniqueVertCount + v11;
+      v11 = uniqueVertCount + v8;
       usedLastEdge = 0;
-      v15 = uniqueVertCount + v11 - 3;
-      v16 = uniqueVertCount + v11 - 2;
-      touchVert = uniqueVertCount + v11 - 1;
+      v12 = uniqueVertCount + v8 - 3;
+      v13 = uniqueVertCount + v8 - 2;
+      touchVert = uniqueVertCount + v8 - 1;
     }
     else
     {
@@ -2115,56 +1698,51 @@ void Glass_MakeAllHoleBorderGeometry(FxGlassDrawState *drawState, const vec3_t *
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 545, ASSERT_TYPE_ASSERT, "(uniqueVertCount >= 2)", (const char *)&queryFormat, "uniqueVertCount >= 2") )
           __debugbreak();
-        v11 = firstVert;
+        v8 = firstVert;
       }
-      v14 = uniqueVertCount + v11;
-      v15 = uniqueVertCount + v11 - 2;
-      v16 = uniqueVertCount + v11 - 1;
-      *(float *)&_XMM0 = Glass_TestCamAgainstBorderSegmentPlane(drawState, v9, v14 - 2, v14 - 1);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( v17 | v18 )
+      v11 = uniqueVertCount + v8;
+      v12 = uniqueVertCount + v8 - 2;
+      v13 = uniqueVertCount + v8 - 1;
+      if ( Glass_TestCamAgainstBorderSegmentPlane(drawState, v7, v11 - 2, v11 - 1) > 0.0 )
       {
-        v11 = firstVert;
-        usedLastEdge = 0;
+        v15 = touchVert;
+        if ( uniqueVertCount != 2 )
+          v15 = v11 - 3;
+        Glass_DrawBorderSegment(drawState, v15, v12, v13, touchVert, 0);
+        v8 = firstVert;
+        usedLastEdge = 1;
       }
       else
       {
-        v20 = touchVert;
-        if ( uniqueVertCount != 2 )
-          v20 = v14 - 3;
-        Glass_DrawBorderSegment(drawState, v20, v15, v16, touchVert, 0);
-        v11 = firstVert;
-        usedLastEdge = 1;
+        v8 = firstVert;
+        usedLastEdge = 0;
       }
     }
-    v21 = v11;
+    v16 = v8;
     do
     {
-      *(float *)&_XMM0 = Glass_TestCamAgainstBorderSegmentPlane(drawState, camOrg, v16, touchVert);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( v17 | v18 )
+      if ( Glass_TestCamAgainstBorderSegmentPlane(drawState, camOrg, v13, touchVert) > 0.0 )
       {
-        usedLastEdge = 0;
+        Glass_DrawBorderSegment(drawState, v12, v13, touchVert, v16, usedLastEdge);
+        usedLastEdge = 1;
       }
       else
       {
-        Glass_DrawBorderSegment(drawState, v15, v16, touchVert, v21, usedLastEdge);
-        usedLastEdge = 1;
+        usedLastEdge = 0;
       }
-      v15 = v16;
-      v16 = touchVert;
-      touchVert = v21++;
+      v12 = v13;
+      v13 = touchVert;
+      touchVert = v16++;
     }
-    while ( v21 != v14 );
-    v9 = camOrg;
-    v22 = v27->hole.uniqueVertCount;
-    v11 = v22 + firstVert;
-    firstVert += v22;
-    v8 = &v27[v22 + 1];
-    v27 = v8;
+    while ( v16 != v11 );
+    v7 = camOrg;
+    v17 = v20->hole.uniqueVertCount;
+    v8 = v17 + firstVert;
+    firstVert += v17;
+    v6 = &v20[v17 + 1];
+    v20 = v6;
   }
-  while ( v8 != v24 );
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
+  while ( v6 != v18 );
 }
 
 /*
@@ -2174,227 +1752,153 @@ Glass_MakeFaceGeometry
 */
 void Glass_MakeFaceGeometry(FxGlassDrawState *drawState, const vec3_t *camOrg, unsigned int vertCount, const FxGlassGeometryData *geoData, unsigned int fanCount)
 {
-  char v42; 
-  char v43; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  const FxGlassDef *def; 
+  float v11; 
+  float halfThickness; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  const vec2_t *texVecs; 
   unsigned int packed; 
-  PackedQuatDec3n v94; 
-  PackedQuatDec3n v96; 
-  unsigned int v97; 
+  float v29; 
+  __int128 v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  PackedQuatDec3n v40; 
+  unsigned int v41; 
+  GfxGlassVertex *v42; 
   unsigned int lightingHandle; 
   PackedTexCoords *texCoords; 
+  float v45; 
+  float v46; 
+  float v47; 
   float *i; 
-  __int16 v112; 
-  __int16 v113; 
-  __int64 v117; 
-  int v118; 
-  unsigned int v119; 
-  int v121; 
+  float v49; 
+  unsigned __int16 baseVertex; 
+  double v52; 
+  float v53; 
   vec3_t mat2; 
   vec3_t mat1; 
   vec3_t mat0; 
-  int v126; 
+  double v57; 
+  float v58; 
   vec4_t out; 
-  void *retaddr; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
 
-  _R11 = &retaddr;
-  __asm
+  def = drawState->def;
+  v11 = (float)((float)((float)(drawState->origin.v[1] - camOrg->v[1]) * drawState->axis.m[2].v[1]) + (float)((float)(drawState->origin.v[0] - camOrg->v[0]) * drawState->axis.m[2].v[0])) + (float)((float)(drawState->origin.v[2] - camOrg->v[2]) * drawState->axis.m[2].v[2]);
+  halfThickness = def->halfThickness;
+  if ( COERCE_FLOAT(LODWORD(v11) & _xmm) > def->halfThickness )
   {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovss  xmm0, dword ptr [rcx+808h]
-    vsubss  xmm1, xmm0, dword ptr [rdx+4]
-    vmulss  xmm3, xmm1, dword ptr [rcx+82Ch]
-    vmovss  xmm2, dword ptr [rcx+804h]
-    vsubss  xmm0, xmm2, dword ptr [rdx]
-    vmulss  xmm1, xmm0, dword ptr [rcx+828h]
-    vmovss  xmm2, dword ptr [rcx+80Ch]
-    vsubss  xmm0, xmm2, dword ptr [rdx+8]
-  }
-  _RDI = drawState->def;
-  __asm
-  {
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm1, xmm0, dword ptr [rcx+830h]
-    vaddss  xmm6, xmm4, xmm1
-    vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm7, dword ptr [rdi]
-    vcomiss xmm0, xmm7
-  }
-  v119 = vertCount;
-  _RSI = drawState;
-  if ( (unsigned __int64)&v117 != _security_cookie )
-  {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovaps xmmword ptr [r11-0A8h], xmm12
-    }
+    v63 = v5;
+    v62 = v6;
+    v61 = v7;
+    v60 = v8;
     XSurfacePackSelfVisibility(&kDefaultGlassSelfVisibility);
-    _RAX = _RSI->texVecs;
-    __asm
+    _XMM4 = 0i64;
+    __asm { vcmpless xmm1, xmm4, xmm0 }
+    _XMM0 = LODWORD(FLOAT_N1_0);
+    __asm { vblendvps xmm1, xmm0, xmm12, xmm1 }
+    if ( v11 <= 0.0 )
     {
-      vmovss  xmm12, cs:__real@3f800000
-      vxorps  xmm4, xmm4, xmm4
-      vcomiss xmm6, xmm4
-      vmovss  xmm0, dword ptr [rax+0Ch]
-      vmovss  xmm1, dword ptr [rax+8]
-      vmulss  xmm2, xmm1, dword ptr [rax+4]
-      vmulss  xmm3, xmm0, dword ptr [rax]
-      vsubss  xmm0, xmm3, xmm2
-      vcmpless xmm1, xmm4, xmm0
-      vmovss  xmm0, cs:__real@bf800000
-      vblendvps xmm1, xmm0, xmm12, xmm1
-      vmovss  dword ptr [rsp+150h+var_120], xmm1
-    }
-    if ( v42 | v43 )
-    {
-      _RSI->totalIndexCount += Glass_MakeFaceIndices(_RSI, vertCount, geoData, fanCount, 1, 2);
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rsi+828h]
-        vmovss  xmm10, dword ptr [rsi+830h]
-        vmovss  xmm9, dword ptr [rsi+82Ch]
-        vmulss  xmm0, xmm8, xmm7
-        vmovss  dword ptr [rsp+150h+var_118], xmm0
-        vmulss  xmm0, xmm10, xmm7
-        vmovss  [rsp+150h+var_110], xmm0
-        vmovss  xmm0, dword ptr [rsp+150h+var_120]
-        vxorps  xmm11, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm1, xmm9, xmm7
-      }
+      drawState->totalIndexCount += Glass_MakeFaceIndices(drawState, vertCount, geoData, fanCount, 1, 2);
+      v24 = drawState->axis.m[2].v[0];
+      v26 = drawState->axis.m[2].v[2];
+      v25 = drawState->axis.m[2].v[1];
+      *(float *)&v52 = v24 * halfThickness;
+      v53 = v26 * halfThickness;
+      LODWORD(v22) = _XMM1 ^ _xmm;
+      v23 = v25 * halfThickness;
     }
     else
     {
-      __asm { vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000 }
-      _RSI->totalIndexCount += Glass_MakeFaceIndices(_RSI, vertCount, geoData, fanCount, 2, 1);
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rsi+828h]
-        vmovss  xmm2, dword ptr [rsi+830h]
-        vmovss  xmm4, dword ptr [rsi+82Ch]
-        vmovss  xmm11, dword ptr [rsp+150h+var_120]
-        vxorps  xmm3, xmm7, xmm6
-        vmulss  xmm0, xmm5, xmm3
-        vmovss  dword ptr [rsp+150h+var_118], xmm0
-        vmulss  xmm0, xmm2, xmm3
-        vmovss  [rsp+150h+var_110], xmm0
-        vmulss  xmm1, xmm4, xmm3
-        vxorps  xmm8, xmm5, xmm6
-        vxorps  xmm9, xmm4, xmm6
-        vxorps  xmm10, xmm2, xmm6
-      }
+      drawState->totalIndexCount += Glass_MakeFaceIndices(drawState, vertCount, geoData, fanCount, 2, 1);
+      v19 = drawState->axis.m[2].v[0];
+      v20 = drawState->axis.m[2].v[2];
+      v21 = drawState->axis.m[2].v[1];
+      v22 = *(float *)&_XMM1;
+      *(float *)&v52 = v19 * COERCE_FLOAT(LODWORD(halfThickness) ^ _xmm);
+      v53 = v20 * COERCE_FLOAT(LODWORD(halfThickness) ^ _xmm);
+      v23 = v21 * COERCE_FLOAT(LODWORD(halfThickness) ^ _xmm);
+      LODWORD(v24) = LODWORD(v19) ^ _xmm;
+      LODWORD(v25) = LODWORD(v21) ^ _xmm;
+      LODWORD(v26) = LODWORD(v20) ^ _xmm;
     }
-    _RAX = _RSI->texVecs;
-    packed = _RDI->color.packed;
+    texVecs = drawState->texVecs;
+    packed = def->color.packed;
+    *((float *)&v52 + 1) = v23;
+    mat2.v[2] = v26;
+    mat2.v[1] = v25;
+    mat2.v[0] = v24;
+    v29 = texVecs->v[1];
+    v30 = LODWORD(v29);
+    v31 = (float)(v29 * drawState->axis.m[1].v[0]) + (float)(texVecs->v[0] * drawState->axis.m[0].v[0]);
+    v32 = (float)(v29 * drawState->axis.m[1].v[1]) + (float)(texVecs->v[0] * drawState->axis.m[0].v[1]);
+    v33 = (float)(v29 * drawState->axis.m[1].v[2]) + (float)(texVecs->v[0] * drawState->axis.m[0].v[2]);
+    *(float *)&v30 = fsqrt((float)((float)(v32 * v32) + (float)(v31 * v31)) + (float)(v33 * v33));
+    _XMM1 = v30;
     __asm
     {
-      vmovss  dword ptr [rsp+150h+var_118+4], xmm1
-      vmovss  dword ptr [rsp+150h+mat2+8], xmm10
-      vmovss  dword ptr [rsp+150h+mat2+4], xmm9
-      vmovss  dword ptr [rsp+150h+mat2], xmm8
-      vmovss  xmm3, dword ptr [rax+4]
-      vmovss  xmm4, dword ptr [rax]
-      vmulss  xmm1, xmm3, dword ptr [rsi+81Ch]
-      vmulss  xmm2, xmm3, dword ptr [rsi+820h]
-      vmulss  xmm0, xmm4, dword ptr [rsi+810h]
-      vaddss  xmm5, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rsi+824h]
-      vmulss  xmm0, xmm4, dword ptr [rsi+814h]
-      vaddss  xmm7, xmm2, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rsi+818h]
-      vaddss  xmm6, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm2, xmm7, xmm7
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm12, xmm0
-      vdivss  xmm2, xmm12, xmm0
-      vmulss  xmm3, xmm6, xmm2
-      vmulss  xmm4, xmm7, xmm2
-      vmulss  xmm1, xmm3, xmm9
-      vmulss  xmm5, xmm5, xmm2
-      vmulss  xmm0, xmm4, xmm10
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm8, xmm3
-      vmovss  dword ptr [rsp+150h+mat1], xmm1
-      vmulss  xmm2, xmm5, xmm10
-      vsubss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rsp+150h+mat0+8], xmm3
-      vmulss  xmm0, xmm5, xmm9
-      vmulss  xmm3, xmm4, xmm8
-      vmovss  dword ptr [rsp+150h+mat1+4], xmm1
-      vsubss  xmm1, xmm3, xmm0
-      vmovss  dword ptr [rsp+150h+mat1+8], xmm1
-      vmovss  dword ptr [rsp+150h+mat0], xmm5
-      vmovss  dword ptr [rsp+150h+mat0+4], xmm4
     }
+    v37 = v33 * (float)(1.0 / *(float *)&_XMM0);
+    v38 = v32 * (float)(1.0 / *(float *)&_XMM0);
+    v39 = v31 * (float)(1.0 / *(float *)&_XMM0);
+    mat1.v[0] = (float)(v37 * v25) - (float)(v38 * v26);
+    mat0.v[2] = v37;
+    mat1.v[1] = (float)(v39 * v26) - (float)(v24 * v37);
+    mat1.v[2] = (float)(v38 * v24) - (float)(v39 * v25);
+    mat0.v[0] = v39;
+    mat0.v[1] = v38;
     AxisComponentsToQuat(&mat0, &mat1, &mat2, &out);
-    __asm { vmovaps xmm1, xmm11; binormalSign }
-    v94.packed = UnitQuatToQuatDec3n(&out, *(float *)&_XMM1).packed;
-    __asm { vmovaps xmm12, [rsp+150h+var_A8+8] }
-    v96.packed = v94.packed;
-    v97 = vertCount;
-    __asm
-    {
-      vmovaps xmm11, [rsp+150h+var_98+8]
-      vmovaps xmm10, [rsp+150h+var_88+8]
-      vmovaps xmm9, [rsp+150h+var_78+8]
-    }
-    v126 = v121;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+150h+var_118]
-      vmovsd  [rsp+150h+anonymous_0], xmm0
-    }
+    v40.packed = UnitQuatToQuatDec3n(&out, v22).packed;
+    v41 = vertCount;
+    v58 = v53;
+    v57 = v52;
     if ( !vertCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 259, ASSERT_TYPE_ASSERT, "(vertCount)", (const char *)&queryFormat, "vertCount") )
       __debugbreak();
-    LOWORD(v118) = _RSI->baseVertex;
-    _RAX = R_GlassMeshVertIter_Begin(v118);
-    lightingHandle = _RSI->lightingHandle;
-    texCoords = _RSI->texCoords;
-    __asm
+    baseVertex = drawState->baseVertex;
+    v42 = R_GlassMeshVertIter_Begin(baseVertex);
+    lightingHandle = drawState->lightingHandle;
+    texCoords = drawState->texCoords;
+    v45 = v58;
+    v46 = *((float *)&v57 + 1);
+    v47 = *(float *)&v57;
+    for ( i = &drawState->localVerts[0].v[2]; ; i += 3 )
     {
-      vmovss  xmm6, [rbp+50h+var_D0]
-      vmovss  xmm7, dword ptr [rsp+150h+anonymous_0+4]
-      vmovss  xmm8, dword ptr [rsp+150h+anonymous_0]
-    }
-    for ( i = &_RSI->localVerts[0].v[2]; ; i += 3 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm8, dword ptr [r14-8]
-        vaddss  xmm1, xmm7, dword ptr [r14-4]
-        vmovss  dword ptr [rax], xmm0
-        vaddss  xmm0, xmm6, dword ptr [r14]
-        vmovss  dword ptr [rax+8], xmm0
-        vmovss  dword ptr [rax+4], xmm1
-      }
-      _RAX->color = packed;
-      _RAX->texcoord = texCoords->packed;
-      _RAX->tangentFrame = v96.packed;
-      _RAX->lgvIndex = lightingHandle;
-      if ( !--v97 )
+      v49 = v46 + *(i - 1);
+      v42->position.v[0] = v47 + *(i - 2);
+      v42->position.v[2] = v45 + *i;
+      v42->position.v[1] = v49;
+      v42->color = packed;
+      v42->texcoord = texCoords->packed;
+      v42->tangentFrame = v40.packed;
+      v42->lgvIndex = lightingHandle;
+      if ( !--v41 )
         break;
       ++texCoords;
-      _RAX = R_GlassMeshVertIter_Next(_RAX);
+      v42 = R_GlassMeshVertIter_Next(v42);
     }
-    R_GlassMeshVertIter_End(_RAX);
-    v112 = v119;
-    v113 = v118;
-    _RSI->totalVertCount += v119;
-    __asm { vmovaps xmm8, [rsp+150h+var_68+8] }
-    _RSI->baseVertex = v112 + v113;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+150h+var_48+8]
-    vmovaps xmm7, [rsp+150h+var_58+8]
+    R_GlassMeshVertIter_End(v42);
+    drawState->totalVertCount += vertCount;
+    drawState->baseVertex = vertCount + baseVertex;
   }
 }
 
@@ -2507,158 +2011,127 @@ Glass_MakePieceGeometry
 void Glass_MakePieceGeometry(FxGlassDrawState *drawState, const FxGlassPiecePlace *piecePlace, const FxGlassPieceState *pieceState, const FxGlassDef *def, const FxGlassGeometryData *geoData, const vec3_t *camOrg, unsigned int drawFlags)
 {
   __int64 holeDataCount; 
-  unsigned int v9; 
-  const vec3_t *v11; 
-  __int64 v13; 
-  bool v17; 
-  int *texVecs; 
-  const FxGlassGeometryData *v22; 
-  const FxGlassGeometryData *v23; 
-  unsigned int v24; 
-  bool v30; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  unsigned int v34; 
-  char v35; 
-  const FxGlassGeometryData *v36; 
+  unsigned int v8; 
+  const vec3_t *v10; 
+  __int64 v12; 
+  bool v13; 
+  vec2_t *texVecs; 
+  const FxGlassGeometryData *v15; 
+  const FxGlassGeometryData *v16; 
+  unsigned int v17; 
+  float halfThickness; 
+  bool v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
+  const FxGlassGeometryData *v24; 
   __int64 usedLastEdge; 
-  __int64 v39; 
+  __int64 v26; 
   unsigned int crackDataCount; 
   unsigned int vertCount; 
-  int v43[4]; 
+  int v30[4]; 
 
-  __asm { vmovaps [rsp+0C8h+var_48], xmm6 }
   holeDataCount = pieceState->holeDataCount;
-  v9 = pieceState->crackDataCount;
-  _RSI = drawState;
-  v11 = camOrg;
-  _R14 = def;
-  v13 = pieceState->vertCount;
+  v8 = pieceState->crackDataCount;
+  v10 = camOrg;
+  v12 = pieceState->vertCount;
   *(_QWORD *)&drawState->totalVertCount = 0i64;
   drawState->origin = *(vec3_t *)(&piecePlace->nextFree + 4);
   drawState->texCoordOrigin = pieceState->texCoordOrigin;
-  crackDataCount = v9;
+  crackDataCount = v8;
   UnitQuatToAxis(&piecePlace->frame.quat, &drawState->axis);
-  __asm
+  *(__m128 *)drawState->axis.m[0].v = _mm128_mul_ps((__m128)_xmm, *(__m128 *)drawState->axis.m[0].v);
+  drawState->axis.m[1].v[1] = 0.03125 * drawState->axis.m[1].v[1];
+  v13 = (pieceState->flags & 1) == 0;
+  drawState->axis.m[1].v[2] = 0.03125 * drawState->axis.m[1].v[2];
+  drawState->def = def;
+  if ( v13 || def->materialShattered == def->material )
   {
-    vmovaps xmm2, cs:__xmm@3d0000003d0000003d0000003d000000
-    vmulps  xmm0, xmm2, xmmword ptr [rsi+810h]
-    vmovups xmmword ptr [rsi+810h], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rsi+820h]
-    vmovss  dword ptr [rsi+820h], xmm0
-  }
-  v17 = (pieceState->flags & 1) == 0;
-  __asm
-  {
-    vmulss  xmm0, xmm2, dword ptr [rsi+824h]
-    vmovss  dword ptr [rsi+824h], xmm0
-  }
-  _RSI->def = _R14;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v17 || _R14->materialShattered == _R14->material )
-  {
-    texVecs = (int *)_R14->texVecs;
+    texVecs = def->texVecs;
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm2, dword ptr [rsi+87Ch]
-      vmovss  [rsp+0C8h+var_60], xmm0
-      vmovss  [rsp+0C8h+var_54], xmm0
-      vmovss  [rsp+0C8h+var_5C], xmm6
-      vmovss  [rsp+0C8h+var_58], xmm6
-    }
-    texVecs = v43;
+    *(float *)v30 = 0.03125 / drawState->shatteredScale;
+    v30[3] = v30[0];
+    *(float *)&v30[1] = 0.0;
+    *(float *)&v30[2] = 0.0;
+    texVecs = (vec2_t *)v30;
   }
-  _RSI->texVecs = (const vec2_t *)texVecs;
-  _RSI->vertCount = 0;
-  Glass_TransformVertexArray(_RSI, &geoData->vert, v13);
+  drawState->texVecs = texVecs;
+  drawState->vertCount = 0;
+  Glass_TransformVertexArray(drawState, &geoData->vert, v12);
   if ( (_DWORD)holeDataCount )
   {
-    v22 = &geoData[v13];
-    v23 = &v22[holeDataCount];
+    v15 = &geoData[v12];
+    v16 = &v15[holeDataCount];
     do
     {
-      Glass_TransformVertexArray(_RSI, &v22[1].vert, v22->hole.uniqueVertCount);
-      v22 += v22->hole.uniqueVertCount + 1;
+      Glass_TransformVertexArray(drawState, &v15[1].vert, v15->hole.uniqueVertCount);
+      v15 += v15->hole.uniqueVertCount + 1;
     }
-    while ( v22 != v23 );
-    v9 = crackDataCount;
+    while ( v15 != v16 );
+    v8 = crackDataCount;
   }
-  v24 = _RSI->vertCount;
-  vertCount = v24;
+  v17 = drawState->vertCount;
+  vertCount = v17;
   if ( (drawFlags & 2) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14]
-      vmulss  xmm0, xmm2, dword ptr [rcx]
-      vmovss  dword ptr [rsi+854h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rcx+4]
-      vmovss  dword ptr [rsi+858h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rcx+8]
-      vmovaps xmm1, xmm6; alpha
-      vmovss  dword ptr [rsi+85Ch], xmm0
-    }
-    v30 = 0;
-    _RSI->packedTangentBinormalSign = Vec3PackUnitVecWithAlpha(&_RSI->axis.m[2], *(float *)&_XMM1);
-    if ( (unsigned int)v13 < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 513, ASSERT_TYPE_ASSERT, "(vertCount >= 3)", (const char *)&queryFormat, "vertCount >= 3") )
+    halfThickness = def->halfThickness;
+    drawState->thicknessOffset.v[0] = def->halfThickness * drawState->axis.m[2].v[0];
+    drawState->thicknessOffset.v[1] = halfThickness * drawState->axis.m[2].v[1];
+    drawState->thicknessOffset.v[2] = halfThickness * drawState->axis.m[2].v[2];
+    v19 = 0;
+    drawState->packedTangentBinormalSign = Vec3PackUnitVecWithAlpha(&drawState->axis.m[2], 0.0);
+    if ( (unsigned int)v12 < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_draw.cpp", 513, ASSERT_TYPE_ASSERT, "(vertCount >= 3)", (const char *)&queryFormat, "vertCount >= 3") )
       __debugbreak();
-    v31 = v13 - 3;
-    v32 = v13 - 2;
-    v33 = 0;
-    v34 = v13 - 1;
+    v20 = v12 - 3;
+    v21 = v12 - 2;
+    v22 = 0;
+    v23 = v12 - 1;
     do
     {
-      if ( v32 >= 0x20 )
+      if ( v21 >= 0x20 )
       {
-        LODWORD(v39) = 32;
-        LODWORD(usedLastEdge) = v32;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", usedLastEdge, v39) )
+        LODWORD(v26) = 32;
+        LODWORD(usedLastEdge) = v21;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", usedLastEdge, v26) )
           __debugbreak();
       }
-      if ( ((0x80000000 >> v32) & pieceState->supportMask) != 0 )
+      if ( ((0x80000000 >> v21) & pieceState->supportMask) != 0 )
       {
-        v30 = 0;
+        v19 = 0;
+      }
+      else if ( Glass_TestCamAgainstBorderSegmentPlane(drawState, camOrg, v21, v23) > 0.0 )
+      {
+        Glass_DrawBorderSegment(drawState, v20, v21, v23, v22, v19);
+        v19 = 1;
       }
       else
       {
-        *(float *)&_XMM0 = Glass_TestCamAgainstBorderSegmentPlane(_RSI, camOrg, v32, v34);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( v35 | v17 )
-        {
-          v30 = 0;
-        }
-        else
-        {
-          Glass_DrawBorderSegment(_RSI, v31, v32, v34, v33, v30);
-          v30 = 1;
-        }
+        v19 = 0;
       }
-      v31 = v32;
-      v32 = v34;
-      v34 = v33++;
+      v20 = v21;
+      v21 = v23;
+      v23 = v22++;
     }
-    while ( v33 != (_DWORD)v13 );
-    v36 = geoData;
-    v11 = camOrg;
+    while ( v22 != (_DWORD)v12 );
+    v24 = geoData;
+    v10 = camOrg;
     if ( (_DWORD)holeDataCount )
-      Glass_MakeAllHoleBorderGeometry(_RSI, camOrg, &geoData[v13], holeDataCount, v13);
-    v9 = crackDataCount;
+      Glass_MakeAllHoleBorderGeometry(drawState, camOrg, &geoData[v12], holeDataCount, v12);
+    v8 = crackDataCount;
     if ( crackDataCount )
-      Glass_MakeAllCrackBorderGeometry(_RSI, camOrg, &geoData[(unsigned int)(holeDataCount + v13)], crackDataCount);
-    v24 = vertCount;
+      Glass_MakeAllCrackBorderGeometry(drawState, camOrg, &geoData[(unsigned int)(holeDataCount + v12)], crackDataCount);
+    v17 = vertCount;
   }
   else
   {
-    v36 = geoData;
+    v24 = geoData;
   }
   if ( (drawFlags & 1) != 0 )
-    Glass_MakeFaceGeometry(_RSI, v11, v24, &v36[(unsigned int)v13 + v9 + (_DWORD)holeDataCount], pieceState->fanDataCount);
-  _RSI->texVecs = NULL;
-  __asm { vmovaps xmm6, [rsp+0C8h+var_48] }
+    Glass_MakeFaceGeometry(drawState, v10, v17, &v24[(unsigned int)v12 + v8 + (_DWORD)holeDataCount], pieceState->fanDataCount);
+  drawState->texVecs = NULL;
 }
 
 /*
@@ -2668,39 +2141,18 @@ Glass_TestCamAgainstBorderSegmentPlane
 */
 float Glass_TestCamAgainstBorderSegmentPlane(const FxGlassDrawState *drawState, const vec3_t *camOrg, unsigned int i1, unsigned int i2)
 {
+  __int64 v6; 
+  float v7; 
   vec3_t v1; 
   vec3_t cross; 
 
-  _RDI = camOrg;
-  _R8 = 3i64 * i2;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+r8*4]
-    vsubss  xmm1, xmm0, dword ptr [rcx+rbx*4]
-    vmovss  xmm2, dword ptr [rcx+r8*4+4]
-    vsubss  xmm0, xmm2, dword ptr [rcx+rbx*4+4]
-    vmovss  dword ptr [rsp+58h+v1], xmm1
-    vmovss  xmm1, dword ptr [rcx+r8*4+8]
-    vsubss  xmm2, xmm1, dword ptr [rcx+rbx*4+8]
-    vmovss  dword ptr [rsp+58h+v1+8], xmm2
-    vmovss  dword ptr [rsp+58h+v1+4], xmm0
-  }
+  v6 = i1;
+  v7 = drawState->localVerts[i2].v[1] - drawState->localVerts[i1].v[1];
+  v1.v[0] = drawState->localVerts[i2].v[0] - drawState->localVerts[i1].v[0];
+  v1.v[2] = drawState->localVerts[i2].v[2] - drawState->localVerts[i1].v[2];
+  v1.v[1] = v7;
   Vec3Cross(&drawState->axis.m[2], &v1, &cross);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rsi+rbx*4+4]
-    vmulss  xmm3, xmm1, dword ptr [rsp+58h+cross+4]
-    vmovss  xmm2, dword ptr [rdi]
-    vsubss  xmm0, xmm2, dword ptr [rsi+rbx*4]
-    vmulss  xmm1, xmm0, dword ptr [rsp+58h+cross]
-    vmovss  xmm2, dword ptr [rdi+8]
-    vsubss  xmm0, xmm2, dword ptr [rsi+rbx*4+8]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm1, xmm0, dword ptr [rsp+58h+cross+8]
-    vaddss  xmm0, xmm4, xmm1
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)(camOrg->v[1] - drawState->localVerts[v6].v[1]) * cross.v[1]) + (float)((float)(camOrg->v[0] - drawState->localVerts[v6].v[0]) * cross.v[0])) + (float)((float)(camOrg->v[2] - drawState->localVerts[v6].v[2]) * cross.v[2]);
 }
 
 /*
@@ -2710,87 +2162,37 @@ Glass_TransformVertexArray
 */
 void Glass_TransformVertexArray(FxGlassDrawState *drawState, const FxGlassVertex *vertArray, unsigned int vertCount)
 {
-  __int64 v9; 
-  __int64 v11; 
-  __int64 v42; 
-  unsigned int v53; 
+  __int64 v4; 
+  __int64 v6; 
+  vec3_t *v7; 
+  float v8; 
+  float v9; 
+  __int64 v10; 
+  __int64 v12; 
 
-  _R9 = drawState->texVecs;
-  v9 = drawState->vertCount;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v11 = 0i64;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovss  xmm6, dword ptr [r9+4]
-    vmovss  xmm7, dword ptr [r9]
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovss  xmm8, dword ptr [r9+0Ch]
-  }
-  _RBX = &drawState->localVerts[v9];
-  __asm
-  {
-    vmovaps [rsp+58h+var_48], xmm9
-    vmovss  xmm9, dword ptr [r9+8]
-  }
-  drawState->vertCount = v9 + vertCount;
+  v4 = drawState->vertCount;
+  v6 = 0i64;
+  v7 = &drawState->localVerts[v4];
+  drawState->vertCount = v4 + vertCount;
   do
   {
-    _EAX = vertArray[v11].x;
-    __asm { vmovd   xmm3, eax }
-    _EAX = vertArray[v11].y;
+    v8 = _mm_cvtepi32_ps((__m128i)(unsigned int)vertArray[v6].x).m128_f32[0];
+    v9 = _mm_cvtepi32_ps((__m128i)(unsigned int)vertArray[v6].y).m128_f32[0];
+    v10 = v6;
+    v7[v10].v[0] = (float)((float)(v8 * drawState->axis.m[0].v[0]) + drawState->origin.v[0]) + (float)(v9 * drawState->axis.m[1].v[0]);
+    v7[v10].v[1] = (float)((float)(v8 * drawState->axis.m[0].v[1]) + drawState->origin.v[1]) + (float)(v9 * drawState->axis.m[1].v[1]);
+    v7[v10].v[2] = (float)((float)(v8 * drawState->axis.m[0].v[2]) + drawState->origin.v[2]) + (float)(v9 * drawState->axis.m[1].v[2]);
+    _XMM4 = 0i64;
+    v12 = v4 + (unsigned int)v6;
+    v6 = (unsigned int)(v6 + 1);
     __asm
     {
-      vcvtdq2ps xmm3, xmm3
-      vmulss  xmm0, xmm3, dword ptr [r10+810h]
-      vaddss  xmm2, xmm0, dword ptr [r10+804h]
-      vmovd   xmm4, eax
-      vcvtdq2ps xmm4, xmm4
-      vmulss  xmm1, xmm4, dword ptr [r10+81Ch]
-      vaddss  xmm2, xmm2, xmm1
-    }
-    _RAX = 3 * v11;
-    __asm
-    {
-      vmovss  dword ptr [rbx+rax*4], xmm2
-      vmulss  xmm1, xmm4, dword ptr [r10+820h]
-      vmulss  xmm0, xmm3, dword ptr [r10+814h]
-      vaddss  xmm2, xmm0, dword ptr [r10+808h]
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  dword ptr [rbx+rax*4+4], xmm2
-      vmulss  xmm1, xmm4, dword ptr [r10+824h]
-      vmulss  xmm0, xmm3, dword ptr [r10+818h]
-      vaddss  xmm2, xmm0, dword ptr [r10+80Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  dword ptr [rbx+rax*4+8], xmm0
-      vmulss  xmm2, xmm6, xmm4
-      vmulss  xmm1, xmm7, xmm3
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm5, xmm0, dword ptr [r10+834h]
-      vmulss  xmm1, xmm8, xmm4
-      vxorps  xmm4, xmm4, xmm4
-    }
-    v42 = v9 + (unsigned int)v11;
-    v11 = (unsigned int)(v11 + 1);
-    __asm
-    {
-      vmulss  xmm3, xmm9, xmm3
-      vaddss  xmm0, xmm3, xmm1
-      vaddss  xmm2, xmm0, dword ptr [r10+838h]
       vinsertps xmm4, xmm4, xmm5, 0
       vinsertps xmm4, xmm4, xmm2, 10h
       vcvtps2ph xmm0, xmm4, 0
-      vmovss  [rsp+58h+var_58], xmm0
     }
-    drawState->texCoords[v42].packed = v53;
+    drawState->texCoords[v12].packed = _XMM0;
   }
-  while ( (_DWORD)v11 != vertCount );
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm9, [rsp+58h+var_48]
-  }
+  while ( (_DWORD)v6 != vertCount );
 }
 

@@ -126,59 +126,68 @@ __int64 Sys_GetTimeAsSeconds()
 Sys_Microseconds
 ==============
 */
-
-unsigned __int64 __fastcall Sys_Microseconds(__int64 a1, double _XMM1_8)
+unsigned __int64 Sys_Microseconds()
 {
-  unsigned __int64 v8; 
-  unsigned __int64 result; 
+  __int128 v2; 
+  __int128 v4; 
+  unsigned __int64 v5; 
+  unsigned __int64 v7; 
+  __int128 v10; 
+  __int128 v12; 
+  unsigned __int64 v13; 
 
-  __asm
-  {
-    vmovsd  xmm2, cs:__real@43f0000000000000
-    vmovsd  xmm0, cs:__real@43e0000000000000
-  }
   if ( sys_timeBasesInitialized )
   {
-    v8 = sys_counterBase;
+    v7 = sys_counterBase;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rax
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rax }
     if ( (__rdtsc() & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm1, xmm1, xmm2 }
-    __asm
     {
-      vmulsd  xmm1, xmm1, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcomisd xmm1, xmm0
-      vsubsd  xmm1, xmm1, xmm0
-      vcomisd xmm1, xmm0
-      vcvttsd2si rax, xmm1
+      *((_QWORD *)&v2 + 1) = *((_QWORD *)&_XMM1 + 1);
+      *(double *)&v2 = *(double *)&_XMM1 + 1.844674407370955e19;
+      _XMM1 = v2;
     }
-    sys_timeBase = _RAX;
+    *((_QWORD *)&v4 + 1) = *((_QWORD *)&_XMM1 + 1);
+    *(double *)&v4 = *(double *)&_XMM1 * msecPerRawTimerTick;
+    _XMM1 = v4;
+    v5 = 0i64;
+    if ( *(double *)&v4 >= 9.223372036854776e18 )
+    {
+      *(double *)&v4 = *(double *)&v4 - 9.223372036854776e18;
+      _XMM1 = v4;
+      if ( *(double *)&v4 < 9.223372036854776e18 )
+        v5 = 0x8000000000000000ui64;
+    }
+    __asm { vcvttsd2si rax, xmm1 }
+    sys_timeBase = v5 + _RAX;
     sys_timeBasesInitialized = 1;
-    v8 = __rdtsc();
-    sys_counterBase = v8;
+    v7 = __rdtsc();
+    sys_counterBase = v7;
   }
-  __asm
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
+  if ( (__int64)(__rdtsc() - v7) < 0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
+    *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM1 + 1);
+    *(double *)&v10 = *(double *)&_XMM1 + 1.844674407370955e19;
+    _XMM1 = v10;
   }
-  if ( (__int64)(__rdtsc() - v8) < 0 )
-    __asm { vaddsd  xmm1, xmm1, xmm2 }
-  __asm
+  *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v12 = *(double *)&_XMM1 * usecPerRawTimerTick;
+  _XMM1 = v12;
+  v13 = 0i64;
+  if ( *(double *)&v12 >= 9.223372036854776e18 )
   {
-    vmulsd  xmm1, xmm1, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcomisd xmm1, xmm0
-    vsubsd  xmm1, xmm1, xmm0
-    vcomisd xmm1, xmm0
-    vcvttsd2si rax, xmm1
+    *(double *)&v12 = *(double *)&v12 - 9.223372036854776e18;
+    _XMM1 = v12;
+    if ( *(double *)&v12 < 9.223372036854776e18 )
+      v13 = 0x8000000000000000ui64;
   }
-  return result;
+  __asm { vcvttsd2si rax, xmm1 }
+  return v13 + _RAX;
 }
 
 /*
@@ -186,66 +195,72 @@ unsigned __int64 __fastcall Sys_Microseconds(__int64 a1, double _XMM1_8)
 Sys_Milliseconds
 ==============
 */
-
-__int64 __fastcall Sys_Milliseconds(__int64 a1, double _XMM1_8)
+__int64 Sys_Milliseconds()
 {
-  unsigned __int64 v9; 
-  long double v16; 
+  __int128 v2; 
+  __int128 v4; 
+  unsigned __int64 v5; 
+  unsigned __int64 v7; 
+  __int128 v10; 
+  __int128 v12; 
+  unsigned __int64 v13; 
+  unsigned __int64 v15; 
 
-  __asm
-  {
-    vmovsd  xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovsd  xmm3, cs:__real@43f0000000000000
-    vmovsd  xmm0, cs:__real@43e0000000000000
-  }
   if ( sys_timeBasesInitialized )
   {
-    v9 = sys_counterBase;
+    v7 = sys_counterBase;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rax
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rax }
     if ( (__rdtsc() & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm1, xmm1, xmm3 }
-    __asm
     {
-      vmulsd  xmm1, xmm1, xmm2
-      vcomisd xmm1, xmm0
-      vsubsd  xmm1, xmm1, xmm0
-      vcomisd xmm1, xmm0
-      vcvttsd2si rax, xmm1
+      *((_QWORD *)&v2 + 1) = *((_QWORD *)&_XMM1 + 1);
+      *(double *)&v2 = *(double *)&_XMM1 + 1.844674407370955e19;
+      _XMM1 = v2;
     }
-    sys_timeBase = _RAX;
+    *((_QWORD *)&v4 + 1) = *((_QWORD *)&_XMM1 + 1);
+    *(double *)&v4 = *(double *)&_XMM1 * msecPerRawTimerTick;
+    _XMM1 = v4;
+    v5 = 0i64;
+    if ( *(double *)&v4 >= 9.223372036854776e18 )
+    {
+      *(double *)&v4 = *(double *)&v4 - 9.223372036854776e18;
+      _XMM1 = v4;
+      if ( *(double *)&v4 < 9.223372036854776e18 )
+        v5 = 0x8000000000000000ui64;
+    }
+    __asm { vcvttsd2si rax, xmm1 }
+    sys_timeBase = v5 + _RAX;
     sys_timeBasesInitialized = 1;
-    v9 = __rdtsc();
-    sys_counterBase = v9;
+    v7 = __rdtsc();
+    sys_counterBase = v7;
   }
-  __asm
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
+  if ( (__int64)(__rdtsc() - v7) < 0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
+    *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM1 + 1);
+    *(double *)&v10 = *(double *)&_XMM1 + 1.844674407370955e19;
+    _XMM1 = v10;
   }
-  if ( (__int64)(__rdtsc() - v9) < 0 )
-    __asm { vaddsd  xmm1, xmm1, xmm3 }
-  __asm
+  *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v12 = *(double *)&_XMM1 * msecPerRawTimerTick;
+  _XMM1 = v12;
+  v13 = 0i64;
+  if ( *(double *)&v12 >= 9.223372036854776e18 )
   {
-    vmulsd  xmm1, xmm1, xmm2
-    vcomisd xmm1, xmm0
-    vsubsd  xmm1, xmm1, xmm0
-    vcomisd xmm1, xmm0
-    vcvttsd2si rbx, xmm1
+    *(double *)&v12 = *(double *)&v12 - 9.223372036854776e18;
+    _XMM1 = v12;
+    if ( *(double *)&v12 < 9.223372036854776e18 )
+      v13 = 0x8000000000000000ui64;
   }
-  if ( _RBX > 0x7FFFFFFF )
-  {
-    __asm { vmovsd  [rsp+38h+var_10], xmm2 }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\win32\\win_shared.cpp", 59, ASSERT_TYPE_ASSERT, "( ( msecCount <= 2147483647 ) )", "( msecPerRawTimerTick ) = %lg", v16) )
-      __debugbreak();
-  }
-  return (unsigned int)_RBX;
+  __asm { vcvttsd2si rbx, xmm1 }
+  v15 = v13 + _RBX;
+  if ( v15 > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\win32\\win_shared.cpp", 59, ASSERT_TYPE_ASSERT, "( ( msecCount <= 2147483647 ) )", "( msecPerRawTimerTick ) = %lg", msecPerRawTimerTick) )
+    __debugbreak();
+  return (unsigned int)v15;
 }
 
 /*
@@ -253,25 +268,28 @@ __int64 __fastcall Sys_Milliseconds(__int64 a1, double _XMM1_8)
 Sys_MillisecondsRaw
 ==============
 */
-
-int __fastcall Sys_MillisecondsRaw(double _XMM0_8)
+int Sys_MillisecondsRaw()
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  __int128 v2; 
+  __int128 v4; 
+
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__rdtsc() & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
   {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovsd  xmm1, cs:__real@43e0000000000000
-    vcomisd xmm0, xmm1
-    vsubsd  xmm0, xmm0, xmm1
-    vcomisd xmm0, xmm1
-    vcvttsd2si rax, xmm0
+    *((_QWORD *)&v2 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v2 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v2;
   }
+  *((_QWORD *)&v4 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v4 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM0 = v4;
+  if ( *(double *)&v4 >= 9.223372036854776e18 )
+  {
+    *(double *)&v4 = *(double *)&v4 - 9.223372036854776e18;
+    _XMM0 = v4;
+  }
+  __asm { vcvttsd2si rax, xmm0 }
   return _RAX & 0x7FFFFFFF;
 }
 

@@ -88,38 +88,15 @@ __int64 R_MessageStringHash(const char *text)
 R_PerformanceWarning
 ==============
 */
-
-void __fastcall R_PerformanceWarning(const char *text, double ypos)
+void R_PerformanceWarning(const char *text, float ypos)
 {
-  GfxFont *v6; 
-  float v11; 
-  float v12; 
-  float v13; 
-  float v14; 
-  float v15; 
+  GfxFont *v3; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( com_statmon->current.enabled )
   {
-    v6 = R_RegisterFont("fonts/fira_mono_regular.ttf", 18);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+68h+var_28], xmm0
-      vmovss  xmm0, cs:__real@42c80000
-      vmovss  [rsp+68h+var_30], xmm1
-      vmovss  [rsp+68h+var_38], xmm1
-      vmovss  [rsp+68h+var_40], xmm6
-      vmovss  [rsp+68h+var_48], xmm0
-    }
-    R_AddCmdDrawText(text, 0x7FFFFFFF, v6, 28, v11, v12, v13, v14, v15, &colorRedFaded);
+    v3 = R_RegisterFont("fonts/fira_mono_regular.ttf", 18);
+    R_AddCmdDrawText(text, 0x7FFFFFFF, v3, 28, 100.0, ypos, 1.0, 1.0, 0.0, &colorRedFaded);
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -127,45 +104,47 @@ void __fastcall R_PerformanceWarning(const char *text, double ypos)
 R_UpdateFrameRate
 ==============
 */
-
-float __fastcall R_UpdateFrameRate(double _XMM0_8, double _XMM1_8)
+float R_UpdateFrameRate()
 {
+  int v0; 
+  float result; 
   int v2; 
+  bool v3; 
   int v4; 
-  bool v5; 
-  int v6; 
 
-  if ( frameCount_0 == rg.frontEndFrameCount )
+  if ( frameCount_0 != rg.frontEndFrameCount )
   {
-    __asm { vmovss  xmm0, cs:frameRate }
-  }
-  else if ( frameCount_0 )
-  {
-    if ( frameCount_0 + 1 == rg.frontEndFrameCount && ((v4 = Sys_Milliseconds(), v5 = v4 == previous_0, v6 = v4 - previous_0, previous_0 = v4, v5) || v6 >= 0) )
+    if ( !frameCount_0 )
     {
-      __asm
+      v0 = Sys_Milliseconds();
+      result = frameRate;
+      previous_0 = v0;
+      frameCount_0 = rg.frontEndFrameCount;
+      return result;
+    }
+    if ( frameCount_0 + 1 == rg.frontEndFrameCount )
+    {
+      v2 = Sys_Milliseconds();
+      v3 = v2 == previous_0;
+      v4 = v2 - previous_0;
+      previous_0 = v2;
+      if ( v3 )
       {
-        vmovss  xmm0, cs:__real@447a0000
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vdivss  xmm0, xmm0, xmm1
+        v4 = 1;
+LABEL_8:
+        result = 1000.0 / (float)v4;
+LABEL_10:
+        frameCount_0 = rg.frontEndFrameCount;
+        frameRate = result;
+        return result;
       }
+      if ( v4 >= 0 )
+        goto LABEL_8;
     }
-    else
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-    }
-    frameCount_0 = rg.frontEndFrameCount;
-    __asm { vmovss  cs:frameRate, xmm0 }
+    result = 0.0;
+    goto LABEL_10;
   }
-  else
-  {
-    v2 = Sys_Milliseconds();
-    __asm { vmovss  xmm0, cs:frameRate }
-    previous_0 = v2;
-    frameCount_0 = rg.frontEndFrameCount;
-  }
-  return *(float *)&_XMM0;
+  return frameRate;
 }
 
 /*
@@ -183,16 +162,9 @@ void R_WarnInit(void)
 R_WarnInitDvars
 ==============
 */
-
-void __fastcall R_WarnInitDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void R_WarnInitDvars(void)
 {
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41f00000; max
-    vmovss  xmm1, cs:__real@40a00000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  r_warningRepeatDelay = Dvar_RegisterFloat("MSNTLLOLOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Number of seconds after displaying a \"per-frame\" warning before it will display again");
+  r_warningRepeatDelay = Dvar_RegisterFloat("MSNTLLOLOK", 5.0, 0.0, 30.0, 0, "Number of seconds after displaying a \"per-frame\" warning before it will display again");
 }
 
 /*
@@ -202,25 +174,19 @@ R_WarnOncePerFrame
 */
 void R_WarnOncePerFrame(GfxWarningType warnType, ...)
 {
-  double v2; 
+  float updated; 
   char dest[1024]; 
-  void *retaddr; 
   va_list ap; 
 
   va_start(ap, warnType);
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
   if ( !r_warningRepeatDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_warn.cpp", 540, ASSERT_TYPE_ASSERT, "(r_warningRepeatDelay)", (const char *)&queryFormat, "r_warningRepeatDelay") )
     __debugbreak();
-  *(float *)&_XMM0 = R_UpdateFrameRate(*(double *)&_XMM0, v2);
-  __asm { vmovaps xmm6, xmm0 }
+  updated = R_UpdateFrameRate();
   if ( s_warnCount[warnType] < rg.frontEndFrameCount )
   {
     Com_vsprintf_truncate(dest, 0x400ui64, 0x400ui64, s_warnFormat[warnType], ap);
-    __asm { vmovaps xmm2, xmm6; frameRate }
-    R_WarnOncePerFrameInternal(warnType, dest, *(float *)&_XMM2);
+    R_WarnOncePerFrameInternal(warnType, dest, updated);
   }
-  __asm { vmovaps xmm6, [rsp+458h+var_18] }
 }
 
 /*
@@ -228,26 +194,14 @@ void R_WarnOncePerFrame(GfxWarningType warnType, ...)
 R_WarnOncePerFrameInternal
 ==============
 */
-
-void __fastcall R_WarnOncePerFrameInternal(GfxWarningType warnType, const char *message, double frameRate)
+void R_WarnOncePerFrameInternal(GfxWarningType warnType, const char *message, float frameRate)
 {
-  __int64 v6; 
+  __int64 v4; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  v6 = warnType;
+  v4 = warnType;
   if ( !r_warningRepeatDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_warn.cpp", 519, ASSERT_TYPE_ASSERT, "(r_warningRepeatDelay)", (const char *)&queryFormat, "r_warningRepeatDelay") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rax+28h]
-    vcvttss2si ecx, xmm0
-  }
-  s_warnCount[v6] = rg.frontEndFrameCount + _ECX;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  s_warnCount[v4] = rg.frontEndFrameCount + (int)(float)(frameRate * r_warningRepeatDelay->current.value);
   Com_PrintWarning(8, "WARNING: %s", message);
 }
 
@@ -258,63 +212,61 @@ R_WarnOncePerFrameUnique
 */
 void R_WarnOncePerFrameUnique(GfxWarningType warnTypeBegin, unsigned int messageLimit, unsigned int *messageHashes, unsigned int messageHash, ...)
 {
-  double v5; 
-  __int64 v7; 
-  unsigned int v10; 
+  __int64 v4; 
+  float updated; 
+  unsigned int v8; 
   unsigned int i; 
-  int v13; 
-  char *v14; 
-  int v15; 
+  int v10; 
+  char *v11; 
+  int v12; 
   unsigned int frontEndFrameCount; 
-  int v17; 
+  int v14; 
   char dest[1024]; 
   va_list ap; 
 
   va_start(ap, messageHash);
-  __asm { vmovaps [rsp+498h+var_48], xmm6 }
-  v7 = warnTypeBegin;
+  v4 = warnTypeBegin;
   if ( !messageHashes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_warn.cpp", 599, ASSERT_TYPE_ASSERT, "(messageHashes)", (const char *)&queryFormat, "messageHashes") )
     __debugbreak();
   if ( !messageLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_warn.cpp", 600, ASSERT_TYPE_ASSERT, "(messageLimit > 0)", (const char *)&queryFormat, "messageLimit > 0") )
     __debugbreak();
-  *(float *)&_XMM0 = R_UpdateFrameRate(*(double *)&_XMM0, v5);
-  v10 = messageHash;
-  __asm { vmovaps xmm6, xmm0 }
+  updated = R_UpdateFrameRate();
+  v8 = messageHash;
   if ( messageHash )
   {
     i = messageHash;
   }
   else
   {
-    Com_vsprintf_truncate(dest, 0x400ui64, 0x400ui64, s_warnFormat[v7], ap);
-    v13 = dest[0];
-    v14 = dest;
-    for ( i = 0; *v14; v13 = *v14 )
+    Com_vsprintf_truncate(dest, 0x400ui64, 0x400ui64, s_warnFormat[v4], ap);
+    v10 = dest[0];
+    v11 = dest;
+    for ( i = 0; *v11; v10 = *v11 )
     {
-      ++v14;
-      i = v13 + 33 * i;
+      ++v11;
+      i = v10 + 33 * i;
     }
-    v10 = 0;
+    v8 = 0;
   }
-  v15 = 227;
+  v12 = 227;
   if ( messageLimit )
   {
     frontEndFrameCount = rg.frontEndFrameCount;
-    v17 = v7;
-    while ( i != messageHashes[(unsigned int)(v17 - v7)] )
+    v14 = v4;
+    while ( i != messageHashes[(unsigned int)(v14 - v4)] )
     {
-      if ( v15 == 227 && s_warnCount[v17] < rg.frontEndFrameCount )
-        v15 = v17;
-      if ( ++v17 - (_DWORD)v7 == messageLimit )
+      if ( v12 == 227 && s_warnCount[v14] < rg.frontEndFrameCount )
+        v12 = v14;
+      if ( ++v14 - (_DWORD)v4 == messageLimit )
         goto LABEL_21;
     }
-    v15 = v17;
+    v12 = v14;
 LABEL_21:
-    if ( v15 != 227 && s_warnCount[v15] < rg.frontEndFrameCount )
+    if ( v12 != 227 && s_warnCount[v12] < rg.frontEndFrameCount )
     {
-      if ( v10 )
+      if ( v8 )
       {
-        Com_vsprintf_truncate(dest, 0x400ui64, 0x400ui64, s_warnFormat[v7], ap);
+        Com_vsprintf_truncate(dest, 0x400ui64, 0x400ui64, s_warnFormat[v4], ap);
         frontEndFrameCount = rg.frontEndFrameCount;
       }
       if ( !r_warningRepeatDelay )
@@ -323,16 +275,10 @@ LABEL_21:
           __debugbreak();
         frontEndFrameCount = rg.frontEndFrameCount;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rax+28h]
-        vcvttss2si eax, xmm0
-      }
-      s_warnCount[v15] = frontEndFrameCount + _EAX;
+      s_warnCount[v12] = frontEndFrameCount + (int)(float)(updated * r_warningRepeatDelay->current.value);
       Com_PrintWarning(8, "WARNING: %s", dest);
-      messageHashes[v15 - (int)v7] = i;
+      messageHashes[v12 - (int)v4] = i;
     }
   }
-  __asm { vmovaps xmm6, [rsp+498h+var_48] }
 }
 

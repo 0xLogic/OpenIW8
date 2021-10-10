@@ -137,289 +137,139 @@ ScriptableBg_BuildExplosionDamageTrace
 */
 __int64 ScriptableBg_BuildExplosionDamageTrace(const vec3_t *damageOrigin, const Bounds *targetAbsBounds, vec3_t (*points)[5], int (*doTrace)[5])
 {
-  bool v18; 
-  bool v19; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   __int64 result; 
-  bool v54; 
-  double v149; 
-  double v150; 
-  double v151; 
-  double v152; 
-  double v153; 
-  double v154; 
-  double v155; 
-  double v156; 
-  double v157; 
-  double v158; 
-  double v159; 
-  double v160; 
-  char v168; 
-  void *retaddr; 
+  __int128 v16; 
+  __int128 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  __int128 v25; 
+  __int128 v26; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( !targetAbsBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 451, ASSERT_TYPE_ASSERT, "( targetAbsBounds )", (const char *)&queryFormat, "targetAbsBounds") )
+    __debugbreak();
+  v8 = targetAbsBounds->midPoint.v[0];
+  (*points)[0].v[0] = targetAbsBounds->midPoint.v[0];
+  v9 = targetAbsBounds->midPoint.v[1];
+  (*points)[0].v[1] = v9;
+  v10 = targetAbsBounds->midPoint.v[2];
+  (*points)[0].v[2] = v10;
+  v11 = damageOrigin->v[0] - v8;
+  v12 = damageOrigin->v[1] - v9;
+  v13 = damageOrigin->v[2] - v10;
+  v14 = fsqrt((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v13 * v13));
+  if ( v14 <= 1.0 )
+    return 0i64;
+  v16 = LODWORD(FLOAT_1_0);
+  *(float *)&v16 = (float)(1.0 / v14) * v11;
+  v17 = v16;
+  v18 = (float)(1.0 / v14) * v12;
+  v19 = (float)(1.0 / v14) * v13;
+  v20 = (float)((float)(v18 * v18) + (float)(*(float *)&v17 * *(float *)&v17)) + (float)(v19 * v19);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v20 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 465, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( forward ) )", "(%g, %g, %g) len %g", *(float *)&v17, v18, v19, fsqrt(v20)) )
+    __debugbreak();
+  LODWORD(v21) = LODWORD(v18) ^ _xmm;
+  v22 = fsqrt((float)(v21 * v21) + (float)(*(float *)&v17 * *(float *)&v17));
+  v23 = v17;
+  if ( v22 == 0.0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RSI = points;
-  _RDI = targetAbsBounds;
-  _RBP = damageOrigin;
-  v18 = targetAbsBounds == NULL;
-  if ( !targetAbsBounds )
-  {
-    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 451, ASSERT_TYPE_ASSERT, "( targetAbsBounds )", (const char *)&queryFormat, "targetAbsBounds");
-    v18 = !v19;
-    if ( v19 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi]
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  dword ptr [rsi], xmm1
-    vmovss  xmm3, dword ptr [rdi+4]
-    vmovss  dword ptr [rsi+4], xmm3
-    vmovss  xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rsi+8], xmm2
-    vmovss  xmm0, dword ptr [rbp+0]
-    vsubss  xmm4, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  xmm0, dword ptr [rbp+8]
-    vsubss  xmm5, xmm1, xmm3
-    vsubss  xmm7, xmm0, xmm2
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcomiss xmm1, xmm6
-  }
-  if ( v18 )
-  {
-    result = 0i64;
+    v24 = FLOAT_1_0;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_48], xmm8
-      vmovaps [rsp+0F8h+var_58], xmm9
-      vmovaps [rsp+0F8h+var_68], xmm10
-      vdivss  xmm0, xmm6, xmm1
-      vmovaps [rsp+0F8h+var_78], xmm11
-      vmulss  xmm10, xmm0, xmm4
-      vmulss  xmm11, xmm0, xmm5
-      vmovaps [rsp+0F8h+var_88], xmm12
-      vmovaps [rsp+0F8h+var_98], xmm13
-      vmulss  xmm13, xmm0, xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmulss  xmm0, xmm11, xmm11
-      vmulss  xmm8, xmm10, xmm10
-      vaddss  xmm2, xmm0, xmm8
-      vmulss  xmm1, xmm13, xmm13
-      vaddss  xmm3, xmm2, xmm1
-      vsubss  xmm0, xmm3, xmm6
-      vandps  xmm0, xmm0, xmm7
-      vcomiss xmm0, cs:__real@3b03126f
-      vmovaps [rsp+0F8h+var_A8], xmm14
-      vsqrtss xmm0, xmm3, xmm3
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0F8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm13, xmm13
-      vmovsd  [rsp+0F8h+var_C0], xmm2
-      vcvtss2sd xmm3, xmm11, xmm11
-      vmovsd  [rsp+0F8h+var_C8], xmm3
-      vcvtss2sd xmm0, xmm10, xmm10
-      vmovsd  [rsp+0F8h+var_D0], xmm0
-    }
-    v54 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 465, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( forward ) )", "(%g, %g, %g) len %g", v149, v152, v155, v158);
-    if ( v54 )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm2, xmm11, xmm14
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm1, xmm0, xmm8
-      vsqrtss xmm3, xmm1, xmm1
-      vxorps  xmm12, xmm12, xmm12
-      vucomiss xmm3, xmm12
-      vmovaps xmm9, xmm10
-    }
-    if ( v54 )
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm6, xmm3
-        vmulss  xmm9, xmm10, xmm0
-        vmulss  xmm8, xmm2, xmm0
-      }
-    }
-    else
-    {
-      __asm { vmovaps xmm8, xmm6 }
-    }
-    __asm
-    {
-      vmulss  xmm1, xmm9, xmm9
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm3, xmm1, xmm0
-      vsubss  xmm2, xmm3, xmm6
-      vandps  xmm2, xmm2, xmm7
-      vcomiss xmm2, cs:__real@3b03126f
-      vsqrtss xmm0, xmm3, xmm3
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0F8h+var_B8], xmm1
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+0F8h+var_C0], xmm0
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0F8h+var_C8], xmm2
-      vcvtss2sd xmm3, xmm8, xmm8
-      vmovsd  [rsp+0F8h+var_D0], xmm3
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 484, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( right ) )", "(%g, %g, %g) len %g", v150, v153, v156, v159) )
-      __debugbreak();
-    __asm
-    {
-      vmulss  xmm0, xmm13, xmm9
-      vxorps  xmm14, xmm0, xmm14
-      vmulss  xmm0, xmm11, xmm8
-      vmovaps xmm11, [rsp+0F8h+var_78]
-      vmulss  xmm1, xmm10, xmm9
-      vsubss  xmm10, xmm1, xmm0
-      vmulss  xmm0, xmm14, xmm14
-      vmulss  xmm13, xmm13, xmm8
-      vmulss  xmm2, xmm13, xmm13
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm10, xmm10
-      vaddss  xmm4, xmm3, xmm1
-      vsubss  xmm0, xmm4, xmm6
-      vandps  xmm0, xmm0, xmm7
-      vcomiss xmm0, cs:__real@3b03126f
-      vsqrtss xmm0, xmm4, xmm4
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0F8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovsd  [rsp+0F8h+var_C0], xmm2
-      vcvtss2sd xmm3, xmm13, xmm13
-      vmovsd  [rsp+0F8h+var_C8], xmm3
-      vcvtss2sd xmm0, xmm14, xmm14
-      vmovsd  [rsp+0F8h+var_D0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 489, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( up ) )", "(%g, %g, %g) len %g", v151, v154, v157, v160) )
-      __debugbreak();
-    __asm
-    {
-      vmulss  xmm1, xmm9, dword ptr [rdi+10h]
-      vmulss  xmm0, xmm8, dword ptr [rdi+0Ch]
-      vmulss  xmm2, xmm14, dword ptr [rdi+0Ch]
-      vandps  xmm1, xmm1, xmm7
-      vandps  xmm0, xmm0, xmm7
-      vaddss  xmm4, xmm1, xmm0
-      vmulss  xmm0, xmm13, dword ptr [rdi+10h]
-      vmulss  xmm1, xmm10, dword ptr [rdi+14h]
-      vandps  xmm0, xmm0, xmm7
-      vandps  xmm1, xmm1, xmm7
-      vandps  xmm2, xmm2, xmm7
-      vaddss  xmm3, xmm2, xmm0
-      vaddss  xmm0, xmm3, xmm1
-      vmovss  xmm1, cs:__real@42000000
-    }
-    (*doTrace)[0] = 1;
-    __asm { vcomiss xmm4, xmm1 }
-    (*doTrace)[1] = 1;
-    (*doTrace)[2] = 1;
-    (*doTrace)[3] = 1;
-    (*doTrace)[4] = 1;
-    __asm
-    {
-      vcomiss xmm0, xmm1
-      vmovaps xmm12, [rsp+0F8h+var_88]
-      vmulss  xmm6, xmm13, xmm0
-      vmovaps xmm13, [rsp+0F8h+var_98]
-      vmulss  xmm7, xmm10, xmm0
-      vmovaps xmm10, [rsp+0F8h+var_68]
-      vmulss  xmm5, xmm14, xmm0
-      vmovaps xmm14, [rsp+0F8h+var_A8]
-      vmulss  xmm3, xmm8, xmm4
-      vaddss  xmm1, xmm3, dword ptr [rsi]
-      vmovss  dword ptr [rsi+0Ch], xmm1
-      vmovaps xmm8, [rsp+0F8h+var_48]
-      vmulss  xmm4, xmm9, xmm4
-      vaddss  xmm0, xmm4, dword ptr [rsi+4]
-      vmovss  dword ptr [rsi+10h], xmm0
-    }
-    (*_RSI)[1].v[2] = (*_RSI)[0].v[2];
-    __asm
-    {
-      vmovaps xmm9, [rsp+0F8h+var_58]
-      vaddss  xmm0, xmm1, xmm5
-      vmovss  dword ptr [rsi+0Ch], xmm0
-      vaddss  xmm1, xmm6, dword ptr [rsi+10h]
-      vmovss  dword ptr [rsi+10h], xmm1
-      vaddss  xmm0, xmm7, dword ptr [rsi+14h]
-      vmovss  dword ptr [rsi+14h], xmm0
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm2, xmm0, xmm3
-      vmovss  dword ptr [rsi+18h], xmm2
-      vmovss  xmm1, dword ptr [rsi+4]
-      vsubss  xmm0, xmm1, xmm4
-      vmovss  dword ptr [rsi+1Ch], xmm0
-    }
-    (*_RSI)[2].v[2] = (*_RSI)[0].v[2];
-    __asm
-    {
-      vaddss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rsi+18h], xmm0
-      vaddss  xmm1, xmm6, dword ptr [rsi+1Ch]
-      vmovss  dword ptr [rsi+1Ch], xmm1
-      vaddss  xmm0, xmm7, dword ptr [rsi+20h]
-      vmovss  dword ptr [rsi+20h], xmm0
-      vaddss  xmm1, xmm3, dword ptr [rsi]
-      vmovss  dword ptr [rsi+24h], xmm1
-      vaddss  xmm0, xmm4, dword ptr [rsi+4]
-      vmovss  dword ptr [rsi+28h], xmm0
-    }
-    (*_RSI)[3].v[2] = (*_RSI)[0].v[2];
-    result = 1i64;
-    __asm
-    {
-      vsubss  xmm0, xmm1, xmm5
-      vmovss  dword ptr [rsi+24h], xmm0
-      vmovss  xmm1, dword ptr [rsi+28h]
-      vsubss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rsi+28h], xmm2
-      vmovss  xmm0, dword ptr [rsi+2Ch]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rsi+2Ch], xmm1
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm2, xmm0, xmm3
-      vmovss  dword ptr [rsi+30h], xmm2
-      vmovss  xmm1, dword ptr [rsi+4]
-      vsubss  xmm0, xmm1, xmm4
-      vmovss  dword ptr [rsi+34h], xmm0
-    }
-    (*_RSI)[4].v[2] = (*_RSI)[0].v[2];
-    __asm
-    {
-      vsubss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rsi+30h], xmm0
-      vmovss  xmm1, dword ptr [rsi+34h]
-      vsubss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rsi+34h], xmm2
-      vmovss  xmm0, dword ptr [rsi+38h]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rsi+38h], xmm1
-    }
+    v25 = v17;
+    *(float *)&v25 = *(float *)&v17 * (float)(1.0 / v22);
+    v23 = v25;
+    v24 = v21 * (float)(1.0 / v22);
   }
-  _R11 = &v168;
-  __asm
+  v26 = v23;
+  *(float *)&v26 = (float)(*(float *)&v23 * *(float *)&v23) + (float)(v24 * v24);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v26 - 1.0) & _xmm) >= 0.0020000001 )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    *(float *)&v26 = fsqrt(*(float *)&v26);
+    _XMM0 = v26;
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 484, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( right ) )", "(%g, %g, %g) len %g", v24, *(float *)&v23, *(double *)&_XMM0, *(float *)&v26) )
+      __debugbreak();
   }
+  LODWORD(v29) = COERCE_UNSIGNED_INT(v19 * *(float *)&v23) ^ _xmm;
+  v30 = (float)(*(float *)&v17 * *(float *)&v23) - (float)(v18 * v24);
+  v31 = v19 * v24;
+  v32 = (float)((float)(v31 * v31) + (float)(v29 * v29)) + (float)(v30 * v30);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v32 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 489, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( up ) )", "(%g, %g, %g) len %g", v29, v31, v30, fsqrt(v32)) )
+    __debugbreak();
+  v33 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v23 * targetAbsBounds->halfSize.v[1]) & _xmm) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v24 * targetAbsBounds->halfSize.v[0]) & _xmm);
+  v35 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v29 * targetAbsBounds->halfSize.v[0]) & _xmm) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v31 * targetAbsBounds->halfSize.v[1]) & _xmm)) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v30 * targetAbsBounds->halfSize.v[2]) & _xmm);
+  v34 = v35;
+  (*doTrace)[0] = 1;
+  (*doTrace)[1] = 1;
+  (*doTrace)[2] = 1;
+  (*doTrace)[3] = 1;
+  (*doTrace)[4] = 1;
+  if ( v33 < 32.0 )
+  {
+    v33 = 0.0;
+    (*doTrace)[1] = 0;
+    (*doTrace)[3] = 0;
+  }
+  if ( v35 < 32.0 )
+  {
+    v34 = 0.0;
+    *(_QWORD *)&(*doTrace)[1] = 0i64;
+    if ( v33 == 0.0 )
+      (*doTrace)[4] = 0;
+  }
+  v36 = (float)(v24 * v33) + (*points)[0].v[0];
+  (*points)[1].v[0] = v36;
+  (*points)[1].v[1] = (float)(*(float *)&v23 * v33) + (*points)[0].v[1];
+  (*points)[1].v[2] = (*points)[0].v[2];
+  (*points)[1].v[0] = v36 + (float)(v29 * v34);
+  (*points)[1].v[1] = (float)(v31 * v34) + (*points)[1].v[1];
+  (*points)[1].v[2] = (float)(v30 * v34) + (*points)[1].v[2];
+  v37 = (*points)[0].v[0] - (float)(v24 * v33);
+  (*points)[2].v[0] = v37;
+  (*points)[2].v[1] = (*points)[0].v[1] - (float)(*(float *)&v23 * v33);
+  (*points)[2].v[2] = (*points)[0].v[2];
+  (*points)[2].v[0] = v37 + (float)(v29 * v34);
+  (*points)[2].v[1] = (float)(v31 * v34) + (*points)[2].v[1];
+  (*points)[2].v[2] = (float)(v30 * v34) + (*points)[2].v[2];
+  v38 = (float)(v24 * v33) + (*points)[0].v[0];
+  (*points)[3].v[0] = v38;
+  (*points)[3].v[1] = (float)(*(float *)&v23 * v33) + (*points)[0].v[1];
+  (*points)[3].v[2] = (*points)[0].v[2];
+  result = 1i64;
+  (*points)[3].v[0] = v38 - (float)(v29 * v34);
+  (*points)[3].v[1] = (*points)[3].v[1] - (float)(v31 * v34);
+  (*points)[3].v[2] = (*points)[3].v[2] - (float)(v30 * v34);
+  v39 = (*points)[0].v[0] - (float)(v24 * v33);
+  (*points)[4].v[0] = v39;
+  (*points)[4].v[1] = (*points)[0].v[1] - (float)(*(float *)&v23 * v33);
+  (*points)[4].v[2] = (*points)[0].v[2];
+  (*points)[4].v[0] = v39 - (float)(v29 * v34);
+  (*points)[4].v[1] = (*points)[4].v[1] - (float)(v31 * v34);
+  (*points)[4].v[2] = (*points)[4].v[2] - (float)(v30 * v34);
   return result;
 }
 
@@ -428,35 +278,17 @@ __int64 ScriptableBg_BuildExplosionDamageTrace(const vec3_t *damageOrigin, const
 ScriptableBg_CalculateAdjustedDamage
 ==============
 */
-
-int __fastcall ScriptableBg_CalculateAdjustedDamage(const int baseDamage, double extraBias)
+__int64 ScriptableBg_CalculateAdjustedDamage(const int baseDamage, const float extraBias)
 {
-  int result; 
+  __int64 result; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-    vmovss  xmm3, cs:__real@3f000000
-  }
-  _EAX = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
-  _ECX = 0;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm2, ecx
-    vpcmpeqd xmm4, xmm0, xmm2
-    vmovss  xmm2, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vblendvps xmm4, xmm2, xmm3, xmm4
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm3, xmm4, xmm0
-    vmulss  xmm1, xmm3, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vcvttss2si eax, xmm1
-  }
-  if ( result < 1 )
-    return 1;
+  _XMM0 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
+  __asm { vpcmpeqd xmm4, xmm0, xmm2 }
+  _XMM2 = LODWORD(FLOAT_1_0);
+  __asm { vblendvps xmm4, xmm2, xmm3, xmm4 }
+  result = (unsigned int)(int)(float)((float)(*(float *)&_XMM4 * (float)baseDamage) * extraBias);
+  if ( (int)result < 1 )
+    return 1i64;
   return result;
 }
 
@@ -706,7 +538,7 @@ ScriptableBg_GetDamageForWeapon
 */
 int ScriptableBg_GetDamageForWeapon(const Weapon *weapon, const int isAlternate, const int mod)
 {
-  int result; 
+  double ExplDmg; 
   bool v7; 
   int Damage; 
   int v9; 
@@ -716,8 +548,8 @@ int ScriptableBg_GetDamageForWeapon(const Weapon *weapon, const int isAlternate,
     return BG_GetMeleeDamage(weapon, isAlternate != 0);
   if ( mod == 3 )
   {
-    *(double *)&_XMM0 = BG_WeaponBulletFire_GetExplDmg(weapon, isAlternate != 0);
-    __asm { vcvttss2si eax, xmm0 }
+    ExplDmg = BG_WeaponBulletFire_GetExplDmg(weapon, isAlternate != 0);
+    return (int)*(float *)&ExplDmg;
   }
   else
   {
@@ -729,13 +561,11 @@ int ScriptableBg_GetDamageForWeapon(const Weapon *weapon, const int isAlternate,
       if ( _bittest(&v9, mod) )
       {
         BG_GetExplosionDamageRangeInfo(weapon, v7, &outDamageRangeInfo);
-        __asm { vcvttss2si ecx, [rsp+68h+outDamageRangeInfo.innerDamage] }
-        Damage += _ECX;
+        Damage += (int)outDamageRangeInfo.innerDamage;
       }
     }
     return Damage;
   }
-  return result;
 }
 
 /*
@@ -1001,15 +831,19 @@ void ScriptableBg_ProcessDamageEvent(const ScriptableDamageEvent *damageEvent)
 {
   unsigned int mod; 
   int v3; 
-  int v12; 
+  unsigned int v4; 
+  unsigned int v9; 
   int AttackerFlags; 
-  int v14; 
+  int v11; 
   const ScriptableDef *def; 
-  __int64 v16; 
-  int v21; 
-  int v27; 
-  int v31; 
-  int v32; 
+  __int64 v13; 
+  int damage; 
+  int v16; 
+  float v19; 
+  int v20; 
+  signed int v22; 
+  int v23; 
+  int v24; 
   const ScriptablePartDef *DamagedPart; 
   ScriptableEventParams eventParms; 
 
@@ -1024,21 +858,15 @@ void ScriptableBg_ProcessDamageEvent(const ScriptableDamageEvent *damageEvent)
     {
       if ( !damageEvent->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 347, ASSERT_TYPE_ASSERT, "( damageEvent->def )", (const char *)&queryFormat, "damageEvent->def") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@41100000 }
-      _ESI = 0;
-      __asm { vmovd   xmm1, esi }
-      _EAX = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
-      __asm
-      {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@41500000
-        vblendvps xmm1, xmm1, xmm2, xmm3; extraBias
-      }
-      v12 = ScriptableBg_CalculateAdjustedDamage(damageEvent->damage, *(double *)&_XMM1);
+      v4 = 0;
+      _XMM0 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_13_0);
+      __asm { vblendvps xmm1, xmm1, xmm2, xmm3; extraBias }
+      v9 = ScriptableBg_CalculateAdjustedDamage(damageEvent->damage, *(const float *)&_XMM1);
       AttackerFlags = ScriptableBg_GetAttackerFlags(damageEvent);
       eventParms.context = damageEvent->context;
-      v14 = AttackerFlags | 2;
+      v11 = AttackerFlags | 2;
       eventParms.callbacks = damageEvent->callbacks;
       eventParms.scriptableIndex = damageEvent->scriptableIndex;
       def = damageEvent->def;
@@ -1048,61 +876,50 @@ void ScriptableBg_ProcessDamageEvent(const ScriptableDamageEvent *damageEvent)
       {
         do
         {
-          v16 = (__int64)&def->parts[_ESI];
-          if ( damageEvent->context || (*(_BYTE *)(v16 + 12) & 2) != 0 )
+          v13 = (__int64)&def->parts[v4];
+          if ( damageEvent->context || (*(_BYTE *)(v13 + 12) & 2) != 0 )
           {
-            ScriptableBg_DamagePartAndChildren(&eventParms, (const ScriptablePartDef *)v16, v14, v12);
+            ScriptableBg_DamagePartAndChildren(&eventParms, (const ScriptablePartDef *)v13, v11, v9);
             def = damageEvent->def;
           }
-          ++_ESI;
+          ++v4;
         }
-        while ( _ESI < def->numParts );
+        while ( v4 < def->numParts );
       }
     }
     else
     {
       if ( !damageEvent->def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 397, ASSERT_TYPE_ASSERT, "( damageEvent->def )", (const char *)&queryFormat, "damageEvent->def") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@3f000000 }
-      _ESI = 0;
-      _EAX = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
-      __asm { vmovd   xmm0, eax }
-      v21 = damageEvent->mod;
-      __asm
+      damage = damageEvent->damage;
+      _XMM0 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
+      v16 = damageEvent->mod;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_1_0);
+      v19 = (float)damage;
+      v20 = 1;
+      __asm { vblendvps xmm3, xmm1, xmm2, xmm3 }
+      v22 = (int)(float)(*(float *)&_XMM3 * v19);
+      if ( v22 < 1 )
+        v22 = 1;
+      if ( v16 == 8 )
       {
-        vmovd   xmm1, esi
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
+        v20 = 4;
       }
-      v27 = 1;
-      __asm
+      else if ( v16 == 12 )
       {
-        vblendvps xmm3, xmm1, xmm2, xmm3
-        vmulss  xmm2, xmm3, xmm0
-        vcvttss2si r14d, xmm2
+        v20 = 8;
       }
-      if ( _ER14 < 1 )
-        _ER14 = 1;
-      if ( v21 == 8 )
-      {
-        v27 = 4;
-      }
-      else if ( v21 == 12 )
-      {
-        v27 = 8;
-      }
-      v31 = ScriptableBg_GetAttackerFlags(damageEvent);
+      v23 = ScriptableBg_GetAttackerFlags(damageEvent);
       eventParms.partDef = NULL;
       eventParms.context = damageEvent->context;
-      v32 = v27 | v31;
+      v24 = v20 | v23;
       eventParms.callbacks = damageEvent->callbacks;
       eventParms.scriptableIndex = damageEvent->scriptableIndex;
       eventParms.damageEvent = damageEvent;
       DamagedPart = ScriptableBg_FindDamagedPart(&eventParms, damageEvent);
       if ( DamagedPart )
-        ScriptableBg_DamagePart(&eventParms, DamagedPart, v32, _ER14);
+        ScriptableBg_DamagePart(&eventParms, DamagedPart, v24, v22);
     }
   }
 }
@@ -1114,51 +931,50 @@ ScriptableBg_ProcessForRadiusDamage
 */
 void ScriptableBg_ProcessForRadiusDamage(const ScriptableRadiusDamageCallbackTable *callbacks, const ScriptableContext context, const unsigned int targetLinkNum, ScriptableLinkType targetLinkType, const vec3_t *closestPoint, const float radiusSquared, const float radius, const float explosionOuterDamage, const float explosionInnerDamage, const vec3_t *position, const unsigned int inflictorEntNum, const unsigned int attackerEntNum, const meansOfDeath_t splashMethodOfDeath, const Weapon *weapon, const int isAlternate, const int runOcclusionTraces)
 {
-  bool v24; 
-  char v36; 
-  bool v49; 
-  __int64 v53; 
+  bool v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  bool v25; 
+  __int64 v26; 
   __int64 scriptableEntNum; 
-  int v55; 
-  int v56; 
-  int v57; 
   unsigned int scriptableIndex; 
-  unsigned int v59; 
+  unsigned int v29; 
   ScriptableDef *def; 
-  const Weapon *v61; 
-  char v62[16]; 
-  char v63[16]; 
+  const Weapon *v31; 
+  char v32[16]; 
+  char v33[16]; 
   Bounds targetAbsBounds; 
 
-  _R12 = position;
-  v59 = targetLinkNum;
-  v61 = weapon;
+  v29 = targetLinkNum;
+  v31 = weapon;
   if ( !callbacks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 670, ASSERT_TYPE_ASSERT, "( callbacks )", (const char *)&queryFormat, "callbacks") )
     __debugbreak();
   if ( inflictorEntNum >= 0x800 )
   {
-    LODWORD(v53) = inflictorEntNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 671, ASSERT_TYPE_ASSERT, "(unsigned)( inflictorEntNum ) < (unsigned)( ( 2048 ) )", "inflictorEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, 2048) )
+    LODWORD(v26) = inflictorEntNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 671, ASSERT_TYPE_ASSERT, "(unsigned)( inflictorEntNum ) < (unsigned)( ( 2048 ) )", "inflictorEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v26, 2048) )
       __debugbreak();
   }
   if ( attackerEntNum >= 0x800 )
   {
     LODWORD(scriptableEntNum) = 2048;
-    LODWORD(v53) = attackerEntNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 672, ASSERT_TYPE_ASSERT, "(unsigned)( attackerEntNum ) < (unsigned)( ( 2048 ) )", "attackerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, scriptableEntNum) )
+    LODWORD(v26) = attackerEntNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 672, ASSERT_TYPE_ASSERT, "(unsigned)( attackerEntNum ) < (unsigned)( ( 2048 ) )", "attackerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v26, scriptableEntNum) )
       __debugbreak();
   }
-  v24 = callbacks->getInstanceIndex == NULL;
+  v20 = callbacks->getInstanceIndex == NULL;
   scriptableIndex = 500000;
   def = NULL;
-  if ( v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 677, ASSERT_TYPE_ASSERT, "( callbacks->getInstanceIndex )", (const char *)&queryFormat, "callbacks->getInstanceIndex") )
+  if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 677, ASSERT_TYPE_ASSERT, "( callbacks->getInstanceIndex )", (const char *)&queryFormat, "callbacks->getInstanceIndex") )
     __debugbreak();
   callbacks->getInstanceIndex((unsigned int)context, targetLinkNum, (unsigned __int8)targetLinkType, &scriptableIndex);
   if ( scriptableIndex >= 0x7A120 )
   {
     LODWORD(scriptableEntNum) = 500000;
-    LODWORD(v53) = scriptableIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 679, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( SCRIPTABLE_MAX_INSTANCE_COUNT )", "scriptableIndex doesn't index SCRIPTABLE_MAX_INSTANCE_COUNT\n\t%i not in [0, %i)", v53, scriptableEntNum) )
+    LODWORD(v26) = scriptableIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 679, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( SCRIPTABLE_MAX_INSTANCE_COUNT )", "scriptableIndex doesn't index SCRIPTABLE_MAX_INSTANCE_COUNT\n\t%i not in [0, %i)", v26, scriptableEntNum) )
       __debugbreak();
   }
   if ( !callbacks->getDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 681, ASSERT_TYPE_ASSERT, "( callbacks->getDef )", (const char *)&queryFormat, "callbacks->getDef") )
@@ -1170,83 +986,40 @@ void ScriptableBg_ProcessForRadiusDamage(const ScriptableRadiusDamageCallbackTab
   {
     if ( !callbacks->getOriginAngles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 694, ASSERT_TYPE_ASSERT, "( callbacks->getOriginAngles )", (const char *)&queryFormat, "callbacks->getOriginAngles") )
       __debugbreak();
-    callbacks->getOriginAngles(context, scriptableIndex, (vec3_t *)v63, (vec3_t *)v62);
-    __asm
+    callbacks->getOriginAngles(context, scriptableIndex, (vec3_t *)v33, (vec3_t *)v32);
+    v21 = position->v[1] - closestPoint->v[1];
+    v22 = position->v[2] - closestPoint->v[2];
+    v23 = (float)((float)(v21 * v21) + (float)((float)(position->v[0] - closestPoint->v[0]) * (float)(position->v[0] - closestPoint->v[0]))) + (float)(v22 * v22);
+    if ( v23 <= radiusSquared )
     {
-      vmovss  xmm0, dword ptr [r12]
-      vsubss  xmm3, xmm0, dword ptr [r13+0]
-      vmovss  xmm1, dword ptr [r12+4]
-      vmovss  xmm0, dword ptr [r12+8]
-      vsubss  xmm2, xmm1, dword ptr [r13+4]
-      vsubss  xmm4, xmm0, dword ptr [r13+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm5, xmm3, xmm0
-      vcomiss xmm5, [rsp+148h+radiusSquared]
-    }
-    if ( v36 | v24 )
-    {
-      __asm
+      v24 = (float)((float)(1.0 - (float)(fsqrt(v23) * (float)(1.0 / radius))) * (float)(explosionInnerDamage - explosionOuterDamage)) + explosionOuterDamage;
+      if ( (int)v24 > 0 )
       {
-        vmovss  xmm2, cs:__real@3f800000
-        vmovaps [rsp+148h+var_58], xmm6
-        vmovss  xmm6, [rsp+148h+explosionOuterDamage]
-        vmovaps [rsp+148h+var_68], xmm7
-        vmovss  xmm7, [rsp+148h+radius]
-        vdivss  xmm0, xmm2, xmm7
-        vsqrtss xmm1, xmm5, xmm5
-        vmulss  xmm1, xmm1, xmm0
-        vsubss  xmm2, xmm2, xmm1
-        vmovaps [rsp+148h+var_78], xmm8
-        vmovss  xmm8, [rsp+148h+explosionInnerDamage]
-        vsubss  xmm0, xmm8, xmm6
-        vmulss  xmm1, xmm2, xmm0
-        vaddss  xmm2, xmm1, xmm6
-        vcvttss2si r14d, xmm2
-      }
-      if ( _ER14 <= 0 )
-      {
-LABEL_41:
-        __asm
+        if ( targetLinkType != SCRIPTABLE_LINK_ENTITY )
         {
-          vmovaps xmm7, [rsp+148h+var_68]
-          vmovaps xmm6, [rsp+148h+var_58]
-          vmovaps xmm8, [rsp+148h+var_78]
+          if ( !callbacks->damage )
+          {
+            v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 715, ASSERT_TYPE_ASSERT, "( callbacks->damage )", (const char *)&queryFormat, "callbacks->damage");
+            goto LABEL_38;
+          }
+          goto LABEL_40;
         }
-        return;
-      }
-      if ( targetLinkType == SCRIPTABLE_LINK_ENTITY )
-      {
         if ( !callbacks->getAbsBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 722, ASSERT_TYPE_ASSERT, "(callbacks->getAbsBounds)", (const char *)&queryFormat, "callbacks->getAbsBounds") )
           __debugbreak();
         callbacks->getAbsBounds(context, scriptableIndex, &targetAbsBounds);
-        if ( runOcclusionTraces && !ScriptableBg_ShouldRadiusDamageHurt(callbacks, context, scriptableIndex, &targetAbsBounds, position, inflictorEntNum, v59, 9441297) )
-          goto LABEL_41;
-        if ( callbacks->damage )
-          goto LABEL_40;
-        v49 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 738, ASSERT_TYPE_ASSERT, "( callbacks->damage )", (const char *)&queryFormat, "callbacks->damage");
-      }
-      else
-      {
-        if ( callbacks->damage )
+        if ( !runOcclusionTraces || ScriptableBg_ShouldRadiusDamageHurt(callbacks, context, scriptableIndex, &targetAbsBounds, position, inflictorEntNum, v29, 9441297) )
         {
-LABEL_40:
-          __asm
+          if ( !callbacks->damage )
           {
-            vmovss  [rsp+148h+var_E8], xmm7
-            vmovss  [rsp+148h+var_F0], xmm8
-            vmovss  [rsp+148h+var_F8], xmm6
+            v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 738, ASSERT_TYPE_ASSERT, "( callbacks->damage )", (const char *)&queryFormat, "callbacks->damage");
+LABEL_38:
+            if ( v25 )
+              __debugbreak();
           }
-          ((void (__fastcall *)(_QWORD, _QWORD, _QWORD, _QWORD, const vec3_t *, const vec3_t *, const meansOfDeath_t, const Weapon *, const int, int, int, int, int))callbacks->damage)((unsigned int)context, scriptableIndex, inflictorEntNum, attackerEntNum, position, closestPoint, splashMethodOfDeath, v61, isAlternate, _ER14, v55, v56, v57);
-          goto LABEL_41;
+LABEL_40:
+          ((void (__fastcall *)(_QWORD, _QWORD, _QWORD, _QWORD, const vec3_t *, const vec3_t *, const meansOfDeath_t, const Weapon *, const int, int, _DWORD, _DWORD, _DWORD))callbacks->damage)((unsigned int)context, scriptableIndex, inflictorEntNum, attackerEntNum, position, closestPoint, splashMethodOfDeath, v31, isAlternate, (int)v24, LODWORD(explosionOuterDamage), LODWORD(explosionInnerDamage), LODWORD(radius));
         }
-        v49 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 715, ASSERT_TYPE_ASSERT, "( callbacks->damage )", (const char *)&queryFormat, "callbacks->damage");
       }
-      if ( v49 )
-        __debugbreak();
-      goto LABEL_40;
     }
   }
 }
@@ -1258,33 +1031,22 @@ ScriptableBg_RadiusDamageEvent
 */
 void ScriptableBg_RadiusDamageEvent(const ScriptableContext context, const ScriptableRadiusDamageCallbackTable *callbacks, const unsigned int inflictorEntNum, const unsigned int attackerEntNum, const Weapon *weapon, const int isAlternate, const vec3_t *position, const float outerRadius, const float explosionInnerDamage, const float explosionOuterDamage, const meansOfDeath_t mod, const int runOcclusionTraces)
 {
-  char v22; 
-  bool v23; 
-  unsigned int v38; 
-  ScriptableLinkType *v39; 
-  const unsigned int *v40; 
+  const dvar_t *v16; 
+  float v19; 
+  bool v22; 
+  float v23; 
+  unsigned int v24; 
+  ScriptableLinkType *v25; 
+  const unsigned int *v26; 
   vec3_t *p_closestPoint; 
-  __int64 v44; 
+  __int64 v28; 
   __int64 radiusSquared; 
-  double radiusSquareda; 
-  float radiusSquaredb; 
   __int64 radius; 
-  double radiusa; 
-  float radiusb; 
-  double v55; 
-  float v56; 
-  float v57; 
-  int v62[6]; 
-  char v63[40]; 
+  int v35[6]; 
+  char v36[40]; 
   vec3_t closestPoint; 
-  char v65[16]; 
+  char v38[16]; 
 
-  __asm
-  {
-    vmovaps [rsp+208h+var_58], xmm6
-    vmovaps [rsp+208h+var_88], xmm9
-  }
-  _R13 = position;
   if ( !callbacks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 750, ASSERT_TYPE_ASSERT, "( callbacks )", (const char *)&queryFormat, "callbacks") )
     __debugbreak();
   if ( inflictorEntNum >= 0x800 )
@@ -1300,102 +1062,55 @@ void ScriptableBg_RadiusDamageEvent(const ScriptableContext context, const Scrip
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 752, ASSERT_TYPE_ASSERT, "(unsigned)( attackerEntNum ) < (unsigned)( ( 2048 ) )", "attackerEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", radiusSquared, radius) )
       __debugbreak();
   }
-  _RBX = DCONST_DVARFLT_bg_radiusDamageMax;
+  v16 = DCONST_DVARFLT_bg_radiusDamageMax;
   if ( !DCONST_DVARFLT_bg_radiusDamageMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_radiusDamageMax") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v16);
+  _XMM3 = LODWORD(outerRadius);
+  _XMM2 = v16->current.unsignedInt;
+  if ( outerRadius < 1.0 )
   {
-    vmovss  xmm3, [rsp+208h+outerRadius]
-    vmovss  xmm1, cs:__real@3f800000
-    vcomiss xmm3, xmm1
-    vmovss  xmm2, dword ptr [rbx+28h]
-  }
-  if ( v22 )
-  {
-    __asm { vmovaps xmm6, xmm1 }
+    v19 = FLOAT_1_0;
     goto LABEL_16;
   }
   __asm
   {
     vcmpltss xmm0, xmm2, xmm3
     vblendvps xmm0, xmm3, xmm2, xmm0
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
   }
-  if ( !v22 )
+  v19 = *(float *)&_XMM0;
+  if ( *(float *)&_XMM0 >= 1.0 )
   {
 LABEL_16:
-    __asm { vcomiss xmm6, xmm2 }
-    if ( v22 | v23 )
+    if ( v19 <= *(float *)&_XMM2 )
       goto LABEL_19;
   }
-  __asm
-  {
-    vcvtss2sd xmm0, xmm2, xmm2
-    vmovsd  [rsp+208h+var_1D0], xmm0
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vmovsd  qword ptr [rsp+208h+radius], xmm0
-    vcvtss2sd xmm1, xmm6, xmm6
-    vmovsd  qword ptr [rsp+208h+radiusSquared], xmm1
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 767, ASSERT_TYPE_ASSERT, "( 1.0f ) <= ( actualRadius ) && ( actualRadius ) <= ( radiusDamageMax )", "actualRadius not in [1.0f, radiusDamageMax]\n\t%g not in [%g, %g]", radiusSquareda, radiusa, v55) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 767, ASSERT_TYPE_ASSERT, "( 1.0f ) <= ( actualRadius ) && ( actualRadius ) <= ( radiusDamageMax )", "actualRadius not in [1.0f, radiusDamageMax]\n\t%g not in [%g, %g]", v19, DOUBLE_1_0, *(float *)&_XMM2) )
     __debugbreak();
 LABEL_19:
-  v23 = callbacks->areaScriptables == NULL;
-  __asm
-  {
-    vmulss  xmm2, xmm6, cs:__real@3fb504f3
-    vmovss  xmm0, dword ptr [r13+0]
-    vmovss  xmm1, dword ptr [r13+4]
-    vmovss  [rsp+208h+var_168], xmm0
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  [rsp+208h+var_160], xmm0
-    vmovss  [rsp+208h+var_164], xmm1
-    vmovss  [rsp+208h+var_15C], xmm2
-    vmovss  [rsp+208h+var_158], xmm2
-    vmovss  [rsp+208h+var_154], xmm2
-    vmulss  xmm9, xmm6, xmm6
-  }
-  if ( v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 778, ASSERT_TYPE_ASSERT, "( callbacks->areaScriptables )", (const char *)&queryFormat, "callbacks->areaScriptables") )
+  v22 = callbacks->areaScriptables == NULL;
+  v23 = position->v[1];
+  v35[0] = LODWORD(position->v[0]);
+  v35[2] = LODWORD(position->v[2]);
+  *(float *)&v35[1] = v23;
+  *(float *)&v35[3] = v19 * 1.4142135;
+  *(float *)&v35[4] = v19 * 1.4142135;
+  *(float *)&v35[5] = v19 * 1.4142135;
+  if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 778, ASSERT_TYPE_ASSERT, "( callbacks->areaScriptables )", (const char *)&queryFormat, "callbacks->areaScriptables") )
     __debugbreak();
-  v38 = callbacks->areaScriptables(context, (const Bounds *)v62, (unsigned int *)v63, (ScriptableLinkType *)v65, &closestPoint, 10u);
-  if ( v38 )
+  v24 = callbacks->areaScriptables(context, (const Bounds *)v35, (unsigned int *)v36, (ScriptableLinkType *)v38, &closestPoint, 10u);
+  if ( v24 )
   {
-    v39 = (ScriptableLinkType *)v65;
-    v40 = (const unsigned int *)v63;
+    v25 = (ScriptableLinkType *)v38;
+    v26 = (const unsigned int *)v36;
     p_closestPoint = &closestPoint;
-    __asm
-    {
-      vmovaps [rsp+208h+var_68], xmm7
-      vmovss  xmm7, [rsp+208h+explosionOuterDamage]
-      vmovaps [rsp+208h+var_78], xmm8
-      vmovss  xmm8, [rsp+208h+explosionInnerDamage]
-    }
-    v44 = v38;
+    v28 = v24;
     do
     {
-      __asm
-      {
-        vmovss  [rsp+208h+var_1C8], xmm8
-        vmovss  dword ptr [rsp+208h+var_1D0], xmm7
-        vmovss  [rsp+208h+radius], xmm6
-        vmovss  [rsp+208h+radiusSquared], xmm9
-      }
-      ScriptableBg_ProcessForRadiusDamage(callbacks, context, *v40++, *v39++, p_closestPoint++, radiusSquaredb, radiusb, v56, v57, position, inflictorEntNum, attackerEntNum, mod, weapon, isAlternate, runOcclusionTraces);
-      --v44;
+      ScriptableBg_ProcessForRadiusDamage(callbacks, context, *v26++, *v25++, p_closestPoint++, v19 * v19, v19, explosionOuterDamage, explosionInnerDamage, position, inflictorEntNum, attackerEntNum, mod, weapon, isAlternate, runOcclusionTraces);
+      --v28;
     }
-    while ( v44 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+208h+var_78]
-      vmovaps xmm7, [rsp+208h+var_68]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+208h+var_58]
-    vmovaps xmm9, [rsp+208h+var_88]
+    while ( v28 );
   }
 }
 
@@ -1444,69 +1159,60 @@ ScriptableBg_ShouldRadiusDamageHurt
 */
 __int64 ScriptableBg_ShouldRadiusDamageHurt(const ScriptableRadiusDamageCallbackTable *callbacks, const ScriptableContext context, const unsigned int scriptableIndex, const Bounds *targetAbsBounds, const vec3_t *damageOrigin, const unsigned int inflictorEntNum, const unsigned int scriptableEntNum, const int contentmask)
 {
-  const dvar_t *v13; 
-  __int64 v14; 
+  const dvar_t *v11; 
+  __int64 v12; 
   void (__fastcall *debugBox)(const vec3_t *, const Bounds *, float, const vec4_t *, int, int); 
-  const Bounds *v18; 
-  const vec3_t *v19; 
-  __int64 result; 
-  const dvar_t *v21; 
+  const Bounds *v14; 
+  const vec3_t *v15; 
+  const dvar_t *v17; 
   void (__fastcall *debugLine)(const vec3_t *, const vec3_t *, const vec4_t *, int, int); 
   Physics_WorldId ScriptablePhysicsWorldId; 
   HavokPhysics_CollisionQueryResult *AllResult; 
-  int v25; 
-  int *v26; 
-  Physics_WorldId v27; 
-  int v28; 
+  int v21; 
+  int *v22; 
+  Physics_WorldId v23; 
+  int v24; 
   int RaycastHitRef; 
   Physics_RefSystem RefSystem; 
   const ScriptableDef *ScriptableDefFromIndex; 
-  bool v32; 
-  unsigned int v33; 
-  const dvar_t *v34; 
-  void (__fastcall *v35)(const vec3_t *, const vec3_t *, const vec4_t *, int, int); 
-  const dvar_t *v36; 
-  void (__fastcall *v37)(const vec3_t *, const vec3_t *, const vec4_t *, int, int); 
-  hkMemoryAllocator *v38; 
-  hkMemoryAllocator *v39; 
+  bool v28; 
+  unsigned int v29; 
+  const dvar_t *v30; 
+  void (__fastcall *v31)(const vec3_t *, const vec3_t *, const vec4_t *, int, int); 
+  const dvar_t *v32; 
+  void (__fastcall *v33)(const vec3_t *, const vec3_t *, const vec4_t *, int, int); 
+  hkMemoryAllocator *v34; 
+  hkMemoryAllocator *v35; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v44; 
-  __int64 v45; 
+  HavokPhysics_IgnoreBodies v39; 
+  __int64 v40; 
   vec3_t points[5]; 
   int doTrace[5]; 
 
-  v45 = -2i64;
-  __asm { vmovaps [rsp+170h+var_50], xmm6 }
+  v40 = -2i64;
   if ( !callbacks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 548, ASSERT_TYPE_ASSERT, "( callbacks )", (const char *)&queryFormat, "callbacks") )
     __debugbreak();
   if ( !targetAbsBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 549, ASSERT_TYPE_ASSERT, "( targetAbsBounds )", (const char *)&queryFormat, "targetAbsBounds") )
     __debugbreak();
-  v13 = DCONST_DVARBOOL_scriptable_debug;
+  v11 = DCONST_DVARBOOL_scriptable_debug;
   if ( !DCONST_DVARBOOL_scriptable_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.enabled )
   {
     debugBox = callbacks->debugBox;
     if ( debugBox )
-    {
-      __asm { vxorps  xmm2, xmm2, xmm2 }
-      ((void (__fastcall *)(vec3_t *, const Bounds *, __int64, vec4_t *, _DWORD, int))debugBox)(&vec3_origin, targetAbsBounds, v14, &colorMdGrey, 0, 300);
-    }
+      ((void (__fastcall *)(vec3_t *, const Bounds *, __int64, vec4_t *, _DWORD, int))debugBox)(&vec3_origin, targetAbsBounds, v12, &colorMdGrey, 0, 300);
   }
-  v18 = targetAbsBounds;
-  v19 = damageOrigin;
-  if ( !(unsigned int)ScriptableBg_BuildExplosionDamageTrace(damageOrigin, v18, (vec3_t (*)[5])points, (int (*)[5])doTrace) )
-  {
-    result = 1i64;
-    goto LABEL_67;
-  }
-  v21 = DCONST_DVARBOOL_scriptable_debug;
+  v14 = targetAbsBounds;
+  v15 = damageOrigin;
+  if ( !(unsigned int)ScriptableBg_BuildExplosionDamageTrace(damageOrigin, v14, (vec3_t (*)[5])points, (int (*)[5])doTrace) )
+    return 1i64;
+  v17 = DCONST_DVARBOOL_scriptable_debug;
   if ( !DCONST_DVARBOOL_scriptable_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  if ( v21->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled )
   {
     debugLine = callbacks->debugLine;
     if ( debugLine )
@@ -1521,110 +1227,107 @@ __int64 ScriptableBg_ShouldRadiusDamageHurt(const ScriptableRadiusDamageCallback
   AllResult = PhysicsQuery_GetAllResult(ScriptablePhysicsWorldId);
   if ( !AllResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_damage.cpp", 582, ASSERT_TYPE_ASSERT, "( traceResult )", (const char *)&queryFormat, "traceResult") )
     __debugbreak();
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v44, 0, 0);
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v39, 0, 0);
   if ( scriptableEntNum != 2047 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(&v44, scriptableEntNum, 1, 1, 0, 0, 0);
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(&v39, scriptableEntNum, 1, 1, 0, 0, 0);
   if ( inflictorEntNum != 2047 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(&v44, inflictorEntNum, 1, 1, 0, 0, 0);
-  v25 = 0;
-  v26 = doTrace;
-  while ( !*v26 )
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(&v39, inflictorEntNum, 1, 1, 0, 0, 0);
+  v21 = 0;
+  v22 = doTrace;
+  while ( !*v22 )
   {
 LABEL_60:
-    ++v25;
-    ++v26;
-    if ( v25 >= 5 )
+    ++v21;
+    ++v22;
+    if ( v21 >= 5 )
     {
-      v33 = 0;
+      v29 = 0;
       goto LABEL_62;
     }
   }
   HavokPhysics_CollisionQueryResult::Reset(AllResult, 1);
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm { vmovss  [rsp+170h+extendedData.collisionBuffer], xmm6 }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = contentmask;
-  extendedData.ignoreBodies = &v44;
+  extendedData.ignoreBodies = &v39;
   if ( context )
   {
     if ( context == SBL_CONTEXT_CLIENT_0 )
     {
-      v27 = PHYSICS_WORLD_ID_CLIENT_FIRST;
+      v23 = PHYSICS_WORLD_ID_CLIENT_FIRST;
     }
     else if ( context == SBL_CONTEXT_CLIENT_1 )
     {
-      v27 = PHYSICS_WORLD_ID_CLIENT1_FIRST;
+      v23 = PHYSICS_WORLD_ID_CLIENT1_FIRST;
     }
     else
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg.h", 105, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown context") )
         __debugbreak();
-      v27 = PHYSICS_WORLD_ID_INVALID;
+      v23 = PHYSICS_WORLD_ID_INVALID;
     }
   }
   else
   {
-    v27 = PHYSICS_WORLD_ID_FIRST;
+    v23 = PHYSICS_WORLD_ID_FIRST;
   }
-  Physics_Raycast(v27, v19, &points[v25], &extendedData, AllResult);
-  v28 = 0;
+  Physics_Raycast(v23, v15, &points[v21], &extendedData, AllResult);
+  v24 = 0;
   if ( HavokPhysics_CollisionQueryResult::GetNumHits(AllResult) )
   {
     while ( 1 )
     {
-      RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(AllResult, v28);
+      RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(AllResult, v24);
       RefSystem = Physics_GetRefSystem(RaycastHitRef);
       ScriptableDefFromIndex = ScriptableBg_GetScriptableDefFromIndex(scriptableIndex, context);
-      v32 = ScriptableDefFromIndex && (ScriptableDefFromIndex->flags & 0x180000) != 0;
-      if ( RefSystem != Physics_RefSystem_Scriptable || !v32 )
+      v28 = ScriptableDefFromIndex && (ScriptableDefFromIndex->flags & 0x180000) != 0;
+      if ( RefSystem != Physics_RefSystem_Scriptable || !v28 )
         break;
-      if ( ++v28 >= HavokPhysics_CollisionQueryResult::GetNumHits(AllResult) )
+      if ( ++v24 >= HavokPhysics_CollisionQueryResult::GetNumHits(AllResult) )
       {
-        v19 = damageOrigin;
+        v15 = damageOrigin;
         goto LABEL_48;
       }
     }
-    v36 = DCONST_DVARBOOL_scriptable_debug;
+    v32 = DCONST_DVARBOOL_scriptable_debug;
     if ( !DCONST_DVARBOOL_scriptable_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v36);
-    v19 = damageOrigin;
-    if ( v36->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    v15 = damageOrigin;
+    if ( v32->current.enabled )
     {
-      v37 = callbacks->debugLine;
-      if ( v37 )
-        v37(damageOrigin, &points[v25], &colorOrange, 1, 300);
+      v33 = callbacks->debugLine;
+      if ( v33 )
+        v33(damageOrigin, &points[v21], &colorOrange, 1, 300);
     }
     goto LABEL_60;
   }
 LABEL_48:
-  v33 = 1;
-  v34 = DCONST_DVARBOOL_scriptable_debug;
+  v29 = 1;
+  v30 = DCONST_DVARBOOL_scriptable_debug;
   if ( !DCONST_DVARBOOL_scriptable_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  if ( v34->current.enabled )
+  Dvar_CheckFrontendServerThread(v30);
+  if ( v30->current.enabled )
   {
-    v35 = callbacks->debugLine;
-    if ( v35 )
-      v35(v19, &points[v25], &colorGreen, 1, 300);
+    v31 = callbacks->debugLine;
+    if ( v31 )
+      v31(v15, &points[v21], &colorGreen, 1, 300);
   }
 LABEL_62:
-  v38 = hkMemHeapAllocator();
-  v44.m_ignoreBodies.m_size = 0;
-  if ( v44.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v38, v44.m_ignoreBodies.m_data, 4, v44.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v44.m_ignoreBodies.m_data = NULL;
-  v44.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v39 = hkMemHeapAllocator();
-  v44.m_ignoreEntities.m_size = 0;
-  if ( v44.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v39, v44.m_ignoreEntities.m_data, 8, v44.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  result = v33;
-LABEL_67:
-  __asm { vmovaps xmm6, [rsp+170h+var_50] }
-  return result;
+  v34 = hkMemHeapAllocator();
+  v39.m_ignoreBodies.m_size = 0;
+  if ( v39.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v34, v39.m_ignoreBodies.m_data, 4, v39.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v39.m_ignoreBodies.m_data = NULL;
+  v39.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v35 = hkMemHeapAllocator();
+  v39.m_ignoreEntities.m_size = 0;
+  if ( v39.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v35, v39.m_ignoreEntities.m_data, 8, v39.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  return v29;
 }
 

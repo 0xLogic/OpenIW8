@@ -2032,21 +2032,22 @@ char MarketingCommsManager::MarkResponseMessageReadOnBackendAsync(MarketingComms
   bdCommsMessage *v12; 
   __int64 m_size; 
   unsigned int m_capacity; 
+  bdCommsViewedMessage *m_data; 
   __int64 v16; 
   DWServicesAccess *Instance; 
   DWMarketingComms *MarketingComms; 
-  const bdReference<bdRemoteTask> *v23; 
-  TaskManager *v24; 
-  void (__fastcall ***v25)(_QWORD, __int64); 
-  void (__fastcall ***v26)(_QWORD, __int64); 
+  const bdReference<bdRemoteTask> *v19; 
+  TaskManager *v20; 
+  void (__fastcall ***v21)(_QWORD, __int64); 
+  void (__fastcall ***v22)(_QWORD, __int64); 
   bdReference<bdRemoteTask> result; 
   TaskCreateRequest pTaskCreateRequest; 
   TaskCreateResult pTaskCreateResult; 
-  __int64 v31; 
+  __int64 v27; 
   bdCommsReportMessagesViewedRequest request; 
-  bdCommsViewedMessage v33; 
+  bdCommsViewedMessage v29; 
 
-  v31 = -2i64;
+  v27 = -2i64;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwmarketingcommsmgr.cpp", 1175, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   v6 = 0;
@@ -2070,7 +2071,7 @@ char MarketingCommsManager::MarkResponseMessageReadOnBackendAsync(MarketingComms
   pTaskCreateResult.m_localTaskId = 0;
   pTaskCreateResult.m_task = NULL;
   bdCommsReportMessagesViewedRequest::bdCommsReportMessagesViewedRequest(&request);
-  bdCommsViewedMessage::bdCommsViewedMessage(&v33);
+  bdCommsViewedMessage::bdCommsViewedMessage(&v29);
   v9 = (bdRemoteTask *)bdMemory::allocate(0x20ui64);
   result.m_ptr = v9;
   if ( v9 )
@@ -2084,56 +2085,47 @@ char MarketingCommsManager::MarkResponseMessageReadOnBackendAsync(MarketingComms
   }
   pTaskCreateRequest.m_appData = (void *)v11;
   v12 = bdFastArray<bdCommsMessage>::operator[]((bdFastArray<bdCommsMessage> *)&this->m_responses->__vftable + 1, responseMessageItemIndex);
-  *((_QWORD *)&v33.__vftable + 2) = *((_QWORD *)&v12->__vftable + 2);
-  *((_DWORD *)&v33.__vftable + 6) = v12->m_locationID;
-  v33.m_assignmentID = v12->m_assignmentID;
-  strncpy(v33.m_languageCode, (const char *)&v12->__vftable + 24, 0x14ui64);
+  *((_QWORD *)&v29.__vftable + 2) = *((_QWORD *)&v12->__vftable + 2);
+  *((_DWORD *)&v29.__vftable + 6) = v12->m_locationID;
+  v29.m_assignmentID = v12->m_assignmentID;
+  strncpy(v29.m_languageCode, (const char *)&v12->__vftable + 24, 0x14ui64);
   m_size = request.m_messages.m_size;
   if ( request.m_messages.m_size == request.m_messages.m_capacity )
   {
     m_capacity = request.m_messages.m_capacity;
     if ( !request.m_messages.m_capacity )
       m_capacity = 1;
-    _RDI = NULL;
+    m_data = NULL;
     v16 = request.m_messages.m_capacity + m_capacity;
     if ( (_DWORD)v16 )
     {
-      _RDI = (bdCommsViewedMessage *)bdMemory::allocate(80 * v16);
+      m_data = (bdCommsViewedMessage *)bdMemory::allocate(80 * v16);
       if ( request.m_messages.m_size )
-        memcpy_0(_RDI, request.m_messages.m_data, 80i64 * request.m_messages.m_size);
+        memcpy_0(m_data, request.m_messages.m_data, 80i64 * request.m_messages.m_size);
     }
     bdMemory::deallocate(request.m_messages.m_data);
-    request.m_messages.m_data = _RDI;
+    request.m_messages.m_data = m_data;
     request.m_messages.m_capacity = v16;
     m_size = request.m_messages.m_size;
   }
   else
   {
-    _RDI = request.m_messages.m_data;
+    m_data = request.m_messages.m_data;
   }
-  _RCX = 10 * m_size;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+70h+var_90.baseclass_0.__vftable]
-    vmovups ymmword ptr [rdi+rcx*8], ymm0
-    vmovups ymm1, ymmword ptr [rbp+70h+var_90.m_assignmentID]
-    vmovups ymmword ptr [rdi+rcx*8+20h], ymm1
-    vmovups xmm0, xmmword ptr [rbp+70h+var_90.gap3C+4]
-    vmovups xmmword ptr [rdi+rcx*8+40h], xmm0
-  }
+  m_data[m_size] = v29;
   ++request.m_messages.m_size;
   Instance = DWServicesAccess::GetInstance();
   MarketingComms = DWServicesAccess::GetMarketingComms(Instance, controllerIndex);
-  v23 = DWMarketingComms::markMessagesRead(MarketingComms, &result, &request, (bdCommsReportMessagesViewedResponse *)v11);
-  bdReference<bdRemoteTask>::operator=(&pTaskCreateRequest.m_remoteDemonwareTask, v23);
+  v19 = DWMarketingComms::markMessagesRead(MarketingComms, &result, &request, (bdCommsReportMessagesViewedResponse *)v11);
+  bdReference<bdRemoteTask>::operator=(&pTaskCreateRequest.m_remoteDemonwareTask, v19);
   if ( result.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && result.m_ptr )
     ((void (__fastcall *)(bdRemoteTask *, __int64))result.m_ptr->~bdReferencable)(result.m_ptr, 1i64);
   if ( pTaskCreateRequest.m_remoteDemonwareTask.m_ptr )
   {
     pTaskCreateRequest.m_controllerIndex = controllerIndex;
     pTaskCreateRequest.m_onCompletionCallback = OnMarkMessagesReadOnBackendAsyncComplete;
-    v24 = TaskManager::GetInstance();
-    if ( TaskManager::CreateTask(v24, &pTaskCreateRequest, &pTaskCreateResult) )
+    v20 = TaskManager::GetInstance();
+    if ( TaskManager::CreateTask(v20, &pTaskCreateRequest, &pTaskCreateResult) )
     {
       Com_Printf(25, "MarkMessagesReadOnBackendAsync() - CreateTask created task id %d controllerIndex %d!\n", pTaskCreateResult.m_localTaskId, (unsigned int)controllerIndex);
       v6 = 1;
@@ -2142,8 +2134,8 @@ char MarketingCommsManager::MarkResponseMessageReadOnBackendAsync(MarketingComms
     {
       if ( v11 )
       {
-        v25 = (void (__fastcall ***)(_QWORD, __int64))(*(int *)(*(_QWORD *)(v11 + 8) + 4i64) + v11 + 8);
-        (**v25)(v25, 1i64);
+        v21 = (void (__fastcall ***)(_QWORD, __int64))(*(int *)(*(_QWORD *)(v11 + 8) + 4i64) + v11 + 8);
+        (**v21)(v21, 1i64);
       }
       Com_PrintError(25, "MarkMessagesReadOnBackendAsync() - CreateTask failed for controllerIndex %d!\n", (unsigned int)controllerIndex);
     }
@@ -2152,13 +2144,13 @@ char MarketingCommsManager::MarkResponseMessageReadOnBackendAsync(MarketingComms
   {
     if ( v11 )
     {
-      v26 = (void (__fastcall ***)(_QWORD, __int64))(*(int *)(*(_QWORD *)(v11 + 8) + 4i64) + v11 + 8);
-      (**v26)(v26, 1i64);
+      v22 = (void (__fastcall ***)(_QWORD, __int64))(*(int *)(*(_QWORD *)(v11 + 8) + 4i64) + v11 + 8);
+      (**v22)(v22, 1i64);
     }
     Com_PrintWarning(25, "MarkMessagesReadOnBackendAsync() -Task Create failed request.m_remoteDemonwareTask == BD_NULL!\n");
   }
-  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v33.__vftable + 2));
-  bdReferencable::~bdReferencable((bdReferencable *)&v33.gap3C[4]);
+  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v29.__vftable + 2));
+  bdReferencable::~bdReferencable((bdReferencable *)&v29.gap3C[4]);
   bdMemory::deallocate(request.m_messages.m_data);
   request.m_messages.m_data = NULL;
   *(_QWORD *)&request.m_messages.m_capacity = 0i64;
@@ -2373,30 +2365,30 @@ void MarketingCommsManager::ParseContentBufferReplaceJSONMetaDataTags(MarketingC
   rsize_t v26; 
   rsize_t v27; 
   char *fmt; 
-  __int64 v33; 
-  float v35; 
-  int v36; 
-  unsigned int v37; 
-  unsigned int v38; 
+  __int64 v30; 
+  float v32; 
+  int v33; 
+  unsigned int v34; 
+  unsigned int v35; 
   const char *m_ptr; 
-  void *v40; 
+  void *v37; 
   rsize_t MaxCount; 
+  bdJSONDeserializer v39; 
+  unsigned __int64 v40; 
+  unsigned __int64 v41; 
   bdJSONDeserializer v42; 
-  unsigned __int64 v43; 
-  unsigned __int64 v44; 
+  bdJSONDeserializer v43; 
+  __int64 v44; 
   bdJSONDeserializer v45; 
-  bdJSONDeserializer v46; 
-  __int64 v47; 
-  bdJSONDeserializer v48; 
   char Destination[256]; 
   char value[256]; 
   char dest[2048]; 
 
-  v47 = -2i64;
+  v44 = -2i64;
   v4 = currentMessageToReadIndex;
   v5 = locationID;
-  v37 = locationID;
-  v38 = controllerIndex;
+  v34 = locationID;
+  v35 = controllerIndex;
   v6 = this;
   v7 = -1i64;
   do
@@ -2406,12 +2398,12 @@ void MarketingCommsManager::ParseContentBufferReplaceJSONMetaDataTags(MarketingC
   do
     ++v8;
   while ( asc_143E053C4[v8] );
-  bdJSONDeserializer::bdJSONDeserializer(&v46);
-  bdJSONDeserializer::bdJSONDeserializer(&v45);
+  bdJSONDeserializer::bdJSONDeserializer(&v43);
   bdJSONDeserializer::bdJSONDeserializer(&v42);
+  bdJSONDeserializer::bdJSONDeserializer(&v39);
   Profile_Begin(58);
   v9 = v5;
-  v33 = v5;
+  v30 = v5;
   if ( !v6->m_parsedJSONCaches[v5] )
     goto LABEL_77;
   if ( (unsigned int)v4 >= v6->m_messageCacheSizeLimits[v5] )
@@ -2425,18 +2417,18 @@ void MarketingCommsManager::ParseContentBufferReplaceJSONMetaDataTags(MarketingC
   if ( MessageIndexForLocationIDCount < 0 )
     goto LABEL_76;
   v12 = bdFastArray<bdCommsMessage>::operator[]((bdFastArray<bdCommsMessage> *)&v6->m_responses->__vftable + 1, MessageIndexForLocationIDCount);
-  if ( !bdJSONDeserializer::parse(&v46, (const char *)v12->m_metadata) )
+  if ( !bdJSONDeserializer::parse(&v43, (const char *)v12->m_metadata) )
     goto LABEL_76;
   v13 = bdFastArray<bdCommsMessage>::operator[]((bdFastArray<bdCommsMessage> *)&v6->m_responses->__vftable + 1, v11);
-  if ( !bdJSONDeserializer::parse(&v45, (const char *)v13->m_content) || !v46.m_parsed || !v45.m_parsed )
+  if ( !bdJSONDeserializer::parse(&v42, (const char *)v13->m_content) || !v43.m_parsed || !v42.m_parsed )
     goto LABEL_76;
-  v40 = &v6->m_parsedJSONCaches[v9][v4];
+  v37 = &v6->m_parsedJSONCaches[v9][v4];
   v14 = 0i64;
-  if ( bdJSONDeserializer::hasKey(&v45, "REDC_LIST") )
+  if ( bdJSONDeserializer::hasKey(&v42, "REDC_LIST") )
   {
     v15 = 0;
-    bdJSONDeserializer::bdJSONDeserializer(&v48);
-    if ( bdJSONDeserializer::getString(&v45, "action", value, 0x100u) )
+    bdJSONDeserializer::bdJSONDeserializer(&v45);
+    if ( bdJSONDeserializer::getString(&v42, "action", value, 0x100u) )
     {
       v16 = 0i64;
       while ( 1 )
@@ -2453,28 +2445,28 @@ void MarketingCommsManager::ParseContentBufferReplaceJSONMetaDataTags(MarketingC
     }
     Com_PrintError(16, "DoValidityCheck failed for CRM message! Key \"%s\" must be set to \"%s\" when a redemption code is included!\n", "action", "redeem");
 LABEL_23:
-    bdJSONDeserializer::~bdJSONDeserializer(&v48);
+    bdJSONDeserializer::~bdJSONDeserializer(&v45);
     if ( !v15 )
     {
       Com_PrintError(16, "ParseContentBufferReplaceJSONMetaDataTags: DoValidityCheck failed, skipping message.\n");
 LABEL_73:
       LODWORD(v4) = currentMessageToReadIndex;
       LODWORD(fmt) = currentMessageToReadIndex;
-      Com_PrintError(25, "ParseReplaceJSONMetaData( controller: %d, locationID %d messageIndex %d ) FAILED (aborted) - ignoring message!\n", v38, v37, fmt);
-      memset_0(v40, 0, 0x1800ui64);
+      Com_PrintError(25, "ParseReplaceJSONMetaData( controller: %d, locationID %d messageIndex %d ) FAILED (aborted) - ignoring message!\n", v35, v34, fmt);
+      memset_0(v37, 0, 0x1800ui64);
       goto LABEL_76;
     }
   }
-  m_ptr = v45.m_ptr;
-  v18 = v45.m_end - v45.m_ptr;
-  v43 = v45.m_end - v45.m_ptr;
-  v19 = v40;
-  memset_0(v40, 0, 0x1800ui64);
+  m_ptr = v42.m_ptr;
+  v18 = v42.m_end - v42.m_ptr;
+  v40 = v42.m_end - v42.m_ptr;
+  v19 = v37;
+  memset_0(v37, 0, 0x1800ui64);
   v20 = 0i64;
   if ( !v18 )
     goto LABEL_75;
   v21 = (int)v7;
-  v44 = (int)v7;
+  v41 = (int)v7;
   v22 = m_ptr;
   while ( 1 )
   {
@@ -2507,19 +2499,19 @@ LABEL_73:
       Com_PrintError(16, "strncpy_s failure to copy metadata key name from content data as a string of length %zu to buffer of length %zu!\n", v26, 0x100ui64);
       goto LABEL_72;
     }
-    if ( !Destination[0] || !bdJSONDeserializer::getFieldByKey(&v46, Destination, &v42, 1) )
+    if ( !Destination[0] || !bdJSONDeserializer::getFieldByKey(&v43, Destination, &v39, 1) )
     {
       Com_PrintError(16, "Field \"%s\" not found in metadata!\n", Destination);
       goto LABEL_72;
     }
-    if ( bdJSONDeserializer::isString(&v42) )
+    if ( bdJSONDeserializer::isString(&v39) )
     {
-      if ( !bdJSONDeserializer::getString(&v42, dest, 0x800u) )
+      if ( !bdJSONDeserializer::getString(&v39, dest, 0x800u) )
       {
         Com_PrintError(16, "getString() failure to read metadata field value string from JSON to buffer of length %zu!\n", 0x800ui64);
 LABEL_72:
         v6 = this;
-        v9 = v33;
+        v9 = v30;
         goto LABEL_73;
       }
       v27 = -1i64;
@@ -2529,16 +2521,16 @@ LABEL_72:
     }
     else
     {
-      if ( !bdJSONDeserializer::isFloatingPoint(&v42) )
+      if ( !bdJSONDeserializer::isFloatingPoint(&v39) )
       {
-        if ( !bdJSONDeserializer::isNumber(&v42) )
+        if ( !bdJSONDeserializer::isNumber(&v39) )
           goto LABEL_68;
-        if ( !bdJSONDeserializer::getInt32(&v42, &v36) )
+        if ( !bdJSONDeserializer::getInt32(&v39, &v33) )
         {
           Com_PrintError(16, "getInt32() failure to get value for key \"%s\" as an int32 from metadata\n", Destination);
           goto LABEL_72;
         }
-        if ( Com_sprintf_truncate(dest, 0x800ui64, "%i", (unsigned int)v36) <= 0 )
+        if ( Com_sprintf_truncate(dest, 0x800ui64, "%i", (unsigned int)v33) <= 0 )
         {
           Com_PrintError(16, "sprintf_s failure to sprintf metaDataValuesAsString int to string in buffer of length %d!\n", 2048i64);
           goto LABEL_72;
@@ -2549,18 +2541,12 @@ LABEL_72:
         while ( dest[v27] );
         goto LABEL_51;
       }
-      if ( !bdJSONDeserializer::getFloat32(&v42, &v35) )
+      if ( !bdJSONDeserializer::getFloat32(&v39, &v32) )
       {
         Com_PrintError(16, "getFloat32() failure to get value for key \"%s\" as a float32 from metadata\n", Destination);
         goto LABEL_72;
       }
-      __asm
-      {
-        vmovss  xmm3, [rsp+0B70h+var_B1C]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      if ( Com_sprintf_truncate(dest, 0x800ui64, "%f", *(double *)&_XMM3) <= 0 )
+      if ( Com_sprintf_truncate(dest, 0x800ui64, "%f", v32) <= 0 )
       {
         Com_PrintError(16, "sprintf_s failure to sprintf key \"%s\" value as a float to string in buffer of length %d!\n", Destination, 2048i64);
         goto LABEL_72;
@@ -2579,8 +2565,8 @@ LABEL_68:
     }
     if ( v27 + v14 >= 0x1800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwmarketingcommsmgr.cpp", 754, ASSERT_TYPE_ASSERT, "((parsedJSONBufferIndex + charsReadyForCopy) < (4096 + 2048))", (const char *)&queryFormat, "(parsedJSONBufferIndex + charsReadyForCopy) < MAX_PARSED_JSON_RESPONSE") )
       __debugbreak();
-    v19 = v40;
-    if ( strncpy_s((char *)v40 + v14, 6144 - v14, dest, v27) )
+    v19 = v37;
+    if ( strncpy_s((char *)v37 + v14, 6144 - v14, dest, v27) )
     {
       Com_PrintError(16, "strncpy_s failure to append metaDataValuesAsString string to buffer of length %d!\n", 6144i64);
       goto LABEL_72;
@@ -2589,22 +2575,22 @@ LABEL_68:
     v20 += v7 + v8 + MaxCount;
     v22 = m_ptr;
 LABEL_57:
-    if ( v20 >= v43 )
+    if ( v20 >= v40 )
       break;
-    v21 = v44;
+    v21 = v41;
   }
   v6 = this;
 LABEL_75:
-  v9 = v33;
-  ++v6->m_messagesParsedForApplication[v33];
+  v9 = v30;
+  ++v6->m_messagesParsedForApplication[v30];
   LODWORD(v4) = currentMessageToReadIndex;
 LABEL_76:
   v6->m_parsedJSONCaches[v9][(unsigned int)v4].m_bIsParsed = 1;
 LABEL_77:
   Profile_EndInternal(NULL);
+  bdJSONDeserializer::~bdJSONDeserializer(&v39);
   bdJSONDeserializer::~bdJSONDeserializer(&v42);
-  bdJSONDeserializer::~bdJSONDeserializer(&v45);
-  bdJSONDeserializer::~bdJSONDeserializer(&v46);
+  bdJSONDeserializer::~bdJSONDeserializer(&v43);
 }
 
 /*
@@ -2731,6 +2717,7 @@ __int64 MarketingCommsManager::SetupBatchRequestForCurrentGameMode(MarketingComm
   const dvar_t *v4; 
   bool v5; 
   bdCommsGetMessagesRequest *m_request; 
+  bdCommsLocationCount *v7; 
   unsigned int v8; 
   unsigned int v9; 
   unsigned int v10; 
@@ -2739,6 +2726,7 @@ __int64 MarketingCommsManager::SetupBatchRequestForCurrentGameMode(MarketingComm
   bdCommsGetMessagesRequest *v13; 
   unsigned int m_capacity; 
   int v15; 
+  bdCommsLocationCount *m_data; 
   __int64 v17; 
   __int64 m_size; 
   const char *v19; 
@@ -2758,30 +2746,32 @@ __int64 MarketingCommsManager::SetupBatchRequestForCurrentGameMode(MarketingComm
   int v33; 
   __int64 v34; 
   __int64 v35; 
-  unsigned int v39; 
+  unsigned int v36; 
+  unsigned int v37; 
+  unsigned int v38; 
+  bdCommsGetMessagesRequest *v39; 
   unsigned int v40; 
-  unsigned int v41; 
-  bdCommsGetMessagesRequest *v42; 
-  unsigned int v43; 
-  int v44; 
-  __int64 v46; 
-  __int64 v47; 
-  unsigned int v51; 
-  unsigned int v52; 
-  unsigned int v53; 
-  bdCommsGetMessagesRequest *v54; 
+  int v41; 
+  bdCommsLocationCount *v42; 
+  __int64 v43; 
+  __int64 v44; 
+  unsigned int v45; 
+  unsigned int v46; 
+  unsigned int v47; 
+  bdCommsGetMessagesRequest *v48; 
+  unsigned int v49; 
+  int v50; 
+  bdCommsLocationCount *v51; 
+  __int64 v52; 
+  __int64 v53; 
+  unsigned int v54; 
   unsigned int v55; 
-  int v56; 
-  __int64 v58; 
+  bdCommsGetMessagesRequest *v56; 
+  unsigned int v57; 
+  int v58; 
   __int64 v59; 
-  unsigned int v63; 
-  unsigned int v64; 
-  bdCommsGetMessagesRequest *v65; 
-  unsigned int v66; 
-  int v67; 
-  __int64 v68; 
-  __int64 v69; 
-  unsigned __int8 v73; 
+  __int64 v60; 
+  unsigned __int8 v61; 
   bdCommsLocationCount value; 
 
   bdCommsLocationCount::bdCommsLocationCount(&value);
@@ -2802,13 +2792,13 @@ __int64 MarketingCommsManager::SetupBatchRequestForCurrentGameMode(MarketingComm
   m_request = this->m_request;
   if ( !m_request || !v2 && !v5 && !v3 || !this->m_parsedJSONCachesAllocation )
   {
-    v73 = 0;
+    v61 = 0;
     goto LABEL_96;
   }
   if ( v2 && (this->m_requestTask.m_appTaskType != 1 || this->m_needsCachePointerFixup) )
   {
     bdMemory::deallocate(m_request->m_locationCounts.m_data);
-    _RDI = NULL;
+    v7 = NULL;
     m_request->m_locationCounts.m_data = NULL;
     *(_QWORD *)&m_request->m_locationCounts.m_capacity = 0i64;
     this->m_requestTask.m_appTaskType = 1;
@@ -2851,187 +2841,155 @@ __int64 MarketingCommsManager::SetupBatchRequestForCurrentGameMode(MarketingComm
       v15 = v13->m_locationCounts.m_capacity;
       if ( !m_capacity )
         v15 = 1;
-      _R14 = NULL;
+      m_data = NULL;
       v17 = m_capacity + v15;
       if ( (_DWORD)v17 )
       {
-        _R14 = (bdCommsLocationCount *)bdMemory::allocate(40 * v17);
+        m_data = (bdCommsLocationCount *)bdMemory::allocate(40 * v17);
         m_size = v13->m_locationCounts.m_size;
         if ( (_DWORD)m_size )
-          memcpy_0(_R14, v13->m_locationCounts.m_data, 40 * m_size);
+          memcpy_0(m_data, v13->m_locationCounts.m_data, 40 * m_size);
       }
       bdMemory::deallocate(v13->m_locationCounts.m_data);
-      v13->m_locationCounts.m_data = _R14;
+      v13->m_locationCounts.m_data = m_data;
       v13->m_locationCounts.m_capacity = v17;
       v19 = "SetupBatchRequestForCurrentGameMode setting up for receiving CRM data for mode MP\n";
     }
     else
     {
-      _R14 = v13->m_locationCounts.m_data;
+      m_data = v13->m_locationCounts.m_data;
       v19 = "SetupBatchRequestForCurrentGameMode setting up for receiving CRM data for mode MP\n";
     }
 LABEL_59:
-    _RCX = 5i64 * v13->m_locationCounts.m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+value.baseclass_0.__vftable]
-      vmovups ymmword ptr [r14+rcx*8], ymm0
-      vmovsd  xmm1, qword ptr [rbp+value.gap20]
-      vmovsd  qword ptr [r14+rcx*8+20h], xmm1
-    }
-    ++v13->m_locationCounts.m_size;
+    m_data[v13->m_locationCounts.m_size++] = value;
     Com_Printf(25, v19);
     if ( (!v12 || !this->m_request->m_locationCounts.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwmarketingcommsmgr.cpp", 1001, ASSERT_TYPE_ASSERT, "(currentIndex != 0 && !m_request->m_locationCounts.isEmpty())", (const char *)&queryFormat, "currentIndex != 0 && !m_request->m_locationCounts.isEmpty()") )
       __debugbreak();
     this->m_parsedJSONCaches[9] = &this->m_parsedJSONCachesAllocation[v12];
-    v39 = 0;
-    v40 = this->m_messageCacheSizeLimits[9];
-    if ( v40 )
+    v36 = 0;
+    v37 = this->m_messageCacheSizeLimits[9];
+    if ( v37 )
     {
       do
       {
-        this->m_parsedJSONCaches[9][v39++].m_bIsParsed = 0;
-        v40 = this->m_messageCacheSizeLimits[9];
+        this->m_parsedJSONCaches[9][v36++].m_bIsParsed = 0;
+        v37 = this->m_messageCacheSizeLimits[9];
       }
-      while ( v39 < v40 );
+      while ( v36 < v37 );
     }
-    v41 = v40 + v12;
-    *((_DWORD *)&value.__vftable + 5) = v40;
+    v38 = v37 + v12;
+    *((_DWORD *)&value.__vftable + 5) = v37;
     *((_DWORD *)&value.__vftable + 4) = 9;
-    v42 = this->m_request;
-    v43 = v42->m_locationCounts.m_capacity;
-    if ( v42->m_locationCounts.m_size == v43 )
+    v39 = this->m_request;
+    v40 = v39->m_locationCounts.m_capacity;
+    if ( v39->m_locationCounts.m_size == v40 )
     {
-      v44 = v42->m_locationCounts.m_capacity;
-      if ( !v43 )
-        v44 = 1;
-      _R14 = NULL;
-      v46 = v43 + v44;
-      if ( (_DWORD)v46 )
+      v41 = v39->m_locationCounts.m_capacity;
+      if ( !v40 )
+        v41 = 1;
+      v42 = NULL;
+      v43 = v40 + v41;
+      if ( (_DWORD)v43 )
       {
-        _R14 = (bdCommsLocationCount *)bdMemory::allocate(40 * v46);
-        v47 = v42->m_locationCounts.m_size;
-        if ( (_DWORD)v47 )
-          memcpy_0(_R14, v42->m_locationCounts.m_data, 40 * v47);
+        v42 = (bdCommsLocationCount *)bdMemory::allocate(40 * v43);
+        v44 = v39->m_locationCounts.m_size;
+        if ( (_DWORD)v44 )
+          memcpy_0(v42, v39->m_locationCounts.m_data, 40 * v44);
       }
-      bdMemory::deallocate(v42->m_locationCounts.m_data);
-      v42->m_locationCounts.m_data = _R14;
-      v42->m_locationCounts.m_capacity = v46;
+      bdMemory::deallocate(v39->m_locationCounts.m_data);
+      v39->m_locationCounts.m_data = v42;
+      v39->m_locationCounts.m_capacity = v43;
     }
     else
     {
-      _R14 = v42->m_locationCounts.m_data;
+      v42 = v39->m_locationCounts.m_data;
     }
-    _RCX = 5i64 * v42->m_locationCounts.m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+value.baseclass_0.__vftable]
-      vmovups ymmword ptr [r14+rcx*8], ymm0
-      vmovsd  xmm1, qword ptr [rbp+value.gap20]
-      vmovsd  qword ptr [r14+rcx*8+20h], xmm1
-    }
-    ++v42->m_locationCounts.m_size;
-    this->m_parsedJSONCaches[10] = &this->m_parsedJSONCachesAllocation[v41];
-    v51 = 0;
-    v52 = this->m_messageCacheSizeLimits[10];
-    if ( v52 )
+    v42[v39->m_locationCounts.m_size++] = value;
+    this->m_parsedJSONCaches[10] = &this->m_parsedJSONCachesAllocation[v38];
+    v45 = 0;
+    v46 = this->m_messageCacheSizeLimits[10];
+    if ( v46 )
     {
       do
       {
-        this->m_parsedJSONCaches[10][v51++].m_bIsParsed = 0;
-        v52 = this->m_messageCacheSizeLimits[10];
+        this->m_parsedJSONCaches[10][v45++].m_bIsParsed = 0;
+        v46 = this->m_messageCacheSizeLimits[10];
       }
-      while ( v51 < v52 );
+      while ( v45 < v46 );
     }
-    v53 = v52 + v41;
-    *((_DWORD *)&value.__vftable + 5) = v52;
+    v47 = v46 + v38;
+    *((_DWORD *)&value.__vftable + 5) = v46;
     *((_DWORD *)&value.__vftable + 4) = 10;
-    v54 = this->m_request;
-    v55 = v54->m_locationCounts.m_capacity;
-    if ( v54->m_locationCounts.m_size == v55 )
+    v48 = this->m_request;
+    v49 = v48->m_locationCounts.m_capacity;
+    if ( v48->m_locationCounts.m_size == v49 )
     {
-      v56 = v54->m_locationCounts.m_capacity;
-      if ( !v55 )
-        v56 = 1;
-      _R14 = NULL;
-      v58 = v55 + v56;
-      if ( (_DWORD)v58 )
+      v50 = v48->m_locationCounts.m_capacity;
+      if ( !v49 )
+        v50 = 1;
+      v51 = NULL;
+      v52 = v49 + v50;
+      if ( (_DWORD)v52 )
       {
-        _R14 = (bdCommsLocationCount *)bdMemory::allocate(40 * v58);
-        v59 = v54->m_locationCounts.m_size;
-        if ( (_DWORD)v59 )
-          memcpy_0(_R14, v54->m_locationCounts.m_data, 40 * v59);
+        v51 = (bdCommsLocationCount *)bdMemory::allocate(40 * v52);
+        v53 = v48->m_locationCounts.m_size;
+        if ( (_DWORD)v53 )
+          memcpy_0(v51, v48->m_locationCounts.m_data, 40 * v53);
       }
-      bdMemory::deallocate(v54->m_locationCounts.m_data);
-      v54->m_locationCounts.m_data = _R14;
-      v54->m_locationCounts.m_capacity = v58;
+      bdMemory::deallocate(v48->m_locationCounts.m_data);
+      v48->m_locationCounts.m_data = v51;
+      v48->m_locationCounts.m_capacity = v52;
     }
     else
     {
-      _R14 = v54->m_locationCounts.m_data;
+      v51 = v48->m_locationCounts.m_data;
     }
-    _RCX = 5i64 * v54->m_locationCounts.m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+value.baseclass_0.__vftable]
-      vmovups ymmword ptr [r14+rcx*8], ymm0
-      vmovsd  xmm1, qword ptr [rbp+value.gap20]
-      vmovsd  qword ptr [r14+rcx*8+20h], xmm1
-    }
-    ++v54->m_locationCounts.m_size;
-    this->m_parsedJSONCaches[8] = &this->m_parsedJSONCachesAllocation[v53];
-    v63 = 0;
-    v64 = this->m_messageCacheSizeLimits[8];
-    if ( v64 )
+    v51[v48->m_locationCounts.m_size++] = value;
+    this->m_parsedJSONCaches[8] = &this->m_parsedJSONCachesAllocation[v47];
+    v54 = 0;
+    v55 = this->m_messageCacheSizeLimits[8];
+    if ( v55 )
     {
       do
       {
-        this->m_parsedJSONCaches[8][v63++].m_bIsParsed = 0;
-        v64 = this->m_messageCacheSizeLimits[8];
+        this->m_parsedJSONCaches[8][v54++].m_bIsParsed = 0;
+        v55 = this->m_messageCacheSizeLimits[8];
       }
-      while ( v63 < v64 );
+      while ( v54 < v55 );
     }
-    *((_DWORD *)&value.__vftable + 5) = v64;
+    *((_DWORD *)&value.__vftable + 5) = v55;
     *((_DWORD *)&value.__vftable + 4) = 8;
-    v65 = this->m_request;
-    v66 = v65->m_locationCounts.m_capacity;
-    if ( v65->m_locationCounts.m_size == v66 )
+    v56 = this->m_request;
+    v57 = v56->m_locationCounts.m_capacity;
+    if ( v56->m_locationCounts.m_size == v57 )
     {
-      v67 = v65->m_locationCounts.m_capacity;
-      if ( !v66 )
-        v67 = 1;
-      v68 = v66 + v67;
-      if ( (_DWORD)v68 )
+      v58 = v56->m_locationCounts.m_capacity;
+      if ( !v57 )
+        v58 = 1;
+      v59 = v57 + v58;
+      if ( (_DWORD)v59 )
       {
-        _RDI = (bdCommsLocationCount *)bdMemory::allocate(40 * v68);
-        v69 = v65->m_locationCounts.m_size;
-        if ( (_DWORD)v69 )
-          memcpy_0(_RDI, v65->m_locationCounts.m_data, 40 * v69);
+        v7 = (bdCommsLocationCount *)bdMemory::allocate(40 * v59);
+        v60 = v56->m_locationCounts.m_size;
+        if ( (_DWORD)v60 )
+          memcpy_0(v7, v56->m_locationCounts.m_data, 40 * v60);
       }
-      bdMemory::deallocate(v65->m_locationCounts.m_data);
-      v65->m_locationCounts.m_data = _RDI;
-      v65->m_locationCounts.m_capacity = v68;
+      bdMemory::deallocate(v56->m_locationCounts.m_data);
+      v56->m_locationCounts.m_data = v7;
+      v56->m_locationCounts.m_capacity = v59;
     }
     else
     {
-      _RDI = v65->m_locationCounts.m_data;
+      v7 = v56->m_locationCounts.m_data;
     }
-    _RCX = 5i64 * v65->m_locationCounts.m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+value.baseclass_0.__vftable]
-      vmovups ymmword ptr [rdi+rcx*8], ymm0
-      vmovsd  xmm1, qword ptr [rbp+value.gap20]
-      vmovsd  qword ptr [rdi+rcx*8+20h], xmm1
-    }
-    ++v65->m_locationCounts.m_size;
+    v7[v56->m_locationCounts.m_size++] = value;
     this->m_needsCachePointerFixup = 0;
     goto LABEL_94;
   }
   if ( v5 && (this->m_requestTask.m_appTaskType != 2 || this->m_needsCachePointerFixup) )
   {
     bdMemory::deallocate(m_request->m_locationCounts.m_data);
-    _RDI = NULL;
+    v7 = NULL;
     m_request->m_locationCounts.m_data = NULL;
     *(_QWORD *)&m_request->m_locationCounts.m_capacity = 0i64;
     this->m_requestTask.m_appTaskType = 2;
@@ -3074,23 +3032,23 @@ LABEL_59:
       v25 = v13->m_locationCounts.m_capacity;
       if ( !v24 )
         v25 = 1;
-      _R14 = NULL;
+      m_data = NULL;
       v26 = v24 + v25;
       if ( (_DWORD)v26 )
       {
-        _R14 = (bdCommsLocationCount *)bdMemory::allocate(40 * v26);
+        m_data = (bdCommsLocationCount *)bdMemory::allocate(40 * v26);
         v27 = v13->m_locationCounts.m_size;
         if ( (_DWORD)v27 )
-          memcpy_0(_R14, v13->m_locationCounts.m_data, 40 * v27);
+          memcpy_0(m_data, v13->m_locationCounts.m_data, 40 * v27);
       }
       bdMemory::deallocate(v13->m_locationCounts.m_data);
-      v13->m_locationCounts.m_data = _R14;
+      v13->m_locationCounts.m_data = m_data;
       v13->m_locationCounts.m_capacity = v26;
       v19 = "SetupBatchRequestForCurrentGameMode setting up for receiving CRM data for mode CP\n";
     }
     else
     {
-      _R14 = v13->m_locationCounts.m_data;
+      m_data = v13->m_locationCounts.m_data;
       v19 = "SetupBatchRequestForCurrentGameMode setting up for receiving CRM data for mode CP\n";
     }
     goto LABEL_59;
@@ -3098,7 +3056,7 @@ LABEL_59:
   if ( v3 && (this->m_requestTask.m_appTaskType != 3 || this->m_needsCachePointerFixup) )
   {
     bdMemory::deallocate(m_request->m_locationCounts.m_data);
-    _RDI = NULL;
+    v7 = NULL;
     m_request->m_locationCounts.m_data = NULL;
     *(_QWORD *)&m_request->m_locationCounts.m_capacity = 0i64;
     this->m_requestTask.m_appTaskType = 3;
@@ -3141,31 +3099,31 @@ LABEL_59:
       v33 = v13->m_locationCounts.m_capacity;
       if ( !v32 )
         v33 = 1;
-      _R14 = NULL;
+      m_data = NULL;
       v34 = v32 + v33;
       if ( (_DWORD)v34 )
       {
-        _R14 = (bdCommsLocationCount *)bdMemory::allocate(40 * v34);
+        m_data = (bdCommsLocationCount *)bdMemory::allocate(40 * v34);
         v35 = v13->m_locationCounts.m_size;
         if ( (_DWORD)v35 )
-          memcpy_0(_R14, v13->m_locationCounts.m_data, 40 * v35);
+          memcpy_0(m_data, v13->m_locationCounts.m_data, 40 * v35);
       }
       bdMemory::deallocate(v13->m_locationCounts.m_data);
-      v13->m_locationCounts.m_data = _R14;
+      v13->m_locationCounts.m_data = m_data;
       v13->m_locationCounts.m_capacity = v34;
     }
     else
     {
-      _R14 = v13->m_locationCounts.m_data;
+      m_data = v13->m_locationCounts.m_data;
     }
     v19 = "SetupBatchRequestForCurrentGameMode setting up for receiving CRM data for mode BR\n";
     goto LABEL_59;
   }
 LABEL_94:
-  v73 = 1;
+  v61 = 1;
 LABEL_96:
   bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&value.__vftable + 2));
   bdReferencable::~bdReferencable((bdReferencable *)(&value.__vftable + 3));
-  return v73;
+  return v61;
 }
 

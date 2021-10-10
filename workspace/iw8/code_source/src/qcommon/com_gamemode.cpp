@@ -658,65 +658,65 @@ bool Com_GameMode_SupportsMap(const char *mapName)
 Com_GameMode_UpdateGameMode
 ==============
 */
-
-void __fastcall Com_GameMode_UpdateGameMode(double _XMM0_8)
+void Com_GameMode_UpdateGameMode(void)
 {
-  const dvar_t *v1; 
+  const dvar_t *v0; 
+  int v1; 
   int v2; 
-  int v3; 
-  const dvar_t *v4; 
+  const dvar_t *v3; 
   int integer; 
-  const dvar_t *v6; 
+  const dvar_t *v5; 
+  unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
   char i; 
+  unsigned __int8 v9; 
   unsigned __int8 v10; 
-  unsigned __int8 v11; 
   Online_PatchStreamer *Instance; 
-  int v19; 
-  int v20; 
+  __int128 v15; 
+  int v17; 
+  int v18; 
 
   Xb3MultiplayerManager::Allocate(&Xb3MultiplayerManager::ms_xb3MultiplayerManager);
-  v1 = DVARBOOL_com_gamemode_stress_enabled;
+  v0 = DVARBOOL_com_gamemode_stress_enabled;
   if ( !DVARBOOL_com_gamemode_stress_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_gamemode_stress_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v1);
-  v2 = 0;
-  if ( v1->current.enabled )
+  Dvar_CheckFrontendServerThread(v0);
+  v1 = 0;
+  if ( v0->current.enabled )
   {
-    v3 = Sys_Milliseconds();
-    if ( s_gameModeData.devNextStressTime <= v3 )
+    v2 = Sys_Milliseconds();
+    if ( s_gameModeData.devNextStressTime <= v2 )
     {
-      v4 = DVARINT_com_gamemode_stress_jitter_max;
+      v3 = DVARINT_com_gamemode_stress_jitter_max;
       if ( !DVARINT_com_gamemode_stress_jitter_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_gamemode_stress_jitter_max") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v4);
-      integer = v4->current.integer;
-      v6 = DVARINT_com_gamemode_stress_jitter_min;
+      Dvar_CheckFrontendServerThread(v3);
+      integer = v3->current.integer;
+      v5 = DVARINT_com_gamemode_stress_jitter_min;
       if ( !DVARINT_com_gamemode_stress_jitter_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_gamemode_stress_jitter_min") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v6);
-      s_gameModeData.devNextStressTime = v3 + I_irand(v6->current.integer, integer);
-      v7 = I_irand(0, 4);
-      v8 = 0;
-      for ( i = 0; v8 < v7; ++i )
+      Dvar_CheckFrontendServerThread(v5);
+      s_gameModeData.devNextStressTime = v2 + I_irand(v5->current.integer, integer);
+      v6 = I_irand(0, 4);
+      v7 = 0;
+      for ( i = 0; v7 < v6; ++i )
       {
         if ( i != s_gameModeData.activeGameMode[0] )
-          ++v8;
+          ++v7;
       }
-      s_gameModeData.desiredGameMode[0] = v8;
+      s_gameModeData.desiredGameMode[0] = v7;
     }
   }
   if ( !Sys_AreThreadsSuspended() && Sys_IsDatabaseThreadAndActivelyLoading() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode.cpp", 559, ASSERT_TYPE_ASSERT, "( !IsActivelyLoadingDatabaseThread() )", "Can't access the active game mode from the database thread for thread safety reasons. Use DBFeatureFlags instead.") )
     __debugbreak();
-  v10 = s_gameModeData.activeGameMode[0];
-  v11 = s_gameModeData.desiredGameMode[0];
+  v9 = s_gameModeData.activeGameMode[0];
+  v10 = s_gameModeData.desiredGameMode[0];
   if ( s_gameModeData.desiredGameMode[0] != s_gameModeData.activeGameMode[0] )
   {
     Com_Printf(16, "Com_GameMode_UpdateGameMode %i Starting\n", (unsigned __int8)s_gameModeData.desiredGameMode[0]);
     __rdtsc();
     R_DisableRemoteScreenUpdate(1);
-    if ( v10 )
+    if ( v9 )
     {
       Com_FrontEndScene_OnExitGameMode();
       if ( !Sys_AreThreadsSuspended() && Sys_IsDatabaseThreadAndActivelyLoading() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode.cpp", 559, ASSERT_TYPE_ASSERT, "( !IsActivelyLoadingDatabaseThread() )", "Can't access the active game mode from the database thread for thread safety reasons. Use DBFeatureFlags instead.") )
@@ -736,16 +736,16 @@ void __fastcall Com_GameMode_UpdateGameMode(double _XMM0_8)
       Dvar_DeregisterGamemodeDvars();
       if ( !Dvar_ValidatePermanentDvars() )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE0E60, 1156i64);
-      Com_FastFile_OnExitGameMode((GameModeType)v10);
+      Com_FastFile_OnExitGameMode((GameModeType)v9);
     }
-    if ( v11 )
+    if ( v10 )
     {
       if ( !Dvar_ValidatePermanentDvars() )
       {
         s_gameModeData.desiredGameMode[0] = 0;
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE0DA0, 1155i64);
       }
-      Com_GameMode_SetActiveGameMode((GameModeType)v11);
+      Com_GameMode_SetActiveGameMode((GameModeType)v10);
       if ( !Sys_AreThreadsSuspended() && Sys_IsDatabaseThreadAndActivelyLoading() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode.cpp", 559, ASSERT_TYPE_ASSERT, "( !IsActivelyLoadingDatabaseThread() )", "Can't access the active game mode from the database thread for thread safety reasons. Use DBFeatureFlags instead.") )
         __debugbreak();
       if ( !s_gameModeData.activeGameMode[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode.cpp", 824, ASSERT_TYPE_ASSERT, "(Com_GameMode_GetActiveGameMode() != GameModeType::NONE)", (const char *)&queryFormat, "Com_GameMode_GetActiveGameMode() != GameModeType::NONE") )
@@ -758,35 +758,32 @@ void __fastcall Com_GameMode_UpdateGameMode(double _XMM0_8)
         Dvar_SetString_Internal(DVARSTR_ui_mapname, s_gameModeData.devDesiredMapName);
       s_gameModeData.devDesiredMapName[0] = 0;
       Com_FrontEndScene_OnEnterGameMode();
-      Com_FastFile_OnEnterGameMode((GameModeType)v11);
+      Com_FastFile_OnEnterGameMode((GameModeType)v10);
     }
     do
     {
       Instance = Online_PatchStreamer::GetInstance();
-      Online_PatchStreamer::ProcessDownloadActions(Instance, (const CCSPatchType)v2++, (const GameModeType)v11, 1, 1);
+      Online_PatchStreamer::ProcessDownloadActions(Instance, (const CCSPatchType)v1++, (const GameModeType)v10, 1, 1);
     }
-    while ( v2 < 2 );
-    LUI_UpdateGameMode((GameModeType)v11, (GameModeType)v10);
-    if ( v11 != s_gameModeData.activeGameMode[0] )
+    while ( v1 < 2 );
+    LUI_UpdateGameMode((GameModeType)v10, (GameModeType)v9);
+    if ( v10 != s_gameModeData.activeGameMode[0] )
     {
-      v20 = s_gameModeData.activeGameMode[0];
-      v19 = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode.cpp", 965, ASSERT_TYPE_ASSERT, "( targetGameMode ) == ( s_gameModeData.activeGameMode )", "%s == %s\n\t%i, %i", "targetGameMode", "s_gameModeData.activeGameMode", v19, v20) )
+      v18 = s_gameModeData.activeGameMode[0];
+      v17 = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode.cpp", 965, ASSERT_TYPE_ASSERT, "( targetGameMode ) == ( s_gameModeData.activeGameMode )", "%s == %s\n\t%i, %i", "targetGameMode", "s_gameModeData.activeGameMode", v17, v18) )
         __debugbreak();
     }
     R_DisableRemoteScreenUpdate(0);
     R_GPU_TimerSetGameModeBudget(s_gameModeData.activeGameMode[0] == 1);
     __rdtsc();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    Com_Printf(16, "Com_GameMode_UpdateGameMode Complete (%f ms)\n", *(double *)&_XMM2);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v15 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM1 = v15;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    Com_Printf(16, "Com_GameMode_UpdateGameMode Complete (%f ms)\n", *(float *)&_XMM2);
   }
 }
 

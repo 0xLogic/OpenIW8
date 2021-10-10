@@ -64,15 +64,15 @@ GraphFloat_DevGuiCB_Event
 void GraphFloat_DevGuiCB_Event(const DevGraph *graph, const char *event, LocalClientNum_t localClientNum)
 {
   int v3; 
-  fileHandle_t *data; 
+  unsigned __int16 *data; 
   fileHandle_t *v6; 
-  __int64 handle_low; 
+  __int64 v7; 
   __int64 v8; 
   __int64 v9; 
-  __int64 v16; 
-  const char *v17; 
+  float *v10; 
+  __int64 v11; 
+  const char *v12; 
   char *fmt; 
-  char *fmta; 
   char dest[1024]; 
 
   v3 = (int)event;
@@ -80,57 +80,48 @@ void GraphFloat_DevGuiCB_Event(const DevGraph *graph, const char *event, LocalCl
     __debugbreak();
   if ( !graph->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 169, ASSERT_TYPE_ASSERT, "(graph->data)", (const char *)&queryFormat, "graph->data") )
     __debugbreak();
-  data = (fileHandle_t *)graph->data;
+  data = (unsigned __int16 *)graph->data;
   if ( v3 == 5 )
   {
     if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 128, ASSERT_TYPE_ASSERT, "(graph)", (const char *)&queryFormat, "graph") )
       __debugbreak();
-    v6 = FS_FOpenTextFileWrite(data, event);
+    v6 = FS_FOpenTextFileWrite((fileHandle_t *)data, event);
     if ( v6 == (fileHandle_t *)-1i64 )
     {
       Com_PrintError(0, "GraphFloat_SaveToFile: Could not save file [%s].\n", (const char *)data);
     }
     else
     {
-      if ( !LOWORD(data[40].handle.handle) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 142, ASSERT_TYPE_ASSERT, "(graph->knotCount)", (const char *)&queryFormat, "graph->knotCount") )
+      if ( !data[160] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 142, ASSERT_TYPE_ASSERT, "(graph->knotCount)", (const char *)&queryFormat, "graph->knotCount") )
         __debugbreak();
-      handle_low = LOWORD(data[40].handle.handle);
-      LODWORD(fmt) = LOWORD(data[40].handle.handle);
+      v7 = data[160];
+      LODWORD(fmt) = data[160];
       Com_sprintf(dest, 0x400ui64, "%s\n\n%d\n", "GRAPH_FLOAT_FILE", fmt);
       v8 = -1i64;
       do
         ++v8;
       while ( dest[v8] );
       FS_Write(dest, (unsigned int)v8, (fileHandle_t)v6);
-      v9 = handle_low;
-      if ( (_DWORD)handle_low )
+      v9 = v7;
+      if ( (_DWORD)v7 )
       {
-        _RDI = data + 8;
+        v10 = (float *)(data + 32);
         do
         {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rdi]
-            vmovss  xmm0, dword ptr [rdi+4]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r9, xmm3
-            vmovsd  [rsp+448h+fmt], xmm0
-          }
-          Com_sprintf(dest, 0x400ui64, "%.4f %.4f\n", *(double *)&_XMM3, *(double *)&fmta);
-          v16 = -1i64;
+          Com_sprintf(dest, 0x400ui64, "%.4f %.4f\n", *v10, v10[1]);
+          v11 = -1i64;
           do
-            ++v16;
-          while ( dest[v16] );
-          FS_Write(dest, (unsigned int)v16, (fileHandle_t)v6);
-          ++_RDI;
+            ++v11;
+          while ( dest[v11] );
+          FS_Write(dest, (unsigned int)v11, (fileHandle_t)v6);
+          v10 += 2;
           --v9;
         }
         while ( v9 );
       }
       FS_FCloseFile((fileHandle_t)v6);
-      v17 = Sys_DefaultInstallPath();
-      Com_Printf(18, "^7GraphFloat_SaveToFile: Successfully saved file [%s\\%s].\n", v17, (const char *)data);
+      v12 = Sys_DefaultInstallPath();
+      Com_Printf(18, "^7GraphFloat_SaveToFile: Successfully saved file [%s\\%s].\n", v12, (const char *)data);
     }
   }
 }
@@ -140,20 +131,9 @@ void GraphFloat_DevGuiCB_Event(const DevGraph *graph, const char *event, LocalCl
 GraphFloat_DevGuiCB_Text
 ==============
 */
-
-void __fastcall GraphFloat_DevGuiCB_Text(const DevGraph *devGuiGraph, double inputX, double inputY, char *text, const int textLength)
+void GraphFloat_DevGuiCB_Text(const DevGraph *devGuiGraph, float inputX, float inputY, char *text, const int textLength)
 {
-  double v10; 
-
-  __asm
-  {
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-    vmulss  xmm0, xmm2, dword ptr [rax+144h]
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovsd  [rsp+arg_20], xmm2
-  }
-  Com_sprintf(text, 0x30ui64, "Fraction: %.3f, Value: %.3f", *(double *)&_XMM3, v10);
+  Com_sprintf(text, 0x30ui64, "Fraction: %.3f, Value: %.3f", inputX, (float)(inputY * *((float *)devGuiGraph->data + 81)));
 }
 
 /*
@@ -164,53 +144,20 @@ GraphFloat_GetValue
 
 float __fastcall GraphFloat_GetValue(const GraphFloat *graph, double fraction)
 {
-  bool v6; 
-  bool v7; 
-  double v15; 
-  double v16; 
-  double v17; 
+  float v3; 
+  double ValueFromFraction; 
 
-  __asm
+  v3 = *(float *)&fraction;
+  if ( !graph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 106, ASSERT_TYPE_ASSERT, "(graph)", (const char *)&queryFormat, "graph") )
+    __debugbreak();
+  if ( *(float *)&fraction < 0.0 || *(float *)&fraction > 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = graph == NULL;
-  if ( !graph )
-  {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 106, ASSERT_TYPE_ASSERT, "(graph)", (const char *)&queryFormat, "graph");
-    v6 = !v7;
-    if ( v7 )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 107, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( fraction ) && ( fraction ) <= ( 1.0f )", "fraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v3, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm6, cs:__real@3f800000
-  }
-  if ( !v6 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+58h+var_20], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+58h+var_28], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 107, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( fraction ) && ( fraction ) <= ( 1.0f )", "fraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v15, v16, v17) )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm2, xmm6; fraction }
-  *(double *)&_XMM0 = GraphGetValueFromFraction(graph->knotCount, graph->knots, *(const float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm0, xmm0, dword ptr [rbx+144h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  ValueFromFraction = GraphGetValueFromFraction(graph->knotCount, graph->knots, v3);
+  return *(float *)&ValueFromFraction * graph->scale;
 }
 
 /*
@@ -218,30 +165,22 @@ float __fastcall GraphFloat_GetValue(const GraphFloat *graph, double fraction)
 GraphFloat_Load
 ==============
 */
-
-void __fastcall GraphFloat_Load(GraphFloat *graph, const char *fileName, double scale)
+void GraphFloat_Load(GraphFloat *graph, const char *fileName, float scale)
 {
   signed __int64 v3; 
-  void *v5; 
+  void *v4; 
   const char *InfoString; 
   char loadBuffer[16384]; 
 
-  v5 = alloca(v3);
-  __asm { vmovaps [rsp+4068h+var_28], xmm6 }
-  _RDI = graph;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = alloca(v3);
   if ( !graph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 86, ASSERT_TYPE_ASSERT, "(graph)", (const char *)&queryFormat, "graph") )
     __debugbreak();
   if ( !fileName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 87, ASSERT_TYPE_ASSERT, "(fileName)", (const char *)&queryFormat, "fileName") )
     __debugbreak();
-  memset_0(_RDI, 0, sizeof(GraphFloat));
+  memset_0(graph, 0, sizeof(GraphFloat));
   InfoString = Com_LoadInfoString(fileName, "graph", "GRAPH_FLOAT_FILE", loadBuffer);
-  GraphFloat_ParseBuffer(_RDI, InfoString, fileName);
-  __asm
-  {
-    vmovss  dword ptr [rdi+144h], xmm6
-    vmovaps xmm6, [rsp+4068h+var_28]
-  }
+  GraphFloat_ParseBuffer(graph, InfoString, fileName);
+  graph->scale = scale;
 }
 
 /*
@@ -251,13 +190,14 @@ GraphFloat_ParseBuffer
 */
 void GraphFloat_ParseBuffer(GraphFloat *graph, const char *buffer, const char *fileName)
 {
-  const char *v8; 
-  int v9; 
-  int v10; 
-  const char *v11; 
-  char v12; 
-  __int64 v14; 
-  const char *v16; 
+  const char *v6; 
+  int v7; 
+  int v8; 
+  const char *v9; 
+  char v10; 
+  float *v11; 
+  __int64 v12; 
+  const char *v14; 
   char *fmt; 
   char *data_p; 
 
@@ -270,59 +210,46 @@ void GraphFloat_ParseBuffer(GraphFloat *graph, const char *buffer, const char *f
     __debugbreak();
   Core_strcpy(graph->name, 0x40ui64, fileName);
   Com_BeginParseSession(fileName);
-  v8 = Com_Parse((const char **)&data_p);
-  v9 = 0;
-  v10 = atoi(v8);
-  v11 = Com_Parse((const char **)&data_p);
-  v12 = *v11;
-  if ( *v11 )
+  v6 = Com_Parse((const char **)&data_p);
+  v7 = 0;
+  v8 = atoi(v6);
+  v9 = Com_Parse((const char **)&data_p);
+  v10 = *v9;
+  if ( *v9 )
   {
-    _RBX = (float *)graph->knots + 1;
-    v14 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+78h+var_38], xmm6
-      vmovaps [rsp+78h+var_48], xmm7
-    }
+    v11 = (float *)graph->knots + 1;
+    v12 = 0i64;
     do
     {
-      if ( v12 == 125 )
+      if ( v10 == 125 )
         break;
-      *(double *)&_XMM0 = atof(v11);
+      *(double *)&_XMM0 = atof(v9);
       __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-      v16 = Com_Parse((const char **)&data_p);
-      if ( !*v16 || *v16 == 125 )
+      v14 = Com_Parse((const char **)&data_p);
+      if ( !*v14 || *v14 == 125 )
         break;
-      *(double *)&_XMM0 = atof(v16);
+      *(double *)&_XMM0 = atof(v14);
       __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-      if ( v14 >= 32 )
+      if ( v12 >= 32 )
       {
         LODWORD(fmt) = 32;
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144014D60, 249i64, fileName, fmt);
       }
-      __asm
-      {
-        vmovss  dword ptr [rbx-4], xmm7
-        vmovss  dword ptr [rbx], xmm6
-      }
-      _RBX += 2;
-      ++v9;
-      ++v14;
-      v11 = Com_Parse((const char **)&data_p);
-      v12 = *v11;
+      *(v11 - 1) = *(float *)&_XMM7;
+      *v11 = *(float *)&_XMM6;
+      v11 += 2;
+      ++v7;
+      ++v12;
+      v9 = Com_Parse((const char **)&data_p);
+      v10 = *v9;
     }
-    while ( *v11 );
-    __asm
-    {
-      vmovaps xmm6, [rsp+78h+var_38]
-      vmovaps xmm7, [rsp+78h+var_48]
-    }
+    while ( *v9 );
   }
   Com_EndParseSession();
-  if ( v9 != v10 )
+  if ( v7 != v8 )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144014DD0, 250i64, fileName);
-  graph->knotCount = v10;
-  if ( (unsigned __int16)v10 != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 74, ASSERT_TYPE_ASSERT, "(graph->knotCount == knotCount)", (const char *)&queryFormat, "graph->knotCount == knotCount") )
+  graph->knotCount = v8;
+  if ( (unsigned __int16)v8 != v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\graph.cpp", 74, ASSERT_TYPE_ASSERT, "(graph->knotCount == knotCount)", (const char *)&queryFormat, "graph->knotCount == knotCount") )
     __debugbreak();
 }
 

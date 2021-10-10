@@ -1292,10 +1292,10 @@ LABEL_9:
 Com_AdjustMaxFPS
 ==============
 */
-
-void __fastcall Com_AdjustMaxFPS(int *maxFPS, double _XMM1_8)
+void Com_AdjustMaxFPS(int *maxFPS)
 {
   const dvar_t *v2; 
+  int v3; 
 
   if ( !maxFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8847, ASSERT_TYPE_ASSERT, "(maxFPS)", (const char *)&queryFormat, "maxFPS") )
     __debugbreak();
@@ -1307,18 +1307,15 @@ void __fastcall Com_AdjustMaxFPS(int *maxFPS, double _XMM1_8)
     Dvar_CheckFrontendServerThread(v2);
     if ( !v2->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm0, xmm1
-      }
-      if ( !v2->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8863, ASSERT_TYPE_ASSERT, "(com_timescaleValue)", (const char *)&queryFormat, "com_timescaleValue") )
+      if ( com_timescaleValue == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8863, ASSERT_TYPE_ASSERT, "(com_timescaleValue)", (const char *)&queryFormat, "com_timescaleValue") )
         __debugbreak();
-      __asm
+      if ( com_timescaleValue < 0.1 && ClStatic::GetServerFrameDuration(&cls) )
       {
-        vmovss  xmm0, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-        vcomiss xmm0, cs:__real@3dcccccd
+        v3 = (int)(float)((float)(16000.0 / (float)ClStatic::GetServerFrameDuration(&cls)) * com_timescaleValue);
+        if ( v3 < 1 )
+          v3 = 1;
+        if ( !*maxFPS || *maxFPS > v3 )
+          *maxFPS = v3;
       }
     }
   }
@@ -1564,27 +1561,28 @@ void Com_CloseUserFileCon(void)
 Com_CodeTimescale_f
 ==============
 */
-
-void __fastcall Com_CodeTimescale_f(double _XMM0_8, double _XMM1_8)
+void Com_CodeTimescale_f()
 {
+  double v0; 
+  double v1; 
+
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND) )
   {
     Com_Printf(0, "This function should not be used in this game mode, use the 'timescale' or 'com_timescale' dvars instead.\n");
   }
   else if ( Cmd_Argc() == 2 )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
+    v0 = Cmd_ArgFloat(1);
+    v1 = *(float *)&v0;
+    if ( *(float *)&v0 > 0.0 )
     {
-      vmovaps xmm6, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vcvtss2sd xmm2, xmm6, xmm0
-      vmovq   r8, xmm2
-      vmovaps xmm6, [rsp+38h+var_18]
+      Com_Printf(0, "(DEV-only) timescale set to %f\n", v1);
+      Com_SetCodeTimeScale(*(const float *)&v0);
     }
-    Com_Printf(0, "(DEV-only) timescale rate must be greater than 0 (%f)\n", *(double *)&_XMM2);
+    else
+    {
+      Com_Printf(0, "(DEV-only) timescale rate must be greater than 0 (%f)\n", v1);
+    }
   }
   else
   {
@@ -1630,54 +1628,63 @@ void Com_DPrintf(int channel, const char *fmt, ...)
 Com_DoMaxFPSWait
 ==============
 */
-
-void __fastcall Com_DoMaxFPSWait(double _XMM0_8)
+void Com_DoMaxFPSWait(void)
 {
+  unsigned __int64 v0; 
+  unsigned __int64 v1; 
+  __int128 v5; 
   unsigned __int64 v6; 
-  unsigned __int64 v9; 
+  unsigned __int64 v8; 
+  __int128 v11; 
+  __int128 v13; 
+  unsigned __int64 v14; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "max fps spin");
-  __asm
+  v0 = __rdtsc();
+  v1 = 0i64;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, cs:?g_maxFpsWaitTime@@3HA; int g_maxFpsWaitTime }
+  *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v5 = *(double *)&_XMM0 / msecPerRawTimerTick;
+  _XMM1 = v5;
+  v6 = v0;
+  if ( *(double *)&_XMM0 / msecPerRawTimerTick >= 9.223372036854776e18 )
   {
-    vmovsd  xmm6, cs:__real@43e0000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, cs:?g_maxFpsWaitTime@@3HA; int g_maxFpsWaitTime
-    vdivsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcomisd xmm1, xmm6
+    *(double *)&v5 = *(double *)&v5 - 9.223372036854776e18;
+    _XMM1 = v5;
+    if ( *(double *)&v5 < 9.223372036854776e18 )
+      v1 = 0x8000000000000000ui64;
   }
-  v6 = __rdtsc();
-  __asm
-  {
-    vsubsd  xmm1, xmm1, xmm6
-    vcomisd xmm1, xmm6
-    vcvttsd2si rbx, xmm1
-  }
-  v9 = v6 + _RBX;
-  while ( __rdtsc() < v9 )
+  __asm { vcvttsd2si rbx, xmm1 }
+  v8 = v0 + v1 + _RBX;
+  while ( __rdtsc() < v8 )
     Sys_Sleep(1);
   g_maxFpsWaitTime = 0;
   Sys_ProfEndNamedEvent();
   if ( Sys_IsMainThread() )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__int64)(__rdtsc() - v6) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
     {
-      vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-      vcomisd xmm0, xmm6
-      vsubsd  xmm0, xmm0, xmm6
-      vcomisd xmm0, xmm6
-      vcvttsd2si rcx, xmm0
+      *((_QWORD *)&v11 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v11 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v11;
     }
-    CG_Draw_AddFrontendSyncFrameTimeUSec(_RCX);
+    *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v13 = *(double *)&_XMM0 * usecPerRawTimerTick;
+    _XMM0 = v13;
+    v14 = 0i64;
+    if ( *(double *)&v13 >= 9.223372036854776e18 )
+    {
+      *(double *)&v13 = *(double *)&v13 - 9.223372036854776e18;
+      _XMM0 = v13;
+      if ( *(double *)&v13 < 9.223372036854776e18 )
+        v14 = 0x8000000000000000ui64;
+    }
+    __asm { vcvttsd2si rcx, xmm0 }
+    CG_Draw_AddFrontendSyncFrameTimeUSec(v14 + _RCX);
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1734,18 +1741,18 @@ void Com_ErrorCleanup()
   __int64 v5; 
   char v6; 
   const char *v7; 
-  int v9; 
+  int v8; 
+  errorParm_t v9; 
   errorParm_t v10; 
-  errorParm_t v11; 
-  GSaveMemory *v12; 
-  _QWORD *v13; 
+  GSaveMemory *v11; 
+  _QWORD *v12; 
   scrContext_t *j; 
   ClGameModeApplication *ActiveClientApplication; 
-  PrivatePartySessionHSM *v16; 
-  GameLobbySessionHSM *v17; 
-  OnlineChatManager *v18; 
-  Online_BandwidthTest *v19; 
-  __int64 v20; 
+  PrivatePartySessionHSM *v15; 
+  GameLobbySessionHSM *v16; 
+  OnlineChatManager *v17; 
+  Online_BandwidthTest *v18; 
+  __int64 v19; 
   char finalmsg[16384]; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 2835, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
@@ -1848,8 +1855,7 @@ void Com_ErrorCleanup()
   CL_TransientsInfilMP_ErrorCleanup();
   Com_Fastfile_ErrorCleanup();
   SND_ErrorCleanup();
-  __asm { vmovss  xmm0, cs:__real@3f800000; volume }
-  SND_SetLevelFadeIn(*(float *)&_XMM0, 0);
+  SND_SetLevelFadeIn(1.0, 0);
   Physics_ResetWorkerError();
   CgSimBulletFirePellet_Reset();
   PhysPerfTrack_ErrorCleanup();
@@ -1862,8 +1868,8 @@ void Com_ErrorCleanup()
   Com_DObjErrorCleanup();
   if ( errorcode == ERR_DROP )
     Cbuf_Init();
-  v9 = Sys_Milliseconds();
-  if ( v9 - lastErrorTime >= 100 )
+  v8 = Sys_Milliseconds();
+  if ( v8 - lastErrorTime >= 100 )
   {
     errorCount = 0;
   }
@@ -1871,7 +1877,7 @@ void Com_ErrorCleanup()
   {
     errorcode = ERR_FATAL;
   }
-  lastErrorTime = v9;
+  lastErrorTime = v8;
   if ( (unsigned int)(errorcode - 1) > 2 )
   {
     if ( com_errorMessage_dlog[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 2812, ASSERT_TYPE_ASSERT, "(com_errorMessage_dlog[0] == '\\0')", (const char *)&queryFormat, "com_errorMessage_dlog[0] == '\\0'") )
@@ -1880,7 +1886,7 @@ void Com_ErrorCleanup()
     Sys_Error((const ObfuscateErrorText)&queryFormat, com_errorMessage);
   }
   CL_Screen_SetInUpdate(0);
-  v10 = errorcode;
+  v9 = errorcode;
   if ( errorcode == ERR_SERVERDISCONNECT )
   {
     Com_ShutdownInternal("EXE/DISCONNECTEDFROMOWNLISTENSERVER");
@@ -1895,12 +1901,12 @@ void Com_ErrorCleanup()
     goto LABEL_55;
   if ( errorcode != ERR_DISCONNECT )
   {
-    LODWORD(v20) = errorcode;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 3152, ASSERT_TYPE_ASSERT, "( ( errorcode == ERR_DROP || errorcode == ERR_DISCONNECT ) )", "( errorcode ) = %i", v20) )
+    LODWORD(v19) = errorcode;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 3152, ASSERT_TYPE_ASSERT, "( ( errorcode == ERR_DROP || errorcode == ERR_DISCONNECT ) )", "( errorcode ) = %i", v19) )
       __debugbreak();
-    v10 = errorcode;
+    v9 = errorcode;
   }
-  if ( v10 == ERR_DROP )
+  if ( v9 == ERR_DROP )
   {
 LABEL_55:
     Com_PrintError(16, "********************\nERROR: %s\n********************\n", com_errorMessage);
@@ -1916,35 +1922,35 @@ LABEL_55:
     Com_Printf(16, "********************\nDisconnecting: %s\n********************\n", com_errorMessage);
   }
   Com_ShutdownInternal(finalmsg);
-  v11 = errorcode;
+  v10 = errorcode;
   if ( errorcode == ERR_DROP )
   {
     if ( QuitOnError() )
       Com_Quit_f();
-    v11 = errorcode;
+    v10 = errorcode;
     if ( errorcode == ERR_DROP )
       goto LABEL_63;
   }
-  if ( v11 == ERR_DISCONNECT )
+  if ( v10 == ERR_DISCONNECT )
   {
 LABEL_63:
-    Party_HandleComError(v11, finalmsg);
+    Party_HandleComError(v10, finalmsg);
 LABEL_64:
-    v11 = errorcode;
+    v10 = errorcode;
   }
-  ATClient_ErrorCleanup(v11);
+  ATClient_ErrorCleanup(v10);
   Migration_Shutdown();
   if ( (_BYTE)GSaveMemory::ms_allocatedType )
   {
     if ( !GSaveMemory::ms_gSaveMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\savememory.h", 199, ASSERT_TYPE_ASSERT, "( ms_gSaveMemory )", (const char *)&queryFormat, "ms_gSaveMemory") )
       __debugbreak();
-    v12 = GSaveMemory::ms_gSaveMemory;
+    v11 = GSaveMemory::ms_gSaveMemory;
     GSaveMemory::ms_gSaveMemory->CleanupSaveMemory(GSaveMemory::ms_gSaveMemory);
-    v12->ShutdownSaveSystem(v12);
+    v11->ShutdownSaveSystem(v11);
   }
-  v13 = NtCurrentTeb()->Reserved1[11];
+  v12 = NtCurrentTeb()->Reserved1[11];
   com_fixedConsolePosition = 0;
-  *(_QWORD *)(v13[tls_index] + 272i64) = 0i64;
+  *(_QWORD *)(v12[tls_index] + 272i64) = 0i64;
   for ( j = ScriptContext_GetFirst(); j; j = ScriptContext_GetNext(j) )
     NET_RestartDebug(j);
   if ( ClGameModeApplication::HasActiveApplicationGameMode() )
@@ -1954,17 +1960,17 @@ LABEL_64:
     ActiveClientApplication->ShutdownClientMemory(ActiveClientApplication);
   }
   Com_GameMode_ErrorCleanup();
-  v16 = PrivatePartySessionHSM::GetInstance();
-  PrivatePartySessionHSM::ComErrorCleanup(v16);
-  v17 = GameLobbySessionHSM::GetInstance();
-  GameLobbySessionHSM::ComErrorCleanup(v17);
+  v15 = PrivatePartySessionHSM::GetInstance();
+  PrivatePartySessionHSM::ComErrorCleanup(v15);
+  v16 = GameLobbySessionHSM::GetInstance();
+  GameLobbySessionHSM::ComErrorCleanup(v16);
   OnlineTournament_OnComErrorCleanup(errorcode);
   InviteJoinHSM::HandleComError(&g_invitationHSM);
-  v18 = OnlineChatManager::GetInstance();
-  OnlineChatManager::ComErrorCleanup(v18, errorcode);
+  v17 = OnlineChatManager::GetInstance();
+  OnlineChatManager::ComErrorCleanup(v17, errorcode);
   CL_PlayAgain_ErrorCleanup();
-  v19 = Online_BandwidthTest::GetInstance();
-  Online_BandwidthTest::ComErrorCleanup(v19);
+  v18 = Online_BandwidthTest::GetInstance();
+  Online_BandwidthTest::ComErrorCleanup(v18);
   if ( --com_errorEnteredCount < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 3277, ASSERT_TYPE_ASSERT, "(com_errorEnteredCount >= 0)", (const char *)&queryFormat, "com_errorEnteredCount >= 0") )
     __debugbreak();
 }
@@ -2189,12 +2195,12 @@ Com_EventLoop
 
 void __fastcall Com_EventLoop(double _XMM0_8)
 {
-  int v4; 
+  int v2; 
+  int v3; 
+  scrContext_t *v4; 
   int v5; 
-  scrContext_t *v6; 
-  int v7; 
-  int v8; 
-  scrContext_t *v9; 
+  int v6; 
+  scrContext_t *v7; 
   LocalClientNum_t ClientFromController; 
   LocalClientNum_t Mode; 
   SvGameModeApplication *ActiveServerApplication; 
@@ -2204,13 +2210,8 @@ void __fastcall Com_EventLoop(double _XMM0_8)
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "Com_EventLoop");
   while ( 1 )
   {
-    _RAX = Sys_GetEvent(&result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vpextrd rbx, xmm0, 2
-      vmovups ymmword ptr [rsp+88h+str], ymm0
-    }
+    __asm { vpextrd rbx, xmm0, 2 }
+    str = *(__m256i *)Sys_GetEvent(&result);
     if ( !(_DWORD)_RBX )
       break;
     switch ( (_DWORD)_RBX )
@@ -2240,14 +2241,14 @@ void __fastcall Com_EventLoop(double _XMM0_8)
         if ( !str.m256i_i64[3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 4713, ASSERT_TYPE_ASSERT, "(ev.evPtr)", (const char *)&queryFormat, "ev.evPtr") )
           __debugbreak();
         Sys_EnterCriticalSection(CRITSECT_CBUF);
-        v4 = strlen_noncrt((const char *)str.m256i_i64[3]);
-        v5 = v4;
-        if ( s_cmd_textArray[0].cmdsize + v4 < s_cmd_textArray[0].maxsize )
+        v2 = strlen_noncrt((const char *)str.m256i_i64[3]);
+        v3 = v2;
+        if ( s_cmd_textArray[0].cmdsize + v2 < s_cmd_textArray[0].maxsize )
         {
-          memcpy_noncrt(&s_cmd_textArray[0].data[s_cmd_textArray[0].cmdsize], (const void *)str.m256i_i64[3], v4 + 1);
-          s_cmd_textArray[0].cmdsize += v5;
-          v6 = ScriptContext_Server();
-          Scr_MonitorCommand(v6, (const char *)str.m256i_i64[3]);
+          memcpy_noncrt(&s_cmd_textArray[0].data[s_cmd_textArray[0].cmdsize], (const void *)str.m256i_i64[3], v2 + 1);
+          s_cmd_textArray[0].cmdsize += v3;
+          v4 = ScriptContext_Server();
+          Scr_MonitorCommand(v4, (const char *)str.m256i_i64[3]);
         }
         else
         {
@@ -2257,14 +2258,14 @@ void __fastcall Com_EventLoop(double _XMM0_8)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 4541, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Com_FreeEvent not implemented") )
           __debugbreak();
         Sys_EnterCriticalSection(CRITSECT_CBUF);
-        v7 = strlen_noncrt("\n");
-        v8 = v7;
-        if ( s_cmd_textArray[0].cmdsize + v7 < s_cmd_textArray[0].maxsize )
+        v5 = strlen_noncrt("\n");
+        v6 = v5;
+        if ( s_cmd_textArray[0].cmdsize + v5 < s_cmd_textArray[0].maxsize )
         {
-          memcpy_noncrt(&s_cmd_textArray[0].data[s_cmd_textArray[0].cmdsize], "\n", v7 + 1);
-          s_cmd_textArray[0].cmdsize += v8;
-          v9 = ScriptContext_Server();
-          Scr_MonitorCommand(v9, "\n");
+          memcpy_noncrt(&s_cmd_textArray[0].data[s_cmd_textArray[0].cmdsize], "\n", v5 + 1);
+          s_cmd_textArray[0].cmdsize += v6;
+          v7 = ScriptContext_Server();
+          Scr_MonitorCommand(v7, "\n");
         }
         else
         {
@@ -2696,97 +2697,91 @@ void Com_Frame_Check_System_Restart(void)
 Com_Frame_Try_Block_Function
 ==============
 */
-
-void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
+void Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
 {
-  const dvar_t *v6; 
-  const dvar_t *v7; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
   int i; 
   scrContext_t *j; 
-  int v10; 
+  int v6; 
   ClGameModeApplication *ActiveClientApplication; 
-  int v12; 
-  const dvar_t *v14; 
+  int v8; 
+  const dvar_t *v9; 
+  int m_serverFrameDuration; 
+  int v11; 
   int ControllerFromClient; 
-  const dvar_t *v17; 
+  const dvar_t *v13; 
+  int v14; 
+  unsigned int v15; 
+  int v16; 
+  int v17; 
   int v18; 
-  unsigned int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  unsigned int v28; 
-  int v29; 
-  __int64 v30; 
-  const char *v31; 
-  unsigned __int64 v32; 
-  unsigned __int64 v33; 
-  unsigned __int64 v35; 
+  unsigned int v19; 
+  int v20; 
+  __int64 v21; 
+  const char *v22; 
+  unsigned __int64 v23; 
+  unsigned __int64 v24; 
+  unsigned __int64 v25; 
+  float v26; 
+  float v27; 
   int integer; 
-  const dvar_t *v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  bool v46; 
-  bool v47; 
+  const dvar_t *v29; 
+  int v30; 
+  int v31; 
+  int v32; 
+  float v33; 
   SvGameModeApplication *ActiveServerApplication; 
   ComGameModeApplication *ActiveApplication; 
   int k; 
-  Online_Commerce *v52; 
+  Online_Commerce *v37; 
   Online_Commerce *Instance; 
-  Online_Commerce *v54; 
-  const dvar_t *v55; 
-  const char *v58; 
-  const char *v59; 
-  const char *v60; 
-  const char *v61; 
+  Online_Commerce *v39; 
+  const dvar_t *v40; 
+  const char *v41; 
+  const char *v42; 
+  const char *v43; 
+  const char *v44; 
   int m; 
-  int v63; 
+  int v46; 
   int n; 
-  __int64 v65; 
-  __int64 v66; 
+  __int64 v48; 
+  __int64 v49; 
   HANDLE CurrentProcess; 
   scrContext_t *ii; 
   unsigned int MaxDevParentScriptVars; 
   unsigned int HWMParentScriptVars; 
   unsigned int NumParentScriptVars; 
   const char *InstanceName; 
-  const char *v74; 
+  const char *v56; 
   unsigned int MaxDevChildScriptVars; 
   unsigned int HWMChildScriptVars; 
   unsigned int NumChildScriptVars; 
-  const char *v78; 
-  const char *v79; 
+  const char *v60; 
+  const char *v61; 
   char *fmt; 
   int msec; 
   unsigned int pdwHandleCount; 
-  float sec[2]; 
+  float sec; 
+  int v66; 
   char dest[1024]; 
-  char v89; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  v6 = DVARBOOL_lui_system_restart_required;
+  v2 = DVARBOOL_lui_system_restart_required;
   if ( !DVARBOOL_lui_system_restart_required && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_system_restart_required") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
     Dvar_SetBool_Internal(DVARBOOL_lui_system_restart_required, 0);
     memset_0(dest, 0, sizeof(dest));
-    v7 = DVARSTR_lui_system_restart_message;
+    v3 = DVARSTR_lui_system_restart_message;
     if ( DVARSTR_lui_system_restart_message )
     {
       Dvar_CheckFrontendServerThread(DVARSTR_lui_system_restart_message);
-      Core_strcpy(dest, 0x400ui64, v7->current.string);
-      v7 = DVARSTR_lui_system_restart_message;
+      Core_strcpy(dest, 0x400ui64, v3->current.string);
+      v3 = DVARSTR_lui_system_restart_message;
     }
-    Dvar_SetString_Internal(v7, (const char *)&queryFormat.fmt + 3);
+    Dvar_SetString_Internal(v3, (const char *)&queryFormat.fmt + 3);
     Sys_Restart(dest);
   }
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "Com_Frame");
@@ -2809,190 +2804,176 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
   for ( j = ScriptContext_GetFirst(); j; j = ScriptContext_GetNext(j) )
     SetAnimCheck(j, com_animCheck->current.color[0]);
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "Throttle fps");
-  v10 = 1;
+  v6 = 1;
   if ( ClGameModeApplication::HasActiveApplicationGameMode() )
   {
     ActiveClientApplication = ClGameModeApplication::GetActiveClientApplication();
-    v12 = ActiveClientApplication->GetMaxFPS(ActiveClientApplication);
+    v8 = ActiveClientApplication->GetMaxFPS(ActiveClientApplication);
   }
   else
   {
-    v12 = 60;
+    v8 = 60;
   }
-  LODWORD(sec[1]) = v12;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v66 = v8;
   if ( !CL_AllLocalClientsDisconnected() )
   {
-    v14 = DVARBOOL_com_userCmdEnableConstantTime;
+    v9 = DVARBOOL_com_userCmdEnableConstantTime;
     if ( !DVARBOOL_com_userCmdEnableConstantTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdEnableConstantTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    if ( !v14->current.enabled )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( !v9->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-        vucomiss xmm0, xmm7
-      }
-      if ( !v14->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8863, ASSERT_TYPE_ASSERT, "(com_timescaleValue)", (const char *)&queryFormat, "com_timescaleValue") )
+      if ( com_timescaleValue == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8863, ASSERT_TYPE_ASSERT, "(com_timescaleValue)", (const char *)&queryFormat, "com_timescaleValue") )
         __debugbreak();
-      __asm
+      if ( com_timescaleValue < 0.1 )
       {
-        vmovss  xmm0, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-        vcomiss xmm0, cs:__real@3dcccccd
+        m_serverFrameDuration = cls.m_serverFrameDuration;
+        if ( cls.m_serverFrameDuration )
+          goto LABEL_37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 316, ASSERT_TYPE_ASSERT, "(m_serverFrameDuration)", "%s\n\tMust be called after client has received game state", "m_serverFrameDuration") )
+          __debugbreak();
+        m_serverFrameDuration = cls.m_serverFrameDuration;
+        if ( cls.m_serverFrameDuration )
+        {
+LABEL_37:
+          v11 = (int)(float)((float)(16000.0 / (float)m_serverFrameDuration) * com_timescaleValue);
+          if ( v11 < 1 )
+            v11 = 1;
+          if ( !v8 || v8 > v11 )
+          {
+            v8 = v11;
+            v66 = v11;
+          }
+        }
       }
     }
   }
-  if ( v12 > 0 )
+  if ( v8 > 0 )
   {
-    v10 = 1000 / v12;
-    if ( 1000 / v12 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9134, ASSERT_TYPE_ASSERT, "(minMsec >= 0)", (const char *)&queryFormat, "minMsec >= 0") )
+    v6 = 1000 / v8;
+    if ( 1000 / v8 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9134, ASSERT_TYPE_ASSERT, "(minMsec >= 0)", (const char *)&queryFormat, "minMsec >= 0") )
       __debugbreak();
-    if ( !v10 )
-      v10 = 1;
+    if ( !v6 )
+      v6 = 1;
   }
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-  v17 = DVARBOOL_force_overindulgence_message;
-  v18 = ControllerFromClient;
+  v13 = DVARBOOL_force_overindulgence_message;
+  v14 = ControllerFromClient;
   if ( !DVARBOOL_force_overindulgence_message && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "force_overindulgence_message") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  if ( v17->current.enabled )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.enabled )
   {
-    LUI_Social_SendKoreaOverIndulgenceMessageEvent(v18, com_overIndulgenceNextWarningHour);
+    LUI_Social_SendKoreaOverIndulgenceMessageEvent(v14, com_overIndulgenceNextWarningHour);
     LUI_CoD_SendOverIndulgenceNotification(LOCAL_CLIENT_0, com_overIndulgenceNextWarningHour);
     Dvar_SetBool_Internal(DVARBOOL_force_overindulgence_message, 0);
   }
-  __asm
+  if ( (float)((float)(Sys_Milliseconds() - com_overIndulengeStartTime) * 0.00000027777779) >= (float)com_overIndulgenceNextWarningHour )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, cs:__real@3495217d
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:com_overIndulgenceNextWarningHour
-    vcomiss xmm2, xmm1
-  }
-  if ( Sys_Milliseconds() >= (unsigned int)com_overIndulengeStartTime )
-  {
-    if ( Live_IsKoreanAccount(v18) )
+    if ( Live_IsKoreanAccount(v14) )
     {
-      LUI_Social_SendKoreaOverIndulgenceMessageEvent(v18, com_overIndulgenceNextWarningHour);
+      LUI_Social_SendKoreaOverIndulgenceMessageEvent(v14, com_overIndulgenceNextWarningHour);
       LUI_CoD_SendOverIndulgenceNotification(LOCAL_CLIENT_0, com_overIndulgenceNextWarningHour);
     }
     ++com_overIndulgenceNextWarningHour;
   }
-  if ( v10 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9147, ASSERT_TYPE_ASSERT, "(minMsec > 0)", (const char *)&queryFormat, "minMsec > 0") )
+  if ( v6 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9147, ASSERT_TYPE_ASSERT, "(minMsec > 0)", (const char *)&queryFormat, "minMsec > 0") )
     __debugbreak();
-  v24 = (unsigned __int64)(1431655766i64 * com_lastFrameIndex) >> 32;
-  v25 = com_lastFrameIndex++;
-  v26 = v25 - 3 * ((v24 >> 31) + v24);
+  v15 = (unsigned __int64)(1431655766i64 * com_lastFrameIndex) >> 32;
+  v16 = com_lastFrameIndex++;
+  v17 = v16 - 3 * ((v15 >> 31) + v15);
   Profile_Begin(492);
   Com_EventLoop();
-  v27 = Sys_Milliseconds();
-  v28 = v27;
-  v29 = v27 - com_frameTime;
-  if ( (int)(v27 - com_frameTime) < 0 )
+  v18 = Sys_Milliseconds();
+  v19 = v18;
+  v20 = v18 - com_frameTime;
+  if ( (int)(v18 - com_frameTime) < 0 )
   {
-    com_frameTime = v27;
-    v29 = 0;
+    com_frameTime = v18;
+    v20 = 0;
   }
-  v30 = (unsigned int)(v10 - v29);
-  g_maxFpsWaitTime = v10 - v29;
-  if ( v10 - v29 > 0 )
+  v21 = (unsigned int)(v6 - v20);
+  g_maxFpsWaitTime = v6 - v20;
+  if ( v6 - v20 > 0 )
   {
-    v28 = v30 + v27;
-    v31 = j_va("max fps spin: %d", v30);
-    Sys_ProfSetMarker(0xFF44CCFF, v31);
-    v29 = v10;
+    v19 = v21 + v18;
+    v22 = j_va("max fps spin: %d", v21);
+    Sys_ProfSetMarker(0xFF44CCFF, v22);
+    v20 = v6;
   }
   else
   {
     g_maxFpsWaitTime = 0;
   }
-  v32 = Sys_Microseconds();
-  v33 = com_frameTimeMicroSeconds;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v23 = Sys_Microseconds();
+  v24 = com_frameTimeMicroSeconds;
   if ( !com_frameTimeMicroSeconds )
-    v33 = v32;
-  v35 = v32 - v33;
-  __asm { vcvtsi2ss xmm0, xmm0, rdi }
-  if ( (__int64)(v32 - v33) < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  __asm { vmulss  xmm8, xmm0, cs:__real@358637bd }
-  com_frameTimeMicroSeconds = v32;
+    v24 = v23;
+  v25 = v23 - v24;
+  v26 = (float)(__int64)(v23 - v24);
+  if ( (__int64)(v23 - v24) < 0 )
+  {
+    v27 = (float)(__int64)(v23 - v24);
+    v26 = v27 + 1.8446744e19;
+  }
+  com_frameTimeMicroSeconds = v23;
   Profile_EndInternal(0i64);
-  com_frameTime = v28;
+  com_frameTime = v19;
   if ( !Com_FrontEndScene_IsActive() && com_sv_running && com_sv_running->current.enabled && Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|WEAPON_LADDER_AIM|0x80) )
   {
     integer = com_maxFrameTime->current.integer;
-    if ( v29 < integer )
-      integer = v29;
+    if ( v20 < integer )
+      integer = v20;
   }
   else
   {
-    integer = v29;
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
+    integer = v20;
   }
   msec = integer;
-  __asm { vmovss  [rsp+4C8h+sec], xmm1 }
-  Com_SmoothFrameTime(v26, v10, &msec, sec);
+  sec = (float)integer * 0.001;
+  Com_SmoothFrameTime(v17, v6, &msec, &sec);
   Sys_ProfEndNamedEvent();
-  v42 = DVARBOOL_com_userCmdEnableSmoothTime;
+  v29 = DVARBOOL_com_userCmdEnableSmoothTime;
   if ( !DVARBOOL_com_userCmdEnableSmoothTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdEnableSmoothTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v42);
-  v43 = msec;
-  if ( v42->current.enabled )
-    v35 = 1000i64 * msec;
-  CL_Input_UpdateCmdTime(v35);
+  Dvar_CheckFrontendServerThread(v29);
+  v30 = msec;
+  if ( v29->current.enabled )
+    v25 = 1000i64 * msec;
+  CL_Input_UpdateCmdTime(v25);
   if ( Com_FrontEnd_IsInFrontEnd() )
   {
     Com_GameMode_UpdateGameMode();
     Com_FastFile_Frame_FrontEnd();
-    Com_FrontEndScene_Frame(v43);
+    Com_FrontEndScene_Frame(v30);
   }
   else
   {
     Com_FastFile_Frame_InGame();
   }
-  msec = Com_TimeScaleMsec(v43);
-  v44 = msec;
+  msec = Com_TimeScaleMsec(v30);
+  v31 = msec;
   Com_GameStart_LoadFrame(msec);
-  v45 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-  Cbuf_Execute(LOCAL_CLIENT_0, v45);
+  v32 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
+  Cbuf_Execute(LOCAL_CLIENT_0, v32);
   GamerProfile_UpdateSystemDvars();
-  v46 = v44 == 0;
-  if ( v44 <= 0 )
-  {
-    v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9304, ASSERT_TYPE_ASSERT, "(msec > 0)", (const char *)&queryFormat, "msec > 0");
-    v46 = !v47;
-    if ( v47 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+4C8h+sec]
-    vcomiss xmm6, xmm7
-  }
-  if ( v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9305, ASSERT_TYPE_ASSERT, "(sec_base > 0)", (const char *)&queryFormat, "sec_base > 0") )
+  if ( v31 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9304, ASSERT_TYPE_ASSERT, "(msec > 0)", (const char *)&queryFormat, "msec > 0") )
+    __debugbreak();
+  v33 = sec;
+  if ( sec <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9305, ASSERT_TYPE_ASSERT, "(sec_base > 0)", (const char *)&queryFormat, "sec_base > 0") )
     __debugbreak();
   RESTRequest_UpdateAll();
   if ( SvGameModeApplication::HasActiveServerApplication() )
   {
     ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-    ActiveServerApplication->RunFrame(ActiveServerApplication, v44);
+    ActiveServerApplication->RunFrame(ActiveServerApplication, v31);
   }
   if ( (_BYTE)ComGameModeApplication::ms_allocType )
   {
     if ( !ComGameModeApplication::ms_gameModeCommon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_app.h", 48, ASSERT_TYPE_ASSERT, "(ms_gameModeCommon)", (const char *)&queryFormat, "ms_gameModeCommon") )
       __debugbreak();
     ActiveApplication = ComGameModeApplication::GetActiveApplication();
-    ActiveApplication->RunFrameHeadless(ActiveApplication, v44);
+    ActiveApplication->RunFrameHeadless(ActiveApplication, v31);
   }
   AnalyticsStreamer_Frame();
   for ( k = 0; k < 8; ++k )
@@ -3004,46 +2985,41 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
         Instance = Online_Commerce::GetInstance();
         if ( Online_Commerce::GetPaidEntitlementTaskState(Instance, k) == ENTITLEMENT_STATE_IDLE )
         {
-          v54 = Online_Commerce::GetInstance();
-          Online_Commerce::GetPaidEntitlement(v54, k);
+          v39 = Online_Commerce::GetInstance();
+          Online_Commerce::GetPaidEntitlement(v39, k);
         }
       }
     }
     else
     {
-      v52 = Online_Commerce::GetInstance();
-      Online_Commerce::SetPaidEntitlementTaskState(v52, k, ENTITLEMENT_STATE_IDLE);
+      v37 = Online_Commerce::GetInstance();
+      Online_Commerce::SetPaidEntitlementTaskState(v37, k, ENTITLEMENT_STATE_IDLE);
     }
   }
   DLog_UpdateSessions();
   DLog_Frame();
-  v55 = DVARBOOL_dlog_curl_verbose;
+  v40 = DVARBOOL_dlog_curl_verbose;
   if ( !DVARBOOL_dlog_curl_verbose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dlog_curl_verbose") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v55);
-  Http_SetVerbose(v55->current.enabled);
+  Dvar_CheckFrontendServerThread(v40);
+  Http_SetVerbose(v40->current.enabled);
   DLog_SocketFrame();
   DLog_Send(0);
   Compass_PrintFrame();
-  __asm
-  {
-    vmovaps xmm2, xmm8; rawSeconds
-    vmovaps xmm1, xmm6; sec_base
-  }
-  CL_Main_RunOncePerClientFrame(v44, *(float *)&_XMM1, *(float *)&_XMM2);
+  CL_Main_RunOncePerClientFrame(v31, v33, v26 * 0.000001);
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "pre frame");
   if ( g_launchData.startupText[0] )
   {
-    v58 = &g_launchData.startupText[1];
+    v41 = &g_launchData.startupText[1];
     g_launchData.startupText[255] = 0;
-    v59 = SEH_LocalizeTextMessage(&g_launchData.startupText[1], "error message", LOCMSG_NOERR);
-    v60 = "MENU/ERROR";
-    if ( v59 )
-      v58 = v59;
+    v42 = SEH_LocalizeTextMessage(&g_launchData.startupText[1], "error message", LOCMSG_NOERR);
+    v43 = "MENU/ERROR";
+    if ( v42 )
+      v41 = v42;
     if ( g_launchData.startupText[0] == 110 )
-      v60 = "MENU/NOTICE";
-    v61 = SEH_LocalizeTextMessage(v60, "error message", LOCMSG_NOERR);
-    Com_SetLocalizedErrorMessage(v58, v61);
+      v43 = "MENU/NOTICE";
+    v44 = SEH_LocalizeTextMessage(v43, "error message", LOCMSG_NOERR);
+    Com_SetLocalizedErrorMessage(v41, v44);
     memset_0(g_launchData.startupText, 0, sizeof(g_launchData.startupText));
     XB3SetLaunchData(&g_launchData, 0x998u);
   }
@@ -3054,8 +3030,8 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
   {
     if ( CL_Mgr_IsClientActive((LocalClientNum_t)m) )
     {
-      v63 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)m);
-      Cbuf_Execute((LocalClientNum_t)m, v63);
+      v46 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)m);
+      Cbuf_Execute((LocalClientNum_t)m, v46);
     }
   }
   Sys_WorkerCmds_UpdateClientFrame();
@@ -3065,11 +3041,11 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
   for ( n = 0; n < 2; ++n )
     CL_Main_ClientFrame((LocalClientNum_t)n);
   Profile_EndInternal(0i64);
-  v65 = tls_index;
+  v48 = tls_index;
   if ( (*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) & 0x200) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 9419, ASSERT_TYPE_ASSERT, "(dvar_allowedModifiedFlags & (1 << 9))", (const char *)&queryFormat, "dvar_allowedModifiedFlags & DVAR_USERINFO") )
     __debugbreak();
-  v66 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v65);
-  *(_DWORD *)(v66 + 1048) &= ~0x200u;
+  v49 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v48);
+  *(_DWORD *)(v49 + 1048) &= ~0x200u;
   if ( SND_ExistsPendingRestore() )
     CL_Main_UpdateSound(0);
   CL_Screen_Update();
@@ -3083,8 +3059,7 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
   MemBudget_Poll_Update();
   Com_BootCheck_Update();
   UI_BrowserUpdate((LocalClientNum_t)n);
-  __asm { vmovaps xmm1, xmm6; deltaTime }
-  DevGui_Update(LOCAL_CLIENT_0, *(float *)&_XMM1);
+  DevGui_Update(LOCAL_CLIENT_0, v33);
   BB_Update();
   NET_RemoteDbgHostFrame();
   if ( com_statmon->current.enabled )
@@ -3113,18 +3088,18 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
         NumParentScriptVars = Scr_GetNumParentScriptVars(ii);
         InstanceName = ScriptContext_GetInstanceName(ii);
         LODWORD(fmt) = MaxDevParentScriptVars;
-        v74 = j_va((const char *)&stru_1440115A4.fmt + 4, InstanceName, NumParentScriptVars, HWMParentScriptVars, fmt);
-        StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SCRIPTOBJECTS, 3000, v74, 0);
+        v56 = j_va((const char *)&stru_1440115A4.fmt + 4, InstanceName, NumParentScriptVars, HWMParentScriptVars, fmt);
+        StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SCRIPTOBJECTS, 3000, v56, 0);
       }
       if ( Scr_WarnChildScriptVarsLimit(ii) )
       {
         MaxDevChildScriptVars = Scr_GetMaxDevChildScriptVars(ii);
         HWMChildScriptVars = Scr_GetHWMChildScriptVars(ii);
         NumChildScriptVars = Scr_GetNumChildScriptVars(ii);
-        v78 = ScriptContext_GetInstanceName(ii);
+        v60 = ScriptContext_GetInstanceName(ii);
         LODWORD(fmt) = MaxDevChildScriptVars;
-        v79 = j_va("Script Var Usage High (%s): %u in-use, %u HWM, %u limit", v78, NumChildScriptVars, HWMChildScriptVars, fmt);
-        StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SCRIPTVARIABLES, 3000, v79, 0);
+        v61 = j_va("Script Var Usage High (%s): %u in-use, %u HWM, %u limit", v60, NumChildScriptVars, HWMChildScriptVars, fmt);
+        StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SCRIPTVARIABLES, 3000, v61, 0);
       }
     }
   }
@@ -3148,13 +3123,6 @@ void __fastcall Com_Frame_Try_Block_Function(double _XMM0_8, double _XMM1_8)
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8034);
   Sys_ProfEndNamedEvent();
-  _R11 = &v89;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -3200,42 +3168,21 @@ void Com_FreeXAnimNodeMemory(void)
 Com_Freeze_f
 ==============
 */
-
-void __fastcall Com_Freeze_f(double _XMM0_8, double _XMM1_8)
+void Com_Freeze_f()
 {
-  unsigned int v6; 
+  double v0; 
 
   if ( Cmd_Argc() == 2 )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-    }
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovsd  xmm7, cs:__real@3f50624dd2f1a9fc
-    }
-    v6 = Sys_Milliseconds();
+    v0 = Cmd_ArgFloat(1);
+    Sys_Milliseconds();
     do
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2sd xmm1, xmm1, eax
-        vmulsd  xmm3, xmm1, xmm7
-        vcvtss2sd xmm2, xmm6, xmm6
-        vcomisd xmm3, xmm2
-      }
+      Sys_Milliseconds();
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, eax }
     }
-    while ( Sys_Milliseconds() <= v6 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    while ( *(double *)&_XMM1 * 0.001 <= *(float *)&v0 );
   }
   else
   {
@@ -3427,19 +3374,17 @@ Com_GetTimeScale
 */
 double Com_GetTimeScale()
 {
+  double v1; 
+
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND) )
     return Com_GetCodeTimeScale();
   if ( !dev_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 2643, ASSERT_TYPE_ASSERT, "(dev_timescale)", (const char *)&queryFormat, "dev_timescale") )
     __debugbreak();
   if ( !com_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 2644, ASSERT_TYPE_ASSERT, "(com_timescale)", (const char *)&queryFormat, "com_timescale") )
     __debugbreak();
-  _RAX = com_timescale;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm0, xmm0, dword ptr [rax+28h]
-  }
-  return *(double *)&_XMM0;
+  *(_QWORD *)&v1 = com_timescale->current.unsignedInt;
+  *(float *)&v1 = com_timescale->current.value * dev_timescale->current.value;
+  return v1;
 }
 
 /*
@@ -3447,16 +3392,18 @@ double Com_GetTimeScale()
 Com_GetTimescaleForSnd
 ==============
 */
-
-double __fastcall Com_GetTimescaleForSnd(double _XMM0_8)
+double Com_GetTimescaleForSnd()
 {
-  if ( com_fixedtime->current.integer )
+  int integer; 
+  double v2; 
+  double v3; 
+
+  integer = com_fixedtime->current.integer;
+  if ( integer )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-    }
+    HIDWORD(v2) = 0;
+    *(float *)&v2 = (float)integer;
+    return v2;
   }
   else if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND) )
   {
@@ -3464,18 +3411,14 @@ double __fastcall Com_GetTimescaleForSnd(double _XMM0_8)
       __debugbreak();
     if ( !com_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8431, ASSERT_TYPE_ASSERT, "(com_timescale)", (const char *)&queryFormat, "com_timescale") )
       __debugbreak();
-    _RAX = com_timescale;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmulss  xmm0, xmm0, dword ptr [rax+28h]
-    }
+    *(_QWORD *)&v3 = com_timescale->current.unsignedInt;
+    *(float *)&v3 = com_timescale->current.value * dev_timescale->current.value;
+    return v3;
   }
   else
   {
-    *(double *)&_XMM0 = Com_GetCodeTimeScale();
+    return Com_GetCodeTimeScale();
   }
-  return *(double *)&_XMM0;
 }
 
 /*
@@ -3483,80 +3426,41 @@ double __fastcall Com_GetTimescaleForSnd(double _XMM0_8)
 Com_GetTimescaleForSv
 ==============
 */
-
-float __fastcall Com_GetTimescaleForSv(double _XMM0_8)
+float Com_GetTimescaleForSv()
 {
-  bool v5; 
-  bool v6; 
-  bool v7; 
+  double TimeScale; 
+  float v1; 
+  double CodeTimeScale; 
+  float v3; 
+  float result; 
+  float value; 
+  float v6; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _XMM0_8 = SV_Demo_GetTimeScale();
-  __asm { vmovaps xmm6, xmm0 }
-  _XMM0_8 = Com_GetCodeTimeScale();
-  __asm { vmovaps xmm7, xmm0 }
-  v5 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND);
-  v6 = !v5;
-  if ( v5 )
+  TimeScale = SV_Demo_GetTimeScale();
+  v1 = *(float *)&TimeScale;
+  CodeTimeScale = Com_GetCodeTimeScale();
+  v3 = *(float *)&CodeTimeScale;
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND) )
   {
     if ( !com_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8583, ASSERT_TYPE_ASSERT, "(com_timescale)", (const char *)&queryFormat, "com_timescale") )
       __debugbreak();
-    v6 = dev_timescale == NULL;
-    if ( !dev_timescale )
-    {
-      v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8584, ASSERT_TYPE_ASSERT, "(dev_timescale)", (const char *)&queryFormat, "dev_timescale");
-      v6 = !v7;
-      if ( v7 )
-        __debugbreak();
-    }
-    _RAX = com_timescale;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  xmm2, dword ptr [rax+28h]
-      vucomiss xmm2, xmm0
-    }
-    _RAX = dev_timescale;
-    __asm { vmovss  xmm1, dword ptr [rax+28h] }
-    if ( !v6 )
-      goto LABEL_14;
+    if ( !dev_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8584, ASSERT_TYPE_ASSERT, "(dev_timescale)", (const char *)&queryFormat, "dev_timescale") )
+      __debugbreak();
+    result = FLOAT_1_0;
+    value = com_timescale->current.value;
+    v6 = dev_timescale->current.value;
+    if ( value != 1.0 )
+      return (float)((float)(value * v3) * v6) * v1;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovaps xmm2, xmm0
-      vmovaps xmm1, xmm0
-    }
+    result = FLOAT_1_0;
+    value = FLOAT_1_0;
+    v6 = FLOAT_1_0;
   }
-  __asm { vucomiss xmm7, xmm0 }
-  if ( !v6 )
-    goto LABEL_14;
-  __asm { vucomiss xmm1, xmm0 }
-  if ( !v6 )
-    goto LABEL_14;
-  __asm { vucomiss xmm6, xmm0 }
-  if ( !v6 )
-  {
-LABEL_14:
-    __asm
-    {
-      vmulss  xmm0, xmm2, xmm7
-      vmulss  xmm1, xmm0, xmm1
-      vmulss  xmm0, xmm1, xmm6
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return *(float *)&_XMM0;
+  if ( v3 != result || v6 != result || v1 != result )
+    return (float)((float)(value * v3) * v6) * v1;
+  return result;
 }
 
 /*
@@ -4000,111 +3904,107 @@ Com_Init_Try_Block_Function
 */
 void Com_Init_Try_Block_Function(char *commandLine)
 {
-  char *v4; 
+  char *v2; 
+  int v3; 
+  const char **v4; 
   int v5; 
-  const char **v6; 
-  int v7; 
+  __int64 v6; 
+  char *v7; 
   __int64 v8; 
-  char *v9; 
-  __int64 v10; 
-  __int64 v11; 
-  char v12; 
+  __int64 v9; 
+  char v10; 
   char *i; 
+  char *v12; 
+  unsigned __int8 v13; 
   char *v14; 
-  unsigned __int8 v15; 
-  char *v16; 
   int j; 
   scrContext_t *k; 
-  int v19; 
-  int v20; 
-  const dvar_t *v21; 
-  DB_FileSysInterface *v22; 
+  int v17; 
+  int v18; 
+  const dvar_t *v19; 
+  DB_FileSysInterface *v20; 
   Online_PatchStreamer *Instance; 
-  Online_PatchStreamer *v24; 
+  Online_PatchStreamer *v22; 
   const char *CurrentRegionCode; 
   const char *CurrentLanguageCode; 
-  unsigned int v27; 
-  __int64 v28; 
+  unsigned int v25; 
+  __int64 v26; 
   int ControllerFromClient; 
-  const dvar_t *v32; 
+  const dvar_t *v28; 
   const char *BuildNumber; 
-  scrContext_t *v34; 
-  const dvar_t *v35; 
-  const char *v36; 
+  scrContext_t *v30; 
+  const dvar_t *v31; 
+  const char *v32; 
   fileHandle_t file; 
   DDLConfigParams appFuncs; 
   __int64 buffer[4]; 
-  char v42; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v4 = s_Com_expandedCommandLine;
+  v2 = s_Com_expandedCommandLine;
   if ( !Com_ExpandResponseFiles(s_Com_expandedCommandLine, (char *)s_ddlScratchBuf, commandLine) )
-    v4 = commandLine;
+    v2 = commandLine;
   NET_RemoteDbgHostInitLogBuffer();
   Com_Printf(16, "%s %s build %s %s\n", "IW8_DEV", "8.24", "xb3", "Aug  9 2020");
-  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 4093, ASSERT_TYPE_ASSERT, "(commandLine)", (const char *)&queryFormat, "commandLine") )
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 4093, ASSERT_TYPE_ASSERT, "(commandLine)", (const char *)&queryFormat, "commandLine") )
     __debugbreak();
+  v3 = 0;
+  v4 = (const char **)com_consoleLines;
   v5 = 0;
-  v6 = (const char **)com_consoleLines;
-  v7 = 0;
-  v8 = 0i64;
-  v9 = v4;
-  v10 = 0x80000000401i64;
-  v11 = 0x100002200i64;
+  v6 = 0i64;
+  v7 = v2;
+  v8 = 0x80000000401i64;
+  v9 = 0x100002200i64;
   while ( 1 )
   {
-    v12 = *v9;
-    if ( (unsigned __int8)*v9 <= 0x2Bu )
+    v10 = *v7;
+    if ( (unsigned __int8)*v7 <= 0x2Bu )
     {
-      if ( _bittest64(&v10, v12) )
+      if ( _bittest64(&v8, v10) )
         break;
     }
 LABEL_23:
-    ++v9;
+    ++v7;
   }
-  for ( i = v4; i != v9; ++i )
+  for ( i = v2; i != v7; ++i )
   {
     if ( (unsigned __int8)*i > 0x20u )
       break;
-    if ( !_bittest64(&v11, *i) )
+    if ( !_bittest64(&v9, *i) )
       break;
   }
-  if ( i < v9 )
+  if ( i < v7 )
   {
-    v14 = v9;
+    v12 = v7;
     do
     {
-      v15 = *(v14 - 1);
-      v16 = v14 - 1;
-      if ( v15 > 0x20u )
+      v13 = *(v12 - 1);
+      v14 = v12 - 1;
+      if ( v13 > 0x20u )
         break;
-      if ( !_bittest64(&v11, (char)v15) )
+      if ( !_bittest64(&v9, (char)v13) )
         break;
-      --v14;
+      --v12;
     }
-    while ( i != v16 );
-    *v14 = 0;
-    if ( v8 == 128 )
+    while ( i != v14 );
+    *v12 = 0;
+    if ( v6 == 128 )
     {
-      Com_PrintWarning(16, "Warning: Discarding excess command-line argument (limit=%d): %s\n", 128i64, v4);
-      v11 = 0x100002200i64;
+      Com_PrintWarning(16, "Warning: Discarding excess command-line argument (limit=%d): %s\n", 128i64, v2);
+      v9 = 0x100002200i64;
     }
     else
     {
-      ++v7;
-      com_consoleLines[v8++] = i;
+      ++v5;
+      com_consoleLines[v6++] = i;
     }
   }
-  if ( v12 )
+  if ( v10 )
   {
-    v4 = v9 + 1;
-    v10 = 0x80000000401i64;
+    v2 = v7 + 1;
+    v8 = 0x80000000401i64;
     goto LABEL_23;
   }
-  com_numConsoleLines = v7;
-  qsort(com_consoleLines, v7, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)Com_SortStartupCommands);
+  com_numConsoleLines = v5;
+  qsort(com_consoleLines, v5, 8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)Com_SortStartupCommands);
   SL_Init();
   Swap_Init();
   Cbuf_Init();
@@ -4117,12 +4017,12 @@ LABEL_23:
   Com_CSVInit();
   Mem_Virtual_Init();
   Com_Printf(0, "Boot arguments: '");
-  for ( j = 0; j < com_numConsoleLines; ++v6 )
+  for ( j = 0; j < com_numConsoleLines; ++v4 )
   {
-    if ( !*v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 7167, ASSERT_TYPE_ASSERT, "(com_consoleLines[i])", (const char *)&queryFormat, "com_consoleLines[i]") )
+    if ( !*v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 7167, ASSERT_TYPE_ASSERT, "(com_consoleLines[i])", (const char *)&queryFormat, "com_consoleLines[i]") )
       __debugbreak();
-    if ( **v6 )
-      Com_Printf(0, "+%s ", *v6);
+    if ( **v4 )
+      Com_Printf(0, "+%s ", *v4);
     ++j;
   }
   Com_Printf(0, "'\n");
@@ -4150,7 +4050,7 @@ LABEL_23:
   BitArrayUnitTest();
   Com_CircularBuffer_UnitTests();
   Com_Printf(7, "begin $init\n");
-  v19 = Sys_Milliseconds();
+  v17 = Sys_Milliseconds();
   PMem_BeginAlloc("$init", PMEM_STACK_GAME);
   R_InitBackEndData();
   HttpHeapInit();
@@ -4163,21 +4063,21 @@ LABEL_23:
   Users_Initialize();
   CPUTimelineProfilerView_InitMem();
   PMem_EndAlloc("$init", PMEM_STACK_GAME);
-  v20 = Sys_Milliseconds();
-  Com_Printf(16, "end $init %d ms\n", (unsigned int)(v20 - v19));
+  v18 = Sys_Milliseconds();
+  Com_Printf(16, "end $init %d ms\n", (unsigned int)(v18 - v17));
   Com_EmergencyMemory_Init();
   SND_InitMemory();
   Con_InitChannels();
   if ( !g_fileSystem )
     g_fileSystem = DB_DiskFSInitialize();
   Dvar_BeginPermanentRegistration();
-  v21 = Dvar_RegisterBool("TQMQKRQPO", 0, 0, "Use IndyFs to stream data from an Indy Image");
+  v19 = Dvar_RegisterBool("TQMQKRQPO", 0, 0, "Use IndyFs to stream data from an Indy Image");
   Dvar_EndPermanentRegistration();
-  if ( v21->current.enabled )
+  if ( v19->current.enabled )
   {
-    v22 = DB_IndyFsInitialize(g_fileSystem);
-    if ( v22 )
-      g_fileSystem = v22;
+    v20 = DB_IndyFsInitialize(g_fileSystem);
+    if ( v20 )
+      g_fileSystem = v20;
     else
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144010F88, 185i64);
   }
@@ -4218,8 +4118,8 @@ LABEL_23:
   MemCard_InitializeSystem();
   Instance = Online_PatchStreamer::GetInstance();
   Online_PatchStreamer::PerformStartupPatchManifestProcessing(Instance);
-  v24 = Online_PatchStreamer::GetInstance();
-  Online_PatchStreamer::ResetAll(v24, 1);
+  v22 = Online_PatchStreamer::GetInstance();
+  Online_PatchStreamer::ResetAll(v22, 1);
   CG_VisionSet_ResetAssets();
   CG_Wind_InitGridMem();
   TaskBreaker_Init();
@@ -4238,20 +4138,20 @@ LABEL_23:
   Com_LevelList_StartEnumeration();
   *(_QWORD *)&appFuncs.m_scratchBuffSize = 1i64;
   appFuncs.m_scratchBuff = (void *)"code_post_gfx";
-  v27 = 1;
+  v25 = 1;
   LODWORD(appFuncs.m_descriptorPath) = 0xFFFF;
   if ( fastfile_loadDevelopment->current.enabled )
   {
     appFuncs.f_accessCallback = (void (__fastcall *)(const DDLContext *, unsigned int, unsigned int, DDLAccessOp))1;
     appFuncs.m_guidSeed = "development";
-    v27 = 2;
+    v25 = 2;
     LODWORD(appFuncs.f_print) = 0xFFFF;
   }
-  v28 = 3i64 * v27;
-  *((_QWORD *)&appFuncs.m_scratchBuffSize + v28) = 1i64;
-  *((_QWORD *)&appFuncs.m_scratchBuff + v28) = "comms_mp";
-  *((_DWORD *)&appFuncs.m_descriptorPath + 2 * v28) = 0xFFFF;
-  DB_LoadFastfiles((const DB_FastfileInfo *)&appFuncs, v27 + 1, 1u, 0);
+  v26 = 3i64 * v25;
+  *((_QWORD *)&appFuncs.m_scratchBuffSize + v26) = 1i64;
+  *((_QWORD *)&appFuncs.m_scratchBuff + v26) = "comms_mp";
+  *((_DWORD *)&appFuncs.m_descriptorPath + 2 * v26) = 0xFFFF;
+  DB_LoadFastfiles((const DB_FastfileInfo *)&appFuncs, v25 + 1, 1u, 0);
   MemBudget_ContentMemRead_Init();
   MemBudget_BudgetFile_Init();
   MemCard_LargeFileBuffer_Init();
@@ -4267,12 +4167,7 @@ LABEL_23:
   com_hasHardwareSurveyRun = Dvar_RegisterBool("TPQLNKQRQ", 0, 0, "Run the hardware survey at least once.");
   Dvar_EndPermanentRegistration();
   Com_StartupVariable(NULL);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm0, xmm6; timescale
-  }
-  Com_SetCodeTimeScale(*(const float *)&_XMM0);
+  Com_SetCodeTimeScale(1.0);
   Live_Init();
   Content_Init();
   LUI_Model_Init();
@@ -4280,17 +4175,17 @@ LABEL_23:
   DLog_Init();
   ProfLoad_Init();
   Cmd_AddCommandInternal("iwmem", IWMem_DumpMem_f, &stru_14CE8F210);
-  v32 = DCONST_DVARINT_developer;
+  v28 = DCONST_DVARINT_developer;
   if ( !DCONST_DVARINT_developer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "developer") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v32);
-  if ( v32->current.integer )
+  Dvar_CheckFrontendServerThread(v28);
+  if ( v28->current.integer )
   {
     Cmd_AddCommandInternal("error", Com_Error_f, &stru_14CE8F240);
     Cmd_AddCommandInternal("crash", Com_Crash_f, &stru_14CE8F270);
     Cmd_AddCommandInternal("syserror", Com_SysError_f, &stru_14CE8F2A0);
-    Cmd_AddCommandInternal("freeze", (void (__fastcall *)())Com_Freeze_f, &stru_14CE8F2D0);
-    Cmd_AddCommandInternal("timescalecode", (void (__fastcall *)())Com_CodeTimescale_f, &stru_14CE8F300);
+    Cmd_AddCommandInternal("freeze", Com_Freeze_f, &stru_14CE8F2D0);
+    Cmd_AddCommandInternal("timescalecode", Com_CodeTimescale_f, &stru_14CE8F300);
     Cmd_AddCommandInternal("assert", Com_Assert_f, &stru_14CE8F330);
   }
   Cmd_AddCommandInternal("quit", Com_Quit_f, &stru_14CE8F360);
@@ -4312,9 +4207,9 @@ LABEL_23:
   Com_Keys_InitLocalizedKeyNames();
   Netchan_Init();
   Com_Devhost_Init_App();
-  v34 = ScriptContext_Server();
-  Scr_Init(v34);
-  Com_SetScriptSettings(v34);
+  v30 = ScriptContext_Server();
+  Scr_Init(v30);
+  Com_SetScriptSettings(v30);
   GScr_Consts_LoadStrings();
   XAnimRegisterDvars();
   XAnimInit();
@@ -4351,10 +4246,10 @@ LABEL_23:
   ScrPlace_Init();
   CL_Main_InitOnceForAllClients();
   do
-    CL_Main_InitClient((LocalClientNum_t)v5++);
-  while ( v5 < 2 );
+    CL_Main_InitClient((LocalClientNum_t)v3++);
+  while ( v3 < 2 );
   com_frameTime = Sys_Milliseconds();
-  __asm { vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale, xmm6; SlowMotionCommon g_slowmoCommon }
+  g_slowmoCommon.viewTimescale = FLOAT_1_0;
   g_slowmoCommon.enable = 0;
   g_slowmoCommon.viewEnable = 0;
   Com_StartupVariable(NULL);
@@ -4366,8 +4261,8 @@ LABEL_23:
   SND_Init();
   cls.soundStarted = 1;
   Voice_Init();
-  v35 = DVARBOOL_sv_generateConstBaselines;
-  if ( !DVARBOOL_sv_generateConstBaselines || (Dvar_CheckFrontendServerThread(DVARBOOL_sv_generateConstBaselines), !v35->current.enabled) )
+  v31 = DVARBOOL_sv_generateConstBaselines;
+  if ( !DVARBOOL_sv_generateConstBaselines || (Dvar_CheckFrontendServerThread(DVARBOOL_sv_generateConstBaselines), !v31->current.enabled) )
   {
     if ( !com_hasHardwareSurveyRun->current.enabled )
     {
@@ -4394,16 +4289,14 @@ LABEL_23:
   com_fullyInitialized = 1;
   Com_Printf(16, "--- Common Initialization Complete ---\n");
   Dvar_BeginPermanentRegistration();
-  v36 = SEH_SafeTranslateString("PLATFORM/NOMOTD");
-  Dvar_SetStringByName("NONSLROPSR", v36);
+  v32 = SEH_SafeTranslateString("PLATFORM/NOMOTD");
+  Dvar_SetStringByName("NONSLROPSR", v32);
   Dvar_EndPermanentRegistration();
   Com_DvarDump(6, NULL);
   if ( !Dvar_ValidatePermanentDvars() )
     Sys_Error((const ObfuscateErrorText)&stru_144011130);
   com_overIndulengeStartTime = Sys_Milliseconds();
   com_overIndulgenceNextWarningHour = 1;
-  _R11 = &v42;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -4585,37 +4478,33 @@ void Com_LeaveError(void)
 Com_LocalizedFloatToString
 ==============
 */
-
-void __fastcall Com_LocalizedFloatToString(double f, char *buffer, unsigned int maxlen, unsigned int numDecimalPlaces)
+void Com_LocalizedFloatToString(float f, char *buffer, unsigned int maxlen, unsigned int numDecimalPlaces)
 {
-  unsigned __int64 v7; 
+  unsigned __int64 v6; 
   unsigned int unsignedInt; 
-  int v9; 
-  __int64 v10; 
+  int v8; 
+  __int64 v9; 
   char *i; 
-  double v12; 
 
-  __asm { vcvtss2sd xmm0, xmm0, xmm0 }
-  v7 = maxlen - 1;
-  __asm { vmovsd  [rsp+38h+var_18], xmm0 }
-  Com_sprintf(buffer, v7, "%.*f", numDecimalPlaces, v12);
-  buffer[v7] = 0;
+  v6 = maxlen - 1;
+  Com_sprintf(buffer, v6, "%.*f", numDecimalPlaces, f);
+  buffer[v6] = 0;
   unsignedInt = loc_language->current.unsignedInt;
   if ( unsignedInt <= 0x14 )
   {
-    v9 = 1311740;
-    if ( _bittest(&v9, unsignedInt) )
+    v8 = 1311740;
+    if ( _bittest(&v8, unsignedInt) )
     {
-      v10 = 0i64;
+      v9 = 0i64;
       if ( maxlen )
       {
         for ( i = buffer; *i != 46; ++i )
         {
-          v10 = (unsigned int)(v10 + 1);
-          if ( (unsigned int)v10 >= maxlen )
+          v9 = (unsigned int)(v9 + 1);
+          if ( (unsigned int)v9 >= maxlen )
             return;
         }
-        buffer[v10] = 44;
+        buffer[v9] = 44;
       }
     }
   }
@@ -5103,56 +4992,53 @@ Com_PrintHexDump
 void Com_PrintHexDump(int channel, const void *data, unsigned int dataSize)
 {
   char *v3; 
-  unsigned int v6; 
-  unsigned __int64 v8; 
-  __int64 v9; 
-  __int64 v11; 
-  unsigned __int64 v12; 
-  __int128 v13; 
+  unsigned int v5; 
+  unsigned __int64 v7; 
+  __int64 v8; 
+  __int64 v10; 
+  unsigned __int64 v11; 
+  char v12[32]; 
+  char v13[2]; 
   char v14; 
-  char v15[2]; 
-  char v16; 
 
-  v3 = &v16;
-  __asm { vmovups xmm0, xmmword ptr cs:a0123456789abcd_6; "0123456789ABCDEF" }
-  v14 = a0123456789abcd_6[16];
-  v6 = 1;
-  v8 = (unsigned __int64)*(unsigned __int8 *)data >> 4;
-  v9 = *(_BYTE *)data & 0xF;
-  __asm { vmovups [rsp+468h+var_448], xmm0 }
-  v15[0] = *((_BYTE *)&v13 + v8);
-  v15[1] = *((_BYTE *)&v13 + v9);
+  v3 = &v14;
+  v5 = 1;
+  v7 = (unsigned __int64)*(unsigned __int8 *)data >> 4;
+  v8 = *(_BYTE *)data & 0xF;
+  strcpy(v12, "0123456789ABCDEF");
+  v13[0] = v12[v7];
+  v13[1] = v12[v8];
   if ( dataSize != 1 )
   {
     do
     {
-      if ( (v6 & 0x1F) != 0 )
+      if ( (v5 & 0x1F) != 0 )
       {
-        if ( (v6 & 0xF) == 0 )
+        if ( (v5 & 0xF) == 0 )
           *v3++ = 32;
-        if ( (v6 & 3) == 0 )
+        if ( (v5 & 3) == 0 )
           *v3++ = 32;
       }
       else
       {
         *(_WORD *)v3 = 10;
-        Com_Printf(channel, (const char *)&queryFormat, v15);
-        v3 = v15;
-        if ( !(_BYTE)v6 )
+        Com_Printf(channel, (const char *)&queryFormat, v13);
+        v3 = v13;
+        if ( !(_BYTE)v5 )
           Com_Printf(channel, "\n");
-        if ( (v6 & 0x3FF) == 0 )
+        if ( (v5 & 0x3FF) == 0 )
           Com_Printf(channel, "\n");
       }
-      v11 = v6++;
-      v12 = *((unsigned __int8 *)data + v11);
-      *v3 = *((_BYTE *)&v13 + (v12 >> 4));
-      v3[1] = *((_BYTE *)&v13 + (v12 & 0xF));
+      v10 = v5++;
+      v11 = *((unsigned __int8 *)data + v10);
+      *v3 = v12[v11 >> 4];
+      v3[1] = v12[v11 & 0xF];
       v3 += 2;
     }
-    while ( v6 != dataSize );
+    while ( v5 != dataSize );
   }
   *(_WORD *)v3 = 10;
-  Com_Printf(channel, (const char *)&queryFormat, v15);
+  Com_Printf(channel, (const char *)&queryFormat, v13);
 }
 
 /*
@@ -5484,38 +5370,8 @@ Com_RegisterCommonDvars
 */
 void Com_RegisterCommonDvars()
 {
-  const dvar_t *v38; 
-  const dvar_t *v42; 
-  const dvar_t *v46; 
-  const dvar_t *v50; 
-  const dvar_t *v61; 
-  const dvar_t *v68; 
-  const dvar_t *v87; 
-  const dvar_t *v97; 
-  const dvar_t *v104; 
-  const dvar_t *v108; 
-  const dvar_t *v116; 
-  bool v120; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  float flagsd; 
-  float flagse; 
-  float flagsf; 
-  char v135; 
-  void *retaddr; 
+  bool v0; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm10
-    vmovaps xmmword ptr [rax-58h], xmm12
-    vmovaps xmmword ptr [rax-68h], xmm13
-  }
   Dvar_BeginPermanentRegistration();
   DVARBOOL_cg_autoSkipSplashScreen = Dvar_RegisterBool("NPLRKNKKOP", 0, 0, "Automatically skip the splash screen");
   DCONST_DVARINT_developer = Dvar_RegisterInt("developer", 0, 0, 2, 0x40004u, "Enable development options");
@@ -5651,31 +5507,11 @@ void Com_RegisterCommonDvars()
   DVARBOOL_com_codcasterHighClientSupport = Dvar_RegisterBool("LRQNOKNRRN", 0, 0, "Enable to increase system link player count to 46 (10 PS4 & 36 Codcaster-Observer slots)");
   DVARINT_com_codcasterHighClientCount = Dvar_RegisterInt("LQNKMNMLRR", 46, 24, 46, 0, "Amount of client slots for high client count support");
   DVARBOOL_com_devCodcasterEnabled = Dvar_RegisterBool("MQRSKQTRLT", 0, 0, "Set the player as a CODCaster by default when enabled. For development only.");
-  __asm
-  {
-    vmovss  xmm12, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@3fd89d8a; max
-    vmovss  xmm2, cs:__real@3c7c0fc1; min
-  }
   DVARBOOL_com_checkIfGameModeInstalled = Dvar_RegisterBool("RLSPOOTTT", 0, 0, "If true, we check if a game mode is owned and installed before entering the menu. Be sure to Install the Game via Steam for this to work.");
-  __asm { vmovaps xmm1, xmm12; value }
-  DVARFLT_com_fovUserScale = Dvar_RegisterFloat("NKPPQTKTST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The user FOV scale, calculated to match the target widescreen (16:9) horizontal Field of View specified in advanced video options");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm12; value
-    vxorps  xmm13, xmm13, xmm13
-  }
-  DVARFLT_com_fovUserScaleFactor = Dvar_RegisterFloat("MQPRNMTMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "How much of the user FOV scale is actually applied, from 0% to 100%. Used to lerp to/from the default consoles FoV.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42f00000; max
-    vmovss  xmm2, cs:__real@42700000; min
-    vmovss  xmm1, cs:__real@42a00000; value
-  }
+  DVARFLT_com_fovUserScale = Dvar_RegisterFloat("NKPPQTKTST", 1.0, 0.015384615, 1.6923077, 0, "The user FOV scale, calculated to match the target widescreen (16:9) horizontal Field of View specified in advanced video options");
+  DVARFLT_com_fovUserScaleFactor = Dvar_RegisterFloat("MQPRNMTMS", 1.0, 0.0, 1.0, 0x40u, "How much of the user FOV scale is actually applied, from 0% to 100%. Used to lerp to/from the default consoles FoV.");
   DVARBOOL_com_useAdsFovUserScale = Dvar_RegisterBool("MRMTMQNKKK", 0, 0, "Whether com_fovUserScale is applied while ADS");
-  DVARFLT_com_targetWidescreenHorzFov = Dvar_RegisterFloat("NNMSONQSOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Expected value of horizontal field of view when using a 16:9 aspect ratio. com_fovUserScale is adjusted based on this value.");
+  DVARFLT_com_targetWidescreenHorzFov = Dvar_RegisterFloat("NNMSONQSOP", 80.0, 60.0, 120.0, 0, "Expected value of horizontal field of view when using a 16:9 aspect ratio. com_fovUserScale is adjusted based on this value.");
   DVARINT_comSessionReportThreshold = Dvar_RegisterInt("MMMPQOLMTL", 75, 0, 0x7FFFFFFF, 0, "When com session usage reaches this level a report is sent off to the backend.");
   DVARINT_comSessionCriticalTypeMaskOverride = Dvar_RegisterInt("LSLOKQTQRR", 0, 0, 0x7FFFFFFF, 0, "Critical session type override value. ");
   DVARINT_comSessionStressTest = Dvar_RegisterInt("MTNRTTLPSK", 0, 0, 1, 0, "Fire of a series of random sessions creates.");
@@ -5683,23 +5519,10 @@ void Com_RegisterCommonDvars()
   DCONST_DVARINT_com_userCmdMinTimeStep = Dvar_RegisterInt("com_userCmdMinTimeStep", 1, 1, 0x7FFFFFFF, 0x40004u, "The minimum timestep each user command will move.");
   DCONST_DVARINT_com_userCmdMaxTimeStep = Dvar_RegisterInt("com_userCmdMaxTimeStep", 192, 1, 0x7FFFFFFF, 0x40004u, "The maximum timestep each user command will move.");
   DVARBOOL_com_userCmdEnableConstantTime = Dvar_RegisterBool("LNOTNPKNQQ", 1, 0, "Enabled fixed timestep user commands.");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
   DVARINT_com_userCmdConstantMsec = Dvar_RegisterInt("NOQQRMNKOQ", 16, 1, 0x7FFFFFFF, 0, "The timestep of each user command when constant user command time is enabled.");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_com_userCmdMaxBufferScale = Dvar_RegisterFloat("TOKPMRPPQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The maximum time scale to apply to client input generation for command throttling.");
+  DVARFLT_com_userCmdMaxBufferScale = Dvar_RegisterFloat("TOKPMRPPQ", 0.1, 0.0, 1.0, 0, "The maximum time scale to apply to client input generation for command throttling.");
   DVARBOOL_com_userCmdEnableSmoothTime = Dvar_RegisterBool("SLLKPTMOQ", 0, 0, "Enabled smoothing of the client's accumulation of input time.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@41200000; value
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm12; min
-  }
-  DCONST_DVARFLT_com_userCmdMaxExtrapTranslation = Dvar_RegisterFloat("com_userCmdMaxExtrapTranslation", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The maximum amount of translation that can be applied on the server for a client's movement (used to calculate bullet origin).");
+  DCONST_DVARFLT_com_userCmdMaxExtrapTranslation = Dvar_RegisterFloat("com_userCmdMaxExtrapTranslation", 10.0, 1.0, 3.4028235e38, 0x40004u, "The maximum amount of translation that can be applied on the server for a client's movement (used to calculate bullet origin).");
   DCONST_DVARBOOL_com_userCmdLogExtrapError = Dvar_RegisterBool("com_userCmdLogExtrapError", 0, 0x40004u, "Enable logging instances where client extrapolation exceeds the maximum translation.");
   DVARSTR_package_type = Dvar_RegisterString("LMMLNRSLKS", (const char *)&queryFormat.fmt + 3, 0, "The package type for the current build. This will be read from packageinfo.txt. Eg: 'autobuild', 'autobuild_mp', 'current_mp_fnf'. By default this string would be empty");
   DVARBOOL_force_offline_enabled = Dvar_RegisterBool("MPSSOTQQPM", 1, 0, "Whether forcing to offline mode is enabled");
@@ -5710,20 +5533,8 @@ void Com_RegisterCommonDvars()
   DCONST_DVARINT_force_battlenet_online_environment = Dvar_RegisterInt("force_battlenet_online_environment", 0, 0, 2, 0x40004u, "Bypass detection and force a Battle.Net environement. 0 auto 1 dev 2 prod");
   DVARSTR_com_force_region = Dvar_RegisterString("OLSPRNOLMP", (const char *)&queryFormat.fmt + 3, 0, "name of the region to force, (worldwide, japan, germany, saudiarabia, korea15, china)");
   DVARBOOL_com_smoothFrames = Dvar_RegisterBool("LTPKOTONNP", 1, 0, "Enable frame times smoothing");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm12; value
-  }
-  DVARFLT_com_viewAnimCameraTranslationScale = Dvar_RegisterFloat("NSNOTMNMPP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Scale the amount of animation view camera translation.");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm12; value
-  }
-  DVARFLT_com_viewAnimCameraRotationScale = Dvar_RegisterFloat("LQTRKQSNMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Scale the amount of animation view camera rotation.");
+  DVARFLT_com_viewAnimCameraTranslationScale = Dvar_RegisterFloat("NSNOTMNMPP", 1.0, 0.0, 3.4028235e38, 0x40u, "Scale the amount of animation view camera translation.");
+  DVARFLT_com_viewAnimCameraRotationScale = Dvar_RegisterFloat("LQTRKQSNMO", 1.0, 0.0, 3.4028235e38, 0x40u, "Scale the amount of animation view camera rotation.");
   DCONST_DVARBOOL_skipItemDetailModelPhysics = Dvar_RegisterBool("skipItemDetailModelPhysics", 1, 0x40004u, "When set item entities do not use detailed model for physics.");
   DVARBOOL_killswitch_dxr_disabled = Dvar_RegisterBool("MTNTQRLL", 0, 0, "When false the DXR option will be available if the player have the hardware to run it");
   DVARBOOL_pump_livecode_in_sp_psowait_enabled = Dvar_RegisterBool("LTPNLQTLPP", 1, 0, "When true demonware and battlenet will be called from the main thread when waiting for PSOs.");
@@ -5737,14 +5548,8 @@ void Com_RegisterCommonDvars()
   DVARBOOL_killswitch_CDL_restriction_ingame = Dvar_RegisterBool("NTLNTTNNLQ", 0, 0, "When true, disable all CDL restriction in-game as well as changing the public loadouts for the private ones.");
   DCONST_DVARBOOL_com_worldStreamingForceEnable = Dvar_RegisterBool("com_worldStreamingForceEnable", 0, 0x40004u, "Forcibly enables world streaming system (default is system only enables for maps that use the transient grid system). NOTE: Must be set on launch on both the server and client to have desired effect.");
   DVARBOOL_mp_paused = Dvar_RegisterBool("LQMKQLPLKT", 0, 4u, "If true ignore server time advancing.  Handy for taking hi-res screen shots.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm2, cs:__real@3c23d70a; min
-    vmovss  xmm1, cs:__real@40000000; value
-  }
   DVARINT_sre_notification_duration = Dvar_RegisterInt("LTRNMRRQLK", 5000, 0, 0x7FFFFFFF, 0, "The time (ms) duration to show the SRE notification to clients. 0 = no notification");
-  DVARFLT_m_vehMouseSteerSensitivity = Dvar_RegisterFloat("MMMQLQMTKP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Vehicle mouse steering sensitivity");
+  DVARFLT_m_vehMouseSteerSensitivity = Dvar_RegisterFloat("MMMQLQMTKP", 2.0, 0.0099999998, 10.0, 0, "Vehicle mouse steering sensitivity");
   DVARINT_cl_packetdup = Dvar_RegisterInt("LTLPPQMKPQ", 2, 0, 5, 0, "Enable packet duplication");
   DVARBOOL_scripted_melee_debug = Dvar_RegisterBool("NPNPPSNSLO", 0, 0, "Enable debug display for the scripted melee system.");
   DVARBOOL_cg_blood = Dvar_RegisterBool("OPOTTRRNQ", 1, 0, "Show blood effects");
@@ -5752,84 +5557,23 @@ void Com_RegisterCommonDvars()
   DVARBOOL_cg_brass = Dvar_RegisterBool("NNRQTQNLRL", 1, 0, "Weapons eject brass");
   DVARBOOL_cg_marks_ents_player_only = Dvar_RegisterBool("MKQRLOOLKS", 0, 0, "Marks on entities from player's bullets only.");
   DVARINT_cg_invalidCmdHintDuration = Dvar_RegisterInt("LLSMPLKOO", 1800, 0, 10000, 0, "Duration of an invalid command hint");
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3a83126f
-    vmovss  xmm1, cs:__real@3f19999a; value
-  }
   DVARINT_cg_invalidCmdHintBlinkInterval = Dvar_RegisterInt("MNQQNQQPRL", 600, 1, 10000, 0, "Blink rate of an invalid command hint");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm10; min
-  }
-  v38 = Dvar_RegisterFloat("OKPNTNOLTK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Speed of the cursor when selecting a location on the map");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40000000; max
-    vmovss  xmm1, cs:__real@3f933333; value
-  }
-  DVARFLT_cg_mapLocationSelectionCursorSpeed = v38;
-  __asm { vmovaps xmm2, xmm10; min }
-  v42 = Dvar_RegisterFloat("LOKRKNNPMR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Speed of the cursor when selecting a location on the map when using a MOUSE to control the cursor");
-  __asm { vmovss  xmm1, cs:__real@3cb3e78e; x }
-  DVARFLT_cg_mapLocationSelectionCursorSpeedMouse = v42;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm2, xmm12; y
-    vmovss  [rsp+0A8h+flags], xmm12
-  }
-  v46 = Dvar_RegisterVec2("NSPRORPMTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, 0, "Distortion uv scales (Default to 1)");
-  __asm { vmovss  xmm1, cs:__real@3d863935; value }
-  DVARVEC2_cg_waterSheeting_distortionScaleFactor = v46;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v50 = Dvar_RegisterFloat("NLTSSQPSTP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distortion magnitude");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42000000; max
-    vmovss  xmm1, cs:__real@408e18a8; value
-  }
-  DVARFLT_cg_waterSheeting_magnitude = v50;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_cg_waterSheeting_radius = Dvar_RegisterFloat("LQNOTRPRQR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Tweak dev var Glow radius in pixels at 640x480");
+  DVARFLT_cg_mapLocationSelectionCursorSpeed = Dvar_RegisterFloat("OKPNTNOLTK", 0.60000002, 0.001, 1.0, 0, "Speed of the cursor when selecting a location on the map");
+  DVARFLT_cg_mapLocationSelectionCursorSpeedMouse = Dvar_RegisterFloat("LOKRKNNPMR", 1.15, 0.001, 2.0, 0, "Speed of the cursor when selecting a location on the map when using a MOUSE to control the cursor");
+  DVARVEC2_cg_waterSheeting_distortionScaleFactor = Dvar_RegisterVec2("NSPRORPMTN", 0.021961, 1.0, 0.0, 1.0, 0, "Distortion uv scales (Default to 1)");
+  DVARFLT_cg_waterSheeting_magnitude = Dvar_RegisterFloat("NLTSSQPSTP", 0.065538801, 0.0, 1.0, 0, "Distortion magnitude");
+  DVARFLT_cg_waterSheeting_radius = Dvar_RegisterFloat("LQNOTRPRQR", 4.4405098, 0.0, 32.0, 0, "Tweak dev var Glow radius in pixels at 640x480");
   DVARINT_cg_weaponCycleDelay = Dvar_RegisterInt("LSKRSKKMPR", 0, 0, 5000, 0, "The delay after cycling to a new weapon to prevent holding down the cycle weapon button from cycling too fast. Gamepad only. KB&M uses the gameplay option weaponSwitchCancelDelay");
   DVARBOOL_cg_velocityBasedBlur_Enable = Dvar_RegisterBool("MORLLPSLTT", 1, 0, "If true radial motion blur will be applied based on the player velocity.");
   DVARBOOL_cg_bloodLimit = Dvar_RegisterBool("NNQMQOLKQL", 0, 0, "Limit blood effects (to 'prevent excess blood stacking')");
   DVARINT_cg_bloodLimitMsec = Dvar_RegisterInt("OKLQRPOOTN", 330, 1, 2000, 0, "When limiting blood effects, number of milliseconds between effects.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_cg_voiceIconSize = Dvar_RegisterFloat("LOPNNMQSTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Size of the 'voice' icon");
+  DVARFLT_cg_voiceIconSize = Dvar_RegisterFloat("LOPNNMQSTS", 0.0, 0.0, 100.0, 0, "Size of the 'voice' icon");
   DVARBOOL_cg_descriptiveText = Dvar_RegisterBool("STLKQLMN", 1, 0, "Draw descriptive spectator messages");
   DVARBOOL_hud_enable = Dvar_RegisterBool("MSSRKLPNQM", 1, 0, "Enable hud elements");
   DVARBOOL_con_minicon = Dvar_RegisterBool("LMSLLSMONN", 0, 0, "Display the mini console on screen");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@44200000
-    vmovss  xmm3, cs:__real@c3480000; min
-    vmovss  xmm2, cs:__real@c1a00000; y
-    vmovss  xmm1, cs:__real@41a00000; x
-  }
   DVARBOOL_cg_dumpViewmodelAnims = Dvar_RegisterBool("NNPRRTSNLM", 0, 0, "Output the animation info for the viewmodel");
-  __asm { vmovss  [rsp+0A8h+flags], xmm8 }
-  v61 = Dvar_RegisterVec2("MKNSOTRSMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, 0, "[SP] Offset from top-right corner, for cg_drawFPS, etc");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@c3480000; min
-    vmovss  xmm2, cs:__real@41200000; y
-    vmovss  xmm1, cs:__real@41a00000; x
-  }
-  DVARVEC2_cg_debugInfoCornerOffsetSP = v61;
-  __asm { vmovss  [rsp+0A8h+flags], xmm8 }
-  DVARVEC2_cg_debugInfoCornerOffsetMP = Dvar_RegisterVec2("NNTTQRKSNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, 0, "[MP] Offset from top-right corner, for cg_drawFPS, etc");
+  DVARVEC2_cg_debugInfoCornerOffsetSP = Dvar_RegisterVec2("MKNSOTRSMO", 20.0, -20.0, -200.0, 640.0, 0, "[SP] Offset from top-right corner, for cg_drawFPS, etc");
+  DVARVEC2_cg_debugInfoCornerOffsetMP = Dvar_RegisterVec2("NNTTQRKSNS", 20.0, 10.0, -200.0, 640.0, 0, "[MP] Offset from top-right corner, for cg_drawFPS, etc");
   DVARBOOL_cg_drawFPSLabels = Dvar_RegisterBool("MROMLNPO", 1, 0, "Draw FPS Info Labels");
   DVARBOOL_cg_drawTransients = Dvar_RegisterBool("TNSRKQRLN", 1, 0, "Draw transient fastfile state");
   DCONST_DVARBOOL_cg_drawTransientQueue = Dvar_RegisterBool("cg_drawTransientQueue", 0, 0x40004u, "Draw transient fastfile queue status");
@@ -5876,63 +5620,20 @@ void Com_RegisterCommonDvars()
   DVARBOOL_cg_drawservercounts = Dvar_RegisterBool("RNSKRSLMR", 1, 0, "Draws various server-side counts in the top right debug text");
   DVARBOOL_cg_drawpreload = Dvar_RegisterBool("OLTRLMNTTL", 1, 0, "Draws preload information in the top right debug text");
   DVARBOOL_cg_drawteamdebuginfo = Dvar_RegisterBool("LRSMRQQNPQ", 0, 0, "Draws team debug info in the top right debug text");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@c4870000; min
-    vmovss  xmm2, cs:__real@c2b40000; y
-  }
   DVARBOOL_drawLagometer = Dvar_RegisterBool("MKTQMONRRL", 0, 0, "Enable the 'lagometer'");
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+0A8h+flags], xmm13
-  }
-  v68 = Dvar_RegisterVec2("MRSKONOSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, 0, "Lagometer screen position: (X, Y) relative to bottom right");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@42400000
-    vmovss  xmm8, cs:__real@43000000
-    vmovss  xmm2, cs:__real@42a00000; y
-  }
-  DVARVEC2_cg_lagometerPos = v68;
-  __asm
-  {
-    vmovaps xmm3, xmm6; min
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0A8h+flags], xmm8
-  }
-  DVARVEC2_cg_lagometerSize = Dvar_RegisterVec2("NLKLRNLSMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsd, 0, "Lagometer size: (Width, Height)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@c4870000; min
-    vmovss  xmm2, cs:__real@c33c0000; y
-    vmovss  xmm1, cs:__real@c3070000; x
-  }
+  DVARVEC2_cg_lagometerPos = Dvar_RegisterVec2("MRSKONOSS", 0.0, -90.0, -1080.0, 0.0, 0, "Lagometer screen position: (X, Y) relative to bottom right");
+  DVARVEC2_cg_lagometerSize = Dvar_RegisterVec2("NLKLRNLSMP", 48.0, 80.0, 48.0, 128.0, 0, "Lagometer size: (Width, Height)");
   DVARBOOL_cg_drawDeathMonitor = Dvar_RegisterBool("LLRRTRLQTS", 0, 0, "Enable the Death Monitor");
-  __asm { vmovss  [rsp+0A8h+flags], xmm13 }
-  DVARVEC2_cg_deathMonitorPos = Dvar_RegisterVec2("PQKPLNLTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagse, 0, "Death Monitor screen position: (X, Y) relative to bottom right");
-  __asm
-  {
-    vmovaps xmm3, xmm6; min
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  [rsp+0A8h+flags], xmm8
-  }
-  DVARVEC2_cg_deathMonitorSize = Dvar_RegisterVec2("NOLPMLONLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsf, 0, "Death Monitor size: (Width, Height)");
+  DVARVEC2_cg_deathMonitorPos = Dvar_RegisterVec2("PQKPLNLTS", -135.0, -188.0, -1080.0, 0.0, 0, "Death Monitor screen position: (X, Y) relative to bottom right");
+  DVARVEC2_cg_deathMonitorSize = Dvar_RegisterVec2("NOLPMLONLL", 128.0, 48.0, 48.0, 128.0, 0, "Death Monitor size: (Width, Height)");
   DVARBOOL_cg_drawClientTasks = Dvar_RegisterBool("MSPMMQLOPR", 1, 0, "Draw client task debug information");
   DCONST_DVARBOOL_cg_drawLiveStatus = Dvar_RegisterBool("cg_drawLiveStatus", 1, 0x40004u, "Draw live/online debug status on HUD");
   DVARINT_ai_corpseLimit = Dvar_RegisterInt("OMTOTLTNRP", 28, 0, 28, 0x80u, "Archived maximum number of AI corpses - for PC config files");
   DVARBOOL_cl_spawnDebug = Dvar_RegisterBool("SMMOTMSSN", 0, 0, "Turn on debug lines for spawning traces");
   DVARINT_debugOverlay = Dvar_RegisterEnum("LTKQRKKPLK", debugOverlayNames, 0, 0, "Toggles the display of various debug info.");
   DVARBOOL_debugOverlayOnly = Dvar_RegisterBool("NOLMRPOORS", 1, 0, "Toggles whether debug Overlay hides the rest of the UI.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43480000; max
-    vmovss  xmm1, cs:__real@41800000; value
-  }
   DVARBOOL_debugViewKickLog = Dvar_RegisterBool("NMKTOTKPLT", 0, 0, "Toggles the visibility for the view kick log.");
-  __asm { vmovaps xmm2, xmm12; min }
-  DVARFLT_cl_debugTextSize = Dvar_RegisterFloat("MKPKQLRQQO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Size of the texts drawn by CL_AddDebugString");
+  DVARFLT_cl_debugTextSize = Dvar_RegisterFloat("MKPKQLRQQO", 16.0, 1.0, 200.0, 0, "Size of the texts drawn by CL_AddDebugString");
   DVARSTR_con_default_console_filter = Dvar_RegisterString("MTLPRORONQ", "*", 0, "Default channel filter for the console destination.");
   DVARSTR_con_default_file_filter = Dvar_RegisterString("LOLQRTQQQP", "*", 0, "Default channel filter for the file destination.");
   DVARBOOL_com_disableSaving = Dvar_RegisterBool("OSLONKRPP", 0, 0, "DPS ONLY: Turn off SP saving to remove hitch for video recording");
@@ -5946,23 +5647,9 @@ void Com_RegisterCommonDvars()
   com_dedicated_dhclient = Dvar_RegisterBool("MMQRPRONNQ", 0, 0, "True if we're a client playing on a DH server");
   fastfile_loadDevelopment = Dvar_RegisterBool("NKRTLQQTOL", 1, 0x800u, "Enable/Disable loading of the development fast file.");
   com_statmon = Dvar_RegisterBool("NQKOQPQOLN", 0, 0, "Draw stats monitor");
-  __asm { vmovss  xmm6, cs:__real@447a0000 }
   com_statmon_demo = Dvar_RegisterBool("NLNKLORSKT", 1, 0, "Draw stats monitor, high-priority subset. (defaults to on in demo builds)");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm10; min
-    vmovaps xmm1, xmm12; value
-  }
-  v87 = Dvar_RegisterFloat("LNOTRKNRPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x2044u, "[SP] Scale time of each frame");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm10; min
-    vmovaps xmm1, xmm12; value
-  }
-  com_timescale = v87;
-  dev_timescale = Dvar_RegisterFloat("MSNTNLNQNM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "[SP] Scale time of each frame");
+  com_timescale = Dvar_RegisterFloat("LNOTRKNRPS", 1.0, 0.001, 1000.0, 0x2044u, "[SP] Scale time of each frame");
+  dev_timescale = Dvar_RegisterFloat("MSNTNLNQNM", 1.0, 0.001, 1000.0, 4u, "[SP] Scale time of each frame");
   com_fixedtime = Dvar_RegisterInt("LTNTMTOKNS", 0, 0, 1000, 4u, "Use a fixed time rate for each frame");
   com_maxFrameTime = Dvar_RegisterInt("NRLMOOSKLL", 100, 50, 5000, 0, "Time slows down if a frame takes longer than this many milliseconds");
   cl_pregame = Dvar_RegisterBool("NLONRMOLKS", 0, 0, "Client is still watching the load movie");
@@ -5972,14 +5659,8 @@ void Com_RegisterCommonDvars()
   intro = Dvar_RegisterBool("intro", 1, 0, "Intro movie should play");
   com_animCheck = Dvar_RegisterBool("MQQLPMTMLK", 0, 0, "Check anim tree");
   com_wideScreen = Dvar_RegisterBool("TQQKORSSM", 1, 0x2000u, "True if the game video is running in 16x9 aspect, false if 4x3.");
-  __asm { vmovss  xmm3, cs:__real@461c4000; max }
   com_cinematicEndInWhite = Dvar_RegisterBool("LTTPKKMLTL", 0, 0x40u, "Set by script. True if cinematic ends with a white screen.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm12; value
-  }
-  com_cinematicHDRIntensityScale = Dvar_RegisterFloat("LMRRRMSPOT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Scales HDR cinematic video output in linear BT2020 space.");
+  com_cinematicHDRIntensityScale = Dvar_RegisterFloat("LMRRRMSPOT", 1.0, 0.0, 10000.0, 0x40u, "Scales HDR cinematic video output in linear BT2020 space.");
   com_cinematicGPUDecoding = Dvar_RegisterBool("MMLSRTLNMN", 1, 0, "Decode videos via GPU compute.");
   com_cinematicForceName = Dvar_RegisterString("MMKRTTKNRK", (const char *)&queryFormat.fmt + 3, 0, "Cinematic override video with the given name, for debugging");
   com_cinematicForceStartOffsetMSec = Dvar_RegisterInt("MRPSKOMNMS", -1, -1, 1000000, 0, "Cinematic override video with the given start offset in msec, or -1 for no override");
@@ -6005,45 +5686,12 @@ void Com_RegisterCommonDvars()
   band_12players = Dvar_RegisterInt("NLTNMSLPQK", 2048000, 0, 0x7FFFFFFF, 0, "12 player bandwidth req'd");
   band_18players = Dvar_RegisterInt("MOMKQPOKTK", 2048000, 0, 0x7FFFFFFF, 0, "18 player bandwidth req'd");
   band_24players = Dvar_RegisterInt("MRSOOPTLQP", 2048000, 0, 0x7FFFFFFF, 0, "24 player bandwidth req'd");
-  __asm { vmovss  xmm1, cs:__real@40b66666; value }
   band_lotsplayers = Dvar_RegisterInt("MSNRMNLRQR", 49152000, 0, 0x7FFFFFFF, 0, ">24 player bandwidth req'd");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v97 = Dvar_RegisterFloat("MQNQRQTPMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "8 player sys_configureGHz req'd");
-  __asm { vmovss  xmm1, cs:__real@40c00000; value }
-  cpu_speed_8players = v97;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  cpu_speed_12players = Dvar_RegisterFloat("OKMQNKSOSN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "12 player sys_configureGHz req'd");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41100000; value
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v104 = Dvar_RegisterFloat("MPPKKRNSOL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "18 player sys_configureGHz req'd");
-  __asm { vmovss  xmm1, cs:__real@41400000; value }
-  cpu_speed_18players = v104;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v108 = Dvar_RegisterFloat("MMSTQSKTLK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "24 player sys_configureGHz req'd");
-  __asm { vmovss  xmm1, cs:__real@41700000; value }
-  cpu_speed_24players = v108;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  cpu_speed_lotsplayers = Dvar_RegisterFloat("NKKMTRNNMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, ">24 player sys_configureGHz req'd");
+  cpu_speed_8players = Dvar_RegisterFloat("MQNQRQTPMS", 5.6999998, 0.0, 1000.0, 0, "8 player sys_configureGHz req'd");
+  cpu_speed_12players = Dvar_RegisterFloat("OKMQNKSOSN", 6.0, 0.0, 1000.0, 0, "12 player sys_configureGHz req'd");
+  cpu_speed_18players = Dvar_RegisterFloat("MPPKKRNSOL", 9.0, 0.0, 1000.0, 0, "18 player sys_configureGHz req'd");
+  cpu_speed_24players = Dvar_RegisterFloat("MMSTQSKTLK", 12.0, 0.0, 1000.0, 0, "24 player sys_configureGHz req'd");
+  cpu_speed_lotsplayers = Dvar_RegisterFloat("NKKMTRNNMO", 15.0, 0.0, 1000.0, 0, ">24 player sys_configureGHz req'd");
   Migration_InitDvars();
   accessToSubscriberContent = Dvar_RegisterBool("MRLNKSOOKL", 1, 0, "Whether to display the subscriber maps.");
   cl_modifiedDebugPlacement = Dvar_RegisterBool("LKQLMOSOKO", 0, 0, "Modify the location of debug output (outside of safe area)");
@@ -6054,25 +5702,11 @@ void Com_RegisterCommonDvars()
   com_testmonkey = Dvar_RegisterInt("TQPKQLSRQ", 0, 0, 2, 0, "Indicate if we are running under testmonkey mode (deterministic and fixed)");
   com_cheats = Dvar_RegisterBool("NTPNRQTKNP", 1, 0x1800u, "Enable server cheats");
   com_disableGodMode = Dvar_RegisterBool("LSRTOMTOTQ", 0, 0x1800u, "Disable godmode cheats");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@bf800000
-    vmovss  xmm3, cs:__real@432a0000; max
-    vmovss  xmm1, cs:__real@42820000; value
-  }
   cl_forceFoVEnabled = Dvar_RegisterBool("LLPRRPKTRO", 0, 4u, "Force a modified FoV calculation for capture");
-  __asm { vmovaps xmm2, xmm7; min }
-  v116 = Dvar_RegisterFloat("NRPLKPTKSR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Force the X FoV - auto calculate it from aspect ratio and Y FoV if less than 1");
-  __asm { vmovss  xmm3, cs:__real@432a0000; max }
-  cl_forceFoVx = v116;
-  __asm
-  {
-    vmovaps xmm2, xmm7; min
-    vmovaps xmm1, xmm7; value
-  }
-  cl_forceFoVy = Dvar_RegisterFloat("LQRSONTQPO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Force the Y FoV - auto calculate it from aspect ratio and X FoV if less than 1");
-  v120 = Sys_FileExists("dev_move_files.cfg");
-  dev_move_files = Dvar_RegisterBool("MQMQKSKLNS", v120, 0, "Dev_Move_Files: Debug option to enable/disable moving *.ff to *.ffm and *.pak to *.pakm before opening");
+  cl_forceFoVx = Dvar_RegisterFloat("NRPLKPTKSR", 65.0, -1.0, 170.0, 4u, "Force the X FoV - auto calculate it from aspect ratio and Y FoV if less than 1");
+  cl_forceFoVy = Dvar_RegisterFloat("LQRSONTQPO", -1.0, -1.0, 170.0, 4u, "Force the Y FoV - auto calculate it from aspect ratio and X FoV if less than 1");
+  v0 = Sys_FileExists("dev_move_files.cfg");
+  dev_move_files = Dvar_RegisterBool("MQMQKSKLNS", v0, 0, "Dev_Move_Files: Debug option to enable/disable moving *.ff to *.ffm and *.pak to *.pakm before opening");
   cl_waterMarkEnabled = Dvar_RegisterBool("LRKNROSQPM", 0, 0, "Do not Distribute.");
   cl_waterMarkText = Dvar_RegisterString("MQQPKKTSNQ", "Company 3", 0, "Do not Distribute.");
   Com_CSpline_RegisterDvars();
@@ -6083,16 +5717,6 @@ void Com_RegisterCommonDvars()
   Cloth_SetupBootDvars();
   ATClient_RegisterDvars();
   CL_Cameraman_Dvars();
-  _R11 = &v135;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm12, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-60h]
-  }
   Dvar_EndPermanentRegistration();
 }
 
@@ -6101,17 +5725,12 @@ void Com_RegisterCommonDvars()
 Com_ResetFrametime
 ==============
 */
-
-void __fastcall Com_ResetFrametime(double _XMM0_8)
+void Com_ResetFrametime(void)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   com_frameTime = Sys_Milliseconds();
-  __asm
-  {
-    vmovss  cs:com_lastFrameTime_base, xmm0
-    vmovss  cs:com_lastFrameTime_base+4, xmm0
-    vmovss  cs:com_lastFrameTime_base+8, xmm0
-  }
+  com_lastFrameTime_base[0] = 0.0;
+  com_lastFrameTime_base[1] = 0.0;
+  com_lastFrameTime_base[2] = 0.0;
   *(_QWORD *)com_lastFrameTime = 0i64;
   com_lastFrameTime[2] = 0;
 }
@@ -6123,11 +5742,7 @@ Com_ResetSlowMotion
 */
 void Com_ResetSlowMotion(void)
 {
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale, xmm0; SlowMotionCommon g_slowmoCommon
-  }
+  g_slowmoCommon.viewTimescale = FLOAT_1_0;
   g_slowmoCommon.enable = 0;
   g_slowmoCommon.viewEnable = 0;
 }
@@ -6162,16 +5777,15 @@ void Com_Restart_Internal(bool isFrontEnd)
   SvGameModeApplication *ActiveServerApplication; 
   scrContext_t *i; 
   scrContext_t *j; 
-  __int64 v9; 
+  __int64 v5; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
   Com_SyncThreads();
   if ( ((unsigned __int8)&g_serverThreadOwnership & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
   {
-    LODWORD(v9) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 10283, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v9) )
+    LODWORD(v5) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 10283, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v5) )
       __debugbreak();
   }
   if ( !isFrontEnd )
@@ -6230,24 +5844,18 @@ void Com_Restart_Internal(bool isFrontEnd)
   XAnimNullNode_Register();
   DObjInit();
   Com_InitDObj();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm0, xmm6; timescale
-  }
-  Com_SetCodeTimeScale(*(const float *)&_XMM0);
+  Com_SetCodeTimeScale(1.0);
   g_slowmoCommon.enable = 0;
   g_slowmoCommon.viewEnable = 0;
-  __asm { vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale, xmm6; SlowMotionCommon g_slowmoCommon }
+  g_slowmoCommon.viewTimescale = FLOAT_1_0;
   if ( ((unsigned __int64)&g_serverThreadOwnership & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
   {
-    LODWORD(v9) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 10375, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v9) )
+    LODWORD(v5) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 10375, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v5) )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*
@@ -6497,66 +6105,36 @@ LABEL_19:
 Com_SetSlowMotion
 ==============
 */
-
-void __fastcall Com_SetSlowMotion(double startTimescale, double endTimescale, const int deltaMsec)
+void Com_SetSlowMotion(const float startTimescale, const float endTimescale, const int deltaMsec)
 {
-  __asm
+  double CodeTimeScale; 
+  float v6; 
+
+  if ( endTimescale == startTimescale )
   {
-    vucomiss xmm1, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm0
-    vmovaps xmm6, xmm1
+    Com_SetCodeTimeScale(endTimescale);
+    g_slowmoCommon.viewTimescale = endTimescale;
+    g_slowmoCommon.enable = 0;
+    g_slowmoCommon.viewEnable = 0;
   }
-  Com_GetCodeTimeScale();
-  __asm
+  else
   {
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm2, xmm6, xmm7
-    vdivss  xmm4, xmm1, xmm2
-    vsubss  xmm2, xmm7, xmm0
-    vsubss  xmm0, xmm6, xmm0
-    vxorps  xmm5, xmm5, xmm5
-    vcvtsi2ss xmm5, xmm5, ebx
-    vmulss  xmm3, xmm2, xmm5
-    vmulss  xmm1, xmm3, xmm4
-    vcvttss2si r8d, xmm1
-    vmulss  xmm1, xmm0, xmm5
-    vsubss  xmm0, xmm7, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale; SlowMotionCommon g_slowmoCommon
-    vmulss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm0, xmm5
-    vsubss  xmm0, xmm6, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale; SlowMotionCommon g_slowmoCommon
-    vcvttss2si ecx, xmm2
-    vmulss  xmm2, xmm1, xmm4
-    vcvttss2si eax, xmm2
-  }
-  g_slowmoCommon.type = 0;
-  g_slowmoCommon.viewStartMsec = com_frameTime + _EAX;
-  g_slowmoCommon.startMsec = com_frameTime + _ER8;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm5
-    vmulss  xmm2, xmm1, xmm4
-    vcvttss2si eax, xmm2
-  }
-  g_slowmoCommon.endMsec = com_frameTime + _ECX;
-  g_slowmoCommon.enable = 1;
-  __asm
-  {
-    vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.startTimescale, xmm7; SlowMotionCommon g_slowmoCommon
-    vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.endTimescale, xmm6; SlowMotionCommon g_slowmoCommon
-    vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewStartTimescale, xmm7; SlowMotionCommon g_slowmoCommon
-    vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewEndTimescale, xmm6; SlowMotionCommon g_slowmoCommon
-  }
-  g_slowmoCommon.viewType = 0;
-  g_slowmoCommon.viewEndMsec = com_frameTime + _EAX;
-  g_slowmoCommon.viewEnable = 1;
-  if ( (int)(com_frameTime + _ECX - (com_frameTime + _ER8)) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8499, ASSERT_TYPE_ASSERT, "(g_slowmoCommon.endMsec - g_slowmoCommon.startMsec >= 0)", (const char *)&queryFormat, "g_slowmoCommon.endMsec - g_slowmoCommon.startMsec >= 0") )
-    __debugbreak();
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
+    CodeTimeScale = Com_GetCodeTimeScale();
+    v6 = 1.0 / (float)(endTimescale - startTimescale);
+    g_slowmoCommon.type = 0;
+    g_slowmoCommon.viewStartMsec = com_frameTime + (int)(float)((float)((float)(startTimescale - g_slowmoCommon.viewTimescale) * (float)deltaMsec) * v6);
+    g_slowmoCommon.startMsec = com_frameTime + (int)(float)((float)((float)(startTimescale - *(float *)&CodeTimeScale) * (float)deltaMsec) * v6);
+    g_slowmoCommon.endMsec = com_frameTime + (int)(float)((float)((float)(endTimescale - *(float *)&CodeTimeScale) * (float)deltaMsec) * v6);
+    g_slowmoCommon.enable = 1;
+    g_slowmoCommon.startTimescale = startTimescale;
+    g_slowmoCommon.endTimescale = endTimescale;
+    g_slowmoCommon.viewStartTimescale = startTimescale;
+    g_slowmoCommon.viewEndTimescale = endTimescale;
+    g_slowmoCommon.viewType = 0;
+    g_slowmoCommon.viewEndMsec = com_frameTime + (int)(float)((float)((float)(endTimescale - g_slowmoCommon.viewTimescale) * (float)deltaMsec) * v6);
+    g_slowmoCommon.viewEnable = 1;
+    if ( g_slowmoCommon.endMsec - g_slowmoCommon.startMsec < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8499, ASSERT_TYPE_ASSERT, "(g_slowmoCommon.endMsec - g_slowmoCommon.startMsec >= 0)", (const char *)&queryFormat, "g_slowmoCommon.endMsec - g_slowmoCommon.startMsec >= 0") )
+      __debugbreak();
   }
 }
 
@@ -6658,16 +6236,20 @@ Com_SmoothFrameTime
 */
 void Com_SmoothFrameTime(const int lastFrameIndex, const int minMsec, int *msec, float *sec)
 {
+  __int64 v4; 
   const dvar_t *v8; 
   int v9; 
+  int v10; 
   int v11; 
   int v12; 
   int v13; 
   int v14; 
-  int v15; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
 
-  _RSI = lastFrameIndex;
-  _R14 = sec;
+  v4 = lastFrameIndex;
   *msec = SV_ClientFrameRateFix(*msec);
   v8 = DVARBOOL_com_smoothFrames;
   if ( !DVARBOOL_com_smoothFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_smoothFrames") )
@@ -6676,66 +6258,45 @@ void Com_SmoothFrameTime(const int lastFrameIndex, const int minMsec, int *msec,
   if ( v8->current.enabled )
   {
     v9 = *msec;
-    _R11 = 0x140000000ui64;
     if ( *msec > 40 )
     {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3d23d70b
-        vaddss  xmm1, xmm2, cs:com_lastFrameTime_base
-      }
       com_lastFrameTime[0] += 40;
       com_lastFrameTime[1] += 40;
       com_lastFrameTime[2] += 40;
-      __asm
-      {
-        vmovss  cs:com_lastFrameTime_base, xmm1
-        vaddss  xmm1, xmm2, cs:com_lastFrameTime_base+4
-        vmovss  cs:com_lastFrameTime_base+4, xmm1
-        vaddss  xmm1, xmm2, cs:com_lastFrameTime_base+8
-        vmovss  cs:com_lastFrameTime_base+8, xmm1
-      }
-      com_lastFrameTime_base[_RSI] = 0.0;
-      com_lastFrameTime[_RSI] = 0;
+      com_lastFrameTime_base[0] = com_lastFrameTime_base[0] + 0.040000003;
+      com_lastFrameTime_base[1] = com_lastFrameTime_base[1] + 0.040000003;
+      com_lastFrameTime_base[2] = com_lastFrameTime_base[2] + 0.040000003;
+      com_lastFrameTime_base[v4] = 0.0;
+      com_lastFrameTime[v4] = 0;
     }
     else
     {
-      v11 = minMsec;
-      v12 = v9 + com_lastFrameTime[0];
-      v13 = v9 + com_lastFrameTime[1];
-      v14 = v9 + com_lastFrameTime[2];
+      v10 = minMsec;
+      v11 = v9 + com_lastFrameTime[0];
+      v12 = v9 + com_lastFrameTime[1];
+      v13 = v9 + com_lastFrameTime[2];
       com_lastFrameTime[1] += v9;
       com_lastFrameTime[2] += v9;
       com_lastFrameTime[0] += v9;
-      if ( com_lastFrameTime[_RSI] > minMsec )
-        v11 = com_lastFrameTime[_RSI];
-      com_lastFrameTime[_RSI] = 2 * (v12 + v14 + v13 - 2 * v11) / 6;
-      v15 = (v11 + (int)_RSI) / 3;
-      if ( !v15 )
-        v15 = 1;
-      *msec = v15;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14]
-        vaddss  xmm3, xmm1, cs:com_lastFrameTime_base
-        vaddss  xmm2, xmm1, cs:com_lastFrameTime_base+4
-        vaddss  xmm1, xmm1, cs:com_lastFrameTime_base+8
-        vmovss  cs:com_lastFrameTime_base+8, xmm1
-        vaddss  xmm0, xmm3, xmm2
-        vmovss  cs:com_lastFrameTime_base+4, xmm2
-        vmovss  cs:com_lastFrameTime_base, xmm3
-        vaddss  xmm3, xmm0, xmm1
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebp
-        vmulss  xmm2, xmm1, cs:__real@3a83126f
-        vmaxss  xmm5, xmm2, rva com_lastFrameTime_base[r11+rsi*4]
-        vmulss  xmm0, xmm5, cs:__real@3f2aaaab
-        vmulss  xmm1, xmm3, cs:__real@3eaaaaab
-        vmulss  xmm2, xmm5, cs:__real@3eaaaaab
-        vsubss  xmm1, xmm1, xmm0
-        vmovss  rva com_lastFrameTime_base[r11+rsi*4], xmm1
-        vmovss  dword ptr [r14], xmm2
-      }
+      if ( com_lastFrameTime[v4] > minMsec )
+        v10 = com_lastFrameTime[v4];
+      com_lastFrameTime[v4] = 2 * (v11 + v13 + v12 - 2 * v10) / 6;
+      v14 = (v10 + (int)v4) / 3;
+      if ( !v14 )
+        v14 = 1;
+      *msec = v14;
+      v15 = *sec;
+      com_lastFrameTime_base[2] = *sec + com_lastFrameTime_base[2];
+      v16 = (float)(v15 + com_lastFrameTime_base[0]) + (float)(v15 + com_lastFrameTime_base[1]);
+      com_lastFrameTime_base[1] = v15 + com_lastFrameTime_base[1];
+      com_lastFrameTime_base[0] = v15 + com_lastFrameTime_base[0];
+      v17 = v16 + com_lastFrameTime_base[2];
+      v18 = 0i64;
+      *(float *)&v18 = (float)minMsec * 0.001;
+      _XMM2 = v18;
+      __asm { vmaxss  xmm5, xmm2, rva com_lastFrameTime_base[r11+rsi*4] }
+      com_lastFrameTime_base[v4] = (float)(v17 * 0.33333334) - (float)(*(float *)&_XMM5 * 0.66666669);
+      *sec = *(float *)&_XMM5 * 0.33333334;
     }
   }
 }
@@ -7125,176 +6686,124 @@ Com_TimeScaleMsec
 */
 __int64 Com_TimeScaleMsec(int msec)
 {
-  bool v5; 
-  bool v20; 
-  bool v22; 
-  bool v23; 
+  int v1; 
+  bool v3; 
+  float value; 
+  double CodeTimeScale; 
+  bool v6; 
+  float endTimescale; 
+  float v8; 
+  double TimeScale; 
+  float v10; 
+  double v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  int integer; 
+  float v18; 
+  float v19; 
   __int64 result; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  v5 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND);
-  if ( v5 )
+  v1 = msec;
+  v3 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND);
+  if ( v3 )
   {
     if ( !com_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8523, ASSERT_TYPE_ASSERT, "(com_timescale)", (const char *)&queryFormat, "com_timescale") )
       __debugbreak();
-    _RAX = com_timescale;
-    __asm { vmovss  xmm6, dword ptr [rax+28h] }
+    value = com_timescale->current.value;
   }
   else
   {
-    *(double *)&_XMM0 = Com_GetCodeTimeScale();
-    __asm { vmovaps xmm6, xmm0 }
+    CodeTimeScale = Com_GetCodeTimeScale();
+    value = *(float *)&CodeTimeScale;
   }
   if ( g_slowmoCommon.enable )
   {
     if ( g_slowmoCommon.type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8533, ASSERT_TYPE_ASSERT, "(g_slowmoCommon.type == SLOW_MOTION_LINEAR)", (const char *)&queryFormat, "g_slowmoCommon.type == SLOW_MOTION_LINEAR") )
       __debugbreak();
-    __asm { vmovss  xmm3, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.endTimescale; SlowMotionCommon g_slowmoCommon }
     if ( g_slowmoCommon.endMsec != g_slowmoCommon.startMsec )
     {
-      __asm
-      {
-        vmovss  xmm4, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.startTimescale; SlowMotionCommon g_slowmoCommon
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vsubss  xmm1, xmm3, xmm4
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm4, xmm3
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm2, xmm0
-        vaddss  xmm0, xmm6, xmm1
-      }
-      if ( g_slowmoCommon.endMsec >= (unsigned int)g_slowmoCommon.startMsec )
+      v6 = g_slowmoCommon.startTimescale <= g_slowmoCommon.endTimescale;
+      v8 = value + (float)((float)((float)(g_slowmoCommon.endTimescale - g_slowmoCommon.startTimescale) * (float)v1) / (float)(g_slowmoCommon.endMsec - g_slowmoCommon.startMsec));
+      endTimescale = v8;
+      if ( g_slowmoCommon.startTimescale >= g_slowmoCommon.endTimescale )
         goto LABEL_15;
-      __asm { vcomiss xmm0, xmm3 }
-      if ( g_slowmoCommon.endMsec < (unsigned int)g_slowmoCommon.startMsec )
+      if ( v8 < g_slowmoCommon.endTimescale )
       {
-        __asm { vcomiss xmm4, xmm3 }
+        v6 = g_slowmoCommon.startTimescale <= g_slowmoCommon.endTimescale;
 LABEL_15:
-        if ( g_slowmoCommon.endMsec <= (unsigned int)g_slowmoCommon.startMsec )
-          goto LABEL_47;
-        __asm { vcomiss xmm0, xmm3 }
-        if ( g_slowmoCommon.endMsec > (unsigned int)g_slowmoCommon.startMsec )
-        {
-LABEL_47:
-          __asm { vucomiss xmm4, xmm3 }
-          if ( g_slowmoCommon.endMsec != g_slowmoCommon.startMsec )
-            goto LABEL_19;
-        }
+        if ( (v6 || v8 > g_slowmoCommon.endTimescale) && g_slowmoCommon.startTimescale != g_slowmoCommon.endTimescale )
+          goto LABEL_19;
       }
     }
-    __asm { vmovaps xmm0, xmm3; timescale }
+    endTimescale = g_slowmoCommon.endTimescale;
     g_slowmoCommon.enable = 0;
 LABEL_19:
-    if ( v5 )
-    {
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(com_timescale, *(float *)&_XMM1);
-    }
+    if ( v3 )
+      Dvar_SetFloat_Internal(com_timescale, endTimescale);
     else
-    {
-      Com_SetCodeTimeScale(*(const float *)&_XMM0);
-    }
+      Com_SetCodeTimeScale(endTimescale);
   }
-  *(double *)&_XMM0 = SV_Demo_GetTimeScale();
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Com_GetCodeTimeScale();
-  __asm { vmovaps xmm7, xmm0 }
-  v20 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND);
-  v22 = !v20;
-  if ( v20 )
+  TimeScale = SV_Demo_GetTimeScale();
+  v10 = *(float *)&TimeScale;
+  v11 = Com_GetCodeTimeScale();
+  v12 = *(float *)&v11;
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND) )
   {
     if ( !com_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8583, ASSERT_TYPE_ASSERT, "(com_timescale)", (const char *)&queryFormat, "com_timescale") )
       __debugbreak();
-    v22 = dev_timescale == NULL;
-    if ( !dev_timescale )
-    {
-      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8584, ASSERT_TYPE_ASSERT, "(dev_timescale)", (const char *)&queryFormat, "dev_timescale");
-      v22 = !v23;
-      if ( v23 )
-        __debugbreak();
-    }
-    _RAX = com_timescale;
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vmovss  xmm0, dword ptr [rax+28h]
-      vucomiss xmm0, xmm2
-    }
-    _RAX = dev_timescale;
-    __asm { vmovss  xmm1, dword ptr [rax+28h] }
-    if ( !v22 )
+    if ( !dev_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8584, ASSERT_TYPE_ASSERT, "(dev_timescale)", (const char *)&queryFormat, "dev_timescale") )
+      __debugbreak();
+    v13 = FLOAT_1_0;
+    v14 = com_timescale->current.value;
+    v15 = dev_timescale->current.value;
+    if ( v14 != 1.0 )
       goto LABEL_30;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vmovaps xmm0, xmm2
-      vmovaps xmm1, xmm2
-    }
+    v13 = FLOAT_1_0;
+    v14 = FLOAT_1_0;
+    v15 = FLOAT_1_0;
   }
-  __asm { vucomiss xmm7, xmm2 }
-  if ( !v22 )
-    goto LABEL_30;
-  __asm { vucomiss xmm1, xmm2 }
-  if ( !v22 )
-    goto LABEL_30;
-  __asm { vucomiss xmm6, xmm2 }
-  if ( !v22 )
+  if ( v12 != v13 || v15 != v13 || v10 != v13 )
   {
 LABEL_30:
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm7
-      vmulss  xmm1, xmm0, xmm1
-      vmulss  xmm3, xmm1, xmm6
-    }
+    v16 = (float)((float)(v14 * v12) * v15) * v10;
     goto LABEL_31;
   }
-  __asm { vmovaps xmm3, xmm2 }
+  v16 = v13;
 LABEL_31:
-  if ( com_fixedtime->current.integer )
+  integer = com_fixedtime->current.integer;
+  if ( integer )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ecx
-      vcvtsi2ss xmm0, xmm0, esi
-      vdivss  xmm3, xmm1, xmm0
-    }
-    msec = com_fixedtime->current.integer;
+    v16 = (float)integer / (float)msec;
+    v1 = com_fixedtime->current.integer;
   }
   else
   {
-    __asm
+    if ( v16 != v13 )
     {
-      vucomiss xmm3, xmm2
-      vmovaps xmm3, xmm2
+      v18 = (float)((float)v1 * v16) + g_acculMsec;
+      v1 = (int)v18;
+      v19 = v18 - (float)(int)v18;
+      goto LABEL_42;
     }
+    v16 = v13;
   }
-  __asm
-  {
-    vxorps  xmm4, xmm4, xmm4
-    vmovss  cs:?com_timescaleValue@@3MA, xmm3; float com_timescaleValue
-  }
-  if ( msec < 1 )
-    msec = 1;
-  __asm { vmovss  cs:g_acculMsec, xmm4 }
-  if ( !com_testmonkey || (result = 16i64, !com_testmonkey->current.integer) )
-    result = (unsigned int)msec;
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
+  v19 = 0.0;
+LABEL_42:
+  com_timescaleValue = v16;
+  if ( v1 < 1 )
+    v1 = 1;
+  g_acculMsec = v19;
+  if ( !com_testmonkey )
+    return (unsigned int)v1;
+  result = 16i64;
+  if ( !com_testmonkey->current.integer )
+    return (unsigned int)v1;
   return result;
 }
 
@@ -7305,66 +6814,60 @@ Com_UpdateAllGamePadCheats
 */
 void Com_UpdateAllGamePadCheats(LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
   int *p_buttonTimer; 
-  __int64 v5; 
-  int *v7; 
-  _BYTE *v8; 
+  __int64 v3; 
+  int *v4; 
+  _BYTE *v5; 
   int ControllerFromClient; 
-  GamePadButton *v10; 
-  int v11; 
-  char v12; 
-  __int64 v13; 
-  void (*v14)(void); 
-  _BYTE *v15; 
-  unsigned __int64 v16; 
-  int v17; 
+  GamePadButton *v7; 
+  int v8; 
+  double Button; 
+  __int64 v10; 
+  void (*v11)(void); 
+  _BYTE *v12; 
+  unsigned __int64 v13; 
+  int v14; 
   int cmdsize; 
-  int v19; 
+  int v16; 
   __int64 i; 
-  const char *v21; 
+  const char *v18; 
 
-  v3 = localClientNum;
+  v1 = localClientNum;
   if ( CL_Mgr_GetMode() == CLIENT_MANAGER_MODE_ONE_CLIENT )
   {
     p_buttonTimer = &com_gamePadCheats[0].buttonTimer;
-    v5 = 3i64;
-    __asm
-    {
-      vmovaps [rsp+68h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
+    v3 = 3i64;
     do
     {
-      v7 = p_buttonTimer - 20;
+      v4 = p_buttonTimer - 20;
       if ( *(p_buttonTimer - 20) )
       {
         if ( p_buttonTimer == (int *)80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 3926, ASSERT_TYPE_ASSERT, "(cheat)", (const char *)&queryFormat, "cheat") )
           __debugbreak();
         if ( (*((_QWORD *)p_buttonTimer - 4) || *((_QWORD *)p_buttonTimer - 3)) && (!*((_BYTE *)p_buttonTimer + 8) || *((_BYTE *)p_buttonTimer + 8) == (unsigned __int8)Com_GameMode_GetActiveGameMode()) )
         {
-          v8 = (_BYTE *)*((_QWORD *)p_buttonTimer - 2);
-          if ( !v8 || !*v8 || LUI_CoD_InFrontend() && LUI_IsMenuOpenAndVisible((LocalClientNum_t)v3, *((const char **)p_buttonTimer - 2)) )
+          v5 = (_BYTE *)*((_QWORD *)p_buttonTimer - 2);
+          if ( !v5 || !*v5 || LUI_CoD_InFrontend() && LUI_IsMenuOpenAndVisible((LocalClientNum_t)v1, *((const char **)p_buttonTimer - 2)) )
           {
             if ( CL_Mgr_GetMode() != CLIENT_MANAGER_MODE_ONE_CLIENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 3945, ASSERT_TYPE_ASSERT, "(CL_Mgr_GetMode() == CLIENT_MANAGER_MODE_ONE_CLIENT)", (const char *)&queryFormat, "CL_Mgr_GetMode() == CLIENT_MANAGER_MODE_ONE_CLIENT") )
               __debugbreak();
-            ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
-            v10 = (GamePadButton *)(p_buttonTimer - 10);
-            v11 = 0;
+            ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+            v7 = (GamePadButton *)(p_buttonTimer - 10);
+            v8 = 0;
             while ( 1 )
             {
-              if ( *v10 )
+              if ( *v7 )
               {
-                *(double *)&_XMM0 = GPad_GetButton(ControllerFromClient, *v10);
-                __asm { vucomiss xmm0, xmm6 }
-                if ( v12 )
+                Button = GPad_GetButton(ControllerFromClient, *v7);
+                if ( *(float *)&Button == 0.0 )
                   break;
               }
-              ++v11;
-              ++v10;
-              if ( v11 >= 2 )
+              ++v8;
+              ++v7;
+              if ( v8 >= 2 )
               {
-                if ( !GPad_IsButtonPressed(ControllerFromClient, (GamePadButton)v7[p_buttonTimer[1]]) || (v13 = p_buttonTimer[1], *p_buttonTimer = 0, p_buttonTimer[1] = v13 + 1, (int)v13 + 1 < 10) && v7[v13 + 1] )
+                if ( !GPad_IsButtonPressed(ControllerFromClient, (GamePadButton)v4[p_buttonTimer[1]]) || (v10 = p_buttonTimer[1], *p_buttonTimer = 0, p_buttonTimer[1] = v10 + 1, (int)v10 + 1 < 10) && v4[v10 + 1] )
                 {
                   *p_buttonTimer += cls.frametime;
                   if ( *p_buttonTimer > 400 )
@@ -7372,28 +6875,28 @@ void Com_UpdateAllGamePadCheats(LocalClientNum_t localClientNum)
                 }
                 else
                 {
-                  v14 = (void (*)(void))*((_QWORD *)v7 + 6);
+                  v11 = (void (*)(void))*((_QWORD *)v4 + 6);
                   p_buttonTimer[1] = 0;
-                  if ( v14 )
-                    v14();
-                  v15 = (_BYTE *)*((_QWORD *)v7 + 7);
-                  if ( v15 )
+                  if ( v11 )
+                    v11();
+                  v12 = (_BYTE *)*((_QWORD *)v4 + 7);
+                  if ( v12 )
                   {
                     Sys_EnterCriticalSection(CRITSECT_CBUF);
-                    v16 = -1i64;
+                    v13 = -1i64;
                     do
-                      ++v16;
-                    while ( v15[v16] );
-                    v17 = truncate_cast<int,unsigned __int64>(v16);
-                    cmdsize = s_cmd_textArray[v3].cmdsize;
-                    v19 = v17 + 1;
-                    if ( cmdsize + v17 + 1 <= s_cmd_textArray[v3].maxsize )
+                      ++v13;
+                    while ( v12[v13] );
+                    v14 = truncate_cast<int,unsigned __int64>(v13);
+                    cmdsize = s_cmd_textArray[v1].cmdsize;
+                    v16 = v14 + 1;
+                    if ( cmdsize + v14 + 1 <= s_cmd_textArray[v1].maxsize )
                     {
                       for ( i = cmdsize - 1; i >= 0; --i )
-                        s_cmd_textArray[v3].data[v19 + i] = s_cmd_textArray[v3].data[i];
-                      memcpy_0(s_cmd_textArray[v3].data, v15, v17);
-                      s_cmd_textArray[v3].data[v19 - 1] = 10;
-                      s_cmd_textArray[v3].cmdsize += v19;
+                        s_cmd_textArray[v1].data[v16 + i] = s_cmd_textArray[v1].data[i];
+                      memcpy_0(s_cmd_textArray[v1].data, v12, v14);
+                      s_cmd_textArray[v1].data[v16 - 1] = 10;
+                      s_cmd_textArray[v1].cmdsize += v16;
                     }
                     else
                     {
@@ -7401,9 +6904,9 @@ void Com_UpdateAllGamePadCheats(LocalClientNum_t localClientNum)
                     }
                     Sys_LeaveCriticalSection(CRITSECT_CBUF);
                   }
-                  v21 = (const char *)*((_QWORD *)p_buttonTimer - 1);
-                  if ( v21 )
-                    SND_PlayLocalSoundAliasAsync((LocalClientNum_t)v3, v21, SASYS_UI);
+                  v18 = (const char *)*((_QWORD *)p_buttonTimer - 1);
+                  if ( v18 )
+                    SND_PlayLocalSoundAliasAsync((LocalClientNum_t)v1, v18, SASYS_UI);
                 }
                 goto LABEL_41;
               }
@@ -7414,10 +6917,9 @@ void Com_UpdateAllGamePadCheats(LocalClientNum_t localClientNum)
       }
 LABEL_41:
       p_buttonTimer += 24;
-      --v5;
+      --v3;
     }
-    while ( v5 );
-    __asm { vmovaps xmm6, [rsp+68h+var_38] }
+    while ( v3 );
   }
 }
 
@@ -7442,69 +6944,48 @@ __int64 Com_UseConstantUserCommandTime()
 Com_ViewScaleMsec
 ==============
 */
-
-float __fastcall Com_ViewScaleMsec(double sec)
+float Com_ViewScaleMsec(float sec)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmulss  xmm6, xmm0, cs:__real@447a0000
-  }
+  float v1; 
+  bool v2; 
+  __int128 viewTimescale_low; 
+  __int128 viewEndTimescale_low; 
+  __int128 v5; 
+
+  v1 = sec * 1000.0;
   if ( !g_slowmoCommon.viewEnable )
   {
-    __asm { vmovss  xmm2, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale; SlowMotionCommon g_slowmoCommon }
+    viewTimescale_low = LODWORD(g_slowmoCommon.viewTimescale);
     goto LABEL_14;
   }
   if ( g_slowmoCommon.viewType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\common.cpp", 8666, ASSERT_TYPE_ASSERT, "(g_slowmoCommon.viewType == SLOW_MOTION_LINEAR)", (const char *)&queryFormat, "g_slowmoCommon.viewType == SLOW_MOTION_LINEAR") )
     __debugbreak();
-  __asm { vmovss  xmm3, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewEndTimescale; SlowMotionCommon g_slowmoCommon }
   if ( g_slowmoCommon.viewEndMsec == g_slowmoCommon.viewStartMsec )
     goto $finish;
-  __asm
+  viewEndTimescale_low = LODWORD(g_slowmoCommon.viewEndTimescale);
+  v2 = g_slowmoCommon.viewStartTimescale <= g_slowmoCommon.viewEndTimescale;
+  *(float *)&viewEndTimescale_low = (float)((float)((float)(g_slowmoCommon.viewEndTimescale - g_slowmoCommon.viewStartTimescale) * v1) / (float)(g_slowmoCommon.viewEndMsec - g_slowmoCommon.viewStartMsec)) + g_slowmoCommon.viewTimescale;
+  viewTimescale_low = viewEndTimescale_low;
+  g_slowmoCommon.viewTimescale = *(float *)&viewEndTimescale_low;
+  if ( g_slowmoCommon.viewStartTimescale < g_slowmoCommon.viewEndTimescale )
   {
-    vmovss  xmm4, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewStartTimescale; SlowMotionCommon g_slowmoCommon
-    vsubss  xmm0, xmm3, xmm4
-    vmulss  xmm1, xmm0, xmm6
-    vcomiss xmm4, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm1, xmm1, xmm0
-    vaddss  xmm2, xmm1, cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale; SlowMotionCommon g_slowmoCommon
-    vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale, xmm2; SlowMotionCommon g_slowmoCommon
-  }
-  if ( g_slowmoCommon.viewEndMsec < (unsigned int)g_slowmoCommon.viewStartMsec )
-  {
-    __asm { vcomiss xmm2, xmm3 }
-    if ( g_slowmoCommon.viewEndMsec >= (unsigned int)g_slowmoCommon.viewStartMsec )
+    if ( *(float *)&viewEndTimescale_low >= g_slowmoCommon.viewEndTimescale )
     {
 $finish:
-      __asm
-      {
-        vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.viewTimescale, xmm3; SlowMotionCommon g_slowmoCommon
-        vmovaps xmm2, xmm3
-      }
+      g_slowmoCommon.viewTimescale = g_slowmoCommon.viewEndTimescale;
+      viewTimescale_low = LODWORD(g_slowmoCommon.viewEndTimescale);
       g_slowmoCommon.viewEnable = 0;
       goto LABEL_14;
     }
-    __asm { vcomiss xmm4, xmm3 }
+    v2 = g_slowmoCommon.viewStartTimescale <= g_slowmoCommon.viewEndTimescale;
   }
-  if ( g_slowmoCommon.viewEndMsec > (unsigned int)g_slowmoCommon.viewStartMsec )
-  {
-    __asm { vcomiss xmm2, xmm3 }
-    if ( g_slowmoCommon.viewEndMsec <= (unsigned int)g_slowmoCommon.viewStartMsec )
-      goto $finish;
-  }
-  __asm { vucomiss xmm4, xmm3 }
-  if ( g_slowmoCommon.viewEndMsec == g_slowmoCommon.viewStartMsec )
+  if ( !v2 && *(float *)&viewEndTimescale_low <= g_slowmoCommon.viewEndTimescale || g_slowmoCommon.viewStartTimescale == g_slowmoCommon.viewEndTimescale )
     goto $finish;
 LABEL_14:
-  __asm
-  {
-    vmulss  xmm0, xmm2, xmm6
-    vmulss  xmm0, xmm0, cs:__real@3a83126f
-    vmaxss  xmm0, xmm0, cs:__real@3a83126f
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  v5 = viewTimescale_low;
+  *(float *)&v5 = (float)(*(float *)&viewTimescale_low * v1) * 0.001;
+  _XMM0 = v5;
+  __asm { vmaxss  xmm0, xmm0, cs:__real@3a83126f }
   return *(float *)&_XMM0;
 }
 
@@ -7525,37 +7006,37 @@ __int64 Com_WarnUnimplemented(const char *file, const int line, const char *func
   unsigned int v15; 
   unsigned int v16; 
   Com_WarnUnimplemented::__l2::Unimplemented *v17; 
-  Com_WarnUnimplemented::__l2::Unimplemented *v26; 
-  __int64 v27; 
+  __m256i *v18; 
+  Com_WarnUnimplemented::__l2::Unimplemented *v20; 
+  __int64 v21; 
   char *fmt; 
-  unsigned int v29; 
-  char dest[96]; 
-  char v31[60]; 
-  __int64 v32; 
-  int v33; 
+  _BYTE v23[96]; 
+  _BYTE v24[64]; 
+  __int64 v25; 
+  int v26; 
 
   if ( dword_14CE9C358 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14CE9C358);
     if ( dword_14CE9C358 == -1 )
     {
-      v26 = allUnimplemented;
-      v27 = 256i64;
+      v20 = allUnimplemented;
+      v21 = 256i64;
       do
       {
-        Com_WarnUnimplemented_::_2_::Unimplemented::Unimplemented(v26++);
-        --v27;
+        Com_WarnUnimplemented_::_2_::Unimplemented::Unimplemented(v20++);
+        --v21;
       }
-      while ( v27 );
+      while ( v21 );
       j__Init_thread_footer(&dword_14CE9C358);
     }
   }
-  memset_0(&v29, 0, 0xACui64);
-  Core_strcpy(dest, 0x60ui64, file);
-  Core_strcpy(v31, 0x40ui64, func);
-  HIDWORD(v32) = line;
+  memset_0(v23, 0, 0xACui64);
+  Core_strcpy(&v23[4], 0x60ui64, file);
+  Core_strcpy(&v24[4], 0x40ui64, func);
+  HIDWORD(v25) = line;
   v8 = -1;
-  v9 = (unsigned __int8 *)&v29 + 2;
+  v9 = &v23[2];
   v10 = 43i64;
   do
   {
@@ -7568,7 +7049,7 @@ __int64 Com_WarnUnimplemented(const char *file, const int line, const char *func
   }
   while ( v10 );
   v14 = ~v8;
-  v29 = v14;
+  *(_DWORD *)v23 = v14;
   v15 = 0;
   v16 = numUnimplemented;
   if ( numUnimplemented )
@@ -7593,27 +7074,18 @@ LABEL_8:
         __debugbreak();
       v16 = numUnimplemented;
     }
-    _RDX = &allUnimplemented[v16];
-    _RCX = &v29;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+60h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups ymm1, ymmword ptr [rcx+80h]
-      vmovups ymmword ptr [rdx+80h], ymm1
-    }
-    *(_QWORD *)&_RDX->func[60] = v32;
-    _RDX->count = v33;
+    v18 = (__m256i *)&allUnimplemented[v16];
+    *v18 = *(__m256i *)v23;
+    v18[1] = *(__m256i *)&v23[32];
+    v18[2] = *(__m256i *)&v23[64];
+    v18[3] = *(__m256i *)v24;
+    v18[4] = *(__m256i *)&v24[32];
+    v18[5].m256i_i64[0] = v25;
+    v18[5].m256i_i32[2] = v26;
     numUnimplemented = v16 + 1;
     LODWORD(fmt) = v16 + 1;
     Com_PrintWarning(1, "%s(%d): UNIMPLEMENTED(%3d): %s %s\n", file, (unsigned int)line, fmt, func, comment);
-    return v29;
+    return *(unsigned int *)v23;
   }
 }
 

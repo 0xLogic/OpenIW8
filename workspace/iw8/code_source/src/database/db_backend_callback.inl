@@ -203,35 +203,23 @@ DB_ScheduleBackendCallback<GfxCompressedSunShadowDataTemp>
 */
 void DB_ScheduleBackendCallback<GfxCompressedSunShadowDataTemp>(XZoneHandleUnique zoneId, bool (*backendCallbackFunc)(GfxCompressedSunShadowDataTemp *, DB_BackendCallbackContext *), GfxCompressedSunShadowDataTemp *callbackStruct)
 {
+  DB_BackendCallbackDataRingBufferAlloc v6; 
+  int v7; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v14; 
+  int v10; 
 
-  v14 = 0;
-  _RSI = callbackStruct;
-  _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  LODWORD(_RAX) = v14;
-  __asm
-  {
-    vmovq   rcx, xmm0
-    vmovups xmmword ptr [rsp+68h+alloc.m_data], xmm0
-  }
-  *(_DWORD *)_RCX = 112;
-  *(XZoneHandleUnique *)(_RCX + 4) = zoneId;
-  *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-  *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
-  *(_QWORD *)(_RCX + 24) = 0i64;
-  *(_QWORD *)(_RCX + 32) = backendCallbackFunc;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rcx+28h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rcx+48h], ymm1
-    vmovsd  xmm0, qword ptr [rsi+40h]
-    vmovsd  qword ptr [rcx+68h], xmm0
-  }
+  v10 = 0;
+  v6 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0x70u);
+  v7 = v10;
+  alloc = v6;
+  *(_DWORD *)v6.m_data = 112;
+  *((XZoneHandleUnique *)v6.m_data + 1) = zoneId;
+  *((_DWORD *)v6.m_data + 2) = v7;
+  *((_QWORD *)v6.m_data + 2) = DB_BackendCallbackTrampoline_GfxCompressedSunShadowDataTemp_;
+  *((_QWORD *)v6.m_data + 3) = 0i64;
+  *((_QWORD *)v6.m_data + 4) = backendCallbackFunc;
+  *(GfxCompressedSunShadowDataTemp *)(v6.m_data + 40) = *callbackStruct;
   DB_BackendCallbackDataRingBuffer_Queue(&alloc);
 }
 
@@ -242,51 +230,23 @@ DB_ScheduleBackendCallback<GfxLightGridVolumeAtlasDataTemp>
 */
 void DB_ScheduleBackendCallback<GfxLightGridVolumeAtlasDataTemp>(XZoneHandleUnique zoneId, bool (*backendCallbackFunc)(GfxLightGridVolumeAtlasDataTemp *, DB_BackendCallbackContext *), GfxLightGridVolumeAtlasDataTemp *callbackStruct)
 {
+  DB_BackendCallbackDataRingBufferAlloc v6; 
+  int v7; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v22; 
+  int v10; 
 
-  v22 = 0;
-  _RSI = callbackStruct;
-  _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0xD8u);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  LODWORD(_RAX) = v22;
-  __asm
-  {
-    vmovq   rcx, xmm0
-    vmovups xmmword ptr [rsp+68h+alloc.m_data], xmm0
-  }
-  *(_DWORD *)_RCX = 216;
-  *(XZoneHandleUnique *)(_RCX + 4) = zoneId;
-  *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-  *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxLightGridVolumeAtlasDataTemp_;
-  *(_QWORD *)(_RCX + 24) = 0i64;
-  *(_QWORD *)(_RCX + 32) = backendCallbackFunc;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rcx+28h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+10h]
-    vmovups xmmword ptr [rcx+38h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rcx+48h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+30h]
-    vmovups xmmword ptr [rcx+58h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vmovups xmmword ptr [rcx+68h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+50h]
-    vmovups xmmword ptr [rcx+78h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+60h]
-    vmovups xmmword ptr [rcx+88h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+70h]
-    vmovups xmmword ptr [rcx+98h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+80h]
-    vmovups xmmword ptr [rcx+0A8h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+90h]
-    vmovups xmmword ptr [rcx+0B8h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+0A0h]
-    vmovups xmmword ptr [rcx+0C8h], xmm1
-  }
+  v10 = 0;
+  v6 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, 0xD8u);
+  v7 = v10;
+  alloc = v6;
+  *(_DWORD *)v6.m_data = 216;
+  *((XZoneHandleUnique *)v6.m_data + 1) = zoneId;
+  *((_DWORD *)v6.m_data + 2) = v7;
+  *((_QWORD *)v6.m_data + 2) = DB_BackendCallbackTrampoline_GfxLightGridVolumeAtlasDataTemp_;
+  *((_QWORD *)v6.m_data + 3) = 0i64;
+  *((_QWORD *)v6.m_data + 4) = backendCallbackFunc;
+  *(GfxLightGridVolumeAtlasDataTemp *)(v6.m_data + 40) = *callbackStruct;
   DB_BackendCallbackDataRingBuffer_Queue(&alloc);
 }
 
@@ -298,27 +258,24 @@ DB_ScheduleBackendCallback<GfxLightmapAtlasDataTemp>
 void DB_ScheduleBackendCallback<GfxLightmapAtlasDataTemp>(XZoneHandleUnique zoneId, bool (*backendCallbackFunc)(GfxLightmapAtlasDataTemp *, DB_BackendCallbackContext *), GfxLightmapAtlasDataTemp *callbackStruct)
 {
   unsigned int Size; 
+  DB_BackendCallbackDataRingBufferAlloc v7; 
+  int v8; 
   DB_BackendCallbackDataRingBufferAlloc alloc; 
   DB_BackendCallbackDataRingBufferAlloc result; 
-  int v12; 
+  int v11; 
 
-  v12 = 0;
+  v11 = 0;
   Size = DB_BackendCallbackDataBufferGetSize(callbackStruct);
-  _RAX = DB_BackendCallbackDataRingBuffer_PreallocData(&result, Size + 40);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  LODWORD(_RAX) = v12;
-  __asm
-  {
-    vmovq   rcx, xmm0
-    vmovups xmmword ptr [rsp+68h+alloc.m_data], xmm0
-  }
-  *(_DWORD *)_RCX = Size + 40;
-  *(XZoneHandleUnique *)(_RCX + 4) = zoneId;
-  *(_DWORD *)(_RCX + 8) = (_DWORD)_RAX;
-  *(_QWORD *)(_RCX + 16) = DB_BackendCallbackTrampoline_GfxLightmapAtlasDataTemp_;
-  *(_QWORD *)(_RCX + 24) = 0i64;
-  *(_QWORD *)(_RCX + 32) = backendCallbackFunc;
-  memcpy_0((void *)(_RCX + 40), callbackStruct, Size);
+  v7 = *DB_BackendCallbackDataRingBuffer_PreallocData(&result, Size + 40);
+  v8 = v11;
+  alloc = v7;
+  *(_DWORD *)v7.m_data = Size + 40;
+  *((XZoneHandleUnique *)v7.m_data + 1) = zoneId;
+  *((_DWORD *)v7.m_data + 2) = v8;
+  *((_QWORD *)v7.m_data + 2) = DB_BackendCallbackTrampoline_GfxLightmapAtlasDataTemp_;
+  *((_QWORD *)v7.m_data + 3) = 0i64;
+  *((_QWORD *)v7.m_data + 4) = backendCallbackFunc;
+  memcpy_0(v7.m_data + 40, callbackStruct, Size);
   DB_BackendCallbackDataRingBuffer_Queue(&alloc);
 }
 

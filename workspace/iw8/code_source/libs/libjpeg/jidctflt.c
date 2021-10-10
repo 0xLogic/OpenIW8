@@ -5,469 +5,299 @@ jpeg_idct_float
 */
 void jpeg_idct_float(jpeg_decompress_struct *cinfo, jpeg_component_info *compptr, __int16 *coef_block, unsigned __int8 **output_buf, unsigned int output_col)
 {
-  char *dct_table; 
+  float *dct_table; 
+  float *v7; 
   unsigned __int8 *sample_range_limit; 
-  __int64 v21; 
-  __int16 v25; 
-  __int16 v96; 
-  unsigned __int8 *v165; 
-  unsigned __int8 *v222; 
-  char v269; 
-  char v270; 
-  char v271; 
-  void *retaddr; 
+  __int64 v9; 
+  float v10; 
+  __int16 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float *v42; 
+  __int16 v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float *v69; 
+  unsigned __int8 *v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  float v99; 
+  unsigned __int8 *v100; 
+  float v101; 
+  float v102; 
+  float v103; 
+  float v104; 
+  float v105; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  float v113; 
+  char v114; 
+  char v115; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-  }
-  dct_table = (char *)compptr->dct_table;
-  _RDX = &v269;
+  dct_table = (float *)compptr->dct_table;
+  v7 = (float *)&v114;
   sample_range_limit = cinfo->sample_range_limit;
-  v21 = 4i64;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3fb504f3
-    vmovss  xmm15, cs:__real@3fec835e
-    vmovss  xmm13, cs:__real@40273d75
-  }
+  v9 = 4i64;
+  v10 = FLOAT_2_613126;
   do
   {
-    v25 = coef_block[8];
-    if ( v25 || coef_block[16] || coef_block[24] || coef_block[32] || coef_block[40] || coef_block[48] || coef_block[56] )
+    v11 = coef_block[8];
+    if ( v11 || coef_block[16] || coef_block[24] || coef_block[32] || coef_block[40] || coef_block[48] || coef_block[56] )
     {
-      _EAX = *coef_block;
-      __asm { vmovd   xmm0, eax }
-      _EAX = coef_block[16];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm3, xmm0, dword ptr [r10]
-        vmovd   xmm1, eax
-      }
-      _EAX = coef_block[32];
-      __asm
-      {
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm6, xmm1, dword ptr [r10+40h]
-        vmovd   xmm0, eax
-      }
-      _EAX = coef_block[48];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm2, xmm0, dword ptr [r10+80h]
-        vaddss  xmm4, xmm2, xmm3
-        vsubss  xmm5, xmm3, xmm2
-        vmovd   xmm1, eax
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm0, xmm1, dword ptr [r10+0C0h]
-        vaddss  xmm3, xmm0, xmm6
-        vsubss  xmm0, xmm6, xmm0
-        vmulss  xmm1, xmm0, xmm14
-        vsubss  xmm2, xmm1, xmm3
-        vaddss  xmm11, xmm2, xmm5
-        vaddss  xmm12, xmm3, xmm4
-        vsubss  xmm13, xmm4, xmm3
-        vsubss  xmm10, xmm5, xmm2
-      }
-      _EAX = v25;
-      __asm { vmovd   xmm0, eax }
-      _EAX = coef_block[24];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm5, xmm0, dword ptr [r10+20h]
-        vmovd   xmm0, eax
-      }
-      _EAX = coef_block[40];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm3, xmm0, dword ptr [r10+60h]
-        vmovd   xmm1, eax
-      }
-      _EAX = coef_block[56];
-      __asm
-      {
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm2, xmm1, dword ptr [r10+0A0h]
-        vaddss  xmm6, xmm2, xmm3
-        vsubss  xmm3, xmm2, xmm3
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm1, xmm0, dword ptr [r10+0E0h]
-        vaddss  xmm4, xmm1, xmm5
-        vsubss  xmm7, xmm5, xmm1
-        vmulss  xmm1, xmm3, cs:__real@40273d75
-        vaddss  xmm9, xmm4, xmm6
-        vaddss  xmm0, xmm7, xmm3
-        vmulss  xmm5, xmm0, xmm15
-        vsubss  xmm2, xmm5, xmm1
-        vsubss  xmm8, xmm2, xmm9
-        vmulss  xmm2, xmm7, cs:__real@3f8a8bd4
-        vsubss  xmm0, xmm4, xmm6
-        vmulss  xmm1, xmm0, xmm14
-        vsubss  xmm3, xmm1, xmm8
-        vsubss  xmm0, xmm2, xmm5
-        vaddss  xmm4, xmm0, xmm3
-        vsubss  xmm1, xmm12, xmm9
-        vsubss  xmm0, xmm11, xmm8
-        vmovss  dword ptr [rdx+0E0h], xmm1
-        vsubss  xmm1, xmm13, xmm4
-        vmovss  dword ptr [rdx+0C0h], xmm0
-        vsubss  xmm0, xmm10, xmm3
-        vaddss  xmm2, xmm3, xmm10
-        vaddss  xmm4, xmm4, xmm13
-        vmovss  xmm13, cs:__real@40273d75
-        vaddss  xmm3, xmm8, xmm11
-        vaddss  xmm5, xmm9, xmm12
-      }
+      v18 = _mm_cvtepi32_ps((__m128i)(unsigned int)*coef_block).m128_f32[0] * *dct_table;
+      v19 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[16]).m128_f32[0] * dct_table[16];
+      v20 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[32]).m128_f32[0] * dct_table[32];
+      v21 = v20 + v18;
+      v22 = v18 - v20;
+      v23 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[48]).m128_f32[0] * dct_table[48];
+      v24 = (float)((float)(v19 - v23) * 1.4142135) - (float)(v23 + v19);
+      v25 = v24 + v22;
+      v26 = (float)(v23 + v19) + v21;
+      v27 = v21 - (float)(v23 + v19);
+      v28 = v22 - v24;
+      v29 = _mm_cvtepi32_ps((__m128i)(unsigned int)v11).m128_f32[0] * dct_table[8];
+      v30 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[24]).m128_f32[0] * dct_table[24];
+      v31 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[40]).m128_f32[0] * dct_table[40];
+      v32 = v31 + v30;
+      v33 = v31 - v30;
+      v34 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[56]).m128_f32[0] * dct_table[56];
+      v35 = v34 + v29;
+      v36 = v29 - v34;
+      v37 = (float)(v34 + v29) + v32;
+      v38 = (float)((float)(v29 - v34) + v33) * 1.847759;
+      v39 = (float)(v38 - (float)(v33 * 2.613126)) - v37;
+      v40 = (float)((float)(v35 - v32) * 1.4142135) - v39;
+      v41 = (float)((float)(v36 * 1.0823922) - v38) + v40;
+      v7[56] = v26 - v37;
+      v12 = v27 - v41;
+      v7[48] = v25 - v39;
+      v13 = v28 - v40;
+      v14 = v40 + v28;
+      v17 = v41 + v27;
+      v10 = FLOAT_2_613126;
+      v15 = v39 + v25;
+      v16 = v37 + v26;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, dword ptr [r10]
-        vmovss  dword ptr [rdx+0C0h], xmm1
-        vmovss  dword ptr [rdx+0E0h], xmm1
-        vmovaps xmm0, xmm1
-        vmovaps xmm2, xmm1
-        vmovaps xmm3, xmm1
-        vmovaps xmm5, xmm1
-        vmovaps xmm4, xmm1
-      }
+      v12 = (float)*coef_block * *dct_table;
+      v7[48] = v12;
+      v7[56] = v12;
+      v13 = v12;
+      v14 = v12;
+      v15 = v12;
+      v16 = v12;
+      v17 = v12;
     }
-    __asm
+    v7[32] = v17;
+    *v7 = v16;
+    v7[8] = v15;
+    v7[16] = v14;
+    v7[40] = v13;
+    v7[24] = v12;
+    v42 = v7 + 1;
+    v43 = coef_block[9];
+    if ( v43 || coef_block[17] || coef_block[25] || coef_block[33] || coef_block[41] || coef_block[49] || coef_block[57] )
     {
-      vmovss  dword ptr [rdx+80h], xmm4
-      vmovss  dword ptr [rdx], xmm5
-      vmovss  dword ptr [rdx+20h], xmm3
-      vmovss  dword ptr [rdx+40h], xmm2
-      vmovss  dword ptr [rdx+0A0h], xmm0
-      vmovss  dword ptr [rdx+60h], xmm1
-    }
-    _RCX = _RDX + 4;
-    v96 = coef_block[9];
-    if ( v96 || coef_block[17] || coef_block[25] || coef_block[33] || coef_block[41] || coef_block[49] || coef_block[57] )
-    {
-      _EAX = coef_block[1];
-      __asm { vmovd   xmm0, eax }
-      _EAX = coef_block[17];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm3, xmm0, dword ptr [r10+4]
-        vmovd   xmm1, eax
-      }
-      _EAX = coef_block[33];
-      __asm
-      {
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm6, xmm1, dword ptr [r10+44h]
-        vmovd   xmm0, eax
-      }
-      _EAX = coef_block[49];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm2, xmm0, dword ptr [r10+84h]
-        vaddss  xmm4, xmm2, xmm3
-        vsubss  xmm5, xmm3, xmm2
-        vmovd   xmm1, eax
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm0, xmm1, dword ptr [r10+0C4h]
-        vaddss  xmm3, xmm0, xmm6
-        vsubss  xmm0, xmm6, xmm0
-        vmulss  xmm1, xmm0, xmm14
-        vsubss  xmm2, xmm1, xmm3
-        vaddss  xmm10, xmm2, xmm5
-        vsubss  xmm11, xmm5, xmm2
-        vaddss  xmm9, xmm3, xmm4
-        vsubss  xmm12, xmm4, xmm3
-      }
-      _EAX = v96;
-      __asm { vmovd   xmm0, eax }
-      _EAX = coef_block[25];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm5, xmm0, dword ptr [r10+24h]
-        vmovd   xmm0, eax
-      }
-      _EAX = coef_block[41];
-      __asm
-      {
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm3, xmm0, dword ptr [r10+64h]
-        vmovd   xmm1, eax
-      }
-      _RAX = (unsigned int)coef_block[57];
-      __asm
-      {
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm2, xmm1, dword ptr [r10+0A4h]
-        vaddss  xmm6, xmm2, xmm3
-        vsubss  xmm3, xmm2, xmm3
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm1, xmm0, dword ptr [r10+0E4h]
-        vaddss  xmm4, xmm1, xmm5
-        vsubss  xmm7, xmm5, xmm1
-        vaddss  xmm8, xmm4, xmm6
-        vaddss  xmm0, xmm7, xmm3
-        vmulss  xmm5, xmm0, xmm15
-        vmulss  xmm1, xmm3, xmm13
-        vsubss  xmm2, xmm5, xmm1
-        vsubss  xmm3, xmm2, xmm8
-        vmulss  xmm2, xmm7, cs:__real@3f8a8bd4
-        vsubss  xmm0, xmm4, xmm6
-        vmulss  xmm1, xmm0, xmm14
-        vsubss  xmm4, xmm1, xmm3
-        vsubss  xmm0, xmm2, xmm5
-        vaddss  xmm2, xmm0, xmm4
-        vaddss  xmm1, xmm8, xmm9
-        vmovss  dword ptr [rcx], xmm1
-        vsubss  xmm0, xmm9, xmm8
-        vmovss  dword ptr [rcx+0E0h], xmm0
-        vaddss  xmm1, xmm3, xmm10
-        vmovss  dword ptr [rcx+20h], xmm1
-        vsubss  xmm0, xmm10, xmm3
-        vmovss  dword ptr [rcx+0C0h], xmm0
-        vaddss  xmm1, xmm4, xmm11
-        vmovss  dword ptr [rcx+40h], xmm1
-        vsubss  xmm0, xmm11, xmm4
-        vmovss  dword ptr [rcx+0A0h], xmm0
-        vaddss  xmm1, xmm2, xmm12
-        vsubss  xmm0, xmm12, xmm2
-        vmovss  dword ptr [rcx+80h], xmm1
-        vmovss  dword ptr [rcx+60h], xmm0
-      }
+      v45 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[1]).m128_f32[0] * dct_table[1];
+      v46 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[17]).m128_f32[0] * dct_table[17];
+      v47 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[33]).m128_f32[0] * dct_table[33];
+      v48 = v47 + v45;
+      v49 = v45 - v47;
+      v50 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[49]).m128_f32[0] * dct_table[49];
+      v51 = (float)((float)(v46 - v50) * 1.4142135) - (float)(v50 + v46);
+      v52 = v51 + v49;
+      v53 = v49 - v51;
+      v54 = (float)(v50 + v46) + v48;
+      v55 = v48 - (float)(v50 + v46);
+      v56 = _mm_cvtepi32_ps((__m128i)(unsigned int)v43).m128_f32[0] * dct_table[9];
+      v57 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[25]).m128_f32[0] * dct_table[25];
+      v58 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[41]).m128_f32[0] * dct_table[41];
+      v59 = v58 + v57;
+      v60 = v58 - v57;
+      v61 = _mm_cvtepi32_ps((__m128i)(unsigned int)coef_block[57]).m128_f32[0] * dct_table[57];
+      v62 = v61 + v56;
+      v63 = v56 - v61;
+      v64 = (float)(v61 + v56) + v59;
+      v65 = (float)((float)(v56 - v61) + v60) * 1.847759;
+      v66 = (float)(v65 - (float)(v60 * v10)) - v64;
+      v67 = (float)((float)(v62 - v59) * 1.4142135) - v66;
+      v68 = (float)((float)(v63 * 1.0823922) - v65) + v67;
+      *v42 = v64 + v54;
+      v42[56] = v54 - v64;
+      v42[8] = v66 + v52;
+      v42[48] = v52 - v66;
+      v42[16] = v67 + v53;
+      v42[40] = v53 - v67;
+      v42[32] = v68 + v55;
+      v42[24] = v55 - v68;
     }
     else
     {
-      _RAX = (unsigned int)coef_block[1];
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, dword ptr [r10+4]
-        vmovss  dword ptr [rcx], xmm1
-        vmovss  dword ptr [rcx+20h], xmm1
-        vmovss  dword ptr [rcx+40h], xmm1
-        vmovss  dword ptr [rcx+60h], xmm1
-        vmovss  dword ptr [rcx+80h], xmm1
-        vmovss  dword ptr [rcx+0A0h], xmm1
-        vmovss  dword ptr [rcx+0C0h], xmm1
-        vmovss  dword ptr [rcx+0E0h], xmm1
-      }
+      v44 = (float)coef_block[1] * dct_table[1];
+      *v42 = v44;
+      v42[8] = v44;
+      v42[16] = v44;
+      v42[24] = v44;
+      v42[32] = v44;
+      v42[40] = v44;
+      v42[48] = v44;
+      v42[56] = v44;
     }
     coef_block += 2;
-    _RDX = _RCX + 4;
-    dct_table += 8;
-    --v21;
+    v7 = v42 + 1;
+    dct_table += 2;
+    --v9;
   }
-  while ( v21 );
-  _RDX = &v270;
+  while ( v9 );
+  v69 = (float *)&v115;
   do
   {
-    v165 = output_buf[v21];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx-18h]
-      vaddss  xmm5, xmm0, dword ptr [rdx-8]
-      vsubss  xmm6, xmm0, dword ptr [rdx-8]
-      vmovss  xmm1, dword ptr [rdx-10h]
-      vaddss  xmm4, xmm1, dword ptr [rdx]
-      vsubss  xmm0, xmm1, dword ptr [rdx]
-      vmulss  xmm1, xmm0, xmm14
-      vsubss  xmm3, xmm1, xmm4
-      vmovss  xmm1, dword ptr [rdx-4]
-      vaddss  xmm7, xmm1, dword ptr [rdx-0Ch]
-      vaddss  xmm10, xmm3, xmm6
-      vsubss  xmm11, xmm6, xmm3
-      vsubss  xmm3, xmm1, dword ptr [rdx-0Ch]
-      vmovss  xmm1, dword ptr [rdx-14h]
-      vsubss  xmm6, xmm1, dword ptr [rdx+4]
-      vaddss  xmm9, xmm4, xmm5
-      vsubss  xmm12, xmm5, xmm4
-      vaddss  xmm4, xmm1, dword ptr [rdx+4]
-      vaddss  xmm8, xmm4, xmm7
-      vaddss  xmm0, xmm6, xmm3
-      vmulss  xmm5, xmm0, xmm15
-      vmulss  xmm1, xmm3, xmm13
-      vsubss  xmm2, xmm5, xmm1
-      vsubss  xmm3, xmm2, xmm8
-      vmulss  xmm2, xmm6, cs:__real@3f8a8bd4
-      vsubss  xmm0, xmm4, xmm7
-      vmulss  xmm1, xmm0, xmm14
-      vsubss  xmm4, xmm1, xmm3
-      vsubss  xmm0, xmm2, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm0, xmm9, xmm8
-      vaddss  xmm1, xmm8, xmm9
-      vcvttss2si eax, xmm1
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vaddss  xmm0, xmm3, xmm10
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col + 7] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vsubss  xmm0, xmm10, xmm3
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col + 1] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vaddss  xmm0, xmm4, xmm11
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col + 6] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vsubss  xmm0, xmm11, xmm4
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col + 2] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vaddss  xmm0, xmm2, xmm12
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col + 5] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vsubss  xmm0, xmm12, xmm2
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v165[output_col + 4] = _RAX;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdx+10h]
-      vaddss  xmm4, xmm1, dword ptr [rdx+20h]
-      vcvttss2si eax, xmm0
-      vmovss  xmm0, dword ptr [rdx+8]
-      vaddss  xmm5, xmm0, dword ptr [rdx+18h]
-      vsubss  xmm6, xmm0, dword ptr [rdx+18h]
-      vsubss  xmm0, xmm1, dword ptr [rdx+20h]
-      vmulss  xmm1, xmm0, xmm14
-      vsubss  xmm3, xmm1, xmm4
-      vmovss  xmm1, dword ptr [rdx+1Ch]
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    __asm { vaddss  xmm7, xmm1, dword ptr [rdx+14h] }
-    v165[output_col + 3] = _RAX;
-    v222 = output_buf[v21 + 1];
-    __asm
-    {
-      vaddss  xmm10, xmm3, xmm6
-      vsubss  xmm11, xmm6, xmm3
-      vsubss  xmm3, xmm1, dword ptr [rdx+14h]
-      vmovss  xmm1, dword ptr [rdx+0Ch]
-      vsubss  xmm6, xmm1, dword ptr [rdx+24h]
-      vaddss  xmm9, xmm4, xmm5
-      vsubss  xmm12, xmm5, xmm4
-      vaddss  xmm4, xmm1, dword ptr [rdx+24h]
-      vaddss  xmm8, xmm4, xmm7
-      vaddss  xmm0, xmm6, xmm3
-      vmulss  xmm5, xmm0, xmm15
-      vmulss  xmm1, xmm3, xmm13
-      vsubss  xmm2, xmm5, xmm1
-      vsubss  xmm3, xmm2, xmm8
-      vmulss  xmm2, xmm6, cs:__real@3f8a8bd4
-      vsubss  xmm0, xmm4, xmm7
-      vmulss  xmm1, xmm0, xmm14
-      vsubss  xmm4, xmm1, xmm3
-      vsubss  xmm0, xmm2, xmm5
-      vaddss  xmm2, xmm0, xmm4
-      vsubss  xmm0, xmm9, xmm8
-      vaddss  xmm1, xmm8, xmm9
-      vcvttss2si eax, xmm1
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vaddss  xmm0, xmm3, xmm10
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 7] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vsubss  xmm0, xmm10, xmm3
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 1] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vaddss  xmm0, xmm4, xmm11
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 6] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vsubss  xmm0, xmm11, xmm4
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 2] = _RAX;
-    __asm
-    {
-      vcvttss2si eax, xmm0
-      vaddss  xmm0, xmm2, xmm12
-    }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 5] = _RAX;
-    __asm { vcvttss2si eax, xmm0 }
-    _RDX += 64;
-    v21 += 2i64;
-    __asm { vsubss  xmm0, xmm12, xmm2 }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 4] = _RAX;
-    __asm { vcvttss2si eax, xmm0 }
-    _RAX = sample_range_limit[(((_RAX + 4) >> 3) & 0x3FF) + 128];
-    v222[output_col + 3] = _RAX;
+    v70 = output_buf[v9];
+    v71 = *(v69 - 6);
+    v72 = v71 + *(v69 - 2);
+    v73 = v71 - *(v69 - 2);
+    v74 = *(v69 - 4);
+    v75 = v74 + *v69;
+    v76 = (float)((float)(v74 - *v69) * 1.4142135) - v75;
+    v77 = *(v69 - 1);
+    v78 = v77 + *(v69 - 3);
+    v79 = v76 + v73;
+    v80 = v73 - v76;
+    v81 = v77 - *(v69 - 3);
+    v82 = *(v69 - 5);
+    v83 = v82 - v69[1];
+    v84 = v75 + v72;
+    v85 = v72 - v75;
+    v86 = v82 + v69[1];
+    v87 = v86 + v78;
+    v88 = (float)(v83 + v81) * 1.847759;
+    v89 = (float)(v88 - (float)(v81 * v10)) - (float)(v86 + v78);
+    v90 = (float)((float)(v86 - v78) * 1.4142135) - v89;
+    v91 = (float)((float)(v83 * 1.0823922) - v88) + v90;
+    v70[output_col] = sample_range_limit[((((unsigned int)(int)(float)(v87 + v84) + 4i64) >> 3) & 0x3FF) + 128];
+    v70[output_col + 7] = sample_range_limit[((((unsigned int)(int)(float)(v84 - v87) + 4i64) >> 3) & 0x3FF) + 128];
+    v70[output_col + 1] = sample_range_limit[((((unsigned int)(int)(float)(v89 + v79) + 4i64) >> 3) & 0x3FF) + 128];
+    v70[output_col + 6] = sample_range_limit[((((unsigned int)(int)(float)(v79 - v89) + 4i64) >> 3) & 0x3FF) + 128];
+    v70[output_col + 2] = sample_range_limit[((((unsigned int)(int)(float)(v90 + v80) + 4i64) >> 3) & 0x3FF) + 128];
+    v70[output_col + 5] = sample_range_limit[((((unsigned int)(int)(float)(v80 - v90) + 4i64) >> 3) & 0x3FF) + 128];
+    v70[output_col + 4] = sample_range_limit[((((unsigned int)(int)(float)(v91 + v85) + 4i64) >> 3) & 0x3FF) + 128];
+    v92 = v69[4];
+    v93 = v92 + v69[8];
+    v94 = v69[2];
+    v95 = v94 + v69[6];
+    v96 = v94 - v69[6];
+    v97 = (float)((float)(v92 - v69[8]) * 1.4142135) - v93;
+    v98 = v69[7];
+    v99 = v98 + v69[5];
+    v70[output_col + 3] = sample_range_limit[((((unsigned int)(int)(float)(v85 - v91) + 4i64) >> 3) & 0x3FF) + 128];
+    v100 = output_buf[v9 + 1];
+    v101 = v97 + v96;
+    v102 = v96 - v97;
+    v103 = v98 - v69[5];
+    v104 = v69[3];
+    v105 = v104 - v69[9];
+    v106 = v93 + v95;
+    v107 = v95 - v93;
+    v108 = v104 + v69[9];
+    v109 = v108 + v99;
+    v110 = (float)(v105 + v103) * 1.847759;
+    v111 = (float)(v110 - (float)(v103 * v10)) - (float)(v108 + v99);
+    v112 = (float)((float)(v108 - v99) * 1.4142135) - v111;
+    v113 = (float)((float)(v105 * 1.0823922) - v110) + v112;
+    v100[output_col] = sample_range_limit[((((unsigned int)(int)(float)(v109 + v106) + 4i64) >> 3) & 0x3FF) + 128];
+    v100[output_col + 7] = sample_range_limit[((((unsigned int)(int)(float)(v106 - v109) + 4i64) >> 3) & 0x3FF) + 128];
+    v100[output_col + 1] = sample_range_limit[((((unsigned int)(int)(float)(v111 + v101) + 4i64) >> 3) & 0x3FF) + 128];
+    v100[output_col + 6] = sample_range_limit[((((unsigned int)(int)(float)(v101 - v111) + 4i64) >> 3) & 0x3FF) + 128];
+    v100[output_col + 2] = sample_range_limit[((((unsigned int)(int)(float)(v112 + v102) + 4i64) >> 3) & 0x3FF) + 128];
+    v100[output_col + 5] = sample_range_limit[((((unsigned int)(int)(float)(v102 - v112) + 4i64) >> 3) & 0x3FF) + 128];
+    v69 += 16;
+    v9 += 2i64;
+    v100[output_col + 4] = sample_range_limit[((((unsigned int)(int)(float)(v113 + v107) + 4i64) >> 3) & 0x3FF) + 128];
+    v100[output_col + 3] = sample_range_limit[((((unsigned int)(int)(float)(v107 - v113) + 4i64) >> 3) & 0x3FF) + 128];
   }
-  while ( v21 < 8 );
-  _R11 = &v271;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v9 < 8 );
 }
 

@@ -240,71 +240,52 @@ G_BounceCorpse
 void G_BounceCorpse(gentity_s *ent, GCorpseInfoMP *corpseInfo, trace_t *trace, const vec3_t *endpos)
 {
   trajectory_t_secure *p_pos; 
-  unsigned int v10; 
-  int v11; 
+  unsigned int v9; 
+  int v10; 
   __int64 trType; 
-  int v21; 
+  int v12; 
   __int16 EntityHitId; 
   char *fmt; 
 
-  _RDI = trace;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_BounceCorpse");
   p_pos = &ent->s.lerp.pos;
   if ( ent == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2263, ASSERT_TYPE_ASSERT, "(trajectory)", (const char *)&queryFormat, "trajectory") )
     __debugbreak();
-  v10 = p_pos->trType - 23;
-  v11 = 27 - (((p_pos->trType - 25) & 0xFFFFFFFD) != 0);
+  v9 = p_pos->trType - 23;
+  v10 = 27 - (((p_pos->trType - 25) & 0xFFFFFFFD) != 0);
   *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
   ent->s.lerp.pos.trDelta.v[2] = 0.0;
-  if ( _RDI->allsolid )
+  if ( trace->allsolid || trace->normal.v[2] > 0.0 )
   {
     if ( !corpseInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 88, ASSERT_TYPE_ASSERT, "(corpseInfo)", (const char *)&queryFormat, "corpseInfo") )
       __debugbreak();
     corpseInfo->falling = 0;
-    v21 = 1;
-    if ( v10 <= 5 )
-      v21 = v11;
-    p_pos->trType = v21;
+    v12 = 1;
+    if ( v9 <= 5 )
+      v12 = v10;
+    p_pos->trType = v12;
     *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
     ent->s.lerp.pos.trDelta.v[2] = 0.0;
     Trajectory_SetTrBase(&ent->s.lerp.pos, endpos);
     *(_QWORD *)&ent->s.lerp.pos.trTime = 0i64;
-    EntityHitId = Trace_GetEntityHitId(_RDI);
+    EntityHitId = Trace_GetEntityHitId(trace);
     ent->s.groundEntityNum = EntityHitId;
     g_entities[EntityHitId].flags.m_flags[0] |= 0x200000u;
     SV_LinkEntity(ent);
-    if ( GMovingPlatforms::TraceHitMovingPlatform(_RDI) && !_RDI->allsolid && !_RDI->startsolid )
+    if ( GMovingPlatforms::TraceHitMovingPlatform(trace) && !trace->allsolid && !trace->startsolid && trace->normal.v[2] > 0.69999999 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f333333
-        vcomiss xmm0, dword ptr [rdi+18h]
-      }
+      G_ClientScrMP_LinkCorpseToMovingPlatform(ent, trace, endpos);
+      corpseInfo->falling = 1;
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+18h]
-      vmovss  xmm0, dword ptr [rdi+10h]
-    }
-    _RDX = &ent->r.currentOrigin;
-    __asm
-    {
-      vaddss  xmm1, xmm0, dword ptr [rdx]
-      vmovss  dword ptr [rdx], xmm1
-      vmovss  xmm2, dword ptr [rdi+14h]
-      vaddss  xmm0, xmm2, dword ptr [rdx+4]
-      vmovss  dword ptr [rdx+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+18h]
-      vaddss  xmm2, xmm1, dword ptr [rdx+8]
-      vmovss  dword ptr [rdx+8], xmm2
-    }
+    ent->r.currentOrigin.v[0] = trace->normal.v[0] + ent->r.currentOrigin.v[0];
+    ent->r.currentOrigin.v[1] = trace->normal.v[1] + ent->r.currentOrigin.v[1];
+    ent->r.currentOrigin.v[2] = trace->normal.v[2] + ent->r.currentOrigin.v[2];
     Trajectory_SetTrBase(&ent->s.lerp.pos, &ent->r.currentOrigin);
     trType = (unsigned int)p_pos->trType;
-    if ( (_DWORD)trType != 6 && v10 > 5 && !ent->tagInfo )
+    if ( (_DWORD)trType != 6 && v9 > 5 && !ent->tagInfo )
     {
       LODWORD(fmt) = 0;
       Com_PrintWarning(0, "WARNING: Entity = %d, trajectory = %d, isRagdoll = %d, entity is falling but not ragdoll or gravity or linked, clearing fall and returning.\n", (unsigned int)ent->s.number, trType, fmt);
@@ -325,94 +306,89 @@ void G_CheckCodeStartRagdoll(gentity_s *ent)
   int v3; 
   GCorpseInfoMP *CorpseInfo_Internal; 
   GCorpseInfoMP *v5; 
+  float v6; 
   __int16 entnum; 
-  __int64 v10; 
-  __int64 v11; 
-  GTrajectory v12; 
+  __int64 v8; 
+  __int64 v9; 
+  GTrajectory v10; 
   vec3_t outAng; 
 
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = (unsigned __int16)_RBX->s.eType;
+  eType = (unsigned __int16)ent->s.eType;
   if ( (unsigned __int16)eType > 0x15u || (v3 = 2359300, !_bittest(&v3, eType)) )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 817, ASSERT_TYPE_ASSERT, "(BG_IsCorpseEntity( &ent->s ))", (const char *)&queryFormat, "BG_IsCorpseEntity( &ent->s )") )
       __debugbreak();
   }
-  CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(_RBX);
+  CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(ent);
   if ( !CorpseInfo_Internal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 820, ASSERT_TYPE_ASSERT, "( corpseInfo ) != ( nullptr )", "%s != %s\n\t%p, %p", "corpseInfo", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( CorpseInfo_Internal->codeStartRagdollTime && !BG_IsRagdollTrajectory(&_RBX->s.lerp.pos) && CorpseInfo_Internal->codeStartRagdollTime <= level.time )
+  if ( CorpseInfo_Internal->codeStartRagdollTime && !BG_IsRagdollTrajectory(&ent->s.lerp.pos) && CorpseInfo_Internal->codeStartRagdollTime <= level.time )
   {
-    v5 = G_PlayerCorpseMP_FindCorpseInfo_Internal(_RBX);
+    v5 = G_PlayerCorpseMP_FindCorpseInfo_Internal(ent);
     if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 396, ASSERT_TYPE_ASSERT, "( corpseInfo ) != ( nullptr )", "%s != %s\n\t%p, %p", "corpseInfo", "nullptr", NULL, NULL) )
       __debugbreak();
     if ( v5->skippedRagdoll )
     {
-      if ( !_RBX->tagInfo && ((_RBX->s.eType - 2) & 0xFFEF) == 0 )
+      if ( !ent->tagInfo && ((ent->s.eType - 2) & 0xFFEF) == 0 )
       {
         *(_WORD *)&v5->falling = 257;
-        _RBX->s.lerp.pos.trType = TR_GRAVITY;
-        _RBX->s.lerp.pos.trTime = level.time;
-        _RBX->s.lerp.pos.trDuration = 0;
-        Trajectory_SetTrBase(&_RBX->s.lerp.pos, &_RBX->r.currentOrigin);
-        *(_QWORD *)_RBX->s.lerp.pos.trDelta.v = 0i64;
-        _RBX->s.lerp.pos.trDelta.v[2] = 0.0;
+        ent->s.lerp.pos.trType = TR_GRAVITY;
+        ent->s.lerp.pos.trTime = level.time;
+        ent->s.lerp.pos.trDuration = 0;
+        Trajectory_SetTrBase(&ent->s.lerp.pos, &ent->r.currentOrigin);
+        *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
+        ent->s.lerp.pos.trDelta.v[2] = 0.0;
       }
     }
     else
     {
-      if ( _RBX->s.lerp.pos.trType == TR_INTERPOLATE )
+      if ( ent->s.lerp.pos.trType == TR_INTERPOLATE )
       {
-        _RBX->s.lerp.pos.trType = TR_RAGDOLL_INTERPOLATE;
+        ent->s.lerp.pos.trType = TR_RAGDOLL_INTERPOLATE;
       }
-      else if ( _RBX->s.lerp.pos.trType == TR_GRAVITY )
+      else if ( ent->s.lerp.pos.trType == TR_GRAVITY )
       {
-        _RBX->s.lerp.pos.trType = TR_RAGDOLL_GRAVITY;
-      }
-      else
-      {
-        _RBX->s.lerp.pos.trType = TR_FIRST_RAGDOLL;
-      }
-      GTrajectory::GTrajectory(&v12, _RBX);
-      BgTrajectory::EvaluateAngTrajectory(&v12, level.time, &outAng);
-      if ( _RBX->s.lerp.apos.trType == TR_INTERPOLATE )
-      {
-        _RBX->s.lerp.apos.trType = TR_RAGDOLL_INTERPOLATE;
-      }
-      else if ( _RBX->s.lerp.apos.trType == TR_GRAVITY )
-      {
-        _RBX->s.lerp.apos.trType = TR_RAGDOLL_GRAVITY;
+        ent->s.lerp.pos.trType = TR_RAGDOLL_GRAVITY;
       }
       else
       {
-        _RBX->s.lerp.apos.trType = TR_FIRST_RAGDOLL;
+        ent->s.lerp.pos.trType = TR_FIRST_RAGDOLL;
       }
-      __asm
+      GTrajectory::GTrajectory(&v10, ent);
+      BgTrajectory::EvaluateAngTrajectory(&v10, level.time, &outAng);
+      if ( ent->s.lerp.apos.trType == TR_INTERPOLATE )
       {
-        vmovss  xmm0, dword ptr [rsp+0B8h+outAng]
-        vmovss  xmm1, dword ptr [rsp+0B8h+outAng+4]
-        vmovss  dword ptr [rbx+40h], xmm0
-        vmovss  xmm0, dword ptr [rsp+0B8h+outAng+8]
-        vmovss  dword ptr [rbx+48h], xmm0
-        vmovss  dword ptr [rbx+44h], xmm1
+        ent->s.lerp.apos.trType = TR_RAGDOLL_INTERPOLATE;
       }
-      *(_QWORD *)_RBX->s.lerp.apos.trDelta.v = 0i64;
-      _RBX->s.lerp.apos.trDelta.v[2] = 0.0;
-      _RBX->s.lerp.apos.trDuration = 0;
+      else if ( ent->s.lerp.apos.trType == TR_GRAVITY )
+      {
+        ent->s.lerp.apos.trType = TR_RAGDOLL_GRAVITY;
+      }
+      else
+      {
+        ent->s.lerp.apos.trType = TR_FIRST_RAGDOLL;
+      }
+      v6 = outAng.v[1];
+      ent->s.lerp.apos.trBase.v[0] = outAng.v[0];
+      ent->s.lerp.apos.trBase.v[2] = outAng.v[2];
+      ent->s.lerp.apos.trBase.v[1] = v6;
+      *(_QWORD *)ent->s.lerp.apos.trDelta.v = 0i64;
+      ent->s.lerp.apos.trDelta.v[2] = 0.0;
+      ent->s.lerp.apos.trDuration = 0;
     }
     entnum = CorpseInfo_Internal->entnum;
     CorpseInfo_Internal->codeStartRagdollTime = 0;
-    if ( _RBX->s.number != entnum )
+    if ( ent->s.number != entnum )
     {
-      LODWORD(v11) = entnum;
-      LODWORD(v10) = _RBX->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 529, ASSERT_TYPE_ASSERT, "( ent->s.number ) == ( corpseInfo->entnum )", "ent->s.number == corpseInfo->entnum\n\t%i, %i", v10, v11) )
+      LODWORD(v9) = entnum;
+      LODWORD(v8) = ent->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 529, ASSERT_TYPE_ASSERT, "( ent->s.number ) == ( corpseInfo->entnum )", "ent->s.number == corpseInfo->entnum\n\t%i, %i", v8, v9) )
         __debugbreak();
     }
     if ( CorpseInfo_Internal->canDetachClientCorpse && !CorpseInfo_Internal->codeStartRagdollTime )
-      _RBX->s.lerp.u.player.playerFlags |= 0x400u;
+      ent->s.lerp.u.player.playerFlags |= 0x400u;
   }
 }
 
@@ -702,182 +678,94 @@ G_PlayerCorpseMP_RequiresFixedDeathCamera
 */
 bool G_PlayerCorpseMP_RequiresFixedDeathCamera(gentity_s *ent)
 {
-  char v10; 
-  char v13; 
-  bool result; 
+  const dvar_t *v2; 
+  float value; 
+  hkVector4f v5; 
   unsigned int IndexByName; 
+  OmnvarData *Data; 
+  float v8; 
+  const dvar_t *v9; 
+  __int128 v10; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   int number; 
   float v0; 
+  float v22; 
+  float v23; 
   float v1[4]; 
   vec3_t end; 
   vec3_t start; 
   trace_t results; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RDI = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 459, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( ((_RDI->s.eType - 1) & 0xFFEE) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 460, ASSERT_TYPE_ASSERT, "((ent->s.eType == ET_PLAYER) || (ent->s.eType == ET_AGENT) || (ent->s.eType == ET_PLAYER_CORPSE) || (ent->s.eType == ET_AGENT_CORPSE))", (const char *)&queryFormat, "(ent->s.eType == ET_PLAYER) || (ent->s.eType == ET_AGENT) || (ent->s.eType == ET_PLAYER_CORPSE) || (ent->s.eType == ET_AGENT_CORPSE)") )
+  if ( ((ent->s.eType - 1) & 0xFFEE) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 460, ASSERT_TYPE_ASSERT, "((ent->s.eType == ET_PLAYER) || (ent->s.eType == ET_AGENT) || (ent->s.eType == ET_PLAYER_CORPSE) || (ent->s.eType == ET_AGENT_CORPSE))", (const char *)&queryFormat, "(ent->s.eType == ET_PLAYER) || (ent->s.eType == ET_AGENT) || (ent->s.eType == ET_PLAYER_CORPSE) || (ent->s.eType == ET_AGENT_CORPSE)") )
     __debugbreak();
-  _RBX = DVARFLT_g_fixedDeathCameraTraceHeight;
+  v2 = DVARFLT_g_fixedDeathCameraTraceHeight;
   if ( !DVARFLT_g_fixedDeathCameraTraceHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_fixedDeathCameraTraceHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  if ( value == 0.0 )
+    return 1;
+  if ( value < 0.0 )
+    return 0;
+  if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 42, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Gravity when system is not initialized", "g_physicsInitialized") )
+    __debugbreak();
+  v5.m_quad = (__m128)g_havokPhysicsWorlds[1].world->m_gravity;
+  v0 = v5.m_quad.m128_f32[0] * 32.0;
+  v22 = _mm_shuffle_ps(v5.m_quad, v5.m_quad, 85).m128_f32[0] * 32.0;
+  v23 = _mm_shuffle_ps(v5.m_quad, v5.m_quad, 170).m128_f32[0] * 32.0;
+  IndexByName = BG_Omnvar_GetIndexByName("physics_gravity_ragdoll");
+  if ( IndexByName != -1 )
+  {
+    Data = G_Omnvar_GetData(IndexByName, -1, NULL);
+    if ( Data )
+    {
+      v8 = Data->current.value;
+      v0 = v8 * v0;
+      v22 = v8 * v22;
+      v23 = v8 * v23;
+    }
+  }
+  v1[0] = 0.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  if ( VecNCompareCustomEpsilon(&v0, v1, 0.001, 3) )
+    return 0;
+  v9 = DVARFLT_g_fixedDeathCameraMinGravForFallChecks;
+  v10 = LODWORD(v22);
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v0 * v0)) + (float)(v23 * v23));
+  _XMM6 = v10;
   __asm
   {
-    vmovss  xmm7, dword ptr [rbx+28h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm7, xmm6
+    vcmpless xmm0, xmm6, cs:__real@80000000
+    vblendvps xmm0, xmm6, xmm8, xmm0
   }
-  if ( v13 )
-  {
-    result = 1;
-  }
-  else
-  {
-    __asm
-    {
-      vcomiss xmm7, xmm6
-      vmovaps xmmword ptr [rsp+160h+var_48+8], xmm8
-      vmovaps [rsp+160h+var_58+8], xmm9
-      vmovaps [rsp+160h+var_68+8], xmm10
-      vmovaps [rsp+160h+var_78+8], xmm11
-    }
-    if ( v10 )
-      goto LABEL_26;
-    if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 42, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Gravity when system is not initialized", "g_physicsInitialized") )
-      __debugbreak();
-    __asm { vmovss  xmm2, cs:__real@42000000 }
-    _RAX = g_havokPhysicsWorlds[1].world;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rax+0AC0h]
-      vmulss  xmm0, xmm3, xmm2
-      vshufps xmm1, xmm3, xmm3, 55h ; 'U'
-      vmovss  [rsp+160h+v0], xmm0
-      vmulss  xmm0, xmm1, xmm2
-      vshufps xmm3, xmm3, xmm3, 0AAh ; 'ª'
-      vmovss  [rsp+160h+var_11C], xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmovss  [rsp+160h+var_118], xmm0
-    }
-    IndexByName = BG_Omnvar_GetIndexByName("physics_gravity_ragdoll");
-    if ( IndexByName != -1 )
-    {
-      if ( G_Omnvar_GetData(IndexByName, -1, NULL) )
-      {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rax+4]
-          vmulss  xmm1, xmm3, [rsp+160h+v0]
-          vmulss  xmm0, xmm3, [rsp+160h+var_11C]
-          vmulss  xmm2, xmm3, [rsp+160h+var_118]
-          vmovss  [rsp+160h+v0], xmm1
-          vmovss  [rsp+160h+var_11C], xmm0
-          vmovss  [rsp+160h+var_118], xmm2
-        }
-      }
-    }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3a83126f; epsilon
-      vmovss  [rsp+160h+v1], xmm6
-      vmovss  [rsp+160h+var_10C], xmm6
-      vmovss  [rsp+160h+var_108], xmm6
-    }
-    if ( VecNCompareCustomEpsilon(&v0, v1, *(float *)&_XMM2, 3) )
-      goto LABEL_26;
-    __asm
-    {
-      vmovss  xmm5, [rsp+160h+var_11C]
-      vmovss  xmm4, [rsp+160h+v0]
-      vmovss  xmm3, [rsp+160h+var_118]
-      vmovss  xmm8, cs:__real@3f800000
-    }
-    _RBX = DVARFLT_g_fixedDeathCameraMinGravForFallChecks;
-    __asm
-    {
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm6, xmm0, xmm0
-      vcmpless xmm0, xmm6, cs:__real@80000000
-      vblendvps xmm0, xmm6, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm9, xmm4, xmm1
-      vmulss  xmm10, xmm5, xmm1
-      vmulss  xmm11, xmm3, xmm1
-    }
-    if ( !DVARFLT_g_fixedDeathCameraMinGravForFallChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_fixedDeathCameraMinGravForFallChecks") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-    if ( v10 )
-      goto LABEL_26;
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42480000
-      vmovss  xmm5, dword ptr [rdi+130h]
-      vmovss  xmm4, dword ptr [rdi+134h]
-      vmovss  xmm3, dword ptr [rdi+138h]
-    }
-    number = _RDI->s.number;
-    __asm
-    {
-      vmulss  xmm0, xmm9, xmm2
-      vsubss  xmm1, xmm5, xmm0
-      vmulss  xmm0, xmm10, xmm2
-      vmovss  dword ptr [rsp+160h+start], xmm1
-      vsubss  xmm1, xmm4, xmm0
-      vmulss  xmm0, xmm11, xmm2
-      vmovss  dword ptr [rsp+160h+start+4], xmm1
-      vsubss  xmm1, xmm3, xmm0
-      vmulss  xmm2, xmm9, xmm7
-      vaddss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rsp+160h+start+8], xmm1
-      vmulss  xmm1, xmm10, xmm7
-      vaddss  xmm2, xmm1, xmm4
-      vmovss  dword ptr [rsp+160h+end], xmm0
-      vmulss  xmm0, xmm11, xmm7
-      vaddss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsp+160h+end+8], xmm1
-      vmovss  dword ptr [rsp+160h+end+4], xmm2
-    }
-    G_Main_TraceCapsule(&results, &start, &end, &bounds_origin, number, 67601);
-    __asm
-    {
-      vmovss  xmm0, [rbp+60h+results.fraction]
-      vucomiss xmm0, xmm8
-    }
-    if ( !v13 )
-LABEL_26:
-      result = 0;
-    else
-      result = 1;
-    __asm
-    {
-      vmovaps xmm10, [rsp+160h+var_68+8]
-      vmovaps xmm9, [rsp+160h+var_58+8]
-      vmovaps xmm8, xmmword ptr [rsp+160h+var_48+8]
-      vmovaps xmm11, [rsp+160h+var_78+8]
-    }
-  }
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  v14 = v0 * (float)(1.0 / *(float *)&_XMM0);
+  v15 = v22 * (float)(1.0 / *(float *)&_XMM0);
+  v16 = v23 * (float)(1.0 / *(float *)&_XMM0);
+  if ( !DVARFLT_g_fixedDeathCameraMinGravForFallChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_fixedDeathCameraMinGravForFallChecks") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v9);
+  if ( *(float *)&_XMM6 < v9->current.value )
+    return 0;
+  v17 = ent->r.currentOrigin.v[0];
+  v18 = ent->r.currentOrigin.v[1];
+  v19 = ent->r.currentOrigin.v[2];
+  number = ent->s.number;
+  start.v[0] = v17 - (float)(v14 * 50.0);
+  start.v[1] = v18 - (float)(v15 * 50.0);
+  start.v[2] = v19 - (float)(v16 * 50.0);
+  end.v[0] = (float)(v14 * value) + v17;
+  end.v[2] = (float)(v16 * value) + v19;
+  end.v[1] = (float)(v15 * value) + v18;
+  G_Main_TraceCapsule(&results, &start, &end, &bounds_origin, number, 67601);
+  return results.fraction == 1.0;
 }
 
 /*
@@ -885,60 +773,34 @@ LABEL_26:
 G_PlayerCorpseMP_RunCorpse
 ==============
 */
-
-void __fastcall G_PlayerCorpseMP_RunCorpse(gentity_s *ent, double _XMM1_8)
+void G_PlayerCorpseMP_RunCorpse(gentity_s *ent)
 {
   GCorpseInfoMP *CorpseInfo_Internal; 
   vec3_t trBase; 
 
-  _RBX = ent;
   G_CheckCodeStartRagdoll(ent);
-  G_RunCorpseMove(_RBX);
-  G_RunCorpseAnimate(_RBX);
-  G_GameInterface_PlayerCorpseMP_RunCorpse(_RBX);
-  G_Main_RunThink(_RBX);
-  CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(_RBX);
+  G_RunCorpseMove(ent);
+  G_RunCorpseAnimate(ent);
+  G_GameInterface_PlayerCorpseMP_RunCorpse(ent);
+  G_Main_RunThink(ent);
+  CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(ent);
   if ( !CorpseInfo_Internal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 843, ASSERT_TYPE_ASSERT, "( corpseInfo ) != ( nullptr )", "%s != %s\n\t%p, %p", "corpseInfo", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( CorpseInfo_Internal->fullPrecisionOrigin )
   {
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RBX->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&ent->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
   }
   else
   {
-    Trajectory_GetTrBase(&_RBX->s.lerp.pos, &trBase);
-    __asm
-    {
-      vcvttss2si eax, dword ptr [rsp+78h+trBase]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rsp+78h+trBase], xmm0
-      vcvttss2si eax, dword ptr [rsp+78h+trBase+4]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmovss  dword ptr [rsp+78h+trBase+4], xmm1
-      vcvttss2si eax, dword ptr [rsp+78h+trBase+8]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rsp+78h+trBase+8], xmm0
-    }
-    Trajectory_SetTrBase(&_RBX->s.lerp.pos, &trBase);
-    __asm
-    {
-      vcvttss2si eax, dword ptr [rbx+40h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+40h], xmm0
-      vcvttss2si eax, dword ptr [rbx+44h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+44h], xmm0
-      vcvttss2si eax, dword ptr [rbx+48h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+48h], xmm0
-    }
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RBX->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    Trajectory_GetTrBase(&ent->s.lerp.pos, &trBase);
+    trBase.v[0] = (float)(int)trBase.v[0];
+    trBase.v[1] = (float)(int)trBase.v[1];
+    trBase.v[2] = (float)(int)trBase.v[2];
+    Trajectory_SetTrBase(&ent->s.lerp.pos, &trBase);
+    ent->s.lerp.apos.trBase.v[0] = (float)(int)ent->s.lerp.apos.trBase.v[0];
+    ent->s.lerp.apos.trBase.v[1] = (float)(int)ent->s.lerp.apos.trBase.v[1];
+    ent->s.lerp.apos.trBase.v[2] = (float)(int)ent->s.lerp.apos.trBase.v[2];
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ent->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
     memset(&trBase, 0, sizeof(trBase));
   }
 }
@@ -961,15 +823,16 @@ void G_PlayerCorpseMP_SetupImportantCorpseEntityLoDsForAllClients(void)
   __int64 v8; 
   PlayerCorpseMP_NetfieldLoddingData *v9; 
   int clientNum; 
+  float *v; 
+  float v12; 
   float v13; 
-  float v14; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
-  unsigned int *v26; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  float *v20; 
 
   Sys_ProfBeginNamedEvent(0xFFFFD700, "G_PlayerCorpseMP_SetupImportantCorpseEntityLoDsForAllClients");
   if ( !SV_EntitiesLoD_UseDynamicLoD() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 898, ASSERT_TYPE_ASSERT, "( SV_EntitiesLoD_UseDynamicLoD() )", (const char *)&queryFormat, "SV_EntitiesLoD_UseDynamicLoD()") )
@@ -987,17 +850,17 @@ void G_PlayerCorpseMP_SetupImportantCorpseEntityLoDsForAllClients(void)
   m_clientCorpseCount = ComCharacterLimits::ms_gameData.m_clientCorpseCount;
   if ( ComCharacterLimits::ms_gameData.m_clientCorpseCount > 8 )
   {
-    LODWORD(v23) = 8;
-    LODWORD(v20) = ComCharacterLimits::ms_gameData.m_clientCorpseCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 904, ASSERT_TYPE_ASSERT, "( maxCorpseCount ) <= ( ( sizeof( *array_counter( gScrData->playerCorpseInfo ) ) + 0 ) )", "maxCorpseCount <= ARRAY_COUNT( gScrData->playerCorpseInfo )\n\t%i, %i", v20, v23) )
+    LODWORD(v17) = 8;
+    LODWORD(v14) = ComCharacterLimits::ms_gameData.m_clientCorpseCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 904, ASSERT_TYPE_ASSERT, "( maxCorpseCount ) <= ( ( sizeof( *array_counter( gScrData->playerCorpseInfo ) ) + 0 ) )", "maxCorpseCount <= ARRAY_COUNT( gScrData->playerCorpseInfo )\n\t%i, %i", v14, v17) )
       __debugbreak();
-    LODWORD(v24) = 8;
-    LODWORD(v21) = m_clientCorpseCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 905, ASSERT_TYPE_ASSERT, "( maxCorpseCount ) <= ( ( sizeof( *array_counter( s_newPlayerCorpsesForNetFieldLodding_indices ) ) + 0 ) )", "maxCorpseCount <= ARRAY_COUNT( s_newPlayerCorpsesForNetFieldLodding_indices )\n\t%i, %i", v21, v24) )
+    LODWORD(v18) = 8;
+    LODWORD(v15) = m_clientCorpseCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 905, ASSERT_TYPE_ASSERT, "( maxCorpseCount ) <= ( ( sizeof( *array_counter( s_newPlayerCorpsesForNetFieldLodding_indices ) ) + 0 ) )", "maxCorpseCount <= ARRAY_COUNT( s_newPlayerCorpsesForNetFieldLodding_indices )\n\t%i, %i", v15, v18) )
       __debugbreak();
-    LODWORD(v25) = 8;
-    LODWORD(v22) = m_clientCorpseCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 906, ASSERT_TYPE_ASSERT, "( maxCorpseCount ) <= ( ( sizeof( *array_counter( s_newPlayerCorpseNetfieldLodding_data ) ) + 0 ) )", "maxCorpseCount <= ARRAY_COUNT( s_newPlayerCorpseNetfieldLodding_data )\n\t%i, %i", v22, v25) )
+    LODWORD(v19) = 8;
+    LODWORD(v16) = m_clientCorpseCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 906, ASSERT_TYPE_ASSERT, "( maxCorpseCount ) <= ( ( sizeof( *array_counter( s_newPlayerCorpseNetfieldLodding_data ) ) + 0 ) )", "maxCorpseCount <= ARRAY_COUNT( s_newPlayerCorpseNetfieldLodding_data )\n\t%i, %i", v16, v19) )
       __debugbreak();
   }
   s_newPlayerCorpsesForNetfieldLodding_count = 0;
@@ -1012,9 +875,9 @@ void G_PlayerCorpseMP_SetupImportantCorpseEntityLoDsForAllClients(void)
       {
         if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 130, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
           __debugbreak();
-        LODWORD(v23) = ComCharacterLimits::ms_gameData.m_clientCorpseCount;
-        LODWORD(v20) = i;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 131, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ComCharacterLimits::GetClientCorpseMaxCount() )", "corpseIndex doesn't index ComCharacterLimits::GetClientCorpseMaxCount()\n\t%i not in [0, %i)", v20, v23) )
+        LODWORD(v17) = ComCharacterLimits::ms_gameData.m_clientCorpseCount;
+        LODWORD(v14) = i;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 131, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ComCharacterLimits::GetClientCorpseMaxCount() )", "corpseIndex doesn't index ComCharacterLimits::GetClientCorpseMaxCount()\n\t%i not in [0, %i)", v14, v17) )
           __debugbreak();
       }
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 152, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -1022,9 +885,9 @@ void G_PlayerCorpseMP_SetupImportantCorpseEntityLoDsForAllClients(void)
       v6 = i + ComCharacterLimits::ms_gameData.m_characterCount;
       if ( i + ComCharacterLimits::ms_gameData.m_characterCount >= 0x800 )
       {
-        LODWORD(v23) = 2048;
-        LODWORD(v20) = i + ComCharacterLimits::ms_gameData.m_characterCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v23) )
+        LODWORD(v17) = 2048;
+        LODWORD(v14) = i + ComCharacterLimits::ms_gameData.m_characterCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, v17) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1042,55 +905,30 @@ void G_PlayerCorpseMP_SetupImportantCorpseEntityLoDsForAllClients(void)
         __debugbreak();
       v9->clientNum = clientNum;
       v9->attackerEntityNum = v7->s.attackerEntityNum;
-      _RBX = (unsigned int *)&v9->origin;
-      _RDI = &v7->s.lerp.pos;
+      v = v9->origin.v;
       if ( v7 == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
         __debugbreak();
-      if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+      if ( v7->s.lerp.pos.trType == TR_LINEAR_STOP_SECURE )
       {
-        v26 = _RBX;
-        v13 = v7->s.lerp.pos.trBase.v[0];
-        v14 = v7->s.lerp.pos.trBase.v[1];
-        _RBX[2] = s_trbase_aab_Z ^ LODWORD(v14) ^ LODWORD(v7->s.lerp.pos.trBase.v[2]);
-        _RBX[1] = s_trbase_aab_Y ^ LODWORD(v13) ^ LODWORD(v14);
-        *_RBX = LODWORD(v13) ^ ~s_trbase_aab_X;
-        memset(&v26, 0, sizeof(v26));
-        __asm
+        v20 = v;
+        v12 = v7->s.lerp.pos.trBase.v[0];
+        v13 = v7->s.lerp.pos.trBase.v[1];
+        *((_DWORD *)v + 2) = s_trbase_aab_Z ^ LODWORD(v13) ^ LODWORD(v7->s.lerp.pos.trBase.v[2]);
+        *((_DWORD *)v + 1) = s_trbase_aab_Y ^ LODWORD(v12) ^ LODWORD(v13);
+        *(_DWORD *)v = LODWORD(v12) ^ ~s_trbase_aab_X;
+        memset(&v20, 0, sizeof(v20));
+        *(float *)&v20 = *v;
+        if ( ((unsigned int)v20 & 0x7F800000) == 2139095040 || (*(float *)&v20 = v[1], ((unsigned int)v20 & 0x7F800000) == 2139095040) || (*(float *)&v20 = v[2], ((unsigned int)v20 & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  dword ptr [rsp+88h+arg_0], xmm0
-        }
-        if ( ((unsigned int)v26 & 0x7F800000) == 2139095040 )
-          goto LABEL_66;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vmovss  dword ptr [rsp+88h+arg_0], xmm0
-        }
-        if ( ((unsigned int)v26 & 0x7F800000) == 2139095040 )
-          goto LABEL_66;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rsp+88h+arg_0], xmm0
-        }
-        if ( ((unsigned int)v26 & 0x7F800000) == 2139095040 )
-        {
-LABEL_66:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
             __debugbreak();
         }
       }
       else
       {
-        *_RBX = LODWORD(v7->s.lerp.pos.trBase.v[0]);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+10h]
-          vmovss  dword ptr [rbx+4], xmm0
-          vmovss  xmm1, dword ptr [rdi+14h]
-          vmovss  dword ptr [rbx+8], xmm1
-        }
+        *v = v7->s.lerp.pos.trBase.v[0];
+        v[1] = v7->s.lerp.pos.trBase.v[1];
+        v[2] = v7->s.lerp.pos.trBase.v[2];
       }
       ++s_newPlayerCorpsesForNetfieldLodding_count;
     }
@@ -1103,55 +941,29 @@ LABEL_66:
 G_PlayerCorpseMP_SnapOrigin
 ==============
 */
-
-void __fastcall G_PlayerCorpseMP_SnapOrigin(gentity_s *ent, double _XMM1_8)
+void G_PlayerCorpseMP_SnapOrigin(gentity_s *ent)
 {
   GCorpseInfoMP *CorpseInfo_Internal; 
   vec3_t trBase; 
 
-  _RBX = ent;
   CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(ent);
   if ( !CorpseInfo_Internal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 843, ASSERT_TYPE_ASSERT, "( corpseInfo ) != ( nullptr )", "%s != %s\n\t%p, %p", "corpseInfo", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( CorpseInfo_Internal->fullPrecisionOrigin )
   {
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RBX->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&ent->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
   }
   else
   {
-    Trajectory_GetTrBase(&_RBX->s.lerp.pos, &trBase);
-    __asm
-    {
-      vcvttss2si eax, dword ptr [rsp+78h+trBase]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rsp+78h+trBase], xmm0
-      vcvttss2si eax, dword ptr [rsp+78h+trBase+4]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmovss  dword ptr [rsp+78h+trBase+4], xmm1
-      vcvttss2si eax, dword ptr [rsp+78h+trBase+8]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rsp+78h+trBase+8], xmm0
-    }
-    Trajectory_SetTrBase(&_RBX->s.lerp.pos, &trBase);
-    __asm
-    {
-      vcvttss2si eax, dword ptr [rbx+40h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+40h], xmm0
-      vcvttss2si eax, dword ptr [rbx+44h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+44h], xmm0
-      vcvttss2si eax, dword ptr [rbx+48h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+48h], xmm0
-    }
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RBX->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
+    Trajectory_GetTrBase(&ent->s.lerp.pos, &trBase);
+    trBase.v[0] = (float)(int)trBase.v[0];
+    trBase.v[1] = (float)(int)trBase.v[1];
+    trBase.v[2] = (float)(int)trBase.v[2];
+    Trajectory_SetTrBase(&ent->s.lerp.pos, &trBase);
+    ent->s.lerp.apos.trBase.v[0] = (float)(int)ent->s.lerp.apos.trBase.v[0];
+    ent->s.lerp.apos.trBase.v[1] = (float)(int)ent->s.lerp.apos.trBase.v[1];
+    ent->s.lerp.apos.trBase.v[2] = (float)(int)ent->s.lerp.apos.trBase.v[2];
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ent->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Fu);
     memset(&trBase, 0, sizeof(trBase));
   }
 }
@@ -1165,12 +977,12 @@ void G_PlayerCorpseMP_StartRagdoll(gentity_s *ent, bool instantPlayerRagdoll)
 {
   BOOL v3; 
   __int32 v4; 
-  int v5; 
-  int v6; 
-  GTrajectory v10; 
+  trType_t v5; 
+  trType_t v6; 
+  float v7; 
+  GTrajectory v8; 
   vec3_t outAng; 
 
-  _RBX = ent;
   v3 = instantPlayerRagdoll;
   v4 = ent->s.lerp.pos.trType - 1;
   if ( v4 )
@@ -1184,14 +996,14 @@ void G_PlayerCorpseMP_StartRagdoll(gentity_s *ent, bool instantPlayerRagdoll)
   {
     v5 = instantPlayerRagdoll + 26;
   }
-  _RBX->s.lerp.pos.trType = v5;
-  GTrajectory::GTrajectory(&v10, _RBX);
-  BgTrajectory::EvaluateAngTrajectory(&v10, level.time, &outAng);
-  if ( _RBX->s.lerp.apos.trType == TR_INTERPOLATE )
+  ent->s.lerp.pos.trType = v5;
+  GTrajectory::GTrajectory(&v8, ent);
+  BgTrajectory::EvaluateAngTrajectory(&v8, level.time, &outAng);
+  if ( ent->s.lerp.apos.trType == TR_INTERPOLATE )
   {
     v6 = v3 + 26;
   }
-  else if ( _RBX->s.lerp.apos.trType == TR_GRAVITY )
+  else if ( ent->s.lerp.apos.trType == TR_GRAVITY )
   {
     v6 = v3 + 24;
   }
@@ -1199,19 +1011,14 @@ void G_PlayerCorpseMP_StartRagdoll(gentity_s *ent, bool instantPlayerRagdoll)
   {
     v6 = 4 * v3 + 23;
   }
-  _RBX->s.lerp.apos.trType = v6;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+outAng]
-    vmovss  xmm1, dword ptr [rsp+68h+outAng+4]
-    vmovss  dword ptr [rbx+40h], xmm0
-    vmovss  xmm0, dword ptr [rsp+68h+outAng+8]
-    vmovss  dword ptr [rbx+48h], xmm0
-    vmovss  dword ptr [rbx+44h], xmm1
-  }
-  *(_QWORD *)_RBX->s.lerp.apos.trDelta.v = 0i64;
-  _RBX->s.lerp.apos.trDelta.v[2] = 0.0;
-  _RBX->s.lerp.apos.trDuration = 0;
+  ent->s.lerp.apos.trType = v6;
+  v7 = outAng.v[1];
+  ent->s.lerp.apos.trBase.v[0] = outAng.v[0];
+  ent->s.lerp.apos.trBase.v[2] = outAng.v[2];
+  ent->s.lerp.apos.trBase.v[1] = v7;
+  *(_QWORD *)ent->s.lerp.apos.trDelta.v = 0i64;
+  ent->s.lerp.apos.trDelta.v[2] = 0.0;
+  ent->s.lerp.apos.trDuration = 0;
 }
 
 /*
@@ -1436,26 +1243,29 @@ G_RunCorpseAnimate
 void G_RunCorpseAnimate(gentity_s *ent)
 {
   unsigned int eType; 
-  int v4; 
+  int v3; 
   GameScriptDataMP *GameScriptDataMP; 
   int AgentCorpseIndex; 
-  __int64 v7; 
-  int v9; 
+  __int64 v6; 
+  __int64 p_ci; 
+  int v8; 
   GWeaponMap *Instance; 
   DObj *ServerDObjForEnt; 
   int EntCorpseIndex; 
-  __int64 v13; 
-  GWeaponMap *v14; 
-  DObj *v15; 
+  __int64 v12; 
+  double v13; 
+  double v14; 
+  GWeaponMap *v15; 
   DObj *v16; 
-  GWeaponMap *v17; 
+  DObj *v17; 
+  GWeaponMap *v18; 
   GHandler *Handler; 
   __int64 attachIgnoreCollision; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
   eType = (unsigned __int16)ent->s.eType;
-  if ( (unsigned __int16)eType > 0x15u || (v4 = 2359300, !_bittest(&v4, eType)) )
+  if ( (unsigned __int16)eType > 0x15u || (v3 = 2359300, !_bittest(&v3, eType)) )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 748, ASSERT_TYPE_ASSERT, "(BG_IsCorpseEntity( &ent->s ))", (const char *)&queryFormat, "BG_IsCorpseEntity( &ent->s )") )
       __debugbreak();
@@ -1464,49 +1274,49 @@ void G_RunCorpseAnimate(gentity_s *ent)
   if ( ent->s.eType == ET_AGENT_CORPSE )
   {
     AgentCorpseIndex = G_PlayerCorpseMP_GetAgentCorpseIndex(ent);
-    v7 = AgentCorpseIndex;
+    v6 = AgentCorpseIndex;
     if ( (unsigned int)AgentCorpseIndex >= 8 )
     {
       LODWORD(attachIgnoreCollision) = AgentCorpseIndex;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 755, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ( sizeof( *array_counter( gScrData->agentCorpseInfo ) ) + 0 ) )", "corpseIndex doesn't index ARRAY_COUNT( gScrData->agentCorpseInfo )\n\t%i not in [0, %i)", attachIgnoreCollision, 8) )
         __debugbreak();
     }
-    _RSI = (__int64)&GameScriptDataMP->agentCorpseInfo[v7].ci;
-    v9 = 0;
-    *(_QWORD *)(_RSI + 2768) = 0i64;
+    p_ci = (__int64)&GameScriptDataMP->agentCorpseInfo[v6].ci;
+    v8 = 0;
+    *(_QWORD *)(p_ci + 2768) = 0i64;
     Instance = GWeaponMap::GetInstance();
     ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
-    BG_AnimationMP_UpdateAgentCorpseDObj(LOCAL_CLIENT_INVALID, ServerDObjForEnt, Instance, &ent->s, (characterInfo_t *)_RSI);
+    BG_AnimationMP_UpdateAgentCorpseDObj(LOCAL_CLIENT_INVALID, ServerDObjForEnt, Instance, &ent->s, (characterInfo_t *)p_ci);
   }
   else
   {
     EntCorpseIndex = G_PlayerCorpseMP_GetEntCorpseIndex(ent);
-    v13 = EntCorpseIndex;
+    v12 = EntCorpseIndex;
     if ( (unsigned int)EntCorpseIndex >= 8 )
     {
       LODWORD(attachIgnoreCollision) = EntCorpseIndex;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 767, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ( sizeof( *array_counter( gScrData->playerCorpseInfo ) ) + 0 ) )", "corpseIndex doesn't index ARRAY_COUNT( gScrData->playerCorpseInfo )\n\t%i not in [0, %i)", attachIgnoreCollision, 8) )
         __debugbreak();
     }
-    _RSI = (__int64)&GameScriptDataMP->playerCorpseInfo[v13].ci;
-    *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(ent->s.lerp.u.player.torsoPitchPacked);
-    __asm { vmovss  dword ptr [rsi+0AD0h], xmm0 }
-    *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(ent->s.lerp.u.player.waistPitchPacked);
-    __asm { vmovss  dword ptr [rsi+0AD4h], xmm0 }
-    v14 = GWeaponMap::GetInstance();
-    v15 = Com_GetServerDObjForEnt(ent);
-    v9 = 0;
-    BG_AnimationMP_UpdatePlayerDObj(LOCAL_CLIENT_INVALID, v15, v14, &ent->s, (characterInfo_t *)_RSI, 0);
+    p_ci = (__int64)&GameScriptDataMP->playerCorpseInfo[v12].ci;
+    v13 = BG_AnimationMP_UnpackPitch(ent->s.lerp.u.player.torsoPitchPacked);
+    *(float *)(p_ci + 2768) = *(float *)&v13;
+    v14 = BG_AnimationMP_UnpackPitch(ent->s.lerp.u.player.waistPitchPacked);
+    *(float *)(p_ci + 2772) = *(float *)&v14;
+    v15 = GWeaponMap::GetInstance();
+    v16 = Com_GetServerDObjForEnt(ent);
+    v8 = 0;
+    BG_AnimationMP_UpdatePlayerDObj(LOCAL_CLIENT_INVALID, v16, v15, &ent->s, (characterInfo_t *)p_ci, 0);
   }
-  *(_BYTE *)(_RSI + 14497) = 0;
-  v16 = Com_GetServerDObjForEnt(ent);
-  LOBYTE(v9) = v16 != NULL;
-  G_UpdateTagInfoOfChildren(ent, v9);
-  if ( v16 )
+  *(_BYTE *)(p_ci + 14497) = 0;
+  v17 = Com_GetServerDObjForEnt(ent);
+  LOBYTE(v8) = v17 != NULL;
+  G_UpdateTagInfoOfChildren(ent, v8);
+  if ( v17 )
   {
-    if ( *(_DWORD *)(_RSI + 2568) )
+    if ( *(_DWORD *)(p_ci + 2568) )
     {
-      BG_AnimationState_Update(&ent->s, (characterInfo_t *)_RSI, 0);
+      BG_AnimationState_Update(&ent->s, (characterInfo_t *)p_ci, 0);
       if ( ScriptableSv_GetScriptableIndexForEntity(ent) != -1 )
         ScriptableSv_UpdateEntityPosition(ent);
     }
@@ -1514,18 +1324,18 @@ void G_RunCorpseAnimate(gentity_s *ent)
     {
       if ( PlayerASM_IsEnabled() )
       {
-        BG_PlayerASM_CopyAnimDataToCharacterInfo(&ent->s, (characterInfo_t *)_RSI);
+        BG_PlayerASM_CopyAnimDataToCharacterInfo(&ent->s, (characterInfo_t *)p_ci);
       }
       else
       {
-        *(_DWORD *)(_RSI + 14780) = BG_AnimationMP_GetSuitAnimIndex(&ent->s);
-        *(_DWORD *)(_RSI + 14784) = BG_AnimationMP_GetLegsAnimation(&ent->s);
-        *(_DWORD *)(_RSI + 14788) = BG_AnimationMP_GetTorsoAnimation(&ent->s);
+        *(_DWORD *)(p_ci + 14780) = BG_AnimationMP_GetSuitAnimIndex(&ent->s);
+        *(_DWORD *)(p_ci + 14784) = BG_AnimationMP_GetLegsAnimation(&ent->s);
+        *(_DWORD *)(p_ci + 14788) = BG_AnimationMP_GetTorsoAnimation(&ent->s);
       }
-      *(_BYTE *)(_RSI + 14496) = 0;
-      v17 = GWeaponMap::GetInstance();
+      *(_BYTE *)(p_ci + 14496) = 0;
+      v18 = GWeaponMap::GetInstance();
       Handler = GHandler::getHandler();
-      BG_PlayerAnimation(Handler, v17, &ent->s, (characterInfo_t *)_RSI, &ent->r.currentOrigin, &vec3_origin, &vec3_origin);
+      BG_PlayerAnimation(Handler, v18, &ent->s, (characterInfo_t *)p_ci, &ent->r.currentOrigin, &vec3_origin, &vec3_origin);
     }
   }
 }
@@ -1537,35 +1347,69 @@ G_RunCorpseMove
 */
 void G_RunCorpseMove(gentity_s *ent)
 {
+  __int128 v1; 
+  __int128 v2; 
   trajectory_t_secure *p_pos; 
-  unsigned int v13; 
+  unsigned int v5; 
   unsigned int eType; 
-  int v15; 
+  int v7; 
   playerState_s *OwnerPlayerState; 
-  int v17; 
+  int v9; 
   GCorpseInfoMP *CorpseInfo_Internal; 
   const DObj *ServerDObjForEnt; 
-  const dvar_t *v22; 
-  char v23; 
-  bool v24; 
+  const dvar_t *v13; 
+  float v14; 
   bool falling; 
-  char v41; 
+  char v16; 
   trType_t trType; 
-  bool v100; 
-  bool v101; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  float v31; 
+  float v32; 
+  float v33; 
   int clipmask; 
+  __int128 v35; 
+  double v36; 
   __int16 number; 
-  __int64 v127; 
-  const dvar_t *v129; 
-  int v134; 
+  float v38; 
+  float v39; 
+  float v40; 
+  signed __int64 v44; 
+  trType_t v45; 
+  float v46; 
+  int v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  const dvar_t *v60; 
+  float v61; 
+  int v62; 
+  float v63; 
+  float v64; 
   char *fmt; 
-  char *fmta; 
   vec3_t *trans; 
   __int64 bUseGoalWeight; 
-  bool v160; 
-  GTrajectory v161; 
+  bool v68; 
+  int v69; 
+  unsigned int v70; 
+  trType_t v71; 
+  GTrajectory v72; 
   vec3_t outPos; 
-  vec3_t v163; 
+  vec3_t v74; 
   vec3_t forward; 
   vec3_t trBase; 
   vec3_t up; 
@@ -1574,29 +1418,41 @@ void G_RunCorpseMove(gentity_s *ent)
   Bounds bounds; 
   trace_t results; 
   vec2_t rot; 
-  vec3_t v172; 
+  vec3_t v83; 
+  __int128 v84; 
+  __int128 v85; 
 
   p_pos = &ent->s.lerp.pos;
-  _RBX = ent;
   if ( ent == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2263, ASSERT_TYPE_ASSERT, "(trajectory)", (const char *)&queryFormat, "trajectory") )
     __debugbreak();
-  v13 = p_pos->trType - 23;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  v5 = p_pos->trType - 23;
+  v70 = v5;
+  if ( ((p_pos->trType - 25) & 0xFFFFFFFD) != 0 )
+  {
+    v69 = 26;
+    v71 = TR_RAGDOLL_GRAVITY;
+  }
+  else
+  {
+    v69 = 27;
+    v71 = TR_RAGDOLL_GRAVITY_PLAYER_IMMEDIATE;
+  }
+  if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = (unsigned __int16)_RBX->s.eType;
-  if ( (unsigned __int16)eType > 0x15u || (v15 = 2359300, !_bittest(&v15, eType)) )
+  eType = (unsigned __int16)ent->s.eType;
+  if ( (unsigned __int16)eType > 0x15u || (v7 = 2359300, !_bittest(&v7, eType)) )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 566, ASSERT_TYPE_ASSERT, "(BG_IsCorpseEntity( &ent->s ))", (const char *)&queryFormat, "BG_IsCorpseEntity( &ent->s )") )
       __debugbreak();
   }
-  OwnerPlayerState = G_PlayerCorpseMP_GetOwnerPlayerState(_RBX);
-  v17 = 2047;
-  CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(_RBX);
-  if ( _RBX->s.groundEntityNum == 2047 )
+  OwnerPlayerState = G_PlayerCorpseMP_GetOwnerPlayerState(ent);
+  v9 = 2047;
+  CorpseInfo_Internal = G_PlayerCorpseMP_FindCorpseInfo_Internal(ent);
+  if ( ent->s.groundEntityNum == 2047 )
   {
     if ( !OwnerPlayerState )
-      goto LABEL_26;
-    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&OwnerPlayerState->otherFlags, FOG_SCALE|0x20) && G_PlayerCorpseMP_RequiresFixedDeathCamera(_RBX) )
+      goto LABEL_29;
+    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&OwnerPlayerState->otherFlags, FOG_SCALE|0x20) && G_PlayerCorpseMP_RequiresFixedDeathCamera(ent) )
     {
       if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 201, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
         __debugbreak();
@@ -1613,351 +1469,238 @@ void G_RunCorpseMove(gentity_s *ent)
       return;
     }
   }
-LABEL_26:
-  __asm
-  {
-    vmovaps [rsp+250h+var_A0], xmm13
-    vmovaps [rsp+250h+var_B0], xmm14
-  }
-  ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3f800000
-    vxorps  xmm13, xmm13, xmm13
-  }
+LABEL_29:
+  ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
+  _XMM13 = 0i64;
   if ( !ServerDObjForEnt )
-    goto LABEL_37;
-  XAnimCalcDelta(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, 0, &rot, &v163, 1);
-  v22 = DVARBOOL_anim_deltas_debug;
+    goto LABEL_40;
+  XAnimCalcDelta(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, 0, &rot, &v74, 1);
+  v13 = DVARBOOL_anim_deltas_debug;
   if ( !DVARBOOL_anim_deltas_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "anim_deltas_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  v23 = 0;
-  v24 = !v22->current.enabled;
-  __asm { vmovss  xmm1, dword ptr [rbp+150h+var_1D0] }
-  if ( v22->current.enabled )
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = v74.v[0];
+  if ( v13->current.enabled && v74.v[0] != 0.0 )
   {
-    __asm { vucomiss xmm1, xmm13 }
-    if ( v22->current.enabled )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbp+150h+var_1D0+4]
-        vmovss  xmm0, dword ptr [rbp+150h+var_1D0+8]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm1, xmm1
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+250h+fmt], xmm0
-      }
-      Com_Printf(19, "got anim delta for this frame of ( %f, %f, %f )\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta);
-      __asm { vmovss  xmm1, dword ptr [rbp+150h+var_1D0] }
-    }
+    Com_Printf(19, "got anim delta for this frame of ( %f, %f, %f )\n", v74.v[0], v74.v[1], v74.v[2]);
+    v14 = v74.v[0];
   }
-  __asm
+  if ( (float)((float)((float)(v74.v[1] * v74.v[1]) + (float)(v14 * v14)) + (float)(v74.v[2] * v74.v[2])) <= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0+4]
-    vmulss  xmm2, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0+8]
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm0
-    vaddss  xmm1, xmm3, xmm2
-    vcomiss xmm1, xmm14
-  }
-  if ( v23 | v24 )
-  {
-LABEL_37:
+LABEL_40:
     falling = CorpseInfo_Internal->falling;
+LABEL_41:
+    v16 = 0;
+    goto LABEL_42;
   }
-  else
+  falling = CorpseInfo_Internal->falling;
+  if ( falling && v5 <= 5 )
+    goto LABEL_41;
+  v16 = 1;
+LABEL_42:
+  if ( falling || v16 )
   {
-    falling = CorpseInfo_Internal->falling;
-    if ( !falling || v13 > 5 )
+    if ( !ent->tagInfo )
     {
-      v41 = 1;
-      goto LABEL_39;
-    }
-  }
-  v41 = 0;
-LABEL_39:
-  if ( falling || v41 )
-  {
-    __asm
-    {
-      vmovaps [rsp+250h+var_30], xmm6
-      vmovaps [rsp+250h+var_40], xmm7
-      vmovaps [rsp+250h+var_C0], xmm15
-    }
-    if ( !_RBX->tagInfo )
-    {
-      trType = _RBX->s.lerp.pos.trType;
+      trType = ent->s.lerp.pos.trType;
       if ( falling )
       {
-        if ( trType != TR_GRAVITY && v13 > 5 )
+        if ( trType != TR_GRAVITY && v5 > 5 )
         {
           LODWORD(fmt) = 0;
-          Com_PrintWarning(0, "WARNING: Entity = %d, trajectory = %d, isRagdoll = %d, entity is falling but not ragdoll or gravity or linked, clearing fall and returning.\n", (unsigned int)_RBX->s.number, (unsigned int)trType, fmt);
+          Com_PrintWarning(0, "WARNING: Entity = %d, trajectory = %d, isRagdoll = %d, entity is falling but not ragdoll or gravity or linked, clearing fall and returning.\n", (unsigned int)ent->s.number, (unsigned int)trType, fmt);
         }
       }
-      else if ( trType != TR_INTERPOLATE && v13 > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 608, ASSERT_TYPE_ASSERT, "(ent->s.lerp.pos.trType == TR_INTERPOLATE || isRagdoll)", (const char *)&queryFormat, "ent->s.lerp.pos.trType == TR_INTERPOLATE || isRagdoll") )
+      else if ( trType != TR_INTERPOLATE && v5 > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 608, ASSERT_TYPE_ASSERT, "(ent->s.lerp.pos.trType == TR_INTERPOLATE || isRagdoll)", (const char *)&queryFormat, "ent->s.lerp.pos.trType == TR_INTERPOLATE || isRagdoll") )
       {
         __debugbreak();
       }
     }
-    __asm
+    GTrajectory::GTrajectory(&v72, ent);
+    BgTrajectory::EvaluatePosTrajectory(&v72, level.time, &outPos);
+    BgTrajectory::EvaluatePosTrajectoryDelta(&v72, level.time, &v83);
+    BgTrajectory::EvaluateAngTrajectory(&v72, level.time, &ent->r.currentAngles);
+    if ( v16 )
     {
-      vmovaps [rsp+250h+var_70], xmm10
-      vmovaps [rsp+250h+var_80], xmm11
-      vmovaps [rsp+250h+var_90], xmm12
-    }
-    GTrajectory::GTrajectory(&v161, _RBX);
-    BgTrajectory::EvaluatePosTrajectory(&v161, level.time, &outPos);
-    BgTrajectory::EvaluatePosTrajectoryDelta(&v161, level.time, &v172);
-    BgTrajectory::EvaluateAngTrajectory(&v161, level.time, &_RBX->r.currentAngles);
-    __asm { vmovss  xmm15, cs:__real@bf800000 }
-    if ( v41 )
-    {
+      v85 = v1;
+      v84 = v2;
+      AngleVectors(&ent->r.currentAngles, &forward, &right, &up);
+      v19 = LODWORD(FLOAT_N1_0);
+      *(float *)&v19 = -1.0 * right.v[1];
+      v18 = v19;
+      v20 = LODWORD(forward.v[0]);
+      *(float *)&v20 = fsqrt((float)((float)(*(float *)&v20 * *(float *)&v20) + (float)(forward.v[1] * forward.v[1])) + (float)(forward.v[2] * forward.v[2]));
+      _XMM3 = v20;
       __asm
       {
-        vmovaps [rsp+250h+var_50], xmm8
-        vmovaps [rsp+250h+var_60], xmm9
-      }
-      AngleVectors(&_RBX->r.currentAngles, &forward, &right, &up);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rbp+150h+forward]
-        vmovss  xmm5, dword ptr [rbp+150h+forward+4]
-        vmovss  xmm6, dword ptr [rbp+150h+forward+8]
-        vmovss  xmm7, dword ptr [rbp+150h+var_1D0]
-        vmulss  xmm10, xmm15, dword ptr [rbp+150h+right]
-        vmulss  xmm11, xmm15, dword ptr [rbp+150h+right+4]
-        vmulss  xmm12, xmm15, dword ptr [rbp+150h+right+8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm14, xmm0
-        vdivss  xmm1, xmm14, xmm0
-        vmulss  xmm8, xmm5, xmm1
-        vmovss  xmm5, dword ptr [rbp+150h+var_1D0+4]
-        vmulss  xmm9, xmm6, xmm1
-        vmovss  xmm6, dword ptr [rbp+150h+var_1D0+8]
-        vmulss  xmm4, xmm4, xmm1
-        vmulss  xmm0, xmm10, xmm10
-        vmulss  xmm1, xmm11, xmm11
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm12, xmm12
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
+      }
+      v24 = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      v25 = forward.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      v26 = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v27 = v18;
+      *(float *)&v27 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)((float)(-1.0 * right.v[0]) * (float)(-1.0 * right.v[0]))) + (float)((float)(-1.0 * right.v[2]) * (float)(-1.0 * right.v[2])));
+      _XMM3 = v27;
+      __asm
+      {
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm14, xmm0
-        vdivss  xmm1, xmm14, xmm0
-        vmulss  xmm10, xmm10, xmm1
-        vmulss  xmm11, xmm11, xmm1
-        vmulss  xmm12, xmm12, xmm1
-        vmulss  xmm0, xmm7, xmm4
-        vaddss  xmm2, xmm0, dword ptr [rsp+250h+outPos]
-        vmulss  xmm0, xmm7, xmm8
-        vmulss  xmm1, xmm5, xmm10
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rbp+150h+up]
-        vaddss  xmm2, xmm3, xmm1
-        vaddss  xmm3, xmm0, dword ptr [rsp+250h+outPos+4]
-        vmovss  dword ptr [rsp+250h+outPos], xmm2
-        vmulss  xmm2, xmm6, dword ptr [rbp+150h+up+4]
-        vmulss  xmm1, xmm5, xmm11
-        vmulss  xmm0, xmm7, xmm9
-        vmovss  dword ptr [rbp+150h+forward], xmm4
-        vaddss  xmm4, xmm3, xmm1
-        vaddss  xmm1, xmm4, xmm2
-        vaddss  xmm2, xmm0, dword ptr [rsp+250h+outPos+8]
-        vmovss  dword ptr [rsp+250h+outPos+4], xmm1
-        vmulss  xmm1, xmm5, xmm12
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm6, dword ptr [rbp+150h+up+8]
-        vaddss  xmm1, xmm3, xmm2
-        vmovss  dword ptr [rbp+150h+forward+4], xmm8
-        vmovaps xmm8, [rsp+250h+var_50]
-        vmovss  dword ptr [rbp+150h+forward+8], xmm9
-        vmovaps xmm9, [rsp+250h+var_60]
-        vmovss  dword ptr [rsp+250h+outPos+8], xmm1
       }
+      v31 = (float)(-1.0 * right.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+      v32 = *(float *)&v18 * (float)(1.0 / *(float *)&_XMM0);
+      v33 = (float)(-1.0 * right.v[2]) * (float)(1.0 / *(float *)&_XMM0);
+      outPos.v[0] = (float)((float)((float)(v74.v[0] * v26) + outPos.v[0]) + (float)(v74.v[1] * v31)) + (float)(v74.v[2] * up.v[0]);
+      forward.v[0] = v26;
+      outPos.v[1] = (float)((float)((float)(v74.v[0] * v24) + outPos.v[1]) + (float)(v74.v[1] * v32)) + (float)(v74.v[2] * up.v[1]);
+      forward.v[1] = v24;
+      forward.v[2] = v25;
+      outPos.v[2] = (float)((float)((float)(v74.v[0] * v25) + outPos.v[2]) + (float)(v74.v[1] * v33)) + (float)(v74.v[2] * up.v[2]);
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm10, xmm10, xmm10
-        vxorps  xmm11, xmm11, xmm11
-        vxorps  xmm12, xmm12, xmm12
-      }
+      v31 = 0.0;
+      v32 = 0.0;
+      v33 = 0.0;
     }
-    v100 = _RBX->clipmask == 0;
-    if ( !_RBX->clipmask )
+    if ( !ent->clipmask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 635, ASSERT_TYPE_ASSERT, "(ent->clipmask)", (const char *)&queryFormat, "ent->clipmask") )
+      __debugbreak();
+    clipmask = ent->clipmask;
+    if ( COERCE_FLOAT(LODWORD(ent->s.lerp.apos.trBase.v[2]) & _xmm) <= 0.001 )
     {
-      v101 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 635, ASSERT_TYPE_ASSERT, "(ent->clipmask)", (const char *)&queryFormat, "ent->clipmask");
-      v100 = !v101;
-      if ( v101 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+48h]
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@3a83126f
-    }
-    clipmask = _RBX->clipmask;
-    if ( v100 )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+100h]
-        vmovsd  xmm1, qword ptr [rbx+110h]
-      }
+      v35 = *(_OWORD *)ent->r.box.midPoint.v;
+      v36 = *(double *)&ent->r.box.halfSize.y;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?bounds_origin@@3UBounds@@B.midPoint; Bounds const bounds_origin
-        vmovsd  xmm1, qword ptr cs:?bounds_origin@@3UBounds@@B.halfSize+4; Bounds const bounds_origin
-      }
+      v35 = *(_OWORD *)bounds_origin.midPoint.v;
+      v36 = *(double *)&bounds_origin.halfSize.y;
     }
-    __asm
-    {
-      vmovsd  qword ptr [rbp+150h+bounds.halfSize+4], xmm1
-      vmovups xmmword ptr [rbp+150h+bounds.midPoint], xmm0
-    }
-    if ( EntHandle::isDefined(&_RBX->r.ownerNum) )
-      number = EntHandle::entnum(&_RBX->r.ownerNum);
+    *(double *)&bounds.halfSize.y = v36;
+    *(_OWORD *)bounds.midPoint.v = v35;
+    if ( EntHandle::isDefined(&ent->r.ownerNum) )
+      number = EntHandle::entnum(&ent->r.ownerNum);
     else
-      number = _RBX->s.number;
-    G_Main_TraceCapsule(&results, &_RBX->r.currentOrigin, &outPos, &bounds, number, clipmask);
+      number = ent->s.number;
+    G_Main_TraceCapsule(&results, &ent->r.currentOrigin, &outPos, &bounds, number, clipmask);
+    v38 = (float)((float)(outPos.v[0] - ent->r.currentOrigin.v[0]) * results.fraction) + ent->r.currentOrigin.v[0];
+    v39 = (float)((float)(outPos.v[1] - ent->r.currentOrigin.v[1]) * results.fraction) + ent->r.currentOrigin.v[1];
+    v40 = (float)((float)(outPos.v[2] - ent->r.currentOrigin.v[2]) * results.fraction) + ent->r.currentOrigin.v[2];
+    _XMM0 = results.startsolid;
     __asm
     {
-      vmovss  xmm7, [rbp+150h+results.fraction]
-      vmovss  xmm0, dword ptr [rsp+250h+outPos]
-      vsubss  xmm1, xmm0, dword ptr [rbx+130h]
-      vmovss  xmm0, dword ptr [rsp+250h+outPos+4]
-      vmulss  xmm1, xmm1, xmm7
-      vaddss  xmm6, xmm1, dword ptr [rbx+130h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+134h]
-      vmovss  xmm0, dword ptr [rsp+250h+outPos+8]
-      vmulss  xmm2, xmm1, xmm7
-      vsubss  xmm1, xmm0, dword ptr [rbx+138h]
-      vaddss  xmm5, xmm2, dword ptr [rbx+134h]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm3, xmm2, dword ptr [rbx+138h]
-    }
-    _EAX = 0;
-    __asm { vmovd   xmm1, eax }
-    _EAX = results.startsolid;
-    __asm
-    {
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm0, xmm13, xmm7, xmm2
-      vmovss  [rbp+150h+results.fraction], xmm0
-      vmovss  dword ptr [rbp+150h+trBase], xmm6
-      vmovss  dword ptr [rbp+150h+trBase+4], xmm5
-      vmovss  dword ptr [rbp+150h+trBase+8], xmm3
-      vmovss  dword ptr [rbx+130h], xmm6
-      vmovss  dword ptr [rbx+134h], xmm5
-      vmovss  dword ptr [rbx+138h], xmm3
     }
-    SV_LinkEntity(_RBX);
-    G_Main_RunThink(_RBX);
+    results.fraction = *(float *)&_XMM0;
+    trBase.v[0] = v38;
+    trBase.v[1] = v39;
+    trBase.v[2] = v40;
+    ent->r.currentOrigin.v[0] = v38;
+    ent->r.currentOrigin.v[1] = v39;
+    ent->r.currentOrigin.v[2] = v40;
+    SV_LinkEntity(ent);
+    G_Main_RunThink(ent);
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v127 = _RBX - g_entities;
-    if ( (unsigned int)v127 >= 0x800 )
+    v44 = ent - g_entities;
+    if ( (unsigned int)v44 >= 0x800 )
     {
       LODWORD(bUseGoalWeight) = 2048;
-      LODWORD(trans) = _RBX - g_entities;
+      LODWORD(trans) = ent - g_entities;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", trans, bUseGoalWeight) )
         __debugbreak();
     }
-    if ( G_IsEntityInUse((__int16)v127) )
+    if ( G_IsEntityInUse((__int16)v44) )
     {
-      __asm
+      if ( results.fraction == 1.0 )
       {
-        vmovss  xmm0, [rbp+150h+results.fraction]
-        vucomiss xmm0, xmm14
-      }
-      v129 = DVARBOOL_killswitch_skip_bounce_on_linked_agent_corpse_enabled;
-      v160 = CorpseInfo_Internal->falling;
-      if ( !DVARBOOL_killswitch_skip_bounce_on_linked_agent_corpse_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_skip_bounce_on_linked_agent_corpse_enabled") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v129);
-      if ( v160 && (!v129->current.enabled || _RBX->s.eType != ET_AGENT_CORPSE || !G_EntIsLinked(_RBX)) )
-      {
-        if ( !CorpseInfo_Internal->skipDropChecks && results.allsolid )
+        if ( !CorpseInfo_Internal->skippedRagdoll && v16 )
         {
-          __asm
+          v45 = TR_INTERPOLATE;
+          if ( v70 <= 5 )
+            v45 = v69;
+          ent->s.lerp.pos.trType = v45;
+          Trajectory_SetTrBase(&ent->s.lerp.pos, &trBase);
+          v46 = outPos.v[2] + -1.0;
+          *(_QWORD *)&ent->s.lerp.pos.trTime = 0i64;
+          *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
+          ent->s.lerp.pos.trDelta.v[2] = 0.0;
+          outPos.v[2] = v46;
+          if ( v70 <= 5 && (!EntHandle::isDefined(&ent->r.ownerNum) ? (v47 = 2047) : (v47 = EntHandle::entnum(&ent->r.ownerNum)), G_Main_TraceCapsuleComplete(&ent->r.currentOrigin, &outPos, &bounds, v47, 2047, clipmask)) )
           {
-            vmovss  xmm0, dword ptr [rbx+130h]
-            vmovss  xmm1, dword ptr [rbx+134h]
-            vmovss  dword ptr [rbp+150h+start], xmm0
-            vmovss  xmm0, dword ptr [rbx+138h]
-            vaddss  xmm2, xmm0, cs:__real@42000000
+            CorpseInfo_Internal->falling = 1;
+            v48 = v74.v[0];
+            v49 = (float)(v74.v[0] * forward.v[0]) + ent->s.lerp.pos.trDelta.v[0];
+            v50 = v74.v[0] * forward.v[1];
+            ent->s.lerp.pos.trDelta.v[0] = v49;
+            v51 = v50 + ent->s.lerp.pos.trDelta.v[1];
+            v52 = v48 * forward.v[2];
+            v53 = v74.v[1];
+            ent->s.lerp.pos.trDelta.v[1] = v51;
+            ent->s.lerp.pos.trDelta.v[2] = v52 + ent->s.lerp.pos.trDelta.v[2];
+            v54 = (float)(v31 * v53) + v49;
+            ent->s.lerp.pos.trDelta.v[0] = v54;
+            ent->s.lerp.pos.trDelta.v[1] = (float)(v32 * v53) + ent->s.lerp.pos.trDelta.v[1];
+            v55 = (float)(v33 * v53) + ent->s.lerp.pos.trDelta.v[2];
+            v56 = v74.v[2];
+            ent->s.lerp.pos.trDelta.v[2] = v55;
+            v57 = v56 * up.v[1];
+            ent->s.lerp.pos.trDelta.v[0] = (float)(v56 * up.v[0]) + v54;
+            v58 = v56 * up.v[2];
+            ent->s.lerp.pos.trDelta.v[1] = v57 + ent->s.lerp.pos.trDelta.v[1];
+            ent->s.lerp.pos.trDelta.v[2] = v58 + ent->s.lerp.pos.trDelta.v[2];
+            if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+              __debugbreak();
+            v59 = 1000.0 / (float)level.frameDuration;
+            ent->s.lerp.pos.trDelta.v[0] = v59 * ent->s.lerp.pos.trDelta.v[0];
+            ent->s.lerp.pos.trDelta.v[1] = v59 * ent->s.lerp.pos.trDelta.v[1];
+            ent->s.lerp.pos.trDelta.v[2] = v59 * ent->s.lerp.pos.trDelta.v[2];
+            ent->s.lerp.pos.trType = v71;
+            ent->s.lerp.pos.trTime = level.time;
+            ent->s.lerp.pos.trDuration = 0;
           }
-          v134 = clipmask & 0xFFFEFFFF;
-          __asm
+          else
           {
-            vmovss  dword ptr [rbp+150h+start+8], xmm2
-            vmovss  dword ptr [rbp+150h+start+4], xmm1
-          }
-          if ( EntHandle::isDefined(&_RBX->r.ownerNum) )
-            v17 = EntHandle::entnum(&_RBX->r.ownerNum);
-          G_Main_TraceCapsule(&results, &start, &outPos, &bounds, v17, v134);
-          if ( !results.allsolid )
-          {
-            __asm
-            {
-              vmovss  xmm6, [rbp+150h+results.fraction]
-              vmovss  xmm0, dword ptr [rsp+250h+outPos]
-              vsubss  xmm1, xmm0, dword ptr [rbp+150h+start]
-              vmovss  xmm0, dword ptr [rsp+250h+outPos+4]
-              vmulss  xmm1, xmm1, xmm6
-              vaddss  xmm7, xmm1, dword ptr [rbp+150h+start]
-              vsubss  xmm1, xmm0, dword ptr [rbp+150h+start+4]
-              vmovss  xmm0, dword ptr [rsp+250h+outPos+8]
-              vmulss  xmm2, xmm1, xmm6
-              vaddss  xmm5, xmm2, dword ptr [rbp+150h+start+4]
-              vsubss  xmm1, xmm0, dword ptr [rbp+150h+start+8]
-              vmulss  xmm2, xmm1, xmm6
-              vaddss  xmm3, xmm2, dword ptr [rbp+150h+start+8]
-              vmovss  dword ptr [rbp+150h+trBase+8], xmm3
-              vmovss  dword ptr [rbx+138h], xmm3
-              vmovss  dword ptr [rbp+150h+trBase], xmm7
-              vmovss  dword ptr [rbp+150h+trBase+4], xmm5
-              vmovss  dword ptr [rbx+130h], xmm7
-              vmovss  dword ptr [rbx+134h], xmm5
-            }
+            CorpseInfo_Internal->falling = 0;
           }
         }
-        G_BounceCorpse(_RBX, CorpseInfo_Internal, &results, &trBase);
+      }
+      else
+      {
+        v60 = DVARBOOL_killswitch_skip_bounce_on_linked_agent_corpse_enabled;
+        v68 = CorpseInfo_Internal->falling;
+        if ( !DVARBOOL_killswitch_skip_bounce_on_linked_agent_corpse_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_skip_bounce_on_linked_agent_corpse_enabled") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v60);
+        if ( v68 && (!v60->current.enabled || ent->s.eType != ET_AGENT_CORPSE || !G_EntIsLinked(ent)) )
+        {
+          if ( !CorpseInfo_Internal->skipDropChecks && results.allsolid )
+          {
+            v61 = ent->r.currentOrigin.v[1];
+            start.v[0] = ent->r.currentOrigin.v[0];
+            v62 = clipmask & 0xFFFEFFFF;
+            start.v[2] = ent->r.currentOrigin.v[2] + 32.0;
+            start.v[1] = v61;
+            if ( EntHandle::isDefined(&ent->r.ownerNum) )
+              v9 = EntHandle::entnum(&ent->r.ownerNum);
+            G_Main_TraceCapsule(&results, &start, &outPos, &bounds, v9, v62);
+            if ( !results.allsolid )
+            {
+              v63 = (float)((float)(outPos.v[0] - start.v[0]) * results.fraction) + start.v[0];
+              v64 = (float)((float)(outPos.v[1] - start.v[1]) * results.fraction) + start.v[1];
+              trBase.v[2] = (float)((float)(outPos.v[2] - start.v[2]) * results.fraction) + start.v[2];
+              ent->r.currentOrigin.v[2] = trBase.v[2];
+              trBase.v[0] = v63;
+              trBase.v[1] = v64;
+              ent->r.currentOrigin.v[0] = v63;
+              ent->r.currentOrigin.v[1] = v64;
+            }
+          }
+          G_BounceCorpse(ent, CorpseInfo_Internal, &results, &trBase);
+        }
       }
     }
-    __asm
-    {
-      vmovaps xmm11, [rsp+250h+var_80]
-      vmovaps xmm12, [rsp+250h+var_90]
-      vmovaps xmm10, [rsp+250h+var_70]
-      vmovaps xmm7, [rsp+250h+var_40]
-      vmovaps xmm6, [rsp+250h+var_30]
-      vmovaps xmm15, [rsp+250h+var_C0]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm13, [rsp+250h+var_A0]
-    vmovaps xmm14, [rsp+250h+var_B0]
   }
 }
 
@@ -1969,11 +1712,11 @@ G_SetOriginAndAnglesForClone
 void G_SetOriginAndAnglesForClone(const playerState_s *sourcePs, const vec3_t *sourceOrigin, const vec3_t *sourceAngels, gentity_s *cloneBody)
 {
   GAntiLag *v8; 
+  float v9; 
   GHandler *Handler; 
   vec3_t angles; 
-  WorldUpReferenceFrame v14; 
+  WorldUpReferenceFrame v12; 
 
-  _R14 = sourceAngels;
   if ( !sourcePs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 874, ASSERT_TYPE_ASSERT, "(sourcePs)", (const char *)&queryFormat, "sourcePs") )
     __debugbreak();
   if ( !cloneBody && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 875, ASSERT_TYPE_ASSERT, "(cloneBody)", (const char *)&queryFormat, "cloneBody") )
@@ -1983,19 +1726,14 @@ void G_SetOriginAndAnglesForClone(const playerState_s *sourcePs, const vec3_t *s
   v8 = GAntiLag::ms_gAntiLagData;
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_corpse_mp.cpp", 878, ASSERT_TYPE_ASSERT, "(antilagSystem)", (const char *)&queryFormat, "antilagSystem") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  xmm1, dword ptr [r14+4]
-    vmovss  dword ptr [rsp+98h+angles], xmm0
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [rsp+98h+angles+8], xmm0
-    vmovss  dword ptr [rsp+98h+angles+4], xmm1
-  }
+  v9 = sourceAngels->v[1];
+  angles.v[0] = sourceAngels->v[0];
+  angles.v[2] = sourceAngels->v[2];
+  angles.v[1] = v9;
   Handler = GHandler::getHandler();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v14, sourcePs, Handler);
-  if ( !v8->IsWorldUpIncludedOnEntity(v8, sourcePs->clientNum) && v14.m_axisAdjusted )
-    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v14, &angles);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v12, sourcePs, Handler);
+  if ( !v8->IsWorldUpIncludedOnEntity(v8, sourcePs->clientNum) && v12.m_axisAdjusted )
+    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v12, &angles);
   G_SetOriginAndAngle(cloneBody, sourceOrigin, &angles, 0, 0);
 }
 

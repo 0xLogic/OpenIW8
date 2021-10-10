@@ -280,132 +280,110 @@ CG_CalcOffHandAmmo
 */
 __int64 CG_CalcOffHandAmmo(const LocalClientNum_t localClientNum, const playerState_s *predictedPlayerState, const OffhandSlot slot)
 {
-  unsigned int v6; 
-  CgWeaponMap **v9; 
-  BgWeaponMap *v11; 
-  const dvar_t *v12; 
+  unsigned __int16 v3; 
+  unsigned int v4; 
+  CgWeaponMap **v7; 
+  BgWeaponMap *v8; 
+  const dvar_t *v9; 
   unsigned int NumWeapons; 
-  unsigned __int8 v14; 
-  unsigned __int8 v15; 
+  unsigned __int8 v11; 
+  unsigned __int8 v12; 
   OffhandClass OffhandClass; 
+  WeaponDef **v14; 
+  WeaponDef *v15; 
+  int v16; 
   WeaponDef **v17; 
   WeaponDef *v18; 
-  int v19; 
-  bool v25; 
-  WeaponDef **v26; 
-  WeaponDef *v27; 
   int EquippedWeaponIndex; 
-  __int64 v29; 
-  PlayerEquippedWeaponState *v30; 
-  OffhandClass v31; 
+  __int64 v20; 
+  PlayerEquippedWeaponState *v21; 
+  OffhandClass v22; 
   int AmmoInClip; 
-  __int64 v34; 
-  __int64 v35; 
+  __int64 v25; 
+  __int64 v26; 
   Weapon r_weapon; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-  }
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  v6 = 0;
-  v9 = &CgWeaponMap::ms_instance[localClientNum];
-  __asm
-  {
-    vmovups ymmword ptr [rsp+0D8h+r_weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  qword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  if ( !*v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v4 = 0;
+  v7 = &CgWeaponMap::ms_instance[localClientNum];
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+  if ( !*v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v11 = *v9;
-  v12 = DVARBOOL_bg_giveAll;
-  if ( DVARBOOL_bg_giveAll && (Dvar_CheckFrontendServerThread(DVARBOOL_bg_giveAll), v12->current.enabled) )
+  v8 = *v7;
+  v9 = DVARBOOL_bg_giveAll;
+  if ( DVARBOOL_bg_giveAll && (Dvar_CheckFrontendServerThread(DVARBOOL_bg_giveAll), v9->current.enabled) )
   {
     NumWeapons = BG_GetNumWeapons();
-    v14 = NumWeapons;
+    v11 = NumWeapons;
     if ( NumWeapons > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)NumWeapons, "unsigned", NumWeapons) )
       __debugbreak();
-    v15 = 1;
-    OffhandClass = BG_GetOffhandClass(predictedPlayerState, slot, v11);
-    if ( v14 > 1u )
+    v12 = 1;
+    OffhandClass = BG_GetOffhandClass(predictedPlayerState, slot, v8);
+    if ( v11 > 1u )
     {
-      v17 = &bg_weaponDefs[1];
+      v14 = &bg_weaponDefs[1];
       do
       {
-        r_weapon.weaponIdx = v15;
-        if ( v15 > bg_lastParsedWeaponIndex )
+        r_weapon.weaponIdx = v12;
+        if ( v12 > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v35) = bg_lastParsedWeaponIndex;
-          LODWORD(v34) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v34, v35) )
+          LODWORD(v26) = bg_lastParsedWeaponIndex;
+          LODWORD(v25) = v12;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
             __debugbreak();
         }
-        if ( !*v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+        if ( !*v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
           __debugbreak();
-        v18 = *v17;
-        if ( !*v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 156, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+        v15 = *v14;
+        if ( !*v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 156, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
           __debugbreak();
-        if ( v18->offhandClass == OffhandClass )
-          v6 += BG_GetAmmoInClip(predictedPlayerState, &r_weapon, 0, WEAPON_HAND_DEFAULT);
-        ++v15;
-        ++v17;
+        if ( v15->offhandClass == OffhandClass )
+          v4 += BG_GetAmmoInClip(predictedPlayerState, &r_weapon, 0, WEAPON_HAND_DEFAULT);
+        ++v12;
+        ++v14;
       }
-      while ( v15 < v14 );
+      while ( v12 < v11 );
     }
   }
   else
   {
-    v19 = 0;
+    v16 = 0;
     while ( 1 )
     {
-      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+      if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
       if ( !predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RAX = BgWeaponMap::GetWeapon(v11, predictedPlayerState->weaponsEquipped[v19]);
-      __asm
+      r_weapon = *BgWeaponMap::GetWeapon(v8, predictedPlayerState->weaponsEquipped[v16]);
+      if ( v3 )
       {
-        vmovups ymm2, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0D8h+r_weapon.weaponIdx], ymm2
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+5], xmm0
-        vmovsd  xmm1, qword ptr [rax+30h]
-        vmovd   ebx, xmm2
-        vmovsd  qword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+15h], xmm1
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      if ( (_WORD)_EBX )
-      {
-        if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+        if ( v3 > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v35) = bg_lastParsedWeaponIndex;
-          LODWORD(v34) = (unsigned __int16)_EBX;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v34, v35) )
+          LODWORD(v26) = bg_lastParsedWeaponIndex;
+          LODWORD(v25) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
             __debugbreak();
         }
-        v25 = bg_weaponDefs[(unsigned __int16)_EBX] == NULL;
-        v26 = &bg_weaponDefs[(unsigned __int16)_EBX];
-        if ( v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+        v17 = &bg_weaponDefs[v3];
+        if ( !*v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
           __debugbreak();
-        v27 = *v26;
-        if ( !*v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 173, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+        v18 = *v17;
+        if ( !*v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 173, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
           __debugbreak();
-        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1063, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+        if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1063, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
           __debugbreak();
         if ( !predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1064, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v11, predictedPlayerState, &r_weapon);
+        EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v8, predictedPlayerState, &r_weapon);
         if ( EquippedWeaponIndex >= 0 )
         {
-          v29 = EquippedWeaponIndex;
-          v30 = &predictedPlayerState->weapEquippedData[v29];
-          if ( (const playerState_s *)((char *)predictedPlayerState + 4 * v29) != (const playerState_s *)-1540i64 )
+          v20 = EquippedWeaponIndex;
+          v21 = &predictedPlayerState->weapEquippedData[v20];
+          if ( (const playerState_s *)((char *)predictedPlayerState + 4 * v20) != (const playerState_s *)-1540i64 )
           {
-            v31 = BG_GetOffhandClass(predictedPlayerState, slot, v11);
-            if ( v30->offhandSlot == slot && v31 == v27->offhandClass )
+            v22 = BG_GetOffhandClass(predictedPlayerState, slot, v8);
+            if ( v21->offhandSlot == slot && v22 == v18->offhandClass )
             {
               AmmoInClip = BG_GetAmmoInClip(predictedPlayerState, &r_weapon, 0, WEAPON_HAND_DEFAULT);
               if ( AmmoInClip > 0 )
@@ -414,12 +392,12 @@ __int64 CG_CalcOffHandAmmo(const LocalClientNum_t localClientNum, const playerSt
           }
         }
       }
-      if ( (unsigned int)++v19 >= 0xF )
-        return v6;
+      if ( (unsigned int)++v16 >= 0xF )
+        return v4;
     }
     return (unsigned int)AmmoInClip;
   }
-  return v6;
+  return v4;
 }
 
 /*
@@ -682,43 +660,25 @@ void CG_SetEquippedOffHand(LocalClientNum_t localClientNum, const Weapon *offHan
   bool v5; 
   WeaponDef **v6; 
   const char *WeaponName; 
-  int v12; 
-  unsigned int v13; 
   char output[1024]; 
 
   weaponIdx = offHand->weaponIdx;
-  _RBX = offHand;
   if ( offHand->weaponIdx )
   {
-    if ( weaponIdx > bg_lastParsedWeaponIndex )
-    {
-      v13 = bg_lastParsedWeaponIndex;
-      v12 = weaponIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v12, v13) )
-        __debugbreak();
-    }
+    if ( weaponIdx > bg_lastParsedWeaponIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", weaponIdx, bg_lastParsedWeaponIndex) )
+      __debugbreak();
     v5 = bg_weaponDefs[weaponIdx] == NULL;
     v6 = &bg_weaponDefs[weaponIdx];
     if ( v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
       __debugbreak();
     if ( (*v6)->offhandClass == OFFHAND_CLASS_NONE )
     {
-      WeaponName = BG_GetWeaponName(_RBX, output, 0x400u);
+      WeaponName = BG_GetWeaponName(offHand, output, 0x400u);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 950, ASSERT_TYPE_ASSERT, "(offHand.weaponIdx == 0 || BG_WeaponDef( offHand, false )->offhandClass != OFFHAND_CLASS_NONE)", "%s\n\toffHand = %s\n", "offHand.weaponIdx == WP_NONE || BG_WeaponDef( offHand, false )->offhandClass != OFFHAND_CLASS_NONE", WeaponName) )
         __debugbreak();
     }
   }
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rax+499C8h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rax+499E8h], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rax+499F8h], xmm0
-  }
-  *(_DWORD *)&_RAX->equippedOffHand.weaponCamo = *(_DWORD *)&_RBX->weaponCamo;
+  CG_GetLocalClientGlobals(localClientNum)->equippedOffHand = *offHand;
 }
 
 /*
@@ -733,20 +693,12 @@ void CG_SwitchOffHandCmd(LocalClientNum_t localClientNum)
   CgWeaponMap *Instance; 
   const PlayerEquippedWeaponState *EquippedWeaponState; 
   const char *WeaponName; 
-  __int64 v18; 
-  unsigned int v19; 
+  __int64 v7; 
   Weapon r_weapon; 
   char output[1024]; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rsp+4A8h+r_weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+5], xmm1
-  }
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   p_equippedOffHand = &LocalClientGlobals->equippedOffHand;
@@ -757,26 +709,13 @@ void CG_SwitchOffHandCmd(LocalClientNum_t localClientNum)
       __debugbreak();
     EquippedWeaponState = BG_GetEquippedWeaponState(Instance, &LocalClientGlobals->predictedPlayerState, p_equippedOffHand);
     if ( EquippedWeaponState )
-    {
-      _RAX = BG_GetFirstAvailableOffhandBySlot(Instance, &LocalClientGlobals->predictedPlayerState, (const OffhandSlot)EquippedWeaponState->offhandSlot);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+4A8h+r_weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    }
+      r_weapon = *BG_GetFirstAvailableOffhandBySlot(Instance, &LocalClientGlobals->predictedPlayerState, (const OffhandSlot)EquippedWeaponState->offhandSlot);
     if ( r_weapon.weaponIdx )
     {
       if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
       {
-        v19 = bg_lastParsedWeaponIndex;
-        LODWORD(v18) = r_weapon.weaponIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v18, v19) )
+        LODWORD(v7) = r_weapon.weaponIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v7, bg_lastParsedWeaponIndex) )
           __debugbreak();
       }
       if ( !bg_weaponDefs[r_weapon.weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
@@ -787,17 +726,7 @@ void CG_SwitchOffHandCmd(LocalClientNum_t localClientNum)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 950, ASSERT_TYPE_ASSERT, "(offHand.weaponIdx == 0 || BG_WeaponDef( offHand, false )->offhandClass != OFFHAND_CLASS_NONE)", "%s\n\toffHand = %s\n", "offHand.weaponIdx == WP_NONE || BG_WeaponDef( offHand, false )->offhandClass != OFFHAND_CLASS_NONE", WeaponName) )
           __debugbreak();
       }
-      _RAX = CG_GetLocalClientGlobals(localClientNum);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+4A8h+r_weapon.weaponIdx]
-        vmovups ymmword ptr [rax+499C8h], ymm0
-        vmovups xmm1, xmmword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+5]
-        vmovups xmmword ptr [rax+499E8h], xmm1
-        vmovsd  xmm0, qword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+15h]
-        vmovsd  qword ptr [rax+499F8h], xmm0
-      }
-      *(_DWORD *)&_RAX->equippedOffHand.weaponCamo = *(_DWORD *)&r_weapon.weaponCamo;
+      CG_GetLocalClientGlobals(localClientNum)->equippedOffHand = r_weapon;
     }
   }
 }
@@ -1084,97 +1013,83 @@ CgWeaponSystem::OffHandWeaponsPlayerFireFx
 */
 void CgWeaponSystem::OffHandWeaponsPlayerFireFx(CgWeaponSystem *this, const centity_t *cent, const Weapon *weapon, bool isAlternate)
 {
-  int v10; 
+  int v8; 
   ClientOffHandCameraFireFxInfo *FireFxInfo; 
-  unsigned int v12; 
-  ClientOffHandCameraFireFxInfo *v13; 
-  char v16; 
+  unsigned int v10; 
+  ClientOffHandCameraFireFxInfo *v11; 
+  ClientOffHandCameraFireFxInfo *v12; 
+  double CameraFireEffectDurationSec; 
   int time; 
-  FxCombinedDef v23; 
+  double v15; 
+  FxCombinedDef v16; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v21; 
   cg_t *LocalClientGlobals; 
   int ControllerFromClient; 
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
-  unsigned __int16 v42; 
+  unsigned __int16 v35; 
   const char *WeaponName; 
   vec3_t origin; 
-  __int64 v45; 
+  __int64 v38; 
   tmat33_t<vec3_t> axis; 
   char dest[1024]; 
 
-  v45 = -2i64;
-  _R15 = weapon;
+  v38 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 991, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
+  v8 = 0;
+  while ( 1 )
+  {
+    FireFxInfo = CgWeaponSystem::OffHandGetFireFxInfo(this, v8);
+    if ( FireFxInfo->isPlaying && FireFxInfo->weapon.weaponIdx == weapon->weaponIdx )
+      break;
+    if ( ++v8 >= 4 )
+      goto LABEL_11;
+  }
+  if ( v8 != -1 )
+    CgWeaponSystem::OffHandWeaponsStopPlayerFireFx(this, v8);
+LABEL_11:
   v10 = 0;
   while ( 1 )
   {
-    FireFxInfo = CgWeaponSystem::OffHandGetFireFxInfo(this, v10);
-    if ( FireFxInfo->isPlaying && FireFxInfo->weapon.weaponIdx == _R15->weaponIdx )
-      break;
-    if ( ++v10 >= 4 )
-      goto LABEL_11;
-  }
-  if ( v10 != -1 )
-    CgWeaponSystem::OffHandWeaponsStopPlayerFireFx(this, v10);
-LABEL_11:
-  v12 = 0;
-  while ( 1 )
-  {
-    v13 = CgWeaponSystem::OffHandGetFireFxInfo(this, v12);
-    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 1133, ASSERT_TYPE_ASSERT, "(fireFxInfo)", (const char *)&queryFormat, "fireFxInfo") )
+    v11 = CgWeaponSystem::OffHandGetFireFxInfo(this, v10);
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 1133, ASSERT_TYPE_ASSERT, "(fireFxInfo)", (const char *)&queryFormat, "fireFxInfo") )
       __debugbreak();
-    if ( !v13->isPlaying )
+    if ( !v11->isPlaying )
       break;
-    if ( (int)++v12 >= 4 )
+    if ( (int)++v10 >= 4 )
       goto LABEL_19;
   }
-  if ( v12 == -1 )
+  if ( v10 == -1 )
   {
 LABEL_19:
     Com_PrintWarning(17, "Too many concurrent OffHand Weapon Fire FXs - ignoring fire FX request\n");
     return;
   }
-  _R14 = CgWeaponSystem::OffHandGetFireFxInfo(this, v12);
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 1008, ASSERT_TYPE_ASSERT, "(fireFxInfo)", (const char *)&queryFormat, "fireFxInfo") )
+  v12 = CgWeaponSystem::OffHandGetFireFxInfo(this, v10);
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_offhandweapons.cpp", 1008, ASSERT_TYPE_ASSERT, "(fireFxInfo)", (const char *)&queryFormat, "fireFxInfo") )
     __debugbreak();
-  *(double *)&_XMM0 = BG_Weapon_GetCameraFireEffectDurationSec(_R15, isAlternate);
-  __asm
+  CameraFireEffectDurationSec = BG_Weapon_GetCameraFireEffectDurationSec(weapon, isAlternate);
+  if ( *(float *)&CameraFireEffectDurationSec == 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( v16 )
-  {
-    _R14->endTimeMs = 0;
+    v12->endTimeMs = 0;
   }
   else
   {
     time = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->time;
-    *(double *)&_XMM0 = BG_Weapon_GetCameraFireEffectDurationSec(_R15, isAlternate);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@c47a0000
-      vcvttss2si eax, xmm1
-    }
-    _R14->endTimeMs = time - _EAX;
+    v15 = BG_Weapon_GetCameraFireEffectDurationSec(weapon, isAlternate);
+    v12->endTimeMs = time - (int)(float)(*(float *)&v15 * -1000.0);
   }
-  _R14->isPlaying = 1;
-  __asm
+  v12->isPlaying = 1;
+  *(__m256i *)&v12->weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)&v12->weapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(double *)&v12->weapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&v12->weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
+  v16.particleSystemDef = BG_Weapon_GetCameraFireEffect(weapon, isAlternate).particleSystemDef;
+  if ( v16.particleSystemDef )
   {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymmword ptr [r14+8], ymm0
-    vmovups xmm1, xmmword ptr [r15+20h]
-    vmovups xmmword ptr [r14+28h], xmm1
-    vmovsd  xmm0, qword ptr [r15+30h]
-    vmovsd  qword ptr [r14+38h], xmm0
-  }
-  *(_DWORD *)&_R14->weapon.weaponCamo = *(_DWORD *)&_R15->weaponCamo;
-  v23.particleSystemDef = BG_Weapon_GetCameraFireEffect(_R15, isAlternate).particleSystemDef;
-  if ( v23.particleSystemDef )
-  {
-    _R14->regFx.m_particleSystemDef = v23.particleSystemDef;
+    v12->regFx.m_particleSystemDef = v16.particleSystemDef;
     AnglesToAxis(&cent->pose.angles, &axis);
     if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
       __debugbreak();
@@ -1184,39 +1099,41 @@ LABEL_19:
     FunctionPointer_origin(&cent->pose.origin.origin.origin, &origin);
     if ( cent->pose.isPosePrecise )
     {
-      __asm
-      {
-        vmovd   xmm0, dword ptr [rsp+4C8h+origin]
-        vcvtdq2pd xmm0, xmm0
-        vmovsd  xmm3, cs:__real@3f30000000000000
-        vmulsd  xmm0, xmm0, xmm3
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+4C8h+origin], xmm1
-        vmovd   xmm2, dword ptr [rsp+4C8h+origin+4]
-        vcvtdq2pd xmm2, xmm2
-        vmulsd  xmm0, xmm2, xmm3
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+4C8h+origin+4], xmm1
-        vmovd   xmm2, dword ptr [rsp+4C8h+origin+8]
-        vcvtdq2pd xmm2, xmm2
-        vmulsd  xmm0, xmm2, xmm3
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+4C8h+origin+8], xmm1
-      }
+      _XMM0 = LODWORD(origin.v[0]);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v21 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM0 = v21;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      origin.v[0] = *(float *)&_XMM1;
+      _XMM2 = LODWORD(origin.v[1]);
+      __asm { vcvtdq2pd xmm2, xmm2 }
+      *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM2 + 1);
+      *(double *)&v21 = *(double *)&_XMM2 * 0.000244140625;
+      _XMM0 = v21;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      origin.v[1] = *(float *)&_XMM1;
+      _XMM2 = LODWORD(origin.v[2]);
+      __asm { vcvtdq2pd xmm2, xmm2 }
+      *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM2 + 1);
+      *(double *)&v21 = *(double *)&_XMM2 * 0.000244140625;
+      _XMM0 = v21;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      origin.v[2] = *(float *)&_XMM1;
     }
     LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-    FX_PlayOrientedEffect(this->m_localClientNum, &_R14->regFx, LocalClientGlobals->time, &origin, &axis);
+    FX_PlayOrientedEffect(this->m_localClientNum, &v12->regFx, LocalClientGlobals->time, &origin, &axis);
     memset(&origin, 0, sizeof(origin));
   }
   ControllerFromClient = CL_Mgr_GetControllerFromClient(this->m_localClientNum);
   ModelForController = LUI_Model_GetModelForController(ControllerFromClient);
-  Com_sprintf(dest, 0x400ui64, "cg.player.offhand.fired.%d.active", v12);
+  Com_sprintf(dest, 0x400ui64, "cg.player.offhand.fired.%d.active", v10);
   ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, dest);
   LUI_Model_SetBool(ModelFromPath, 1);
-  Com_sprintf(dest, 0x400ui64, "cg.player.offhand.fired.%d.name", v12);
-  v42 = LUI_Model_CreateModelFromPath(ModelForController, dest);
-  WeaponName = BG_GetWeaponName(_R15, dest, 0x400u);
-  LUI_Model_SetString(v42, WeaponName);
+  Com_sprintf(dest, 0x400ui64, "cg.player.offhand.fired.%d.name", v10);
+  v35 = LUI_Model_CreateModelFromPath(ModelForController, dest);
+  WeaponName = BG_GetWeaponName(weapon, dest, 0x400u);
+  LUI_Model_SetString(v35, WeaponName);
 }
 
 /*

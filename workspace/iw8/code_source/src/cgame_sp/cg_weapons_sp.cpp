@@ -647,40 +647,36 @@ CgWeaponSystemSP::BulletImpactEffects
 */
 void CgWeaponSystemSP::BulletImpactEffects(CgWeaponSystemSP *this, int sourceEntityNum, int targetEntityNum, unsigned int targetScriptableIndex, unsigned __int8 boneIndex, const Weapon *weapon, bool isAlternate, const vec3_t *startPosition, const vec3_t *position, const vec3_t *normal, int surfType, int event, unsigned int impactFlags, int hitContents, const unsigned int flags, const scr_string_t partName, SndHitArmorType hitArmorType, CgSfxImpactInfo *outSfxInfo)
 {
-  FXRegisteredDef *p_hitFx; 
-  __int64 v24; 
-  unsigned int v26; 
+  FXRegisteredDef *v18; 
+  __int64 v22; 
+  unsigned int v24; 
   int ShouldDynamicBoltBullet; 
-  int v28; 
-  FXRegisteredDef *v30; 
-  const dvar_t *v32; 
-  const dvar_t *v33; 
-  const dvar_t *v34; 
-  const dvar_t *v35; 
-  Weapon *v38; 
-  FXRegisteredDef hitFx; 
-  char v40; 
-  void *retaddr; 
+  int v26; 
+  FXRegisteredDef *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  Weapon *v32; 
+  FXRegisteredDef hitFx[4]; 
   CgSfxImpactInfo *outSfxInfoa; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  p_hitFx = &hitFx;
-  v24 = 2i64;
+  v18 = hitFx;
+  v22 = 2i64;
   do
   {
-    FXRegisteredDef::FXRegisteredDef(p_hitFx++);
-    --v24;
+    FXRegisteredDef::FXRegisteredDef(v18++);
+    --v22;
   }
-  while ( v24 );
+  while ( v22 );
   if ( !Com_GameMode_SupportsFeature(WEAPON_LEAP_LOOP) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_api.h", 118, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::SINGLE_LOCAL_CLIENT ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::SINGLE_LOCAL_CLIENT )") )
     __debugbreak();
   if ( SLODWORD(cl_maxLocalClients) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_api.h", 119, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients <= 1)", "%s\n\tShould not use this function when more than one local clients are possible.", "cl_maxLocalClients <= 1") )
     __debugbreak();
   if ( this->m_localClientNum )
   {
-    LODWORD(v38) = this->m_localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 976, ASSERT_TYPE_ASSERT, "( ( m_localClientNum == CL_GetOnlyLocalClientNum() ) )", "( m_localClientNum ) = %i", v38) )
+    LODWORD(v32) = this->m_localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 976, ASSERT_TYPE_ASSERT, "( ( m_localClientNum == CL_GetOnlyLocalClientNum() ) )", "( m_localClientNum ) = %i", v32) )
       __debugbreak();
   }
   if ( sourceEntityNum < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 978, ASSERT_TYPE_ASSERT, "(sourceEntityNum >= 0)", (const char *)&queryFormat, "sourceEntityNum >= 0") )
@@ -689,73 +685,62 @@ void CgWeaponSystemSP::BulletImpactEffects(CgWeaponSystemSP *this, int sourceEnt
     __debugbreak();
   if ( (unsigned int)surfType >= 0x40 )
   {
-    LODWORD(v38) = surfType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 980, ASSERT_TYPE_ASSERT, "(unsigned)( surfType ) < (unsigned)( 64 )", "surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", v38, 64) )
+    LODWORD(v32) = surfType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 980, ASSERT_TYPE_ASSERT, "(unsigned)( surfType ) < (unsigned)( 64 )", "surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", v32, 64) )
       __debugbreak();
   }
-  v26 = 0;
+  v24 = 0;
   outSfxInfo->hitSound = NULL;
   ShouldDynamicBoltBullet = CGMovingPlatforms::ShouldDynamicBoltBullet(this->m_localClientNum, targetEntityNum);
   outSfxInfoa = (CgSfxImpactInfo *)CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  CG_GetImpactEffectForWeapon(this->m_localClientNum, sourceEntityNum, targetEntityNum, 1, hitContents, weapon, isAlternate, surfType, impactFlags, hitArmorType, &hitFx, &outSfxInfo->hitSound, &outSfxInfo->isExplosion);
-  if ( !ShouldDynamicBoltBullet || (v28 = targetEntityNum, targetEntityNum == 2047) )
-    v28 = 2046;
-  _RDI = normal;
-  outSfxInfo->impactEnt = v28;
-  v30 = &hitFx;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  CG_GetImpactEffectForWeapon(this->m_localClientNum, sourceEntityNum, targetEntityNum, 1, hitContents, weapon, isAlternate, surfType, impactFlags, hitArmorType, hitFx, &outSfxInfo->hitSound, &outSfxInfo->isExplosion);
+  if ( !ShouldDynamicBoltBullet || (v26 = targetEntityNum, targetEntityNum == 2047) )
+    v26 = 2046;
+  outSfxInfo->impactEnt = v26;
+  v27 = hitFx;
   do
   {
-    if ( !v30->m_particleSystemDef )
-      goto LABEL_49;
+    if ( !v27->m_particleSystemDef )
+      goto LABEL_52;
     if ( surfType == 7 )
     {
       CgWeaponSystem::BloodSplatterOnShield(this, targetEntityNum);
-      v32 = DVARBOOL_cg_blood;
+      v28 = DVARBOOL_cg_blood;
       if ( !DVARBOOL_cg_blood && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_blood") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v32);
-      if ( !v32->current.enabled )
+      Dvar_CheckFrontendServerThread(v28);
+      if ( !v28->current.enabled )
         goto LABEL_40;
-      v33 = DVARBOOL_cg_bloodLimit;
+      v29 = DVARBOOL_cg_bloodLimit;
       if ( !DVARBOOL_cg_bloodLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_bloodLimit") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v33);
-      if ( !v33->current.enabled )
+      Dvar_CheckFrontendServerThread(v29);
+      if ( !v29->current.enabled )
         goto LABEL_41;
-      v34 = DVARINT_cg_bloodLimitMsec;
+      v30 = DVARINT_cg_bloodLimitMsec;
       if ( !DVARINT_cg_bloodLimitMsec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_bloodLimitMsec") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v34);
-      if ( *(&outSfxInfoa[1087].impactEnt + 1) - LODWORD(outSfxInfoa[17196].hitSound) >= v34->current.integer )
+      Dvar_CheckFrontendServerThread(v30);
+      if ( *(&outSfxInfoa[1087].impactEnt + 1) - LODWORD(outSfxInfoa[17196].hitSound) >= v30->current.integer )
         LODWORD(outSfxInfoa[17196].hitSound) = *(&outSfxInfoa[1087].impactEnt + 1);
       else
 LABEL_40:
-        v30->m_particleSystemDef = (const ParticleSystemDef *)cgMedia.fxNoBloodFleshHit;
+        v27->m_particleSystemDef = (const ParticleSystemDef *)cgMedia.fxNoBloodFleshHit;
     }
 LABEL_41:
-    v35 = DVARBOOL_cg_marks_ents_player_only;
+    v31 = DVARBOOL_cg_marks_ents_player_only;
     if ( !DVARBOOL_cg_marks_ents_player_only && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_marks_ents_player_only") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v35);
-    if ( v35->current.enabled && sourceEntityNum < 1 )
+    Dvar_CheckFrontendServerThread(v31);
+    if ( v31->current.enabled && sourceEntityNum < 1 )
       targetEntityNum = 2047;
-    if ( !CgWeaponSystem::CullBulletHitEffect(this, event, position, normal, sourceEntityNum, targetEntityNum, impactFlags) )
-    {
-      __asm
-      {
-        vucomiss xmm6, dword ptr [rdi]
-        vucomiss xmm6, dword ptr [rdi+4]
-        vucomiss xmm6, dword ptr [rdi+8]
-      }
-    }
-LABEL_49:
-    ++v26;
-    ++v30;
+    if ( !CgWeaponSystem::CullBulletHitEffect(this, event, position, normal, sourceEntityNum, targetEntityNum, impactFlags) && (normal->v[0] != 0.0 || normal->v[1] != 0.0 || normal->v[2] != 0.0) )
+      CG_PlayBulletImpactEffect((const LocalClientNum_t)this->m_localClientNum, sourceEntityNum, targetEntityNum, targetScriptableIndex, boneIndex, position, normal, surfType, impactFlags, hitFx[v24], 1);
+LABEL_52:
+    ++v24;
+    ++v27;
   }
-  while ( v26 < 2 );
-  _R11 = &v40;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  while ( v24 < 2 );
 }
 
 /*
@@ -925,23 +910,21 @@ CgWeaponSystemSP::GetWeaponAttachModels
 */
 __int64 CgWeaponSystemSP::GetWeaponAttachModels(CgWeaponSystemSP *this, unsigned __int16 modelIndex, DObjModel *outDObjModels)
 {
-  int v7; 
+  int v5; 
   CgAddonViewModelInfo *p_m_weaponAttachModels; 
   scr_string_t *m_addedViewModelBone; 
-  float *v10; 
-  __int64 v11; 
+  float *v8; 
+  __int64 v9; 
+  XModel *v10; 
+  vec3_t *v11; 
   XModel *v12; 
-  vec3_t *v13; 
-  XModel *v22; 
-  unsigned __int16 v23; 
-  __int64 result; 
+  unsigned __int16 v13; 
   DObjModel *outDObjModel; 
   DObjModel *outDObjModela; 
-  __int64 v28; 
-  int v29; 
+  __int64 v17; 
+  int v18; 
   vec4_t quat; 
 
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
   if ( !outDObjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 740, ASSERT_TYPE_ASSERT, "(outDObjModels)", (const char *)&queryFormat, "outDObjModels") )
     __debugbreak();
   if ( modelIndex >= 0x20u )
@@ -950,95 +933,72 @@ __int64 CgWeaponSystemSP::GetWeaponAttachModels(CgWeaponSystemSP *this, unsigned
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 741, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( ( 32 ) )", "modelIndex doesn't index DOBJ_MAX_CHARACTER_SUBMODELS\n\t%i not in [0, %i)", outDObjModel, 32) )
       __debugbreak();
   }
-  __asm { vmovss  xmm6, cs:__real@46fffe00 }
-  v7 = 0;
+  v5 = 0;
   p_m_weaponAttachModels = &this->m_weaponAttachModels;
   m_addedViewModelBone = this->m_weaponAttachModels.m_addedViewModelBone;
-  v29 = 0;
-  v10 = &this->m_weaponAttachModels.m_addedViewModelOffset[0].v[2];
-  v11 = 0i64;
+  v18 = 0;
+  v8 = &this->m_weaponAttachModels.m_addedViewModelOffset[0].v[2];
+  v9 = 0i64;
   do
   {
     if ( p_m_weaponAttachModels->m_addedViewModels[0] )
     {
-      if ( v7 >= 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 400, ASSERT_TYPE_ASSERT, "(modelIndex < MAX_CUSTOM_ATTACH_MODELS)", (const char *)&queryFormat, "modelIndex < MAX_CUSTOM_ATTACH_MODELS") )
+      if ( v5 >= 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 400, ASSERT_TYPE_ASSERT, "(modelIndex < MAX_CUSTOM_ATTACH_MODELS)", (const char *)&queryFormat, "modelIndex < MAX_CUSTOM_ATTACH_MODELS") )
         __debugbreak();
-      v12 = s_customAttachModels[v7];
-      if ( v12->numBones != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 403, ASSERT_TYPE_ASSERT, "(model->numBones == 2)", (const char *)&queryFormat, "model->numBones == 2") )
+      v10 = s_customAttachModels[v5];
+      if ( v10->numBones != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 403, ASSERT_TYPE_ASSERT, "(model->numBones == 2)", (const char *)&queryFormat, "model->numBones == 2") )
         __debugbreak();
-      if ( v12->numRootBones != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 404, ASSERT_TYPE_ASSERT, "(model->numRootBones == 1)", (const char *)&queryFormat, "model->numRootBones == 1") )
+      if ( v10->numRootBones != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 404, ASSERT_TYPE_ASSERT, "(model->numRootBones == 1)", (const char *)&queryFormat, "model->numRootBones == 1") )
         __debugbreak();
-      *v12->boneNames = s_customBoneNames[v7][0];
-      *((_DWORD *)v12->boneNames + 1) = s_customBoneNames[v7][1];
-      v13 = &s_customTrans[v7];
-      v12->trans = (float *)v13;
-      v12->quats = &s_customQuats[v29];
-      v13->v[0] = *(v10 - 2);
-      v13->v[1] = *(v10 - 1);
-      v13->v[2] = *v10;
-      AnglesToQuat(&this->m_weaponAttachModels.m_addedViewModelAngles[v11], &quat);
-      __asm
+      *v10->boneNames = s_customBoneNames[v5][0];
+      *((_DWORD *)v10->boneNames + 1) = s_customBoneNames[v5][1];
+      v11 = &s_customTrans[v5];
+      v10->trans = (float *)v11;
+      v10->quats = &s_customQuats[v18];
+      v11->v[0] = *(v8 - 2);
+      v11->v[1] = *(v8 - 1);
+      v11->v[2] = *v8;
+      AnglesToQuat(&this->m_weaponAttachModels.m_addedViewModelAngles[v9], &quat);
+      *v10->quats = (int)(float)(32767.0 * quat.v[0]);
+      v10->quats[1] = (int)(float)(32767.0 * quat.v[1]);
+      v10->quats[2] = (int)(float)(32767.0 * quat.v[2]);
+      v10->quats[3] = (int)(float)(32767.0 * quat.v[3]);
+      if ( (unsigned int)v5 >= 0x10 )
       {
-        vmulss  xmm1, xmm6, dword ptr [rsp+0B8h+quat]
-        vcvttss2si ecx, xmm1
-      }
-      *v12->quats = _ECX;
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rsp+0B8h+quat+4]
-        vcvttss2si ecx, xmm1
-      }
-      v12->quats[1] = _ECX;
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rsp+0B8h+quat+8]
-        vcvttss2si ecx, xmm1
-      }
-      v12->quats[2] = _ECX;
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rsp+0B8h+quat+0Ch]
-        vcvttss2si ecx, xmm1
-      }
-      v12->quats[3] = _ECX;
-      if ( (unsigned int)v7 >= 0x10 )
-      {
-        LODWORD(v28) = 16;
-        LODWORD(outDObjModel) = v7;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( MAX_CUSTOM_ATTACH_MODELS )", "modelIndex doesn't index MAX_CUSTOM_ATTACH_MODELS\n\t%i not in [0, %i)", outDObjModel, v28) )
+        LODWORD(v17) = 16;
+        LODWORD(outDObjModel) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( MAX_CUSTOM_ATTACH_MODELS )", "modelIndex doesn't index MAX_CUSTOM_ATTACH_MODELS\n\t%i not in [0, %i)", outDObjModel, v17) )
           __debugbreak();
       }
-      v22 = s_customAttachModels[v7];
+      v12 = s_customAttachModels[v5];
       if ( modelIndex >= 0x20u )
       {
-        LODWORD(v28) = 32;
+        LODWORD(v17) = 32;
         LODWORD(outDObjModel) = modelIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 753, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( ( 32 ) )", "modelIndex doesn't index DOBJ_MAX_CHARACTER_SUBMODELS\n\t%i not in [0, %i)", outDObjModel, v28) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 753, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( ( 32 ) )", "modelIndex doesn't index DOBJ_MAX_CHARACTER_SUBMODELS\n\t%i not in [0, %i)", outDObjModel, v17) )
           __debugbreak();
       }
-      DObjInitModel(v22, *m_addedViewModelBone, 1, 0, NULL, &outDObjModels[modelIndex]);
-      v23 = modelIndex + 1;
-      if ( v23 >= 0x20u )
+      DObjInitModel(v12, *m_addedViewModelBone, 1, 0, NULL, &outDObjModels[modelIndex]);
+      v13 = modelIndex + 1;
+      if ( v13 >= 0x20u )
       {
-        LODWORD(v28) = 32;
-        LODWORD(outDObjModela) = v23;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 757, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( ( 32 ) )", "modelIndex doesn't index DOBJ_MAX_CHARACTER_SUBMODELS\n\t%i not in [0, %i)", outDObjModela, v28) )
+        LODWORD(v17) = 32;
+        LODWORD(outDObjModela) = v13;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 757, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( ( 32 ) )", "modelIndex doesn't index DOBJ_MAX_CHARACTER_SUBMODELS\n\t%i not in [0, %i)", outDObjModela, v17) )
           __debugbreak();
       }
-      DObjInitModel(p_m_weaponAttachModels->m_addedViewModels[0], v22->boneNames[1], 1, 0, NULL, &outDObjModels[v23]);
-      modelIndex = v23 + 1;
-      ++v7;
-      v29 += 4;
+      DObjInitModel(p_m_weaponAttachModels->m_addedViewModels[0], v12->boneNames[1], 1, 0, NULL, &outDObjModels[v13]);
+      modelIndex = v13 + 1;
+      ++v5;
+      v18 += 4;
     }
-    v11 = (unsigned int)(v11 + 1);
+    v9 = (unsigned int)(v9 + 1);
     ++m_addedViewModelBone;
     p_m_weaponAttachModels = (CgAddonViewModelInfo *)((char *)p_m_weaponAttachModels + 8);
-    v10 += 3;
+    v8 += 3;
   }
-  while ( (unsigned int)v11 < 0x10 );
-  result = modelIndex;
-  __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
-  return result;
+  while ( (unsigned int)v9 < 0x10 );
+  return modelIndex;
 }
 
 /*
@@ -1048,8 +1008,7 @@ CgWeaponSystemSP::GetWeaponUVAnimOverride
 */
 float CgWeaponSystemSP::GetWeaponUVAnimOverride(CgWeaponSystemSP *this)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -1081,31 +1040,10 @@ void CgWeaponSystemSP::InitCustomAttachModel(CgWeaponSystemSP *this, int modelIn
   v8->v[1] = offset->v[1];
   v8->v[2] = offset->v[2];
   AnglesToQuat(angles, &quat);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@46fffe00
-    vmulss  xmm1, xmm2, dword ptr [rsp+78h+quat]
-    vcvttss2si ecx, xmm1
-  }
-  *v7->quats = _ECX;
-  __asm
-  {
-    vmulss  xmm1, xmm2, dword ptr [rsp+78h+quat+4]
-    vcvttss2si ecx, xmm1
-  }
-  v7->quats[1] = _ECX;
-  __asm
-  {
-    vmulss  xmm1, xmm2, dword ptr [rsp+78h+quat+8]
-    vcvttss2si ecx, xmm1
-  }
-  v7->quats[2] = _ECX;
-  __asm
-  {
-    vmulss  xmm1, xmm2, dword ptr [rsp+78h+quat+0Ch]
-    vcvttss2si ecx, xmm1
-  }
-  v7->quats[3] = _ECX;
+  *v7->quats = (int)(float)(32767.0 * quat.v[0]);
+  v7->quats[1] = (int)(float)(32767.0 * quat.v[1]);
+  v7->quats[2] = (int)(float)(32767.0 * quat.v[2]);
+  v7->quats[3] = (int)(float)(32767.0 * quat.v[3]);
 }
 
 /*
@@ -1274,124 +1212,107 @@ void CgWeaponSystemSP::ShutdownViewModel(CgWeaponSystemSP *this)
 CgWeaponSystemSP::SimulateBulletFire_Orientation
 ==============
 */
-bool CgWeaponSystemSP::SimulateBulletFire_Orientation(CgWeaponSystemSP *this, centity_t *inflictorEnt, const Weapon *weapon, bool isAlternate, const TagPair tagPair, bool isPlayerView, bool isPlayerWeaponView, PlayerHandIndex hand, const bool calculateExactOrigin, const CgFireEventHighPrecisionData *highPrecisionFireData, orientation_t *outOrient, float *outAimSpreadAmount, vec3_t *outTracerStart)
+char CgWeaponSystemSP::SimulateBulletFire_Orientation(CgWeaponSystemSP *this, centity_t *inflictorEnt, const Weapon *weapon, bool isAlternate, const TagPair tagPair, bool isPlayerView, bool isPlayerWeaponView, PlayerHandIndex hand, const bool calculateExactOrigin, const CgFireEventHighPrecisionData *highPrecisionFireData, orientation_t *outOrient, float *outAimSpreadAmount, vec3_t *outTracerStart)
 {
+  orientation_t *v16; 
+  vec3_t *v17; 
   unsigned int weaponIdx; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v26; 
+  cg_t *v20; 
+  const playerState_s *p_predictedPlayerState; 
+  const dvar_t *v22; 
+  __int128 aimSpreadScale_low; 
   __int64 localClientNum; 
   int CmdNumber; 
-  scr_string_t v37; 
-  scr_string_t v38; 
-  __int64 v43; 
-  int v51; 
-  const DObj *v52; 
-  char v66; 
+  scr_string_t v27; 
+  scr_string_t v28; 
+  float v29; 
+  usercmd_s *v30; 
+  char *v31; 
+  __int64 v32; 
+  int v33; 
+  const DObj *v34; 
+  float v35; 
+  playerState_s *v36; 
   CgHandler *Handler; 
-  bool result; 
+  double v42; 
   int number; 
   const DObj *ClientDObj; 
   char *fmt; 
-  __int64 v90; 
-  __int64 v91; 
-  double v92; 
-  double v93; 
-  double v94; 
-  double v95; 
-  double v96; 
+  __int64 v46; 
+  __int64 v47; 
   unsigned __int8 outBoneIndex[4]; 
   scr_string_t outTagName; 
   int handle[2]; 
   Weapon *r_weapon; 
-  float *v101; 
+  float *v52; 
   const ClActiveClient *Client; 
   playerState_s *ps; 
-  __int64 v104; 
-  char v105; 
+  __int64 v55; 
+  char v56; 
+  float v57; 
+  float v58; 
   vec3_t angles; 
   orientation_t orient; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v104 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
+  v55 = -2i64;
   r_weapon = (Weapon *)weapon;
-  _RSI = outOrient;
-  v101 = outAimSpreadAmount;
-  _R14 = outTracerStart;
+  v16 = outOrient;
+  v52 = outAimSpreadAmount;
+  v17 = outTracerStart;
   weaponIdx = weapon->weaponIdx;
   if ( weaponIdx > bg_lastParsedWeaponIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", weapon->weaponIdx, bg_lastParsedWeaponIndex) )
     __debugbreak();
   if ( !bg_weaponDefs[(unsigned __int16)weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  _RBX = LocalClientGlobals;
+  v20 = LocalClientGlobals;
   if ( !isPlayerWeaponView )
   {
     if ( BG_IsActorEntity(&inflictorEnt->nextState) )
     {
-      *(double *)&_XMM0 = BG_ADSSpread(r_weapon, isAlternate, 0, 0);
-      _RAX = v101;
-      __asm { vmovss  dword ptr [rax], xmm0 }
+      v42 = BG_ADSSpread(r_weapon, isAlternate, 0, 0);
+      *v52 = *(float *)&v42;
       number = inflictorEnt->nextState.number;
       outBoneIndex[0] = -2;
       handle[0] = 0;
       ClientDObj = Com_GetClientDObj(number, this->m_localClientNum);
-      if ( ClientDObj && TagPair::GetTagNameAndBoneIndex((TagPair *)&tagPair, ClientDObj, (scr_string_t *)handle, outBoneIndex) && CG_Entity_GetBoneOrientation(this->m_localClientNum, number, outBoneIndex[0], _RSI) )
+      if ( ClientDObj && TagPair::GetTagNameAndBoneIndex((TagPair *)&tagPair, ClientDObj, (scr_string_t *)handle, outBoneIndex) && CG_Entity_GetBoneOrientation(this->m_localClientNum, number, outBoneIndex[0], v16) )
       {
-        _R14->v[0] = _RSI->origin.v[0];
-        _R14->v[1] = _RSI->origin.v[1];
-        _R14->v[2] = _RSI->origin.v[2];
-        result = 1;
-        goto LABEL_46;
+        v17->v[0] = v16->origin.v[0];
+        v17->v[1] = v16->origin.v[1];
+        v17->v[2] = v16->origin.v[2];
+        return 1;
       }
     }
     else
     {
       Com_PrintError(14, "Unknown eType %i in SimulateBulletFire_Orientation()\n", (unsigned int)inflictorEnt->nextState.eType);
     }
-    goto LABEL_45;
+    return 0;
   }
-  _R15 = &LocalClientGlobals->predictedPlayerState;
+  p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
   ps = &LocalClientGlobals->predictedPlayerState;
-  v26 = DCONST_DVARBOOL_bg_aimSpreadDebugLog;
+  v22 = DCONST_DVARBOOL_bg_aimSpreadDebugLog;
   if ( !DCONST_DVARBOOL_bg_aimSpreadDebugLog && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_aimSpreadDebugLog") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  if ( v26->current.enabled )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r15+744h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rbx+0B519Ch]
-      vcvtss2sd xmm2, xmm2, xmm2
-    }
-    LODWORD(fmt) = _RBX->time;
-    __asm
-    {
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_Printf(17, "C: SimulateBulletFire_Orientation: Last aim spread scale: %.5f Aim spread scale ps: %.5f Time: %d\n", *(double *)&_XMM2, *(double *)&_XMM3, fmt);
+    LODWORD(fmt) = v20->time;
+    Com_Printf(17, "C: SimulateBulletFire_Orientation: Last aim spread scale: %.5f Aim spread scale ps: %.5f Time: %d\n", v20->lastFrame.aimSpreadScale, p_predictedPlayerState->weapCommon.aimSpreadScale, fmt);
   }
   handle[0] = hand + 2048;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0B519Ch]
-    vmulss  xmm8, xmm0, cs:__real@3b808081
-  }
-  CG_GetPlayerViewOrigin(this->m_localClientNum, _R15, &_RSI->origin);
-  localClientNum = _RBX->localClientNum;
+  aimSpreadScale_low = LODWORD(v20->lastFrame.aimSpreadScale);
+  *(float *)&aimSpreadScale_low = v20->lastFrame.aimSpreadScale * 0.0039215689;
+  _XMM8 = aimSpreadScale_low;
+  CG_GetPlayerViewOrigin(this->m_localClientNum, p_predictedPlayerState, &v16->origin);
+  localClientNum = v20->localClientNum;
   if ( (unsigned int)localClientNum >= LODWORD(cl_maxLocalClients) )
   {
-    *(float *)&v91 = cl_maxLocalClients;
-    LODWORD(v90) = _RBX->localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_active_client_sp.h", 83, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v90, v91) )
+    *(float *)&v47 = cl_maxLocalClients;
+    LODWORD(v46) = v20->localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_active_client_sp.h", 83, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v46, v47) )
       __debugbreak();
   }
   if ( (_BYTE)ClActiveClient::ms_activeClientType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_active_client_sp.h", 84, ASSERT_TYPE_ASSERT, "(ms_activeClientType == GameModeType::SP)", (const char *)&queryFormat, "ms_activeClientType == GameModeType::SP") )
@@ -1400,157 +1321,82 @@ bool CgWeaponSystemSP::SimulateBulletFire_Orientation(CgWeaponSystemSP *this, ce
     __debugbreak();
   CmdNumber = ClActiveClient_GetCmdNumber(ClActiveClient::ms_activeClients[localClientNum]);
   Client = NULL;
-  Client = ClActiveClient::GetClient((const LocalClientNum_t)_RBX->localClientNum);
-  v37 = ClActiveClient_GetCmdNumber(Client);
-  v38 = v37;
-  outTagName = v37;
-  if ( CmdNumber > v37 )
+  Client = ClActiveClient::GetClient((const LocalClientNum_t)v20->localClientNum);
+  v27 = ClActiveClient_GetCmdNumber(Client);
+  v28 = v27;
+  outTagName = v27;
+  if ( CmdNumber > v27 )
   {
-    LODWORD(fmt) = v37;
+    LODWORD(fmt) = v27;
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CEE128, 754i64, (unsigned int)CmdNumber, fmt);
   }
-  if ( CmdNumber > v38 - 128 && CmdNumber > 0 )
+  if ( CmdNumber > v28 - 128 && CmdNumber > 0 )
   {
-    _RBX = &Client->cmds[CmdNumber & 0x7F];
+    v30 = &Client->cmds[CmdNumber & 0x7F];
     memset(&outTagName, 0, sizeof(outTagName));
     if ( (const ClActiveClient *)((char *)Client + 264 * (CmdNumber & 0x7F)) == (const ClActiveClient *)-472i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
       __debugbreak();
-    _RCX = &v105;
-    v43 = 2i64;
+    v31 = &v56;
+    v32 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      _RCX += 128;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
-      --v43;
+      *(__m256i *)v31 = *(__m256i *)&v30->buttons;
+      *((__m256i *)v31 + 1) = *(__m256i *)(&v30->angles.xy + 1);
+      *((__m256i *)v31 + 2) = *(__m256i *)&v30->weapon.attachmentVariationIndices[1];
+      *((_OWORD *)v31 + 6) = *(_OWORD *)&v30->offHand.weaponIdx;
+      v31 += 128;
+      *((_OWORD *)v31 - 1) = *(_OWORD *)&v30->offHand.weaponAttachments[2];
+      v30 = (usercmd_s *)((char *)v30 + 128);
+      --v32;
     }
-    while ( v43 );
-    *(_QWORD *)_RCX = _RBX->buttons;
-    __asm
-    {
-      vmovss  xmm0, [rbp+160h+var_F4]
-      vmovss  dword ptr [rbp+160h+angles], xmm0
-      vmovss  xmm1, [rbp+160h+var_F0]
-    }
+    while ( v32 );
+    *(_QWORD *)v31 = v30->buttons;
+    angles.v[0] = v57;
+    v29 = v58;
   }
   else
   {
     memset(&outTagName, 0, sizeof(outTagName));
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+49DF0h]
-      vmovss  dword ptr [rbp+160h+angles], xmm0
-      vmovss  xmm1, dword ptr [rbx+49DF4h]
-    }
+    angles.v[0] = v20->gunAngles.v[0];
+    v29 = v20->gunAngles.v[1];
   }
-  __asm
+  angles.v[1] = v29;
+  angles.v[2] = 0.0;
+  if ( TagPair::IsEmpty((TagPair *)&tagPair) )
   {
-    vmovss  dword ptr [rbp+160h+angles+4], xmm1
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rbp+160h+angles+8], xmm6
+    v17->v[0] = v16->origin.v[0];
+    v17->v[1] = v16->origin.v[1];
+    v17->v[2] = v16->origin.v[2];
+    goto LABEL_39;
   }
-  if ( !TagPair::IsEmpty((TagPair *)&tagPair) )
-  {
-    outBoneIndex[0] = -2;
-    outTagName = 0;
-    v51 = handle[0];
-    v52 = Com_GetClientDObj(handle[0], this->m_localClientNum);
-    if ( v52 && TagPair::GetTagNameAndBoneIndex((TagPair *)&tagPair, v52, &outTagName, outBoneIndex) && CG_Entity_GetBoneOrientation(this->m_localClientNum, v51, outBoneIndex[0], &orient) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+160h+orient.origin]
-        vmovss  dword ptr [r14], xmm0
-        vmovss  xmm1, dword ptr [rbp+160h+orient.origin+4]
-        vmovss  dword ptr [r14+4], xmm1
-        vmovss  xmm0, dword ptr [rbp+160h+orient.origin+8]
-        vmovss  dword ptr [r14+8], xmm0
-      }
-      goto LABEL_39;
-    }
-LABEL_45:
-    result = 0;
-    goto LABEL_46;
-  }
-  _R14->v[0] = _RSI->origin.v[0];
-  _R14->v[1] = _RSI->origin.v[1];
-  _R14->v[2] = _RSI->origin.v[2];
+  outBoneIndex[0] = -2;
+  outTagName = 0;
+  v33 = handle[0];
+  v34 = Com_GetClientDObj(handle[0], this->m_localClientNum);
+  if ( !v34 || !TagPair::GetTagNameAndBoneIndex((TagPair *)&tagPair, v34, &outTagName, outBoneIndex) || !CG_Entity_GetBoneOrientation(this->m_localClientNum, v33, outBoneIndex[0], &orient) )
+    return 0;
+  v17->v[0] = orient.origin.v[0];
+  v17->v[1] = orient.origin.v[1];
+  v17->v[2] = orient.origin.v[2];
 LABEL_39:
-  AngleVectors(&angles, _RSI->axis.m, &_RSI->axis.m[1], &_RSI->axis.m[2]);
+  AngleVectors(&angles, v16->axis.m, &v16->axis.m[1], &v16->axis.m[2]);
+  v35 = v16->axis.m[0].v[0];
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v35 * v35) + (float)(v16->axis.m[0].v[1] * v16->axis.m[0].v[1])) + (float)(v16->axis.m[0].v[2] * v16->axis.m[0].v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 210, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( outOrient->axis[0] ))", "%s\n\tCgWeaponSystemSP::SimulateBulletFire_Orientation - Firing dir is not normalized. Forward: %f %f %f, Gun Pitch: %f Gun Yaw: %f", "Vec3IsNormalized( outOrient->axis[0] )", v35, v16->axis.m[0].v[1], v16->axis.m[0].v[2], angles.v[0], angles.v[1]) )
+    __debugbreak();
+  Vec3NormalizeFast(v16->axis.m);
+  Vec3NormalizeFast(&v16->axis.m[1]);
+  Vec3NormalizeFast(&v16->axis.m[2]);
+  v36 = ps;
+  _XMM0 = LODWORD(ps->weapCommon.fWeaponPosFrac);
   __asm
   {
-    vmovss  xmm0, dword ptr [rsi+10h]
-    vmovss  xmm4, dword ptr [rsi+0Ch]
-    vmovss  xmm3, dword ptr [rsi+14h]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm0, xmm3, cs:__real@3f800000
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-  }
-  if ( !v66 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+160h+angles+4]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rbp+160h+angles]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm2, dword ptr [rsi+14h]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovss  xmm3, dword ptr [rsi+10h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  qword ptr [rsp+50h], xmm0
-      vmovsd  [rsp+260h+var_218], xmm1
-      vmovsd  [rsp+260h+var_220], xmm2
-      vmovsd  [rsp+260h+var_228], xmm3
-      vmovsd  [rsp+260h+var_230], xmm4
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_weapons_sp.cpp", 210, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( outOrient->axis[0] ))", "%s\n\tCgWeaponSystemSP::SimulateBulletFire_Orientation - Firing dir is not normalized. Forward: %f %f %f, Gun Pitch: %f Gun Yaw: %f", "Vec3IsNormalized( outOrient->axis[0] )", v92, v93, v94, v95, v96) )
-      __debugbreak();
-  }
-  Vec3NormalizeFast(_RSI->axis.m);
-  Vec3NormalizeFast(&_RSI->axis.m[1]);
-  Vec3NormalizeFast(&_RSI->axis.m[2]);
-  _RDI = ps;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+730h]
     vcmpeqss xmm1, xmm0, cs:__real@3f800000
     vblendvps xmm6, xmm8, xmm6, xmm1
   }
   Handler = CgHandler::getHandler(this->m_localClientNum);
-  __asm { vmovaps xmm3, xmm6; aimSpreadScale }
-  *(double *)&_XMM0 = BG_CalculateFinalSpreadForWeapon(Handler, _RDI, r_weapon, *(float *)&_XMM3);
-  _RAX = v101;
-  __asm { vmovss  dword ptr [rax], xmm0 }
-  result = 1;
-LABEL_46:
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+260h+var_58+8]
-    vmovaps xmm8, [rsp+260h+var_68+8]
-  }
-  return result;
+  *(double *)&_XMM0 = BG_CalculateFinalSpreadForWeapon(Handler, v36, r_weapon, *(float *)&_XMM6);
+  *v52 = *(float *)&_XMM0;
+  return 1;
 }
 
 /*

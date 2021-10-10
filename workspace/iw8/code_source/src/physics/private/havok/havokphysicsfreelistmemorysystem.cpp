@@ -550,22 +550,22 @@ void HavokPhysicsFreeListMemorySystem::getMemoryStatistics(HavokPhysicsFreeListM
   hkMemorySystem::MemoryStatistics::Entry *v16; 
   hkStringPtr *p_m_allocatorName; 
   hkMemoryAllocator *m_generalHeapAllocator; 
-  hkMemoryAllocator *v21; 
-  int v22; 
-  int v23; 
+  hkMemoryAllocator *v19; 
+  int v20; 
+  int v21; 
+  hkMemorySystem::MemoryStatistics::Entry *v22; 
+  hkMemorySystem::MemoryStatistics::Entry *v23; 
   hkMemorySystem::MemoryStatistics::Entry *v24; 
-  hkMemorySystem::MemoryStatistics::Entry *v25; 
-  hkMemorySystem::MemoryStatistics::Entry *v26; 
-  hkMemoryAllocator *v27; 
-  int v28; 
-  int v29; 
+  hkMemoryAllocator *v25; 
+  int v26; 
+  int v27; 
+  hkMemorySystem::MemoryStatistics::Entry *v28; 
+  hkMemorySystem::MemoryStatistics::Entry *v29; 
   hkMemorySystem::MemoryStatistics::Entry *v30; 
-  hkMemorySystem::MemoryStatistics::Entry *v31; 
-  hkMemorySystem::MemoryStatistics::Entry *v32; 
+  __m256i v31; 
+  __int128 v32; 
   __m256i v33; 
   __int128 v34; 
-  __m256i v35; 
-  __int128 v36; 
 
   v3 = stats->m_entries.m_size - 1;
   if ( v3 >= 0 )
@@ -633,81 +633,73 @@ void HavokPhysicsFreeListMemorySystem::getMemoryStatistics(HavokPhysicsFreeListM
   p_m_allocatorName = &v15[v14].m_allocatorName;
   stats->m_entries.m_size = v14 + 1;
   hkStringPtr::operator=(p_m_allocatorName, "Heap");
-  __asm
-  {
-    vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-  }
   m_generalHeapAllocator = this->m_generalHeapAllocator;
-  __asm
+  v31 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  v32 = _xmm_ffffffffffffffffffffffffffffffff;
+  v33 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  v34 = _xmm_ffffffffffffffffffffffffffffffff;
+  m_generalHeapAllocator->getMemoryStatistics(m_generalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v31);
+  this->m_mapLocalHeapAllocator->getMemoryStatistics(this->m_mapLocalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v33);
+  p_m_allocatorName[1].m_stringAndFlag = (char *)(v33.m256i_i64[0] + v31.m256i_i64[0]);
+  p_m_allocatorName[2].m_stringAndFlag = (char *)(v33.m256i_i64[1] + v31.m256i_i64[1]);
+  p_m_allocatorName[3].m_stringAndFlag = (char *)(v33.m256i_i64[2] + v31.m256i_i64[2]);
+  p_m_allocatorName[4].m_stringAndFlag = (char *)(v33.m256i_i64[3] + v31.m256i_i64[3]);
+  p_m_allocatorName[5].m_stringAndFlag = (char *)(v34 + v32);
+  p_m_allocatorName[6].m_stringAndFlag = (char *)(*((_QWORD *)&v34 + 1) + *((_QWORD *)&v32 + 1));
+  v19 = hkMemHeapAllocator();
+  v20 = stats->m_entries.m_size;
+  v21 = v20;
+  if ( v20 == (stats->m_entries.m_capacityAndFlags & 0x3FFFFFFF) )
   {
-    vmovdqu [rsp+88h+var_68], ymm0
-    vmovdqu [rsp+88h+var_48], xmm1
-    vmovdqu [rsp+88h+var_38], ymm0
-    vmovdqu [rsp+88h+var_18], xmm1
+    hkArrayUtil::_reserveMore(v19, stats, 56);
+    v20 = stats->m_entries.m_size;
+    v21 = v20;
   }
-  m_generalHeapAllocator->getMemoryStatistics(m_generalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v33);
-  this->m_mapLocalHeapAllocator->getMemoryStatistics(this->m_mapLocalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v35);
-  p_m_allocatorName[1].m_stringAndFlag = (char *)(v35.m256i_i64[0] + v33.m256i_i64[0]);
-  p_m_allocatorName[2].m_stringAndFlag = (char *)(v35.m256i_i64[1] + v33.m256i_i64[1]);
-  p_m_allocatorName[3].m_stringAndFlag = (char *)(v35.m256i_i64[2] + v33.m256i_i64[2]);
-  p_m_allocatorName[4].m_stringAndFlag = (char *)(v35.m256i_i64[3] + v33.m256i_i64[3]);
-  p_m_allocatorName[5].m_stringAndFlag = (char *)(v36 + v34);
-  p_m_allocatorName[6].m_stringAndFlag = (char *)(*((_QWORD *)&v36 + 1) + *((_QWORD *)&v34 + 1));
-  v21 = hkMemHeapAllocator();
-  v22 = stats->m_entries.m_size;
-  v23 = v22;
-  if ( v22 == (stats->m_entries.m_capacityAndFlags & 0x3FFFFFFF) )
+  v22 = stats->m_entries.m_data;
+  v23 = &stats->m_entries.m_data[v20];
+  if ( v23 )
   {
-    hkArrayUtil::_reserveMore(v21, stats, 56);
-    v22 = stats->m_entries.m_size;
-    v23 = v22;
+    v23->m_allocatorName.m_stringAndFlag = NULL;
+    v23->m_allocatorStats.m_allocated = -1i64;
+    v23->m_allocatorStats.m_inUse = -1i64;
+    v23->m_allocatorStats.m_peakInUse = -1i64;
+    v23->m_allocatorStats.m_available = -1i64;
+    v23->m_allocatorStats.m_totalAvailable = -1i64;
+    v23->m_allocatorStats.m_largestBlock = -1i64;
+    v21 = stats->m_entries.m_size;
+    v22 = stats->m_entries.m_data;
   }
-  v24 = stats->m_entries.m_data;
-  v25 = &stats->m_entries.m_data[v22];
-  if ( v25 )
+  v24 = &v22[v21];
+  stats->m_entries.m_size = v21 + 1;
+  hkStringPtr::operator=(&v24->m_allocatorName, "Debug");
+  this->m_debugAllocator.getMemoryStatistics(&this->m_debugAllocator, &v24->m_allocatorStats);
+  v25 = hkMemHeapAllocator();
+  v26 = stats->m_entries.m_size;
+  v27 = v26;
+  if ( v26 == (stats->m_entries.m_capacityAndFlags & 0x3FFFFFFF) )
   {
-    v25->m_allocatorName.m_stringAndFlag = NULL;
-    v25->m_allocatorStats.m_allocated = -1i64;
-    v25->m_allocatorStats.m_inUse = -1i64;
-    v25->m_allocatorStats.m_peakInUse = -1i64;
-    v25->m_allocatorStats.m_available = -1i64;
-    v25->m_allocatorStats.m_totalAvailable = -1i64;
-    v25->m_allocatorStats.m_largestBlock = -1i64;
-    v23 = stats->m_entries.m_size;
-    v24 = stats->m_entries.m_data;
+    hkArrayUtil::_reserveMore(v25, stats, 56);
+    v26 = stats->m_entries.m_size;
+    v27 = v26;
   }
-  v26 = &v24[v23];
-  stats->m_entries.m_size = v23 + 1;
-  hkStringPtr::operator=(&v26->m_allocatorName, "Debug");
-  this->m_debugAllocator.getMemoryStatistics(&this->m_debugAllocator, &v26->m_allocatorStats);
-  v27 = hkMemHeapAllocator();
-  v28 = stats->m_entries.m_size;
-  v29 = v28;
-  if ( v28 == (stats->m_entries.m_capacityAndFlags & 0x3FFFFFFF) )
+  v28 = stats->m_entries.m_data;
+  v29 = &stats->m_entries.m_data[v26];
+  if ( v29 )
   {
-    hkArrayUtil::_reserveMore(v27, stats, 56);
-    v28 = stats->m_entries.m_size;
-    v29 = v28;
+    v29->m_allocatorName.m_stringAndFlag = NULL;
+    v29->m_allocatorStats.m_allocated = -1i64;
+    v29->m_allocatorStats.m_inUse = -1i64;
+    v29->m_allocatorStats.m_peakInUse = -1i64;
+    v29->m_allocatorStats.m_available = -1i64;
+    v29->m_allocatorStats.m_totalAvailable = -1i64;
+    v29->m_allocatorStats.m_largestBlock = -1i64;
+    v27 = stats->m_entries.m_size;
+    v28 = stats->m_entries.m_data;
   }
-  v30 = stats->m_entries.m_data;
-  v31 = &stats->m_entries.m_data[v28];
-  if ( v31 )
-  {
-    v31->m_allocatorName.m_stringAndFlag = NULL;
-    v31->m_allocatorStats.m_allocated = -1i64;
-    v31->m_allocatorStats.m_inUse = -1i64;
-    v31->m_allocatorStats.m_peakInUse = -1i64;
-    v31->m_allocatorStats.m_available = -1i64;
-    v31->m_allocatorStats.m_totalAvailable = -1i64;
-    v31->m_allocatorStats.m_largestBlock = -1i64;
-    v29 = stats->m_entries.m_size;
-    v30 = stats->m_entries.m_data;
-  }
-  v32 = &v30[v29];
-  stats->m_entries.m_size = v29 + 1;
-  hkStringPtr::operator=(&v32->m_allocatorName, "Solver");
-  this->m_solverAllocator.getMemoryStatistics(&this->m_solverAllocator, &v32->m_allocatorStats);
+  v30 = &v28[v27];
+  stats->m_entries.m_size = v27 + 1;
+  hkStringPtr::operator=(&v30->m_allocatorName, "Solver");
+  this->m_solverAllocator.getMemoryStatistics(&this->m_solverAllocator, &v30->m_allocatorStats);
 }
 
 /*
@@ -807,95 +799,78 @@ void HavokPhysicsFreeListMemorySystem::printStatistics(HavokPhysicsFreeListMemor
   hkMemoryAllocator *m_systemAllocator; 
   hkMemoryAllocator *m_generalHeapAllocator; 
   hkMemoryAllocator *m_mapLocalHeapAllocator; 
-  hkRecallAllocator_vtbl *v15; 
-  int v16; 
-  unsigned int v17; 
-  int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned int v21; 
+  hkRecallAllocator_vtbl *v7; 
+  int v8; 
+  unsigned int v9; 
+  int v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
   HavokPhysicsFreeListMemorySystem::ThreadData *m_threadDatas; 
-  HavokPhysicsThreadMemory_vtbl *v25; 
-  HavokPhysicsThreadMemory_vtbl *v28; 
+  HavokPhysicsThreadMemory_vtbl *v15; 
+  HavokPhysicsThreadMemory_vtbl *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
   __int64 v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
-  unsigned int v36; 
-  __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
   __int64 m_peakUse_low; 
-  int v43; 
-  __int64 v44; 
-  __m256i v45; 
-  __m256i v47; 
-  __m256i v49; 
-  __m256i v51; 
-  __m256i v53; 
-  __m256i v55; 
+  int v31; 
+  __int64 v32; 
+  __m256i v33; 
+  __int128 v34; 
+  __m256i v35; 
+  __int128 v36; 
+  __m256i v37; 
+  __int128 v38; 
+  __m256i v39; 
+  __int128 v40; 
+  __m256i v41; 
+  __int128 v42; 
+  __m256i v43; 
+  __int128 v44; 
 
   EnterCriticalSection((LPCRITICAL_SECTION)&this->m_threadDataLock);
   hkOstream::printf(ostr, "HavokPhysicsFreeListMemorySystem memory overview:\n=======================================\n");
   m_systemAllocator = this->m_systemAllocator;
-  __asm
-  {
-    vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-    vmovdqu [rbp+60h+var_B0], ymm0
-    vmovdqu [rbp+60h+var_90], xmm1
-  }
-  m_systemAllocator->getMemoryStatistics(m_systemAllocator, (hkMemoryAllocator::MemoryStatistics *)&v51);
+  v39 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  v40 = _xmm_ffffffffffffffffffffffffffffffff;
+  m_systemAllocator->getMemoryStatistics(m_systemAllocator, (hkMemoryAllocator::MemoryStatistics *)&v39);
   m_generalHeapAllocator = this->m_generalHeapAllocator;
-  __asm
-  {
-    vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-    vmovdqu [rsp+160h+var_110], ymm0
-    vmovdqu [rsp+160h+var_F0], xmm1
-  }
-  m_generalHeapAllocator->getMemoryStatistics(m_generalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v47);
+  v35 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  v36 = _xmm_ffffffffffffffffffffffffffffffff;
+  m_generalHeapAllocator->getMemoryStatistics(m_generalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v35);
   m_mapLocalHeapAllocator = this->m_mapLocalHeapAllocator;
-  __asm
-  {
-    vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-    vmovdqu [rsp+160h+var_140], ymm0
-    vmovdqu [rsp+160h+var_120], xmm1
-  }
-  m_mapLocalHeapAllocator->getMemoryStatistics(m_mapLocalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v45);
-  __asm
-  {
-    vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-  }
-  v15 = this->m_debugAllocator.__vftable;
-  __asm
-  {
-    vmovdqu [rbp+60h+var_E0], ymm0
-    vmovdqu [rbp+60h+var_C0], xmm1
-  }
-  v15->getMemoryStatistics(&this->m_debugAllocator, (hkMemoryAllocator::MemoryStatistics *)&v49);
+  v33 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  v34 = _xmm_ffffffffffffffffffffffffffffffff;
+  m_mapLocalHeapAllocator->getMemoryStatistics(m_mapLocalHeapAllocator, (hkMemoryAllocator::MemoryStatistics *)&v33);
+  v7 = this->m_debugAllocator.__vftable;
+  v37 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  v38 = _xmm_ffffffffffffffffffffffffffffffff;
+  v7->getMemoryStatistics(&this->m_debugAllocator, (hkMemoryAllocator::MemoryStatistics *)&v37);
   hkOstream::printf(ostr, "\n    Allocation totals:\n\n");
-  v16 = v47.m256i_i32[0];
-  v17 = v45.m256i_i32[0];
-  hkOstream::printf(ostr, "%20i allocated by general heap\n", v47.m256i_u32[0]);
-  hkOstream::printf(ostr, "%20i allocated by map local heap\n", v17);
-  v18 = v49.m256i_i32[0];
-  hkOstream::printf(ostr, "%20i allocated by debug\n", v49.m256i_u32[0]);
-  v19 = LODWORD(this->m_solverAllocator.m_bufferEnd) - LODWORD(this->m_solverAllocator.m_bufferStart);
-  hkOstream::printf(ostr, "%20i allocated by solver\n", v19);
+  v8 = v35.m256i_i32[0];
+  v9 = v33.m256i_i32[0];
+  hkOstream::printf(ostr, "%20i allocated by general heap\n", v35.m256i_u32[0]);
+  hkOstream::printf(ostr, "%20i allocated by map local heap\n", v9);
+  v10 = v37.m256i_i32[0];
+  hkOstream::printf(ostr, "%20i allocated by debug\n", v37.m256i_u32[0]);
+  v11 = LODWORD(this->m_solverAllocator.m_bufferEnd) - LODWORD(this->m_solverAllocator.m_bufferStart);
+  hkOstream::printf(ostr, "%20i allocated by solver\n", v11);
   hkOstream::printf(ostr, "%20s\n", "-------");
-  hkOstream::printf(ostr, "%20i computed total\n", v16 + v17 + v19 + v18);
-  hkOstream::printf(ostr, "%20i reported total\n", v51.m256i_u32[0]);
+  hkOstream::printf(ostr, "%20i computed total\n", v8 + v9 + v11 + v10);
+  hkOstream::printf(ostr, "%20i reported total\n", v39.m256i_u32[0]);
   hkOstream::printf(ostr, "\n    Heap usage:\n\n");
-  v20 = 0;
-  v21 = 0;
+  v12 = 0;
+  v13 = 0;
   if ( (this->m_flags & 4) != 0 )
   {
     m_threadDatas = this->m_threadDatas;
@@ -905,104 +880,88 @@ void HavokPhysicsFreeListMemorySystem::printStatistics(HavokPhysicsFreeListMemor
       {
         if ( m_threadDatas->m_inUse.m_bool )
         {
-          __asm
-          {
-            vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-          }
-          v25 = m_threadDatas->m_generalHeapThreadMemory.__vftable;
-          __asm
-          {
-            vmovdqu [rbp+60h+var_80], ymm0
-            vmovdqu [rbp+60h+var_60], xmm1
-          }
-          v25->getMemoryStatistics(&m_threadDatas->m_generalHeapThreadMemory, (hkMemoryAllocator::MemoryStatistics *)&v53);
-          __asm
-          {
-            vmovdqu ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            vmovdqu xmm1, cs:__xmm@ffffffffffffffffffffffffffffffff
-          }
-          v20 += v53.m256i_u32[6];
-          v28 = m_threadDatas->m_mapLocalHeapThreadMemory.__vftable;
-          __asm
-          {
-            vmovdqu [rbp+60h+var_50], ymm0
-            vmovdqu [rbp+60h+var_30], xmm1
-          }
-          v28->getMemoryStatistics(&m_threadDatas->m_mapLocalHeapThreadMemory, (hkMemoryAllocator::MemoryStatistics *)&v55);
-          v21 += v55.m256i_u32[6];
+          v15 = m_threadDatas->m_generalHeapThreadMemory.__vftable;
+          v41 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+          v42 = _xmm_ffffffffffffffffffffffffffffffff;
+          v15->getMemoryStatistics(&m_threadDatas->m_generalHeapThreadMemory, (hkMemoryAllocator::MemoryStatistics *)&v41);
+          v12 += v41.m256i_u32[6];
+          v16 = m_threadDatas->m_mapLocalHeapThreadMemory.__vftable;
+          v43 = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+          v44 = _xmm_ffffffffffffffffffffffffffffffff;
+          v16->getMemoryStatistics(&m_threadDatas->m_mapLocalHeapThreadMemory, (hkMemoryAllocator::MemoryStatistics *)&v43);
+          v13 += v43.m256i_u32[6];
         }
         m_threadDatas = m_threadDatas->m_next;
       }
       while ( m_threadDatas );
     }
-    if ( v47.m256i_i32[0] )
-      v29 = 100i64 * (int)v20 / v47.m256i_i32[0];
+    if ( v35.m256i_i32[0] )
+      v17 = 100i64 * (int)v12 / v35.m256i_i32[0];
+    else
+      LODWORD(v17) = 0;
+    hkOstream::printf(ostr, "%20i (%2i%%) unused in thread local general freelists\n", v12, (unsigned int)v17);
+    if ( v33.m256i_i32[0] )
+      v18 = 100i64 * (int)v13 / v33.m256i_i32[0];
+    else
+      LODWORD(v18) = 0;
+    hkOstream::printf(ostr, "%20i (%2i%%) unused in thread local map local freelists\n", v13, (unsigned int)v18);
+  }
+  v19 = 0;
+  if ( v35.m256i_i64[3] != -1 )
+    v19 = v35.m256i_i32[6];
+  v20 = 0;
+  if ( v33.m256i_i64[3] != -1 )
+    v20 = v33.m256i_i32[6];
+  if ( v35.m256i_i32[0] )
+    v21 = 100i64 * v19 / v35.m256i_i32[0];
+  else
+    LODWORD(v21) = 0;
+  hkOstream::printf(ostr, "%20i (%2i%%) unused in main general heap\n", (unsigned int)v19, (unsigned int)v21);
+  if ( v33.m256i_i32[0] )
+    v22 = 100i64 * v20 / v33.m256i_i32[0];
+  else
+    LODWORD(v22) = 0;
+  hkOstream::printf(ostr, "%20i (%2i%%) unused in main map local heap\n", (unsigned int)v20, (unsigned int)v22);
+  v23 = v35.m256i_i32[0] - v19 - v12;
+  v24 = v33.m256i_i32[0] - v20 - v13;
+  v25 = 100i64 * (int)v23;
+  if ( v35.m256i_i32[0] )
+    v26 = v25 / v35.m256i_i32[0];
+  else
+    LODWORD(v26) = 0;
+  hkOstream::printf(ostr, "%20i (%2i%%) used in main general heap\n", v23, (unsigned int)v26);
+  if ( v33.m256i_i32[0] )
+    v27 = 100i64 * (int)v24 / v33.m256i_i32[0];
+  else
+    LODWORD(v27) = 0;
+  hkOstream::printf(ostr, "%20i (%2i%%) used in main map local heap\n", v24, (unsigned int)v27);
+  hkOstream::printf(ostr, "%20s\n", "-------");
+  hkOstream::printf(ostr, "%20i allocated by heap\n", v35.m256i_u32[0]);
+  hkOstream::printf(ostr, "%20i allocated by heap\n", v33.m256i_u32[0]);
+  hkOstream::printf(ostr, "\n    Peak usage:\n\n");
+  if ( v35.m256i_i64[2] != -1 )
+  {
+    if ( v35.m256i_i32[4] )
+      v28 = v25 / v35.m256i_i32[4];
+    else
+      LODWORD(v28) = 0;
+    hkOstream::printf(ostr, "%20i (%2i%%) peak general heap used (versus current)\n", v35.m256i_i32[4], (unsigned int)v28);
+  }
+  if ( v33.m256i_i64[2] != -1 )
+  {
+    if ( v33.m256i_i32[4] )
+      v29 = 100i64 * (int)v24 / v33.m256i_i32[4];
     else
       LODWORD(v29) = 0;
-    hkOstream::printf(ostr, "%20i (%2i%%) unused in thread local general freelists\n", v20, (unsigned int)v29);
-    if ( v45.m256i_i32[0] )
-      v30 = 100i64 * (int)v21 / v45.m256i_i32[0];
-    else
-      LODWORD(v30) = 0;
-    hkOstream::printf(ostr, "%20i (%2i%%) unused in thread local map local freelists\n", v21, (unsigned int)v30);
-  }
-  v31 = 0;
-  if ( v47.m256i_i64[3] != -1 )
-    v31 = v47.m256i_i32[6];
-  v32 = 0;
-  if ( v45.m256i_i64[3] != -1 )
-    v32 = v45.m256i_i32[6];
-  if ( v47.m256i_i32[0] )
-    v33 = 100i64 * v31 / v47.m256i_i32[0];
-  else
-    LODWORD(v33) = 0;
-  hkOstream::printf(ostr, "%20i (%2i%%) unused in main general heap\n", (unsigned int)v31, (unsigned int)v33);
-  if ( v45.m256i_i32[0] )
-    v34 = 100i64 * v32 / v45.m256i_i32[0];
-  else
-    LODWORD(v34) = 0;
-  hkOstream::printf(ostr, "%20i (%2i%%) unused in main map local heap\n", (unsigned int)v32, (unsigned int)v34);
-  v35 = v47.m256i_i32[0] - v31 - v20;
-  v36 = v45.m256i_i32[0] - v32 - v21;
-  v37 = 100i64 * (int)v35;
-  if ( v47.m256i_i32[0] )
-    v38 = v37 / v47.m256i_i32[0];
-  else
-    LODWORD(v38) = 0;
-  hkOstream::printf(ostr, "%20i (%2i%%) used in main general heap\n", v35, (unsigned int)v38);
-  if ( v45.m256i_i32[0] )
-    v39 = 100i64 * (int)v36 / v45.m256i_i32[0];
-  else
-    LODWORD(v39) = 0;
-  hkOstream::printf(ostr, "%20i (%2i%%) used in main map local heap\n", v36, (unsigned int)v39);
-  hkOstream::printf(ostr, "%20s\n", "-------");
-  hkOstream::printf(ostr, "%20i allocated by heap\n", v47.m256i_u32[0]);
-  hkOstream::printf(ostr, "%20i allocated by heap\n", v45.m256i_u32[0]);
-  hkOstream::printf(ostr, "\n    Peak usage:\n\n");
-  if ( v47.m256i_i64[2] != -1 )
-  {
-    if ( v47.m256i_i32[4] )
-      v40 = v37 / v47.m256i_i32[4];
-    else
-      LODWORD(v40) = 0;
-    hkOstream::printf(ostr, "%20i (%2i%%) peak general heap used (versus current)\n", v47.m256i_i32[4], (unsigned int)v40);
-  }
-  if ( v45.m256i_i64[2] != -1 )
-  {
-    if ( v45.m256i_i32[4] )
-      v41 = 100i64 * (int)v36 / v45.m256i_i32[4];
-    else
-      LODWORD(v41) = 0;
-    hkOstream::printf(ostr, "%20i (%2i%%) peak map local heap used (versus current)\n", v45.m256i_i32[4], (unsigned int)v41);
+    hkOstream::printf(ostr, "%20i (%2i%%) peak map local heap used (versus current)\n", v33.m256i_i32[4], (unsigned int)v29);
   }
   m_peakUse_low = SLODWORD(this->m_solverAllocator.m_peakUse);
-  v43 = LODWORD(this->m_solverAllocator.m_bufferEnd) - LODWORD(this->m_solverAllocator.m_bufferStart);
-  if ( v43 )
-    v44 = 100 * m_peakUse_low / v43;
+  v31 = LODWORD(this->m_solverAllocator.m_bufferEnd) - LODWORD(this->m_solverAllocator.m_bufferStart);
+  if ( v31 )
+    v32 = 100 * m_peakUse_low / v31;
   else
-    LODWORD(v44) = 0;
-  hkOstream::printf(ostr, "%20i (%2i%%) peak solver used (versus available)\n", m_peakUse_low, (unsigned int)v44);
+    LODWORD(v32) = 0;
+  hkOstream::printf(ostr, "%20i (%2i%%) peak solver used (versus available)\n", m_peakUse_low, (unsigned int)v32);
   LeaveCriticalSection((LPCRITICAL_SECTION)&this->m_threadDataLock);
 }
 

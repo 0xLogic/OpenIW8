@@ -57,66 +57,67 @@ GfxDrawSurf *R_AddDObjSurfaces(const GfxSceneEntity *sceneEnt, MaterialTechnique
   const DObj *obj; 
   GfxSceneViewType v12; 
   unsigned __int32 v13; 
+  unsigned int v14; 
+  __int64 v15; 
   unsigned int v16; 
-  __int64 v17; 
-  unsigned int v18; 
-  unsigned int v19; 
+  unsigned int v17; 
   const XModel *Model; 
   const XModelLodInfo *LodInfo; 
   unsigned __int16 surfIndex; 
   unsigned __int16 numsurfs; 
-  unsigned __int16 v24; 
-  unsigned __int16 v25; 
-  int v26; 
+  unsigned __int16 v22; 
+  unsigned __int16 v23; 
+  int v24; 
   Material **Skins; 
-  const GfxModelRigidSurface *v28; 
+  const GfxModelRigidSurface *v26; 
   __int64 ModelRigidSurfaceSize; 
-  surfaceType_t v31; 
-  __int64 v32; 
-  int v33; 
-  Material *v34; 
+  const XSurface *xsurf; 
+  surfaceType_t v29; 
+  __int64 v30; 
+  int v31; 
+  Material *v32; 
   __int64 p1_low; 
-  XAssetHeader v36; 
+  XAssetHeader v34; 
   int p1; 
-  __int64 v38; 
-  Material *v39; 
+  __int64 v36; 
+  Material *v37; 
   const MaterialTechniqueSet *techniqueSet; 
-  unsigned __int64 v41; 
-  unsigned __int64 v42; 
-  unsigned __int64 v47; 
-  unsigned __int64 v48; 
-  unsigned int v49; 
+  unsigned __int64 v39; 
+  unsigned __int64 v40; 
+  unsigned __int64 v43; 
+  unsigned __int64 v44; 
+  unsigned int v45; 
+  GfxDrawSurf *v46; 
   __int64 surfType; 
   Material **materialHandle; 
-  __int64 v64; 
-  __int64 v65; 
+  __int64 v50; 
+  __int64 v51; 
   bool enabled; 
-  Material **v68; 
+  Material **v54; 
   int NumModels; 
-  unsigned int v70; 
-  unsigned int v71; 
+  unsigned int v56; 
+  unsigned int v57; 
   GfxModelRigidSurface *modelSurf; 
-  unsigned int v74; 
-  bitarray_base<bitarray<256> > *v75; 
-  GfxDrawSurf *v76; 
-  unsigned int v77; 
-  int v78; 
-  unsigned int v79; 
-  __int64 v80; 
-  __int64 v81; 
-  __int128 v82; 
+  unsigned int v60; 
+  bitarray_base<bitarray<256> > *v61; 
+  GfxDrawSurf *v62; 
+  unsigned int v63; 
+  int v64; 
+  unsigned int v65; 
+  __int64 v66; 
+  GfxDrawSurfFields v67; 
   vec3_t outOrigin; 
-  GfxDrawSurf *v84; 
-  __int64 v85; 
+  GfxDrawSurf *v69; 
+  __int64 v70; 
   XSurface *surfs; 
-  __int64 v87; 
+  __int64 v72; 
   Bounds surfBounds; 
   Bounds accumulatedSurfBounds; 
 
-  v87 = -2i64;
-  v84 = lastDrawSurf;
+  v72 = -2i64;
+  v69 = lastDrawSurf;
   v5 = drawSurf;
-  v76 = drawSurf;
+  v62 = drawSurf;
   v6 = techType;
   Profile_Begin(97);
   firstSurf = (GfxModelRigidSurface *)sceneEnt->cull.skinnedSurfs.firstSurf;
@@ -130,35 +131,30 @@ GfxDrawSurf *R_AddDObjSurfaces(const GfxSceneEntity *sceneEnt, MaterialTechnique
   {
     v10 = sceneEnt;
     obj = sceneEnt->obj;
-    v75 = (bitarray_base<bitarray<256> > *)obj;
+    v61 = (bitarray_base<bitarray<256> > *)obj;
     if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1305, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
       __debugbreak();
     NumModels = DObjGetNumModels(obj);
-    v77 = *((_DWORD *)sceneEnt + 347) & 1;
-    v78 = *((_DWORD *)sceneEnt + 346) & 0x3FF;
+    v63 = *((_DWORD *)sceneEnt + 347) & 1;
+    v64 = *((_DWORD *)sceneEnt + 346) & 0x3FF;
     v12 = sceneViewType;
     v13 = sceneViewType - 1;
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-      vmovups xmmword ptr [rbp+60h+accumulatedSurfBounds.midPoint], xmm0
-      vmovss  xmm1, cs:__real@ff7fffff
-      vmovss  dword ptr [rbp+60h+accumulatedSurfBounds.halfSize+4], xmm1
-      vmovss  dword ptr [rbp+60h+accumulatedSurfBounds.halfSize+8], xmm1
-    }
-    v16 = 0;
-    v70 = 0;
+    *(_OWORD *)accumulatedSurfBounds.midPoint.v = _xmm_ff7fffff000000000000000000000000;
+    accumulatedSurfBounds.halfSize.v[1] = FLOAT_N3_4028235e38;
+    accumulatedSurfBounds.halfSize.v[2] = FLOAT_N3_4028235e38;
+    v14 = 0;
+    v56 = 0;
     if ( NumModels )
     {
-      v17 = 0i64;
-      v85 = 0i64;
-      v18 = NumModels;
+      v15 = 0i64;
+      v70 = 0i64;
+      v16 = NumModels;
       do
       {
-        v19 = v10->lods[v17];
-        if ( v19 != 6 )
+        v17 = v10->lods[v15];
+        if ( v17 != 6 )
         {
-          Model = DObjGetModel(obj, v16);
+          Model = DObjGetModel(obj, v14);
           if ( !Model )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1337, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
@@ -166,14 +162,14 @@ GfxDrawSurf *R_AddDObjSurfaces(const GfxSceneEntity *sceneEnt, MaterialTechnique
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 296, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
               __debugbreak();
           }
-          LodInfo = XModelGetLodInfo(Model, v19);
+          LodInfo = XModelGetLodInfo(Model, v17);
           if ( !LodInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 300, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
             __debugbreak();
           if ( LodInfo->numsurfs )
           {
             surfIndex = LodInfo->surfIndex;
             numsurfs = Model->numsurfs;
-            v24 = numsurfs;
+            v22 = numsurfs;
             if ( surfIndex >= numsurfs )
             {
               LODWORD(materialHandle) = numsurfs;
@@ -181,141 +177,141 @@ GfxDrawSurf *R_AddDObjSurfaces(const GfxSceneEntity *sceneEnt, MaterialTechnique
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 303, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", surfType, materialHandle) )
                 __debugbreak();
             }
-            if ( LodInfo->numsurfs + (unsigned int)LodInfo->surfIndex > v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 304, ASSERT_TYPE_ASSERT, "(lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs)", (const char *)&queryFormat, "lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs") )
+            if ( LodInfo->numsurfs + (unsigned int)LodInfo->surfIndex > v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 304, ASSERT_TYPE_ASSERT, "(lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs)", (const char *)&queryFormat, "lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs") )
               __debugbreak();
             if ( !LodInfo->surfs )
             {
-              LODWORD(v64) = v19;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 310, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", Model->name, v64) )
+              LODWORD(v50) = v17;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 310, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", Model->name, v50) )
                 __debugbreak();
             }
             if ( !LodInfo->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 311, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
               __debugbreak();
             surfs = LodInfo->surfs;
-            v25 = LodInfo->numsurfs;
+            v23 = LodInfo->numsurfs;
             v6 = techType;
           }
           else
           {
             surfs = NULL;
-            v25 = 0;
+            v23 = 0;
           }
-          v26 = v25;
-          v79 = v25;
-          if ( v19 < Model->shadowCutoffLod )
+          v24 = v23;
+          v65 = v23;
+          if ( v17 < Model->shadowCutoffLod )
           {
-            if ( !enabled || (v80 = 1i64, !bitarray_base<bitarray<256>>::testBit(v75 + 304, v16)) )
-              v80 = 0i64;
+            if ( !enabled || (v66 = 1i64, !bitarray_base<bitarray<256>>::testBit(v61 + 304, v14)) )
+              v66 = 0i64;
           }
           else
           {
             if ( v6 != TECHNIQUE_BUILD_SHADOWMAP_DEPTH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1345, ASSERT_TYPE_ASSERT, "(techType == TECHNIQUE_BUILD_SHADOWMAP_DEPTH)", (const char *)&queryFormat, "techType == TECHNIQUE_BUILD_SHADOWMAP_DEPTH") )
               __debugbreak();
-            v80 = 1i64;
+            v66 = 1i64;
           }
-          if ( v26 )
+          if ( v24 )
           {
-            Skins = (Material **)XModelGetSkins(Model, v19);
-            v68 = Skins;
+            Skins = (Material **)XModelGetSkins(Model, v17);
+            v54 = Skins;
             if ( !Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1366, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
               __debugbreak();
           }
           else
           {
             Skins = NULL;
-            v68 = NULL;
+            v54 = NULL;
           }
-          v74 = 0;
-          if ( v26 )
+          v60 = 0;
+          if ( v24 )
           {
-            v28 = modelSurf;
+            v26 = modelSurf;
             while ( 1 )
             {
-              v71 = 15;
-              if ( v28->base.skinnedCachedOffset <= -4 )
+              v57 = 15;
+              if ( v26->base.skinnedCachedOffset <= -4 )
                 break;
-              if ( v28->base.skinnedCachedOffset != -3 )
+              if ( v26->base.skinnedCachedOffset != -3 )
               {
-                _R13 = v28->xsurf;
-                if ( v28->base.subdivLodLevel && R_SurfaceHasSubdivision(v28->xsurf) )
+                xsurf = v26->xsurf;
+                if ( v26->base.subdivLodLevel && R_SurfaceHasSubdivision(v26->xsurf) )
                 {
-                  v31 = SF_XMODEL_SKINNED_SUBDIV;
-                  v71 = 11;
-                  v32 = 11i64;
+                  v29 = SF_XMODEL_SKINNED_SUBDIV;
+                  v57 = 11;
+                  v30 = 11i64;
                   ModelRigidSurfaceSize = 136i64;
                 }
                 else
                 {
-                  v31 = SF_XMODEL_SKINNED;
-                  v32 = 15i64;
+                  v29 = SF_XMODEL_SKINNED;
+                  v30 = 15i64;
                   ModelRigidSurfaceSize = 136i64;
                 }
                 goto LABEL_66;
               }
               ModelRigidSurfaceSize = 4i64;
 LABEL_111:
-              ++v74;
-              v68 = ++Skins;
-              v28 = (const GfxModelRigidSurface *)((char *)v28 + ModelRigidSurfaceSize);
-              modelSurf = (GfxModelRigidSurface *)v28;
-              if ( v74 >= v79 )
+              ++v60;
+              v54 = ++Skins;
+              v26 = (const GfxModelRigidSurface *)((char *)v26 + ModelRigidSurfaceSize);
+              modelSurf = (GfxModelRigidSurface *)v26;
+              if ( v60 >= v65 )
               {
-                v16 = v70;
+                v14 = v56;
                 goto LABEL_113;
               }
             }
-            _R13 = v28->xsurf;
-            if ( v28->base.subdivLodLevel && R_SurfaceHasSubdivision(v28->xsurf) )
+            xsurf = v26->xsurf;
+            if ( v26->base.subdivLodLevel && R_SurfaceHasSubdivision(v26->xsurf) )
             {
-              v31 = SF_XMODEL_RIGID_SUBDIV;
-              v71 = 10;
-              ModelRigidSurfaceSize = R_GetModelRigidSurfaceSize(v28);
-              v32 = 10i64;
+              v29 = SF_XMODEL_RIGID_SUBDIV;
+              v57 = 10;
+              ModelRigidSurfaceSize = R_GetModelRigidSurfaceSize(v26);
+              v30 = 10i64;
             }
             else
             {
-              v31 = SF_BEGIN_XMODEL;
-              if ( v28->base.skinnedCachedOffset > -4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 226, ASSERT_TYPE_ASSERT, "(R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset ))", (const char *)&queryFormat, "R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset )") )
+              v29 = SF_BEGIN_XMODEL;
+              if ( v26->base.skinnedCachedOffset > -4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 226, ASSERT_TYPE_ASSERT, "(R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset ))", (const char *)&queryFormat, "R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset )") )
                 __debugbreak();
-              v33 = -3 - v28->base.skinnedCachedOffset;
-              if ( v33 > 128 )
+              v31 = -3 - v26->base.skinnedCachedOffset;
+              if ( v31 > 128 )
               {
-                LODWORD(v65) = 128;
-                LODWORD(v64) = -3 - v28->base.skinnedCachedOffset;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v64, v65) )
+                LODWORD(v51) = 128;
+                LODWORD(v50) = -3 - v26->base.skinnedCachedOffset;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v50, v51) )
                   __debugbreak();
               }
-              ModelRigidSurfaceSize = 32i64 * (unsigned int)v33 + 76;
-              v32 = 15i64;
+              ModelRigidSurfaceSize = 32i64 * (unsigned int)v31 + 76;
+              v30 = 15i64;
             }
 LABEL_66:
-            v34 = *Skins;
+            v32 = *Skins;
             if ( !*Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1425, ASSERT_TYPE_ASSERT, "(*material)", (const char *)&queryFormat, "*material") )
               __debugbreak();
-            p1_low = LOWORD(v34->drawSurf.packed.p1);
+            p1_low = LOWORD(v32->drawSurf.packed.p1);
             if ( (unsigned int)p1_low >= rgp.materialCount )
             {
               LODWORD(materialHandle) = rgp.materialCount;
-              LODWORD(surfType) = LOWORD(v34->drawSurf.packed.p1);
+              LODWORD(surfType) = LOWORD(v32->drawSurf.packed.p1);
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
               {
                 __debugbreak();
-                v34 = *v68;
+                v32 = *v54;
               }
             }
-            if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != v34 )
+            if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != v32 )
             {
-              v36.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
-              p1 = v34->drawSurf.packed.p1;
-              if ( (unsigned __int16)p1 == (unsigned __int16)v36.physicsLibrary[2].name )
+              v34.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
+              p1 = v32->drawSurf.packed.p1;
+              if ( (unsigned __int16)p1 == (unsigned __int16)v34.physicsLibrary[2].name )
               {
-                R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v34->name);
+                R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v32->name);
 LABEL_110:
-                Skins = v68;
+                Skins = v54;
                 goto LABEL_111;
               }
-              v38 = (unsigned __int16)p1;
-              v39 = v34;
+              v36 = (unsigned __int16)p1;
+              v37 = v32;
               if ( (unsigned __int16)p1 >= rgp.materialCount )
               {
                 LODWORD(materialHandle) = rgp.materialCount;
@@ -323,118 +319,91 @@ LABEL_110:
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
                 {
                   __debugbreak();
-                  v39 = *v68;
+                  v37 = *v54;
                 }
               }
-              v34 = v39;
-              if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v38]) != v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1438, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material") )
+              v32 = v37;
+              if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v36]) != v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1438, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material") )
               {
                 __debugbreak();
-                v34 = *v68;
+                v32 = *v54;
               }
-              v28 = modelSurf;
+              v26 = modelSurf;
             }
-            if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 464, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
+            if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 464, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
               __debugbreak();
-            if ( !v34->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 465, ASSERT_TYPE_ASSERT, "( ( material->techniqueSet ) )", "( material->name ) = %s", v34->name) )
+            if ( !v32->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 465, ASSERT_TYPE_ASSERT, "( ( material->techniqueSet ) )", "( material->name ) = %s", v32->name) )
               __debugbreak();
-            techniqueSet = v34->techniqueSet;
+            techniqueSet = v32->techniqueSet;
             if ( !techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 515, ASSERT_TYPE_ASSERT, "(techSet)", (const char *)&queryFormat, "techSet") )
               __debugbreak();
             v6 = techType;
             if ( Material_TechSetHasTechnique(techniqueSet, techType) )
             {
-              if ( v76 >= v84 )
+              if ( v62 >= v69 )
               {
                 R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_AddDObjSurfaces");
                 v10 = sceneEnt;
-                v16 = v70;
+                v14 = v56;
                 goto LABEL_115;
               }
-              if ( !v80 )
+              if ( !v66 )
               {
-                v41 = truncate_cast<unsigned __int64,__int64>((char *)v28 - (char *)frontEndDataOut - 1789440);
-                if ( (v41 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1460, ASSERT_TYPE_ASSERT, "(!( surfId & 3 ))", (const char *)&queryFormat, "!( surfId & 3 )") )
+                v39 = truncate_cast<unsigned __int64,__int64>((char *)v26 - (char *)frontEndDataOut - 1789440);
+                if ( (v39 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1460, ASSERT_TYPE_ASSERT, "(!( surfId & 3 ))", (const char *)&queryFormat, "!( surfId & 3 )") )
                   __debugbreak();
-                v42 = v41 >> 2;
-                if ( (unsigned int)v42 >= 0x1000000 )
+                v40 = v39 >> 2;
+                if ( (unsigned int)v40 >= 0x1000000 )
                 {
                   LODWORD(materialHandle) = 0x1000000;
-                  LODWORD(surfType) = v42;
+                  LODWORD(surfType) = v40;
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1462, ASSERT_TYPE_ASSERT, "(unsigned)( surfId ) < (unsigned)( 1 << 24 )", "surfId doesn't index 1 << MTL_SORT_OBJECT_ID_BITS\n\t%i not in [0, %i)", surfType, materialHandle) )
                     __debugbreak();
                 }
-                _RAX = *v68;
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rax+28h]
-                  vmovups [rbp+60h+var_B0], xmm0
-                }
-                v81 = _RT0;
+                _XMM0.fields = (GfxDrawSurfFields)(*v54)->drawSurf;
                 __asm { vpextrq rcx, xmm0, 1 }
-                v47 = _RCX & 0xFFFFFFFE007FFFFFui64 | ((unsigned __int64)(unsigned int)v31 << 23) | (_RCX - ((unsigned __int64)v77 << 27)) & 0x1F8000000i64 | 0x200000;
-                *((_QWORD *)&v82 + 1) = v47;
-                v48 = v81 & 0xF000000003FFFFFFui64 | ((v42 & 0xFFFFFF) << 26) | -(__int64)(v78 != 0) & 0x4000000000000i64;
-                *(_QWORD *)&v82 = v48;
-                if ( R_UGB_UpdateXSurfDataFromXSurf(_R13) )
+                v43 = _RCX & 0xFFFFFFFE007FFFFFui64 | ((unsigned __int64)(unsigned int)v29 << 23) | (_RCX - ((unsigned __int64)v63 << 27)) & 0x1F8000000i64 | 0x200000;
+                *((_QWORD *)&v67 + 1) = v43;
+                v44 = (*v54)->drawSurf.packed.p0 & 0xF000000003FFFFFFui64 | ((v40 & 0xFFFFFF) << 26) | -(__int64)(v64 != 0) & 0x4000000000000i64;
+                *(_QWORD *)&v67 = v44;
+                if ( R_UGB_UpdateXSurfDataFromXSurf(xsurf) )
                 {
                   if ( techType == TECHNIQUE_BUILD_SHADOWMAP_DEPTH )
                   {
-                    v49 = truncate_cast<unsigned int,unsigned __int64>(v42);
+                    v45 = truncate_cast<unsigned int,unsigned __int64>(v40);
                     v10 = sceneEnt;
-                    *(_QWORD *)&v82 = v48 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(1u, sceneViewType, sceneEnt, modelSurf, v49, v31, v68) << 10);
+                    *(_QWORD *)&v67 = v44 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(1u, sceneViewType, sceneEnt, modelSurf, v45, v29, v54) << 10);
                   }
                   else
                   {
                     v10 = sceneEnt;
                   }
-                  __asm { vmovups xmm0, [rbp+60h+var_B0] }
-                  _R12 = v76;
-                  __asm { vmovups xmmword ptr [r12], xmm0 }
-                  _R12 = (unsigned __int64)&v76[1];
-                  ++v76;
-                  if ( v71 < 0xF )
+                  v62->fields = v67;
+                  v46 = ++v62;
+                  if ( v57 < 0xF )
                   {
-                    if ( _R12 >= (unsigned __int64)v84 )
+                    if ( v46 >= v69 )
                     {
                       R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_AddDObjSurfaces");
-                      v16 = v70;
+                      v14 = v56;
                       goto LABEL_114;
                     }
-                    *((_QWORD *)&v82 + 1) = v47 & 0xFFFFFFFFF87FFFFFui64 | (v32 << 23);
-                    __asm
-                    {
-                      vmovups xmm0, [rbp+60h+var_B0]
-                      vmovups xmmword ptr [r12], xmm0
-                    }
-                    v76 = (GfxDrawSurf *)(_R12 + 16);
+                    *((_QWORD *)&v67 + 1) = v43 & 0xFFFFFFFFF87FFFFFui64 | (v30 << 23);
+                    v46->fields = v67;
+                    v62 = v46 + 1;
                   }
                   if ( (unsigned int)(sceneViewType - 1) <= 2 )
                   {
                     GfxSceneEntity_GetPlacementOrigin(v10, &outOrigin);
-                    __asm
-                    {
-                      vmovsd  xmm0, qword ptr [r13+9Ch]
-                      vmovsd  qword ptr [rbp+60h+surfBounds.halfSize], xmm0
-                    }
-                    surfBounds.halfSize.v[2] = _R13->surfBounds.halfSize.v[2];
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rbp+60h+outOrigin]
-                      vaddss  xmm1, xmm0, dword ptr [r13+90h]
-                      vmovss  dword ptr [rbp+60h+surfBounds.midPoint], xmm1
-                      vmovss  xmm2, dword ptr [rbp+60h+outOrigin+4]
-                      vaddss  xmm0, xmm2, dword ptr [r13+94h]
-                      vmovss  dword ptr [rbp+60h+surfBounds.midPoint+4], xmm0
-                      vmovss  xmm1, dword ptr [rbp+60h+outOrigin+8]
-                      vaddss  xmm2, xmm1, dword ptr [r13+98h]
-                      vmovss  dword ptr [rbp+60h+surfBounds.midPoint+8], xmm2
-                    }
+                    surfBounds.halfSize = xsurf->surfBounds.halfSize;
+                    surfBounds.midPoint.v[0] = outOrigin.v[0] + xsurf->surfBounds.midPoint.v[0];
+                    surfBounds.midPoint.v[1] = outOrigin.v[1] + xsurf->surfBounds.midPoint.v[1];
+                    surfBounds.midPoint.v[2] = outOrigin.v[2] + xsurf->surfBounds.midPoint.v[2];
                     R_AccumulateSurfBounds(&surfBounds, &accumulatedSurfBounds);
                     memset(&outOrigin, 0, sizeof(outOrigin));
                   }
                 }
-                v28 = modelSurf;
+                v26 = modelSurf;
               }
             }
             goto LABEL_110;
@@ -444,14 +413,14 @@ LABEL_113:
 LABEL_114:
           v6 = techType;
 LABEL_115:
-          v18 = NumModels;
-          obj = (const DObj *)v75;
+          v16 = NumModels;
+          obj = (const DObj *)v61;
         }
-        v70 = ++v16;
-        v17 = ++v85;
+        v56 = ++v14;
+        v15 = ++v70;
       }
-      while ( v16 < v18 );
-      v5 = v76;
+      while ( v14 < v16 );
+      v5 = v62;
       v13 = sceneViewType - 1;
       v12 = sceneViewType;
     }
@@ -469,236 +438,212 @@ R_AddDObjSurfacesCamera
 */
 __int64 R_AddDObjSurfacesCamera(const GfxViewInfo *viewInfo, const GfxSceneEntity *sceneEnt, const unsigned int sceneEntIndex, const GfxModelLightingProbeInfo *lightingInfo, GfxDrawSurf **drawSurfs, GfxDrawSurf **lastDrawSurfs)
 {
-  const dvar_t *v11; 
-  unsigned int v12; 
+  const GfxSceneEntity *v6; 
+  const dvar_t *v7; 
+  unsigned int v8; 
   _BYTE *firstSurf; 
-  unsigned int v15; 
-  const DObj *v16; 
-  GfxSceneViewType v19; 
-  unsigned int v20; 
-  unsigned int v24; 
+  __int64 v10; 
+  unsigned int v11; 
+  const DObj *v12; 
+  GfxSceneViewType v13; 
+  unsigned int v14; 
+  float v15; 
+  unsigned int v16; 
+  bool v17; 
+  bool v18; 
+  const XModel *Model; 
   const XModelLodInfo *LodInfo; 
   unsigned __int16 surfIndex; 
   unsigned __int16 numsurfs; 
-  unsigned __int16 v32; 
-  unsigned __int16 v33; 
-  int v34; 
+  unsigned __int16 v23; 
+  unsigned __int16 v24; 
+  int v25; 
   Material **Skins; 
-  __int64 v36; 
-  Material **v37; 
+  __int64 v27; 
+  Material **v28; 
   XModelMaterialOverride *modelMaterialOverrides; 
-  int v39; 
+  int v30; 
   unsigned int materialOverrideCount; 
-  __int64 v41; 
-  __int64 v42; 
-  Material *v43; 
-  int v44; 
-  __int64 v45; 
-  unsigned int v46; 
-  __int64 v47; 
+  __int64 v32; 
+  __int64 v33; 
+  Material *v34; 
+  int v35; 
+  __int64 v36; 
+  unsigned int v37; 
+  __int64 v38; 
   XSurface *ModelSurfaceXSurface; 
-  surfaceType_t v49; 
-  __int64 v50; 
-  XSurface *v51; 
-  int v52; 
-  Material *v53; 
+  surfaceType_t v40; 
+  __int64 v41; 
+  XSurface *v42; 
+  int v43; 
+  Material *v44; 
   __int64 p1_low; 
-  XAssetHeader v55; 
+  XAssetHeader v46; 
   int p1; 
-  __int64 v57; 
-  Material *v58; 
+  __int64 v48; 
+  Material *v49; 
   unsigned int cameraRegion; 
-  bool v60; 
-  const GfxModelLightingProbeInfo *v61; 
-  unsigned __int64 v62; 
-  unsigned __int64 v63; 
-  unsigned __int64 v67; 
-  __int64 v69; 
-  unsigned __int64 v70; 
-  unsigned int v71; 
-  GfxModelDecalVolumeGridInfo *v72; 
-  __int64 v73; 
-  const Material *v86; 
+  bool v51; 
+  const GfxModelLightingProbeInfo *v52; 
+  unsigned __int64 v53; 
+  unsigned __int64 v54; 
+  const Material *v55; 
+  unsigned __int64 v57; 
+  __int64 v59; 
+  unsigned __int64 v60; 
+  unsigned int v61; 
+  GfxModelDecalVolumeGridInfo *v62; 
+  __int64 v63; 
+  GfxDrawSurf *v64; 
+  __int128 v65; 
+  __int128 *v66; 
+  const Material *v67; 
   unsigned __int8 ModelRootBoneIndex; 
   int integer; 
-  const char *v96; 
-  unsigned int v97; 
-  const char *v99; 
-  const vec4_t *v100; 
-  __int64 v102; 
-  const char *v103; 
-  const dvar_t *v104; 
-  __int64 result; 
+  const char *v70; 
+  unsigned int v71; 
+  const char *v72; 
+  const vec4_t *v73; 
+  __int64 v74; 
+  const char *v75; 
+  const dvar_t *v76; 
   __int64 surfType; 
   Material **materialHandle; 
-  double v112; 
-  __int64 v113; 
-  __int64 v114; 
-  char v115; 
-  signed int v116; 
+  __int64 v80; 
+  __int64 v81; 
+  char v82; 
+  signed int v83; 
   bool enabled; 
   GfxModelDecalVolumeGridInfo *modelSurf; 
   unsigned int lod; 
   DObj *obj; 
-  int v122; 
-  unsigned int v123; 
-  unsigned int v124; 
-  int v125; 
-  unsigned int v126; 
+  int v89; 
+  unsigned int v90; 
+  unsigned int v91; 
+  int v92; 
+  unsigned int v93; 
   GfxViewMaterialRenderFeatures renderFeatures; 
-  unsigned int v128; 
+  unsigned int v95; 
   GfxModelDecalVolumeGridInfo decalVolumeGridInfo; 
-  unsigned int v130; 
-  unsigned int v131; 
+  unsigned int v97; 
+  unsigned int v98; 
   GfxSceneViewType sceneViewType; 
-  unsigned int v133; 
-  Material **v134; 
-  __int64 v135; 
+  unsigned int v100; 
+  Material **v101; 
+  __int64 v102; 
   vec3_t origin; 
-  int v137; 
+  int v104; 
   unsigned int dobjIndex; 
   XSurface *xsurf; 
-  const XModel *v140; 
+  const XModel *v107; 
   unsigned int NumModels; 
   vec3_t outOrigin; 
-  __int128 v143; 
-  vec3_t v144; 
-  vec3_t v145; 
-  Material **v146; 
+  __int128 v110; 
+  vec3_t v111; 
+  vec3_t v112; 
+  Material **v113; 
   GfxViewInfo *viewInfoa; 
   XSurface *surfs; 
-  const GfxModelLightingProbeInfo *v149; 
-  GfxDrawSurf **v150; 
+  const GfxModelLightingProbeInfo *v116; 
+  GfxDrawSurf **v117; 
   __int64 i; 
-  __int64 v152; 
+  __int64 v119; 
   Bounds surfBounds; 
   GfxPlacement placement; 
   Bounds accumulatedSurfBounds; 
   DObjAnimMat outMat; 
-  int v157[96]; 
+  int v124[96]; 
   Material *outPhysicalMaterial[97]; 
-  char v159; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v152 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v149 = lightingInfo;
+  v119 = -2i64;
+  v116 = lightingInfo;
   dobjIndex = sceneEntIndex;
-  _RBX = sceneEnt;
+  v6 = sceneEnt;
   viewInfoa = (GfxViewInfo *)viewInfo;
-  v150 = drawSurfs;
+  v117 = drawSurfs;
   Profile_Begin(97);
-  v11 = DVARBOOL_dobj_hide_models_with_root_meld_failure;
+  v7 = DVARBOOL_dobj_hide_models_with_root_meld_failure;
   if ( !DVARBOOL_dobj_hide_models_with_root_meld_failure && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dobj_hide_models_with_root_meld_failure") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  enabled = v11->current.enabled;
-  v12 = 0;
-  v133 = 0;
-  firstSurf = _RBX->cull.skinnedSurfs.firstSurf;
+  Dvar_CheckFrontendServerThread(v7);
+  enabled = v7->current.enabled;
+  v8 = 0;
+  v100 = 0;
+  firstSurf = v6->cull.skinnedSurfs.firstSurf;
   modelSurf = (GfxModelDecalVolumeGridInfo *)firstSurf;
   if ( firstSurf )
   {
-    _RSI = 0i64;
-    v125 = 0;
-    v15 = 0;
-    v126 = 0;
-    v128 = 0;
-    v16 = _RBX->obj;
-    obj = (DObj *)v16;
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 887, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    v10 = 0i64;
+    v92 = 0;
+    v11 = 0;
+    v93 = 0;
+    v95 = 0;
+    v12 = v6->obj;
+    obj = (DObj *)v12;
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 887, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
       __debugbreak();
-    NumModels = DObjGetNumModels(v16);
-    v130 = *((_DWORD *)_RBX + 347) & 1;
-    v137 = *((_DWORD *)_RBX + 346) & 0x3FF;
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-      vmovups xmmword ptr [rbp+5D0h+accumulatedSurfBounds.midPoint], xmm0
-      vmovss  xmm1, cs:__real@ff7fffff
-      vmovss  dword ptr [rbp+5D0h+accumulatedSurfBounds.halfSize+4], xmm1
-      vmovss  dword ptr [rbp+5D0h+accumulatedSurfBounds.halfSize+8], xmm1
-    }
+    NumModels = DObjGetNumModels(v12);
+    v97 = *((_DWORD *)v6 + 347) & 1;
+    v104 = *((_DWORD *)v6 + 346) & 0x3FF;
+    *(_OWORD *)accumulatedSurfBounds.midPoint.v = _xmm_ff7fffff000000000000000000000000;
+    accumulatedSurfBounds.halfSize.v[1] = FLOAT_N3_4028235e38;
+    accumulatedSurfBounds.halfSize.v[2] = FLOAT_N3_4028235e38;
     renderFeatures = GFX_VIEW_MTL_FEAT_NONE;
-    v19 = 32 * v130;
-    sceneViewType = 32 * v130;
-    v20 = 0;
-    v116 = 0;
+    v13 = 32 * v97;
+    sceneViewType = 32 * v97;
+    v14 = 0;
+    v83 = 0;
     if ( NumModels )
     {
-      v135 = 0i64;
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  xmm7, cs:__real@4b800000
-        vmovss  xmm8, cs:__real@4f800000
-      }
+      v102 = 0i64;
       while ( 1 )
       {
         if ( !enabled )
           goto LABEL_15;
-        if ( v20 >= 0x100 )
+        if ( v14 >= 0x100 )
         {
           LODWORD(materialHandle) = 256;
-          LODWORD(surfType) = v20;
+          LODWORD(surfType) = v14;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", surfType, materialHandle) )
             __debugbreak();
         }
-        v115 = 1;
-        if ( ((0x80000000 >> (v20 & 0x1F)) & v16->modelHasBadRootBoneMeld.array[(unsigned __int64)v20 >> 5]) == 0 )
+        v82 = 1;
+        if ( ((0x80000000 >> (v14 & 0x1F)) & v12->modelHasBadRootBoneMeld.array[(unsigned __int64)v14 >> 5]) == 0 )
 LABEL_15:
-          v115 = 0;
-        v24 = _RBX->lods[_RSI];
-        lod = v24;
-        if ( v24 == 6 )
-          goto LABEL_180;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rsi*4+170h]
-          vcvttss2si rdi, xmm0
-          vcomiss xmm0, xmm6
-        }
-        if ( v24 >= 6 )
-          __asm { vcomiss xmm0, xmm7 }
-        __asm
-        {
-          vcomiss xmm0, xmm6
-          vcomiss xmm0, xmm8
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+6D0h+var_698], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", (unsigned int)_RDI, v112) )
+          v82 = 0;
+        lod = v6->lods[v10];
+        if ( lod == 6 )
+          goto LABEL_188;
+        v15 = v6->materialLods[v10];
+        v16 = (int)v15;
+        v17 = v15 >= 0.0 && v15 <= 16777216.0;
+        v18 = v15 >= 0.0 && v15 <= 4294967300.0;
+        if ( (!v17 || !v18) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", v16, v15) )
           __debugbreak();
-        if ( (unsigned int)_RDI > 1 )
+        if ( v16 > 1 )
         {
-          LODWORD(v114) = 1;
-          LODWORD(v113) = _RDI;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 201, ASSERT_TYPE_ASSERT, "( retVal ) <= ( MAX_MATERIAL_LOD )", "%s <= %s\n\t%u, %u", "retVal", "MAX_MATERIAL_LOD", v113, v114) )
+          LODWORD(v81) = 1;
+          LODWORD(v80) = (int)v15;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 201, ASSERT_TYPE_ASSERT, "( retVal ) <= ( MAX_MATERIAL_LOD )", "%s <= %s\n\t%u, %u", "retVal", "MAX_MATERIAL_LOD", v80, v81) )
             __debugbreak();
         }
-        _R14 = DObjGetModel(v16, v20);
-        v140 = _R14;
-        if ( !_R14 )
+        Model = DObjGetModel(v12, v14);
+        v107 = Model;
+        if ( !Model )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 919, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 296, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
         }
-        LodInfo = XModelGetLodInfo(_R14, lod);
+        LodInfo = XModelGetLodInfo(Model, lod);
         if ( !LodInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 300, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
           __debugbreak();
         if ( LodInfo->numsurfs )
         {
           surfIndex = LodInfo->surfIndex;
-          numsurfs = _R14->numsurfs;
-          v32 = numsurfs;
+          numsurfs = Model->numsurfs;
+          v23 = numsurfs;
           if ( surfIndex >= numsurfs )
           {
             LODWORD(materialHandle) = numsurfs;
@@ -706,175 +651,175 @@ LABEL_15:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 303, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", surfType, materialHandle) )
               __debugbreak();
           }
-          if ( LodInfo->numsurfs + (unsigned int)LodInfo->surfIndex > v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 304, ASSERT_TYPE_ASSERT, "(lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs)", (const char *)&queryFormat, "lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs") )
+          if ( LodInfo->numsurfs + (unsigned int)LodInfo->surfIndex > v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 304, ASSERT_TYPE_ASSERT, "(lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs)", (const char *)&queryFormat, "lodInfo->surfIndex + lodInfo->numsurfs <= model->numsurfs") )
             __debugbreak();
           if ( !LodInfo->surfs )
           {
-            LODWORD(v113) = lod;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 310, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", _R14->name, v113) )
+            LODWORD(v80) = lod;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 310, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", Model->name, v80) )
               __debugbreak();
           }
           if ( !LodInfo->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 311, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
             __debugbreak();
           surfs = LodInfo->surfs;
-          v33 = LodInfo->numsurfs;
-          _RBX = sceneEnt;
+          v24 = LodInfo->numsurfs;
+          v6 = sceneEnt;
         }
         else
         {
           surfs = NULL;
-          v33 = 0;
+          v24 = 0;
         }
-        v124 = v33;
-        if ( !v33 )
-          goto LABEL_179;
+        v91 = v24;
+        if ( !v24 )
+          goto LABEL_187;
         decalVolumeGridInfo.allocatedVolumeInfoSlot = 0xFFFF;
-        v34 = v116;
-        R_DecalVolumesGrid_PrepareVolumeInfo_SceneEnt(viewInfoa, dobjIndex, _RBX, v116, &decalVolumeGridInfo);
-        Skins = (Material **)XModelGetSkins(_R14, lod);
-        v134 = Skins;
+        v25 = v83;
+        R_DecalVolumesGrid_PrepareVolumeInfo_SceneEnt(viewInfoa, dobjIndex, v6, v83, &decalVolumeGridInfo);
+        Skins = (Material **)XModelGetSkins(Model, lod);
+        v101 = Skins;
         if ( !Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 934, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
           __debugbreak();
-        v131 = 0;
-        if ( !v124 )
-          goto LABEL_162;
-        v36 = 16i64 * v116;
-        for ( i = v36; ; v36 = i )
+        v98 = 0;
+        if ( !v91 )
+          goto LABEL_170;
+        v27 = 16i64 * v83;
+        for ( i = v27; ; v27 = i )
         {
-          v37 = Skins;
-          v146 = Skins;
-          v122 = 96;
-          if ( v16 )
+          v28 = Skins;
+          v113 = Skins;
+          v89 = 96;
+          if ( v12 )
           {
-            modelMaterialOverrides = v16->modelMaterialOverrides;
+            modelMaterialOverrides = v12->modelMaterialOverrides;
             if ( modelMaterialOverrides )
             {
-              v39 = 0;
-              materialOverrideCount = modelMaterialOverrides[v135].materialOverrideCount;
+              v30 = 0;
+              materialOverrideCount = modelMaterialOverrides[v102].materialOverrideCount;
               if ( materialOverrideCount )
               {
-                v41 = *(__int64 *)((char *)&modelMaterialOverrides->materialOverride + v36);
+                v32 = *(__int64 *)((char *)&modelMaterialOverrides->materialOverride + v27);
                 while ( 1 )
                 {
-                  v42 = *(_QWORD *)(v41 + 8i64 * (unsigned int)v39);
-                  if ( v42 )
+                  v33 = *(_QWORD *)(v32 + 8i64 * (unsigned int)v30);
+                  if ( v33 )
                   {
-                    v43 = *(Material **)v42;
-                    if ( *(Material **)v42 == *Skins )
+                    v34 = *(Material **)v33;
+                    if ( *(Material **)v33 == *Skins )
                     {
-                      v44 = *(_DWORD *)(v42 + 24);
-                      if ( v44 != 3 )
+                      v35 = *(_DWORD *)(v33 + 24);
+                      if ( v35 != 3 )
                         break;
                     }
                   }
-                  if ( ++v39 >= materialOverrideCount )
-                    goto LABEL_70;
+                  if ( ++v30 >= materialOverrideCount )
+                    goto LABEL_78;
                 }
-                if ( v44 != 2 || (v45 = *(_QWORD *)(v42 + 8), v43->materialType == *(_DWORD *)(v45 + 20)) )
+                if ( v35 != 2 || (v36 = *(_QWORD *)(v33 + 8), v34->materialType == *(_DWORD *)(v36 + 20)) )
                 {
-                  v46 = R_CopyMaterialOverrideToPhysicalMaterialData((MaterialOverride *)v42, &outPhysicalMaterial[v39], &renderFeatures);
-                  if ( v46 >= 0x800 )
+                  v37 = R_CopyMaterialOverrideToPhysicalMaterialData((MaterialOverride *)v33, &outPhysicalMaterial[v30], &renderFeatures);
+                  if ( v37 >= 0x800 )
                   {
-                    v39 = 96;
+                    v30 = 96;
                     R_WarnOncePerFrame(R_WARN_MATERIAL_OVERRIDE_OUT_OF_PHYSICAL_MATERIALS);
                   }
                   else
                   {
-                    v157[v39] = rgp.physicalMaterialSortedIndex[v46];
+                    v124[v30] = rgp.physicalMaterialSortedIndex[v37];
                   }
-                  v122 = v39;
-                  if ( v39 < 96 )
+                  v89 = v30;
+                  if ( v30 < 96 )
                   {
-                    v37 = &outPhysicalMaterial[v39];
-                    v146 = v37;
+                    v28 = &outPhysicalMaterial[v30];
+                    v113 = v28;
                   }
                 }
                 else
                 {
-                  R_WarnOncePerFrame(R_WARN_MATERIAL_OVERRIDE_MISMATCHED_MATERIAL, v43->name, *(_QWORD *)v45);
-                  v122 = 96;
+                  R_WarnOncePerFrame(R_WARN_MATERIAL_OVERRIDE_MISMATCHED_MATERIAL, v34->name, *(_QWORD *)v36);
+                  v89 = 96;
                 }
               }
             }
           }
-LABEL_70:
+LABEL_78:
           if ( !Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 951, ASSERT_TYPE_ASSERT, "(actualMaterial)", (const char *)&queryFormat, "actualMaterial") )
             __debugbreak();
-          v123 = 15;
+          v90 = 15;
           if ( *(int *)firstSurf <= -4 )
           {
-            v51 = (XSurface *)*((_QWORD *)firstSurf + 7);
-            xsurf = v51;
-            if ( firstSurf[54] && R_SurfaceHasSubdivision(v51) )
+            v42 = (XSurface *)*((_QWORD *)firstSurf + 7);
+            xsurf = v42;
+            if ( firstSurf[54] && R_SurfaceHasSubdivision(v42) )
             {
-              v49 = SF_XMODEL_RIGID_SUBDIV;
-              v123 = 10;
-              v50 = 10i64;
+              v40 = SF_XMODEL_RIGID_SUBDIV;
+              v90 = 10;
+              v41 = 10i64;
             }
             else
             {
-              v49 = SF_BEGIN_XMODEL;
-              v50 = 15i64;
+              v40 = SF_BEGIN_XMODEL;
+              v41 = 15i64;
             }
             if ( *(int *)firstSurf > -4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 226, ASSERT_TYPE_ASSERT, "(R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset ))", (const char *)&queryFormat, "R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset )") )
               __debugbreak();
-            v52 = -3 - *(_DWORD *)firstSurf;
-            if ( v52 > 128 )
+            v43 = -3 - *(_DWORD *)firstSurf;
+            if ( v43 > 128 )
             {
-              LODWORD(v114) = 128;
-              LODWORD(v113) = -3 - *(_DWORD *)firstSurf;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v113, v114) )
+              LODWORD(v81) = 128;
+              LODWORD(v80) = -3 - *(_DWORD *)firstSurf;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v80, v81) )
                 __debugbreak();
             }
-            v47 = 32i64 * (unsigned int)v52 + 76;
+            v38 = 32i64 * (unsigned int)v43 + 76;
           }
           else
           {
             if ( *(_DWORD *)firstSurf == -3 )
             {
-              v47 = 4i64;
-              goto LABEL_157;
+              v38 = 4i64;
+              goto LABEL_165;
             }
             ModelSurfaceXSurface = (XSurface *)R_GetModelSurfaceXSurface(firstSurf, SF_XMODEL_SKINNED);
             xsurf = ModelSurfaceXSurface;
             if ( firstSurf[54] && R_SurfaceHasSubdivision(ModelSurfaceXSurface) )
             {
-              v49 = SF_XMODEL_SKINNED_SUBDIV;
-              v123 = 11;
-              v50 = 11i64;
-              v47 = 136i64;
+              v40 = SF_XMODEL_SKINNED_SUBDIV;
+              v90 = 11;
+              v41 = 11i64;
+              v38 = 136i64;
             }
             else
             {
-              v49 = SF_XMODEL_SKINNED;
-              v50 = 15i64;
-              v47 = 136i64;
+              v40 = SF_XMODEL_SKINNED;
+              v41 = 15i64;
+              v38 = 136i64;
             }
           }
-          v53 = *Skins;
+          v44 = *Skins;
           if ( !*Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1002, ASSERT_TYPE_ASSERT, "(*actualMaterial)", (const char *)&queryFormat, "*actualMaterial") )
             __debugbreak();
-          p1_low = LOWORD(v53->drawSurf.packed.p1);
+          p1_low = LOWORD(v44->drawSurf.packed.p1);
           if ( (unsigned int)p1_low >= rgp.materialCount )
           {
             LODWORD(materialHandle) = rgp.materialCount;
-            LODWORD(surfType) = LOWORD(v53->drawSurf.packed.p1);
+            LODWORD(surfType) = LOWORD(v44->drawSurf.packed.p1);
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
             {
               __debugbreak();
-              v53 = *Skins;
+              v44 = *Skins;
             }
           }
-          if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != v53 )
+          if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != v44 )
           {
-            v55.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
-            p1 = v53->drawSurf.packed.p1;
-            if ( (unsigned __int16)p1 == (unsigned __int16)v55.physicsLibrary[2].name )
+            v46.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
+            p1 = v44->drawSurf.packed.p1;
+            if ( (unsigned __int16)p1 == (unsigned __int16)v46.physicsLibrary[2].name )
             {
-              R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v53->name);
-              goto LABEL_156;
+              R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v44->name);
+              goto LABEL_164;
             }
-            v57 = (unsigned __int16)p1;
+            v48 = (unsigned __int16)p1;
             if ( (unsigned __int16)p1 >= rgp.materialCount )
             {
               LODWORD(materialHandle) = rgp.materialCount;
@@ -882,32 +827,32 @@ LABEL_70:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
               {
                 __debugbreak();
-                v53 = *Skins;
+                v44 = *Skins;
               }
             }
-            if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v57]) != v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1014, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *actualMaterial )->drawSurf.fields.materialSortedIndex ) == *actualMaterial)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *actualMaterial )->drawSurf.fields.materialSortedIndex ) == *actualMaterial") )
+            if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v48]) != v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1014, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *actualMaterial )->drawSurf.fields.materialSortedIndex ) == *actualMaterial)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *actualMaterial )->drawSurf.fields.materialSortedIndex ) == *actualMaterial") )
               __debugbreak();
           }
-          v58 = *v37;
-          if ( SLOBYTE((*v37)->surfaceFlags) < 0 )
-            goto LABEL_156;
-          cameraRegion = v58->cameraRegion;
+          v49 = *v28;
+          if ( SLOBYTE((*v28)->surfaceFlags) < 0 )
+            goto LABEL_164;
+          cameraRegion = v49->cameraRegion;
           if ( cameraRegion - 2 <= 1 && (unsigned int)(r_drawTransDecalSurfs->current.integer - 3) <= 1 )
-            goto LABEL_156;
-          if ( cameraRegion <= 1 && (unsigned int)(r_drawOpaqueSurfs->current.integer - 3) <= 1 || v115 )
-            goto LABEL_156;
-          v60 = 0;
-          if ( !v130 )
-            goto LABEL_202;
+            goto LABEL_164;
+          if ( cameraRegion <= 1 && (unsigned int)(r_drawOpaqueSurfs->current.integer - 3) <= 1 || v82 )
+            goto LABEL_164;
+          v51 = 0;
+          if ( !v97 )
+            goto LABEL_210;
           if ( cameraRegion - 2 <= 1 )
           {
             cameraRegion = 6;
-            goto LABEL_121;
+            goto LABEL_129;
           }
-          if ( !v58->cameraRegion )
+          if ( !v49->cameraRegion )
           {
             cameraRegion = 5;
-            goto LABEL_121;
+            goto LABEL_129;
           }
           if ( cameraRegion == 1 )
           {
@@ -915,11 +860,11 @@ LABEL_70:
           }
           else
           {
-LABEL_202:
+LABEL_210:
             if ( (*((_BYTE *)sceneEnt + 1388) & 2) != 0 )
-              v60 = (v58->drawSurf.packed.p1 & 0x180000) == 0x100000i64;
+              v51 = (v49->drawSurf.packed.p1 & 0x180000) == 0x100000i64;
           }
-LABEL_121:
+LABEL_129:
           if ( (*((_BYTE *)sceneEnt + 1388) & 2) != 0 )
           {
             if ( cameraRegion )
@@ -942,243 +887,197 @@ LABEL_121:
               cameraRegion = 10;
             }
           }
-          v61 = v149;
-          if ( !v149 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1079, ASSERT_TYPE_ASSERT, "(lightingInfo)", (const char *)&queryFormat, "lightingInfo") )
+          v52 = v116;
+          if ( !v116 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1079, ASSERT_TYPE_ASSERT, "(lightingInfo)", (const char *)&queryFormat, "lightingInfo") )
             __debugbreak();
-          modelSurf[5].allocatedVolumeInfoSlot = v61[v135].lgv.allocatedVolumeInfoSlot;
+          modelSurf[5].allocatedVolumeInfoSlot = v52[v102].lgv.allocatedVolumeInfoSlot;
           modelSurf[6].allocatedVolumeInfoSlot = decalVolumeGridInfo.allocatedVolumeInfoSlot;
-          v62 = truncate_cast<unsigned __int64,__int64>((char *)modelSurf - (char *)frontEndDataOut - 1789440);
-          if ( (v62 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1087, ASSERT_TYPE_ASSERT, "(!( surfId & 3 ))", (const char *)&queryFormat, "!( surfId & 3 )") )
+          v53 = truncate_cast<unsigned __int64,__int64>((char *)modelSurf - (char *)frontEndDataOut - 1789440);
+          if ( (v53 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1087, ASSERT_TYPE_ASSERT, "(!( surfId & 3 ))", (const char *)&queryFormat, "!( surfId & 3 )") )
             __debugbreak();
-          v63 = v62 >> 2;
-          if ( (unsigned int)v63 >= 0x1000000 )
+          v54 = v53 >> 2;
+          if ( (unsigned int)v54 >= 0x1000000 )
           {
             LODWORD(materialHandle) = 0x1000000;
-            LODWORD(surfType) = v63;
+            LODWORD(surfType) = v54;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 1089, ASSERT_TYPE_ASSERT, "(unsigned)( surfId ) < (unsigned)( 1 << 24 )", "surfId doesn't index 1 << MTL_SORT_OBJECT_ID_BITS\n\t%i not in [0, %i)", surfType, materialHandle) )
               __debugbreak();
           }
-          _R10 = *Skins;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r10+28h]
-            vmovups [rbp+5D0h+var_5D0], xmm0
-          }
-          *(_QWORD *)&v143 = _RT0;
-          v67 = (unsigned __int64)v130 << 27;
+          v55 = *Skins;
+          _XMM0.fields = (GfxDrawSurfFields)(*Skins)->drawSurf;
+          *(_QWORD *)&v110 = (*Skins)->drawSurf.packed.p0;
+          v57 = (unsigned __int64)v97 << 27;
           __asm { vpextrq rcx, xmm0, 1 }
-          *((_QWORD *)&v143 + 1) = _RCX & 0xFFFFFFFE005FFFFFui64 | (_RCX - v67) & 0x1F8000000i64 | ((v130 | (4i64 * (unsigned int)v49)) << 21);
-          v69 = v143 & 0xE000000003FFFFFFui64 | ((v63 & 0xFFFFFF) << 26) | -(__int64)(v137 != 0) & 0x4000000000000i64;
-          *(_QWORD *)&v143 = v69;
-          if ( v122 < 96 )
+          *((_QWORD *)&v110 + 1) = _RCX & 0xFFFFFFFE005FFFFFui64 | (_RCX - v57) & 0x1F8000000i64 | ((v97 | (4i64 * (unsigned int)v40)) << 21);
+          v59 = v110 & 0xE000000003FFFFFFui64 | ((v54 & 0xFFFFFF) << 26) | -(__int64)(v104 != 0) & 0x4000000000000i64;
+          *(_QWORD *)&v110 = v59;
+          if ( v89 < 96 )
           {
-            v70 = _RCX & 0xFFFFFFFE005F0000ui64 | ((v130 | (4i64 * (unsigned int)v49)) << 21) & 0xFFFFFFFE07FF0000ui64 | outPhysicalMaterial[v122]->drawSurf.packed.p1 & 0x1F8000000i64 | LOWORD(v157[v122]);
-            *((_QWORD *)&v143 + 1) = v70 ^ (v70 ^ (v70 - v67)) & 0x1F8000000i64;
+            v60 = _RCX & 0xFFFFFFFE005F0000ui64 | ((v97 | (4i64 * (unsigned int)v40)) << 21) & 0xFFFFFFFE07FF0000ui64 | outPhysicalMaterial[v89]->drawSurf.packed.p1 & 0x1F8000000i64 | LOWORD(v124[v89]);
+            *((_QWORD *)&v110 + 1) = v60 ^ (v60 ^ (v60 - v57)) & 0x1F8000000i64;
           }
-          if ( !rg.distortion && Material_HasDistortion(_R10) || !R_UGB_UpdateXSurfDataFromXSurf(xsurf) )
+          if ( !rg.distortion && Material_HasDistortion(v55) || !R_UGB_UpdateXSurfDataFromXSurf(xsurf) )
           {
-            Skins = v134;
-LABEL_156:
-            v16 = obj;
-LABEL_157:
-            v72 = modelSurf;
-            goto LABEL_158;
+            Skins = v101;
+LABEL_164:
+            v12 = obj;
+LABEL_165:
+            v62 = modelSurf;
+            goto LABEL_166;
           }
-          v71 = truncate_cast<unsigned int,unsigned __int64>(v63);
-          v72 = modelSurf;
-          *(_QWORD *)&v143 = v69 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(0, sceneViewType, sceneEnt, modelSurf, v71, v49, v134) << 10);
-          v73 = (__int64)v150;
-          _RAX = (unsigned __int64)v150[cameraRegion];
-          if ( _RAX >= (unsigned __int64)lastDrawSurfs[cameraRegion] )
-            goto LABEL_160;
-          __asm
+          v61 = truncate_cast<unsigned int,unsigned __int64>(v54);
+          v62 = modelSurf;
+          *(_QWORD *)&v110 = v59 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(0, sceneViewType, sceneEnt, modelSurf, v61, v40, v101) << 10);
+          v63 = (__int64)v117;
+          v64 = v117[cameraRegion];
+          if ( v64 >= lastDrawSurfs[cameraRegion] )
+            goto LABEL_168;
+          v65 = v110;
+          v64->fields = (GfxDrawSurfFields)v110;
+          *(_QWORD *)(v63 + 8i64 * cameraRegion) += 16i64;
+          if ( v51 )
           {
-            vmovups xmm0, [rbp+5D0h+var_5D0]
-            vmovups xmmword ptr [rax], xmm0
+            *(_OWORD *)*(_QWORD *)(v63 + 96) = v65;
+            *(_QWORD *)(v63 + 96) += 16i64;
           }
-          *(_QWORD *)(v73 + 8i64 * cameraRegion) += 16i64;
-          if ( v60 )
-          {
-            _RAX = *(_QWORD *)(v73 + 96);
-            __asm { vmovups xmmword ptr [rax], xmm0 }
-            *(_QWORD *)(v73 + 96) += 16i64;
-          }
-          v133 = 1;
-          if ( v123 < 0xF )
+          v100 = 1;
+          if ( v90 < 0xF )
             break;
-LABEL_150:
+LABEL_158:
           if ( r_showTriCounts->current.enabled )
           {
-            v125 += R_GetModelSurfaceXSurface(modelSurf, v49)->triCount;
+            v92 += R_GetModelSurfaceXSurface(modelSurf, v40)->triCount;
           }
           else if ( r_showVertCounts->current.enabled )
           {
-            v126 += R_GetModelSurfaceXSurface(modelSurf, v49)->vertCount;
+            v93 += R_GetModelSurfaceXSurface(modelSurf, v40)->vertCount;
           }
           GfxSceneEntity_GetPlacementOrigin(sceneEnt, &outOrigin);
-          _RCX = xsurf;
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rcx+9Ch]
-            vmovsd  qword ptr [rbp+5D0h+surfBounds.halfSize], xmm0
-          }
-          surfBounds.halfSize.v[2] = xsurf->surfBounds.halfSize.v[2];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+5D0h+outOrigin]
-            vaddss  xmm1, xmm0, dword ptr [rcx+90h]
-            vmovss  dword ptr [rbp+5D0h+surfBounds.midPoint], xmm1
-            vmovss  xmm2, dword ptr [rbp+5D0h+outOrigin+4]
-            vaddss  xmm0, xmm2, dword ptr [rcx+94h]
-            vmovss  dword ptr [rbp+5D0h+surfBounds.midPoint+4], xmm0
-            vmovss  xmm1, dword ptr [rbp+5D0h+outOrigin+8]
-            vaddss  xmm2, xmm1, dword ptr [rcx+98h]
-            vmovss  dword ptr [rbp+5D0h+surfBounds.midPoint+8], xmm2
-          }
+          surfBounds.halfSize = xsurf->surfBounds.halfSize;
+          surfBounds.midPoint.v[0] = outOrigin.v[0] + xsurf->surfBounds.midPoint.v[0];
+          surfBounds.midPoint.v[1] = outOrigin.v[1] + xsurf->surfBounds.midPoint.v[1];
+          surfBounds.midPoint.v[2] = outOrigin.v[2] + xsurf->surfBounds.midPoint.v[2];
           R_AccumulateSurfBounds(&surfBounds, &accumulatedSurfBounds);
-          v86 = Material_FromHandle(*v146);
-          R_AccumulateMaterialRenderTechflags(v86, &renderFeatures, &outOrigin);
+          v67 = Material_FromHandle(*v113);
+          R_AccumulateMaterialRenderTechflags(v67, &renderFeatures, &outOrigin);
           memset(&outOrigin, 0, sizeof(outOrigin));
-          Skins = v134;
-          v16 = obj;
-LABEL_158:
-          ++v131;
-          v134 = ++Skins;
-          modelSurf = (GfxModelDecalVolumeGridInfo *)((char *)v72 + v47);
-          firstSurf = (char *)v72 + v47;
-          if ( v131 >= v124 )
-            goto LABEL_161;
+          Skins = v101;
+          v12 = obj;
+LABEL_166:
+          ++v98;
+          v101 = ++Skins;
+          modelSurf = (GfxModelDecalVolumeGridInfo *)((char *)v62 + v38);
+          firstSurf = (char *)v62 + v38;
+          if ( v98 >= v91 )
+            goto LABEL_169;
         }
-        _RAX = *(_QWORD *)(v73 + 8i64 * cameraRegion);
-        if ( _RAX < (unsigned __int64)lastDrawSurfs[cameraRegion] )
+        v66 = *(__int128 **)(v63 + 8i64 * cameraRegion);
+        if ( v66 < (__int128 *)lastDrawSurfs[cameraRegion] )
         {
-          __asm { vmovups xmmword ptr [rax], xmm0 }
-          *(_QWORD *)(*(_QWORD *)(v73 + 8i64 * cameraRegion) + 8i64) = *(_QWORD *)(*(_QWORD *)(v73 + 8i64 * cameraRegion) + 8i64) & 0xFFFFFFFFF87FFFFFui64 | (v50 << 23);
-          *(_QWORD *)(v73 + 8i64 * cameraRegion) += 16i64;
-          goto LABEL_150;
+          *v66 = v65;
+          *(_QWORD *)(*(_QWORD *)(v63 + 8i64 * cameraRegion) + 8i64) = *(_QWORD *)(*(_QWORD *)(v63 + 8i64 * cameraRegion) + 8i64) & 0xFFFFFFFFF87FFFFFui64 | (v41 << 23);
+          *(_QWORD *)(v63 + 8i64 * cameraRegion) += 16i64;
+          goto LABEL_158;
         }
-LABEL_160:
+LABEL_168:
         R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_AddDObjSurfacesCamera", cameraRegion);
         firstSurf = modelSurf;
-LABEL_161:
-        _RBX = sceneEnt;
-        _R14 = v140;
-        v34 = v116;
-LABEL_162:
-        v128 += v124;
+LABEL_169:
+        v6 = sceneEnt;
+        Model = v107;
+        v25 = v83;
+LABEL_170:
+        v95 += v91;
         if ( r_showModelNames->current.enabled || r_showModelLODs->current.integer || r_showModelLODOutDist->current.enabled )
         {
-          GfxSceneEntity_GetPlacementOrigin(_RBX, &v144);
-          v16 = obj;
-          ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, v34);
+          GfxSceneEntity_GetPlacementOrigin(v6, &v111);
+          v12 = obj;
+          ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, v25);
           DObjGetBasePoseMatrix(obj, ModelRootBoneIndex, &outMat);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+5D0h+outMat.trans]
-            vaddss  xmm1, xmm0, dword ptr [rbp+5D0h+var_5C0]
-            vmovss  dword ptr [rbp+5D0h+origin], xmm1
-            vmovss  xmm2, dword ptr [rbp+5D0h+outMat.trans+4]
-            vaddss  xmm0, xmm2, dword ptr [rbp+5D0h+var_5C0+4]
-            vmovss  dword ptr [rbp+5D0h+origin+4], xmm0
-            vmovss  xmm1, dword ptr [rbp+5D0h+outMat.trans+8]
-            vaddss  xmm2, xmm1, dword ptr [rbp+5D0h+var_5C0+8]
-            vmovss  dword ptr [rbp+5D0h+origin+8], xmm2
-          }
+          origin.v[0] = outMat.trans.v[0] + v111.v[0];
+          origin.v[1] = outMat.trans.v[1] + v111.v[1];
+          origin.v[2] = outMat.trans.v[2] + v111.v[2];
           if ( r_showModelNames->current.enabled )
-            R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &origin, &colorCyan, _R14->name);
+            R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &origin, &colorCyan, Model->name);
           integer = r_showModelLODs->current.integer;
           if ( integer && 6 - integer >= lod )
           {
-            v96 = j_va("%u", lod);
-            R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &origin, &colorCyan, v96);
+            v70 = j_va("%u", lod);
+            R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &origin, &colorCyan, v70);
           }
           if ( r_showModelLODOutDist->current.enabled )
           {
-            v97 = _R14->numLods - 1;
-            _RAX = (unsigned __int64)v97 << 6;
-            __asm { vcvttss2si r8d, dword ptr [rax+r14+0F0h] }
-            v99 = j_va("[%u] %d", v97, _R8);
-            v100 = &colorCyan;
-            if ( lod == v97 )
-              v100 = &colorYellow;
-            R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &origin, v100, v99);
+            v71 = Model->numLods - 1;
+            v72 = j_va("[%u] %d", v71, (unsigned int)(int)Model->lodInfo[(unsigned __int64)v71].dist);
+            v73 = &colorCyan;
+            if ( lod == v71 )
+              v73 = &colorYellow;
+            R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &origin, v73, v72);
           }
-          memset(&v144, 0, sizeof(v144));
+          memset(&v111, 0, sizeof(v111));
           memset(&origin, 0, sizeof(origin));
         }
         else
         {
-          v16 = obj;
+          v12 = obj;
         }
-        if ( (*((_BYTE *)_RBX + 1388) & 9) == 0 )
+        if ( (*((_BYTE *)v6 + 1388) & 9) == 0 )
         {
-          GfxSceneEntity_GetPlacementOrigin(_RBX, &placement.origin);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx+0Ch]
-            vmovups xmmword ptr [rbp+5D0h+placement.quat], xmm0
-          }
-          CG_DrawHits_OnDrawModel(viewInfoa->clientIndex, (*((_DWORD *)_RBX + 346) >> 10) & 0xFFF, &placement, _R14, lod);
+          GfxSceneEntity_GetPlacementOrigin(v6, &placement.origin);
+          placement.quat = v6->placement.placement.quat;
+          CG_DrawHits_OnDrawModel(viewInfoa->clientIndex, (*((_DWORD *)v6 + 346) >> 10) & 0xFFF, &placement, Model, lod);
         }
-        _RSI = v135;
-LABEL_179:
-        v20 = v116;
-LABEL_180:
-        v116 = ++v20;
-        v135 = ++_RSI;
-        if ( v20 >= NumModels )
+        v10 = v102;
+LABEL_187:
+        v14 = v83;
+LABEL_188:
+        v83 = ++v14;
+        v102 = ++v10;
+        if ( v14 >= NumModels )
         {
-          LODWORD(_RSI) = v125;
-          v15 = v126;
-          v19 = sceneViewType;
+          LODWORD(v10) = v92;
+          v11 = v93;
+          v13 = sceneViewType;
           break;
         }
       }
     }
-    if ( v19 == SCENE_VIEW_CAMERA_DEPTH_HACK )
+    if ( v13 == SCENE_VIEW_CAMERA_DEPTH_HACK )
       R_UpdateViewSurfaceBounds(&accumulatedSurfBounds, SCENE_VIEW_CAMERA_DEPTH_HACK);
     R_UpdateViewMaterialRenderTechflags(&renderFeatures);
-    GfxSceneEntity_GetPlacementOrigin(_RBX, &v145);
-    if ( r_showTriCounts->current.enabled && (_DWORD)_RSI )
+    GfxSceneEntity_GetPlacementOrigin(v6, &v112);
+    if ( r_showTriCounts->current.enabled && (_DWORD)v10 )
     {
-      v102 = (unsigned int)_RSI;
+      v74 = (unsigned int)v10;
     }
-    else if ( r_showVertCounts->current.enabled && v15 )
+    else if ( r_showVertCounts->current.enabled && v11 )
     {
-      v102 = v15;
+      v74 = v11;
     }
     else
     {
-      if ( !r_showSurfCounts->current.enabled || !v128 )
-        goto LABEL_194;
-      v102 = v128;
+      if ( !r_showSurfCounts->current.enabled || !v95 )
+        goto LABEL_202;
+      v74 = v95;
     }
-    v103 = j_va("%i", v102);
-    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &v145, &colorCyan, v103);
-LABEL_194:
-    v104 = DVARINT_cg_drawFPS;
+    v75 = j_va("%i", v74);
+    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, &v112, &colorCyan, v75);
+LABEL_202:
+    v76 = DVARINT_cg_drawFPS;
     if ( DVARINT_cg_drawFPS )
     {
       Dvar_CheckFrontendServerThread(DVARINT_cg_drawFPS);
-      if ( v104->current.integer >= 3 )
+      if ( v76->current.integer >= 3 )
       {
         if ( rg.stats )
-          rg.stats->numXModelTriCount += _RSI;
+          rg.stats->numXModelTriCount += v10;
       }
     }
-    v12 = v133;
-    memset(&v145, 0, sizeof(v145));
+    v8 = v100;
+    memset(&v112, 0, sizeof(v112));
   }
   Profile_EndInternal(NULL);
-  result = v12;
-  _R11 = &v159;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return v8;
 }
 
 /*
@@ -1188,6 +1087,7 @@ R_AddXModelSurfaces
 */
 GfxDrawSurf *R_AddXModelSurfaces(const XModelDrawInfo *modelInfo, const XModel *model, MaterialTechniqueType techType, GfxDrawSurf *drawSurf, GfxDrawSurf *lastDrawSurf, const vec3_t *origin, GfxSceneViewType sceneViewType)
 {
+  GfxDrawSurf *v7; 
   const XModel *v8; 
   unsigned __int64 v10; 
   unsigned int v11; 
@@ -1195,64 +1095,59 @@ GfxDrawSurf *R_AddXModelSurfaces(const XModelDrawInfo *modelInfo, const XModel *
   int v13; 
   Material *const *Skins; 
   unsigned __int32 v15; 
-  unsigned int v18; 
-  unsigned int v19; 
+  unsigned int v16; 
+  unsigned int v17; 
   int skinnedCachedOffset; 
-  Material *v21; 
+  Material *v19; 
   __int64 p1_low; 
-  XAssetHeader v23; 
+  XAssetHeader v21; 
   int p1; 
-  __int64 v25; 
-  surfaceType_t v27; 
+  __int64 v23; 
+  const XSurface *xsurf; 
+  surfaceType_t v25; 
   unsigned __int64 ModelRigidSurfaceSize; 
-  __int64 v29; 
-  Material *v30; 
+  __int64 v27; 
+  Material *v28; 
   const MaterialTechniqueSet *techniqueSet; 
-  unsigned __int64 v36; 
-  unsigned __int64 v37; 
-  unsigned int v38; 
+  unsigned __int64 v32; 
+  unsigned __int64 v33; 
+  unsigned int v34; 
   __int64 surfType; 
   Material **materialHandle; 
-  __int64 v53; 
-  __int64 v54; 
-  int v55; 
-  unsigned int v56; 
-  GfxDrawSurf *v57; 
-  unsigned int v60; 
-  __int64 v61; 
-  __int128 v62; 
+  __int64 v38; 
+  __int64 v39; 
+  int v40; 
+  unsigned int v41; 
+  GfxDrawSurf *v42; 
+  unsigned int v45; 
+  GfxDrawSurfFields v46; 
   XSurface *surfaces; 
   Bounds surfBounds; 
   Bounds accumulatedSurfBounds; 
 
-  _RSI = drawSurf;
-  v57 = drawSurf;
+  v7 = drawSurf;
+  v42 = drawSurf;
   v8 = model;
   Profile_Begin(97);
   if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 674, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
   v10 = *((_DWORD *)modelInfo + 1) & 0xFFFFFF;
   v11 = *(_DWORD *)modelInfo;
-  v60 = v11 & 1;
+  v45 = v11 & 1;
   v12 = (const GfxModelRigidSurface *)&frontEndDataOut->surfsBuffer[4 * v10];
   v13 = (v11 >> 1) & 0xF;
-  v55 = XModelGetSurfaces(v8, &surfaces, v13);
+  v40 = XModelGetSurfaces(v8, &surfaces, v13);
   Skins = XModelGetSkins(v8, v13);
   if ( !Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 684, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
     __debugbreak();
   v15 = sceneViewType - 1;
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-    vmovups xmmword ptr [rsp+128h+accumulatedSurfBounds.midPoint], xmm0
-    vmovss  xmm1, cs:__real@ff7fffff
-    vmovss  dword ptr [rsp+128h+accumulatedSurfBounds.halfSize+4], xmm1
-    vmovss  dword ptr [rsp+128h+accumulatedSurfBounds.halfSize+8], xmm1
-  }
-  v18 = 0;
-  v56 = 0;
-  v19 = v55;
-  if ( !v55 )
+  *(_OWORD *)accumulatedSurfBounds.midPoint.v = _xmm_ff7fffff000000000000000000000000;
+  accumulatedSurfBounds.halfSize.v[1] = FLOAT_N3_4028235e38;
+  accumulatedSurfBounds.halfSize.v[2] = FLOAT_N3_4028235e38;
+  v16 = 0;
+  v41 = 0;
+  v17 = v40;
+  if ( !v40 )
     goto LABEL_71;
   while ( 1 )
   {
@@ -1261,24 +1156,24 @@ GfxDrawSurf *R_AddXModelSurfaces(const XModelDrawInfo *modelInfo, const XModel *
       break;
     ++v10;
     v12 = (const GfxModelRigidSurface *)((char *)v12 + 4);
-    _RSI = v57;
+    v7 = v42;
 LABEL_67:
-    v56 = ++v18;
+    v41 = ++v16;
     ++Skins;
-    if ( v18 >= v19 )
+    if ( v16 >= v17 )
       goto LABEL_70;
   }
   if ( !*Skins )
   {
     if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
-    LODWORD(v54) = v55;
-    LODWORD(v53) = v18;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 704, ASSERT_TYPE_ASSERT, "(*material)", "%s\n\tR_AddXModelSurfaces failed with xmodel: %s - subMatIndex: %i, numsurfs: %i", "*material", v8->name, v53, v54) )
+    LODWORD(v39) = v40;
+    LODWORD(v38) = v16;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 704, ASSERT_TYPE_ASSERT, "(*material)", "%s\n\tR_AddXModelSurfaces failed with xmodel: %s - subMatIndex: %i, numsurfs: %i", "*material", v8->name, v38, v39) )
       __debugbreak();
-    v19 = v55;
+    v17 = v40;
   }
-  v21 = *Skins;
+  v19 = *Skins;
   p1_low = LOWORD((*Skins)->drawSurf.packed.p1);
   if ( (unsigned int)p1_low >= rgp.materialCount )
   {
@@ -1287,19 +1182,19 @@ LABEL_67:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
       __debugbreak();
   }
-  if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != v21 )
+  if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != v19 )
   {
-    v23.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
-    p1 = v21->drawSurf.packed.p1;
-    if ( (unsigned __int16)p1 == (unsigned __int16)v23.physicsLibrary[2].name )
+    v21.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
+    p1 = v19->drawSurf.packed.p1;
+    if ( (unsigned __int16)p1 == (unsigned __int16)v21.physicsLibrary[2].name )
     {
-      R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v21->name);
-      _RSI = v57;
+      R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v19->name);
+      v7 = v42;
 LABEL_66:
       v8 = model;
       goto LABEL_67;
     }
-    v25 = (unsigned __int16)p1;
+    v23 = (unsigned __int16)p1;
     if ( (unsigned __int16)p1 >= rgp.materialCount )
     {
       LODWORD(materialHandle) = rgp.materialCount;
@@ -1307,16 +1202,16 @@ LABEL_66:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
       {
         __debugbreak();
-        v21 = *Skins;
+        v19 = *Skins;
       }
     }
-    if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v25]) != v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 717, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material") )
+    if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v23]) != v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 717, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material") )
       __debugbreak();
   }
-  _R13 = v12->xsurf;
+  xsurf = v12->xsurf;
   if ( v12->base.subdivLodLevel && R_SurfaceHasSubdivision(v12->xsurf) )
   {
-    v27 = SF_XMODEL_RIGID_SUBDIV;
+    v25 = SF_XMODEL_RIGID_SUBDIV;
     if ( skinnedCachedOffset <= -4 )
       ModelRigidSurfaceSize = R_GetModelRigidSurfaceSize(v12);
     else
@@ -1324,38 +1219,38 @@ LABEL_66:
   }
   else
   {
-    v27 = SF_BEGIN_XMODEL;
+    v25 = SF_BEGIN_XMODEL;
     if ( v12->base.skinnedCachedOffset > -4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 226, ASSERT_TYPE_ASSERT, "(R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset ))", (const char *)&queryFormat, "R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset )") )
       __debugbreak();
-    v29 = (unsigned int)(-3 - v12->base.skinnedCachedOffset);
-    if ( (int)v29 > 128 )
+    v27 = (unsigned int)(-3 - v12->base.skinnedCachedOffset);
+    if ( (int)v27 > 128 )
     {
-      LODWORD(v54) = 128;
-      LODWORD(v53) = -3 - v12->base.skinnedCachedOffset;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v53, v54) )
+      LODWORD(v39) = 128;
+      LODWORD(v38) = -3 - v12->base.skinnedCachedOffset;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v38, v39) )
         __debugbreak();
     }
-    ModelRigidSurfaceSize = 32 * v29 + 76;
+    ModelRigidSurfaceSize = 32 * v27 + 76;
   }
-  v30 = *Skins;
+  v28 = *Skins;
   if ( !*Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 464, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
     __debugbreak();
-  if ( !v30->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 465, ASSERT_TYPE_ASSERT, "( ( material->techniqueSet ) )", "( material->name ) = %s", v30->name) )
+  if ( !v28->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 465, ASSERT_TYPE_ASSERT, "( ( material->techniqueSet ) )", "( material->name ) = %s", v28->name) )
     __debugbreak();
-  techniqueSet = v30->techniqueSet;
+  techniqueSet = v28->techniqueSet;
   if ( !techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 515, ASSERT_TYPE_ASSERT, "(techSet)", (const char *)&queryFormat, "techSet") )
     __debugbreak();
-  _RSI = v57;
+  v7 = v42;
   if ( !Material_TechSetHasTechnique(techniqueSet, techType) )
   {
     v10 += ModelRigidSurfaceSize >> 2;
     v12 = (const GfxModelRigidSurface *)((char *)v12 + ModelRigidSurfaceSize);
 LABEL_65:
-    v19 = v55;
-    v18 = v56;
+    v17 = v40;
+    v16 = v41;
     goto LABEL_66;
   }
-  if ( v57 >= lastDrawSurf )
+  if ( v42 >= lastDrawSurf )
     goto LABEL_69;
   if ( (unsigned int)v10 >= 0x1000000 )
   {
@@ -1364,73 +1259,46 @@ LABEL_65:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 755, ASSERT_TYPE_ASSERT, "(unsigned)( surfId ) < (unsigned)( 1 << 24 )", "surfId doesn't index 1 << MTL_SORT_OBJECT_ID_BITS\n\t%i not in [0, %i)", surfType, materialHandle) )
       __debugbreak();
   }
-  _RAX = *Skins;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+28h]
-    vmovups [rsp+128h+var_A8], xmm0
-  }
-  v61 = _RT0;
+  _XMM0.fields = (GfxDrawSurfFields)(*Skins)->drawSurf;
   __asm { vpextrq rax, xmm0, 1 }
-  v36 = _RAX & 0xFFFFFFFFF87FFFFFui64 | ((unsigned __int64)(unsigned int)v27 << 23);
-  *((_QWORD *)&v62 + 1) = v36;
-  v37 = v61 & 0xF000000003FFFFFFui64 | ((v10 & 0xFFFFFF | ((unsigned __int64)v60 << 24)) << 26);
-  *(_QWORD *)&v62 = v37;
-  if ( !R_UGB_UpdateXSurfDataFromXSurf(_R13) )
+  v32 = _RAX & 0xFFFFFFFFF87FFFFFui64 | ((unsigned __int64)(unsigned int)v25 << 23);
+  *((_QWORD *)&v46 + 1) = v32;
+  v33 = (*Skins)->drawSurf.packed.p0 & 0xF000000003FFFFFFui64 | ((v10 & 0xFFFFFF | ((unsigned __int64)v45 << 24)) << 26);
+  *(_QWORD *)&v46 = v33;
+  if ( !R_UGB_UpdateXSurfDataFromXSurf(xsurf) )
   {
     v10 += ModelRigidSurfaceSize >> 2;
     v12 = (const GfxModelRigidSurface *)((char *)v12 + ModelRigidSurfaceSize);
-    _RSI = v57;
+    v7 = v42;
     goto LABEL_65;
   }
   if ( techType == TECHNIQUE_BUILD_SHADOWMAP_DEPTH )
   {
-    v38 = truncate_cast<unsigned int,unsigned __int64>(v10);
-    *(_QWORD *)&v62 = v37 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(1u, sceneViewType, NULL, v12, v38, v27, Skins) << 10);
+    v34 = truncate_cast<unsigned int,unsigned __int64>(v10);
+    *(_QWORD *)&v46 = v33 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(1u, sceneViewType, NULL, v12, v34, v25, Skins) << 10);
   }
-  __asm { vmovups xmm0, [rsp+128h+var_A8] }
-  _RSI = v57;
-  __asm { vmovups xmmword ptr [rsi], xmm0 }
-  _RSI = ++v57;
-  if ( v27 != SF_XMODEL_RIGID_SUBDIV )
+  v42->fields = v46;
+  v7 = ++v42;
+  if ( v25 != SF_XMODEL_RIGID_SUBDIV )
   {
 LABEL_63:
     v10 += ModelRigidSurfaceSize >> 2;
     v12 = (const GfxModelRigidSurface *)((char *)v12 + ModelRigidSurfaceSize);
     if ( (unsigned int)(sceneViewType - 1) <= 2 )
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [r13+9Ch]
-        vmovsd  qword ptr [rsp+128h+surfBounds.halfSize], xmm0
-      }
-      surfBounds.halfSize.v[2] = _R13->surfBounds.halfSize.v[2];
-      _RAX = origin;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vaddss  xmm1, xmm0, dword ptr [r13+90h]
-        vmovss  dword ptr [rsp+128h+surfBounds.midPoint], xmm1
-        vmovss  xmm2, dword ptr [r13+94h]
-        vaddss  xmm0, xmm2, dword ptr [rax+4]
-        vmovss  dword ptr [rsp+128h+surfBounds.midPoint+4], xmm0
-        vmovss  xmm1, dword ptr [r13+98h]
-        vaddss  xmm2, xmm1, dword ptr [rax+8]
-        vmovss  dword ptr [rsp+128h+surfBounds.midPoint+8], xmm2
-      }
+      surfBounds.halfSize = xsurf->surfBounds.halfSize;
+      surfBounds.midPoint.v[0] = origin->v[0] + xsurf->surfBounds.midPoint.v[0];
+      surfBounds.midPoint.v[1] = xsurf->surfBounds.midPoint.v[1] + origin->v[1];
+      surfBounds.midPoint.v[2] = xsurf->surfBounds.midPoint.v[2] + origin->v[2];
       R_AccumulateSurfBounds(&surfBounds, &accumulatedSurfBounds);
     }
     goto LABEL_65;
   }
-  if ( _RSI < lastDrawSurf )
+  if ( v7 < lastDrawSurf )
   {
-    *((_QWORD *)&v62 + 1) = v36 & 0xFFFFFFFFF87FFFFFui64 | 0x5000000;
-    __asm
-    {
-      vmovups xmm0, [rsp+128h+var_A8]
-      vmovups xmmword ptr [rsi], xmm0
-    }
-    v57 = ++_RSI;
+    *((_QWORD *)&v46 + 1) = v32 & 0xFFFFFFFFF87FFFFFui64 | 0x5000000;
+    v7->fields = v46;
+    v42 = ++v7;
     goto LABEL_63;
   }
 LABEL_69:
@@ -1441,7 +1309,7 @@ LABEL_71:
   if ( v15 <= 2 )
     R_UpdateViewSurfaceBounds(&accumulatedSurfBounds, sceneViewType);
   Profile_EndInternal(NULL);
-  return _RSI;
+  return v7;
 }
 
 /*
@@ -1451,166 +1319,168 @@ R_AddXModelSurfacesCamera
 */
 __int64 R_AddXModelSurfacesCamera(const GfxViewInfo *viewInfo, const XModelDrawInfo *modelInfo, const XModel *model, const DObj *obj, const vec3_t *origin, const GfxModelLightingProbeInfo *lightingInfo, int depthHack, GfxDrawSurf **drawSurfs, GfxDrawSurf **lastDrawSurfs, const unsigned __int16 mapEntLookup, XModelThermalMode thermalMode, unsigned int renderFlags, unsigned __int16 baseGfxEntityDataID, const GfxModelDecalVolumeGridInfo *decalVolumeGridInfo)
 {
+  const XModel *v14; 
   const vec3_t *v16; 
   unsigned __int64 v17; 
   unsigned int v18; 
   unsigned __int8 *v19; 
   unsigned int v20; 
   Material *const *Skins; 
-  unsigned int v24; 
-  int v25; 
-  Material *v26; 
+  unsigned int v22; 
+  int v23; 
+  Material *v24; 
   __int64 p1_low; 
-  XAssetHeader v28; 
+  XAssetHeader v26; 
   int p1; 
-  __int64 v30; 
-  Material **v31; 
+  __int64 v28; 
+  Material **v29; 
   XModelMaterialOverride *modelMaterialOverrides; 
-  __int64 v33; 
+  __int64 v31; 
   unsigned int materialOverrideCount; 
   MaterialOverride **materialOverride; 
-  MaterialOverride *v36; 
+  MaterialOverride *v34; 
   Material *originalMaterial; 
   MaterialOverrideType overrideType; 
-  surfaceType_t v40; 
+  const XSurface *v37; 
+  surfaceType_t v38; 
   unsigned __int64 ModelRigidSurfaceSize; 
   Material *overrideMaterial; 
-  unsigned int v43; 
-  int v44; 
-  Material *v45; 
+  unsigned int v41; 
+  int v42; 
+  Material *v43; 
   unsigned int cameraRegion; 
-  bool v47; 
-  const GfxModelLightingProbeInfo *v48; 
-  __int64 v51; 
-  unsigned __int64 v53; 
-  unsigned __int64 v54; 
-  unsigned __int64 v55; 
+  bool v45; 
+  const GfxModelLightingProbeInfo *v46; 
+  const Material *v47; 
+  GfxDrawSurf v48; 
+  __int64 v49; 
+  unsigned __int64 v50; 
+  unsigned __int64 v51; 
+  unsigned int v52; 
+  __int64 v53; 
+  GfxDrawSurf *v54; 
+  __int128 v55; 
   unsigned int v56; 
-  __int64 v57; 
-  unsigned int v61; 
+  __int128 *v57; 
   const XSurface *ModelSurfaceXSurface; 
-  const XSurface *v64; 
-  const XSurface *v65; 
-  const Material *v74; 
+  const XSurface *v59; 
+  const XSurface *v60; 
+  vec3_t *v61; 
+  const Material *v62; 
   int integer; 
-  const char *v77; 
-  unsigned int v78; 
-  const char *v80; 
-  const vec4_t *v81; 
-  __int64 v82; 
-  unsigned int v83; 
-  const char *v84; 
-  const dvar_t *v85; 
+  const char *v64; 
+  unsigned int v65; 
+  const char *v66; 
+  const vec4_t *v67; 
+  __int64 v68; 
+  unsigned int v69; 
+  const char *v70; 
+  const dvar_t *v71; 
   __int64 surfType; 
   Material **materialHandle; 
-  __int64 v89; 
-  __int64 v90; 
-  unsigned int v91; 
+  __int64 v75; 
+  __int64 v76; 
+  unsigned int v77; 
   unsigned __int64 val; 
-  int v93; 
-  unsigned int v94; 
-  Material **v95; 
-  int v96; 
-  unsigned int v97; 
+  int v79; 
+  unsigned int v80; 
+  Material **v81; 
+  int v82; 
+  unsigned int v83; 
   GfxViewMaterialRenderFeatures renderFeatures; 
-  unsigned int v99; 
-  unsigned int v100; 
+  unsigned int v85; 
+  unsigned int v86; 
   GfxSceneViewType sceneViewType; 
-  Material **v102; 
-  vec3_t *v103; 
-  unsigned int v104; 
-  const XModel *v105; 
-  DebugXModelStats *v106; 
-  __int128 v107; 
-  const DObj *v108; 
-  GfxDrawSurf **v109; 
+  Material **v88; 
+  vec3_t *v89; 
+  unsigned int v90; 
+  const XModel *v91; 
+  DebugXModelStats *v92; 
+  __int128 v93; 
+  const DObj *v94; 
+  GfxDrawSurf **v95; 
   DebugXModelStats xmodelStats; 
-  __int64 v111; 
+  __int64 v97; 
   XSurface *surfaces; 
   Bounds surfBounds; 
   Bounds accumulatedSurfBounds; 
-  int v115[96]; 
+  int v101[96]; 
   Material *outPhysicalMaterial[97]; 
 
-  v111 = -2i64;
-  v108 = obj;
-  _R13 = model;
-  v105 = model;
+  v97 = -2i64;
+  v94 = obj;
+  v14 = model;
+  v91 = model;
   v16 = origin;
-  v103 = (vec3_t *)origin;
-  v109 = drawSurfs;
+  v89 = (vec3_t *)origin;
+  v95 = drawSurfs;
   Profile_Begin(97);
   if ( !lightingInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 315, ASSERT_TYPE_ASSERT, "(lightingInfo)", (const char *)&queryFormat, "lightingInfo") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 316, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 316, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
-  v94 = 0;
-  v99 = 0;
-  v106 = NULL;
-  v93 = 0;
+  v80 = 0;
+  v85 = 0;
+  v92 = NULL;
+  v79 = 0;
   v17 = *((_DWORD *)modelInfo + 1) & 0xFFFFFF;
   val = v17;
   v18 = *(_DWORD *)modelInfo;
-  v104 = *(_DWORD *)modelInfo & 1;
+  v90 = *(_DWORD *)modelInfo & 1;
   v19 = &frontEndDataOut->surfsBuffer[4 * v17];
   v20 = (v18 >> 1) & 0xF;
-  v97 = v20;
-  v100 = XModelGetSurfaces(_R13, &surfaces, v20);
-  Skins = XModelGetSkins(_R13, v20);
-  v95 = (Material **)Skins;
+  v83 = v20;
+  v86 = XModelGetSurfaces(v14, &surfaces, v20);
+  Skins = XModelGetSkins(v14, v20);
+  v81 = (Material **)Skins;
   if ( !Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 340, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-    vmovups xmmword ptr [rbp+4F0h+accumulatedSurfBounds.midPoint], xmm0
-    vmovss  xmm1, cs:__real@ff7fffff
-    vmovss  dword ptr [rbp+4F0h+accumulatedSurfBounds.halfSize+4], xmm1
-    vmovss  dword ptr [rbp+4F0h+accumulatedSurfBounds.halfSize+8], xmm1
-  }
+  *(_OWORD *)accumulatedSurfBounds.midPoint.v = _xmm_ff7fffff000000000000000000000000;
+  accumulatedSurfBounds.halfSize.v[1] = FLOAT_N3_4028235e38;
+  accumulatedSurfBounds.halfSize.v[2] = FLOAT_N3_4028235e38;
   renderFeatures = GFX_VIEW_MTL_FEAT_NONE;
   sceneViewType = depthHack != 0 ? SCENE_VIEW_CAMERA_DEPTH_HACK : SCENE_VIEW_CAMERA;
   if ( !decalVolumeGridInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 355, ASSERT_TYPE_ASSERT, "(decalVolumeGridInfo)", (const char *)&queryFormat, "decalVolumeGridInfo") )
     __debugbreak();
   if ( rg.showXModelRanking && !depthHack && rg.showXModelRankingFilterMode != 1 )
-    v106 = R_AddXModelToRankingStats(_R13, v20, 1u);
+    v92 = R_AddXModelToRankingStats(v14, v20, 1u);
   memset(&xmodelStats, 0, sizeof(xmodelStats));
   if ( rg.showXModelRemoteConsole && !depthHack && rg.showXModelRankingFilterMode != 1 )
-    R_InitDebugXmodelStats(_R13, 1u, v20, 1u, &xmodelStats);
-  v91 = 0;
-  if ( !v100 )
+    R_InitDebugXmodelStats(v14, 1u, v20, 1u, &xmodelStats);
+  v77 = 0;
+  if ( !v86 )
     goto LABEL_135;
-  v24 = 0;
+  v22 = 0;
   while ( 1 )
   {
-    v25 = *(_DWORD *)v19;
+    v23 = *(_DWORD *)v19;
     if ( *(_DWORD *)v19 == -3 )
     {
       ++v17;
       v19 += 4;
       goto LABEL_129;
     }
-    v26 = *Skins;
+    v24 = *Skins;
     if ( !*Skins && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 383, ASSERT_TYPE_ASSERT, "(*material)", (const char *)&queryFormat, "*material") )
       __debugbreak();
-    p1_low = LOWORD(v26->drawSurf.packed.p1);
+    p1_low = LOWORD(v24->drawSurf.packed.p1);
     if ( (unsigned int)p1_low >= rgp.materialCount )
     {
       LODWORD(materialHandle) = rgp.materialCount;
-      LODWORD(surfType) = LOWORD(v26->drawSurf.packed.p1);
+      LODWORD(surfType) = LOWORD(v24->drawSurf.packed.p1);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
       {
         __debugbreak();
-        v26 = *Skins;
+        v24 = *Skins;
       }
     }
-    if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) == v26 )
+    if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) == v24 )
       break;
-    v28.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
-    p1 = v26->drawSurf.packed.p1;
-    if ( (unsigned __int16)p1 != (unsigned __int16)v28.physicsLibrary[2].name )
+    v26.physicsLibrary = DB_GetXAssetMasterDefaultHeader(ASSET_TYPE_MATERIAL).physicsLibrary;
+    p1 = v24->drawSurf.packed.p1;
+    if ( (unsigned __int16)p1 != (unsigned __int16)v26.physicsLibrary[2].name )
     {
-      v30 = (unsigned __int16)p1;
+      v28 = (unsigned __int16)p1;
       if ( (unsigned __int16)p1 >= rgp.materialCount )
       {
         LODWORD(materialHandle) = rgp.materialCount;
@@ -1618,127 +1488,127 @@ __int64 R_AddXModelSurfacesCamera(const GfxViewInfo *viewInfo, const XModelDrawI
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", surfType, materialHandle) )
         {
           __debugbreak();
-          v26 = *Skins;
+          v24 = *Skins;
         }
       }
-      if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v30]) != v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 396, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material") )
+      if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[v28]) != v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 396, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material)", (const char *)&queryFormat, "R_GetSortedMaterial( ( uint )( *material )->drawSurf.fields.materialSortedIndex ) == *material") )
         __debugbreak();
       break;
     }
-    R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v26->name);
+    R_WarnOncePerFrame(R_WARN_UNSORTED_MATERIAL_INDEX, v24->name);
 LABEL_34:
-    v24 = v91;
+    v22 = v77;
 LABEL_130:
-    v91 = ++v24;
-    v95 = (Material **)++Skins;
-    if ( v24 >= v100 )
+    v77 = ++v22;
+    v81 = (Material **)++Skins;
+    if ( v22 >= v86 )
       goto LABEL_134;
   }
-  v31 = (Material **)Skins;
-  v102 = (Material **)Skins;
-  v96 = 96;
-  if ( v108 )
+  v29 = (Material **)Skins;
+  v88 = (Material **)Skins;
+  v82 = 96;
+  if ( v94 )
   {
-    modelMaterialOverrides = v108->modelMaterialOverrides;
+    modelMaterialOverrides = v94->modelMaterialOverrides;
     if ( modelMaterialOverrides )
     {
-      v33 = 0i64;
+      v31 = 0i64;
       materialOverrideCount = modelMaterialOverrides->materialOverrideCount;
       if ( modelMaterialOverrides->materialOverrideCount )
       {
         materialOverride = modelMaterialOverrides->materialOverride;
         while ( 1 )
         {
-          v36 = materialOverride[v33];
-          if ( v36 )
+          v34 = materialOverride[v31];
+          if ( v34 )
           {
-            originalMaterial = v36->originalMaterial;
-            if ( v36->originalMaterial == *Skins )
+            originalMaterial = v34->originalMaterial;
+            if ( v34->originalMaterial == *Skins )
             {
-              overrideType = v36->overrideType;
+              overrideType = v34->overrideType;
               if ( overrideType != MATERIAL_OVERRIDETYPE_STICKER_REPLACE )
                 break;
             }
           }
-          v33 = (unsigned int)(v33 + 1);
-          if ( (unsigned int)v33 >= materialOverrideCount )
+          v31 = (unsigned int)(v31 + 1);
+          if ( (unsigned int)v31 >= materialOverrideCount )
             goto LABEL_49;
         }
-        if ( overrideType != MATERIAL_OVERRIDETYPE_MATERIAL_REPLACE || (overrideMaterial = v36->overrideMaterial, originalMaterial->materialType == overrideMaterial->materialType) )
+        if ( overrideType != MATERIAL_OVERRIDETYPE_MATERIAL_REPLACE || (overrideMaterial = v34->overrideMaterial, originalMaterial->materialType == overrideMaterial->materialType) )
         {
-          v43 = R_CopyMaterialOverrideToPhysicalMaterialData(v36, &outPhysicalMaterial[v33], &renderFeatures);
-          if ( v43 >= 0x800 )
+          v41 = R_CopyMaterialOverrideToPhysicalMaterialData(v34, &outPhysicalMaterial[v31], &renderFeatures);
+          if ( v41 >= 0x800 )
           {
-            LODWORD(v33) = 96;
+            LODWORD(v31) = 96;
             R_WarnOncePerFrame(R_WARN_MATERIAL_OVERRIDE_OUT_OF_PHYSICAL_MATERIALS);
           }
           else
           {
-            v115[v33] = rgp.physicalMaterialSortedIndex[v43];
+            v101[v31] = rgp.physicalMaterialSortedIndex[v41];
           }
-          v96 = v33;
-          if ( (int)v33 < 96 )
+          v82 = v31;
+          if ( (int)v31 < 96 )
           {
-            v31 = &outPhysicalMaterial[(int)v33];
-            v102 = v31;
+            v29 = &outPhysicalMaterial[(int)v31];
+            v88 = v29;
           }
         }
         else
         {
           R_WarnOncePerFrame(R_WARN_MATERIAL_OVERRIDE_MISMATCHED_MATERIAL, originalMaterial->name, overrideMaterial->name);
-          v96 = 96;
+          v82 = 96;
         }
       }
     }
   }
 LABEL_49:
-  _R13 = (const XSurface *)*((_QWORD *)v19 + 7);
+  v37 = (const XSurface *)*((_QWORD *)v19 + 7);
   if ( v19[54] && R_SurfaceHasSubdivision(*((const XSurface **)v19 + 7)) )
   {
-    v40 = SF_XMODEL_RIGID_SUBDIV;
-    if ( v25 <= -4 )
+    v38 = SF_XMODEL_RIGID_SUBDIV;
+    if ( v23 <= -4 )
       ModelRigidSurfaceSize = R_GetModelRigidSurfaceSize((const GfxModelRigidSurface *)v19);
     else
       ModelRigidSurfaceSize = 108i64;
   }
   else
   {
-    v40 = SF_BEGIN_XMODEL;
+    v38 = SF_BEGIN_XMODEL;
     if ( *(int *)v19 > -4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 226, ASSERT_TYPE_ASSERT, "(R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset ))", (const char *)&queryFormat, "R_IsRigidSurfaceType( modelSurf->base.skinnedCachedOffset )") )
       __debugbreak();
-    v44 = -3 - *(_DWORD *)v19;
-    if ( v44 > 128 )
+    v42 = -3 - *(_DWORD *)v19;
+    if ( v42 > 128 )
     {
-      LODWORD(v90) = 128;
-      LODWORD(v89) = -3 - *(_DWORD *)v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v89, v90) )
+      LODWORD(v76) = 128;
+      LODWORD(v75) = -3 - *(_DWORD *)v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.h", 209, ASSERT_TYPE_ASSERT, "( childCount ) <= ( ( XMODEL_MAX_RIGID_GROUPS ) )", "%s <= %s\n\t%i, %i", "childCount", "MAX_RIGID_CHILD_SURFACES", v75, v76) )
         __debugbreak();
     }
-    ModelRigidSurfaceSize = 32i64 * (unsigned int)v44 + 76;
+    ModelRigidSurfaceSize = 32i64 * (unsigned int)v42 + 76;
   }
-  v45 = *v31;
-  if ( SLOBYTE((*v31)->surfaceFlags) < 0 )
+  v43 = *v29;
+  if ( SLOBYTE((*v29)->surfaceFlags) < 0 )
     goto LABEL_128;
-  cameraRegion = v45->cameraRegion;
+  cameraRegion = v43->cameraRegion;
   if ( cameraRegion - 2 <= 1 && (unsigned int)(r_drawTransDecalSurfs->current.integer - 3) <= 1 || cameraRegion <= 1 && (unsigned int)(r_drawOpaqueSurfs->current.integer - 3) <= 1 )
   {
-    Skins = v95;
+    Skins = v81;
     goto LABEL_34;
   }
-  v47 = 0;
+  v45 = 0;
   if ( !depthHack )
   {
 LABEL_82:
     if ( (renderFlags & 2) != 0 )
     {
-      v47 = (v45->drawSurf.packed.p1 & 0x180000) == 0x100000i64;
+      v45 = (v43->drawSurf.packed.p1 & 0x180000) == 0x100000i64;
       goto LABEL_84;
     }
     goto LABEL_93;
   }
   if ( cameraRegion - 2 > 1 )
   {
-    if ( !v45->cameraRegion )
+    if ( !v43->cameraRegion )
     {
       cameraRegion = 5;
       goto LABEL_84;
@@ -1775,14 +1645,14 @@ LABEL_84:
     }
   }
 LABEL_93:
-  v48 = lightingInfo;
+  v46 = lightingInfo;
   if ( !lightingInfo )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 486, ASSERT_TYPE_ASSERT, "(lightingInfo)", (const char *)&queryFormat, "lightingInfo") )
       __debugbreak();
-    v48 = NULL;
+    v46 = NULL;
   }
-  *((GfxModelLightingProbeInfo *)v19 + 5) = (GfxModelLightingProbeInfo)v48->lgv.allocatedVolumeInfoSlot;
+  *((GfxModelLightingProbeInfo *)v19 + 5) = (GfxModelLightingProbeInfo)v46->lgv.allocatedVolumeInfoSlot;
   *((_WORD *)v19 + 9) = mapEntLookup;
   *((GfxModelDecalVolumeGridInfo *)v19 + 6) = (GfxModelDecalVolumeGridInfo)decalVolumeGridInfo->allocatedVolumeInfoSlot;
   if ( (unsigned int)val >= 0x1000000 )
@@ -1792,124 +1662,101 @@ LABEL_93:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 494, ASSERT_TYPE_ASSERT, "(unsigned)( surfId ) < (unsigned)( 1 << 24 )", "surfId doesn't index 1 << MTL_SORT_OBJECT_ID_BITS\n\t%i not in [0, %i)", surfType, materialHandle) )
       __debugbreak();
   }
-  _R10 = *v95;
-  __asm
+  v47 = *v81;
+  v48.fields = (GfxDrawSurfFields)(*v81)->drawSurf;
+  *(_QWORD *)&v93 = v48.packed.p0;
+  v49 = (__int64)depthHack << 27;
+  v50 = v48.packed.p0 & 0xE000000003FFFFFFui64 | ((val & 0xFFFFFF | ((unsigned __int64)v90 << 24)) << 26);
+  *((_QWORD *)&v93 + 1) = v48.packed.p1 & 0xFFFFFFFE005FFFFFui64 | (v48.packed.p1 - v49) & 0x1F8000000i64 | ((depthHack & 1 | (4i64 * (unsigned int)v38)) << 21);
+  if ( v82 < 96 )
   {
-    vmovups xmm0, xmmword ptr [r10+28h]
-    vmovups [rbp+4F0h+var_540], xmm0
+    v51 = v48.packed.p1 & 0xFFFFFFFE005F0000ui64 | ((depthHack & 1 | (4i64 * (unsigned int)v38)) << 21) & 0xFFFFFFFE07FF0000ui64 | outPhysicalMaterial[v82]->drawSurf.packed.p1 & 0x1F8000000i64 | LOWORD(v101[v82]);
+    *((_QWORD *)&v93 + 1) = v51 ^ (v51 ^ (v51 - v49)) & 0x1F8000000i64;
   }
-  v51 = (__int64)depthHack << 27;
-  __asm { vmovq   rax, xmm0 }
-  v53 = _RAX & 0xE000000003FFFFFFui64 | ((val & 0xFFFFFF | ((unsigned __int64)v104 << 24)) << 26);
-  v54 = *((_QWORD *)&v107 + 1) & 0xFFFFFFFE005FFFFFui64 | (*((_QWORD *)&v107 + 1) - v51) & 0x1F8000000i64 | ((depthHack & 1 | (4i64 * (unsigned int)v40)) << 21);
-  *((_QWORD *)&v107 + 1) = v54;
-  if ( v96 < 96 )
-  {
-    v55 = v54 & 0xFFFFFFFE07FF0000ui64 | outPhysicalMaterial[v96]->drawSurf.packed.p1 & 0x1F8000000i64 | LOWORD(v115[v96]);
-    *((_QWORD *)&v107 + 1) = v55 ^ (v55 ^ (v55 - v51)) & 0x1F8000000i64;
-  }
-  if ( !rg.distortion && Material_HasDistortion(_R10) )
+  if ( !rg.distortion && Material_HasDistortion(v47) )
     goto LABEL_127;
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 524, ASSERT_TYPE_ASSERT, "(xsurf)", (const char *)&queryFormat, "xsurf") )
+  if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 524, ASSERT_TYPE_ASSERT, "(xsurf)", (const char *)&queryFormat, "xsurf") )
     __debugbreak();
-  if ( !R_UGB_UpdateXSurfDataFromXSurf(_R13) )
+  if ( !R_UGB_UpdateXSurfDataFromXSurf(v37) )
   {
 LABEL_127:
     v17 = val;
 LABEL_128:
     v17 += ModelRigidSurfaceSize >> 2;
-    v24 = v91;
-    Skins = v95;
+    v22 = v77;
+    Skins = v81;
     v19 += ModelRigidSurfaceSize;
 LABEL_129:
     val = v17;
     goto LABEL_130;
   }
-  v56 = truncate_cast<unsigned int,unsigned __int64>(val);
-  *(_QWORD *)&v107 = v53 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(0, sceneViewType, NULL, v19, v56, v40, v95) << 10);
-  v57 = (__int64)v109;
-  _RAX = (unsigned __int64)v109[cameraRegion];
-  if ( _RAX < (unsigned __int64)lastDrawSurfs[cameraRegion] )
+  v52 = truncate_cast<unsigned int,unsigned __int64>(val);
+  *(_QWORD *)&v93 = v50 & 0xFFFFFFFFFC0003FFui64 | ((unsigned __int64)R_AllocGPUBatchIndexXModel(0, sceneViewType, NULL, v19, v52, v38, v81) << 10);
+  v53 = (__int64)v95;
+  v54 = v95[cameraRegion];
+  if ( v54 < lastDrawSurfs[cameraRegion] )
   {
-    __asm
+    v55 = v93;
+    v54->fields = (GfxDrawSurfFields)v93;
+    *(_QWORD *)(v53 + 8i64 * cameraRegion) += 16i64;
+    if ( v45 )
     {
-      vmovups xmm0, [rbp+4F0h+var_540]
-      vmovups xmmword ptr [rax], xmm0
+      *(_OWORD *)*(_QWORD *)(v53 + 96) = v55;
+      *(_QWORD *)(v53 + 96) += 16i64;
     }
-    *(_QWORD *)(v57 + 8i64 * cameraRegion) += 16i64;
-    if ( v47 )
+    v56 = 1;
+    v79 = 1;
+    if ( v38 == SF_XMODEL_RIGID_SUBDIV )
     {
-      _RAX = *(_QWORD *)(v57 + 96);
-      __asm { vmovups xmmword ptr [rax], xmm0 }
-      *(_QWORD *)(v57 + 96) += 16i64;
-    }
-    v61 = 1;
-    v93 = 1;
-    if ( v40 == SF_XMODEL_RIGID_SUBDIV )
-    {
-      _RAX = *(_QWORD *)(v57 + 8i64 * cameraRegion);
-      if ( _RAX >= (unsigned __int64)lastDrawSurfs[cameraRegion] )
+      v57 = *(__int128 **)(v53 + 8i64 * cameraRegion);
+      if ( v57 >= (__int128 *)lastDrawSurfs[cameraRegion] )
       {
         R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_AddXModelSurfacesCamera", cameraRegion);
-        v20 = v97;
-        v16 = v103;
-        _R13 = v105;
+        v20 = v83;
+        v16 = v89;
+        v14 = v91;
         goto LABEL_136;
       }
-      __asm { vmovups xmmword ptr [rax], xmm0 }
-      *(_QWORD *)(*(_QWORD *)(v57 + 8i64 * cameraRegion) + 8i64) = *(_QWORD *)(*(_QWORD *)(v57 + 8i64 * cameraRegion) + 8i64) & 0xFFFFFFFFF87FFFFFui64 | 0x5000000;
-      *(_QWORD *)(v57 + 8i64 * cameraRegion) += 16i64;
+      *v57 = v55;
+      *(_QWORD *)(*(_QWORD *)(v53 + 8i64 * cameraRegion) + 8i64) = *(_QWORD *)(*(_QWORD *)(v53 + 8i64 * cameraRegion) + 8i64) & 0xFFFFFFFFF87FFFFFui64 | 0x5000000;
+      *(_QWORD *)(v53 + 8i64 * cameraRegion) += 16i64;
     }
     if ( r_showTriCounts->current.enabled )
     {
-      v94 += R_GetModelSurfaceXSurface(v19, v40)->triCount;
+      v80 += R_GetModelSurfaceXSurface(v19, v38)->triCount;
     }
     else if ( r_showVertCounts->current.enabled )
     {
-      ModelSurfaceXSurface = R_GetModelSurfaceXSurface(v19, v40);
-      v99 += ModelSurfaceXSurface->vertCount;
+      ModelSurfaceXSurface = R_GetModelSurfaceXSurface(v19, v38);
+      v85 += ModelSurfaceXSurface->vertCount;
     }
     if ( rg.showXModelRanking && !depthHack && rg.showXModelRankingFilterMode != 1 )
     {
-      v64 = R_GetModelSurfaceXSurface(v19, v40);
-      R_AddXSurfaceToXModelStats(v64, v106);
+      v59 = R_GetModelSurfaceXSurface(v19, v38);
+      R_AddXSurfaceToXModelStats(v59, v92);
     }
     if ( rg.showXModelRemoteConsole && !depthHack && rg.showXModelRankingFilterMode != 1 )
     {
-      v65 = R_GetModelSurfaceXSurface(v19, v40);
-      R_AddXSurfaceToXModelStats(v65, &xmodelStats);
+      v60 = R_GetModelSurfaceXSurface(v19, v38);
+      R_AddXSurfaceToXModelStats(v60, &xmodelStats);
     }
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [r13+9Ch]
-      vmovsd  qword ptr [rbp+4F0h+surfBounds.halfSize], xmm0
-    }
-    surfBounds.halfSize.v[2] = _R13->surfBounds.halfSize.v[2];
-    _RBX = v103;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vaddss  xmm1, xmm0, dword ptr [r13+90h]
-      vmovss  dword ptr [rbp+4F0h+surfBounds.midPoint], xmm1
-      vmovss  xmm2, dword ptr [rbx+4]
-      vaddss  xmm0, xmm2, dword ptr [r13+94h]
-      vmovss  dword ptr [rbp+4F0h+surfBounds.midPoint+4], xmm0
-      vmovss  xmm1, dword ptr [rbx+8]
-      vaddss  xmm2, xmm1, dword ptr [r13+98h]
-      vmovss  dword ptr [rbp+4F0h+surfBounds.midPoint+8], xmm2
-    }
+    surfBounds.halfSize = v37->surfBounds.halfSize;
+    v61 = v89;
+    surfBounds.midPoint.v[0] = v89->v[0] + v37->surfBounds.midPoint.v[0];
+    surfBounds.midPoint.v[1] = v89->v[1] + v37->surfBounds.midPoint.v[1];
+    surfBounds.midPoint.v[2] = v89->v[2] + v37->surfBounds.midPoint.v[2];
     R_AccumulateSurfBounds(&surfBounds, &accumulatedSurfBounds);
-    v74 = Material_FromHandle(*v102);
-    R_AccumulateMaterialRenderTechflags(v74, &renderFeatures, _RBX);
+    v62 = Material_FromHandle(*v88);
+    R_AccumulateMaterialRenderTechflags(v62, &renderFeatures, v61);
     goto LABEL_127;
   }
   R_WarnOncePerFrame(R_WARN_MAX_SCENE_DRAWSURFS, "R_AddXModelSurfacesCamera", cameraRegion);
 LABEL_134:
-  _R13 = v105;
-  v16 = v103;
-  v20 = v97;
+  v14 = v91;
+  v16 = v89;
+  v20 = v83;
 LABEL_135:
-  v61 = v93;
+  v56 = v79;
 LABEL_136:
   if ( rg.showXModelRemoteConsole )
   {
@@ -1930,44 +1777,42 @@ LABEL_140:
   }
   R_UpdateViewMaterialRenderTechflags(&renderFeatures);
   if ( r_showModelNames->current.enabled )
-    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, &colorCyan, _R13->name);
+    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, &colorCyan, v14->name);
   integer = r_showModelLODs->current.integer;
   if ( integer && 6 - integer >= v20 )
   {
-    v77 = j_va("%u", v20);
-    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, &colorCyan, v77);
+    v64 = j_va("%u", v20);
+    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, &colorCyan, v64);
   }
   if ( r_showModelLODOutDist->current.enabled )
   {
-    v78 = _R13->numLods - 1;
-    _RAX = (unsigned __int64)v78 << 6;
-    __asm { vcvttss2si r8d, dword ptr [rax+r13+0F0h] }
-    v80 = j_va("[%u] %d", v78, _R8);
-    v81 = &colorCyan;
-    if ( v20 == v78 )
-      v81 = &colorYellow;
-    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, v81, v80);
+    v65 = v14->numLods - 1;
+    v66 = j_va("[%u] %d", v65, (unsigned int)(int)v14->lodInfo[(unsigned __int64)v65].dist);
+    v67 = &colorCyan;
+    if ( v20 == v65 )
+      v67 = &colorYellow;
+    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, v67, v66);
   }
-  if ( r_showTriCounts->current.enabled && v94 )
+  if ( r_showTriCounts->current.enabled && v80 )
   {
-    v82 = v94;
+    v68 = v80;
     goto LABEL_159;
   }
-  if ( r_showVertCounts->current.enabled && (v83 = v99) != 0 || r_showSurfCounts->current.enabled && (v83 = v100) != 0 )
+  if ( r_showVertCounts->current.enabled && (v69 = v85) != 0 || r_showSurfCounts->current.enabled && (v69 = v86) != 0 )
   {
-    v82 = v83;
+    v68 = v69;
 LABEL_159:
-    v84 = j_va("%i", v82);
-    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, &colorCyan, v84);
+    v70 = j_va("%i", v68);
+    R_AddScaledDebugString(&frontEndDataOut->debugGlobals, &rg.debugViewParms->camera, v16, &colorCyan, v70);
   }
-  v85 = DVARINT_cg_drawFPS;
+  v71 = DVARINT_cg_drawFPS;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v85);
-  if ( v85->current.integer >= 3 && rg.stats )
-    rg.stats->numXModelTriCount += v94;
+  Dvar_CheckFrontendServerThread(v71);
+  if ( v71->current.integer >= 3 && rg.stats )
+    rg.stats->numXModelTriCount += v80;
   Profile_EndInternal(NULL);
-  return v61;
+  return v56;
 }
 
 /*
@@ -1978,35 +1823,37 @@ R_CopyMaterialOverrideToPhysicalMaterialData
 __int64 R_CopyMaterialOverrideToPhysicalMaterialData(MaterialOverride *materialOverride, Material **outPhysicalMaterial, GfxViewMaterialRenderFeatures *renderFeatures)
 {
   Material **p_originalMaterial; 
+  Material *v7; 
   const Material *v9; 
   unsigned __int32 v10; 
   const char *v11; 
   int v12; 
   const char *v13; 
   unsigned int v14; 
+  Material *MaterialAtIndex; 
   Material *v16; 
   unsigned __int8 sortKey; 
   unsigned int textureCount; 
-  signed __int32 v26; 
-  __int64 v27; 
-  MaterialTextureDef *v28; 
+  signed __int32 v21; 
+  __int64 v22; 
+  MaterialTextureDef *v23; 
 
   if ( !materialOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 92, ASSERT_TYPE_ASSERT, "(materialOverride)", (const char *)&queryFormat, "materialOverride") )
     __debugbreak();
   if ( materialOverride->overrideType == MATERIAL_OVERRIDETYPE_CAMO || (p_originalMaterial = &materialOverride->overrideMaterial, materialOverride->overrideType != MATERIAL_OVERRIDETYPE_MATERIAL_REPLACE) )
     p_originalMaterial = &materialOverride->originalMaterial;
-  _RSI = *p_originalMaterial;
-  if ( !_RSI )
+  v7 = *p_originalMaterial;
+  if ( !v7 )
   {
     Com_Printf(8, "WARNING: Material override type of %d doesn't specify a valid material to instance.\n", (unsigned int)materialOverride->overrideType);
     return 2048i64;
   }
-  if ( _RSI->materialType != materialOverride->originalMaterial->materialType )
+  if ( v7->materialType != materialOverride->originalMaterial->materialType )
   {
-    Com_Printf(8, "WARNING: Trying to override material %s, with material %s, but the types don't match.\n", materialOverride->originalMaterial->name, _RSI->name);
+    Com_Printf(8, "WARNING: Trying to override material %s, with material %s, but the types don't match.\n", materialOverride->originalMaterial->name, v7->name);
     return 2048i64;
   }
-  v9 = Material_FromHandle(_RSI);
+  v9 = Material_FromHandle(v7);
   R_AccumulateMaterialRenderTechflags(v9, renderFeatures, &tmpOrg);
   if ( ((unsigned __int8)&rgp.materialOverridePhysicalMaterialIndex & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &rgp.materialOverridePhysicalMaterialIndex) )
     __debugbreak();
@@ -2016,40 +1863,25 @@ __int64 R_CopyMaterialOverrideToPhysicalMaterialData(MaterialOverride *materialO
     v14 = v10 + (rgp.materialOverridePhysicalBucketIndex << 10);
     if ( v14 >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_add_dobj_xmodel.cpp", 145, ASSERT_TYPE_ASSERT, "(physicalMaterialIndex < MAX_OVERRIDE_PHYSICAL_MATERIALS)", (const char *)&queryFormat, "physicalMaterialIndex < MAX_OVERRIDE_PHYSICAL_MATERIALS") )
       __debugbreak();
-    _RAX = DB_GetMaterialAtIndex(v14);
-    *outPhysicalMaterial = _RAX;
-    v16 = _RAX;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups xmm2, xmmword ptr [rax+28h]
-    }
-    sortKey = _RAX->sortKey;
-    __asm
-    {
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [rax+20h], ymm1
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm1, xmmword ptr [rsi+60h]
-      vmovups xmmword ptr [rax+60h], xmm1
-      vmovsd  xmm0, qword ptr [rsi+70h]
-      vmovsd  qword ptr [rax+70h], xmm0
-    }
-    textureCount = _RAX->textureCount;
-    _RAX->sortKey = sortKey;
+    MaterialAtIndex = DB_GetMaterialAtIndex(v14);
+    *outPhysicalMaterial = MaterialAtIndex;
+    v16 = MaterialAtIndex;
+    _XMM2.fields = (GfxDrawSurfFields)MaterialAtIndex->drawSurf;
+    sortKey = MaterialAtIndex->sortKey;
+    *MaterialAtIndex = *v7;
+    textureCount = MaterialAtIndex->textureCount;
+    MaterialAtIndex->sortKey = sortKey;
     __asm { vpextrq rax, xmm2, 1 }
     LOWORD(v16->drawSurf.packed.p1) = _RAX;
     if ( ((unsigned __int8)&rgp.materialOverrideTextureTableIndex & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &rgp.materialOverrideTextureTableIndex) )
       __debugbreak();
-    v26 = _InterlockedExchangeAdd(&rgp.materialOverrideTextureTableIndex, textureCount);
-    v27 = v16->textureCount;
-    if ( (unsigned int)(v26 + v27) < 0x1800 )
+    v21 = _InterlockedExchangeAdd(&rgp.materialOverrideTextureTableIndex, textureCount);
+    v22 = v16->textureCount;
+    if ( (unsigned int)(v21 + v22) < 0x1800 )
     {
-      v28 = &rgp.materialOverrideTextureTable[v26 + 6144 * rgp.materialOverrideTextureTableBucketIndex];
-      v16->textureTable = v28;
-      memcpy_0(v28, materialOverride->materialTextureDefClone, 16 * v27);
+      v23 = &rgp.materialOverrideTextureTable[v21 + 6144 * rgp.materialOverrideTextureTableBucketIndex];
+      v16->textureTable = v23;
+      memcpy_0(v23, materialOverride->materialTextureDefClone, 16 * v22);
       return v14;
     }
     v11 = "textureTableUsedCount < MAX_OVERRIDE_TEXTURE_TABLE_ENTRIES_PER_BUFFER";

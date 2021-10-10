@@ -22,28 +22,6 @@ bool __fastcall HavokPhysicsMotionPropertiesList::_Auto::isValid_m_motionPropert
 
 /*
 ==============
-HavokPhysicsMotionPropertiesList::_Auto::isValid_m_motionPropertiesNames
-==============
-*/
-
-bool __fastcall HavokPhysicsMotionPropertiesList::_Auto::isValid_m_motionPropertiesNames(const void *valuePtr)
-{
-  return ?isValid_m_motionPropertiesNames@_Auto@HavokPhysicsMotionPropertiesList@@SA_NPEBX@Z(valuePtr);
-}
-
-/*
-==============
-HavokPhysicsMotionPropertiesList::_Auto::isValid_m_motionProperties
-==============
-*/
-
-bool __fastcall HavokPhysicsMotionPropertiesList::_Auto::isValid_m_motionProperties(const void *valuePtr)
-{
-  return ?isValid_m_motionProperties@_Auto@HavokPhysicsMotionPropertiesList@@SA_NPEBX@Z(valuePtr);
-}
-
-/*
-==============
 HavokPhysicsMotionPropertiesList::_Auto::isValidPtr
 ==============
 */

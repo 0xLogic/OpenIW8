@@ -546,96 +546,90 @@ bdTelemetryDLogSink::addNatTypeDiscovery
 */
 void bdTelemetryDLogSink::addNatTypeDiscovery(bdTelemetryDLogSink *this, const bdNATTypeDiscoveryTelemetry *tel)
 {
-  bdTelemetryDLogSink *v3; 
+  bdTelemetryDLogSink *v2; 
   DLogContext *m_contexts; 
-  unsigned int v6; 
+  unsigned int v5; 
+  float m_configSendTimeout; 
   unsigned int m_configMaxResends; 
   unsigned int m_duration; 
   unsigned __int8 m_natType; 
   unsigned __int8 m_result; 
-  unsigned int v12; 
+  unsigned int v11; 
   bdSockAddr *p_m_address; 
-  char v16; 
-  unsigned __int8 v17; 
-  unsigned __int16 v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned int v21; 
+  char v13; 
+  unsigned __int8 v14; 
+  unsigned __int16 v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned __int16 v19; 
+  unsigned __int16 v20; 
+  unsigned __int16 v21; 
   unsigned __int16 v22; 
-  unsigned __int16 v23; 
-  unsigned __int16 v24; 
-  unsigned __int16 v25; 
   unsigned __int16 Port; 
   unsigned int value; 
-  unsigned __int32 v28; 
+  unsigned __int32 v25; 
+  unsigned __int32 v26; 
+  unsigned __int32 v27; 
+  unsigned int v28; 
   unsigned __int32 v29; 
-  unsigned __int32 v30; 
-  unsigned int v31; 
-  unsigned __int32 v32; 
   unsigned int msSinceStart; 
-  unsigned __int32 v34; 
-  unsigned __int32 v35; 
-  unsigned __int16 v38; 
-  unsigned __int16 v39; 
+  unsigned __int32 v31; 
+  unsigned __int32 v32; 
+  unsigned __int16 v34; 
+  unsigned __int16 v35; 
 
-  v3 = this;
-  _RBP = tel;
+  v2 = this;
   bdMutex::lock(&this->m_mutex);
-  m_contexts = v3->m_contexts;
-  if ( DLog_BeginEvent(v3->m_contexts, "dw_event_nat_discovery") )
+  m_contexts = v2->m_contexts;
+  if ( DLog_BeginEvent(v2->m_contexts, "dw_event_nat_discovery") )
   {
-    __asm { vmovaps [rsp+98h+var_48], xmm6 }
-    Port = bdSockAddr::getPort(&_RBP->m_test3Result.mappedAddr.m_address);
-    v35 = _byteswap_ulong(bdSockAddr::toUInt32(&_RBP->m_test3Result.mappedAddr.m_address));
-    v25 = bdSockAddr::getPort(&_RBP->m_test3Result.fromAddr.m_address);
-    v34 = _byteswap_ulong(bdSockAddr::toUInt32(&_RBP->m_test3Result.fromAddr.m_address));
-    msSinceStart = _RBP->m_test3Result.msSinceStart;
-    v24 = bdSockAddr::getPort(&_RBP->m_test2Result.fromAddr.m_address);
-    v32 = _byteswap_ulong(bdSockAddr::toUInt32(&_RBP->m_test2Result.fromAddr.m_address));
-    v31 = _RBP->m_test2Result.msSinceStart;
-    v23 = bdSockAddr::getPort(&_RBP->m_test1Result.secAddr.m_address);
-    v30 = _byteswap_ulong(bdSockAddr::toUInt32(&_RBP->m_test1Result.secAddr.m_address));
-    v22 = bdSockAddr::getPort(&_RBP->m_test1Result.mappedAddr.m_address);
-    v29 = _byteswap_ulong(bdSockAddr::toUInt32(&_RBP->m_test1Result.mappedAddr.m_address));
-    v39 = bdSockAddr::getPort(&_RBP->m_test1Result.fromAddr.m_address);
-    v28 = _byteswap_ulong(bdSockAddr::toUInt32(&_RBP->m_test1Result.fromAddr.m_address));
-    value = _RBP->m_test1Result.msSinceStart;
-    v38 = bdSockAddr::getPort(&_RBP->m_serverAddr1.m_address);
-    v6 = bdSockAddr::toUInt32(&_RBP->m_serverAddr1.m_address);
-    __asm { vmovss  xmm6, dword ptr [rbp+0A94h] }
-    m_configMaxResends = _RBP->m_configMaxResends;
-    m_duration = _RBP->m_duration;
-    m_natType = _RBP->m_natType;
-    m_result = _RBP->m_result;
-    v12 = _byteswap_ulong(v6);
+    Port = bdSockAddr::getPort(&tel->m_test3Result.mappedAddr.m_address);
+    v32 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_test3Result.mappedAddr.m_address));
+    v22 = bdSockAddr::getPort(&tel->m_test3Result.fromAddr.m_address);
+    v31 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_test3Result.fromAddr.m_address));
+    msSinceStart = tel->m_test3Result.msSinceStart;
+    v21 = bdSockAddr::getPort(&tel->m_test2Result.fromAddr.m_address);
+    v29 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_test2Result.fromAddr.m_address));
+    v28 = tel->m_test2Result.msSinceStart;
+    v20 = bdSockAddr::getPort(&tel->m_test1Result.secAddr.m_address);
+    v27 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_test1Result.secAddr.m_address));
+    v19 = bdSockAddr::getPort(&tel->m_test1Result.mappedAddr.m_address);
+    v26 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_test1Result.mappedAddr.m_address));
+    v35 = bdSockAddr::getPort(&tel->m_test1Result.fromAddr.m_address);
+    v25 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_test1Result.fromAddr.m_address));
+    value = tel->m_test1Result.msSinceStart;
+    v34 = bdSockAddr::getPort(&tel->m_serverAddr1.m_address);
+    v5 = bdSockAddr::toUInt32(&tel->m_serverAddr1.m_address);
+    m_configSendTimeout = tel->m_configSendTimeout;
+    m_configMaxResends = tel->m_configMaxResends;
+    m_duration = tel->m_duration;
+    m_natType = tel->m_natType;
+    m_result = tel->m_result;
+    v11 = _byteswap_ulong(v5);
     if ( DLog_IsActive() )
     {
-      if ( DLog_BeginRow(v3->m_contexts, "nat_discovery_result") && DLog_UInt8(v3->m_contexts, "result", m_result) && DLog_UInt8(v3->m_contexts, "nat_type", m_natType) && DLog_UInt32(v3->m_contexts, "duration_ms", m_duration) && DLog_UInt32(v3->m_contexts, "max_resends", m_configMaxResends) )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        if ( DLog_Float32(v3->m_contexts, "send_timeout", *(float *)&_XMM2) && DLog_UInt32(v3->m_contexts, "server1_addr", v12) && DLog_UInt16(v3->m_contexts, "server1_port", v38) && DLog_UInt32(v3->m_contexts, "test1_ms_since_start", value) && DLog_UInt32(v3->m_contexts, "test1_from_addr", v28) && DLog_UInt16(v3->m_contexts, "test1_from_port", v39) && DLog_UInt32(v3->m_contexts, "test1_mapped_addr", v29) && DLog_UInt16(v3->m_contexts, "test1_mapped_port", v22) && DLog_UInt32(v3->m_contexts, "test1_sec_addr", v30) && DLog_UInt16(v3->m_contexts, "test1_sec_port", v23) && DLog_UInt32(v3->m_contexts, "test2_ms_since_start", v31) && DLog_UInt32(v3->m_contexts, "test2_from_addr", v32) && DLog_UInt16(v3->m_contexts, "test2_from_port", v24) && DLog_UInt32(v3->m_contexts, "test3_ms_since_start", msSinceStart) && DLog_UInt32(v3->m_contexts, "test3_from_addr", v34) && DLog_UInt16(v3->m_contexts, "test3_from_port", v25) && DLog_UInt32(v3->m_contexts, "test3_mapped_addr", v35) && DLog_UInt16(v3->m_contexts, "test3_mapped_port", Port) )
-          DLog_EndRow(v3->m_contexts);
-      }
+      if ( DLog_BeginRow(v2->m_contexts, "nat_discovery_result") && DLog_UInt8(v2->m_contexts, "result", m_result) && DLog_UInt8(v2->m_contexts, "nat_type", m_natType) && DLog_UInt32(v2->m_contexts, "duration_ms", m_duration) && DLog_UInt32(v2->m_contexts, "max_resends", m_configMaxResends) && DLog_Float32(v2->m_contexts, "send_timeout", m_configSendTimeout) && DLog_UInt32(v2->m_contexts, "server1_addr", v11) && DLog_UInt16(v2->m_contexts, "server1_port", v34) && DLog_UInt32(v2->m_contexts, "test1_ms_since_start", value) && DLog_UInt32(v2->m_contexts, "test1_from_addr", v25) && DLog_UInt16(v2->m_contexts, "test1_from_port", v35) && DLog_UInt32(v2->m_contexts, "test1_mapped_addr", v26) && DLog_UInt16(v2->m_contexts, "test1_mapped_port", v19) && DLog_UInt32(v2->m_contexts, "test1_sec_addr", v27) && DLog_UInt16(v2->m_contexts, "test1_sec_port", v20) && DLog_UInt32(v2->m_contexts, "test2_ms_since_start", v28) && DLog_UInt32(v2->m_contexts, "test2_from_addr", v29) && DLog_UInt16(v2->m_contexts, "test2_from_port", v21) && DLog_UInt32(v2->m_contexts, "test3_ms_since_start", msSinceStart) && DLog_UInt32(v2->m_contexts, "test3_from_addr", v31) && DLog_UInt16(v2->m_contexts, "test3_from_port", v22) && DLog_UInt32(v2->m_contexts, "test3_mapped_addr", v32) && DLog_UInt16(v2->m_contexts, "test3_mapped_port", Port) )
+        DLog_EndRow(v2->m_contexts);
     }
     else
     {
-      v3->m_contexts[0].error = DLOG_ERROR_NOT_ACTIVE;
+      v2->m_contexts[0].error = DLOG_ERROR_NOT_ACTIVE;
     }
-    __asm { vmovaps xmm6, [rsp+98h+var_48] }
-    if ( _RBP < (const bdNATTypeDiscoveryTelemetry *)&_RBP->m_sends[_RBP->m_sendCount] )
+    if ( tel < (const bdNATTypeDiscoveryTelemetry *)&tel->m_sends[tel->m_sendCount] )
     {
-      p_m_address = &_RBP->m_sends[0].dst.m_address;
+      p_m_address = &tel->m_sends[0].dst.m_address;
       do
       {
-        v16 = p_m_address[1].inUn.m_sockaddrStorage.__ss_pad2[9];
-        v17 = p_m_address[1].inUn.m_sockaddrStorage.__ss_pad2[8];
-        v18 = bdSockAddr::getPort(p_m_address);
-        v19 = bdSockAddr::toUInt32(p_m_address);
-        v20 = *((_DWORD *)&p_m_address[-1].inUn.m_ipv6Sockaddr + 30);
-        v21 = _byteswap_ulong(v19);
+        v13 = p_m_address[1].inUn.m_sockaddrStorage.__ss_pad2[9];
+        v14 = p_m_address[1].inUn.m_sockaddrStorage.__ss_pad2[8];
+        v15 = bdSockAddr::getPort(p_m_address);
+        v16 = bdSockAddr::toUInt32(p_m_address);
+        v17 = *((_DWORD *)&p_m_address[-1].inUn.m_ipv6Sockaddr + 30);
+        v18 = _byteswap_ulong(v16);
         if ( DLog_IsActive() )
         {
-          if ( DLog_BeginRow(m_contexts, "nat_discovery_sends") && DLog_UInt32(m_contexts, "ms_since_start", v20) && DLog_UInt32(m_contexts, "dst_addr", v21) && DLog_UInt16(m_contexts, "dst_port", v18) && DLog_UInt8(m_contexts, "packet_type", v17) && DLog_Bool(m_contexts, "send_success", v16) )
+          if ( DLog_BeginRow(m_contexts, "nat_discovery_sends") && DLog_UInt32(m_contexts, "ms_since_start", v17) && DLog_UInt32(m_contexts, "dst_addr", v18) && DLog_UInt16(m_contexts, "dst_port", v15) && DLog_UInt8(m_contexts, "packet_type", v14) && DLog_Bool(m_contexts, "send_success", v13) )
             DLog_EndRow(m_contexts);
         }
         else
@@ -644,16 +638,16 @@ void bdTelemetryDLogSink::addNatTypeDiscovery(bdTelemetryDLogSink *this, const b
         }
         p_m_address = (bdSockAddr *)((char *)p_m_address + 168);
       }
-      while ( (char *)&p_m_address[-1].inUn.m_ipv6Sockaddr + 120 < (char *)&_RBP->m_sends[_RBP->m_sendCount] );
-      v3 = this;
+      while ( (char *)&p_m_address[-1].inUn.m_ipv6Sockaddr + 120 < (char *)&tel->m_sends[tel->m_sendCount] );
+      v2 = this;
     }
     DLog_EndEvent(m_contexts);
-    bdMutex::unlock(&v3->m_mutex);
-    bdTelemetryDLogSink::checkAndLogErrors(v3);
+    bdMutex::unlock(&v2->m_mutex);
+    bdTelemetryDLogSink::checkAndLogErrors(v2);
   }
   else
   {
-    bdMutex::unlock(&v3->m_mutex);
+    bdMutex::unlock(&v2->m_mutex);
   }
 }
 
@@ -768,40 +762,38 @@ void bdTelemetryDLogSink::addQoS(bdTelemetryDLogSink *this, const bdQoSTelemetry
   unsigned __int8 m_result; 
   bdCommonAddr *m_ptr; 
   unsigned __int16 Port; 
-  unsigned int v16; 
-  unsigned int v17; 
-  unsigned int v19; 
-  char v29; 
-  int v30; 
-  int v31; 
+  unsigned int v9; 
+  unsigned int v10; 
+  float v11; 
+  unsigned int v12; 
+  float v13; 
+  __int64 i; 
+  float v15; 
+  char v16; 
+  int v17; 
+  int v18; 
   bdCommonAddr *caddr; 
-  bdAddr v33; 
+  bdAddr v20; 
+  float m_latency; 
   unsigned __int8 *m_data; 
   unsigned int value; 
   bool m_disabled; 
-  int m_bandwidthDown; 
-  int m_bandwidthUp; 
+  unsigned int m_bandwidthDown; 
+  unsigned int m_bandwidthUp; 
+  float m_minLatency; 
   unsigned int m_numReplies; 
+  _BYTE v29[64]; 
   unsigned int m_numProbesReceived; 
   unsigned int m_numProbesExpected; 
   unsigned int m_numRetries; 
   bdQoSProbeFailureReason m_failureReason; 
-  char v47; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _RDI = tel;
   bdMutex::lock(&this->m_mutex);
   if ( DLog_BeginEvent(&this->m_contexts[1], "dw_event_qos") )
   {
-    m_msToNatTravResolve = _RDI->m_msToNatTravResolve;
-    m_duration = _RDI->m_duration;
-    m_result = _RDI->m_result;
+    m_msToNatTravResolve = tel->m_msToNatTravResolve;
+    m_duration = tel->m_duration;
+    m_result = tel->m_result;
     if ( DLog_IsActive() )
     {
       if ( DLog_BeginRow(&this->m_contexts[1], "qos_result") && DLog_UInt8(&this->m_contexts[1], "result", m_result) && DLog_UInt32(&this->m_contexts[1], "duration_ms", m_duration) && DLog_UInt32(&this->m_contexts[1], "ms_to_nat_trav_resolve", m_msToNatTravResolve) )
@@ -811,75 +803,50 @@ void bdTelemetryDLogSink::addQoS(bdTelemetryDLogSink *this, const bdQoSTelemetry
     {
       this->m_contexts[1].error = DLOG_ERROR_NOT_ACTIVE;
     }
-    m_ptr = _RDI->m_probeInfo.m_addr.m_ptr;
+    m_ptr = tel->m_probeInfo.m_addr.m_ptr;
     caddr = m_ptr;
     if ( m_ptr )
       _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-    bdAddr::bdAddr(&v33, &_RDI->m_probeInfo.m_realAddr);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+0B8h]
-      vmovss  [rbp+0D0h+var_E0], xmm0
-    }
-    m_data = _RDI->m_probeInfo.m_data;
-    value = _RDI->m_probeInfo.m_dataSize;
-    m_disabled = _RDI->m_probeInfo.m_disabled;
-    m_bandwidthDown = _RDI->m_probeInfo.m_bandwidthDown;
-    m_bandwidthUp = _RDI->m_probeInfo.m_bandwidthUp;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+0D8h]
-      vmovss  [rbp+0D0h+var_C0], xmm0
-    }
-    m_numReplies = _RDI->m_probeInfo.m_numReplies;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+0E0h]
-      vmovups [rbp+0D0h+var_B8], ymm0
-      vmovups ymm1, ymmword ptr [rdi+100h]
-      vmovups [rbp+0D0h+var_98], ymm1
-    }
-    m_numProbesReceived = _RDI->m_probeInfo.m_numProbesReceived;
-    m_numProbesExpected = _RDI->m_probeInfo.m_numProbesExpected;
-    m_numRetries = _RDI->m_probeInfo.m_numRetries;
-    m_failureReason = _RDI->m_probeInfo.m_failureReason;
-    Port = bdSockAddr::getPort(&v33.m_address);
-    v16 = _byteswap_ulong(bdSockAddr::toUInt32(&v33.m_address));
-    v17 = m_numReplies;
-    __asm { vmovss  xmm7, [rbp+0D0h+var_C0] }
-    v31 = m_bandwidthDown;
-    v30 = m_bandwidthUp;
-    v29 = m_disabled;
-    v19 = value;
-    __asm { vmovss  xmm6, [rbp+0D0h+var_E0] }
+    bdAddr::bdAddr(&v20, &tel->m_probeInfo.m_realAddr);
+    m_latency = tel->m_probeInfo.m_latency;
+    m_data = tel->m_probeInfo.m_data;
+    value = tel->m_probeInfo.m_dataSize;
+    m_disabled = tel->m_probeInfo.m_disabled;
+    m_bandwidthDown = tel->m_probeInfo.m_bandwidthDown;
+    m_bandwidthUp = tel->m_probeInfo.m_bandwidthUp;
+    m_minLatency = tel->m_probeInfo.m_minLatency;
+    m_numReplies = tel->m_probeInfo.m_numReplies;
+    *(__m256i *)v29 = *(__m256i *)tel->m_probeInfo.m_replies;
+    *(__m256i *)&v29[32] = *(__m256i *)&tel->m_probeInfo.m_replies[8];
+    m_numProbesReceived = tel->m_probeInfo.m_numProbesReceived;
+    m_numProbesExpected = tel->m_probeInfo.m_numProbesExpected;
+    m_numRetries = tel->m_probeInfo.m_numRetries;
+    m_failureReason = tel->m_probeInfo.m_failureReason;
+    Port = bdSockAddr::getPort(&v20.m_address);
+    v9 = _byteswap_ulong(bdSockAddr::toUInt32(&v20.m_address));
+    v10 = m_numReplies;
+    v11 = m_minLatency;
+    v18 = m_bandwidthDown;
+    v17 = m_bandwidthUp;
+    v16 = m_disabled;
+    v12 = value;
+    v13 = m_latency;
     if ( DLog_IsActive() )
     {
-      if ( DLog_BeginRow(&this->m_contexts[1], "qos_info") && DLog_UInt32(&this->m_contexts[1], "real_addr", v16) && DLog_UInt16(&this->m_contexts[1], "real_port", Port) )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        if ( DLog_Float32(&this->m_contexts[1], "latency", *(float *)&_XMM2) && DLog_UInt32(&this->m_contexts[1], "data_size", v19) && DLog_Bool(&this->m_contexts[1], "remote_disabled", v29) && DLog_UInt32(&this->m_contexts[1], "bandwidth_up", v30) && DLog_UInt32(&this->m_contexts[1], "bandwidth_down", v31) )
-        {
-          __asm { vmovaps xmm2, xmm7; value }
-          if ( DLog_Float32(&this->m_contexts[1], "min_latency", *(float *)&_XMM2) && DLog_UInt32(&this->m_contexts[1], "num_replies", v17) && DLog_UInt32(&this->m_contexts[1], "reply_latency_count", v17) )
-            DLog_EndRow(&this->m_contexts[1]);
-        }
-      }
+      if ( DLog_BeginRow(&this->m_contexts[1], "qos_info") && DLog_UInt32(&this->m_contexts[1], "real_addr", v9) && DLog_UInt16(&this->m_contexts[1], "real_port", Port) && DLog_Float32(&this->m_contexts[1], "latency", v13) && DLog_UInt32(&this->m_contexts[1], "data_size", v12) && DLog_Bool(&this->m_contexts[1], "remote_disabled", v16) && DLog_UInt32(&this->m_contexts[1], "bandwidth_up", v17) && DLog_UInt32(&this->m_contexts[1], "bandwidth_down", v18) && DLog_Float32(&this->m_contexts[1], "min_latency", v11) && DLog_UInt32(&this->m_contexts[1], "num_replies", v10) && DLog_UInt32(&this->m_contexts[1], "reply_latency_count", v10) )
+        DLog_EndRow(&this->m_contexts[1]);
     }
     else
     {
       this->m_contexts[1].error = DLOG_ERROR_NOT_ACTIVE;
     }
-    for ( _RDI = 0i64; (unsigned int)_RDI < m_numReplies; _RDI = (unsigned int)(_RDI + 1) )
+    for ( i = 0i64; (unsigned int)i < m_numReplies; i = (unsigned int)(i + 1) )
     {
-      __asm { vmovss  xmm6, dword ptr [rbp+rdi*4+0D0h+var_B8] }
+      v15 = *(float *)&v29[4 * i];
       if ( DLog_IsActive() )
       {
-        if ( DLog_BeginRow(&this->m_contexts[1], "reply_latency_array") )
-        {
-          __asm { vmovaps xmm2, xmm6; value }
-          if ( DLog_Float32(&this->m_contexts[1], "reply_latency", *(float *)&_XMM2) )
-            DLog_EndRow(&this->m_contexts[1]);
-        }
+        if ( DLog_BeginRow(&this->m_contexts[1], "reply_latency_array") && DLog_Float32(&this->m_contexts[1], "reply_latency", v15) )
+          DLog_EndRow(&this->m_contexts[1]);
       }
       else
       {
@@ -891,18 +858,15 @@ void bdTelemetryDLogSink::addQoS(bdTelemetryDLogSink *this, const bdQoSTelemetry
     DLog_EndEvent(&this->m_contexts[1]);
     bdMutex::unlock(&this->m_mutex);
     bdTelemetryDLogSink::checkAndLogErrors(this);
-    if ( caddr && _InterlockedExchangeAdd((volatile signed __int32 *)&caddr->m_refCount, 0xFFFFFFFF) == 1 )
-      ((void (__fastcall *)(bdCommonAddr *, __int64))caddr->~bdReferencable)(caddr, 1i64);
+    if ( caddr )
+    {
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&caddr->m_refCount, 0xFFFFFFFF) == 1 )
+        ((void (__fastcall *)(bdCommonAddr *, __int64))caddr->~bdReferencable)(caddr, 1i64);
+    }
   }
   else
   {
     bdMutex::unlock(&this->m_mutex);
-  }
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -1060,122 +1024,95 @@ void bdTelemetryDLogSink::addUPnP(bdTelemetryDLogSink *this, const bdUPnPTelemet
 {
   bdMutex *p_m_mutex; 
   DLogContext *m_contexts; 
-  bool m_onlyUseGateway; 
-  bdSockAddr *v10; 
+  bdSockAddr *v6; 
+  unsigned int v7; 
+  float m_connectTimeout; 
+  float m_responseTimeout; 
+  float m_discoveryTimeout; 
   unsigned int v11; 
-  unsigned int v15; 
-  unsigned int v16; 
+  unsigned int v12; 
   unsigned int m_numDiscoveryAttempts; 
   unsigned __int16 m_gamePort; 
   unsigned int m_duration; 
   unsigned __int8 m_result; 
-  unsigned int v21; 
-  unsigned int *p_msSinceStart; 
+  unsigned int v17; 
+  bdUPnPTelemetry::bdUPnPDiscoveredDeviceTelemetry *m_discoveredDevices; 
   bdSockAddr *p_m_address; 
-  unsigned __int16 v30; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
+  unsigned __int16 v20; 
+  unsigned int v21; 
+  unsigned int msSinceStart; 
+  unsigned int v23; 
   unsigned __int8 portStatus; 
   unsigned __int8 m_runMode; 
   unsigned __int8 m_portSelectionMode; 
-  bool v37; 
-  unsigned __int16 v38; 
+  bool m_onlyUseGateway; 
+  unsigned __int16 v28; 
   unsigned __int16 Port; 
   unsigned int value; 
   unsigned int m_mappingRetries; 
   unsigned int m_portPoolSize; 
-  unsigned __int32 v43; 
-  bdAddr v45; 
+  unsigned __int32 v33; 
+  bdAddr v35; 
 
   p_m_mutex = &this->m_mutex;
-  _R14 = tel;
   bdMutex::lock(&this->m_mutex);
   m_contexts = this->m_contexts;
   if ( DLog_BeginEvent(m_contexts, "dw_event_upnp") )
   {
-    m_onlyUseGateway = _R14->m_config.m_onlyUseGateway;
-    __asm
-    {
-      vmovaps [rsp+158h+var_48], xmm6
-      vmovaps [rsp+158h+var_58], xmm7
-      vmovaps [rsp+158h+var_68], xmm8
-    }
-    v37 = m_onlyUseGateway;
-    bdAddr::bdAddr(&v45, &_R14->m_config.m_gatewayAddr, 0);
-    v11 = bdSockAddr::toUInt32(v10);
-    __asm
-    {
-      vmovss  xmm8, dword ptr [r14+5E0h]
-      vmovss  xmm7, dword ptr [r14+5DCh]
-      vmovss  xmm6, dword ptr [r14+5D8h]
-    }
-    v43 = _byteswap_ulong(v11);
-    m_portPoolSize = _R14->m_config.m_portPoolSize;
-    m_portSelectionMode = _R14->m_config.m_portSelectionMode;
-    m_mappingRetries = _R14->m_config.m_mappingRetries;
-    value = _R14->m_config.m_discoveryRetries;
-    m_runMode = _R14->m_config.m_runMode;
-    portStatus = _R14->m_device.portStatus;
-    Port = bdSockAddr::getPort(&_R14->m_device.externalAddr.m_address);
-    v15 = _byteswap_ulong(bdSockAddr::toUInt32(&_R14->m_device.externalAddr.m_address));
-    v38 = bdSockAddr::getPort(&_R14->m_device.addr.m_address);
-    v16 = bdSockAddr::toUInt32(&_R14->m_device.addr.m_address);
-    m_numDiscoveryAttempts = _R14->m_numDiscoveryAttempts;
-    m_gamePort = _R14->m_gamePort;
-    m_duration = _R14->m_duration;
-    m_result = _R14->m_result;
-    v21 = _byteswap_ulong(v16);
+    m_onlyUseGateway = tel->m_config.m_onlyUseGateway;
+    bdAddr::bdAddr(&v35, &tel->m_config.m_gatewayAddr, 0);
+    v7 = bdSockAddr::toUInt32(v6);
+    m_connectTimeout = tel->m_config.m_connectTimeout;
+    m_responseTimeout = tel->m_config.m_responseTimeout;
+    m_discoveryTimeout = tel->m_config.m_discoveryTimeout;
+    v33 = _byteswap_ulong(v7);
+    m_portPoolSize = tel->m_config.m_portPoolSize;
+    m_portSelectionMode = tel->m_config.m_portSelectionMode;
+    m_mappingRetries = tel->m_config.m_mappingRetries;
+    value = tel->m_config.m_discoveryRetries;
+    m_runMode = tel->m_config.m_runMode;
+    portStatus = tel->m_device.portStatus;
+    Port = bdSockAddr::getPort(&tel->m_device.externalAddr.m_address);
+    v11 = _byteswap_ulong(bdSockAddr::toUInt32(&tel->m_device.externalAddr.m_address));
+    v28 = bdSockAddr::getPort(&tel->m_device.addr.m_address);
+    v12 = bdSockAddr::toUInt32(&tel->m_device.addr.m_address);
+    m_numDiscoveryAttempts = tel->m_numDiscoveryAttempts;
+    m_gamePort = tel->m_gamePort;
+    m_duration = tel->m_duration;
+    m_result = tel->m_result;
+    v17 = _byteswap_ulong(v12);
     if ( DLog_IsActive() )
     {
-      if ( DLog_BeginRow(m_contexts, "upnp_result") && DLog_UInt8(m_contexts, "result", m_result) && DLog_UInt32(m_contexts, "duration_ms", m_duration) && DLog_UInt16(m_contexts, "game_port", m_gamePort) && DLog_UInt32(m_contexts, "discovery_attempts", m_numDiscoveryAttempts) && DLog_UInt32(m_contexts, "device_addr", v21) && DLog_UInt16(m_contexts, "device_port", v38) && DLog_UInt32(m_contexts, "device_external_addr", v15) && DLog_UInt16(m_contexts, "device_external_port", Port) && DLog_UInt8(m_contexts, "device_port_status", portStatus) )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        if ( DLog_Float32(m_contexts, "conf_discovery_timeout", *(float *)&_XMM2) )
-        {
-          __asm { vmovaps xmm2, xmm7; value }
-          if ( DLog_Float32(m_contexts, "conf_response_timeout", *(float *)&_XMM2) )
-          {
-            __asm { vmovaps xmm2, xmm8; value }
-            if ( DLog_Float32(m_contexts, "conf_connect_timeout", *(float *)&_XMM2) && DLog_UInt8(m_contexts, "conf_run_mode", m_runMode) && DLog_UInt32(m_contexts, "conf_discovery_retries", value) && DLog_UInt32(m_contexts, "conf_mapping_retries", m_mappingRetries) && DLog_UInt8(m_contexts, "conf_port_selection_mode", m_portSelectionMode) && DLog_UInt32(m_contexts, "conf_port_pool_size", m_portPoolSize) && DLog_UInt32(m_contexts, "conf_gateway_addr", v43) && DLog_Bool(m_contexts, "conf_only_use_gateway", v37) )
-              DLog_EndRow(m_contexts);
-          }
-        }
-      }
+      if ( DLog_BeginRow(m_contexts, "upnp_result") && DLog_UInt8(m_contexts, "result", m_result) && DLog_UInt32(m_contexts, "duration_ms", m_duration) && DLog_UInt16(m_contexts, "game_port", m_gamePort) && DLog_UInt32(m_contexts, "discovery_attempts", m_numDiscoveryAttempts) && DLog_UInt32(m_contexts, "device_addr", v17) && DLog_UInt16(m_contexts, "device_port", v28) && DLog_UInt32(m_contexts, "device_external_addr", v11) && DLog_UInt16(m_contexts, "device_external_port", Port) && DLog_UInt8(m_contexts, "device_port_status", portStatus) && DLog_Float32(m_contexts, "conf_discovery_timeout", m_discoveryTimeout) && DLog_Float32(m_contexts, "conf_response_timeout", m_responseTimeout) && DLog_Float32(m_contexts, "conf_connect_timeout", m_connectTimeout) && DLog_UInt8(m_contexts, "conf_run_mode", m_runMode) && DLog_UInt32(m_contexts, "conf_discovery_retries", value) && DLog_UInt32(m_contexts, "conf_mapping_retries", m_mappingRetries) && DLog_UInt8(m_contexts, "conf_port_selection_mode", m_portSelectionMode) && DLog_UInt32(m_contexts, "conf_port_pool_size", m_portPoolSize) && DLog_UInt32(m_contexts, "conf_gateway_addr", v33) && DLog_Bool(m_contexts, "conf_only_use_gateway", m_onlyUseGateway) )
+        DLog_EndRow(m_contexts);
     }
     else
     {
       m_contexts->error = DLOG_ERROR_NOT_ACTIVE;
     }
-    p_msSinceStart = &_R14->m_discoveredDevices[0].msSinceStart;
-    __asm
+    m_discoveredDevices = tel->m_discoveredDevices;
+    if ( tel->m_discoveredDevices < &tel->m_discoveredDevices[tel->m_discoveredDeviceCount] )
     {
-      vmovaps xmm8, [rsp+158h+var_68]
-      vmovaps xmm7, [rsp+158h+var_58]
-      vmovaps xmm6, [rsp+158h+var_48]
-    }
-    if ( _R14->m_discoveredDevices < &_R14->m_discoveredDevices[_R14->m_discoveredDeviceCount] )
-    {
-      p_m_address = &_R14->m_discoveredDevices[0].address.m_address;
+      p_m_address = &tel->m_discoveredDevices[0].address.m_address;
       do
       {
-        v30 = bdSockAddr::getPort(p_m_address);
-        v31 = bdSockAddr::toUInt32(p_m_address);
-        v32 = *p_msSinceStart;
-        v33 = _byteswap_ulong(v31);
+        v20 = bdSockAddr::getPort(p_m_address);
+        v21 = bdSockAddr::toUInt32(p_m_address);
+        msSinceStart = m_discoveredDevices->msSinceStart;
+        v23 = _byteswap_ulong(v21);
         if ( DLog_IsActive() )
         {
-          if ( DLog_BeginRow(m_contexts, "upnp_discovered_device") && DLog_UInt32(m_contexts, "ms_since_start", v32) && DLog_UInt32(m_contexts, "addr", v33) && DLog_UInt16(m_contexts, "port", v30) && DLog_String(m_contexts, "notify_server_field", &p_m_address[1].inUn.m_sockaddrStorage.__ss_pad2[8], 0) )
+          if ( DLog_BeginRow(m_contexts, "upnp_discovered_device") && DLog_UInt32(m_contexts, "ms_since_start", msSinceStart) && DLog_UInt32(m_contexts, "addr", v23) && DLog_UInt16(m_contexts, "port", v20) && DLog_String(m_contexts, "notify_server_field", &p_m_address[1].inUn.m_sockaddrStorage.__ss_pad2[8], 0) )
             DLog_EndRow(m_contexts);
         }
         else
         {
           m_contexts->error = DLOG_ERROR_NOT_ACTIVE;
         }
-        p_msSinceStart += 72;
+        ++m_discoveredDevices;
         p_m_address = (bdSockAddr *)((char *)p_m_address + 288);
       }
-      while ( p_msSinceStart < &_R14->m_discoveredDevices[_R14->m_discoveredDeviceCount].msSinceStart );
+      while ( m_discoveredDevices < &tel->m_discoveredDevices[tel->m_discoveredDeviceCount] );
     }
     DLog_EndEvent(m_contexts);
     bdMutex::unlock(&this->m_mutex);
@@ -1484,34 +1421,27 @@ void bdTelemetryDLogSink::record(bdTelemetryDLogSink *this)
 bdTelemetryDLogSink::recordSampled
 ==============
 */
-
-void __fastcall bdTelemetryDLogSink::recordSampled(bdTelemetryDLogSink *this, double sampleRate)
+void bdTelemetryDLogSink::recordSampled(bdTelemetryDLogSink *this, float sampleRate)
 {
-  bdTelemetry::bdTelemetryContextID v6; 
-  bdTrulyRandomImpl *v7; 
-  bdTrulyRandomImpl *v8; 
+  bdTelemetry::bdTelemetryContextID v3; 
+  bdTrulyRandomImpl *v4; 
+  bdTrulyRandomImpl *v5; 
   bdSingletonRegistryImpl *Instance; 
-  char v13; 
-  char v14; 
-  int in; 
+  float v7; 
+  unsigned int in; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   bdHandleAssert(this->m_initialized, "m_initialized", "c:\\workspace\\iw8\\code_source\\src\\dlog\\bdtelemetrydlogsink.cpp", "bdTelemetryDLogSink::recordSampled", 0x5Au, "bdTelemetryDLogSink is not initialized. Call bdTelemetryDLogSink::init() first.", -2i64);
-  v6 = BD_TELEMETRY_CONTEXT_STARTUP;
+  v3 = BD_TELEMETRY_CONTEXT_STARTUP;
   in = 0;
   if ( bdSingleton<bdTrulyRandomImpl>::m_instance )
     goto LABEL_9;
-  v7 = (bdTrulyRandomImpl *)bdMemory::allocate(1ui64);
-  if ( v7 )
-    bdTrulyRandomImpl::bdTrulyRandomImpl(v7);
+  v4 = (bdTrulyRandomImpl *)bdMemory::allocate(1ui64);
+  if ( v4 )
+    bdTrulyRandomImpl::bdTrulyRandomImpl(v4);
   else
-    v8 = NULL;
-  bdSingleton<bdTrulyRandomImpl>::m_instance = v8;
-  if ( v8 )
+    v5 = NULL;
+  bdSingleton<bdTrulyRandomImpl>::m_instance = v5;
+  if ( v5 )
   {
     Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
     if ( bdSingletonRegistryImpl::add(Instance, bdSingleton<bdTrulyRandomImpl>::destroyInstance) )
@@ -1522,26 +1452,18 @@ void __fastcall bdTelemetryDLogSink::recordSampled(bdTelemetryDLogSink *this, do
   DebugBreak();
 LABEL_9:
   bdTrulyRandomImpl::getRandomUByte8(bdSingleton<bdTrulyRandomImpl>::m_instance, (unsigned __int8 *)&in, 4u);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@2f800000
-    vcomiss xmm1, xmm6
-  }
-  if ( v13 | v14 )
-  {
-    this->record(this);
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  }
-  else
+  v7 = (float)in;
+  if ( (float)(v7 * 2.3283064e-10) > sampleRate )
   {
     bdMutex::lock(&this->m_mutex);
     do
-      bdTelemetry::discard(v6++);
-    while ( (unsigned int)v6 < BD_TELEMETRY_NUM_CONTEXTS );
+      bdTelemetry::discard(v3++);
+    while ( (unsigned int)v3 < BD_TELEMETRY_NUM_CONTEXTS );
     bdMutex::unlock(&this->m_mutex);
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  }
+  else
+  {
+    this->record(this);
   }
 }
 

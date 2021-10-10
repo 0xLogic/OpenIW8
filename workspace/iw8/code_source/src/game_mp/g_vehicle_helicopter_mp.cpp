@@ -122,40 +122,27 @@ G_VehicleHeliMP_DroneApplyVelocityImpulse
 */
 void G_VehicleHeliMP_DroneApplyVelocityImpulse(Vehicle *veh, HeliPathPos *pathPos, const vec3_t *velocityVector, bool accumulates, float decay)
 {
-  _RBX = pathPos;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1172, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1173, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1173, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
   if ( veh->useDroneLogic != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1174, ASSERT_TYPE_ASSERT, "( veh->useDroneLogic == qtrue )", (const char *)&queryFormat, "veh->useDroneLogic == qtrue") )
     __debugbreak();
   if ( accumulates )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+74h]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rbx+74h], xmm1
-      vmovss  xmm2, dword ptr [rbx+78h]
-      vaddss  xmm0, xmm2, dword ptr [rdi+4]
-      vmovss  dword ptr [rbx+78h], xmm0
-      vmovss  xmm1, dword ptr [rbx+7Ch]
-      vaddss  xmm2, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx+7Ch], xmm2
-    }
+    pathPos->hover.velocityImpulse.v[0] = pathPos->hover.velocityImpulse.v[0] + velocityVector->v[0];
+    pathPos->hover.velocityImpulse.v[1] = pathPos->hover.velocityImpulse.v[1] + velocityVector->v[1];
+    pathPos->hover.velocityImpulse.v[2] = pathPos->hover.velocityImpulse.v[2] + velocityVector->v[2];
   }
   else
   {
-    _RBX->hover.velocityImpulse.v[0] = velocityVector->v[0];
-    _RBX->hover.velocityImpulse.v[1] = velocityVector->v[1];
-    _RBX->hover.velocityImpulse.v[2] = velocityVector->v[2];
+    pathPos->hover.velocityImpulse.v[0] = velocityVector->v[0];
+    pathPos->hover.velocityImpulse.v[1] = velocityVector->v[1];
+    pathPos->hover.velocityImpulse.v[2] = velocityVector->v[2];
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+decay]
-    vmaxss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  dword ptr [rbx+80h], xmm1
-  }
+  _XMM0 = LODWORD(decay);
+  __asm { vmaxss  xmm1, xmm0, cs:__real@3a83126f }
+  pathPos->hover.velocityImpulseDecay = *(float *)&_XMM1;
 }
 
 /*
@@ -165,27 +152,20 @@ G_VehicleHeliMP_DroneCalcBounds
 */
 void G_VehicleHeliMP_DroneCalcBounds(const Vehicle *veh, Bounds *bounds)
 {
-  _RBX = bounds;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 138, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  _RAX = veh->ent;
+  _XMM0 = LODWORD(veh->ent->r.box.halfSize.v[1]);
   __asm
   {
-    vmovss  xmm2, cs:MAX_DRONE_SIZE
-    vmovss  xmm0, dword ptr [rax+110h]
     vmaxss  xmm1, xmm0, dword ptr [rax+10Ch]
     vmaxss  xmm3, xmm1, dword ptr [rax+114h]
-    vmulss  xmm0, xmm2, cs:__real@3f000000
     vminss  xmm1, xmm3, xmm0
   }
-  *(_QWORD *)_RBX->midPoint.v = 0i64;
-  _RBX->midPoint.v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+0Ch], xmm1
-    vmovss  dword ptr [rbx+10h], xmm1
-    vmovss  dword ptr [rbx+14h], xmm1
-  }
+  *(_QWORD *)bounds->midPoint.v = 0i64;
+  bounds->midPoint.v[2] = 0.0;
+  bounds->halfSize.v[0] = *(float *)&_XMM1;
+  bounds->halfSize.v[1] = *(float *)&_XMM1;
+  bounds->halfSize.v[2] = *(float *)&_XMM1;
 }
 
 /*
@@ -197,28 +177,61 @@ __int64 G_VehicleHeliMP_DroneCalcNavPath(const Vehicle *veh, HeliPathPos *pathPo
 {
   nav_space_s *DefaultSpace; 
   EntHandle *p_droneTarget; 
-  __int64 v71; 
-  bfx::VolumeHandle v92; 
-  bfx::VolumeHandle v93; 
-  unsigned int v94; 
+  gentity_s *v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  vec3_t *p_goalPosition; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v32; 
+  float v33; 
+  float v34; 
+  bfx::VolumeHandle v35; 
+  bfx::VolumeHandle v36; 
+  unsigned int v37; 
   int NumSegments; 
-  int v96; 
+  int v39; 
   vec3_t *p_outPoint; 
-  bfx::PolylinePath3DRCPtr v98; 
-  vec3_t *v103; 
-  __int64 v104; 
+  bfx::PolylinePath3DRCPtr v41; 
+  float *v42; 
+  vec3_t *v43; 
+  __int64 v44; 
   __int64 pathSpec; 
   __int64 pathSpec_8; 
-  bfx::VolumeHandle v139; 
+  bfx::VolumeHandle v47; 
   bfx::VolumeHandle rhs; 
+  float v49; 
   bfx::PolylinePath3DRCPtr result; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
   bfx::VolumeHandle pClosestVolume; 
-  __int64 v148; 
+  __int64 v56; 
   vec3_t endPos; 
-  vec3_t v150; 
+  vec3_t v58; 
   vec3_t up; 
   vec3_t pos; 
-  vec3_t v153; 
+  vec3_t v61; 
   vec3_t forward; 
   nav_probe_results_3D_s pOutResults; 
   vec3_t startPos; 
@@ -226,28 +239,11 @@ __int64 G_VehicleHeliMP_DroneCalcNavPath(const Vehicle *veh, HeliPathPos *pathPo
   vec3_t outAngles; 
   vec3_t outClosestPos; 
   vec3_t outPoint; 
-  char v161; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v148 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R14 = pathPos;
+  v56 = -2i64;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 156, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 157, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 157, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
   if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 158, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
     __debugbreak();
@@ -255,200 +251,115 @@ __int64 G_VehicleHeliMP_DroneCalcNavPath(const Vehicle *veh, HeliPathPos *pathPo
   if ( !DefaultSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 161, ASSERT_TYPE_ASSERT, "( space )", (const char *)&queryFormat, "space") )
     __debugbreak();
   pathSpec = -1i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+820h+pathSpec+8], xmm0
-  }
+  *(float *)&pathSpec_8 = 0.0;
   p_droneTarget = &veh->droneTarget;
   if ( EntHandle::isDefined(p_droneTarget) && EntHandle::ent(p_droneTarget)->health > 0 )
   {
-    _RAX = EntHandle::ent(p_droneTarget);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+130h]
-      vmovss  [rsp+820h+var_7B4], xmm6
-      vmovss  xmm7, dword ptr [rax+134h]
-      vmovss  dword ptr [rsp+820h+var_7E0.m_pProxy], xmm7
-      vmovss  xmm8, dword ptr [rax+138h]
-      vmovss  dword ptr [rsp+820h+rhs.m_pProxy], xmm8
-    }
-    G_Utils_GetAnglesWithWorldUp(_RAX, &outAngles);
+    v6 = EntHandle::ent(p_droneTarget);
+    v54 = v6->r.currentOrigin.v[0];
+    v7 = v54;
+    *(float *)&v47.m_pProxy = v6->r.currentOrigin.v[1];
+    v8 = *(float *)&v47.m_pProxy;
+    *(float *)&rhs.m_pProxy = v6->r.currentOrigin.v[2];
+    v9 = *(float *)&rhs.m_pProxy;
+    G_Utils_GetAnglesWithWorldUp(v6, &outAngles);
     AngleVectors(&outAngles, &forward, &right, &up);
-    __asm
-    {
-      vmovss  dword ptr [r14+278h], xmm6
-      vmovss  dword ptr [r14+27Ch], xmm7
-      vmovss  dword ptr [r14+280h], xmm8
-      vmovss  xmm0, dword ptr [rbp+720h+outAngles+4]
-      vmovss  dword ptr [r14+284h], xmm0
-      vmovss  xmm4, dword ptr [r14+0D4h]
-      vmulss  xmm10, xmm4, dword ptr [rbp+720h+right]
-      vmulss  xmm9, xmm4, dword ptr [rbp+720h+right+4]
-      vmulss  xmm5, xmm4, dword ptr [rbp+720h+right+8]
-      vxorps  xmm0, xmm4, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm14, xmm0, dword ptr [rbp+720h+right]
-      vmulss  xmm15, xmm0, dword ptr [rbp+720h+right+4]
-      vmulss  xmm0, xmm0, dword ptr [rbp+720h+right+8]
-      vmovss  [rsp+820h+var_7B8], xmm0
-      vmovss  xmm3, dword ptr [r14+0D8h]
-      vmulss  xmm13, xmm3, dword ptr [rbp+720h+forward]
-      vmulss  xmm12, xmm3, dword ptr [rbp+720h+forward+4]
-      vmulss  xmm11, xmm3, dword ptr [rbp+720h+forward+8]
-      vmovss  xmm1, dword ptr [r14+0DCh]
-      vmulss  xmm2, xmm1, dword ptr [rbp+720h+up]
-      vmovss  [rsp+820h+var_7C0], xmm2
-      vmulss  xmm3, xmm1, dword ptr [rbp+720h+up+4]
-      vmovss  [rsp+820h+var_7BC], xmm3
-      vmulss  xmm0, xmm1, dword ptr [rbp+720h+up+8]
-      vmovss  [rsp+820h+var_7D0], xmm0
-    }
-    _RBX = &_R14->goalPosition;
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rbx+8]
-      vaddss  xmm0, xmm10, dword ptr [rbx]
-      vaddss  xmm1, xmm9, dword ptr [rbx+4]
-      vaddss  xmm2, xmm5, xmm8
-      vaddss  xmm3, xmm0, xmm13
-      vaddss  xmm4, xmm1, xmm12
-      vaddss  xmm5, xmm2, xmm11
-      vmovss  xmm9, [rsp+820h+var_7C0]
-      vaddss  xmm0, xmm3, xmm9
-      vmovss  dword ptr [rbp+720h+var_790], xmm0
-      vmovss  xmm10, [rsp+820h+var_7BC]
-      vaddss  xmm1, xmm4, xmm10
-      vmovss  dword ptr [rbp+720h+var_790+4], xmm1
-      vaddss  xmm0, xmm5, [rsp+820h+var_7D0]
-      vmovss  dword ptr [rbp+720h+var_790+8], xmm0
-      vaddss  xmm1, xmm14, dword ptr [rbx]
-      vaddss  xmm2, xmm15, dword ptr [rbx+4]
-      vaddss  xmm0, xmm8, [rsp+820h+var_7B8]
-      vaddss  xmm3, xmm1, xmm13
-      vaddss  xmm4, xmm2, xmm12
-      vaddss  xmm5, xmm0, xmm11
-      vaddss  xmm0, xmm3, xmm9
-      vmovss  dword ptr [rbp+720h+var_760], xmm0
-      vaddss  xmm1, xmm4, xmm10
-      vmovss  dword ptr [rbp+720h+var_760+4], xmm1
-      vmovss  xmm7, [rsp+820h+var_7D0]
-      vaddss  xmm0, xmm5, xmm7
-      vmovss  dword ptr [rbp+720h+var_760+8], xmm0
-      vmovss  xmm1, cs:APPROXIMATE_PLAYER_HEIGHT
-      vmulss  xmm8, xmm1, dword ptr [rbp+720h+up]
-      vmulss  xmm11, xmm1, dword ptr [rbp+720h+up+4]
-      vmulss  xmm2, xmm1, dword ptr [rbp+720h+up+8]
-      vaddss  xmm0, xmm8, xmm6
-      vmovss  dword ptr [rbp+720h+pos], xmm0
-      vaddss  xmm1, xmm11, dword ptr [rsp+820h+var_7E0.m_pProxy]
-      vmovss  dword ptr [rbp+720h+pos+4], xmm1
-      vmovss  xmm6, dword ptr [rsp+820h+rhs.m_pProxy]
-      vaddss  xmm12, xmm2, xmm6
-      vmovss  dword ptr [rbp+720h+pos+8], xmm12
-    }
+    pathPos->droneLastTargetPosition.v[0] = v54;
+    pathPos->droneLastTargetPosition.v[1] = v8;
+    pathPos->droneLastTargetPosition.v[2] = v9;
+    pathPos->droneLastTargetYaw = outAngles.v[1];
+    v10 = pathPos->droneOffset.v[0];
+    v11 = COERCE_FLOAT(LODWORD(v10) ^ _xmm) * right.v[0];
+    v12 = COERCE_FLOAT(LODWORD(v10) ^ _xmm) * right.v[1];
+    v53 = COERCE_FLOAT(LODWORD(v10) ^ _xmm) * right.v[2];
+    v13 = pathPos->droneOffset.v[1];
+    v14 = v13 * forward.v[0];
+    v15 = v13 * forward.v[1];
+    v16 = v13 * forward.v[2];
+    v17 = pathPos->droneOffset.v[2];
+    v51 = v17 * up.v[0];
+    v52 = v17 * up.v[1];
+    v49 = v17 * up.v[2];
+    p_goalPosition = &pathPos->goalPosition;
+    v19 = pathPos->goalPosition.v[2];
+    v20 = (float)(v10 * right.v[2]) + v19;
+    v21 = (float)((float)(v10 * right.v[0]) + pathPos->goalPosition.v[0]) + (float)(v13 * forward.v[0]);
+    v22 = (float)((float)(v10 * right.v[1]) + pathPos->goalPosition.v[1]) + v15;
+    v23 = v17 * up.v[0];
+    v58.v[0] = v21 + (float)(v17 * up.v[0]);
+    v24 = v17 * up.v[1];
+    v58.v[1] = v22 + (float)(v17 * up.v[1]);
+    v58.v[2] = (float)(v20 + v16) + (float)(v17 * up.v[2]);
+    v25 = v12 + pathPos->goalPosition.v[1];
+    v61.v[0] = (float)((float)(v11 + pathPos->goalPosition.v[0]) + v14) + (float)(v17 * up.v[0]);
+    v61.v[1] = (float)(v25 + v15) + (float)(v17 * up.v[1]);
+    v26 = v17 * up.v[2];
+    v61.v[2] = (float)((float)(v19 + v53) + v16) + (float)(v17 * up.v[2]);
+    v27 = APPROXIMATE_PLAYER_HEIGHT * up.v[0];
+    v28 = APPROXIMATE_PLAYER_HEIGHT * up.v[1];
+    pos.v[0] = (float)(APPROXIMATE_PLAYER_HEIGHT * up.v[0]) + v7;
+    pos.v[1] = (float)(APPROXIMATE_PLAYER_HEIGHT * up.v[1]) + *(float *)&v47.m_pProxy;
+    v29 = *(float *)&rhs.m_pProxy;
+    v30 = (float)(APPROXIMATE_PLAYER_HEIGHT * up.v[2]) + *(float *)&rhs.m_pProxy;
+    pos.v[2] = v30;
     if ( !Nav3D_GetClosestPointOnMesh(DefaultSpace, (const bfx::Path3DSpec *)&pathSpec, &pos, &outClosestPos) )
-    {
-      v71 = 0i64;
-      goto LABEL_57;
-    }
-    __asm
-    {
-      vaddss  xmm2, xmm8, dword ptr [rbp+720h+outClosestPos]
-      vmovss  dword ptr [rbp+720h+pos], xmm2
-      vaddss  xmm1, xmm11, dword ptr [rbp+720h+outClosestPos+4]
-      vmovss  dword ptr [rbp+720h+pos+4], xmm1
-      vmovss  dword ptr [rbp+720h+pos+8], xmm12
-      vaddss  xmm0, xmm2, xmm9
-      vmovss  dword ptr [rbp+720h+endPos], xmm0
-      vaddss  xmm1, xmm1, xmm10
-      vmovss  dword ptr [rbp+720h+endPos+4], xmm1
-      vaddss  xmm0, xmm6, xmm7
-      vmovss  dword ptr [rbp+720h+endPos+8], xmm0
-    }
+      return 0i64;
+    pos.v[0] = v27 + outClosestPos.v[0];
+    pos.v[1] = v28 + outClosestPos.v[1];
+    pos.v[2] = v30;
+    endPos.v[0] = (float)(v27 + outClosestPos.v[0]) + v23;
+    endPos.v[1] = (float)(v28 + outClosestPos.v[1]) + v24;
+    endPos.v[2] = v29 + v26;
     if ( Nav_Trace3D(DefaultSpace, &pos, &endPos, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+720h+pOutResults.m_EndPos]
-        vmovss  dword ptr [rbp+720h+endPos], xmm0
-        vmovss  xmm1, dword ptr [rbp+720h+pOutResults.m_EndPos+4]
-        vmovss  dword ptr [rbp+720h+endPos+4], xmm1
-        vmovss  xmm0, dword ptr [rbp+720h+pOutResults.m_EndPos+8]
-        vmovss  dword ptr [rbp+720h+endPos+8], xmm0
-        vmovss  dword ptr [rbp+720h+var_790+8], xmm0
-        vmovss  dword ptr [rbp+720h+var_760+8], xmm0
-      }
+      endPos = pOutResults.m_EndPos;
+      v58.v[2] = pOutResults.m_EndPos.v[2];
+      v61.v[2] = pOutResults.m_EndPos.v[2];
     }
-    if ( Nav_Trace3D(DefaultSpace, &endPos, &v150, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
+    if ( Nav_Trace3D(DefaultSpace, &endPos, &v58, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
     {
-      __asm
+      v32 = pOutResults.m_EndPos.v[0];
+      v33 = pOutResults.m_EndPos.v[1];
+      v34 = pOutResults.m_EndPos.v[2];
+      if ( Nav_Trace3D(DefaultSpace, &endPos, &v61, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
       {
-        vmovss  xmm6, dword ptr [rbp+720h+pOutResults.m_EndPos]
-        vmovss  xmm7, dword ptr [rbp+720h+pOutResults.m_EndPos+4]
-        vmovss  xmm8, dword ptr [rbp+720h+pOutResults.m_EndPos+8]
-      }
-      if ( Nav_Trace3D(DefaultSpace, &endPos, &v153, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rbx], xmm6
-          vmovss  dword ptr [rbx+4], xmm7
-          vmovss  dword ptr [rbx+8], xmm8
-        }
+        p_goalPosition->v[0] = v32;
+        pathPos->goalPosition.v[1] = v33;
+        pathPos->goalPosition.v[2] = v34;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+720h+var_760]
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr [rbp+720h+var_760+4]
-          vmovss  dword ptr [rbx+4], xmm1
-          vmovss  xmm0, dword ptr [rbp+720h+var_760+8]
-          vmovss  dword ptr [rbx+8], xmm0
-        }
+        p_goalPosition->v[0] = v61.v[0];
+        pathPos->goalPosition.v[1] = v61.v[1];
+        pathPos->goalPosition.v[2] = v61.v[2];
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+720h+var_790]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr [rbp+720h+var_790+4]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr [rbp+720h+var_790+8]
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      p_goalPosition->v[0] = v58.v[0];
+      pathPos->goalPosition.v[1] = v58.v[1];
+      pathPos->goalPosition.v[2] = v58.v[2];
     }
   }
   else
   {
-    _RBX = &_R14->goalPosition;
-    Nav3D_GetClosestPointOnMesh(DefaultSpace, (const bfx::Path3DSpec *)&pathSpec, &_R14->goalPosition, &_R14->goalPosition);
+    p_goalPosition = &pathPos->goalPosition;
+    Nav3D_GetClosestPointOnMesh(DefaultSpace, (const bfx::Path3DSpec *)&pathSpec, &pathPos->goalPosition, &pathPos->goalPosition);
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+720h+startPos], xmm0
-    vmovss  xmm1, dword ptr [r14+0Ch]
-    vmovss  dword ptr [rbp+720h+startPos+4], xmm1
-    vmovss  xmm0, dword ptr [r14+10h]
-    vmovss  dword ptr [rbp+720h+startPos+8], xmm0
-  }
+  startPos = pathPos->origin;
   bfx::VolumeHandle::VolumeHandle(&pClosestVolume);
-  if ( Nav3D_GetClosestVolume(DefaultSpace, _RBX, (const bfx::Path3DSpec *)&pathSpec, &pClosestVolume) )
+  if ( Nav3D_GetClosestVolume(DefaultSpace, p_goalPosition, (const bfx::Path3DSpec *)&pathSpec, &pClosestVolume) )
   {
     bfx::VolumeHandle::VolumeHandle(&rhs);
-    bfx::VolumeHandle::VolumeHandle(&v139, &pClosestVolume);
-    if ( Nav3D_GetClosestReachableVolume(v92, &_R14->origin, (const bfx::Path3DSpec *)&pathSpec, &rhs) )
+    bfx::VolumeHandle::VolumeHandle(&v47, &pClosestVolume);
+    if ( Nav3D_GetClosestReachableVolume(v35, &pathPos->origin, (const bfx::Path3DSpec *)&pathSpec, &rhs) )
     {
-      bfx::VolumeHandle::VolumeHandle(&v139, &rhs);
-      Nav3D_GetClosestPointInsideVolume(&_R14->origin, v93, &startPos);
+      bfx::VolumeHandle::VolumeHandle(&v47, &rhs);
+      Nav3D_GetClosestPointInsideVolume(&pathPos->origin, v36, &startPos);
     }
     bfx::VolumeHandle::~VolumeHandle(&rhs);
   }
-  Nav_FindPath3D(&result, &startPos, _RBX);
+  Nav_FindPath3D(&result, &startPos, p_goalPosition);
   if ( !bfx::PolylinePath3DRCPtr::IsValid(&result) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 293, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()", pathSpec, pathSpec_8) )
     __debugbreak();
   if ( bfx::PolylinePath3DRCPtr::GetNumSegments(&result) )
@@ -456,155 +367,79 @@ __int64 G_VehicleHeliMP_DroneCalcNavPath(const Vehicle *veh, HeliPathPos *pathPo
     NumSegments = bfx::PolylinePath3DRCPtr::GetNumSegments(&result);
     if ( NumSegments > 128 )
       NumSegments = 128;
-    v96 = 0;
+    v39 = 0;
     if ( NumSegments > 0 )
     {
       p_outPoint = &outPoint;
       do
       {
         bfx::PolylinePath3DRCPtr::PolylinePath3DRCPtr((bfx::PolylinePath3DRCPtr *)&rhs, &result);
-        Nav_GetPointOn3DPath(v98, v96++, p_outPoint++);
+        Nav_GetPointOn3DPath(v41, v39++, p_outPoint++);
       }
-      while ( v96 < NumSegments );
+      while ( v39 < NumSegments );
     }
     if ( NumSegments <= 1 )
     {
       if ( NumSegments != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 376, ASSERT_TYPE_ASSERT, "( numDroneNavPathNodes == 1 )", (const char *)&queryFormat, "numDroneNavPathNodes == 1") )
         __debugbreak();
-      _R14->numDroneNavPathNodes = NumSegments;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+720h+outPoint]
-        vmovss  dword ptr [r14+0ECh], xmm0
-        vmovss  xmm1, dword ptr [rbp+720h+outPoint+4]
-        vmovss  dword ptr [r14+0F0h], xmm1
-        vmovss  xmm0, dword ptr [rbp+720h+outPoint+8]
-        vmovss  dword ptr [r14+0F4h], xmm0
-      }
+      pathPos->numDroneNavPathNodes = NumSegments;
+      pathPos->droneNavPath[0] = outPoint;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+8]
-        vmovss  dword ptr [rbp+720h+up], xmm0
-        vmovss  xmm1, dword ptr [r14+0Ch]
-        vmovss  dword ptr [rbp+720h+up+4], xmm1
-        vmovss  xmm0, dword ptr [r14+10h]
-        vmovss  dword ptr [rbp+720h+up+8], xmm0
-      }
+      up = pathPos->origin;
       if ( NumSegments - 1 > 0 )
       {
-        _RBX = &outPoint.v[2];
-        v103 = &outPoint;
-        v104 = (unsigned int)(NumSegments - 1);
-        do
+        v42 = &outPoint.v[2];
+        v43 = &outPoint;
+        v44 = (unsigned int)(NumSegments - 1);
+        while ( 1 )
         {
-          __asm
+          *(_QWORD *)forward.v = *((_QWORD *)v42 - 1);
+          forward.v[2] = *v42 - MIN_DRONE_DESIRED_HEIGHT_ABOVE_GROUND;
+          if ( !Nav_Trace3D(DefaultSpace, v43, &forward, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
+            goto LABEL_50;
+          v58.v[0] = pOutResults.m_EndPos.v[0];
+          v58.v[1] = pOutResults.m_EndPos.v[1];
+          v58.v[2] = pOutResults.m_EndPos.v[2] + MIN_DRONE_DESIRED_HEIGHT_ABOVE_GROUND;
+          if ( !Nav_Trace3D(DefaultSpace, &pOutResults.m_EndPos, &v58, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
+            break;
+          if ( pOutResults.m_EndPos.v[2] >= *v42 )
           {
-            vmovss  xmm0, dword ptr [rbx-8]
-            vmovss  dword ptr [rbp+720h+forward], xmm0
-            vmovss  xmm1, dword ptr [rbx-4]
-            vmovss  dword ptr [rbp+720h+forward+4], xmm1
-            vmovss  xmm0, dword ptr [rbx]
-            vsubss  xmm2, xmm0, cs:MIN_DRONE_DESIRED_HEIGHT_ABOVE_GROUND
-            vmovss  dword ptr [rbp+720h+forward+8], xmm2
+            endPos = pOutResults.m_EndPos;
+            goto LABEL_47;
           }
-          if ( Nav_Trace3D(DefaultSpace, v103, &forward, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+720h+pOutResults.m_EndPos]
-              vmovss  dword ptr [rbp+720h+var_790], xmm0
-              vmovss  xmm1, dword ptr [rbp+720h+pOutResults.m_EndPos+4]
-              vmovss  dword ptr [rbp+720h+var_790+4], xmm1
-              vmovss  xmm0, dword ptr [rbp+720h+pOutResults.m_EndPos+8]
-              vaddss  xmm2, xmm0, cs:MIN_DRONE_DESIRED_HEIGHT_ABOVE_GROUND
-              vmovss  dword ptr [rbp+720h+var_790+8], xmm2
-            }
-            if ( Nav_Trace3D(DefaultSpace, &pOutResults.m_EndPos, &v150, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
-            {
-              __asm
-              {
-                vmovss  xmm2, dword ptr [rbp+720h+pOutResults.m_EndPos+8]
-                vcomiss xmm2, dword ptr [rbx]
-                vmovss  xmm0, dword ptr [rbp+720h+pOutResults.m_EndPos]
-                vmovss  dword ptr [rbp+720h+endPos], xmm0
-                vmovss  xmm1, dword ptr [rbp+720h+pOutResults.m_EndPos+4]
-                vmovss  dword ptr [rbp+720h+endPos+4], xmm1
-                vmovss  dword ptr [rbp+720h+endPos+8], xmm2
-              }
-            }
-            else
-            {
-              __asm
-              {
-                vmovsd  xmm0, qword ptr [rbp+720h+var_790]
-                vmovsd  qword ptr [rbp+720h+endPos], xmm0
-              }
-              endPos.v[2] = v150.v[2];
-            }
-            if ( !Nav_Trace3D(DefaultSpace, &up, &endPos, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) && !Nav_Trace3D(DefaultSpace, v103, v103 + 1, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+720h+endPos]
-                vmovss  dword ptr [rbx-8], xmm0
-                vmovss  xmm1, dword ptr [rbp+720h+endPos+4]
-                vmovss  dword ptr [rbx-4], xmm1
-                vmovss  xmm0, dword ptr [rbp+720h+endPos+8]
-                vmovss  dword ptr [rbx], xmm0
-              }
-            }
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-8]
-            vmovss  dword ptr [rbp+720h+up], xmm0
-            vmovss  xmm1, dword ptr [rbx-4]
-            vmovss  dword ptr [rbp+720h+up+4], xmm1
-            vmovss  xmm0, dword ptr [rbx]
-            vmovss  dword ptr [rbp+720h+up+8], xmm0
-          }
-          ++v103;
-          _RBX += 3;
-          --v104;
+LABEL_51:
+          ++v43;
+          v42 += 3;
+          if ( !--v44 )
+            goto LABEL_52;
         }
-        while ( v104 );
+        endPos = v58;
+LABEL_47:
+        if ( !Nav_Trace3D(DefaultSpace, &up, &endPos, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) && !Nav_Trace3D(DefaultSpace, v43, v43 + 1, (const bfx::Path3DSpec *)&pathSpec, &pOutResults) )
+          *(vec3_t *)(v42 - 2) = endPos;
+LABEL_50:
+        up = *(vec3_t *)(v42 - 2);
+        goto LABEL_51;
       }
-      _R14->numDroneNavPathNodes = Nav_Simplify3DPath(DefaultSpace, &_R14->origin, &outPoint, NumSegments, 32, _R14->droneNavPath);
+LABEL_52:
+      pathPos->numDroneNavPathNodes = Nav_Simplify3DPath(DefaultSpace, &pathPos->origin, &outPoint, NumSegments, 32, pathPos->droneNavPath);
     }
-    v94 = 1;
-    _R14->currentDroneNavPathNodeIndex = 0;
-    _R14->droneCanFastMoveThroughPath = 1;
-    _R14->droneLastNavRecalcTime = level.time;
+    v37 = 1;
+    pathPos->currentDroneNavPathNodeIndex = 0;
+    pathPos->droneCanFastMoveThroughPath = 1;
+    pathPos->droneLastNavRecalcTime = level.time;
+    goto LABEL_58;
   }
-  else
-  {
-    v94 = 0;
-    _R14->numDroneNavPathNodes = 0;
-    _R14->currentDroneNavPathNodeIndex = 32;
-    _R14->droneMoveState = DRONEMOVESTATE_UNKNOWN;
-  }
+  v37 = 0;
+  pathPos->numDroneNavPathNodes = 0;
+  pathPos->currentDroneNavPathNodeIndex = 32;
+  pathPos->droneMoveState = DRONEMOVESTATE_UNKNOWN;
+LABEL_58:
   bfx::PolylinePath3DRCPtr::~PolylinePath3DRCPtr(&result);
   bfx::VolumeHandle::~VolumeHandle(&pClosestVolume);
-  v71 = v94;
-LABEL_57:
-  _R11 = &v161;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v71;
+  return v37;
 }
 
 /*
@@ -614,20 +449,80 @@ G_VehicleHeliMP_DroneMoveTo
 */
 void G_VehicleHeliMP_DroneMoveTo(const Vehicle *veh, HeliPathPos *pathPos, const vec3_t *moveTo, bool hovering, Bounds *vehBounds)
 {
-  bool v20; 
-  bool v21; 
-  char v45; 
-  bool v46; 
-  char v89; 
-  char v90; 
-  unsigned int droneMoveState; 
-  bool v98; 
-  bool v99; 
-  int v100; 
-  char v128; 
-  char v129; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  double DeltaTime; 
+  double HoverSpeed; 
+  float manualSpeed; 
+  bool v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  __int128 v29; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  double v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  DroneMoveState droneMoveState; 
+  bool v43; 
+  float v44; 
+  float v45; 
+  __int128 v46; 
+  float v47; 
+  __int128 v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  double v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  double v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
   gentity_s *ent; 
   unsigned __int16 GlassHitId; 
+  float v76; 
+  __int128 v77; 
+  float v78; 
+  __int128 v79; 
+  float v83; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
   float newSpeed; 
   float accelMax; 
   vec3_t v1; 
@@ -635,570 +530,252 @@ void G_VehicleHeliMP_DroneMoveTo(const Vehicle *veh, HeliPathPos *pathPos, const
   vec3_t start; 
   Bounds bounds; 
   trace_t results; 
-  char v250; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _RBX = moveTo;
-  _RDI = pathPos;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 539, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  v20 = _RDI == NULL;
-  if ( !_RDI )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 540, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+    __debugbreak();
+  v9 = pathPos->origin.v[1];
+  v10 = pathPos->origin.v[2];
+  v11 = pathPos->vel.v[0];
+  v12 = pathPos->vel.v[1];
+  v89 = pathPos->vel.v[2];
+  v13 = moveTo->v[0] - pathPos->origin.v[0];
+  v14 = moveTo->v[2] - v10;
+  start.v[0] = pathPos->origin.v[0];
+  v15 = moveTo->v[1] - v9;
+  v16 = (float)(v15 * v15) + (float)(v13 * v13);
+  v17 = fsqrt((float)(v14 * v14) + v16);
+  v87 = v11;
+  v88 = v12;
+  start.v[1] = v9;
+  start.v[2] = v10;
+  v86 = v17;
+  if ( v17 > 0.001 )
   {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 540, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos");
-    v20 = !v21;
-    if ( v21 )
-      __debugbreak();
+    v18 = FLOAT_1_0;
   }
-  __asm
+  else
   {
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  xmm2, dword ptr [rdi+0Ch]
-    vmovss  xmm3, dword ptr [rdi+10h]
-    vmovss  xmm9, dword ptr [rdi+20h]
-    vmovss  xmm11, dword ptr [rdi+24h]
-    vmovss  [rsp+1D0h+var_188], xmm0
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm6, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm12, xmm0, xmm3
-    vmovss  dword ptr [rsp+1D0h+start], xmm1
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm8, xmm1, xmm2
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm14, xmm1, xmm0
-    vmulss  xmm1, xmm12, xmm12
-    vaddss  xmm0, xmm1, xmm14
-    vsqrtss xmm15, xmm0, xmm0
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm15, xmm0
-    vmovss  [rsp+1D0h+var_190], xmm9
-    vmovss  [rsp+1D0h+var_18C], xmm11
-    vmovss  dword ptr [rsp+1D0h+start+4], xmm2
-    vmovss  dword ptr [rbp+0D0h+start+8], xmm3
-    vmovss  [rsp+1D0h+var_198], xmm14
-    vmovss  [rsp+1D0h+var_194], xmm15
-    vmovaps xmmword ptr [rsp+1D0h+var_A8+8], xmm13
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( v20 )
-  {
-    __asm
-    {
-      vmovaps xmm2, xmm0; epsilon
-      vmovss  [rsp+1D0h+v1], xmm7
-      vmovss  [rsp+1D0h+var_174], xmm7
-      vmovss  [rsp+1D0h+var_170], xmm7
-    }
-    if ( VecNCompareCustomEpsilon(_RDI->hover.velocityImpulse.v, v1.v, *(float *)&_XMM2, 3) )
+    v1.v[0] = 0.0;
+    v1.v[1] = 0.0;
+    v1.v[2] = 0.0;
+    if ( VecNCompareCustomEpsilon(pathPos->hover.velocityImpulse.v, v1.v, 0.001, 3) )
     {
       AngleVectors(&veh->ent->r.currentAngles, &forward, NULL, NULL);
       goto LABEL_60;
     }
-    __asm
-    {
-      vmovss  xmm13, cs:__real@3f800000
-      vmovss  [rsp+1D0h+var_194], xmm13
-      vmovaps xmm15, xmm13
-    }
+    v18 = FLOAT_1_0;
+    v86 = FLOAT_1_0;
+    v17 = FLOAT_1_0;
   }
-  else
-  {
-    __asm { vmovss  xmm13, cs:__real@3f800000 }
-  }
-  __asm { vmovaps xmmword ptr [rsp+1D0h+var_78+8], xmm10 }
-  *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-  __asm { vmovaps xmm1, xmm0; dt }
-  G_VehicleHeli_GetNewSpeedAndAccel(_RDI, *(float *)&_XMM1, hovering, &newSpeed, &accelMax);
-  v45 = 0;
-  v46 = !hovering;
+  DeltaTime = G_Vehicle_GetDeltaTime();
+  G_VehicleHeli_GetNewSpeedAndAccel(pathPos, *(float *)&DeltaTime, hovering, &newSpeed, &accelMax);
   if ( hovering )
   {
-    *(double *)&_XMM0 = G_VehicleHeli_GetHoverSpeed(_RDI);
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rdi+0B0h]
-      vmovss  [rsp+1D0h+var_184], xmm0
-    }
+    HoverSpeed = G_VehicleHeli_GetHoverSpeed(pathPos);
+    manualSpeed = pathPos->manualSpeed;
+    v90 = *(float *)&HoverSpeed;
   }
   else
   {
+    v90 = pathPos->manualSpeed;
+    manualSpeed = v90;
+  }
+  v22 = manualSpeed < pathPos->speed;
+  forward.v[0] = v13 * (float)(v18 / v17);
+  forward.v[1] = v15 * (float)(v18 / v17);
+  v23 = (float)(forward.v[0] * newSpeed) - v11;
+  v25 = (float)(forward.v[1] * newSpeed) - v12;
+  v24 = v25;
+  v26 = (float)((float)(v14 * (float)(v18 / v17)) * newSpeed) - v89;
+  v27 = v23;
+  v28 = v25;
+  forward.v[2] = v14 * (float)(v18 / v17);
+  if ( !v22 && (float)((float)((float)(forward.v[0] * newSpeed) * v87) + (float)((float)(forward.v[1] * newSpeed) * v88)) > 0.0 && (float)((float)(v23 * v87) + (float)(v25 * v88)) < 0.0 )
+  {
+    v29 = LODWORD(v87);
+    *(float *)&v29 = fsqrt((float)(v87 * v87) + (float)(v88 * v88));
+    _XMM2 = v29;
     __asm
     {
-      vmovss  xmm14, dword ptr [rdi+0B0h]
-      vmovss  [rsp+1D0h+var_184], xmm14
-      vmovaps xmm5, xmm14
-      vmovss  xmm14, [rsp+1D0h+var_198]
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm13, xmm0
     }
+    v33 = (float)(v18 / *(float *)&_XMM0) * v88;
+    v34 = v87 * (float)(v18 / *(float *)&_XMM0);
+    v35 = (float)(v33 * v24) + (float)(v34 * v23);
+    v27 = v23 - (float)(v35 * v34);
+    v28 = v24 - (float)(v35 * v33);
   }
-  __asm
+  v36 = fsqrt((float)((float)(v27 * v27) + (float)(v28 * v28)) + (float)(v26 * v26));
+  v37 = G_Vehicle_GetDeltaTime();
+  v38 = *(float *)&v37 * accelMax;
+  v39 = v28;
+  v85 = *(float *)&v37 * accelMax;
+  v83 = v28;
+  v84 = v27;
+  v40 = v27;
+  if ( v36 > (float)(*(float *)&v37 * accelMax) )
   {
-    vcomiss xmm5, dword ptr [rdi+4]
-    vmovss  xmm1, [rsp+1D0h+newSpeed]
-    vdivss  xmm0, xmm13, xmm15
-    vmulss  xmm3, xmm6, xmm0
-    vmulss  xmm2, xmm8, xmm0
-    vmulss  xmm4, xmm12, xmm0
-    vmovss  dword ptr [rsp+1D0h+forward], xmm3
-    vmovss  dword ptr [rsp+1D0h+forward+4], xmm2
-    vmulss  xmm3, xmm3, xmm1
-    vsubss  xmm10, xmm3, xmm9
-    vmulss  xmm2, xmm2, xmm1
-    vsubss  xmm11, xmm2, xmm11
-    vmulss  xmm0, xmm4, xmm1
-    vsubss  xmm9, xmm0, [rsp+1D0h+var_188]
-    vmovaps xmm6, xmm10
-    vmovaps xmm8, xmm11
-    vmovss  dword ptr [rsp+1D0h+forward+8], xmm4
-  }
-  if ( !v45 )
-  {
-    __asm
+    v83 = v28;
+    v84 = v27;
+    if ( v36 > 0.0 )
     {
-      vmovss  xmm4, [rsp+1D0h+var_190]
-      vmulss  xmm1, xmm3, xmm4
-      vmovss  xmm3, [rsp+1D0h+var_18C]
-      vmulss  xmm0, xmm2, xmm3
-      vaddss  xmm2, xmm1, xmm0
-      vcomiss xmm2, xmm7
-    }
-    if ( !(v45 | v46) )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm10, xmm4
-        vmulss  xmm0, xmm11, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vcomiss xmm2, xmm7
-      }
-      if ( v45 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vcmpless xmm0, xmm2, cs:__real@80000000
-          vblendvps xmm0, xmm2, xmm13, xmm0
-          vdivss  xmm1, xmm13, xmm0
-          vmulss  xmm5, xmm1, xmm3
-          vmulss  xmm4, xmm4, xmm1
-          vmulss  xmm0, xmm4, xmm10
-          vmulss  xmm2, xmm5, xmm11
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm1, xmm3, xmm4
-          vmulss  xmm0, xmm3, xmm5
-          vsubss  xmm6, xmm10, xmm1
-          vsubss  xmm8, xmm11, xmm0
-        }
-      }
+      v41 = (float)(*(float *)&v37 * accelMax) / v36;
+      v40 = v27 * v41;
+      v39 = v28 * v41;
+      v84 = v27 * v41;
+      v83 = v28 * v41;
+      v26 = v41 * v26;
     }
   }
-  __asm
+  droneMoveState = pathPos->droneMoveState;
+  v43 = hovering;
+  if ( droneMoveState == DRONEMOVESTATE_TO_POS )
+    v43 = 1;
+  if ( droneMoveState == DRONEMOVESTATE_TO_NODE && (!pathPos->droneCanFastMoveThroughPath || pathPos->numDroneNavPathNodes - pathPos->currentDroneNavPathNodeIndex <= 2) )
+    v43 = 1;
+  v44 = fsqrt(v16);
+  if ( v44 < v18 )
   {
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm10, xmm2, xmm2
-  }
-  *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-  __asm
-  {
-    vmulss  xmm11, xmm0, [rsp+1D0h+accelMax]
-    vcomiss xmm10, xmm11
-    vmovaps xmm4, xmm8
-    vmovss  [rsp+1D0h+var_198], xmm11
-    vmovss  [rsp+1D0h+var_1A0], xmm4
-    vmovss  [rsp+1D0h+var_19C], xmm6
-    vmovaps xmm5, xmm6
-  }
-  if ( !(v89 | v90) )
-  {
-    __asm
-    {
-      vcomiss xmm10, xmm7
-      vmovss  [rsp+1D0h+var_1A0], xmm4
-      vmovss  [rsp+1D0h+var_19C], xmm6
-    }
-    if ( !(v89 | v90) )
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm11, xmm10
-        vmulss  xmm5, xmm6, xmm0
-        vmulss  xmm4, xmm8, xmm0
-        vmovss  [rsp+1D0h+var_19C], xmm5
-        vmovss  [rsp+1D0h+var_1A0], xmm4
-        vmulss  xmm9, xmm0, xmm9
-      }
-    }
-  }
-  droneMoveState = _RDI->droneMoveState;
-  v98 = hovering;
-  if ( droneMoveState == 1 )
-    v98 = 1;
-  v99 = droneMoveState < 2;
-  if ( droneMoveState == 2 )
-  {
-    v99 = 0;
-    if ( !_RDI->droneCanFastMoveThroughPath || (v100 = _RDI->numDroneNavPathNodes - _RDI->currentDroneNavPathNodeIndex, v99 = (unsigned int)v100 < 2, v100 <= 2) )
-      v98 = 1;
-  }
-  __asm
-  {
-    vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsqrtss xmm10, xmm14, xmm14
-    vcomiss xmm10, xmm13
-  }
-  if ( v99 )
-  {
-    __asm
-    {
-      vmovss  xmm10, [rsp+1D0h+var_1A0]
-      vmovss  xmm6, [rsp+1D0h+var_19C]
-    }
+    v57 = v83;
+    v56 = v84;
   }
   else
   {
-    __asm
+    v45 = pathPos->vel.v[1];
+    v46 = LODWORD(pathPos->vel.v[0]);
+    v48 = v46;
+    *(float *)&v48 = fsqrt((float)(*(float *)&v46 * *(float *)&v46) + (float)(v45 * v45));
+    v47 = *(float *)&v48;
+    if ( pathPos->stopAtGoal && (v43 || v44 <= pathPos->dronePathMaxDistToSlow && *(float *)&v48 >= pathPos->dronePathMinSpeedToSlow) )
     {
-      vmovss  xmm2, dword ptr [rdi+24h]
-      vmovss  xmm3, dword ptr [rdi+20h]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm11, xmm1, xmm1
-    }
-    if ( _RDI->stopAtGoal )
-    {
-      if ( !v98 )
-      {
-        __asm
-        {
-          vcomiss xmm10, dword ptr [rdi+28Ch]
-          vcomiss xmm11, dword ptr [rdi+290h]
-        }
-      }
-      __asm
-      {
-        vaddss  xmm13, xmm3, xmm5
-        vaddss  xmm14, xmm2, xmm4
-        vmulss  xmm1, xmm14, xmm14
-        vmulss  xmm0, xmm13, xmm13
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm15, xmm1, xmm1
-        vcomiss xmm15, xmm7
-      }
-      if ( !v98 )
+      v49 = *(float *)&v46 + v40;
+      v50 = v45 + v39;
+      v51 = fsqrt((float)(v50 * v50) + (float)(v49 * v49));
+      if ( v51 <= 0.0 )
         goto LABEL_38;
-      __asm
-      {
-        vsubss  xmm0, xmm11, dword ptr [rdi+294h]
-        vmaxss  xmm6, xmm0, xmm7
-      }
+      *(float *)&v48 = *(float *)&v48 - pathPos->dronePathMaxSlowTargetSpeed;
+      _XMM0 = v48;
+      __asm { vmaxss  xmm6, xmm0, xmm7 }
       *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f000000
-        vdivss  xmm1, xmm1, xmm10
-        vmulss  xmm2, xmm6, xmm6
-        vmulss  xmm2, xmm2, xmm1
-        vmulss  xmm3, xmm0, xmm2
-        vsubss  xmm0, xmm15, xmm11
-        vandps  xmm0, xmm0, xmm8
-        vmulss  xmm0, xmm0, dword ptr [rdi+298h]
-        vaddss  xmm1, xmm0, cs:__real@3f800000
-        vcomiss xmm3, xmm1
-      }
-      if ( v45 | v20 )
+      v54 = *(float *)&_XMM0 * (float)((float)(*(float *)&_XMM6 * *(float *)&_XMM6) * (float)(0.5 / v44));
+      if ( v54 <= (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v51 - v47) & _xmm) * pathPos->dronePathSlowThreshold) + 1.0) )
       {
 LABEL_38:
-        __asm
-        {
-          vmovss  xmm6, [rsp+1D0h+var_19C]
-          vmovss  xmm10, [rsp+1D0h+var_1A0]
-        }
+        v56 = v84;
+        v57 = v83;
       }
       else
       {
-        __asm
-        {
-          vsubss  xmm0, xmm11, xmm3
-          vdivss  xmm2, xmm0, xmm15
-          vmulss  xmm1, xmm13, xmm2
-          vsubss  xmm6, xmm1, dword ptr [rdi+20h]
-          vmulss  xmm0, xmm14, xmm2
-          vsubss  xmm10, xmm0, dword ptr [rdi+24h]
-        }
+        v55 = (float)(v47 - v54) / v51;
+        v56 = (float)(v49 * v55) - pathPos->vel.v[0];
+        v57 = (float)(v50 * v55) - pathPos->vel.v[1];
       }
-      __asm
-      {
-        vmovss  xmm13, cs:__real@3f800000
-        vmovss  xmm15, [rsp+1D0h+var_194]
-      }
+      v18 = FLOAT_1_0;
+      v17 = v86;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm10, [rsp+1D0h+var_1A0]
-        vmovss  xmm6, [rsp+1D0h+var_19C]
-      }
+      v57 = v83;
+      v56 = v84;
     }
-    __asm { vmovss  xmm11, [rsp+1D0h+var_198] }
+    v38 = v85;
   }
-  *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-  __asm
+  v58 = G_Vehicle_GetDeltaTime();
+  v59 = pathPos->vel.v[2];
+  if ( COERCE_FLOAT(LODWORD(v26) & _xmm) >= 0.001 && COERCE_FLOAT(LODWORD(v59) & _xmm) >= 0.001 )
   {
-    vmovss  xmm2, dword ptr [rdi+28h]
-    vmovaps xmm3, xmm0
-    vmovss  xmm0, cs:__real@3a83126f
-    vandps  xmm1, xmm9, xmm8
-    vcomiss xmm1, xmm0
-  }
-  if ( !v128 )
-  {
-    __asm
+    if ( (float)(v14 * v59) <= 0.0 )
     {
-      vandps  xmm1, xmm2, xmm8
-      vcomiss xmm1, xmm0
-      vmulss  xmm1, xmm12, xmm2
-      vcomiss xmm1, xmm7
+      if ( COERCE_FLOAT(LODWORD(v14) & _xmm) < 12.0 )
+        v26 = v59 * -0.30000001;
     }
-    if ( v128 | v129 )
+    else if ( (float)(v14 / v59) < 0.2 )
     {
-      __asm
-      {
-        vandps  xmm12, xmm12, xmm8
-        vcomiss xmm12, cs:__real@41400000
-      }
-      if ( v128 )
-        __asm { vmulss  xmm9, xmm2, cs:__real@be99999a }
-    }
-    else
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm12, xmm2
-        vcomiss xmm0, cs:__real@3e4ccccd
-      }
-      if ( v128 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm2, xmm3
-          vmulss  xmm9, xmm0, cs:__real@c0a00000
-        }
-      }
+      v26 = (float)(v59 * *(float *)&v58) * -5.0;
     }
   }
-  __asm
+  pathPos->vel.v[1] = v57 + v88;
+  pathPos->vel.v[0] = v56 + v87;
+  pathPos->vel.v[2] = v26 + v89;
+  v60 = (float)((float)(v56 - pathPos->accel.v[0]) * 0.5) + pathPos->accel.v[0];
+  pathPos->accel.v[0] = v60;
+  v61 = (float)((float)(v57 - pathPos->accel.v[1]) * 0.5) + pathPos->accel.v[1];
+  pathPos->accel.v[1] = v61;
+  v62 = (float)((float)(v26 - pathPos->accel.v[2]) * 0.5) + pathPos->accel.v[2];
+  v63 = fsqrt((float)((float)(v61 * v61) + (float)(v60 * v60)) + (float)(v62 * v62));
+  pathPos->accel.v[2] = v62;
+  if ( v63 > v38 && v63 > 0.0 )
   {
-    vmovss  xmm4, cs:__real@3f000000
-    vaddss  xmm0, xmm6, [rsp+1D0h+var_190]
-    vaddss  xmm1, xmm10, [rsp+1D0h+var_18C]
-    vmovss  dword ptr [rdi+24h], xmm1
-    vmovss  dword ptr [rdi+20h], xmm0
-    vaddss  xmm0, xmm9, [rsp+1D0h+var_188]
-    vmovss  dword ptr [rdi+28h], xmm0
-    vsubss  xmm0, xmm6, dword ptr [rdi+38h]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm6, xmm1, dword ptr [rdi+38h]
-    vmovss  dword ptr [rdi+38h], xmm6
-    vsubss  xmm0, xmm10, dword ptr [rdi+3Ch]
-    vmovaps xmm10, xmmword ptr [rsp+1D0h+var_78+8]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm5, xmm1, dword ptr [rdi+3Ch]
-    vmovss  dword ptr [rdi+3Ch], xmm5
-    vsubss  xmm0, xmm9, dword ptr [rdi+40h]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm4, xmm1, dword ptr [rdi+40h]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm0, xmm11
-    vmovss  dword ptr [rdi+40h], xmm4
+    pathPos->accel.v[0] = v60 * (float)(v38 / v63);
+    pathPos->accel.v[2] = (float)(v38 / v63) * v62;
+    pathPos->accel.v[1] = (float)(v38 / v63) * v61;
   }
-  if ( !(v128 | v129) )
+  v64 = pathPos->vel.v[0];
+  v65 = fsqrt((float)((float)(v64 * v64) + (float)(pathPos->vel.v[1] * pathPos->vel.v[1])) + (float)(pathPos->vel.v[2] * pathPos->vel.v[2]));
+  if ( v65 > v90 && v65 > 0.0 )
   {
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !(v128 | v129) )
-    {
-      __asm
-      {
-        vdivss  xmm2, xmm11, xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmovss  dword ptr [rdi+38h], xmm0
-        vmulss  xmm0, xmm2, xmm4
-        vmulss  xmm1, xmm2, xmm5
-        vmovss  dword ptr [rdi+40h], xmm0
-        vmovss  dword ptr [rdi+3Ch], xmm1
-      }
-    }
+    pathPos->vel.v[0] = (float)(v90 / v65) * v64;
+    pathPos->vel.v[1] = (float)(v90 / v65) * pathPos->vel.v[1];
+    pathPos->vel.v[2] = (float)(v90 / v65) * pathPos->vel.v[2];
   }
-  __asm
+  v66 = pathPos->hover.velocityImpulse.v[0] + pathPos->vel.v[0];
+  pathPos->vel.v[0] = v66;
+  v67 = pathPos->vel.v[1] + pathPos->hover.velocityImpulse.v[1];
+  pathPos->vel.v[1] = v67;
+  v68 = pathPos->vel.v[2] + pathPos->hover.velocityImpulse.v[2];
+  pathPos->vel.v[2] = v68;
+  pathPos->speed = fsqrt((float)((float)(v67 * v67) + (float)(v66 * v66)) + (float)(v68 * v68));
+  pathPos->dronePrevOrigin.v[0] = pathPos->origin.v[0];
+  pathPos->dronePrevOrigin.v[1] = pathPos->origin.v[1];
+  pathPos->dronePrevOrigin.v[2] = pathPos->origin.v[2];
+  v69 = G_Vehicle_GetDeltaTime();
+  pathPos->origin.v[0] = (float)(*(float *)&v69 * pathPos->vel.v[0]) + pathPos->origin.v[0];
+  pathPos->origin.v[1] = (float)(*(float *)&v69 * pathPos->vel.v[1]) + pathPos->origin.v[1];
+  pathPos->origin.v[2] = (float)(*(float *)&v69 * pathPos->vel.v[2]) + pathPos->origin.v[2];
+  if ( pathPos->touchTriggers )
+    G_VehicleHeli_TouchTriggers(pathPos->ent);
+  if ( pathPos->breakGlass )
   {
-    vmovss  xmm0, dword ptr [rdi+24h]
-    vmovss  xmm3, dword ptr [rdi+28h]
-    vmovss  xmm4, dword ptr [rdi+20h]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vmovss  xmm3, [rsp+1D0h+var_184]
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm0, xmm3
-  }
-  if ( !(v128 | v129) )
-  {
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !(v128 | v129) )
-    {
-      __asm
-      {
-        vdivss  xmm2, xmm3, xmm0
-        vmulss  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rdi+20h], xmm0
-        vmulss  xmm1, xmm2, dword ptr [rdi+24h]
-        vmovss  dword ptr [rdi+24h], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdi+28h]
-        vmovss  dword ptr [rdi+28h], xmm0
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+74h]
-    vaddss  xmm4, xmm0, dword ptr [rdi+20h]
-    vmovss  dword ptr [rdi+20h], xmm4
-    vmovss  xmm1, dword ptr [rdi+24h]
-    vaddss  xmm2, xmm1, dword ptr [rdi+78h]
-    vmovss  dword ptr [rdi+24h], xmm2
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vaddss  xmm3, xmm0, dword ptr [rdi+7Ch]
-    vmovss  dword ptr [rdi+28h], xmm3
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmovss  dword ptr [rdi+4], xmm0
-  }
-  _RDI->dronePrevOrigin.v[0] = _RDI->origin.v[0];
-  _RDI->dronePrevOrigin.v[1] = _RDI->origin.v[1];
-  _RDI->dronePrevOrigin.v[2] = _RDI->origin.v[2];
-  *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rdi+20h]
-    vaddss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm2
-    vmulss  xmm1, xmm0, dword ptr [rdi+24h]
-    vaddss  xmm2, xmm1, dword ptr [rdi+0Ch]
-    vmovss  dword ptr [rdi+0Ch], xmm2
-    vmulss  xmm0, xmm0, dword ptr [rdi+28h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-    vmovss  dword ptr [rdi+10h], xmm1
-  }
-  if ( _RDI->touchTriggers )
-    G_VehicleHeli_TouchTriggers(_RDI->ent);
-  if ( _RDI->breakGlass )
-  {
-    _RAX = vehBounds;
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3f400000
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmulss  xmm2, xmm3, dword ptr [rax+10h]
-      vmovss  dword ptr [rbp+0D0h+bounds.midPoint], xmm0
-      vmovss  xmm0, dword ptr [rax+8]
-      vmovss  dword ptr [rbp+0D0h+bounds.midPoint+8], xmm0
-      vmulss  xmm0, xmm3, dword ptr [rax+0Ch]
-      vmovss  dword ptr [rbp+0D0h+bounds.midPoint+4], xmm1
-      vmulss  xmm1, xmm3, dword ptr [rax+14h]
-    }
+    v70 = vehBounds->midPoint.v[1];
+    v71 = 0.75 * vehBounds->halfSize.v[1];
+    bounds.midPoint.v[0] = vehBounds->midPoint.v[0];
+    bounds.midPoint.v[2] = vehBounds->midPoint.v[2];
+    v72 = 0.75 * vehBounds->halfSize.v[0];
+    bounds.midPoint.v[1] = v70;
+    v73 = 0.75 * vehBounds->halfSize.v[2];
     ent = veh->ent;
-    __asm
-    {
-      vmovss  dword ptr [rbp+0D0h+bounds.halfSize], xmm0
-      vmovss  dword ptr [rbp+0D0h+bounds.halfSize+4], xmm2
-      vmovss  dword ptr [rbp+0D0h+bounds.halfSize+8], xmm1
-    }
-    G_Main_TraceCapsule(&results, &start, &_RDI->origin, &bounds, ent->s.number, 16);
-    __asm
-    {
-      vmovss  xmm0, [rbp+0D0h+results.fraction]
-      vcomiss xmm0, xmm13
-    }
-    if ( v45 )
+    bounds.halfSize.v[0] = v72;
+    bounds.halfSize.v[1] = v71;
+    bounds.halfSize.v[2] = v73;
+    G_Main_TraceCapsule(&results, &start, &pathPos->origin, &bounds, ent->s.number, 16);
+    if ( results.fraction < v18 )
     {
       GlassHitId = Trace_GetGlassHitId(&results);
       if ( GlassHitId )
       {
+        v76 = pathPos->vel.v[1];
+        v77 = LODWORD(pathPos->vel.v[0]);
+        v78 = pathPos->vel.v[2];
+        v79 = v77;
+        *(float *)&v79 = fsqrt((float)((float)(*(float *)&v77 * *(float *)&v77) + (float)(v76 * v76)) + (float)(v78 * v78));
+        _XMM3 = v79;
         __asm
         {
-          vmovss  xmm5, dword ptr [rdi+24h]
-          vmovss  xmm4, dword ptr [rdi+20h]
-          vmovss  xmm6, dword ptr [rdi+28h]
-          vmulss  xmm0, xmm5, xmm5
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm13, xmm0
-          vdivss  xmm2, xmm13, xmm0
-          vmulss  xmm0, xmm4, xmm2
-          vmovss  [rsp+1D0h+v1], xmm0
-          vmulss  xmm0, xmm6, xmm2
-          vmulss  xmm1, xmm5, xmm2
-          vmovss  [rsp+1D0h+var_170], xmm0
-          vmovss  [rsp+1D0h+var_174], xmm1
         }
-        G_Glass_DestroyPiece(GlassHitId - 1, &_RDI->origin, &v1);
+        v1.v[0] = *(float *)&v77 * (float)(v18 / *(float *)&_XMM0);
+        v1.v[2] = v78 * (float)(v18 / *(float *)&_XMM0);
+        v1.v[1] = v76 * (float)(v18 / *(float *)&_XMM0);
+        G_Glass_DestroyPiece(GlassHitId - 1, &pathPos->origin, &v1);
       }
     }
   }
 LABEL_60:
-  __asm { vmovaps xmm2, xmm15; distToGoal }
-  G_VehicleHeli_UpdateMoveOrientation(_RDI, &forward, *(float *)&_XMM2);
-  __asm { vmovaps xmm13, xmmword ptr [rsp+1D0h+var_A8+8] }
-  _R11 = &v250;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  G_VehicleHeli_UpdateMoveOrientation(pathPos, &forward, v17);
 }
 
 /*
@@ -1209,59 +786,44 @@ G_VehicleHeliMP_DroneSetGoalEnt
 void G_VehicleHeliMP_DroneSetGoalEnt(Vehicle *veh, HeliPathPos *pathPos, gentity_s *owner, const vec3_t *offset, float autoRecalcDestinationDistance, float autoRecalcDestinationAngle)
 {
   gclient_s *client; 
+  float v11; 
 
-  _RBX = pathPos;
-  _RDI = veh;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1194, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1195, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1195, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
-  if ( !_RDI->useDroneLogic )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:DRONE_HOVER_OFFSET_RECALC_TIME
-      vmovss  dword ptr [rbx+70h], xmm0
-    }
-  }
-  _RDI->useDroneLogic = 1;
+  if ( !veh->useDroneLogic )
+    pathPos->hover.droneHoverOffsetTimer = DRONE_HOVER_OFFSET_RECALC_TIME;
+  veh->useDroneLogic = 1;
   client = owner->client;
-  _RBX->goalPosition.v[0] = client->ps.origin.v[0];
-  _RBX->goalPosition.v[1] = client->ps.origin.v[1];
-  _RBX->goalPosition.v[2] = client->ps.origin.v[2];
-  _RBX->droneOffset.v[0] = offset->v[0];
-  _RBX->droneOffset.v[1] = offset->v[1];
-  _RBX->droneOffset.v[2] = offset->v[2];
-  EntHandle::setEnt(&_RDI->droneTarget, owner);
-  _RBX->droneMoveState = DRONEMOVESTATE_UNKNOWN;
+  pathPos->goalPosition.v[0] = client->ps.origin.v[0];
+  pathPos->goalPosition.v[1] = client->ps.origin.v[1];
+  pathPos->goalPosition.v[2] = client->ps.origin.v[2];
+  pathPos->droneOffset.v[0] = offset->v[0];
+  pathPos->droneOffset.v[1] = offset->v[1];
+  pathPos->droneOffset.v[2] = offset->v[2];
+  EntHandle::setEnt(&veh->droneTarget, owner);
+  pathPos->droneMoveState = DRONEMOVESTATE_UNKNOWN;
   if ( owner->health <= 0 )
   {
-    _RBX->moveState = VEH_MOVESTATE_HOVER;
+    pathPos->moveState = VEH_MOVESTATE_HOVER;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+38h+autoRecalcDestinationDistance]
-      vmovss  xmm1, [rsp+38h+autoRecalcDestinationAngle]
-      vmovss  dword ptr [rbx+29Ch], xmm0
-      vmovss  dword ptr [rbx+2A0h], xmm1
-    }
-    _RBX->stopAtGoal = 1;
-    _RBX->moveState = VEH_MOVESTATE_MOVE;
-    _RBX->stopping = 0;
-    _RBX->hover.droneHoverStatic = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+0F0h]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
-    _RBX->origin.v[1] = _RDI->phys.origin.v[1];
-    _RBX->origin.v[2] = _RDI->phys.origin.v[2];
-    __asm { vmovss  dword ptr [rbx+0C4h], xmm0 }
-    _RBX->dronePrevOrigin.v[1] = _RBX->origin.v[1];
-    _RBX->dronePrevOrigin.v[2] = _RBX->origin.v[2];
-    G_VehicleHeliMP_DroneCalcNavPath(_RDI, _RBX);
+    pathPos->droneRecalcDestinationDistance = autoRecalcDestinationDistance;
+    pathPos->droneRecalcDestinationAngle = autoRecalcDestinationAngle;
+    pathPos->stopAtGoal = 1;
+    pathPos->moveState = VEH_MOVESTATE_MOVE;
+    pathPos->stopping = 0;
+    pathPos->hover.droneHoverStatic = 0;
+    v11 = veh->phys.origin.v[0];
+    pathPos->origin.v[0] = v11;
+    pathPos->origin.v[1] = veh->phys.origin.v[1];
+    pathPos->origin.v[2] = veh->phys.origin.v[2];
+    pathPos->dronePrevOrigin.v[0] = v11;
+    pathPos->dronePrevOrigin.v[1] = pathPos->origin.v[1];
+    pathPos->dronePrevOrigin.v[2] = pathPos->origin.v[2];
+    G_VehicleHeliMP_DroneCalcNavPath(veh, pathPos);
   }
 }
 
@@ -1272,44 +834,35 @@ G_VehicleHeliMP_DroneSetGoalPos
 */
 void G_VehicleHeliMP_DroneSetGoalPos(Vehicle *veh, HeliPathPos *pathPos, const vec3_t *position, bool bStopAtDest)
 {
-  _RBX = pathPos;
-  _RDI = veh;
+  float v8; 
+
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1127, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1128, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1128, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
-  if ( !_RDI->useDroneLogic )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:DRONE_HOVER_OFFSET_RECALC_TIME
-      vmovss  dword ptr [rbx+70h], xmm0
-    }
-  }
-  _RDI->useDroneLogic = 1;
-  _RBX->goalPosition.v[0] = position->v[0];
-  _RBX->goalPosition.v[1] = position->v[1];
-  _RBX->goalPosition.v[2] = position->v[2];
-  *(_QWORD *)_RBX->droneOffset.v = 0i64;
-  _RBX->droneOffset.v[2] = 0.0;
-  EntHandle::setEnt(&_RDI->droneTarget, NULL);
-  _RBX->droneMoveState = DRONEMOVESTATE_UNKNOWN;
-  _RBX->moveState = VEH_MOVESTATE_MOVE;
-  _RBX->stopping = 0;
-  _RBX->hover.droneHoverStatic = 0;
-  *(_QWORD *)&_RBX->droneRecalcDestinationDistance = 0i64;
-  _RBX->stopAtGoal = bStopAtDest;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0F0h]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  _RBX->origin.v[1] = _RDI->phys.origin.v[1];
-  _RBX->origin.v[2] = _RDI->phys.origin.v[2];
-  __asm { vmovss  dword ptr [rbx+0C4h], xmm0 }
-  _RBX->dronePrevOrigin.v[1] = _RBX->origin.v[1];
-  _RBX->dronePrevOrigin.v[2] = _RBX->origin.v[2];
-  G_VehicleHeliMP_DroneCalcNavPath(_RDI, _RBX);
+  if ( !veh->useDroneLogic )
+    pathPos->hover.droneHoverOffsetTimer = DRONE_HOVER_OFFSET_RECALC_TIME;
+  veh->useDroneLogic = 1;
+  pathPos->goalPosition.v[0] = position->v[0];
+  pathPos->goalPosition.v[1] = position->v[1];
+  pathPos->goalPosition.v[2] = position->v[2];
+  *(_QWORD *)pathPos->droneOffset.v = 0i64;
+  pathPos->droneOffset.v[2] = 0.0;
+  EntHandle::setEnt(&veh->droneTarget, NULL);
+  pathPos->droneMoveState = DRONEMOVESTATE_UNKNOWN;
+  pathPos->moveState = VEH_MOVESTATE_MOVE;
+  pathPos->stopping = 0;
+  pathPos->hover.droneHoverStatic = 0;
+  *(_QWORD *)&pathPos->droneRecalcDestinationDistance = 0i64;
+  pathPos->stopAtGoal = bStopAtDest;
+  v8 = veh->phys.origin.v[0];
+  pathPos->origin.v[0] = v8;
+  pathPos->origin.v[1] = veh->phys.origin.v[1];
+  pathPos->origin.v[2] = veh->phys.origin.v[2];
+  pathPos->dronePrevOrigin.v[0] = v8;
+  pathPos->dronePrevOrigin.v[1] = pathPos->origin.v[1];
+  pathPos->dronePrevOrigin.v[2] = pathPos->origin.v[2];
+  G_VehicleHeliMP_DroneCalcNavPath(veh, pathPos);
 }
 
 /*
@@ -1319,69 +872,32 @@ G_VehicleHeliMP_DroneTurnCorner
 */
 void G_VehicleHeliMP_DroneTurnCorner(HeliPathPos *pathPos, const vec3_t *newTarget)
 {
-  void *retaddr; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  __int128 v6; 
+  float v7; 
 
-  _RAX = &retaddr;
+  v2 = pathPos->vel.v[0];
+  v3 = newTarget->v[0] - pathPos->origin.v[0];
+  v4 = newTarget->v[2] - pathPos->origin.v[2];
+  v6 = LODWORD(newTarget->v[1]);
+  v5 = newTarget->v[1] - pathPos->origin.v[1];
+  v7 = fsqrt((float)((float)(v2 * v2) + (float)(pathPos->vel.v[1] * pathPos->vel.v[1])) + (float)(pathPos->vel.v[2] * pathPos->vel.v[2]));
+  *(float *)&v6 = fsqrt((float)((float)(v5 * v5) + (float)(v3 * v3)) + (float)(v4 * v4));
+  _XMM4 = v6;
   __asm
   {
-    vmovss  xmm0, dword ptr [rcx+24h]
-    vmovss  xmm3, dword ptr [rcx+28h]
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm6, dword ptr [rcx+20h]
-    vmulss  xmm0, xmm0, xmm0
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps [rsp+58h+var_58], xmm10
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm7, xmm0, dword ptr [rcx+8]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm9, xmm0, dword ptr [rcx+10h]
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm8, xmm1, dword ptr [rcx+0Ch]
-    vsqrtss xmm10, xmm2, xmm2
-    vmulss  xmm0, xmm9, xmm9
-    vmulss  xmm2, xmm8, xmm8
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm3, cs:__real@3f19999a
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3ecccccc
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovaps xmm6, xmmword ptr [rax-18h]
-    vmovss  dword ptr [rcx+20h], xmm0
-    vmulss  xmm2, xmm2, dword ptr [rcx+24h]
-    vmovss  dword ptr [rcx+24h], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rcx+28h]
-    vmovss  dword ptr [rcx+28h], xmm1
-    vmulss  xmm4, xmm10, xmm3
-    vmulss  xmm0, xmm7, xmm5
-    vmovaps xmm7, xmmword ptr [rax-28h]
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rcx+20h]
-    vmulss  xmm0, xmm8, xmm5
-    vmovaps xmm8, xmmword ptr [rax-38h]
-    vmulss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rcx+20h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rcx+24h]
-    vmulss  xmm0, xmm9, xmm5
-    vmulss  xmm1, xmm0, cs:__real@3ecccccd
-    vmovaps xmm9, xmmword ptr [rax-48h]
-    vmovss  dword ptr [rcx+24h], xmm2
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rcx+28h]
-    vmovaps xmm10, [rsp+58h+var_58]
-    vmovss  dword ptr [rcx+28h], xmm3
   }
+  pathPos->vel.v[0] = v2 * 0.39999998;
+  pathPos->vel.v[1] = 0.39999998 * pathPos->vel.v[1];
+  pathPos->vel.v[2] = 0.60000002 * pathPos->vel.v[2];
+  pathPos->vel.v[0] = (float)((float)(v3 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v7 * 0.60000002)) + pathPos->vel.v[0];
+  pathPos->vel.v[1] = (float)((float)(v5 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v7 * 0.60000002)) + pathPos->vel.v[1];
+  pathPos->vel.v[2] = (float)((float)((float)(v4 * (float)(1.0 / *(float *)&_XMM0)) * 0.40000001) * v7) + pathPos->vel.v[2];
 }
 
 /*
@@ -1391,364 +907,246 @@ G_VehicleHeliMP_DroneUpdateHover
 */
 void G_VehicleHeliMP_DroneUpdateHover(const Vehicle *veh, HeliPathPos *pathPos)
 {
-  const gentity_s *v21; 
-  nav_space_s *DefaultSpace; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  bool v9; 
   gentity_s *ent; 
-  unsigned int v51; 
-  gentity_s *v74; 
-  const vec3_t *p_origin; 
-  char v78; 
-  bool v79; 
+  float v16; 
+  float v17; 
+  const gentity_s *v18; 
+  float v19; 
+  nav_space_s *DefaultSpace; 
+  float m_DistTraveled; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  bool v27; 
+  gentity_s *v28; 
+  unsigned int i; 
+  __int64 v30; 
+  unsigned __int128 v31; 
+  double v35; 
+  double v36; 
+  double v37; 
+  float v38; 
+  gentity_s *v39; 
+  vec3_t *p_origin; 
+  float fraction; 
   bool startsolid; 
-  const dvar_t *v110; 
+  float v43; 
+  float v44; 
+  float v45; 
+  const dvar_t *v46; 
   vec3_t endPos; 
-  vec3_t v116; 
+  vec3_t v48; 
   vec3_t moveTo; 
   vec3_t right; 
   vec3_t end; 
-  vec4_t v120; 
+  vec4_t v52; 
   vec3_t outAngles; 
   vec3_t startPos; 
   Bounds bounds; 
   nav_probe_results_3D_s pOutResults; 
-  vec4_t v125; 
+  vec4_t v57; 
   vec4_t color; 
   trace_t results; 
-  void *retaddr; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
+  __int128 v64; 
 
-  _R11 = &retaddr;
-  _RBX = pathPos;
-  __asm { vmovaps xmmword ptr [r11-78h], xmm9 }
+  v61 = v5;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 688, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 689, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 689, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
   if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 690, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
     __debugbreak();
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 138, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  v79 = _RBX->hover.droneHoverStatic == 0;
-  _RAX = veh->ent;
+  v9 = pathPos->hover.droneHoverStatic == 0;
+  ent = veh->ent;
+  v64 = v2;
+  _XMM9 = 0i64;
+  _XMM0 = LODWORD(ent->r.box.halfSize.v[1]);
   __asm
   {
-    vmovss  xmm2, cs:MAX_DRONE_SIZE
-    vmovaps [rsp+210h+var_48+8], xmm6
-    vxorps  xmm9, xmm9, xmm9
-    vmovss  xmm0, dword ptr [rax+110h]
     vmaxss  xmm1, xmm0, dword ptr [rax+10Ch]
     vmaxss  xmm3, xmm1, dword ptr [rax+114h]
-    vmulss  xmm0, xmm2, cs:__real@3f000000
     vminss  xmm1, xmm3, xmm0
-    vmovaps [rsp+210h+var_58+8], xmm7
-    vmovaps [rsp+210h+var_68+8], xmm8
-    vmovss  dword ptr [rbp+110h+bounds.halfSize], xmm1
-    vmovss  dword ptr [rbp+110h+bounds.halfSize+4], xmm1
-    vmovss  dword ptr [rbp+110h+bounds.halfSize+8], xmm1
-    vmovss  dword ptr [rbp+110h+bounds.midPoint], xmm9
-    vmovss  dword ptr [rbp+110h+bounds.midPoint+4], xmm9
-    vmovss  dword ptr [rbp+110h+bounds.midPoint+8], xmm9
-    vmovaps [rsp+210h+var_88+8], xmm10
   }
-  if ( v79 )
+  v63 = v3;
+  v62 = v4;
+  bounds.halfSize.v[0] = *(float *)&_XMM1;
+  bounds.halfSize.v[1] = *(float *)&_XMM1;
+  bounds.halfSize.v[2] = *(float *)&_XMM1;
+  bounds.midPoint.v[0] = 0.0;
+  bounds.midPoint.v[1] = 0.0;
+  bounds.midPoint.v[2] = 0.0;
+  v60 = v6;
+  if ( v9 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+0A0h]
-      vmovss  xmm1, dword ptr [rbx+0A4h]
-      vmovss  xmm0, dword ptr [rbx+0A8h]
-      vmovss  dword ptr [rbp+110h+startPos], xmm2
-      vmovss  dword ptr [rbp+110h+startPos+4], xmm1
-      vmovss  dword ptr [rbp+110h+startPos+8], xmm0
-      vmovss  dword ptr [rsp+210h+endPos], xmm2
-      vmovss  dword ptr [rsp+210h+endPos+4], xmm1
-      vmovss  dword ptr [rsp+210h+endPos+8], xmm0
-      vmovss  dword ptr [rsp+210h+var_1C0], xmm2
-      vmovss  dword ptr [rsp+210h+var_1C0+4], xmm1
-      vmovss  dword ptr [rsp+210h+var_1C0+8], xmm0
-    }
+    v16 = pathPos->goalPosition.v[1];
+    v17 = pathPos->goalPosition.v[2];
+    startPos.v[0] = pathPos->goalPosition.v[0];
+    startPos.v[1] = v16;
+    startPos.v[2] = v17;
+    endPos.v[0] = startPos.v[0];
+    endPos.v[1] = v16;
+    endPos.v[2] = v17;
+    v48.v[0] = startPos.v[0];
+    v48.v[1] = v16;
+    v48.v[2] = v17;
     if ( EntHandle::isDefined(&veh->droneTarget) && EntHandle::ent(&veh->droneTarget)->health > 0 )
     {
-      v21 = EntHandle::ent(&veh->droneTarget);
-      G_Utils_GetAnglesWithWorldUp(v21, &outAngles);
+      v18 = EntHandle::ent(&veh->droneTarget);
+      G_Utils_GetAnglesWithWorldUp(v18, &outAngles);
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rbp+110h+outAngles], xmm9
-        vmovss  dword ptr [rbp+110h+outAngles+4], xmm9
-        vmovss  dword ptr [rbp+110h+outAngles+8], xmm9
-      }
+      outAngles.v[0] = 0.0;
+      outAngles.v[1] = 0.0;
+      outAngles.v[2] = 0.0;
     }
-    AngleVectors(&outAngles, (vec3_t *)&v125, &right, (vec3_t *)&color);
-    __asm
-    {
-      vmovss  xmm1, cs:MAX_DRONE_HOVER_DRIFT_OFFSET
-      vmulss  xmm4, xmm1, dword ptr [rsp+210h+right+4]
-      vmulss  xmm3, xmm1, dword ptr [rsp+210h+right+8]
-      vmulss  xmm5, xmm1, dword ptr [rsp+210h+right]
-      vaddss  xmm0, xmm4, dword ptr [rsp+210h+endPos+4]
-      vaddss  xmm1, xmm5, dword ptr [rsp+210h+endPos]
-      vaddss  xmm2, xmm3, dword ptr [rsp+210h+endPos+8]
-      vmovss  dword ptr [rsp+210h+endPos+4], xmm0
-      vmovss  xmm0, dword ptr [rsp+210h+var_1C0]
-      vmovss  dword ptr [rsp+210h+endPos], xmm1
-      vsubss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rsp+210h+endPos+8], xmm2
-      vmovss  xmm2, dword ptr [rsp+210h+var_1C0+4]
-      vsubss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rsp+210h+var_1C0], xmm1
-      vmovss  xmm1, dword ptr [rsp+210h+var_1C0+8]
-      vsubss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rsp+210h+var_1C0+8], xmm2
-      vmovss  dword ptr [rsp+210h+right], xmm5
-      vmovss  dword ptr [rsp+210h+right+4], xmm4
-      vmovss  dword ptr [rsp+210h+right+8], xmm3
-      vmovss  dword ptr [rsp+210h+var_1C0+4], xmm0
-      vmovss  dword ptr [rbp+110h+var_180+8], xmm9
-    }
-    *(_QWORD *)v120.v = -1i64;
+    AngleVectors(&outAngles, (vec3_t *)&v57, &right, (vec3_t *)&color);
+    endPos.v[1] = (float)(MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[1]) + endPos.v[1];
+    endPos.v[0] = (float)(MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[0]) + endPos.v[0];
+    endPos.v[2] = (float)(MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[2]) + endPos.v[2];
+    v19 = v48.v[1] - (float)(MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[1]);
+    v48.v[0] = v48.v[0] - (float)(MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[0]);
+    v48.v[2] = v48.v[2] - (float)(MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[2]);
+    right.v[0] = MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[0];
+    right.v[1] = MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[1];
+    right.v[2] = MAX_DRONE_HOVER_DRIFT_OFFSET * right.v[2];
+    v48.v[1] = v19;
+    v52.v[2] = 0.0;
+    *(_QWORD *)v52.v = -1i64;
     DefaultSpace = Nav_GetDefaultSpace();
     if ( !DefaultSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 739, ASSERT_TYPE_ASSERT, "( space )", (const char *)&queryFormat, "space") )
       __debugbreak();
-    if ( Nav_Trace3D(DefaultSpace, &startPos, &endPos, (const bfx::Path3DSpec *)&v120, &pOutResults) )
+    if ( Nav_Trace3D(DefaultSpace, &startPos, &endPos, (const bfx::Path3DSpec *)&v52, &pOutResults) )
     {
-      __asm
+      m_DistTraveled = pOutResults.m_DistTraveled;
+      v22 = pOutResults.m_EndPos.v[0];
+      v23 = pOutResults.m_EndPos.v[1];
+      v24 = pOutResults.m_EndPos.v[2];
+      if ( Nav_Trace3D(DefaultSpace, &startPos, &v48, (const bfx::Path3DSpec *)&v52, &pOutResults) )
       {
-        vmovss  xmm10, [rbp+110h+pOutResults.m_DistTraveled]
-        vmovss  xmm6, dword ptr [rbp+110h+pOutResults.m_EndPos]
-        vmovss  xmm7, dword ptr [rbp+110h+pOutResults.m_EndPos+4]
-        vmovss  xmm8, dword ptr [rbp+110h+pOutResults.m_EndPos+8]
-      }
-      if ( Nav_Trace3D(DefaultSpace, &startPos, &v116, (const bfx::Path3DSpec *)&v120, &pOutResults) )
-      {
-        __asm
+        if ( pOutResults.m_DistTraveled > m_DistTraveled )
         {
-          vmovss  xmm0, [rbp+110h+pOutResults.m_DistTraveled]
-          vcomiss xmm0, xmm10
-          vmovss  xmm6, dword ptr [rbp+110h+pOutResults.m_EndPos]
-          vmovss  xmm7, dword ptr [rbp+110h+pOutResults.m_EndPos+4]
-          vmovss  xmm8, dword ptr [rbp+110h+pOutResults.m_EndPos+8]
+          v22 = pOutResults.m_EndPos.v[0];
+          v23 = pOutResults.m_EndPos.v[1];
+          v24 = pOutResults.m_EndPos.v[2];
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rsp+210h+var_1C0]
-          vmovss  xmm7, dword ptr [rsp+210h+var_1C0+4]
-          vmovss  xmm8, dword ptr [rsp+210h+var_1C0+8]
-        }
+        v22 = v48.v[0];
+        v23 = v48.v[1];
+        v24 = v48.v[2];
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+210h+endPos]
-        vmovss  xmm7, dword ptr [rsp+210h+endPos+4]
-        vmovss  xmm8, dword ptr [rsp+210h+endPos+8]
-      }
+      v22 = endPos.v[0];
+      v23 = endPos.v[1];
+      v24 = endPos.v[2];
     }
-    __asm
-    {
-      vmovss  dword ptr [rbx+50h], xmm6
-      vmovss  dword ptr [rbx+54h], xmm7
-      vmovss  dword ptr [rbx+58h], xmm8
-    }
+    pathPos->hover.hoverGoalPos.v[0] = v22;
+    pathPos->hover.hoverGoalPos.v[1] = v23;
+    pathPos->hover.hoverGoalPos.v[2] = v24;
   }
   else
   {
-    _RBX->hover.hoverGoalPos.v[0] = _RBX->origin.v[0];
-    _RBX->hover.hoverGoalPos.v[1] = _RBX->origin.v[1];
-    _RBX->hover.hoverGoalPos.v[2] = _RBX->origin.v[2];
-    _RBX->hover.droneHoverStatic = 1;
+    pathPos->hover.hoverGoalPos.v[0] = pathPos->origin.v[0];
+    pathPos->hover.hoverGoalPos.v[1] = pathPos->origin.v[1];
+    pathPos->hover.hoverGoalPos.v[2] = pathPos->origin.v[2];
+    pathPos->hover.droneHoverStatic = 1;
   }
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
+  v25 = (float)((float)level.frameDuration * 0.001) + pathPos->hover.droneHoverOffsetTimer;
+  v26 = DRONE_HOVER_OFFSET_RECALC_TIME;
+  v27 = v25 < DRONE_HOVER_OFFSET_RECALC_TIME;
+  pathPos->hover.droneHoverOffsetTimer = v25;
+  if ( !v27 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vaddss  xmm2, xmm1, dword ptr [rbx+70h]
-    vmovss  xmm0, cs:DRONE_HOVER_OFFSET_RECALC_TIME
-    vcomiss xmm2, xmm0
-    vmovss  dword ptr [rbx+70h], xmm2
-  }
-  ent = _RBX->ent;
-  __asm
-  {
-    vsubss  xmm0, xmm2, xmm0
-    vmovss  dword ptr [rbx+70h], xmm0
-  }
-  if ( ent->vehicle->useDroneLogic )
-  {
-    __asm
+    v28 = pathPos->ent;
+    pathPos->hover.droneHoverOffsetTimer = v25 - v26;
+    if ( v28->vehicle->useDroneLogic )
     {
-      vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    v51 = 0;
-    _R12 = &DRONE_RAND_OFFSET_RANGE;
-    do
-    {
-      _RSI = (int)v51;
-      __asm
+      for ( i = 0; i < 3; ++i )
       {
-        vmovss  xmm7, dword ptr [rbx+rsi*4+64h]
-        vmovss  xmm6, dword ptr [r12+rsi*4]
-        vmovss  xmm0, dword ptr [r12+rsi*4]
-        vxorps  xmm0, xmm0, xmm8; min
-        vmovaps xmm1, xmm6; max
+        v30 = (int)i;
+        v31 = LODWORD(DRONE_RAND_OFFSET_RANGE.v[i]) ^ (unsigned __int128)(unsigned int)_xmm;
+        *(double *)&v31 = G_flrand(*(float *)&v31, DRONE_RAND_OFFSET_RANGE.v[i]);
+        _XMM2 = v31 & (unsigned int)_xmm ^ (unsigned int)_xmm;
+        __asm
+        {
+          vcmpless xmm1, xmm9, xmm7
+          vblendvps xmm0, xmm2, xmm0, xmm1
+        }
+        pathPos->hover.droneHoverOffset.v[v30] = COERCE_FLOAT(_XMM0 ^ _xmm);
       }
-      *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vandps  xmm0, xmm0, xmm10
-        vxorps  xmm2, xmm0, xmm8
-        vcmpless xmm1, xmm9, xmm7
-        vblendvps xmm0, xmm2, xmm0, xmm1
-        vxorps  xmm6, xmm0, xmm8
-      }
-      ++v51;
-      __asm { vmovss  dword ptr [rbx+rsi*4+64h], xmm6 }
     }
-    while ( v51 < 3 );
-  }
-  else
-  {
-    __asm
+    else
     {
-      vmovss  xmm1, cs:__real@40400000; max
-      vmovss  xmm0, cs:__real@c0400000; min
+      v35 = G_flrand(-3.0, 3.0);
+      pathPos->hover.droneHoverOffset.v[0] = *(float *)&v35;
+      v36 = G_flrand(-3.0, 3.0);
+      pathPos->hover.droneHoverOffset.v[1] = *(float *)&v36;
+      v37 = G_flrand(-1.0, 1.0);
+      pathPos->hover.droneHoverOffset.v[2] = *(float *)&v37;
     }
-    *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@40400000; max
-      vmovss  dword ptr [rbx+64h], xmm0
-      vmovss  xmm0, cs:__real@c0400000; min
-    }
-    *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000; max
-      vmovss  dword ptr [rbx+68h], xmm0
-      vmovss  xmm0, cs:__real@bf800000; min
-    }
-    *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovss  dword ptr [rbx+6Ch], xmm0 }
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+64h]
-    vmovss  xmm2, dword ptr [rbx+68h]
-    vaddss  xmm0, xmm2, dword ptr [rbx+54h]
-  }
-  v74 = veh->ent;
-  p_origin = &_RBX->origin;
-  __asm
-  {
-    vmovss  dword ptr [rbp+110h+end], xmm1
-    vmovss  xmm1, dword ptr [rbx+6Ch]
-    vaddss  xmm2, xmm1, dword ptr [rbx+58h]
-    vmovss  dword ptr [rbp+110h+end+8], xmm2
-    vmovss  dword ptr [rbp+110h+end+4], xmm0
-  }
-  G_Main_TraceCapsule(&results, &_RBX->origin, &end, &bounds, v74->s.number, 2609);
-  __asm
-  {
-    vmovss  xmm5, [rbp+110h+results.fraction]
-    vcomiss xmm5, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rbp+110h+end]
-    vsubss  xmm1, xmm0, dword ptr [rdi]
-  }
+  v38 = pathPos->hover.droneHoverOffset.v[1] + pathPos->hover.hoverGoalPos.v[1];
+  v39 = veh->ent;
+  p_origin = &pathPos->origin;
+  end.v[0] = pathPos->hover.hoverGoalPos.v[0] + pathPos->hover.droneHoverOffset.v[0];
+  end.v[2] = pathPos->hover.droneHoverOffset.v[2] + pathPos->hover.hoverGoalPos.v[2];
+  end.v[1] = v38;
+  G_Main_TraceCapsule(&results, &pathPos->origin, &end, &bounds, v39->s.number, 2609);
+  fraction = results.fraction;
   startsolid = results.startsolid;
-  __asm
+  moveTo.v[0] = (float)((float)(end.v[0] - p_origin->v[0]) * results.fraction) + p_origin->v[0];
+  v43 = (float)(end.v[2] - pathPos->origin.v[2]) * results.fraction;
+  moveTo.v[1] = (float)((float)(end.v[1] - pathPos->origin.v[1]) * results.fraction) + pathPos->origin.v[1];
+  moveTo.v[2] = v43 + pathPos->origin.v[2];
+  if ( results.fraction < 1.0 || results.startsolid )
+    pathPos->hover.droneHoverOffsetTimer = DRONE_HOVER_OFFSET_RECALC_TIME + pathPos->hover.droneHoverOffsetTimer;
+  if ( fraction <= 0.0 || startsolid )
   {
-    vmovaps xmm10, [rsp+210h+var_88+8]
-    vmovaps xmm8, [rsp+210h+var_68+8]
-    vmovaps xmm7, [rsp+210h+var_58+8]
-    vmovaps xmm6, [rsp+210h+var_48+8]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rbp+110h+end+4]
-    vmovss  dword ptr [rsp+210h+moveTo], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rdi+4]
-    vmulss  xmm2, xmm0, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rbp+110h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rdi+8]
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rsp+210h+moveTo+4], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+210h+moveTo+8], xmm3
+    v44 = pathPos->hover.hoverGoalPos.v[1];
+    moveTo.v[0] = pathPos->hover.hoverGoalPos.v[0];
+    moveTo.v[2] = pathPos->hover.hoverGoalPos.v[2];
+    moveTo.v[1] = v44;
   }
-  if ( v78 || (v78 = 0, v79 = !results.startsolid, results.startsolid) )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:DRONE_HOVER_OFFSET_RECALC_TIME
-      vaddss  xmm1, xmm0, dword ptr [rbx+70h]
-      vmovss  dword ptr [rbx+70h], xmm1
-    }
-  }
-  __asm
-  {
-    vcomiss xmm5, xmm9
-    vmovaps xmm9, [rsp+210h+var_78+8]
-  }
-  if ( v78 | v79 || startsolid )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vmovss  xmm1, dword ptr [rbx+54h]
-      vmovss  dword ptr [rsp+210h+moveTo], xmm0
-      vmovss  xmm0, dword ptr [rbx+58h]
-      vmovss  dword ptr [rsp+210h+moveTo+8], xmm0
-      vmovss  dword ptr [rsp+210h+moveTo+4], xmm1
-    }
-  }
-  G_VehicleHeliMP_DroneMoveTo(veh, _RBX, &moveTo, 1, &bounds);
+  G_VehicleHeliMP_DroneMoveTo(veh, pathPos, &moveTo, 1, &bounds);
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm1, xmm0, cs:__real@ba83126f
-    vmulss  xmm2, xmm1, dword ptr [rbx+80h]
-    vaddss  xmm3, xmm2, cs:__real@3f800000
-    vmulss  xmm0, xmm3, dword ptr [rbx+74h]
-    vmovss  dword ptr [rbx+74h], xmm0
-    vmulss  xmm1, xmm3, dword ptr [rbx+78h]
-    vmovss  dword ptr [rbx+78h], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rbx+7Ch]
-    vmovss  dword ptr [rbx+7Ch], xmm0
-  }
-  v110 = DVARBOOL_vehDroneDebugDrawPath;
+  v45 = (float)((float)((float)level.frameDuration * -0.001) * pathPos->hover.velocityImpulseDecay) + 1.0;
+  pathPos->hover.velocityImpulse.v[0] = v45 * pathPos->hover.velocityImpulse.v[0];
+  pathPos->hover.velocityImpulse.v[1] = v45 * pathPos->hover.velocityImpulse.v[1];
+  pathPos->hover.velocityImpulse.v[2] = v45 * pathPos->hover.velocityImpulse.v[2];
+  v46 = DVARBOOL_vehDroneDebugDrawPath;
   if ( !DVARBOOL_vehDroneDebugDrawPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehDroneDebugDrawPath") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v110);
-  if ( v110->current.enabled )
+  Dvar_CheckFrontendServerThread(v46);
+  if ( v46->current.enabled )
   {
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f8000003f0000003f0000003f000000
-      vmovups xmm1, cs:__xmm@3f8000003f800000000000003f800000
-      vmovups xmmword ptr [rbp+110h+color], xmm0
-      vmovups xmm0, cs:__xmm@3f800000000000003f80000000000000
-      vmovups xmmword ptr [rbp+110h+var_180], xmm1
-      vmovss  xmm1, dword ptr [rbp+110h+bounds.halfSize]; radius
-      vmovups xmmword ptr [rbp+110h+var_118], xmm0
-    }
-    G_DebugSphere(p_origin, *(float *)&_XMM1, &color, 0, 0);
-    G_DebugLine(p_origin, &moveTo, &v120, 1);
-    G_DebugLine(p_origin, &endPos, &v125, 1);
-    G_DebugLine(p_origin, &v116, &v125, 1);
+    color = (vec4_t)_xmm;
+    v52 = (vec4_t)_xmm;
+    v57 = (vec4_t)_xmm;
+    G_DebugSphere(p_origin, bounds.halfSize.v[0], &color, 0, 0);
+    G_DebugLine(p_origin, &moveTo, &v52, 1);
+    G_DebugLine(p_origin, &endPos, &v57, 1);
+    G_DebugLine(p_origin, &v48, &v57, 1);
   }
 }
 
@@ -1757,49 +1155,49 @@ void G_VehicleHeliMP_DroneUpdateHover(const Vehicle *veh, HeliPathPos *pathPos)
 G_VehicleHeliMP_DroneUpdateMoveInternal
 ==============
 */
-
-void __fastcall G_VehicleHeliMP_DroneUpdateMoveInternal(const Vehicle *veh, HeliPathPos *pathPos, __int64 a3, double _XMM3_8)
+void G_VehicleHeliMP_DroneUpdateMoveInternal(const Vehicle *veh, HeliPathPos *pathPos)
 {
   char *Value; 
-  int *v10; 
-  _QWORD *v11; 
-  char *v12; 
-  __int64 v13; 
-  unsigned __int64 v14; 
+  int *v5; 
+  _QWORD *v6; 
+  char *v7; 
+  __int64 v8; 
+  unsigned __int64 v9; 
   ThreadContext CurrentThreadContext; 
-  int v20; 
-  bool v21; 
-  bool v22; 
-  int v23; 
-  __int64 v42; 
-  __int64 v43; 
+  gentity_s *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float droneRecalcDestinationAngle; 
+  float droneRecalcDestinationDistance; 
+  __int64 v17; 
+  __int64 v18; 
   vec3_t outAngles; 
 
-  _RBX = pathPos;
   Value = (char *)Sys_GetValue(0);
-  v10 = (int *)(Value + 4056);
+  v5 = (int *)(Value + 4056);
   if ( (unsigned int)(*((_DWORD *)Value + 1014) + 1) >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", *((_DWORD *)Value + 1014) + 1, 3) )
     __debugbreak();
-  if ( (unsigned int)++*v10 >= 3 )
+  if ( (unsigned int)++*v5 >= 3 )
   {
-    LODWORD(v43) = 3;
-    LODWORD(v42) = *v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v42, v43) )
+    LODWORD(v18) = 3;
+    LODWORD(v17) = *v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v17, v18) )
       __debugbreak();
   }
-  v11 = Value + 2088;
-  v12 = Value + 40;
-  if ( *v11 < (unsigned __int64)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+  v6 = Value + 2088;
+  v7 = Value + 40;
+  if ( *v6 < (unsigned __int64)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
     __debugbreak();
-  *v11 += 8i64;
-  if ( *v11 >= (unsigned __int64)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+  *v6 += 8i64;
+  if ( *v6 >= (unsigned __int64)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
     __debugbreak();
-  *(_QWORD *)*v11 = v10;
-  if ( *v11 <= (unsigned __int64)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+  *(_QWORD *)*v6 = v5;
+  if ( *v6 <= (unsigned __int64)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v13 = *v10;
-  v14 = __rdtsc();
-  v10[v13 + 2] = v14;
+  v8 = *v5;
+  v9 = __rdtsc();
+  v5[v8 + 2] = v9;
   if ( Sys_HasValidCurrentThreadContext() )
     CurrentThreadContext = Sys_GetCurrentThreadContext();
   else
@@ -1807,103 +1205,45 @@ void __fastcall G_VehicleHeliMP_DroneUpdateMoveInternal(const Vehicle *veh, Heli
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 49, NULL, 0);
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1068, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1069, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1069, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
   if ( !veh->useDroneLogic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1070, ASSERT_TYPE_ASSERT, "( veh->useDroneLogic )", (const char *)&queryFormat, "veh->useDroneLogic") )
     __debugbreak();
-  if ( EntHandle::isDefined(&veh->droneTarget) && EntHandle::ent(&veh->droneTarget)->health > 0 )
+  if ( EntHandle::isDefined(&veh->droneTarget) )
   {
-    __asm
+    if ( EntHandle::ent(&veh->droneTarget)->health > 0 )
     {
-      vmovaps [rsp+0B8h+var_38], xmm6
-      vmovaps [rsp+0B8h+var_48], xmm7
-      vmovaps [rsp+0B8h+var_58], xmm8
-    }
-    _RAX = EntHandle::ent(&veh->droneTarget);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+130h]
-      vmovss  xmm7, dword ptr [rax+134h]
-      vmovss  xmm8, dword ptr [rax+138h]
-    }
-    G_Utils_GetAnglesWithWorldUp(_RAX, &outAngles);
-    v20 = _RBX->numDroneNavPathNodes - 1;
-    v21 = _RBX->currentDroneNavPathNodeIndex == v20;
-    v22 = _RBX->currentDroneNavPathNodeIndex <= (unsigned int)v20;
-    if ( _RBX->currentDroneNavPathNodeIndex >= v20 || (v23 = _RBX->droneLastNavRecalcTime + 1000, v21 = level.time == v23, v22 = level.time <= (unsigned int)v23, level.time > v23) )
-    {
-      __asm
+      v11 = EntHandle::ent(&veh->droneTarget);
+      v12 = v11->r.currentOrigin.v[0];
+      v13 = v11->r.currentOrigin.v[1];
+      v14 = v11->r.currentOrigin.v[2];
+      G_Utils_GetAnglesWithWorldUp(v11, &outAngles);
+      if ( pathPos->currentDroneNavPathNodeIndex >= pathPos->numDroneNavPathNodes - 1 || level.time > pathPos->droneLastNavRecalcTime + 1000 )
       {
-        vmovss  xmm2, dword ptr [rbx+2A0h]
-        vxorps  xmm3, xmm3, xmm3
-        vucomiss xmm2, xmm3
-      }
-      if ( !v21 )
-      {
-        __asm
+        if ( (droneRecalcDestinationAngle = pathPos->droneRecalcDestinationAngle, droneRecalcDestinationAngle != 0.0) && COERCE_FLOAT(COERCE_UNSIGNED_INT(outAngles.v[1] - pathPos->droneLastTargetYaw) & _xmm) > droneRecalcDestinationAngle || (droneRecalcDestinationDistance = pathPos->droneRecalcDestinationDistance, droneRecalcDestinationDistance != 0.0) && (float)((float)((float)((float)(v13 - pathPos->droneLastTargetPosition.v[1]) * (float)(v13 - pathPos->droneLastTargetPosition.v[1])) + (float)((float)(v12 - pathPos->droneLastTargetPosition.v[0]) * (float)(v12 - pathPos->droneLastTargetPosition.v[0]))) + (float)((float)(v14 - pathPos->droneLastTargetPosition.v[2]) * (float)(v14 - pathPos->droneLastTargetPosition.v[2]))) > (float)(droneRecalcDestinationDistance * droneRecalcDestinationDistance) )
         {
-          vmovss  xmm0, dword ptr [rsp+0B8h+outAngles+4]
-          vsubss  xmm1, xmm0, dword ptr [rbx+284h]
-          vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcomiss xmm1, xmm2
-        }
-        if ( !v22 )
-          goto LABEL_47;
-      }
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rbx+29Ch]
-        vucomiss xmm4, xmm3
-      }
-      if ( !v21 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, dword ptr [rbx+27Ch]
-          vsubss  xmm2, xmm6, dword ptr [rbx+278h]
-          vsubss  xmm3, xmm8, dword ptr [rbx+280h]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vcomiss xmm3, xmm0
-        }
-        if ( !v22 )
-        {
-LABEL_47:
-          __asm
+          pathPos->goalPosition.v[0] = v12;
+          pathPos->goalPosition.v[1] = v13;
+          pathPos->goalPosition.v[2] = v14;
+          if ( (unsigned int)G_VehicleHeliMP_DroneCalcNavPath(veh, pathPos) )
           {
-            vmovss  dword ptr [rbx+0A0h], xmm6
-            vmovss  dword ptr [rbx+0A4h], xmm7
-            vmovss  dword ptr [rbx+0A8h], xmm8
-          }
-          if ( (unsigned int)G_VehicleHeliMP_DroneCalcNavPath(veh, _RBX) )
-          {
-            if ( _RBX->numDroneNavPathNodes > 0 )
+            if ( pathPos->numDroneNavPathNodes > 0 )
             {
-              _RBX->droneMoveState = DRONEMOVESTATE_TO_NODE;
-              _RBX->moveState = VEH_MOVESTATE_MOVE;
+              pathPos->droneMoveState = DRONEMOVESTATE_TO_NODE;
+              pathPos->moveState = VEH_MOVESTATE_MOVE;
             }
           }
         }
       }
     }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_48]
-      vmovaps xmm6, [rsp+0B8h+var_38]
-      vmovaps xmm8, [rsp+0B8h+var_58]
-    }
   }
-  if ( _RBX->moveState == VEH_MOVESTATE_MOVE )
+  if ( pathPos->moveState == VEH_MOVESTATE_MOVE )
   {
-    G_VehicleHeliMP_DroneUpdateMoveToGoal(veh, _RBX);
+    G_VehicleHeliMP_DroneUpdateMoveToGoal(veh, pathPos);
   }
-  else if ( _RBX->moveState == VEH_MOVESTATE_HOVER )
+  else if ( pathPos->moveState == VEH_MOVESTATE_HOVER )
   {
-    G_VehicleHeliMP_DroneUpdateHover(veh, _RBX);
+    G_VehicleHeliMP_DroneUpdateHover(veh, pathPos);
   }
   Profile_EndInternal(NULL);
 }
@@ -1915,323 +1255,230 @@ G_VehicleHeliMP_DroneUpdateMoveToGoal
 */
 void G_VehicleHeliMP_DroneUpdateMoveToGoal(const Vehicle *veh, HeliPathPos *pathPos)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  gentity_s *ent; 
   bool IsHovering; 
-  BOOL v33; 
-  bool v36; 
+  BOOL v19; 
+  bool v20; 
+  __int128 v21; 
+  float v23; 
+  __int128 v25; 
   int numDroneNavPathNodes; 
-  bool v54; 
-  bool v55; 
-  bool v56; 
-  int currentDroneNavPathNodeIndex; 
-  unsigned int v89; 
+  float v27; 
+  float v28; 
+  float v29; 
+  __int64 currentDroneNavPathNodeIndex; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  int v39; 
   DroneMoveState droneMoveState; 
-  __int32 v92; 
-  const dvar_t *v99; 
-  __int64 v102; 
+  __int32 v41; 
+  __int64 v42; 
+  float v43; 
+  float v44; 
+  const dvar_t *v45; 
+  __int64 v46; 
+  float v47; 
+  float v48; 
+  float *v49; 
   vec3_t start; 
   vec3_t moveTo; 
-  vec4_t v116; 
+  vec4_t v52; 
+  float v53; 
+  float v54; 
   Bounds vehBounds; 
   vec4_t color; 
-  vec4_t v121; 
-  void *retaddr; 
+  vec4_t v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
-  _RBX = pathPos;
+  v62 = v2;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 879, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 880, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
+  if ( !pathPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 880, ASSERT_TYPE_ASSERT, "( pathPos )", (const char *)&queryFormat, "pathPos") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0A0h]
-    vsubss  xmm3, xmm0, dword ptr [rbx+8]
-    vmovss  xmm1, dword ptr [rbx+0A4h]
-    vsubss  xmm2, xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm0, dword ptr [rbx+0A8h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+10h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm7, xmm2, xmm2
-  }
+  v9 = pathPos->goalPosition.v[0] - pathPos->origin.v[0];
+  v10 = pathPos->goalPosition.v[1] - pathPos->origin.v[1];
+  v11 = pathPos->goalPosition.v[2] - pathPos->origin.v[2];
+  v12 = fsqrt((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v11 * v11));
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 138, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  _RAX = veh->ent;
+  ent = veh->ent;
+  vehBounds.midPoint.v[0] = 0.0;
+  _XMM0 = LODWORD(ent->r.box.halfSize.v[1]);
   __asm
   {
-    vmovss  xmm2, cs:MAX_DRONE_SIZE
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+150h+vehBounds.midPoint], xmm6
-    vmovss  xmm0, dword ptr [rax+110h]
     vmaxss  xmm1, xmm0, dword ptr [rax+10Ch]
-    vmulss  xmm0, xmm2, cs:__real@3f000000
     vmaxss  xmm3, xmm1, dword ptr [rax+114h]
     vminss  xmm1, xmm3, xmm0
-    vmulss  xmm0, xmm1, cs:__real@3f4ccccd
-    vmovss  dword ptr [rsp+150h+var_F0+0Ch], xmm0
-    vmovss  [rsp+150h+var_E0], xmm0
-    vmovss  [rsp+150h+var_DC], xmm0
-    vmovss  dword ptr [rsp+150h+vehBounds.midPoint+4], xmm6
-    vmovss  dword ptr [rbp+50h+vehBounds.midPoint+8], xmm6
-    vmovss  dword ptr [rbp+50h+vehBounds.halfSize], xmm1
-    vmovss  dword ptr [rbp+50h+vehBounds.halfSize+4], xmm1
-    vmovss  dword ptr [rbp+50h+vehBounds.halfSize+8], xmm1
-    vmovss  dword ptr [rsp+150h+var_F0], xmm6
-    vmovss  dword ptr [rsp+150h+var_F0+4], xmm6
-    vmovss  dword ptr [rsp+150h+var_F0+8], xmm6
   }
-  IsHovering = G_VehicleHeli_IsHovering(_RBX);
-  v33 = IsHovering;
+  v52.v[3] = *(float *)&_XMM1 * 0.80000001;
+  v53 = *(float *)&_XMM1 * 0.80000001;
+  v54 = *(float *)&_XMM1 * 0.80000001;
+  vehBounds.midPoint.v[1] = 0.0;
+  vehBounds.midPoint.v[2] = 0.0;
+  vehBounds.halfSize.v[0] = *(float *)&_XMM1;
+  vehBounds.halfSize.v[1] = *(float *)&_XMM1;
+  vehBounds.halfSize.v[2] = *(float *)&_XMM1;
+  v52.v[0] = 0.0;
+  v52.v[1] = 0.0;
+  v52.v[2] = 0.0;
+  IsHovering = G_VehicleHeli_IsHovering(pathPos);
+  v19 = IsHovering;
   if ( !IsHovering )
   {
-    __asm { vmovaps xmm1, xmm7; distToGoal }
-    G_VehicleHeli_UpdateMove_CheckNearGoal(_RBX, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm7; distToGoal }
-    G_VehicleHeli_UpdateMove_CheckGoalReached(_RBX, *(float *)&_XMM1);
-    v36 = G_VehicleHeli_IsHovering(_RBX);
-    v33 = v36;
-    if ( v36 )
+    G_VehicleHeli_UpdateMove_CheckNearGoal(pathPos, v12);
+    G_VehicleHeli_UpdateMove_CheckGoalReached(pathPos, v12);
+    v20 = G_VehicleHeli_IsHovering(pathPos);
+    v19 = v20;
+    if ( v20 )
     {
-      __asm
+      *((_QWORD *)&v21 + 1) = 0i64;
+      *(float *)&_XMM3 = FLOAT_1_0;
+      v23 = fsqrt((float)((float)(pathPos->vel.v[0] * pathPos->vel.v[0]) + (float)(pathPos->vel.v[1] * pathPos->vel.v[1])) + (float)(pathPos->vel.v[2] * pathPos->vel.v[2]));
+      if ( v23 > 0.0 )
       {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  xmm2, dword ptr [rbx+24h]
-        vmovss  xmm3, dword ptr [rbx+28h]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vmovss  xmm3, cs:__real@3f800000
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm7, xmm2, xmm2
-        vcomiss xmm7, xmm6
+        *(double *)&v21 = G_VehicleHeli_GetHoverSpeed(pathPos);
+        v25 = v21;
+        *(float *)&v25 = *(float *)&v21 / v23;
+        _XMM1 = v25;
+        __asm { vminss  xmm3, xmm1, cs:__real@3f800000 }
       }
-      *(double *)&_XMM0 = G_VehicleHeli_GetHoverSpeed(_RBX);
-      __asm
-      {
-        vdivss  xmm1, xmm0, xmm7
-        vminss  xmm3, xmm1, cs:__real@3f800000
-        vmulss  xmm0, xmm3, dword ptr [rbx+20h]
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmulss  xmm1, xmm3, dword ptr [rbx+24h]
-        vmovss  dword ptr [rbx+24h], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rbx+28h]
-        vmovss  dword ptr [rbx+28h], xmm0
-        vmulss  xmm0, xmm3, dword ptr [rbx+4]
-        vmovss  dword ptr [rbx+4], xmm0
-      }
+      pathPos->vel.v[0] = *(float *)&_XMM3 * pathPos->vel.v[0];
+      pathPos->vel.v[1] = *(float *)&_XMM3 * pathPos->vel.v[1];
+      pathPos->vel.v[2] = *(float *)&_XMM3 * pathPos->vel.v[2];
+      pathPos->speed = *(float *)&_XMM3 * pathPos->speed;
     }
   }
-  if ( !v33 )
+  if ( !v19 )
   {
-    if ( _RBX->droneMoveState == DRONEMOVESTATE_TO_NODE )
+    if ( pathPos->droneMoveState == DRONEMOVESTATE_TO_NODE )
     {
-      numDroneNavPathNodes = _RBX->numDroneNavPathNodes;
-      __asm
-      {
-        vmovaps [rsp+150h+var_68+8], xmm9
-        vmovaps [rsp+150h+var_78+8], xmm10
-        vmovaps [rsp+150h+var_88+8], xmm11
-        vmovaps [rsp+150h+var_98+8], xmm12
-      }
-      if ( _RBX->currentDroneNavPathNodeIndex >= numDroneNavPathNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 932, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes)", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes") )
+      numDroneNavPathNodes = pathPos->numDroneNavPathNodes;
+      v61 = v3;
+      v60 = v4;
+      v59 = v5;
+      v58 = v6;
+      if ( pathPos->currentDroneNavPathNodeIndex >= numDroneNavPathNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 932, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes)", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes") )
         __debugbreak();
-      v54 = _RBX->currentDroneNavPathNodeIndex < 0x20u;
-      v55 = _RBX->currentDroneNavPathNodeIndex <= 0x20u;
-      if ( _RBX->currentDroneNavPathNodeIndex >= 0x20u )
+      if ( pathPos->currentDroneNavPathNodeIndex >= 0x20u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 933, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
+        __debugbreak();
+      v27 = pathPos->origin.v[0];
+      v28 = pathPos->origin.v[1];
+      v29 = pathPos->origin.v[2];
+      currentDroneNavPathNodeIndex = pathPos->currentDroneNavPathNodeIndex;
+      v31 = pathPos->dronePrevOrigin.v[0] - v27;
+      v32 = pathPos->dronePrevOrigin.v[2] - v29;
+      v33 = v27 - pathPos->droneNavPath[currentDroneNavPathNodeIndex].v[0];
+      v34 = v28 - pathPos->droneNavPath[currentDroneNavPathNodeIndex].v[1];
+      v35 = v29 - pathPos->droneNavPath[currentDroneNavPathNodeIndex].v[2];
+      v36 = pathPos->dronePrevOrigin.v[1] - v28;
+      v37 = (float)((float)(v36 * v36) + (float)(v31 * v31)) + (float)(v32 * v32);
+      if ( v37 > 0.0 && (v38 = (float)((float)((float)(v36 * v34) + (float)(v31 * v33)) + (float)(v32 * v35)) / v37, v38 >= 0.0) && v38 < 1.0 || (float)((float)(v34 * v34) + (float)(v33 * v33)) < 16.0 && COERCE_FLOAT(LODWORD(v35) & _xmm) < 4.0 )
       {
-        v56 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 933, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )");
-        v54 = 0;
-        v55 = !v56;
-        if ( v56 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+8]
-        vmovss  xmm2, dword ptr [rbx+0Ch]
-        vmovss  xmm3, dword ptr [rbx+10h]
-        vmovss  xmm0, dword ptr [rbx+0C4h]
-      }
-      currentDroneNavPathNodeIndex = _RBX->currentDroneNavPathNodeIndex;
-      __asm
-      {
-        vsubss  xmm10, xmm0, xmm1
-        vmovss  xmm0, dword ptr [rbx+0CCh]
-        vsubss  xmm12, xmm0, xmm3
-        vsubss  xmm7, xmm1, dword ptr [rbx+rcx*4+0ECh]
-        vmovss  xmm1, dword ptr [rbx+0C8h]
-        vsubss  xmm9, xmm2, dword ptr [rbx+rcx*4+0F0h]
-        vsubss  xmm4, xmm3, dword ptr [rbx+rcx*4+0F4h]
-        vsubss  xmm11, xmm1, xmm2
-        vmulss  xmm2, xmm9, xmm9
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm3, xmm11, xmm11
-        vaddss  xmm5, xmm2, xmm1
-        vmulss  xmm0, xmm10, xmm10
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm12, xmm12
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm6
-      }
-      if ( !v55 )
-      {
-        __asm
+        pathPos->currentDroneNavPathNodeIndex = currentDroneNavPathNodeIndex + 1;
+        if ( (int)currentDroneNavPathNodeIndex + 1 < pathPos->numDroneNavPathNodes )
         {
-          vmulss  xmm1, xmm11, xmm9
-          vmulss  xmm0, xmm10, xmm7
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm12, xmm4
-          vaddss  xmm2, xmm2, xmm1
-          vdivss  xmm0, xmm2, xmm3
-          vcomiss xmm0, xmm6
+          if ( (unsigned int)(currentDroneNavPathNodeIndex + 1) >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 962, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
+            __debugbreak();
+          G_VehicleHeliMP_DroneTurnCorner(pathPos, &pathPos->droneNavPath[pathPos->currentDroneNavPathNodeIndex]);
         }
-        if ( !v54 )
-          __asm { vcomiss xmm0, cs:__real@3f800000 }
-      }
-      __asm { vcomiss xmm5, cs:__real@41800000 }
-      if ( v54 )
-      {
-        __asm
+        else
         {
-          vandps  xmm4, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcomiss xmm4, cs:__real@40800000
+          pathPos->droneMoveState = DRONEMOVESTATE_UNKNOWN;
         }
-        if ( v54 )
-        {
-          _RBX->currentDroneNavPathNodeIndex = currentDroneNavPathNodeIndex + 1;
-          if ( currentDroneNavPathNodeIndex + 1 < _RBX->numDroneNavPathNodes )
-          {
-            if ( (unsigned int)(currentDroneNavPathNodeIndex + 1) >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 962, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
-              __debugbreak();
-            G_VehicleHeliMP_DroneTurnCorner(_RBX, &_RBX->droneNavPath[_RBX->currentDroneNavPathNodeIndex]);
-          }
-          else
-          {
-            _RBX->droneMoveState = DRONEMOVESTATE_UNKNOWN;
-          }
-        }
-      }
-      __asm
-      {
-        vmovaps xmm11, [rsp+150h+var_88+8]
-        vmovaps xmm10, [rsp+150h+var_78+8]
-        vmovaps xmm9, [rsp+150h+var_68+8]
-        vmovaps xmm12, [rsp+150h+var_98+8]
       }
     }
-    if ( _RBX->droneMoveState == DRONEMOVESTATE_UNKNOWN )
+    if ( pathPos->droneMoveState == DRONEMOVESTATE_UNKNOWN )
     {
-      v89 = _RBX->currentDroneNavPathNodeIndex;
-      if ( (signed int)v89 < _RBX->numDroneNavPathNodes )
+      v39 = pathPos->currentDroneNavPathNodeIndex;
+      if ( v39 < pathPos->numDroneNavPathNodes )
       {
-        _RBX->droneMoveState = DRONEMOVESTATE_TO_NODE;
-        if ( v89 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 980, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
+        pathPos->droneMoveState = DRONEMOVESTATE_TO_NODE;
+        if ( (unsigned int)v39 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 980, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
           __debugbreak();
-        G_VehicleHeliMP_DroneTurnCorner(_RBX, &_RBX->droneNavPath[_RBX->currentDroneNavPathNodeIndex]);
+        G_VehicleHeliMP_DroneTurnCorner(pathPos, &pathPos->droneNavPath[pathPos->currentDroneNavPathNodeIndex]);
       }
     }
   }
-  droneMoveState = _RBX->droneMoveState;
-  __asm { vmovaps xmm7, [rsp+150h+var_58+8] }
-  if ( droneMoveState == DRONEMOVESTATE_UNKNOWN || v33 )
+  droneMoveState = pathPos->droneMoveState;
+  if ( droneMoveState == DRONEMOVESTATE_UNKNOWN || v19 )
   {
-    G_VehicleHeliMP_DroneUpdateHover(veh, _RBX);
-    goto LABEL_62;
-  }
-  v92 = droneMoveState - 1;
-  if ( v92 )
-  {
-    if ( v92 != 1 )
-      goto LABEL_62;
-    if ( _RBX->currentDroneNavPathNodeIndex >= _RBX->numDroneNavPathNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1015, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes)", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes") )
-      __debugbreak();
-    if ( _RBX->currentDroneNavPathNodeIndex >= 0x20u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1016, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
-      __debugbreak();
-    _RCX = 3i64 * _RBX->currentDroneNavPathNodeIndex;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+rcx*4+0ECh]
-      vmovss  dword ptr [rsp+150h+moveTo], xmm0
-      vmovss  xmm1, dword ptr [rbx+rcx*4+0F0h]
-      vmovss  dword ptr [rsp+150h+moveTo+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+rcx*4+0F4h]
-    }
+    G_VehicleHeliMP_DroneUpdateHover(veh, pathPos);
   }
   else
   {
-    __asm
+    v41 = droneMoveState - 1;
+    if ( v41 )
     {
-      vmovss  xmm0, dword ptr [rbx+0E0h]
-      vmovss  xmm1, dword ptr [rbx+0E4h]
-      vmovss  dword ptr [rsp+150h+moveTo], xmm0
-      vmovss  xmm0, dword ptr [rbx+0E8h]
-      vmovss  dword ptr [rsp+150h+moveTo+4], xmm1
+      if ( v41 != 1 )
+        return;
+      if ( pathPos->currentDroneNavPathNodeIndex >= pathPos->numDroneNavPathNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1015, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes)", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < pathPos->numDroneNavPathNodes") )
+        __debugbreak();
+      if ( pathPos->currentDroneNavPathNodeIndex >= 0x20u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 1016, ASSERT_TYPE_ASSERT, "(pathPos->currentDroneNavPathNodeIndex < ( sizeof( *array_counter( HeliPathPos::droneNavPath ) ) + 0 ))", (const char *)&queryFormat, "pathPos->currentDroneNavPathNodeIndex < ARRAY_COUNT( HeliPathPos::droneNavPath )") )
+        __debugbreak();
+      v42 = pathPos->currentDroneNavPathNodeIndex;
+      *(_QWORD *)moveTo.v = *(_QWORD *)pathPos->droneNavPath[v42].v;
+      v43 = pathPos->droneNavPath[v42].v[2];
     }
-  }
-  __asm { vmovss  dword ptr [rsp+150h+moveTo+8], xmm0 }
-  G_VehicleHeliMP_DroneMoveTo(veh, _RBX, &moveTo, 0, &vehBounds);
-  v99 = DVARBOOL_vehDroneDebugDrawPath;
-  if ( !DVARBOOL_vehDroneDebugDrawPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehDroneDebugDrawPath") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v99);
-  if ( v99->current.enabled )
-  {
-    __asm
+    else
     {
-      vmovups xmm0, cs:__xmm@3f8000003f0000003f0000003f000000
-      vmovups xmm1, cs:__xmm@3f8000003f800000000000003f800000
+      v44 = pathPos->droneMovePos.v[1];
+      moveTo.v[0] = pathPos->droneMovePos.v[0];
+      v43 = pathPos->droneMovePos.v[2];
+      moveTo.v[1] = v44;
     }
-    v102 = _RBX->currentDroneNavPathNodeIndex;
-    __asm
+    moveTo.v[2] = v43;
+    G_VehicleHeliMP_DroneMoveTo(veh, pathPos, &moveTo, 0, &vehBounds);
+    v45 = DVARBOOL_vehDroneDebugDrawPath;
+    if ( !DVARBOOL_vehDroneDebugDrawPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehDroneDebugDrawPath") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v45);
+    if ( v45->current.enabled )
     {
-      vmovups xmmword ptr [rbp+50h+var_B0], xmm0
-      vmovups xmm0, cs:__xmm@3f800000000000003f80000000000000
-      vmovups xmmword ptr [rsp+150h+var_F0], xmm1
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+150h+start], xmm1
-      vmovss  xmm1, dword ptr [rbx+10h]
-      vmovups xmmword ptr [rbp+50h+color], xmm0
-      vmovss  xmm0, dword ptr [rbx+0Ch]
-      vmovss  dword ptr [rsp+150h+start+4], xmm0
-      vmovss  dword ptr [rsp+150h+start+8], xmm1
-    }
-    if ( (int)v102 < _RBX->numDroneNavPathNodes )
-    {
-      __asm { vmovss  xmm6, dword ptr [rbp+50h+vehBounds.halfSize] }
-      _RDI = (__int64)&_RBX->droneNavPath[v102].z;
-      do
+      v46 = pathPos->currentDroneNavPathNodeIndex;
+      v57 = (vec4_t)_xmm;
+      v52 = (vec4_t)_xmm;
+      start.v[0] = pathPos->origin.v[0];
+      v47 = pathPos->origin.v[2];
+      color = (vec4_t)_xmm;
+      start.v[1] = pathPos->origin.v[1];
+      start.v[2] = v47;
+      if ( (int)v46 < pathPos->numDroneNavPathNodes )
       {
-        G_DebugLine(&start, &_RBX->droneNavPath[(int)v102], &color, 0);
-        __asm
+        v48 = vehBounds.halfSize.v[0];
+        v49 = &pathPos->droneNavPath[v46].v[2];
+        do
         {
-          vmovss  xmm0, dword ptr [rdi-8]
-          vmovss  dword ptr [rsp+150h+start], xmm0
-          vmovss  xmm1, dword ptr [rdi-4]
-          vmovss  dword ptr [rsp+150h+start+4], xmm1
-          vmovss  xmm0, dword ptr [rdi]
-          vmovaps xmm1, xmm6; radius
-          vmovss  dword ptr [rsp+150h+start+8], xmm0
+          G_DebugLine(&start, &pathPos->droneNavPath[(int)v46], &color, 0);
+          start = *(vec3_t *)(v49 - 2);
+          G_DebugSphere(&start, v48, &v57, 0, 0);
+          LODWORD(v46) = v46 + 1;
+          v49 += 3;
         }
-        G_DebugSphere(&start, *(float *)&_XMM1, &v121, 0, 0);
-        LODWORD(v102) = v102 + 1;
-        _RDI += 12i64;
+        while ( (int)v46 < pathPos->numDroneNavPathNodes );
       }
-      while ( (int)v102 < _RBX->numDroneNavPathNodes );
+      G_DebugLine(&pathPos->origin, &moveTo, &v52, 0);
+      G_DebugLine(&pathPos->origin, &pathPos->goalPosition, &color, 0);
     }
-    G_DebugLine(&_RBX->origin, &moveTo, &v116, 0);
-    G_DebugLine(&_RBX->origin, &_RBX->goalPosition, &color, 0);
   }
-LABEL_62:
-  __asm { vmovaps xmm6, xmmword ptr [rsp+150h+var_48+8] }
 }
 
 /*
@@ -2244,7 +1491,10 @@ void G_VehicleHeliMP_Spawn(gentity_s *ent, gentity_s *owner, const char *vehicle
   __int64 v8; 
   bool IsNameCompositeModel; 
   Vehicle *vehicle; 
-  int v15; 
+  const dvar_t *v11; 
+  float value; 
+  float *wheelZPos; 
+  int v14; 
   vec3_t outPos; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 76, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
@@ -2266,38 +1516,30 @@ void G_VehicleHeliMP_Spawn(gentity_s *ent, gentity_s *owner, const char *vehicle
   vehicle = ent->vehicle;
   if ( !vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 97, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  _R14 = &vehicle->phys;
   if ( G_Vehicle_GetServerDef(vehicle->defIndex)->type != VEH_HELICOPTER )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E4C280, 189i64, vehicleInfoName);
   if ( ent->s.eType != ET_HELICOPTER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_helicopter_mp.cpp", 105, ASSERT_TYPE_ASSERT, "(ent->s.eType == ET_HELICOPTER)", (const char *)&queryFormat, "ent->s.eType == ET_HELICOPTER") )
     __debugbreak();
-  _RBX = DVARFLT_vehHelicopterBoundsRadius;
+  v11 = DVARFLT_vehHelicopterBoundsRadius;
   if ( !DVARFLT_vehHelicopterBoundsRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHelicopterBoundsRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = vehicle->phys.wheelZPos;
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  wheelZPos = vehicle->phys.wheelZPos;
   *(_QWORD *)vehicle->phys.bounds.midPoint.v = 0i64;
   vehicle->phys.bounds.midPoint.v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [r14+3Ch], xmm0
-    vmovss  dword ptr [r14+40h], xmm0
-    vmovss  dword ptr [r14+44h], xmm0
-  }
+  vehicle->phys.bounds.halfSize.v[0] = value;
+  vehicle->phys.bounds.halfSize.v[1] = value;
+  vehicle->phys.bounds.halfSize.v[2] = value;
   do
   {
-    v15 = *((_DWORD *)_RBX + 340);
-    if ( v15 >= 0 )
+    v14 = *((_DWORD *)wheelZPos + 340);
+    if ( v14 >= 0 )
     {
-      G_Utils_DObjGetWorldBoneIndexPos(ent, v15, &outPos);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+98h+outPos+8]
-        vmovss  dword ptr [rbx], xmm0
-      }
+      G_Utils_DObjGetWorldBoneIndexPos(ent, v14, &outPos);
+      *wheelZPos = outPos.v[2];
     }
-    ++_RBX;
+    ++wheelZPos;
     --v8;
   }
   while ( v8 );

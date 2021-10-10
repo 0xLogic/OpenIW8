@@ -1123,21 +1123,25 @@ void DLog_Send(bool flush)
   const char ***p_eventInfo; 
   unsigned __int64 v9; 
   unsigned __int64 v10; 
+  __m256i *p_context; 
   unsigned __int64 v12; 
+  DLogContext *v13; 
   __int64 v14; 
+  __m256i v15; 
+  __int128 v16; 
   const char **p_name; 
-  const char **v22; 
+  const char **v18; 
   int ContextSize; 
-  unsigned __int64 v26; 
-  bool (__fastcall *v27)(unsigned __int64, const void *, int, DLogEventInfo *); 
-  unsigned __int64 v28; 
-  unsigned int v29; 
-  bool v30; 
-  unsigned __int64 v31; 
-  int v32; 
-  const DLogEndpoint *v34; 
+  unsigned __int64 v20; 
+  bool (__fastcall *v21)(unsigned __int64, const void *, int, DLogEventInfo *); 
+  unsigned __int64 v22; 
+  unsigned int v23; 
+  bool v24; 
+  unsigned __int64 v25; 
+  int v26; 
+  const DLogEndpoint *v28; 
   DLogContext context; 
-  char v36[256]; 
+  char v30[256]; 
 
   v1 = flush;
   if ( DLog_IsActive() && !s_dlog.processingSend )
@@ -1157,7 +1161,7 @@ void DLog_Send(bool flush)
         {
           channel = v4->channel;
           endpoint = channel->endpoint;
-          v34 = endpoint;
+          v28 = endpoint;
           if ( endpoint )
           {
             if ( channel->postSerializerCount <= 0 )
@@ -1173,63 +1177,48 @@ void DLog_Send(bool flush)
               v9 = v7;
               DLog_Serialize(v4->channel->postSerializers, v4->channel->postSerializerCount, &v4->eventInfo, &v4->context, &context, NULL);
               v10 = DLog_Microseconds();
-              _RCX = &v4->context;
+              p_context = (__m256i *)&v4->context;
               v12 = v10 - v9;
-              _RAX = &context;
+              v13 = &context;
               v14 = 2i64;
               do
               {
-                _RCX = (DLogContext *)((char *)_RCX + 128);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups xmm1, xmmword ptr [rax+70h]
-                }
-                _RAX = (DLogContext *)((char *)_RAX + 128);
-                __asm
-                {
-                  vmovups ymmword ptr [rcx-80h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-60h]
-                  vmovups ymmword ptr [rcx-60h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-40h]
-                  vmovups ymmword ptr [rcx-40h], ymm0
-                  vmovups xmm0, xmmword ptr [rax-20h]
-                  vmovups xmmword ptr [rcx-20h], xmm0
-                  vmovups xmmword ptr [rcx-10h], xmm1
-                }
+                p_context += 4;
+                v15 = *(__m256i *)&v13->position;
+                v16 = *(_OWORD *)&v13->rowArrayName[40];
+                v13 = (DLogContext *)((char *)v13 + 128);
+                p_context[-4] = v15;
+                p_context[-3] = *(__m256i *)&v13[-1].eventName[32];
+                p_context[-2] = *(__m256i *)v13[-1].rowName;
+                *(_OWORD *)p_context[-1].m256i_i8 = *(_OWORD *)&v13[-1].rowName[32];
+                *(_OWORD *)&p_context[-1].m256i_u64[2] = v16;
                 --v14;
               }
               while ( v14 );
-              __asm { vmovups ymm0, ymmword ptr [rax] }
               p_name = &v4->channel->name;
-              v22 = *p_eventInfo;
-              __asm
-              {
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups ymm0, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rcx+20h], ymm0
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rcx+40h], ymm0
-              }
-              DLog_sprintf<256>((char (*)[256])v36, "post-serialize: %s -> %s", *v22, *p_name);
+              v18 = *p_eventInfo;
+              *p_context = *(__m256i *)&v13->position;
+              p_context[1] = *(__m256i *)&v13->row;
+              p_context[2] = *(__m256i *)&v13->userId;
+              DLog_sprintf<256>((char (*)[256])v30, "post-serialize: %s -> %s", *v18, *p_name);
               ContextSize = DLog_GetContextSize(&v4->context);
-              DLog_AddMetric(v36, v4->eventCount, ContextSize, v12);
-              endpoint = v34;
+              DLog_AddMetric(v30, v4->eventCount, ContextSize, v12);
+              endpoint = v28;
             }
             if ( !DLog_GetContextSize(&v4->context) )
               goto LABEL_19;
             v4->inUse = 1;
             v4->eventInfo.channelBuffer = v4;
-            v26 = DLog_Microseconds();
-            v27 = endpoint->endpoint;
-            v28 = v26;
-            v29 = DLog_GetContextSize(&v4->context);
-            v30 = v27(0i64, v4->context.buffer, v29, (DLogEventInfo *)p_eventInfo);
-            v31 = DLog_Microseconds() - v28;
-            DLog_sprintf<256>((char (*)[256])v36, "endpoint: %s -> %s", **p_eventInfo, v34->name);
-            v32 = DLog_GetContextSize(&v4->context);
-            DLog_AddMetric(v36, v4->eventCount, v32, v31);
-            if ( v30 )
+            v20 = DLog_Microseconds();
+            v21 = endpoint->endpoint;
+            v22 = v20;
+            v23 = DLog_GetContextSize(&v4->context);
+            v24 = v21(0i64, v4->context.buffer, v23, (DLogEventInfo *)p_eventInfo);
+            v25 = DLog_Microseconds() - v22;
+            DLog_sprintf<256>((char (*)[256])v30, "endpoint: %s -> %s", **p_eventInfo, v28->name);
+            v26 = DLog_GetContextSize(&v4->context);
+            DLog_AddMetric(v30, v4->eventCount, v26, v25);
+            if ( v24 )
 LABEL_19:
               DLog_FreeChannelBuffer(v4);
           }
@@ -1261,21 +1250,25 @@ void __noreturn DLog_SendThread(void *__formal)
   const char ***p_eventInfo; 
   unsigned __int64 v8; 
   unsigned __int64 v9; 
+  __m256i *p_context; 
   unsigned __int64 v11; 
+  DLogContext *v12; 
   __int64 v13; 
+  __m256i v14; 
+  __int128 v15; 
   const char **p_name; 
-  const char **v21; 
+  const char **v17; 
   int ContextSize; 
-  unsigned __int64 v25; 
-  bool (__fastcall *v26)(unsigned __int64, const void *, int, DLogEventInfo *); 
-  unsigned __int64 v27; 
-  unsigned int v28; 
-  bool v29; 
-  unsigned __int64 v30; 
-  int v31; 
-  const DLogEndpoint *v32; 
+  unsigned __int64 v19; 
+  bool (__fastcall *v20)(unsigned __int64, const void *, int, DLogEventInfo *); 
+  unsigned __int64 v21; 
+  unsigned int v22; 
+  bool v23; 
+  unsigned __int64 v24; 
+  int v25; 
+  const DLogEndpoint *v26; 
   DLogContext context; 
-  char v34[256]; 
+  char v28[256]; 
 
   while ( 1 )
   {
@@ -1302,7 +1295,7 @@ void __noreturn DLog_SendThread(void *__formal)
         {
           channel = v3->channel;
           endpoint = channel->endpoint;
-          v32 = endpoint;
+          v26 = endpoint;
           if ( endpoint )
           {
             if ( channel->postSerializerCount <= 0 )
@@ -1318,63 +1311,48 @@ void __noreturn DLog_SendThread(void *__formal)
               v8 = v6;
               DLog_Serialize(v3->channel->postSerializers, v3->channel->postSerializerCount, &v3->eventInfo, &v3->context, &context, NULL);
               v9 = DLog_Microseconds();
-              _RCX = &v3->context;
+              p_context = (__m256i *)&v3->context;
               v11 = v9 - v8;
-              _RAX = &context;
+              v12 = &context;
               v13 = 2i64;
               do
               {
-                _RCX = (DLogContext *)((char *)_RCX + 128);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups xmm1, xmmword ptr [rax+70h]
-                }
-                _RAX = (DLogContext *)((char *)_RAX + 128);
-                __asm
-                {
-                  vmovups ymmword ptr [rcx-80h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-60h]
-                  vmovups ymmword ptr [rcx-60h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-40h]
-                  vmovups ymmword ptr [rcx-40h], ymm0
-                  vmovups xmm0, xmmword ptr [rax-20h]
-                  vmovups xmmword ptr [rcx-20h], xmm0
-                  vmovups xmmword ptr [rcx-10h], xmm1
-                }
+                p_context += 4;
+                v14 = *(__m256i *)&v12->position;
+                v15 = *(_OWORD *)&v12->rowArrayName[40];
+                v12 = (DLogContext *)((char *)v12 + 128);
+                p_context[-4] = v14;
+                p_context[-3] = *(__m256i *)&v12[-1].eventName[32];
+                p_context[-2] = *(__m256i *)v12[-1].rowName;
+                *(_OWORD *)p_context[-1].m256i_i8 = *(_OWORD *)&v12[-1].rowName[32];
+                *(_OWORD *)&p_context[-1].m256i_u64[2] = v15;
                 --v13;
               }
               while ( v13 );
-              __asm { vmovups ymm0, ymmword ptr [rax] }
               p_name = &v3->channel->name;
-              v21 = *p_eventInfo;
-              __asm
-              {
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups ymm0, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rcx+20h], ymm0
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rcx+40h], ymm0
-              }
-              DLog_sprintf<256>((char (*)[256])v34, "post-serialize: %s -> %s", *v21, *p_name);
+              v17 = *p_eventInfo;
+              *p_context = *(__m256i *)&v12->position;
+              p_context[1] = *(__m256i *)&v12->row;
+              p_context[2] = *(__m256i *)&v12->userId;
+              DLog_sprintf<256>((char (*)[256])v28, "post-serialize: %s -> %s", *v17, *p_name);
               ContextSize = DLog_GetContextSize(&v3->context);
-              DLog_AddMetric(v34, v3->eventCount, ContextSize, v11);
-              endpoint = v32;
+              DLog_AddMetric(v28, v3->eventCount, ContextSize, v11);
+              endpoint = v26;
             }
             if ( !DLog_GetContextSize(&v3->context) )
               goto LABEL_18;
             v3->inUse = 1;
             v3->eventInfo.channelBuffer = v3;
-            v25 = DLog_Microseconds();
-            v26 = endpoint->endpoint;
-            v27 = v25;
-            v28 = DLog_GetContextSize(&v3->context);
-            v29 = v26(0i64, v3->context.buffer, v28, (DLogEventInfo *)p_eventInfo);
-            v30 = DLog_Microseconds() - v27;
-            DLog_sprintf<256>((char (*)[256])v34, "endpoint: %s -> %s", **p_eventInfo, v32->name);
-            v31 = DLog_GetContextSize(&v3->context);
-            DLog_AddMetric(v34, v3->eventCount, v31, v30);
-            if ( v29 )
+            v19 = DLog_Microseconds();
+            v20 = endpoint->endpoint;
+            v21 = v19;
+            v22 = DLog_GetContextSize(&v3->context);
+            v23 = v20(0i64, v3->context.buffer, v22, (DLogEventInfo *)p_eventInfo);
+            v24 = DLog_Microseconds() - v21;
+            DLog_sprintf<256>((char (*)[256])v28, "endpoint: %s -> %s", **p_eventInfo, v26->name);
+            v25 = DLog_GetContextSize(&v3->context);
+            DLog_AddMetric(v28, v3->eventCount, v25, v24);
+            if ( v23 )
 LABEL_18:
               DLog_FreeChannelBuffer(v3);
           }
@@ -1408,19 +1386,21 @@ __int64 DLog_Serialize(const DLogSerializer **serializers, int serializerCount, 
   const DLogSerializer *v14; 
   int v15; 
   const char *categoryName; 
-  unsigned int v19; 
-  DLog *v20; 
-  const DLogChannel *v22; 
+  unsigned int v18; 
+  DLog *v19; 
+  DLogChannelBuffer *ChannelBuffer; 
+  const DLogChannel *v21; 
   const char *name; 
-  signed __int64 v24; 
+  signed __int64 v23; 
+  int v24; 
   int v25; 
-  int v26; 
-  const char *v27; 
+  const char *v26; 
+  int v27; 
   int v28; 
-  int v29; 
-  size_t v30; 
-  int v31; 
-  bool v32; 
+  size_t v29; 
+  int v30; 
+  bool v31; 
+  double v32; 
   int ChannelBufferTimeMilliseconds; 
   DLogReadContext context; 
 
@@ -1445,90 +1425,84 @@ LABEL_9:
     }
     else
     {
-      _R12 = eventInfo;
       categoryName = eventInfo->categoryName;
       DLog_EnterCriticalSection(DLOG_CRITSECT_MEMORY);
-      v19 = 0;
-      v20 = &s_dlog;
+      v18 = 0;
+      v19 = &s_dlog;
       while ( 1 )
       {
-        _RDI = v20->channelBuffers[0];
-        if ( v20->channelBuffers[0] && !_RDI->inUse )
+        ChannelBuffer = v19->channelBuffers[0];
+        if ( v19->channelBuffers[0] && !ChannelBuffer->inUse )
         {
-          v22 = _RDI->channel;
-          name = v22->name;
-          v24 = v6->name - v22->name;
+          v21 = ChannelBuffer->channel;
+          name = v21->name;
+          v23 = v6->name - v21->name;
           do
           {
-            v25 = (unsigned __int8)name[v24];
-            v26 = *(unsigned __int8 *)name - v25;
-            if ( v26 )
+            v24 = (unsigned __int8)name[v23];
+            v25 = *(unsigned __int8 *)name - v24;
+            if ( v25 )
               break;
             ++name;
           }
-          while ( v25 );
-          if ( !v26 )
+          while ( v24 );
+          if ( !v25 )
           {
-            v27 = _RDI->name;
+            v26 = ChannelBuffer->name;
             do
             {
-              v28 = (unsigned __int8)v27[categoryName - _RDI->name];
-              v29 = *(unsigned __int8 *)v27 - v28;
-              if ( v29 )
+              v27 = (unsigned __int8)v26[categoryName - ChannelBuffer->name];
+              v28 = *(unsigned __int8 *)v26 - v27;
+              if ( v28 )
                 break;
-              ++v27;
+              ++v26;
             }
-            while ( v28 );
-            if ( !v29 )
+            while ( v27 );
+            if ( !v28 )
             {
-              v30 = position;
-              if ( position + (__int64)DLog_GetContextSize(&_RDI->context) < (unsigned __int64)_RDI->channel->bufferFlushSize )
+              v29 = position;
+              if ( position + (__int64)DLog_GetContextSize(&ChannelBuffer->context) < (unsigned __int64)ChannelBuffer->channel->bufferFlushSize )
                 goto LABEL_32;
-              v31 = DLog_Milliseconds();
-              v32 = !_RDI->fullWarningDisplayed;
-              _RDI->sendTimeMilliseconds = v31;
-              if ( v32 )
-                _RDI->fullWarningDisplayed = 1;
+              v30 = DLog_Milliseconds();
+              v31 = !ChannelBuffer->fullWarningDisplayed;
+              ChannelBuffer->sendTimeMilliseconds = v30;
+              if ( v31 )
+                ChannelBuffer->fullWarningDisplayed = 1;
             }
           }
         }
-        ++v19;
-        v20 = (DLog *)((char *)v20 + 8);
-        if ( v19 >= 0x60 )
+        ++v18;
+        v19 = (DLog *)((char *)v19 + 8);
+        if ( v18 >= 0x60 )
           break;
         v6 = channel;
       }
-      _RDI = NULL;
-      v30 = position;
+      ChannelBuffer = NULL;
+      v29 = position;
 LABEL_32:
       DLog_LeaveCriticalSection(DLOG_CRITSECT_MEMORY);
-      if ( !_RDI )
+      if ( !ChannelBuffer )
       {
-        _RDI = DLog_AllocateChannelBuffer(eventInfo->categoryName, channel);
-        if ( !_RDI )
+        ChannelBuffer = DLog_AllocateChannelBuffer(eventInfo->categoryName, channel);
+        if ( !ChannelBuffer )
         {
           DLog_ErrorOutOfMemory(source);
           return 0xFFFFFFFFi64;
         }
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r12]
-        vmovups ymmword ptr [rdi+178h], ymm0
-        vmovups xmm1, xmmword ptr [r12+20h]
-        vmovups xmmword ptr [rdi+198h], xmm1
-        vmovsd  xmm0, qword ptr [r12+30h]
-      }
-      ++_RDI->eventCount;
-      v32 = _RDI->sendTimeMilliseconds == 0;
-      __asm { vmovsd  qword ptr [rdi+1A8h], xmm0 }
-      if ( v32 )
+      *(__m256i *)&ChannelBuffer->eventInfo.event = *(__m256i *)&eventInfo->event;
+      *(_OWORD *)&ChannelBuffer->eventInfo.channelBuffer = *(_OWORD *)&eventInfo->channelBuffer;
+      v32 = *(double *)&eventInfo->eventCount;
+      ++ChannelBuffer->eventCount;
+      v31 = ChannelBuffer->sendTimeMilliseconds == 0;
+      *(double *)&ChannelBuffer->eventInfo.eventCount = v32;
+      if ( v31 )
       {
         ChannelBufferTimeMilliseconds = DLog_GetChannelBufferTimeMilliseconds(channel->name, channel->bufferTimeMilliseconds);
-        _RDI->sendTimeMilliseconds = ChannelBufferTimeMilliseconds + DLog_Milliseconds();
+        ChannelBuffer->sendTimeMilliseconds = ChannelBufferTimeMilliseconds + DLog_Milliseconds();
       }
-      memcpy_0(&_RDI->context.buffer[_RDI->context.position], buffer, v30);
-      _RDI->context.position += position;
+      memcpy_0(&ChannelBuffer->context.buffer[ChannelBuffer->context.position], buffer, v29);
+      ChannelBuffer->context.position += position;
     }
     return (unsigned int)position;
   }

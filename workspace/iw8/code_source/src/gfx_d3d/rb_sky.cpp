@@ -49,121 +49,59 @@ RB_AddSunEffects
 */
 void RB_AddSunEffects(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, SunFlareDynamic *sunFlare)
 {
-  bool v9; 
-  bool v10; 
+  float v6; 
   GfxWorld *world; 
-  GfxCmdBufState *v25; 
-  bool v34; 
-  char v35; 
-  GfxCmdBufContext v40; 
+  GfxCmdBufContext v8; 
+  float sunspriteSizeOverride; 
+  GfxCmdBufState *v10; 
+  float height; 
+  GfxCmdBufContext v12; 
   GfxCmdBufState *state[2]; 
   GfxViewport outViewport; 
-  char v46; 
 
-  __asm { vmovaps [rsp+0B8h+var_28], xmm6 }
-  _RBX = sunFlare;
-  _RSI = viewInfo;
-  _RDI = gfxContext;
   if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 157, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
     __debugbreak();
-  v9 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 158, ASSERT_TYPE_ASSERT, "(sunFlare)", (const char *)&queryFormat, "sunFlare");
-    v9 = !v10;
-    if ( v10 )
-      __debugbreak();
-  }
-  _RAX = rgp.world;
-  _RCX = _RDI->source;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  xmm1, dword ptr [rax+3AD8h]
-    vmulss  xmm2, xmm1, dword ptr [rcx+2A3Ch]
-    vmovss  xmm0, dword ptr [rcx+2A40h]
-    vmulss  xmm3, xmm0, dword ptr [rax+3ADCh]
-    vmovss  xmm0, dword ptr [rcx+2A44h]
-    vmulss  xmm1, xmm0, dword ptr [rax+3AE0h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vcomiss xmm2, xmm6
-    vmovss  dword ptr [rbx+14h], xmm2
-  }
-  if ( !v9 )
+  if ( !sunFlare && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 158, ASSERT_TYPE_ASSERT, "(sunFlare)", (const char *)&queryFormat, "sunFlare") )
+    __debugbreak();
+  v6 = (float)((float)(gfxContext->source->viewParms3D.camera.axis.m[0].v[1] * rgp.world->sun.sunFxPosition.v[1]) + (float)(rgp.world->sun.sunFxPosition.v[0] * gfxContext->source->viewParms3D.camera.axis.m[0].v[0])) + (float)(gfxContext->source->viewParms3D.camera.axis.m[0].v[2] * rgp.world->sun.sunFxPosition.v[2]);
+  sunFlare->lastDot = v6;
+  if ( v6 > 0.0 )
   {
     world = rgp.world;
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_38], xmm7
-      vmovaps [rsp+0B8h+var_48], xmm8
-      vmovups xmm8, xmmword ptr [rdi]
-      vmovups xmmword ptr [rsp+0B8h+state], xmm8
-    }
+    v8 = *gfxContext;
+    *(GfxCmdBufContext *)state = *gfxContext;
     if ( !rgp.world )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 45, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
         __debugbreak();
       world = rgp.world;
     }
-    __asm
+    sunspriteSizeOverride = rg.sunspriteSizeOverride;
+    if ( rg.sunspriteSizeOverride < 0.0 )
+      sunspriteSizeOverride = world->sun.spriteSize;
+    if ( world->sun.spriteMaterial && sunspriteSizeOverride > 0.0 )
     {
-      vmovss  xmm7, cs:?rg@@3Ur_globals_t@@A.sunspriteSizeOverride; r_globals_t rg
-      vcomiss xmm7, xmm6
-    }
-    if ( world->sun.spriteMaterial )
-    {
-      __asm { vcomiss xmm7, xmm6 }
-      if ( world->sun.spriteMaterial )
+      v12 = v8;
+      RB_EndSurfaceIfNeeded(&v12);
+      v12 = v8;
+      RB_SetTessTechnique(&v12, rgp.world->sun.spriteMaterial, TECHNIQUE_EMISSIVE, GFX_PRIM_STATS_COUNT_GEO);
+      v12 = v8;
+      RB_SetIdentity(&v12);
+      v10 = state[1];
+      if ( viewInfo->dualViewScopeState.m_fade > 0.0 )
+        R_SetDepthBoundsEnable(state[1], 0.0, 0.984375);
+      R_GetViewport(v8.source, &outViewport);
+      height = (float)outViewport.height;
+      *(GfxCmdBufContext *)state = v8;
+      if ( RB_TessSunBillboard((GfxCmdBufContext *)state, &rgp.world->sun.sunFxPosition, (float)(sunspriteSizeOverride * 0.0020833334) * height, (float)(sunspriteSizeOverride * 0.0020833334) * height, (GfxColor)-1) )
       {
-        __asm { vmovdqa [rsp+0B8h+var_88], xmm8 }
-        RB_EndSurfaceIfNeeded(&v40);
-        __asm { vmovdqa [rsp+0B8h+var_88], xmm8 }
-        RB_SetTessTechnique(&v40, rgp.world->sun.spriteMaterial, TECHNIQUE_EMISSIVE, GFX_PRIM_STATS_COUNT_GEO);
-        __asm { vmovdqa [rsp+0B8h+var_88], xmm8 }
-        RB_SetIdentity(&v40);
-        __asm { vcomiss xmm6, dword ptr [rsi+9ACh] }
-        v25 = state[1];
-        if ( v35 )
-        {
-          __asm
-          {
-            vmovss  xmm2, cs:__real@3f7c0000; depthBoundsMax
-            vxorps  xmm1, xmm1, xmm1; depthBoundsMin
-          }
-          R_SetDepthBoundsEnable(state[1], *(const float *)&_XMM1, *(const float *)&_XMM2);
-        }
-        __asm { vmovq   rcx, xmm8; source }
-        R_GetViewport(_RCX, &outViewport);
-        __asm
-        {
-          vmulss  xmm1, xmm7, cs:__real@3b088889
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm2, xmm1, xmm0
-          vmovaps xmm3, xmm2
-          vmovdqa xmmword ptr [rsp+0B8h+state], xmm8
-        }
-        v34 = RB_TessSunBillboard((GfxCmdBufContext *)state, &rgp.world->sun.sunFxPosition, *(float *)&_XMM2, *(float *)&_XMM3, (GfxColor)-1);
-        v35 = 0;
-        if ( v34 )
-        {
-          __asm { vmovdqa xmmword ptr [rsp+0B8h+state], xmm8 }
-          RB_EndTessSurfaceInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp(73)");
-        }
-        __asm { vcomiss xmm6, dword ptr [rsi+9ACh] }
-        if ( v35 )
-          R_SetDepthBoundsDisable(v25);
+        *(GfxCmdBufContext *)state = v8;
+        RB_EndTessSurfaceInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp(73)");
       }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_38]
-      vmovaps xmm8, [rsp+0B8h+var_48]
+      if ( viewInfo->dualViewScopeState.m_fade > 0.0 )
+        R_SetDepthBoundsDisable(v10);
     }
   }
-  _R11 = &v46;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -171,25 +109,23 @@ void RB_AddSunEffects(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo,
 RB_AllocSunSpriteQueries
 ==============
 */
-
-void __fastcall RB_AllocSunSpriteQueries(__int64 a1, __int64 a2, __int64 a3, double _XMM3_8)
+void RB_AllocSunSpriteQueries(void)
 {
-  int v4; 
-  unsigned __int16 *v5; 
-  unsigned __int16 v6; 
+  int v0; 
+  unsigned __int16 *v1; 
+  unsigned __int16 v2; 
 
   if ( !sunQueryInited )
   {
-    v4 = 0;
-    v5 = (unsigned __int16 *)&unk_1544B52C0;
+    v0 = 0;
+    v1 = (unsigned __int16 *)&unk_1544B52C0;
     do
     {
-      __asm { vxorps  xmm3, xmm3, xmm3; depthBias }
-      v6 = RB_AllocOcclusionQuery((LocalClientNum_t)v4++, NULL, 0, *(float *)&_XMM3_8);
-      *v5 = v6;
-      v5 += 14;
+      v2 = RB_AllocOcclusionQuery((LocalClientNum_t)v0++, NULL, 0, 0.0);
+      *v1 = v2;
+      v1 += 14;
     }
-    while ( v4 < 2 );
+    while ( v0 < 2 );
     sunQueryInited = 1;
   }
 }
@@ -202,44 +138,36 @@ RB_DrawSun
 void RB_DrawSun(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   __int64 clientIndex; 
-  __int64 v9; 
+  SunFlareDynamic *v5; 
+  double OcclusionQueryVisibility; 
+  __int64 v7; 
   unsigned int maxClientRenderViews; 
-  GfxCmdBufContext v11; 
+  GfxCmdBufContext v9; 
 
   clientIndex = viewInfo->clientIndex;
-  _RDI = gfxContext;
   if ( (!RB_IsSunEnabled() || !sunQueryInited) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 221, ASSERT_TYPE_ASSERT, "(RB_IsSunEnabled() && sunQueryInited)", (const char *)&queryFormat, "RB_IsSunEnabled() && sunQueryInited") )
     __debugbreak();
   if ( (unsigned int)clientIndex >= gfxCfg.maxClientRenderViews )
   {
     maxClientRenderViews = gfxCfg.maxClientRenderViews;
-    LODWORD(v9) = clientIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 223, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( gfxCfg.maxClientRenderViews )", "localClientNum doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", v9, maxClientRenderViews) )
+    LODWORD(v7) = clientIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 223, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( gfxCfg.maxClientRenderViews )", "localClientNum doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", v7, maxClientRenderViews) )
       __debugbreak();
   }
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  _RBX = &sunFlareArray[clientIndex];
-  __asm { vmovups xmmword ptr [rsp+58h+var_18.source], xmm0 }
-  RB_SetIdentity(&v11);
-  if ( _RBX->occlusionQueryHandle == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 229, ASSERT_TYPE_ASSERT, "(sunFlare->occlusionQueryHandle != 0xffff)", (const char *)&queryFormat, "sunFlare->occlusionQueryHandle != OQ_HANDLE_NONE") )
+  v5 = &sunFlareArray[clientIndex];
+  v9 = *gfxContext;
+  RB_SetIdentity(&v9);
+  if ( v5->occlusionQueryHandle == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 229, ASSERT_TYPE_ASSERT, "(sunFlare->occlusionQueryHandle != 0xffff)", (const char *)&queryFormat, "sunFlare->occlusionQueryHandle != OQ_HANDLE_NONE") )
     __debugbreak();
   if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 233, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
     __debugbreak();
-  RB_SetOcclusionQueryPosition(_RBX->occlusionQueryHandle, &rgp.world->sun.sunFxPosition);
-  *(double *)&_XMM0 = RB_GetOcclusionQueryVisibility(_RBX->occlusionQueryHandle);
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+58h+var_18.source], xmm1
-    vmovss  dword ptr [rbx+10h], xmm0
-  }
-  RB_AddSunEffects(&v11, viewInfo, _RBX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+58h+var_18.source], xmm0
-  }
-  RB_EndSurfaceIfNeeded(&v11);
+  RB_SetOcclusionQueryPosition(v5->occlusionQueryHandle, &rgp.world->sun.sunFxPosition);
+  OcclusionQueryVisibility = RB_GetOcclusionQueryVisibility(v5->occlusionQueryHandle);
+  v9 = *gfxContext;
+  v5->lastVisibility = *(float *)&OcclusionQueryVisibility;
+  RB_AddSunEffects(&v9, viewInfo, v5);
+  v9 = *gfxContext;
+  RB_EndSurfaceIfNeeded(&v9);
 }
 
 /*
@@ -249,166 +177,113 @@ RB_DrawSunFlare
 */
 void RB_DrawSunFlare(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, SunFlareDynamic *sunFlare, int frameTime)
 {
-  char v28; 
-  bool v29; 
-  bool v32; 
-  bool v34; 
-  GfxCmdBufState *v46; 
-  bool v53; 
-  char v54; 
-  double v58; 
-  double v59; 
-  double v60; 
-  GfxCmdBufContext v61; 
+  __int128 v4; 
+  GfxWorld *world; 
+  float lastDot; 
+  float flareMinDot; 
+  float flareMaxDot; 
+  float v13; 
+  float v14; 
+  float flareMaxAlpha; 
+  float v16; 
+  float v17; 
+  float lastVisibility; 
+  double updated; 
+  float v20; 
+  GfxCmdBufContext v21; 
+  int v24; 
+  GfxCmdBufState *v25; 
+  unsigned int v26; 
+  float height; 
+  GfxCmdBufContext v28; 
   GfxCmdBufState *state[2]; 
   GfxViewport outViewport; 
+  __int128 v31; 
 
-  _RBX = sunFlare;
-  _RSI = viewInfo;
-  _RBP = gfxContext;
   if ( !sunFlare && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 124, ASSERT_TYPE_ASSERT, "(sunFlare)", (const char *)&queryFormat, "sunFlare") )
     __debugbreak();
-  _RAX = rgp.world;
+  world = rgp.world;
   if ( rgp.world->sun.flareMaterial )
   {
-    __asm
+    lastDot = sunFlare->lastDot;
+    flareMinDot = rgp.world->sun.flareMinDot;
+    if ( lastDot > flareMinDot )
     {
-      vmovss  xmm0, dword ptr [rbx+14h]
-      vmovss  xmm2, dword ptr [rax+3A98h]
-      vcomiss xmm0, xmm2
-    }
-    if ( rgp.world->sun.flareMaterial )
-    {
-      __asm
+      flareMaxDot = rgp.world->sun.flareMaxDot;
+      v31 = v4;
+      if ( lastDot < flareMaxDot )
       {
-        vmovss  xmm3, dword ptr [rax+3AA0h]
-        vcomiss xmm0, xmm3
-        vmovaps [rsp+0F8h+var_38], xmm6
-        vmovaps [rsp+0F8h+var_48], xmm7
-        vmovaps [rsp+0F8h+var_58], xmm8
-        vmovaps [rsp+0F8h+var_68], xmm9
-        vmovss  xmm9, cs:__real@3f800000
-        vmovaps [rsp+0F8h+var_78], xmm10
-        vmovaps [rsp+0F8h+var_88], xmm11
-        vxorps  xmm6, xmm6, xmm6
-        vmovaps xmm7, xmm9
-        vmovss  xmm0, dword ptr [rax+3AA4h]
-        vcomiss xmm0, xmm6
-        vmovss  xmm1, dword ptr [rbx]
-        vcomiss xmm1, xmm6
-        vmulss  xmm0, xmm7, dword ptr [rax+3A9Ch]
-        vmulss  xmm10, xmm7, dword ptr [rax+3AA4h]
-        vaddss  xmm11, xmm0, dword ptr [rax+3A94h]
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vcomiss xmm0, xmm6
-        vmovss  xmm1, dword ptr [rbx+10h]; fGoal
-        vmovss  xmm0, dword ptr [rbx]; fCurrent
-      }
-      *(double *)&_XMM0 = R_UpdateOverTime(*(float *)&_XMM0, *(float *)&_XMM1, rgp.world->sun.flareFadeInTime, rgp.world->sun.flareFadeOutTime, frameTime);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
-      if ( v28 )
-      {
-        __asm
+        v14 = (float)(lastDot - flareMinDot) / (float)(flareMaxDot - flareMinDot);
+        v13 = v14;
+        if ( v14 < 0.0 || v14 > 1.0 )
         {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0F8h+var_D0], xmm0
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 137, ASSERT_TYPE_SANITY, "( ( lerp >= 0.0f && lerp <= 1.0f ) )", "( lerp ) = %g", v14) )
+            __debugbreak();
+          world = rgp.world;
         }
-        v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 148, ASSERT_TYPE_ASSERT, "( ( sunFlare->flareIntensity >= 0.0f ) )", "( sunFlare->flareIntensity ) = %g", v58);
-        v28 = 0;
-        v29 = !v32;
-        if ( v32 )
+      }
+      else
+      {
+        v13 = FLOAT_1_0;
+      }
+      flareMaxAlpha = world->sun.flareMaxAlpha;
+      if ( flareMaxAlpha < 0.0 )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 138, ASSERT_TYPE_SANITY, "( ( rgp.world->sun.flareMaxAlpha >= 0.0f ) )", "( rgp.world->sun.flareMaxAlpha ) = %g", flareMaxAlpha) )
           __debugbreak();
+        world = rgp.world;
       }
-      __asm { vcomiss xmm10, xmm6 }
-      if ( v28 )
+      v16 = v13 * world->sun.flareMaxAlpha;
+      v17 = (float)(v13 * world->sun.flareMaxSize) + world->sun.flareMinSize;
+      if ( sunFlare->flareIntensity < 0.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm10, xmm10
-          vmovsd  [rsp+0F8h+var_D0], xmm0
-        }
-        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 149, ASSERT_TYPE_ASSERT, "( ( alpha >= 0.0f ) )", "( alpha ) = %g", v59);
-        v28 = 0;
-        v29 = !v34;
-        if ( v34 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 143, ASSERT_TYPE_ASSERT, "( ( sunFlare->flareIntensity >= 0.0f ) )", "( sunFlare->flareIntensity ) = %g", sunFlare->flareIntensity) )
           __debugbreak();
+        world = rgp.world;
       }
-      __asm
+      lastVisibility = sunFlare->lastVisibility;
+      if ( lastVisibility < 0.0 )
       {
-        vmulss  xmm7, xmm10, dword ptr [rbx]
-        vcomiss xmm7, xmm6
-        vmovups xmm8, xmmword ptr [rbp+0]
-        vmovaps xmm10, [rsp+0F8h+var_78]
-        vmovups xmmword ptr [rsp+0F8h+state], xmm8
-      }
-      if ( v28 )
-        goto LABEL_24;
-      __asm { vcomiss xmm7, xmm9 }
-      if ( !(v28 | v29) )
-      {
-LABEL_24:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+0F8h+var_D0], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 90, ASSERT_TYPE_ASSERT, "( ( alpha >= 0 && alpha <= 1 ) )", "( alpha ) = %g", v60) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 144, ASSERT_TYPE_ASSERT, "( ( sunFlare->lastVisibility >= 0.0f ) )", "( sunFlare->lastVisibility ) = %g", lastVisibility) )
           __debugbreak();
+        world = rgp.world;
       }
-      __asm
+      updated = R_UpdateOverTime(sunFlare->flareIntensity, sunFlare->lastVisibility, world->sun.flareFadeInTime, world->sun.flareFadeOutTime, frameTime);
+      sunFlare->flareIntensity = *(float *)&updated;
+      if ( *(float *)&updated < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 148, ASSERT_TYPE_ASSERT, "( ( sunFlare->flareIntensity >= 0.0f ) )", "( sunFlare->flareIntensity ) = %g", *(float *)&updated) )
+        __debugbreak();
+      if ( v16 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 149, ASSERT_TYPE_ASSERT, "( ( alpha >= 0.0f ) )", "( alpha ) = %g", v16) )
+        __debugbreak();
+      v20 = v16 * sunFlare->flareIntensity;
+      v21 = *gfxContext;
+      *(GfxCmdBufContext *)state = *gfxContext;
+      if ( (v20 < 0.0 || v20 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 90, ASSERT_TYPE_ASSERT, "( ( alpha >= 0 && alpha <= 1 ) )", "( alpha ) = %g", v20) )
+        __debugbreak();
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      v24 = (int)*(float *)&_XMM4;
+      if ( (unsigned __int8)(int)*(float *)&_XMM4 )
       {
-        vmulss  xmm0, xmm7, cs:__real@437f0000
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vmovaps xmm9, [rsp+0F8h+var_68]
-        vmovaps xmm7, [rsp+0F8h+var_48]
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si ebx, xmm4
-      }
-      if ( (_BYTE)_EBX )
-      {
-        __asm { vmovdqa [rsp+0F8h+var_C8], xmm8 }
-        RB_EndSurfaceIfNeeded(&v61);
-        __asm { vmovdqa [rsp+0F8h+var_C8], xmm8 }
-        RB_SetIdentity(&v61);
-        __asm { vmovdqa [rsp+0F8h+var_C8], xmm8 }
-        RB_SetTessTechnique(&v61, rgp.world->sun.flareMaterial, TECHNIQUE_EMISSIVE, GFX_PRIM_STATS_COUNT_GEO);
-        v46 = state[1];
-        __asm
+        v28 = v21;
+        RB_EndSurfaceIfNeeded(&v28);
+        v28 = v21;
+        RB_SetIdentity(&v28);
+        v28 = v21;
+        RB_SetTessTechnique(&v28, rgp.world->sun.flareMaterial, TECHNIQUE_EMISSIVE, GFX_PRIM_STATS_COUNT_GEO);
+        v25 = state[1];
+        v26 = (unsigned __int8)v24 | (((unsigned __int8)v24 | ((v24 | 0xFFFFFF00) << 8)) << 8);
+        if ( viewInfo->dualViewScopeState.m_fade > 0.0 )
+          R_SetDepthBoundsEnable(state[1], 0.0, 0.984375);
+        R_GetViewport(v21.source, &outViewport);
+        height = (float)outViewport.height;
+        *(GfxCmdBufContext *)state = v21;
+        if ( RB_TessSunBillboard((GfxCmdBufContext *)state, &rgp.world->sun.sunFxPosition, (float)(v17 * 0.0020833334) * height, (float)(v17 * 0.0020833334) * height, (GfxColor)v26) )
         {
-          vcomiss xmm6, dword ptr [rsi+9ACh]
-          vmovq   rcx, xmm8; source
-        }
-        R_GetViewport(_RCX, &outViewport);
-        __asm
-        {
-          vmulss  xmm1, xmm11, cs:__real@3b088889
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm2, xmm1, xmm0
-          vmovaps xmm3, xmm2
-          vmovdqa xmmword ptr [rsp+0F8h+state], xmm8
-        }
-        v53 = RB_TessSunBillboard((GfxCmdBufContext *)state, &rgp.world->sun.sunFxPosition, *(float *)&_XMM2, *(float *)&_XMM3, (GfxColor)((unsigned __int8)_EBX | (((unsigned __int8)_EBX | ((_EBX | 0xFFFFFF00) << 8)) << 8)));
-        v54 = 0;
-        if ( v53 )
-        {
-          __asm { vmovdqa xmmword ptr [rsp+0F8h+state], xmm8 }
+          *(GfxCmdBufContext *)state = v21;
           RB_EndTessSurfaceInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp(109)");
         }
-        __asm { vcomiss xmm6, dword ptr [rsi+9ACh] }
-        if ( v54 )
-          R_SetDepthBoundsDisable(v46);
-      }
-      __asm
-      {
-        vmovaps xmm8, [rsp+0F8h+var_58]
-        vmovaps xmm6, [rsp+0F8h+var_38]
-        vmovaps xmm11, [rsp+0F8h+var_88]
+        if ( viewInfo->dualViewScopeState.m_fade > 0.0 )
+          R_SetDepthBoundsDisable(v25);
       }
     }
   }
@@ -422,33 +297,29 @@ RB_DrawSunPostEffects
 void RB_DrawSunPostEffects(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   __int64 clientIndex; 
-  SunFlareDynamic *v6; 
+  SunFlareDynamic *v5; 
   int lastTime; 
   int time; 
-  int v9; 
-  GfxCmdBufContext v11; 
+  int v8; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufContext v10; 
 
   clientIndex = viewInfo->clientIndex;
-  _RSI = gfxContext;
   if ( (unsigned int)clientIndex >= gfxCfg.maxClientRenderViews && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 266, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( gfxCfg.maxClientRenderViews )", "localClientNum doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", clientIndex, gfxCfg.maxClientRenderViews) )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rsp+58h+var_18.source], xmm0
-  }
-  v6 = &sunFlareArray[clientIndex];
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 246, ASSERT_TYPE_ASSERT, "(sunFlare)", (const char *)&queryFormat, "sunFlare") )
+  v10 = *gfxContext;
+  v5 = &sunFlareArray[clientIndex];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sky.cpp", 246, ASSERT_TYPE_ASSERT, "(sunFlare)", (const char *)&queryFormat, "sunFlare") )
     __debugbreak();
-  lastTime = v6->lastTime;
-  if ( lastTime && (time = v11.source->sceneDef.time, lastTime <= time) )
-    v9 = time - lastTime;
+  lastTime = v5->lastTime;
+  if ( lastTime && (time = v10.source->sceneDef.time, lastTime <= time) )
+    v8 = time - lastTime;
   else
-    v9 = 10;
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  v6->lastTime = v11.source->sceneDef.time;
-  __asm { vmovups xmmword ptr [rsp+58h+var_18.source], xmm0 }
-  RB_DrawSunFlare(&v11, viewInfo, v6, v9);
+    v8 = 10;
+  v9 = *gfxContext;
+  v5->lastTime = v10.source->sceneDef.time;
+  v10 = v9;
+  RB_DrawSunFlare(&v10, viewInfo, v5, v8);
 }
 
 /*
@@ -466,52 +337,20 @@ bool RB_IsSunEnabled()
 RB_TessSunBillboard
 ==============
 */
-
-bool __fastcall RB_TessSunBillboard(GfxCmdBufContext *gfxContext, const vec3_t *sunPos, double widthInPixels, double heightInPixels, GfxColor color)
+bool RB_TessSunBillboard(GfxCmdBufContext *gfxContext, const vec3_t *sunPos, float widthInPixels, float heightInPixels, GfxColor color)
 {
-  bool result; 
-  float v21; 
-  float v22; 
-  float v23; 
-  bool v24; 
-  unsigned int v25[3]; 
-  GfxViewport v26; 
-  GfxCmdBufContext v27; 
-  GfxViewport v28; 
-  char v29; 
-  void *retaddr; 
+  GfxCmdBufContext v5; 
+  bool v8; 
+  unsigned int v9[3]; 
+  GfxViewport v10; 
+  GfxCmdBufContext v11; 
+  GfxViewport v12; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovups xmm6, xmmword ptr [rcx]
-    vmovq   rcx, xmm6; source
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-  }
-  R_GetViewport(_RCX, &v28);
-  __asm
-  {
-    vmovups xmm0, [rsp+0F8h+var_68]
-    vmovdqa [rsp+0F8h+var_88], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0F8h+var_C0], xmm0
-    vmovss  [rsp+0F8h+var_D0], xmm8
-    vmovss  [rsp+0F8h+var_D8], xmm7
-    vmovdqa [rsp+0F8h+var_78], xmm6
-  }
-  RB_TessRectBillboard(&v27, sunPos, 0, 0, v21, v22, color, v23, &v26, 0, v25, &v24);
-  result = v25[0] != 0;
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
-  return result;
+  v5 = *gfxContext;
+  R_GetViewport(gfxContext->source, &v12);
+  v10 = v12;
+  v11 = v5;
+  RB_TessRectBillboard(&v11, sunPos, 0, 0, widthInPixels, heightInPixels, color, 0.0, &v10, 0, v9, &v8);
+  return v9[0] != 0;
 }
 

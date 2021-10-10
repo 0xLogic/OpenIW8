@@ -60,20 +60,12 @@ hknpClosestHitCollector::reset
 void hknpClosestHitCollector::reset(hknpClosestHitCollector *this)
 {
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rcx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   *(_QWORD *)&this->m_hit.m_queryType = 0i64;
   this->m_hit.m_fraction = 3.40282e38;
   this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovups ymmword ptr [rcx+30h], ymm0
-  }
+  *(__m256i *)this->m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
   *(_QWORD *)&this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
   this->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = -1;
   this->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = 0;

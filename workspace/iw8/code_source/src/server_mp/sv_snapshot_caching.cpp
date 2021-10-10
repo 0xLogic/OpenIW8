@@ -913,6 +913,11 @@ SV_ReadDeltaCachedUmbraGateStates
 char SV_ReadDeltaCachedUmbraGateStates(msg_t *msg, cachedSnapshotWorldState_t *cachedFrame, const cachedSnapshotWorldState_t *oldCachedFrame)
 {
   const bitarray<384> *v7; 
+  bitarray<384> *v8; 
+  __m256i v9; 
+  __int128 v10; 
+  bitarray<384> *cachedSnapshotUmbraGateStates; 
+  unsigned __int64 v12; 
   bitarray<384> result; 
 
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 1368, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
@@ -931,19 +936,13 @@ LABEL_9:
   cachedFrame->umbraGateStatesIndex = g_svSnapshotData.nextCachedSnapshotUmbraGateStatesIndex;
   if ( oldCachedFrame )
     v7 = &g_svSnapshotData.cachedSnapshotUmbraGateStates[oldCachedFrame->umbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates];
-  _RAX = MSG_ReadDeltaUmbraGateState(&result, msg, v7);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-  }
-  _RAX = g_svSnapshotData.cachedSnapshotUmbraGateStates;
-  _RCX = 6i64 * (cachedFrame->umbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates);
-  __asm
-  {
-    vmovups ymmword ptr [rax+rcx*8], ymm0
-    vmovups xmmword ptr [rax+rcx*8+20h], xmm1
-  }
+  v8 = MSG_ReadDeltaUmbraGateState(&result, msg, v7);
+  v9 = *(__m256i *)v8->array;
+  v10 = *(_OWORD *)&v8->array[8];
+  cachedSnapshotUmbraGateStates = g_svSnapshotData.cachedSnapshotUmbraGateStates;
+  v12 = cachedFrame->umbraGateStatesIndex % g_svSnapshotData.numCachedSnapshotUmbraGateStates;
+  *(__m256i *)g_svSnapshotData.cachedSnapshotUmbraGateStates[v12].array = v9;
+  *(_OWORD *)&cachedSnapshotUmbraGateStates[v12].array[8] = v10;
   ++g_svSnapshotData.nextCachedSnapshotUmbraGateStatesIndex;
   if ( msg->overflowed )
   {
@@ -1156,22 +1155,24 @@ __int64 SV_SnapshotMP_GetArchivedClientInfo(int clientNum, bool archiveUsePOTG, 
   unsigned __int64 v9; 
   unsigned int *v11; 
   int v12; 
-  int v14; 
-  const char *v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  int v18; 
-  int *v20; 
+  int v13; 
+  const char *v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  int v17; 
+  __int64 v18; 
+  int *v19; 
   int archivedFrameDuration; 
-  char v22; 
-  int v23; 
-  GSnapshotWeaponMap *v27; 
-  int v28; 
-  int v33; 
+  char v21; 
+  int v22; 
+  float v23; 
+  GSnapshotWeaponMap *v24; 
+  int v25; 
+  int v26; 
   int serverTime; 
-  int v35; 
+  int v28; 
   int inputTime; 
-  int v37; 
+  int v30; 
   int foliageSoundTime; 
   int jumpTime; 
   int viewHeightLerpTime; 
@@ -1183,16 +1184,23 @@ __int64 SV_SnapshotMP_GetArchivedClientInfo(int clientNum, bool archiveUsePOTG, 
   int startTime; 
   int stopTime; 
   int endTime; 
+  int v42; 
+  int v43; 
+  int v44; 
+  int *p_time; 
+  int v46; 
+  int v47; 
+  int v48; 
   int v49; 
   int v50; 
-  int v51; 
-  int *p_time; 
+  _DWORD *v51; 
+  int v52; 
   int v53; 
   int v54; 
   int v55; 
   int v56; 
   int v57; 
-  _DWORD *v58; 
+  int v58; 
   int v59; 
   int v60; 
   int v61; 
@@ -1206,26 +1214,21 @@ __int64 SV_SnapshotMP_GetArchivedClientInfo(int clientNum, bool archiveUsePOTG, 
   int v69; 
   int v70; 
   int v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  __int64 v82; 
-  GSnapshotWeaponMap *v89; 
+  playerState_s *v72; 
+  clientState_t *ClientState; 
+  unsigned __int64 v74; 
+  __int64 v75; 
+  GSnapshotWeaponMap *v76; 
   GWeaponMap *Instance; 
-  __int64 v94; 
-  __int64 v95; 
-  __int64 v96; 
-  __int64 v97; 
-  char v98[4]; 
-  __int64 v99; 
+  __int64 v79; 
+  __int64 v80; 
+  __int64 v81; 
+  __int64 v82; 
+  char v83[4]; 
+  __int64 v84; 
 
-  v99 = -2i64;
-  v9 = (unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64;
-  _RBX = ps;
+  v84 = -2i64;
+  v9 = (unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64;
   *(_QWORD *)(v9 + 72) = ps;
   v11 = (unsigned int *)pArchiveTime;
   *(_QWORD *)(v9 + 16) = pArchiveTime;
@@ -1233,7 +1236,6 @@ __int64 SV_SnapshotMP_GetArchivedClientInfo(int clientNum, bool archiveUsePOTG, 
   v12 = clientNum;
   *(_DWORD *)(v9 + 8) = clientNum;
   *(_QWORD *)(v9 + 40) = weaponMap;
-  _R15 = origin;
   *(_QWORD *)(v9 + 48) = health;
   *(_QWORD *)(v9 + 56) = otherFlags;
   *(_QWORD *)(v9 + 64) = team;
@@ -1247,352 +1249,310 @@ __int64 SV_SnapshotMP_GetArchivedClientInfo(int clientNum, bool archiveUsePOTG, 
     __debugbreak();
   SV_SnapWorkersMP_WaitSnapshotArchiveAddWorkers();
   Profile_Begin(314);
-  v14 = *v11;
-  v15 = j_va("SV_GetArchivedClientInfo(%d)", *v11);
-  Sys_ProfBeginNamedEvent(0xFFFF0000, v15);
-  v16 = 0;
-  v17 = 0i64;
-  *(_QWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x20) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 4) = v14;
+  v13 = *v11;
+  v14 = j_va("SV_GetArchivedClientInfo(%d)", *v11);
+  Sys_ProfBeginNamedEvent(0xFFFF0000, v14);
+  v15 = 0;
+  v16 = 0i64;
+  *(_QWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x20) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 4) = v13;
   if ( SV_SnapshotMP_GetCachedSnapshotPlayerState(v12, *(_BYTE *)v9, (int *)(v9 + 4), (cachedPlayerState_t **)(v9 + 24)) )
   {
-    v18 = *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 4);
-    *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 4) = v18;
-    _RSI = *(_QWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18);
-    if ( !_RSI )
+    v17 = *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 4);
+    *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 4) = v17;
+    v18 = *(_QWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18);
+    if ( !v18 )
       goto LABEL_20;
-    if ( SV_SnapshotMP_GetCachedSnapshotWeaponMap(*(_BYTE *)v9, (int *)(v9 + 4), (cachedSnapshotWeaponMap_t **)(v9 + 32)) && *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 4) == v18 )
+    if ( SV_SnapshotMP_GetCachedSnapshotWeaponMap(*(_BYTE *)v9, (int *)(v9 + 4), (cachedSnapshotWeaponMap_t **)(v9 + 32)) && *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 4) == v17 )
     {
-      v17 = *(_QWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x20);
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2686, ASSERT_TYPE_ASSERT, "( (*outCachedWeaponMap != nullptr) || (*outCachedPlayerState == nullptr) )", (const char *)&queryFormat, "(*outCachedWeaponMap != nullptr) || (*outCachedPlayerState == nullptr)") )
+      v16 = *(_QWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x20);
+      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2686, ASSERT_TYPE_ASSERT, "( (*outCachedWeaponMap != nullptr) || (*outCachedPlayerState == nullptr) )", (const char *)&queryFormat, "(*outCachedWeaponMap != nullptr) || (*outCachedPlayerState == nullptr)") )
         __debugbreak();
 LABEL_20:
-      v20 = *(int **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10);
-      *v20 = v18;
-      if ( _RSI )
+      v19 = *(int **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10);
+      *v19 = v17;
+      if ( v18 )
       {
-        if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2741, ASSERT_TYPE_ASSERT, "( cachedWeaponMapFrame != nullptr )", (const char *)&queryFormat, "cachedWeaponMapFrame != nullptr") )
+        if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2741, ASSERT_TYPE_ASSERT, "( cachedWeaponMapFrame != nullptr )", (const char *)&queryFormat, "cachedWeaponMapFrame != nullptr") )
           __debugbreak();
-        if ( *(_DWORD *)(_RSI + 460) == *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 8) )
+        if ( *(_DWORD *)(v18 + 460) == *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 8) )
         {
-          if ( *v20 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2747, ASSERT_TYPE_ASSERT, "( *pArchiveTime > 0 )", (const char *)&queryFormat, "*pArchiveTime > 0") )
+          if ( *v19 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2747, ASSERT_TYPE_ASSERT, "( *pArchiveTime > 0 )", (const char *)&queryFormat, "*pArchiveTime > 0") )
             __debugbreak();
-          if ( *(_DWORD *)(_RSI + 21440) != *(_DWORD *)(v17 + 8) )
+          if ( *(_DWORD *)(v18 + 21440) != *(_DWORD *)(v16 + 8) )
           {
-            LODWORD(v94) = *(_DWORD *)(_RSI + 21440);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2748, ASSERT_TYPE_ASSERT, "( cachedPlayerState->archivedFrame ) == ( cachedWeaponMapFrame->archivedFrame )", "cachedPlayerState->archivedFrame == cachedWeaponMapFrame->archivedFrame\n\t%i, %i", v94, *(_DWORD *)(v17 + 8)) )
+            LODWORD(v79) = *(_DWORD *)(v18 + 21440);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2748, ASSERT_TYPE_ASSERT, "( cachedPlayerState->archivedFrame ) == ( cachedWeaponMapFrame->archivedFrame )", "cachedPlayerState->archivedFrame == cachedWeaponMapFrame->archivedFrame\n\t%i, %i", v79, *(_DWORD *)(v16 + 8)) )
               __debugbreak();
           }
           archivedFrameDuration = g_svSnapshotData.archivePOTG.archivedFrameDuration;
-          v22 = *(_BYTE *)v9;
+          v21 = *(_BYTE *)v9;
           if ( !*(_BYTE *)v9 )
             archivedFrameDuration = g_svSnapshotData.archive.archivedFrameDuration;
           if ( archivedFrameDuration <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2754, ASSERT_TYPE_ASSERT, "( archiveToUse->archivedFrameDuration > 0 )", (const char *)&queryFormat, "archiveToUse->archivedFrameDuration > 0") )
             __debugbreak();
-          v23 = g_svSnapshotData.archivePOTG.archivedFrameDuration;
-          if ( !v22 )
-            v23 = g_svSnapshotData.archive.archivedFrameDuration;
-          if ( *v20 % v23 )
+          v22 = g_svSnapshotData.archivePOTG.archivedFrameDuration;
+          if ( !v21 )
+            v22 = g_svSnapshotData.archive.archivedFrameDuration;
+          if ( *v19 % v22 )
           {
-            LODWORD(v95) = *v20;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2755, ASSERT_TYPE_ASSERT, "((*pArchiveTime) % archiveToUse->archivedFrameDuration == 0)", "%s\n\t%d %d", "(*pArchiveTime) % archiveToUse->archivedFrameDuration == 0", v95, v23) )
+            LODWORD(v80) = *v19;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2755, ASSERT_TYPE_ASSERT, "((*pArchiveTime) % archiveToUse->archivedFrameDuration == 0)", "%s\n\t%d %d", "(*pArchiveTime) % archiveToUse->archivedFrameDuration == 0", v80, v22) )
               __debugbreak();
           }
-          G_ActiveMP_ValidateSpectateOtherFlags((const GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *)(_RSI + 28));
+          G_ActiveMP_ValidateSpectateOtherFlags((const GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *)(v18 + 28));
           if ( origin )
           {
             if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_sv_archive_smooth_transform_origin, "sv_archive_smooth_transform_origin") )
             {
-              origin->v[0] = *(float *)(_RSI + 21416);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+53ACh]
-                vmovss  dword ptr [r15+4], xmm0
-                vmovss  xmm1, dword ptr [rsi+53B0h]
-              }
+              origin->v[0] = *(float *)(v18 + 21416);
+              origin->v[1] = *(float *)(v18 + 21420);
+              v23 = *(float *)(v18 + 21424);
             }
             else
             {
-              origin->v[0] = *(float *)(_RSI + 48);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+34h]
-                vmovss  dword ptr [r15+4], xmm0
-                vmovss  xmm1, dword ptr [rsi+38h]
-              }
+              origin->v[0] = *(float *)(v18 + 48);
+              origin->v[1] = *(float *)(v18 + 52);
+              v23 = *(float *)(v18 + 56);
             }
-            __asm { vmovss  dword ptr [r15+8], xmm1 }
+            origin->v[2] = v23;
           }
-          v27 = *(GSnapshotWeaponMap **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x28);
-          if ( v27 )
-            GSnapshotWeaponMap::CopyFromBuffer(v27, g_svSnapshotData.cachedSnapshotWeapons, g_svSnapshotData.numCachedSnapshotWeapons, *(int *)(v17 + 4), *(_DWORD *)v17);
-          **(_DWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x30) = *(_DWORD *)(_RSI + 600);
-          **(_QWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x38) = *(_QWORD *)(_RSI + 28);
-          **(_DWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x40) = *(_DWORD *)(_RSI + 21412);
-          if ( _RBX )
+          v24 = *(GSnapshotWeaponMap **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x28);
+          if ( v24 )
+            GSnapshotWeaponMap::CopyFromBuffer(v24, g_svSnapshotData.cachedSnapshotWeapons, g_svSnapshotData.numCachedSnapshotWeapons, *(int *)(v16 + 4), *(_DWORD *)v16);
+          **(_DWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x30) = *(_DWORD *)(v18 + 600);
+          **(_QWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x38) = *(_QWORD *)(v18 + 28);
+          **(_DWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x40) = *(_DWORD *)(v18 + 21412);
+          if ( ps )
           {
-            v28 = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time - *(_DWORD *)(_RSI + 21444);
-            memcpy_0(_RBX, (const void *)_RSI, sizeof(playerState_s));
+            v25 = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time - *(_DWORD *)(v18 + 21444);
+            memcpy_0(ps, (const void *)v18, sizeof(playerState_s));
             if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_sv_archive_smooth_transform_origin, "sv_archive_smooth_transform_origin") )
             {
-              _RBX->origin.v[0] = *(float *)(_RSI + 21416);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+53ACh]
-                vmovss  dword ptr [rbx+34h], xmm0
-                vmovss  xmm1, dword ptr [rsi+53B0h]
-                vmovss  dword ptr [rbx+38h], xmm1
-              }
+              ps->origin.v[0] = *(float *)(v18 + 21416);
+              ps->origin.v[1] = *(float *)(v18 + 21420);
+              ps->origin.v[2] = *(float *)(v18 + 21424);
             }
             if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_sv_archive_smooth_transform_angles, "sv_archive_smooth_transform_angles") )
             {
-              _RBX->viewangles.v[0] = *(float *)(_RSI + 21428);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+53B8h]
-                vmovss  dword ptr [rbx+1DCh], xmm0
-                vmovss  xmm1, dword ptr [rsi+53BCh]
-                vmovss  dword ptr [rbx+1E0h], xmm1
-              }
+              ps->viewangles.v[0] = *(float *)(v18 + 21428);
+              ps->viewangles.v[1] = *(float *)(v18 + 21432);
+              ps->viewangles.v[2] = *(float *)(v18 + 21436);
             }
-            if ( _RBX->commandTime )
+            if ( ps->commandTime )
             {
-              v33 = v28 + _RBX->commandTime;
-              _RBX->commandTime = v33;
-              _RBX->commandTimeInterpolated = v33;
+              v26 = v25 + ps->commandTime;
+              ps->commandTime = v26;
+              ps->commandTimeInterpolated = v26;
             }
-            serverTime = _RBX->serverTime;
+            serverTime = ps->serverTime;
             if ( serverTime )
             {
-              v35 = v28 + serverTime;
-              _RBX->serverTime = v35;
-              _RBX->serverTimeInterpolated = v35;
+              v28 = v25 + serverTime;
+              ps->serverTime = v28;
+              ps->serverTimeInterpolated = v28;
             }
-            inputTime = _RBX->inputTime;
+            inputTime = ps->inputTime;
             if ( inputTime )
             {
-              v37 = v28 + inputTime;
-              _RBX->inputTime = v37;
-              _RBX->inputTimeInterpolated = v37;
+              v30 = v25 + inputTime;
+              ps->inputTime = v30;
+              ps->inputTimeInterpolated = v30;
             }
-            foliageSoundTime = _RBX->foliageSoundTime;
+            foliageSoundTime = ps->foliageSoundTime;
             if ( foliageSoundTime )
-              _RBX->foliageSoundTime = v28 + foliageSoundTime;
-            jumpTime = _RBX->jumpState.jumpTime;
+              ps->foliageSoundTime = v25 + foliageSoundTime;
+            jumpTime = ps->jumpState.jumpTime;
             if ( jumpTime )
-              _RBX->jumpState.jumpTime = v28 + jumpTime;
-            viewHeightLerpTime = _RBX->viewHeightLerpTime;
+              ps->jumpState.jumpTime = v25 + jumpTime;
+            viewHeightLerpTime = ps->viewHeightLerpTime;
             if ( viewHeightLerpTime )
-              _RBX->viewHeightLerpTime = v28 + viewHeightLerpTime;
-            shellshockTime = _RBX->shellshockTime;
+              ps->viewHeightLerpTime = v25 + viewHeightLerpTime;
+            shellshockTime = ps->shellshockTime;
             if ( shellshockTime )
-              _RBX->shellshockTime = v28 + shellshockTime;
-            meleeStartTime = _RBX->meleeStartTime;
+              ps->shellshockTime = v25 + shellshockTime;
+            meleeStartTime = ps->meleeStartTime;
             if ( meleeStartTime )
-              _RBX->meleeStartTime = v28 + meleeStartTime;
-            lastStandTime = _RBX->lastStandTime;
+              ps->meleeStartTime = v25 + meleeStartTime;
+            lastStandTime = ps->lastStandTime;
             if ( lastStandTime )
-              _RBX->lastStandTime = v28 + lastStandTime;
-            lastStandMoveStopTime = _RBX->lastStandMoveStopTime;
+              ps->lastStandTime = v25 + lastStandTime;
+            lastStandMoveStopTime = ps->lastStandMoveStopTime;
             if ( lastStandMoveStopTime )
-              _RBX->lastStandMoveStopTime = v28 + lastStandMoveStopTime;
-            blurEndTime = _RBX->blurEndTime;
+              ps->lastStandMoveStopTime = v25 + lastStandMoveStopTime;
+            blurEndTime = ps->blurEndTime;
             if ( blurEndTime )
-              _RBX->blurEndTime = v28 + blurEndTime;
-            startTime = _RBX->gestureState.gestures[0].startTime;
+              ps->blurEndTime = v25 + blurEndTime;
+            startTime = ps->gestureState.gestures[0].startTime;
             if ( startTime )
-              _RBX->gestureState.gestures[0].startTime = v28 + startTime;
-            stopTime = _RBX->gestureState.gestures[0].stopTime;
+              ps->gestureState.gestures[0].startTime = v25 + startTime;
+            stopTime = ps->gestureState.gestures[0].stopTime;
             if ( stopTime )
-              _RBX->gestureState.gestures[0].stopTime = v28 + stopTime;
-            endTime = _RBX->gestureState.gestures[0].endTime;
+              ps->gestureState.gestures[0].stopTime = v25 + stopTime;
+            endTime = ps->gestureState.gestures[0].endTime;
             if ( endTime )
-              _RBX->gestureState.gestures[0].endTime = v28 + endTime;
-            v49 = _RBX->gestureState.gestures[1].startTime;
-            if ( v49 )
-              _RBX->gestureState.gestures[1].startTime = v28 + v49;
-            v50 = _RBX->gestureState.gestures[1].stopTime;
-            if ( v50 )
-              _RBX->gestureState.gestures[1].stopTime = v28 + v50;
-            v51 = _RBX->gestureState.gestures[1].endTime;
-            if ( v51 )
-              _RBX->gestureState.gestures[1].endTime = v28 + v51;
-            p_time = &_RBX->hud.archival[0].time;
+              ps->gestureState.gestures[0].endTime = v25 + endTime;
+            v42 = ps->gestureState.gestures[1].startTime;
+            if ( v42 )
+              ps->gestureState.gestures[1].startTime = v25 + v42;
+            v43 = ps->gestureState.gestures[1].stopTime;
+            if ( v43 )
+              ps->gestureState.gestures[1].stopTime = v25 + v43;
+            v44 = ps->gestureState.gestures[1].endTime;
+            if ( v44 )
+              ps->gestureState.gestures[1].endTime = v25 + v44;
+            p_time = &ps->hud.archival[0].time;
             do
             {
               if ( !*(p_time - 34) )
                 break;
               if ( *p_time )
-                *p_time += v28;
-              v53 = *(p_time - 16);
-              if ( v53 )
+                *p_time += v25;
+              v46 = *(p_time - 16);
+              if ( v46 )
               {
-                v54 = v53 + v28;
-                *(p_time - 16) = v53 + v28;
-                if ( v53 + v28 > SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time )
+                v47 = v46 + v25;
+                *(p_time - 16) = v46 + v25;
+                if ( v46 + v25 > SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time )
                 {
-                  LODWORD(v97) = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
-                  LODWORD(v96) = v54;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2890, ASSERT_TYPE_ASSERT, "( ps->hud.archival[i].fadeStartTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "%s <= %s\n\t%i, %i", "ps->hud.archival[i].fadeStartTime", "SvPersistentGlobalsMP::GetTime()", v96, v97) )
+                  LODWORD(v82) = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
+                  LODWORD(v81) = v47;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2890, ASSERT_TYPE_ASSERT, "( ps->hud.archival[i].fadeStartTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "%s <= %s\n\t%i, %i", "ps->hud.archival[i].fadeStartTime", "SvPersistentGlobalsMP::GetTime()", v81, v82) )
                     __debugbreak();
                 }
               }
-              v55 = *(p_time - 8);
-              if ( v55 )
-                *(p_time - 8) = v28 + v55;
-              v56 = *(p_time - 2);
-              if ( v56 )
-                *(p_time - 2) = v28 + v56;
-              v57 = *(p_time - 23);
-              if ( v57 )
-                *(p_time - 23) = v28 + v57;
-              ++v16;
+              v48 = *(p_time - 8);
+              if ( v48 )
+                *(p_time - 8) = v25 + v48;
+              v49 = *(p_time - 2);
+              if ( v49 )
+                *(p_time - 2) = v25 + v49;
+              v50 = *(p_time - 23);
+              if ( v50 )
+                *(p_time - 23) = v25 + v50;
+              ++v15;
               p_time += 46;
             }
-            while ( v16 < 0xF );
-            v58 = *(_DWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x48);
-            v59 = v58[302];
+            while ( v15 < 0xF );
+            v51 = *(_DWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x48);
+            v52 = v51[302];
+            if ( v52 )
+              v51[302] = v25 + v52;
+            v53 = v51[303];
+            if ( v53 )
+              v51[303] = v25 + v53;
+            v54 = v51[312];
+            if ( v54 )
+              v51[312] = v25 + v54;
+            v55 = v51[313];
+            if ( v55 )
+              v51[313] = v25 + v55;
+            v56 = v51[1094];
+            if ( v56 )
+              v51[1094] = v25 + v56;
+            v57 = v51[1095];
+            if ( v57 )
+              v51[1095] = v25 + v57;
+            v58 = v51[1089];
+            if ( v58 )
+              v51[1089] = v25 + v58;
+            v59 = v51[1090];
             if ( v59 )
-              v58[302] = v28 + v59;
-            v60 = v58[303];
+              v51[1090] = v25 + v59;
+            v60 = v51[1091];
             if ( v60 )
-              v58[303] = v28 + v60;
-            v61 = v58[312];
+              v51[1091] = v25 + v60;
+            v61 = v51[1092];
             if ( v61 )
-              v58[312] = v28 + v61;
-            v62 = v58[313];
+              v51[1092] = v25 + v61;
+            v62 = v51[474];
             if ( v62 )
-              v58[313] = v28 + v62;
-            v63 = v58[1094];
+              v51[474] = v25 + v62;
+            v63 = v51[333];
             if ( v63 )
-              v58[1094] = v28 + v63;
-            v64 = v58[1095];
+              v51[333] = v25 + v63;
+            v64 = v51[332];
             if ( v64 )
-              v58[1095] = v28 + v64;
-            v65 = v58[1089];
+              v51[332] = v25 + v64;
+            v65 = v51[353];
             if ( v65 )
-              v58[1089] = v28 + v65;
-            v66 = v58[1090];
+              v51[353] = v25 + v65;
+            v66 = v51[352];
             if ( v66 )
-              v58[1090] = v28 + v66;
-            v67 = v58[1091];
+              v51[352] = v25 + v66;
+            v67 = v51[245];
             if ( v67 )
-              v58[1091] = v28 + v67;
-            v68 = v58[1092];
+              v51[245] = v25 + v67;
+            v68 = v51[246];
             if ( v68 )
-              v58[1092] = v28 + v68;
-            v69 = v58[474];
+              v51[246] = v25 + v68;
+            v69 = v51[1088];
             if ( v69 )
-              v58[474] = v28 + v69;
-            v70 = v58[333];
+              v51[1088] = v25 + v69;
+            v70 = v51[3029];
             if ( v70 )
-              v58[333] = v28 + v70;
-            v71 = v58[332];
+              v51[3029] = v25 + v70;
+            v71 = v51[5297];
             if ( v71 )
-              v58[332] = v28 + v71;
-            v72 = v58[353];
-            if ( v72 )
-              v58[353] = v28 + v72;
-            v73 = v58[352];
-            if ( v73 )
-              v58[352] = v28 + v73;
-            v74 = v58[245];
-            if ( v74 )
-              v58[245] = v28 + v74;
-            v75 = v58[246];
-            if ( v75 )
-              v58[246] = v28 + v75;
-            v76 = v58[1088];
-            if ( v76 )
-              v58[1088] = v28 + v76;
-            v77 = v58[3029];
-            if ( v77 )
-              v58[3029] = v28 + v77;
-            v78 = v58[5297];
-            if ( v78 )
-              v58[5297] = v28 + v78;
-            v58[3024] += v28;
+              v51[5297] = v25 + v71;
+            v51[3024] += v25;
           }
 LABEL_158:
-          v16 = 1;
+          v15 = 1;
           goto LABEL_159;
         }
       }
       goto LABEL_159;
     }
-    v11 = *(unsigned int **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10);
-    v12 = *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 8);
+    v11 = *(unsigned int **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10);
+    v12 = *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 8);
   }
-  *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1390) = 0;
-  _RDI = (playerState_s *)(v9 + 576);
-  if ( _RBX )
-    _RDI = _RBX;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2719, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1390) = 0;
+  v72 = (playerState_s *)(v9 + 576);
+  if ( ps )
+    v72 = ps;
+  if ( !v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2719, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
   {
     __debugbreak();
-    v14 = *v11;
+    v13 = *v11;
   }
-  if ( v14 <= 0 && SvClient::GetCommonClient(v12)->state == CS_ACTIVE && G_ActiveMP_GetFollowPlayerState(v12, _RDI) )
+  if ( v13 <= 0 && SvClient::GetCommonClient(v12)->state == CS_ACTIVE && G_ActiveMP_GetFollowPlayerState(v12, v72) )
   {
-    _RAX = G_MainMP_GetClientState(v12);
-    _RCX = v9 + 128;
-    v82 = 3i64;
+    ClientState = G_MainMP_GetClientState(v12);
+    v74 = v9 + 128;
+    v75 = 3i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      _RCX += 128i64;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      _RAX = (clientState_t *)((char *)_RAX + 128);
-      --v82;
+      *(__m256i *)v74 = *(__m256i *)&ClientState->clientIndex;
+      *(__m256i *)(v74 + 32) = *(__m256i *)ClientState->isWeaponSmoking;
+      *(__m256i *)(v74 + 64) = *(__m256i *)&ClientState->attachModelIndex[5];
+      *(_OWORD *)(v74 + 96) = *(_OWORD *)&ClientState->attachTagIndex[4];
+      v74 += 128i64;
+      *(_OWORD *)(v74 - 16) = *(_OWORD *)&ClientState->attachTagIndex[8];
+      ClientState = (clientState_t *)((char *)ClientState + 128);
+      --v75;
     }
-    while ( v82 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-    }
-    *(_QWORD *)(_RCX + 16) = *(_QWORD *)&_RAX->doNotSimulateTracers;
-    v89 = *(GSnapshotWeaponMap **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x28);
-    if ( v89 )
+    while ( v75 );
+    *(_OWORD *)v74 = *(_OWORD *)&ClientState->clientIndex;
+    *(_QWORD *)(v74 + 16) = *(_QWORD *)&ClientState->doNotSimulateTracers;
+    v76 = *(GSnapshotWeaponMap **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x28);
+    if ( v76 )
     {
       Instance = GWeaponMap::GetInstance();
-      GSnapshotWeaponMap::CopyFromMap(v89, Instance);
+      GSnapshotWeaponMap::CopyFromMap(v76, Instance);
     }
-    **(_DWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x30) = _RDI->stats[0];
-    **(_QWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x38) = _RDI->otherFlags;
-    **(_DWORD **)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x40) = *(_DWORD *)(((unsigned __int64)v98 & 0xFFFFFFFFFFFFFFC0ui64) + 0x84);
+    **(_DWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x30) = v72->stats[0];
+    **(_QWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x38) = v72->otherFlags;
+    **(_DWORD **)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x40) = *(_DWORD *)(((unsigned __int64)v83 & 0xFFFFFFFFFFFFFFC0ui64) + 0x84);
     if ( origin )
-    {
-      origin->v[0] = _RDI->origin.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+34h]
-        vmovss  dword ptr [r15+4], xmm0
-        vmovss  xmm1, dword ptr [rdi+38h]
-        vmovss  dword ptr [r15+8], xmm1
-      }
-    }
+      *origin = v72->origin;
     goto LABEL_158;
   }
 LABEL_159:
   Sys_ProfEndNamedEvent();
   Profile_EndInternal(NULL);
-  return v16;
+  return v15;
 }
 
 /*
@@ -3101,35 +3061,26 @@ LABEL_135:
 SV_SnapshotMP_GetEarliestArchiveMaxVariance
 ==============
 */
-
-__int64 __fastcall SV_SnapshotMP_GetEarliestArchiveMaxVariance(const bool archiveUsePOTG, double _XMM1_8)
+__int64 SV_SnapshotMP_GetEarliestArchiveMaxVariance(const bool archiveUsePOTG)
 {
   int archivedFrameDuration; 
-  int v5; 
-  int v12; 
+  int v3; 
+  int v6; 
 
   archivedFrameDuration = g_svSnapshotData.archivePOTG.archivedFrameDuration;
   if ( !archiveUsePOTG )
     archivedFrameDuration = g_svSnapshotData.archive.archivedFrameDuration;
   if ( !archivedFrameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2607, ASSERT_TYPE_ASSERT, "( archiveToUse->archivedFrameDuration )", (const char *)&queryFormat, "archiveToUse->archivedFrameDuration") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:__real@447a0000 }
-  v5 = g_svSnapshotData.archivePOTG.archivedFrameDuration;
-  __asm { vxorps  xmm1, xmm1, xmm1 }
+  v3 = g_svSnapshotData.archivePOTG.archivedFrameDuration;
   if ( !archiveUsePOTG )
-    v5 = g_svSnapshotData.archive.archivedFrameDuration;
-  __asm
-  {
-    vcvtsi2ss xmm1, xmm1, r8d
-    vdivss  xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si ebx, xmm4
-  }
-  v12 = v5 * _EBX;
-  if ( v12 % v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2614, ASSERT_TYPE_ASSERT, "(targetTimeMs % archiveToUse->archivedFrameDuration == 0)", "%s\n\t%d != 0", "targetTimeMs % archiveToUse->archivedFrameDuration == 0", v12 % v5) )
+    v3 = g_svSnapshotData.archive.archivedFrameDuration;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v6 = v3 * (int)*(float *)&_XMM4;
+  if ( v6 % v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_caching.cpp", 2614, ASSERT_TYPE_ASSERT, "(targetTimeMs % archiveToUse->archivedFrameDuration == 0)", "%s\n\t%d != 0", "targetTimeMs % archiveToUse->archivedFrameDuration == 0", v3 * (int)*(float *)&_XMM4 % v3) )
     __debugbreak();
-  return (unsigned int)v12;
+  return (unsigned int)v6;
 }
 
 /*

@@ -588,209 +588,131 @@ bdLoginResult::bdLoginResult
 */
 void bdLoginResult::bdLoginResult(bdLoginResult *this, const bdLoginResult *__that)
 {
-  __int64 v40; 
+  char *m_lsgAddress; 
+  char *v5; 
+  __int64 v6; 
 
-  _R15 = __that;
-  _R14 = this;
   this->m_titleID = __that->m_titleID;
   memcpy_0(this->m_platformToken, __that->m_platformToken, sizeof(this->m_platformToken));
-  _R14->m_IVSeed = _R15->m_IVSeed;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+1A88h]
-    vmovups ymmword ptr [r14+1A88h], ymm0
-    vmovups ymm1, ymmword ptr [r15+1AA8h]
-    vmovups ymmword ptr [r14+1AA8h], ymm1
-    vmovups ymm0, ymmword ptr [r15+1AC8h]
-    vmovups ymmword ptr [r14+1AC8h], ymm0
-    vmovups ymm1, ymmword ptr [r15+1AE8h]
-    vmovups ymmword ptr [r14+1AE8h], ymm1
-    vmovups xmm0, xmmword ptr [r15+1B08h]
-    vmovups xmmword ptr [r14+1B08h], xmm0
-    vmovsd  xmm1, qword ptr [r15+1B18h]
-    vmovsd  qword ptr [r14+1B18h], xmm1
-    vmovups ymm0, ymmword ptr [r15+1B20h]
-    vmovups ymmword ptr [r14+1B20h], ymm0
-    vmovups ymm1, ymmword ptr [r15+1B40h]
-    vmovups ymmword ptr [r14+1B40h], ymm1
-  }
-  bdUserAccountID::bdUserAccountID(&_R14->m_userAccount, &_R15->m_userAccount);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+1BA8h]
-    vmovups ymmword ptr [r14+1BA8h], ymm0
-    vmovups ymm1, ymmword ptr [r15+1BC8h]
-    vmovups ymmword ptr [r14+1BC8h], ymm1
-  }
-  _R14->m_firstPartyUserID = _R15->m_firstPartyUserID;
-  _R14->m_umbrellaAccount.__vftable = (bdUmbrellaUserAccount_vtbl *)&bdUmbrellaUserAccount::`vftable';
-  _R14->m_umbrellaAccount.m_accessInfo.__vftable = (bdUmbrellaAccessInfo_vtbl *)&bdUmbrellaAccessInfo::`vftable';
-  _R14->m_umbrellaAccount.m_accessInfo.m_umbrellaID = _R15->m_umbrellaAccount.m_accessInfo.m_umbrellaID;
-  memcpy_0(_R14->m_umbrellaAccount.m_accessInfo.m_accessToken, _R15->m_umbrellaAccount.m_accessInfo.m_accessToken, sizeof(_R14->m_umbrellaAccount.m_accessInfo.m_accessToken));
-  _R14->m_umbrellaAccount.m_accessInfo.m_tokenExpiry = _R15->m_umbrellaAccount.m_accessInfo.m_tokenExpiry;
-  _R14->m_umbrellaAccount.m_numLinkedAccounts = _R15->m_umbrellaAccount.m_numLinkedAccounts;
-  `eh vector copy constructor iterator'(_R14->m_umbrellaAccount.m_linkedAccounts, _R15->m_umbrellaAccount.m_linkedAccounts, 0x120ui64, 0x10ui64, (void (__fastcall *)(void *, void *))bdUmbrellaProviderAccount::bdUmbrellaProviderAccount, (void (__fastcall *)(void *))bdUmbrellaProviderAccount::~bdUmbrellaProviderAccount);
-  _R14->m_crossplayAccount.__vftable = (bdUmbrellaCrossplayAccount_vtbl *)&bdUmbrellaCrossplayAccount::`vftable';
-  _RBX = &_R14->m_crossplayAccount.m_crossplayInfo;
-  _R14->m_crossplayAccount.m_crossplayInfo.__vftable = (bdUmbrellaCrossplayInfo_vtbl *)&bdUmbrellaCrossplayInfo::`vftable';
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+3E28h]
-    vmovups ymmword ptr [rbx+8], ymm0
-    vmovups ymm1, ymmword ptr [r15+3E48h]
-    vmovups ymmword ptr [rbx+28h], ymm1
-    vmovups ymm0, ymmword ptr [r15+3E68h]
-    vmovups ymmword ptr [rbx+48h], ymm0
-    vmovups ymm1, ymmword ptr [r15+3E88h]
-    vmovups ymmword ptr [rbx+68h], ymm1
-    vmovups xmm0, xmmword ptr [r15+3EA8h]
-    vmovups xmmword ptr [rbx+88h], xmm0
-  }
-  *(_DWORD *)&_R14->m_crossplayAccount.m_crossplayInfo.m_username[144] = *(_DWORD *)&_R15->m_crossplayAccount.m_crossplayInfo.m_username[144];
-  *(_WORD *)&_R14->m_crossplayAccount.m_crossplayInfo.m_username[148] = *(_WORD *)&_R15->m_crossplayAccount.m_crossplayInfo.m_username[148];
-  _R14->m_crossplayAccount.m_crossplayInfo.m_username[150] = _R15->m_crossplayAccount.m_crossplayInfo.m_username[150];
-  bdUserAccountID::bdUserAccountID(&_R14->m_crossplayAccount.m_crossplayInfo.m_userInfo, &_R15->m_crossplayAccount.m_crossplayInfo.m_userInfo);
-  _R14->m_crossplayAccount.m_crossplayInfo.m_accessInfo.__vftable = (bdUmbrellaCrossplayAccessInfo_vtbl *)&bdUmbrellaCrossplayAccessInfo::`vftable';
-  memcpy_0(_R14->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken, _R15->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken, sizeof(_R14->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken));
-  _R14->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenExpiry = _R15->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenExpiry;
-  _R14->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenIssuedAt = _R15->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenIssuedAt;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15+4F20h]
-    vmovups xmmword ptr [rbx+1100h], xmm0
-    vmovups xmm1, xmmword ptr [r15+4F30h]
-    vmovups xmmword ptr [rbx+1110h], xmm1
-    vmovups xmm0, xmmword ptr [r15+4F40h]
-    vmovups xmmword ptr [rbx+1120h], xmm0
-    vmovups xmm1, xmmword ptr [r15+4F50h]
-    vmovups xmmword ptr [rbx+1130h], xmm1
-    vmovups xmm0, xmmword ptr [r15+4F60h]
-    vmovups xmmword ptr [rbx+1140h], xmm0
-    vmovups xmm1, xmmword ptr [r15+4F70h]
-    vmovups xmmword ptr [rbx+1150h], xmm1
-    vmovups xmm0, xmmword ptr [r15+4F80h]
-    vmovups xmmword ptr [rbx+1160h], xmm0
-    vmovups xmm0, xmmword ptr [r15+4F90h]
-    vmovups xmmword ptr [rbx+1170h], xmm0
-    vmovups xmm1, xmmword ptr [r15+4FA0h]
-    vmovups xmmword ptr [rbx+1180h], xmm1
-    vmovups xmm0, xmmword ptr [r15+4FB0h]
-    vmovups xmmword ptr [rbx+1190h], xmm0
-  }
-  *(_QWORD *)&_R14->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[160] = *(_QWORD *)&_R15->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[160];
-  *(_DWORD *)&_R14->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[168] = *(_DWORD *)&_R15->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[168];
-  _R14->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[172] = _R15->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[172];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+4FCDh]
-    vmovups ymmword ptr [rbx+11ADh], ymm0
-  }
-  memcpy_0(_R14->m_crossplayAccount.m_crossplayInfo.m_refreshToken, _R15->m_crossplayAccount.m_crossplayInfo.m_refreshToken, sizeof(_R14->m_crossplayAccount.m_crossplayInfo.m_refreshToken));
-  _R14->m_crossplayAccount.m_crossplayInfo.m_refreshTokenExpiry = _R15->m_crossplayAccount.m_crossplayInfo.m_refreshTokenExpiry;
-  _R14->m_crossplayAccount.m_crossplayInfo.m_tokenAgeTimer.m_start = _R15->m_crossplayAccount.m_crossplayInfo.m_tokenAgeTimer.m_start;
-  _R14->m_crossplayAccount.m_crossplayInfo.m_accessTokenValidilitySeconds = _R15->m_crossplayAccount.m_crossplayInfo.m_accessTokenValidilitySeconds;
-  _R14->m_crossplayAccount.m_crossplayInfo.m_umbrellaID = _R15->m_crossplayAccount.m_crossplayInfo.m_umbrellaID;
-  _R14->m_crossplayAccount.m_numLinkedAccounts = _R15->m_crossplayAccount.m_numLinkedAccounts;
-  `eh vector copy constructor iterator'(_R14->m_crossplayAccount.m_linkedAccounts, _R15->m_crossplayAccount.m_linkedAccounts, 0x120ui64, 0x10ui64, (void (__fastcall *)(void *, void *))bdUmbrellaProviderAccount::bdUmbrellaProviderAccount, (void (__fastcall *)(void *))bdUmbrellaProviderAccount::~bdUmbrellaProviderAccount);
-  _R14->m_authTransactionId = _R15->m_authTransactionId;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+7220h]
-    vmovups ymmword ptr [r14+7220h], ymm0
-    vmovups ymm1, ymmword ptr [r15+7240h]
-    vmovups ymmword ptr [r14+7240h], ymm1
-    vmovups ymm0, ymmword ptr [r15+7260h]
-    vmovups ymmword ptr [r14+7260h], ymm0
-    vmovups ymm1, ymmword ptr [r15+7280h]
-    vmovups ymmword ptr [r14+7280h], ymm1
-    vmovsd  xmm0, qword ptr [r15+72A0h]
-    vmovsd  qword ptr [r14+72A0h], xmm0
-  }
-  _R14->m_authSessionKeyKDF = _R15->m_authSessionKeyKDF;
-  _R14->m_lobbyService = _R15->m_lobbyService;
-  _RSI = &_R14->m_consoleID;
-  *((_QWORD *)&_R14->m_consoleID.__vftable + 1) = &bdConsoleID::`vbtable'{for `bdTaskResult'};
-  *((_QWORD *)&_R14->m_consoleID.__vftable + 3) = &bdConsoleID::`vbtable'{for `bdSerializable'};
-  bdReferencable::bdReferencable((bdReferencable *)&_R14->m_consoleID.gap34[4], (const bdReferencable *)((char *)&_R15->m_consoleID.__vftable + *(int *)(*((_QWORD *)&_R15->m_consoleID.__vftable + 1) + 4i64) + 8));
-  bdTaskResult::bdTaskResult(&_R14->m_consoleID, &_R15->m_consoleID);
-  bdSerializable::bdSerializable((bdSerializable *)(&_R14->m_consoleID.__vftable + 2), (const bdSerializable *)(&_R15->m_consoleID.__vftable + 2));
-  _R14->m_consoleID.__vftable = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdTaskResult'};
-  *((_QWORD *)&_R14->m_consoleID.__vftable + 2) = &bdConsoleID::`vftable'{for `bdSerializable'};
-  *(bdConsoleID_vtbl **)((char *)&_R14->m_consoleID.__vftable + *(int *)(*((_QWORD *)&_R14->m_consoleID.__vftable + 1) + 4i64) + 8) = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdReferencable'};
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15+72D8h]
-    vmovups xmmword ptr [rsi+20h], xmm0
-  }
-  *(_DWORD *)_R14->m_consoleID.m_id = *(_DWORD *)_R15->m_consoleID.m_id;
-  *((_QWORD *)&_R14->m_extendedAuthInfo.__vftable + 1) = &bdLoginResult::bdLoginExtendedAuthInfo::`vbtable';
-  bdReferencable::bdReferencable((bdReferencable *)&_R14->m_extendedAuthInfo.gap1012[6], (const bdReferencable *)((char *)&_R15->m_extendedAuthInfo.__vftable + *(int *)(*((_QWORD *)&_R15->m_extendedAuthInfo.__vftable + 1) + 4i64) + 8));
-  bdSerializable::bdSerializable(&_R14->m_extendedAuthInfo, &_R15->m_extendedAuthInfo);
-  _R14->m_extendedAuthInfo.__vftable = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdExtendedAuthInfo::`vftable'{for `bdSerializable'};
-  *(bdLoginResult::bdLoginExtendedAuthInfo_vtbl **)((char *)&_R14->m_extendedAuthInfo.__vftable + *(int *)(*((_QWORD *)&_R14->m_extendedAuthInfo.__vftable + 1) + 4i64) + 8) = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdExtendedAuthInfo::`vftable'{for `bdReferencable'};
-  memcpy_0(&_R14->m_extendedAuthInfo.__vftable + 2, &_R15->m_extendedAuthInfo.__vftable + 2, 0x1001ui64);
-  _R14->m_extendedAuthInfo.m_initialized = _R15->m_extendedAuthInfo.m_initialized;
-  _R14->m_extendedAuthInfo.__vftable = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdLoginResult::bdLoginExtendedAuthInfo::`vftable'{for `bdSerializable'};
-  *(bdLoginResult::bdLoginExtendedAuthInfo_vtbl **)((char *)&_R14->m_extendedAuthInfo.__vftable + *(int *)(*((_QWORD *)&_R14->m_extendedAuthInfo.__vftable + 1) + 4i64) + 8) = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdLoginResult::bdLoginExtendedAuthInfo::`vftable'{for `bdReferencable'};
-  _R14->m_responseTask = _R15->m_responseTask;
-  _R14->m_crossplayEnabled = _R15->m_crossplayEnabled;
-  _R14->m_crossPlatformProgressionEnabled = _R15->m_crossPlatformProgressionEnabled;
-  _R14->m_loginQueueEnabled = _R15->m_loginQueueEnabled;
-  _R14->m_queueID = _R15->m_queueID;
-  _R14->m_loginResumeFlow = _R15->m_loginResumeFlow;
-  bdUnoAccountInfo::bdUnoAccountInfo(&_R14->m_loginResumeConfig.m_accountInfo, &_R15->m_loginResumeConfig.m_accountInfo);
-  _R14->m_loginResumeConfig.m_subscriptions = _R15->m_loginResumeConfig.m_subscriptions;
-  _R14->m_loginResumeConfig.m_numSubscriptions = _R15->m_loginResumeConfig.m_numSubscriptions;
-  _R14->m_loginResumeConfig.m_termsOfService = _R15->m_loginResumeConfig.m_termsOfService;
-  *(_DWORD *)_R14->m_loginResumeConfig.m_locale = *(_DWORD *)_R15->m_loginResumeConfig.m_locale;
-  *(_WORD *)&_R14->m_loginResumeConfig.m_locale[4] = *(_WORD *)&_R15->m_loginResumeConfig.m_locale[4];
-  _R14->m_loginResumeConfig.m_fields = _R15->m_loginResumeConfig.m_fields;
-  _R14->m_loginResumeConfig.m_source = _R15->m_loginResumeConfig.m_source;
-  _R14->m_loginResumeConfig.m_initialized = _R15->m_loginResumeConfig.m_initialized;
-  memcpy_0(&_R14->m_crossPlatformAccountInfo, &_R15->m_crossPlatformAccountInfo, sizeof(_R14->m_crossPlatformAccountInfo));
-  _RCX = _R14->m_lsgAddress;
-  _RAX = _R15->m_lsgAddress;
-  v40 = 8i64;
+  this->m_IVSeed = __that->m_IVSeed;
+  *(__m256i *)this->m_data = *(__m256i *)__that->m_data;
+  *(__m256i *)&this->m_data[32] = *(__m256i *)&__that->m_data[32];
+  *(__m256i *)&this->m_data[64] = *(__m256i *)&__that->m_data[64];
+  *(__m256i *)&this->m_data[96] = *(__m256i *)&__that->m_data[96];
+  *(_OWORD *)this->m_sessionKey = *(_OWORD *)__that->m_sessionKey;
+  *(double *)&this->m_sessionKey[16] = *(double *)&__that->m_sessionKey[16];
+  *(__m256i *)this->m_clientID = *(__m256i *)__that->m_clientID;
+  *(__m256i *)&this->m_clientID[32] = *(__m256i *)&__that->m_clientID[32];
+  bdUserAccountID::bdUserAccountID(&this->m_userAccount, &__that->m_userAccount);
+  *(__m256i *)this->m_firstPartyUsername = *(__m256i *)__that->m_firstPartyUsername;
+  *(__m256i *)&this->m_firstPartyUsername[32] = *(__m256i *)&__that->m_firstPartyUsername[32];
+  this->m_firstPartyUserID = __that->m_firstPartyUserID;
+  this->m_umbrellaAccount.__vftable = (bdUmbrellaUserAccount_vtbl *)&bdUmbrellaUserAccount::`vftable';
+  this->m_umbrellaAccount.m_accessInfo.__vftable = (bdUmbrellaAccessInfo_vtbl *)&bdUmbrellaAccessInfo::`vftable';
+  this->m_umbrellaAccount.m_accessInfo.m_umbrellaID = __that->m_umbrellaAccount.m_accessInfo.m_umbrellaID;
+  memcpy_0(this->m_umbrellaAccount.m_accessInfo.m_accessToken, __that->m_umbrellaAccount.m_accessInfo.m_accessToken, sizeof(this->m_umbrellaAccount.m_accessInfo.m_accessToken));
+  this->m_umbrellaAccount.m_accessInfo.m_tokenExpiry = __that->m_umbrellaAccount.m_accessInfo.m_tokenExpiry;
+  this->m_umbrellaAccount.m_numLinkedAccounts = __that->m_umbrellaAccount.m_numLinkedAccounts;
+  `eh vector copy constructor iterator'(this->m_umbrellaAccount.m_linkedAccounts, __that->m_umbrellaAccount.m_linkedAccounts, 0x120ui64, 0x10ui64, (void (__fastcall *)(void *, void *))bdUmbrellaProviderAccount::bdUmbrellaProviderAccount, (void (__fastcall *)(void *))bdUmbrellaProviderAccount::~bdUmbrellaProviderAccount);
+  this->m_crossplayAccount.__vftable = (bdUmbrellaCrossplayAccount_vtbl *)&bdUmbrellaCrossplayAccount::`vftable';
+  this->m_crossplayAccount.m_crossplayInfo.__vftable = (bdUmbrellaCrossplayInfo_vtbl *)&bdUmbrellaCrossplayInfo::`vftable';
+  *(__m256i *)this->m_crossplayAccount.m_crossplayInfo.m_username = *(__m256i *)__that->m_crossplayAccount.m_crossplayInfo.m_username;
+  *(__m256i *)&this->m_crossplayAccount.m_crossplayInfo.m_username[32] = *(__m256i *)&__that->m_crossplayAccount.m_crossplayInfo.m_username[32];
+  *(__m256i *)&this->m_crossplayAccount.m_crossplayInfo.m_username[64] = *(__m256i *)&__that->m_crossplayAccount.m_crossplayInfo.m_username[64];
+  *(__m256i *)&this->m_crossplayAccount.m_crossplayInfo.m_username[96] = *(__m256i *)&__that->m_crossplayAccount.m_crossplayInfo.m_username[96];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_username[128] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_username[128];
+  *(_DWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_username[144] = *(_DWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_username[144];
+  *(_WORD *)&this->m_crossplayAccount.m_crossplayInfo.m_username[148] = *(_WORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_username[148];
+  this->m_crossplayAccount.m_crossplayInfo.m_username[150] = __that->m_crossplayAccount.m_crossplayInfo.m_username[150];
+  bdUserAccountID::bdUserAccountID(&this->m_crossplayAccount.m_crossplayInfo.m_userInfo, &__that->m_crossplayAccount.m_crossplayInfo.m_userInfo);
+  this->m_crossplayAccount.m_crossplayInfo.m_accessInfo.__vftable = (bdUmbrellaCrossplayAccessInfo_vtbl *)&bdUmbrellaCrossplayAccessInfo::`vftable';
+  memcpy_0(this->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken, __that->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken, sizeof(this->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken));
+  this->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenExpiry = __that->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenExpiry;
+  this->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenIssuedAt = __that->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_tokenIssuedAt;
+  *(_OWORD *)this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64 = *(_OWORD *)__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64;
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[16] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[16];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[32] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[32];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[48] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[48];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[64] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[64];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[80] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[80];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[96] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[96];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[112] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[112];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[128] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[128];
+  *(_OWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[144] = *(_OWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[144];
+  *(_QWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[160] = *(_QWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[160];
+  *(_DWORD *)&this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[168] = *(_DWORD *)&__that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[168];
+  this->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[172] = __that->m_crossplayAccount.m_crossplayInfo.m_authTicketB64[172];
+  *(__m256i *)this->m_crossplayAccount.m_crossplayInfo.m_IVSeedB64Str = *(__m256i *)__that->m_crossplayAccount.m_crossplayInfo.m_IVSeedB64Str;
+  memcpy_0(this->m_crossplayAccount.m_crossplayInfo.m_refreshToken, __that->m_crossplayAccount.m_crossplayInfo.m_refreshToken, sizeof(this->m_crossplayAccount.m_crossplayInfo.m_refreshToken));
+  this->m_crossplayAccount.m_crossplayInfo.m_refreshTokenExpiry = __that->m_crossplayAccount.m_crossplayInfo.m_refreshTokenExpiry;
+  this->m_crossplayAccount.m_crossplayInfo.m_tokenAgeTimer.m_start = __that->m_crossplayAccount.m_crossplayInfo.m_tokenAgeTimer.m_start;
+  this->m_crossplayAccount.m_crossplayInfo.m_accessTokenValidilitySeconds = __that->m_crossplayAccount.m_crossplayInfo.m_accessTokenValidilitySeconds;
+  this->m_crossplayAccount.m_crossplayInfo.m_umbrellaID = __that->m_crossplayAccount.m_crossplayInfo.m_umbrellaID;
+  this->m_crossplayAccount.m_numLinkedAccounts = __that->m_crossplayAccount.m_numLinkedAccounts;
+  `eh vector copy constructor iterator'(this->m_crossplayAccount.m_linkedAccounts, __that->m_crossplayAccount.m_linkedAccounts, 0x120ui64, 0x10ui64, (void (__fastcall *)(void *, void *))bdUmbrellaProviderAccount::bdUmbrellaProviderAccount, (void (__fastcall *)(void *))bdUmbrellaProviderAccount::~bdUmbrellaProviderAccount);
+  this->m_authTransactionId = __that->m_authTransactionId;
+  this->m_authTicket = __that->m_authTicket;
+  this->m_authSessionKeyKDF = __that->m_authSessionKeyKDF;
+  this->m_lobbyService = __that->m_lobbyService;
+  *((_QWORD *)&this->m_consoleID.__vftable + 1) = &bdConsoleID::`vbtable'{for `bdTaskResult'};
+  *((_QWORD *)&this->m_consoleID.__vftable + 3) = &bdConsoleID::`vbtable'{for `bdSerializable'};
+  bdReferencable::bdReferencable((bdReferencable *)&this->m_consoleID.gap34[4], (const bdReferencable *)((char *)&__that->m_consoleID.__vftable + *(int *)(*((_QWORD *)&__that->m_consoleID.__vftable + 1) + 4i64) + 8));
+  bdTaskResult::bdTaskResult(&this->m_consoleID, &__that->m_consoleID);
+  bdSerializable::bdSerializable((bdSerializable *)(&this->m_consoleID.__vftable + 2), (const bdSerializable *)(&__that->m_consoleID.__vftable + 2));
+  this->m_consoleID.__vftable = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdTaskResult'};
+  *((_QWORD *)&this->m_consoleID.__vftable + 2) = &bdConsoleID::`vftable'{for `bdSerializable'};
+  *(bdConsoleID_vtbl **)((char *)&this->m_consoleID.__vftable + *(int *)(*((_QWORD *)&this->m_consoleID.__vftable + 1) + 4i64) + 8) = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdReferencable'};
+  *(_OWORD *)this->m_consoleID._bytes_20 = *(_OWORD *)__that->m_consoleID._bytes_20;
+  *(_DWORD *)this->m_consoleID.m_id = *(_DWORD *)__that->m_consoleID.m_id;
+  *((_QWORD *)&this->m_extendedAuthInfo.__vftable + 1) = &bdLoginResult::bdLoginExtendedAuthInfo::`vbtable';
+  bdReferencable::bdReferencable((bdReferencable *)&this->m_extendedAuthInfo.gap1012[6], (const bdReferencable *)((char *)&__that->m_extendedAuthInfo.__vftable + *(int *)(*((_QWORD *)&__that->m_extendedAuthInfo.__vftable + 1) + 4i64) + 8));
+  bdSerializable::bdSerializable(&this->m_extendedAuthInfo, &__that->m_extendedAuthInfo);
+  this->m_extendedAuthInfo.__vftable = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdExtendedAuthInfo::`vftable'{for `bdSerializable'};
+  *(bdLoginResult::bdLoginExtendedAuthInfo_vtbl **)((char *)&this->m_extendedAuthInfo.__vftable + *(int *)(*((_QWORD *)&this->m_extendedAuthInfo.__vftable + 1) + 4i64) + 8) = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdExtendedAuthInfo::`vftable'{for `bdReferencable'};
+  memcpy_0(&this->m_extendedAuthInfo.__vftable + 2, &__that->m_extendedAuthInfo.__vftable + 2, 0x1001ui64);
+  this->m_extendedAuthInfo.m_initialized = __that->m_extendedAuthInfo.m_initialized;
+  this->m_extendedAuthInfo.__vftable = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdLoginResult::bdLoginExtendedAuthInfo::`vftable'{for `bdSerializable'};
+  *(bdLoginResult::bdLoginExtendedAuthInfo_vtbl **)((char *)&this->m_extendedAuthInfo.__vftable + *(int *)(*((_QWORD *)&this->m_extendedAuthInfo.__vftable + 1) + 4i64) + 8) = (bdLoginResult::bdLoginExtendedAuthInfo_vtbl *)&bdLoginResult::bdLoginExtendedAuthInfo::`vftable'{for `bdReferencable'};
+  this->m_responseTask = __that->m_responseTask;
+  this->m_crossplayEnabled = __that->m_crossplayEnabled;
+  this->m_crossPlatformProgressionEnabled = __that->m_crossPlatformProgressionEnabled;
+  this->m_loginQueueEnabled = __that->m_loginQueueEnabled;
+  this->m_queueID = __that->m_queueID;
+  this->m_loginResumeFlow = __that->m_loginResumeFlow;
+  bdUnoAccountInfo::bdUnoAccountInfo(&this->m_loginResumeConfig.m_accountInfo, &__that->m_loginResumeConfig.m_accountInfo);
+  this->m_loginResumeConfig.m_subscriptions = __that->m_loginResumeConfig.m_subscriptions;
+  this->m_loginResumeConfig.m_numSubscriptions = __that->m_loginResumeConfig.m_numSubscriptions;
+  this->m_loginResumeConfig.m_termsOfService = __that->m_loginResumeConfig.m_termsOfService;
+  *(_DWORD *)this->m_loginResumeConfig.m_locale = *(_DWORD *)__that->m_loginResumeConfig.m_locale;
+  *(_WORD *)&this->m_loginResumeConfig.m_locale[4] = *(_WORD *)&__that->m_loginResumeConfig.m_locale[4];
+  this->m_loginResumeConfig.m_fields = __that->m_loginResumeConfig.m_fields;
+  this->m_loginResumeConfig.m_source = __that->m_loginResumeConfig.m_source;
+  this->m_loginResumeConfig.m_initialized = __that->m_loginResumeConfig.m_initialized;
+  memcpy_0(&this->m_crossPlatformAccountInfo, &__that->m_crossPlatformAccountInfo, sizeof(this->m_crossPlatformAccountInfo));
+  m_lsgAddress = this->m_lsgAddress;
+  v5 = __that->m_lsgAddress;
+  v6 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
-    --v40;
+    *(_OWORD *)m_lsgAddress = *(_OWORD *)v5;
+    *((_OWORD *)m_lsgAddress + 1) = *((_OWORD *)v5 + 1);
+    *((_OWORD *)m_lsgAddress + 2) = *((_OWORD *)v5 + 2);
+    *((_OWORD *)m_lsgAddress + 3) = *((_OWORD *)v5 + 3);
+    *((_OWORD *)m_lsgAddress + 4) = *((_OWORD *)v5 + 4);
+    *((_OWORD *)m_lsgAddress + 5) = *((_OWORD *)v5 + 5);
+    *((_OWORD *)m_lsgAddress + 6) = *((_OWORD *)v5 + 6);
+    m_lsgAddress += 128;
+    *((_OWORD *)m_lsgAddress - 1) = *((_OWORD *)v5 + 7);
+    v5 += 128;
+    --v6;
   }
-  while ( v40 );
-  *(_DWORD *)_R14->m_serviceLevel = *(_DWORD *)_R15->m_serviceLevel;
-  _R14->m_serviceLevel[4] = _R15->m_serviceLevel[4];
-  _R14->m_environment = _R15->m_environment;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+0AB1Ch]
-    vmovups ymmword ptr [r14+0AB1Ch], ymm0
-    vmovups ymm1, ymmword ptr [r15+0AB3Ch]
-    vmovups ymmword ptr [r14+0AB3Ch], ymm1
-  }
-  _R14->m_taskErrorCode = _R15->m_taskErrorCode;
+  while ( v6 );
+  *(_DWORD *)this->m_serviceLevel = *(_DWORD *)__that->m_serviceLevel;
+  this->m_serviceLevel[4] = __that->m_serviceLevel[4];
+  this->m_environment = __that->m_environment;
+  *(__m256i *)this->m_machineId = *(__m256i *)__that->m_machineId;
+  *(__m256i *)&this->m_machineId[32] = *(__m256i *)&__that->m_machineId[32];
+  this->m_taskErrorCode = __that->m_taskErrorCode;
 }
 
 /*
@@ -923,25 +845,22 @@ char *bdLoginResult::getClientID(bdLoginResult *this)
 bdLoginResult::getConsoleID
 ==============
 */
-bdConsoleID *bdLoginResult::getConsoleID(bdLoginResult *this, const bdConsoleID *result)
+const bdConsoleID *bdLoginResult::getConsoleID(bdLoginResult *this, const bdConsoleID *result)
 {
-  _RSI = (bdConsoleID *)result;
-  _RDI = &this->m_consoleID;
+  bdConsoleID *p_m_consoleID; 
+
+  p_m_consoleID = &this->m_consoleID;
   *((_QWORD *)&result->__vftable + 1) = &bdConsoleID::`vbtable'{for `bdTaskResult'};
   *((_QWORD *)&result->__vftable + 3) = &bdConsoleID::`vbtable'{for `bdSerializable'};
   bdReferencable::bdReferencable((bdReferencable *)&result->gap34[4], (const bdReferencable *)((char *)&this->m_consoleID.__vftable + *(int *)(*((_QWORD *)&this->m_consoleID.__vftable + 1) + 4i64) + 8));
-  bdTaskResult::bdTaskResult(_RSI, _RDI);
-  bdSerializable::bdSerializable((bdSerializable *)(&_RSI->__vftable + 2), (const bdSerializable *)(&_RDI->__vftable + 2));
-  _RSI->__vftable = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdTaskResult'};
-  *((_QWORD *)&_RSI->__vftable + 2) = &bdConsoleID::`vftable'{for `bdSerializable'};
-  *(bdConsoleID_vtbl **)((char *)&_RSI->__vftable + *(int *)(*((_QWORD *)&_RSI->__vftable + 1) + 4i64) + 8) = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdReferencable'};
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsi+20h], xmm0
-  }
-  *(_DWORD *)_RSI->m_id = *(_DWORD *)_RDI->m_id;
-  return _RSI;
+  bdTaskResult::bdTaskResult(&result->bdTaskResult, p_m_consoleID);
+  bdSerializable::bdSerializable((bdSerializable *)(&result->__vftable + 2), (const bdSerializable *)(&p_m_consoleID->__vftable + 2));
+  result->__vftable = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdTaskResult'};
+  *((_QWORD *)&result->__vftable + 2) = &bdConsoleID::`vftable'{for `bdSerializable'};
+  *(bdConsoleID_vtbl **)((char *)&result->__vftable + *(int *)(*((_QWORD *)&result->__vftable + 1) + 4i64) + 8) = (bdConsoleID_vtbl *)&bdConsoleID::`vftable'{for `bdReferencable'};
+  *(_OWORD *)result->_bytes_20 = *(_OWORD *)p_m_consoleID->_bytes_20;
+  *(_DWORD *)result->m_id = *(_DWORD *)p_m_consoleID->m_id;
+  return result;
 }
 
 /*

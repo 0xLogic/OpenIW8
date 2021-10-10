@@ -720,20 +720,22 @@ BotNodePick_GetSelectCount
 */
 __int64 BotNodePick_GetSelectCount(scrContext_t *scrContext, int entityCount, unsigned int index)
 {
+  double Float; 
+  int Int; 
   __int64 result; 
 
   if ( Scr_GetType(scrContext, index) == VAR_FLOAT )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, index);
-    __asm { vcvttss2si ecx, xmm0 }
+    Float = Scr_GetFloat(scrContext, index);
+    Int = (int)*(float *)&Float;
   }
   else
   {
-    _ECX = Scr_GetInt(scrContext, index);
+    Int = Scr_GetInt(scrContext, index);
   }
   result = (unsigned int)entityCount;
-  if ( _ECX < entityCount )
-    result = (unsigned int)_ECX;
+  if ( Int < entityCount )
+    result = (unsigned int)Int;
   if ( (int)result <= 0 )
   {
     result = 1i64;
@@ -825,91 +827,79 @@ BotNodePick_SetParmsData
 */
 __int64 BotNodePick_SetParmsData(scrContext_t *scrContext, const bot_data_t *botData, unsigned int index, bot_score_parms_s *parms)
 {
+  unsigned int v8; 
   unsigned int v9; 
-  unsigned int v10; 
-  const char *v11; 
+  const char *v10; 
   int ScoreType; 
-  int v13; 
-  ComErrorCode v21; 
-  const char *v22; 
-  const char *v27; 
+  int v12; 
+  float v13; 
+  float v14; 
+  ComErrorCode v15; 
+  const char *v16; 
+  float v18; 
+  const char *v19; 
   const pathnode_t *Pathnode; 
-  const char *v29; 
-  const pathnode_t *v30; 
-  const pathnode_t *v31; 
-  const char *v32; 
+  const char *v21; 
+  const pathnode_t *v22; 
+  const pathnode_t *v23; 
+  const char *v24; 
   scr_string_t ConstString; 
-  int v34; 
-  unsigned int v35; 
-  unsigned int v36; 
+  int v26; 
+  unsigned int v27; 
+  unsigned int v28; 
   unsigned int ArrayObject; 
-  unsigned int v38; 
+  unsigned int v30; 
   unsigned int ArrayVariable; 
   scr_string_t *VariableValueAddress; 
-  const char *v41; 
-  __int64 v42; 
-  const char **v43; 
+  const char *v33; 
+  __int64 v34; 
+  const char **v35; 
   bot_score_flag_t ScoreFlag; 
-  const char *v45; 
-  scrContext_t *v46; 
-  ComErrorCode v47; 
-  const char *v48; 
-  __int64 v49; 
-  const char *v50; 
-  const char *v51; 
-  const char *v52; 
+  const char *v37; 
+  scrContext_t *v38; 
+  ComErrorCode v39; 
+  const char *v40; 
+  __int64 v41; 
+  const char *v42; 
+  const char *v43; 
+  const char *v44; 
   unsigned int ArraySize; 
   const char *String; 
   vec3_t vectorValue; 
-  __int64 v56[16]; 
+  __int64 v48[16]; 
 
-  _R15 = parms;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1593, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
-  v9 = index + 1;
-  v10 = index + 2;
+  v8 = index + 1;
+  v9 = index + 2;
   String = Scr_GetString(scrContext, index);
-  v11 = String;
+  v10 = String;
   ScoreType = Bot_GetScoreType(String);
-  v13 = ScoreType;
+  v12 = ScoreType;
   if ( ScoreType && ScoreType < 17 )
   {
-    Bot_Score_ScoreNodesInitParms(botData, _R15, (bot_score_type_t)ScoreType);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+128h+vectorValue], xmm0
-      vmovss  dword ptr [rsp+128h+vectorValue+4], xmm0
-      vmovss  dword ptr [rsp+128h+vectorValue+8], xmm0
-    }
-    switch ( v13 )
+    Bot_Score_ScoreNodesInitParms(botData, parms, (bot_score_type_t)ScoreType);
+    vectorValue.v[0] = 0.0;
+    vectorValue.v[1] = 0.0;
+    vectorValue.v[2] = 0.0;
+    switch ( v12 )
     {
       case 1:
+        if ( Scr_GetType(scrContext, v8) )
+        {
+          Scr_GetVector(scrContext, v8, &vectorValue);
+          v13 = vectorValue.v[1];
+          parms->vector1.v[0] = vectorValue.v[0];
+          parms->vector1.v[2] = vectorValue.v[2];
+          parms->vector1.v[1] = v13;
+        }
         if ( Scr_GetType(scrContext, v9) )
         {
           Scr_GetVector(scrContext, v9, &vectorValue);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+128h+vectorValue]
-            vmovss  xmm1, dword ptr [rsp+128h+vectorValue+4]
-            vmovss  dword ptr [r15+14h], xmm0
-            vmovss  xmm0, dword ptr [rsp+128h+vectorValue+8]
-            vmovss  dword ptr [r15+1Ch], xmm0
-            vmovss  dword ptr [r15+18h], xmm1
-          }
-        }
-        if ( Scr_GetType(scrContext, v10) )
-        {
-          Scr_GetVector(scrContext, v10, &vectorValue);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+128h+vectorValue]
-            vmovss  xmm1, dword ptr [rsp+128h+vectorValue+4]
-            vmovss  dword ptr [r15+20h], xmm0
-            vmovss  xmm0, dword ptr [rsp+128h+vectorValue+8]
-            vmovss  dword ptr [r15+28h], xmm0
-            vmovss  dword ptr [r15+24h], xmm1
-          }
+          v14 = vectorValue.v[1];
+          parms->vector2.v[0] = vectorValue.v[0];
+          parms->vector2.v[2] = vectorValue.v[2];
+          parms->vector2.v[1] = v14;
         }
         goto LABEL_33;
       case 2:
@@ -918,32 +908,27 @@ __int64 BotNodePick_SetParmsData(scrContext_t *scrContext, const bot_data_t *bot
       case 5:
       case 6:
       case 13:
-        if ( Scr_GetNumParam(scrContext) > v9 )
+        if ( Scr_GetNumParam(scrContext) > v8 )
         {
-          Scr_GetVector(scrContext, v9, &vectorValue);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+128h+vectorValue]
-            vmovss  xmm1, dword ptr [rsp+128h+vectorValue+4]
-            vmovss  dword ptr [r15+14h], xmm0
-            vmovss  xmm0, dword ptr [rsp+128h+vectorValue+8]
-            vmovss  dword ptr [r15+1Ch], xmm0
-            vmovss  dword ptr [r15+18h], xmm1
-          }
-          ++v9;
+          Scr_GetVector(scrContext, v8, &vectorValue);
+          v18 = vectorValue.v[1];
+          parms->vector1.v[0] = vectorValue.v[0];
+          parms->vector1.v[2] = vectorValue.v[2];
+          parms->vector1.v[1] = v18;
+          ++v8;
           goto $LN5_94;
         }
-        if ( v13 == 13 )
+        if ( v12 == 13 )
         {
-          v21 = COM_ERR_1727;
-          v22 = j_va("Score type '%s' requires vector parm: <direction>", String);
+          v15 = COM_ERR_1727;
+          v16 = j_va("Score type '%s' requires vector parm: <direction>", String);
         }
         else
         {
-          v21 = COM_ERR_1728;
-          v22 = j_va("Score type '%s' requires vector parm: <point>", String);
+          v15 = COM_ERR_1728;
+          v16 = j_va("Score type '%s' requires vector parm: <point>", String);
         }
-        Scr_Error(v21, scrContext, v22);
+        Scr_Error(v15, scrContext, v16);
         return 0i64;
       case 7:
       case 8:
@@ -953,144 +938,144 @@ __int64 BotNodePick_SetParmsData(scrContext_t *scrContext, const bot_data_t *bot
         goto $LN5_94;
       case 11:
       case 12:
-        if ( Scr_GetNumParam(scrContext) <= v10 )
+        if ( Scr_GetNumParam(scrContext) <= v9 )
         {
-          v27 = j_va("Score type '%s' requires parms: <target_node>, <max_range>", String);
-          Scr_Error(COM_ERR_1729, scrContext, v27);
+          v19 = j_va("Score type '%s' requires parms: <target_node>, <max_range>", String);
+          Scr_Error(COM_ERR_1729, scrContext, v19);
           return 0i64;
         }
-        Pathnode = Scr_GetPathnode(scrContext, v9);
-        _R15->integer1 = Path_ConvertNodeToIndex(Pathnode);
-        _R15->integer2 = Scr_GetInt(scrContext, v10);
+        Pathnode = Scr_GetPathnode(scrContext, v8);
+        parms->integer1 = Path_ConvertNodeToIndex(Pathnode);
+        parms->integer2 = Scr_GetInt(scrContext, v9);
         goto LABEL_33;
       case 14:
-        if ( Scr_GetNumParam(scrContext) <= v10 )
+        if ( Scr_GetNumParam(scrContext) <= v9 )
         {
-          v29 = j_va("Score type '%s' requires node parms: <bait_node>, <entrance_node>", String);
-          Scr_Error(COM_ERR_1730, scrContext, v29);
+          v21 = j_va("Score type '%s' requires node parms: <bait_node>, <entrance_node>", String);
+          Scr_Error(COM_ERR_1730, scrContext, v21);
           return 0i64;
         }
-        v30 = Scr_GetPathnode(scrContext, v9);
-        v31 = Scr_GetPathnode(scrContext, v10);
-        _R15->integer1 = Path_ConvertNodeToIndex(v30);
-        _R15->integer2 = Path_ConvertNodeToIndex(v31);
+        v22 = Scr_GetPathnode(scrContext, v8);
+        v23 = Scr_GetPathnode(scrContext, v9);
+        parms->integer1 = Path_ConvertNodeToIndex(v22);
+        parms->integer2 = Path_ConvertNodeToIndex(v23);
         goto LABEL_33;
       case 16:
-        if ( Scr_GetNumParam(scrContext) <= v10 )
+        if ( Scr_GetNumParam(scrContext) <= v9 )
         {
-          v32 = j_va("Score type '%s' requires node parms: <point>, <stance>", String);
-          Scr_Error(COM_ERR_1731, scrContext, v32);
+          v24 = j_va("Score type '%s' requires node parms: <point>, <stance>", String);
+          Scr_Error(COM_ERR_1731, scrContext, v24);
           return 0i64;
         }
-        Scr_GetVector(scrContext, v9, &_R15->vector1);
-        ConstString = Scr_GetConstString(scrContext, v10);
+        Scr_GetVector(scrContext, v8, &parms->vector1);
+        ConstString = Scr_GetConstString(scrContext, v9);
         if ( ConstString == scr_const.crouch )
         {
-          v34 = 2;
+          v26 = 2;
         }
         else if ( ConstString == scr_const.prone )
         {
-          v34 = 4;
+          v26 = 4;
         }
         else
         {
           if ( ConstString != scr_const.stand )
             Scr_Error(COM_ERR_1725, scrContext, "Unknown stance. Must be 'stand', 'prone', or 'crouch'");
-          v34 = 1;
+          v26 = 1;
         }
-        _R15->integer1 = v34;
+        parms->integer1 = v26;
 LABEL_33:
-        v9 = v10 + 1;
+        v8 = v9 + 1;
 $LN5_94:
-        v35 = 0;
-        v36 = 0;
-        if ( v9 >= Scr_GetNumParam(scrContext) )
+        v27 = 0;
+        v28 = 0;
+        if ( v8 >= Scr_GetNumParam(scrContext) )
           goto LABEL_44;
         break;
       default:
-        v51 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). Score type '%s' not supported for nodes.", String);
-        Scr_Error(COM_ERR_1732, scrContext, v51);
+        v43 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). Score type '%s' not supported for nodes.", String);
+        Scr_Error(COM_ERR_1732, scrContext, v43);
         return 0i64;
     }
     do
     {
-      if ( Scr_GetType(scrContext, v9) == VAR_POINTER )
+      if ( Scr_GetType(scrContext, v8) == VAR_POINTER )
       {
-        ArrayObject = BGScr_Main_GetArrayObject(scrContext, v9);
+        ArrayObject = BGScr_Main_GetArrayObject(scrContext, v8);
         ArraySize = GetArraySize(scrContext, ArrayObject);
-        v38 = 0;
+        v30 = 0;
         if ( ArraySize )
         {
           while ( 1 )
           {
-            ArrayVariable = GetArrayVariable(scrContext, ArrayObject, v38);
+            ArrayVariable = GetArrayVariable(scrContext, ArrayObject, v30);
             if ( GetValueType(scrContext, ArrayVariable) != VAR_STRING )
               break;
-            if ( v36 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1739, ASSERT_TYPE_ASSERT, "( numScoreFlags < 16 )", (const char *)&queryFormat, "numScoreFlags < BOT_MAX_SCORE_FLAGS") )
+            if ( v28 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1739, ASSERT_TYPE_ASSERT, "( numScoreFlags < 16 )", (const char *)&queryFormat, "numScoreFlags < BOT_MAX_SCORE_FLAGS") )
               __debugbreak();
             VariableValueAddress = (scr_string_t *)GetVariableValueAddress(scrContext, ArrayVariable);
-            v41 = SL_ConvertToString(*VariableValueAddress);
-            v42 = v36;
-            ++v38;
-            ++v36;
-            v56[v42] = (__int64)v41;
-            if ( v38 >= ArraySize )
+            v33 = SL_ConvertToString(*VariableValueAddress);
+            v34 = v28;
+            ++v30;
+            ++v28;
+            v48[v34] = (__int64)v33;
+            if ( v30 >= ArraySize )
               goto LABEL_42;
           }
-          v50 = j_va("element %u of bot score flags array is not a string", v38);
-          Scr_ParamError(COM_ERR_5654, scrContext, v9, v50);
+          v42 = j_va("element %u of bot score flags array is not a string", v30);
+          Scr_ParamError(COM_ERR_5654, scrContext, v8, v42);
           return 0i64;
         }
       }
-      else if ( Scr_GetType(scrContext, v9) == VAR_STRING )
+      else if ( Scr_GetType(scrContext, v8) == VAR_STRING )
       {
-        if ( v36 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1746, ASSERT_TYPE_ASSERT, "( numScoreFlags < 16 )", (const char *)&queryFormat, "numScoreFlags < BOT_MAX_SCORE_FLAGS") )
+        if ( v28 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1746, ASSERT_TYPE_ASSERT, "( numScoreFlags < 16 )", (const char *)&queryFormat, "numScoreFlags < BOT_MAX_SCORE_FLAGS") )
           __debugbreak();
-        v48 = Scr_GetString(scrContext, v9);
-        v49 = v36++;
-        v56[v49] = (__int64)v48;
+        v40 = Scr_GetString(scrContext, v8);
+        v41 = v28++;
+        v48[v41] = (__int64)v40;
       }
 LABEL_42:
-      ++v9;
+      ++v8;
     }
-    while ( v9 < Scr_GetNumParam(scrContext) );
-    v11 = String;
+    while ( v8 < Scr_GetNumParam(scrContext) );
+    v10 = String;
 LABEL_44:
-    if ( v36 )
+    if ( v28 )
     {
-      v43 = (const char **)v56;
+      v35 = (const char **)v48;
       while ( 1 )
       {
-        ScoreFlag = Bot_GetScoreFlag(*v43);
+        ScoreFlag = Bot_GetScoreFlag(*v35);
         if ( ScoreFlag == BOT_SCORE_FLAG_COUNT )
           break;
+        ++v27;
         ++v35;
-        ++v43;
-        _R15->flags |= 1 << ScoreFlag;
-        if ( v35 >= v36 )
+        parms->flags |= 1 << ScoreFlag;
+        if ( v27 >= v28 )
           goto LABEL_48;
       }
-      v45 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). Invalid score flag '%s'.", v11);
-      v46 = scrContext;
-      v47 = COM_ERR_1733;
+      v37 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). Invalid score flag '%s'.", v10);
+      v38 = scrContext;
+      v39 = COM_ERR_1733;
 LABEL_50:
-      Scr_Error(v47, v46, v45);
+      Scr_Error(v39, v38, v37);
       return 0i64;
     }
 LABEL_48:
-    if ( (_R15->flags & 6) == 6 )
+    if ( (parms->flags & 6) == 6 )
     {
-      v45 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). ignore_sky and ignore_no_sky are mutually exclusive.");
-      v46 = scrContext;
-      v47 = COM_ERR_1734;
+      v37 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). ignore_sky and ignore_no_sky are mutually exclusive.");
+      v38 = scrContext;
+      v39 = COM_ERR_1734;
       goto LABEL_50;
     }
     return 1i64;
   }
   else
   {
-    v52 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). Invalid score type '%s'.", String);
-    Scr_Error(COM_ERR_1726, scrContext, v52);
+    v44 = j_va("Illegal call to BotNodePick(), BotNodePickMultiple(), or BotNodeScoreMultiple(). Invalid score type '%s'.", String);
+    Scr_Error(COM_ERR_1726, scrContext, v44);
     return 0i64;
   }
 }
@@ -1691,10 +1676,10 @@ void PlayerCmd_BotFirstAvailableGrenade(scrContext_t *scrContext, scr_entref_t e
   int v16; 
   char *v17; 
   const playerState_s *playerState; 
-  const char *v23; 
+  const char *v19; 
   const char *String; 
   bot_grenade_type_t ScriptedGrenadeType; 
-  __int64 v26; 
+  __int64 v22; 
   Weapon offHand; 
 
   entnum = entref.entnum;
@@ -1726,7 +1711,7 @@ void PlayerCmd_BotFirstAvailableGrenade(scrContext_t *scrContext, scr_entref_t e
     v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotFirstAvailableGrenade", entnum, v8);
     v10 = COM_ERR_1680;
 LABEL_30:
-    v23 = v9;
+    v19 = v9;
     goto LABEL_31;
   }
   EntityData = Bot_GetEntityData(v4);
@@ -1739,8 +1724,8 @@ LABEL_30:
   if ( !EntityData->botInfo.ent )
   {
     v13 = Ent_Name(v4);
-    LODWORD(v26) = v4->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1013, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v26, v13) )
+    LODWORD(v22) = v4->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1013, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v22, v13) )
       __debugbreak();
   }
   ent = EntityData->botInfo.ent;
@@ -1749,28 +1734,18 @@ LABEL_30:
     v15 = Ent_Name(ent);
     v16 = EntityData->botInfo.ent->s.number;
     v17 = Ent_Name(v4);
-    LODWORD(v26) = v4->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1013, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v26, v17, v16, v15) )
+    LODWORD(v22) = v4->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1013, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v22, v17, v16, v15) )
       __debugbreak();
   }
-  _RAX = Bot_Weap_None();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+offHand.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0B8h+offHand.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0B8h+offHand.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&offHand.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  offHand = *Bot_Weap_None();
   playerState = EntityData->botInfo.playerState;
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v23 = "BotFirstAvailableGrenade() requires grenade type 'lethal' or 'tactical'";
+    v19 = "BotFirstAvailableGrenade() requires grenade type 'lethal' or 'tactical'";
     v10 = COM_ERR_1708;
 LABEL_31:
-    Scr_Error(v10, scrContext, v23);
+    Scr_Error(v10, scrContext, v19);
     return;
   }
   String = Scr_GetString(scrContext, 0);
@@ -1881,91 +1856,88 @@ PlayerCmd_BotGetDifficultySetting
 void PlayerCmd_BotGetDifficultySetting(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v6; 
-  const char *v7; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
+  const char *v7; 
+  char *v8; 
   const char *v9; 
-  char *v10; 
-  const char *v11; 
   bot_data_t *EntityData; 
-  char *v13; 
-  char *v14; 
+  char *v11; 
+  char *v12; 
   const gentity_s *ent; 
+  char *v14; 
+  int v15; 
   char *v16; 
-  int v17; 
-  char *v18; 
   const char *String; 
-  const char *v21; 
-  __int64 v24; 
+  double DifficultySetting; 
+  const char *v19; 
+  __int64 v20; 
   int succeeded; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v6 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[entnum];
-    if ( !v6->client && !v6->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v7 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v7);
+      v5 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v6->s.number;
+    number = v4->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v9 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v9);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( SV_BotIsBotEnt(v6) )
+  if ( SV_BotIsBotEnt(v4) )
   {
-    __asm { vmovaps [rsp+78h+var_28], xmm6 }
-    EntityData = Bot_GetEntityData(v6);
+    EntityData = Bot_GetEntityData(v4);
     if ( !EntityData )
     {
-      v13 = Ent_Name(v6);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v6->s.number, v13) )
+      v11 = Ent_Name(v4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v14 = Ent_Name(v6);
-      LODWORD(v24) = v6->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v24, v14) )
+      v12 = Ent_Name(v4);
+      LODWORD(v20) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v20, v12) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v6 != ent )
+    if ( v4 != ent )
     {
-      v16 = Ent_Name(ent);
-      v17 = EntityData->botInfo.ent->s.number;
-      v18 = Ent_Name(v6);
-      LODWORD(v24) = v6->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v24, v18, v17, v16) )
+      v14 = Ent_Name(ent);
+      v15 = EntityData->botInfo.ent->s.number;
+      v16 = Ent_Name(v4);
+      LODWORD(v20) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 720, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v20, v16, v15, v14) )
         __debugbreak();
     }
     String = Scr_GetString(scrContext, 0);
-    *(double *)&_XMM0 = Bot_GetDifficultySetting(EntityData, String, &succeeded);
-    __asm { vmovaps xmm6, xmm0 }
+    DifficultySetting = Bot_GetDifficultySetting(EntityData, String, &succeeded);
     if ( !succeeded )
     {
-      v21 = j_va("BotGetDifficultySetting - could not get '%s'", String);
-      Scr_Error(COM_ERR_1700, scrContext, v21);
+      v19 = j_va("BotGetDifficultySetting - could not get '%s'", String);
+      Scr_Error(COM_ERR_1700, scrContext, v19);
     }
-    __asm { vmovaps xmm1, xmm6; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
+    Scr_AddFloat(scrContext, *(float *)&DifficultySetting);
   }
   else
   {
-    v10 = Ent_Name(v6);
-    v11 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetDifficultySetting", entnum, v10);
-    Scr_Error(COM_ERR_1680, scrContext, v11);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetDifficultySetting", entnum, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
   }
 }
 
@@ -1983,13 +1955,14 @@ void PlayerCmd_BotGetFovDot(scrContext_t *scrContext, scr_entref_t entref)
   const char *v7; 
   char *v8; 
   const char *v9; 
+  bot_data_t *EntityData; 
   char *v11; 
   char *v12; 
   const gentity_s *ent; 
   char *v14; 
   int v15; 
   char *v16; 
-  __int64 v18; 
+  __int64 v17; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
@@ -2016,32 +1989,31 @@ void PlayerCmd_BotGetFovDot(scrContext_t *scrContext, scr_entref_t entref)
   }
   if ( SV_BotIsBotEnt(v4) )
   {
-    _RBP = Bot_GetEntityData(v4);
-    if ( !_RBP )
+    EntityData = Bot_GetEntityData(v4);
+    if ( !EntityData )
     {
       v11 = Ent_Name(v4);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2188, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
-    if ( !_RBP->botInfo.ent )
+    if ( !EntityData->botInfo.ent )
     {
       v12 = Ent_Name(v4);
-      LODWORD(v18) = v4->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2188, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v18, v12) )
+      LODWORD(v17) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2188, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v17, v12) )
         __debugbreak();
     }
-    ent = _RBP->botInfo.ent;
+    ent = EntityData->botInfo.ent;
     if ( v4 != ent )
     {
       v14 = Ent_Name(ent);
-      v15 = _RBP->botInfo.ent->s.number;
+      v15 = EntityData->botInfo.ent->s.number;
       v16 = Ent_Name(v4);
-      LODWORD(v18) = v4->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2188, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v18, v16, v15, v14) )
+      LODWORD(v17) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2188, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v17, v16, v15, v14) )
         __debugbreak();
     }
-    __asm { vmovss  xmm1, dword ptr [rbp+0A0h]; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    Scr_AddFloat(scrContext, EntityData->botInfo.sight.fovDot);
   }
   else
   {
@@ -2065,13 +2037,14 @@ void PlayerCmd_BotGetFovDotZ(scrContext_t *scrContext, scr_entref_t entref)
   const char *v7; 
   char *v8; 
   const char *v9; 
+  bot_data_t *EntityData; 
   char *v11; 
   char *v12; 
   const gentity_s *ent; 
   char *v14; 
   int v15; 
   char *v16; 
-  __int64 v18; 
+  __int64 v17; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
@@ -2098,32 +2071,31 @@ void PlayerCmd_BotGetFovDotZ(scrContext_t *scrContext, scr_entref_t entref)
   }
   if ( SV_BotIsBotEnt(v4) )
   {
-    _RBP = Bot_GetEntityData(v4);
-    if ( !_RBP )
+    EntityData = Bot_GetEntityData(v4);
+    if ( !EntityData )
     {
       v11 = Ent_Name(v4);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2208, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
-    if ( !_RBP->botInfo.ent )
+    if ( !EntityData->botInfo.ent )
     {
       v12 = Ent_Name(v4);
-      LODWORD(v18) = v4->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2208, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v18, v12) )
+      LODWORD(v17) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2208, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v17, v12) )
         __debugbreak();
     }
-    ent = _RBP->botInfo.ent;
+    ent = EntityData->botInfo.ent;
     if ( v4 != ent )
     {
       v14 = Ent_Name(ent);
-      v15 = _RBP->botInfo.ent->s.number;
+      v15 = EntityData->botInfo.ent->s.number;
       v16 = Ent_Name(v4);
-      LODWORD(v18) = v4->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2208, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v18, v16, v15, v14) )
+      LODWORD(v17) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2208, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v17, v16, v15, v14) )
         __debugbreak();
     }
-    __asm { vmovss  xmm1, dword ptr [rbp+0A8h]; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    Scr_AddFloat(scrContext, EntityData->botInfo.sight.fovDotZ);
   }
   else
   {
@@ -2356,86 +2328,88 @@ PlayerCmd_BotGetPathDist
 void PlayerCmd_BotGetPathDist(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
-  const char *v8; 
-  char *v9; 
-  const char *v10; 
+  const char *v7; 
+  char *v8; 
+  const char *v9; 
   bot_data_t *EntityData; 
+  char *v11; 
   char *v12; 
-  char *v13; 
   const gentity_s *ent; 
-  char *v15; 
-  int v16; 
-  char *v17; 
+  char *v14; 
+  int v15; 
+  char *v16; 
+  float v17; 
+  double PathDistToGoal; 
   __int64 v19; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
+      v5 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v5->s.number;
+    number = v4->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( SV_BotIsBotEnt(v5) )
+  if ( SV_BotIsBotEnt(v4) )
   {
-    EntityData = Bot_GetEntityData(v5);
+    EntityData = Bot_GetEntityData(v4);
     if ( !EntityData )
     {
-      v12 = Ent_Name(v5);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
+      v11 = Ent_Name(v4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v13 = Ent_Name(v5);
-      LODWORD(v19) = v5->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v19, v13) )
+      v12 = Ent_Name(v4);
+      LODWORD(v19) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v19, v12) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v5 != ent )
+    if ( v4 != ent )
     {
-      v15 = Ent_Name(ent);
-      v16 = EntityData->botInfo.ent->s.number;
-      v17 = Ent_Name(v5);
-      LODWORD(v19) = v5->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v19, v17, v16, v15) )
+      v14 = Ent_Name(ent);
+      v15 = EntityData->botInfo.ent->s.number;
+      v16 = Ent_Name(v4);
+      LODWORD(v19) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2143, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v19, v16, v15, v14) )
         __debugbreak();
     }
     if ( Bot_PathExists(&EntityData->botInfo) )
     {
-      *(double *)&_XMM0 = Nav_GetPathDistToGoal(EntityData->botInfo.pNavigator);
-      __asm { vmovaps xmm1, xmm0; value }
+      PathDistToGoal = Nav_GetPathDistToGoal(EntityData->botInfo.pNavigator);
+      v17 = *(float *)&PathDistToGoal;
     }
     else
     {
-      __asm { vmovss  xmm1, cs:__real@bf800000 }
+      v17 = FLOAT_N1_0;
     }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    Scr_AddFloat(scrContext, v17);
   }
   else
   {
-    v9 = Ent_Name(v5);
-    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetPathDist", entnum, v9);
-    Scr_Error(COM_ERR_1680, scrContext, v10);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetPathDist", entnum, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
   }
 }
 
@@ -2732,79 +2706,79 @@ PlayerCmd_BotGetScriptGoalRadius
 void PlayerCmd_BotGetScriptGoalRadius(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
-  const char *v8; 
-  char *v9; 
-  const char *v10; 
+  const char *v7; 
+  char *v8; 
+  const char *v9; 
   bot_data_t *EntityData; 
+  char *v11; 
   char *v12; 
-  char *v13; 
   const gentity_s *ent; 
-  char *v15; 
-  int v16; 
-  char *v17; 
-  __int64 v19; 
+  char *v14; 
+  int v15; 
+  char *v16; 
+  double ScriptGoalRadius; 
+  __int64 v18; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
+      v5 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v5->s.number;
+    number = v4->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( SV_BotIsBotEnt(v5) )
+  if ( SV_BotIsBotEnt(v4) )
   {
-    EntityData = Bot_GetEntityData(v5);
+    EntityData = Bot_GetEntityData(v4);
     if ( !EntityData )
     {
-      v12 = Ent_Name(v5);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
+      v11 = Ent_Name(v4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v13 = Ent_Name(v5);
-      LODWORD(v19) = v5->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v19, v13) )
+      v12 = Ent_Name(v4);
+      LODWORD(v18) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v18, v12) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v5 != ent )
+    if ( v4 != ent )
     {
-      v15 = Ent_Name(ent);
-      v16 = EntityData->botInfo.ent->s.number;
-      v17 = Ent_Name(v5);
-      LODWORD(v19) = v5->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v19, v17, v16, v15) )
+      v14 = Ent_Name(ent);
+      v15 = EntityData->botInfo.ent->s.number;
+      v16 = Ent_Name(v4);
+      LODWORD(v18) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1176, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v18, v16, v15, v14) )
         __debugbreak();
     }
-    *(double *)&_XMM0 = Bot_GetScriptGoalRadius(EntityData);
-    __asm { vmovaps xmm1, xmm0; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    ScriptGoalRadius = Bot_GetScriptGoalRadius(EntityData);
+    Scr_AddFloat(scrContext, *(float *)&ScriptGoalRadius);
   }
   else
   {
-    v9 = Ent_Name(v5);
-    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetScriptGoalRadius", entnum, v9);
-    Scr_Error(COM_ERR_1680, scrContext, v10);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetScriptGoalRadius", entnum, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
   }
 }
 
@@ -2900,79 +2874,79 @@ PlayerCmd_BotGetScriptGoalYaw
 void PlayerCmd_BotGetScriptGoalYaw(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
-  const char *v8; 
-  char *v9; 
-  const char *v10; 
+  const char *v7; 
+  char *v8; 
+  const char *v9; 
   bot_data_t *EntityData; 
+  char *v11; 
   char *v12; 
-  char *v13; 
   const gentity_s *ent; 
-  char *v15; 
-  int v16; 
-  char *v17; 
-  __int64 v19; 
+  char *v14; 
+  int v15; 
+  char *v16; 
+  double ScriptGoalYaw; 
+  __int64 v18; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
+      v5 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v5->s.number;
+    number = v4->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( SV_BotIsBotEnt(v5) )
+  if ( SV_BotIsBotEnt(v4) )
   {
-    EntityData = Bot_GetEntityData(v5);
+    EntityData = Bot_GetEntityData(v4);
     if ( !EntityData )
     {
-      v12 = Ent_Name(v5);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
+      v11 = Ent_Name(v4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v13 = Ent_Name(v5);
-      LODWORD(v19) = v5->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v19, v13) )
+      v12 = Ent_Name(v4);
+      LODWORD(v18) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v18, v12) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v5 != ent )
+    if ( v4 != ent )
     {
-      v15 = Ent_Name(ent);
-      v16 = EntityData->botInfo.ent->s.number;
-      v17 = Ent_Name(v5);
-      LODWORD(v19) = v5->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v19, v17, v16, v15) )
+      v14 = Ent_Name(ent);
+      v15 = EntityData->botInfo.ent->s.number;
+      v16 = Ent_Name(v4);
+      LODWORD(v18) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1193, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v18, v16, v15, v14) )
         __debugbreak();
     }
-    *(double *)&_XMM0 = Bot_GetScriptGoalYaw(EntityData);
-    __asm { vmovaps xmm1, xmm0; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    ScriptGoalYaw = Bot_GetScriptGoalYaw(EntityData);
+    Scr_AddFloat(scrContext, *(float *)&ScriptGoalYaw);
   }
   else
   {
-    v9 = Ent_Name(v5);
-    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetScriptGoalYaw", entnum, v9);
-    Scr_Error(COM_ERR_1680, scrContext, v10);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotGetScriptGoalYaw", entnum, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
   }
 }
 
@@ -3427,31 +3401,28 @@ PlayerCmd_BotLookAtPoint
 void PlayerCmd_BotLookAtPoint(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v8; 
-  const char *v9; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
-  const char *v11; 
-  char *v12; 
-  const char *v13; 
+  const char *v7; 
+  char *v8; 
+  const char *v9; 
   bot_data_t *EntityData; 
-  char *v15; 
-  char *v16; 
+  char *v11; 
+  char *v12; 
   const gentity_s *ent; 
-  char *v18; 
-  int v19; 
-  char *v20; 
-  bot_look_t v21; 
+  char *v14; 
+  int v15; 
+  char *v16; 
+  double Float; 
+  bot_look_t v18; 
+  float v19; 
   const char *String; 
   int LookType; 
-  const char *v25; 
-  const sentient_s *sentient; 
-  char v44; 
-  char v45; 
-  const char *v58; 
-  char *fmt; 
-  __int64 v65; 
-  __int64 v66; 
-  __int64 v67; 
+  const char *v22; 
+  __int128 v23; 
+  const char *v27; 
+  __int64 v28; 
   vec3_t vEyePosOut; 
   vec3_t vectorValue; 
 
@@ -3459,134 +3430,85 @@ void PlayerCmd_BotLookAtPoint(scrContext_t *scrContext, scr_entref_t entref)
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v8 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v8 = &g_entities[entnum];
-    if ( !v8->client && !v8->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v9 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v9);
+      v5 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v8->s.number;
+    number = v4->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v11 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v11);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( SV_BotIsBotEnt(v8) )
+  if ( SV_BotIsBotEnt(v4) )
   {
-    EntityData = Bot_GetEntityData(v8);
+    EntityData = Bot_GetEntityData(v4);
     if ( !EntityData )
     {
-      v15 = Ent_Name(v8);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v8->s.number, v15) )
+      v11 = Ent_Name(v4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v16 = Ent_Name(v8);
-      LODWORD(v66) = v8->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v66, v16) )
+      v12 = Ent_Name(v4);
+      LODWORD(v28) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v28, v12) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v8 != ent )
+    if ( v4 != ent )
     {
-      v18 = Ent_Name(ent);
-      v19 = EntityData->botInfo.ent->s.number;
-      v20 = Ent_Name(v8);
-      LODWORD(v66) = v8->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v66, v20, v19, v18) )
+      v14 = Ent_Name(ent);
+      v15 = EntityData->botInfo.ent->s.number;
+      v16 = Ent_Name(v4);
+      LODWORD(v28) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 273, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v28, v16, v15, v14) )
         __debugbreak();
     }
     if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) )
     {
       if ( Scr_GetNumParam(scrContext) >= 2 )
       {
-        __asm { vmovaps [rsp+0C8h+var_28], xmm6 }
         Scr_GetVector(scrContext, 0, &vectorValue);
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-        v21 = BOT_LOOK_SCRIPT_SEARCH;
-        __asm { vmovaps xmm6, xmm0 }
-        if ( Scr_GetNumParam(scrContext) > 2 && ((String = Scr_GetString(scrContext, 2u), LookType = Bot_GetLookType(String), v21 = LookType, ((LookType - 2) & 0xFFFFFFF9) != 0) || LookType == 8) )
+        Float = Scr_GetFloat(scrContext, 1u);
+        v18 = BOT_LOOK_SCRIPT_SEARCH;
+        v19 = *(float *)&Float;
+        if ( Scr_GetNumParam(scrContext) > 2 && ((String = Scr_GetString(scrContext, 2u), LookType = Bot_GetLookType(String), v18 = LookType, ((LookType - 2) & 0xFFFFFFF9) != 0) || LookType == 8) )
         {
-          v25 = j_va("Illegal call to BotLookAtPoint(). Type '%s' is not allowed", String);
-          Scr_Error(COM_ERR_1685, scrContext, v25);
+          v22 = j_va("Illegal call to BotLookAtPoint(). Type '%s' is not allowed", String);
+          Scr_Error(COM_ERR_1685, scrContext, v22);
         }
         else
         {
-          sentient = EntityData->botInfo.sentient;
+          Sentient_GetEyePosition(EntityData->botInfo.sentient, &vEyePosOut);
+          v23 = LODWORD(vectorValue.v[1]);
+          *(float *)&v23 = fsqrt((float)((float)((float)(vectorValue.v[1] - vEyePosOut.v[1]) * (float)(vectorValue.v[1] - vEyePosOut.v[1])) + (float)((float)(vectorValue.v[0] - vEyePosOut.v[0]) * (float)(vectorValue.v[0] - vEyePosOut.v[0]))) + (float)((float)(vectorValue.v[2] - vEyePosOut.v[2]) * (float)(vectorValue.v[2] - vEyePosOut.v[2])));
+          _XMM3 = v23;
           __asm
           {
-            vmovaps [rsp+0C8h+var_38], xmm8
-            vmovaps [rsp+0C8h+var_48], xmm10
-          }
-          Sentient_GetEyePosition(sentient, &vEyePosOut);
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rsp+0C8h+vectorValue+4]
-            vsubss  xmm0, xmm8, dword ptr [rsp+0C8h+vEyePosOut+4]
-            vmovss  xmm5, dword ptr [rsp+0C8h+vectorValue]
-            vsubss  xmm2, xmm5, dword ptr [rsp+0C8h+vEyePosOut]
-            vmovss  xmm10, dword ptr [rsp+0C8h+vectorValue+8]
-            vsubss  xmm4, xmm10, dword ptr [rsp+0C8h+vEyePosOut+8]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmovss  xmm0, cs:__real@3f800000
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm3, xmm2, xmm2
             vcmpless xmm1, xmm3, cs:__real@80000000
             vblendvps xmm0, xmm3, xmm0, xmm1
-            vdivss  xmm1, xmm4, xmm0
-            vcvtss2sd xmm2, xmm1, xmm1
-            vcomisd xmm2, cs:__real@3fee11f70de8f6cf
           }
-          if ( v44 | v45 )
+          if ( (float)((float)(vectorValue.v[2] - vEyePosOut.v[2]) / *(float *)&_XMM0) <= 0.939693 )
           {
-            __asm
-            {
-              vmulss  xmm0, xmm6, cs:__real@447a0000
-              vcvttss2si r8d, xmm0; duration
-            }
-            Bot_LookAtPoint(EntityData, &vectorValue, _ER8, v21);
+            Bot_LookAtPoint(EntityData, &vectorValue, (int)(float)(v19 * 1000.0), v18);
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rsp+0C8h+vEyePosOut+8]
-              vmovss  xmm2, dword ptr [rsp+0C8h+vEyePosOut+4]
-              vmovss  xmm1, dword ptr [rsp+0C8h+vEyePosOut]
-              vcvtss2sd xmm0, xmm10, xmm10
-              vmovsd  [rsp+0C8h+var_98], xmm0
-              vcvtss2sd xmm3, xmm3, xmm3
-              vcvtss2sd xmm2, xmm2, xmm2
-              vcvtss2sd xmm1, xmm1, xmm1
-              vcvtss2sd xmm4, xmm8, xmm8
-              vcvtss2sd xmm5, xmm5, xmm5
-              vmovsd  [rsp+0C8h+var_A0], xmm4
-              vmovq   r9, xmm3
-              vmovq   r8, xmm2
-              vmovq   rdx, xmm1
-              vmovsd  [rsp+0C8h+fmt], xmm5
-            }
-            v58 = j_va("Illegal call to BotLookAtPoint(). Bot at location (%f %f %f) looking directly up at point (%f %f %f)", _RDX, _R8, _R9, fmt, v65, v67);
-            Scr_Error(COM_ERR_1686, scrContext, v58);
-          }
-          __asm
-          {
-            vmovaps xmm8, [rsp+0C8h+var_38]
-            vmovaps xmm10, [rsp+0C8h+var_48]
+            v27 = j_va("Illegal call to BotLookAtPoint(). Bot at location (%f %f %f) looking directly up at point (%f %f %f)", vEyePosOut.v[0], vEyePosOut.v[1], vEyePosOut.v[2], vectorValue.v[0], vectorValue.v[1], vectorValue.v[2]);
+            Scr_Error(COM_ERR_1686, scrContext, v27);
           }
         }
-        __asm { vmovaps xmm6, [rsp+0C8h+var_28] }
       }
       else
       {
@@ -3600,9 +3522,9 @@ void PlayerCmd_BotLookAtPoint(scrContext_t *scrContext, scr_entref_t entref)
   }
   else
   {
-    v12 = Ent_Name(v8);
-    v13 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotLookAtPoint", entnum, v12);
-    Scr_Error(COM_ERR_1680, scrContext, v13);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotLookAtPoint", entnum, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
   }
 }
 
@@ -3613,204 +3535,175 @@ PlayerCmd_BotMemoryEvent
 */
 void PlayerCmd_BotMemoryEvent(scrContext_t *scrContext, scr_entref_t entref)
 {
-  unsigned int v4; 
-  gentity_s *v6; 
-  const char *v7; 
+  unsigned int v2; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
+  const char *v7; 
+  char *v8; 
   const char *v9; 
-  char *v10; 
-  const char *v11; 
   bot_data_t *EntityData; 
-  char *v13; 
-  char *v14; 
+  char *v11; 
+  char *v12; 
   const gentity_s *ent; 
+  char *v14; 
+  int v15; 
   char *v16; 
-  int v17; 
-  char *v18; 
   bot_mem_type_t MemEventType; 
   __int16 entNum; 
   const char *String; 
-  const char *v27; 
-  const char *v28; 
+  const char *v20; 
+  const char *v21; 
   gentity_s *Entity; 
-  const char *v37; 
-  ComErrorCode v38; 
-  __int64 v46; 
+  const char *v23; 
+  ComErrorCode v24; 
+  const char *v25; 
+  int v26; 
+  const char *v27; 
+  __int64 v28; 
   Weapon result; 
   vec3_t vectorValue; 
   vec3_t location2; 
   Weapon weapon; 
 
-  v4 = entref.entnum;
+  v2 = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v6 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[v4];
-    if ( !v6->client && !v6->agent )
+    v4 = &g_entities[v2];
+    if ( !v4->client && !v4->agent )
     {
-      v7 = j_va("entity %u is not a player or agent", v4);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v7);
+      v5 = j_va("entity %u is not a player or agent", v2);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v6->s.number;
-    if ( number != truncate_cast<int,unsigned int>(v4) )
+    number = v4->s.number;
+    if ( number != truncate_cast<int,unsigned int>(v2) )
     {
-      v9 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", v4, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v9);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", v2, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( !SV_BotIsBotEnt(v6) )
+  if ( !SV_BotIsBotEnt(v4) )
   {
-    v10 = Ent_Name(v6);
-    v11 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotMemoryEvent", v4, v10);
-    Scr_Error(COM_ERR_1680, scrContext, v11);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotMemoryEvent", v2, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
     return;
   }
-  __asm { vmovaps [rsp+140h+var_30], xmm6 }
-  EntityData = Bot_GetEntityData(v6);
+  EntityData = Bot_GetEntityData(v4);
   if ( !EntityData )
   {
-    v13 = Ent_Name(v6);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v6->s.number, v13) )
+    v11 = Ent_Name(v4);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
       __debugbreak();
   }
   if ( !EntityData->botInfo.ent )
   {
-    v14 = Ent_Name(v6);
-    LODWORD(v46) = v6->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v46, v14) )
+    v12 = Ent_Name(v4);
+    LODWORD(v28) = v4->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v28, v12) )
       __debugbreak();
   }
   ent = EntityData->botInfo.ent;
-  if ( v6 != ent )
+  if ( v4 != ent )
   {
-    v16 = Ent_Name(ent);
-    v17 = EntityData->botInfo.ent->s.number;
-    v18 = Ent_Name(v6);
-    LODWORD(v46) = v6->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v46, v18, v17, v16) )
+    v14 = Ent_Name(ent);
+    v15 = EntityData->botInfo.ent->s.number;
+    v16 = Ent_Name(v4);
+    LODWORD(v28) = v4->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 1411, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v28, v16, v15, v14) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@7f7fffff
-    vmovss  dword ptr [rbp+40h+vectorValue], xmm6
-    vmovss  dword ptr [rbp+40h+vectorValue+4], xmm6
-    vmovss  dword ptr [rbp+40h+vectorValue+8], xmm6
-    vmovss  dword ptr [rbp+40h+location2], xmm6
-    vmovss  dword ptr [rbp+40h+location2+4], xmm6
-    vmovss  dword ptr [rbp+40h+location2+8], xmm6
-  }
+  vectorValue.v[0] = FLOAT_3_4028235e38;
+  vectorValue.v[1] = FLOAT_3_4028235e38;
+  vectorValue.v[2] = FLOAT_3_4028235e38;
+  location2.v[0] = FLOAT_3_4028235e38;
+  location2.v[1] = FLOAT_3_4028235e38;
+  location2.v[2] = FLOAT_3_4028235e38;
   MemEventType = BOT_MEM_TYPE_COUNT;
-  _RAX = Bot_Weap_None();
   entNum = 2047;
-  __asm
+  weapon = *Bot_Weap_None();
+  if ( !Scr_GetNumParam(scrContext) )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+40h+weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbp+40h+weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rbp+40h+weapon.attachmentVariationIndices+15h], xmm0
+    Scr_Error(COM_ERR_1715, scrContext, "Illegal call to BotMemoryEvent(). Requires an event type string.");
+    return;
   }
-  *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
   if ( Scr_GetNumParam(scrContext) )
   {
-    if ( Scr_GetNumParam(scrContext) )
+    String = Scr_GetString(scrContext, 0);
+    MemEventType = Bot_GetMemEventType(String);
+    if ( MemEventType == BOT_MEM_TYPE_COUNT )
     {
-      String = Scr_GetString(scrContext, 0);
-      MemEventType = Bot_GetMemEventType(String);
-      if ( MemEventType == BOT_MEM_TYPE_COUNT )
-      {
-        v27 = j_va("Illegal call to BotMemoryEvent(). Invalid event type '%s'.", String);
-        Scr_Error(COM_ERR_1716, scrContext, v27);
-        goto LABEL_47;
-      }
+      v20 = j_va("Illegal call to BotMemoryEvent(). Invalid event type '%s'.", String);
+      Scr_Error(COM_ERR_1716, scrContext, v20);
+      return;
     }
-    if ( Scr_GetNumParam(scrContext) >= 2 && Scr_GetType(scrContext, 1u) )
-    {
-      v28 = Scr_GetString(scrContext, 1u);
-      _RAX = Bot_Weap_WeaponForName(&result, v28);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+40h+weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbp+40h+weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rbp+40h+weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    }
-    if ( Scr_GetNumParam(scrContext) >= 3 && Scr_GetType(scrContext, 2u) )
-      Scr_GetVector(scrContext, 2u, &vectorValue);
-    if ( Scr_GetNumParam(scrContext) >= 4 && Scr_GetType(scrContext, 3u) )
-      Scr_GetVector(scrContext, 3u, &location2);
-    if ( Scr_GetNumParam(scrContext) >= 5 && Scr_GetType(scrContext, 4u) )
+  }
+  if ( Scr_GetNumParam(scrContext) >= 2 && Scr_GetType(scrContext, 1u) )
+  {
+    v21 = Scr_GetString(scrContext, 1u);
+    weapon = *Bot_Weap_WeaponForName(&result, v21);
+  }
+  if ( Scr_GetNumParam(scrContext) >= 3 && Scr_GetType(scrContext, 2u) )
+    Scr_GetVector(scrContext, 2u, &vectorValue);
+  if ( Scr_GetNumParam(scrContext) >= 4 && Scr_GetType(scrContext, 3u) )
+    Scr_GetVector(scrContext, 3u, &location2);
+  if ( Scr_GetNumParam(scrContext) >= 5 )
+  {
+    if ( Scr_GetType(scrContext, 4u) )
     {
       Entity = GScr_GetEntity(4u);
       if ( Entity )
         entNum = Entity->s.number;
     }
-    __asm
-    {
-      vmovaps [rsp+140h+var_40], xmm7
-      vmovss  xmm1, dword ptr [rbp+40h+vectorValue]
-      vxorps  xmm0, xmm0, xmm0
-    }
-    if ( MemEventType == BOT_MEM_KNOWN_ENEMY )
-    {
-      __asm
-      {
-        vucomiss xmm1, xmm0
-        vmovss  xmm3, dword ptr [rbp+40h+vectorValue+8]
-        vmovss  xmm2, dword ptr [rbp+40h+vectorValue+4]
-        vucomiss xmm2, xmm0
-        vucomiss xmm3, xmm0
-      }
-      v37 = "Bot Memory Event 'known_enemy' needs location1 specified";
-      v38 = COM_ERR_1717;
-    }
-    else
-    {
-      __asm
-      {
-        vucomiss xmm1, xmm0
-        vmovss  xmm4, dword ptr [rbp+40h+vectorValue+8]
-        vmovss  xmm3, dword ptr [rbp+40h+vectorValue+4]
-        vcomiss xmm1, xmm6
-      }
-      if ( (unsigned int)MemEventType < BOT_MEM_KNOWN_ENEMY )
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbp+40h+location2]
-          vucomiss xmm2, xmm0
-          vmovss  xmm7, dword ptr [rbp+40h+location2+8]
-          vmovss  xmm5, dword ptr [rbp+40h+location2+4]
-          vcomiss xmm2, xmm6
-          vucomiss xmm1, xmm0
-          vucomiss xmm2, xmm0
-        }
-        Bot_MemoryWriteEvent(EntityData, MemEventType, &weapon, &vectorValue, &location2, entNum);
-LABEL_46:
-        __asm { vmovaps xmm7, [rsp+140h+var_40] }
-        goto LABEL_47;
-      }
-      v37 = "Bot memory event needs location1 specified";
-      v38 = COM_ERR_1718;
-    }
-    Scr_Error(v38, scrContext, v37);
-    goto LABEL_46;
   }
-  Scr_Error(COM_ERR_1715, scrContext, "Illegal call to BotMemoryEvent(). Requires an event type string.");
-LABEL_47:
-  __asm { vmovaps xmm6, [rsp+140h+var_30] }
+  if ( MemEventType != BOT_MEM_KNOWN_ENEMY )
+  {
+    if ( vectorValue.v[0] == 0.0 && vectorValue.v[1] == 0.0 && vectorValue.v[2] == 0.0 || vectorValue.v[0] >= 3.4028235e38 )
+    {
+      v23 = "Bot memory event needs location1 specified";
+      v24 = COM_ERR_1718;
+      goto LABEL_70;
+    }
+    if ( location2.v[0] == 0.0 && location2.v[1] == 0.0 && location2.v[2] == 0.0 || location2.v[0] >= 3.4028235e38 )
+    {
+      v23 = "Bot memory event needs location2 specified";
+      v24 = COM_ERR_1719;
+      goto LABEL_70;
+    }
+    if ( (vectorValue.v[0] != 0.0 || vectorValue.v[1] != 0.0 || vectorValue.v[2] != 0.0) && (location2.v[0] != 0.0 || location2.v[1] != 0.0 || location2.v[2] != 0.0) )
+    {
+LABEL_67:
+      Bot_MemoryWriteEvent(EntityData, MemEventType, &weapon, &vectorValue, &location2, entNum);
+      return;
+    }
+    v25 = "Vec3NotZero( loc1 ) && Vec3NotZero( loc2 )";
+    v26 = 1488;
+    v27 = "( Vec3NotZero( loc1 ) && Vec3NotZero( loc2 ) )";
+LABEL_65:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", v26, ASSERT_TYPE_ASSERT, v27, (const char *)&queryFormat, v25) )
+      __debugbreak();
+    goto LABEL_67;
+  }
+  if ( (vectorValue.v[0] != 0.0 || vectorValue.v[1] != 0.0 || vectorValue.v[2] != 0.0) && vectorValue.v[0] < 3.4028235e38 )
+  {
+    if ( vectorValue.v[0] != 0.0 || vectorValue.v[1] != 0.0 || vectorValue.v[2] != 0.0 )
+      goto LABEL_67;
+    v25 = "Vec3NotZero( loc1 )";
+    v26 = 1486;
+    v27 = "( Vec3NotZero( loc1 ) )";
+    goto LABEL_65;
+  }
+  v23 = "Bot Memory Event 'known_enemy' needs location1 specified";
+  v24 = COM_ERR_1717;
+LABEL_70:
+  Scr_Error(v24, scrContext, v23);
 }
 
 /*
@@ -4575,104 +4468,98 @@ PlayerCmd_BotPressButton
 */
 void PlayerCmd_BotPressButton(scrContext_t *scrContext, scr_entref_t entref)
 {
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v6; 
-  const char *v7; 
+  gentity_s *v5; 
+  const char *v6; 
   unsigned int number; 
-  const char *v9; 
-  char *v10; 
-  const char *v11; 
+  const char *v8; 
+  char *v9; 
+  const char *v10; 
   bot_data_t *EntityData; 
+  char *v12; 
   char *v13; 
-  char *v14; 
   const gentity_s *ent; 
-  char *v16; 
-  int v17; 
-  char *v18; 
+  char *v15; 
+  int v16; 
+  char *v17; 
   const char *String; 
   bot_scr_buttons_t ScriptButtonType; 
-  const char *v21; 
-  __int64 v23; 
+  const char *v20; 
+  double Float; 
+  __int64 v22; 
 
-  _ER15 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v6 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[entnum];
-    if ( !v6->client && !v6->agent )
+    v5 = &g_entities[entnum];
+    if ( !v5->client && !v5->agent )
     {
-      v7 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v7);
+      v6 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
     }
-    number = v6->s.number;
+    number = v5->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v9 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v9);
+      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
     }
   }
-  if ( SV_BotIsBotEnt(v6) )
+  if ( SV_BotIsBotEnt(v5) )
   {
-    EntityData = Bot_GetEntityData(v6);
+    EntityData = Bot_GetEntityData(v5);
     if ( !EntityData )
     {
-      v13 = Ent_Name(v6);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v6->s.number, v13) )
+      v12 = Ent_Name(v5);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v14 = Ent_Name(v6);
-      LODWORD(v23) = v6->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v23, v14) )
+      v13 = Ent_Name(v5);
+      LODWORD(v22) = v5->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v22, v13) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v6 != ent )
+    if ( v5 != ent )
     {
-      v16 = Ent_Name(ent);
-      v17 = EntityData->botInfo.ent->s.number;
-      v18 = Ent_Name(v6);
-      LODWORD(v23) = v6->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v23, v18, v17, v16) )
+      v15 = Ent_Name(ent);
+      v16 = EntityData->botInfo.ent->s.number;
+      v17 = Ent_Name(v5);
+      LODWORD(v22) = v5->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 858, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v22, v17, v16, v15) )
         __debugbreak();
     }
     String = Scr_GetString(scrContext, 0);
     ScriptButtonType = Bot_GetScriptButtonType(String);
     if ( ScriptButtonType == BOT_SCR_BUTTON_COUNT )
     {
-      v21 = j_va("Illegal call to BotPressButton(). Unsupported button '%s'.", String);
-      Scr_Error(COM_ERR_1704, scrContext, v21);
+      v20 = j_va("Illegal call to BotPressButton(). Unsupported button '%s'.", String);
+      Scr_Error(COM_ERR_1704, scrContext, v20);
+    }
+    else if ( Scr_GetNumParam(scrContext) <= 1 || (Float = Scr_GetFloat(scrContext, 1u), v2 = (int)(float)(*(float *)&Float * 1000.0), v2 >= 0) )
+    {
+      Bot_PressButton(EntityData, ScriptButtonType, v2);
     }
     else
     {
-      if ( Scr_GetNumParam(scrContext) <= 1 )
-        goto LABEL_27;
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si r15d, xmm1
-      }
-      if ( _ER15 >= 0 )
-LABEL_27:
-        Bot_PressButton(EntityData, ScriptButtonType, _ER15);
-      else
-        Scr_Error(COM_ERR_1705, scrContext, "'Invalid <time> parameter - needs to be >= 0");
+      Scr_Error(COM_ERR_1705, scrContext, "'Invalid <time> parameter - needs to be >= 0");
     }
   }
   else
   {
-    v10 = Ent_Name(v6);
-    v11 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotPressButton", entnum, v10);
-    Scr_Error(COM_ERR_1680, scrContext, v11);
+    v9 = Ent_Name(v5);
+    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotPressButton", entnum, v9);
+    Scr_Error(COM_ERR_1680, scrContext, v10);
   }
 }
 
@@ -4868,92 +4755,82 @@ PlayerCmd_BotSetAwareness
 void PlayerCmd_BotSetAwareness(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v6; 
-  const char *v7; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int number; 
+  const char *v7; 
+  char *v8; 
   const char *v9; 
-  char *v10; 
-  const char *v11; 
   bot_data_t *EntityData; 
-  char *v13; 
-  char *v14; 
+  char *v11; 
+  char *v12; 
   const gentity_s *ent; 
+  char *v14; 
+  int v15; 
   char *v16; 
-  int v17; 
-  char *v18; 
-  char v20; 
-  __int64 v22; 
+  double Float; 
+  __int64 v18; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v6 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[entnum];
-    if ( !v6->client && !v6->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v7 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v7);
+      v5 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v5);
     }
-    number = v6->s.number;
+    number = v4->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v9 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v9);
+      v7 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v7);
     }
   }
-  if ( SV_BotIsBotEnt(v6) )
+  if ( SV_BotIsBotEnt(v4) )
   {
-    EntityData = Bot_GetEntityData(v6);
+    EntityData = Bot_GetEntityData(v4);
     if ( !EntityData )
     {
-      v13 = Ent_Name(v6);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v6->s.number, v13) )
+      v11 = Ent_Name(v4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v14 = Ent_Name(v6);
-      LODWORD(v22) = v6->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v22, v14) )
+      v12 = Ent_Name(v4);
+      LODWORD(v18) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v18, v12) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v6 != ent )
+    if ( v4 != ent )
     {
-      v16 = Ent_Name(ent);
-      v17 = EntityData->botInfo.ent->s.number;
-      v18 = Ent_Name(v6);
-      LODWORD(v22) = v6->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v22, v18, v17, v16) )
+      v14 = Ent_Name(ent);
+      v15 = EntityData->botInfo.ent->s.number;
+      v16 = Ent_Name(v4);
+      LODWORD(v18) = v4->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 826, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v18, v16, v15, v14) )
         __debugbreak();
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v20 )
-    {
-      Scr_Error(COM_ERR_1703, scrContext, "Illegal call to BotSetAwareness(). <awareness> cannot be less than 0");
-    }
+    Float = Scr_GetFloat(scrContext, 0);
+    if ( *(float *)&Float >= 0.0 )
+      Bot_SetAwareness(EntityData, *(float *)&Float);
     else
-    {
-      __asm { vmovaps xmm1, xmm0; awareness }
-      Bot_SetAwareness(EntityData, *(float *)&_XMM1);
-    }
+      Scr_Error(COM_ERR_1703, scrContext, "Illegal call to BotSetAwareness(). <awareness> cannot be less than 0");
   }
   else
   {
-    v10 = Ent_Name(v6);
-    v11 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetAwareness", entnum, v10);
-    Scr_Error(COM_ERR_1680, scrContext, v11);
+    v8 = Ent_Name(v4);
+    v9 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetAwareness", entnum, v8);
+    Scr_Error(COM_ERR_1680, scrContext, v9);
   }
 }
 
@@ -5536,191 +5413,144 @@ PlayerCmd_BotSetScriptGoal
 */
 void PlayerCmd_BotSetScriptGoal(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v5; 
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v8; 
-  const char *v9; 
+  gentity_s *v5; 
+  const char *v6; 
   unsigned int number; 
-  const char *v11; 
-  char *v12; 
-  const char *v13; 
+  const char *v8; 
+  char *v9; 
+  const char *v10; 
   bot_data_t *EntityData; 
-  char *v15; 
-  char *v16; 
+  char *v12; 
+  char *v13; 
   const gentity_s *ent; 
-  char *v18; 
-  int v19; 
-  char *v20; 
-  char v21; 
-  char v25; 
-  const char *v28; 
-  float *v30; 
+  char *v15; 
+  int v16; 
+  char *v17; 
+  double Float; 
+  float v19; 
+  const char *v20; 
+  float objectiveRadius; 
+  float *v22; 
   const char *String; 
   bot_scr_goal_t GoalType; 
-  int v34; 
-  float objectiveRadius; 
+  double v25; 
+  double v26; 
+  int v27; 
   __int64 shortTermGoal; 
-  int v40; 
+  float v29; 
   vec3_t vectorValue; 
 
-  v5 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v8 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v8 = &g_entities[entnum];
-    if ( !v8->client && !v8->agent )
+    v5 = &g_entities[entnum];
+    if ( !v5->client && !v5->agent )
     {
-      v9 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v9);
+      v6 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
     }
-    number = v8->s.number;
+    number = v5->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v11 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v11);
+      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
     }
   }
-  if ( !SV_BotIsBotEnt(v8) )
+  if ( !SV_BotIsBotEnt(v5) )
   {
-    v12 = Ent_Name(v8);
-    v13 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetScriptGoal", entnum, v12);
-    Scr_Error(COM_ERR_1680, scrContext, v13);
+    v9 = Ent_Name(v5);
+    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetScriptGoal", entnum, v9);
+    Scr_Error(COM_ERR_1680, scrContext, v10);
     return;
   }
-  __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
-  EntityData = Bot_GetEntityData(v8);
+  EntityData = Bot_GetEntityData(v5);
   if ( !EntityData )
   {
-    v15 = Ent_Name(v8);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v8->s.number, v15) )
+    v12 = Ent_Name(v5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
       __debugbreak();
   }
   if ( !EntityData->botInfo.ent )
   {
-    v16 = Ent_Name(v8);
-    LODWORD(shortTermGoal) = v8->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", shortTermGoal, v16) )
+    v13 = Ent_Name(v5);
+    LODWORD(shortTermGoal) = v5->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", shortTermGoal, v13) )
       __debugbreak();
   }
   ent = EntityData->botInfo.ent;
-  if ( v8 != ent )
+  if ( v5 != ent )
   {
-    v18 = Ent_Name(ent);
-    v19 = EntityData->botInfo.ent->s.number;
-    v20 = Ent_Name(v8);
-    LODWORD(shortTermGoal) = v8->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", shortTermGoal, v20, v19, v18) )
+    v15 = Ent_Name(ent);
+    v16 = EntityData->botInfo.ent->s.number;
+    v17 = Ent_Name(v5);
+    LODWORD(shortTermGoal) = v5->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 353, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", shortTermGoal, v17, v16, v15) )
       __debugbreak();
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
+  if ( vectorValue.v[0] == 0.0 && vectorValue.v[1] == 0.0 && vectorValue.v[2] == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+0C8h+vectorValue]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
+    Scr_Error(COM_ERR_6377, scrContext, "Illegal call to BotSetScriptGoal(). Goal cannot be (0,0,0)");
+    return;
   }
-  if ( !v21 )
-    goto LABEL_26;
-  __asm
+  Float = Scr_GetFloat(scrContext, 1u);
+  v19 = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+0C8h+vectorValue+4]
-    vucomiss xmm0, xmm6
+    v20 = j_va("Illegal call to BotSetScriptGoal(). Radius '%f' is not >= 0", *(float *)&Float);
+    Scr_Error(COM_ERR_1687, scrContext, v20);
+    return;
   }
-  if ( !v21 )
-    goto LABEL_26;
-  __asm
+  objectiveRadius = FLOAT_N1_0;
+  v22 = NULL;
+  v29 = 0.0;
+  String = Scr_GetString(scrContext, 2u);
+  GoalType = Bot_GetGoalType(String);
+  if ( GoalType == BOT_SCR_GOAL_NONE )
   {
-    vmovss  xmm0, dword ptr [rsp+0C8h+vectorValue+8]
-    vucomiss xmm0, xmm6
+    Scr_Error(COM_ERR_1688, scrContext, "Illegal call to BotSetScriptGoal(). Type is required");
+    return;
   }
-  if ( !v21 )
+  if ( Scr_GetNumParam(scrContext) >= 4 && Scr_GetType(scrContext, 3u) )
   {
-LABEL_26:
-    __asm { vmovaps [rsp+0C8h+var_48], xmm7 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm7, xmm0
-    }
-    if ( v25 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm1, xmm7, xmm0
-        vmovq   rdx, xmm1
-      }
-      v28 = j_va("Illegal call to BotSetScriptGoal(). Radius '%f' is not >= 0", _RDX);
-      Scr_Error(COM_ERR_1687, scrContext, v28);
-LABEL_44:
-      __asm { vmovaps xmm7, [rsp+0C8h+var_48] }
-      goto LABEL_45;
-    }
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_58], xmm8
-      vmovss  xmm8, cs:__real@bf800000
-    }
-    v30 = NULL;
-    __asm { vmovss  [rsp+0C8h+var_78], xmm6 }
-    String = Scr_GetString(scrContext, 2u);
-    GoalType = Bot_GetGoalType(String);
-    if ( GoalType == BOT_SCR_GOAL_NONE )
-    {
-      Scr_Error(COM_ERR_1688, scrContext, "Illegal call to BotSetScriptGoal(). Type is required");
-LABEL_43:
-      __asm { vmovaps xmm8, [rsp+0C8h+var_58] }
-      goto LABEL_44;
-    }
-    if ( Scr_GetNumParam(scrContext) >= 4 && Scr_GetType(scrContext, 3u) )
-    {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm { vmovss  [rsp+0C8h+var_78], xmm0 }
-      v30 = (float *)&v40;
-    }
-    if ( Scr_GetNumParam(scrContext) >= 5 && Scr_GetType(scrContext, 4u) )
-    {
-      if ( GoalType != BOT_SCR_GOAL_OBJECTIVE )
-      {
-        Scr_Error(COM_ERR_1689, scrContext, "<objective_radius> parameter only works with 'objective'-type goals");
-        goto LABEL_43;
-      }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm8, xmm0
-      }
-      if ( v25 | v21 )
-      {
-        Scr_Error(COM_ERR_1690, scrContext, "<objective_radius> parameter needs to be > 0");
-        goto LABEL_43;
-      }
-    }
+    v25 = Scr_GetFloat(scrContext, 3u);
+    v29 = *(float *)&v25;
+    v22 = &v29;
+  }
+  if ( Scr_GetNumParam(scrContext) < 5 || Scr_GetType(scrContext, 4u) == VAR_UNDEFINED )
+    goto LABEL_39;
+  if ( GoalType != BOT_SCR_GOAL_OBJECTIVE )
+  {
+    Scr_Error(COM_ERR_1689, scrContext, "<objective_radius> parameter only works with 'objective'-type goals");
+    return;
+  }
+  v26 = Scr_GetFloat(scrContext, 4u);
+  objectiveRadius = *(float *)&v26;
+  if ( *(float *)&v26 <= 0.0 )
+  {
+    Scr_Error(COM_ERR_1690, scrContext, "<objective_radius> parameter needs to be > 0");
+  }
+  else
+  {
+LABEL_39:
     if ( Scr_GetNumParam(scrContext) >= 6 )
     {
       if ( Scr_GetType(scrContext, 5u) )
-        LOBYTE(v5) = Scr_GetInt(scrContext, 5u) != 0;
+        LOBYTE(v2) = Scr_GetInt(scrContext, 5u) != 0;
     }
-    __asm
-    {
-      vmovss  [rsp+0C8h+objectiveRadius], xmm8
-      vmovaps xmm2, xmm7; goalRadius
-    }
-    v34 = Bot_SetScriptGoal(EntityData, &vectorValue, *(float *)&_XMM2, GoalType, v30, objectiveRadius, v5);
-    Scr_AddBool(scrContext, v34);
-    goto LABEL_43;
+    v27 = Bot_SetScriptGoal(EntityData, &vectorValue, v19, GoalType, v22, objectiveRadius, v2);
+    Scr_AddBool(scrContext, v27);
   }
-  Scr_Error(COM_ERR_6377, scrContext, "Illegal call to BotSetScriptGoal(). Goal cannot be (0,0,0)");
-LABEL_45:
-  __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
 }
 
 /*
@@ -5728,168 +5558,141 @@ LABEL_45:
 PlayerCmd_BotSetScriptGoalNode
 ==============
 */
-
-void __fastcall PlayerCmd_BotSetScriptGoalNode(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void PlayerCmd_BotSetScriptGoalNode(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v6; 
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v9; 
-  const char *v10; 
+  gentity_s *v5; 
+  const char *v6; 
   unsigned int number; 
-  const char *v12; 
-  char *v13; 
-  const char *v14; 
+  const char *v8; 
+  char *v9; 
+  const char *v10; 
   bot_data_t *EntityData; 
-  char *v16; 
-  char *v17; 
+  char *v12; 
+  char *v13; 
   const gentity_s *ent; 
-  char *v19; 
-  int v20; 
-  char *v21; 
-  float *v24; 
+  char *v15; 
+  int v16; 
+  char *v17; 
+  float objectiveRadius; 
+  float *v19; 
   const pathnode_t *Pathnode; 
   const char *String; 
   bot_scr_goal_t GoalType; 
-  char v28; 
-  char v29; 
-  unsigned __int16 v30; 
-  int v32; 
-  float objectiveRadius; 
+  double Float; 
+  double v24; 
+  unsigned __int16 v25; 
+  int v26; 
   __int64 shortTermGoal; 
-  int v39; 
+  float v28; 
 
-  v6 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v9 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v9 = &g_entities[entnum];
-    if ( !v9->client && !v9->agent )
+    v5 = &g_entities[entnum];
+    if ( !v5->client && !v5->agent )
     {
-      v10 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v10);
+      v6 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
     }
-    number = v9->s.number;
+    number = v5->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v12 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v12);
+      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
     }
   }
-  if ( !SV_BotIsBotEnt(v9) )
+  if ( !SV_BotIsBotEnt(v5) )
   {
-    v13 = Ent_Name(v9);
-    v14 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetScriptGoalNode", entnum, v13);
-    Scr_Error(COM_ERR_1680, scrContext, v14);
+    v9 = Ent_Name(v5);
+    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetScriptGoalNode", entnum, v9);
+    Scr_Error(COM_ERR_1680, scrContext, v10);
     return;
   }
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
-  EntityData = Bot_GetEntityData(v9);
+  EntityData = Bot_GetEntityData(v5);
   if ( !EntityData )
   {
-    v16 = Ent_Name(v9);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v9->s.number, v16) )
+    v12 = Ent_Name(v5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
       __debugbreak();
   }
   if ( !EntityData->botInfo.ent )
   {
-    v17 = Ent_Name(v9);
-    LODWORD(shortTermGoal) = v9->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", shortTermGoal, v17) )
+    v13 = Ent_Name(v5);
+    LODWORD(shortTermGoal) = v5->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", shortTermGoal, v13) )
       __debugbreak();
   }
   ent = EntityData->botInfo.ent;
-  if ( v9 != ent )
+  if ( v5 != ent )
   {
-    v19 = Ent_Name(ent);
-    v20 = EntityData->botInfo.ent->s.number;
-    v21 = Ent_Name(v9);
-    LODWORD(shortTermGoal) = v9->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", shortTermGoal, v21, v20, v19) )
+    v15 = Ent_Name(ent);
+    v16 = EntityData->botInfo.ent->s.number;
+    v17 = Ent_Name(v5);
+    LODWORD(shortTermGoal) = v5->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 445, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", shortTermGoal, v17, v16, v15) )
       __debugbreak();
   }
-  __asm
+  objectiveRadius = FLOAT_N1_0;
+  v19 = NULL;
+  v28 = 0.0;
+  if ( !Scr_GetNumParam(scrContext) )
   {
-    vmovss  xmm7, cs:__real@bf800000
-    vxorps  xmm6, xmm6, xmm6
+    Scr_Error(COM_ERR_1691, scrContext, "Illegal call to BotSetScriptGoalNode(). A path node is required.");
+    return;
   }
-  v24 = NULL;
-  __asm { vmovss  [rsp+88h+arg_8], xmm6 }
-  if ( Scr_GetNumParam(scrContext) )
+  Pathnode = Scr_GetPathnode(scrContext, 0);
+  if ( !Pathnode )
   {
-    Pathnode = Scr_GetPathnode(scrContext, 0);
-    if ( Pathnode )
-    {
-      String = Scr_GetString(scrContext, 1u);
-      GoalType = Bot_GetGoalType(String);
-      if ( GoalType )
-      {
-        if ( Scr_GetNumParam(scrContext) >= 3 && Scr_GetType(scrContext, 2u) )
-        {
-          *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-          __asm { vmovss  [rsp+88h+arg_8], xmm0 }
-          v24 = (float *)&v39;
-        }
-        if ( Scr_GetNumParam(scrContext) >= 4 && Scr_GetType(scrContext, 3u) )
-        {
-          if ( GoalType != BOT_SCR_GOAL_OBJECTIVE )
-          {
-            Scr_Error(COM_ERR_1694, scrContext, "<objective_radius> parameter only works with 'objective'-type goals");
-            goto LABEL_41;
-          }
-          *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-          __asm
-          {
-            vcomiss xmm0, xmm6
-            vmovaps xmm7, xmm0
-          }
-          if ( v28 | v29 )
-          {
-            Scr_Error(COM_ERR_1695, scrContext, "<objective_radius> parameter needs to be > 0");
-            goto LABEL_41;
-          }
-        }
-        if ( Scr_GetNumParam(scrContext) >= 5 )
-        {
-          if ( Scr_GetType(scrContext, 4u) )
-            LOBYTE(v6) = Scr_GetInt(scrContext, 4u) != 0;
-        }
-        v30 = Path_ConvertNodeToIndex(Pathnode);
-        __asm
-        {
-          vmovss  [rsp+88h+objectiveRadius], xmm7
-          vxorps  xmm2, xmm2, xmm2; goalRadius
-        }
-        v32 = Bot_SetScriptGoalNode(EntityData, v30, *(float *)&_XMM2, GoalType, v24, objectiveRadius, v6);
-        Scr_AddBool(scrContext, v32);
-        goto LABEL_41;
-      }
-      Scr_Error(COM_ERR_1693, scrContext, "Illegal call to BotSetScriptGoalNode(). Type is required");
-    }
-    else
-    {
-      Scr_Error(COM_ERR_1692, scrContext, "Illegal call to BotSetScriptGoalNode(). Node is invalid.");
-    }
+    Scr_Error(COM_ERR_1692, scrContext, "Illegal call to BotSetScriptGoalNode(). Node is invalid.");
+    return;
+  }
+  String = Scr_GetString(scrContext, 1u);
+  GoalType = Bot_GetGoalType(String);
+  if ( GoalType == BOT_SCR_GOAL_NONE )
+  {
+    Scr_Error(COM_ERR_1693, scrContext, "Illegal call to BotSetScriptGoalNode(). Type is required");
+    return;
+  }
+  if ( Scr_GetNumParam(scrContext) >= 3 && Scr_GetType(scrContext, 2u) )
+  {
+    Float = Scr_GetFloat(scrContext, 2u);
+    v28 = *(float *)&Float;
+    v19 = &v28;
+  }
+  if ( Scr_GetNumParam(scrContext) < 4 || Scr_GetType(scrContext, 3u) == VAR_UNDEFINED )
+    goto LABEL_37;
+  if ( GoalType != BOT_SCR_GOAL_OBJECTIVE )
+  {
+    Scr_Error(COM_ERR_1694, scrContext, "<objective_radius> parameter only works with 'objective'-type goals");
+    return;
+  }
+  v24 = Scr_GetFloat(scrContext, 3u);
+  objectiveRadius = *(float *)&v24;
+  if ( *(float *)&v24 <= 0.0 )
+  {
+    Scr_Error(COM_ERR_1695, scrContext, "<objective_radius> parameter needs to be > 0");
   }
   else
   {
-    Scr_Error(COM_ERR_1691, scrContext, "Illegal call to BotSetScriptGoalNode(). A path node is required.");
-  }
-LABEL_41:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
+LABEL_37:
+    if ( Scr_GetNumParam(scrContext) >= 5 )
+    {
+      if ( Scr_GetType(scrContext, 4u) )
+        LOBYTE(v2) = Scr_GetInt(scrContext, 4u) != 0;
+    }
+    v25 = Path_ConvertNodeToIndex(Pathnode);
+    v26 = Bot_SetScriptGoalNode(EntityData, v25, 0.0, GoalType, v19, objectiveRadius, v2);
+    Scr_AddBool(scrContext, v26);
   }
 }
 
@@ -5902,92 +5705,89 @@ void PlayerCmd_BotSetScriptMove(scrContext_t *scrContext, scr_entref_t entref)
 {
   int moveStickSwap; 
   unsigned int entnum; 
-  gentity_s *v9; 
-  const char *v10; 
+  gentity_s *v5; 
+  const char *v6; 
   unsigned int number; 
-  const char *v12; 
-  char *v13; 
-  const char *v14; 
+  const char *v8; 
+  char *v9; 
+  const char *v10; 
   bot_data_t *EntityData; 
-  char *v16; 
-  char *v17; 
+  char *v12; 
+  char *v13; 
   const gentity_s *ent; 
-  char *v19; 
-  int v20; 
-  char *v21; 
+  char *v15; 
+  int v16; 
+  char *v17; 
+  double Float; 
+  float v19; 
+  double v20; 
+  float v21; 
+  float v22; 
+  double v23; 
   int Int; 
-  __int64 v33; 
+  __int64 v25; 
 
   moveStickSwap = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_1679, scrContext, "not an entity");
-    v9 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v9 = &g_entities[entnum];
-    if ( !v9->client && !v9->agent )
+    v5 = &g_entities[entnum];
+    if ( !v5->client && !v5->agent )
     {
-      v10 = j_va("entity %u is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_1678, scrContext, v10);
+      v6 = j_va("entity %u is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_1678, scrContext, v6);
     }
-    number = v9->s.number;
+    number = v5->s.number;
     if ( number != truncate_cast<int,unsigned int>(entnum) )
     {
-      v12 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
-      Scr_ObjectError(COM_ERR_5657, scrContext, v12);
+      v8 = j_va("entity somehow has the wrong entity number: entref.entum = %u, pSelf->s.number = %i", entnum, number);
+      Scr_ObjectError(COM_ERR_5657, scrContext, v8);
     }
   }
-  if ( SV_BotIsBotEnt(v9) )
+  if ( SV_BotIsBotEnt(v5) )
   {
-    EntityData = Bot_GetEntityData(v9);
+    EntityData = Bot_GetEntityData(v5);
     if ( !EntityData )
     {
-      v16 = Ent_Name(v9);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v9->s.number, v16) )
+      v12 = Ent_Name(v5);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v5->s.number, v12) )
         __debugbreak();
     }
     if ( !EntityData->botInfo.ent )
     {
-      v17 = Ent_Name(v9);
-      LODWORD(v33) = v9->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v33, v17) )
+      v13 = Ent_Name(v5);
+      LODWORD(v25) = v5->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v25, v13) )
         __debugbreak();
     }
     ent = EntityData->botInfo.ent;
-    if ( v9 != ent )
+    if ( v5 != ent )
     {
-      v19 = Ent_Name(ent);
-      v20 = EntityData->botInfo.ent->s.number;
-      v21 = Ent_Name(v9);
-      LODWORD(v33) = v9->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v33, v21, v20, v19) )
+      v15 = Ent_Name(ent);
+      v16 = EntityData->botInfo.ent->s.number;
+      v17 = Ent_Name(v5);
+      LODWORD(v25) = v5->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 221, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v25, v17, v16, v15) )
         __debugbreak();
     }
     if ( Scr_GetNumParam(scrContext) >= 2 )
     {
-      __asm
-      {
-        vmovaps [rsp+98h+var_28], xmm6
-        vmovaps [rsp+98h+var_38], xmm7
-        vmovaps [rsp+98h+var_48], xmm8
-      }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovaps xmm7, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vmovaps xmm8, xmm0
-      }
+      Float = Scr_GetFloat(scrContext, 0);
+      v19 = *(float *)&Float;
+      v20 = Scr_GetFloat(scrContext, 1u);
+      v21 = FLOAT_1_0;
+      v22 = *(float *)&v20;
       if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-        __asm { vmovaps xmm6, xmm0 }
+        v23 = Scr_GetFloat(scrContext, 2u);
+        v21 = *(float *)&v23;
       }
       Int = 0;
       if ( Scr_GetNumParam(scrContext) > 3 && Scr_GetType(scrContext, 3u) )
@@ -5997,20 +5797,7 @@ void PlayerCmd_BotSetScriptMove(scrContext_t *scrContext, scr_entref_t entref)
         if ( Scr_GetType(scrContext, 4u) )
           moveStickSwap = Scr_GetInt(scrContext, 4u);
       }
-      __asm
-      {
-        vmulss  xmm0, xmm8, cs:__real@447a0000
-        vcvttss2si r8d, xmm0; duration
-        vmovaps xmm3, xmm6; speed
-        vmovaps xmm1, xmm7; yaw
-      }
-      Bot_SetScriptMove(EntityData, *(const float *)&_XMM1, _ER8, *(float *)&_XMM3, Int, moveStickSwap);
-      __asm
-      {
-        vmovaps xmm8, [rsp+98h+var_48]
-        vmovaps xmm7, [rsp+98h+var_38]
-        vmovaps xmm6, [rsp+98h+var_28]
-      }
+      Bot_SetScriptMove(EntityData, v19, (int)(float)(v22 * 1000.0), v21, Int, moveStickSwap);
     }
     else
     {
@@ -6019,9 +5806,9 @@ void PlayerCmd_BotSetScriptMove(scrContext_t *scrContext, scr_entref_t entref)
   }
   else
   {
-    v13 = Ent_Name(v9);
-    v14 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetScriptMove", entnum, v13);
-    Scr_Error(COM_ERR_1680, scrContext, v14);
+    v9 = Ent_Name(v5);
+    v10 = j_va("Illegal call to %s(). Entity #%u with name '%s' is not a bot.", "BotSetScriptMove", entnum, v9);
+    Scr_Error(COM_ERR_1680, scrContext, v10);
   }
 }
 
@@ -6146,6 +5933,7 @@ void PlayerCmd_BotThrowScriptedGrenade(scrContext_t *scrContext, scr_entref_t en
   const char *v7; 
   char *v8; 
   const char *v9; 
+  bot_data_t *EntityData; 
   char *v11; 
   char *v12; 
   const gentity_s *ent; 
@@ -6155,8 +5943,8 @@ void PlayerCmd_BotThrowScriptedGrenade(scrContext_t *scrContext, scr_entref_t en
   const playerState_s *playerState; 
   const char *String; 
   int ScriptedGrenadeType; 
-  const char *v23; 
-  __int64 v24; 
+  const char *v20; 
+  __int64 v21; 
   vec3_t vectorValue; 
   Weapon offHandOut; 
 
@@ -6190,60 +5978,52 @@ void PlayerCmd_BotThrowScriptedGrenade(scrContext_t *scrContext, scr_entref_t en
     Scr_Error(COM_ERR_1680, scrContext, v9);
     return;
   }
-  _R14 = Bot_GetEntityData(v4);
-  if ( !_R14 )
+  EntityData = Bot_GetEntityData(v4);
+  if ( !EntityData )
   {
     v11 = Ent_Name(v4);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 938, ASSERT_TYPE_ASSERT, "(botData)", "%s\n\tNo botData for Entity %i with name '%s'", "botData", v4->s.number, v11) )
       __debugbreak();
   }
-  if ( !_R14->botInfo.ent )
+  if ( !EntityData->botInfo.ent )
   {
     v12 = Ent_Name(v4);
-    LODWORD(v24) = v4->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 938, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v24, v12) )
+    LODWORD(v21) = v4->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 938, ASSERT_TYPE_ASSERT, "(botData->botInfo.ent)", "%s\n\tNo botData->botInfo.ent defined for Entity %i with name '%s'", "botData->botInfo.ent", v21, v12) )
       __debugbreak();
   }
-  ent = _R14->botInfo.ent;
+  ent = EntityData->botInfo.ent;
   if ( v4 != ent )
   {
     v14 = Ent_Name(ent);
-    v15 = _R14->botInfo.ent->s.number;
+    v15 = EntityData->botInfo.ent->s.number;
     v16 = Ent_Name(v4);
-    LODWORD(v24) = v4->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 938, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v24, v16, v15, v14) )
+    LODWORD(v21) = v4->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 938, ASSERT_TYPE_ASSERT, "(pSelf == botData->botInfo.ent)", "%s\n\tWrong botData->botInfo.ent for Entity. pSelf->s.number = %i with name '%s', botData->botInfo.ent->s.number = %i with name '%s'", "pSelf == botData->botInfo.ent", v21, v16, v15, v14) )
       __debugbreak();
   }
-  playerState = _R14->botInfo.playerState;
-  _R14->botInfo.grenadeFlags = _R14->botInfo.grenadeFlags & 0xFFFFFFF9 | 2;
+  playerState = EntityData->botInfo.playerState;
+  EntityData->botInfo.grenadeFlags = EntityData->botInfo.grenadeFlags & 0xFFFFFFF9 | 2;
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+vectorValue]
-    vmovss  dword ptr [r14+2324h], xmm0
-    vmovss  xmm1, dword ptr [rsp+0C8h+vectorValue+4]
-    vmovss  dword ptr [r14+2328h], xmm1
-    vmovss  xmm0, dword ptr [rsp+0C8h+vectorValue+8]
-    vmovss  dword ptr [r14+232Ch], xmm0
-  }
-  _R14->botInfo.scriptedGrenadeType = BOT_GRENADE_TYPE_NONE;
-  _R14->botInfo.scriptedGrenadeTime = level.time;
+  EntityData->botInfo.scriptedGrenadeTarget = vectorValue;
+  EntityData->botInfo.scriptedGrenadeType = BOT_GRENADE_TYPE_NONE;
+  EntityData->botInfo.scriptedGrenadeTime = level.time;
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) )
   {
     String = Scr_GetString(scrContext, 1u);
     ScriptedGrenadeType = Bot_GetScriptedGrenadeType(String);
     if ( ScriptedGrenadeType == 3 )
     {
-      v23 = j_va("BotThrowScriptedGrenade() Invalid grenade type '%s'", String);
-      Scr_Error(COM_ERR_1707, scrContext, v23);
+      v20 = j_va("BotThrowScriptedGrenade() Invalid grenade type '%s'", String);
+      Scr_Error(COM_ERR_1707, scrContext, v20);
       return;
     }
-    _R14->botInfo.scriptedGrenadeType = ScriptedGrenadeType;
+    EntityData->botInfo.scriptedGrenadeType = ScriptedGrenadeType;
   }
   if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) && Scr_GetInt(scrContext, 2u) )
-    _R14->botInfo.grenadeFlags |= 0x10u;
-  if ( !Bot_Weap_GrenadePick(&_R14->botInfo, playerState, &offHandOut) )
-    Bot_ClearScriptedGrenade(&_R14->botInfo);
+    EntityData->botInfo.grenadeFlags |= 0x10u;
+  if ( !Bot_Weap_GrenadePick(&EntityData->botInfo, playerState, &offHandOut) )
+    Bot_ClearScriptedGrenade(&EntityData->botInfo);
 }
 
 /*
@@ -6256,113 +6036,93 @@ void Scr_BotDebugDrawTrigger(scrContext_t *scrContext)
   int Int; 
   gentity_s *Entity; 
   int v4; 
-  int v7; 
-  int v13; 
-  int v14; 
+  int v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  int v10; 
+  int v11; 
+  bot_trigger_draw_data_t *v12; 
   int *p_depthTest; 
-  __int128 v21; 
+  vec4_t *p_color; 
+  __int64 v15; 
+  vec4_t v16; 
 
   Int = Scr_GetInt(scrContext, 0);
   Entity = GScr_GetEntity(1u);
   v4 = 1;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-    vmovups [rsp+68h+var_38], xmm0
-  }
+  v16 = colorRed;
   if ( Int )
   {
-    Scr_GetVector(scrContext, 2u, (vec3_t *)&v21);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rsp+68h+var_38+0Ch], xmm0
-    }
+    Scr_GetVector(scrContext, 2u, (vec3_t *)&v16);
+    v16.v[3] = FLOAT_1_0;
     v4 = Scr_GetInt(scrContext, 3u);
   }
-  v7 = g_botCurrentNumDebugDrawTriggers;
-  _R14 = g_botDebugDrawTriggers;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+68h+var_38+0Ch]
-    vmovss  xmm2, dword ptr [rsp+68h+var_38+8]
-    vmovss  xmm3, dword ptr [rsp+68h+var_38+4]
-    vmovss  xmm4, dword ptr [rsp+68h+var_38]
-  }
-  v13 = 0;
-  v14 = 0;
+  v5 = g_botCurrentNumDebugDrawTriggers;
+  v6 = v16.v[3];
+  v7 = v16.v[2];
+  v8 = v16.v[1];
+  v9 = v16.v[0];
+  v10 = 0;
+  v11 = 0;
   if ( g_botCurrentNumDebugDrawTriggers <= 0 )
     goto LABEL_11;
-  _R8 = g_botDebugDrawTriggers;
+  v12 = g_botDebugDrawTriggers;
   p_depthTest = &g_botDebugDrawTriggers[0].depthTest;
-  _RCX = &g_botDebugDrawTriggers[0].color;
+  p_color = &g_botDebugDrawTriggers[0].color;
   do
   {
-    if ( Entity == _R8->trigger )
+    if ( Entity == v12->trigger )
     {
-      v13 = 1;
+      v10 = 1;
       if ( Int )
       {
-        __asm
-        {
-          vmovss  dword ptr [rcx], xmm4
-          vmovss  dword ptr [rcx+4], xmm3
-          vmovss  dword ptr [rcx+8], xmm2
-          vmovss  dword ptr [rcx+0Ch], xmm1
-        }
+        p_color->v[0] = v9;
+        p_color->v[1] = v8;
+        p_color->v[2] = v7;
+        p_color->v[3] = v6;
         *p_depthTest = v4;
       }
       else
       {
-        --v7;
-        --v14;
-        _RCX -= 2;
-        _RAX = 32i64 * v7;
+        --v5;
+        --v11;
+        p_color -= 2;
         p_depthTest -= 8;
-        g_botCurrentNumDebugDrawTriggers = v7;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+r14]
-          vmovups ymmword ptr [r8], ymm0
-        }
-        --_R8;
+        g_botCurrentNumDebugDrawTriggers = v5;
+        *v12-- = g_botDebugDrawTriggers[v5];
       }
     }
-    ++v14;
-    _RCX += 2;
+    ++v11;
+    p_color += 2;
     p_depthTest += 8;
-    ++_R8;
+    ++v12;
   }
-  while ( v14 < v7 );
-  if ( !v13 )
+  while ( v11 < v5 );
+  if ( !v10 )
   {
 LABEL_11:
     if ( Int )
     {
-      if ( v7 >= 16 )
+      if ( v5 >= 16 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2886, ASSERT_TYPE_ASSERT, "( g_botCurrentNumDebugDrawTriggers < 16 )", (const char *)&queryFormat, "g_botCurrentNumDebugDrawTriggers < 16") )
           __debugbreak();
-        v7 = g_botCurrentNumDebugDrawTriggers;
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+68h+var_38]
-          vmovss  xmm3, dword ptr [rsp+68h+var_38+4]
-          vmovss  xmm2, dword ptr [rsp+68h+var_38+8]
-          vmovss  xmm1, dword ptr [rsp+68h+var_38+0Ch]
-        }
+        v5 = g_botCurrentNumDebugDrawTriggers;
+        v9 = v16.v[0];
+        v8 = v16.v[1];
+        v7 = v16.v[2];
+        v6 = v16.v[3];
       }
-      _RAX = v7;
-      g_botCurrentNumDebugDrawTriggers = v7 + 1;
-      g_botDebugDrawTriggers[_RAX].trigger = Entity;
-      __asm
-      {
-        vmovss  dword ptr [rax+r14+8], xmm4
-        vmovss  dword ptr [rax+r14+0Ch], xmm3
-        vmovss  dword ptr [rax+r14+10h], xmm2
-        vmovss  dword ptr [rax+r14+14h], xmm1
-      }
-      g_botDebugDrawTriggers[_RAX].depthTest = v4;
+      v15 = v5;
+      g_botCurrentNumDebugDrawTriggers = v5 + 1;
+      g_botDebugDrawTriggers[v15].trigger = Entity;
+      g_botDebugDrawTriggers[v15].color.v[0] = v9;
+      g_botDebugDrawTriggers[v15].color.v[1] = v8;
+      g_botDebugDrawTriggers[v15].color.v[2] = v7;
+      g_botDebugDrawTriggers[v15].color.v[3] = v6;
+      g_botDebugDrawTriggers[v15].depthTest = v4;
     }
   }
 }
@@ -6374,122 +6134,114 @@ Scr_BotFlagMemoryEvents
 */
 void Scr_BotFlagMemoryEvents(scrContext_t *scrContext)
 {
-  int v3; 
+  int v1; 
   int Int; 
-  int v6; 
+  int v4; 
+  double Float; 
+  float v6; 
   const char *String; 
   bot_mem_type_t MemEventType; 
-  const char *v10; 
-  int v11; 
+  const char *v9; 
+  int v10; 
   int flags; 
   const gentity_s *Entity; 
   bot_data_t *EntityData; 
+  bitarray<224> *TeamFlags; 
+  __int128 v15; 
+  double v16; 
   __int64 i; 
-  gentity_s *v20; 
+  gentity_s *v18; 
   unsigned __int64 eTeam; 
-  bot_data_t *v22; 
+  bot_data_t *v20; 
   vec3_t *location; 
   __int64 radius; 
-  float radiusa; 
-  float radiusb; 
   int locationNumber; 
-  __int128 v28; 
-  __int64 v29; 
-  int v30; 
+  __int128 v24; 
+  double v25; 
+  int v26; 
   vec3_t vectorValue; 
   bitarray<224> result; 
 
-  v3 = 0;
-  v28 = 0ui64;
-  v29 = 0i64;
-  v30 = 0;
+  v1 = 0;
+  v24 = 0ui64;
+  v25 = 0.0;
+  v26 = 0;
   if ( Scr_GetNumParam(scrContext) < 8 )
   {
     Scr_Error(COM_ERR_1738, scrContext, "Incorrect number of parameters");
     return;
   }
-  __asm { vmovaps [rsp+0D8h+var_38], xmm6 }
   Int = Scr_GetInt(scrContext, 0);
-  v6 = Scr_GetInt(scrContext, 1u);
+  v4 = Scr_GetInt(scrContext, 1u);
   locationNumber = Scr_GetInt(scrContext, 2u);
   Scr_GetVector(scrContext, 3u, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 4u);
+  v6 = *(float *)&Float;
   String = Scr_GetString(scrContext, 5u);
   MemEventType = Bot_GetMemEventType(String);
-  if ( MemEventType != BOT_MEM_TYPE_COUNT )
+  if ( MemEventType == BOT_MEM_TYPE_COUNT )
   {
-    v11 = 1 << MemEventType;
-    flags = Scr_GetInt(scrContext, 6u);
-    if ( Scr_GetType(scrContext, 7u) == VAR_POINTER && Scr_GetPointerType(scrContext, 7u) == VAR_ENTITY )
+    v9 = j_va("Illegal call to BotGetMemoryEvents(). Invalid event type '%s'.", String);
+    Scr_Error(COM_ERR_1739, scrContext, v9);
+    return;
+  }
+  v10 = 1 << MemEventType;
+  flags = Scr_GetInt(scrContext, 6u);
+  if ( Scr_GetType(scrContext, 7u) == VAR_POINTER && Scr_GetPointerType(scrContext, 7u) == VAR_ENTITY )
+  {
+    Entity = GScr_GetEntity(7u);
+    if ( Entity )
     {
-      Entity = GScr_GetEntity(7u);
-      if ( Entity )
-      {
-        EntityData = Bot_GetEntityData(Entity);
-        __asm { vmovss  [rsp+0D8h+radius], xmm6 }
-        Bot_MemoryFlagAllNear(EntityData, Int, v6, v11, locationNumber, &vectorValue, radiusa, flags);
-        goto LABEL_9;
-      }
+      EntityData = Bot_GetEntityData(Entity);
+      Bot_MemoryFlagAllNear(EntityData, Int, v4, v10, locationNumber, &vectorValue, *(float *)&Float, flags);
+      return;
     }
-    else
-    {
-      _RAX = Scr_GetTeamFlags(&result, scrContext, 7u);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovsd  xmm1, qword ptr [rax+10h]
-      }
-      LODWORD(_RAX) = _RAX->array[6];
-      __asm
-      {
-        vmovups [rsp+0D8h+var_90], xmm0
-        vmovsd  [rsp+0D8h+var_80], xmm1
-      }
-      v30 = (int)_RAX;
-    }
+  }
+  else
+  {
+    TeamFlags = Scr_GetTeamFlags(&result, scrContext, 7u);
+    v15 = *(_OWORD *)TeamFlags->array;
+    v16 = *(double *)&TeamFlags->array[4];
+    LODWORD(TeamFlags) = TeamFlags->array[6];
+    v24 = v15;
+    v25 = v16;
+    v26 = (int)TeamFlags;
+  }
+  if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+    __debugbreak();
+  if ( (int)ComCharacterLimits::ms_gameData.m_characterCount > 2048 )
+  {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( (int)ComCharacterLimits::ms_gameData.m_characterCount > 2048 )
-    {
-      if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-        __debugbreak();
-      LODWORD(location) = ComCharacterLimits::ms_gameData.m_characterCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2441, ASSERT_TYPE_ASSERT, "( ComCharacterLimits::GetCharacterMaxCount() ) <= ( ( 2048 ) )", "ComCharacterLimits::GetCharacterMaxCount() <= MAX_GENTITIES\n\t%i, %i", location, 2048) )
-        __debugbreak();
-    }
-    for ( i = 0i64; ; ++i )
-    {
-      if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
-        __debugbreak();
-      if ( v3 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
-        break;
-      v20 = &level.gentities[i];
-      if ( SV_BotIsBotEnt(&level.gentities[i]) && Bot_IsCharacterActive(v20) )
-      {
-        eTeam = (unsigned int)v20->sentient->eTeam;
-        if ( (unsigned int)eTeam >= 0xE0 )
-        {
-          LODWORD(radius) = 224;
-          LODWORD(location) = v20->sentient->eTeam;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", location, radius) )
-            __debugbreak();
-        }
-        if ( ((0x80000000 >> (eTeam & 0x1F)) & *((_DWORD *)&v28 + (eTeam >> 5))) != 0 )
-        {
-          v22 = Bot_GetEntityData(v20);
-          __asm { vmovss  [rsp+0D8h+radius], xmm6 }
-          Bot_MemoryFlagAllNear(v22, Int, v6, v11, locationNumber, &vectorValue, radiusb, flags);
-        }
-      }
-      ++v3;
-    }
-    goto LABEL_9;
+    LODWORD(location) = ComCharacterLimits::ms_gameData.m_characterCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2441, ASSERT_TYPE_ASSERT, "( ComCharacterLimits::GetCharacterMaxCount() ) <= ( ( 2048 ) )", "ComCharacterLimits::GetCharacterMaxCount() <= MAX_GENTITIES\n\t%i, %i", location, 2048) )
+      __debugbreak();
   }
-  v10 = j_va("Illegal call to BotGetMemoryEvents(). Invalid event type '%s'.", String);
-  Scr_Error(COM_ERR_1739, scrContext, v10);
-LABEL_9:
-  __asm { vmovaps xmm6, [rsp+0D8h+var_38] }
+  for ( i = 0i64; ; ++i )
+  {
+    if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
+      __debugbreak();
+    if ( v1 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
+      break;
+    v18 = &level.gentities[i];
+    if ( SV_BotIsBotEnt(&level.gentities[i]) && Bot_IsCharacterActive(v18) )
+    {
+      eTeam = (unsigned int)v18->sentient->eTeam;
+      if ( (unsigned int)eTeam >= 0xE0 )
+      {
+        LODWORD(radius) = 224;
+        LODWORD(location) = v18->sentient->eTeam;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", location, radius) )
+          __debugbreak();
+      }
+      if ( ((0x80000000 >> (eTeam & 0x1F)) & *((_DWORD *)&v24 + (eTeam >> 5))) != 0 )
+      {
+        v20 = Bot_GetEntityData(v18);
+        Bot_MemoryFlagAllNear(v20, Int, v4, v10, locationNumber, &vectorValue, v6, flags);
+      }
+    }
+    ++v1;
+  }
 }
 
 /*
@@ -6499,21 +6251,18 @@ Scr_BotGetClosestNavigablePoint
 */
 void Scr_BotGetClosestNavigablePoint(scrContext_t *scrContext)
 {
+  double Float; 
   int clipmask; 
   vec3_t vectorValue; 
   vec3_t resultPoint; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
+  Float = Scr_GetFloat(scrContext, 1u);
   clipmask = 33636369;
-  __asm { vmovaps xmm6, xmm0 }
   if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) )
     clipmask = GScr_GetEntity(2u)->clipmask;
-  __asm { vmovaps xmm1, xmm6; maxDist }
-  if ( Bot_GetClosestNavigablePoint(&vectorValue, *(float *)&_XMM1, clipmask, &resultPoint, 2047) )
+  if ( Bot_GetClosestNavigablePoint(&vectorValue, *(float *)&Float, clipmask, &resultPoint, 2047) )
     Scr_AddVector(scrContext, resultPoint.v);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -6523,81 +6272,75 @@ Scr_BotGetMemoryEvents
 */
 void Scr_BotGetMemoryEvents(scrContext_t *scrContext)
 {
-  scrContext_t *v3; 
-  int v4; 
+  scrContext_t *v1; 
+  int v2; 
   int Int; 
   const char *String; 
   bot_mem_type_t MemEventType; 
-  const char *v8; 
-  int v9; 
+  const char *v6; 
+  int v7; 
   int flagsExclude; 
   const gentity_s *Entity; 
-  bot_data_t *v12; 
-  const char *v13; 
-  int v17; 
+  bot_data_t *v10; 
+  const char *v11; 
+  bitarray<224> *TeamFlags; 
+  __int128 v13; 
+  double v14; 
+  int v15; 
   unsigned int i; 
-  gentity_s *v19; 
+  gentity_s *v17; 
   unsigned __int64 eTeam; 
   bot_data_t *EntityData; 
-  bool v22; 
-  bool v23; 
-  vec3_t *v25; 
-  __int64 v27; 
-  bool v29; 
-  bool v30; 
+  vec3_t *v20; 
+  vec3_t *v21; 
+  __int64 v22; 
   vec3_t *positions; 
   __int64 numPositionsStart; 
   int numResults; 
   int locationNumber; 
   int timeOldest; 
-  scrContext_t *v38; 
-  __int128 v39; 
-  __int64 v40; 
-  int v41; 
+  scrContext_t *v28; 
+  __int128 v29; 
+  double v30; 
+  int v31; 
   bitarray<224> result; 
-  vec3_t v43; 
+  vec3_t v33; 
 
-  v38 = scrContext;
-  v39 = 0ui64;
-  v3 = scrContext;
-  v40 = 0i64;
-  v41 = 0;
+  v28 = scrContext;
+  v29 = 0ui64;
+  v1 = scrContext;
+  v30 = 0.0;
+  v31 = 0;
   if ( Scr_GetNumParam(scrContext) < 6 )
   {
-    Scr_Error(COM_ERR_1740, v3, "Incorrect number of parameters");
+    Scr_Error(COM_ERR_1740, v1, "Incorrect number of parameters");
     return;
   }
-  memset_0(&v43, 0, 0x1800ui64);
+  memset_0(&v33, 0, 0x1800ui64);
   numResults = 0;
-  v4 = 0;
-  Int = Scr_GetInt(v3, 0);
-  timeOldest = Scr_GetInt(v3, 1u);
-  locationNumber = Scr_GetInt(v3, 2u);
-  String = Scr_GetString(v3, 3u);
+  v2 = 0;
+  Int = Scr_GetInt(v1, 0);
+  timeOldest = Scr_GetInt(v1, 1u);
+  locationNumber = Scr_GetInt(v1, 2u);
+  String = Scr_GetString(v1, 3u);
   MemEventType = Bot_GetMemEventType(String);
   if ( MemEventType == BOT_MEM_TYPE_COUNT )
   {
-    v8 = j_va("Illegal call to BotGetMemoryEvents(). Invalid event type '%s'.", String);
-    Scr_Error(COM_ERR_1741, v3, v8);
+    v6 = j_va("Illegal call to BotGetMemoryEvents(). Invalid event type '%s'.", String);
+    Scr_Error(COM_ERR_1741, v1, v6);
     return;
   }
-  v9 = 1 << MemEventType;
-  flagsExclude = Scr_GetInt(v3, 4u);
-  if ( Scr_GetType(v3, 5u) != VAR_POINTER || Scr_GetPointerType(v3, 5u) != VAR_ENTITY )
+  v7 = 1 << MemEventType;
+  flagsExclude = Scr_GetInt(v1, 4u);
+  if ( Scr_GetType(v1, 5u) != VAR_POINTER || Scr_GetPointerType(v1, 5u) != VAR_ENTITY )
   {
-    _RAX = Scr_GetTeamFlags(&result, v3, 5u);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovsd  xmm1, qword ptr [rax+10h]
-    }
-    LODWORD(_RAX) = _RAX->array[6];
-    __asm
-    {
-      vmovups [rsp+1908h+var_18A0], xmm0
-      vmovsd  [rsp+1908h+var_1890], xmm1
-    }
-    v41 = (int)_RAX;
+    TeamFlags = Scr_GetTeamFlags(&result, v1, 5u);
+    v13 = *(_OWORD *)TeamFlags->array;
+    v14 = *(double *)&TeamFlags->array[4];
+    LODWORD(TeamFlags) = TeamFlags->array[6];
+    v29 = v13;
+    v30 = v14;
+    v31 = (int)TeamFlags;
 LABEL_12:
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
@@ -6609,98 +6352,70 @@ LABEL_12:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2534, ASSERT_TYPE_ASSERT, "( ComCharacterLimits::GetCharacterMaxCount() ) <= ( ( 2048 ) )", "ComCharacterLimits::GetCharacterMaxCount() <= MAX_GENTITIES\n\t%i, %i", positions, 2048) )
         __debugbreak();
     }
-    v17 = locationNumber;
+    v15 = locationNumber;
     for ( i = 0; ; ++i )
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
       if ( i >= ComCharacterLimits::ms_gameData.m_characterCount )
         break;
-      v19 = &level.gentities[i];
-      if ( SV_BotIsBotEnt(v19) && Bot_IsCharacterActive(v19) )
+      v17 = &level.gentities[i];
+      if ( SV_BotIsBotEnt(v17) && Bot_IsCharacterActive(v17) )
       {
-        eTeam = (unsigned int)v19->sentient->eTeam;
+        eTeam = (unsigned int)v17->sentient->eTeam;
         if ( (unsigned int)eTeam >= 0xE0 )
         {
           LODWORD(numPositionsStart) = 224;
-          LODWORD(positions) = v19->sentient->eTeam;
+          LODWORD(positions) = v17->sentient->eTeam;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", positions, numPositionsStart) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (eTeam & 0x1F)) & *((_DWORD *)&v39 + (eTeam >> 5))) != 0 )
+        if ( ((0x80000000 >> (eTeam & 0x1F)) & *((_DWORD *)&v29 + (eTeam >> 5))) != 0 )
         {
           numResults = 0;
-          EntityData = Bot_GetEntityData(v19);
-          Bot_MemoryGetAllPositions(EntityData, Int, timeOldest, v9, v17, &v43, v4, 512, &numResults, flagsExclude);
-          v4 += numResults;
+          EntityData = Bot_GetEntityData(v17);
+          Bot_MemoryGetAllPositions(EntityData, Int, timeOldest, v7, v15, &v33, v2, 512, &numResults, flagsExclude);
+          v2 += numResults;
         }
       }
     }
-    v3 = v38;
+    v1 = v28;
     goto LABEL_35;
   }
   Entity = GScr_GetEntity(5u);
-  v12 = Bot_GetEntityData(Entity);
-  if ( !v12 )
+  v10 = Bot_GetEntityData(Entity);
+  if ( !v10 )
   {
-    v13 = j_va("Entity %d is not a bot or agent", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1742, v3, v13);
+    v11 = j_va("Entity %d is not a bot or agent", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1742, v1, v11);
     return;
   }
   if ( !Entity )
     goto LABEL_12;
-  Bot_MemoryGetAllPositions(v12, Int, timeOldest, v9, locationNumber, &v43, 0, 512, &numResults, flagsExclude);
-  v4 = numResults;
+  Bot_MemoryGetAllPositions(v10, Int, timeOldest, v7, locationNumber, &v33, 0, 512, &numResults, flagsExclude);
+  v2 = numResults;
 LABEL_35:
-  if ( (unsigned int)v4 > 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2548, ASSERT_TYPE_ASSERT, "( numPositionsTotal <= ( sizeof( *array_counter( positions ) ) + 0 ) )", (const char *)&queryFormat, "numPositionsTotal <= ARRAY_COUNT( positions )") )
+  if ( (unsigned int)v2 > 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2548, ASSERT_TYPE_ASSERT, "( numPositionsTotal <= ( sizeof( *array_counter( positions ) ) + 0 ) )", (const char *)&queryFormat, "numPositionsTotal <= ARRAY_COUNT( positions )") )
     __debugbreak();
-  Scr_MakeArray(v3);
-  v22 = v4 == 0;
-  v23 = v4 == 0;
-  if ( v4 > 0 )
+  Scr_MakeArray(v1);
+  if ( v2 > 0 )
   {
-    __asm { vmovaps [rsp+1908h+var_38], xmm6 }
-    _RBX = &v43;
-    __asm { vmovaps [rsp+1908h+var_48], xmm7 }
-    v25 = &v43;
-    __asm { vmovss  xmm7, cs:__real@7f7fffff }
-    v27 = (unsigned int)v4;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v20 = &v33;
+    v21 = &v33;
+    v22 = (unsigned int)v2;
     do
     {
-      __asm { vcomiss xmm7, dword ptr [rbx] }
-      if ( v23 )
-      {
-        v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2553, ASSERT_TYPE_ASSERT, "( positions[positionsIndex][0] < 3.402823466e+38F )", (const char *)&queryFormat, "positions[positionsIndex][0] < FLT_MAX");
-        v22 = !v29;
-        if ( v29 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm6, dword ptr [rbx] }
-      if ( v22 )
-      {
-        __asm { vucomiss xmm6, dword ptr [rbx+4] }
-        if ( v22 )
-        {
-          __asm { vucomiss xmm6, dword ptr [rbx+8] }
-          if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2554, ASSERT_TYPE_ASSERT, "( Vec3NotZero( positions[positionsIndex] ) )", (const char *)&queryFormat, "Vec3NotZero( positions[positionsIndex] )") )
-            __debugbreak();
-        }
-      }
-      Scr_AddVector(v3, v25->v);
-      Scr_AddArray(v3);
-      ++v25;
-      ++_RBX;
-      v30 = v27-- == 0;
-      v22 = v27 == 0;
-      v23 = v30 || v27 == 0;
+      if ( v20->v[0] >= 3.4028235e38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2553, ASSERT_TYPE_ASSERT, "( positions[positionsIndex][0] < 3.402823466e+38F )", (const char *)&queryFormat, "positions[positionsIndex][0] < FLT_MAX") )
+        __debugbreak();
+      if ( v20->v[0] == 0.0 && v20->v[1] == 0.0 && v20->v[2] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2554, ASSERT_TYPE_ASSERT, "( Vec3NotZero( positions[positionsIndex] ) )", (const char *)&queryFormat, "Vec3NotZero( positions[positionsIndex] )") )
+        __debugbreak();
+      Scr_AddVector(v1, v21->v);
+      Scr_AddArray(v1);
+      ++v21;
+      ++v20;
+      --v22;
     }
-    while ( v27 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+1908h+var_48]
-      vmovaps xmm6, [rsp+1908h+var_38]
-    }
+    while ( v22 );
   }
 }
 
@@ -6834,11 +6549,16 @@ void Scr_BotSentientSwap(scrContext_t *scrContext)
 {
   gentity_s *Entity; 
   gentity_s *v2; 
+  bitarray<224> *AllTeamFlags; 
   sentient_s *i; 
+  sentient_info_t *SentientInfo; 
   const gentity_s **p_ent; 
   AICommonInterface *m_pAI; 
+  bot_data_t *EntityData; 
+  signed __int64 v9; 
+  signed __int64 v10; 
   bot_mem_event_t *j; 
-  AICommonWrapper v20; 
+  AICommonWrapper v12; 
   bitarray<224> iTeamFlags; 
   bot_mem_iterator_t memIt; 
 
@@ -6853,17 +6573,10 @@ void Scr_BotSentientSwap(scrContext_t *scrContext)
   if ( !Entity->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2929, ASSERT_TYPE_ASSERT, "( newEnt->sentient )", (const char *)&queryFormat, "newEnt->sentient") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+2F8h+iTeamFlags.array], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rsp+2F8h+iTeamFlags.array+10h], xmm1
-  }
-  iTeamFlags.array[6] = _RAX->array[6];
+    AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+  iTeamFlags = *AllTeamFlags;
   for ( i = Sentient_FirstSentient(&iTeamFlags); i; i = Sentient_NextSentient(i, &iTeamFlags) )
   {
     if ( i->ai )
@@ -6872,29 +6585,22 @@ void Scr_BotSentientSwap(scrContext_t *scrContext)
         __debugbreak();
       if ( Bot_IsCharacterActive(i->ent) )
       {
-        _RBX = Sentient_GetSentientInfo(i, v2->sentient);
-        _RAX = Sentient_GetSentientInfo(i, Entity->sentient);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm1, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rax+20h], ymm1
-        }
+        SentientInfo = Sentient_GetSentientInfo(i, v2->sentient);
+        *Sentient_GetSentientInfo(i, Entity->sentient) = *SentientInfo;
         p_ent = (const gentity_s **)&i->ai->ent;
-        AIActorInterface::AIActorInterface(&v20.m_actorInterface);
-        AIAgentInterface::AIAgentInterface(&v20.m_newAgentInterface);
-        v20.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-        AICommonInterface::AICommonInterface(&v20.m_botInterface);
-        v20.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-        AICommonInterface::AICommonInterface(&v20.m_botAgentInterface);
+        AIActorInterface::AIActorInterface(&v12.m_actorInterface);
+        AIAgentInterface::AIAgentInterface(&v12.m_newAgentInterface);
+        v12.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+        AICommonInterface::AICommonInterface(&v12.m_botInterface);
+        v12.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+        AICommonInterface::AICommonInterface(&v12.m_botAgentInterface);
         m_pAI = NULL;
-        v20.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-        v20.m_pAI = NULL;
+        v12.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+        v12.m_pAI = NULL;
         if ( p_ent )
         {
-          AICommonWrapper::Setup(&v20, *p_ent);
-          m_pAI = v20.m_pAI;
+          AICommonWrapper::Setup(&v12, *p_ent);
+          m_pAI = v12.m_pAI;
         }
         if ( !m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2946, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
           __debugbreak();
@@ -6902,23 +6608,17 @@ void Scr_BotSentientSwap(scrContext_t *scrContext)
           Sentient_SetEnemy(i, Entity, 0, 0);
         if ( SV_BotIsBotEnt(i->ent) )
         {
-          _RBX = Bot_GetEntityData(i->ent);
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2954, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
+          EntityData = Bot_GetEntityData(i->ent);
+          if ( !EntityData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scr.cpp", 2954, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
             __debugbreak();
-          _R9 = v2->sentient - level.sentients;
-          __asm { vmovups ymm0, ymmword ptr [r9+rbx+2D84h] }
-          _RCX = (signed __int64)&_RBX->scriptedAgentInfo + 60 * (Entity->sentient - level.sentients) + 11644;
-          __asm
-          {
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups xmm1, xmmword ptr [r9+rbx+2DA4h]
-            vmovups xmmword ptr [rcx+20h], xmm1
-            vmovsd  xmm0, qword ptr [r9+rbx+2DB4h]
-            vmovsd  qword ptr [rcx+30h], xmm0
-          }
-          *(_DWORD *)(_RCX + 56) = *((_DWORD *)&_RBX->botInfo.botSentientInfo[_R9] + 14);
+          v9 = 60 * (v2->sentient - level.sentients);
+          v10 = (signed __int64)&EntityData->scriptedAgentInfo + 60 * (Entity->sentient - level.sentients) + 11644;
+          *(__m256i *)v10 = *(__m256i *)((char *)&EntityData->scriptedAgentInfo + v9 + 11644);
+          *(_OWORD *)(v10 + 32) = *(_OWORD *)((char *)&EntityData->scriptedAgentInfo + v9 + 11676);
+          *(double *)(v10 + 48) = *(double *)((char *)&EntityData->scriptedAgentInfo + v9 + 11692);
+          *(_DWORD *)(v10 + 56) = *((_DWORD *)&EntityData->botInfo.botSentientInfo[(unsigned __int64)v9 / 0x3C] + 14);
           Bot_MemoryIterateInit(&memIt);
-          for ( j = Bot_MemoryIterate(_RBX, level.time, 0, &memIt); j; j = Bot_MemoryIterate(_RBX, level.time, 0, &memIt) )
+          for ( j = Bot_MemoryIterate(EntityData, level.time, 0, &memIt); j; j = Bot_MemoryIterate(EntityData, level.time, 0, &memIt) )
           {
             if ( j->entNum == v2->s.number )
               j->entNum = Entity->s.number;
@@ -7044,21 +6744,21 @@ Scr_BotZoneGetIndoorPercent
 void Scr_BotZoneGetIndoorPercent(scrContext_t *scrContext)
 {
   int Int; 
-  const char *v5; 
+  double IndoorPercent; 
+  const char *v4; 
 
   if ( Path_ZoneCount() > 0 )
   {
     Int = Scr_GetInt(scrContext, 0);
     if ( Int < 0 || Int >= Path_ZoneCount() )
     {
-      v5 = j_va("BotZoneGetCount() Invalid zone index: %d", (unsigned int)Int);
-      Scr_Error(COM_ERR_1753, scrContext, v5);
+      v4 = j_va("BotZoneGetCount() Invalid zone index: %d", (unsigned int)Int);
+      Scr_Error(COM_ERR_1753, scrContext, v4);
     }
     else
     {
-      *(double *)&_XMM0 = SV_BotZoneGetIndoorPercent(Int);
-      __asm { vmovaps xmm1, xmm0; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      IndoorPercent = SV_BotZoneGetIndoorPercent(Int);
+      Scr_AddFloat(scrContext, *(float *)&IndoorPercent);
     }
   }
   else

@@ -192,71 +192,40 @@ bdLoginTaskConnectToLSG::bdLoginTaskConnectToLSG
 */
 void bdLoginTaskConnectToLSG::bdLoginTaskConnectToLSG(bdLoginTaskConnectToLSG *this, const bdLoginConfig *loginConfig, bdLoginResult *loginResult)
 {
-  __int64 v15; 
-  __int64 v16; 
-  char v17[152]; 
-  __int64 v18; 
-  __int64 v19; 
-  __int16 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  _BYTE v28[14]; 
+  __m256i v6; 
+  __int64 v7; 
+  _BYTE v8[160]; 
+  _BYTE v9[88]; 
 
-  _RSI = this;
   this->__vftable = (bdLoginTaskConnectToLSG_vtbl *)&bdLoginTask::`vftable';
   bdStopwatch::bdStopwatch(&this->m_taskTimer);
-  _RSI->m_loginResult = loginResult;
-  _RSI->__vftable = (bdLoginTaskConnectToLSG_vtbl *)&bdLoginTaskConnectToLSG::`vftable';
-  _RSI->m_loginConfig = loginConfig;
-  _RSI->m_firstPartyTokenStatusCode = FETCHING_FIRST_PARTY_TOKEN;
-  memset_0(_RSI->m_authInfo.m_data, 0, 0x98ui64);
-  v16 = 0i64;
-  *(_QWORD *)&_RSI->m_authInfo.m_clientID[8] = 0i64;
-  *(_QWORD *)&_RSI->m_authInfo.m_clientID[40] = 0i64;
-  *(_QWORD *)&_RSI->m_authInfo.m_clientID[56] = 0i64;
-  _RSI->m_lsgConnectionState = UNINITIALIZED;
-  _RSI->m_lsgPort = 3074;
-  *(_QWORD *)&_RSI->m_reconnectAttempt = 0i64;
-  v18 = 0i64;
-  v28[8] = 0;
-  memset_0(v17, 0, sizeof(v17));
-  v19 = 0i64;
-  v20 = 0;
-  v21 = 0i64;
-  v22 = 0i64;
-  v23 = 0i64;
-  v24 = 0i64;
-  v25 = 0i64;
-  v26 = 0i64;
-  v27 = 0i64;
-  *(_QWORD *)v28 = 0i64;
-  _RAX = &v16;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rsi+30h], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+50h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+70h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+90h], ymm0
-    vmovups ymmword ptr [rsi+0B0h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rsi+0D0h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0C0h]
-    vmovups ymmword ptr [rsi+0F0h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0E0h]
-  }
-  v15 = *(_QWORD *)&v28[6];
-  __asm { vmovups xmmword ptr [rsi+110h], xmm1 }
-  *(_QWORD *)&_RSI->m_authInfo.m_clientID[62] = v15;
+  this->m_loginResult = loginResult;
+  this->__vftable = (bdLoginTaskConnectToLSG_vtbl *)&bdLoginTaskConnectToLSG::`vftable';
+  this->m_loginConfig = loginConfig;
+  this->m_firstPartyTokenStatusCode = FETCHING_FIRST_PARTY_TOKEN;
+  memset_0(this->m_authInfo.m_data, 0, 0x98ui64);
+  *(_QWORD *)v8 = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[8] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[40] = 0i64;
+  *(_QWORD *)&this->m_authInfo.m_clientID[56] = 0i64;
+  this->m_lsgConnectionState = UNINITIALIZED;
+  this->m_lsgPort = 3074;
+  *(_QWORD *)&this->m_reconnectAttempt = 0i64;
+  *(_QWORD *)v9 = 0i64;
+  v9[82] = 0;
+  memset_0(&v8[8], 0, 0x98ui64);
+  memset(&v9[8], 0, 74);
+  v6 = *(__m256i *)&v8[128];
+  *(__m256i *)&this->m_authInfo.m_titleID = *(__m256i *)v8;
+  *(__m256i *)&this->m_authInfo.m_data[24] = *(__m256i *)&v8[32];
+  *(__m256i *)&this->m_authInfo.m_data[56] = *(__m256i *)&v8[64];
+  *(__m256i *)&this->m_authInfo.m_data[88] = *(__m256i *)&v8[96];
+  *(__m256i *)&this->m_authInfo.m_data[120] = v6;
+  *(__m256i *)&this->m_authInfo.m_userID = *(__m256i *)v9;
+  *(__m256i *)&this->m_authInfo.m_clientID[14] = *(__m256i *)&v9[32];
+  v7 = *(_QWORD *)&v9[80];
+  *(_OWORD *)&this->m_authInfo.m_clientID[46] = *(_OWORD *)&v9[64];
+  *(_QWORD *)&this->m_authInfo.m_clientID[62] = v7;
 }
 
 /*
@@ -313,60 +282,63 @@ bdLoginTaskConnectToLSG::pump
 void bdLoginTaskConnectToLSG::pump(bdLoginTaskConnectToLSG *this)
 {
   bdLoginTaskConnectToLSG::LSGConnectionState m_lsgConnectionState; 
+  __int32 v3; 
   __int32 v4; 
   __int32 v5; 
-  __int32 v6; 
   const char *function; 
   bdLobbyService *LobbyService; 
-  bdLobbyService *v9; 
-  bdLobbyConnection::Status v10; 
-  bdLobbyService *v11; 
+  bdLobbyService *v8; 
+  bdLobbyConnection::Status v9; 
+  bdLobbyService *v10; 
   bdRemoteTaskManager *TaskManager; 
   unsigned __int64 ConnectionID; 
-  char v19; 
-  char v20; 
-  bdLoginTaskConnectToLSG_vtbl *v23; 
-  bdLobbyService *v26; 
-  bdLobbyService *v27; 
-  bdLobbyConnection::Status v28; 
-  bdLobbyService *v29; 
+  unsigned int LoResTimeStamp; 
+  float m_reconnectAttemptWait; 
+  float v15; 
+  __int128 m_reconnectAttemptWait_low; 
+  bdLoginTaskConnectToLSG_vtbl *v19; 
+  bdLobbyService *v22; 
+  bdLobbyService *v23; 
+  bdLobbyConnection::Status v24; 
+  bdLobbyService *v25; 
   bdLobbyErrorCode ErrorCode; 
-  const char *v31; 
-  bdLobbyService *v32; 
-  bdRemoteTaskManager *v33; 
-  unsigned __int64 v34; 
-  bdLobbyService *v35; 
+  const char *v27; 
+  bdLobbyService *v28; 
+  bdRemoteTaskManager *v29; 
+  unsigned __int64 v30; 
+  bdLobbyService *v31; 
+  double ElapsedTimeInSeconds; 
   unsigned int TitleID; 
   bdLoginResult *m_loginResult; 
   unsigned __int64 UserID; 
-  bdLoginResult *v40; 
+  bdLoginResult *v36; 
   const char *AccountType; 
   const char *ClientID; 
-  bdLobbyService *v51; 
+  bdLoginResult *v39; 
+  bdLoginResult *v40; 
+  bdLobbyService *v41; 
   unsigned int line; 
   char *format; 
-  double v54; 
   bdGetHostByName::bdStatus status; 
 
-  _RDI = this;
   m_lsgConnectionState = this->m_lsgConnectionState;
   if ( m_lsgConnectionState == UNINITIALIZED )
   {
-    bdStopwatch::start(&_RDI->m_taskTimer);
+    bdStopwatch::start(&this->m_taskTimer);
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pump", 0x34u, "Starting Lobby DNS lookup");
-    bdLoginTaskConnectToLSG::startLobbyDnsLookup(_RDI);
+    bdLoginTaskConnectToLSG::startLobbyDnsLookup(this);
     return;
   }
-  v4 = m_lsgConnectionState - 1;
-  if ( v4 )
+  v3 = m_lsgConnectionState - 1;
+  if ( v3 )
   {
-    v5 = v4 - 1;
-    if ( v5 )
+    v4 = v3 - 1;
+    if ( v4 )
     {
-      v6 = v5 - 1;
-      if ( v6 )
+      v5 = v4 - 1;
+      if ( v5 )
       {
-        if ( v6 != 2 )
+        if ( v5 != 2 )
         {
           format = "pumping in an unknown state!";
           function = "bdLoginTaskConnectToLSG::pump";
@@ -375,21 +347,21 @@ LABEL_25:
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", function, line, format);
           return;
         }
-        LobbyService = bdLoginResult::getLobbyService(_RDI->m_loginResult);
+        LobbyService = bdLoginResult::getLobbyService(this->m_loginResult);
         bdLobbyService::pump(LobbyService);
-        v9 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-        v10 = bdLobbyService::getStatus(v9);
-        if ( v10 == BD_NO_ERROR )
+        v8 = bdLoginResult::getLobbyService(this->m_loginResult);
+        v9 = bdLobbyService::getStatus(v8);
+        if ( v9 == BD_NO_ERROR )
           goto LABEL_13;
-        if ( v10 == BD_TOO_MANY_TASKS )
+        if ( v9 == BD_TOO_MANY_TASKS )
         {
           bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnected", 0xE9u, "Lobby connection re-connecting after being connected, this shouldn't happen");
-          _RDI->m_lsgConnectionState = CONNECTING;
+          this->m_lsgConnectionState = CONNECTING;
           return;
         }
-        if ( v10 != BD_NOT_CONNECTED )
+        if ( v9 != BD_NOT_CONNECTED )
         {
-          if ( (unsigned int)(v10 - 3) > 1 )
+          if ( (unsigned int)(v9 - 3) > 1 )
           {
             format = "Unknown lobby connection state";
             function = "bdLoginTaskConnectToLSG::pumpConnected";
@@ -397,127 +369,107 @@ LABEL_25:
             goto LABEL_25;
           }
 LABEL_13:
-          v11 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-          TaskManager = bdLobbyService::getTaskManager(v11);
+          v10 = bdLoginResult::getLobbyService(this->m_loginResult);
+          TaskManager = bdLobbyService::getTaskManager(v10);
           ConnectionID = bdRemoteTaskManager::getConnectionID(TaskManager);
           bdLogMessage(BD_LOG_WARNING, "warn/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnected", 0xE4u, "Lobby connection lost (connectionID: %I64u)", ConnectionID);
 LABEL_14:
-          bdLoginTaskConnectToLSG::startReconnectWait(_RDI);
+          bdLoginTaskConnectToLSG::startReconnectWait(this);
         }
       }
       else
       {
-        bdPlatformTiming::getLoResTimeStamp();
-        __asm
+        LoResTimeStamp = bdPlatformTiming::getLoResTimeStamp();
+        m_reconnectAttemptWait = this->m_reconnectAttemptWait;
+        v15 = (float)LoResTimeStamp;
+        if ( (float)((float)(v15 * 0.001) - this->m_reconnectAttemptTimestamp) > m_reconnectAttemptWait )
         {
-          vmovss  xmm2, dword ptr [rdi+534h]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vsubss  xmm0, xmm1, dword ptr [rdi+530h]
-          vcomiss xmm0, xmm2
-        }
-        if ( !(v19 | v20) )
-        {
-          __asm
-          {
-            vmulss  xmm2, xmm2, cs:__real@40400000
-            vmovss  xmm1, cs:__real@42700000
-          }
-          v23 = _RDI->__vftable;
+          m_reconnectAttemptWait_low = LODWORD(this->m_reconnectAttemptWait);
+          *(float *)&m_reconnectAttemptWait_low = m_reconnectAttemptWait * 3.0;
+          _XMM2 = m_reconnectAttemptWait_low;
+          _XMM1 = LODWORD(FLOAT_60_0);
+          v19 = this->__vftable;
           __asm
           {
             vcmpltss xmm0, xmm1, xmm2
             vblendvps xmm0, xmm2, xmm1, xmm0
-            vmovss  dword ptr [rdi+534h], xmm0
           }
-          v23->abortTask(_RDI);
-          bdLoginTaskConnectToLSG::startLobbyDnsLookup(_RDI);
+          this->m_reconnectAttemptWait = *(float *)&_XMM0;
+          v19->abortTask(this);
+          bdLoginTaskConnectToLSG::startLobbyDnsLookup(this);
         }
       }
     }
     else
     {
-      v26 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-      bdLobbyService::pump(v26);
-      v27 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-      v28 = bdLobbyService::getStatus(v27);
-      if ( v28 == BD_NO_ERROR )
+      v22 = bdLoginResult::getLobbyService(this->m_loginResult);
+      bdLobbyService::pump(v22);
+      v23 = bdLoginResult::getLobbyService(this->m_loginResult);
+      v24 = bdLobbyService::getStatus(v23);
+      if ( v24 == BD_NO_ERROR )
         goto LABEL_21;
-      if ( v28 == BD_NOT_CONNECTED )
+      if ( v24 == BD_NOT_CONNECTED )
       {
-        v32 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-        v33 = bdLobbyService::getTaskManager(v32);
-        v34 = bdRemoteTaskManager::getConnectionID(v33);
+        v28 = bdLoginResult::getLobbyService(this->m_loginResult);
+        v29 = bdLobbyService::getTaskManager(v28);
+        v30 = bdRemoteTaskManager::getConnectionID(v29);
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnecting", 0xCBu, "Setting state to CONNECTED");
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnecting", 0xCCu, "Connected to lobby (connectionID: %I64u)", v34);
-        _RDI->m_lsgConnectionState = DISCONNECTING;
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnecting", 0xCCu, "Connected to lobby (connectionID: %I64u)", v30);
+        this->m_lsgConnectionState = DISCONNECTING;
         bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pump", 0x40u, "Setting state to CONNECTED");
-        _RDI->m_lsgConnectionState = DISCONNECTING;
+        this->m_lsgConnectionState = DISCONNECTING;
         return;
       }
-      if ( (unsigned int)(v28 - 3) <= 1 )
+      if ( (unsigned int)(v24 - 3) <= 1 )
       {
 LABEL_21:
-        v29 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-        ErrorCode = bdLobbyService::getErrorCode(v29);
-        v31 = bdLobbyErrorCodeToString(ErrorCode);
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnecting", 0xC2u, "Error connecting to lobby: %s (%u)", v31, ErrorCode);
+        v25 = bdLoginResult::getLobbyService(this->m_loginResult);
+        ErrorCode = bdLobbyService::getErrorCode(v25);
+        v27 = bdLobbyErrorCodeToString(ErrorCode);
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpConnecting", 0xC2u, "Error connecting to lobby: %s (%u)", v27, ErrorCode);
         goto LABEL_14;
       }
     }
   }
   else
   {
-    if ( !bdLoginResult::getLobbyService(_RDI->m_loginResult) )
+    if ( !bdLoginResult::getLobbyService(this->m_loginResult) )
     {
       format = "LobbyService should not be null";
       function = "bdLoginTaskConnectToLSG::pumpLobbyDnsLookup";
       line = 126;
       goto LABEL_25;
     }
-    v35 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-    if ( bdLobbyService::pumpDNSLookup(v35, &status) && status != BD_LOOKUP_PENDING )
+    v31 = bdLoginResult::getLobbyService(this->m_loginResult);
+    if ( bdLobbyService::pumpDNSLookup(v31, &status) && status != BD_LOOKUP_PENDING )
     {
       if ( status == BD_LOOKUP_SUCCEEDED )
       {
-        TitleID = bdLoginResult::getTitleID(_RDI->m_loginResult);
-        m_loginResult = _RDI->m_loginResult;
-        _RDI->m_authInfo.m_titleID = TitleID;
+        TitleID = bdLoginResult::getTitleID(this->m_loginResult);
+        m_loginResult = this->m_loginResult;
+        this->m_authInfo.m_titleID = TitleID;
         UserID = bdLoginResult::getUserID(m_loginResult);
-        v40 = _RDI->m_loginResult;
-        _RDI->m_authInfo.m_userID = UserID;
-        AccountType = bdLoginResult::getAccountType(v40);
-        bdStrlcpy(_RDI->m_authInfo.m_accountType, AccountType, 0xAui64);
-        ClientID = bdLoginResult::getClientID(_RDI->m_loginResult);
-        bdStrlcpy(_RDI->m_authInfo.m_clientID, ClientID, 0x40ui64);
-        _RAX = _RDI->m_loginResult;
-        __asm
+        v36 = this->m_loginResult;
+        this->m_authInfo.m_userID = UserID;
+        AccountType = bdLoginResult::getAccountType(v36);
+        bdStrlcpy(this->m_authInfo.m_accountType, AccountType, 0xAui64);
+        ClientID = bdLoginResult::getClientID(this->m_loginResult);
+        bdStrlcpy(this->m_authInfo.m_clientID, ClientID, 0x40ui64);
+        v39 = this->m_loginResult;
+        *(_OWORD *)this->m_authInfo.m_sessionKey = *(_OWORD *)v39->m_sessionKey;
+        *(double *)&this->m_authInfo.m_sessionKey[16] = *(double *)&v39->m_sessionKey[16];
+        v40 = this->m_loginResult;
+        this->m_authInfo.m_authSessionKeyKDF = v40->m_authSessionKeyKDF;
+        this->m_authInfo.m_IVSeed = v40->m_IVSeed;
+        *(__m256i *)this->m_authInfo.m_data = *(__m256i *)v40->m_data;
+        *(__m256i *)&this->m_authInfo.m_data[32] = *(__m256i *)&v40->m_data[32];
+        *(__m256i *)&this->m_authInfo.m_data[64] = *(__m256i *)&v40->m_data[64];
+        *(__m256i *)&this->m_authInfo.m_data[96] = *(__m256i *)&v40->m_data[96];
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startConnecting", 0xABu, "Connecting to lobby: titleID[%d], userID[%I64u]", this->m_authInfo.m_titleID, this->m_authInfo.m_userID);
+        v41 = bdLoginResult::getLobbyService(this->m_loginResult);
+        if ( bdLobbyService::connect(v41, &this->m_authInfo, 1) )
         {
-          vmovups xmm0, xmmword ptr [rax+1B08h]
-          vmovups xmmword ptr [rdi+0B8h], xmm0
-          vmovsd  xmm1, qword ptr [rax+1B18h]
-          vmovsd  qword ptr [rdi+0C8h], xmm1
-        }
-        _RCX = _RDI->m_loginResult;
-        _RDI->m_authInfo.m_authSessionKeyKDF = _RCX->m_authSessionKeyKDF;
-        _RDI->m_authInfo.m_IVSeed = _RCX->m_IVSeed;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx+1A88h]
-          vmovups ymmword ptr [rdi+38h], ymm0
-          vmovups ymm1, ymmword ptr [rcx+1AA8h]
-          vmovups ymmword ptr [rdi+58h], ymm1
-          vmovups ymm0, ymmword ptr [rcx+1AC8h]
-          vmovups ymmword ptr [rdi+78h], ymm0
-          vmovups ymm1, ymmword ptr [rcx+1AE8h]
-          vmovups ymmword ptr [rdi+98h], ymm1
-        }
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startConnecting", 0xABu, "Connecting to lobby: titleID[%d], userID[%I64u]", _RDI->m_authInfo.m_titleID, _RDI->m_authInfo.m_userID);
-        v51 = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-        if ( bdLobbyService::connect(v51, &_RDI->m_authInfo, 1) )
-        {
-          _RDI->m_lsgConnectionState = CONNECTING;
+          this->m_lsgConnectionState = CONNECTING;
           bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startConnecting", 0xAFu, "Setting state to CONNECTING");
         }
         else
@@ -527,18 +479,13 @@ LABEL_21:
       }
       else
       {
-        bdSnprintf(_RDI->m_lsgStatusMessage, 0x400ui64, "Lobby DNS Lookup Error (status: %u)", (unsigned int)status);
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpLobbyDnsLookup", 0x94u, _RDI->m_lsgStatusMessage);
-        bdHandleAssert(_RDI->m_lsgStatusMessage != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x12Bu, "Must provide valid message to update lsg task status!");
-        _RDI->m_lsgConnectionState = CONNECTED;
-        bdStrlcpy(_RDI->m_lsgStatusMessage, _RDI->m_lsgStatusMessage, 0x400ui64);
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RDI->m_taskTimer);
-        __asm
-        {
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+58h+var_20], xmm1
-        }
-        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x133u, "Task finished after %2.1f seconds", v54);
+        bdSnprintf(this->m_lsgStatusMessage, 0x400ui64, "Lobby DNS Lookup Error (status: %u)", (unsigned int)status);
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::pumpLobbyDnsLookup", 0x94u, this->m_lsgStatusMessage);
+        bdHandleAssert(this->m_lsgStatusMessage != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x12Bu, "Must provide valid message to update lsg task status!");
+        this->m_lsgConnectionState = CONNECTED;
+        bdStrlcpy(this->m_lsgStatusMessage, this->m_lsgStatusMessage, 0x400ui64);
+        ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x133u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
       }
     }
   }
@@ -641,7 +588,7 @@ bdLoginTaskConnectToLSG::pumpLobbyDnsLookup
 char bdLoginTaskConnectToLSG::pumpLobbyDnsLookup(bdLoginTaskConnectToLSG *this)
 {
   bdLobbyService *LobbyService; 
-  double v6; 
+  double ElapsedTimeInSeconds; 
   bdGetHostByName::bdStatus status; 
 
   if ( !bdLoginResult::getLobbyService(this->m_loginResult) )
@@ -659,13 +606,8 @@ char bdLoginTaskConnectToLSG::pumpLobbyDnsLookup(bdLoginTaskConnectToLSG *this)
   bdHandleAssert(this->m_lsgStatusMessage != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x12Bu, "Must provide valid message to update lsg task status!");
   this->m_lsgConnectionState = CONNECTED;
   bdStrlcpy(this->m_lsgStatusMessage, this->m_lsgStatusMessage, 0x400ui64);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x133u, "Task finished after %2.1f seconds", v6);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x133u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   return 0;
 }
 
@@ -676,30 +618,26 @@ bdLoginTaskConnectToLSG::pumpReconnectWait
 */
 char bdLoginTaskConnectToLSG::pumpReconnectWait(bdLoginTaskConnectToLSG *this)
 {
-  char v8; 
-  char v9; 
+  unsigned int LoResTimeStamp; 
+  float m_reconnectAttemptWait; 
+  float v4; 
+  __int128 m_reconnectAttemptWait_low; 
 
-  _RBX = this;
-  bdPlatformTiming::getLoResTimeStamp();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+534h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vsubss  xmm0, xmm1, dword ptr [rbx+530h]
-    vcomiss xmm0, xmm2
-  }
-  if ( v8 | v9 )
+  LoResTimeStamp = bdPlatformTiming::getLoResTimeStamp();
+  m_reconnectAttemptWait = this->m_reconnectAttemptWait;
+  v4 = (float)LoResTimeStamp;
+  if ( (float)((float)(v4 * 0.001) - this->m_reconnectAttemptTimestamp) <= m_reconnectAttemptWait )
     return 0;
+  m_reconnectAttemptWait_low = LODWORD(this->m_reconnectAttemptWait);
+  *(float *)&m_reconnectAttemptWait_low = m_reconnectAttemptWait * 3.0;
+  _XMM2 = m_reconnectAttemptWait_low;
+  _XMM1 = LODWORD(FLOAT_60_0);
   __asm
   {
-    vmulss  xmm2, xmm2, cs:__real@40400000
-    vmovss  xmm1, cs:__real@42700000
     vcmpltss xmm0, xmm1, xmm2
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vmovss  dword ptr [rbx+534h], xmm0
   }
+  this->m_reconnectAttemptWait = *(float *)&_XMM0;
   return 1;
 }
 
@@ -744,62 +682,31 @@ bdLoginTaskConnectToLSG::reset
 void bdLoginTaskConnectToLSG::reset(bdLoginTaskConnectToLSG *this)
 {
   bdLoginResult *m_loginResult; 
-  __int64 v12; 
-  __int64 v13; 
-  char v14[152]; 
-  __int64 v15; 
-  __int64 v16; 
-  __int16 v17; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  _QWORD v25[3]; 
+  __m256i v3; 
+  __int64 v4; 
+  _BYTE v5[160]; 
+  _BYTE v6[88]; 
 
-  _RBX = this;
-  v13 = 0i64;
-  v15 = 0i64;
-  LOBYTE(v25[1]) = 0;
-  memset_0(v14, 0, sizeof(v14));
-  m_loginResult = _RBX->m_loginResult;
-  v16 = 0i64;
-  v17 = 0;
-  v18 = 0i64;
-  v19 = 0i64;
-  v20 = 0i64;
-  v21 = 0i64;
-  v22 = 0i64;
-  v23 = 0i64;
-  v24 = 0i64;
-  v25[0] = 0i64;
-  _RAX = &v13;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rbx+30h], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+50h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+70h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+90h], ymm0
-    vmovups ymmword ptr [rbx+0B0h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rbx+0D0h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0C0h]
-    vmovups ymmword ptr [rbx+0F0h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0E0h]
-  }
-  v12 = *(_QWORD *)((char *)v25 + 6);
-  __asm { vmovups xmmword ptr [rbx+110h], xmm1 }
-  *(_QWORD *)&_RBX->m_authInfo.m_clientID[62] = v12;
-  *(_QWORD *)&_RBX->m_reconnectAttempt = 0i64;
+  *(_QWORD *)v5 = 0i64;
+  *(_QWORD *)v6 = 0i64;
+  v6[82] = 0;
+  memset_0(&v5[8], 0, 0x98ui64);
+  m_loginResult = this->m_loginResult;
+  memset(&v6[8], 0, 74);
+  v3 = *(__m256i *)&v5[128];
+  *(__m256i *)&this->m_authInfo.m_titleID = *(__m256i *)v5;
+  *(__m256i *)&this->m_authInfo.m_data[24] = *(__m256i *)&v5[32];
+  *(__m256i *)&this->m_authInfo.m_data[56] = *(__m256i *)&v5[64];
+  *(__m256i *)&this->m_authInfo.m_data[88] = *(__m256i *)&v5[96];
+  *(__m256i *)&this->m_authInfo.m_data[120] = v3;
+  *(__m256i *)&this->m_authInfo.m_userID = *(__m256i *)v6;
+  *(__m256i *)&this->m_authInfo.m_clientID[14] = *(__m256i *)&v6[32];
+  v4 = *(_QWORD *)&v6[80];
+  *(_OWORD *)&this->m_authInfo.m_clientID[46] = *(_OWORD *)&v6[64];
+  *(_QWORD *)&this->m_authInfo.m_clientID[62] = v4;
+  *(_QWORD *)&this->m_reconnectAttempt = 0i64;
   bdLoginResult::resetLobbyService(m_loginResult);
-  _RBX->m_lsgConnectionState = UNINITIALIZED;
+  this->m_lsgConnectionState = UNINITIALIZED;
 }
 
 /*
@@ -825,48 +732,37 @@ void bdLoginTaskConnectToLSG::startConnecting(bdLoginTaskConnectToLSG *this)
   bdLoginResult *v5; 
   const char *AccountType; 
   const char *ClientID; 
+  bdLoginResult *v8; 
+  bdLoginResult *v9; 
   bdLobbyService *LobbyService; 
   unsigned int m_titleID; 
 
-  _RDI = this;
   TitleID = bdLoginResult::getTitleID(this->m_loginResult);
-  m_loginResult = _RDI->m_loginResult;
-  _RDI->m_authInfo.m_titleID = TitleID;
+  m_loginResult = this->m_loginResult;
+  this->m_authInfo.m_titleID = TitleID;
   UserID = bdLoginResult::getUserID(m_loginResult);
-  v5 = _RDI->m_loginResult;
-  _RDI->m_authInfo.m_userID = UserID;
+  v5 = this->m_loginResult;
+  this->m_authInfo.m_userID = UserID;
   AccountType = bdLoginResult::getAccountType(v5);
-  bdStrlcpy(_RDI->m_authInfo.m_accountType, AccountType, 0xAui64);
-  ClientID = bdLoginResult::getClientID(_RDI->m_loginResult);
-  bdStrlcpy(_RDI->m_authInfo.m_clientID, ClientID, 0x40ui64);
-  _RAX = _RDI->m_loginResult;
-  __asm
+  bdStrlcpy(this->m_authInfo.m_accountType, AccountType, 0xAui64);
+  ClientID = bdLoginResult::getClientID(this->m_loginResult);
+  bdStrlcpy(this->m_authInfo.m_clientID, ClientID, 0x40ui64);
+  v8 = this->m_loginResult;
+  *(_OWORD *)this->m_authInfo.m_sessionKey = *(_OWORD *)v8->m_sessionKey;
+  *(double *)&this->m_authInfo.m_sessionKey[16] = *(double *)&v8->m_sessionKey[16];
+  v9 = this->m_loginResult;
+  this->m_authInfo.m_authSessionKeyKDF = v9->m_authSessionKeyKDF;
+  this->m_authInfo.m_IVSeed = v9->m_IVSeed;
+  *(__m256i *)this->m_authInfo.m_data = *(__m256i *)v9->m_data;
+  *(__m256i *)&this->m_authInfo.m_data[32] = *(__m256i *)&v9->m_data[32];
+  *(__m256i *)&this->m_authInfo.m_data[64] = *(__m256i *)&v9->m_data[64];
+  *(__m256i *)&this->m_authInfo.m_data[96] = *(__m256i *)&v9->m_data[96];
+  m_titleID = this->m_authInfo.m_titleID;
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startConnecting", 0xABu, "Connecting to lobby: titleID[%d], userID[%I64u]", m_titleID, this->m_authInfo.m_userID);
+  LobbyService = bdLoginResult::getLobbyService(this->m_loginResult);
+  if ( bdLobbyService::connect(LobbyService, &this->m_authInfo, 1) )
   {
-    vmovups xmm0, xmmword ptr [rax+1B08h]
-    vmovups xmmword ptr [rdi+0B8h], xmm0
-    vmovsd  xmm1, qword ptr [rax+1B18h]
-    vmovsd  qword ptr [rdi+0C8h], xmm1
-  }
-  _RCX = _RDI->m_loginResult;
-  _RDI->m_authInfo.m_authSessionKeyKDF = _RCX->m_authSessionKeyKDF;
-  _RDI->m_authInfo.m_IVSeed = _RCX->m_IVSeed;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+1A88h]
-    vmovups ymmword ptr [rdi+38h], ymm0
-    vmovups ymm1, ymmword ptr [rcx+1AA8h]
-    vmovups ymmword ptr [rdi+58h], ymm1
-    vmovups ymm0, ymmword ptr [rcx+1AC8h]
-    vmovups ymmword ptr [rdi+78h], ymm0
-    vmovups ymm1, ymmword ptr [rcx+1AE8h]
-    vmovups ymmword ptr [rdi+98h], ymm1
-  }
-  m_titleID = _RDI->m_authInfo.m_titleID;
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startConnecting", 0xABu, "Connecting to lobby: titleID[%d], userID[%I64u]", m_titleID, _RDI->m_authInfo.m_userID);
-  LobbyService = bdLoginResult::getLobbyService(_RDI->m_loginResult);
-  if ( bdLobbyService::connect(LobbyService, &_RDI->m_authInfo, 1) )
-  {
-    _RDI->m_lsgConnectionState = CONNECTING;
+    this->m_lsgConnectionState = CONNECTING;
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startConnecting", 0xAFu, "Setting state to CONNECTING");
   }
   else
@@ -975,54 +871,43 @@ bdLoginTaskConnectToLSG::startReconnectWait
 */
 void bdLoginTaskConnectToLSG::startReconnectWait(bdLoginTaskConnectToLSG *this)
 {
-  char v10; 
-  char v11; 
+  float LoResTimeStamp; 
+  float v3; 
   unsigned int m_reconnectAttempt; 
-  bdTrulyRandomImpl *v14; 
+  bdTrulyRandomImpl *v5; 
   bdSingletonRegistryImpl *Instance; 
-  unsigned int v22; 
-  double v23; 
+  float v7; 
+  float v8; 
+  unsigned int v9; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RBX = this;
-  bdPlatformTiming::getLoResTimeStamp();
-  __asm
+  LoResTimeStamp = (float)bdPlatformTiming::getLoResTimeStamp();
+  v3 = LoResTimeStamp * 0.001;
+  if ( (float)((float)(LoResTimeStamp * 0.001) - this->m_reconnectAttemptTimestamp) <= (float)(this->m_reconnectAttemptWait * 3.0) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm6, xmm0, cs:__real@3a83126f
-    vsubss  xmm2, xmm6, dword ptr [rbx+530h]
-    vmovss  xmm0, dword ptr [rbx+534h]
-    vmulss  xmm1, xmm0, cs:__real@40400000
-    vcomiss xmm2, xmm1
-  }
-  if ( v10 | v11 )
-  {
-    m_reconnectAttempt = _RBX->m_reconnectAttempt;
+    m_reconnectAttempt = this->m_reconnectAttempt;
   }
   else
   {
-    _RBX->m_reconnectAttempt = 0;
-    _RBX->m_reconnectAttemptWait = 3.0;
+    this->m_reconnectAttempt = 0;
+    this->m_reconnectAttemptWait = 3.0;
     m_reconnectAttempt = 0;
   }
-  _RBX->m_reconnectAttempt = m_reconnectAttempt + 1;
+  this->m_reconnectAttempt = m_reconnectAttempt + 1;
   if ( m_reconnectAttempt != -1 )
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startReconnectWait", 0x103u, "Lobby connection retry limit exceeded, not trying again");
-    _RBX->m_lsgConnectionState = CONNECTED;
-    __asm { vmovaps xmm6, [rsp+78h+var_18] }
+    this->m_lsgConnectionState = CONNECTED;
     return;
   }
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startReconnectWait", 0x108u, "Setting state to RECONNECTING");
-  _RBX->m_lsgConnectionState = WAITING_FOR_REPORT_CONSOLE_DETAILS;
+  this->m_lsgConnectionState = WAITING_FOR_REPORT_CONSOLE_DETAILS;
   if ( !bdSingleton<bdTrulyRandomImpl>::m_instance )
   {
-    v14 = (bdTrulyRandomImpl *)bdMemory::allocate(1ui64);
-    if ( v14 )
-      bdTrulyRandomImpl::bdTrulyRandomImpl(v14);
-    bdSingleton<bdTrulyRandomImpl>::m_instance = v14;
-    if ( !v14 )
+    v5 = (bdTrulyRandomImpl *)bdMemory::allocate(1ui64);
+    if ( v5 )
+      bdTrulyRandomImpl::bdTrulyRandomImpl(v5);
+    bdSingleton<bdTrulyRandomImpl>::m_instance = v5;
+    if ( !v5 )
       goto LABEL_12;
     Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
     if ( !bdSingletonRegistryImpl::add(Instance, bdSingleton<bdTrulyRandomImpl>::destroyInstance) )
@@ -1033,24 +918,12 @@ LABEL_12:
       DebugBreak();
     }
   }
-  bdTrulyRandomImpl::getRandomUInt(bdSingleton<bdTrulyRandomImpl>::m_instance);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@34fa0005
-    vaddss  xmm2, xmm1, dword ptr [rbx+534h]
-    vmovss  dword ptr [rbx+534h], xmm2
-    vcvtss2sd xmm0, xmm2, xmm2
-    vmovsd  [rsp+78h+var_30], xmm0
-  }
-  v22 = _RBX->m_reconnectAttempt;
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startReconnectWait", 0x112u, "Lobby connection retry %u/%u in %.1f seconds", v22, 0i64, v23);
-  __asm
-  {
-    vmovss  dword ptr [rbx+530h], xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
+  v7 = (float)(bdTrulyRandomImpl::getRandomUInt(bdSingleton<bdTrulyRandomImpl>::m_instance) % 0x20C49B);
+  v8 = (float)(v7 * 0.00000046566143) + this->m_reconnectAttemptWait;
+  this->m_reconnectAttemptWait = v8;
+  v9 = this->m_reconnectAttempt;
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::startReconnectWait", 0x112u, "Lobby connection retry %u/%u in %.1f seconds", v9, 0i64, v8);
+  this->m_reconnectAttemptTimestamp = v3;
 }
 
 /*
@@ -1060,20 +933,15 @@ bdLoginTaskConnectToLSG::updateLSGStatus
 */
 void bdLoginTaskConnectToLSG::updateLSGStatus(bdLoginTaskConnectToLSG *this, const char *messageInfo, const bdLoginTaskConnectToLSG::LSGConnectionState *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x12Bu, "Must provide valid message to update lsg task status!");
   this->m_lsgConnectionState = *code;
   bdStrlcpy(this->m_lsgStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(*code - 4) <= 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x133u, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskconnecttolsg.cpp", "bdLoginTaskConnectToLSG::updateLSGStatus", 0x133u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

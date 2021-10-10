@@ -279,41 +279,37 @@ NetThread::Flush
 */
 void NetThread::Flush(NetThread *this)
 {
-  int v4; 
-  __int64 v5; 
-  AsyncRequestHandle v6; 
-  int v7; 
-  __int128 v8; 
-  __int64 v9; 
+  int v2; 
+  __int64 v3; 
+  AsyncRequestHandle v4; 
+  int v5; 
+  __int128 v6; 
+  __int64 v7; 
   __int128 data; 
-  int v12; 
-  char v13; 
+  __int64 v9; 
+  int v10; 
+  char v11; 
 
-  AsyncRequestHandle::AsyncRequestHandle(&v6);
-  LODWORD(v8) = 0;
-  *((_QWORD *)&v8 + 1) = &v6;
-  LODWORD(v9) = 4;
-  if ( AsyncRequestHandle::IsComplete(&v6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\async_request_queue.h", 75, ASSERT_TYPE_ASSERT, "(handle == 0 || !handle->IsComplete())", (const char *)&queryFormat, "handle == NULL || !handle->IsComplete()") )
+  AsyncRequestHandle::AsyncRequestHandle(&v4);
+  LODWORD(v6) = 0;
+  *((_QWORD *)&v6 + 1) = &v4;
+  LODWORD(v7) = 4;
+  if ( AsyncRequestHandle::IsComplete(&v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\async_request_queue.h", 75, ASSERT_TYPE_ASSERT, "(handle == 0 || !handle->IsComplete())", (const char *)&queryFormat, "handle == NULL || !handle->IsComplete()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+0E8h+var_B0]
-    vmovsd  xmm1, [rsp+0E8h+var_A0]
-    vmovups [rsp+0E8h+data], xmm0
-    vmovsd  [rsp+0E8h+var_88], xmm1
-  }
-  v12 = v7;
-  v13 = -1;
-  v4 = Sys_Milliseconds();
+  data = v6;
+  v9 = v7;
+  v10 = v5;
+  v11 = -1;
+  v2 = Sys_Milliseconds();
   while ( MpscStream<1024>::Write(&this->m_requestBuffer.m_requests, &data, 29) <= 0 )
   {
     Sys_Sleep(1);
-    v5 = (unsigned int)(Sys_Milliseconds() - v4);
-    if ( (int)v5 > 1000 )
-      Com_PrintWarning(25, "[NET] Waited %dms for space in request buffer, currently queued %uB\n", v5, this->m_requestBuffer.m_requests.m_writeOffset - this->m_requestBuffer.m_requests.m_readOffset);
+    v3 = (unsigned int)(Sys_Milliseconds() - v2);
+    if ( (int)v3 > 1000 )
+      Com_PrintWarning(25, "[NET] Waited %dms for space in request buffer, currently queued %uB\n", v3, this->m_requestBuffer.m_requests.m_writeOffset - this->m_requestBuffer.m_requests.m_readOffset);
   }
   NetListener::Signal(&this->m_listener, SEND);
-  AsyncRequestHandle::Wait(&v6);
+  AsyncRequestHandle::Wait(&v4);
 }
 
 /*
@@ -476,69 +472,63 @@ NetThread::RecvFrame
 */
 void NetThread::RecvFrame(NetThread *this)
 {
-  const char *v3; 
-  bool v4; 
+  const char *v2; 
+  bool v3; 
+  int v4; 
   int v5; 
-  int v6; 
-  NetPacket *v7; 
-  const NetPacket *v8; 
+  NetPacket *v6; 
+  const NetPacket *v7; 
+  int v8; 
   int v9; 
-  int v10; 
   __int64 WordIndex; 
-  int v12; 
-  unsigned __int64 v13; 
-  bool v14; 
-  __int64 v15; 
-  unsigned __int64 v23; 
+  int v11; 
+  __int128 v14; 
+  __int128 v16; 
+  unsigned __int64 v18; 
 
-  v23 = __rdtsc();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41200000
-    vmovss  [rsp+78h+var_30], xmm0
-  }
-  v3 = j_va("NET_RecvFrame (%ukB)", (unsigned int)((signed int)(this->m_recvBuffer.m_stream.m_writeOffset - this->m_recvBuffer.m_stream.m_readOffset) / 1024));
-  Sys_ProfBeginNamedEvent(0xFF008008, v3);
+  v18 = __rdtsc();
+  v2 = j_va("NET_RecvFrame (%ukB)", (unsigned int)((signed int)(this->m_recvBuffer.m_stream.m_writeOffset - this->m_recvBuffer.m_stream.m_readOffset) / 1024));
+  Sys_ProfBeginNamedEvent(0xFF008008, v2);
   NetTelemetry::StartRecv(this->m_telemetry, this->m_recvBuffer.m_stream.m_writeOffset - this->m_recvBuffer.m_stream.m_readOffset);
-  v4 = this->m_recvBuffer.m_stream.m_readable[PacketStream<NetPacket,1288,65536,0>::GetWordIndex(&this->m_recvBuffer.m_stream, (const NetPacket *)&this->m_recvBuffer.m_stream.m_buffer.m_data[(unsigned __int16)this->m_recvBuffer.m_stream.m_readOffset])] == 0;
+  v3 = this->m_recvBuffer.m_stream.m_readable[PacketStream<NetPacket,1288,65536,0>::GetWordIndex(&this->m_recvBuffer.m_stream, (const NetPacket *)&this->m_recvBuffer.m_stream.m_buffer.m_data[(unsigned __int16)this->m_recvBuffer.m_stream.m_readOffset])] == 0;
+  v4 = 0;
   v5 = 0;
-  v6 = 0;
   if ( PacketStream<NetPacket,1288,65536,0>::WriteableAt(&this->m_recvBuffer.m_stream, this->m_recvBuffer.m_stream.m_writeOffset, 1288) )
   {
     while ( 1 )
     {
-      v7 = PacketStream<NetPacket,1288,65536,0>::Reserve(&this->m_recvBuffer.m_stream, 1288);
-      v8 = v7;
-      if ( v7 )
-        v7->addr.m_ptr = NULL;
-      v7->context = NULL;
-      v7->length = 0;
-      v7->size = 1288;
-      v9 = dwRecvFrom(&v7->addr, &v7[1], 0x508u);
-      v10 = v9;
-      if ( v9 <= 0 )
+      v6 = PacketStream<NetPacket,1288,65536,0>::Reserve(&this->m_recvBuffer.m_stream, 1288);
+      v7 = v6;
+      if ( v6 )
+        v6->addr.m_ptr = NULL;
+      v6->context = NULL;
+      v6->length = 0;
+      v6->size = 1288;
+      v8 = dwRecvFrom(&v6->addr, &v6[1], 0x508u);
+      v9 = v8;
+      if ( v8 <= 0 )
         break;
-      v8->context = (void *)NetPing::Timestamp();
-      v8->length = v10;
-      v8->size = v10;
-      this->m_recvBuffer.m_stream.m_writeOffset += (v10 + 151) & 0xFFFFFF80;
-      WordIndex = PacketStream<NetPacket,1288,65536,0>::GetWordIndex(&this->m_recvBuffer.m_stream, v8);
+      v7->context = (void *)NetPing::Timestamp();
+      v7->length = v9;
+      v7->size = v9;
+      this->m_recvBuffer.m_stream.m_writeOffset += (v9 + 151) & 0xFFFFFF80;
+      WordIndex = PacketStream<NetPacket,1288,65536,0>::GetWordIndex(&this->m_recvBuffer.m_stream, v7);
       if ( (signed int)(this->m_recvBuffer.m_stream.m_writeOffset - this->m_recvBuffer.m_stream.m_readOffset) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 120, ASSERT_TYPE_ASSERT, "(Size() > 0)", (const char *)&queryFormat, "Size() > 0") )
         __debugbreak();
       if ( this->m_recvBuffer.m_stream.m_readable[WordIndex] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 121, ASSERT_TYPE_ASSERT, "(!readable)", (const char *)&queryFormat, "!readable") )
         __debugbreak();
       this->m_recvBuffer.m_stream.m_readable[WordIndex] = 1;
-      v5 += v10;
-      ++v6;
+      v4 += v9;
+      ++v5;
       if ( !PacketStream<NetPacket,1288,65536,0>::WriteableAt(&this->m_recvBuffer.m_stream, this->m_recvBuffer.m_stream.m_writeOffset, 1288) )
         goto LABEL_12;
     }
-    if ( v9 != -2 )
-      Com_Printf(131097, "[NET] recvfrom failed with %d\n", (unsigned int)v9);
+    if ( v8 != -2 )
+      Com_Printf(131097, "[NET] recvfrom failed with %d\n", (unsigned int)v8);
     goto LABEL_13;
   }
 LABEL_12:
-  if ( v4 )
+  if ( v3 )
   {
 LABEL_13:
     NetListener::Consume(&this->m_listener, RECV);
@@ -551,44 +541,32 @@ LABEL_13:
     this->m_recvBufferFull = 1;
   }
 LABEL_18:
-  if ( v5 > 0 )
+  if ( v4 > 0 )
     NetTelemetry::NetRecv(this->m_telemetry);
-  NetTelemetry::EndRecv(this->m_telemetry, v5, v6);
-  v12 = Sys_Milliseconds();
-  if ( v12 - this->m_lastPump >= this->m_pumpInterval )
+  NetTelemetry::EndRecv(this->m_telemetry, v4, v5);
+  v11 = Sys_Milliseconds();
+  if ( v11 - this->m_lastPump >= this->m_pumpInterval )
   {
     NetTelemetry::StartPump(this->m_telemetry);
     dwNetPump();
     NetTelemetry::EndPump(this->m_telemetry);
-    this->m_lastPump = v12;
+    this->m_lastPump = v11;
   }
   Sys_ProfEndNamedEvent();
-  v13 = __rdtsc();
-  v14 = v13 < v23;
-  v15 = v13 - v23;
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v18) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v14 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v14;
   }
-  if ( v15 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm2, [rsp+78h+var_30]
-  }
-  if ( !v14 && v15 != 0 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "NET_RecvFrame", *(double *)&_XMM3);
-  }
+  *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v16 = *(double *)&_XMM0 * usecPerRawTimerTick;
+  _XMM0 = v16;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  if ( (float)(*(float *)&_XMM1 * 0.001) > 10.0 )
+    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "NET_RecvFrame", (float)(*(float *)&_XMM1 * 0.001));
 }
 
 /*
@@ -646,151 +624,133 @@ NetThread::SendFrame
 void NetThread::SendFrame(NetThread *this)
 {
   NetBuffer<262144,1> *p_m_sendBuffer; 
-  const char *v4; 
+  const char *v3; 
+  int v4; 
   int v5; 
-  int v6; 
   PacketBuffer<262144,1312,8> *p_m_buffer; 
-  unsigned int v8; 
-  int v9; 
-  __int64 v10; 
-  NetPacket *v11; 
+  unsigned int v7; 
+  int v8; 
+  __int64 v9; 
+  NetPacket *v10; 
   int size; 
-  unsigned __int64 v13; 
-  int v14; 
-  NetPacket **v15; 
-  NetPacket *v16; 
+  unsigned __int64 v12; 
+  int v13; 
+  NetPacket **v14; 
+  NetPacket *v15; 
   int length; 
+  int v17; 
   int v18; 
-  int v19; 
-  __int64 v20; 
-  int v21; 
-  unsigned __int64 v22; 
-  bool v23; 
-  __int64 v24; 
-  int v32; 
-  int v33; 
-  unsigned __int64 v35; 
+  __int64 v19; 
+  int v20; 
+  __int128 v23; 
+  __int128 v25; 
+  int v27; 
+  int v28; 
+  unsigned __int64 v30; 
   int packetCount; 
   NetPacket *packets[128]; 
   int sizes[130]; 
 
   p_m_sendBuffer = &this->m_sendBuffer;
-  v35 = __rdtsc();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41a00000
-    vmovss  [rsp+6A8h+var_658], xmm0
-  }
-  v4 = j_va("NET_SendFrame (%ukB)", (unsigned int)((signed int)(this->m_sendBuffer.m_stream.m_writeOffset - this->m_sendBuffer.m_stream.m_readOffset) / 1024));
-  Sys_ProfBeginNamedEvent(0xFF0000FF, v4);
+  v30 = __rdtsc();
+  v3 = j_va("NET_SendFrame (%ukB)", (unsigned int)((signed int)(this->m_sendBuffer.m_stream.m_writeOffset - this->m_sendBuffer.m_stream.m_readOffset) / 1024));
+  Sys_ProfBeginNamedEvent(0xFF0000FF, v3);
   NetTelemetry::StartSend(this->m_telemetry, p_m_sendBuffer->m_stream.m_writeOffset - p_m_sendBuffer->m_stream.m_readOffset);
   memset_0(&packetCount, 0, 0x608ui64);
+  v4 = 0;
+  v27 = 0;
   v5 = 0;
-  v32 = 0;
-  v6 = 0;
-  v33 = 0;
+  v28 = 0;
   p_m_buffer = &p_m_sendBuffer->m_stream.m_buffer;
   while ( p_m_sendBuffer->m_stream.m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(&p_m_sendBuffer->m_stream, (const NetPacket *)&p_m_buffer->m_data[p_m_sendBuffer->m_stream.m_readOffset & 0x3FFFF])] )
   {
+    v7 = 0;
     v8 = 0;
-    v9 = 0;
-    v10 = 0i64;
-    while ( p_m_sendBuffer->m_stream.m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(&p_m_sendBuffer->m_stream, (const NetPacket *)&p_m_buffer->m_data[(v8 + p_m_sendBuffer->m_stream.m_readOffset) & 0x3FFFF])] && v8 < 0x40000 )
+    v9 = 0i64;
+    while ( p_m_sendBuffer->m_stream.m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(&p_m_sendBuffer->m_stream, (const NetPacket *)&p_m_buffer->m_data[(v7 + p_m_sendBuffer->m_stream.m_readOffset) & 0x3FFFF])] && v7 < 0x40000 )
     {
-      if ( (v8 & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 145, ASSERT_TYPE_ASSERT, "(IsAligned( offset, WORD_SIZE ))", (const char *)&queryFormat, "IsAligned( offset, WORD_SIZE )") )
+      if ( (v7 & 0x7F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 145, ASSERT_TYPE_ASSERT, "(IsAligned( offset, WORD_SIZE ))", (const char *)&queryFormat, "IsAligned( offset, WORD_SIZE )") )
         __debugbreak();
-      v11 = (NetPacket *)&p_m_buffer->m_data[(v8 + p_m_sendBuffer->m_stream.m_readOffset) & 0x3FFFF];
-      if ( !p_m_sendBuffer->m_stream.m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(&p_m_sendBuffer->m_stream, v11)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 149, ASSERT_TYPE_ASSERT, "(IsReadable( packet ))", (const char *)&queryFormat, "IsReadable( packet )") )
+      v10 = (NetPacket *)&p_m_buffer->m_data[(v7 + p_m_sendBuffer->m_stream.m_readOffset) & 0x3FFFF];
+      if ( !p_m_sendBuffer->m_stream.m_readable[PacketStream<NetPacket,1288,262144,1>::GetWordIndex(&p_m_sendBuffer->m_stream, v10)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 149, ASSERT_TYPE_ASSERT, "(IsReadable( packet ))", (const char *)&queryFormat, "IsReadable( packet )") )
         __debugbreak();
-      size = v11->size;
-      packets[v10] = v11;
-      sizes[v10] = size;
-      ++v9;
-      if ( ++v10 == 128 )
+      size = v10->size;
+      packets[v9] = v10;
+      sizes[v9] = size;
+      ++v8;
+      if ( ++v9 == 128 )
         break;
       if ( size <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\packet_stream.h", 246, ASSERT_TYPE_ASSERT, "(size > 0)", (const char *)&queryFormat, "size > 0") )
         __debugbreak();
-      v8 += (size + 151) & 0xFFFFFF80;
+      v7 += (size + 151) & 0xFFFFFF80;
     }
-    packetCount = v9;
-    dwSendTo(packets, v9);
-    v5 = packetCount + v32;
-    v32 += packetCount;
-    v13 = NetPing::Timestamp();
-    v14 = 0;
-    v6 = v33;
+    packetCount = v8;
+    dwSendTo(packets, v8);
+    v4 = packetCount + v27;
+    v27 += packetCount;
+    v12 = NetPing::Timestamp();
+    v13 = 0;
+    v5 = v28;
     if ( packetCount <= 0 )
       goto LABEL_38;
-    v15 = packets;
+    v14 = packets;
     do
     {
-      v16 = *v15;
-      *(_QWORD *)(*v15)->context = v13;
-      length = v16->length;
-      v18 = 0;
+      v15 = *v14;
+      *(_QWORD *)(*v14)->context = v12;
+      length = v15->length;
+      v17 = 0;
       if ( length > 0 )
-        v18 = length;
-      v6 += v18;
+        v17 = length;
+      v5 += v17;
+      ++v13;
       ++v14;
-      ++v15;
-      v19 = packetCount;
+      v18 = packetCount;
     }
-    while ( v14 < packetCount );
-    v33 = v6;
+    while ( v13 < packetCount );
+    v28 = v5;
     if ( packetCount <= 0 )
     {
 LABEL_38:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_buffer.h", 134, ASSERT_TYPE_ASSERT, "(batch.packetCount > 0)", (const char *)&queryFormat, "batch.packetCount > 0") )
         __debugbreak();
-      v19 = packetCount;
+      v18 = packetCount;
     }
-    v20 = 0i64;
-    if ( v19 > 0 )
+    v19 = 0i64;
+    if ( v18 > 0 )
     {
       do
-        _InterlockedExchangeAdd((volatile signed __int32 *)&packets[v20++]->addr.m_ptr->m_refCount, 0xFFFFFFFF);
-      while ( v20 < v19 );
-      v19 = packetCount;
+        _InterlockedExchangeAdd((volatile signed __int32 *)&packets[v19++]->addr.m_ptr->m_refCount, 0xFFFFFFFF);
+      while ( v19 < v18 );
+      v18 = packetCount;
     }
-    PacketStream<NetPacket,1288,262144,1>::Release(&p_m_sendBuffer->m_stream, (const NetPacket *const *)packets, v19, sizes);
+    PacketStream<NetPacket,1288,262144,1>::Release(&p_m_sendBuffer->m_stream, (const NetPacket *const *)packets, v18, sizes);
   }
   NetListener::Consume(&this->m_listener, SEND);
-  NetTelemetry::EndSend(this->m_telemetry, v6, v5);
-  v21 = Sys_Milliseconds();
-  if ( v21 - this->m_lastPump >= this->m_pumpInterval )
+  NetTelemetry::EndSend(this->m_telemetry, v5, v4);
+  v20 = Sys_Milliseconds();
+  if ( v20 - this->m_lastPump >= this->m_pumpInterval )
   {
     NetTelemetry::StartPump(this->m_telemetry);
     dwNetPump();
     NetTelemetry::EndPump(this->m_telemetry);
-    this->m_lastPump = v21;
+    this->m_lastPump = v20;
   }
   Sys_ProfEndNamedEvent();
-  v22 = __rdtsc();
-  v23 = v22 < v35;
-  v24 = v22 - v35;
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v30) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v23 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v23;
   }
-  if ( v24 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm2, [rsp+6A8h+var_658]
-  }
-  if ( !v23 && v24 != 0 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "NET_SendFrame", *(double *)&_XMM3);
-  }
+  *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v25 = *(double *)&_XMM0 * usecPerRawTimerTick;
+  _XMM0 = v25;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  if ( (float)(*(float *)&_XMM1 * 0.001) > 20.0 )
+    Com_Printf(12, "[PROFILE] %s took %.3fms\n", "NET_SendFrame", (float)(*(float *)&_XMM1 * 0.001));
 }
 
 /*
@@ -802,38 +762,34 @@ void NetThread::SendRequest(NetThread *this, int type, const void *request, int 
 {
   size_t v5; 
   int v8; 
-  int v11; 
+  int v9; 
+  __int64 v10; 
+  __int128 v11; 
   __int64 v12; 
-  __int128 v13; 
-  __int64 v14; 
   __int128 data; 
-  char v17[104]; 
+  __int64 v14; 
+  char v15[104]; 
 
   v5 = size;
-  LODWORD(v13) = type;
-  *((_QWORD *)&v13 + 1) = handle;
-  LODWORD(v14) = size;
+  LODWORD(v11) = type;
+  *((_QWORD *)&v11 + 1) = handle;
+  LODWORD(v12) = size;
   v8 = size + 25;
   if ( (unsigned int)(size + 25) > 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\async_request_queue.h", 74, ASSERT_TYPE_ASSERT, "(sizeof( requestBuffer ) >= requestSize)", (const char *)&queryFormat, "sizeof( requestBuffer ) >= requestSize") )
     __debugbreak();
   if ( handle && AsyncRequestHandle::IsComplete(handle) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\async_request_queue.h", 75, ASSERT_TYPE_ASSERT, "(handle == 0 || !handle->IsComplete())", (const char *)&queryFormat, "handle == NULL || !handle->IsComplete()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+118h+var_E8]
-    vmovsd  xmm1, [rsp+118h+var_D8]
-    vmovups [rsp+118h+data], xmm0
-    vmovsd  [rsp+118h+var_B8], xmm1
-  }
-  memcpy_0(v17, request, v5);
-  v17[v5] = -1;
-  v11 = Sys_Milliseconds();
+  data = v11;
+  v14 = v12;
+  memcpy_0(v15, request, v5);
+  v15[v5] = -1;
+  v9 = Sys_Milliseconds();
   while ( MpscStream<1024>::Write(&this->m_requestBuffer.m_requests, &data, v8) <= 0 )
   {
     Sys_Sleep(1);
-    v12 = (unsigned int)(Sys_Milliseconds() - v11);
-    if ( (int)v12 > 1000 )
-      Com_PrintWarning(25, "[NET] Waited %dms for space in request buffer, currently queued %uB\n", v12, this->m_requestBuffer.m_requests.m_writeOffset - this->m_requestBuffer.m_requests.m_readOffset);
+    v10 = (unsigned int)(Sys_Milliseconds() - v9);
+    if ( (int)v10 > 1000 )
+      Com_PrintWarning(25, "[NET] Waited %dms for space in request buffer, currently queued %uB\n", v10, this->m_requestBuffer.m_requests.m_writeOffset - this->m_requestBuffer.m_requests.m_readOffset);
   }
   NetListener::Signal(&this->m_listener, SEND);
 }

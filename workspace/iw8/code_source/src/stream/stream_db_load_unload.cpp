@@ -205,10 +205,8 @@ void Stream_DBPreFastfilesLoad(void)
   bool v4; 
   StreamFrontendGlob *v5; 
   StreamLevelInit::State state; 
-  StreamFrontendGlob *v9; 
-  __m256i v10; 
-  _OWORD v11[7]; 
-  ScopedStreamFrontendUpdateLock v12; 
+  StreamFrontendGlob *v7; 
+  ScopedStreamFrontendUpdateLock v8; 
 
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 197, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
@@ -251,34 +249,22 @@ void Stream_DBPreFastfilesLoad(void)
       Stream_PushSyncDisable();
       if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 245, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
         __debugbreak();
-      ScopedStreamFrontendUpdateLock::ScopedStreamFrontendUpdateLock(&v12);
+      ScopedStreamFrontendUpdateLock::ScopedStreamFrontendUpdateLock(&v8);
       v5 = streamFrontendGlob;
       state = streamFrontendGlob->levelInit.state;
       if ( state )
       {
         if ( (unsigned int)(state - 2) > 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 258, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->levelInit.state >= StreamLevelInit::State::STARTING && streamFrontendGlob->levelInit.state <= StreamLevelInit::State::DONE)", (const char *)&queryFormat, "streamFrontendGlob->levelInit.state >= StreamLevelInit::State::STARTING && streamFrontendGlob->levelInit.state <= StreamLevelInit::State::DONE") )
           __debugbreak();
-        v10.m256i_i64[0] = 4i64;
-        v10.m256i_i8[8] = 0;
-        *(__int64 *)((char *)&v10.m256i_i64[1] + 4) = 0i64;
-        v10.m256i_i64[3] = 0i64;
-        memset(v11, 0, 28);
-        __asm
-        {
-          vmovups ymm0, [rsp+0D8h+var_98]
-          vmovups [rsp+0D8h+var_50], ymm0
-          vmovups ymm1, [rsp+0D8h+var_78]
-          vmovups [rsp+0D8h+var_30], ymm1
-        }
-        v9 = streamFrontendGlob;
+        v7 = streamFrontendGlob;
         *(_QWORD *)&streamFrontendGlob->levelInit.state = 4i64;
-        v9->levelInit.initialLoadFinishRequestedDueToError = 0;
-        *(_QWORD *)&v9->levelInit.loadingState = 0i64;
-        v9->levelInit.loadingProgressByte = 0i64;
-        v9->levelInit.loadingRegressByte = 0i64;
-        v9->levelInit.loadingProgressCount = 0i64;
-        v9->levelInit.loadingRegressCount = 0i64;
-        v9->levelInit.useLevelInitEvictor = 0;
+        v7->levelInit.initialLoadFinishRequestedDueToError = 0;
+        *(_QWORD *)&v7->levelInit.loadingState = 0i64;
+        v7->levelInit.loadingProgressByte = 0i64;
+        v7->levelInit.loadingRegressByte = 0i64;
+        v7->levelInit.loadingProgressCount = 0i64;
+        v7->levelInit.loadingRegressCount = 0i64;
+        v7->levelInit.useLevelInitEvictor = 0;
         v5 = streamFrontendGlob;
       }
       v5->levelInit.state = LOADING_LEVEL;
@@ -286,7 +272,7 @@ void Stream_DBPreFastfilesLoad(void)
         __debugbreak();
       ++streamFrontendGlob->levelInit.streamerDisableCountDuringLevelUnloadAndLoad;
       Stream_LevelInit_PushUseEvictor();
-      ScopedStreamFrontendUpdateLock::~ScopedStreamFrontendUpdateLock(&v12);
+      ScopedStreamFrontendUpdateLock::~ScopedStreamFrontendUpdateLock(&v8);
     }
   }
 }
@@ -299,11 +285,9 @@ Stream_DBPreFastfilesUnload
 void Stream_DBPreFastfilesUnload(bool isPreload)
 {
   const char *v2; 
-  StreamFrontendGlob *v5; 
-  __int64 v6; 
-  __m256i v7; 
-  _OWORD v8[7]; 
-  ScopedStreamFrontendUpdateLock v9; 
+  StreamFrontendGlob *v3; 
+  __int64 v4; 
+  ScopedStreamFrontendUpdateLock v5; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 37, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -317,33 +301,21 @@ void Stream_DBPreFastfilesUnload(bool isPreload)
     Streamer_StatusPrint("Streamer DB Pre fast file unload: %s\n", v2);
     if ( !isPreload )
     {
-      ScopedStreamFrontendUpdateLock::ScopedStreamFrontendUpdateLock(&v9);
-      v7.m256i_i64[0] = 4i64;
-      v7.m256i_i8[8] = 0;
-      *(__int64 *)((char *)&v7.m256i_i64[1] + 4) = 0i64;
-      v7.m256i_i64[3] = 0i64;
-      memset(v8, 0, 28);
-      __asm
-      {
-        vmovups ymm0, [rsp+0E8h+var_98]
-        vmovups [rsp+0E8h+var_50], ymm0
-        vmovups ymm1, [rsp+0E8h+var_78]
-        vmovups [rsp+0E8h+var_30], ymm1
-      }
-      v5 = streamFrontendGlob;
+      ScopedStreamFrontendUpdateLock::ScopedStreamFrontendUpdateLock(&v5);
+      v3 = streamFrontendGlob;
       *(_QWORD *)&streamFrontendGlob->levelInit.state = 4i64;
-      v5->levelInit.initialLoadFinishRequestedDueToError = 0;
-      *(_QWORD *)&v5->levelInit.loadingState = 0i64;
-      v5->levelInit.loadingProgressByte = 0i64;
-      v5->levelInit.loadingRegressByte = 0i64;
-      v5->levelInit.loadingProgressCount = 0i64;
-      v5->levelInit.loadingRegressCount = 0i64;
-      v5->levelInit.useLevelInitEvictor = 0;
+      v3->levelInit.initialLoadFinishRequestedDueToError = 0;
+      *(_QWORD *)&v3->levelInit.loadingState = 0i64;
+      v3->levelInit.loadingProgressByte = 0i64;
+      v3->levelInit.loadingRegressByte = 0i64;
+      v3->levelInit.loadingProgressCount = 0i64;
+      v3->levelInit.loadingRegressCount = 0i64;
+      v3->levelInit.useLevelInitEvictor = 0;
       streamFrontendGlob->levelInit.state = LOADING_DONE;
       if ( streamFrontendGlob->levelInit.streamerDisableCountDuringLevelUnloadAndLoad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 65, ASSERT_TYPE_ASSERT, "( streamFrontendGlob->levelInit.streamerDisableCountDuringLevelUnloadAndLoad ) == ( 0 )", "%s == %s\n\t%i, %i", "streamFrontendGlob->levelInit.streamerDisableCountDuringLevelUnloadAndLoad", "0", streamFrontendGlob->levelInit.streamerDisableCountDuringLevelUnloadAndLoad, 0i64) )
         __debugbreak();
       streamFrontendGlob->levelInit.streamerDisableCountDuringLevelUnloadAndLoad = 1;
-      ScopedStreamFrontendUpdateLock::~ScopedStreamFrontendUpdateLock(&v9);
+      ScopedStreamFrontendUpdateLock::~ScopedStreamFrontendUpdateLock(&v5);
     }
     Stream_PushSyncDisable();
     if ( Stream_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 74, ASSERT_TYPE_ASSERT, "(!Stream_IsEnabled())", (const char *)&queryFormat, "!Stream_IsEnabled()") )
@@ -354,8 +326,8 @@ void Stream_DBPreFastfilesUnload(bool isPreload)
     Stream_InvalidateAllSorting();
     if ( Stream_BackendQueue_GetCopyTextureDescQueueSize() )
     {
-      LODWORD(v6) = Stream_BackendQueue_GetCopyTextureDescQueueSize();
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 92, ASSERT_TYPE_ASSERT, "( 0 ) == ( Stream_BackendQueue_GetCopyTextureDescQueueSize() )", "%s == %s\n\t%u, %u", "0", "Stream_BackendQueue_GetCopyTextureDescQueueSize()", 0i64, v6) )
+      LODWORD(v4) = Stream_BackendQueue_GetCopyTextureDescQueueSize();
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_db_load_unload.cpp", 92, ASSERT_TYPE_ASSERT, "( 0 ) == ( Stream_BackendQueue_GetCopyTextureDescQueueSize() )", "%s == %s\n\t%u, %u", "0", "Stream_BackendQueue_GetCopyTextureDescQueueSize()", 0i64, v4) )
         __debugbreak();
     }
   }

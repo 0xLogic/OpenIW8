@@ -256,10 +256,10 @@ void SvGameModeApplication::ShutdownServerApplication(void)
 SvGameModeApplication::SyncServerApplicationCreation
 ==============
 */
-
-void __fastcall SvGameModeApplication::SyncServerApplicationCreation(double _XMM0_8)
+void SvGameModeApplication::SyncServerApplicationCreation(void)
 {
   char ActiveGameMode; 
+  __int128 v4; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.cpp", 146, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -276,16 +276,13 @@ void __fastcall SvGameModeApplication::SyncServerApplicationCreation(double _XMM
     Sys_Sleep(1);
   }
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovq   r8, xmm2
-  }
-  Com_Printf(16, "SyncServerApplicationCreation took %f ms\n", *(double *)&_XMM2);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v4 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v4 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v4;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  Com_Printf(16, "SyncServerApplicationCreation took %f ms\n", *(float *)&_XMM2);
 }
 
 /*
@@ -293,9 +290,10 @@ void __fastcall SvGameModeApplication::SyncServerApplicationCreation(double _XMM
 SvGameModeApplication::SyncServerApplicationShutdown
 ==============
 */
-
-void __fastcall SvGameModeApplication::SyncServerApplicationShutdown(double _XMM0_8)
+void SvGameModeApplication::SyncServerApplicationShutdown(void)
 {
+  __int128 v3; 
+
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.cpp", 190, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   __rdtsc();
@@ -304,16 +302,13 @@ void __fastcall SvGameModeApplication::SyncServerApplicationShutdown(double _XMM
   while ( SvGameModeApplication::ms_gameModeServer || (_BYTE)SvGameModeApplication::ms_allocType )
     Sys_Sleep(1);
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovq   r8, xmm2
-  }
-  Com_Printf(16, "SyncServerApplicationShutdown took %f ms\n", *(double *)&_XMM2);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v3 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v3 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v3;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  Com_Printf(16, "SyncServerApplicationShutdown took %f ms\n", *(float *)&_XMM2);
 }
 
 /*

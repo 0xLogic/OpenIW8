@@ -314,15 +314,17 @@ AIScr_ASM_ChooseAnim
 void AIScr_ASM_ChooseAnim(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  scr_string_t v5; 
+  scr_string_t v4; 
   scr_string_t stateName; 
   int NumParam; 
   int numParamsOverride; 
-  int v9; 
+  int v8; 
+  ASM_Function_Param_Type *p_m_Type; 
   signed int i; 
   VariableType Type; 
-  VariableType v13; 
-  const char *v14; 
+  VariableType v12; 
+  const char *v13; 
+  double Float; 
   int v15; 
   Ai_Asm *v16; 
   int v17; 
@@ -341,7 +343,7 @@ void AIScr_ASM_ChooseAnim(scrContext_t *scrContext, scr_entref_t entref)
 
   Entity = GetEntity(entref);
   asmName = Scr_GetConstString(scrContext, 0);
-  v5 = asmName;
+  v4 = asmName;
   stateName = 0;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam > 1 && Scr_GetType(scrContext, 1u) )
@@ -356,8 +358,8 @@ void AIScr_ASM_ChooseAnim(scrContext_t *scrContext, scr_entref_t entref)
   else
   {
     numParamsOverride = 0;
-    v9 = 0;
-    _RBX = &pParamsOverride.m_Type;
+    v8 = 0;
+    p_m_Type = &pParamsOverride.m_Type;
     for ( i = 2; i < NumParam; ++i )
     {
       Type = Scr_GetType(scrContext, i);
@@ -366,39 +368,39 @@ void AIScr_ASM_ChooseAnim(scrContext_t *scrContext, scr_entref_t entref)
         switch ( Type )
         {
           case VAR_STRING:
-            *_RBX = ParamType_String;
-            *((_DWORD *)_RBX - 1) = Scr_GetConstString(scrContext, i);
+            *p_m_Type = ParamType_String;
+            *((_DWORD *)p_m_Type - 1) = Scr_GetConstString(scrContext, i);
             break;
           case VAR_FLOAT:
-            *_RBX = ParamType_Float;
-            *(double *)&_XMM0 = Scr_GetFloat(scrContext, i);
-            __asm { vmovss  dword ptr [rbx-4], xmm0 }
+            *p_m_Type = ParamType_Float;
+            Float = Scr_GetFloat(scrContext, i);
+            *(p_m_Type - 1) = SLODWORD(Float);
             break;
           case VAR_INTEGER:
-            *_RBX = ParamType_Int;
-            *((_DWORD *)_RBX - 1) = Scr_GetInt(scrContext, i);
+            *p_m_Type = ParamType_Int;
+            *((_DWORD *)p_m_Type - 1) = Scr_GetInt(scrContext, i);
             break;
           default:
-            v13 = Scr_GetType(scrContext, i);
-            v14 = j_va("Unsupported function param type (%d).", (unsigned __int8)v13);
-            Scr_Error(COM_ERR_2884, scrContext, v14);
+            v12 = Scr_GetType(scrContext, i);
+            v13 = j_va("Unsupported function param type (%d).", (unsigned __int8)v12);
+            Scr_Error(COM_ERR_2884, scrContext, v13);
             break;
         }
       }
       else
       {
-        *_RBX = ParamType_Undefined;
-        ++v9;
+        *p_m_Type = ParamType_Undefined;
+        ++v8;
       }
       ++numParamsOverride;
-      _RBX += 2;
+      p_m_Type += 2;
     }
     v15 = Entity->s.number;
     v16 = Ai_Asm::Singleton();
-    v5 = asmName;
+    v4 = asmName;
     v17 = v15;
     v18 = asmName;
-    if ( v9 != numParamsOverride )
+    if ( v8 != numParamsOverride )
     {
       v19 = Common_Asm::ChooseAnimWithParamOverride(v16, NULL, v15, asmName, stateName, numParamsOverride, &pParamsOverride, NULL);
       goto LABEL_20;
@@ -413,12 +415,12 @@ LABEL_20:
       v22 = COM_ERR_2885;
       break;
     case ASM_ERR_NO_SUBTREE:
-      v23 = SL_ConvertToString(v5);
+      v23 = SL_ConvertToString(v4);
       v21 = j_va("Ent %d is not currently running ASM %s", (unsigned int)Entity->s.number, v23);
       v22 = COM_ERR_2886;
       break;
     case ASM_ERR_NO_STATE:
-      v24 = SL_ConvertToString(v5);
+      v24 = SL_ConvertToString(v4);
       v25 = Entity->s.number;
       v26 = v24;
       v27 = SL_ConvertToString(stateName);
@@ -1522,21 +1524,23 @@ void AIScr_ASM_SetState(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   scr_string_t ConstString; 
-  scr_string_t v6; 
+  scr_string_t v5; 
   int number; 
-  Ai_Asm *v8; 
+  Ai_Asm *v7; 
   ASM_Instance *Instance; 
+  const char *v9; 
   const char *v10; 
   const char *v11; 
-  const char *v12; 
   int numParamsOverrideEntry; 
   int NumParam; 
-  int v15; 
-  const char *v16; 
-  int v17; 
-  signed int v18; 
+  int v14; 
+  const char *v15; 
+  int v16; 
+  signed int v17; 
+  ASM_Function_Param_Type *p_m_Type; 
   VariableType Type; 
-  const char *v21; 
+  const char *v20; 
+  double Float; 
   Ai_Asm *v22; 
   ASM_Error v23; 
   const char *m_szName; 
@@ -1549,79 +1553,79 @@ void AIScr_ASM_SetState(scrContext_t *scrContext, scr_entref_t entref)
 
   Entity = GetEntity(entref);
   ConstString = Scr_GetConstString(scrContext, 0);
-  v6 = Scr_GetConstString(scrContext, 1u);
+  v5 = Scr_GetConstString(scrContext, 1u);
   number = Entity->s.number;
-  stateName = v6;
-  v8 = Ai_Asm::Singleton();
-  Instance = Ai_Asm::GetInstance(v8, NULL, number);
+  stateName = v5;
+  v7 = Ai_Asm::Singleton();
+  Instance = Ai_Asm::GetInstance(v7, NULL, number);
   if ( !Instance )
   {
-    v10 = j_va("ent %d is not running an asm!", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_2906, scrContext, v10);
+    v9 = j_va("ent %d is not running an asm!", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_2906, scrContext, v9);
   }
   if ( Instance->m_pASM->m_Name != ConstString )
   {
     Instance = Common_Asm::Utils::GetSubtree(Instance, ConstString);
     if ( !Instance )
     {
-      v11 = SL_ConvertToString(ConstString);
-      v12 = j_va("ent %d is not currently running asm %s!", (unsigned int)Entity->s.number, v11);
-      Scr_Error(COM_ERR_2907, scrContext, v12);
+      v10 = SL_ConvertToString(ConstString);
+      v11 = j_va("ent %d is not currently running asm %s!", (unsigned int)Entity->s.number, v10);
+      Scr_Error(COM_ERR_2907, scrContext, v11);
     }
   }
   numParamsOverrideEntry = 0;
   NumParam = Scr_GetNumParam(scrContext);
-  v15 = 0;
+  v14 = 0;
   if ( NumParam > 10 )
   {
-    v16 = j_va("Function passed more than the max allowed param overrides (%d)", 8i64);
-    Scr_Error(COM_ERR_2908, scrContext, v16);
+    v15 = j_va("Function passed more than the max allowed param overrides (%d)", 8i64);
+    Scr_Error(COM_ERR_2908, scrContext, v15);
   }
-  v17 = 0;
+  v16 = 0;
   if ( NumParam > 2 )
   {
-    v18 = 2;
-    _RBX = &pParamsOverrideEntry.m_Type;
+    v17 = 2;
+    p_m_Type = &pParamsOverrideEntry.m_Type;
     do
     {
-      Type = Scr_GetType(scrContext, v18);
+      Type = Scr_GetType(scrContext, v17);
       if ( Type )
       {
         switch ( Type )
         {
           case VAR_STRING:
-            *_RBX = ParamType_String;
-            *((_DWORD *)_RBX - 1) = Scr_GetConstString(scrContext, v18);
+            *p_m_Type = ParamType_String;
+            *((_DWORD *)p_m_Type - 1) = Scr_GetConstString(scrContext, v17);
             break;
           case VAR_FLOAT:
-            *_RBX = ParamType_Float;
-            *(double *)&_XMM0 = Scr_GetFloat(scrContext, v18);
-            __asm { vmovss  dword ptr [rbx-4], xmm0 }
+            *p_m_Type = ParamType_Float;
+            Float = Scr_GetFloat(scrContext, v17);
+            *(p_m_Type - 1) = SLODWORD(Float);
             break;
           case VAR_INTEGER:
-            *_RBX = ParamType_Int;
-            *((_DWORD *)_RBX - 1) = Scr_GetInt(scrContext, v18);
+            *p_m_Type = ParamType_Int;
+            *((_DWORD *)p_m_Type - 1) = Scr_GetInt(scrContext, v17);
             break;
           default:
-            v21 = j_va("Function passed unsupported param override type (%d)", (unsigned __int8)Type);
-            Scr_Error(COM_ERR_2909, scrContext, v21);
+            v20 = j_va("Function passed unsupported param override type (%d)", (unsigned __int8)Type);
+            Scr_Error(COM_ERR_2909, scrContext, v20);
             break;
         }
       }
       else
       {
-        *_RBX = ParamType_Undefined;
-        ++v17;
+        *p_m_Type = ParamType_Undefined;
+        ++v16;
       }
-      ++v15;
-      ++v18;
-      _RBX += 2;
+      ++v14;
+      ++v17;
+      p_m_Type += 2;
     }
-    while ( v18 < NumParam );
+    while ( v17 < NumParam );
   }
   v22 = Ai_Asm::Singleton();
-  if ( v17 != v15 )
-    numParamsOverrideEntry = v15;
+  if ( v16 != v14 )
+    numParamsOverrideEntry = v14;
   v23 = Common_Asm::SetState(v22, NULL, Instance, stateName, numParamsOverrideEntry, &pParamsOverrideEntry);
   if ( v23 == ASM_ERR_NO_STATE )
   {

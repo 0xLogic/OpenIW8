@@ -159,8 +159,7 @@ bdJSONObject::bdJSONObject
 */
 void bdJSONObject::bdJSONObject(bdJSONObject *this, const bdJSONObject *other)
 {
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>(&this->m_map, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>(&this->m_map, 4u, 0.75);
   bdHashMap<bdString,bdJSONValue,bdHashingClass>::clear(&this->m_map);
   bdHashMap<bdString,bdJSONValue,bdHashingClass>::putAll(&this->m_map, &other->m_map);
 }
@@ -172,8 +171,7 @@ bdJSONObject::bdJSONObject
 */
 void bdJSONObject::bdJSONObject(bdJSONObject *this)
 {
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>(&this->m_map, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>(&this->m_map, 4u, 0.75);
 }
 
 /*

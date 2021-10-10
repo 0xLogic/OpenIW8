@@ -106,8 +106,12 @@ RB_FogSpline_ProcessBlend
 void RB_FogSpline_ProcessBlend(ComputeCmdBufState *computeState, const GfxViewInfo *const viewInfo, const GfxBackEndData *data)
 {
   __int64 clientIndex; 
+  GfxFogSplineBlendParameters *v6; 
+  __m256i v7; 
+  GfxFogSplineBlendParameters *v8; 
+  __m256i v9; 
   GfxTexture *Resident; 
-  GfxFogSplineBlendParameters *v25; 
+  GfxFogSplineBlendParameters *v11; 
   GfxTexture *textures; 
   GfxFogSplineBlendParameters outParameters; 
 
@@ -117,37 +121,27 @@ void RB_FogSpline_ProcessBlend(ComputeCmdBufState *computeState, const GfxViewIn
   {
     if ( r_fogSplineForceUpdate->current.enabled || memcmp_0(&s_fogSplines.blendParameters[clientIndex], &outParameters, 0xD0ui64) )
     {
-      _RCX = &s_fogSplines.blendParameters[clientIndex];
-      _RAX = &outParameters;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymm1, ymmword ptr [rax+80h]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rcx+60h], ymm0
-        vmovups ymmword ptr [rcx+80h], ymm1
-        vmovups ymm1, ymmword ptr [rax+0A0h]
-        vmovups ymmword ptr [rcx+0A0h], ymm1
-        vmovups xmm1, xmmword ptr [rax+0C0h]
-        vmovups xmmword ptr [rcx+0C0h], xmm1
-      }
+      v8 = &s_fogSplines.blendParameters[clientIndex];
+      v9 = *(__m256i *)outParameters.csParams.params[7].v;
+      *(__m256i *)&v8->csParams.blendCount = *(__m256i *)&outParameters.csParams.blendCount;
+      *(__m256i *)v8->csParams.params[1].v = *(__m256i *)outParameters.csParams.params[1].v;
+      *(__m256i *)v8->csParams.params[3].v = *(__m256i *)outParameters.csParams.params[3].v;
+      *(__m256i *)v8->csParams.params[5].v = *(__m256i *)outParameters.csParams.params[5].v;
+      *(__m256i *)v8->csParams.params[7].v = v9;
+      *(__m256i *)&v8->textures[2] = *(__m256i *)&outParameters.textures[2];
+      *(_OWORD *)&v8->textures[6] = *(_OWORD *)&outParameters.textures[6];
       R_LockIfGfxImmediateContext(computeState->device);
       R_ProfBeginNamedEvent(computeState, "Fog Spline Blend");
       R_GPU_BeginTimer(GPU_TIMER_FOG_SPLINE_BLEND);
       Resident = (GfxTexture *)R_Texture_GetResident(s_fogSplines.fogSplineBlendImage[viewInfo->clientIndex]->textureId);
       R_HW_AddResourceTransition(computeState, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_HW_FlushResourceTransitions(computeState);
-      v25 = &s_fogSplines.blendParameters[viewInfo->clientIndex];
+      v11 = &s_fogSplines.blendParameters[viewInfo->clientIndex];
       R_SetComputeShader(computeState, rgp.fogSplineBlend);
-      R_SetComputeTextures(computeState, 0, 8, v25->textures);
+      R_SetComputeTextures(computeState, 0, 8, v11->textures);
       textures = Resident;
       R_SetComputeRWTextures(computeState, 0, 1, (const GfxTexture *const *)&textures);
-      R_UploadAndSetComputeConstants(computeState, 0, v25, 0x90u, NULL);
+      R_UploadAndSetComputeConstants(computeState, 0, v11, 0x90u, NULL);
       R_Dispatch(computeState, 2u, 1u, 1u);
       R_HW_AddResourceTransition(computeState, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_HW_FlushResourceTransitions(computeState);
@@ -158,25 +152,15 @@ void RB_FogSpline_ProcessBlend(ComputeCmdBufState *computeState, const GfxViewIn
   }
   else
   {
-    _RCX = &s_fogSplines.blendParameters[clientIndex];
-    _RAX = &outParameters;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-      vmovups ymmword ptr [rcx+0A0h], ymm1
-      vmovups xmm1, xmmword ptr [rax+0C0h]
-      vmovups xmmword ptr [rcx+0C0h], xmm1
-    }
+    v6 = &s_fogSplines.blendParameters[clientIndex];
+    v7 = *(__m256i *)outParameters.csParams.params[7].v;
+    *(__m256i *)&v6->csParams.blendCount = *(__m256i *)&outParameters.csParams.blendCount;
+    *(__m256i *)v6->csParams.params[1].v = *(__m256i *)outParameters.csParams.params[1].v;
+    *(__m256i *)v6->csParams.params[3].v = *(__m256i *)outParameters.csParams.params[3].v;
+    *(__m256i *)v6->csParams.params[5].v = *(__m256i *)outParameters.csParams.params[5].v;
+    *(__m256i *)v6->csParams.params[7].v = v7;
+    *(__m256i *)&v6->textures[2] = *(__m256i *)&outParameters.textures[2];
+    *(_OWORD *)&v6->textures[6] = *(_OWORD *)&outParameters.textures[6];
   }
 }
 
@@ -202,9 +186,12 @@ char R_FogSplineLive_ProcessToken(const char *fogSplineImageValue)
   const GfxTexture *Resident; 
   HRESULT v7; 
   const char *v8; 
+  _OWORD *v9; 
+  unsigned __int8 *v10; 
   __int64 v11; 
+  __int128 v12; 
   unsigned int outlen[2]; 
-  __int64 v21[3]; 
+  __int64 v14[3]; 
   unsigned __int8 out[256]; 
 
   if ( !fogSplineImageValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 353, ASSERT_TYPE_ASSERT, "(fogSplineImageValue)", (const char *)&queryFormat, "fogSplineImageValue") )
@@ -233,41 +220,31 @@ char R_FogSplineLive_ProcessToken(const char *fogSplineImageValue)
     __debugbreak();
   if ( fogSplineLive->width != 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 293, ASSERT_TYPE_ASSERT, "(image->width == 128)", (const char *)&queryFormat, "image->width == R_FOG_SPLINE_WIDTH") )
     __debugbreak();
-  v21[0] = 0i64;
-  v21[1] = 0i64;
+  v14[0] = 0i64;
+  v14[1] = 0i64;
   *(_QWORD *)outlen = 0i64;
-  v7 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, __int64 *, unsigned int *))Resident->basemap->m_pFunction[2].Release)(Resident->basemap, 0i64, v21, outlen);
+  v7 = ((__int64 (__fastcall *)(ID3D12Resource *, _QWORD, __int64 *, unsigned int *))Resident->basemap->m_pFunction[2].Release)(Resident->basemap, 0i64, v14, outlen);
   if ( v7 < 0 )
   {
     v8 = R_ErrorDescription(v7);
     Sys_Error((const ObfuscateErrorText)&stru_143DB8F20, 315i64, v8);
   }
-  _RAX = *(_QWORD *)outlen;
-  _RCX = out;
+  v9 = *(_OWORD **)outlen;
+  v10 = out;
   v11 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rax+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rax+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rax+30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+50h]
-      vmovups xmmword ptr [rax+50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+70h]
-    }
-    _RAX += 128i64;
-    _RCX += 128;
-    __asm { vmovups xmmword ptr [rax-10h], xmm1 }
+    *v9 = *(_OWORD *)v10;
+    v9[1] = *((_OWORD *)v10 + 1);
+    v9[2] = *((_OWORD *)v10 + 2);
+    v9[3] = *((_OWORD *)v10 + 3);
+    v9[4] = *((_OWORD *)v10 + 4);
+    v9[5] = *((_OWORD *)v10 + 5);
+    v9[6] = *((_OWORD *)v10 + 6);
+    v12 = *((_OWORD *)v10 + 7);
+    v9 += 8;
+    v10 += 128;
+    *(v9 - 1) = v12;
     --v11;
   }
   while ( v11 );
@@ -289,8 +266,8 @@ void __fastcall R_FogSpline_CreateResources(double _XMM0_8)
   GfxImage *v4; 
   GfxImage *v5; 
   GfxImage *fogSplineLive; 
-  __m256i v12; 
-  __m256i v13; 
+  __m256i v8; 
+  __m256i v9; 
   Image_SetupParams params; 
 
   v1 = g_R_RT_renderTargetFmts[64];
@@ -302,25 +279,17 @@ void __fastcall R_FogSpline_CreateResources(double _XMM0_8)
     if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 88, ASSERT_TYPE_SANITY, "( s_fogSplines.fogSplineBlendImage[fogSplineIndex] )", (const char *)&queryFormat, "s_fogSplines.fogSplineBlendImage[fogSplineIndex]") )
       __debugbreak();
     v5 = v2->fogSplineBlendImage[0];
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+57h+var_70+8], xmm0
-    }
-    v12.m256i_i32[2] = 1;
-    *(__int64 *)((char *)&v12.m256i_i64[1] + 4) = 1i64;
-    v13.m256i_i64[0] = 0i64;
-    v13.m256i_i32[6] = -1;
-    __asm { vmovups ymm1, [rbp+57h+var_70] }
-    v12.m256i_i64[0] = 0x100000080i64;
-    v12.m256i_i32[5] = 8486914;
-    v12.m256i_i32[6] = v1;
-    __asm
-    {
-      vmovups ymm0, [rbp+57h+var_90]
-      vmovups ymmword ptr [rbp+57h+params.width], ymm0
-      vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v9.m256i_u64[1] = *(_OWORD *)&_XMM0_8;
+    v8.m256i_i32[2] = 1;
+    *(__int64 *)((char *)&v8.m256i_i64[1] + 4) = 1i64;
+    v9.m256i_i64[0] = 0i64;
+    v9.m256i_i32[6] = -1;
+    v8.m256i_i64[0] = 0x100000080i64;
+    v8.m256i_i32[5] = 8486914;
+    v8.m256i_i32[6] = v1;
+    *(__m256i *)&params.width = v8;
+    *(__m256i *)&params.customAllocFunc = v9;
     Image_Setup(v5, &params);
     v2 = (GfxFogSplineInternal *)((char *)v2 + 8);
   }
@@ -332,25 +301,17 @@ void __fastcall R_FogSpline_CreateResources(double _XMM0_8)
       __debugbreak();
     fogSplineLive = s_fogSplines.fogSplineLive;
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_70+8], xmm0
-  }
-  v12.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v12.m256i_i64[1] + 4) = 1i64;
-  v13.m256i_i64[0] = 0i64;
-  v13.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_70] }
-  v12.m256i_i64[0] = 0x100000080i64;
-  v12.m256i_i32[5] = 16879666;
-  v12.m256i_i32[6] = v1;
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_90]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v9.m256i_u64[1] = _XMM0;
+  v8.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v8.m256i_i64[1] + 4) = 1i64;
+  v9.m256i_i64[0] = 0i64;
+  v9.m256i_i32[6] = -1;
+  v8.m256i_i64[0] = 0x100000080i64;
+  v8.m256i_i32[5] = 16879666;
+  v8.m256i_i32[6] = v1;
+  *(__m256i *)&params.width = v8;
+  *(__m256i *)&params.customAllocFunc = v9;
   Image_Setup(fogSplineLive, &params);
 }
 
@@ -385,235 +346,162 @@ R_FogSpline_GetBlendParameters
 */
 void R_FogSpline_GetBlendParameters(const GfxFog *const fog, const unsigned int clientIndex, GfxFogSplineBlendParameters *outParameters)
 {
+  GfxFogSplineBlendParameters *v4; 
   unsigned __int8 fogSplineBlendCount; 
-  unsigned int v17; 
-  unsigned int v18; 
-  int v24; 
-  unsigned __int8 v28; 
-  __int64 v29; 
-  bool v32; 
+  unsigned int v6; 
+  unsigned int v7; 
+  float v8; 
+  __int128 v9; 
+  float *v10; 
+  float *p_fogMaxDistance; 
+  int v12; 
+  unsigned __int8 v13; 
+  __int64 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   GfxTextureId textureId; 
   const GfxTexture *Resident; 
-  bool v44; 
-  unsigned int v56; 
-  __int64 v57; 
-  bool v62; 
-  __int64 v63; 
-  bool v66; 
-  __int64 v70; 
-  __int64 v71; 
-  const GfxTexture **v72; 
+  float v23; 
+  bool v24; 
+  __int128 v25; 
+  float v26; 
+  float *v27; 
+  unsigned int v28; 
+  __int64 v29; 
+  __int64 v30; 
+  float *v31; 
+  float maxDistance; 
+  __int64 v33; 
+  __int64 v34; 
+  const GfxTexture **v35; 
   const GfxTexture **textures; 
-  __int64 v74; 
+  __int64 v37; 
 
-  _R14 = outParameters;
+  v4 = outParameters;
   if ( !fog && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 129, ASSERT_TYPE_ASSERT, "(fog)", (const char *)&queryFormat, "fog") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 130, ASSERT_TYPE_ASSERT, "(outParameters)", (const char *)&queryFormat, "outParameters") )
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 130, ASSERT_TYPE_ASSERT, "(outParameters)", (const char *)&queryFormat, "outParameters") )
     __debugbreak();
   fogSplineBlendCount = fog->fogSplineBlendCount;
   if ( fogSplineBlendCount > 8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 134, ASSERT_TYPE_ASSERT, "( fog->fogSplineBlendCount ) <= ( 8 )", "%s <= %s\n\t%u, %u", "fog->fogSplineBlendCount", "R_FOG_SPLINE_BLEND_MAX", fogSplineBlendCount, 8) )
     __debugbreak();
-  v17 = 8;
+  v6 = 8;
   if ( fog->fogSplineBlendCount < 8u )
-    v17 = fog->fogSplineBlendCount;
-  memset_0(_R14, 0, sizeof(GfxFogSplineBlendParameters));
-  if ( !v17 )
+    v6 = fog->fogSplineBlendCount;
+  memset_0(v4, 0, sizeof(GfxFogSplineBlendParameters));
+  if ( !v6 )
   {
 LABEL_43:
-    if ( v17 >= 8 )
+    if ( v6 >= 8 )
       return;
     goto LABEL_44;
   }
-  if ( v17 != 1 || fog->fogSplineBlendEntry[0].image != s_fogSplines.fogSplineLive )
+  if ( v6 != 1 || fog->fogSplineBlendEntry[0].image != s_fogSplines.fogSplineLive )
   {
-    v18 = 0;
-    __asm
-    {
-      vmovaps [rsp+138h+var_48], xmm6
-      vmovaps [rsp+138h+var_98], xmm11
-      vmovaps [rsp+138h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@3f800000
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm11, xmm11, xmm11
-    }
-    _R12 = &_R14->csParams.params[0].v[2];
-    __asm { vmovaps [rsp+138h+var_58], xmm7 }
-    _RBX = &fog->fogSplineBlendEntry[0].data.fogMaxDistance;
-    __asm
-    {
-      vmovaps [rsp+138h+var_68], xmm8
-      vmovaps [rsp+138h+var_78], xmm9
-    }
-    v24 = 0;
-    __asm
-    {
-      vmovaps [rsp+138h+var_88], xmm10
-      vmovaps [rsp+138h+var_A8], xmm12
-      vmovss  xmm12, cs:__real@3f317218
-      vmovaps [rsp+138h+var_C8], xmm14
-      vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    textures = _R14->textures;
-    __asm
-    {
-      vmovaps [rsp+138h+var_D8], xmm15
-      vmovss  xmm15, cs:__real@3b808081
-    }
-    v74 = v17;
+    v7 = 0;
+    v8 = 0.0;
+    v9 = 0i64;
+    v10 = &v4->csParams.params[0].v[2];
+    p_fogMaxDistance = &fog->fogSplineBlendEntry[0].data.fogMaxDistance;
+    v12 = 0;
+    textures = v4->textures;
+    v37 = v6;
     do
     {
-      v28 = *((_BYTE *)_RBX + 4);
-      v29 = *((_QWORD *)_RBX - 2);
-      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 156, ASSERT_TYPE_ASSERT, "(weightQ > 0)", (const char *)&queryFormat, "weightQ > 0") )
+      v13 = *((_BYTE *)p_fogMaxDistance + 4);
+      v14 = *((_QWORD *)p_fogMaxDistance - 2);
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 156, ASSERT_TYPE_ASSERT, "(weightQ > 0)", (const char *)&queryFormat, "weightQ > 0") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx-4]
-        vxorps  xmm0, xmm0, xmm0
-      }
-      v32 = __CFADD__(v28, v24) || v28 + v24 == 0;
-      v24 += v28;
-      __asm
-      {
-        vcomiss xmm1, xmm6
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm10, xmm0, xmm15
-      }
-      if ( v32 )
-        __asm { vmovaps xmm1, xmm6 }
+      v15 = *(p_fogMaxDistance - 1);
+      v12 += v13;
+      v16 = (float)v13 * 0.0039215689;
+      if ( v15 <= 0.0 )
+        v17 = 0.0;
       else
-        __asm { vdivss  xmm1, xmm12, xmm1 }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vcomiss xmm0, xmm6
-        vmulss  xmm9, xmm0, xmm1
-      }
-      if ( v32 )
-        __asm { vmovaps xmm7, xmm6 }
+        v17 = 0.69314718 / v15;
+      v18 = *p_fogMaxDistance * v17;
+      if ( *p_fogMaxDistance <= 0.0 )
+        v19 = 0.0;
       else
-        __asm { vdivss  xmm7, xmm13, xmm0 }
-      __asm
-      {
-        vmulss  xmm0, xmm7, dword ptr [rbx-8]
-        vxorps  xmm8, xmm0, xmm14
-      }
-      if ( v29 )
-        textureId = *(_DWORD *)(v29 + 16);
+        v19 = 1.0 / *p_fogMaxDistance;
+      LODWORD(v20) = COERCE_UNSIGNED_INT(v19 * *(p_fogMaxDistance - 2)) ^ _xmm;
+      if ( v14 )
+        textureId = *(_DWORD *)(v14 + 16);
       else
         textureId = rgp.zero1DImage->textureId;
       Resident = R_Texture_GetResident(textureId);
-      __asm
-      {
-        vmovss  dword ptr [r12-8], xmm10
-        vmovss  dword ptr [r12-4], xmm9
-        vmovss  dword ptr [r12], xmm7
-      }
+      *(v10 - 2) = v16;
+      *(v10 - 1) = v18;
+      *v10 = v19;
       *textures = Resident;
-      __asm
-      {
-        vmovss  dword ptr [r12+4], xmm8
-        vmulss  xmm0, xmm10, dword ptr [rbx-4]
-      }
-      _RBX += 6;
+      v10[1] = v20;
+      v23 = v16 * *(p_fogMaxDistance - 1);
+      p_fogMaxDistance += 6;
       ++textures;
-      _R12 += 4;
-      v44 = v74-- == 1;
-      __asm { vaddss  xmm11, xmm11, xmm0 }
+      v10 += 4;
+      v24 = v37-- == 1;
+      v25 = v9;
+      *(float *)&v25 = *(float *)&v9 + v23;
+      v9 = v25;
     }
-    while ( !v44 );
-    __asm { vmovaps xmm15, [rsp+138h+var_D8] }
-    v44 = v24 == 255;
-    _RBP = fog;
-    __asm
-    {
-      vmovaps xmm14, [rsp+138h+var_C8]
-      vmovaps xmm12, [rsp+138h+var_A8]
-      vmovaps xmm10, [rsp+138h+var_88]
-      vmovaps xmm9, [rsp+138h+var_78]
-      vmovaps xmm8, [rsp+138h+var_68]
-      vmovaps xmm7, [rsp+138h+var_58]
-    }
-    _R14 = outParameters;
-    if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 172, ASSERT_TYPE_ASSERT, "(sumWeightQ == GFX_FOG_SPLINE_WEIGHT_ONE)", (const char *)&queryFormat, "sumWeightQ == GFX_FOG_SPLINE_WEIGHT_ONE") )
+    while ( !v24 );
+    v4 = outParameters;
+    if ( v12 != 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_fog_spline.cpp", 172, ASSERT_TYPE_ASSERT, "(sumWeightQ == GFX_FOG_SPLINE_WEIGHT_ONE)", (const char *)&queryFormat, "sumWeightQ == GFX_FOG_SPLINE_WEIGHT_ONE") )
       __debugbreak();
-    __asm
+    v26 = *(float *)&v25 * 1.442695;
+    if ( v6 >= 4 )
     {
-      vmulss  xmm2, xmm11, cs:__real@3fb8aa3b
-      vmovaps xmm11, [rsp+138h+var_98]
-    }
-    if ( v17 >= 4 )
-    {
-      _RCX = &outParameters->csParams.params[1].v[1];
-      v56 = ((v17 - 4) >> 2) + 1;
-      v57 = v56;
-      v18 = 4 * v56;
+      v27 = &outParameters->csParams.params[1].v[1];
+      v28 = ((v6 - 4) >> 2) + 1;
+      v29 = v28;
+      v7 = 4 * v28;
       do
       {
-        __asm
-        {
-          vmulss  xmm0, xmm2, dword ptr [rcx-10h]
-          vmovss  dword ptr [rcx-10h], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rcx]
-          vmovss  dword ptr [rcx], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rcx+10h]
-          vmovss  dword ptr [rcx+10h], xmm0
-          vmulss  xmm0, xmm2, dword ptr [rcx+20h]
-          vmovss  dword ptr [rcx+20h], xmm0
-        }
-        _RCX += 16;
-        --v57;
+        *(v27 - 4) = v26 * *(v27 - 4);
+        *v27 = v26 * *v27;
+        v27[4] = v26 * v27[4];
+        v27[8] = v26 * v27[8];
+        v27 += 16;
+        --v29;
       }
-      while ( v57 );
+      while ( v29 );
     }
-    v62 = v18 <= v17;
-    if ( v18 < v17 )
+    if ( v7 < v6 )
     {
-      v63 = v17 - v18;
-      _RCX = &outParameters->csParams.params[v18].v[1];
+      v30 = v6 - v7;
+      v31 = &outParameters->csParams.params[v7].v[1];
       do
       {
-        __asm
-        {
-          vmulss  xmm0, xmm2, dword ptr [rcx]
-          vmovss  dword ptr [rcx], xmm0
-        }
-        _RCX += 4;
-        v66 = v63-- == 0;
-        v62 = v66 || v63 == 0;
+        *v31 = v26 * *v31;
+        v31 += 4;
+        --v30;
       }
-      while ( v63 );
+      while ( v30 );
     }
-    outParameters->csParams.blendCount = v17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+1Ch]
-      vcomiss xmm0, xmm6
-    }
-    if ( !v62 )
-      __asm { vdivss  xmm6, xmm13, xmm0 }
-    __asm
-    {
-      vmovaps xmm13, [rsp+138h+var_B8]
-      vmovss  dword ptr [r14+4], xmm6
-      vmovaps xmm6, [rsp+138h+var_48]
-    }
+    outParameters->csParams.blendCount = v6;
+    maxDistance = fog->maxDistance;
+    if ( maxDistance > 0.0 )
+      v8 = 1.0 / maxDistance;
+    outParameters->csParams.rcpMaxDistance = v8;
     outParameters->csParams.maxDistance = fog->maxDistance;
     outParameters->csParams.startDist = fog->startDist;
     goto LABEL_43;
   }
-  _R14->textures[0] = R_Texture_GetResident(s_fogSplines.fogSplineLive->textureId);
+  v4->textures[0] = R_Texture_GetResident(s_fogSplines.fogSplineLive->textureId);
 LABEL_44:
-  v70 = v17;
-  v71 = 8 - v17;
-  v72 = &_R14->textures[v70];
+  v33 = v6;
+  v34 = 8 - v6;
+  v35 = &v4->textures[v33];
   do
   {
-    *v72++ = R_Texture_GetResident(rgp.zero1DImage->textureId);
-    --v71;
+    *v35++ = R_Texture_GetResident(rgp.zero1DImage->textureId);
+    --v34;
   }
-  while ( v71 );
+  while ( v34 );
 }
 
 /*
@@ -624,6 +512,8 @@ R_FogSpline_Update
 bool R_FogSpline_Update(const GfxViewInfo *viewInfo)
 {
   __int64 clientIndex; 
+  GfxFogSplineBlendParameters *v3; 
+  __int128 v4; 
   bool result; 
   GfxFogSplineBlendParameters outParameters; 
 
@@ -631,57 +521,29 @@ bool R_FogSpline_Update(const GfxViewInfo *viewInfo)
   R_FogSpline_GetBlendParameters(&viewInfo->fog, viewInfo->clientIndex, &outParameters);
   if ( viewInfo->fog.fogSplineBlendCount <= 1u )
   {
-    _RCX = &s_fogSplines.blendParameters[clientIndex];
-    _RAX = &outParameters;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-    }
-    _RAX = &outParameters.csParams.params[7];
-    __asm
-    {
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+0A0h], ymm1
-      vmovups xmm1, xmmword ptr [rax+40h]
-    }
+    v3 = &s_fogSplines.blendParameters[clientIndex];
+    *(__m256i *)&v3->csParams.blendCount = *(__m256i *)&outParameters.csParams.blendCount;
+    *(__m256i *)v3->csParams.params[1].v = *(__m256i *)outParameters.csParams.params[1].v;
+    *(__m256i *)v3->csParams.params[3].v = *(__m256i *)outParameters.csParams.params[3].v;
+    *(__m256i *)v3->csParams.params[5].v = *(__m256i *)outParameters.csParams.params[5].v;
+    *(__m256i *)v3->csParams.params[7].v = *(__m256i *)outParameters.csParams.params[7].v;
+    *(__m256i *)&v3->textures[2] = *(__m256i *)&outParameters.textures[2];
+    v4 = *(_OWORD *)&outParameters.textures[6];
     result = 0;
 LABEL_6:
-    __asm { vmovups xmmword ptr [rcx+0C0h], xmm1 }
+    *(_OWORD *)&v3->textures[6] = v4;
     return result;
   }
   if ( r_fogSplineForceUpdate->current.enabled || (result = memcmp_0(&s_fogSplines.blendParameters[clientIndex], &outParameters, 0xD0ui64) != 0) )
   {
-    _RCX = &s_fogSplines.blendParameters[clientIndex];
-    _RAX = &outParameters;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-    }
-    _RAX = &outParameters.csParams.params[7];
-    __asm
-    {
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+0A0h], ymm1
-      vmovups xmm1, xmmword ptr [rax+40h]
-    }
+    v3 = &s_fogSplines.blendParameters[clientIndex];
+    *(__m256i *)&v3->csParams.blendCount = *(__m256i *)&outParameters.csParams.blendCount;
+    *(__m256i *)v3->csParams.params[1].v = *(__m256i *)outParameters.csParams.params[1].v;
+    *(__m256i *)v3->csParams.params[3].v = *(__m256i *)outParameters.csParams.params[3].v;
+    *(__m256i *)v3->csParams.params[5].v = *(__m256i *)outParameters.csParams.params[5].v;
+    *(__m256i *)v3->csParams.params[7].v = *(__m256i *)outParameters.csParams.params[7].v;
+    *(__m256i *)&v3->textures[2] = *(__m256i *)&outParameters.textures[2];
+    v4 = *(_OWORD *)&outParameters.textures[6];
     result = 1;
     goto LABEL_6;
   }

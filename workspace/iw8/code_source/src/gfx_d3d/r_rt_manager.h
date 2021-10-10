@@ -439,18 +439,13 @@ R_RT_CreateColorForDynSceneResInternal
 */
 R_RT_ColorHandle *R_RT_CreateColorForDynSceneResInternal(R_RT_ColorHandle *result, unsigned int width, unsigned int height, unsigned int allocWidth, unsigned int allocHeight, unsigned int depth, unsigned int arraySliceCount, unsigned int mipLimit, GfxRenderTargetFormat rtFormat, R_RT_Flags rtFlags, R_RT_FlagsInternal rtFlagsInternal, const vec4_t *clearColor, D3D12_RESOURCE_STATES initialState, const char *name, unsigned __int16 frontendPass, const R_RT_Placement *placement, const R_RT_TiledPlacement *tiledPlacement, const char *location)
 {
-  R_RT_Handle v25; 
+  R_RT_Handle v23; 
   R_RT_Handle resulta; 
 
   if ( (rtFlags & 0x3E0080) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 787, ASSERT_TYPE_ASSERT, "(!( rtFlags & ( R_RT_Flag_MaskDepthOnly | R_RT_Flag_MaskBufferOnly ) ))", (const char *)&queryFormat, "!( rtFlags & ( R_RT_Flag_MaskDepthOnly | R_RT_Flag_MaskBufferOnly ) )") )
     __debugbreak();
-  _RAX = R_RT_CreateInternal(&resulta, width, height, allocWidth, allocHeight, depth, arraySliceCount, mipLimit, g_R_RT_renderTargetFmts[(unsigned __int8)rtFormat], rtFlags, rtFlagsInternal, clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+0E8h+var_48], ymm0
-  }
-  R_RT_ColorHandle::Cast(result, &v25);
+  v23 = *R_RT_CreateInternal(&resulta, width, height, allocWidth, allocHeight, depth, arraySliceCount, mipLimit, g_R_RT_renderTargetFmts[(unsigned __int8)rtFormat], rtFlags, rtFlagsInternal, clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
+  R_RT_ColorHandle::Cast(result, &v23);
   return result;
 }
 
@@ -461,18 +456,13 @@ R_RT_CreateColorInternal
 */
 R_RT_ColorHandle *R_RT_CreateColorInternal(R_RT_ColorHandle *result, unsigned int width, unsigned int height, unsigned int depth, unsigned int arraySliceCount, unsigned int mipLimit, GfxRenderTargetFormat rtFormat, R_RT_Flags rtFlags, R_RT_FlagsInternal rtFlagsInternal, const vec4_t *clearColor, D3D12_RESOURCE_STATES initialState, const char *name, unsigned __int16 frontendPass, const R_RT_Placement *placement, const R_RT_TiledPlacement *tiledPlacement, const char *location)
 {
-  R_RT_Handle v23; 
+  R_RT_Handle v21; 
   R_RT_Handle resulta; 
 
   if ( (rtFlags & 0x3E0080) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 767, ASSERT_TYPE_ASSERT, "(!( rtFlags & ( R_RT_Flag_MaskDepthOnly | R_RT_Flag_MaskBufferOnly ) ))", (const char *)&queryFormat, "!( rtFlags & ( R_RT_Flag_MaskDepthOnly | R_RT_Flag_MaskBufferOnly ) )") )
     __debugbreak();
-  _RAX = R_RT_CreateInternal(&resulta, width, height, width, height, depth, arraySliceCount, mipLimit, g_R_RT_renderTargetFmts[(unsigned __int8)rtFormat], rtFlags, rtFlagsInternal, clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+0E8h+var_48], ymm0
-  }
-  R_RT_ColorHandle::Cast(result, &v23);
+  v21 = *R_RT_CreateInternal(&resulta, width, height, width, height, depth, arraySliceCount, mipLimit, g_R_RT_renderTargetFmts[(unsigned __int8)rtFormat], rtFlags, rtFlagsInternal, clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
+  R_RT_ColorHandle::Cast(result, &v21);
   return result;
 }
 
@@ -484,22 +474,16 @@ R_RT_CreateDepthForDynSceneResInternal
 R_RT_DepthHandle *R_RT_CreateDepthForDynSceneResInternal(R_RT_DepthHandle *result, unsigned int width, unsigned int height, unsigned int allocWidth, unsigned int allocHeight, unsigned int arraySliceCount, unsigned int mipLimit, GfxDepthStencilFormat dsformat, R_RT_Flags rtFlags, R_RT_FlagsInternal rtFlagsInternal, float clearDepth, D3D12_RESOURCE_STATES initialState, const char *name, unsigned __int16 frontendPass, const R_RT_Placement *placement, const R_RT_TiledPlacement *tiledPlacement, const char *location)
 {
   GfxPixelFormat format; 
-  R_RT_Handle v26; 
+  R_RT_Handle v23; 
   R_RT_Handle resulta; 
   vec4_t clearColor; 
 
   if ( (rtFlags & 0x3E0001) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 794, ASSERT_TYPE_ASSERT, "(!( rtFlags & ( R_RT_Flag_MaskColorOnly | R_RT_Flag_MaskBufferOnly ) ))", (const char *)&queryFormat, "!( rtFlags & ( R_RT_Flag_MaskColorOnly | R_RT_Flag_MaskBufferOnly ) )") )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+178h+clearDepth] }
   format = g_R_RT_depthStencilFmts[(unsigned __int8)dsformat];
-  __asm { vmovss  dword ptr [rsp+178h+var_68], xmm0 }
-  _RAX = R_RT_CreateInternal(&resulta, width, height, allocWidth, allocHeight, 1u, arraySliceCount, mipLimit, format, rtFlags, (R_RT_FlagsInternal)(rtFlagsInternal | 0x10), &clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+178h+var_A8], ymm0
-  }
-  R_RT_DepthHandle::Cast(result, &v26);
+  clearColor.v[0] = clearDepth;
+  v23 = *R_RT_CreateInternal(&resulta, width, height, allocWidth, allocHeight, 1u, arraySliceCount, mipLimit, format, rtFlags, (R_RT_FlagsInternal)(rtFlagsInternal | 0x10), &clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
+  R_RT_DepthHandle::Cast(result, &v23);
   return result;
 }
 
@@ -511,22 +495,16 @@ R_RT_CreateDepthInternal
 R_RT_DepthHandle *R_RT_CreateDepthInternal(R_RT_DepthHandle *result, unsigned int width, unsigned int height, unsigned int arraySliceCount, unsigned int mipLimit, GfxDepthStencilFormat dsformat, R_RT_Flags rtFlags, R_RT_FlagsInternal rtFlagsInternal, float clearDepth, D3D12_RESOURCE_STATES initialState, const char *name, unsigned __int16 frontendPass, const R_RT_Placement *placement, const R_RT_TiledPlacement *tiledPlacement, const char *location)
 {
   GfxPixelFormat format; 
-  R_RT_Handle v24; 
+  R_RT_Handle v21; 
   R_RT_Handle resulta; 
   vec4_t clearColor; 
 
   if ( (rtFlags & 0x3E0001) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 773, ASSERT_TYPE_ASSERT, "(!( rtFlags & ( R_RT_Flag_MaskColorOnly | R_RT_Flag_MaskBufferOnly ) ))", (const char *)&queryFormat, "!( rtFlags & ( R_RT_Flag_MaskColorOnly | R_RT_Flag_MaskBufferOnly ) )") )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+168h+clearDepth] }
   format = g_R_RT_depthStencilFmts[(unsigned __int8)dsformat];
-  __asm { vmovss  dword ptr [rsp+168h+var_68], xmm0 }
-  _RAX = R_RT_CreateInternal(&resulta, width, height, width, height, 1u, arraySliceCount, mipLimit, format, rtFlags, (R_RT_FlagsInternal)(rtFlagsInternal | 0x10), &clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+168h+var_A8], ymm0
-  }
-  R_RT_DepthHandle::Cast(result, &v24);
+  clearColor.v[0] = clearDepth;
+  v21 = *R_RT_CreateInternal(&resulta, width, height, width, height, 1u, arraySliceCount, mipLimit, format, rtFlags, (R_RT_FlagsInternal)(rtFlagsInternal | 0x10), &clearColor, initialState, name, frontendPass, placement, tiledPlacement, NULL, location);
+  R_RT_DepthHandle::Cast(result, &v21);
   return result;
 }
 
@@ -556,18 +534,15 @@ R_RT_DepthHandle::GetClearDepth
 */
 float R_RT_DepthHandle::GetClearDepth(R_RT_DepthHandle *this)
 {
-  _RAX = R_RT_Handle::GetSurface(this);
-  _RBX = _RAX;
-  if ( (_RAX->m_rtFlagsInternal & 0x10) != 0 )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+8E0h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 400, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+8E0h] }
-  }
-  return *(float *)&_XMM0;
+  const R_RT_Surface *Surface; 
+  const R_RT_Surface *v2; 
+
+  Surface = R_RT_Handle::GetSurface(this);
+  v2 = Surface;
+  if ( (Surface->m_rtFlagsInternal & 0x10) != 0 )
+    return Surface->m_depth.m_clearDepth;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 400, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth") )
+    __debugbreak();
+  return v2->m_depth.m_clearDepth;
 }
 

@@ -209,8 +209,7 @@ double BG_GetSkydiveCurrentThrottle(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1196, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  return MSG_UnpackUnsignedFloat(ps->skydivePlayerState.currentThrottle, *(float *)&_XMM1, 0xAu);
+  return MSG_UnpackUnsignedFloat(ps->skydivePlayerState.currentThrottle, 1.0, 0xAu);
 }
 
 /*
@@ -222,8 +221,7 @@ double BG_GetAdsBlendFractionStart(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1172, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  return MSG_UnpackUnsignedFloat(ps->weapCommon.weaponOffsetAdsBlendFraction, *(float *)&_XMM1, 0x10u);
+  return MSG_UnpackUnsignedFloat(ps->weapCommon.weaponOffsetAdsBlendFraction, 1.0, 0x10u);
 }
 
 /*
@@ -235,8 +233,7 @@ double BG_GetCrouchProneBlendMap(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1188, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  return MSG_UnpackUnsignedFloat(ps->weapCommon.crouchProneBlendMap, *(float *)&_XMM1, 0xCu);
+  return MSG_UnpackUnsignedFloat(ps->weapCommon.crouchProneBlendMap, 1.0, 0xCu);
 }
 
 /*
@@ -248,8 +245,7 @@ double BG_GetHoldBlendFractionStartFast(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1168, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  return MSG_UnpackUnsignedFloat(ps->weapCommon.weaponOffsetHoldBlendFractionFast, *(float *)&_XMM1, 0x10u);
+  return MSG_UnpackUnsignedFloat(ps->weapCommon.weaponOffsetHoldBlendFractionFast, 1.0, 0x10u);
 }
 
 /*
@@ -261,8 +257,7 @@ double BG_GetHoldBlendFractionStartSlow(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1167, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  return MSG_UnpackUnsignedFloat(ps->weapCommon.weaponOffsetHoldBlendFractionSlow, *(float *)&_XMM1, 0x10u);
+  return MSG_UnpackUnsignedFloat(ps->weapCommon.weaponOffsetHoldBlendFractionSlow, 1.0, 0x10u);
 }
 
 /*
@@ -270,23 +265,11 @@ double BG_GetHoldBlendFractionStartSlow(const playerState_s *ps)
 BG_SetAdsBlendFractionStart
 ==============
 */
-
-void __fastcall BG_SetAdsBlendFractionStart(playerState_s *ps, double value)
+void BG_SetAdsBlendFractionStart(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1172, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->weapCommon.weaponOffsetAdsBlendFraction = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
+  ps->weapCommon.weaponOffsetAdsBlendFraction = MSG_PackUnsignedFloat(value, 1.0, 0x10u);
 }
 
 /*
@@ -294,23 +277,11 @@ void __fastcall BG_SetAdsBlendFractionStart(playerState_s *ps, double value)
 BG_SetHoldBlendFractionStartFast
 ==============
 */
-
-void __fastcall BG_SetHoldBlendFractionStartFast(playerState_s *ps, double value)
+void BG_SetHoldBlendFractionStartFast(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1168, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->weapCommon.weaponOffsetHoldBlendFractionFast = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
+  ps->weapCommon.weaponOffsetHoldBlendFractionFast = MSG_PackUnsignedFloat(value, 1.0, 0x10u);
 }
 
 /*
@@ -318,23 +289,11 @@ void __fastcall BG_SetHoldBlendFractionStartFast(playerState_s *ps, double value
 BG_SetHoldBlendFractionStartSlow
 ==============
 */
-
-void __fastcall BG_SetHoldBlendFractionStartSlow(playerState_s *ps, double value)
+void BG_SetHoldBlendFractionStartSlow(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1167, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->weapCommon.weaponOffsetHoldBlendFractionSlow = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
+  ps->weapCommon.weaponOffsetHoldBlendFractionSlow = MSG_PackUnsignedFloat(value, 1.0, 0x10u);
 }
 
 /*
@@ -354,23 +313,11 @@ __int64 UsableKeyEncode(const unsigned int useIndex, const UsableClass useClass,
 BG_SetPreciseMovementDir
 ==============
 */
-
-void __fastcall BG_SetPreciseMovementDir(playerState_s *ps, double value)
+void BG_SetPreciseMovementDir(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1149, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43b40000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->movementDirPrecise = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
+  ps->movementDirPrecise = MSG_PackUnsignedFloat(value, 360.0, 0x10u);
 }
 
 /*
@@ -380,24 +327,18 @@ BG_GetMantleEndPosOffset
 */
 void BG_GetMantleEndPosOffset(const playerState_s *ps, vec3_t *outVec)
 {
-  _RDI = outVec;
+  double v4; 
+  double v5; 
+  double v6; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1247, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@43200000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(ps->mantleState.endPosOffset.v[0], *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43200000; maxAbsValueSize
-    vmovss  dword ptr [rdi], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(ps->mantleState.endPosOffset.v[1], *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43200000; maxAbsValueSize
-    vmovss  dword ptr [rdi+4], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(ps->mantleState.endPosOffset.v[2], *(float *)&_XMM1, 0xFu);
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
+  v4 = MSG_UnpackSignedFloat(ps->mantleState.endPosOffset.v[0], 160.0, 0xFu);
+  outVec->v[0] = *(float *)&v4;
+  v5 = MSG_UnpackSignedFloat(ps->mantleState.endPosOffset.v[1], 160.0, 0xFu);
+  outVec->v[1] = *(float *)&v5;
+  v6 = MSG_UnpackSignedFloat(ps->mantleState.endPosOffset.v[2], 160.0, 0xFu);
+  outVec->v[2] = *(float *)&v6;
 }
 
 /*
@@ -407,24 +348,18 @@ BG_GetMantleLedgePosOffset
 */
 void BG_GetMantleLedgePosOffset(const playerState_s *ps, vec3_t *outVec)
 {
-  _RDI = outVec;
+  double v4; 
+  double v5; 
+  double v6; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1243, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@42dc0000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(ps->mantleState.ledgePosOffset.v[0], *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42dc0000; maxAbsValueSize
-    vmovss  dword ptr [rdi], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(ps->mantleState.ledgePosOffset.v[1], *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42dc0000; maxAbsValueSize
-    vmovss  dword ptr [rdi+4], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(ps->mantleState.ledgePosOffset.v[2], *(float *)&_XMM1, 0xFu);
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
+  v4 = MSG_UnpackSignedFloat(ps->mantleState.ledgePosOffset.v[0], 110.0, 0xFu);
+  outVec->v[0] = *(float *)&v4;
+  v5 = MSG_UnpackSignedFloat(ps->mantleState.ledgePosOffset.v[1], 110.0, 0xFu);
+  outVec->v[1] = *(float *)&v5;
+  v6 = MSG_UnpackSignedFloat(ps->mantleState.ledgePosOffset.v[2], 110.0, 0xFu);
+  outVec->v[2] = *(float *)&v6;
 }
 
 /*
@@ -432,23 +367,11 @@ void BG_GetMantleLedgePosOffset(const playerState_s *ps, vec3_t *outVec)
 BG_SetSpeedScaleMultiplier
 ==============
 */
-
-void __fastcall BG_SetSpeedScaleMultiplier(playerState_s *ps, double value)
+void BG_SetSpeedScaleMultiplier(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1145, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40a00000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->moveSpeedScaleMultiplier = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xCu);
+  ps->moveSpeedScaleMultiplier = MSG_PackUnsignedFloat(value, 5.0, 0xCu);
 }
 
 /*
@@ -456,23 +379,11 @@ void __fastcall BG_SetSpeedScaleMultiplier(playerState_s *ps, double value)
 BG_SetADSVelocity
 ==============
 */
-
-void __fastcall BG_SetADSVelocity(playerState_s *ps, double value)
+void BG_SetADSVelocity(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1192, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41a00000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->weapCommon.fWeaponPosFracChangeFracVel = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u);
+  ps->weapCommon.fWeaponPosFracChangeFracVel = MSG_PackSignedFloat(value, 20.0, 9u);
 }
 
 /*
@@ -480,23 +391,11 @@ void __fastcall BG_SetADSVelocity(playerState_s *ps, double value)
 BG_SetAdsZoomLevelOnStateChange
 ==============
 */
-
-void __fastcall BG_SetAdsZoomLevelOnStateChange(playerState_s *ps, double value)
+void BG_SetAdsZoomLevelOnStateChange(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1184, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40400000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->weapCommon.adsZoomLevelFractionOnStateChange = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 8u);
+  ps->weapCommon.adsZoomLevelFractionOnStateChange = MSG_PackUnsignedFloat(value, 3.0, 8u);
 }
 
 /*
@@ -504,23 +403,11 @@ void __fastcall BG_SetAdsZoomLevelOnStateChange(playerState_s *ps, double value)
 BG_SetLastReloadFraction
 ==============
 */
-
-void __fastcall BG_SetLastReloadFraction(playerState_s *ps, double value)
+void BG_SetLastReloadFraction(playerState_s *ps, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1176, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ps->weapCommon.lastReloadFraction = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 6u);
+  ps->weapCommon.lastReloadFraction = MSG_PackUnsignedFloat(value, 1.0, 6u);
 }
 
 /*

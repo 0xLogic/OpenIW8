@@ -808,37 +808,38 @@ char Qos::Probe(Qos *this, const unsigned __int64 transactionId, const bdArray<b
   char *v11; 
   OnlineTimeSeriesLog *v12; 
   unsigned int v13; 
+  bdQoSRemoteAddr *v14; 
   ntl::internal::list_node<QosDestinationEndpoint> *mp_next; 
-  ntl::internal::list_node<tQosEntry> **v17; 
-  ntl::internal::list_node<tQosEntry> *v18; 
+  ntl::internal::list_node<tQosEntry> **v16; 
+  ntl::internal::list_node<tQosEntry> *v17; 
   bdQoSProbe *QoSProber; 
   unsigned int Int_Internal_DebugName; 
-  tQosEntry v23; 
+  tQosEntry v22; 
   QosDestinationEndpoint __that; 
 
   v9 = this;
-  bdQoSProbeListener::bdQoSProbeListener(&v23);
-  v23.__vftable = (tQosEntry_vtbl *)&tQosEntry::`vftable';
-  v23.m_state = eIDLE;
-  p_m_freelist = &v23.m_addressesToQos.m_freelist;
-  v11 = &v23.m_addressesToQos.m_data.m_buffer[34848];
+  bdQoSProbeListener::bdQoSProbeListener(&v22);
+  v22.__vftable = (tQosEntry_vtbl *)&tQosEntry::`vftable';
+  v22.m_state = eIDLE;
+  p_m_freelist = &v22.m_addressesToQos.m_freelist;
+  v11 = &v22.m_addressesToQos.m_data.m_buffer[34848];
   do
   {
     *(_QWORD *)v11 = p_m_freelist;
     p_m_freelist = (ntl::internal::pool_allocator_freelist<352> *)v11;
     v11 -= 352;
   }
-  while ( v11 + 352 > v23.m_addressesToQos.m_data.m_buffer );
-  v23.m_addressesToQos.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
+  while ( v11 + 352 > v22.m_addressesToQos.m_data.m_buffer );
+  v22.m_addressesToQos.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
   if ( !p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v23.m_addressesToQos.m_listHead.m_sentinel.mp_prev = &v23.m_addressesToQos.m_listHead.m_sentinel;
-  v23.m_addressesToQos.m_listHead.m_sentinel.mp_next = &v23.m_addressesToQos.m_listHead.m_sentinel;
-  *(_QWORD *)&v23.m_countSuccess = 0i64;
-  v23.m_state = eNEW;
-  v23.m_DWQosTransactionId = transactionId;
-  v23.m_callbackData = callbackData;
-  v23.m_callback = callback;
+  v22.m_addressesToQos.m_listHead.m_sentinel.mp_prev = &v22.m_addressesToQos.m_listHead.m_sentinel;
+  v22.m_addressesToQos.m_listHead.m_sentinel.mp_next = &v22.m_addressesToQos.m_listHead.m_sentinel;
+  *(_QWORD *)&v22.m_countSuccess = 0i64;
+  v22.m_state = eNEW;
+  v22.m_DWQosTransactionId = transactionId;
+  v22.m_callbackData = callbackData;
+  v22.m_callback = callback;
   __that.m_addr.m_addr.m_ptr = NULL;
   bdSecurityID::bdSecurityID(&__that.m_addr.m_id);
   bdSecurityKey::bdSecurityKey(&__that.m_addr.m_key);
@@ -850,52 +851,48 @@ char Qos::Probe(Qos *this, const unsigned __int64 transactionId, const bdArray<b
   {
     do
     {
-      _RBX = &qosHosts->m_data[v13];
-      bdReference<bdCommonAddr>::operator=(&__that.m_addr.m_addr, &_RBX->m_addr);
-      __that.m_addr.m_id = _RBX->m_id;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+10h]
-        vmovups xmmword ptr [rbp+8AD0h+__that.m_addr.m_key.ab], xmm0
-      }
+      v14 = &qosHosts->m_data[v13];
+      bdReference<bdCommonAddr>::operator=(&__that.m_addr.m_addr, &v14->m_addr);
+      __that.m_addr.m_id = v14->m_id;
+      __that.m_addr.m_key = v14->m_key;
       __that.m_state = eIDLE;
       __that.m_numQosProbes = numProbes;
-      if ( !v23.m_addressesToQos.m_freelist.m_head.mp_next )
+      if ( !v22.m_addressesToQos.m_freelist.m_head.mp_next )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
           __debugbreak();
-        if ( !v23.m_addressesToQos.m_freelist.m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+        if ( !v22.m_addressesToQos.m_freelist.m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
           __debugbreak();
       }
-      if ( (ntl::internal::pool_allocator_freelist<352> *)v23.m_addressesToQos.m_freelist.m_head.mp_next == &v23.m_addressesToQos.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x160ui64, 0x64ui64) )
+      if ( (ntl::internal::pool_allocator_freelist<352> *)v22.m_addressesToQos.m_freelist.m_head.mp_next == &v22.m_addressesToQos.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x160ui64, 0x64ui64) )
         __debugbreak();
-      mp_next = (ntl::internal::list_node<QosDestinationEndpoint> *)v23.m_addressesToQos.m_freelist.m_head.mp_next;
-      v23.m_addressesToQos.m_freelist.m_head.mp_next = v23.m_addressesToQos.m_freelist.m_head.mp_next->mp_next;
+      mp_next = (ntl::internal::list_node<QosDestinationEndpoint> *)v22.m_addressesToQos.m_freelist.m_head.mp_next;
+      v22.m_addressesToQos.m_freelist.m_head.mp_next = v22.m_addressesToQos.m_freelist.m_head.mp_next->mp_next;
       mp_next->mp_prev = NULL;
       mp_next->mp_next = NULL;
       QosDestinationEndpoint::QosDestinationEndpoint(&mp_next->m_data, &__that);
-      ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint>>::insert_before(&v23.m_addressesToQos.m_listHead, (ntl::internal::list_node<QosDestinationEndpoint> *)&v23.m_addressesToQos.m_listHead, mp_next);
+      ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint>>::insert_before(&v22.m_addressesToQos.m_listHead, (ntl::internal::list_node<QosDestinationEndpoint> *)&v22.m_addressesToQos.m_listHead, mp_next);
       ++v13;
     }
     while ( v13 < qosHosts->m_size );
     v9 = this;
   }
-  v17 = (ntl::internal::list_node<tQosEntry> **)&v9->m_qosEntries.m_freelist;
+  v16 = (ntl::internal::list_node<tQosEntry> **)&v9->m_qosEntries.m_freelist;
   if ( !v9->m_qosEntries.m_freelist.m_head.mp_next )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
       __debugbreak();
-    if ( !*v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+    if ( !*v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
       __debugbreak();
   }
-  if ( *v17 == (ntl::internal::list_node<tQosEntry> *)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x89E0ui64, 0x19ui64) )
+  if ( *v16 == (ntl::internal::list_node<tQosEntry> *)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x89E0ui64, 0x19ui64) )
     __debugbreak();
-  v18 = *v17;
-  *v17 = (ntl::internal::list_node<tQosEntry> *)(*v17)->mp_prev;
-  v18->mp_prev = NULL;
-  v18->mp_next = NULL;
-  tQosEntry::tQosEntry(&v18->m_data, &v23);
-  ntl::internal::list_head_base<ntl::internal::list_node<tQosEntry>>::insert_before(&v9->m_qosEntries.m_listHead, (ntl::internal::list_node<tQosEntry> *)&v9->m_qosEntries.m_listHead, v18);
+  v17 = *v16;
+  *v16 = (ntl::internal::list_node<tQosEntry> *)(*v16)->mp_prev;
+  v17->mp_prev = NULL;
+  v17->mp_next = NULL;
+  tQosEntry::tQosEntry(&v17->m_data, &v22);
+  ntl::internal::list_head_base<ntl::internal::list_node<tQosEntry>>::insert_before(&v9->m_qosEntries.m_listHead, (ntl::internal::list_node<tQosEntry> *)&v9->m_qosEntries.m_listHead, v17);
   Sys_EnterCriticalSection(CRITSECT_DEMONWARE);
   QoSProber = dwGetQoSProber();
   Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_online_qos_max_bandwidth, "online_qos_max_bandwidth");
@@ -915,8 +912,8 @@ char Qos::Probe(Qos *this, const unsigned __int64 transactionId, const bdArray<b
       ((void (__fastcall *)(bdCommonAddr *, __int64))__that.m_addr.m_addr.m_ptr->~bdReferencable)(__that.m_addr.m_addr.m_ptr, 1i64);
     __that.m_addr.m_addr.m_ptr = NULL;
   }
-  ntl::fixed_list<QosDestinationEndpoint,100,0>::~fixed_list<QosDestinationEndpoint,100,0>(&v23.m_addressesToQos);
-  bdQoSProbeListener::~bdQoSProbeListener(&v23);
+  ntl::fixed_list<QosDestinationEndpoint,100,0>::~fixed_list<QosDestinationEndpoint,100,0>(&v22.m_addressesToQos);
+  bdQoSProbeListener::~bdQoSProbeListener(&v22);
   return 1;
 }
 
@@ -1175,7 +1172,6 @@ void tQosEntry::onQoSProbeFail(tQosEntry *this, bdReference<bdCommonAddr> addr, 
   bdCommonAddr *v6; 
   bdQoSProbeInfo info; 
 
-  _RSI = realAddr;
   bdQoSProbeInfo::bdQoSProbeInfo(&info);
   if ( (bdQoSProbeInfo *)addr.m_ptr != &info )
   {
@@ -1186,21 +1182,7 @@ void tQosEntry::onQoSProbeFail(tQosEntry *this, bdReference<bdCommonAddr> addr, 
     if ( v6 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v6->m_refCount, 1u);
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+178h+info.m_realAddr.m_address.inUn], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rsp+178h+info.m_realAddr.m_address.inUn+20h], ymm1
-    vmovups ymm0, ymmword ptr [rsi+40h]
-    vmovups ymmword ptr [rsp+178h+info.m_realAddr.m_address.inUn+40h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+60h]
-    vmovups ymmword ptr [rsp+178h+info.m_realAddr.m_address.inUn+60h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+80h]
-    vmovups xmmword ptr [rsp+178h+info.m_realAddr.m_relayRoute.m_relayID], xmm0
-    vmovsd  xmm1, qword ptr [rsi+90h]
-    vmovsd  qword ptr [rsp+178h+info.m_realAddr.m_type], xmm1
-  }
+  info.m_realAddr = *realAddr;
   tQosEntry::processQoSProbe(this, &info, 0);
   if ( info.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&info.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
   {
@@ -1233,132 +1215,110 @@ tQosEntry::processQoSProbe
 */
 void tQosEntry::processQoSProbe(tQosEntry *this, const bdQoSProbeInfo *info, const bool success)
 {
+  __int128 v3; 
+  __int128 v4; 
+  ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint> > *p_m_listHead; 
-  const char *v23; 
-  __int64 v26; 
-  __int64 v27; 
+  bool v10; 
+  const char *v11; 
+  __int64 v12; 
+  __int64 v13; 
   char str[64]; 
-  void *retaddr; 
+  __int128 v15; 
+  __int128 v16; 
 
-  _R11 = &retaddr;
-  _RBX = this->m_addressesToQos.m_listHead.m_sentinel.mp_next;
+  mp_next = this->m_addressesToQos.m_listHead.m_sentinel.mp_next;
   p_m_listHead = &this->m_addressesToQos.m_listHead;
-  _RSI = info;
-  if ( _RBX != (ntl::internal::list_node_base *)&this->m_addressesToQos.m_listHead )
+  if ( mp_next != (ntl::internal::list_node_base *)&this->m_addressesToQos.m_listHead )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovss  xmm6, cs:__real@447a0000
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovss  xmm7, cs:__real@4f000000
-    }
+    v16 = v3;
+    v15 = v4;
     do
     {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( _RBX[1].mp_next == (ntl::internal::list_node_base *)_RSI->m_addr.m_ptr )
+      if ( mp_next[1].mp_next == (ntl::internal::list_node_base *)info->m_addr.m_ptr )
       {
-        LODWORD(_RBX[21].mp_next) = Sys_Milliseconds();
-        bdReference<bdCommonAddr>::operator=((bdReference<bdCommonAddr> *)&_RBX[3].mp_next, &_RSI->m_addr);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+8]
-          vmovups ymmword ptr [rbx+40h], ymm0
-          vmovups ymm1, ymmword ptr [rsi+28h]
-          vmovups ymmword ptr [rbx+60h], ymm1
-          vmovups ymm0, ymmword ptr [rsi+48h]
-          vmovups ymmword ptr [rbx+80h], ymm0
-          vmovups ymm1, ymmword ptr [rsi+68h]
-          vmovups ymmword ptr [rbx+0A0h], ymm1
-          vmovups xmm0, xmmword ptr [rsi+88h]
-          vmovups xmmword ptr [rbx+0C0h], xmm0
-          vmovsd  xmm1, qword ptr [rsi+98h]
-          vmovsd  qword ptr [rbx+0D0h], xmm1
-        }
-        *(float *)&_RBX[13].mp_next = _RSI->m_latency;
-        _RBX[14].mp_prev = (ntl::internal::list_node_base *)_RSI->m_data;
-        LODWORD(_RBX[14].mp_next) = _RSI->m_dataSize;
-        BYTE4(_RBX[14].mp_next) = _RSI->m_disabled;
-        LODWORD(_RBX[15].mp_prev) = _RSI->m_bandwidthDown;
-        HIDWORD(_RBX[15].mp_prev) = _RSI->m_bandwidthUp;
-        *(float *)&_RBX[15].mp_next = _RSI->m_minLatency;
-        HIDWORD(_RBX[15].mp_next) = _RSI->m_numReplies;
-        *(float *)&_RBX[16].mp_prev = _RSI->m_replies[0];
-        HIDWORD(_RBX[16].mp_prev) = LODWORD(_RSI->m_replies[1]);
-        *(float *)&_RBX[16].mp_next = _RSI->m_replies[2];
-        HIDWORD(_RBX[16].mp_next) = LODWORD(_RSI->m_replies[3]);
-        *(float *)&_RBX[17].mp_prev = _RSI->m_replies[4];
-        HIDWORD(_RBX[17].mp_prev) = LODWORD(_RSI->m_replies[5]);
-        *(float *)&_RBX[17].mp_next = _RSI->m_replies[6];
-        HIDWORD(_RBX[17].mp_next) = LODWORD(_RSI->m_replies[7]);
-        *(float *)&_RBX[18].mp_prev = _RSI->m_replies[8];
-        HIDWORD(_RBX[18].mp_prev) = LODWORD(_RSI->m_replies[9]);
-        *(float *)&_RBX[18].mp_next = _RSI->m_replies[10];
-        HIDWORD(_RBX[18].mp_next) = LODWORD(_RSI->m_replies[11]);
-        *(float *)&_RBX[19].mp_prev = _RSI->m_replies[12];
-        HIDWORD(_RBX[19].mp_prev) = LODWORD(_RSI->m_replies[13]);
-        *(float *)&_RBX[19].mp_next = _RSI->m_replies[14];
-        HIDWORD(_RBX[19].mp_next) = LODWORD(_RSI->m_replies[15]);
-        LODWORD(_RBX[20].mp_prev) = _RSI->m_numProbesReceived;
-        HIDWORD(_RBX[20].mp_prev) = _RSI->m_numProbesExpected;
-        LODWORD(_RBX[20].mp_next) = _RSI->m_numRetries;
-        HIDWORD(_RBX[20].mp_next) = _RSI->m_failureReason;
-        __asm { vucomiss xmm7, dword ptr [rbx+0F8h] }
-        _RBX[15].mp_prev = NULL;
-        LODWORD(_RBX[15].mp_next) = 1065353216;
+        LODWORD(mp_next[21].mp_next) = Sys_Milliseconds();
+        bdReference<bdCommonAddr>::operator=((bdReference<bdCommonAddr> *)&mp_next[3].mp_next, &info->m_addr);
+        *(__m256i *)&mp_next[4].mp_prev = *(__m256i *)&info->m_realAddr.m_address.inUn.m_sockaddrStorage.ss_family;
+        *(__m256i *)&mp_next[6].mp_prev = *((__m256i *)&info->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 1);
+        *(__m256i *)&mp_next[8].mp_prev = *((__m256i *)&info->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 2);
+        *(__m256i *)&mp_next[10].mp_prev = *((__m256i *)&info->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 3);
+        mp_next[12] = (ntl::internal::list_node_base)info->m_realAddr.m_relayRoute;
+        mp_next[13].mp_prev = *(ntl::internal::list_node_base **)&info->m_realAddr.m_type;
+        *(float *)&mp_next[13].mp_next = info->m_latency;
+        mp_next[14].mp_prev = (ntl::internal::list_node_base *)info->m_data;
+        LODWORD(mp_next[14].mp_next) = info->m_dataSize;
+        BYTE4(mp_next[14].mp_next) = info->m_disabled;
+        LODWORD(mp_next[15].mp_prev) = info->m_bandwidthDown;
+        HIDWORD(mp_next[15].mp_prev) = info->m_bandwidthUp;
+        *(float *)&mp_next[15].mp_next = info->m_minLatency;
+        HIDWORD(mp_next[15].mp_next) = info->m_numReplies;
+        *(float *)&mp_next[16].mp_prev = info->m_replies[0];
+        HIDWORD(mp_next[16].mp_prev) = LODWORD(info->m_replies[1]);
+        *(float *)&mp_next[16].mp_next = info->m_replies[2];
+        HIDWORD(mp_next[16].mp_next) = LODWORD(info->m_replies[3]);
+        *(float *)&mp_next[17].mp_prev = info->m_replies[4];
+        HIDWORD(mp_next[17].mp_prev) = LODWORD(info->m_replies[5]);
+        *(float *)&mp_next[17].mp_next = info->m_replies[6];
+        HIDWORD(mp_next[17].mp_next) = LODWORD(info->m_replies[7]);
+        *(float *)&mp_next[18].mp_prev = info->m_replies[8];
+        HIDWORD(mp_next[18].mp_prev) = LODWORD(info->m_replies[9]);
+        *(float *)&mp_next[18].mp_next = info->m_replies[10];
+        HIDWORD(mp_next[18].mp_next) = LODWORD(info->m_replies[11]);
+        *(float *)&mp_next[19].mp_prev = info->m_replies[12];
+        HIDWORD(mp_next[19].mp_prev) = LODWORD(info->m_replies[13]);
+        *(float *)&mp_next[19].mp_next = info->m_replies[14];
+        HIDWORD(mp_next[19].mp_next) = LODWORD(info->m_replies[15]);
+        LODWORD(mp_next[20].mp_prev) = info->m_numProbesReceived;
+        HIDWORD(mp_next[20].mp_prev) = info->m_numProbesExpected;
+        LODWORD(mp_next[20].mp_next) = info->m_numRetries;
+        HIDWORD(mp_next[20].mp_next) = info->m_failureReason;
+        v10 = 2147483600.0 == *(float *)&mp_next[15].mp_next;
+        mp_next[15].mp_prev = NULL;
+        if ( v10 )
+          LODWORD(mp_next[15].mp_next) = 1065353216;
         if ( success )
         {
           ++this->m_countSuccess;
-          LODWORD(_RBX[1].mp_prev) = 2;
-          if ( _RSI->m_dataSize == 2 )
-            goto LABEL_12;
+          LODWORD(mp_next[1].mp_prev) = 2;
+          if ( info->m_dataSize == 2 )
+            goto LABEL_14;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_qos.cpp", 506, ASSERT_TYPE_ASSERT, "(info.m_dataSize == sizeof( PayloadData ))", (const char *)&queryFormat, "info.m_dataSize == sizeof( PayloadData )") )
             __debugbreak();
-          if ( _RSI->m_dataSize == 2 )
-LABEL_12:
-            LOWORD(_RBX[21].mp_prev) = *(_WORD *)_RSI->m_data;
+          if ( info->m_dataSize == 2 )
+LABEL_14:
+            LOWORD(mp_next[21].mp_prev) = *(_WORD *)info->m_data;
         }
         else
         {
           ++this->m_countFailure;
-          LODWORD(_RBX[1].mp_prev) = 3;
+          LODWORD(mp_next[1].mp_prev) = 3;
         }
-        bdAddr::toString(&_RSI->m_realAddr, str, 0x40ui64);
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rsi+0C0h]
-          vmulss  xmm0, xmm6, dword ptr [rsi+0A0h]
-          vcvttss2si ecx, xmm1
-        }
-        LODWORD(v27) = _ECX;
-        __asm { vcvttss2si eax, xmm0 }
-        LODWORD(v26) = _EAX;
-        v23 = "failed";
+        bdAddr::toString(&info->m_realAddr, str, 0x40ui64);
+        v11 = "failed";
         if ( success )
-          v23 = "success";
-        Com_Printf(25, "%s - received %s callback. (%s : avg=%ims : min=%ims)\n", "tQosEntry::processQoSProbe", v23, str, v26, v27);
+          v11 = "success";
+        LODWORD(v12) = (int)(float)(1000.0 * info->m_latency);
+        LODWORD(v13) = (int)(float)(1000.0 * info->m_minLatency);
+        Com_Printf(25, "%s - received %s callback. (%s : avg=%ims : min=%ims)\n", "tQosEntry::processQoSProbe", v11, str, v12, v13);
       }
-      _RBX = _RBX->mp_next;
+      mp_next = mp_next->mp_next;
     }
-    while ( _RBX != (ntl::internal::list_node_base *)p_m_listHead );
-    _RBX = this->m_addressesToQos.m_listHead.m_sentinel.mp_next;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0E8h+var_58]
-      vmovaps xmm6, [rsp+0E8h+var_48]
-    }
+    while ( mp_next != (ntl::internal::list_node_base *)p_m_listHead );
+    mp_next = this->m_addressesToQos.m_listHead.m_sentinel.mp_next;
   }
-  if ( _RBX != (ntl::internal::list_node_base *)p_m_listHead )
+  if ( mp_next != (ntl::internal::list_node_base *)p_m_listHead )
   {
     while ( 1 )
     {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( (unsigned int)(LODWORD(_RBX[1].mp_prev) - 2) > 1 )
+      if ( (unsigned int)(LODWORD(mp_next[1].mp_prev) - 2) > 1 )
         break;
-      _RBX = _RBX->mp_next;
-      if ( _RBX == (ntl::internal::list_node_base *)p_m_listHead )
+      mp_next = mp_next->mp_next;
+      if ( mp_next == (ntl::internal::list_node_base *)p_m_listHead )
       {
         this->m_state = eREMOTE_WAITING_FOR_MMING_TOKEN;
         return;

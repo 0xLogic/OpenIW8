@@ -158,180 +158,170 @@ R_DynamicRingBufferAcquire
 */
 __int64 R_DynamicRingBufferAcquire(DynamicRingBuffer *ringBuffer, int beginIndex, int endIndex)
 {
-  const char *v7; 
+  const char *v6; 
   int beginIndexReady; 
-  unsigned __int8 v9; 
-  int v10; 
+  unsigned __int8 v8; 
+  int v9; 
   __int64 pendingSize; 
   unsigned __int64 (__fastcall *flushFct)(); 
-  unsigned __int64 v22; 
+  unsigned __int64 v15; 
   int pendingFencesSize; 
   int bufSize; 
-  unsigned int v25; 
+  unsigned int v18; 
   bool disableFenceOnAcquire; 
   int endIndexReady; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v32; 
+  int v21; 
+  int v22; 
+  int v23; 
+  int v25; 
   char *fmt; 
-  __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
 
-  _RBX = ringBuffer;
   if ( !ringBuffer->settings.notUsingImmediateContext && !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
     __debugbreak();
   if ( beginIndex < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1190, ASSERT_TYPE_ASSERT, "(beginIndex >= 0)", (const char *)&queryFormat, "beginIndex >= 0") )
     __debugbreak();
   if ( beginIndex >= endIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1191, ASSERT_TYPE_ASSERT, "( beginIndex ) < ( endIndex )", "%s < %s\n\t%i, %i", "beginIndex", "endIndex", beginIndex, endIndex) )
     __debugbreak();
-  if ( (unsigned int)beginIndex >= _RBX->bufSize )
+  if ( (unsigned int)beginIndex >= ringBuffer->bufSize )
   {
-    LODWORD(v35) = _RBX->bufSize;
-    LODWORD(v34) = beginIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1192, ASSERT_TYPE_ASSERT, "(unsigned)( beginIndex ) < (unsigned)( ringBuffer->bufSize )", "beginIndex doesn't index ringBuffer->bufSize\n\t%i not in [0, %i)", v34, v35) )
+    LODWORD(v28) = ringBuffer->bufSize;
+    LODWORD(v27) = beginIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1192, ASSERT_TYPE_ASSERT, "(unsigned)( beginIndex ) < (unsigned)( ringBuffer->bufSize )", "beginIndex doesn't index ringBuffer->bufSize\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
-  if ( endIndex > _RBX->bufSize )
+  if ( endIndex > ringBuffer->bufSize )
   {
-    LODWORD(v37) = _RBX->bufSize;
-    LODWORD(v36) = endIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1193, ASSERT_TYPE_ASSERT, "( endIndex ) <= ( ringBuffer->bufSize )", "%s <= %s\n\t%i, %i", "endIndex", "ringBuffer->bufSize", v36, v37) )
+    LODWORD(v30) = ringBuffer->bufSize;
+    LODWORD(v29) = endIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1193, ASSERT_TYPE_ASSERT, "( endIndex ) <= ( ringBuffer->bufSize )", "%s <= %s\n\t%i, %i", "endIndex", "ringBuffer->bufSize", v29, v30) )
       __debugbreak();
   }
-  if ( _RBX->beginIndexReady >= _RBX->bufSize )
+  if ( ringBuffer->beginIndexReady >= ringBuffer->bufSize )
   {
-    LODWORD(v37) = _RBX->bufSize;
-    LODWORD(v36) = _RBX->beginIndexReady;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1194, ASSERT_TYPE_ASSERT, "( ringBuffer->beginIndexReady ) < ( ringBuffer->bufSize )", "%s < %s\n\t%i, %i", "ringBuffer->beginIndexReady", "ringBuffer->bufSize", v36, v37) )
+    LODWORD(v30) = ringBuffer->bufSize;
+    LODWORD(v29) = ringBuffer->beginIndexReady;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1194, ASSERT_TYPE_ASSERT, "( ringBuffer->beginIndexReady ) < ( ringBuffer->bufSize )", "%s < %s\n\t%i, %i", "ringBuffer->beginIndexReady", "ringBuffer->bufSize", v29, v30) )
       __debugbreak();
   }
-  v7 = "ringBuffer->pendingFencesSize";
-  if ( _RBX->pendingFencesSize > _RBX->bufSize )
+  v6 = "ringBuffer->pendingFencesSize";
+  if ( ringBuffer->pendingFencesSize > ringBuffer->bufSize )
   {
-    LODWORD(v37) = _RBX->bufSize;
-    LODWORD(v36) = _RBX->pendingFencesSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1195, ASSERT_TYPE_ASSERT, "( ringBuffer->pendingFencesSize ) <= ( ringBuffer->bufSize )", "%s <= %s\n\t%i, %i", "ringBuffer->pendingFencesSize", "ringBuffer->bufSize", v36, v37) )
+    LODWORD(v30) = ringBuffer->bufSize;
+    LODWORD(v29) = ringBuffer->pendingFencesSize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1195, ASSERT_TYPE_ASSERT, "( ringBuffer->pendingFencesSize ) <= ( ringBuffer->bufSize )", "%s <= %s\n\t%i, %i", "ringBuffer->pendingFencesSize", "ringBuffer->bufSize", v29, v30) )
       __debugbreak();
   }
-  if ( beginIndex || (beginIndexReady = _RBX->beginIndexReady, beginIndexReady <= 0) )
+  if ( beginIndex || (beginIndexReady = ringBuffer->beginIndexReady, beginIndexReady <= 0) )
   {
+    v8 = 0;
     v9 = 0;
-    v10 = 0;
   }
   else
   {
-    v9 = 1;
-    v10 = _RBX->bufSize - beginIndexReady;
-    _RBX->pendingSize += v10;
-    _RBX->beginIndexReady = 0;
+    v8 = 1;
+    v9 = ringBuffer->bufSize - beginIndexReady;
+    ringBuffer->pendingSize += v9;
+    ringBuffer->beginIndexReady = 0;
   }
-  LODWORD(pendingSize) = _RBX->pendingSize;
-  if ( !_RBX->settings.disableFenceOnAcquire )
+  LODWORD(pendingSize) = ringBuffer->pendingSize;
+  if ( !ringBuffer->settings.disableFenceOnAcquire )
   {
-    if ( !_RBX->settings.notUsingImmediateContext && !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
+    if ( !ringBuffer->settings.notUsingImmediateContext && !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
       __debugbreak();
-    if ( !_RBX->bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1130, ASSERT_TYPE_ASSERT, "(ringBuffer->bufSize)", (const char *)&queryFormat, "ringBuffer->bufSize") )
+    if ( !ringBuffer->bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1130, ASSERT_TYPE_ASSERT, "(ringBuffer->bufSize)", (const char *)&queryFormat, "ringBuffer->bufSize") )
       __debugbreak();
+    _XMM3 = LODWORD(ringBuffer->settings.fractionFlush);
+    pendingSize = (unsigned int)ringBuffer->pendingSize;
     __asm
     {
-      vmovss  xmm3, dword ptr [rbx+820h]
-      vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.ringFractionForFlush; r_globals_t rg
-    }
-    pendingSize = (unsigned int)_RBX->pendingSize;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
       vcmpeqss xmm2, xmm3, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+18h]
       vblendvps xmm4, xmm3, xmm1, xmm2
-      vmulss  xmm0, xmm0, xmm4
-      vcvttss2si eax, xmm0
     }
-    if ( (int)pendingSize >= _EAX || v9 )
+    if ( (int)pendingSize >= (int)(float)((float)ringBuffer->bufSize * *(float *)&_XMM4) || v8 )
     {
-      flushFct = _RBX->settings.flushFct;
+      flushFct = ringBuffer->settings.flushFct;
       if ( flushFct )
       {
-        v22 = ((__int64 (__fastcall *)(__int64, const char *))flushFct)(pendingSize, v7);
+        v15 = ((__int64 (__fastcall *)(__int64, const char *))flushFct)(pendingSize, v6);
       }
       else
       {
-        if ( _RBX->settings.notUsingImmediateContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1139, ASSERT_TYPE_ASSERT, "(!ringBuffer->settings.notUsingImmediateContext)", (const char *)&queryFormat, "!ringBuffer->settings.notUsingImmediateContext") )
+        if ( ringBuffer->settings.notUsingImmediateContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1139, ASSERT_TYPE_ASSERT, "(!ringBuffer->settings.notUsingImmediateContext)", (const char *)&queryFormat, "!ringBuffer->settings.notUsingImmediateContext") )
           __debugbreak();
-        v22 = R_KickImmediateContext(D3D12XBOX_FLUSH_NONE);
+        v15 = R_KickImmediateContext(D3D12XBOX_FLUSH_NONE);
       }
-      R_DynamicRingBufferInsertGivenFence(_RBX, v22);
-      LODWORD(pendingSize) = _RBX->pendingSize;
+      R_DynamicRingBufferInsertGivenFence(ringBuffer, v15);
+      LODWORD(pendingSize) = ringBuffer->pendingSize;
     }
   }
-  pendingFencesSize = _RBX->pendingFencesSize;
-  bufSize = _RBX->bufSize;
-  v25 = endIndex - beginIndex;
+  pendingFencesSize = ringBuffer->pendingFencesSize;
+  bufSize = ringBuffer->bufSize;
+  v18 = endIndex - beginIndex;
   if ( endIndex - beginIndex + pendingFencesSize + (int)pendingSize <= bufSize )
   {
 LABEL_51:
-    endIndexReady = _RBX->endIndexReady;
+    endIndexReady = ringBuffer->endIndexReady;
     goto LABEL_52;
   }
-  while ( _RBX->writePos != _RBX->readPos )
+  while ( ringBuffer->writePos != ringBuffer->readPos )
   {
 LABEL_50:
-    R_DynamicRingBufferWaitFence(_RBX);
-    pendingFencesSize = _RBX->pendingFencesSize;
-    LODWORD(pendingSize) = _RBX->pendingSize;
-    bufSize = _RBX->bufSize;
-    if ( (int)(v25 + pendingSize + pendingFencesSize) <= bufSize )
+    R_DynamicRingBufferWaitFence(ringBuffer);
+    pendingFencesSize = ringBuffer->pendingFencesSize;
+    LODWORD(pendingSize) = ringBuffer->pendingSize;
+    bufSize = ringBuffer->bufSize;
+    if ( (int)(v18 + pendingSize + pendingFencesSize) <= bufSize )
       goto LABEL_51;
   }
-  disableFenceOnAcquire = _RBX->settings.disableFenceOnAcquire;
-  if ( !disableFenceOnAcquire || !v9 || v10 != (_DWORD)pendingSize )
+  disableFenceOnAcquire = ringBuffer->settings.disableFenceOnAcquire;
+  if ( !disableFenceOnAcquire || !v8 || v9 != (_DWORD)pendingSize )
   {
-    LODWORD(v34) = bufSize;
+    LODWORD(v27) = bufSize;
     LODWORD(fmt) = pendingSize;
-    Sys_Error((const ObfuscateErrorText)&stru_14443A510, _RBX->name, disableFenceOnAcquire, v25, fmt, v34);
+    Sys_Error((const ObfuscateErrorText)&stru_14443A510, ringBuffer->name, disableFenceOnAcquire, v18, fmt, v27);
     goto LABEL_50;
   }
   if ( pendingFencesSize )
   {
-    LODWORD(v36) = pendingFencesSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1236, ASSERT_TYPE_ASSERT, "( ringBuffer->pendingFencesSize ) == ( 0 )", "%s == %s\n\t%i, %i", "ringBuffer->pendingFencesSize", "0", v36, 0i64) )
+    LODWORD(v29) = pendingFencesSize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1236, ASSERT_TYPE_ASSERT, "( ringBuffer->pendingFencesSize ) == ( 0 )", "%s == %s\n\t%i, %i", "ringBuffer->pendingFencesSize", "0", v29, 0i64) )
       __debugbreak();
   }
-  v32 = v10 + _RBX->endIndexReady;
-  _RBX->pendingSize = 0;
-  endIndexReady = v32 % _RBX->bufSize;
-  _RBX->endIndexReady = endIndexReady;
+  v25 = v9 + ringBuffer->endIndexReady;
+  ringBuffer->pendingSize = 0;
+  endIndexReady = v25 % ringBuffer->bufSize;
+  ringBuffer->endIndexReady = endIndexReady;
 LABEL_52:
-  if ( endIndex > endIndexReady && _RBX->beginIndexReady < endIndexReady && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1273, ASSERT_TYPE_ASSERT, "(endIndex <= ringBuffer->endIndexReady || ringBuffer->beginIndexReady >= ringBuffer->endIndexReady)", (const char *)&queryFormat, "endIndex <= ringBuffer->endIndexReady || ringBuffer->beginIndexReady >= ringBuffer->endIndexReady") )
+  if ( endIndex > endIndexReady && ringBuffer->beginIndexReady < endIndexReady && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1273, ASSERT_TYPE_ASSERT, "(endIndex <= ringBuffer->endIndexReady || ringBuffer->beginIndexReady >= ringBuffer->endIndexReady)", (const char *)&queryFormat, "endIndex <= ringBuffer->endIndexReady || ringBuffer->beginIndexReady >= ringBuffer->endIndexReady") )
     __debugbreak();
-  if ( v9 )
-    _RBX->beginIndexReady = 0;
-  v28 = _RBX->bufSize;
-  v29 = v25 + _RBX->pendingSize;
-  _RBX->pendingSize = v29;
-  if ( v29 > v28 )
+  if ( v8 )
+    ringBuffer->beginIndexReady = 0;
+  v21 = ringBuffer->bufSize;
+  v22 = v18 + ringBuffer->pendingSize;
+  ringBuffer->pendingSize = v22;
+  if ( v22 > v21 )
   {
-    LODWORD(v37) = v28;
-    LODWORD(v36) = v29;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1281, ASSERT_TYPE_ASSERT, "( ringBuffer->pendingSize ) <= ( ringBuffer->bufSize )", "%s <= %s\n\t%i, %i", "ringBuffer->pendingSize", "ringBuffer->bufSize", v36, v37) )
+    LODWORD(v30) = v21;
+    LODWORD(v29) = v22;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1281, ASSERT_TYPE_ASSERT, "( ringBuffer->pendingSize ) <= ( ringBuffer->bufSize )", "%s <= %s\n\t%i, %i", "ringBuffer->pendingSize", "ringBuffer->bufSize", v29, v30) )
       __debugbreak();
   }
-  v30 = _RBX->bufSize;
-  if ( endIndex == v30 )
+  v23 = ringBuffer->bufSize;
+  if ( endIndex == v23 )
     endIndex = 0;
-  _RBX->beginIndexReady = endIndex;
-  if ( endIndex >= v30 )
+  ringBuffer->beginIndexReady = endIndex;
+  if ( endIndex >= v23 )
   {
-    LODWORD(v37) = v30;
-    LODWORD(v36) = endIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1283, ASSERT_TYPE_ASSERT, "( ringBuffer->beginIndexReady ) < ( ringBuffer->bufSize )", "%s < %s\n\t%i, %i", "ringBuffer->beginIndexReady", "ringBuffer->bufSize", v36, v37) )
+    LODWORD(v30) = v23;
+    LODWORD(v29) = endIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1283, ASSERT_TYPE_ASSERT, "( ringBuffer->beginIndexReady ) < ( ringBuffer->bufSize )", "%s < %s\n\t%i, %i", "ringBuffer->beginIndexReady", "ringBuffer->bufSize", v29, v30) )
       __debugbreak();
   }
-  return v9;
+  return v8;
 }
 
 /*
@@ -342,39 +332,32 @@ R_DynamicRingBufferInsertFence
 void R_DynamicRingBufferInsertFence(DynamicRingBuffer *ringBuffer, bool force)
 {
   __int64 (*flushFct)(void); 
-  unsigned __int64 v15; 
+  unsigned __int64 v8; 
 
-  _RBX = ringBuffer;
   if ( !ringBuffer->settings.notUsingImmediateContext && !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  if ( !_RBX->bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1130, ASSERT_TYPE_ASSERT, "(ringBuffer->bufSize)", (const char *)&queryFormat, "ringBuffer->bufSize") )
+  if ( !ringBuffer->bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1130, ASSERT_TYPE_ASSERT, "(ringBuffer->bufSize)", (const char *)&queryFormat, "ringBuffer->bufSize") )
     __debugbreak();
+  _XMM3 = LODWORD(ringBuffer->settings.fractionFlush);
   __asm
   {
-    vmovss  xmm3, dword ptr [rbx+820h]
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.ringFractionForFlush; r_globals_t rg
-    vxorps  xmm0, xmm0, xmm0
     vcmpeqss xmm2, xmm3, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+18h]
     vblendvps xmm3, xmm3, xmm1, xmm2
-    vmulss  xmm0, xmm0, xmm3
-    vcvttss2si eax, xmm0
   }
-  if ( _RBX->pendingSize >= _EAX || force )
+  if ( ringBuffer->pendingSize >= (int)(float)((float)ringBuffer->bufSize * *(float *)&_XMM3) || force )
   {
-    flushFct = (__int64 (*)(void))_RBX->settings.flushFct;
+    flushFct = (__int64 (*)(void))ringBuffer->settings.flushFct;
     if ( flushFct )
     {
-      v15 = flushFct();
+      v8 = flushFct();
     }
     else
     {
-      if ( _RBX->settings.notUsingImmediateContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1139, ASSERT_TYPE_ASSERT, "(!ringBuffer->settings.notUsingImmediateContext)", (const char *)&queryFormat, "!ringBuffer->settings.notUsingImmediateContext") )
+      if ( ringBuffer->settings.notUsingImmediateContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 1139, ASSERT_TYPE_ASSERT, "(!ringBuffer->settings.notUsingImmediateContext)", (const char *)&queryFormat, "!ringBuffer->settings.notUsingImmediateContext") )
         __debugbreak();
-      v15 = R_KickImmediateContext(D3D12XBOX_FLUSH_NONE);
+      v8 = R_KickImmediateContext(D3D12XBOX_FLUSH_NONE);
     }
-    R_DynamicRingBufferInsertGivenFence(_RBX, v15);
+    R_DynamicRingBufferInsertGivenFence(ringBuffer, v8);
   }
 }
 
@@ -657,14 +640,18 @@ void R_SetCBufferFromCode(GfxCmdBufContext *context, const MaterialShaderArgumen
   int v7; 
   __int64 dest; 
   GfxCmdBufState *state; 
-  __int64 v13; 
-  GfxCmdBufState *v14; 
-  __int64 v18; 
-  GfxCmdBufState *v19; 
-  __int64 v23; 
-  GfxCmdBufState *v24; 
+  GfxConstantBufferDesc *v10; 
+  __int64 v11; 
+  GfxCmdBufState *v12; 
+  GfxConstantBufferDesc *v13; 
+  __int64 v14; 
+  GfxCmdBufState *v15; 
+  GfxConstantBufferDesc *v16; 
+  __int64 v17; 
+  GfxCmdBufState *v18; 
+  GfxConstantBufferDesc *v19; 
   GfxConstantBuffer outBuffer; 
-  char v29[16]; 
+  char v21[16]; 
   unsigned __int64 val; 
 
   CodeBuffer = R_GetCodeBuffer(context->source, arg->index);
@@ -674,83 +661,63 @@ void R_SetCBufferFromCode(GfxCmdBufContext *context, const MaterialShaderArgumen
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 474, ASSERT_TYPE_ASSERT, "( buffer != nullptr )", "R_SetCBufferFromCode: attempted to bind %s but the buffer pointer was null", CodeBufferName) )
       __debugbreak();
   }
-  ((void (__fastcall *)(ID3D12Resource *, char *))CodeBuffer->buffer->m_pFunction[3].AddRef)(CodeBuffer->buffer, v29);
+  ((void (__fastcall *)(ID3D12Resource *, char *))CodeBuffer->buffer->m_pFunction[3].AddRef)(CodeBuffer->buffer, v21);
   v7 = truncate_cast<unsigned int,unsigned __int64>(val);
   R_CreateConstantBufferFromWrappedBuffer(CodeBuffer, v7, &outBuffer);
   if ( (arg->shader & 2) != 0 )
   {
     dest = arg->dest;
     state = context->state;
-    _RDI = &state->constants[0][dest].bufferData;
+    v10 = &state->constants[0][dest];
     if ( !outBuffer.bufferData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 2101, ASSERT_TYPE_ASSERT, "(rhs->bufferData != 0)", (const char *)&queryFormat, "rhs->bufferData != NULL") )
       __debugbreak();
-    if ( *_RDI != outBuffer.bufferData || state->constants[0][dest].bufferSize != outBuffer.bufferSize )
+    if ( v10->bufferData != outBuffer.bufferData || state->constants[0][dest].bufferSize != outBuffer.bufferSize )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+0C8h+outBuffer.baseclass_0.bufferData]
-        vmovups xmmword ptr [rdi], xmm0
-        vmovsd  xmm1, [rsp+0C8h+outBuffer.buffer]
-        vmovsd  qword ptr [rdi+10h], xmm1
-      }
+      *v10 = outBuffer.GfxConstantBufferDesc;
+      state->constants[0][dest].buffer = outBuffer.buffer;
       state->constantsDirty[0] |= 1 << dest;
     }
   }
   if ( (arg->shader & 4) != 0 )
   {
-    v13 = arg->dest;
-    v14 = context->state;
-    _RDI = &v14->constants[2][v13].bufferData;
+    v11 = arg->dest;
+    v12 = context->state;
+    v13 = &v12->constants[2][v11];
     if ( !outBuffer.bufferData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 2101, ASSERT_TYPE_ASSERT, "(rhs->bufferData != 0)", (const char *)&queryFormat, "rhs->bufferData != NULL") )
       __debugbreak();
-    if ( *_RDI != outBuffer.bufferData || v14->constants[2][v13].bufferSize != outBuffer.bufferSize )
+    if ( v13->bufferData != outBuffer.bufferData || v12->constants[2][v11].bufferSize != outBuffer.bufferSize )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+0C8h+outBuffer.baseclass_0.bufferData]
-        vmovups xmmword ptr [rdi], xmm0
-        vmovsd  xmm1, [rsp+0C8h+outBuffer.buffer]
-        vmovsd  qword ptr [rdi+10h], xmm1
-      }
-      v14->constantsDirty[2] |= 1 << v13;
+      *v13 = outBuffer.GfxConstantBufferDesc;
+      v12->constants[2][v11].buffer = outBuffer.buffer;
+      v12->constantsDirty[2] |= 1 << v11;
     }
   }
   if ( (arg->shader & 8) != 0 )
   {
-    v18 = arg->dest;
-    v19 = context->state;
-    _RDI = &v19->constants[3][v18].bufferData;
+    v14 = arg->dest;
+    v15 = context->state;
+    v16 = &v15->constants[3][v14];
     if ( !outBuffer.bufferData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 2101, ASSERT_TYPE_ASSERT, "(rhs->bufferData != 0)", (const char *)&queryFormat, "rhs->bufferData != NULL") )
       __debugbreak();
-    if ( *_RDI != outBuffer.bufferData || v19->constants[3][v18].bufferSize != outBuffer.bufferSize )
+    if ( v16->bufferData != outBuffer.bufferData || v15->constants[3][v14].bufferSize != outBuffer.bufferSize )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+0C8h+outBuffer.baseclass_0.bufferData]
-        vmovups xmmword ptr [rdi], xmm0
-        vmovsd  xmm1, [rsp+0C8h+outBuffer.buffer]
-        vmovsd  qword ptr [rdi+10h], xmm1
-      }
-      v19->constantsDirty[3] |= 1 << v18;
+      *v16 = outBuffer.GfxConstantBufferDesc;
+      v15->constants[3][v14].buffer = outBuffer.buffer;
+      v15->constantsDirty[3] |= 1 << v14;
     }
   }
   if ( (arg->shader & 0x10) != 0 )
   {
-    v23 = arg->dest;
-    v24 = context->state;
-    _RBX = &v24->constants[1][v23].bufferData;
+    v17 = arg->dest;
+    v18 = context->state;
+    v19 = &v18->constants[1][v17];
     if ( !outBuffer.bufferData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 2101, ASSERT_TYPE_ASSERT, "(rhs->bufferData != 0)", (const char *)&queryFormat, "rhs->bufferData != NULL") )
       __debugbreak();
-    if ( *_RBX != outBuffer.bufferData || v24->constants[1][v23].bufferSize != outBuffer.bufferSize )
+    if ( v19->bufferData != outBuffer.bufferData || v18->constants[1][v17].bufferSize != outBuffer.bufferSize )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+0C8h+outBuffer.baseclass_0.bufferData]
-        vmovups xmmword ptr [rbx], xmm0
-        vmovsd  xmm1, [rsp+0C8h+outBuffer.buffer]
-        vmovsd  qword ptr [rbx+10h], xmm1
-      }
-      v24->constantsDirty[1] |= 1 << v23;
+      *v19 = outBuffer.GfxConstantBufferDesc;
+      v18->constants[1][v17].buffer = outBuffer.buffer;
+      v18->constantsDirty[1] |= 1 << v17;
     }
   }
 }
@@ -973,126 +940,108 @@ void R_SetMaterialConstantBuffer(GfxCmdBufState *state, const Material *material
 R_SetPassShaderObjectArguments
 ==============
 */
-bool R_SetPassShaderObjectArguments(GfxCmdBufContext *context, const MaterialShaderArgument *arg, unsigned int argCount, const char *fileAndLine)
+char R_SetPassShaderObjectArguments(GfxCmdBufContext *context, const MaterialShaderArgument *arg, unsigned int argCount, const char *fileAndLine)
 {
   MaterialArgumentType type; 
-  bool v6; 
-  const MaterialShaderArgument *v8; 
+  char v5; 
+  const MaterialShaderArgument *i; 
   unsigned int dest; 
-  __int64 v12; 
+  __int64 v11; 
   unsigned int index; 
   const float *CodeConstant; 
-  size_t v16; 
-  GfxCmdBufState *v18; 
-  GfxCmdBufSourceState *v19; 
+  size_t v15; 
+  GfxCmdBufState *v16; 
+  GfxCmdBufSourceState *v17; 
   unsigned __int8 *p_shader; 
   const GfxImage *CodeImageTexture; 
   GfxImage *blackImage; 
   const char **p_name; 
-  const char *v24; 
-  bool result; 
+  const char *v22; 
   const char *DrawListTypeName; 
-  unsigned __int8 v27; 
-  __int64 v29; 
-  __int64 v30; 
+  unsigned __int8 v25; 
+  __int64 v26; 
+  __int64 v27; 
   GfxCmdBufSourceState *source[2]; 
 
   type = arg->type;
-  v6 = 0;
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  v8 = arg;
-  for ( _RSI = context; type == MTL_ARG_CODE_CONST; ++v8 )
+  v5 = 0;
+  for ( i = arg; type == MTL_ARG_CODE_CONST; ++i )
   {
-    dest = v8->dest;
-    __asm { vmovups xmm6, xmmword ptr [rsi] }
-    if ( v8->index >= 0xA0u )
+    dest = i->dest;
+    _XMM6 = *context;
+    if ( i->index >= 0xA0u )
       dest += 3;
     if ( dest >= 0x20 )
     {
-      LODWORD(v30) = 32;
-      LODWORD(v29) = dest;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 283, ASSERT_TYPE_ASSERT, "(unsigned)( (arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) ) < (unsigned)( ( sizeof( *array_counter( context.state->perObjectConstantState ) ) + 0 ) )", "(arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) doesn't index ARRAY_COUNT( context.state->perObjectConstantState )\n\t%i not in [0, %i)", v29, v30) )
+      LODWORD(v27) = 32;
+      LODWORD(v26) = dest;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 283, ASSERT_TYPE_ASSERT, "(unsigned)( (arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) ) < (unsigned)( ( sizeof( *array_counter( context.state->perObjectConstantState ) ) + 0 ) )", "(arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) doesn't index ARRAY_COUNT( context.state->perObjectConstantState )\n\t%i not in [0, %i)", v26, v27) )
         __debugbreak();
     }
-    v12 = v8->dest;
-    __asm
+    v11 = i->dest;
+    __asm { vpextrq rdi, xmm6, 1 }
+    *(GfxCmdBufContext *)source = _XMM6;
+    if ( R_NeedToSetShaderConstantFromCode((GfxCmdBufContext *)source, i, (GfxShaderConstantState *)(_RDI + 4 * v11 + 6288)) )
     {
-      vpextrq rdi, xmm6, 1
-      vmovdqa xmmword ptr [rsp+88h+source], xmm6
-    }
-    if ( R_NeedToSetShaderConstantFromCode((GfxCmdBufContext *)source, v8, (GfxShaderConstantState *)(_RDI + 4 * v12 + 6288)) )
-    {
-      index = v8->index;
-      __asm { vmovdqa xmmword ptr [rsp+88h+source], xmm6 }
+      index = i->index;
+      *(GfxCmdBufContext *)source = _XMM6;
       CodeConstant = R_GetCodeConstant((GfxCmdBufContext *)source, index);
-      v16 = 16i64;
-      if ( v8->index >= 0xA0u )
-        v16 = 64i64;
-      memcpy_0((void *)(_RDI + 16 * (v8->dest + 271i64)), CodeConstant, v16);
-      v6 = 1;
+      v15 = 16i64;
+      if ( i->index >= 0xA0u )
+        v15 = 64i64;
+      memcpy_0((void *)(_RDI + 16 * (i->dest + 271i64)), CodeConstant, v15);
+      v5 = 1;
     }
     if ( !--argCount )
-      goto LABEL_20;
-    type = v8[1].type;
+      return v5;
+    type = i[1].type;
   }
   if ( type == MTL_ARG_CODE_TEXTURE )
   {
-    __asm
+    *(GfxCmdBufContext *)source = *context;
+    v16 = (GfxCmdBufState *)source[1];
+    v17 = source[0];
+    p_shader = &i->shader;
+    do
     {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rsp+88h+source], xmm0
-    }
-    v18 = (GfxCmdBufState *)source[1];
-    v19 = source[0];
-    p_shader = &v8->shader;
-    while ( 1 )
-    {
-      CodeImageTexture = R_GetCodeImageTexture(v19, *(unsigned __int16 *)(p_shader + 3));
+      CodeImageTexture = R_GetCodeImageTexture(v17, *(unsigned __int16 *)(p_shader + 3));
       blackImage = (GfxImage *)CodeImageTexture;
-      if ( !CodeImageTexture || !R_IsImageViewValid(v18, CodeImageTexture) )
+      if ( !CodeImageTexture || !R_IsImageViewValid(v16, CodeImageTexture) )
       {
         if ( r_bindingValidation->current.enabled )
         {
-          p_name = &v18->material->name;
+          p_name = &v16->material->name;
           if ( p_name )
-            v24 = *p_name;
+            v22 = *p_name;
           else
-            v24 = "<NULL>";
-          DrawListTypeName = R_GetDrawListTypeName(v19->drawListType);
-          R_TextureFromCodeError(*(unsigned __int16 *)(p_shader + 3), v24, DrawListTypeName, 0);
+            v22 = "<NULL>";
+          DrawListTypeName = R_GetDrawListTypeName(v17->drawListType);
+          R_TextureFromCodeError(*(unsigned __int16 *)(p_shader + 3), v22, DrawListTypeName, 0);
         }
         blackImage = rgp.blackImage;
       }
-      v27 = *p_shader;
+      v25 = *p_shader;
       if ( (*p_shader & 2) != 0 )
       {
-        R_SetVertexTextureInternal(v18, *(unsigned __int16 *)(p_shader + 1), blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(352)");
-        v27 = *p_shader;
+        R_SetVertexTextureInternal(v16, *(unsigned __int16 *)(p_shader + 1), blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(352)");
+        v25 = *p_shader;
       }
-      if ( (v27 & 8) != 0 )
+      if ( (v25 & 8) != 0 )
       {
-        R_SetDomainTextureInternal(v18, *(unsigned __int16 *)(p_shader + 1), blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(355)");
-        v27 = *p_shader;
+        R_SetDomainTextureInternal(v16, *(unsigned __int16 *)(p_shader + 1), blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(355)");
+        v25 = *p_shader;
       }
-      if ( (v27 & 0x10) != 0 )
-        R_SetPixelTextureInternal(v18, *(unsigned __int16 *)(p_shader + 1), blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(358)");
+      if ( (v25 & 0x10) != 0 )
+        R_SetPixelTextureInternal(v16, *(unsigned __int16 *)(p_shader + 1), blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(358)");
       if ( !--argCount )
-        break;
+        return v5;
       p_shader += 6;
-      if ( *(p_shader - 1) != 1 )
-        goto LABEL_32;
     }
-LABEL_20:
-    result = v6;
-    goto LABEL_35;
+    while ( *(p_shader - 1) == 1 );
   }
-LABEL_32:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 592, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable") )
     __debugbreak();
-  result = 0;
-LABEL_35:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  return result;
+  return 0;
 }
 
 /*
@@ -1102,116 +1051,113 @@ R_SetPassShaderStableArguments
 */
 bool R_SetPassShaderStableArguments(GfxCmdBufContext *context, const MaterialShaderArgument *arg, unsigned int argCount, const char *fileAndLine)
 {
-  const MaterialShaderArgument *v5; 
+  const MaterialShaderArgument *v4; 
   MaterialArgumentType type; 
-  const char *v7; 
+  const char *v6; 
+  GfxCmdBufContext *v8; 
   unsigned int dest; 
-  __int64 v12; 
-  unsigned int v14; 
+  __int64 v11; 
+  unsigned int v13; 
   const float *CodeConstant; 
-  size_t v16; 
+  size_t v15; 
   bool result; 
-  GfxCmdBufState *v19; 
-  GfxCmdBufSourceState *v20; 
+  GfxCmdBufState *v17; 
+  GfxCmdBufSourceState *v18; 
   const GfxImage *CodeImageTexture; 
   GfxImage *blackImage; 
   const char **p_name; 
-  const char *v24; 
+  const char *v22; 
   const char *DrawListTypeName; 
   unsigned __int8 shader; 
-  GfxCmdBufState *v28; 
-  GfxCmdBufSourceState *v29; 
+  GfxCmdBufState *v25; 
+  GfxCmdBufSourceState *v26; 
   const GfxImage *CodePersistentImageTexture; 
-  GfxImage *v31; 
-  const char **v32; 
-  const char *v33; 
-  const char *v34; 
-  unsigned __int8 v35; 
-  GfxCmdBufState *v37; 
-  GfxCmdBufSourceState *v38; 
+  GfxImage *v28; 
+  const char **v29; 
+  const char *v30; 
+  const char *v31; 
+  unsigned __int8 v32; 
+  GfxCmdBufState *v33; 
+  GfxCmdBufSourceState *v34; 
   GfxWrappedBuffer *CodeBuffer; 
-  const char **v40; 
-  const char *v41; 
-  const char *v42; 
-  unsigned __int8 v43; 
-  GfxCmdBufState *v45; 
-  GfxCmdBufSourceState *v46; 
+  const char **v36; 
+  const char *v37; 
+  const char *v38; 
+  unsigned __int8 v39; 
+  GfxCmdBufState *v40; 
+  GfxCmdBufSourceState *v41; 
   GfxWrappedBuffer *CodePersistentBuffer; 
-  const char **v48; 
-  const char *v49; 
-  const char *v50; 
-  unsigned __int8 v51; 
+  const char **v43; 
+  const char *v44; 
+  const char *v45; 
+  unsigned __int8 v46; 
   MaterialTextureDef *textureTable; 
   unsigned __int16 index; 
   const Material *material; 
-  unsigned __int8 v57; 
+  unsigned __int8 v52; 
   const GfxImage *image; 
-  unsigned int v60; 
-  const GfxImage *v62; 
-  const char **v63; 
-  const char *v64; 
-  const char *v65; 
+  unsigned int v54; 
+  GfxCmdBufSourceState *v55; 
+  const GfxImage *v56; 
+  const char **v57; 
+  const char *v58; 
+  const char *v59; 
   const GfxTexture *Resident; 
-  __int64 v70; 
-  __int64 v71; 
-  __int64 v72; 
-  __int64 v73; 
+  __int64 v61; 
+  __int64 v62; 
+  __int64 v63; 
+  __int64 v64; 
   GfxCmdBufSourceState *source[2]; 
-  bool v77; 
+  bool v67; 
 
-  v5 = arg;
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
+  v4 = arg;
   type = arg->type;
-  v7 = fileAndLine;
-  v77 = 0;
-  _R13 = context;
+  v6 = fileAndLine;
+  v67 = 0;
+  v8 = context;
   if ( type )
   {
 LABEL_14:
     if ( type == MTL_ARG_CODE_TEXTURE )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r13+0]
-        vmovups xmmword ptr [rsp+0A8h+source], xmm0
-      }
-      v19 = (GfxCmdBufState *)source[1];
-      v20 = source[0];
+      *(GfxCmdBufContext *)source = *v8;
+      v17 = (GfxCmdBufState *)source[1];
+      v18 = source[0];
       while ( 1 )
       {
-        CodeImageTexture = R_GetCodeImageTexture(v20, v5->index);
+        CodeImageTexture = R_GetCodeImageTexture(v18, v4->index);
         blackImage = (GfxImage *)CodeImageTexture;
-        if ( !CodeImageTexture || !R_IsImageViewValid(v19, CodeImageTexture) )
+        if ( !CodeImageTexture || !R_IsImageViewValid(v17, CodeImageTexture) )
         {
           if ( r_bindingValidation->current.enabled )
           {
-            p_name = &v19->material->name;
+            p_name = &v17->material->name;
             if ( p_name )
-              v24 = *p_name;
+              v22 = *p_name;
             else
-              v24 = "<NULL>";
-            DrawListTypeName = R_GetDrawListTypeName(v20->drawListType);
-            R_TextureFromCodeError(v5->index, v24, DrawListTypeName, 0);
+              v22 = "<NULL>";
+            DrawListTypeName = R_GetDrawListTypeName(v18->drawListType);
+            R_TextureFromCodeError(v4->index, v22, DrawListTypeName, 0);
           }
           blackImage = rgp.blackImage;
         }
-        shader = v5->shader;
+        shader = v4->shader;
         if ( (shader & 2) != 0 )
         {
-          R_SetVertexTextureInternal(v19, v5->dest, blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(352)");
-          shader = v5->shader;
+          R_SetVertexTextureInternal(v17, v4->dest, blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(352)");
+          shader = v4->shader;
         }
         if ( (shader & 8) != 0 )
         {
-          R_SetDomainTextureInternal(v19, v5->dest, blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(355)");
-          shader = v5->shader;
+          R_SetDomainTextureInternal(v17, v4->dest, blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(355)");
+          shader = v4->shader;
         }
         if ( (shader & 0x10) != 0 )
-          R_SetPixelTextureInternal(v19, v5->dest, blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(358)");
+          R_SetPixelTextureInternal(v17, v4->dest, blackImage, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(358)");
         if ( !--argCount )
           break;
-        type = v5[1].type;
-        ++v5;
+        type = v4[1].type;
+        ++v4;
         if ( type != MTL_ARG_CODE_TEXTURE )
           goto LABEL_32;
       }
@@ -1221,48 +1167,44 @@ LABEL_14:
 LABEL_32:
       if ( type == MTL_ARG_CODE_PERSISTENT_TEXTURE )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r13+0]
-          vmovups xmmword ptr [rsp+0A8h+source], xmm0
-        }
-        v28 = (GfxCmdBufState *)source[1];
-        v29 = source[0];
+        *(GfxCmdBufContext *)source = *v8;
+        v25 = (GfxCmdBufState *)source[1];
+        v26 = source[0];
         while ( 1 )
         {
-          CodePersistentImageTexture = R_GetCodePersistentImageTexture(v29, v5->index);
-          v31 = (GfxImage *)CodePersistentImageTexture;
-          if ( !CodePersistentImageTexture || !R_IsImageViewValid(v28, CodePersistentImageTexture) )
+          CodePersistentImageTexture = R_GetCodePersistentImageTexture(v26, v4->index);
+          v28 = (GfxImage *)CodePersistentImageTexture;
+          if ( !CodePersistentImageTexture || !R_IsImageViewValid(v25, CodePersistentImageTexture) )
           {
             if ( r_bindingValidation->current.enabled )
             {
-              v32 = &v28->material->name;
-              if ( v32 )
-                v33 = *v32;
+              v29 = &v25->material->name;
+              if ( v29 )
+                v30 = *v29;
               else
-                v33 = "<NULL>";
-              v34 = R_GetDrawListTypeName(v29->drawListType);
-              R_TextureFromCodeError(v5->index, v33, v34, 1);
+                v30 = "<NULL>";
+              v31 = R_GetDrawListTypeName(v26->drawListType);
+              R_TextureFromCodeError(v4->index, v30, v31, 1);
             }
-            v31 = rgp.blackImage;
+            v28 = rgp.blackImage;
           }
-          v35 = v5->shader;
-          if ( (v35 & 2) != 0 )
+          v32 = v4->shader;
+          if ( (v32 & 2) != 0 )
           {
-            R_SetVertexTextureInternal(v28, v5->dest, v31, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(352)");
-            v35 = v5->shader;
+            R_SetVertexTextureInternal(v25, v4->dest, v28, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(352)");
+            v32 = v4->shader;
           }
-          if ( (v35 & 8) != 0 )
+          if ( (v32 & 8) != 0 )
           {
-            R_SetDomainTextureInternal(v28, v5->dest, v31, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(355)");
-            v35 = v5->shader;
+            R_SetDomainTextureInternal(v25, v4->dest, v28, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(355)");
+            v32 = v4->shader;
           }
-          if ( (v35 & 0x10) != 0 )
-            R_SetPixelTextureInternal(v28, v5->dest, v31, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(358)");
+          if ( (v32 & 0x10) != 0 )
+            R_SetPixelTextureInternal(v25, v4->dest, v28, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(358)");
           if ( !--argCount )
             break;
-          type = v5[1].type;
-          ++v5;
+          type = v4[1].type;
+          ++v4;
           if ( type != MTL_ARG_CODE_PERSISTENT_TEXTURE )
             goto LABEL_50;
         }
@@ -1272,52 +1214,48 @@ LABEL_32:
 LABEL_50:
         if ( type == MTL_ARG_CODE_BUFFER )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r13+0]
-            vmovups xmmword ptr [rsp+0A8h+source], xmm0
-          }
-          v37 = (GfxCmdBufState *)source[1];
-          v38 = source[0];
+          *(GfxCmdBufContext *)source = *v8;
+          v33 = (GfxCmdBufState *)source[1];
+          v34 = source[0];
           while ( 1 )
           {
-            CodeBuffer = (GfxWrappedBuffer *)R_GetCodeBuffer(v38, v5->index);
+            CodeBuffer = (GfxWrappedBuffer *)R_GetCodeBuffer(v34, v4->index);
             if ( !CodeBuffer )
             {
               if ( r_bindingValidation->current.enabled )
               {
-                v40 = &v37->material->name;
-                if ( v40 )
-                  v41 = *v40;
+                v36 = &v33->material->name;
+                if ( v36 )
+                  v37 = *v36;
                 else
-                  v41 = "<NULL>";
-                v42 = R_GetDrawListTypeName(v38->drawListType);
-                R_BufferFromCodeError(v5->index, v41, v42, 0);
+                  v37 = "<NULL>";
+                v38 = R_GetDrawListTypeName(v34->drawListType);
+                R_BufferFromCodeError(v4->index, v37, v38, 0);
               }
               CodeBuffer = &gfxBuf.dummyBuffer;
             }
-            v43 = v5->shader;
-            if ( (v43 & 2) != 0 )
+            v39 = v4->shader;
+            if ( (v39 & 2) != 0 )
             {
-              R_SetResourceInternal_1(v37, GFX_SHADER_IMAGE_SET_VS, v5->dest, &CodeBuffer->view);
-              v43 = v5->shader;
+              R_SetResourceInternal_1(v33, GFX_SHADER_IMAGE_SET_VS, v4->dest, &CodeBuffer->view);
+              v39 = v4->shader;
             }
-            if ( (v43 & 4) != 0 )
+            if ( (v39 & 4) != 0 )
             {
-              R_SetDescriptorInRange(v37->descState, HS_VIEW_RANGE, v5->dest, CodeBuffer->view.view);
-              v43 = v5->shader;
+              R_SetDescriptorInRange(v33->descState, HS_VIEW_RANGE, v4->dest, CodeBuffer->view.view);
+              v39 = v4->shader;
             }
-            if ( (v43 & 8) != 0 )
+            if ( (v39 & 8) != 0 )
             {
-              R_SetResourceInternal_1(v37, GFX_SHADER_IMAGE_SET_DS, v5->dest, &CodeBuffer->view);
-              v43 = v5->shader;
+              R_SetResourceInternal_1(v33, GFX_SHADER_IMAGE_SET_DS, v4->dest, &CodeBuffer->view);
+              v39 = v4->shader;
             }
-            if ( (v43 & 0x10) != 0 )
-              R_SetResourceInternal_1(v37, GFX_SHADER_IMAGE_SET_PS, v5->dest, &CodeBuffer->view);
+            if ( (v39 & 0x10) != 0 )
+              R_SetResourceInternal_1(v33, GFX_SHADER_IMAGE_SET_PS, v4->dest, &CodeBuffer->view);
             if ( !--argCount )
               break;
-            type = v5[1].type;
-            ++v5;
+            type = v4[1].type;
+            ++v4;
             if ( type != MTL_ARG_CODE_BUFFER )
               goto LABEL_69;
           }
@@ -1327,52 +1265,48 @@ LABEL_50:
 LABEL_69:
           if ( type == MTL_ARG_CODE_PERSISTENT_BUFFER )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r13+0]
-              vmovups xmmword ptr [rsp+0A8h+source], xmm0
-            }
-            v45 = (GfxCmdBufState *)source[1];
-            v46 = source[0];
+            *(GfxCmdBufContext *)source = *v8;
+            v40 = (GfxCmdBufState *)source[1];
+            v41 = source[0];
             while ( 1 )
             {
-              CodePersistentBuffer = (GfxWrappedBuffer *)R_GetCodePersistentBuffer(v46, v5->index);
+              CodePersistentBuffer = (GfxWrappedBuffer *)R_GetCodePersistentBuffer(v41, v4->index);
               if ( !CodePersistentBuffer )
               {
                 if ( r_bindingValidation->current.enabled )
                 {
-                  v48 = &v45->material->name;
-                  if ( v48 )
-                    v49 = *v48;
+                  v43 = &v40->material->name;
+                  if ( v43 )
+                    v44 = *v43;
                   else
-                    v49 = "<NULL>";
-                  v50 = R_GetDrawListTypeName(v46->drawListType);
-                  R_BufferFromCodeError(v5->index, v49, v50, 1);
+                    v44 = "<NULL>";
+                  v45 = R_GetDrawListTypeName(v41->drawListType);
+                  R_BufferFromCodeError(v4->index, v44, v45, 1);
                 }
                 CodePersistentBuffer = &gfxBuf.dummyBuffer;
               }
-              v51 = v5->shader;
-              if ( (v51 & 2) != 0 )
+              v46 = v4->shader;
+              if ( (v46 & 2) != 0 )
               {
-                R_SetResourceInternal_1(v45, GFX_SHADER_IMAGE_SET_VS, v5->dest, &CodePersistentBuffer->view);
-                v51 = v5->shader;
+                R_SetResourceInternal_1(v40, GFX_SHADER_IMAGE_SET_VS, v4->dest, &CodePersistentBuffer->view);
+                v46 = v4->shader;
               }
-              if ( (v51 & 4) != 0 )
+              if ( (v46 & 4) != 0 )
               {
-                R_SetDescriptorInRange(v45->descState, HS_VIEW_RANGE, v5->dest, CodePersistentBuffer->view.view);
-                v51 = v5->shader;
+                R_SetDescriptorInRange(v40->descState, HS_VIEW_RANGE, v4->dest, CodePersistentBuffer->view.view);
+                v46 = v4->shader;
               }
-              if ( (v51 & 8) != 0 )
+              if ( (v46 & 8) != 0 )
               {
-                R_SetResourceInternal_1(v45, GFX_SHADER_IMAGE_SET_DS, v5->dest, &CodePersistentBuffer->view);
-                v51 = v5->shader;
+                R_SetResourceInternal_1(v40, GFX_SHADER_IMAGE_SET_DS, v4->dest, &CodePersistentBuffer->view);
+                v46 = v4->shader;
               }
-              if ( (v51 & 0x10) != 0 )
-                R_SetResourceInternal_1(v45, GFX_SHADER_IMAGE_SET_PS, v5->dest, &CodePersistentBuffer->view);
+              if ( (v46 & 0x10) != 0 )
+                R_SetResourceInternal_1(v40, GFX_SHADER_IMAGE_SET_PS, v4->dest, &CodePersistentBuffer->view);
               if ( !--argCount )
                 break;
-              type = v5[1].type;
-              ++v5;
+              type = v4[1].type;
+              ++v4;
               if ( type != MTL_ARG_CODE_PERSISTENT_BUFFER )
                 goto LABEL_88;
             }
@@ -1380,13 +1314,13 @@ LABEL_69:
           else
           {
 LABEL_88:
-            textureTable = _R13->state->material->textureTable;
+            textureTable = v8->state->material->textureTable;
             if ( type == MTL_ARG_MATERIAL_TEXTURE )
             {
               while ( 1 )
               {
-                __asm { vmovups xmm0, xmmword ptr [r13+0] }
-                index = v5->index;
+                _XMM0 = *v8;
+                index = v4->index;
                 __asm { vpextrq r15, xmm0, 1 }
                 material = _R15->material;
                 if ( textureTable->index != index )
@@ -1395,35 +1329,35 @@ LABEL_88:
                   {
                     if ( ++textureTable == &material->textureTable[material->textureCount] )
                     {
-                      LODWORD(v73) = material->textureCount;
-                      LODWORD(v72) = index;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 526, ASSERT_TYPE_SANITY, "(texDef != &material->textureTable[material->textureCount])", "%s\n\t\"material '%s' is missing a required named texture.  Looking for texDef 0x%08x, with count %d.\"", "texDef != &material->textureTable[material->textureCount]", material->name, v72, v73) )
+                      LODWORD(v64) = material->textureCount;
+                      LODWORD(v63) = index;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 526, ASSERT_TYPE_SANITY, "(texDef != &material->textureTable[material->textureCount])", "%s\n\t\"material '%s' is missing a required named texture.  Looking for texDef 0x%08x, with count %d.\"", "texDef != &material->textureTable[material->textureCount]", material->name, v63, v64) )
                         __debugbreak();
                     }
-                    index = v5->index;
+                    index = v4->index;
                   }
                   while ( textureTable->index != index );
-                  _R13 = context;
-                  v7 = fileAndLine;
+                  v8 = context;
+                  v6 = fileAndLine;
                 }
-                v57 = v5->shader;
+                v52 = v4->shader;
                 image = textureTable->image;
-                if ( (v57 & 2) != 0 )
+                if ( (v52 & 2) != 0 )
                 {
-                  R_SetVertexTextureInternal(_R15, v5->dest, image, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(536)");
-                  v57 = v5->shader;
+                  R_SetVertexTextureInternal(_R15, v4->dest, image, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(536)");
+                  v52 = v4->shader;
                 }
-                if ( (v57 & 8) != 0 )
+                if ( (v52 & 8) != 0 )
                 {
-                  R_SetDomainTextureInternal(_R15, v5->dest, image, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(539)");
-                  v57 = v5->shader;
+                  R_SetDomainTextureInternal(_R15, v4->dest, image, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(539)");
+                  v52 = v4->shader;
                 }
-                if ( (v57 & 0x10) != 0 )
-                  R_SetPixelTextureInternal(_R15, v5->dest, image, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(542)");
+                if ( (v52 & 0x10) != 0 )
+                  R_SetPixelTextureInternal(_R15, v4->dest, image, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp(542)");
                 if ( !--argCount )
                   break;
-                type = v5[1].type;
-                ++v5;
+                type = v4[1].type;
+                ++v4;
                 if ( type != MTL_ARG_MATERIAL_TEXTURE )
                   goto LABEL_103;
               }
@@ -1435,35 +1369,31 @@ LABEL_103:
               {
                 while ( 1 )
                 {
-                  __asm { vmovups xmm0, xmmword ptr [r13+0] }
-                  v60 = v5->index;
-                  __asm
+                  v54 = v4->index;
+                  v55 = v8->source;
+                  *(GfxCmdBufContext *)source = *v8;
+                  v56 = R_GetCodeImageTexture(source[0], v54);
+                  if ( v56 )
                   {
-                    vmovq   rbp, xmm0
-                    vmovups xmmword ptr [rsp+0A8h+source], xmm0
-                  }
-                  v62 = R_GetCodeImageTexture((const GfxCmdBufSourceState *)_RBP, v60);
-                  if ( v62 )
-                  {
-                    if ( (v5->shader & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 425, ASSERT_TYPE_ASSERT, "(arg->shader & (1 << MTL_PIXEL_SHADER))", (const char *)&queryFormat, "arg->shader & (1 << MTL_PIXEL_SHADER)") )
+                    if ( (v4->shader & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 425, ASSERT_TYPE_ASSERT, "(arg->shader & (1 << MTL_PIXEL_SHADER))", (const char *)&queryFormat, "arg->shader & (1 << MTL_PIXEL_SHADER)") )
                       __debugbreak();
-                    Resident = R_Texture_GetResident(v62->textureId);
-                    R_SetDescriptorInRange(*(GfxDescriptorState **)source[1]->input.consts[43].v, PS_RW_VIEW_RANGE, v5->dest, Resident->shaderRWView.rwView);
+                    Resident = R_Texture_GetResident(v56->textureId);
+                    R_SetDescriptorInRange(*(GfxDescriptorState **)source[1]->input.consts[43].v, PS_RW_VIEW_RANGE, v4->dest, Resident->shaderRWView.rwView);
                   }
                   else if ( r_bindingValidation->current.enabled )
                   {
-                    v63 = *(const char ***)source[1]->input.consts[64].v;
-                    if ( v63 )
-                      v64 = *v63;
+                    v57 = *(const char ***)source[1]->input.consts[64].v;
+                    if ( v57 )
+                      v58 = *v57;
                     else
-                      v64 = "<NULL>";
-                    v65 = R_GetDrawListTypeName((GfxDrawListType)*(_DWORD *)(_RBP + 11656));
-                    R_TextureFromCodeError(v5->index, v64, v65, 0);
+                      v58 = "<NULL>";
+                    v59 = R_GetDrawListTypeName(v55->drawListType);
+                    R_TextureFromCodeError(v4->index, v58, v59, 0);
                   }
                   if ( !--argCount )
                     break;
-                  type = v5[1].type;
-                  ++v5;
+                  type = v4[1].type;
+                  ++v4;
                   if ( type != MTL_ARG_CODE_RWTEXTURE )
                     goto LABEL_116;
                 }
@@ -1475,16 +1405,12 @@ LABEL_116:
                 {
                   while ( 1 )
                   {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr [r13+0]
-                      vmovups xmmword ptr [rsp+0A8h+source], xmm0
-                    }
-                    R_SetRWBufferFromCode((GfxCmdBufContext *)source, v5, v7);
+                    *(GfxCmdBufContext *)source = *v8;
+                    R_SetRWBufferFromCode((GfxCmdBufContext *)source, v4, v6);
                     if ( !--argCount )
                       break;
-                    type = v5[1].type;
-                    ++v5;
+                    type = v4[1].type;
+                    ++v4;
                     if ( type != MTL_ARG_CODE_RWBUFFER )
                       goto LABEL_119;
                   }
@@ -1497,21 +1423,16 @@ LABEL_119:
 LABEL_122:
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 695, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable") )
                       __debugbreak();
-                    result = 0;
-                    goto LABEL_125;
+                    return 0;
                   }
                   while ( 1 )
                   {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr [r13+0]
-                      vmovups xmmword ptr [rsp+0A8h+source], xmm0
-                    }
-                    R_SetCBufferFromCode((GfxCmdBufContext *)source, v5, v7);
+                    *(GfxCmdBufContext *)source = *v8;
+                    R_SetCBufferFromCode((GfxCmdBufContext *)source, v4, v6);
                     if ( !--argCount )
                       break;
-                    ++v5;
-                    if ( v5->type != MTL_ARG_CODE_CBUFFER )
+                    ++v4;
+                    if ( v4->type != MTL_ARG_CODE_CBUFFER )
                       goto LABEL_122;
                   }
                 }
@@ -1521,54 +1442,47 @@ LABEL_122:
         }
       }
     }
-    result = v77;
-    goto LABEL_125;
+    return v67;
   }
   while ( 1 )
   {
-    dest = v5->dest;
-    __asm { vmovups xmm6, xmmword ptr [r13+0] }
-    if ( v5->index >= 0xA0u )
+    dest = v4->dest;
+    _XMM6 = *v8;
+    if ( v4->index >= 0xA0u )
       dest += 3;
     if ( dest >= 0x46 )
     {
-      LODWORD(v71) = 70;
-      LODWORD(v70) = dest;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 307, ASSERT_TYPE_ASSERT, "(unsigned)( (arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) ) < (unsigned)( ( sizeof( *array_counter( context.state->stableConstantState ) ) + 0 ) )", "(arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) doesn't index ARRAY_COUNT( context.state->stableConstantState )\n\t%i not in [0, %i)", v70, v71) )
+      LODWORD(v62) = 70;
+      LODWORD(v61) = dest;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 307, ASSERT_TYPE_ASSERT, "(unsigned)( (arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) ) < (unsigned)( ( sizeof( *array_counter( context.state->stableConstantState ) ) + 0 ) )", "(arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) doesn't index ARRAY_COUNT( context.state->stableConstantState )\n\t%i not in [0, %i)", v61, v62) )
         __debugbreak();
     }
-    v12 = v5->dest;
-    __asm
+    v11 = v4->dest;
+    __asm { vpextrq rdi, xmm6, 1 }
+    *(GfxCmdBufContext *)source = _XMM6;
+    if ( R_NeedToSetShaderConstantFromCode((GfxCmdBufContext *)source, v4, (GfxShaderConstantState *)(_RDI + 4 * v11 + 6416)) )
     {
-      vpextrq rdi, xmm6, 1
-      vmovdqa xmmword ptr [rsp+0A8h+source], xmm6
-    }
-    if ( R_NeedToSetShaderConstantFromCode((GfxCmdBufContext *)source, v5, (GfxShaderConstantState *)(_RDI + 4 * v12 + 6416)) )
-    {
-      v14 = v5->index;
-      __asm { vmovdqa xmmword ptr [rsp+0A8h+source], xmm6 }
-      CodeConstant = R_GetCodeConstant((GfxCmdBufContext *)source, v14);
-      v16 = 16i64;
-      if ( v5->index >= 0xA0u )
-        v16 = 64i64;
-      memcpy_0((void *)(_RDI + 16 * (v5->dest + 303i64)), CodeConstant, v16);
+      v13 = v4->index;
+      *(GfxCmdBufContext *)source = _XMM6;
+      CodeConstant = R_GetCodeConstant((GfxCmdBufContext *)source, v13);
+      v15 = 16i64;
+      if ( v4->index >= 0xA0u )
+        v15 = 64i64;
+      memcpy_0((void *)(_RDI + 16 * (v4->dest + 303i64)), CodeConstant, v15);
       result = 1;
-      v77 = 1;
+      v67 = 1;
     }
     else
     {
-      result = v77;
+      result = v67;
     }
     if ( !--argCount )
-      break;
-    type = v5[1].type;
-    ++v5;
+      return result;
+    type = v4[1].type;
+    ++v4;
     if ( type )
       goto LABEL_14;
   }
-LABEL_125:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
-  return result;
 }
 
 /*
@@ -1634,109 +1548,100 @@ char R_SetupPass(GfxCmdBufContext *context)
   GfxCmdBufState *state; 
   const Material *material; 
   const GfxStateBits *p_stateBits; 
-  GfxCmdBufState *v6; 
-  unsigned __int8 v7; 
-  __int64 v8; 
-  GfxCmdBufState *v10; 
+  GfxCmdBufState *v5; 
+  unsigned __int8 v6; 
+  __int64 v7; 
+  GfxCmdBufState *v8; 
   const MaterialTechnique *technique; 
   unsigned __int8 m_colorRtCount; 
   unsigned __int8 colorRtCount; 
-  GfxPixelFormat v14; 
+  GfxPixelFormat v12; 
   GfxPixelFormat format; 
+  int v14; 
+  const MaterialTechnique *v15; 
   int v16; 
-  const MaterialTechnique *v17; 
-  int v18; 
   unsigned __int8 i; 
-  const Material *v20; 
+  const Material *v18; 
   const char *name; 
-  __int64 v22; 
-  __int64 v23; 
-  const char *v24; 
-  const char *v25; 
-  GfxCmdBufContext v27; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  const char *v23; 
+  GfxCmdBufContext v25; 
 
-  _RDI = context;
   Profile_Begin(140);
-  state = _RDI->state;
+  state = context->state;
   material = state->material;
   p_stateBits = &state->technique->stateBits;
-  if ( _RDI->source->viewMode == VIEW_MODE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 2070, ASSERT_TYPE_ASSERT, "(context.source->viewMode != VIEW_MODE_NONE)", (const char *)&queryFormat, "context.source->viewMode != VIEW_MODE_NONE") )
+  if ( context->source->viewMode == VIEW_MODE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 2070, ASSERT_TYPE_ASSERT, "(context.source->viewMode != VIEW_MODE_NONE)", (const char *)&queryFormat, "context.source->viewMode != VIEW_MODE_NONE") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+68h+var_38], xmm0
-  }
-  if ( !R_SetState(&v27, p_stateBits) )
+  v25 = *context;
+  if ( !R_SetState(&v25, p_stateBits) )
     goto LABEL_33;
-  v6 = _RDI->state;
+  v5 = context->state;
   if ( material->constantBufferCount )
   {
     if ( !material->constantBufferIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 902, ASSERT_TYPE_ASSERT, "(material->constantBufferIndex)", (const char *)&queryFormat, "material->constantBufferIndex") )
       __debugbreak();
-    v7 = material->constantBufferIndex[v6->techType];
-    if ( v7 != 0xFF )
+    v6 = material->constantBufferIndex[v5->techType];
+    if ( v6 != 0xFF )
     {
-      if ( v7 >= material->constantBufferCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 907, ASSERT_TYPE_ASSERT, "(constantBufferIndex < material->constantBufferCount)", (const char *)&queryFormat, "constantBufferIndex < material->constantBufferCount") )
+      if ( v6 >= material->constantBufferCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 907, ASSERT_TYPE_ASSERT, "(constantBufferIndex < material->constantBufferCount)", (const char *)&queryFormat, "constantBufferIndex < material->constantBufferCount") )
         __debugbreak();
-      v8 = (__int64)&material->constantBufferTable[v7];
-      if ( *(_DWORD *)v8 )
-        R_VSSetConstantBuffer(v6, 3u, (const GfxConstantBuffer *)(v8 + 48));
-      if ( *(_DWORD *)(v8 + 4) )
-        R_HSSetConstantBuffer(v6, 3u, (const GfxConstantBuffer *)(v8 + 72));
-      if ( *(_DWORD *)(v8 + 8) )
-        R_DSSetConstantBuffer(v6, 3u, (const GfxConstantBuffer *)(v8 + 96));
-      if ( *(_DWORD *)(v8 + 12) )
-        R_PSSetConstantBuffer(v6, 3u, (const GfxConstantBuffer *)(v8 + 120));
+      v7 = (__int64)&material->constantBufferTable[v6];
+      if ( *(_DWORD *)v7 )
+        R_VSSetConstantBuffer(v5, 3u, (const GfxConstantBuffer *)(v7 + 48));
+      if ( *(_DWORD *)(v7 + 4) )
+        R_HSSetConstantBuffer(v5, 3u, (const GfxConstantBuffer *)(v7 + 72));
+      if ( *(_DWORD *)(v7 + 8) )
+        R_DSSetConstantBuffer(v5, 3u, (const GfxConstantBuffer *)(v7 + 96));
+      if ( *(_DWORD *)(v7 + 12) )
+        R_PSSetConstantBuffer(v5, 3u, (const GfxConstantBuffer *)(v7 + 120));
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+68h+var_38], xmm0
-  }
-  R_FlushCustomPixelShaderResources(&v27);
+  v25 = *context;
+  R_FlushCustomPixelShaderResources(&v25);
   if ( r_rtFormatValidation->current.enabled )
   {
-    v10 = v6;
-    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 2015, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+    v8 = v5;
+    if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 2015, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
       __debugbreak();
-    technique = v6->technique;
-    m_colorRtCount = v6->rtGroup.m_colorRtCount;
+    technique = v5->technique;
+    m_colorRtCount = v5->rtGroup.m_colorRtCount;
     colorRtCount = technique->colorRtCount;
     if ( colorRtCount >= m_colorRtCount )
     {
-      v14 = GFX_PF_INVALID;
+      v12 = GFX_PF_INVALID;
       format = GFX_PF_INVALID;
-      v16 = 0;
+      v14 = 0;
       while ( 1 )
       {
-        v17 = v10->technique;
-        v18 = 0;
-        for ( i = 0; i < v10->rtGroup.m_colorRtCount; ++i )
+        v15 = v8->technique;
+        v16 = 0;
+        for ( i = 0; i < v8->rtGroup.m_colorRtCount; ++i )
         {
-          v14 = v17->renderTargetFormats.colorRtFormats[i];
-          format = R_RT_Handle::GetSurface(&v10->rtGroup.m_colorRts[i])->m_image.m_base.format;
-          if ( v14 != format )
+          v12 = v15->renderTargetFormats.colorRtFormats[i];
+          format = R_RT_Handle::GetSurface(&v8->rtGroup.m_colorRts[i])->m_image.m_base.format;
+          if ( v12 != format )
             break;
-          ++v18;
+          ++v16;
         }
-        if ( v18 == v10->rtGroup.m_colorRtCount )
+        if ( v16 == v8->rtGroup.m_colorRtCount )
           goto LABEL_35;
-        if ( ++v16 )
+        if ( ++v14 )
         {
-          v20 = v10->material;
-          name = v10->technique->name;
-          v22 = (__int64)v20->name;
-          v23 = (__int64)v20->techniqueSet->name;
-          v24 = PixelFormat_GetName(format);
-          v25 = PixelFormat_GetName(v14);
-          R_WarnOncePerFrame(R_WARN_MATERIAL_RENDERTARGET_MISMATCH, v25, v24, v22, v23, name);
+          v18 = v8->material;
+          name = v8->technique->name;
+          v20 = v18->name;
+          v21 = v18->techniqueSet->name;
+          v22 = PixelFormat_GetName(format);
+          v23 = PixelFormat_GetName(v12);
+          R_WarnOncePerFrame(R_WARN_MATERIAL_RENDERTARGET_MISMATCH, v23, v22, v20, v21, name);
           goto LABEL_33;
         }
       }
     }
-    R_WarnOncePerFrame(R_WARN_MATERIAL_RENDERTARGET_COUNT_MISMATCH, colorRtCount, m_colorRtCount, v6->material->name, v6->material->techniqueSet->name, technique->name);
+    R_WarnOncePerFrame(R_WARN_MATERIAL_RENDERTARGET_COUNT_MISMATCH, colorRtCount, m_colorRtCount, v5->material->name, v5->material->techniqueSet->name, technique->name);
 LABEL_33:
     Profile_EndInternal(NULL);
     return 0;
@@ -1761,13 +1666,12 @@ void R_SetupPassPerObjectArgsInternal(GfxCmdBufContext *context, const char *fil
   bool v8; 
   __int64 perPrimArgCount; 
   MaterialShaderArgument *args; 
-  unsigned __int16 v12; 
+  unsigned __int16 v11; 
   void *bufferData; 
   unsigned int bufferSize; 
   GfxConstantBufferDesc cbuff; 
   GfxConstantBufferDesc result; 
 
-  _RSI = context;
   state = context->state;
   technique = state->technique;
   perObjArgCount = technique->perObjArgCount;
@@ -1776,29 +1680,19 @@ void R_SetupPassPerObjectArgsInternal(GfxCmdBufContext *context, const char *fil
     perObjArgSize = technique->perObjArgSize;
     v8 = __OFSUB__(state->perObjectConstantBoundSize, perObjArgSize);
     v7 = state->perObjectConstantBoundSize - perObjArgSize < 0;
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
     perPrimArgCount = technique->perPrimArgCount;
     args = technique->args;
-    __asm { vmovups xmmword ptr [rsp+58h+cbuff.bufferData], xmm0 }
-    if ( v7 ^ v8 | R_SetPassShaderObjectArguments((GfxCmdBufContext *)&cbuff, &args[perPrimArgCount], perObjArgCount, fileAndLine) )
+    cbuff = (GfxConstantBufferDesc)*context;
+    if ( v7 ^ v8 | (unsigned __int8)R_SetPassShaderObjectArguments((GfxCmdBufContext *)&cbuff, &args[perPrimArgCount], perObjArgCount, fileAndLine) )
     {
-      v12 = technique->perObjArgSize;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vpextrq rbx, xmm0, 1
-      }
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 768, ASSERT_TYPE_ASSERT, "(argSize != 0)", (const char *)&queryFormat, "argSize != 0") )
+      v11 = technique->perObjArgSize;
+      _XMM0 = *context;
+      __asm { vpextrq rbx, xmm0, 1 }
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 768, ASSERT_TYPE_ASSERT, "(argSize != 0)", (const char *)&queryFormat, "argSize != 0") )
         __debugbreak();
-      *(_DWORD *)(_RBX + 6700) = v12;
-      _RAX = R_AllocateConstantBufferBegin(&result, (CmdBufState *)_RBX, CBUFFER_PER_OBJECT, v12);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovq   rcx, xmm0; void *
-        vmovups xmmword ptr [rsp+58h+cbuff.bufferData], xmm0
-      }
-      memcpy_0(_RCX, (const void *)(_RBX + 4336), v12);
+      *(_DWORD *)(_RBX + 6700) = v11;
+      cbuff = *R_AllocateConstantBufferBegin(&result, (CmdBufState *)_RBX, CBUFFER_PER_OBJECT, v11);
+      memcpy_0(cbuff.bufferData, (const void *)(_RBX + 4336), v11);
       R_AllocateConstantBufferEnd((CmdBufState *)_RBX, &cbuff);
       bufferData = cbuff.bufferData;
       bufferSize = cbuff.bufferSize;
@@ -1825,49 +1719,45 @@ R_SetupPassPerPrimArgsInternal
 */
 void R_SetupPassPerPrimArgsInternal(GfxCmdBufContext *context, const char *fileAndLine)
 {
+  __int128 v2; 
   GfxCmdBufState *state; 
   const MaterialTechnique *technique; 
   unsigned __int8 perPrimArgCount; 
   const MaterialShaderArgument *args; 
-  bool v10; 
-  int v11; 
-  char v12; 
+  bool v9; 
+  int v10; 
+  char v11; 
   unsigned int dest; 
-  __int64 v14; 
+  __int64 v13; 
   unsigned int index; 
   const float *CodeConstant; 
-  size_t v18; 
+  size_t v17; 
   unsigned __int16 perPrimArgSize; 
   void *bufferData; 
   unsigned int bufferSize; 
-  __int64 v28; 
-  __int64 v29; 
+  __int64 v23; 
+  __int64 v24; 
   GfxConstantBufferDesc cbuff; 
   GfxConstantBufferDesc result; 
-  void *retaddr; 
+  __int128 v27; 
 
-  _RAX = &retaddr;
   state = context->state;
-  _R15 = context;
   technique = state->technique;
   perPrimArgCount = technique->perPrimArgCount;
   if ( perPrimArgCount )
   {
     args = technique->args;
-    __asm
-    {
-      vmovaps xmmword ptr [rax-38h], xmm6
-      vmovups xmm6, xmmword ptr [rcx]
-    }
-    v10 = state->perPrimConstantBoundSize < technique->perPrimArgSize;
-    v11 = perPrimArgCount;
-    v12 = 0;
+    v27 = v2;
+    _XMM6 = (GfxConstantBufferDesc)*context;
+    v9 = state->perPrimConstantBoundSize < technique->perPrimArgSize;
+    v10 = perPrimArgCount;
+    v11 = 0;
     if ( args->type )
     {
 LABEL_14:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 564, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable") )
         __debugbreak();
-      v12 = 0;
+      v11 = 0;
     }
     else
     {
@@ -1878,55 +1768,42 @@ LABEL_14:
           dest += 3;
         if ( dest >= 0x50 )
         {
-          LODWORD(v29) = 80;
-          LODWORD(v28) = dest;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 259, ASSERT_TYPE_ASSERT, "(unsigned)( (arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) ) < (unsigned)( ( sizeof( *array_counter( context.state->perPrimConstantState ) ) + 0 ) )", "(arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) doesn't index ARRAY_COUNT( context.state->perPrimConstantState )\n\t%i not in [0, %i)", v28, v29) )
+          LODWORD(v24) = 80;
+          LODWORD(v23) = dest;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 259, ASSERT_TYPE_ASSERT, "(unsigned)( (arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) ) < (unsigned)( ( sizeof( *array_counter( context.state->perPrimConstantState ) ) + 0 ) )", "(arg->index < CONST_SRC_FIRST_CODE_MATRIX) ? arg->dest : (arg->dest + 3) doesn't index ARRAY_COUNT( context.state->perPrimConstantState )\n\t%i not in [0, %i)", v23, v24) )
             __debugbreak();
         }
-        v14 = args->dest;
-        __asm
-        {
-          vpextrq rsi, xmm6, 1
-          vmovdqa xmmword ptr [rsp+98h+cbuff.bufferData], xmm6
-        }
-        if ( R_NeedToSetShaderConstantFromCode((GfxCmdBufContext *)&cbuff, args, (GfxShaderConstantState *)(_RSI + 4 * v14 + 5968)) )
+        v13 = args->dest;
+        __asm { vpextrq rsi, xmm6, 1 }
+        cbuff = _XMM6;
+        if ( R_NeedToSetShaderConstantFromCode((GfxCmdBufContext *)&cbuff, args, (GfxShaderConstantState *)(_RSI + 4 * v13 + 5968)) )
         {
           index = args->index;
-          __asm { vmovdqa xmmword ptr [rsp+98h+cbuff.bufferData], xmm6 }
+          cbuff = _XMM6;
           CodeConstant = R_GetCodeConstant((GfxCmdBufContext *)&cbuff, index);
-          v18 = 16i64;
+          v17 = 16i64;
           if ( args->index >= 0xA0u )
-            v18 = 64i64;
-          memcpy_0((void *)(_RSI + 16 * (args->dest + 191i64)), CodeConstant, v18);
-          v12 = 1;
+            v17 = 64i64;
+          memcpy_0((void *)(_RSI + 16 * (args->dest + 191i64)), CodeConstant, v17);
+          v11 = 1;
         }
-        if ( !--v11 )
+        if ( !--v10 )
           break;
         ++args;
         if ( args->type )
           goto LABEL_14;
       }
     }
-    __asm { vmovaps xmm6, [rsp+98h+var_38] }
-    if ( v10 | (unsigned __int8)v12 )
+    if ( v9 | (unsigned __int8)v11 )
     {
       perPrimArgSize = technique->perPrimArgSize;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vpextrq rbx, xmm0, 1
-      }
+      _XMM0 = *context;
+      __asm { vpextrq rbx, xmm0, 1 }
       if ( !perPrimArgSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 705, ASSERT_TYPE_ASSERT, "(argSize != 0)", (const char *)&queryFormat, "argSize != 0") )
         __debugbreak();
       *(_DWORD *)(_RBX + 6696) = perPrimArgSize;
-      _RAX = R_AllocateConstantBufferBegin(&result, (CmdBufState *)_RBX, CBUFFER_PER_PRIM, perPrimArgSize);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovq   rcx, xmm0; void *
-        vmovups xmmword ptr [rsp+98h+cbuff.bufferData], xmm0
-      }
-      memcpy_0(_RCX, (const void *)(_RBX + 3056), perPrimArgSize);
+      cbuff = *R_AllocateConstantBufferBegin(&result, (CmdBufState *)_RBX, CBUFFER_PER_PRIM, perPrimArgSize);
+      memcpy_0(cbuff.bufferData, (const void *)(_RBX + 3056), perPrimArgSize);
       R_AllocateConstantBufferEnd((CmdBufState *)_RBX, &cbuff);
       bufferData = cbuff.bufferData;
       bufferSize = cbuff.bufferSize;
@@ -1959,15 +1836,14 @@ void R_SetupPassStableArgsInternal(GfxCmdBufContext *context, const char *fileAn
   int stableArgSize; 
   bool v7; 
   bool v8; 
-  unsigned __int64 v10; 
+  unsigned __int64 v9; 
   MaterialShaderArgument *args; 
-  unsigned __int16 v12; 
+  unsigned __int16 v11; 
   void *bufferData; 
   unsigned int bufferSize; 
   GfxConstantBufferDesc cbuff; 
   GfxConstantBufferDesc result; 
 
-  _RSI = context;
   state = context->state;
   technique = state->technique;
   stableArgCount = technique->stableArgCount;
@@ -1976,29 +1852,19 @@ void R_SetupPassStableArgsInternal(GfxCmdBufContext *context, const char *fileAn
     stableArgSize = technique->stableArgSize;
     v8 = __OFSUB__(state->stableConstantBoundSize, stableArgSize);
     v7 = state->stableConstantBoundSize - stableArgSize < 0;
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v10 = technique->perPrimArgCount + (unsigned __int64)technique->perObjArgCount;
+    v9 = technique->perPrimArgCount + (unsigned __int64)technique->perObjArgCount;
     args = technique->args;
-    __asm { vmovups xmmword ptr [rsp+58h+cbuff.bufferData], xmm0 }
-    if ( v7 ^ v8 | R_SetPassShaderStableArguments((GfxCmdBufContext *)&cbuff, &args[v10], stableArgCount, fileAndLine) )
+    cbuff = (GfxConstantBufferDesc)*context;
+    if ( v7 ^ v8 | R_SetPassShaderStableArguments((GfxCmdBufContext *)&cbuff, &args[v9], stableArgCount, fileAndLine) )
     {
-      v12 = technique->stableArgSize;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vpextrq rbx, xmm0, 1
-      }
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 831, ASSERT_TYPE_ASSERT, "(argSize != 0)", (const char *)&queryFormat, "argSize != 0") )
+      v11 = technique->stableArgSize;
+      _XMM0 = *context;
+      __asm { vpextrq rbx, xmm0, 1 }
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_shade.cpp", 831, ASSERT_TYPE_ASSERT, "(argSize != 0)", (const char *)&queryFormat, "argSize != 0") )
         __debugbreak();
-      *(_DWORD *)(_RBX + 6704) = v12;
-      _RAX = R_AllocateConstantBufferBegin(&result, (CmdBufState *)_RBX, CBUFFER_STABLE, v12);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovq   rcx, xmm0; void *
-        vmovups xmmword ptr [rsp+58h+cbuff.bufferData], xmm0
-      }
-      memcpy_0(_RCX, (const void *)(_RBX + 4848), v12);
+      *(_DWORD *)(_RBX + 6704) = v11;
+      cbuff = *R_AllocateConstantBufferBegin(&result, (CmdBufState *)_RBX, CBUFFER_STABLE, v11);
+      memcpy_0(cbuff.bufferData, (const void *)(_RBX + 4848), v11);
       R_AllocateConstantBufferEnd((CmdBufState *)_RBX, &cbuff);
       bufferData = cbuff.bufferData;
       bufferSize = cbuff.bufferSize;
@@ -2025,13 +1891,9 @@ R_SetupPassStateBits
 */
 bool R_SetupPassStateBits(GfxCmdBufContext *context, const GfxStateBits *refStateBits)
 {
-  GfxCmdBufContext v4; 
+  GfxCmdBufContext v3; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  return R_SetState(&v4, refStateBits);
+  v3 = *context;
+  return R_SetState(&v3, refStateBits);
 }
 

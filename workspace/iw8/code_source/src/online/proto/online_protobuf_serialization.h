@@ -173,16 +173,13 @@ ProtoBufSerializer *ProtoBufSerializer::OpenStruct(ProtoBufSerializer *this, Pro
 ProtoBufSerializer::WriteFloat32
 ==============
 */
-
-bool __fastcall ProtoBufSerializer::WriteFloat32(ProtoBufSerializer *this, const unsigned int tag, double value)
+bool ProtoBufSerializer::WriteFloat32(ProtoBufSerializer *this, const unsigned int tag, float value)
 {
   unsigned __int8 *m_currentPtr; 
   unsigned __int8 *m_buffer; 
   unsigned __int8 *v6; 
   bool result; 
-  int v8; 
 
-  __asm { vmovss  [rsp+arg_10], xmm2 }
   m_currentPtr = this->m_currentPtr;
   if ( tag )
   {
@@ -196,7 +193,7 @@ bool __fastcall ProtoBufSerializer::WriteFloat32(ProtoBufSerializer *this, const
         {
           if ( v6 - m_buffer + 4 <= this->m_len_minus_buffer )
           {
-            *(_DWORD *)v6 = v8;
+            *(float *)v6 = value;
             result = 1;
             this->m_currentPtr += 4;
             return result;

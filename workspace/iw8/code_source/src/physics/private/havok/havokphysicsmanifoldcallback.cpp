@@ -124,13 +124,12 @@ HavokPhysics_ManifoldCache_GetFriction
 */
 float HavokPhysics_ManifoldCache_GetFriction(const Physics_ManifoldCache *manifoldCache)
 {
-  int v4; 
+  float result; 
 
   if ( !manifoldCache->m_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsmanifoldcallback.cpp", 190, ASSERT_TYPE_ASSERT, "(manifoldCache.m_cache)", (const char *)&queryFormat, "manifoldCache.m_cache") )
     __debugbreak();
-  v4 = *((__int16 *)manifoldCache->m_cache + 26) << 16;
-  __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  return *(float *)&_XMM0;
+  LODWORD(result) = *((__int16 *)manifoldCache->m_cache + 26) << 16;
+  return result;
 }
 
 /*
@@ -140,13 +139,12 @@ HavokPhysics_ManifoldCache_GetRestitution
 */
 float HavokPhysics_ManifoldCache_GetRestitution(const Physics_ManifoldCache *manifoldCache)
 {
-  int v4; 
+  float result; 
 
   if ( !manifoldCache->m_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsmanifoldcallback.cpp", 222, ASSERT_TYPE_ASSERT, "(manifoldCache.m_cache)", (const char *)&queryFormat, "manifoldCache.m_cache") )
     __debugbreak();
-  v4 = *((__int16 *)manifoldCache->m_cache + 28) << 16;
-  __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  return *(float *)&_XMM0;
+  LODWORD(result) = *((__int16 *)manifoldCache->m_cache + 28) << 16;
+  return result;
 }
 
 /*
@@ -156,13 +154,12 @@ HavokPhysics_ManifoldCache_GetStaticFrictionExtra
 */
 float HavokPhysics_ManifoldCache_GetStaticFrictionExtra(const Physics_ManifoldCache *manifoldCache)
 {
-  int v4; 
+  float result; 
 
   if ( !manifoldCache->m_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsmanifoldcallback.cpp", 206, ASSERT_TYPE_ASSERT, "(manifoldCache.m_cache)", (const char *)&queryFormat, "manifoldCache.m_cache") )
     __debugbreak();
-  v4 = *((__int16 *)manifoldCache->m_cache + 27) << 16;
-  __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  return *(float *)&_XMM0;
+  LODWORD(result) = *((__int16 *)manifoldCache->m_cache + 27) << 16;
+  return result;
 }
 
 /*
@@ -170,25 +167,14 @@ float HavokPhysics_ManifoldCache_GetStaticFrictionExtra(const Physics_ManifoldCa
 HavokPhysics_ManifoldCache_SetFriction
 ==============
 */
-
-void __fastcall HavokPhysics_ManifoldCache_SetFriction(Physics_ManifoldCache *manifoldCache, double friction)
+void HavokPhysics_ManifoldCache_SetFriction(Physics_ManifoldCache *manifoldCache, const float friction)
 {
-  int v8; 
+  float v3; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !manifoldCache->m_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsmanifoldcallback.cpp", 198, ASSERT_TYPE_ASSERT, "(manifoldCache.m_cache)", (const char *)&queryFormat, "manifoldCache.m_cache") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3f808000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  [rsp+48h+arg_8], xmm0
-  }
-  *((_WORD *)manifoldCache->m_cache + 26) = HIWORD(v8);
+  v3 = friction * 1.0039062;
+  *((_WORD *)manifoldCache->m_cache + 26) = HIWORD(v3);
 }
 
 /*
@@ -196,25 +182,14 @@ void __fastcall HavokPhysics_ManifoldCache_SetFriction(Physics_ManifoldCache *ma
 HavokPhysics_ManifoldCache_SetRestitution
 ==============
 */
-
-void __fastcall HavokPhysics_ManifoldCache_SetRestitution(Physics_ManifoldCache *manifoldCache, double restitution)
+void HavokPhysics_ManifoldCache_SetRestitution(Physics_ManifoldCache *manifoldCache, const float restitution)
 {
-  int v8; 
+  float v3; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !manifoldCache->m_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsmanifoldcallback.cpp", 230, ASSERT_TYPE_ASSERT, "(manifoldCache.m_cache)", (const char *)&queryFormat, "manifoldCache.m_cache") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3f808000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  [rsp+48h+arg_8], xmm0
-  }
-  *((_WORD *)manifoldCache->m_cache + 28) = HIWORD(v8);
+  v3 = restitution * 1.0039062;
+  *((_WORD *)manifoldCache->m_cache + 28) = HIWORD(v3);
 }
 
 /*
@@ -222,25 +197,14 @@ void __fastcall HavokPhysics_ManifoldCache_SetRestitution(Physics_ManifoldCache 
 HavokPhysics_ManifoldCache_SetStaticFrictionExtra
 ==============
 */
-
-void __fastcall HavokPhysics_ManifoldCache_SetStaticFrictionExtra(Physics_ManifoldCache *manifoldCache, double staticFrictionExtra)
+void HavokPhysics_ManifoldCache_SetStaticFrictionExtra(Physics_ManifoldCache *manifoldCache, const float staticFrictionExtra)
 {
-  int v8; 
+  float v3; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !manifoldCache->m_cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsmanifoldcallback.cpp", 214, ASSERT_TYPE_ASSERT, "(manifoldCache.m_cache)", (const char *)&queryFormat, "manifoldCache.m_cache") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3f808000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  [rsp+48h+arg_8], xmm0
-  }
-  *((_WORD *)manifoldCache->m_cache + 27) = HIWORD(v8);
+  v3 = staticFrictionExtra * 1.0039062;
+  *((_WORD *)manifoldCache->m_cache + 27) = HIWORD(v3);
 }
 
 /*

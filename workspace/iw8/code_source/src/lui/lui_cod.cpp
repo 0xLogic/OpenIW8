@@ -1605,8 +1605,10 @@ LUI_COD_GetSwatchIntColor
 */
 __int64 LUI_COD_GetSwatchIntColor(LocalClientNum_t localClientNum, const char *swatchPath)
 {
+  unsigned int v5; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
+  double v8; 
 
   if ( !LUI_luaVM )
     return 0i64;
@@ -1616,7 +1618,7 @@ __int64 LUI_COD_GetSwatchIntColor(LocalClientNum_t localClientNum, const char *s
     LUI_LeaveCriticalSection();
     return 0i64;
   }
-  _EDI = 0;
+  v5 = 0;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
   RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
   j_lua_getfield(LUI_luaVM, -10002, "LUI");
@@ -1633,13 +1635,13 @@ __int64 LUI_COD_GetSwatchIntColor(LocalClientNum_t localClientNum, const char *s
   {
     if ( !j_lua_isnumber(LUI_luaVM, -1) )
       j_luaL_error(LUI_luaVM, "Expecting an int on top of the stack after calling 'GetSwatchIntColor'\n");
-    *(double *)&_XMM0 = lui_tonumber32(LUI_luaVM, -1);
-    __asm { vcvttss2si edi, xmm0 }
+    v8 = lui_tonumber32(LUI_luaVM, -1);
+    v5 = (int)*(float *)&v8;
     j_lua_settop(LUI_luaVM, -2);
   }
   j_lua_settop(LUI_luaVM, -4);
   LUI_LeaveCriticalSection();
-  return _EDI;
+  return v5;
 }
 
 /*
@@ -1649,59 +1651,48 @@ LUI_COD_GetSwatchRGBColor
 */
 void LUI_COD_GetSwatchRGBColor(LocalClientNum_t localClientNum, const char *swatchPath, vec3_t *rgbColor)
 {
+  int v6; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
+  double v9; 
 
-  _RSI = rgbColor;
-  if ( LUI_luaVM )
+  if ( !LUI_luaVM )
+    goto LABEL_4;
+  LUI_EnterCriticalSection("LUI_COD_GetSwatchIntColor");
+  if ( !LUI_luaVM )
   {
-    LUI_EnterCriticalSection("LUI_COD_GetSwatchIntColor");
-    if ( LUI_luaVM )
-    {
-      ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-      RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
-      j_lua_getfield(LUI_luaVM, -10002, "LUI");
-      j_lua_getfield(LUI_luaVM, -1, "roots");
-      j_lua_getfield(LUI_luaVM, -1, RootDataForController->name);
-      j_lua_getfield(LUI_luaVM, -10002, "GetSwatchIntColor");
-      j_lua_pushvalue(LUI_luaVM, -2);
-      j_lua_pushstring(LUI_luaVM, swatchPath);
-      if ( LuaShared_PCall(LUI_luaVM, 2, 1) )
-      {
-        LUI_ReportError("Error Checking For Swatch Int Color", LUI_luaVM);
-      }
-      else
-      {
-        if ( !j_lua_isnumber(LUI_luaVM, -1) )
-          j_luaL_error(LUI_luaVM, "Expecting an int on top of the stack after calling 'GetSwatchIntColor'\n");
-        *(double *)&_XMM0 = lui_tonumber32(LUI_luaVM, -1);
-        __asm { vcvttss2si edi, xmm0 }
-        j_lua_settop(LUI_luaVM, -2);
-      }
-      j_lua_settop(LUI_luaVM, -4);
-      LUI_LeaveCriticalSection();
-    }
-    else
-    {
-      LUI_LeaveCriticalSection();
-    }
+    LUI_LeaveCriticalSection();
+LABEL_4:
+    v6 = 0;
+    goto LABEL_11;
   }
-  __asm
+  v6 = 0;
+  ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
+  RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
+  j_lua_getfield(LUI_luaVM, -10002, "LUI");
+  j_lua_getfield(LUI_luaVM, -1, "roots");
+  j_lua_getfield(LUI_luaVM, -1, RootDataForController->name);
+  j_lua_getfield(LUI_luaVM, -10002, "GetSwatchIntColor");
+  j_lua_pushvalue(LUI_luaVM, -2);
+  j_lua_pushstring(LUI_luaVM, swatchPath);
+  if ( LuaShared_PCall(LUI_luaVM, 2, 1) )
   {
-    vmovss  xmm2, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rsi], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [rsi+4], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [rsi+8], xmm1
+    LUI_ReportError("Error Checking For Swatch Int Color", LUI_luaVM);
   }
+  else
+  {
+    if ( !j_lua_isnumber(LUI_luaVM, -1) )
+      j_luaL_error(LUI_luaVM, "Expecting an int on top of the stack after calling 'GetSwatchIntColor'\n");
+    v9 = lui_tonumber32(LUI_luaVM, -1);
+    v6 = (int)*(float *)&v9;
+    j_lua_settop(LUI_luaVM, -2);
+  }
+  j_lua_settop(LUI_luaVM, -4);
+  LUI_LeaveCriticalSection();
+LABEL_11:
+  rgbColor->v[0] = (float)BYTE2(v6) * 0.0039215689;
+  rgbColor->v[1] = (float)BYTE1(v6) * 0.0039215689;
+  rgbColor->v[2] = (float)(unsigned __int8)v6 * 0.0039215689;
 }
 
 /*
@@ -1754,27 +1745,22 @@ void LUI_CoD_AdjustLastMousePosToViewport(void)
   float outY; 
 
   CL_Input_GetCurrentMousePosition(&outX, &outY);
-  __asm
-  {
-    vmovss  xmm1, [rsp+28h+outX]
-    vmovss  xmm0, [rsp+28h+outY]
-    vmovss  cs:s_perController.lastMouseX, xmm1
-    vmovss  cs:s_perController.lastMouseY, xmm0
-    vmovss  cs:s_perController.lastMouseX+20h, xmm1
-    vmovss  cs:s_perController.lastMouseY+20h, xmm0
-    vmovss  cs:s_perController.lastMouseX+40h, xmm1
-    vmovss  cs:s_perController.lastMouseY+40h, xmm0
-    vmovss  cs:s_perController.lastMouseX+60h, xmm1
-    vmovss  cs:s_perController.lastMouseY+60h, xmm0
-    vmovss  cs:s_perController.lastMouseX+80h, xmm1
-    vmovss  cs:s_perController.lastMouseY+80h, xmm0
-    vmovss  cs:s_perController.lastMouseX+0A0h, xmm1
-    vmovss  cs:s_perController.lastMouseY+0A0h, xmm0
-    vmovss  cs:s_perController.lastMouseX+0C0h, xmm1
-    vmovss  cs:s_perController.lastMouseY+0C0h, xmm0
-    vmovss  cs:s_perController.lastMouseX+0E0h, xmm1
-    vmovss  cs:s_perController.lastMouseY+0E0h, xmm0
-  }
+  s_perController[0].lastMouseX = outX;
+  s_perController[0].lastMouseY = outY;
+  s_perController[1].lastMouseX = outX;
+  s_perController[1].lastMouseY = outY;
+  s_perController[2].lastMouseX = outX;
+  s_perController[2].lastMouseY = outY;
+  s_perController[3].lastMouseX = outX;
+  s_perController[3].lastMouseY = outY;
+  s_perController[4].lastMouseX = outX;
+  s_perController[4].lastMouseY = outY;
+  s_perController[5].lastMouseX = outX;
+  s_perController[5].lastMouseY = outY;
+  s_perController[6].lastMouseX = outX;
+  s_perController[6].lastMouseY = outY;
+  s_perController[7].lastMouseX = outX;
+  s_perController[7].lastMouseY = outY;
 }
 
 /*
@@ -1782,73 +1768,32 @@ void LUI_CoD_AdjustLastMousePosToViewport(void)
 LUI_CoD_AdjustRootAspectRatio
 ==============
 */
-
-void __fastcall LUI_CoD_AdjustRootAspectRatio(float left, double top, double right, double bottom, float *topResult, float *bottomResult, tmat44_t<vec4_t> *projectionMatrixResult)
+void LUI_CoD_AdjustRootAspectRatio(float left, float top, float right, float bottom, float *topResult, float *bottomResult, tmat44_t<vec4_t> *projectionMatrixResult)
 {
-  tmat44_t<vec4_t> *v11; 
-  signed int i; 
-  unsigned int v25; 
-  __int64 v35; 
-  tmat44_t<vec4_t> *v36; 
+  tmat44_t<vec4_t> *v7; 
+  float v8; 
+  unsigned int i; 
+  unsigned int j; 
+  __int64 v11; 
+  float v12; 
   tmat44_t<vec4_t> mtx; 
-  char v38; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  v11 = projectionMatrixResult;
-  _RBX = topResult;
-  _RDI = bottomResult;
-  __asm
-  {
-    vmovaps xmm6, xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vsubss  xmm0, xmm3, xmm6
-    vdivss  xmm8, xmm1, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm8, xmm1
-    vmovaps xmm7, xmm3
-  }
-  v36 = projectionMatrixResult;
-  if ( (unsigned __int64)&v35 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2082, ASSERT_TYPE_ASSERT, "(aspectRatio > 0.0f)", (const char *)&queryFormat, "aspectRatio > 0.0f") )
+  v7 = projectionMatrixResult;
+  v8 = (float)(right - left) / (float)(bottom - top);
+  if ( v8 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2082, ASSERT_TYPE_ASSERT, "(aspectRatio > 0.0f)", (const char *)&queryFormat, "aspectRatio > 0.0f") )
     __debugbreak();
-  __asm
+  *topResult = top;
+  *bottomResult = bottom;
+  FinitePerspectiveMatrix(v8 * 0.26602155, 0.26602155, 2.0, 100.0, &mtx);
+  for ( i = 0; i < 4; ++i )
   {
-    vmovss  xmm1, cs:__real@3e8833fa; tanHalfFovY
-    vmovss  xmm3, cs:__real@42c80000; zFar
-    vmovss  xmm2, cs:__real@40000000; zNear
-    vmovss  dword ptr [rbx], xmm6
-    vmulss  xmm0, xmm8, xmm1; tanHalfFovX
-    vmovss  dword ptr [rdi], xmm7
-  }
-  FinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &mtx);
-  for ( i = 0; (unsigned int)i < 4; ++i )
-  {
-    v25 = 0;
-    _R15 = 4i64 * i;
-    _R14 = &v11->m[i];
-    do
+    for ( j = 0; j < 4; ++j )
     {
-      _RBP = (int)v25;
-      _RSI = &mtx.m[v25];
-      __asm { vmovss  xmm6, dword ptr [r15+rsi] }
-      ++v25;
-      __asm { vmovss  dword ptr [r14+rbp*4], xmm6 }
+      v11 = (int)j;
+      v12 = mtx.m[j].v[i];
+      v7->m[i].v[v11] = v12;
     }
-    while ( v25 < 4 );
-    v11 = v36;
-  }
-  _R11 = &v38;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
+    v7 = projectionMatrixResult;
   }
 }
 
@@ -2083,11 +2028,7 @@ LUI_CoD_ClearWorldBlur
 */
 void LUI_CoD_ClearWorldBlur(LocalClientNum_t localClientNum)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:s_fullscreenRootData.worldBlurRadius, xmm0
-  }
+  s_fullscreenRootData.worldBlurRadius = 0.0;
   s_rootData[CL_Mgr_GetControllerFromClient(localClientNum)].worldBlurRadius = 0.0;
 }
 
@@ -2184,99 +2125,83 @@ void LUI_CoD_CompleteSceneTransition_f()
 LUI_CoD_CreateClientRoots
 ==============
 */
-
-void __fastcall LUI_CoD_CreateClientRoots(double _XMM0_8, double _XMM1_8, double _XMM2_8)
+void LUI_CoD_CreateClientRoots()
 {
-  LocalClientNum_t v6; 
-  int v7; 
-  int v8; 
+  __int128 v0; 
+  __int128 v1; 
+  __int128 v2; 
+  LocalClientNum_t v3; 
+  int v4; 
+  int v5; 
   int ControllerFromClient; 
-  int v11; 
-  __int64 v12; 
+  int v7; 
+  __int64 v8; 
+  const ClientViewParams *LocalClientViewParams; 
+  float displayWidth; 
+  float v11; 
+  float displayHeight; 
+  float v13; 
   const char *LastStackTraceBuffer; 
   bool IsClientActive; 
   PublisherVariableManager *Instance; 
   bool HasRetrievedVariables; 
-  const dvar_t *v26; 
-  bool v27; 
-  int v28; 
-  int v29; 
-  BOOL v30; 
+  const dvar_t *v18; 
+  bool v19; 
+  int v20; 
+  int v21; 
+  BOOL v22; 
   unsigned __int8 ActiveGameMode; 
-  lua_State *v32; 
-  LocalClientNum_t v33; 
-  float fmta; 
+  lua_State *v24; 
+  LocalClientNum_t v25; 
   char *fmt; 
   __int64 controllerIndex; 
-  __int64 v37; 
+  __int64 v28; 
   char dest[192]; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
 
   LUI_EnterCriticalSection("LUI_CoD_CreateClientRoots");
   if ( LUI_luaVM )
   {
-    v6 = LOCAL_CLIENT_0;
-    v7 = 0;
-    v8 = 0;
-    __asm
-    {
-      vmovaps [rsp+198h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3fd55555
-      vmovaps [rsp+198h+var_38], xmm6
-      vmovaps [rsp+198h+var_48], xmm7
-    }
+    v3 = LOCAL_CLIENT_0;
+    v4 = 0;
+    v5 = 0;
+    v30 = v2;
+    v32 = v0;
+    v31 = v1;
     do
     {
-      if ( CL_Mgr_IsClientActive((LocalClientNum_t)v7) )
+      if ( CL_Mgr_IsClientActive((LocalClientNum_t)v4) )
       {
-        ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v7);
-        v11 = ControllerFromClient;
+        ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
+        v7 = ControllerFromClient;
         if ( ControllerFromClient != -1 )
         {
-          v12 = ControllerFromClient;
-          Com_sprintf(s_rootData[v12].name, 0x20ui64, "UIRoot%d", (unsigned int)ControllerFromClient);
-          if ( !s_rootData[v12].inUse )
+          v8 = ControllerFromClient;
+          Com_sprintf(s_rootData[v8].name, 0x20ui64, "UIRoot%d", (unsigned int)ControllerFromClient);
+          if ( !s_rootData[v8].inUse )
           {
-            s_rootData[v12].inUse = 1;
-            CG_GetLocalClientViewParams((LocalClientNum_t)v7);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rcx
-              vmulss  xmm6, xmm0, dword ptr [rax+8]
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, rcx
-              vmulss  xmm7, xmm1, dword ptr [rax+0Ch]
-            }
+            s_rootData[v8].inUse = 1;
+            LocalClientViewParams = CG_GetLocalClientViewParams((LocalClientNum_t)v4);
+            displayWidth = (float)cls.vidConfig.displayWidth;
+            v11 = displayWidth * LocalClientViewParams->width;
+            displayHeight = (float)cls.vidConfig.displayHeight;
+            v13 = displayHeight * LocalClientViewParams->height;
             if ( LUI_CoD_UsingSplitscreenUpscaling() )
             {
-              __asm
-              {
-                vmulss  xmm6, xmm6, xmm8
-                vmulss  xmm7, xmm7, xmm8
-              }
+              v11 = v11 * 1.6666666;
+              v13 = v13 * 1.6666666;
             }
-            __asm
-            {
-              vmovaps xmm3, xmm6; right
-              vxorps  xmm2, xmm2, xmm2; top
-              vxorps  xmm1, xmm1, xmm1; left
-              vmovss  dword ptr [rsp+198h+fmt], xmm7
-            }
-            LUI_CoD_CreateRoot(&s_rootData[v12], *(float *)&_XMM1_8, *(float *)&_XMM2_8, *(float *)&_XMM3, fmta, v11);
+            LUI_CoD_CreateRoot(&s_rootData[v8], 0.0, 0.0, v11, v13, v7);
           }
-          ++v8;
+          ++v5;
         }
       }
-      ++v7;
+      ++v4;
     }
-    while ( v7 < 2 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+198h+var_58]
-      vmovaps xmm7, [rsp+198h+var_48]
-      vmovaps xmm6, [rsp+198h+var_38]
-    }
-    if ( v8 <= 0 )
+    while ( v4 < 2 );
+    if ( v5 <= 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2623, ASSERT_TYPE_ASSERT, "(numRootsInUse > 0)", (const char *)&queryFormat, "numRootsInUse > 0") )
         __debugbreak();
@@ -2284,38 +2209,38 @@ void __fastcall LUI_CoD_CreateClientRoots(double _XMM0_8, double _XMM1_8, double
       IsClientActive = CL_Mgr_IsClientActive(LOCAL_CLIENT_1);
       Instance = PublisherVariableManager::GetInstance();
       HasRetrievedVariables = PublisherVariableManager::HasRetrievedVariables(Instance);
-      v26 = DVARBOOL_onlinegame;
-      v27 = HasRetrievedVariables;
+      v18 = DVARBOOL_onlinegame;
+      v19 = HasRetrievedVariables;
       if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v26);
-      v28 = v26->current.color[0];
-      v29 = s_lastDeactivateClientTimestamp;
-      v30 = CL_Mgr_IsClientActive(LOCAL_CLIENT_0);
+      Dvar_CheckFrontendServerThread(v18);
+      v20 = v18->current.color[0];
+      v21 = s_lastDeactivateClientTimestamp;
+      v22 = CL_Mgr_IsClientActive(LOCAL_CLIENT_0);
       ActiveGameMode = Com_GameMode_GetActiveGameMode();
-      LODWORD(v37) = 0;
+      LODWORD(v28) = 0;
       LODWORD(controllerIndex) = IsClientActive;
-      LODWORD(fmt) = v30;
-      Com_sprintf(dest, 0xC0ui64, "Error while creating client roots. Game Mode: %d, Client 0 active: %d, Client 1 active: %d, Is PS4: %d, Is PC: %d, Is XB3: %d Reason : %s Time %d Pub: %d OG: %d\n", ActiveGameMode, fmt, controllerIndex, v37, 0, 1, s_lastDeactivateClientReason, v29, v27, v28);
+      LODWORD(fmt) = v22;
+      Com_sprintf(dest, 0xC0ui64, "Error while creating client roots. Game Mode: %d, Client 0 active: %d, Client 1 active: %d, Is PS4: %d, Is PC: %d, Is XB3: %d Reason : %s Time %d Pub: %d OG: %d\n", ActiveGameMode, fmt, controllerIndex, v28, 0, 1, s_lastDeactivateClientReason, v21, v19, v20);
       if ( LUI_CoD_LUIRootDLogEnabled() )
         DLog_RecordErrorEvent(DLOG_ERROR_CODE_LUA, dest, LastStackTraceBuffer);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_DEFAULT_t)0x200000, dest);
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144465438);
     }
-    v32 = LUI_luaVM;
+    v24 = LUI_luaVM;
     FontCache_CancelPreCacheGlyphs();
-    v33 = s_currentLocalClientRoot;
+    v25 = s_currentLocalClientRoot;
     if ( s_luaInFrontend || !s_rootData[CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0)].inUse )
-      v6 = LOCAL_CLIENT_INVALID;
-    s_currentLocalClientRoot = v6;
-    j_lua_getfield(v32, -10002, "PreCacheGlyphs");
-    if ( j_lua_type(v32, -1) != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2515, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (-1)) == 6))", (const char *)&queryFormat, "lua_isfunction( luaVM, -1 )") )
+      v3 = LOCAL_CLIENT_INVALID;
+    s_currentLocalClientRoot = v3;
+    j_lua_getfield(v24, -10002, "PreCacheGlyphs");
+    if ( j_lua_type(v24, -1) != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2515, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (-1)) == 6))", (const char *)&queryFormat, "lua_isfunction( luaVM, -1 )") )
       __debugbreak();
     if ( LuaShared_PCall(LUI_luaVM, 0, 0) )
-      LUI_ReportError("Error precaching glyphs\n", v32);
-    if ( s_luaInFrontend || !s_rootData[CL_Mgr_GetControllerFromClient(v33)].inUse )
-      v33 = LOCAL_CLIENT_INVALID;
-    s_currentLocalClientRoot = v33;
+      LUI_ReportError("Error precaching glyphs\n", v24);
+    if ( s_luaInFrontend || !s_rootData[CL_Mgr_GetControllerFromClient(v25)].inUse )
+      v25 = LOCAL_CLIENT_INVALID;
+    s_currentLocalClientRoot = v25;
   }
   LUI_LeaveCriticalSection();
 }
@@ -2325,59 +2250,25 @@ void __fastcall LUI_CoD_CreateClientRoots(double _XMM0_8, double _XMM1_8, double
 LUI_CoD_CreateRoot
 ==============
 */
-
-void __fastcall LUI_CoD_CreateRoot(LUIRootData *rootData, double left, double top, double right, float bottom, int controllerIndex)
+void LUI_CoD_CreateRoot(LUIRootData *rootData, float left, float top, float right, float bottom, int controllerIndex)
 {
+  float v8; 
   LocalClientNum_t ClientFromController; 
-  float fmt; 
-  float bottomResult; 
-  float projectionMatrixResult; 
   float topResult; 
 
-  __asm
-  {
-    vmovss  [rsp+topResult], xmm2
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
+  topResult = top;
   if ( rootData == (LUIRootData *)-192i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2099, ASSERT_TYPE_ASSERT, "(rootData->name)", (const char *)&queryFormat, "rootData->name") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, [rsp+78h+bottom]; bottom
-    vmovaps xmm2, xmm7; right
-    vmovaps xmm1, xmm6; top
-    vmovaps xmm0, xmm8; left
-  }
+  v8 = bottom;
   *(_WORD *)&rootData->forceFullscreen = 256;
-  LUI_CoD_AdjustRootAspectRatio(*(float *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &topResult, &bottom, &rootData->projectionMatrix);
+  LUI_CoD_AdjustRootAspectRatio(left, top, right, v8, &topResult, &bottom, &rootData->projectionMatrix);
   ClientFromController = LOCAL_CLIENT_INVALID;
   if ( controllerIndex >= 0 )
     ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
   if ( s_luaInFrontend || !s_rootData[CL_Mgr_GetControllerFromClient(ClientFromController)].inUse )
     ClientFromController = LOCAL_CLIENT_INVALID;
-  __asm
-  {
-    vmovss  xmm0, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-    vmovss  xmm1, [rsp+78h+bottom]
-    vmovss  xmm3, [rsp+78h+topResult]; top
-    vmovss  dword ptr [rsp+78h+projectionMatrixResult], xmm0
-    vmovss  dword ptr [rsp+78h+bottomResult], xmm1
-    vmovaps xmm2, xmm8; left
-    vmovss  dword ptr [rsp+78h+fmt], xmm7
-  }
   s_currentLocalClientRoot = ClientFromController;
-  LUI_CreateRoot(controllerIndex, rootData, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, bottomResult, projectionMatrixResult, LUI_luaVM);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
+  LUI_CreateRoot(controllerIndex, rootData, left, topResult, right, bottom, cls.vidConfig.aspectRatioDisplayPixel, LUI_luaVM);
 }
 
 /*
@@ -2518,160 +2409,49 @@ void LUI_CoD_DetachDebugger_f()
 LUI_CoD_DetermineFontSizeAndScale
 ==============
 */
-
-bool __fastcall LUI_CoD_DetermineFontSizeAndScale(LUIElement *element, double x, double y, double elementHeight, int *outFontRenderSize, float *outFontRenderScale, int *outFontLayoutSize, float *outFontLayoutScale, float *outRotation, float *outElementHeightOnScreen)
+char LUI_CoD_DetermineFontSizeAndScale(LUIElement *element, float x, float y, float elementHeight, int *outFontRenderSize, float *outFontRenderScale, int *outFontLayoutSize, float *outFontLayoutScale, float *outRotation, float *outElementHeightOnScreen)
 {
-  bool v25; 
-  char v54; 
-  bool result; 
+  bool v11; 
+  float v12; 
+  double CurrentUnitScale; 
+  int MinHeightForDistanceField; 
   vec2_t vec; 
+  float v22; 
   vec4_t quadVerts[4]; 
-  char v91; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _RDI = element;
-  _RBP = outFontRenderScale;
-  _R12 = outFontLayoutScale;
-  _R13 = outRotation;
-  _RSI = outElementHeightOnScreen;
-  __asm
-  {
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-  }
   if ( !LUIElement_IsTextLike(element) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7150, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
     __debugbreak();
-  __asm { vaddss  xmm2, xmm7, cs:__real@3f800000; right }
-  v25 = LUI_Is3DTransformEnabled();
-  __asm
+  v11 = LUI_Is3DTransformEnabled();
+  LUI_CoD_GenerateQuadVerts(x, y - elementHeight, x + 1.0, y, (vec4_t (*)[4])quadVerts);
+  v12 = quadVerts[3].v[1] - quadVerts[0].v[1];
+  vec.v[0] = (float)(quadVerts[3].v[0] - quadVerts[0].v[0]) * cls.vidConfig.aspectRatioDisplayPixel;
+  fsqrt((float)((float)(vec.v[0] * vec.v[0]) + (float)(v12 * v12)) + (float)((float)(quadVerts[3].v[2] - quadVerts[0].v[2]) * (float)(quadVerts[3].v[2] - quadVerts[0].v[2])));
+  _XMM6 = 0i64;
+  v22 = quadVerts[3].v[2] - quadVerts[0].v[2];
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  *outElementHeightOnScreen = (float)(int)*(float *)&_XMM3 * 0.0099999998;
+  vec.v[1] = v12;
+  if ( v11 || (element->usageFlags & 0x1000) != 0 )
   {
-    vsubss  xmm1, xmm6, xmm8; top
-    vmovaps xmm3, xmm6; bottom
-    vmovaps xmm0, xmm7; left
-  }
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+108h+quadVerts+34h]
-    vsubss  xmm4, xmm0, dword ptr [rsp+108h+quadVerts+4]
-    vmovss  xmm1, dword ptr [rsp+108h+quadVerts+38h]
-    vsubss  xmm3, xmm1, dword ptr [rsp+108h+quadVerts+8]
-    vmovss  xmm0, dword ptr [rsp+108h+quadVerts+30h]
-    vsubss  xmm1, xmm0, dword ptr [rsp+108h+quadVerts]
-    vmulss  xmm2, xmm1, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-    vmovss  xmm9, cs:__real@42c80000
-    vmovss  xmm7, cs:__real@3f000000
-    vmovss  xmm10, cs:__real@3c23d70a
-    vmulss  xmm1, xmm2, xmm2
-    vmovss  dword ptr [rsp+108h+vec], xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmulss  xmm1, xmm0, xmm9
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+108h+var_D0], xmm3
-    vroundss xmm3, xmm6, xmm2, 1
-    vcvttss2si eax, xmm3
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, xmm10
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rsp+108h+vec+4], xmm4
-  }
-  if ( v25 || (_RDI->usageFlags & 0x1000) != 0 )
-  {
-    _EAX = FontCache_GetMinHeightForDistanceField();
+    MinHeightForDistanceField = FontCache_GetMinHeightForDistanceField();
   }
   else
   {
-    LUI_Render_GetCurrentUnitScale();
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi+11Ch]
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm2, xmm1
-    }
-    if ( v54 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]
-        vdivss  xmm2, xmm1, xmm0
-        vmovss  dword ptr [rdi+11Ch], xmm2
-      }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm2, xmm0
-      vaddss  xmm2, xmm0, xmm7
-      vroundss xmm0, xmm6, xmm2, 1
-      vcvttss2si eax, xmm0
-    }
+    CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+    if ( element->imageData.uMax == 0.0 )
+      element->imageData.uMax = *outElementHeightOnScreen / *(float *)&CurrentUnitScale;
+    __asm { vroundss xmm0, xmm6, xmm2, 1 }
+    MinHeightForDistanceField = (int)*(float *)&_XMM0;
   }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-  }
-  *outFontRenderSize = _EAX;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vdivss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rbp+0], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm8, xmm7
-    vmovss  xmm1, xmm0, xmm2
-    vroundss xmm3, xmm6, xmm1, 1
-    vxorps  xmm1, xmm1, xmm1
-    vcvttss2si ecx, xmm3
-  }
-  *outFontLayoutSize = _ECX;
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm9
-    vaddss  xmm2, xmm0, xmm7
-    vmovss  xmm2, xmm1, xmm2
-    vroundss xmm0, xmm6, xmm2, 1
-    vcvttss2si eax, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ecx
-    vmulss  xmm2, xmm0, xmm10
-    vdivss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [r12], xmm2
-  }
+  *outFontRenderSize = MinHeightForDistanceField;
+  *outFontRenderScale = *outElementHeightOnScreen / (float)MinHeightForDistanceField;
+  __asm { vroundss xmm3, xmm6, xmm1, 1 }
+  *outFontLayoutSize = (int)*(float *)&_XMM3;
+  __asm { vroundss xmm0, xmm6, xmm2, 1 }
+  *outFontLayoutScale = (float)((float)(int)*(float *)&_XMM0 * 0.0099999998) / (float)(int)*(float *)&_XMM3;
   *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@42b40000
-    vmovss  dword ptr [r13+0], xmm1
-  }
-  result = 1;
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  *outRotation = *(float *)&_XMM0 - 90.0;
+  return 1;
 }
 
 /*
@@ -2701,36 +2481,34 @@ __int64 LUI_CoD_DetermineGCType()
 LUI_CoD_DrawAttachmentsReference
 ==============
 */
-
-void __fastcall LUI_CoD_DrawAttachmentsReference(const LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void LUI_CoD_DrawAttachmentsReference(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
+  const dvar_t *v1; 
   int ControllerFromClient; 
-  __int64 v6; 
+  __int64 v4; 
   LUIRootData *RootDataForController; 
-  const char *v8; 
+  const char *v6; 
   const ScreenPlacement *ActivePlacement; 
-  float v13; 
   unsigned __int64 len; 
   char dest[1024]; 
 
-  v3 = DVARBOOL_lui_attachments_ref;
+  v1 = DVARBOOL_lui_attachments_ref;
   if ( !DVARBOOL_lui_attachments_ref && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_attachments_ref") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
     LUI_EnterCriticalSection("LUI_CoD_DrawAttachmentsReference");
     if ( LUI_luaVM )
     {
       ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-      v6 = ControllerFromClient;
+      v4 = ControllerFromClient;
       RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
       j_lua_getfield(LUI_luaVM, -10002, "LUI");
       j_lua_getfield(LUI_luaVM, -1, "roots");
       j_lua_getfield(LUI_luaVM, -1, RootDataForController->name);
       j_lua_getfield(LUI_luaVM, -10002, "GetAttachmentsReference");
-      j_lua_pushinteger(LUI_luaVM, v6);
+      j_lua_pushinteger(LUI_luaVM, v4);
       if ( LuaShared_PCall(LUI_luaVM, 1, 1) )
       {
         LUI_ReportError("Error Checking For Attachments Reference\n", LUI_luaVM);
@@ -2739,21 +2517,14 @@ LABEL_11:
         LUI_LeaveCriticalSection();
         ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
         Com_sprintf(dest, 0x400ui64, (const char *)&queryFormat, dest);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@41400000
-          vmovss  xmm1, cs:__real@42480000; x
-          vmovss  [rsp+478h+var_440], xmm0
-          vxorps  xmm2, xmm2, xmm2; y
-        }
-        CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorGreen, 0, 1, v13, 0);
+        CG_DrawStringExt(ActivePlacement, 50.0, 0.0, dest, &colorGreen, 0, 1, 12.0, 0);
         return;
       }
       if ( j_lua_isstring(LUI_luaVM, -1) )
       {
-        v8 = j_lua_tolstring(LUI_luaVM, -1, &len);
-        if ( v8 )
-          Core_strcpy(dest, 0x400ui64, v8);
+        v6 = j_lua_tolstring(LUI_luaVM, -1, &len);
+        if ( v6 )
+          Core_strcpy(dest, 0x400ui64, v6);
         goto LABEL_11;
       }
       j_lua_settop(LUI_luaVM, -5);
@@ -2767,23 +2538,21 @@ LABEL_11:
 LUI_CoD_DrawFrontendWeaponModelName
 ==============
 */
-
-void __fastcall LUI_CoD_DrawFrontendWeaponModelName(const LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void LUI_CoD_DrawFrontendWeaponModelName(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
+  const dvar_t *v1; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
-  const char *v7; 
+  const char *v5; 
   const ScreenPlacement *ActivePlacement; 
-  float v12; 
   unsigned __int64 len; 
   char dest[1024]; 
 
-  v3 = DVARBOOL_lui_frontscene_weapon_model;
+  v1 = DVARBOOL_lui_frontscene_weapon_model;
   if ( !DVARBOOL_lui_frontscene_weapon_model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_frontscene_weapon_model") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
     LUI_EnterCriticalSection("LUI_CoD_DrawFrontendWeaponModelName");
     if ( LUI_luaVM )
@@ -2803,21 +2572,14 @@ LABEL_11:
         LUI_LeaveCriticalSection();
         ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
         Com_sprintf(dest, 0x400ui64, (const char *)&queryFormat, dest);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@41000000
-          vmovss  xmm1, cs:__real@42480000; x
-          vmovss  [rsp+478h+var_440], xmm0
-          vxorps  xmm2, xmm2, xmm2; y
-        }
-        CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorGreen, 0, 1, v12, 0);
+        CG_DrawStringExt(ActivePlacement, 50.0, 0.0, dest, &colorGreen, 0, 1, 8.0, 0);
         return;
       }
       if ( j_lua_isstring(LUI_luaVM, -1) )
       {
-        v7 = j_lua_tolstring(LUI_luaVM, -1, &len);
-        if ( v7 )
-          Core_strcpy(dest, 0x400ui64, v7);
+        v5 = j_lua_tolstring(LUI_luaVM, -1, &len);
+        if ( v5 )
+          Core_strcpy(dest, 0x400ui64, v5);
         goto LABEL_11;
       }
       j_lua_settop(LUI_luaVM, -5);
@@ -2833,107 +2595,86 @@ LUI_CoD_DrawLuiDynIconStreamerInfo
 */
 void LUI_CoD_DrawLuiDynIconStreamerInfo(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v4; 
-  __int64 v5; 
+  const dvar_t *v1; 
+  __int64 v2; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
-  const char *v8; 
-  unsigned int v9; 
-  char *v11; 
-  bool v14; 
-  const ScreenPlacement *v15; 
-  __int64 v16; 
-  float v22; 
+  const char *v5; 
+  unsigned int v6; 
+  __int128 v7; 
+  char *i; 
+  bool v9; 
+  const ScreenPlacement *v10; 
+  __int64 v11; 
+  __int128 v12; 
   unsigned __int64 len; 
   char string[256]; 
   char dest[4096]; 
 
-  v4 = DVARBOOL_lui_icon_streamer_info;
-  v5 = localClientNum;
+  v1 = DVARBOOL_lui_icon_streamer_info;
+  v2 = localClientNum;
   if ( !DVARBOOL_lui_icon_streamer_info && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_icon_streamer_info") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled )
     return;
   LUI_EnterCriticalSection("LUI_CoD_DrawLuiDynIconStreamerInfo");
   if ( !LUI_luaVM )
-    goto LABEL_27;
-  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v5);
+  {
+LABEL_24:
+    LUI_LeaveCriticalSection();
+    return;
+  }
+  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
   RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
   j_lua_getfield(LUI_luaVM, -10002, "LUI");
   j_lua_getfield(LUI_luaVM, -1, "roots");
   j_lua_getfield(LUI_luaVM, -1, RootDataForController->name);
   j_lua_getfield(LUI_luaVM, -10002, "GetLuiImageStreamersInfo");
   j_lua_pushvalue(LUI_luaVM, -2);
-  if ( !LuaShared_PCall(LUI_luaVM, 1, 1) )
+  if ( LuaShared_PCall(LUI_luaVM, 1, 1) )
   {
-    if ( j_lua_isstring(LUI_luaVM, -1) )
-    {
-      v8 = j_lua_tolstring(LUI_luaVM, -1, &len);
-      if ( v8 )
-        Core_strcpy(dest, 0x1000ui64, v8);
-      goto LABEL_11;
-    }
-    j_lua_settop(LUI_luaVM, -5);
-LABEL_27:
-    LUI_LeaveCriticalSection();
-    return;
+    LUI_ReportError("Error Checking For Visible Menu\n", LUI_luaVM);
+    goto LABEL_11;
   }
-  LUI_ReportError("Error Checking For Visible Menu\n", LUI_luaVM);
+  if ( !j_lua_isstring(LUI_luaVM, -1) )
+  {
+    j_lua_settop(LUI_luaVM, -5);
+    goto LABEL_24;
+  }
+  v5 = j_lua_tolstring(LUI_luaVM, -1, &len);
+  if ( v5 )
+    Core_strcpy(dest, 0x1000ui64, v5);
 LABEL_11:
-  __asm { vmovaps [rsp+11C8h+var_38], xmm6 }
   j_lua_settop(LUI_luaVM, -5);
   LUI_LeaveCriticalSection();
-  v9 = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v11 = strtok(dest, ";");
-  if ( !v11 )
-    goto LABEL_22;
-  __asm
+  v6 = 1;
+  v7 = 0i64;
+  for ( i = strtok(dest, ";"); i; i = strtok(NULL, ";") )
   {
-    vmovaps [rsp+11C8h+var_48], xmm7
-    vmovss  xmm7, cs:__real@41400000
-    vmovaps [rsp+11C8h+var_58], xmm8
-    vmovss  xmm8, cs:__real@43200000
-  }
-  do
-  {
-    if ( activeScreenPlacementMode == SCRMODE_FULL )
-      goto LABEL_19;
-    if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
+    if ( activeScreenPlacementMode )
     {
+      if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
+      {
+        v10 = &scrPlaceViewDisplay[v2];
+        goto LABEL_19;
+      }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v14 )
+        v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v9 )
         __debugbreak();
+    }
+    v10 = &scrPlaceFull;
 LABEL_19:
-      v15 = &scrPlaceFull;
-      goto LABEL_20;
-    }
-    v15 = &scrPlaceViewDisplay[v5];
-LABEL_20:
-    v16 = v9++;
-    Com_sprintf(string, 0x100ui64, "%d ) ---------- %s", v16, v11);
-    __asm
-    {
-      vmovss  [rsp+11C8h+var_1190], xmm7
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-    }
-    CG_DrawStringExt(v15, *(float *)&_XMM1, *(float *)&_XMM2, string, &colorGreen, 0, 1, v22, 0);
-    __asm { vaddss  xmm6, xmm6, xmm7 }
-    v11 = strtok(NULL, ";");
+    v11 = v6++;
+    Com_sprintf(string, 0x100ui64, "%d ) ---------- %s", v11, i);
+    CG_DrawStringExt(v10, 160.0, *(float *)&v7, string, &colorGreen, 0, 1, 12.0, 0);
+    v12 = v7;
+    *(float *)&v12 = *(float *)&v7 + 12.0;
+    v7 = v12;
   }
-  while ( v11 );
-  __asm
-  {
-    vmovaps xmm8, [rsp+11C8h+var_58]
-    vmovaps xmm7, [rsp+11C8h+var_48]
-  }
-LABEL_22:
-  __asm { vmovaps xmm6, [rsp+11C8h+var_38] }
 }
 
 /*
@@ -2998,43 +2739,29 @@ LUI_CoD_DrawMemoryGraph
 */
 void LUI_CoD_DrawMemoryGraph(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v4; 
-  float v20; 
-  float v21; 
+  const dvar_t *v1; 
+  int v2; 
+  float v3; 
+  float v4; 
+  float MemoryTotal; 
+  float AllocatedElements; 
   vec2_t origin; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
-  v4 = DVARBOOL_lui_memgraph;
+  v1 = DVARBOOL_lui_memgraph;
   if ( !DVARBOOL_lui_memgraph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_memgraph") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
     if ( !s_luiMemGraphInited )
     {
       s_luiMemGraphInited = 1;
-      __asm
-      {
-        vmovss  xmm6, cs:__real@44160000
-        vmovss  dword ptr [rsp+88h+origin], xmm6
-        vmovss  xmm0, cs:__real@43200000
-        vmovss  dword ptr [rsp+88h+origin+4], xmm0
-        vmovss  xmm7, cs:__real@459c4000
-        vmovss  [rsp+88h+var_50], xmm7
-      }
-      CG_InitDebugBufferData(&s_luiMemGraph, &origin, 700, 150, "mem", 300, 1, v20);
-      __asm
-      {
-        vmovss  dword ptr [rsp+88h+origin], xmm6
-        vmovss  xmm0, cs:__real@43aa0000
-        vmovss  dword ptr [rsp+88h+origin+4], xmm0
-        vmovss  [rsp+88h+var_50], xmm7
-      }
-      CG_InitDebugBufferData(&s_luiMemGraph2, &origin, 700, 150, "elems", 300, 1, v21);
+      origin.v[0] = FLOAT_600_0;
+      origin.v[1] = FLOAT_160_0;
+      CG_InitDebugBufferData(&s_luiMemGraph, &origin, 700, 150, "mem", 300, 1, 5000.0);
+      origin.v[0] = FLOAT_600_0;
+      origin.v[1] = FLOAT_340_0;
+      CG_InitDebugBufferData(&s_luiMemGraph2, &origin, 700, 150, "elems", 300, 1, 5000.0);
       CG_SetDebugBufferGraphColor(&s_luiMemGraph, 0xFFu, 0, 0, 0x8Cu);
       CG_SetDebugBufferBorderColor(&s_luiMemGraph, 0xFFu, 0, 0, 0x8Cu);
       CG_SetDebugBufferGraphColor(&s_luiMemGraph2, 0, 0xFFu, 0, 0x8Cu);
@@ -3049,43 +2776,16 @@ void LUI_CoD_DrawMemoryGraph(const LocalClientNum_t localClientNum)
         j__Init_thread_footer(&dword_1545418B0);
       }
     }
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, ecx
-    }
-    timeLast_1 = Sys_Milliseconds();
-    truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed);
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, rcx
-    }
-    LUI_CoD_GetMemoryTotal();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm6, xmm0; data
-      vmovaps xmm2, xmm7; dTime
-    }
-    CG_AddDebugBufferData(&s_luiMemGraph, *(float *)&_XMM1, *(float *)&_XMM2);
-    LUI_GetAllocatedElements();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@39690453; data
-      vmovaps xmm2, xmm7; dTime
-    }
-    CG_AddDebugBufferData(&s_luiMemGraph2, *(float *)&_XMM1, *(float *)&_XMM2);
+    v2 = Sys_Milliseconds();
+    v3 = (float)(v2 - timeLast_1);
+    timeLast_1 = v2;
+    v4 = (float)truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed);
+    MemoryTotal = (float)LUI_CoD_GetMemoryTotal();
+    CG_AddDebugBufferData(&s_luiMemGraph, v4 / MemoryTotal, v3);
+    AllocatedElements = (float)LUI_GetAllocatedElements();
+    CG_AddDebugBufferData(&s_luiMemGraph2, AllocatedElements * 0.00022222222, v3);
     CG_DebugBufferDraw(&s_luiMemGraph);
     CG_DebugBufferDraw(&s_luiMemGraph2);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
   }
 }
 
@@ -3094,368 +2794,204 @@ void LUI_CoD_DrawMemoryGraph(const LocalClientNum_t localClientNum)
 LUI_CoD_DrawMemoryReport
 ==============
 */
-
-void __fastcall LUI_CoD_DrawMemoryReport(const LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void LUI_CoD_DrawMemoryReport(const LocalClientNum_t localClientNum)
 {
-  int v9; 
+  __int128 v1; 
+  __int128 v2; 
+  int v4; 
   const ScreenPlacement *ActivePlacement; 
-  char v11; 
-  unsigned int AllocatedElements; 
-  const vec4_t *v18; 
-  const vec4_t *v19; 
-  unsigned int NumTweensInUse; 
-  char v24; 
+  int AllocatedElements; 
+  float v7; 
+  const vec4_t *v8; 
+  const vec4_t *v9; 
+  int NumTweensInUse; 
   int NumTweensTotal; 
-  const vec4_t *v31; 
-  unsigned int NumModelsInUse; 
-  char v35; 
+  float v12; 
+  const vec4_t *v13; 
+  int NumModelsInUse; 
   int NumModelsTotal; 
-  const vec4_t *v42; 
-  unsigned int NumSubscriptionsInUse; 
-  char v46; 
+  float v16; 
+  const vec4_t *v17; 
+  int NumSubscriptionsInUse; 
   int NumSubscriptionsTotal; 
-  const vec4_t *v53; 
-  unsigned int NumHoldersInUse; 
-  char v57; 
+  float v20; 
+  const vec4_t *v21; 
+  int NumHoldersInUse; 
   int NumHoldersTotal; 
-  const vec4_t *v64; 
-  unsigned int v67; 
-  unsigned int MemoryTotal; 
-  bool v69; 
-  unsigned int v70; 
-  const vec4_t *v76; 
-  float *v81; 
-  char v92; 
-  char v93; 
-  const vec4_t *v95; 
-  char v103; 
-  char v104; 
+  float v24; 
+  const vec4_t *v25; 
+  unsigned int v26; 
+  signed int v27; 
+  float v28; 
+  const vec4_t *v29; 
+  __m128 *v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v35; 
+  float v36; 
+  const vec4_t *v37; 
+  int v38; 
+  float v39; 
   int setColore; 
   vec4_t *setColor; 
   vec4_t *setColora; 
   vec4_t *setColorb; 
   vec4_t *setColorc; 
   vec4_t *setColord; 
-  float v118; 
-  float v119; 
-  float v120; 
-  float v121; 
-  float v122; 
-  float v123; 
-  float v124; 
-  float v125; 
-  float v126; 
-  float v127; 
   char dest[256]; 
-  void *retaddr; 
+  __int128 v47; 
+  __int128 v48; 
 
-  _R11 = &retaddr;
   if ( lui_drawmemreport->current.enabled )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-    }
-    v9 = Sys_Milliseconds();
+    v48 = v1;
+    v47 = v2;
+    v4 = Sys_Milliseconds();
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
     AllocatedElements = LUI_GetAllocatedElements();
-    __asm
+    v7 = (float)AllocatedElements * 0.00022222222;
+    v8 = &colorOrange;
+    if ( v7 >= 0.5 )
     {
-      vmovss  xmm8, cs:__real@3f000000
-      vmovss  xmm6, cs:__real@3f400000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@39690453
-      vcomiss xmm1, xmm8
-    }
-    v18 = &colorOrange;
-    if ( v11 )
-    {
-      v19 = &colorGreen;
+      v9 = &colorRed;
+      if ( v7 < 0.75 )
+        v9 = &colorOrange;
     }
     else
     {
-      __asm { vcomiss xmm1, xmm6 }
-      v19 = &colorRed;
-      if ( v11 )
-        v19 = &colorOrange;
+      v9 = &colorGreen;
     }
     setColore = 4500;
-    Com_sprintf(dest, 0x100ui64, "LUI Elements: %d / %d", AllocatedElements, setColore);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@41400000
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm2, xmm2, xmm2; y
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v19, 0, 1, v118, 0);
+    Com_sprintf(dest, 0x100ui64, "LUI Elements: %d / %d", (unsigned int)AllocatedElements, setColore);
+    CG_DrawStringExt(ActivePlacement, 0.0, 0.0, dest, v9, 0, 1, 12.0, 0);
     NumTweensInUse = LUI_Tween_GetNumTweensInUse();
     NumTweensTotal = LUI_Tween_GetNumTweensTotal();
-    __asm
+    v12 = (float)NumTweensInUse / (float)NumTweensTotal;
+    if ( v12 >= 0.5 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ebp
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm2, xmm1, xmm0
-      vcomiss xmm2, xmm8
-    }
-    if ( v24 )
-    {
-      v31 = &colorGreen;
+      v13 = &colorRed;
+      if ( v12 < 0.75 )
+        v13 = &colorOrange;
     }
     else
     {
-      __asm { vcomiss xmm2, xmm6 }
-      v31 = &colorRed;
-      if ( v24 )
-        v31 = &colorOrange;
+      v13 = &colorGreen;
     }
     LODWORD(setColor) = NumTweensTotal;
-    Com_sprintf(dest, 0x100ui64, "Tweens: %d / %d", NumTweensInUse, setColor);
-    __asm
-    {
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vmovaps xmm2, xmm7; y
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v31, 0, 1, v119, 0);
+    Com_sprintf(dest, 0x100ui64, "Tweens: %d / %d", (unsigned int)NumTweensInUse, setColor);
+    CG_DrawStringExt(ActivePlacement, 0.0, 12.0, dest, v13, 0, 1, 12.0, 0);
     NumModelsInUse = LUI_Model_GetNumModelsInUse();
     NumModelsTotal = LUI_Model_GetNumModelsTotal();
-    __asm
+    v16 = (float)NumModelsInUse / (float)NumModelsTotal;
+    if ( v16 >= 0.5 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ebp
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm2, xmm1, xmm0
-      vcomiss xmm2, xmm8
-    }
-    if ( v35 )
-    {
-      v42 = &colorGreen;
+      v17 = &colorRed;
+      if ( v16 < 0.75 )
+        v17 = &colorOrange;
     }
     else
     {
-      __asm { vcomiss xmm2, xmm6 }
-      v42 = &colorRed;
-      if ( v35 )
-        v42 = &colorOrange;
+      v17 = &colorGreen;
     }
     LODWORD(setColora) = NumModelsTotal;
-    Com_sprintf(dest, 0x100ui64, "Models: %d / %d", NumModelsInUse, setColora);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41c00000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v42, 0, 1, v120, 0);
+    Com_sprintf(dest, 0x100ui64, "Models: %d / %d", (unsigned int)NumModelsInUse, setColora);
+    CG_DrawStringExt(ActivePlacement, 0.0, 24.0, dest, v17, 0, 1, 12.0, 0);
     NumSubscriptionsInUse = LUI_Model_GetNumSubscriptionsInUse();
     NumSubscriptionsTotal = LUI_Model_GetNumSubscriptionsTotal();
-    __asm
+    v20 = (float)NumSubscriptionsInUse / (float)NumSubscriptionsTotal;
+    if ( v20 >= 0.5 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ebp
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm2, xmm1, xmm0
-      vcomiss xmm2, xmm8
-    }
-    if ( v46 )
-    {
-      v53 = &colorGreen;
+      v21 = &colorRed;
+      if ( v20 < 0.75 )
+        v21 = &colorOrange;
     }
     else
     {
-      __asm { vcomiss xmm2, xmm6 }
-      v53 = &colorRed;
-      if ( v46 )
-        v53 = &colorOrange;
+      v21 = &colorGreen;
     }
     LODWORD(setColorb) = NumSubscriptionsTotal;
-    Com_sprintf(dest, 0x100ui64, "Subscriptions: %d / %d", NumSubscriptionsInUse, setColorb);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42100000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v53, 0, 1, v121, 0);
+    Com_sprintf(dest, 0x100ui64, "Subscriptions: %d / %d", (unsigned int)NumSubscriptionsInUse, setColorb);
+    CG_DrawStringExt(ActivePlacement, 0.0, 36.0, dest, v21, 0, 1, 12.0, 0);
     NumHoldersInUse = LUI_SubscriptionsHolder_GetNumHoldersInUse();
     NumHoldersTotal = LUI_SubscriptionsHolder_GetNumHoldersTotal();
-    __asm
+    v24 = (float)NumHoldersInUse / (float)NumHoldersTotal;
+    if ( v24 >= 0.5 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ebp
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm2, xmm1, xmm0
-      vcomiss xmm2, xmm8
-    }
-    if ( v57 )
-    {
-      v64 = &colorGreen;
+      v25 = &colorRed;
+      if ( v24 < 0.75 )
+        v25 = &colorOrange;
     }
     else
     {
-      __asm { vcomiss xmm2, xmm6 }
-      v64 = &colorRed;
-      if ( v57 )
-        v64 = &colorOrange;
+      v25 = &colorGreen;
     }
     LODWORD(setColorc) = NumHoldersTotal;
-    Com_sprintf(dest, 0x100ui64, "Subscriptions Holders: %d / %d", NumHoldersInUse, setColorc);
-    __asm
+    Com_sprintf(dest, 0x100ui64, "Subscriptions Holders: %d / %d", (unsigned int)NumHoldersInUse, setColorc);
+    CG_DrawStringExt(ActivePlacement, 0.0, 48.0, dest, v25, 0, 1, 12.0, 0);
+    v26 = truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed) >> 10;
+    v27 = LUI_CoD_GetMemoryTotal() >> 10;
+    v28 = (float)(int)v26 / (float)v27;
+    if ( v28 >= 0.5 )
     {
-      vmovss  xmm2, cs:__real@42400000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v64, 0, 1, v122, 0);
-    v67 = truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed) >> 10;
-    MemoryTotal = LUI_CoD_GetMemoryTotal();
-    v69 = __CFSHR__(MemoryTotal, 10);
-    v70 = MemoryTotal >> 10;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ebp
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm2, xmm1, xmm0
-      vcomiss xmm2, xmm8
-    }
-    if ( v69 )
-    {
-      v76 = &colorGreen;
+      v29 = &colorRed;
+      if ( v28 < 0.75 )
+        v29 = &colorOrange;
     }
     else
     {
-      __asm { vcomiss xmm2, xmm6 }
-      v76 = &colorRed;
-      if ( v69 )
-        v76 = &colorOrange;
+      v29 = &colorGreen;
     }
-    LODWORD(setColord) = v70;
-    Com_sprintf(dest, 0x100ui64, "Lua memory: %d / %d KB", v67, setColord);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42700000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v76, 0, 1, v123, 0);
+    LODWORD(setColord) = v27;
+    Com_sprintf(dest, 0x100ui64, "Lua memory: %d / %d KB", v26, setColord);
+    CG_DrawStringExt(ActivePlacement, 0.0, 60.0, dest, v29, 0, 1, 12.0, 0);
     Com_sprintf(dest, 0x100ui64, "Allocations this frame: %d", (unsigned int)s_LUIAllocationsThisFrame);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42900000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhiteFaded, 0, 1, v124, 0);
-    v81 = &s_luiLastUpdateFrameDuration[4];
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm2, xmm2, xmm2
-    }
+    CG_DrawStringExt(ActivePlacement, 0.0, 72.0, dest, &colorWhiteFaded, 0, 1, 12.0, 0);
+    v30 = (__m128 *)&s_luiLastUpdateFrameDuration[4];
+    v31 = 0i64;
+    v32 = 0i64;
     do
     {
-      __asm
-      {
-        vaddps  xmm1, xmm1, xmmword ptr [rax-10h]
-        vaddps  xmm2, xmm2, xmmword ptr [rax]
-      }
-      v81 += 8;
+      v31 = _mm128_add_ps(v31, v30[-1]);
+      v32 = _mm128_add_ps(v32, *v30);
+      v30 += 2;
     }
-    while ( (__int64)v81 < (__int64)&unk_15453D300 );
-    __asm
+    while ( (__int64)v30 < (__int64)&unk_15453D300 );
+    _XMM1 = _mm128_add_ps(v31, v32);
+    __asm { vmovhlps xmm0, xmm1, xmm1 }
+    v35 = _mm128_add_ps(_XMM0, _XMM1);
+    v36 = (float)(v35.m128_f32[0] + _mm_shuffle_ps(v35, v35, 245).m128_f32[0]) * 0.03125;
+    Com_sprintf(dest, 0x100ui64, "UI Frame duration average: %.2fms", v36);
+    if ( v36 <= 7.0 )
     {
-      vaddps  xmm1, xmm1, xmm2
-      vmovhlps xmm0, xmm1, xmm1
-      vaddps  xmm2, xmm0, xmm1
-      vshufps xmm0, xmm2, xmm2, 0F5h ; 'õ'
-      vaddss  xmm2, xmm2, xmm0
-      vmulss  xmm6, xmm2, cs:__real@3d000000
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(dest, 0x100ui64, "UI Frame duration average: %.2fms", *(double *)&_XMM3);
-    __asm
-    {
-      vcomiss xmm6, cs:__real@40e00000
-      vmovss  xmm8, cs:__real@41200000
-    }
-    if ( v92 | v93 )
-    {
-      v95 = &colorGreen;
+      v37 = &colorGreen;
     }
     else
     {
-      __asm { vcomiss xmm6, xmm8 }
-      v95 = &colorOrange;
-      if ( !(v92 | v93) )
-        v95 = &colorRed;
+      v37 = &colorOrange;
+      if ( v36 > 10.0 )
+        v37 = &colorRed;
     }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42a80000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v95, 0, 1, v125, 0);
-    LODWORD(_RAX) = s_luiLastUpdateFrameDuration_nextIndex - 1;
+    CG_DrawStringExt(ActivePlacement, 0.0, 84.0, dest, v37, 0, 1, 12.0, 0);
+    v38 = s_luiLastUpdateFrameDuration_nextIndex - 1;
     if ( s_luiLastUpdateFrameDuration_nextIndex - 1 < 0 )
-      LODWORD(_RAX) = 31;
-    _RCX = s_luiLastUpdateFrameDuration;
-    _RAX = (int)_RAX;
-    __asm
+      v38 = 31;
+    v39 = s_luiLastUpdateFrameDuration[v38];
+    Com_sprintf(dest, 0x100ui64, "Last UI Frame duration: %.2fms", v39);
+    if ( v39 <= 7.0 )
     {
-      vmovss  xmm6, dword ptr [rcx+rax*4]
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
+      v8 = &colorGreen;
     }
-    Com_sprintf(dest, 0x100ui64, "Last UI Frame duration: %.2fms", _R9);
-    __asm { vcomiss xmm6, cs:__real@40e00000 }
-    if ( v103 | v104 )
+    else if ( v39 > 10.0 )
     {
-      v18 = &colorGreen;
+      v8 = &colorRed;
     }
-    else
-    {
-      __asm { vcomiss xmm6, xmm8 }
-      if ( !(v103 | v104) )
-        v18 = &colorRed;
-    }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42c00000; y
-      vmovss  [rsp+1B8h+var_180], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, v18, 0, 1, v126, 0);
-    __asm
-    {
-      vmovaps xmm8, [rsp+1B8h+var_58]
-      vmovaps xmm6, [rsp+1B8h+var_38]
-    }
+    CG_DrawStringExt(ActivePlacement, 0.0, 96.0, dest, v8, 0, 1, 12.0, 0);
     s_LUIAllocationsThisFrame = 0;
-    if ( v9 - s_luaLastEmergencyGC < 1500 )
+    if ( v4 - s_luaLastEmergencyGC < 1500 )
     {
       Com_sprintf(dest, 0x100ui64, "Emergency garbage collection occurred");
-      __asm
-      {
-        vmovss  xmm2, cs:__real@42d80000; y
-        vmovss  [rsp+1B8h+var_180], xmm7
-        vxorps  xmm1, xmm1, xmm1; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorRed, 0, 1, v127, 0);
+      CG_DrawStringExt(ActivePlacement, 0.0, 108.0, dest, &colorRed, 0, 1, 12.0, 0);
     }
-    __asm { vmovaps xmm7, [rsp+1B8h+var_48] }
   }
 }
 
@@ -3466,107 +3002,86 @@ LUI_CoD_DrawStackMenuNames
 */
 void LUI_CoD_DrawStackMenuNames(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v4; 
-  __int64 v5; 
+  const dvar_t *v1; 
+  __int64 v2; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
-  const char *v8; 
-  unsigned int v9; 
-  char *v11; 
-  bool v14; 
-  const ScreenPlacement *v15; 
-  __int64 v16; 
-  float v22; 
+  const char *v5; 
+  unsigned int v6; 
+  __int128 v7; 
+  char *i; 
+  bool v9; 
+  const ScreenPlacement *v10; 
+  __int64 v11; 
+  __int128 v12; 
   unsigned __int64 len; 
   char string[256]; 
   char dest[1024]; 
 
-  v4 = DVARBOOL_lui_menustack_names;
-  v5 = localClientNum;
+  v1 = DVARBOOL_lui_menustack_names;
+  v2 = localClientNum;
   if ( !DVARBOOL_lui_menustack_names && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_menustack_names") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled )
     return;
   LUI_EnterCriticalSection("LUI_CoD_DrawStackMenuNames");
   if ( !LUI_luaVM )
-    goto LABEL_27;
-  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v5);
+  {
+LABEL_24:
+    LUI_LeaveCriticalSection();
+    return;
+  }
+  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
   RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
   j_lua_getfield(LUI_luaVM, -10002, "LUI");
   j_lua_getfield(LUI_luaVM, -1, "roots");
   j_lua_getfield(LUI_luaVM, -1, RootDataForController->name);
   j_lua_getfield(LUI_luaVM, -10002, "GetAllMenuNames");
   j_lua_pushvalue(LUI_luaVM, -2);
-  if ( !LuaShared_PCall(LUI_luaVM, 1, 1) )
+  if ( LuaShared_PCall(LUI_luaVM, 1, 1) )
   {
-    if ( j_lua_isstring(LUI_luaVM, -1) )
-    {
-      v8 = j_lua_tolstring(LUI_luaVM, -1, &len);
-      if ( v8 )
-        Core_strcpy(dest, 0x400ui64, v8);
-      goto LABEL_11;
-    }
-    j_lua_settop(LUI_luaVM, -5);
-LABEL_27:
-    LUI_LeaveCriticalSection();
-    return;
+    LUI_ReportError("Error Checking For Visible Menu\n", LUI_luaVM);
+    goto LABEL_11;
   }
-  LUI_ReportError("Error Checking For Visible Menu\n", LUI_luaVM);
+  if ( !j_lua_isstring(LUI_luaVM, -1) )
+  {
+    j_lua_settop(LUI_luaVM, -5);
+    goto LABEL_24;
+  }
+  v5 = j_lua_tolstring(LUI_luaVM, -1, &len);
+  if ( v5 )
+    Core_strcpy(dest, 0x400ui64, v5);
 LABEL_11:
-  __asm { vmovaps [rsp+5C8h+var_38], xmm6 }
   j_lua_settop(LUI_luaVM, -5);
   LUI_LeaveCriticalSection();
-  v9 = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v11 = strtok(dest, ";");
-  if ( !v11 )
-    goto LABEL_22;
-  __asm
+  v6 = 1;
+  v7 = 0i64;
+  for ( i = strtok(dest, ";"); i; i = strtok(NULL, ";") )
   {
-    vmovaps [rsp+5C8h+var_48], xmm7
-    vmovss  xmm7, cs:__real@41400000
-    vmovaps [rsp+5C8h+var_58], xmm8
-    vmovss  xmm8, cs:__real@43200000
-  }
-  do
-  {
-    if ( activeScreenPlacementMode == SCRMODE_FULL )
-      goto LABEL_19;
-    if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
+    if ( activeScreenPlacementMode )
     {
+      if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
+      {
+        v10 = &scrPlaceViewDisplay[v2];
+        goto LABEL_19;
+      }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v14 )
+        v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v9 )
         __debugbreak();
+    }
+    v10 = &scrPlaceFull;
 LABEL_19:
-      v15 = &scrPlaceFull;
-      goto LABEL_20;
-    }
-    v15 = &scrPlaceViewDisplay[v5];
-LABEL_20:
-    v16 = v9++;
-    Com_sprintf(string, 0x100ui64, "%d ) ---------- %s", v16, v11);
-    __asm
-    {
-      vmovss  [rsp+5C8h+var_590], xmm7
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-    }
-    CG_DrawStringExt(v15, *(float *)&_XMM1, *(float *)&_XMM2, string, &colorGreen, 0, 1, v22, 0);
-    __asm { vaddss  xmm6, xmm6, xmm7 }
-    v11 = strtok(NULL, ";");
+    v11 = v6++;
+    Com_sprintf(string, 0x100ui64, "%d ) ---------- %s", v11, i);
+    CG_DrawStringExt(v10, 160.0, *(float *)&v7, string, &colorGreen, 0, 1, 12.0, 0);
+    v12 = v7;
+    *(float *)&v12 = *(float *)&v7 + 12.0;
+    v7 = v12;
   }
-  while ( v11 );
-  __asm
-  {
-    vmovaps xmm8, [rsp+5C8h+var_58]
-    vmovaps xmm7, [rsp+5C8h+var_48]
-  }
-LABEL_22:
-  __asm { vmovaps xmm6, [rsp+5C8h+var_38] }
 }
 
 /*
@@ -3574,65 +3089,30 @@ LABEL_22:
 LUI_CoD_DrawText_ComputeLineXPosition
 ==============
 */
-
-double __fastcall LUI_CoD_DrawText_ComputeLineXPosition(double x, double textWidth, double boxWidth, LUIHorizontalAlignment alignment, AutoScrollStyle *autoScrollStyle)
+double LUI_CoD_DrawText_ComputeLineXPosition(double x, float textWidth, double boxWidth, LUIHorizontalAlignment alignment, AutoScrollStyle *autoScrollStyle)
 {
+  bool v5; 
   bool v6; 
-  bool v7; 
-  char v8; 
-  char v10; 
+  double v7; 
+  double v8; 
 
-  __asm { vmovaps xmm3, xmm0 }
-  if ( autoScrollStyle && (v6 = autoScrollStyle->options.direction[0] == 0, v7 = autoScrollStyle->options.direction[0] <= 1u, autoScrollStyle->options.direction[0] == 1) )
+  v5 = autoScrollStyle && autoScrollStyle->options.direction[0] == 1;
+  v6 = *(float *)&boxWidth > 0.0 && *(float *)&boxWidth < textWidth;
+  if ( v5 && v6 )
+    return LUI_AutoScroll_ComputeLineXPosition(*(float *)&x, textWidth, *(float *)&boxWidth, alignment, autoScrollStyle);
+  if ( alignment == RIGHT )
   {
-    v8 = 1;
-  }
-  else
-  {
-    v8 = 0;
-    v6 = 0;
-    v7 = 1;
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-  }
-  if ( v7 )
-    goto LABEL_8;
-  __asm { vcomiss xmm2, xmm1 }
-  if ( !v6 )
-LABEL_8:
-    v10 = 0;
-  else
-    v10 = 1;
-  if ( v8 && v10 )
-  {
-    __asm { vmovaps xmm0, xmm3; x }
-    *(double *)&_XMM0 = LUI_AutoScroll_ComputeLineXPosition(*(float *)&_XMM0, *(float *)&textWidth, *(float *)&boxWidth, alignment, autoScrollStyle);
-  }
-  else if ( alignment == RIGHT )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vaddss  xmm0, xmm1, xmm3
-    }
+    HIDWORD(v8) = HIDWORD(boxWidth);
+    *(float *)&v8 = (float)((float)(*(float *)&boxWidth - textWidth) * 0.5) + *(float *)&x;
+    return v8;
   }
   else if ( alignment == 2 )
   {
-    __asm
-    {
-      vaddss  xmm0, xmm3, xmm2
-      vsubss  xmm0, xmm0, xmm1
-    }
+    HIDWORD(v7) = HIDWORD(x);
+    *(float *)&v7 = (float)(*(float *)&x + *(float *)&boxWidth) - textWidth;
+    return v7;
   }
-  else
-  {
-    __asm { vmovaps xmm0, xmm3 }
-  }
-  return *(double *)&_XMM0;
+  return x;
 }
 
 /*
@@ -3640,60 +3120,28 @@ LABEL_8:
 LUI_CoD_DrawText_ComputeYOffset
 ==============
 */
-
-float __fastcall LUI_CoD_DrawText_ComputeYOffset(double lineHeight, char leading, int numLines, AutoScrollStyle *autoScrollStyle, LUIVerticalAlignment verticalAlignment)
+float LUI_CoD_DrawText_ComputeYOffset(float lineHeight, char leading, int numLines, AutoScrollStyle *autoScrollStyle, LUIVerticalAlignment verticalAlignment)
 {
-  __asm
+  float v7; 
+  double v8; 
+
+  v7 = 0.0;
+  if ( autoScrollStyle )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm0
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm2, xmm2, xmm2
-  }
-  if ( autoScrollStyle && autoScrollStyle->options.direction[0] == 2 )
-  {
-    lineHeight = LUI_AutoScroll_ComputeLineYOffset(*(float *)&lineHeight, numLines, autoScrollStyle, verticalAlignment);
-    __asm { vmovaps xmm2, xmm0 }
-  }
-  if ( numLines <= 1 )
-    goto LABEL_9;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm7
-  }
-  if ( verticalAlignment == CENTER )
-  {
-    __asm
+    if ( autoScrollStyle->options.direction[0] == 2 )
     {
-      vmulss  xmm0, xmm0, cs:__real@bf000000
-      vaddss  xmm0, xmm0, xmm2
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovaps xmm7, [rsp+48h+var_28]
+      v8 = LUI_AutoScroll_ComputeLineYOffset(lineHeight, numLines, autoScrollStyle, verticalAlignment);
+      v7 = *(float *)&v8;
     }
-    return *(float *)&_XMM0;
   }
-  if ( verticalAlignment != BOTTOM )
+  if ( numLines > 1 )
   {
-LABEL_9:
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_28]
-      vaddss  xmm0, xmm6, xmm2
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-    return *(float *)&_XMM0;
+    if ( verticalAlignment == CENTER )
+      return (float)((float)((float)(numLines - 1) * lineHeight) * -0.5) + v7;
+    if ( verticalAlignment == BOTTOM )
+      return COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(numLines - 1) * lineHeight) ^ _xmm) + v7;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-    vaddss  xmm0, xmm0, xmm2
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return v7 + 0.0;
 }
 
 /*
@@ -3867,87 +3315,59 @@ _BOOL8 LUI_CoD_GCCanRun()
 LUI_CoD_GenerateQuadVerts
 ==============
 */
-
-void __fastcall LUI_CoD_GenerateQuadVerts(double left, double top, double right, double bottom, vec4_t (*quadVerts)[4])
+void LUI_CoD_GenerateQuadVerts(float left, float top, float right, float bottom, vec4_t (*quadVerts)[4])
 {
-  __int64 v23; 
+  vec4_t (*v5)[4]; 
+  __int64 v14; 
 
-  _RBX = quadVerts;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
+  v5 = quadVerts;
+  *(float *)&_XMM9 = left;
+  *(float *)&_XMM6 = bottom;
+  *(float *)&_XMM7 = right;
+  *(float *)&_XMM8 = top;
   if ( !quadVerts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6276, ASSERT_TYPE_ASSERT, "(quadVerts)", (const char *)&queryFormat, "quadVerts") )
     __debugbreak();
   if ( !LUI_GetCurrentMenuTransform() )
   {
+    _XMM9 = 0i64;
+    _XMM8 = 0i64;
     __asm
     {
-      vmovss  xmm2, cs:__real@3f000000
-      vaddss  xmm0, xmm9, xmm2
-      vaddss  xmm1, xmm8, xmm2
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm8, xmm8, xmm8
       vroundss xmm9, xmm9, xmm0, 1
-      vaddss  xmm0, xmm7, xmm2
       vroundss xmm8, xmm8, xmm1, 1
-      vaddss  xmm1, xmm6, xmm2
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm6, xmm6, xmm6
+    }
+    _XMM7 = 0i64;
+    _XMM6 = 0i64;
+    __asm
+    {
       vroundss xmm7, xmm7, xmm0, 1
       vroundss xmm6, xmm6, xmm1, 1
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm9
-    vmovss  dword ptr [rbx+4], xmm8
-  }
+  (*quadVerts)[0].v[0] = *(float *)&_XMM9;
+  (*quadVerts)[0].v[1] = *(float *)&_XMM8;
   (*quadVerts)[0].v[3] = 1.0;
   (*quadVerts)[0].v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10h], xmm7
-    vmovss  dword ptr [rbx+14h], xmm8
-  }
+  (*quadVerts)[1].v[0] = *(float *)&_XMM7;
+  (*quadVerts)[1].v[1] = *(float *)&_XMM8;
   (*quadVerts)[1].v[2] = 0.0;
-  v23 = 4i64;
+  v14 = 4i64;
   (*quadVerts)[1].v[3] = 1.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+20h], xmm7
-    vmovss  dword ptr [rbx+24h], xmm6
-  }
+  (*quadVerts)[2].v[0] = *(float *)&_XMM7;
+  (*quadVerts)[2].v[1] = *(float *)&_XMM6;
   (*quadVerts)[2].v[2] = 0.0;
   (*quadVerts)[2].v[3] = 1.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+30h], xmm9
-    vmovss  dword ptr [rbx+34h], xmm6
-  }
+  (*quadVerts)[3].v[0] = *(float *)&_XMM9;
+  (*quadVerts)[3].v[1] = *(float *)&_XMM6;
   (*quadVerts)[3].v[2] = 0.0;
   (*quadVerts)[3].v[3] = 1.0;
   do
   {
-    LUI_ApplyTransformsToPoint((vec4_t *)_RBX);
-    _RBX = (vec4_t (*)[4])((char *)_RBX + 16);
-    --v23;
+    LUI_ApplyTransformsToPoint((vec4_t *)v5);
+    v5 = (vec4_t (*)[4])((char *)v5 + 16);
+    --v14;
   }
-  while ( v23 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm9, [rsp+78h+var_48]
-  }
+  while ( v14 );
 }
 
 /*
@@ -3955,118 +3375,56 @@ void __fastcall LUI_CoD_GenerateQuadVerts(double left, double top, double right,
 LUI_CoD_GenerateRotatedQuadVerts
 ==============
 */
-
-void __fastcall LUI_CoD_GenerateRotatedQuadVerts(double left, double top, double right, double bottom, float angle, float centerX, float centerY, vec4_t (*quadVerts)[4])
+void LUI_CoD_GenerateRotatedQuadVerts(float left, float top, float right, float bottom, float angle, float centerX, float centerY, vec4_t (*quadVerts)[4])
 {
   __int64 v8; 
   __int64 v9; 
   __int64 v10; 
   __int64 v11; 
-  __int64 v43; 
-  __int128 v69; 
-  char v70; 
-  void *retaddr; 
+  __m128 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
 
-  _RAX = &retaddr;
-  _RDI = quadVerts;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0B8h+var_88], xmm13
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-    vmovaps xmm8, xmm1
-    vmovaps xmm9, xmm0
-  }
-  if ( !quadVerts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6358, ASSERT_TYPE_ASSERT, "(quadVerts)", (const char *)&queryFormat, "quadVerts", v69) )
+  if ( !quadVerts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6358, ASSERT_TYPE_ASSERT, "(quadVerts)", (const char *)&queryFormat, "quadVerts") )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+0B8h+angle] }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(v9, v8, v10, v11);
-  __asm
-  {
-    vmovss  xmm12, [rsp+0B8h+centerX]
-    vmovss  xmm13, [rsp+0B8h+centerY]
-    vmovups xmm10, xmm0
-    vshufps xmm11, xmm0, xmm0, 1
-  }
+  v14 = (__m128)LODWORD(angle);
+  *(double *)v14.m128_u64 = j___libm_sse2_sincosf_(v9, v8, v10, v11);
+  v15 = _mm_shuffle_ps(v14, v14, 1).m128_f32[0];
   (*quadVerts)[0].v[3] = 1.0;
   (*quadVerts)[0].v[2] = 0.0;
-  __asm
-  {
-    vsubss  xmm2, xmm8, xmm13
-    vmulss  xmm4, xmm10, xmm2
-    vmulss  xmm5, xmm11, xmm2
-    vsubss  xmm3, xmm9, xmm12
-    vmulss  xmm9, xmm11, xmm3
-    vsubss  xmm1, xmm9, xmm4
-    vaddss  xmm0, xmm1, xmm12
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm8, xmm10, xmm3
-    vsubss  xmm6, xmm6, xmm12
-    vmulss  xmm2, xmm11, xmm6
-    vaddss  xmm0, xmm5, xmm8
-    vaddss  xmm1, xmm0, xmm13
-    vmovss  dword ptr [rdi+4], xmm1
-  }
+  v16 = v14.m128_f32[0] * (float)(top - centerY);
+  v17 = v15 * (float)(top - centerY);
+  v18 = left - centerX;
+  v19 = v15 * (float)(left - centerX);
+  (*quadVerts)[0].v[0] = (float)(v19 - v16) + centerX;
+  (*quadVerts)[0].v[1] = (float)(v17 + (float)(v14.m128_f32[0] * v18)) + centerY;
   (*quadVerts)[1].v[2] = 0.0;
-  v43 = 4i64;
+  v20 = 4i64;
   (*quadVerts)[1].v[3] = 1.0;
-  __asm
-  {
-    vsubss  xmm0, xmm2, xmm4
-    vaddss  xmm1, xmm0, xmm12
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmulss  xmm4, xmm10, xmm6
-    vsubss  xmm7, xmm7, xmm13
-    vaddss  xmm0, xmm4, xmm5
-    vaddss  xmm1, xmm0, xmm13
-    vmovss  dword ptr [rdi+14h], xmm1
-  }
+  (*quadVerts)[1].v[0] = (float)((float)(v15 * (float)(right - centerX)) - v16) + centerX;
+  v21 = v14.m128_f32[0] * (float)(right - centerX);
+  v22 = bottom - centerY;
+  (*quadVerts)[1].v[1] = (float)(v21 + v17) + centerY;
   (*quadVerts)[2].v[2] = 0.0;
   (*quadVerts)[2].v[3] = 1.0;
-  __asm
-  {
-    vmulss  xmm3, xmm10, xmm7
-    vsubss  xmm0, xmm2, xmm3
-    vaddss  xmm1, xmm0, xmm12
-    vmovss  dword ptr [rdi+20h], xmm1
-    vmulss  xmm2, xmm11, xmm7
-    vaddss  xmm0, xmm2, xmm4
-    vaddss  xmm1, xmm0, xmm13
-    vmovss  dword ptr [rdi+24h], xmm1
-    vsubss  xmm0, xmm9, xmm3
-    vaddss  xmm1, xmm0, xmm12
-    vaddss  xmm2, xmm2, xmm8
-    vaddss  xmm0, xmm2, xmm13
-    vmovss  dword ptr [rdi+34h], xmm0
-    vmovss  dword ptr [rdi+30h], xmm1
-  }
+  (*quadVerts)[2].v[0] = (float)((float)(v15 * (float)(right - centerX)) - (float)(v14.m128_f32[0] * v22)) + centerX;
+  (*quadVerts)[2].v[1] = (float)((float)(v15 * v22) + v21) + centerY;
+  (*quadVerts)[3].v[1] = (float)((float)(v15 * v22) + (float)(v14.m128_f32[0] * v18)) + centerY;
+  (*quadVerts)[3].v[0] = (float)(v19 - (float)(v14.m128_f32[0] * v22)) + centerX;
   (*quadVerts)[3].v[2] = 0.0;
   (*quadVerts)[3].v[3] = 1.0;
   do
   {
     LUI_ApplyTransformsToPoint((vec4_t *)quadVerts);
-    --v43;
+    --v20;
   }
-  while ( v43 );
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  while ( v20 );
 }
 
 /*
@@ -4467,18 +3825,9 @@ LUI_CoD_GetFrontendCinematicState
 */
 void LUI_CoD_GetFrontendCinematicState(CinematicState *cinematicState)
 {
-  _RBX = cinematicState;
   if ( !cinematicState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7711, ASSERT_TYPE_ASSERT, "(cinematicState)", (const char *)&queryFormat, "cinematicState") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_luiFrontendCinematicState.name
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr cs:s_luiFrontendCinematicState.name+20h
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovsd  xmm0, qword ptr cs:s_luiFrontendCinematicState.playbackFlags
-    vmovsd  qword ptr [rbx+40h], xmm0
-  }
+  *cinematicState = s_luiFrontendCinematicState;
 }
 
 /*
@@ -4998,53 +4347,26 @@ LUI_CoD_GetMousePosition
 */
 char LUI_CoD_GetMousePosition(int controllerIndex, float *outX, float *outY)
 {
-  __int64 v4; 
+  __int64 v3; 
   LUIRootData *RootDataForController; 
+  float lastMouseX; 
+  float lastMouseY; 
+  float displayWidth; 
+  float displayHeight; 
   char result; 
 
-  v4 = controllerIndex;
+  v3 = controllerIndex;
   RootDataForController = LUI_CoD_GetRootDataForController(controllerIndex);
-  _RCX = 32 * v4;
-  _RAX = s_perController;
-  __asm
+  lastMouseX = s_perController[v3].lastMouseX;
+  if ( lastMouseX < 0.0 || (lastMouseY = s_perController[v3].lastMouseY, lastMouseY < 0.0) || (displayWidth = (float)vidConfig.displayWidth, lastMouseX > displayWidth) || (displayHeight = (float)vidConfig.displayHeight, lastMouseY > displayHeight) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rcx+rax+4]; x
-    vcomiss xmm1, xmm0
-  }
-  if ( __CFSHL__(v4, 5) )
-    goto LABEL_6;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rcx+rax+8]; y
-    vcomiss xmm2, xmm0
-  }
-  if ( __CFSHL__(v4, 5) )
-    goto LABEL_6;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcomiss xmm1, xmm0
-  }
-  if ( !__CFSHL__(v4, 5) && 32 * v4 != 0 )
-    goto LABEL_6;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcomiss xmm2, xmm0
-  }
-  if ( !__CFSHL__(v4, 5) && 32 * v4 != 0 )
-  {
-LABEL_6:
     result = 0;
     *outX = -1000.0;
     *outY = -1000.0;
   }
   else
   {
-    LUI_GetMousePosition(RootDataForController->name, *(float *)&_XMM1, *(float *)&_XMM2, outX, outY, LUI_luaVM);
+    LUI_GetMousePosition(RootDataForController->name, lastMouseX, lastMouseY, outX, outY, LUI_luaVM);
     return 1;
   }
   return result;
@@ -5146,15 +4468,9 @@ LUI_CoD_GetWorldBlurForLocalClient
 */
 float LUI_CoD_GetWorldBlurForLocalClient(LocalClientNum_t localClientNum)
 {
-  int ControllerFromClient; 
-
-  ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-  __asm { vmovss  xmm1, cs:s_fullscreenRootData.worldBlurRadius }
-  _RAX = 464i64 * ControllerFromClient;
-  _RCX = &s_rootData[0].worldBlurRadius;
+  _XMM2 = LODWORD(s_rootData[CL_Mgr_GetControllerFromClient(localClientNum)].worldBlurRadius);
   __asm
   {
-    vmovss  xmm2, dword ptr [rax+rcx]
     vcmpltss xmm0, xmm2, xmm1
     vblendvps xmm0, xmm2, xmm1, xmm0
   }
@@ -5340,68 +4656,67 @@ _BOOL8 LUI_CoD_InFrontend()
 LUI_CoD_Init
 ==============
 */
-
-void __fastcall LUI_CoD_Init(bool frontend, bool errorRecovery, double _XMM2_8, double _XMM3_8)
+void LUI_CoD_Init(bool frontend, bool errorRecovery)
 {
-  const char *v7; 
-  const char *v8; 
-  const dvar_t *v10; 
-  unsigned int v11; 
-  __int64 v12; 
-  __int64 v13; 
-  char v14; 
-  int v15; 
-  int v16; 
-  XAssetHeader v17; 
+  const char *v4; 
+  const char *v5; 
+  const dvar_t *v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  __int64 v9; 
+  char v10; 
+  int v11; 
+  int v12; 
+  XAssetHeader v13; 
   unsigned __int8 ActiveGameMode; 
-  const dvar_t *v19; 
-  char **v20; 
-  const dvar_t *v21; 
-  char **v22; 
+  const dvar_t *v15; 
+  char **v16; 
+  const dvar_t *v17; 
+  char **v18; 
   const char *StringSafe; 
-  const char *v24; 
-  const char *v25; 
-  unsigned int v26; 
-  int v33; 
+  const char *v20; 
+  const char *v21; 
+  unsigned int v22; 
+  float displayHeight; 
+  float displayWidth; 
+  int v25; 
   int inParty; 
   int ControllerFromClient; 
-  const dvar_t *v36; 
-  int v37; 
-  const dvar_t *v38; 
-  int v39; 
-  const dvar_t *v40; 
-  int v41; 
-  const dvar_t *v42; 
-  int v43; 
+  const dvar_t *v28; 
+  int v29; 
+  const dvar_t *v30; 
+  int v31; 
+  const dvar_t *v32; 
+  int v33; 
+  const dvar_t *v34; 
+  int v35; 
   bool BoolSafe; 
-  const dvar_t *v45; 
-  BOOL v46; 
-  lua_State *v47; 
-  const char *v48; 
-  unsigned int v49; 
+  const dvar_t *v37; 
+  BOOL v38; 
+  lua_State *v39; 
+  const char *v40; 
+  unsigned int v41; 
   char *fmt; 
-  float fmta; 
   __int64 controllerIndex; 
-  __int64 v53; 
-  int v55; 
-  int v56; 
-  BOOL v57; 
-  BOOL v58; 
-  int v59; 
+  __int64 v44; 
+  int v46; 
+  int v47; 
+  BOOL v48; 
+  BOOL v49; 
+  int v50; 
   char dest[128]; 
 
-  v7 = (char *)&queryFormat.fmt + 3;
+  v4 = (char *)&queryFormat.fmt + 3;
   if ( errorRecovery )
-    v7 = "recovering";
-  v8 = "(in-game)";
+    v4 = "recovering";
+  v5 = "(in-game)";
   if ( frontend )
-    v8 = "(frontend)";
-  LUI_Interface_DebugPrint("LUI: Initializing %s %s\n", v8, v7);
+    v5 = "(frontend)";
+  LUI_Interface_DebugPrint("LUI: Initializing %s %s\n", v5, v4);
   memset_0(s_rootData, 0, sizeof(s_rootData));
   memset_0(&s_fullscreenRootData, 0, sizeof(s_fullscreenRootData));
   memset_0(s_perController, 0, sizeof(s_perController));
-  __asm { vmovss  xmm0, cs:__real@c47a0000 }
-  v10 = DCONST_DVARBOOL_lui_enabled;
+  v6 = DCONST_DVARBOOL_lui_enabled;
   s_perController[0].textEditRef = -2;
   s_perController[1].textEditRef = -2;
   s_perController[2].textEditRef = -2;
@@ -5410,40 +4725,37 @@ void __fastcall LUI_CoD_Init(bool frontend, bool errorRecovery, double _XMM2_8, 
   s_perController[5].textEditRef = -2;
   s_perController[6].textEditRef = -2;
   s_perController[7].textEditRef = -2;
-  __asm
-  {
-    vmovss  cs:s_perController.lastMouseX, xmm0
-    vmovss  cs:s_perController.lastMouseY, xmm0
-    vmovss  cs:s_perController.lastMouseX+20h, xmm0
-    vmovss  cs:s_perController.lastMouseY+20h, xmm0
-    vmovss  cs:s_perController.lastMouseX+40h, xmm0
-    vmovss  cs:s_perController.lastMouseY+40h, xmm0
-    vmovss  cs:s_perController.lastMouseX+60h, xmm0
-    vmovss  cs:s_perController.lastMouseY+60h, xmm0
-    vmovss  cs:s_perController.lastMouseX+80h, xmm0
-    vmovss  cs:s_perController.lastMouseY+80h, xmm0
-    vmovss  cs:s_perController.lastMouseX+0A0h, xmm0
-    vmovss  cs:s_perController.lastMouseY+0A0h, xmm0
-    vmovss  cs:s_perController.lastMouseX+0C0h, xmm0
-    vmovss  cs:s_perController.lastMouseY+0C0h, xmm0
-    vmovss  cs:s_perController.lastMouseX+0E0h, xmm0
-    vmovss  cs:s_perController.lastMouseY+0E0h, xmm0
-  }
+  s_perController[0].lastMouseX = FLOAT_N1000_0;
+  s_perController[0].lastMouseY = FLOAT_N1000_0;
+  s_perController[1].lastMouseX = FLOAT_N1000_0;
+  s_perController[1].lastMouseY = FLOAT_N1000_0;
+  s_perController[2].lastMouseX = FLOAT_N1000_0;
+  s_perController[2].lastMouseY = FLOAT_N1000_0;
+  s_perController[3].lastMouseX = FLOAT_N1000_0;
+  s_perController[3].lastMouseY = FLOAT_N1000_0;
+  s_perController[4].lastMouseX = FLOAT_N1000_0;
+  s_perController[4].lastMouseY = FLOAT_N1000_0;
+  s_perController[5].lastMouseX = FLOAT_N1000_0;
+  s_perController[5].lastMouseY = FLOAT_N1000_0;
+  s_perController[6].lastMouseX = FLOAT_N1000_0;
+  s_perController[6].lastMouseY = FLOAT_N1000_0;
+  s_perController[7].lastMouseX = FLOAT_N1000_0;
+  s_perController[7].lastMouseY = FLOAT_N1000_0;
   if ( !DCONST_DVARBOOL_lui_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled && (!frontend || !Sys_IsPLMHotLoadActive()) )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled && (!frontend || !Sys_IsPLMHotLoadActive()) )
   {
-    v11 = 0;
-    v12 = 0i64;
-    v13 = 72i64;
+    v7 = 0;
+    v8 = 0i64;
+    v9 = 72i64;
     do
     {
-      s_luiMaterials[v12] = Material_Register(s_luiMaterialNames[v12], IMAGE_TRACK_UI);
-      ++v12;
-      --v13;
+      s_luiMaterials[v8] = Material_Register(s_luiMaterialNames[v8], IMAGE_TRACK_UI);
+      ++v8;
+      --v9;
     }
-    while ( v13 );
+    while ( v9 );
     s_luiCinematicMaterial = Material_Register("cinematic", IMAGE_TRACK_UI);
     s_luiCinematicMP4Material = Material_Register("cinematic_mp4", IMAGE_TRACK_UI);
     s_luiCalibrationPassthruMaterial = Material_Register("ui_calibration_passthru", IMAGE_TRACK_UI);
@@ -5469,28 +4781,28 @@ void __fastcall LUI_CoD_Init(bool frontend, bool errorRecovery, double _XMM2_8, 
     s_prevQuickInventoryDownInput = -1;
     LUI_DefaultMaterial = Image_Register("$white", IMAGE_TRACK_UI);
     s_spinnerMaterial = Image_Register("spinner_streamer", IMAGE_TRACK_UI);
-    v14 = 1;
+    v10 = 1;
     LUI_DefaultFont = R_RegisterFont("fonts/fira_mono_regular.ttf", 14);
     if ( s_luaInFrontend )
     {
-      v15 = Sys_Milliseconds();
+      v11 = Sys_Milliseconds();
       if ( !s_luaExtraFrontendMemory )
       {
         while ( 1 )
         {
           Sys_CheckQuitRequest();
           Sys_Sleep(3);
-          if ( Sys_Milliseconds() - v15 > 20000 )
+          if ( Sys_Milliseconds() - v11 > 20000 )
             break;
           if ( s_luaExtraFrontendMemory )
             goto LABEL_25;
         }
-        v14 = 0;
+        v10 = 0;
       }
 LABEL_25:
-      v16 = Sys_Milliseconds();
-      Com_Printf(13, "LUI: Waited for %d ms for frontend memory to be allocated\n", (unsigned int)(v16 - v15));
-      if ( !v14 )
+      v12 = Sys_Milliseconds();
+      Com_Printf(13, "LUI: Waited for %d ms for frontend memory to be allocated\n", (unsigned int)(v12 - v11));
+      if ( !v10 )
       {
         LUI_LeaveCriticalSection();
         Sys_Error((const ObfuscateErrorText)&stru_144465078);
@@ -5521,8 +4833,8 @@ LABEL_25:
       s_luaTlsfDebugMemoryPool = j_tlsf_add_pool(s_tlsf_lua.tlsf, s_luaDebugMemory.debuggerMem, 0xA00000ui64);
     }
     LUI_Init(LUI_CoD_CreateVM, LUI_CoD_DestroyVM);
-    v17.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_LUA_FILE, "ui/LUIStartup.lua", 0).physicsLibrary;
-    if ( v17.physicsLibrary && !LOBYTE(v17.physicsLibrary->havokDataSize) && !s_luaExtraDbgSymbolMemory )
+    v13.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_LUA_FILE, "ui/LUIStartup.lua", 0).physicsLibrary;
+    if ( v13.physicsLibrary && !LOBYTE(v13.physicsLibrary->havokDataSize) && !s_luaExtraDbgSymbolMemory )
     {
       s_luaExtraDbgSymbolMemoryInUse = 1;
       s_luaExtraDbgSymbolMemory = Mem_Virtual_Alloc(0x580000ui64, "LUI_DevMemory", TRACK_DEBUG);
@@ -5595,24 +4907,24 @@ LABEL_139:
     }
     if ( !s_luaExtraSplitscreenMemory )
     {
-      v19 = DVARBOOL_splitscreen;
+      v15 = DVARBOOL_splitscreen;
       if ( !DVARBOOL_splitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "splitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v19);
-      if ( v19->current.enabled )
+      Dvar_CheckFrontendServerThread(v15);
+      if ( v15->current.enabled )
       {
         LUI_Interface_DebugPrint("LUI memory: Allocating extra splitscreen memory: %u\n", 1024i64);
-        v20 = s_luaExtraSplitscreenMemoryBuf;
+        v16 = s_luaExtraSplitscreenMemoryBuf;
         s_luaExtraSplitscreenMemoryInUse = 0;
         s_luaExtraSplitscreenMemory = s_luaExtraSplitscreenMemoryBuf;
       }
       else
       {
-        v20 = (char **)s_luaExtraSplitscreenMemory;
+        v16 = (char **)s_luaExtraSplitscreenMemory;
       }
       if ( s_luaInFrontend )
         goto LABEL_93;
-      if ( !v20 )
+      if ( !v16 )
         goto LABEL_89;
     }
     if ( s_luaExtraSplitscreenMemoryInUse || !LUI_luaVM )
@@ -5630,23 +4942,23 @@ LABEL_89:
         goto LABEL_91;
       if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF_HALF )
         goto LABEL_87;
-      v21 = DVARBOOL_splitscreen;
+      v17 = DVARBOOL_splitscreen;
       if ( !DVARBOOL_splitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "splitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      if ( !v21->current.enabled && Dvar_GetBool_Internal_DebugName(DVARBOOL_lui_esports_shipMemory, "lui_esports_shipMemory") )
+      Dvar_CheckFrontendServerThread(v17);
+      if ( !v17->current.enabled && Dvar_GetBool_Internal_DebugName(DVARBOOL_lui_esports_shipMemory, "lui_esports_shipMemory") )
       {
         LUI_Interface_DebugPrint("LUI memory: Allocating extra esports memory: %u\n", 1024i64);
-        v22 = s_luaExtraESportsMemoryBuf;
+        v18 = s_luaExtraESportsMemoryBuf;
         s_luaESportsShipMemoryInUse = 0;
         s_luaESportsShipMemory = s_luaExtraESportsMemoryBuf;
       }
       else
       {
 LABEL_87:
-        v22 = (char **)s_luaESportsShipMemory;
+        v18 = (char **)s_luaESportsShipMemory;
       }
-      if ( !s_luaInFrontend && v22 )
+      if ( !s_luaInFrontend && v18 )
       {
 LABEL_91:
         if ( !s_luaESportsShipMemoryInUse && LUI_luaVM )
@@ -5663,93 +4975,85 @@ LABEL_93:
       StringSafe = Dvar_GetStringSafe("LRROMKLOO");
       if ( *StringSafe )
       {
-        v24 = j_va("luiAttachDebugger %s 8172", StringSafe);
+        v20 = j_va("luiAttachDebugger %s 8172", StringSafe);
         if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cmd.h", 552, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
           __debugbreak();
-        Cmd_TokenizeString(v24);
+        Cmd_TokenizeString(v20);
         if ( Cmd_Argc() )
         {
           cmd_args.localClientNum[cmd_args.nesting] = LOCAL_CLIENT_0;
           cmd_args.controllerIndex[cmd_args.nesting] = 0;
-          v25 = Cmd_Argv(0);
-          if ( !Cmd_ExecuteCommandFunctions(v25, v24, &s_cmd_functions) && !Dvar_Command(0) )
-            CL_Main_ForwardCommandToServer(LOCAL_CLIENT_0, v24);
+          v21 = Cmd_Argv(0);
+          if ( !Cmd_ExecuteCommandFunctions(v21, v20, &s_cmd_functions) && !Dvar_Command(0) )
+            CL_Main_ForwardCommandToServer(LOCAL_CLIENT_0, v20);
         }
         Cmd_EndTokenizedString();
       }
     }
     if ( LUI_LoadLUIInitFile() )
     {
-      v26 = truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed);
-      LUI_Interface_DebugPrint("  LUI_LoadLUIInitFile() [Lua Memory used: %d KB]\n", v26 >> 10);
+      v22 = truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed);
+      LUI_Interface_DebugPrint("  LUI_LoadLUIInitFile() [Lua Memory used: %d KB]\n", v22 >> 10);
       if ( frontend )
       {
         Core_strcpy(s_fullscreenRootData.name, 0x20ui64, "UIRootFull");
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2ss xmm3, xmm3, rax; right
-          vxorps  xmm2, xmm2, xmm2; top
-          vxorps  xmm1, xmm1, xmm1; left
-          vmovss  dword ptr [rsp+168h+fmt], xmm0
-        }
-        LUI_CoD_CreateRoot(&s_fullscreenRootData, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, fmta, -1);
+        displayHeight = (float)vidConfig.displayHeight;
+        displayWidth = (float)vidConfig.displayWidth;
+        LUI_CoD_CreateRoot(&s_fullscreenRootData, 0.0, 0.0, displayWidth, displayHeight, -1);
       }
       else
       {
         LUI_CoD_CreateClientRoots();
       }
-      v59 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
-      v33 = 1;
-      v58 = CL_AllLocalClientsInactive();
-      if ( g_launchData.skipMovies || (v55 = 1, s_hasShownSplashScreen) )
-        v55 = 0;
+      v50 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+      v25 = 1;
+      v49 = CL_AllLocalClientsInactive();
+      if ( g_launchData.skipMovies || (v46 = 1, s_hasShownSplashScreen) )
+        v46 = 0;
       if ( Live_IsInSystemlinkLobby() )
         inParty = g_partyData.inParty;
       else
         inParty = Lobby_IsInLobby();
-      v57 = inParty != 0;
+      v48 = inParty != 0;
       ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-      v36 = DVARBOOL_xblive_privatematch;
-      v56 = ControllerFromClient;
-      if ( !DVARBOOL_xblive_privatematch || (Dvar_CheckFrontendServerThread(DVARBOOL_xblive_privatematch), v37 = 1, !v36->current.enabled) )
-        v37 = 0;
-      v38 = DVARBOOL_xblive_privatematch_solo;
-      if ( !DVARBOOL_xblive_privatematch_solo || (Dvar_CheckFrontendServerThread(DVARBOOL_xblive_privatematch_solo), v39 = 1, !v38->current.enabled) )
-        v39 = 0;
-      v40 = DVARBOOL_mlg_gamebattles_match;
-      if ( !DVARBOOL_mlg_gamebattles_match || (Dvar_CheckFrontendServerThread(DVARBOOL_mlg_gamebattles_match), v41 = 1, !v40->current.enabled) )
-        v41 = 0;
-      v42 = DVARBOOL_systemlink;
-      if ( !DVARBOOL_systemlink || (Dvar_CheckFrontendServerThread(DVARBOOL_systemlink), v43 = 1, !v42->current.enabled) )
-        v43 = 0;
-      BoolSafe = Dvar_GetBoolSafe("NLONRMOLKS");
-      v45 = DVARBOOL_force_offline_menus;
-      v46 = BoolSafe;
-      if ( !DVARBOOL_force_offline_menus || (Dvar_CheckFrontendServerThread(DVARBOOL_force_offline_menus), !v45->current.enabled) )
+      v28 = DVARBOOL_xblive_privatematch;
+      v47 = ControllerFromClient;
+      if ( !DVARBOOL_xblive_privatematch || (Dvar_CheckFrontendServerThread(DVARBOOL_xblive_privatematch), v29 = 1, !v28->current.enabled) )
+        v29 = 0;
+      v30 = DVARBOOL_xblive_privatematch_solo;
+      if ( !DVARBOOL_xblive_privatematch_solo || (Dvar_CheckFrontendServerThread(DVARBOOL_xblive_privatematch_solo), v31 = 1, !v30->current.enabled) )
+        v31 = 0;
+      v32 = DVARBOOL_mlg_gamebattles_match;
+      if ( !DVARBOOL_mlg_gamebattles_match || (Dvar_CheckFrontendServerThread(DVARBOOL_mlg_gamebattles_match), v33 = 1, !v32->current.enabled) )
         v33 = 0;
+      v34 = DVARBOOL_systemlink;
+      if ( !DVARBOOL_systemlink || (Dvar_CheckFrontendServerThread(DVARBOOL_systemlink), v35 = 1, !v34->current.enabled) )
+        v35 = 0;
+      BoolSafe = Dvar_GetBoolSafe("NLONRMOLKS");
+      v37 = DVARBOOL_force_offline_menus;
+      v38 = BoolSafe;
+      if ( !DVARBOOL_force_offline_menus || (Dvar_CheckFrontendServerThread(DVARBOOL_force_offline_menus), !v37->current.enabled) )
+        v25 = 0;
       memset_0(dest, 0, sizeof(dest));
-      LOBYTE(v11) = !s_luaInFrontend;
-      LODWORD(v53) = v55;
-      LODWORD(controllerIndex) = v58;
-      LODWORD(fmt) = v59;
-      Com_sprintf_truncate<128>((char (*)[128])dest, "vm:%p,fe:%d,gt:%d,ali:%d,ms:%d,il:%d,ci:%d,xp:%d,xps:%d,mlg:%d,sl:%d,cp:%d,fo:%d", LUI_luaVM, v11, fmt, controllerIndex, v53, v57, v56, v37, v39, v41, v43, v46, v33);
+      LOBYTE(v7) = !s_luaInFrontend;
+      LODWORD(v44) = v46;
+      LODWORD(controllerIndex) = v49;
+      LODWORD(fmt) = v50;
+      Com_sprintf_truncate<128>((char (*)[128])dest, "vm:%p,fe:%d,gt:%d,ali:%d,ms:%d,il:%d,ci:%d,xp:%d,xps:%d,mlg:%d,sl:%d,cp:%d,fo:%d", LUI_luaVM, v7, fmt, controllerIndex, v44, v48, v47, v29, v31, v33, v35, v38, v25);
       CrashReport_AddKVP("LUI_Init", dest);
       CrashReport_AddMemRegion("LUI_luaVM", LUI_luaVM, 0x60ui64);
       CrashReport_AddMemRegion("LUI_luaVM_stack", (const void *)LUI_luaVM->stack.ptr64, 0x400ui64);
-      v47 = LUI_luaVM;
+      v39 = LUI_luaVM;
       j_lua_getfield(LUI_luaVM, -10002, "Main");
-      if ( LuaShared_PCall(v47, 0, 0) )
+      if ( LuaShared_PCall(v39, 0, 0) )
       {
-        v48 = j_lua_tolstring(v47, -1, NULL);
-        LUI_ReportError("Error while running LUI Main():\n", v47);
-        Sys_Error((const ObfuscateErrorText)&stru_144464F38, v48);
+        v40 = j_lua_tolstring(v39, -1, NULL);
+        LUI_ReportError("Error while running LUI Main():\n", v39);
+        Sys_Error((const ObfuscateErrorText)&stru_144464F38, v40);
       }
       s_luaInInitProcess = 0;
-      v49 = truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed);
-      LUI_Interface_DebugPrint("  [Lua Memory used: %d KB]\n", v49 >> 10);
+      v41 = truncate_cast<unsigned int,unsigned __int64>(s_tlsf_lua.currentLuaMemoryUsed);
+      LUI_Interface_DebugPrint("  [Lua Memory used: %d KB]\n", v41 >> 10);
       if ( !errorRecovery )
         LUI_CoD_AttachDebugger();
       if ( j_lua_gettop(LUI_luaVM) )
@@ -6127,35 +5431,34 @@ LUI_CoD_KeyEvent
 */
 bool LUI_CoD_KeyEvent(LocalClientNum_t localClientNum, int controllerIndex, int key, int binding, int down, int keyCatchers, bool resetInputs)
 {
-  int v8; 
-  __int64 v9; 
-  __int64 v11; 
+  int v7; 
+  __int64 v8; 
+  __int64 v10; 
   bool result; 
-  bool v14; 
+  bool v12; 
   bool isDoubleClick; 
   bool IsCatcherActive; 
-  int v17; 
+  int v15; 
   int DoubleClickTime; 
-  int v19; 
-  __int64 v20; 
-  char v21; 
-  bool v24; 
-  bool v25; 
-  bool v26; 
+  int v17; 
+  __int64 v18; 
+  char v19; 
+  bool v20; 
+  bool v21; 
+  bool v22; 
   clientUIActive_t *LocalClientUIGlobals; 
-  bool v28; 
-  float outScreenY; 
+  bool v24; 
   float screenY; 
   float outScreenX; 
   char *rootName; 
   char *outName[2]; 
 
-  v8 = binding;
-  v9 = controllerIndex;
-  v11 = localClientNum;
+  v7 = binding;
+  v8 = controllerIndex;
+  v10 = localClientNum;
   if ( Com_FrontEndScene_IsActive() && Com_FrontEndScene_FreeCamEnabled() || !cls.uiStarted || !LUI_CoD_IsEnabled() )
     return 0;
-  if ( s_luaWaitingForKeyBind[v11] )
+  if ( s_luaWaitingForKeyBind[v10] )
   {
     if ( (unsigned int)(key - 187) > 2 )
     {
@@ -6166,31 +5469,27 @@ bool LUI_CoD_KeyEvent(LocalClientNum_t localClientNum, int controllerIndex, int 
     {
       return 1;
     }
-    LUI_CoD_HandleKeyBind((LocalClientNum_t)v11, key);
+    LUI_CoD_HandleKeyBind((LocalClientNum_t)v10, key);
     return 1;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v14 = 0;
+  v12 = 0;
   rootName = NULL;
   isDoubleClick = 0;
-  __asm
-  {
-    vmovss  [rsp+88h+outScreenX], xmm0
-    vmovss  [rsp+88h+screenY], xmm0
-  }
+  outScreenX = 0.0;
+  screenY = 0.0;
   if ( (unsigned int)(key - 187) <= 2 )
   {
     outName[0] = NULL;
-    IsCatcherActive = CL_Keys_IsCatcherActive((LocalClientNum_t)v11, 256);
-    LUI_CoD_GetBindingSemantics(v8, !IsCatcherActive, (const char **)outName);
+    IsCatcherActive = CL_Keys_IsCatcherActive((LocalClientNum_t)v10, 256);
+    LUI_CoD_GetBindingSemantics(v7, !IsCatcherActive, (const char **)outName);
     if ( outName[0] )
     {
-      v14 = LUI_CoD_QueueInputEvent(v9, outName[0], down != 0, "mouse", 0);
-      rootName = LUI_CoD_GetRootDataForController(v9)->name;
+      v12 = LUI_CoD_QueueInputEvent(v8, outName[0], down != 0, "mouse", 0);
+      rootName = LUI_CoD_GetRootDataForController(v8)->name;
     }
     else
     {
-      v14 = LUI_CoD_QueueMouseInput(v9, key, down, &outScreenX, &screenY, (const char **)&rootName);
+      v12 = LUI_CoD_QueueMouseInput(v8, key, down, &outScreenX, &screenY, (const char **)&rootName);
       if ( down )
       {
         if ( key == 187 )
@@ -6201,13 +5500,13 @@ bool LUI_CoD_KeyEvent(LocalClientNum_t localClientNum, int controllerIndex, int 
           }
           else
           {
-            v17 = Sys_Milliseconds();
+            v15 = Sys_Milliseconds();
             DoubleClickTime = Sys_GetDoubleClickTime();
-            v19 = v17 - s_lastClickMs;
-            if ( v17 - s_lastClickMs < DoubleClickTime )
-              v17 = -1;
-            isDoubleClick = v19 < DoubleClickTime;
-            s_lastClickMs = v17;
+            v17 = v15 - s_lastClickMs;
+            if ( v15 - s_lastClickMs < DoubleClickTime )
+              v15 = -1;
+            isDoubleClick = v17 < DoubleClickTime;
+            s_lastClickMs = v15;
           }
         }
         else
@@ -6217,10 +5516,10 @@ bool LUI_CoD_KeyEvent(LocalClientNum_t localClientNum, int controllerIndex, int 
       }
     }
   }
-  v20 = v9;
-  if ( s_perController[v9].textEditRef != -2 && LUI_TextEdit_HandlesKey(key) )
+  v18 = v8;
+  if ( s_perController[v8].textEditRef != -2 && LUI_TextEdit_HandlesKey(key) )
   {
-    v21 = 1;
+    v19 = 1;
     if ( down )
     {
       LUI_EnterCriticalSection("LUI_CoD_KeyEvent");
@@ -6228,18 +5527,12 @@ bool LUI_CoD_KeyEvent(LocalClientNum_t localClientNum, int controllerIndex, int 
       {
 LABEL_31:
         LUI_LeaveCriticalSection();
-        if ( v21 )
+        if ( v19 )
           return 1;
-        v8 = binding;
+        v7 = binding;
         goto LABEL_33;
       }
-      __asm
-      {
-        vmovss  xmm0, [rsp+88h+screenY]
-        vmovss  xmm3, [rsp+88h+outScreenX]; screenX
-        vmovss  dword ptr [rsp+88h+outScreenY], xmm0
-      }
-      v24 = LUI_TextEdit_HandleKey((LocalClientNum_t)v11, s_perController[v20].textEditRef, key, *(float *)&_XMM3, outScreenY, rootName, LUI_luaVM, isDoubleClick);
+      v20 = LUI_TextEdit_HandleKey((LocalClientNum_t)v10, s_perController[v18].textEditRef, key, outScreenX, screenY, rootName, LUI_luaVM, isDoubleClick);
     }
     else
     {
@@ -6248,9 +5541,9 @@ LABEL_31:
       LUI_EnterCriticalSection("LUI_CoD_KeyEvent");
       if ( !LUI_luaVM )
         goto LABEL_31;
-      v24 = LUI_TextEdit_HandledGamepadUpEvent(s_perController[v20].textEditRef, key, LUI_luaVM);
+      v20 = LUI_TextEdit_HandledGamepadUpEvent(s_perController[v18].textEditRef, key, LUI_luaVM);
     }
-    v21 = v24;
+    v19 = v20;
     goto LABEL_31;
   }
 LABEL_33:
@@ -6258,29 +5551,29 @@ LABEL_33:
   {
     rootName = NULL;
     outName[0] = NULL;
-    v25 = (unsigned int)(key - 192) > 3 || !CL_Keys_IsCatcherActive((LocalClientNum_t)v11, 256);
-    LUI_CoD_GetBindingSemantics(v8, v25, (const char **)&rootName);
-    v26 = MLG_IsCoDCasterEnabled() && MLG_IsLocalPlayerMLGSpectator((LocalClientNum_t)v11);
-    LocalClientUIGlobals = CL_GetLocalClientUIGlobals((const LocalClientNum_t)v11);
-    if ( rootName && (LocalClientUIGlobals->lastInputType || v26) )
+    v21 = (unsigned int)(key - 192) > 3 || !CL_Keys_IsCatcherActive((LocalClientNum_t)v10, 256);
+    LUI_CoD_GetBindingSemantics(v7, v21, (const char **)&rootName);
+    v22 = MLG_IsCoDCasterEnabled() && MLG_IsLocalPlayerMLGSpectator((LocalClientNum_t)v10);
+    LocalClientUIGlobals = CL_GetLocalClientUIGlobals((const LocalClientNum_t)v10);
+    if ( rootName && (LocalClientUIGlobals->lastInputType || v22) )
     {
-      v28 = LUI_CoD_QueueInputEvent(v9, rootName, down != 0, "keyboard", 0);
+      v24 = LUI_CoD_QueueInputEvent(v8, rootName, down != 0, "keyboard", 0);
 LABEL_47:
-      v14 = v28;
+      v12 = v24;
       goto LABEL_48;
     }
     LUI_CoD_GetKeySemantics(key, (const char **)&rootName, (const char **)outName);
-    LUI_CoD_InterpretKey((LocalClientNum_t)v11, v9, key, down, resetInputs);
+    LUI_CoD_InterpretKey((LocalClientNum_t)v10, v8, key, down, resetInputs);
     if ( rootName )
     {
-      v28 = LUI_CoD_QueueInputEvent(v9, rootName, down != 0, outName[0], resetInputs);
+      v24 = LUI_CoD_QueueInputEvent(v8, rootName, down != 0, outName[0], resetInputs);
       goto LABEL_47;
     }
   }
 LABEL_48:
-  if ( v14 )
+  if ( v12 )
     return 1;
-  result = CL_Keys_IsCatcherActive((LocalClientNum_t)v11, 64);
+  result = CL_Keys_IsCatcherActive((LocalClientNum_t)v10, 64);
   if ( result )
     return 1;
   return result;
@@ -6359,80 +5652,76 @@ LUI_CoD_Layout
 void LUI_CoD_Layout(const LocalClientNum_t localClientNum, const char *rootName)
 {
   char *name; 
-  __int64 v6; 
-  char v7; 
-  __int64 v8; 
-  char v9; 
+  __int64 v5; 
+  char v6; 
+  __int64 v7; 
+  char v8; 
   int *p_deltaTime; 
   int i; 
-  __int64 v13; 
-  __int64 v14; 
-  char *v15; 
-  const char *v16; 
+  __int64 v11; 
+  __int64 v12; 
+  char *v13; 
+  const char *v14; 
+  char v15; 
+  __int64 v16; 
   char v17; 
-  __int64 v18; 
-  char v19; 
 
   Sys_ProfBeginNamedEvent(0xFF008008, "LUI_CoD_Layout");
   LUI_EnterCriticalSection("LUI_CoD_Layout");
   if ( LUI_luaVM )
   {
     name = s_fullscreenRootData.name;
-    v6 = 0x7FFFFFFFi64;
+    v5 = 0x7FFFFFFFi64;
     if ( !rootName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
     while ( 1 )
     {
-      v7 = name[rootName - s_fullscreenRootData.name];
-      v8 = v6;
-      v9 = *name++;
-      --v6;
-      if ( !v8 )
+      v6 = name[rootName - s_fullscreenRootData.name];
+      v7 = v5;
+      v8 = *name++;
+      --v5;
+      if ( !v7 )
       {
 LABEL_8:
         p_deltaTime = &s_fullscreenRootData.deltaTime;
         goto LABEL_9;
       }
-      if ( v7 != v9 )
+      if ( v6 != v8 )
         break;
-      if ( !v7 )
+      if ( !v6 )
         goto LABEL_8;
     }
     for ( i = 0; i < 8; ++i )
     {
-      v13 = 0x7FFFFFFFi64;
-      v14 = i;
-      v15 = s_rootData[v14].name;
+      v11 = 0x7FFFFFFFi64;
+      v12 = i;
+      v13 = s_rootData[v12].name;
       if ( !rootName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      if ( &s_rootData[v14] == (LUIRootData *)-192i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      if ( &s_rootData[v12] == (LUIRootData *)-192i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v16 = (const char *)(rootName - v15);
+      v14 = (const char *)(rootName - v13);
       while ( 1 )
       {
-        v17 = v15[(_QWORD)v16];
-        v18 = v13;
-        v19 = *v15++;
-        --v13;
-        if ( !v18 )
+        v15 = v13[(_QWORD)v14];
+        v16 = v11;
+        v17 = *v13++;
+        --v11;
+        if ( !v16 )
         {
 LABEL_22:
-          p_deltaTime = &s_rootData[v14].deltaTime;
+          p_deltaTime = &s_rootData[v12].deltaTime;
           goto LABEL_9;
         }
-        if ( v17 != v19 )
+        if ( v15 != v17 )
           break;
-        if ( !v17 )
+        if ( !v15 )
           goto LABEL_22;
       }
     }
     p_deltaTime = (int *)240;
 LABEL_9:
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  cs:s_fullscreenRootData.worldBlurRadius, xmm0
-    }
+    s_fullscreenRootData.worldBlurRadius = 0.0;
     s_rootData[CL_Mgr_GetControllerFromClient(localClientNum)].worldBlurRadius = 0.0;
     Profile_Begin(580);
     LUI_Layout(localClientNum, rootName, *p_deltaTime, LUI_luaVM);
@@ -6494,28 +5783,19 @@ void LUI_CoD_LeaveMenu_f()
 LUI_CoD_MakeClientRootFullscreen
 ==============
 */
-
-void __fastcall LUI_CoD_MakeClientRootFullscreen(int controllerIndex, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void LUI_CoD_MakeClientRootFullscreen(int controllerIndex)
 {
-  __int64 v5; 
-  float v12; 
+  __int64 v1; 
+  float displayHeight; 
+  __int64 displayWidth; 
+  float v4; 
 
-  v5 = controllerIndex;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vxorps  xmm3, xmm3, xmm3
-  }
-  s_rootData[v5].forceFullscreen = 1;
-  __asm
-  {
-    vcvtsi2ss xmm3, xmm3, rax; right
-    vxorps  xmm2, xmm2, xmm2; top
-    vxorps  xmm1, xmm1, xmm1; left
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  LUI_CoD_ResizeRoot(&s_rootData[v5], *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v12);
+  v1 = controllerIndex;
+  displayHeight = (float)cls.vidConfig.displayHeight;
+  displayWidth = cls.vidConfig.displayWidth;
+  s_rootData[v1].forceFullscreen = 1;
+  v4 = (float)displayWidth;
+  LUI_CoD_ResizeRoot(&s_rootData[v1], 0.0, 0.0, v4, displayHeight);
 }
 
 /*
@@ -6523,52 +5803,30 @@ void __fastcall LUI_CoD_MakeClientRootFullscreen(int controllerIndex, double _XM
 LUI_CoD_MakeClientRootSplitscreen
 ==============
 */
-
-void __fastcall LUI_CoD_MakeClientRootSplitscreen(int controllerIndex, double _XMM1_8, double _XMM2_8)
+void LUI_CoD_MakeClientRootSplitscreen(int controllerIndex)
 {
-  __int64 v6; 
+  __int64 v1; 
   LocalClientNum_t ClientFromController; 
-  float v19; 
+  const ClientViewParams *LocalClientViewParams; 
+  float displayWidth; 
+  float v5; 
+  float displayHeight; 
+  float v7; 
 
-  v6 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
+  v1 = controllerIndex;
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
-  CG_GetLocalClientViewParams(ClientFromController);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm6, xmm0, dword ptr [rax+8]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rdx
-    vmulss  xmm7, xmm1, dword ptr [rax+0Ch]
-  }
+  LocalClientViewParams = CG_GetLocalClientViewParams(ClientFromController);
+  displayWidth = (float)cls.vidConfig.displayWidth;
+  v5 = displayWidth * LocalClientViewParams->width;
+  displayHeight = (float)cls.vidConfig.displayHeight;
+  v7 = displayHeight * LocalClientViewParams->height;
   if ( LUI_CoD_UsingSplitscreenUpscaling() )
   {
-    __asm
-    {
-      vmulss  xmm6, xmm6, cs:__real@3fd55555
-      vmulss  xmm7, xmm7, cs:__real@3fd55555
-    }
+    v5 = v5 * 1.6666666;
+    v7 = v7 * 1.6666666;
   }
-  __asm
-  {
-    vmovaps xmm3, xmm6; right
-    vxorps  xmm2, xmm2, xmm2; top
-    vxorps  xmm1, xmm1, xmm1; left
-  }
-  s_rootData[v6].forceFullscreen = 0;
-  __asm { vmovss  [rsp+58h+var_38], xmm7 }
-  LUI_CoD_ResizeRoot(&s_rootData[v6], *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v19);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
+  s_rootData[v1].forceFullscreen = 0;
+  LUI_CoD_ResizeRoot(&s_rootData[v1], 0.0, 0.0, v5, v7);
 }
 
 /*
@@ -6648,162 +5906,80 @@ LUI_CoD_MouseMove
 */
 bool LUI_CoD_MouseMove(LocalClientNum_t localClientNum, int x, int y, bool force)
 {
-  __int64 v7; 
+  __int64 v4; 
   int ControllerFromClient; 
-  __int64 v12; 
+  __int64 v9; 
   char *name; 
+  __int64 v11; 
+  float lastMouseX; 
+  float v13; 
+  bool v14; 
+  bool v15; 
+  bool v16; 
   bool v17; 
-  char v22; 
-  bool v23; 
-  bool v24; 
-  char v26; 
-  char v27; 
-  char v28; 
   LUIRootData *RootDataForController; 
-  bool v37; 
-  bool result; 
+  float v19; 
+  float lastMouseY; 
+  float displayWidth; 
+  float displayHeight; 
+  bool v23; 
   float yResult; 
   float xResult; 
 
-  v7 = localClientNum;
+  v4 = localClientNum;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-  v12 = ControllerFromClient;
+  v9 = ControllerFromClient;
   name = LUI_CoD_GetRootDataForController(ControllerFromClient)->name;
-  if ( (unsigned int)v7 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v7, 2) )
+  if ( (unsigned int)v4 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v4, 2) )
     __debugbreak();
-  _R13 = 0x140000000ui64;
-  _RBX = v12;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm0, dword ptr [rbx+r13+14537954h]
-    vcvtsi2ss xmm2, xmm2, r12d
-    vucomiss xmm0, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r15d
-  }
-  if ( !v17 )
-    goto LABEL_7;
-  __asm { vucomiss xmm1, dword ptr [rbx+r13+14537958h] }
-  if ( v17 )
-    v22 = 1;
-  else
-LABEL_7:
-    v22 = 0;
-  v23 = 0;
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
-  if ( clientUIActives[v7].lastInputType == KEYBOARD_MOUSE )
-    v23 = force;
-  v24 = !v23;
-  if ( !v23 )
-  {
-    v24 = v22 == 0;
-    if ( v22 )
-      goto LABEL_29;
-  }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@c47a0000
-    vucomiss xmm0, xmm6
-  }
-  if ( v24 )
-  {
-    v26 = 0;
-  }
-  else
-  {
-    __asm { vucomiss xmm6, dword ptr [rbx+r13+14537958h] }
-    v26 = 1;
-  }
-  v17 = s_perController[_RBX].textEditRef == -2;
-  __asm
-  {
-    vmovss  dword ptr [rbx+r13+14537954h], xmm2
-    vmovss  dword ptr [rbx+r13+14537958h], xmm1
-  }
+  v11 = v9;
+  lastMouseX = s_perController[v9].lastMouseX;
+  v13 = (float)y;
+  v14 = lastMouseX == (float)x && v13 == s_perController[v11].lastMouseY;
+  v15 = 0;
+  if ( clientUIActives[v4].lastInputType == KEYBOARD_MOUSE )
+    v15 = force;
+  if ( !v15 && v14 )
+    return 1;
+  v16 = lastMouseX != -1000.0 && -1000.0 != s_perController[v11].lastMouseY;
+  v17 = s_perController[v11].textEditRef == -2;
+  s_perController[v11].lastMouseX = (float)x;
+  s_perController[v11].lastMouseY = v13;
   if ( !v17 )
   {
     LUI_EnterCriticalSection("LUI_CoD_MouseMove");
     if ( LUI_luaVM )
-      LUI_TextEdit_HandleMouseMove((LocalClientNum_t)v7, s_perController[_RBX].textEditRef, x, y, name, LUI_luaVM);
+      LUI_TextEdit_HandleMouseMove((LocalClientNum_t)v4, s_perController[v11].textEditRef, x, y, name, LUI_luaVM);
     LUI_LeaveCriticalSection();
   }
-  if ( !v26 )
-    goto LABEL_29;
-  LUI_CoD_UpdateInputType(v12, KEYBOARD_MOUSE);
+  if ( !v16 )
+    return 1;
+  LUI_CoD_UpdateInputType(v9, KEYBOARD_MOUSE);
   LUI_EnterCriticalSection("LUI_CoD_MouseMove");
-  RootDataForController = LUI_CoD_GetRootDataForController(v12);
-  __asm
+  RootDataForController = LUI_CoD_GetRootDataForController(v9);
+  v19 = s_perController[v11].lastMouseX;
+  if ( v19 < 0.0 || (lastMouseY = s_perController[v11].lastMouseY, lastMouseY < 0.0) || (displayWidth = (float)vidConfig.displayWidth, v19 > displayWidth) || (displayHeight = (float)vidConfig.displayHeight, lastMouseY > displayHeight) )
   {
-    vmovss  xmm1, dword ptr [rbx+r13+14537954h]; x
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( v27 )
-    goto LABEL_26;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+r13+14537958h]; y
-    vcomiss xmm2, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v27 | v28) )
-    goto LABEL_26;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcomiss xmm2, xmm0
-  }
-  if ( v27 | v28 )
-  {
-    LUI_GetMousePosition(RootDataForController->name, *(float *)&_XMM1, *(float *)&_XMM2, &xResult, &yResult, LUI_luaVM);
-    v37 = 1;
+    xResult = FLOAT_N1000_0;
+    yResult = FLOAT_N1000_0;
+    v23 = 0;
   }
   else
   {
-LABEL_26:
-    __asm
-    {
-      vmovss  [rsp+88h+xResult], xmm6
-      vmovss  [rsp+88h+yResult], xmm6
-    }
-    v37 = 0;
+    LUI_GetMousePosition(RootDataForController->name, v19, lastMouseY, &xResult, &yResult, LUI_luaVM);
+    v23 = 1;
   }
   LUI_LeaveCriticalSection();
-  if ( LUI_BeginEvent((LocalClientNum_t)v7, "mousemove", LUI_luaVM) )
-  {
-    LUI_SetTableString("rootName", name, LUI_luaVM);
-    __asm
-    {
-      vmovss  xmm1, [rsp+88h+xResult]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("x", *(long double *)&_XMM1, LUI_luaVM);
-    __asm
-    {
-      vmovss  xmm1, [rsp+88h+yResult]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("y", *(long double *)&_XMM1, LUI_luaVM);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, ebp; value
-    }
-    LUI_SetTableNumber("controller", *(long double *)&_XMM1, LUI_luaVM);
-    LUI_SetTableBool("insideWindow", v37, LUI_luaVM);
-    result = LUI_EndEvent(LUI_luaVM);
-  }
-  else
-  {
-LABEL_29:
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
-  return result;
+  if ( !LUI_BeginEvent((LocalClientNum_t)v4, "mousemove", LUI_luaVM) )
+    return 1;
+  LUI_SetTableString("rootName", name, LUI_luaVM);
+  LUI_SetTableNumber("x", xResult, LUI_luaVM);
+  LUI_SetTableNumber("y", yResult, LUI_luaVM);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, ebp; value }
+  LUI_SetTableNumber("controller", *(long double *)&_XMM1, LUI_luaVM);
+  LUI_SetTableBool("insideWindow", v23, LUI_luaVM);
+  return LUI_EndEvent(LUI_luaVM);
 }
 
 /*
@@ -7099,9 +6275,13 @@ bool LUI_CoD_QueueInputEvent(int controllerIndex, const char *buttonName, bool d
   int ControllerMissing; 
   LocalClientNum_t v13; 
   char *name; 
-  __int64 v16; 
+  __int64 v15; 
   LUIRootData *RootDataForController; 
-  const char *v31; 
+  float lastMouseX; 
+  float lastMouseY; 
+  float displayWidth; 
+  float displayHeight; 
+  const char *v21; 
   LocalClientNum_t outLocalClientNum; 
   float outX; 
   float outY; 
@@ -7128,50 +6308,25 @@ bool LUI_CoD_QueueInputEvent(int controllerIndex, const char *buttonName, bool d
   if ( s_luaInFrontend || !s_rootData[CL_Mgr_GetControllerFromClient(v13)].inUse )
     v13 = LOCAL_CLIENT_INVALID;
   s_currentLocalClientRoot = v13;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@c47a0000
-    vmovss  [rsp+68h+outX], xmm0
-    vmovss  [rsp+68h+outY], xmm0
-  }
+  outX = FLOAT_N1000_0;
+  outY = FLOAT_N1000_0;
   if ( ControllerMissing == -1 || v10 )
   {
     name = LUI_CoD_GetRootDataForController(v5)->name;
     RootDataForController = LUI_CoD_GetRootDataForController(v5);
-    _RCX = 32 * v5;
-    _RAX = 0x140000000ui64;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    v16 = v5;
-    __asm
+    v15 = v5;
+    lastMouseX = s_perController[v5].lastMouseX;
+    if ( lastMouseX >= 0.0 )
     {
-      vmovss  xmm1, dword ptr [rcx+rax+14537954h]; x
-      vcomiss xmm1, xmm0
-    }
-    if ( !__CFSHL__(v5, 5) )
-    {
-      __asm
+      lastMouseY = s_perController[v5].lastMouseY;
+      if ( lastMouseY >= 0.0 )
       {
-        vmovss  xmm2, dword ptr [rcx+rax+14537958h]; y
-        vcomiss xmm2, xmm0
-      }
-      if ( !__CFSHL__(v5, 5) )
-      {
-        __asm
+        displayWidth = (float)vidConfig.displayWidth;
+        if ( lastMouseX <= displayWidth )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vcomiss xmm1, xmm0
-        }
-        if ( __CFSHL__(v5, 5) || 32 * v5 == 0 )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vcomiss xmm2, xmm0
-          }
-          if ( __CFSHL__(v5, 5) || 32 * v5 == 0 )
-            LUI_GetMousePosition(RootDataForController->name, *(float *)&_XMM1, *(float *)&_XMM2, &outX, &outY, LUI_luaVM);
+          displayHeight = (float)vidConfig.displayHeight;
+          if ( lastMouseY <= displayHeight )
+            LUI_GetMousePosition(RootDataForController->name, lastMouseX, lastMouseY, &outX, &outY, LUI_luaVM);
         }
       }
     }
@@ -7180,41 +6335,31 @@ bool LUI_CoD_QueueInputEvent(int controllerIndex, const char *buttonName, bool d
   {
     name = LUI_CoD_GetRootDataForController(ControllerMissing)->name;
     LUI_CoD_GetMousePosition(ControllerMissing, &outX, &outY);
-    v16 = v5;
+    v15 = v5;
   }
   j_lua_getfield(LUI_luaVM, -10002, "LUI");
   j_lua_getfield(LUI_luaVM, -1, "roots");
   j_lua_getfield(LUI_luaVM, -1, name);
   j_lua_getfield(LUI_luaVM, -1, "QueueInput");
   j_lua_pushvalue(LUI_luaVM, -2);
-  j_lua_pushinteger(LUI_luaVM, v16);
+  j_lua_pushinteger(LUI_luaVM, v15);
   j_lua_pushstring(LUI_luaVM, name);
   j_lua_pushboolean(LUI_luaVM, down);
   j_lua_pushstring(LUI_luaVM, buttonName);
   j_lua_pushstring(LUI_luaVM, qualifier);
-  __asm
-  {
-    vmovss  xmm1, [rsp+68h+outX]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+68h+outY]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(LUI_luaVM, outX);
+  j_lua_pushnumber(LUI_luaVM, outY);
   j_lua_pushboolean(LUI_luaVM, resetInputs);
   if ( LuaShared_PCall(LUI_luaVM, 9, 1) )
   {
-    v31 = "Error queuing input\n";
+    v21 = "Error queuing input\n";
 LABEL_24:
-    LUI_ReportError(v31, LUI_luaVM);
+    LUI_ReportError(v21, LUI_luaVM);
     goto LABEL_25;
   }
   if ( j_lua_type(LUI_luaVM, -1) != 1 )
   {
-    v31 = "Unexpected return value from LUI_METHOD_QUEUE_INPUT\n";
+    v21 = "Unexpected return value from LUI_METHOD_QUEUE_INPUT\n";
     goto LABEL_24;
   }
   v11 = j_lua_toboolean(LUI_luaVM, -1) > 0;
@@ -7239,9 +6384,8 @@ bool LUI_CoD_QueueMouseInput(int controllerIndex, int key, int down, float *outS
   const char *v12; 
   bool v13; 
   LocalClientNum_t ClientFromController; 
-  LocalClientNum_t v16; 
-  int ControllerFromClient; 
-  const char *v27; 
+  LocalClientNum_t v15; 
+  const char *v16; 
 
   v6 = controllerIndex;
   LUI_EnterCriticalSection("LUI_CoD_QueueMouseInput");
@@ -7258,19 +6402,11 @@ LABEL_8:
     v13 = 0;
     *outRootName = LUI_CoD_GetRootDataForController(v6)->name;
     ClientFromController = CL_Mgr_GetClientFromController(v6);
-    _R8 = 0x140000000ui64;
-    v16 = ClientFromController;
-    if ( s_luaInFrontend || (ControllerFromClient = CL_Mgr_GetControllerFromClient(ClientFromController), _R8 = 0x140000000ui64, !s_rootData[ControllerFromClient].inUse) )
-      v16 = LOCAL_CLIENT_INVALID;
-    _RDI = outScreenY;
-    _RCX = 32 * v6;
-    s_currentLocalClientRoot = v16;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rcx+r8+14537958h]; y
-      vmovss  xmm1, dword ptr [rcx+r8+14537954h]; x
-    }
-    LUI_GetMousePosition(*outRootName, *(float *)&_XMM1, *(float *)&_XMM2, outScreenX, outScreenY, LUI_luaVM);
+    v15 = ClientFromController;
+    if ( s_luaInFrontend || !s_rootData[CL_Mgr_GetControllerFromClient(ClientFromController)].inUse )
+      v15 = LOCAL_CLIENT_INVALID;
+    s_currentLocalClientRoot = v15;
+    LUI_GetMousePosition(*outRootName, s_perController[v6].lastMouseX, s_perController[v6].lastMouseY, outScreenX, outScreenY, LUI_luaVM);
     LUI_CoD_UpdateInputType(v6, KEYBOARD_MOUSE);
     j_lua_getfield(LUI_luaVM, -10002, "LUI");
     j_lua_getfield(LUI_luaVM, -1, "roots");
@@ -7282,22 +6418,11 @@ LABEL_8:
     j_lua_pushstring(LUI_luaVM, v12);
     j_lua_pushstring(LUI_luaVM, v11);
     j_lua_pushboolean(LUI_luaVM, down);
-    _RAX = outScreenX;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
+    j_lua_pushnumber(LUI_luaVM, *outScreenX);
+    j_lua_pushnumber(LUI_luaVM, *outScreenY);
     if ( LuaShared_PCall(LUI_luaVM, 8, 1) )
     {
-      v27 = "Error queuing mouse input\n";
+      v16 = "Error queuing mouse input\n";
     }
     else
     {
@@ -7310,9 +6435,9 @@ LABEL_19:
         LUI_LeaveCriticalSection();
         return v13;
       }
-      v27 = "Unexpected return value from LUI_METHOD_QUEUE_MOUSE_INPUT\n";
+      v16 = "Unexpected return value from LUI_METHOD_QUEUE_MOUSE_INPUT\n";
     }
-    LUI_ReportError(v27, LUI_luaVM);
+    LUI_ReportError(v16, LUI_luaVM);
     goto LABEL_19;
   }
   v10 = v9 - 1;
@@ -7390,47 +6515,10 @@ void __fastcall LUI_CoD_RefCountReport_f()
 LUI_CoD_RegisterDvars
 ==============
 */
-void LUI_CoD_RegisterDvars()
+void LUI_CoD_RegisterDvars(void)
 {
-  const dvar_t *v16; 
-  const dvar_t *v27; 
-  const dvar_t *v31; 
-  const dvar_t *v41; 
-  const dvar_t *v45; 
-  const dvar_t *v49; 
-  const dvar_t *v59; 
-  const dvar_t *v63; 
-  const dvar_t *v71; 
-  const dvar_t *v75; 
-  const dvar_t *v82; 
-  const dvar_t *v86; 
-  const dvar_t *v124; 
-  const dvar_t *v131; 
-  const dvar_t *v138; 
-  char v152; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm13
-    vmovaps [rsp+0B8h+var_88], xmm15
-  }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm15, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm2, cs:__real@3a83126f; min
-    vmovaps xmm1, xmm15; value
-  }
-  DCONST_DVARFLT_lui_timescale = Dvar_RegisterFloat("lui_timescale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Scale time of each frame of LUI animation");
+  DCONST_DVARFLT_lui_timescale = Dvar_RegisterFloat("lui_timescale", 1.0, 0.001, 10.0, 0x40004u, "Scale time of each frame of LUI animation");
   DCONST_DVARBOOL_lui_enabled = Dvar_RegisterBool("lui_enabled", 1, 0x40004u, "Enables LUI");
   DCONST_DVARBOOL_lui_footage_capture_enabled = Dvar_RegisterBool("lui_footage_capture_enabled", 0, 0x40004u, "Hides the HUD for footage capturing");
   DCONST_DVARBOOL_lui_splitscreenExtraMemory = Dvar_RegisterBool("lui_splitscreenExtraMemory", 0, 0x40004u, "Increase the memory grab in splitscreen");
@@ -7441,69 +6529,20 @@ void LUI_CoD_RegisterDvars()
   DVARBOOL_lui_pool_incremental_gc_enabled = Dvar_RegisterBool("LTQRTPPKKS", 1, 0, "Use incremental garbage collection rather than full gc when freeing up LUIElements and other similarly allocated resources for new allocation.");
   DCONST_DVARBOOL_lui_print_text_draws = Dvar_RegisterBool("lui_print_text_draws", 0, 0x40004u, "Print all text draws (text, font, size, element) to the console");
   DCONST_DVARBOOL_lui_font_cache_warnings = Dvar_RegisterBool("lui_font_cache_warnings", 0, 0x40004u, "Mark texts which are not using a font for which we precached glyphs");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@47c35000; max
-    vmovss  xmm1, cs:__real@44480000; value
-  }
   DVARBOOL_ui_scope_stencils = Dvar_RegisterBool("MKNMNRSQRO", 1, 0, "Turns on the scope stencil for in-world LUI Elements");
-  __asm { vmovaps xmm2, xmm15; min }
-  v16 = Dvar_RegisterFloat("lui_ringradar_inner_distance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max distance from the player where an enemy will show on the inner ring of the ring radar");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@47c35000; max
-    vmovss  xmm1, cs:__real@44c80000; value
-  }
-  DCONST_DVARFLT_lui_ringradar_inner_distance = v16;
-  __asm { vmovaps xmm2, xmm15; min }
-  DCONST_DVARFLT_lui_ringradar_mid_distance = Dvar_RegisterFloat("lui_ringradar_mid_distance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max distance from the player where an enemy will show on the middle ring of the ring radar");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@40800000; value
-  }
+  DCONST_DVARFLT_lui_ringradar_inner_distance = Dvar_RegisterFloat("lui_ringradar_inner_distance", 800.0, 1.0, 100000.0, 0x40004u, "Max distance from the player where an enemy will show on the inner ring of the ring radar");
+  DCONST_DVARFLT_lui_ringradar_mid_distance = Dvar_RegisterFloat("lui_ringradar_mid_distance", 1600.0, 1.0, 100000.0, 0x40004u, "Max distance from the player where an enemy will show on the middle ring of the ring radar");
   DCONST_DVARBOOL_lui_reportMemoryUsage = Dvar_RegisterBool("lui_reportMemoryUsage", 0, 0x40004u, "Print how much memory is used during LUI initialization");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DCONST_DVARFLT_lui_reportPerfThresholdMS = Dvar_RegisterFloat("lui_reportPerfThresholdMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The millisecond threshold at which to report LUI frame time warnings.");
+  DCONST_DVARFLT_lui_reportPerfThresholdMS = Dvar_RegisterFloat("lui_reportPerfThresholdMS", 4.0, 0.0, 100.0, 0x40004u, "The millisecond threshold at which to report LUI frame time warnings.");
   DCONST_DVARINT_lui_streaming_spinner_frame_width = Dvar_RegisterInt("lui_streaming_spinner_frame_width", 64, 1, 0x7FFFFFFF, 0x40004u, "Width of a frame in the spinner material");
-  __asm
-  {
-    vmovss  xmm13, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@42800000; value
-  }
   DCONST_DVARINT_lui_streaming_spinner_frame_height = Dvar_RegisterInt("lui_streaming_spinner_frame_height", 64, 1, 0x7FFFFFFF, 0x40004u, "Height of a frame in the spinner material");
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v27 = Dvar_RegisterFloat("lui_streaming_spinner_width", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Width of the spinner displayed while 2D images are streaming, in LUI virtual pixels");
-  __asm { vmovss  xmm1, cs:__real@42800000; value }
-  DCONST_DVARFLT_lui_streaming_spinner_width = v27;
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v31 = Dvar_RegisterFloat("lui_streaming_spinner_height", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Height of the spinner displayed while 2D images are streaming, in LUI virtual pixels");
-  __asm { vmovss  xmm1, cs:__real@41f00000; value }
-  DCONST_DVARFLT_lui_streaming_spinner_height = v31;
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vmovaps xmm2, xmm15; min
-  }
-  DCONST_DVARFLT_lui_streaming_spinner_frame_rate = Dvar_RegisterFloat("lui_streaming_spinner_frame_rate", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Framerate of the spinner animation displayed while 2D images are streaming, in frames per second");
+  DCONST_DVARFLT_lui_streaming_spinner_width = Dvar_RegisterFloat("lui_streaming_spinner_width", 64.0, 0.0, 3.4028235e38, 0x40004u, "Width of the spinner displayed while 2D images are streaming, in LUI virtual pixels");
+  DCONST_DVARFLT_lui_streaming_spinner_height = Dvar_RegisterFloat("lui_streaming_spinner_height", 64.0, 0.0, 3.4028235e38, 0x40004u, "Height of the spinner displayed while 2D images are streaming, in LUI virtual pixels");
+  DCONST_DVARFLT_lui_streaming_spinner_frame_rate = Dvar_RegisterFloat("lui_streaming_spinner_frame_rate", 30.0, 1.0, 3.4028235e38, 0x40004u, "Framerate of the spinner animation displayed while 2D images are streaming, in frames per second");
   DCONST_DVARINT_lui_streaming_spinner_frame_count = Dvar_RegisterInt("lui_streaming_spinner_frame_count", 30, 1, 0x7FFFFFFF, 0x40004u, "Number of frames of the spinner animation displayed while 2D images are streaming");
   DCONST_DVARINT_lui_loading_spinner_width = Dvar_RegisterInt("lui_loading_spinner_width", 72, 0, 0x7FFFFFFF, 0x40004u, "Width of the spinner displayed while drawing a blank screen during remote screen updates");
-  __asm { vmovss  xmm1, cs:__real@41f00000; value }
   DCONST_DVARINT_lui_loading_spinner_height = Dvar_RegisterInt("lui_loading_spinner_height", 64, 0, 0x7FFFFFFF, 0x40004u, "Height of the spinner displayed while drawing a blank screen during remote screen updates");
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vmovaps xmm2, xmm15; min
-  }
-  DCONST_DVARFLT_lui_loading_spinner_frame_rate = Dvar_RegisterFloat("lui_loading_spinner_frame_rate", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Framerate of the spinner animation displayed while drawing a blank screen during remote screen updates");
+  DCONST_DVARFLT_lui_loading_spinner_frame_rate = Dvar_RegisterFloat("lui_loading_spinner_frame_rate", 30.0, 1.0, 3.4028235e38, 0x40004u, "Framerate of the spinner animation displayed while drawing a blank screen during remote screen updates");
   DCONST_DVARINT_lui_loading_spinner_frame_count = Dvar_RegisterInt("lui_loading_spinner_frame_count", 56, 1, 0x7FFFFFFF, 0x40004u, "Number of frames of the spinner animation while drawing a blank screen during remote screen updates");
   DVARBOOL_lui_showBuildAndServerText = Dvar_RegisterBool("NNOOPSNPRM", 0, 0, "Shows the build number and the dedicated server text");
   DCONST_DVARINT_lui_uiFadeOutThreshold = Dvar_RegisterInt("lui_uiFadeOutThreshold", 500, 1, 0x7FFFFFFF, 0x40004u, "In milliseconds, fade out the UI when match start time remaining is below this threshold");
@@ -7526,38 +6565,11 @@ void LUI_CoD_RegisterDvars()
   DVARBOOL_lui_crossplay_warning_displayed_once = Dvar_RegisterBool("QOTNQOSRN", 0, 0, "Used to send welcome event to chat one time per game launch.");
   DVARBOOL_lui_rendertime_binding_directive = Dvar_RegisterBool("MSKSNROSLL", 1, 0, "Enables the strings binding directive render time evaluation.");
   DVARBOOL_lui_enable_option_new_layout = Dvar_RegisterBool("LSQNRLMKST", 1, 0, "Enables the option layout with the tabs.");
-  __asm { vmovss  xmm1, cs:__real@3e19999a; value }
   DVARBOOL_lui_enable_pc_achievement = Dvar_RegisterBool("SPOPPKOTP", 1, 0, "Enables the achievements menu for the pc version.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v41 = Dvar_RegisterFloat("LPRRLSSTLP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e19999a; value
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_lui_marquee_stencil_padding_left = v41;
-  v45 = Dvar_RegisterFloat("OKPMLLOPSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_lui_marquee_stencil_padding_right = v45;
-  v49 = Dvar_RegisterFloat("NKKONQKNL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_lui_marquee_stencil_padding_top = v49;
-  DVARFLT_lui_marquee_stencil_padding_bottom = Dvar_RegisterFloat("NLOPLSNPQN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
+  DVARFLT_lui_marquee_stencil_padding_left = Dvar_RegisterFloat("LPRRLSSTLP", 0.15000001, 0.0, 1.0, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
+  DVARFLT_lui_marquee_stencil_padding_right = Dvar_RegisterFloat("OKPMLLOPSK", 0.15000001, 0.0, 1.0, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
+  DVARFLT_lui_marquee_stencil_padding_top = Dvar_RegisterFloat("NKKONQKNL", 0.0, 0.0, 1.0, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
+  DVARFLT_lui_marquee_stencil_padding_bottom = Dvar_RegisterFloat("NLOPLSNPQN", 0.0, 0.0, 1.0, 0, "Padding value of the marquee stencil as a percent. Increase to fix clipping of characters");
   DCONST_DVARBOOL_lui_camera_mover_force_sway = Dvar_RegisterBool("lui_camera_mover_force_sway", 0, 0x40004u, "Force sway on regardless of the 'enableSway' property on the widget.");
   DVARBOOL_lui_has_seen_korean_rating = Dvar_RegisterBool("MKRKLLSKSP", 0, 0, "If the player has seen the Korean rating popup.");
   DVARBOOL_lui_premium_game_sale_enabled = Dvar_RegisterBool("MQRQOLKOTK", 0, 0, "Enables sale UI on premium game in the Store for F2P users.");
@@ -7651,36 +6663,10 @@ void LUI_CoD_RegisterDvars()
   DVARBOOL_killswitch_dlc1_maps = Dvar_RegisterBool("PMTLOTQQS", 0, 0, "Killswitch for DLC1 maps");
   DVARBOOL_dlc2_maps_enabled = Dvar_RegisterBool("NLOTPSPSOQ", 1, 0, "Killswitch for DLC2 maps");
   DVARBOOL_killswitch_dxr_ultra_enabled = Dvar_RegisterBool("LKLOMSPQSR", 1, 0, "Killswitch for enabling the Ultra setting regarding the DXR option");
-  __asm
-  {
-    vmovss  xmm11, cs:__real@447a0000
-    vmovss  xmm7, cs:__real@c47a0000
-    vmovss  xmm10, cs:__real@41a00000
-  }
   DVARBOOL_enable_splitscreen_scoreboard_indicators = Dvar_RegisterBool("OSNMNPLRR", 1, 0, "enable scoreboard indicators in splitscreen");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vmovaps xmm2, xmm7; min
-    vmovaps xmm1, xmm10; value
-  }
-  v59 = Dvar_RegisterFloat("lui_parallax_menu_stick_amplitude", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Half-amplitude of UI parallax movement driven by right stick (in 720p pixels)");
-  __asm { vmovss  xmm1, cs:__real@c2480000; value }
-  DCONST_DVARFLT_lui_parallax_menu_stick_amplitude = v59;
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vmovaps xmm2, xmm7; min
-  }
-  v63 = Dvar_RegisterFloat("lui_parallax_menu_focus_amplitude", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Half-amplitude of UI parallax movement driven by the position of the item in focus (in 720p pixels)");
-  __asm { vmovss  xmm1, cs:__real@c2480000; value }
-  DCONST_DVARFLT_lui_parallax_menu_focus_amplitude = v63;
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vmovaps xmm2, xmm7; min
-  }
-  DCONST_DVARFLT_lui_parallax_menu_mouse_amplitude = Dvar_RegisterFloat("lui_parallax_menu_mouse_amplitude", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Half-amplitude of UI parallax movement driven by the position of mouse (in 720p pixels)");
+  DCONST_DVARFLT_lui_parallax_menu_stick_amplitude = Dvar_RegisterFloat("lui_parallax_menu_stick_amplitude", 20.0, -1000.0, 1000.0, 0x40004u, "Half-amplitude of UI parallax movement driven by right stick (in 720p pixels)");
+  DCONST_DVARFLT_lui_parallax_menu_focus_amplitude = Dvar_RegisterFloat("lui_parallax_menu_focus_amplitude", -50.0, -1000.0, 1000.0, 0x40004u, "Half-amplitude of UI parallax movement driven by the position of the item in focus (in 720p pixels)");
+  DCONST_DVARFLT_lui_parallax_menu_mouse_amplitude = Dvar_RegisterFloat("lui_parallax_menu_mouse_amplitude", -50.0, -1000.0, 1000.0, 0x40004u, "Half-amplitude of UI parallax movement driven by the position of mouse (in 720p pixels)");
   DVARINT_lui_crm_messageSendBatchIntervalSecs = Dvar_RegisterInt("LPRTSKKKLL", 10, 1, 0x7FFFFFFF, 0, "Interval (in seconds) at which to send batched CRM message read events to Demonware.");
   DVARINT_crm_max_message_count = Dvar_RegisterInt("NSKOMKOSLO", 3, 1, 6, 0, "Max messages shown at once in the MOTD (1-6). Max Cached messages is: MOTD (1) + MSGS (5)");
   DVARINT_crm_max_patch_note_count = Dvar_RegisterInt("NNNSQLQO", 3, 1, 5, 0, "Max patch note messages shown at once in the MOTD (1-5)");
@@ -7701,121 +6687,22 @@ void LUI_CoD_RegisterDvars()
   DVARBOOL_lui_frontscene_weapon_model = Dvar_RegisterBool("QTKTSRSLQ", 0, 0, "Print out frontscene weapon model information");
   DVARBOOL_lui_uidebuglayer = Dvar_RegisterBool("LMRRKQKROO", 0, 0, "Show/Hide the UI Debug Layer");
   DCONST_DVARBOOL_lui_debug_events_enabled = Dvar_RegisterBool("lui_debug_events_enabled", 0, 0x40004u, "Set to true to see a sorted list of the most commonly processed events in Lua in the console output.");
-  __asm { vmovss  xmm9, cs:__real@c1a00000 }
   DVARBOOL_debug_weapon_model_enabled = Dvar_RegisterBool("LPKPKPTMKR", 0, 0, "Other debug model values only apply if true.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v71 = Dvar_RegisterFloat("SQNKKRMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "X Offset for the weapon model.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@420c0000; max
-    vmovss  xmm2, cs:__real@c20c0000; min
-  }
-  DVARFLT_debug_weapon_model_xoffset = v71;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v75 = Dvar_RegisterFloat("LOKLRRNSSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Y Offset for the weapon model.");
-  __asm { vmovss  xmm2, cs:__real@c0a00000; min }
-  DVARFLT_debug_weapon_model_yoffset = v75;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_zoffset = Dvar_RegisterFloat("RLOROROPR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Z Offset for the weapon model.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v82 = Dvar_RegisterFloat("OKOMQMTSOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "X Offset for the weapon model based on attachment.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@420c0000; max
-    vmovss  xmm2, cs:__real@c20c0000; min
-  }
-  DVARFLT_debug_attachment_model_xoffset = v82;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v86 = Dvar_RegisterFloat("NKQRRKPMPR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Y Offset for the weapon model based on attachment.");
-  __asm { vmovss  xmm2, cs:__real@c0a00000; min }
-  DVARFLT_debug_attachment_model_yoffset = v86;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  xmm8, cs:__real@43b40000
-    vmovss  xmm6, cs:__real@c3b40000
-  }
-  DVARFLT_debug_attachment_model_zoffset = Dvar_RegisterFloat("MTKOSMRROQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Z Offset for the weapon model based on attachment.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_pitch = Dvar_RegisterFloat("LMORQMKNQS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Pitch for the weapon model.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_yaw = Dvar_RegisterFloat("LQPRNSLLNN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Yaw for the weapon model.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_roll = Dvar_RegisterFloat("MPSMRTRLNL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Roll for the weapon model.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_preview_xoffset = Dvar_RegisterFloat("LOQKPMTMRS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "X Offset for the weapon model preview.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_preview_yoffset = Dvar_RegisterFloat("LNRTLSMOSR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Y Offset for the weapon model preview.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  xmm7, cs:__real@43fa0000
-    vmovss  xmm6, cs:__real@c3fa0000
-  }
-  DVARFLT_debug_weapon_model_preview_zoffset = Dvar_RegisterFloat("MRPNKMRKPM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Z Offset for the weapon model preview.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_line_xoffset = Dvar_RegisterFloat("LMRQMOPNSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "X Offset for the weapon model line.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_line_yoffset = Dvar_RegisterFloat("OLSQQQTNON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Y Offset for the weapon model line.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_debug_weapon_model_line_zoffset = Dvar_RegisterFloat("MQPQRPNNKK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Z Offset for the weapon model line.");
+  DVARFLT_debug_weapon_model_xoffset = Dvar_RegisterFloat("SQNKKRMN", 0.0, -20.0, 20.0, 0, "X Offset for the weapon model.");
+  DVARFLT_debug_weapon_model_yoffset = Dvar_RegisterFloat("LOKLRRNSSM", 0.0, -35.0, 35.0, 0, "Y Offset for the weapon model.");
+  DVARFLT_debug_weapon_model_zoffset = Dvar_RegisterFloat("RLOROROPR", 0.0, -5.0, 20.0, 0, "Z Offset for the weapon model.");
+  DVARFLT_debug_attachment_model_xoffset = Dvar_RegisterFloat("OKOMQMTSOK", 0.0, -20.0, 20.0, 0, "X Offset for the weapon model based on attachment.");
+  DVARFLT_debug_attachment_model_yoffset = Dvar_RegisterFloat("NKQRRKPMPR", 0.0, -35.0, 35.0, 0, "Y Offset for the weapon model based on attachment.");
+  DVARFLT_debug_attachment_model_zoffset = Dvar_RegisterFloat("MTKOSMRROQ", 0.0, -5.0, 20.0, 0, "Z Offset for the weapon model based on attachment.");
+  DVARFLT_debug_weapon_model_pitch = Dvar_RegisterFloat("LMORQMKNQS", 0.0, -360.0, 360.0, 0, "Pitch for the weapon model.");
+  DVARFLT_debug_weapon_model_yaw = Dvar_RegisterFloat("LQPRNSLLNN", 0.0, -360.0, 360.0, 0, "Yaw for the weapon model.");
+  DVARFLT_debug_weapon_model_roll = Dvar_RegisterFloat("MPSMRTRLNL", 0.0, -360.0, 360.0, 0, "Roll for the weapon model.");
+  DVARFLT_debug_weapon_model_preview_xoffset = Dvar_RegisterFloat("LOQKPMTMRS", 0.0, -20.0, 20.0, 0, "X Offset for the weapon model preview.");
+  DVARFLT_debug_weapon_model_preview_yoffset = Dvar_RegisterFloat("LNRTLSMOSR", 0.0, -20.0, 20.0, 0, "Y Offset for the weapon model preview.");
+  DVARFLT_debug_weapon_model_preview_zoffset = Dvar_RegisterFloat("MRPNKMRKPM", 0.0, -20.0, 20.0, 0, "Z Offset for the weapon model preview.");
+  DVARFLT_debug_weapon_model_line_xoffset = Dvar_RegisterFloat("LMRQMOPNSM", 0.0, -500.0, 500.0, 0, "X Offset for the weapon model line.");
+  DVARFLT_debug_weapon_model_line_yoffset = Dvar_RegisterFloat("OLSQQQTNON", 0.0, -500.0, 500.0, 0, "Y Offset for the weapon model line.");
+  DVARFLT_debug_weapon_model_line_zoffset = Dvar_RegisterFloat("MQPQRPNNKK", 0.0, -500.0, 500.0, 0, "Z Offset for the weapon model line.");
   DVARBOOL_debug_dummy_aar_summary_enabled = Dvar_RegisterBool("NNKNPMORKR", 0, 0, "Enable dummy AAR summary menu");
   DVARBOOL_debug_aar_battlepass_enabled = Dvar_RegisterBool("NSSKNKRKNP", 0, 0, "Enable aar battle pass debug data");
   DVARINT_debug_aar_battlepass_earn_value = Dvar_RegisterInt("NPQKMMLMRS", 0, 0, 0x7FFFFFFF, 0, "AAR battle pass debug earned value");
@@ -7867,22 +6754,9 @@ void LUI_CoD_RegisterDvars()
   DVARSTR_lui_trial_event_leaders_5 = Dvar_RegisterString("NKNMQSOMNK", (const char *)&queryFormat.fmt + 3, 0, "List of all leaders for the fifth games of summer. Will be parsed with these in mind. _ splits ranks and , splits fields. Expects Country,Gold,Silver,Bronze");
   DVARBOOL_lui_minimap_options_enabled = Dvar_RegisterBool("MPKTSNOLSO", 1, 0, "Enables minimap style settings in the Options menu.");
   DVARINT_ui_force_max_rank = Dvar_RegisterInt("MRRMSMMLML", 54, 0, 0x7FFFFFFF, 0, "The max rank player could reach for special build, eg Beta build");
-  __asm { vmovss  xmm1, cs:__real@41400000; value }
   DVARBOOL_lui_worldMap_enabled = Dvar_RegisterBool("LNLNSSNKQ", 0, 0, "Enables/disables the world map in mpmainmenu.");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v124 = Dvar_RegisterFloat("lui_scoreboardYou_offset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The horizontal offset of the YOU indicator from the left side of the scoreboard row.");
-  __asm { vmovss  xmm1, cs:__real@41f00000; value }
-  DCONST_DVARFLT_lui_scoreboardYou_offset = v124;
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_lui_scoreboardYou_width = Dvar_RegisterFloat("lui_scoreboardYou_width", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The width of the YOU indicator in the scoreboard row.");
+  DCONST_DVARFLT_lui_scoreboardYou_offset = Dvar_RegisterFloat("lui_scoreboardYou_offset", 12.0, 0.0, 1000.0, 0x40004u, "The horizontal offset of the YOU indicator from the left side of the scoreboard row.");
+  DCONST_DVARFLT_lui_scoreboardYou_width = Dvar_RegisterFloat("lui_scoreboardYou_width", 30.0, 0.0, 1000.0, 0x40004u, "The width of the YOU indicator in the scoreboard row.");
   DVARBOOL_lui_devgui_invisible = Dvar_RegisterBool("MSTMNTRNOS", 0, 0, "Make devgui visible  or invisible");
   DVARBOOL_lui_showDebugLayer = Dvar_RegisterBool("MSPSNLMPLP", 0, 0, "Toggle debug layer visibility");
   DVARBOOL_lui_world_blur_fullscreen_layout_safety = Dvar_RegisterBool("SROMPSLNM", 1, 0, "Killswitch in case the world blur fullscreen code messes things up.");
@@ -7897,41 +6771,15 @@ void LUI_CoD_RegisterDvars()
   DVARBOOL_lui_show_mm_ping_band = Dvar_RegisterBool("MPTLKKKQNT", 1, 0, "Toggle showing the ping band used in MM search");
   DVARSTR_lui_fe_transitioning_scene = Dvar_RegisterString("NRLKQRRMKK", (const char *)&queryFormat.fmt + 3, 0, "Scene name of the currently transitioning scene. Empty string if we're not transitioning.");
   DVARBOOL_lui_force_interactive_prompt_screen_snap = Dvar_RegisterBool("LTMMNMRLTP", 0, 0, "If set to true the interactive object button with snap to screen center with an offset");
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v131 = Dvar_RegisterFloat("LMPPLNSRK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "x screen offset for interactive prompts that are snapping");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42c80000; value
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_lui_force_interactive_prompt_screen_snap_offset_x = v131;
-  DVARFLT_lui_force_interactive_prompt_screen_snap_offset_y = Dvar_RegisterFloat("MLTSLNNNKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "x screen offset for interactive prompts that are snapping");
+  DVARFLT_lui_force_interactive_prompt_screen_snap_offset_x = Dvar_RegisterFloat("LMPPLNSRK", 0.0, 0.0, 3.4028235e38, 0, "x screen offset for interactive prompts that are snapping");
+  DVARFLT_lui_force_interactive_prompt_screen_snap_offset_y = Dvar_RegisterFloat("MLTSLNNNKN", 100.0, 0.0, 3.4028235e38, 0, "x screen offset for interactive prompts that are snapping");
   DVARINT_lui_refreshRate_Telemetry_FPS = Dvar_RegisterInt("LSRMTRQKR", 250000, 0, 0x7FFFFFFF, 0, "Refresh rate of the FPS Telemetry widget");
   DVARINT_lui_refreshRate_Telemetry_Latency = Dvar_RegisterInt("NNTRPQMPPK", 250000, 0, 0x7FFFFFFF, 0, "Refresh rate of the Server Latency Telxtualemetry widget");
   DVARINT_lui_refreshRate_Telemetry_GPUTime = Dvar_RegisterInt("NRKOOPRLTN", 100000, 0, 0x7FFFFFFF, 0, "Refresh rate of the GPU time Telemetry widget");
   DVARINT_lui_refreshRate_Telemetry_GPUTemperature = Dvar_RegisterInt("QSOONMKK", 100000, 0, 0x7FFFFFFF, 0, "Refresh rate of the GPU temperature Telemetry widget");
-  __asm { vmovss  xmm1, cs:__real@40a00000; value }
   DVARINT_lui_refreshRate_Telemetry_CPUTime = Dvar_RegisterInt("OLQPPMRQKP", 100000, 0, 0x7FFFFFFF, 0, "Refresh rate of the CPU time Telemetry widget");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v138 = Dvar_RegisterFloat("lui_stick_direction_threshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Stick direction threshold required in order to change the inputType to gamepad");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  DCONST_DVARFLT_lui_stick_direction_threshold = v138;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_lui_stick_magnitude_threshold = Dvar_RegisterFloat("lui_stick_magnitude_threshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Stick magnitude threshold required in order to change the inputType to gamepad");
+  DCONST_DVARFLT_lui_stick_direction_threshold = Dvar_RegisterFloat("lui_stick_direction_threshold", 5.0, 0.0, 360.0, 0x40004u, "Stick direction threshold required in order to change the inputType to gamepad");
+  DCONST_DVARFLT_lui_stick_magnitude_threshold = Dvar_RegisterFloat("lui_stick_magnitude_threshold", 0.1, 0.0, 1.0, 0x40004u, "Stick magnitude threshold required in order to change the inputType to gamepad");
   DVARBOOL_lui_enableLootItemSelection = Dvar_RegisterBool("LPTRTLMOLK", 0, 0, "Enable making a loot item selection in the loot ceremony menu.");
   DVARBOOL_lui_allowInputUpThroughChat = Dvar_RegisterBool("MNRKSPPPQL", 1, 0, "Done to fix the button hold when in chat. Otherwise only the button down sends events.");
   DVARINT_lui_party_widget_max_emblems = Dvar_RegisterInt("NPOPOROTQM", 0, 0, 0x7FFFFFFF, 0, "Maximum number of emblems to display in the party widget.");
@@ -7996,18 +6844,6 @@ void LUI_CoD_RegisterDvars()
   lui_drawmemreport = Dvar_RegisterBool("LQLOMQQPMP", 0, 0, "Show information about memory usage of the LUI system");
   lui_mandatoryUpdate = Dvar_RegisterBool("MSOLRSPMPK", 0, 4u, "set to 1 to trigger UI dialog before entering MP Play Online");
   lui_fakeExtendedText = Dvar_RegisterBool("NQMNROMOKT", 0, 4u, "Extend the text to test the use of ellipses");
-  _R11 = &v152;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
-    vmovaps xmm15, xmmword ptr [r11-80h]
-  }
   Dvar_EndPermanentRegistration();
 }
 
@@ -8016,175 +6852,82 @@ void LUI_CoD_RegisterDvars()
 LUI_CoD_RegisterGameDvars
 ==============
 */
-void LUI_CoD_RegisterGameDvars()
+void LUI_CoD_RegisterGameDvars(void)
 {
+  unsigned int v0; 
+  unsigned int v1; 
+  unsigned int v2; 
   unsigned int v3; 
   unsigned int v4; 
+  unsigned int v5; 
+  unsigned int v6; 
+  unsigned int v7; 
   unsigned int v8; 
-  unsigned int v12; 
-  unsigned int v18; 
-  unsigned int v23; 
-  unsigned int v27; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  const dvar_t *v46; 
-  const dvar_t *v50; 
-  float fmt; 
-  float fmta; 
-  float description; 
-  char v61; 
+  unsigned int v9; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
   if ( !(unsigned __int8)Com_GameMode_GetActiveGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7787, ASSERT_TYPE_ASSERT, "(Com_GameMode_GetActiveGameMode() != GameModeType::NONE)", "%s\n\tThese dvars must be registered after game mode creation", "Com_GameMode_GetActiveGameMode() != GameModeType::NONE") )
     __debugbreak();
+  v0 = 262340;
+  v1 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v1 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPFLT_lui_parallax_view_sway_rate = Dvar_RegisterFloat("NTQSRLRPMT", -0.1, -100.0, 100.0, v1, "Rate that player-driven camera angle movement influences UI movement.  Low values will lag behind view changes; high values will lead.");
+  v2 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v2 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPFLT_lui_parallax_anim_sway_rate = Dvar_RegisterFloat("NOTOORKKTT", -0.2, -100.0, 100.0, v2, "Rate that animation-driven camera angle movement influences UI movement.  Low values will lag behind view changes; high values will lead.");
   v3 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v3 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPVEC2_lui_parallax_max_offset_from_view = Dvar_RegisterVec2("MNSKKLOMMN", 4.5, 4.5, 0.0, 360.0, v3, "Maximum angle that UI can be offset from player view.  Degrees in Pitch and Yaw.");
   v4 = 262340;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
     v4 = 262276;
   Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm2, cs:__real@c2c80000; min
-    vmovss  xmm1, cs:__real@bdcccccd; value
-  }
-  DCONST_DVARMPFLT_lui_parallax_view_sway_rate = Dvar_RegisterFloat("NTQSRLRPMT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v4, "Rate that player-driven camera angle movement influences UI movement.  Low values will lag behind view changes; high values will lead.");
+  DCONST_DVARMPFLT_lui_parallax_max_linear_velocity_influence = Dvar_RegisterFloat("NSONSKLLQQ", 40.0, 0.0, 3.4028235e38, v4, "Maximum player view linear velocity that will be converted to angular UI motion.  Inches per second.");
+  v5 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v5 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  Com_GameMode_GetActiveGameMode();
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPVEC3_lui_parallax_linear_velocity_to_angle_rate = Dvar_RegisterVec3("MMMTQPLQMO", 0.30000001, 0.30000001, 0.5, 0.0, 360.0, v5, "Rate that angular motion is applied to the UI given a linear velocity.  (Degrees rotation) per (Inches per second in player X, Y, and Z).");
+  v6 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v6 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPFLT_lui_parallax_scale = Dvar_RegisterFloat("NOPPPNSKMM", 0.25, 0.0, 3.4028235e38, v6, "Scale applied to the final angular offset calculated for UI elements.");
+  DVARBOOL_lui_drawHUDMap = Dvar_RegisterBool("MKORQLNLQN", 0, 0, "Show name and outlines of hud widgets");
+  DCONST_DVARSTR_hint_button_defaultIconMaterial = Dvar_RegisterString("hint_button_defaultIconMaterial", "hud_interaction_prompt_center_standard", 0x40004u, "Icon used for interactive object prompts when none is specified by script");
+  v7 = 262340;
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v7 = 262276;
+  Com_GameMode_GetActiveGameMode();
+  DCONST_DVARMPINT_lui_lootCard_shortInteractDistance = Dvar_RegisterInt("RORLNQQKQ", 100, 0, 128, v7, "Max number of in-game units the player can be away from a loot item to pick it up");
   v8 = 262340;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
     v8 = 262276;
   Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm2, cs:__real@c2c80000; min
-    vmovss  xmm1, cs:__real@be4ccccd; value
-  }
-  DCONST_DVARMPFLT_lui_parallax_anim_sway_rate = Dvar_RegisterFloat("NOTOORKKTT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v8, "Rate that animation-driven camera angle movement influences UI movement.  Low values will lag behind view changes; high values will lead.");
-  v12 = 262340;
+  DCONST_DVARMPINT_lui_lootCard_mediumInteractDistance = Dvar_RegisterInt("MSPTROQNR", 200, 0, 256, v8, "Max number of in-game units the player can be away from a loot item to be able to ping it");
+  v9 = 262340;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v12 = 262276;
+    v9 = 262276;
   Com_GameMode_GetActiveGameMode();
-  Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40900000; x
-    vmovss  xmm6, cs:__real@43b40000
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm2, xmm1; y
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-    vxorps  xmm8, xmm8, xmm8
-  }
-  DCONST_DVARMPVEC2_lui_parallax_max_offset_from_view = Dvar_RegisterVec2("MNSKKLOMMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v12, "Maximum angle that UI can be offset from player view.  Degrees in Pitch and Yaw.");
-  v18 = 262340;
+  DCONST_DVARMPINT_lui_minimizedPromptPulsePeriod = Dvar_RegisterInt("NNRTRKSLKK", 1000, 0, 10000, v9, "Alpha pulse period of minimized display prompts (milliseconds).");
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v18 = 262276;
+    v0 = 262276;
   Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@42200000; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_lui_parallax_max_linear_velocity_influence = Dvar_RegisterFloat("NSONSKLLQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v18, "Maximum player view linear velocity that will be converted to angular UI motion.  Inches per second.");
-  v23 = 262340;
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v23 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  Com_GameMode_GetActiveGameMode();
-  Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e99999a; x
-    vmovss  xmm3, cs:__real@3f000000; z
-    vmovss  dword ptr [rsp+78h+description], xmm6
-    vmovaps xmm2, xmm1; y
-    vmovss  dword ptr [rsp+78h+fmt], xmm8
-  }
-  DCONST_DVARMPVEC3_lui_parallax_linear_velocity_to_angle_rate = Dvar_RegisterVec3("MMMTQPLQMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, description, v23, "Rate that angular motion is applied to the UI given a linear velocity.  (Degrees rotation) per (Inches per second in player X, Y, and Z).");
-  v27 = 262340;
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v27 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e800000; value
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_lui_parallax_scale = Dvar_RegisterFloat("NOPPPNSKMM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v27, "Scale applied to the final angular offset calculated for UI elements.");
-  DVARBOOL_lui_drawHUDMap = Dvar_RegisterBool("MKORQLNLQN", 0, 0, "Show name and outlines of hud widgets");
-  DCONST_DVARSTR_hint_button_defaultIconMaterial = Dvar_RegisterString("hint_button_defaultIconMaterial", "hud_interaction_prompt_center_standard", 0x40004u, "Icon used for interactive object prompts when none is specified by script");
-  v31 = 262340;
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v31 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  DCONST_DVARMPINT_lui_lootCard_shortInteractDistance = Dvar_RegisterInt("RORLNQQKQ", 100, 0, 128, v31, "Max number of in-game units the player can be away from a loot item to pick it up");
-  v32 = 262340;
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v32 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  DCONST_DVARMPINT_lui_lootCard_mediumInteractDistance = Dvar_RegisterInt("MSPTROQNR", 200, 0, 256, v32, "Max number of in-game units the player can be away from a loot item to be able to ping it");
-  v33 = 262340;
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v33 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  DCONST_DVARMPINT_lui_minimizedPromptPulsePeriod = Dvar_RegisterInt("NNRTRKSLKK", 1000, 0, 10000, v33, "Alpha pulse period of minimized display prompts (milliseconds).");
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v3 = 262276;
-  Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@3f400000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARMPFLT_lui_minimizedPromptPulseAlphaScale = Dvar_RegisterFloat("MQRQLLRKOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v3, "Minimum alpha scale value to multiply against the minimized interaction prompt widget's base alpha when blinking.");
+  DCONST_DVARMPFLT_lui_minimizedPromptPulseAlphaScale = Dvar_RegisterFloat("MQRQLLRKOP", 0.75, 0.0, 1.0, v0, "Minimum alpha scale value to multiply against the minimized interaction prompt widget's base alpha when blinking.");
   DVARBOOL_lui_objective_fade_enabled = Dvar_RegisterBool("NTMLPPMOPK", 1, 0, "Killswitch for the objective distance fading system");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_lui_objective_fadeStart = Dvar_RegisterFloat("LLSLRMTOKS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which objectives will begin to fade their opacity from 1 to 0. If the widget is closer than this distance, it will be drawn at full opacity.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_lui_objective_fadeEnd = Dvar_RegisterFloat("MKMMKPPTL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which objectives will end fading their opacity from 1 to 0. If the widget is further than this distance, it will be hidden.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm7; value
-  }
-  v46 = Dvar_RegisterFloat("MLOKPTMLQP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which objectives will stop snapping (clamping) to the side of the screen.");
-  __asm { vmovss  xmm1, cs:__real@40200000; value }
-  DVARFLT_lui_objective_stopSnapDistance = v46;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_lui_contextual_ping_objective_world_pos_epsilon = Dvar_RegisterFloat("OLQKMRLKRN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "This value represents HALF the precision epsilon when using world position objectives with the contextual ping system. We allow differences in precision between +/- this value.");
-  v50 = Dvar_RegisterInt("NTSOSPRNNN", 1, 0, 10, 0, "During the Zeus upsell event, an upsell reminder will show up in the front-end every X games.");
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  DVARINT_lui_zeus_upsell_reminder_frequency = v50;
+  DVARFLT_lui_objective_fadeStart = Dvar_RegisterFloat("LLSLRMTOKS", 0.0, 0.0, 3.4028235e38, 0, "Distance at which objectives will begin to fade their opacity from 1 to 0. If the widget is closer than this distance, it will be drawn at full opacity.");
+  DVARFLT_lui_objective_fadeEnd = Dvar_RegisterFloat("MKMMKPPTL", 0.0, 0.0, 3.4028235e38, 0, "Distance at which objectives will end fading their opacity from 1 to 0. If the widget is further than this distance, it will be hidden.");
+  DVARFLT_lui_objective_stopSnapDistance = Dvar_RegisterFloat("MLOKPTMLQP", 3.4028235e38, 0.0, 3.4028235e38, 0, "Distance at which objectives will stop snapping (clamping) to the side of the screen.");
+  DVARFLT_lui_contextual_ping_objective_world_pos_epsilon = Dvar_RegisterFloat("OLQKMRLKRN", 2.5, 0.0, 3.4028235e38, 0, "This value represents HALF the precision epsilon when using world position objectives with the contextual ping system. We allow differences in precision between +/- this value.");
+  DVARINT_lui_zeus_upsell_reminder_frequency = Dvar_RegisterInt("NTSOSPRNNN", 1, 0, 10, 0, "During the Zeus upsell event, an upsell reminder will show up in the front-end every X games.");
 }
 
 /*
@@ -8302,12 +7045,18 @@ LUI_CoD_RenderFrame
 ==============
 */
 
-void __fastcall LUI_CoD_RenderFrame(const LocalClientNum_t localClientNum, double _XMM1_8)
+void __fastcall LUI_CoD_RenderFrame(const LocalClientNum_t localClientNum, double a2)
 {
   GfxBackEndData *v3; 
+  __int64 v4; 
+  R_RT_ColorHandle *GlobalColor; 
+  R_RT_ColorHandle v6; 
   LocalClientNum_t v7; 
+  const GfxImage *Image; 
+  R_RT_Handle v9; 
+  R_RT_Handle v10; 
   R_RT_Image *p_m_image; 
-  R_RT_Handle v14; 
+  R_RT_Handle v12; 
   R_RT_ColorHandle result; 
   GfxAsync2DRenderResources resources; 
 
@@ -8336,55 +7085,43 @@ void __fastcall LUI_CoD_RenderFrame(const LocalClientNum_t localClientNum, doubl
           __debugbreak();
         v3 = frontEndDataOut;
       }
-      _RBX = (__int64)&v3->viewInfo[v3->viewInfoIndex];
-      if ( *(_QWORD *)(_RBX + 3640) )
+      v4 = (__int64)&v3->viewInfo[v3->viewInfoIndex];
+      if ( *(_QWORD *)(v4 + 3640) )
       {
         v3->async2D.renderPending = 1;
-        frontEndDataOut->async2D.renderReceivePPFXPending = *(_QWORD *)(_RBX + 3656) != 0i64;
-        R_TG_SetupPhase((GfxViewInfo *)_RBX, frontEndDataOut->smpFrame, 4u);
-        if ( (*(_DWORD *)(_RBX + 15540) & 0x100) == 0 )
+        frontEndDataOut->async2D.renderReceivePPFXPending = *(_QWORD *)(v4 + 3656) != 0i64;
+        R_TG_SetupPhase((GfxViewInfo *)v4, frontEndDataOut->smpFrame, 4u);
+        if ( (*(_DWORD *)(v4 + 15540) & 0x100) == 0 )
         {
           memset_0(&resources.sceneColor, 0, 0x60ui64);
-          _RAX = R_RT_GetGlobalColor(&result, R_RENDERTARGET_DISPLAY_BUFFER_FRONTEND);
-          __asm { vmovups ymm1, ymmword ptr [rbx+30C0h] }
-          v7 = *(_DWORD *)(_RBX + 11716);
-          __asm
+          GlobalColor = R_RT_GetGlobalColor(&result, R_RENDERTARGET_DISPLAY_BUFFER_FRONTEND);
+          v6 = *(R_RT_ColorHandle *)(v4 + 12480);
+          v7 = *(_DWORD *)(v4 + 11716);
+          resources.displayColor = *GlobalColor;
+          resources.sceneDepth = *(R_RT_DepthHandle *)(v4 + 12704);
+          resources.sceneColor = v6;
+          Image = R_UniversalClut_GetImage(v7, MOVEMENT);
+          v9 = *(R_RT_Handle *)(v4 + 13280);
+          v10 = *(R_RT_Handle *)(v4 + 13248);
+          resources.universalClut = Image;
+          resources.packedStencil = v10;
+          v12 = v9;
+          if ( LOWORD(a2) )
           {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rsp+128h+resources.displayColor.baseclass_0.m_surfaceID], ymm0
-            vmovups ymm0, ymmword ptr [rbx+31A0h]
-            vmovups ymmword ptr [rsp+128h+resources.sceneDepth.baseclass_0.m_surfaceID], ymm0
-            vmovups ymmword ptr [rsp+128h+resources.sceneColor.baseclass_0.m_surfaceID], ymm1
-          }
-          _RAX = R_UniversalClut_GetImage(v7, MOVEMENT);
-          __asm
-          {
-            vmovups ymm1, ymmword ptr [rbx+33E0h]
-            vmovups ymm0, ymmword ptr [rbx+33C0h]
-          }
-          resources.universalClut = _RAX;
-          __asm
-          {
-            vmovd   eax, xmm1
-            vmovups ymmword ptr [rsp+128h+resources.packedStencil.m_surfaceID], ymm0
-            vmovups ymmword ptr [rsp+128h+var_F8.m_surfaceID], ymm1
-          }
-          if ( (_WORD)_RAX )
-          {
-            R_RT_Handle::GetSurface(&v14);
-            p_m_image = &R_RT_Handle::GetSurface(&v14)->m_image;
+            R_RT_Handle::GetSurface(&v12);
+            p_m_image = &R_RT_Handle::GetSurface(&v12)->m_image;
           }
           else
           {
-            if ( v14.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v14.m_surfaceID) )
+            if ( v12.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v12.m_surfaceID) )
               __debugbreak();
             p_m_image = (R_RT_Image *)rgp.blackImage;
           }
           resources.resolvedScene = &p_m_image->m_base;
-          resources.exposureBuffer = R_Tonemap_GetConstantBuffer((const GfxViewInfo *)_RBX);
+          resources.exposureBuffer = R_Tonemap_GetConstantBuffer((const GfxViewInfo *)v4);
           if ( frontEndDataOut->async2D.renderReceivePPFXPending )
-            LUI_Workers_AddRenderWorker((const GfxViewInfo *)_RBX, &resources, 1);
-          LUI_Workers_AddRenderWorker((const GfxViewInfo *)_RBX, &resources, 0);
+            LUI_Workers_AddRenderWorker((const GfxViewInfo *)v4, &resources, 1);
+          LUI_Workers_AddRenderWorker((const GfxViewInfo *)v4, &resources, 0);
         }
       }
     }
@@ -8398,22 +7135,25 @@ LUI_CoD_RenderFrame_Internal
 */
 void LUI_CoD_RenderFrame_Internal(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
-  unsigned __int64 v5; 
-  char v13; 
-  char v14; 
+  const dvar_t *v1; 
+  unsigned __int64 v3; 
+  __int64 v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  float v8; 
+  const dvar_t *v9; 
 
-  v3 = DCONST_DVARBOOL_lui_enabled;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v1 = DCONST_DVARBOOL_lui_enabled;
   if ( !DCONST_DVARBOOL_lui_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( !v3->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3255, ASSERT_TYPE_ASSERT, "(LUI_CoD_RunFrameEnabled())", (const char *)&queryFormat, "LUI_CoD_RunFrameEnabled()") )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3255, ASSERT_TYPE_ASSERT, "(LUI_CoD_RunFrameEnabled())", (const char *)&queryFormat, "LUI_CoD_RunFrameEnabled()") )
     __debugbreak();
   if ( !Sys_InCriticalSection(CRITSECT_LUI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3256, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_LUI ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_LUI )") )
     __debugbreak();
   s_inLUIRenderFrame = 1;
-  v5 = Sys_Microseconds();
+  v3 = Sys_Microseconds();
   if ( Sys_IsMainThread() )
   {
     Profile_Begin(575);
@@ -8428,40 +7168,26 @@ void LUI_CoD_RenderFrame_Internal(const LocalClientNum_t localClientNum)
   {
     LUI_CoD_Render(localClientNum);
   }
-  __asm
+  v4 = Sys_Microseconds() - v3;
+  v5 = (float)v4;
+  if ( v4 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v6 = (float)v4;
+    v5 = v6 + 1.8446744e19;
   }
-  if ( (__int64)(Sys_Microseconds() - v5) < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  _RCX = s_luiLastUpdateFrameDuration_nextIndex;
-  _RDX = s_luiLastUpdateFrameDuration;
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3a83126f
-    vaddss  xmm6, xmm0, cs:s_luiUpdateFrameInternalDuration
-    vmovss  dword ptr [rdx+rcx*4], xmm6
-  }
-  s_luiLastUpdateFrameDuration_nextIndex = ((int)_RCX + 1) % 32;
+  v7 = s_luiLastUpdateFrameDuration_nextIndex;
+  v8 = (float)(v5 * 0.001) + s_luiUpdateFrameInternalDuration;
+  s_luiLastUpdateFrameDuration[s_luiLastUpdateFrameDuration_nextIndex] = v8;
+  s_luiLastUpdateFrameDuration_nextIndex = (v7 + 1) % 32;
   if ( !s_luaInFrontend )
   {
-    _RBX = DCONST_DVARFLT_lui_reportPerfThresholdMS;
+    v9 = DCONST_DVARFLT_lui_reportPerfThresholdMS;
     if ( !DCONST_DVARFLT_lui_reportPerfThresholdMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_reportPerfThresholdMS") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-    if ( !(v13 | v14) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovq   r8, xmm2
-      }
-      Com_PrintWarning(13, "LUI frame time: %4.2fms\n", _R8);
-    }
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v8 > v9->current.value )
+      Com_PrintWarning(13, "LUI frame time: %4.2fms\n", v8);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
   s_inLUIRenderFrame = 0;
 }
 
@@ -8470,148 +7196,113 @@ void LUI_CoD_RenderFrame_Internal(const LocalClientNum_t localClientNum)
 LUI_CoD_Render_Internal
 ==============
 */
-
-void __fastcall LUI_CoD_Render_Internal(const LocalClientNum_t localClientNum, LUIRootData *rootData, double a3, double _XMM3_8)
+void LUI_CoD_Render_Internal(const LocalClientNum_t localClientNum, LUIRootData *rootData)
 {
-  __int64 v10; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  float displayWidth; 
+  float displayHeight; 
+  int v14; 
   int LocalClientActiveCount; 
-  __int64 v32; 
-  __int64 v33; 
-  const dvar_t *v34; 
+  const dvar_t *v16; 
   const ScreenPlacement *ActivePlacement; 
-  float fmt; 
-  float y; 
-  float v41; 
   GfxPointVertex verts; 
-  unsigned __int8 v45[4]; 
-  unsigned __int8 v48[4]; 
-  unsigned __int8 v51[4]; 
-  unsigned __int8 v54[4]; 
-  unsigned __int8 v57[4]; 
-  unsigned __int8 v60[4]; 
-  unsigned __int8 v63[4]; 
+  float v19; 
+  int v20; 
+  unsigned __int8 v21[4]; 
+  float v22; 
+  int v23; 
+  unsigned __int8 v24[4]; 
+  float v25; 
+  int v26; 
+  unsigned __int8 v27[4]; 
+  float v28; 
+  int v29; 
+  unsigned __int8 v30[4]; 
+  int v31; 
+  int v32; 
+  unsigned __int8 v33[4]; 
+  int v34; 
+  int v35; 
+  unsigned __int8 v36[4]; 
+  int v37; 
+  int v38; 
+  unsigned __int8 v39[4]; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
 
   LUI_Render(localClientNum, rootData, LUI_luaVM);
   if ( ui_safearea->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+140h+var_10], xmm6
-      vmovaps [rsp+140h+var_20], xmm7
-      vmovaps [rsp+140h+var_30], xmm8
-      vmovaps [rsp+140h+var_40], xmm9
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, rax
-      vmulss  xmm0, xmm3, cs:__real@3d4cccd0
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm9, xmm9, xmm9
-      vcvtsi2ss xmm9, xmm9, rax
-      vmulss  xmm0, xmm9, cs:__real@3d4cccd0
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm8, xmm8, xmm1, 1
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm6, xmm6, xmm1, 1
-      vmovaps [rsp+140h+var_50], xmm11
-      vsubss  xmm7, xmm9, xmm6
-      vsubss  xmm11, xmm3, xmm8
-    }
+    v44 = v2;
+    v43 = v3;
+    v42 = v4;
+    v41 = v5;
+    displayWidth = (float)cls.vidConfig.displayWidth;
+    displayHeight = (float)cls.vidConfig.displayHeight;
+    _XMM8 = 0i64;
+    __asm { vroundss xmm8, xmm8, xmm1, 1 }
+    _XMM6 = 0i64;
+    __asm { vroundss xmm6, xmm6, xmm1, 1 }
+    v40 = v6;
+    *(float *)&v14 = displayHeight - *(float *)&_XMM6;
     LocalClientActiveCount = CL_GetLocalClientActiveCount();
     if ( LocalClientActiveCount >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6467, ASSERT_TYPE_ASSERT, "(clientActiveCount < 3)", (const char *)&queryFormat, "clientActiveCount < 3") )
       __debugbreak();
     if ( LocalClientActiveCount == 2 && !Com_FrontEnd_IsInFrontEnd() && localClientNum == LOCAL_CLIENT_1 )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm9, cs:__real@3f000000
-        vsubss  xmm6, xmm6, xmm0
-        vsubss  xmm7, xmm7, xmm0
-      }
+      *(float *)&_XMM6 = *(float *)&_XMM6 - (float)(displayHeight * 0.5);
+      *(float *)&v14 = *(float *)&v14 - (float)(displayHeight * 0.5);
     }
-    __asm
-    {
-      vmovss  dword ptr [rsp+140h+verts.xyz], xmm8
-      vmovss  dword ptr [rsp+140h+verts.xyz+4], xmm6
-    }
+    verts.xyz.v[0] = *(float *)&_XMM8;
+    verts.xyz.v[1] = *(float *)&_XMM6;
     Byte4PackVertexColor(&colorRed, verts.color);
-    __asm
-    {
-      vmovss  [rsp+140h+var_D0], xmm11
-      vmovss  [rsp+140h+var_CC], xmm6
-    }
-    Byte4PackVertexColor(&colorRed, v45);
-    __asm
-    {
-      vmovss  [rbp+40h+var_C0], xmm11
-      vmovss  [rbp+40h+var_BC], xmm6
-    }
-    Byte4PackVertexColor(&colorRed, v48);
-    __asm
-    {
-      vmovss  [rbp+40h+var_B0], xmm11
-      vmovss  [rbp+40h+var_AC], xmm7
-    }
-    Byte4PackVertexColor(&colorRed, v51);
-    __asm
-    {
-      vmovss  [rbp+40h+var_A0], xmm11
-      vmovss  [rbp+40h+var_9C], xmm7
-    }
-    Byte4PackVertexColor(&colorRed, v54);
-    __asm
-    {
-      vmovss  [rbp+40h+var_90], xmm8
-      vmovss  [rbp+40h+var_8C], xmm7
-    }
-    Byte4PackVertexColor(&colorRed, v57);
-    __asm
-    {
-      vmovss  [rbp+40h+var_80], xmm8
-      vmovss  [rbp+40h+var_7C], xmm7
-    }
-    Byte4PackVertexColor(&colorRed, v60);
-    __asm
-    {
-      vmovss  [rbp+40h+var_70], xmm8
-      vmovss  [rbp+40h+var_6C], xmm6
-    }
-    Byte4PackVertexColor(&colorRed, v63);
+    v19 = displayWidth - *(float *)&_XMM8;
+    v20 = _XMM6;
+    Byte4PackVertexColor(&colorRed, v21);
+    v22 = displayWidth - *(float *)&_XMM8;
+    v23 = _XMM6;
+    Byte4PackVertexColor(&colorRed, v24);
+    v25 = displayWidth - *(float *)&_XMM8;
+    v26 = v14;
+    Byte4PackVertexColor(&colorRed, v27);
+    v28 = displayWidth - *(float *)&_XMM8;
+    v29 = v14;
+    Byte4PackVertexColor(&colorRed, v30);
+    v31 = _XMM8;
+    v32 = v14;
+    Byte4PackVertexColor(&colorRed, v33);
+    v34 = _XMM8;
+    v35 = v14;
+    Byte4PackVertexColor(&colorRed, v36);
+    v37 = _XMM8;
+    v38 = _XMM6;
+    Byte4PackVertexColor(&colorRed, v39);
     R_AddCmdDrawLines2D(4u, 2u, &verts);
-    __asm
-    {
-      vmovaps xmm11, [rsp+140h+var_50]
-      vmovaps xmm9, [rsp+140h+var_40]
-      vmovaps xmm8, [rsp+140h+var_30]
-      vmovaps xmm7, [rsp+140h+var_20]
-      vmovaps xmm6, [rsp+140h+var_10]
-    }
   }
-  LUI_CoD_DrawMemoryReport(localClientNum, v10, a3);
+  LUI_CoD_DrawMemoryReport(localClientNum);
   LUI_CoD_DrawMemoryGraph(localClientNum);
   LUI_CoD_DrawStackMenuNames(localClientNum);
   LUI_CoD_DrawLuiDynIconStreamerInfo(localClientNum);
   LUI_CoD_DrawLuiStreamedImageList(localClientNum);
-  LUI_CoD_DrawAttachmentsReference(localClientNum, v32, a3);
-  LUI_CoD_DrawFrontendWeaponModelName(localClientNum, v33, a3);
-  v34 = DVARBOOL_lui_drawFocusChain;
+  LUI_CoD_DrawAttachmentsReference(localClientNum);
+  LUI_CoD_DrawFrontendWeaponModelName(localClientNum);
+  v16 = DVARBOOL_lui_drawFocusChain;
   if ( !DVARBOOL_lui_drawFocusChain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_drawFocusChain") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  if ( v34->current.enabled )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v16->current.enabled )
   {
     if ( s_focusChainInfo.chainStr[0] )
     {
       ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e4ccccd
-        vmovss  xmm1, cs:__real@41a00000
-        vmovss  [rsp+140h+var_100], xmm0
-        vmovss  xmm0, cs:__real@43480000
-        vmovss  [rsp+140h+y], xmm0
-        vmovss  dword ptr [rsp+140h+fmt], xmm1
-      }
-      UI_DrawText(ActivePlacement, s_focusChainInfo.chainStr, 4096, cls.smallDevFont, fmt, y, 1, 1, v41, &colorWhite, 8);
+      UI_DrawText(ActivePlacement, s_focusChainInfo.chainStr, 4096, cls.smallDevFont, 20.0, 200.0, 1, 1, 0.2, &colorWhite, 8);
     }
   }
 }
@@ -8621,55 +7312,17 @@ void __fastcall LUI_CoD_Render_Internal(const LocalClientNum_t localClientNum, L
 LUI_CoD_ResizeRoot
 ==============
 */
-
-void __fastcall LUI_CoD_ResizeRoot(LUIRootData *rootData, double left, double top, double right, float bottom)
+void LUI_CoD_ResizeRoot(LUIRootData *rootData, float left, float top, float right, float bottom)
 {
   char *name; 
-  float fmt; 
-  float bottomResult; 
   float topResult; 
 
-  __asm
-  {
-    vmovss  [rsp+topResult], xmm2
-    vmovaps [rsp+78h+var_18], xmm6
-  }
+  topResult = top;
   name = rootData->name;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
   if ( rootData == (LUIRootData *)-192i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 2118, ASSERT_TYPE_ASSERT, "(rootData->name)", (const char *)&queryFormat, "rootData->name") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, [rsp+78h+pixelAspectRatio]; bottom
-    vmovaps xmm2, xmm7; right
-    vmovaps xmm1, xmm6; top
-    vmovaps xmm0, xmm8; left
-  }
-  LUI_CoD_AdjustRootAspectRatio(*(float *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &topResult, &bottom, &rootData->projectionMatrix);
-  __asm
-  {
-    vmovss  xmm1, [rsp+78h+pixelAspectRatio]
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm2, [rsp+78h+topResult]; top
-    vmovss  dword ptr [rsp+78h+bottomResult], xmm0
-    vmovss  dword ptr [rsp+78h+fmt], xmm1
-    vmovaps xmm1, xmm8; left
-    vmovaps xmm3, xmm7; right
-  }
-  LUI_Resize(name, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, bottomResult, LUI_luaVM);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
+  LUI_CoD_AdjustRootAspectRatio(left, top, right, bottom, &topResult, &bottom, &rootData->projectionMatrix);
+  LUI_Resize(name, left, topResult, right, bottom, 1.0, LUI_luaVM);
 }
 
 /*
@@ -8677,86 +7330,52 @@ void __fastcall LUI_CoD_ResizeRoot(LUIRootData *rootData, double left, double to
 LUI_CoD_ResizeRoots
 ==============
 */
-
-void __fastcall LUI_CoD_ResizeRoots(double _XMM0_8, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void LUI_CoD_ResizeRoots(void)
 {
   bool *p_inUse; 
-  int v10; 
-  LUIRootData *v11; 
-  float v26; 
-  float v27; 
-  void *retaddr; 
+  int v1; 
+  LUIRootData *v2; 
+  const ClientViewParams *LocalClientViewParams; 
+  float displayWidth; 
+  float v5; 
+  float displayHeight; 
+  float v7; 
+  float v8; 
+  float v9; 
   LocalClientNum_t outLocalClientNum; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm8 }
   LUI_EnterCriticalSection("LUI_CoD_ResizeRoots");
   j_lua_gc(LUI_luaVM, 2, 0);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3fd55555
-    vmovaps [rsp+68h+var_18], xmm6
-  }
   p_inUse = &s_rootData[0].inUse;
-  v10 = 0;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  v11 = s_rootData;
+  v1 = 0;
+  v2 = s_rootData;
   do
   {
-    Com_sprintf(v11->name, 0x20ui64, "UIRoot%d", (unsigned int)v10);
-    if ( *p_inUse && CL_Mgr_IsControllerMappedToClient(v10, &outLocalClientNum) )
+    Com_sprintf(v2->name, 0x20ui64, "UIRoot%d", (unsigned int)v1);
+    if ( *p_inUse && CL_Mgr_IsControllerMappedToClient(v1, &outLocalClientNum) )
     {
-      CG_GetLocalClientViewParams(outLocalClientNum);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-        vmulss  xmm6, xmm0, dword ptr [rax+8]
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rcx
-        vmulss  xmm7, xmm1, dword ptr [rax+0Ch]
-      }
+      LocalClientViewParams = CG_GetLocalClientViewParams(outLocalClientNum);
+      displayWidth = (float)cls.vidConfig.displayWidth;
+      v5 = displayWidth * LocalClientViewParams->width;
+      displayHeight = (float)cls.vidConfig.displayHeight;
+      v7 = displayHeight * LocalClientViewParams->height;
       if ( LUI_CoD_UsingSplitscreenUpscaling() )
       {
-        __asm
-        {
-          vmulss  xmm6, xmm6, xmm8
-          vmulss  xmm7, xmm7, xmm8
-        }
+        v5 = v5 * 1.6666666;
+        v7 = v7 * 1.6666666;
       }
-      __asm
-      {
-        vmovaps xmm3, xmm6; right
-        vxorps  xmm2, xmm2, xmm2; top
-        vxorps  xmm1, xmm1, xmm1; left
-        vmovss  [rsp+68h+var_48], xmm7
-      }
-      LUI_CoD_ResizeRoot(v11, _XMM1_8, _XMM2_8, _XMM3_8, v26);
+      LUI_CoD_ResizeRoot(v2, 0.0, 0.0, v5, v7);
     }
-    ++v10;
-    ++v11;
+    ++v1;
+    ++v2;
     p_inUse += 464;
   }
-  while ( v10 < 8 );
-  __asm
-  {
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
+  while ( v1 < 8 );
   if ( s_fullscreenRootData.inUse )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, rax; right
-      vxorps  xmm2, xmm2, xmm2; top
-      vxorps  xmm1, xmm1, xmm1; left
-      vmovss  [rsp+68h+var_48], xmm0
-    }
-    LUI_CoD_ResizeRoot(&s_fullscreenRootData, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, v27);
+    v8 = (float)cls.vidConfig.displayHeight;
+    v9 = (float)cls.vidConfig.displayWidth;
+    LUI_CoD_ResizeRoot(&s_fullscreenRootData, 0.0, 0.0, v9, v8);
   }
   LUI_LeaveCriticalSection();
 }
@@ -9188,58 +7807,32 @@ LUI_CoD_SnapQuadVerts
 */
 void LUI_CoD_SnapQuadVerts(vec4_t (*quadVerts)[4])
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = quadVerts;
+  unsigned int v4; 
+  unsigned int v7; 
+  float v9; 
+
   if ( !quadVerts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6314, ASSERT_TYPE_ASSERT, "(quadVerts)", (const char *)&queryFormat, "quadVerts") )
     __debugbreak();
+  _XMM6 = 0i64;
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  v4 = (int)*(float *)&_XMM3;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vsubss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vmovss  xmm5, cs:__real@3f000000
-    vaddss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm3, xmm6, xmm2, 1
-    vaddss  xmm2, xmm5, dword ptr [rbx]
-    vcvttss2si edx, xmm3
-    vaddss  xmm3, xmm1, xmm5
     vroundss xmm1, xmm6, xmm3, 1
     vroundss xmm3, xmm6, xmm2, 1
-    vcvttss2si eax, xmm3
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmovss  dword ptr [rbx], xmm0
-    vaddss  xmm2, xmm5, dword ptr [rbx+4]
-    vcvttss2si ecx, xmm1
-    vroundss xmm1, xmm6, xmm2, 1
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvttss2si eax, xmm1
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovd   xmm2, edx
-    vcvtdq2ps xmm2, xmm2
-    vaddss  xmm1, xmm2, dword ptr [rbx]
-    vmovss  dword ptr [rbx+10h], xmm1
   }
-  (*_RBX)[1].v[1] = (*_RBX)[0].v[1];
-  __asm
-  {
-    vaddss  xmm0, xmm2, dword ptr [rbx]
-    vmovss  dword ptr [rbx+20h], xmm0
-    vmovd   xmm3, ecx
-    vcvtdq2ps xmm3, xmm3
-    vaddss  xmm1, xmm3, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+24h], xmm1
-  }
-  (*_RBX)[3].v[0] = *(float *)_RBX;
-  __asm
-  {
-    vaddss  xmm0, xmm3, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+34h], xmm0
-  }
+  (*quadVerts)[0].v[0] = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM3).m128_f32[0];
+  v7 = (int)*(float *)&_XMM1;
+  __asm { vroundss xmm1, xmm6, xmm2, 1 }
+  (*quadVerts)[0].v[1] = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM1).m128_f32[0];
+  v9 = _mm_cvtepi32_ps((__m128i)v4).m128_f32[0];
+  (*quadVerts)[1].v[0] = v9 + (*quadVerts)[0].v[0];
+  (*quadVerts)[1].v[1] = (*quadVerts)[0].v[1];
+  (*quadVerts)[2].v[0] = v9 + (*quadVerts)[0].v[0];
+  *(float *)&_XMM3 = _mm_cvtepi32_ps((__m128i)v7).m128_f32[0];
+  (*quadVerts)[2].v[1] = *(float *)&_XMM3 + (*quadVerts)[0].v[1];
+  (*quadVerts)[3].v[0] = (*quadVerts)[0].v[0];
+  (*quadVerts)[3].v[1] = *(float *)&_XMM3 + (*quadVerts)[0].v[1];
 }
 
 /*
@@ -9343,125 +7936,131 @@ LUI_CoD_UpdateActiveState
 */
 void LUI_CoD_UpdateActiveState(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
-  int v8; 
-  int v9; 
+  const dvar_t *v4; 
+  float value; 
+  int v6; 
+  int v7; 
   int lastUpdateTime; 
+  int deltaTime; 
+  int v10; 
   int ServerTime; 
   int lastUpdateGameTime; 
-  int v21; 
+  int deltaGameTime; 
+  int v14; 
+  int v15; 
   LUIElement *RootForController; 
-  int v23; 
-  LUIRootData *v24; 
+  int v17; 
+  LUIRootData *v18; 
   tmat44_t<vec4_t> *p_parallaxMatrix; 
-  lua_State *v26; 
-  int v27; 
-  LUIElement *v28; 
-  LUIRootData *v29; 
-  __int64 v31; 
-  __int64 v32; 
+  lua_State *v20; 
+  int v21; 
+  LUIElement *v22; 
+  LUIRootData *v23; 
+  __int64 v24; 
+  __int64 v25; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  v3 = localClientNum;
+  v1 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFF808080, "LUI_CoD_UpdateActiveState");
   LUI_Interface_CheckLowMemory(LUI_luaVM);
   Sys_ProfBeginNamedEvent(0xFF808080, "LUI_CoD_UpdateDeltaTime");
-  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
+  ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
   RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
-  _RSI = DCONST_DVARFLT_lui_timescale;
+  v4 = DCONST_DVARFLT_lui_timescale;
   if ( !DCONST_DVARFLT_lui_timescale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_timescale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  v8 = Sys_Milliseconds();
-  v9 = v8;
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  v6 = Sys_Milliseconds();
+  v7 = v6;
   lastUpdateTime = RootDataForController->lastUpdateTime;
-  if ( lastUpdateTime > 0 )
-    RootDataForController->deltaTime = v8 - lastUpdateTime;
-  __asm
+  if ( lastUpdateTime <= 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si eax, xmm1
+    deltaTime = RootDataForController->deltaTime;
   }
-  if ( _EAX < 0 )
-    _EAX = 0;
-  RootDataForController->deltaTime = _EAX;
-  RootDataForController->lastUpdateTime = v9;
-  ServerTime = Game_GetServerTime((const LocalClientNum_t)v3);
+  else
+  {
+    deltaTime = v6 - lastUpdateTime;
+    RootDataForController->deltaTime = v6 - lastUpdateTime;
+  }
+  v10 = (int)(float)((float)deltaTime * value);
+  if ( v10 < 0 )
+    v10 = 0;
+  RootDataForController->deltaTime = v10;
+  RootDataForController->lastUpdateTime = v7;
+  ServerTime = Game_GetServerTime((const LocalClientNum_t)v1);
   lastUpdateGameTime = RootDataForController->lastUpdateGameTime;
-  if ( lastUpdateGameTime > 0 )
-    RootDataForController->deltaGameTime = ServerTime - lastUpdateGameTime;
-  __asm
+  if ( lastUpdateGameTime <= 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si eax, xmm1
+    deltaGameTime = RootDataForController->deltaGameTime;
   }
-  if ( _EAX < 0 )
-    _EAX = 0;
-  RootDataForController->deltaGameTime = _EAX;
+  else
+  {
+    deltaGameTime = ServerTime - lastUpdateGameTime;
+    RootDataForController->deltaGameTime = ServerTime - lastUpdateGameTime;
+  }
+  v14 = (int)(float)((float)deltaGameTime * value);
+  if ( v14 < 0 )
+    v14 = 0;
+  RootDataForController->deltaGameTime = v14;
   RootDataForController->lastUpdateGameTime = ServerTime;
   Sys_ProfEndNamedEvent();
   if ( LUI_luaVM )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "LUI_CoD_UpdateParallax");
     Sys_ProfBeginNamedEvent(0xFF008008, "Calculate Parallax Offset");
-    v21 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
-    RootForController = LUI_GetRootForController(v21);
-    v23 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
-    v24 = LUI_CoD_GetRootDataForController(v23);
-    p_parallaxMatrix = &v24->parallaxMatrix;
-    if ( !v24->parallaxSource[0] )
-      LUI_Matrix_LoadIdentity(&v24->parallaxMatrix);
+    v15 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+    RootForController = LUI_GetRootForController(v15);
+    v17 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+    v18 = LUI_CoD_GetRootDataForController(v17);
+    p_parallaxMatrix = &v18->parallaxMatrix;
+    if ( !v18->parallaxSource[0] )
+      LUI_Matrix_LoadIdentity(&v18->parallaxMatrix);
     LUI_SetCurrentParallaxMatrix(p_parallaxMatrix);
     Sys_ProfEndNamedEvent();
     if ( s_luaInFrontend )
     {
-      LUI_CoD_UpdateParallaxMenu((LocalClientNum_t)v3, RootForController);
+      LUI_CoD_UpdateParallaxMenu((LocalClientNum_t)v1, RootForController);
       Sys_ProfEndNamedEvent();
     }
     else
     {
-      if ( (unsigned int)v3 >= 2 )
+      if ( (unsigned int)v1 >= 2 )
       {
-        LODWORD(v32) = 2;
-        LODWORD(v31) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v31, v32) )
+        LODWORD(v25) = 2;
+        LODWORD(v24) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      if ( !clientUIActives[v3].frontEndSceneState[0] && clientUIActives[v3].cgameInitialized )
+      if ( !clientUIActives[v1].frontEndSceneState[0] && clientUIActives[v1].cgameInitialized )
       {
-        if ( (unsigned int)v3 >= 2 )
+        if ( (unsigned int)v1 >= 2 )
         {
-          LODWORD(v32) = 2;
-          LODWORD(v31) = v3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v31, v32) )
+          LODWORD(v25) = 2;
+          LODWORD(v24) = v1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
             __debugbreak();
         }
-        if ( (int)v3 < cg_t::ms_allocatedCount )
-          LUI_CoD_UpdateParallaxHUDHelmet((LocalClientNum_t)v3, RootForController);
+        if ( (int)v1 < cg_t::ms_allocatedCount )
+          LUI_CoD_UpdateParallaxHUDHelmet((LocalClientNum_t)v1, RootForController);
       }
       Sys_ProfEndNamedEvent();
     }
   }
-  v26 = LUI_luaVM;
+  v20 = LUI_luaVM;
   if ( LUI_luaVM )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "LUI_CoD_Animate");
-    v27 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
-    v28 = LUI_GetRootForController(v27);
-    v29 = LUI_CoD_GetRootDataForController(v27);
-    LUIElement_Animate(v28, v29->deltaTime, v29->deltaGameTime, 0, v26);
-    LUI_Tween_RunCallbacks(v26);
+    v21 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+    v22 = LUI_GetRootForController(v21);
+    v23 = LUI_CoD_GetRootDataForController(v21);
+    LUIElement_Animate(v22, v23->deltaTime, v23->deltaGameTime, 0, v20);
+    LUI_Tween_RunCallbacks(v20);
     Sys_ProfEndNamedEvent();
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -9499,24 +8098,27 @@ LUI_CoD_UpdateFrame_Internal
 */
 void LUI_CoD_UpdateFrame_Internal(const LocalClientNum_t localClientNum, const bool checkUseWorkers)
 {
-  const dvar_t *v3; 
-  int v5; 
+  const dvar_t *v2; 
+  int v4; 
   int *Value; 
-  __int64 v7; 
-  _DWORD *v8; 
-  unsigned __int64 v9; 
+  __int64 v6; 
+  _DWORD *v7; 
+  unsigned __int64 v8; 
   int PendingComError; 
-  const dvar_t *v11; 
+  const dvar_t *v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
   _JBTYPE *LongJmp; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
   int lockLevel; 
 
-  v3 = DCONST_DVARBOOL_lui_enabled;
+  v2 = DCONST_DVARBOOL_lui_enabled;
   if ( !DCONST_DVARBOOL_lui_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( !v3->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3067, ASSERT_TYPE_ASSERT, "(LUI_CoD_RunFrameEnabled())", (const char *)&queryFormat, "LUI_CoD_RunFrameEnabled()") )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3067, ASSERT_TYPE_ASSERT, "(LUI_CoD_RunFrameEnabled())", (const char *)&queryFormat, "LUI_CoD_RunFrameEnabled()") )
     __debugbreak();
   if ( !Sys_InCriticalSection(CRITSECT_LUI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3068, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_LUI ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_LUI )") )
     __debugbreak();
@@ -9526,7 +8128,7 @@ void LUI_CoD_UpdateFrame_Internal(const LocalClientNum_t localClientNum, const b
     __debugbreak();
   s_inLUIFrame = 1;
   LUI_QuadCache_ClearDrawList(localClientNum);
-  v5 = 0;
+  v4 = 0;
   lockLevel = g_lui_lock_level;
   s_luiWorkersPending = 0;
   if ( s_lui_profBeginCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3083, ASSERT_TYPE_ASSERT, "( s_lui_profBeginCount ) == ( 0 )", "%s == %s\n\t%i, %i", "s_lui_profBeginCount", "0", s_lui_profBeginCount, 0i64) )
@@ -9555,33 +8157,33 @@ void LUI_CoD_UpdateFrame_Internal(const LocalClientNum_t localClientNum, const b
   else
   {
     Value = (int *)Sys_GetValue(0);
-    v7 = Value[8914];
-    if ( (_DWORD)v7 && *(_QWORD *)&Value[4 * v7 + 8784] > *((_QWORD *)Value + 261) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 189, ASSERT_TYPE_ASSERT, "(prof_stack->prof_guardpos == 0 || prof_stack->prof_guardstack[prof_stack->prof_guardpos - 1].ppStack <= prof_stack->prof_ppStack)", (const char *)&queryFormat, "prof_stack->prof_guardpos == 0 || prof_stack->prof_guardstack[prof_stack->prof_guardpos - 1].ppStack <= prof_stack->prof_ppStack") )
+    v6 = Value[8914];
+    if ( (_DWORD)v6 && *(_QWORD *)&Value[4 * v6 + 8784] > *((_QWORD *)Value + 261) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 189, ASSERT_TYPE_ASSERT, "(prof_stack->prof_guardpos == 0 || prof_stack->prof_guardstack[prof_stack->prof_guardpos - 1].ppStack <= prof_stack->prof_ppStack)", (const char *)&queryFormat, "prof_stack->prof_guardpos == 0 || prof_stack->prof_guardstack[prof_stack->prof_guardpos - 1].ppStack <= prof_stack->prof_ppStack") )
       __debugbreak();
     if ( (unsigned int)Value[8914] >= 0x20 )
     {
-      LODWORD(v17) = 32;
-      LODWORD(v16) = Value[8914];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 190, ASSERT_TYPE_ASSERT, "(unsigned)( prof_stack->prof_guardpos ) < (unsigned)( ( sizeof( *array_counter( prof_stack->prof_guardstack ) ) + 0 ) )", "prof_stack->prof_guardpos doesn't index ARRAY_COUNT( prof_stack->prof_guardstack )\n\t%i not in [0, %i)", v16, v17) )
+      LODWORD(v16) = 32;
+      LODWORD(v15) = Value[8914];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 190, ASSERT_TYPE_ASSERT, "(unsigned)( prof_stack->prof_guardpos ) < (unsigned)( ( sizeof( *array_counter( prof_stack->prof_guardstack ) ) + 0 ) )", "prof_stack->prof_guardpos doesn't index ARRAY_COUNT( prof_stack->prof_guardstack )\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
     if ( Value[8914] > 0 )
     {
-      v8 = Value + 8786;
+      v7 = Value + 8786;
       do
       {
-        if ( *v8 == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 195, ASSERT_TYPE_ASSERT, "(prof_stack->prof_guardstack[i].id != id)", (const char *)&queryFormat, "prof_stack->prof_guardstack[i].id != id") )
+        if ( *v7 == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 195, ASSERT_TYPE_ASSERT, "(prof_stack->prof_guardstack[i].id != id)", (const char *)&queryFormat, "prof_stack->prof_guardstack[i].id != id") )
           __debugbreak();
-        ++v5;
-        v8 += 4;
+        ++v4;
+        v7 += 4;
       }
-      while ( v5 < Value[8914] );
+      while ( v4 < Value[8914] );
     }
     if ( *((_QWORD *)Value + 261) < (unsigned __int64)(Value + 10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 199, ASSERT_TYPE_ASSERT, "(prof_stack->prof_ppStack >= prof_stack->prof_pStack)", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
       __debugbreak();
     Value[4 * Value[8914] + 8786] = 2;
     *(_QWORD *)&Value[4 * Value[8914]++ + 8788] = *((_QWORD *)Value + 261);
-    v9 = Sys_Microseconds();
+    v8 = Sys_Microseconds();
     if ( Sys_IsMainThread() )
     {
       Profile_Begin(575);
@@ -9609,11 +8211,11 @@ void LUI_CoD_UpdateFrame_Internal(const LocalClientNum_t localClientNum, const b
       }
       else
       {
-        v11 = DVARBOOL_splitscreen;
+        v10 = DVARBOOL_splitscreen;
         if ( !DVARBOOL_splitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "splitscreen") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v11);
-        if ( v11->current.enabled )
+        Dvar_CheckFrontendServerThread(v10);
+        if ( v10->current.enabled )
           LUI_CoD_SetCurrentLocalClient(localClientNum);
         LUI_CoD_UpdateActiveState(localClientNum);
         LUIBinding::FrameUpdate(localClientNum);
@@ -9649,18 +8251,14 @@ void LUI_CoD_UpdateFrame_Internal(const LocalClientNum_t localClientNum, const b
       }
       LUI_CoD_BuildDrawList(localClientNum);
     }
-    __asm
+    v11 = Sys_Microseconds() - v8;
+    v12 = (float)v11;
+    if ( v11 < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v13 = (float)v11;
+      v12 = v13 + 1.8446744e19;
     }
-    if ( (__int64)(Sys_Microseconds() - v9) < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3a83126f
-      vmovss  cs:s_luiUpdateFrameInternalDuration, xmm0
-    }
+    s_luiUpdateFrameInternalDuration = v12 * 0.001;
     Profile_Unguard(2);
     s_inLUIFrame = 0;
   }
@@ -9733,340 +8331,148 @@ LUI_CoD_UpdateParallaxHUDHelmet
 void LUI_CoD_UpdateParallaxHUDHelmet(LocalClientNum_t localClientNum, LUIElement *root)
 {
   __int64 ControllerFromClient; 
+  cg_t *LocalClientGlobals; 
+  __int64 v5; 
   CgWeaponMap *Instance; 
-  bool v14; 
+  bool v7; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
   unsigned int refdefViewOrg_aab; 
-  char v42; 
+  char v14; 
   CgHandler *Handler; 
-  char v54; 
-  CgWeaponMap *v76; 
-  int v96; 
-  int v97; 
-  int v98; 
-  int v99; 
-  int v100; 
-  int v101; 
-  int v102; 
-  int v103; 
-  int v104; 
-  int v105; 
-  int v106; 
-  int v107; 
+  float v16; 
+  double v17; 
+  float v18; 
+  float v21; 
+  float v23; 
+  const dvar_t *v24; 
+  float value; 
+  float v26; 
+  CgWeaponMap *v27; 
+  double v28; 
   tmat43_t<vec3_t> out; 
   CgViewSystem::JostleConfig config; 
   vec3_t angles; 
   vec3_t outAngles; 
   tmat33_t<vec3_t> in; 
-  WorldUpReferenceFrame v113; 
+  WorldUpReferenceFrame v34; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v115; 
+  tmat33_t<vec3_t> v36; 
   tmat33_t<vec3_t> outAxis; 
   tmat33_t<vec3_t> in2; 
-  char v118; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
   Sys_ProfBeginNamedEvent(0xFF808080, "LUI_CoD_UpdateParallaxHUDHelmet");
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-  _RSI = CG_GetLocalClientGlobals(localClientNum);
-  _RBX = ControllerFromClient;
-  v14 = 1;
-  if ( !_RSI->renderingThirdPerson )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v5 = ControllerFromClient;
+  v7 = 1;
+  if ( !LocalClientGlobals->renderingThirdPerson )
   {
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    if ( !BG_IsThirdPersonMode(Instance, &_RSI->predictedPlayerState) )
-      v14 = 0;
+    if ( !BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState) )
+      v7 = 0;
   }
   config.respectBlendOut = 0;
-  _RDI = DCONST_DVARMPFLT_lui_parallax_view_sway_rate;
+  v8 = DCONST_DVARMPFLT_lui_parallax_view_sway_rate;
   if ( !DCONST_DVARMPFLT_lui_parallax_view_sway_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_view_sway_rate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  [rsp+258h+config.viewSwayScale], xmm0
-  }
-  _RDI = DCONST_DVARMPFLT_lui_parallax_anim_sway_rate;
+  Dvar_CheckFrontendServerThread(v8);
+  LODWORD(config.viewSwayScale) = v8->current.integer;
+  v9 = DCONST_DVARMPFLT_lui_parallax_anim_sway_rate;
   if ( !DCONST_DVARMPFLT_lui_parallax_anim_sway_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_anim_sway_rate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  [rsp+258h+config.animSwayScale], xmm0
-  }
-  _RDI = DCONST_DVARMPFLT_lui_parallax_max_linear_velocity_influence;
+  Dvar_CheckFrontendServerThread(v9);
+  LODWORD(config.animSwayScale) = v9->current.integer;
+  v10 = DCONST_DVARMPFLT_lui_parallax_max_linear_velocity_influence;
   if ( !DCONST_DVARMPFLT_lui_parallax_max_linear_velocity_influence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_max_linear_velocity_influence") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  [rsp+258h+config.maxLinearVelocityInfluence], xmm0
-  }
-  _RDI = DCONST_DVARMPVEC3_lui_parallax_linear_velocity_to_angle_rate;
+  Dvar_CheckFrontendServerThread(v10);
+  LODWORD(config.maxLinearVelocityInfluence) = v10->current.integer;
+  v11 = DCONST_DVARMPVEC3_lui_parallax_linear_velocity_to_angle_rate;
   if ( !DCONST_DVARMPVEC3_lui_parallax_linear_velocity_to_angle_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_linear_velocity_to_angle_rate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rsp+258h+config.linearVelocityToAngleRate], xmm0
-    vmovss  xmm1, dword ptr [rdi+2Ch]
-    vmovss  dword ptr [rsp+258h+config.linearVelocityToAngleRate+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+30h]
-    vmovss  dword ptr [rsp+258h+config.linearVelocityToAngleRate+8], xmm0
-  }
-  _RDI = DCONST_DVARMPVEC2_lui_parallax_max_offset_from_view;
+  Dvar_CheckFrontendServerThread(v11);
+  *(_QWORD *)config.linearVelocityToAngleRate.v = v11->current.integer64;
+  config.linearVelocityToAngleRate.v[2] = v11->current.vector.v[2];
+  v12 = DCONST_DVARMPVEC2_lui_parallax_max_offset_from_view;
   if ( !DCONST_DVARMPVEC2_lui_parallax_max_offset_from_view && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_max_offset_from_view") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rsp+258h+config.maxOffset], xmm0
-    vmovss  xmm1, dword ptr [rdi+2Ch]
-    vmovss  dword ptr [rsp+258h+config.maxOffset+4], xmm1
-    vmovss  dword ptr [rsp+258h+config.maxOffset+8], xmm1
-  }
-  AxisCopy(&_RSI->refdef.view.axis, (tmat33_t<vec3_t> *)&out);
-  if ( _RSI == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+  Dvar_CheckFrontendServerThread(v12);
+  *(_QWORD *)config.maxOffset.v = v12->current.integer64;
+  config.maxOffset.v[2] = config.maxOffset.v[1];
+  AxisCopy(&LocalClientGlobals->refdef.view.axis, (tmat33_t<vec3_t> *)&out);
+  if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
     __debugbreak();
-  refdefViewOrg_aab = _RSI->refdef.view.refdefViewOrg_aab;
-  if ( _RSI == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+  refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
+  if ( LocalClientGlobals == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
     __debugbreak();
-  LODWORD(out.m[3].v[0]) = LODWORD(_RSI->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RSI + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)_RSI + 26936)) + 2));
-  LODWORD(out.m[3].v[1]) = LODWORD(_RSI->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RSI + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)_RSI + 26940)) + 2));
-  LODWORD(out.m[3].v[2]) = ((refdefViewOrg_aab ^ ((_DWORD)_RSI + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)_RSI + 26944)) + 2)) ^ LODWORD(_RSI->refdef.view.org.org.v[2]);
-  __asm
+  LODWORD(out.m[3].v[0]) = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+  LODWORD(out.m[3].v[1]) = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+  LODWORD(out.m[3].v[2]) = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
+  if ( ((LODWORD(out.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[0].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[1].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[2].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[3].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[3].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(out.m[3].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3675, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( viewTransform )[0] )[0] ) || IS_NAN( ( ( viewTransform )[0] )[1] ) || IS_NAN( ( ( viewTransform )[0] )[2] ) ) || ( IS_NAN( ( ( viewTransform )[1] )[0] ) || IS_NAN( ( ( viewTransform )[1] )[1] ) || IS_NAN( ( ( viewTransform )[1] )[2] ) ) || ( IS_NAN( ( ( viewTransform )[2] )[0] ) || IS_NAN( ( ( viewTransform )[2] )[1] ) || IS_NAN( ( ( viewTransform )[2] )[2] ) ) || ( IS_NAN( ( ( viewTransform )[3] )[0] ) || IS_NAN( ( ( viewTransform )[3] )[1] ) || IS_NAN( ( ( viewTransform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( viewTransform )") )
+    __debugbreak();
+  if ( s_rootData[v5].parallaxSource[0] != 1 )
   {
-    vmovss  xmm0, dword ptr [rsp+258h+out]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v96 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+4]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v97 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+8]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v98 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+0Ch]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v99 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+10h]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v100 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+14h]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v101 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+18h]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v102 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+1Ch]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v103 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+258h+out+20h]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v104 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, [rsp+258h+var_1E4]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v105 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, [rsp+258h+var_1E0]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v106 & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, [rsp+258h+var_1DC]
-    vmovss  [rsp+258h+var_218], xmm0
-  }
-  if ( (v107 & 0x7F800000) == 2139095040 )
-  {
-LABEL_57:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 3675, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( viewTransform )[0] )[0] ) || IS_NAN( ( ( viewTransform )[0] )[1] ) || IS_NAN( ( ( viewTransform )[0] )[2] ) ) || ( IS_NAN( ( ( viewTransform )[1] )[0] ) || IS_NAN( ( ( viewTransform )[1] )[1] ) || IS_NAN( ( ( viewTransform )[1] )[2] ) ) || ( IS_NAN( ( ( viewTransform )[2] )[0] ) || IS_NAN( ( ( viewTransform )[2] )[1] ) || IS_NAN( ( ( viewTransform )[2] )[2] ) ) || ( IS_NAN( ( ( viewTransform )[3] )[0] ) || IS_NAN( ( ( viewTransform )[3] )[1] ) || IS_NAN( ( ( viewTransform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( viewTransform )") )
-      __debugbreak();
-  }
-  _R12 = s_rootData;
-  if ( s_rootData[_RBX].parallaxSource[0] != 1 )
-  {
-    ViewJostleState::Reset(&s_rootData[_RBX].helmetParallaxState);
-    *(_WORD *)&s_rootData[_RBX].helmetParallaxState.isAttachmentCached = 257;
+    ViewJostleState::Reset(&s_rootData[v5].helmetParallaxState);
+    *(_WORD *)&s_rootData[v5].helmetParallaxState.isAttachmentCached = 257;
 LABEL_42:
-    v42 = 1;
+    v14 = 1;
     goto LABEL_43;
   }
-  if ( _RSI->playerTeleported || v14 )
+  if ( LocalClientGlobals->playerTeleported || v7 )
     goto LABEL_42;
-  v42 = 0;
+  v14 = 0;
 LABEL_43:
   Handler = CgHandler::getHandler(localClientNum);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v113, &_RSI->predictedPlayerState, Handler);
-  if ( v42 )
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v34, &LocalClientGlobals->predictedPlayerState, Handler);
+  if ( v14 )
   {
-    WorldUpReferenceFrame::RemoveReferenceFrameFromAxis(&v113, (const tmat33_t<vec3_t> *)&out, &outAxis);
-    AxisToAngles(&outAxis, &s_rootData[_RBX].helmetParallaxState.oldLinkedTagAnglesLocal);
-    s_rootData[_RBX].helmetParallaxState.oldViewanglesLocal.v[0] = _RSI->predictedPlayerState.viewangles.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+1E4h]
-      vmovss  dword ptr [rbx+r12+160h], xmm0
-      vmovss  xmm1, dword ptr [rsi+1E8h]
-      vmovss  dword ptr [rbx+r12+164h], xmm1
-      vmovss  xmm0, [rsp+258h+var_1E4]
-      vmovss  dword ptr [rbx+r12+174h], xmm0
-      vmovss  xmm1, [rsp+258h+var_1E0]
-      vmovss  dword ptr [rbx+r12+178h], xmm1
-      vmovss  xmm0, [rsp+258h+var_1DC]
-      vmovss  dword ptr [rbx+r12+17Ch], xmm0
-    }
+    WorldUpReferenceFrame::RemoveReferenceFrameFromAxis(&v34, (const tmat33_t<vec3_t> *)&out, &outAxis);
+    AxisToAngles(&outAxis, &s_rootData[v5].helmetParallaxState.oldLinkedTagAnglesLocal);
+    s_rootData[v5].helmetParallaxState.oldViewanglesLocal.v[0] = LocalClientGlobals->predictedPlayerState.viewangles.v[0];
+    s_rootData[v5].helmetParallaxState.oldViewanglesLocal.v[1] = LocalClientGlobals->predictedPlayerState.viewangles.v[1];
+    s_rootData[v5].helmetParallaxState.oldViewanglesLocal.v[2] = LocalClientGlobals->predictedPlayerState.viewangles.v[2];
+    s_rootData[v5].helmetParallaxState.oldPos = out.m[3];
   }
   AxisToAngles((const tmat33_t<vec3_t> *)&out, &angles);
-  CG_View_CalculateViewJostle(_RSI, &config, &out, &angles, &outAngles, &s_rootData[_RBX].helmetParallaxState);
-  s_rootData[_RBX].parallaxSource[0] = 1;
-  __asm { vmovss  xmm0, dword ptr [rsi+6934h]; X }
-  *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-  __asm
+  CG_View_CalculateViewJostle(LocalClientGlobals, &config, &out, &angles, &outAngles, &s_rootData[v5].helmetParallaxState);
+  s_rootData[v5].parallaxSource[0] = 1;
+  v16 = (float)(atanf_0(LocalClientGlobals->refdef.view.fov.tanHalfFovY) * 57.295776) * 2.0;
+  if ( COERCE_FLOAT(LODWORD(v16) & _xmm) >= 0.000001 )
   {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vmulss  xmm9, xmm1, cs:__real@40000000
-    vandps  xmm2, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtss2sd xmm0, xmm2, xmm2
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v54 )
-  {
-    LUI_Matrix_LoadIdentity(&s_rootData[_RBX].parallaxMatrix);
+    AnglesToAxis(&outAngles, &axis);
+    *(__m256i *)in.m[0].v = *(__m256i *)out.m[0].v;
+    in.m[2].v[2] = out.m[2].v[2];
+    WorldUpReferenceFrame::RemoveReferenceFrameFromAxis(&v34, &axis);
+    WorldUpReferenceFrame::RemoveReferenceFrameFromAxis(&v34, &in);
+    MatrixInverse(&in, &in2);
+    MatrixMultiply(&axis, &in2, &v36);
+    v17 = vectopitch(v36.m);
+    v18 = *(float *)&v17 * 0.0027777778;
+    _XMM6 = 0i64;
+    __asm { vroundss xmm0, xmm6, xmm2, 1 }
+    v21 = (float)(v18 - *(float *)&_XMM0) * 360.0;
+    *(double *)&_XMM0 = vectoyaw((const vec2_t *)&v36);
+    __asm { vroundss xmm3, xmm6, xmm0, 1 }
+    v23 = (float)(*(float *)&_XMM0 * 0.0027777778) - *(float *)&_XMM3;
+    v24 = DCONST_DVARMPFLT_lui_parallax_scale;
+    if ( !DCONST_DVARMPFLT_lui_parallax_scale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_scale") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v24);
+    value = v24->current.value;
+    v26 = ScrPlace_GetActivePlacement(localClientNum)->realViewportSize.v[1] / v16;
+    v27 = CgWeaponMap::GetInstance(localClientNum);
+    v28 = BG_WeaponADSFractionAffectedByReload(v27, &LocalClientGlobals->predictedPlayerState);
+    LUI_Matrix_BuildTranslationMatrix((float)((float)((float)((float)(v23 * -360.0) * value) * v26) * (float)(1.0 - *(float *)&v28)) * s_rootData[v5].unitScale, s_rootData[v5].unitScale * (float)((float)((float)(v21 * value) * v26) * (float)(1.0 - *(float *)&v28)), 0.0, &s_rootData[v5].parallaxMatrix);
   }
   else
   {
-    AnglesToAxis(&outAngles, &axis);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+258h+out]
-      vmovups ymmword ptr [rsp+258h+in], ymm0
-    }
-    in.m[2].v[2] = out.m[2].v[2];
-    WorldUpReferenceFrame::RemoveReferenceFrameFromAxis(&v113, &axis);
-    WorldUpReferenceFrame::RemoveReferenceFrameFromAxis(&v113, &in);
-    MatrixInverse(&in, &in2);
-    MatrixMultiply(&axis, &in2, &v115);
-    *(double *)&_XMM0 = vectopitch(v115.m);
-    __asm
-    {
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm2, xmm0, xmm1
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm0, xmm6, xmm2, 1
-      vsubss  xmm0, xmm3, xmm0
-      vmulss  xmm10, xmm0, cs:__real@43b40000
-    }
-    *(double *)&_XMM0 = vectoyaw((const vec2_t *)&v115);
-    __asm
-    {
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm6, xmm0, 1
-      vsubss  xmm11, xmm4, xmm3
-    }
-    _RDI = DCONST_DVARMPFLT_lui_parallax_scale;
-    if ( !DCONST_DVARMPFLT_lui_parallax_scale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_scale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rdi+28h]
-      vmulss  xmm6, xmm10, xmm8
-    }
-    _RAX = ScrPlace_GetActivePlacement(localClientNum);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+24h]
-      vdivss  xmm7, xmm0, xmm9
-    }
-    v76 = CgWeaponMap::GetInstance(localClientNum);
-    BG_WeaponADSFractionAffectedByReload(v76, &_RSI->predictedPlayerState);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vsubss  xmm4, xmm1, xmm0
-      vmulss  xmm0, xmm6, xmm7
-      vmulss  xmm1, xmm0, xmm4
-      vmovss  xmm5, dword ptr [rbx+r12+0F8h]
-      vmulss  xmm1, xmm5, xmm1; y
-      vmulss  xmm0, xmm11, cs:__real@c3b40000
-      vmulss  xmm2, xmm0, xmm8
-      vmulss  xmm3, xmm2, xmm7
-      vmulss  xmm4, xmm3, xmm4
-      vmulss  xmm0, xmm4, xmm5; x
-      vxorps  xmm2, xmm2, xmm2; z
-    }
-    LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &s_rootData[_RBX].parallaxMatrix);
+    LUI_Matrix_LoadIdentity(&s_rootData[v5].parallaxMatrix);
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v118;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -10076,41 +8482,43 @@ LUI_CoD_UpdateParallaxMenu
 */
 void LUI_CoD_UpdateParallaxMenu(LocalClientNum_t localClientNum, LUIElement *root)
 {
-  __int64 v9; 
-  __int64 v15; 
+  __int64 v2; 
+  __int128 v3; 
+  __int64 v6; 
   UIInputType lastInputType; 
-  bool v22; 
-  int v98; 
-  int v99; 
-  char v100; 
-  void *retaddr; 
+  float v8; 
+  float v9; 
+  bool v10; 
+  float v11; 
+  float v12; 
+  const ScreenPlacement *ActivePlacement; 
+  float v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float value; 
+  __int64 ControllerFromClient; 
+  float lastMouseX; 
+  float lastMouseY; 
+  const ScreenPlacement *v21; 
+  float v22; 
+  float v23; 
+  const dvar_t *v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  double v28; 
+  const dvar_t *v29; 
+  float v30; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  v9 = localClientNum;
+  v2 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFF808080, "LUI_CoD_UpdateParallaxMenu");
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:s_fullscreenRootData.deltaTime
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vminss  xmm10, xmm1, cs:__real@3d4ccccd
-  }
-  if ( (unsigned int)v9 >= 2 )
-  {
-    v99 = 2;
-    v98 = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v98, v99) )
-      __debugbreak();
-  }
-  v15 = v9;
+  v3 = 0i64;
+  *(float *)&v3 = (float)s_fullscreenRootData.deltaTime * 0.001;
+  _XMM1 = v3;
+  __asm { vminss  xmm10, xmm1, cs:__real@3d4ccccd }
+  if ( (unsigned int)v2 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v2, 2) )
+    __debugbreak();
+  v6 = v2;
   if ( s_fullscreenRootData.parallaxSource[0] != 2 )
   {
     s_fullscreenRootData.menuParallaxState.acceleration = 0i64;
@@ -10118,178 +8526,74 @@ void LUI_CoD_UpdateParallaxMenu(LocalClientNum_t localClientNum, LUIElement *roo
     s_fullscreenRootData.menuParallaxState.currentOffset = 0i64;
     s_fullscreenRootData.menuParallaxState.targetOffset = 0i64;
   }
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset, xmm9
-    vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset+4, xmm9
-  }
-  _R15 = 0x140000000ui64;
-  lastInputType = clientUIActives[v15].lastInputType;
-  __asm
-  {
-    vxorps  xmm5, xmm5, xmm5
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm8, cs:__real@3f000000
-  }
-  v22 = lastInputType <= GAMEPAD;
+  s_fullscreenRootData.menuParallaxState.targetOffset.v[0] = 0.0;
+  s_fullscreenRootData.menuParallaxState.targetOffset.v[1] = 0.0;
+  lastInputType = clientUIActives[v6].lastInputType;
+  v8 = 0.0;
+  v9 = 0.0;
+  v10 = lastInputType <= GAMEPAD;
   if ( lastInputType == GAMEPAD )
   {
-    _RAX = s_fullscreenRootData.lastFocusedElement;
     if ( !s_fullscreenRootData.lastFocusedElement )
       goto LABEL_18;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+0D4h]
-      vaddss  xmm1, xmm0, dword ptr [rax+0CCh]
-      vmulss  xmm7, xmm1, xmm8
-      vmovss  xmm2, dword ptr [rax+0D8h]
-      vaddss  xmm0, xmm2, dword ptr [rax+0D0h]
-      vmulss  xmm6, xmm0, xmm8
-    }
-    ScrPlace_GetActivePlacement((const LocalClientNum_t)v9);
-    __asm
-    {
-      vmulss  xmm2, xmm8, dword ptr [rax+20h]
-      vmulss  xmm3, xmm8, dword ptr [rax+24h]
-      vsubss  xmm0, xmm7, xmm2
-      vdivss  xmm7, xmm0, xmm2
-      vsubss  xmm1, xmm6, xmm3
-      vdivss  xmm6, xmm1, xmm3
-    }
-    _RSI = DCONST_DVARFLT_lui_parallax_menu_focus_amplitude;
+    v11 = (float)(s_fullscreenRootData.lastFocusedElement->right + s_fullscreenRootData.lastFocusedElement->left) * 0.5;
+    v12 = (float)(s_fullscreenRootData.lastFocusedElement->bottom + s_fullscreenRootData.lastFocusedElement->top) * 0.5;
+    ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v2);
+    v14 = (float)(v11 - (float)(0.5 * ActivePlacement->realViewportSize.v[0])) / (float)(0.5 * ActivePlacement->realViewportSize.v[0]);
+    v15 = (float)(v12 - (float)(0.5 * ActivePlacement->realViewportSize.v[1])) / (float)(0.5 * ActivePlacement->realViewportSize.v[1]);
+    v16 = DCONST_DVARFLT_lui_parallax_menu_focus_amplitude;
     if ( !DCONST_DVARFLT_lui_parallax_menu_focus_amplitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_menu_focus_amplitude") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+28h]
-      vmulss  xmm1, xmm7, xmm2
-      vmovss  xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset
-      vaddss  xmm5, xmm0, xmm1
-      vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset, xmm5
-      vmulss  xmm1, xmm6, xmm2
-      vaddss  xmm0, xmm1, dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset+4
-      vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset+4, xmm0
-    }
-    lastInputType = clientUIActives[v15].lastInputType;
-    v22 = lastInputType <= GAMEPAD;
+    Dvar_CheckFrontendServerThread(v16);
+    value = v16->current.value;
+    v8 = s_fullscreenRootData.menuParallaxState.targetOffset.v[0] + (float)(v14 * value);
+    s_fullscreenRootData.menuParallaxState.targetOffset.v[0] = v8;
+    v9 = (float)(v15 * value) + s_fullscreenRootData.menuParallaxState.targetOffset.v[1];
+    s_fullscreenRootData.menuParallaxState.targetOffset.v[1] = v9;
+    lastInputType = clientUIActives[v6].lastInputType;
+    v10 = lastInputType <= GAMEPAD;
     if ( lastInputType == GAMEPAD )
     {
 LABEL_18:
-      *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v9, GPAD_PHYSAXIS_RSTICK_X);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vaddss  xmm0, xmm0, xmm6
-        vmulss  xmm7, xmm0, xmm8
-      }
-      *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v9, GPAD_PHYSAXIS_RSTICK_Y);
-      __asm
-      {
-        vaddss  xmm1, xmm0, xmm6
-        vmulss  xmm8, xmm1, xmm8
-      }
-      _RBX = DCONST_DVARFLT_lui_parallax_menu_stick_amplitude;
+      v26 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v2, GPAD_PHYSAXIS_RSTICK_X);
+      v27 = (float)(*(float *)&v26 + 1.0) * 0.5;
+      v28 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v2, GPAD_PHYSAXIS_RSTICK_Y);
+      v29 = DCONST_DVARFLT_lui_parallax_menu_stick_amplitude;
       if ( !DCONST_DVARFLT_lui_parallax_menu_stick_amplitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_menu_stick_amplitude") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rbx+28h]
-        vmulss  xmm0, xmm4, xmm7
-        vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-        vsubss  xmm1, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm4
-        vsubss  xmm3, xmm3, xmm2
-        vmovss  xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset
-        vaddss  xmm5, xmm0, xmm3
-        vsubss  xmm0, xmm8, xmm6
-        vaddss  xmm1, xmm0, xmm8
-        vmulss  xmm3, xmm1, xmm4
-        vmovss  xmm2, dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset+4
-        vaddss  xmm0, xmm2, xmm3
-      }
+      Dvar_CheckFrontendServerThread(v29);
+      v30 = v29->current.value;
+      v8 = s_fullscreenRootData.menuParallaxState.targetOffset.v[0] + (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v30 * v27) ^ _xmm) - (float)((float)(v27 - 1.0) * v30));
+      v9 = s_fullscreenRootData.menuParallaxState.targetOffset.v[1] + (float)((float)((float)((float)((float)(*(float *)&v28 + 1.0) * 0.5) - 1.0) + (float)((float)(*(float *)&v28 + 1.0) * 0.5)) * v30);
       goto LABEL_22;
     }
   }
-  if ( !v22 && lastInputType <= KEYBOARD_NAVIGATION )
+  if ( !v10 && lastInputType <= KEYBOARD_NAVIGATION )
   {
-    _RDX = 32i64 * CL_Mgr_GetControllerFromClient((LocalClientNum_t)v9);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rdx+r15+14537954h]
-      vmovss  xmm6, dword ptr [rdx+r15+14537958h]
-    }
-    ScrPlace_GetActivePlacement((const LocalClientNum_t)v9);
-    __asm
-    {
-      vmulss  xmm2, xmm8, dword ptr [rax+20h]
-      vmulss  xmm3, xmm8, dword ptr [rax+24h]
-      vsubss  xmm0, xmm7, xmm2
-      vdivss  xmm7, xmm0, xmm2
-      vsubss  xmm1, xmm6, xmm3
-      vdivss  xmm6, xmm1, xmm3
-    }
-    _RBX = DCONST_DVARFLT_lui_parallax_menu_mouse_amplitude;
+    ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
+    lastMouseX = s_perController[ControllerFromClient].lastMouseX;
+    lastMouseY = s_perController[ControllerFromClient].lastMouseY;
+    v21 = ScrPlace_GetActivePlacement((const LocalClientNum_t)v2);
+    v22 = (float)(lastMouseX - (float)(0.5 * v21->realViewportSize.v[0])) / (float)(0.5 * v21->realViewportSize.v[0]);
+    v23 = (float)(lastMouseY - (float)(0.5 * v21->realViewportSize.v[1])) / (float)(0.5 * v21->realViewportSize.v[1]);
+    v24 = DCONST_DVARFLT_lui_parallax_menu_mouse_amplitude;
     if ( !DCONST_DVARFLT_lui_parallax_menu_mouse_amplitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_parallax_menu_mouse_amplitude") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm7, xmm2
-      vmovss  xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset
-      vaddss  xmm5, xmm0, xmm1
-      vmulss  xmm1, xmm6, xmm2
-      vaddss  xmm0, xmm1, dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset+4
-    }
+    Dvar_CheckFrontendServerThread(v24);
+    v25 = v24->current.value;
+    v8 = s_fullscreenRootData.menuParallaxState.targetOffset.v[0] + (float)(v22 * v25);
+    v9 = (float)(v23 * v25) + s_fullscreenRootData.menuParallaxState.targetOffset.v[1];
 LABEL_22:
-    __asm
-    {
-      vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset+4, xmm0
-      vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.targetOffset, xmm5
-    }
+    s_fullscreenRootData.menuParallaxState.targetOffset.v[1] = v9;
+    s_fullscreenRootData.menuParallaxState.targetOffset.v[0] = v8;
   }
-  __asm
-  {
-    vsubss  xmm2, xmm5, dword ptr cs:s_fullscreenRootData.menuParallaxState.currentOffset
-    vsubss  xmm1, xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.currentOffset+4
-    vmulss  xmm3, xmm2, cs:__real@43160000
-    vmulss  xmm4, xmm1, cs:__real@43160000
-    vmovss  xmm2, cs:__real@c1c3f58d
-    vmulss  xmm1, xmm2, dword ptr cs:s_fullscreenRootData.menuParallaxState.velocity
-    vmulss  xmm0, xmm2, dword ptr cs:s_fullscreenRootData.menuParallaxState.velocity+4
-    vaddss  xmm1, xmm1, xmm3
-    vaddss  xmm3, xmm0, xmm4
-    vmulss  xmm0, xmm1, xmm10
-    vaddss  xmm5, xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.velocity
-    vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.velocity, xmm5
-    vmulss  xmm0, xmm3, xmm10
-    vaddss  xmm1, xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.velocity+4
-    vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.velocity+4, xmm1
-    vmulss  xmm0, xmm5, xmm10
-    vmulss  xmm3, xmm1, xmm10
-    vaddss  xmm4, xmm0, dword ptr cs:s_fullscreenRootData.menuParallaxState.currentOffset
-    vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.currentOffset, xmm4
-    vaddss  xmm1, xmm3, dword ptr cs:s_fullscreenRootData.menuParallaxState.currentOffset+4
-    vmovss  dword ptr cs:s_fullscreenRootData.menuParallaxState.currentOffset+4, xmm1
-    vmulss  xmm1, xmm1, cs:s_fullscreenRootData.unitScale; y
-    vmulss  xmm0, xmm4, cs:s_fullscreenRootData.unitScale; x
-    vxorps  xmm2, xmm2, xmm2; z
-  }
-  LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &s_fullscreenRootData.parallaxMatrix);
+  s_fullscreenRootData.menuParallaxState.velocity.v[0] = (float)((float)((float)(-24.494898 * s_fullscreenRootData.menuParallaxState.velocity.v[0]) + (float)((float)(v8 - s_fullscreenRootData.menuParallaxState.currentOffset.v[0]) * 150.0)) * *(float *)&_XMM10) + s_fullscreenRootData.menuParallaxState.velocity.v[0];
+  s_fullscreenRootData.menuParallaxState.velocity.v[1] = (float)((float)((float)(-24.494898 * s_fullscreenRootData.menuParallaxState.velocity.v[1]) + (float)((float)(v9 - s_fullscreenRootData.menuParallaxState.currentOffset.v[1]) * 150.0)) * *(float *)&_XMM10) + s_fullscreenRootData.menuParallaxState.velocity.v[1];
+  s_fullscreenRootData.menuParallaxState.currentOffset.v[0] = (float)(s_fullscreenRootData.menuParallaxState.velocity.v[0] * *(float *)&_XMM10) + s_fullscreenRootData.menuParallaxState.currentOffset.v[0];
+  s_fullscreenRootData.menuParallaxState.currentOffset.v[1] = (float)(s_fullscreenRootData.menuParallaxState.velocity.v[1] * *(float *)&_XMM10) + s_fullscreenRootData.menuParallaxState.currentOffset.v[1];
+  LUI_Matrix_BuildTranslationMatrix(s_fullscreenRootData.menuParallaxState.currentOffset.v[0] * s_fullscreenRootData.unitScale, s_fullscreenRootData.menuParallaxState.currentOffset.v[1] * s_fullscreenRootData.unitScale, 0.0, &s_fullscreenRootData.parallaxMatrix);
   s_fullscreenRootData.parallaxSource[0] = 2;
   Sys_ProfEndNamedEvent();
-  _R11 = &v100;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -10299,238 +8603,118 @@ LUI_CoD_UpdateStickInput
 */
 void LUI_CoD_UpdateStickInput(const LocalClientNum_t localClientNum)
 {
-  __int64 v11; 
+  __int64 v1; 
   __int64 ControllerFromClient; 
-  clientUIActive_t *v13; 
-  int v15; 
-  char v17; 
+  clientUIActive_t *v3; 
+  int v4; 
+  const dvar_t *v5; 
+  char v6; 
+  __int64 v7; 
+  char v8; 
+  float value; 
+  const dvar_t *v10; 
+  float v11; 
+  double v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   __int64 v18; 
-  char v19; 
-  char v46; 
-  char v47; 
+  float leftStickDirection; 
+  float *p_leftStickMagnitude; 
+  double v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float rightStickDirection; 
+  float *p_rightStickMagnitude; 
+  float gpadMinDeadzone; 
   LocalClientNum_t ClientFromController; 
 
-  v11 = localClientNum;
+  v1 = localClientNum;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-  if ( (unsigned int)v11 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, 2) )
+  if ( (unsigned int)v1 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v1, 2) )
     __debugbreak();
-  v13 = &clientUIActives[v11];
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 5847, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
+  v3 = &clientUIActives[v1];
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 5847, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  _R13 = s_perController;
-  if ( s_perController[ControllerFromClient].inputLocked || (v13->keyCatchers & 0x40) != 0 )
+  if ( s_perController[ControllerFromClient].inputLocked || (v3->keyCatchers & 0x40) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_38], xmm6
-      vmovaps [rsp+0F8h+var_48], xmm7
-      vmovaps [rsp+0F8h+var_58], xmm8
-      vmovaps [rsp+0F8h+var_68], xmm9
-      vmovaps [rsp+0F8h+var_78], xmm10
-      vmovaps [rsp+0F8h+var_88], xmm12
-      vmovaps [rsp+0F8h+var_98], xmm13
-      vmovaps [rsp+0F8h+var_A8], xmm14
-      vmovaps [rsp+0F8h+var_B8], xmm15
-    }
-    v15 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v11);
-    _RDI = DCONST_DVARFLT_lui_stick_direction_threshold;
-    v17 = 0;
-    v18 = v15;
-    v19 = 0;
+    v4 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+    v5 = DCONST_DVARFLT_lui_stick_direction_threshold;
+    v6 = 0;
+    v7 = v4;
+    v8 = 0;
     if ( !DCONST_DVARFLT_lui_stick_direction_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_stick_direction_threshold") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm9, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARFLT_lui_stick_magnitude_threshold;
+    Dvar_CheckFrontendServerThread(v5);
+    value = v5->current.value;
+    v10 = DCONST_DVARFLT_lui_stick_magnitude_threshold;
     if ( !DCONST_DVARFLT_lui_stick_magnitude_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_stick_magnitude_threshold") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm10, dword ptr [rdi+28h] }
-    *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v11, GPAD_PHYSAXIS_LSTICK_Y);
-    __asm { vmovaps xmm14, xmm0 }
-    *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v11, GPAD_PHYSAXIS_LSTICK_X);
-    __asm
+    Dvar_CheckFrontendServerThread(v10);
+    v11 = v10->current.value;
+    v12 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v1, GPAD_PHYSAXIS_LSTICK_Y);
+    v13 = *(float *)&v12;
+    v14 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v1, GPAD_PHYSAXIS_LSTICK_X);
+    v15 = *(float *)&v14;
+    v16 = fsqrt((float)(*(float *)&v14 * *(float *)&v14) + (float)(v13 * v13));
+    v17 = atan2f_0(v13, *(float *)&v14) * 57.295776;
+    v18 = v7;
+    leftStickDirection = s_perController[v7].leftStickDirection;
+    if ( v17 != leftStickDirection || (p_leftStickMagnitude = &s_perController[v18].leftStickMagnitude, v16 != *p_leftStickMagnitude) )
     {
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm14, xmm14
-      vaddss  xmm2, xmm2, xmm1
-      vmovaps xmm1, xmm0; X
-      vmovaps xmm15, xmm0
-      vmovaps xmm0, xmm14; Y
-      vsqrtss xmm8, xmm2, xmm2
+      p_leftStickMagnitude = &s_perController[v18].leftStickMagnitude;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v17 - leftStickDirection) & _xmm) > value || COERCE_FLOAT(COERCE_UNSIGNED_INT(v16 - *p_leftStickMagnitude) & _xmm) > v11 )
+        v8 = 1;
+      s_perController[v18].leftStickDirection = v17;
+      *p_leftStickMagnitude = v16;
+      v6 = 1;
     }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
+    v21 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v1, GPAD_PHYSAXIS_RSTICK_Y);
+    v22 = *(float *)&v21;
+    v23 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v1, GPAD_PHYSAXIS_RSTICK_X);
+    v24 = *(float *)&v23;
+    v25 = fsqrt((float)(*(float *)&v23 * *(float *)&v23) + (float)(v22 * v22));
+    v26 = atan2f_0(v22, *(float *)&v23) * 57.295776;
+    rightStickDirection = s_perController[v18].rightStickDirection;
+    if ( v26 != rightStickDirection || (p_rightStickMagnitude = &s_perController[v18].rightStickMagnitude, v25 != *p_rightStickMagnitude) )
     {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    _RSI = v18;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+r13+0Ch]
-      vucomiss xmm1, xmm0
-    }
-    if ( 32 * v18 )
-      goto LABEL_17;
-    _RDI = &s_perController[0].leftStickMagnitude;
-    __asm { vucomiss xmm8, dword ptr [rdi] }
-    if ( 32 * v18 )
-    {
-LABEL_17:
-      __asm
-      {
-        vsubss  xmm0, xmm1, xmm0
-        vandps  xmm0, xmm0, xmm7
-        vcomiss xmm0, xmm9
-      }
-      _RDI = &s_perController[_RSI].leftStickMagnitude;
-      if ( !__CFSHL__(v18, 5) && 32 * v18 != 0 )
-        goto LABEL_19;
-      __asm
-      {
-        vsubss  xmm0, xmm8, dword ptr [rdi]
-        vandps  xmm0, xmm0, xmm7
-        vcomiss xmm0, xmm10
-      }
-      if ( !__CFSHL__(v18, 5) && 32 * v18 != 0 )
-LABEL_19:
-        v19 = 1;
-      __asm
-      {
-        vmovss  dword ptr [rsi+r13+0Ch], xmm1
-        vmovss  dword ptr [rdi], xmm8
-      }
-      v17 = 1;
-    }
-    *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v11, GPAD_PHYSAXIS_RSTICK_Y);
-    __asm { vmovaps xmm12, xmm0 }
-    *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue((LocalClientNum_t)v11, GPAD_PHYSAXIS_RSTICK_X);
-    __asm
-    {
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm12, xmm12
-      vaddss  xmm2, xmm2, xmm1
-      vmovaps xmm1, xmm0; X
-      vmovaps xmm13, xmm0
-      vmovaps xmm0, xmm12; Y
-      vsqrtss xmm6, xmm2, xmm2
-    }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vmovss  xmm2, dword ptr [rsi+r13+14h]
-      vucomiss xmm1, xmm2
-    }
-    if ( !v47 )
-      goto LABEL_23;
-    _RBX = &s_perController[_RSI].rightStickMagnitude;
-    __asm { vucomiss xmm6, dword ptr [rbx] }
-    if ( !v47 )
-    {
-LABEL_23:
-      __asm
-      {
-        vsubss  xmm0, xmm1, xmm2
-        vandps  xmm0, xmm0, xmm7
-        vcomiss xmm0, xmm9
-      }
-      _RBX = &s_perController[_RSI].rightStickMagnitude;
-      if ( !(v46 | v47) )
-        goto LABEL_25;
-      __asm
-      {
-        vsubss  xmm0, xmm6, dword ptr [rbx]
-        vandps  xmm0, xmm0, xmm7
-        vcomiss xmm0, xmm10
-      }
-      if ( !(v46 | v47) )
-LABEL_25:
-        v19 = 1;
-      __asm
-      {
-        vmovss  dword ptr [rsi+r13+14h], xmm1
-        vmovss  dword ptr [rbx], xmm6
-      }
-      v17 = 1;
-    }
-    __asm
-    {
-      vmovaps xmm10, [rsp+0F8h+var_78]
-      vmovaps xmm9, [rsp+0F8h+var_68]
-      vmovaps xmm7, [rsp+0F8h+var_48]
+      p_rightStickMagnitude = &s_perController[v18].rightStickMagnitude;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v26 - rightStickDirection) & _xmm) > value || COERCE_FLOAT(COERCE_UNSIGNED_INT(v25 - *p_rightStickMagnitude) & _xmm) > v11 )
+        v8 = 1;
+      s_perController[v18].rightStickDirection = v26;
+      *p_rightStickMagnitude = v25;
+      v6 = 1;
     }
     if ( gpad_use_deadzone_option_value->current.enabled )
-    {
-      _RAX = GamerProfile_GetProfileSettings(v18);
-      __asm { vmovss  xmm0, dword ptr [rax+0C94h] }
-    }
+      gpadMinDeadzone = GamerProfile_GetProfileSettings(v7)->config.gpadMinDeadzone;
     else
-    {
-      _RAX = gpad_stick_deadzone_min;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-    if ( v19 && v17 )
-    {
-      __asm { vcomiss xmm8, xmm0 }
-      LUI_CoD_UpdateInputType(v18, GAMEPAD);
-    }
+      gpadMinDeadzone = gpad_stick_deadzone_min->current.value;
+    if ( v8 && v6 && (v16 > gpadMinDeadzone || v25 > gpadMinDeadzone) )
+      LUI_CoD_UpdateInputType(v7, GAMEPAD);
     ClientFromController = LOCAL_CLIENT_0;
-    __asm
-    {
-      vmovaps xmm8, [rsp+0F8h+var_58]
-      vmovaps xmm6, [rsp+0F8h+var_38]
-    }
-    if ( CL_Mgr_IsControllerMappedToClient(v18, NULL) )
-      ClientFromController = CL_Mgr_GetClientFromController(v18);
-    if ( v17 )
+    if ( CL_Mgr_IsControllerMappedToClient(v7, NULL) )
+      ClientFromController = CL_Mgr_GetClientFromController(v7);
+    if ( v6 )
     {
       if ( LUI_BeginEvent(ClientFromController, "gamepad_sticks", LUI_luaVM) )
       {
-        LUI_SetTableInt("controller", v18, LUI_luaVM);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi+r13+0Ch]
-          vcvtss2sd xmm1, xmm1, xmm1; value
-        }
-        LUI_SetTableNumber("leftStickDirection", *(long double *)&_XMM1, LUI_luaVM);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi]
-          vcvtss2sd xmm1, xmm1, xmm1; value
-        }
-        LUI_SetTableNumber("leftStickMagnitude", *(long double *)&_XMM1, LUI_luaVM);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi+r13+14h]
-          vcvtss2sd xmm1, xmm1, xmm1; value
-        }
-        LUI_SetTableNumber("rightStickDirection", *(long double *)&_XMM1, LUI_luaVM);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx]
-          vcvtss2sd xmm1, xmm1, xmm1; value
-        }
-        LUI_SetTableNumber("rightStickMagnitude", *(long double *)&_XMM1, LUI_luaVM);
-        __asm { vcvtss2sd xmm1, xmm14, xmm14; value }
-        LUI_SetTableNumber("leftStickPitch", *(long double *)&_XMM1, LUI_luaVM);
-        __asm { vcvtss2sd xmm1, xmm15, xmm15; value }
-        LUI_SetTableNumber("leftStickYaw", *(long double *)&_XMM1, LUI_luaVM);
-        __asm { vcvtss2sd xmm1, xmm12, xmm12; value }
-        LUI_SetTableNumber("rightStickPitch", *(long double *)&_XMM1, LUI_luaVM);
-        __asm { vcvtss2sd xmm1, xmm13, xmm13; value }
-        LUI_SetTableNumber("rightStickYaw", *(long double *)&_XMM1, LUI_luaVM);
+        LUI_SetTableInt("controller", v7, LUI_luaVM);
+        LUI_SetTableNumber("leftStickDirection", s_perController[v18].leftStickDirection, LUI_luaVM);
+        LUI_SetTableNumber("leftStickMagnitude", *p_leftStickMagnitude, LUI_luaVM);
+        LUI_SetTableNumber("rightStickDirection", s_perController[v18].rightStickDirection, LUI_luaVM);
+        LUI_SetTableNumber("rightStickMagnitude", *p_rightStickMagnitude, LUI_luaVM);
+        LUI_SetTableNumber("leftStickPitch", v13, LUI_luaVM);
+        LUI_SetTableNumber("leftStickYaw", v15, LUI_luaVM);
+        LUI_SetTableNumber("rightStickPitch", v22, LUI_luaVM);
+        LUI_SetTableNumber("rightStickYaw", v24, LUI_luaVM);
         LUI_SetTableBool("immediate", 1, LUI_luaVM);
         LUI_EndEvent(LUI_luaVM);
       }
-    }
-    __asm
-    {
-      vmovaps xmm14, [rsp+0F8h+var_A8]
-      vmovaps xmm13, [rsp+0F8h+var_98]
-      vmovaps xmm12, [rsp+0F8h+var_88]
-      vmovaps xmm15, [rsp+0F8h+var_B8]
     }
   }
 }
@@ -10739,80 +8923,60 @@ LUI_Interface_DrawBoundingBox
 */
 void LUI_Interface_DrawBoundingBox(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM)
 {
+  float left; 
+  float right; 
   vec4_t point; 
-  vec4_t v24; 
-  vec4_t v25; 
-  vec4_t v26; 
+  vec4_t v7; 
+  vec4_t v8; 
+  vec4_t v9; 
   int data[32]; 
 
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rdx+0D0h]
-    vmovss  xmm2, dword ptr [rdx+0CCh]
-    vmovss  xmm1, dword ptr [rdx+0D4h]
-    vxorps  xmm4, xmm4, xmm4
-    vmovss  dword ptr [rsp+110h+point+4], xmm0
-    vmovss  dword ptr [rsp+110h+var_C8+4], xmm0
-    vmovss  xmm0, dword ptr [rdx+0D8h]
-    vmovss  dword ptr [rsp+110h+var_A8+4], xmm0
-    vmovss  dword ptr [rsp+110h+var_B8+4], xmm0
-    vmovss  dword ptr [rsp+110h+point], xmm2
-    vmovss  dword ptr [rsp+110h+point+8], xmm4
-    vmovss  dword ptr [rsp+110h+point+0Ch], xmm3
-    vmovss  dword ptr [rsp+110h+var_C8], xmm1
-    vmovss  dword ptr [rsp+110h+var_C8+8], xmm4
-    vmovss  dword ptr [rsp+110h+var_C8+0Ch], xmm3
-    vmovss  dword ptr [rsp+110h+var_A8], xmm2
-    vmovss  dword ptr [rsp+110h+var_A8+8], xmm4
-    vmovss  dword ptr [rsp+110h+var_A8+0Ch], xmm3
-    vmovss  dword ptr [rsp+110h+var_B8], xmm1
-    vmovss  dword ptr [rsp+110h+var_B8+8], xmm4
-    vmovss  dword ptr [rsp+110h+var_B8+0Ch], xmm3
-  }
+  left = element->left;
+  right = element->right;
+  point.v[1] = element->top;
+  v7.v[1] = point.v[1];
+  v9.v[1] = element->bottom;
+  v8.v[1] = v9.v[1];
+  point.v[0] = left;
+  point.v[2] = 0.0;
+  point.v[3] = FLOAT_1_0;
+  v7.v[0] = right;
+  v7.v[2] = 0.0;
+  v7.v[3] = FLOAT_1_0;
+  v9.v[0] = left;
+  v9.v[2] = 0.0;
+  v9.v[3] = FLOAT_1_0;
+  v8.v[0] = right;
+  v8.v[2] = 0.0;
+  v8.v[3] = FLOAT_1_0;
   LUI_ApplyTransformsToPoint(&point);
-  LUI_ApplyTransformsToPoint(&v24);
-  LUI_ApplyTransformsToPoint(&v26);
-  LUI_ApplyTransformsToPoint(&v25);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+110h+var_C8]
-    vmovss  xmm1, dword ptr [rsp+110h+var_C8+4]
-    vmovss  xmm0, dword ptr [rsp+110h+var_C8+8]
-    vmovss  xmm5, dword ptr [rsp+110h+point]
-    vmovss  xmm4, dword ptr [rsp+110h+point+4]
-    vmovss  xmm3, dword ptr [rsp+110h+point+8]
-    vmovss  [rbp+10h+var_80], xmm2
-    vmovss  [rbp+10h+var_7C], xmm1
-    vmovss  [rbp+10h+var_78], xmm0
-    vmovss  [rbp+10h+var_70], xmm2
-    vmovss  xmm2, dword ptr [rsp+110h+var_B8]
-    vmovss  [rbp+10h+var_6C], xmm1
-    vmovss  xmm1, dword ptr [rsp+110h+var_B8+4]
-    vmovss  [rbp+10h+var_68], xmm0
-    vmovss  xmm0, dword ptr [rsp+110h+var_B8+8]
-    vmovss  [rbp+10h+var_60], xmm2
-    vmovss  [rbp+10h+var_5C], xmm1
-    vmovss  [rbp+10h+var_58], xmm0
-    vmovss  [rbp+10h+var_50], xmm2
-    vmovss  xmm2, dword ptr [rsp+110h+var_A8]
-    vmovss  [rbp+10h+var_4C], xmm1
-    vmovss  xmm1, dword ptr [rsp+110h+var_A8+4]
-    vmovss  [rbp+10h+var_48], xmm0
-    vmovss  xmm0, dword ptr [rsp+110h+var_A8+8]
-    vmovss  [rbp+10h+var_40], xmm2
-    vmovss  [rbp+10h+var_3C], xmm1
-    vmovss  [rbp+10h+var_38], xmm0
-    vmovss  [rbp+10h+var_30], xmm2
-    vmovss  [rbp+10h+var_2C], xmm1
-    vmovss  [rbp+10h+var_28], xmm0
-    vmovss  [rbp+10h+data], xmm5
-    vmovss  [rbp+10h+var_8C], xmm4
-    vmovss  [rbp+10h+var_88], xmm3
-    vmovss  [rbp+10h+var_20], xmm5
-    vmovss  [rbp+10h+var_1C], xmm4
-    vmovss  [rbp+10h+var_18], xmm3
-  }
+  LUI_ApplyTransformsToPoint(&v7);
+  LUI_ApplyTransformsToPoint(&v9);
+  LUI_ApplyTransformsToPoint(&v8);
+  data[4] = SLODWORD(v7.v[0]);
+  data[5] = SLODWORD(v7.v[1]);
+  data[6] = SLODWORD(v7.v[2]);
+  data[8] = SLODWORD(v7.v[0]);
+  data[9] = SLODWORD(v7.v[1]);
+  data[10] = SLODWORD(v7.v[2]);
+  data[12] = SLODWORD(v8.v[0]);
+  data[13] = SLODWORD(v8.v[1]);
+  data[14] = SLODWORD(v8.v[2]);
+  data[16] = SLODWORD(v8.v[0]);
+  data[17] = SLODWORD(v8.v[1]);
+  data[18] = SLODWORD(v8.v[2]);
+  data[20] = SLODWORD(v9.v[0]);
+  data[21] = SLODWORD(v9.v[1]);
+  data[22] = SLODWORD(v9.v[2]);
+  data[24] = SLODWORD(v9.v[0]);
+  data[25] = SLODWORD(v9.v[1]);
+  data[26] = SLODWORD(v9.v[2]);
+  data[0] = SLODWORD(point.v[0]);
+  data[1] = SLODWORD(point.v[1]);
+  data[2] = SLODWORD(point.v[2]);
+  data[28] = SLODWORD(point.v[0]);
+  data[29] = SLODWORD(point.v[1]);
+  data[30] = SLODWORD(point.v[2]);
   data[3] = -1;
   data[7] = -1;
   data[11] = -1;
@@ -10839,636 +9003,615 @@ void LUI_Interface_DrawBoundingBoxImmediate(const GfxPointVertex *boxVerts)
 LUI_Interface_DrawText
 ==============
 */
-
-void __fastcall LUI_Interface_DrawText(const LocalClientNum_t localClientNum, LUIElement *root, LUIElement *element, double x, float y, float red, float green, float blue, float alpha, const char *text, GfxFont *font, float elementHeight, float boxWidth, char tracking, char leading, char alignment, FontDecodeStyle *fontDecodeStyle, FontGlowStyle *fontGlowStyle, AutoScrollStyle *autoScrollStyle, lua_State *luaVM)
+void LUI_Interface_DrawText(const LocalClientNum_t localClientNum, LUIElement *root, LUIElement *element, double x, float y, float red, float green, float blue, float alpha, const char *text, GfxFont *font, float elementHeight, float boxWidth, char tracking, char leading, char alignment, FontDecodeStyle *fontDecodeStyle, FontGlowStyle *fontGlowStyle, AutoScrollStyle *autoScrollStyle, lua_State *luaVM)
 {
   signed __int64 v20; 
-  void *v31; 
-  LUIElement *v32; 
-  lua_State *v34; 
-  bool v38; 
+  void *v21; 
+  LUIElement *v22; 
+  AutoScrollStyle *v23; 
+  lua_State *v24; 
+  char v26; 
+  char v27; 
+  char v28; 
+  char v29; 
+  bool v30; 
+  __int128 v31; 
+  float v32; 
+  GfxFont *v33; 
+  int MinHeightForDistanceField; 
+  int v35; 
+  __int64 v36; 
+  int v37; 
+  PreCachedFont *v38; 
+  int size; 
+  bool v40; 
+  char v41; 
+  char *v42; 
   char v43; 
   char v44; 
-  char v45; 
-  char v46; 
-  bool v47; 
-  GfxFont *v55; 
-  int MinHeightForDistanceField; 
-  int v57; 
-  __int64 v58; 
-  int v59; 
-  PreCachedFont *v60; 
-  int size; 
-  bool v62; 
-  char v63; 
-  char *v64; 
-  char v65; 
-  char v66; 
   const char *ID; 
   LocalClientNum_t ClientFromController; 
   int ExclusiveController; 
-  BOOL v87; 
-  unsigned __int64 v90; 
-  int v91; 
-  char *v92; 
-  int v94; 
-  __int64 v95; 
-  char *v96; 
-  __int64 v101; 
-  LUIElement *i; 
-  int v108; 
-  char v109; 
-  int v117; 
-  LUIElement *v121; 
-  lua_State *v123; 
-  bool v126; 
-  bool v127; 
-  char v128; 
-  char v129; 
-  LUIHorizontalAlignment v130; 
-  char v131; 
-  char v138; 
+  lua_State *v48; 
+  __int64 v49; 
+  double v52; 
+  double v53; 
+  bool v58; 
+  bool v59; 
+  float v60; 
+  __int64 v61; 
+  unsigned __int64 v62; 
+  int v63; 
+  char *v64; 
+  int v65; 
+  int v66; 
+  __int64 v67; 
+  char *v68; 
+  int v69; 
+  bool v70; 
+  bool i; 
+  LUIElement *parent; 
+  int v73; 
+  int v74; 
+  char *v75; 
+  __int64 v76; 
+  float v77; 
+  char v78; 
+  float v79; 
+  char v80; 
+  int v81; 
+  const unsigned __int8 *v82; 
+  char v83; 
+  float v84; 
+  int v85; 
+  char v86; 
+  float v87; 
+  int v88; 
+  float v89; 
+  LUIElement *v90; 
+  TextLine *p_outLines; 
+  lua_State *v92; 
+  float v93; 
+  float pixelWidth; 
+  bool v95; 
+  bool v96; 
+  LUIHorizontalAlignment v97; 
+  char v98; 
+  double v99; 
+  bool v100; 
   vec4_t *p_color; 
-  float fmt; 
+  __int128 v102; 
+  char v103; 
+  double v104; 
+  float v105; 
+  float v106; 
+  __int128 v107; 
   float *outFontLayoutScale; 
   float *outRotation; 
-  float outElementHeightOnScreen; 
-  float outElementHeightOnScreena; 
-  bool v168; 
-  unsigned __int8 v169; 
+  char v110; 
+  char v111; 
+  unsigned __int8 v112; 
   LUIHorizontalAlignment HorizontalAlignment; 
   LUIVerticalAlignment VerticalAlignment; 
-  bool v172; 
+  bool v115; 
   int outLineCount; 
   char *input; 
+  int v118; 
+  float v119; 
   char colorEscape[2]; 
   int fontSize; 
-  float v178; 
+  float v122; 
   int outFontRenderSize; 
   GfxFont *fonta; 
   float autoScrollTransitionInStep; 
   int style; 
   LocalClientNum_t localClientNuma; 
   float outFontRenderScale; 
-  AutoScrollStyle *v185; 
+  AutoScrollStyle *v129; 
   float autoScrollTransitionOutStep; 
   float rotation; 
   LUIElement *elementa; 
-  float v189; 
-  lua_State *v190; 
-  FontGlowStyle *v191; 
-  FontDecodeStyle *v192; 
-  int v193; 
+  float v133; 
+  lua_State *v134; 
+  FontGlowStyle *v135; 
+  FontDecodeStyle *v136; 
+  const char *v137; 
+  float v138; 
+  float v139; 
+  float v140; 
+  float v141; 
   vec4_t color; 
-  vec4_t v198; 
-  AutoScrollStyle v199; 
+  vec4_t v143; 
+  AutoScrollStyle v144; 
   vec4_t verts[4]; 
+  float *v146; 
+  GfxFont **p_fonta; 
+  int *p_fontSize; 
+  char *p_tracking; 
+  float *v150; 
   vec4_t quadVerts[4]; 
   TextLine outLines; 
-  char v203[512]; 
-  char v204[1024]; 
+  char v153[512]; 
+  char v154[1024]; 
+  char v155[1024]; 
   char output[4096]; 
   char dstString[4096]; 
 
-  v31 = alloca(v20);
-  __asm { vmovaps [rsp+3630h+var_A0], xmm12 }
-  v32 = element;
-  _R13 = autoScrollStyle;
-  v34 = luaVM;
+  v21 = alloca(v20);
+  v22 = element;
+  v23 = autoScrollStyle;
+  v24 = luaVM;
   fonta = font;
-  v192 = fontDecodeStyle;
+  v136 = fontDecodeStyle;
   elementa = element;
   localClientNuma = localClientNum;
-  v191 = fontGlowStyle;
-  __asm { vmovaps xmm12, xmm3 }
+  v135 = fontGlowStyle;
   input = (char *)text;
-  v185 = autoScrollStyle;
-  v190 = luaVM;
+  v129 = autoScrollStyle;
+  v134 = luaVM;
   memset_0(output, 0, sizeof(output));
-  if ( text )
+  if ( !text )
   {
-    R_TextValidatePrintable(text);
-    if ( !fonta )
-    {
-      Com_PrintError(13, "LUI: Missing text element font! Text is %s\n", input);
-      goto LABEL_143;
-    }
-    __asm
-    {
-      vmovaps [rsp+3630h+var_40], xmm6
-      vmovss  xmm6, [rbp+3530h+arg_58]
-      vcvtss2sd xmm0, xmm6, xmm6
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    }
-    if ( !LUI_ElementHasWeakTableEntry(v32, v34) )
-    {
-LABEL_142:
-      __asm { vmovaps xmm6, [rsp+3630h+var_40] }
-      goto LABEL_143;
-    }
-    v38 = !v32->quadCached;
-    __asm
-    {
-      vmovaps [rsp+3630h+var_C0], xmm14
-      vmovaps [rsp+3630h+var_D0], xmm15
-    }
-    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7340, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
+    Com_PrintError(13, "LUI: NULL text on text element\n");
+    return;
+  }
+  R_TextValidatePrintable(text);
+  if ( !fonta )
+  {
+    Com_PrintError(13, "LUI: Missing text element font! Text is %s\n", input);
+    return;
+  }
+  if ( elementHeight >= 0.000001 && LUI_ElementHasWeakTableEntry(v22, v24) )
+  {
+    if ( v22->quadCached && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7340, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
       __debugbreak();
-    __asm
+    v138 = red;
+    v139 = green;
+    v140 = blue;
+    v141 = alpha;
+    v115 = !LUI_Is3DTransformEnabled();
+    if ( v23 && (v26 = v23->options.direction[0]) != 0 )
     {
-      vmovss  xmm0, [rbp+3530h+arg_28]
-      vmovss  xmm1, [rbp+3530h+arg_30]
-      vmovss  [rbp+3530h+var_3538], xmm0
-      vmovss  xmm0, [rbp+3530h+arg_38]
-      vmovss  [rbp+3530h+var_3534], xmm1
-      vmovss  xmm1, [rbp+3530h+arg_40]
-      vmovss  [rbp+3530h+var_3530], xmm0
-      vmovss  [rbp+3530h+var_352C], xmm1
-    }
-    v172 = !LUI_Is3DTransformEnabled();
-    if ( _R13 && (v43 = _R13->options.direction[0]) != 0 )
-    {
-      v44 = 1;
-      if ( v43 == 1 )
+      v27 = 1;
+      if ( v26 == 1 )
       {
-        v45 = 1;
-        v169 = 1;
-LABEL_15:
-        if ( _R13->options.direction[0] == 2 )
+        v28 = 1;
+        v112 = 1;
+LABEL_16:
+        if ( v23->options.direction[0] == 2 )
         {
-          v46 = 1;
-LABEL_18:
-          v47 = v45 && _R13->options.useEllipses;
+          v29 = 1;
+LABEL_19:
+          v30 = v28 && v23->options.useEllipses;
           HorizontalAlignment = LUI_GetHorizontalAlignment(alignment);
-          __asm { vmovss  xmm14, [rbp+3530h+arg_20] }
+          v31 = LODWORD(y);
           VerticalAlignment = LUI_GetVerticalAlignment(alignment);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vmovaps xmm3, xmm6; elementHeight
-            vmovaps xmm2, xmm14; y
-            vmovaps xmm1, xmm12; x
-            vaddss  xmm15, xmm0, xmm6
-          }
-          if ( !LUI_CoD_DetermineFontSizeAndScale(v32, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &outFontRenderSize, &outFontRenderScale, &fontSize, &v178, &v189, &rotation) )
-          {
-LABEL_141:
-            __asm
-            {
-              vmovaps xmm14, [rsp+3630h+var_C0]
-              vmovaps xmm15, [rsp+3630h+var_D0]
-            }
-            goto LABEL_142;
-          }
-          __asm
-          {
-            vmovaps [rsp+3630h+var_50], xmm7
-            vmovaps [rsp+3630h+var_70], xmm9
-            vmovaps [rsp+3630h+var_80], xmm10
-            vmovaps [rsp+3630h+var_90], xmm11
-            vmovaps [rsp+3630h+var_B0], xmm13
-          }
+          v32 = (float)leading + elementHeight;
+          if ( !LUI_CoD_DetermineFontSizeAndScale(v22, *(float *)&x, y, elementHeight, &outFontRenderSize, &outFontRenderScale, &fontSize, &v122, &v133, &rotation) )
+            return;
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_lui_font_cache_warnings, "lui_font_cache_warnings") )
           {
-            v55 = fonta;
+            v33 = fonta;
             MinHeightForDistanceField = FontCache_GetMinHeightForDistanceField();
-            v57 = 0;
-            v58 = MinHeightForDistanceField;
+            v35 = 0;
+            v36 = MinHeightForDistanceField;
             if ( s_numPreCachedFonts <= 0 )
             {
-LABEL_34:
+LABEL_35:
               input = j_va("^1FONT_NOT_CACHED(^7%s^1)^7", input);
             }
             else
             {
-              v59 = outFontRenderSize;
-              v60 = s_preCachedFonts;
+              v37 = outFontRenderSize;
+              v38 = s_preCachedFonts;
               while ( 1 )
               {
-                size = v60->size;
-                v62 = v59 == size || size >= (int)v58 && outFontRenderSize >= v58;
-                if ( v60->font == v55 && v62 )
+                size = v38->size;
+                v40 = v37 == size || size >= (int)v36 && outFontRenderSize >= v36;
+                if ( v38->font == v33 && v40 )
                   break;
-                v59 = outFontRenderSize;
-                ++v57;
-                ++v60;
-                if ( v57 >= s_numPreCachedFonts )
-                  goto LABEL_34;
+                v37 = outFontRenderSize;
+                ++v35;
+                ++v38;
+                if ( v35 >= s_numPreCachedFonts )
+                  goto LABEL_35;
               }
             }
-            v32 = elementa;
+            v22 = elementa;
           }
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_loc_warnings, "loc_warnings") )
           {
-            v63 = 1;
-            v64 = input;
+            v41 = 1;
+            v42 = input;
             if ( *input != 31 )
-              goto LABEL_48;
-            v65 = 0;
+              goto LABEL_49;
+            v43 = 0;
             do
             {
-              if ( v65 || v64[1] )
+              if ( v43 || v42[1] )
               {
-                if ( *v64 == 30 )
-                  v65 = 1;
+                if ( *v42 == 30 )
+                  v43 = 1;
               }
               else
               {
-                v66 = 0;
-                if ( *v64 != 30 )
-                  v66 = v63;
-                v63 = v66;
+                v44 = 0;
+                if ( *v42 != 30 )
+                  v44 = v41;
+                v41 = v44;
               }
-              ++v64;
+              ++v42;
             }
-            while ( *v64 );
-            if ( v63 )
+            while ( *v42 );
+            if ( v41 )
             {
-LABEL_48:
+LABEL_49:
               UI_Text_InsertLocalizationWarnings(input, output, 0x1000ui64);
               input = output;
             }
           }
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_lui_print_text_draws, "lui_print_text_draws") )
           {
-            ID = LUIElement_GetID(v32, v34);
+            ID = LUIElement_GetID(v22, v24);
             Com_Printf(13, "DrawText: %s %d %s (from %s)\n", fonta->fontName, (unsigned int)outFontRenderSize, input, ID);
           }
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_lui_rendertime_binding_directive, "lui_rendertime_binding_directive") )
           {
             ClientFromController = localClientNuma;
-            if ( LUI_LUIElement_IsControllerExclusive(v32, v34) )
+            if ( LUI_LUIElement_IsControllerExclusive(v22, v24) )
             {
-              ExclusiveController = LUI_LUIElement_GetExclusiveController(v32, v34);
+              ExclusiveController = LUI_LUIElement_GetExclusiveController(v22, v24);
               if ( ExclusiveController >= 0 )
                 ClientFromController = CL_Mgr_GetClientFromController(ExclusiveController);
             }
-            UI_ReplaceDirective(ClientFromController, input, dstString, 0x1000ui64, (v32->currentAnimationState.flags & 0x40) != 0);
+            UI_ReplaceDirective(ClientFromController, input, dstString, 0x1000ui64, (v22->currentAnimationState.flags & 0x40) != 0);
             input = dstString;
           }
           style = 0;
-          LUI_PutElementOnTopOfStack(v32, v34);
-          j_lua_getfield(v34, -1, "m_textStyle");
-          if ( j_lua_type(v34, -1) )
+          v48 = v24;
+          LUI_PutElementOnTopOfStack(v22, v24);
+          v49 = -1i64;
+          j_lua_getfield(v48, -1, "m_textStyle");
+          if ( j_lua_type(v48, -1) )
           {
-            if ( !j_lua_isnumber(v34, -1) )
-              j_luaL_error(v34, "m_textStyle is not an enumerated type!");
-            style = lui_tointeger32(v34, -1);
+            if ( !j_lua_isnumber(v48, -1) )
+              j_luaL_error(v48, "m_textStyle is not an enumerated type!");
+            style = lui_tointeger32(v48, -1);
           }
-          j_lua_settop(v34, -3);
-          __asm
+          j_lua_settop(v48, -3);
+          _XMM1 = 0i64;
+          __asm { vroundss xmm4, xmm1, xmm2, 1 }
+          HIDWORD(v53) = 0;
+          *(float *)&v53 = (float)(int)*(float *)&_XMM4 * 0.0099999998;
+          v52 = v53;
+          _XMM0 = v112;
+          __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+          _XMM11 = 0i64;
+          __asm { vblendvps xmm0, xmm11, xmm7, xmm2 }
+          v119 = *(float *)&_XMM0;
+          v58 = Language_IsRightToLeft() != 0;
+          v59 = (v22->usageFlags & 0x100) == 0;
+          v110 = v58;
+          if ( v59 )
           {
-            vmovss  xmm0, [rbp+3530h+arg_60]
-            vmulss  xmm1, xmm0, cs:__real@42c80000
-            vmovss  xmm13, cs:__real@3f000000
-          }
-          _EBX = v169;
-          __asm
-          {
-            vaddss  xmm2, xmm1, xmm13
-            vxorps  xmm0, xmm0, xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vroundss xmm4, xmm1, xmm2, 1
-            vcvttss2si eax, xmm4
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm7, xmm0, cs:__real@3c23d70a
-            vmovd   xmm0, ebx
-          }
-          _EAX = 0;
-          __asm
-          {
-            vmovd   xmm1, eax
-            vpcmpeqd xmm2, xmm0, xmm1
-            vxorps  xmm11, xmm11, xmm11
-            vblendvps xmm0, xmm11, xmm7, xmm2
-            vmovss  [rbp+3530h+var_35A4], xmm0
-          }
-          v87 = Language_IsRightToLeft() != 0;
-          v38 = (v32->usageFlags & 0x100) == 0;
-          v168 = v87;
-          if ( v38 )
-          {
-            v90 = -1i64;
+            v62 = -1i64;
             outLineCount = 1;
             do
-              ++v90;
-            while ( input[v90] );
-            v91 = truncate_cast<int,unsigned __int64>(v90);
-            v92 = input;
+              ++v62;
+            while ( input[v62] );
+            v63 = truncate_cast<int,unsigned __int64>(v62);
+            v64 = input;
             outLines.textLeft = input;
-            outLines.textRight = &input[v91];
-            if ( HorizontalAlignment == LEFT && !v169 )
+            outLines.textRight = &input[v63];
+            if ( HorizontalAlignment == LEFT && !v112 )
             {
-              __asm
+              v60 = v119;
+              outLines.pixelWidth = v119;
+              LODWORD(v61) = 0;
+LABEL_70:
+              v66 = outLineCount;
+              if ( outLineCount != 1 || !v30 )
+                goto LABEL_123;
+              if ( lui_fakeExtendedText->current.enabled && *(float *)&v53 >= v60 )
               {
-                vmovss  xmm6, [rbp+3530h+var_35A4]
-                vmovss  [rbp+3530h+outLines.pixelWidth], xmm6
+                v67 = -1i64;
+                do
+                  ++v67;
+                while ( v64[v67] );
+                memset_0(v154, 0, sizeof(v154));
+                v68 = v154;
+                v60 = 0.0;
+                if ( (float)((float)((rand() & 1) + 1) * *(float *)&v53) >= 0.0 )
+                {
+                  do
+                  {
+                    memcpy_0(v68, input, (int)v67);
+                    v68 += (int)v67;
+                    v61 = -1i64;
+                    do
+                      ++v61;
+                    while ( v154[v61] );
+                    v69 = R_TextWidth(v154, v61, fonta, fontSize, tracking, 0);
+                    v60 = (float)v69 * v122;
+                  }
+                  while ( (float)((float)((rand() & 1) + 1) * *(float *)&v53) >= v60 );
+                  v23 = v129;
+                }
+                v66 = outLineCount;
+                v22 = elementa;
+                input = v154;
+                outLines.textLeft = v154;
+                outLines.pixelWidth = v60;
+                outLines.textRight = &v154[(int)v61];
               }
-              goto LABEL_69;
+              v70 = *(float *)&v53 > 0.0 && *(float *)&v53 < v60;
+              if ( (v22->currentAnimationState.flags & 0x24) != 0 )
+              {
+                i = 1;
+              }
+              else
+              {
+                parent = v22->parent;
+                for ( i = 0; parent; parent = parent->parent )
+                {
+                  i = (parent->currentAnimationState.flags & 4) != 0;
+                  if ( (parent->currentAnimationState.flags & 4) != 0 )
+                    break;
+                }
+              }
+              if ( v70 )
+              {
+                v73 = 0;
+                if ( !i )
+                {
+                  v137 = aA_22;
+                  LODWORD(rotation) = 3;
+                  v74 = R_TextWidth(aA_22, 3, fonta, fontSize, tracking, 0);
+                  v75 = input;
+                  v76 = -1i64;
+                  v77 = (float)v74 * v122;
+                  do
+                    ++v76;
+                  while ( input[v76] );
+                  LODWORD(v129) = v76;
+                  memset_0(v155, 0, sizeof(v155));
+                  v78 = v110;
+                  v79 = (float)(*(float *)&v53 - v77) / outLines.pixelWidth;
+                  v80 = v79 > 0.5;
+                  v111 = v79 > 0.5;
+                  if ( v110 )
+                  {
+                    v80 = v79 <= 0.5;
+                    v81 = v76;
+                    v111 = v79 <= 0.5;
+                    if ( v79 <= 0.5 )
+                      v81 = 1;
+                  }
+                  else
+                  {
+                    v81 = v76 - 1;
+                    if ( v79 <= 0.5 )
+                      v81 = 0;
+                  }
+                  v60 = 0.0;
+                  v119 = 0.0;
+                  v118 = v81;
+                  while ( 1 )
+                  {
+                    while ( 1 )
+                    {
+                      if ( v78 )
+                        v81 = v76 - v81;
+                      if ( v80 )
+                      {
+                        if ( v81 < 0 )
+                          goto LABEL_120;
+                        v82 = (const unsigned __int8 *)&v75[v81];
+                        if ( (*v82 & 0xC0) == 0x80 )
+                        {
+                          do
+                            v83 = *--v82;
+                          while ( (v83 & 0xC0) == 0x80 );
+                        }
+                      }
+                      else
+                      {
+                        if ( v81 >= (int)v76 )
+                          goto LABEL_120;
+                        v82 = (const unsigned __int8 *)&v75[v81];
+                      }
+                      GetGlyphFromUTF8(v82, (int *)&outFontRenderScale);
+                      v84 = outFontRenderScale;
+                      v85 = v110 == v111 ? LODWORD(outFontRenderScale) + v118 : v118 - LODWORD(outFontRenderScale);
+                      v118 = v85;
+                      *(_QWORD *)verts[0].v = &v111;
+                      *(_QWORD *)&verts[0].xyz.z = &v110;
+                      *(_QWORD *)verts[1].v = &v118;
+                      *(_QWORD *)&verts[1].xyz.z = &rotation;
+                      *(_QWORD *)verts[2].v = v155;
+                      *(_QWORD *)&verts[2].xyz.z = &v137;
+                      *(_QWORD *)verts[3].v = &input;
+                      *(_QWORD *)&verts[3].xyz.z = &v129;
+                      v146 = &v119;
+                      p_fonta = &fonta;
+                      p_fontSize = &fontSize;
+                      p_tracking = &tracking;
+                      v150 = &v122;
+                      lambda_6f942657deb3409e840def6ce85b7def_::operator()(verts);
+                      v60 = v119;
+                      v78 = v110;
+                      v80 = v111;
+                      if ( v110 == v111 )
+                        break;
+                      if ( v119 <= *(float *)&v52 )
+                        goto LABEL_120;
+                      LODWORD(v76) = (_DWORD)v129;
+                      v81 = v118;
+                      v75 = input;
+                    }
+                    if ( v119 > *(float *)&v52 )
+                      break;
+                    LODWORD(v76) = (_DWORD)v129;
+                    v81 = v118;
+                    v75 = input;
+                  }
+                  v118 -= LODWORD(v84);
+                  lambda_6f942657deb3409e840def6ce85b7def_::operator()(verts);
+                  v60 = v119;
+LABEL_120:
+                  input = v155;
+                  do
+                    ++v49;
+                  while ( v155[v49] );
+                  v66 = outLineCount;
+                  outLines.textLeft = v155;
+                  outLines.pixelWidth = v60;
+                  outLines.textRight = &v155[(int)v49];
+                }
+              }
+              else
+              {
+LABEL_123:
+                v73 = 0;
+              }
+              v86 = v23 == NULL;
+              if ( v29 && v66 <= v23->options.maxVisibleLines )
+                v86 = 1;
+              autoScrollTransitionOutStep = FLOAT_1_0;
+              autoScrollTransitionInStep = 0.0;
+              if ( v27 && !v86 )
+              {
+                LUI_AutoScroll_GetLoopTransitionStep(v23, v66, v60, &autoScrollTransitionInStep, &autoScrollTransitionOutStep);
+                v66 = outLineCount;
+              }
+              v87 = LUI_CoD_DrawText_ComputeYOffset(v32, leading, v66, v23, VerticalAlignment);
+              v88 = outLineCount;
+              *(_WORD *)colorEscape = 0;
+              v143.v[1] = v139;
+              color.v[1] = v139;
+              v89 = v87;
+              color.v[3] = v141 * autoScrollTransitionOutStep;
+              v143.v[0] = v138;
+              v143.v[2] = v140;
+              color.v[0] = v138;
+              color.v[2] = v140;
+              v143.v[3] = v141 * autoScrollTransitionInStep;
+              if ( (unsigned __int64)outLineCount > 0x64 )
+              {
+                LODWORD(outRotation) = 100;
+                LODWORD(outFontLayoutScale) = outLineCount;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7646, ASSERT_TYPE_ASSERT, "( numLines ) <= ( ( sizeof( *array_counter( textLines ) ) + 0 ) )", "%s <= %s\n\t%i, %i", "numLines", "ARRAY_COUNT( textLines )", outFontLayoutScale, outRotation) )
+                  __debugbreak();
+                v88 = outLineCount;
+              }
+              if ( v88 > 0 )
+              {
+                v90 = elementa;
+                p_outLines = &outLines;
+                v92 = v134;
+                v93 = v133;
+                do
+                {
+                  if ( (!p_outLines->textLeft || !p_outLines->textRight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7650, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
+                    __debugbreak();
+                  if ( p_outLines->textLeft > p_outLines->textRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7651, ASSERT_TYPE_ASSERT, "(textLine->textLeft <= textLine->textRight)", (const char *)&queryFormat, "textLine->textLeft <= textLine->textRight") )
+                    __debugbreak();
+                  pixelWidth = p_outLines->pixelWidth;
+                  v95 = v23 && v23->options.direction[0] == 1;
+                  v96 = *(float *)&v52 <= 0.0 || *(float *)&v52 >= pixelWidth;
+                  v97 = HorizontalAlignment;
+                  if ( v95 && !v96 )
+                    v97 = LEFT;
+                  if ( Language_IsRightToLeft() && LUI_UsesRightToLeftAlignmentFlip(v90) )
+                  {
+                    v98 = v97;
+                    if ( v97 == LEFT )
+                      v98 = 2;
+                    v97 = v98;
+                  }
+                  R_PrepareTextLine(p_outLines->textLeft, p_outLines->textRight - p_outLines->textLeft + 1, v153, 512, 1, colorEscape);
+                  R_TextValidatePrintable(v153);
+                  v99 = LUI_CoD_DrawText_ComputeLineXPosition(x, pixelWidth, v52, v97, v23);
+                  LUI_CoD_GenerateQuadVerts(*(float *)&v99, (float)(*(float *)&v31 + v89) - elementHeight, *(float *)&v99 + 1.0, *(float *)&v31 + v89, (vec4_t (*)[4])quadVerts);
+                  if ( v115 && v93 == 0.0 )
+                    LUI_CoD_SnapQuadVerts((vec4_t (*)[4])quadVerts);
+                  v100 = v112 && (*(float *)&v52 <= 0.0 || *(float *)&v52 >= pixelWidth);
+                  v86 |= v100;
+                  p_color = (vec4_t *)&v138;
+                  if ( !v86 )
+                    p_color = &color;
+                  LUI_Render_DrawText(localClientNuma, v92, v90, (const vec4_t (*)[4])quadVerts, p_color, fonta, v153, style, tracking, v93, outFontRenderSize, v136, v135);
+                  if ( autoScrollTransitionInStep > 0.0 && !v86 )
+                  {
+                    v102 = *(_OWORD *)&v23->options.startupDelay;
+                    v103 = 0;
+                    *(_QWORD *)&v144.options.maxVisibleLines = *(_QWORD *)&v23->options.maxVisibleLines;
+                    *(_OWORD *)&v144.options.startupDelay = v102;
+                    v144.elapsedTime = 0;
+                    if ( *(float *)&v52 > 0.0 && *(float *)&v52 < pixelWidth )
+                      v103 = 1;
+                    if ( v144.options.direction[0] == 1 && v103 )
+                    {
+                      v104 = LUI_AutoScroll_ComputeLineXPosition(*(float *)&x, pixelWidth, *(float *)&v52, v97, &v144);
+                      v105 = *(float *)&v104;
+                    }
+                    else if ( v97 == RIGHT )
+                    {
+                      v105 = (float)((float)(*(float *)&v52 - pixelWidth) * 0.5) + *(float *)&x;
+                    }
+                    else if ( v97 == 2 )
+                    {
+                      v105 = (float)(*(float *)&x + *(float *)&v52) - pixelWidth;
+                    }
+                    else
+                    {
+                      v105 = *(float *)&x;
+                    }
+                    v106 = LUI_CoD_DrawText_ComputeYOffset(v32, leading, outLineCount, &v144, VerticalAlignment) + *(float *)&v31;
+                    LUI_CoD_GenerateQuadVerts(v105, v106 - elementHeight, v105 + 1.0, v106, (vec4_t (*)[4])verts);
+                    if ( v115 )
+                      LUI_CoD_SnapQuadVerts((vec4_t (*)[4])verts);
+                    LUI_Render_DrawText(localClientNuma, v92, v90, (const vec4_t (*)[4])verts, &v143, fonta, v153, style, tracking, v93, outFontRenderSize, v136, v135);
+                  }
+                  ++v73;
+                  ++p_outLines;
+                  v107 = v31;
+                  *(float *)&v107 = *(float *)&v31 + v32;
+                  v31 = v107;
+                }
+                while ( v73 < outLineCount );
+              }
+              return;
             }
-            R_TextWidth(input, v91, fonta, fontSize, tracking, 0);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmulss  xmm6, xmm0, [rbp+3530h+var_3598]
-              vmovss  [rbp+3530h+outLines.pixelWidth], xmm6
-            }
+            LODWORD(v61) = 0;
+            v65 = R_TextWidth(input, v63, fonta, fontSize, tracking, 0);
+            v60 = (float)v65 * v122;
+            outLines.pixelWidth = v60;
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, [rbp+3530h+var_3598]
-              vmovss  xmm1, [rbp+3530h+var_35A4]; boxWidth
-              vmovss  dword ptr [rsp+3630h+fmt], xmm0
-            }
-            R_Font_WordWrap(input, *(float *)&_XMM1, fonta, fontSize, fmt, tracking, 100, !v87, &outLines, &outLineCount);
-            __asm { vmovss  xmm6, [rbp+3530h+outLines.pixelWidth] }
+            R_Font_WordWrap(input, v119, fonta, fontSize, v122, tracking, 100, !v58, &outLines, &outLineCount);
+            v60 = outLines.pixelWidth;
+            LODWORD(v61) = 0;
           }
-          v92 = input;
-LABEL_69:
-          v94 = outLineCount;
-          if ( outLineCount == 1 && v47 )
-          {
-            if ( lui_fakeExtendedText->current.enabled )
-            {
-              __asm { vcomiss xmm7, xmm6 }
-              v95 = -1i64;
-              do
-                ++v95;
-              while ( v92[v95] );
-              memset_0(v204, 0, sizeof(v204));
-              v96 = v204;
-              __asm { vmovaps xmm6, xmm11 }
-              rand();
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vmulss  xmm1, xmm0, xmm7
-                vcomiss xmm1, xmm11
-              }
-              while ( 1 )
-              {
-                memcpy_0(v96, input, (int)v95);
-                v96 += (int)v95;
-                v101 = -1i64;
-                do
-                  ++v101;
-                while ( v204[v101] );
-                R_TextWidth(v204, v101, fonta, fontSize, tracking, 0);
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vmulss  xmm6, xmm0, [rbp+3530h+var_3598]
-                }
-                rand();
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vmulss  xmm1, xmm0, xmm7
-                  vcomiss xmm1, xmm6
-                }
-              }
-            }
-            __asm { vcomiss xmm7, xmm11 }
-            if ( lui_fakeExtendedText->current.enabled )
-              __asm { vcomiss xmm7, xmm6 }
-            if ( (v32->currentAnimationState.flags & 0x24) == 0 )
-            {
-              for ( i = v32->parent; i; i = i->parent )
-              {
-                if ( (i->currentAnimationState.flags & 4) != 0 )
-                  break;
-              }
-            }
-          }
-          v108 = 0;
-          v109 = _R13 == NULL;
-          if ( v46 && outLineCount <= _R13->options.maxVisibleLines )
-            v109 = 1;
-          __asm
-          {
-            vmovss  xmm9, cs:__real@3f800000
-            vmovss  [rbp+3530h+autoScrollTransitionOutStep], xmm9
-            vmovss  [rbp+3530h+autoScrollTransitionInStep], xmm11
-          }
-          if ( v44 && !v109 )
-          {
-            __asm { vmovaps xmm2, xmm6; textWidth }
-            LUI_AutoScroll_GetLoopTransitionStep(_R13, outLineCount, *(float *)&_XMM2, &autoScrollTransitionInStep, &autoScrollTransitionOutStep);
-            v94 = outLineCount;
-          }
-          __asm { vmovaps xmm0, xmm15; lineHeight }
-          *(float *)&_XMM0 = LUI_CoD_DrawText_ComputeYOffset(*(double *)&_XMM0, leading, v94, _R13, VerticalAlignment);
-          __asm
-          {
-            vmovss  xmm2, [rbp+3530h+var_3534]
-            vmovss  xmm4, [rbp+3530h+var_352C]
-            vmovss  xmm3, [rbp+3530h+var_3538]
-            vmovss  xmm1, [rbp+3530h+var_3530]
-          }
-          v117 = outLineCount;
-          *(_WORD *)colorEscape = 0;
-          __asm
-          {
-            vmovss  dword ptr [rbp+3530h+var_3518+4], xmm2
-            vmovss  dword ptr [rbp+3530h+color+4], xmm2
-            vmulss  xmm2, xmm4, [rbp+3530h+autoScrollTransitionOutStep]
-            vmovaps xmm10, xmm0
-            vmulss  xmm0, xmm4, [rbp+3530h+autoScrollTransitionInStep]
-            vmovss  dword ptr [rbp+3530h+color+0Ch], xmm2
-            vmovss  dword ptr [rbp+3530h+var_3518], xmm3
-            vmovss  dword ptr [rbp+3530h+var_3518+8], xmm1
-            vmovss  dword ptr [rbp+3530h+color], xmm3
-            vmovss  dword ptr [rbp+3530h+color+8], xmm1
-            vmovss  dword ptr [rbp+3530h+var_3518+0Ch], xmm0
-          }
-          if ( (unsigned __int64)outLineCount > 0x64 )
-          {
-            LODWORD(outRotation) = 100;
-            LODWORD(outFontLayoutScale) = outLineCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7646, ASSERT_TYPE_ASSERT, "( numLines ) <= ( ( sizeof( *array_counter( textLines ) ) + 0 ) )", "%s <= %s\n\t%i, %i", "numLines", "ARRAY_COUNT( textLines )", outFontLayoutScale, outRotation) )
-              __debugbreak();
-            v117 = outLineCount;
-          }
-          if ( v117 > 0 )
-          {
-            v121 = elementa;
-            _RDI = &outLines;
-            v123 = v190;
-            __asm
-            {
-              vmovaps [rsp+3630h+var_60], xmm8
-              vmovss  xmm8, [rbp+3530h+var_3560]
-            }
-            do
-            {
-              if ( (!_RDI->textLeft || !_RDI->textRight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7650, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
-                __debugbreak();
-              if ( _RDI->textLeft > _RDI->textRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 7651, ASSERT_TYPE_ASSERT, "(textLine->textLeft <= textLine->textRight)", (const char *)&queryFormat, "textLine->textLeft <= textLine->textRight") )
-                __debugbreak();
-              __asm { vmovss  xmm6, dword ptr [rdi+10h] }
-              if ( _R13 && (v126 = _R13->options.direction[0] == 0, v127 = _R13->options.direction[0] <= 1u, _R13->options.direction[0] == 1) )
-              {
-                v128 = 1;
-              }
-              else
-              {
-                v128 = 0;
-                v126 = 0;
-                v127 = 1;
-              }
-              __asm { vcomiss xmm7, xmm11 }
-              if ( v127 )
-                goto LABEL_110;
-              __asm { vcomiss xmm7, xmm6 }
-              if ( !v126 )
-LABEL_110:
-                v129 = 1;
-              else
-                v129 = 0;
-              v130 = HorizontalAlignment;
-              if ( v128 && !v129 )
-                v130 = LEFT;
-              if ( Language_IsRightToLeft() && LUI_UsesRightToLeftAlignmentFlip(v121) )
-              {
-                v131 = v130;
-                if ( v130 == LEFT )
-                  v131 = 2;
-                v130 = v131;
-              }
-              R_PrepareTextLine(_RDI->textLeft, _RDI->textRight - _RDI->textLeft + 1, v203, 512, 1, colorEscape);
-              R_TextValidatePrintable(v203);
-              __asm
-              {
-                vmovaps xmm2, xmm7; boxWidth
-                vmovaps xmm1, xmm6; textWidth
-                vmovaps xmm0, xmm12; x
-              }
-              *(double *)&_XMM0 = LUI_CoD_DrawText_ComputeLineXPosition(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, v130, _R13);
-              __asm
-              {
-                vaddss  xmm3, xmm14, xmm10; bottom
-                vsubss  xmm1, xmm3, [rbp+3530h+arg_58]; top
-                vaddss  xmm2, xmm0, xmm9; right
-              }
-              LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-              if ( v172 )
-                __asm { vucomiss xmm8, xmm11 }
-              if ( v169 )
-              {
-                __asm
-                {
-                  vcomiss xmm7, xmm11
-                  vcomiss xmm7, xmm6
-                }
-                v138 = 1;
-              }
-              else
-              {
-                v138 = 0;
-              }
-              v109 |= v138;
-              p_color = (vec4_t *)&v193;
-              if ( !v109 )
-                p_color = &color;
-              __asm { vmovss  dword ptr [rsp+3630h+outElementHeightOnScreen], xmm8 }
-              LUI_Render_DrawText(localClientNuma, v123, v121, (const vec4_t (*)[4])quadVerts, p_color, fonta, v203, style, tracking, outElementHeightOnScreen, outFontRenderSize, v192, v191);
-              __asm
-              {
-                vmovss  xmm0, [rbp+3530h+autoScrollTransitionInStep]
-                vcomiss xmm0, xmm11
-              }
-              if ( !v126 && !v38 && !v109 )
-              {
-                __asm
-                {
-                  vmovsd  xmm1, qword ptr [r13+10h]
-                  vmovups xmm0, xmmword ptr [r13+0]
-                  vmovsd  qword ptr [rbp+3530h+var_3508.options.maxVisibleLines], xmm1
-                }
-                *(_DWORD *)&v199.options.maxVisibleLines = _RT0;
-                __asm { vmovups xmmword ptr [rbp+3530h+var_3508.options.startupDelay], xmm0 }
-                v199.elapsedTime = 0;
-                __asm { vcomiss xmm7, xmm11 }
-                if ( v199.options.direction[0] > 1u )
-                  __asm { vcomiss xmm7, xmm6 }
-                if ( v130 == RIGHT )
-                {
-                  __asm
-                  {
-                    vsubss  xmm0, xmm7, xmm6
-                    vmulss  xmm1, xmm0, xmm13
-                    vaddss  xmm6, xmm1, xmm12
-                  }
-                }
-                else if ( v130 == 2 )
-                {
-                  __asm
-                  {
-                    vaddss  xmm0, xmm12, xmm7
-                    vsubss  xmm6, xmm0, xmm6
-                  }
-                }
-                else
-                {
-                  __asm { vmovaps xmm6, xmm12 }
-                }
-                __asm { vmovaps xmm0, xmm15; lineHeight }
-                *(float *)&_XMM0 = LUI_CoD_DrawText_ComputeYOffset(*(double *)&_XMM0, leading, outLineCount, &v199, VerticalAlignment);
-                __asm
-                {
-                  vaddss  xmm3, xmm0, xmm14; bottom
-                  vsubss  xmm1, xmm3, [rbp+3530h+arg_58]; top
-                  vaddss  xmm2, xmm6, xmm9; right
-                  vmovaps xmm0, xmm6; left
-                }
-                LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
-                if ( v172 )
-                  LUI_CoD_SnapQuadVerts((vec4_t (*)[4])verts);
-                __asm { vmovss  dword ptr [rsp+3630h+outElementHeightOnScreen], xmm8 }
-                LUI_Render_DrawText(localClientNuma, v123, v121, (const vec4_t (*)[4])verts, &v198, fonta, v203, style, tracking, outElementHeightOnScreena, outFontRenderSize, v192, v191);
-              }
-              ++v108;
-              ++_RDI;
-              __asm { vaddss  xmm14, xmm14, xmm15 }
-            }
-            while ( v108 < outLineCount );
-            __asm { vmovaps xmm8, [rsp+3630h+var_60] }
-          }
-          __asm
-          {
-            vmovaps xmm7, [rsp+3630h+var_50]
-            vmovaps xmm13, [rsp+3630h+var_B0]
-            vmovaps xmm11, [rsp+3630h+var_90]
-            vmovaps xmm10, [rsp+3630h+var_80]
-            vmovaps xmm9, [rsp+3630h+var_70]
-          }
-          goto LABEL_141;
+          v64 = input;
+          goto LABEL_70;
         }
-LABEL_17:
-        v46 = 0;
-        goto LABEL_18;
+LABEL_18:
+        v29 = 0;
+        goto LABEL_19;
       }
     }
     else
     {
-      v44 = 0;
+      v27 = 0;
     }
-    v45 = 0;
-    v169 = 0;
-    if ( !v44 )
-      goto LABEL_17;
-    goto LABEL_15;
+    v28 = 0;
+    v112 = 0;
+    if ( !v27 )
+      goto LABEL_18;
+    goto LABEL_16;
   }
-  Com_PrintError(13, "LUI: NULL text on text element\n");
-LABEL_143:
-  __asm { vmovaps xmm12, [rsp+3630h+var_A0] }
 }
 
 /*
@@ -11476,40 +9619,14 @@ LABEL_143:
 LUI_Interface_DrawTextSelection
 ==============
 */
-
-void __fastcall LUI_Interface_DrawTextSelection(const LocalClientNum_t localClientNum, LUIElement *element, double x, double y, float width, float height, vec4_t *color, lua_State *luaVM)
+void LUI_Interface_DrawTextSelection(const LocalClientNum_t localClientNum, LUIElement *element, float x, float y, float width, float height, vec4_t *color, lua_State *luaVM)
 {
-  float quadVerts; 
-  float v22; 
-  float v23; 
-  float v24; 
-  vec4_t v25; 
+  vec4_t v10; 
   vec4_t verts[4]; 
 
-  _RAX = color;
-  __asm
-  {
-    vmovaps xmm4, xmm3
-    vaddss  xmm1, xmm4, cs:__real@40400000; top
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0B8h+var_68], xmm0
-    vsubss  xmm0, xmm3, [rsp+0B8h+arg_28]
-    vaddss  xmm3, xmm0, cs:__real@40400000; bottom
-    vmovaps xmm5, xmm2
-    vaddss  xmm2, xmm2, [rsp+0B8h+arg_20]; right
-    vmovaps xmm0, xmm5; left
-  }
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+0B8h+var_80], xmm0
-    vmovss  [rsp+0B8h+var_88], xmm0
-    vmovss  [rsp+0B8h+var_90], xmm1
-    vmovss  dword ptr [rsp+0B8h+quadVerts], xmm1
-  }
-  LUI_Render_DrawImage(localClientNum, element, luaVM, (const vec4_t (*)[4])verts, quadVerts, v22, v23, v24, &v25, LUI_DefaultMaterial);
+  v10 = *color;
+  LUI_CoD_GenerateQuadVerts(x, y + 3.0, x + width, (float)(y - height) + 3.0, (vec4_t (*)[4])verts);
+  LUI_Render_DrawImage(localClientNum, element, luaVM, (const vec4_t (*)[4])verts, 0.0, 0.0, 1.0, 1.0, &v10, LUI_DefaultMaterial);
 }
 
 /*
@@ -11517,71 +9634,39 @@ void __fastcall LUI_Interface_DrawTextSelection(const LocalClientNum_t localClie
 LUI_Interface_DrawTextWithCursor
 ==============
 */
-
-void __fastcall LUI_Interface_DrawTextWithCursor(const LocalClientNum_t localClientNum, LUIElement *element, double x, double y, float red, float green, float blue, float alpha, const char *text, GfxFont *font, float fontHeight, float wrapWidth, int cursorPos, char cursor, lua_State *luaVM)
+void LUI_Interface_DrawTextWithCursor(const LocalClientNum_t localClientNum, LUIElement *element, float x, float y, float red, float green, float blue, float alpha, const char *text, GfxFont *font, float fontHeight, float wrapWidth, int cursorPos, char cursor, lua_State *luaVM)
 {
-  size_t v22; 
-  char *v23; 
+  size_t v17; 
+  char *v18; 
+  char *v19; 
+  double v22; 
   vec2_t vec; 
+  float v24; 
   vec4_t quadVerts[4]; 
-  char v59; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
   if ( LUI_ElementHasWeakTableEntry(element, luaVM) )
   {
-    v22 = -1i64;
+    v17 = -1i64;
     do
-      ++v22;
-    while ( text[v22] );
-    v23 = (char *)LUI_QuadCache_AddDrawListCommandVarSizeInternal(localClientNum, (void (__fastcall *)(const void *))LUI_Interface_DrawTextWithCursorImmediate, v22 + 46, 8ui64);
-    _RDI = v23;
-    if ( v23 )
+      ++v17;
+    while ( text[v17] );
+    v18 = (char *)LUI_QuadCache_AddDrawListCommandVarSizeInternal(localClientNum, (void (__fastcall *)(const void *))LUI_Interface_DrawTextWithCursorImmediate, v17 + 46, 8ui64);
+    v19 = v18;
+    if ( v18 )
     {
-      memcpy_0(v23 + 45, text, v22);
-      __asm { vsubss  xmm1, xmm6, [rsp+0C8h+fontHeight]; top }
-      _RDI[v22 + 45] = 0;
-      *(_QWORD *)_RDI = font;
-      *((_DWORD *)_RDI + 10) = cursorPos;
-      __asm
-      {
-        vmovaps xmm3, xmm6; bottom
-        vmovaps xmm2, xmm7; right
-        vmovaps xmm0, xmm7; left
-      }
-      _RDI[44] = cursor;
-      LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0C8h+var_88+34h]
-        vsubss  xmm4, xmm0, dword ptr [rsp+0C8h+var_88+4]
-        vmovss  xmm1, dword ptr [rsp+0C8h+var_88+38h]
-        vsubss  xmm5, xmm1, dword ptr [rsp+0C8h+var_88+8]
-        vmovss  xmm0, dword ptr [rsp+0C8h+var_88+30h]
-        vsubss  xmm1, xmm0, dword ptr [rsp+0C8h+var_88]
-        vmulss  xmm2, xmm1, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-        vmulss  xmm3, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vmovss  dword ptr [rsp+0C8h+vec+4], xmm4
-        vaddss  xmm4, xmm3, xmm0
-        vmovss  dword ptr [rsp+0C8h+vec], xmm2
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm4, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vaddss  xmm3, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm3, 1
-        vcvttss2si eax, xmm4
-        vmovss  [rsp+0C8h+var_90], xmm5
-      }
-      *((_DWORD *)_RDI + 2) = _EAX;
+      memcpy_0(v18 + 45, text, v17);
+      v19[v17 + 45] = 0;
+      *(_QWORD *)v19 = font;
+      *((_DWORD *)v19 + 10) = cursorPos;
+      v19[44] = cursor;
+      LUI_CoD_GenerateQuadVerts(x, y - fontHeight, x, y, (vec4_t (*)[4])quadVerts);
+      vec.v[1] = quadVerts[3].v[1] - quadVerts[0].v[1];
+      vec.v[0] = (float)(quadVerts[3].v[0] - quadVerts[0].v[0]) * cls.vidConfig.aspectRatioDisplayPixel;
+      fsqrt((float)((float)(vec.v[0] * vec.v[0]) + (float)((float)(quadVerts[3].v[1] - quadVerts[0].v[1]) * (float)(quadVerts[3].v[1] - quadVerts[0].v[1]))) + (float)((float)(quadVerts[3].v[2] - quadVerts[0].v[2]) * (float)(quadVerts[3].v[2] - quadVerts[0].v[2])));
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm3, 1 }
+      v24 = quadVerts[3].v[2] - quadVerts[0].v[2];
+      *((_DWORD *)v19 + 2) = (int)*(float *)&_XMM4;
       LUI_PutElementOnTopOfStack(element, luaVM);
       j_lua_getfield(luaVM, -1, "m_textStyle");
       if ( j_lua_type(luaVM, -1) )
@@ -11591,38 +9676,16 @@ void __fastcall LUI_Interface_DrawTextWithCursor(const LocalClientNum_t localCli
         lui_tointeger32(luaVM, -1);
       }
       j_lua_settop(luaVM, -3);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0C8h+green]
-        vmovss  xmm0, [rsp+0C8h+red]
-        vmovss  dword ptr [rdi+18h], xmm0
-        vmovss  xmm0, [rsp+0C8h+blue]
-        vmovss  dword ptr [rdi+1Ch], xmm1
-        vmovss  xmm1, [rsp+0C8h+alpha]
-        vmovss  dword ptr [rdi+20h], xmm0
-        vmovss  dword ptr [rdi+24h], xmm1
-      }
-      *(double *)&_XMM0 = vectoyaw(&vec);
-      __asm
-      {
-        vsubss  xmm1, xmm0, cs:__real@42b40000
-        vmovss  dword ptr [rdi+14h], xmm1
-      }
+      *((float *)v19 + 6) = red;
+      *((float *)v19 + 7) = green;
+      *((float *)v19 + 8) = blue;
+      *((float *)v19 + 9) = alpha;
+      v22 = vectoyaw(&vec);
+      *((float *)v19 + 5) = *(float *)&v22 - 90.0;
       LUI_CoD_SnapQuadVerts((vec4_t (*)[4])quadVerts);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0C8h+var_88+30h]
-        vmovss  dword ptr [rdi+0Ch], xmm0
-        vmovss  xmm1, dword ptr [rsp+0C8h+var_88+34h]
-        vmovss  dword ptr [rdi+10h], xmm1
-      }
+      *((float *)v19 + 3) = quadVerts[3].v[0];
+      *((float *)v19 + 4) = quadVerts[3].v[1];
     }
-  }
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -11633,30 +9696,7 @@ LUI_Interface_DrawTextWithCursorImmediate
 */
 void LUI_Interface_DrawTextWithCursorImmediate(const LUITextWithCursorRenderData *data)
 {
-  float v7; 
-  float v8; 
-  float v9; 
-  float v10; 
-  float v11; 
-
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000
-    vdivss  xmm1, xmm2, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls
-  }
-  _R8 = data;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+14h]
-    vmovss  [rsp+0A8h+var_58], xmm0
-    vmovss  xmm0, dword ptr [r8+10h]
-    vmovss  [rsp+0A8h+var_68], xmm2
-    vmovss  [rsp+0A8h+var_70], xmm1
-    vmovss  xmm1, dword ptr [r8+0Ch]
-    vmovss  [rsp+0A8h+var_78], xmm0
-    vmovss  [rsp+0A8h+var_80], xmm1
-  }
-  R_AddCmdDrawTextWithCursor(data->text, 0x7FFFFFFF, _R8->font, NULL, _R8->fontSize, v7, v8, v9, v10, 0, v11, &data->color, NULL, 0, _R8->cursorPos, _R8->cursor, 0, 0, NULL);
+  R_AddCmdDrawTextWithCursor(data->text, 0x7FFFFFFF, data->font, NULL, data->fontSize, data->x, data->y, 1.0 / cls.vidConfig.aspectRatioDisplayPixel, 1.0, 0, data->transformedRotation, &data->color, NULL, 0, data->cursorPos, data->cursor, 0, 0, NULL);
 }
 
 /*
@@ -11679,20 +9719,11 @@ void LUI_Interface_ErrorPrint(const char *formatString, ...)
 LUI_Interface_GetMaterialAspectRatio
 ==============
 */
-
-float __fastcall LUI_Interface_GetMaterialAspectRatio(const GfxImage *material, double _XMM1_8)
+float LUI_Interface_GetMaterialAspectRatio(const GfxImage *material)
 {
   if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6269, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm0, xmm1, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)material->width / (float)material->height;
 }
 
 /*
@@ -11710,247 +9741,209 @@ __int64 LUI_Interface_GetMaxElements()
 LUI_Interface_GetNumTextLines
 ==============
 */
-
-__int64 __fastcall LUI_Interface_GetNumTextLines(LocalClientNum_t localClientNum, const char *text, GfxFont *font, double fontHeight, float wrapWidth)
+__int64 LUI_Interface_GetNumTextLines(LocalClientNum_t localClientNum, const char *text, GfxFont *font, float fontHeight, float wrapWidth)
 {
-  const dvar_t *v11; 
-  char *v20; 
-  unsigned int v21; 
-  int v22; 
+  const dvar_t *v5; 
+  char *v9; 
+  unsigned int v10; 
+  int v11; 
+  int v12; 
   unsigned int CharFromString; 
-  char v29; 
-  char *v30; 
-  char *v31; 
-  char v32; 
-  char v33; 
-  char v34; 
-  bool v35; 
+  __int128 v14; 
+  char v15; 
+  char *v16; 
+  char *v17; 
+  char v18; 
+  char v19; 
+  int v20; 
+  float v21; 
   bool IsBreakableSpace; 
-  char v39; 
-  char *v40; 
-  char v41; 
-  char *v42; 
-  __int64 result; 
-  int v46; 
-  char *v47; 
+  char v23; 
+  char *v24; 
+  __int128 v25; 
+  char v26; 
+  char *v27; 
+  char *v28; 
   char *texta; 
   GfxFont *fonta; 
   char dstString[1024]; 
 
-  __asm { vmovaps [rsp+500h+var_50], xmm6 }
-  v11 = DVARBOOL_lui_rendertime_binding_directive;
+  v5 = DVARBOOL_lui_rendertime_binding_directive;
   fonta = font;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !DVARBOOL_lui_rendertime_binding_directive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_rendertime_binding_directive") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
     UI_ReplaceDirective(localClientNum, text, dstString, 0x400ui64, 0);
     text = dstString;
   }
   texta = (char *)text;
-  if ( !text )
+  if ( text )
   {
-    result = 0i64;
-    goto LABEL_8;
-  }
-  __asm
-  {
-    vmovaps [rsp+500h+var_70], xmm8
-    vmovss  xmm8, [rbp+400h+wrapWidth]
-    vmovaps [rsp+500h+var_80], xmm9
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm8, xmm9
-  }
-  v20 = (char *)text;
-  v21 = 0;
-  v22 = 0;
-  __asm
-  {
-    vcvttss2si r8d, xmm6
-    vmovaps [rsp+500h+var_60], xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r8d
-    vmovaps [rsp+500h+var_90], xmm10
-  }
-  v46 = _ER8;
-  CharFromString = _ER8;
-  __asm { vdivss  xmm10, xmm6, xmm0 }
-  v47 = (char *)text;
-  __asm { vmovaps xmm7, xmm8 }
-  do
-  {
+    if ( wrapWidth < 0.0 )
+      return 1i64;
+    v9 = (char *)text;
+    v10 = 0;
+    v11 = 0;
+    v12 = (int)fontHeight;
+    CharFromString = (int)fontHeight;
+    v28 = (char *)text;
+    v14 = LODWORD(wrapWidth);
     while ( 1 )
     {
       while ( 1 )
       {
-        v29 = *text;
-        v30 = (char *)text;
-        if ( !*text )
-        {
-LABEL_18:
-          v32 = 1;
+        v15 = *text;
+        v16 = (char *)text;
+        if ( *text )
           break;
-        }
-        while ( v29 >= 30 )
+LABEL_19:
+        v18 = 1;
+LABEL_20:
+        v19 = 0;
+        if ( v11 <= 0 )
         {
-          if ( v29 <= 31 )
-          {
-            ++text;
-          }
-          else
-          {
-            if ( v29 != 94 )
-              break;
-            v31 = (char *)(text + 1);
-            texta = v31;
-            if ( v31 == (char *)-1i64 || (unsigned __int8)(v31[1] - 39) > 0x17u )
-              break;
-            text = v31 + 1;
-          }
-          texta = (char *)text;
-          v29 = *text;
-          if ( !*text )
-            goto LABEL_18;
+          v21 = 0.0;
         }
-        CharFromString = SEH_ReadCharFromString((const char **)&texta);
-        v32 = 0;
-        IsBreakableSpace = R_IsBreakableSpace(CharFromString);
-        text = texta;
-        v20 = v47;
-        _ER8 = v46;
-        if ( IsBreakableSpace )
-          break;
-        ++v22;
-      }
-      v33 = 0;
-      v34 = 0;
-      v35 = v22 == 0;
-      if ( v22 <= 0 )
-      {
-        __asm { vmovaps xmm6, xmm9 }
-      }
-      else
-      {
-        R_TextWidth(v20, v22, fonta, _ER8);
-        text = texta;
-        v20 = v47;
-        __asm
+        else
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm6, xmm0, xmm10
+          v20 = R_TextWidth(v9, v11, fonta, v12);
+          text = texta;
+          v9 = v28;
+          v21 = (float)v20 * (float)(fontHeight / (float)(int)fontHeight);
         }
-      }
-      __asm { vcomiss xmm7, xmm8 }
-      if ( v34 )
-      {
-        __asm { vcomiss xmm6, xmm7 }
-        if ( !(v34 | v35) )
+        if ( *(float *)&v14 < wrapWidth && v21 > *(float *)&v14 )
         {
-          v39 = *v20;
-          v33 = 1;
-          __asm { vmovaps xmm7, xmm8 }
-          if ( *v20 )
+          v23 = *v9;
+          v19 = 1;
+          v14 = LODWORD(wrapWidth);
+          if ( *v9 )
           {
-            while ( v39 >= 30 )
+            while ( v23 >= 30 )
             {
-              if ( v39 <= 31 )
+              if ( v23 <= 31 )
               {
-                ++v20;
+                ++v9;
               }
               else
               {
-                if ( v39 != 94 )
+                if ( v23 != 94 )
                   break;
-                v40 = v20 + 1;
-                v47 = v40;
-                if ( v40 == (char *)-1i64 || (unsigned __int8)(v40[1] - 39) > 0x17u )
+                v24 = v9 + 1;
+                v28 = v24;
+                if ( v24 == (char *)-1i64 || (unsigned __int8)(v24[1] - 39) > 0x17u )
                   break;
-                v20 = v40 + 1;
+                v9 = v24 + 1;
               }
-              v47 = v20;
-              v39 = *v20;
-              if ( !*v20 )
-                goto LABEL_37;
+              v28 = v9;
+              v23 = *v9;
+              if ( !*v9 )
+                goto LABEL_38;
             }
-            SEH_ReadCharFromString((const char **)&v47);
-            v20 = v47;
+            SEH_ReadCharFromString((const char **)&v28);
+            v9 = v28;
             text = texta;
           }
-LABEL_37:
-          --v22;
-          ++v21;
+LABEL_38:
+          --v11;
+          ++v10;
         }
-      }
-      __asm { vsubss  xmm7, xmm7, xmm6 }
-      if ( v32 || CharFromString == 10 )
-        break;
-      _ER8 = v46;
-      v20 = v30;
-      v47 = v30;
-      v22 = 1;
-    }
-    if ( v33 )
-    {
-      text = v30;
-      texta = v30;
-    }
-    else
-    {
-      v20 = v30;
-      ++v21;
-      v22 = 0;
-      v47 = v30;
-      if ( *v30 )
-      {
-        while ( 1 )
+        v25 = v14;
+        *(float *)&v25 = *(float *)&v14 - v21;
+        v14 = v25;
+        if ( v18 || CharFromString == 10 )
         {
-          v41 = *v20;
-          if ( *v20 < 30 )
-            break;
-          if ( v41 <= 31 )
+          if ( v19 )
           {
-            ++v20;
+            text = v16;
+            texta = v16;
           }
           else
           {
-            if ( v41 != 94 )
-              break;
-            if ( !*v20 )
-              goto LABEL_55;
-            v42 = v20 + 1;
-            v47 = v42;
-            if ( v42 == (char *)-1i64 || (unsigned __int8)(v42[1] - 39) > 0x17u )
-              break;
-            v20 = v42 + 1;
+            v9 = v16;
+            ++v10;
+            v11 = 0;
+            v28 = v16;
+            if ( *v16 )
+            {
+              while ( 1 )
+              {
+                v26 = *v9;
+                if ( *v9 < 30 )
+                  break;
+                if ( v26 <= 31 )
+                {
+                  ++v9;
+                }
+                else
+                {
+                  if ( v26 != 94 )
+                    break;
+                  if ( !*v9 )
+                    goto LABEL_56;
+                  v27 = v9 + 1;
+                  v28 = v27;
+                  if ( v27 == (char *)-1i64 || (unsigned __int8)(v27[1] - 39) > 0x17u )
+                    break;
+                  v9 = v27 + 1;
+                }
+                v28 = v9;
+                if ( !*v9 )
+                  goto LABEL_56;
+              }
+              SEH_ReadCharFromString((const char **)&v28);
+              v9 = v28;
+              text = texta;
+            }
           }
-          v47 = v20;
-          if ( !*v20 )
-            goto LABEL_55;
+LABEL_56:
+          v12 = (int)fontHeight;
+          v14 = LODWORD(wrapWidth);
+          if ( v18 && !v11 )
+            return v10;
         }
-        SEH_ReadCharFromString((const char **)&v47);
-        v20 = v47;
-        text = texta;
+        else
+        {
+          v12 = (int)fontHeight;
+          v9 = v16;
+          v28 = v16;
+          v11 = 1;
+        }
       }
+      while ( v15 >= 30 )
+      {
+        if ( v15 <= 31 )
+        {
+          ++text;
+        }
+        else
+        {
+          if ( v15 != 94 )
+            break;
+          v17 = (char *)(text + 1);
+          texta = v17;
+          if ( v17 == (char *)-1i64 || (unsigned __int8)(v17[1] - 39) > 0x17u )
+            break;
+          text = v17 + 1;
+        }
+        texta = (char *)text;
+        v15 = *text;
+        if ( !*text )
+          goto LABEL_19;
+      }
+      CharFromString = SEH_ReadCharFromString((const char **)&texta);
+      v18 = 0;
+      IsBreakableSpace = R_IsBreakableSpace(CharFromString);
+      text = texta;
+      v9 = v28;
+      v12 = (int)fontHeight;
+      if ( IsBreakableSpace )
+        goto LABEL_20;
+      ++v11;
     }
-LABEL_55:
-    _ER8 = v46;
-    __asm { vmovaps xmm7, xmm8 }
   }
-  while ( !v32 || v22 );
-  __asm { vmovaps xmm10, [rsp+500h+var_90] }
-  result = v21;
-  __asm
-  {
-    vmovaps xmm7, [rsp+500h+var_60]
-    vmovaps xmm8, [rsp+500h+var_70]
-    vmovaps xmm9, [rsp+500h+var_80]
-  }
-LABEL_8:
-  __asm { vmovaps xmm6, [rsp+500h+var_50] }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -11958,121 +9951,115 @@ LABEL_8:
 LUI_Interface_GetTextDimensions
 ==============
 */
-
-void __fastcall LUI_Interface_GetTextDimensions(LocalClientNum_t localClientNum, const char *text, GfxFont *font, double fontHeight, char tracking, char leading, float *left, float *top, float *right, float *bottom, float wrapWidth)
+void LUI_Interface_GetTextDimensions(LocalClientNum_t localClientNum, const char *text, GfxFont *font, float fontHeight, char tracking, char leading, float *left, float *top, float *right, float *bottom, float wrapWidth)
 {
-  const char *v18; 
-  const dvar_t *v25; 
-  __int64 v46; 
-  int v50; 
-  TextLine v59; 
+  __int128 v11; 
+  float *v12; 
+  const char *v14; 
+  float pixelHeight; 
+  const dvar_t *v18; 
+  int v21; 
+  float v23; 
+  bool v24; 
+  __int64 v25; 
+  int v26; 
+  int v27; 
+  float *p_pixelWidth; 
+  int outLineCount; 
+  float *v31; 
+  TextLine outLines; 
   char dstString[1024]; 
-  void *retaddr; 
+  __int128 v34; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-68h], xmm7 }
-  _R13 = top;
-  v18 = text;
-  _R14 = right;
-  __asm { vmovaps xmm7, xmm3 }
+  v12 = top;
+  v14 = text;
+  v31 = top;
   if ( text )
   {
     if ( !font )
     {
       Com_PrintError(13, "LUI: Missing font for text element Text = %s\n", text);
-      goto LABEL_18;
+      return;
     }
-    __asm
-    {
-      vmovaps xmmword ptr [r11-58h], xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r8+8]
-      vxorps  xmm6, xmm6, xmm6
-      vucomiss xmm0, xmm6
-      vmovaps xmmword ptr [r11-78h], xmm8
-    }
-    v25 = DVARBOOL_lui_rendertime_binding_directive;
+    pixelHeight = (float)font->pixelHeight;
+    LODWORD(_XMM6) = 0;
+    v34 = v11;
+    if ( pixelHeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 5930, ASSERT_TYPE_ASSERT, "(font->pixelHeight != 0.0f)", (const char *)&queryFormat, "font->pixelHeight != 0.0f") )
+      __debugbreak();
+    v18 = DVARBOOL_lui_rendertime_binding_directive;
     if ( !DVARBOOL_lui_rendertime_binding_directive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_rendertime_binding_directive") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    if ( v25->current.enabled )
+    Dvar_CheckFrontendServerThread(v18);
+    if ( v18->current.enabled )
     {
-      UI_ReplaceDirective(localClientNum, v18, dstString, 0x400ui64, 0);
-      v18 = dstString;
+      UI_ReplaceDirective(localClientNum, v14, dstString, 0x400ui64, 0);
+      v14 = dstString;
     }
-    __asm
+    _XMM4 = 0i64;
+    __asm { vroundss xmm2, xmm4, xmm1, 1 }
+    v21 = (int)*(float *)&_XMM2;
+    __asm { vroundss xmm0, xmm4, xmm2, 1 }
+    v23 = (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM0).m128_f32[0] * 0.0099999998) / _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM2).m128_f32[0];
+    v24 = Language_IsRightToLeft() != 0;
+    outLineCount = 0;
+    if ( wrapWidth <= -1.0 )
     {
-      vaddss  xmm1, xmm7, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vmulss  xmm0, xmm7, cs:__real@42c80000
-      vaddss  xmm3, xmm0, cs:__real@3f000000
-      vxorps  xmm4, xmm4, xmm4
-      vroundss xmm2, xmm4, xmm1, 1
-      vxorps  xmm1, xmm1, xmm1
-      vcvttss2si ebp, xmm2
-      vmovss  xmm2, xmm1, xmm3
-      vroundss xmm0, xmm4, xmm2, 1
-      vcvttss2si eax, xmm0
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm2, xmm0, cs:__real@3c23d70a
-      vmovd   xmm1, ebp
-      vcvtdq2ps xmm1, xmm1
-      vdivss  xmm8, xmm2, xmm1
+      v25 = -1i64;
+      do
+        ++v25;
+      while ( v14[v25] );
+      outLines.textRight = &v14[(int)v25];
+      outLineCount = 1;
+      outLines.textLeft = v14;
+      outLines.pixelWidth = (float)R_TextWidth(v14, v25, font, v21, tracking, 0) * v23;
     }
-    Language_IsRightToLeft();
-    __asm
+    else
     {
-      vmovss  xmm1, [rsp+0E48h+wrapWidth]; boxWidth
-      vcomiss xmm1, cs:__real@bf800000
+      R_Font_WordWrap(v14, wrapWidth, font, v21, v23, tracking, 100, !v24, &outLines, &outLineCount);
     }
-    v46 = -1i64;
-    do
-      ++v46;
-    while ( v18[v46] );
-    v59.textRight = &v18[(int)v46];
-    v59.textLeft = v18;
-    R_TextWidth(v18, v46, font, _EBP, tracking, 0);
-    __asm
+    v26 = outLineCount;
+    v27 = 0;
+    if ( outLineCount > 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  [rsp+0E48h+var_DE8.pixelWidth], xmm1
+      p_pixelWidth = &outLines.pixelWidth;
+      do
+      {
+        if ( !*((_QWORD *)p_pixelWidth - 2) || !*((_QWORD *)p_pixelWidth - 1) )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 5965, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
+            __debugbreak();
+          v26 = outLineCount;
+        }
+        _XMM0 = *(unsigned int *)p_pixelWidth;
+        p_pixelWidth += 6;
+        ++v27;
+        __asm { vmaxss  xmm6, xmm0, xmm6 }
+      }
+      while ( v27 < v26 );
+      v12 = v31;
     }
-    v50 = 0;
-    __asm { vmovaps xmm8, [rsp+0E48h+var_78] }
-    _RBX = &v59.pixelWidth;
-    do
-    {
-      if ( (!*((_QWORD *)_RBX - 2) || !*((_QWORD *)_RBX - 1)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 5965, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
-        __debugbreak();
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-      _RBX += 6;
-      ++v50;
-      __asm { vmaxss  xmm6, xmm0, xmm6 }
-    }
-    while ( v50 < 1 );
-    _R13 = top;
     *left = 0.0;
-    __asm
+    if ( v26 <= 1 )
     {
-      vmovss  dword ptr [r13+0], xmm7
-      vmovss  xmm0, [rsp+0E48h+var_DE8.pixelWidth]
-      vmovss  dword ptr [r14], xmm0
-      vmovaps xmm6, [rsp+0E48h+var_58]
+      *v12 = fontHeight;
+      if ( outLineCount == 1 )
+        *right = outLines.pixelWidth;
+      else
+        *right = 0.0;
+    }
+    else
+    {
+      *right = *(float *)&_XMM6;
+      *v12 = (float)(leading * (v26 - 1)) + (float)((float)v26 * fontHeight);
     }
   }
   else
   {
     *left = 0.0;
-    __asm { vmovss  dword ptr [r13+0], xmm7 }
+    *top = fontHeight;
     *right = 0.0;
   }
   *bottom = 0.0;
-LABEL_18:
-  __asm { vmovaps xmm7, [rsp+0E48h+var_68] }
 }
 
 /*
@@ -12099,140 +10086,101 @@ LUIElement *LUI_Interface_GetTextEditActive(LocalClientNum_t localClientNum, lua
 LUI_Interface_GetTextPages
 ==============
 */
-
-__int64 __fastcall LUI_Interface_GetTextPages(LocalClientNum_t localClientNum, const char *text, GfxFont *font, double elementHeight, char tracking, float wrapWidth, float pageHeight, int maxPages, TextPage *pages, int maxCharsPerPage)
+__int64 LUI_Interface_GetTextPages(LocalClientNum_t localClientNum, const char *text, GfxFont *font, float elementHeight, char tracking, float wrapWidth, float pageHeight, int maxPages, TextPage *pages, int maxCharsPerPage)
 {
   signed __int64 v10; 
-  void *v14; 
-  int v16; 
-  bool v19; 
+  void *v11; 
+  int v13; 
+  int v20; 
+  int v21; 
+  TextPage *v22; 
+  int IsRightToLeft; 
+  int v24; 
+  int v25; 
+  TextLine *p_outLines; 
+  int v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  char *v31; 
   int v33; 
+  int outLineCount; 
   int v35; 
   TextPage *v36; 
-  int IsRightToLeft; 
-  int v42; 
-  int v43; 
-  TextLine *p_outLines; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  char *v49; 
-  __int64 result; 
-  float fmt; 
-  int v53; 
-  int outLineCount; 
-  int v55; 
-  TextPage *v56; 
   TextLine outLines; 
 
-  v14 = alloca(v10);
-  __asm { vmovaps [rsp+18C8h+var_48], xmm6 }
-  v16 = (int)pages;
-  v56 = pages;
-  __asm { vmovaps xmm6, xmm3 }
-  v19 = maxPages == 0;
+  v11 = alloca(v10);
+  v13 = (int)pages;
+  v36 = pages;
   if ( maxPages > 0 )
     memset_0(pages, 0, (unsigned __int64)(unsigned int)maxPages << 11);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rsi+8]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6207, ASSERT_TYPE_ASSERT, "(font->pixelHeight != 0.0f)", (const char *)&queryFormat, "font->pixelHeight != 0.0f") )
+  if ( (float)font->pixelHeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6207, ASSERT_TYPE_ASSERT, "(font->pixelHeight != 0.0f)", (const char *)&queryFormat, "font->pixelHeight != 0.0f") )
     __debugbreak();
-  __asm
-  {
-    vaddss  xmm1, xmm6, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm1
-    vmovss  xmm0, [rsp+18C8h+arg_30]
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vdivss  xmm1, xmm0, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si eax, xmm2
-  }
-  v55 = _EAX;
-  v33 = 0;
-  __asm { vcvttss2si ebx, xmm3 }
-  v35 = 0;
-  v36 = pages;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v35 = (int)*(float *)&_XMM2;
+  v20 = 0;
+  v21 = 0;
+  v22 = pages;
   IsRightToLeft = Language_IsRightToLeft();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm1, xmm6, xmm0
-    vmovss  dword ptr [rsp+18C8h+fmt], xmm1
-    vmovss  xmm1, [rsp+18C8h+arg_28]; boxWidth
-  }
-  R_Font_WordWrap(text, *(float *)&_XMM1, font, _EBX, fmt, tracking, 256, IsRightToLeft == 0, &outLines, &outLineCount);
-  v42 = 0;
+  R_Font_WordWrap(text, wrapWidth, font, (int)*(float *)&_XMM3, elementHeight / (float)(int)*(float *)&_XMM3, tracking, 256, IsRightToLeft == 0, &outLines, &outLineCount);
+  v24 = 0;
   if ( outLineCount <= 0 )
-  {
-LABEL_30:
-    result = (unsigned int)(v33 + 1);
-    goto LABEL_31;
-  }
-  v43 = 0;
+    return (unsigned int)(v20 + 1);
+  v25 = 0;
   p_outLines = &outLines;
-  v53 = 0;
+  v33 = 0;
   while ( 1 )
   {
     if ( !p_outLines->textLeft || !p_outLines->textRight )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6224, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
         __debugbreak();
-      v43 = v53;
+      v25 = v33;
     }
-    v45 = LODWORD(p_outLines->textRight) - LODWORD(p_outLines->textLeft);
-    v46 = (_DWORD)v36 - v43 - v16;
-    v47 = v45 + 1;
-    if ( v45 + 1 <= 0 )
+    v27 = LODWORD(p_outLines->textRight) - LODWORD(p_outLines->textLeft);
+    v28 = (_DWORD)v22 - v25 - v13;
+    v29 = v27 + 1;
+    if ( v27 + 1 <= 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6228, ASSERT_TYPE_ASSERT, "(numCharsInLine > 0)", (const char *)&queryFormat, "numCharsInLine > 0") )
         __debugbreak();
-      v43 = v53;
+      v25 = v33;
     }
-    v48 = v47 + v46 + 1;
-    if ( (unsigned int)v48 >= 0x800 || maxCharsPerPage != -1 && v48 >= maxCharsPerPage )
+    v30 = v29 + v28 + 1;
+    if ( (unsigned int)v30 >= 0x800 || maxCharsPerPage != -1 && v30 >= maxCharsPerPage )
       break;
-    if ( v35 >= v55 )
+    if ( v21 >= v35 )
       break;
 LABEL_23:
-    memcpy_0(v36, p_outLines->textLeft, v47);
-    v49 = &v36->text[v45];
-    if ( *v49 != 10 )
-      *++v49 = 10;
-    v36 = (TextPage *)(v49 + 1);
-    ++v35;
-    ++v42;
+    memcpy_0(v22, p_outLines->textLeft, v29);
+    v31 = &v22->text[v27];
+    if ( *v31 != 10 )
+      *++v31 = 10;
+    v22 = (TextPage *)(v31 + 1);
+    ++v21;
+    ++v24;
     ++p_outLines;
-    if ( v42 >= outLineCount )
-      goto LABEL_30;
-    v43 = v53;
-    v16 = (int)v56;
+    if ( v24 >= outLineCount )
+      return (unsigned int)(v20 + 1);
+    v25 = v33;
+    v13 = (int)v36;
   }
-  v36->text[0] = 0;
-  ++v33;
-  v53 = v43 + 2048;
-  if ( v33 < maxPages )
+  v22->text[0] = 0;
+  ++v20;
+  v33 = v25 + 2048;
+  if ( v20 < maxPages )
   {
-    v35 = 0;
-    v36 = &v56[(__int64)v33];
+    v21 = 0;
+    v22 = &v36[(__int64)v20];
     goto LABEL_23;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod.cpp", 6243, ASSERT_TYPE_ASSERT, "(numPages < maxPages)", (const char *)&queryFormat, "numPages < maxPages") )
     __debugbreak();
   Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144466C30, 5653i64);
-  result = (unsigned int)maxPages;
-LABEL_31:
-  __asm { vmovaps xmm6, [rsp+18C8h+var_48] }
-  return result;
+  return (unsigned int)maxPages;
 }
 
 /*

@@ -657,22 +657,11 @@ void SV_Game_BuildServerCommandMsg(unsigned __int8 *destBuf, int destBufSize, ms
 SV_Game_CheckFontScaleRange
 ==============
 */
-
-__int64 __fastcall SV_Game_CheckFontScaleRange(double fontScale)
+__int64 SV_Game_CheckFontScaleRange(const float fontScale)
 {
   SvPersistentGlobals *PersistentGlobalsCommon; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   PersistentGlobalsCommon = SvPersistentGlobals::GetPersistentGlobalsCommon();
-  __asm
-  {
-    vmovaps xmm1, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
   return ((__int64 (__fastcall *)(SvPersistentGlobals *))PersistentGlobalsCommon->CheckFontScaleRange)(PersistentGlobalsCommon);
 }
 
@@ -859,23 +848,13 @@ DObjAnimMat *SV_Game_DObjGetRotTransArray(const gentity_s *ent)
 SV_Game_DObjInitServerTime
 ==============
 */
-
-void __fastcall SV_Game_DObjInitServerTime(gentity_s *ent, double dtime)
+void SV_Game_DObjInitServerTime(gentity_s *ent, float dtime)
 {
   DObj *ServerDObjForEnt; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
   if ( ServerDObjForEnt )
-  {
-    __asm { vmovaps xmm1, xmm6; dtime }
-    DObjInitServerTime(ServerDObjForEnt, *(float *)&_XMM1);
-  }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+    DObjInitServerTime(ServerDObjForEnt, dtime);
 }
 
 /*
@@ -898,30 +877,13 @@ int SV_Game_DObjSetRotTransIndex(const gentity_s *ent, DObjPartBits *partBits, i
 SV_Game_DObjUpdateServerTime
 ==============
 */
-
-int __fastcall SV_Game_DObjUpdateServerTime(gentity_s *ent, double dtime, int bNotify)
+int SV_Game_DObjUpdateServerTime(gentity_s *ent, float dtime, int bNotify)
 {
   DObj *ServerDObjForEnt; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
   if ( ServerDObjForEnt )
-  {
-    __asm
-    {
-      vmovaps xmm1, xmm6; dtime
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-    LODWORD(ServerDObjForEnt) = DObjUpdateServerInfo(ServerDObjForEnt, *(float *)&_XMM1, bNotify);
-  }
-  else
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
+    LODWORD(ServerDObjForEnt) = DObjUpdateServerInfo(ServerDObjForEnt, dtime, bNotify);
   return (int)ServerDObjForEnt;
 }
 
@@ -967,43 +929,43 @@ SV_Game_GetDemo_PlayerProfileData
 void SV_Game_GetDemo_PlayerProfileData(const char *dataName, GamerProfileData *outProfileData)
 {
   const char *String; 
-  __int128 v7; 
+  double Float; 
+  GamerProfileData v6; 
 
-  _RBX = outProfileData;
   if ( !dataName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 914, ASSERT_TYPE_ASSERT, "( dataName )", (const char *)&queryFormat, "dataName") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 915, ASSERT_TYPE_ASSERT, "( outProfileData )", (const char *)&queryFormat, "outProfileData") )
+  if ( !outProfileData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 915, ASSERT_TYPE_ASSERT, "( outProfileData )", (const char *)&queryFormat, "outProfileData") )
     __debugbreak();
   String = SV_Demo_GetString();
   if ( I_strcmp(String, dataName) )
     Com_PrintWarning(15, "WARNING: SV_Archived_GetPlayerProfileData() has demo data mismatch when trying to fetch setting '%s' (demo had %s).\n", dataName, String);
   if ( SV_IsDemoPlaying() )
   {
-    LODWORD(v7) = SV_Demo_GetInt();
-    switch ( (int)v7 )
+    v6.type = SV_Demo_GetInt();
+    switch ( v6.type )
     {
-      case 0:
-      case 7:
+      case TYPE_INVALID:
+      case TYPE_BUFFER:
         break;
-      case 1:
-        BYTE8(v7) = SV_Demo_GetByte();
+      case TYPE_BYTE:
+        v6.u.byteVal = SV_Demo_GetByte();
         break;
-      case 2:
-        BYTE8(v7) = SV_Demo_GetByte() != 0;
+      case TYPE_BOOL:
+        v6.u.byteVal = SV_Demo_GetByte() != 0;
         break;
-      case 3:
-        WORD4(v7) = SV_Demo_GetInt();
+      case TYPE_SHORT:
+        v6.u.shortVal = SV_Demo_GetInt();
         break;
-      case 4:
-      case 8:
-        DWORD2(v7) = SV_Demo_GetInt();
+      case TYPE_INT:
+      case TYPE_FLAG:
+        v6.u.intVal = SV_Demo_GetInt();
         break;
-      case 5:
-        *(double *)&_XMM0 = SV_Demo_GetFloat();
-        __asm { vmovss  dword ptr [rsp+48h+var_18+8], xmm0 }
+      case TYPE_FLOAT:
+        Float = SV_Demo_GetFloat();
+        v6.u.floatVal = *(float *)&Float;
         break;
-      case 6:
-        *((_QWORD *)&v7 + 1) = SV_Demo_GetString();
+      case TYPE_STRING:
+        v6.u.stringVal = SV_Demo_GetString();
         break;
       default:
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440E19F0, 721i64);
@@ -1014,14 +976,10 @@ void SV_Game_GetDemo_PlayerProfileData(const char *dataName, GamerProfileData *o
   }
   else
   {
-    LODWORD(v7) = 4;
-    DWORD2(v7) = 0;
+    v6.type = TYPE_INT;
+    v6.u.intVal = 0;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr [rbx], xmm0
-  }
+  *outProfileData = v6;
 }
 
 /*
@@ -1109,38 +1067,29 @@ SV_Game_GetUsercmd
 */
 void SV_Game_GetUsercmd(int clientNum, usercmd_s *cmd)
 {
+  usercmd_s *p_lastUsercmd; 
   __int64 v4; 
+  __int128 v5; 
 
-  _RBX = cmd;
-  _RAX = &SvClient::GetCommonClient(clientNum)->lastUsercmd;
+  p_lastUsercmd = &SvClient::GetCommonClient(clientNum)->lastUsercmd;
   v4 = 2i64;
   do
   {
-    _RBX = (usercmd_s *)((char *)_RBX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rbx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rbx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rbx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rbx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rbx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rbx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rbx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
+    cmd = (usercmd_s *)((char *)cmd + 128);
+    v5 = *(_OWORD *)&p_lastUsercmd->buttons;
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+    *(_OWORD *)&cmd[-1].offHand.attachmentVariationIndices[13] = v5;
+    *(_OWORD *)&cmd[-1].offHand.weaponCamo = *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo;
+    *(_OWORD *)cmd[-1].remoteControlMove = *(_OWORD *)p_lastUsercmd[-1].remoteControlMove;
+    *(_OWORD *)cmd[-1].vehAngles = *(_OWORD *)p_lastUsercmd[-1].vehAngles;
+    *(_OWORD *)&cmd[-1].vehOrgZ = *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ;
+    *(_OWORD *)&cmd[-1].gunYOfs = *(_OWORD *)&p_lastUsercmd[-1].gunYOfs;
+    *(_OWORD *)cmd[-1].sightedClientsMask.data = *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data;
+    *(_OWORD *)&cmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4];
     --v4;
   }
   while ( v4 );
-  _RBX->buttons = _RAX->buttons;
+  cmd->buttons = p_lastUsercmd->buttons;
 }
 
 /*
@@ -1327,35 +1276,33 @@ SV_Game_RecordDemo_GetPlayerProfileData
 */
 void SV_Game_RecordDemo_GetPlayerProfileData(const char *dataName, const GamerProfileData *data)
 {
-  _RBX = data;
   if ( !dataName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 977, ASSERT_TYPE_ASSERT, "( dataName )", (const char *)&queryFormat, "dataName") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 978, ASSERT_TYPE_ASSERT, "( data )", (const char *)&queryFormat, "data") )
+  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 978, ASSERT_TYPE_ASSERT, "( data )", (const char *)&queryFormat, "data") )
     __debugbreak();
   SV_Record_GetString(dataName);
-  SV_Record_GetInt(_RBX->type);
-  switch ( _RBX->type )
+  SV_Record_GetInt(data->type);
+  switch ( data->type )
   {
     case TYPE_INVALID:
     case TYPE_BUFFER:
       return;
     case TYPE_BYTE:
     case TYPE_BOOL:
-      SV_Record_GetByte(_RBX->u.byteVal);
+      SV_Record_GetByte(data->u.byteVal);
       break;
     case TYPE_SHORT:
-      SV_Record_GetInt(_RBX->u.shortVal);
+      SV_Record_GetInt(data->u.shortVal);
       break;
     case TYPE_INT:
     case TYPE_FLAG:
-      SV_Record_GetInt(_RBX->u.intVal);
+      SV_Record_GetInt(data->u.intVal);
       break;
     case TYPE_FLOAT:
-      __asm { vmovss  xmm0, dword ptr [rbx+8]; jumptable 0000000141682B04 case 5 }
-      SV_Record_GetFloat(*(float *)&_XMM0);
+      SV_Record_GetFloat(data->u.floatVal);
       break;
     case TYPE_STRING:
-      SV_Record_GetString(_RBX->u.stringVal);
+      SV_Record_GetString(data->u.stringVal);
       break;
     default:
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440E19F0, 722i64);
@@ -1420,31 +1367,31 @@ SV_Game_SetBrushModel
 */
 char SV_Game_SetBrushModel(gentity_s *ent)
 {
-  __int64 v2; 
+  signed __int64 v2; 
   unsigned __int8 modelType; 
   char result; 
+  double v5; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  int v9; 
+  int v8; 
   Bounds bounds; 
 
-  _RBX = ent;
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v2 = _RBX - g_entities;
+  v2 = ent - g_entities;
   if ( (unsigned int)v2 >= 0x800 )
   {
-    v9 = 2048;
-    LODWORD(v7) = _RBX - g_entities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v9) )
+    v8 = 2048;
+    LODWORD(v6) = ent - g_entities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v6, v8) )
       __debugbreak();
   }
   v2 = (__int16)v2;
   if ( (unsigned int)(__int16)v2 >= 0x800 )
   {
-    LODWORD(v8) = 2048;
-    LODWORD(v7) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v8) )
+    LODWORD(v7) = 2048;
+    LODWORD(v6) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1453,15 +1400,15 @@ char SV_Game_SetBrushModel(gentity_s *ent)
     __debugbreak();
   if ( !g_entityIsInUse[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 199, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( G_GetEntityIndex( ent ) ) )", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( ent ) )") )
     __debugbreak();
-  modelType = _RBX->r.modelType;
+  modelType = ent->r.modelType;
   if ( modelType != 5 )
   {
-    LODWORD(v8) = 5;
-    LODWORD(v7) = modelType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 200, ASSERT_TYPE_ASSERT, "( ent->r.modelType ) == ( MODELTYPE_BRUSH )", "ent->r.modelType == MODELTYPE_BRUSH\n\t%i, %i", v7, v8) )
+    LODWORD(v7) = 5;
+    LODWORD(v6) = modelType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 200, ASSERT_TYPE_ASSERT, "( ent->r.modelType ) == ( MODELTYPE_BRUSH )", "ent->r.modelType == MODELTYPE_BRUSH\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( CM_BrushModelIsValid(_RBX->s.index.brushModel) )
+  if ( CM_BrushModelIsValid(ent->s.index.brushModel) )
   {
     if ( BgDynamicLimits::GetEntityStateIndexBits() < 0x20 )
     {
@@ -1469,39 +1416,35 @@ char SV_Game_SetBrushModel(gentity_s *ent)
         __debugbreak();
       if ( !BgDynamicLimits::ms_data.m_esIndexBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 91, ASSERT_TYPE_ASSERT, "(ms_data.m_esIndexBits > 0)", (const char *)&queryFormat, "ms_data.m_esIndexBits > 0") )
         __debugbreak();
-      if ( _RBX->s.index.brushModel >= (unsigned int)(1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits)) )
+      if ( ent->s.index.brushModel >= (unsigned int)(1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits)) )
       {
         if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 90, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
           __debugbreak();
         if ( !BgDynamicLimits::ms_data.m_esIndexBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 91, ASSERT_TYPE_ASSERT, "(ms_data.m_esIndexBits > 0)", (const char *)&queryFormat, "ms_data.m_esIndexBits > 0") )
           __debugbreak();
-        LODWORD(v8) = 1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits);
-        LODWORD(v7) = _RBX->s.index.brushModel;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 215, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.index.brushModel ) < (unsigned)( ( 1 << BgDynamicLimits::GetEntityStateIndexBits() ) )", "ent->s.index.brushModel doesn't index ( 1 << BgDynamicLimits::GetEntityStateIndexBits() )\n\t%i not in [0, %i)", v7, v8) )
+        LODWORD(v7) = 1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits);
+        LODWORD(v6) = ent->s.index.brushModel;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 215, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.index.brushModel ) < (unsigned)( ( 1 << BgDynamicLimits::GetEntityStateIndexBits() ) )", "ent->s.index.brushModel doesn't index ( 1 << BgDynamicLimits::GetEntityStateIndexBits() )\n\t%i not in [0, %i)", v6, v7) )
           __debugbreak();
       }
     }
-    CM_BrushModelBounds(_RBX->s.index.brushModel, &bounds);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+78h+bounds.midPoint]
-      vmovsd  xmm1, qword ptr [rsp+78h+bounds.halfSize+4]
-      vmovups xmmword ptr [rbx+100h], xmm0
-      vmovsd  qword ptr [rbx+110h], xmm1
-    }
+    CM_BrushModelBounds(ent->s.index.brushModel, &bounds);
+    v5 = *(double *)&bounds.halfSize.y;
+    *(_OWORD *)ent->r.box.midPoint.v = *(_OWORD *)bounds.midPoint.v;
+    *(double *)&ent->r.box.halfSize.y = v5;
     if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
       __debugbreak();
-    if ( GUtils::ms_gUtils->ShouldCreateEntityPhysicsOnInit(GUtils::ms_gUtils, _RBX) )
-      G_Utils_CreateEntityPhysics(_RBX);
-    SV_LinkEntity(_RBX);
+    if ( GUtils::ms_gUtils->ShouldCreateEntityPhysicsOnInit(GUtils::ms_gUtils, ent) )
+      G_Utils_CreateEntityPhysics(ent);
+    SV_LinkEntity(ent);
     return 1;
   }
   else
   {
-    Com_PrintWarning(131087, "Warning: Invalid brush model assigned to entity [%d]; falling back to capsule collision.\n", (unsigned int)_RBX->s.number);
-    SV_UnlinkEntity(_RBX);
+    Com_PrintWarning(131087, "Warning: Invalid brush model assigned to entity [%d]; falling back to capsule collision.\n", (unsigned int)ent->s.number);
+    SV_UnlinkEntity(ent);
     result = 0;
-    _RBX->r.modelType = 0;
+    ent->r.modelType = 0;
   }
   return result;
 }
@@ -1513,31 +1456,31 @@ SV_Game_SetTriggerModel
 */
 char SV_Game_SetTriggerModel(gentity_s *ent)
 {
-  __int64 v2; 
+  signed __int64 v2; 
   unsigned __int8 modelType; 
   char result; 
+  double v5; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  int v9; 
+  int v8; 
   Bounds bounds; 
 
-  _RBX = ent;
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v2 = _RBX - g_entities;
+  v2 = ent - g_entities;
   if ( (unsigned int)v2 >= 0x800 )
   {
-    v9 = 2048;
-    LODWORD(v7) = _RBX - g_entities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v9) )
+    v8 = 2048;
+    LODWORD(v6) = ent - g_entities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v6, v8) )
       __debugbreak();
   }
   v2 = (__int16)v2;
   if ( (unsigned int)(__int16)v2 >= 0x800 )
   {
-    LODWORD(v8) = 2048;
-    LODWORD(v7) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v8) )
+    LODWORD(v7) = 2048;
+    LODWORD(v6) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1546,15 +1489,15 @@ char SV_Game_SetTriggerModel(gentity_s *ent)
     __debugbreak();
   if ( !g_entityIsInUse[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 245, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( G_GetEntityIndex( ent ) ) )", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( ent ) )") )
     __debugbreak();
-  modelType = _RBX->r.modelType;
+  modelType = ent->r.modelType;
   if ( modelType != 4 )
   {
-    LODWORD(v8) = 4;
-    LODWORD(v7) = modelType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 246, ASSERT_TYPE_ASSERT, "( ent->r.modelType ) == ( MODELTYPE_TRIGGER_BRUSH )", "ent->r.modelType == MODELTYPE_TRIGGER_BRUSH\n\t%i, %i", v7, v8) )
+    LODWORD(v7) = 4;
+    LODWORD(v6) = modelType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 246, ASSERT_TYPE_ASSERT, "( ent->r.modelType ) == ( MODELTYPE_TRIGGER_BRUSH )", "ent->r.modelType == MODELTYPE_TRIGGER_BRUSH\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( CM_TriggerModelIsValid(_RBX->s.index.brushModel) )
+  if ( CM_TriggerModelIsValid(ent->s.index.brushModel) )
   {
     if ( BgDynamicLimits::GetEntityStateIndexBits() < 0x20 )
     {
@@ -1562,38 +1505,34 @@ char SV_Game_SetTriggerModel(gentity_s *ent)
         __debugbreak();
       if ( !BgDynamicLimits::ms_data.m_esIndexBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 91, ASSERT_TYPE_ASSERT, "(ms_data.m_esIndexBits > 0)", (const char *)&queryFormat, "ms_data.m_esIndexBits > 0") )
         __debugbreak();
-      if ( _RBX->s.index.brushModel >= (unsigned int)(1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits)) )
+      if ( ent->s.index.brushModel >= (unsigned int)(1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits)) )
       {
         if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 90, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
           __debugbreak();
         if ( !BgDynamicLimits::ms_data.m_esIndexBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 91, ASSERT_TYPE_ASSERT, "(ms_data.m_esIndexBits > 0)", (const char *)&queryFormat, "ms_data.m_esIndexBits > 0") )
           __debugbreak();
-        LODWORD(v8) = 1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits);
-        LODWORD(v7) = _RBX->s.index.brushModel;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 261, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.index.triggerModel ) < (unsigned)( ( 1 << BgDynamicLimits::GetEntityStateIndexBits() ) )", "ent->s.index.triggerModel doesn't index ( 1 << BgDynamicLimits::GetEntityStateIndexBits() )\n\t%i not in [0, %i)", v7, v8) )
+        LODWORD(v7) = 1 << SLOBYTE(BgDynamicLimits::ms_data.m_esIndexBits);
+        LODWORD(v6) = ent->s.index.brushModel;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 261, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.index.triggerModel ) < (unsigned)( ( 1 << BgDynamicLimits::GetEntityStateIndexBits() ) )", "ent->s.index.triggerModel doesn't index ( 1 << BgDynamicLimits::GetEntityStateIndexBits() )\n\t%i not in [0, %i)", v6, v7) )
           __debugbreak();
       }
     }
-    CM_TriggerModelBounds(_RBX->s.index.brushModel, &bounds);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+78h+bounds.midPoint]
-      vmovsd  xmm1, qword ptr [rsp+78h+bounds.halfSize+4]
-      vmovups xmmword ptr [rbx+100h], xmm0
-      vmovsd  qword ptr [rbx+110h], xmm1
-    }
+    CM_TriggerModelBounds(ent->s.index.brushModel, &bounds);
+    v5 = *(double *)&bounds.halfSize.y;
+    *(_OWORD *)ent->r.box.midPoint.v = *(_OWORD *)bounds.midPoint.v;
+    *(double *)&ent->r.box.halfSize.y = v5;
     if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
       __debugbreak();
-    if ( GUtils::ms_gUtils->ShouldCreateEntityPhysicsOnInit(GUtils::ms_gUtils, _RBX) )
-      G_Utils_CreateEntityPhysics(_RBX);
-    SV_LinkEntity(_RBX);
+    if ( GUtils::ms_gUtils->ShouldCreateEntityPhysicsOnInit(GUtils::ms_gUtils, ent) )
+      G_Utils_CreateEntityPhysics(ent);
+    SV_LinkEntity(ent);
     return 1;
   }
   else
   {
-    SV_UnlinkEntity(_RBX);
+    SV_UnlinkEntity(ent);
     result = 0;
-    _RBX->r.modelType = 0;
+    ent->r.modelType = 0;
   }
   return result;
 }
@@ -1605,28 +1544,36 @@ SV_Game_XModelDebugBoxes
 */
 void SV_Game_XModelDebugBoxes(gentity_s *ent, const vec4_t *color, int duration)
 {
-  const DObj *v13; 
-  int v15; 
-  int v16; 
+  const DObj *v4; 
+  DObjAnimMat *v5; 
+  int v6; 
+  int v7; 
   const XModel *Model; 
   __int64 numBones; 
-  XBoneInfo **v21; 
-  const unsigned int *v24; 
-  __int64 v34; 
-  unsigned int v63; 
-  unsigned int v90; 
-  bool v154; 
-  int v164; 
-  int v165; 
-  int v166; 
-  int v167; 
-  int v168; 
-  int v169; 
-  int v171; 
+  XBoneInfo **v10; 
+  XBoneInfo *v11; 
+  const unsigned int *v12; 
+  float transWeight; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  unsigned int v26; 
+  unsigned int v38; 
+  bool v51; 
+  __int64 v52; 
+  int v54; 
   int NumModels; 
   DObjAnimMat *RotTransArray; 
-  XBoneInfo **v174; 
-  __int64 v175; 
+  XBoneInfo **v57; 
+  __int64 v58; 
   const DObj *ServerDObjForEnt; 
   vec3_t in1; 
   vec3_t out; 
@@ -1637,311 +1584,152 @@ void SV_Game_XModelDebugBoxes(gentity_s *ent, const vec4_t *color, int duration)
   XBoneInfo *boneInfo[254]; 
 
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
-  v13 = ServerDObjForEnt;
+  v4 = ServerDObjForEnt;
   if ( !ServerDObjForEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 641, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( DObjNumBones(ServerDObjForEnt) > 254 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game.cpp", 645, ASSERT_TYPE_ASSERT, "(numBones <= DOBJ_MAX_PARTS)", (const char *)&queryFormat, "numBones <= DOBJ_MAX_PARTS") )
     __debugbreak();
   DObjGetBoneInfo(ServerDObjForEnt, boneInfo);
   RotTransArray = DObjGetRotTransArray(ServerDObjForEnt);
-  _RBX = RotTransArray;
+  v5 = RotTransArray;
   AnglesToAxis(&ent->r.currentAngles, &axis);
-  v15 = 0;
+  v6 = 0;
   NumModels = DObjGetNumModels(ServerDObjForEnt);
-  v16 = 0;
-  v169 = 0;
+  v7 = 0;
+  HIDWORD(v52) = 0;
   if ( NumModels > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+9D0h+var_40], xmm6
-      vmovaps [rsp+9D0h+var_50], xmm7
-      vmovaps [rsp+9D0h+var_60], xmm8
-      vmovaps [rsp+9D0h+var_70], xmm9
-      vmovaps [rsp+9D0h+var_80], xmm10
-      vmovaps [rsp+9D0h+var_90], xmm11
-      vmovaps [rsp+9D0h+var_A0], xmm12
-      vmovaps [rsp+9D0h+var_B0], xmm13
-      vmovss  xmm13, cs:__real@3f800000
-      vmovaps [rsp+9D0h+var_C0], xmm14
-      vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
     do
     {
-      Model = DObjGetModel(v13, v15);
+      Model = DObjGetModel(v4, v6);
       if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
         __debugbreak();
       numBones = Model->numBones;
-      if ( DObjIgnoreCollision(v13, v15) )
+      if ( DObjIgnoreCollision(v4, v6) )
       {
-        v16 += numBones;
-        _RBX += (int)numBones;
-        RotTransArray = _RBX;
+        v7 += numBones;
+        v5 += (int)numBones;
+        RotTransArray = v5;
       }
       else if ( (_DWORD)numBones )
       {
-        v175 = numBones;
-        v171 = numBones + v16;
-        v21 = &boneInfo[v16];
-        v174 = v21;
+        v58 = numBones;
+        v54 = numBones + v7;
+        v10 = &boneInfo[v7];
+        v57 = v10;
         do
         {
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-          _RSI = *v21;
-          v24 = s_boxVerts;
-          __asm { vmovss  [rsp+9D0h+var_9A0], xmm0 }
-          if ( (v164 & 0x7F800000) == 2139095040 )
-            goto LABEL_33;
-          __asm
+          v11 = *v10;
+          v12 = s_boxVerts;
+          *(float *)&v52 = v5->quat.v[0];
+          if ( (LODWORD(v5->quat.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v52 = v5->quat.v[1], (v52 & 0x7F800000) == 2139095040) || (*(float *)&v52 = v5->quat.v[2], (v52 & 0x7F800000) == 2139095040) || (*(float *)&v52 = v5->quat.v[3], (v52 & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, dword ptr [rbx+4]
-            vmovss  [rsp+9D0h+var_9A0], xmm0
-          }
-          if ( (v165 & 0x7F800000) == 2139095040 )
-            goto LABEL_33;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+8]
-            vmovss  [rsp+9D0h+var_9A0], xmm0
-          }
-          if ( (v166 & 0x7F800000) == 2139095040 )
-            goto LABEL_33;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+0Ch]
-            vmovss  [rsp+9D0h+var_9A0], xmm0
-          }
-          if ( (v167 & 0x7F800000) == 2139095040 )
-          {
-LABEL_33:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )") )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )", v52) )
               __debugbreak();
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+1Ch]
-            vmovss  [rsp+9D0h+var_9A0], xmm0
-          }
-          if ( (v168 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
+          if ( (LODWORD(v5->transWeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
             __debugbreak();
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+1Ch]
-            vmulss  xmm2, xmm0, dword ptr [rbx]
-            vmovss  xmm3, dword ptr [rbx+4]
-            vmovss  xmm5, dword ptr [rbx+8]
-            vmulss  xmm12, xmm2, dword ptr [rbx]
-          }
-          v34 = 12i64;
-          __asm
-          {
-            vmulss  xmm4, xmm3, xmm0
-            vmulss  xmm6, xmm5, xmm0
-            vmovss  xmm0, dword ptr [rbx+0Ch]
-            vmulss  xmm10, xmm0, xmm2
-            vmulss  xmm7, xmm3, xmm2
-            vmulss  xmm11, xmm3, xmm4
-            vmulss  xmm9, xmm5, xmm2
-            vmulss  xmm2, xmm0, xmm6
-            vmulss  xmm8, xmm5, xmm4
-            vmulss  xmm4, xmm0, xmm4
-            vmulss  xmm3, xmm5, xmm6
-            vaddss  xmm1, xmm2, xmm7
-            vmovss  dword ptr [rbp+8D0h+in2+4], xmm1
-            vsubss  xmm1, xmm7, xmm2
-            vmovss  dword ptr [rbp+8D0h+in2+0Ch], xmm1
-            vaddss  xmm1, xmm8, xmm10
-            vmovss  dword ptr [rbp+8D0h+in2+14h], xmm1
-            vsubss  xmm1, xmm8, xmm10
-            vmovss  dword ptr [rbp+8D0h+in2+1Ch], xmm1
-            vaddss  xmm0, xmm3, xmm11
-            vsubss  xmm0, xmm13, xmm0
-            vmovss  dword ptr [rbp+8D0h+in2], xmm0
-            vsubss  xmm0, xmm9, xmm4
-            vmovss  dword ptr [rbp+8D0h+in2+8], xmm0
-            vaddss  xmm0, xmm3, xmm12
-            vsubss  xmm0, xmm13, xmm0
-            vmovss  dword ptr [rbp+8D0h+in2+10h], xmm0
-            vaddss  xmm0, xmm4, xmm9
-            vmovss  dword ptr [rbp+8D0h+in2+18h], xmm0
-            vaddss  xmm0, xmm11, xmm12
-            vsubss  xmm0, xmm13, xmm0
-            vmovss  dword ptr [rbp+8D0h+in2+20h], xmm0
-            vmovss  xmm1, dword ptr [rbx+10h]
-            vmovss  dword ptr [rbp+8D0h+in2+24h], xmm1
-            vmovss  xmm0, dword ptr [rbx+14h]
-            vmovss  dword ptr [rbp+8D0h+in2+28h], xmm0
-            vmovss  xmm1, dword ptr [rbx+18h]
-            vmovss  dword ptr [rbp+8D0h+in2+2Ch], xmm1
-          }
-          _EBX = 0;
+          transWeight = v5->transWeight;
+          v14 = transWeight * v5->quat.v[0];
+          v15 = v5->quat.v[1];
+          v16 = v5->quat.v[2];
+          v17 = v14 * v5->quat.v[0];
+          v18 = 12i64;
+          v19 = v15 * transWeight;
+          v20 = v16 * transWeight;
+          v21 = v5->quat.v[3];
+          v22 = v15 * v19;
+          v23 = v16 * v19;
+          v24 = v21 * v19;
+          in2.m[0].v[1] = (float)(v21 * v20) + (float)(v15 * v14);
+          in2.m[1].v[0] = (float)(v15 * v14) - (float)(v21 * v20);
+          in2.m[1].v[2] = v23 + (float)(v21 * v14);
+          in2.m[2].v[1] = v23 - (float)(v21 * v14);
+          in2.m[0].v[0] = 1.0 - (float)((float)(v16 * v20) + v22);
+          in2.m[0].v[2] = (float)(v16 * v14) - v24;
+          in2.m[1].v[1] = 1.0 - (float)((float)(v16 * v20) + v17);
+          in2.m[2].v[0] = v24 + (float)(v16 * v14);
+          in2.m[2].v[2] = 1.0 - (float)(v22 + v17);
+          in2.m[3] = v5->trans;
           do
           {
-            __asm { vmovss  xmm4, dword ptr [rsi+0Ch] }
-            v63 = *v24;
-            __asm { vxorps  xmm3, xmm4, xmm14 }
-            _EAX = *v24 & 1;
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[0]);
+            v26 = *v12;
+            _XMM0 = *v12 & 1;
             __asm
             {
-              vmovd   xmm0, eax
-              vmovd   xmm1, ebx
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi]
-              vmovss  dword ptr [rsp+9D0h+in1], xmm0
-              vmovss  xmm4, dword ptr [rsi+10h]
             }
-            LOBYTE(_EAX) = v63;
-            _ECX = v63 & 4;
+            in1.v[0] = *(float *)&_XMM1 + v11->bounds.midPoint.v[0];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[1]);
+            _XMM0 = v26 & 2;
             __asm
             {
-              vmovd   xmm1, ebx
-              vxorps  xmm3, xmm4, xmm14
+              vpcmpeqd xmm2, xmm0, xmm1
+              vblendvps xmm1, xmm4, xmm3, xmm2
             }
-            _EAX = _EAX & 2;
+            in1.v[1] = *(float *)&_XMM1 + v11->bounds.midPoint.v[1];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[2]);
+            _XMM0 = v26 & 4;
             __asm
             {
-              vmovd   xmm0, eax
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+4]
-              vmovss  dword ptr [rsp+9D0h+in1+4], xmm0
-              vmovss  xmm4, dword ptr [rsi+14h]
-              vmovd   xmm0, ecx
-              vmovd   xmm1, ebx
-              vpcmpeqd xmm2, xmm0, xmm1
-              vxorps  xmm3, xmm4, xmm14
-              vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+8]
-              vmovss  dword ptr [rsp+9D0h+in1+8], xmm0
             }
+            in1.v[2] = *(float *)&_XMM1 + v11->bounds.midPoint.v[2];
             MatrixTransformVector43(&in1, &in2, &out);
+            v38 = v12[1];
+            start.v[0] = (float)((float)((float)(out.v[0] * axis.m[0].v[0]) + (float)(out.v[1] * axis.m[1].v[0])) + (float)(out.v[2] * axis.m[2].v[0])) + ent->r.currentOrigin.v[0];
+            start.v[1] = (float)((float)((float)(out.v[0] * axis.m[0].v[1]) + (float)(out.v[1] * axis.m[1].v[1])) + (float)(out.v[2] * axis.m[2].v[1])) + ent->r.currentOrigin.v[1];
+            start.v[2] = (float)((float)((float)(out.v[0] * axis.m[0].v[2]) + (float)(out.v[1] * axis.m[1].v[2])) + (float)(out.v[2] * axis.m[2].v[2])) + ent->r.currentOrigin.v[2];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[0]);
+            _XMM0 = v38 & 1;
             __asm
             {
-              vmovss  xmm5, dword ptr [rbp+8D0h+out+4]
-              vmovss  xmm7, dword ptr [rbp+8D0h+out]
-              vmovss  xmm6, dword ptr [rbp+8D0h+out+8]
-            }
-            v90 = v24[1];
-            __asm
-            {
-              vmulss  xmm1, xmm5, dword ptr [rbp+8D0h+axis+0Ch]
-              vmulss  xmm2, xmm7, dword ptr [rbp+8D0h+axis]
-              vmulss  xmm0, xmm6, dword ptr [rbp+8D0h+axis+18h]
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm1, xmm3, xmm0
-              vaddss  xmm2, xmm1, dword ptr [r13+130h]
-              vmulss  xmm3, xmm7, dword ptr [rbp+8D0h+axis+4]
-              vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+1Ch]
-              vmovss  dword ptr [rbp+8D0h+start], xmm2
-              vmulss  xmm2, xmm5, dword ptr [rbp+8D0h+axis+10h]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vaddss  xmm3, xmm2, dword ptr [r13+134h]
-              vmulss  xmm2, xmm5, dword ptr [rbp+8D0h+axis+14h]
-              vmulss  xmm4, xmm7, dword ptr [rbp+8D0h+axis+8]
-              vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+20h]
-              vmovss  dword ptr [rbp+8D0h+start+4], xmm3
-              vaddss  xmm3, xmm4, xmm2
-              vaddss  xmm2, xmm3, xmm1
-              vaddss  xmm3, xmm2, dword ptr [r13+138h]
-              vmovss  dword ptr [rbp+8D0h+start+8], xmm3
-              vmovss  xmm4, dword ptr [rsi+0Ch]
-            }
-            _EAX = v90 & 1;
-            __asm
-            {
-              vmovd   xmm0, eax
-              vxorps  xmm3, xmm4, xmm14
-              vmovd   xmm1, ebx
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi]
-              vmovss  dword ptr [rsp+9D0h+in1], xmm0
-              vmovss  xmm4, dword ptr [rsi+10h]
             }
-            _EAX = v90 & 2;
+            in1.v[0] = *(float *)&_XMM1 + v11->bounds.midPoint.v[0];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[1]);
+            _XMM0 = v38 & 2;
             __asm
             {
-              vmovd   xmm0, eax
-              vmovd   xmm1, ebx
-              vxorps  xmm3, xmm4, xmm14
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+4]
-              vmovss  dword ptr [rsp+9D0h+in1+4], xmm0
-              vmovss  xmm4, dword ptr [rsi+14h]
             }
-            _ECX = v90 & 4;
+            in1.v[1] = *(float *)&_XMM1 + v11->bounds.midPoint.v[1];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[2]);
+            _XMM0 = v38 & 4;
             __asm
             {
-              vmovd   xmm0, ecx
-              vmovd   xmm1, ebx
               vpcmpeqd xmm2, xmm0, xmm1
-              vxorps  xmm3, xmm4, xmm14
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+8]
-              vmovss  dword ptr [rsp+9D0h+in1+8], xmm0
             }
+            in1.v[2] = *(float *)&_XMM1 + v11->bounds.midPoint.v[2];
             MatrixTransformVector43(&in1, &in2, &out);
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rbp+8D0h+out+4]
-              vmovss  xmm7, dword ptr [rbp+8D0h+out]
-              vmovss  xmm6, dword ptr [rbp+8D0h+out+8]
-              vmulss  xmm1, xmm5, dword ptr [rbp+8D0h+axis+0Ch]
-              vmulss  xmm2, xmm7, dword ptr [rbp+8D0h+axis]
-              vmulss  xmm0, xmm6, dword ptr [rbp+8D0h+axis+18h]
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm1, xmm3, xmm0
-              vaddss  xmm2, xmm1, dword ptr [r13+130h]
-              vmulss  xmm3, xmm7, dword ptr [rbp+8D0h+axis+4]
-              vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+1Ch]
-              vmovss  dword ptr [rbp+8D0h+end], xmm2
-              vmulss  xmm2, xmm5, dword ptr [rbp+8D0h+axis+10h]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vaddss  xmm3, xmm2, dword ptr [r13+134h]
-              vmulss  xmm2, xmm5, dword ptr [rbp+8D0h+axis+14h]
-              vmulss  xmm4, xmm7, dword ptr [rbp+8D0h+axis+8]
-              vmulss  xmm1, xmm6, dword ptr [rbp+8D0h+axis+20h]
-              vmovss  dword ptr [rbp+8D0h+end+4], xmm3
-              vaddss  xmm3, xmm4, xmm2
-              vaddss  xmm2, xmm3, xmm1
-              vaddss  xmm3, xmm2, dword ptr [r13+138h]
-              vmovss  dword ptr [rbp+8D0h+end+8], xmm3
-            }
-            v24 += 2;
+            end.v[0] = (float)((float)((float)(out.v[0] * axis.m[0].v[0]) + (float)(out.v[1] * axis.m[1].v[0])) + (float)(out.v[2] * axis.m[2].v[0])) + ent->r.currentOrigin.v[0];
+            end.v[1] = (float)((float)((float)(out.v[0] * axis.m[0].v[1]) + (float)(out.v[1] * axis.m[1].v[1])) + (float)(out.v[2] * axis.m[2].v[1])) + ent->r.currentOrigin.v[1];
+            end.v[2] = (float)((float)((float)(out.v[0] * axis.m[0].v[2]) + (float)(out.v[1] * axis.m[1].v[2])) + (float)(out.v[2] * axis.m[2].v[2])) + ent->r.currentOrigin.v[2];
+            v12 += 2;
             CL_AddDebugLine(&start, &end, color, 0, duration, 1);
-            --v34;
+            --v18;
           }
-          while ( v34 );
-          _RBX = RotTransArray + 1;
-          v21 = v174 + 1;
+          while ( v18 );
+          v5 = RotTransArray + 1;
+          v10 = v57 + 1;
           ++RotTransArray;
-          v154 = v175-- == 1;
-          ++v174;
+          v51 = v58-- == 1;
+          ++v57;
         }
-        while ( !v154 );
-        v15 = v169;
-        v16 = v171;
-        v13 = ServerDObjForEnt;
+        while ( !v51 );
+        v6 = HIDWORD(v52);
+        v7 = v54;
+        v4 = ServerDObjForEnt;
       }
-      v169 = ++v15;
+      HIDWORD(v52) = ++v6;
     }
-    while ( v15 < NumModels );
-    __asm
-    {
-      vmovaps xmm14, [rsp+9D0h+var_C0]
-      vmovaps xmm13, [rsp+9D0h+var_B0]
-      vmovaps xmm12, [rsp+9D0h+var_A0]
-      vmovaps xmm11, [rsp+9D0h+var_90]
-      vmovaps xmm10, [rsp+9D0h+var_80]
-      vmovaps xmm9, [rsp+9D0h+var_70]
-      vmovaps xmm8, [rsp+9D0h+var_60]
-      vmovaps xmm7, [rsp+9D0h+var_50]
-      vmovaps xmm6, [rsp+9D0h+var_40]
-    }
+    while ( v6 < NumModels );
   }
 }
 

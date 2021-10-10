@@ -185,7 +185,7 @@ void GWeaponMP::FireWeaponSendClientEvent(GWeaponMP *this, gentity_s *attacker, 
   int v7; 
   int v10; 
   __int64 v11; 
-  __int64 v15; 
+  __int64 v12; 
   tmat33_t<vec3_t> fireAxis; 
 
   v7 = -1;
@@ -198,8 +198,8 @@ void GWeaponMP::FireWeaponSendClientEvent(GWeaponMP *this, gentity_s *attacker, 
 LABEL_28:
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v15) = hitClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_mp.cpp", 78, ASSERT_TYPE_ASSERT, "( -1 ) <= ( hitClientNum ) && ( hitClientNum ) <= ( ComCharacterLimits::GetCharacterMaxCount() )", "hitClientNum not in [CLIENTNUM_NONE, ComCharacterLimits::GetCharacterMaxCount()]\n\t%i not in [%i, %i]", v15, -1, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v12) = hitClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_weapon_mp.cpp", 78, ASSERT_TYPE_ASSERT, "( -1 ) <= ( hitClientNum ) && ( hitClientNum ) <= ( ComCharacterLimits::GetCharacterMaxCount() )", "hitClientNum not in [CLIENTNUM_NONE, ComCharacterLimits::GetCharacterMaxCount()]\n\t%i not in [%i, %i]", v12, -1, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   v10 = 0;
@@ -237,16 +237,10 @@ LABEL_17:
       }
       if ( hitClientNum == -1 )
       {
-        _RBX = fireParams;
         if ( fireParams && BG_IsHighPrecisionClientFireEventEnabled(event, &attacker->s) )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rsp+0A8h+fireAxis], ymm0
-            vmovss  xmm0, dword ptr [rbx+20h]
-            vmovss  dword ptr [rsp+0A8h+fireAxis+20h], xmm0
-          }
+          *(__m256i *)fireAxis.m[0].v = *(__m256i *)fireParams->wp.forward.v;
+          fireAxis.m[2].v[2] = fireParams->wp.up.v[2];
           v10 = BG_PackClientWeaponFireEventParm(&fireAxis);
         }
       }

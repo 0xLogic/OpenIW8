@@ -25,19 +25,16 @@ sha384_done
 */
 __int64 sha384_done(Hash_state *md, unsigned __int8 *out)
 {
+  __int128 v4; 
   unsigned __int8 outa[32]; 
+  __int128 v6; 
 
-  _RBX = out;
   if ( md->sha512.curlen >= 0x80 )
     return 16i64;
   j_sha512_done(md, outa);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+78h+out]
-    vmovups xmm1, [rsp+78h+var_38]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  v4 = v6;
+  *(__m256i *)out = *(__m256i *)outa;
+  *((_OWORD *)out + 2) = v4;
   return 0i64;
 }
 

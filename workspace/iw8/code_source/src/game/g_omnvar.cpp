@@ -271,9 +271,10 @@ void G_Omnvar_Get_f()
   unsigned int v2; 
   const OmnvarDef *Def; 
   playerState_s *EntityPlayerState; 
+  OmnvarData *Data; 
   char *v6; 
   unsigned int Integer; 
-  scrContext_t *v11; 
+  scrContext_t *v8; 
   char *outLuiString; 
 
   if ( Cmd_Argc() == 2 )
@@ -291,33 +292,27 @@ void G_Omnvar_Get_f()
       {
         Def = BG_Omnvar_GetDef(IndexByName);
         EntityPlayerState = G_GetEntityPlayerState(g_entities);
-        _RAX = G_Omnvar_GetData(v2, 0, EntityPlayerState);
+        Data = G_Omnvar_GetData(v2, 0, EntityPlayerState);
         switch ( Def->type )
         {
           case OMNVAR_TYPE_BOOL:
             v6 = "false";
-            if ( _RAX->current.enabled )
+            if ( Data->current.enabled )
               v6 = "true";
             goto LABEL_16;
           case OMNVAR_TYPE_FLOAT:
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rax+4]; jumptable 0000000140CDDA4B case 1
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovq   r8, xmm2
-            }
-            Com_Printf(14, "%f\n", *(double *)&_XMM2);
+            Com_Printf(14, "%f\n", Data->current.value);
             break;
           case OMNVAR_TYPE_INT:
-            Integer = Omnvar_GetInteger(Def, _RAX);
+            Integer = Omnvar_GetInteger(Def, Data);
             Com_Printf(14, "%d\n", Integer);
             break;
           case OMNVAR_TYPE_UINT:
           case OMNVAR_TYPE_TIME:
-            Com_Printf(14, "%u\n", _RAX->current.unsignedInteger);
+            Com_Printf(14, "%u\n", Data->current.unsignedInteger);
             break;
           case OMNVAR_TYPE_NCS_LUI:
-            if ( NetConstStrings_GetLuiStringName(_RAX->current.unsignedInteger, (const char **)&outLuiString) )
+            if ( NetConstStrings_GetLuiStringName(Data->current.unsignedInteger, (const char **)&outLuiString) )
             {
               v6 = outLuiString;
 LABEL_16:
@@ -325,8 +320,8 @@ LABEL_16:
             }
             break;
           default:
-            v11 = ScriptContext_Server();
-            Scr_Error(COM_ERR_2527, v11, "devGetOmnvar - Omnvar type is unsupported!");
+            v8 = ScriptContext_Server();
+            Scr_Error(COM_ERR_2527, v8, "devGetOmnvar - Omnvar type is unsupported!");
             break;
         }
       }
@@ -377,31 +372,26 @@ G_Omnvar_RestorePlayerStateOmnvars
 */
 void G_Omnvar_RestorePlayerStateOmnvars(gclient_s *client)
 {
+  OmnvarData *rxvOmnvars; 
+  OmnvarData *v2; 
   __int64 v3; 
+  __m256i v4; 
+  __int128 v5; 
 
-  _RDX = client->ps.rxvOmnvars;
-  _RAX = client->sess.rxvOmnvars;
+  rxvOmnvars = client->ps.rxvOmnvars;
+  v2 = client->sess.rxvOmnvars;
   v3 = 5i64;
   do
   {
-    _RDX += 16;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 16;
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    rxvOmnvars += 16;
+    v4 = *(__m256i *)&v2->timeModified;
+    v5 = *(_OWORD *)&v2[14].timeModified;
+    v2 += 16;
+    *(__m256i *)&rxvOmnvars[-16].timeModified = v4;
+    *(__m256i *)&rxvOmnvars[-12].timeModified = *(__m256i *)&v2[-12].timeModified;
+    *(__m256i *)&rxvOmnvars[-8].timeModified = *(__m256i *)&v2[-8].timeModified;
+    *(_OWORD *)&rxvOmnvars[-4].timeModified = *(_OWORD *)&v2[-4].timeModified;
+    *(_OWORD *)&rxvOmnvars[-2].timeModified = v5;
     --v3;
   }
   while ( v3 );
@@ -414,31 +404,26 @@ G_Omnvar_SavePlayerStateOmnvars
 */
 void G_Omnvar_SavePlayerStateOmnvars(gclient_s *client)
 {
+  OmnvarData *rxvOmnvars; 
+  OmnvarData *v2; 
   __int64 v3; 
+  __m256i v4; 
+  __int128 v5; 
 
-  _RDX = client->sess.rxvOmnvars;
-  _RAX = client->ps.rxvOmnvars;
+  rxvOmnvars = client->sess.rxvOmnvars;
+  v2 = client->ps.rxvOmnvars;
   v3 = 5i64;
   do
   {
-    _RDX += 16;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 16;
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    rxvOmnvars += 16;
+    v4 = *(__m256i *)&v2->timeModified;
+    v5 = *(_OWORD *)&v2[14].timeModified;
+    v2 += 16;
+    *(__m256i *)&rxvOmnvars[-16].timeModified = v4;
+    *(__m256i *)&rxvOmnvars[-12].timeModified = *(__m256i *)&v2[-12].timeModified;
+    *(__m256i *)&rxvOmnvars[-8].timeModified = *(__m256i *)&v2[-8].timeModified;
+    *(_OWORD *)&rxvOmnvars[-4].timeModified = *(_OWORD *)&v2[-4].timeModified;
+    *(_OWORD *)&rxvOmnvars[-2].timeModified = v5;
     --v3;
   }
   while ( v3 );
@@ -466,44 +451,46 @@ G_Omnvar_Set_f
 
 void __fastcall G_Omnvar_Set_f(double _XMM0_8)
 {
+  int time; 
+  const char *v2; 
   const char *v3; 
-  const char *v4; 
   unsigned int IndexByName; 
-  unsigned int v6; 
+  unsigned int v5; 
   const OmnvarDef *Def; 
   playerState_s *EntityPlayerState; 
+  OmnvarData *Data; 
+  int v9; 
   int v10; 
-  int v11; 
   int maxvalue; 
-  __int64 v13; 
+  __int64 v12; 
 
   if ( Cmd_Argc() == 3 )
   {
     if ( G_IsEntityInUse(0) )
     {
-      _EBX = 1;
-      v3 = Cmd_Argv(1);
-      v4 = Cmd_Argv(2);
-      IndexByName = BG_Omnvar_GetIndexByName(v3);
-      v6 = IndexByName;
+      time = 1;
+      v2 = Cmd_Argv(1);
+      v3 = Cmd_Argv(2);
+      IndexByName = BG_Omnvar_GetIndexByName(v2);
+      v5 = IndexByName;
       if ( IndexByName == -1 )
       {
-        Com_PrintWarning(14, "Omnvar %s not found\n", v3);
+        Com_PrintWarning(14, "Omnvar %s not found\n", v2);
       }
       else
       {
         Def = BG_Omnvar_GetDef(IndexByName);
         EntityPlayerState = G_GetEntityPlayerState(g_entities);
-        _RDI = G_Omnvar_GetData(v6, 0, EntityPlayerState);
+        Data = G_Omnvar_GetData(v5, 0, EntityPlayerState);
         switch ( Def->type )
         {
           case OMNVAR_TYPE_BOOL:
-            if ( (unsigned __int8)(*v4 - 48) <= 1u )
+            if ( (unsigned __int8)(*v3 - 48) <= 1u )
             {
-              _RDI->current.enabled = *v4 == 49;
+              Data->current.enabled = *v3 == 49;
               if ( level.time > 1 )
-                _EBX = level.time;
-              _RDI->timeModified = _EBX;
+                time = level.time;
+              Data->timeModified = time;
             }
             else
             {
@@ -511,58 +498,51 @@ void __fastcall G_Omnvar_Set_f(double _XMM0_8)
             }
             return;
           case OMNVAR_TYPE_FLOAT:
-            __asm { vmovaps [rsp+58h+var_28], xmm6 }
-            _XMM0_8 = atof(v4);
+            _XMM0_8 = atof(v3);
             __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-            if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 39, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+            if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 39, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
               __debugbreak();
             if ( Def->type != OMNVAR_TYPE_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 40, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_FLOAT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_FLOAT") )
               __debugbreak();
-            _EAX = Def->type;
-            __asm
-            {
-              vmovd   xmm1, ebx
-              vmovd   xmm0, eax
-              vpcmpeqd xmm2, xmm0, xmm1
-              vxorps  xmm1, xmm1, xmm1
-              vblendvps xmm0, xmm1, xmm6, xmm2
-              vmovaps xmm6, [rsp+58h+var_28]
-              vmovss  dword ptr [rdi+4], xmm0
-            }
+            _XMM0 = (unsigned int)Def->type;
+            __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+            _XMM1 = 0i64;
+            __asm { vblendvps xmm0, xmm1, xmm6, xmm2 }
+            Data->current.value = *(float *)&_XMM0;
             if ( level.time > 1 )
-              _EBX = level.time;
-            _RDI->timeModified = _EBX;
+              time = level.time;
+            Data->timeModified = time;
             return;
           case OMNVAR_TYPE_INT:
-            v11 = atoi(v4);
+            v10 = atoi(v3);
             maxvalue = Def->maxvalue;
-            LODWORD(v13) = v11;
-            if ( v11 > maxvalue || v11 < Def->minvalue )
+            LODWORD(v12) = v10;
+            if ( v10 > maxvalue || v10 < Def->minvalue )
             {
-              v13 = (unsigned int)I_clamp(v11, Def->minvalue, maxvalue);
-              Com_PrintWarning(14, "Value was clamped to %d to respect min/max values of omnvar %s\n", v13, Def->name);
+              v12 = (unsigned int)I_clamp(v10, Def->minvalue, maxvalue);
+              Com_PrintWarning(14, "Value was clamped to %d to respect min/max values of omnvar %s\n", v12, Def->name);
             }
-            if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 21, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+            if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 21, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
               __debugbreak();
             if ( Def->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 22, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
               __debugbreak();
-            _RDI->current.integer = v13 - Def->minvalue;
+            Data->current.integer = v12 - Def->minvalue;
             if ( level.time > 1 )
-              _EBX = level.time;
-            _RDI->timeModified = _EBX;
+              time = level.time;
+            Data->timeModified = time;
             return;
           case OMNVAR_TYPE_UINT:
-            v10 = atoi(v4);
+            v9 = atoi(v3);
             goto LABEL_28;
           case OMNVAR_TYPE_TIME:
-            v10 = atoi(v4);
-            if ( v10 >= 0 )
+            v9 = atoi(v3);
+            if ( v9 >= 0 )
             {
 LABEL_28:
-              _RDI->current.integer = v10;
+              Data->current.integer = v9;
               if ( level.time > 1 )
-                _EBX = level.time;
-              _RDI->timeModified = _EBX;
+                time = level.time;
+              Data->timeModified = time;
             }
             else
             {
@@ -572,18 +552,18 @@ LABEL_28:
           case OMNVAR_TYPE_NCS_LUI:
             if ( Def->type == OMNVAR_TYPE_NCS_LUI )
             {
-              if ( NetConstStrings_GetLuiStringIndex(v4, (unsigned int *)&_RDI->current) )
+              if ( NetConstStrings_GetLuiStringIndex(v3, (unsigned int *)&Data->current) )
                 goto LABEL_45;
             }
             else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.cpp", 121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Omnvar %s is not a netconststring type", Def->name) )
             {
               __debugbreak();
             }
-            Com_PrintWarning(14, "Invalid value %s for omnvar %s. Add the string ncsLuiStrings.txt and rebuild fast files\n", v4, Def->name);
+            Com_PrintWarning(14, "Invalid value %s for omnvar %s. Add the string ncsLuiStrings.txt and rebuild fast files\n", v3, Def->name);
 LABEL_45:
             if ( level.time > 1 )
-              _EBX = level.time;
-            _RDI->timeModified = _EBX;
+              time = level.time;
+            Data->timeModified = time;
             break;
           default:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.cpp", 233, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected omnvar type") )

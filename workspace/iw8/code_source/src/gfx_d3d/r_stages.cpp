@@ -39,28 +39,22 @@ R_GetActiveStageIndex
 __int64 R_GetActiveStageIndex(const vec3_t *viewPos)
 {
   unsigned int v1; 
+  float v3; 
+  float v4; 
   vec3_t point; 
 
   v1 = 1;
-  _RDI = viewPos;
   if ( cm.stageCount <= 1u )
     return 0i64;
   while ( 1 )
   {
     if ( !v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_stages.cpp", 16, ASSERT_TYPE_ASSERT, "(stageIndex != 0)", (const char *)&queryFormat, "stageIndex != STAGE_DEFAULT") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  xmm2, dword ptr [rdi+4]
-      vsubss  xmm1, xmm0, dword ptr [rax+rcx*8+8]
-      vmovss  dword ptr [rsp+58h+point], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rax+rcx*8+0Ch]
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+58h+point+4], xmm0
-      vsubss  xmm2, xmm1, dword ptr [rax+rcx*8+10h]
-      vmovss  dword ptr [rsp+58h+point+8], xmm2
-    }
+    v3 = viewPos->v[1];
+    point.v[0] = viewPos->v[0] - cm.stages[v1].origin.v[0];
+    v4 = viewPos->v[2];
+    point.v[1] = v3 - cm.stages[v1].origin.v[1];
+    point.v[2] = v4 - cm.stages[v1].origin.v[2];
     if ( CM_TestStageTriggerContainsPoint(cm.stages[v1].triggerIndex, &point) )
       break;
     if ( ++v1 >= cm.stageCount )
@@ -98,12 +92,14 @@ void R_UpdateActiveStage(const GfxLight *primaryLights, GfxStageInfo *stageInfo,
 {
   unsigned int v5; 
   __int64 v6; 
-  char v13; 
-  bool v14; 
+  float v7; 
+  float v8; 
+  char v9; 
+  bool v10; 
+  Stage *stages; 
+  double v12; 
   vec3_t point; 
 
-  _RSI = stageInfo;
-  _RBP = viewPos;
   if ( !cm.stageCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_stages.cpp", 62, ASSERT_TYPE_ASSERT, "(cm.stageCount > 0)", (const char *)&queryFormat, "cm.stageCount > 0") )
     __debugbreak();
   v5 = 1;
@@ -119,46 +115,34 @@ LABEL_10:
     {
       if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_stages.cpp", 16, ASSERT_TYPE_ASSERT, "(stageIndex != 0)", (const char *)&queryFormat, "stageIndex != STAGE_DEFAULT") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  xmm2, dword ptr [rbp+4]
-        vsubss  xmm1, xmm0, dword ptr [rax+rcx*8+8]
-        vmovss  dword ptr [rsp+68h+point], xmm1
-        vsubss  xmm0, xmm2, dword ptr [rax+rcx*8+0Ch]
-        vmovss  xmm1, dword ptr [rbp+8]
-        vmovss  dword ptr [rsp+68h+point+4], xmm0
-        vsubss  xmm2, xmm1, dword ptr [rax+rcx*8+10h]
-        vmovss  dword ptr [rsp+68h+point+8], xmm2
-      }
+      v7 = viewPos->v[1];
+      point.v[0] = viewPos->v[0] - cm.stages[v5].origin.v[0];
+      v8 = viewPos->v[2];
+      point.v[1] = v7 - cm.stages[v5].origin.v[1];
+      point.v[2] = v8 - cm.stages[v5].origin.v[2];
       if ( CM_TestStageTriggerContainsPoint(cm.stages[v5].triggerIndex, &point) )
         break;
       if ( ++v5 >= cm.stageCount )
         goto LABEL_10;
     }
   }
-  _RSI->stagesHaveSunPrimaryLight = 0;
+  stageInfo->stagesHaveSunPrimaryLight = 0;
   if ( cm.stageCount )
   {
-    v13 = 0;
+    v9 = 0;
     do
     {
-      v14 = cm.stages[v6].sunPrimaryLightIndex != 0;
+      v10 = cm.stages[v6].sunPrimaryLightIndex != 0;
       v6 = (unsigned int)(v6 + 1);
-      v13 |= v14;
-      _RSI->stagesHaveSunPrimaryLight = v13;
+      v9 |= v10;
+      stageInfo->stagesHaveSunPrimaryLight = v9;
     }
     while ( (unsigned int)v6 < cm.stageCount );
   }
-  _RCX = 5i64 * v5;
-  _RAX = cm.stages;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+rcx*8]
-    vmovups ymmword ptr [rsi], ymm0
-    vmovsd  xmm1, qword ptr [rax+rcx*8+20h]
-  }
-  _RSI->activeStageValid = v5 != 0;
-  __asm { vmovsd  qword ptr [rsi+20h], xmm1 }
+  stages = cm.stages;
+  *(__m256i *)&stageInfo->activeStage.name = *(__m256i *)&cm.stages[v5].name;
+  v12 = *(double *)&stages[v5].skyRotationAngles.y;
+  stageInfo->activeStageValid = v5 != 0;
+  *(double *)&stageInfo->activeStage.skyRotationAngles.y = v12;
 }
 

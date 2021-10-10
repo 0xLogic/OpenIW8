@@ -1342,31 +1342,28 @@ CG_CreateFx_ActivateIndividualExploderImmediately
 */
 void CG_CreateFx_ActivateIndividualExploderImmediately(const int effectIndex, const int startTimeMsec)
 {
-  CreateFxTool *v4; 
+  CreateFxTool *v2; 
+  __int64 v4; 
+  CreateFXDataUnion *v5; 
   SndAliasList *aliasList; 
-  bool v9; 
   CgSoundSystem *SoundSystem; 
-  CreateFxTool *v11; 
+  CreateFxTool *v8; 
   unsigned __int16 activeExploderCount; 
-  const char *v32; 
-  __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
+  float damageAmount; 
+  const char *v11; 
 
-  v4 = s_createFxTool;
-  _RSI = effectIndex;
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RBP = &s_createFxTool->scratchData[_RSI];
-  v4->scratchDataState[effectIndex].effectHandle = CG_CreateFX_PlayFXFromDef(&s_createFxTool->scratchData[_RSI].oneShotFxDef.effect, &_RBP->oneShotFxDef.origin, &s_createFxTool->scratchData[_RSI].oneShotFxDef.angles, startTimeMsec);
-  aliasList = _RBP->oneShotFxDef.aliasList;
-  if ( aliasList || (aliasList = SND_TryFindAlias(_RBP->oneShotFxDef.effectSound.name), v9 = aliasList == NULL, aliasList) )
+  v2 = s_createFxTool;
+  v4 = effectIndex;
+  v5 = &s_createFxTool->scratchData[v4];
+  v2->scratchDataState[effectIndex].effectHandle = CG_CreateFX_PlayFXFromDef(&s_createFxTool->scratchData[v4].oneShotFxDef.effect, &v5->oneShotFxDef.origin, &s_createFxTool->scratchData[v4].oneShotFxDef.angles, startTimeMsec);
+  aliasList = v5->oneShotFxDef.aliasList;
+  if ( aliasList || (aliasList = SND_TryFindAlias(v5->oneShotFxDef.effectSound.name)) != NULL )
   {
-    v9 = aliasList->head == NULL;
     if ( aliasList->head )
     {
       if ( Com_IsSoundAliasLooping(aliasList) )
       {
-        v11 = s_createFxTool;
+        v8 = s_createFxTool;
         activeExploderCount = s_createFxTool->activeExploderCount;
         if ( activeExploderCount >= 0x400u )
         {
@@ -1375,58 +1372,22 @@ void CG_CreateFx_ActivateIndividualExploderImmediately(const int effectIndex, co
         else
         {
           s_createFxTool->activeExploderIndices[activeExploderCount] = effectIndex;
-          v9 = v11->activeExploderCount++ == 0xFFFF;
+          ++v8->activeExploderCount;
         }
       }
       else
       {
         SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
-        CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, &_RBP->oneShotFxDef.origin, aliasList);
+        CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, &v5->oneShotFxDef.origin, aliasList);
       }
     }
   }
-  _R9 = s_createFxTool;
-  __asm
+  damageAmount = s_createFxTool->scratchData[v4].explodersDef.server.damageAmount;
+  if ( damageAmount != 0.0 && s_createFxTool->scratchData[v4].explodersDef.server.damageRadius != 0.0 || s_createFxTool->scratchData[v4].explodersDef.server.earthquakeName || s_createFxTool->scratchData[v4].explodersDef.server.rumbleName )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm6, dword ptr [rsi+r9+480120h]
-    vucomiss xmm6, xmm0
+    v11 = j_va("cfx_exploder %g %g %g %f %f %f %d %d %u %u", v5->oneShotFxDef.origin.v[0], v5->oneShotFxDef.origin.v[1], v5->oneShotFxDef.origin.v[2], (float)((float)v5->explodersDef.client.delayMsec * 0.001), damageAmount, s_createFxTool->scratchData[v4].explodersDef.server.damageRadius, s_createFxTool->scratchData[v4].explodersDef.server.damageDoOcclusionTraces, s_createFxTool->scratchData[v4].explodersDef.server.damageEnvironmentOnly, s_createFxTool->scratchData[v4].explodersDef.server.earthquakeName, s_createFxTool->scratchData[v4].explodersDef.server.rumbleName);
+    Cbuf_InsertSuperUserText(LOCAL_CLIENT_0, v11);
   }
-  if ( !v9 )
-  {
-    __asm { vucomiss xmm0, dword ptr [rsi+r9+480124h] }
-    if ( !v9 )
-      goto LABEL_13;
-  }
-  if ( s_createFxTool->scratchData[_RSI].explodersDef.server.earthquakeName || s_createFxTool->scratchData[_RSI].explodersDef.server.rumbleName )
-  {
-LABEL_13:
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsi+r9+480124h]
-      vmovss  xmm3, dword ptr [rbp+8]
-      vmovss  xmm2, dword ptr [rbp+4]
-      vmovss  xmm1, dword ptr [rbp+0]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbp+18h]
-      vmulss  xmm4, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+78h+var_48], xmm5
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm1, xmm1, xmm1
-      vcvtss2sd xmm0, xmm6, xmm6
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+78h+var_50], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-      vmovsd  [rsp+78h+var_58], xmm4
-    }
-    v32 = j_va("cfx_exploder %g %g %g %f %f %f %d %d %u %u", _RDX, _R8, _R9, v34, v35, v36, s_createFxTool->scratchData[_RSI].explodersDef.server.damageDoOcclusionTraces, s_createFxTool->scratchData[_RSI].explodersDef.server.damageEnvironmentOnly, s_createFxTool->scratchData[_RSI].explodersDef.server.earthquakeName, s_createFxTool->scratchData[_RSI].explodersDef.server.rumbleName);
-    Cbuf_InsertSuperUserText(LOCAL_CLIENT_0, v32);
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -1440,11 +1401,10 @@ CreateFxMapLayerDef *CG_CreateFx_AddLayer(const char *const layerPath, const cha
   __int64 layerListTotal; 
   __int64 v10; 
   CreateFxMapLayerDef *result; 
-  const char *v15; 
-  __int64 v16; 
+  CreateFxMapLayerDef *v12; 
+  const char *v13; 
+  __int64 v14; 
 
-  _RBP = layerAngles;
-  _R14 = layerOrigin;
   if ( s_createFxTool->layerListTotal >= 0x80u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8767, ASSERT_TYPE_ASSERT, "(s_createFxTool->layerListTotal < ( sizeof( *array_counter( s_createFxTool->layerList ) ) + 0 ))", (const char *)&queryFormat, "s_createFxTool->layerListTotal < ARRAY_COUNT( s_createFxTool->layerList )") )
     __debugbreak();
   String = SL_GetString(layerPath, 0);
@@ -1452,49 +1412,41 @@ CreateFxMapLayerDef *CG_CreateFx_AddLayer(const char *const layerPath, const cha
   if ( layerListTotal <= 0 )
   {
 LABEL_8:
-    _RDI = &s_createFxTool->layerList[layerListTotal];
-    _RDI->path = String;
-    _RDI->pathString = SL_ConvertToString(String);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [r14]
-      vmovsd  qword ptr [rdi+118h], xmm0
-    }
-    _RDI->origin.v[2] = _R14->v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+0]
-      vmovsd  qword ptr [rdi+124h], xmm0
-    }
-    _RDI->angles.v[2] = _RBP->v[2];
-    _RDI->filtered = 0;
-    _RDI->filterString[0] = 0;
+    v12 = &s_createFxTool->layerList[layerListTotal];
+    v12->path = String;
+    v12->pathString = SL_ConvertToString(String);
+    *(double *)v12->origin.v = *(double *)layerOrigin->v;
+    v12->origin.v[2] = layerOrigin->v[2];
+    *(double *)v12->angles.v = *(double *)layerAngles->v;
+    v12->angles.v[2] = layerAngles->v[2];
+    v12->filtered = 0;
+    v12->filterString[0] = 0;
     if ( layerFilter )
     {
       if ( *layerFilter )
       {
-        Core_strcpy(_RDI->filterString, 0x104ui64, layerFilter);
+        Core_strcpy(v12->filterString, 0x104ui64, layerFilter);
         if ( createfx_mapnamefilter )
         {
-          v15 = createfx_mapnamefilter->current.string;
-          if ( v15 )
+          v13 = createfx_mapnamefilter->current.string;
+          if ( v13 )
           {
-            if ( *v15 )
+            if ( *v13 )
             {
-              v16 = -1i64;
+              v14 = -1i64;
               do
-                ++v16;
-              while ( layerFilter[v16] );
-              _RDI->filtered = I_strncmp(_RDI->filterString, v15, (unsigned int)v16) != 0;
+                ++v14;
+              while ( layerFilter[v14] );
+              v12->filtered = I_strncmp(v12->filterString, v13, (unsigned int)v14) != 0;
             }
           }
         }
       }
     }
     Com_Printf_NoFilter("[CreateFx] AddLayer %s (%d total)\n", layerPath, (unsigned int)(s_createFxTool->layerListTotal + 1));
-    if ( _RDI->filtered )
+    if ( v12->filtered )
       Com_Printf_NoFilter("[CreateFx] AddLayer %s [filtered because layer specifies %s and dvar specifies %s]\n", layerPath, layerFilter, createfx_mapnamefilter->current.string);
-    result = _RDI;
+    result = v12;
     ++s_createFxTool->layerListTotal;
   }
   else
@@ -1541,164 +1493,153 @@ void CG_CreateFx_AddPendingExploder(const int storageIndex, const int startTimeM
 CG_CreateFx_AddSounds
 ==============
 */
-
-void __fastcall CG_CreateFx_AddSounds(double _XMM0_8)
+void CG_CreateFx_AddSounds()
 {
   unsigned int time; 
-  CreateFxTool *v3; 
-  int v4; 
-  int v5; 
-  __int64 v6; 
-  __int64 v7; 
-  int v8; 
-  bool *v9; 
-  const ClientIntervalSoundDef *v10; 
-  const SndAliasList *v11; 
-  SndAliasList *v12; 
-  unsigned int v13; 
-  char v17; 
-  char v18; 
+  CreateFxTool *v1; 
+  int v2; 
+  int v3; 
+  __int64 v4; 
+  __int64 v5; 
+  int v6; 
+  bool *v7; 
+  const ClientIntervalSoundDef *v8; 
+  const SndAliasList *v9; 
+  SndAliasList *v10; 
+  unsigned int v11; 
+  float distMax; 
+  double v13; 
   CgSoundSystem *SoundSystem; 
   const vec3_t *p_origin; 
   const SndAliasList *aliasList; 
   const char *name; 
   SndAliasList *Alias; 
-  __int64 v25; 
-  __int64 v26; 
-  const vec3_t *v27; 
-  SndAliasList *v28; 
+  __int64 v19; 
+  __int64 v20; 
+  const vec3_t *v21; 
+  SndAliasList *v22; 
   SndAlias *head; 
   unsigned int pHoldrand; 
 
   time = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time;
   pHoldrand = Sys_Milliseconds();
   BG_srand(&pHoldrand);
-  v3 = s_createFxTool;
-  v4 = 0;
-  v5 = 0;
+  v1 = s_createFxTool;
+  v2 = 0;
+  v3 = 0;
   if ( s_createFxTool->usedEffectTotal > 0 )
   {
-    v6 = 7078100i64;
-    __asm { vmovaps [rsp+68h+var_38], xmm6 }
+    v4 = 7078100i64;
     while ( 1 )
     {
-      v7 = *(int *)(&v3->inited + v6);
-      v8 = v3->soundIndexUsage.effectToSoundIndexMap[v7];
-      v9 = &v3->inited + 40 * v7;
-      if ( *((_DWORD *)v9 + 1605686) == 1 )
+      v5 = *(int *)(&v1->inited + v4);
+      v6 = v1->soundIndexUsage.effectToSoundIndexMap[v5];
+      v7 = &v1->inited + 40 * v5;
+      if ( *((_DWORD *)v7 + 1605686) == 1 )
         break;
-      if ( *((_DWORD *)v9 + 1605686) == 2 )
+      if ( *((_DWORD *)v7 + 1605686) == 2 )
       {
-        p_origin = &v3->scratchData[v7].oneShotFxDef.origin;
-        aliasList = v3->scratchData[v7].intervalSoundsDef.aliasList;
+        p_origin = &v1->scratchData[v5].oneShotFxDef.origin;
+        aliasList = v1->scratchData[v5].intervalSoundsDef.aliasList;
         if ( !aliasList )
         {
-          name = v3->scratchData[v7].intervalSoundsDef.effectSound.name;
+          name = v1->scratchData[v5].intervalSoundsDef.effectSound.name;
 LABEL_18:
           Alias = SND_TryFindAlias(name);
-          v3 = s_createFxTool;
+          v1 = s_createFxTool;
           aliasList = Alias;
           if ( !Alias )
             goto LABEL_23;
         }
         goto LABEL_19;
       }
-      if ( *((_DWORD *)v9 + 1605686) != 4 )
+      if ( *((_DWORD *)v7 + 1605686) != 4 )
         goto LABEL_23;
-      v10 = (const ClientIntervalSoundDef *)&v3->scratchData[v7];
-      v11 = v3->scratchData[v7].intervalSoundsDef.aliasList;
-      if ( !v11 )
+      v8 = (const ClientIntervalSoundDef *)&v1->scratchData[v5];
+      v9 = v1->scratchData[v5].intervalSoundsDef.aliasList;
+      if ( !v9 )
       {
-        v12 = SND_TryFindAlias(v3->scratchData[v7].intervalSoundsDef.effectSound.name);
-        v3 = s_createFxTool;
-        v11 = v12;
-        if ( !v12 )
+        v10 = SND_TryFindAlias(v1->scratchData[v5].intervalSoundsDef.effectSound.name);
+        v1 = s_createFxTool;
+        v9 = v10;
+        if ( !v10 )
           goto LABEL_23;
       }
-      if ( !v11->head )
+      if ( !v9->head )
         goto LABEL_23;
-      v13 = *((_DWORD *)v9 + 1605693);
-      if ( !v13 )
+      v11 = *((_DWORD *)v7 + 1605693);
+      if ( !v11 )
       {
-        *((_DWORD *)v9 + 1605693) = CG_SetIntervalSoundTimer(v10, time, &pHoldrand);
+        *((_DWORD *)v7 + 1605693) = CG_SetIntervalSoundTimer(v8, time, &pHoldrand);
 LABEL_22:
-        v3 = s_createFxTool;
+        v1 = s_createFxTool;
         goto LABEL_23;
       }
-      if ( time >= v13 )
+      if ( time >= v11 )
       {
-        *((_DWORD *)v9 + 1605693) = CG_SetIntervalSoundTimer(v10, time, &pHoldrand);
-        _RAX = v11->head;
-        __asm { vmovss  xmm6, dword ptr [rax+68h] }
-        _XMM0_8 = SND_DistSqToNearestListener(&v10->origin);
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm6
-          vcomiss xmm0, xmm1
-        }
-        if ( v17 | v18 )
+        *((_DWORD *)v7 + 1605693) = CG_SetIntervalSoundTimer(v8, time, &pHoldrand);
+        distMax = v9->head->distMax;
+        v13 = SND_DistSqToNearestListener(&v8->origin);
+        if ( *(float *)&v13 <= (float)(distMax * distMax) )
         {
           SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
-          CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, &v10->origin, v11);
+          CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, &v8->origin, v9);
         }
         goto LABEL_22;
       }
 LABEL_23:
-      ++v5;
-      v6 += 4i64;
-      if ( v5 >= v3->usedEffectTotal )
-      {
-        __asm { vmovaps xmm6, [rsp+68h+var_38] }
-        goto LABEL_25;
-      }
+      ++v3;
+      v4 += 4i64;
+      if ( v3 >= v1->usedEffectTotal )
+        goto LABEL_24;
     }
-    p_origin = &v3->scratchData[v7].oneShotFxDef.origin;
-    aliasList = v3->scratchData[v7].oneShotFxDef.aliasList;
+    p_origin = &v1->scratchData[v5].oneShotFxDef.origin;
+    aliasList = v1->scratchData[v5].oneShotFxDef.aliasList;
     if ( !aliasList )
     {
-      name = v3->scratchData[v7].oneShotFxDef.effectSound.name;
+      name = v1->scratchData[v5].oneShotFxDef.effectSound.name;
       goto LABEL_18;
     }
 LABEL_19:
     if ( aliasList->head )
     {
       if ( Com_IsSoundAliasLooping(aliasList) )
-        CG_CreateFx_UpdateLoopSound(v8, aliasList, p_origin);
+        CG_CreateFx_UpdateLoopSound(v6, aliasList, p_origin);
       goto LABEL_22;
     }
     goto LABEL_23;
   }
-LABEL_25:
-  if ( v3->activeExploderCount )
+LABEL_24:
+  if ( v1->activeExploderCount )
   {
-    v25 = 8475176i64;
+    v19 = 8475176i64;
     do
     {
-      v26 = *(unsigned int *)(&v3->inited + v25);
-      if ( v3->scratchDataState[v26].effectType != 3 )
+      v20 = *(unsigned int *)(&v1->inited + v19);
+      if ( v1->scratchDataState[v20].effectType != 3 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2801, ASSERT_TYPE_ASSERT, "(s_createFxTool->scratchDataState[exploderIndex].effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "s_createFxTool->scratchDataState[exploderIndex].effectType == CreateFxEffectType::Exploder") )
           __debugbreak();
-        v3 = s_createFxTool;
+        v1 = s_createFxTool;
       }
-      v27 = &v3->scratchData[v26].oneShotFxDef.origin;
-      v28 = v3->scratchData[v26].oneShotFxDef.aliasList;
-      if ( v28 || (v28 = SND_TryFindAlias(v3->scratchData[v26].oneShotFxDef.effectSound.name), v3 = s_createFxTool, v28) )
+      v21 = &v1->scratchData[v20].oneShotFxDef.origin;
+      v22 = v1->scratchData[v20].oneShotFxDef.aliasList;
+      if ( v22 || (v22 = SND_TryFindAlias(v1->scratchData[v20].oneShotFxDef.effectSound.name), v1 = s_createFxTool, v22) )
       {
-        head = v28->head;
+        head = v22->head;
         if ( head )
         {
           if ( (head->flags & 1) != 0 )
           {
-            CG_CreateFx_UpdateLoopSound(v3->soundIndexUsage.effectToSoundIndexMap[v26], v28, v27);
-            v3 = s_createFxTool;
+            CG_CreateFx_UpdateLoopSound(v1->soundIndexUsage.effectToSoundIndexMap[v20], v22, v21);
+            v1 = s_createFxTool;
           }
         }
       }
-      ++v4;
-      v25 += 4i64;
+      ++v2;
+      v19 += 4i64;
     }
-    while ( v4 < v3->activeExploderCount );
+    while ( v2 < v1->activeExploderCount );
   }
 }
 
@@ -1813,9 +1754,8 @@ CG_CreateFx_AllocateCommandHeap
 void __fastcall CG_CreateFx_AllocateCommandHeap(double _XMM0_8)
 {
   void *v1; 
-  __int128 v5; 
-  __int128 v6; 
-  __int128 v7; 
+  ntl::solitary_buffer_allocator v3; 
+  ntl::internal::buffer_memory_block<char> v4; 
 
   if ( s_createFxCommandHeapMem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8682, ASSERT_TYPE_ASSERT, "(s_createFxCommandHeapMem == nullptr)", (const char *)&queryFormat, "s_createFxCommandHeapMem == nullptr") )
     __debugbreak();
@@ -1828,15 +1768,11 @@ void __fastcall CG_CreateFx_AllocateCommandHeap(double _XMM0_8)
     v1 = s_createFxCommandHeapMem;
   }
   memset_0(v1, 0, 0xA00000ui64);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+48h+var_18], xmm0
-  }
-  if ( !v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v5) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  if ( !v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
     __debugbreak();
-  *(_QWORD *)&v6 = v1;
-  *((_QWORD *)&v6 + 1) = 10485760i64;
+  v3.m_data.m_buffer = (char *)v1;
+  v3.m_data.m_size = 10485760i64;
   ntl::nxheap::shutdown(&s_createFxCommandHeap.m_heap);
   ntl::nxheap_region::shutdown(&s_createFxCommandHeap.m_region);
   if ( s_createFxCommandHeap.m_data.m_buffer )
@@ -1846,11 +1782,7 @@ void __fastcall CG_CreateFx_AllocateCommandHeap(double _XMM0_8)
     s_createFxCommandHeap.m_data.m_buffer = NULL;
     s_createFxCommandHeap.m_data.m_size = 0i64;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_createFxCommandHeap.m_allocator.m_data.m_buffer, xmm0
-  }
+  s_createFxCommandHeap.m_allocator = v3;
   ntl::nxheap::shutdown(&s_createFxCommandHeap.m_heap);
   ntl::nxheap_region::shutdown(&s_createFxCommandHeap.m_region);
   if ( s_createFxCommandHeap.m_data.m_buffer )
@@ -1862,13 +1794,9 @@ void __fastcall CG_CreateFx_AllocateCommandHeap(double _XMM0_8)
   }
   if ( s_createFxCommandHeap.m_allocator.m_data.m_size < 0xA00000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
     __debugbreak();
-  *(_QWORD *)&v7 = s_createFxCommandHeap.m_allocator.m_data.m_buffer;
-  *((_QWORD *)&v7 + 1) = 10485760i64;
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_createFxCommandHeap.baseclass_0.m_data.m_buffer, xmm0
-  }
+  v4.m_buffer = s_createFxCommandHeap.m_allocator.m_data.m_buffer;
+  v4.m_size = 10485760i64;
+  s_createFxCommandHeap.m_data = v4;
   if ( s_createFxCommandHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
     __debugbreak();
   ntl::nxheap_region::init(&s_createFxCommandHeap.m_region, s_createFxCommandHeap.m_data.m_buffer, s_createFxCommandHeap.m_data.m_size);
@@ -2056,241 +1984,140 @@ CG_CreateFx_BuildDrawList
 */
 void CG_CreateFx_BuildDrawList(const vec3_t *drawOrigin, const vec3_t *drawForward)
 {
-  CreateFxTool *v14; 
-  int v15; 
-  int v19; 
-  __int64 v20; 
-  __int64 v27; 
-  __int64 v28; 
-  const CreateFxMapLayerDef *activeLayer; 
-  __int64 v59; 
+  const dvar_t *v2; 
+  CreateFxTool *v4; 
+  int v5; 
+  float v6; 
+  float v7; 
+  int v8; 
+  __int64 v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  __int64 v13; 
+  __int64 v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
+  float v18; 
   cg_t *LocalClientGlobals; 
-  char v83; 
-  char v84; 
-  __int64 v85; 
+  float v23; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  __int64 v30; 
   __int64 skipEntity; 
-  int v97; 
   vec3_t end; 
   trace_t results; 
 
-  __asm
-  {
-    vmovaps [rsp+1B8h+var_A8], xmm13
-    vmovaps [rsp+1B8h+var_B8], xmm14
-  }
-  _RBX = createfx_drawdist;
-  _RSI = drawOrigin;
-  v97 = (int)drawForward;
+  v2 = createfx_drawdist;
   if ( !createfx_drawdist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  v14 = s_createFxTool;
-  v15 = 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm13, cs:__real@3f7851ec
-    vmulss  xmm14, xmm0, xmm0
-  }
-  v19 = -1;
+  Dvar_CheckFrontendServerThread(v2);
+  v4 = s_createFxTool;
+  v5 = 0;
+  v6 = FLOAT_0_97000003;
+  v7 = v2->current.value * v2->current.value;
+  v8 = -1;
   s_createFxDrawCount = 0;
   if ( s_createFxTool->usedEffectTotal <= 0 )
-    goto LABEL_41;
-  v20 = 7078100i64;
-  __asm
-  {
-    vmovaps [rsp+1B8h+var_58], xmm8
-    vmovss  xmm8, dword ptr [rsp+1B8h+var_158]
-    vmovaps [rsp+1B8h+var_68], xmm9
-    vmovss  xmm9, dword ptr [rsp+1B8h+var_158]
-    vmovaps [rsp+1B8h+var_78], xmm10
-    vmovss  xmm10, dword ptr [rsp+1B8h+var_158]
-    vmovaps [rsp+1B8h+var_88], xmm11
-    vmovaps [rsp+1B8h+var_98], xmm12
-    vmovss  xmm12, cs:__real@3f800000
-    vmovaps [rsp+1B8h+var_C8], xmm15
-    vmovss  xmm15, cs:__real@80000000
-    vmovaps [rsp+1B8h+var_38], xmm6
-    vmovaps [rsp+1B8h+var_48], xmm7
-    vxorps  xmm11, xmm11, xmm11
-  }
+    goto LABEL_38;
+  v9 = 7078100i64;
+  v10 = *(float *)&drawForward;
+  v11 = (unsigned int)drawForward;
+  v12 = *(float *)&drawForward;
   do
   {
-    v27 = *(int *)(&v14->inited + v20);
-    v28 = (__int64)&v14->scratchDataState[v27];
-    if ( *(_BYTE *)v28 || s_createFxFilter[v14->scratchDataState[v27].effectType] )
+    v13 = *(int *)(&v4->inited + v9);
+    v14 = (__int64)&v4->scratchDataState[v13];
+    if ( *(_BYTE *)v14 || s_createFxFilter[v4->scratchDataState[v13].effectType] )
     {
-      _R8 = (__int64)&v14->scratchData[v27];
-      if ( v14->scratchDataState[v27].effectType == 1 || v14->scratchDataState[v27].effectType == 2 || v14->scratchDataState[v27].effectType == 3 || v14->scratchDataState[v27].effectType == Menu || v14->scratchDataState[v27].effectType == 5 )
+      if ( v4->scratchDataState[v13].effectType == 1 || v4->scratchDataState[v13].effectType == 2 || v4->scratchDataState[v13].effectType == 3 || v4->scratchDataState[v13].effectType == Menu || v4->scratchDataState[v13].effectType == 5 )
       {
-        if ( (CreateFxTool *)((char *)v14 + 104 * v27) != (CreateFxTool *)-4718800i64 )
+        if ( (CreateFxTool *)((char *)v4 + 104 * v13) != (CreateFxTool *)-4718800i64 )
         {
-          __asm
-          {
-            vmovss  xmm10, dword ptr [r8]
-            vmovss  xmm9, dword ptr [r8+4]
-            vmovss  xmm8, dword ptr [r8+8]
-          }
+          v12 = v4->scratchData[v13].oneShotFxDef.origin.v[0];
+          v11 = LODWORD(v4->scratchData[v13].oneShotFxDef.origin.v[1]);
+          v10 = v4->scratchData[v13].oneShotFxDef.origin.v[2];
         }
       }
       else
       {
-        LODWORD(skipEntity) = v14->scratchDataState[v27].effectType;
+        LODWORD(skipEntity) = v4->scratchDataState[v13].effectType;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", skipEntity) )
           __debugbreak();
-        v14 = s_createFxTool;
+        v4 = s_createFxTool;
       }
-      if ( *(_BYTE *)v28 )
-        goto LABEL_20;
-      __asm
+      if ( *(_BYTE *)v14 || (float)((float)((float)((float)(*(float *)&v11 - drawOrigin->v[1]) * (float)(*(float *)&v11 - drawOrigin->v[1])) + (float)((float)(v12 - drawOrigin->v[0]) * (float)(v12 - drawOrigin->v[0]))) + (float)((float)(v10 - drawOrigin->v[2]) * (float)(v10 - drawOrigin->v[2]))) <= v7 )
       {
-        vsubss  xmm0, xmm9, dword ptr [rsi+4]
-        vsubss  xmm2, xmm10, dword ptr [rsi]
-        vsubss  xmm3, xmm8, dword ptr [rsi+8]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, xmm14
-      }
-      if ( !*(_BYTE *)v28 )
-      {
-LABEL_20:
-        __asm
+        v15 = v12 - drawOrigin->v[0];
+        v16 = v11;
+        *(float *)&v16 = *(float *)&v11 - drawOrigin->v[1];
+        v17 = v10 - drawOrigin->v[2];
+        if ( v15 == 0.0 && *(float *)&v16 == 0.0 && (float)(v10 - drawOrigin->v[2]) == 0.0 )
         {
-          vsubss  xmm7, xmm10, dword ptr [rsi]
-          vucomiss xmm7, xmm11
-          vsubss  xmm4, xmm9, dword ptr [rsi+4]
-          vsubss  xmm6, xmm8, dword ptr [rsi+8]
-        }
-        if ( *(_BYTE *)v28 )
-          goto LABEL_24;
-        __asm { vucomiss xmm4, xmm11 }
-        if ( *(_BYTE *)v28 )
-          goto LABEL_24;
-        __asm { vucomiss xmm6, xmm11 }
-        if ( *(_BYTE *)v28 )
-        {
-LABEL_24:
-          __asm
-          {
-            vmulss  xmm1, xmm4, xmm4
-            vmulss  xmm0, xmm7, xmm7
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm3, xmm2, xmm2
-            vcmpless xmm0, xmm3, xmm15
-            vblendvps xmm0, xmm3, xmm12, xmm0
-            vdivss  xmm5, xmm12, xmm0
-            vmulss  xmm0, xmm4, xmm5
-            vmulss  xmm3, xmm0, dword ptr [rax+4]
-            vmulss  xmm1, xmm7, xmm5
-            vmulss  xmm2, xmm1, dword ptr [rax]
-            vmulss  xmm0, xmm6, xmm5
-            vmulss  xmm1, xmm0, dword ptr [rax+8]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm6, xmm4, xmm1
-          }
+          v18 = FLOAT_1_0;
         }
         else
         {
-          __asm { vmovaps xmm6, xmm12 }
+          *(float *)&v16 = fsqrt((float)((float)(*(float *)&v16 * *(float *)&v16) + (float)(v15 * v15)) + (float)(v17 * v17));
+          _XMM3 = v16;
+          __asm
+          {
+            vcmpless xmm0, xmm3, xmm15
+            vblendvps xmm0, xmm3, xmm12, xmm0
+          }
+          v18 = (float)((float)((float)((float)(*(float *)&v11 - drawOrigin->v[1]) * (float)(1.0 / *(float *)&_XMM0)) * drawForward->v[1]) + (float)((float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * drawForward->v[0])) + (float)((float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * drawForward->v[2]);
         }
-        if ( v14->scratchDataState[v27].effectType == None )
+        if ( v4->scratchDataState[v13].effectType == None )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5758, ASSERT_TYPE_ASSERT, "(s_createFxTool->scratchDataState[storageIndex].effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "s_createFxTool->scratchDataState[storageIndex].effectType != CreateFxEffectType::None") )
             __debugbreak();
-          v14 = s_createFxTool;
+          v4 = s_createFxTool;
         }
-        activeLayer = v14->activeLayer;
-        v59 = 5 * v27 + 802845;
-        if ( *((const CreateFxMapLayerDef **)&v14->inited + v59) == activeLayer )
+        if ( v4->scratchDataState[v13].layer == v4->activeLayer && v18 > v6 )
         {
-          __asm { vcomiss xmm6, xmm13 }
-          if ( *((_QWORD *)&v14->inited + v59) > (unsigned __int64)activeLayer )
-          {
-            __asm { vmovaps xmm13, xmm6 }
-            v19 = v27;
-          }
+          v6 = v18;
+          v8 = v13;
         }
-        *(_DWORD *)(v28 + 4) = *(_BYTE *)v28 != 0;
+        *(_DWORD *)(v14 + 4) = *(_BYTE *)v14 != 0;
         LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+        v23 = drawOrigin->v[0] - v12;
+        v25 = LODWORD(drawOrigin->v[1]);
+        v24 = drawOrigin->v[1] - *(float *)&v11;
+        v26 = drawOrigin->v[2] - v10;
+        *(float *)&v25 = fsqrt((float)((float)(v24 * v24) + (float)(v23 * v23)) + (float)(v26 * v26));
+        _XMM1 = v25;
         __asm
         {
-          vmovss  xmm0, dword ptr [rsi]
-          vmovss  xmm1, dword ptr [rsi+4]
-          vsubss  xmm5, xmm0, xmm10
-          vmovss  xmm0, dword ptr [rsi+8]
-          vsubss  xmm6, xmm1, xmm9
-          vsubss  xmm4, xmm0, xmm8
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm2, xmm6, xmm6
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm15
           vblendvps xmm0, xmm1, xmm12, xmm0
-          vdivss  xmm2, xmm12, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vaddss  xmm1, xmm0, xmm10
-          vmulss  xmm3, xmm4, xmm2
-          vmovss  dword ptr [rsp+1B8h+end], xmm1
-          vmulss  xmm2, xmm6, xmm2
-          vaddss  xmm1, xmm8, xmm3
-          vaddss  xmm0, xmm2, xmm9
-          vmovss  dword ptr [rsp+1B8h+end+8], xmm1
-          vmovss  dword ptr [rsp+1B8h+end+4], xmm0
         }
-        PhysicsQuery_LegacyTrace(PHYSICS_WORLD_ID_CLIENT_FIRST, &results, _RSI, &end, &bounds_origin, LocalClientGlobals->predictedPlayerState.clientNum, 0, 41969969, 0, NULL, All);
-        __asm
-        {
-          vmovss  xmm0, [rsp+1B8h+results.fraction]
-          vucomiss xmm0, xmm12
-        }
-        if ( v83 )
-          v84 = 0;
-        else
-          v84 = 1;
-        v85 = s_createFxDrawCount;
-        *(_BYTE *)(v28 + 1) = v84;
-        s_createFxDrawList[v85] = v27;
-        v14 = s_createFxTool;
-        s_createFxDrawCount = v85 + 1;
+        end.v[0] = (float)(v23 * (float)(1.0 / *(float *)&_XMM0)) + v12;
+        end.v[2] = v10 + (float)(v26 * (float)(1.0 / *(float *)&_XMM0));
+        end.v[1] = (float)(v24 * (float)(1.0 / *(float *)&_XMM0)) + *(float *)&v11;
+        PhysicsQuery_LegacyTrace(PHYSICS_WORLD_ID_CLIENT_FIRST, &results, drawOrigin, &end, &bounds_origin, LocalClientGlobals->predictedPlayerState.clientNum, 0, 41969969, 0, NULL, All);
+        v30 = s_createFxDrawCount;
+        *(_BYTE *)(v14 + 1) = results.fraction != 1.0;
+        s_createFxDrawList[v30] = v13;
+        v4 = s_createFxTool;
+        s_createFxDrawCount = v30 + 1;
       }
     }
-    ++v15;
-    v20 += 4i64;
+    ++v5;
+    v9 += 4i64;
   }
-  while ( v15 < v14->usedEffectTotal );
-  __asm
+  while ( v5 < v4->usedEffectTotal );
+  if ( v8 <= -1 )
   {
-    vmovaps xmm15, [rsp+1B8h+var_C8]
-    vmovaps xmm12, [rsp+1B8h+var_98]
-    vmovaps xmm11, [rsp+1B8h+var_88]
-    vmovaps xmm10, [rsp+1B8h+var_78]
-    vmovaps xmm9, [rsp+1B8h+var_68]
-    vmovaps xmm8, [rsp+1B8h+var_58]
-    vmovaps xmm7, [rsp+1B8h+var_48]
-    vmovaps xmm6, [rsp+1B8h+var_38]
-  }
-  if ( v19 <= -1 )
-  {
-LABEL_41:
-    v14->highlightedEffectIndex = -1;
+LABEL_38:
+    v4->highlightedEffectIndex = -1;
   }
   else
   {
-    if ( !*(_DWORD *)v14->scratchDataState[v19].visualState )
-      *(_DWORD *)v14->scratchDataState[v19].visualState = 2;
-    v14->highlightedEffectIndex = v19;
-  }
-  __asm
-  {
-    vmovaps xmm13, [rsp+1B8h+var_A8]
-    vmovaps xmm14, [rsp+1B8h+var_B8]
+    if ( !*(_DWORD *)v4->scratchDataState[v8].visualState )
+      *(_DWORD *)v4->scratchDataState[v8].visualState = 2;
+    v4->highlightedEffectIndex = v8;
   }
 }
 
@@ -2301,59 +2128,41 @@ CG_CreateFx_CalculateClipboardEntityOrigin
 */
 void CG_CreateFx_CalculateClipboardEntityOrigin(const vec3_t *originalOrigin, vec3_t *outOrigin)
 {
+  float v2; 
+  CreateFxTool *v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
   vec3_t point; 
   vec3_t dst; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx] }
-  _RBX = outOrigin;
-  _RDX = s_createFxTool;
+  v2 = originalOrigin->v[0];
+  v4 = s_createFxTool;
   if ( s_createFxTool->clipboard.effectTotal <= 1 )
   {
-    __asm { vmovss  dword ptr [rbx], xmm0 }
-    _RBX->v[1] = originalOrigin->v[1];
-    __asm { vmovss  xmm0, dword ptr [rcx+8] }
+    outOrigin->v[0] = v2;
+    outOrigin->v[1] = originalOrigin->v[1];
+    v8 = originalOrigin->v[2];
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, dword ptr [rdx+240070h]
-      vmovss  xmm1, dword ptr [rcx+4]
-      vsubss  xmm2, xmm1, dword ptr [rdx+240074h]
-      vmovss  dword ptr [rsp+58h+point], xmm0
-      vmovss  xmm0, dword ptr [rcx+8]
-      vsubss  xmm1, xmm0, dword ptr [rdx+240078h]
-      vmovss  dword ptr [rsp+58h+point+8], xmm1
-      vmovss  dword ptr [rsp+58h+point+4], xmm2
-      vmovss  xmm3, dword ptr [rdx+240094h]; degrees
-    }
-    RotatePointAroundVector(&dst, &VEC3_UP, &point, *(float *)&_XMM3);
-    _RDX = s_createFxTool;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+dst]
-      vmovss  xmm2, dword ptr [rsp+58h+dst+8]
-      vaddss  xmm1, xmm0, dword ptr [rdx+240070h]
-      vmovss  xmm0, dword ptr [rsp+58h+dst+4]
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdx+240074h]
-      vmovss  dword ptr [rbx+4], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdx+240078h]
-    }
+    v5 = originalOrigin->v[1] - s_createFxTool->clipboard.vCentroid.v[1];
+    point.v[0] = v2 - s_createFxTool->clipboard.vCentroid.v[0];
+    point.v[2] = originalOrigin->v[2] - s_createFxTool->clipboard.vCentroid.v[2];
+    point.v[1] = v5;
+    RotatePointAroundVector(&dst, &VEC3_UP, &point, s_createFxTool->clipboard.yawDelta);
+    v4 = s_createFxTool;
+    v6 = dst.v[2];
+    v7 = dst.v[1];
+    outOrigin->v[0] = dst.v[0] + s_createFxTool->clipboard.vCentroid.v[0];
+    outOrigin->v[1] = v7 + v4->clipboard.vCentroid.v[1];
+    v8 = v6 + v4->clipboard.vCentroid.v[2];
   }
-  __asm
-  {
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, dword ptr [rdx+240088h]
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm2, dword ptr [rdx+24008Ch]
-    vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  xmm1, dword ptr [rdx+240090h]
-    vaddss  xmm0, xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  outOrigin->v[2] = v8;
+  outOrigin->v[0] = outOrigin->v[0] + v4->clipboard.vCentroidToCursor.v[0];
+  outOrigin->v[1] = v4->clipboard.vCentroidToCursor.v[1] + outOrigin->v[1];
+  outOrigin->v[2] = v4->clipboard.vCentroidToCursor.v[2] + outOrigin->v[2];
 }
 
 /*
@@ -2361,69 +2170,56 @@ void CG_CreateFx_CalculateClipboardEntityOrigin(const vec3_t *originalOrigin, ve
 CG_CreateFx_CalculateSelectionCenter
 ==============
 */
-
-void __fastcall CG_CreateFx_CalculateSelectionCenter(vec3_t *outCenter, double _XMM1_8)
+void CG_CreateFx_CalculateSelectionCenter(vec3_t *outCenter)
 {
-  CreateFxTool *v5; 
-  int v7; 
-  __int64 v11; 
+  CreateFxTool *v1; 
+  int v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int64 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  float v11; 
   vec3_t outOrigin; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-  }
-  v5 = s_createFxTool;
-  _RSI = outCenter;
+  v1 = s_createFxTool;
   if ( s_createFxTool->selectedEffectTotal <= 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1681, ASSERT_TYPE_ASSERT, "(s_createFxTool->selectedEffectTotal > 0)", (const char *)&queryFormat, "s_createFxTool->selectedEffectTotal > 0") )
       __debugbreak();
-    v5 = s_createFxTool;
+    v1 = s_createFxTool;
   }
-  v7 = 0;
-  __asm
+  v3 = 0;
+  v4 = 0i64;
+  v5 = 0i64;
+  v6 = 0i64;
+  if ( v1->selectedEffectTotal > 0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( v5->selectedEffectTotal > 0 )
-  {
-    v11 = 7209180i64;
+    v7 = 7209180i64;
     do
     {
-      CG_CreateFx_GetScratchEffectOrigin(*(_DWORD *)(&v5->inited + v11), &outOrigin);
-      v5 = s_createFxTool;
-      v11 += 4i64;
-      __asm
-      {
-        vaddss  xmm6, xmm6, dword ptr [rsp+88h+outOrigin]
-        vaddss  xmm7, xmm7, dword ptr [rsp+88h+outOrigin+4]
-        vaddss  xmm8, xmm8, dword ptr [rsp+88h+outOrigin+8]
-      }
-      ++v7;
+      CG_CreateFx_GetScratchEffectOrigin(*(_DWORD *)(&v1->inited + v7), &outOrigin);
+      v1 = s_createFxTool;
+      v7 += 4i64;
+      v8 = v4;
+      *(float *)&v8 = *(float *)&v4 + outOrigin.v[0];
+      v4 = v8;
+      v9 = v5;
+      *(float *)&v9 = *(float *)&v5 + outOrigin.v[1];
+      v5 = v9;
+      v10 = v6;
+      *(float *)&v10 = *(float *)&v6 + outOrigin.v[2];
+      v6 = v10;
+      ++v3;
     }
-    while ( v7 < s_createFxTool->selectedEffectTotal );
+    while ( v3 < s_createFxTool->selectedEffectTotal );
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rax+6E00D8h]
-    vdivss  xmm2, xmm0, xmm1
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsi], xmm1
-    vmulss  xmm1, xmm8, xmm2
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rsi+8], xmm1
-    vmovss  dword ptr [rsi+4], xmm0
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-  }
+  v11 = 1.0 / (float)v1->selectedEffectTotal;
+  outCenter->v[0] = *(float *)&v4 * v11;
+  outCenter->v[2] = *(float *)&v6 * v11;
+  outCenter->v[1] = *(float *)&v5 * v11;
 }
 
 /*
@@ -2701,111 +2497,79 @@ void CG_CreateFx_CopySoundEntityOrientation(const int clientSoundEntIndex, vec3_
 CG_CreateFx_CopyToClipboard
 ==============
 */
-
-void __fastcall CG_CreateFx_CopyToClipboard(const LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_CreateFx_CopyToClipboard(const LocalClientNum_t localClientNum)
 {
-  int v10; 
+  CreateFxTool *v1; 
+  int v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int64 v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  float v13; 
   __int64 v14; 
-  cg_t *LocalClientGlobals; 
-  __int64 v37; 
-  char v42; 
-  void *retaddr; 
+  float v15; 
 
-  _RAX = &retaddr;
-  _RBX = s_createFxTool;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  CG_CreateFx_SaveSelectionToBuffer(&_RBX->clipboard);
-  if ( _RBX->clipboard.effectTotal <= 0 )
+  v1 = s_createFxTool;
+  CG_CreateFx_SaveSelectionToBuffer(&s_createFxTool->clipboard);
+  if ( v1->clipboard.effectTotal <= 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5572, ASSERT_TYPE_ASSERT, "(s_createFxTool->clipboard.effectTotal > 0)", (const char *)&queryFormat, "s_createFxTool->clipboard.effectTotal > 0") )
       __debugbreak();
-    _RBX = s_createFxTool;
+    v1 = s_createFxTool;
   }
-  v10 = 0;
-  __asm
+  v2 = 0;
+  v3 = 0i64;
+  v4 = 0i64;
+  v5 = 0i64;
+  if ( v1->clipboard.effectTotal > 0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( _RBX->clipboard.effectTotal > 0 )
-  {
-    v14 = 1703960i64;
-    __asm
-    {
-      vmovaps [rsp+98h+var_48], xmm9
-      vmovss  xmm9, [rsp+98h+arg_8]
-      vmovaps [rsp+98h+var_58], xmm10
-      vmovss  xmm10, [rsp+98h+arg_8]
-      vmovaps [rsp+98h+var_68], xmm11
-      vmovss  xmm11, [rsp+98h+arg_8]
-    }
+    v6 = 1703960i64;
+    v7 = v15;
+    v8 = v15;
+    v9 = v15;
     do
     {
-      _RDX = (__int64)&_RBX->clipboard + 104 * v10;
-      if ( *(_DWORD *)(&_RBX->inited + v14) == 1 || *(_DWORD *)(&_RBX->inited + v14) == 2 || *(_DWORD *)(&_RBX->inited + v14) == 3 || *(_DWORD *)(&_RBX->inited + v14) == 4 || *(_DWORD *)(&_RBX->inited + v14) == 5 )
+      if ( *(_DWORD *)(&v1->inited + v6) == 1 || *(_DWORD *)(&v1->inited + v6) == 2 || *(_DWORD *)(&v1->inited + v6) == 3 || *(_DWORD *)(&v1->inited + v6) == 4 || *(_DWORD *)(&v1->inited + v6) == 5 )
       {
-        if ( (CreateFxTool *)((char *)_RBX + 104 * v10) != (CreateFxTool *)-16i64 )
+        if ( (CreateFxTool *)((char *)v1 + 104 * v2) != (CreateFxTool *)-16i64 )
         {
-          __asm
-          {
-            vmovss  xmm11, dword ptr [rdx]
-            vmovss  xmm9, dword ptr [rdx+4]
-            vmovss  xmm10, dword ptr [rdx+8]
-          }
+          v9 = v1->clipboard.effectData[v2].oneShotFxDef.origin.v[0];
+          v7 = v1->clipboard.effectData[v2].oneShotFxDef.origin.v[1];
+          v8 = v1->clipboard.effectData[v2].oneShotFxDef.origin.v[2];
         }
       }
       else
       {
-        LODWORD(v37) = *(_DWORD *)(&_RBX->inited + v14);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v37) )
+        LODWORD(v14) = *(_DWORD *)(&v1->inited + v6);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v14) )
           __debugbreak();
-        _RBX = s_createFxTool;
+        v1 = s_createFxTool;
       }
-      ++v10;
-      v14 += 40i64;
-      __asm
-      {
-        vaddss  xmm6, xmm6, xmm11
-        vaddss  xmm7, xmm7, xmm9
-        vaddss  xmm8, xmm8, xmm10
-      }
+      ++v2;
+      v6 += 40i64;
+      v10 = v3;
+      *(float *)&v10 = *(float *)&v3 + v9;
+      v3 = v10;
+      v11 = v4;
+      *(float *)&v11 = *(float *)&v4 + v7;
+      v4 = v11;
+      v12 = v5;
+      *(float *)&v12 = *(float *)&v5 + v8;
+      v5 = v12;
     }
-    while ( v10 < _RBX->clipboard.effectTotal );
-    __asm
-    {
-      vmovaps xmm11, [rsp+98h+var_68]
-      vmovaps xmm10, [rsp+98h+var_58]
-      vmovaps xmm9, [rsp+98h+var_48]
-    }
+    while ( v2 < v1->clipboard.effectTotal );
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+240010h]
-    vdivss  xmm2, xmm0, xmm1
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbx+240070h], xmm1
-    vmulss  xmm1, xmm8, xmm2
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rbx+240078h], xmm1
-    vmovss  dword ptr [rbx+240074h], xmm0
-  }
-  LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  s_createFxTool->clipboard.vPlayerAngles = LocalClientGlobals->predictedPlayerState.viewangles;
+  v13 = 1.0 / (float)v1->clipboard.effectTotal;
+  v1->clipboard.vCentroid.v[0] = *(float *)&v3 * v13;
+  v1->clipboard.vCentroid.v[2] = *(float *)&v5 * v13;
+  v1->clipboard.vCentroid.v[1] = *(float *)&v4 * v13;
+  s_createFxTool->clipboard.vPlayerAngles = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->predictedPlayerState.viewangles;
 }
 
 /*
@@ -3002,8 +2766,10 @@ void CG_CreateFx_DeleteSelection()
   CreateFxTool *v0; 
   unsigned __int16 selectedEffectTotal; 
   __int64 v2; 
+  char *v3; 
   CreateFxTool *v4; 
   bool *v5; 
+  CreateFxTool *v6; 
 
   v0 = s_createFxTool;
   if ( s_createFxTool->editBuffer.effectTotal > 0 )
@@ -3021,33 +2787,25 @@ void CG_CreateFx_DeleteSelection()
       CG_CreateFx_ClearRedoStack();
       while ( ntl::nxheap::largest_free_block(&s_createFxCommandHeap.m_heap) < 0x80 )
         CG_CreateFx_DiscardUndoSequence();
-      _RBX = (CreateFxCommand *)ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0x80ui64, 4ui64, 1);
-      if ( !_RBX )
+      v3 = (char *)ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0x80ui64, 4ui64, 1);
+      if ( !v3 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144286130, 333i64);
       v4 = s_createFxTool;
-      _RBX->__vftable = (CreateFxCommand_vtbl *)&CreateFxDeleteCommand::`vftable';
-      HIDWORD(_RBX[1].__vftable) = 0;
-      LODWORD(_RBX[1].__vftable) = v2;
+      *(_QWORD *)v3 = &CreateFxDeleteCommand::`vftable';
+      *((_DWORD *)v3 + 3) = 0;
+      *((_DWORD *)v3 + 2) = v2;
       v5 = &v4->inited + 40 * v2;
       if ( !*((_DWORD *)v5 + 1605686) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1335, ASSERT_TYPE_ASSERT, "(effectStateData.effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "effectStateData.effectType != CreateFxEffectType::None") )
         __debugbreak();
-      HIDWORD(_RBX[1].__vftable) = *((_DWORD *)v5 + 1605686);
-      _RBX[15].__vftable = *(CreateFxCommand_vtbl **)(v5 + 6422760);
-      _RAX = s_createFxTool;
-      _RCX = 104 * v2;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx+rax+4800D0h]
-        vmovups ymmword ptr [rbx+10h], ymm0
-        vmovups ymm1, ymmword ptr [rcx+rax+4800F0h]
-        vmovups ymmword ptr [rbx+30h], ymm1
-        vmovups ymm0, ymmword ptr [rcx+rax+480110h]
-        vmovups ymmword ptr [rbx+50h], ymm0
-        vmovsd  xmm1, qword ptr [rcx+rax+480130h]
-        vmovsd  qword ptr [rbx+70h], xmm1
-      }
-      _RBX->Do(_RBX);
-      CG_CreateFx_PushUndoCommand(_RBX);
+      *((_DWORD *)v3 + 3) = *((_DWORD *)v5 + 1605686);
+      *((_QWORD *)v3 + 15) = *((_QWORD *)v5 + 802845);
+      v6 = s_createFxTool;
+      *(__m256i *)(v3 + 16) = *(__m256i *)s_createFxTool->scratchData[v2].oneShotFxDef.origin.v;
+      *(__m256i *)(v3 + 48) = *(__m256i *)&v6->scratchData[v2].reactiveEntDef.effectSound.name;
+      *(__m256i *)(v3 + 80) = *((__m256i *)&v6->scratchData[v2].reactiveEntDef + 2);
+      *((double *)v3 + 14) = *((double *)&v6->scratchData[v2].reactiveEntDef + 12);
+      (**(void (__fastcall ***)(void *))v3)(v3);
+      CG_CreateFx_PushUndoCommand((CreateFxCommand *const)v3);
       v0 = s_createFxTool;
     }
     while ( s_createFxTool->selectedEffectTotal > 0 );
@@ -3211,124 +2969,79 @@ CG_CreateFx_Draw3DEmitter
 */
 void CG_CreateFx_Draw3DEmitter(const LocalClientNum_t localClientNum, const ScreenPlacement *const scrPlace, const vec3_t *origin, const vec3_t *viewPos, float maxDistance, const char *text, CreateFxEffectType type, bool isSpatiallyActive, const int rootIndex)
 {
-  bool v26; 
-  bool v27; 
-  bool v28; 
-  char v29; 
-  char v30; 
-  ClientRootDef *v43; 
-  const char *v45; 
-  _BYTE v48[24]; 
-  int v49; 
+  float v9; 
+  float v10; 
+  float v13; 
+  bool v15; 
+  bool v16; 
+  bool v17; 
+  double Float_Internal; 
+  bool v19; 
+  __int128 highlightedColor; 
+  float v21; 
+  double v22; 
+  float v23; 
+  float v24; 
+  ClientRootDef *v25; 
+  const char *v26; 
   vec4_t color; 
   vec3_t end; 
 
-  __asm
+  v9 = viewPos->v[1] - origin->v[1];
+  v10 = viewPos->v[2] - origin->v[2];
+  v13 = fsqrt((float)((float)(v9 * v9) + (float)((float)(viewPos->v[0] - origin->v[0]) * (float)(viewPos->v[0] - origin->v[0]))) + (float)(v10 * v10));
+  if ( v13 <= maxDistance && v13 > 0.0 )
   {
-    vmovaps [rsp+0B0h+var_48+8], xmm6
-    vmovss  xmm0, dword ptr [r9]
-    vsubss  xmm3, xmm0, dword ptr [r8]
-    vmovss  xmm1, dword ptr [r9+4]
-    vsubss  xmm2, xmm1, dword ptr [r8+4]
-    vmovss  xmm0, dword ptr [r9+8]
-    vsubss  xmm4, xmm0, dword ptr [r8+8]
-  }
-  _RBX = origin;
-  __asm
-  {
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-    vcomiss xmm6, [rbp+2Fh+maxDistance]
-  }
-  v49 = rootIndex;
-  if ( (unsigned __int64)v48 == _security_cookie )
-  {
-    __asm
+    v15 = !text || !*text;
+    v16 = s_createFxTool && s_createFxTool->enabled;
+    v17 = isSpatiallyActive && !v16;
+    Float_Internal = Dvar_GetFloat_Internal(createfx_drawdist);
+    v19 = *(float *)&Float_Internal > v13;
+    if ( v16 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
+      highlightedColor = _xmm;
     }
-    if ( (unsigned __int64)v48 != _security_cookie )
+    else if ( v15 )
     {
-      v26 = !text || !*text;
-      v27 = s_createFxTool && s_createFxTool->enabled;
-      v28 = isSpatiallyActive && !v27;
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal(createfx_drawdist);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( v27 )
+      highlightedColor = (__int128)colorRed;
+    }
+    else if ( v17 )
+    {
+      highlightedColor = (__int128)s_effectTypeColors[type].highlightedColor;
+    }
+    else
+    {
+      highlightedColor = (__int128)s_effectTypeColors[type].defaultColor;
+    }
+    color = (vec4_t)highlightedColor;
+    if ( v19 )
+    {
+      CG_CreateFx_Draw3DIcon(localClientNum, scrPlace, origin, v13, &color, type);
+      if ( !v15 )
+        CG_CreateFx_Draw3DText(localClientNum, scrPlace, origin, v13, &color, 0, text);
+      if ( rootIndex != -1 )
       {
-        __asm { vmovups xmm0, cs:__xmm@3f0000003f0000003f0000003f000000 }
-      }
-      else if ( v26 )
-      {
-        __asm { vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed }
-      }
-      else
-      {
-        _RCX = 6i64 * (int)type;
-        _RAX = s_effectTypeColors;
-        if ( v28 )
-          __asm { vmovups xmm0, xmmword ptr [rax+rcx*8+10h] }
-        else
-          __asm { vmovups xmm0, xmmword ptr [rax+rcx*8+20h] }
-      }
-      __asm { vmovups xmmword ptr [rbp+2Fh+color], xmm0 }
-      if ( v29 | v30 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  xmm1, dword ptr [rbx+4]
-          vmovss  dword ptr [rbp+2Fh+end], xmm0
-          vmovss  xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rbp+2Fh+end+8], xmm0
-          vmovss  dword ptr [rbp+2Fh+end+4], xmm1
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal(createfx_worldIconSize);
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [rbp+2Fh+end+8]
-          vmovss  dword ptr [rbp+2Fh+end+8], xmm0
-        }
-        CG_DebugLine(_RBX, &end, &color, 0, 0);
-      }
-      else
-      {
-        __asm { vmovaps xmm3, xmm6; worldDistance }
-        CG_CreateFx_Draw3DIcon(localClientNum, scrPlace, _RBX, *(float *)&_XMM3, &color, type);
-        if ( !v26 )
-        {
-          __asm { vmovaps xmm3, xmm6; worldDistance }
-          CG_CreateFx_Draw3DText(localClientNum, scrPlace, _RBX, *(float *)&_XMM3, &color, 0, text);
-        }
-        if ( v49 != -1 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [rbx+4]
-            vmovss  dword ptr [rbp+2Fh+end], xmm0
-            vmovss  xmm0, dword ptr [rbx+8]
-          }
-          v43 = &cm.mapEnts->clientSideEffects.roots[v49];
-          __asm
-          {
-            vsubss  xmm2, xmm0, cs:__real@41200000
-            vmovss  dword ptr [rbp+2Fh+end+4], xmm1
-            vmovss  dword ptr [rbp+2Fh+end+8], xmm2
-          }
-          v45 = SL_ConvertToStringSafe(v43->path);
-          __asm { vmovaps xmm3, xmm6; worldDistance }
-          CG_CreateFx_Draw3DText(localClientNum, scrPlace, &end, *(float *)&_XMM3, &color, 0, v45);
-        }
+        v23 = origin->v[1];
+        end.v[0] = origin->v[0];
+        v24 = origin->v[2];
+        v25 = &cm.mapEnts->clientSideEffects.roots[rootIndex];
+        end.v[1] = v23;
+        end.v[2] = v24 - 10.0;
+        v26 = SL_ConvertToStringSafe(v25->path);
+        CG_CreateFx_Draw3DText(localClientNum, scrPlace, &end, v13, &color, 0, v26);
       }
     }
+    else
+    {
+      v21 = origin->v[1];
+      end.v[0] = origin->v[0];
+      end.v[2] = origin->v[2];
+      end.v[1] = v21;
+      v22 = Dvar_GetFloat_Internal(createfx_worldIconSize);
+      end.v[2] = *(float *)&v22 + end.v[2];
+      CG_DebugLine(origin, &end, &color, 0, 0);
+    }
   }
-  __asm { vmovaps xmm6, [rsp+0B0h+var_48+8] }
 }
 
 /*
@@ -3336,39 +3049,22 @@ void CG_CreateFx_Draw3DEmitter(const LocalClientNum_t localClientNum, const Scre
 CG_CreateFx_Draw3DIcon
 ==============
 */
-
-void __fastcall CG_CreateFx_Draw3DIcon(const LocalClientNum_t localClientNum, const ScreenPlacement *const scrPlace, const vec3_t *origin, double worldDistance, const vec4_t *color, CreateFxEffectType type)
+void CG_CreateFx_Draw3DIcon(const LocalClientNum_t localClientNum, const ScreenPlacement *const scrPlace, const vec3_t *origin, float worldDistance, const vec4_t *color, CreateFxEffectType type)
 {
-  float fmt; 
+  const dvar_t *v6; 
+  float v10; 
   __int64 t1; 
-  float t1a; 
   int s2; 
-  float s2a; 
-  float v31; 
   vec2_t outScreenPos; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  _RBX = createfx_worldIconSize;
-  __asm { vmovaps xmm6, xmm3 }
+  v6 = createfx_worldIconSize;
   if ( !createfx_worldIconSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@44898000
-    vdivss  xmm6, xmm1, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v6);
+  v10 = (float)(v6->current.value * 1100.0) / worldDistance;
   CG_WorldPosToScreenPosReal(localClientNum, scrPlace, origin, &outScreenPos);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+98h+outScreenPos+4]
-    vmulss  xmm1, xmm6, cs:__real@bf000000
-    vaddss  xmm1, xmm1, dword ptr [rsp+98h+outScreenPos]
-    vsubss  xmm0, xmm2, xmm6
-    vmovss  dword ptr [rsp+98h+outScreenPos], xmm1
-    vmovss  dword ptr [rsp+98h+outScreenPos+4], xmm0
-  }
+  outScreenPos.v[0] = (float)(v10 * -0.5) + outScreenPos.v[0];
+  outScreenPos.v[1] = outScreenPos.v[1] - v10;
   if ( (unsigned int)type >= 7 )
   {
     s2 = 7;
@@ -3376,21 +3072,7 @@ void __fastcall CG_CreateFx_Draw3DIcon(const LocalClientNum_t localClientNum, co
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3864, ASSERT_TYPE_ASSERT, "(unsigned)( typeIndex ) < (unsigned)( ( sizeof( *array_counter( s_effectTypeMaterials ) ) + 0 ) )", "typeIndex doesn't index ARRAY_COUNT( s_effectTypeMaterials )\n\t%i not in [0, %i)", t1, s2) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+98h+var_60], xmm0
-    vmovss  [rsp+98h+s2], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+outScreenPos]; x
-    vmovss  [rsp+98h+t1], xmm1
-    vmovss  dword ptr [rsp+98h+fmt], xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+outScreenPos+4]; y
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm6; w
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, t1a, s2a, v31, color, s_effectTypeMaterials[type]);
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
+  CL_DrawStretchPicPhysical(outScreenPos.v[0], outScreenPos.v[1], v10, v10, 0.0, 0.0, 1.0, 1.0, color, s_effectTypeMaterials[type]);
 }
 
 /*
@@ -3400,98 +3082,64 @@ CG_CreateFx_Draw3DRepresentation
 */
 void CG_CreateFx_Draw3DRepresentation(const LocalClientNum_t localClientNum, const ScreenPlacement *const scrPlace, const vec3_t *fxOrigin, const vec3_t *fxAngles, const vec4_t *color, const CreateFxDataState *fxState, const CreateFXDataUnion *data, const char *const text, const bool isGhost)
 {
-  const char *v21; 
+  const char *v12; 
   cg_t *LocalClientGlobals; 
-  char v45; 
+  const dvar_t *v14; 
+  float value; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   __int64 effectType; 
   FXRegisteredDef *p_anglesModelHandle; 
-  int v50; 
-  bool v51; 
-  bool v53; 
-  bool v54; 
-  const char *v89; 
-  const char *v103; 
-  const char *v107; 
-  const char *v108; 
+  int v23; 
+  bool v24; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  const char *v33; 
+  const char *v34; 
+  const char *v35; 
+  const char *v36; 
   __int64 fromServer; 
-  char *v119; 
+  char *v38; 
   vec3_t outOrg; 
   vec3_t *angles; 
-  const CreateFXDataUnion *v122; 
-  __int64 v123; 
+  const CreateFXDataUnion *v41; 
+  __int64 v42; 
   vec3_t xyz; 
   tmat33_t<vec3_t> axis; 
-  char v126; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v123 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-  }
+  v42 = -2i64;
   angles = (vec3_t *)fxAngles;
-  _RDI = fxOrigin;
-  v122 = data;
-  v21 = text;
+  v41 = data;
+  v12 = text;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3946, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
   if ( !text && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3947, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RSI = createfx_worldIconSize;
+  v14 = createfx_worldIconSize;
   if ( !createfx_worldIconSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rsi+28h]
-    vmulss  xmm10, xmm12, cs:__real@3d0f5c29
-  }
-  R_TextHeight(cls.bigDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm10
-    vmulss  xmm13, xmm1, cs:__real@3f19999a
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  value = v14->current.value;
+  v16 = value * 0.035;
+  v17 = (float)((float)R_TextHeight(cls.bigDevFont) * (float)(value * 0.035)) * 0.60000002;
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm8, dword ptr [rsp+168h+outOrg]
-    vsubss  xmm4, xmm0, xmm8
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  xmm9, dword ptr [rsp+168h+outOrg+4]
-    vsubss  xmm2, xmm1, xmm9
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm3, xmm0, dword ptr [rsp+168h+outOrg+8]
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
-  if ( !(v45 | v53) )
+  v18 = outOrg.v[0];
+  v19 = outOrg.v[1];
+  v20 = fsqrt((float)((float)((float)(fxOrigin->v[1] - outOrg.v[1]) * (float)(fxOrigin->v[1] - outOrg.v[1])) + (float)((float)(fxOrigin->v[0] - outOrg.v[0]) * (float)(fxOrigin->v[0] - outOrg.v[0]))) + (float)((float)(fxOrigin->v[2] - outOrg.v[2]) * (float)(fxOrigin->v[2] - outOrg.v[2])));
+  if ( v20 > 0.0 )
   {
     effectType = fxState->effectType;
     if ( isGhost || !fxState->selected )
     {
       if ( s_createFxTool->menuDrawMode != COUNT )
-      {
-        __asm { vmovaps xmm3, xmm6; worldDistance }
-        CG_CreateFx_Draw3DIcon(localClientNum, scrPlace, _RDI, *(double *)&_XMM3, color, fxState->effectType);
-      }
+        CG_CreateFx_Draw3DIcon(localClientNum, scrPlace, fxOrigin, v20, color, fxState->effectType);
     }
     else
     {
@@ -3499,134 +3147,64 @@ void CG_CreateFx_Draw3DRepresentation(const LocalClientNum_t localClientNum, con
       if ( s_createFxTool->editRotation == isGhost )
         p_anglesModelHandle = &s_createFxTool->axisModelHandle;
       AnglesToAxis(angles, &axis);
-      __asm { vcomiss xmm6, cs:__real@43800000 }
-      if ( !(v45 | v53) || fxState->occluded )
+      if ( v20 > 256.0 || fxState->occluded )
       {
-        __asm { vmulss  xmm3, xmm6, cs:__real@3b656042; size }
-        CL_AddOrientedDebugStar(_RDI, &axis, color, *(float *)&_XMM3, 0, 0);
-        v21 = text;
+        CL_AddOrientedDebugStar(fxOrigin, &axis, color, v20 * 0.0035000001, 0, 0);
+        v12 = text;
       }
       else
       {
-        FX_PlayOrientedEffect(LOCAL_CLIENT_0, p_anglesModelHandle, 0, _RDI, &axis);
-        v21 = text;
+        FX_PlayOrientedEffect(LOCAL_CLIENT_0, p_anglesModelHandle, 0, fxOrigin, &axis);
+        v12 = text;
       }
     }
     if ( (s_createFxTool->menuDrawMode & 0xFFFFFFFD) == 0 || *(_DWORD *)fxState->visualState )
     {
-      v50 = *(_DWORD *)fxState->visualState;
-      v51 = v50 == 1 || !s_createFxTool->selectedEffectTotal && v50 == 2;
-      __asm { vmovaps xmm3, xmm6; worldDistance }
-      CG_CreateFx_Draw3DText(localClientNum, scrPlace, _RDI, *(float *)&_XMM3, color, v51, v21);
+      v23 = *(_DWORD *)fxState->visualState;
+      v24 = v23 == 1 || !s_createFxTool->selectedEffectTotal && v23 == 2;
+      CG_CreateFx_Draw3DText(localClientNum, scrPlace, fxOrigin, v20, color, v24, v12);
       if ( *(_DWORD *)fxState->visualState )
       {
         if ( !isGhost )
         {
-          v53 = (_DWORD)effectType == 7;
           if ( (unsigned int)effectType >= 7 )
           {
-            LODWORD(v119) = 7;
+            LODWORD(v38) = 7;
             LODWORD(fromServer) = effectType;
-            v54 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3997, ASSERT_TYPE_ASSERT, "(unsigned)( typeIndex ) < (unsigned)( ( sizeof( *array_counter( createFxEffectTypeStrings ) ) + 0 ) )", "typeIndex doesn't index ARRAY_COUNT( createFxEffectTypeStrings )\n\t%i not in [0, %i)", fromServer, v119);
-            v53 = !v54;
-            if ( v54 )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3997, ASSERT_TYPE_ASSERT, "(unsigned)( typeIndex ) < (unsigned)( ( sizeof( *array_counter( createFxEffectTypeStrings ) ) + 0 ) )", "typeIndex doesn't index ARRAY_COUNT( createFxEffectTypeStrings )\n\t%i not in [0, %i)", fromServer, v38) )
               __debugbreak();
           }
-          __asm
+          v25 = fxOrigin->v[0] - v18;
+          v26 = LODWORD(fxOrigin->v[1]);
+          v28 = v26;
+          *(float *)&v28 = *(float *)&v26 - v19;
+          v27 = *(float *)&v26 - v19;
+          v29 = fxOrigin->v[2];
+          if ( v25 != 0.0 || *(float *)&v28 != 0.0 || (float)(v29 - outOrg.v[2]) != 0.0 )
           {
-            vmovss  xmm6, dword ptr [rdi]
-            vsubss  xmm5, xmm6, xmm8
-            vmovss  xmm8, dword ptr [rdi+4]
-            vsubss  xmm4, xmm8, xmm9
-            vmovss  xmm9, dword ptr [rdi+8]
-            vsubss  xmm0, xmm9, dword ptr [rsp+168h+outOrg+8]
-            vucomiss xmm5, xmm7
-          }
-          if ( !v53 )
-            goto LABEL_36;
-          __asm { vucomiss xmm4, xmm7 }
-          if ( !v53 )
-            goto LABEL_36;
-          __asm { vucomiss xmm0, xmm7 }
-          if ( !v53 )
-          {
-LABEL_36:
+            *(float *)&v28 = fsqrt((float)(*(float *)&v28 * *(float *)&v28) + (float)(v25 * v25));
+            _XMM2 = v28;
             __asm
             {
-              vmulss  xmm1, xmm4, xmm4
-              vmulss  xmm0, xmm5, xmm5
-              vaddss  xmm1, xmm1, xmm0
-              vsqrtss xmm2, xmm1, xmm1
               vcmpless xmm0, xmm2, cs:__real@80000000
-              vmovss  xmm3, cs:__real@3f800000
               vblendvps xmm1, xmm2, xmm3, xmm0
-              vdivss  xmm3, xmm3, xmm1
-              vmulss  xmm0, xmm4, xmm3
-              vmulss  xmm1, xmm0, xmm12
-              vaddss  xmm2, xmm1, xmm6
-              vmovss  dword ptr [rsp+168h+xyz], xmm2
-              vmulss  xmm0, xmm5, xmm3
-              vmulss  xmm1, xmm0, xmm12
-              vsubss  xmm2, xmm8, xmm1
-              vmovss  dword ptr [rsp+168h+xyz+4], xmm2
-              vmulss  xmm0, xmm13, cs:__real@40400000
-              vaddss  xmm1, xmm0, xmm9
-              vmovss  dword ptr [rsp+168h+xyz+8], xmm1
-              vmovaps xmm2, xmm10; scale
             }
-            CL_AddDebugString(&xyz, color, *(float *)&_XMM2, createFxEffectTypeStrings[effectType], 0, 0);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+168h+xyz+8]
-              vsubss  xmm1, xmm0, xmm13
-              vmovss  dword ptr [rsp+168h+xyz+8], xmm1
-              vmovss  xmm3, dword ptr [rdi+8]
-              vcvtss2sd xmm3, xmm3, xmm3
-              vmovss  xmm2, dword ptr [rdi+4]
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovss  xmm1, dword ptr [rdi]
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovq   r9, xmm3
-              vmovq   r8, xmm2
-              vmovq   rdx, xmm1
-            }
-            v89 = j_va("Origin: (%.1f, %.1f, %.1f)", _RDX, _R8, _R9);
-            __asm { vmovaps xmm2, xmm10; scale }
-            CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v89, 0, 0);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+168h+xyz+8]
-              vsubss  xmm1, xmm0, xmm13
-              vmovss  dword ptr [rsp+168h+xyz+8], xmm1
-            }
-            _RAX = angles;
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rax+8]
-              vcvtss2sd xmm3, xmm3, xmm3
-              vmovss  xmm2, dword ptr [rax+4]
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovss  xmm1, dword ptr [rax]
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovq   r9, xmm3
-              vmovq   r8, xmm2
-              vmovq   rdx, xmm1
-            }
-            v103 = j_va("Angles: (%.1f, %.1f, %.1f)", _RDX, _R8, _R9);
-            __asm { vmovaps xmm2, xmm10; scale }
-            CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v103, 0, 0);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+168h+xyz+8]
-              vsubss  xmm1, xmm0, xmm13
-              vmovss  dword ptr [rsp+168h+xyz+8], xmm1
-            }
+            xyz.v[0] = (float)((float)(v27 * (float)(1.0 / *(float *)&_XMM1)) * value) + fxOrigin->v[0];
+            xyz.v[1] = *(float *)&v26 - (float)((float)(v25 * (float)(1.0 / *(float *)&_XMM1)) * value);
+            xyz.v[2] = (float)(v17 * 3.0) + v29;
+            CL_AddDebugString(&xyz, color, v16, createFxEffectTypeStrings[effectType], 0, 0);
+            xyz.v[2] = xyz.v[2] - v17;
+            v33 = j_va("Origin: (%.1f, %.1f, %.1f)", fxOrigin->v[0], fxOrigin->v[1], fxOrigin->v[2]);
+            CL_AddDebugString(&xyz, &colorWhite, v16, v33, 0, 0);
+            xyz.v[2] = xyz.v[2] - v17;
+            v34 = j_va("Angles: (%.1f, %.1f, %.1f)", angles->v[0], angles->v[1], angles->v[2]);
+            CL_AddDebugString(&xyz, &colorWhite, v16, v34, 0, 0);
+            xyz.v[2] = xyz.v[2] - v17;
             if ( fxState->effectType == 3 )
             {
-              v107 = SL_ConvertToString(v122->explodersDef.client.name);
-              v108 = j_va("Group: %s", v107);
-              __asm { vmovaps xmm2, xmm10; scale }
-              CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v108, 0, 0);
+              v35 = SL_ConvertToString(v41->explodersDef.client.name);
+              v36 = j_va("Group: %s", v35);
+              CL_AddDebugString(&xyz, &colorWhite, v16, v36, 0, 0);
             }
           }
         }
@@ -3634,17 +3212,6 @@ LABEL_36:
     }
   }
   memset(&outOrg, 0, sizeof(outOrg));
-  _R11 = &v126;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm12, xmmword ptr [r11-68h]
-    vmovaps xmm13, xmmword ptr [r11-78h]
-  }
 }
 
 /*
@@ -3654,51 +3221,41 @@ CG_CreateFx_Draw3DText
 */
 void CG_CreateFx_Draw3DText(const LocalClientNum_t localClientNum, const ScreenPlacement *const scrPlace, const vec3_t *origin, float worldDistance, const vec4_t *color, bool isSelected, const char *text)
 {
-  __int64 v18; 
-  int v19; 
-  const char *v20; 
+  double Float_Internal; 
+  float v9; 
+  int v10; 
+  __int64 v11; 
+  int v12; 
+  const char *v13; 
   vec3_t xyz; 
 
-  _RDI = origin;
   if ( text && *text )
   {
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal(createfx_worldIconSize);
-    __asm { vmulss  xmm6, xmm0, cs:__real@3d0f5c29 }
-    R_TextHeight(cls.bigDevFont);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+68h+xyz], xmm1
-      vmovss  xmm1, dword ptr [rdi+8]
-      vsubss  xmm2, xmm1, xmm2
-      vmovss  dword ptr [rsp+68h+xyz+8], xmm2
-      vmovss  dword ptr [rsp+68h+xyz+4], xmm0
-    }
-    v18 = -1i64;
+    Float_Internal = Dvar_GetFloat_Internal(createfx_worldIconSize);
+    v9 = *(float *)&Float_Internal * 0.035;
+    v10 = R_TextHeight(cls.bigDevFont);
+    *(float *)&Float_Internal = origin->v[1];
+    xyz.v[0] = origin->v[0];
+    xyz.v[2] = origin->v[2] - (float)((float)v10 * v9);
+    xyz.v[1] = *(float *)&Float_Internal;
+    v11 = -1i64;
     do
-      ++v18;
-    while ( text[v18] );
-    v19 = v18 - 1;
-    if ( v19 )
+      ++v11;
+    while ( text[v11] );
+    v12 = v11 - 1;
+    if ( v12 )
     {
-      v20 = &text[v19];
-      while ( *v20 != 47 )
+      v13 = &text[v12];
+      while ( *v13 != 47 )
       {
-        --v20;
-        if ( !--v19 )
+        --v13;
+        if ( !--v12 )
           goto LABEL_11;
       }
-      ++v19;
+      ++v12;
     }
 LABEL_11:
-    __asm { vmovaps xmm2, xmm6; scale }
-    CL_AddDebugStringCentered(&xyz, color, *(float *)&_XMM2, &text[v19], 0, 0);
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
+    CL_AddDebugStringCentered(&xyz, color, v9, &text[v12], 0, 0);
   }
 }
 
@@ -3709,88 +3266,83 @@ CG_CreateFx_DrawInfo
 */
 void CG_CreateFx_DrawInfo(LocalClientNum_t localClientNum, const ScreenPlacement *const scrPlace)
 {
-  LocalClientNum_t v11; 
-  bool v21; 
-  __int64 v24; 
-  unsigned __int64 v25; 
-  __int64 v28; 
-  const CreateFxDataState *v29; 
+  __int128 v2; 
+  const ScreenPlacement *v3; 
+  LocalClientNum_t v4; 
+  float v5; 
+  float v6; 
+  double v7; 
+  vec4_t v8; 
+  __int64 v9; 
+  unsigned __int64 v10; 
+  CreateFxTool *v11; 
+  unsigned __int64 v12; 
+  __int64 v13; 
+  const CreateFxDataState *v14; 
+  bool v15; 
   const CreateFxMapLayerDef *activeLayer; 
   const CreateFxMapLayerDef *layer; 
-  bool v32; 
-  int v33; 
+  bool v18; 
+  int v19; 
   char occluded; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
   const char *aliasString; 
-  __int64 v49; 
-  const CreateFXDataUnion *v50; 
+  __int64 v27; 
+  const CreateFXDataUnion *v28; 
   const char *EffectSoundAliasName; 
   SndAlias *head; 
   const OcclusionShape *OcclusionShapeById; 
+  float *v32; 
+  float distMax; 
   SndAliasList *aliasList; 
+  SndAlias *v35; 
   SndAliasList *Alias; 
-  bool v86; 
+  SndAlias *v37; 
+  float damageRadius; 
   scr_string_t name; 
-  int v91; 
-  __int64 v92; 
-  __int64 v93; 
-  int v98; 
-  __int64 v99; 
-  CreateFxDataState *v101; 
-  __int64 v103; 
-  CreateFxMenuPage *v104; 
+  int v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int64 v43; 
+  int v44; 
+  __int64 v45; 
+  const CreateFXDataUnion *data; 
+  CreateFxDataState *v47; 
+  float v48; 
+  __int64 v49; 
+  CreateFxMenuPage *v50; 
   void (__fastcall *menuDrawFunction)(CreateFxMenuPage *const, const ScreenPlacement *const); 
-  Material *v106; 
-  const vec4_t *v107; 
-  const char *v124; 
-  const char *v132; 
-  __int64 v134; 
-  bool v136; 
-  int v139; 
+  Material *v52; 
+  const vec4_t *v53; 
+  float v54; 
+  const char *v55; 
+  float displayHeight; 
+  float v57; 
+  const char *v58; 
+  __int64 v59; 
+  int v60; 
+  float v61; 
   cg_t *LocalClientGlobals; 
-  CreateFxTool *v148; 
-  int v149; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
+  CreateFxTool *v63; 
+  int v64; 
+  float v65; 
   CreateFxDataState *fxState; 
-  float fxStatea; 
-  float fxStateb; 
-  float fxStatec; 
-  float data; 
-  float dataa; 
-  float datab; 
   char *text; 
-  float texta; 
-  float textb; 
-  float textc; 
-  float textd; 
-  float isGhost; 
-  float isGhosta; 
-  float isGhostb; 
-  float isGhostc; 
-  float v181; 
-  float v182; 
-  float v183; 
-  float v184; 
-  float v185; 
-  float v186; 
-  float v187; 
-  float v188; 
-  __int64 v189; 
-  const CreateFxMapLayerDef *v190; 
-  const char *v191; 
+  __int64 v68; 
+  const CreateFxMapLayerDef *v69; 
+  const char *v70; 
   bool outIsAlwaysLoaded; 
-  int v193; 
+  int v72; 
   LocalClientNum_t localClientNuma; 
-  int v195; 
+  int v74; 
   SndAliasList *outAlias; 
   vec3_t center; 
   vec4_t color; 
-  vec4_t v199; 
+  vec4_t v78; 
   vec3_t outOrigin; 
   vec3_t scrPlacea; 
   vec3_t outAngles; 
@@ -3800,215 +3352,133 @@ void CG_CreateFx_DrawInfo(LocalClientNum_t localClientNum, const ScreenPlacement
   vec3_t end; 
   vec3_t fxAngles; 
   vec3_t forward; 
-  void *retaddr; 
+  __int128 v88; 
 
-  _R11 = &retaddr;
-  _R15 = scrPlace;
+  v3 = scrPlace;
   *(_QWORD *)scrPlacea.v = scrPlace;
-  v11 = localClientNum;
+  v4 = localClientNum;
   localClientNuma = localClientNum;
   if ( s_createFxTool && s_createFxTool->enabled )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vmovaps xmmword ptr [r11-98h], xmm11
-    }
     if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5255, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3f800000
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  dword ptr [rbp+100h+var_140], xmm10
-      vmovss  dword ptr [rbp+100h+var_140+4], xmm9
-      vmovss  dword ptr [rbp+100h+var_140+8], xmm9
-    }
-    CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+65ECh]
-      vmulss  xmm0, xmm0, cs:__real@3bcde32e; X
-    }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3e800000
-      vaddss  xmm0, xmm1, cs:__real@3f400000; val
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm2, xmm10; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    v21 = s_createFxDrawCount == 0;
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3f000000
-      vmovss  dword ptr [rbp+100h+var_140+0Ch], xmm0
-    }
-    v193 = 0;
+    v78.v[0] = FLOAT_1_0;
+    v78.v[1] = 0.0;
+    v78.v[2] = 0.0;
+    v5 = (float)CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time * 0.0062831854;
+    v6 = (float)(sinf_0(v5) * 0.25) + 0.75;
+    v7 = I_fclamp(v6, 0.0, 1.0);
+    v78.v[3] = *(float *)&v7;
+    v72 = 0;
     if ( s_createFxDrawCount > 0 )
     {
-      __asm
-      {
-        vmovups xmm6, xmmword ptr [rbp+100h+var_140]
-        vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-      }
-      v24 = 0i64;
-      v189 = 0i64;
+      v8 = v78;
+      v9 = 0i64;
+      v68 = 0i64;
       while ( 1 )
       {
-        v25 = s_createFxDrawList[v24];
-        _RBX = s_createFxTool;
-        _RDI = v25;
-        v25 *= 5i64;
-        v28 = *(int *)&s_createFxTool->scratchDataState[0].visualState[8 * v25 + 4];
-        v29 = (CreateFxDataState *)((char *)s_createFxTool->scratchDataState + 8 * v25);
-        v86 = *(_DWORD *)&s_createFxTool->scratchDataState[0].visualState[8 * v25] == 0;
+        v10 = s_createFxDrawList[v9];
+        v11 = s_createFxTool;
+        v12 = v10;
+        v10 *= 5i64;
+        v13 = *(int *)&s_createFxTool->scratchDataState[0].visualState[8 * v10 + 4];
+        v14 = (CreateFxDataState *)((char *)s_createFxTool->scratchDataState + 8 * v10);
+        v15 = *(_DWORD *)&s_createFxTool->scratchDataState[0].visualState[8 * v10] == 0;
         activeLayer = s_createFxTool->activeLayer;
-        layer = v29->layer;
-        *(_QWORD *)effectData.v = &s_createFxTool->scratchData[_RDI];
-        v195 = v28;
-        v190 = activeLayer;
-        v32 = v86 && !CG_CreateFx_IsEffectDefValid(&s_createFxTool->scratchData[_RDI], (const CreateFxEffectType)v28);
-        v33 = *(_DWORD *)v29->visualState;
-        if ( (_DWORD)v28 == 1 || (_DWORD)v28 == 2 || (_DWORD)v28 == 3 || (_DWORD)v28 == 4 || (_DWORD)v28 == 5 )
+        layer = v14->layer;
+        *(_QWORD *)effectData.v = &s_createFxTool->scratchData[v12];
+        v74 = v13;
+        v69 = activeLayer;
+        v18 = v15 && !CG_CreateFx_IsEffectDefValid(&s_createFxTool->scratchData[v12], (const CreateFxEffectType)v13);
+        v19 = *(_DWORD *)v14->visualState;
+        if ( (_DWORD)v13 == 1 || (_DWORD)v13 == 2 || (_DWORD)v13 == 3 || (_DWORD)v13 == 4 || (_DWORD)v13 == 5 )
         {
-          _RAX = *(_QWORD *)effectData.v;
           if ( *(_QWORD *)effectData.v )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  dword ptr [rbp+100h+center], xmm0
-              vmovss  xmm1, dword ptr [rdi+rbx+4800D4h]
-              vmovss  dword ptr [rbp+100h+center+4], xmm1
-              vmovss  xmm0, dword ptr [rdi+rbx+4800D8h]
-              vmovss  dword ptr [rbp+100h+center+8], xmm0
-            }
+            center.v[0] = **(float **)effectData.v;
+            *(_QWORD *)&center.y = *(_QWORD *)&v11->scratchData[v12].loopSoundsDef.origin.y;
           }
         }
         else
         {
-          LODWORD(fxState) = v28;
+          LODWORD(fxState) = v13;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", fxState) )
             __debugbreak();
         }
-        if ( (_DWORD)v28 == 1 || (_DWORD)v28 == 2 || (_DWORD)v28 == 3 || (_DWORD)v28 == 4 || (_DWORD)v28 == 5 )
+        if ( (_DWORD)v13 == 1 || (_DWORD)v13 == 2 || (_DWORD)v13 == 3 || (_DWORD)v13 == 4 || (_DWORD)v13 == 5 )
         {
-          _RAX = (__int64)&_RBX->scratchData[_RDI].reactiveEntDef.angles;
-          if ( (CreateFxTool *)((char *)_RBX + _RDI * 104) != (CreateFxTool *)-4718812i64 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  dword ptr [rbp+100h+fxAngles], xmm0
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  dword ptr [rbp+100h+fxAngles+4], xmm1
-              vmovss  xmm0, dword ptr [rax+8]
-              vmovss  dword ptr [rbp+100h+fxAngles+8], xmm0
-            }
-          }
+          if ( (CreateFxTool *)((char *)v11 + v12 * 104) != (CreateFxTool *)-4718812i64 )
+            fxAngles = v11->scratchData[v12].reactiveEntDef.angles;
         }
         else
         {
-          LODWORD(fxState) = v28;
+          LODWORD(fxState) = v13;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3223, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectAngles: unhandled effect type '%d'", fxState) )
             __debugbreak();
         }
-        occluded = v29->occluded;
-        if ( layer == v190 )
+        occluded = v14->occluded;
+        if ( layer == v69 )
         {
-          if ( v32 )
+          if ( v18 )
           {
-            __asm { vmovdqa xmmword ptr [rbp+100h+color], xmm6 }
+            color = v8;
           }
           else
           {
-            _RCX = 6 * v28;
-            _RAX = 0x140000000ui64;
-            if ( v33 == 1 )
+            if ( v19 == 1 )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr rva s_effectTypeColors.selectedColor[rax+rcx*8]
-                vmovss  xmm1, dword ptr (rva s_effectTypeColors.selectedColor+4)[rax+rcx*8]
-                vmovss  dword ptr [rbp+100h+color], xmm0
-                vmovss  xmm0, dword ptr (rva s_effectTypeColors.selectedColor+8)[rax+rcx*8]
-                vmovss  dword ptr [rbp+100h+color+4], xmm1
-                vmovss  xmm1, dword ptr (rva s_effectTypeColors.selectedColor+0Ch)[rax+rcx*8]
-              }
+              v21 = s_effectTypeColors[v13].selectedColor.v[1];
+              color.v[0] = s_effectTypeColors[v13].selectedColor.v[0];
+              v22 = s_effectTypeColors[v13].selectedColor.v[2];
+              color.v[1] = v21;
+              v23 = s_effectTypeColors[v13].selectedColor.v[3];
             }
-            else if ( v33 == 2 )
+            else if ( v19 == 2 )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr rva s_effectTypeColors.highlightedColor[rax+rcx*8]
-                vmovss  xmm1, dword ptr (rva s_effectTypeColors.highlightedColor+4)[rax+rcx*8]
-                vmovss  dword ptr [rbp+100h+color], xmm0
-                vmovss  xmm0, dword ptr (rva s_effectTypeColors.highlightedColor+8)[rax+rcx*8]
-                vmovss  dword ptr [rbp+100h+color+4], xmm1
-                vmovss  xmm1, dword ptr (rva s_effectTypeColors.highlightedColor+0Ch)[rax+rcx*8]
-              }
+              v24 = s_effectTypeColors[v13].highlightedColor.v[1];
+              color.v[0] = s_effectTypeColors[v13].highlightedColor.v[0];
+              v22 = s_effectTypeColors[v13].highlightedColor.v[2];
+              color.v[1] = v24;
+              v23 = s_effectTypeColors[v13].highlightedColor.v[3];
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr rva s_effectTypeColors.defaultColor[rax+rcx*8]
-                vmovss  xmm1, dword ptr (rva s_effectTypeColors.defaultColor+4)[rax+rcx*8]
-                vmovss  dword ptr [rbp+100h+color], xmm0
-                vmovss  xmm0, dword ptr (rva s_effectTypeColors.defaultColor+8)[rax+rcx*8]
-                vmovss  dword ptr [rbp+100h+color+4], xmm1
-                vmovss  xmm1, dword ptr (rva s_effectTypeColors.defaultColor+0Ch)[rax+rcx*8]
-              }
+              v25 = s_effectTypeColors[v13].defaultColor.v[1];
+              color.v[0] = s_effectTypeColors[v13].defaultColor.v[0];
+              v22 = s_effectTypeColors[v13].defaultColor.v[2];
+              color.v[1] = v25;
+              v23 = s_effectTypeColors[v13].defaultColor.v[3];
             }
-            __asm
-            {
-              vmovss  dword ptr [rbp+100h+color+8], xmm0
-              vmovss  dword ptr [rbp+100h+color+0Ch], xmm1
-            }
+            color.v[2] = v22;
+            color.v[3] = v23;
             if ( occluded )
-            {
-              __asm
-              {
-                vmulss  xmm0, xmm1, xmm11
-                vmovss  dword ptr [rbp+100h+color+0Ch], xmm0
-              }
-            }
+              color.v[3] = v23 * 0.5;
           }
         }
         else
         {
-          __asm
-          {
-            vmovups xmm0, cs:__xmm@3f0000003f0000003f0000003f000000
-            vmovups xmmword ptr [rbp+100h+color], xmm0
-          }
+          color = (vec4_t)_xmm;
         }
-        if ( !v29->aliasString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3335, ASSERT_TYPE_ASSERT, "(effectState.aliasString)", (const char *)&queryFormat, "effectState.aliasString") )
+        if ( !v14->aliasString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3335, ASSERT_TYPE_ASSERT, "(effectState.aliasString)", (const char *)&queryFormat, "effectState.aliasString") )
           __debugbreak();
-        aliasString = v29->aliasString;
-        v191 = aliasString;
-        if ( v29->selected )
+        aliasString = v14->aliasString;
+        v70 = aliasString;
+        if ( v14->selected )
           break;
-        v49 = v189;
+        v27 = v68;
 LABEL_52:
-        if ( s_createFxTool->menuDrawMode == (COUNT|DODGE) && !*(_DWORD *)v29->visualState )
+        if ( s_createFxTool->menuDrawMode == (COUNT|DODGE) && !*(_DWORD *)v14->visualState )
         {
-          _R15 = *(const ScreenPlacement **)scrPlacea.v;
+          v3 = *(const ScreenPlacement **)scrPlacea.v;
         }
         else
         {
-          v50 = *(const CreateFXDataUnion **)effectData.v;
-          _R15 = *(const ScreenPlacement **)scrPlacea.v;
-          CG_CreateFx_Draw3DRepresentation(localClientNuma, *(const ScreenPlacement *const *)scrPlacea.v, &center, &fxAngles, &color, v29, *(const CreateFXDataUnion **)effectData.v, aliasString, 0);
-          if ( *(_DWORD *)v29->visualState == 1 )
+          v28 = *(const CreateFXDataUnion **)effectData.v;
+          v3 = *(const ScreenPlacement **)scrPlacea.v;
+          CG_CreateFx_Draw3DRepresentation(localClientNuma, *(const ScreenPlacement *const *)scrPlacea.v, &center, &fxAngles, &color, v14, *(const CreateFXDataUnion **)effectData.v, aliasString, 0);
+          if ( *(_DWORD *)v14->visualState == 1 )
           {
-            EffectSoundAliasName = CG_CreateFx_GetEffectSoundAliasName(v50, (const CreateFxEffectType)v28);
+            EffectSoundAliasName = CG_CreateFx_GetEffectSoundAliasName(v28, (const CreateFxEffectType)v13);
             if ( EffectSoundAliasName )
             {
               if ( SND_TryFindAliasForCaching(EffectSoundAliasName, &outAlias, &outIsAlwaysLoaded) )
@@ -4021,74 +3491,29 @@ LABEL_52:
                     if ( head )
                     {
                       OcclusionShapeById = SND_GetOcclusionShapeById(head->occlusionShape);
-                      _RBX = OcclusionShapeById;
+                      v32 = (float *)OcclusionShapeById;
                       if ( OcclusionShapeById )
                       {
                         if ( OcclusionShapeById->id != g_snd.defaultHash )
                         {
-                          CG_CreateFx_GetEffectAngles(v50, (const CreateFxEffectType)v28, &outAngles);
-                          __asm
-                          {
-                            vmovss  xmm0, dword ptr [rbp+100h+outAngles]
-                            vaddss  xmm1, xmm0, dword ptr [rbx+60h]
-                            vmovss  xmm2, dword ptr [rbp+100h+outAngles+4]
-                            vmovss  dword ptr [rbp+100h+outAngles], xmm1
-                            vaddss  xmm0, xmm2, dword ptr [rbx+5Ch]
-                            vmovss  dword ptr [rbp+100h+outAngles+4], xmm0
-                          }
+                          CG_CreateFx_GetEffectAngles(v28, (const CreateFxEffectType)v13, &outAngles);
+                          outAngles.v[0] = outAngles.v[0] + v32[24];
+                          outAngles.v[1] = outAngles.v[1] + v32[23];
                           AngleVectors(&outAngles, &forward, NULL, NULL);
-                          CG_CreateFx_GetEffectOrigin(v50, (const CreateFxEffectType)v28, &outOrigin);
-                          __asm
-                          {
-                            vmovss  xmm3, dword ptr [rbp+100h+forward+8]
-                            vmovss  xmm5, dword ptr [rbp+100h+forward]
-                            vmovss  xmm4, dword ptr [rbp+100h+forward+4]
-                          }
-                          _RAX = outAlias->head;
-                          __asm
-                          {
-                            vmovss  xmm2, dword ptr [rax+68h]
-                            vmulss  xmm0, xmm2, xmm5
-                            vaddss  xmm1, xmm0, dword ptr [rbp+100h+outOrigin]
-                            vmovss  dword ptr [rbp+100h+origin], xmm1
-                            vmulss  xmm0, xmm2, xmm4
-                            vaddss  xmm1, xmm0, dword ptr [rbp+100h+outOrigin+4]
-                            vmulss  xmm0, xmm2, xmm3
-                            vmovss  dword ptr [rbp+100h+origin+4], xmm1
-                            vaddss  xmm1, xmm0, dword ptr [rbp+100h+outOrigin+8]
-                            vmovss  dword ptr [rbp+100h+origin+8], xmm1
-                            vxorps  xmm0, xmm4, xmm7
-                            vmovss  dword ptr [rbp+100h+direction+4], xmm0
-                            vmovups xmm0, xmmword ptr cs:?colorMagenta@@3Tvec4_t@@B; vec4_t const colorMagenta
-                            vmovups xmmword ptr [rbp+100h+var_140], xmm0
-                            vxorps  xmm2, xmm5, xmm7
-                            vmovss  dword ptr [rbp+100h+direction], xmm2
-                            vxorps  xmm1, xmm3, xmm7
-                            vmovss  dword ptr [rbp+100h+direction+8], xmm1
-                          }
-                          _RAX = outAlias->head;
-                          __asm
-                          {
-                            vmovss  xmm2, dword ptr [rbx+48h]; radius
-                            vmovss  xmm3, dword ptr [rax+68h]; length
-                          }
-                          CG_DebugCone(&origin, &direction, *(float *)&_XMM2, *(float *)&_XMM3, &v199, 0, 0);
-                          __asm
-                          {
-                            vmulss  xmm2, xmm11, dword ptr [rbp+100h+var_140+8]
-                            vmulss  xmm1, xmm11, dword ptr [rbp+100h+var_140]
-                            vmulss  xmm0, xmm11, dword ptr [rbp+100h+var_140+4]
-                            vmovss  dword ptr [rbp+100h+var_140], xmm1
-                            vmovss  dword ptr [rbp+100h+var_140+4], xmm0
-                            vmovss  dword ptr [rbp+100h+var_140+8], xmm2
-                          }
-                          _RCX = outAlias->head;
-                          __asm
-                          {
-                            vmovss  xmm2, dword ptr [rbx+44h]; radius
-                            vmovss  xmm3, dword ptr [rcx+68h]; length
-                          }
-                          CG_DebugCone(&origin, &direction, *(float *)&_XMM2, *(float *)&_XMM3, &v199, 0, 0);
+                          CG_CreateFx_GetEffectOrigin(v28, (const CreateFxEffectType)v13, &outOrigin);
+                          distMax = outAlias->head->distMax;
+                          origin.v[0] = (float)(distMax * forward.v[0]) + outOrigin.v[0];
+                          origin.v[1] = (float)(distMax * forward.v[1]) + outOrigin.v[1];
+                          origin.v[2] = (float)(distMax * forward.v[2]) + outOrigin.v[2];
+                          LODWORD(direction.v[1]) = LODWORD(forward.v[1]) ^ _xmm;
+                          v78 = colorMagenta;
+                          LODWORD(direction.v[0]) = LODWORD(forward.v[0]) ^ _xmm;
+                          LODWORD(direction.v[2]) = LODWORD(forward.v[2]) ^ _xmm;
+                          CG_DebugCone(&origin, &direction, v32[18], outAlias->head->distMax, &v78, 0, 0);
+                          v78.v[0] = 0.5 * v78.v[0];
+                          v78.v[1] = 0.5 * v78.v[1];
+                          v78.v[2] = 0.5 * v78.v[2];
+                          CG_DebugCone(&origin, &direction, v32[17], outAlias->head->distMax, &v78, 0, 0);
                         }
                       }
                     }
@@ -4098,331 +3523,183 @@ LABEL_52:
             }
           }
         }
-        v24 = v49 + 1;
-        v189 = v24;
-        v21 = ++v193 <= (unsigned int)s_createFxDrawCount;
-        if ( v193 >= s_createFxDrawCount )
+        v9 = v27 + 1;
+        v68 = v9;
+        if ( ++v72 >= s_createFxDrawCount )
         {
-          v11 = localClientNuma;
+          v4 = localClientNuma;
           goto LABEL_90;
         }
       }
-      switch ( v29->effectType )
+      switch ( v14->effectType )
       {
         case 2:
-          aliasList = _RBX->scratchData[_RDI].intervalSoundsDef.aliasList;
+          aliasList = v11->scratchData[v12].intervalSoundsDef.aliasList;
           if ( !aliasList )
           {
-            aliasList = SND_TryFindAlias(_RBX->scratchData[_RDI].intervalSoundsDef.effectSound.name);
+            aliasList = SND_TryFindAlias(v11->scratchData[v12].intervalSoundsDef.effectSound.name);
             if ( !aliasList )
               goto LABEL_50;
           }
-          _RAX = aliasList->head;
-          if ( !_RAX )
+          v35 = aliasList->head;
+          if ( !v35 )
             goto LABEL_50;
           break;
         case 3:
-          Alias = _RBX->scratchData[_RDI].oneShotFxDef.aliasList;
-          if ( Alias || (Alias = SND_TryFindAlias(_RBX->scratchData[_RDI].oneShotFxDef.effectSound.name), v86 = Alias == NULL, Alias) )
+          Alias = v11->scratchData[v12].oneShotFxDef.aliasList;
+          if ( Alias || (Alias = SND_TryFindAlias(v11->scratchData[v12].oneShotFxDef.effectSound.name)) != NULL )
           {
-            _RAX = Alias->head;
-            v86 = _RAX == NULL;
-            if ( _RAX )
+            v37 = Alias->head;
+            if ( v37 )
             {
-              __asm { vmovss  xmm1, dword ptr [rax+64h]; radius }
-              CG_DebugSphere(&center, *(float *)&_XMM1, &colorRed, 1, 0);
-              _RAX = Alias->head;
-              __asm { vmovss  xmm1, dword ptr [rax+68h]; radius }
-              CG_DebugSphere(&center, *(float *)&_XMM1, &colorGreen, 1, 0);
+              CG_DebugSphere(&center, v37->distMin, &colorRed, 1, 0);
+              CG_DebugSphere(&center, Alias->head->distMax, &colorGreen, 1, 0);
             }
           }
-          __asm { vucomiss xmm9, dword ptr [rdi+rbx+480120h] }
-          if ( !v86 )
+          if ( v11->scratchData[v12].explodersDef.server.damageAmount != 0.0 )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+rbx+480124h]; radius
-              vucomiss xmm1, xmm9
-            }
-            CG_DebugSphere(&center, *(float *)&_XMM1, &colorOrange, 1, 0);
+            damageRadius = v11->scratchData[v12].explodersDef.server.damageRadius;
+            if ( damageRadius != 0.0 )
+              CG_DebugSphere(&center, damageRadius, &colorOrange, 1, 0);
           }
-          v49 = v189;
+          v27 = v68;
           if ( s_createFxTool->drawExploderLines )
           {
-            name = _RBX->scratchData[_RDI].explodersDef.client.name;
-            v91 = 0;
-            v92 = 0i64;
+            name = v11->scratchData[v12].explodersDef.client.name;
+            v40 = 0;
+            v41 = 0i64;
             if ( s_createFxDrawCount > 0 )
             {
               do
               {
-                if ( v92 != v189 )
+                if ( v41 != v68 )
                 {
-                  v93 = s_createFxDrawList[v92];
-                  _RBX = s_createFxTool;
-                  _RCX = v93;
-                  if ( s_createFxTool->scratchDataState[v93].effectType == 3 && s_createFxTool->scratchData[_RCX].explodersDef.client.name == name )
+                  v42 = s_createFxDrawList[v41];
+                  v43 = v42;
+                  if ( s_createFxTool->scratchDataState[v42].effectType == 3 && s_createFxTool->scratchData[v43].explodersDef.client.name == name )
                   {
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rcx+rbx+4800D0h]
-                      vmovss  dword ptr [rbp+100h+end], xmm0
-                      vmovss  xmm1, dword ptr [rcx+rbx+4800D4h]
-                      vmovss  dword ptr [rbp+100h+end+4], xmm1
-                      vmovss  xmm0, dword ptr [rcx+rbx+4800D8h]
-                      vmovss  dword ptr [rbp+100h+end+8], xmm0
-                    }
+                    end = s_createFxTool->scratchData[v43].oneShotFxDef.origin;
                     CL_AddDebugLine(&center, &end, &color, 0, 0, 0);
                   }
                 }
-                ++v91;
-                ++v92;
+                ++v40;
+                ++v41;
               }
-              while ( v91 < s_createFxDrawCount );
-              LODWORD(v28) = v195;
+              while ( v40 < s_createFxDrawCount );
+              LODWORD(v13) = v74;
             }
           }
           goto LABEL_51;
         case 4:
-          aliasList = _RBX->scratchData[_RDI].intervalSoundsDef.aliasList;
+          aliasList = v11->scratchData[v12].intervalSoundsDef.aliasList;
           if ( !aliasList )
           {
-            aliasList = SND_TryFindAlias(_RBX->scratchData[_RDI].intervalSoundsDef.effectSound.name);
+            aliasList = SND_TryFindAlias(v11->scratchData[v12].intervalSoundsDef.effectSound.name);
             if ( !aliasList )
               goto LABEL_49;
           }
-          _RAX = aliasList->head;
-          if ( !_RAX )
+          v35 = aliasList->head;
+          if ( !v35 )
             goto LABEL_49;
           break;
         case 5:
 LABEL_49:
-          _RAX = s_createFxTool;
-          __asm { vmovss  xmm1, dword ptr [rdi+rax+480100h]; radius }
-          CG_DebugSphere(&center, *(float *)&_XMM1, &colorGreen, 1, 0);
+          CG_DebugSphere(&center, s_createFxTool->scratchData[v12].reactiveEntDef.radius, &colorGreen, 1, 0);
           goto LABEL_50;
         default:
 LABEL_50:
-          v49 = v189;
+          v27 = v68;
 LABEL_51:
-          aliasString = v191;
+          aliasString = v70;
           goto LABEL_52;
       }
-      __asm { vmovss  xmm1, dword ptr [rax+64h]; radius }
-      CG_DebugSphere(&center, *(float *)&_XMM1, &colorRed, 1, 0);
-      _RAX = aliasList->head;
-      __asm { vmovss  xmm1, dword ptr [rax+68h] }
-      CG_DebugSphere(&center, *(float *)&_XMM1, &colorGreen, 1, 0);
+      CG_DebugSphere(&center, v35->distMin, &colorRed, 1, 0);
+      CG_DebugSphere(&center, aliasList->head->distMax, &colorGreen, 1, 0);
       goto LABEL_50;
     }
 LABEL_90:
-    _RBX = s_createFxTool;
-    __asm { vcomiss xmm10, dword ptr [rbx+240018h] }
-    if ( !v21 && s_createFxTool->clipboard.effectTotal > 0 )
+    if ( s_createFxTool->clipboard.cursorTrace.fraction < 1.0 && s_createFxTool->clipboard.effectTotal > 0 )
     {
-      v98 = 0;
-      v99 = 0i64;
+      v44 = 0;
+      v45 = 0i64;
       do
       {
-        _RDI = &s_createFxTool->clipboard.effectData[v98];
-        v101 = &s_createFxTool->clipboard.effectDataState[v99];
-        if ( s_createFxTool->clipboard.effectDataState[v99].effectType == 1 || s_createFxTool->clipboard.effectDataState[v99].effectType == 2 || s_createFxTool->clipboard.effectDataState[v99].effectType == 3 || s_createFxTool->clipboard.effectDataState[v99].effectType == Menu || s_createFxTool->clipboard.effectDataState[v99].effectType == 5 )
+        data = &s_createFxTool->clipboard.effectData[v44];
+        v47 = &s_createFxTool->clipboard.effectDataState[v45];
+        if ( s_createFxTool->clipboard.effectDataState[v45].effectType == 1 || s_createFxTool->clipboard.effectDataState[v45].effectType == 2 || s_createFxTool->clipboard.effectDataState[v45].effectType == 3 || s_createFxTool->clipboard.effectDataState[v45].effectType == Menu || s_createFxTool->clipboard.effectDataState[v45].effectType == 5 )
         {
-          if ( (CreateFxTool *)((char *)s_createFxTool + 104 * v98) != (CreateFxTool *)-16i64 )
+          if ( (CreateFxTool *)((char *)s_createFxTool + 104 * v44) != (CreateFxTool *)-16i64 )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi]
-              vmovss  xmm1, dword ptr [rdi+4]
-              vmovss  dword ptr [rbp+100h+outOrigin], xmm0
-              vmovss  xmm0, dword ptr [rdi+8]
-              vmovss  dword ptr [rbp+100h+outOrigin+8], xmm0
-              vmovss  dword ptr [rbp+100h+outOrigin+4], xmm1
-            }
+            v48 = s_createFxTool->clipboard.effectData[v44].oneShotFxDef.origin.v[1];
+            outOrigin.v[0] = data->oneShotFxDef.origin.v[0];
+            outOrigin.v[2] = s_createFxTool->clipboard.effectData[v44].oneShotFxDef.origin.v[2];
+            outOrigin.v[1] = v48;
           }
         }
         else
         {
-          LODWORD(fxState) = s_createFxTool->clipboard.effectDataState[v99].effectType;
+          LODWORD(fxState) = s_createFxTool->clipboard.effectDataState[v45].effectType;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", fxState) )
             __debugbreak();
         }
         CG_CreateFx_CalculateClipboardEntityOrigin(&outOrigin, &effectData);
-        if ( !v101->aliasString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3335, ASSERT_TYPE_ASSERT, "(effectState.aliasString)", (const char *)&queryFormat, "effectState.aliasString") )
+        if ( !v47->aliasString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3335, ASSERT_TYPE_ASSERT, "(effectState.aliasString)", (const char *)&queryFormat, "effectState.aliasString") )
           __debugbreak();
-        text = (char *)v101->aliasString;
-        __asm
-        {
-          vmovss  dword ptr [rbp+100h+scrPlace], xmm9
-          vmovss  dword ptr [rbp+100h+scrPlace+4], xmm9
-          vmovss  [rbp+100h+var_118], xmm9
-        }
-        CG_CreateFx_Draw3DRepresentation(v11, _R15, &effectData, &scrPlacea, &colorRedFaded, v101, _RDI, text, 1);
-        ++v98;
-        ++v99;
+        text = (char *)v47->aliasString;
+        scrPlacea.v[0] = 0.0;
+        scrPlacea.v[1] = 0.0;
+        scrPlacea.v[2] = 0.0;
+        CG_CreateFx_Draw3DRepresentation(v4, v3, &effectData, &scrPlacea, &colorRedFaded, v47, data, text, 1);
+        ++v44;
+        ++v45;
       }
-      while ( v98 < s_createFxTool->clipboard.effectTotal );
+      while ( v44 < s_createFxTool->clipboard.effectTotal );
     }
-    v103 = -1i64;
-    if ( !CL_Keys_IsCatcherActive(v11, -1) )
+    v49 = -1i64;
+    if ( !CL_Keys_IsCatcherActive(v4, -1) )
     {
-      __asm { vmovaps [rsp+200h+var_68+8], xmm8 }
-      v104 = s_menuPath[s_menuPathCount];
-      menuDrawFunction = v104->menuDrawFunction;
+      v88 = v2;
+      v50 = s_menuPath[s_menuPathCount];
+      menuDrawFunction = v50->menuDrawFunction;
       if ( menuDrawFunction )
-        menuDrawFunction(v104, _R15);
-      v106 = s_effectTypeMaterials[0];
-      v107 = &colorWhiteFaded;
-      __asm
-      {
-        vmovss  xmm8, cs:__real@c1000000
-        vmovss  xmm3, cs:__real@40400000; w
-      }
+        menuDrawFunction(v50, v3);
+      v52 = s_effectTypeMaterials[0];
+      v53 = &colorWhiteFaded;
       if ( s_createFxTool->highlightedEffectIndex != -1 )
-        v107 = &colorYellow;
-      __asm
-      {
-        vmovss  dword ptr [rsp+200h+var_1B0], xmm10
-        vmovss  [rsp+200h+var_1B8], xmm10
-        vmovss  dword ptr [rsp+200h+isGhost], xmm9
-        vmovss  dword ptr [rsp+200h+text], xmm9
-        vmovaps xmm2, xmm8; y
-        vmovaps xmm1, xmm8; x
-        vmovss  dword ptr [rsp+200h+fmt], xmm10
-      }
-      CL_DrawStretchPic(_R15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, 2, 2, texta, isGhost, v181, v185, v107, s_effectTypeMaterials[0]);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@41800000
-        vmovss  dword ptr [rsp+200h+var_1B0], xmm10
-        vmovss  [rsp+200h+var_1B8], xmm10
-        vmovss  dword ptr [rsp+200h+isGhost], xmm9
-        vmovss  dword ptr [rsp+200h+text], xmm9
-        vmovaps xmm3, xmm10; w
-        vmovaps xmm2, xmm8; y
-        vmovaps xmm1, xmm8; x
-        vmovss  dword ptr [rsp+200h+fmt], xmm6
-      }
-      CL_DrawStretchPic(_R15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 2, 2, textb, isGhosta, v182, v186, v107, v106);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@40400000; w
-        vmovss  xmm1, cs:__real@40c00000; x
-        vmovss  dword ptr [rsp+200h+var_1B0], xmm10
-        vmovss  [rsp+200h+var_1B8], xmm10
-        vmovss  dword ptr [rsp+200h+isGhost], xmm9
-        vmovss  dword ptr [rsp+200h+text], xmm9
-        vmovaps xmm2, xmm8; y
-        vmovss  dword ptr [rsp+200h+fmt], xmm10
-      }
-      CL_DrawStretchPic(_R15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, 2, 2, textc, isGhostb, v183, v187, v107, v106);
-      __asm
-      {
-        vmovss  xmm1, cs:__real@41100000; x
-        vmovss  dword ptr [rsp+200h+var_1B0], xmm10
-        vmovss  [rsp+200h+var_1B8], xmm10
-        vmovss  dword ptr [rsp+200h+isGhost], xmm9
-        vmovss  dword ptr [rsp+200h+text], xmm9
-        vmovaps xmm3, xmm10; w
-        vmovaps xmm2, xmm8; y
-        vmovss  dword ptr [rsp+200h+fmt], xmm6
-      }
-      CL_DrawStretchPic(_R15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, 2, 2, textd, isGhostc, v184, v188, v107, v106);
-      __asm { vmovaps xmm8, [rsp+200h+var_68+8] }
+        v53 = &colorYellow;
+      CL_DrawStretchPic(v3, -8.0, -8.0, 3.0, 1.0, 2, 2, 0.0, 0.0, 1.0, 1.0, v53, s_effectTypeMaterials[0]);
+      CL_DrawStretchPic(v3, -8.0, -8.0, 1.0, 16.0, 2, 2, 0.0, 0.0, 1.0, 1.0, v53, v52);
+      CL_DrawStretchPic(v3, 6.0, -8.0, 3.0, 1.0, 2, 2, 0.0, 0.0, 1.0, 1.0, v53, v52);
+      CL_DrawStretchPic(v3, 9.0, -8.0, 1.0, 16.0, 2, 2, 0.0, 0.0, 1.0, 1.0, v53, v52);
     }
-    R_TextHeight(cls.consoleFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, eax
-    }
-    v124 = "OFF";
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vsubss  xmm7, xmm0, xmm6
-    }
+    v54 = (float)R_TextHeight(cls.consoleFont);
+    v55 = "OFF";
+    displayHeight = (float)cls.vidConfig.displayHeight;
+    v57 = displayHeight - v54;
     if ( s_createFxTool->snapToNormal )
-      v124 = "ON";
-    _RDX = 0x140000000ui64;
-    _RAX = s_createFxEditRateIndex;
-    __asm
-    {
-      vmovss  xmm2, rva s_createFxEditRates[rdx+rax*4]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    v132 = j_va("Version %s Rate:%g Snap2Angle:%d Snap2Normal:%s", "2.8", _R8, CREATEFX_ANGLE_SNAPS[s_createFxTool->snapToAngleIndex], v124);
-    __asm { vmovaps xmm9, [rsp+200h+var_78+8] }
-    v134 = -1i64;
+      v55 = "ON";
+    v58 = j_va("Version %s Rate:%g Snap2Angle:%d Snap2Normal:%s", "2.8", s_createFxEditRates[s_createFxEditRateIndex], CREATEFX_ANGLE_SNAPS[s_createFxTool->snapToAngleIndex], v55);
+    v59 = -1i64;
     do
-      ++v134;
-    while ( v132[v134] );
-    __asm
+      ++v59;
+    while ( v58[v59] );
+    CL_DrawTextPhysical(v58, v59, cls.consoleFont, v54, v57, 1.0, 1.0, &colorWhite, 0);
+    if ( !NET_RemoteDbgHostConsoleConnected() || s_createFxTool->lastProbeSuccess < CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time - 15000 )
     {
-      vmovss  dword ptr [rsp+200h+data], xmm10
-      vmovss  dword ptr [rsp+200h+fxState], xmm10
-      vmovaps xmm3, xmm6; x
-      vmovss  dword ptr [rsp+200h+fmt], xmm7
-    }
-    CL_DrawTextPhysical(v132, v134, cls.consoleFont, *(float *)&_XMM3, fmtd, fxStatea, data, &colorWhite, 0);
-    v136 = NET_RemoteDbgHostConsoleConnected();
-    __asm
-    {
-      vmovaps xmm7, [rsp+200h+var_58+8]
-      vmovss  xmm6, cs:__real@42480000
-    }
-    if ( !v136 || s_createFxTool->lastProbeSuccess < CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time - 15000 )
-    {
-      v139 = R_TextHeight(cls.bigDevFont);
-      R_TextWidth("NX Launcher Missing", 0x7FFFFFFF, cls.bigDevFont, 2 * v139);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r15+20h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vaddss  xmm4, xmm0, xmm6
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, eax
-        vsubss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rsp+200h+data], xmm10
-        vmovss  dword ptr [rsp+200h+fxState], xmm10
-        vmulss  xmm3, xmm0, xmm11; x
-        vmovss  dword ptr [rsp+200h+fmt], xmm4
-      }
-      CL_DrawTextPhysical("NX Launcher Missing", 19, cls.bigDevFont, *(float *)&_XMM3, fmte, fxStateb, dataa, &colorRed, 0);
+      v60 = 2 * R_TextHeight(cls.bigDevFont);
+      v61 = v3->realViewportSize.v[0] - (float)R_TextWidth("NX Launcher Missing", 0x7FFFFFFF, cls.bigDevFont, v60);
+      CL_DrawTextPhysical("NX Launcher Missing", 19, cls.bigDevFont, v61 * 0.5, (float)v60 + 50.0, 1.0, 1.0, &colorRed, 0);
     }
     LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    v148 = s_createFxTool;
+    v63 = s_createFxTool;
     if ( LocalClientGlobals->time < s_createFxTool->statusMessageTimeout && s_createFxTool->statusMessageBuffer[0] )
     {
-      v149 = R_TextHeight(cls.bigDevFont);
-      R_TextWidth(v148->statusMessageBuffer, 0x7FFFFFFF, cls.bigDevFont, v149);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+20h]
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm1, xmm0, xmm1
-        vmulss  xmm3, xmm1, xmm11; x
-      }
+      v64 = R_TextHeight(cls.bigDevFont);
+      v65 = (float)(v3->realViewportSize.v[0] - (float)R_TextWidth(v63->statusMessageBuffer, 0x7FFFFFFF, cls.bigDevFont, v64)) * 0.5;
       do
-        ++v103;
-      while ( v148->statusMessageBuffer[v103] );
-      __asm
-      {
-        vmovss  dword ptr [rsp+200h+data], xmm10
-        vmovss  dword ptr [rsp+200h+fxState], xmm10
-        vmovss  dword ptr [rsp+200h+fmt], xmm6
-      }
-      CL_DrawTextPhysical(v148->statusMessageBuffer, v103, cls.bigDevFont, *(float *)&_XMM3, fmtf, fxStatec, datab, &s_createFxTool->statusMessageColor, 0);
-    }
-    __asm
-    {
-      vmovaps xmm10, [rsp+200h+var_88+8]
-      vmovaps xmm6, [rsp+200h+var_48+8]
-      vmovaps xmm11, [rsp+200h+var_98+8]
+        ++v49;
+      while ( v63->statusMessageBuffer[v49] );
+      CL_DrawTextPhysical(v63->statusMessageBuffer, v49, cls.bigDevFont, v65, 50.0, 1.0, 1.0, &s_createFxTool->statusMessageColor, 0);
     }
   }
 }
@@ -4434,99 +3711,76 @@ CG_CreateFx_DropSelectionToGround
 */
 void CG_CreateFx_DropSelectionToGround()
 {
-  CreateFxTool *v2; 
+  CreateFxTool *v0; 
   unsigned __int16 selectedEffectTotal; 
+  int v2; 
+  __int64 v3; 
   int v4; 
-  __int64 v5; 
-  int v8; 
+  void *v5; 
   cg_t *LocalClientGlobals; 
-  char v17; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t end; 
   vec3_t start; 
   trace_t results; 
 
-  v2 = s_createFxTool;
+  v0 = s_createFxTool;
   if ( s_createFxTool->editBuffer.effectTotal > 0 )
   {
     s_interruptCommandActive = 1;
     CG_CreateFx_OnEditEnd();
-    v2 = s_createFxTool;
+    v0 = s_createFxTool;
   }
-  selectedEffectTotal = v2->selectedEffectTotal;
-  v4 = 0;
-  if ( v2->selectedEffectTotal > 0 )
+  selectedEffectTotal = v0->selectedEffectTotal;
+  v2 = 0;
+  if ( v0->selectedEffectTotal > 0 )
   {
-    v5 = 7209180i64;
-    __asm
-    {
-      vmovaps [rsp+148h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-      vmovaps [rsp+148h+var_48], xmm7
-      vmovss  xmm7, cs:__real@46800000
-    }
+    v3 = 7209180i64;
     do
     {
-      v8 = *(_DWORD *)(&v2->inited + v5);
+      v4 = *(_DWORD *)(&v0->inited + v3);
       CG_CreateFx_ClearRedoStack();
       while ( ntl::nxheap::largest_free_block(&s_createFxCommandHeap.m_heap) < 0x28 )
         CG_CreateFx_DiscardUndoSequence();
-      _RBX = ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0x28ui64, 4ui64, 1);
-      if ( !_RBX )
+      v5 = ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0x28ui64, 4ui64, 1);
+      if ( !v5 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144286130, 333i64);
-      *(_QWORD *)_RBX = &CreateFxDropToGroundCommand::`vftable';
-      *((_DWORD *)_RBX + 2) = v8;
-      CG_CreateFx_GetScratchEffectOrigin(v8, (vec3_t *)_RBX + 1);
+      *(_QWORD *)v5 = &CreateFxDropToGroundCommand::`vftable';
+      *((_DWORD *)v5 + 2) = v4;
+      CG_CreateFx_GetScratchEffectOrigin(v4, (vec3_t *)v5 + 1);
       LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+14h]
-        vmovss  xmm3, dword ptr [rbx+0Ch]
-        vmovss  xmm2, dword ptr [rbx+10h]
-        vaddss  xmm0, xmm6, xmm1
-        vmovss  dword ptr [rsp+148h+start+8], xmm0
-        vsubss  xmm0, xmm1, xmm7
-        vmovss  dword ptr [rsp+148h+end+8], xmm0
-        vmovss  dword ptr [rsp+148h+start], xmm3
-        vmovss  dword ptr [rsp+148h+start+4], xmm2
-        vmovss  dword ptr [rsp+148h+end], xmm3
-        vmovss  dword ptr [rsp+148h+end+4], xmm2
-      }
+      v7 = *((float *)v5 + 5);
+      v8 = *((float *)v5 + 3);
+      v9 = *((float *)v5 + 4);
+      start.v[2] = v7 + 1.0;
+      end.v[2] = v7 - 16384.0;
+      start.v[0] = v8;
+      start.v[1] = v9;
+      end.v[0] = v8;
+      end.v[1] = v9;
       PhysicsQuery_LegacyTrace(PHYSICS_WORLD_ID_CLIENT_FIRST, &results, &start, &end, &bounds_origin, LocalClientGlobals->predictedPlayerState.clientNum, 0, 41969969, 0, NULL, All);
-      __asm
+      if ( results.fraction >= 1.0 )
       {
-        vmovss  xmm0, [rsp+148h+results.fraction]
-        vcomiss xmm0, xmm6
-      }
-      if ( v17 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+148h+results.position]
-          vmovss  xmm1, dword ptr [rsp+148h+results.position+4]
-          vmovss  dword ptr [rbx+18h], xmm0
-          vmovss  xmm0, dword ptr [rsp+148h+results.position+8]
-          vmovss  dword ptr [rbx+20h], xmm0
-          vmovss  dword ptr [rbx+1Ch], xmm1
-        }
+        *((_DWORD *)v5 + 6) = *((_DWORD *)v5 + 3);
+        *((_DWORD *)v5 + 7) = *((_DWORD *)v5 + 4);
+        *((_DWORD *)v5 + 8) = *((_DWORD *)v5 + 5);
       }
       else
       {
-        *((_DWORD *)_RBX + 6) = *((_DWORD *)_RBX + 3);
-        *((_DWORD *)_RBX + 7) = *((_DWORD *)_RBX + 4);
-        *((_DWORD *)_RBX + 8) = *((_DWORD *)_RBX + 5);
+        v10 = results.position.v[1];
+        *((float *)v5 + 6) = results.position.v[0];
+        *((float *)v5 + 8) = results.position.v[2];
+        *((float *)v5 + 7) = v10;
       }
-      (**(void (__fastcall ***)(void *))_RBX)(_RBX);
-      CG_CreateFx_PushUndoCommand((CreateFxCommand *const)_RBX);
-      v2 = s_createFxTool;
-      ++v4;
-      v5 += 4i64;
+      (**(void (__fastcall ***)(void *))v5)(v5);
+      CG_CreateFx_PushUndoCommand((CreateFxCommand *const)v5);
+      v0 = s_createFxTool;
+      ++v2;
+      v3 += 4i64;
     }
-    while ( v4 < s_createFxTool->selectedEffectTotal );
-    __asm
-    {
-      vmovaps xmm7, [rsp+148h+var_48]
-      vmovaps xmm6, [rsp+148h+var_38]
-    }
+    while ( v2 < s_createFxTool->selectedEffectTotal );
   }
   CG_CreateFx_PushUndoSequence(selectedEffectTotal);
 }
@@ -4538,152 +3792,80 @@ CG_CreateFx_EditVec3Update
 */
 void CG_CreateFx_EditVec3Update(const LocalClientNum_t localClientNum, const bool cameraRelativeEditing, vec3_t *outValue)
 {
-  bool v12; 
+  float v6; 
+  bool v7; 
+  cg_t *LocalClientGlobals; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  _RAX = s_createFxEditRateIndex;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RCX = s_createFxEditRates;
-  _RDI = outValue;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm7
-    vmovss  xmm6, dword ptr [rcx+rax*4]
-    vmovaps [rsp+68h+var_48], xmm8
-  }
-  v12 = CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) != 0;
+  v6 = s_createFxEditRates[s_createFxEditRateIndex];
+  v7 = CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) != 0;
   if ( !cameraRelativeEditing )
   {
-    if ( CL_Keys_IsKeyDown(localClientNum, 20) || !v12 && CL_Keys_IsKeyDown(localClientNum, 132) )
+    if ( CL_Keys_IsKeyDown(localClientNum, 20) || !v7 && CL_Keys_IsKeyDown(localClientNum, 132) )
     {
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm0
-      }
+      outValue->v[0] = v6 + outValue->v[0];
     }
-    else if ( CL_Keys_IsKeyDown(localClientNum, 21) || !v12 && CL_Keys_IsKeyDown(localClientNum, 133) )
+    else if ( CL_Keys_IsKeyDown(localClientNum, 21) || !v7 && CL_Keys_IsKeyDown(localClientNum, 133) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm1
-      }
+      outValue->v[0] = outValue->v[0] - v6;
     }
     if ( !CL_Keys_IsKeyDown(localClientNum, 22) && !CL_Keys_IsKeyDown(localClientNum, 134) )
     {
       if ( CL_Keys_IsKeyDown(localClientNum, 23) || CL_Keys_IsKeyDown(localClientNum, 135) )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm6, dword ptr [rdi+4]
-          vmovss  dword ptr [rdi+4], xmm0
-        }
-      }
+        outValue->v[1] = v6 + outValue->v[1];
       goto LABEL_32;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vsubss  xmm1, xmm0, xmm6
-    }
+    v14 = outValue->v[1] - v6;
     goto LABEL_31;
   }
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v9 = LocalClientGlobals->refdef.view.axis.m[0].v[0];
+  v10 = LocalClientGlobals->refdef.view.axis.m[0].v[1];
+  if ( CL_Keys_IsKeyDown(localClientNum, 20) || !v7 && CL_Keys_IsKeyDown(localClientNum, 132) )
   {
-    vmovss  xmm7, dword ptr [rax+6944h]
-    vmovss  xmm8, dword ptr [rax+6948h]
-  }
-  if ( CL_Keys_IsKeyDown(localClientNum, 20) || !v12 && CL_Keys_IsKeyDown(localClientNum, 132) )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm7, xmm6
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm8, xmm6
-      vmovss  dword ptr [rdi], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    }
+    outValue->v[0] = (float)(v9 * v6) + outValue->v[0];
+    v11 = (float)(v10 * v6) + outValue->v[1];
     goto LABEL_10;
   }
-  if ( CL_Keys_IsKeyDown(localClientNum, 21) || !v12 && CL_Keys_IsKeyDown(localClientNum, 133) )
+  if ( CL_Keys_IsKeyDown(localClientNum, 21) || !v7 && CL_Keys_IsKeyDown(localClientNum, 133) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmulss  xmm1, xmm7, xmm6
-      vsubss  xmm1, xmm0, xmm1
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmulss  xmm2, xmm8, xmm6
-      vsubss  xmm1, xmm0, xmm2
-    }
+    outValue->v[0] = outValue->v[0] - (float)(v9 * v6);
+    v11 = outValue->v[1] - (float)(v10 * v6);
 LABEL_10:
-    __asm { vmovss  dword ptr [rdi+4], xmm1 }
+    outValue->v[1] = v11;
   }
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+6950h]
-    vmovss  xmm8, dword ptr [rbx+6954h]
-  }
+  v12 = LocalClientGlobals->refdef.view.axis.m[1].v[0];
+  v13 = LocalClientGlobals->refdef.view.axis.m[1].v[1];
   if ( CL_Keys_IsKeyDown(localClientNum, 22) || CL_Keys_IsKeyDown(localClientNum, 134) )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm7, xmm6
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm8, xmm6
-      vmovss  dword ptr [rdi], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    }
+    outValue->v[0] = (float)(v12 * v6) + outValue->v[0];
+    v14 = (float)(v13 * v6) + outValue->v[1];
   }
   else
   {
     if ( !CL_Keys_IsKeyDown(localClientNum, 23) && !CL_Keys_IsKeyDown(localClientNum, 135) )
       goto LABEL_32;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmulss  xmm1, xmm7, xmm6
-      vsubss  xmm1, xmm0, xmm1
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmulss  xmm2, xmm8, xmm6
-      vsubss  xmm1, xmm0, xmm2
-    }
+    outValue->v[0] = outValue->v[0] - (float)(v12 * v6);
+    v14 = outValue->v[1] - (float)(v13 * v6);
   }
 LABEL_31:
-  __asm { vmovss  dword ptr [rdi+4], xmm1 }
+  outValue->v[1] = v14;
 LABEL_32:
-  __asm
-  {
-    vmovaps xmm8, [rsp+68h+var_48]
-    vmovaps xmm7, [rsp+68h+var_38]
-  }
   if ( !s_createFxTool->keyNeedsRelease[2] && CL_Keys_IsKeyDown(localClientNum, 2) )
     goto LABEL_40;
-  if ( CL_Keys_IsKeyDown(localClientNum, 4) || CL_Keys_IsKeyDown(localClientNum, 132) && v12 )
+  if ( CL_Keys_IsKeyDown(localClientNum, 4) || CL_Keys_IsKeyDown(localClientNum, 132) && v7 )
   {
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rdi+8]
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovaps xmm6, [rsp+68h+var_28]
-    }
+    outValue->v[2] = v6 + outValue->v[2];
     return;
   }
-  if ( CL_Keys_IsKeyDown(localClientNum, 133) && v12 )
-  {
+  if ( CL_Keys_IsKeyDown(localClientNum, 133) && v7 )
 LABEL_40:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi+8], xmm1
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+    outValue->v[2] = outValue->v[2] - v6;
 }
 
 /*
@@ -4773,83 +3955,72 @@ CG_CreateFx_EffectField_Get
 */
 const char *CG_CreateFx_EffectField_Get(const int storageIndex, const CreateFxEffectFieldInfo *fieldInfo)
 {
-  __int64 v3; 
+  __int64 v2; 
   CreateFxEffectType effectType; 
-  __int64 v6; 
+  __int64 v5; 
+  CreateFXDataUnion *v6; 
+  double v7; 
   const char *result; 
-  const char *v16; 
-  const char ***v17; 
-  char *v18; 
-  scr_string_t *v19; 
-  __int64 v20; 
+  const char *v9; 
+  const char ***v10; 
+  char *v11; 
+  scr_string_t *v12; 
+  __int64 v13; 
 
-  v3 = storageIndex;
+  v2 = storageIndex;
   if ( (unsigned int)storageIndex >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7705, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", storageIndex, 0x4000) )
     __debugbreak();
   if ( *(int *)fieldInfo->type < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7706, ASSERT_TYPE_ASSERT, "(fieldInfo.type >= CreateFxEffectFieldType::VARIABLE_BEGIN)", (const char *)&queryFormat, "fieldInfo.type >= CreateFxEffectFieldType::VARIABLE_BEGIN") )
     __debugbreak();
-  effectType = s_createFxTool->scratchDataState[v3].effectType;
-  v6 = v3;
-  _RBX = NULL;
+  effectType = s_createFxTool->scratchDataState[v2].effectType;
+  v5 = v2;
+  v6 = NULL;
   if ( effectType == 1 || effectType == 2 || effectType == 3 || effectType == Menu || effectType == 5 )
   {
-    _RBX = &s_createFxTool->scratchData[v6];
+    v6 = &s_createFxTool->scratchData[v5];
   }
   else
   {
-    LODWORD(v20) = effectType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3325, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectBytes: unhandled effect type '%d'", v20) )
+    LODWORD(v13) = effectType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3325, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectBytes: unhandled effect type '%d'", v13) )
       __debugbreak();
   }
   switch ( *(_DWORD *)fieldInfo->type )
   {
     case 2:
-      _RAX = fieldInfo->ofs;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+rax]
-        vcvtss2sd xmm1, xmm1, xmm1
-      }
-      goto LABEL_17;
+      v7 = *(float *)((char *)v6->oneShotFxDef.origin.v + fieldInfo->ofs);
+      return j_va("%g", v7);
     case 3:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+rbx]
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vcvtss2sd xmm1, xmm1, xmm1
-      }
-LABEL_17:
-      __asm { vmovq   rdx, xmm1 }
-      return j_va("%g", *(double *)&_XMM1);
+      v7 = (float)((float)*(int *)((char *)v6->oneShotFxDef.origin.v + fieldInfo->ofs) * 0.001);
+      return j_va("%g", v7);
     case 4:
-      v17 = (const char ***)((char *)_RBX + fieldInfo->ofs);
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7736, ASSERT_TYPE_ASSERT, "(fxDef)", (const char *)&queryFormat, "fxDef") )
+      v10 = (const char ***)((char *)v6 + fieldInfo->ofs);
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7736, ASSERT_TYPE_ASSERT, "(fxDef)", (const char *)&queryFormat, "fxDef") )
         __debugbreak();
-      if ( !*v17 )
+      if ( !*v10 )
         goto LABEL_37;
-      result = CreateFxAssetPalette::getAliasForAsset(&s_createFX_paletteFX, **v17);
+      result = CreateFxAssetPalette::getAliasForAsset(&s_createFX_paletteFX, **v10);
       break;
     case 5:
-      v18 = (char *)_RBX + fieldInfo->ofs;
-      if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7748, ASSERT_TYPE_ASSERT, "(lookup)", (const char *)&queryFormat, "lookup") )
+      v11 = (char *)v6 + fieldInfo->ofs;
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7748, ASSERT_TYPE_ASSERT, "(lookup)", (const char *)&queryFormat, "lookup") )
         __debugbreak();
-      return *(const char **)v18;
+      return *(const char **)v11;
     case 6:
     case 7:
     case 8:
-      v19 = (scr_string_t *)((char *)_RBX + fieldInfo->ofs);
-      if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7759, ASSERT_TYPE_ASSERT, "(stringValue)", (const char *)&queryFormat, "stringValue") )
+      v12 = (scr_string_t *)((char *)v6 + fieldInfo->ofs);
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7759, ASSERT_TYPE_ASSERT, "(stringValue)", (const char *)&queryFormat, "stringValue") )
         __debugbreak();
-      return SL_ConvertToString(*v19);
+      return SL_ConvertToString(*v12);
     case 9:
-      v16 = "false";
-      if ( *((_BYTE *)_RBX->oneShotFxDef.origin.v + fieldInfo->ofs) )
+      v9 = "false";
+      if ( *((_BYTE *)v6->oneShotFxDef.origin.v + fieldInfo->ofs) )
         return "true";
-      return v16;
+      return v9;
     default:
-      LODWORD(v20) = *(_DWORD *)fieldInfo->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7764, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectField_Get: unhandled field type '%d'", v20) )
+      LODWORD(v13) = *(_DWORD *)fieldInfo->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7764, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectField_Get: unhandled field type '%d'", v13) )
         __debugbreak();
 LABEL_37:
       result = "(null)";
@@ -4866,8 +4037,9 @@ CG_CreateFx_EffectField_Set
 void CG_CreateFx_EffectField_Set(const int storageIndex, const CreateFxEffectFieldInfo *fieldInfo, const char *asset)
 {
   __int64 v4; 
-  scr_string_t v13; 
-  __int64 v14; 
+  CreateFXDataUnion *v7; 
+  scr_string_t v10; 
+  __int64 v11; 
 
   v4 = storageIndex;
   if ( !asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7774, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
@@ -4876,41 +4048,32 @@ void CG_CreateFx_EffectField_Set(const int storageIndex, const CreateFxEffectFie
     __debugbreak();
   if ( (unsigned int)v4 >= 0x4000 )
   {
-    LODWORD(v14) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7776, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v14, 0x4000) )
+    LODWORD(v11) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7776, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v11, 0x4000) )
       __debugbreak();
   }
-  _RBX = NULL;
+  v7 = NULL;
   if ( s_createFxTool->scratchDataState[v4].effectType == 1 || s_createFxTool->scratchDataState[v4].effectType == 2 || s_createFxTool->scratchDataState[v4].effectType == 3 || s_createFxTool->scratchDataState[v4].effectType == Menu || s_createFxTool->scratchDataState[v4].effectType == 5 )
   {
-    _RBX = &s_createFxTool->scratchData[v4];
+    v7 = &s_createFxTool->scratchData[v4];
   }
   else
   {
-    LODWORD(v14) = s_createFxTool->scratchDataState[v4].effectType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3325, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectBytes: unhandled effect type '%d'", v14) )
+    LODWORD(v11) = s_createFxTool->scratchDataState[v4].effectType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3325, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectBytes: unhandled effect type '%d'", v11) )
       __debugbreak();
   }
   switch ( *(_DWORD *)fieldInfo->type )
   {
     case 2:
       *(double *)&_XMM0 = atof(asset);
-      _RAX = fieldInfo->ofs;
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rbx+rax], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      *(float *)((char *)v7->oneShotFxDef.origin.v + fieldInfo->ofs) = *(float *)&_XMM1;
       break;
     case 3:
       *(double *)&_XMM0 = atof(asset);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmulss  xmm2, xmm1, cs:__real@447a0000
-        vcvttss2si ecx, xmm2
-      }
-      *(_DWORD *)((char *)_RBX->oneShotFxDef.origin.v + fieldInfo->ofs) = _ECX;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      *(_DWORD *)((char *)v7->oneShotFxDef.origin.v + fieldInfo->ofs) = (int)(float)(*(float *)&_XMM1 * 1000.0);
       break;
     case 4:
       CG_CreateFx_SetEffectFx(v4, asset);
@@ -4921,17 +4084,17 @@ void CG_CreateFx_EffectField_Set(const int storageIndex, const CreateFxEffectFie
     case 6:
     case 7:
     case 8:
-      v13 = *(_DWORD *)((char *)_RBX->oneShotFxDef.origin.v + fieldInfo->ofs);
-      if ( v13 )
-        SL_RemoveRefToString(v13);
-      *(_DWORD *)((char *)_RBX->oneShotFxDef.origin.v + fieldInfo->ofs) = SL_GetString(asset, 0);
+      v10 = *(_DWORD *)((char *)v7->oneShotFxDef.origin.v + fieldInfo->ofs);
+      if ( v10 )
+        SL_RemoveRefToString(v10);
+      *(_DWORD *)((char *)v7->oneShotFxDef.origin.v + fieldInfo->ofs) = SL_GetString(asset, 0);
       break;
     case 9:
-      *((_BYTE *)_RBX->oneShotFxDef.origin.v + fieldInfo->ofs) = *asset == 49 || *asset == 116;
+      *((_BYTE *)v7->oneShotFxDef.origin.v + fieldInfo->ofs) = *asset == 49 || *asset == 116;
       break;
     default:
-      LODWORD(v14) = *(_DWORD *)fieldInfo->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7841, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectField_Set: unhandled field type '%d'", v14) )
+      LODWORD(v11) = *(_DWORD *)fieldInfo->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7841, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectField_Set: unhandled field type '%d'", v11) )
         __debugbreak();
       break;
   }
@@ -4947,16 +4110,19 @@ char CG_CreateFx_EffectField_SetForSelected(const CreateFxEffectType effectType,
   __int64 v4; 
   __int64 v6; 
   bool v8; 
-  CreateFxAssetPalette *v14; 
-  CreateFxTool *v15; 
-  int v16; 
-  __int64 v17; 
-  __int64 v18; 
+  CreateFxEffectFieldInfo *v9; 
+  __int128 v10; 
+  double v11; 
+  CreateFxAssetPalette *v12; 
+  CreateFxTool *v13; 
+  int v14; 
+  __int64 v15; 
+  __int64 v16; 
   char result; 
+  __int64 v18; 
+  __int64 v19; 
   __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
   SndAliasList *outAlias; 
   CreateFxEffectFieldInfo fieldInfo; 
   bool outIsAlwaysLoaded; 
@@ -4976,12 +4142,12 @@ char CG_CreateFx_EffectField_SetForSelected(const CreateFxEffectType effectType,
   {
     if ( (unsigned int)v6 < 6 )
       goto LABEL_17;
-    LODWORD(v20) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6590, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFields ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFields )\n\t%i not in [0, %i)", v20, 6) )
+    LODWORD(v18) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6590, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFields ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFields )\n\t%i not in [0, %i)", v18, 6) )
       __debugbreak();
-    LODWORD(v23) = 6;
-    LODWORD(v21) = v6;
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6591, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFieldCount ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFieldCount )\n\t%i not in [0, %i)", v21, v23);
+    LODWORD(v21) = 6;
+    LODWORD(v19) = v6;
+    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6591, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFieldCount ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFieldCount )\n\t%i not in [0, %i)", v19, v21);
   }
   else
   {
@@ -4990,24 +4156,19 @@ char CG_CreateFx_EffectField_SetForSelected(const CreateFxEffectType effectType,
   if ( v8 )
     __debugbreak();
 LABEL_17:
-  _RSI = s_createFxEffectFields[v6];
+  v9 = s_createFxEffectFields[v6];
   if ( (unsigned int)v4 >= s_createFxEffectFieldCount[v6] )
   {
-    LODWORD(v22) = s_createFxEffectFieldCount[v6];
-    LODWORD(v20) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6596, ASSERT_TYPE_ASSERT, "(unsigned)( fieldIndex ) < (unsigned)( fieldCount )", "fieldIndex doesn't index fieldCount\n\t%i not in [0, %i)", v20, v22) )
+    LODWORD(v20) = s_createFxEffectFieldCount[v6];
+    LODWORD(v18) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6596, ASSERT_TYPE_ASSERT, "(unsigned)( fieldIndex ) < (unsigned)( fieldCount )", "fieldIndex doesn't index fieldCount\n\t%i not in [0, %i)", v18, v20) )
       __debugbreak();
   }
-  _RCX = 3 * v4;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rsi+rcx*8]
-    vmovsd  xmm0, qword ptr [rsi+rcx*8+10h]
-    vmovd   ebx, xmm1
-    vmovups xmmword ptr [rsp+88h+fieldInfo.type], xmm1
-    vmovsd  [rsp+88h+fieldInfo.description], xmm0
-  }
-  if ( !_EBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7995, ASSERT_TYPE_ASSERT, "(fieldInfo.type != CreateFxEffectFieldType::FXTYPE)", (const char *)&queryFormat, "fieldInfo.type != CreateFxEffectFieldType::FXTYPE") )
+  v10 = *(_OWORD *)v9[v4].type;
+  v11 = *(double *)&v9[v4].description;
+  *(_OWORD *)fieldInfo.type = v10;
+  *(double *)&fieldInfo.description = v11;
+  if ( !(_DWORD)v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7995, ASSERT_TYPE_ASSERT, "(fieldInfo.type != CreateFxEffectFieldType::FXTYPE)", (const char *)&queryFormat, "fieldInfo.type != CreateFxEffectFieldType::FXTYPE") )
     __debugbreak();
   if ( isNewAssetName )
   {
@@ -5015,9 +4176,9 @@ LABEL_17:
       __debugbreak();
     if ( !s_createFxTool->imported && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7932, ASSERT_TYPE_ASSERT, "(s_createFxTool->imported)", (const char *)&queryFormat, "s_createFxTool->imported") )
       __debugbreak();
-    if ( ((unsigned int)(_EBX - 2) <= 1 || _EBX == 9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7933, ASSERT_TYPE_ASSERT, "(type != CreateFxEffectFieldType::FLOAT && type != CreateFxEffectFieldType::DELAY && type != CreateFxEffectFieldType::BOOL)", (const char *)&queryFormat, "type != CreateFxEffectFieldType::FLOAT && type != CreateFxEffectFieldType::DELAY && type != CreateFxEffectFieldType::BOOL") )
+    if ( ((unsigned int)(v10 - 2) <= 1 || (_DWORD)v10 == 9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7933, ASSERT_TYPE_ASSERT, "(type != CreateFxEffectFieldType::FLOAT && type != CreateFxEffectFieldType::DELAY && type != CreateFxEffectFieldType::BOOL)", (const char *)&queryFormat, "type != CreateFxEffectFieldType::FLOAT && type != CreateFxEffectFieldType::DELAY && type != CreateFxEffectFieldType::BOOL") )
       __debugbreak();
-    switch ( _EBX )
+    switch ( (int)v10 )
     {
       case 0:
       case 4:
@@ -5028,22 +4189,22 @@ LABEL_17:
         asset = outAlias->aliasName;
         goto LABEL_42;
       case 6:
-        v14 = &s_createFX_paletteExploderGroups;
+        v12 = &s_createFX_paletteExploderGroups;
         goto LABEL_41;
       case 7:
-        v14 = &s_createFX_paletteEarthquakeGroups;
+        v12 = &s_createFX_paletteEarthquakeGroups;
         goto LABEL_41;
       case 8:
-        v14 = &s_createFX_paletteRumbleGroups;
+        v12 = &s_createFX_paletteRumbleGroups;
 LABEL_41:
-        asset = CG_CreateFx_EffectField_AddNewScriptStringToPalette(v14, asset);
+        asset = CG_CreateFx_EffectField_AddNewScriptStringToPalette(v12, asset);
 LABEL_42:
         if ( asset )
           goto LABEL_43;
         goto $LN92_4;
       default:
-        LODWORD(v20) = _EBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7980, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectField_AttemptToAddNewAssetToPalette: unhandled field type '%d'", v20) )
+        LODWORD(v18) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7980, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectField_AttemptToAddNewAssetToPalette: unhandled field type '%d'", v18) )
           __debugbreak();
 $LN92_4:
         result = 0;
@@ -5053,24 +4214,24 @@ $LN92_4:
   else
   {
 LABEL_43:
-    v15 = s_createFxTool;
-    v16 = 0;
+    v13 = s_createFxTool;
+    v14 = 0;
     if ( s_createFxTool->selectedEffectTotal > 0 )
     {
-      v17 = 7209180i64;
+      v15 = 7209180i64;
       do
       {
-        v18 = *(int *)(&v15->inited + v17);
-        if ( v15->scratchDataState[v18].effectType != (_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8009, ASSERT_TYPE_ASSERT, "(s_createFxTool->scratchDataState[storageIndex].effectType == effectType)", (const char *)&queryFormat, "s_createFxTool->scratchDataState[storageIndex].effectType == effectType") )
+        v16 = *(int *)(&v13->inited + v15);
+        if ( v13->scratchDataState[v16].effectType != (_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8009, ASSERT_TYPE_ASSERT, "(s_createFxTool->scratchDataState[storageIndex].effectType == effectType)", (const char *)&queryFormat, "s_createFxTool->scratchDataState[storageIndex].effectType == effectType") )
           __debugbreak();
-        CG_CreateFx_StopEffect(v18);
-        CG_CreateFx_EffectField_Set(v18, &fieldInfo, asset);
-        CG_CreateFx_StartEffect(v18);
-        v15 = s_createFxTool;
-        ++v16;
-        v17 += 4i64;
+        CG_CreateFx_StopEffect(v16);
+        CG_CreateFx_EffectField_Set(v16, &fieldInfo, asset);
+        CG_CreateFx_StartEffect(v16);
+        v13 = s_createFxTool;
+        ++v14;
+        v15 += 4i64;
       }
-      while ( v16 < s_createFxTool->selectedEffectTotal );
+      while ( v14 < s_createFxTool->selectedEffectTotal );
     }
     return 1;
   }
@@ -5086,15 +4247,22 @@ bool CG_CreateFx_EffectsAreEqual(const CreateFxDataState *leftState, const Creat
 {
   CreateFxEffectType effectType; 
   CreateFxEffectType v5; 
-  size_t v19; 
-  __int64 v20; 
+  __m256i v10; 
+  __m256i v11; 
+  double v12; 
+  __m256i v13; 
+  __m256i v14; 
+  __m256i v15; 
+  double v16; 
+  size_t v18; 
+  __int64 v19; 
   _BYTE Buf2[96]; 
+  double v21; 
   _BYTE Buf1[96]; 
+  double v23; 
 
   effectType = leftState->effectType;
   v5 = rightState->effectType;
-  _R15 = rightData;
-  _R14 = leftData;
   if ( effectType == None && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2025, ASSERT_TYPE_ASSERT, "(leftType != CreateFxEffectType::None)", (const char *)&queryFormat, "leftType != CreateFxEffectType::None") )
     __debugbreak();
   if ( v5 == None && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2026, ASSERT_TYPE_ASSERT, "(rightType != CreateFxEffectType::None)", (const char *)&queryFormat, "rightType != CreateFxEffectType::None") )
@@ -5107,49 +4275,45 @@ bool CG_CreateFx_EffectsAreEqual(const CreateFxDataState *leftState, const Creat
     __debugbreak();
   if ( leftState->layer != rightState->layer )
     return 0;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [r14+20h]
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups [rsp+158h+Buf1], ymm0
-    vmovups ymm0, ymmword ptr [r14+40h]
-    vmovups [rsp+158h+var_98], ymm1
-    vmovsd  xmm1, qword ptr [r14+60h]
-    vmovups [rsp+158h+var_78], ymm0
-    vmovups ymm0, ymmword ptr [r15]
-    vmovsd  [rsp+158h+var_58], xmm1
-    vmovups ymm1, ymmword ptr [r15+20h]
-    vmovups [rsp+158h+Buf2], ymm0
-    vmovups ymm0, ymmword ptr [r15+40h]
-    vmovups [rsp+158h+var_108], ymm1
-    vmovsd  xmm1, qword ptr [r15+60h]
-    vmovups [rsp+158h+var_E8], ymm0
-    vmovsd  [rsp+158h+var_C8], xmm1
-  }
+  v10 = *(__m256i *)&leftData->reactiveEntDef.effectSound.name;
+  *(__m256i *)Buf1 = *(__m256i *)leftData->oneShotFxDef.origin.v;
+  v11 = *((__m256i *)&leftData->reactiveEntDef + 2);
+  *(__m256i *)&Buf1[32] = v10;
+  v12 = *((double *)&leftData->reactiveEntDef + 12);
+  *(__m256i *)&Buf1[64] = v11;
+  v13 = *(__m256i *)rightData->oneShotFxDef.origin.v;
+  v23 = v12;
+  v14 = *(__m256i *)&rightData->reactiveEntDef.effectSound.name;
+  *(__m256i *)Buf2 = v13;
+  v15 = *((__m256i *)&rightData->reactiveEntDef + 2);
+  *(__m256i *)&Buf2[32] = v14;
+  v16 = *((double *)&rightData->reactiveEntDef + 12);
+  *(__m256i *)&Buf2[64] = v15;
+  v21 = v16;
   switch ( effectType )
   {
     case 1:
       goto LABEL_26;
     case 2:
-      v19 = 40i64;
+      v18 = 40i64;
       break;
     case 3:
-      v19 = 104i64;
+      v18 = 104i64;
       break;
     case 4:
-      v19 = 48i64;
+      v18 = 48i64;
       break;
     case 5:
 LABEL_26:
-      v19 = 56i64;
-      return memcmp_0(Buf1, Buf2, v19) == 0;
+      v18 = 56i64;
+      return memcmp_0(Buf1, Buf2, v18) == 0;
     default:
-      LODWORD(v20) = effectType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2083, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectsAreEqual: unhandled effect type '%d'", v20) )
+      LODWORD(v19) = effectType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2083, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_EffectsAreEqual: unhandled effect type '%d'", v19) )
         __debugbreak();
       return 0;
   }
-  return memcmp_0(Buf1, Buf2, v19) == 0;
+  return memcmp_0(Buf1, Buf2, v18) == 0;
 }
 
 /*
@@ -5223,68 +4387,67 @@ void CG_CreateFx_EnterRoot(const char *rootName, const vec3_t *rootOrigin, const
 CG_CreateFx_Enter_f
 ==============
 */
-
-void __fastcall CG_CreateFx_Enter_f(double _XMM0_8)
+void CG_CreateFx_Enter_f()
 {
-  const dvar_t *v1; 
+  const dvar_t *v0; 
   CgClientSideEffectsSystem *ClientSideEffectsSystem; 
   int RootLookAt; 
-  ClientRootDef *v4; 
-  const char *v5; 
+  ClientRootDef *v3; 
+  const char *v4; 
   vec3_t *p_angles; 
   vec3_t *p_origin; 
-  char *v9; 
-  const char *v10; 
-  __int64 v11; 
-  char *v12; 
+  char *v7; 
+  const char *v8; 
+  __int64 v9; 
+  char *v10; 
   vec3_t rootAngles; 
   vec3_t rootOrigin; 
   char dest[64]; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_RECHAMBERING) && (!s_createFxTool || !s_createFxTool->enabled) )
   {
-    v1 = DCONST_DVARBOOL_cg_cfx_debug_effects;
+    v0 = DCONST_DVARBOOL_cg_cfx_debug_effects;
     if ( !DCONST_DVARBOOL_cg_cfx_debug_effects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_effects") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v1);
-    if ( v1->current.enabled && CG_HaveMapEntsEffectsMultipleRoots() )
+    Dvar_CheckFrontendServerThread(v0);
+    if ( v0->current.enabled && CG_HaveMapEntsEffectsMultipleRoots() )
     {
       ClientSideEffectsSystem = CgClientSideEffectsSystem::GetClientSideEffectsSystem(LOCAL_CLIENT_0);
       RootLookAt = CgClientSideEffectsSystem::GetRootLookAt(ClientSideEffectsSystem);
       if ( RootLookAt != -1 )
       {
-        v4 = &cm.mapEnts->clientSideEffects.roots[RootLookAt];
-        v5 = SL_ConvertToStringSafe(v4->path);
-        if ( I_strstr(v5, "prefabs/") == v5 )
+        v3 = &cm.mapEnts->clientSideEffects.roots[RootLookAt];
+        v4 = SL_ConvertToStringSafe(v3->path);
+        if ( I_strstr(v4, "prefabs/") == v4 )
         {
-          v10 = v5 + 8;
-          v11 = -1i64;
+          v8 = v4 + 8;
+          v9 = -1i64;
           do
-            ++v11;
-          while ( v10[v11] );
-          Core_strncpy(rootName, 0x40ui64, v10, (unsigned int)v11);
-          v12 = strstr_0(rootName, ".map");
-          if ( v12 )
+            ++v9;
+          while ( v8[v9] );
+          Core_strncpy(rootName, 0x40ui64, v8, (unsigned int)v9);
+          v10 = strstr_0(rootName, ".map");
+          if ( v10 )
           {
-            *v12 = 0;
+            *v10 = 0;
             if ( rootName[0] )
             {
-              p_angles = &v4->angles;
-              p_origin = &v4->origin;
-              v9 = rootName;
+              p_angles = &v3->angles;
+              p_origin = &v3->origin;
+              v7 = rootName;
 LABEL_17:
-              CG_CreateFx_EnterRoot(v9, p_origin, p_angles);
+              CG_CreateFx_EnterRoot(v7, p_origin, p_angles);
               return;
             }
           }
           else
           {
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144280C10, 335i64, v5, ".map");
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144280C10, 335i64, v4, ".map");
           }
         }
         else
         {
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144280BB0, 334i64, v5, "client_createfx_root", "prefabs/");
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144280BB0, 334i64, v4, "client_createfx_root", "prefabs/");
         }
       }
       Com_Printf_NoFilter("[CreateFx] No root look at, reverting to base map\n");
@@ -5292,19 +4455,15 @@ LABEL_17:
     if ( !cls.m_activeGameMapName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 295, ASSERT_TYPE_ASSERT, "(m_activeGameMapName[0])", "%s\n\tRequested mapname before it was set", "m_activeGameMapName[0]") )
       __debugbreak();
     Com_sprintf<64>((char (*)[64])dest, "%s%s_cfx", "createfx/", cls.m_activeGameMapName);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0B8h+rootAngles], xmm0
-      vmovss  dword ptr [rsp+0B8h+rootAngles+4], xmm0
-      vmovss  dword ptr [rsp+0B8h+rootAngles+8], xmm0
-      vmovss  dword ptr [rsp+0B8h+rootOrigin], xmm0
-      vmovss  dword ptr [rsp+0B8h+rootOrigin+4], xmm0
-      vmovss  dword ptr [rsp+0B8h+rootOrigin+8], xmm0
-    }
+    rootAngles.v[0] = 0.0;
+    rootAngles.v[1] = 0.0;
+    rootAngles.v[2] = 0.0;
+    rootOrigin.v[0] = 0.0;
+    rootOrigin.v[1] = 0.0;
+    rootOrigin.v[2] = 0.0;
     p_angles = &rootAngles;
     p_origin = &rootOrigin;
-    v9 = dest;
+    v7 = dest;
     goto LABEL_17;
   }
 }
@@ -5555,21 +4714,19 @@ __int64 CG_CreateFx_ExportLayer(const CreateFxMapLayerDef *const layerDef, bool 
   unsigned int v13; 
   __int64 v14; 
   __int64 v15; 
-  const char *v32; 
-  const char *v33; 
-  const char *v34; 
+  __int64 v16; 
+  CreateFxTool *v17; 
+  const char *v18; 
+  const char *v19; 
+  const char *v20; 
   cg_t *LocalClientGlobals; 
-  CreateFxTool *v36; 
+  CreateFxTool *v22; 
   int time; 
-  char *fmt; 
-  char *fmta; 
-  double v40; 
-  double v41; 
   fileHandle_t outFile; 
   fileHandle_t dest[34]; 
-  char v45[272]; 
-  char v46[272]; 
-  char v47[272]; 
+  char v27[272]; 
+  char v28[272]; 
+  char v29[272]; 
 
   v2 = isAutosave;
   if ( !layerDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8322, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
@@ -5644,15 +4801,15 @@ __int64 CG_CreateFx_ExportLayer(const CreateFxMapLayerDef *const layerDef, bool 
     {
       if ( v9->layerListTotal > 1 )
       {
-        _RDI = 8391616i64;
+        v16 = 8391616i64;
         do
         {
           FS_Printf((fileHandle_t)handle, "entity %d\n", v13);
           FS_Printf((fileHandle_t)handle, "{\n");
-          _RSI = s_createFxTool;
-          Com_sprintf(v47, 0x104ui64, "%s%s%s", "prefabs/", *(const char **)((char *)&s_createFxTool->menuDrawMode + _RDI), ".map");
+          v17 = s_createFxTool;
+          Com_sprintf(v29, 0x104ui64, "%s%s%s", "prefabs/", *(const char **)((char *)&s_createFxTool->menuDrawMode + v16), ".map");
           FS_Printf((fileHandle_t)handle, "\t\"footprint_mask_group\" \"default\"\n");
-          FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%s\"\n", "model", v47);
+          FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%s\"\n", "model", v29);
           if ( s_createFxTool->rootHasOffset )
           {
             FS_Printf((fileHandle_t)handle, "\t\"%s\" \"0 0 0\"\n", "origin");
@@ -5660,41 +4817,17 @@ __int64 CG_CreateFx_ExportLayer(const CreateFxMapLayerDef *const layerDef, bool 
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+rsi+120h]
-              vmovss  xmm3, dword ptr [rdi+rsi+118h]
-              vmovss  xmm1, dword ptr [rdi+rsi+11Ch]
-              vcvtss2sd xmm0, xmm0, xmm0
-              vcvtss2sd xmm3, xmm3, xmm3
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+4D8h+var_4B0], xmm0
-              vmovq   r9, xmm3
-              vmovsd  [rsp+4D8h+fmt], xmm1
-            }
-            FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%g %g %g\"\n", "origin", *(double *)&_XMM3, *(double *)&fmt, v40);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+rsi+12Ch]
-              vmovss  xmm3, dword ptr [rdi+rsi+124h]
-              vmovss  xmm1, dword ptr [rdi+rsi+128h]
-              vcvtss2sd xmm0, xmm0, xmm0
-              vcvtss2sd xmm3, xmm3, xmm3
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+4D8h+var_4B0], xmm0
-              vmovq   r9, xmm3
-              vmovsd  [rsp+4D8h+fmt], xmm1
-            }
-            FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%g %g %g\"\n", "angles", *(double *)&_XMM3, *(double *)&fmta, v41);
+            FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%g %g %g\"\n", "origin", *(float *)((char *)&v17->clipboard.effectData[2].explodersDef.client.name + v16), *(float *)((char *)&v17->clipboard.effectData[2].reactiveEntDef + v16 + 60), v17->clipboard.effectData[2].explodersDef.server.origin.v[(unsigned __int64)v16 / 4]);
+            FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%g %g %g\"\n", "angles", v17->clipboard.effectData[2].explodersDef.server.origin.v[(unsigned __int64)v16 / 4 + 1], v17->clipboard.effectData[2].explodersDef.server.origin.v[(unsigned __int64)v16 / 4 + 2], *(float *)((char *)&v17->clipboard.effectData[2].explodersDef.server.delayMsec + v16));
           }
-          v32 = (char *)&_RSI->clipboard + _RDI;
-          if ( (CreateFxTool *)((char *)_RSI + _RDI) != (CreateFxTool *)-16i64 && *v32 )
-            FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%s\"\n", "mapnamefilter", v32);
+          v18 = (char *)&v17->clipboard + v16;
+          if ( (CreateFxTool *)((char *)v17 + v16) != (CreateFxTool *)-16i64 && *v18 )
+            FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%s\"\n", "mapnamefilter", v18);
           FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%s\"\n", "classname", "misc_prefab");
           FS_Printf((fileHandle_t)handle, "}\n");
           ++v13;
           ++v11;
-          _RDI += 304i64;
+          v16 += 304i64;
         }
         while ( v11 < s_createFxTool->layerListTotal );
         v2 = isAutosave;
@@ -5709,25 +4842,25 @@ __int64 CG_CreateFx_ExportLayer(const CreateFxMapLayerDef *const layerDef, bool 
       FS_Printf((fileHandle_t)handle, "}\n");
     }
     FS_FCloseFile((fileHandle_t)handle);
-    Com_sprintf(v46, 0x104ui64, "/%s/%s", "main", (const char *)dest);
-    v33 = (char *)&queryFormat.fmt + 3;
+    Com_sprintf(v28, 0x104ui64, "/%s/%s", "main", (const char *)dest);
+    v19 = (char *)&queryFormat.fmt + 3;
     if ( v2 )
-      v33 = "autosave/";
-    Com_sprintf(v45, 0x104ui64, "/map_source/%s%s%s%s", "prefabs/", v33, layerDef->pathString, ".map");
-    Com_Printf_NoFilter("[CreateFx] Wrote %s to %s\n", layerDef->pathString, v46);
-    Com_Printf_NoFilter("[CreateFx] Copying %s to %s\n", layerDef->pathString, v45);
+      v19 = "autosave/";
+    Com_sprintf(v27, 0x104ui64, "/map_source/%s%s%s%s", "prefabs/", v19, layerDef->pathString, ".map");
+    Com_Printf_NoFilter("[CreateFx] Wrote %s to %s\n", layerDef->pathString, v28);
+    Com_Printf_NoFilter("[CreateFx] Copying %s to %s\n", layerDef->pathString, v27);
     Dvar_SetBoolByName("unattended", 0);
-    v34 = "GAMEPRINTP4ENABLED:";
+    v20 = "GAMEPRINTP4ENABLED:";
     if ( v2 )
-      v34 = (char *)&queryFormat.fmt + 3;
-    Com_Printf_NoFilter("LAUNCHERPRINTLN:GAMEPRINTMOVEFILE:%s:%s%s>%s\n", "iw8", v34, v46, v45);
+      v20 = (char *)&queryFormat.fmt + 3;
+    Com_Printf_NoFilter("LAUNCHERPRINTLN:GAMEPRINTMOVEFILE:%s:%s%s>%s\n", "iw8", v20, v28, v27);
     s_createFxTool->lastExportInProgress = 1;
     LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    v36 = s_createFxTool;
+    v22 = s_createFxTool;
     time = LocalClientGlobals->time;
     result = v10;
     s_createFxTool->lastExportTime = time;
-    v36->lastExportAutosave = v2;
+    v22->lastExportAutosave = v2;
   }
   return result;
 }
@@ -5986,23 +5119,22 @@ CG_CreateFx_Frame
 */
 void CG_CreateFx_Frame(const cg_t *const cgameGlob)
 {
-  double v1; 
-  const dvar_t *v3; 
+  const dvar_t *v2; 
   char enabled; 
-  CreateFxTool *v5; 
-  char v6; 
+  CreateFxTool *v4; 
+  char v5; 
   int time; 
-  const dvar_t *v8; 
+  const dvar_t *v7; 
   _BYTE *integer64; 
-  CreateFxTool *v10; 
+  CreateFxTool *v9; 
   bool IsEditKeyDown; 
-  bool v12; 
+  bool v11; 
   void (*deferredCommand)(void); 
-  CreateFxTool *v14; 
-  int v15; 
-  CreateFxTool *v16; 
+  CreateFxTool *v13; 
+  int v14; 
+  CreateFxTool *v15; 
   int nextAutosaveTime; 
-  int v18; 
+  int v17; 
   vec3_t outOrg; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_RECHAMBERING) )
@@ -6013,45 +5145,45 @@ void CG_CreateFx_Frame(const cg_t *const cgameGlob)
       CG_CreateFx_Resume();
       s_resumeCreateFxAfterRestart = 0;
     }
-    v3 = DVARBOOL_createfx_enabled;
+    v2 = DVARBOOL_createfx_enabled;
     if ( !DVARBOOL_createfx_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "createfx_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v3);
-    enabled = v3->current.enabled;
-    v5 = s_createFxTool;
-    v6 = s_createFxTool && s_createFxTool->enabled;
-    if ( enabled != v6 )
+    Dvar_CheckFrontendServerThread(v2);
+    enabled = v2->current.enabled;
+    v4 = s_createFxTool;
+    v5 = s_createFxTool && s_createFxTool->enabled;
+    if ( enabled != v5 )
     {
       if ( enabled )
-        CG_CreateFx_Enter_f(v1);
+        CG_CreateFx_Enter_f();
       else
         CG_CreateFx_Exit_f();
-      v5 = s_createFxTool;
+      v4 = s_createFxTool;
     }
-    if ( v5 )
+    if ( v4 )
     {
-      if ( v5->hasBeenEnabled )
+      if ( v4->hasBeenEnabled )
       {
         CG_CreateFx_UpdatePendingExploders(cgameGlob->time);
-        CG_CreateFx_AddSounds(v1);
-        v5 = s_createFxTool;
+        CG_CreateFx_AddSounds();
+        v4 = s_createFxTool;
       }
-      if ( v5 && v5->enabled )
+      if ( v4 && v4->enabled )
       {
         if ( NET_RemoteDbgHostConsoleConnected() )
         {
           time = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time;
-          v8 = DVARSTR_launcher_probe_success;
+          v7 = DVARSTR_launcher_probe_success;
           if ( !DVARSTR_launcher_probe_success && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "launcher_probe_success") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v8);
-          integer64 = (_BYTE *)v8->current.integer64;
+          Dvar_CheckFrontendServerThread(v7);
+          integer64 = (_BYTE *)v7->current.integer64;
           if ( integer64 && *integer64 )
           {
             Dvar_SetString_Internal(DVARSTR_launcher_probe_success, (const char *)&queryFormat.fmt + 3);
-            v10 = s_createFxTool;
+            v9 = s_createFxTool;
             s_createFxTool->lastProbeSuccess = time;
-            v10->nextProbeTime = time + 15000;
+            v9->nextProbeTime = time + 15000;
           }
           else if ( s_createFxTool->lastExportInProgress )
           {
@@ -6067,10 +5199,10 @@ void CG_CreateFx_Frame(const cg_t *const cgameGlob)
         if ( s_interruptCommandActive )
         {
           IsEditKeyDown = CG_CreateFx_IsEditKeyDown();
-          v12 = s_interruptCommandActive;
+          v11 = s_interruptCommandActive;
           if ( !IsEditKeyDown )
-            v12 = 0;
-          s_interruptCommandActive = v12;
+            v11 = 0;
+          s_interruptCommandActive = v11;
         }
         deferredCommand = s_createFxTool->deferredCommand;
         if ( deferredCommand )
@@ -6080,28 +5212,28 @@ void CG_CreateFx_Frame(const cg_t *const cgameGlob)
         }
         RefdefView_GetOrg(&cgameGlob->refdef.view, &outOrg);
         CG_CreateFx_BuildDrawList(&outOrg, cgameGlob->refdef.view.axis.m);
-        v14 = s_createFxTool;
+        v13 = s_createFxTool;
         if ( s_createFxTool->selectedEffectTotal > 0 )
         {
           if ( !DevGui_IsActive() && !Con_IsActive(LOCAL_CLIENT_0) && !s_interruptCommandActive && !CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 5) && s_menuFocus == WORLD )
             CG_CreateFx_UpdateWorldMove();
-          v14 = s_createFxTool;
+          v13 = s_createFxTool;
         }
-        if ( !v14->autosaveDisabledDvar->current.enabled && !v14->lastExportInProgress )
+        if ( !v13->autosaveDisabledDvar->current.enabled && !v13->lastExportInProgress )
         {
-          v15 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time;
-          v16 = s_createFxTool;
+          v14 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->time;
+          v15 = s_createFxTool;
           nextAutosaveTime = s_createFxTool->nextAutosaveTime;
-          v18 = nextAutosaveTime;
-          if ( nextAutosaveTime > 0 && v15 >= nextAutosaveTime )
+          v17 = nextAutosaveTime;
+          if ( nextAutosaveTime > 0 && v14 >= nextAutosaveTime )
           {
             CG_CreateFx_Export(1);
-            v16 = s_createFxTool;
+            v15 = s_createFxTool;
             s_createFxTool->nextAutosaveTime = 0;
-            v18 = 0;
+            v17 = 0;
           }
-          if ( !v18 )
-            v16->nextAutosaveTime = v15 + 1000 * v16->autosaveIntervalDvar->current.integer;
+          if ( !v17 )
+            v15->nextAutosaveTime = v14 + 1000 * v15->autosaveIntervalDvar->current.integer;
         }
         memset(&outOrg, 0, sizeof(outOrg));
       }
@@ -6372,9 +5504,9 @@ CG_CreateFx_GetEffectColor
 */
 void CG_CreateFx_GetEffectColor(CreateFxEffectType effectType, bool isSelected, bool isHighlighted, bool isInOtherLayer, bool isInvalid, bool isOccluded, const vec4_t *errorColor, vec4_t *outColor)
 {
-  bool v10; 
+  __int64 v8; 
+  float v9; 
 
-  _R10 = outColor;
   if ( isInOtherLayer )
   {
     outColor->v[0] = 0.5;
@@ -6388,39 +5520,28 @@ void CG_CreateFx_GetEffectColor(CreateFxEffectType effectType, bool isSelected, 
   }
   else
   {
-    _RCX = effectType;
-    v10 = !isSelected;
-    _RDX = s_effectTypeColors;
-    if ( v10 )
+    v8 = effectType;
+    if ( isSelected )
     {
-      if ( isHighlighted )
-      {
-        *(_QWORD *)outColor->v = *(_QWORD *)s_effectTypeColors[_RCX].highlightedColor.v;
-        outColor->v[2] = s_effectTypeColors[_RCX].highlightedColor.v[2];
-        __asm { vmovss  xmm0, dword ptr [rdx+rcx*8+1Ch] }
-      }
-      else
-      {
-        *(_QWORD *)outColor->v = *(_QWORD *)s_effectTypeColors[_RCX].defaultColor.v;
-        outColor->v[2] = s_effectTypeColors[_RCX].defaultColor.v[2];
-        __asm { vmovss  xmm0, dword ptr [rdx+rcx*8+2Ch] }
-      }
+      *(_QWORD *)outColor->v = *(_QWORD *)s_effectTypeColors[v8].selectedColor.v;
+      outColor->v[2] = s_effectTypeColors[v8].selectedColor.v[2];
+      v9 = s_effectTypeColors[v8].selectedColor.v[3];
+    }
+    else if ( isHighlighted )
+    {
+      *(_QWORD *)outColor->v = *(_QWORD *)s_effectTypeColors[v8].highlightedColor.v;
+      outColor->v[2] = s_effectTypeColors[v8].highlightedColor.v[2];
+      v9 = s_effectTypeColors[v8].highlightedColor.v[3];
     }
     else
     {
-      *(_QWORD *)outColor->v = *(_QWORD *)s_effectTypeColors[_RCX].selectedColor.v;
-      outColor->v[2] = s_effectTypeColors[_RCX].selectedColor.v[2];
-      __asm { vmovss  xmm0, dword ptr [rdx+rcx*8+0Ch] }
+      *(_QWORD *)outColor->v = *(_QWORD *)s_effectTypeColors[v8].defaultColor.v;
+      outColor->v[2] = s_effectTypeColors[v8].defaultColor.v[2];
+      v9 = s_effectTypeColors[v8].defaultColor.v[3];
     }
-    __asm { vmovss  dword ptr [r10+0Ch], xmm0 }
+    outColor->v[3] = v9;
     if ( isOccluded )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3f000000
-        vmovss  dword ptr [r10+0Ch], xmm0
-      }
-    }
+      outColor->v[3] = v9 * 0.5;
   }
 }
 
@@ -6724,26 +5845,23 @@ CG_CreateFx_GetSelectedInfo
 void CG_CreateFx_GetSelectedInfo(int effectSelection, int fieldSelection, CreateFxSelectedInfo *out_info)
 {
   __int64 v4; 
+  CreateFxTool *v7; 
+  int v11; 
   int v12; 
-  int v13; 
+  __int64 v13; 
   __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
-  int v17; 
-  __int64 v18; 
+  int v16; 
+  __int64 v17; 
 
   v4 = effectSelection;
   _RBX = out_info;
   if ( (unsigned int)effectSelection > 0x3FFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6605, ASSERT_TYPE_ASSERT, "(effectSelection >= 0 && effectSelection < CREATEFX_MAX_FX)", (const char *)&queryFormat, "effectSelection >= 0 && effectSelection < CREATEFX_MAX_FX") )
     __debugbreak();
-  _RAX = s_createFxTool;
-  _RCX = 5 * v4;
+  v7 = s_createFxTool;
   _RBX->m_storageIndex = v4;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rax+rcx*8+6200D0h]
-    vpextrd rdi, xmm1, 2
-  }
+  _YMM1 = *(__m256i *)&v7->scratchDataState[v4].selected;
+  __asm { vpextrd rdi, xmm1, 2 }
   _RBX->m_effectType = _RDI;
   __asm
   {
@@ -6752,31 +5870,31 @@ void CG_CreateFx_GetSelectedInfo(int effectSelection, int fieldSelection, Create
   }
   if ( (unsigned int)_RDI >= 6 )
   {
-    v17 = 6;
-    LODWORD(v14) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6614, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFieldCount ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFieldCount )\n\t%i not in [0, %i)", v14, v17) )
+    v16 = 6;
+    LODWORD(v13) = _RDI;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6614, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFieldCount ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFieldCount )\n\t%i not in [0, %i)", v13, v16) )
       __debugbreak();
-    LODWORD(v18) = 6;
-    LODWORD(v15) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6615, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFields ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFields )\n\t%i not in [0, %i)", v15, v18) )
+    LODWORD(v17) = 6;
+    LODWORD(v14) = _RDI;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6615, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectFields ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectFields )\n\t%i not in [0, %i)", v14, v17) )
       __debugbreak();
   }
-  v12 = s_createFxEffectFieldCount[(int)_RDI];
+  v11 = s_createFxEffectFieldCount[(int)_RDI];
   _RBX->m_fields = s_createFxEffectFields[(int)_RDI];
-  v13 = fieldSelection - 2;
-  _RBX->m_fieldCount = v12;
+  v12 = fieldSelection - 2;
+  _RBX->m_fieldCount = v11;
   _RBX->m_fieldIndex = fieldSelection - 2;
-  if ( fieldSelection - 2 < 0 || v13 >= v12 )
+  if ( fieldSelection - 2 < 0 || v12 >= v11 )
   {
     *(_DWORD *)_RBX->m_fieldType = fieldSelection;
   }
   else
   {
-    if ( v13 >= (unsigned int)v12 )
+    if ( v12 >= (unsigned int)v11 )
     {
-      LODWORD(v16) = v12;
-      LODWORD(v14) = fieldSelection - 2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6622, ASSERT_TYPE_ASSERT, "(unsigned)( out_info.m_fieldIndex ) < (unsigned)( out_info.m_fieldCount )", "out_info.m_fieldIndex doesn't index out_info.m_fieldCount\n\t%i not in [0, %i)", v14, v16) )
+      LODWORD(v15) = v11;
+      LODWORD(v13) = fieldSelection - 2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6622, ASSERT_TYPE_ASSERT, "(unsigned)( out_info.m_fieldIndex ) < (unsigned)( out_info.m_fieldCount )", "out_info.m_fieldIndex doesn't index out_info.m_fieldCount\n\t%i not in [0, %i)", v13, v15) )
         __debugbreak();
     }
     *(_DWORD *)_RBX->m_fieldType = *(_DWORD *)_RBX->m_fields[_RBX->m_fieldIndex].type;
@@ -6790,94 +5908,64 @@ CG_CreateFx_GetSnapMovement
 */
 void CG_CreateFx_GetSnapMovement(const LocalClientNum_t localClientNum, vec3_t *outValue)
 {
-  bool v4; 
+  bool v3; 
+  float v4; 
+  CreateFxTool *v5; 
+  CreateFxTool *v6; 
   CreateFxTool *v7; 
+  CreateFxTool *v8; 
   CreateFxTool *v9; 
-  CreateFxTool *v12; 
-  CreateFxTool *v16; 
-  CreateFxTool *v20; 
-  CreateFxTool *v23; 
+  CreateFxTool *v10; 
 
-  _RBX = outValue;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  v4 = CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) != 0;
-  __asm
+  v3 = CL_Keys_IsModifierKeyDown(localClientNum, KMOD_CTRL) != 0;
+  v4 = (float)CREATEFX_ANGLE_SNAPS[s_createFxTool->snapToAngleIndex];
+  if ( (!CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 20) || (v5 = s_createFxTool, s_createFxTool->keyNeedsRelease[20])) && (v3 || !CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 132) || (v5 = s_createFxTool, s_createFxTool->keyNeedsRelease[132])) )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-  }
-  if ( (!CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 20) || (v7 = s_createFxTool, s_createFxTool->keyNeedsRelease[20])) && (v4 || !CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 132) || (v7 = s_createFxTool, s_createFxTool->keyNeedsRelease[132])) )
-  {
-    if ( CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 21) && (v9 = s_createFxTool, !s_createFxTool->keyNeedsRelease[21]) || !v4 && CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 133) && (v9 = s_createFxTool, !s_createFxTool->keyNeedsRelease[133]) )
+    if ( CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 21) && (v6 = s_createFxTool, !s_createFxTool->keyNeedsRelease[21]) || !v3 && CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 133) && (v6 = s_createFxTool, !s_createFxTool->keyNeedsRelease[133]) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm1
-      }
-      v9->keyNeedsRelease[21] = 1;
-      v9->keyNeedsRelease[133] = 1;
+      outValue->v[0] = outValue->v[0] - v4;
+      v6->keyNeedsRelease[21] = 1;
+      v6->keyNeedsRelease[133] = 1;
     }
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-    }
-    v7->keyNeedsRelease[20] = 1;
-    v7->keyNeedsRelease[132] = 1;
+    outValue->v[0] = v4 + outValue->v[0];
+    v5->keyNeedsRelease[20] = 1;
+    v5->keyNeedsRelease[132] = 1;
   }
-  if ( CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 22) && (v12 = s_createFxTool, !s_createFxTool->keyNeedsRelease[22]) || CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 134) && (v12 = s_createFxTool, !s_createFxTool->keyNeedsRelease[134]) )
+  if ( (!CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 22) || (v7 = s_createFxTool, s_createFxTool->keyNeedsRelease[22])) && (!CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 134) || (v7 = s_createFxTool, s_createFxTool->keyNeedsRelease[134])) )
   {
-    __asm
+    if ( (!CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 23) || (v8 = s_createFxTool, s_createFxTool->keyNeedsRelease[23])) && (!CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 135) || (v8 = s_createFxTool, s_createFxTool->keyNeedsRelease[135])) )
     {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rbx+4], xmm1
+      if ( CG_CreateFx_IsFirstPress(2) || v3 && CG_CreateFx_IsFirstPress(133) )
+      {
+        v10 = s_createFxTool;
+        outValue->v[2] = outValue->v[2] - v4;
+        v10->keyNeedsRelease[2] = 1;
+        v10->keyNeedsRelease[133] = 1;
+      }
+      else if ( CG_CreateFx_IsFirstPress(4) || v3 && CG_CreateFx_IsFirstPress(132) )
+      {
+        v9 = s_createFxTool;
+        outValue->v[2] = v4 + outValue->v[2];
+        v9->keyNeedsRelease[4] = 1;
+        v9->keyNeedsRelease[132] = 1;
+      }
     }
-    v12->keyNeedsRelease[22] = 1;
-    v12->keyNeedsRelease[134] = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return;
-  }
-  if ( CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 23) && (v16 = s_createFxTool, !s_createFxTool->keyNeedsRelease[23]) || CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 135) && (v16 = s_createFxTool, !s_createFxTool->keyNeedsRelease[135]) )
-  {
-    __asm
+    else
     {
-      vaddss  xmm0, xmm6, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm0
+      outValue->v[1] = v4 + outValue->v[1];
+      v8->keyNeedsRelease[23] = 1;
+      v8->keyNeedsRelease[135] = 1;
     }
-    v16->keyNeedsRelease[23] = 1;
-    v16->keyNeedsRelease[135] = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return;
   }
-  if ( CG_CreateFx_IsFirstPress(2) || v4 && CG_CreateFx_IsFirstPress(133) )
+  else
   {
-    __asm { vmovss  xmm0, dword ptr [rbx+8] }
-    v23 = s_createFxTool;
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rbx+8], xmm1
-    }
-    v23->keyNeedsRelease[2] = 1;
-    v23->keyNeedsRelease[133] = 1;
+    outValue->v[1] = outValue->v[1] - v4;
+    v7->keyNeedsRelease[22] = 1;
+    v7->keyNeedsRelease[134] = 1;
   }
-  else if ( CG_CreateFx_IsFirstPress(4) || v4 && CG_CreateFx_IsFirstPress(132) )
-  {
-    __asm { vaddss  xmm0, xmm6, dword ptr [rbx+8] }
-    v20 = s_createFxTool;
-    __asm { vmovss  dword ptr [rbx+8], xmm0 }
-    v20->keyNeedsRelease[4] = 1;
-    v20->keyNeedsRelease[132] = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return;
-  }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -6907,117 +5995,63 @@ void CG_CreateFx_GotoMenu(CreateFxMenuNames menuIndex)
 CG_CreateFx_GotoSelected
 ==============
 */
-void CG_CreateFx_GotoSelected(__int64 a1, double a2)
+void CG_CreateFx_GotoSelected()
 {
-  CreateFxTool *v10; 
+  CreateFxTool *v0; 
   cg_t *LocalClientGlobals; 
-  const char *v39; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  const char *v8; 
   char *fmt; 
-  __int64 v48; 
+  __int64 v10; 
   vec3_t outCenter; 
   vec3_t outOrg; 
   vec3_t vec; 
   vec3_t forward; 
-  vec3_t v53; 
-  vec3_t v54; 
+  vec3_t v15; 
+  vec3_t v16; 
   vec3_t angles; 
-  __int64 v56; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v56;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
-  v10 = s_createFxTool;
+  v0 = s_createFxTool;
   if ( s_createFxTool->selectedEffectTotal <= 0 )
   {
     if ( s_createFxTool->highlightedEffectIndex == -1 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9588, ASSERT_TYPE_ASSERT, "(s_createFxTool->highlightedEffectIndex != INVALID_EFFECT_INDEX)", (const char *)&queryFormat, "s_createFxTool->highlightedEffectIndex != INVALID_EFFECT_INDEX") )
         __debugbreak();
-      v10 = s_createFxTool;
+      v0 = s_createFxTool;
     }
-    CG_CreateFx_GetScratchEffectOrigin(v10->highlightedEffectIndex, &outCenter);
+    CG_CreateFx_GetScratchEffectOrigin(v0->highlightedEffectIndex, &outCenter);
   }
   else
   {
-    CG_CreateFx_CalculateSelectionCenter(&outCenter, a2);
+    CG_CreateFx_CalculateSelectionCenter(&outCenter);
   }
   LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+110h+outOrg]
-    vmovss  xmm11, dword ptr [rsp+110h+outCenter]
-    vmovss  xmm10, dword ptr [rsp+110h+outCenter+4]
-    vmovss  xmm9, dword ptr [rsp+110h+outCenter+8]
-    vsubss  xmm1, xmm0, xmm11
-    vmovss  xmm0, dword ptr [rsp+110h+outOrg+4]
-    vmovss  dword ptr [rsp+110h+vec], xmm1
-    vsubss  xmm1, xmm0, xmm10
-    vmovss  xmm0, dword ptr [rsp+110h+outOrg+8]
-    vmovss  dword ptr [rsp+110h+vec+4], xmm1
-    vsubss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [rsp+110h+vec+8], xmm1
-  }
+  v2 = outCenter.v[0];
+  v3 = outCenter.v[1];
+  v4 = outCenter.v[2];
+  vec.v[0] = outOrg.v[0] - outCenter.v[0];
+  vec.v[1] = outOrg.v[1] - outCenter.v[1];
+  vec.v[2] = outOrg.v[2] - outCenter.v[2];
   vectoangles(&vec, &angles);
   AngleVectors(&angles, &forward, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43480000
-    vmulss  xmm1, xmm3, dword ptr [rsp+110h+forward]
-    vmulss  xmm0, xmm3, dword ptr [rsp+110h+forward+4]
-    vmulss  xmm2, xmm3, dword ptr [rsp+110h+forward+8]
-    vaddss  xmm7, xmm0, xmm10
-    vaddss  xmm8, xmm1, xmm11
-    vsubss  xmm0, xmm11, xmm8
-    vaddss  xmm6, xmm2, xmm9
-    vmovss  dword ptr [rsp+110h+var_A0], xmm0
-    vsubss  xmm0, xmm9, xmm6
-    vsubss  xmm1, xmm10, xmm7
-    vmovss  dword ptr [rsp+110h+var_A0+8], xmm0
-    vmovss  dword ptr [rsp+110h+var_A0+4], xmm1
-  }
-  vectoangles(&v53, &v54);
-  __asm
-  {
-    vcvttss2si ecx, dword ptr [rbp+10h+var_90+4]
-    vcvttss2si eax, dword ptr [rbp+10h+var_90]
-  }
-  LODWORD(v48) = _EAX;
-  __asm
-  {
-    vcvtss2sd xmm3, xmm6, xmm6
-    vcvtss2sd xmm2, xmm7, xmm7
-    vcvtss2sd xmm1, xmm8, xmm8
-  }
-  LODWORD(fmt) = _ECX;
-  __asm
-  {
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v39 = j_va("setviewpos %g %g %g %d %d", _RDX, _R8, _R9, fmt, v48);
-  Cbuf_InsertSuperUserText(LOCAL_CLIENT_0, v39);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  v5 = (float)(200.0 * forward.v[1]) + v3;
+  v6 = (float)(200.0 * forward.v[0]) + v2;
+  v7 = (float)(200.0 * forward.v[2]) + v4;
+  v15.v[0] = v2 - v6;
+  v15.v[2] = v4 - v7;
+  v15.v[1] = v3 - v5;
+  vectoangles(&v15, &v16);
+  LODWORD(v10) = (int)v16.v[0];
+  LODWORD(fmt) = (int)v16.v[1];
+  v8 = j_va("setviewpos %g %g %g %d %d", v6, v5, v7, fmt, v10);
+  Cbuf_InsertSuperUserText(LOCAL_CLIENT_0, v8);
 }
 
 /*
@@ -7192,116 +6226,86 @@ CG_CreateFx_Import
 char CG_CreateFx_Import(const char *rootName, const vec3_t *rootOrigin, const vec3_t *rootAngles)
 {
   CgClientSideEffectsSystem *ClientSideEffectsSystem; 
-  char v8; 
-  bool v10; 
-  CreateFxTool *v11; 
-  CreateFxMapLayerDef *v12; 
-  __int64 v13; 
+  bool v7; 
+  CreateFxTool *v8; 
+  CreateFxMapLayerDef *v9; 
+  __int64 v10; 
   bool Fx_ParseMapFile; 
-  CreateFxTool *v15; 
-  int v16; 
+  CreateFxTool *v12; 
+  int v13; 
+  __int64 v14; 
+  bool *v15; 
+  const char *v16; 
   __int64 v17; 
-  bool *v18; 
-  const char *v19; 
-  __int64 v20; 
-  CgClientSideEffectsSystem *v21; 
-  CreateFxTool *v23; 
-  int v24; 
-  __int64 v25; 
-  int v26; 
+  CgClientSideEffectsSystem *v18; 
+  CreateFxTool *v20; 
+  int v21; 
+  __int64 v22; 
+  int v23; 
   vec3_t layerAngles; 
   vec3_t layerOrigin; 
   char dest[272]; 
 
-  _RBX = rootAngles;
-  _RDI = rootOrigin;
   ClientSideEffectsSystem = CgClientSideEffectsSystem::GetClientSideEffectsSystem(LOCAL_CLIENT_0);
   CgClientSideEffectsSystem::Shutdown(ClientSideEffectsSystem);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rdi]
-  }
-  if ( !v8 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rdi+4] }
-  if ( !v8 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rdi+8] }
-  if ( !v8 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rbx] }
-  if ( !v8 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rbx+4] }
-  if ( !v8 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rbx+8] }
-  if ( v8 )
-    v10 = 0;
-  else
-LABEL_8:
-    v10 = 1;
-  v11 = s_createFxTool;
-  __asm { vmovss  dword ptr [rsp+180h+layerAngles], xmm0 }
-  s_createFxTool->rootHasOffset = v10;
-  v11->rootOrigin = *_RDI;
-  v11->rootAngles = *_RBX;
-  __asm
-  {
-    vmovss  dword ptr [rsp+180h+layerAngles+4], xmm0
-    vmovss  dword ptr [rsp+180h+layerAngles+8], xmm0
-    vmovss  dword ptr [rsp+180h+layerOrigin], xmm0
-    vmovss  dword ptr [rsp+180h+layerOrigin+4], xmm0
-    vmovss  dword ptr [rsp+180h+layerOrigin+8], xmm0
-  }
-  v12 = CG_CreateFx_AddLayer(rootName, (const char *const)&queryFormat.fmt + 3, &layerOrigin, &layerAngles);
-  CG_CreateFx_SetActiveLayer(v12);
+  v7 = rootOrigin->v[0] != 0.0 || rootOrigin->v[1] != 0.0 || rootOrigin->v[2] != 0.0 || rootAngles->v[0] != 0.0 || rootAngles->v[1] != 0.0 || rootAngles->v[2] != 0.0;
+  v8 = s_createFxTool;
+  layerAngles.v[0] = 0.0;
+  s_createFxTool->rootHasOffset = v7;
+  v8->rootOrigin = *rootOrigin;
+  v8->rootAngles = *rootAngles;
+  layerAngles.v[1] = 0.0;
+  layerAngles.v[2] = 0.0;
+  layerOrigin.v[0] = 0.0;
+  layerOrigin.v[1] = 0.0;
+  layerOrigin.v[2] = 0.0;
+  v9 = CG_CreateFx_AddLayer(rootName, (const char *const)&queryFormat.fmt + 3, &layerOrigin, &layerAngles);
+  CG_CreateFx_SetActiveLayer(v9);
   if ( I_strstr(rootName, "maps/prefabs/") == rootName )
     Core_strcpy(dest, 0x104ui64, rootName);
   else
     Com_sprintf(dest, 0x104ui64, "%s%s", "maps/prefabs/", rootName);
   if ( !I_strstr(dest, ".map") )
     goto LABEL_16;
-  v13 = -1i64;
+  v10 = -1i64;
   do
-    ++v13;
-  while ( dest[v13] );
-  if ( *(_DWORD *)&dest[(unsigned int)v13 - 4] != *(_DWORD *)".map" )
+    ++v10;
+  while ( dest[v10] );
+  if ( *(_DWORD *)&dest[(unsigned int)v10 - 4] != *(_DWORD *)".map" )
 LABEL_16:
     Com_sprintf(dest, 0x104ui64, "%s%s", dest, ".map");
   Fx_ParseMapFile = CG_CreateFx_ParseMapFile(dest, 1);
-  v15 = s_createFxTool;
-  v16 = 1;
+  v12 = s_createFxTool;
+  v13 = 1;
   if ( s_createFxTool->layerListTotal > 1 )
   {
-    v17 = 8391616i64;
+    v14 = 8391616i64;
     while ( Fx_ParseMapFile )
     {
-      v18 = &v15->inited + v17;
-      if ( !*((_BYTE *)&v15->clipboard.effectData[2].reactiveEntDef.radius + v17 + 4) )
+      v15 = &v12->inited + v14;
+      if ( !*((_BYTE *)&v12->clipboard.effectData[2].reactiveEntDef.radius + v14 + 4) )
       {
-        CG_CreateFx_SetActiveLayer((const CreateFxMapLayerDef *const)(&v15->inited + v17));
-        v19 = (const char *)*((_QWORD *)v18 + 1);
-        if ( I_strstr(v19, "maps/prefabs/") == v19 )
-          Core_strcpy(dest, 0x104ui64, v19);
+        CG_CreateFx_SetActiveLayer((const CreateFxMapLayerDef *const)(&v12->inited + v14));
+        v16 = (const char *)*((_QWORD *)v15 + 1);
+        if ( I_strstr(v16, "maps/prefabs/") == v16 )
+          Core_strcpy(dest, 0x104ui64, v16);
         else
-          Com_sprintf(dest, 0x104ui64, "%s%s", "maps/prefabs/", v19);
+          Com_sprintf(dest, 0x104ui64, "%s%s", "maps/prefabs/", v16);
         if ( !I_strstr(dest, ".map") )
           goto LABEL_28;
-        v20 = -1i64;
+        v17 = -1i64;
         do
-          ++v20;
-        while ( dest[v20] );
-        if ( *(_DWORD *)&dest[(unsigned int)v20 - 4] != *(_DWORD *)".map" )
+          ++v17;
+        while ( dest[v17] );
+        if ( *(_DWORD *)&dest[(unsigned int)v17 - 4] != *(_DWORD *)".map" )
 LABEL_28:
           Com_sprintf(dest, 0x104ui64, "%s%s", dest, ".map");
         Fx_ParseMapFile = CG_CreateFx_ParseMapFile(dest, 0);
-        v15 = s_createFxTool;
+        v12 = s_createFxTool;
       }
-      ++v16;
-      v17 += 304i64;
-      if ( v16 >= v15->layerListTotal )
+      ++v13;
+      v14 += 304i64;
+      if ( v13 >= v12->layerListTotal )
         goto LABEL_31;
     }
     goto LABEL_32;
@@ -7312,39 +6316,39 @@ LABEL_31:
 LABEL_32:
     Com_Printf_NoFilter("[CreateFx] Import FAILED\n");
     CG_CreateFx_ClearEffectsData();
-    v21 = CgClientSideEffectsSystem::GetClientSideEffectsSystem(LOCAL_CLIENT_0);
-    CgClientSideEffectsSystem::Restart(v21);
+    v18 = CgClientSideEffectsSystem::GetClientSideEffectsSystem(LOCAL_CLIENT_0);
+    CgClientSideEffectsSystem::Restart(v18);
     return 0;
   }
   CG_CreateFX_RegisterPalettes();
   s_createFxTool->imported = 1;
   Com_Printf_NoFilter("[CreateFx] Import DONE\n");
-  v23 = s_createFxTool;
-  v24 = 0;
+  v20 = s_createFxTool;
+  v21 = 0;
   if ( s_createFxTool->usedEffectTotal > 0 )
   {
-    v25 = 7078100i64;
+    v22 = 7078100i64;
     do
     {
-      v26 = *(_DWORD *)(&v23->inited + v25);
-      CG_CreateFx_UpdateEffectAlias(v26);
-      CG_CreateFx_FreeSoundIndex(v26);
-      CG_CreateFx_AllocSoundIndex(v26);
-      CG_CreateFx_StartEffect(v26);
-      v23 = s_createFxTool;
-      v25 += 4i64;
-      ++v24;
+      v23 = *(_DWORD *)(&v20->inited + v22);
+      CG_CreateFx_UpdateEffectAlias(v23);
+      CG_CreateFx_FreeSoundIndex(v23);
+      CG_CreateFx_AllocSoundIndex(v23);
+      CG_CreateFx_StartEffect(v23);
+      v20 = s_createFxTool;
+      v22 += 4i64;
+      ++v21;
     }
-    while ( v24 < s_createFxTool->usedEffectTotal );
+    while ( v21 < s_createFxTool->usedEffectTotal );
   }
-  if ( !v12 )
+  if ( !v9 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9177, ASSERT_TYPE_ASSERT, "(newActiveLayer)", (const char *)&queryFormat, "newActiveLayer") )
       __debugbreak();
-    v23 = s_createFxTool;
+    v20 = s_createFxTool;
   }
-  v23->activeLayer = v12;
-  Com_Printf_NoFilter("[CreateFx] SetActiveLayer %s\n", v12->pathString);
+  v20->activeLayer = v9;
+  Com_Printf_NoFilter("[CreateFx] SetActiveLayer %s\n", v9->pathString);
   return 1;
 }
 
@@ -7461,66 +6465,58 @@ CG_CreateFx_InsertNewFx
 */
 void CG_CreateFx_InsertNewFx()
 {
-  char v1; 
-  bool v2; 
-  CreateFxMenuPage *v4; 
+  CreateFxTool *v0; 
+  CreateFxMenuPage *v1; 
   int editEffectType; 
-  int v6; 
-  bool v7; 
+  int v3; 
+  bool v4; 
 
-  _RCX = s_createFxTool;
-  v1 = 0;
-  v2 = s_createFxTool->editBuffer.effectTotal == 0;
+  v0 = s_createFxTool;
   if ( s_createFxTool->editBuffer.effectTotal > 0 )
   {
     s_interruptCommandActive = 1;
     CG_CreateFx_OnEditEnd();
-    _RCX = s_createFxTool;
+    v0 = s_createFxTool;
   }
-  __asm
+  if ( v0->clipboard.cursorTrace.fraction < 1.0 && 0x4000 - v0->usedEffectTotal > 0 )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rcx+240018h]
-  }
-  if ( !(v1 | v2) && 0x4000 - _RCX->usedEffectTotal > 0 )
-  {
-    v4 = s_menuPath[s_menuPathCount];
-    if ( !v4 || v4->menuName != HUD_ASSET_LIST )
+    v1 = s_menuPath[s_menuPathCount];
+    if ( !v1 || v1->menuName != HUD_ASSET_LIST )
     {
-      editEffectType = _RCX->editEffectType;
-      v6 = 1;
+      editEffectType = v0->editEffectType;
+      v3 = 1;
       s_menuFocus = MENU;
       if ( editEffectType )
       {
-        v6 = editEffectType;
+        v3 = editEffectType;
         if ( editEffectType < 0 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4444, ASSERT_TYPE_ASSERT, "(selectionCurrent >= 0)", (const char *)&queryFormat, "selectionCurrent >= 0") )
             __debugbreak();
-          _RCX = s_createFxTool;
+          v0 = s_createFxTool;
         }
       }
       if ( !s_menuPath[s_menuPathCount] )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4447, ASSERT_TYPE_ASSERT, "(currentPage)", (const char *)&queryFormat, "currentPage") )
           __debugbreak();
-        _RCX = s_createFxTool;
+        v0 = s_createFxTool;
       }
-      *(_QWORD *)&_RCX->m_assetList.m_count = 7i64;
-      _RCX->m_assetList.m_title = "PROPERTIES: Type";
-      v7 = _RCX->m_assetList.m_page < 1;
-      _RCX->m_assetList.m_onSelected = CG_CreateFx_OnPaletteSelected_EffectTypeNew;
-      _RCX->m_assetList.m_enumStrings = createFxEffectTypeStrings;
-      _RCX->m_assetList.m_palette = NULL;
-      if ( !v7 )
-        _RCX->m_assetList.m_page = 0;
-      _RCX->m_assetList.m_page = 0;
-      _RCX->m_assetList.m_enumStrings = &createFxEffectTypeStrings[1];
-      _RCX->m_assetList.m_count = 6;
-      if ( v6 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4465, ASSERT_TYPE_ASSERT, "(selectionCurrent > 0)", (const char *)&queryFormat, "selectionCurrent > 0") )
+      *(_QWORD *)&v0->m_assetList.m_count = 7i64;
+      v0->m_assetList.m_title = "PROPERTIES: Type";
+      v4 = v0->m_assetList.m_page < 1;
+      v0->m_assetList.m_onSelected = CG_CreateFx_OnPaletteSelected_EffectTypeNew;
+      v0->m_assetList.m_enumStrings = createFxEffectTypeStrings;
+      v0->m_assetList.m_palette = NULL;
+      if ( !v4 )
+        v0->m_assetList.m_page = 0;
+      v0->m_assetList.m_page = 0;
+      v0->m_assetList.m_enumStrings = &createFxEffectTypeStrings[1];
+      v0->m_assetList.m_count = 6;
+      if ( v3 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4465, ASSERT_TYPE_ASSERT, "(selectionCurrent > 0)", (const char *)&queryFormat, "selectionCurrent > 0") )
         __debugbreak();
       CG_CreateFx_GotoMenu(HUD_ASSET_LIST);
-      CG_CreateFx_MenuAssetList_SetCursorIndex(s_menuPath[s_menuPathCount], v6 - 1);
+      CG_CreateFx_MenuAssetList_SetCursorIndex(s_menuPath[s_menuPathCount], v3 - 1);
     }
   }
 }
@@ -7652,7 +6648,7 @@ bool CG_CreateFx_IsFirstPress(const int key)
 CG_CreateFx_LoadLoose
 ==============
 */
-void CG_CreateFx_LoadLoose(double a1)
+void CG_CreateFx_LoadLoose(void)
 {
   Com_Printf_NoFilter("[CreateFx] LoadLoose (due to developer_createfx)\n");
   if ( s_createFxTool && s_createFxTool->hasBeenEnabled )
@@ -7662,7 +6658,7 @@ void CG_CreateFx_LoadLoose(double a1)
   else
   {
     s_doingTemporaryCreateFxActivation = 1;
-    CG_CreateFx_Enter_f(a1);
+    CG_CreateFx_Enter_f();
     CG_CreateFx_Exit_f();
   }
 }
@@ -7719,14 +6715,15 @@ void CG_CreateFx_MainMenu_Draw(CreateFxMenuPage *const page, const ScreenPlaceme
   const CreateFxMapLayerDef *ActiveLayer; 
   char *v7; 
   bool v8; 
-  __int64 v11; 
-  bool v12; 
-  int v13[4]; 
+  __int64 v10; 
+  bool v11; 
+  int v12[4]; 
   CreateFxMenuDrawPage data; 
   char *strKey[4]; 
   char *strValue[2]; 
+  __int128 v16; 
   CreateFxHintText hints[8]; 
-  int v19; 
+  int v18; 
 
   if ( !page && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6316, ASSERT_TYPE_ASSERT, "(page)", (const char *)&queryFormat, "page") )
     __debugbreak();
@@ -7748,36 +6745,32 @@ void CG_CreateFx_MainMenu_Draw(CreateFxMenuPage *const page, const ScreenPlaceme
   v8 = s_menuFocus == EDIT;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   strValue[0] = (char *)ActiveLayer->pathString;
-  __asm { vmovdqu [rsp+168h+var_58], xmm0 }
+  v16 = _XMM0;
   strValue[1] = v7;
   page->selectionIndexMax = 4;
   if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6347, ASSERT_TYPE_ASSERT, "(s_menuFocus != CreateFxFocusStates::EDIT)", (const char *)&queryFormat, "s_menuFocus != CreateFxFocusStates::EDIT") )
     __debugbreak();
   if ( s_menuFocus == MENU )
   {
-    v13[0] = 1;
-    v13[1] = 29;
-    CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, (const CreateFxHintText *const)v13, 2, s_hintsMenuCommon, 2);
+    v12[0] = 1;
+    v12[1] = 29;
+    CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, (const CreateFxHintText *const)v12, 2, s_hintsMenuCommon, 2);
   }
   else
   {
-    __asm
-    {
-      vmovdqu ymm0, cs:__ymm@0000001800000013000000340000003300000004000000020000001d00000001
-      vmovdqu ymmword ptr [rsp+168h+hints], ymm0
-    }
-    v19 = 53;
+    *(__m256i *)hints = _ymm;
+    v18 = 53;
     CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, hints, 9, s_hintsWorldCommon, 13);
   }
   CG_CreateFx_Menu_DrawFrame(&data, "CREATE FX", 0, 0);
   if ( page->selectionIndexMax > 0 )
   {
-    v11 = 0i64;
+    v10 = 0i64;
     do
     {
-      v12 = v5 == 1 && v7;
-      CG_CreateFx_Menu_DrawRow(&data, v5++, strKey[v11], strValue[v11], -1, v12);
-      ++v11;
+      v11 = v5 == 1 && v7;
+      CG_CreateFx_Menu_DrawRow(&data, v5++, strKey[v10], strValue[v10], -1, v11);
+      ++v10;
     }
     while ( v5 < page->selectionIndexMax );
   }
@@ -7867,180 +6860,130 @@ LABEL_9:
 CG_CreateFx_MenuAssetList_Draw
 ==============
 */
-
-void __fastcall CG_CreateFx_MenuAssetList_Draw(CreateFxMenuPage *const page, const ScreenPlacement *const scrPlace, double _XMM2_8)
+void CG_CreateFx_MenuAssetList_Draw(CreateFxMenuPage *const page, const ScreenPlacement *const scrPlace)
 {
-  int v8; 
-  int v9; 
+  __int128 v2; 
+  __int128 v3; 
+  int v6; 
+  int v7; 
   int i; 
-  const char *v35; 
-  int v38; 
+  float rowHeight; 
+  float firstRowY; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float headerX; 
+  const char *v17; 
+  int v18; 
   CreateFxAssetPalette *m_palette; 
   unsigned __int16 m_filteredCount; 
   const char *AliasForIndex; 
-  int v42; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  int v22; 
   CreateFxHintText *hints2; 
-  float hints2a; 
-  float hints2b; 
-  float hints2c; 
   __int64 hintCount2; 
-  int hintCount2a; 
-  int hintCount2b; 
-  int hintCount2c; 
-  float v54; 
   CreateFxMenuDrawPage data; 
   CreateFxHintText hints[4]; 
+  __int128 v27; 
+  __int128 v28; 
 
-  __asm { vmovaps [rsp+150h+var_30], xmm6 }
+  v28 = v2;
   if ( !page && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7459, ASSERT_TYPE_ASSERT, "(page)", (const char *)&queryFormat, "page") )
     __debugbreak();
   if ( s_menuFocus != MENU && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7460, ASSERT_TYPE_ASSERT, "(s_menuFocus == CreateFxFocusStates::MENU)", (const char *)&queryFormat, "s_menuFocus == CreateFxFocusStates::MENU") )
     __debugbreak();
-  v8 = 0;
-  v9 = 0;
+  v6 = 0;
+  v7 = 0;
   for ( i = 0; i < 9; ++i )
   {
     if ( 9 * s_createFxTool->m_assetList.m_page + i >= s_createFxTool->m_assetList.m_count )
       break;
-    ++v9;
+    ++v7;
   }
-  page->selectionIndexMax = v9;
-  __asm { vmovaps [rsp+150h+var_40], xmm7 }
+  page->selectionIndexMax = v7;
+  v27 = v3;
   hints[0] = SIZE_T|0x20;
   hints[1] = LONG_DOUBLE|HALF|0x20;
   hints[2] = 32;
   CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, hints, 3, s_hintsMenuCommon, 2);
-  __asm { vmovss  xmm6, [rbp+50h+data.font.rowHeight] }
+  rowHeight = data.font.rowHeight;
   if ( s_createFxTool->m_assetList.m_palette )
   {
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rbp+50h+data.frameHeight]
-      vmovss  xmm2, [rbp+50h+data.firstRowY]
-      vmovss  [rbp+50h+data.frameHeight], xmm1
-      vaddss  xmm1, xmm6, [rbp+50h+data.firstHintY]
-      vaddss  xmm7, xmm2, xmm6
-      vmovss  [rbp+50h+data.firstHintY], xmm1
-      vmovss  [rbp+50h+data.firstRowY], xmm7
-    }
+    data.frameHeight = data.font.rowHeight + data.frameHeight;
+    firstRowY = data.firstRowY + data.font.rowHeight;
+    data.firstHintY = data.font.rowHeight + data.firstHintY;
+    data.firstRowY = data.firstRowY + data.font.rowHeight;
   }
   else
   {
-    __asm { vmovss  xmm7, [rbp+50h+data.firstRowY] }
+    firstRowY = data.firstRowY;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdx+80093Ch]
-    vmulss  xmm1, xmm0, cs:__real@3de38e39
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 2
-    vcvttss2si r9d, xmm2; pageCount
-  }
-  CG_CreateFx_Menu_DrawFrame(&data, s_createFxTool->m_assetList.m_title, s_createFxTool->m_assetList.m_page, _ER9);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
+  CG_CreateFx_Menu_DrawFrame(&data, s_createFxTool->m_assetList.m_title, s_createFxTool->m_assetList.m_page, (int)*(float *)&_XMM2);
   if ( s_createFxTool->m_assetList.m_palette )
   {
-    __asm
-    {
-      vmovss  xmm0, [rbp+50h+data.frameBorder]
-      vmulss  xmm2, xmm0, cs:__real@40000000
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  xmm1, [rbp+50h+data.frameWidth]
-      vmovss  dword ptr [rsp+150h+var_118], xmm0
-      vmovss  [rsp+150h+hintCount2], xmm0
-      vxorps  xmm4, xmm4, xmm4
-      vsubss  xmm7, xmm7, xmm6
-      vsubss  xmm2, xmm1, xmm2; w
-      vsubss  xmm1, xmm7, xmm6; y
-      vmovaps xmm3, xmm6; h
-      vmovss  xmm6, [rbp+50h+data.headerX]
-      vmovss  dword ptr [rsp+150h+hints2], xmm4
-      vmovaps xmm0, xmm6; x
-      vmovss  dword ptr [rsp+150h+fmt], xmm4
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, hints2a, *(float *)&hintCount2a, v54, &colorBlackFaded, s_effectTypeMaterials[0]);
-    __asm
-    {
-      vmovss  xmm0, [rbp+50h+data.font.fontScale]
-      vmovaps xmm3, xmm6; x
-    }
+    v13 = firstRowY - rowHeight;
+    v14 = v13 - rowHeight;
+    v15 = rowHeight;
+    headerX = data.headerX;
+    CL_DrawStretchPicPhysical(data.headerX, v14, data.frameWidth - (float)(data.frameBorder * 2.0), v15, 0.0, 0.0, 1.0, 1.0, &colorBlackFaded, s_effectTypeMaterials[0]);
     if ( s_createFxTool->m_assetFilter.m_buffer[0] )
     {
-      __asm
-      {
-        vmovss  [rsp+150h+hintCount2], xmm0
-        vmovss  dword ptr [rsp+150h+hints2], xmm0
-        vmovss  dword ptr [rsp+150h+fmt], xmm7
-      }
-      CL_DrawTextPhysicalWithCursor(s_createFxTool->m_assetFilter.m_buffer, 0x7FFFFFFF, data.font.font, *(float *)&_XMM3, fmta, hints2b, *(float *)&hintCount2b, &colorYellow, data.font.fontStyle, s_createFxTool->m_assetFilter.m_cursor, 124);
+      CL_DrawTextPhysicalWithCursor(s_createFxTool->m_assetFilter.m_buffer, 0x7FFFFFFF, data.font.font, headerX, v13, data.font.fontScale, data.font.fontScale, &colorYellow, data.font.fontStyle, s_createFxTool->m_assetFilter.m_cursor, 124);
     }
     else
     {
-      v35 = "<type to filter, / to search>";
+      v17 = "<type to filter, / to search>";
       if ( s_createFxTool->m_assetList.m_palette != &s_createFX_paletteSounds )
-        v35 = "<type to filter>";
-      __asm
-      {
-        vmovss  [rsp+150h+hintCount2], xmm0
-        vmovss  dword ptr [rsp+150h+hints2], xmm0
-        vmovss  dword ptr [rsp+150h+fmt], xmm7
-      }
-      CL_DrawTextPhysical(v35, 0x7FFFFFFF, data.font.font, *(float *)&_XMM3, fmtb, hints2c, *(float *)&hintCount2c, &colorWhite, data.font.fontStyle);
+        v17 = "<type to filter>";
+      CL_DrawTextPhysical(v17, 0x7FFFFFFF, data.font.font, headerX, v13, data.font.fontScale, data.font.fontScale, &colorWhite, data.font.fontStyle);
     }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+150h+var_40]
-    vmovaps xmm6, [rsp+150h+var_30]
   }
   if ( page->selectionIndexMax > 0 )
   {
     do
     {
-      v38 = v8 + 8 * s_createFxTool->m_assetList.m_page + s_createFxTool->m_assetList.m_page;
-      if ( (unsigned int)v38 >= s_createFxTool->m_assetList.m_count )
+      v18 = v6 + 8 * s_createFxTool->m_assetList.m_page + s_createFxTool->m_assetList.m_page;
+      if ( (unsigned int)v18 >= s_createFxTool->m_assetList.m_count )
       {
         LODWORD(hintCount2) = s_createFxTool->m_assetList.m_count;
-        LODWORD(hints2) = v8 + 8 * s_createFxTool->m_assetList.m_page + s_createFxTool->m_assetList.m_page;
+        LODWORD(hints2) = v6 + 8 * s_createFxTool->m_assetList.m_page + s_createFxTool->m_assetList.m_page;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7491, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( s_createFxTool->m_assetList.m_count )", "assetIndex doesn't index s_createFxTool->m_assetList.m_count\n\t%i not in [0, %i)", hints2, hintCount2) )
           __debugbreak();
       }
       m_palette = s_createFxTool->m_assetList.m_palette;
       if ( m_palette )
       {
-        if ( (v38 < 0 || (unsigned int)v38 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v38, "signed", v38) )
+        if ( (v18 < 0 || (unsigned int)v18 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v18, "signed", v18) )
           __debugbreak();
         m_filteredCount = m_palette->m_filteredCount;
-        if ( (unsigned __int16)v38 >= m_filteredCount )
+        if ( (unsigned __int16)v18 >= m_filteredCount )
         {
           LODWORD(hintCount2) = m_filteredCount;
-          LODWORD(hints2) = (unsigned __int16)v38;
+          LODWORD(hints2) = (unsigned __int16)v18;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 617, ASSERT_TYPE_ASSERT, "(unsigned)( filteredIndex ) < (unsigned)( m_filteredCount )", "filteredIndex doesn't index m_filteredCount\n\t%i not in [0, %i)", hints2, hintCount2) )
             __debugbreak();
         }
-        AliasForIndex = CreateFxAssetPalette::getAliasForIndex(m_palette, m_palette->m_filtered[(unsigned __int16)v38]);
+        AliasForIndex = CreateFxAssetPalette::getAliasForIndex(m_palette, m_palette->m_filtered[(unsigned __int16)v18]);
         if ( AliasForIndex )
           goto LABEL_40;
-        v42 = 7496;
+        v22 = 7496;
       }
       else
       {
         if ( !s_createFxTool->m_assetList.m_enumStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7501, ASSERT_TYPE_ASSERT, "(s_createFxTool->m_assetList.m_enumStrings)", (const char *)&queryFormat, "s_createFxTool->m_assetList.m_enumStrings") )
           __debugbreak();
-        AliasForIndex = s_createFxTool->m_assetList.m_enumStrings[v38];
+        AliasForIndex = s_createFxTool->m_assetList.m_enumStrings[v18];
         if ( AliasForIndex )
           goto LABEL_40;
-        v42 = 7503;
+        v22 = 7503;
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", v42, ASSERT_TYPE_ASSERT, "(assetString)", (const char *)&queryFormat, "assetString") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", v22, ASSERT_TYPE_ASSERT, "(assetString)", (const char *)&queryFormat, "assetString") )
         __debugbreak();
 LABEL_40:
-      CG_CreateFx_Menu_DrawRow(&data, v8++, AliasForIndex, NULL, -1, 0);
+      CG_CreateFx_Menu_DrawRow(&data, v6++, AliasForIndex, NULL, -1, 0);
     }
-    while ( v8 < page->selectionIndexMax );
+    while ( v6 < page->selectionIndexMax );
   }
 }
 
@@ -8051,29 +6994,29 @@ CG_CreateFx_MenuAssetList_Input
 */
 char CG_CreateFx_MenuAssetList_Input(CreateFxMenuPage *const page, LocalClientNum_t localClientNum, int key, int down, unsigned int time)
 {
-  CreateFxTool *v12; 
-  int v13; 
+  CreateFxTool *v10; 
+  int v11; 
   int selectionIndex; 
-  CreateFxTool *v15; 
-  __int64 v16; 
+  CreateFxTool *v13; 
+  __int64 v14; 
   CreateFxAssetPalette *m_palette; 
-  int v18; 
-  int v25; 
-  CreateFxTool *v26; 
-  unsigned int v27; 
+  int v16; 
+  int v19; 
+  CreateFxTool *v20; 
+  unsigned int v21; 
   const char *m_title; 
-  CreateFxMenuPage *v29; 
-  bool v30; 
+  CreateFxMenuPage *v23; 
+  bool v24; 
   int m_propertyIndex; 
-  CreateFxMapLayerDef *v33; 
+  CreateFxMapLayerDef *v26; 
   const char *pathString; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
   const char *name; 
   int m_bufferCount; 
   CreateFxEditBuffer *p_m_assetFilter; 
-  CreateFxAssetPalette *v41; 
+  CreateFxAssetPalette *v34; 
   __int64 allowNumbers; 
   __int64 allowNumbersa; 
   vec3_t layerAngles; 
@@ -8087,8 +7030,8 @@ char CG_CreateFx_MenuAssetList_Input(CreateFxMenuPage *const page, LocalClientNu
     return 0;
   if ( key != 27 && key != 2 )
   {
-    v12 = s_createFxTool;
-    v13 = 0;
+    v10 = s_createFxTool;
+    v11 = 0;
     if ( s_createFxTool->m_assetList.m_count > 0 )
     {
       key = CG_CreateFx_Handle_KeyJump(page, localClientNum, key, down);
@@ -8096,21 +7039,21 @@ char CG_CreateFx_MenuAssetList_Input(CreateFxMenuPage *const page, LocalClientNu
       {
         case 1:
         case 13:
-          v26 = s_createFxTool;
-          v27 = page->selectionIndex + 9 * s_createFxTool->m_assetList.m_page;
-          if ( v27 >= s_createFxTool->m_assetList.m_count )
+          v20 = s_createFxTool;
+          v21 = page->selectionIndex + 9 * s_createFxTool->m_assetList.m_page;
+          if ( v21 >= s_createFxTool->m_assetList.m_count )
           {
             LODWORD(allowNumbers) = page->selectionIndex + 9 * s_createFxTool->m_assetList.m_page;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7614, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( s_createFxTool->m_assetList.m_count )", "assetIndex doesn't index s_createFxTool->m_assetList.m_count\n\t%i not in [0, %i)", allowNumbers, s_createFxTool->m_assetList.m_count) )
               __debugbreak();
-            v26 = s_createFxTool;
+            v20 = s_createFxTool;
           }
-          m_title = v26->m_assetList.m_title;
-          v26->m_assetList.m_onSelected(page, v27);
-          v29 = s_menuPath[s_menuPathCount];
-          if ( !v29 || v29->menuName != HUD_ASSET_LIST || s_createFxTool->m_assetList.m_title != m_title )
+          m_title = v20->m_assetList.m_title;
+          v20->m_assetList.m_onSelected(page, v21);
+          v23 = s_menuPath[s_menuPathCount];
+          if ( !v23 || v23->menuName != HUD_ASSET_LIST || s_createFxTool->m_assetList.m_title != m_title )
             return 1;
-          v30 = s_createFxTool->editBuffer.effectTotal <= 0;
+          v24 = s_createFxTool->editBuffer.effectTotal <= 0;
           goto LABEL_56;
         case 20:
         case 132:
@@ -8125,28 +7068,21 @@ char CG_CreateFx_MenuAssetList_Input(CreateFxMenuPage *const page, LocalClientNu
         case 22:
         case 134:
         case 172:
-          v12 = s_createFxTool;
-          v18 = s_createFxTool->m_assetList.m_page - 1;
-          if ( v18 < 0 )
-            v18 = 0;
-          s_createFxTool->m_assetList.m_page = v18;
+          v10 = s_createFxTool;
+          v16 = s_createFxTool->m_assetList.m_page - 1;
+          if ( v16 < 0 )
+            v16 = 0;
+          s_createFxTool->m_assetList.m_page = v16;
           goto LABEL_16;
         case 23:
         case 135:
         case 174:
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vxorps  xmm2, xmm2, xmm2
-            vcvtsi2ss xmm0, xmm0, dword ptr [rdx+80093Ch]
-            vmulss  xmm1, xmm0, cs:__real@3de38e39
-            vroundss xmm2, xmm2, xmm1, 2
-            vcvttss2si ecx, xmm2
-          }
-          v25 = _ECX - 1;
-          if ( s_createFxTool->m_assetList.m_page + 1 < v25 )
-            v25 = s_createFxTool->m_assetList.m_page + 1;
-          s_createFxTool->m_assetList.m_page = v25;
+          _XMM2 = 0i64;
+          __asm { vroundss xmm2, xmm2, xmm1, 2 }
+          v19 = (int)*(float *)&_XMM2 - 1;
+          if ( s_createFxTool->m_assetList.m_page + 1 < v19 )
+            v19 = s_createFxTool->m_assetList.m_page + 1;
+          s_createFxTool->m_assetList.m_page = v19;
           selectionIndex = page->selectionIndex;
 LABEL_14:
           CG_CreateFx_MenuAssetList_SetCursorIndex(page, selectionIndex);
@@ -8155,56 +7091,56 @@ LABEL_14:
           break;
       }
 LABEL_15:
-      v12 = s_createFxTool;
+      v10 = s_createFxTool;
       goto LABEL_16;
     }
     if ( key != 1 && key != 13 )
     {
 LABEL_16:
-      if ( !v12->m_assetList.m_palette || !CG_CreateFx_BufferInput(&v12->m_assetFilter, localClientNum, key, down, time, 1, 1, 1) )
+      if ( !v10->m_assetList.m_palette || !CG_CreateFx_BufferInput(&v10->m_assetFilter, localClientNum, key, down, time, 1, 1, 1) )
         return 0;
-      v15 = s_createFxTool;
+      v13 = s_createFxTool;
       if ( s_createFxTool->m_assetList.m_palette == &s_createFX_paletteSounds )
       {
         if ( s_createFxTool->m_assetFilter.m_bufferCount && s_createFxTool->m_assetFilter.m_buffer[0] == 47 )
         {
-          v16 = -1i64;
+          v14 = -1i64;
           do
-            ++v16;
-          while ( s_createFxTool->m_assetFilter.m_buffer[v16 + 1] );
-          if ( (unsigned int)v16 >= 4 )
+            ++v14;
+          while ( s_createFxTool->m_assetFilter.m_buffer[v14 + 1] );
+          if ( (unsigned int)v14 >= 4 )
           {
             CreateFxAssetPalette::init(&s_createFX_paletteSounds, "sounds");
             SND_BankEnumAliasLists((void (__fastcall *)(SndAliasList *))CG_CreateFX_SearchSoundAlias);
-            v15 = s_createFxTool;
+            v13 = s_createFxTool;
             m_palette = s_createFxTool->m_assetList.m_palette;
             m_palette->m_filteredCount = 0;
             if ( m_palette->m_count )
             {
               do
               {
-                m_palette->m_filtered[m_palette->m_filteredCount] = v13;
-                LOWORD(v13) = v13 + 1;
+                m_palette->m_filtered[m_palette->m_filteredCount] = v11;
+                LOWORD(v11) = v11 + 1;
                 ++m_palette->m_filteredCount;
               }
-              while ( (unsigned __int16)v13 < m_palette->m_count );
+              while ( (unsigned __int16)v11 < m_palette->m_count );
             }
-            v15->soundPaletteContainsSearchResults = 1;
+            v13->soundPaletteContainsSearchResults = 1;
           }
           goto LABEL_83;
         }
         if ( s_createFxTool->soundPaletteContainsSearchResults )
         {
           CreateFxAssetPalette::init(&s_createFX_paletteSounds, "sounds");
-          v15 = s_createFxTool;
+          v13 = s_createFxTool;
           if ( s_createFxTool->usedEffectTotal > 0 )
           {
-            v35 = 7078100i64;
+            v28 = 7078100i64;
             do
             {
-              v36 = *(int *)(&v15->inited + v35);
-              v37 = v36;
-              switch ( v15->scratchDataState[v36].effectType )
+              v29 = *(int *)(&v13->inited + v28);
+              v30 = v29;
+              switch ( v13->scratchDataState[v29].effectType )
               {
                 case 1:
                   goto LABEL_73;
@@ -8212,21 +7148,21 @@ LABEL_16:
                   goto LABEL_72;
                 case 3:
 LABEL_73:
-                  name = v15->scratchData[v37].oneShotFxDef.effectSound.name;
+                  name = v13->scratchData[v30].oneShotFxDef.effectSound.name;
                   break;
                 case 4:
 LABEL_72:
-                  name = v15->scratchData[v37].intervalSoundsDef.effectSound.name;
+                  name = v13->scratchData[v30].intervalSoundsDef.effectSound.name;
                   break;
                 case 5:
-                  name = v15->scratchData[v37].reactiveEntDef.effectSound.name;
+                  name = v13->scratchData[v30].reactiveEntDef.effectSound.name;
                   break;
                 default:
-                  LODWORD(allowNumbersa) = v15->scratchDataState[v36].effectType;
+                  LODWORD(allowNumbersa) = v13->scratchDataState[v29].effectType;
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3360, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectSoundAliasName: unhandled effect type '%d'", allowNumbersa) )
                     __debugbreak();
 LABEL_77:
-                  v15 = s_createFxTool;
+                  v13 = s_createFxTool;
                   goto LABEL_78;
               }
               if ( name )
@@ -8236,27 +7172,27 @@ LABEL_77:
                 goto LABEL_77;
               }
 LABEL_78:
-              ++v13;
-              v35 += 4i64;
+              ++v11;
+              v28 += 4i64;
             }
-            while ( v13 < v15->usedEffectTotal );
+            while ( v11 < v13->usedEffectTotal );
           }
-          v15->soundPaletteContainsSearchResults = 0;
+          v13->soundPaletteContainsSearchResults = 0;
         }
-        m_bufferCount = v15->m_assetFilter.m_bufferCount;
-        p_m_assetFilter = &v15->m_assetFilter;
-        v41 = v15->m_assetList.m_palette;
+        m_bufferCount = v13->m_assetFilter.m_bufferCount;
+        p_m_assetFilter = &v13->m_assetFilter;
+        v34 = v13->m_assetList.m_palette;
       }
       else
       {
         m_bufferCount = s_createFxTool->m_assetFilter.m_bufferCount;
         p_m_assetFilter = &s_createFxTool->m_assetFilter;
-        v41 = s_createFxTool->m_assetList.m_palette;
+        v34 = s_createFxTool->m_assetList.m_palette;
       }
-      CreateFxAssetPalette::filter(v41, p_m_assetFilter->m_buffer, m_bufferCount);
-      v15 = s_createFxTool;
+      CreateFxAssetPalette::filter(v34, p_m_assetFilter->m_buffer, m_bufferCount);
+      v13 = s_createFxTool;
 LABEL_83:
-      CG_CreateFx_SetAssetListCount(v15->m_assetList.m_palette->m_filteredCount);
+      CG_CreateFx_SetAssetListCount(v13->m_assetList.m_palette->m_filteredCount);
       return 1;
     }
     m_propertyIndex = s_createFxTool->m_assetList.m_propertyIndex;
@@ -8264,25 +7200,21 @@ LABEL_83:
     {
       if ( s_createFxTool->layerListTotal >= 128 )
         goto LABEL_16;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+78h+layerAngles], xmm0
-        vmovss  dword ptr [rsp+78h+layerAngles+4], xmm0
-        vmovss  dword ptr [rsp+78h+layerAngles+8], xmm0
-        vmovss  dword ptr [rsp+78h+layerOrigin], xmm0
-        vmovss  dword ptr [rsp+78h+layerOrigin+4], xmm0
-        vmovss  dword ptr [rsp+78h+layerOrigin+8], xmm0
-      }
-      v33 = CG_CreateFx_AddLayer(s_createFxTool->m_assetFilter.m_buffer, (const char *const)&queryFormat.fmt + 3, &layerOrigin, &layerAngles);
-      if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7643, ASSERT_TYPE_ASSERT, "(newLayer)", (const char *)&queryFormat, "newLayer") )
+      layerAngles.v[0] = 0.0;
+      layerAngles.v[1] = 0.0;
+      layerAngles.v[2] = 0.0;
+      layerOrigin.v[0] = 0.0;
+      layerOrigin.v[1] = 0.0;
+      layerOrigin.v[2] = 0.0;
+      v26 = CG_CreateFx_AddLayer(s_createFxTool->m_assetFilter.m_buffer, (const char *const)&queryFormat.fmt + 3, &layerOrigin, &layerAngles);
+      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7643, ASSERT_TYPE_ASSERT, "(newLayer)", (const char *)&queryFormat, "newLayer") )
         __debugbreak();
       s_createFxTool->needToExportRootLayer = 1;
-      pathString = v33->pathString;
-      if ( pathString && !CreateFxAssetPalette::containsAsset(&s_createFX_paletteLayers, v33->pathString) )
+      pathString = v26->pathString;
+      if ( pathString && !CreateFxAssetPalette::containsAsset(&s_createFX_paletteLayers, v26->pathString) )
         CreateFxAssetPalette::add(&s_createFX_paletteLayers, pathString, NULL);
-      CG_CreateFx_SetEffectLayerForSelected(v33);
-      v30 = s_createFxTool->editBuffer.effectTotal <= 0;
+      CG_CreateFx_SetEffectLayerForSelected(v26);
+      v24 = s_createFxTool->editBuffer.effectTotal <= 0;
     }
     else
     {
@@ -8290,10 +7222,10 @@ LABEL_83:
         goto LABEL_16;
       if ( !CG_CreateFx_EffectField_SetForSelected((const CreateFxEffectType)s_createFxTool->editEffectType, m_propertyIndex - 2, s_createFxTool->m_assetFilter.m_buffer, 1) )
         goto LABEL_15;
-      v30 = s_createFxTool->editBuffer.effectTotal <= 0;
+      v24 = s_createFxTool->editBuffer.effectTotal <= 0;
     }
 LABEL_56:
-    if ( !v30 )
+    if ( !v24 )
     {
       s_interruptCommandActive = 1;
       CG_CreateFx_OnEditEnd();
@@ -8374,187 +7306,75 @@ CG_CreateFx_Menu_DrawFrame
 */
 void CG_CreateFx_Menu_DrawFrame(const CreateFxMenuDrawPage *data, const char *strHeader, int pageNum, int pageCount)
 {
-  bool v8; 
   Material *material; 
+  float fontScaleHeader; 
+  float headerX; 
   GfxFont *font; 
+  int selectionIndexMax; 
+  float v13; 
   int fontStyle; 
-  GfxFont *v36; 
-  const char *v37; 
-  int v41; 
-  int v42; 
-  __int64 v44; 
-  __int64 v50; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float t1; 
-  float t1a; 
-  float t1b; 
-  float t1c; 
-  float t1d; 
-  float v68; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
+  float fontScaleHint; 
+  float v16; 
+  GfxFont *v17; 
+  const char *v18; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
+  __int64 v22; 
   int color; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v8 = data->page == NULL;
-  _RSI = data;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4239, ASSERT_TYPE_ASSERT, "(data.page)", (const char *)&queryFormat, "data.page") )
+  if ( !data->page && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4239, ASSERT_TYPE_ASSERT, "(data.page)", (const char *)&queryFormat, "data.page") )
     __debugbreak();
   if ( !strHeader && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4240, ASSERT_TYPE_ASSERT, "(strHeader)", (const char *)&queryFormat, "strHeader") )
     __debugbreak();
   material = s_effectTypeMaterials[0];
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm3, dword ptr [rsi+58h]; h
-    vmovss  xmm2, dword ptr [rsi+5Ch]; w
-    vmovss  xmm1, dword ptr [rsi+68h]; y
-    vmovss  xmm0, dword ptr [rsi+64h]; x
-    vmovss  dword ptr [rsp+0A8h+var_70], xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+0A8h+var_78], xmm6
-    vmovss  [rsp+0A8h+t1], xmm7
-    vmovss  dword ptr [rsp+0A8h+fmt], xmm7
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, t1, v68, v73, &colorBlackFaded, s_effectTypeMaterials[0]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vmovss  xmm3, dword ptr [rsi+6Ch]; x
-  }
-  font = _RSI->font.font;
-  color = _RSI->font.fontStyle;
+  CL_DrawStretchPicPhysical(data->frameX, data->frameY, data->frameWidth, data->frameHeight, 0.0, 0.0, 1.0, 1.0, &colorBlackFaded, s_effectTypeMaterials[0]);
+  fontScaleHeader = data->font.fontScaleHeader;
+  headerX = data->headerX;
+  font = data->font.font;
+  color = data->font.fontStyle;
   if ( (unsigned int)(s_menuFocus - 1) <= 1 )
   {
-    __asm
-    {
-      vmovss  [rsp+0A8h+var_78], xmm0
-      vmovss  [rsp+0A8h+t1], xmm0
-      vmovss  xmm0, dword ptr [rsi+70h]
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-    }
-    CL_DrawTextPhysical(strHeader, 0x7FFFFFFF, font, *(float *)&_XMM3, fmtb, t1b, v70, &colorYellow, color);
-    if ( _RSI->page->selectionIndexMax > 0 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+78h]
-        vsubss  xmm1, xmm1, dword ptr [rsi+44h]; y
-        vmovss  xmm2, cs:__real@40800000; w
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm3, xmm0, dword ptr [rsi+44h]; h
-        vaddss  xmm0, xmm6, dword ptr [rsi+64h]; x
-        vmovss  dword ptr [rsp+0A8h+var_70], xmm6
-        vmovss  [rsp+0A8h+var_78], xmm6
-        vmovss  [rsp+0A8h+t1], xmm7
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm7
-      }
-      CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, t1c, v71, v74, &colorYellow, material);
-    }
+    CL_DrawTextPhysical(strHeader, 0x7FFFFFFF, font, headerX, data->headerY, fontScaleHeader, fontScaleHeader, &colorYellow, color);
+    selectionIndexMax = data->page->selectionIndexMax;
+    if ( selectionIndexMax > 0 )
+      CL_DrawStretchPicPhysical(data->frameX + 1.0, data->firstRowY - data->font.rowHeight, 4.0, (float)selectionIndexMax * data->font.rowHeight, 0.0, 0.0, 1.0, 1.0, &colorYellow, material);
   }
   else
   {
-    __asm
-    {
-      vmovss  [rsp+0A8h+var_78], xmm0
-      vmovss  [rsp+0A8h+t1], xmm0
-      vmovss  xmm0, dword ptr [rsi+70h]
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-    }
-    CL_DrawTextPhysical(strHeader, 0x7FFFFFFF, font, *(float *)&_XMM3, fmta, t1a, v69, &colorWhite, color);
+    CL_DrawTextPhysical(strHeader, 0x7FFFFFFF, font, headerX, data->headerY, fontScaleHeader, fontScaleHeader, &colorWhite, color);
   }
   if ( pageCount > 0 )
   {
-    __asm { vmovaps [rsp+0A8h+var_58], xmm8 }
     if ( pageNum >= pageCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4265, ASSERT_TYPE_ASSERT, "(pageNum < pageCount)", (const char *)&queryFormat, "pageNum < pageCount") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+5Ch]
-      vmulss  xmm2, xmm1, cs:__real@3f400000
-      vmovss  xmm0, dword ptr [rsi+4Ch]
-      vaddss  xmm6, xmm2, dword ptr [rsi+64h]
-    }
-    fontStyle = _RSI->font.fontStyle;
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rsi+38h]
-      vaddss  xmm7, xmm0, dword ptr [rsi+68h]
-    }
-    v36 = _RSI->font.font;
-    v37 = j_va("Page %d / %d", (unsigned int)(pageNum + 1), (unsigned int)pageCount);
-    __asm
-    {
-      vmovss  [rsp+0A8h+var_78], xmm8
-      vmovss  [rsp+0A8h+t1], xmm8
-      vmovaps xmm3, xmm6; x
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm7
-    }
-    CL_DrawTextPhysical(v37, 0x7FFFFFFF, v36, *(float *)&_XMM3, fmtd, t1d, v72, &colorWhite, fontStyle);
-    __asm { vmovaps xmm8, [rsp+0A8h+var_58] }
+    v13 = (float)(data->frameWidth * 0.75) + data->frameX;
+    fontStyle = data->font.fontStyle;
+    fontScaleHint = data->font.fontScaleHint;
+    v16 = data->font.rowHeightHint + data->frameY;
+    v17 = data->font.font;
+    v18 = j_va("Page %d / %d", (unsigned int)(pageNum + 1), (unsigned int)pageCount);
+    CL_DrawTextPhysical(v18, 0x7FFFFFFF, v17, v13, v16, fontScaleHint, fontScaleHint, &colorWhite, fontStyle);
   }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_48] }
-  v41 = 0;
-  v42 = 0;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  if ( _RSI->hintCount > 0 )
+  v19 = 0;
+  v20 = 0;
+  if ( data->hintCount > 0 )
   {
-    v44 = 0i64;
+    v21 = 0i64;
+    do
+      CG_CreateFx_Menu_DrawHint(data, data->hints[v21++], data->firstHintX, (float)((float)v20++ * data->font.rowHeightHint) + data->firstHintY, data->font.fontScaleHint);
+    while ( v20 < data->hintCount );
+  }
+  if ( data->hintCount2 > 0 )
+  {
+    v22 = 0i64;
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+7Ch]; x
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vmulss  xmm1, xmm0, dword ptr [rsi+4Ch]
-        vmovss  xmm0, dword ptr [rsi+38h]
-        vaddss  xmm3, xmm1, dword ptr [rsi+80h]; y
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-      }
-      CG_CreateFx_Menu_DrawHint(_RSI, _RSI->hints[v44], *(float *)&_XMM2, *(float *)&_XMM3, fmte);
-      ++v42;
-      ++v44;
+      CG_CreateFx_Menu_DrawHint(data, data->hints2[v22], data->firstHintX, (float)((float)(v19 + data->hintCount) * data->font.rowHeightHint) + data->firstHintY, data->font.fontScaleHint);
+      ++v19;
+      ++v22;
     }
-    while ( v42 < _RSI->hintCount );
-  }
-  if ( _RSI->hintCount2 > 0 )
-  {
-    v50 = 0i64;
-    do
-    {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+7Ch]; x
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm1, xmm0, dword ptr [rsi+4Ch]
-        vmovss  xmm0, dword ptr [rsi+38h]
-        vaddss  xmm3, xmm1, dword ptr [rsi+80h]; y
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-      }
-      CG_CreateFx_Menu_DrawHint(_RSI, _RSI->hints2[v50], *(float *)&_XMM2, *(float *)&_XMM3, fmtf);
-      ++v41;
-      ++v50;
-    }
-    while ( v41 < _RSI->hintCount2 );
+    while ( v19 < data->hintCount2 );
   }
 }
 
@@ -8566,134 +7386,90 @@ CG_CreateFx_Menu_DrawGetData
 void CG_CreateFx_Menu_DrawGetData(CreateFxMenuDrawPage *data, CreateFxMenuPage *const page, const ScreenPlacement *const scrPlace, const CreateFxHintText *const hints, const int hintCount, const CreateFxHintText *const hints2, const int hintCount2)
 {
   int integer; 
+  const dvar_t *v11; 
+  float value; 
   GfxFont *font; 
-  const dvar_t *v35; 
-  char v67; 
-  void *retaddr; 
+  int v14; 
+  float v15; 
+  float fontScale; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  float v19; 
+  float frameBorder; 
+  float v21; 
+  int v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBX = data;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
   if ( (!page || !scrPlace || !hints) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4060, ASSERT_TYPE_ASSERT, "(page && scrPlace && hints)", (const char *)&queryFormat, "page && scrPlace && hints") )
     __debugbreak();
-  _RBX->hintCount = hintCount;
-  _RBX->hints2 = hints2;
-  _RBX->hintCount2 = hintCount2;
-  _RBX->page = page;
-  _RBX->hints = hints;
+  data->hintCount = hintCount;
+  data->hints2 = hints2;
+  data->hintCount2 = hintCount2;
+  data->page = page;
+  data->hints = hints;
   integer = createfx_hintLevel->current.integer;
   if ( !integer )
     goto LABEL_9;
   if ( integer == 2 )
   {
-    _RBX->hintCount = 0;
+    data->hintCount = 0;
 LABEL_9:
-    _RBX->hintCount2 = 0;
+    data->hintCount2 = 0;
   }
-  _RBX->font.font = cls.consoleFont;
-  _RDI = createfx_menuFontSize;
+  data->font.font = cls.consoleFont;
+  v11 = createfx_menuFontSize;
   if ( !createfx_menuFontSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vmulss  xmm0, xmm1, cs:__real@3fcccccd
-  }
-  font = _RBX->font.font;
-  __asm
-  {
-    vmovss  dword ptr [rbx+34h], xmm0
-    vmovss  dword ptr [rbx+30h], xmm1
-    vmovss  dword ptr [rbx+38h], xmm1
-  }
-  R_TextHeight(font);
-  __asm { vmovss  xmm3, cs:__real@3f8ccccd }
-  _RBX->font.fontStyle = 0;
-  __asm
-  {
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, eax
-    vmulss  xmm5, xmm4, dword ptr [rbx+30h]
-    vmulss  xmm1, xmm4, dword ptr [rbx+34h]
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rbx+48h], xmm2
-    vmulss  xmm2, xmm5, cs:__real@3e99999a
-    vmovss  dword ptr [rbx+3Ch], xmm4
-    vmovss  dword ptr [rbx+50h], xmm2
-    vmovss  dword ptr [rbx+54h], xmm5
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  dword ptr [rbx+44h], xmm0
-    vmulss  xmm0, xmm4, dword ptr [rbx+38h]
-    vmulss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rbx+4Ch], xmm1
-    vmovss  xmm1, dword ptr [rbx+30h]
-    vmulss  xmm0, xmm1, cs:__real@40a00000
-    vmulss  xmm1, xmm1, cs:__real@43eb0000
-    vmovss  dword ptr [rbx+5Ch], xmm1
-    vmovss  dword ptr [rbx+60h], xmm0
-  }
-  v35 = createfx_menuTextXOrigin;
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  font = data->font.font;
+  data->font.fontScaleHeader = value * 1.6;
+  data->font.fontScale = value;
+  data->font.fontScaleHint = value;
+  v14 = R_TextHeight(font);
+  data->font.fontStyle = 0;
+  v15 = (float)v14 * data->font.fontScale;
+  data->font.rowHeightHeader = (float)((float)v14 * data->font.fontScaleHeader) * 1.1;
+  data->font.fontHeight = (float)v14;
+  data->font.spaceBetweenHeaderAndBody = v15 * 0.30000001;
+  data->font.spaceBetweenBodyAndHints = v15;
+  data->font.rowHeight = v15 * 1.1;
+  data->font.rowHeightHint = (float)((float)v14 * data->font.fontScaleHint) * 1.1;
+  fontScale = data->font.fontScale;
+  data->frameWidth = fontScale * 470.0;
+  data->frameBorder = fontScale * 5.0;
+  v17 = createfx_menuTextXOrigin;
   if ( !createfx_menuTextXOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v35);
-  LODWORD(_RBX->frameX) = v35->current.integer;
-  _RDI = createfx_menuTextYOrigin;
+  Dvar_CheckFrontendServerThread(v17);
+  LODWORD(data->frameX) = v17->current.integer;
+  v18 = createfx_menuTextYOrigin;
   if ( !createfx_menuTextYOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rdi+28h]
-    vmovss  xmm9, dword ptr [rbx+60h]
-    vaddss  xmm4, xmm9, dword ptr [rbx+64h]
-  }
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vaddss  xmm0, xmm9, xmm10
-    vaddss  xmm5, xmm0, dword ptr [rbx+48h]
-    vaddss  xmm7, xmm5, dword ptr [rbx+50h]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbx+68h], xmm10
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+4]
-    vmulss  xmm1, xmm0, dword ptr [rbx+44h]
-    vmulss  xmm0, xmm9, cs:__real@40c00000
-    vaddss  xmm2, xmm1, xmm7
-    vaddss  xmm1, xmm0, dword ptr [rbx+64h]
-    vaddss  xmm8, xmm2, dword ptr [rbx+54h]
-    vaddss  xmm0, xmm8, dword ptr [rbx+4Ch]
-    vaddss  xmm2, xmm7, dword ptr [rbx+44h]
-    vmovaps xmm7, [rsp+98h+var_38]
-    vmovss  dword ptr [rbx+80h], xmm0
-    vmovss  dword ptr [rbx+74h], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, dword ptr [rbx+4Ch]
-    vmulss  xmm0, xmm9, cs:__real@40000000
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rbx+78h], xmm2
-    vaddss  xmm2, xmm1, xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vsubss  xmm3, xmm2, xmm10
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vaddss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rbx+58h], xmm1
-    vmovss  dword ptr [rbx+6Ch], xmm4
-    vmovss  dword ptr [rbx+70h], xmm5
-    vmovss  dword ptr [rbx+7Ch], xmm4
-  }
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = v18->current.value;
+  frameBorder = data->frameBorder;
+  v21 = frameBorder + data->frameX;
+  v22 = data->hintCount + data->hintCount2;
+  v23 = (float)(frameBorder + v19) + data->font.rowHeightHeader;
+  v24 = v23 + data->font.spaceBetweenHeaderAndBody;
+  data->frameY = v19;
+  v25 = (float)(frameBorder * 6.0) + data->frameX;
+  v26 = (float)((float)((float)page->selectionIndexMax * data->font.rowHeight) + v24) + data->font.spaceBetweenBodyAndHints;
+  v27 = v24 + data->font.rowHeight;
+  data->firstHintY = v26 + data->font.rowHeightHint;
+  data->firstRowX = v25;
+  v28 = (float)v22 * data->font.rowHeightHint;
+  data->firstRowY = v27;
+  data->frameHeight = (float)((float)(v28 + v26) - v19) + (float)(frameBorder * 2.0);
+  data->headerX = v21;
+  data->headerY = v23;
+  data->firstHintX = v21;
 }
 
 /*
@@ -8701,241 +7477,153 @@ LABEL_9:
 CG_CreateFx_Menu_DrawHint
 ==============
 */
-
-void __fastcall CG_CreateFx_Menu_DrawHint(const CreateFxMenuDrawPage *data, const CreateFxHintText hint, double x, double y, float scale)
+void CG_CreateFx_Menu_DrawHint(const CreateFxMenuDrawPage *data, const CreateFxHintText hint, float x, float y, float scale)
 {
-  __int64 v11; 
-  __int64 v17; 
-  bool v18; 
-  bool v19; 
-  int v22; 
-  const vec4_t *v23; 
+  __int64 v5; 
+  __int64 v6; 
+  bool v7; 
+  bool v8; 
+  int v9; 
+  const vec4_t *v10; 
   const vec4_t *color; 
-  const vec4_t *v26; 
-  const vec4_t *v29; 
-  int v33; 
-  const char *v36; 
+  const vec4_t *v12; 
+  const vec4_t *v13; 
+  float *v14; 
+  int v15; 
+  const char *v16; 
   GfxFont *consoleFont; 
-  char *v41; 
-  GfxFont *v42; 
-  GfxFont *v43; 
-  char *v44; 
+  char *v18; 
+  GfxFont *v19; 
+  GfxFont *v20; 
+  char *v21; 
   __int64 integer; 
-  unsigned int v46; 
-  int v47; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float xScalea; 
-  float xScaleb; 
-  float xScalec; 
+  unsigned int v23; 
+  int v24; 
   __int64 xScale; 
-  float xScaled; 
-  float yScalea; 
-  float yScaleb; 
-  float yScalec; 
   __int64 yScale; 
-  float yScaled; 
-  char v69; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  v11 = hint;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-  }
+  v5 = hint;
   if ( (unsigned int)hint >= 0x36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4116, ASSERT_TYPE_ASSERT, "(unsigned)( buttonInfoIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFXHints ) ) + 0 ) )", "buttonInfoIndex doesn't index ARRAY_COUNT( s_createFXHints )\n\t%i not in [0, %i)", hint, 54) )
     __debugbreak();
-  __asm
+  v6 = v5 << 7;
+  v7 = 0;
+  v8 = 0;
+  if ( (*(_DWORD *)&s_createFXHints[0].action[v6 + 48] & 0x100) != 0 )
+    v7 = CL_Keys_IsModifierKeyDown(LOCAL_CLIENT_0, KMOD_SHIFT) == 0;
+  if ( (s_createFXHints[0].action[v6 + 48] & 1) != 0 && !CL_Keys_IsModifierKeyDown(LOCAL_CLIENT_0, KMOD_CTRL) )
+    v7 = 1;
+  if ( (s_createFXHints[0].action[v6 + 48] & 2) != 0 && CL_Keys_IsModifierKeyDown(LOCAL_CLIENT_0, KMOD_CTRL) )
+    v7 = 1;
+  if ( (s_createFXHints[0].action[v6 + 48] & 4) != 0 )
+    v8 = CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 5) == 0;
+  if ( (s_createFXHints[0].action[v6 + 48] & 8) != 0 && CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 5) )
+    v8 = 1;
+  v9 = *(_DWORD *)&s_createFXHints[0].action[v6 + 48];
+  if ( (v9 & 0x10) != 0 && !s_createFxTool->selectedEffectTotal )
   {
-    vmovss  xmm6, [rsp+0C8h+scale]
-    vmulss  xmm0, xmm6, cs:__real@42c80000
-    vmulss  xmm1, xmm6, cs:__real@43480000
+    v7 = 1;
+    v8 = 1;
   }
-  v17 = v11 << 7;
-  v18 = 0;
-  v19 = 0;
-  __asm
+  if ( (v9 & 0x20) != 0 && !s_createFxTool->clipboard.effectTotal )
   {
-    vaddss  xmm9, xmm0, xmm7
-    vaddss  xmm10, xmm1, xmm7
+    v7 = 1;
+    v8 = 1;
   }
-  if ( (*(_DWORD *)&s_createFXHints[0].action[v17 + 48] & 0x100) != 0 )
-    v18 = CL_Keys_IsModifierKeyDown(LOCAL_CLIENT_0, KMOD_SHIFT) == 0;
-  if ( (s_createFXHints[0].action[v17 + 48] & 1) != 0 && !CL_Keys_IsModifierKeyDown(LOCAL_CLIENT_0, KMOD_CTRL) )
-    v18 = 1;
-  if ( (s_createFXHints[0].action[v17 + 48] & 2) != 0 && CL_Keys_IsModifierKeyDown(LOCAL_CLIENT_0, KMOD_CTRL) )
-    v18 = 1;
-  if ( (s_createFXHints[0].action[v17 + 48] & 4) != 0 )
-    v19 = CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 5) == 0;
-  if ( (s_createFXHints[0].action[v17 + 48] & 8) != 0 && CL_Keys_IsKeyDown(LOCAL_CLIENT_0, 5) )
-    v19 = 1;
-  v22 = *(_DWORD *)&s_createFXHints[0].action[v17 + 48];
-  if ( (v22 & 0x10) != 0 && !s_createFxTool->selectedEffectTotal )
+  if ( (v9 & 0x40) != 0 && !s_createFxTool->undoCount.m_count )
   {
-    v18 = 1;
-    v19 = 1;
+    v7 = 1;
+    v8 = 1;
   }
-  if ( (v22 & 0x20) != 0 && !s_createFxTool->clipboard.effectTotal )
+  if ( (v9 & 0x80u) != 0 && !s_createFxTool->redoCount.m_count )
   {
-    v18 = 1;
-    v19 = 1;
+    v7 = 1;
+    v8 = 1;
   }
-  if ( (v22 & 0x40) != 0 && !s_createFxTool->undoCount.m_count )
+  if ( (v9 & 0x200) != 0 && s_createFxTool->selectedEffectTotal < 2 )
   {
-    v18 = 1;
-    v19 = 1;
+    v7 = 1;
+    v8 = 1;
   }
-  if ( (v22 & 0x80u) != 0 && !s_createFxTool->redoCount.m_count )
-  {
-    v18 = 1;
-    v19 = 1;
-  }
-  if ( (v22 & 0x200) != 0 && s_createFxTool->selectedEffectTotal < 2 )
-  {
-    v18 = 1;
-    v19 = 1;
-  }
-  v23 = &colorWhiteMoreFaded;
+  v10 = &colorWhiteMoreFaded;
   color = &colorWhite;
-  if ( v19 )
+  if ( v8 )
     color = &colorWhiteMoreFaded;
-  __asm
+  CL_DrawTextPhysical(&s_createFXHints[0].buttons[v6], 0x7FFFFFFF, cls.consoleFont, x, y, scale, scale, color, 0);
+  v12 = &colorWhite;
+  if ( v7 )
+    v12 = &colorWhiteMoreFaded;
+  CL_DrawTextPhysical(&s_createFXHints[0].keys[v6], 0x7FFFFFFF, cls.consoleFont, (float)(scale * 100.0) + x, y, scale, scale, v12, 0);
+  if ( !v7 || (v13 = &colorWhiteMoreFaded, !v8) )
+    v13 = &colorWhite;
+  CL_DrawTextPhysical(&s_createFXHints[0].action[v6], 0x7FFFFFFF, cls.consoleFont, (float)(scale * 200.0) + x, y, scale, scale, v13, 0);
+  v14 = *(float **)((char *)&s_createFXHints[0].value + v6);
+  if ( v14 || *(const dvar_t **)((char *)&s_createFXHints[0].valueDvar + v6) )
   {
-    vmovss  [rsp+0C8h+yScale], xmm6
-    vmovss  [rsp+0C8h+xScale], xmm6
-    vmovaps xmm3, xmm7; x
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-  }
-  CL_DrawTextPhysical(&s_createFXHints[0].buttons[v17], 0x7FFFFFFF, cls.consoleFont, *(float *)&_XMM3, fmt, xScalea, yScalea, color, 0);
-  v26 = &colorWhite;
-  if ( v18 )
-    v26 = &colorWhiteMoreFaded;
-  __asm
-  {
-    vmovss  [rsp+0C8h+yScale], xmm6
-    vmovss  [rsp+0C8h+xScale], xmm6
-    vmovaps xmm3, xmm9; x
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-  }
-  CL_DrawTextPhysical(&s_createFXHints[0].keys[v17], 0x7FFFFFFF, cls.consoleFont, *(float *)&_XMM3, fmta, xScaleb, yScaleb, v26, 0);
-  __asm { vmovaps xmm9, [rsp+0C8h+var_68] }
-  if ( !v18 || (v29 = &colorWhiteMoreFaded, !v19) )
-    v29 = &colorWhite;
-  __asm
-  {
-    vmovss  [rsp+0C8h+yScale], xmm6
-    vmovss  [rsp+0C8h+xScale], xmm6
-    vmovaps xmm3, xmm10; x
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-  }
-  CL_DrawTextPhysical(&s_createFXHints[0].action[v17], 0x7FFFFFFF, cls.consoleFont, *(float *)&_XMM3, fmtb, xScalec, yScalec, v29, 0);
-  _R9 = *(unsigned int **)((char *)&s_createFXHints[0].value + v17);
-  __asm { vmovaps xmm10, [rsp+0C8h+var_78] }
-  if ( _R9 || *(const dvar_t **)((char *)&s_createFXHints[0].valueDvar + v17) )
-  {
-    v33 = *(CreateFxHintValueType *)((char *)&s_createFXHints[0].valueType + v17);
-    if ( v33 )
+    v15 = *(CreateFxHintValueType *)((char *)&s_createFXHints[0].valueType + v6);
+    if ( v15 )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@43c30000
-        vaddss  xmm7, xmm0, xmm7
-      }
-      switch ( v33 )
+      switch ( v15 )
       {
         case 1:
-          if ( !v18 || !v19 )
-            v23 = &colorWhite;
-          v36 = "Off";
-          if ( *(_BYTE *)_R9 )
-            v36 = "On";
+          if ( !v7 || !v8 )
+            v10 = &colorWhite;
+          v16 = "Off";
+          if ( *(_BYTE *)v14 )
+            v16 = "On";
           goto LABEL_74;
         case 2:
-          if ( !v18 || !v19 )
-            v23 = &colorWhite;
-          __asm { vmovss  xmm1, dword ptr [r9] }
+          if ( !v7 || !v8 )
+            v10 = &colorWhite;
           consoleFont = cls.consoleFont;
-          __asm
-          {
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v41 = j_va("%g", _RDX);
-          v42 = consoleFont;
-          v36 = v41;
+          v18 = j_va("%g", *v14);
+          v19 = consoleFont;
+          v16 = v18;
           goto LABEL_75;
         case 3:
-          if ( !v18 || !v19 )
-            v23 = &colorWhite;
-          v43 = cls.consoleFont;
-          v44 = j_va("%d", *_R9);
-          v42 = v43;
-          v36 = v44;
+          if ( !v7 || !v8 )
+            v10 = &colorWhite;
+          v20 = cls.consoleFont;
+          v21 = j_va("%d", *(unsigned int *)v14);
+          v19 = v20;
+          v16 = v21;
           goto LABEL_75;
         case 4:
-          if ( !v18 || !v19 )
-            v23 = &colorWhite;
-          v36 = *(const char **)((char *)&s_createFXHints[0].value + v17);
+          if ( !v7 || !v8 )
+            v10 = &colorWhite;
+          v16 = *(const char **)((char *)&s_createFXHints[0].value + v6);
           goto LABEL_74;
         case 5:
-          integer = (int)*_R9;
-          v46 = *(int *)((char *)&s_createFXHints[0].valueEnumStrCount + v17);
-          if ( (unsigned int)integer < v46 )
+          integer = *(int *)v14;
+          v23 = *(int *)((char *)&s_createFXHints[0].valueEnumStrCount + v6);
+          if ( (unsigned int)integer < v23 )
             goto LABEL_70;
-          v47 = 4224;
+          v24 = 4224;
           break;
         case 6:
-          if ( !*(const dvar_t **)((char *)&s_createFXHints[0].valueDvar + v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4213, ASSERT_TYPE_ASSERT, "(info.valueDvar)", (const char *)&queryFormat, "info.valueDvar") )
+          if ( !*(const dvar_t **)((char *)&s_createFXHints[0].valueDvar + v6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4213, ASSERT_TYPE_ASSERT, "(info.valueDvar)", (const char *)&queryFormat, "info.valueDvar") )
             __debugbreak();
-          integer = (*(const dvar_t **)((char *)&s_createFXHints[0].valueDvar + v17))->current.integer;
-          v46 = *(int *)((char *)&s_createFXHints[0].valueEnumStrCount + v17);
-          if ( (unsigned int)integer < v46 )
+          integer = (*(const dvar_t **)((char *)&s_createFXHints[0].valueDvar + v6))->current.integer;
+          v23 = *(int *)((char *)&s_createFXHints[0].valueEnumStrCount + v6);
+          if ( (unsigned int)integer < v23 )
             goto LABEL_70;
-          v47 = 4215;
+          v24 = 4215;
           break;
         default:
-          goto LABEL_76;
+          return;
       }
-      LODWORD(yScale) = v46;
+      LODWORD(yScale) = v23;
       LODWORD(xScale) = integer;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", v47, ASSERT_TYPE_ASSERT, "(unsigned)( valueInt ) < (unsigned)( info.valueEnumStrCount )", "valueInt doesn't index info.valueEnumStrCount\n\t%i not in [0, %i)", xScale, yScale) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", v24, ASSERT_TYPE_ASSERT, "(unsigned)( valueInt ) < (unsigned)( info.valueEnumStrCount )", "valueInt doesn't index info.valueEnumStrCount\n\t%i not in [0, %i)", xScale, yScale) )
         __debugbreak();
 LABEL_70:
-      if ( !v18 || !v19 )
-        v23 = &colorWhite;
-      v36 = (*(const char *const **)((char *)&s_createFXHints[0].valueEnumStr + v17))[integer];
+      if ( !v7 || !v8 )
+        v10 = &colorWhite;
+      v16 = (*(const char *const **)((char *)&s_createFXHints[0].valueEnumStr + v6))[integer];
 LABEL_74:
-      v42 = cls.consoleFont;
+      v19 = cls.consoleFont;
 LABEL_75:
-      __asm
-      {
-        vmovss  [rsp+0C8h+yScale], xmm6
-        vmovss  [rsp+0C8h+xScale], xmm6
-        vmovaps xmm3, xmm7; x
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-      }
-      CL_DrawTextPhysical(v36, 0x7FFFFFFF, v42, *(float *)&_XMM3, fmtc, xScaled, yScaled, v23, 0);
+      CL_DrawTextPhysical(v16, 0x7FFFFFFF, v19, (float)(scale * 390.0) + x, y, scale, scale, v10, 0);
     }
-  }
-LABEL_76:
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -8946,57 +7634,34 @@ CG_CreateFx_Menu_DrawRow
 */
 void CG_CreateFx_Menu_DrawRow(CreateFxMenuDrawPage *data, const int row, const char *const strKey, const char *strValue, int cursor, bool isDisabled)
 {
-  bool v12; 
-  bool v17; 
+  bool v10; 
   const vec4_t *color; 
-  vec4_t *v34; 
+  float fontScale; 
+  float firstRowX; 
+  float v14; 
+  float v15; 
+  vec4_t *v16; 
   int style; 
   GfxFont *font; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  __int64 xScale; 
-  float xScalea; 
-  float xScaleb; 
-  float xScalec; 
-  float xScaled; 
   float yScale; 
-  float yScalea; 
-  float yScaleb; 
-  float yScalec; 
+  __int64 xScale; 
   char dest[8]; 
-  __int64 v56; 
-  int v57; 
-  char v60; 
-  void *retaddr; 
+  __int64 v22; 
+  int v23; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-  }
-  v12 = data->page == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
-  _RBX = data;
-  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4315, ASSERT_TYPE_ASSERT, "(data.page)", (const char *)&queryFormat, "data.page") )
+  if ( !data->page && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4315, ASSERT_TYPE_ASSERT, "(data.page)", (const char *)&queryFormat, "data.page") )
     __debugbreak();
-  if ( _RBX->page->selectionIndexMax <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4316, ASSERT_TYPE_ASSERT, "(data.page->selectionIndexMax > 0)", (const char *)&queryFormat, "data.page->selectionIndexMax > 0") )
+  if ( data->page->selectionIndexMax <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4316, ASSERT_TYPE_ASSERT, "(data.page->selectionIndexMax > 0)", (const char *)&queryFormat, "data.page->selectionIndexMax > 0") )
     __debugbreak();
-  if ( (unsigned int)row >= _RBX->page->selectionIndexMax )
+  if ( (unsigned int)row >= data->page->selectionIndexMax )
   {
     LODWORD(xScale) = row;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4317, ASSERT_TYPE_ASSERT, "(unsigned)( row ) < (unsigned)( data.page->selectionIndexMax )", "row doesn't index data.page->selectionIndexMax\n\t%i not in [0, %i)", xScale, _RBX->page->selectionIndexMax) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4317, ASSERT_TYPE_ASSERT, "(unsigned)( row ) < (unsigned)( data.page->selectionIndexMax )", "row doesn't index data.page->selectionIndexMax\n\t%i not in [0, %i)", xScale, data->page->selectionIndexMax) )
       __debugbreak();
   }
   if ( !strKey && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4318, ASSERT_TYPE_ASSERT, "(strKey)", (const char *)&queryFormat, "strKey") )
     __debugbreak();
-  v17 = (unsigned int)(s_menuFocus - 1) <= 1 && row == _RBX->page->selectionIndex;
+  v10 = (unsigned int)(s_menuFocus - 1) <= 1 && row == data->page->selectionIndex;
   if ( isDisabled )
   {
     color = &colorRed;
@@ -9004,90 +7669,35 @@ void CG_CreateFx_Menu_DrawRow(CreateFxMenuDrawPage *data, const int row, const c
   else
   {
     color = &colorWhite;
-    if ( v17 )
+    if ( v10 )
       color = &colorYellow;
   }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+30h]
-    vmulss  xmm0, xmm6, cs:__real@432a0000
-    vmovss  xmm7, dword ptr [rbx+74h]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ebp
-    vaddss  xmm9, xmm0, xmm7
-    vmulss  xmm0, xmm1, dword ptr [rbx+44h]
-    vaddss  xmm8, xmm0, dword ptr [rbx+78h]
-  }
+  fontScale = data->font.fontScale;
+  firstRowX = data->firstRowX;
+  v14 = (float)(fontScale * 170.0) + firstRowX;
+  v15 = (float)((float)row * data->font.rowHeight) + data->firstRowY;
   *(_QWORD *)dest = 0i64;
-  v56 = 0i64;
-  v57 = 0;
+  v22 = 0i64;
+  v23 = 0;
   Com_sprintf(dest, 0x14ui64, "%d.", (unsigned int)(row + 1));
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  [rsp+0F8h+yScale], xmm0
-    vmovss  [rsp+0F8h+xScale], xmm0
-    vmovaps xmm3, xmm7; x
-    vmovss  dword ptr [rsp+0F8h+fmt], xmm8
-  }
-  CL_DrawTextPhysical(dest, 0x7FFFFFFF, _RBX->font.font, *(float *)&_XMM3, fmt, xScalea, yScale, color, _RBX->font.fontStyle);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+30h]
-    vmulss  xmm0, xmm6, cs:__real@41c80000
-    vmovss  [rsp+0F8h+yScale], xmm1
-    vmovss  [rsp+0F8h+xScale], xmm1
-    vaddss  xmm3, xmm0, xmm7; x
-    vmovss  dword ptr [rsp+0F8h+fmt], xmm8
-  }
-  CL_DrawTextPhysical(strKey, 0x7FFFFFFF, _RBX->font.font, *(float *)&_XMM3, fmta, xScaleb, yScalea, color, _RBX->font.fontStyle);
-  __asm
-  {
-    vmovaps xmm7, [rsp+0F8h+var_58]
-    vmovaps xmm6, [rsp+0F8h+var_48]
-  }
+  CL_DrawTextPhysical(dest, 0x7FFFFFFF, data->font.font, firstRowX, v15, data->font.fontScale, data->font.fontScale, color, data->font.fontStyle);
+  CL_DrawTextPhysical(strKey, 0x7FFFFFFF, data->font.font, (float)(fontScale * 25.0) + firstRowX, v15, data->font.fontScale, data->font.fontScale, color, data->font.fontStyle);
   if ( strValue )
   {
-    if ( v17 )
+    if ( v10 )
     {
-      v34 = &colorOrange;
+      v16 = &colorOrange;
       if ( s_menuFocus != EDIT )
-        v34 = (vec4_t *)color;
-      color = v34;
+        v16 = (vec4_t *)color;
+      color = v16;
     }
-    style = _RBX->font.fontStyle;
-    font = _RBX->font.font;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovaps xmm3, xmm9; x
-    }
+    style = data->font.fontStyle;
+    font = data->font.font;
+    yScale = data->font.fontScale;
     if ( cursor == -1 )
-    {
-      __asm
-      {
-        vmovss  [rsp+0F8h+yScale], xmm0
-        vmovss  [rsp+0F8h+xScale], xmm0
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm8
-      }
-      CL_DrawTextPhysical(strValue, 0x7FFFFFFF, font, *(float *)&_XMM3, fmtc, xScaled, yScalec, color, style);
-    }
+      CL_DrawTextPhysical(strValue, 0x7FFFFFFF, font, v14, v15, yScale, yScale, color, style);
     else
-    {
-      __asm
-      {
-        vmovss  [rsp+0F8h+yScale], xmm0
-        vmovss  [rsp+0F8h+xScale], xmm0
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm8
-      }
-      CL_DrawTextPhysicalWithCursor(strValue, 0x7FFFFFFF, font, *(float *)&_XMM3, fmtb, xScalec, yScaleb, color, style, cursor, 124);
-    }
-  }
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-50h]
-    vmovaps xmm9, xmmword ptr [r11-60h]
+      CL_DrawTextPhysicalWithCursor(strValue, 0x7FFFFFFF, font, v14, v15, yScale, yScale, color, style, cursor, 124);
   }
 }
 
@@ -9096,129 +7706,107 @@ void CG_CreateFx_Menu_DrawRow(CreateFxMenuDrawPage *data, const int row, const c
 CG_CreateFx_MoveSelectionToCursor
 ==============
 */
-void CG_CreateFx_MoveSelectionToCursor(__int64 a1, double a2)
+void CG_CreateFx_MoveSelectionToCursor()
 {
-  int v17; 
-  __int64 v18; 
-  __int64 v22; 
+  CreateFxTool *v0; 
+  float v1; 
+  float v2; 
+  float v3; 
+  int v4; 
+  __int64 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int64 v9; 
+  CreateFXDataUnion *v10; 
   CreateFxEffectType effectType; 
-  __int64 v31; 
-  __int64 v32; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned int v17; 
 
-  _RAX = s_createFxTool;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovaps [rsp+0C8h+var_68], xmm9
-    vmovaps [rsp+0C8h+var_78], xmm10
-    vcomiss xmm0, dword ptr [rax+240018h]
-    vmovaps [rsp+0C8h+var_88], xmm11
-  }
-  CG_CreateFx_CalculateSelectionCenter(&s_createFxTool->selectionCenter, a2);
-  _RBX = s_createFxTool;
+  if ( s_createFxTool->clipboard.cursorTrace.fraction >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5727, ASSERT_TYPE_ASSERT, "(CG_CreateFx_IsCursorValid())", (const char *)&queryFormat, "CG_CreateFx_IsCursorValid()") )
+    __debugbreak();
+  CG_CreateFx_CalculateSelectionCenter(&s_createFxTool->selectionCenter);
+  v0 = s_createFxTool;
   if ( s_createFxTool->editBuffer.effectTotal > 0 )
   {
     s_interruptCommandActive = 1;
     CG_CreateFx_OnEditEnd();
-    _RBX = s_createFxTool;
+    v0 = s_createFxTool;
   }
-  CG_CreateFx_SaveSelectionToBuffer(&_RBX->editBuffer);
-  __asm
+  CG_CreateFx_SaveSelectionToBuffer(&v0->editBuffer);
+  v1 = v0->clipboard.cursorTrace.position.v[0] - v0->selectionCenter.v[0];
+  v2 = v0->clipboard.cursorTrace.position.v[2] - v0->selectionCenter.v[2];
+  v3 = v0->clipboard.cursorTrace.position.v[1] - v0->selectionCenter.v[1];
+  v4 = 0;
+  if ( v0->selectedEffectTotal > 0 )
   {
-    vmovss  xmm0, dword ptr [rbx+24001Ch]
-    vsubss  xmm9, xmm0, dword ptr [rbx+4800C0h]
-    vmovss  xmm0, dword ptr [rbx+240024h]
-    vmovss  xmm1, dword ptr [rbx+240020h]
-    vsubss  xmm11, xmm0, dword ptr [rbx+4800C8h]
-    vsubss  xmm10, xmm1, dword ptr [rbx+4800C4h]
-  }
-  v17 = 0;
-  if ( _RBX->selectedEffectTotal > 0 )
-  {
-    v18 = 7209180i64;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovss  xmm6, [rsp+0C8h+arg_0]
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vmovss  xmm7, [rsp+0C8h+arg_0]
-      vmovaps [rsp+0C8h+var_58], xmm8
-      vmovss  xmm8, [rsp+0C8h+arg_0]
-    }
+    v5 = 7209180i64;
+    v6 = v17;
+    v7 = v17;
+    v8 = v17;
     do
     {
-      v22 = *(int *)(&_RBX->inited + v18);
-      _RDI = &_RBX->scratchData[v22];
-      effectType = _RBX->scratchDataState[v22].effectType;
+      v9 = *(int *)(&v0->inited + v5);
+      v10 = &v0->scratchData[v9];
+      effectType = v0->scratchDataState[v9].effectType;
       if ( effectType == 1 || effectType == 2 || effectType == 3 || effectType == Menu || effectType == 5 )
       {
-        if ( _RDI )
+        if ( v10 )
         {
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rdi]
-            vmovss  xmm6, dword ptr [rdi+4]
-            vmovss  xmm7, dword ptr [rdi+8]
-          }
+          v8 = LODWORD(v10->oneShotFxDef.origin.v[0]);
+          v6 = LODWORD(v10->oneShotFxDef.origin.v[1]);
+          v7 = LODWORD(v10->oneShotFxDef.origin.v[2]);
         }
       }
       else
       {
-        LODWORD(v31) = effectType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v31) )
+        LODWORD(v15) = effectType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v15) )
           __debugbreak();
       }
-      __asm
-      {
-        vaddss  xmm8, xmm8, xmm9
-        vaddss  xmm6, xmm6, xmm10
-        vaddss  xmm7, xmm7, xmm11
-      }
+      v12 = v8;
+      *(float *)&v12 = *(float *)&v8 + v1;
+      v8 = v12;
+      v13 = v6;
+      *(float *)&v13 = *(float *)&v6 + v3;
+      v6 = v13;
+      v14 = v7;
+      *(float *)&v14 = *(float *)&v7 + v2;
+      v7 = v14;
       if ( effectType == 1 || effectType == 2 || effectType == 3 || effectType == Menu || effectType == 5 )
       {
-        if ( _RDI )
+        if ( v10 )
         {
-          __asm
-          {
-            vmovss  dword ptr [rdi], xmm8
-            vmovss  dword ptr [rdi+4], xmm6
-            vmovss  dword ptr [rdi+8], xmm7
-          }
+          v10->oneShotFxDef.origin.v[0] = *(float *)&v8;
+          v10->oneShotFxDef.origin.v[1] = *(float *)&v6;
+          v10->oneShotFxDef.origin.v[2] = *(float *)&v14;
         }
       }
       else
       {
-        LODWORD(v31) = effectType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v31) )
+        LODWORD(v15) = effectType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v15) )
           __debugbreak();
       }
-      CG_CreateFx_OrientEffect(_RDI, effectType);
-      if ( (unsigned int)v22 >= 0x4000 )
+      CG_CreateFx_OrientEffect(v10, effectType);
+      if ( (unsigned int)v9 >= 0x4000 )
       {
-        LODWORD(v32) = 0x4000;
-        LODWORD(v31) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1634, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v31, v32) )
+        LODWORD(v16) = 0x4000;
+        LODWORD(v15) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1634, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
-      CG_CreateFx_StopEffect(v22);
-      CG_CreateFx_StartEffect(v22);
-      _RBX = s_createFxTool;
-      ++v17;
-      v18 += 4i64;
+      CG_CreateFx_StopEffect(v9);
+      CG_CreateFx_StartEffect(v9);
+      v0 = s_createFxTool;
+      ++v4;
+      v5 += 4i64;
     }
-    while ( v17 < s_createFxTool->selectedEffectTotal );
-    __asm
-    {
-      vmovaps xmm8, [rsp+0C8h+var_58]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0C8h+var_68]
-    vmovaps xmm10, [rsp+0C8h+var_78]
-    vmovaps xmm11, [rsp+0C8h+var_88]
+    while ( v4 < s_createFxTool->selectedEffectTotal );
   }
   CG_CreateFx_OnEditEnd();
 }
@@ -9235,11 +7823,12 @@ void CG_CreateFx_ObjectProperties_Draw(CreateFxMenuPage *const page, const Scree
   CreateFxTool *v6; 
   int v7; 
   int v8; 
-  CreateFxHintText *v10; 
-  const char *v13; 
-  CreateFxTool *v14; 
+  CreateFxHintText *v9; 
+  __m256i v10; 
+  const char *v11; 
+  CreateFxTool *v12; 
   const CreateFxEffectFieldInfo *m_fields; 
-  __int64 v16; 
+  __int64 v14; 
   int m_storageIndex; 
   int m_cursor; 
   const char *m_buffer; 
@@ -9248,12 +7837,13 @@ void CG_CreateFx_ObjectProperties_Draw(CreateFxMenuPage *const page, const Scree
   int hintCount2; 
   CreateFxSelectedInfo out_info; 
   CreateFxMenuDrawPage data; 
-  __int128 v25; 
-  int v26; 
-  int v27; 
+  __int128 v23; 
+  int v24; 
+  int v25; 
   CreateFxHintText hints[8]; 
-  int v30; 
-  int v31; 
+  __int128 v27; 
+  int v28; 
+  int v29; 
 
   if ( !page && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6902, ASSERT_TYPE_ASSERT, "(page)", (const char *)&queryFormat, "page") )
     __debugbreak();
@@ -9273,70 +7863,65 @@ void CG_CreateFx_ObjectProperties_Draw(CreateFxMenuPage *const page, const Scree
   {
     if ( (unsigned int)(*(_DWORD *)out_info.m_fieldType - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6921, ASSERT_TYPE_ASSERT, "(CG_CreateFx_ObjectProperties_IsNumber( info.m_fieldType ))", (const char *)&queryFormat, "CG_CreateFx_ObjectProperties_IsNumber( info.m_fieldType )") )
       __debugbreak();
-    __asm { vmovdqu xmm0, cs:__xmm@00000029000000280000002700000001 }
     hintCount2 = 0;
-    v10 = (CreateFxHintText *)&v25;
+    v9 = (CreateFxHintText *)&v23;
     hints2 = NULL;
-    __asm { vmovdqu [rbp+70h+var_70], xmm0 }
+    v23 = _xmm;
     fmt = 6;
-    v26 = 32;
-    v27 = 33;
+    v24 = 32;
+    v25 = 33;
   }
   else
   {
     if ( s_menuFocus == MENU )
     {
-      LODWORD(v25) = 1;
+      LODWORD(v23) = 1;
       if ( *(_DWORD *)out_info.m_fieldType == 9 )
       {
-        DWORD1(v25) = 34;
-        CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, (const CreateFxHintText *const)&v25, 2, s_hintsMenuCommon, 2);
+        DWORD1(v23) = 34;
+        CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, (const CreateFxHintText *const)&v23, 2, s_hintsMenuCommon, 2);
       }
       else
       {
-        *(_QWORD *)((char *)&v25 + 4) = 0x1E00000024i64;
-        CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, (const CreateFxHintText *const)&v25, 3, s_hintsMenuCommon, 2);
+        *(_QWORD *)((char *)&v23 + 4) = 0x1E00000024i64;
+        CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, (const CreateFxHintText *const)&v23, 3, s_hintsMenuCommon, 2);
       }
       goto LABEL_22;
     }
     if ( v6->editRotation )
-      __asm { vmovdqu ymm0, cs:__ymm@000000160000001400000012000000170000003200000031000000300000001e }
+      v10 = _ymm;
     else
-      __asm { vmovdqu ymm0, cs:__ymm@000000160000001400000012000000170000002c0000002b0000002a0000001e }
-    __asm { vmovdqu xmm1, cs:__xmm@0000001a000000190000001500000003 }
+      v10 = _ymm;
     hintCount2 = 13;
     hints2 = (CreateFxHintText *)s_hintsWorldCommon;
-    v10 = hints;
+    v9 = hints;
     fmt = 14;
-    __asm
-    {
-      vmovdqu ymmword ptr [rbp+70h+hints], ymm0
-      vmovdqu [rbp+70h+var_38], xmm1
-    }
-    v30 = 27;
-    v31 = 28;
+    *(__m256i *)hints = v10;
+    v27 = _xmm;
+    v28 = 27;
+    v29 = 28;
   }
-  CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, v10, fmt, hints2, hintCount2);
+  CG_CreateFx_Menu_DrawGetData(&data, page, scrPlace, v9, fmt, hints2, hintCount2);
 LABEL_22:
   CG_CreateFx_Menu_DrawFrame(&data, "PROPERTIES", 0, 0);
   if ( s_createFxTool->selectionHomogeneous )
-    v13 = createFxEffectTypeStrings[out_info.m_effectType];
+    v11 = createFxEffectTypeStrings[out_info.m_effectType];
   else
-    v13 = "Multiple Selected";
-  CG_CreateFx_Menu_DrawRow(&data, 0, "Type", v13, -1, 0);
+    v11 = "Multiple Selected";
+  CG_CreateFx_Menu_DrawRow(&data, 0, "Type", v11, -1, 0);
   CG_CreateFx_Menu_DrawRow(&data, 1, "Layer", out_info.m_layer->pathString, -1, 0);
-  v14 = s_createFxTool;
+  v12 = s_createFxTool;
   if ( s_createFxTool->selectionHomogeneous && (int)m_fieldCount > 0 )
   {
     m_fields = out_info.m_fields;
-    v16 = m_fieldCount;
+    v14 = m_fieldCount;
     m_storageIndex = out_info.m_storageIndex;
     while ( 1 )
     {
       if ( s_menuFocus == EDIT && v7 == data.page->selectionIndex && (unsigned int)(*(_DWORD *)m_fields->type - 2) <= 1 )
       {
-        m_cursor = v14->m_numberEdit.m_cursor;
-        m_buffer = v14->m_numberEdit.m_buffer;
+        m_cursor = v12->m_numberEdit.m_cursor;
+        m_buffer = v12->m_numberEdit.m_buffer;
       }
       else
       {
@@ -9345,9 +7930,9 @@ LABEL_22:
       }
       CG_CreateFx_Menu_DrawRow(&data, v7++, m_fields->description, m_buffer, m_cursor, 0);
       ++m_fields;
-      if ( !--v16 )
+      if ( !--v14 )
         break;
-      v14 = s_createFxTool;
+      v12 = s_createFxTool;
     }
   }
 }
@@ -9361,27 +7946,27 @@ bool CG_CreateFx_ObjectProperties_Input(CreateFxMenuPage *const page, LocalClien
 {
   int Fx_Handle_KeyJump; 
   bool result; 
-  int v12; 
+  int v11; 
   int m_fieldIndex; 
+  const char *v13; 
   const char *v14; 
-  const char *v15; 
-  int v16; 
-  const char *v17; 
-  CreateFxTool *v18; 
-  const char *v19; 
+  int v15; 
+  const char *v16; 
+  CreateFxTool *v17; 
+  const char *v18; 
+  __int64 v19; 
   __int64 v20; 
-  __int64 v21; 
   __int64 m_bufferCount; 
-  CreateFxTool *v26; 
-  int v29; 
-  int v30; 
+  float v22; 
+  CreateFxTool *v23; 
+  int v24; 
+  int v25; 
   CreateFxSelectedInfo out_info; 
 
   if ( !page && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7054, ASSERT_TYPE_ASSERT, "(page)", (const char *)&queryFormat, "page") )
     __debugbreak();
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   if ( !down )
-    goto LABEL_60;
+    return 0;
   if ( s_menuFocus == MENU )
   {
     Fx_Handle_KeyJump = CG_CreateFx_Handle_KeyJump(page, localClientNum, key, down);
@@ -9392,160 +7977,147 @@ bool CG_CreateFx_ObjectProperties_Input(CreateFxMenuPage *const page, LocalClien
         if ( s_createFxTool->editBuffer.effectTotal > 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7102, ASSERT_TYPE_ASSERT, "(!CG_CreateFx_IsEditPending())", (const char *)&queryFormat, "!CG_CreateFx_IsEditPending()") )
           __debugbreak();
         CG_CreateFx_GetSelectedInfo(s_createFxTool->selectedEffectList[0], page->selectionIndex, &out_info);
-        v12 = *(_DWORD *)out_info.m_fieldType;
+        v11 = *(_DWORD *)out_info.m_fieldType;
         if ( *(_DWORD *)out_info.m_fieldType == 9 )
         {
           m_fieldIndex = out_info.m_fieldIndex;
-          v14 = CG_CreateFx_EffectField_Get(out_info.m_storageIndex, &out_info.m_fields[out_info.m_fieldIndex]);
+          v13 = CG_CreateFx_EffectField_Get(out_info.m_storageIndex, &out_info.m_fields[out_info.m_fieldIndex]);
           CG_CreateFx_OnEditBegin();
-          v15 = "true";
-          v16 = m_fieldIndex;
-          if ( *v14 == 116 )
-            v15 = "false";
+          v14 = "true";
+          v15 = m_fieldIndex;
+          if ( *v13 == 116 )
+            v14 = "false";
 LABEL_19:
-          CG_CreateFx_EffectField_SetForSelected((const CreateFxEffectType)out_info.m_effectType, v16, v15, 0);
+          CG_CreateFx_EffectField_SetForSelected((const CreateFxEffectType)out_info.m_effectType, v15, v14, 0);
           CG_CreateFx_OnEditEnd();
           goto $LN58_17;
         }
         CG_CreateFx_OnEditBegin();
-        CG_CreateFx_EffectField_BeginEdit(v12);
-        if ( (unsigned int)(v12 - 2) > 1 )
+        CG_CreateFx_EffectField_BeginEdit(v11);
+        if ( (unsigned int)(v11 - 2) > 1 )
           goto $LN58_17;
-        v17 = CG_CreateFx_EffectField_Get(out_info.m_storageIndex, &out_info.m_fields[out_info.m_fieldIndex]);
-        v18 = s_createFxTool;
-        v19 = v17;
-        if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 718, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
+        v16 = CG_CreateFx_EffectField_Get(out_info.m_storageIndex, &out_info.m_fields[out_info.m_fieldIndex]);
+        v17 = s_createFxTool;
+        v18 = v16;
+        if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 718, ASSERT_TYPE_ASSERT, "(str)", (const char *)&queryFormat, "str") )
           __debugbreak();
+        v19 = -1i64;
         v20 = -1i64;
-        v21 = -1i64;
-        do
-          ++v21;
-        while ( v19[v21] );
-        Core_strncpy(v18->m_numberEdit.m_buffer, 0x3FFui64, v19, (unsigned int)v21);
         do
           ++v20;
-        while ( v18->m_numberEdit.m_buffer[v20] );
-        v18->m_numberEdit.m_bufferCount = v20;
-        if ( (unsigned int)v20 > 0x3FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 721, ASSERT_TYPE_ASSERT, "(m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM)", (const char *)&queryFormat, "m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM") )
+        while ( v18[v20] );
+        Core_strncpy(v17->m_numberEdit.m_buffer, 0x3FFui64, v18, (unsigned int)v20);
+        do
+          ++v19;
+        while ( v17->m_numberEdit.m_buffer[v19] );
+        v17->m_numberEdit.m_bufferCount = v19;
+        if ( (unsigned int)v19 > 0x3FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 721, ASSERT_TYPE_ASSERT, "(m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM)", (const char *)&queryFormat, "m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM") )
           __debugbreak();
-        m_bufferCount = v18->m_numberEdit.m_bufferCount;
-        v18->m_numberEdit.m_cursor = m_bufferCount;
-        v18->m_numberEdit.m_buffer[m_bufferCount] = 0;
+        m_bufferCount = v17->m_numberEdit.m_bufferCount;
+        v17->m_numberEdit.m_cursor = m_bufferCount;
+        v17->m_numberEdit.m_buffer[m_bufferCount] = 0;
         result = 1;
         break;
       case 2:
       case 27:
         if ( s_menuFocus != MENU )
-          goto LABEL_60;
+          return 0;
         s_menuFocus = WORLD;
         s_createFxTool->keyNeedsRelease[Fx_Handle_KeyJump] = 1;
-        result = 1;
-        goto LABEL_61;
+        return 1;
       case 20:
       case 132:
         if ( page->selectionIndex <= 0 )
-          goto LABEL_60;
+          return 0;
         --page->selectionIndex;
-        result = 1;
-        goto LABEL_61;
+        return 1;
       case 21:
       case 133:
         if ( page->selectionIndex >= page->selectionIndexMax - 1 )
-          goto LABEL_60;
+          return 0;
         ++page->selectionIndex;
-        result = 1;
-        goto LABEL_61;
+        return 1;
       case 149:
         if ( !s_createFxTool->selectionHomogeneous )
-          goto LABEL_60;
+          return 0;
         CG_CreateFx_GetSelectedInfo(s_createFxTool->selectedEffectList[0], page->selectionIndex, &out_info);
         if ( *(int *)out_info.m_fieldType < 2 )
           goto $LN58_17;
         CG_CreateFx_OnEditBegin();
-        v16 = out_info.m_fieldIndex;
-        v15 = (char *)&queryFormat.fmt + 3;
+        v15 = out_info.m_fieldIndex;
+        v14 = (char *)&queryFormat.fmt + 3;
         goto LABEL_19;
       default:
-        goto LABEL_60;
+        return 0;
     }
-    goto LABEL_61;
+    return result;
   }
   if ( s_menuFocus != EDIT )
-  {
-LABEL_60:
-    result = 0;
-    goto LABEL_61;
-  }
-  _RAX = s_createFxEditRateIndex;
-  _RDI = 0x140000000ui64;
-  __asm { vmovss  xmm6, rva s_createFxEditRates[rdi+rax*4] }
+    return 0;
+  v22 = s_createFxEditRates[s_createFxEditRateIndex];
   CG_CreateFx_GetSelectedInfo(s_createFxTool->selectedEffectList[0], page->selectionIndex, &out_info);
   if ( (unsigned int)(*(_DWORD *)out_info.m_fieldType - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7159, ASSERT_TYPE_ASSERT, "(CG_CreateFx_ObjectProperties_IsNumber( info.m_fieldType ))", (const char *)&queryFormat, "CG_CreateFx_ObjectProperties_IsNumber( info.m_fieldType )") )
     __debugbreak();
-  v26 = s_createFxTool;
+  v23 = s_createFxTool;
   if ( s_createFxTool->editBuffer.effectTotal <= 0 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 7160, ASSERT_TYPE_ASSERT, "(CG_CreateFx_IsEditPending())", (const char *)&queryFormat, "CG_CreateFx_IsEditPending()") )
       __debugbreak();
-    v26 = s_createFxTool;
+    v23 = s_createFxTool;
   }
   switch ( key )
   {
     case 1:
     case 13:
-      CG_CreateFx_EffectField_SetForSelected((const CreateFxEffectType)out_info.m_effectType, out_info.m_fieldIndex, v26->m_numberEdit.m_buffer, 0);
+      CG_CreateFx_EffectField_SetForSelected((const CreateFxEffectType)out_info.m_effectType, out_info.m_fieldIndex, v23->m_numberEdit.m_buffer, 0);
       CG_CreateFx_OnEditEnd();
       result = 1;
       s_menuFocus = MENU;
       break;
     case 2:
     case 27:
-      if ( v26->editBuffer.effectTotal <= 0 )
+      if ( v23->editBuffer.effectTotal <= 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2101, ASSERT_TYPE_ASSERT, "(CG_CreateFx_IsEditPending())", (const char *)&queryFormat, "CG_CreateFx_IsEditPending()") )
           __debugbreak();
-        v26 = s_createFxTool;
+        v23 = s_createFxTool;
       }
       s_menuFocus = MENU;
-      v26->editBuffer.effectTotal = 0;
+      v23->editBuffer.effectTotal = 0;
       result = 1;
       break;
     case 20:
     case 132:
-      __asm { vmovaps xmm1, xmm6; delta }
-      CreateFxEditBuffer::modifyNumber(&v26->m_numberEdit, *(const float *)&_XMM1);
+      CreateFxEditBuffer::modifyNumber(&v23->m_numberEdit, v22);
       result = 1;
       break;
     case 21:
     case 133:
-      __asm { vxorps  xmm1, xmm6, cs:__xmm@80000000800000008000000080000000; jumptable 0000000141C2BB1F cases 21,133 }
-      CreateFxEditBuffer::modifyNumber(&v26->m_numberEdit, *(const float *)&_XMM1);
+      CreateFxEditBuffer::modifyNumber(&v23->m_numberEdit, COERCE_CONST_FLOAT(LODWORD(v22) ^ _xmm));
       result = 1;
       break;
     case 22:
-      v29 = s_createFxEditRateIndex - 1;
+      v24 = s_createFxEditRateIndex - 1;
       if ( s_createFxEditRateIndex - 1 < 0 )
-        v29 = 0;
-      s_createFxEditRateIndex = v29;
+        v24 = 0;
+      s_createFxEditRateIndex = v24;
       result = 1;
       break;
     case 23:
-      v30 = 8;
+      v25 = 8;
       if ( s_createFxEditRateIndex + 1 < 8 )
-        v30 = s_createFxEditRateIndex + 1;
+        v25 = s_createFxEditRateIndex + 1;
       result = 1;
-      s_createFxEditRateIndex = v30;
+      s_createFxEditRateIndex = v25;
       break;
     case 61:
 $LN58_17:
       result = 1;
       break;
     default:
-      result = CG_CreateFx_BufferInput(&v26->m_numberEdit, localClientNum, key, down, time, 1, 0, 0);
+      result = CG_CreateFx_BufferInput(&v23->m_numberEdit, localClientNum, key, down, time, 1, 0, 0);
       break;
   }
-LABEL_61:
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
   return result;
 }
 
@@ -9602,9 +8174,11 @@ void CG_CreateFx_OnEditEnd(void)
   __int64 v5; 
   __int64 v6; 
   __int64 v7; 
-  int v19; 
-  __int64 v20; 
-  const CreateFXDataUnion *v21; 
+  __m256i *v8; 
+  char *v9; 
+  int v10; 
+  __int64 v11; 
+  __int64 v12; 
 
   v0 = s_createFxTool;
   if ( s_createFxTool->editBuffer.effectTotal <= 0 )
@@ -9621,7 +8195,7 @@ void CG_CreateFx_OnEditEnd(void)
   }
   v1 = 0;
   v2 = 0;
-  v19 = 0;
+  v10 = 0;
   if ( v0->selectedEffectTotal <= 0 )
   {
     v0->editBuffer.effectTotal = 0;
@@ -9635,54 +8209,39 @@ void CG_CreateFx_OnEditEnd(void)
     {
       v6 = *(int *)(&v0->inited + v3);
       v7 = (__int64)&v0->editBuffer.effectDataState[v4];
-      _R13 = &v0->inited + v5;
-      v20 = (__int64)&v0->scratchDataState[v6];
-      v21 = &v0->scratchData[v6];
-      if ( !CG_CreateFx_EffectsAreEqual((const CreateFxDataState *)v7, (const CreateFXDataUnion *)(&v0->inited + v5), (const CreateFxDataState *)v20, v21) )
+      v8 = (__m256i *)(&v0->inited + v5);
+      v11 = (__int64)&v0->scratchDataState[v6];
+      v12 = (__int64)&v0->scratchData[v6];
+      if ( !CG_CreateFx_EffectsAreEqual((const CreateFxDataState *)v7, (const CreateFXDataUnion *)(&v0->inited + v5), (const CreateFxDataState *)v11, (const CreateFXDataUnion *)v12) )
       {
         CG_CreateFx_ClearRedoStack();
         while ( ntl::nxheap::largest_free_block(&s_createFxCommandHeap.m_heap) < 0xF8 )
           CG_CreateFx_DiscardUndoSequence();
-        _RBX = (CreateFxCommand *)ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0xF8ui64, 4ui64, 1);
-        if ( !_RBX )
+        v9 = (char *)ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0xF8ui64, 4ui64, 1);
+        if ( !v9 )
           Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144286130, 333i64);
-        LODWORD(_RBX[1].__vftable) = v6;
-        _RBX->__vftable = (CreateFxCommand_vtbl *)&CreateFxEditCommand::`vftable';
-        HIDWORD(_RBX[1].__vftable) = 0;
-        LODWORD(_RBX[16].__vftable) = 0;
+        *((_DWORD *)v9 + 2) = v6;
+        *(_QWORD *)v9 = &CreateFxEditCommand::`vftable';
+        *((_DWORD *)v9 + 3) = 0;
+        *((_DWORD *)v9 + 32) = 0;
         if ( !*(_DWORD *)(v7 + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1378, ASSERT_TYPE_ASSERT, "(beforeState.effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "beforeState.effectType != CreateFxEffectType::None") )
           __debugbreak();
-        HIDWORD(_RBX[1].__vftable) = *(_DWORD *)(v7 + 8);
-        _RBX[15].__vftable = *(CreateFxCommand_vtbl **)(v7 + 24);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r13+0]
-          vmovups ymmword ptr [rbx+10h], ymm0
-          vmovups ymm1, ymmword ptr [r13+20h]
-          vmovups ymmword ptr [rbx+30h], ymm1
-          vmovups ymm0, ymmword ptr [r13+40h]
-          vmovups ymmword ptr [rbx+50h], ymm0
-          vmovsd  xmm1, qword ptr [r13+60h]
-          vmovsd  qword ptr [rbx+70h], xmm1
-        }
-        if ( !*(_DWORD *)(v20 + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1383, ASSERT_TYPE_ASSERT, "(afterState.effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "afterState.effectType != CreateFxEffectType::None") )
+        *((_DWORD *)v9 + 3) = *(_DWORD *)(v7 + 8);
+        *((_QWORD *)v9 + 15) = *(_QWORD *)(v7 + 24);
+        *(__m256i *)(v9 + 16) = *v8;
+        *(__m256i *)(v9 + 48) = v8[1];
+        *(__m256i *)(v9 + 80) = v8[2];
+        *((double *)v9 + 14) = *(double *)v8[3].m256i_i64;
+        if ( !*(_DWORD *)(v11 + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1383, ASSERT_TYPE_ASSERT, "(afterState.effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "afterState.effectType != CreateFxEffectType::None") )
           __debugbreak();
-        LODWORD(_RBX[16].__vftable) = *(_DWORD *)(v20 + 8);
-        _RBX[30].__vftable = *(CreateFxCommand_vtbl **)(v20 + 24);
-        _RAX = v21;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbx+88h], ymm0
-          vmovups ymm1, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rbx+0A8h], ymm1
-          vmovups ymm0, ymmword ptr [rax+40h]
-          vmovups ymmword ptr [rbx+0C8h], ymm0
-          vmovsd  xmm1, qword ptr [rax+60h]
-          vmovsd  qword ptr [rbx+0E8h], xmm1
-        }
-        CG_CreateFx_PushUndoCommand(_RBX);
-        v1 = ++v19;
+        *((_DWORD *)v9 + 32) = *(_DWORD *)(v11 + 8);
+        *((_QWORD *)v9 + 30) = *(_QWORD *)(v11 + 24);
+        *(__m256i *)(v9 + 136) = *(__m256i *)v12;
+        *(__m256i *)(v9 + 168) = *(__m256i *)(v12 + 32);
+        *(__m256i *)(v9 + 200) = *(__m256i *)(v12 + 64);
+        *((double *)v9 + 29) = *(double *)(v12 + 96);
+        CG_CreateFx_PushUndoCommand((CreateFxCommand *const)v9);
+        v1 = ++v10;
       }
       v0 = s_createFxTool;
       ++v2;
@@ -9954,9 +8513,9 @@ CG_CreateFx_OpenAssetListWithEnum
 */
 void CG_CreateFx_OpenAssetListWithEnum(const char *title, void (*onSelected)(CreateFxMenuPage *const, const int), int fieldType, const char *const *enumStrings, int enumCount, bool skipFirst, int selectionCurrent)
 {
-  int v13; 
+  int v11; 
   int EffectFieldIndex; 
-  CreateFxTool *v15; 
+  CreateFxTool *v13; 
 
   if ( !title && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4440, ASSERT_TYPE_ASSERT, "(title)", (const char *)&queryFormat, "title") )
     __debugbreak();
@@ -9966,7 +8525,7 @@ void CG_CreateFx_OpenAssetListWithEnum(const char *title, void (*onSelected)(Cre
     __debugbreak();
   if ( enumCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4443, ASSERT_TYPE_ASSERT, "(enumCount > 0)", (const char *)&queryFormat, "enumCount > 0") )
     __debugbreak();
-  v13 = selectionCurrent;
+  v11 = selectionCurrent;
   if ( selectionCurrent < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4444, ASSERT_TYPE_ASSERT, "(selectionCurrent >= 0)", (const char *)&queryFormat, "selectionCurrent >= 0") )
     __debugbreak();
   if ( !s_menuPath[s_menuPathCount] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4447, ASSERT_TYPE_ASSERT, "(currentPage)", (const char *)&queryFormat, "currentPage") )
@@ -9974,35 +8533,28 @@ void CG_CreateFx_OpenAssetListWithEnum(const char *title, void (*onSelected)(Cre
   EffectFieldIndex = CG_CreateFx_FindEffectFieldIndex((const CreateFxEffectType)s_createFxTool->editEffectType, fieldType);
   if ( EffectFieldIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4450, ASSERT_TYPE_ASSERT, "(fieldIndex != INVALID_EFFECT_INDEX)", (const char *)&queryFormat, "fieldIndex != INVALID_EFFECT_INDEX") )
     __debugbreak();
-  v15 = s_createFxTool;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm1, xmm0, cs:__real@3de38e39
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 2
-    vcvttss2si eax, xmm2
-  }
+  v13 = s_createFxTool;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
   s_createFxTool->m_assetList.m_title = title;
-  v15->m_assetList.m_onSelected = onSelected;
-  v15->m_assetList.m_palette = NULL;
-  v15->m_assetList.m_enumStrings = enumStrings;
-  v15->m_assetList.m_propertyIndex = EffectFieldIndex;
-  v15->m_assetList.m_count = enumCount;
-  if ( v15->m_assetList.m_page >= _EAX )
-    v15->m_assetList.m_page = 0;
-  v15->m_assetList.m_page = 0;
+  v13->m_assetList.m_onSelected = onSelected;
+  v13->m_assetList.m_palette = NULL;
+  v13->m_assetList.m_enumStrings = enumStrings;
+  v13->m_assetList.m_propertyIndex = EffectFieldIndex;
+  v13->m_assetList.m_count = enumCount;
+  if ( v13->m_assetList.m_page >= (int)*(float *)&_XMM2 )
+    v13->m_assetList.m_page = 0;
+  v13->m_assetList.m_page = 0;
   if ( skipFirst )
   {
-    v15->m_assetList.m_enumStrings = enumStrings + 1;
-    v15->m_assetList.m_count = enumCount - 1;
+    v13->m_assetList.m_enumStrings = enumStrings + 1;
+    v13->m_assetList.m_count = enumCount - 1;
     if ( selectionCurrent <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4465, ASSERT_TYPE_ASSERT, "(selectionCurrent > 0)", (const char *)&queryFormat, "selectionCurrent > 0") )
       __debugbreak();
-    v13 = selectionCurrent - 1;
+    v11 = selectionCurrent - 1;
   }
   CG_CreateFx_GotoMenu(HUD_ASSET_LIST);
-  CG_CreateFx_MenuAssetList_SetCursorIndex(s_menuPath[s_menuPathCount], v13);
+  CG_CreateFx_MenuAssetList_SetCursorIndex(s_menuPath[s_menuPathCount], v11);
 }
 
 /*
@@ -10012,11 +8564,11 @@ CG_CreateFx_OpenAssetListWithPalette
 */
 void CG_CreateFx_OpenAssetListWithPalette(const char *title, void (*onSelected)(CreateFxMenuPage *const, const int), int fieldType, CreateFxAssetPalette *const palette)
 {
-  CreateFxTool *v10; 
+  CreateFxTool *v8; 
   CreateFxAssetPalette *m_palette; 
   int EffectFieldIndex; 
-  CreateFxTool *v13; 
-  __int64 v20; 
+  CreateFxTool *v11; 
+  __int64 v14; 
 
   if ( !title && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4401, ASSERT_TYPE_ASSERT, "(title)", (const char *)&queryFormat, "title") )
     __debugbreak();
@@ -10026,44 +8578,34 @@ void CG_CreateFx_OpenAssetListWithPalette(const char *title, void (*onSelected)(
     __debugbreak();
   if ( !s_menuPath[s_menuPathCount] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4406, ASSERT_TYPE_ASSERT, "(currentPage)", (const char *)&queryFormat, "currentPage") )
     __debugbreak();
-  v10 = s_createFxTool;
+  v8 = s_createFxTool;
   m_palette = s_createFxTool->m_assetList.m_palette;
   if ( m_palette != palette )
   {
     memset_0(&s_createFxTool->m_assetFilter, 0, 0x400ui64);
-    *(_QWORD *)&v10->m_assetFilter.m_bufferCount = 0i64;
+    *(_QWORD *)&v8->m_assetFilter.m_bufferCount = 0i64;
   }
-  CreateFxAssetPalette::filter(palette, v10->m_assetFilter.m_buffer, v10->m_assetFilter.m_bufferCount);
+  CreateFxAssetPalette::filter(palette, v8->m_assetFilter.m_buffer, v8->m_assetFilter.m_bufferCount);
   EffectFieldIndex = CG_CreateFx_FindEffectFieldIndex((const CreateFxEffectType)s_createFxTool->editEffectType, fieldType);
   if ( EffectFieldIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4418, ASSERT_TYPE_ASSERT, "(fieldIndex != INVALID_EFFECT_INDEX)", (const char *)&queryFormat, "fieldIndex != INVALID_EFFECT_INDEX") )
     __debugbreak();
-  v13 = s_createFxTool;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm2, xmm2
-  }
+  v11 = s_createFxTool;
+  _XMM2 = 0i64;
   s_createFxTool->m_assetList.m_title = title;
-  v13->m_assetList.m_onSelected = onSelected;
-  v13->m_assetList.m_palette = palette;
-  v13->m_assetList.m_enumStrings = NULL;
-  v13->m_assetList.m_propertyIndex = EffectFieldIndex;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3de38e39
-    vroundss xmm2, xmm2, xmm1, 2
-  }
-  v13->m_assetList.m_count = palette->m_filteredCount;
-  __asm { vcvttss2si eax, xmm2 }
-  if ( v13->m_assetList.m_page >= _EAX )
-    v13->m_assetList.m_page = 0;
+  v11->m_assetList.m_onSelected = onSelected;
+  v11->m_assetList.m_palette = palette;
+  v11->m_assetList.m_enumStrings = NULL;
+  v11->m_assetList.m_propertyIndex = EffectFieldIndex;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
+  v11->m_assetList.m_count = palette->m_filteredCount;
+  if ( v11->m_assetList.m_page >= (int)*(float *)&_XMM2 )
+    v11->m_assetList.m_page = 0;
   CG_CreateFx_GotoMenu(HUD_ASSET_LIST);
   if ( m_palette != palette )
   {
-    v20 = s_menuPathCount;
+    v14 = s_menuPathCount;
     s_createFxTool->m_assetList.m_page = 0;
-    CG_CreateFx_MenuAssetList_SetCursorIndex(s_menuPath[v20], 0);
+    CG_CreateFx_MenuAssetList_SetCursorIndex(s_menuPath[v14], 0);
   }
 }
 
@@ -10074,48 +8616,31 @@ CG_CreateFx_OrientEffect
 */
 void CG_CreateFx_OrientEffect(CreateFXDataUnion *effectData, const CreateFxEffectType effectType)
 {
-  CreateFxEffectType v11; 
+  double v4; 
+  float v5; 
+  CreateFxEffectType v6; 
   vec3_t angles; 
 
-  _RCX = s_createFxTool;
-  if ( s_createFxTool->snapToNormal )
+  if ( s_createFxTool->snapToNormal && s_createFxTool->clipboard.cursorTrace.fraction < 1.0 )
   {
-    __asm
+    vectoangles(&s_createFxTool->clipboard.cursorTrace.normal, &angles);
+    v4 = AngleNormalize360(angles.v[0] + 90.0);
+    angles.v[0] = *(float *)&v4;
+    if ( effectType == 1 || effectType == 2 || effectType == 3 || effectType == Menu || effectType == 5 )
     {
-      vmovss  xmm0, cs:__real@3f800000
-      vcomiss xmm0, dword ptr [rcx+240018h]
+      if ( effectData != (CreateFXDataUnion *)-12i64 )
+      {
+        v5 = angles.v[2];
+        effectData->oneShotFxDef.angles.v[0] = *(float *)&v4;
+        effectData->oneShotFxDef.angles.v[1] = angles.v[1];
+        effectData->oneShotFxDef.angles.v[2] = v5;
+      }
     }
-    if ( s_createFxTool->snapToNormal )
+    else
     {
-      vectoangles(&s_createFxTool->clipboard.cursorTrace.normal, &angles);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angles]
-        vaddss  xmm0, xmm0, cs:__real@42b40000; angle
-      }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm { vmovss  dword ptr [rsp+58h+angles], xmm0 }
-      if ( effectType == 1 || effectType == 2 || effectType == 3 || effectType == Menu || effectType == 5 )
-      {
-        _RAX = &effectData->oneShotFxDef.angles;
-        if ( effectData != (CreateFXDataUnion *)-12i64 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsp+58h+angles+8]
-            vmovss  dword ptr [rax], xmm0
-            vmovss  xmm0, dword ptr [rsp+58h+angles+4]
-            vmovss  dword ptr [rax+4], xmm0
-            vmovss  dword ptr [rax+8], xmm1
-          }
-        }
-      }
-      else
-      {
-        v11 = effectType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectAngles: unhandled effect type '%d'", v11) )
-          __debugbreak();
-      }
+      v6 = effectType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectAngles: unhandled effect type '%d'", v6) )
+        __debugbreak();
     }
   }
 }
@@ -10127,111 +8652,126 @@ CG_CreateFx_ParseEntity
 */
 const char *CG_CreateFx_ParseEntity(const char *const buffer, const CreateFxEffectType effectType)
 {
+  __int128 v2; 
+  __int128 v3; 
   const char *v4; 
   const CreateFxMapLayerDef *ActiveLayer; 
   unsigned __int64 EffectIndex; 
   CreateFxTool *v8; 
   unsigned __int64 v9; 
+  CreateFxTool *v10; 
+  __int64 v11; 
   bool v12; 
   char v13; 
-  __int64 v16; 
-  const char *v17; 
+  __int64 v14; 
+  const char *v15; 
+  char v16; 
+  __int64 v17; 
   char v18; 
-  __int64 v19; 
-  char v20; 
-  CreateFxTool *v23; 
+  CreateFxTool *v19; 
   char j; 
-  char v25; 
-  __int64 v26; 
-  unsigned __int64 v27; 
-  __int64 v28; 
+  char v21; 
+  __int64 v22; 
+  unsigned __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  char v26; 
+  __int64 v27; 
+  char v28; 
   __int64 v29; 
-  char v30; 
+  __int64 v30; 
   __int64 v31; 
-  char v32; 
-  __int64 v33; 
+  __int64 v32; 
+  char v33; 
   __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  char v37; 
-  __int64 v38; 
-  char v39; 
-  const CreateFxMapLayerDef *v40; 
+  char v35; 
+  float *v36; 
+  int v37; 
   tmat33_t<vec3_t> *p_axis; 
   vec3_t *p_rootOrigin; 
   vec3_t *p_point; 
-  unsigned __int64 v50; 
-  __int64 v51; 
-  char v52; 
+  unsigned __int64 v41; 
+  __int64 v42; 
+  char v43; 
+  unsigned __int64 v44; 
+  char v45; 
+  unsigned __int64 v46; 
+  __int64 v47; 
+  char v48; 
+  unsigned __int64 v49; 
+  char v50; 
+  bool *v51; 
+  __int64 v52; 
   unsigned __int64 v53; 
-  char v54; 
-  unsigned __int64 v55; 
-  __int64 v56; 
+  __int64 v54; 
+  char v55; 
+  unsigned __int64 v56; 
   char v57; 
   unsigned __int64 v58; 
-  char v59; 
-  bool *v60; 
-  __int64 v61; 
-  unsigned __int64 v62; 
-  __int64 v63; 
-  char v64; 
-  unsigned __int64 v65; 
-  char v66; 
-  unsigned __int64 v67; 
-  __int64 v68; 
-  char v69; 
-  unsigned __int64 v70; 
-  char v71; 
-  unsigned __int64 v72; 
+  __int64 v59; 
+  char v60; 
+  unsigned __int64 v61; 
+  char v62; 
+  unsigned __int64 v63; 
+  __int64 v64; 
+  char v65; 
+  unsigned __int64 v66; 
+  char v67; 
+  scr_string_t v68; 
+  __int64 v69; 
+  int v70; 
+  bool *v71; 
+  __int64 v72; 
   __int64 v73; 
-  char v74; 
-  unsigned __int64 v75; 
-  char v76; 
+  __int64 v74; 
+  __int64 v75; 
+  __int64 v76; 
+  __int64 v77; 
   scr_string_t v78; 
   __int64 v79; 
-  bool *v82; 
-  __int64 v83; 
+  scr_string_t String; 
+  __int64 v81; 
+  __int64 v82; 
+  int v83; 
   __int64 v84; 
   __int64 v85; 
-  __int64 v86; 
-  __int64 v88; 
-  __int64 v90; 
-  scr_string_t v91; 
-  __int64 v92; 
-  scr_string_t String; 
-  __int64 v94; 
-  __int64 v95; 
-  __int64 v98; 
-  __int64 v99; 
-  FxCombinedDef *v100; 
-  __int64 v101; 
-  char v102; 
-  __int64 v103; 
-  char v104; 
-  bool v114; 
+  FxCombinedDef *v86; 
+  __int64 v87; 
+  char v88; 
+  __int64 v89; 
+  char v90; 
+  float *v91; 
+  float v92; 
+  float v93; 
+  bool v94; 
   char i; 
-  __int64 v129; 
-  __int64 v130; 
-  bool v131; 
-  int v132; 
-  int v133; 
-  int v134; 
-  int v135; 
-  int v136; 
-  int v137; 
-  char v138; 
-  const CreateFxMapLayerDef *v139; 
-  int v140; 
-  int v141; 
-  int v142; 
+  float v96; 
+  float v97; 
+  float v98; 
+  __int64 v100; 
+  __int64 v101; 
+  bool v102; 
+  float v103; 
+  float v104; 
+  float v105; 
+  float v106; 
+  int v107; 
+  int v108; 
+  float v109; 
+  float *v110; 
+  float v111; 
+  float v112; 
+  float v113; 
   vec3_t from; 
   vec3_t dst; 
-  int v145[4]; 
+  int v116[4]; 
   vec3_t point; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> rotation; 
   char s0[64]; 
   char _Buffer[272]; 
+  __int128 v122; 
+  __int128 v123; 
 
   v4 = buffer;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8898, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
@@ -10239,12 +8779,12 @@ const char *CG_CreateFx_ParseEntity(const char *const buffer, const CreateFxEffe
   if ( effectType == None && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8899, ASSERT_TYPE_ASSERT, "(effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "effectType != CreateFxEffectType::None") )
     __debugbreak();
   ActiveLayer = CG_CreateFx_GetActiveLayer();
-  v139 = ActiveLayer;
+  v110 = (float *)ActiveLayer;
   EffectIndex = (int)CG_CreateFx_AllocateEffectIndex();
   if ( (unsigned int)EffectIndex >= 0x4000 )
   {
-    LODWORD(v129) = EffectIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8759, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v129, 0x4000) )
+    LODWORD(v100) = EffectIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8759, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v100, 0x4000) )
       __debugbreak();
   }
   v8 = s_createFxTool;
@@ -10256,270 +8796,255 @@ const char *CG_CreateFx_ParseEntity(const char *const buffer, const CreateFxEffe
   *(_QWORD *)&v8->scratchDataState[v9].effectHandle = 0i64;
   CG_CreateFx_SetEffectType(EffectIndex, effectType);
   CG_CreateFx_SetEffectLayer(EffectIndex, ActiveLayer);
-  _R12 = s_createFxTool;
-  _R15 = EffectIndex;
+  v10 = s_createFxTool;
+  v11 = EffectIndex;
   v12 = effectType == 6;
   if ( v4 )
   {
     v13 = *v4;
-    __asm
-    {
-      vmovaps [rsp+2C0h+var_48+8], xmm6
-      vmovaps [rsp+2C0h+var_58+8], xmm7
-      vmovss  xmm7, cs:__real@447a0000
-    }
-    v131 = effectType == 6;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v123 = v2;
+    v122 = v3;
+    v102 = effectType == 6;
     while ( v13 )
     {
       while ( (unsigned __int8)v13 >= 9u && (unsigned __int8)v13 <= 0x20u )
         v13 = *++v4;
-      v16 = 1i64;
-      v17 = v4;
+      v14 = 1i64;
+      v15 = v4;
       if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
       while ( 1 )
       {
-        v18 = v17["}" - v4];
-        v19 = v16;
-        v20 = *v17;
-        --v16;
-        ++v17;
-        if ( !v19 )
+        v16 = v15["}" - v4];
+        v17 = v14;
+        v18 = *v15;
+        --v14;
+        ++v15;
+        if ( !v17 )
         {
 LABEL_22:
-          v12 = v131;
+          v12 = v102;
           goto LABEL_23;
         }
-        if ( v18 != v20 )
+        if ( v16 != v18 )
           break;
-        if ( !v18 )
+        if ( !v16 )
           goto LABEL_22;
       }
       if ( j_sscanf(v4, "\"%[^\"]\" \"%[^\"]\"", s0, _Buffer) != 2 )
-        goto LABEL_208;
-      v26 = -1i64;
+        goto LABEL_207;
+      v22 = -1i64;
       do
-        ++v26;
-      while ( s0[v26] );
-      v27 = (unsigned int)v26;
-      v28 = (unsigned int)v26;
-      v29 = 0i64;
+        ++v22;
+      while ( s0[v22] );
+      v23 = (unsigned int)v22;
+      v24 = (unsigned int)v22;
+      v25 = 0i64;
       do
       {
-        v30 = s0[v29];
-        v31 = v28;
-        v32 = aOrigin[v29++];
-        --v28;
-        if ( !v31 )
+        v26 = s0[v25];
+        v27 = v24;
+        v28 = aOrigin[v25++];
+        --v24;
+        if ( !v27 )
           break;
-        if ( v30 != v32 )
+        if ( v26 != v28 )
         {
-          v50 = v27;
-          v51 = 0i64;
+          v41 = v23;
+          v42 = 0i64;
           while ( 1 )
           {
-            v52 = s0[v51];
-            v53 = v50;
-            v54 = aAngles_1[v51++];
-            --v50;
-            if ( !v53 )
-              goto LABEL_45;
-            if ( v52 != v54 )
+            v43 = s0[v42];
+            v44 = v41;
+            v45 = aAngles_1[v42++];
+            --v41;
+            if ( !v44 )
+              goto LABEL_44;
+            if ( v43 != v45 )
             {
-              v55 = v27;
-              v56 = 0i64;
+              v46 = v23;
+              v47 = 0i64;
               while ( 1 )
               {
-                v57 = s0[v56];
-                v58 = v55;
-                v59 = aFxid_0[v56++];
-                --v55;
-                if ( !v58 )
+                v48 = s0[v47];
+                v49 = v46;
+                v50 = aFxid_0[v47++];
+                --v46;
+                if ( !v49 )
                 {
-LABEL_66:
+LABEL_65:
                   if ( (unsigned int)EffectIndex >= 0x4000 )
                   {
-                    LODWORD(v130) = 0x4000;
-                    LODWORD(v129) = EffectIndex;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4623, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v129, v130) )
+                    LODWORD(v101) = 0x4000;
+                    LODWORD(v100) = EffectIndex;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4623, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v100, v101) )
                       __debugbreak();
                   }
-                  v60 = &s_createFxTool->inited + _R15 * 104;
+                  v51 = &s_createFxTool->inited + v11 * 104;
                   if ( s_createFxTool->scratchDataState[EffectIndex].effectType == 1 || s_createFxTool->scratchDataState[EffectIndex].effectType == 3 )
                   {
-                    v61 = 4718832i64;
+                    v52 = 4718832i64;
                   }
                   else
                   {
                     if ( s_createFxTool->scratchDataState[EffectIndex].effectType != 5 )
-                      goto LABEL_208;
-                    v61 = 4718824i64;
+                      goto LABEL_207;
+                    v52 = 4718824i64;
                   }
-                  v100 = (FxCombinedDef *)&v60[v61];
-                  if ( &v60[v61] )
+                  v86 = (FxCombinedDef *)&v51[v52];
+                  if ( &v51[v52] )
                   {
-                    v100->particleSystemDef = NULL;
+                    v86->particleSystemDef = NULL;
                     if ( _Buffer[0] )
-                      FX_LoadEffectCombinedDef(_Buffer, v100);
+                      FX_LoadEffectCombinedDef(_Buffer, v86);
                     CG_CreateFx_UpdateEffectAlias(EffectIndex);
                   }
-                  goto LABEL_208;
+                  goto LABEL_207;
                 }
-                if ( v57 != v59 )
+                if ( v48 != v50 )
                   break;
-                if ( !v57 )
-                  goto LABEL_66;
+                if ( !v48 )
+                  goto LABEL_65;
               }
-              v62 = v27;
-              v63 = 0i64;
+              v53 = v23;
+              v54 = 0i64;
               while ( 1 )
               {
-                v64 = s0[v63];
-                v65 = v62;
-                v66 = aSoundalias_2[v63++];
-                --v62;
-                if ( !v65 )
+                v55 = s0[v54];
+                v56 = v53;
+                v57 = aSoundalias_2[v54++];
+                --v53;
+                if ( !v56 )
                 {
-LABEL_77:
+LABEL_76:
                   CG_CreateFx_SetEffectSoundalias(EffectIndex, _Buffer);
-                  goto LABEL_208;
+                  goto LABEL_207;
                 }
-                if ( v64 != v66 )
+                if ( v55 != v57 )
                   break;
-                if ( !v64 )
-                  goto LABEL_77;
+                if ( !v55 )
+                  goto LABEL_76;
               }
-              v12 = v131;
-              if ( v131 )
+              v12 = v102;
+              if ( v102 )
               {
-LABEL_84:
-                v72 = v27;
-                v73 = 0i64;
+LABEL_83:
+                v63 = v23;
+                v64 = 0i64;
                 while ( 1 )
                 {
-                  v74 = s0[v73];
-                  v75 = v72;
-                  v76 = aReactiveRadius[v73++];
-                  --v72;
-                  if ( !v75 )
+                  v65 = s0[v64];
+                  v66 = v63;
+                  v67 = aReactiveRadius[v64++];
+                  --v63;
+                  if ( !v66 )
                   {
-LABEL_88:
+LABEL_87:
                     if ( effectType != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8966, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::ReactiveEnt)", (const char *)&queryFormat, "effectType == CreateFxEffectType::ReactiveEnt") )
                       __debugbreak();
-                    __asm { vmovss  [rsp+2C0h+var_274], xmm6 }
-                    if ( j_sscanf(_Buffer, "%g", &v134) == 1 )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, [rsp+2C0h+var_274]
-                        vmovss  dword ptr [r15+r12+480100h], xmm0
-                      }
-                    }
-                    goto LABEL_209;
+                    v105 = 0.0;
+                    if ( j_sscanf(_Buffer, "%g", &v105) == 1 )
+                      v10->scratchData[v11].reactiveEntDef.radius = v105;
+                    goto LABEL_208;
                   }
-                  if ( v74 != v76 )
+                  if ( v65 != v67 )
                     break;
-                  if ( !v74 )
-                    goto LABEL_88;
+                  if ( !v65 )
+                    goto LABEL_87;
                 }
-                if ( I_strncmp(s0, "exploder", v27) )
+                if ( I_strncmp(s0, "exploder", v23) )
                 {
-                  v79 = -1i64;
+                  v69 = -1i64;
                   do
-                    ++v79;
-                  while ( s0[v79] );
-                  if ( !I_strncmp(s0, "delay", (unsigned int)v79) )
+                    ++v69;
+                  while ( s0[v69] );
+                  if ( !I_strncmp(s0, "delay", (unsigned int)v69) )
                   {
-                    if ( j_sscanf(_Buffer, "%g", &v135) != 1 )
-                      goto LABEL_209;
-                    __asm
-                    {
-                      vmulss  xmm1, xmm7, [rsp+2C0h+var_270]
-                      vcvttss2si ebx, xmm1
-                    }
+                    if ( j_sscanf(_Buffer, "%g", &v106) != 1 )
+                      goto LABEL_208;
+                    v70 = (int)(float)(1000.0 * v106);
                     if ( (unsigned int)EffectIndex >= 0x4000 )
                     {
-                      LODWORD(v130) = 0x4000;
-                      LODWORD(v129) = EffectIndex;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4807, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v129, v130) )
+                      LODWORD(v101) = 0x4000;
+                      LODWORD(v100) = EffectIndex;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 4807, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v100, v101) )
                         __debugbreak();
                     }
-                    v82 = &s_createFxTool->inited + _R15 * 104;
+                    v71 = &s_createFxTool->inited + v11 * 104;
                     if ( s_createFxTool->scratchDataState[EffectIndex].effectType == 1 )
                     {
-                      v83 = 4718828i64;
+                      v72 = 4718828i64;
                     }
                     else
                     {
                       if ( s_createFxTool->scratchDataState[EffectIndex].effectType != 3 )
-                        goto LABEL_208;
-                      v83 = 4718824i64;
+                        goto LABEL_207;
+                      v72 = 4718824i64;
                     }
-                    if ( &v82[v83] )
-                      *(_DWORD *)&v82[v83] = _EBX;
-                    goto LABEL_208;
+                    if ( &v71[v72] )
+                      *(_DWORD *)&v71[v72] = v70;
+                    goto LABEL_207;
                   }
-                  v84 = -1i64;
+                  v73 = -1i64;
                   do
-                    ++v84;
-                  while ( s0[v84] );
-                  if ( !I_strncmp(s0, "delay_min", (unsigned int)v84) )
-                    goto LABEL_234;
-                  v85 = -1i64;
+                    ++v73;
+                  while ( s0[v73] );
+                  if ( !I_strncmp(s0, "delay_min", (unsigned int)v73) )
+                    goto LABEL_233;
+                  v74 = -1i64;
                   do
-                    ++v85;
-                  while ( s0[v85] );
-                  if ( I_strncmp(s0, "delay_max", (unsigned int)v85) )
+                    ++v74;
+                  while ( s0[v74] );
+                  if ( I_strncmp(s0, "delay_max", (unsigned int)v74) )
                   {
-                    v86 = -1i64;
+                    v75 = -1i64;
                     do
-                      ++v86;
-                    while ( s0[v86] );
-                    if ( I_strncmp(s0, "damage", (unsigned int)v86) )
+                      ++v75;
+                    while ( s0[v75] );
+                    if ( I_strncmp(s0, "damage", (unsigned int)v75) )
                     {
-                      v88 = -1i64;
+                      v76 = -1i64;
                       do
-                        ++v88;
-                      while ( s0[v88] );
-                      if ( I_strncmp(s0, "damage_radius", (unsigned int)v88) )
+                        ++v76;
+                      while ( s0[v76] );
+                      if ( I_strncmp(s0, "damage_radius", (unsigned int)v76) )
                       {
-                        v90 = -1i64;
+                        v77 = -1i64;
                         do
-                          ++v90;
-                        while ( s0[v90] );
-                        if ( I_strncmp(s0, "earthquake", (unsigned int)v90) )
+                          ++v77;
+                        while ( s0[v77] );
+                        if ( I_strncmp(s0, "earthquake", (unsigned int)v77) )
                         {
-                          v92 = -1i64;
+                          v79 = -1i64;
                           do
-                            ++v92;
-                          while ( s0[v92] );
-                          if ( I_strncmp(s0, "rumble", (unsigned int)v92) )
+                            ++v79;
+                          while ( s0[v79] );
+                          if ( I_strncmp(s0, "rumble", (unsigned int)v79) )
                           {
-                            v94 = -1i64;
+                            v81 = -1i64;
                             do
-                              ++v94;
-                            while ( s0[v94] );
-                            if ( I_strncmp(s0, "envonly", (unsigned int)v94) )
+                              ++v81;
+                            while ( s0[v81] );
+                            if ( I_strncmp(s0, "envonly", (unsigned int)v81) )
                             {
-                              v95 = -1i64;
+                              v82 = -1i64;
                               do
-                                ++v95;
-                              while ( s0[v95] );
-                              if ( !I_strncmp(s0, "dotraces", (unsigned int)v95) )
+                                ++v82;
+                              while ( s0[v82] );
+                              if ( !I_strncmp(s0, "dotraces", (unsigned int)v82) )
                               {
                                 if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9054, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                                   __debugbreak();
-                                if ( j_sscanf(_Buffer, "%d", &v137) == 1 )
-                                  _R12->scratchData[_R15].explodersDef.server.damageDoOcclusionTraces = v137 != 0;
+                                if ( j_sscanf(_Buffer, "%d", &v108) == 1 )
+                                  v10->scratchData[v11].explodersDef.server.damageDoOcclusionTraces = v108 != 0;
                               }
                             }
                             else
                             {
                               if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9044, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                                 __debugbreak();
-                              if ( j_sscanf(_Buffer, "%d", &v136) == 1 )
-                                _R12->scratchData[_R15].explodersDef.server.damageEnvironmentOnly = v136 != 0;
+                              if ( j_sscanf(_Buffer, "%d", &v107) == 1 )
+                                v10->scratchData[v11].explodersDef.server.damageEnvironmentOnly = v107 != 0;
                             }
                           }
                           else
@@ -10527,82 +9052,66 @@ LABEL_88:
                             if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9038, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                               __debugbreak();
                             String = SL_GetString(_Buffer, 0);
-                            _R12->scratchData[_R15].explodersDef.server.rumbleName = String;
+                            v10->scratchData[v11].explodersDef.server.rumbleName = String;
                             if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9040, ASSERT_TYPE_ASSERT, "(effectData.explodersDef.server.rumbleName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "effectData.explodersDef.server.rumbleName != NULL_SCR_STRING") )
-                              goto LABEL_152;
+                              goto LABEL_151;
                           }
                         }
                         else
                         {
                           if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9032, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                             __debugbreak();
-                          v91 = SL_GetString(_Buffer, 0);
-                          _R12->scratchData[_R15].explodersDef.server.earthquakeName = v91;
-                          if ( !v91 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9034, ASSERT_TYPE_ASSERT, "(effectData.explodersDef.server.earthquakeName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "effectData.explodersDef.server.earthquakeName != NULL_SCR_STRING") )
-                            goto LABEL_152;
+                          v78 = SL_GetString(_Buffer, 0);
+                          v10->scratchData[v11].explodersDef.server.earthquakeName = v78;
+                          if ( !v78 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9034, ASSERT_TYPE_ASSERT, "(effectData.explodersDef.server.earthquakeName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "effectData.explodersDef.server.earthquakeName != NULL_SCR_STRING") )
+                            goto LABEL_151;
                         }
                       }
                       else
                       {
                         if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9022, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                           __debugbreak();
-                        __asm { vmovss  [rsp+2C0h+var_278], xmm6 }
-                        if ( j_sscanf(_Buffer, "%g", &v133) == 1 )
-                        {
-                          __asm
-                          {
-                            vmovss  xmm0, [rsp+2C0h+var_278]
-                            vmovss  dword ptr [r15+r12+480124h], xmm0
-                          }
-                        }
+                        v104 = 0.0;
+                        if ( j_sscanf(_Buffer, "%g", &v104) == 1 )
+                          v10->scratchData[v11].explodersDef.server.damageRadius = v104;
                       }
                     }
                     else
                     {
                       if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9012, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                         __debugbreak();
-                      __asm { vmovss  [rsp+2C0h+var_27C], xmm6 }
-                      if ( j_sscanf(_Buffer, "%g", &v132) == 1 )
-                      {
-                        __asm
-                        {
-                          vmovss  xmm0, [rsp+2C0h+var_27C]
-                          vmovss  dword ptr [r15+r12+480120h], xmm0
-                        }
-                      }
+                      v103 = 0.0;
+                      if ( j_sscanf(_Buffer, "%g", &v103) == 1 )
+                        v10->scratchData[v11].explodersDef.server.damageAmount = v103;
                     }
                   }
                   else
                   {
-LABEL_234:
+LABEL_233:
                     if ( effectType != Menu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8992, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::IntervalSound)", (const char *)&queryFormat, "effectType == CreateFxEffectType::IntervalSound") )
                       __debugbreak();
-                    if ( j_sscanf(_Buffer, "%g", &v138) == 1 )
+                    if ( j_sscanf(_Buffer, "%g", &v109) == 1 )
                     {
-                      __asm
-                      {
-                        vmulss  xmm1, xmm7, dword ptr [rsp+2C0h+var_268+4]
-                        vcvttss2si ebx, xmm1
-                      }
-                      v98 = -1i64;
+                      v83 = (int)(float)(1000.0 * v109);
+                      v84 = -1i64;
                       do
-                        ++v98;
-                      while ( s0[v98] );
-                      if ( I_strncmp(s0, "delay_min", (unsigned int)v98) )
+                        ++v84;
+                      while ( s0[v84] );
+                      if ( I_strncmp(s0, "delay_min", (unsigned int)v84) )
                       {
-                        v99 = -1i64;
+                        v85 = -1i64;
                         do
-                          ++v99;
-                        while ( s0[v99] );
-                        if ( I_strncmp(s0, "delay_max", (unsigned int)v99) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9005, ASSERT_TYPE_ASSERT, "(!I_strncmp( key, CREATEFX_ENT_DELAY_MAX_KEY, I_strlen( key ) ))", (const char *)&queryFormat, "!I_strncmp( key, CREATEFX_ENT_DELAY_MAX_KEY, I_strlen( key ) )") )
+                          ++v85;
+                        while ( s0[v85] );
+                        if ( I_strncmp(s0, "delay_max", (unsigned int)v85) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9005, ASSERT_TYPE_ASSERT, "(!I_strncmp( key, CREATEFX_ENT_DELAY_MAX_KEY, I_strlen( key ) ))", (const char *)&queryFormat, "!I_strncmp( key, CREATEFX_ENT_DELAY_MAX_KEY, I_strlen( key ) )") )
                           __debugbreak();
-                        _R12->scratchData[_R15].intervalSoundsDef.delayMaxMsec = _EBX;
+                        v10->scratchData[v11].intervalSoundsDef.delayMaxMsec = v83;
                       }
                       else
                       {
-                        _R12->scratchData[_R15].intervalSoundsDef.delayMinMsec = _EBX;
+                        v10->scratchData[v11].intervalSoundsDef.delayMinMsec = v83;
                       }
-                      goto LABEL_208;
+                      goto LABEL_207;
                     }
                   }
                 }
@@ -10610,211 +9119,167 @@ LABEL_234:
                 {
                   if ( effectType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8976, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::Exploder)", (const char *)&queryFormat, "effectType == CreateFxEffectType::Exploder") )
                     __debugbreak();
-                  v78 = SL_GetString(_Buffer, 0);
-                  _R12->scratchData[_R15].explodersDef.client.name = v78;
-                  if ( !v78 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8979, ASSERT_TYPE_ASSERT, "(effectData.explodersDef.client.name != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "effectData.explodersDef.client.name != NULL_SCR_STRING") )
+                  v68 = SL_GetString(_Buffer, 0);
+                  v10->scratchData[v11].explodersDef.client.name = v68;
+                  if ( !v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8979, ASSERT_TYPE_ASSERT, "(effectData.explodersDef.client.name != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "effectData.explodersDef.client.name != NULL_SCR_STRING") )
                   {
-LABEL_152:
+LABEL_151:
                     __debugbreak();
-                    goto LABEL_209;
+                    goto LABEL_208;
                   }
                 }
               }
               else
               {
-                v67 = v27;
-                v68 = 0i64;
+                v58 = v23;
+                v59 = 0i64;
                 do
                 {
-                  v69 = s0[v68];
-                  v70 = v67;
-                  v71 = destKey[v68++];
-                  --v67;
-                  if ( !v70 )
+                  v60 = s0[v59];
+                  v61 = v58;
+                  v62 = destKey[v59++];
+                  --v58;
+                  if ( !v61 )
                     break;
-                  if ( v69 != v71 )
-                    goto LABEL_84;
+                  if ( v60 != v62 )
+                    goto LABEL_83;
                 }
-                while ( v69 );
+                while ( v60 );
                 v12 = 1;
-                v131 = 1;
+                v102 = 1;
               }
-              goto LABEL_209;
+              goto LABEL_208;
             }
-            if ( !v52 )
-              goto LABEL_45;
+            if ( !v43 )
+              goto LABEL_44;
           }
         }
       }
-      while ( v30 );
-LABEL_45:
-      if ( j_sscanf(_Buffer, "%g %g %g", &v140, &v141, &v142) == 3 )
+      while ( v26 );
+LABEL_44:
+      if ( j_sscanf(_Buffer, "%g %g %g", &v111, &v112, &v113) == 3 )
       {
-        v33 = -1i64;
+        v29 = -1i64;
         do
-          ++v33;
-        while ( s0[v33] );
-        v34 = (unsigned int)v33;
-        v35 = 0i64;
-        v36 = (unsigned int)v33;
+          ++v29;
+        while ( s0[v29] );
+        v30 = (unsigned int)v29;
+        v31 = 0i64;
+        v32 = (unsigned int)v29;
         do
         {
-          v37 = s0[v35];
-          v38 = v36;
-          v39 = aOrigin[v35++];
-          --v36;
-          if ( !v38 )
+          v33 = s0[v31];
+          v34 = v32;
+          v35 = aOrigin[v31++];
+          --v32;
+          if ( !v34 )
             break;
-          if ( v37 != v39 )
+          if ( v33 != v35 )
           {
-            v101 = 0i64;
+            v87 = 0i64;
             do
             {
-              v102 = s0[v101];
-              v103 = v34;
-              v104 = aAngles_1[v101++];
-              --v34;
-              if ( !v103 )
+              v88 = s0[v87];
+              v89 = v30;
+              v90 = aAngles_1[v87++];
+              --v30;
+              if ( !v89 )
                 break;
-              if ( v102 != v104 )
+              if ( v88 != v90 )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8944, ASSERT_TYPE_ASSERT, "(!I_strncmp( key, CREATEFX_ENT_ANGLES_KEY, I_strlen( key ) ))", (const char *)&queryFormat, "!I_strncmp( key, CREATEFX_ENT_ANGLES_KEY, I_strlen( key ) )") )
                   __debugbreak();
                 break;
               }
             }
-            while ( v102 );
-            if ( !v139 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8062, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
+            while ( v88 );
+            v91 = v110;
+            if ( !v110 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8062, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, [rsp+2C0h+var_258]
-              vmovss  xmm2, [rsp+2C0h+anonymous_0]
-            }
             if ( s_createFxTool->rootHasOffset )
             {
-              __asm
-              {
-                vaddss  xmm1, xmm0, dword ptr [rax+81723Ch]
-                vmovss  dword ptr [rsp+2C0h+from], xmm1
-                vaddss  xmm0, xmm2, dword ptr [rax+817240h]
-                vmovss  xmm1, [rsp+2C0h+var_250]
-                vmovss  dword ptr [rsp+2C0h+from+4], xmm0
-                vaddss  xmm2, xmm1, dword ptr [rax+817244h]
-              }
+              from.v[0] = v111 + s_createFxTool->rootAngles.v[0];
+              from.v[1] = v112 + s_createFxTool->rootAngles.v[1];
+              v92 = v113 + s_createFxTool->rootAngles.v[2];
             }
             else
             {
-              __asm
-              {
-                vaddss  xmm1, xmm0, dword ptr [rdi+124h]
-                vaddss  xmm0, xmm2, dword ptr [rdi+128h]
-                vmovss  dword ptr [rsp+2C0h+from], xmm1
-                vmovss  xmm1, [rsp+2C0h+var_250]
-                vaddss  xmm2, xmm1, dword ptr [rdi+12Ch]
-                vmovss  dword ptr [rsp+2C0h+from+4], xmm0
-              }
+              v93 = v112 + v91[74];
+              from.v[0] = v111 + v91[73];
+              v92 = v113 + v91[75];
+              from.v[1] = v93;
             }
-            __asm { vmovss  dword ptr [rbp+1C0h+from+8], xmm2 }
+            from.v[2] = v92;
             AnglesNormalize360(&from, &from);
             if ( effectType != 1 && effectType != 2 && effectType != 3 && effectType != Menu && effectType != 5 )
             {
-              LODWORD(v129) = effectType;
-              v114 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectAngles: unhandled effect type '%d'", v129);
-              goto LABEL_206;
+              LODWORD(v100) = effectType;
+              v94 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectAngles: unhandled effect type '%d'", v100);
+              goto LABEL_205;
             }
-            v12 = v131;
-            _RAX = (__int64)&_R12->scratchData[_R15].reactiveEntDef.angles;
-            if ( (CreateFxTool *)((char *)_R12 + _R15 * 104) != (CreateFxTool *)-4718812i64 )
+            v12 = v102;
+            if ( (CreateFxTool *)((char *)v10 + v11 * 104) != (CreateFxTool *)-4718812i64 )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsp+2C0h+from]
-                vmovss  xmm1, dword ptr [rsp+2C0h+from+4]
-                vmovss  dword ptr [rax], xmm0
-                vmovss  xmm0, dword ptr [rbp+1C0h+from+8]
-                vmovss  dword ptr [rax+8], xmm0
-                vmovss  dword ptr [rax+4], xmm1
-              }
+              v96 = from.v[1];
+              v10->scratchData[v11].oneShotFxDef.angles.v[0] = from.v[0];
+              v10->scratchData[v11].oneShotFxDef.angles.v[2] = from.v[2];
+              v10->scratchData[v11].oneShotFxDef.angles.v[1] = v96;
             }
-            goto LABEL_209;
+            goto LABEL_208;
           }
         }
-        while ( v37 );
-        v40 = v139;
-        if ( !v139 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8033, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
+        while ( v33 );
+        v36 = v110;
+        if ( !v110 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8033, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, [rsp+2C0h+var_258]
-          vmovss  xmm2, [rsp+2C0h+anonymous_0]
-        }
         if ( s_createFxTool->rootHasOffset )
         {
-          __asm
-          {
-            vaddss  xmm1, xmm0, dword ptr [rcx+817230h]
-            vaddss  xmm0, xmm2, dword ptr [rcx+817234h]
-            vmovss  [rbp+1C0h+var_228], xmm1
-            vmovss  xmm1, [rsp+2C0h+var_250]
-            vaddss  xmm2, xmm1, dword ptr [rcx+817238h]
-            vmovss  [rbp+1C0h+var_220], xmm2
-            vmovss  [rbp+1C0h+var_224], xmm0
-          }
+          *(float *)&v37 = v112 + s_createFxTool->rootOrigin.v[1];
+          *(float *)v116 = v111 + s_createFxTool->rootOrigin.v[0];
+          *(float *)&v116[2] = v113 + s_createFxTool->rootOrigin.v[2];
+          v116[1] = v37;
           AnglesToAxis(&s_createFxTool->rootAngles, &axis);
           p_axis = &axis;
           p_rootOrigin = &s_createFxTool->rootOrigin;
-          p_point = (vec3_t *)v145;
+          p_point = (vec3_t *)v116;
         }
         else
         {
-          __asm
-          {
-            vaddss  xmm1, xmm0, dword ptr [rbx]
-            vaddss  xmm0, xmm2, dword ptr [rbx+4]
-            vmovss  dword ptr [rbp+1C0h+point], xmm1
-            vmovss  xmm1, [rsp+2C0h+var_250]
-            vaddss  xmm2, xmm1, dword ptr [rbx+8]
-            vmovss  dword ptr [rbp+1C0h+point+8], xmm2
-            vmovss  dword ptr [rbp+1C0h+point+4], xmm0
-          }
-          AnglesToAxis(&v40->angles, &rotation);
+          v97 = v112 + v36[71];
+          point.v[0] = v111 + v36[70];
+          point.v[2] = v113 + v36[72];
+          point.v[1] = v97;
+          AnglesToAxis((const vec3_t *)(v36 + 73), &rotation);
           p_axis = &rotation;
-          p_rootOrigin = &v40->origin;
+          p_rootOrigin = (vec3_t *)(v36 + 70);
           p_point = &point;
         }
         RotatePointAroundPoint(&dst, p_point, p_rootOrigin, p_axis);
         CG_CreateFx_Vec3FixSubEpsilonValues(&dst);
         if ( effectType != 1 && effectType != 2 && effectType != 3 && effectType != Menu && effectType != 5 )
         {
-          LODWORD(v129) = effectType;
-          v114 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v129);
-LABEL_206:
-          if ( v114 )
+          LODWORD(v100) = effectType;
+          v94 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v100);
+LABEL_205:
+          if ( v94 )
             __debugbreak();
-          goto LABEL_208;
+          goto LABEL_207;
         }
-        v12 = v131;
-        _RDI = (__int64)&_R12->scratchData[_R15];
-        if ( (CreateFxTool *)((char *)_R12 + _R15 * 104) != (CreateFxTool *)-4718800i64 )
+        v12 = v102;
+        if ( (CreateFxTool *)((char *)v10 + v11 * 104) != (CreateFxTool *)-4718800i64 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+1C0h+dst]
-            vmovss  xmm1, dword ptr [rbp+1C0h+dst+4]
-            vmovss  dword ptr [rdi], xmm0
-            vmovss  xmm0, dword ptr [rbp+1C0h+dst+8]
-            vmovss  dword ptr [r15+r12+4800D8h], xmm0
-            vmovss  dword ptr [r15+r12+4800D4h], xmm1
-          }
+          v98 = dst.v[1];
+          v10->scratchData[v11].oneShotFxDef.origin.v[0] = dst.v[0];
+          v10->scratchData[v11].oneShotFxDef.origin.v[2] = dst.v[2];
+          v10->scratchData[v11].oneShotFxDef.origin.v[1] = v98;
         }
       }
       else
       {
-LABEL_208:
-        v12 = v131;
+LABEL_207:
+        v12 = v102;
       }
-LABEL_209:
+LABEL_208:
       if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8712, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
         __debugbreak();
       for ( i = *v4; i != 10; i = *++v4 )
@@ -10832,19 +9297,14 @@ LABEL_209:
         ++v4;
       }
     }
-LABEL_23:
-    __asm
-    {
-      vmovaps xmm6, [rsp+2C0h+var_48+8]
-      vmovaps xmm7, [rsp+2C0h+var_58+8]
-    }
   }
+LABEL_23:
   if ( !v12 && !s_createFxTool->needToExportAllLayers )
   {
     Com_Printf_NoFilter("[CreateFx] Detected missing data in .map file, marking all layers for export\n");
-    v23 = s_createFxTool;
+    v19 = s_createFxTool;
     s_createFxTool->needToExportAllLayers = 1;
-    v23->needToExport = 1;
+    v19->needToExport = 1;
   }
   if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8712, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
     __debugbreak();
@@ -10857,8 +9317,8 @@ LABEL_23:
   }
   while ( 1 )
   {
-    v25 = *v4;
-    if ( *v4 < 9u || (unsigned __int8)v25 > 0x20u || !v25 )
+    v21 = *v4;
+    if ( *v4 < 9u || (unsigned __int8)v21 > 0x20u || !v21 )
       break;
     ++v4;
   }
@@ -11193,34 +9653,44 @@ CG_CreateFx_ParsePrefab
 */
 const char *CG_CreateFx_ParsePrefab(const char *const buffer)
 {
-  const char *v3; 
-  char v5; 
-  __int64 v6; 
-  const char *v7; 
+  __int128 v1; 
+  const char *v2; 
+  char v3; 
+  __int64 v4; 
+  const char *v5; 
+  char v6; 
+  __int64 v7; 
   char v8; 
-  __int64 v9; 
-  char v10; 
-  char *v11; 
-  CreateFxTool *v12; 
+  char *v9; 
+  CreateFxTool *v10; 
   char j; 
-  char v21; 
+  char v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  char v17; 
+  __int64 v18; 
+  char v19; 
+  char *v20; 
+  char i; 
   __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
+  char v24; 
   __int64 v25; 
   char v26; 
   __int64 v27; 
-  char v28; 
-  char *v29; 
-  char i; 
-  __int64 v31; 
+  __int64 v28; 
+  char v29; 
+  __int64 v30; 
+  char v31; 
   __int64 v32; 
   char v33; 
   __int64 v34; 
   char v35; 
   __int64 v36; 
   __int64 v37; 
-  char v38; 
+  __int64 v38; 
   __int64 v39; 
   char v40; 
   __int64 v41; 
@@ -11228,272 +9698,203 @@ const char *CG_CreateFx_ParsePrefab(const char *const buffer)
   __int64 v43; 
   char v44; 
   __int64 v45; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  char v49; 
-  __int64 v50; 
-  char v51; 
-  __int64 v53; 
-  char v54; 
-  __int64 v55; 
-  char v56; 
+  char v46; 
   vec3_t layerAngles; 
   vec3_t layerOrigin; 
-  __int64 v61; 
-  float v62; 
-  char v63[64]; 
+  vec3_t v50; 
+  char v51[64]; 
   char s0[8]; 
   char layerPath[264]; 
   char src[272]; 
   char layerFilter[272]; 
-  void *retaddr; 
+  __int128 v56; 
 
-  _R11 = &retaddr;
-  v3 = buffer;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
+  v2 = buffer;
+  v56 = v1;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8811, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
   layerFilter[0] = 0;
-  __asm
+  layerOrigin.v[0] = 0.0;
+  layerOrigin.v[1] = 0.0;
+  layerOrigin.v[2] = 0.0;
+  layerAngles.v[0] = 0.0;
+  layerAngles.v[1] = 0.0;
+  layerAngles.v[2] = 0.0;
+  if ( v2 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+410h+layerOrigin], xmm6
-    vmovss  dword ptr [rsp+410h+layerOrigin+4], xmm6
-    vmovss  dword ptr [rsp+410h+layerOrigin+8], xmm6
-    vmovss  dword ptr [rsp+410h+layerAngles], xmm6
-    vmovss  dword ptr [rsp+410h+layerAngles+4], xmm6
-    vmovss  dword ptr [rsp+410h+layerAngles+8], xmm6
-  }
-  if ( v3 )
-  {
-    v5 = *v3;
-    while ( v5 )
+    v3 = *v2;
+    while ( v3 )
     {
-      while ( (unsigned __int8)v5 >= 9u && (unsigned __int8)v5 <= 0x20u )
-        v5 = *++v3;
-      v6 = 1i64;
-      v7 = v3;
-      if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      while ( (unsigned __int8)v3 >= 9u && (unsigned __int8)v3 <= 0x20u )
+        v3 = *++v2;
+      v4 = 1i64;
+      v5 = v2;
+      if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
       while ( 1 )
       {
-        v8 = v7["}" - v3];
-        v9 = v6;
-        v10 = *v7++;
-        --v6;
-        if ( !v9 )
+        v6 = v5["}" - v2];
+        v7 = v4;
+        v8 = *v5++;
+        --v4;
+        if ( !v7 )
         {
 LABEL_16:
           if ( I_strstr(s0, "prefabs/") != s0 )
             Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144285340, 334i64, s0, "prefabs/");
-          v11 = strstr_0(s0, ".map");
-          if ( !v11 )
+          v9 = strstr_0(s0, ".map");
+          if ( !v9 )
             Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144280C10, 335i64, s0, ".map");
-          v12 = s_createFxTool;
-          *v11 = 0;
-          if ( v12->rootHasOffset )
+          v10 = s_createFxTool;
+          *v9 = 0;
+          if ( v10->rootHasOffset )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+410h+layerOrigin]
-              vucomiss xmm0, xmm6
-            }
-            if ( v12->rootHasOffset )
-              goto LABEL_27;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+410h+layerOrigin+4]
-              vucomiss xmm0, xmm6
-            }
-            if ( v12->rootHasOffset )
-              goto LABEL_27;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+410h+layerOrigin+8]
-              vucomiss xmm0, xmm6
-            }
-            if ( v12->rootHasOffset )
-              goto LABEL_27;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+410h+layerAngles]
-              vucomiss xmm0, xmm6
-            }
-            if ( v12->rootHasOffset )
-              goto LABEL_27;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+410h+layerAngles+4]
-              vucomiss xmm0, xmm6
-            }
-            if ( v12->rootHasOffset )
-              goto LABEL_27;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+410h+layerAngles+8]
-              vucomiss xmm0, xmm6
-            }
-            if ( v12->rootHasOffset )
-LABEL_27:
+            if ( layerOrigin.v[0] != 0.0 || layerOrigin.v[1] != 0.0 || layerOrigin.v[2] != 0.0 || layerAngles.v[0] != 0.0 || layerAngles.v[1] != 0.0 || layerAngles.v[2] != 0.0 )
               Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442853B0, 335i64, s0);
-            __asm
-            {
-              vmovss  dword ptr [rsp+410h+layerOrigin], xmm6
-              vmovss  dword ptr [rsp+410h+layerOrigin+4], xmm6
-              vmovss  dword ptr [rsp+410h+layerOrigin+8], xmm6
-              vmovss  dword ptr [rsp+410h+layerAngles], xmm6
-              vmovss  dword ptr [rsp+410h+layerAngles+4], xmm6
-              vmovss  dword ptr [rsp+410h+layerAngles+8], xmm6
-            }
+            layerOrigin.v[0] = 0.0;
+            layerOrigin.v[1] = 0.0;
+            layerOrigin.v[2] = 0.0;
+            layerAngles.v[0] = 0.0;
+            layerAngles.v[1] = 0.0;
+            layerAngles.v[2] = 0.0;
           }
           CG_CreateFx_AddLayer(layerPath, layerFilter, &layerOrigin, &layerAngles);
           goto LABEL_30;
         }
-        if ( v8 != v10 )
+        if ( v6 != v8 )
           break;
-        if ( !v8 )
+        if ( !v6 )
           goto LABEL_16;
       }
-      if ( j_sscanf_s(v3, "\"%[^\"]\" \"%[^\"]\"", v63, 64i64) == 2 )
+      if ( j_sscanf_s(v2, "\"%[^\"]\" \"%[^\"]\"", v51, 64i64) == 2 )
       {
-        v22 = -1i64;
+        v13 = -1i64;
         do
-          ++v22;
-        while ( v63[v22] );
-        v23 = (unsigned int)v22;
-        v24 = 0i64;
-        v25 = (unsigned int)v22;
+          ++v13;
+        while ( v51[v13] );
+        v14 = (unsigned int)v13;
+        v15 = 0i64;
+        v16 = (unsigned int)v13;
         while ( 1 )
         {
-          v26 = v63[v24];
-          v27 = v25;
-          v28 = aModel_0[v24++];
-          --v25;
-          if ( !v27 )
+          v17 = v51[v15];
+          v18 = v16;
+          v19 = aModel_0[v15++];
+          --v16;
+          if ( !v18 )
           {
 LABEL_48:
-            v29 = s0;
+            v20 = s0;
 LABEL_49:
-            Core_strcpy(v29, 0x104ui64, src);
+            Core_strcpy(v20, 0x104ui64, src);
             goto LABEL_50;
           }
-          if ( v26 != v28 )
+          if ( v17 != v19 )
             break;
-          if ( !v26 )
+          if ( !v17 )
             goto LABEL_48;
         }
-        v31 = v23;
-        v32 = 0i64;
+        v22 = v14;
+        v23 = 0i64;
         while ( 1 )
         {
-          v33 = v63[v32];
-          v34 = v31;
-          v35 = aMapnamefilter[v32++];
-          --v31;
-          if ( !v34 )
+          v24 = v51[v23];
+          v25 = v22;
+          v26 = aMapnamefilter[v23++];
+          --v22;
+          if ( !v25 )
           {
 LABEL_64:
-            v29 = layerFilter;
+            v20 = layerFilter;
             goto LABEL_49;
           }
-          if ( v33 != v35 )
+          if ( v24 != v26 )
             break;
-          if ( !v33 )
+          if ( !v24 )
             goto LABEL_64;
         }
-        v36 = v23;
-        v37 = 0i64;
+        v27 = v14;
+        v28 = 0i64;
         do
         {
-          v38 = v63[v37];
-          v39 = v36;
-          v40 = aOrigin[v37++];
-          --v36;
-          if ( !v39 )
+          v29 = v51[v28];
+          v30 = v27;
+          v31 = aOrigin[v28++];
+          --v27;
+          if ( !v30 )
             break;
-          if ( v38 != v40 )
+          if ( v29 != v31 )
           {
-            v41 = 0i64;
+            v32 = 0i64;
             do
             {
-              v42 = v63[v41];
-              v43 = v23;
-              v44 = aAngles_1[v41];
-              --v23;
-              ++v41;
-              if ( !v43 )
+              v33 = v51[v32];
+              v34 = v14;
+              v35 = aAngles_1[v32];
+              --v14;
+              ++v32;
+              if ( !v34 )
                 break;
-              if ( v42 != v44 )
+              if ( v33 != v35 )
                 goto LABEL_50;
             }
-            while ( v42 );
+            while ( v33 );
             break;
           }
         }
-        while ( v38 );
-        if ( j_sscanf(src, "%g %g %g", &v61, (char *)&v61 + 4, &v62) == 3 )
+        while ( v29 );
+        if ( j_sscanf(src, "%g %g %g", &v50, &v50.y, &v50.z) == 3 )
         {
-          v45 = -1i64;
+          v36 = -1i64;
           do
-            ++v45;
-          while ( v63[v45] );
-          v46 = (unsigned int)v45;
-          v47 = 0i64;
-          v48 = (unsigned int)v45;
+            ++v36;
+          while ( v51[v36] );
+          v37 = (unsigned int)v36;
+          v38 = 0i64;
+          v39 = (unsigned int)v36;
           while ( 1 )
           {
-            v49 = v63[v47];
-            v50 = v48;
-            v51 = aOrigin[v47];
-            --v48;
-            ++v47;
-            if ( !v50 )
+            v40 = v51[v38];
+            v41 = v39;
+            v42 = aOrigin[v38];
+            --v39;
+            ++v38;
+            if ( !v41 )
             {
 LABEL_81:
-              __asm
-              {
-                vmovsd  xmm0, [rsp+410h+var_3C0]
-                vmovsd  qword ptr [rsp+410h+layerOrigin], xmm0
-              }
-              layerOrigin.v[2] = v62;
+              layerOrigin = v50;
               goto LABEL_50;
             }
-            if ( v49 != v51 )
+            if ( v40 != v42 )
               break;
-            if ( !v49 )
+            if ( !v40 )
               goto LABEL_81;
           }
-          v53 = 0i64;
+          v43 = 0i64;
           do
           {
-            v54 = v63[v53];
-            v55 = v46;
-            v56 = aAngles_1[v53];
-            --v46;
-            ++v53;
-            if ( !v55 )
+            v44 = v51[v43];
+            v45 = v37;
+            v46 = aAngles_1[v43];
+            --v37;
+            ++v43;
+            if ( !v45 )
               break;
-            if ( v54 != v56 )
+            if ( v44 != v46 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8882, ASSERT_TYPE_ASSERT, "(!I_strncmp( key, CREATEFX_ENT_ANGLES_KEY, I_strlen( key ) ))", (const char *)&queryFormat, "!I_strncmp( key, CREATEFX_ENT_ANGLES_KEY, I_strlen( key ) )") )
                 __debugbreak();
               break;
             }
           }
-          while ( v54 );
-          __asm
-          {
-            vmovsd  xmm0, [rsp+410h+var_3C0]
-            vmovsd  qword ptr [rsp+410h+layerAngles], xmm0
-          }
-          layerAngles.v[2] = v62;
+          while ( v44 );
+          layerAngles = v50;
         }
       }
 LABEL_50:
-      if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8712, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+      if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8712, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
         __debugbreak();
-      for ( i = *v3; i != 10; i = *++v3 )
+      for ( i = *v2; i != 10; i = *++v2 )
       {
         if ( i == 13 )
           break;
@@ -11502,18 +9903,17 @@ LABEL_50:
       }
       while ( 1 )
       {
-        v5 = *v3;
-        if ( *v3 < 9u || (unsigned __int8)v5 > 0x20u )
+        v3 = *v2;
+        if ( *v2 < 9u || (unsigned __int8)v3 > 0x20u )
           break;
-        ++v3;
+        ++v2;
       }
     }
   }
 LABEL_30:
-  __asm { vmovaps xmm6, [rsp+410h+var_38+8] }
-  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8712, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8712, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
     __debugbreak();
-  for ( j = *v3; j != 10; j = *++v3 )
+  for ( j = *v2; j != 10; j = *++v2 )
   {
     if ( j == 13 )
       break;
@@ -11522,12 +9922,12 @@ LABEL_30:
   }
   while ( 1 )
   {
-    v21 = *v3;
-    if ( *v3 < 9u || (unsigned __int8)v21 > 0x20u || !v21 )
+    v12 = *v2;
+    if ( *v2 < 9u || (unsigned __int8)v12 > 0x20u || !v12 )
       break;
-    ++v3;
+    ++v2;
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -11540,10 +9940,12 @@ void CG_CreateFx_PasteClipboard(const vec3_t *pasteOrigin)
   CreateFxTool *v1; 
   int v2; 
   __int64 v3; 
-  char *v8; 
-  CreateFxEffectType effectType; 
-  void (__fastcall **v18)(void *); 
-  __int64 v19; 
+  float *v; 
+  float v5; 
+  char *v6; 
+  float v7; 
+  void (__fastcall **v8)(void *); 
+  __int64 v9; 
   vec3_t originalOrigin; 
   vec3_t outOrigin; 
 
@@ -11555,82 +9957,63 @@ void CG_CreateFx_PasteClipboard(const vec3_t *pasteOrigin)
     v3 = 0i64;
     do
     {
-      _RSI = (__int64)&v1->clipboard + 104 * v2;
+      v = v1->clipboard.effectData[v2].oneShotFxDef.origin.v;
       if ( v1->clipboard.effectDataState[v3].effectType == 1 || v1->clipboard.effectDataState[v3].effectType == 2 || v1->clipboard.effectDataState[v3].effectType == 3 || v1->clipboard.effectDataState[v3].effectType == Menu || v1->clipboard.effectDataState[v3].effectType == 5 )
       {
         if ( (CreateFxTool *)((char *)v1 + 104 * v2) != (CreateFxTool *)-16i64 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vmovss  xmm1, dword ptr [rsi+4]
-            vmovss  dword ptr [rsp+88h+originalOrigin], xmm0
-            vmovss  xmm0, dword ptr [rsi+8]
-            vmovss  dword ptr [rsp+88h+originalOrigin+8], xmm0
-            vmovss  dword ptr [rsp+88h+originalOrigin+4], xmm1
-          }
+          v5 = v1->clipboard.effectData[v2].oneShotFxDef.origin.v[1];
+          originalOrigin.v[0] = *v;
+          originalOrigin.v[2] = v1->clipboard.effectData[v2].oneShotFxDef.origin.v[2];
+          originalOrigin.v[1] = v5;
         }
       }
       else
       {
-        LODWORD(v19) = v1->clipboard.effectDataState[v3].effectType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v19) )
+        LODWORD(v9) = v1->clipboard.effectDataState[v3].effectType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v9) )
           __debugbreak();
       }
       CG_CreateFx_CalculateClipboardEntityOrigin(&originalOrigin, &outOrigin);
       CG_CreateFx_ClearRedoStack();
       while ( ntl::nxheap::largest_free_block(&s_createFxCommandHeap.m_heap) < 0x80 )
         CG_CreateFx_DiscardUndoSequence();
-      v8 = (char *)ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0x80ui64, 4ui64, 1);
-      if ( !v8 )
+      v6 = (char *)ntl::nxheap::allocate(&s_createFxCommandHeap.m_heap, 0x80ui64, 4ui64, 1);
+      if ( !v6 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144286130, 333i64);
-      *((_DWORD *)v8 + 2) = -1;
-      *(_QWORD *)v8 = &CreateFxInsertEffectCopyCommand::`vftable';
-      effectType = v1->clipboard.effectDataState[v3].effectType;
-      _RDI = v8 + 16;
-      *((_DWORD *)v8 + 3) = effectType;
-      __asm
+      *((_DWORD *)v6 + 2) = -1;
+      *(_QWORD *)v6 = &CreateFxInsertEffectCopyCommand::`vftable';
+      *((_DWORD *)v6 + 3) = v1->clipboard.effectDataState[v3].effectType;
+      *(__m256i *)(v6 + 16) = *(__m256i *)v;
+      *(__m256i *)(v6 + 48) = *(__m256i *)&v1->clipboard.effectData[v2].reactiveEntDef.effectSound.name;
+      *(__m256i *)(v6 + 80) = *((__m256i *)&v1->clipboard.effectData[v2].reactiveEntDef + 2);
+      *((double *)v6 + 14) = *((double *)&v1->clipboard.effectData[v2].reactiveEntDef + 12);
+      if ( *((_DWORD *)v6 + 3) == 1 || *((_DWORD *)v6 + 3) == 2 || *((_DWORD *)v6 + 3) == 3 || *((_DWORD *)v6 + 3) == 4 || *((_DWORD *)v6 + 3) == 5 )
       {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups ymm1, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rdi+20h], ymm1
-        vmovups ymm0, ymmword ptr [rsi+40h]
-        vmovups ymmword ptr [rdi+40h], ymm0
-        vmovsd  xmm1, qword ptr [rsi+60h]
-        vmovsd  qword ptr [rdi+60h], xmm1
-      }
-      if ( *((_DWORD *)v8 + 3) == 1 || *((_DWORD *)v8 + 3) == 2 || *((_DWORD *)v8 + 3) == 3 || *((_DWORD *)v8 + 3) == 4 || *((_DWORD *)v8 + 3) == 5 )
-      {
-        if ( v8 != (char *)-16i64 )
+        if ( v6 != (char *)-16i64 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+88h+outOrigin]
-            vmovss  xmm1, dword ptr [rsp+88h+outOrigin+4]
-            vmovss  dword ptr [rdi], xmm0
-            vmovss  xmm0, dword ptr [rsp+88h+outOrigin+8]
-            vmovss  dword ptr [rdi+8], xmm0
-            vmovss  dword ptr [rdi+4], xmm1
-          }
+          v7 = outOrigin.v[1];
+          *((float *)v6 + 4) = outOrigin.v[0];
+          *((float *)v6 + 6) = outOrigin.v[2];
+          *((float *)v6 + 5) = v7;
         }
       }
       else
       {
-        LODWORD(v19) = *((_DWORD *)v8 + 3);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v19) )
+        LODWORD(v9) = *((_DWORD *)v6 + 3);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v9) )
           __debugbreak();
       }
-      CG_CreateFx_OrientEffect((CreateFXDataUnion *)(v8 + 16), *((const CreateFxEffectType *)v8 + 3));
+      CG_CreateFx_OrientEffect((CreateFXDataUnion *)(v6 + 16), *((const CreateFxEffectType *)v6 + 3));
       if ( !s_createFxTool->activeLayer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9185, ASSERT_TYPE_ASSERT, "(s_createFxTool->activeLayer)", (const char *)&queryFormat, "s_createFxTool->activeLayer") )
         __debugbreak();
-      v18 = *(void (__fastcall ***)(void *))v8;
-      *((_QWORD *)v8 + 15) = s_createFxTool->activeLayer;
-      (*v18)(v8);
-      CG_CreateFx_PushUndoCommand((CreateFxCommand *const)v8);
-      if ( *((_DWORD *)v8 + 2) == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1310, ASSERT_TYPE_ASSERT, "(m_effectIndex != INVALID_EFFECT_INDEX)", (const char *)&queryFormat, "m_effectIndex != INVALID_EFFECT_INDEX") )
+      v8 = *(void (__fastcall ***)(void *))v6;
+      *((_QWORD *)v6 + 15) = s_createFxTool->activeLayer;
+      (*v8)(v6);
+      CG_CreateFx_PushUndoCommand((CreateFxCommand *const)v6);
+      if ( *((_DWORD *)v6 + 2) == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1310, ASSERT_TYPE_ASSERT, "(m_effectIndex != INVALID_EFFECT_INDEX)", (const char *)&queryFormat, "m_effectIndex != INVALID_EFFECT_INDEX") )
         __debugbreak();
-      CG_CreateFx_SelectFx(*((_DWORD *)v8 + 2), 1);
+      CG_CreateFx_SelectFx(*((_DWORD *)v6 + 2), 1);
       v1 = s_createFxTool;
       ++v2;
       ++v3;
@@ -11645,88 +10028,72 @@ void CG_CreateFx_PasteClipboard(const vec3_t *pasteOrigin)
 CG_CreateFx_PlayReactiveSounds
 ==============
 */
-
-void __fastcall CG_CreateFx_PlayReactiveSounds(const vec3_t *eventOrigin, double eventRadius, const float timeDelay)
+void CG_CreateFx_PlayReactiveSounds(const vec3_t *eventOrigin, const float eventRadius, const float timeDelay)
 {
   cg_t *LocalClientGlobals; 
-  CreateFxTool *v7; 
-  int v8; 
+  CreateFxTool *v5; 
+  int v6; 
   unsigned int time; 
-  __int64 v10; 
+  __int64 v8; 
+  __int64 v9; 
+  bool *v10; 
   __int64 v11; 
-  bool *v12; 
-  __int64 v13; 
+  float v12; 
+  float v13; 
+  float v14; 
   const SndAliasList *aliasList; 
   SndAliasList *Alias; 
   CgSoundSystem *SoundSystem; 
-  __int64 v30; 
+  __int64 v18; 
   FXRegisteredDef def; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  _R12 = eventOrigin;
-  __asm { vmovaps xmm6, xmm1 }
   LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-  v7 = s_createFxTool;
-  v8 = 0;
+  v5 = s_createFxTool;
+  v6 = 0;
   time = LocalClientGlobals->time;
   if ( s_createFxTool->usedEffectTotal > 0 )
   {
-    v10 = 7078100i64;
+    v8 = 7078100i64;
     do
     {
-      v11 = *(int *)(&v7->inited + v10);
-      v12 = &v7->inited + 40 * v11;
-      if ( *((_DWORD *)v12 + 1605686) == 5 )
+      v9 = *(int *)(&v5->inited + v8);
+      v10 = &v5->inited + 40 * v9;
+      if ( *((_DWORD *)v10 + 1605686) == 5 )
       {
-        v13 = (__int64)&v7->scratchData[v11];
-        if ( time >= *((_DWORD *)v12 + 1605693) )
+        v11 = (__int64)&v5->scratchData[v9];
+        if ( time >= *((_DWORD *)v10 + 1605693) )
         {
-          __asm
+          v12 = eventOrigin->v[1] - v5->scratchData[v9].oneShotFxDef.origin.v[1];
+          v13 = eventOrigin->v[2] - v5->scratchData[v9].oneShotFxDef.origin.v[2];
+          v14 = eventRadius + v5->scratchData[v9].reactiveEntDef.radius;
+          if ( (float)((float)((float)(v12 * v12) + (float)((float)(eventOrigin->v[0] - *(float *)v11) * (float)(eventOrigin->v[0] - *(float *)v11))) + (float)(v13 * v13)) <= (float)(v14 * v14) )
           {
-            vmovss  xmm0, dword ptr [r12]
-            vsubss  xmm5, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [r12+4]
-            vsubss  xmm2, xmm1, dword ptr [rbx+4]
-            vmovss  xmm0, dword ptr [r12+8]
-            vsubss  xmm3, xmm0, dword ptr [rbx+8]
-            vaddss  xmm4, xmm6, dword ptr [rbx+30h]
-            vmulss  xmm0, xmm5, xmm5
-            vmulss  xmm1, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vcomiss xmm3, xmm0
-          }
-          if ( time <= *((_DWORD *)v12 + 1605693) )
-          {
-            aliasList = v7->scratchData[v11].reactiveEntDef.aliasList;
-            if ( aliasList || (Alias = SND_TryFindAlias(v7->scratchData[v11].reactiveEntDef.effectSound.name), v7 = s_createFxTool, (aliasList = Alias) != NULL) )
+            aliasList = v5->scratchData[v9].reactiveEntDef.aliasList;
+            if ( aliasList || (Alias = SND_TryFindAlias(v5->scratchData[v9].reactiveEntDef.effectSound.name), v5 = s_createFxTool, (aliasList = Alias) != NULL) )
             {
               SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
-              CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, (const vec3_t *)v13, aliasList);
-              v7 = s_createFxTool;
+              CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, (const vec3_t *)v11, aliasList);
+              v5 = s_createFxTool;
             }
-            v30 = *(_QWORD *)(v13 + 24);
-            if ( v30 )
+            v18 = *(_QWORD *)(v11 + 24);
+            if ( v18 )
             {
-              def.m_particleSystemDef = *(const ParticleSystemDef **)(v13 + 24);
-              AnglesToAxis((const vec3_t *)(v13 + 12), &axis);
-              LODWORD(v30) = FX_PlayOrientedEffect(LOCAL_CLIENT_0, &def, 0, (const vec3_t *)v13, &axis);
-              v7 = s_createFxTool;
+              def.m_particleSystemDef = *(const ParticleSystemDef **)(v11 + 24);
+              AnglesToAxis((const vec3_t *)(v11 + 12), &axis);
+              LODWORD(v18) = FX_PlayOrientedEffect(LOCAL_CLIENT_0, &def, 0, (const vec3_t *)v11, &axis);
+              v5 = s_createFxTool;
             }
-            *((_DWORD *)v12 + 1605692) = v30;
-            *((_DWORD *)v12 + 1605693) = time + 3000;
+            *((_DWORD *)v10 + 1605692) = v18;
+            *((_DWORD *)v10 + 1605693) = time + 3000;
           }
         }
       }
-      ++v8;
-      v10 += 4i64;
+      ++v6;
+      v8 += 4i64;
     }
-    while ( v8 < v7->usedEffectTotal );
+    while ( v6 < v5->usedEffectTotal );
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -11738,23 +10105,14 @@ void CG_CreateFx_PrintError(const char *const msg)
 {
   const char *v1; 
   cg_t *LocalClientGlobals; 
+  CreateFxTool *v3; 
 
   v1 = j_va("ERROR: %s", msg);
   LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-  _RDX = s_createFxTool;
+  v3 = s_createFxTool;
   s_createFxTool->statusMessageTimeout = LocalClientGlobals->time + 3000;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-    vmovss  dword ptr [rdx+80A3ACh], xmm0
-    vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+4; vec4_t const colorRed
-    vmovss  dword ptr [rdx+80A3B0h], xmm1
-    vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B+8; vec4_t const colorRed
-    vmovss  dword ptr [rdx+80A3B4h], xmm0
-    vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+0Ch; vec4_t const colorRed
-    vmovss  dword ptr [rdx+80A3B8h], xmm1
-  }
-  Core_strcpy(_RDX->statusMessageBuffer, 0x100ui64, v1);
+  v3->statusMessageColor = colorRed;
+  Core_strcpy(v3->statusMessageBuffer, 0x100ui64, v1);
 }
 
 /*
@@ -11928,78 +10286,16 @@ LABEL_20:
 CG_CreateFx_RegisterCommonDvars
 ==============
 */
-void CG_CreateFx_RegisterCommonDvars()
+void CG_CreateFx_RegisterCommonDvars(void)
 {
-  const dvar_t *v4; 
-  const dvar_t *v9; 
-  const dvar_t *v13; 
-  const dvar_t *v17; 
-  float v23; 
-  float v24; 
-  float v25; 
-  float v26; 
-  float v27; 
-
-  __asm { vmovaps [rsp+58h+var_18], xmm8 }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3dcccccd; min
-    vmovss  xmm3, cs:__real@40c00000; max
-    vmovss  xmm1, cs:__real@3f4ccccd; value
-    vmovss  dword ptr [rsp+58h+var_38], xmm2
-  }
-  v4 = Dvar_RegisterFloat("MORLRLTTTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v23, 0, "Createfx native font size");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@40a00000
-    vmovss  xmm3, cs:__real@453b8000; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  createfx_menuFontSize = v4;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  dword ptr [rsp+58h+var_38], xmm8
-  }
-  v9 = Dvar_RegisterFloat("LLONRQQTKM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v24, 0, "Createfx text origin X");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@453b8000; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  createfx_menuTextXOrigin = v9;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  dword ptr [rsp+58h+var_38], xmm8
-  }
-  v13 = Dvar_RegisterFloat("MSTTNLOORL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v25, 0, "Createfx text origin Y");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@42c80000; min
-    vmovss  xmm3, cs:__real@47435000; max
-    vmovss  xmm1, cs:__real@447a0000; value
-  }
-  createfx_menuTextYOrigin = v13;
-  __asm { vmovss  dword ptr [rsp+58h+var_38], xmm2 }
-  v17 = Dvar_RegisterFloat("OLKQQMLKTO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v26, 0, "Createfx draw distance for the tool");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@41f00000; max
-    vmovss  xmm1, cs:__real@41400000; value
-  }
-  createfx_drawdist = v17;
-  __asm
-  {
-    vmovaps xmm2, xmm8; min
-    vmovss  dword ptr [rsp+58h+var_38], xmm0
-  }
-  createfx_worldIconSize = Dvar_RegisterFloat("MKMSNKTKTQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v27, 0, "The size of world icons for fx");
+  createfx_menuFontSize = Dvar_RegisterFloat("MORLRLTTTN", 0.80000001, 0.1, 6.0, 0.1, 0, "Createfx native font size");
+  createfx_menuTextXOrigin = Dvar_RegisterFloat("LLONRQQTKM", 10.0, 0.0, 3000.0, 5.0, 0, "Createfx text origin X");
+  createfx_menuTextYOrigin = Dvar_RegisterFloat("MSTTNLOORL", 10.0, 0.0, 3000.0, 5.0, 0, "Createfx text origin Y");
+  createfx_drawdist = Dvar_RegisterFloat("OLKQQMLKTO", 1000.0, 100.0, 50000.0, 100.0, 0, "Createfx draw distance for the tool");
+  createfx_worldIconSize = Dvar_RegisterFloat("MKMSNKTKTQ", 12.0, 5.0, 30.0, 1.0, 0, "The size of world icons for fx");
   createfx_hintLevel = Dvar_RegisterEnum("LNTRLONRST", s_CreateFxHintLevelStrings, 0, 0, "Createfx hint level");
   createfx_mapnamefilter = Dvar_RegisterString("TQPRRKROR", (const char *)&queryFormat.fmt + 3, 0, "If set, only layers/prefabs with this filter on will be loaded");
-  __asm { vmovaps xmm8, [rsp+58h+var_18] }
   Dvar_EndPermanentRegistration();
 }
 
@@ -12010,7 +10306,12 @@ CG_CreateFx_Reimport_f
 */
 void CG_CreateFx_Reimport_f()
 {
-  bool v1; 
+  bool v0; 
+  float v1; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
   vec3_t rootAngles; 
   vec3_t rootOrigin; 
   char dest[64]; 
@@ -12020,24 +10321,19 @@ void CG_CreateFx_Reimport_f()
     Core_strcpy(dest, 0x40ui64, s_createFxTool->layerList[0].pathString);
     if ( !dest[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8530, ASSERT_TYPE_ASSERT, "(!I_strempty( rootName ))", (const char *)&queryFormat, "!I_strempty( rootName )") )
       __debugbreak();
-    _RAX = s_createFxTool;
-    v1 = s_createFxTool->editBuffer.effectTotal <= 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+817230h]
-      vmovss  xmm1, dword ptr [rax+817234h]
-      vmovss  dword ptr [rsp+0A8h+rootOrigin], xmm0
-      vmovss  xmm0, dword ptr [rax+817238h]
-      vmovss  dword ptr [rsp+0A8h+rootOrigin+4], xmm1
-      vmovss  xmm1, dword ptr [rax+81723Ch]
-      vmovss  dword ptr [rsp+0A8h+rootOrigin+8], xmm0
-      vmovss  xmm0, dword ptr [rax+817240h]
-      vmovss  dword ptr [rsp+0A8h+rootAngles], xmm1
-      vmovss  xmm1, dword ptr [rax+817244h]
-      vmovss  dword ptr [rsp+0A8h+rootAngles+4], xmm0
-      vmovss  dword ptr [rsp+0A8h+rootAngles+8], xmm1
-    }
-    if ( !v1 )
+    v0 = s_createFxTool->editBuffer.effectTotal <= 0;
+    v1 = s_createFxTool->rootOrigin.v[1];
+    rootOrigin.v[0] = s_createFxTool->rootOrigin.v[0];
+    v2 = s_createFxTool->rootOrigin.v[2];
+    rootOrigin.v[1] = v1;
+    v3 = s_createFxTool->rootAngles.v[0];
+    rootOrigin.v[2] = v2;
+    v4 = s_createFxTool->rootAngles.v[1];
+    rootAngles.v[0] = v3;
+    v5 = s_createFxTool->rootAngles.v[2];
+    rootAngles.v[1] = v4;
+    rootAngles.v[2] = v5;
+    if ( !v0 )
     {
       s_interruptCommandActive = 1;
       CG_CreateFx_OnEditEnd();
@@ -12111,91 +10407,91 @@ CG_CreateFx_ResolveCommand
 */
 bool CG_CreateFx_ResolveCommand(const LocalClientNum_t localClientNum, __int64 key, const int down, const int repeats, const bool ctrlDown, const bool shiftDown, const bool leftShoulderDown)
 {
-  double v7; 
-  __int64 effectTotal; 
+  CreateFxMenuPage *v8; 
+  CreateFxTool *v9; 
   __int64 selectedEffectTotal; 
   bool result; 
   DiscardingStack<unsigned short,16384> *p_redoCount; 
-  unsigned int v14; 
-  unsigned __int16 v15; 
-  __int64 v16; 
+  unsigned int v13; 
+  unsigned __int16 v14; 
+  __int64 v15; 
   __int64 m_top_low; 
-  CreateFxCommand *v18; 
+  CreateFxCommand *v17; 
   DiscardingStack<CreateFxCommand *,65536> *p_undoBuffer; 
-  bool v21; 
-  CreateFxTool *v22; 
-  int v23; 
-  __int64 v24; 
-  __int64 v25; 
+  int effectTotal; 
+  CreateFxTool *v20; 
+  int v21; 
+  __int64 v22; 
+  __int64 v23; 
   int highlightedEffectIndex; 
-  int v27; 
+  int v25; 
+  __int64 v26; 
+  __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
+  int v29; 
+  int v30; 
   int v31; 
-  int v32; 
-  int v33; 
-  __int64 v34; 
-  __int64 v35; 
+  __int64 v32; 
+  __int64 v33; 
   ParticleSystemHandle *p_effectHandle; 
-  ParticleSystemHandle v37; 
-  __int64 v38; 
-  ParticleSystem *v39; 
-  ParticleSystem *v40; 
-  __int16 v41; 
-  int v42; 
+  ParticleSystemHandle v35; 
+  __int64 v36; 
+  ParticleSystem *v37; 
+  ParticleSystem *v38; 
+  __int16 v39; 
+  int v40; 
   int *activeExploderIndices; 
-  int *v44; 
+  int *v42; 
   int activeExploderCount; 
-  int v46; 
+  int v44; 
   int *selectedEffectList; 
-  int v48; 
-  __int64 v49; 
+  int v46; 
+  __int64 v47; 
   scr_string_t name; 
-  const char *v51; 
+  const char *v49; 
   cg_t *LocalClientGlobals; 
-  CreateFxTool *v58; 
-  __int64 v59; 
-  __int64 v60; 
+  CreateFxTool *v51; 
+  CreateFxTool *v52; 
+  __int64 v53; 
+  __int64 v54; 
   int usedEffectTotal; 
-  int v62; 
-  __int64 v63; 
-  __int64 v64; 
-  __int64 v65; 
-  CreateFxTool *v66; 
-  int v67; 
+  int v56; 
+  __int64 v57; 
+  __int64 v58; 
+  CreateFxTool *v59; 
+  int v60; 
+  __int64 v61; 
+  __int64 v62; 
+  int v63; 
+  int v64; 
+  CreateFxMenuPage *v65; 
+  __int64 v66; 
+  CreateFxTool *v67; 
   __int64 v68; 
   __int64 v69; 
-  int v70; 
-  int v71; 
-  CreateFxMenuPage *v72; 
-  __int64 v73; 
-  CreateFxTool *v74; 
-  __int64 v75; 
-  __int64 v76; 
   CreateFxDrawMode menuDrawMode; 
-  CreateFxDrawMode v78; 
-  const dvar_t *v79; 
-  int v80; 
-  __int64 v81; 
-  __int64 v82; 
+  CreateFxDrawMode v71; 
+  const dvar_t *v72; 
+  int v73; 
+  __int64 v74; 
+  __int64 v75; 
   vec3_t outAngles; 
 
   if ( !down || repeats != 1 )
     return 0;
   if ( (_DWORD)key == 14 || (_DWORD)key == 154 )
   {
-    v79 = createfx_hintLevel;
+    v72 = createfx_hintLevel;
     if ( !createfx_hintLevel )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2536, ASSERT_TYPE_ASSERT, "(createfx_hintLevel)", (const char *)&queryFormat, "createfx_hintLevel") )
         __debugbreak();
-      v79 = createfx_hintLevel;
+      v72 = createfx_hintLevel;
     }
-    v80 = 0;
-    if ( v79->current.integer + 1 < 3 )
-      v80 = v79->current.integer + 1;
-    Dvar_SetInt_Internal(v79, v80);
+    v73 = 0;
+    if ( v72->current.integer + 1 < 3 )
+      v73 = v72->current.integer + 1;
+    Dvar_SetInt_Internal(v72, v73);
     return 1;
   }
   if ( (_DWORD)key == 155 )
@@ -12211,23 +10507,23 @@ bool CG_CreateFx_ResolveCommand(const LocalClientNum_t localClientNum, __int64 k
       s_createFxTool->menuDrawMode = COUNT;
       return 1;
     }
-    v78 = MOVEMENT;
+    v71 = MOVEMENT;
     if ( menuDrawMode == COUNT )
-      v78 = COUNT|DODGE;
-    s_createFxTool->menuDrawMode = v78;
+      v71 = COUNT|DODGE;
+    s_createFxTool->menuDrawMode = v71;
     return 1;
   }
-  effectTotal = (__int64)s_menuPath[s_menuPathCount];
-  if ( effectTotal )
+  v8 = s_menuPath[s_menuPathCount];
+  if ( v8 )
   {
-    if ( *(_DWORD *)(effectTotal + 8) == 3 )
+    if ( v8->menuName == HUD_ASSET_LIST )
       return 0;
   }
-  _RBX = s_createFxTool;
+  v9 = s_createFxTool;
   selectedEffectTotal = s_createFxTool->selectedEffectTotal;
   if ( ctrlDown && (_DWORD)key == 122 || leftShoulderDown && (_DWORD)key == 22 )
   {
-    CG_CreateFx_Undo(effectTotal, key, selectedEffectTotal);
+    CG_CreateFx_Undo(v8, key, selectedEffectTotal);
     return 1;
   }
   if ( ctrlDown && (_DWORD)key == 121 || leftShoulderDown && (_DWORD)key == 23 )
@@ -12236,58 +10532,57 @@ bool CG_CreateFx_ResolveCommand(const LocalClientNum_t localClientNum, __int64 k
     {
       s_interruptCommandActive = 1;
       CG_CreateFx_OnEditEnd();
-      _RBX = s_createFxTool;
+      v9 = s_createFxTool;
     }
-    if ( _RBX->redoCount.m_count )
+    if ( v9->redoCount.m_count )
     {
-      p_redoCount = &_RBX->redoCount;
-      if ( !_RBX->redoCount.m_count )
+      p_redoCount = &v9->redoCount;
+      if ( !v9->redoCount.m_count )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 510, ASSERT_TYPE_ASSERT, "(!empty())", (const char *)&queryFormat, "!empty()") )
           __debugbreak();
-        _RBX = s_createFxTool;
+        v9 = s_createFxTool;
       }
-      v14 = --p_redoCount->m_top;
+      v13 = --p_redoCount->m_top;
       --p_redoCount->m_count;
-      v15 = p_redoCount->pool[v14 & 0x3FFF];
-      if ( v15 )
+      v14 = p_redoCount->pool[v13 & 0x3FFF];
+      if ( v14 )
       {
-        v16 = v15;
+        v15 = v14;
         do
         {
-          if ( !_RBX->redoBuffer.m_count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 510, ASSERT_TYPE_ASSERT, "(!empty())", (const char *)&queryFormat, "!empty()") )
+          if ( !v9->redoBuffer.m_count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 510, ASSERT_TYPE_ASSERT, "(!empty())", (const char *)&queryFormat, "!empty()") )
             __debugbreak();
-          --_RBX->redoBuffer.m_top;
-          m_top_low = LOWORD(_RBX->redoBuffer.m_top);
-          --_RBX->redoBuffer.m_count;
-          v18 = _RBX->redoBuffer.pool[m_top_low];
-          ((void (__fastcall *)(CreateFxCommand *, __int64, __int64))v18->Do)(v18, key, selectedEffectTotal);
-          _RBX = s_createFxTool;
+          --v9->redoBuffer.m_top;
+          m_top_low = LOWORD(v9->redoBuffer.m_top);
+          --v9->redoBuffer.m_count;
+          v17 = v9->redoBuffer.pool[m_top_low];
+          ((void (__fastcall *)(CreateFxCommand *, __int64, __int64))v17->Do)(v17, key, selectedEffectTotal);
+          v9 = s_createFxTool;
           p_undoBuffer = &s_createFxTool->undoBuffer;
           if ( s_createFxTool->undoBuffer.m_count == 0x10000 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 502, ASSERT_TYPE_ASSERT, "(!full())", (const char *)&queryFormat, "!full()") )
               __debugbreak();
-            _RBX = s_createFxTool;
+            v9 = s_createFxTool;
           }
-          p_undoBuffer->pool[LOWORD(p_undoBuffer->m_top)] = v18;
+          p_undoBuffer->pool[LOWORD(p_undoBuffer->m_top)] = v17;
           ++p_undoBuffer->m_top;
           ++p_undoBuffer->m_count;
-          --v16;
+          --v15;
         }
-        while ( v16 );
+        while ( v15 );
       }
-      CG_CreateFx_PushUndoSequence(v15);
+      CG_CreateFx_PushUndoSequence(v14);
       return 1;
     }
     return 1;
   }
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
   if ( ctrlDown && (_DWORD)key == 99 || (_DWORD)key == 16 && !leftShoulderDown )
   {
     if ( (int)selectedEffectTotal > 0 )
     {
-      CG_CreateFx_CopyToClipboard(localClientNum, v7);
+      CG_CreateFx_CopyToClipboard(localClientNum);
       return 1;
     }
   }
@@ -12295,18 +10590,17 @@ bool CG_CreateFx_ResolveCommand(const LocalClientNum_t localClientNum, __int64 k
   {
     if ( (int)selectedEffectTotal > 0 )
     {
-      CG_CreateFx_CopyToClipboard(localClientNum, v7);
+      CG_CreateFx_CopyToClipboard(localClientNum);
       CG_CreateFx_DeleteSelection();
       return 1;
     }
   }
-  else if ( ctrlDown && (v21 = (unsigned int)key <= 0x76, (_DWORD)key == 118) || (_DWORD)key == 17 && (v21 = !leftShoulderDown) )
+  else if ( ctrlDown && (_DWORD)key == 118 || (_DWORD)key == 17 && !leftShoulderDown )
   {
-    __asm { vcomiss xmm0, dword ptr [rbx+240018h] }
-    if ( !v21 )
+    if ( s_createFxTool->clipboard.cursorTrace.fraction < 1.0 )
     {
-      effectTotal = (unsigned int)s_createFxTool->clipboard.effectTotal;
-      if ( (int)effectTotal > 0 && 0x4000 - s_createFxTool->usedEffectTotal >= (int)effectTotal )
+      effectTotal = s_createFxTool->clipboard.effectTotal;
+      if ( effectTotal > 0 && 0x4000 - s_createFxTool->usedEffectTotal >= effectTotal )
       {
         CG_CreateFx_PasteClipboard(&s_createFxTool->clipboard.cursorTrace.position);
         return 1;
@@ -12316,29 +10610,29 @@ bool CG_CreateFx_ResolveCommand(const LocalClientNum_t localClientNum, __int64 k
   else if ( ctrlDown && (_DWORD)key == 97 )
   {
     CG_CreateFx_ClearSelection();
-    v22 = s_createFxTool;
-    v23 = 0;
+    v20 = s_createFxTool;
+    v21 = 0;
     if ( s_createFxTool->usedEffectTotal <= 0 )
       return 1;
-    v24 = 7078100i64;
+    v22 = 7078100i64;
     do
     {
-      v25 = *(int *)(&v22->inited + v24);
-      if ( v22->scratchDataState[v25].effectType == None )
+      v23 = *(int *)(&v20->inited + v22);
+      if ( v20->scratchDataState[v23].effectType == None )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5758, ASSERT_TYPE_ASSERT, "(s_createFxTool->scratchDataState[storageIndex].effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "s_createFxTool->scratchDataState[storageIndex].effectType != CreateFxEffectType::None") )
           __debugbreak();
-        v22 = s_createFxTool;
+        v20 = s_createFxTool;
       }
-      if ( v22->scratchDataState[v25].layer == v22->activeLayer )
+      if ( v20->scratchDataState[v23].layer == v20->activeLayer )
       {
-        CG_CreateFx_SelectFx(v25, 1);
-        v22 = s_createFxTool;
+        CG_CreateFx_SelectFx(v23, 1);
+        v20 = s_createFxTool;
       }
-      ++v23;
-      v24 += 4i64;
+      ++v21;
+      v22 += 4i64;
     }
-    while ( v23 < v22->usedEffectTotal );
+    while ( v21 < v20->usedEffectTotal );
     return 1;
   }
   if ( (_DWORD)key != 120 && (_DWORD)key != 27 )
@@ -12396,9 +10690,9 @@ LABEL_91:
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9372, ASSERT_TYPE_ASSERT, "(s_createFxTool->deferredCommand == nullptr)", (const char *)&queryFormat, "s_createFxTool->deferredCommand == nullptr") )
           __debugbreak();
-        _RBX = s_createFxTool;
+        v9 = s_createFxTool;
       }
-      _RBX->deferredCommand = CG_CreateFx_DropSelectionToGround;
+      v9->deferredCommand = CG_CreateFx_DropSelectionToGround;
       return 1;
     }
   }
@@ -12443,12 +10737,9 @@ LABEL_91:
       goto $LN69_17;
     case 9:
 $LN69_17:
-      if ( (int)selectedEffectTotal <= 0 )
+      if ( (int)selectedEffectTotal <= 0 || s_createFxTool->clipboard.cursorTrace.fraction >= 1.0 )
         return 1;
-      __asm { vcomiss xmm0, dword ptr [rbx+240018h] }
-      if ( !(_DWORD)selectedEffectTotal )
-        return 1;
-      CG_CreateFx_MoveSelectionToCursor(effectTotal, v7);
+      CG_CreateFx_MoveSelectionToCursor();
       return 1;
     case 19:
       if ( !leftShoulderDown )
@@ -12468,48 +10759,48 @@ LABEL_146:
       return 1;
     case 44:
       usedEffectTotal = s_createFxTool->usedEffectTotal;
-      v62 = 1;
+      v56 = 1;
       if ( usedEffectTotal < 1 )
         return 1;
       while ( 1 )
       {
-        v63 = (v62 + _RBX->invalidEntityIndex) % usedEffectTotal;
-        v64 = _RBX->usedEffectList[v63];
-        if ( (unsigned int)v64 >= 0x4000 )
+        v57 = (v56 + v9->invalidEntityIndex) % usedEffectTotal;
+        v58 = v9->usedEffectList[v57];
+        if ( (unsigned int)v58 >= 0x4000 )
         {
-          LODWORD(v82) = 0x4000;
-          LODWORD(v81) = _RBX->usedEffectList[v63];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3083, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v81, v82) )
+          LODWORD(v75) = 0x4000;
+          LODWORD(v74) = v9->usedEffectList[v57];
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3083, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v74, v75) )
             __debugbreak();
-          _RBX = s_createFxTool;
+          v9 = s_createFxTool;
         }
-        if ( _RBX->scratchDataState[v64].effectType == None && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3088, ASSERT_TYPE_ASSERT, "(effectState.effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "effectState.effectType != CreateFxEffectType::None") )
+        if ( v9->scratchDataState[v58].effectType == None && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3088, ASSERT_TYPE_ASSERT, "(effectState.effectType != CreateFxEffectType::None)", (const char *)&queryFormat, "effectState.effectType != CreateFxEffectType::None") )
           __debugbreak();
-        if ( !(unsigned __int8)CG_CreateFx_IsEffectDefValid(&_RBX->scratchData[v64], (const CreateFxEffectType)_RBX->scratchDataState[v64].effectType) )
+        if ( !(unsigned __int8)CG_CreateFx_IsEffectDefValid(&v9->scratchData[v58], (const CreateFxEffectType)v9->scratchDataState[v58].effectType) )
           break;
-        _RBX = s_createFxTool;
-        ++v62;
+        v9 = s_createFxTool;
+        ++v56;
         usedEffectTotal = s_createFxTool->usedEffectTotal;
-        if ( v62 > usedEffectTotal )
+        if ( v56 > usedEffectTotal )
           return 1;
       }
-      s_createFxTool->invalidEntityIndex = v63;
+      s_createFxTool->invalidEntityIndex = v57;
       CG_CreateFx_ClearSelection();
-      CG_CreateFx_SelectFx(v64, 0);
-      CG_CreateFx_GotoSelected(v65, v7);
+      CG_CreateFx_SelectFx(v58, 0);
+      CG_CreateFx_GotoSelected();
       return 1;
     case 45:
-      v31 = s_createFxEditRateIndex - 1;
+      v29 = s_createFxEditRateIndex - 1;
       if ( s_createFxEditRateIndex - 1 < 0 )
-        v31 = 0;
-      s_createFxEditRateIndex = v31;
+        v29 = 0;
+      s_createFxEditRateIndex = v29;
       return 1;
     case 61:
-      v32 = 8;
+      v30 = 8;
       if ( s_createFxEditRateIndex + 1 < 8 )
-        v32 = s_createFxEditRateIndex + 1;
+        v30 = s_createFxEditRateIndex + 1;
       result = 1;
-      s_createFxEditRateIndex = v32;
+      s_createFxEditRateIndex = v30;
       return result;
     case 101:
       if ( ctrlDown )
@@ -12520,56 +10811,56 @@ LABEL_146:
       if ( (int)selectedEffectTotal <= 0 )
         return 0;
       CG_CreateFx_ReduceSelectionToEffectType((const CreateFxEffectType)1);
-      v66 = s_createFxTool;
+      v59 = s_createFxTool;
       if ( s_createFxTool->selectedEffectTotal < 1 )
         return 1;
       if ( s_createFxTool->editBuffer.effectTotal > 0 )
       {
         s_interruptCommandActive = 1;
         CG_CreateFx_OnEditEnd();
-        v66 = s_createFxTool;
+        v59 = s_createFxTool;
       }
-      CG_CreateFx_SaveSelectionToBuffer(&v66->editBuffer);
-      v67 = 0;
-      if ( v66->selectedEffectTotal > 0 )
+      CG_CreateFx_SaveSelectionToBuffer(&v59->editBuffer);
+      v60 = 0;
+      if ( v59->selectedEffectTotal > 0 )
       {
-        v68 = 7209180i64;
+        v61 = 7209180i64;
         do
         {
-          v69 = *(int *)(&v66->inited + v68);
-          if ( v66->scratchDataState[v69].effectType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9746, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::OneshotEffect)", (const char *)&queryFormat, "effectType == CreateFxEffectType::OneshotEffect") )
+          v62 = *(int *)(&v59->inited + v61);
+          if ( v59->scratchDataState[v62].effectType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 9746, ASSERT_TYPE_ASSERT, "(effectType == CreateFxEffectType::OneshotEffect)", (const char *)&queryFormat, "effectType == CreateFxEffectType::OneshotEffect") )
             __debugbreak();
-          CG_CreateFx_StopEffect(v69);
-          CG_CreateFx_SetEffectType(v69, (const CreateFxEffectType)3);
-          v66 = s_createFxTool;
-          ++v67;
-          v68 += 4i64;
+          CG_CreateFx_StopEffect(v62);
+          CG_CreateFx_SetEffectType(v62, (const CreateFxEffectType)3);
+          v59 = s_createFxTool;
+          ++v60;
+          v61 += 4i64;
         }
-        while ( v67 < s_createFxTool->selectedEffectTotal );
+        while ( v60 < s_createFxTool->selectedEffectTotal );
       }
       CG_CreateFx_OnEditEnd();
-      v70 = s_menuPathCount;
-      v71 = s_createFxTool->selectedEffectTotal;
-      v72 = s_menuPath[s_menuPathCount];
-      if ( !v71 )
+      v63 = s_menuPathCount;
+      v64 = s_createFxTool->selectedEffectTotal;
+      v65 = s_menuPath[s_menuPathCount];
+      if ( !v64 )
       {
-        if ( v72->menuName != HUD_OBJECT_PROPERTIES )
+        if ( v65->menuName != HUD_OBJECT_PROPERTIES )
           return 1;
         s_menuFocus = WORLD;
         if ( s_menuPathCount <= 0 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1998, ASSERT_TYPE_ASSERT, "( ( s_menuPathCount > 0 ) )", "ERROR: Create FX menu error negitive menu index") )
             __debugbreak();
-          v70 = s_menuPathCount;
+          v63 = s_menuPathCount;
         }
         result = 1;
-        s_menuPathCount = v70 - 1;
+        s_menuPathCount = v63 - 1;
         return result;
       }
-      if ( v71 > 0 )
+      if ( v64 > 0 )
       {
         CG_CreateFx_EvaluateSelectionHomogeneity();
-        if ( v72->menuName != HUD_OBJECT_PROPERTIES )
+        if ( v65->menuName != HUD_OBJECT_PROPERTIES )
         {
           CG_CreateFx_GotoMenu(HUD_OBJECT_PROPERTIES);
           return 1;
@@ -12588,7 +10879,7 @@ LABEL_144:
         if ( (int)selectedEffectTotal > 0 || s_createFxTool->highlightedEffectIndex != -1 )
         {
 LABEL_131:
-          CG_CreateFx_GotoSelected(effectTotal, v7);
+          CG_CreateFx_GotoSelected();
           return 1;
         }
         return 1;
@@ -12600,64 +10891,64 @@ LABEL_131:
     case 104:
       if ( (int)selectedEffectTotal <= 0 )
         return 1;
-      v46 = 0;
+      v44 = 0;
       selectedEffectList = s_createFxTool->selectedEffectList;
-      v48 = 0;
+      v46 = 0;
       break;
     case 107:
       if ( !ctrlDown )
         return 1;
-      v33 = 0;
+      v31 = 0;
       if ( s_createFxTool->usedEffectTotal <= 0 )
         return 1;
-      v34 = 7078100i64;
+      v32 = 7078100i64;
       do
       {
-        v35 = *(int *)(&_RBX->inited + v34);
-        if ( _RBX->scratchDataState[v35].effectType == 3 )
+        v33 = *(int *)(&v9->inited + v32);
+        if ( v9->scratchDataState[v33].effectType == 3 )
         {
-          p_effectHandle = &_RBX->scratchDataState[v35].effectHandle;
-          v37 = *p_effectHandle;
+          p_effectHandle = &v9->scratchDataState[v33].effectHandle;
+          v35 = *p_effectHandle;
           if ( *p_effectHandle )
           {
-            v38 = 0i64;
-            if ( g_particleSystemsGeneration[v37 & 0xFFF].__all32 == v37 )
-              v38 = v37 & 0xFFF;
-            v39 = NULL;
-            v40 = g_particleSystems[0][v38];
-            if ( (unsigned __int64)v40 >= 0x1000 )
-              v39 = v40;
-            if ( v39 )
+            v36 = 0i64;
+            if ( g_particleSystemsGeneration[v35 & 0xFFF].__all32 == v35 )
+              v36 = v35 & 0xFFF;
+            v37 = NULL;
+            v38 = g_particleSystems[0][v36];
+            if ( (unsigned __int64)v38 >= 0x1000 )
+              v37 = v38;
+            if ( v37 )
             {
-              ParticleManager::KillSystem(g_particleManager, v39);
-              _RBX = s_createFxTool;
+              ParticleManager::KillSystem(g_particleManager, v37);
+              v9 = s_createFxTool;
             }
           }
           *p_effectHandle = PARTICLE_SYSTEM_INVALID_HANDLE;
-          if ( _RBX->activeExploderCount )
+          if ( v9->activeExploderCount )
           {
-            v41 = 0;
-            v42 = 0;
-            activeExploderIndices = _RBX->activeExploderIndices;
-            v44 = _RBX->activeExploderIndices;
+            v39 = 0;
+            v40 = 0;
+            activeExploderIndices = v9->activeExploderIndices;
+            v42 = v9->activeExploderIndices;
             do
             {
-              if ( *v44 == (_DWORD)v35 )
-                ++v41;
+              if ( *v42 == (_DWORD)v33 )
+                ++v39;
               else
-                *activeExploderIndices++ = *v44;
-              activeExploderCount = _RBX->activeExploderCount;
+                *activeExploderIndices++ = *v42;
+              activeExploderCount = v9->activeExploderCount;
+              ++v40;
               ++v42;
-              ++v44;
             }
-            while ( v42 < activeExploderCount );
-            _RBX->activeExploderCount = activeExploderCount - v41;
+            while ( v40 < activeExploderCount );
+            v9->activeExploderCount = activeExploderCount - v39;
           }
         }
-        ++v33;
-        v34 += 4i64;
+        ++v31;
+        v32 += 4i64;
       }
-      while ( v33 < _RBX->usedEffectTotal );
+      while ( v31 < v9->usedEffectTotal );
       return 1;
     case 110:
       if ( !ctrlDown )
@@ -12672,45 +10963,45 @@ $LN65_14:
       {
         s_interruptCommandActive = 1;
         CG_CreateFx_OnEditEnd();
-        _RBX = s_createFxTool;
+        v9 = s_createFxTool;
       }
-      CG_CreateFx_SaveSelectionToBuffer(&_RBX->editBuffer);
-      v27 = 0;
-      if ( _RBX->selectedEffectTotal > 0 )
+      CG_CreateFx_SaveSelectionToBuffer(&v9->editBuffer);
+      v25 = 0;
+      if ( v9->selectedEffectTotal > 0 )
       {
-        v28 = 7209180i64;
+        v26 = 7209180i64;
         do
         {
-          v29 = *(int *)(&_RBX->inited + v28);
-          v30 = v29;
-          if ( _RBX->scratchDataState[v29].effectType == 1 || _RBX->scratchDataState[v29].effectType == 2 || _RBX->scratchDataState[v29].effectType == 3 || _RBX->scratchDataState[v29].effectType == Menu || _RBX->scratchDataState[v29].effectType == 5 )
+          v27 = *(int *)(&v9->inited + v26);
+          v28 = v27;
+          if ( v9->scratchDataState[v27].effectType == 1 || v9->scratchDataState[v27].effectType == 2 || v9->scratchDataState[v27].effectType == 3 || v9->scratchDataState[v27].effectType == Menu || v9->scratchDataState[v27].effectType == 5 )
           {
-            if ( (CreateFxTool *)((char *)_RBX + v30 * 104) != (CreateFxTool *)-4718812i64 )
+            if ( (CreateFxTool *)((char *)v9 + v28 * 104) != (CreateFxTool *)-4718812i64 )
             {
-              *(_QWORD *)_RBX->scratchData[v30].reactiveEntDef.angles.v = 0i64;
-              _RBX->scratchData[v30].oneShotFxDef.angles.v[2] = 0.0;
+              *(_QWORD *)v9->scratchData[v28].reactiveEntDef.angles.v = 0i64;
+              v9->scratchData[v28].oneShotFxDef.angles.v[2] = 0.0;
             }
           }
           else
           {
-            LODWORD(v81) = _RBX->scratchDataState[v29].effectType;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectAngles: unhandled effect type '%d'", v81) )
+            LODWORD(v74) = v9->scratchDataState[v27].effectType;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectAngles: unhandled effect type '%d'", v74) )
               __debugbreak();
           }
-          if ( (unsigned int)v29 >= 0x4000 )
+          if ( (unsigned int)v27 >= 0x4000 )
           {
-            LODWORD(v82) = 0x4000;
-            LODWORD(v81) = v29;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1634, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v81, v82) )
+            LODWORD(v75) = 0x4000;
+            LODWORD(v74) = v27;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1634, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v74, v75) )
               __debugbreak();
           }
-          CG_CreateFx_StopEffect(v29);
-          CG_CreateFx_StartEffect(v29);
-          _RBX = s_createFxTool;
-          ++v27;
-          v28 += 4i64;
+          CG_CreateFx_StopEffect(v27);
+          CG_CreateFx_StartEffect(v27);
+          v9 = s_createFxTool;
+          ++v25;
+          v26 += 4i64;
         }
-        while ( v27 < s_createFxTool->selectedEffectTotal );
+        while ( v25 < s_createFxTool->selectedEffectTotal );
       }
       goto LABEL_129;
     case 114:
@@ -12719,38 +11010,38 @@ $LN55_21:
       return 1;
     case 116:
       ++s_createFxTool->snapToAngleIndex;
-      if ( _RBX->snapToAngleIndex < 4u )
+      if ( v9->snapToAngleIndex < 4u )
         return 1;
       result = 1;
-      _RBX->snapToAngleIndex = 0;
+      v9->snapToAngleIndex = 0;
       return result;
     case 118:
       if ( (int)selectedEffectTotal <= 0 )
         return 0;
       if ( (int)selectedEffectTotal < 2 )
         return 1;
-      v73 = selectedEffectTotal - 1;
+      v66 = selectedEffectTotal - 1;
       CG_CreateFx_GetScratchEffectAngles(s_createFxTool->freeEffectList[selectedEffectTotal + 0x4000], &outAngles);
-      v74 = s_createFxTool;
+      v67 = s_createFxTool;
       if ( s_createFxTool->editBuffer.effectTotal > 0 )
       {
         s_interruptCommandActive = 1;
         CG_CreateFx_OnEditEnd();
-        v74 = s_createFxTool;
+        v67 = s_createFxTool;
       }
-      CG_CreateFx_SaveSelectionToBuffer(&v74->editBuffer);
-      if ( v73 > 0 )
+      CG_CreateFx_SaveSelectionToBuffer(&v67->editBuffer);
+      if ( v66 > 0 )
       {
-        v75 = 0i64;
-        v76 = 7209180i64;
+        v68 = 0i64;
+        v69 = 7209180i64;
         while ( 1 )
         {
-          CG_CreateFx_SetScratchEffectAngles(*(_DWORD *)(&v74->inited + v76), &outAngles);
-          ++v75;
-          v76 += 4i64;
-          if ( v75 >= v73 )
+          CG_CreateFx_SetScratchEffectAngles(*(_DWORD *)(&v67->inited + v69), &outAngles);
+          ++v68;
+          v69 += 4i64;
+          if ( v68 >= v66 )
             break;
-          v74 = s_createFxTool;
+          v67 = s_createFxTool;
         }
       }
 LABEL_129:
@@ -12764,53 +11055,43 @@ LABEL_129:
   }
   while ( 1 )
   {
-    v49 = *selectedEffectList;
-    if ( s_createFxTool->scratchDataState[v49].effectType == 3 )
+    v47 = *selectedEffectList;
+    if ( s_createFxTool->scratchDataState[v47].effectType == 3 )
     {
-      name = s_createFxTool->scratchData[v49].explodersDef.client.name;
+      name = s_createFxTool->scratchData[v47].explodersDef.client.name;
       if ( name )
         break;
     }
-    ++v48;
+    ++v46;
     ++selectedEffectList;
-    if ( v48 >= (int)selectedEffectTotal )
+    if ( v46 >= (int)selectedEffectTotal )
     {
-      v51 = j_va("ERROR: %s", "No named exploders in selection");
+      v49 = j_va("ERROR: %s", "No named exploders in selection");
       LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-      _RDX = s_createFxTool;
+      v51 = s_createFxTool;
       s_createFxTool->statusMessageTimeout = LocalClientGlobals->time + 3000;
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-        vmovss  dword ptr [rdx+80A3ACh], xmm0
-        vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+4; vec4_t const colorRed
-        vmovss  dword ptr [rdx+80A3B0h], xmm1
-        vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B+8; vec4_t const colorRed
-        vmovss  dword ptr [rdx+80A3B4h], xmm0
-        vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+0Ch; vec4_t const colorRed
-        vmovss  dword ptr [rdx+80A3B8h], xmm1
-      }
-      Core_strcpy(_RDX->statusMessageBuffer, 0x100ui64, v51);
+      v51->statusMessageColor = colorRed;
+      Core_strcpy(v51->statusMessageBuffer, 0x100ui64, v49);
       return 1;
     }
   }
   CG_CreateFx_ClearSelection();
-  v58 = s_createFxTool;
+  v52 = s_createFxTool;
   if ( s_createFxTool->usedEffectTotal <= 0 )
     return 1;
-  v59 = 7078100i64;
+  v53 = 7078100i64;
   do
   {
-    v60 = *(int *)(&v58->inited + v59);
-    if ( v58->scratchDataState[v60].effectType == 3 && v58->scratchData[v60].explodersDef.client.name == name )
+    v54 = *(int *)(&v52->inited + v53);
+    if ( v52->scratchDataState[v54].effectType == 3 && v52->scratchData[v54].explodersDef.client.name == name )
     {
-      CG_CreateFx_SelectFx(v60, 1);
-      v58 = s_createFxTool;
+      CG_CreateFx_SelectFx(v54, 1);
+      v52 = s_createFxTool;
     }
-    ++v46;
-    v59 += 4i64;
+    ++v44;
+    v53 += 4i64;
   }
-  while ( v46 < v58->usedEffectTotal );
+  while ( v44 < v52->usedEffectTotal );
   return 1;
 }
 
@@ -12838,30 +11119,30 @@ void CG_CreateFx_RestartEffect(const int storageIndex)
 CG_CreateFx_Resume
 ==============
 */
-void CG_CreateFx_Resume(double a1)
+void CG_CreateFx_Resume()
 {
-  const dvar_t *v1; 
+  const dvar_t *v0; 
   bool enabled; 
   int i; 
-  CreateFxTool *v4; 
+  CreateFxTool *v3; 
 
-  v1 = DVARBOOL_createfx_enabled;
+  v0 = DVARBOOL_createfx_enabled;
   if ( !DVARBOOL_createfx_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "createfx_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v1);
-  enabled = v1->current.enabled;
+  Dvar_CheckFrontendServerThread(v0);
+  enabled = v0->current.enabled;
   Com_Printf_NoFilter("[CreateFx] Resume\n");
   CG_CreateFx_FreeStrings();
   CG_CreateFx_StopAllEffects();
   CG_CreateFx_ClearEffectsData();
   for ( i = s_menuPathCount; i > 0; s_menuPathCount = i )
     --i;
-  v4 = s_createFxTool;
+  v3 = s_createFxTool;
   s_menuFocus = WORLD;
   s_doingTemporaryCreateFxActivation = !enabled;
   s_createFxTool->enabled = 0;
-  v4->hasBeenEnabled = 0;
-  CG_CreateFx_Enter_f(a1);
+  v3->hasBeenEnabled = 0;
+  CG_CreateFx_Enter_f();
   if ( !enabled )
     CG_CreateFx_Exit_f();
 }
@@ -12871,8 +11152,7 @@ void CG_CreateFx_Resume(double a1)
 CG_CreateFx_RootLoad_f
 ==============
 */
-
-void __fastcall CG_CreateFx_RootLoad_f(double _XMM0_8)
+void CG_CreateFx_RootLoad_f(double a1)
 {
   const char *v1; 
   vec3_t rootAngles; 
@@ -12886,22 +11166,18 @@ void __fastcall CG_CreateFx_RootLoad_f(double _XMM0_8)
     }
     else
     {
-      CG_CreateFx_InitializeIfNeeded(_XMM0_8);
+      CG_CreateFx_InitializeIfNeeded(a1);
       CG_CreateFx_StopAllEffects();
       CG_CreateFx_ClearEffectsData();
       v1 = Cmd_Argv(1);
       if ( v1 && *v1 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rsp+58h+rootAngles], xmm0
-          vmovss  dword ptr [rsp+58h+rootAngles+4], xmm0
-          vmovss  dword ptr [rsp+58h+rootAngles+8], xmm0
-          vmovss  dword ptr [rsp+58h+rootOrigin], xmm0
-          vmovss  dword ptr [rsp+58h+rootOrigin+4], xmm0
-          vmovss  dword ptr [rsp+58h+rootOrigin+8], xmm0
-        }
+        rootAngles.v[0] = 0.0;
+        rootAngles.v[1] = 0.0;
+        rootAngles.v[2] = 0.0;
+        rootOrigin.v[0] = 0.0;
+        rootOrigin.v[1] = 0.0;
+        rootOrigin.v[2] = 0.0;
         CG_CreateFx_EnterRoot(v1, &rootOrigin, &rootAngles);
         s_createFxTool->loadedManually = 1;
       }
@@ -12924,9 +11200,9 @@ CG_CreateFx_RootNew_f
 */
 void CG_CreateFx_RootNew_f(double a1)
 {
-  const char *v2; 
-  CreateFxTool *v4; 
-  int v5; 
+  const char *v1; 
+  CreateFxTool *v2; 
+  int i; 
   vec3_t layerAngles; 
   vec3_t layerOrigin; 
   char dest[64]; 
@@ -12939,68 +11215,47 @@ void CG_CreateFx_RootNew_f(double a1)
     }
     else
     {
-      __asm { vmovaps [rsp+0A0h+var_10], xmm6 }
       CG_CreateFx_InitializeIfNeeded(a1);
       CG_CreateFx_ClearEffectsData();
-      v2 = Cmd_Argv(1);
-      Com_Printf_NoFilter("[CreateFx] RootNew %s\n", v2);
-      Com_sprintf<64>((char (*)[64])dest, "%s_cfx", v2);
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+8], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+8], xmm6
-      }
+      v1 = Cmd_Argv(1);
+      Com_Printf_NoFilter("[CreateFx] RootNew %s\n", v1);
+      Com_sprintf<64>((char (*)[64])dest, "%s_cfx", v1);
+      layerAngles.v[0] = 0.0;
+      layerAngles.v[1] = 0.0;
+      layerAngles.v[2] = 0.0;
+      layerOrigin.v[0] = 0.0;
+      layerOrigin.v[1] = 0.0;
+      layerOrigin.v[2] = 0.0;
       CG_CreateFx_AddLayer(dest, (const char *const)&queryFormat.fmt + 3, &layerOrigin, &layerAngles);
-      Com_sprintf<64>((char (*)[64])dest, "%s/%s_fx", v2, v2);
-      __asm
-      {
-        vmovss  dword ptr [rbp+57h+layerOrigin], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+8], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+8], xmm6
-      }
+      Com_sprintf<64>((char (*)[64])dest, "%s/%s_fx", v1, v1);
+      layerOrigin.v[0] = 0.0;
+      layerOrigin.v[1] = 0.0;
+      layerOrigin.v[2] = 0.0;
+      layerAngles.v[0] = 0.0;
+      layerAngles.v[1] = 0.0;
+      layerAngles.v[2] = 0.0;
       CG_CreateFx_AddLayer(dest, (const char *const)&queryFormat.fmt + 3, &layerAngles, &layerOrigin);
-      Com_sprintf<64>((char (*)[64])dest, "%s/%s_sound", v2, v2);
-      __asm
-      {
-        vmovss  dword ptr [rbp+57h+layerOrigin], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+8], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+8], xmm6
-      }
+      Com_sprintf<64>((char (*)[64])dest, "%s/%s_sound", v1, v1);
+      layerOrigin.v[0] = 0.0;
+      layerOrigin.v[1] = 0.0;
+      layerOrigin.v[2] = 0.0;
+      layerAngles.v[0] = 0.0;
+      layerAngles.v[1] = 0.0;
+      layerAngles.v[2] = 0.0;
       CG_CreateFx_AddLayer(dest, (const char *const)&queryFormat.fmt + 3, &layerAngles, &layerOrigin);
-      Com_sprintf<64>((char (*)[64])dest, "%s/%s_rex", v2, v2);
-      __asm
-      {
-        vmovss  dword ptr [rbp+57h+layerOrigin], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerOrigin+8], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+4], xmm6
-        vmovss  dword ptr [rbp+57h+layerAngles+8], xmm6
-      }
+      Com_sprintf<64>((char (*)[64])dest, "%s/%s_rex", v1, v1);
+      layerOrigin.v[0] = 0.0;
+      layerOrigin.v[1] = 0.0;
+      layerOrigin.v[2] = 0.0;
+      layerAngles.v[0] = 0.0;
+      layerAngles.v[1] = 0.0;
+      layerAngles.v[2] = 0.0;
       CG_CreateFx_AddLayer(dest, (const char *const)&queryFormat.fmt + 3, &layerAngles, &layerOrigin);
-      v4 = s_createFxTool;
-      v5 = 0;
-      __asm { vmovaps xmm6, [rsp+0A0h+var_10] }
-      if ( s_createFxTool->layerListTotal > 0 )
+      v2 = s_createFxTool;
+      for ( i = 0; i < s_createFxTool->layerListTotal; ++i )
       {
-        do
-        {
-          CG_CreateFx_ExportLayer(&v4->layerList[v5], 0);
-          v4 = s_createFxTool;
-          ++v5;
-        }
-        while ( v5 < s_createFxTool->layerListTotal );
+        CG_CreateFx_ExportLayer(&v2->layerList[i], 0);
+        v2 = s_createFxTool;
       }
     }
   }
@@ -13017,48 +11272,36 @@ CG_CreateFx_SaveSelectionToBuffer
 */
 void CG_CreateFx_SaveSelectionToBuffer(CreateFxEffectBuffer_t *buffer)
 {
+  CreateFxTool *v1; 
   int v2; 
   int selectedEffectTotal; 
   int *selectedEffectList; 
   __int64 v6; 
-  __int64 v8; 
+  __int64 v7; 
+  __m256i *v8; 
+  __int64 v9; 
 
-  _R9 = s_createFxTool;
+  v1 = s_createFxTool;
   v2 = 0;
-  _R10 = buffer;
   selectedEffectTotal = s_createFxTool->selectedEffectTotal;
   buffer->effectTotal = selectedEffectTotal;
   if ( selectedEffectTotal > 0 )
   {
-    selectedEffectList = _R9->selectedEffectList;
+    selectedEffectList = v1->selectedEffectList;
     do
     {
       v6 = *selectedEffectList++;
-      _RAX = 104 * v6;
-      v8 = v2++;
-      __asm { vmovups ymm0, ymmword ptr [rax+r9+4800D0h] }
-      _RCX = &_R10->effectData[v8];
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm1, ymmword ptr [rax+r9+4800F0h]
-        vmovups ymmword ptr [rcx+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+r9+480110h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovsd  xmm1, qword ptr [rax+r9+480130h]
-        vmovsd  qword ptr [rcx+60h], xmm1
-      }
-      _RCX = (__int64)&_R9->scratchDataState[v6];
-      __asm { vmovups ymm0, ymmword ptr [rcx] }
-      _RAX = 5 * v8;
-      __asm
-      {
-        vmovups ymmword ptr [r10+rax*8+1A0000h], ymm0
-        vmovsd  xmm1, qword ptr [rcx+20h]
-        vmovsd  qword ptr [r10+rax*8+1A0020h], xmm1
-      }
+      v7 = v2++;
+      v8 = (__m256i *)&buffer->effectData[v7];
+      *v8 = *(__m256i *)v1->scratchData[v6].oneShotFxDef.origin.v;
+      v8[1] = *(__m256i *)&v1->scratchData[v6].reactiveEntDef.effectSound.name;
+      v8[2] = *((__m256i *)&v1->scratchData[v6].reactiveEntDef + 2);
+      v8[3].m256i_i64[0] = *((__int64 *)&v1->scratchData[v6].reactiveEntDef + 12);
+      v9 = v7;
+      *(__m256i *)&buffer->effectDataState[v9].selected = *(__m256i *)&v1->scratchDataState[v6].selected;
+      *(double *)&buffer->effectDataState[v9].effectHandle = *(double *)&v1->scratchDataState[v6].effectHandle;
     }
-    while ( v2 < _R10->effectTotal );
+    while ( v2 < buffer->effectTotal );
   }
 }
 
@@ -13155,24 +11398,16 @@ void CG_CreateFx_SetActiveLayer(const CreateFxMapLayerDef *const newActiveLayer)
 CG_CreateFx_SetAssetListCount
 ==============
 */
-
-void __fastcall CG_CreateFx_SetAssetListCount(const int newCount, __int64 a2, double _XMM2_8)
+void CG_CreateFx_SetAssetListCount(const int newCount)
 {
-  CreateFxTool *v4; 
+  CreateFxTool *v1; 
 
-  v4 = s_createFxTool;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, cs:__real@3de38e39
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 2
-    vcvttss2si eax, xmm2
-  }
+  v1 = s_createFxTool;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
   s_createFxTool->m_assetList.m_count = newCount;
-  if ( v4->m_assetList.m_page >= _EAX )
-    v4->m_assetList.m_page = 0;
+  if ( v1->m_assetList.m_page >= (int)*(float *)&_XMM2 )
+    v1->m_assetList.m_page = 0;
 }
 
 /*
@@ -13203,33 +11438,27 @@ CG_CreateFx_SetEffectData
 */
 void CG_CreateFx_SetEffectData(const int storageIndex, const CreateFxEffectType effectType, const CreateFXDataUnion *effectData)
 {
-  __int64 v3; 
-  int v13; 
+  unsigned __int64 v3; 
+  CreateFxTool *v6; 
+  unsigned __int64 v7; 
+  int v9; 
 
   v3 = storageIndex;
-  _RDI = effectData;
   if ( (unsigned int)storageIndex >= 0x4000 )
   {
-    v13 = 0x4000;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1643, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", storageIndex, v13) )
+    v9 = 0x4000;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1643, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", storageIndex, v9) )
       __debugbreak();
   }
   CG_CreateFx_StopEffect(v3);
   CG_CreateFx_SetEffectType(v3, effectType);
-  _RCX = s_createFxTool;
-  __asm { vmovups ymm0, ymmword ptr [rdi] }
-  _RAX = 104 * v3;
-  __asm
-  {
-    vmovups ymmword ptr [rax+rcx+4800D0h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rax+rcx+4800F0h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rax+rcx+480110h], ymm0
-    vmovsd  xmm1, qword ptr [rdi+60h]
-    vmovsd  qword ptr [rax+rcx+480130h], xmm1
-  }
-  *(_QWORD *)&_RCX->scratchDataState[v3].effectHandle = 0i64;
+  v6 = s_createFxTool;
+  v7 = v3;
+  *(__m256i *)s_createFxTool->scratchData[v7].oneShotFxDef.origin.v = *(__m256i *)effectData->oneShotFxDef.origin.v;
+  *(__m256i *)&v6->scratchData[v7].reactiveEntDef.effectSound.name = *(__m256i *)&effectData->reactiveEntDef.effectSound.name;
+  *((__m256i *)&v6->scratchData[v7].reactiveEntDef + 2) = *((__m256i *)&effectData->reactiveEntDef + 2);
+  *((double *)&v6->scratchData[v7].reactiveEntDef + 12) = *((double *)&effectData->reactiveEntDef + 12);
+  *(_QWORD *)&v6->scratchDataState[v3].effectHandle = 0i64;
   CG_CreateFx_UpdateEffectAlias(v3);
   CG_CreateFx_FreeSoundIndex(v3);
   CG_CreateFx_AllocSoundIndex(v3);
@@ -13587,61 +11816,28 @@ CG_CreateFx_SetupColors
 void CG_CreateFx_SetupColors(void)
 {
   Material *v0; 
-  Material *v11; 
+  Material *v1; 
 
   v0 = Material_RegisterHandle("white", IMAGE_TRACK_HUD);
-  __asm
-  {
-    vmovaps ymm0, cs:__ymm@3f8000003f8000003f8000003f8000003f8000003f8000003f8000003f800000
-    vmovups ymmword ptr cs:s_effectTypeColors.selectedColor, ymm0
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-  }
+  *(__m256i *)s_effectTypeColors[0].selectedColor.v = _ymm;
   s_effectTypeMaterials[0] = v0;
-  __asm
-  {
-    vmovups xmmword ptr cs:s_effectTypeColors.defaultColor, xmm0
-    vmovups xmm0, xmmword ptr cs:s_colorSelected
-    vmovaps ymm1, cs:__ymm@3f8000003f3333333f8000003f3333333f8000003e4ccccd3f8000003e4ccccd
-  }
+  s_effectTypeColors[0].defaultColor = (vec4_t)_xmm;
   s_effectTypeMaterials[2] = Material_RegisterHandle("create_fx_waypoint_loop_sound", IMAGE_TRACK_HUD);
-  __asm
-  {
-    vmovups xmmword ptr cs:s_effectTypeColors.selectedColor+60h, xmm0
-    vmovups ymmword ptr cs:s_effectTypeColors.highlightedColor+60h, ymm1
-    vmovups xmm0, xmmword ptr cs:s_colorSelected
-    vmovaps ymm1, cs:__ymm@3f8000003f3333333f8000003f3333333f8000003e4ccccd3f8000003e4ccccd
-  }
+  s_effectTypeColors[2].selectedColor = s_colorSelected;
+  *(__m256i *)s_effectTypeColors[2].highlightedColor.v = _ymm;
   s_effectTypeMaterials[5] = Material_RegisterHandle("create_fx_waypoint_reactive_ent", IMAGE_TRACK_HUD);
-  __asm
-  {
-    vmovups xmmword ptr cs:s_effectTypeColors.selectedColor+0F0h, xmm0
-    vmovups ymmword ptr cs:s_effectTypeColors.highlightedColor+0F0h, ymm1
-    vmovups xmm0, xmmword ptr cs:s_colorSelected
-    vmovaps ymm1, cs:__ymm@3f8000003f3333333f8000003f3333333f8000003e4ccccd3f8000003e4ccccd
-  }
+  s_effectTypeColors[5].selectedColor = s_colorSelected;
+  *(__m256i *)s_effectTypeColors[5].highlightedColor.v = _ymm;
   s_effectTypeMaterials[4] = Material_RegisterHandle("create_fx_waypoint_interval_sound", IMAGE_TRACK_HUD);
-  __asm
-  {
-    vmovups xmmword ptr cs:s_effectTypeColors.selectedColor+0C0h, xmm0
-    vmovups ymmword ptr cs:s_effectTypeColors.highlightedColor+0C0h, ymm1
-    vmovups xmm0, xmmword ptr cs:s_colorSelected
-    vmovaps ymm1, cs:__ymm@3f8000003f8000003f8000003f3333333f8000003f8000003f8000003e4ccccd
-  }
+  s_effectTypeColors[4].selectedColor = s_colorSelected;
+  *(__m256i *)s_effectTypeColors[4].highlightedColor.v = _ymm;
   s_effectTypeMaterials[3] = Material_RegisterHandle("create_fx_waypoint_exploder", IMAGE_TRACK_HUD);
-  __asm
-  {
-    vmovups xmmword ptr cs:s_effectTypeColors.selectedColor+90h, xmm0
-    vmovups ymmword ptr cs:s_effectTypeColors.highlightedColor+90h, ymm1
-  }
-  v11 = Material_RegisterHandle("create_fx_waypoint_one_shot_effect", IMAGE_TRACK_HUD);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:s_colorSelected
-    vmovaps ymm1, cs:__ymm@3f8000003f8000003f3333333f3333333f8000003f8000003e4ccccd3e4ccccd
-    vmovups xmmword ptr cs:s_effectTypeColors.selectedColor+30h, xmm0
-    vmovups ymmword ptr cs:s_effectTypeColors.highlightedColor+30h, ymm1
-  }
-  s_effectTypeMaterials[1] = v11;
+  s_effectTypeColors[3].selectedColor = s_colorSelected;
+  *(__m256i *)s_effectTypeColors[3].highlightedColor.v = _ymm;
+  v1 = Material_RegisterHandle("create_fx_waypoint_one_shot_effect", IMAGE_TRACK_HUD);
+  s_effectTypeColors[1].selectedColor = s_colorSelected;
+  *(__m256i *)s_effectTypeColors[1].highlightedColor.v = _ymm;
+  s_effectTypeMaterials[1] = v1;
 }
 
 /*
@@ -13871,116 +12067,97 @@ CG_CreateFx_TransmuteEffectData
 void CG_CreateFx_TransmuteEffectData(const int storageIndex, const CreateFxEffectType newEffectType)
 {
   ParticleSystemDef *aliasList; 
-  __int64 v9; 
+  __int64 v3; 
   const char *name; 
-  const char *v11; 
-  __int64 v13; 
+  const char *v5; 
+  __int64 v7; 
+  CreateFXDataUnion *v8; 
   CreateFxEffectType effectType; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   SndAliasList *Alias; 
-  __int64 v29; 
+  __int64 v17; 
+  float v18; 
 
   aliasList = NULL;
-  v9 = storageIndex;
+  v3 = storageIndex;
   name = NULL;
-  v11 = NULL;
+  v5 = NULL;
   if ( newEffectType == None && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3471, ASSERT_TYPE_ASSERT, "(newEffectType != CreateFxEffectType::None)", (const char *)&queryFormat, "newEffectType != CreateFxEffectType::None") )
     __debugbreak();
-  v13 = v9;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_28], xmm6
-    vmovaps [rsp+0B8h+var_38], xmm7
-    vmovaps [rsp+0B8h+var_48], xmm8
-    vmovaps [rsp+0B8h+var_58], xmm9
-    vmovaps [rsp+0B8h+var_68], xmm10
-    vmovaps [rsp+0B8h+var_78], xmm11
-  }
-  _RSI = &s_createFxTool->scratchData[v9];
-  effectType = s_createFxTool->scratchDataState[v13].effectType;
+  v7 = v3;
+  v8 = &s_createFxTool->scratchData[v3];
+  effectType = s_createFxTool->scratchDataState[v7].effectType;
   switch ( effectType )
   {
     case 0:
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6; jumptable 0000000141C33E24 case 0
-        vxorps  xmm7, xmm7, xmm7
-        vxorps  xmm8, xmm8, xmm8
-        vxorps  xmm9, xmm9, xmm9
-        vxorps  xmm10, xmm10, xmm10
-        vxorps  xmm11, xmm11, xmm11
-      }
+      v10 = 0.0;
+      v11 = 0.0;
+      v12 = 0.0;
+      v13 = 0.0;
+      v14 = 0.0;
+      v15 = 0.0;
       break;
     case 1:
     case 3:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi]; jumptable 0000000141C33E24 cases 1,3
-        vmovss  xmm7, dword ptr [rsi+4]
-        vmovss  xmm8, dword ptr [rsi+8]
-        vmovss  xmm9, dword ptr [rsi+0Ch]
-        vmovss  xmm10, dword ptr [rsi+10h]
-        vmovss  xmm11, dword ptr [rsi+14h]
-      }
-      name = _RSI->reactiveEntDef.effectSound.name;
-      v11 = _RSI->oneShotFxDef.effectSound.name;
-      aliasList = (ParticleSystemDef *)_RSI->oneShotFxDef.aliasList;
+      v10 = v8->oneShotFxDef.origin.v[0];
+      v11 = v8->oneShotFxDef.origin.v[1];
+      v12 = v8->oneShotFxDef.origin.v[2];
+      v13 = v8->oneShotFxDef.angles.v[0];
+      v14 = v8->oneShotFxDef.angles.v[1];
+      v15 = v8->oneShotFxDef.angles.v[2];
+      name = v8->reactiveEntDef.effectSound.name;
+      v5 = v8->oneShotFxDef.effectSound.name;
+      aliasList = (ParticleSystemDef *)v8->oneShotFxDef.aliasList;
       break;
     case 2:
     case 4:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi]; jumptable 0000000141C33E24 cases 2,4
-        vmovss  xmm7, dword ptr [rsi+4]
-        vmovss  xmm8, dword ptr [rsi+8]
-        vmovss  xmm9, dword ptr [rsi+0Ch]
-        vmovss  xmm10, dword ptr [rsi+10h]
-        vmovss  xmm11, dword ptr [rsi+14h]
-      }
-      v11 = _RSI->intervalSoundsDef.effectSound.name;
-      aliasList = (ParticleSystemDef *)_RSI->oneShotFxDef.effect.particleSystemDef;
+      v10 = v8->oneShotFxDef.origin.v[0];
+      v11 = v8->oneShotFxDef.origin.v[1];
+      v12 = v8->oneShotFxDef.origin.v[2];
+      v13 = v8->oneShotFxDef.angles.v[0];
+      v14 = v8->oneShotFxDef.angles.v[1];
+      v15 = v8->oneShotFxDef.angles.v[2];
+      v5 = v8->intervalSoundsDef.effectSound.name;
+      aliasList = (ParticleSystemDef *)v8->oneShotFxDef.effect.particleSystemDef;
       break;
     case 5:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi]; jumptable 0000000141C33E24 case 5
-        vmovss  xmm7, dword ptr [rsi+4]
-        vmovss  xmm8, dword ptr [rsi+8]
-        vmovss  xmm9, dword ptr [rsi+0Ch]
-        vmovss  xmm10, dword ptr [rsi+10h]
-        vmovss  xmm11, dword ptr [rsi+14h]
-      }
-      name = _RSI->intervalSoundsDef.effectSound.name;
-      v11 = _RSI->reactiveEntDef.effectSound.name;
-      aliasList = (ParticleSystemDef *)_RSI->oneShotFxDef.effectSound.name;
+      v10 = v8->oneShotFxDef.origin.v[0];
+      v11 = v8->oneShotFxDef.origin.v[1];
+      v12 = v8->oneShotFxDef.origin.v[2];
+      v13 = v8->oneShotFxDef.angles.v[0];
+      v14 = v8->oneShotFxDef.angles.v[1];
+      v15 = v8->oneShotFxDef.angles.v[2];
+      name = v8->intervalSoundsDef.effectSound.name;
+      v5 = v8->reactiveEntDef.effectSound.name;
+      aliasList = (ParticleSystemDef *)v8->oneShotFxDef.effectSound.name;
       break;
     default:
-      LODWORD(v29) = effectType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3545, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_TransmuteEffectData: cannot copy data from unhandled effect type '%d'", v29) )
+      LODWORD(v17) = effectType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3545, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_TransmuteEffectData: cannot copy data from unhandled effect type '%d'", v17) )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm11, [rsp+0B8h+var_88]
-        vmovss  xmm8, [rsp+0B8h+var_88]
-        vmovss  xmm10, [rsp+0B8h+var_88]
-        vmovss  xmm7, [rsp+0B8h+var_88]
-        vmovss  xmm6, [rsp+0B8h+var_88]
-        vmovss  xmm9, [rsp+0B8h+var_88]
-      }
+      v15 = v18;
+      v12 = v18;
+      v14 = v18;
+      v11 = v18;
+      v10 = v18;
+      v13 = v18;
       break;
   }
-  memset_0(_RSI, 0, sizeof(CreateFXDataUnion));
+  memset_0(v8, 0, sizeof(CreateFXDataUnion));
   if ( newEffectType == 1 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsi], xmm6
-      vmovss  dword ptr [rsi+4], xmm7
-      vmovss  dword ptr [rsi+8], xmm8
-      vmovss  dword ptr [rsi+0Ch], xmm9
-      vmovss  dword ptr [rsi+10h], xmm10
-      vmovss  dword ptr [rsi+14h], xmm11
-    }
-    _RSI->oneShotFxDef.delayMsec = -4000;
+    v8->oneShotFxDef.origin.v[0] = v10;
+    v8->oneShotFxDef.origin.v[1] = v11;
+    v8->oneShotFxDef.origin.v[2] = v12;
+    v8->oneShotFxDef.angles.v[0] = v13;
+    v8->oneShotFxDef.angles.v[1] = v14;
+    v8->oneShotFxDef.angles.v[2] = v15;
+    v8->oneShotFxDef.delayMsec = -4000;
     goto LABEL_30;
   }
   if ( newEffectType != 2 )
@@ -13989,88 +12166,66 @@ void CG_CreateFx_TransmuteEffectData(const int storageIndex, const CreateFxEffec
     {
       if ( newEffectType == Menu )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsi], xmm6
-          vmovss  dword ptr [rsi+4], xmm7
-          vmovss  dword ptr [rsi+8], xmm8
-          vmovss  dword ptr [rsi+0Ch], xmm9
-          vmovss  dword ptr [rsi+10h], xmm10
-          vmovss  dword ptr [rsi+14h], xmm11
-        }
-        _RSI->intervalSoundsDef.effectSound.name = v11;
-        _RSI->oneShotFxDef.effect.particleSystemDef = aliasList;
-        _RSI->intervalSoundsDef.delayMinMsec = 750;
-        _RSI->intervalSoundsDef.delayMaxMsec = 2000;
+        v8->oneShotFxDef.origin.v[0] = v10;
+        v8->oneShotFxDef.origin.v[1] = v11;
+        v8->oneShotFxDef.origin.v[2] = v12;
+        v8->oneShotFxDef.angles.v[0] = v13;
+        v8->oneShotFxDef.angles.v[1] = v14;
+        v8->oneShotFxDef.angles.v[2] = v15;
+        v8->intervalSoundsDef.effectSound.name = v5;
+        v8->oneShotFxDef.effect.particleSystemDef = aliasList;
+        v8->intervalSoundsDef.delayMinMsec = 750;
+        v8->intervalSoundsDef.delayMaxMsec = 2000;
       }
       else if ( newEffectType == 5 )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsi], xmm6
-          vmovss  dword ptr [rsi+4], xmm7
-          vmovss  dword ptr [rsi+8], xmm8
-          vmovss  dword ptr [rsi+0Ch], xmm9
-          vmovss  dword ptr [rsi+10h], xmm10
-          vmovss  dword ptr [rsi+14h], xmm11
-        }
-        _RSI->intervalSoundsDef.effectSound.name = name;
-        _RSI->oneShotFxDef.effect.particleSystemDef = (const ParticleSystemDef *)v11;
-        _RSI->oneShotFxDef.effectSound.name = (const char *)aliasList;
-        _RSI->reactiveEntDef.radius = 350.0;
+        v8->oneShotFxDef.origin.v[0] = v10;
+        v8->oneShotFxDef.origin.v[1] = v11;
+        v8->oneShotFxDef.origin.v[2] = v12;
+        v8->oneShotFxDef.angles.v[0] = v13;
+        v8->oneShotFxDef.angles.v[1] = v14;
+        v8->oneShotFxDef.angles.v[2] = v15;
+        v8->intervalSoundsDef.effectSound.name = name;
+        v8->oneShotFxDef.effect.particleSystemDef = (const ParticleSystemDef *)v5;
+        v8->oneShotFxDef.effectSound.name = (const char *)aliasList;
+        v8->reactiveEntDef.radius = 350.0;
       }
       else
       {
-        LODWORD(v29) = newEffectType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3623, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_TransmuteEffectData: cannot write data to unhandled effect type '%d'", v29) )
+        LODWORD(v17) = newEffectType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3623, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_TransmuteEffectData: cannot write data to unhandled effect type '%d'", v17) )
           __debugbreak();
       }
-      goto LABEL_31;
+      return;
     }
-    __asm
-    {
-      vmovss  dword ptr [rsi], xmm6
-      vmovss  dword ptr [rsi+4], xmm7
-      vmovss  dword ptr [rsi+8], xmm8
-      vmovss  dword ptr [rsi+0Ch], xmm9
-      vmovss  dword ptr [rsi+10h], xmm10
-      vmovss  dword ptr [rsi+14h], xmm11
-    }
-    _RSI->explodersDef.client.delayMsec = 0;
-    _RSI->explodersDef.client.name = 0;
+    v8->oneShotFxDef.origin.v[0] = v10;
+    v8->oneShotFxDef.origin.v[1] = v11;
+    v8->oneShotFxDef.origin.v[2] = v12;
+    v8->oneShotFxDef.angles.v[0] = v13;
+    v8->oneShotFxDef.angles.v[1] = v14;
+    v8->oneShotFxDef.angles.v[2] = v15;
+    v8->explodersDef.client.delayMsec = 0;
+    v8->explodersDef.client.name = 0;
 LABEL_30:
-    _RSI->oneShotFxDef.aliasList = (SndAliasList *)aliasList;
-    _RSI->oneShotFxDef.effectSound.name = v11;
-    _RSI->oneShotFxDef.effect.particleSystemDef = (const ParticleSystemDef *)name;
-    goto LABEL_31;
+    v8->oneShotFxDef.aliasList = (SndAliasList *)aliasList;
+    v8->oneShotFxDef.effectSound.name = v5;
+    v8->oneShotFxDef.effect.particleSystemDef = (const ParticleSystemDef *)name;
+    return;
   }
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm6
-    vmovss  dword ptr [rsi+4], xmm7
-    vmovss  dword ptr [rsi+8], xmm8
-    vmovss  dword ptr [rsi+0Ch], xmm9
-    vmovss  dword ptr [rsi+10h], xmm10
-    vmovss  dword ptr [rsi+14h], xmm11
-  }
+  v8->oneShotFxDef.origin.v[0] = v10;
+  v8->oneShotFxDef.origin.v[1] = v11;
+  v8->oneShotFxDef.origin.v[2] = v12;
+  v8->oneShotFxDef.angles.v[0] = v13;
+  v8->oneShotFxDef.angles.v[1] = v14;
+  v8->oneShotFxDef.angles.v[2] = v15;
   if ( aliasList )
     Alias = (SndAliasList *)aliasList;
   else
-    Alias = SND_TryFindAlias(v11);
+    Alias = SND_TryFindAlias(v5);
   if ( Alias && Alias->head && Com_IsSoundAliasLooping(Alias) )
   {
-    _RSI->intervalSoundsDef.effectSound.name = v11;
-    _RSI->oneShotFxDef.effect.particleSystemDef = aliasList;
-  }
-LABEL_31:
-  __asm
-  {
-    vmovaps xmm11, [rsp+0B8h+var_78]
-    vmovaps xmm10, [rsp+0B8h+var_68]
-    vmovaps xmm9, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_38]
-    vmovaps xmm6, [rsp+0B8h+var_28]
+    v8->intervalSoundsDef.effectSound.name = v5;
+    v8->oneShotFxDef.effect.particleSystemDef = aliasList;
   }
 }
 
@@ -14081,106 +12236,78 @@ CG_CreateFx_TriggerReactiveEntsNearCursor
 */
 void CG_CreateFx_TriggerReactiveEntsNearCursor()
 {
-  char v2; 
-  float v6; 
+  float v0; 
   cg_t *LocalClientGlobals; 
-  CreateFxTool *v8; 
-  int v9; 
+  CreateFxTool *v2; 
+  int v3; 
   unsigned int time; 
-  __int64 v12; 
-  __int64 v13; 
-  bool *v14; 
-  __int64 v15; 
+  __int64 v5; 
+  __int64 v6; 
+  bool *v7; 
+  __int64 v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   const SndAliasList *aliasList; 
   SndAliasList *Alias; 
   CgSoundSystem *SoundSystem; 
-  __int64 v32; 
+  __int64 v15; 
   FXRegisteredDef def; 
   vec3_t center; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _RAX = s_createFxTool;
-  __asm
+  if ( s_createFxTool->clipboard.cursorTrace.fraction < 1.0 )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rax+240018h]
-  }
-  if ( !v2 )
-  {
-    __asm { vmovsd  xmm0, qword ptr [rax+24001Ch] }
-    v6 = s_createFxTool->clipboard.cursorTrace.position.v[2];
-    __asm
-    {
-      vmovaps xmmword ptr [r11-28h], xmm6
-      vmovsd  qword ptr [rsp+0A8h+center], xmm0
-    }
-    center.v[2] = v6;
+    v0 = s_createFxTool->clipboard.cursorTrace.position.v[2];
+    *(_QWORD *)center.v = *(_QWORD *)s_createFxTool->clipboard.cursorTrace.position.v;
+    center.v[2] = v0;
     LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    v8 = s_createFxTool;
-    v9 = 0;
-    __asm { vmovss  xmm6, cs:__real@43800000 }
+    v2 = s_createFxTool;
+    v3 = 0;
     time = LocalClientGlobals->time;
     if ( s_createFxTool->usedEffectTotal > 0 )
     {
-      v12 = 7078100i64;
+      v5 = 7078100i64;
       do
       {
-        v13 = *(int *)(&v8->inited + v12);
-        v14 = &v8->inited + 40 * v13;
-        if ( *((_DWORD *)v14 + 1605686) == 5 )
+        v6 = *(int *)(&v2->inited + v5);
+        v7 = &v2->inited + 40 * v6;
+        if ( *((_DWORD *)v7 + 1605686) == 5 )
         {
-          v15 = (__int64)&v8->scratchData[v13];
-          if ( time >= *((_DWORD *)v14 + 1605693) )
+          v8 = (__int64)&v2->scratchData[v6];
+          if ( time >= *((_DWORD *)v7 + 1605693) )
           {
-            __asm
+            v9 = center.v[2] - v2->scratchData[v6].oneShotFxDef.origin.v[2];
+            v10 = center.v[1] - v2->scratchData[v6].oneShotFxDef.origin.v[1];
+            v11 = v2->scratchData[v6].reactiveEntDef.radius + 256.0;
+            if ( (float)((float)((float)(v10 * v10) + (float)((float)(center.v[0] - *(float *)v8) * (float)(center.v[0] - *(float *)v8))) + (float)(v9 * v9)) <= (float)(v11 * v11) )
             {
-              vmovss  xmm0, dword ptr [rsp+0A8h+center]
-              vsubss  xmm3, xmm0, dword ptr [rbx]
-              vmovss  xmm1, dword ptr [rsp+0A8h+center+4]
-              vmovss  xmm0, dword ptr [rsp+0A8h+center+8]
-              vsubss  xmm4, xmm0, dword ptr [rbx+8]
-              vsubss  xmm2, xmm1, dword ptr [rbx+4]
-              vaddss  xmm5, xmm6, dword ptr [rbx+30h]
-              vmulss  xmm0, xmm3, xmm3
-              vmulss  xmm2, xmm2, xmm2
-              vaddss  xmm3, xmm2, xmm0
-              vmulss  xmm1, xmm4, xmm4
-              vaddss  xmm4, xmm3, xmm1
-              vmulss  xmm0, xmm5, xmm5
-              vcomiss xmm4, xmm0
-            }
-            if ( time <= *((_DWORD *)v14 + 1605693) )
-            {
-              aliasList = v8->scratchData[v13].reactiveEntDef.aliasList;
-              if ( aliasList || (Alias = SND_TryFindAlias(v8->scratchData[v13].reactiveEntDef.effectSound.name), v8 = s_createFxTool, (aliasList = Alias) != NULL) )
+              aliasList = v2->scratchData[v6].reactiveEntDef.aliasList;
+              if ( aliasList || (Alias = SND_TryFindAlias(v2->scratchData[v6].reactiveEntDef.effectSound.name), v2 = s_createFxTool, (aliasList = Alias) != NULL) )
               {
                 SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
-                CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, (const vec3_t *)v15, aliasList);
-                v8 = s_createFxTool;
+                CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, (const vec3_t *)v8, aliasList);
+                v2 = s_createFxTool;
               }
-              v32 = *(_QWORD *)(v15 + 24);
-              if ( v32 )
+              v15 = *(_QWORD *)(v8 + 24);
+              if ( v15 )
               {
-                def.m_particleSystemDef = *(const ParticleSystemDef **)(v15 + 24);
-                AnglesToAxis((const vec3_t *)(v15 + 12), &axis);
-                LODWORD(v32) = FX_PlayOrientedEffect(LOCAL_CLIENT_0, &def, 0, (const vec3_t *)v15, &axis);
-                v8 = s_createFxTool;
+                def.m_particleSystemDef = *(const ParticleSystemDef **)(v8 + 24);
+                AnglesToAxis((const vec3_t *)(v8 + 12), &axis);
+                LODWORD(v15) = FX_PlayOrientedEffect(LOCAL_CLIENT_0, &def, 0, (const vec3_t *)v8, &axis);
+                v2 = s_createFxTool;
               }
-              *((_DWORD *)v14 + 1605692) = v32;
-              *((_DWORD *)v14 + 1605693) = time + 3000;
+              *((_DWORD *)v7 + 1605692) = v15;
+              *((_DWORD *)v7 + 1605693) = time + 3000;
             }
           }
         }
-        ++v9;
-        v12 += 4i64;
+        ++v3;
+        v5 += 4i64;
       }
-      while ( v9 < v8->usedEffectTotal );
+      while ( v3 < v2->usedEffectTotal );
     }
-    __asm { vmovaps xmm1, xmm6; radius }
-    CG_DebugSphere(&center, *(float *)&_XMM1, &colorGreen, 0, 60);
-    __asm { vmovaps xmm6, [rsp+0A8h+var_28] }
+    CG_DebugSphere(&center, 256.0, &colorGreen, 0, 60);
   }
 }
 
@@ -14497,11 +12624,17 @@ CG_CreateFx_UpdateCursor
 */
 void CG_CreateFx_UpdateCursor(LocalClientNum_t localClientNum)
 {
-  char v14; 
-  char v15; 
+  cg_t *LocalClientGlobals; 
+  float v3; 
+  float v4; 
+  double v5; 
+  CreateFxTool *v6; 
+  const vec3_t *p_position; 
+  float v8; 
+  float v9; 
   vec3_t outOrg; 
   vec3_t end; 
-  vec3_t v35; 
+  vec3_t v12; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_RECHAMBERING) )
   {
@@ -14509,69 +12642,31 @@ void CG_CreateFx_UpdateCursor(LocalClientNum_t localClientNum)
     {
       if ( s_createFxTool->enabled )
       {
-        _RDI = CG_GetLocalClientGlobals(localClientNum);
-        RefdefView_GetOrg(&_RDI->refdef.view, &outOrg);
-        __asm
+        LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+        RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
+        v3 = LocalClientGlobals->refdef.view.axis.m[0].v[1];
+        v4 = LocalClientGlobals->refdef.view.axis.m[0].v[2];
+        end.v[0] = (float)(750.0 * LocalClientGlobals->refdef.view.axis.m[0].v[0]) + outOrg.v[0];
+        end.v[2] = (float)(750.0 * v4) + outOrg.v[2];
+        end.v[1] = (float)(750.0 * v3) + outOrg.v[1];
+        PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * localClientNum + 2), &s_createFxTool->clipboard.cursorTrace, &outOrg, &end, &bounds_origin, LocalClientGlobals->predictedPlayerState.clientNum, 0, 41969969, 0, NULL, All);
+        if ( s_createFxTool->clipboard.cursorTrace.fraction < 1.0 )
         {
-          vmovss  xmm2, dword ptr [rdi+6948h]
-          vmovss  xmm4, dword ptr [rdi+694Ch]
-          vmovss  xmm3, cs:__real@443b8000
-          vmulss  xmm0, xmm3, dword ptr [rdi+6944h]
-          vaddss  xmm1, xmm0, dword ptr [rsp+0A8h+outOrg]
-          vmovss  dword ptr [rsp+0A8h+end], xmm1
-          vmulss  xmm2, xmm3, xmm2
-          vaddss  xmm0, xmm2, dword ptr [rsp+0A8h+outOrg+4]
-          vmulss  xmm1, xmm3, xmm4
-          vaddss  xmm2, xmm1, dword ptr [rsp+0A8h+outOrg+8]
-          vmovss  dword ptr [rsp+0A8h+end+8], xmm2
-          vmovss  dword ptr [rsp+0A8h+end+4], xmm0
-        }
-        PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * localClientNum + 2), &s_createFxTool->clipboard.cursorTrace, &outOrg, &end, &bounds_origin, _RDI->predictedPlayerState.clientNum, 0, 41969969, 0, NULL, All);
-        _RAX = s_createFxTool;
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vcomiss xmm0, dword ptr [rax+240018h]
-        }
-        if ( !(v14 | v15) )
-        {
-          __asm
+          v5 = AngleDelta(LocalClientGlobals->predictedPlayerState.viewangles.v[1], s_createFxTool->clipboard.vPlayerAngles.v[1]);
+          v6 = s_createFxTool;
+          s_createFxTool->clipboard.yawDelta = *(float *)&v5;
+          p_position = &v6->clipboard.cursorTrace.position;
+          v6->clipboard.vCentroidToCursor.v[0] = v6->clipboard.cursorTrace.position.v[0] - v6->clipboard.vCentroid.v[0];
+          v6->clipboard.vCentroidToCursor.v[1] = v6->clipboard.cursorTrace.position.v[1] - v6->clipboard.vCentroid.v[1];
+          v6->clipboard.vCentroidToCursor.v[2] = v6->clipboard.cursorTrace.position.v[2] - v6->clipboard.vCentroid.v[2];
+          if ( v6->clipboard.effectTotal <= 0 )
           {
-            vmovss  xmm1, dword ptr [rax+240080h]; angle2
-            vmovss  xmm0, dword ptr [rdi+1E4h]; angle1
-          }
-          *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-          _RAX = s_createFxTool;
-          __asm { vmovss  dword ptr [rax+240094h], xmm0 }
-          _RCX = &_RAX->clipboard.cursorTrace.position;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx]
-            vsubss  xmm1, xmm0, dword ptr [rax+240070h]
-            vmovss  dword ptr [rax+240088h], xmm1
-            vmovss  xmm2, dword ptr [rcx+4]
-            vsubss  xmm0, xmm2, dword ptr [rax+240074h]
-            vmovss  dword ptr [rax+24008Ch], xmm0
-            vmovss  xmm1, dword ptr [rcx+8]
-            vsubss  xmm2, xmm1, dword ptr [rax+240078h]
-            vmovss  dword ptr [rax+240090h], xmm2
-          }
-          if ( _RAX->clipboard.effectTotal <= 0 )
-          {
-            __asm
-            {
-              vmovss  xmm3, cs:__real@41200000
-              vmulss  xmm0, xmm3, dword ptr [rax+240028h]
-              vaddss  xmm1, xmm0, dword ptr [rcx]
-              vmulss  xmm0, xmm3, dword ptr [rax+24002Ch]
-              vmovss  dword ptr [rsp+0A8h+var_28], xmm1
-              vaddss  xmm1, xmm0, dword ptr [rcx+4]
-              vmulss  xmm0, xmm3, dword ptr [rax+240030h]
-              vmovss  dword ptr [rsp+0A8h+var_28+4], xmm1
-              vaddss  xmm1, xmm0, dword ptr [rcx+8]
-              vmovss  dword ptr [rsp+0A8h+var_28+8], xmm1
-            }
-            CL_AddDebugLine(_RCX, &v35, &colorYellow, 0, 0, 0);
+            v8 = 10.0 * v6->clipboard.cursorTrace.normal.v[1];
+            v12.v[0] = (float)(10.0 * v6->clipboard.cursorTrace.normal.v[0]) + p_position->v[0];
+            v9 = 10.0 * v6->clipboard.cursorTrace.normal.v[2];
+            v12.v[1] = v8 + v6->clipboard.cursorTrace.position.v[1];
+            v12.v[2] = v9 + v6->clipboard.cursorTrace.position.v[2];
+            CL_AddDebugLine(p_position, &v12, &colorYellow, 0, 0, 0);
           }
         }
       }
@@ -14668,17 +12763,18 @@ void CG_CreateFx_UpdateExportProgress()
   const char *string; 
   const char *v4; 
   cg_t *v5; 
-  const dvar_t *v11; 
-  const char *v12; 
-  const char *v13; 
-  const char *v14; 
-  CreateFxTool *v15; 
+  CreateFxTool *v6; 
+  const dvar_t *v7; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
+  CreateFxTool *v11; 
   bool lastExportAutosave; 
-  const char *v17; 
+  const char *v13; 
   __int64 exportLayerStackCount; 
-  const CreateFxMapLayerDef *v19; 
-  __int64 v20; 
-  __int64 v21; 
+  const CreateFxMapLayerDef *v15; 
+  __int64 v16; 
+  __int64 v17; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
   v1 = DVARSTR_launcher_movefile_success;
@@ -14692,34 +12788,24 @@ void CG_CreateFx_UpdateExportProgress()
     Com_Printf_NoFilter("[CreateFx] Saved %s\n", string);
     v4 = j_va("Saved %s", string);
     v5 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    _RDX = s_createFxTool;
+    v6 = s_createFxTool;
     s_createFxTool->statusMessageTimeout = v5->time + 3000;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  dword ptr [rdx+80A3ACh], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-      vmovss  dword ptr [rdx+80A3B0h], xmm1
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-      vmovss  dword ptr [rdx+80A3B4h], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-      vmovss  dword ptr [rdx+80A3B8h], xmm1
-    }
-    Core_strcpy(_RDX->statusMessageBuffer, 0x100ui64, v4);
+    v6->statusMessageColor = colorWhite;
+    Core_strcpy(v6->statusMessageBuffer, 0x100ui64, v4);
     CG_CreateFx_ResetExportStatus();
   }
   else
   {
-    v11 = DVARSTR_launcher_movefile_fail;
+    v7 = DVARSTR_launcher_movefile_fail;
     if ( !DVARSTR_launcher_movefile_fail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "launcher_movefile_fail") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    v12 = v11->current.string;
-    if ( v12 && *v12 )
+    Dvar_CheckFrontendServerThread(v7);
+    v8 = v7->current.string;
+    if ( v8 && *v8 )
     {
-      Com_Printf_NoFilter("[CreateFx] Save Failed %s\n", v12);
-      v13 = j_va("ERROR:(%s): see launcher output for more details", v12);
-      CG_CreateFx_PrintMessageInternal(v13, &colorRed);
+      Com_Printf_NoFilter("[CreateFx] Save Failed %s\n", v8);
+      v9 = j_va("ERROR:(%s): see launcher output for more details", v8);
+      CG_CreateFx_PrintMessageInternal(v9, &colorRed);
       CG_CreateFx_ResetExportStatus();
     }
     else if ( s_createFxTool->lastExportInProgress )
@@ -14733,36 +12819,36 @@ void CG_CreateFx_UpdateExportProgress()
       }
       else
       {
-        v14 = "Save";
+        v10 = "Save";
         if ( s_createFxTool->lastExportAutosave )
-          v14 = "Autosave";
-        Com_Printf_NoFilter("[CreateFx] %s timed out\n", v14);
+          v10 = "Autosave";
+        Com_Printf_NoFilter("[CreateFx] %s timed out\n", v10);
         CG_CreateFx_PrintMessageInternal("NxLauncher Missing", &colorRed);
-        v15 = s_createFxTool;
+        v11 = s_createFxTool;
         s_createFxTool->lastExportTime = 0;
-        *(_WORD *)&v15->lastExportAutosave = 0;
+        *(_WORD *)&v11->lastExportAutosave = 0;
       }
     }
     else if ( s_createFxTool->exportLayerStackCount > 0 )
     {
       lastExportAutosave = s_createFxTool->lastExportAutosave;
-      v17 = (char *)&queryFormat.fmt + 3;
+      v13 = (char *)&queryFormat.fmt + 3;
       if ( lastExportAutosave )
-        v17 = "(autosave)";
-      Com_Printf(0, "[CreateFx] exportLayerStack %s\n", v17);
+        v13 = "(autosave)";
+      Com_Printf(0, "[CreateFx] exportLayerStack %s\n", v13);
       exportLayerStackCount = s_createFxTool->exportLayerStackCount;
       if ( (int)exportLayerStackCount - 1 >= (unsigned int)exportLayerStackCount )
       {
-        LODWORD(v21) = s_createFxTool->exportLayerStackCount;
-        LODWORD(v20) = exportLayerStackCount - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5031, ASSERT_TYPE_ASSERT, "(unsigned)( exportLayerStackIndex ) < (unsigned)( s_createFxTool->exportLayerStackCount )", "exportLayerStackIndex doesn't index s_createFxTool->exportLayerStackCount\n\t%i not in [0, %i)", v20, v21) )
+        LODWORD(v17) = s_createFxTool->exportLayerStackCount;
+        LODWORD(v16) = exportLayerStackCount - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5031, ASSERT_TYPE_ASSERT, "(unsigned)( exportLayerStackIndex ) < (unsigned)( s_createFxTool->exportLayerStackCount )", "exportLayerStackIndex doesn't index s_createFxTool->exportLayerStackCount\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
-      v19 = (const CreateFxMapLayerDef *)*((_QWORD *)&s_createFxTool->snapToNormal + exportLayerStackCount);
-      if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5033, ASSERT_TYPE_ASSERT, "(layer)", (const char *)&queryFormat, "layer") )
+      v15 = (const CreateFxMapLayerDef *)*((_QWORD *)&s_createFxTool->snapToNormal + exportLayerStackCount);
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 5033, ASSERT_TYPE_ASSERT, "(layer)", (const char *)&queryFormat, "layer") )
         __debugbreak();
-      if ( !v19->filtered )
-        CG_CreateFx_ExportLayer(v19, lastExportAutosave);
+      if ( !v15->filtered )
+        CG_CreateFx_ExportLayer(v15, lastExportAutosave);
       --s_createFxTool->exportLayerStackCount;
     }
   }
@@ -14775,33 +12861,25 @@ CG_CreateFx_UpdateLoopSound
 */
 void CG_CreateFx_UpdateLoopSound(const int soundIndex, const SndAliasList *const aliasList, const vec3_t *origin)
 {
-  int v5; 
-  char v11; 
-  char v12; 
+  int v3; 
+  float distMax; 
+  double v7; 
   CgSoundSystem *SoundSystem; 
 
-  v5 = soundIndex + 2049;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
+  v3 = soundIndex + 2049;
   if ( soundIndex + 2049 >= 3329 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2671, ASSERT_TYPE_ASSERT, "(soundClientEntIndex < ( ( ( ( 2048 ) ) ) + ( 1 ) ) + ( 1024 ) + ( 128 ) + ( 128 ))", (const char *)&queryFormat, "soundClientEntIndex < FIRST_CLIENT_ENT_SOUND + MAX_CLIENT_ENT_SOUNDS + MAX_CLIENT_ENT_REACTIVE_SOUNDS + MAX_CLIENT_ENT_INTERVAL_SOUNDS") )
     __debugbreak();
   if ( !aliasList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2673, ASSERT_TYPE_ASSERT, "(aliasList)", (const char *)&queryFormat, "aliasList") )
     __debugbreak();
   if ( !aliasList->head && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 2674, ASSERT_TYPE_ASSERT, "(aliasList->head)", (const char *)&queryFormat, "aliasList->head") )
     __debugbreak();
-  _RAX = aliasList->head;
-  __asm { vmovss  xmm6, dword ptr [rax+68h] }
-  *(double *)&_XMM0 = SND_DistSqToNearestListener(origin);
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm6
-    vcomiss xmm0, xmm1
-  }
-  if ( v11 | v12 )
+  distMax = aliasList->head->distMax;
+  v7 = SND_DistSqToNearestListener(origin);
+  if ( *(float *)&v7 <= (float)(distMax * distMax) )
   {
     SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
-    CgSoundSystem::PlaySoundAliasAsync(SoundSystem, v5, origin, aliasList);
+    CgSoundSystem::PlaySoundAliasAsync(SoundSystem, v3, origin, aliasList);
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -14811,155 +12889,97 @@ CG_CreateFx_UpdatePendingExploders
 */
 void CG_CreateFx_UpdatePendingExploders(const unsigned int timeNow)
 {
-  __int64 v8; 
+  CreateFxTool *v1; 
+  __int64 v3; 
   unsigned int startTime; 
   __int64 exploderIndex; 
-  bool *v14; 
+  __int64 v6; 
+  bool *v7; 
+  float *v; 
   const ParticleSystemDef *particleSystemDef; 
-  const SndAliasList *v17; 
+  const SndAliasList *v10; 
   SndAliasList *Alias; 
-  bool v19; 
   CgSoundSystem *SoundSystem; 
   unsigned __int16 activeExploderCount; 
-  const char *v38; 
-  tmat33_t<vec3_t> *v42; 
-  __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
+  float damageAmount; 
+  const char *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
   FXRegisteredDef def; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _R9 = s_createFxTool;
-  v8 = s_createFxTool->pendingExploderCount - 1i64;
-  if ( v8 >= 0 )
+  v1 = s_createFxTool;
+  v3 = s_createFxTool->pendingExploderCount - 1i64;
+  if ( v3 >= 0 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovss  xmm8, cs:__real@3a83126f
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
     while ( 1 )
     {
-      startTime = _R9->pendingExploders[v8].startTime;
+      startTime = v1->pendingExploders[v3].startTime;
       if ( startTime < timeNow )
         break;
-LABEL_22:
-      if ( --v8 < 0 )
-      {
-        __asm
-        {
-          vmovaps xmm8, [rsp+0F8h+var_58]
-          vmovaps xmm7, [rsp+0F8h+var_48]
-          vmovaps xmm6, [rsp+0F8h+var_38]
-        }
-        return;
-      }
-    }
-    exploderIndex = _R9->pendingExploders[v8].exploderIndex;
-    if ( _R9->scratchDataState[exploderIndex].effectType != 3 )
-    {
 LABEL_21:
-      _R9->pendingExploders[v8] = *(PendingClientExploder *)&_R9->activeExploderIndices[2 * _R9->pendingExploderCount-- + 1023];
-      goto LABEL_22;
+      if ( --v3 < 0 )
+        return;
     }
-    _RDI = (int)exploderIndex;
-    v14 = &_R9->inited + 40 * (int)exploderIndex;
-    _RSI = (__int64)&_R9->scratchData[_RDI];
-    particleSystemDef = _R9->scratchData[_RDI].oneShotFxDef.effect.particleSystemDef;
+    exploderIndex = v1->pendingExploders[v3].exploderIndex;
+    if ( v1->scratchDataState[exploderIndex].effectType != 3 )
+    {
+LABEL_20:
+      v1->pendingExploders[v3] = *(PendingClientExploder *)&v1->activeExploderIndices[2 * v1->pendingExploderCount-- + 1023];
+      goto LABEL_21;
+    }
+    v6 = (int)exploderIndex;
+    v7 = &v1->inited + 40 * (int)exploderIndex;
+    v = v1->scratchData[v6].oneShotFxDef.origin.v;
+    particleSystemDef = v1->scratchData[v6].oneShotFxDef.effect.particleSystemDef;
     if ( particleSystemDef )
     {
-      def.m_particleSystemDef = _R9->scratchData[_RDI].oneShotFxDef.effect.particleSystemDef;
-      AnglesToAxis(&_R9->scratchData[_RDI].oneShotFxDef.angles, &axis);
-      LODWORD(particleSystemDef) = FX_PlayOrientedEffect(LOCAL_CLIENT_0, &def, startTime, (const vec3_t *)_RSI, &axis);
-      _R9 = s_createFxTool;
+      def.m_particleSystemDef = v1->scratchData[v6].oneShotFxDef.effect.particleSystemDef;
+      AnglesToAxis(&v1->scratchData[v6].oneShotFxDef.angles, &axis);
+      LODWORD(particleSystemDef) = FX_PlayOrientedEffect(LOCAL_CLIENT_0, &def, startTime, (const vec3_t *)v, &axis);
+      v1 = s_createFxTool;
     }
-    *((_DWORD *)v14 + 1605692) = (_DWORD)particleSystemDef;
-    v17 = *(const SndAliasList **)(_RSI + 48);
-    if ( v17 || (Alias = SND_TryFindAlias(*(const char **)(_RSI + 40)), _R9 = s_createFxTool, v17 = Alias, v19 = Alias == NULL, Alias) )
+    *((_DWORD *)v7 + 1605692) = (_DWORD)particleSystemDef;
+    v10 = (const SndAliasList *)*((_QWORD *)v + 6);
+    if ( v10 || (Alias = SND_TryFindAlias(*((const char **)v + 5)), v1 = s_createFxTool, (v10 = Alias) != NULL) )
     {
-      v19 = v17->head == NULL;
-      if ( v17->head )
+      if ( v10->head )
       {
-        if ( Com_IsSoundAliasLooping(v17) )
+        if ( Com_IsSoundAliasLooping(v10) )
         {
-          _R9 = s_createFxTool;
+          v1 = s_createFxTool;
           activeExploderCount = s_createFxTool->activeExploderCount;
           if ( activeExploderCount < 0x400u )
           {
             s_createFxTool->activeExploderIndices[activeExploderCount] = exploderIndex;
-            v19 = _R9->activeExploderCount++ == 0xFFFF;
-            goto LABEL_16;
+            ++v1->activeExploderCount;
+            goto LABEL_15;
           }
           Com_PrintWarning(0, "WARNING: too many active exploders!\n");
         }
         else
         {
           SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
-          CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, (const vec3_t *)_RSI, v17);
+          CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, (const vec3_t *)v, v10);
         }
-        _R9 = s_createFxTool;
+        v1 = s_createFxTool;
       }
     }
-LABEL_16:
-    __asm
+LABEL_15:
+    damageAmount = v1->scratchData[v6].explodersDef.server.damageAmount;
+    if ( damageAmount != 0.0 && v1->scratchData[v6].explodersDef.server.damageRadius != 0.0 || v1->scratchData[v6].explodersDef.server.earthquakeName || v1->scratchData[v6].explodersDef.server.rumbleName )
     {
-      vmovss  xmm6, dword ptr [rdi+r9+480120h]
-      vucomiss xmm6, xmm7
+      LODWORD(v19) = v1->scratchData[v6].explodersDef.server.rumbleName;
+      LODWORD(v18) = v1->scratchData[v6].explodersDef.server.earthquakeName;
+      LODWORD(v17) = v1->scratchData[v6].explodersDef.server.damageEnvironmentOnly;
+      LODWORD(v16) = v1->scratchData[v6].explodersDef.server.damageDoOcclusionTraces;
+      v15 = j_va("cfx_exploder %g %g %g %f %f %f %d %d %u %u", *v, v[1], v[2], (float)((float)*((int *)v + 6) * 0.001), damageAmount, v1->scratchData[v6].explodersDef.server.damageRadius, v16, v17, v18, v19);
+      Cbuf_InsertSuperUserText(LOCAL_CLIENT_0, v15);
+      v1 = s_createFxTool;
     }
-    if ( !v19 )
-    {
-      __asm { vucomiss xmm7, dword ptr [rdi+r9+480124h] }
-      if ( !v19 )
-        goto LABEL_20;
-    }
-    if ( _R9->scratchData[_RDI].explodersDef.server.earthquakeName || _R9->scratchData[_RDI].explodersDef.server.rumbleName )
-    {
-LABEL_20:
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rdi+r9+480124h]
-        vmovss  xmm3, dword ptr [rsi+8]
-        vmovss  xmm2, dword ptr [rsi+4]
-        vmovss  xmm1, dword ptr [rsi]
-      }
-      LODWORD(v48) = _R9->scratchData[_RDI].explodersDef.server.rumbleName;
-      LODWORD(v47) = _R9->scratchData[_RDI].explodersDef.server.earthquakeName;
-      LODWORD(v46) = _R9->scratchData[_RDI].explodersDef.server.damageEnvironmentOnly;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+18h]
-        vmulss  xmm4, xmm0, xmm8
-      }
-      LODWORD(v45) = _R9->scratchData[_RDI].explodersDef.server.damageDoOcclusionTraces;
-      __asm
-      {
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+0F8h+var_C8], xmm5
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcvtss2sd xmm0, xmm6, xmm6
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+0F8h+var_D0], xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-        vmovsd  [rsp+0F8h+var_D8], xmm4
-      }
-      v38 = j_va("cfx_exploder %g %g %g %f %f %f %d %d %u %u", _RDX, _R8, _R9, v42, v43, v44, v45, v46, v47, v48);
-      Cbuf_InsertSuperUserText(LOCAL_CLIENT_0, v38);
-      _R9 = s_createFxTool;
-    }
-    goto LABEL_21;
+    goto LABEL_20;
   }
 }
 
@@ -14971,15 +12991,24 @@ CG_CreateFx_UpdateWorldMove
 void CG_CreateFx_UpdateWorldMove()
 {
   bool editCameraRelative; 
-  char v9; 
-  CreateFxTool *v13; 
-  int v14; 
-  __int64 v16; 
-  __int64 v19; 
+  float v3; 
+  float v4; 
+  float v5; 
+  CreateFxTool *v6; 
+  int v7; 
+  __int128 v8; 
+  __int64 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int64 v12; 
+  float *v; 
   CreateFxEffectType effectType; 
-  __int64 v28; 
-  __int64 v29; 
-  float v31; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  unsigned int v20; 
   vec3_t outValue; 
 
   if ( s_createFxTool->editRotation )
@@ -14989,130 +13018,91 @@ void CG_CreateFx_UpdateWorldMove()
   else
   {
     editCameraRelative = s_createFxTool->editCameraRelative;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vunpcklps xmm0, xmm6, xmm6
-      vmovaps [rsp+0F8h+var_68], xmm9
-      vmovss  [rsp+0F8h+var_A8], xmm6
-      vmovaps [rsp+0F8h+var_78], xmm10
-      vmovsd  qword ptr [rsp+0F8h+outValue], xmm0
-    }
-    outValue.v[2] = v31;
-    __asm { vmovaps [rsp+0F8h+var_88], xmm11 }
+    _XMM6 = 0i64;
+    __asm { vunpcklps xmm0, xmm6, xmm6 }
+    *(double *)outValue.v = *(double *)&_XMM0;
+    outValue.v[2] = 0.0;
     CG_CreateFx_EditVec3Update(LOCAL_CLIENT_0, editCameraRelative, &outValue);
-    __asm
+    v3 = outValue.v[0];
+    v4 = outValue.v[2];
+    v5 = outValue.v[1];
+    if ( outValue.v[0] != 0.0 || outValue.v[1] != 0.0 || outValue.v[2] != 0.0 )
     {
-      vmovss  xmm11, dword ptr [rsp+0F8h+outValue]
-      vucomiss xmm11, xmm6
-      vmovss  xmm9, dword ptr [rsp+0F8h+outValue+8]
-      vmovss  xmm10, dword ptr [rsp+0F8h+outValue+4]
-    }
-    if ( !v9 )
-      goto LABEL_38;
-    __asm { vucomiss xmm10, xmm6 }
-    if ( !v9 )
-      goto LABEL_38;
-    __asm { vucomiss xmm9, xmm6 }
-    if ( !v9 )
-    {
-LABEL_38:
-      v13 = s_createFxTool;
-      v14 = 0;
+      v6 = s_createFxTool;
+      v7 = 0;
       if ( s_createFxTool->selectedEffectTotal > 0 )
       {
-        __asm { vmovss  xmm6, [rsp+0F8h+var_B8] }
-        v16 = 7209180i64;
-        __asm
-        {
-          vmovaps [rsp+0F8h+var_48], xmm7
-          vmovss  xmm7, [rsp+0F8h+var_B8]
-          vmovaps [rsp+0F8h+var_58], xmm8
-          vmovss  xmm8, [rsp+0F8h+var_B8]
-        }
+        v8 = v20;
+        v9 = 7209180i64;
+        v10 = v20;
+        v11 = v20;
         do
         {
-          v19 = *(int *)(&v13->inited + v16);
-          if ( (unsigned int)v19 >= 0x4000 )
+          v12 = *(int *)(&v6->inited + v9);
+          if ( (unsigned int)v12 >= 0x4000 )
           {
-            LODWORD(v29) = 0x4000;
-            LODWORD(v28) = *(_DWORD *)(&v13->inited + v16);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6879, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v28, v29) )
+            LODWORD(v19) = 0x4000;
+            LODWORD(v18) = *(_DWORD *)(&v6->inited + v9);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6879, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v18, v19) )
               __debugbreak();
-            v13 = s_createFxTool;
+            v6 = s_createFxTool;
           }
-          _RBX = (__int64)&v13->scratchData[v19];
-          effectType = v13->scratchDataState[v19].effectType;
-          if ( effectType == 1 || v13->scratchDataState[v19].effectType == 2 || v13->scratchDataState[v19].effectType == 3 || v13->scratchDataState[v19].effectType == Menu || v13->scratchDataState[v19].effectType == 5 )
+          v = v6->scratchData[v12].oneShotFxDef.origin.v;
+          effectType = v6->scratchDataState[v12].effectType;
+          if ( effectType == 1 || v6->scratchDataState[v12].effectType == 2 || v6->scratchDataState[v12].effectType == 3 || v6->scratchDataState[v12].effectType == Menu || v6->scratchDataState[v12].effectType == 5 )
           {
-            if ( (CreateFxTool *)((char *)v13 + 104 * v19) != (CreateFxTool *)-4718800i64 )
+            if ( (CreateFxTool *)((char *)v6 + 104 * v12) != (CreateFxTool *)-4718800i64 )
             {
-              __asm
-              {
-                vmovss  xmm7, dword ptr [rbx]
-                vmovss  xmm6, dword ptr [rbx+4]
-                vmovss  xmm8, dword ptr [rbx+8]
-              }
+              v10 = *(unsigned int *)v;
+              v8 = LODWORD(v6->scratchData[v12].oneShotFxDef.origin.v[1]);
+              v11 = LODWORD(v6->scratchData[v12].oneShotFxDef.origin.v[2]);
             }
           }
           else
           {
-            LODWORD(v28) = v13->scratchDataState[v19].effectType;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v28) )
+            LODWORD(v18) = v6->scratchDataState[v12].effectType;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v18) )
               __debugbreak();
           }
-          __asm
-          {
-            vaddss  xmm7, xmm7, xmm11
-            vaddss  xmm6, xmm6, xmm10
-            vaddss  xmm8, xmm8, xmm9
-          }
+          v15 = v10;
+          *(float *)&v15 = *(float *)&v10 + v3;
+          v10 = v15;
+          v16 = v8;
+          *(float *)&v16 = *(float *)&v8 + v5;
+          v8 = v16;
+          v17 = v11;
+          *(float *)&v17 = *(float *)&v11 + v4;
+          v11 = v17;
           if ( effectType == 1 || effectType == 2 || effectType == 3 || effectType == Menu || effectType == 5 )
           {
-            if ( _RBX )
+            if ( v )
             {
-              __asm
-              {
-                vmovss  dword ptr [rbx], xmm7
-                vmovss  dword ptr [rbx+4], xmm6
-                vmovss  dword ptr [rbx+8], xmm8
-              }
+              *v = *(float *)&v10;
+              v[1] = *(float *)&v8;
+              v[2] = *(float *)&v17;
             }
           }
           else
           {
-            LODWORD(v28) = effectType;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v28) )
+            LODWORD(v18) = effectType;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3172, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_SetEffectOrigin: unhandled effect type '%d'", v18) )
               __debugbreak();
           }
-          if ( (unsigned int)v19 >= 0x4000 )
+          if ( (unsigned int)v12 >= 0x4000 )
           {
-            LODWORD(v29) = 0x4000;
-            LODWORD(v28) = v19;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1634, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v28, v29) )
+            LODWORD(v19) = 0x4000;
+            LODWORD(v18) = v12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 1634, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v18, v19) )
               __debugbreak();
           }
-          CG_CreateFx_StopEffect(v19);
-          CG_CreateFx_StartEffect(v19);
-          v13 = s_createFxTool;
-          ++v14;
-          v16 += 4i64;
+          CG_CreateFx_StopEffect(v12);
+          CG_CreateFx_StartEffect(v12);
+          v6 = s_createFxTool;
+          ++v7;
+          v9 += 4i64;
         }
-        while ( v14 < s_createFxTool->selectedEffectTotal );
-        __asm
-        {
-          vmovaps xmm8, [rsp+0F8h+var_58]
-          vmovaps xmm7, [rsp+0F8h+var_48]
-        }
+        while ( v7 < s_createFxTool->selectedEffectTotal );
       }
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+0F8h+var_68]
-      vmovaps xmm6, [rsp+0F8h+var_38]
-      vmovaps xmm10, [rsp+0F8h+var_78]
-      vmovaps xmm11, [rsp+0F8h+var_88]
     }
   }
 }
@@ -15124,87 +13114,48 @@ CG_CreateFx_Vec3FixSubEpsilonValues
 */
 void CG_CreateFx_Vec3FixSubEpsilonValues(vec3_t *vec)
 {
-  unsigned int v5; 
-  bool v7; 
-  bool v8; 
-  bool v11; 
-  bool v12; 
-  bool v13; 
-  __int64 v20; 
-  __int64 v21; 
-  char v25; 
+  unsigned int v1; 
+  bool v2; 
+  __int64 v4; 
+  __int64 v5; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  v5 = 0;
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovss  xmm8, cs:__real@3a83126f
-  }
-  v7 = 1;
-  v8 = 0;
-  _RDI = vec;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v1 = 0;
+  v2 = 1;
   do
   {
-    if ( !v7 )
+    if ( !v2 )
     {
-      LODWORD(v21) = 3;
-      LODWORD(v20) = v5;
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v20, v21);
-      v8 = !v11;
-      if ( v11 )
+      LODWORD(v5) = 3;
+      LODWORD(v4) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v4, v5) )
         __debugbreak();
     }
-    __asm { vucomiss xmm7, dword ptr [rdi] }
-    if ( !v8 )
+    if ( vec->v[0] != 0.0 )
     {
-      v12 = v5 < 3;
-      if ( v5 >= 3 )
+      if ( v1 >= 3 )
       {
-        LODWORD(v21) = 3;
-        LODWORD(v20) = v5;
-        v13 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v20, v21);
-        v12 = 0;
-        if ( v13 )
+        LODWORD(v5) = 3;
+        LODWORD(v4) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v4, v5) )
           __debugbreak();
       }
-      __asm
+      if ( COERCE_FLOAT(LODWORD(vec->v[0]) & _xmm) < 0.001 )
       {
-        vmovss  xmm0, dword ptr [rdi]
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, xmm8
-      }
-      if ( v12 )
-      {
-        if ( v5 >= 3 )
+        if ( v1 >= 3 )
         {
-          LODWORD(v21) = 3;
-          LODWORD(v20) = v5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v20, v21) )
+          LODWORD(v5) = 3;
+          LODWORD(v4) = v1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v4, v5) )
             __debugbreak();
         }
-        _RDI->v[0] = 0.0;
+        vec->v[0] = 0.0;
       }
     }
-    ++v5;
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-    v7 = v5 < 3;
-    v8 = v5 == 3;
+    ++v1;
+    vec = (vec3_t *)((char *)vec + 4);
+    v2 = v1 < 3;
   }
-  while ( (int)v5 < 3 );
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v25;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
+  while ( (int)v1 < 3 );
 }
 
 /*
@@ -15212,19 +13163,16 @@ void CG_CreateFx_Vec3FixSubEpsilonValues(vec3_t *vec)
 CG_CreateFx_WorldMoveRotation
 ==============
 */
-void CG_CreateFx_WorldMoveRotation(__int64 a1, double a2)
+void CG_CreateFx_WorldMoveRotation()
 {
-  CreateFxTool *v5; 
-  bool v6; 
-  unsigned int v11; 
-  CreateFxTool *v12; 
-  int v13; 
-  __int64 v14; 
-  unsigned int v15; 
-  __int64 v17; 
-  int v18; 
-  __int64 v19; 
-  int v20; 
+  CreateFxTool *v2; 
+  unsigned int v3; 
+  CreateFxTool *v4; 
+  int v5; 
+  __int64 v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  __int64 v9; 
   vec3_t outValue; 
   vec3_t outCenter; 
   vec3_t angles; 
@@ -15232,109 +13180,77 @@ void CG_CreateFx_WorldMoveRotation(__int64 a1, double a2)
   vec3_t pivotPoint; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovaps [rsp+0F0h+var_10], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rbp+57h+outCenter+8], xmm6
-  }
-  outValue.v[2] = outCenter.v[2];
-  __asm
-  {
-    vunpcklps xmm0, xmm6, xmm6
-    vmovsd  qword ptr [rbp+57h+outValue], xmm0
-  }
+  _XMM6 = 0i64;
+  outCenter.v[2] = 0.0;
+  outValue.v[2] = 0.0;
+  __asm { vunpcklps xmm0, xmm6, xmm6 }
+  *(double *)outValue.v = *(double *)&_XMM0;
   if ( s_createFxTool->snapToAngleIndex )
     CG_CreateFx_GetSnapMovement(LOCAL_CLIENT_0, &outValue);
   else
     CG_CreateFx_EditVec3Update(LOCAL_CLIENT_0, 0, &outValue);
-  v5 = s_createFxTool;
-  v6 = s_createFxTool->selectedEffectTotal == 1;
+  v2 = s_createFxTool;
   if ( s_createFxTool->selectedEffectTotal > 1 )
   {
-    CG_CreateFx_CalculateSelectionCenter(&outCenter, a2);
+    CG_CreateFx_CalculateSelectionCenter(&outCenter);
     AxisClear(&axis);
     FX_PlayOrientedEffect(LOCAL_CLIENT_0, &s_createFxTool->anglesModelHandle, 0, &outCenter, &axis);
-    v5 = s_createFxTool;
+    v2 = s_createFxTool;
   }
-  __asm
+  if ( outValue.v[0] != 0.0 || outValue.v[1] != 0.0 || outValue.v[2] != 0.0 )
   {
-    vmovss  xmm2, dword ptr [rbp+57h+outValue]
-    vucomiss xmm2, xmm6
-    vmovss  xmm1, dword ptr [rbp+57h+outValue+8]
-    vmovss  xmm0, dword ptr [rbp+57h+outValue+4]
-  }
-  if ( !v6 )
-    goto LABEL_9;
-  __asm { vucomiss xmm0, xmm6 }
-  if ( !v6 )
-    goto LABEL_9;
-  __asm { vucomiss xmm1, xmm6 }
-  if ( !v6 )
-  {
-LABEL_9:
-    __asm
+    angles.v[1] = outValue.v[1] * -1.0;
+    angles.v[0] = outValue.v[0];
+    angles.v[2] = outValue.v[2];
+    if ( v2->selectedEffectTotal == 1 )
     {
-      vmulss  xmm0, xmm0, cs:__real@bf800000
-      vmovss  dword ptr [rbp+57h+angles+4], xmm0
-      vmovss  dword ptr [rbp+57h+angles], xmm2
-      vmovss  dword ptr [rbp+57h+angles+8], xmm1
-    }
-    if ( v5->selectedEffectTotal == 1 )
-    {
-      v11 = v5->selectedEffectList[0];
-      if ( v11 >= 0x4000 )
-      {
-        v20 = 0x4000;
-        v18 = v5->selectedEffectList[0];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6812, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v18, v20) )
-          __debugbreak();
-      }
-      CG_CreateFx_GetScratchEffectAngles(v11, &outValue);
+      v3 = v2->selectedEffectList[0];
+      if ( v3 >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6812, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v2->selectedEffectList[0], 0x4000) )
+        __debugbreak();
+      CG_CreateFx_GetScratchEffectAngles(v3, &outValue);
       AnglesToAxis(&outValue, &inAxis);
       RotateAxisAroundVectors(&inAxis, &inAxis, &angles, &inAxis);
       AxisToAngles(&inAxis, &outValue);
-      CG_CreateFx_SetScratchEffectAngles(v11, &outValue);
-      CG_CreateFx_RestartEffect(v11);
+      CG_CreateFx_SetScratchEffectAngles(v3, &outValue);
+      CG_CreateFx_RestartEffect(v3);
     }
-    else if ( v5->selectedEffectTotal > 1 )
+    else if ( v2->selectedEffectTotal > 1 )
     {
-      CG_CreateFx_CalculateSelectionCenter(&pivotPoint, *(double *)&_XMM1);
+      CG_CreateFx_CalculateSelectionCenter(&pivotPoint);
       AxisClear(&inAxis);
       RotateAxisAroundVectors(&inAxis, &inAxis, &angles, &inAxis);
-      v12 = s_createFxTool;
-      v13 = 0;
+      v4 = s_createFxTool;
+      v5 = 0;
       if ( s_createFxTool->selectedEffectTotal > 0 )
       {
-        v14 = 7209180i64;
+        v6 = 7209180i64;
         do
         {
-          v15 = *(_DWORD *)(&v12->inited + v14);
-          if ( v15 >= 0x4000 )
+          v7 = *(_DWORD *)(&v4->inited + v6);
+          if ( v7 >= 0x4000 )
           {
-            LODWORD(v19) = 0x4000;
-            LODWORD(v17) = *(_DWORD *)(&v12->inited + v14);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6842, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v17, v19) )
+            LODWORD(v9) = 0x4000;
+            LODWORD(v8) = *(_DWORD *)(&v4->inited + v6);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 6842, ASSERT_TYPE_ASSERT, "(unsigned)( storageIndex ) < (unsigned)( CREATEFX_MAX_FX )", "storageIndex doesn't index CREATEFX_MAX_FX\n\t%i not in [0, %i)", v8, v9) )
               __debugbreak();
           }
-          CG_CreateFx_GetScratchEffectOrigin(v15, &outValue);
+          CG_CreateFx_GetScratchEffectOrigin(v7, &outValue);
           RotatePointAroundPoint(&outValue, &outValue, &pivotPoint, &inAxis);
-          CG_CreateFx_SetScratchEffectOrigin(v15, &outValue);
-          CG_CreateFx_GetScratchEffectAngles(v15, &outCenter);
+          CG_CreateFx_SetScratchEffectOrigin(v7, &outValue);
+          CG_CreateFx_GetScratchEffectAngles(v7, &outCenter);
           AnglesToAxis(&outCenter, &axis);
           RotateAxisAroundVectors(&axis, &inAxis, &angles, &axis);
           AxisToAngles(&axis, &outCenter);
-          CG_CreateFx_SetScratchEffectAngles(v15, &outCenter);
-          CG_CreateFx_RestartEffect(v15);
-          v12 = s_createFxTool;
-          ++v13;
-          v14 += 4i64;
+          CG_CreateFx_SetScratchEffectAngles(v7, &outCenter);
+          CG_CreateFx_RestartEffect(v7);
+          v4 = s_createFxTool;
+          ++v5;
+          v6 += 4i64;
         }
-        while ( v13 < s_createFxTool->selectedEffectTotal );
+        while ( v5 < s_createFxTool->selectedEffectTotal );
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+0F0h+var_10] }
 }
 
 /*
@@ -15344,77 +13260,84 @@ CG_CreateFx_WriteEffectToFile
 */
 void CG_CreateFx_WriteEffectToFile(const int storageIndex, fileHandle_t *outFile)
 {
-  __int64 v7; 
-  CreateFxTool *v8; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int64 v6; 
+  CreateFxTool *v7; 
+  char *v8; 
   __int64 effectType; 
+  float v10; 
   const CreateFxMapLayerDef *layer; 
+  float v12; 
+  float v13; 
   __int64 handle; 
-  char *v51; 
-  char *v53; 
-  int v56; 
-  int v57; 
-  bool v58; 
-  int v59; 
-  int v60; 
-  const char *v61; 
-  __int64 v63; 
-  char *v64; 
-  scr_string_t v65; 
-  const char ***v66; 
-  const char *v85; 
-  const char *v86; 
-  const char *v87; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v96; 
-  double v97; 
-  __int64 v98; 
-  double v99; 
-  char v100; 
-  scr_string_t v102; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float *v18; 
+  float v19; 
+  int *v20; 
+  int *v21; 
+  float *v22; 
+  float *v23; 
+  int v24; 
+  int v25; 
+  int v26; 
+  int v27; 
+  const char *v28; 
+  float *v29; 
+  __int64 v30; 
+  int *v31; 
+  scr_string_t v32; 
+  bool v33; 
+  const char ***v34; 
+  const char *v35; 
+  const char *v36; 
+  const char *v37; 
+  __int64 v38; 
+  __int64 v39; 
+  char v40; 
+  scr_string_t v41; 
+  scr_string_t v42; 
   scr_string_t stringValue; 
   scr_string_t stringValue_4; 
-  char *v105; 
+  int *v45; 
   vec3_t vec; 
   vec3_t dst; 
   vec3_t from; 
   vec3_t point; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
-  void *retaddr; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
 
-  _R11 = &retaddr;
-  v7 = storageIndex;
-  v8 = s_createFxTool;
-  _RDI = (char *)(&s_createFxTool->inited + 104 * storageIndex);
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  effectType = v8->scratchDataState[storageIndex].effectType;
-  _RBX = _RDI + 4718800;
+  v6 = storageIndex;
+  v7 = s_createFxTool;
+  v8 = (char *)(&s_createFxTool->inited + 104 * storageIndex);
+  v54 = v2;
+  effectType = s_createFxTool->scratchDataState[storageIndex].effectType;
   if ( (unsigned int)effectType >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8131, ASSERT_TYPE_ASSERT, "(unsigned)( effectTypeIndex ) < (unsigned)( ( sizeof( *array_counter( s_createFxEffectClassname ) ) + 0 ) )", "effectTypeIndex doesn't index ARRAY_COUNT( s_createFxEffectClassname )\n\t%i not in [0, %i)", effectType, 6) )
     __debugbreak();
   FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "classname", s_createFxEffectClassname[effectType]);
   if ( (_DWORD)effectType == 1 || (_DWORD)effectType == 2 || (_DWORD)effectType == 3 || (_DWORD)effectType == 4 || (_DWORD)effectType == 5 )
   {
-    if ( _RDI != (char *)-4718800i64 )
+    if ( v8 != (char *)-4718800i64 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  xmm1, dword ptr [rdi+4800D4h]
-        vmovss  dword ptr [rbp+60h+point], xmm0
-        vmovss  xmm0, dword ptr [rdi+4800D8h]
-        vmovss  dword ptr [rbp+60h+point+8], xmm0
-        vmovss  dword ptr [rbp+60h+point+4], xmm1
-      }
+      v10 = *((float *)v8 + 1179701);
+      point.v[0] = *((float *)v8 + 1179700);
+      point.v[2] = *((float *)v8 + 1179702);
+      point.v[1] = v10;
     }
   }
   else
   {
-    LODWORD(v96) = effectType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v96) )
+    LODWORD(v38) = effectType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3121, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectOrigin: unhandled effect type '%d'", v38) )
       __debugbreak();
   }
-  layer = v8->scratchDataState[v7].layer;
+  layer = v7->scratchDataState[v6].layer;
   if ( !layer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8078, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
     __debugbreak();
   if ( s_createFxTool->rootHasOffset )
@@ -15422,298 +13345,170 @@ void CG_CreateFx_WriteEffectToFile(const int storageIndex, fileHandle_t *outFile
     AnglesToAxis(&s_createFxTool->rootAngles, &axis);
     MatrixTranspose(&axis, &out);
     RotatePointAroundPoint(&dst, &point, &s_createFxTool->rootOrigin, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+160h+dst]
-      vmovss  xmm2, dword ptr [rsp+160h+dst+4]
-      vsubss  xmm1, xmm0, dword ptr [rax+817230h]
-      vsubss  xmm0, xmm2, dword ptr [rax+817234h]
-      vmovss  dword ptr [rsp+160h+vec], xmm1
-      vmovss  xmm1, dword ptr [rbp+60h+dst+8]
-      vsubss  xmm2, xmm1, dword ptr [rax+817238h]
-    }
+    v12 = dst.v[1] - s_createFxTool->rootOrigin.v[1];
+    vec.v[0] = dst.v[0] - s_createFxTool->rootOrigin.v[0];
+    v13 = dst.v[2] - s_createFxTool->rootOrigin.v[2];
   }
   else
   {
     AnglesToAxis(&layer->angles, &out);
     MatrixTranspose(&out, &axis);
     RotatePointAroundPoint(&dst, &point, &layer->origin, &axis);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+160h+dst]
-      vsubss  xmm1, xmm0, dword ptr [rbx+118h]
-      vmovss  xmm2, dword ptr [rsp+160h+dst+4]
-      vsubss  xmm0, xmm2, dword ptr [rbx+11Ch]
-      vmovss  dword ptr [rsp+160h+vec], xmm1
-      vmovss  xmm1, dword ptr [rbp+60h+dst+8]
-      vsubss  xmm2, xmm1, dword ptr [rbx+120h]
-    }
+    v12 = dst.v[1] - layer->origin.v[1];
+    vec.v[0] = dst.v[0] - layer->origin.v[0];
+    v13 = dst.v[2] - layer->origin.v[2];
   }
-  __asm
-  {
-    vmovss  dword ptr [rsp+160h+vec+4], xmm0
-    vmovss  dword ptr [rsp+160h+vec+8], xmm2
-  }
+  vec.v[1] = v12;
+  vec.v[2] = v13;
   CG_CreateFx_Vec3FixSubEpsilonValues(&vec);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+160h+vec+8]
-    vmovss  xmm3, dword ptr [rsp+160h+vec]
-    vmovss  xmm1, dword ptr [rsp+160h+vec+4]
-  }
   handle = outFile->handle.handle;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+160h+var_138], xmm0
-    vmovq   r9, xmm3
-    vmovaps [rsp+160h+var_58+8], xmm7
-    vmovsd  [rsp+160h+fmt], xmm1
-    vmovaps [rsp+160h+var_68+8], xmm8
-  }
-  FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%g %g %g\"\n", "origin", *(double *)&_XMM3, *(double *)&fmt, v97);
+  v53 = v3;
+  v52 = v4;
+  FS_Printf((fileHandle_t)handle, "\t\"%s\" \"%g %g %g\"\n", "origin", vec.v[0], vec.v[1], vec.v[2]);
   if ( (_DWORD)effectType == 1 || (_DWORD)effectType == 2 || (_DWORD)effectType == 3 || (_DWORD)effectType == 4 || (_DWORD)effectType == 5 )
   {
-    _RAX = _RDI + 4718812;
-    if ( _RDI != (char *)-4718812i64 )
+    if ( v8 != (char *)-4718812i64 )
     {
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rax]
-        vmovss  xmm7, dword ptr [rax+4]
-        vmovss  xmm6, dword ptr [rax+8]
-      }
+      v15 = *((float *)v8 + 1179703);
+      v16 = *((float *)v8 + 1179704);
+      v17 = *((float *)v8 + 1179705);
       goto LABEL_27;
     }
   }
   else
   {
-    LODWORD(v98) = effectType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3223, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectAngles: unhandled effect type '%d'", v98) )
+    LODWORD(v39) = effectType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 3223, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CreateFx_GetEffectAngles: unhandled effect type '%d'", v39) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm8, [rsp+160h+var_11C]
-    vmovss  xmm7, [rsp+160h+var_11C]
-    vmovss  xmm6, [rsp+160h+var_11C]
-  }
+  v15 = *(float *)&v41;
+  v16 = *(float *)&v41;
+  v17 = *(float *)&v41;
 LABEL_27:
-  if ( !v8->scratchDataState[v7].layer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8110, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
+  v18 = (float *)v7->scratchDataState[v6].layer;
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 8110, ASSERT_TYPE_ASSERT, "(layerDef)", (const char *)&queryFormat, "layerDef") )
     __debugbreak();
   if ( s_createFxTool->rootHasOffset )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm8, dword ptr [rax+81723Ch]
-      vmovss  dword ptr [rbp+60h+from], xmm0
-      vsubss  xmm1, xmm7, dword ptr [rax+817240h]
-      vmovss  dword ptr [rbp+60h+from+4], xmm1
-      vsubss  xmm0, xmm6, dword ptr [rax+817244h]
-    }
+    from.v[0] = v15 - s_createFxTool->rootAngles.v[0];
+    from.v[1] = v16 - s_createFxTool->rootAngles.v[1];
+    v19 = v17 - s_createFxTool->rootAngles.v[2];
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm8, dword ptr [rbx+124h]
-      vmovss  dword ptr [rbp+60h+from], xmm0
-      vsubss  xmm1, xmm7, dword ptr [rbx+128h]
-      vmovss  dword ptr [rbp+60h+from+4], xmm1
-      vsubss  xmm0, xmm6, dword ptr [rbx+12Ch]
-    }
+    from.v[0] = v15 - v18[73];
+    from.v[1] = v16 - v18[74];
+    v19 = v17 - v18[75];
   }
-  __asm { vmovss  dword ptr [rbp+60h+from+8], xmm0 }
+  from.v[2] = v19;
   AnglesNormalize360(&from, &from);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+60h+from+8]
-    vmovss  xmm3, dword ptr [rbp+60h+from]
-    vmovss  xmm1, dword ptr [rbp+60h+from+4]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+160h+var_138], xmm0
-    vmovq   r9, xmm3
-    vmovsd  [rsp+160h+fmt], xmm1
-  }
-  FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g %g %g\"\n", "angles", *(double *)&_XMM3, *(double *)&fmta, v99);
+  FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g %g %g\"\n", "angles", from.v[0], from.v[1], from.v[2]);
   FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "target", s_createFxTool->layerList[0].pathString);
-  __asm { vmovaps xmm8, [rsp+160h+var_68+8] }
-  v51 = NULL;
-  __asm { vmovaps xmm7, [rsp+160h+var_58+8] }
-  v53 = NULL;
-  v105 = NULL;
-  _R13 = NULL;
-  v100 = 0;
-  _R12 = NULL;
+  v20 = NULL;
+  v21 = NULL;
+  v45 = NULL;
+  v22 = NULL;
+  v40 = 0;
+  v23 = NULL;
   stringValue = 0;
   stringValue_4 = 0;
-  v102 = 0;
+  v42 = 0;
   *(_QWORD *)dst.v = 0i64;
   *(_QWORD *)vec.v = 0i64;
-  v56 = effectType - 1;
-  if ( !v56 )
+  v24 = effectType - 1;
+  if ( !v24 )
   {
-    v61 = (const char *)*((_QWORD *)_RDI + 589855);
-    v51 = _RDI + 4718828;
-    _RSI = NULL;
+    v28 = (const char *)*((_QWORD *)v8 + 589855);
+    v20 = (int *)(v8 + 4718828);
+    v29 = NULL;
 LABEL_48:
-    v63 = 4718832i64;
+    v30 = 4718832i64;
 LABEL_49:
-    v66 = (const char ***)&_RDI[v63];
-    if ( &_RDI[v63] && *v66 )
-      FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "fxid", **v66);
-    v64 = NULL;
+    v34 = (const char ***)&v8[v30];
+    if ( &v8[v30] && *v34 )
+      FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "fxid", **v34);
+    v31 = NULL;
     goto LABEL_53;
   }
-  v57 = v56 - 1;
-  if ( !v57 )
+  v25 = v24 - 1;
+  if ( !v25 )
   {
-    v61 = (const char *)*((_QWORD *)_RDI + 589853);
-    _RSI = NULL;
-    v64 = NULL;
+    v28 = (const char *)*((_QWORD *)v8 + 589853);
+    v29 = NULL;
+    v31 = NULL;
     goto LABEL_53;
   }
-  v58 = v57 == 0;
-  v59 = v57 - 1;
-  if ( !v59 )
+  v26 = v25 - 1;
+  if ( !v26 )
   {
-    _R13 = _RDI + 4718880;
-    v65 = *((_DWORD *)_RDI + 1179724);
-    v51 = _RDI + 4718824;
-    v61 = (const char *)*((_QWORD *)_RDI + 589855);
-    _R12 = _RDI + 4718884;
-    stringValue = *((_DWORD *)_RDI + 1179714);
-    stringValue_4 = *((_DWORD *)_RDI + 1179723);
-    *(_QWORD *)dst.v = _RDI + 4718900;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [r13+0]
-    }
-    *(_QWORD *)vec.v = _RDI + 4718901;
-    v102 = v65;
-    if ( !v58 )
-      goto LABEL_44;
-    __asm { vcomiss xmm0, dword ptr [r12] }
-    v100 = 1;
-    if ( !v58 )
-LABEL_44:
-      v100 = 0;
-    _RSI = NULL;
+    v22 = (float *)(v8 + 4718880);
+    v32 = *((_DWORD *)v8 + 1179724);
+    v20 = (int *)(v8 + 4718824);
+    v28 = (const char *)*((_QWORD *)v8 + 589855);
+    v23 = (float *)(v8 + 4718884);
+    stringValue = *((_DWORD *)v8 + 1179714);
+    stringValue_4 = *((_DWORD *)v8 + 1179723);
+    *(_QWORD *)dst.v = v8 + 4718900;
+    v33 = *((float *)v8 + 1179720) > 0.0;
+    *(_QWORD *)vec.v = v8 + 4718901;
+    v42 = v32;
+    if ( !v33 || (v40 = 1, *v23 <= 0.0) )
+      v40 = 0;
+    v29 = NULL;
     goto LABEL_48;
   }
-  v60 = v59 - 1;
-  if ( v60 )
+  v27 = v26 - 1;
+  if ( v27 )
   {
-    if ( v60 != 1 )
+    if ( v27 != 1 )
     {
-      _RSI = NULL;
-      v64 = NULL;
+      v29 = NULL;
+      v31 = NULL;
       goto LABEL_58;
     }
-    v61 = (const char *)*((_QWORD *)_RDI + 589854);
-    _RSI = _RDI + 4718848;
-    v63 = 4718824i64;
+    v28 = (const char *)*((_QWORD *)v8 + 589854);
+    v29 = (float *)(v8 + 4718848);
+    v30 = 4718824i64;
     goto LABEL_49;
   }
-  v61 = (const char *)*((_QWORD *)_RDI + 589853);
-  v105 = _RDI + 4718840;
-  v64 = _RDI + 4718844;
-  _RSI = NULL;
+  v28 = (const char *)*((_QWORD *)v8 + 589853);
+  v45 = (int *)(v8 + 4718840);
+  v31 = (int *)(v8 + 4718844);
+  v29 = NULL;
 LABEL_53:
-  if ( v61 && *v61 )
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "soundalias", v61);
-  v53 = v105;
+  if ( v28 && *v28 )
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "soundalias", v28);
+  v21 = v45;
 LABEL_58:
-  __asm { vmovss  xmm6, cs:__real@3a83126f }
-  if ( v51 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r15]
-      vmulss  xmm1, xmm0, xmm6
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%.3g\"\n", "delay", *(double *)&_XMM3);
-  }
-  if ( v53 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx]
-      vmulss  xmm1, xmm0, xmm6
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%.3g\"\n", "delay_min", *(double *)&_XMM3);
-  }
-  if ( v64 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi]
-      vmulss  xmm1, xmm0, xmm6
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%.3g\"\n", "delay_max", *(double *)&_XMM3);
-  }
-  __asm { vmovaps xmm6, [rsp+160h+var_48+8] }
-  if ( _RSI )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g\"\n", "reactive_radius", *(double *)&_XMM3);
-  }
+  if ( v20 )
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%.3g\"\n", "delay", (float)((float)*v20 * 0.001));
+  if ( v21 )
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%.3g\"\n", "delay_min", (float)((float)*v21 * 0.001));
+  if ( v31 )
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%.3g\"\n", "delay_max", (float)((float)*v31 * 0.001));
+  if ( v29 )
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g\"\n", "reactive_radius", *v29);
   if ( stringValue )
   {
-    v85 = SL_ConvertToString(stringValue);
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "exploder", v85);
+    v35 = SL_ConvertToString(stringValue);
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "exploder", v35);
   }
   if ( stringValue_4 )
   {
-    v86 = SL_ConvertToString(stringValue_4);
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "earthquake", v86);
+    v36 = SL_ConvertToString(stringValue_4);
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "earthquake", v36);
   }
-  if ( v102 )
+  if ( v42 )
   {
-    v87 = SL_ConvertToString(v102);
-    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "rumble", v87);
+    v37 = SL_ConvertToString(v42);
+    FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%s\"\n", "rumble", v37);
   }
-  if ( v100 )
+  if ( v40 )
   {
-    if ( _R13 )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r13+0]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g\"\n", "damage", *(double *)&_XMM3);
-    }
-    if ( _R12 )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r12]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g\"\n", "damage_radius", *(double *)&_XMM3);
-    }
+    if ( v22 )
+      FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g\"\n", "damage", *v22);
+    if ( v23 )
+      FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%g\"\n", "damage_radius", *v23);
     if ( *(_QWORD *)dst.v )
       FS_Printf((fileHandle_t)outFile->handle.handle, "\t\"%s\" \"%i\"\n", "envonly", (unsigned __int8)**(_BYTE **)dst.v);
     if ( *(_QWORD *)vec.v )
@@ -16009,43 +13804,30 @@ void CreateFxInsertEffectCopyCommand::Do(CreateFxInsertEffectCopyCommand *this)
   scr_string_t earthquakeName; 
   scr_string_t rumbleName; 
 
-  _RDI = this;
   EffectIndex = CG_CreateFx_AllocateEffectIndex();
-  m_effectType = _RDI->m_effectType;
-  _RDI->m_effectIndex = EffectIndex;
+  m_effectType = this->m_effectType;
+  this->m_effectIndex = EffectIndex;
   CG_CreateFx_SetEffectType(EffectIndex, m_effectType);
-  CG_CreateFx_SetEffectLayer(_RDI->m_effectIndex, _RDI->m_effectLayer);
-  __asm { vmovups ymm0, ymmword ptr [rdi+10h] }
-  _RCX = 104i64 * _RDI->m_effectIndex;
-  _RAX = s_createFxTool;
-  __asm
-  {
-    vmovups ymmword ptr [rcx+rax+4800D0h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+30h]
-    vmovups ymmword ptr [rcx+rax+4800F0h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+50h]
-    vmovups ymmword ptr [rcx+rax+480110h], ymm0
-    vmovsd  xmm1, qword ptr [rdi+70h]
-    vmovsd  qword ptr [rcx+rax+480130h], xmm1
-  }
-  CG_CreateFx_UpdateEffectAlias(_RDI->m_effectIndex);
-  m_effectIndex = _RDI->m_effectIndex;
+  CG_CreateFx_SetEffectLayer(this->m_effectIndex, this->m_effectLayer);
+  s_createFxTool->scratchData[this->m_effectIndex] = this->m_effectData;
+  CG_CreateFx_UpdateEffectAlias(this->m_effectIndex);
+  m_effectIndex = this->m_effectIndex;
   CG_CreateFx_FreeSoundIndex(m_effectIndex);
   CG_CreateFx_AllocSoundIndex(m_effectIndex);
-  if ( _RDI->m_effectType == 3 )
+  if ( this->m_effectType == 3 )
   {
-    name = _RDI->m_effectData.explodersDef.client.name;
+    name = this->m_effectData.explodersDef.client.name;
     if ( name )
       SL_AddRefToString(name);
-    earthquakeName = _RDI->m_effectData.explodersDef.server.earthquakeName;
+    earthquakeName = this->m_effectData.explodersDef.server.earthquakeName;
     if ( earthquakeName )
       SL_AddRefToString(earthquakeName);
-    rumbleName = _RDI->m_effectData.explodersDef.server.rumbleName;
+    rumbleName = this->m_effectData.explodersDef.server.rumbleName;
     if ( rumbleName )
       SL_AddRefToString(rumbleName);
   }
-  CG_CreateFx_StartEffect(_RDI->m_effectIndex);
-  Com_Printf_NoFilter("[CreateFx] Copy %d:%s\n", (unsigned int)_RDI->m_effectIndex, createFxEffectTypeStrings[_RDI->m_effectType]);
+  CG_CreateFx_StartEffect(this->m_effectIndex);
+  Com_Printf_NoFilter("[CreateFx] Copy %d:%s\n", (unsigned int)this->m_effectIndex, createFxEffectTypeStrings[this->m_effectType]);
   s_createFxTool->needToExport = 1;
 }
 
@@ -16077,40 +13859,24 @@ GetDotProductFromView
 */
 float GetDotProductFromView(const vec3_t *targetOrigin, const vec3_t *viewOrigin, const vec3_t *viewForward)
 {
+  __int128 v3; 
+  float v4; 
+  float v5; 
+
+  v3 = LODWORD(targetOrigin->v[1]);
+  *(float *)&v3 = targetOrigin->v[1] - viewOrigin->v[1];
+  v4 = targetOrigin->v[0] - viewOrigin->v[0];
+  v5 = targetOrigin->v[2] - viewOrigin->v[2];
+  if ( v4 == 0.0 && *(float *)&v3 == 0.0 && (float)(targetOrigin->v[2] - viewOrigin->v[2]) == 0.0 )
+    return FLOAT_1_0;
+  *(float *)&v3 = fsqrt((float)((float)(*(float *)&v3 * *(float *)&v3) + (float)(v4 * v4)) + (float)(v5 * v5));
+  _XMM3 = v3;
   __asm
   {
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rcx]
-    vsubss  xmm4, xmm1, dword ptr [rdx+4]
-    vmovaps [rsp+28h+var_18], xmm6
-    vmovaps [rsp+28h+var_28], xmm7
-    vsubss  xmm7, xmm0, dword ptr [rdx]
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm6, xmm0, dword ptr [rdx+8]
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm3, xmm0, dword ptr [r8+4]
-    vmulss  xmm1, xmm7, xmm5
-    vmulss  xmm2, xmm1, dword ptr [r8]
-    vmovaps xmm7, [rsp+28h+var_28]
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm1, xmm0, dword ptr [r8+8]
-    vmovaps xmm6, [rsp+28h+var_18]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm0, xmm4, xmm1
   }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)((float)(targetOrigin->v[1] - viewOrigin->v[1]) * (float)(1.0 / *(float *)&_XMM0)) * viewForward->v[1]) + (float)((float)(v4 * (float)(1.0 / *(float *)&_XMM0)) * viewForward->v[0])) + (float)((float)(v5 * (float)(1.0 / *(float *)&_XMM0)) * viewForward->v[2]);
 }
 
 /*
@@ -16611,35 +14377,22 @@ void CreateFxAssetPalette::init(CreateFxAssetPalette *this, const char *name)
 CreateFxEditBuffer::modifyNumber
 ==============
 */
-
-void __fastcall CreateFxEditBuffer::modifyNumber(CreateFxEditBuffer *this, double delta)
+void CreateFxEditBuffer::modifyNumber(CreateFxEditBuffer *this, const float delta)
 {
-  __int64 v10; 
+  __int64 v5; 
   __int64 m_bufferCount; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   *(double *)&_XMM0 = atof(this->m_buffer);
-  __asm
-  {
-    vcvtsd2ss xmm2, xmm0, xmm0
-    vaddss  xmm1, xmm2, xmm6
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-  }
-  Com_sprintf(this->m_buffer, 0x3FFui64, "%g", *(double *)&_XMM3);
-  v10 = -1i64;
+  __asm { vcvtsd2ss xmm2, xmm0, xmm0 }
+  Com_sprintf(this->m_buffer, 0x3FFui64, "%g", (float)(*(float *)&_XMM2 + delta));
+  v5 = -1i64;
   do
-    ++v10;
-  while ( this->m_buffer[v10] );
-  this->m_bufferCount = v10;
-  if ( (unsigned int)v10 > 0x3FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 733, ASSERT_TYPE_ASSERT, "(m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM)", (const char *)&queryFormat, "m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM") )
+    ++v5;
+  while ( this->m_buffer[v5] );
+  this->m_bufferCount = v5;
+  if ( (unsigned int)v5 > 0x3FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_createfx.cpp", 733, ASSERT_TYPE_ASSERT, "(m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM)", (const char *)&queryFormat, "m_bufferCount >= 0 && m_bufferCount <= CREATEFX_FILTER_BUFFER_COUNT_MAX_MINUS_NULLTERM") )
     __debugbreak();
   m_bufferCount = this->m_bufferCount;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   this->m_cursor = m_bufferCount;
   this->m_buffer[m_bufferCount] = 0;
 }

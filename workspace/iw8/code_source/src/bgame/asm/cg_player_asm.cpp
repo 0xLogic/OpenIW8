@@ -531,6 +531,7 @@ void CgPlayer_Asm::HandleMisprediction(CgPlayer_Asm *this, int predictedLastTime
   const char *v34; 
   const char *v35; 
   const ASM_Instance *Instance; 
+  double v37; 
   ASM_Instance *v38; 
   unsigned int v39; 
   const Animset *AnimsetByIndex; 
@@ -560,7 +561,6 @@ void CgPlayer_Asm::HandleMisprediction(CgPlayer_Asm *this, int predictedLastTime
   AnimsetAnim *ppOutAnim; 
   PlayerASM_Context context; 
 
-  _R15 = ps;
   v56 = this;
   v59 = predictedState;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\cg_player_asm.cpp", 250, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
@@ -571,7 +571,7 @@ void CgPlayer_Asm::HandleMisprediction(CgPlayer_Asm *this, int predictedLastTime
     if ( !DCONST_DVARBOOL_playerasm_misprediction_handling && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_misprediction_handling") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v8);
-    if ( v8->current.enabled && predictedLastTime && _R15->commandTime == predictedLastTime )
+    if ( v8->current.enabled && predictedLastTime && ps->commandTime == predictedLastTime )
     {
       v9 = v53;
       v10 = 0;
@@ -582,7 +582,7 @@ void CgPlayer_Asm::HandleMisprediction(CgPlayer_Asm *this, int predictedLastTime
       do
       {
         v13 = *v12;
-        Anim = BG_PlayerASM_GetAnim(_R15, (const PlayerASM_AnimSlot)(unsigned __int8)v11);
+        Anim = BG_PlayerASM_GetAnim(ps, (const PlayerASM_AnimSlot)(unsigned __int8)v11);
         if ( v13 && Anim && v13 != Anim )
         {
           *(_BYTE *)v9 = 1;
@@ -606,17 +606,17 @@ void CgPlayer_Asm::HandleMisprediction(CgPlayer_Asm *this, int predictedLastTime
           --v17;
         }
         while ( v17 );
-        clientNum = _R15->clientNum;
+        clientNum = ps->clientNum;
         v51 = clientNum;
-        context.ps = _R15;
-        context.const_ps = _R15;
+        context.ps = ps;
+        context.const_ps = ps;
         context.useEntityState = 0;
         memset_0(context.instances, 0, sizeof(context.instances));
-        suitIndex = _R15->suitIndex;
+        suitIndex = ps->suitIndex;
         context.playerAsm = v15;
         context.holdrand = holdrand;
         context.disableCache = 1;
-        BgPlayer_Asm::SetupInstanceState<1>(v15, &context, suitIndex, _R15, NULL);
+        BgPlayer_Asm::SetupInstanceState<1>(v15, &context, suitIndex, ps, NULL);
         v20 = p_packedAnim;
         v21 = 0;
         v22 = v53;
@@ -632,12 +632,12 @@ LABEL_36:
           if ( v21 >= 2 )
           {
             Instance = BgPlayer_Asm::GetInstance(v15, &context, clientNum);
-            __asm { vmovsd  xmm0, qword ptr [r15+30h] }
-            v63.v[2] = _R15->origin.v[2];
+            v37 = *(double *)ps->origin.v;
+            v63.v[2] = ps->origin.v[2];
             v38 = (ASM_Instance *)Instance;
-            __asm { vmovsd  [rbp+1E0h+var_250], xmm0 }
+            *(double *)v63.v = v37;
             BgPlayer_Asm::DebugRender(v15, Instance, &v63, 0);
-            BgPlayer_Asm::ClearInstanceState(v15, &context, v38, _R15);
+            BgPlayer_Asm::ClearInstanceState(v15, &context, v38, ps);
             Sys_ProfEndNamedEvent();
             return;
           }
@@ -653,19 +653,19 @@ LABEL_36:
         if ( !State && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\cg_player_asm.cpp", 325, ASSERT_TYPE_ASSERT, "(pCurState)", (const char *)&queryFormat, "pCurState") )
           __debugbreak();
         v25 = *p_packedAnim;
-        v26 = BG_PlayerASM_GetAnim(_R15, (const PlayerASM_AnimSlot)(unsigned __int8)v21);
+        v26 = BG_PlayerASM_GetAnim(ps, (const PlayerASM_AnimSlot)(unsigned __int8)v21);
         outAnimState = 0;
         outAnimEntry = 0;
         BG_PlayerASM_UnpackAnim(v59->animSet, v25, &outAnimState, &outAnimEntry);
         stateIndex = 0;
         entryIndex = 0;
-        Animset = BG_PlayerASM_GetAnimset(_R15);
+        Animset = BG_PlayerASM_GetAnimset(ps);
         BG_PlayerASM_UnpackAnim(Animset, v26, &stateIndex, &entryIndex);
         if ( stateIndex == outAnimState )
         {
           if ( State->u.m_AIState->m_PowerDownState != -1 )
           {
-            v39 = BG_PlayerASM_GetAnimset(_R15);
+            v39 = BG_PlayerASM_GetAnimset(ps);
             AnimsetByIndex = BG_PlayerASM_GetAnimsetByIndex(v39);
             if ( !AnimsetByIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\cg_player_asm.cpp", 354, ASSERT_TYPE_ASSERT, "(animset)", (const char *)&queryFormat, "animset") )
               __debugbreak();
@@ -678,7 +678,7 @@ LABEL_36:
                 if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_playerasm_misprediction_handling_debug, "playerasm_misprediction_handling_debug") )
                 {
                   v41 = stateIndex;
-                  v42 = BG_PlayerASM_GetAnimset(_R15);
+                  v42 = BG_PlayerASM_GetAnimset(ps);
                   StateNameFromIndex = BG_PlayerASM_GetStateNameFromIndex(v42, v41);
                   v44 = SL_ConvertToString(v60->name);
                   v45 = SL_ConvertToString(ppOutAlias->name);
@@ -707,7 +707,7 @@ LABEL_36:
             v29 = BG_PlayerASM_GetStateNameFromIndex(v59->animSet, outAnimState);
             v30 = stateIndex;
             v31 = v29;
-            v32 = BG_PlayerASM_GetAnimset(_R15);
+            v32 = BG_PlayerASM_GetAnimset(ps);
             v33 = BG_PlayerASM_GetStateNameFromIndex(v32, v30);
             v34 = SL_ConvertToString(v33);
             v35 = SL_ConvertToString(v31);

@@ -4064,73 +4064,64 @@ DB_ReleaseGfxWorldTransientZone
 void DB_ReleaseGfxWorldTransientZone(const XAssetHeader header, const DB_ReleaseType releaseType)
 {
   unsigned int Item; 
-  unsigned int posDataSize; 
-  bool v6; 
-  GfxGpuLightGrid *gpuLightGrid; 
-  GfxDynamicLightsetLGppZoneInfo *SMLGppZone; 
-  GfxDecalVolumeTransientData *decalVolumes; 
-  GfxReflectionProbeTransientData *reflectionProbes; 
+  int havokData; 
+  bool v5; 
+  GfxShaderBufferView v6; 
+  GfxGpuLightGrid *v7; 
+  GfxDynamicLightsetLGppZoneInfo *v8; 
+  GfxDecalVolumeTransientData *name; 
+  GfxReflectionProbeTransientData *v10; 
   __int64 numPointers; 
   unsigned int listHighWaterMark; 
-  __int64 v22; 
+  GfxWorldTransientZoneDeferredReleasePointerList *activeList; 
+  __int64 v14; 
   GfxWorldTransientZoneDeferredReleasePointers pointers; 
 
   if ( releaseType == OWNS_RESOURCES )
   {
-    _RBX = (const GfxWorldTransientZone *)header.physicsLibrary;
     if ( !header.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2957, ASSERT_TYPE_ASSERT, "(header.gfxWorldTransientZone)", (const char *)&queryFormat, "header.gfxWorldTransientZone") )
       __debugbreak();
-    Item = DB_AssetPool_GetItemIndex<GfxWorldTransientZone>(ASSET_TYPE_GFXWORLD_TRANSIENT_ZONE, _RBX);
+    Item = DB_AssetPool_GetItemIndex<GfxWorldTransientZone>(ASSET_TYPE_GFXWORLD_TRANSIENT_ZONE, header.gfxWorldTransientZone);
     DB_GfxWorldTransientZone_ResetValid(Item);
     memset_0(&pointers, 0, 0x58ui64);
-    posDataSize = _RBX->drawVerts.posDataSize;
-    if ( posDataSize )
+    havokData = (int)header.physicsLibrary->havokData;
+    if ( havokData )
+      pointers.posBuffer = *(GfxWrappedBuffer *)&header.physicsLibrary[1].havokData;
+    v5 = havokData != 0;
+    if ( HIDWORD(header.physicsLibrary->havokData) )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+28h]
-        vmovups ymmword ptr [rsp+0C8h+pointers.posBuffer.baseclass_0.buffer], ymm0
-      }
+      pointers.auxBuffer = *(GfxWrappedBuffer *)&header.physicsLibrary[3].name;
+      v5 = 1;
     }
-    v6 = posDataSize != 0;
-    if ( _RBX->drawVerts.auxDataSize )
+    if ( *(_DWORD *)&header.physicsLibrary[4].isMaterialList )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+48h]
-        vmovups ymmword ptr [rsp+0C8h+pointers.auxBuffer.baseclass_0.buffer], ymm0
-      }
-      v6 = 1;
+      v5 = 1;
+      v6 = *(GfxShaderBufferView *)&header.physicsLibrary[5].isMaterialList;
+      pointers.indexBuffer = (ID3D12Resource *)header.physicsLibrary[5].name;
+      pointers.indexBufferView = v6;
     }
-    if ( _RBX->drawVerts.indexCount )
-    {
-      v6 = 1;
-      __asm { vmovups xmm0, xmmword ptr [rbx+80h] }
-      pointers.indexBuffer = _RBX->drawVerts.indexBuffer;
-      __asm { vmovups xmmword ptr [rsp+0C8h+pointers.indexBufferView.baseclass_0.resource], xmm0 }
-    }
-    memset_0(&_RBX->drawVerts, 0, sizeof(_RBX->drawVerts));
-    gpuLightGrid = _RBX->gpuLightGrid.gpuLightGrid;
-    pointers.gpuLightGrid = gpuLightGrid;
-    if ( v6 || gpuLightGrid )
-      LOBYTE(gpuLightGrid) = 1;
-    SMLGppZone = _RBX->gpuLightGrid.SMLGppZone;
-    _RBX->gpuLightGrid.gpuLightGrid = NULL;
-    pointers.SMLGppZone = SMLGppZone;
-    if ( (_BYTE)gpuLightGrid || SMLGppZone )
-      LOBYTE(gpuLightGrid) = 1;
-    decalVolumes = _RBX->decalVolumes;
-    pointers.decalVolumes = decalVolumes;
-    _RBX->gpuLightGrid.SMLGppZone = NULL;
-    if ( (_BYTE)gpuLightGrid || decalVolumes )
-      LOBYTE(gpuLightGrid) = 1;
-    reflectionProbes = _RBX->reflectionProbes;
-    pointers.reflectionProbes = reflectionProbes;
-    _RBX->decalVolumes = NULL;
-    if ( (_BYTE)gpuLightGrid || reflectionProbes )
-      LOBYTE(gpuLightGrid) = 1;
-    _RBX->reflectionProbes = NULL;
-    if ( (_BYTE)gpuLightGrid && GfxWorldTransientZoneDeferredRelease_Enabled() )
+    memset_0(&header.physicsLibrary->havokData, 0, 0x80ui64);
+    v7 = *(GfxGpuLightGrid **)&header.physicsLibrary[7].isMaterialList;
+    pointers.gpuLightGrid = v7;
+    if ( v5 || v7 )
+      LOBYTE(v7) = 1;
+    v8 = *(GfxDynamicLightsetLGppZoneInfo **)&header.physicsLibrary[8].isMaterialList;
+    *(_QWORD *)&header.physicsLibrary[7].isMaterialList = 0i64;
+    pointers.SMLGppZone = v8;
+    if ( (_BYTE)v7 || v8 )
+      LOBYTE(v7) = 1;
+    name = (GfxDecalVolumeTransientData *)header.physicsLibrary[10].name;
+    pointers.decalVolumes = name;
+    *(_QWORD *)&header.physicsLibrary[8].isMaterialList = 0i64;
+    if ( (_BYTE)v7 || name )
+      LOBYTE(v7) = 1;
+    v10 = (GfxReflectionProbeTransientData *)header.physicsLibrary[9].name;
+    pointers.reflectionProbes = v10;
+    header.physicsLibrary[10].name = NULL;
+    if ( (_BYTE)v7 || v10 )
+      LOBYTE(v7) = 1;
+    header.physicsLibrary[9].name = NULL;
+    if ( (_BYTE)v7 && GfxWorldTransientZoneDeferredRelease_Enabled() )
     {
       if ( !s_GfxWorldTransientZoneDeferredReleaseGlob.activeList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2750, ASSERT_TYPE_ASSERT, "(s_GfxWorldTransientZoneDeferredReleaseGlob.activeList)", (const char *)&queryFormat, "s_GfxWorldTransientZoneDeferredReleaseGlob.activeList") )
         __debugbreak();
@@ -4150,26 +4141,13 @@ void DB_ReleaseGfxWorldTransientZone(const XAssetHeader header, const DB_Release
       }
       if ( s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->currentZoneIndex == 0xFFFF )
       {
-        LODWORD(v22) = 0xFFFF;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2969, ASSERT_TYPE_ASSERT, "( ( s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->currentZoneIndex != INVALID_ZONE_INDEX ) )", "( s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->currentZoneIndex ) = %u", v22) )
+        LODWORD(v14) = 0xFFFF;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2969, ASSERT_TYPE_ASSERT, "( ( s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->currentZoneIndex != INVALID_ZONE_INDEX ) )", "( s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->currentZoneIndex ) = %u", v14) )
           __debugbreak();
       }
-      _RCX = s_GfxWorldTransientZoneDeferredReleaseGlob.activeList;
-      __asm { vmovups ymm0, ymmword ptr [rsp+0C8h+pointers.posBuffer.baseclass_0.buffer] }
-      _RAX = 120 * numPointers;
-      __asm
-      {
-        vmovups ymmword ptr [rax+rcx], ymm0
-        vmovups ymm1, ymmword ptr [rsp+0C8h+pointers.auxBuffer.baseclass_0.buffer]
-        vmovups ymmword ptr [rax+rcx+20h], ymm1
-        vmovups ymm0, ymmword ptr [rsp+0C8h+pointers.indexBuffer]
-        vmovups ymmword ptr [rax+rcx+40h], ymm0
-        vmovups xmm1, xmmword ptr [rsp+0C8h+pointers.SMLGppZone]
-        vmovups xmmword ptr [rax+rcx+60h], xmm1
-        vmovsd  xmm0, [rsp+0C8h+pointers.reflectionProbes]
-        vmovsd  qword ptr [rax+rcx+70h], xmm0
-      }
-      s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->zoneHandles[numPointers] = truncate_cast<unsigned short,unsigned int>(_RCX->currentZoneIndex);
+      activeList = s_GfxWorldTransientZoneDeferredReleaseGlob.activeList;
+      s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->pointers[numPointers] = pointers;
+      s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->zoneHandles[numPointers] = truncate_cast<unsigned short,unsigned int>(activeList->currentZoneIndex);
     }
     else
     {
@@ -4709,16 +4687,9 @@ DB_MoveStreamKey
 */
 void DB_MoveStreamKey(const XAssetHeader from, XAssetHeader to, DB_ReleaseType toReleaseType)
 {
-  _RDI.physicsLibrary = to.physicsLibrary;
-  _RBX.physicsLibrary = from.physicsLibrary;
   Stream_DBPreMoveStreamKey(from.streamKey, to.streamKey, toReleaseType == OWNS_RESOURCES);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-  }
+  *(__m256i *)to.physicsLibrary = *(__m256i *)from.physicsLibrary;
+  *(__m256i *)&to.physicsLibrary[1].isMaterialList = *(__m256i *)&from.physicsLibrary[1].isMaterialList;
 }
 
 /*
@@ -5681,18 +5652,10 @@ DB_MoveXModelSurfs
 */
 void DB_MoveXModelSurfs(const XAssetHeader from, XAssetHeader to, DB_ReleaseType toReleaseType)
 {
-  _RDI.physicsLibrary = to.physicsLibrary;
-  _RBX.physicsLibrary = from.physicsLibrary;
   Stream_DBPreMoveMesh(from.modelSurfs, to.modelSurfs, toReleaseType == OWNS_RESOURCES);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+40h], ymm0
-  }
+  *(__m256i *)to.physicsLibrary = *(__m256i *)from.physicsLibrary;
+  *(__m256i *)&to.physicsLibrary[1].isMaterialList = *(__m256i *)&from.physicsLibrary[1].isMaterialList;
+  *(__m256i *)&to.physicsLibrary[2].havokData = *(__m256i *)&from.physicsLibrary[2].havokData;
 }
 
 /*
@@ -5755,103 +5718,90 @@ DB_MoveXModel
 */
 void DB_MoveXModel(XAssetHeader from, XAssetHeader to, DB_ReleaseType toReleaseType)
 {
-  __int64 v11; 
+  char **p_havokData; 
+  signed __int64 v7; 
+  __int64 v8; 
 
-  _RDI.physicsLibrary = from.physicsLibrary;
-  _RBX.physicsLibrary = to.physicsLibrary;
   DB_XModelLookups_Release(to.model);
-  Physics_ReleaseXModelAsset(_RBX.model);
-  Stream_DBPreReleaseXModel(_RBX.model);
+  Physics_ReleaseXModelAsset(to.model);
+  Stream_DBPreReleaseXModel(to.model);
   if ( toReleaseType == OWNS_RESOURCES )
-    XModelReleaseResources(_RBX.model);
-  DB_XModelLookups_Move(_RDI.model, _RBX.model);
-  Physics_MoveXModelAsset(_RDI.model, _RBX.model);
-  Stream_DBPreMoveXModel(_RDI.model, _RBX.model);
-  _RBX.physicsLibrary->name = _RDI.physicsLibrary->name;
-  *(_WORD *)&_RBX.physicsLibrary->isMaterialList = *(_WORD *)&_RDI.physicsLibrary->isMaterialList;
-  _RBX.physicsLibrary->isMotionPropertiesList = _RDI.physicsLibrary->isMotionPropertiesList;
-  _RBX.physicsLibrary->isGlobalTypeCompendium = _RDI.physicsLibrary->isGlobalTypeCompendium;
-  LOWORD(_RBX.physicsLibrary->havokDataSize) = _RDI.physicsLibrary->havokDataSize;
-  BYTE2(_RBX.physicsLibrary->havokDataSize) = BYTE2(_RDI.physicsLibrary->havokDataSize);
-  HIBYTE(_RBX.physicsLibrary->havokDataSize) = HIBYTE(_RDI.physicsLibrary->havokDataSize);
-  LOBYTE(_RBX.physicsLibrary->havokData) = _RDI.physicsLibrary->havokData;
-  BYTE1(_RBX.physicsLibrary->havokData) = BYTE1(_RDI.physicsLibrary->havokData);
-  BYTE2(_RBX.physicsLibrary->havokData) = BYTE2(_RDI.physicsLibrary->havokData);
-  BYTE3(_RBX.physicsLibrary->havokData) = BYTE3(_RDI.physicsLibrary->havokData);
-  BYTE4(_RBX.physicsLibrary->havokData) = BYTE4(_RDI.physicsLibrary->havokData);
-  BYTE5(_RBX.physicsLibrary->havokData) = BYTE5(_RDI.physicsLibrary->havokData);
-  HIWORD(_RBX.physicsLibrary->havokData) = HIWORD(_RDI.physicsLibrary->havokData);
-  LOBYTE(_RBX.physicsLibrary[1].name) = _RDI.physicsLibrary[1].name;
-  HIDWORD(_RBX.physicsLibrary[1].name) = HIDWORD(_RDI.physicsLibrary[1].name);
-  *(_DWORD *)&_RBX.physicsLibrary[1].isMaterialList = *(_DWORD *)&_RDI.physicsLibrary[1].isMaterialList;
-  _RBX.physicsLibrary[1].havokDataSize = _RDI.physicsLibrary[1].havokDataSize;
-  LODWORD(_RBX.physicsLibrary[1].havokData) = _RDI.physicsLibrary[1].havokData;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+2Ch]
-    vmovups xmmword ptr [rbx+2Ch], xmm0
-    vmovsd  xmm1, qword ptr [rdi+3Ch]
-    vmovsd  qword ptr [rbx+3Ch], xmm1
-  }
-  HIDWORD(_RBX.physicsLibrary[2].havokData) = HIDWORD(_RDI.physicsLibrary[2].havokData);
-  LODWORD(_RBX.physicsLibrary[3].name) = _RDI.physicsLibrary[3].name;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+4Ch]
-    vmovsd  qword ptr [rbx+4Ch], xmm0
-  }
-  _RBX.physicsLibrary[3].havokDataSize = _RDI.physicsLibrary[3].havokDataSize;
-  LODWORD(_RBX.physicsLibrary[3].havokData) = _RDI.physicsLibrary[3].havokData;
-  HIDWORD(_RBX.physicsLibrary[3].havokData) = HIDWORD(_RDI.physicsLibrary[3].havokData);
-  LODWORD(_RBX.physicsLibrary[4].name) = _RDI.physicsLibrary[4].name;
-  HIDWORD(_RBX.physicsLibrary[4].name) = HIDWORD(_RDI.physicsLibrary[4].name);
-  *(_DWORD *)&_RBX.physicsLibrary[4].isMaterialList = *(_DWORD *)&_RDI.physicsLibrary[4].isMaterialList;
-  _RBX.physicsLibrary[4].havokDataSize = _RDI.physicsLibrary[4].havokDataSize;
-  LODWORD(_RBX.physicsLibrary[4].havokData) = _RDI.physicsLibrary[4].havokData;
-  HIDWORD(_RBX.physicsLibrary[4].havokData) = HIDWORD(_RDI.physicsLibrary[4].havokData);
-  _RBX.physicsLibrary[5].name = _RDI.physicsLibrary[5].name;
-  *(_QWORD *)&_RBX.physicsLibrary[5].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[5].isMaterialList;
-  _RBX.physicsLibrary[5].havokData = _RDI.physicsLibrary[5].havokData;
-  _RCX = &_RBX.physicsLibrary[9].havokData;
-  _RBX.physicsLibrary[6].name = _RDI.physicsLibrary[6].name;
-  _RDX = (char *)_RDI.physicsLibrary - (char *)_RBX.physicsLibrary;
-  *(_QWORD *)&_RBX.physicsLibrary[6].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[6].isMaterialList;
-  v11 = 6i64;
-  _RBX.physicsLibrary[6].havokData = _RDI.physicsLibrary[6].havokData;
-  _RBX.physicsLibrary[7].name = _RDI.physicsLibrary[7].name;
-  *(_QWORD *)&_RBX.physicsLibrary[7].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[7].isMaterialList;
-  _RBX.physicsLibrary[7].havokData = _RDI.physicsLibrary[7].havokData;
-  _RBX.physicsLibrary[8].name = _RDI.physicsLibrary[8].name;
-  *(_QWORD *)&_RBX.physicsLibrary[8].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[8].isMaterialList;
-  _RBX.physicsLibrary[8].havokData = _RDI.physicsLibrary[8].havokData;
-  _RBX.physicsLibrary[9].name = _RDI.physicsLibrary[9].name;
+    XModelReleaseResources(to.model);
+  DB_XModelLookups_Move(from.model, to.model);
+  Physics_MoveXModelAsset(from.model, to.model);
+  Stream_DBPreMoveXModel(from.model, to.model);
+  to.physicsLibrary->name = from.physicsLibrary->name;
+  *(_WORD *)&to.physicsLibrary->isMaterialList = *(_WORD *)&from.physicsLibrary->isMaterialList;
+  to.physicsLibrary->isMotionPropertiesList = from.physicsLibrary->isMotionPropertiesList;
+  to.physicsLibrary->isGlobalTypeCompendium = from.physicsLibrary->isGlobalTypeCompendium;
+  LOWORD(to.physicsLibrary->havokDataSize) = from.physicsLibrary->havokDataSize;
+  BYTE2(to.physicsLibrary->havokDataSize) = BYTE2(from.physicsLibrary->havokDataSize);
+  HIBYTE(to.physicsLibrary->havokDataSize) = HIBYTE(from.physicsLibrary->havokDataSize);
+  LOBYTE(to.physicsLibrary->havokData) = from.physicsLibrary->havokData;
+  BYTE1(to.physicsLibrary->havokData) = BYTE1(from.physicsLibrary->havokData);
+  BYTE2(to.physicsLibrary->havokData) = BYTE2(from.physicsLibrary->havokData);
+  BYTE3(to.physicsLibrary->havokData) = BYTE3(from.physicsLibrary->havokData);
+  BYTE4(to.physicsLibrary->havokData) = BYTE4(from.physicsLibrary->havokData);
+  BYTE5(to.physicsLibrary->havokData) = BYTE5(from.physicsLibrary->havokData);
+  HIWORD(to.physicsLibrary->havokData) = HIWORD(from.physicsLibrary->havokData);
+  LOBYTE(to.physicsLibrary[1].name) = from.physicsLibrary[1].name;
+  HIDWORD(to.physicsLibrary[1].name) = HIDWORD(from.physicsLibrary[1].name);
+  *(_DWORD *)&to.physicsLibrary[1].isMaterialList = *(_DWORD *)&from.physicsLibrary[1].isMaterialList;
+  to.physicsLibrary[1].havokDataSize = from.physicsLibrary[1].havokDataSize;
+  LODWORD(to.physicsLibrary[1].havokData) = from.physicsLibrary[1].havokData;
+  *(_OWORD *)((char *)&to.physicsLibrary[1].havokData + 4) = *(_OWORD *)((char *)&from.physicsLibrary[1].havokData + 4);
+  *(double *)&to.physicsLibrary[2].havokDataSize = *(double *)&from.physicsLibrary[2].havokDataSize;
+  HIDWORD(to.physicsLibrary[2].havokData) = HIDWORD(from.physicsLibrary[2].havokData);
+  LODWORD(to.physicsLibrary[3].name) = from.physicsLibrary[3].name;
+  *(const char **)((char *)&to.physicsLibrary[3].name + 4) = *(const char **)((char *)&from.physicsLibrary[3].name + 4);
+  to.physicsLibrary[3].havokDataSize = from.physicsLibrary[3].havokDataSize;
+  LODWORD(to.physicsLibrary[3].havokData) = from.physicsLibrary[3].havokData;
+  HIDWORD(to.physicsLibrary[3].havokData) = HIDWORD(from.physicsLibrary[3].havokData);
+  LODWORD(to.physicsLibrary[4].name) = from.physicsLibrary[4].name;
+  HIDWORD(to.physicsLibrary[4].name) = HIDWORD(from.physicsLibrary[4].name);
+  *(_DWORD *)&to.physicsLibrary[4].isMaterialList = *(_DWORD *)&from.physicsLibrary[4].isMaterialList;
+  to.physicsLibrary[4].havokDataSize = from.physicsLibrary[4].havokDataSize;
+  LODWORD(to.physicsLibrary[4].havokData) = from.physicsLibrary[4].havokData;
+  HIDWORD(to.physicsLibrary[4].havokData) = HIDWORD(from.physicsLibrary[4].havokData);
+  to.physicsLibrary[5].name = from.physicsLibrary[5].name;
+  *(_QWORD *)&to.physicsLibrary[5].isMaterialList = *(_QWORD *)&from.physicsLibrary[5].isMaterialList;
+  to.physicsLibrary[5].havokData = from.physicsLibrary[5].havokData;
+  p_havokData = &to.physicsLibrary[9].havokData;
+  to.physicsLibrary[6].name = from.physicsLibrary[6].name;
+  v7 = (char *)from.physicsLibrary - (char *)to.physicsLibrary;
+  *(_QWORD *)&to.physicsLibrary[6].isMaterialList = *(_QWORD *)&from.physicsLibrary[6].isMaterialList;
+  v8 = 6i64;
+  to.physicsLibrary[6].havokData = from.physicsLibrary[6].havokData;
+  to.physicsLibrary[7].name = from.physicsLibrary[7].name;
+  *(_QWORD *)&to.physicsLibrary[7].isMaterialList = *(_QWORD *)&from.physicsLibrary[7].isMaterialList;
+  to.physicsLibrary[7].havokData = from.physicsLibrary[7].havokData;
+  to.physicsLibrary[8].name = from.physicsLibrary[8].name;
+  *(_QWORD *)&to.physicsLibrary[8].isMaterialList = *(_QWORD *)&from.physicsLibrary[8].isMaterialList;
+  to.physicsLibrary[8].havokData = from.physicsLibrary[8].havokData;
+  to.physicsLibrary[9].name = from.physicsLibrary[9].name;
   do
   {
-    *(_RCX - 1) = *(char **)((char *)_RCX + _RDX - 8);
-    *_RCX = *(char **)((char *)_RCX + _RDX);
-    *((_DWORD *)_RCX + 2) = *(_DWORD *)((char *)_RCX + _RDX + 8);
-    *((_WORD *)_RCX + 6) = *(_WORD *)((char *)_RCX + _RDX + 12);
-    *((_WORD *)_RCX + 7) = *(_WORD *)((char *)_RCX + _RDX + 14);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx+rcx+10h]
-      vmovups ymmword ptr [rcx+10h], ymm0
-    }
-    *((_DWORD *)_RCX + 12) = *(_DWORD *)((char *)_RCX + _RDX + 48);
-    *((_BYTE *)_RCX + 52) = *((_BYTE *)_RCX + _RDX + 52);
-    _RCX += 8;
-    --v11;
+    *(p_havokData - 1) = *(char **)((char *)p_havokData + v7 - 8);
+    *p_havokData = *(char **)((char *)p_havokData + v7);
+    *((_DWORD *)p_havokData + 2) = *(_DWORD *)((char *)p_havokData + v7 + 8);
+    *((_WORD *)p_havokData + 6) = *(_WORD *)((char *)p_havokData + v7 + 12);
+    *((_WORD *)p_havokData + 7) = *(_WORD *)((char *)p_havokData + v7 + 14);
+    *(__m256i *)(p_havokData + 2) = *(__m256i *)((char *)p_havokData + v7 + 16);
+    *((_DWORD *)p_havokData + 12) = *(_DWORD *)((char *)p_havokData + v7 + 48);
+    *((_BYTE *)p_havokData + 52) = *((_BYTE *)p_havokData + v7 + 52);
+    p_havokData += 8;
+    --v8;
   }
-  while ( v11 );
-  *(_QWORD *)&_RBX.physicsLibrary[25].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[25].isMaterialList;
-  _RBX.physicsLibrary[25].havokData = _RDI.physicsLibrary[25].havokData;
-  _RBX.physicsLibrary[26].name = _RDI.physicsLibrary[26].name;
-  *(_QWORD *)&_RBX.physicsLibrary[26].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[26].isMaterialList;
-  _RBX.physicsLibrary[26].havokData = _RDI.physicsLibrary[26].havokData;
-  _RBX.physicsLibrary[27].name = _RDI.physicsLibrary[27].name;
-  *(_QWORD *)&_RBX.physicsLibrary[27].isMaterialList = *(_QWORD *)&_RDI.physicsLibrary[27].isMaterialList;
-  _RBX.physicsLibrary[27].havokData = _RDI.physicsLibrary[27].havokData;
-  _RBX.physicsLibrary[28].name = _RDI.physicsLibrary[28].name;
+  while ( v8 );
+  *(_QWORD *)&to.physicsLibrary[25].isMaterialList = *(_QWORD *)&from.physicsLibrary[25].isMaterialList;
+  to.physicsLibrary[25].havokData = from.physicsLibrary[25].havokData;
+  to.physicsLibrary[26].name = from.physicsLibrary[26].name;
+  *(_QWORD *)&to.physicsLibrary[26].isMaterialList = *(_QWORD *)&from.physicsLibrary[26].isMaterialList;
+  to.physicsLibrary[26].havokData = from.physicsLibrary[26].havokData;
+  to.physicsLibrary[27].name = from.physicsLibrary[27].name;
+  *(_QWORD *)&to.physicsLibrary[27].isMaterialList = *(_QWORD *)&from.physicsLibrary[27].isMaterialList;
+  to.physicsLibrary[27].havokData = from.physicsLibrary[27].havokData;
+  to.physicsLibrary[28].name = from.physicsLibrary[28].name;
 }
 
 /*
@@ -5911,17 +5861,10 @@ DB_MoveXModelDetailCollisionAsset
 */
 void DB_MoveXModelDetailCollisionAsset(XAssetHeader from, XAssetHeader to, DB_ReleaseType toReleaseType)
 {
-  _RDI = (XModelDetailCollision *)to.physicsLibrary;
-  _RBX = (XModelDetailCollision *)from.physicsLibrary;
   Physics_ReleaseXModelDetailCollisionAsset(to.modelDetailCollision, toReleaseType == OWNS_RESOURCES);
-  Physics_MoveXModelDetailCollisionAsset(_RBX, _RDI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovsd  xmm1, qword ptr [rbx+20h]
-    vmovsd  qword ptr [rdi+20h], xmm1
-  }
+  Physics_MoveXModelDetailCollisionAsset(from.modelDetailCollision, to.modelDetailCollision);
+  *(__m256i *)to.physicsLibrary = *(__m256i *)from.physicsLibrary;
+  *(double *)&to.physicsLibrary[1].isMaterialList = *(double *)&from.physicsLibrary[1].isMaterialList;
 }
 
 /*
@@ -6083,21 +6026,14 @@ DB_SwapMaterial
 */
 void DB_SwapMaterial(const XAssetHeader from, XAssetHeader to)
 {
-  _RBX = (Material *)to.physicsLibrary;
+  __int128 v4; 
+
   if ( !to.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 1602, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+28h]
-    vmovups [rsp+48h+var_18], xmm0
-  }
-  Stream_DBPreSwapMaterial(from.material, _RBX);
-  DB_SwapXAssetDefault(from, (XAssetHeader)_RBX, ASSET_TYPE_MATERIAL);
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr [rbx+28h], xmm0
-  }
+  v4 = *(_OWORD *)&to.physicsLibrary[1].havokData;
+  Stream_DBPreSwapMaterial(from.material, to.material);
+  DB_SwapXAssetDefault(from, to, ASSET_TYPE_MATERIAL);
+  *(_OWORD *)&to.physicsLibrary[1].havokData = v4;
 }
 
 /*
@@ -6121,27 +6057,20 @@ DB_MoveMaterial
 */
 void DB_MoveMaterial(const XAssetHeader from, XAssetHeader to, DB_ReleaseType toReleaseType)
 {
-  _RBX = (Material *)to.physicsLibrary;
+  __int128 v6; 
+
   if ( !to.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 1602, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+28h]
-    vmovups [rsp+58h+var_18], xmm0
-  }
-  Stream_DBPreMoveMaterial(from.material, _RBX);
+  v6 = *(_OWORD *)&to.physicsLibrary[1].havokData;
+  Stream_DBPreMoveMaterial(from.material, to.material);
   if ( off_147903D98 )
-    off_147903D98(_RBX, (unsigned int)toReleaseType);
+    ((void (__fastcall *)(_QWORD, _QWORD))off_147903D98)((XAssetHeader)to.physicsLibrary, (unsigned int)toReleaseType);
   if ( g_assetSizes[11] > s_largestAssetPoolItem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 8093, ASSERT_TYPE_ASSERT, "(size <= s_largestAssetPoolItem)", "%s\n\tAsset of type '%s' is larger than XAssetSize. It should be added to that union.", "size <= s_largestAssetPoolItem", g_assetNames[11]) )
     __debugbreak();
-  memcpy_0(_RBX, from.physicsLibrary, g_assetSizes[11]);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 1609, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
+  memcpy_0(to.data, from.physicsLibrary, g_assetSizes[11]);
+  if ( !to.physicsLibrary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 1609, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_18]
-    vmovups xmmword ptr [rbx+28h], xmm0
-  }
+  *(_OWORD *)&to.physicsLibrary[1].havokData = v6;
 }
 
 /*
@@ -6230,13 +6159,11 @@ DB_MoveGfxImage
 void DB_MoveGfxImage(const XAssetHeader from, XAssetHeader to, DB_ReleaseType toReleaseType)
 {
   unsigned int TextureIdIndex; 
-  unsigned __int8 decalAtlasIndex; 
-  unsigned int v22; 
-  unsigned int v23; 
+  char v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   GfxTextureId toId; 
 
-  _RBX = (GfxImage *)to.physicsLibrary;
-  _RDI = (GfxImage *)from.physicsLibrary;
   if ( BYTE2(from.physicsLibrary[2].name) )
   {
     R_DecalVolumes_MoveGfxImage(from.image, to.image, toReleaseType == OWNS_RESOURCES);
@@ -6245,63 +6172,46 @@ void DB_MoveGfxImage(const XAssetHeader from, XAssetHeader to, DB_ReleaseType to
   {
     R_DecalVolumes_ReleaseGfxImageAsset(to.image, toReleaseType == OWNS_RESOURCES);
   }
-  if ( !R_Texture_IsValidTextureId(_RDI->textureId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2262, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( from.image->textureId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( from.image->textureId )") )
+  if ( !R_Texture_IsValidTextureId((GfxTextureId)from.physicsLibrary->havokData) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2262, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( from.image->textureId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( from.image->textureId )") )
     __debugbreak();
-  if ( !R_Texture_IsValidTextureId(_RBX->textureId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2263, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( to.image->textureId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( to.image->textureId )") )
+  if ( !R_Texture_IsValidTextureId((GfxTextureId)to.physicsLibrary->havokData) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2263, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( to.image->textureId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( to.image->textureId )") )
     __debugbreak();
-  if ( (toReleaseType == OWNS_RESOURCES) != R_Texture_IsOwnerId(_RBX->textureId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2264, ASSERT_TYPE_ASSERT, "((toReleaseType == DB_ReleaseType::OWNS_RESOURCES) == R_Texture_IsOwnerId( to.image->textureId ))", (const char *)&queryFormat, "(toReleaseType == DB_ReleaseType::OWNS_RESOURCES) == R_Texture_IsOwnerId( to.image->textureId )") )
+  if ( (toReleaseType == OWNS_RESOURCES) != R_Texture_IsOwnerId((GfxTextureId)to.physicsLibrary->havokData) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2264, ASSERT_TYPE_ASSERT, "((toReleaseType == DB_ReleaseType::OWNS_RESOURCES) == R_Texture_IsOwnerId( to.image->textureId ))", (const char *)&queryFormat, "(toReleaseType == DB_ReleaseType::OWNS_RESOURCES) == R_Texture_IsOwnerId( to.image->textureId )") )
     __debugbreak();
-  toId = _RBX->textureId;
-  if ( Stream_DBPreMoveImage(_RDI, _RBX, toReleaseType == OWNS_RESOURCES) )
-    R_Texture_Move(&_RDI->textureId, &toId);
+  toId = (GfxTextureId)to.physicsLibrary->havokData;
+  if ( Stream_DBPreMoveImage(from.image, to.image, toReleaseType == OWNS_RESOURCES) )
+    R_Texture_Move((GfxTextureId *)&from.physicsLibrary->havokData, &toId);
   else
-    R_Texture_Destroy(_RDI->textureId);
+    R_Texture_Destroy((GfxTextureId)from.physicsLibrary->havokData);
   TextureIdIndex = R_Texture_GetTextureIdIndex(toId);
-  if ( TextureIdIndex != R_Texture_GetTextureIdIndex(_RBX->textureId) )
+  if ( TextureIdIndex != R_Texture_GetTextureIdIndex((GfxTextureId)to.physicsLibrary->havokData) )
   {
-    v23 = R_Texture_GetTextureIdIndex(_RBX->textureId);
-    v22 = R_Texture_GetTextureIdIndex(toId);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2284, ASSERT_TYPE_ASSERT, "( R_Texture_GetTextureIdIndex( textureId ) ) == ( R_Texture_GetTextureIdIndex( to.image->textureId ) )", "%s == %s\n\t%i, %i", "R_Texture_GetTextureIdIndex( textureId )", "R_Texture_GetTextureIdIndex( to.image->textureId )", v22, v23) )
+    v9 = R_Texture_GetTextureIdIndex((GfxTextureId)to.physicsLibrary->havokData);
+    v8 = R_Texture_GetTextureIdIndex(toId);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assethandlers.cpp", 2284, ASSERT_TYPE_ASSERT, "( R_Texture_GetTextureIdIndex( textureId ) ) == ( R_Texture_GetTextureIdIndex( to.image->textureId ) )", "%s == %s\n\t%i, %i", "R_Texture_GetTextureIdIndex( textureId )", "R_Texture_GetTextureIdIndex( to.image->textureId )", v8, v9) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+30h]
-    vmovups xmmword ptr [rbx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+50h]
-    vmovups xmmword ptr [rbx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rbx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rdi+70h]
-    vmovups xmmword ptr [rbx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rbx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+90h]
-    vmovups xmmword ptr [rbx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0A0h]
-    vmovups xmmword ptr [rbx+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0B0h]
-    vmovups xmmword ptr [rbx+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0C0h]
-    vmovups xmmword ptr [rbx+0C0h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0D0h]
-    vmovups xmmword ptr [rbx+0D0h], xmm0
-  }
-  _RBX->pixels.streamedDataHandle.data = _RDI->pixels.streamedDataHandle.data;
-  _RBX->textureId = toId;
-  decalAtlasIndex = _RDI->decalAtlasIndex;
-  _RBX->decalAtlasIndex = decalAtlasIndex;
-  if ( decalAtlasIndex )
-    R_DecalVolumes_MoveGfxImageEnd(_RBX);
-  XPak_CheckAdjacencyInfo(_RBX);
+  *(_OWORD *)&to.physicsLibrary->name = *(_OWORD *)&from.physicsLibrary->name;
+  *(_OWORD *)&to.physicsLibrary->havokData = *(_OWORD *)&from.physicsLibrary->havokData;
+  *(_OWORD *)&to.physicsLibrary[1].isMaterialList = *(_OWORD *)&from.physicsLibrary[1].isMaterialList;
+  *(_OWORD *)&to.physicsLibrary[2].name = *(_OWORD *)&from.physicsLibrary[2].name;
+  *(_OWORD *)&to.physicsLibrary[2].havokData = *(_OWORD *)&from.physicsLibrary[2].havokData;
+  *(_OWORD *)&to.physicsLibrary[3].isMaterialList = *(_OWORD *)&from.physicsLibrary[3].isMaterialList;
+  *(_OWORD *)&to.physicsLibrary[4].name = *(_OWORD *)&from.physicsLibrary[4].name;
+  *(_OWORD *)&to.physicsLibrary[4].havokData = *(_OWORD *)&from.physicsLibrary[4].havokData;
+  *(_OWORD *)&to.physicsLibrary[5].isMaterialList = *(_OWORD *)&from.physicsLibrary[5].isMaterialList;
+  *(_OWORD *)&to.physicsLibrary[6].name = *(_OWORD *)&from.physicsLibrary[6].name;
+  *(_OWORD *)&to.physicsLibrary[6].havokData = *(_OWORD *)&from.physicsLibrary[6].havokData;
+  *(_OWORD *)&to.physicsLibrary[7].isMaterialList = *(_OWORD *)&from.physicsLibrary[7].isMaterialList;
+  *(_OWORD *)&to.physicsLibrary[8].name = *(_OWORD *)&from.physicsLibrary[8].name;
+  *(_OWORD *)&to.physicsLibrary[8].havokData = *(_OWORD *)&from.physicsLibrary[8].havokData;
+  *(_QWORD *)&to.physicsLibrary[9].isMaterialList = *(_QWORD *)&from.physicsLibrary[9].isMaterialList;
+  LODWORD(to.physicsLibrary->havokData) = toId;
+  v7 = BYTE2(from.physicsLibrary[2].name);
+  BYTE2(to.physicsLibrary[2].name) = v7;
+  if ( v7 )
+    R_DecalVolumes_MoveGfxImageEnd(to.image);
+  XPak_CheckAdjacencyInfo(to.image);
 }
 
 /*
@@ -9015,20 +8925,20 @@ GfxWorldTransientZoneDeferredRelease_TakeOwnership
 char GfxWorldTransientZoneDeferredRelease_TakeOwnership(GfxWorldTransientZoneDeferredReleasePointers *dstPointers, unsigned int zoneIndex)
 {
   const dvar_t *v2; 
+  GfxWorldTransientZoneDeferredReleasePointerList *activeList; 
   unsigned int numPointers; 
   unsigned int v7; 
   unsigned __int16 *i; 
-  __int64 v10; 
-  __int64 v17; 
+  GfxWorldTransientZoneDeferredReleasePointers *v10; 
+  __int64 v11; 
 
   v2 = DCONST_DVARBOOL_db_deferredGfxTransientWorldZoneRelease;
-  _RSI = dstPointers;
   if ( !DCONST_DVARBOOL_db_deferredGfxTransientWorldZoneRelease && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_deferredGfxTransientWorldZoneRelease") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v2);
   if ( !v2->current.enabled )
     return 0;
-  _R8 = s_GfxWorldTransientZoneDeferredReleaseGlob.activeList;
+  activeList = s_GfxWorldTransientZoneDeferredReleaseGlob.activeList;
   if ( !s_GfxWorldTransientZoneDeferredReleaseGlob.activeList )
     return 0;
   numPointers = s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->numPointers;
@@ -9040,40 +8950,22 @@ char GfxWorldTransientZoneDeferredRelease_TakeOwnership(GfxWorldTransientZoneDef
     if ( ++v7 >= numPointers )
       return 0;
   }
-  v10 = v7;
-  _RDX = &s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->pointers[v7];
-  __asm
+  v10 = &s_GfxWorldTransientZoneDeferredReleaseGlob.activeList->pointers[v7];
+  dstPointers->posBuffer = v10->posBuffer;
+  dstPointers->auxBuffer = v10->auxBuffer;
+  *(__m256i *)&dstPointers->indexBuffer = *(__m256i *)&v10->indexBuffer;
+  *(_OWORD *)&dstPointers->SMLGppZone = *(_OWORD *)&v10->SMLGppZone;
+  dstPointers->reflectionProbes = v10->reflectionProbes;
+  v11 = activeList->numPointers - 1;
+  activeList->numPointers = v11;
+  if ( v7 < (unsigned int)v11 )
   {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rsi], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rsi+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rsi+40h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rsi+60h], xmm1
-    vmovsd  xmm0, qword ptr [rdx+70h]
-    vmovsd  qword ptr [rsi+70h], xmm0
-  }
-  v17 = _R8->numPointers - 1;
-  _R8->numPointers = v17;
-  if ( v7 < (unsigned int)v17 )
-  {
-    _RCX = 120 * v17;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+r8]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm1, ymmword ptr [rcx+r8+20h]
-      vmovups ymmword ptr [rdx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rcx+r8+40h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups xmm1, xmmword ptr [rcx+r8+60h]
-      vmovups xmmword ptr [rdx+60h], xmm1
-      vmovsd  xmm0, qword ptr [rcx+r8+70h]
-      vmovsd  qword ptr [rdx+70h], xmm0
-    }
-    _R8->zoneHandles[v10] = _R8->zoneHandles[_R8->numPointers];
+    v10->posBuffer = activeList->pointers[v11].posBuffer;
+    v10->auxBuffer = activeList->pointers[v11].auxBuffer;
+    *(__m256i *)&v10->indexBuffer = *(__m256i *)&activeList->pointers[v11].indexBuffer;
+    *(_OWORD *)&v10->SMLGppZone = *(_OWORD *)&activeList->pointers[v11].SMLGppZone;
+    v10->reflectionProbes = activeList->pointers[v11].reflectionProbes;
+    activeList->zoneHandles[v7] = activeList->zoneHandles[activeList->numPointers];
   }
   return 1;
 }

@@ -86,52 +86,56 @@ void AimTargetSP_AddTargetToList(int clientNum, const AimTarget *target)
   AimTargetGlob *Glob; 
   int targetCount; 
   __int64 v7; 
+  float *p_entIndex; 
+  float worldDistSqr; 
+  float v10; 
   int v11; 
+  int v12; 
+  int v13; 
+  __m256i *v14; 
 
-  _RBP = target;
   if ( !target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 177, ASSERT_TYPE_ASSERT, "(target)", (const char *)&queryFormat, "target") )
     __debugbreak();
   v4 = 0;
   Glob = AimTarget_GetGlob(clientNum);
   targetCount = Glob->targetCount;
   if ( targetCount <= 0 )
-    goto LABEL_13;
+    goto LABEL_20;
   do
   {
     v7 = (targetCount + v4) / 2;
-    _RBX = &Glob->targets[v7];
-    if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 157, ASSERT_TYPE_ASSERT, "(targetA)", (const char *)&queryFormat, "targetA") )
+    p_entIndex = (float *)&Glob->targets[v7].entIndex;
+    if ( !target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 157, ASSERT_TYPE_ASSERT, "(targetA)", (const char *)&queryFormat, "targetA") )
       __debugbreak();
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 158, ASSERT_TYPE_ASSERT, "(targetB)", (const char *)&queryFormat, "targetB") )
+    if ( !p_entIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 158, ASSERT_TYPE_ASSERT, "(targetB)", (const char *)&queryFormat, "targetB") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vcomiss xmm0, xmm1
-      vcomiss xmm0, xmm1
-    }
-    v4 = v7 + 1;
+    worldDistSqr = target->worldDistSqr;
+    v10 = p_entIndex[1];
+    if ( worldDistSqr >= v10 )
+      v11 = (worldDistSqr <= v10) - 1;
+    else
+      v11 = 1;
+    v12 = (targetCount + v4) / 2;
+    if ( v11 <= 0 )
+      v12 = targetCount;
+    targetCount = v12;
+    if ( v11 <= 0 )
+      v4 = v7 + 1;
   }
-  while ( (int)v7 + 1 < targetCount );
-  if ( (int)v7 + 1 < 32 )
+  while ( v4 < v12 );
+  if ( v4 < 32 )
   {
-LABEL_13:
-    v11 = Glob->targetCount;
-    if ( v11 == 32 )
+LABEL_20:
+    v13 = Glob->targetCount;
+    if ( v13 == 32 )
     {
-      v11 = 31;
+      v13 = 31;
       Glob->targetCount = 31;
     }
-    _RBX = &Glob->targets[v4];
-    memmove_0(&Glob->targets[v4 + 1], _RBX, 48i64 * (v11 - v4));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+0]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr [rbp+20h]
-      vmovups xmmword ptr [rbx+20h], xmm1
-    }
+    v14 = (__m256i *)&Glob->targets[v4];
+    memmove_0(&Glob->targets[v4 + 1], v14, 48i64 * (v13 - v4));
+    *v14 = *(__m256i *)&target->entIndex;
+    *(_OWORD *)v14[1].m256i_i8 = *(_OWORD *)target->velocity.v;
     ++Glob->targetCount;
   }
 }
@@ -203,8 +207,11 @@ void AimTargetSP_ClearTargetList(void)
   int v2; 
   AimTargetGlob *v3; 
   int targetCount; 
+  AimTargetGlob *v5; 
+  char *v6; 
   gentity_s *v7; 
   int v8; 
+  __int128 v9; 
   char Src[1536]; 
 
   if ( level.maxclients != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 116, ASSERT_TYPE_ASSERT, "( level.maxclients == 1 )", (const char *)&queryFormat, "level.maxclients == 1") )
@@ -216,25 +223,21 @@ void AimTargetSP_ClearTargetList(void)
   targetCount = Glob->targetCount;
   if ( targetCount > 0 )
   {
-    _RSI = Glob;
-    _R14 = Src;
+    v5 = Glob;
+    v6 = Src;
     do
     {
-      v7 = &level.gentities[_RSI->targets[0].entIndex];
+      v7 = &level.gentities[v5->targets[0].entIndex];
       if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
         __debugbreak();
       v8 = v7->s.number - level.time / level.frameDuration;
       if ( AimTargetSP_CalcTargetFlags(v7) && v8 % 8 )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi]
-          vmovups xmm1, xmmword ptr [rsi+20h]
-          vmovups ymmword ptr [r14], ymm0
-        }
+        v9 = *(_OWORD *)v5->targets[0].velocity.v;
+        *(__m256i *)v6 = *(__m256i *)&v5->targets[0].entIndex;
         ++v1;
-        __asm { vmovups xmmword ptr [r14+20h], xmm1 }
-        _R14 += 48;
+        *((_OWORD *)v6 + 2) = v9;
+        v6 += 48;
       }
       else
       {
@@ -244,7 +247,7 @@ void AimTargetSP_ClearTargetList(void)
       }
       targetCount = v3->targetCount;
       ++v2;
-      _RSI = (AimTargetGlob *)((char *)_RSI + 48);
+      v5 = (AimTargetGlob *)((char *)v5 + 48);
     }
     while ( v2 < targetCount );
   }
@@ -262,145 +265,108 @@ AimTargetSP_CreateTarget
 */
 char AimTargetSP_CreateTarget(int clientNum, gentity_s *targetEnt, const AimTargetFlags flags)
 {
-  __int64 v4; 
-  char v5; 
-  const gentity_s *v7; 
-  bool v8; 
+  __int64 v3; 
+  char v4; 
+  gentity_s *v6; 
+  bool v7; 
   bool IsTargetVisible; 
+  const dvar_t *v9; 
+  bool v10; 
   const dvar_t *v11; 
-  bool v12; 
-  const dvar_t *v13; 
-  const vec4_t *v15; 
-  int v16; 
+  const vec4_t *v12; 
+  int v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   int number; 
-  GTrajectory v46; 
+  vec3_t *p_vVelocity; 
+  float v19; 
+  float v20; 
+  GTrajectory v22; 
   vec3_t outPos; 
   AimTarget target; 
-  vec3_t v49; 
-  vec3_t v50; 
+  vec3_t v25; 
+  vec3_t v26; 
 
-  v4 = clientNum;
-  v5 = flags;
-  _RBX = targetEnt;
+  v3 = clientNum;
+  v4 = flags;
   if ( !targetEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 409, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
     __debugbreak();
-  v7 = &level.gentities[v4];
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 412, ASSERT_TYPE_ASSERT, "(playerEnt)", (const char *)&queryFormat, "playerEnt") )
+  v6 = &level.gentities[v3];
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 412, ASSERT_TYPE_ASSERT, "(playerEnt)", (const char *)&queryFormat, "playerEnt") )
     __debugbreak();
-  if ( AimTarget_GetGlob(v4)->targetCount >= 32 )
+  if ( AimTarget_GetGlob(v3)->targetCount >= 32 )
     return 0;
-  v8 = _RBX->s.eType == ET_ACTOR;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+57h+outPos], xmm0
-    vmovss  dword ptr [rbp+57h+outPos+4], xmm0
-    vmovss  dword ptr [rbp+57h+outPos+8], xmm0
-  }
-  if ( v8 )
-    G_Utils_DObjGetWorldTagPos_CheckTagExists(_RBX, (const scr_string_t)scr_const.j_spine4, 1, &outPos);
-  IsTargetVisible = AimTargetSP_IsTargetVisible(v7, _RBX, &outPos);
-  v11 = DVARBOOL_scripted_melee_debug;
-  v12 = IsTargetVisible;
+  v7 = targetEnt->s.eType == ET_ACTOR;
+  outPos.v[0] = 0.0;
+  outPos.v[1] = 0.0;
+  outPos.v[2] = 0.0;
+  if ( v7 )
+    G_Utils_DObjGetWorldTagPos_CheckTagExists(targetEnt, (const scr_string_t)scr_const.j_spine4, 1, &outPos);
+  IsTargetVisible = AimTargetSP_IsTargetVisible(v6, targetEnt, &outPos);
+  v9 = DVARBOOL_scripted_melee_debug;
+  v10 = IsTargetVisible;
   if ( !DVARBOOL_scripted_melee_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scripted_melee_debug") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
+    goto LABEL_18;
+  v11 = DCONST_DVARBOOL_melee_debug;
+  if ( !DCONST_DVARBOOL_melee_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "melee_debug") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v11);
   if ( v11->current.enabled )
-    goto LABEL_18;
-  v13 = DCONST_DVARBOOL_melee_debug;
-  if ( !DCONST_DVARBOOL_melee_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "melee_debug") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.enabled )
   {
 LABEL_18:
-    if ( (v5 & 2) != 0 )
+    if ( (v4 & 2) != 0 )
     {
-      __asm { vmovss  xmm1, cs:radius; radius }
-      v15 = &colorRed;
-      v16 = 2;
-      if ( v12 )
-        v16 = 8;
-      if ( v12 )
-        v15 = &colorGreen;
-      G_DebugSphere(&outPos, *(float *)&_XMM1, v15, 0, v16);
+      v12 = &colorRed;
+      v13 = 2;
+      if ( v10 )
+        v13 = 8;
+      if ( v10 )
+        v12 = &colorGreen;
+      G_DebugSphere(&outPos, radius, v12, 0, v13);
     }
   }
-  if ( !v12 )
+  if ( !v10 )
     return 0;
-  AimTargetSP_GetTargetBounds(_RBX, &target.box);
-  v8 = _RBX->s.eType == ET_ACTOR;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vsubss  xmm3, xmm0, dword ptr [rsi+130h]
-    vmovss  xmm1, dword ptr [rbx+134h]
-    vsubss  xmm2, xmm1, dword ptr [rsi+134h]
-    vmovss  xmm0, dword ptr [rbx+138h]
-    vsubss  xmm4, xmm0, dword ptr [rsi+138h]
-  }
-  number = _RBX->s.number;
-  __asm
-  {
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  [rbp+57h+target.worldDistSqr], xmm2
-  }
+  AimTargetSP_GetTargetBounds(targetEnt, &target.box);
+  v7 = targetEnt->s.eType == ET_ACTOR;
+  v14 = targetEnt->r.currentOrigin.v[0] - v6->r.currentOrigin.v[0];
+  v15 = targetEnt->r.currentOrigin.v[1] - v6->r.currentOrigin.v[1];
+  v16 = targetEnt->r.currentOrigin.v[2] - v6->r.currentOrigin.v[2];
+  number = targetEnt->s.number;
+  target.worldDistSqr = (float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16);
   target.entIndex = number;
-  if ( v8 )
+  if ( v7 )
   {
-    if ( !_RBX->actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 389, ASSERT_TYPE_ASSERT, "(targetEnt->actor)", (const char *)&queryFormat, "targetEnt->actor") )
+    if ( !targetEnt->actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 389, ASSERT_TYPE_ASSERT, "(targetEnt->actor)", (const char *)&queryFormat, "targetEnt->actor") )
       __debugbreak();
-    _RAX = (__int64)&_RBX->actor->Physics.vVelocity;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  dword ptr [rbp+57h+target.velocity], xmm0
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  dword ptr [rbp+57h+target.velocity+4], xmm1
-      vmovss  xmm0, dword ptr [rax+8]
-    }
+    p_vVelocity = &targetEnt->actor->Physics.vVelocity;
+    *(_QWORD *)target.velocity.v = *(_QWORD *)p_vVelocity->v;
+    v19 = p_vVelocity->v[2];
   }
   else
   {
-    GTrajectory::GTrajectory(&v46, _RBX);
-    BgTrajectory::EvaluatePosTrajectory(&v46, level.time, &v50);
+    GTrajectory::GTrajectory(&v22, targetEnt);
+    BgTrajectory::EvaluatePosTrajectory(&v22, level.time, &v26);
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
-    BgTrajectory::EvaluatePosTrajectory(&v46, level.frameDuration + level.time, &v49);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+var_60]
-      vsubss  xmm1, xmm0, dword ptr [rbp+57h+var_50]
-      vmovss  xmm2, dword ptr [rbp+57h+var_60+4]
-      vsubss  xmm0, xmm2, dword ptr [rbp+57h+var_50+4]
-      vmovss  dword ptr [rbp+57h+target.velocity], xmm1
-      vmovss  xmm1, dword ptr [rbp+57h+var_60+8]
-      vsubss  xmm2, xmm1, dword ptr [rbp+57h+var_50+8]
-      vmovss  dword ptr [rbp+57h+target.velocity+8], xmm2
-      vmovss  dword ptr [rbp+57h+target.velocity+4], xmm0
-    }
+    BgTrajectory::EvaluatePosTrajectory(&v22, level.frameDuration + level.time, &v25);
+    target.velocity.v[0] = v25.v[0] - v26.v[0];
+    target.velocity.v[2] = v25.v[2] - v26.v[2];
+    target.velocity.v[1] = v25.v[1] - v26.v[1];
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@447a0000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-      vdivss  xmm3, xmm0, xmm1
-      vmulss  xmm2, xmm3, dword ptr [rbp+57h+target.velocity]
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+target.velocity+4]
-      vmulss  xmm0, xmm3, dword ptr [rbp+57h+target.velocity+8]
-      vmovss  dword ptr [rbp+57h+target.velocity], xmm2
-      vmovss  dword ptr [rbp+57h+target.velocity+4], xmm1
-    }
+    v20 = 1000.0 / (float)level.frameDuration;
+    v19 = v20 * target.velocity.v[2];
+    target.velocity.v[0] = v20 * target.velocity.v[0];
+    target.velocity.v[1] = v20 * target.velocity.v[1];
   }
-  target.flags[0] = v5;
-  __asm { vmovss  dword ptr [rbp+57h+target.velocity+8], xmm0 }
-  AimTargetSP_AddTargetToList(v4, &target);
+  target.flags[0] = v4;
+  target.velocity.v[2] = v19;
+  AimTargetSP_AddTargetToList(v3, &target);
   return 1;
 }
 
@@ -415,8 +381,7 @@ float AimTargetSP_GetActorRadius(const gentity_s *targetEnt)
     __debugbreak();
   if ( !targetEnt->actor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 212, ASSERT_TYPE_ASSERT, "(targetEnt->actor)", (const char *)&queryFormat, "targetEnt->actor") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:__real@41200000 }
-  return *(float *)&_XMM0;
+  return FLOAT_10_0;
 }
 
 /*
@@ -426,273 +391,199 @@ AimTargetSP_GetBestTarget
 */
 __int64 AimTargetSP_GetBestTarget(int clientNum, const vec3_t *start, const vec3_t *viewDir)
 {
-  unsigned int entIndex; 
+  unsigned int v6; 
+  float v7; 
   AimTargetGlob *Glob; 
-  __int64 v24; 
+  __int64 v9; 
   __int64 targetCount; 
   _BYTE *flags; 
-  unsigned __int64 v28; 
-  char v29; 
-  AimTarget *v126; 
-  __int64 v127; 
-  __int64 result; 
-  __int64 v159; 
-  int v160; 
-  char v166; 
+  unsigned __int64 v12; 
+  __int64 v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  float v31; 
+  float v32; 
+  __int64 v33; 
+  float v34; 
+  float v35; 
+  __int128 v36; 
+  float v37; 
+  float v41; 
+  float v42; 
+  __int64 v43; 
+  float v44; 
+  float v45; 
+  __int128 v46; 
+  float v47; 
+  float v51; 
+  float v52; 
+  AimTarget *v53; 
+  __int64 v54; 
+  __int64 entIndex; 
+  float v56; 
+  float v57; 
+  __int128 v58; 
+  float v59; 
+  float v63; 
+  float v64; 
+  __int64 v66; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  xmm2, dword ptr [r8+4]
-    vmovss  xmm3, dword ptr [r8+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmovaps [rsp+0A8h+var_48], xmm8
-    vmovaps [rsp+0A8h+var_58], xmm9
-    vmovss  xmm9, cs:__real@3f800000
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm0, xmm3, xmm9
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-    vmovaps [rsp+0A8h+var_68], xmm10
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 576, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( viewDir ))", (const char *)&queryFormat, "Vec3IsNormalized( viewDir )") )
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(viewDir->v[0] * viewDir->v[0]) + (float)(viewDir->v[1] * viewDir->v[1])) + (float)(viewDir->v[2] * viewDir->v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 576, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( viewDir ))", (const char *)&queryFormat, "Vec3IsNormalized( viewDir )") )
     __debugbreak();
-  entIndex = 2047;
-  __asm { vmovss  xmm8, cs:__real@3f774539 }
+  v6 = 2047;
+  v7 = FLOAT_0_9659;
   if ( clientNum )
   {
-    v160 = 1;
-    LODWORD(v159) = clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 582, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 1 )", "clientNum doesn't index MAX_CLIENTS_SP\n\t%i not in [0, %i)", v159, v160) )
+    LODWORD(v66) = clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 582, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 1 )", "clientNum doesn't index MAX_CLIENTS_SP\n\t%i not in [0, %i)", v66, 1) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_28], xmm6
-    vmovaps [rsp+0A8h+var_38], xmm7
-  }
   Glob = AimTarget_GetGlob(clientNum);
-  _R10 = g_entities;
-  v24 = 0i64;
-  __asm { vmovss  xmm10, cs:__real@80000000 }
+  v9 = 0i64;
   targetCount = Glob->targetCount;
   if ( targetCount >= 4 )
   {
     flags = Glob->targets[1].flags;
-    v28 = ((unsigned __int64)(targetCount - 4) >> 2) + 1;
-    v24 = 4 * v28;
+    v12 = ((unsigned __int64)(targetCount - 4) >> 2) + 1;
+    v9 = 4 * v12;
     do
     {
       if ( (*(flags - 48) & 1) != 0 )
       {
-        _RCX = 1456i64 * *((int *)flags - 23);
+        v13 = *((int *)flags - 23);
+        v14 = g_entities[v13].r.currentOrigin.v[0] - start->v[0];
+        v16 = LODWORD(g_entities[v13].r.currentOrigin.v[1]);
+        v15 = g_entities[v13].r.currentOrigin.v[1] - start->v[1];
+        v17 = g_entities[v13].r.currentOrigin.v[2] - start->v[2];
+        *(float *)&v16 = fsqrt((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v17 * v17));
+        _XMM1 = v16;
         __asm
         {
-          vmovss  xmm0, dword ptr [rcx+r10+130h]
-          vsubss  xmm4, xmm0, dword ptr [rsi]
-          vmovss  xmm1, dword ptr [rcx+r10+134h]
-          vsubss  xmm6, xmm1, dword ptr [rsi+4]
-          vmovss  xmm0, dword ptr [rcx+r10+138h]
-          vsubss  xmm7, xmm0, dword ptr [rsi+8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm7, xmm7
-          vmulss  xmm2, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm10
           vblendvps xmm0, xmm1, xmm9, xmm0
-          vdivss  xmm5, xmm9, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vmulss  xmm3, xmm0, dword ptr [rdi]
-          vmulss  xmm1, xmm5, xmm6
-          vmulss  xmm2, xmm1, dword ptr [rdi+4]
-          vmulss  xmm0, xmm5, xmm7
-          vmulss  xmm1, xmm0, dword ptr [rdi+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm8
         }
-        if ( !(((unsigned __int128)(1456 * (__int128)*((int *)flags - 23)) >> 64 != 0) | v29) )
+        v21 = 1.0 / *(float *)&_XMM0;
+        v22 = (float)((float)(1.0 / *(float *)&_XMM0) * v14) * viewDir->v[0];
+        if ( (float)((float)(v22 + (float)((float)(v21 * v15) * viewDir->v[1])) + (float)((float)(v21 * v17) * viewDir->v[2])) > v7 )
         {
-          entIndex = *((_DWORD *)flags - 23);
-          __asm { vmovaps xmm8, xmm2 }
+          v6 = *((_DWORD *)flags - 23);
+          v7 = (float)(v22 + (float)((float)(v21 * v15) * viewDir->v[1])) + (float)((float)(v21 * v17) * viewDir->v[2]);
         }
       }
       if ( (*flags & 1) != 0 )
       {
-        _RCX = 1456i64 * *((int *)flags - 11);
+        v23 = *((int *)flags - 11);
+        v24 = g_entities[v23].r.currentOrigin.v[0] - start->v[0];
+        v26 = LODWORD(g_entities[v23].r.currentOrigin.v[1]);
+        v25 = g_entities[v23].r.currentOrigin.v[1] - start->v[1];
+        v27 = g_entities[v23].r.currentOrigin.v[2] - start->v[2];
+        *(float *)&v26 = fsqrt((float)((float)(v25 * v25) + (float)(v24 * v24)) + (float)(v27 * v27));
+        _XMM1 = v26;
         __asm
         {
-          vmovss  xmm0, dword ptr [rcx+r10+130h]
-          vsubss  xmm4, xmm0, dword ptr [rsi]
-          vmovss  xmm1, dword ptr [rcx+r10+134h]
-          vsubss  xmm6, xmm1, dword ptr [rsi+4]
-          vmovss  xmm0, dword ptr [rcx+r10+138h]
-          vsubss  xmm7, xmm0, dword ptr [rsi+8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm7, xmm7
-          vmulss  xmm2, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm10
           vblendvps xmm0, xmm1, xmm9, xmm0
-          vdivss  xmm5, xmm9, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vmulss  xmm3, xmm0, dword ptr [rdi]
-          vmulss  xmm1, xmm5, xmm6
-          vmulss  xmm2, xmm1, dword ptr [rdi+4]
-          vmulss  xmm0, xmm5, xmm7
-          vmulss  xmm1, xmm0, dword ptr [rdi+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm8
         }
-        if ( !(((unsigned __int128)(1456 * (__int128)*((int *)flags - 11)) >> 64 != 0) | v29) )
+        v31 = 1.0 / *(float *)&_XMM0;
+        v32 = (float)((float)(1.0 / *(float *)&_XMM0) * v24) * viewDir->v[0];
+        if ( (float)((float)(v32 + (float)((float)(v31 * v25) * viewDir->v[1])) + (float)((float)(v31 * v27) * viewDir->v[2])) > v7 )
         {
-          entIndex = *((_DWORD *)flags - 11);
-          __asm { vmovaps xmm8, xmm2 }
+          v6 = *((_DWORD *)flags - 11);
+          v7 = (float)(v32 + (float)((float)(v31 * v25) * viewDir->v[1])) + (float)((float)(v31 * v27) * viewDir->v[2]);
         }
       }
       if ( (flags[48] & 1) != 0 )
       {
-        _RCX = 1456i64 * *((int *)flags + 1);
+        v33 = *((int *)flags + 1);
+        v34 = g_entities[v33].r.currentOrigin.v[0] - start->v[0];
+        v36 = LODWORD(g_entities[v33].r.currentOrigin.v[1]);
+        v35 = g_entities[v33].r.currentOrigin.v[1] - start->v[1];
+        v37 = g_entities[v33].r.currentOrigin.v[2] - start->v[2];
+        *(float *)&v36 = fsqrt((float)((float)(v35 * v35) + (float)(v34 * v34)) + (float)(v37 * v37));
+        _XMM1 = v36;
         __asm
         {
-          vmovss  xmm0, dword ptr [rcx+r10+130h]
-          vsubss  xmm4, xmm0, dword ptr [rsi]
-          vmovss  xmm1, dword ptr [rcx+r10+134h]
-          vsubss  xmm6, xmm1, dword ptr [rsi+4]
-          vmovss  xmm0, dword ptr [rcx+r10+138h]
-          vsubss  xmm7, xmm0, dword ptr [rsi+8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm7, xmm7
-          vmulss  xmm2, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm10
           vblendvps xmm0, xmm1, xmm9, xmm0
-          vdivss  xmm5, xmm9, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vmulss  xmm3, xmm0, dword ptr [rdi]
-          vmulss  xmm1, xmm5, xmm6
-          vmulss  xmm2, xmm1, dword ptr [rdi+4]
-          vmulss  xmm0, xmm5, xmm7
-          vmulss  xmm1, xmm0, dword ptr [rdi+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm8
         }
-        if ( !(((unsigned __int128)(1456 * (__int128)*((int *)flags + 1)) >> 64 != 0) | v29) )
+        v41 = 1.0 / *(float *)&_XMM0;
+        v42 = (float)((float)(1.0 / *(float *)&_XMM0) * v34) * viewDir->v[0];
+        if ( (float)((float)(v42 + (float)((float)(v41 * v35) * viewDir->v[1])) + (float)((float)(v41 * v37) * viewDir->v[2])) > v7 )
         {
-          entIndex = *((_DWORD *)flags + 1);
-          __asm { vmovaps xmm8, xmm2 }
+          v6 = *((_DWORD *)flags + 1);
+          v7 = (float)(v42 + (float)((float)(v41 * v35) * viewDir->v[1])) + (float)((float)(v41 * v37) * viewDir->v[2]);
         }
       }
       if ( (flags[96] & 1) != 0 )
       {
-        _RCX = 1456i64 * *((int *)flags + 13);
+        v43 = *((int *)flags + 13);
+        v44 = g_entities[v43].r.currentOrigin.v[0] - start->v[0];
+        v46 = LODWORD(g_entities[v43].r.currentOrigin.v[1]);
+        v45 = g_entities[v43].r.currentOrigin.v[1] - start->v[1];
+        v47 = g_entities[v43].r.currentOrigin.v[2] - start->v[2];
+        *(float *)&v46 = fsqrt((float)((float)(v45 * v45) + (float)(v44 * v44)) + (float)(v47 * v47));
+        _XMM1 = v46;
         __asm
         {
-          vmovss  xmm0, dword ptr [rcx+r10+130h]
-          vsubss  xmm4, xmm0, dword ptr [rsi]
-          vmovss  xmm1, dword ptr [rcx+r10+134h]
-          vsubss  xmm6, xmm1, dword ptr [rsi+4]
-          vmovss  xmm0, dword ptr [rcx+r10+138h]
-          vsubss  xmm7, xmm0, dword ptr [rsi+8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm7, xmm7
-          vmulss  xmm2, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm10
           vblendvps xmm0, xmm1, xmm9, xmm0
-          vdivss  xmm5, xmm9, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vmulss  xmm3, xmm0, dword ptr [rdi]
-          vmulss  xmm1, xmm5, xmm6
-          vmulss  xmm2, xmm1, dword ptr [rdi+4]
-          vmulss  xmm0, xmm5, xmm7
-          vmulss  xmm1, xmm0, dword ptr [rdi+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm8
         }
-        if ( !(((unsigned __int128)(1456 * (__int128)*((int *)flags + 13)) >> 64 != 0) | v29) )
+        v51 = 1.0 / *(float *)&_XMM0;
+        v52 = (float)((float)(1.0 / *(float *)&_XMM0) * v44) * viewDir->v[0];
+        if ( (float)((float)(v52 + (float)((float)(v51 * v45) * viewDir->v[1])) + (float)((float)(v51 * v47) * viewDir->v[2])) > v7 )
         {
-          entIndex = *((_DWORD *)flags + 13);
-          __asm { vmovaps xmm8, xmm2 }
+          v6 = *((_DWORD *)flags + 13);
+          v7 = (float)(v52 + (float)((float)(v51 * v45) * viewDir->v[1])) + (float)((float)(v51 * v47) * viewDir->v[2]);
         }
       }
       flags += 192;
-      --v28;
+      --v12;
     }
-    while ( v28 );
+    while ( v12 );
   }
-  if ( v24 < targetCount )
+  if ( v9 < targetCount )
   {
-    v126 = &Glob->targets[v24];
-    v127 = targetCount - v24;
+    v53 = &Glob->targets[v9];
+    v54 = targetCount - v9;
     do
     {
-      if ( (v126->flags[0] & 1) != 0 )
+      if ( (v53->flags[0] & 1) != 0 )
       {
-        _RCX = 1456i64 * v126->entIndex;
+        entIndex = v53->entIndex;
+        v56 = g_entities[entIndex].r.currentOrigin.v[0] - start->v[0];
+        v58 = LODWORD(g_entities[entIndex].r.currentOrigin.v[1]);
+        v57 = g_entities[entIndex].r.currentOrigin.v[1] - start->v[1];
+        v59 = g_entities[entIndex].r.currentOrigin.v[2] - start->v[2];
+        *(float *)&v58 = fsqrt((float)((float)(v57 * v57) + (float)(v56 * v56)) + (float)(v59 * v59));
+        _XMM1 = v58;
         __asm
         {
-          vmovss  xmm0, dword ptr [rcx+r10+130h]
-          vsubss  xmm4, xmm0, dword ptr [rsi]
-          vmovss  xmm1, dword ptr [rcx+r10+134h]
-          vsubss  xmm6, xmm1, dword ptr [rsi+4]
-          vmovss  xmm0, dword ptr [rcx+r10+138h]
-          vsubss  xmm7, xmm0, dword ptr [rsi+8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm7, xmm7
-          vmulss  xmm2, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm10
           vblendvps xmm0, xmm1, xmm9, xmm0
-          vdivss  xmm5, xmm9, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vmulss  xmm3, xmm0, dword ptr [rdi]
-          vmulss  xmm1, xmm5, xmm6
-          vmulss  xmm2, xmm1, dword ptr [rdi+4]
-          vmulss  xmm0, xmm5, xmm7
-          vmulss  xmm1, xmm0, dword ptr [rdi+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm8
         }
-        if ( !(((unsigned __int128)(1456 * (__int128)v126->entIndex) >> 64 != 0) | v29) )
+        v63 = 1.0 / *(float *)&_XMM0;
+        v64 = (float)((float)(1.0 / *(float *)&_XMM0) * v56) * viewDir->v[0];
+        if ( (float)((float)(v64 + (float)((float)(v63 * v57) * viewDir->v[1])) + (float)((float)(v63 * v59) * viewDir->v[2])) > v7 )
         {
-          entIndex = v126->entIndex;
-          __asm { vmovaps xmm8, xmm2 }
+          v6 = v53->entIndex;
+          v7 = (float)(v64 + (float)((float)(v63 * v57) * viewDir->v[1])) + (float)((float)(v63 * v59) * viewDir->v[2]);
         }
       }
-      ++v126;
-      --v127;
+      ++v53;
+      --v54;
     }
-    while ( v127 );
+    while ( v54 );
   }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-  _R11 = &v166;
-  result = entIndex;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm6, [rsp+0A8h+var_28]
-  }
-  return result;
+  return v6;
 }
 
 /*
@@ -703,65 +594,45 @@ AimTargetSP_GetTargetBounds
 void AimTargetSP_GetTargetBounds(const gentity_s *targetEnt, Bounds *box)
 {
   entityType_s eType; 
-  const dvar_t *v8; 
+  const dvar_t *v5; 
+  float v6; 
+  float ActorRadius; 
+  float v8; 
   unsigned __int8 modelType; 
   vec3_t outPos; 
-  vec3_t v16; 
+  vec3_t v11; 
 
-  _RDI = box;
   if ( !targetEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 219, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 220, ASSERT_TYPE_ASSERT, "(box)", (const char *)&queryFormat, "box") )
+  if ( !box && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 220, ASSERT_TYPE_ASSERT, "(box)", (const char *)&queryFormat, "box") )
     __debugbreak();
   eType = targetEnt->s.eType;
   if ( eType == ET_ACTOR )
   {
-    __asm { vmovaps [rsp+98h+var_18], xmm6 }
     G_Utils_DObjGetWorldTagPos_CheckTagExists(targetEnt, (const scr_string_t)scr_const.aim_highest_bone, 1, &outPos);
-    if ( G_Utils_DObjGetWorldTagPos(targetEnt, scr_const.j_spine4, &v16) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+98h+var_38+8]
-        vcomiss xmm0, dword ptr [rsp+98h+outPos+8]
-        vmovsd  xmm0, qword ptr [rsp+98h+var_38]
-        vmovsd  qword ptr [rsp+98h+outPos], xmm0
-      }
-      outPos.v[2] = v16.v[2];
-    }
-    v8 = DCONST_DVARFLT_aim_actorBoundsZPadding;
+    if ( G_Utils_DObjGetWorldTagPos(targetEnt, scr_const.j_spine4, &v11) && v11.v[2] > outPos.v[2] )
+      outPos = v11;
+    v5 = DCONST_DVARFLT_aim_actorBoundsZPadding;
     if ( !DCONST_DVARFLT_aim_actorBoundsZPadding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "aim_actorBoundsZPadding") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+98h+outPos+8]
-      vsubss  xmm1, xmm0, dword ptr [rbx+138h]
-      vaddss  xmm6, xmm1, dword ptr [rsi+28h]
-    }
-    *(float *)&_XMM0 = AimTargetSP_GetActorRadius(targetEnt);
-    __asm
-    {
-      vmulss  xmm1, xmm6, cs:__real@3f000000
-      vmovaps xmm6, [rsp+98h+var_18]
-      vmovss  dword ptr [rdi+8], xmm1
-    }
-    *(_QWORD *)_RDI->midPoint.v = 0i64;
-    __asm
-    {
-      vmovss  dword ptr [rdi+0Ch], xmm0
-      vmovss  dword ptr [rdi+10h], xmm0
-      vmovss  dword ptr [rdi+14h], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v5);
+    v6 = (float)(outPos.v[2] - targetEnt->r.currentOrigin.v[2]) + v5->current.value;
+    ActorRadius = AimTargetSP_GetActorRadius(targetEnt);
+    v8 = v6 * 0.5;
+    box->midPoint.v[2] = v8;
+    *(_QWORD *)box->midPoint.v = 0i64;
+    box->halfSize.v[0] = ActorRadius;
+    box->halfSize.v[1] = ActorRadius;
+    box->halfSize.v[2] = v8;
   }
   else if ( eType == ET_SCRIPTMOVER )
   {
-    _RDI->midPoint.v[0] = targetEnt->r.box.midPoint.v[0];
-    _RDI->midPoint.v[1] = targetEnt->r.box.midPoint.v[1];
-    _RDI->midPoint.v[2] = targetEnt->r.box.midPoint.v[2];
-    _RDI->halfSize.v[0] = targetEnt->r.box.halfSize.v[0];
-    _RDI->halfSize.v[1] = targetEnt->r.box.halfSize.v[1];
-    _RDI->halfSize.v[2] = targetEnt->r.box.halfSize.v[2];
+    box->midPoint.v[0] = targetEnt->r.box.midPoint.v[0];
+    box->midPoint.v[1] = targetEnt->r.box.midPoint.v[1];
+    box->midPoint.v[2] = targetEnt->r.box.midPoint.v[2];
+    box->halfSize.v[0] = targetEnt->r.box.halfSize.v[0];
+    box->halfSize.v[1] = targetEnt->r.box.halfSize.v[1];
+    box->halfSize.v[2] = targetEnt->r.box.halfSize.v[2];
   }
   else
   {
@@ -770,7 +641,7 @@ void AimTargetSP_GetTargetBounds(const gentity_s *targetEnt, Bounds *box)
       __debugbreak();
     if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&targetEnt->s.lerp.eFlags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 248, ASSERT_TYPE_ASSERT, "(targetEnt->s.lerp.eFlags.TestFlag( EntityStateFlagsCommon::BRUSHMODEL ))", (const char *)&queryFormat, "targetEnt->s.lerp.eFlags.TestFlag( EntityStateFlagsCommon::BRUSHMODEL )") )
       __debugbreak();
-    CM_BrushModelBounds(targetEnt->s.index.brushModel, _RDI);
+    CM_BrushModelBounds(targetEnt->s.index.brushModel, box);
   }
 }
 
@@ -779,130 +650,85 @@ void AimTargetSP_GetTargetBounds(const gentity_s *targetEnt, Bounds *box)
 AimTargetSP_IsTargetValidForPlayer
 ==============
 */
-
-bool __fastcall AimTargetSP_IsTargetValidForPlayer(const gentity_s *playerEnt, const gentity_s *targetEnt, double _XMM2_8)
+bool AimTargetSP_IsTargetValidForPlayer(const gentity_s *playerEnt, const gentity_s *targetEnt)
 {
   sentient_s *sentient; 
-  sentient_s *v11; 
-  bool v12; 
-  unsigned int v16; 
-  char v52; 
+  sentient_s *v5; 
+  bool v6; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v8; 
+  double v9; 
+  unsigned int v10; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float ActorRadius; 
+  float v16; 
+  float v17; 
+  float v18; 
   bitarray<224> result; 
   vec3_t outForward; 
 
-  _RBX = targetEnt;
   Profile_Begin(42);
   if ( !playerEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 294, ASSERT_TYPE_ASSERT, "(playerEnt)", (const char *)&queryFormat, "playerEnt") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 295, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
+  if ( !targetEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 295, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
     __debugbreak();
   if ( !playerEnt->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 297, ASSERT_TYPE_ASSERT, "(playerEnt->sentient)", (const char *)&queryFormat, "playerEnt->sentient") )
     __debugbreak();
-  if ( playerEnt->s.number == _RBX->s.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 298, ASSERT_TYPE_ASSERT, "(playerEnt->s.number != targetEnt->s.number)", (const char *)&queryFormat, "playerEnt->s.number != targetEnt->s.number") )
+  if ( playerEnt->s.number == targetEnt->s.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 298, ASSERT_TYPE_ASSERT, "(playerEnt->s.number != targetEnt->s.number)", (const char *)&queryFormat, "playerEnt->s.number != targetEnt->s.number") )
     __debugbreak();
-  if ( _RBX->s.eType != ET_ACTOR )
+  if ( targetEnt->s.eType != ET_ACTOR )
     goto LABEL_33;
-  if ( !_RBX->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 303, ASSERT_TYPE_ASSERT, "(targetEnt->sentient)", (const char *)&queryFormat, "targetEnt->sentient") )
+  if ( !targetEnt->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 303, ASSERT_TYPE_ASSERT, "(targetEnt->sentient)", (const char *)&queryFormat, "targetEnt->sentient") )
     __debugbreak();
-  sentient = _RBX->sentient;
-  v11 = playerEnt->sentient;
+  sentient = targetEnt->sentient;
+  v5 = playerEnt->sentient;
   if ( !sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 258, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 259, ASSERT_TYPE_ASSERT, "(other)", (const char *)&queryFormat, "other") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.h", 259, ASSERT_TYPE_ASSERT, "(other)", (const char *)&queryFormat, "other") )
     __debugbreak();
   if ( level.teammode == TEAMMODE_FFA )
   {
-    v12 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
+    v6 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+      AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovsd  xmm1, qword ptr [rax+10h]
-    }
-    v16 = _RAX->array[6] & 0xFFEFFFFF;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+0D8h+result.array], xmm0
-      vmovsd  qword ptr [rsp+0D8h+result.array+10h], xmm1
-    }
-    if ( v12 )
+      AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    v8 = *(_OWORD *)AllCombatTeamFlags->array;
+    v9 = *(double *)&AllCombatTeamFlags->array[4];
+    v10 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+    *(_OWORD *)result.array = v8;
+    *(double *)&result.array[4] = v9;
+    if ( v6 )
       result.array[0] &= ~0x8000000u;
-    result.array[6] = v16 & 0xFF9FFFFF;
+    result.array[6] = v10 & 0xFF9FFFFF;
   }
   else
   {
-    Com_Teams_GetEnemyTeamFlags(&result, v11->eTeam);
+    Com_Teams_GetEnemyTeamFlags(&result, v5->eTeam);
   }
   if ( bitarray_base<bitarray<224>>::testBit(&result, sentient->eTeam) )
   {
 LABEL_33:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovaps [rsp+0D8h+var_28], xmm6
-      vsubss  xmm6, xmm0, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovaps [rsp+0D8h+var_38], xmm7
-      vsubss  xmm7, xmm1, dword ptr [rdi+134h]
-      vmovaps [rsp+0D8h+var_48], xmm8
-      vmovaps [rsp+0D8h+var_58], xmm9
-      vmovaps [rsp+0D8h+var_68], xmm10
-      vsubss  xmm10, xmm0, dword ptr [rdi+138h]
-    }
+    v12 = targetEnt->r.currentOrigin.v[0] - playerEnt->r.currentOrigin.v[0];
+    v13 = targetEnt->r.currentOrigin.v[1] - playerEnt->r.currentOrigin.v[1];
+    v14 = targetEnt->r.currentOrigin.v[2] - playerEnt->r.currentOrigin.v[2];
     G_Client_GetViewDirection(playerEnt, &outForward, NULL, NULL);
-    if ( _RBX->s.eType == ET_ACTOR )
+    if ( targetEnt->s.eType == ET_ACTOR )
     {
-      *(float *)&_XMM0 = AimTargetSP_GetActorRadius(_RBX);
-      __asm { vmovaps xmm9, xmm0 }
+      ActorRadius = AimTargetSP_GetActorRadius(targetEnt);
     }
     else
     {
-      AimTargetSP_GetTargetBounds(_RBX, (Bounds *)&result);
-      __asm
-      {
-        vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm0, [rsp+0D8h+result.array]
-        vmovss  xmm1, [rsp+0D8h+result.array+8]
-        vandps  xmm0, xmm0, xmm3
-        vaddss  xmm5, xmm0, [rsp+0D8h+result.array+0Ch]
-        vmovss  xmm0, [rsp+0D8h+result.array+4]
-        vandps  xmm0, xmm0, xmm3
-        vaddss  xmm2, xmm0, [rsp+0D8h+result.array+10h]
-        vandps  xmm1, xmm1, xmm3
-        vaddss  xmm4, xmm1, [rsp+0D8h+result.array+14h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm1
-        vsqrtss xmm9, xmm2, xmm2
-      }
+      AimTargetSP_GetTargetBounds(targetEnt, (Bounds *)&result);
+      ActorRadius = fsqrt((float)((float)((float)(COERCE_FLOAT(result.array[1] & _xmm) + *(float *)&result.array[4]) * (float)(COERCE_FLOAT(result.array[1] & _xmm) + *(float *)&result.array[4])) + (float)((float)(COERCE_FLOAT(result.array[0] & _xmm) + *(float *)&result.array[3]) * (float)(COERCE_FLOAT(result.array[0] & _xmm) + *(float *)&result.array[3]))) + (float)((float)(COERCE_FLOAT(result.array[2] & _xmm) + *(float *)&result.array[5]) * (float)(COERCE_FLOAT(result.array[2] & _xmm) + *(float *)&result.array[5])));
     }
-    __asm
-    {
-      vmulss  xmm8, xmm7, dword ptr [rsp+0D8h+outForward+4]
-      vmulss  xmm7, xmm6, dword ptr [rsp+0D8h+outForward]
-      vmulss  xmm6, xmm10, dword ptr [rsp+0D8h+outForward+8]
-    }
+    v16 = v13 * outForward.v[1];
+    v17 = v12 * outForward.v[0];
+    v18 = v14 * outForward.v[2];
     Profile_EndInternal(NULL);
-    __asm
-    {
-      vmovaps xmm10, [rsp+0D8h+var_68]
-      vaddss  xmm0, xmm8, xmm7
-      vmovaps xmm8, [rsp+0D8h+var_48]
-      vmovaps xmm7, [rsp+0D8h+var_38]
-      vaddss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+0D8h+var_28]
-      vaddss  xmm3, xmm1, xmm9
-      vmovaps xmm9, [rsp+0D8h+var_58]
-      vxorps  xmm2, xmm2, xmm2
-      vcomiss xmm3, xmm2
-    }
-    return !v52;
+    return (float)((float)((float)(v16 + v17) + v18) + ActorRadius) >= 0.0;
   }
   else
   {
@@ -916,25 +742,23 @@ LABEL_33:
 AimTargetSP_IsTargetVisible
 ==============
 */
-__int64 AimTargetSP_IsTargetVisible(const gentity_s *playerEnt, const gentity_s *targetEnt, vec3_t *inOutPos)
+_BOOL8 AimTargetSP_IsTargetVisible(const gentity_s *playerEnt, const gentity_s *targetEnt, vec3_t *inOutPos)
 {
   HavokPhysics_CollisionQueryResult *AnyResult; 
-  unsigned __int8 v17; 
-  char v19; 
-  char v20; 
-  hkMemoryAllocator *v21; 
-  hkMemoryAllocator *v22; 
-  __int64 result; 
+  bool v7; 
+  double ClientVisibility; 
+  float v9; 
+  double FxVisibility; 
+  hkMemoryAllocator *v11; 
+  hkMemoryAllocator *v12; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v26; 
-  __int64 v27; 
+  HavokPhysics_IgnoreBodies v15; 
+  __int64 v16; 
   vec3_t end; 
   vec3_t outOrigin; 
   Bounds box; 
 
-  v27 = -2i64;
-  __asm { vmovaps [rsp+120h+var_30], xmm6 }
-  _RSI = inOutPos;
+  v16 = -2i64;
   Profile_Begin(43);
   if ( !targetEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 338, ASSERT_TYPE_ASSERT, "( targetEnt )", (const char *)&queryFormat, "targetEnt") )
     __debugbreak();
@@ -942,51 +766,30 @@ __int64 AimTargetSP_IsTargetVisible(const gentity_s *playerEnt, const gentity_s 
     __debugbreak();
   if ( targetEnt->s.eType == ET_ACTOR )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rbp+57h+end], xmm0
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rbp+57h+end+4], xmm1
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rbp+57h+end+8], xmm0
-    }
+    end = *inOutPos;
   }
   else
   {
     AimTargetSP_GetTargetBounds(targetEnt, &box);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+box.midPoint]
-      vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-      vmovss  dword ptr [rbp+57h+end], xmm1
-      vmovss  xmm2, dword ptr [rbp+57h+box.midPoint+4]
-      vaddss  xmm0, xmm2, dword ptr [rbx+134h]
-      vmovss  dword ptr [rbp+57h+end+4], xmm0
-      vmovss  xmm1, dword ptr [rbp+57h+box.midPoint+8]
-      vaddss  xmm2, xmm1, dword ptr [rbx+138h]
-      vmovss  dword ptr [rbp+57h+end+8], xmm2
-    }
+    end.v[0] = box.midPoint.v[0] + targetEnt->r.currentOrigin.v[0];
+    end.v[1] = box.midPoint.v[1] + targetEnt->r.currentOrigin.v[1];
+    end.v[2] = box.midPoint.v[2] + targetEnt->r.currentOrigin.v[2];
   }
   if ( !playerEnt->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 346, ASSERT_TYPE_ASSERT, "( playerEnt->client )", (const char *)&queryFormat, "playerEnt->client") )
     __debugbreak();
   if ( playerEnt->s.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 347, ASSERT_TYPE_ASSERT, "( playerEnt->s.number == 0 )", (const char *)&queryFormat, "playerEnt->s.number == 0") )
     __debugbreak();
   G_Client_GetViewOrigin(&playerEnt->client->ps, &outOrigin);
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v26, 2, 0);
-  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v26, 0, targetEnt->s.number, 1, 1, 0, 1, 1);
-  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v26, 1, playerEnt->s.number, 1, 1, 0, 1, 1);
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v15, 2, 0);
+  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v15, 0, targetEnt->s.number, 1, 1, 0, 1, 1);
+  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v15, 1, playerEnt->s.number, 1, 1, 0, 1, 1);
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+57h+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = 8423683;
-  extendedData.ignoreBodies = &v26;
+  extendedData.ignoreBodies = &v15;
   AnyResult = PhysicsQuery_GetAnyResult(PHYSICS_WORLD_ID_FIRST);
   if ( !AnyResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 359, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
@@ -994,50 +797,39 @@ __int64 AimTargetSP_IsTargetVisible(const gentity_s *playerEnt, const gentity_s 
   Physics_Raycast(PHYSICS_WORLD_ID_FIRST, &outOrigin, &end, &extendedData, AnyResult);
   if ( HavokPhysics_CollisionQueryResult::HasHit(AnyResult) )
   {
-    HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(AnyResult, 0, _RSI);
+    HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(AnyResult, 0, inOutPos);
     Profile_EndInternal(NULL);
-    v17 = 0;
+    v7 = 0;
   }
   else
   {
     if ( SV_IsDemoPlaying() )
     {
-      *(double *)&_XMM0 = SV_DemoSP_GetFxVisibility();
-      __asm { vmovaps xmm6, xmm0 }
+      FxVisibility = SV_DemoSP_GetFxVisibility();
+      v9 = *(float *)&FxVisibility;
     }
     else
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api_inline.h", 118, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY )") )
         __debugbreak();
-      *(double *)&_XMM0 = FX_GetClientVisibility(fx_serverVisClient, &outOrigin, &end);
-      __asm { vmovaps xmm6, xmm0 }
-      SV_DemoSP_RecordFxVisibility(*(float *)&_XMM0);
+      ClientVisibility = FX_GetClientVisibility(fx_serverVisClient, &outOrigin, &end);
+      v9 = *(float *)&ClientVisibility;
+      SV_DemoSP_RecordFxVisibility(*(float *)&ClientVisibility);
     }
-    __asm { vcomiss xmm6, cs:__real@38d1b717 }
-    if ( v19 | v20 )
-    {
-      Profile_EndInternal(NULL);
-      v17 = 0;
-    }
-    else
-    {
-      Profile_EndInternal(NULL);
-      v17 = 1;
-    }
+    Profile_EndInternal(NULL);
+    v7 = v9 > 0.000099999997;
   }
-  v21 = hkMemHeapAllocator();
-  v26.m_ignoreBodies.m_size = 0;
-  if ( v26.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v21, v26.m_ignoreBodies.m_data, 4, v26.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v26.m_ignoreBodies.m_data = NULL;
-  v26.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v22 = hkMemHeapAllocator();
-  v26.m_ignoreEntities.m_size = 0;
-  if ( v26.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v22, v26.m_ignoreEntities.m_data, 8, v26.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  result = v17;
-  __asm { vmovaps xmm6, [rsp+120h+var_30] }
-  return result;
+  v11 = hkMemHeapAllocator();
+  v15.m_ignoreBodies.m_size = 0;
+  if ( v15.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v11, v15.m_ignoreBodies.m_data, 4, v15.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v15.m_ignoreBodies.m_data = NULL;
+  v15.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v12 = hkMemHeapAllocator();
+  v15.m_ignoreEntities.m_size = 0;
+  if ( v15.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v12, v15.m_ignoreEntities.m_data, 8, v15.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  return v7;
 }
 
 /*
@@ -1045,46 +837,46 @@ __int64 AimTargetSP_IsTargetVisible(const gentity_s *playerEnt, const gentity_s 
 AimTargetSP_ProcessEntity
 ==============
 */
-void AimTargetSP_ProcessEntity(gentity_s *ent, __int64 a2, double a3)
+void AimTargetSP_ProcessEntity(gentity_s *ent)
 {
-  signed __int64 v4; 
-  char v5; 
-  unsigned __int8 v6; 
+  signed __int64 v2; 
+  char v3; 
+  unsigned __int8 v4; 
   gentity_s *gentities; 
   gclient_s *client; 
   int pm_type; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v8; 
+  __int64 v9; 
 
   Profile_Begin(41);
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 486, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v4 = ent - g_entities;
-  if ( (unsigned int)v4 >= 0x800 )
+  v2 = ent - g_entities;
+  if ( (unsigned int)v2 >= 0x800 )
   {
-    LODWORD(v10) = ent - g_entities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, 2048) )
+    LODWORD(v8) = ent - g_entities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v8, 2048) )
       __debugbreak();
   }
-  v4 = (__int16)v4;
-  if ( (unsigned int)(__int16)v4 >= 0x800 )
+  v2 = (__int16)v2;
+  if ( (unsigned int)(__int16)v2 >= 0x800 )
   {
-    LODWORD(v11) = 2048;
-    LODWORD(v10) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v9) = 2048;
+    LODWORD(v8) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  if ( g_entities[v4].r.isInUse != g_entityIsInUse[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  if ( g_entities[v2].r.isInUse != g_entityIsInUse[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 487, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( G_GetEntityIndex( ent ) ) )", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( ent ) )") )
+  if ( !g_entityIsInUse[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 487, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( G_GetEntityIndex( ent ) ) )", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( ent ) )") )
     __debugbreak();
-  v5 = AimTargetSP_CalcTargetFlags(ent);
-  v6 = v5;
-  if ( !ent->r.isLinked || !v5 )
+  v3 = AimTargetSP_CalcTargetFlags(ent);
+  v4 = v3;
+  if ( !ent->r.isLinked || !v3 )
     goto LABEL_62;
   if ( level.maxclients != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\aim_assist\\aim_target_sp.cpp", 501, ASSERT_TYPE_ASSERT, "( level.maxclients == 1 )", (const char *)&queryFormat, "level.maxclients == 1") )
     __debugbreak();
@@ -1101,7 +893,7 @@ void AimTargetSP_ProcessEntity(gentity_s *ent, __int64 a2, double a3)
   pm_type = client->ps.pm_type;
   if ( pm_type < 2 || pm_type > 4 && (unsigned int)(pm_type - 7) > 1 )
   {
-    if ( !AimTargetSP_IsTargetValidForPlayer(gentities, ent, a3) )
+    if ( !AimTargetSP_IsTargetValidForPlayer(gentities, ent) )
     {
 LABEL_43:
       GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::ClearFlagStrict(&ent->flags, (BgEntityFlagsSP)34);
@@ -1113,7 +905,7 @@ LABEL_43:
         __debugbreak();
       if ( (ent->flags.m_flags[1] & 4) == 0 )
       {
-        if ( !AimTargetSP_CreateTarget(0, ent, (const AimTargetFlags)v6) )
+        if ( !AimTargetSP_CreateTarget(0, ent, (const AimTargetFlags)v4) )
           goto LABEL_43;
         if ( GameModeFlagValues::ms_spValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 138, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a SP-only context", "IsFlagActive( index )") )
           __debugbreak();

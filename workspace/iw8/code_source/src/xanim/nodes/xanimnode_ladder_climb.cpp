@@ -113,463 +113,387 @@ XAnimLadderClimb_Update
 */
 void XAnimLadderClimb_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex, float dtime, const bool isInstantInit, XModelNameMap *modelNameMap)
 {
+  __int128 v7; 
   XAnimSubTreeID subTreeID; 
   const XAnim_s *SubTreeAnims; 
   unsigned int NumChildren; 
-  char v25; 
   unsigned int ChildAt; 
-  unsigned int v28; 
-  unsigned int v30; 
+  unsigned int v17; 
   XAnimTree *tree; 
-  unsigned int v32; 
-  const dvar_t *v33; 
-  unsigned int v34; 
-  bool v35; 
-  bool v36; 
-  int v66; 
-  unsigned int v67; 
-  unsigned int v69; 
-  XAnimTree *v70; 
-  char v85; 
-  bool v86; 
-  bool v91; 
-  bool v106; 
-  unsigned int v111; 
-  char v114; 
-  bool v118; 
-  XModelNameMap *v123; 
-  BOOL notifyType; 
-  float curveID; 
-  float curveIDa; 
-  float curveIDb; 
-  float curveIDc; 
-  float curveIDd; 
-  float curveIDe; 
-  float curveIDf; 
-  float curveIDg; 
-  float curveIDh; 
-  float curveIDi; 
-  float curveIDj; 
-  float curveIDk; 
-  float curveIDl; 
-  float curveIDm; 
-  float inOutAnchorPos; 
-  float inOutAnchorPosa; 
-  float inOutAnchorPosb; 
-  float inOutAnchorPosc; 
-  float inOutAnchorPosd; 
-  float inOutAnchorPose; 
-  float outPrevGrabAnimTime; 
-  float outPrevGrabAnimTimea; 
-  float outPrevGrabAnimTimeb; 
-  float outPrevGrabAnimTimec; 
-  float outPrevGrabAnimTimed; 
-  float outPrevGrabAnimTimee; 
-  bool v162; 
-  unsigned __int8 v163; 
+  unsigned int v19; 
+  const dvar_t *v20; 
+  unsigned int v21; 
+  bool v22; 
+  bool v23; 
+  double Time; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
+  float v34; 
+  __int128 v35; 
+  int v36; 
+  unsigned int v37; 
+  double GoalWeight; 
+  float v39; 
+  float v40; 
+  double ScrubOffset; 
+  float v44; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v50; 
+  double v52; 
+  float v53; 
+  float v55; 
+  __int128 v62; 
+  double v63; 
+  __int128 v64; 
+  __int128 v65; 
+  __int128 v66; 
+  bool v67; 
+  XAnimTree *v71; 
+  int v72; 
+  unsigned int v73; 
+  unsigned int v74; 
+  double v75; 
+  double v76; 
+  XModelNameMap *v77; 
+  double Weight; 
+  const dvar_t *v79; 
+  double v85; 
+  __int128 v86; 
+  __int128 v87; 
+  __int128 v89; 
+  __int128 v90; 
+  __int128 v97; 
+  bool v98; 
+  double Float_Internal_DebugName; 
+  float v102; 
+  unsigned int v103; 
+  double Length; 
+  float v105; 
+  double v106; 
+  float v107; 
+  bool v108; 
+  double v109; 
+  XModelNameMap *v110; 
+  bool v111; 
+  unsigned __int8 v112; 
   float rate; 
   int outTargetGrabIndex; 
   XModelNameMap *cachedModelNameMap; 
   unsigned int graftAnimIndex; 
-  float outTargetGrabAnimTime[3]; 
+  unsigned int outTargetGrabAnimTime[3]; 
+  float v118; 
   vec3_t playerAnchorPos; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+1B0h+var_70], xmm8 }
   subTreeID = animInfo->subTreeID;
-  _RSI = (XAnimLadderClimb *)nodeData;
   cachedModelNameMap = modelNameMap;
-  _R14 = animInfo;
   SubTreeAnims = XAnimGetSubTreeAnims(obj->tree, subTreeID);
-  NumChildren = XAnimGetNumChildren(obj->tree->anims, _R14->animIndex);
-  ChildAt = XAnimGetChildAt(SubTreeAnims, _R14->animIndex, 0);
-  __asm
+  NumChildren = XAnimGetNumChildren(obj->tree->anims, animInfo->animIndex);
+  _XMM8 = 0i64;
+  ChildAt = XAnimGetChildAt(SubTreeAnims, animInfo->animIndex, 0);
+  if ( animInfo->state.weight == 0.0 && animInfo->state.goalWeight == 0.0 )
   {
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm8, dword ptr [r14+3Ch]
+    XAnimClearTreeGoalWeightsNode(obj->tree, animInfoIndex, ladderBlendTime, 1, LINEAR);
+    return;
   }
-  v28 = ChildAt;
-  if ( !v25 )
-    goto LABEL_4;
-  __asm { vucomiss xmm8, dword ptr [r14+38h] }
-  if ( !v25 )
+  v17 = XAnimGetGraftAnimIndex(animInfoIndex);
+  tree = obj->tree;
+  graftAnimIndex = v17;
+  XAnimLadderClimb_SetScrubbedNotetracks_r(tree, v17, animInfo);
+  v19 = 0;
+  if ( NumChildren > 1 )
+    v19 = XAnimGetChildAt(obj->tree->anims, animInfo->animIndex, 1u);
+  v20 = DCONST_DVARBOOL_xanim_ladder_climb_enable_grabs;
+  v21 = v19;
+  if ( !DCONST_DVARBOOL_xanim_ladder_climb_enable_grabs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ladder_climb_enable_grabs") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v20);
+  v22 = v20->current.enabled && v21;
+  v111 = v22;
+  v23 = (unsigned __int16)(obj->entnum - 2049) <= 1u;
+  AnglesToAxis((const vec3_t *)nodeData + 3, &axis);
+  Time = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
+  v25 = *(float *)&Time;
+  if ( *((_BYTE *)nodeData + 60) && XAnimLadderClimb_GetClampedAnchorPos((XAnimLadderClimb *)nodeData, obj->tree, &axis, ChildAt, *(float *)&Time, &playerAnchorPos) )
   {
-LABEL_4:
+    v112 = 1;
+  }
+  else
+  {
+    v26 = *((float *)nodeData + 1);
+    playerAnchorPos.v[0] = *(float *)nodeData;
+    v7 = *((unsigned int *)nodeData + 2);
+    playerAnchorPos.v[2] = *((float *)nodeData + 2);
+    playerAnchorPos.v[1] = v26;
+    v112 = 0;
+  }
+  *(double *)&v7 = BG_Ladder_GetTargetAnimationTime(&playerAnchorPos, (const vec3_t *)nodeData + 1, (const vec3_t *)nodeData + 2, *((float *)nodeData + 14));
+  v27 = playerAnchorPos.v[0];
+  v28 = playerAnchorPos.v[1];
+  v29 = playerAnchorPos.v[2];
+  v30 = v7;
+  if ( v23 )
+  {
+    v34 = *((float *)nodeData + 12);
+  }
+  else if ( (float)((float)((float)((float)(playerAnchorPos.v[1] - *((float *)nodeData + 18)) * (float)(playerAnchorPos.v[1] - *((float *)nodeData + 18))) + (float)((float)(playerAnchorPos.v[0] - *((float *)nodeData + 17)) * (float)(playerAnchorPos.v[0] - *((float *)nodeData + 17)))) + (float)((float)(playerAnchorPos.v[2] - *((float *)nodeData + 19)) * (float)(playerAnchorPos.v[2] - *((float *)nodeData + 19)))) <= 0.0 )
+  {
+    v34 = *((float *)nodeData + 16) * *((float *)nodeData + 12);
+  }
+  else
+  {
+    _XMM1 = LODWORD(FLOAT_N1_0);
     __asm
     {
-      vmovaps [rsp+1B0h+var_50], xmm6
-      vmovaps [rsp+1B0h+var_60], xmm7
-      vmovaps [rsp+1B0h+var_80], xmm9
-      vmovaps [rsp+1B0h+var_A0], xmm11
-      vmovaps [rsp+1B0h+var_D0], xmm14
-      vmovaps [rsp+1B0h+var_E0], xmm15
+      vcmpless xmm0, xmm8, xmm4
+      vblendvps xmm1, xmm1, xmm9, xmm0
     }
-    v30 = XAnimGetGraftAnimIndex(animInfoIndex);
-    tree = obj->tree;
-    graftAnimIndex = v30;
-    XAnimLadderClimb_SetScrubbedNotetracks_r(tree, v30, _R14);
-    v32 = 0;
-    if ( NumChildren > 1 )
-      v32 = XAnimGetChildAt(obj->tree->anims, _R14->animIndex, 1u);
-    v33 = DCONST_DVARBOOL_xanim_ladder_climb_enable_grabs;
-    v34 = v32;
-    if ( !DCONST_DVARBOOL_xanim_ladder_climb_enable_grabs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ladder_climb_enable_grabs") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v33);
-    v35 = v33->current.enabled && v34;
-    v162 = v35;
-    v36 = (unsigned __int16)(obj->entnum - 2049) <= 1u;
-    AnglesToAxis(&_RSI->m_angles, &axis);
-    *(double *)&_XMM0 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v28);
-    __asm { vmovaps xmm11, xmm0 }
-    if ( !_RSI->m_isTorso )
-      goto LABEL_16;
-    __asm { vmovss  dword ptr [rsp+1B0h+curveID], xmm0 }
-    if ( XAnimLadderClimb_GetClampedAnchorPos(_RSI, obj->tree, &axis, v28, curveID, &playerAnchorPos) )
+    v34 = *(float *)&_XMM1 * *((float *)nodeData + 12);
+    *((float *)nodeData + 16) = *(float *)&_XMM1;
+    rate = *(float *)&_XMM1;
+  }
+  *((float *)nodeData + 17) = v27;
+  *((float *)nodeData + 18) = v28;
+  *((float *)nodeData + 19) = v29;
+  XAnimSetAnimRate(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, 0.0);
+  XAnimLadderClimb_GetStopTimeInfo(obj->tree, ChildAt, v25, *(float *)&v30, &outTargetGrabIndex, (float *)outTargetGrabAnimTime, &rate);
+  v35 = outTargetGrabAnimTime[0];
+  if ( *((_BYTE *)nodeData + 84) )
+  {
+    v36 = outTargetGrabIndex;
+  }
+  else
+  {
+    if ( (float)((float)((float)(playerAnchorPos.v[1] * playerAnchorPos.v[1]) + (float)(playerAnchorPos.v[0] * playerAnchorPos.v[0])) + (float)(playerAnchorPos.v[2] * playerAnchorPos.v[2])) <= 0.0 )
+      return;
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ChildAt, 1.0, ladderBlendTime, 0.0, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
+    XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *(float *)&v30);
+    v25 = *(float *)&v30;
+    if ( v22 )
     {
-      v163 = 1;
+      XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *(float *)&v35);
+      v36 = outTargetGrabIndex;
+      if ( ((outTargetGrabIndex - 3) & 0xFFFFFFFB) != 0 )
+      {
+        v36 = outTargetGrabIndex - (outTargetGrabIndex > 3);
+        v37 = XAnimGetChildAt(obj->tree->anims, v21, v36);
+        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v21, 1.0, ladderBlendTime, 0.0, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
+        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v37, 1.0, ladderBlendTime, 0.0, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
+        XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v37, 1.0);
+        v22 = v111;
+        v25 = *(float *)&v35;
+      }
     }
     else
     {
-LABEL_16:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vmovss  dword ptr [rbp+0B0h+playerAnchorPos], xmm0
-        vmovss  xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rbp+0B0h+playerAnchorPos+8], xmm0
-        vmovss  dword ptr [rbp+0B0h+playerAnchorPos+4], xmm1
-      }
-      v163 = 0;
+      v36 = outTargetGrabIndex;
     }
-    __asm
+    XAnimLadderClimb_SetScrubbedNotetracks_r(obj->tree, graftAnimIndex, animInfo);
+    *((_BYTE *)nodeData + 84) = 1;
+  }
+  GoalWeight = XAnimGetGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
+  if ( *(float *)&GoalWeight <= 0.0 )
+  {
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ChildAt, 1.0, ladderBlendTime, 0.0, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
+    XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *(float *)&v30);
+  }
+  if ( v112 || COERCE_FLOAT(LODWORD(v34) & _xmm) <= 0.00000011920929 )
+  {
+    if ( v22 )
     {
-      vmovss  xmm3, dword ptr [rsi+38h]; handDistance
-      vmovaps [rsp+1B0h+var_C0], xmm13
-    }
-    *(double *)&_XMM0 = BG_Ladder_GetTargetAnimationTime(&playerAnchorPos, &_RSI->m_bottom, &_RSI->m_top, *(float *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbp+0B0h+playerAnchorPos]
-      vmovss  xmm6, dword ptr [rbp+0B0h+playerAnchorPos+4]
-      vmovss  xmm7, dword ptr [rbp+0B0h+playerAnchorPos+8]
-      vsubss  xmm2, xmm5, dword ptr [rsi+44h]
-      vsubss  xmm1, xmm6, dword ptr [rsi+48h]
-      vsubss  xmm4, xmm7, dword ptr [rsi+4Ch]
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps xmm15, xmm0
-    }
-    if ( v36 )
-    {
-      __asm { vmovss  xmm13, dword ptr [rsi+30h] }
-    }
-    else
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm1, xmm1
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm8
-        vmovss  xmm1, dword ptr [rsi+40h]
-        vmulss  xmm13, xmm1, dword ptr [rsi+30h]
-      }
-    }
-    __asm
-    {
-      vmovss  dword ptr [rsi+44h], xmm5
-      vmovss  dword ptr [rsi+48h], xmm6
-      vmovss  dword ptr [rsi+4Ch], xmm7
-      vmovss  dword ptr [rsp+1B0h+curveID], xmm8
-    }
-    XAnimSetAnimRate(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDa);
-    __asm
-    {
-      vmovaps xmm3, xmm15; targetAnimTime
-      vmovaps xmm2, xmm11; currentAnimTime
-    }
-    XAnimLadderClimb_GetStopTimeInfo(obj->tree, v28, *(float *)&_XMM2, *(float *)&_XMM3, &outTargetGrabIndex, outTargetGrabAnimTime, &rate);
-    __asm { vmovss  xmm14, [rsp+1B0h+outTargetGrabAnimTime] }
-    if ( _RSI->m_initialized )
-    {
-      v66 = outTargetGrabIndex;
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0B0h+playerAnchorPos+4]
-        vmovss  xmm1, dword ptr [rbp+0B0h+playerAnchorPos]
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm3, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rbp+0B0h+playerAnchorPos+8]
-        vmulss  xmm1, xmm0, xmm0
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vcomiss xmm2, xmm8
-      }
-      if ( !_RSI->m_initialized )
-      {
-LABEL_55:
-        __asm
-        {
-          vmovaps xmm13, [rsp+1B0h+var_C0]
-          vmovaps xmm11, [rsp+1B0h+var_A0]
-          vmovaps xmm14, [rsp+1B0h+var_D0]
-          vmovaps xmm9, [rsp+1B0h+var_80]
-          vmovaps xmm7, [rsp+1B0h+var_60]
-          vmovaps xmm6, [rsp+1B0h+var_50]
-          vmovaps xmm15, [rsp+1B0h+var_E0]
-        }
-        goto LABEL_56;
-      }
-      __asm
-      {
-        vmovss  xmm0, cs:ladderBlendTime
-        vmovss  dword ptr [rsp+1B0h+outPrevGrabAnimTime], xmm8
-        vmovss  dword ptr [rsp+1B0h+inOutAnchorPos], xmm0
-        vmovss  dword ptr [rsp+1B0h+curveID], xmm9
-      }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDb, inOutAnchorPos, outPrevGrabAnimTime, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
-      __asm { vmovss  dword ptr [rsp+1B0h+curveID], xmm15 }
-      XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDc);
-      __asm { vmovaps xmm11, xmm15 }
-      if ( v35 )
-      {
-        __asm { vmovss  dword ptr [rsp+1B0h+curveID], xmm14 }
-        XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDd);
-        v66 = outTargetGrabIndex;
-        if ( ((outTargetGrabIndex - 3) & 0xFFFFFFFB) != 0 )
-        {
-          v66 = outTargetGrabIndex - (outTargetGrabIndex > 3);
-          v67 = XAnimGetChildAt(obj->tree->anims, v34, v66);
-          __asm { vmovss  xmm0, cs:ladderBlendTime }
-          v69 = v67;
-          __asm
-          {
-            vmovss  dword ptr [rsp+1B0h+outPrevGrabAnimTime], xmm8
-            vmovss  dword ptr [rsp+1B0h+inOutAnchorPos], xmm0
-            vmovss  dword ptr [rsp+1B0h+curveID], xmm9
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v34, curveIDe, inOutAnchorPosa, outPrevGrabAnimTimea, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
-          __asm
-          {
-            vmovss  xmm0, cs:ladderBlendTime
-            vmovss  dword ptr [rsp+1B0h+outPrevGrabAnimTime], xmm8
-            vmovss  dword ptr [rsp+1B0h+inOutAnchorPos], xmm0
-            vmovss  dword ptr [rsp+1B0h+curveID], xmm9
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v69, curveIDf, inOutAnchorPosb, outPrevGrabAnimTimeb, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
-          __asm { vmovss  dword ptr [rsp+1B0h+curveID], xmm9 }
-          XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v69, curveIDg);
-          v35 = v162;
-          __asm { vmovaps xmm11, xmm14 }
-        }
-      }
-      else
-      {
-        v66 = outTargetGrabIndex;
-      }
-      XAnimLadderClimb_SetScrubbedNotetracks_r(obj->tree, graftAnimIndex, _R14);
-      _RSI->m_initialized = 1;
-    }
-    v70 = obj->tree;
-    __asm { vmovaps [rsp+1B0h+var_90], xmm10 }
-    *(double *)&_XMM0 = XAnimGetGoalWeight(v70, 0, XANIM_SUBTREE_DEFAULT, v28);
-    __asm { vcomiss xmm0, xmm8 }
-    if ( v85 | v25 )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:ladderBlendTime
-        vmovss  dword ptr [rsp+1B0h+outPrevGrabAnimTime], xmm8
-        vmovss  dword ptr [rsp+1B0h+inOutAnchorPos], xmm0
-        vmovss  dword ptr [rsp+1B0h+curveID], xmm9
-      }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDh, inOutAnchorPosc, outPrevGrabAnimTimec, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
-      __asm { vmovss  dword ptr [rsp+1B0h+curveID], xmm15 }
-      XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDi);
-    }
-    __asm
-    {
-      vmovaps [rsp+1B0h+var_B0], xmm12
-      vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    if ( !v163 )
-    {
-      __asm
-      {
-        vandps  xmm1, xmm13, xmm10
-        vcomiss xmm1, cs:__real@34000000
-      }
-    }
-    if ( v35 )
-    {
-      _RBX = DCONST_DVARFLT_xanim_ladder_climb_grab_time;
+      v79 = DCONST_DVARFLT_xanim_ladder_climb_grab_time;
       if ( !DCONST_DVARFLT_xanim_ladder_climb_grab_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ladder_climb_grab_time") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm3, dword ptr [rbx+28h] }
-      _EAX = 0;
-      __asm { vmovd   xmm1, eax }
-      _EAX = v163;
-      __asm
+      Dvar_CheckFrontendServerThread(v79);
+      _XMM0 = v112;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_0_050000001);
+      __asm { vblendvps xmm13, xmm1, xmm3, xmm2 }
+      LODWORD(_XMM12) = 0;
+      v85 = XAnimLadderClimb_AnimTimeDifference(*(float *)&v35, v25);
+      if ( COERCE_FLOAT(LODWORD(v85) & _xmm) <= 0.0 || COERCE_FLOAT(v35 & _xmm) >= 1.0 )
       {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3d4ccccd
-        vblendvps xmm13, xmm1, xmm3, xmm2
-        vmovaps xmm1, xmm11; currentAnimTime
-        vmovaps xmm0, xmm14; targetAnimTime
-        vxorps  xmm12, xmm12, xmm12
-      }
-      *(double *)&_XMM0 = XAnimLadderClimb_AnimTimeDifference(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm15, [rbp+0B0h+dtime]
-        vandps  xmm6, xmm0, xmm10
-        vcomiss xmm6, xmm8
-        vmovaps xmm7, xmm0
-      }
-      if ( v85 | v86 )
-        goto LABEL_46;
-      __asm { vcomiss xmm6, xmm9 }
-      if ( !v85 )
-      {
-LABEL_46:
-        _RSI->m_prevAnimSpeed = 0.0;
+        *((_DWORD *)nodeData + 20) = 0;
       }
       else
       {
-        __asm { vcomiss xmm0, cs:__real@3f000000 }
-        if ( !(v85 | v86) )
-        {
-          v91 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 528, ASSERT_TYPE_ASSERT, "(animTimeDifference <= 0.5f)", (const char *)&queryFormat, "animTimeDifference <= 0.5f");
-          v85 = 0;
-          v86 = !v91;
-          if ( v91 )
-            __debugbreak();
-        }
+        if ( *(float *)&v85 > 0.5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 528, ASSERT_TYPE_ASSERT, "(animTimeDifference <= 0.5f)", (const char *)&queryFormat, "animTimeDifference <= 0.5f") )
+          __debugbreak();
+        v86 = v35;
+        *(float *)&v86 = *(float *)&v35 - v25;
+        v87 = v86 & (unsigned int)_xmm;
+        v89 = v87;
+        *(float *)&v89 = *(float *)&v87 / COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v35 - rate) & _xmm);
+        _XMM0 = v89;
+        __asm { vminss  xmm12, xmm0, xmm9 }
+        v90 = v87;
+        *(float *)&v87 = *(float *)&v87 / (float)(*(float *)&_XMM12 * *(float *)&_XMM13);
+        *(float *)&v90 = *(float *)&v87 * dtime;
+        _XMM0 = v90;
+        __asm { vminss  xmm3, xmm0, xmm6 }
+        _XMM1 = _XMM3 ^ _xmm;
         __asm
         {
-          vsubss  xmm0, xmm14, [rsp+1B0h+rate]
-          vandps  xmm0, xmm0, xmm10
-          vsubss  xmm2, xmm14, xmm11
-          vandps  xmm2, xmm2, xmm10
-          vdivss  xmm0, xmm2, xmm0
-          vminss  xmm12, xmm0, xmm9
-          vmulss  xmm1, xmm12, xmm13
-          vdivss  xmm2, xmm2, xmm1
-          vmulss  xmm0, xmm2, xmm15
-          vminss  xmm3, xmm0, xmm6
-          vxorps  xmm1, xmm3, cs:__xmm@80000000800000008000000080000000
           vcmpless xmm0, xmm8, xmm7
           vblendvps xmm0, xmm1, xmm3, xmm0
-          vaddss  xmm0, xmm0, xmm11; X
-          vandps  xmm1, xmm0, xmm10
-          vcomiss xmm1, xmm9
-          vmovss  dword ptr [rsi+50h], xmm2
         }
-        if ( !(v85 | v86) )
-          goto LABEL_44;
-        __asm { vcomiss xmm0, xmm8 }
-        if ( v85 )
-LABEL_44:
-          v106 = 1;
-        else
-          v106 = 0;
-        __asm { vmovaps xmm1, xmm9; Y }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+        v97 = _XMM0;
+        *(float *)&v97 = *(float *)&_XMM0 + v25;
+        _XMM0 = v97;
+        *((float *)nodeData + 20) = *(float *)&v87;
+        v98 = COERCE_FLOAT(v97 & _xmm) > 1.0 || *(float *)&v97 < 0.0;
+        *(float *)&_XMM0 = fmodf_0(*(float *)&v97, 1.0);
         __asm
         {
-          vaddss  xmm2, xmm0, xmm9
           vcmpltss xmm1, xmm0, xmm8
           vblendvps xmm0, xmm0, xmm2, xmm1
-          vmovss  dword ptr [rsp+1B0h+curveID], xmm0
         }
-        XAnimSetWrappedTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v28, curveIDj, v106);
+        XAnimSetWrappedTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *(float *)&_XMM0, v98);
       }
-      if ( ((v66 - 3) & 0xFFFFFFFB) != 0 )
+      if ( ((v36 - 3) & 0xFFFFFFFB) != 0 )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_ladder_climb_grab_begin_percent, "xanim_ladder_climb_grab_begin_percent");
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_ladder_climb_grab_begin_percent, "xanim_ladder_climb_grab_begin_percent");
+        v102 = *(float *)&Float_Internal_DebugName;
+        if ( *(float *)&_XMM12 <= *(float *)&Float_Internal_DebugName )
+        {
+          v103 = XAnimGetChildAt(obj->tree->anims, v21, v36 - (v36 > 3));
+          Length = XAnimGetLength(obj->tree->anims, v103);
+          v105 = *(float *)&Length / (float)(v102 * *(float *)&_XMM13);
+          v106 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v103);
+          v107 = *(float *)&v106 + (float)(v105 * dtime);
+          v108 = COERCE_FLOAT(LODWORD(v107) & _xmm) > 1.0 || v107 < 0.0;
+          v109 = I_fclamp(v107, 0.0, 1.0);
+          XAnimSetWrappedTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v103, *(float *)&v109, v108);
+          v110 = cachedModelNameMap;
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v21, *(float *)&v109, ladderBlendTime, 0.0, (scr_string_t)0, *(float *)&v109 > 0.0, 0, LINEAR, cachedModelNameMap);
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v103, *(float *)&v109, ladderBlendTime, 0.0, (scr_string_t)0, *(float *)&v109 > 0.0, 0, LINEAR, v110);
+        }
+      }
+    }
+  }
+  else
+  {
+    v39 = *((float *)nodeData + 14);
+    v118 = playerAnchorPos.v[2];
+    if ( COERCE_FLOAT(LODWORD(v34) & _xmm) > 0.0 )
+    {
+      ScrubOffset = BG_Ladder_GetScrubOffset((const vec3_t *)nodeData + 1, (const vec3_t *)nodeData + 2, v39);
+      __asm { vcmpltss xmm1, xmm8, xmm13 }
+      v44 = *(float *)&ScrubOffset;
+      _XMM4 = 0i64;
+      __asm
+      {
+        vroundss xmm4, xmm4, xmm3, 1
+        vblendvps xmm1, xmm4, xmm2, xmm1
+      }
+      v49 = _XMM1;
+      *(float *)&v49 = *(float *)&_XMM1 * v39;
+      v48 = v49;
+      v40 = (float)((float)((float)((float)(*(float *)&_XMM1 * v39) + *((float *)nodeData + 5)) - v44) - v118) / v34;
+      *(float *)&v48 = fmodf_0(*(float *)&_XMM1 * v39, v39 * 2.0);
+      v50 = v48;
+      *(float *)&v50 = *(float *)&v48 / (float)(v39 * 2.0);
+      _XMM0 = v50;
+      if ( v34 > 0.0 )
+      {
         __asm
         {
-          vcomiss xmm12, xmm0
-          vmovaps xmm6, xmm0
-        }
-        if ( v85 | v25 )
-        {
-          v111 = XAnimGetChildAt(obj->tree->anims, v34, v66 - (v66 > 3));
-          *(double *)&_XMM0 = XAnimGetLength(obj->tree->anims, v111);
-          __asm
-          {
-            vmulss  xmm1, xmm6, xmm13
-            vdivss  xmm6, xmm0, xmm1
-          }
-          *(double *)&_XMM0 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v111);
-          __asm
-          {
-            vmulss  xmm1, xmm6, xmm15
-            vaddss  xmm0, xmm0, xmm1; val
-            vandps  xmm2, xmm0, xmm10
-            vcomiss xmm2, xmm9
-          }
-          if ( !(v114 | v25) )
-            goto LABEL_52;
-          __asm { vcomiss xmm0, xmm8 }
-          if ( v114 )
-LABEL_52:
-            v118 = 1;
-          else
-            v118 = 0;
-          __asm
-          {
-            vmovaps xmm2, xmm9; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  dword ptr [rsp+1B0h+curveID], xmm0
-            vmovaps xmm6, xmm0
-          }
-          XAnimSetWrappedTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v111, curveIDk, v118);
-          __asm { vmovss  xmm0, cs:ladderBlendTime }
-          v123 = cachedModelNameMap;
-          __asm { vcomiss xmm6, xmm8 }
-          notifyType = !(v85 | v25);
-          __asm
-          {
-            vmovss  dword ptr [rsp+1B0h+outPrevGrabAnimTime], xmm8
-            vmovss  dword ptr [rsp+1B0h+inOutAnchorPos], xmm0
-            vmovss  dword ptr [rsp+1B0h+curveID], xmm6
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v34, curveIDl, inOutAnchorPosd, outPrevGrabAnimTimed, (scr_string_t)0, notifyType, 0, LINEAR, cachedModelNameMap);
-          __asm
-          {
-            vmovss  xmm0, cs:ladderBlendTime
-            vmovss  dword ptr [rsp+1B0h+outPrevGrabAnimTime], xmm8
-            vmovss  dword ptr [rsp+1B0h+inOutAnchorPos], xmm0
-            vmovss  dword ptr [rsp+1B0h+curveID], xmm6
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v111, curveIDm, inOutAnchorPose, outPrevGrabAnimTimee, (scr_string_t)0, notifyType, 0, LINEAR, v123);
+          vcmpless xmm1, xmm0, xmm8
+          vblendvps xmm0, xmm0, xmm9, xmm1; targetAnimTime
         }
       }
     }
-    __asm
+    else
     {
-      vmovaps xmm12, [rsp+1B0h+var_B0]
-      vmovaps xmm10, [rsp+1B0h+var_90]
+      v40 = 0.0;
+      LODWORD(_XMM0) = 0;
     }
-    goto LABEL_55;
+    v52 = XAnimLadderClimb_AnimTimeDifference(*(float *)&_XMM0, v25);
+    v53 = *(float *)&v52;
+    XAnimLadderClimb_AnimTimeDifference(*(float *)&v30, v25);
+    if ( COERCE_FLOAT(LODWORD(v53) & _xmm) > 0.0 && COERCE_FLOAT(LODWORD(v53) & _xmm) < 1.0 )
+    {
+      _XMM5 = LODWORD(FLOAT_N1_0);
+      v55 = *((float *)nodeData + 20);
+      __asm
+      {
+        vcmpless xmm1, xmm8, xmm13
+        vblendvps xmm12, xmm5, xmm9, xmm1
+        vcmpless xmm0, xmm8, xmm2
+        vblendvps xmm4, xmm5, xmm9, xmm0
+        vcmpless xmm0, xmm8, xmm3
+        vblendvps xmm1, xmm5, xmm9, xmm0
+      }
+      rate = *(float *)&_XMM4;
+      if ( *(float *)&_XMM4 != *(float *)&_XMM1 )
+      {
+        *((_DWORD *)nodeData + 20) = 0;
+        v55 = 0.0;
+      }
+      v62 = _XMM4;
+      v63 = I_fclamp((float)((float)(*(float *)&_XMM4 * accel) * dtime) + v55, COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(v53 / v40) & _xmm) * *(float *)&_XMM12) & _xmm ^ _xmm), COERCE_FLOAT(COERCE_UNSIGNED_INT(COERCE_FLOAT(COERCE_UNSIGNED_INT(v53 / v40) & _xmm) * *(float *)&_XMM12) & _xmm));
+      *(float *)&v62 = *(float *)&v63 * dtime;
+      v64 = v62;
+      *((float *)nodeData + 20) = *(float *)&v63;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v63 * dtime) & _xmm) > COERCE_FLOAT(v30 & _xmm) )
+      {
+        v65 = v30 & (unsigned int)_xmm;
+        *(float *)&v65 = COERCE_FLOAT(v30 & _xmm) * *(float *)&_XMM12;
+        v64 = v65;
+      }
+      v66 = v64;
+      *(float *)&v66 = *(float *)&v64 + v25;
+      v67 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v64 + v25) & _xmm) > 1.0 || *(float *)&v66 < 0.0;
+      _XMM0 = v66;
+      *(float *)&_XMM0 = fmodf_0(*(float *)&v66, 1.0);
+      __asm
+      {
+        vcmpltss xmm1, xmm0, xmm8
+        vblendvps xmm0, xmm0, xmm3, xmm1; val
+      }
+      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, 0.0, 1.0);
+      XAnimSetWrappedTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *(float *)&_XMM0, v67);
+    }
+    if ( v111 )
+    {
+      v71 = obj->tree;
+      if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 71, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+        __debugbreak();
+      v72 = XAnimGetNumChildren(v71->anims, v21);
+      if ( !v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 75, ASSERT_TYPE_ASSERT, "(numChildren)", (const char *)&queryFormat, "numChildren") )
+        __debugbreak();
+      v73 = 0;
+      if ( v72 > 0 )
+      {
+        while ( 1 )
+        {
+          v74 = XAnimGetChildAt(v71->anims, v21, v73);
+          v75 = XAnimGetGoalWeight(v71, 0, XANIM_SUBTREE_DEFAULT, v74);
+          if ( *(float *)&v75 > 0.0 )
+            break;
+          if ( (int)++v73 >= v72 )
+            return;
+        }
+        if ( v74 )
+        {
+          v76 = XAnimGetGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v74);
+          if ( *(float *)&v76 > 0.0 )
+          {
+            v77 = cachedModelNameMap;
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v74, 0.0, ladderBlendTime, 0.0, (scr_string_t)0, 0, 0, LINEAR, cachedModelNameMap);
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v21, 0.0, ladderBlendTime, 0.0, (scr_string_t)0, 0, 0, LINEAR, v77);
+          }
+          Weight = XAnimGetWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v74);
+          XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v74, *(float *)&Weight);
+        }
+      }
+    }
   }
-  __asm { vmovss  xmm2, cs:ladderBlendTime; blendTime }
-  XAnimClearTreeGoalWeightsNode(obj->tree, animInfoIndex, *(float *)&_XMM2, 1, LINEAR);
-LABEL_56:
-  __asm { vmovaps xmm8, [rsp+1B0h+var_70] }
 }
 
 /*
@@ -579,39 +503,55 @@ XAnimLadderClimb_Read
 */
 void XAnimLadderClimb_Read(void *nodeData, MemoryFile *memFile)
 {
-  _RDI = nodeData;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+44h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+10h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+14h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+20h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+34h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+38h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+50h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+30h], xmm0 }
+  double Float; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+
+  Float = MemFile_ReadFloat(memFile);
+  *(float *)nodeData = *(float *)&Float;
+  v5 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 1) = *(float *)&v5;
+  v6 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 2) = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 17) = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 18) = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 19) = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 3) = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 4) = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 5) = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 6) = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 7) = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 8) = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 13) = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 14) = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 20) = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 12) = *(float *)&v19;
 }
 
 /*
@@ -651,13 +591,8 @@ void XAnimLadderClimb_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char
   unsigned __int64 v6; 
   unsigned __int64 v10; 
   __int64 v11; 
-  char *fmt; 
-  double v21; 
-  double v22; 
-  double v23; 
 
   v6 = size;
-  _R14 = nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 639, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 640, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
@@ -668,7 +603,7 @@ void XAnimLadderClimb_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char
     __debugbreak();
   if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 643, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 646, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+  if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 646, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   v10 = v6;
   if ( depth > 0 )
@@ -681,22 +616,7 @@ void XAnimLadderClimb_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char
     }
     while ( v11 );
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+30h]
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  xmm2, dword ptr [r14+4]
-    vmovss  xmm3, dword ptr [r14]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+58h+var_20], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+58h+var_28], xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+58h+var_30], xmm2
-    vmovsd  [rsp+58h+fmt], xmm3
-  }
-  Com_sprintfPos_truncate(buffer, v10, inoutPos, "   ^5[anchor: %.4f - %.4f - %.4f, speed: %.5f] \n", *(double *)&fmt, v21, v22, v23);
+  Com_sprintfPos_truncate(buffer, v10, inoutPos, "   ^5[anchor: %.4f - %.4f - %.4f, speed: %.5f] \n", *(float *)nodeData, *((float *)nodeData + 1), *((float *)nodeData + 2), *((float *)nodeData + 12));
 }
 
 /*
@@ -705,45 +625,35 @@ XAnimLadderClimb_AnimTimeDifference
 ==============
 */
 
-float __fastcall XAnimLadderClimb_AnimTimeDifference(double targetAnimTime, double currentAnimTime)
+float __fastcall XAnimLadderClimb_AnimTimeDifference(double targetAnimTime, float currentAnimTime)
 {
-  char v2; 
-  char v3; 
+  __int128 v3; 
+  __int128 v4; 
 
-  __asm
+  v3 = *(_OWORD *)&targetAnimTime;
+  *(float *)&v3 = *(float *)&targetAnimTime - currentAnimTime;
+  _XMM4 = v3;
+  if ( *(float *)&targetAnimTime <= currentAnimTime )
   {
-    vcomiss xmm0, xmm1
-    vsubss  xmm4, xmm0, xmm1
-  }
-  if ( v2 | v3 )
-  {
-    if ( !v2 )
+    if ( *(float *)&targetAnimTime >= currentAnimTime )
       goto LABEL_3;
+    v4 = *(_OWORD *)&targetAnimTime;
+    *(float *)&v4 = (float)(*(float *)&targetAnimTime + 1.0) - currentAnimTime;
+    _XMM2 = v4 & _xmm;
     __asm
     {
-      vaddss  xmm0, xmm0, cs:__real@3f800000
-      vsubss  xmm3, xmm0, xmm1
-      vandps  xmm0, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm2, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
       vcmpltss xmm2, xmm2, xmm0
       vblendvps xmm0, xmm4, xmm3, xmm2
     }
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, cs:__real@3f800000
-      vsubss  xmm0, xmm0, xmm1
-      vandps  xmm3, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm1, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm3, xmm1
-    }
-    if ( !v2 )
+    *(float *)&targetAnimTime = (float)(*(float *)&targetAnimTime - 1.0) - currentAnimTime;
+    if ( COERCE_FLOAT(LODWORD(targetAnimTime) & _xmm) >= COERCE_FLOAT(v3 & _xmm) )
 LABEL_3:
-      __asm { vmovaps xmm0, xmm4 }
+      LODWORD(targetAnimTime) = v3;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&targetAnimTime;
 }
 
 /*
@@ -755,21 +665,59 @@ void XAnimLadderClimb_DrawDebug(const DObj *obj, unsigned int animIndex)
 {
   unsigned __int16 InfoIndex; 
   XAnimInfo *AnimInfo; 
+  const vec3_t *CustomNodeData; 
   unsigned int ChildAt; 
-  int v32; 
-  const vec4_t *v84; 
+  float v8; 
+  float v9; 
+  float v10; 
+  double ScrubOffset; 
+  float v12; 
+  int v13; 
+  int i; 
+  float v15; 
+  float v16; 
+  float v17; 
+  int v18; 
+  int j; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const vec4_t *v26; 
   vec3_t *p_start; 
-  char v109; 
-  char v110; 
+  float v28; 
+  float v29; 
+  float v30; 
+  double GoalWeight; 
+  double Time; 
   const XAnimParts *Parts; 
-  const vec4_t *v162; 
-  float fmt; 
-  float fmta; 
+  double NotetrackTimeFromParts; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __int64 v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  const vec4_t *v52; 
   vec3_t end; 
   vec3_t start; 
   vec3_t outExtentBottom; 
   vec3_t center; 
   tmat33_t<vec3_t> axis; 
+  int v58[8]; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 694, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -778,341 +726,139 @@ void XAnimLadderClimb_DrawDebug(const DObj *obj, unsigned int animIndex)
   InfoIndex = XAnimGetInfoIndex(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
   if ( InfoIndex )
   {
-    __asm
-    {
-      vmovaps [rsp+190h+var_40], xmm6
-      vmovaps [rsp+190h+var_50], xmm7
-      vmovaps [rsp+190h+var_60], xmm8
-      vmovaps [rsp+190h+var_70], xmm9
-      vmovaps [rsp+190h+var_80], xmm10
-      vmovaps [rsp+190h+var_90], xmm11
-      vmovaps [rsp+190h+var_A0], xmm12
-      vmovaps [rsp+190h+var_B0], xmm13
-      vmovaps [rsp+190h+var_C0], xmm14
-    }
     AnimInfo = XAnimGetAnimInfo(InfoIndex);
-    _RDI = (const vec3_t *)XAnimGetCustomNodeData(obj->tree->anims, AnimInfo, animIndex);
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 708, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+    CustomNodeData = (const vec3_t *)XAnimGetCustomNodeData(obj->tree->anims, AnimInfo, animIndex);
+    if ( !CustomNodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 708, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
       __debugbreak();
     ChildAt = XAnimGetChildAt(obj->tree->anims, animIndex, 0);
-    AnglesToAxis(_RDI + 3, &axis);
-    __asm
+    AnglesToAxis(CustomNodeData + 3, &axis);
+    v8 = CustomNodeData[2].v[0] - CustomNodeData[1].v[0];
+    v9 = CustomNodeData[2].v[2] - CustomNodeData[1].v[2];
+    v10 = CustomNodeData[2].v[1] - CustomNodeData[1].v[1];
+    ScrubOffset = BG_Ladder_GetScrubOffset(CustomNodeData + 1, CustomNodeData + 2, CustomNodeData[4].v[2]);
+    v12 = fsqrt((float)((float)(v10 * v10) + (float)(v8 * v8)) + (float)(v9 * v9));
+    v13 = (int)(float)(v12 / CustomNodeData[4].v[1]);
+    for ( i = 0; i <= v13; ++i )
     {
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vsubss  xmm8, xmm0, dword ptr [rdi+0Ch]
-      vmovss  xmm0, dword ptr [rdi+20h]
-      vmovss  xmm1, dword ptr [rdi+1Ch]
-      vmovss  xmm2, dword ptr [rdi+38h]; handDistance
-      vsubss  xmm7, xmm0, dword ptr [rdi+14h]
-      vsubss  xmm6, xmm1, dword ptr [rdi+10h]
+      v15 = CustomNodeData[1].v[0];
+      v16 = CustomNodeData[1].v[1];
+      v17 = (float)((float)i * CustomNodeData[4].v[1]) + CustomNodeData[1].v[2];
+      start.v[0] = (float)(10.0 * axis.m[1].v[0]) + v15;
+      start.v[1] = (float)(10.0 * axis.m[1].v[1]) + v16;
+      start.v[2] = v17 + (float)(10.0 * axis.m[1].v[2]);
+      end.v[0] = v15 - (float)(10.0 * axis.m[1].v[0]);
+      end.v[1] = v16 - (float)(10.0 * axis.m[1].v[1]);
+      end.v[2] = v17 - (float)(10.0 * axis.m[1].v[2]);
+      CL_AddDebugLine(&start, &end, &colorGreen, 1, 0, 0);
     }
-    *(double *)&_XMM0 = BG_Ladder_GetScrubOffset(_RDI + 1, _RDI + 2, *(float *)&_XMM2);
-    __asm
+    v18 = (int)(float)(v12 / CustomNodeData[4].v[2]);
+    for ( j = 0; j <= v18; ++j )
     {
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm8, xmm8
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm7, xmm7
-      vaddss  xmm3, xmm3, xmm2
-      vsqrtss xmm9, xmm3, xmm3
-      vdivss  xmm1, xmm9, dword ptr [rdi+34h]
-      vcvttss2si r15d, xmm1
-    }
-    v32 = 0;
-    __asm { vmovaps xmm12, xmm0 }
-    if ( _ER15 >= 0 )
-    {
-      __asm { vmovss  xmm8, cs:__real@41200000 }
-      do
+      v20 = CustomNodeData[4].v[2];
+      v21 = CustomNodeData[1].v[2] - *(float *)&ScrubOffset;
+      v22 = _mm_cvtepi32_ps((__m128i)(unsigned int)j).m128_f32[0] * v20;
+      v23 = (float)(axis.m[2].v[0] * v22) + CustomNodeData[1].v[0];
+      v24 = (float)(axis.m[2].v[1] * v22) + CustomNodeData[1].v[1];
+      v25 = v21 + (float)(axis.m[2].v[2] * v22);
+      end.v[0] = v23;
+      end.v[1] = v24;
+      end.v[2] = v25;
+      if ( ((int)(float)((float)((float)(v22 + v21) - v21) / v20) & 1) != 0 )
       {
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rdi+0Ch]
-          vmulss  xmm4, xmm8, dword ptr [rbp+90h+axis+0Ch]
-          vmovss  xmm7, dword ptr [rdi+10h]
-          vmulss  xmm3, xmm8, dword ptr [rbp+90h+axis+10h]
-          vmulss  xmm2, xmm8, dword ptr [rbp+90h+axis+14h]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-          vmulss  xmm1, xmm0, dword ptr [rdi+34h]
-          vaddss  xmm6, xmm1, dword ptr [rdi+14h]
-          vaddss  xmm0, xmm4, xmm5
-          vmovss  dword ptr [rsp+190h+start], xmm0
-          vaddss  xmm0, xmm3, xmm7
-          vmovss  dword ptr [rsp+190h+start+4], xmm0
-          vaddss  xmm0, xmm6, xmm2
-          vsubss  xmm1, xmm5, xmm4
-          vmovss  dword ptr [rsp+190h+start+8], xmm0
-          vmovss  dword ptr [rsp+190h+end], xmm1
-          vsubss  xmm0, xmm7, xmm3
-          vsubss  xmm1, xmm6, xmm2
-          vmovss  dword ptr [rsp+190h+end+4], xmm0
-          vmovss  dword ptr [rsp+190h+end+8], xmm1
-        }
-        CL_AddDebugLine(&start, &end, &colorGreen, 1, 0, 0);
-        ++v32;
-      }
-      while ( v32 <= _ER15 );
-    }
-    __asm
-    {
-      vdivss  xmm0, xmm9, dword ptr [rdi+38h]
-      vmovss  xmm7, cs:__real@40400000
-      vcvttss2si r15d, xmm0
-    }
-    for ( _EBX = 0; _EBX <= _ER15; ++_EBX )
-    {
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rdi+38h]
-        vmovss  xmm1, dword ptr [rdi+14h]
-        vmovss  xmm6, dword ptr [rbp+90h+axis+18h]
-        vmovss  xmm8, dword ptr [rbp+90h+axis+1Ch]
-        vmovss  xmm10, dword ptr [rbp+90h+axis+20h]
-        vsubss  xmm2, xmm1, xmm12
-        vmovd   xmm0, ebx
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm3, xmm0, xmm5
-        vmulss  xmm0, xmm6, xmm3
-        vaddss  xmm4, xmm0, dword ptr [rdi+0Ch]
-        vmulss  xmm0, xmm8, xmm3
-        vaddss  xmm9, xmm0, dword ptr [rdi+10h]
-        vmulss  xmm0, xmm10, xmm3
-        vaddss  xmm11, xmm2, xmm0
-        vsubss  xmm2, xmm1, xmm12
-        vaddss  xmm0, xmm3, xmm2
-        vsubss  xmm2, xmm0, xmm2
-        vdivss  xmm1, xmm2, xmm5
-        vcvttss2si eax, xmm1
-        vmovss  dword ptr [rsp+190h+end], xmm4
-        vmovss  dword ptr [rsp+190h+end+4], xmm9
-        vmovss  dword ptr [rsp+190h+end+8], xmm11
-        vmulss  xmm0, xmm6, xmm5
-      }
-      if ( (_EAX & 1) != 0 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+0Ch]
-          vaddss  xmm2, xmm1, xmm4
-          vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+10h]
-          vaddss  xmm4, xmm1, xmm9
-          vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+14h]
-          vaddss  xmm3, xmm1, xmm11
-          vaddss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rsp+190h+end], xmm2
-          vmulss  xmm2, xmm8, xmm5
-          vaddss  xmm0, xmm2, xmm4
-          vmovss  dword ptr [rsp+190h+start], xmm1
-          vmulss  xmm1, xmm10, xmm5
-          vaddss  xmm2, xmm1, xmm3
-          vmovss  dword ptr [rsp+190h+start+8], xmm2
-          vmovss  dword ptr [rsp+190h+end+4], xmm4
-          vmovss  dword ptr [rsp+190h+end+8], xmm3
-          vmovss  dword ptr [rsp+190h+start+4], xmm0
-        }
-        v84 = &colorRed;
+        end.v[0] = (float)(3.0 * axis.m[1].v[0]) + v23;
+        start.v[0] = (float)(axis.m[2].v[0] * v20) + end.v[0];
+        start.v[2] = (float)(axis.m[2].v[2] * v20) + (float)((float)(3.0 * axis.m[1].v[2]) + v25);
+        end.v[1] = (float)(3.0 * axis.m[1].v[1]) + v24;
+        end.v[2] = (float)(3.0 * axis.m[1].v[2]) + v25;
+        start.v[1] = (float)(axis.m[2].v[1] * v20) + end.v[1];
+        v26 = &colorRed;
         p_start = &start;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm1, xmm0, xmm4
-          vmulss  xmm2, xmm8, xmm5
-          vaddss  xmm0, xmm2, xmm9
-          vmovss  dword ptr [rsp+190h+outExtentBottom], xmm1
-          vmulss  xmm1, xmm10, xmm5
-          vaddss  xmm2, xmm1, xmm11
-          vmovss  dword ptr [rsp+190h+outExtentBottom+8], xmm2
-          vmovss  dword ptr [rsp+190h+outExtentBottom+4], xmm0
-        }
-        v84 = &colorBlue;
+        outExtentBottom.v[0] = (float)(axis.m[2].v[0] * v20) + v23;
+        outExtentBottom.v[2] = (float)(axis.m[2].v[2] * v20) + v25;
+        outExtentBottom.v[1] = (float)(axis.m[2].v[1] * v20) + v24;
+        v26 = &colorBlue;
         p_start = &outExtentBottom;
       }
-      CL_AddDebugLine(&end, p_start, v84, 1, 0, 0);
+      CL_AddDebugLine(&end, p_start, v26, 1, 0, 0);
     }
-    __asm
+    v28 = CustomNodeData[1].v[0];
+    center.v[0] = v28;
+    v29 = CustomNodeData[1].v[1];
+    center.v[1] = v29;
+    v30 = CustomNodeData->v[2];
+    center.v[2] = v30;
+    if ( ((int)(float)((float)(CustomNodeData->v[2] - (float)(CustomNodeData[1].v[2] - *(float *)&ScrubOffset)) / CustomNodeData[4].v[2]) & 1) != 0 )
     {
-      vmovss  xmm3, dword ptr [rdi+0Ch]
-      vmovss  dword ptr [rsp+190h+center], xmm3
-      vmovss  xmm4, dword ptr [rdi+10h]
-      vmovss  dword ptr [rsp+190h+center+4], xmm4
-      vmovss  xmm5, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+190h+center+8], xmm5
-      vmovss  xmm0, dword ptr [rdi+14h]
-      vmovss  xmm1, dword ptr [rdi+8]
-      vsubss  xmm2, xmm0, xmm12
-      vsubss  xmm2, xmm1, xmm2
-      vdivss  xmm0, xmm2, dword ptr [rdi+38h]
-      vcvttss2si eax, xmm0
+      center.v[0] = (float)(3.0 * axis.m[1].v[0]) + v28;
+      center.v[1] = (float)(3.0 * axis.m[1].v[1]) + v29;
+      center.v[2] = (float)(3.0 * axis.m[1].v[2]) + v30;
     }
-    if ( (_EAX & 1) != 0 )
+    CG_DebugSphere(&center, 0.5, &colorYellow, 1, 0);
+    GoalWeight = XAnimGetGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
+    if ( *(float *)&GoalWeight > 0.0 )
     {
-      __asm
+      XAnimLadderClimb_GetLadderRaiseLocalExtents(CustomNodeData, CustomNodeData + 1, CustomNodeData + 2, &axis, CustomNodeData[4].v[2], &outExtentBottom, &start);
+      Time = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
+      end.v[2] = (float)((float)(start.v[2] - outExtentBottom.v[2]) * *(float *)&Time) + outExtentBottom.v[2];
+      end.v[0] = (float)((float)(start.v[0] - outExtentBottom.v[0]) * *(float *)&Time) + outExtentBottom.v[0];
+      end.v[1] = (float)((float)(start.v[1] - outExtentBottom.v[1]) * *(float *)&Time) + outExtentBottom.v[1];
+      if ( *(float *)&Time > 0.5 )
       {
-        vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+0Ch]
-        vaddss  xmm2, xmm1, xmm3
-        vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+10h]
-        vmovss  dword ptr [rsp+190h+center], xmm2
-        vaddss  xmm2, xmm1, xmm4
-        vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+14h]
-        vmovss  dword ptr [rsp+190h+center+4], xmm2
-        vaddss  xmm2, xmm1, xmm5
-        vmovss  dword ptr [rsp+190h+center+8], xmm2
+        end.v[0] = (float)(3.0 * axis.m[1].v[0]) + (float)((float)((float)(start.v[0] - outExtentBottom.v[0]) * *(float *)&Time) + outExtentBottom.v[0]);
+        end.v[1] = (float)(3.0 * axis.m[1].v[1]) + (float)((float)((float)(start.v[1] - outExtentBottom.v[1]) * *(float *)&Time) + outExtentBottom.v[1]);
+        end.v[2] = (float)(3.0 * axis.m[1].v[2]) + (float)((float)((float)(start.v[2] - outExtentBottom.v[2]) * *(float *)&Time) + outExtentBottom.v[2]);
       }
-    }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f000000
-      vmovaps xmm1, xmm8; radius
-    }
-    CG_DebugSphere(&center, *(float *)&_XMM1, &colorYellow, 1, 0);
-    *(double *)&_XMM0 = XAnimGetGoalWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vcomiss xmm0, xmm9
-    }
-    if ( !(v109 | v110) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+38h]
-        vmovss  dword ptr [rsp+190h+fmt], xmm0
-      }
-      XAnimLadderClimb_GetLadderRaiseLocalExtents(_RDI, _RDI + 1, _RDI + 2, &axis, fmt, &outExtentBottom, &start);
-      *(double *)&_XMM0 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+190h+start]
-        vsubss  xmm2, xmm1, dword ptr [rsp+190h+outExtentBottom]
-        vmovss  xmm1, dword ptr [rsp+190h+start+4]
-        vmulss  xmm3, xmm2, xmm0
-        vsubss  xmm2, xmm1, dword ptr [rsp+190h+outExtentBottom+4]
-        vaddss  xmm10, xmm3, dword ptr [rsp+190h+outExtentBottom]
-        vmovss  xmm1, dword ptr [rsp+190h+start+8]
-        vmulss  xmm3, xmm2, xmm0
-        vaddss  xmm3, xmm3, dword ptr [rsp+190h+outExtentBottom+4]
-        vmovaps xmm6, xmm0
-        vcomiss xmm6, xmm8
-        vsubss  xmm0, xmm1, dword ptr [rsp+190h+outExtentBottom+8]
-        vmulss  xmm2, xmm0, xmm6
-        vaddss  xmm5, xmm2, dword ptr [rsp+190h+outExtentBottom+8]
-        vmovss  dword ptr [rsp+190h+end+8], xmm5
-        vmovss  dword ptr [rsp+190h+end], xmm10
-        vmovss  dword ptr [rsp+190h+end+4], xmm3
-      }
-      if ( !(v109 | v110) )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+0Ch]
-          vaddss  xmm2, xmm1, xmm10
-          vmulss  xmm1, xmm7, dword ptr [rbp+90h+axis+10h]
-          vmovss  dword ptr [rsp+190h+end], xmm2
-          vaddss  xmm2, xmm1, xmm3
-          vmulss  xmm3, xmm7, dword ptr [rbp+90h+axis+14h]
-          vmovss  dword ptr [rsp+190h+end+4], xmm2
-          vaddss  xmm2, xmm3, xmm5
-          vmovss  dword ptr [rsp+190h+end+8], xmm2
-        }
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+30h]
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, xmm9
-        vmovaps xmm1, xmm8; radius
-      }
-      CG_DebugSphere(&end, *(float *)&_XMM1, &colorCyan, 1, 0);
+      if ( COERCE_FLOAT(LODWORD(CustomNodeData[4].v[0]) & _xmm) <= 0.0 )
+        CG_DebugSphere(&end, 0.5, &colorCyan, 1, 0);
+      else
+        CG_DebugSphere(&end, 0.5, &colorGreen, 1, 0);
     }
     Parts = XAnimGetParts(obj->tree->anims, ChildAt);
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_low);
-    __asm { vmovss  [rbp+90h+var_E8], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_mid);
-    __asm { vmovss  [rbp+90h+var_E4], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_top);
-    __asm { vmovss  [rbp+90h+var_E0], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left);
-    __asm { vmovss  [rbp+90h+var_DC], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_low);
-    __asm { vmovss  [rbp+90h+var_D8], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_mid);
-    __asm { vmovss  [rbp+90h+var_D4], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_top);
-    __asm { vmovss  [rbp+90h+var_D0], xmm0 }
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right);
-    __asm
-    {
-      vmovss  [rbp+90h+var_CC], xmm0
-      vmovss  xmm0, dword ptr [rdi+38h]
-      vmovss  dword ptr [rsp+190h+fmt], xmm0
-    }
-    XAnimLadderClimb_GetLadderRaiseLocalExtents(_RDI, _RDI + 1, _RDI + 2, &axis, fmta, &outExtentBottom, &start);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+190h+start]
-      vmovss  xmm9, dword ptr [rsp+190h+outExtentBottom]
-      vmovss  xmm10, dword ptr [rsp+190h+outExtentBottom+4]
-      vmovss  xmm1, dword ptr [rsp+190h+start+4]
-      vmovss  xmm11, dword ptr [rsp+190h+outExtentBottom+8]
-      vmovss  xmm8, cs:__real@40a00000
-      vsubss  xmm12, xmm0, xmm9
-      vmovss  xmm0, dword ptr [rsp+190h+start+8]
-      vsubss  xmm14, xmm0, xmm11
-    }
-    _RBX = 0i64;
-    __asm { vsubss  xmm13, xmm1, xmm10 }
+    NotetrackTimeFromParts = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_low);
+    v58[0] = SLODWORD(NotetrackTimeFromParts);
+    v35 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_mid);
+    v58[1] = SLODWORD(v35);
+    v36 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_top);
+    v58[2] = SLODWORD(v36);
+    v37 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left);
+    v58[3] = SLODWORD(v37);
+    v38 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_low);
+    v58[4] = SLODWORD(v38);
+    v39 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_mid);
+    v58[5] = SLODWORD(v39);
+    v40 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_top);
+    v58[6] = SLODWORD(v40);
+    v41 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right);
+    v58[7] = SLODWORD(v41);
+    XAnimLadderClimb_GetLadderRaiseLocalExtents(CustomNodeData, CustomNodeData + 1, CustomNodeData + 2, &axis, CustomNodeData[4].v[2], &outExtentBottom, &start);
+    v42 = outExtentBottom.v[0];
+    v43 = outExtentBottom.v[1];
+    v44 = outExtentBottom.v[2];
+    v45 = start.v[0] - outExtentBottom.v[0];
+    v46 = start.v[2] - outExtentBottom.v[2];
+    v47 = 0i64;
+    v48 = start.v[1] - outExtentBottom.v[1];
     do
     {
-      __asm
-      {
-        vmovss  xmm2, [rbp+rbx*4+90h+var_E8]
-        vmulss  xmm4, xmm8, dword ptr [rbp+90h+axis+0Ch]
-        vmulss  xmm3, xmm8, dword ptr [rbp+90h+axis+10h]
-        vmulss  xmm0, xmm2, xmm12
-        vaddss  xmm5, xmm0, xmm9
-        vmulss  xmm0, xmm2, xmm14
-        vaddss  xmm7, xmm0, xmm11
-        vmulss  xmm1, xmm2, xmm13
-        vmulss  xmm2, xmm8, dword ptr [rbp+90h+axis+14h]
-        vaddss  xmm6, xmm1, xmm10
-        vaddss  xmm0, xmm4, xmm5
-        vmovss  dword ptr [rsp+190h+start], xmm0
-        vaddss  xmm0, xmm3, xmm6
-        vmovss  dword ptr [rsp+190h+start+4], xmm0
-        vaddss  xmm0, xmm2, xmm7
-        vsubss  xmm1, xmm5, xmm4
-        vmovss  dword ptr [rsp+190h+start+8], xmm0
-        vmovss  dword ptr [rsp+190h+outExtentBottom], xmm1
-        vsubss  xmm0, xmm6, xmm3
-        vsubss  xmm1, xmm7, xmm2
-      }
-      v162 = &colorPurple;
-      if ( ((_RBX - 3) & 0xFFFFFFFFFFFFFFFBui64) == 0 )
-        v162 = &colorWhite;
-      __asm
-      {
-        vmovss  dword ptr [rsp+190h+outExtentBottom+4], xmm0
-        vmovss  dword ptr [rsp+190h+outExtentBottom+8], xmm1
-      }
-      CL_AddDebugLine(&start, &outExtentBottom, v162, 1, 0, 0);
-      ++_RBX;
+      v49 = *(float *)&v58[v47];
+      v50 = (float)(v49 * v45) + v42;
+      v51 = (float)(v49 * v46) + v44;
+      start.v[0] = (float)(5.0 * axis.m[1].v[0]) + v50;
+      start.v[1] = (float)(5.0 * axis.m[1].v[1]) + (float)((float)(v49 * v48) + v43);
+      start.v[2] = (float)(5.0 * axis.m[1].v[2]) + v51;
+      outExtentBottom.v[0] = v50 - (float)(5.0 * axis.m[1].v[0]);
+      v52 = &colorPurple;
+      if ( ((v47 - 3) & 0xFFFFFFFFFFFFFFFBui64) == 0 )
+        v52 = &colorWhite;
+      outExtentBottom.v[1] = (float)((float)(v49 * v48) + v43) - (float)(5.0 * axis.m[1].v[1]);
+      outExtentBottom.v[2] = v51 - (float)(5.0 * axis.m[1].v[2]);
+      CL_AddDebugLine(&start, &outExtentBottom, v52, 1, 0, 0);
+      ++v47;
     }
-    while ( _RBX < 8 );
-    __asm
-    {
-      vmovaps xmm14, [rsp+190h+var_C0]
-      vmovaps xmm13, [rsp+190h+var_B0]
-      vmovaps xmm12, [rsp+190h+var_A0]
-      vmovaps xmm11, [rsp+190h+var_90]
-      vmovaps xmm10, [rsp+190h+var_80]
-      vmovaps xmm9, [rsp+190h+var_70]
-      vmovaps xmm8, [rsp+190h+var_60]
-      vmovaps xmm7, [rsp+190h+var_50]
-      vmovaps xmm6, [rsp+190h+var_40]
-    }
+    while ( v47 < 8 );
   }
 }
 
@@ -1124,41 +870,28 @@ XAnimLadderClimb_GetActiveStopAnim
 __int64 XAnimLadderClimb_GetActiveStopAnim(XAnimTree *tree, unsigned int grabsParentIndex)
 {
   int NumChildren; 
-  unsigned int v7; 
+  unsigned int v5; 
   unsigned int ChildAt; 
-  char v10; 
-  char v11; 
-  __int64 result; 
+  double GoalWeight; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 71, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   NumChildren = XAnimGetNumChildren(tree->anims, grabsParentIndex);
   if ( !NumChildren && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 75, ASSERT_TYPE_ASSERT, "(numChildren)", (const char *)&queryFormat, "numChildren") )
     __debugbreak();
-  v7 = 0;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
+  v5 = 0;
   if ( NumChildren <= 0 )
+    return 0i64;
+  while ( 1 )
   {
-LABEL_11:
-    result = 0i64;
+    ChildAt = XAnimGetChildAt(tree->anims, grabsParentIndex, v5);
+    GoalWeight = XAnimGetGoalWeight(tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
+    if ( *(float *)&GoalWeight > 0.0 )
+      break;
+    if ( (int)++v5 >= NumChildren )
+      return 0i64;
   }
-  else
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    while ( 1 )
-    {
-      ChildAt = XAnimGetChildAt(tree->anims, grabsParentIndex, v7);
-      *(double *)&_XMM0 = XAnimGetGoalWeight(tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( !(v10 | v11) )
-        break;
-      if ( (int)++v7 >= NumChildren )
-        goto LABEL_11;
-    }
-    result = ChildAt;
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return ChildAt;
 }
 
 /*
@@ -1166,170 +899,73 @@ LABEL_11:
 XAnimLadderClimb_GetClampedAnchorPos
 ==============
 */
-bool XAnimLadderClimb_GetClampedAnchorPos(XAnimLadderClimb *node, XAnimTree *tree, tmat33_t<vec3_t> *ladderAxis, unsigned int climbAnimIndex, float currentAnimTime, vec3_t *inOutAnchorPos)
+char XAnimLadderClimb_GetClampedAnchorPos(XAnimLadderClimb *node, XAnimTree *tree, tmat33_t<vec3_t> *ladderAxis, unsigned int climbAnimIndex, float currentAnimTime, vec3_t *inOutAnchorPos)
 {
   const XAnimParts *Parts; 
-  char v25; 
-  char v26; 
+  double TargetAnimationTime; 
+  float v12; 
+  double ScrubOffset; 
+  float v14; 
+  float v15; 
+  float m_handDistance; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v24; 
+  double NotetrackTimeFromParts; 
   scr_string_t ladder_stop_left_mid; 
-  char v73; 
-  bool result; 
+  float v27; 
+  double v28; 
+  float v29; 
+  float v30; 
+  float v32; 
 
-  _R15 = inOutAnchorPos;
-  _RSI = node;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 152, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ladder_climb.cpp", 153, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+108h+var_38], xmm6
-    vmovaps [rsp+108h+var_48], xmm7
-    vmovaps [rsp+108h+var_58], xmm8
-    vmovaps [rsp+108h+var_68], xmm9
-    vmovaps [rsp+108h+var_78], xmm10
-    vmovaps [rsp+108h+var_88], xmm11
-    vmovaps [rsp+108h+var_98], xmm12
-    vmovaps [rsp+108h+var_A8], xmm13
-    vmovaps [rsp+108h+var_B8], xmm14
-    vmovaps [rsp+108h+var_C8], xmm15
-  }
   Parts = XAnimGetParts(tree->anims, climbAnimIndex);
-  if ( !_RSI->m_isTorso )
-    goto LABEL_15;
-  __asm { vmovss  xmm3, dword ptr [rsi+38h]; handDistance }
-  *(double *)&_XMM0 = BG_Ladder_GetTargetAnimationTime(&_RSI->m_anchorPos, &_RSI->m_bottom, &_RSI->m_top, *(float *)&_XMM3);
-  __asm
+  if ( !node->m_isTorso )
+    return 0;
+  TargetAnimationTime = BG_Ladder_GetTargetAnimationTime(&node->m_anchorPos, &node->m_bottom, &node->m_top, node->m_handDistance);
+  v12 = *(float *)&TargetAnimationTime;
+  ScrubOffset = BG_Ladder_GetScrubOffset(&node->m_bottom, &node->m_top, node->m_handDistance);
+  v14 = (float)(COERCE_FLOAT(LODWORD(ScrubOffset) ^ _xmm) * ladderAxis->m[2].v[1]) + node->m_bottom.v[1];
+  v15 = (float)(COERCE_FLOAT(LODWORD(ScrubOffset) ^ _xmm) * ladderAxis->m[2].v[0]) + node->m_bottom.v[0];
+  m_handDistance = node->m_handDistance;
+  v17 = node->m_top.v[0] - v15;
+  v18 = node->m_top.v[2] - (float)((float)(COERCE_FLOAT(LODWORD(ScrubOffset) ^ _xmm) * ladderAxis->m[2].v[2]) + node->m_bottom.v[2]);
+  v19 = node->m_top.v[1] - v14;
+  v32 = (float)(COERCE_FLOAT(LODWORD(ScrubOffset) ^ _xmm) * ladderAxis->m[2].v[2]) + node->m_bottom.v[2];
+  v20 = (float)((float)(v19 * v19) + (float)(v17 * v17)) + (float)(v18 * v18);
+  v21 = fsqrt(v20);
+  _XMM8 = 0i64;
+  __asm { vroundss xmm8, xmm8, xmm0, 1 }
+  v24 = (float)((float)((float)((float)(node->m_anchorPos.v[1] - v14) * v19) + (float)((float)(node->m_anchorPos.v[0] - v15) * v17)) + (float)((float)(node->m_anchorPos.v[2] - v32) * v18)) / v20;
+  if ( v24 < (float)((float)((float)(m_handDistance * *(float *)&_XMM8) * 2.0) * (float)(1.0 / v21)) )
+    return 0;
+  if ( v21 <= (float)((float)((float)(m_handDistance * 2.0) * *(float *)&_XMM8) + m_handDistance) )
   {
-    vmovss  xmm2, dword ptr [rsi+38h]; handDistance
-    vmovaps xmm15, xmm0
-  }
-  *(double *)&_XMM0 = BG_Ladder_GetScrubOffset(&_RSI->m_bottom, &_RSI->m_top, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm2, dword ptr [r14+1Ch]
-    vaddss  xmm14, xmm0, dword ptr [rsi+10h]
-    vmulss  xmm1, xmm2, dword ptr [r14+18h]
-    vaddss  xmm13, xmm1, dword ptr [rsi+0Ch]
-    vmulss  xmm0, xmm2, dword ptr [r14+20h]
-    vaddss  xmm2, xmm0, dword ptr [rsi+14h]
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovss  xmm1, dword ptr [rsi+1Ch]
-    vmovss  xmm11, dword ptr [rsi+38h]
-    vmovss  xmm9, cs:__real@40000000
-    vsubss  xmm6, xmm0, xmm13
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vsubss  xmm7, xmm0, xmm2
-    vsubss  xmm4, xmm1, xmm14
-    vmovss  [rsp+108h+var_D8], xmm2
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vaddss  xmm5, xmm3, xmm0
-    vsqrtss xmm10, xmm5, xmm5
-    vmulss  xmm12, xmm11, xmm9
-    vdivss  xmm0, xmm10, xmm12
-    vxorps  xmm8, xmm8, xmm8
-    vroundss xmm8, xmm8, xmm0, 1
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm1, xmm0, xmm14
-    vsubss  xmm0, xmm2, xmm13
-    vmovss  xmm2, dword ptr [rsi+8]
-    vmulss  xmm3, xmm1, xmm4
-    vmulss  xmm1, xmm0, xmm6
-    vsubss  xmm0, xmm2, [rsp+108h+var_D8]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm3, xmm4, xmm1
-    vmovss  [rsp+108h+var_D4], xmm13
-    vmovss  xmm13, cs:__real@3f800000
-    vmulss  xmm0, xmm11, xmm8
-    vmovss  [rsp+108h+var_D0], xmm14
-    vmulss  xmm1, xmm0, xmm9
-    vdivss  xmm14, xmm13, xmm10
-    vmulss  xmm2, xmm1, xmm14
-    vdivss  xmm7, xmm3, xmm5
-    vcomiss xmm7, xmm2
-  }
-  if ( v25 )
-    goto LABEL_15;
-  __asm
-  {
-    vmulss  xmm0, xmm12, xmm8
-    vaddss  xmm1, xmm0, xmm11
-    vcomiss xmm10, xmm1
-  }
-  if ( v25 | v26 )
-  {
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_low);
+    NotetrackTimeFromParts = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_low);
     ladder_stop_left_mid = scr_const.ladder_stop_left_mid;
   }
   else
   {
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_low);
+    NotetrackTimeFromParts = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_low);
     ladder_stop_left_mid = scr_const.ladder_stop_right_mid;
   }
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, ladder_stop_left_mid);
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmulss  xmm4, xmm0, cs:__real@3f000000
-    vcomiss xmm15, xmm4
-  }
-  if ( !(v73 | v26) )
-    goto LABEL_14;
-  __asm
-  {
-    vaddss  xmm0, xmm8, xmm13
-    vmulss  xmm1, xmm0, dword ptr [rsi+38h]
-    vmulss  xmm2, xmm1, xmm9
-    vmulss  xmm3, xmm2, xmm14
-    vcomiss xmm7, xmm3
-  }
-  if ( v73 )
-  {
-LABEL_15:
-    result = 0;
-  }
-  else
-  {
-LABEL_14:
-    __asm
-    {
-      vaddss  xmm0, xmm4, cs:__real@3a83126f
-      vaddss  xmm1, xmm0, xmm8
-      vmulss  xmm2, xmm1, dword ptr [rsi+38h]
-      vmulss  xmm3, xmm2, xmm9
-      vmulss  xmm0, xmm3, dword ptr [r14+18h]
-      vaddss  xmm1, xmm0, [rsp+108h+var_D4]
-      vmovss  dword ptr [r15], xmm1
-      vmulss  xmm0, xmm3, dword ptr [r14+1Ch]
-      vaddss  xmm1, xmm0, [rsp+108h+var_D0]
-      vmovss  dword ptr [r15+4], xmm1
-      vmulss  xmm0, xmm3, dword ptr [r14+20h]
-      vaddss  xmm1, xmm0, [rsp+108h+var_D8]
-      vmovss  dword ptr [r15+8], xmm1
-    }
-    result = 1;
-  }
-  __asm
-  {
-    vmovaps xmm15, [rsp+108h+var_C8]
-    vmovaps xmm14, [rsp+108h+var_B8]
-    vmovaps xmm13, [rsp+108h+var_A8]
-    vmovaps xmm12, [rsp+108h+var_98]
-    vmovaps xmm11, [rsp+108h+var_88]
-    vmovaps xmm10, [rsp+108h+var_78]
-    vmovaps xmm9, [rsp+108h+var_68]
-    vmovaps xmm8, [rsp+108h+var_58]
-    vmovaps xmm7, [rsp+108h+var_48]
-    vmovaps xmm6, [rsp+108h+var_38]
-  }
-  return result;
+  v27 = *(float *)&NotetrackTimeFromParts;
+  v28 = XAnimGetNotetrackTimeFromParts(Parts, ladder_stop_left_mid);
+  v29 = (float)(*(float *)&v28 + v27) * 0.5;
+  if ( v12 <= v29 && v24 < (float)((float)((float)((float)(*(float *)&_XMM8 + 1.0) * node->m_handDistance) * 2.0) * (float)(1.0 / v21)) )
+    return 0;
+  v30 = (float)((float)((float)(v29 + 0.001) + *(float *)&_XMM8) * node->m_handDistance) * 2.0;
+  inOutAnchorPos->v[0] = (float)(v30 * ladderAxis->m[2].v[0]) + v15;
+  inOutAnchorPos->v[1] = (float)(v30 * ladderAxis->m[2].v[1]) + v14;
+  inOutAnchorPos->v[2] = (float)(v30 * ladderAxis->m[2].v[2]) + v32;
+  return 1;
 }
 
 /*
@@ -1339,98 +975,43 @@ XAnimLadderClimb_GetLadderRaiseLocalExtents
 */
 void XAnimLadderClimb_GetLadderRaiseLocalExtents(const vec3_t *anchorPos, const vec3_t *ladderBottom, const vec3_t *ladderTop, tmat33_t<vec3_t> *ladderAxis, float ladderRungDistance, vec3_t *outExtentBottom, vec3_t *outExtentTop)
 {
-  char v24; 
-  char v25; 
+  double ScrubOffset; 
+  float v11; 
+  float v12; 
+  float v15; 
+  float v16; 
+  float v17; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, [rsp+38h+ladderRungDistance]
-  }
-  _RBX = anchorPos;
-  __asm { vmovaps xmm2, xmm6; handDistance }
-  *(double *)&_XMM0 = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rdi+8]
-  }
-  _RDX = outExtentBottom;
-  _RCX = outExtentTop;
-  __asm
-  {
-    vmovaps xmm3, xmm0
-    vaddss  xmm5, xmm2, xmm0
-  }
+  ScrubOffset = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, ladderRungDistance);
+  v11 = (float)(anchorPos->v[2] - ladderBottom->v[2]) + *(float *)&ScrubOffset;
   *outExtentBottom = *ladderBottom;
   *outExtentTop = *ladderBottom;
-  __asm
+  outExtentBottom->v[2] = outExtentBottom->v[2] - *(float *)&ScrubOffset;
+  v12 = outExtentTop->v[2] - *(float *)&ScrubOffset;
+  outExtentTop->v[2] = v12;
+  if ( v11 <= 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rdx+8], xmm1
-    vmovss  xmm2, dword ptr [rcx+8]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm5, xmm0
-    vsubss  xmm4, xmm2, xmm3
-    vmovss  dword ptr [rcx+8], xmm4
-  }
-  if ( v24 | v25 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rsi+18h]
-      vaddss  xmm3, xmm0, dword ptr [rcx]
-      vmulss  xmm2, xmm6, cs:__real@c0000000
-      vmovss  dword ptr [rcx], xmm3
-      vmulss  xmm0, xmm6, dword ptr [rsi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr [rcx+4], xmm1
-      vmulss  xmm0, xmm6, dword ptr [rsi+20h]
-      vaddss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rcx+8], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+18h]
-      vaddss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rdx], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr [rdx+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+20h]
-      vaddss  xmm1, xmm0, dword ptr [rcx+8]
-      vmovss  dword ptr [rdx+8], xmm1
-    }
+    v17 = (float)(ladderRungDistance * ladderAxis->m[2].v[0]) + outExtentTop->v[0];
+    outExtentTop->v[0] = v17;
+    outExtentTop->v[1] = (float)(ladderRungDistance * ladderAxis->m[2].v[1]) + outExtentTop->v[1];
+    outExtentTop->v[2] = (float)(ladderRungDistance * ladderAxis->m[2].v[2]) + v12;
+    outExtentBottom->v[0] = (float)((float)(ladderRungDistance * -2.0) * ladderAxis->m[2].v[0]) + v17;
+    outExtentBottom->v[1] = (float)((float)(ladderRungDistance * -2.0) * ladderAxis->m[2].v[1]) + outExtentTop->v[1];
+    outExtentBottom->v[2] = (float)((float)(ladderRungDistance * -2.0) * ladderAxis->m[2].v[2]) + outExtentTop->v[2];
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm4, xmm6, cs:__real@40000000
-      vxorps  xmm1, xmm1, xmm1
-      vdivss  xmm0, xmm5, xmm4
-      vroundss xmm1, xmm1, xmm0, 1
-      vmulss  xmm0, xmm1, xmm6
-      vmulss  xmm3, xmm0, cs:__real@40000000
-      vmulss  xmm1, xmm3, dword ptr [rsi+18h]
-      vaddss  xmm2, xmm1, dword ptr [rdx]
-      vmovss  dword ptr [rdx], xmm2
-      vmulss  xmm0, xmm3, dword ptr [rsi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rdx+4]
-      vmovss  dword ptr [rdx+4], xmm1
-      vmulss  xmm0, xmm3, dword ptr [rsi+20h]
-      vaddss  xmm1, xmm0, dword ptr [rdx+8]
-      vmovss  dword ptr [rdx+8], xmm1
-      vmulss  xmm0, xmm4, dword ptr [rsi+18h]
-      vaddss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rcx], xmm1
-      vmulss  xmm0, xmm4, dword ptr [rsi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rdx+4]
-      vmovss  dword ptr [rcx+4], xmm1
-      vmulss  xmm0, xmm4, dword ptr [rsi+20h]
-      vaddss  xmm1, xmm0, dword ptr [rdx+8]
-      vmovss  dword ptr [rcx+8], xmm1
-    }
+    _XMM1 = 0i64;
+    __asm { vroundss xmm1, xmm1, xmm0, 1 }
+    v15 = (float)(*(float *)&_XMM1 * ladderRungDistance) * 2.0;
+    v16 = (float)(v15 * ladderAxis->m[2].v[0]) + outExtentBottom->v[0];
+    outExtentBottom->v[0] = v16;
+    outExtentBottom->v[1] = (float)(v15 * ladderAxis->m[2].v[1]) + outExtentBottom->v[1];
+    outExtentBottom->v[2] = (float)(v15 * ladderAxis->m[2].v[2]) + outExtentBottom->v[2];
+    outExtentTop->v[0] = (float)((float)(ladderRungDistance * 2.0) * ladderAxis->m[2].v[0]) + v16;
+    outExtentTop->v[1] = (float)((float)(ladderRungDistance * 2.0) * ladderAxis->m[2].v[1]) + outExtentBottom->v[1];
+    outExtentTop->v[2] = (float)((float)(ladderRungDistance * 2.0) * ladderAxis->m[2].v[2]) + outExtentBottom->v[2];
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1438,77 +1019,32 @@ void XAnimLadderClimb_GetLadderRaiseLocalExtents(const vec3_t *anchorPos, const 
 XAnimLadderClimb_GetRaiseContactTimeAndAnimTime
 ==============
 */
-
-void __fastcall XAnimLadderClimb_GetRaiseContactTimeAndAnimTime(const vec3_t *anchorPos, vec3_t *ladderBottom, const vec3_t *ladderTop, double handDistance, float ladderSpeed, float *outContactTime, float *outContactAnimTime)
+void XAnimLadderClimb_GetRaiseContactTimeAndAnimTime(const vec3_t *anchorPos, vec3_t *ladderBottom, const vec3_t *ladderTop, float handDistance, float ladderSpeed, float *outContactTime, float *outContactAnimTime)
 {
-  char v37; 
-  char v38; 
+  double ScrubOffset; 
+  float v15; 
 
-  __asm
+  _XMM8 = 0i64;
+  if ( COERCE_FLOAT(LODWORD(ladderSpeed) & _xmm) > 0.0 )
   {
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-  }
-  _RDI = anchorPos;
-  __asm
-  {
-    vmovss  xmm9, [rsp+78h+arg_20]
-    vandps  xmm0, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm0, xmm8
-    vmovaps [rsp+78h+var_58], xmm10
-    vmovaps xmm10, xmm3
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps xmm2, xmm10; handDistance
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdi+8]
-    vsubss  xmm1, xmm7, dword ptr [rbx+8]
-  }
-  _RAX = outContactTime;
-  __asm
-  {
-    vaddss  xmm2, xmm1, xmm0
-    vdivss  xmm3, xmm2, xmm10
-    vmovaps xmm6, xmm0
-    vxorps  xmm4, xmm4, xmm4
-    vroundss xmm4, xmm4, xmm3, 1
-    vaddss  xmm2, xmm4, cs:__real@3f800000
-    vcmpltss xmm1, xmm8, xmm9
-    vblendvps xmm1, xmm4, xmm2, xmm1
-    vmulss  xmm0, xmm1, xmm10; X
-    vaddss  xmm2, xmm0, dword ptr [rbx+8]
-    vsubss  xmm3, xmm2, xmm6
-    vmulss  xmm6, xmm10, cs:__real@40000000
-    vsubss  xmm1, xmm3, xmm7
-    vdivss  xmm4, xmm1, xmm9
-    vmovaps xmm1, xmm6; Y
-    vmovss  dword ptr [rax], xmm4
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vcomiss xmm9, xmm8 }
-  _RAX = outContactAnimTime;
-  __asm
-  {
-    vmovaps xmm7, [rsp+78h+var_28]
-    vdivss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovss  dword ptr [rax], xmm1
-  }
-  if ( !(v37 | v38) )
-  {
-    __asm { vcomiss xmm1, xmm8 }
-    if ( v37 | v38 )
+    ScrubOffset = BG_Ladder_GetScrubOffset(ladderBottom, ladderTop, handDistance);
+    _XMM4 = 0i64;
+    __asm
+    {
+      vroundss xmm4, xmm4, xmm3, 1
+      vcmpltss xmm1, xmm8, xmm9
+      vblendvps xmm1, xmm4, xmm2, xmm1
+    }
+    *outContactTime = (float)((float)((float)((float)(*(float *)&_XMM1 * handDistance) + ladderBottom->v[2]) - *(float *)&ScrubOffset) - anchorPos->v[2]) / ladderSpeed;
+    v15 = fmodf_0(*(float *)&_XMM1 * handDistance, handDistance * 2.0) / (float)(handDistance * 2.0);
+    *outContactAnimTime = v15;
+    if ( ladderSpeed > 0.0 && v15 <= 0.0 )
       *outContactAnimTime = 1.0;
   }
-  __asm
+  else
   {
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmovaps xmm10, [rsp+78h+var_58]
+    *outContactTime = 0.0;
+    *outContactAnimTime = 0.0;
   }
 }
 
@@ -1517,532 +1053,323 @@ void __fastcall XAnimLadderClimb_GetRaiseContactTimeAndAnimTime(const vec3_t *an
 XAnimLadderClimb_GetStopTimeInfo
 ==============
 */
-
-void __fastcall XAnimLadderClimb_GetStopTimeInfo(XAnimTree *tree, unsigned int climbAnimIndex, double currentAnimTime, double targetAnimTime, int *outTargetGrabIndex, float *outTargetGrabAnimTime, float *outPrevGrabAnimTime)
+void XAnimLadderClimb_GetStopTimeInfo(XAnimTree *tree, unsigned int climbAnimIndex, float currentAnimTime, float targetAnimTime, int *outTargetGrabIndex, float *outTargetGrabAnimTime, float *outPrevGrabAnimTime)
 {
+  __int128 v7; 
   XAnim_s *anims; 
   const XAnimParts *Parts; 
-  char v30; 
-  char v31; 
-  int v34; 
-  int v150[7]; 
-  char v156; 
-  void *retaddr; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  int v16; 
+  __int128 v17; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v53; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v60; 
+  __int128 v61; 
+  int v64[2]; 
+  int v65[5]; 
+  float v66; 
+  float v67; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps [rsp+108h+var_98], xmm13
-    vmovaps [rsp+108h+var_A8], xmm14
-    vmovaps [rsp+108h+var_B8], xmm15
-  }
   anims = tree->anims;
-  _RSI = outTargetGrabAnimTime;
-  _RDI = outPrevGrabAnimTime;
-  __asm
-  {
-    vmovss  [rsp+108h+var_E4], xmm2
-    vmovaps xmm6, xmm3
-  }
+  *(float *)v64 = currentAnimTime;
   Parts = XAnimGetParts(anims, climbAnimIndex);
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_low);
-  __asm
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_low);
+  v64[1] = v7;
+  v10 = v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_mid);
+  v65[0] = v7;
+  v11 = v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_top);
+  v65[1] = v7;
+  v12 = v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left);
+  v65[2] = v7;
+  v13 = v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_low);
+  v65[3] = v7;
+  v14 = v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_mid);
+  v65[4] = v7;
+  v15 = v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_top);
+  v66 = *(float *)&v7;
+  *(double *)&v7 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right);
+  v67 = *(float *)&v7;
+  v16 = 7;
+  v17 = v7;
+  v19 = v7;
+  *(float *)&v19 = *(float *)&v7 - targetAnimTime;
+  _XMM4 = v19;
+  if ( *(float *)&v7 <= targetAnimTime )
   {
-    vmovss  [rsp+108h+var_E0], xmm0
-    vmovaps xmm14, xmm0
-  }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_mid);
-  __asm
-  {
-    vmovss  [rsp+108h+var_DC], xmm0
-    vmovaps xmm10, xmm0
-  }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left_top);
-  __asm
-  {
-    vmovss  [rsp+108h+var_D8], xmm0
-    vmovaps xmm11, xmm0
-  }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_left);
-  __asm
-  {
-    vmovss  [rsp+108h+var_D4], xmm0
-    vmovaps xmm12, xmm0
-  }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_low);
-  __asm
-  {
-    vmovss  [rsp+108h+var_D0], xmm0
-    vmovaps xmm13, xmm0
-  }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_mid);
-  __asm
-  {
-    vmovss  [rsp+108h+var_CC], xmm0
-    vmovaps xmm15, xmm0
-  }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right_top);
-  __asm { vmovss  [rsp+108h+var_C8], xmm0 }
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, scr_const.ladder_stop_right);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  [rsp+108h+var_C4], xmm0
-  }
-  v34 = 7;
-  __asm
-  {
-    vmovaps xmm5, xmm0
-    vsubss  xmm4, xmm0, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
+    if ( *(float *)&v7 < targetAnimTime )
     {
+      v20 = v7;
+      *(float *)&v20 = (float)(*(float *)&v7 + 1.0) - targetAnimTime;
+      _XMM1 = v20 & (unsigned int)_xmm;
       __asm
       {
-        vaddss  xmm0, xmm0, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm4, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm4, xmm4, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v7 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v19 & _xmm) )
   {
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm7
-      vsubss  xmm1, xmm1, xmm6
-      vandps  xmm2, xmm1, xmm3
-      vandps  xmm0, xmm4, xmm3
-      vcomiss xmm2, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm4, xmm1 }
+    *(float *)&_XMM4 = (float)(*(float *)&v7 - 1.0) - targetAnimTime;
   }
-  __asm
+  v24 = v10;
+  *(float *)&v24 = *(float *)&v10 - targetAnimTime;
+  _XMM8 = v24;
+  if ( *(float *)&v10 <= targetAnimTime )
   {
-    vcomiss xmm14, xmm6
-    vsubss  xmm8, xmm14, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
+    if ( *(float *)&v10 < targetAnimTime )
     {
+      v25 = v10;
+      *(float *)&v25 = (float)(*(float *)&v10 + 1.0) - targetAnimTime;
+      _XMM1 = v25 & (unsigned int)_xmm;
       __asm
       {
-        vaddss  xmm0, xmm14, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm8, xmm8, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v10 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v24 & _xmm) )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm14, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm8, xmm3
-      vcomiss xmm1, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
+    *(float *)&_XMM8 = (float)(*(float *)&v10 - 1.0) - targetAnimTime;
   }
-  __asm
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v10 >= 0.0 )
   {
-    vandps  xmm1, xmm8, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
-    vxorps  xmm9, xmm9, xmm9
+    v16 = 0;
+    v17 = v10;
+    LODWORD(_XMM4) = _XMM8;
   }
-  if ( v30 )
+  v29 = v11;
+  *(float *)&v29 = *(float *)&v11 - targetAnimTime;
+  _XMM8 = v29;
+  if ( *(float *)&v11 <= targetAnimTime )
   {
-    __asm { vcomiss xmm14, xmm9 }
-    if ( !v30 )
+    if ( *(float *)&v11 < targetAnimTime )
     {
-      v30 = 0;
-      v31 = 1;
-      v34 = 0;
+      v30 = v11;
+      *(float *)&v30 = (float)(*(float *)&v11 + 1.0) - targetAnimTime;
+      _XMM1 = v30 & (unsigned int)_xmm;
       __asm
       {
-        vmovaps xmm5, xmm14
-        vmovaps xmm4, xmm8
-      }
-    }
-  }
-  __asm
-  {
-    vcomiss xmm10, xmm6
-    vsubss  xmm8, xmm10, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm10, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm8, xmm8, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v11 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v29 & _xmm) )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm10, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm8, xmm3
-      vcomiss xmm1, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
+    *(float *)&_XMM8 = (float)(*(float *)&v11 - 1.0) - targetAnimTime;
   }
-  __asm
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v11 >= 0.0 )
   {
-    vandps  xmm1, xmm8, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
+    v16 = 1;
+    v17 = v11;
+    LODWORD(_XMM4) = _XMM8;
   }
-  if ( v30 )
+  v34 = v12;
+  *(float *)&v34 = *(float *)&v12 - targetAnimTime;
+  _XMM8 = v34;
+  if ( *(float *)&v12 <= targetAnimTime )
   {
-    __asm { vcomiss xmm10, xmm9 }
-    if ( !v30 )
+    if ( *(float *)&v12 < targetAnimTime )
     {
-      v34 = 1;
+      v35 = v12;
+      *(float *)&v35 = (float)(*(float *)&v12 + 1.0) - targetAnimTime;
+      _XMM1 = v35 & (unsigned int)_xmm;
       __asm
       {
-        vmovaps xmm5, xmm10
-        vmovaps xmm4, xmm8
-      }
-    }
-  }
-  __asm
-  {
-    vcomiss xmm11, xmm6
-    vsubss  xmm8, xmm11, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm11, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm8, xmm8, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v12 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v34 & _xmm) )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm11, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm8, xmm3
-      vcomiss xmm1, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
+    *(float *)&_XMM8 = (float)(*(float *)&v12 - 1.0) - targetAnimTime;
   }
-  __asm
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v12 >= 0.0 )
   {
-    vandps  xmm1, xmm8, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
+    v16 = 2;
+    v17 = v12;
+    LODWORD(_XMM4) = _XMM8;
   }
-  if ( v30 )
+  v39 = v13;
+  *(float *)&v39 = *(float *)&v13 - targetAnimTime;
+  _XMM8 = v39;
+  if ( *(float *)&v13 <= targetAnimTime )
   {
-    __asm { vcomiss xmm11, xmm9 }
-    if ( !v30 )
+    if ( *(float *)&v13 < targetAnimTime )
     {
-      v34 = 2;
+      v40 = v13;
+      *(float *)&v40 = (float)(*(float *)&v13 + 1.0) - targetAnimTime;
+      _XMM1 = v40 & (unsigned int)_xmm;
       __asm
       {
-        vmovaps xmm5, xmm11
-        vmovaps xmm4, xmm8
-      }
-    }
-  }
-  __asm
-  {
-    vcomiss xmm12, xmm6
-    vsubss  xmm8, xmm12, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm12, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm8, xmm8, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v13 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v39 & _xmm) )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm12, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm8, xmm3
-      vcomiss xmm1, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
+    *(float *)&_XMM8 = (float)(*(float *)&v13 - 1.0) - targetAnimTime;
   }
-  __asm
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v13 >= 0.0 )
   {
-    vandps  xmm1, xmm8, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
+    v16 = 3;
+    v17 = v13;
+    LODWORD(_XMM4) = _XMM8;
   }
-  if ( v30 )
+  v44 = v14;
+  *(float *)&v44 = *(float *)&v14 - targetAnimTime;
+  _XMM8 = v44;
+  if ( *(float *)&v14 <= targetAnimTime )
   {
-    __asm { vcomiss xmm12, xmm9 }
-    if ( !v30 )
+    if ( *(float *)&v14 < targetAnimTime )
     {
-      v34 = 3;
+      v45 = v14;
+      *(float *)&v45 = (float)(*(float *)&v14 + 1.0) - targetAnimTime;
+      _XMM1 = v45 & (unsigned int)_xmm;
       __asm
       {
-        vmovaps xmm5, xmm12
-        vmovaps xmm4, xmm8
-      }
-    }
-  }
-  __asm
-  {
-    vcomiss xmm13, xmm6
-    vsubss  xmm8, xmm13, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm13, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm8, xmm8, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v14 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v44 & _xmm) )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm13, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm8, xmm3
-      vcomiss xmm1, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
+    *(float *)&_XMM8 = (float)(*(float *)&v14 - 1.0) - targetAnimTime;
   }
-  __asm
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v14 >= 0.0 )
   {
-    vandps  xmm1, xmm8, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
+    v16 = 4;
+    v17 = v14;
+    LODWORD(_XMM4) = _XMM8;
   }
-  if ( v30 )
+  v49 = v15;
+  *(float *)&v49 = *(float *)&v15 - targetAnimTime;
+  _XMM8 = v49;
+  if ( *(float *)&v15 <= targetAnimTime )
   {
-    __asm { vcomiss xmm13, xmm9 }
-    if ( !v30 )
+    if ( *(float *)&v15 < targetAnimTime )
     {
-      v34 = 4;
+      v50 = v15;
+      *(float *)&v50 = (float)(*(float *)&v15 + 1.0) - targetAnimTime;
+      _XMM1 = v50 & (unsigned int)_xmm;
       __asm
       {
-        vmovaps xmm5, xmm13
-        vmovaps xmm4, xmm8
-      }
-    }
-  }
-  __asm
-  {
-    vcomiss xmm15, xmm6
-    vsubss  xmm8, xmm15, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm15, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
         vcmpltss xmm1, xmm1, xmm0
         vblendvps xmm8, xmm8, xmm2, xmm1
       }
     }
   }
-  else
+  else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v15 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v49 & _xmm) )
   {
-    __asm
+    *(float *)&_XMM8 = (float)(*(float *)&v15 - 1.0) - targetAnimTime;
+  }
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v15 >= 0.0 )
+  {
+    v16 = 5;
+    v17 = v15;
+    LODWORD(_XMM4) = _XMM8;
+  }
+  v53 = LODWORD(v66);
+  v55 = LODWORD(v66);
+  *(float *)&v55 = v66 - targetAnimTime;
+  _XMM8 = v55;
+  if ( v66 <= targetAnimTime )
+  {
+    if ( v66 < targetAnimTime )
     {
-      vsubss  xmm0, xmm15, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm8, xmm3
-      vcomiss xmm1, xmm0
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
-  }
-  __asm
-  {
-    vandps  xmm1, xmm8, xmm3
-    vandps  xmm0, xmm4, xmm3
-    vcomiss xmm1, xmm0
-  }
-  if ( v30 )
-  {
-    __asm { vcomiss xmm15, xmm9 }
-    if ( !v30 )
-    {
-      v34 = 5;
-      __asm
-      {
-        vmovaps xmm5, xmm15
-        vmovaps xmm4, xmm8
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, [rsp+108h+var_C8]
-    vcomiss xmm0, xmm6
-    vsubss  xmm8, xmm0, xmm6
-  }
-  if ( v30 | v31 )
-  {
-    if ( v30 )
-    {
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm7
-        vsubss  xmm2, xmm0, xmm6
-        vandps  xmm0, xmm8, xmm3
-        vandps  xmm1, xmm2, xmm3
-        vcmpltss xmm1, xmm1, xmm0
-        vmovss  xmm0, [rsp+108h+var_C8]
-        vblendvps xmm8, xmm8, xmm2, xmm1
-      }
+      v56 = LODWORD(v66);
+      *(float *)&v56 = (float)(v66 + 1.0) - targetAnimTime;
+      _XMM1 = v56 & (unsigned int)_xmm;
+      __asm { vcmpltss xmm1, xmm1, xmm0 }
+      v53 = LODWORD(v66);
+      __asm { vblendvps xmm8, xmm8, xmm2, xmm1 }
     }
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm7
-      vsubss  xmm2, xmm0, xmm6
-      vandps  xmm0, xmm8, xmm3
-      vandps  xmm1, xmm2, xmm3
-      vcomiss xmm1, xmm0
-      vmovss  xmm0, [rsp+108h+var_C8]
-    }
-    if ( v30 )
-      __asm { vmovaps xmm8, xmm2 }
+    v53 = LODWORD(v66);
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v66 - 1.0) - targetAnimTime) & _xmm) < COERCE_FLOAT(v55 & _xmm) )
+      *(float *)&_XMM8 = (float)(v66 - 1.0) - targetAnimTime;
   }
-  __asm
+  if ( COERCE_FLOAT(_XMM8 & _xmm) < COERCE_FLOAT(_XMM4 & _xmm) && *(float *)&v53 >= 0.0 )
   {
-    vandps  xmm8, xmm8, xmm3
-    vandps  xmm4, xmm4, xmm3
-    vcomiss xmm8, xmm4
-  }
-  if ( v30 )
-  {
-    __asm { vcomiss xmm0, xmm9 }
-    if ( !v30 )
-    {
-      v34 = 6;
-      __asm { vmovaps xmm5, xmm0 }
-    }
+    v16 = 6;
+    v17 = v53;
   }
   if ( outPrevGrabAnimTime )
   {
-    __asm
+    v60 = v17;
+    *(float *)&v60 = *(float *)&v17 - *(float *)v64;
+    _XMM4 = v60;
+    if ( *(float *)&v17 <= *(float *)v64 )
     {
-      vmovss  xmm1, [rsp+108h+var_E4]
-      vcomiss xmm5, xmm1
-      vsubss  xmm4, xmm5, xmm1
-      vsubss  xmm0, xmm5, xmm7
-      vsubss  xmm2, xmm0, xmm1
-      vandps  xmm1, xmm2, xmm3
-      vandps  xmm0, xmm4, xmm3
-      vcomiss xmm1, xmm0
-      vcomiss xmm4, xmm9
-    }
-    if ( v34 <= 0 )
-    {
-      __asm
+      if ( *(float *)&v17 < *(float *)v64 )
       {
-        vmovss  xmm0, [rsp+108h+var_C4]
-        vmovss  dword ptr [rdi], xmm0
+        v61 = v17;
+        *(float *)&v61 = (float)(*(float *)&v17 + 1.0) - *(float *)v64;
+        _XMM1 = v61 & (unsigned int)_xmm;
+        __asm
+        {
+          vcmpltss xmm1, xmm1, xmm0
+          vblendvps xmm4, xmm4, xmm2, xmm1
+        }
       }
+    }
+    else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(*(float *)&v17 - 1.0) - *(float *)v64) & _xmm) < COERCE_FLOAT(v60 & _xmm) )
+    {
+      *(float *)&_XMM4 = (float)(*(float *)&v17 - 1.0) - *(float *)v64;
+    }
+    if ( *(float *)&_XMM4 < 0.0 )
+    {
+      if ( v16 >= 7 )
+        *outPrevGrabAnimTime = *(float *)&v10;
+      else
+        *(_DWORD *)outPrevGrabAnimTime = v65[v16];
+    }
+    else if ( v16 <= 0 )
+    {
+      *outPrevGrabAnimTime = v67;
     }
     else
     {
-      *(_DWORD *)outPrevGrabAnimTime = v150[v34];
+      *(_DWORD *)outPrevGrabAnimTime = v64[v16];
     }
   }
   if ( outTargetGrabIndex )
-    *outTargetGrabIndex = v34;
+    *outTargetGrabIndex = v16;
   if ( outTargetGrabAnimTime )
-    __asm { vmovss  dword ptr [rsi], xmm5 }
-  _R11 = &v156;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_A8]
-    vmovaps xmm15, [rsp+108h+var_B8]
-  }
+    *outTargetGrabAnimTime = *(float *)&v17;
 }
 
 /*

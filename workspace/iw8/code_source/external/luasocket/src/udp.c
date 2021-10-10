@@ -109,8 +109,7 @@ __int64 meth_close(lua_State *L)
 
   v2 = (unsigned __int64 *)j_auxiliar_checkgroup(L, "tcp{any}", 1);
   j_socket_destroy(v2);
-  __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-  j_lua_pushnumber(L, *(long double *)&_XMM1);
+  j_lua_pushnumber(L, 1.0);
   return 1i64;
 }
 
@@ -171,15 +170,11 @@ int meth_settimeout(lua_State *L)
 meth_getfd
 ==============
 */
-
-__int64 __fastcall meth_getfd(lua_State *L, double _XMM1_8)
+__int64 meth_getfd(lua_State *L)
 {
   j_auxiliar_checkgroup(L, "tcp{any}", 1);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, dword ptr [rax]; n
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rax]; n }
   j_lua_pushnumber(L, *(long double *)&_XMM1);
   return 1i64;
 }
@@ -192,18 +187,22 @@ meth_setfd
 __int64 meth_setfd(lua_State *L)
 {
   _QWORD *v3; 
+  unsigned __int64 v4; 
+  __int128 v5; 
 
   v3 = j_auxiliar_checkgroup(L, "tcp{any}", 1);
   *(double *)&_XMM0 = j_luaL_checknumber(L, 2);
-  __asm
+  v4 = 0i64;
+  if ( *(double *)&_XMM0 >= 9.223372036854776e18 )
   {
-    vmovsd  xmm1, cs:__real@43e0000000000000
-    vcomisd xmm0, xmm1
-    vsubsd  xmm0, xmm0, xmm1
-    vcomisd xmm0, xmm1
-    vcvttsd2si rax, xmm0
+    *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v5 = *(double *)&_XMM0 - 9.223372036854776e18;
+    _XMM0 = v5;
+    if ( *(double *)&v5 < 9.223372036854776e18 )
+      v4 = 0x8000000000000000ui64;
   }
-  *v3 = _RAX;
+  __asm { vcvttsd2si rax, xmm0 }
+  *v3 = v4 + _RAX;
   return 0i64;
 }
 
@@ -228,34 +227,33 @@ __int64 meth_dirty(lua_State *L)
 meth_sendto
 ==============
 */
-
-__int64 __fastcall meth_sendto(lua_State *L, double _XMM1_8)
+__int64 meth_sendto(lua_State *L)
 {
+  char *v2; 
   char *v3; 
-  char *v4; 
+  const char *v4; 
   const char *v5; 
   const char *v6; 
-  const char *v7; 
-  PADDRINFOA v9; 
-  const char *v10; 
-  int v11; 
-  const char *v12; 
+  PADDRINFOA v8; 
+  const char *v9; 
+  int v10; 
+  const char *v11; 
   ADDRINFOA pHints; 
   PADDRINFOA ppResult; 
   unsigned __int64 sent; 
   unsigned __int64 len; 
 
-  v3 = (char *)j_auxiliar_checkclass(L, "udp{unconnected}", 1);
+  v2 = (char *)j_auxiliar_checkclass(L, "udp{unconnected}", 1);
   sent = 0i64;
-  v4 = v3;
-  v5 = j_luaL_checklstring(L, 2, &len);
-  v6 = j_luaL_checklstring(L, 3, NULL);
-  v7 = j_luaL_checklstring(L, 4, NULL);
+  v3 = v2;
+  v4 = j_luaL_checklstring(L, 2, &len);
+  v5 = j_luaL_checklstring(L, 3, NULL);
+  v6 = j_luaL_checklstring(L, 4, NULL);
   memset(&pHints, 0, sizeof(pHints));
-  pHints.ai_family = *((_DWORD *)v4 + 8);
+  pHints.ai_family = *((_DWORD *)v3 + 8);
   pHints.ai_socktype = 2;
   pHints.ai_flags = 12;
-  if ( getaddrinfo(v6, v7, &pHints, &ppResult) )
+  if ( getaddrinfo(v5, v6, &pHints, &ppResult) )
   {
     j_lua_pushnil(L);
     j_lua_pushstring(L, "luasocket: meth_sendto error.");
@@ -263,51 +261,48 @@ __int64 __fastcall meth_sendto(lua_State *L, double _XMM1_8)
   }
   else
   {
-    if ( !*((_DWORD *)v4 + 8) && *(_QWORD *)v4 == -1i64 )
+    if ( !*((_DWORD *)v3 + 8) && *(_QWORD *)v3 == -1i64 )
     {
-      v9 = ppResult;
+      v8 = ppResult;
       if ( ppResult )
       {
         while ( 1 )
         {
-          v10 = j_inet_trycreate((unsigned __int64 *)v4, v9->ai_family, 2, 0);
-          if ( !v10 )
-            break;
-          v9 = v9->ai_next;
+          v9 = j_inet_trycreate((unsigned __int64 *)v3, v8->ai_family, 2, 0);
           if ( !v9 )
+            break;
+          v8 = v8->ai_next;
+          if ( !v8 )
           {
             j_lua_pushnil(L);
-            j_lua_pushstring(L, v10);
+            j_lua_pushstring(L, v9);
             freeaddrinfo(ppResult);
             return 2i64;
           }
         }
-        j_socket_setnonblocking((unsigned __int64 *)v4);
-        *((_DWORD *)v4 + 8) = v9->ai_family;
+        j_socket_setnonblocking((unsigned __int64 *)v3);
+        *((_DWORD *)v3 + 8) = v8->ai_family;
       }
     }
-    j_timeout_markstart((t_timeout_ *)(v4 + 8));
-    v11 = j_socket_sendto((unsigned __int64 *)v4, v5, len, &sent, ppResult->ai_addr, ppResult->ai_addrlen, (t_timeout_ *)(v4 + 8));
+    j_timeout_markstart((t_timeout_ *)(v3 + 8));
+    v10 = j_socket_sendto((unsigned __int64 *)v3, v4, len, &sent, ppResult->ai_addr, ppResult->ai_addrlen, (t_timeout_ *)(v3 + 8));
     freeaddrinfo(ppResult);
-    if ( v11 )
+    if ( v10 )
     {
       j_lua_pushnil(L);
-      if ( v11 == -2 )
-        v12 = "refused";
+      if ( v10 == -2 )
+        v11 = "refused";
       else
-        v12 = j_socket_strerror(v11);
-      j_lua_pushstring(L, v12);
+        v11 = j_socket_strerror(v10);
+      j_lua_pushstring(L, v11);
       return 2i64;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2sd xmm1, xmm1, rcx
-      }
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, rcx }
       if ( (sent & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+        *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
       j_lua_pushnumber(L, *(long double *)&_XMM1);
       return 1i64;
     }
@@ -321,7 +316,10 @@ meth_receivefrom
 */
 __int64 meth_receivefrom(lua_State *L)
 {
-  char *v4; 
+  char *v3; 
+  unsigned __int64 v4; 
+  __int128 v5; 
+  size_t v7; 
   char *v8; 
   int v10; 
   const char *v11; 
@@ -333,37 +331,39 @@ __int64 meth_receivefrom(lua_State *L)
   char pNodeBuffer[80]; 
   char v18; 
 
-  __asm { vmovsd  xmm2, cs:__real@40c0000000000000; def }
-  v4 = (char *)j_auxiliar_checkclass(L, "udp{unconnected}", 1);
-  *(double *)&_XMM0 = j_luaL_optnumber(L, 2, *(long double *)&_XMM2);
-  __asm
+  v3 = (char *)j_auxiliar_checkclass(L, "udp{unconnected}", 1);
+  *(double *)&_XMM0 = j_luaL_optnumber(L, 2, 8192.0);
+  v4 = 0i64;
+  if ( *(double *)&_XMM0 >= 9.223372036854776e18 )
   {
-    vmovsd  xmm1, cs:__real@43e0000000000000
-    vcomisd xmm0, xmm1
-    vsubsd  xmm0, xmm0, xmm1
-    vcomisd xmm0, xmm1
-    vcvttsd2si rdi, xmm0
+    *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v5 = *(double *)&_XMM0 - 9.223372036854776e18;
+    _XMM0 = v5;
+    if ( *(double *)&v5 < 9.223372036854776e18 )
+      v4 = 0x8000000000000000ui64;
   }
-  if ( _RDI <= 0x2000 )
+  __asm { vcvttsd2si rdi, xmm0 }
+  v7 = v4 + _RDI;
+  if ( v7 <= 0x2000 )
     v8 = &v18;
   else
-    v8 = (char *)malloc(_RDI);
+    v8 = (char *)malloc(v7);
   SockaddrLength = 128;
-  j_timeout_markstart((t_timeout_ *)(v4 + 8));
+  j_timeout_markstart((t_timeout_ *)(v3 + 8));
   if ( !v8 )
   {
     j_lua_pushnil(L);
     j_lua_pushlstring(L, "out of memory", 0xDui64);
     return 2i64;
   }
-  v10 = j_socket_recvfrom((unsigned __int64 *)v4, v8, _RDI, &got, &pSockaddr, &SockaddrLength, (t_timeout_ *)(v4 + 8));
+  v10 = j_socket_recvfrom((unsigned __int64 *)v3, v8, v7, &got, &pSockaddr, &SockaddrLength, (t_timeout_ *)(v3 + 8));
   if ( ((v10 + 2) & 0xFFFFFFFD) != 0 )
   {
     j_lua_pushnil(L);
     v11 = j_socket_strerror(v10);
-LABEL_10:
+LABEL_13:
     j_lua_pushstring(L, v11);
-    if ( _RDI > 0x2000 )
+    if ( v7 > 0x2000 )
       free(v8);
     return 2i64;
   }
@@ -371,13 +371,13 @@ LABEL_10:
   {
     j_lua_pushnil(L);
     v11 = "luasocket: meth_receivefrom error.";
-    goto LABEL_10;
+    goto LABEL_13;
   }
   j_lua_pushlstring(L, v8, got);
   j_lua_pushstring(L, pNodeBuffer);
   v12 = strtol(pServiceBuffer, NULL, 10);
   j_lua_pushinteger(L, v12);
-  if ( _RDI > 0x2000 )
+  if ( v7 > 0x2000 )
     free(v8);
   return 3i64;
 }
@@ -412,8 +412,7 @@ __int64 meth_setsockname(lua_State *L)
   }
   else
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
 }
@@ -469,8 +468,7 @@ __int64 meth_setpeername(lua_State *L)
     v11 = "udp{unconnected}";
   }
   j_auxiliar_setclass(L, v11, 1);
-  __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-  j_lua_pushnumber(L, *(long double *)&_XMM1);
+  j_lua_pushnumber(L, 1.0);
   return 1i64;
 }
 
@@ -482,25 +480,20 @@ udp_create
 __int64 udp_create(lua_State *L, int family)
 {
   char *v4; 
-  const char *v7; 
+  const char *v5; 
 
   v4 = (char *)j_lua_newuserdata(L, 0x28ui64);
   j_auxiliar_setclass(L, "udp{unconnected}", -1);
-  __asm
-  {
-    vmovsd  xmm1, cs:__real@bff0000000000000; block
-    vmovaps xmm2, xmm1; total
-  }
   *(_QWORD *)v4 = -1i64;
-  j_timeout_init((t_timeout_ *)(v4 + 8), *(long double *)&_XMM1, *(long double *)&_XMM2);
+  j_timeout_init((t_timeout_ *)(v4 + 8), -1.0, -1.0);
   *((_DWORD *)v4 + 8) = family;
   if ( family )
   {
-    v7 = j_inet_trycreate((unsigned __int64 *)v4, family, 2, 0);
-    if ( v7 )
+    v5 = j_inet_trycreate((unsigned __int64 *)v4, family, 2, 0);
+    if ( v5 )
     {
       j_lua_pushnil(L);
-      j_lua_pushstring(L, v7);
+      j_lua_pushstring(L, v5);
       return 2i64;
     }
     j_socket_setnonblocking((unsigned __int64 *)v4);

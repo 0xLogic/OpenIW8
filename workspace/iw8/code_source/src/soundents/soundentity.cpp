@@ -49,22 +49,16 @@ BG_SoundEntity_PackScalePitchEventParam
 */
 __int64 BG_SoundEntity_PackScalePitchEventParam(float pitch, int blendMsec)
 {
-  double v5; 
-  int v7; 
+  double v3; 
+  int v4; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@40000000; max
-    vmovss  xmm1, cs:__real@3a83126f; min
-  }
-  v5 = I_fclamp(pitch, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm1, cs:__real@40000000; maxAbsValueSize }
+  v3 = I_fclamp(pitch, 0.001, 2.0);
   if ( blendMsec > 0xFFFF )
     blendMsec = 0xFFFF;
-  v7 = MSG_PackUnsignedFloat(*(float *)&v5, *(float *)&_XMM1, 0x10u) << 16;
+  v4 = MSG_PackUnsignedFloat(*(float *)&v3, 2.0, 0x10u) << 16;
   if ( blendMsec < 0 )
     blendMsec = 0;
-  return blendMsec | (unsigned int)v7;
+  return blendMsec | (unsigned int)v4;
 }
 
 /*
@@ -74,22 +68,16 @@ BG_SoundEntity_PackScaleVolumeEventParam
 */
 __int64 BG_SoundEntity_PackScaleVolumeEventParam(float volume, int blendMsec)
 {
-  double v6; 
-  int v8; 
+  double v3; 
+  int v4; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@40800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  v6 = I_fclamp(volume, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm1, cs:__real@40800000; maxAbsValueSize }
+  v3 = I_fclamp(volume, 0.0, 4.0);
   if ( blendMsec > 0xFFFF )
     blendMsec = 0xFFFF;
-  v8 = MSG_PackUnsignedFloat(*(float *)&v6, *(float *)&_XMM1, 0x10u) << 16;
+  v4 = MSG_PackUnsignedFloat(*(float *)&v3, 4.0, 0x10u) << 16;
   if ( blendMsec < 0 )
     blendMsec = 0;
-  return blendMsec | (unsigned int)v8;
+  return blendMsec | (unsigned int)v4;
 }
 
 /*
@@ -99,11 +87,11 @@ BG_SoundEntity_UnpackScalePitchEventParam
 */
 void BG_SoundEntity_UnpackScalePitchEventParam(int parm, float *pitch, int *blendMsec)
 {
-  __asm { vmovss  xmm1, cs:__real@40000000; maxAbsValueSize }
-  _RBX = pitch;
+  double v4; 
+
   *blendMsec = (unsigned __int16)parm;
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(HIWORD(parm), *(float *)&_XMM1, 0x10u);
-  __asm { vmovss  dword ptr [rbx], xmm0 }
+  v4 = MSG_UnpackUnsignedFloat(HIWORD(parm), 2.0, 0x10u);
+  *pitch = *(float *)&v4;
 }
 
 /*
@@ -113,10 +101,10 @@ BG_SoundEntity_UnpackScaleVolumeEventParam
 */
 void BG_SoundEntity_UnpackScaleVolumeEventParam(int parm, float *volume, int *blendMsec)
 {
-  __asm { vmovss  xmm1, cs:__real@40800000; maxAbsValueSize }
-  _RBX = volume;
+  double v4; 
+
   *blendMsec = (unsigned __int16)parm;
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(HIWORD(parm), *(float *)&_XMM1, 0x10u);
-  __asm { vmovss  dword ptr [rbx], xmm0 }
+  v4 = MSG_UnpackUnsignedFloat(HIWORD(parm), 4.0, 0x10u);
+  *volume = *(float *)&v4;
 }
 

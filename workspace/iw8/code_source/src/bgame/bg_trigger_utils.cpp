@@ -36,30 +36,18 @@ bool __fastcall BG_TriggerDisk_Contacts_Capsule(const vec3_t *triggerOrigin, con
 BG_TriggerDisk_Contacts_Capsule
 ==============
 */
-char BG_TriggerDisk_Contacts_Capsule(const vec3_t *triggerOrigin, const Bounds *triggerBounds, const Bounds *capsuleBounds)
+bool BG_TriggerDisk_Contacts_Capsule(const vec3_t *triggerOrigin, const Bounds *triggerBounds, const Bounds *capsuleBounds)
 {
-  _RBX = capsuleBounds;
-  _RDI = triggerBounds;
+  float v6; 
+  float v7; 
+
   if ( !triggerBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 120, ASSERT_TYPE_ASSERT, "(triggerBounds)", (const char *)&queryFormat, "triggerBounds") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 121, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
+  if ( !capsuleBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 121, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]
-    vsubss  xmm4, xmm2, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rbx+0Ch]
-    vmovss  xmm0, dword ptr [rbx+4]
-    vsubss  xmm5, xmm1, cs:__real@42800000
-    vsubss  xmm1, xmm0, dword ptr [rsi+4]
-    vmulss  xmm3, xmm1, xmm1
-    vmulss  xmm2, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm0, xmm5, xmm5
-    vcomiss xmm4, xmm0
-  }
-  return 1;
+  v6 = (float)(triggerBounds->halfSize.v[0] + capsuleBounds->halfSize.v[0]) - 64.0;
+  v7 = capsuleBounds->midPoint.v[1] - triggerOrigin->v[1];
+  return (float)((float)(v7 * v7) + (float)((float)(capsuleBounds->midPoint.v[0] - triggerOrigin->v[0]) * (float)(capsuleBounds->midPoint.v[0] - triggerOrigin->v[0]))) >= (float)(v6 * v6);
 }
 
 /*
@@ -69,174 +57,77 @@ BG_TriggerRadiusRotate_Contacts_Capsule
 */
 bool BG_TriggerRadiusRotate_Contacts_Capsule(const vec3_t *triggerOrigin, const vec3_t *triggerAngles, const Bounds *triggerBounds, const Bounds *capsuleBounds)
 {
-  char v28; 
-  char v29; 
-  bool result; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v24; 
+  float v25; 
+  float v26; 
   vec3_t vec; 
-  vec3_t v79; 
-  vec3_t v80; 
+  vec3_t v28; 
+  vec3_t v29; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  _RBX = capsuleBounds;
-  _RDI = triggerBounds;
   if ( !triggerBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 24, ASSERT_TYPE_ASSERT, "(triggerBounds)", (const char *)&queryFormat, "triggerBounds") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 25, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
+  if ( !capsuleBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 25, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
     __debugbreak();
   AnglesToAxis(triggerAngles, &axis);
   MatrixInverse(&axis, &out);
-  __asm
+  v8 = capsuleBounds->halfSize.v[0];
+  v9 = capsuleBounds->midPoint.v[0];
+  v10 = capsuleBounds->midPoint.v[1];
+  v11 = v10 - triggerOrigin->v[1];
+  v12 = capsuleBounds->midPoint.v[2];
+  v13 = capsuleBounds->halfSize.v[2] - v8;
+  vec.v[0] = capsuleBounds->midPoint.v[0] - triggerOrigin->v[0];
+  vec.v[1] = v11;
+  vec.v[2] = (float)(v12 - v13) - triggerOrigin->v[2];
+  AxisTransformVec3(&out, &vec, &v29);
+  v14 = v10 - triggerOrigin->v[1];
+  vec.v[0] = v9 - triggerOrigin->v[0];
+  vec.v[2] = (float)(v12 + v13) - triggerOrigin->v[2];
+  vec.v[1] = v14;
+  AxisTransformVec3(&out, &vec, &v28);
+  v15 = v8 + triggerBounds->halfSize.v[0];
+  LODWORD(v16) = LODWORD(v8) ^ _xmm;
+  v17 = (float)(triggerBounds->halfSize.v[2] * 2.0) + v8;
+  v18 = (float)((float)(v28.v[1] - v29.v[1]) * (float)(v28.v[1] - v29.v[1])) + (float)((float)(v28.v[0] - v29.v[0]) * (float)(v28.v[0] - v29.v[0]));
+  v19 = (float)((float)(v28.v[0] - v29.v[0]) * v29.v[0]) + (float)(v29.v[1] * (float)(v28.v[1] - v29.v[1]));
+  v20 = v19 * 2.0;
+  v21 = (float)((float)(v29.v[0] * v29.v[0]) + (float)(v29.v[1] * v29.v[1])) - (float)(v15 * v15);
+  v22 = (float)((float)(v19 * v19) * 4.0) - (float)((float)(v18 * 4.0) * v21);
+  if ( v18 == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  xmm10, dword ptr [rbx+0Ch]
-    vmovss  xmm6, dword ptr [rbx]
-    vmovss  xmm7, dword ptr [rbx+4]
-    vsubss  xmm1, xmm7, dword ptr [rsi+4]
-    vmovss  xmm8, dword ptr [rbx+8]
-    vsubss  xmm9, xmm0, xmm10
-    vsubss  xmm0, xmm6, dword ptr [rsi]
-    vmovss  dword ptr [rsp+138h+vec], xmm0
-    vsubss  xmm0, xmm8, xmm9
-    vmovss  dword ptr [rsp+138h+vec+4], xmm1
-    vsubss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsp+138h+vec+8], xmm1
-  }
-  AxisTransformVec3(&out, &vec, &v80);
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [rsi]
-    vsubss  xmm1, xmm7, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+138h+vec], xmm0
-    vaddss  xmm0, xmm8, xmm9
-    vsubss  xmm2, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsp+138h+vec+8], xmm2
-    vmovss  dword ptr [rsp+138h+vec+4], xmm1
-  }
-  AxisTransformVec3(&out, &vec, &v79);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+138h+var_E8]
-    vmovss  xmm5, dword ptr [rsp+138h+var_E8+4]
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmulss  xmm0, xmm0, cs:__real@40000000
-    vmovss  xmm1, dword ptr [rsp+138h+var_F8]
-    vaddss  xmm8, xmm10, dword ptr [rdi+0Ch]
-    vxorps  xmm11, xmm10, cs:__xmm@80000000800000008000000080000000
-    vsubss  xmm2, xmm1, xmm6
-    vaddss  xmm9, xmm0, xmm10
-    vmovss  xmm0, dword ptr [rsp+138h+var_F8+4]
-    vsubss  xmm3, xmm0, xmm5
-    vmulss  xmm0, xmm2, xmm2
-    vmulss  xmm2, xmm2, xmm6
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm10, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm3
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm7, xmm4, cs:__real@40000000
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm3, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm8, xmm8
-    vsubss  xmm6, xmm2, xmm1
-    vmulss  xmm2, xmm0, cs:__real@40800000
-    vmulss  xmm0, xmm10, cs:__real@40800000
-    vxorps  xmm5, xmm5, xmm5
-    vucomiss xmm10, xmm5
-    vmulss  xmm1, xmm0, xmm6
-    vsubss  xmm4, xmm2, xmm1
-  }
-  if ( v29 )
-  {
-    __asm { vcomiss xmm6, xmm5 }
-    if ( !v28 )
-      goto LABEL_9;
+    if ( v21 >= 0.0 )
+      return 0;
   }
   else
   {
-    __asm { vcomiss xmm4, xmm5 }
-    if ( v28 | v29 )
-      goto LABEL_9;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f000000
-      vxorps  xmm1, xmm7, cs:__xmm@80000000800000008000000080000000
-      vdivss  xmm3, xmm0, xmm10
-      vsqrtss xmm4, xmm4, xmm4
-      vsubss  xmm2, xmm1, xmm4
-      vmulss  xmm2, xmm2, xmm3
-      vcomiss xmm2, xmm5
-      vsubss  xmm0, xmm4, xmm7
-      vmulss  xmm1, xmm0, xmm3
-    }
-    if ( v28 )
-    {
-      __asm { vcomiss xmm1, xmm5 }
-      if ( v28 )
-        goto LABEL_9;
-    }
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vcomiss xmm2, xmm0
-    }
-    if ( !(v28 | v29) )
-    {
-      __asm { vcomiss xmm1, xmm0 }
-      if ( !(v28 | v29) )
-        goto LABEL_9;
-    }
+    if ( v22 <= 0.0 )
+      return 0;
+    v24 = fsqrt(v22);
+    v25 = (float)(COERCE_FLOAT(LODWORD(v20) ^ _xmm) - v24) * (float)(0.5 / v18);
+    v26 = (float)(v24 - v20) * (float)(0.5 / v18);
+    if ( v25 < 0.0 && v26 < 0.0 )
+      return 0;
+    if ( v25 > 1.0 && v26 > 1.0 )
+      return 0;
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+138h+var_E8+8]
-    vcomiss xmm1, xmm11
-    vmovss  xmm0, dword ptr [rsp+138h+var_F8+8]
-  }
-  if ( !(v28 | v29) )
-    goto LABEL_23;
-  __asm { vcomiss xmm0, xmm11 }
-  if ( !(v28 | v29) )
-  {
-LABEL_23:
-    __asm { vcomiss xmm1, xmm9 }
-    if ( v28 )
-      goto LABEL_20;
-    __asm { vcomiss xmm0, xmm9 }
-    if ( v28 )
-    {
-LABEL_20:
-      result = 1;
-      goto LABEL_10;
-    }
-  }
-LABEL_9:
-  result = 0;
-LABEL_10:
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return (v29.v[2] > v16 || v28.v[2] > v16) && (v29.v[2] < v17 || v28.v[2] < v17);
 }
 
 /*
@@ -246,22 +137,17 @@ BG_TriggerRadius_Contacts_Capsule
 */
 bool BG_TriggerRadius_Contacts_Capsule(const vec3_t *triggerOrigin, const Bounds *triggerBounds, const Bounds *capsuleBounds)
 {
-  _RDI = triggerBounds;
-  _RSI = triggerOrigin;
+  float v7; 
+  float v8; 
+
   if ( !triggerBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 7, ASSERT_TYPE_ASSERT, "(triggerBounds)", (const char *)&queryFormat, "triggerBounds") )
     __debugbreak();
   if ( !capsuleBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trigger_utils.cpp", 8, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vsubss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm1, xmm0, dword ptr [rbx+14h]
-    vcomiss xmm2, xmm1
-  }
-  return 0;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(triggerOrigin->v[2] + triggerBounds->midPoint.v[2]) - capsuleBounds->midPoint.v[2]) & _xmm) >= (float)(triggerBounds->halfSize.v[2] + capsuleBounds->halfSize.v[2]) )
+    return 0;
+  v7 = triggerBounds->halfSize.v[0] + capsuleBounds->halfSize.v[0];
+  v8 = capsuleBounds->midPoint.v[1] - triggerOrigin->v[1];
+  return (float)(v7 * v7) > (float)((float)(v8 * v8) + (float)((float)(capsuleBounds->midPoint.v[0] - triggerOrigin->v[0]) * (float)(capsuleBounds->midPoint.v[0] - triggerOrigin->v[0])));
 }
 

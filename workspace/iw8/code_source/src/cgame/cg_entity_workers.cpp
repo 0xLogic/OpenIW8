@@ -2956,221 +2956,224 @@ CG_EntityWorkers_ExecuteWorkerThread
 */
 void CG_EntityWorkers_ExecuteWorkerThread(const void *const cmd)
 {
-  __int64 v6; 
+  __int128 v1; 
+  __int128 v2; 
+  __int64 v4; 
+  __int64 v5; 
+  volatile signed __int32 *v6; 
   __int64 v7; 
-  volatile signed __int32 *v8; 
+  bool v8; 
   __int64 v9; 
-  bool v10; 
+  __int64 v10; 
   __int64 v11; 
   __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int64 v15; 
+  CgEntityWorkerOutProfile *v14; 
   unsigned __int16 entityCount; 
-  const char *v18; 
-  unsigned __int16 v19; 
+  const char *v16; 
+  unsigned __int16 v17; 
+  __int128 v20; 
   unsigned __int16 entityCurrentType; 
+  __int128 v23; 
   unsigned __int16 entityCurrentSubType; 
-  const dvar_t *v27; 
-  int v28; 
-  unsigned int v29; 
+  const dvar_t *v26; 
+  int v27; 
+  unsigned int v28; 
+  __int128 v31; 
+  __int128 v33; 
   _QWORD *v34; 
-  __int64 v37; 
+  __int64 v36; 
   char *fmt; 
+  __int64 v38; 
   __int64 v39; 
   __int64 v40; 
   __int64 v41; 
-  __int64 v42; 
   CgAntiLag *antiLag; 
-  __int64 v44; 
+  __int64 v43; 
   CgEntitySystem *entitySystem; 
-  __int64 v46; 
+  __int64 v45; 
   char data[2048]; 
   int length; 
-  void *retaddr; 
+  __int128 v48; 
+  __int128 v49; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm7 }
+  v48 = v2;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2306, ASSERT_TYPE_ASSERT, "(worker)", (const char *)&queryFormat, "worker") )
     __debugbreak();
-  v6 = *((int *)cmd + 1);
-  if ( (unsigned int)v6 >= LODWORD(cl_maxLocalClients) )
+  v4 = *((int *)cmd + 1);
+  if ( (unsigned int)v4 >= LODWORD(cl_maxLocalClients) )
   {
-    LODWORD(v39) = *((_DWORD *)cmd + 1);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2309, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v39, cl_maxLocalClients) )
+    LODWORD(v38) = *((_DWORD *)cmd + 1);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2309, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v38, cl_maxLocalClients) )
       __debugbreak();
   }
-  v7 = *((_QWORD *)cmd + 1);
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2312, ASSERT_TYPE_ASSERT, "(workerData)", (const char *)&queryFormat, "workerData") )
+  v5 = *((_QWORD *)cmd + 1);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2312, ASSERT_TYPE_ASSERT, "(workerData)", (const char *)&queryFormat, "workerData") )
     __debugbreak();
-  v8 = (volatile signed __int32 *)(v7 + 6684);
-  if ( !*(_DWORD *)(v7 + 6684) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2313, ASSERT_TYPE_ASSERT, "(workerData->workersPendingCount != 0)", (const char *)&queryFormat, "workerData->workersPendingCount != 0") )
+  v6 = (volatile signed __int32 *)(v5 + 6684);
+  if ( !*(_DWORD *)(v5 + 6684) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2313, ASSERT_TYPE_ASSERT, "(workerData->workersPendingCount != 0)", (const char *)&queryFormat, "workerData->workersPendingCount != 0") )
     __debugbreak();
-  v9 = *(unsigned int *)cmd;
-  if ( (unsigned int)v9 >= *(unsigned __int16 *)(v7 + 2582) )
+  v7 = *(unsigned int *)cmd;
+  if ( (unsigned int)v7 >= *(unsigned __int16 *)(v5 + 2582) )
   {
-    LODWORD(v40) = *(unsigned __int16 *)(v7 + 2582);
-    LODWORD(v39) = *(_DWORD *)cmd;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2316, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( workerData->workerMaxCount )", "workerIndex doesn't index workerData->workerMaxCount\n\t%i not in [0, %i)", v39, v40) )
+    LODWORD(v39) = *(unsigned __int16 *)(v5 + 2582);
+    LODWORD(v38) = *(_DWORD *)cmd;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2316, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( workerData->workerMaxCount )", "workerIndex doesn't index workerData->workerMaxCount\n\t%i not in [0, %i)", v38, v39) )
       __debugbreak();
   }
-  entitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v6);
-  if ( CgAntiLag::IsDisabledForMigration((const LocalClientNum_t)v6) )
+  entitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v4);
+  if ( CgAntiLag::IsDisabledForMigration((const LocalClientNum_t)v4) )
     antiLag = NULL;
   else
-    antiLag = CgAntiLag::GetInstance((const LocalClientNum_t)v6);
-  v10 = (_BYTE)CgStatic::ms_allocatedType == NONE;
-  v11 = tls_index;
-  v12 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-  v46 = *(_QWORD *)(v12 + 272);
-  *(_QWORD *)(v12 + 272) = 0i64;
-  if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 85, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to set the active bgs to the client game static but the allocated type is not known.", "ms_allocatedType != GameModeType::NONE") )
+    antiLag = CgAntiLag::GetInstance((const LocalClientNum_t)v4);
+  v8 = (_BYTE)CgStatic::ms_allocatedType == NONE;
+  v9 = tls_index;
+  v10 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+  v45 = *(_QWORD *)(v10 + 272);
+  *(_QWORD *)(v10 + 272) = 0i64;
+  if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 85, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to set the active bgs to the client game static but the allocated type is not known.", "ms_allocatedType != GameModeType::NONE") )
     __debugbreak();
-  if ( (unsigned int)v6 >= LODWORD(CgStatic::ms_allocatedCount) )
+  if ( (unsigned int)v4 >= LODWORD(CgStatic::ms_allocatedCount) )
   {
-    *(float *)&v40 = CgStatic::ms_allocatedCount;
-    LODWORD(v39) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 86, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v39, v40) )
+    *(float *)&v39 = CgStatic::ms_allocatedCount;
+    LODWORD(v38) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 86, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v38, v39) )
       __debugbreak();
   }
-  v13 = v6;
-  if ( !CgStatic::ms_cgameStaticsArray[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 87, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum] != 0)", "%s\n\tTrying to set the active bgs to the client game static but the client game static has not been allocated", "ms_cgameStaticsArray[localClientNum] != NULL") )
+  v11 = v4;
+  if ( !CgStatic::ms_cgameStaticsArray[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 87, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum] != 0)", "%s\n\tTrying to set the active bgs to the client game static but the client game static has not been allocated", "ms_cgameStaticsArray[localClientNum] != NULL") )
     __debugbreak();
-  v14 = v9;
-  v44 = v9;
-  v15 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v11);
-  *(_QWORD *)(v15 + 272) = CgStatic::ms_cgameStaticsArray[v6];
-  *(_QWORD *)(v15 + 1672) = data;
-  _RDI = (CgEntityWorkerOutProfile *)(200 * v9 + v7 + 6688);
-  entityCount = _RDI->entityCount;
+  v12 = v7;
+  v43 = v7;
+  v13 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v9);
+  *(_QWORD *)(v13 + 272) = CgStatic::ms_cgameStaticsArray[v4];
+  *(_QWORD *)(v13 + 1672) = data;
+  v14 = (CgEntityWorkerOutProfile *)(200 * v7 + v5 + 6688);
+  entityCount = v14->entityCount;
   if ( entityCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1949, ASSERT_TYPE_ASSERT, "( profileData.entityCount ) == ( 0 )", "%s == %s\n\t%i, %i", "profileData.entityCount", "0", entityCount, 0i64) )
     __debugbreak();
-  _RDI->workerStartTimer = __rdtsc();
-  v18 = j_va("exec ent worker %d", *(unsigned int *)cmd);
-  Sys_ProfBeginNamedEvent(0xFFE0FFFF, v18);
-  v19 = *(_WORD *)(v7 + 2 * v14 + 22);
-  __asm { vmovsd  xmm7, cs:__real@43f0000000000000 }
-  if ( v19 != 2047 )
+  v14->workerStartTimer = __rdtsc();
+  v16 = j_va("exec ent worker %d", *(unsigned int *)cmd);
+  Sys_ProfBeginNamedEvent(0xFFE0FFFF, v16);
+  v17 = *(_WORD *)(v5 + 2 * v12 + 22);
+  if ( v17 != 2047 )
   {
-    __asm { vmovaps [rsp+8E8h+var_38], xmm6 }
+    v49 = v1;
     do
     {
       length = 0;
-      CG_EntityWorkers_ProfileEntityBegin((const LocalClientNum_t)v6, entitySystem, v19, _RDI);
-      CG_EntityWorkers_ProcessEntity(entitySystem, antiLag, v19, *(_BYTE *)(v7 + 4));
+      CG_EntityWorkers_ProfileEntityBegin((const LocalClientNum_t)v4, entitySystem, v17, v14);
+      CG_EntityWorkers_ProcessEntity(entitySystem, antiLag, v17, *(_BYTE *)(v5 + 4));
       if ( !entitySystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1984, ASSERT_TYPE_ASSERT, "(entitySystem)", (const char *)&queryFormat, "entitySystem") )
         __debugbreak();
-      ++_RDI->entityCount;
-      __asm
+      ++v14->entityCount;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (__int64)(__rdtsc() - v14->entityStartTimer) < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
+        *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v20 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v20;
       }
-      if ( (__int64)(__rdtsc() - _RDI->entityStartTimer) < 0 )
-        __asm { vaddsd  xmm0, xmm0, xmm7 }
-      entityCurrentType = _RDI->entityCurrentType;
-      __asm
-      {
-        vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vcvtsd2ss xmm6, xmm0, xmm0
-      }
+      entityCurrentType = v14->entityCurrentType;
+      *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v23 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v23;
+      __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
       if ( entityCurrentType >= 0x1Du )
       {
-        LODWORD(v40) = 29;
-        LODWORD(v39) = entityCurrentType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1990, ASSERT_TYPE_ASSERT, "(unsigned)( profileData.entityCurrentType ) < (unsigned)( ( sizeof( *array_counter( profileData.entityTypeTime ) ) + 0 ) )", "profileData.entityCurrentType doesn't index profileData.entityTypeTime\n\t%i not in [0, %i)", v39, v40) )
+        LODWORD(v39) = 29;
+        LODWORD(v38) = entityCurrentType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1990, ASSERT_TYPE_ASSERT, "(unsigned)( profileData.entityCurrentType ) < (unsigned)( ( sizeof( *array_counter( profileData.entityTypeTime ) ) + 0 ) )", "profileData.entityCurrentType doesn't index profileData.entityTypeTime\n\t%i not in [0, %i)", v38, v39) )
           __debugbreak();
       }
-      entityCurrentSubType = _RDI->entityCurrentSubType;
+      entityCurrentSubType = v14->entityCurrentSubType;
       if ( entityCurrentSubType )
       {
-        LODWORD(v40) = 1;
-        LODWORD(v39) = entityCurrentSubType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1991, ASSERT_TYPE_ASSERT, "(unsigned)( profileData.entityCurrentSubType ) < (unsigned)( ( sizeof( *array_counter( profileData.entityTypeTime[profileData.entityCurrentType] ) ) + 0 ) )", "profileData.entityCurrentSubType doesn't index profileData.entityTypeTime[profileData.entityCurrentType]\n\t%i not in [0, %i)", v39, v40) )
+        LODWORD(v39) = 1;
+        LODWORD(v38) = entityCurrentSubType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1991, ASSERT_TYPE_ASSERT, "(unsigned)( profileData.entityCurrentSubType ) < (unsigned)( ( sizeof( *array_counter( profileData.entityTypeTime[profileData.entityCurrentType] ) ) + 0 ) )", "profileData.entityCurrentSubType doesn't index profileData.entityTypeTime[profileData.entityCurrentType]\n\t%i not in [0, %i)", v38, v39) )
           __debugbreak();
       }
-      _RCX = _RDI->entityCurrentType + (unsigned __int64)_RDI->entityCurrentSubType;
-      __asm { vmovss  dword ptr [rdi+rcx*4+54h], xmm6 }
-      v10 = s_entityWorkers_outputStream == NULL;
-      _RDI->entityCurrentType = 29;
-      if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2280, ASSERT_TYPE_ASSERT, "(s_entityWorkers_outputStream != nullptr)", (const char *)&queryFormat, "s_entityWorkers_outputStream != nullptr") )
+      v14->entityTypeTime[v14->entityCurrentType][(unsigned __int64)v14->entityCurrentSubType] = *(float *)&_XMM6;
+      v8 = s_entityWorkers_outputStream == NULL;
+      v14->entityCurrentType = 29;
+      if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2280, ASSERT_TYPE_ASSERT, "(s_entityWorkers_outputStream != nullptr)", (const char *)&queryFormat, "s_entityWorkers_outputStream != nullptr") )
         __debugbreak();
       if ( length )
       {
-        v27 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
+        v26 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
         if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v27);
-        if ( !v27->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2287, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_cg_entityWorkersBufferedOutput, \"cg_entityWorkersBufferedOutput\" ))", (const char *)&queryFormat, "Dconst_GetBool( cg_entityWorkersBufferedOutput )") )
+        Dvar_CheckFrontendServerThread(v26);
+        if ( !v26->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2287, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_cg_entityWorkersBufferedOutput, \"cg_entityWorkersBufferedOutput\" ))", (const char *)&queryFormat, "Dconst_GetBool( cg_entityWorkersBufferedOutput )") )
           __debugbreak();
-        v28 = length;
+        v27 = length;
         if ( (unsigned int)length > 0x800 )
         {
-          LODWORD(v42) = 2048;
-          LODWORD(v41) = length;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2288, ASSERT_TYPE_ASSERT, "( entityOutputBuffer.requestBufferCurSize ) <= ( sizeof( entityOutputBuffer.requestBuffer ) )", "%s <= %s\n\t%i, %i", "entityOutputBuffer.requestBufferCurSize", "sizeof( entityOutputBuffer.requestBuffer )", v41, v42) )
+          LODWORD(v41) = 2048;
+          LODWORD(v40) = length;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2288, ASSERT_TYPE_ASSERT, "( entityOutputBuffer.requestBufferCurSize ) <= ( sizeof( entityOutputBuffer.requestBuffer ) )", "%s <= %s\n\t%i, %i", "entityOutputBuffer.requestBufferCurSize", "sizeof( entityOutputBuffer.requestBuffer )", v40, v41) )
             __debugbreak();
-          v28 = length;
+          v27 = length;
         }
-        v29 = MpscStream<524288>::Write(s_entityWorkers_outputStream, data, v28);
-        if ( v29 != length )
+        v28 = MpscStream<524288>::Write(s_entityWorkers_outputStream, data, v27);
+        if ( v28 != length )
         {
           LODWORD(fmt) = length;
-          Com_PrintError(14, "CgEntityWorkers: Failed to submit tasks for entity %d (result = %d, expected %d)\n", v19, v29, fmt);
-          LODWORD(v41) = length;
-          LODWORD(v40) = v29;
-          LODWORD(v39) = v19;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2293, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to submit tasks for entity %d (result = %d, expected %d)", v39, v40, v41) )
+          Com_PrintError(14, "CgEntityWorkers: Failed to submit tasks for entity %d (result = %d, expected %d)\n", v17, v28, fmt);
+          LODWORD(v40) = length;
+          LODWORD(v39) = v28;
+          LODWORD(v38) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2293, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to submit tasks for entity %d (result = %d, expected %d)", v38, v39, v40) )
             __debugbreak();
         }
       }
-      if ( *(_WORD *)(v7 + 2i64 * v19 + 2586) == 2047 && v19 != *(_WORD *)(v7 + 2 * v44 + 534) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2350, ASSERT_TYPE_ASSERT, "(workerData->entityNext[entityIndex] != ENTITYNUM_NONE || entityIndex == workerData->workerTail[workerIndex])", "%s\n\tWe hit the end of the worker thread entity list without hitting the tail. The list was built incorrectly.", "workerData->entityNext[entityIndex] != ENTITYNUM_NONE || entityIndex == workerData->workerTail[workerIndex]") )
+      if ( *(_WORD *)(v5 + 2i64 * v17 + 2586) == 2047 && v17 != *(_WORD *)(v5 + 2 * v43 + 534) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2350, ASSERT_TYPE_ASSERT, "(workerData->entityNext[entityIndex] != ENTITYNUM_NONE || entityIndex == workerData->workerTail[workerIndex])", "%s\n\tWe hit the end of the worker thread entity list without hitting the tail. The list was built incorrectly.", "workerData->entityNext[entityIndex] != ENTITYNUM_NONE || entityIndex == workerData->workerTail[workerIndex]") )
         __debugbreak();
-      v19 = *(_WORD *)(v7 + 2i64 * v19 + 2586);
+      v17 = *(_WORD *)(v5 + 2i64 * v17 + 2586);
     }
-    while ( v19 != 2047 );
-    v8 = (volatile signed __int32 *)(v7 + 6684);
-    v13 = v6;
-    LODWORD(v11) = tls_index;
-    __asm { vmovaps xmm6, [rsp+8E8h+var_38] }
+    while ( v17 != 2047 );
+    v6 = (volatile signed __int32 *)(v5 + 6684);
+    v11 = v4;
+    LODWORD(v9) = tls_index;
   }
   Sys_ProfEndNamedEvent();
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v14->workerStartTimer) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v31 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v31 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v31;
   }
-  if ( (__int64)(__rdtsc() - _RDI->workerStartTimer) < 0 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
+  *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v33 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM0 = v33;
   v34 = NtCurrentTeb()->Reserved1[11];
-  __asm
-  {
-    vmovaps xmm7, [rsp+8E8h+var_48]
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [rdi+50h], xmm1
-  }
-  _RDI->workerStartTimer = 0i64;
-  v10 = (_BYTE)CgStatic::ms_allocatedType == NONE;
-  *(_QWORD *)(v34[(unsigned int)v11] + 1672i64) = 0i64;
-  if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 96, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to clear the active bgs from the client game statics but the allocated type is not known.", "ms_allocatedType != GameModeType::NONE") )
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  v14->workerTotalTime = *(float *)&_XMM1;
+  v14->workerStartTimer = 0i64;
+  v8 = (_BYTE)CgStatic::ms_allocatedType == NONE;
+  *(_QWORD *)(v34[(unsigned int)v9] + 1672i64) = 0i64;
+  if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 96, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to clear the active bgs from the client game statics but the allocated type is not known.", "ms_allocatedType != GameModeType::NONE") )
     __debugbreak();
-  if ( (unsigned int)v6 >= LODWORD(CgStatic::ms_allocatedCount) )
+  if ( (unsigned int)v4 >= LODWORD(CgStatic::ms_allocatedCount) )
   {
-    *(float *)&v40 = CgStatic::ms_allocatedCount;
-    LODWORD(v39) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v39, v40) )
+    *(float *)&v39 = CgStatic::ms_allocatedCount;
+    LODWORD(v38) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v38, v39) )
       __debugbreak();
   }
-  if ( !CgStatic::ms_cgameStaticsArray[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 98, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum] != 0)", "%s\n\tTrying to clear the active bgs from the client game statics but the client game static has not been allocated", "ms_cgameStaticsArray[localClientNum] != NULL") )
+  if ( !CgStatic::ms_cgameStaticsArray[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 98, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum] != 0)", "%s\n\tTrying to clear the active bgs from the client game statics but the client game static has not been allocated", "ms_cgameStaticsArray[localClientNum] != NULL") )
     __debugbreak();
-  v37 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + (unsigned int)v11);
-  if ( *(CgStatic **)(v37 + 272) != CgStatic::ms_cgameStaticsArray[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 99, ASSERT_TYPE_ASSERT, "( ( ms_activeBgs == ms_cgameStaticsArray[localClientNum] ) )", "( ms_activeBgs ) = %p", *(const void **)(v37 + 272)) )
+  v36 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + (unsigned int)v9);
+  if ( *(CgStatic **)(v36 + 272) != CgStatic::ms_cgameStaticsArray[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 99, ASSERT_TYPE_ASSERT, "( ( ms_activeBgs == ms_cgameStaticsArray[localClientNum] ) )", "( ms_activeBgs ) = %p", *(const void **)(v36 + 272)) )
     __debugbreak();
-  *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + (unsigned int)v11) + 272i64) = v46;
-  if ( ((unsigned __int8)v8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v8) )
+  *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + (unsigned int)v9) + 272i64) = v45;
+  if ( ((unsigned __int8)v6 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v6) )
     __debugbreak();
-  _InterlockedDecrement(v8);
+  _InterlockedDecrement(v6);
 }
 
 /*
@@ -3915,16 +3918,12 @@ CG_EntityWorkers_ProcessScriptableEventSunUpdate
 */
 void CG_EntityWorkers_ProcessScriptableEventSunUpdate(const LocalClientNum_t localCleintNum, const CgEntityScriptableEventSunUpdate *request)
 {
-  _RBX = request;
   if ( request->useColor )
     R_SetSunColorOverride(&request->colorLinearSrgb);
-  if ( _RBX->useIntensity )
-  {
-    __asm { vmovss  xmm0, dword ptr [rbx+0Ch]; sunIntensity }
-    R_SetSunIntensityOverride(*(const float *)&_XMM0);
-  }
-  if ( _RBX->useDirection )
-    R_SetSunDirectionOverride(&_RBX->direction, 0);
+  if ( request->useIntensity )
+    R_SetSunIntensityOverride(request->intensity);
+  if ( request->useDirection )
+    R_SetSunDirectionOverride(&request->direction, 0);
 }
 
 /*
@@ -4018,42 +4017,35 @@ void CG_EntityWorkers_ProcessWorkerDObjBoundsUpdate(const LocalClientNum_t local
   unsigned __int16 entityIndex; 
   centity_t *Entity; 
   const DObj *ClientDObj; 
-  const DObj *v9; 
-  unsigned int v12; 
-  float fmt; 
-  int v15; 
-  int v16; 
+  const DObj *v6; 
+  double Radius; 
+  unsigned int v8; 
+  int v9; 
+  int v10; 
   vec3_t outOrigin; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
   entityIndex = dobjUpdateReq->entityIndex;
   if ( dobjUpdateReq->entityIndex >= 0x7FEu )
   {
-    v16 = 2046;
-    v15 = entityIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1629, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entityIndex doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v15, v16) )
+    v10 = 2046;
+    v9 = entityIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1629, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entityIndex doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
   Entity = CG_GetEntity(localClientNum, entityIndex);
   if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1634, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   ClientDObj = Com_GetClientDObj(entityIndex, localClientNum);
-  v9 = ClientDObj;
+  v6 = ClientDObj;
   if ( ClientDObj )
   {
-    *(double *)&_XMM0 = DObjGetRadius(ClientDObj);
-    __asm { vaddss  xmm6, xmm0, cs:__real@41800000 }
+    Radius = DObjGetRadius(ClientDObj);
     CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-    __asm { vmovaps xmm3, xmm6; radius }
-    v12 = R_LinkDObjEntity(localClientNum, entityIndex, &outOrigin, *(float *)&_XMM3);
+    v8 = R_LinkDObjEntity(localClientNum, entityIndex, &outOrigin, *(float *)&Radius + 16.0);
     Entity->flags |= 0x80000u;
-    __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
-    CG_Entity_CheckLightCount(entityIndex, v9, v12, &outOrigin, fmt);
+    CG_Entity_CheckLightCount(entityIndex, v6, v8, &outOrigin, *(float *)&Radius + 16.0);
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -4064,87 +4056,32 @@ CG_EntityWorkers_ProcessWorkerDObjDrawRequest
 void CG_EntityWorkers_ProcessWorkerDObjDrawRequest(const LocalClientNum_t localClientNum, const CgEntityDObjDrawRequest *dobjDrawRequest)
 {
   unsigned int entityIndex; 
+  centity_t *Entity; 
   DObj *ClientDObj; 
-  unsigned int lightingOrigin; 
-  int materialTime; 
-  float materialTimea; 
-  float materialTimeb; 
   vec3_t to; 
-  __int64 v29; 
-  shaderOverride_t v30; 
-  GfxSceneHudOutlineInfo v31; 
-  GfxSceneEntityMutableShaderData v32; 
+  __int64 v8; 
+  shaderOverride_t shaderOverride; 
+  GfxSceneHudOutlineInfo hudOutlineInfo; 
+  GfxSceneEntityMutableShaderData v11; 
   GfxSceneEntityMutableShaderData entityMutableShaderData; 
 
-  v29 = -2i64;
-  _RSI = dobjDrawRequest;
+  v8 = -2i64;
   entityIndex = dobjDrawRequest->entityIndex;
-  if ( dobjDrawRequest->entityIndex >= 0x7FE )
-  {
-    materialTime = 2046;
-    lightingOrigin = dobjDrawRequest->entityIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1760, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entityIndex doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", lightingOrigin, materialTime) )
-      __debugbreak();
-  }
-  _R14 = CG_GetEntity(localClientNum, entityIndex);
-  if ( (_R14->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1763, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
+  if ( dobjDrawRequest->entityIndex >= 0x7FE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1760, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entityIndex doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", dobjDrawRequest->entityIndex, 2046) )
+    __debugbreak();
+  Entity = CG_GetEntity(localClientNum, entityIndex);
+  if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1763, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   ClientDObj = Com_GetClientDObj(entityIndex, localClientNum);
   if ( ClientDObj )
   {
     CG_LocalEntity_PreAddDObjUpdate(localClientNum, entityIndex);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups [rsp+248h+var_1E8], ymm0
-    }
-    v30.atlasTime = _RSI->shaderOverride.atlasTime;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+1Ch]
-      vmovups [rsp+248h+var_1B8], ymm0
-    }
-    v31.characterEVOffset = _RSI->hudOutlineInfo.characterEVOffset;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+2E8h]
-      vmovss  [rsp+248h+materialTime], xmm0
-    }
-    _RAX = CG_Entity_GetMutableShaderData(&v32, localClientNum, ClientDObj, _RSI->materialData, &v31, &v30, materialTimea);
-    _RCX = &entityMutableShaderData;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-      vmovups xmm0, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx+70h], xmm0
-      vmovups xmm1, xmmword ptr [rax+80h]
-      vmovups xmmword ptr [rcx+80h], xmm1
-      vmovups xmm0, xmmword ptr [rax+90h]
-      vmovups xmmword ptr [rcx+90h], xmm0
-      vmovups xmm1, xmmword ptr [rax+0A0h]
-      vmovups xmmword ptr [rcx+0A0h], xmm1
-    }
+    shaderOverride = dobjDrawRequest->shaderOverride;
+    hudOutlineInfo = dobjDrawRequest->hudOutlineInfo;
+    entityMutableShaderData = *CG_Entity_GetMutableShaderData(&v11, localClientNum, ClientDObj, dobjDrawRequest->materialData, &hudOutlineInfo, &shaderOverride, Entity->eyeSensorPupilSize);
     CG_Entity_UpdateCharacterEvOffset(localClientNum, entityIndex, &entityMutableShaderData.hudOutlineInfo);
-    GetSecureWorkerOrigin(&_RSI->lightingOrigin.origin, &to, ~_RSI->entityIndex);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0Ch]
-      vmovss  [rsp+248h+materialTime], xmm0
-    }
-    R_AddDObjToScene(ClientDObj, &_R14->pose, entityIndex, _RSI->renderFlags, &entityMutableShaderData, &to, materialTimeb);
+    GetSecureWorkerOrigin(&dobjDrawRequest->lightingOrigin.origin, &to, ~dobjDrawRequest->entityIndex);
+    R_AddDObjToScene(ClientDObj, &Entity->pose, entityIndex, dobjDrawRequest->renderFlags, &entityMutableShaderData, &to, dobjDrawRequest->materialTime);
     if ( (ClientDObj->flags & 4) != 0 )
       R_EntityHasSkinningAnimation(localClientNum, entityIndex);
     memset(&to, 0, sizeof(to));
@@ -4156,57 +4093,63 @@ void CG_EntityWorkers_ProcessWorkerDObjDrawRequest(const LocalClientNum_t localC
 CG_EntityWorkers_ProcessWorkerOutput
 ==============
 */
-
-__int64 __fastcall CG_EntityWorkers_ProcessWorkerOutput(const LocalClientNum_t localClientNum, CgEntityWork *work, MpscStream<524288> *workerOutput, double _XMM3_8)
+__int64 CG_EntityWorkers_ProcessWorkerOutput(const LocalClientNum_t localClientNum, CgEntityWork *work, MpscStream<524288> *workerOutput)
 {
-  CgEntityWork *v6; 
-  __int64 v7; 
+  CgEntityWork *v4; 
+  __int64 v5; 
   volatile int *p_workersPendingCount; 
-  unsigned __int8 v9; 
-  int v10; 
-  bool v11; 
+  unsigned __int8 v7; 
+  int v8; 
+  bool v9; 
   unsigned int i; 
+  CgEntityWorkerFrameProfile *p_profileFrame; 
   unsigned __int16 workerCount; 
-  __int64 v16; 
-  CgEntityWorkerProfileHistory *v30; 
-  __int64 v32; 
-  int v45; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v50; 
+  __int64 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float *workerTimes; 
+  CgEntityWorkerProfileHistory *v18; 
+  CgEntityWorkerFrameProfile *v19; 
+  __int64 v20; 
+  int v21; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
   unsigned __int8 buffer; 
-  unsigned __int8 v52; 
+  unsigned __int8 v28; 
   CgEntityDObjUpdateBoundsRequest dobjUpdateReq; 
   CgEntityBModelUpdateBoundsRequest bmodelUpdateReq; 
   unsigned int entNum; 
   LocalClientNum_t localClientNuma[2]; 
   CgEntityBModelDrawRequest bmodelDrawRequest; 
   CgEntityNotetrackRequest request; 
-  CgEntityWork *v59; 
+  CgEntityWork *v35; 
   vec3_t to; 
-  __int64 v61; 
+  __int64 v37; 
   unsigned int scriptableIndex[4]; 
   unsigned int entityIndex[2]; 
   vec3_t from; 
   vec3_t sunColorLinearSrgb; 
+  float v42; 
   vec3_t sunDir; 
-  char v68; 
-  char v69; 
-  char v70; 
+  char v44; 
+  char v45; 
+  char v46; 
   CgEntityScriptableEventLightUpdate lightUpdate; 
   CgEntitySoundRequest r_soundRequest; 
   CgEntityDObjDrawRequest dobjDrawRequest; 
 
-  v61 = -2i64;
-  v6 = work;
-  v59 = work;
-  v7 = localClientNum;
+  v37 = -2i64;
+  v4 = work;
+  v35 = work;
+  v5 = localClientNum;
   p_workersPendingCount = &work->workersPendingCount;
   if ( (((_BYTE)work + 28) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", &work->workersPendingCount) )
     __debugbreak();
-  v9 = *p_workersPendingCount == 0;
-  v52 = v9;
+  v7 = *p_workersPendingCount == 0;
+  v28 = v7;
   if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) > 0 )
   {
     Sys_ProfBeginNamedEvent(0xFF102030, "proc worker output");
@@ -4220,322 +4163,281 @@ __int64 __fastcall CG_EntityWorkers_ProcessWorkerOutput(const LocalClientNum_t l
         case 0u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 100 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 100;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 100;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &dobjDrawRequest, 100);
-          if ( v10 != 100 )
+          v8 = MpscStream<524288>::Read(workerOutput, &dobjDrawRequest, 100);
+          if ( v8 != 100 )
           {
-            LODWORD(v48) = 100;
+            LODWORD(v24) = 100;
             goto LABEL_16;
           }
-          CG_EntityWorkers_ProcessWorkerDObjDrawRequest((const LocalClientNum_t)v7, &dobjDrawRequest);
+          CG_EntityWorkers_ProcessWorkerDObjDrawRequest((const LocalClientNum_t)v5, &dobjDrawRequest);
           break;
         case 1u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 8 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &bmodelDrawRequest, 8);
-          if ( v10 != 8 )
+          v8 = MpscStream<524288>::Read(workerOutput, &bmodelDrawRequest, 8);
+          if ( v8 != 8 )
             goto LABEL_22;
-          CG_EntityWorkers_ProcessWorkeBModelDrawRequest((const LocalClientNum_t)v7, &bmodelDrawRequest);
+          CG_EntityWorkers_ProcessWorkeBModelDrawRequest((const LocalClientNum_t)v5, &bmodelDrawRequest);
           break;
         case 2u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 2 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 2;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &dobjUpdateReq, 2);
-          if ( v10 != 2 )
+          v8 = MpscStream<524288>::Read(workerOutput, &dobjUpdateReq, 2);
+          if ( v8 != 2 )
             goto LABEL_28;
-          CG_EntityWorkers_ProcessWorkerDObjBoundsUpdate((const LocalClientNum_t)v7, &dobjUpdateReq);
+          CG_EntityWorkers_ProcessWorkerDObjBoundsUpdate((const LocalClientNum_t)v5, &dobjUpdateReq);
           break;
         case 3u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 2 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 2;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 2;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &bmodelUpdateReq, 2);
-          if ( v10 != 2 )
+          v8 = MpscStream<524288>::Read(workerOutput, &bmodelUpdateReq, 2);
+          if ( v8 != 2 )
           {
 LABEL_28:
-            LODWORD(v48) = 2;
+            LODWORD(v24) = 2;
             goto LABEL_16;
           }
-          CG_EntityWorkers_ProcessWorkerBModelBoundsUpdate((const LocalClientNum_t)v7, &bmodelUpdateReq);
+          CG_EntityWorkers_ProcessWorkerBModelBoundsUpdate((const LocalClientNum_t)v5, &bmodelUpdateReq);
           break;
         case 4u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 20 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 20;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 20;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, entityIndex, 20);
-          if ( v10 != 20 )
+          v8 = MpscStream<524288>::Read(workerOutput, entityIndex, 20);
+          if ( v8 != 20 )
           {
-            LODWORD(v48) = 20;
+            LODWORD(v24) = 20;
             goto LABEL_16;
           }
           GetSecureWorkerOrigin(&from, &to, ~entityIndex[0]);
-          CG_PlayersMP_ProcessPlayerPostUpdate((LocalClientNum_t)v7, entityIndex[0], entityIndex[1], &to);
+          CG_PlayersMP_ProcessPlayerPostUpdate((LocalClientNum_t)v5, entityIndex[0], entityIndex[1], &to);
           memset(&to, 0, sizeof(to));
           break;
         case 5u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 56 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 56;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 56;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &r_soundRequest, 56);
-          if ( v10 != 56 )
+          v8 = MpscStream<524288>::Read(workerOutput, &r_soundRequest, 56);
+          if ( v8 != 56 )
           {
-            LODWORD(v48) = 56;
+            LODWORD(v24) = 56;
             goto LABEL_16;
           }
-          CG_EntityWorkers_ProcessWorkerSoundRequest((const LocalClientNum_t)v7, &r_soundRequest);
+          CG_EntityWorkers_ProcessWorkerSoundRequest((const LocalClientNum_t)v5, &r_soundRequest);
           break;
         case 6u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 4 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 4;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 4;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &entNum, 4);
-          if ( v10 != 4 )
+          v8 = MpscStream<524288>::Read(workerOutput, &entNum, 4);
+          if ( v8 != 4 )
           {
-            LODWORD(v48) = 4;
+            LODWORD(v24) = 4;
             goto LABEL_16;
           }
-          CG_Turret_UpdateBarrelSpinSoundPlayback((LocalClientNum_t)v7, entNum);
+          CG_Turret_UpdateBarrelSpinSoundPlayback((LocalClientNum_t)v5, entNum);
           break;
         case 7u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 8 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &request, 8);
-          if ( v10 != 8 )
+          v8 = MpscStream<524288>::Read(workerOutput, &request, 8);
+          if ( v8 != 8 )
             goto LABEL_22;
-          CG_EntityWorkers_ProcessNoteTrackNotifyUpdate((const LocalClientNum_t)v7, &request);
+          CG_EntityWorkers_ProcessNoteTrackNotifyUpdate((const LocalClientNum_t)v5, &request);
           break;
         case 8u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 32 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 32;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 32;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &sunColorLinearSrgb, 32);
-          if ( v10 != 32 )
+          v8 = MpscStream<524288>::Read(workerOutput, &sunColorLinearSrgb, 32);
+          if ( v8 != 32 )
           {
-            LODWORD(v48) = 32;
+            LODWORD(v24) = 32;
             goto LABEL_16;
           }
-          if ( v68 )
+          if ( v44 )
             R_SetSunColorOverride(&sunColorLinearSrgb);
-          if ( v69 )
-          {
-            __asm { vmovss  xmm0, [rbp+0E0h+var_114]; sunIntensity }
-            R_SetSunIntensityOverride(*(const float *)&_XMM0);
-          }
-          if ( v70 )
+          if ( v45 )
+            R_SetSunIntensityOverride(v42);
+          if ( v46 )
             R_SetSunDirectionOverride(&sunDir, 0);
           break;
         case 9u:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 24 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 24;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 24;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, &lightUpdate, 24);
-          if ( v10 != 24 )
+          v8 = MpscStream<524288>::Read(workerOutput, &lightUpdate, 24);
+          if ( v8 != 24 )
           {
-            LODWORD(v48) = 24;
+            LODWORD(v24) = 24;
             goto LABEL_16;
           }
-          CG_EntityWorkers_ProcessScriptableEventLightUpdate((const LocalClientNum_t)v7, &lightUpdate);
+          CG_EntityWorkers_ProcessScriptableEventLightUpdate((const LocalClientNum_t)v5, &lightUpdate);
           break;
         case 0xAu:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 12 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 12;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, scriptableIndex, 12);
-          if ( v10 != 12 )
+          v8 = MpscStream<524288>::Read(workerOutput, scriptableIndex, 12);
+          if ( v8 != 12 )
           {
-            LODWORD(v48) = 12;
+            LODWORD(v24) = 12;
             goto LABEL_16;
           }
-          ScriptableCl_Spatial_UpdateMarkerPartition((const LocalClientNum_t)v7, scriptableIndex[0], scriptableIndex[1], scriptableIndex[2]);
+          ScriptableCl_Spatial_UpdateMarkerPartition((const LocalClientNum_t)v5, scriptableIndex[0], scriptableIndex[1], scriptableIndex[2]);
           break;
         case 0xBu:
           if ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) < 8 )
           {
-            LODWORD(v50) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
-            LODWORD(v49) = 8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v49, v50) )
+            LODWORD(v26) = workerOutput->m_writeOffset - workerOutput->m_readOffset;
+            LODWORD(v25) = 8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2076, ASSERT_TYPE_ASSERT, "( dataSize ) <= ( workerOutput.Size() )", "%s <= %s\n\t%i, %i", "dataSize", "workerOutput.Size()", v25, v26) )
               __debugbreak();
           }
-          v10 = MpscStream<524288>::Read(workerOutput, localClientNuma, 8);
-          if ( v10 != 8 )
+          v8 = MpscStream<524288>::Read(workerOutput, localClientNuma, 8);
+          if ( v8 != 8 )
           {
 LABEL_22:
-            LODWORD(v48) = 8;
+            LODWORD(v24) = 8;
 LABEL_16:
-            LODWORD(v47) = v10;
-            v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2085, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Entity Workers Payload Read failed. Got %d, expected %d", v47, v48);
+            LODWORD(v23) = v8;
+            v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2085, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Entity Workers Payload Read failed. Got %d, expected %d", v23, v24);
             goto LABEL_86;
           }
           FX_MarkEntDetachAll(localClientNuma[0], localClientNuma[1]);
           break;
         default:
-          LODWORD(v47) = buffer;
-          v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2158, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled Worker Output Type %d", v47);
+          LODWORD(v23) = buffer;
+          v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2158, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled Worker Output Type %d", v23);
 LABEL_86:
-          if ( v11 )
+          if ( v9 )
             __debugbreak();
           break;
       }
     }
     while ( (signed int)(workerOutput->m_writeOffset - workerOutput->m_readOffset) > 0 );
     Sys_ProfEndNamedEvent();
-    v6 = v59;
-    v9 = v52;
+    v4 = v35;
+    v7 = v28;
   }
-  if ( v9 )
+  if ( v7 )
   {
-    for ( i = 0; i < v6->workerMaxCount; CG_EntityWorkers_ProcessWorkerProfileData(v6, i++) )
+    for ( i = 0; i < v4->workerMaxCount; CG_EntityWorkers_ProcessWorkerProfileData(v4, i++) )
       ;
-    _RDI = &v6->profileFrame;
-    workerCount = v6->profileFrame.workerCount;
+    p_profileFrame = &v4->profileFrame;
+    workerCount = v4->profileFrame.workerCount;
     if ( workerCount )
     {
-      v16 = workerCount;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm5, xmm0, xmm1
-        vmulss  xmm4, xmm5, dword ptr [rdi+440h]
-        vmovss  dword ptr [rdi+4B8h], xmm4
-      }
-      v6->profileFrame.stdDeviation = 0.0;
-      __asm { vxorps  xmm3, xmm3, xmm3 }
-      _RAX = v6->profileFrame.workerTimes;
+      v13 = workerCount;
+      v14 = 1.0 / (float)workerCount;
+      v15 = v14 * v4->profileFrame.totalWorkerTime;
+      v4->profileFrame.avgWorkerTime = v15;
+      v4->profileFrame.stdDeviation = 0.0;
+      v16 = 0.0;
+      workerTimes = v4->profileFrame.workerTimes;
       do
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vsubss  xmm1, xmm0, xmm4
-          vmulss  xmm2, xmm1, xmm1
-          vaddss  xmm3, xmm2, xmm3
-          vmovss  dword ptr [rdi+4C4h], xmm3
-        }
-        ++_RAX;
-        --v16;
+        v16 = (float)((float)(*workerTimes - v15) * (float)(*workerTimes - v15)) + v16;
+        v4->profileFrame.stdDeviation = v16;
+        ++workerTimes;
+        --v13;
       }
-      while ( v16 );
-      __asm
-      {
-        vmulss  xmm0, xmm3, xmm5
-        vsqrtss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rdi+4C4h], xmm1
-      }
+      while ( v13 );
+      v4->profileFrame.stdDeviation = fsqrt(v16 * v14);
     }
-    if ( (unsigned int)v7 >= 2 )
+    if ( (unsigned int)v5 >= 2 )
     {
-      LODWORD(v48) = 2;
-      LODWORD(v47) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2059, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_entityWorkers_profileHistory ) ) + 0 ) )", "localClientNum doesn't index s_entityWorkers_profileHistory\n\t%i not in [0, %i)", v47, v48) )
+      LODWORD(v24) = 2;
+      LODWORD(v23) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2059, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_entityWorkers_profileHistory ) ) + 0 ) )", "localClientNum doesn't index s_entityWorkers_profileHistory\n\t%i not in [0, %i)", v23, v24) )
         __debugbreak();
     }
-    v30 = &s_entityWorkers_profileHistory[v7];
-    if ( v30->frameIndex >= 0x258 )
+    v18 = &s_entityWorkers_profileHistory[v5];
+    if ( v18->frameIndex >= 0x258 )
     {
-      LODWORD(v48) = 600;
-      LODWORD(v47) = v30->frameIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2062, ASSERT_TYPE_ASSERT, "(unsigned)( history.frameIndex ) < (unsigned)( ( sizeof( *array_counter( history.frames ) ) + 0 ) )", "history.frameIndex doesn't index history.frames\n\t%i not in [0, %i)", v47, v48) )
+      LODWORD(v24) = 600;
+      LODWORD(v23) = v18->frameIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2062, ASSERT_TYPE_ASSERT, "(unsigned)( history.frameIndex ) < (unsigned)( ( sizeof( *array_counter( history.frames ) ) + 0 ) )", "history.frameIndex doesn't index history.frames\n\t%i not in [0, %i)", v23, v24) )
         __debugbreak();
     }
-    _RDX = &v30->frames[v30->frameIndex];
-    v32 = 9i64;
+    v19 = &v18->frames[v18->frameIndex];
+    v20 = 9i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rdx], xmm0
-        vmovups xmm1, xmmword ptr [rdi+10h]
-        vmovups xmmword ptr [rdx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rdx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+30h]
-        vmovups xmmword ptr [rdx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+40h]
-        vmovups xmmword ptr [rdx+40h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+50h]
-        vmovups xmmword ptr [rdx+50h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+60h]
-        vmovups xmmword ptr [rdx+60h], xmm0
-      }
-      _RDX = (CgEntityWorkerFrameProfile *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rdi+70h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
-      _RDI = (CgEntityWorkerFrameProfile *)((char *)_RDI + 128);
-      --v32;
+      *(_OWORD *)&v19->workerCount = *(_OWORD *)&p_profileFrame->workerCount;
+      *(_OWORD *)&v19->entityTypeCount[6][0] = *(_OWORD *)&p_profileFrame->entityTypeCount[6][0];
+      *(_OWORD *)&v19->entityTypeCount[14][0] = *(_OWORD *)&p_profileFrame->entityTypeCount[14][0];
+      *(_OWORD *)&v19->entityTypeCount[22][0] = *(_OWORD *)&p_profileFrame->entityTypeCount[22][0];
+      *(_OWORD *)v19->workerTimes = *(_OWORD *)p_profileFrame->workerTimes;
+      *(_OWORD *)&v19->workerTimes[4] = *(_OWORD *)&p_profileFrame->workerTimes[4];
+      *(_OWORD *)&v19->workerTimes[8] = *(_OWORD *)&p_profileFrame->workerTimes[8];
+      v19 = (CgEntityWorkerFrameProfile *)((char *)v19 + 128);
+      *(_OWORD *)&v19[-1].avgWorkerTime = *(_OWORD *)&p_profileFrame->workerTimes[12];
+      p_profileFrame = (CgEntityWorkerFrameProfile *)((char *)p_profileFrame + 128);
+      --v20;
     }
-    while ( v32 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rdi+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+30h]
-      vmovups xmmword ptr [rdx+30h], xmm1
-    }
-    *(_QWORD *)_RDX->workerTimes = *(_QWORD *)_RDI->workerTimes;
-    v30->frameIndex = (v30->frameIndex + 1) % 0x258;
-    v45 = v30->frameCount + 1;
-    if ( v45 > 600 )
-      v45 = 600;
-    v30->frameCount = v45;
+    while ( v20 );
+    *(_OWORD *)&v19->workerCount = *(_OWORD *)&p_profileFrame->workerCount;
+    *(_OWORD *)&v19->entityTypeCount[6][0] = *(_OWORD *)&p_profileFrame->entityTypeCount[6][0];
+    *(_OWORD *)&v19->entityTypeCount[14][0] = *(_OWORD *)&p_profileFrame->entityTypeCount[14][0];
+    *(_OWORD *)&v19->entityTypeCount[22][0] = *(_OWORD *)&p_profileFrame->entityTypeCount[22][0];
+    *(_QWORD *)v19->workerTimes = *(_QWORD *)p_profileFrame->workerTimes;
+    v18->frameIndex = (v18->frameIndex + 1) % 0x258;
+    v21 = v18->frameCount + 1;
+    if ( v21 > 600 )
+      v21 = 600;
+    v18->frameCount = v21;
   }
-  return v9;
+  return v7;
 }
 
 /*
@@ -4547,13 +4449,16 @@ void CG_EntityWorkers_ProcessWorkerProfileData(CgEntityWork *work, const unsigne
 {
   __int64 v2; 
   CgEntityWorkerOutProfile *v4; 
+  CgEntityWorkerFrameProfile *p_profileFrame; 
   unsigned __int16 v6; 
   float *p_workerTotalTime; 
   unsigned __int16 workerCount; 
   unsigned __int16 (*entityTypeCount)[1]; 
-  __int64 v12; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v10; 
+  float (*entityTypeTime)[1]; 
+  signed __int64 v12; 
+  __int64 v17; 
+  __int64 v18; 
 
   v2 = workerIndex;
   if ( workerIndex >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2001, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.profileWorkers ) ) + 0 ) )", "workerIndex doesn't index work.profileWorkers\n\t%i not in [0, %i)", workerIndex, 256) )
@@ -4561,87 +4466,74 @@ void CG_EntityWorkers_ProcessWorkerProfileData(CgEntityWork *work, const unsigne
   v4 = &work->profileWorkers[v2];
   if ( work->profileWorkers[v2].entityCount )
   {
-    _RBX = &work->profileFrame;
+    p_profileFrame = &work->profileFrame;
     if ( (unsigned int)v2 >= 0x100 )
     {
-      LODWORD(v22) = 256;
-      LODWORD(v21) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2008, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.workerSize ) ) + 0 ) )", "workerIndex doesn't index work.workerSize\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v18) = 256;
+      LODWORD(v17) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2008, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.workerSize ) ) + 0 ) )", "workerIndex doesn't index work.workerSize\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
     if ( !work->workerSize[v2] )
     {
-      LODWORD(v21) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2009, ASSERT_TYPE_ASSERT, "( ( work.workerSize[workerIndex] > 0 ) )", "( workerIndex ) = %i", v21) )
+      LODWORD(v17) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2009, ASSERT_TYPE_ASSERT, "( ( work.workerSize[workerIndex] > 0 ) )", "( workerIndex ) = %i", v17) )
         __debugbreak();
     }
     if ( (unsigned int)v2 >= 0x100 )
     {
-      LODWORD(v22) = 256;
-      LODWORD(v21) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2011, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.workerSize ) ) + 0 ) )", "workerIndex doesn't index work.workerSize\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v18) = 256;
+      LODWORD(v17) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2011, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.workerSize ) ) + 0 ) )", "workerIndex doesn't index work.workerSize\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
     v6 = work->workerSize[v2];
     p_workerTotalTime = &work->profileWorkers[v2].workerTotalTime;
     work->profileFrame.entCount += v6;
-    __asm { vmovss  xmm0, dword ptr [rbx+440h] }
-    workerCount = _RBX->workerCount;
-    __asm
-    {
-      vaddss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rbx+440h], xmm1
-    }
+    workerCount = p_profileFrame->workerCount;
+    work->profileFrame.totalWorkerTime = work->profileFrame.totalWorkerTime + v4->workerTotalTime;
     if ( workerCount >= 0x100u )
     {
-      LODWORD(v22) = 256;
-      LODWORD(v21) = workerCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2016, ASSERT_TYPE_ASSERT, "(unsigned)( frameProfile.workerCount ) < (unsigned)( ( sizeof( *array_counter( frameProfile.workerTimes ) ) + 0 ) )", "frameProfile.workerCount doesn't index frameProfile.workerTimes\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v18) = 256;
+      LODWORD(v17) = workerCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2016, ASSERT_TYPE_ASSERT, "(unsigned)( frameProfile.workerCount ) < (unsigned)( ( sizeof( *array_counter( frameProfile.workerTimes ) ) + 0 ) )", "frameProfile.workerCount doesn't index frameProfile.workerTimes\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
     entityTypeCount = work->profileFrame.entityTypeCount;
-    v12 = 29i64;
-    _RBX->workerTimes[_RBX->workerCount] = *p_workerTotalTime;
-    _RCX = work->profileFrame.entityTypeTime;
-    ++_RBX->workerCount;
-    _RDI = (char *)v4 - (char *)_RBX;
+    v10 = 29i64;
+    p_profileFrame->workerTimes[p_profileFrame->workerCount] = *p_workerTotalTime;
+    entityTypeTime = work->profileFrame.entityTypeTime;
+    ++p_profileFrame->workerCount;
+    v12 = (char *)v4 - (char *)p_profileFrame;
     do
     {
-      ++_RCX;
-      **entityTypeCount += *(unsigned __int16 *)((char *)&(*entityTypeCount)[9] + _RDI);
+      ++entityTypeTime;
+      **entityTypeCount += *(unsigned __int16 *)((char *)&(*entityTypeCount)[9] + v12);
       ++entityTypeCount;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+rcx-3F4h]
-        vaddss  xmm1, xmm0, dword ptr [rcx-4]
-        vmovss  dword ptr [rcx-4], xmm1
-      }
-      --v12;
+      (*entityTypeTime)[-1] = *(float *)((char *)&(*entityTypeTime)[-253] + v12) + (*entityTypeTime)[-1];
+      --v10;
     }
-    while ( v12 );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4BCh]
-      vminss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  xmm0, dword ptr [rbx+4C0h]
-      vmovss  dword ptr [rbx+4BCh], xmm1
-      vmaxss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rbx+4C0h], xmm1
-    }
+    while ( v10 );
+    _XMM0 = LODWORD(work->profileFrame.minWorkerTime);
+    __asm { vminss  xmm1, xmm0, dword ptr [rsi] }
+    _XMM0 = LODWORD(work->profileFrame.maxWorkerTime);
+    work->profileFrame.minWorkerTime = *(float *)&_XMM1;
+    __asm { vmaxss  xmm1, xmm0, dword ptr [rsi] }
+    work->profileFrame.maxWorkerTime = *(float *)&_XMM1;
   }
   else
   {
     if ( (unsigned int)v2 >= 0x100 )
     {
-      LODWORD(v22) = 256;
-      LODWORD(v21) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2035, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.workerSize ) ) + 0 ) )", "workerIndex doesn't index work.workerSize\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v18) = 256;
+      LODWORD(v17) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2035, ASSERT_TYPE_ASSERT, "(unsigned)( workerIndex ) < (unsigned)( ( sizeof( *array_counter( work.workerSize ) ) + 0 ) )", "workerIndex doesn't index work.workerSize\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
     if ( work->workerSize[v2] )
     {
-      LODWORD(v21) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2036, ASSERT_TYPE_ASSERT, "( ( work.workerSize[workerIndex] == 0 ) )", "( workerIndex ) = %i", v21) )
+      LODWORD(v17) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2036, ASSERT_TYPE_ASSERT, "( ( work.workerSize[workerIndex] == 0 ) )", "( workerIndex ) = %i", v17) )
         __debugbreak();
     }
   }
@@ -4656,112 +4548,54 @@ void CG_EntityWorkers_ProcessWorkerSoundRequest(const LocalClientNum_t localClie
 {
   __int64 v3; 
   CgSoundSystem *v4; 
-  int fmt; 
-  int fmta; 
-  __int64 v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  __int64 v26; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
+  __int64 v5; 
+  __int64 v6; 
 
-  _RBX = r_soundRequest;
   v3 = localClientNum;
   if ( !(_BYTE)CgSoundSystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 179, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the sound system for localClientNum %d but the sound system type is not known\n", "ms_allocatedType != GameModeType::NONE", localClientNum) )
     __debugbreak();
   if ( (unsigned int)v3 >= CgSoundSystem::ms_allocatedCount )
   {
-    LODWORD(v26) = CgSoundSystem::ms_allocatedCount;
-    LODWORD(v21) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 180, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v21, v26) )
+    LODWORD(v6) = CgSoundSystem::ms_allocatedCount;
+    LODWORD(v5) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 180, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v5, v6) )
       __debugbreak();
   }
   if ( !CgSoundSystem::ms_soundSystemArray[v3] )
   {
-    LODWORD(v26) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 181, ASSERT_TYPE_ASSERT, "(ms_soundSystemArray[localClientNum])", "%s\n\tTrying to access unallocated sound system for localClientNum %d\n", "ms_soundSystemArray[localClientNum]", v26) )
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 181, ASSERT_TYPE_ASSERT, "(ms_soundSystemArray[localClientNum])", "%s\n\tTrying to access unallocated sound system for localClientNum %d\n", "ms_soundSystemArray[localClientNum]", v6) )
       __debugbreak();
   }
   v4 = CgSoundSystem::ms_soundSystemArray[v3];
-  switch ( _RBX->type )
+  switch ( r_soundRequest->type )
   {
     case PlaySurface:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  xmm1, dword ptr [rbx+24h]
-        vmovss  dword ptr [rsp+58h+var_28], xmm0
-        vmovss  dword ptr [rsp+58h+var_30], xmm1
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, int, int))v4->PlaySurfaceSoundAsync)(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, &_RBX->u.playExplosion.soundOrigin, _RBX->u.playSurface.soundAlias, _RBX->u.playSurface.surfaceType, v22, v28, _RBX->u.playSurface.fadeTime);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, unsigned int, int, int))v4->PlaySurfaceSoundAsync)(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, &r_soundRequest->u.playSurface.soundOrigin, r_soundRequest->u.playSurface.soundAlias, r_soundRequest->u.playSurface.surfaceType, r_soundRequest->u.playExplosion.reflectionClass, r_soundRequest->u.playSurfaceOnSndEnt.surfaceType, r_soundRequest->u.playSurface.fadeTime);
       break;
     case PlaySurfaceOnSndEnt:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vmovss  xmm1, dword ptr [rbx+2Ch]
-        vmovss  [rsp+58h+var_20], xmm0
-        vmovss  dword ptr [rsp+58h+var_28], xmm1
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, float *, unsigned __int64, const SndAliasList *, int, int, int, int))v4->PlaySurfaceSoundOnSndEntAsync)(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurfaceOnSndEnt.entityIndex, &_RBX->u.vehicleUpdate.soundOrigin.z, _RBX->u.playSurfaceOnSndEnt.sndEntHandle, _RBX->u.playSurfaceOnSndEnt.soundAlias, _RBX->u.playSurfaceOnSndEnt.surfaceType, v29, v32, _RBX->u.playSurfaceOnSndEnt.fadeTime);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, float *, unsigned __int64, const SndAliasList *, int, int, int, int))v4->PlaySurfaceSoundOnSndEntAsync)(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurfaceOnSndEnt.entityIndex, &r_soundRequest->u.playSurface.soundOrigin.v[2], r_soundRequest->u.playSurfaceOnSndEnt.sndEntHandle, r_soundRequest->u.playSurfaceOnSndEnt.soundAlias, r_soundRequest->u.playSurfaceOnSndEnt.surfaceType, r_soundRequest->u.playSurface.fadeTime, r_soundRequest->u.vehicleUpdate.gear, r_soundRequest->u.playSurfaceOnSndEnt.fadeTime);
       break;
     case PlayExplosion:
-      v4->PlayExplosionSoundAsync(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, &_RBX->u.playSurface.soundOrigin, _RBX->u.playSurface.soundAlias, _RBX->u.playSurface.surfaceType, _RBX->u.playExplosion.reflectionClass);
+      v4->PlayExplosionSoundAsync(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, &r_soundRequest->u.playSurface.soundOrigin, r_soundRequest->u.playSurface.soundAlias, r_soundRequest->u.playSurface.surfaceType, r_soundRequest->u.playExplosion.reflectionClass);
       break;
     case PlayScaled:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+24h]
-        vmovss  xmm1, dword ptr [rbx+20h]
-        vmovss  dword ptr [rsp+58h+var_30], xmm0
-        vmovss  dword ptr [rsp+58h+fmt], xmm1
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, int))v4->PlaySoundAliasScaledAsync)(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, &_RBX->u.playExplosion.soundOrigin, _RBX->u.playSurface.soundAlias, fmt, v23, _RBX->u.playSurfaceOnSndEnt.surfaceType);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, unsigned int, int))v4->PlaySoundAliasScaledAsync)(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, &r_soundRequest->u.playSurface.soundOrigin, r_soundRequest->u.playSurface.soundAlias, r_soundRequest->u.playSurface.surfaceType, r_soundRequest->u.playExplosion.reflectionClass, r_soundRequest->u.playSurfaceOnSndEnt.surfaceType);
       break;
     case StopEntity:
-      CgSoundSystem::StopSoundsOnEnt(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex);
+      CgSoundSystem::StopSoundsOnEnt(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex);
       break;
     case StopEntityChannel:
-      CgSoundSystem::StopSoundChannelOnEnt(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, _RBX->u.stopOnEntityChannel.entSndChannel);
+      CgSoundSystem::StopSoundChannelOnEnt(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, r_soundRequest->u.stopOnEntityChannel.entSndChannel);
       break;
     case StopEntityAlias:
-      CgSoundSystem::StopSoundAlias(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, _RBX->u.stopAlias.sndAliasLookup);
+      CgSoundSystem::StopSoundAlias(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, r_soundRequest->u.stopAlias.sndAliasLookup);
       break;
     case PlayBlended:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]; jumptable 0000000141CB963B case 7
-        vmovss  xmm1, dword ptr [rbx+2Ch]
-        vmovss  [rsp+58h+var_20], xmm0
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  dword ptr [rsp+58h+var_28], xmm1
-        vmovss  dword ptr [rsp+58h+var_30], xmm0
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, const SndAliasList *, int, int, int))v4->PlayBlendedSoundAliasAsync)(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, &_RBX->u.playExplosion.soundOrigin, _RBX->u.playSurface.soundAlias, _RBX->u.playSurfaceOnSndEnt.soundAlias, v24, v30, v33);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, const SndAliasList *, int, int, int))v4->PlayBlendedSoundAliasAsync)(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, &r_soundRequest->u.playSurface.soundOrigin, r_soundRequest->u.playSurface.soundAlias, r_soundRequest->u.playSurfaceOnSndEnt.soundAlias, r_soundRequest->u.playSurfaceOnSndEnt.surfaceType, r_soundRequest->u.playSurface.fadeTime, r_soundRequest->u.vehicleUpdate.gear);
       break;
     case VehicleUpdate:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+34h]; jumptable 0000000141CB963B case 8
-        vmovss  xmm1, dword ptr [rbx+2Ch]
-        vmovss  [rsp+58h+var_10], xmm0
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  [rsp+58h+var_20], xmm0
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  dword ptr [rsp+58h+var_28], xmm1
-        vmovss  xmm1, dword ptr [rbx+24h]
-        vmovss  dword ptr [rsp+58h+var_30], xmm0
-        vmovss  dword ptr [rsp+58h+fmt], xmm1
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, int, int, int, int, int, int))v4->UpdateVehicleSound)(CgSoundSystem::ms_soundSystemArray[v3], _RBX->u.playSurface.entityIndex, &_RBX->u.playExplosion.soundOrigin, _RBX->u.playSurface.soundAlias, fmta, v25, v31, v34, _RBX->u.vehicleUpdate.gear, v35);
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, unsigned int, int, int, int, int, int))v4->UpdateVehicleSound)(CgSoundSystem::ms_soundSystemArray[v3], r_soundRequest->u.playSurface.entityIndex, &r_soundRequest->u.playSurface.soundOrigin, r_soundRequest->u.playSurface.soundAlias, r_soundRequest->u.playExplosion.reflectionClass, r_soundRequest->u.playSurfaceOnSndEnt.surfaceType, r_soundRequest->u.playSurface.fadeTime, r_soundRequest->u.playSurface.surfaceType, r_soundRequest->u.vehicleUpdate.gear, r_soundRequest->u.playSurfaceOnSndEnt.fadeTime);
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 1748, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown sound request type") )
@@ -5285,71 +5119,41 @@ char CG_EntityWorkers_TryAddDObjBoundsUpdate(const int entityIndex)
 CG_EntityWorkers_TryAddDObjDrawRequest
 ==============
 */
-
-bool __fastcall CG_EntityWorkers_TryAddDObjDrawRequest(const int entityIndex, unsigned int renderFlags, unsigned int materialData, double materialTime, const vec3_t *lightingOrigin, const GfxSceneHudOutlineInfo *hudOutlineInfo, const shaderOverride_t *shaderOverride)
+char CG_EntityWorkers_TryAddDObjDrawRequest(const int entityIndex, unsigned int renderFlags, unsigned int materialData, float materialTime, const vec3_t *lightingOrigin, const GfxSceneHudOutlineInfo *hudOutlineInfo, const shaderOverride_t *shaderOverride)
 {
-  bool result; 
-  __int64 v20; 
+  __int64 v11; 
   CgEntityWorkersOutputBuilder<CgEntityDObjDrawRequest> mem; 
-  char v22; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  _RSI = hudOutlineInfo;
-  _RDI = shaderOverride;
   if ( !hudOutlineInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2519, ASSERT_TYPE_ASSERT, "(hudOutlineInfo)", (const char *)&queryFormat, "hudOutlineInfo") )
     __debugbreak();
   if ( !shaderOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2520, ASSERT_TYPE_ASSERT, "(shaderOverride)", (const char *)&queryFormat, "shaderOverride") )
     __debugbreak();
-  if ( Sys_IsMainThreadEntityWorker() )
+  if ( !Sys_IsMainThreadEntityWorker() )
+    return 0;
+  if ( (unsigned int)entityIndex >= 0x7FE )
   {
-    if ( (unsigned int)entityIndex >= 0x7FE )
-    {
-      LODWORD(v20) = entityIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2524, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entityIndex doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v20, 2046) )
-        __debugbreak();
-    }
-    *(_WORD *)&mem.m_beginCalled = 0;
-    if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2390, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
+    LODWORD(v11) = entityIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2524, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entityIndex doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v11, 2046) )
       __debugbreak();
-    *(_WORD *)mem.m_requestType = 256;
-    DebugWipe(&mem, 0x64ui64);
-    mem.m_requestPayload.entityIndex = entityIndex;
-    mem.m_requestPayload.renderFlags = renderFlags;
-    mem.m_requestPayload.materialData = materialData;
-    __asm { vmovss  [rsp+0F8h+var_9C], xmm6 }
-    SetSecureWorkerOrigin(lightingOrigin, &mem.m_requestPayload.lightingOrigin.origin, ~entityIndex);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups [rsp+0F8h+var_8C], ymm0
-    }
-    mem.m_requestPayload.hudOutlineInfo.characterEVOffset = hudOutlineInfo->characterEVOffset;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups [rsp+0F8h+var_68], ymm0
-    }
-    mem.m_requestPayload.shaderOverride.atlasTime = shaderOverride->atlasTime;
-    CgEntityWorkersOutputBuilder<CgEntityDObjDrawRequest>::Submit(&mem);
-    if ( !mem.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
-      __debugbreak();
-    if ( !mem.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
-      __debugbreak();
-    result = 1;
   }
-  else
-  {
-    result = 0;
-  }
-  _R11 = &v22;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  *(_WORD *)&mem.m_beginCalled = 0;
+  if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2390, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
+    __debugbreak();
+  *(_WORD *)mem.m_requestType = 256;
+  DebugWipe(&mem, 0x64ui64);
+  mem.m_requestPayload.entityIndex = entityIndex;
+  mem.m_requestPayload.renderFlags = renderFlags;
+  mem.m_requestPayload.materialData = materialData;
+  mem.m_requestPayload.materialTime = materialTime;
+  SetSecureWorkerOrigin(lightingOrigin, &mem.m_requestPayload.lightingOrigin.origin, ~entityIndex);
+  mem.m_requestPayload.hudOutlineInfo = *hudOutlineInfo;
+  mem.m_requestPayload.shaderOverride = *shaderOverride;
+  CgEntityWorkersOutputBuilder<CgEntityDObjDrawRequest>::Submit(&mem);
+  if ( !mem.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+    __debugbreak();
+  if ( !mem.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -5416,39 +5220,26 @@ CG_EntityWorkers_TryAddPlayBlendedSoundAliasRequest
 char CG_EntityWorkers_TryAddPlayBlendedSoundAliasRequest(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList0, const SndAliasList *aliasList1, float lerp, float volumeScale, float pitch)
 {
   CgEntityWorkerOutputType v11; 
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v19; 
+  CgEntitySoundRequest *v12; 
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v14; 
 
-  _RBX = soundOrigin;
   if ( !Sys_IsMainThreadEntityWorker() )
     return 0;
-  *(_WORD *)&v19.m_beginCalled = 0;
+  *(_WORD *)&v14.m_beginCalled = 0;
   LOBYTE(v11) = 5;
-  _RAX = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v19, v11);
-  _RAX->type = PlayBlended;
-  _RAX->u.playSurface.entityIndex = entityIndex;
-  _RAX->u.playSurface.soundAlias = aliasList0;
-  _RAX->u.playSurfaceOnSndEnt.soundAlias = aliasList1;
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+lerp]
-    vmovss  dword ptr [rax+28h], xmm0
-    vmovss  xmm1, [rsp+98h+volumeScale]
-    vmovss  dword ptr [rax+2Ch], xmm1
-    vmovss  xmm0, [rsp+98h+pitch]
-    vmovss  dword ptr [rax+30h], xmm0
-  }
-  _RAX->u.stopOnEntityChannel.entSndChannel = LODWORD(_RBX->v[0]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rax+10h], xmm0
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rax+14h], xmm1
-  }
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v19);
-  if ( !v19.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+  v12 = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v14, v11);
+  v12->type = PlayBlended;
+  v12->u.playSurface.entityIndex = entityIndex;
+  v12->u.playSurface.soundAlias = aliasList0;
+  v12->u.playSurfaceOnSndEnt.soundAlias = aliasList1;
+  v12->u.playSurface.pitch = lerp;
+  v12->u.playSurfaceOnSndEnt.volumeScale = volumeScale;
+  v12->u.playSurfaceOnSndEnt.pitch = pitch;
+  v12->u.playSurface.soundOrigin = *soundOrigin;
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v14);
+  if ( !v14.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
     __debugbreak();
-  if ( !v19.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+  if ( !v14.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
     __debugbreak();
   return 1;
 }
@@ -5461,31 +5252,24 @@ CG_EntityWorkers_TryAddPlayExplosionSoundRequest
 char CG_EntityWorkers_TryAddPlayExplosionSoundRequest(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList, int surfaceType, unsigned int reflectionClass)
 {
   CgEntityWorkerOutputType v9; 
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v14; 
+  CgEntitySoundRequest *v10; 
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v12; 
 
-  _RBX = soundOrigin;
   if ( !Sys_IsMainThreadEntityWorker() )
     return 0;
-  *(_WORD *)&v14.m_beginCalled = 0;
+  *(_WORD *)&v12.m_beginCalled = 0;
   LOBYTE(v9) = 5;
-  _RAX = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v14, v9);
-  _RAX->type = PlayExplosion;
-  _RAX->u.playSurface.entityIndex = entityIndex;
-  _RAX->u.playSurface.soundAlias = aliasList;
-  _RAX->u.playSurface.surfaceType = surfaceType;
-  _RAX->u.playExplosion.reflectionClass = reflectionClass;
-  _RAX->u.stopOnEntityChannel.entSndChannel = LODWORD(_RBX->v[0]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rax+10h], xmm0
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rax+14h], xmm1
-  }
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v14);
-  if ( !v14.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+  v10 = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v12, v9);
+  v10->type = PlayExplosion;
+  v10->u.playSurface.entityIndex = entityIndex;
+  v10->u.playSurface.soundAlias = aliasList;
+  v10->u.playSurface.surfaceType = surfaceType;
+  v10->u.playExplosion.reflectionClass = reflectionClass;
+  v10->u.playSurface.soundOrigin = *soundOrigin;
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v12);
+  if ( !v12.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
     __debugbreak();
-  if ( !v14.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+  if ( !v12.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
     __debugbreak();
   return 1;
 }
@@ -5495,59 +5279,30 @@ char CG_EntityWorkers_TryAddPlayExplosionSoundRequest(const int entityIndex, con
 CG_EntityWorkers_TryAddPlaySoundAliasScaledRequest
 ==============
 */
-
-bool __fastcall CG_EntityWorkers_TryAddPlaySoundAliasScaledRequest(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList, double volumeScale, float pitch, int timeshift)
+char CG_EntityWorkers_TryAddPlaySoundAliasScaledRequest(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList, float volumeScale, float pitch, int timeshift)
 {
-  CgEntityWorkerOutputType v12; 
-  bool result; 
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v20; 
-  char v21; 
-  void *retaddr; 
+  CgEntityWorkerOutputType v9; 
+  CgEntitySoundRequest *v10; 
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v12; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  _RBX = soundOrigin;
-  if ( Sys_IsMainThreadEntityWorker() )
-  {
-    *(_WORD *)&v20.m_beginCalled = 0;
-    LOBYTE(v12) = 5;
-    _RAX = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v20, v12);
-    _RAX->type = PlayScaled;
-    _RAX->u.playSurface.entityIndex = entityIndex;
-    _RAX->u.playSurface.soundAlias = aliasList;
-    __asm
-    {
-      vmovss  dword ptr [rax+20h], xmm6
-      vmovss  xmm0, [rsp+0A8h+pitch]
-      vmovss  dword ptr [rax+24h], xmm0
-    }
-    _RAX->u.playSurfaceOnSndEnt.surfaceType = timeshift;
-    _RAX->u.stopOnEntityChannel.entSndChannel = LODWORD(_RBX->v[0]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  dword ptr [rax+10h], xmm0
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rax+14h], xmm1
-    }
-    CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v20);
-    if ( !v20.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
-      __debugbreak();
-    if ( !v20.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
-      __debugbreak();
-    result = 1;
-  }
-  else
-  {
-    result = 0;
-  }
-  _R11 = &v21;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  if ( !Sys_IsMainThreadEntityWorker() )
+    return 0;
+  *(_WORD *)&v12.m_beginCalled = 0;
+  LOBYTE(v9) = 5;
+  v10 = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v12, v9);
+  v10->type = PlayScaled;
+  v10->u.playSurface.entityIndex = entityIndex;
+  v10->u.playSurface.soundAlias = aliasList;
+  v10->u.playScaled.volumeScale = volumeScale;
+  v10->u.playSurface.volumeScale = pitch;
+  v10->u.playSurfaceOnSndEnt.surfaceType = timeshift;
+  v10->u.playSurface.soundOrigin = *soundOrigin;
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v12);
+  if ( !v12.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+    __debugbreak();
+  if ( !v12.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -5584,117 +5339,73 @@ char CG_EntityWorkers_TryAddPostPlayerUpdate(const unsigned int entityIndex, con
 CG_EntityWorkers_TryAddScriptableEventLightUpdate
 ==============
 */
-
-bool __fastcall CG_EntityWorkers_TryAddScriptableEventLightUpdate(double interpolation, const unsigned int lightIndex, const Scriptable_EventLight_Data *const data, const ScriptableEventDef *const event)
+char CG_EntityWorkers_TryAddScriptableEventLightUpdate(const float interpolation, const unsigned int lightIndex, const Scriptable_EventLight_Data *const data, const ScriptableEventDef *const event)
 {
-  __int64 v7; 
-  CgEntityWorkerOutputType v9; 
-  const dvar_t *v12; 
-  bool result; 
-  __int64 v41; 
-  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate> v42; 
-  void *retaddr; 
+  __int64 v6; 
+  CgEntityWorkerOutputType v8; 
+  CgEntityScriptableEventLightUpdate *v9; 
+  ComPrimaryLight *v10; 
+  const dvar_t *v11; 
+  float v12; 
+  __int128 v13; 
+  __int64 v19; 
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate> v20; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _R14 = event;
-  v7 = lightIndex;
-  __asm { vmovaps xmm6, xmm0 }
+  v6 = lightIndex;
   if ( (unsigned __int8)CG_EntityWorkers_CritSecLegacyMode() || !Sys_IsMainThreadEntityWorker() )
+    return 0;
+  *(_WORD *)&v20.m_beginCalled = 0;
+  LOBYTE(v8) = 9;
+  v9 = CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Begin(&v20, v8);
+  v9->lightIndex = v6;
+  if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 49, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
+    __debugbreak();
+  if ( (unsigned int)v6 >= comWorld.primaryLightCount )
   {
-    result = 0;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( primaryLightIndex ) < (unsigned)( comWorld.primaryLightCount )", "primaryLightIndex doesn't index comWorld.primaryLightCount\n\t%i not in [0, %i)", v19, comWorld.primaryLightCount) )
+      __debugbreak();
+  }
+  v10 = &comWorld.primaryLights[v6];
+  v11 = DVARBOOL_scriptable_light_radiusscale;
+  if ( !DVARBOOL_scriptable_light_radiusscale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_light_radiusscale") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.enabled )
+  {
+    v13 = LODWORD(FLOAT_1_0);
+    v12 = 1.0 - interpolation;
+    *(float *)&v13 = (float)((float)(1.0 - interpolation) * data->startRadius) + (float)(interpolation * data->targetRadius);
+    _XMM1 = v13;
+    __asm { vmaxss  xmm2, xmm1, cs:__real@3f8147ae }
+    v9->radius = *(float *)&_XMM2;
   }
   else
   {
-    *(_WORD *)&v42.m_beginCalled = 0;
-    LOBYTE(v9) = 9;
-    _RDI = CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Begin(&v42, v9);
-    _RDI->lightIndex = v7;
-    if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 49, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
-      __debugbreak();
-    if ( (unsigned int)v7 >= comWorld.primaryLightCount )
-    {
-      LODWORD(v41) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( primaryLightIndex ) < (unsigned)( comWorld.primaryLightCount )", "primaryLightIndex doesn't index comWorld.primaryLightCount\n\t%i not in [0, %i)", v41, comWorld.primaryLightCount) )
-        __debugbreak();
-    }
-    _RBX = &comWorld.primaryLights[v7];
-    v12 = DVARBOOL_scriptable_light_radiusscale;
-    if ( !DVARBOOL_scriptable_light_radiusscale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_light_radiusscale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    if ( v12->current.enabled )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm3, xmm0, xmm6
-        vmulss  xmm1, xmm3, dword ptr [rsi+1Ch]
-        vmulss  xmm0, xmm6, dword ptr [rsi+20h]
-        vaddss  xmm1, xmm1, xmm0
-        vmaxss  xmm2, xmm1, cs:__real@3f8147ae
-        vmovss  dword ptr [rdi+4], xmm2
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+50h]
-        vmaxss  xmm1, xmm0, cs:__real@3f8147ae
-        vmovss  dword ptr [rdi+4], xmm1
-        vmovss  xmm2, cs:__real@3f800000
-        vsubss  xmm3, xmm2, xmm6
-      }
-    }
-    __asm
-    {
-      vmulss  xmm1, xmm3, dword ptr [rsi+14h]
-      vmulss  xmm0, xmm6, dword ptr [rsi+18h]
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rdi+8], xmm1
-    }
-    if ( _R14->data.anonymous.buffer[16] )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+34h]
-        vsubss  xmm1, xmm0, dword ptr [rsi+8]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsi+8]
-        vmovss  dword ptr [rdi+0Ch], xmm3
-        vmovss  xmm0, dword ptr [r14+38h]
-        vsubss  xmm1, xmm0, dword ptr [rsi+0Ch]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsi+0Ch]
-        vmovss  dword ptr [rdi+10h], xmm3
-        vmovss  xmm0, dword ptr [r14+3Ch]
-        vsubss  xmm1, xmm0, dword ptr [rsi+10h]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsi+10h]
-        vmovss  dword ptr [rdi+14h], xmm3
-      }
-    }
-    else
-    {
-      _RDI->colorLinearSrgb.v[0] = _RBX->colorLinearSrgb.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+24h]
-        vmovss  dword ptr [rdi+10h], xmm0
-        vmovss  xmm1, dword ptr [rbx+28h]
-        vmovss  dword ptr [rdi+14h], xmm1
-      }
-    }
-    CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Submit(&v42);
-    if ( !v42.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
-      __debugbreak();
-    if ( !v42.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
-      __debugbreak();
-    result = 1;
+    _XMM0 = LODWORD(v10->radius);
+    __asm { vmaxss  xmm1, xmm0, cs:__real@3f8147ae }
+    v9->radius = *(float *)&_XMM1;
+    v12 = 1.0 - interpolation;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  return result;
+  v9->intensity = (float)(v12 * data->startIntensity) + (float)(interpolation * data->targetIntensity);
+  if ( event->data.anonymous.buffer[16] )
+  {
+    v9->colorLinearSrgb.v[0] = (float)((float)(event->data.chunkDynent.launchAngVel.v[0] - data->startColorLinearSrgb.v[0]) * interpolation) + data->startColorLinearSrgb.v[0];
+    v9->colorLinearSrgb.v[1] = (float)((float)(event->data.animation.playbackRateMin - data->startColorLinearSrgb.v[1]) * interpolation) + data->startColorLinearSrgb.v[1];
+    v9->colorLinearSrgb.v[2] = (float)((float)(event->data.animation.playbackRateMax - data->startColorLinearSrgb.v[2]) * interpolation) + data->startColorLinearSrgb.v[2];
+  }
+  else
+  {
+    v9->colorLinearSrgb.v[0] = v10->colorLinearSrgb.v[0];
+    v9->colorLinearSrgb.v[1] = v10->colorLinearSrgb.v[1];
+    v9->colorLinearSrgb.v[2] = v10->colorLinearSrgb.v[2];
+  }
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Submit(&v20);
+  if ( !v20.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+    __debugbreak();
+  if ( !v20.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -5702,127 +5413,50 @@ bool __fastcall CG_EntityWorkers_TryAddScriptableEventLightUpdate(double interpo
 CG_EntityWorkers_TryAddScriptableEventSunUpdate
 ==============
 */
-
-bool __fastcall CG_EntityWorkers_TryAddScriptableEventSunUpdate(double interpolation, const ScriptableEventDef *const event, const Scriptable_EventSun_Data *const data)
+char CG_EntityWorkers_TryAddScriptableEventSunUpdate(const float interpolation, const ScriptableEventDef *const event, const Scriptable_EventSun_Data *const data)
 {
-  CgEntityWorkerOutputType v9; 
-  bool result; 
+  CgEntityWorkerOutputType v6; 
+  CgEntityScriptableEventSunUpdate *v7; 
   vec3_t angles; 
-  CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate> v62; 
-  char v63; 
-  void *retaddr; 
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate> v14; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm10
-  }
-  _RDI = data;
-  _RBX = event;
-  __asm { vmovaps xmm10, xmm0 }
   if ( !event && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2875, ASSERT_TYPE_ASSERT, "( event ) != ( nullptr )", "%s != %s\n\t%p, %p", "event", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2876, ASSERT_TYPE_ASSERT, "( data ) != ( nullptr )", "%s != %s\n\t%p, %p", "data", "nullptr", NULL, NULL) )
+  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2876, ASSERT_TYPE_ASSERT, "( data ) != ( nullptr )", "%s != %s\n\t%p, %p", "data", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( (unsigned __int8)CG_EntityWorkers_CritSecLegacyMode() || !Sys_IsMainThreadEntityWorker() )
+    return 0;
+  *(_WORD *)&v14.m_beginCalled = 0;
+  LOBYTE(v6) = 8;
+  v7 = CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Begin(&v14, v6);
+  v7->useColor = event->data.hideShowBone.hide;
+  if ( event->data.anonymous.buffer[12] )
   {
-    result = 0;
+    v7->colorLinearSrgb.v[0] = (float)((float)(event->data.animation.startTimeMax - data->startColorLinearSrgb.v[0]) * interpolation) + data->startColorLinearSrgb.v[0];
+    v7->colorLinearSrgb.v[1] = (float)((float)(event->data.chunkDynent.launchAngVel.v[0] - data->startColorLinearSrgb.v[1]) * interpolation) + data->startColorLinearSrgb.v[1];
+    v7->colorLinearSrgb.v[2] = (float)((float)(event->data.animation.playbackRateMin - data->startColorLinearSrgb.v[2]) * interpolation) + data->startColorLinearSrgb.v[2];
   }
-  else
+  v7->useIntensity = event->data.spawnDynent.stateful;
+  if ( event->data.anonymous.buffer[0] )
+    v7->intensity = (float)((float)(1.0 - interpolation) * data->startIntensity) + (float)(interpolation * data->targetIntensity);
+  v7->useDirection = event->data.particleFX.oneshotLooping;
+  if ( event->data.anonymous.buffer[60] )
   {
-    *(_WORD *)&v62.m_beginCalled = 0;
-    LOBYTE(v9) = 8;
-    _RAX = CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Begin(&v62, v9);
-    _RDX = _RAX;
-    _RAX->useColor = _RBX->data.hideShowBone.hide;
-    if ( _RBX->data.anonymous.buffer[12] )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vsubss  xmm1, xmm0, dword ptr [rdi+8]
-        vmulss  xmm2, xmm1, xmm10
-        vaddss  xmm3, xmm2, dword ptr [rdi+8]
-        vmovss  dword ptr [rax], xmm3
-        vmovss  xmm0, dword ptr [rbx+34h]
-        vsubss  xmm1, xmm0, dword ptr [rdi+0Ch]
-        vmulss  xmm2, xmm1, xmm10
-        vaddss  xmm3, xmm2, dword ptr [rdi+0Ch]
-        vmovss  dword ptr [rax+4], xmm3
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vsubss  xmm1, xmm0, dword ptr [rdi+10h]
-        vmulss  xmm2, xmm1, xmm10
-        vaddss  xmm3, xmm2, dword ptr [rdi+10h]
-        vmovss  dword ptr [rax+8], xmm3
-      }
-    }
-    _RAX->useIntensity = _RBX->data.spawnDynent.stateful;
-    if ( _RBX->data.anonymous.buffer[0] )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm1, dword ptr [rdi+14h]
-        vmulss  xmm0, xmm10, dword ptr [rdi+18h]
-        vaddss  xmm1, xmm2, xmm0
-        vmovss  dword ptr [rdx+0Ch], xmm1
-      }
-    }
-    _RAX->useDirection = _RBX->data.particleFX.oneshotLooping;
-    if ( _RBX->data.anonymous.buffer[60] )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vsubss  xmm1, xmm0, dword ptr [rdi+1Ch]
-        vmulss  xmm3, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm3, cs:__real@3f000000
-        vxorps  xmm7, xmm7, xmm7
-        vroundss xmm0, xmm7, xmm2, 1
-        vsubss  xmm0, xmm3, xmm0
-        vmulss  xmm0, xmm0, cs:__real@43b40000
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, dword ptr [rdi+1Ch]
-        vmovss  dword ptr [rsp+0D8h+angles], xmm2
-        vmovss  xmm0, dword ptr [rdi+2Ch]
-        vsubss  xmm0, xmm0, dword ptr [rdi+20h]
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmulss  xmm2, xmm1, xmm10
-        vaddss  xmm3, xmm2, dword ptr [rdi+20h]
-        vmovss  dword ptr [rsp+0D8h+angles+4], xmm3
-        vmovss  xmm0, dword ptr [rdi+30h]
-        vsubss  xmm0, xmm0, dword ptr [rdi+24h]
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmulss  xmm2, xmm1, xmm10
-        vaddss  xmm3, xmm2, dword ptr [rdi+24h]
-        vmovss  dword ptr [rsp+0D8h+angles+8], xmm3
-      }
-      AngleVectors(&angles, &_RAX->direction, NULL, NULL);
-    }
-    CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Submit(&v62);
-    if ( !v62.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
-      __debugbreak();
-    if ( !v62.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
-      __debugbreak();
-    result = 1;
+    _XMM7 = 0i64;
+    __asm { vroundss xmm0, xmm7, xmm2, 1 }
+    angles.v[0] = (float)((float)((float)((float)((float)(data->targetAngles.v[0] - data->startAngles.v[0]) * 0.0027777778) - *(float *)&_XMM0) * 360.0) * interpolation) + data->startAngles.v[0];
+    __asm { vroundss xmm3, xmm7, xmm2, 1 }
+    angles.v[1] = (float)((float)((float)((float)((float)(data->targetAngles.v[1] - data->startAngles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * interpolation) + data->startAngles.v[1];
+    __asm { vroundss xmm3, xmm7, xmm2, 1 }
+    angles.v[2] = (float)((float)((float)((float)((float)(data->targetAngles.v[2] - data->startAngles.v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * interpolation) + data->startAngles.v[2];
+    AngleVectors(&angles, &v7->direction, NULL, NULL);
   }
-  _R11 = &v63;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-10h]
-    vmovaps xmm10, xmmword ptr [r11-20h]
-  }
-  return result;
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Submit(&v14);
+  if ( !v14.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+    __debugbreak();
+  if ( !v14.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -5860,51 +5494,39 @@ CG_EntityWorkers_TryAddScriptableStateEventLightUpdate
 char CG_EntityWorkers_TryAddScriptableStateEventLightUpdate(const unsigned int lightIndex, const Scriptable_EventLight_Data *const data, const ScriptableEventLightDef *const light, const ComPrimaryLight *const rawLight)
 {
   CgEntityWorkerOutputType v8; 
-  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate> v16; 
+  CgEntityScriptableEventLightUpdate *v9; 
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate> v11; 
 
-  _RDI = rawLight;
-  _RBX = light;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2985, ASSERT_TYPE_ASSERT, "( data ) != ( nullptr )", "%s != %s\n\t%p, %p", "data", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2986, ASSERT_TYPE_ASSERT, "( light ) != ( nullptr )", "%s != %s\n\t%p, %p", "light", "nullptr", NULL, NULL) )
+  if ( !light && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2986, ASSERT_TYPE_ASSERT, "( light ) != ( nullptr )", "%s != %s\n\t%p, %p", "light", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2987, ASSERT_TYPE_ASSERT, "( rawLight ) != ( nullptr )", "%s != %s\n\t%p, %p", "rawLight", "nullptr", NULL, NULL) )
+  if ( !rawLight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2987, ASSERT_TYPE_ASSERT, "( rawLight ) != ( nullptr )", "%s != %s\n\t%p, %p", "rawLight", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( (unsigned __int8)CG_EntityWorkers_CritSecLegacyMode() || !Sys_IsMainThreadEntityWorker() )
     return 0;
-  *(_WORD *)&v16.m_beginCalled = 0;
+  *(_WORD *)&v11.m_beginCalled = 0;
   LOBYTE(v8) = 9;
-  _RAX = CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Begin(&v16, v8);
-  _RDX = _RAX;
-  _RAX->lightIndex = lightIndex;
-  _RAX->radius = data->targetRadius;
-  _RAX->intensity = data->targetIntensity;
-  if ( _RBX->useColor )
+  v9 = CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Begin(&v11, v8);
+  v9->lightIndex = lightIndex;
+  v9->radius = data->targetRadius;
+  v9->intensity = data->targetIntensity;
+  if ( light->useColor )
   {
-    _RAX->colorLinearSrgb.v[0] = _RBX->colorLinearSrgb.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmovss  dword ptr [rax+10h], xmm0
-      vmovss  xmm1, dword ptr [rbx+24h]
-      vmovss  dword ptr [rax+14h], xmm1
-    }
+    v9->colorLinearSrgb.v[0] = light->colorLinearSrgb.v[0];
+    v9->colorLinearSrgb.v[1] = light->colorLinearSrgb.v[1];
+    v9->colorLinearSrgb.v[2] = light->colorLinearSrgb.v[2];
   }
   else
   {
-    _RAX->colorLinearSrgb.v[0] = _RDI->colorLinearSrgb.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+24h]
-      vmovss  dword ptr [rdx+10h], xmm0
-      vmovss  xmm1, dword ptr [rdi+28h]
-      vmovss  dword ptr [rdx+14h], xmm1
-    }
+    v9->colorLinearSrgb.v[0] = rawLight->colorLinearSrgb.v[0];
+    v9->colorLinearSrgb.v[1] = rawLight->colorLinearSrgb.v[1];
+    v9->colorLinearSrgb.v[2] = rawLight->colorLinearSrgb.v[2];
   }
-  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Submit(&v16);
-  if ( !v16.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Submit(&v11);
+  if ( !v11.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
     __debugbreak();
-  if ( !v16.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+  if ( !v11.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
     __debugbreak();
   return 1;
 }
@@ -5914,55 +5536,31 @@ char CG_EntityWorkers_TryAddScriptableStateEventLightUpdate(const unsigned int l
 CG_EntityWorkers_TryAddScriptableStateEventSunUpdate
 ==============
 */
-
-bool __fastcall CG_EntityWorkers_TryAddScriptableStateEventSunUpdate(const ScriptableEventSunDef *const sun, double intensity, const vec3_t *const direction)
+char CG_EntityWorkers_TryAddScriptableStateEventSunUpdate(const ScriptableEventSunDef *const sun, const float intensity, const vec3_t *const direction)
 {
-  CgEntityWorkerOutputType v7; 
-  bool result; 
-  CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate> v15; 
+  CgEntityWorkerOutputType v5; 
+  CgEntityScriptableEventSunUpdate *v6; 
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate> v8; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  _RDI = direction;
-  __asm { vmovaps xmm6, xmm1 }
-  _RBX = sun;
   if ( (unsigned __int8)CG_EntityWorkers_CritSecLegacyMode() || !Sys_IsMainThreadEntityWorker() )
-  {
-    result = 0;
-  }
-  else
-  {
-    *(_WORD *)&v15.m_beginCalled = 0;
-    LOBYTE(v7) = 8;
-    _RAX = CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Begin(&v15, v7);
-    _RAX->colorLinearSrgb.v[0] = _RBX->colorLinearSrgb.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vmovss  dword ptr [rax+4], xmm0
-      vmovss  xmm1, dword ptr [rbx+20h]
-      vmovss  dword ptr [rax+8], xmm1
-      vmovss  dword ptr [rax+0Ch], xmm6
-    }
-    _RAX->direction.v[0] = _RDI->v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rax+14h], xmm0
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rax+18h], xmm1
-    }
-    _RAX->useColor = _RBX->useColor;
-    _RAX->useIntensity = _RBX->useIntensity;
-    _RAX->useDirection = _RBX->useDirection;
-    CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Submit(&v15);
-    if ( !v15.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
-      __debugbreak();
-    if ( !v15.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
-      __debugbreak();
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  return result;
+    return 0;
+  *(_WORD *)&v8.m_beginCalled = 0;
+  LOBYTE(v5) = 8;
+  v6 = CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Begin(&v8, v5);
+  v6->colorLinearSrgb.v[0] = sun->colorLinearSrgb.v[0];
+  v6->colorLinearSrgb.v[1] = sun->colorLinearSrgb.v[1];
+  v6->colorLinearSrgb.v[2] = sun->colorLinearSrgb.v[2];
+  v6->intensity = intensity;
+  v6->direction = *direction;
+  v6->useColor = sun->useColor;
+  v6->useIntensity = sun->useIntensity;
+  v6->useDirection = sun->useDirection;
+  CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Submit(&v8);
+  if ( !v8.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+    __debugbreak();
+  if ( !v8.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -6053,39 +5651,28 @@ CG_EntityWorkers_TryAddSurfaceSoundOnSndEntRequest
 char CG_EntityWorkers_TryAddSurfaceSoundOnSndEntRequest(const int entityIndex, const vec3_t *soundOrigin, const unsigned __int64 sndEntHandle, const SndAliasList *aliasList, int surfaceType, float volumeScale, float pitch, int fadeTime)
 {
   CgEntityWorkerOutputType v12; 
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v19; 
+  CgEntitySoundRequest *v13; 
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v15; 
 
-  _RBX = soundOrigin;
   if ( !Sys_IsMainThreadEntityWorker() )
     return 0;
-  *(_WORD *)&v19.m_beginCalled = 0;
+  *(_WORD *)&v15.m_beginCalled = 0;
   LOBYTE(v12) = 5;
-  _RAX = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v19, v12);
-  _RAX->type = PlaySurfaceOnSndEnt;
-  _RAX->u.playSurfaceOnSndEnt.sndEntHandle = sndEntHandle;
-  _RAX->u.playSurfaceOnSndEnt.entityIndex = entityIndex;
-  _RAX->u.playSurfaceOnSndEnt.soundAlias = aliasList;
-  _RAX->u.playSurfaceOnSndEnt.surfaceType = surfaceType;
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+volumeScale]
-    vmovss  dword ptr [rax+2Ch], xmm0
-    vmovss  xmm1, [rsp+98h+pitch]
-    vmovss  dword ptr [rax+30h], xmm1
-  }
-  _RAX->u.playSurfaceOnSndEnt.fadeTime = fadeTime;
-  _RAX->u.playSurface.soundOrigin.v[2] = _RBX->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rax+18h], xmm0
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rax+1Ch], xmm1
-  }
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v19);
-  if ( !v19.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+  v13 = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v15, v12);
+  v13->type = PlaySurfaceOnSndEnt;
+  v13->u.playSurfaceOnSndEnt.sndEntHandle = sndEntHandle;
+  v13->u.playSurfaceOnSndEnt.entityIndex = entityIndex;
+  v13->u.playSurfaceOnSndEnt.soundAlias = aliasList;
+  v13->u.playSurfaceOnSndEnt.surfaceType = surfaceType;
+  v13->u.playSurfaceOnSndEnt.volumeScale = volumeScale;
+  v13->u.playSurfaceOnSndEnt.pitch = pitch;
+  v13->u.playSurfaceOnSndEnt.fadeTime = fadeTime;
+  v13->u.playSurface.soundOrigin.v[2] = soundOrigin->v[0];
+  v13->u.playSurface.soundAlias = *(const SndAliasList **)&soundOrigin->y;
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v15);
+  if ( !v15.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
     __debugbreak();
-  if ( !v19.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+  if ( !v15.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
     __debugbreak();
   return 1;
 }
@@ -6098,38 +5685,26 @@ CG_EntityWorkers_TryAddSurfaceSoundRequest
 char CG_EntityWorkers_TryAddSurfaceSoundRequest(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList, int surfaceType, float volumeScale, float pitch, int fadeTime)
 {
   CgEntityWorkerOutputType v11; 
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v18; 
+  CgEntitySoundRequest *v12; 
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v14; 
 
-  _RBX = soundOrigin;
   if ( !Sys_IsMainThreadEntityWorker() )
     return 0;
-  *(_WORD *)&v18.m_beginCalled = 0;
+  *(_WORD *)&v14.m_beginCalled = 0;
   LOBYTE(v11) = 5;
-  _RAX = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v18, v11);
-  _RAX->type = PlaySurface;
-  _RAX->u.playSurface.entityIndex = entityIndex;
-  _RAX->u.playSurface.soundAlias = aliasList;
-  _RAX->u.playSurface.surfaceType = surfaceType;
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+volumeScale]
-    vmovss  dword ptr [rax+24h], xmm0
-    vmovss  xmm1, [rsp+98h+pitch]
-    vmovss  dword ptr [rax+28h], xmm1
-  }
-  _RAX->u.playSurface.fadeTime = fadeTime;
-  _RAX->u.stopOnEntityChannel.entSndChannel = LODWORD(_RBX->v[0]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rax+10h], xmm0
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rax+14h], xmm1
-  }
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v18);
-  if ( !v18.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+  v12 = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v14, v11);
+  v12->type = PlaySurface;
+  v12->u.playSurface.entityIndex = entityIndex;
+  v12->u.playSurface.soundAlias = aliasList;
+  v12->u.playSurface.surfaceType = surfaceType;
+  v12->u.playSurface.volumeScale = volumeScale;
+  v12->u.playSurface.pitch = pitch;
+  v12->u.playSurface.fadeTime = fadeTime;
+  v12->u.playSurface.soundOrigin = *soundOrigin;
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v14);
+  if ( !v14.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
     __debugbreak();
-  if ( !v18.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+  if ( !v14.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
     __debugbreak();
   return 1;
 }
@@ -6170,68 +5745,33 @@ char CG_EntityWorkers_TryAddTurretBarrelSpinSoundRequest(const LocalClientNum_t 
 CG_EntityWorkers_TryAddUpdateVehicleSound
 ==============
 */
-
-bool __fastcall CG_EntityWorkers_TryAddUpdateVehicleSound(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList, double throttle, const float brake, const float rpm, const float speed, const int gear, const float distanceScale)
+char CG_EntityWorkers_TryAddUpdateVehicleSound(const int entityIndex, const vec3_t *soundOrigin, const SndAliasList *aliasList, const float throttle, const float brake, const float rpm, const float speed, const int gear, const float distanceScale)
 {
-  CgEntityWorkerOutputType v15; 
-  bool result; 
-  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v26; 
-  char v27; 
-  void *retaddr; 
+  CgEntityWorkerOutputType v12; 
+  CgEntitySoundRequest *v13; 
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest> v15; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  _RBX = soundOrigin;
-  if ( Sys_IsMainThreadEntityWorker() )
-  {
-    *(_WORD *)&v26.m_beginCalled = 0;
-    LOBYTE(v15) = 5;
-    _RDX = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v26, v15);
-    _RDX->type = VehicleUpdate;
-    _RDX->u.playSurface.entityIndex = entityIndex;
-    _RDX->u.playSurface.soundAlias = aliasList;
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+speed]
-      vmovss  dword ptr [rax+20h], xmm0
-      vmovss  dword ptr [rax+24h], xmm6
-      vmovss  xmm1, [rsp+0A8h+brake]
-      vmovss  dword ptr [rax+28h], xmm1
-      vmovss  xmm0, [rsp+0A8h+rpm]
-      vmovss  dword ptr [rax+2Ch], xmm0
-    }
-    _RDX->u.vehicleUpdate.gear = gear;
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+distanceScale]
-      vmovss  dword ptr [rax+34h], xmm0
-    }
-    _RDX->u.stopOnEntityChannel.entSndChannel = LODWORD(_RBX->v[0]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  dword ptr [rdx+10h], xmm0
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rdx+14h], xmm1
-    }
-    CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v26);
-    if ( !v26.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
-      __debugbreak();
-    if ( !v26.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
-      __debugbreak();
-    result = 1;
-  }
-  else
-  {
-    result = 0;
-  }
-  _R11 = &v27;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  if ( !Sys_IsMainThreadEntityWorker() )
+    return 0;
+  *(_WORD *)&v15.m_beginCalled = 0;
+  LOBYTE(v12) = 5;
+  v13 = CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Begin(&v15, v12);
+  v13->type = VehicleUpdate;
+  v13->u.playSurface.entityIndex = entityIndex;
+  v13->u.playSurface.soundAlias = aliasList;
+  v13->u.playScaled.volumeScale = speed;
+  v13->u.playSurface.volumeScale = throttle;
+  v13->u.playSurface.pitch = brake;
+  v13->u.playSurfaceOnSndEnt.volumeScale = rpm;
+  v13->u.vehicleUpdate.gear = gear;
+  v13->u.vehicleUpdate.distanceScale = distanceScale;
+  v13->u.playSurface.soundOrigin = *soundOrigin;
+  CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(&v15);
+  if ( !v15.m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2383, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder was created but is missing its Begin() call") )
+    __debugbreak();
+  if ( !v15.m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2384, ASSERT_TYPE_ASSERT, "( m_submitCalled )", "Entity Worker Output Builder was created but is missing its Submit() call") )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -6516,34 +6056,20 @@ void GetSecureWorkerOrigin(const vec3_t *from, vec3_t *to, const unsigned int xo
 {
   unsigned int v3; 
   float v4; 
-  __int64 v8; 
-  int v9; 
+  float v5; 
+  __int64 v6; 
+  float v7; 
 
   v3 = xorValue ^ LODWORD(from->v[1]);
   v4 = from->v[2];
   LODWORD(to->v[0]) = xorValue ^ LODWORD(from->v[0]);
   LODWORD(to->v[1]) = v3;
   LODWORD(to->v[2]) = xorValue ^ LODWORD(v4);
-  __asm { vmovss  xmm0, dword ptr [rdx] }
-  memset(&v8, 0, sizeof(v8));
-  __asm { vmovss  [rsp+38h+arg_10], xmm0 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
+  v5 = to->v[0];
+  memset(&v6, 0, sizeof(v6));
+  v7 = v5;
+  if ( (LODWORD(v5) & 0x7F800000) == 2139095040 || (v7 = to->v[1], (LODWORD(v7) & 0x7F800000) == 2139095040) || (v7 = to->v[2], (LODWORD(v7) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 523, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
       __debugbreak();
   }
@@ -6556,44 +6082,23 @@ SetSecureWorkerOrigin
 */
 void SetSecureWorkerOrigin(const vec3_t *from, vec3_t *to, const unsigned int xorValue)
 {
-  const vec3_t *v6; 
-  unsigned int v9; 
-  unsigned int v10; 
-  __int64 v11; 
-  int v12; 
+  unsigned int v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  float v9; 
 
-  __asm
+  v9 = from->v[0];
+  if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (v9 = from->v[1], (LODWORD(v9) & 0x7F800000) == 2139095040) || (v9 = from->v[2], (LODWORD(v9) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  v6 = from;
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 491, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v9 = xorValue ^ LODWORD(v6->v[0]);
-  v10 = xorValue ^ LODWORD(v6->v[1]);
-  LODWORD(to->v[2]) = xorValue ^ LODWORD(v6->v[2]);
-  LODWORD(to->v[0]) = v9;
-  LODWORD(to->v[1]) = v10;
-  memset(&v11, 0, sizeof(v11));
+  v6 = xorValue ^ LODWORD(from->v[0]);
+  v7 = xorValue ^ LODWORD(from->v[1]);
+  LODWORD(to->v[2]) = xorValue ^ LODWORD(from->v[2]);
+  LODWORD(to->v[0]) = v6;
+  LODWORD(to->v[1]) = v7;
+  memset(&v8, 0, sizeof(v8));
 }
 
 /*
@@ -6605,24 +6110,26 @@ void CgEntityWorkersOutputBuilder<CgEntityBModelDrawRequest>::Submit(CgEntityWor
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v8; 
-  unsigned int v10; 
-  unsigned int v11; 
+  bool v6; 
+  double v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   char *fmt; 
-  __int64 v13; 
-  __int64 v14; 
-  int v15; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
   char data; 
+  double v15; 
 
-  _RDI = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RDI->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RDI->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RDI->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -6632,57 +6139,52 @@ void CgEntityWorkersOutputBuilder<CgEntityBModelDrawRequest>::Submit(CgEntityWor
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RBX = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RBX + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 9 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RBX + 2048))++ + _RBX) = _RDI->m_requestType[0];
-      if ( *(_DWORD *)(_RBX + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      _RAX = *(unsigned int *)(_RBX + 2048);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rdi]
-        vmovsd  qword ptr [rax+rbx], xmm0
-      }
-      *(_DWORD *)(_RBX + 2048) += 8;
+      *(double *)(*(unsigned int *)(v4 + 2048) + v4) = *(double *)&this->m_requestPayload;
+      *(_DWORD *)(v4 + 2048) += 8;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RDI->m_requestType[0], 9i64);
-    LODWORD(v14) = 9;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 9i64);
+    LODWORD(v12) = 9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v11, v12);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  data = _RDI->m_requestType[0];
-  __asm { vmovsd  [rsp+68h+var_27], xmm0 }
-  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 9);
-  v11 = v10;
-  if ( v10 != 9 )
+  v7 = *(double *)&this->m_requestPayload;
+  data = this->m_requestType[0];
+  v15 = v7;
+  v8 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 9);
+  v9 = v8;
+  if ( v8 != 9 )
   {
     LODWORD(fmt) = 9;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RDI->m_requestType[0], v10, fmt);
-    v15 = 9;
-    LODWORD(v14) = v11;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v8, fmt);
+    v13 = 9;
+    LODWORD(v12) = v9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v11, v12, v13);
 LABEL_31:
-    if ( v8 )
+    if ( v6 )
       __debugbreak();
   }
 }
@@ -6784,26 +6286,31 @@ void CgEntityWorkersOutputBuilder<CgEntityDObjDrawRequest>::Submit(CgEntityWorke
   __int64 v3; 
   __int64 v4; 
   unsigned int v5; 
-  bool v10; 
-  char v12; 
-  int atlasTime_low; 
-  unsigned int v16; 
-  unsigned int v17; 
+  __int64 v6; 
+  bool v7; 
+  char v8; 
+  __m256i v9; 
+  __m256i v10; 
+  float atlasTime; 
+  unsigned int v12; 
+  unsigned int v13; 
   char *fmt; 
-  __int64 v19; 
-  __int64 v20; 
-  int v21; 
+  __int64 v15; 
+  __int64 v16; 
+  int v17; 
   char data; 
-  int v26; 
+  __m256i v19; 
+  __m256i v20; 
+  __m256i v21; 
+  float v22; 
 
-  _RBX = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RBX->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RBX->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RBX->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -6819,69 +6326,56 @@ void CgEntityWorkersOutputBuilder<CgEntityDObjDrawRequest>::Submit(CgEntityWorke
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v20) = 2048;
-        LODWORD(v19) = *(_DWORD *)(v4 + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v19, v20) )
+        LODWORD(v16) = 2048;
+        LODWORD(v15) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = _RBX->m_requestType[0];
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
       if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v20) = 2048;
-        LODWORD(v19) = *(_DWORD *)(v4 + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v19, v20) )
+        LODWORD(v16) = 2048;
+        LODWORD(v15) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      _RCX = v4 + *(unsigned int *)(v4 + 2048);
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rcx+20h], ymm1
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-      }
-      *(float *)(_RCX + 96) = _RBX->m_requestPayload.shaderOverride.atlasTime;
+      v6 = v4 + *(unsigned int *)(v4 + 2048);
+      *(__m256i *)v6 = *(__m256i *)&this->m_requestPayload.entityIndex;
+      *(__m256i *)(v6 + 32) = *(__m256i *)&this->m_requestPayload.hudOutlineInfo.scopeStencil;
+      *(__m256i *)(v6 + 64) = *(__m256i *)&this->m_requestPayload.shaderOverride.scrollRateX;
+      *(float *)(v6 + 96) = this->m_requestPayload.shaderOverride.atlasTime;
       *(_DWORD *)(v4 + 2048) += 100;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RBX->m_requestType[0], 101i64);
-    LODWORD(v20) = 101;
-    LODWORD(v19) = (unsigned __int8)_RBX->m_requestType[0];
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v19, v20);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 101i64);
+    LODWORD(v16) = 101;
+    LODWORD(v15) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v15, v16);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbx] }
-  v12 = _RBX->m_requestType[0];
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups [rsp+0C8h+var_87], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-  }
-  data = v12;
-  atlasTime_low = LODWORD(_RBX->m_requestPayload.shaderOverride.atlasTime);
-  __asm
-  {
-    vmovups [rsp+0C8h+var_47], ymm0
-    vmovups [rsp+0C8h+var_67], ymm1
-  }
-  v26 = atlasTime_low;
-  v16 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 101);
-  v17 = v16;
-  if ( v16 != 101 )
+  v8 = this->m_requestType[0];
+  v9 = *(__m256i *)&this->m_requestPayload.hudOutlineInfo.scopeStencil;
+  v19 = *(__m256i *)&this->m_requestPayload.entityIndex;
+  v10 = *(__m256i *)&this->m_requestPayload.shaderOverride.scrollRateX;
+  data = v8;
+  atlasTime = this->m_requestPayload.shaderOverride.atlasTime;
+  v21 = v10;
+  v20 = v9;
+  v22 = atlasTime;
+  v12 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 101);
+  v13 = v12;
+  if ( v12 != 101 )
   {
     LODWORD(fmt) = 101;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RBX->m_requestType[0], v16, fmt);
-    v21 = 101;
-    LODWORD(v20) = v17;
-    LODWORD(v19) = (unsigned __int8)_RBX->m_requestType[0];
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v19, v20, v21);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v12, fmt);
+    v17 = 101;
+    LODWORD(v16) = v13;
+    LODWORD(v15) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v15, v16, v17);
 LABEL_31:
-    if ( v10 )
+    if ( v7 )
       __debugbreak();
   }
 }
@@ -6981,24 +6475,26 @@ void CgEntityWorkersOutputBuilder<CgEntityFxMarkDetachAllRequest>::Submit(CgEnti
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v8; 
-  unsigned int v10; 
-  unsigned int v11; 
+  bool v6; 
+  double v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   char *fmt; 
-  __int64 v13; 
-  __int64 v14; 
-  int v15; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
   char data; 
+  double v15; 
 
-  _RDI = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RDI->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RDI->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RDI->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7008,57 +6504,52 @@ void CgEntityWorkersOutputBuilder<CgEntityFxMarkDetachAllRequest>::Submit(CgEnti
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RBX = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RBX + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 9 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RBX + 2048))++ + _RBX) = _RDI->m_requestType[0];
-      if ( *(_DWORD *)(_RBX + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      _RAX = *(unsigned int *)(_RBX + 2048);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rdi]
-        vmovsd  qword ptr [rax+rbx], xmm0
-      }
-      *(_DWORD *)(_RBX + 2048) += 8;
+      *(double *)(*(unsigned int *)(v4 + 2048) + v4) = *(double *)&this->m_requestPayload;
+      *(_DWORD *)(v4 + 2048) += 8;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RDI->m_requestType[0], 9i64);
-    LODWORD(v14) = 9;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 9i64);
+    LODWORD(v12) = 9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v11, v12);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  data = _RDI->m_requestType[0];
-  __asm { vmovsd  [rsp+68h+var_27], xmm0 }
-  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 9);
-  v11 = v10;
-  if ( v10 != 9 )
+  v7 = *(double *)&this->m_requestPayload;
+  data = this->m_requestType[0];
+  v15 = v7;
+  v8 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 9);
+  v9 = v8;
+  if ( v8 != 9 )
   {
     LODWORD(fmt) = 9;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RDI->m_requestType[0], v10, fmt);
-    v15 = 9;
-    LODWORD(v14) = v11;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v8, fmt);
+    v13 = 9;
+    LODWORD(v12) = v9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v11, v12, v13);
 LABEL_31:
-    if ( v8 )
+    if ( v6 )
       __debugbreak();
   }
 }
@@ -7072,24 +6563,26 @@ void CgEntityWorkersOutputBuilder<CgEntityNotetrackRequest>::Submit(CgEntityWork
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v8; 
-  unsigned int v10; 
-  unsigned int v11; 
+  bool v6; 
+  double v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   char *fmt; 
-  __int64 v13; 
-  __int64 v14; 
-  int v15; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
   char data; 
+  double v15; 
 
-  _RDI = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RDI->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RDI->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RDI->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7099,57 +6592,52 @@ void CgEntityWorkersOutputBuilder<CgEntityNotetrackRequest>::Submit(CgEntityWork
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RBX = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RBX + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 9 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RBX + 2048))++ + _RBX) = _RDI->m_requestType[0];
-      if ( *(_DWORD *)(_RBX + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      _RAX = *(unsigned int *)(_RBX + 2048);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rdi]
-        vmovsd  qword ptr [rax+rbx], xmm0
-      }
-      *(_DWORD *)(_RBX + 2048) += 8;
+      *(double *)(*(unsigned int *)(v4 + 2048) + v4) = *(double *)&this->m_requestPayload;
+      *(_DWORD *)(v4 + 2048) += 8;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RDI->m_requestType[0], 9i64);
-    LODWORD(v14) = 9;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 9i64);
+    LODWORD(v12) = 9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v11, v12);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rdi] }
-  data = _RDI->m_requestType[0];
-  __asm { vmovsd  [rsp+68h+var_27], xmm0 }
-  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 9);
-  v11 = v10;
-  if ( v10 != 9 )
+  v7 = *(double *)&this->m_requestPayload;
+  data = this->m_requestType[0];
+  v15 = v7;
+  v8 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 9);
+  v9 = v8;
+  if ( v8 != 9 )
   {
     LODWORD(fmt) = 9;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RDI->m_requestType[0], v10, fmt);
-    v15 = 9;
-    LODWORD(v14) = v11;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v8, fmt);
+    v13 = 9;
+    LODWORD(v12) = v9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v11, v12, v13);
 LABEL_31:
-    if ( v8 )
+    if ( v6 )
       __debugbreak();
   }
 }
@@ -7163,25 +6651,28 @@ void CgEntityWorkersOutputBuilder<CgEntityPlayerPostUpdate>::Submit(CgEntityWork
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v8; 
+  __int64 v6; 
+  bool v7; 
+  __int128 v8; 
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
   char *fmt; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  int v15; 
+  int v14; 
   char data; 
-  float v18; 
+  __int128 v16; 
+  float v17; 
 
-  _RBX = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RBX->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RBX->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RBX->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7191,59 +6682,55 @@ void CgEntityWorkersOutputBuilder<CgEntityPlayerPostUpdate>::Submit(CgEntityWork
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RDI = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RDI + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 21 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v13) = 2048;
+        LODWORD(v12) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RDI + 2048))++ + _RDI) = _RBX->m_requestType[0];
-      if ( *(_DWORD *)(_RDI + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v13) = 2048;
+        LODWORD(v12) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      _RCX = *(unsigned int *)(_RDI + 2048);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rcx+rdi], xmm0
-      }
-      *(float *)(_RCX + _RDI + 16) = _RBX->m_requestPayload.poseOrigin.origin.v[2];
-      *(_DWORD *)(_RDI + 2048) += 20;
+      v6 = *(unsigned int *)(v4 + 2048);
+      *(_OWORD *)(v6 + v4) = *(_OWORD *)&this->m_requestPayload.entityIndex;
+      *(float *)(v6 + v4 + 16) = this->m_requestPayload.poseOrigin.origin.v[2];
+      *(_DWORD *)(v4 + 2048) += 20;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RBX->m_requestType[0], 21i64);
-    LODWORD(v14) = 21;
-    LODWORD(v13) = (unsigned __int8)_RBX->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 21i64);
+    LODWORD(v13) = 21;
+    LODWORD(v12) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v12, v13);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  data = _RBX->m_requestType[0];
-  v18 = _RBX->m_requestPayload.poseOrigin.origin.v[2];
-  __asm { vmovups [rsp+68h+var_27], xmm0 }
-  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 21);
-  v11 = v10;
-  if ( v10 != 21 )
+  v8 = *(_OWORD *)&this->m_requestPayload.entityIndex;
+  data = this->m_requestType[0];
+  v17 = this->m_requestPayload.poseOrigin.origin.v[2];
+  v16 = v8;
+  v9 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 21);
+  v10 = v9;
+  if ( v9 != 21 )
   {
     LODWORD(fmt) = 21;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RBX->m_requestType[0], v10, fmt);
-    v15 = 21;
-    LODWORD(v14) = v11;
-    LODWORD(v13) = (unsigned __int8)_RBX->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v9, fmt);
+    v14 = 21;
+    LODWORD(v13) = v10;
+    LODWORD(v12) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v12, v13, v14);
 LABEL_31:
-    if ( v8 )
+    if ( v7 )
       __debugbreak();
   }
 }
@@ -7257,24 +6744,29 @@ void CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Submit(Cg
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v9; 
-  unsigned int v12; 
-  unsigned int v13; 
+  __int64 v6; 
+  bool v7; 
+  __int128 v8; 
+  double v9; 
+  unsigned int v10; 
+  unsigned int v11; 
   char *fmt; 
-  __int64 v15; 
-  __int64 v16; 
-  int v17; 
+  __int64 v13; 
+  __int64 v14; 
+  int v15; 
   char data; 
+  __int128 v17; 
+  double v18; 
 
-  _RBX = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RBX->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RBX->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RBX->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7284,67 +6776,56 @@ void CgEntityWorkersOutputBuilder<CgEntityScriptableEventLightUpdate>::Submit(Cg
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RDI = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RDI + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 25 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v16) = 2048;
-        LODWORD(v15) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v15, v16) )
+        LODWORD(v14) = 2048;
+        LODWORD(v13) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RDI + 2048))++ + _RDI) = _RBX->m_requestType[0];
-      if ( *(_DWORD *)(_RDI + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v16) = 2048;
-        LODWORD(v15) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v15, v16) )
+        LODWORD(v14) = 2048;
+        LODWORD(v13) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      _RAX = *(unsigned int *)(_RDI + 2048);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rax+rdi], xmm0
-        vmovsd  xmm1, qword ptr [rbx+10h]
-        vmovsd  qword ptr [rax+rdi+10h], xmm1
-      }
-      *(_DWORD *)(_RDI + 2048) += 24;
+      v6 = *(unsigned int *)(v4 + 2048);
+      *(_OWORD *)(v6 + v4) = *(_OWORD *)&this->m_requestPayload.lightIndex;
+      *(double *)(v6 + v4 + 16) = *(double *)&this->m_requestPayload.colorLinearSrgb.y;
+      *(_DWORD *)(v4 + 2048) += 24;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RBX->m_requestType[0], 25i64);
-    LODWORD(v16) = 25;
-    LODWORD(v15) = (unsigned __int8)_RBX->m_requestType[0];
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v15, v16);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 25i64);
+    LODWORD(v14) = 25;
+    LODWORD(v13) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovsd  xmm1, qword ptr [rbx+10h]
-  }
-  data = _RBX->m_requestType[0];
-  __asm
-  {
-    vmovups [rsp+78h+var_37], xmm0
-    vmovsd  [rsp+78h+var_27], xmm1
-  }
-  v12 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 25);
-  v13 = v12;
-  if ( v12 != 25 )
+  v8 = *(_OWORD *)&this->m_requestPayload.lightIndex;
+  v9 = *(double *)&this->m_requestPayload.colorLinearSrgb.y;
+  data = this->m_requestType[0];
+  v17 = v8;
+  v18 = v9;
+  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 25);
+  v11 = v10;
+  if ( v10 != 25 )
   {
     LODWORD(fmt) = 25;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RBX->m_requestType[0], v12, fmt);
-    v17 = 25;
-    LODWORD(v16) = v13;
-    LODWORD(v15) = (unsigned __int8)_RBX->m_requestType[0];
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v15, v16, v17);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v10, fmt);
+    v15 = 25;
+    LODWORD(v14) = v11;
+    LODWORD(v13) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
 LABEL_31:
-    if ( v9 )
+    if ( v7 )
       __debugbreak();
   }
 }
@@ -7358,24 +6839,26 @@ void CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Submit(CgEn
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v8; 
-  unsigned int v10; 
-  unsigned int v11; 
+  bool v6; 
+  __m256i m_requestPayload; 
+  unsigned int v8; 
+  unsigned int v9; 
   char *fmt; 
-  __int64 v13; 
-  __int64 v14; 
-  int v15; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
   char data; 
+  __m256i v15; 
 
-  _RDI = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RDI->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RDI->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RDI->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7385,57 +6868,52 @@ void CgEntityWorkersOutputBuilder<CgEntityScriptableEventSunUpdate>::Submit(CgEn
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RBX = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RBX + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 33 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RBX + 2048))++ + _RBX) = _RDI->m_requestType[0];
-      if ( *(_DWORD *)(_RBX + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RBX + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 2048;
+        LODWORD(v11) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
-      _RAX = *(unsigned int *)(_RBX + 2048);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymmword ptr [rax+rbx], ymm0
-      }
-      *(_DWORD *)(_RBX + 2048) += 32;
+      *(CgEntityScriptableEventSunUpdate *)(*(unsigned int *)(v4 + 2048) + v4) = this->m_requestPayload;
+      *(_DWORD *)(v4 + 2048) += 32;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RDI->m_requestType[0], 33i64);
-    LODWORD(v14) = 33;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 33i64);
+    LODWORD(v12) = 33;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v11, v12);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rdi] }
-  data = _RDI->m_requestType[0];
-  __asm { vmovups [rsp+78h+var_37], ymm0 }
-  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 33);
-  v11 = v10;
-  if ( v10 != 33 )
+  m_requestPayload = (__m256i)this->m_requestPayload;
+  data = this->m_requestType[0];
+  v15 = m_requestPayload;
+  v8 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 33);
+  v9 = v8;
+  if ( v8 != 33 )
   {
     LODWORD(fmt) = 33;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RDI->m_requestType[0], v10, fmt);
-    v15 = 33;
-    LODWORD(v14) = v11;
-    LODWORD(v13) = (unsigned __int8)_RDI->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v8, fmt);
+    v13 = 33;
+    LODWORD(v12) = v9;
+    LODWORD(v11) = (unsigned __int8)this->m_requestType[0];
+    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v11, v12, v13);
 LABEL_31:
-    if ( v8 )
+    if ( v6 )
       __debugbreak();
   }
 }
@@ -7449,25 +6927,28 @@ void CgEntityWorkersOutputBuilder<CgEntityScriptableSpatialUpdate>::Submit(CgEnt
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v8; 
+  __int64 v6; 
+  bool v7; 
+  double v8; 
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
   char *fmt; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  int v15; 
+  int v14; 
   char data; 
+  double v16; 
   unsigned int partitionIndex; 
 
-  _RBX = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RBX->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RBX->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RBX->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7477,59 +6958,55 @@ void CgEntityWorkersOutputBuilder<CgEntityScriptableSpatialUpdate>::Submit(CgEnt
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RDI = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RDI + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 13 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v13) = 2048;
+        LODWORD(v12) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RDI + 2048))++ + _RDI) = _RBX->m_requestType[0];
-      if ( *(_DWORD *)(_RDI + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v14) = 2048;
-        LODWORD(v13) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v13) = 2048;
+        LODWORD(v12) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      _RCX = *(unsigned int *)(_RDI + 2048);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbx]
-        vmovsd  qword ptr [rcx+rdi], xmm0
-      }
-      *(_DWORD *)(_RCX + _RDI + 8) = _RBX->m_requestPayload.partitionIndex;
-      *(_DWORD *)(_RDI + 2048) += 12;
+      v6 = *(unsigned int *)(v4 + 2048);
+      *(double *)(v6 + v4) = *(double *)&this->m_requestPayload.scriptableIndex;
+      *(_DWORD *)(v6 + v4 + 8) = this->m_requestPayload.partitionIndex;
+      *(_DWORD *)(v4 + 2048) += 12;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RBX->m_requestType[0], 13i64);
-    LODWORD(v14) = 13;
-    LODWORD(v13) = (unsigned __int8)_RBX->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 13i64);
+    LODWORD(v13) = 13;
+    LODWORD(v12) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v12, v13);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rbx] }
-  data = _RBX->m_requestType[0];
-  partitionIndex = _RBX->m_requestPayload.partitionIndex;
-  __asm { vmovsd  [rsp+68h+var_27], xmm0 }
-  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 13);
-  v11 = v10;
-  if ( v10 != 13 )
+  v8 = *(double *)&this->m_requestPayload.scriptableIndex;
+  data = this->m_requestType[0];
+  partitionIndex = this->m_requestPayload.partitionIndex;
+  v16 = v8;
+  v9 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 13);
+  v10 = v9;
+  if ( v9 != 13 )
   {
     LODWORD(fmt) = 13;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RBX->m_requestType[0], v10, fmt);
-    v15 = 13;
-    LODWORD(v14) = v11;
-    LODWORD(v13) = (unsigned __int8)_RBX->m_requestType[0];
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v9, fmt);
+    v14 = 13;
+    LODWORD(v13) = v10;
+    LODWORD(v12) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v12, v13, v14);
 LABEL_31:
-    if ( v8 )
+    if ( v7 )
       __debugbreak();
   }
 }
@@ -7543,25 +7020,30 @@ void CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(CgEntityWorkersO
 {
   const dvar_t *v2; 
   __int64 v3; 
+  __int64 v4; 
   unsigned int v5; 
-  bool v10; 
-  char v12; 
-  unsigned int v15; 
-  unsigned int v16; 
+  __int64 v6; 
+  bool v7; 
+  char v8; 
+  __int128 v9; 
+  unsigned int v10; 
+  unsigned int v11; 
   char *fmt; 
-  __int64 v18; 
-  __int64 v19; 
-  int v20; 
+  __int64 v13; 
+  __int64 v14; 
+  int v15; 
   char data; 
+  __m256i v17; 
+  __int128 v18; 
+  __int64 v19; 
 
-  _RBX = this;
   if ( !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2405, ASSERT_TYPE_ASSERT, "(CG_EntityWorkers_WorkersCurrentlyActive())", (const char *)&queryFormat, "CG_EntityWorkers_WorkersCurrentlyActive()") )
     __debugbreak();
-  if ( !_RBX->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
+  if ( !this->m_beginCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2407, ASSERT_TYPE_ASSERT, "( m_beginCalled )", "Entity Worker Output Builder must call Begin() before Submit()") )
     __debugbreak();
-  if ( _RBX->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
+  if ( this->m_submitCalled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2408, ASSERT_TYPE_ASSERT, "( !m_submitCalled )", "Entity Worker Output Builder called Submit() more than once") )
     __debugbreak();
-  _RBX->m_submitCalled = 1;
+  this->m_submitCalled = 1;
   v2 = DCONST_DVARBOOL_cg_entityWorkersBufferedOutput;
   if ( !DCONST_DVARBOOL_cg_entityWorkersBufferedOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_entityWorkersBufferedOutput") )
     __debugbreak();
@@ -7571,69 +7053,58 @@ void CgEntityWorkersOutputBuilder<CgEntitySoundRequest>::Submit(CgEntityWorkersO
     v3 = tls_index;
     if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1672i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2415, ASSERT_TYPE_ASSERT, "( s_threadLocalEntityOutput != nullptr )", "s_threadLocalEntityOutput was not set while processing entity workers") )
       __debugbreak();
-    _RDI = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
-    v5 = *(_DWORD *)(_RDI + 2048);
+    v4 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1672i64);
+    v5 = *(_DWORD *)(v4 + 2048);
     if ( v5 + 57 <= 0x800 )
     {
       if ( v5 >= 0x800 )
       {
-        LODWORD(v19) = 2048;
-        LODWORD(v18) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v18, v19) )
+        LODWORD(v14) = 2048;
+        LODWORD(v13) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2422, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      *(_BYTE *)((unsigned int)(*(_DWORD *)(_RDI + 2048))++ + _RDI) = _RBX->m_requestType[0];
-      if ( *(_DWORD *)(_RDI + 2048) >= 0x800u )
+      *(_BYTE *)((unsigned int)(*(_DWORD *)(v4 + 2048))++ + v4) = this->m_requestType[0];
+      if ( *(_DWORD *)(v4 + 2048) >= 0x800u )
       {
-        LODWORD(v19) = 2048;
-        LODWORD(v18) = *(_DWORD *)(_RDI + 2048);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v18, v19) )
+        LODWORD(v14) = 2048;
+        LODWORD(v13) = *(_DWORD *)(v4 + 2048);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2426, ASSERT_TYPE_ASSERT, "(unsigned)( output.requestBufferCurSize ) < (unsigned)( ( sizeof( *array_counter( output.requestBuffer ) ) + 0 ) )", "output.requestBufferCurSize doesn't index output.requestBuffer\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      _RAX = *(unsigned int *)(_RDI + 2048);
-      __asm
-      {
-        vmovups ymmword ptr [rax+rdi], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rax+rdi+20h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rax+rdi+30h], xmm0
-      }
-      *(_DWORD *)(_RDI + 2048) += 56;
+      v6 = *(unsigned int *)(v4 + 2048);
+      *(__m256i *)(v6 + v4) = *(__m256i *)&this->m_requestPayload.type;
+      *(_OWORD *)(v6 + v4 + 32) = *(_OWORD *)&this->m_requestPayload.u.vehicleUpdate.speed;
+      *(double *)(v6 + v4 + 48) = *(double *)&this->m_requestPayload.u.vehicleUpdate.gear;
+      *(_DWORD *)(v4 + 2048) += 56;
       return;
     }
-    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)_RBX->m_requestType[0], 57i64);
-    LODWORD(v19) = 57;
-    LODWORD(v18) = (unsigned __int8)_RBX->m_requestType[0];
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v18, v19);
+    Com_PrintError(14, "CgEntityWorkers: Failed to submit task (%d). Can't store %d more bytes.\n", (unsigned __int8)this->m_requestType[0], 57i64);
+    LODWORD(v14) = 57;
+    LODWORD(v13) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2433, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task (%d). Can't store %d more bytes.", v13, v14);
     goto LABEL_31;
   }
   if ( !s_entityWorkers_outputStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2439, ASSERT_TYPE_ASSERT, "( s_entityWorkers_outputStream != nullptr )", "s_entityWorkers_outputStream was not set while processing entity workers") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbx] }
-  v12 = _RBX->m_requestType[0];
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups [rsp+98h+var_57], ymm0
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  [rsp+98h+var_27], xmm0
-  }
-  data = v12;
-  __asm { vmovups [rsp+98h+var_37], xmm1 }
-  v15 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 57);
-  v16 = v15;
-  if ( v15 != 57 )
+  v8 = this->m_requestType[0];
+  v9 = *(_OWORD *)&this->m_requestPayload.u.vehicleUpdate.speed;
+  v17 = *(__m256i *)&this->m_requestPayload.type;
+  v19 = *(_QWORD *)&this->m_requestPayload.u.vehicleUpdate.gear;
+  data = v8;
+  v18 = v9;
+  v10 = MpscStream<524288>::Write(s_entityWorkers_outputStream, &data, 57);
+  v11 = v10;
+  if ( v10 != 57 )
   {
     LODWORD(fmt) = 57;
-    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)_RBX->m_requestType[0], v15, fmt);
-    v20 = 57;
-    LODWORD(v19) = v16;
-    LODWORD(v18) = (unsigned __int8)_RBX->m_requestType[0];
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v18, v19, v20);
+    Com_PrintError(14, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", (unsigned __int8)this->m_requestType[0], v10, fmt);
+    v15 = 57;
+    LODWORD(v14) = v11;
+    LODWORD(v13) = (unsigned __int8)this->m_requestType[0];
+    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity_workers.cpp", 2451, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CgEntityWorkers: Failed to write task of type %d (result = %d, expected %d)\n", v13, v14, v15);
 LABEL_31:
-    if ( v10 )
+    if ( v7 )
       __debugbreak();
   }
 }

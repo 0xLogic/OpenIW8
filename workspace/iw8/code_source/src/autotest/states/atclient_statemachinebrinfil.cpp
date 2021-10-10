@@ -27,105 +27,105 @@ ATClient_StateMachineBRInfilEnter
 */
 void ATClient_StateMachineBRInfilEnter(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
-  const char *v3; 
-  __int64 v4; 
-  const char *v5; 
+  __int64 v1; 
+  const char *v2; 
+  __int64 v3; 
+  const char *v4; 
   const char *Gametype; 
-  signed __int64 v8; 
-  char v9; 
-  __int64 v10; 
-  char v11; 
-  const char *v12; 
-  signed __int64 v13; 
-  char v14; 
-  __int64 v15; 
-  char v16; 
-  int v17; 
+  signed __int64 v7; 
+  char v8; 
+  __int64 v9; 
+  char v10; 
+  const char *v11; 
+  signed __int64 v12; 
+  char v13; 
+  __int64 v14; 
+  char v15; 
+  int v16; 
+  const dvar_t *v17; 
   const dvar_t *v18; 
   const dvar_t *v19; 
-  const dvar_t *v20; 
   __int64 unsignedInt; 
   const clientState_t *LocalClientState; 
   unsigned int TimeAsSeconds; 
   int clientIndex; 
-  unsigned int v25; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
+  unsigned int v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
   unsigned int pHoldrand; 
   AutomatedInput_Record records; 
 
-  v2 = 0x7FFFFFFFi64;
-  v3 = "br";
-  v4 = 0x7FFFFFFFi64;
-  v5 = "br";
+  v1 = 0x7FFFFFFFi64;
+  v2 = "br";
+  v3 = 0x7FFFFFFFi64;
+  v4 = "br";
   Gametype = Party_GetGametype();
   if ( !Gametype && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
-  v8 = Gametype - "br";
+  v7 = Gametype - "br";
   do
   {
-    v9 = v5[v8];
-    v10 = v4;
-    v11 = *v5++;
-    --v4;
-    if ( !v10 )
+    v8 = v4[v7];
+    v9 = v3;
+    v10 = *v4++;
+    --v3;
+    if ( !v9 )
       break;
-    if ( v9 != v11 )
+    if ( v8 != v10 )
     {
-      v12 = Party_GetGametype();
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v11 = Party_GetGametype();
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v13 = v12 - "br";
+      v12 = v11 - "br";
       while ( 1 )
       {
-        v14 = v3[v13];
-        v15 = v2;
-        v16 = *v3++;
-        --v2;
-        if ( !v15 )
+        v13 = v2[v12];
+        v14 = v1;
+        v15 = *v2++;
+        --v1;
+        if ( !v14 )
         {
 LABEL_16:
-          v17 = 0;
+          v16 = 0;
           goto LABEL_17;
         }
-        if ( v14 != v16 )
+        if ( v13 != v15 )
           break;
-        if ( !v14 )
+        if ( !v13 )
           goto LABEL_16;
       }
-      v17 = 1;
-      if ( v14 < v16 )
-        v17 = -1;
+      v16 = 1;
+      if ( v13 < v15 )
+        v16 = -1;
 LABEL_17:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrinfil.cpp", 27, ASSERT_TYPE_ASSERT, "( I_strcmp( Party_GetGametype(), \"br\" ) ) == ( 0 )", "%s == %s\n\t%i, %i", "I_strcmp( Party_GetGametype(), \"br\" )", "0", v17, 0i64) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrinfil.cpp", 27, ASSERT_TYPE_ASSERT, "( I_strcmp( Party_GetGametype(), \"br\" ) ) == ( 0 )", "%s == %s\n\t%i, %i", "I_strcmp( Party_GetGametype(), \"br\" )", "0", v16, 0i64) )
         __debugbreak();
       break;
     }
   }
-  while ( v9 );
-  v18 = DVARINT_ATClient_BRInfil;
+  while ( v8 );
+  v17 = DVARINT_ATClient_BRInfil;
   if ( !DVARINT_ATClient_BRInfil && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_BRInfil") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  if ( v18->current.integer >= 4u )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.integer >= 4u )
   {
-    v19 = DVARINT_ATClient_BRInfil;
+    v18 = DVARINT_ATClient_BRInfil;
     if ( !DVARINT_ATClient_BRInfil && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_BRInfil") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    LODWORD(v30) = 4;
-    LODWORD(v29) = v19->current.integer;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrinfil.cpp", 28, ASSERT_TYPE_ASSERT, "(unsigned)( Dvar_GetInt_Internal_DebugName( DVARINT_ATClient_BRInfil, \"ATClient_BRInfil\" ) ) < (unsigned)( INFIL_OPTION_COUNT + 1 )", "Dvar_GetInt( ATClient_BRInfil ) doesn't index INFIL_OPTION_COUNT + 1\n\t%i not in [0, %i)", v29, v30) )
+    Dvar_CheckFrontendServerThread(v18);
+    LODWORD(v26) = 4;
+    LODWORD(v25) = v18->current.integer;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrinfil.cpp", 28, ASSERT_TYPE_ASSERT, "(unsigned)( Dvar_GetInt_Internal_DebugName( DVARINT_ATClient_BRInfil, \"ATClient_BRInfil\" ) ) < (unsigned)( INFIL_OPTION_COUNT + 1 )", "Dvar_GetInt( ATClient_BRInfil ) doesn't index INFIL_OPTION_COUNT + 1\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
-  v20 = DVARINT_ATClient_BRInfil;
+  v19 = DVARINT_ATClient_BRInfil;
   if ( !DVARINT_ATClient_BRInfil && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_BRInfil") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  unsignedInt = v20->current.unsignedInt;
+  Dvar_CheckFrontendServerThread(v19);
+  unsignedInt = v19->current.unsignedInt;
   if ( (_DWORD)unsignedInt == 3 )
   {
     LocalClientState = ATClient_GetLocalClientState(localClientNum);
@@ -137,36 +137,27 @@ LABEL_17:
       clientIndex = 0;
     pHoldrand = clientIndex + TimeAsSeconds;
     BG_srand(&pHoldrand);
-    v25 = BG_irand(0, 3, &pHoldrand);
+    v24 = BG_irand(0, 3, &pHoldrand);
   }
   else
   {
-    v25 = INFIL_BUTTONS[unsignedInt];
+    v24 = INFIL_BUTTONS[unsignedInt];
   }
   memset(&records.keys, 0, sizeof(records.keys));
-  __asm
+  records.deferTimeSeconds = 0.0;
+  records.holdTimeSeconds = FLOAT_0_25;
+  if ( v24 )
   {
-    vmovss  xmm1, cs:__real@3e800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0C8h+records.deferTimeSeconds], xmm0
-    vmovss  [rsp+0C8h+records.holdTimeSeconds], xmm1
-  }
-  if ( v25 )
-  {
-    if ( v25 >= 0xE0 )
+    if ( v24 >= 0xE0 )
     {
-      LODWORD(v32) = 224;
-      LODWORD(v31) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v31, v32) )
+      LODWORD(v28) = 224;
+      LODWORD(v27) = v24;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v27, v28) )
         __debugbreak();
     }
-    records.keys.keyBits.array[(unsigned __int64)v25 >> 5] |= 0x80000000 >> (v25 & 0x1F);
+    records.keys.keyBits.array[(unsigned __int64)v24 >> 5] |= 0x80000000 >> (v24 & 0x1F);
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rsp+0C8h+records.moveStick], xmm0
-  }
+  *(_OWORD *)records.moveStick.v = 0i64;
   CL_Input_AddAutomatedSequence(localClientNum, &records, 1);
 }
 

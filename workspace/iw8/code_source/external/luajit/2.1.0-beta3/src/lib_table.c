@@ -29,7 +29,6 @@ __int64 lj_cf_table_maxn(lua_State *L)
   __int64 v9; 
   __int64 result; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   v3 = j_lj_lib_checktab(L, 1);
   __asm { vxorpd  xmm6, xmm6, xmm6 }
   v5 = v3->asize - 1i64;
@@ -40,11 +39,8 @@ __int64 lj_cf_table_maxn(lua_State *L)
       if ( --v5 < 0 )
         goto LABEL_6;
     }
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, eax
-    }
+    _XMM6 = 0i64;
+    __asm { vcvtsi2sd xmm6, xmm6, eax }
   }
 LABEL_6:
   hmask = v3->hmask;
@@ -65,13 +61,8 @@ LABEL_6:
     --hmask;
   }
   while ( hmask >= 0 );
-  _RCX = L->top;
   result = 1i64;
-  __asm
-  {
-    vmovsd  qword ptr [rcx-8], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
+  L->top[-1].n = *(double *)&_XMM6;
   return result;
 }
 

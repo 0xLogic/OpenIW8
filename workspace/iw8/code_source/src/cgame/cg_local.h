@@ -69,36 +69,41 @@ void CG_GetEntityOrigin(LocalClientNum_t localClientNum, unsigned int entnum, ve
 {
   const cpose_t *PoseExtended; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v9; 
 
-  _RDI = outOrigin;
   PoseExtended = CG_GetPoseExtended(localClientNum, entnum, 0);
   if ( !PoseExtended && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
   if ( !PoseExtended->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(PoseExtended->origin.Get_origin, PoseExtended);
-  FunctionPointer_origin(&PoseExtended->origin.origin.origin, _RDI);
+  FunctionPointer_origin(&PoseExtended->origin.origin.origin, outOrigin);
   if ( PoseExtended->isPosePrecise )
   {
+    _XMM0 = LODWORD(outOrigin->v[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v9 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v9 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v9;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    _XMM0 = LODWORD(outOrigin->v[1]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    outOrigin->v[0] = *(float *)&_XMM1;
+    *((_QWORD *)&v9 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v9 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v9;
+    _XMM0 = LODWORD(outOrigin->v[2]);
     __asm
     {
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmovd   xmm0, dword ptr [rdi]
-      vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovd   xmm0, dword ptr [rdi+4]
-      vcvtdq2pd xmm0, xmm0
-      vmovss  dword ptr [rdi], xmm1
-      vmulsd  xmm1, xmm0, xmm3
-      vmovd   xmm0, dword ptr [rdi+8]
       vcvtsd2ss xmm2, xmm1, xmm1
       vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rdi+4], xmm2
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vmovss  dword ptr [rdi+8], xmm2
     }
+    *((_QWORD *)&v9 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v9 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v9;
+    outOrigin->v[1] = *(float *)&_XMM2;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    outOrigin->v[2] = *(float *)&_XMM2;
   }
 }
 

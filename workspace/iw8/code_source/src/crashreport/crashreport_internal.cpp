@@ -146,15 +146,19 @@ void CrashReport_AddKVP(const char *key, const char *value)
   char *StringCopy; 
   const char *v10; 
   const char *v11; 
+  CrashReportGlob *v12; 
   signed __int64 v13; 
   const char *v14; 
+  CrashReportGlob *v15; 
+  char *v16; 
   bool v17; 
-  char *v20; 
-  __int64 v21; 
-  const char *v22; 
+  __int128 v18; 
+  char *v19; 
+  __int64 v20; 
+  const char *v21; 
+  char v22; 
   char v23; 
-  char v24; 
-  __int128 v26; 
+  __int128 v25; 
 
   v2 = value;
   if ( !key && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.cpp", 601, ASSERT_TYPE_ASSERT, "(key)", (const char *)&queryFormat, "key") )
@@ -215,14 +219,14 @@ void CrashReport_AddKVP(const char *key, const char *value)
       v10 = StringCopy;
       if ( StringCopy != "_invalidstring_" )
       {
-        *(_QWORD *)&v26 = StringCopy;
+        *(_QWORD *)&v25 = StringCopy;
         v11 = CrashReport_Internal_AllocateStringCopy(v2, 0x100u, 1);
-        _RSI = &s_crashReportGlob.kvps;
+        v12 = (CrashReportGlob *)&s_crashReportGlob.kvps;
         v13 = (signed __int64)(16 * s_crashReportGlob.kvps.m_size) >> 4;
-        *((_QWORD *)&v26 + 1) = v11;
+        *((_QWORD *)&v25 + 1) = v11;
         while ( v13 > 0 )
         {
-          v14 = *(const char **)&_RSI->m_data.m_buffer[16 * (v13 >> 1)];
+          v14 = *(const char **)&v12->heap.m_data.m_buffer[16 * (v13 >> 1)];
           if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 23, ASSERT_TYPE_ASSERT, "(first)", (const char *)&queryFormat, "first") )
             __debugbreak();
           if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 24, ASSERT_TYPE_ASSERT, "(second)", (const char *)&queryFormat, "second") )
@@ -233,84 +237,83 @@ void CrashReport_AddKVP(const char *key, const char *value)
           }
           else
           {
-            _RSI = (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)((char *)_RSI + 16 * (v13 >> 1) + 16);
+            v12 = (CrashReportGlob *)((char *)v12 + 16 * (v13 >> 1) + 16);
             v13 += -1 - (v13 >> 1);
           }
         }
-        if ( _RSI == (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.kvps + 16 * s_crashReportGlob.kvps.m_size) || CrashReport_KeyCompare::operator()(&s_crashReportGlob.kvps.m_keyCompare, v10, *(const char *const *)_RSI->m_data.m_buffer) )
+        if ( v12 == (CrashReportGlob *)((char *)&s_crashReportGlob.kvps + 16 * s_crashReportGlob.kvps.m_size) || CrashReport_KeyCompare::operator()(&s_crashReportGlob.kvps.m_keyCompare, v10, *(const char *const *)v12->heap.m_data.m_buffer) )
         {
           if ( s_crashReportGlob.kvps.m_size == 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
             __debugbreak();
-          if ( (_RSI < &s_crashReportGlob.kvps || _RSI > (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.kvps + 16 * s_crashReportGlob.kvps.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+          if ( (v12 < (CrashReportGlob *)&s_crashReportGlob.kvps || v12 > (CrashReportGlob *)((char *)&s_crashReportGlob.kvps + 16 * s_crashReportGlob.kvps.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
             __debugbreak();
-          if ( (((_BYTE)_RSI - (unsigned __int8)&s_crashReportGlob.kvps) & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+          if ( (((_BYTE)v12 - (unsigned __int8)&s_crashReportGlob.kvps) & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
             __debugbreak();
-          if ( &v26 >= (__int128 *)_RSI && &v26 < (__int128 *)&s_crashReportGlob.kvps.m_data.m_buffer[16 * s_crashReportGlob.kvps.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+          if ( &v25 >= (__int128 *)v12 && &v25 < (__int128 *)&s_crashReportGlob.kvps.m_data.m_buffer[16 * s_crashReportGlob.kvps.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
             __debugbreak();
-          _RBX = (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.kvps + 16 * s_crashReportGlob.kvps.m_size);
-          if ( _RSI != _RBX )
+          v15 = (CrashReportGlob *)((char *)&s_crashReportGlob.kvps + 16 * s_crashReportGlob.kvps.m_size);
+          if ( v12 != v15 )
           {
-            _RDI = &s_crashReportGlob.kvps.m_data.m_buffer[16 * s_crashReportGlob.kvps.m_size + 16];
-            if ( _RSI == (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+            v16 = &s_crashReportGlob.kvps.m_data.m_buffer[16 * s_crashReportGlob.kvps.m_size + 16];
+            if ( v12 == (CrashReportGlob *)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
               __debugbreak();
-            if ( _RBX == (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+            if ( v15 == (CrashReportGlob *)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
               __debugbreak();
-            v17 = _RBX <= _RSI;
-            if ( _RBX < _RSI )
+            v17 = v15 <= v12;
+            if ( v15 < v12 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v17 = _RBX <= _RSI;
+              v17 = v15 <= v12;
             }
             if ( !v17 )
             {
               do
               {
-                __asm { vmovups xmm0, xmmword ptr [rbx-10h] }
-                _RBX = (ntl::fixed_vector_map<char const *,char const *,64,CrashReport_KeyCompare> *)((char *)_RBX - 16);
-                _RDI -= 16;
-                __asm { vmovups xmmword ptr [rdi], xmm0 }
+                v18 = *(_OWORD *)&v15[-1].lock.initialized;
+                v15 = (CrashReportGlob *)((char *)v15 - 16);
+                v16 -= 16;
+                *(_OWORD *)v16 = v18;
               }
-              while ( _RBX > _RSI );
+              while ( v15 > v12 );
             }
           }
-          __asm { vmovups xmm0, [rsp+88h+var_38] }
           ++s_crashReportGlob.kvps.m_size;
-          __asm { vmovups xmmword ptr [rsi], xmm0 }
+          *(_OWORD *)v12->heap.m_data.m_buffer = v25;
         }
       }
     }
   }
   else
   {
-    v20 = *(char **)&p_kvps->m_data.m_buffer[8];
-    if ( v20 == "_invalidstring_" )
+    v19 = *(char **)&p_kvps->m_data.m_buffer[8];
+    if ( v19 == "_invalidstring_" )
     {
 LABEL_84:
       *(_QWORD *)&p_kvps->m_data.m_buffer[8] = CrashReport_Internal_AllocateStringCopy(v2, 0x100u, 1);
     }
     else
     {
-      v21 = 0x7FFFFFFFi64;
-      v22 = v2;
-      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v20 = 0x7FFFFFFFi64;
+      v21 = v2;
+      if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
       do
       {
-        v23 = *v20++;
-        v24 = *v22++;
-        if ( !v21-- )
+        v22 = *v19++;
+        v23 = *v21++;
+        if ( !v20-- )
           break;
-        if ( v23 != v24 )
+        if ( v22 != v23 )
         {
           ntl::nxheap::free((ntl::nxheap *)&s_crashReportGlob, *(void **)&p_kvps->m_data.m_buffer[8]);
           *(_QWORD *)&p_kvps->m_data.m_buffer[8] = "_invalidstring_";
           goto LABEL_84;
         }
       }
-      while ( v23 );
+      while ( v22 );
     }
   }
   if ( Sys_HasValidCurrentThreadContext() )
@@ -355,19 +358,24 @@ CrashReport_AddMemRegion
 void CrashReport_AddMemRegion(const char *name, const void *data, unsigned __int64 dataLen)
 {
   unsigned __int64 m_size; 
+  ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *p_memRegions; 
   signed __int64 v8; 
   const char *v9; 
   bool v10; 
   const char *StringCopy; 
+  ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *v12; 
   signed __int64 v13; 
   const char *v14; 
   signed __int64 v15; 
-  __int64 v17; 
-  const char *v18; 
-  bool v22; 
-  __int128 v29; 
-  __int128 v30; 
-  _BYTE v31[24]; 
+  __int64 v16; 
+  const char *v17; 
+  ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *v18; 
+  char *v19; 
+  bool v20; 
+  __int128 v21; 
+  double v22; 
+  __int128 v23; 
+  _BYTE v24[24]; 
 
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.cpp", 666, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
     __debugbreak();
@@ -391,8 +399,8 @@ LABEL_12:
       return;
     goto LABEL_12;
   }
-  *(_QWORD *)&v29 = data;
-  *((_QWORD *)&v29 + 1) = dataLen;
+  *(_QWORD *)&v23 = data;
+  *((_QWORD *)&v23 + 1) = dataLen;
   if ( Sys_HasValidCurrentThreadContext() )
   {
     Sys_CheckAcquireLock(&s_crashReportGlob.lock);
@@ -402,13 +410,13 @@ LABEL_12:
       __debugbreak();
   }
   m_size = s_crashReportGlob.memRegions.m_size;
-  _R14 = &s_crashReportGlob.memRegions;
+  p_memRegions = &s_crashReportGlob.memRegions;
   v8 = (signed __int64)(24 * s_crashReportGlob.memRegions.m_size) / 24;
   if ( v8 > 0 )
   {
     do
     {
-      v9 = *(const char **)&_R14->m_data.m_buffer[24 * (v8 >> 1)];
+      v9 = *(const char **)&p_memRegions->m_data.m_buffer[24 * (v8 >> 1)];
       if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 23, ASSERT_TYPE_ASSERT, "(first)", (const char *)&queryFormat, "first") )
         __debugbreak();
       if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 24, ASSERT_TYPE_ASSERT, "(second)", (const char *)&queryFormat, "second") )
@@ -419,21 +427,21 @@ LABEL_12:
       }
       else
       {
-        _R14 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)_R14 + 24 * (v8 >> 1) + 24);
+        p_memRegions = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)p_memRegions + 24 * (v8 >> 1) + 24);
         v8 += -1 - (v8 >> 1);
       }
     }
     while ( v8 > 0 );
     m_size = s_crashReportGlob.memRegions.m_size;
   }
-  if ( _R14 != (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * m_size) )
+  if ( p_memRegions != (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * m_size) )
   {
-    v10 = CrashReport_KeyCompare::operator()(&s_crashReportGlob.memRegions.m_keyCompare, name, *(const char *const *)_R14->m_data.m_buffer);
+    v10 = CrashReport_KeyCompare::operator()(&s_crashReportGlob.memRegions.m_keyCompare, name, *(const char *const *)p_memRegions->m_data.m_buffer);
     m_size = s_crashReportGlob.memRegions.m_size;
     if ( v10 )
-      _R14 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size);
+      p_memRegions = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size);
   }
-  if ( _R14 == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * m_size) )
+  if ( p_memRegions == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * m_size) )
   {
     if ( m_size == 16 )
     {
@@ -444,11 +452,11 @@ LABEL_12:
     StringCopy = CrashReport_Internal_AllocateStringCopy(name, 0x80u, 0);
     if ( StringCopy != "_invalidstring_" )
     {
-      _RSI = &s_crashReportGlob.memRegions;
+      v12 = &s_crashReportGlob.memRegions;
       v13 = (signed __int64)(24 * s_crashReportGlob.memRegions.m_size) / 24;
       while ( v13 > 0 )
       {
-        v14 = *(const char **)&_RSI->m_data.m_buffer[24 * (v13 >> 1)];
+        v14 = *(const char **)&v12->m_data.m_buffer[24 * (v13 >> 1)];
         if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 23, ASSERT_TYPE_ASSERT, "(first)", (const char *)&queryFormat, "first") )
           __debugbreak();
         if ( !StringCopy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 24, ASSERT_TYPE_ASSERT, "(second)", (const char *)&queryFormat, "second") )
@@ -459,117 +467,92 @@ LABEL_12:
         }
         else
         {
-          _RSI = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)_RSI + 24 * (v13 >> 1) + 24);
+          v12 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)v12 + 24 * (v13 >> 1) + 24);
           v13 += -1 - (v13 >> 1);
         }
       }
-      if ( _RSI != (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size) && CrashReport_KeyCompare::operator()(&s_crashReportGlob.memRegions.m_keyCompare, StringCopy, *(const char *const *)_RSI->m_data.m_buffer) )
-        _RSI = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size);
+      if ( v12 != (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size) && CrashReport_KeyCompare::operator()(&s_crashReportGlob.memRegions.m_keyCompare, StringCopy, *(const char *const *)v12->m_data.m_buffer) )
+        v12 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size);
       v15 = 24 * s_crashReportGlob.memRegions.m_size;
-      if ( _RSI == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size) )
+      if ( v12 == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size) )
       {
-        *(_QWORD *)v31 = StringCopy;
-        v30 = 0ui64;
-        _RSI = &s_crashReportGlob.memRegions;
-        __asm
+        *(_QWORD *)v24 = StringCopy;
+        v12 = &s_crashReportGlob.memRegions;
+        *(_OWORD *)&v24[8] = 0ui64;
+        v16 = v15 / 24;
+        while ( v16 > 0 )
         {
-          vmovups xmm0, [rsp+0B8h+var_58]
-          vmovups [rsp+0B8h+var_48+8], xmm0
-        }
-        v17 = v15 / 24;
-        while ( v17 > 0 )
-        {
-          v18 = *(const char **)&_RSI->m_data.m_buffer[24 * (v17 >> 1)];
-          if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 23, ASSERT_TYPE_ASSERT, "(first)", (const char *)&queryFormat, "first") )
+          v17 = *(const char **)&v12->m_data.m_buffer[24 * (v16 >> 1)];
+          if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 23, ASSERT_TYPE_ASSERT, "(first)", (const char *)&queryFormat, "first") )
             __debugbreak();
           if ( !StringCopy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\crashreport\\crashreport_internal.h", 24, ASSERT_TYPE_ASSERT, "(second)", (const char *)&queryFormat, "second") )
             __debugbreak();
-          if ( I_stricmp(v18, StringCopy) >= 0 )
+          if ( I_stricmp(v17, StringCopy) >= 0 )
           {
-            v17 >>= 1;
+            v16 >>= 1;
           }
           else
           {
-            _RSI = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)_RSI + 24 * (v17 >> 1) + 24);
-            v17 += -1 - (v17 >> 1);
+            v12 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)v12 + 24 * (v16 >> 1) + 24);
+            v16 += -1 - (v16 >> 1);
           }
         }
-        if ( _RSI == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size) || CrashReport_KeyCompare::operator()(&s_crashReportGlob.memRegions.m_keyCompare, StringCopy, *(const char *const *)_RSI->m_data.m_buffer) )
+        if ( v12 == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size) || CrashReport_KeyCompare::operator()(&s_crashReportGlob.memRegions.m_keyCompare, StringCopy, *(const char *const *)v12->m_data.m_buffer) )
         {
           if ( s_crashReportGlob.memRegions.m_size == 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
             __debugbreak();
-          if ( (_RSI < &s_crashReportGlob.memRegions || _RSI > (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+          if ( (v12 < &s_crashReportGlob.memRegions || v12 > (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
             __debugbreak();
-          if ( (char *)_RSI - (char *)&s_crashReportGlob.memRegions != 24 * (((char *)_RSI - (char *)&s_crashReportGlob.memRegions) / 0x18ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+          if ( (char *)v12 - (char *)&s_crashReportGlob.memRegions != 24 * (((char *)v12 - (char *)&s_crashReportGlob.memRegions) / 0x18ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
             __debugbreak();
-          if ( v31 >= (_BYTE *)_RSI && v31 < &s_crashReportGlob.memRegions.m_data.m_buffer[24 * s_crashReportGlob.memRegions.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+          if ( v24 >= (_BYTE *)v12 && v24 < &s_crashReportGlob.memRegions.m_data.m_buffer[24 * s_crashReportGlob.memRegions.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
             __debugbreak();
-          _RBX = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size);
-          if ( _RSI != _RBX )
+          v18 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)&s_crashReportGlob.memRegions + 24 * s_crashReportGlob.memRegions.m_size);
+          if ( v12 != v18 )
           {
-            _RDI = &s_crashReportGlob.memRegions.m_data.m_buffer[24 * s_crashReportGlob.memRegions.m_size + 24];
-            if ( _RSI == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+            v19 = &s_crashReportGlob.memRegions.m_data.m_buffer[24 * s_crashReportGlob.memRegions.m_size + 24];
+            if ( v12 == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
               __debugbreak();
-            if ( _RBX == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+            if ( v18 == (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
               __debugbreak();
-            v22 = _RBX <= _RSI;
-            if ( _RBX < _RSI )
+            v20 = v18 <= v12;
+            if ( v18 < v12 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v22 = _RBX <= _RSI;
+              v20 = v18 <= v12;
             }
-            if ( !v22 )
+            if ( !v20 )
             {
               do
               {
-                __asm { vmovups xmm0, xmmword ptr [rbx-18h] }
-                _RBX = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)_RBX - 24);
-                _RDI -= 24;
-                __asm
-                {
-                  vmovups xmmword ptr [rdi], xmm0
-                  vmovsd  xmm1, qword ptr [rbx+10h]
-                  vmovsd  qword ptr [rdi+10h], xmm1
-                }
+                v21 = *(_OWORD *)&v18[-1].m_data.m_buffer[376];
+                v18 = (ntl::fixed_vector_map<char const *,CrashReport_MemRegion,16,CrashReport_KeyCompare> *)((char *)v18 - 24);
+                v19 -= 24;
+                *(_OWORD *)v19 = v21;
+                *((double *)v19 + 2) = *(double *)&v18->m_data.m_buffer[16];
               }
-              while ( _RBX > _RSI );
+              while ( v18 > v12 );
             }
           }
           ++s_crashReportGlob.memRegions.m_size;
-          __asm
-          {
-            vmovups xmm0, [rsp+0B8h+var_48]
-            vmovsd  xmm1, [rsp+0B8h+var_38]
-            vmovups xmmword ptr [rsi], xmm0
-            vmovsd  qword ptr [rsi+10h], xmm1
-          }
+          v22 = *(double *)&v24[16];
+          *(_OWORD *)v12->m_data.m_buffer = *(_OWORD *)v24;
+          *(double *)&v12->m_data.m_buffer[16] = v22;
         }
         else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector_map\\fixed_vector_map.h", 84, ASSERT_TYPE_ASSERT, "( retVal.second )", (const char *)&queryFormat, "retVal.second") )
         {
           __debugbreak();
-          __asm
-          {
-            vmovups xmm0, [rsp+0B8h+var_68]
-            vmovups xmmword ptr [rsi+8], xmm0
-          }
+          *(_OWORD *)&v12->m_data.m_buffer[8] = v23;
           goto LABEL_97;
         }
       }
-      __asm
-      {
-        vmovups xmm0, [rsp+0B8h+var_68]
-        vmovups xmmword ptr [rsi+8], xmm0
-      }
+      *(_OWORD *)&v12->m_data.m_buffer[8] = v23;
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, [rsp+0B8h+var_68]
-      vmovups xmmword ptr [r14+8], xmm0
-    }
+    *(_OWORD *)&p_memRegions->m_data.m_buffer[8] = v23;
   }
 LABEL_97:
   if ( Sys_HasValidCurrentThreadContext() )

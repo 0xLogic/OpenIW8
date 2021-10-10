@@ -113,48 +113,41 @@ bool __fastcall CG_ScoreboardMP_IsPlayerDogtagAvailable(const score_t *score)
 CG_ScoreBoardMP_GetAveragePing
 ==============
 */
-
-__int64 __fastcall CG_ScoreBoardMP_GetAveragePing(LocalClientNum_t localClientNum, double _XMM1_8)
+__int64 CG_ScoreBoardMP_GetAveragePing(LocalClientNum_t localClientNum)
 {
   CgGlobalsMP *LocalClientGlobals; 
-  int v4; 
-  int v5; 
+  unsigned int v2; 
+  unsigned int v3; 
   __int64 numScores; 
   bool *p_isBot; 
-  int v8; 
-  __int64 result; 
+  int v6; 
+  float v7; 
+  float v8; 
 
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  v4 = 0;
-  v5 = 0;
+  v2 = 0;
+  v3 = 0;
   numScores = LocalClientGlobals->numScores;
   if ( numScores <= 0 )
     return 0i64;
   p_isBot = &LocalClientGlobals->scores[0].isBot;
   do
   {
-    v8 = *((_DWORD *)p_isBot - 3);
-    if ( v8 > 0 && !*p_isBot )
+    v6 = *((_DWORD *)p_isBot - 3);
+    if ( v6 > 0 && !*p_isBot )
     {
-      v5 += v8;
-      ++v4;
+      v3 += v6;
+      ++v2;
     }
     p_isBot += 112;
     --numScores;
   }
   while ( numScores );
-  if ( !v4 )
+  if ( !v2 )
     return 0i64;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm1, xmm0
-    vcvttss2si rax, xmm1
-  }
-  return result;
+  v7 = (float)v3;
+  v8 = (float)v2;
+  return (unsigned int)(int)(float)(v7 / v8);
 }
 
 /*

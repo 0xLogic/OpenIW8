@@ -75,9 +75,9 @@ char OnlineBinPacker<256,256>::Pack(OnlineBinPacker<256,256> *this, const int wi
   int v29; 
   bool rotated; 
   int v31; 
-  int v34; 
+  int v32; 
   BestPackingInfo bestPackInfo; 
-  int v38; 
+  int v36; 
 
   v7 = width;
   if ( width <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\binpack.h", 122, ASSERT_TYPE_ASSERT, "(width > 0)", (const char *)&queryFormat, "width > 0") )
@@ -95,7 +95,7 @@ char OnlineBinPacker<256,256>::Pack(OnlineBinPacker<256,256> *this, const int wi
   v10 = 0x7FFFFFFF;
   v11 = 0;
   bestPackInfo.bestWidth = 0x7FFFFFFF;
-  v38 = SkylineSegmentCount;
+  v36 = SkylineSegmentCount;
   v12 = 0x7FFFFFFF;
   bestPackInfo.bestHeight = 0x7FFFFFFF;
   v13 = -1;
@@ -149,7 +149,7 @@ LABEL_21:
             goto LABEL_21;
         }
       }
-      SkylineSegmentCount = v38;
+      SkylineSegmentCount = v36;
     }
     if ( !allowRotation )
       goto LABEL_40;
@@ -179,7 +179,7 @@ LABEL_21:
           goto LABEL_35;
       }
 LABEL_39:
-      SkylineSegmentCount = v38;
+      SkylineSegmentCount = v36;
 LABEL_40:
       rotated = bestPackInfo.bestPack.rotated;
       goto LABEL_41;
@@ -199,7 +199,7 @@ LABEL_38:
         v13 = v11;
         rotated = 1;
         bestPackInfo.bestHeight = v29;
-        SkylineSegmentCount = v38;
+        SkylineSegmentCount = v36;
         bestPackInfo.bestPack.rotated = 1;
         bestPackInfo.bestWidth = v10;
         bestPackInfo.bestPack.x = v16;
@@ -209,7 +209,7 @@ LABEL_38:
       goto LABEL_39;
     }
     rotated = bestPackInfo.bestPack.rotated;
-    SkylineSegmentCount = v38;
+    SkylineSegmentCount = v36;
 LABEL_41:
     v8 = this;
     ++v11;
@@ -231,11 +231,9 @@ LABEL_41:
       v7 = height;
     }
     OnlineBinPacker<256,256>::UpdateSkyline(this, &bestPackInfo, v31, v7);
-    _RCX = out;
-    __asm { vmovsd  xmm0, qword ptr [rsp+88h+bestPackInfo.bestPack.x] }
-    v34 = *(_DWORD *)&bestPackInfo.bestPack.rotated;
-    __asm { vmovsd  qword ptr [rcx], xmm0 }
-    *(_DWORD *)&out->rotated = v34;
+    v32 = *(_DWORD *)&bestPackInfo.bestPack.rotated;
+    *(double *)&out->x = *(double *)&bestPackInfo.bestPack.x;
+    *(_DWORD *)&out->rotated = v32;
   }
   return 1;
 }
@@ -261,12 +259,15 @@ void OnlineBinPacker<256,256>::UpdateSkyline(OnlineBinPacker<256,256> *this, con
   int v17; 
   bool v18; 
   int v19; 
-  __int64 v23; 
-  int v25; 
-  SkylineSegment *v27; 
-  SkylineSegment *v28; 
-  int v29; 
-  int v30; 
+  SkylineSegment *v20; 
+  __int64 v21; 
+  __int64 v22; 
+  SkylineSegment *v23; 
+  int v24; 
+  SkylineSegment *v25; 
+  SkylineSegment *v26; 
+  int v27; 
+  int v28; 
 
   skylineSegmentIndex = bestPackInfo->skylineSegmentIndex;
   v7 = height + bestPackInfo->bestPack.y;
@@ -311,21 +312,17 @@ LABEL_21:
     v13 = skylineSegmentIndex;
     if ( SkylineSegmentCount - 1 >= (__int64)skylineSegmentIndex )
     {
-      v23 = SkylineSegmentCount - 1 - (__int64)skylineSegmentIndex + 1;
-      _RCX = &this->Skyline[SkylineSegmentCount - 1];
+      v22 = SkylineSegmentCount - 1 - (__int64)skylineSegmentIndex + 1;
+      v23 = &this->Skyline[SkylineSegmentCount - 1];
       do
       {
-        v25 = _RCX->Width;
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rcx]
-          vmovsd  qword ptr [rcx+0Ch], xmm0
-        }
-        _RCX[1].Width = v25;
-        --_RCX;
+        v24 = v23->Width;
+        *(double *)&v23[1].X = *(double *)&v23->X;
+        v23[1].Width = v24;
         --v23;
+        --v22;
       }
-      while ( v23 );
+      while ( v22 );
       SkylineSegmentCount = this->SkylineSegmentCount;
     }
     this->SkylineSegmentCount = SkylineSegmentCount + 1;
@@ -347,30 +344,26 @@ LABEL_21:
       v19 = skylineSegmentIndex + 1;
       if ( skylineSegmentIndex + 1 < this->SkylineSegmentCount )
       {
-        _RDX = &this->Skyline[v19];
-        _RCX = 12i64 * v16 - 12;
+        v20 = &this->Skyline[v19];
+        v21 = 12i64 * v16 - 12;
         do
         {
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rcx+rdx]
-            vmovsd  qword ptr [rdx], xmm0
-          }
+          *(double *)&v20->X = *(double *)((char *)&v20->X + v21);
           ++v19;
-          _RDX->Width = *(int *)((char *)&_RDX->Width + _RCX);
-          ++_RDX;
+          v20->Width = *(int *)((char *)&v20->Width + v21);
+          ++v20;
         }
         while ( v19 < this->SkylineSegmentCount );
       }
     }
   }
-  v27 = &this->Skyline[v13];
-  v27->Width = width;
-  v28 = &this->Skyline[v13 + 1];
-  v27->Y = v7;
-  v29 = v27->X + width - v28->X;
-  v30 = v29 + v28->X;
-  v28->Width -= v29;
-  v28->X = v30;
+  v25 = &this->Skyline[v13];
+  v25->Width = width;
+  v26 = &this->Skyline[v13 + 1];
+  v25->Y = v7;
+  v27 = v25->X + width - v26->X;
+  v28 = v27 + v26->X;
+  v26->Width -= v27;
+  v26->X = v28;
 }
 

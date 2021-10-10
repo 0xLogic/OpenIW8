@@ -7,41 +7,63 @@ int socket_accept(unsigned __int64 *ps, unsigned __int64 *pa, sockaddr *addr, in
 {
   unsigned __int64 v8; 
   int result; 
-  unsigned __int64 v11; 
+  unsigned __int64 v13; 
+  const struct timeval *timeout; 
+  __int128 v19; 
+  int v22; 
+  unsigned __int64 v23; 
+  int v24[4]; 
+  fd_set readfds; 
+  __int128 v26; 
 
-  _RDI = tm;
   v8 = *ps;
   if ( v8 == -1i64 )
     return -2;
-  __asm
+  v26 = _XMM6;
+  v13 = accept(v8, addr, len);
+  *pa = v13;
+  if ( v13 != -1i64 )
+    return 0;
+  __asm { vxorpd  xmm6, xmm6, xmm6 }
+  while ( 1 )
   {
-    vmovaps [rsp+2B8h+var_48], xmm6
-    vmovaps [rsp+2B8h+var_58], xmm7
-  }
-  v11 = accept(v8, addr, len);
-  *pa = v11;
-  if ( v11 == -1i64 )
-  {
-    __asm
-    {
-      vmovsd  xmm7, cs:__real@412e848000000000
-      vxorpd  xmm6, xmm6, xmm6
-    }
     result = WSAGetLastError();
-    if ( result == 10035 || result == 10053 )
+    if ( result != 10035 && result != 10053 )
+      break;
+    timeout = NULL;
+    if ( *(double *)&_XMM6 == tm->block )
+      return -1;
+    readfds.fd_array[0] = *ps;
+    readfds.fd_count = 1;
+    *(double *)&_XMM0 = j_timeout_get(tm);
+    if ( *(double *)&_XMM0 >= *(double *)&_XMM6 )
     {
-      __asm { vucomisd xmm6, qword ptr [rdi] }
-      result = -1;
+      __asm { vcvttsd2si eax, xmm0 }
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, eax }
+      *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v19 = (*(double *)&_XMM0 - *(double *)&_XMM1) * 1000000.0;
+      _XMM2 = v19;
+      v24[0] = _EAX;
+      timeout = (const struct timeval *)v24;
+      __asm { vcvttsd2si eax, xmm2 }
+      v24[1] = _EAX;
     }
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+2B8h+var_48]
-    vmovaps xmm7, [rsp+2B8h+var_58]
+    v22 = select(0, &readfds, NULL, NULL, timeout);
+    if ( v22 == -1 )
+    {
+      result = WSAGetLastError();
+      if ( result )
+        return result;
+    }
+    else if ( !v22 )
+    {
+      return -1;
+    }
+    v23 = accept(*ps, addr, len);
+    *pa = v23;
+    if ( v23 != -1i64 )
+      return 0;
   }
   return result;
 }
@@ -93,7 +115,6 @@ int socket_connect(unsigned __int64 *ps, sockaddr *addr, int len, t_timeout_ *tm
   int optlen[6]; 
   int optval; 
 
-  _RBX = tm;
   v7 = *ps;
   if ( v7 == -1i64 )
     return -2;
@@ -104,18 +125,14 @@ int socket_connect(unsigned __int64 *ps, sockaddr *addr, int len, t_timeout_ *tm
     optval = result;
     if ( (unsigned int)(result - 10035) <= 1 )
     {
-      __asm
-      {
-        vxorpd  xmm0, xmm0, xmm0
-        vucomisd xmm0, qword ptr [rbx]
-      }
-      if ( result == 10036 )
+      __asm { vxorpd  xmm0, xmm0, xmm0 }
+      if ( *(double *)&_XMM0 == tm->block )
       {
         return -1;
       }
       else
       {
-        result = j_socket_waitfd(ps, 6, _RBX);
+        result = j_socket_waitfd(ps, 6, tm);
         optval = result;
         if ( result == -2 )
         {
@@ -455,37 +472,38 @@ socket_select
 */
 int socket_select(unsigned __int64 n, fd_set *rfds, fd_set *wfds, fd_set *efds, t_timeout_ *tm)
 {
-  struct timeval timeout; 
+  __int128 v13; 
+  double v16; 
+  __int128 v18; 
+  const struct timeval *timeout; 
+  int v23; 
+  int v24; 
 
   *(double *)&_XMM0 = j_timeout_get(tm);
   __asm { vcvttsd2si eax, xmm0 }
-  timeout.tv_sec = _EAX;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, eax
-    vsubsd  xmm2, xmm0, xmm1
-    vmulsd  xmm3, xmm2, cs:__real@412e848000000000
-    vcvttsd2si eax, xmm3
-  }
-  timeout.tv_usec = _EAX;
-  __asm { vmovaps xmm4, xmm0 }
+  v23 = _EAX;
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, eax }
+  *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v13 = (*(double *)&_XMM0 - *(double *)&_XMM1) * 1000000.0;
+  _XMM3 = v13;
+  __asm { vcvttsd2si eax, xmm3 }
+  v24 = _EAX;
+  v16 = *(double *)&_XMM0;
   if ( n )
   {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vcomisd xmm4, xmm0
-    }
-    return select(0, rfds, wfds, efds, &timeout);
+    timeout = (const struct timeval *)&v23;
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( v16 < *(double *)&_XMM0 )
+      timeout = NULL;
+    return select(0, rfds, wfds, efds, timeout);
   }
   else
   {
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:__real@408f400000000000
-      vcvttsd2si rcx, xmm0; dwMilliseconds
-    }
+    *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v18 = *(double *)&_XMM0 * 1000.0;
+    _XMM0 = v18;
+    __asm { vcvttsd2si rcx, xmm0; dwMilliseconds }
     Sleep(_RCX);
     return 0;
   }
@@ -499,43 +517,74 @@ socket_send
 int socket_send(unsigned __int64 *ps, const char *data, unsigned __int64 count, unsigned __int64 *sent, t_timeout_ *tm)
 {
   unsigned __int64 v9; 
+  int v10; 
   int result; 
-  int v11; 
+  int v13; 
+  const struct timeval *timeout; 
+  __int128 v19; 
+  int v22; 
+  int v23[4]; 
+  fd_set exceptfds; 
+  fd_set writefds; 
+  __int128 v26; 
 
-  _RDI = tm;
   *sent = 0i64;
   v9 = *ps;
+  v10 = count;
   if ( v9 == -1i64 )
     return -2;
-  __asm
+  v26 = _XMM6;
+  v13 = send(v9, data, count, 0);
+  if ( v13 > 0 )
   {
-    vmovaps [rsp+4C8h+var_48], xmm6
-    vmovaps [rsp+4C8h+var_58], xmm7
-  }
-  v11 = send(v9, data, count, 0);
-  if ( v11 > 0 )
-  {
-    *sent = v11;
-    result = 0;
+LABEL_14:
+    *sent = v13;
+    return 0;
   }
   else
   {
-    __asm
+    __asm { vxorpd  xmm6, xmm6, xmm6 }
+    while ( 1 )
     {
-      vmovsd  xmm7, cs:__real@412e848000000000
-      vxorpd  xmm6, xmm6, xmm6
+      result = WSAGetLastError();
+      if ( result != 10035 )
+        break;
+      timeout = NULL;
+      if ( *(double *)&_XMM6 == tm->block )
+        return -1;
+      writefds.fd_array[0] = *ps;
+      exceptfds.fd_array[0] = writefds.fd_array[0];
+      writefds.fd_count = 1;
+      exceptfds.fd_count = 1;
+      *(double *)&_XMM0 = j_timeout_get(tm);
+      if ( *(double *)&_XMM0 >= *(double *)&_XMM6 )
+      {
+        __asm { vcvttsd2si eax, xmm0 }
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, eax }
+        *((_QWORD *)&v19 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v19 = (*(double *)&_XMM0 - *(double *)&_XMM1) * 1000000.0;
+        _XMM2 = v19;
+        v23[0] = _EAX;
+        timeout = (const struct timeval *)v23;
+        __asm { vcvttsd2si eax, xmm2 }
+        v23[1] = _EAX;
+      }
+      v22 = select(0, NULL, &writefds, &exceptfds, timeout);
+      if ( v22 == -1 )
+      {
+        result = WSAGetLastError();
+        if ( result )
+          return result;
+      }
+      else if ( !v22 )
+      {
+        return -1;
+      }
+      v13 = send(*ps, data, v10, 0);
+      if ( v13 > 0 )
+        goto LABEL_14;
     }
-    result = WSAGetLastError();
-    if ( result == 10035 )
-    {
-      __asm { vucomisd xmm6, qword ptr [rdi] }
-      result = -1;
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+4C8h+var_48]
-    vmovaps xmm7, [rsp+4C8h+var_58]
   }
   return result;
 }
@@ -547,44 +596,75 @@ socket_sendto
 */
 int socket_sendto(unsigned __int64 *ps, const char *data, unsigned __int64 count, unsigned __int64 *sent, sockaddr *addr, int len, t_timeout_ *tm)
 {
-  unsigned __int64 v11; 
+  int v11; 
+  unsigned __int64 v12; 
   int result; 
-  int v13; 
+  int v15; 
+  const struct timeval *v17; 
+  __int128 v21; 
+  int v24; 
+  int v25[4]; 
+  fd_set exceptfds; 
+  fd_set writefds; 
+  __int128 v28; 
 
-  _RDI = tm;
   *sent = 0i64;
-  v11 = *ps;
-  if ( v11 == -1i64 )
+  v11 = count;
+  v12 = *ps;
+  if ( v12 == -1i64 )
     return -2;
-  __asm
+  v28 = _XMM6;
+  v15 = sendto(v12, data, count, 0, addr, len);
+  if ( v15 > 0 )
   {
-    vmovaps [rsp+4D8h+var_58], xmm6
-    vmovaps [rsp+4D8h+var_68], xmm7
-  }
-  v13 = sendto(v11, data, count, 0, addr, len);
-  if ( v13 > 0 )
-  {
-    *sent = v13;
-    result = 0;
+LABEL_14:
+    *sent = v15;
+    return 0;
   }
   else
   {
-    __asm
+    __asm { vxorpd  xmm6, xmm6, xmm6 }
+    while ( 1 )
     {
-      vmovsd  xmm7, cs:__real@412e848000000000
-      vxorpd  xmm6, xmm6, xmm6
+      result = WSAGetLastError();
+      if ( result != 10035 )
+        break;
+      v17 = NULL;
+      if ( *(double *)&_XMM6 == tm->block )
+        return -1;
+      writefds.fd_array[0] = *ps;
+      exceptfds.fd_array[0] = writefds.fd_array[0];
+      writefds.fd_count = 1;
+      exceptfds.fd_count = 1;
+      *(double *)&_XMM0 = j_timeout_get(tm);
+      if ( *(double *)&_XMM0 >= *(double *)&_XMM6 )
+      {
+        __asm { vcvttsd2si eax, xmm0 }
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, eax }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v21 = (*(double *)&_XMM0 - *(double *)&_XMM1) * 1000000.0;
+        _XMM2 = v21;
+        v25[0] = _EAX;
+        v17 = (const struct timeval *)v25;
+        __asm { vcvttsd2si eax, xmm2 }
+        v25[1] = _EAX;
+      }
+      v24 = select(0, NULL, &writefds, &exceptfds, v17);
+      if ( v24 == -1 )
+      {
+        result = WSAGetLastError();
+        if ( result )
+          return result;
+      }
+      else if ( !v24 )
+      {
+        return -1;
+      }
+      v15 = sendto(*ps, data, v11, 0, addr, len);
+      if ( v15 > 0 )
+        goto LABEL_14;
     }
-    result = WSAGetLastError();
-    if ( result == 10035 )
-    {
-      __asm { vucomisd xmm6, qword ptr [rdi] }
-      result = -1;
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+4D8h+var_58]
-    vmovaps xmm7, [rsp+4D8h+var_68]
   }
   return result;
 }
@@ -681,19 +761,70 @@ const char *socket_strerror(int err)
 socket_waitfd
 ==============
 */
-__int64 socket_waitfd(unsigned __int64 *ps, int sw, t_timeout_ *tm)
+int socket_waitfd(unsigned __int64 *ps, int sw, t_timeout_ *tm)
 {
-  __int64 result; 
+  fd_set *v5; 
+  fd_set *v9; 
+  fd_set *v10; 
+  const struct timeval *timeout; 
+  __int128 v15; 
+  int v18; 
+  int v20[4]; 
+  fd_set v21; 
+  int v22; 
+  unsigned __int64 v23; 
+  int v24; 
+  unsigned __int64 v25; 
+  __int128 v26; 
 
-  __asm
+  v26 = _XMM6;
+  v5 = NULL;
+  __asm { vxorpd  xmm6, xmm6, xmm6 }
+  v9 = NULL;
+  v10 = NULL;
+  timeout = NULL;
+  if ( *(double *)&_XMM6 == tm->block )
+    return -1;
+  if ( (sw & 1) != 0 )
   {
-    vmovaps [rsp+6B8h+var_38], xmm6
-    vxorpd  xmm6, xmm6, xmm6
-    vucomisd xmm6, qword ptr [r8]
+    v5 = (fd_set *)&v22;
+    v23 = *ps;
+    v22 = 1;
   }
-  result = 0xFFFFFFFFi64;
-  __asm { vmovaps xmm6, [rsp+6B8h+var_38] }
-  return result;
+  if ( (sw & 2) != 0 )
+  {
+    v9 = (fd_set *)&v24;
+    v25 = *ps;
+    v24 = 1;
+  }
+  if ( (sw & 6) != 0 )
+  {
+    v10 = &v21;
+    v21.fd_array[0] = *ps;
+    v21.fd_count = 1;
+  }
+  *(double *)&_XMM0 = j_timeout_get(tm);
+  if ( *(double *)&_XMM0 >= *(double *)&_XMM6 )
+  {
+    __asm { vcvttsd2si eax, xmm0 }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, eax }
+    *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v15 = (*(double *)&_XMM0 - *(double *)&_XMM1) * 1000000.0;
+    _XMM2 = v15;
+    v20[0] = _EAX;
+    timeout = (const struct timeval *)v20;
+    __asm { vcvttsd2si eax, xmm2 }
+    v20[1] = _EAX;
+  }
+  v18 = select(0, v5, v9, v10, timeout);
+  if ( v18 == -1 )
+    return WSAGetLastError();
+  if ( !v18 )
+    return -1;
+  if ( sw == 6 && _WSAFDIsSet_0(*ps, &v21) )
+    return -2;
+  return 0;
 }
 
 /*

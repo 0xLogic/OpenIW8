@@ -1113,13 +1113,7 @@ void GScr_Weapon_GetFireTime(scrContext_t *scrContext, const GScrWeaponData *dat
 
   isDualWielding = BG_WeaponIsDualWield(&data->weapon);
   BG_GetFireTime(NULL, NULL, &data->weapon, data->isAlternate, isDualWielding, 0, &fireTime, &fireDelay);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+48h+arg_8]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)fireTime * 0.001);
 }
 
 /*
@@ -1233,45 +1227,25 @@ void GScr_Weapon_SpawnFromString(scrContext_t *scrContext)
 {
   const char *String; 
   bool IsAlternate; 
-  int v11; 
+  int v4; 
   Weapon result; 
   Weapon r_weapon; 
 
   if ( Scr_GetType(scrContext, 0) )
   {
     String = Scr_GetString(scrContext, 0);
-    _RAX = GScr_Main_GetWeaponForName(&result, scrContext, String);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0B8h+r_weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    r_weapon = *GScr_Main_GetWeaponForName(&result, scrContext, String);
     IsAlternate = BG_IsAlternate(String);
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rsp+0B8h+r_weapon.weaponIdx], ymm0
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
+    memset(&r_weapon, 0, 48);
     *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
     IsAlternate = 0;
-    __asm
-    {
-      vmovsd  qword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+15h], xmm0
-      vmovups xmmword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+5], xmm1
-    }
+    *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   }
-  v11 = GScr_Weapon_Create(scrContext, &r_weapon, IsAlternate);
-  Scr_AddEntityNum(scrContext, v11, ENTITY_CLASS_SAVED_COUNT);
+  v4 = GScr_Weapon_Create(scrContext, &r_weapon, IsAlternate);
+  Scr_AddEntityNum(scrContext, v4, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1473,33 +1447,25 @@ GScr_Weapon_WithAttachments
 */
 void GScr_Weapon_WithAttachments(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v7; 
+  const GScrWeaponData *WeaponData; 
+  int v4; 
   Weapon outWeapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RDI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RDI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RDI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2674, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+88h+outWeapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+88h+outWeapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+88h+outWeapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&outWeapon.weaponCamo = *(_DWORD *)&_RDI->weapon.weaponCamo;
+  outWeapon = WeaponData->weapon;
   if ( Scr_GetType(scrContext, 0) )
   {
     if ( outWeapon.weaponIdx )
@@ -1507,10 +1473,10 @@ LABEL_7:
     else
       Scr_Error(COM_ERR_5203, scrContext, "Cannot set the attachments on null weapon");
   }
-  if ( !BG_ActiveUnderbarrel(&outWeapon) && _RDI->isAlternate )
+  if ( !BG_ActiveUnderbarrel(&outWeapon) && WeaponData->isAlternate )
     Scr_Error(COM_ERR_5204, scrContext, "Trying to set underbarrel attachment without alt fire mode on a weapon in alt mode");
-  v7 = GScr_Weapon_Create(scrContext, &outWeapon, _RDI->isAlternate);
-  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
+  v4 = GScr_Weapon_Create(scrContext, &outWeapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v4, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1521,51 +1487,40 @@ GScr_Weapon_WithoutAttachments
 
 void __fastcall GScr_Weapon_WithoutAttachments(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
 {
-  bool v12; 
-  int v13; 
-  int v14; 
+  const GScrWeaponData *WeaponData; 
+  bool v6; 
+  int v7; 
+  int v8; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RBX = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RBX )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RBX = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2715, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
+  r_weapon = WeaponData->weapon;
+  if ( LOWORD(_XMM2_8) )
   {
-    vmovups ymm2, ymmword ptr [rbx]
-    vmovups ymmword ptr [rbp+57h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rbp+57h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rbp+57h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( (_WORD)_EAX )
-  {
-    __asm { vmovups ymm2, ymmword ptr [rbx] }
-    v14 = *(_DWORD *)&_RBX->weapon.weaponCamo;
+    v8 = *(_DWORD *)&WeaponData->weapon.weaponCamo;
     *(_WORD *)&r_weapon.scopeVariation = 0;
     memset(&r_weapon.stickerIndices[3], 0, 48);
-    __asm { vmovd   eax, xmm2 }
-    *(_QWORD *)&r_weapon.weaponIdx = (unsigned __int16)_EAX;
-    *(_WORD *)&r_weapon.weaponCamo = v14;
+    *(_QWORD *)&r_weapon.weaponIdx = LOWORD(_XMM2_8);
+    *(_WORD *)&r_weapon.weaponCamo = v8;
     __asm { vpextrq rax, xmm2, 1 }
     r_weapon.weaponClientLoadout = WORD1(_RAX);
   }
-  v12 = BG_ActiveUnderbarrel(&r_weapon) && _RBX->isAlternate;
-  v13 = GScr_Weapon_Create(scrContext, &r_weapon, v12);
-  Scr_AddEntityNum(scrContext, v13, ENTITY_CLASS_SAVED_COUNT);
+  v6 = BG_ActiveUnderbarrel(&r_weapon) && WeaponData->isAlternate;
+  v7 = GScr_Weapon_Create(scrContext, &r_weapon, v6);
+  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1576,46 +1531,38 @@ GScr_Weapon_WithAttachment
 void GScr_Weapon_WithAttachment(scrContext_t *scrContext, scr_entref_t entref)
 {
   int Int; 
+  const GScrWeaponData *WeaponData; 
   scr_string_t ConstString; 
-  int v9; 
-  int v10; 
+  int v6; 
+  int v7; 
   Weapon r_weapon; 
 
   Int = 0;
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RDI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RDI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RDI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2745, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0A8h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+0A8h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+0A8h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RDI->weapon.weaponCamo;
+  r_weapon = WeaponData->weapon;
   ConstString = Scr_GetConstString(scrContext, 0);
-  v9 = -1;
+  v6 = -1;
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_INTEGER )
   {
-    v9 = 1;
+    v6 = 1;
     Int = Scr_GetInt(scrContext, 1u);
   }
-  GScr_Weapon_AddAttachmentToWeapon(scrContext, 0, v9, ConstString, Int, 0, &r_weapon);
-  v10 = GScr_Weapon_Create(scrContext, &r_weapon, _RDI->isAlternate);
-  Scr_AddEntityNum(scrContext, v10, ENTITY_CLASS_SAVED_COUNT);
+  GScr_Weapon_AddAttachmentToWeapon(scrContext, 0, v6, ConstString, Int, 0, &r_weapon);
+  v7 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1625,38 +1572,30 @@ GScr_Weapon_WithoutAttachment
 */
 void GScr_Weapon_WithoutAttachment(scrContext_t *scrContext, scr_entref_t entref)
 {
+  const GScrWeaponData *WeaponData; 
   scr_string_t ConstString; 
-  int v8; 
+  int v5; 
   Weapon outWeapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RBX = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RBX )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RBX = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2781, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsp+88h+outWeapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+88h+outWeapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rsp+88h+outWeapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&outWeapon.weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
+  outWeapon = WeaponData->weapon;
   ConstString = Scr_GetConstString(scrContext, 0);
   GScr_Weapon_RemoveAttachmentFromWeapon(scrContext, 0, ConstString, &outWeapon);
-  v8 = GScr_Weapon_Create(scrContext, &outWeapon, _RBX->isAlternate);
-  Scr_AddEntityNum(scrContext, v8, ENTITY_CLASS_SAVED_COUNT);
+  v5 = GScr_Weapon_Create(scrContext, &outWeapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v5, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1665,92 +1604,81 @@ GScr_Weapon_WithOtherAttachment
 ==============
 */
 
-void __fastcall GScr_Weapon_WithOtherAttachment(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void __fastcall GScr_Weapon_WithOtherAttachment(scrContext_t *scrContext, scr_entref_t entref, double a3)
 {
   int Int; 
-  __int64 v10; 
-  WeaponCompleteDef *v11; 
+  const GScrWeaponData *WeaponData; 
+  WeaponCompleteDef *v6; 
   scr_string_t ConstString; 
-  unsigned __int16 v13; 
-  unsigned __int8 v14; 
+  unsigned __int16 v8; 
+  unsigned __int8 v9; 
   const char *WeaponBaseName; 
   const char *String; 
-  const char *v17; 
-  int v18; 
-  __int64 v19; 
-  __int64 v20; 
+  const char *v12; 
+  int v13; 
+  __int64 v14; 
+  __int64 v15; 
   unsigned __int16 outAttachmentIndex; 
   Weapon r_weapon; 
 
   Int = 0;
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RSI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RSI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RSI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2811, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
+  r_weapon = WeaponData->weapon;
+  if ( LOWORD(a3) > bg_lastParsedWeaponIndex )
   {
-    vmovups ymm2, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+0B8h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rsi+30h]
-    vmovsd  qword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RSI->weapon.weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  v10 = (unsigned __int16)_EAX;
-  if ( (unsigned __int16)_EAX > bg_lastParsedWeaponIndex )
-  {
-    LODWORD(v19) = (unsigned __int16)_EAX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v19, bg_lastParsedWeaponIndex) )
+    LODWORD(v14) = LOWORD(a3);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v14, bg_lastParsedWeaponIndex) )
       __debugbreak();
   }
-  if ( !bg_weaponCompleteDefs[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+  if ( !bg_weaponCompleteDefs[LOWORD(a3)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
     __debugbreak();
-  v11 = bg_weaponCompleteDefs[v10];
+  v6 = bg_weaponCompleteDefs[LOWORD(a3)];
   ConstString = Scr_GetConstString(scrContext, 0);
-  if ( GScr_Weapon_GetAttachmentIndex(ConstString, v11->attachments[13].attachments, v11->attachments[13].attachmentCount, &outAttachmentIndex) )
+  if ( GScr_Weapon_GetAttachmentIndex(ConstString, v6->attachments[13].attachments, v6->attachments[13].attachmentCount, &outAttachmentIndex) )
   {
-    v13 = outAttachmentIndex;
-    if ( outAttachmentIndex >= v11->attachments[13].attachmentCount )
+    v8 = outAttachmentIndex;
+    if ( outAttachmentIndex >= v6->attachments[13].attachmentCount )
     {
-      LODWORD(v20) = v11->attachments[13].attachmentCount;
-      LODWORD(v19) = outAttachmentIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2821, ASSERT_TYPE_ASSERT, "(unsigned)( otherIndex ) < (unsigned)( otherList->attachmentCount )", "otherIndex doesn't index otherList->attachmentCount\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v15) = v6->attachments[13].attachmentCount;
+      LODWORD(v14) = outAttachmentIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2821, ASSERT_TYPE_ASSERT, "(unsigned)( otherIndex ) < (unsigned)( otherList->attachmentCount )", "otherIndex doesn't index otherList->attachmentCount\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    r_weapon.weaponOthers |= truncate_cast<unsigned short,int>(1 << v13);
+    r_weapon.weaponOthers |= truncate_cast<unsigned short,int>(1 << v8);
     if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_INTEGER )
       Int = Scr_GetInt(scrContext, 1u);
-    v14 = truncate_cast<unsigned char,int>(Int);
-    if ( v13 >= 0x10u )
+    v9 = truncate_cast<unsigned char,int>(Int);
+    if ( v8 >= 0x10u )
     {
-      LODWORD(v20) = 16;
-      LODWORD(v19) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 1809, ASSERT_TYPE_ASSERT, "(unsigned)( otherIndex ) < (unsigned)( 16 )", "otherIndex doesn't index MAX_ATTACHMENT_OTHERS\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v15) = 16;
+      LODWORD(v14) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 1809, ASSERT_TYPE_ASSERT, "(unsigned)( otherIndex ) < (unsigned)( 16 )", "otherIndex doesn't index MAX_ATTACHMENT_OTHERS\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    r_weapon.attachmentVariationIndices[truncate_cast<unsigned char,unsigned int>(v13 + 13)] = v14;
+    r_weapon.attachmentVariationIndices[truncate_cast<unsigned char,unsigned int>(v8 + 13)] = v9;
   }
   else
   {
-    WeaponBaseName = BG_GetWeaponBaseName(&r_weapon, _RSI->isAlternate);
+    WeaponBaseName = BG_GetWeaponBaseName(&r_weapon, WeaponData->isAlternate);
     String = Scr_GetString(scrContext, 0);
-    v17 = j_va("Unknown other attachment '%s' specified for weapon %s", String, WeaponBaseName);
-    Scr_Error(COM_ERR_5205, scrContext, v17);
+    v12 = j_va("Unknown other attachment '%s' specified for weapon %s", String, WeaponBaseName);
+    Scr_Error(COM_ERR_5205, scrContext, v12);
   }
-  v18 = GScr_Weapon_Create(scrContext, &r_weapon, _RSI->isAlternate);
-  Scr_AddEntityNum(scrContext, v18, ENTITY_CLASS_SAVED_COUNT);
+  v13 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v13, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1759,93 +1687,82 @@ GScr_Weapon_RemoveOtherAttachment
 ==============
 */
 
-void __fastcall GScr_Weapon_RemoveOtherAttachment(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void __fastcall GScr_Weapon_RemoveOtherAttachment(scrContext_t *scrContext, scr_entref_t entref, double a3)
 {
-  __int64 v9; 
-  WeaponCompleteDef *v10; 
+  const GScrWeaponData *WeaponData; 
+  WeaponCompleteDef *v5; 
   scr_string_t ConstString; 
-  unsigned __int16 v12; 
-  unsigned __int16 v13; 
-  const char *v14; 
-  const char *v15; 
-  ComErrorCode v16; 
+  unsigned __int16 v7; 
+  unsigned __int16 v8; 
+  const char *v9; 
+  const char *v10; 
+  ComErrorCode v11; 
   const char *WeaponBaseName; 
   const char *String; 
-  int v19; 
-  __int64 v20; 
-  __int64 v21; 
+  int v14; 
+  __int64 v15; 
+  __int64 v16; 
   unsigned __int16 outAttachmentIndex; 
   Weapon r_weapon; 
   char output[512]; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RSI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RSI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RSI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2857, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
+  r_weapon = WeaponData->weapon;
+  if ( LOWORD(a3) > bg_lastParsedWeaponIndex )
   {
-    vmovups ymm2, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+2B8h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rsp+2B8h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rsi+30h]
-    vmovsd  qword ptr [rsp+2B8h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RSI->weapon.weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  v9 = (unsigned __int16)_EAX;
-  if ( (unsigned __int16)_EAX > bg_lastParsedWeaponIndex )
-  {
-    LODWORD(v20) = (unsigned __int16)_EAX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v20, bg_lastParsedWeaponIndex) )
+    LODWORD(v15) = LOWORD(a3);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v15, bg_lastParsedWeaponIndex) )
       __debugbreak();
   }
-  if ( !bg_weaponCompleteDefs[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+  if ( !bg_weaponCompleteDefs[LOWORD(a3)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
     __debugbreak();
-  v10 = bg_weaponCompleteDefs[v9];
+  v5 = bg_weaponCompleteDefs[LOWORD(a3)];
   ConstString = Scr_GetConstString(scrContext, 0);
-  if ( !GScr_Weapon_GetAttachmentIndex(ConstString, v10->attachments[13].attachments, v10->attachments[13].attachmentCount, &outAttachmentIndex) )
+  if ( !GScr_Weapon_GetAttachmentIndex(ConstString, v5->attachments[13].attachments, v5->attachments[13].attachmentCount, &outAttachmentIndex) )
   {
-    WeaponBaseName = BG_GetWeaponBaseName(&r_weapon, _RSI->isAlternate);
+    WeaponBaseName = BG_GetWeaponBaseName(&r_weapon, WeaponData->isAlternate);
     String = Scr_GetString(scrContext, 0);
-    v15 = j_va("Unknown other attachment '%s' specified for weapon %s", String, WeaponBaseName);
-    v16 = COM_ERR_5207;
+    v10 = j_va("Unknown other attachment '%s' specified for weapon %s", String, WeaponBaseName);
+    v11 = COM_ERR_5207;
     goto LABEL_21;
   }
-  v12 = outAttachmentIndex;
-  if ( outAttachmentIndex >= v10->attachments[13].attachmentCount )
+  v7 = outAttachmentIndex;
+  if ( outAttachmentIndex >= v5->attachments[13].attachmentCount )
   {
-    LODWORD(v21) = v10->attachments[13].attachmentCount;
-    LODWORD(v20) = outAttachmentIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2867, ASSERT_TYPE_ASSERT, "(unsigned)( otherIndex ) < (unsigned)( otherList->attachmentCount )", "otherIndex doesn't index otherList->attachmentCount\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v16) = v5->attachments[13].attachmentCount;
+    LODWORD(v15) = outAttachmentIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2867, ASSERT_TYPE_ASSERT, "(unsigned)( otherIndex ) < (unsigned)( otherList->attachmentCount )", "otherIndex doesn't index otherList->attachmentCount\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
-  v13 = truncate_cast<unsigned short,int>(1 << v12);
-  if ( (r_weapon.weaponOthers & v13) == 0 )
+  v8 = truncate_cast<unsigned short,int>(1 << v7);
+  if ( (r_weapon.weaponOthers & v8) == 0 )
   {
-    BG_GetWeaponNameComplete(&r_weapon, _RSI->isAlternate, output, 0x200u);
-    v14 = Scr_GetString(scrContext, 0);
-    v15 = j_va("Other attachment '%s' cannot be removed from weapon %s. The attachment is not present", v14, output);
-    v16 = COM_ERR_5206;
+    BG_GetWeaponNameComplete(&r_weapon, WeaponData->isAlternate, output, 0x200u);
+    v9 = Scr_GetString(scrContext, 0);
+    v10 = j_va("Other attachment '%s' cannot be removed from weapon %s. The attachment is not present", v9, output);
+    v11 = COM_ERR_5206;
 LABEL_21:
-    Scr_Error(v16, scrContext, v15);
+    Scr_Error(v11, scrContext, v10);
     goto LABEL_22;
   }
-  r_weapon.weaponOthers &= ~v13;
-  r_weapon.attachmentVariationIndices[Com_GetOtherAttachmentId(v12)] = 0;
+  r_weapon.weaponOthers &= ~v8;
+  r_weapon.attachmentVariationIndices[Com_GetOtherAttachmentId(v7)] = 0;
 LABEL_22:
-  v19 = GScr_Weapon_Create(scrContext, &r_weapon, _RSI->isAlternate);
-  Scr_AddEntityNum(scrContext, v19, ENTITY_CLASS_SAVED_COUNT);
+  v14 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v14, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1855,43 +1772,35 @@ GScr_Weapon_WithCamo
 */
 void GScr_Weapon_WithCamo(scrContext_t *scrContext, scr_entref_t entref)
 {
+  const GScrWeaponData *WeaponData; 
   scr_string_t ConstString; 
   unsigned int IndexFromScrString; 
   const char *WeaponBaseName; 
+  const char *v7; 
+  const char *v8; 
+  const char *v9; 
   const char *v10; 
   const char *v11; 
-  const char *v12; 
+  ComErrorCode v12; 
   const char *v13; 
-  const char *v14; 
-  ComErrorCode v15; 
-  const char *v16; 
-  int v17; 
+  int v14; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RDI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RDI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RDI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2908, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+98h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+98h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+98h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RDI->weapon.weaponCamo;
+  r_weapon = WeaponData->weapon;
   if ( Scr_GetType(scrContext, 0) )
   {
     if ( !r_weapon.weaponIdx )
@@ -1905,26 +1814,26 @@ LABEL_7:
       IndexFromScrString = BG_Camo_GetIndexFromScrString(ConstString);
       if ( IndexFromScrString >= BG_Camo_GetCamoCount() )
       {
-        WeaponBaseName = BG_GetWeaponBaseName(&_RDI->weapon, _RDI->isAlternate);
-        v10 = SL_ConvertToString(ConstString);
-        v11 = j_va("Invalid camo %s specified for weapon %s. Camo name does not exist.", v10, WeaponBaseName);
-        Scr_Error(COM_ERR_5209, scrContext, v11);
+        WeaponBaseName = BG_GetWeaponBaseName(&WeaponData->weapon, WeaponData->isAlternate);
+        v7 = SL_ConvertToString(ConstString);
+        v8 = j_va("Invalid camo %s specified for weapon %s. Camo name does not exist.", v7, WeaponBaseName);
+        Scr_Error(COM_ERR_5209, scrContext, v8);
         IndexFromScrString = 0;
       }
-      if ( BG_WeaponCanAcceptCamo(&_RDI->weapon) )
+      if ( BG_WeaponCanAcceptCamo(&WeaponData->weapon) )
         goto LABEL_18;
-      v12 = BG_GetWeaponBaseName(&_RDI->weapon, _RDI->isAlternate);
-      v13 = SL_ConvertToString(ConstString);
-      v14 = j_va("Tried to set camo %s on a weapon %s that doesn't support camo.", v13, v12);
-      v15 = COM_ERR_5210;
+      v9 = BG_GetWeaponBaseName(&WeaponData->weapon, WeaponData->isAlternate);
+      v10 = SL_ConvertToString(ConstString);
+      v11 = j_va("Tried to set camo %s on a weapon %s that doesn't support camo.", v10, v9);
+      v12 = COM_ERR_5210;
     }
     else
     {
-      v16 = BG_GetWeaponBaseName(&_RDI->weapon, _RDI->isAlternate);
-      v14 = j_va("Invalid camo specified for weapon %s. Camo must be specified using a string name", v16);
-      v15 = COM_ERR_5211;
+      v13 = BG_GetWeaponBaseName(&WeaponData->weapon, WeaponData->isAlternate);
+      v11 = j_va("Invalid camo specified for weapon %s. Camo must be specified using a string name", v13);
+      v12 = COM_ERR_5211;
     }
-    Scr_Error(v15, scrContext, v14);
+    Scr_Error(v12, scrContext, v11);
     IndexFromScrString = 0;
 LABEL_18:
     r_weapon.weaponCamo = truncate_cast<unsigned char,unsigned int>(IndexFromScrString);
@@ -1932,8 +1841,8 @@ LABEL_18:
   }
   r_weapon.weaponCamo = 0;
 LABEL_19:
-  v17 = GScr_Weapon_Create(scrContext, &r_weapon, _RDI->isAlternate);
-  Scr_AddEntityNum(scrContext, v17, ENTITY_CLASS_SAVED_COUNT);
+  v14 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v14, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1943,36 +1852,28 @@ GScr_Weapon_WithoutCamo
 */
 void GScr_Weapon_WithoutCamo(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v7; 
+  const GScrWeaponData *WeaponData; 
+  int v4; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RBX = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RBX )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RBX = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2970, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
+  r_weapon = WeaponData->weapon;
   r_weapon.weaponCamo = 0;
-  v7 = GScr_Weapon_Create(scrContext, &r_weapon, _RBX->isAlternate);
-  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
+  v4 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v4, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -1981,59 +1882,53 @@ GScr_Weapon_SetSticker
 ==============
 */
 
-void __fastcall GScr_Weapon_SetSticker(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void __fastcall GScr_Weapon_SetSticker(scrContext_t *scrContext, scr_entref_t entref, double a3)
 {
+  const GScrWeaponData *WeaponData; 
   int Int; 
-  __int64 v10; 
+  __int64 v6; 
   const char *String; 
-  const char *v12; 
-  int v13; 
+  const char *v8; 
+  int v9; 
   char r_weapon[64]; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RDI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RDI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RDI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 2996, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+98h+r_weapon], ymm2
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+98h+r_weapon+20h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+98h+r_weapon+30h], xmm1
-  }
-  *(_DWORD *)&r_weapon[56] = *(_DWORD *)&_RDI->weapon.weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( !(_WORD)_EAX )
+  *(__m256i *)r_weapon = *(__m256i *)&WeaponData->weapon.weaponIdx;
+  *(_OWORD *)&r_weapon[32] = *(_OWORD *)&WeaponData->weapon.attachmentVariationIndices[5];
+  *(_QWORD *)&r_weapon[48] = *(_QWORD *)&WeaponData->weapon.attachmentVariationIndices[21];
+  *(_DWORD *)&r_weapon[56] = *(_DWORD *)&WeaponData->weapon.weaponCamo;
+  if ( !LOWORD(a3) )
     Scr_Error(COM_ERR_5938, scrContext, "Cannot set the sticker on null weapon");
   if ( Scr_GetType(scrContext, 0) != VAR_INTEGER )
     Scr_Error(COM_ERR_5939, scrContext, "Invalid argument specified to SetSticker function. First argument must be an integer. Usage: weaponObj = weaponObj SetSticker( <slot index>, <sticker material> );");
   if ( Scr_GetType(scrContext, 1u) != VAR_STRING )
     Scr_Error(COM_ERR_5769, scrContext, "Invalid argument specified to SetSticker function. Second argument must be a string. Usage: weaponObj = weaponObj SetSticker( <slot index>, <sticker material> );");
   Int = Scr_GetInt(scrContext, 0);
-  v10 = Int;
+  v6 = Int;
   if ( Int < 0 || (unsigned __int64)Int >= 4 )
     Scr_Error(COM_ERR_5770, scrContext, "Invalid argument specified to SetSticker function. Sticker slot index must be in the range of [0, 3]. Usage: weaponObj = weaponObj SetSticker( <slot index>, <sticker material> );");
   String = Scr_GetString(scrContext, 1u);
-  v12 = String;
+  v8 = String;
   if ( !String || !*String )
     Scr_Error(COM_ERR_5771, scrContext, "Invalid argument specified to SetSticker function. Sticker material cannot be empty string. Usage: weaponObj = weaponObj SetSticker( <slot index>, <sticker material> );");
   if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings", *(_QWORD *)r_weapon, *(_QWORD *)&r_weapon[8], *(_QWORD *)&r_weapon[16], *(_QWORD *)&r_weapon[24], *(_QWORD *)&r_weapon[32], *(_QWORD *)&r_weapon[40], *(_QWORD *)&r_weapon[48], *(_QWORD *)&r_weapon[56]) )
     __debugbreak();
-  *(_WORD *)&r_weapon[2 * v10 + 2] = GConfigStrings::ms_gConfigStrings->GetStickerMaterialIndex(GConfigStrings::ms_gConfigStrings, v12);
-  v13 = GScr_Weapon_Create(scrContext, (const Weapon *)r_weapon, _RDI->isAlternate);
-  Scr_AddEntityNum(scrContext, v13, ENTITY_CLASS_SAVED_COUNT);
+  *(_WORD *)&r_weapon[2 * v6 + 2] = GConfigStrings::ms_gConfigStrings->GetStickerMaterialIndex(GConfigStrings::ms_gConfigStrings, v8);
+  v9 = GScr_Weapon_Create(scrContext, (const Weapon *)r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v9, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -2042,49 +1937,40 @@ GScr_Weapon_ClearSticker
 ==============
 */
 
-void __fastcall GScr_Weapon_ClearSticker(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void __fastcall GScr_Weapon_ClearSticker(scrContext_t *scrContext, scr_entref_t entref, double a3)
 {
+  const GScrWeaponData *WeaponData; 
   int Int; 
-  __int64 v10; 
-  int v11; 
+  __int64 v6; 
+  int v7; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RDI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RDI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RDI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 3052, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+98h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+98h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+98h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RDI->weapon.weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( !(_WORD)_EAX )
+  r_weapon = WeaponData->weapon;
+  if ( !LOWORD(a3) )
     Scr_Error(COM_ERR_5772, scrContext, "Cannot clear sticker on null weapon");
   if ( Scr_GetType(scrContext, 0) != VAR_INTEGER )
     Scr_Error(COM_ERR_5773, scrContext, "Invalid argument specified to ClearSticker function. First argument must be an integer. Usage: weaponObj = weaponObj ClearSticker( <slot index> );");
   Int = Scr_GetInt(scrContext, 0);
-  v10 = Int;
+  v6 = Int;
   if ( Int < 0 || (unsigned __int64)Int >= 4 )
     Scr_Error(COM_ERR_5774, scrContext, "Invalid argument specified to ClearSticker function. Sticker slot index must be in the range of [0, 3]. Usage: weaponObj = weaponObj ClearSticker( <slot index> );");
-  r_weapon.stickerIndices[v10] = 0;
-  v11 = GScr_Weapon_Create(scrContext, &r_weapon, _RDI->isAlternate);
-  Scr_AddEntityNum(scrContext, v11, ENTITY_CLASS_SAVED_COUNT);
+  r_weapon.stickerIndices[v6] = 0;
+  v7 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -2093,41 +1979,32 @@ GScr_Weapon_ClearStickers
 ==============
 */
 
-void __fastcall GScr_Weapon_ClearStickers(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void __fastcall GScr_Weapon_ClearStickers(scrContext_t *scrContext, scr_entref_t entref, double a3)
 {
-  int v9; 
+  const GScrWeaponData *WeaponData; 
+  int v5; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RBX = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RBX )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RBX = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 3093, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( !(_WORD)_EAX )
+  r_weapon = WeaponData->weapon;
+  if ( !LOWORD(a3) )
     Scr_Error(COM_ERR_5775, scrContext, "Cannot clear stickers on null weapon");
   *(_QWORD *)r_weapon.stickerIndices = 0i64;
-  v9 = GScr_Weapon_Create(scrContext, &r_weapon, _RBX->isAlternate);
-  Scr_AddEntityNum(scrContext, v9, ENTITY_CLASS_SAVED_COUNT);
+  v5 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v5, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -2137,41 +2014,33 @@ GScr_Weapon_WithReticle
 */
 void GScr_Weapon_WithReticle(scrContext_t *scrContext, scr_entref_t entref)
 {
+  const GScrWeaponData *WeaponData; 
   const char *String; 
+  const char *v5; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  const char *v10; 
-  const char *v11; 
   const char *WeaponBaseName; 
-  const char *v13; 
-  int v14; 
+  const char *v10; 
+  int v11; 
   int val; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RDI = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RDI )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RDI = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 3124, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RDI->weapon.weaponCamo;
+  r_weapon = WeaponData->weapon;
   if ( Scr_GetType(scrContext, 0) )
   {
     if ( !r_weapon.weaponIdx )
@@ -2187,9 +2056,9 @@ LABEL_7:
     {
       if ( Scr_GetType(scrContext, 0) != VAR_STRING )
       {
-        WeaponBaseName = BG_GetWeaponBaseName(&r_weapon, _RDI->isAlternate);
-        v13 = j_va("Invalid reticle specified for weapon %s. Reticle must be specified using an integer or string of the format 'scope01'", WeaponBaseName);
-        Scr_Error(COM_ERR_5214, scrContext, v13);
+        WeaponBaseName = BG_GetWeaponBaseName(&r_weapon, WeaponData->isAlternate);
+        v10 = j_va("Invalid reticle specified for weapon %s. Reticle must be specified using an integer or string of the format 'scope01'", WeaponBaseName);
+        Scr_Error(COM_ERR_5214, scrContext, v10);
         val = 0;
 LABEL_19:
         r_weapon.scopeVariation = truncate_cast<unsigned char,int>(val);
@@ -2198,23 +2067,23 @@ LABEL_19:
       String = Scr_GetString(scrContext, 0);
       if ( j_sscanf(String, "scope%d", &val) != 1 )
       {
-        v8 = BG_GetWeaponBaseName(&r_weapon, _RDI->isAlternate);
-        v9 = j_va("Invalid reticle name '%s' specified for weapon %s", String, v8);
-        Scr_Error(COM_ERR_5213, scrContext, v9);
+        v5 = BG_GetWeaponBaseName(&r_weapon, WeaponData->isAlternate);
+        v6 = j_va("Invalid reticle name '%s' specified for weapon %s", String, v5);
+        Scr_Error(COM_ERR_5213, scrContext, v6);
       }
     }
     if ( (unsigned int)val > 0xFE )
     {
-      v10 = BG_GetWeaponBaseName(&r_weapon, _RDI->isAlternate);
-      v11 = j_va("Specified reticle 'scope%d' is out of bounds for weapon %s. Maximum allowed reticle is %d", (unsigned int)val, v10, 255i64);
-      Scr_Error(COM_ERR_5215, scrContext, v11);
+      v7 = BG_GetWeaponBaseName(&r_weapon, WeaponData->isAlternate);
+      v8 = j_va("Specified reticle 'scope%d' is out of bounds for weapon %s. Maximum allowed reticle is %d", (unsigned int)val, v7, 255i64);
+      Scr_Error(COM_ERR_5215, scrContext, v8);
     }
     goto LABEL_19;
   }
   r_weapon.scopeVariation = 0;
 LABEL_20:
-  v14 = GScr_Weapon_Create(scrContext, &r_weapon, _RDI->isAlternate);
-  Scr_AddEntityNum(scrContext, v14, ENTITY_CLASS_SAVED_COUNT);
+  v11 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v11, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -2224,36 +2093,28 @@ GScr_Weapon_WithoutReticle
 */
 void GScr_Weapon_WithoutReticle(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v7; 
+  const GScrWeaponData *WeaponData; 
+  int v4; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
   {
-    _RBX = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
-    if ( _RBX )
+    WeaponData = GScr_Weapon_GetWeaponData(scrContext, (const scr_weapon_t)entref.entnum);
+    if ( WeaponData )
       goto LABEL_7;
   }
   else
   {
     Scr_Error(COM_ERR_5191, scrContext, "Not a weapon object");
-    _RBX = NULL;
+    WeaponData = NULL;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 3185, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
+  r_weapon = WeaponData->weapon;
   r_weapon.scopeVariation = 0;
-  v7 = GScr_Weapon_Create(scrContext, &r_weapon, _RBX->isAlternate);
-  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
+  v4 = GScr_Weapon_Create(scrContext, &r_weapon, WeaponData->isAlternate);
+  Scr_AddEntityNum(scrContext, v4, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -2342,7 +2203,7 @@ GScr_Weapon_GetBaseWeapon
 void GScr_Weapon_GetBaseWeapon(scrContext_t *scrContext, scr_entref_t entref)
 {
   const GScrWeaponData *WeaponData; 
-  int v7; 
+  int v4; 
   Weapon r_weapon; 
 
   if ( entref.entclass == ENTITY_CLASS_SAVED_COUNT )
@@ -2359,19 +2220,12 @@ void GScr_Weapon_GetBaseWeapon(scrContext_t *scrContext, scr_entref_t entref)
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 3258, ASSERT_TYPE_ASSERT, "( data != nullptr )", (const char *)&queryFormat, "data != nullptr") )
     __debugbreak();
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rsp+88h+r_weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsp+88h+r_weapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+88h+r_weapon.attachmentVariationIndices+5], xmm1
-  }
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   r_weapon.weaponIdx = WeaponData->weapon.weaponIdx;
-  v7 = GScr_Weapon_Create(scrContext, &r_weapon, 0);
-  Scr_AddEntityNum(scrContext, v7, ENTITY_CLASS_SAVED_COUNT);
+  v4 = GScr_Weapon_Create(scrContext, &r_weapon, 0);
+  Scr_AddEntityNum(scrContext, v4, ENTITY_CLASS_SAVED_COUNT);
 }
 
 /*
@@ -2747,12 +2601,13 @@ GScr_Weapon_Create
 */
 __int64 GScr_Weapon_Create(scrContext_t *scrContext, const Weapon *r_weapon, const bool isAlternate)
 {
-  int v8; 
-  unsigned __int16 v10; 
-  const char *v11; 
+  __int128 v6; 
+  int v7; 
+  double v8; 
+  unsigned __int16 v9; 
+  const char *v10; 
   GScrWeaponData weapData; 
 
-  _RDI = r_weapon;
   if ( !r_weapon->weaponIdx )
     return 0i64;
   if ( !BG_ValidateWeapon(r_weapon) )
@@ -2760,33 +2615,23 @@ __int64 GScr_Weapon_Create(scrContext_t *scrContext, const Weapon *r_weapon, con
     GScr_Weapon_PrintTable(scrContext);
     Scr_Error(COM_ERR_6077, scrContext, "GScr_Weapon_Create called with invalid weapon. See console log for details.\n");
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups xmm1, xmmword ptr [rdi+20h]
-  }
-  v8 = *(_DWORD *)&_RDI->weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+88h+weapData.weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr [rdi+30h]
-  }
+  v6 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  v7 = *(_DWORD *)&r_weapon->weaponCamo;
+  *(__m256i *)&weapData.weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  v8 = *(double *)&r_weapon->attachmentVariationIndices[21];
   weapData.pad = 0;
-  __asm
-  {
-    vmovsd  qword ptr [rsp+88h+weapData.weapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+88h+weapData.weapon.attachmentVariationIndices+5], xmm1
-  }
-  *(_DWORD *)&weapData.weapon.weaponCamo = v8;
+  *(double *)&weapData.weapon.attachmentVariationIndices[21] = v8;
+  *(_OWORD *)&weapData.weapon.attachmentVariationIndices[5] = v6;
+  *(_DWORD *)&weapData.weapon.weaponCamo = v7;
   weapData.isAlternate = isAlternate;
-  v10 = GScr_Weapon_Insert(scrContext, &weapData);
-  if ( v10 == 0xFFFF )
+  v9 = GScr_Weapon_Insert(scrContext, &weapData);
+  if ( v9 == 0xFFFF )
   {
     GScr_Weapon_PrintTable(scrContext);
-    v11 = j_va("Too many allocated script weapons. Limit is %d. See console log for details.\n", 1000i64);
-    Scr_Error(COM_ERR_5190, scrContext, v11);
+    v10 = j_va("Too many allocated script weapons. Limit is %d. See console log for details.\n", 1000i64);
+    Scr_Error(COM_ERR_5190, scrContext, v10);
   }
-  return (unsigned int)v10 + 1;
+  return (unsigned int)v9 + 1;
 }
 
 /*
@@ -3174,20 +3019,20 @@ __int64 GScr_Weapon_Insert(scrContext_t *scrContext, const GScrWeaponData *const
   unsigned __int16 free; 
   unsigned __int16 v10; 
   unsigned __int16 v11; 
-  __int64 v17; 
-  __int64 v18; 
+  GScrWeaponData *v12; 
+  __int64 v14; 
+  __int64 v15; 
 
-  _RBX = weapData;
   if ( !weapData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 199, ASSERT_TYPE_ASSERT, "( weapData != nullptr )", (const char *)&queryFormat, "weapData != nullptr") )
     __debugbreak();
-  Bucket = GScr_Weapon_GetBucket(_RBX);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 95, ASSERT_TYPE_ASSERT, "( weapData != nullptr )", (const char *)&queryFormat, "weapData != nullptr") )
+  Bucket = GScr_Weapon_GetBucket(weapData);
+  if ( !weapData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 95, ASSERT_TYPE_ASSERT, "( weapData != nullptr )", (const char *)&queryFormat, "weapData != nullptr") )
     __debugbreak();
   WeaponTableConst = ScriptContext_GetWeaponTableConst(scrContext);
   if ( Bucket >= 0x511u )
   {
-    LODWORD(v17) = Bucket;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 98, ASSERT_TYPE_ASSERT, "(unsigned)( bucketIndex ) < (unsigned)( ( sizeof( *array_counter( weapTable->bucket ) ) + 0 ) )", "bucketIndex doesn't index ARRAY_COUNT( weapTable->bucket )\n\t%i not in [0, %i)", v17, 1297) )
+    LODWORD(v14) = Bucket;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 98, ASSERT_TYPE_ASSERT, "(unsigned)( bucketIndex ) < (unsigned)( ( sizeof( *array_counter( weapTable->bucket ) ) + 0 ) )", "bucketIndex doesn't index ARRAY_COUNT( weapTable->bucket )\n\t%i not in [0, %i)", v14, 1297) )
       __debugbreak();
   }
   v6 = 2i64 * Bucket + 68000;
@@ -3195,14 +3040,14 @@ __int64 GScr_Weapon_Insert(scrContext_t *scrContext, const GScrWeaponData *const
   if ( v7 == 0xFFFF )
   {
 LABEL_14:
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 122, ASSERT_TYPE_ASSERT, "( weapData != nullptr )", (const char *)&queryFormat, "weapData != nullptr") )
+    if ( !weapData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 122, ASSERT_TYPE_ASSERT, "( weapData != nullptr )", (const char *)&queryFormat, "weapData != nullptr") )
       __debugbreak();
     WeaponTable = ScriptContext_GetWeaponTable(scrContext);
     if ( Bucket >= 0x511u )
     {
-      LODWORD(v18) = 1297;
-      LODWORD(v17) = Bucket;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 125, ASSERT_TYPE_ASSERT, "(unsigned)( bucketIndex ) < (unsigned)( ( sizeof( *array_counter( weapTable->bucket ) ) + 0 ) )", "bucketIndex doesn't index ARRAY_COUNT( weapTable->bucket )\n\t%i not in [0, %i)", v17, v18) )
+      LODWORD(v15) = 1297;
+      LODWORD(v14) = Bucket;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 125, ASSERT_TYPE_ASSERT, "(unsigned)( bucketIndex ) < (unsigned)( ( sizeof( *array_counter( weapTable->bucket ) ) + 0 ) )", "bucketIndex doesn't index ARRAY_COUNT( weapTable->bucket )\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
     free = WeaponTable->free;
@@ -3210,9 +3055,9 @@ LABEL_14:
     {
       if ( free >= 0x3E8u )
       {
-        LODWORD(v18) = 1000;
-        LODWORD(v17) = free;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 130, ASSERT_TYPE_ASSERT, "(unsigned)( weapIndex ) < (unsigned)( MAX_SCRIPT_WEAPONS )", "weapIndex doesn't index MAX_SCRIPT_WEAPONS\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v15) = 1000;
+        LODWORD(v14) = free;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_weapon.cpp", 130, ASSERT_TYPE_ASSERT, "(unsigned)( weapIndex ) < (unsigned)( MAX_SCRIPT_WEAPONS )", "weapIndex doesn't index MAX_SCRIPT_WEAPONS\n\t%i not in [0, %i)", v14, v15) )
           __debugbreak();
       }
       v10 = WeaponTable->next[free];
@@ -3225,24 +3070,18 @@ LABEL_14:
       if ( v11 != 0xFFFF )
         WeaponTable->prev[v11] = free;
       *(unsigned __int16 *)((char *)&WeaponTable->data[0].weapon.weaponIdx + v6) = free;
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      _RDX = &WeaponTable->data[free];
-      __asm
-      {
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rdx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rdx+30h], xmm0
-      }
-      *(_DWORD *)&_RDX->weapon.weaponCamo = *(_DWORD *)&_RBX->weapon.weaponCamo;
-      *(_WORD *)&_RDX->isAlternate = *(_WORD *)&_RBX->isAlternate;
+      v12 = &WeaponTable->data[free];
+      *(__m256i *)&v12->weapon.weaponIdx = *(__m256i *)&weapData->weapon.weaponIdx;
+      *(_OWORD *)&v12->weapon.attachmentVariationIndices[5] = *(_OWORD *)&weapData->weapon.attachmentVariationIndices[5];
+      *(double *)&v12->weapon.attachmentVariationIndices[21] = *(double *)&weapData->weapon.attachmentVariationIndices[21];
+      *(_DWORD *)&v12->weapon.weaponCamo = *(_DWORD *)&weapData->weapon.weaponCamo;
+      *(_WORD *)&v12->isAlternate = *(_WORD *)&weapData->isAlternate;
     }
     return free;
   }
   else
   {
-    while ( memcmp_0(&WeaponTableConst->data[v7], _RBX, 0x3Cui64) || WeaponTableConst->data[v7].isAlternate != _RBX->isAlternate )
+    while ( memcmp_0(&WeaponTableConst->data[v7], weapData, 0x3Cui64) || WeaponTableConst->data[v7].isAlternate != weapData->isAlternate )
     {
       v7 = WeaponTableConst->next[v7];
       if ( v7 == 0xFFFF )
@@ -3719,21 +3558,21 @@ void GScr_Weapon_SpawnInternal(scrContext_t *scrContext, const bool isAlternate)
 {
   int v4; 
   const char *String; 
-  int v10; 
+  int v6; 
   unsigned int Int; 
-  const char *v12; 
+  const char *v8; 
   const WeaponAttachment *ScopeAttachment; 
-  const char *v14; 
+  const char *v10; 
   scr_string_t ConstString; 
   unsigned int IndexFromScrString; 
-  const char *v17; 
-  const char *v18; 
-  const char *v19; 
-  const char *v20; 
-  unsigned int v21; 
+  const char *v13; 
+  const char *v14; 
+  const char *v15; 
+  const char *v16; 
+  unsigned int v17; 
   __int64 numLootVariants; 
-  const char *v23; 
-  __int64 v24; 
+  const char *v19; 
+  __int64 v20; 
   AttachmentSlot slot; 
   Weapon result; 
   Weapon weapon; 
@@ -3745,25 +3584,15 @@ void GScr_Weapon_SpawnInternal(scrContext_t *scrContext, const bool isAlternate)
   else
   {
     String = Scr_GetString(scrContext, 0);
-    _RAX = BG_FindBaseWeaponForName(&result, String);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0D8h+weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0D8h+weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+0D8h+weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    weapon = *BG_FindBaseWeaponForName(&result, String);
     if ( isAlternate || Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) )
     {
       if ( weapon.weaponIdx )
       {
-        v10 = -1;
+        v6 = -1;
         if ( Scr_GetNumParam(scrContext) > 5 && Scr_GetType(scrContext, 5u) )
-          v10 = 5;
-        GScr_Weapon_ReadAttachments(scrContext, 1u, v10, 1, &weapon);
+          v6 = 5;
+        GScr_Weapon_ReadAttachments(scrContext, 1u, v6, 1, &weapon);
       }
       else
       {
@@ -3778,8 +3607,8 @@ void GScr_Weapon_SpawnInternal(scrContext_t *scrContext, const bool isAlternate)
         slot = ATT_SLOT_SCOPE;
         if ( !BG_Weapon_GetPrimaryAttachmentIndex(&weapon, &slot) )
         {
-          v12 = j_va("Specified reticle %d on weapon '%s' that does not have a scope attachment", Int, String);
-          Scr_ParamError(COM_ERR_5194, scrContext, 2u, v12);
+          v8 = j_va("Specified reticle %d on weapon '%s' that does not have a scope attachment", Int, String);
+          Scr_ParamError(COM_ERR_5194, scrContext, 2u, v8);
         }
       }
       ScopeAttachment = BG_GetScopeAttachment(&weapon);
@@ -3787,9 +3616,9 @@ void GScr_Weapon_SpawnInternal(scrContext_t *scrContext, const bool isAlternate)
         __debugbreak();
       if ( Int >= ScopeAttachment->numReticles )
       {
-        LODWORD(v24) = ScopeAttachment->numReticles;
-        v14 = j_va("Specified reticle %d is out of bounds for weapon '%s' with scope '%s'. Maximum allowed reticle index for scope '%s' is %d", Int, String, ScopeAttachment->szInternalName, ScopeAttachment->szInternalName, v24);
-        Scr_ParamError(COM_ERR_5195, scrContext, 2u, v14);
+        LODWORD(v20) = ScopeAttachment->numReticles;
+        v10 = j_va("Specified reticle %d is out of bounds for weapon '%s' with scope '%s'. Maximum allowed reticle index for scope '%s' is %d", Int, String, ScopeAttachment->szInternalName, ScopeAttachment->szInternalName, v20);
+        Scr_ParamError(COM_ERR_5195, scrContext, 2u, v10);
       }
       weapon.scopeVariation = truncate_cast<unsigned char,int>(Int);
     }
@@ -3799,28 +3628,28 @@ void GScr_Weapon_SpawnInternal(scrContext_t *scrContext, const bool isAlternate)
       IndexFromScrString = BG_Camo_GetIndexFromScrString(ConstString);
       if ( IndexFromScrString >= BG_Camo_GetCamoCount() )
       {
-        v17 = SL_ConvertToString(ConstString);
-        v18 = j_va("Specified camo '%s' not found for weapon '%s'", v17, String);
-        Scr_ParamError(COM_ERR_5196, scrContext, 3u, v18);
+        v13 = SL_ConvertToString(ConstString);
+        v14 = j_va("Specified camo '%s' not found for weapon '%s'", v13, String);
+        Scr_ParamError(COM_ERR_5196, scrContext, 3u, v14);
       }
       if ( !BG_WeaponCanAcceptCamo(&weapon) )
       {
-        v19 = SL_ConvertToString(ConstString);
-        v20 = j_va("Tried to set camo '%s' on a weapon %s that doesn't support camo.", v19, String);
-        Scr_ParamError(COM_ERR_5197, scrContext, 3u, v20);
+        v15 = SL_ConvertToString(ConstString);
+        v16 = j_va("Tried to set camo '%s' on a weapon %s that doesn't support camo.", v15, String);
+        Scr_ParamError(COM_ERR_5197, scrContext, 3u, v16);
       }
       weapon.weaponCamo = truncate_cast<unsigned char,unsigned int>(IndexFromScrString);
     }
     if ( Scr_GetNumParam(scrContext) > 4 && Scr_GetType(scrContext, 4u) )
     {
-      v21 = Scr_GetInt(scrContext, 4u);
+      v17 = Scr_GetInt(scrContext, 4u);
       numLootVariants = BG_WeaponCompleteDef(&weapon, isAlternate)->numLootVariants;
-      if ( v21 >= (unsigned int)numLootVariants )
+      if ( v17 >= (unsigned int)numLootVariants )
       {
-        v23 = j_va("Invalid loot variant specified: %d does not index the supported %d variants for weapon '%s'", v21, numLootVariants, String);
-        Scr_ParamError(COM_ERR_5198, scrContext, 4u, v23);
+        v19 = j_va("Invalid loot variant specified: %d does not index the supported %d variants for weapon '%s'", v17, numLootVariants, String);
+        Scr_ParamError(COM_ERR_5198, scrContext, 4u, v19);
       }
-      weapon.weaponLootId = truncate_cast<unsigned char,unsigned int>(v21 + 1);
+      weapon.weaponLootId = truncate_cast<unsigned char,unsigned int>(v17 + 1);
     }
     if ( !BG_ActiveUnderbarrel(&weapon) && isAlternate )
       Scr_Error(COM_ERR_5199, scrContext, "Trying to create a weapon in alternate mode that has no underbarrel attachment with an alternate fire");

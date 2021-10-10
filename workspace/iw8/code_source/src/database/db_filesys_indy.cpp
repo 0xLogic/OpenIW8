@@ -307,179 +307,154 @@ void __fastcall CloseStatisticsFile()
 DB_IndyFsInitialize
 ==============
 */
-
-IndyFsFileSystem *__fastcall DB_IndyFsInitialize(DB_FileSysInterface *fallbackFs, double _XMM1_8)
+IndyFsFileSystem *DB_IndyFsInitialize(DB_FileSysInterface *fallbackFs)
 {
-  const dvar_t *v5; 
-  const dvar_t *v6; 
-  const dvar_t *v7; 
-  const dvar_t *v8; 
-  const char *v9; 
-  int v10; 
-  int v11; 
-  const char *v12; 
-  __int64 v13; 
+  const dvar_t *v1; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  const char *v5; 
+  int v6; 
+  int v7; 
+  const char *v8; 
+  __int64 v9; 
   const char *string; 
-  __int64 v15; 
-  __int64 v16; 
-  unsigned __int64 v17; 
-  unsigned __int64 v21; 
-  IndyFsFileSystem *v22; 
-  int v23; 
-  unsigned int v24; 
-  DB_FileSysInterface *v32; 
-  __int64 v33; 
+  __int64 v11; 
+  __int64 v12; 
+  unsigned __int64 v13; 
+  __int128 v14; 
+  unsigned __int64 v15; 
+  IndyFsFileSystem *v16; 
+  int v17; 
+  int v18; 
+  float v19; 
+  float v20; 
+  DB_FileSysInterface *v21; 
+  __int64 v22; 
   volatile __int32 *p_taskInProgress; 
   volatile __int32 *p_inUse; 
-  const char *v36; 
+  const char *v25; 
   IndyFsFileSystem *result; 
-  char *description; 
   unsigned int fileCount; 
-  int v42; 
+  int v28; 
   unsigned __int64 bytesDeleted; 
   void *memoryBlock; 
   unsigned __int64 chunkCount; 
-  IndyFsInitOptions v46; 
-  unsigned __int64 v47; 
-  DB_FileSysInterface *v48; 
-  IndyFsInitOptions v49; 
+  IndyFsInitOptions v32; 
+  unsigned __int64 v33; 
+  DB_FileSysInterface *v34; 
+  IndyFsInitOptions v35; 
   char _Buffer[256]; 
-  char v51[1024]; 
+  char v37[1024]; 
 
-  v48 = fallbackFs;
+  v34 = fallbackFs;
   Dvar_BeginPermanentRegistration();
-  v5 = Dvar_RegisterString("TTQRRSOLQ", (const char *)&queryFormat.fmt + 3, 0, "Where to download the chunks from");
-  v6 = Dvar_RegisterEnum("NRKSMSOLQP", s_indyfs_file_source_names, 0, 0, "Where to load files from. Enum: ['indy_only', 'fallback_only', 'indy_then_fallback', fallback_then_indy'] (Default: 'indy_only'");
-  v7 = Dvar_RegisterString("NQNSKPOOSQ", "/game/xb3", 0, "Where the game files exist relative to the image root. Ex: 'game/ps4'");
-  v8 = Dvar_RegisterInt("LKSTNSPMLP", 0, 0, 0x7FFFFFFF, 0, "How much space is free on the machine");
+  v1 = Dvar_RegisterString("TTQRRSOLQ", (const char *)&queryFormat.fmt + 3, 0, "Where to download the chunks from");
+  v2 = Dvar_RegisterEnum("NRKSMSOLQP", s_indyfs_file_source_names, 0, 0, "Where to load files from. Enum: ['indy_only', 'fallback_only', 'indy_then_fallback', fallback_then_indy'] (Default: 'indy_only'");
+  v3 = Dvar_RegisterString("NQNSKPOOSQ", "/game/xb3", 0, "Where the game files exist relative to the image root. Ex: 'game/ps4'");
+  v4 = Dvar_RegisterInt("LKSTNSPMLP", 0, 0, 0x7FFFFFFF, 0, "How much space is free on the machine");
   Dvar_EndPermanentRegistration();
-  v9 = Dvar_EnumToString(v6);
-  if ( I_strcmp("indy_only", v9) )
+  v5 = Dvar_EnumToString(v2);
+  if ( I_strcmp("indy_only", v5) )
   {
-    if ( I_strcmp("fallback_only", v9) )
+    if ( I_strcmp("fallback_only", v5) )
     {
-      if ( I_strcmp("indy_then_fallback", v9) )
+      if ( I_strcmp("indy_then_fallback", v5) )
       {
-        v11 = I_strcmp("fallback_then_indy", v9);
-        v10 = 0;
-        if ( !v11 )
-          v10 = 3;
+        v7 = I_strcmp("fallback_then_indy", v5);
+        v6 = 0;
+        if ( !v7 )
+          v6 = 3;
       }
       else
       {
-        v10 = 2;
+        v6 = 2;
       }
     }
     else
     {
-      v10 = 1;
+      v6 = 1;
     }
   }
   else
   {
-    v10 = 0;
+    v6 = 0;
   }
-  v12 = Sys_DefaultInstallPath();
-  v13 = 256i64;
-  j_snprintf(_Buffer, 0x100ui64, "%s/indy.iimg", v12);
-  j_snprintf(v51, 0x400ui64, "http:
-  string = v7->current.string;
-  v15 = -1i64;
-  v16 = -1i64;
+  v8 = Sys_DefaultInstallPath();
+  v9 = 256i64;
+  j_snprintf(_Buffer, 0x100ui64, "%s/indy.iimg", v8);
+  j_snprintf(v37, 0x400ui64, "http:
+  string = v3->current.string;
+  v11 = -1i64;
+  v12 = -1i64;
   do
-    ++v16;
-  while ( string[v16] );
-  __asm
-  {
-    vmovaps [rsp+660h+var_30], xmm6
-    vmovaps [rsp+660h+var_40], xmm7
-  }
-  if ( !(_DWORD)v16 )
+    ++v12;
+  while ( string[v12] );
+  if ( !(_DWORD)v12 )
   {
     Com_PrintError(10, "IndyFs - ERROR: %s is a required DVar\n", "TTQRRSOLQ");
-LABEL_45:
-    result = NULL;
-    goto LABEL_46;
+    return 0i64;
   }
-  v17 = (__int64)v8->current.integer << 20;
+  v13 = (__int64)v4->current.integer << 20;
   if ( indyfs_log_init(IndyFsLogCallback) )
   {
     Com_PrintError(10, "IndyFs - ERROR: Failed to init IndyFs log system\n");
-    goto LABEL_45;
+    return 0i64;
   }
   if ( indyfs_image_parse_header(&fileCount, &chunkCount, _Buffer) )
   {
     Com_PrintError(10, "IndyFs - ERROR: Failed to parse indy.iimg file header\n");
-    goto LABEL_45;
+    return 0i64;
   }
-  v46.profilerBufferSize = 0x100000i64;
-  v46.statisticsBufferSize = 0x100000i64;
-  v46.fileCacheFileHandleCount = 64;
-  *(_QWORD *)&v46.decompressionScratchPadCount = 2i64;
-  v46.ioQueueThreadsToCreate = 0;
-  v46.profilerEnabled = 1;
-  __asm { vmovups ymm0, [rbp+560h+var_5E0] }
-  v46.statisticsEnabled = 1;
-  __asm { vmovups xmm6, [rbp+560h+var_5C0] }
-  *(_QWORD *)&v46.arkVersion = 0x100000000i64;
-  __asm
-  {
-    vmovsd  xmm7, [rbp+560h+var_5B0]
-    vmovups [rbp+560h+var_590], ymm0
-    vmovups [rbp+560h+var_570], xmm6
-    vmovsd  [rbp+560h+var_560], xmm7
-  }
-  v47 = indyfs_memory_size(fileCount, chunkCount, &v49);
-  v21 = v47;
+  v32.profilerBufferSize = 0x100000i64;
+  v32.statisticsBufferSize = 0x100000i64;
+  v32.fileCacheFileHandleCount = 64;
+  *(_QWORD *)&v32.decompressionScratchPadCount = 2i64;
+  v32.ioQueueThreadsToCreate = 0;
+  v32.profilerEnabled = 1;
+  v32.statisticsEnabled = 1;
+  v14 = *(_OWORD *)&v32.statisticsEnabled;
+  *(_QWORD *)&v32.arkVersion = 0x100000000i64;
+  *(__m256i *)&v35.fileCacheFileHandleCount = *(__m256i *)&v32.fileCacheFileHandleCount;
+  *(_OWORD *)&v35.statisticsEnabled = *(_OWORD *)&v32.statisticsEnabled;
+  *(_QWORD *)&v35.arkVersion = 0x100000000i64;
+  v33 = indyfs_memory_size(fileCount, chunkCount, &v35);
+  v15 = v33;
   PMem_BeginAlloc("IndyFs", PMEM_STACK_GAME);
-  memoryBlock = PMem_Alloc(v21, 0x10ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, "IndyFsInternal");
-  v22 = (IndyFsFileSystem *)PMem_Alloc(0x16018ui64, 8ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, "IndyFsFileSystemClass");
+  memoryBlock = PMem_Alloc(v15, 0x10ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, "IndyFsInternal");
+  v16 = (IndyFsFileSystem *)PMem_Alloc(0x16018ui64, 8ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, "IndyFsFileSystemClass");
   PMem_EndAlloc("IndyFs", PMEM_STACK_GAME);
-  if ( !memoryBlock || !v22 )
+  if ( !memoryBlock || !v16 )
   {
     Com_PrintError(10, "IndyFs: Failed to allocate memory\n");
-    goto LABEL_45;
+    return 0i64;
   }
-  Com_Printf(10, "IndyFs: Free space given from cli: %zu\n", v17);
+  Com_Printf(10, "IndyFs: Free space given from cli: %zu\n", v13);
   Com_Printf(10, "IndyFs - INFO: Pruning local cache folder [%s]\n", "D:\\indyfs_localcache");
-  v42 = Sys_Milliseconds();
+  v28 = Sys_Milliseconds();
   bytesDeleted = 0i64;
-  if ( indyfs_prune_filecache_folder("D:\\indyfs_localcache", 0xC8ui64, 0x64ui64, memoryBlock, v21, v17, &bytesDeleted) )
+  if ( indyfs_prune_filecache_folder("D:\\indyfs_localcache", 0xC8ui64, 0x64ui64, memoryBlock, v15, v13, &bytesDeleted) )
   {
     Com_PrintError(10, "IndyFs - ERROR: Failed to prune LocalCache folder. \n");
-    goto LABEL_45;
+    return 0i64;
   }
-  v23 = Sys_Milliseconds();
+  v17 = Sys_Milliseconds();
   Com_Printf(10, "Pruning finished\n");
-  Com_Printf(10, "IndyFs - INFO: Start free space: %zu bytes - End free space: %zu bytes\n", v17, v17 + bytesDeleted);
-  v24 = v23 - v42;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r8
-  }
+  Com_Printf(10, "IndyFs - INFO: Start free space: %zu bytes - End free space: %zu bytes\n", v13, v13 + bytesDeleted);
+  v18 = v17 - v28;
+  v19 = (float)(__int64)bytesDeleted;
   if ( (bytesDeleted & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-  __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r13d
-    vdivss  xmm1, xmm1, xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovsd  [rsp+660h+description], xmm2
+    v20 = (float)(__int64)bytesDeleted;
+    v19 = v20 + 1.8446744e19;
   }
-  Com_Printf(10, "IndyFs - INFO: Deleted %zu bytes in %d ms - [%.2f] b/s\n", bytesDeleted, v24, *(double *)&description);
-  __asm
-  {
-    vmovups ymm0, [rbp+560h+var_5E0]
-    vmovups [rbp+560h+var_5E0], ymm0
-    vmovups [rbp+560h+var_5C0], xmm6
-    vmovsd  [rbp+560h+var_5B0], xmm7
-  }
-  if ( indyfs_init(v51, "D:\\indyfs_localcache", memoryBlock, v47, _Buffer, string, fileCount, chunkCount, "D:\\profile.json", "D:\\samples.csv", &v46) )
+  Com_Printf(10, "IndyFs - INFO: Deleted %zu bytes in %d ms - [%.2f] b/s\n", bytesDeleted, (unsigned int)v18, (float)(v19 / (float)v18));
+  *(_OWORD *)&v32.statisticsEnabled = v14;
+  *(double *)&v32.arkVersion = COERCE_DOUBLE(0x100000000i64);
+  if ( indyfs_init(v37, "D:\\indyfs_localcache", memoryBlock, v33, _Buffer, string, fileCount, chunkCount, "D:\\profile.json", "D:\\samples.csv", &v32) )
   {
     Com_PrintError(10, "IndyFs - ERROR: indyfs_init() failed. \n");
-    goto LABEL_45;
+    return 0i64;
   }
   Cmd_AddCommandInternal("indyfs_close_profiler", CloseProfilerFile, &CloseProfilerFile_VAR);
   Cmd_AddCommandInternal("indyfs_close_statistics", CloseStatisticsFile, &CloseStatisticsFile_VAR);
@@ -488,14 +463,14 @@ LABEL_45:
   Sys_SpawnIndyFsWorkerThread(IndyFsHTTPQueue_Thread, THREAD_CONTEXT_INDY_FILESYSTEM_HTTPQUEUE_1, 0x18u);
   if ( s_indyFs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_filesys_indy.cpp", 180, ASSERT_TYPE_ASSERT, "(s_indyFs == nullptr)", (const char *)&queryFormat, "s_indyFs == nullptr") )
     __debugbreak();
-  memset_0(v22, 0, sizeof(IndyFsFileSystem));
-  s_indyFs = v22;
-  v22->__vftable = (IndyFsFileSystem_vtbl *)&IndyFsFileSystem::`vftable';
-  v32 = v48;
-  v33 = 256i64;
-  v22->m_openBehavior = v10;
-  p_taskInProgress = &v22->m_files[0].taskInProgress;
-  v22->m_fallbackFs = v32;
+  memset_0(v16, 0, sizeof(IndyFsFileSystem));
+  s_indyFs = v16;
+  v16->__vftable = (IndyFsFileSystem_vtbl *)&IndyFsFileSystem::`vftable';
+  v21 = v34;
+  v22 = 256i64;
+  v16->m_openBehavior = v6;
+  p_taskInProgress = &v16->m_files[0].taskInProgress;
+  v16->m_fallbackFs = v21;
   do
   {
     if ( (((_BYTE)p_taskInProgress - 40) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)(p_taskInProgress - 10)) )
@@ -505,31 +480,25 @@ LABEL_45:
       __debugbreak();
     _InterlockedExchange(p_taskInProgress, 0);
     p_taskInProgress += 76;
-    --v33;
+    --v22;
   }
-  while ( v33 );
-  p_inUse = &v22->m_reads[0].inUse;
+  while ( v22 );
+  p_inUse = &v16->m_reads[0].inUse;
   do
   {
     if ( ((unsigned __int8)p_inUse & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_inUse) )
       __debugbreak();
     _InterlockedExchange(p_inUse, 0);
     p_inUse += 12;
-    --v13;
+    --v9;
   }
-  while ( v13 );
-  v36 = Sys_DefaultInstallPath();
+  while ( v9 );
+  v25 = Sys_DefaultInstallPath();
   do
-    ++v15;
-  while ( v36[v15] );
+    ++v11;
+  while ( v25[v11] );
   result = s_indyFs;
-  s_installPathLen = v15;
-LABEL_46:
-  __asm
-  {
-    vmovaps xmm7, [rsp+660h+var_40]
-    vmovaps xmm6, [rsp+660h+var_30]
-  }
+  s_installPathLen = v11;
   return result;
 }
 

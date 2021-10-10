@@ -499,46 +499,47 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
   gagent_s *agent; 
   GWeaponMap *Instance; 
   unsigned int v4; 
+  const Weapon *CurrentWeaponForPlayer; 
   const Weapon *Weapon; 
   int v7; 
   char v8; 
-  char v10; 
-  int v11; 
-  scrContext_t *v12; 
+  char v9; 
+  int v10; 
+  scrContext_t *v11; 
   unsigned int lastStateFlags; 
   int weaponState; 
-  int v18; 
+  int v14; 
   scr_string_t end_firing; 
   scr_string_t begin_firing; 
-  BOOL v21; 
+  BOOL v17; 
   scr_string_t end_firing_left; 
   scr_string_t begin_firing_left; 
-  int v24; 
+  int v20; 
   scr_string_t night_vision_off; 
   scr_string_t night_vision_on; 
-  int v27; 
+  int v23; 
   bool IsUsingNightVision; 
   scr_string_t sprint_end; 
   scr_string_t sprint_begin; 
-  int v31; 
+  int v27; 
   bool IsSprinting; 
-  char v33; 
-  bool v34; 
+  char v29; 
+  bool v30; 
   scr_string_t sprint_slide_end; 
-  bool v36; 
+  bool v32; 
   scr_string_t sprint_slide_begin; 
-  bool v38; 
+  bool v34; 
   scr_string_t mantle_end; 
-  bool v40; 
+  bool v36; 
   scr_string_t mantle_start; 
+  unsigned int v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  unsigned int v41; 
   unsigned int v42; 
   unsigned int v43; 
-  unsigned int v44; 
-  unsigned int v45; 
-  unsigned int v46; 
-  unsigned int v47; 
   bool value; 
-  char v50; 
+  char v46; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2426, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -548,7 +549,7 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
   Instance = GWeaponMap::GetInstance();
   value = 0;
   v4 = 0;
-  _R13 = BG_GetCurrentWeaponForPlayer(Instance, &agent->playerState);
+  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(Instance, &agent->playerState);
   do
   {
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
@@ -556,37 +557,30 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
     if ( !agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     Weapon = BgWeaponMap::GetWeapon(Instance, agent->playerState.weaponsEquipped[v4]);
-    if ( !memcmp_0(_R13, Weapon, 0x3Cui64) )
+    if ( !memcmp_0(CurrentWeaponForPlayer, Weapon, 0x3Cui64) )
       break;
     ++v4;
   }
   while ( v4 < 0xF );
   v7 = 0;
-  v8 = _R13->weaponIdx && v4 != 15 && BG_HasUnderbarrelAmmo(_R13) && agent->playerState.weapEquippedData[v4].inAltMode;
-  _RDI = &agent->ns;
+  v8 = CurrentWeaponForPlayer->weaponIdx && v4 != 15 && BG_HasUnderbarrelAmmo(CurrentWeaponForPlayer) && agent->playerState.weapEquippedData[v4].inAltMode;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v10 = agent->ns.lastStateFlags & 1;
-  if ( memcmp_0(_R13, &agent->ns, 0x3Cui64) || (v11 = 0, v8 != v10) )
-    v11 = 1;
-  if ( !memcmp_0(_R13, &agent->ns, 0x3Cui64) && v8 != v10 )
+  v9 = agent->ns.lastStateFlags & 1;
+  if ( memcmp_0(CurrentWeaponForPlayer, &agent->ns, 0x3Cui64) || (v10 = 0, v8 != v9) )
+    v10 = 1;
+  if ( !memcmp_0(CurrentWeaponForPlayer, &agent->ns, 0x3Cui64) && v8 != v9 )
     v7 = 1;
-  if ( v11 )
+  if ( v10 )
   {
-    v12 = ScriptContext_Server();
-    Scr_AddBool(v12, v7);
-    GScr_Weapon_AddParam(v12, _R13, v8);
+    v11 = ScriptContext_Server();
+    Scr_AddBool(v11, v7);
+    GScr_Weapon_AddParam(v11, CurrentWeaponForPlayer, v8);
     GScr_Notify(ent, scr_const.weapon_change, 2u);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r13+0]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr [r13+20h]
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  xmm0, qword ptr [r13+30h]
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&agent->ns.lastWeapon.weaponCamo = *(_DWORD *)&_R13->weaponCamo;
+    *(__m256i *)&agent->ns.lastWeapon.weaponIdx = *(__m256i *)&CurrentWeaponForPlayer->weaponIdx;
+    *(_OWORD *)&agent->ns.lastWeapon.attachmentVariationIndices[5] = *(_OWORD *)&CurrentWeaponForPlayer->attachmentVariationIndices[5];
+    *(double *)&agent->ns.lastWeapon.attachmentVariationIndices[21] = *(double *)&CurrentWeaponForPlayer->attachmentVariationIndices[21];
+    *(_DWORD *)&agent->ns.lastWeapon.weaponCamo = *(_DWORD *)&CurrentWeaponForPlayer->weaponCamo;
     if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
       __debugbreak();
     lastStateFlags = agent->ns.lastStateFlags;
@@ -596,19 +590,19 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
       agent->ns.lastStateFlags = lastStateFlags & 0xFFFFFFFE;
   }
   weaponState = agent->playerState.weapState[0].weaponState;
-  v18 = agent->playerState.weapState[1].weaponState;
+  v14 = agent->playerState.weapState[1].weaponState;
   end_firing = scr_const.end_firing;
   begin_firing = scr_const.begin_firing;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v21 = weaponState == 16 && agent->playerState.pm_type < 7;
-  if ( v21 == ((agent->ns.lastStateFlags >> 1) & 1) )
+  v17 = weaponState == 16 && agent->playerState.pm_type < 7;
+  if ( v17 == ((agent->ns.lastStateFlags >> 1) & 1) )
   {
-    LOBYTE(v21) = (agent->ns.lastStateFlags & 2) != 0;
+    LOBYTE(v17) = (agent->ns.lastStateFlags & 2) != 0;
   }
   else
   {
-    if ( v21 )
+    if ( v17 )
       end_firing = begin_firing;
     GScr_Notify(ent, end_firing, 0);
   }
@@ -616,22 +610,22 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
   begin_firing_left = scr_const.begin_firing_left;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  if ( v18 == 16 && agent->playerState.pm_type < 7 )
+  if ( v14 == 16 && agent->playerState.pm_type < 7 )
   {
-    v24 = 1;
+    v20 = 1;
     value = 1;
   }
   else
   {
-    v24 = 0;
+    v20 = 0;
   }
-  if ( v24 == ((agent->ns.lastStateFlags >> 2) & 1) )
+  if ( v20 == ((agent->ns.lastStateFlags >> 2) & 1) )
   {
     value = (agent->ns.lastStateFlags & 4) != 0;
   }
   else
   {
-    if ( v24 )
+    if ( v20 )
       end_firing_left = begin_firing_left;
     GScr_Notify(ent, end_firing_left, 0);
   }
@@ -639,12 +633,12 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
   night_vision_on = scr_const.night_vision_on;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v27 = (agent->ns.lastStateFlags >> 3) & 1;
+  v23 = (agent->ns.lastStateFlags >> 3) & 1;
   IsUsingNightVision = BG_IsUsingNightVision(&agent->playerState);
-  v50 = IsUsingNightVision;
-  if ( IsUsingNightVision == v27 )
+  v46 = IsUsingNightVision;
+  if ( IsUsingNightVision == v23 )
   {
-    v50 = v27;
+    v46 = v23;
   }
   else
   {
@@ -656,12 +650,12 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
   sprint_begin = scr_const.sprint_begin;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v31 = (agent->ns.lastStateFlags >> 4) & 1;
+  v27 = (agent->ns.lastStateFlags >> 4) & 1;
   IsSprinting = PM_IsSprinting(&agent->playerState);
-  v33 = IsSprinting;
-  if ( IsSprinting == v31 )
+  v29 = IsSprinting;
+  if ( IsSprinting == v27 )
   {
-    v33 = v31;
+    v29 = v27;
   }
   else
   {
@@ -669,35 +663,35 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
       sprint_end = sprint_begin;
     GScr_Notify(ent, sprint_end, 0);
   }
-  v34 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&agent->playerState.pm_flags, ACTIVE, 0x1Du);
+  v30 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&agent->playerState.pm_flags, ACTIVE, 0x1Du);
   sprint_slide_end = scr_const.sprint_slide_end;
-  v36 = v34;
+  v32 = v30;
   sprint_slide_begin = scr_const.sprint_slide_begin;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  if ( v36 == ((agent->ns.lastStateFlags >> 5) & 1) )
+  if ( v32 == ((agent->ns.lastStateFlags >> 5) & 1) )
   {
-    v36 = (agent->ns.lastStateFlags & 0x20) != 0;
+    v32 = (agent->ns.lastStateFlags & 0x20) != 0;
+  }
+  else
+  {
+    if ( v32 )
+      sprint_slide_end = sprint_slide_begin;
+    GScr_Notify(ent, sprint_slide_end, 0);
+  }
+  v34 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&agent->playerState.pm_flags, ACTIVE, 5u);
+  mantle_end = scr_const.mantle_end;
+  v36 = v34;
+  mantle_start = scr_const.mantle_start;
+  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  if ( v36 == ((agent->ns.lastStateFlags >> 9) & 1) )
+  {
+    v36 = (agent->ns.lastStateFlags & 0x200) != 0;
   }
   else
   {
     if ( v36 )
-      sprint_slide_end = sprint_slide_begin;
-    GScr_Notify(ent, sprint_slide_end, 0);
-  }
-  v38 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&agent->playerState.pm_flags, ACTIVE, 5u);
-  mantle_end = scr_const.mantle_end;
-  v40 = v38;
-  mantle_start = scr_const.mantle_start;
-  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  if ( v40 == ((agent->ns.lastStateFlags >> 9) & 1) )
-  {
-    v40 = (agent->ns.lastStateFlags & 0x200) != 0;
-  }
-  else
-  {
-    if ( v40 )
       mantle_end = mantle_start;
     GScr_Notify(ent, mantle_end, 0);
   }
@@ -705,40 +699,40 @@ void G_MainMP_AgentDoPerFrameNotifies(gentity_s *ent)
   *(_QWORD *)agent->ns.previouslyEnergyFilled = 0i64;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v42 = agent->ns.lastStateFlags | 2;
-  if ( !v21 )
-    v42 = agent->ns.lastStateFlags & 0xFFFFFFFD;
+  v38 = agent->ns.lastStateFlags | 2;
+  if ( !v17 )
+    v38 = agent->ns.lastStateFlags & 0xFFFFFFFD;
+  agent->ns.lastStateFlags = v38;
+  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  v39 = agent->ns.lastStateFlags | 4;
+  if ( !value )
+    v39 = agent->ns.lastStateFlags & 0xFFFFFFFB;
+  agent->ns.lastStateFlags = v39;
+  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  v40 = agent->ns.lastStateFlags | 8;
+  if ( !v46 )
+    v40 = agent->ns.lastStateFlags & 0xFFFFFFF7;
+  agent->ns.lastStateFlags = v40;
+  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  v41 = agent->ns.lastStateFlags | 0x10;
+  if ( !v29 )
+    v41 = agent->ns.lastStateFlags & 0xFFFFFFEF;
+  agent->ns.lastStateFlags = v41;
+  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  v42 = agent->ns.lastStateFlags | 0x20;
+  if ( !v32 )
+    v42 = agent->ns.lastStateFlags & 0xFFFFFFDF;
   agent->ns.lastStateFlags = v42;
   if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v43 = agent->ns.lastStateFlags | 4;
-  if ( !value )
-    v43 = agent->ns.lastStateFlags & 0xFFFFFFFB;
-  agent->ns.lastStateFlags = v43;
-  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  v44 = agent->ns.lastStateFlags | 8;
-  if ( !v50 )
-    v44 = agent->ns.lastStateFlags & 0xFFFFFFF7;
-  agent->ns.lastStateFlags = v44;
-  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  v45 = agent->ns.lastStateFlags | 0x10;
-  if ( !v33 )
-    v45 = agent->ns.lastStateFlags & 0xFFFFFFEF;
-  agent->ns.lastStateFlags = v45;
-  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  v46 = agent->ns.lastStateFlags | 0x20;
+  v43 = agent->ns.lastStateFlags | 0x200;
   if ( !v36 )
-    v46 = agent->ns.lastStateFlags & 0xFFFFFFDF;
-  agent->ns.lastStateFlags = v46;
-  if ( agent == (gagent_s *)-53684i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  v47 = agent->ns.lastStateFlags | 0x200;
-  if ( !v40 )
-    v47 = agent->ns.lastStateFlags & 0xFFFFFDFF;
-  agent->ns.lastStateFlags = v47;
+    v43 = agent->ns.lastStateFlags & 0xFFFFFDFF;
+  agent->ns.lastStateFlags = v43;
 }
 
 /*
@@ -1222,24 +1216,19 @@ G_MainMP_CheckEntityPositionChange
 void G_MainMP_CheckEntityPositionChange(const gentity_s *ent)
 {
   __int64 number; 
-  __int64 v6; 
+  __int64 v3; 
 
-  _RBX = ent;
   if ( SV_EntitiesPartitioning_ShouldUpdatePositionDirtyFlag() )
   {
-    number = _RBX->s.number;
-    _RDI = s_entitiesPosition;
-    _RDX = 3 * number;
-    __asm
+    number = ent->s.number;
+    if ( s_entitiesPosition[number].v[0] != ent->r.currentOrigin.v[0] || s_entitiesPosition[number].v[1] != ent->r.currentOrigin.v[1] || s_entitiesPosition[number].v[2] != ent->r.currentOrigin.v[2] )
     {
-      vmovss  xmm0, dword ptr [rdi+rdx*4]
-      vucomiss xmm0, dword ptr [rbx+130h]
+      SV_EntitiesPartitioning_SetDirtyFlag(number);
+      v3 = ent->s.number;
+      s_entitiesPosition[v3].v[0] = ent->r.currentOrigin.v[0];
+      s_entitiesPosition[v3].v[1] = ent->r.currentOrigin.v[1];
+      s_entitiesPosition[v3].v[2] = ent->r.currentOrigin.v[2];
     }
-    SV_EntitiesPartitioning_SetDirtyFlag(number);
-    v6 = _RBX->s.number;
-    s_entitiesPosition[v6].v[0] = _RBX->r.currentOrigin.v[0];
-    s_entitiesPosition[v6].v[1] = _RBX->r.currentOrigin.v[1];
-    s_entitiesPosition[v6].v[2] = _RBX->r.currentOrigin.v[2];
   }
 }
 
@@ -1389,45 +1378,47 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
   GWeaponMap *Instance; 
   int v4; 
   unsigned int v5; 
+  const Weapon *CurrentWeaponForPlayer; 
   const Weapon *Weapon; 
   char v8; 
+  __m256i *p_ns; 
   char v10; 
   int v11; 
   scrContext_t *v12; 
   unsigned int lastStateFlags; 
   int weaponState; 
-  int v18; 
+  int v15; 
   scr_string_t end_firing; 
   scr_string_t begin_firing; 
-  BOOL v21; 
+  BOOL v18; 
   scr_string_t end_firing_left; 
   scr_string_t begin_firing_left; 
-  int v24; 
+  int v21; 
   scr_string_t night_vision_off; 
   scr_string_t night_vision_on; 
-  int v27; 
+  int v24; 
   bool IsUsingNightVision; 
-  char v29; 
+  char v26; 
   scr_string_t sprint_end; 
   scr_string_t sprint_begin; 
-  int v32; 
+  int v29; 
   bool IsSprinting; 
-  char v34; 
-  bool v35; 
+  char v31; 
+  bool v32; 
   scr_string_t sprint_slide_end; 
   scr_string_t sprint_slide_begin; 
-  bool v38; 
-  bool v39; 
+  bool v35; 
+  bool v36; 
   scr_string_t mantle_end; 
-  bool v41; 
+  bool v38; 
   scr_string_t mantle_start; 
+  unsigned int v40; 
+  unsigned int v41; 
+  unsigned int v42; 
   unsigned int v43; 
   unsigned int v44; 
   unsigned int v45; 
-  unsigned int v46; 
-  unsigned int v47; 
-  unsigned int v48; 
-  bool v50; 
+  bool v47; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2329, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -1438,44 +1429,38 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
   v4 = 0;
-  v50 = 0;
+  v47 = 0;
   v5 = 0;
-  _R14 = BG_GetCurrentWeaponForPlayer(Instance, &client->ps);
+  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(Instance, &client->ps);
   do
   {
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     Weapon = BgWeaponMap::GetWeapon(Instance, client->ps.weaponsEquipped[v5]);
-    if ( !memcmp_0(_R14, Weapon, 0x3Cui64) )
+    if ( !memcmp_0(CurrentWeaponForPlayer, Weapon, 0x3Cui64) )
       break;
     ++v5;
   }
   while ( v5 < 0xF );
-  v8 = _R14->weaponIdx && v5 != 15 && BG_HasUnderbarrelAmmo(_R14) && client->ps.weapEquippedData[v5].inAltMode;
-  _RDI = &client->ns;
+  v8 = CurrentWeaponForPlayer->weaponIdx && v5 != 15 && BG_HasUnderbarrelAmmo(CurrentWeaponForPlayer) && client->ps.weapEquippedData[v5].inAltMode;
+  p_ns = (__m256i *)&client->ns;
   if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
   v10 = client->ns.lastStateFlags & 1;
-  if ( memcmp_0(_R14, &client->ns, 0x3Cui64) || (v11 = 0, v8 != v10) )
+  if ( memcmp_0(CurrentWeaponForPlayer, &client->ns, 0x3Cui64) || (v11 = 0, v8 != v10) )
     v11 = 1;
-  if ( !memcmp_0(_R14, &client->ns, 0x3Cui64) && v8 != v10 )
+  if ( !memcmp_0(CurrentWeaponForPlayer, &client->ns, 0x3Cui64) && v8 != v10 )
     v4 = 1;
   if ( v11 )
   {
     v12 = ScriptContext_Server();
     Scr_AddBool(v12, v4);
-    GScr_Weapon_AddParam(v12, _R14, v8);
+    GScr_Weapon_AddParam(v12, CurrentWeaponForPlayer, v8);
     GScr_Notify(ent, scr_const.weapon_change, 2u);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr [r14+20h]
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  xmm0, qword ptr [r14+30h]
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&client->ns.lastWeapon.weaponCamo = *(_DWORD *)&_R14->weaponCamo;
+    *p_ns = *(__m256i *)&CurrentWeaponForPlayer->weaponIdx;
+    *(_OWORD *)&client->ns.lastWeapon.attachmentVariationIndices[5] = *(_OWORD *)&CurrentWeaponForPlayer->attachmentVariationIndices[5];
+    *(double *)&client->ns.lastWeapon.attachmentVariationIndices[21] = *(double *)&CurrentWeaponForPlayer->attachmentVariationIndices[21];
+    *(_DWORD *)&client->ns.lastWeapon.weaponCamo = *(_DWORD *)&CurrentWeaponForPlayer->weaponCamo;
     if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
       __debugbreak();
     lastStateFlags = client->ns.lastStateFlags;
@@ -1485,19 +1470,19 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
       client->ns.lastStateFlags = lastStateFlags & 0xFFFFFFFE;
   }
   weaponState = client->ps.weapState[0].weaponState;
-  v18 = client->ps.weapState[1].weaponState;
+  v15 = client->ps.weapState[1].weaponState;
   end_firing = scr_const.end_firing;
   begin_firing = scr_const.begin_firing;
   if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v21 = weaponState == 16 && client->ps.pm_type < 7;
-  if ( v21 == ((client->ns.lastStateFlags >> 1) & 1) )
+  v18 = weaponState == 16 && client->ps.pm_type < 7;
+  if ( v18 == ((client->ns.lastStateFlags >> 1) & 1) )
   {
-    LOBYTE(v21) = (client->ns.lastStateFlags & 2) != 0;
+    LOBYTE(v18) = (client->ns.lastStateFlags & 2) != 0;
   }
   else
   {
-    if ( v21 )
+    if ( v18 )
       end_firing = begin_firing;
     GScr_Notify(ent, end_firing, 0);
   }
@@ -1505,22 +1490,22 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
   begin_firing_left = scr_const.begin_firing_left;
   if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  if ( v18 == 16 && client->ps.pm_type < 7 )
+  if ( v15 == 16 && client->ps.pm_type < 7 )
   {
-    v24 = 1;
-    v50 = 1;
+    v21 = 1;
+    v47 = 1;
   }
   else
   {
-    v24 = 0;
+    v21 = 0;
   }
-  if ( v24 == ((client->ns.lastStateFlags >> 2) & 1) )
+  if ( v21 == ((client->ns.lastStateFlags >> 2) & 1) )
   {
-    v50 = (client->ns.lastStateFlags & 4) != 0;
+    v47 = (client->ns.lastStateFlags & 4) != 0;
   }
   else
   {
-    if ( v24 )
+    if ( v21 )
       end_firing_left = begin_firing_left;
     GScr_Notify(ent, end_firing_left, 0);
   }
@@ -1528,12 +1513,12 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
   night_vision_on = scr_const.night_vision_on;
   if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v27 = (client->ns.lastStateFlags >> 3) & 1;
+  v24 = (client->ns.lastStateFlags >> 3) & 1;
   IsUsingNightVision = BG_IsUsingNightVision(&client->ps);
-  v29 = IsUsingNightVision;
-  if ( IsUsingNightVision == v27 )
+  v26 = IsUsingNightVision;
+  if ( IsUsingNightVision == v24 )
   {
-    v29 = v27;
+    v26 = v24;
   }
   else
   {
@@ -1545,12 +1530,12 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
   sprint_begin = scr_const.sprint_begin;
   if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v32 = (client->ns.lastStateFlags >> 4) & 1;
+  v29 = (client->ns.lastStateFlags >> 4) & 1;
   IsSprinting = PM_IsSprinting(&client->ps);
-  v34 = IsSprinting;
-  if ( IsSprinting == v32 )
+  v31 = IsSprinting;
+  if ( IsSprinting == v29 )
   {
-    v34 = v32;
+    v31 = v29;
   }
   else
   {
@@ -1558,74 +1543,74 @@ void G_MainMP_ClientDoPerFrameNotifies(gentity_s *ent)
       sprint_end = sprint_begin;
     GScr_Notify(ent, sprint_end, 0);
   }
-  v35 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0x1Du);
+  v32 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0x1Du);
   sprint_slide_end = scr_const.sprint_slide_end;
   sprint_slide_begin = scr_const.sprint_slide_begin;
-  v38 = v35;
+  v35 = v32;
   if ( client == (gclient_s *)-24396i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  if ( v38 == ((client->ns.lastStateFlags >> 5) & 1) )
+  if ( v35 == ((client->ns.lastStateFlags >> 5) & 1) )
   {
-    v38 = (client->ns.lastStateFlags & 0x20) != 0;
+    v35 = (client->ns.lastStateFlags & 0x20) != 0;
+  }
+  else
+  {
+    if ( v35 )
+      sprint_slide_end = sprint_slide_begin;
+    GScr_Notify(ent, sprint_slide_end, 0);
+  }
+  v36 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 5u);
+  mantle_end = scr_const.mantle_end;
+  v38 = v36;
+  mantle_start = scr_const.mantle_start;
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  if ( v38 == (((unsigned int)p_ns[1].m256i_i32[7] >> 9) & 1) )
+  {
+    v38 = (p_ns[1].m256i_i32[7] & 0x200) != 0;
   }
   else
   {
     if ( v38 )
-      sprint_slide_end = sprint_slide_begin;
-    GScr_Notify(ent, sprint_slide_end, 0);
-  }
-  v39 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 5u);
-  mantle_end = scr_const.mantle_end;
-  v41 = v39;
-  mantle_start = scr_const.mantle_start;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 942, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  if ( v41 == ((_RDI->lastStateFlags >> 9) & 1) )
-  {
-    v41 = (_RDI->lastStateFlags & 0x200) != 0;
-  }
-  else
-  {
-    if ( v41 )
       mantle_end = mantle_start;
     GScr_Notify(ent, mantle_end, 0);
   }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v43 = _RDI->lastStateFlags | 2;
-  if ( !v21 )
-    v43 = _RDI->lastStateFlags & 0xFFFFFFFD;
-  _RDI->lastStateFlags = v43;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+  v40 = p_ns[1].m256i_i32[7] | 2;
+  if ( !v18 )
+    v40 = p_ns[1].m256i_i32[7] & 0xFFFFFFFD;
+  p_ns[1].m256i_i32[7] = v40;
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v44 = _RDI->lastStateFlags | 4;
-  if ( !v50 )
-    v44 = _RDI->lastStateFlags & 0xFFFFFFFB;
-  _RDI->lastStateFlags = v44;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+  v41 = p_ns[1].m256i_i32[7] | 4;
+  if ( !v47 )
+    v41 = p_ns[1].m256i_i32[7] & 0xFFFFFFFB;
+  p_ns[1].m256i_i32[7] = v41;
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v45 = _RDI->lastStateFlags | 8;
-  if ( !v29 )
-    v45 = _RDI->lastStateFlags & 0xFFFFFFF7;
-  _RDI->lastStateFlags = v45;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+  v42 = p_ns[1].m256i_i32[7] | 8;
+  if ( !v26 )
+    v42 = p_ns[1].m256i_i32[7] & 0xFFFFFFF7;
+  p_ns[1].m256i_i32[7] = v42;
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v46 = _RDI->lastStateFlags | 0x10;
-  if ( !v34 )
-    v46 = _RDI->lastStateFlags & 0xFFFFFFEF;
-  _RDI->lastStateFlags = v46;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+  v43 = p_ns[1].m256i_i32[7] | 0x10;
+  if ( !v31 )
+    v43 = p_ns[1].m256i_i32[7] & 0xFFFFFFEF;
+  p_ns[1].m256i_i32[7] = v43;
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
     __debugbreak();
-  v47 = _RDI->lastStateFlags | 0x20;
+  v44 = p_ns[1].m256i_i32[7] | 0x20;
+  if ( !v35 )
+    v44 = p_ns[1].m256i_i32[7] & 0xFFFFFFDF;
+  p_ns[1].m256i_i32[7] = v44;
+  if ( !p_ns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
+    __debugbreak();
+  v45 = p_ns[1].m256i_i32[7] | 0x200;
   if ( !v38 )
-    v47 = _RDI->lastStateFlags & 0xFFFFFFDF;
-  _RDI->lastStateFlags = v47;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_local.h", 951, ASSERT_TYPE_ASSERT, "( notifyState )", (const char *)&queryFormat, "notifyState") )
-    __debugbreak();
-  v48 = _RDI->lastStateFlags | 0x200;
-  if ( !v41 )
-    v48 = _RDI->lastStateFlags & 0xFFFFFDFF;
-  _RDI->lastStateFlags = v48;
+    v45 = p_ns[1].m256i_i32[7] & 0xFFFFFDFF;
+  p_ns[1].m256i_i32[7] = v45;
 }
 
 /*
@@ -2169,11 +2154,8 @@ void __fastcall G_MainMP_FreeEntities(double _XMM0_8)
     __debugbreak();
   if ( g_entityIsInUse[2047] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 821, ASSERT_TYPE_ASSERT, "(!G_IsEntityInUse( ENTITYNUM_NONE ))", (const char *)&queryFormat, "!G_IsEntityInUse( ENTITYNUM_NONE )") )
     __debugbreak();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:?level@@3Ulevel_locals_t@@A.firstFreeEnt, xmm0; level_locals_t level
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&level.firstFreeEnt = _XMM0;
   level.num_entities = 0;
 }
 
@@ -2414,35 +2396,34 @@ void G_MainMP_InitGame(const SvServerInitSettings *initSettings, int levelTime, 
   int v9; 
   const char *v10; 
   bool isRestart; 
-  bool v15; 
-  const char *v16; 
-  scrContext_t *v17; 
+  bool v14; 
+  const char *v15; 
+  scrContext_t *v16; 
   bool isFrontEnd; 
-  unsigned int *v19; 
+  unsigned int *v18; 
+  const dvar_t *v19; 
   const dvar_t *v20; 
   const dvar_t *v21; 
-  const dvar_t *v22; 
   const char *String_Internal_DebugName; 
-  fsMode_t v24; 
+  fsMode_t v23; 
+  const char *v24; 
   const char *v25; 
-  const char *v26; 
   int i; 
-  bool v28; 
+  bool v27; 
   const SaveHeader *Header; 
   bool serverThreadStartup; 
-  GPlayer_Asm *v31; 
+  GPlayer_Asm *v30; 
   int AgentCount; 
   gagent_s *agents; 
-  int v34; 
-  __int64 v35; 
-  const SaveHeader *v37; 
+  int v33; 
+  __int64 v34; 
+  const SaveHeader *v36; 
   GameScriptDataMP *GameScriptDataMP; 
-  SaveGame *v42; 
-  bool v43; 
-  int v44; 
-  char *fmt; 
+  SaveGame *v38; 
+  bool v39; 
+  int v40; 
   char *description; 
-  __int64 v47; 
+  __int64 v42; 
   int levelTimea; 
   SaveGame *saveGame; 
   int checksum[4]; 
@@ -2486,28 +2467,23 @@ LABEL_17:
     NetConstStrings_ResetNetworkDvars();
     G_MainMP_RegisterDvars();
   }
-  __asm { vmovsd  xmm0, cs:__real@3ff0000000000000 }
+  _XMM0 = *(unsigned __int64 *)&DOUBLE_1_0;
   level.initializing = 1;
   isRestart = initSettings->isRestart;
-  __asm
-  {
-    vxorpd  xmm3, xmm3, xmm3
-    vmovq   r9, xmm3
-  }
-  v15 = !isRestart;
-  __asm { vmovsd  [rsp+138h+fmt], xmm0 }
-  v16 = j_va("%i %i %g %g", 0i64, 0i64, _R9, fmt);
-  SV_SetConfigstring(0x217u, v16);
-  v17 = ScriptContext_Server();
-  GScr_Weapon_Init(v17, !isRestart);
+  __asm { vxorpd  xmm3, xmm3, xmm3 }
+  v14 = !isRestart;
+  v15 = j_va("%i %i %g %g", 0i64, 0i64, (_QWORD)_XMM3, DOUBLE_1_0);
+  SV_SetConfigstring(0x217u, v15);
+  v16 = ScriptContext_Server();
+  GScr_Weapon_Init(v16, !isRestart);
   isFrontEnd = initSettings->isFrontEnd;
   if ( isFrontEnd )
     Path_Reset();
   else
     Path_Init(initSettings->isRestart, 0);
-  Scr_SetUseCodePosMap(v17, 0);
+  Scr_SetUseCodePosMap(v16, 0);
   if ( !initSettings->isSaveGame )
-    Scr_ShutdownCodeOffsetMap(v17);
+    Scr_ShutdownCodeOffsetMap(v16);
   G_Door_Reset();
   G_Vehicle_ClearServerDefs();
   G_FXEntity_ClearSystem();
@@ -2528,8 +2504,8 @@ LABEL_17:
   Com_sprintf(dest, 0x80ui64, "scr_%s_roundlimit", initSettings->gameType);
   Dvar_RegisterInt(dest, 0, 0x80000000, 0x7FFFFFFF, 0x80180u, "script round limit");
   G_Main_SetupGameTypeQuick(initSettings->gameType);
-  v19 = G_GetRandomSeed();
-  SV_DemoMP_Init(initSettings, saveGame, v19, &levelTimea);
+  v18 = G_GetRandomSeed();
+  SV_DemoMP_Init(initSettings, saveGame, v18, &levelTimea);
   level.cachedTagMat.entnum = 2047;
   level.time = levelTimea;
   level.startTime = levelTimea;
@@ -2546,7 +2522,7 @@ LABEL_17:
   XAnimIKInit(1);
   level.tagIKTargetModelLeft = SV_Game_GetXModel("tag_ik_target_left");
   level.tagIKTargetModelRight = SV_Game_GetXModel("tag_ik_target_right");
-  CL_Cameraman_Init(v15);
+  CL_Cameraman_Init(v14);
   G_FrontEndScene_Init(initSettings->isFrontEnd);
   if ( isRestart )
   {
@@ -2557,60 +2533,60 @@ LABEL_17:
     NetConstStrings_CallForCommonModels(G_MainMP_InitServerNetConstModels_Callback);
     NetConstStrings_CallForCommonShockStrings(G_Main_PrecacheServerShellshock);
   }
-  G_XCompositeModel_InitDefs(v15);
-  BG_Camo_InitNCS(v15);
+  G_XCompositeModel_InitDefs(v14);
+  BG_Camo_InitNCS(v14);
   G_Weapon_SetupWeaponDef(!initSettings->isFrontEnd);
-  G_Main_InitSuits(v15);
-  Rumble_Init(v15);
-  BG_AnimationMP_RegisterSuitAnimIndexes(v15);
-  BG_Gesture_InitGestures(v15);
-  BG_Camera_Init(v15);
-  XAnimCurve_InitCurves(v15);
-  BG_BlendSpace2D_InitDefs(v15);
-  BG_Execution_InitAssets(v15);
-  BG_CarryObject_InitDefs(v15);
-  BG_HudOutline_InitDefs(v15);
-  BG_Accessory_InitAssets(v15);
+  G_Main_InitSuits(v14);
+  Rumble_Init(v14);
+  BG_AnimationMP_RegisterSuitAnimIndexes(v14);
+  BG_Gesture_InitGestures(v14);
+  BG_Camera_Init(v14);
+  XAnimCurve_InitCurves(v14);
+  BG_BlendSpace2D_InitDefs(v14);
+  BG_Execution_InitAssets(v14);
+  BG_CarryObject_InitDefs(v14);
+  BG_HudOutline_InitDefs(v14);
+  BG_Accessory_InitAssets(v14);
   BG_WorldStreaming_Init(!initSettings->isFrontEnd);
   GPlayerEventsMP::RegisterEvents();
   GClienThinkTaskManager::ClearTasks(&GClienThinkTaskManager::ms_clientTaskGlobalManager);
   GClienThinkTaskManager::ClearTaskFlags(&GClienThinkTaskManager::ms_clientTaskGlobalManager);
-  v20 = DVARBOOL_g_logEnable;
+  v19 = DVARBOOL_g_logEnable;
   if ( !DVARBOOL_g_logEnable )
     goto LABEL_52;
   Dvar_CheckFrontendServerThread(DVARBOOL_g_logEnable);
-  if ( !v20->current.enabled )
+  if ( !v19->current.enabled )
     goto LABEL_52;
-  v21 = DVARSTR_g_log;
+  v20 = DVARSTR_g_log;
   if ( !DVARSTR_g_log && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_log") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  if ( *(_BYTE *)v21->current.integer64 )
+  Dvar_CheckFrontendServerThread(v20);
+  if ( *(_BYTE *)v20->current.integer64 )
   {
-    v22 = DVARBOOL_g_logSync;
+    v21 = DVARBOOL_g_logSync;
     if ( !DVARBOOL_g_logSync && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_logSync") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v21);
+    if ( v21->current.enabled )
     {
       String_Internal_DebugName = Dvar_GetString_Internal_DebugName(DVARSTR_g_log, "g_log");
-      v24 = FS_APPEND_SYNC;
+      v23 = FS_APPEND_SYNC;
     }
     else
     {
       String_Internal_DebugName = Dvar_GetString_Internal_DebugName(DVARSTR_g_log, "g_log");
-      v24 = FS_APPEND;
+      v23 = FS_APPEND;
     }
-    FS_FOpenFileByMode(String_Internal_DebugName, &level.logFile, v24);
+    FS_FOpenFileByMode(String_Internal_DebugName, &level.logFile, v23);
     if ( level.logFile.handle.handle == -1 )
     {
-      v25 = Dvar_GetString_Internal_DebugName(DVARSTR_g_log, "g_log");
-      Com_PrintWarning(15, "WARNING: Couldn't open logfile: %s\n", v25);
+      v24 = Dvar_GetString_Internal_DebugName(DVARSTR_g_log, "g_log");
+      Com_PrintWarning(15, "WARNING: Couldn't open logfile: %s\n", v24);
     }
     else
     {
-      v26 = Dvar_GetString_Internal_DebugName(DVARSTR_g_log, "g_log");
-      Com_Printf(15, "Logging to disk: '%s'.\n", v26);
+      v25 = Dvar_GetString_Internal_DebugName(DVARSTR_g_log, "g_log");
+      Com_Printf(15, "Logging to disk: '%s'.\n", v25);
       G_MainMP_LogPrintf("------------------------------------------------------------\n");
       G_MainMP_LogPrintf("InitGame\n");
     }
@@ -2643,7 +2619,7 @@ LABEL_52:
   G_Trigger_InitSystem();
   GMissile::ClearMissileRegistry();
   GMissile::ClearMissileEventRegistry();
-  G_Weapon_SetupLevelWeaponDef(v15);
+  G_Weapon_SetupLevelWeaponDef(v14);
   if ( isRestart )
   {
     NetConstStrings_CallForLevelModels(G_MainMP_VerifyServerNetConstModels_Callback);
@@ -2653,8 +2629,8 @@ LABEL_52:
     NetConstStrings_CallForLevelModels(G_MainMP_InitServerNetConstModels_Callback);
     NetConstStrings_CallForLevelShockStrings(G_Main_PrecacheServerShellshock);
   }
-  ScriptableBg_InitNetConstStringDefs(v15);
-  v28 = initSettings->isSaveGame && !SV_IsDemoPlaying();
+  ScriptableBg_InitNetConstStringDefs(v14);
+  v27 = initSettings->isSaveGame && !SV_IsDemoPlaying();
   if ( !level.gentities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1591, ASSERT_TYPE_ASSERT, "( level.gentities )", (const char *)&queryFormat, "level.gentities") )
     __debugbreak();
   if ( !level.clients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1592, ASSERT_TYPE_ASSERT, "( level.clients )", (const char *)&queryFormat, "level.clients") )
@@ -2667,12 +2643,12 @@ LABEL_52:
   {
     BG_CheckThread();
     GScr_MainMP_LoadScripts(initSettings);
-    G_MainMP_InitBgAnimations(initSettings, v15);
+    G_MainMP_InitBgAnimations(initSettings, v14);
     if ( !isFrontEnd )
       Ai_Asm::Init(initSettings->serverThreadStartup);
-    if ( v28 )
+    if ( v27 )
     {
-      Scr_GetChecksum(v17, checksum);
+      Scr_GetChecksum(v16, checksum);
       Header = G_SaveMemoryMP_GetHeader(saveGame);
       if ( checksum[0] != Header->scrCheckSum[0] || checksum[1] != Header->scrCheckSum[1] || checksum[2] != Header->scrCheckSum[2] )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBF688, 381i64);
@@ -2683,30 +2659,30 @@ LABEL_52:
     serverThreadStartup = initSettings->serverThreadStartup;
     if ( PlayerASM_IsEnabled() )
     {
-      v31 = GPlayer_Asm::Singleton();
-      BgPlayer_Asm::Init(v31, v15, serverThreadStartup);
+      v30 = GPlayer_Asm::Singleton();
+      BgPlayer_Asm::Init(v30, v14, serverThreadStartup);
     }
   }
   *(_WORD *)&level.damageNotifyQueued = 0;
   if ( level.maxclients > s_clientOmnvarAllocatedCount )
   {
-    LODWORD(v47) = s_clientOmnvarAllocatedCount;
+    LODWORD(v42) = s_clientOmnvarAllocatedCount;
     LODWORD(description) = level.maxclients;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1629, ASSERT_TYPE_ASSERT, "( level.maxclients ) <= ( s_clientOmnvarAllocatedCount )", "level.maxclients <= s_clientOmnvarAllocatedCount\n\t%i, %i", description, v47) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1629, ASSERT_TYPE_ASSERT, "( level.maxclients ) <= ( s_clientOmnvarAllocatedCount )", "level.maxclients <= s_clientOmnvarAllocatedCount\n\t%i, %i", description, v42) )
       __debugbreak();
   }
   if ( !s_clientOmnvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1630, ASSERT_TYPE_ASSERT, "( s_clientOmnvars )", (const char *)&queryFormat, "s_clientOmnvars") )
     __debugbreak();
   level.clientOmnvars = s_clientOmnvars;
-  if ( !v28 )
+  if ( !v27 )
     BG_Omnvar_LoadGamescopeDefaults(level.gameOmnvars->omnvars);
   AgentCount = SV_GameMP_GetAgentCount();
   level.maxagents = AgentCount;
   if ( AgentCount > s_agentAllocatedCount )
   {
-    LODWORD(v47) = s_agentAllocatedCount;
+    LODWORD(v42) = s_agentAllocatedCount;
     LODWORD(description) = AgentCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1639, ASSERT_TYPE_ASSERT, "( level.maxagents ) <= ( s_agentAllocatedCount )", "level.maxagents <= s_agentAllocatedCount\n\t%i, %i", description, v47) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 1639, ASSERT_TYPE_ASSERT, "( level.maxagents ) <= ( s_agentAllocatedCount )", "level.maxagents <= s_agentAllocatedCount\n\t%i, %i", description, v42) )
       __debugbreak();
     AgentCount = level.maxagents;
   }
@@ -2726,14 +2702,14 @@ LABEL_52:
     }
     memset_0(agents, 0, 55952i64 * AgentCount);
     level.agents = agents;
-    v34 = 0;
+    v33 = 0;
     if ( level.maxagents > 0 )
     {
-      v35 = 0i64;
+      v34 = 0i64;
       while ( 1 )
       {
-        agents[v35++].agentState.entityNum = 2047;
-        if ( ++v34 >= level.maxagents )
+        agents[v34++].agentState.entityNum = 2047;
+        if ( ++v33 >= level.maxagents )
           break;
         agents = level.agents;
       }
@@ -2744,11 +2720,8 @@ LABEL_52:
   G_Sentient_InitSentients(0x110u, 0x18u);
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 144, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:?level@@3Ulevel_locals_t@@A.firstFreeEnt, xmm0; level_locals_t level
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&level.firstFreeEnt = _XMM0;
   level.num_entities = ComCharacterLimits::ms_gameData.m_staticEntityCount;
   SV_Game_LocateGameData(level.gentities, ComCharacterLimits::ms_gameData.m_staticEntityCount, &level.clients->ps, 64592);
   G_Combat_InitHitLocDmgTable();
@@ -2758,8 +2731,8 @@ LABEL_52:
   GTurret::InitTurrets();
   if ( initSettings->isSaveGame )
   {
-    v37 = G_SaveMemoryMP_GetHeader(saveGame);
-    ScriptableSv_SetSaveLootSeed(v37->sp.transientLoaded.array[0]);
+    v36 = G_SaveMemoryMP_GetHeader(saveGame);
+    ScriptableSv_SetSaveLootSeed(v36->sp.transientLoaded.array[0]);
   }
   ScriptableSv_Init(initSettings->isFrontEnd);
   Path_PreSpawnInitPaths();
@@ -2772,26 +2745,17 @@ LABEL_52:
   if ( Path_UsePathExtraData() )
     Path_SpawnZoneNodes();
   G_Vehicle_SetupSystem();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@7f7fffff
-    vmovss  cs:?level@@3Ulevel_locals_t@@A.fFogOpaqueDist, xmm0; level_locals_t level
-    vmovss  cs:?level@@3Ulevel_locals_t@@A.fFogOpaqueDistSqrd, xmm0; level_locals_t level
-  }
+  level.fFogOpaqueDist = FLOAT_3_4028235e38;
+  level.fFogOpaqueDistSqrd = FLOAT_3_4028235e38;
   if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 134, ASSERT_TYPE_ASSERT, "(Com_IsWorldLoaded())", (const char *)&queryFormat, "Com_IsWorldLoaded()") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?comWorld@@3UComWorld@@A.umbraGateInitialStates.array; ComWorld comWorld
-    vmovups xmm1, xmmword ptr cs:?comWorld@@3UComWorld@@A.umbraGateInitialStates.array+20h; ComWorld comWorld
-    vmovups ymmword ptr cs:?level@@3Ulevel_locals_t@@A.umbraGateStates.array, ymm0; level_locals_t level
-    vmovups xmmword ptr cs:?level@@3Ulevel_locals_t@@A.umbraGateStates.array+20h, xmm1; level_locals_t level
-  }
+  *(__m256i *)level.umbraGateStates.array = *(__m256i *)comWorld.umbraGateInitialStates.array;
+  *(_OWORD *)&level.umbraGateStates.array[8] = *(_OWORD *)&comWorld.umbraGateInitialStates.array[8];
   G_Objectives_Init();
   G_CalloutMarkerPing_Init();
   G_InitDialogQueues();
   G_Missile_InitAttractors();
-  Scr_FreeEntityList(v17);
+  Scr_FreeEntityList(v16);
   GameScriptDataMP = GameScriptDataMP::GetGameScriptDataMP();
   GameScriptDataMP->playerCorpseInfo[0].entnum = -1;
   GameScriptDataMP->playerCorpseInfo[1].entnum = -1;
@@ -2813,24 +2777,24 @@ LABEL_52:
   G_PlayerSpawnPoints_Init();
   G_MinimizedUsePrompts_Init();
   Com_Printf(15, "-----------------------------------\n");
-  v42 = saveGame;
+  v38 = saveGame;
   if ( !saveGame || SV_IsDemoPlaying() )
   {
     SV_DemoMP_FinishDemoInit(initSettings);
     if ( !SV_DemoMP_UsingDemoHistory() )
     {
-      v43 = initSettings->serverThreadStartup;
+      v39 = initSettings->serverThreadStartup;
       if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
         __debugbreak();
-      v44 = level.frameDuration;
+      v40 = level.frameDuration;
       if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
         __debugbreak();
-      Scr_InitSystem(v17, 1, (const ScrThreadMode)v43, level.frameDuration, v44);
-      Scr_SetLoading(v17, 1);
-      Scr_AllocGameVariable(v17);
+      Scr_InitSystem(v16, 1, (const ScrThreadMode)v39, level.frameDuration, v40);
+      Scr_SetLoading(v16, 1);
+      Scr_AllocGameVariable(v16);
       G_Spawn_LoadStructs();
       Scr_LoadGameType();
-      GScr_MainMP_PrecacheAiTypes(v17);
+      GScr_MainMP_PrecacheAiTypes(v16);
       Path_ResolveParentIndices();
       Path_PostSpawnInitPaths(0, 0);
       G_UpdateTrackExtraNodes();
@@ -2839,7 +2803,7 @@ LABEL_52:
       GScr_LoadLevel();
       if ( !initSettings->isFrontEnd && !initSettings->isRestart )
         SV_OnlineTournament_Init();
-      if ( !v28 )
+      if ( !v27 )
         ScriptableSv_InitServerInstances();
       Scr_StartupGameType();
       if ( !initSettings->isFrontEnd )
@@ -2858,8 +2822,8 @@ LABEL_52:
           Scr_AgentGameTypeMain();
         }
       }
-      Scr_SetLoading(v17, 0);
-      Scr_InitUsageAnalysis(v17);
+      Scr_SetLoading(v16, 0);
+      Scr_InitUsageAnalysis(v16);
       GScr_ResetOpcodeProfile();
       G_GameInterface_PostLoadMapStabilityChecks();
       level.initializing = 0;
@@ -2868,7 +2832,7 @@ LABEL_52:
   else
   {
     ProfLoad_Begin("G_LoadGame");
-    G_SaveMP_LoadGame(initSettings, 0, v42, 1, 0);
+    G_SaveMP_LoadGame(initSettings, 0, v38, 1, 0);
     ProfLoad_End();
     if ( BG_AgentSystemEnabled() )
       AIAgentInterface::InitAgents();
@@ -3151,62 +3115,15 @@ void G_MainMP_ProcessUserMoveOutput(void)
 G_MainMP_RegisterDvars
 ==============
 */
-
-const dvar_t *__fastcall G_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+const dvar_t *G_MainMP_RegisterDvars()
 {
-  const dvar_t *v10; 
-  const dvar_t *v14; 
-  const dvar_t *v18; 
-  const dvar_t *v33; 
-  const dvar_t *v37; 
-  const dvar_t *v41; 
-  const dvar_t *v45; 
-  const dvar_t *v49; 
-  const dvar_t *v53; 
-  const dvar_t *v57; 
-  const dvar_t *v64; 
-  const dvar_t *v68; 
   const dvar_t *result; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovss  xmm6, cs:__real@447a0000
-    vmovss  xmm1, cs:__real@41200000; value
-  }
   DVARINT_g_playerCollisionEjectSpeed = Dvar_RegisterInt("NRMRQTNPLK", 25, 0, 32000, 0x80u, "Speed at which to push intersecting players away from each other");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v10 = Dvar_RegisterFloat("LMTOLRNTLM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x80u, "Forward speed of a dropped item");
-  __asm { vmovss  xmm1, cs:__real@41200000; value }
-  DVARFLT_g_dropForwardSpeed = v10;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v14 = Dvar_RegisterFloat("NNMPPRPRRL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x80u, "Base component of the initial vertical speed of a dropped item");
-  __asm { vmovss  xmm1, cs:__real@40a00000; value }
-  DVARFLT_g_dropUpSpeedBase = v14;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v18 = Dvar_RegisterFloat("LTQQROOSON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x80u, "Random component of the initial vertical speed of a dropped item");
-  __asm { vmovss  xmm1, cs:__real@42c80000; value }
-  DVARFLT_g_dropUpSpeedRand = v18;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_g_dropHorzSpeedRand = Dvar_RegisterFloat("SPMQNOLSL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x80u, "Random component of the initial horizontal speed of a dropped item");
+  DVARFLT_g_dropForwardSpeed = Dvar_RegisterFloat("LMTOLRNTLM", 10.0, 0.0, 1000.0, 0x80u, "Forward speed of a dropped item");
+  DVARFLT_g_dropUpSpeedBase = Dvar_RegisterFloat("NNMPPRPRRL", 10.0, 0.0, 1000.0, 0x80u, "Base component of the initial vertical speed of a dropped item");
+  DVARFLT_g_dropUpSpeedRand = Dvar_RegisterFloat("LTQQROOSON", 5.0, 0.0, 1000.0, 0x80u, "Random component of the initial vertical speed of a dropped item");
+  DVARFLT_g_dropHorzSpeedRand = Dvar_RegisterFloat("SPMQNOLSL", 100.0, 0.0, 1000.0, 0x80u, "Random component of the initial horizontal speed of a dropped item");
   DVARINT_g_useholdspawndelay = Dvar_RegisterInt("MTMLSRRRKR", 1, 0, 1000, 0x84u, "Time in milliseconds that the player is unable to 'use' after spawning");
   DVARINT_g_mantleBlockTimeBuffer = Dvar_RegisterInt("SRQONORSQ", 500, 0, 60000, 0x84u, "Time that the client think is delayed after mantling");
   DVARBOOL_player_stunWhiteFlash = Dvar_RegisterBool("MMQKQOSTNS", 0, 4u, "If enabled, player's screens will flash white when they are stunned.");
@@ -3219,14 +3136,8 @@ const dvar_t *__fastcall G_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _
   DVARBOOL_g_logSync = Dvar_RegisterBool("TNPOSRSRK", 0, 0, "Enable synchronous logging");
   DVARBOOL_g_logEnable = Dvar_RegisterBool("SQNRRQTTQ", 0, 0, "Enable logging from script to disk using logPrint command");
   DVARBOOL_g_useHitLocationFix = Dvar_RegisterBool("MNNOOKMTMP", 1, 0, "Enable the hit event location fixup so that hit events appear at non-rewound positions on the client");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@437a0000; value
-  }
   DVARINT_g_speculativeWeaponLoadCount = Dvar_RegisterInt("LQOOKPQRRR", 2, 0, 24, 0, "The number of weapons to speculatively stream into memory.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_g_speculativeWeaponLoadDistance = Dvar_RegisterFloat("PNQSSORN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The distance at which a weapon on the ground begins to speculatively stream into memory.");
+  DVARFLT_g_speculativeWeaponLoadDistance = Dvar_RegisterFloat("PNQSSORN", 250.0, 0.0, 3.4028235e38, 0, "The distance at which a weapon on the ground begins to speculatively stream into memory.");
   DVARSTR_g_gametype = Dvar_RegisterString("NKTMKRMSKR", (const char *)&queryFormat.fmt + 3, 0x2000u, "Gametype information for use by script. Not read directly by code");
   DVARBOOL_g_hardcore = Dvar_RegisterBool("OSMSLRTOP", 0, 0x2000u, "Hardcore mode information for use by script. Not read directly by code");
   DCONST_DVARBOOL_g_weaponstreaming_verbose = Dvar_RegisterBool("g_weaponstreaming_verbose", 0, 0x40004u, "Enable verbose printing of changes to the game weapon streaming requests.");
@@ -3236,18 +3147,8 @@ const dvar_t *__fastcall G_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _
   DCONST_DVARBOOL_g_debugPlayerTriggerBounds = Dvar_RegisterBool("g_debugPlayerTriggerBounds", 0, 0x40004u, "Displays the player's bounding volume used to test against triggers.");
   DVARBOOL_cg_mlg_static_cameras_editing = Dvar_RegisterBool("NQRTKOKOL", 0, 4u, "If the MLG/CodCaster static cameras editor is enabled");
   DVARBOOL_cg_mlg_forceDetachCodcasterCamera = Dvar_RegisterBool("MMPLKLSKPS", 0, 0, "Defensive fix to clear the current spectated player if using a Codcaster camera");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@461c4000
-    vmovss  xmm1, cs:__real@41a00000; value
-  }
   DCONST_DVARBOOL_g_extrapolation_full_move = Dvar_RegisterBool("g_extrapolation_full_move", 0, 0x40004u, "Enable full pmove when extrapolating client movement on the server");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_g_vehicleTriggerBoxPad = Dvar_RegisterFloat("g_vehicleTriggerBoxPad", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Padding for vehicle boxes to detect for touch triggers.");
+  DCONST_DVARFLT_g_vehicleTriggerBoxPad = Dvar_RegisterFloat("g_vehicleTriggerBoxPad", 20.0, 0.0, 10000.0, 0x40004u, "Padding for vehicle boxes to detect for touch triggers.");
   DCONST_DVARBOOL_g_vehicleMakeTriggerContent = Dvar_RegisterBool("g_vehicleMakeTriggerContent", 0, 0x40004u, "If true, when vehicle finds a trigger that does not have the vehicle trigger contents flag, it sets it dynamically");
   DCONST_DVARBOOL_g_vehicleMoverBlockNoneVehicleTouchedEntities = Dvar_RegisterBool("g_vehicleMoverBlockNoneVehicleTouchedEntities", 1, 0x40004u, "If true, the touched entities only collide with a vehicle toucher");
   DVARINT_g_spectateCycleTimeout = Dvar_RegisterInt("PTNOKRMNP", 5000, 0, 0x7FFFFFFF, 0x80u, "The timeout period for cycling next/prev, in ms");
@@ -3268,74 +3169,15 @@ const dvar_t *__fastcall G_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _
   DVARBOOL_scr_frontline_trap_checks = Dvar_RegisterBool("scr_frontline_trap_checks", 0, 0, "Enable Frontline trap checks");
   DVARINT_scr_frontline_min_spawns = Dvar_RegisterInt("scr_frontline_min_spawns", 2, 1, 100, 0, "If frontline checks only find this many usable spawns, we will disable the frontline critical factor.  This deems the spawning team trapped.");
   DCONST_DVARBOOL_g_playerspawns_scrScoreFactorEnabled = Dvar_RegisterBool("g_playerspawns_scrScoreFactorEnabled", 1, 0x40004u, "Enables the script score factor callback");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3f6624dd; value
-  }
   DCONST_DVARBOOL_g_playerspawns_scrCriticalFactorEnabled = Dvar_RegisterBool("g_playerspawns_scrCriticalFactorEnabled", 1, 0x40004u, "Enables the script critical factor callback");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v33 = Dvar_RegisterFloat("g_playerspawns_fullSightTTLOSNear", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The TTLOS value that below which a spawn point is considered fully-visible. This is used when the viewing-player is very close.");
-  __asm { vmovss  xmm1, cs:__real@3f7851ec; value }
-  DCONST_DVARFLT_g_playerspawns_fullSightTTLOSNear = v33;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v37 = Dvar_RegisterFloat("g_playerspawns_fullSightTTLOSFar", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The TTLOS value that below which a spawn point is considered fully-visible. This is used when the viewing-player is very far away.");
-  __asm { vmovss  xmm1, cs:__real@3f4ccccd; value }
-  DCONST_DVARFLT_g_playerspawns_fullSightTTLOSFar = v37;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v41 = Dvar_RegisterFloat("g_playerspawns_cornerSightTTLOSNear", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The TTLOS value that below which a spawn point is considered not fully visible, but still potentially dangerous. This is used when the viewing-player is very close.");
-  __asm { vmovss  xmm1, cs:__real@3f4ccccd; value }
-  DCONST_DVARFLT_g_playerspawns_cornerSightTTLOSNear = v41;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v45 = Dvar_RegisterFloat("g_playerspawns_cornerSightTTLOSFar", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The TTLOS value that below which a spawn point is considered not fully visible, but still potentially dangerous. This is used when the viewing-player is very far away.");
-  __asm { vmovss  xmm1, cs:__real@43960000; value }
-  DCONST_DVARFLT_g_playerspawns_cornerSightTTLOSFar = v45;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v49 = Dvar_RegisterFloat("g_playerspawns_ttlosViewerDistMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Players at or closer than this to a spawnpoint will be more likely to consider that spawnpoint visible");
-  __asm { vmovss  xmm1, cs:__real@451c4000; value }
-  DCONST_DVARFLT_g_playerspawns_ttlosViewerDistMin = v49;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v53 = Dvar_RegisterFloat("g_playerspawns_ttlosViewerDistMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Players at or further than this to a spawnpoint will be less likely to consider that spawnpoint visible");
-  __asm { vmovss  xmm1, cs:__real@43000000; value }
-  DCONST_DVARFLT_g_playerspawns_ttlosViewerDistMax = v53;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v57 = Dvar_RegisterFloat("g_playerspawns_tacGraphViewerDistRadius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "When calculating full-visibility between tac-graph points, the radius around a character we will consider nearby tac graph points.");
-  __asm { vmovss  xmm1, cs:__real@42800000; value }
-  DCONST_DVARFLT_g_playerspawns_tacGraphViewerDistRadius = v57;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_g_playerspawns_tacGraphViewerDistRadiusZ = Dvar_RegisterFloat("g_playerspawns_tacGraphViewerDistRadiusZ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "When calculating full-visibility between tac-graph points, the Z radius around a character we will consider nearby tac graph points.");
+  DCONST_DVARFLT_g_playerspawns_fullSightTTLOSNear = Dvar_RegisterFloat("g_playerspawns_fullSightTTLOSNear", 0.89899999, 0.0, 1.0, 0x40004u, "The TTLOS value that below which a spawn point is considered fully-visible. This is used when the viewing-player is very close.");
+  DCONST_DVARFLT_g_playerspawns_fullSightTTLOSFar = Dvar_RegisterFloat("g_playerspawns_fullSightTTLOSFar", 0.97000003, 0.0, 1.0, 0x40004u, "The TTLOS value that below which a spawn point is considered fully-visible. This is used when the viewing-player is very far away.");
+  DCONST_DVARFLT_g_playerspawns_cornerSightTTLOSNear = Dvar_RegisterFloat("g_playerspawns_cornerSightTTLOSNear", 0.80000001, 0.0, 1.0, 0x40004u, "The TTLOS value that below which a spawn point is considered not fully visible, but still potentially dangerous. This is used when the viewing-player is very close.");
+  DCONST_DVARFLT_g_playerspawns_cornerSightTTLOSFar = Dvar_RegisterFloat("g_playerspawns_cornerSightTTLOSFar", 0.80000001, 0.0, 1.0, 0x40004u, "The TTLOS value that below which a spawn point is considered not fully visible, but still potentially dangerous. This is used when the viewing-player is very far away.");
+  DCONST_DVARFLT_g_playerspawns_ttlosViewerDistMin = Dvar_RegisterFloat("g_playerspawns_ttlosViewerDistMin", 300.0, 0.0, 10000.0, 0x40004u, "Players at or closer than this to a spawnpoint will be more likely to consider that spawnpoint visible");
+  DCONST_DVARFLT_g_playerspawns_ttlosViewerDistMax = Dvar_RegisterFloat("g_playerspawns_ttlosViewerDistMax", 2500.0, 0.0, 10000.0, 0x40004u, "Players at or further than this to a spawnpoint will be less likely to consider that spawnpoint visible");
+  DCONST_DVARFLT_g_playerspawns_tacGraphViewerDistRadius = Dvar_RegisterFloat("g_playerspawns_tacGraphViewerDistRadius", 128.0, 0.0, 10000.0, 0x40004u, "When calculating full-visibility between tac-graph points, the radius around a character we will consider nearby tac graph points.");
+  DCONST_DVARFLT_g_playerspawns_tacGraphViewerDistRadiusZ = Dvar_RegisterFloat("g_playerspawns_tacGraphViewerDistRadiusZ", 64.0, 0.0, 10000.0, 0x40004u, "When calculating full-visibility between tac-graph points, the Z radius around a character we will consider nearby tac graph points.");
   DVARINT_g_playerspawns_debugdraw = Dvar_RegisterEnum("MTQNLORQOO", g_playerSpawnPoints_debugDrawModes, 0, 0, "Display debug spawnpoint information.");
   DVARINT_g_playerspawns_debugdraw_colorMode = Dvar_RegisterEnum("NQPMKPPQQT", g_playerSpawnPoints_debugDrawColorModes, 0, 0, "How to color spawnpoints when spawn debug draw is enabled.");
   DVARBOOL_g_playerspawns_debugdraw_factors_drawAll = Dvar_RegisterBool("NQPKSOKMSN", 0, 0, "Display all factor scores - even if not registered.");
@@ -3354,30 +3196,10 @@ const dvar_t *__fastcall G_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _
   DVARBOOL_g_playerspawns_debugAlternates = Dvar_RegisterBool("NTPQPSRMNT", 0, 0, "Display alternate spawn positions.");
   DVARBOOL_g_playerspawns_debugCritFail = Dvar_RegisterBool("OKMSMTNROQ", 0, 0, "Display the reason for failing critical factors.");
   DVARINT_g_playerspawns_debugLastTeamSpawn = Dvar_RegisterEnum("MKSRLRTRLQ", g_playerSpawnPoints_debugLastTeamSpawnModes, 0, 0, "Display scores and visualization of Prefer Last Team Spawn factor.");
-  __asm { vmovss  xmm2, cs:__real@c61c4000; min }
   DVARBOOL_g_playerspawns_debugFrontline = Dvar_RegisterBool("MPKKSLROLP", 0, 0, "Adds frontline debug info to the debug draw data.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v64 = Dvar_RegisterFloat("LRLKOSQQTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "FrontlineMinZ.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@c61c4000; min
-    vmovss  xmm1, cs:__real@44610000; value
-  }
-  DVARFLT_g_playerspawns_FrontlineMinZ = v64;
-  __asm { vmovaps xmm3, xmm8; max }
-  v68 = Dvar_RegisterFloat("LSPQNLOKMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "FrontlineMaxZ.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43fa0000; max
-    vmovss  xmm2, cs:__real@41200000; min
-    vmovss  xmm1, cs:__real@41c80000; value
-  }
-  DVARFLT_g_playerspawns_FrontlineMaxZ = v68;
-  DVARFLT_g_playerspawns_FrontlineStep = Dvar_RegisterFloat("LRMTOPLPQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "FrontlineStep.");
+  DVARFLT_g_playerspawns_FrontlineMinZ = Dvar_RegisterFloat("LRLKOSQQTS", 0.0, -10000.0, 10000.0, 0, "FrontlineMinZ.");
+  DVARFLT_g_playerspawns_FrontlineMaxZ = Dvar_RegisterFloat("LSPQNLOKMS", 900.0, -10000.0, 10000.0, 0, "FrontlineMaxZ.");
+  DVARFLT_g_playerspawns_FrontlineStep = Dvar_RegisterFloat("LRMTOPLPQ", 25.0, 10.0, 500.0, 0, "FrontlineStep.");
   DVARBOOL_scr_dumpFrontlineAssignments = Dvar_RegisterBool("scr_dumpFrontlineAssignments", 0, 0, "Prints the frontline assigned to each spawnpoint in precalc.");
   DVARBOOL_scr_simulateBadSpawns = Dvar_RegisterBool("scr_simulateBadSpawns", 0, 0, "Forces all spawn points into the 'bad' catagory.");
   DVARBOOL_scr_compareSpawns = Dvar_RegisterBool("scr_compareSpawns", 0, 0, "Allows the code and script system to compute spawns and compares the results");
@@ -3387,12 +3209,6 @@ const dvar_t *__fastcall G_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _
   DVARBOOL_g_playerspawns_debugInfluenceNodes = Dvar_RegisterBool("MQTLMNQRKQ", 0, 0, "Draw Spawn Influence Nodes.");
   DVARBOOL_g_playerspawns_enableScriptCritFactorCallback = Dvar_RegisterBool("TNSTLOSSR", 0, 0, "Enable script callback for critical factors, for dev builds.");
   result = Dvar_RegisterBool("MRNNQPSONP", 0, 0, "Display lines displaying tac graph points that have full-sight to a spawn.");
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
   DVARBOOL_g_playerspawns_debugTacGraphSight = result;
   return result;
 }
@@ -3567,90 +3383,89 @@ G_MainMP_RunFrame
 */
 void G_MainMP_RunFrame(int levelTime)
 {
-  int v5; 
-  _DWORD *v6; 
-  int v7; 
-  __int64 v8; 
+  int v2; 
+  _DWORD *v3; 
+  int v4; 
+  __int64 v5; 
   __int16 entityNum; 
-  __int64 v10; 
-  gentity_s *v11; 
-  int v12; 
-  int v13; 
-  __int64 v17; 
-  __int64 v18; 
-  gentity_s *v19; 
-  char v21; 
-  const dvar_t *v22; 
-  const dvar_t *v23; 
-  scrContext_t *v24; 
-  int v25; 
+  __int64 v7; 
+  gentity_s *v8; 
+  int v9; 
+  int v10; 
+  float v11; 
+  __int64 v12; 
+  __int64 v13; 
+  gentity_s *v14; 
+  char v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
+  scrContext_t *v18; 
+  int v19; 
   trigger_info_t *currentTriggerList; 
   __int64 entnum; 
-  __int64 v29; 
-  __int64 v30; 
-  gentity_s *v31; 
+  trigger_info_t *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  gentity_s *v25; 
   __int64 otherEntnum; 
-  gentity_s *v33; 
-  __int64 v34; 
-  unsigned int v35; 
+  gentity_s *v27; 
+  __int64 v28; 
+  unsigned int v29; 
+  __int64 currentTriggerListSize; 
   char *Value; 
-  int *v40; 
-  _QWORD *v41; 
-  char *v42; 
-  __int64 v43; 
-  unsigned __int64 v44; 
+  int *v32; 
+  _QWORD *v33; 
+  char *v34; 
+  __int64 v35; 
+  unsigned __int64 v36; 
   ThreadContext CurrentThreadContext; 
-  int v46; 
-  __int64 v47; 
-  __int64 v48; 
-  gentity_s *v49; 
+  int v38; 
+  __int64 v39; 
+  __int64 v40; 
+  gentity_s *v41; 
   gclient_s *client; 
   int i; 
-  int v53; 
+  int v44; 
+  __int64 v45; 
+  __int64 v46; 
+  GBallistics *v47; 
+  GAntiLag *v48; 
+  unsigned int j; 
+  unsigned int v50; 
+  __int64 v51; 
+  gentity_s *v52; 
+  unsigned int v53; 
   __int64 v54; 
   __int64 v55; 
-  GBallistics *v56; 
-  GAntiLag *v57; 
-  unsigned int j; 
-  unsigned int v59; 
-  __int64 v60; 
-  gentity_s *v61; 
-  unsigned int v62; 
-  __int64 v63; 
-  __int64 v64; 
-  unsigned int v65; 
-  __int64 v66; 
-  __int64 v67; 
-  const dvar_t *v68; 
-  int v69; 
-  __int64 v70; 
-  const char *v71; 
-  const dvar_t *v72; 
-  const dvar_t *v73; 
-  const dvar_t *v74; 
+  unsigned int v56; 
+  __int64 v57; 
+  __int64 v58; 
+  const dvar_t *v59; 
+  int v60; 
+  __int64 v61; 
+  const char *v62; 
+  const dvar_t *v63; 
+  const dvar_t *v64; 
+  const dvar_t *v65; 
   gentity_s *gentities; 
-  const dvar_t *v76; 
+  const dvar_t *v67; 
   __int64 integer; 
   const DObj *ServerDObjForEnt; 
   GAntiLagMP *AntiLagMP; 
   GWeaponMap *Instance; 
-  GWeaponMap *v81; 
-  bool v82; 
+  GWeaponMap *v72; 
+  bool v73; 
   unsigned int k; 
   gclient_s *clients; 
-  __int64 v85; 
+  __int64 v76; 
   int LocalClientPing; 
-  __int64 v89; 
-  __int64 v90; 
-  int v91; 
-  scrContext_t *v92; 
-  __int64 v93; 
-  char v94[2048]; 
-  char v95; 
-  void *retaddr; 
+  __int64 v78; 
+  __int64 v79; 
+  int v80; 
+  scrContext_t *v81; 
+  __int64 v82; 
+  char v83[2048]; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   Profile_Begin(278);
   SV_InitMP_CheckThread();
   ++level.framenum;
@@ -3658,63 +3473,63 @@ void G_MainMP_RunFrame(int levelTime)
   level.time = levelTime;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  v5 = level.time - level.previousTime;
+  v2 = level.time - level.previousTime;
   if ( level.frameDuration != level.time - level.previousTime )
   {
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
-    LODWORD(v89) = level.frameDuration;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3674, ASSERT_TYPE_ASSERT, "( G_Level_GetFrameDuration() ) == ( (level.time - level.previousTime) )", "G_Level_GetFrameDuration() == (level.time - level.previousTime)\n\t%i, %i", v89, v5) )
+    LODWORD(v78) = level.frameDuration;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3674, ASSERT_TYPE_ASSERT, "( G_Level_GetFrameDuration() ) == ( (level.time - level.previousTime) )", "G_Level_GetFrameDuration() == (level.time - level.previousTime)\n\t%i, %i", v78, v2) )
       __debugbreak();
   }
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  v93 = *(_QWORD *)&GStatic::ms_gameStatics;
-  v6 = (_DWORD *)(*(__int64 (__fastcall **)(_QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 16i64))(*(_QWORD *)&GStatic::ms_gameStatics);
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3678, ASSERT_TYPE_ASSERT, "( bgameAnim )", (const char *)&queryFormat, "bgameAnim") )
+  v82 = *(_QWORD *)&GStatic::ms_gameStatics;
+  v3 = (_DWORD *)(*(__int64 (__fastcall **)(_QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 16i64))(*(_QWORD *)&GStatic::ms_gameStatics);
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3678, ASSERT_TYPE_ASSERT, "( bgameAnim )", (const char *)&queryFormat, "bgameAnim") )
     __debugbreak();
-  v6[4882] = level.time;
-  v6[4883] = 0;
-  v6[4884] = level.time;
+  v3[4882] = level.time;
+  v3[4883] = 0;
+  v3[4884] = level.time;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  v6[4885] = level.frameDuration;
+  v3[4885] = level.frameDuration;
   G_MainMP_CheatFreeCorpses();
   G_ActiveMP_BeginClientTriggerWorkers();
   G_ActiveMP_FinishClientTriggerWorkers();
   SV_SnapWorkersMP_StartBuildDeferedClientMessages();
-  v7 = 0;
+  v4 = 0;
   if ( level.maxagents > 0 )
   {
-    v8 = 0i64;
+    v5 = 0i64;
     do
     {
-      entityNum = level.agents[v8].agentState.entityNum;
+      entityNum = level.agents[v5].agentState.entityNum;
       if ( entityNum != 2047 )
       {
-        v10 = entityNum;
-        v11 = &g_entities[entityNum];
+        v7 = entityNum;
+        v8 = &g_entities[entityNum];
         if ( (unsigned int)entityNum >= 0x800 )
         {
-          LODWORD(v90) = 2048;
-          LODWORD(v89) = entityNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+          LODWORD(v79) = 2048;
+          LODWORD(v78) = entityNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( g_entities[v10].r.isInUse != g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        if ( g_entities[v7].r.isInUse != g_entityIsInUse[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( g_entityIsInUse[v10] )
+        if ( g_entityIsInUse[v7] )
         {
-          G_ActiveMP_AgentTouchTriggers(v11);
-          G_MainMP_AgentDoPerFrameNotifies(v11);
+          G_ActiveMP_AgentTouchTriggers(v8);
+          G_MainMP_AgentDoPerFrameNotifies(v8);
         }
       }
-      ++v7;
-      ++v8;
+      ++v4;
+      ++v5;
     }
-    while ( v7 < level.maxagents );
+    while ( v4 < level.maxagents );
   }
   SV_ScrUpdateAgents();
   Profile_Begin(427);
@@ -3722,233 +3537,222 @@ void G_MainMP_RunFrame(int levelTime)
   SV_Profile_BeginEvent(SVPROF_ANIMATION);
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  v12 = 0;
-  v13 = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm6, xmm0, cs:__real@3a83126f
-  }
+  v9 = 0;
+  v10 = 0;
+  v11 = (float)level.frameDuration * 0.001;
   if ( level.num_entities > 0 )
   {
-    v17 = 0i64;
-    v18 = 0i64;
+    v12 = 0i64;
+    v13 = 0i64;
     do
     {
-      if ( (unsigned int)v13 >= 0x800 )
+      if ( (unsigned int)v10 >= 0x800 )
       {
-        LODWORD(v90) = 2048;
-        LODWORD(v89) = v13;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+        LODWORD(v79) = 2048;
+        LODWORD(v78) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v18].r.isInUse != g_entityIsInUse[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v13].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v17] )
+      if ( g_entityIsInUse[v12] )
       {
-        v19 = &g_entities[v13];
-        G_LogDebugEntInfo(v19);
-        __asm { vmovaps xmm1, xmm6; dtime }
-        SV_Game_DObjInitServerTime(v19, *(float *)&_XMM1);
+        v14 = &g_entities[v10];
+        G_LogDebugEntInfo(v14);
+        SV_Game_DObjInitServerTime(v14, v11);
       }
+      ++v10;
+      ++v12;
       ++v13;
-      ++v17;
-      ++v18;
     }
-    while ( v13 < level.num_entities );
+    while ( v10 < level.num_entities );
   }
   G_LogDebugEntInfoEnd();
   SV_Profile_EndEvent(SVPROF_ANIMATION);
   Profile_EndInternal(NULL);
-  memset_0(v94, 0, sizeof(v94));
-  v21 = 0;
+  memset_0(v83, 0, sizeof(v83));
+  v15 = 0;
   Profile_Begin(354);
   SV_Profile_BeginEvent(SVPROF_SCRIPT);
   if ( level.currentTriggerListSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3748, ASSERT_TYPE_ASSERT, "(level.currentTriggerListSize == 0)", (const char *)&queryFormat, "level.currentTriggerListSize == 0") )
     __debugbreak();
   memcpy_0(level.currentTriggerList, level.pendingTriggerList, 12i64 * level.pendingTriggerListSize);
-  v22 = DVARINT_trigger_draw;
+  v16 = DVARINT_trigger_draw;
   level.currentTriggerListSize = level.pendingTriggerListSize;
   level.pendingTriggerListSize = 0;
   if ( !DVARINT_trigger_draw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "trigger_draw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  if ( v22->current.integer )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v16->current.integer )
   {
-    v23 = DVARINT_trigger_draw;
+    v17 = DVARINT_trigger_draw;
     if ( !DVARINT_trigger_draw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "trigger_draw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v23);
-    G_DrawTriggers((trigger_draw_type_t)v23->current.integer);
+    Dvar_CheckFrontendServerThread(v17);
+    G_DrawTriggers((trigger_draw_type_t)v17->current.integer);
   }
-  v92 = ScriptContext_Server();
-  v24 = v92;
-  Scr_RunCurrentThreads(v92);
+  v81 = ScriptContext_Server();
+  v18 = v81;
+  Scr_RunCurrentThreads(v81);
   do
   {
-    ++v21;
-    v91 = 0;
-    v25 = 0;
+    ++v15;
+    v80 = 0;
+    v19 = 0;
     if ( level.currentTriggerListSize > 0 )
     {
       currentTriggerList = level.currentTriggerList;
       while ( 1 )
       {
         entnum = currentTriggerList->entnum;
-        _R13 = currentTriggerList;
-        v29 = entnum;
-        v30 = entnum;
-        v31 = &g_entities[entnum];
-        if ( v31->useCount != currentTriggerList->useCount )
+        v22 = currentTriggerList;
+        v23 = entnum;
+        v24 = entnum;
+        v25 = &g_entities[entnum];
+        if ( v25->useCount != currentTriggerList->useCount )
           goto LABEL_96;
         if ( (unsigned int)entnum >= 0x800 )
         {
-          LODWORD(v90) = 2048;
-          LODWORD(v89) = entnum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+          LODWORD(v79) = 2048;
+          LODWORD(v78) = entnum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( g_entities[v30].r.isInUse != g_entityIsInUse[v29] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        if ( g_entities[v24].r.isInUse != g_entityIsInUse[v23] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v29] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3778, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( entnum ))", (const char *)&queryFormat, "G_IsEntityInUse( entnum )") )
+        if ( !g_entityIsInUse[v23] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3778, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( entnum ))", (const char *)&queryFormat, "G_IsEntityInUse( entnum )") )
           __debugbreak();
         otherEntnum = currentTriggerList->otherEntnum;
-        v33 = &g_entities[otherEntnum];
-        if ( v33->useCount != currentTriggerList->otherUseCount )
+        v27 = &g_entities[otherEntnum];
+        if ( v27->useCount != currentTriggerList->otherUseCount )
           goto LABEL_96;
-        v34 = currentTriggerList->otherEntnum;
+        v28 = currentTriggerList->otherEntnum;
         if ( (unsigned int)otherEntnum >= 0x800 )
         {
-          LODWORD(v90) = 2048;
-          LODWORD(v89) = currentTriggerList->otherEntnum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+          LODWORD(v79) = 2048;
+          LODWORD(v78) = currentTriggerList->otherEntnum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( g_entities[v34].r.isInUse != g_entityIsInUse[v34] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        if ( g_entities[v28].r.isInUse != g_entityIsInUse[v28] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v34] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3782, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( trigger_info->otherEntnum ))", (const char *)&queryFormat, "G_IsEntityInUse( trigger_info->otherEntnum )") )
+        if ( !g_entityIsInUse[v28] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3782, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( trigger_info->otherEntnum ))", (const char *)&queryFormat, "G_IsEntityInUse( trigger_info->otherEntnum )") )
           __debugbreak();
-        if ( v94[v29] != v21 )
+        if ( v83[v23] != v15 )
           break;
-        v25 = 1;
-        v91 = 1;
+        v19 = 1;
+        v80 = 1;
 LABEL_97:
-        ++v12;
+        ++v9;
         ++currentTriggerList;
-        if ( v12 >= level.currentTriggerListSize )
+        if ( v9 >= level.currentTriggerListSize )
         {
-          v24 = v92;
+          v18 = v81;
           goto LABEL_99;
         }
       }
-      v35 = v31->flags.m_flags[0] >> 17;
-      v94[v29] = v21;
-      if ( (v35 & 1) != 0 )
-        G_Utils_FreeEntityDelay(v31);
-      GScr_AddEntity(v33);
-      GScr_Notify(v31, scr_const.trigger, 1u);
+      v29 = v25->flags.m_flags[0] >> 17;
+      v83[v23] = v15;
+      if ( (v29 & 1) != 0 )
+        G_Utils_FreeEntityDelay(v25);
+      GScr_AddEntity(v27);
+      GScr_Notify(v25, scr_const.trigger, 1u);
 LABEL_96:
-      --v12;
-      v25 = v91;
+      --v9;
+      v19 = v80;
       --level.currentTriggerListSize;
       --currentTriggerList;
-      _RCX = level.currentTriggerListSize;
-      _RAX = level.currentTriggerList;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+rcx*4]
-        vmovsd  qword ptr [r13+0], xmm0
-      }
-      _R13->otherUseCount = level.currentTriggerList[_RCX].otherUseCount;
+      currentTriggerListSize = level.currentTriggerListSize;
+      *(double *)&v22->entnum = *(double *)&level.currentTriggerList[level.currentTriggerListSize].entnum;
+      v22->otherUseCount = level.currentTriggerList[currentTriggerListSize].otherUseCount;
       goto LABEL_97;
     }
 LABEL_99:
     Value = (char *)Sys_GetValue(0);
-    v40 = (int *)(Value + 16296);
+    v32 = (int *)(Value + 16296);
     if ( (unsigned int)(*((_DWORD *)Value + 4074) + 1) >= 3 )
     {
-      LODWORD(v90) = 3;
-      LODWORD(v89) = *((_DWORD *)Value + 4074) + 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v89, v90) )
+      LODWORD(v79) = 3;
+      LODWORD(v78) = *((_DWORD *)Value + 4074) + 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
-    if ( (unsigned int)++*v40 >= 3 )
+    if ( (unsigned int)++*v32 >= 3 )
     {
-      LODWORD(v90) = 3;
-      LODWORD(v89) = *v40;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v89, v90) )
+      LODWORD(v79) = 3;
+      LODWORD(v78) = *v32;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
-    v41 = Value + 2088;
-    v42 = Value + 40;
-    if ( *v41 < (unsigned __int64)v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+    v33 = Value + 2088;
+    v34 = Value + 40;
+    if ( *v33 < (unsigned __int64)v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
       __debugbreak();
-    *v41 += 8i64;
-    if ( *v41 >= (unsigned __int64)v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+    *v33 += 8i64;
+    if ( *v33 >= (unsigned __int64)v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
       __debugbreak();
-    *(_QWORD *)*v41 = v40;
-    if ( *v41 <= (unsigned __int64)v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+    *(_QWORD *)*v33 = v32;
+    if ( *v33 <= (unsigned __int64)v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
       __debugbreak();
-    v43 = *v40;
-    v44 = __rdtsc();
-    v40[v43 + 2] = v44;
+    v35 = *v32;
+    v36 = __rdtsc();
+    v32[v35 + 2] = v36;
     if ( Sys_HasValidCurrentThreadContext() )
       CurrentThreadContext = Sys_GetCurrentThreadContext();
     else
       CurrentThreadContext = THREAD_CONTEXT_COUNT;
-    v12 = 0;
+    v9 = 0;
     CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 355, NULL, 0);
-    Scr_RunCurrentThreads(v24);
+    Scr_RunCurrentThreads(v18);
     Profile_EndInternal(NULL);
   }
-  while ( v25 );
+  while ( v19 );
   if ( level.currentTriggerListSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3808, ASSERT_TYPE_ASSERT, "(level.currentTriggerListSize == 0)", (const char *)&queryFormat, "level.currentTriggerListSize == 0") )
     __debugbreak();
   SV_Profile_EndEvent(SVPROF_SCRIPT);
   Profile_EndInternal(NULL);
-  v46 = 0;
+  v38 = 0;
   if ( level.maxclients > 0 )
   {
-    v47 = 0i64;
-    v48 = 0i64;
+    v39 = 0i64;
+    v40 = 0i64;
     do
     {
-      if ( (unsigned int)v46 >= 0x800 )
+      if ( (unsigned int)v38 >= 0x800 )
       {
-        LODWORD(v90) = 2048;
-        LODWORD(v89) = v46;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+        LODWORD(v79) = 2048;
+        LODWORD(v78) = v38;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v48].r.isInUse != g_entityIsInUse[v47] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v40].r.isInUse != g_entityIsInUse[v39] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v47] )
+      if ( g_entityIsInUse[v39] )
       {
-        v49 = &g_entities[v48];
-        if ( !g_entities[v48].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3819, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
+        v41 = &g_entities[v40];
+        if ( !g_entities[v40].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3819, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
           __debugbreak();
-        client = v49->client;
+        client = v41->client;
         if ( client->sess.sessionState == SESS_STATE_PLAYING )
         {
           G_Door_UpdateScriptable(client);
-          G_MainMP_ClientDoPerFrameNotifies(v49);
+          G_MainMP_ClientDoPerFrameNotifies(v41);
         }
       }
-      ++v46;
-      ++v47;
-      ++v48;
+      ++v38;
+      ++v39;
+      ++v40;
     }
-    while ( v46 < level.maxclients );
-    v24 = v92;
+    while ( v38 < level.maxclients );
+    v18 = v81;
   }
   SV_Profile_BeginEvent(SVPROF_GAME_SYSTEMS);
   GMovingPlatforms::UpdateAllPlatformTraces();
@@ -3963,47 +3767,44 @@ LABEL_99:
   Profile_Begin(427);
   SV_Profile_BeginEvent(SVPROF_ANIMATION);
   for ( i = 0; i < level.num_entities; ++i )
-  {
-    __asm { vmovaps xmm1, xmm6; dt }
-    G_MainMP_XAnimUpdateEnt(&g_entities[i], *(const float *)&_XMM1);
-  }
+    G_MainMP_XAnimUpdateEnt(&g_entities[i], v11);
   SV_Profile_EndEvent(SVPROF_ANIMATION);
   Profile_EndInternal(NULL);
   Sys_ProfBeginNamedEvent(0xFFFFA500, "G_MainMP_UpdateUsability");
   Sys_ProfBeginNamedEvent(0xFFFFA500, "G_MainMP_UpdateUsability CreateJobs");
-  v53 = 0;
+  v44 = 0;
   if ( level.maxclients > 0 )
   {
-    v54 = 0i64;
-    v55 = 0i64;
+    v45 = 0i64;
+    v46 = 0i64;
     do
     {
-      if ( (unsigned int)v53 >= 0x800 )
+      if ( (unsigned int)v44 >= 0x800 )
       {
-        LODWORD(v90) = 2048;
-        LODWORD(v89) = v53;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+        LODWORD(v79) = 2048;
+        LODWORD(v78) = v44;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v55].r.isInUse != g_entityIsInUse[v54] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v46].r.isInUse != g_entityIsInUse[v45] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v54] && G_ActiveMP_IsPlayerActive(v53) )
-        SV_ClientWorkersMP_AddClientUsabilityUpdate(v53);
-      ++v53;
-      ++v54;
-      ++v55;
+      if ( g_entityIsInUse[v45] && G_ActiveMP_IsPlayerActive(v44) )
+        SV_ClientWorkersMP_AddClientUsabilityUpdate(v44);
+      ++v44;
+      ++v45;
+      ++v46;
     }
-    while ( v53 < level.maxclients );
-    v24 = v92;
+    while ( v44 < level.maxclients );
+    v18 = v81;
   }
   Sys_ProfEndNamedEvent();
   SV_ClientWorkersMP_ProcessClientUsabilityUpdate();
   Sys_ProfEndNamedEvent();
   Actor_EventListener_NotifyExecute();
   SV_Profile_BeginEvent(SVPROF_SCRIPT);
-  Scr_IncTime(v24);
+  Scr_IncTime(v18);
   SV_Profile_EndEvent(SVPROF_SCRIPT);
   SV_Game_ResetSkeletonCache();
   XAnimProceduralBonesAllocator_BeginServerFrame();
@@ -4026,10 +3827,10 @@ LABEL_99:
   SV_Profile_BeginEvent(SVPROF_GAME_SYSTEMS);
   if ( !GBallistics::ms_gBallisticsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ballistics.h", 79, ASSERT_TYPE_ASSERT, "( ms_gBallisticsSystem )", (const char *)&queryFormat, "ms_gBallisticsSystem") )
     __debugbreak();
-  v56 = GBallistics::ms_gBallisticsSystem;
+  v47 = GBallistics::ms_gBallisticsSystem;
   if ( !GBallistics::ms_gBallisticsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3902, ASSERT_TYPE_ASSERT, "( ballisticsSystem )", (const char *)&queryFormat, "ballisticsSystem") )
     __debugbreak();
-  GBallistics::UpdateBallistics(v56, level.time);
+  GBallistics::UpdateBallistics(v47, level.time);
   SV_Profile_EndEvent(SVPROF_GAME_SYSTEMS);
   SV_Profile_BeginEvent(SVPROF_GAME_SYSTEMS);
   if ( !GTargetAssist::ms_instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targetassist.h", 61, ASSERT_TYPE_ASSERT, "( ms_instance )", (const char *)&queryFormat, "ms_instance") )
@@ -4044,10 +3845,10 @@ LABEL_99:
   SV_Profile_BeginEvent(SVPROF_GAME_SYSTEMS);
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.h", 209, ASSERT_TYPE_ASSERT, "( ms_gAntiLagData )", (const char *)&queryFormat, "ms_gAntiLagData") )
     __debugbreak();
-  v57 = GAntiLag::ms_gAntiLagData;
+  v48 = GAntiLag::ms_gAntiLagData;
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3920, ASSERT_TYPE_ASSERT, "(antilag)", (const char *)&queryFormat, "antilag") )
     __debugbreak();
-  BgAntiLag::PurgeLerpMoverCommands(v57, level.time);
+  BgAntiLag::PurgeLerpMoverCommands(v48, level.time);
   SV_Profile_EndEvent(SVPROF_GAME_SYSTEMS);
   SV_Profile_BeginEvent(SVPROF_ENTITY_USE_CACHE);
   G_PlayerUse_CacheGatherDataForFrame();
@@ -4067,48 +3868,48 @@ LABEL_99:
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v90) = ComCharacterLimits::ms_gameData.m_agentCount;
-      LODWORD(v89) = j;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v89, v90) )
+      LODWORD(v79) = ComCharacterLimits::ms_gameData.m_agentCount;
+      LODWORD(v78) = j;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 186, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    v59 = j + ComCharacterLimits::ms_gameData.m_clientCount;
+    v50 = j + ComCharacterLimits::ms_gameData.m_clientCount;
     if ( j + ComCharacterLimits::ms_gameData.m_clientCount >= 0x800 )
     {
-      LODWORD(v90) = 2048;
-      LODWORD(v89) = j + ComCharacterLimits::ms_gameData.m_clientCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3940, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+      LODWORD(v79) = 2048;
+      LODWORD(v78) = j + ComCharacterLimits::ms_gameData.m_clientCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3940, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
-    v60 = (int)v59;
-    v61 = &g_entities[v60];
-    if ( v59 >= 0x800 )
+    v51 = (int)v50;
+    v52 = &g_entities[v51];
+    if ( v50 >= 0x800 )
     {
-      LODWORD(v90) = 2048;
-      LODWORD(v89) = v59;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+      LODWORD(v79) = 2048;
+      LODWORD(v78) = v50;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    if ( g_entities[v60].r.isInUse != g_entityIsInUse[v59] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    if ( g_entities[v51].r.isInUse != g_entityIsInUse[v50] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( g_entityIsInUse[v59] )
+    if ( g_entityIsInUse[v50] )
     {
-      if ( !(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v93 + 224i64))(v93, v59) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3944, ASSERT_TYPE_ASSERT, "( gameStatic->GetCharacterInfo( entityIndex ) )", (const char *)&queryFormat, "gameStatic->GetCharacterInfo( entityIndex )") )
+      if ( !(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v82 + 224i64))(v82, v50) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3944, ASSERT_TYPE_ASSERT, "( gameStatic->GetCharacterInfo( entityIndex ) )", (const char *)&queryFormat, "gameStatic->GetCharacterInfo( entityIndex )") )
         __debugbreak();
-      if ( !*(_DWORD *)((*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v93 + 224i64))(v93, v59) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3945, ASSERT_TYPE_ASSERT, "( gameStatic->GetCharacterInfo( entityIndex )->infoValid )", (const char *)&queryFormat, "gameStatic->GetCharacterInfo( entityIndex )->infoValid") )
+      if ( !*(_DWORD *)((*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v82 + 224i64))(v82, v50) + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3945, ASSERT_TYPE_ASSERT, "( gameStatic->GetCharacterInfo( entityIndex )->infoValid )", (const char *)&queryFormat, "gameStatic->GetCharacterInfo( entityIndex )->infoValid") )
         __debugbreak();
-      if ( v61->agent - level.agents != j )
+      if ( v52->agent - level.agents != j )
       {
-        LODWORD(v90) = j;
-        LODWORD(v89) = v61->agent - level.agents;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3946, ASSERT_TYPE_ASSERT, "( ent->agent - level.agents ) == ( i )", "ent->agent - level.agents == i\n\t%i, %i", v89, v90) )
+        LODWORD(v79) = j;
+        LODWORD(v78) = v52->agent - level.agents;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 3946, ASSERT_TYPE_ASSERT, "( ent->agent - level.agents ) == ( i )", "ent->agent - level.agents == i\n\t%i, %i", v78, v79) )
           __debugbreak();
       }
-      SV_AgentEndFrame(v61);
+      SV_AgentEndFrame(v52);
     }
   }
   Profile_EndInternal(NULL);
@@ -4120,41 +3921,41 @@ LABEL_99:
     SV_EntitiesPartitioning_UpdateDirtyEntities();
   }
   SV_EntityWorkersMP_ClearEntityNotifyUpdate();
-  v62 = 0;
-  v63 = 0i64;
-  v64 = 0i64;
+  v53 = 0;
+  v54 = 0i64;
+  v55 = 0i64;
   do
   {
-    if ( v62 >= 0x800 )
+    if ( v53 >= 0x800 )
     {
-      LODWORD(v90) = 2048;
-      LODWORD(v89) = v62;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+      LODWORD(v79) = 2048;
+      LODWORD(v78) = v53;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    if ( g_entities[v64].r.isInUse != g_entityIsInUse[v63] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    if ( g_entities[v55].r.isInUse != g_entityIsInUse[v54] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( g_entityIsInUse[v63] )
+    if ( g_entityIsInUse[v54] )
     {
-      if ( v62 >= 0x800 )
+      if ( v53 >= 0x800 )
       {
-        LODWORD(v90) = 2048;
-        LODWORD(v89) = v62;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+        LODWORD(v79) = 2048;
+        LODWORD(v78) = v53;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v64].s.eType == ET_MISSILE && G_Missile_HasEntityNotify(&g_entities[v64]) )
-        SV_EntityWorkersMP_AddEntityNotifyUpdate(v62, (const scr_string_t)scr_const.trigger_grenade);
+      if ( g_entities[v55].s.eType == ET_MISSILE && G_Missile_HasEntityNotify(&g_entities[v55]) )
+        SV_EntityWorkersMP_AddEntityNotifyUpdate(v53, (const scr_string_t)scr_const.trigger_grenade);
     }
-    ++v62;
-    ++v63;
-    ++v64;
+    ++v53;
+    ++v54;
+    ++v55;
   }
-  while ( (int)v62 < 2048 );
+  while ( (int)v53 < 2048 );
   SV_EntityWorkersMP_StartEntityNotifyUpdate();
   G_ActiveMP_BeginClientEndFrameWorkers();
   G_ActiveMP_BeginClientEntityLoDWorkers();
@@ -4163,42 +3964,42 @@ LABEL_99:
   G_ActiveMP_FinishClientEndFrameWorkers();
   G_ActiveMP_FinishClientEntityLoDWorkers();
   SV_Profile_EndEvent(SVPROF_CLIENT_WORKER_OUT);
-  v65 = 0;
+  v56 = 0;
   if ( level.maxclients > 0 )
   {
-    v66 = 0i64;
-    v67 = 0i64;
+    v57 = 0i64;
+    v58 = 0i64;
     do
     {
-      if ( v65 >= 0x800 )
+      if ( v56 >= 0x800 )
       {
-        LODWORD(v90) = 2048;
-        LODWORD(v89) = v65;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+        LODWORD(v79) = 2048;
+        LODWORD(v78) = v56;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v67].r.isInUse != g_entityIsInUse[v66] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v58].r.isInUse != g_entityIsInUse[v57] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v66] )
+      if ( g_entityIsInUse[v57] )
       {
-        if ( v65 >= 0x800 )
+        if ( v56 >= 0x800 )
         {
-          LODWORD(v90) = 2048;
-          LODWORD(v89) = v65;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v89, v90) )
+          LODWORD(v79) = 2048;
+          LODWORD(v78) = v56;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v78, v79) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        G_ActiveMP_ClientValidateScriptable(&g_entities[v65]);
+        G_ActiveMP_ClientValidateScriptable(&g_entities[v56]);
       }
-      ++v65;
-      ++v66;
-      ++v67;
+      ++v56;
+      ++v57;
+      ++v58;
     }
-    while ( (int)v65 < level.maxclients );
+    while ( (int)v56 < level.maxclients );
   }
   SV_Profile_BeginEvent(SVPROF_GAME_SYSTEMS);
   G_CharacterStreaming_LoadCharacters();
@@ -4208,21 +4009,21 @@ LABEL_99:
   Path_RunBadPlaces();
   Sys_ProfEndNamedEvent();
   G_Glass_Update();
-  v68 = DVARBOOL_g_listEntity;
+  v59 = DVARBOOL_g_listEntity;
   if ( !DVARBOOL_g_listEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_listEntity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v68);
-  if ( v68->current.enabled )
+  Dvar_CheckFrontendServerThread(v59);
+  if ( v59->current.enabled )
   {
-    v69 = 0;
-    v70 = 0i64;
+    v60 = 0;
+    v61 = 0i64;
     do
     {
-      v71 = SL_ConvertToString(g_entities[v70].classname);
-      Com_Printf(15, "%4i: %s\n", (unsigned int)v69++, v71);
-      ++v70;
+      v62 = SL_ConvertToString(g_entities[v61].classname);
+      Com_Printf(15, "%4i: %s\n", (unsigned int)v60++, v62);
+      ++v61;
     }
-    while ( v69 < 2048 );
+    while ( v60 < 2048 );
     Dvar_SetBool_Internal(DVARBOOL_g_listEntity, 0);
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_IN) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 4009, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::NET_CONST_STRING_CONFIG_STRINGS ))", "%s\n\tNeeed to restore items/weapons registration if this is turned off", "Com_GameMode_SupportsFeature( Com_GameMode_Feature::NET_CONST_STRING_CONFIG_STRINGS )") )
@@ -4234,30 +4035,30 @@ LABEL_99:
   G_DebugInfils();
   G_PlayerSpawnPoints_DebugDraw();
   G_VehiclePath_DrawDebug();
-  v72 = DVARINT_g_dumpAnims;
+  v63 = DVARINT_g_dumpAnims;
   if ( !DVARINT_g_dumpAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnims") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v72);
-  if ( v72->current.integer >= 0 )
+  Dvar_CheckFrontendServerThread(v63);
+  if ( v63->current.integer >= 0 )
   {
-    v73 = DVARINT_g_dumpAnims;
+    v64 = DVARINT_g_dumpAnims;
     if ( !DVARINT_g_dumpAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnims") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v73);
-    if ( v73->current.integer >= 2048 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2182, ASSERT_TYPE_SANITY, "( Dvar_GetInt_Internal_DebugName( DVARINT_g_dumpAnims, \"g_dumpAnims\" ) < ( 2048 ) )", (const char *)&queryFormat, "Dvar_GetInt( g_dumpAnims ) < MAX_GENTITIES") )
+    Dvar_CheckFrontendServerThread(v64);
+    if ( v64->current.integer >= 2048 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2182, ASSERT_TYPE_SANITY, "( Dvar_GetInt_Internal_DebugName( DVARINT_g_dumpAnims, \"g_dumpAnims\" ) < ( 2048 ) )", (const char *)&queryFormat, "Dvar_GetInt( g_dumpAnims ) < MAX_GENTITIES") )
       __debugbreak();
-    v74 = DVARINT_g_dumpAnims;
+    v65 = DVARINT_g_dumpAnims;
     gentities = level.gentities;
     if ( !DVARINT_g_dumpAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnims") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v74);
-    SV_Game_DObjDisplayAnim(&gentities[v74->current.integer], "server:\n");
+    Dvar_CheckFrontendServerThread(v65);
+    SV_Game_DObjDisplayAnim(&gentities[v65->current.integer], "server:\n");
   }
-  v76 = DVARINT_g_dobjdump;
+  v67 = DVARINT_g_dobjdump;
   if ( !DVARINT_g_dobjdump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dobjdump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v76);
-  integer = v76->current.integer;
+  Dvar_CheckFrontendServerThread(v67);
+  integer = v67->current.integer;
   if ( (int)integer >= 0 )
   {
     Dvar_SetInt_Internal(DVARINT_g_dobjdump, -1);
@@ -4275,24 +4076,24 @@ LABEL_99:
   GWeaponMap::DrawWeaponMap(Instance);
   G_PlayerUse_DrawDebug();
   SV_EntitiesPartitioning_DrawDebug();
-  v81 = GWeaponMap::GetInstance();
-  GWeaponMap::ValidateReferences(v81);
+  v72 = GWeaponMap::GetInstance();
+  GWeaponMap::ValidateReferences(v72);
   G_ProcessRadiantCmds(RADIANT_GAMEMODE_MP);
   G_BulletMP_ProcessPotentialImpactFixups();
-  v82 = level.pingUpdateTime <= level.time;
+  v73 = level.pingUpdateTime <= level.time;
   if ( level.pingUpdateTime <= level.time )
     level.pingUpdateTime = level.time + 2000;
   for ( k = 0; k < level.maxclients; ++k )
   {
     clients = level.clients;
-    v85 = k;
+    v76 = k;
     if ( SV_ClientMP_IsClientConnected(k) )
     {
-      if ( v82 || clients[v85].sess.scores.ping == 1023 )
+      if ( v73 || clients[v76].sess.scores.ping == 1023 )
       {
         if ( SV_BotIsBot(k) )
         {
-          clients[v85].sess.scores.ping = 0;
+          clients[v76].sess.scores.ping = 0;
         }
         else
         {
@@ -4300,19 +4101,17 @@ LABEL_99:
             LocalClientPing = SV_ClientMP_GetLocalClientPing(k);
           else
             LocalClientPing = SV_ClientMP_GetClientPing(k);
-          clients[v85].sess.scores.ping = truncate_cast<unsigned short,int>(LocalClientPing);
+          clients[v76].sess.scores.ping = truncate_cast<unsigned short,int>(LocalClientPing);
         }
       }
     }
     else
     {
-      clients[v85].sess.scores.ping = 1023;
+      clients[v76].sess.scores.ping = 1023;
     }
   }
   SV_OnlineTournament_Frame();
   Profile_EndInternal(NULL);
-  _R11 = &v95;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -4322,66 +4121,50 @@ G_MainMP_RunFrameForEntity
 */
 void G_MainMP_RunFrameForEntity(gentity_s *ent)
 {
-  __int64 v3; 
-  gentity_s **p_parent; 
+  __int128 v1; 
+  signed __int64 v3; 
+  EntityTagInfo *tagInfo; 
   int v5; 
-  bool v6; 
-  bool v7; 
   const char *EntityModelName; 
+  const char *v7; 
+  const char *v8; 
+  const char *v9; 
   const char *v10; 
-  bool v23; 
-  const char *v24; 
-  const char *v25; 
-  bool v38; 
-  const char *v40; 
-  const char *v41; 
-  bool v54; 
+  const char *v11; 
+  bool v12; 
   int time; 
-  char v56; 
+  char v14; 
   int eType; 
-  const char *v58; 
-  int v59; 
-  const char *v60; 
+  const char *v16; 
+  int v17; 
+  const char *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   bool NoBroadphaseQueriesAllowed; 
-  __int64 v68; 
-  __int64 v69; 
-  double v70; 
-  double v71; 
-  double v72; 
-  double v73; 
-  double v74; 
-  double v75; 
-  double v76; 
-  double v77; 
-  double v78; 
-  double v79; 
-  double v80; 
-  double v81; 
-  double v82; 
-  double v83; 
-  double v84; 
-  double v85; 
-  double v86; 
-  double v87; 
+  __int64 v25; 
+  __int64 v26; 
   vec3_t prevAngles; 
   vec3_t prevOrigin; 
+  __int128 v29; 
 
-  _RDI = ent;
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v3 = _RDI - g_entities;
+  v3 = ent - g_entities;
   if ( (unsigned int)v3 >= 0x800 )
   {
-    LODWORD(v68) = _RDI - g_entities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v68, 2048) )
+    LODWORD(v25) = ent - g_entities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, 2048) )
       __debugbreak();
   }
   v3 = (__int16)v3;
   if ( (unsigned int)(__int16)v3 >= 0x800 )
   {
-    LODWORD(v69) = 2048;
-    LODWORD(v68) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v68, v69) )
+    LODWORD(v26) = 2048;
+    LODWORD(v25) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -4390,188 +4173,103 @@ void G_MainMP_RunFrameForEntity(gentity_s *ent)
     __debugbreak();
   if ( !g_entityIsInUse[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2837, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( G_GetEntityIndex( ent ) ))", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( ent ) )") )
     __debugbreak();
-  if ( _RDI->processedFrame != level.framenum )
+  if ( ent->processedFrame != level.framenum )
   {
-    p_parent = &_RDI->tagInfo->parent;
-    __asm { vmovaps [rsp+0D8h+var_28], xmm6 }
-    _RDI->processedFrame = level.framenum;
-    if ( p_parent )
+    tagInfo = ent->tagInfo;
+    v29 = v1;
+    ent->processedFrame = level.framenum;
+    if ( tagInfo )
     {
-      if ( !*p_parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2848, ASSERT_TYPE_ASSERT, "( tagInfo->parent )", (const char *)&queryFormat, "tagInfo->parent") )
+      if ( !tagInfo->parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2848, ASSERT_TYPE_ASSERT, "( tagInfo->parent )", (const char *)&queryFormat, "tagInfo->parent") )
         __debugbreak();
-      G_MainMP_RunFrameForEntity(*p_parent);
-      p_parent = &_RDI->tagInfo->parent;
+      G_MainMP_RunFrameForEntity(tagInfo->parent);
+      tagInfo = ent->tagInfo;
     }
-    if ( _RDI->s.eType == ET_SCRIPTMOVER && (LOBYTE(_RDI->s.lerp.u.vehicle.bodyPitch) & 4) != 0 )
+    if ( ent->s.eType == ET_SCRIPTMOVER && (LOBYTE(ent->s.lerp.u.vehicle.bodyPitch) & 4) != 0 )
     {
       v5 = s_impulseFieldEntityCount;
-      s_impulseFieldEntities[s_impulseFieldEntityCount] = _RDI->s.number;
+      s_impulseFieldEntities[s_impulseFieldEntityCount] = ent->s.number;
       s_impulseFieldEntityCount = v5 + 1;
     }
-    v6 = (_RDI->r.svFlags & 6) != 7;
-    if ( (_RDI->r.svFlags & 6) == 6 )
+    if ( (ent->r.svFlags & 6) == 6 )
     {
-      LODWORD(v69) = _RDI->s.number;
-      v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2858, ASSERT_TYPE_ASSERT, "( ( (ent->r.svFlags & ((1 << 1) | (1 << 2))) != ((1 << 1) | (1 << 2)) ) )", "%s\n\t( ent->s.number ) = %i", "( (ent->r.svFlags & ((1 << 1) | (1 << 2))) != ((1 << 1) | (1 << 2)) )", v69);
-      v6 = !v7;
-      if ( v7 )
+      LODWORD(v26) = ent->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2858, ASSERT_TYPE_ASSERT, "( ( (ent->r.svFlags & ((1 << 1) | (1 << 2))) != ((1 << 1) | (1 << 2)) ) )", "%s\n\t( ent->s.number ) = %i", "( (ent->r.svFlags & ((1 << 1) | (1 << 2))) != ((1 << 1) | (1 << 2)) )", v26) )
         __debugbreak();
     }
-    __asm
+    if ( ent->r.box.halfSize.v[0] < 0.0 )
     {
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm6, dword ptr [rdi+10Ch]
-    }
-    if ( !v6 )
-    {
-      EntityModelName = G_DebugGetEntityModelName(_RDI);
-      v10 = SL_ConvertToString(_RDI->classname);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+114h]
-        vmovss  xmm1, dword ptr [rdi+110h]
-        vmovss  xmm2, dword ptr [rdi+10Ch]
-        vmovss  xmm3, dword ptr [rdi+138h]
-        vmovss  xmm4, dword ptr [rdi+134h]
-        vmovss  xmm5, dword ptr [rdi+130h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0D8h+var_78], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0D8h+var_80], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+0D8h+var_88], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+0D8h+var_90], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+0D8h+var_98], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+0D8h+var_A0], xmm5
-      }
-      LODWORD(v69) = _RDI->s.number;
-      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2860, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[0] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, halfsize: %g %g %g, classname: %s, modelname: %s", "ent->r.box.halfSize[0] >= 0.0f", v69, v70, v73, v76, v79, v82, v85, v10, EntityModelName);
-      v6 = !v23;
-      if ( v23 )
+      EntityModelName = G_DebugGetEntityModelName(ent);
+      v7 = SL_ConvertToString(ent->classname);
+      LODWORD(v26) = ent->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2860, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[0] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, halfsize: %g %g %g, classname: %s, modelname: %s", "ent->r.box.halfSize[0] >= 0.0f", v26, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2], ent->r.box.halfSize.v[0], ent->r.box.halfSize.v[1], ent->r.box.halfSize.v[2], v7, EntityModelName) )
         __debugbreak();
     }
-    __asm { vcomiss xmm6, dword ptr [rdi+110h] }
-    if ( !v6 )
+    if ( ent->r.box.halfSize.v[1] < 0.0 )
     {
-      v24 = G_DebugGetEntityModelName(_RDI);
-      v25 = SL_ConvertToString(_RDI->classname);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+114h]
-        vmovss  xmm1, dword ptr [rdi+110h]
-        vmovss  xmm2, dword ptr [rdi+10Ch]
-        vmovss  xmm3, dword ptr [rdi+138h]
-        vmovss  xmm4, dword ptr [rdi+134h]
-        vmovss  xmm5, dword ptr [rdi+130h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0D8h+var_78], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0D8h+var_80], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+0D8h+var_88], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+0D8h+var_90], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+0D8h+var_98], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+0D8h+var_A0], xmm5
-      }
-      LODWORD(v69) = _RDI->s.number;
-      v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2861, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[1] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, halfsize: %g %g %g, classname: %s, modelname: %s", "ent->r.box.halfSize[1] >= 0.0f", v69, v71, v74, v77, v80, v83, v86, v25, v24);
-      v6 = !v38;
-      if ( v38 )
+      v8 = G_DebugGetEntityModelName(ent);
+      v9 = SL_ConvertToString(ent->classname);
+      LODWORD(v26) = ent->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2861, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[1] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, halfsize: %g %g %g, classname: %s, modelname: %s", "ent->r.box.halfSize[1] >= 0.0f", v26, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2], ent->r.box.halfSize.v[0], ent->r.box.halfSize.v[1], ent->r.box.halfSize.v[2], v9, v8) )
         __debugbreak();
     }
-    __asm
+    if ( ent->r.box.halfSize.v[2] < 0.0 )
     {
-      vcomiss xmm6, dword ptr [rdi+114h]
-      vmovaps xmm6, [rsp+0D8h+var_28]
-    }
-    if ( !v6 )
-    {
-      v40 = G_DebugGetEntityModelName(_RDI);
-      v41 = SL_ConvertToString(_RDI->classname);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+114h]
-        vmovss  xmm1, dword ptr [rdi+110h]
-        vmovss  xmm2, dword ptr [rdi+10Ch]
-        vmovss  xmm3, dword ptr [rdi+138h]
-        vmovss  xmm4, dword ptr [rdi+134h]
-        vmovss  xmm5, dword ptr [rdi+130h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0D8h+var_78], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0D8h+var_80], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+0D8h+var_88], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+0D8h+var_90], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+0D8h+var_98], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+0D8h+var_A0], xmm5
-      }
-      LODWORD(v69) = _RDI->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2862, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[2] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, halfsize: %g %g %g, classname: %s, modelname: %s", "ent->r.box.halfSize[2] >= 0.0f", v69, v72, v75, v78, v81, v84, v87, v41, v40) )
+      v10 = G_DebugGetEntityModelName(ent);
+      v11 = SL_ConvertToString(ent->classname);
+      LODWORD(v26) = ent->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2862, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[2] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, halfsize: %g %g %g, classname: %s, modelname: %s", "ent->r.box.halfSize[2] >= 0.0f", v26, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2], ent->r.box.halfSize.v[0], ent->r.box.halfSize.v[1], ent->r.box.halfSize.v[2], v11, v10) )
         __debugbreak();
     }
-    G_Util_FlushInvalidOtherEnt(_RDI);
+    G_Util_FlushInvalidOtherEnt(ent);
     if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
       __debugbreak();
-    v54 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RDI->s.lerp.eFlags, ACTIVE, 0x16u);
+    v12 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ent->s.lerp.eFlags, ACTIVE, 0x16u);
     time = level.time;
-    if ( v54 && level.time > _RDI->s.time2 )
+    if ( v12 && level.time > ent->s.time2 )
       goto LABEL_50;
-    if ( _RDI->s.eType >= ET_EVENTS )
+    if ( ent->s.eType >= ET_EVENTS )
     {
-      if ( !G_Main_IsEventValid(_RDI) )
+      if ( !G_Main_IsEventValid(ent) )
       {
 LABEL_50:
-        G_FreeEntity(_RDI);
+        G_FreeEntity(ent);
         return;
       }
       time = level.time;
     }
-    v56 = _RDI->r.eventTypeFlags & 1;
-    if ( v56 && time - _RDI->r.eventTime > 200 )
+    v14 = ent->r.eventTypeFlags & 1;
+    if ( v14 && time - ent->r.eventTime > 200 )
       goto LABEL_50;
-    if ( v56 )
+    if ( v14 )
       goto LABEL_83;
-    if ( _RDI->client )
+    if ( ent->client )
     {
-      G_ActiveMP_RunClient(_RDI);
+      G_ActiveMP_RunClient(ent);
 LABEL_83:
-      G_MainMP_CheckEntityPositionChange(_RDI);
+      G_MainMP_CheckEntityPositionChange(ent);
       return;
     }
-    eType = _RDI->s.eType;
-    if ( ((eType - 2) & 0xFFFFFFEF) == 0 || !_RDI->physicsObject )
+    eType = ent->s.eType;
+    if ( ((eType - 2) & 0xFFFFFFEF) == 0 || !ent->physicsObject )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+130h]
-        vmovss  xmm1, dword ptr [rdi+134h]
-        vmovss  dword ptr [rsp+0D8h+prevOrigin], xmm0
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vmovss  dword ptr [rsp+0D8h+prevOrigin+4], xmm1
-        vmovss  xmm1, dword ptr [rdi+13Ch]
-        vmovss  dword ptr [rsp+0D8h+prevOrigin+8], xmm0
-        vmovss  xmm0, dword ptr [rdi+140h]
-        vmovss  dword ptr [rsp+0D8h+prevAngles], xmm1
-        vmovss  xmm1, dword ptr [rdi+144h]
-        vmovss  dword ptr [rsp+0D8h+prevAngles+4], xmm0
-        vmovss  dword ptr [rsp+0D8h+prevAngles+8], xmm1
-      }
+      v19 = ent->r.currentOrigin.v[1];
+      prevOrigin.v[0] = ent->r.currentOrigin.v[0];
+      v20 = ent->r.currentOrigin.v[2];
+      prevOrigin.v[1] = v19;
+      v21 = ent->r.currentAngles.v[0];
+      prevOrigin.v[2] = v20;
+      v22 = ent->r.currentAngles.v[1];
+      prevAngles.v[0] = v21;
+      v23 = ent->r.currentAngles.v[2];
+      prevAngles.v[1] = v22;
+      prevAngles.v[2] = v23;
       switch ( eType )
       {
         case 0:
         case 28:
-          if ( p_parent )
-            G_GeneralLink(_RDI);
+          if ( tagInfo )
+            G_GeneralLink(ent);
           goto LABEL_81;
         case 2:
         case 18:
@@ -4581,7 +4279,7 @@ LABEL_83:
             Physics_SetNoBroadphaseQueriesAllowed(PHYSICS_WORLD_ID_FIRST, 0);
             Physics_SetNoBroadphaseQueriesAllowed(PHYSICS_WORLD_ID_SERVER_DETAIL, 0);
           }
-          G_PlayerCorpseMP_RunCorpse(_RDI);
+          G_PlayerCorpseMP_RunCorpse(ent);
           if ( NoBroadphaseQueriesAllowed )
           {
             Physics_SetNoBroadphaseQueriesAllowed(PHYSICS_WORLD_ID_FIRST, 1);
@@ -4589,66 +4287,66 @@ LABEL_83:
           }
           goto LABEL_83;
         case 3:
-          if ( !p_parent )
+          if ( !tagInfo )
             goto LABEL_62;
-          G_GeneralLink(_RDI);
-          G_Main_RunThink(_RDI);
+          G_GeneralLink(ent);
+          G_Main_RunThink(ent);
           goto LABEL_83;
         case 4:
-          G_Missile_RunMissile(_RDI);
+          G_Missile_RunMissile(ent);
           goto LABEL_83;
         case 6:
         case 10:
         case 13:
-          GMovingPlatforms::UpdateMovingPlatformEntity(_RDI);
+          GMovingPlatforms::UpdateMovingPlatformEntity(ent);
           goto LABEL_82;
         case 22:
           Profile_Begin(639);
-          G_PhysicsObject_UpdatePhysicsChild(PHYSICS_WORLD_ID_FIRST, _RDI);
+          G_PhysicsObject_UpdatePhysicsChild(PHYSICS_WORLD_ID_FIRST, ent);
           Profile_EndInternal(NULL);
           goto LABEL_83;
         case 23:
-          G_BeamEntity_Update(_RDI);
+          G_BeamEntity_Update(ent);
           goto LABEL_81;
         case 25:
-          G_RagdollConstraintEntity_Update(_RDI);
+          G_RagdollConstraintEntity_Update(ent);
           goto LABEL_81;
         case 26:
-          if ( _RDI->tagInfo )
-            G_GeneralLink(_RDI);
-          G_PhysicsVolume_Update(_RDI);
+          if ( ent->tagInfo )
+            G_GeneralLink(ent);
+          G_PhysicsVolume_Update(ent);
           goto LABEL_81;
         case 27:
-          G_CoverWall_Update(_RDI);
+          G_CoverWall_Update(ent);
           goto LABEL_81;
         default:
 LABEL_81:
-          G_Main_RunThink(_RDI);
+          G_Main_RunThink(ent);
 LABEL_82:
-          GMovingPlatforms::UpdateEntityMoveFlag(_RDI, &prevOrigin, &prevAngles);
+          GMovingPlatforms::UpdateEntityMoveFlag(ent, &prevOrigin, &prevAngles);
           break;
       }
       goto LABEL_83;
     }
     if ( eType == 3 )
     {
-      v58 = "eType != ET_ITEM";
-      v59 = 2900;
-      v60 = "( eType != ET_ITEM )";
+      v16 = "eType != ET_ITEM";
+      v17 = 2900;
+      v18 = "( eType != ET_ITEM )";
     }
     else
     {
       if ( eType != 4 )
       {
 LABEL_62:
-        G_Items_RunItem(_RDI);
+        G_Items_RunItem(ent);
         goto LABEL_83;
       }
-      v58 = "eType != ET_MISSILE";
-      v59 = 2901;
-      v60 = "( eType != ET_MISSILE )";
+      v16 = "eType != ET_MISSILE";
+      v17 = 2901;
+      v18 = "( eType != ET_MISSILE )";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", v59, ASSERT_TYPE_ASSERT, v60, (const char *)&queryFormat, v58) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", v17, ASSERT_TYPE_ASSERT, v18, (const char *)&queryFormat, v16) )
       __debugbreak();
     goto LABEL_62;
   }
@@ -4719,56 +4417,59 @@ void G_MainMP_ShowAgentsInfo(gentity_s *ent, const vec3_t *origin, const vec4_t 
 G_MainMP_ShowEntityInfo
 ==============
 */
-
-void __fastcall G_MainMP_ShowEntityInfo(double _XMM0_8)
+void G_MainMP_ShowEntityInfo()
 {
-  const dvar_t *v4; 
+  const dvar_t *v0; 
   bool enabled; 
-  const dvar_t *v6; 
-  bool v7; 
-  const dvar_t *v8; 
-  const dvar_t *v9; 
-  char v10; 
+  const dvar_t *v2; 
+  bool v3; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
+  char v6; 
   gclient_s *client; 
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_eFlags; 
+  gclient_s *v9; 
   GHandler *Handler; 
-  GHandler *v19; 
+  GHandler *v11; 
   unsigned __int16 EntityHitId; 
-  const gentity_s *v28; 
-  gentity_s *v29; 
-  gentity_s *v35; 
-  int v36; 
-  __int16 v40; 
-  char v55; 
-  char v56; 
+  const gentity_s *v13; 
+  gentity_s *v14; 
+  gentity_s *v15; 
+  gentity_s *v16; 
+  int v17; 
+  float *v18; 
+  __int16 v19; 
+  float v20; 
+  const dvar_t *v21; 
+  float v22; 
   int IsAgentScripted; 
-  vec4_t *v63; 
-  int v64; 
-  unsigned int v65; 
-  _DWORD *v66; 
-  const vec4_t *v67; 
+  vec4_t *v24; 
+  int v25; 
+  unsigned int v26; 
+  _DWORD *v27; 
+  const vec4_t *v28; 
   const char *EntityTypeName; 
-  const char *v69; 
-  const char *v70; 
-  _DWORD *v71; 
-  unsigned int v72; 
-  _DWORD *v73; 
-  unsigned int v74; 
-  unsigned __int16 v75; 
-  const char *v76; 
-  float *v77; 
-  const Weapon *v78; 
-  __int64 v79; 
-  const vec4_t *v80; 
-  int v81; 
-  unsigned int v82; 
-  unsigned int v83; 
+  const char *v30; 
+  const char *v31; 
+  _DWORD *v32; 
+  unsigned int v33; 
+  _DWORD *v34; 
+  unsigned int v35; 
+  unsigned __int16 v36; 
+  const char *v37; 
+  float *v38; 
+  const Weapon *v39; 
+  __int64 v40; 
+  const vec4_t *v41; 
+  int v42; 
+  unsigned int v43; 
+  unsigned int v44; 
   const char *WeaponName; 
-  const char *v85; 
+  const char *v46; 
   char *fmt; 
-  bool v90; 
-  int v91; 
-  gentity_s *v92; 
+  bool v48; 
+  int v49; 
+  gentity_s *v50; 
   vec3_t forward; 
   vec3_t outOrigin; 
   vec3_t origin; 
@@ -4777,43 +4478,43 @@ void __fastcall G_MainMP_ShowEntityInfo(double _XMM0_8)
   trace_t results; 
   char output[1024]; 
 
-  v4 = DVARBOOL_entityLeakDisplay;
+  v0 = DVARBOOL_entityLeakDisplay;
   if ( !DVARBOOL_entityLeakDisplay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "entityLeakDisplay") )
     __debugbreak();
+  Dvar_CheckFrontendServerThread(v0);
+  enabled = v0->current.enabled;
+  v2 = DVARINT_bg_entinfo;
+  v48 = enabled;
+  if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v2);
+  v3 = v2->current.integer || enabled;
+  v4 = DVARINT_bg_entinfo;
+  if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
+    __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
-  enabled = v4->current.enabled;
-  v6 = DVARINT_bg_entinfo;
-  v90 = enabled;
-  if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  v7 = v6->current.integer || enabled;
-  v8 = DVARINT_bg_entinfo;
-  if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.integer == 4 )
+  if ( v4->current.integer == 4 )
     goto LABEL_20;
-  v9 = DVARINT_bg_entinfo;
+  v5 = DVARINT_bg_entinfo;
   if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.integer == 5 )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer == 5 )
 LABEL_20:
-    v10 = 1;
+    v6 = 1;
   else
-    v10 = 0;
-  if ( !v7 || !G_IsEntityInUse(0) )
+    v6 = 0;
+  if ( !v3 || !G_IsEntityInUse(0) )
     return;
-  if ( v10 )
-    goto LABEL_24;
-  __asm
+  if ( v6 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+580h+outOrigin], xmm0
-    vmovss  dword ptr [rsp+580h+outOrigin+4], xmm0
-    vmovss  dword ptr [rsp+580h+outOrigin+8], xmm0
+LABEL_24:
+    Dvar_SetInt_Internal(DVARINT_animscript_debug, -1);
+    return;
   }
+  outOrigin.v[0] = 0.0;
+  outOrigin.v[1] = 0.0;
+  outOrigin.v[2] = 0.0;
   client = g_entities->client;
   if ( client )
   {
@@ -4829,310 +4530,234 @@ LABEL_20:
       }
       else
       {
-        _RBX = g_entities->client;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vmovss  dword ptr [rsp+580h+outOrigin], xmm0
-          vmovss  xmm1, dword ptr [rbx+34h]
-          vmovss  dword ptr [rsp+580h+outOrigin+4], xmm1
-          vmovss  xmm0, dword ptr [rbx+38h]
-          vmovss  dword ptr [rsp+580h+outOrigin+8], xmm0
-        }
+        v9 = g_entities->client;
+        outOrigin = v9->ps.origin;
         Handler = GHandler::getHandler();
-        WorldUpReferenceFrame::WorldUpReferenceFrame(&refFrame, &_RBX->ps, Handler);
-        v19 = GHandler::getHandler();
-        BG_GameInterface_AddContributionToPlayerEye(&_RBX->ps, v19, &outOrigin, &refFrame);
+        WorldUpReferenceFrame::WorldUpReferenceFrame(&refFrame, &v9->ps, Handler);
+        v11 = GHandler::getHandler();
+        BG_GameInterface_AddContributionToPlayerEye(&v9->ps, v11, &outOrigin, &refFrame);
       }
     }
   }
   if ( enabled || Dvar_GetInt_Internal_DebugName(DVARINT_bg_entinfo, "bg_entinfo") <= 2 )
   {
-    v35 = g_entities;
-    v36 = 0;
-    v92 = g_entities;
-    v91 = 0;
+    v16 = g_entities;
+    v17 = 0;
+    v50 = g_entities;
+    v49 = 0;
     if ( level.num_entities <= 0 )
       return;
-    __asm { vmovaps [rsp+580h+var_40], xmm7 }
-    _R13 = &g_entities->r.currentOrigin.v[2];
-    __asm
-    {
-      vmovss  xmm7, cs:__real@42c80000
-      vmovaps [rsp+580h+var_50], xmm8
-      vmovss  xmm8, cs:__real@48800000
-    }
+    v18 = &g_entities->r.currentOrigin.v[2];
     *(_QWORD *)origin.v = &g_entities->r.currentOrigin.z;
-    __asm { vmovaps [rsp+580h+var_30], xmm6 }
     while ( 1 )
     {
-      if ( !G_IsEntityInUse(v36) )
+      if ( !G_IsEntityInUse(v17) )
         goto LABEL_110;
-      v40 = *((_WORD *)_R13 - 152);
-      if ( v40 >= 29 )
+      v19 = *((_WORD *)v18 - 152);
+      if ( v19 >= 29 )
         goto LABEL_110;
       if ( enabled )
       {
-        if ( v40 == 1 || ((_DWORD)_R13[26] & 0x40000000) != 0 )
+        if ( v19 == 1 || ((_DWORD)v18[26] & 0x40000000) != 0 )
           goto LABEL_110;
       }
-      else if ( !*((_BYTE *)_R13 - 64) )
+      else if ( !*((_BYTE *)v18 - 64) )
       {
         goto LABEL_110;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+580h+outOrigin]
-        vsubss  xmm3, xmm0, dword ptr [r13-8]
-        vmovss  xmm1, dword ptr [rsp+580h+outOrigin+4]
-        vmovss  xmm0, dword ptr [rsp+580h+outOrigin+8]
-        vsubss  xmm2, xmm1, dword ptr [r13-4]
-        vsubss  xmm4, xmm0, dword ptr [r13+0]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm6, xmm3, xmm0
-      }
+      v20 = (float)((float)((float)(outOrigin.v[1] - *(v18 - 1)) * (float)(outOrigin.v[1] - *(v18 - 1))) + (float)((float)(outOrigin.v[0] - *(v18 - 2)) * (float)(outOrigin.v[0] - *(v18 - 2)))) + (float)((float)(outOrigin.v[2] - *v18) * (float)(outOrigin.v[2] - *v18));
       if ( enabled )
         goto LABEL_65;
-      _RBX = DVARFLT_g_entinfo_maxdist;
+      v21 = DVARFLT_g_entinfo_maxdist;
       if ( !DVARFLT_g_entinfo_maxdist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_entinfo_maxdist") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm6, xmm1
-      }
-      if ( v55 | v56 )
+      Dvar_CheckFrontendServerThread(v21);
+      if ( v20 <= (float)(v21->current.value * v21->current.value) )
       {
 LABEL_65:
         if ( Dvar_GetInt_Internal_DebugName(DVARINT_bg_entinfo, "bg_entinfo") != 2 )
           goto LABEL_67;
-        if ( (unsigned __int16)(*((_WORD *)_R13 - 152) - 1) <= 1u )
+        if ( (unsigned __int16)(*((_WORD *)v18 - 152) - 1) <= 1u )
         {
-          __asm { vmovss  xmm2, dword ptr [r13+8]; yaw }
-          G_DebugBox((const vec3_t *)(_R13 - 2), (const Bounds *)(_R13 - 14), *(float *)&_XMM2, &colorMagenta, 1, 0);
+          G_DebugBox((const vec3_t *)(v18 - 2), (const Bounds *)(v18 - 14), v18[2], &colorMagenta, 1, 0);
 LABEL_67:
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r13-8]
-            vmovss  xmm1, dword ptr [r13-4]
-            vmovss  dword ptr [rsp+580h+forward], xmm0
-            vmovss  xmm0, dword ptr [r13+0]
-            vmovss  dword ptr [rsp+580h+forward+8], xmm0
-            vmovss  dword ptr [rsp+580h+forward+4], xmm1
-          }
-          IsAgentScripted = SV_IsAgentScripted(v35);
+          v22 = *(v18 - 1);
+          forward.v[0] = *(v18 - 2);
+          forward.v[2] = *v18;
+          forward.v[1] = v22;
+          IsAgentScripted = SV_IsAgentScripted(v16);
           if ( IsAgentScripted )
+            forward.v[2] = forward.v[2] + 100.0;
+          v24 = &colorDefault;
+          if ( *((_WORD *)v18 - 152) == 6 )
           {
-            __asm
+            v25 = *((_DWORD *)v18 + 17);
+            if ( v25 == scr_const.script_model )
             {
-              vaddss  xmm1, xmm7, dword ptr [rsp+580h+forward+8]
-              vmovss  dword ptr [rsp+580h+forward+8], xmm1
-            }
-          }
-          v63 = &colorDefault;
-          if ( *((_WORD *)_R13 - 152) == 6 )
-          {
-            v64 = *((_DWORD *)_R13 + 17);
-            if ( v64 == scr_const.script_model )
-            {
-              v63 = &colorScriptModel;
+              v24 = &colorScriptModel;
             }
             else
             {
-              v63 = &colorScriptBrushModel;
-              if ( v64 != scr_const.script_brushmodel )
-                v63 = &colorScriptOrigin;
+              v24 = &colorScriptBrushModel;
+              if ( v25 != scr_const.script_brushmodel )
+                v24 = &colorScriptOrigin;
             }
           }
-          if ( (*((_BYTE *)_R13 - 62) & 1) != 0 )
+          if ( (*((_BYTE *)v18 - 62) & 1) != 0 )
           {
 LABEL_78:
-            v63 = &colorNoClients;
+            v24 = &colorNoClients;
           }
           else
           {
-            v65 = 0;
-            v66 = _R13 + 201;
-            while ( *v66 == -1 )
+            v26 = 0;
+            v27 = v18 + 201;
+            while ( *v27 == -1 )
             {
-              ++v65;
-              ++v66;
-              if ( v65 >= 7 )
+              ++v26;
+              ++v27;
+              if ( v26 >= 7 )
                 goto LABEL_78;
             }
           }
-          v67 = &colorRed;
+          v28 = &colorRed;
           if ( !enabled )
-            v67 = v63;
-          EntityTypeName = G_GetEntityTypeName(v35);
-          v69 = j_va("%i %s", (unsigned int)v36, EntityTypeName);
-          G_Utils_DisplayInfoLine(&forward, v69, v67);
-          __asm { vcomiss xmm6, xmm8 }
-          if ( v55 | v56 )
+            v28 = v24;
+          EntityTypeName = G_GetEntityTypeName(v16);
+          v30 = j_va("%i %s", (unsigned int)v17, EntityTypeName);
+          G_Utils_DisplayInfoLine(&forward, v30, v28);
+          if ( v20 <= 262144.0 )
           {
             if ( IsAgentScripted )
             {
-              G_MainMP_ShowAgentsInfo(v35, &forward, v67);
+              G_MainMP_ShowAgentsInfo(v16, &forward, v28);
             }
             else
             {
-              G_Utils_DisplayEntityInfo(v35, v67, enabled, &forward);
-              if ( (*((_BYTE *)_R13 - 62) & 1) != 0 )
+              G_Utils_DisplayEntityInfo(v16, v28, enabled, &forward);
+              if ( (*((_BYTE *)v18 - 62) & 1) != 0 )
               {
-                v70 = "hidden from all clients (SVF_NOCLIENT)";
+                v31 = "hidden from all clients (SVF_NOCLIENT)";
               }
               else
               {
-                v71 = _R13 + 201;
-                v72 = 0;
-                v73 = _R13 + 201;
-                while ( !*v73 )
+                v32 = v18 + 201;
+                v33 = 0;
+                v34 = v18 + 201;
+                while ( !*v34 )
                 {
-                  ++v72;
-                  ++v73;
-                  if ( v72 >= 7 )
+                  ++v33;
+                  ++v34;
+                  if ( v33 >= 7 )
                     goto LABEL_96;
                 }
-                v74 = 0;
-                while ( *v71 == -1 )
+                v35 = 0;
+                while ( *v32 == -1 )
                 {
-                  ++v74;
-                  ++v71;
-                  if ( v74 >= 7 )
+                  ++v35;
+                  ++v32;
+                  if ( v35 >= 7 )
                   {
-                    v70 = "hidden from all clients (clientMask)";
+                    v31 = "hidden from all clients (clientMask)";
                     goto LABEL_95;
                   }
                 }
-                v70 = "hidden from some clients";
+                v31 = "hidden from some clients";
               }
 LABEL_95:
-              G_Utils_DisplayInfoLine(&forward, v70, v67);
+              G_Utils_DisplayInfoLine(&forward, v31, v28);
 LABEL_96:
-              if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagStrict((GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)_R13 - 75, (EntityStateFlagsMP)30) )
-                G_Utils_DisplayInfoLine(&forward, "willNeverChange - not archived", v67);
-              v75 = *((_WORD *)_R13 - 153);
-              if ( v75 && v75 < 0x7FEu )
+              if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagStrict((GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)v18 - 75, (EntityStateFlagsMP)30) )
+                G_Utils_DisplayInfoLine(&forward, "willNeverChange - not archived", v28);
+              v36 = *((_WORD *)v18 - 153);
+              if ( v36 && v36 < 0x7FEu )
               {
-                v76 = j_va("ground %i", (unsigned int)(__int16)v75);
-                G_Utils_DisplayInfoLine(&forward, v76, v67);
+                v37 = j_va("ground %i", (unsigned int)(__int16)v36);
+                G_Utils_DisplayInfoLine(&forward, v37, v28);
               }
-              if ( *((_WORD *)_R13 - 152) == 3 )
+              if ( *((_WORD *)v18 - 152) == 3 )
               {
-                v77 = _R13 + 34;
-                if ( _R13 == (float *)-136i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2520, ASSERT_TYPE_ASSERT, "(ent->c.item)", (const char *)&queryFormat, "ent->c.item") )
+                v38 = v18 + 34;
+                if ( v18 == (float *)-136i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2520, ASSERT_TYPE_ASSERT, "(ent->c.item)", (const char *)&queryFormat, "ent->c.item") )
                   __debugbreak();
-                v78 = (const Weapon *)(_R13 + 37);
-                v79 = 2i64;
-                v80 = v67;
+                v39 = (const Weapon *)(v18 + 37);
+                v40 = 2i64;
+                v41 = v28;
                 do
                 {
-                  if ( *((_WORD *)v77 + 6) )
+                  if ( *((_WORD *)v38 + 6) )
                   {
-                    v81 = *(_DWORD *)v77;
-                    v82 = *((_DWORD *)v77 + 2);
-                    v83 = *((_DWORD *)v77 + 1);
-                    WeaponName = BG_GetWeaponName(v78, output, 0x400u);
-                    LODWORD(fmt) = v81;
-                    v85 = j_va("%s (%i, %i + %i)", WeaponName, v83, v82, fmt);
-                    G_Utils_DisplayInfoLine(&forward, v85, v80);
+                    v42 = *(_DWORD *)v38;
+                    v43 = *((_DWORD *)v38 + 2);
+                    v44 = *((_DWORD *)v38 + 1);
+                    WeaponName = BG_GetWeaponName(v39, output, 0x400u);
+                    LODWORD(fmt) = v42;
+                    v46 = j_va("%s (%i, %i + %i)", WeaponName, v44, v43, fmt);
+                    G_Utils_DisplayInfoLine(&forward, v46, v41);
                   }
-                  v78 = (const Weapon *)((char *)v78 + 80);
-                  v77 += 20;
-                  --v79;
+                  v39 = (const Weapon *)((char *)v39 + 80);
+                  v38 += 20;
+                  --v40;
                 }
-                while ( v79 );
-                _R13 = *(float **)origin.v;
-                v35 = v92;
-                v36 = v91;
-                enabled = v90;
+                while ( v40 );
+                v18 = *(float **)origin.v;
+                v16 = v50;
+                v17 = v49;
+                enabled = v48;
               }
             }
           }
         }
       }
 LABEL_110:
-      ++v36;
-      ++v35;
-      v91 = v36;
-      _R13 += 364;
-      v92 = v35;
-      *(_QWORD *)origin.v = _R13;
-      if ( v36 >= level.num_entities )
-      {
-        __asm
-        {
-          vmovaps xmm8, [rsp+580h+var_50]
-          vmovaps xmm7, [rsp+580h+var_40]
-          vmovaps xmm6, [rsp+580h+var_30]
-        }
+      ++v17;
+      ++v16;
+      v49 = v17;
+      v18 += 364;
+      v50 = v16;
+      *(_QWORD *)origin.v = v18;
+      if ( v17 >= level.num_entities )
         return;
-      }
     }
   }
   AngleVectors(&g_entities->client->ps.viewangles, &forward, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@467a0000
-    vmulss  xmm1, xmm3, dword ptr [rsp+580h+forward]
-    vaddss  xmm2, xmm1, dword ptr [rsp+580h+outOrigin]
-    vmulss  xmm1, xmm3, dword ptr [rsp+580h+forward+4]
-    vmovss  dword ptr [rbp+480h+end], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsp+580h+outOrigin+4]
-    vmulss  xmm1, xmm3, dword ptr [rsp+580h+forward+8]
-    vmovss  dword ptr [rbp+480h+end+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsp+580h+outOrigin+8]
-    vmovss  dword ptr [rbp+480h+end+8], xmm2
-  }
+  end.v[0] = (float)(16000.0 * forward.v[0]) + outOrigin.v[0];
+  end.v[1] = (float)(16000.0 * forward.v[1]) + outOrigin.v[1];
+  end.v[2] = (float)(16000.0 * forward.v[2]) + outOrigin.v[2];
   G_Main_TraceCapsule(&results, &outOrigin, &end, &bounds_origin, g_entities->client->ps.clientNum, 33570816);
   EntityHitId = Trace_GetEntityHitId(&results);
   if ( Dvar_GetInt_Internal_DebugName(DVARINT_bg_entinfo, "bg_entinfo") == 6 )
   {
-    if ( EntityHitId != 2047 && BG_IsCharacterEntity(&g_entities[EntityHitId].s) )
-    {
-      Dvar_SetInt_Internal(DVARINT_animscript_debug, EntityHitId);
-      return;
-    }
-LABEL_24:
+    if ( EntityHitId == 2047 || !BG_IsCharacterEntity(&g_entities[EntityHitId].s) )
+      goto LABEL_24;
+    Dvar_SetInt_Internal(DVARINT_animscript_debug, EntityHitId);
+  }
+  else
+  {
     Dvar_SetInt_Internal(DVARINT_animscript_debug, -1);
-    return;
-  }
-  Dvar_SetInt_Internal(DVARINT_animscript_debug, -1);
-  if ( EntityHitId != 2047 )
-  {
-    v28 = &g_entities[EntityHitId];
-    if ( SV_IsAgentScripted(v28) || BG_IsCharacterEntity(&v28->s) )
+    if ( EntityHitId != 2047 )
     {
-      Dvar_SetInt_Internal(DVARINT_agent_debugEntIndex, EntityHitId);
-      lastEntTime = level.time;
-    }
-  }
-  if ( Dvar_GetInt_Internal_DebugName(DVARINT_agent_debugEntIndex, "agent_debugEntIndex") != -1 )
-  {
-    if ( lastEntTime + 30000 <= level.time )
-    {
-      Dvar_SetInt_Internal(DVARINT_agent_debugEntIndex, -1);
-    }
-    else
-    {
-      v29 = g_entities;
-      _RCX = &v29[Dvar_GetInt_Internal_DebugName(DVARINT_agent_debugEntIndex, "agent_debugEntIndex")];
-      __asm
+      v13 = &g_entities[EntityHitId];
+      if ( SV_IsAgentScripted(v13) || BG_IsCharacterEntity(&v13->s) )
       {
-        vmovss  xmm0, dword ptr [rcx+130h]
-        vmovss  dword ptr [rsp+580h+origin], xmm0
-        vmovss  xmm1, dword ptr [rcx+134h]
-        vmovss  dword ptr [rsp+580h+origin+4], xmm1
-        vmovss  xmm0, dword ptr [rcx+138h]
-        vaddss  xmm2, xmm0, cs:__real@42c80000
-        vmovss  dword ptr [rsp+580h+origin+8], xmm2
+        Dvar_SetInt_Internal(DVARINT_agent_debugEntIndex, EntityHitId);
+        lastEntTime = level.time;
       }
-      G_MainMP_ShowAgentsInfo(_RCX, &origin, &colorDefault);
+    }
+    if ( Dvar_GetInt_Internal_DebugName(DVARINT_agent_debugEntIndex, "agent_debugEntIndex") != -1 )
+    {
+      if ( lastEntTime + 30000 <= level.time )
+      {
+        Dvar_SetInt_Internal(DVARINT_agent_debugEntIndex, -1);
+      }
+      else
+      {
+        v14 = g_entities;
+        v15 = &v14[Dvar_GetInt_Internal_DebugName(DVARINT_agent_debugEntIndex, "agent_debugEntIndex")];
+        *(_QWORD *)origin.v = *(_QWORD *)v15->r.currentOrigin.v;
+        origin.v[2] = v15->r.currentOrigin.v[2] + 100.0;
+        G_MainMP_ShowAgentsInfo(v15, &origin, &colorDefault);
+      }
     }
   }
 }
@@ -6486,95 +6111,74 @@ void G_MainMP_VerifyServerNetConstModels_Callback(const unsigned int modelIndex,
 G_MainMP_XAnimUpdateEnt
 ==============
 */
-
-void __fastcall G_MainMP_XAnimUpdateEnt(gentity_s *ent, double dt)
+void G_MainMP_XAnimUpdateEnt(gentity_s *ent, const float dt)
 {
-  bool v6; 
-  bool v7; 
   __int64 EntityIndex; 
-  __int64 v10; 
-  scrContext_t *v11; 
+  __int64 v4; 
+  scrContext_t *v5; 
   int updated; 
-  __int64 v14; 
+  __int64 v7; 
   int ServerNotifyList; 
-  __int64 v16; 
-  Ai_Asm *v17; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v9; 
+  Ai_Asm *v10; 
+  __int64 v11; 
+  __int64 v12; 
   Ai_Asm *j; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v14; 
+  __int64 v15; 
   XAnimNotifySV *notifyList; 
-  XAnimNotifySV *v26; 
+  XAnimNotifySV *v17; 
   __int64 i; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_48], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v6 = ent == NULL;
-  if ( !ent )
-  {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2288, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr");
-    v6 = !v7;
-    if ( v7 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2289, ASSERT_TYPE_ASSERT, "( dt > 0.0f )", (const char *)&queryFormat, "dt > 0.0f") )
+  if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2288, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr") )
+    __debugbreak();
+  if ( dt <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_main_mp.cpp", 2289, ASSERT_TYPE_ASSERT, "( dt > 0.0f )", (const char *)&queryFormat, "dt > 0.0f") )
     __debugbreak();
   EntityIndex = G_GetEntityIndex(ent);
-  v10 = 1456 * EntityIndex;
-  v11 = ScriptContext_Server();
-  for ( i = 1456 * EntityIndex; ; v10 = i )
+  v4 = 1456 * EntityIndex;
+  v5 = ScriptContext_Server();
+  for ( i = 1456 * EntityIndex; ; v4 = i )
   {
     if ( (unsigned int)EntityIndex >= 0x800 )
     {
-      LODWORD(v23) = 2048;
-      LODWORD(v22) = EntityIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v15) = 2048;
+      LODWORD(v14) = EntityIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    if ( *(&g_entities->r.isInUse + v10) != g_entityIsInUse[EntityIndex] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    if ( *(&g_entities->r.isInUse + v4) != g_entityIsInUse[EntityIndex] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
     if ( !g_entityIsInUse[EntityIndex] || (ent->flags.m_flags[0] & 0x800) != 0 )
       break;
-    __asm { vmovaps xmm1, xmm6; dtime }
-    updated = SV_Game_DObjUpdateServerTime(ent, *(float *)&_XMM1, 1);
+    updated = SV_Game_DObjUpdateServerTime(ent, dt, 1);
     if ( ScriptableSv_GetScriptableIndexForEntity(ent) != -1 )
     {
-      v14 = 0i64;
+      v7 = 0i64;
       ServerNotifyList = DObjGetServerNotifyList(&notifyList);
-      v16 = ServerNotifyList;
+      v9 = ServerNotifyList;
       if ( ServerNotifyList > 0 )
       {
         do
         {
-          ScriptableSv_AnimNotetrackEvent(ent, notifyList[v14].noteName, notifyList[v14].notifyName);
-          ++v14;
+          ScriptableSv_AnimNotetrackEvent(ent, notifyList[v7].noteName, notifyList[v7].notifyName);
+          ++v7;
         }
-        while ( v14 < v16 );
+        while ( v7 < v9 );
       }
     }
-    v17 = Ai_Asm::Singleton();
-    if ( Ai_Asm::ShouldProcessNotetracks(v17, ent->s.number) )
+    v10 = Ai_Asm::Singleton();
+    if ( Ai_Asm::ShouldProcessNotetracks(v10, ent->s.number) )
     {
-      v18 = DObjGetServerNotifyList(&v26);
-      v19 = 0i64;
-      for ( j = Ai_Asm::Singleton(); v19 < v18; ++v19 )
-        Ai_Asm::ProcessNotetrack(j, ent->s.number, v26[v19].notifyName, v26[v19].noteName);
+      v11 = DObjGetServerNotifyList(&v17);
+      v12 = 0i64;
+      for ( j = Ai_Asm::Singleton(); v12 < v11; ++v12 )
+        Ai_Asm::ProcessNotetrack(j, ent->s.number, v17[v12].notifyName, v17[v12].noteName);
     }
     if ( !updated )
       break;
-    Scr_RunCurrentThreads(v11);
+    Scr_RunCurrentThreads(v5);
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
 }
 

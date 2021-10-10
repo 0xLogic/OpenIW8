@@ -82,171 +82,158 @@ CG_ServerCmd_AudioZone
 */
 void CG_ServerCmd_AudioZone(LocalClientNum_t localClientNum)
 {
-  int v4; 
+  int v2; 
+  const char *v3; 
+  char v4; 
   const char *v5; 
-  char v6; 
+  unsigned int v6; 
   const char *v7; 
   unsigned int v8; 
-  const char *v9; 
-  unsigned int v10; 
-  const char *v13; 
-  CTAudOverrideType v15; 
-  const char *v18; 
-  const char *v19; 
-  const char *v20; 
-  CTAudOverrideType v21; 
-  int v22; 
-  CTAudOverrideType v25; 
-  const char *v27; 
+  double v9; 
+  const char *v10; 
+  double v11; 
+  float v12; 
+  CTAudOverrideType v13; 
+  const char *v14; 
+  const char *v15; 
+  double v16; 
+  const char *v17; 
+  CTAudOverrideType v18; 
+  int overRideFlags; 
+  double v20; 
+  double v21; 
+  float v22; 
+  CTAudOverrideType v23; 
+  const char *v24; 
+  unsigned int v25; 
+  const char *v26; 
+  unsigned int v27; 
   unsigned int v28; 
   const char *v29; 
-  unsigned int v30; 
-  unsigned int v31; 
-  const char *v32; 
-  int overRideFlags; 
 
-  v4 = Cmd_Argc();
-  v5 = Cmd_Argv(1);
-  if ( v4 <= 1 || !v5 || (v6 = *v5) == 0 )
+  v2 = Cmd_Argc();
+  v3 = Cmd_Argv(1);
+  if ( v2 <= 1 || !v3 || (v4 = *v3) == 0 )
   {
     Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone bad params\n");
     return;
   }
-  if ( v6 != 97 )
+  switch ( v4 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    if ( v6 == 98 )
-    {
-      if ( v4 == 5 )
+    case 'a':
+      if ( (unsigned int)(v2 - 4) <= 1 )
       {
-        v13 = Cmd_Argv(2);
-        *(double *)&_XMM0 = Cmd_ArgFloat(4);
-        __asm { vmovaps xmm6, xmm0 }
+        v5 = Cmd_Argv(2);
+        v6 = strtoul(v5, NULL, 16);
+        v7 = Cmd_Argv(3);
+        v8 = strtoul(v7, NULL, 16);
+        LODWORD(v9) = 0;
+        if ( v2 == 5 )
+          v9 = Cmd_ArgFloat(4);
+        CG_SetAudioTriggerState(v6, v8, *(const float *)&v9);
       }
       else
       {
-        if ( v4 != 4 )
+        Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - SetAudioTriggerState bad params\n");
+      }
+      break;
+    case 'b':
+      if ( v2 == 5 )
+      {
+        v10 = Cmd_Argv(2);
+        v11 = Cmd_ArgFloat(4);
+        v12 = *(float *)&v11;
+      }
+      else
+      {
+        if ( v2 != 4 )
         {
           Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - SetClientTriggerAudio bad params\n");
-          goto LABEL_17;
+          return;
         }
-        v13 = Cmd_Argv(2);
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v10 = Cmd_Argv(2);
+        v12 = 0.0;
       }
-      v15 = Cmd_ArgInt(3);
-      __asm { vmovaps xmm3, xmm6; fadeTime }
-      CG_SetAudioOverride(localClientNum, v13, v15, *(float *)&_XMM3, 2047);
-    }
-    else
-    {
-      if ( v6 == 99 )
+      v13 = Cmd_ArgInt(3);
+      CG_SetAudioOverride(localClientNum, v10, v13, v12, 2047);
+      return;
+    case 'c':
+      if ( v2 == 5 )
       {
-        if ( v4 == 5 )
-        {
-          v18 = Cmd_Argv(2);
-          v19 = Cmd_Argv(3);
-          *(double *)&_XMM0 = Cmd_ArgFloat(4);
-          __asm { vmovss  [rsp+58h+overRideFlags], xmm0 }
-          CG_SetAudioLerpOverride(localClientNum, v18, v19, CTAUD_OVERRIDE_SCRIPT, *(float *)&overRideFlags, 2047);
-        }
-        else
-        {
-          Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_SetClientTriggerAudioLerp bad params\n");
-        }
-        goto LABEL_17;
-      }
-      if ( v6 == 100 )
-      {
-        if ( v4 == 6 )
-        {
-          v20 = Cmd_Argv(2);
-          v21 = Cmd_ArgInt(3);
-          v22 = Cmd_ArgInt(4);
-          *(double *)&_XMM0 = Cmd_ArgFloat(5);
-          __asm { vmovaps xmm3, xmm0; fadeTime }
-          CG_SetAudioOverride(localClientNum, v20, v21, *(float *)&_XMM3, v22);
-        }
-        else
-        {
-          Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - SetClientTriggerAudioPartial bad params\n");
-        }
-        goto LABEL_17;
-      }
-      if ( v6 != 101 )
-      {
-        if ( v6 == 102 )
-        {
-          if ( v4 == 4 )
-          {
-            v27 = Cmd_Argv(2);
-            v28 = strtoul(v27, NULL, 16);
-            v29 = Cmd_Argv(3);
-            if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 206, ASSERT_TYPE_ASSERT, "(enabledChar)", (const char *)&queryFormat, "enabledChar") )
-              __debugbreak();
-            CG_EnableAudioTriggerByState(v28, *v29 != 48);
-          }
-          else
-          {
-            Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_EnableAudioTriggerByState bad params\n");
-          }
-        }
-        else if ( v6 == 103 )
-        {
-          if ( v4 == 4 )
-          {
-            v30 = Cmd_ArgInt(2);
-            v31 = v30;
-            if ( v30 >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 219, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", v30, 0x4000) )
-              __debugbreak();
-            v32 = Cmd_Argv(3);
-            if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 221, ASSERT_TYPE_ASSERT, "(enabledChar)", (const char *)&queryFormat, "enabledChar") )
-              __debugbreak();
-            CG_EnableAudioTriggerByIndex(v31, *v32 != 48);
-          }
-          else
-          {
-            Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_EnableAudioTriggerByIndex bad params\n");
-          }
-        }
-        goto LABEL_17;
-      }
-      if ( v4 == 4 )
-      {
-        *(double *)&_XMM0 = Cmd_ArgFloat(3);
-        __asm { vmovaps xmm6, xmm0 }
+        v14 = Cmd_Argv(2);
+        v15 = Cmd_Argv(3);
+        v16 = Cmd_ArgFloat(4);
+        CG_SetAudioLerpOverride(localClientNum, v14, v15, CTAUD_OVERRIDE_SCRIPT, *(float *)&v16, 2047);
       }
       else
       {
-        if ( v4 != 3 )
+        Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_SetClientTriggerAudioLerp bad params\n");
+      }
+      break;
+    case 'd':
+      if ( v2 == 6 )
+      {
+        v17 = Cmd_Argv(2);
+        v18 = Cmd_ArgInt(3);
+        overRideFlags = Cmd_ArgInt(4);
+        v20 = Cmd_ArgFloat(5);
+        CG_SetAudioOverride(localClientNum, v17, v18, *(float *)&v20, overRideFlags);
+      }
+      else
+      {
+        Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - SetClientTriggerAudioPartial bad params\n");
+      }
+      break;
+    case 'e':
+      if ( v2 == 4 )
+      {
+        v21 = Cmd_ArgFloat(3);
+        v22 = *(float *)&v21;
+      }
+      else
+      {
+        if ( v2 != 3 )
         {
           Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_ClearCGTrigger bad params\n");
-          goto LABEL_17;
+          return;
         }
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v22 = 0.0;
       }
-      v25 = Cmd_ArgInt(2);
-      __asm { vmovaps xmm2, xmm6; fadeTime }
-      CG_ClearAudioOverride(localClientNum, v25, *(float *)&_XMM2);
-    }
-LABEL_17:
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-    return;
-  }
-  if ( (unsigned int)(v4 - 4) <= 1 )
-  {
-    v7 = Cmd_Argv(2);
-    v8 = strtoul(v7, NULL, 16);
-    v9 = Cmd_Argv(3);
-    v10 = strtoul(v9, NULL, 16);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    if ( v4 == 5 )
-      *(double *)&_XMM0 = Cmd_ArgFloat(4);
-    __asm { vmovaps xmm2, xmm0; fadeTime }
-    CG_SetAudioTriggerState(v8, v10, *(const float *)&_XMM2);
-  }
-  else
-  {
-    Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - SetAudioTriggerState bad params\n");
+      v23 = Cmd_ArgInt(2);
+      CG_ClearAudioOverride(localClientNum, v23, v22);
+      return;
+    case 'f':
+      if ( v2 == 4 )
+      {
+        v24 = Cmd_Argv(2);
+        v25 = strtoul(v24, NULL, 16);
+        v26 = Cmd_Argv(3);
+        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 206, ASSERT_TYPE_ASSERT, "(enabledChar)", (const char *)&queryFormat, "enabledChar") )
+          __debugbreak();
+        CG_EnableAudioTriggerByState(v25, *v26 != 48);
+      }
+      else
+      {
+        Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_EnableAudioTriggerByState bad params\n");
+      }
+      break;
+    case 'g':
+      if ( v2 == 4 )
+      {
+        v27 = Cmd_ArgInt(2);
+        v28 = v27;
+        if ( v27 >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 219, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", v27, 0x4000) )
+          __debugbreak();
+        v29 = Cmd_Argv(3);
+        if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 221, ASSERT_TYPE_ASSERT, "(enabledChar)", (const char *)&queryFormat, "enabledChar") )
+          __debugbreak();
+        CG_EnableAudioTriggerByIndex(v28, *v29 != 48);
+      }
+      else
+      {
+        Com_PrintError(14, "ERROR: CG_ServerCmd_AudioZone - CG_EnableAudioTriggerByIndex bad params\n");
+      }
+      break;
   }
 }
 
@@ -486,17 +473,16 @@ CG_ServerCmd_ParseSunLight
 void CG_ServerCmd_ParseSunLight(const LocalClientNum_t localClientNum)
 {
   const char *ConfigString; 
-  int v3; 
+  float v2; 
   vec3_t sunColorLinearSrgb; 
 
   ConfigString = CL_GetConfigString(0);
   if ( *ConfigString )
   {
-    if ( j_sscanf(ConfigString, "%g %g %g %g", &sunColorLinearSrgb, &sunColorLinearSrgb.y, &sunColorLinearSrgb.z, &v3) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 48, ASSERT_TYPE_ASSERT, "((sscanf( info, \"%g %g %g %g\", &sunColorLinearSrgb[0], &sunColorLinearSrgb[1], &sunColorLinearSrgb[2], &sunIntensity )) == (4))", (const char *)&queryFormat, "sscanf( info, \"%g %g %g %g\", &sunColorLinearSrgb[0], &sunColorLinearSrgb[1], &sunColorLinearSrgb[2], &sunIntensity ) == 4") )
+    if ( j_sscanf(ConfigString, "%g %g %g %g", &sunColorLinearSrgb, &sunColorLinearSrgb.y, &sunColorLinearSrgb.z, &v2) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 48, ASSERT_TYPE_ASSERT, "((sscanf( info, \"%g %g %g %g\", &sunColorLinearSrgb[0], &sunColorLinearSrgb[1], &sunColorLinearSrgb[2], &sunIntensity )) == (4))", (const char *)&queryFormat, "sscanf( info, \"%g %g %g %g\", &sunColorLinearSrgb[0], &sunColorLinearSrgb[1], &sunColorLinearSrgb[2], &sunIntensity ) == 4") )
       __debugbreak();
     R_SetSunColorOverride(&sunColorLinearSrgb);
-    __asm { vmovss  xmm0, [rsp+58h+var_28]; sunIntensity }
-    R_SetSunIntensityOverride(*(const float *)&_XMM0);
+    R_SetSunIntensityOverride(v2);
   }
   else
   {
@@ -566,467 +552,419 @@ CG_ServerCmd_SingleCharacterCmd
 */
 bool CG_ServerCmd_SingleCharacterCmd(LocalClientNum_t localClientNum, const char cmd)
 {
-  int v6; 
-  int v9; 
-  const char *v10; 
-  char v11; 
-  int v12; 
+  int v2; 
+  cg_t *LocalClientGlobals; 
+  int v5; 
+  const char *v6; 
+  char v7; 
+  int v8; 
   unsigned __int64 SndEntHandle; 
-  const char *v14; 
-  unsigned int v15; 
+  const char *v10; 
+  unsigned int v11; 
+  const char *v12; 
+  unsigned int v13; 
+  double v14; 
+  bool result; 
   const char *v16; 
   unsigned int v17; 
-  bool result; 
-  const char *v20; 
-  unsigned int v21; 
-  const char *v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  int v28; 
+  const char *v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  double v21; 
+  int v22; 
+  int v23; 
+  cg_t *v24; 
+  double v25; 
+  cg_t *v26; 
+  double v27; 
+  const char *v28; 
   int v29; 
-  cg_t *LocalClientGlobals; 
+  unsigned int v30; 
+  unsigned int v31; 
+  int v32; 
+  char *v33; 
+  int v34; 
+  int v35; 
   const char *v36; 
   int v37; 
-  unsigned int v38; 
-  unsigned int v39; 
-  int v40; 
-  char *v41; 
-  int v42; 
+  const char *v38; 
+  int v39; 
+  const char *v40; 
+  int v41; 
+  const char *v42; 
   int v43; 
-  const char *v44; 
-  int v45; 
-  const char *v46; 
-  int v47; 
-  const char *v48; 
-  int v49; 
-  const char *v50; 
-  int v51; 
-  int v52; 
+  int v44; 
   const char *VisionName; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
+  int v46; 
+  int v47; 
+  int v48; 
+  int v49; 
+  int v50; 
+  const char *v51; 
+  unsigned int v52; 
+  const char *v53; 
+  unsigned int v54; 
+  unsigned int v55; 
+  signed int v56; 
+  __int64 v57; 
   int v58; 
   const char *v59; 
-  unsigned int v60; 
-  const char *v61; 
+  int v60; 
+  double v61; 
   unsigned int v62; 
-  unsigned int v63; 
-  signed int v64; 
-  __int64 v65; 
+  const char *v63; 
+  const char *v64; 
+  unsigned int v65; 
   int v66; 
-  const char *v67; 
-  int v68; 
-  unsigned int v70; 
+  int v67; 
+  const char *v68; 
+  FxImpactTable *v69; 
+  const char *v70; 
   const char *v71; 
-  const char *v72; 
-  unsigned int v73; 
+  int v72; 
+  LocalClientNum_t v73; 
   int v74; 
-  int v75; 
-  const char *v76; 
-  FxImpactTable *v77; 
-  const char *v80; 
-  const char *v81; 
-  int v82; 
-  LocalClientNum_t v83; 
-  int v84; 
-  int v86; 
-  const dvar_t *v87; 
-  int v88; 
-  const char *v89; 
-  unsigned int v90; 
-  const Material *v91; 
+  double v75; 
+  int v76; 
+  const dvar_t *v77; 
+  int v78; 
+  const char *v79; 
+  unsigned int v80; 
+  const Material *v81; 
   char *outVisionSetName; 
   unsigned int assetIdPlaylist[96]; 
-  char v94; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  v6 = cmd;
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
-  switch ( v6 )
+  v2 = cmd;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  switch ( v2 )
   {
     case 0:
-      goto LABEL_113;
+      return 1;
     case 33:
-      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 686, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      v24 = CG_GetLocalClientGlobals(localClientNum);
+      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 686, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      LocalClientGlobals->nvgInfo.activateBlindNow = 1;
-      result = 1;
-      goto LABEL_86;
+      v24->nvgInfo.activateBlindNow = 1;
+      return 1;
     case 36:
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm6, xmm0 }
-      _RDI = CG_GetLocalClientGlobals(localClientNum);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 694, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      v25 = Cmd_ArgFloat(1);
+      v26 = CG_GetLocalClientGlobals(localClientNum);
+      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 694, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm0, xmm6; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rdi+77DFCh], xmm0 }
-      result = 1;
-      goto LABEL_86;
+      v27 = I_fclamp(*(float *)&v25, 0.0, 1.0);
+      v26->nvgInfo.weightedBlind.scriptGoalWeight = *(float *)&v27;
+      return 1;
     case 48:
-      v55 = Cmd_ArgInt(3);
-      v56 = Cmd_ArgInt(2);
-      v57 = Cmd_ArgInt(1);
-      CG_ServerCmd_VisionSetAlternate(localClientNum, v57, v56, v55);
-      result = 1;
-      goto LABEL_86;
+      v47 = Cmd_ArgInt(3);
+      v48 = Cmd_ArgInt(2);
+      v49 = Cmd_ArgInt(1);
+      CG_ServerCmd_VisionSetAlternate(localClientNum, v49, v48, v47);
+      return 1;
     case 54:
-      v36 = Cmd_Argv(2);
-      v37 = Cmd_ArgInt(1);
-      CG_VisionSetParamCmd(localClientNum, v37, v36);
-      result = 1;
-      goto LABEL_86;
+      v28 = Cmd_Argv(2);
+      v29 = Cmd_ArgInt(1);
+      CG_VisionSetParamCmd(localClientNum, v29, v28);
+      return 1;
     case 55:
-      v51 = 1;
-      v52 = Cmd_ArgInt(1);
-      VisionName = CG_VisionSets_GetVisionName(v52);
-      v54 = Cmd_ArgInt(2);
+      v43 = 1;
+      v44 = Cmd_ArgInt(1);
+      VisionName = CG_VisionSets_GetVisionName(v44);
+      v46 = Cmd_ArgInt(2);
       if ( *VisionName )
-        CG_VisionSetRegisterLeafByFile(&_RDI->cvsData, VISIONSET_LEAFTYPE_FADE_BLACK, VisionName);
+        CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_FADE_BLACK, VisionName);
       else
-        v51 = 0;
-      CG_VisionSetRegisterBlendStart(&_RDI->cvsData, VISIONSET_BLENDTYPE_FADE_BLACK, _RDI->time, v54, v51, VISIONSETLERP_SMOOTH);
-      result = 1;
-      goto LABEL_86;
+        v43 = 0;
+      CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_FADE_BLACK, LocalClientGlobals->time, v46, v43, VISIONSETLERP_SMOOTH);
+      return 1;
     case 60:
       CG_Glass_Reset(localClientNum);
-      result = 1;
-      goto LABEL_86;
+      return 1;
     case 62:
-      v84 = 1;
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm6, xmm0 }
-      v86 = Cmd_ArgInt(2);
-      v87 = DVARFLT_com_fovUserScaleFactor;
-      v88 = v86;
+      v74 = 1;
+      v75 = Cmd_ArgFloat(1);
+      v76 = Cmd_ArgInt(2);
+      v77 = DVARFLT_com_fovUserScaleFactor;
+      v78 = v76;
       if ( !DVARFLT_com_fovUserScaleFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_fovUserScaleFactor") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v87);
-      LODWORD(_RDI->fovScaleLerpBase) = v87->current.integer;
+      Dvar_CheckFrontendServerThread(v77);
+      LODWORD(LocalClientGlobals->fovScaleLerpBase) = v77->current.integer;
       result = 1;
-      if ( v88 > 1 )
-        v84 = v88;
-      _RDI->fovScaleLerpTimer = v84;
-      _RDI->fovScaleLerpDuration = v84;
-      __asm { vmovss  dword ptr [rdi+66A90h], xmm6 }
-      goto LABEL_86;
+      if ( v78 > 1 )
+        v74 = v78;
+      LocalClientGlobals->fovScaleLerpTimer = v74;
+      LocalClientGlobals->fovScaleLerpDuration = v74;
+      LocalClientGlobals->fovScaleLerpTarget = *(float *)&v75;
+      return result;
     case 66:
-      v76 = Cmd_Argv(1);
-      v77 = CG_RegisterImpactEffects(v76);
+      v68 = Cmd_Argv(1);
+      v69 = CG_RegisterImpactEffects(v68);
       if ( cgMedia.impactFx )
       {
-        cgMedia.impactFx = v77;
-        result = 1;
+        cgMedia.impactFx = v69;
+        return 1;
       }
       else
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6C00, 233i64);
-LABEL_85:
-        result = 0;
+        return 0;
       }
-      goto LABEL_86;
     case 69:
       if ( Cmd_Argc() == 2 )
       {
-        v29 = Cmd_ArgInt(1);
-        CG_GetLocalClientGlobals(localClientNum)->nvgInfo.nvgIntent = 2 - (v29 != 0);
+        v23 = Cmd_ArgInt(1);
+        CG_GetLocalClientGlobals(localClientNum)->nvgInfo.nvgIntent = 2 - (v23 != 0);
       }
       else
       {
         Com_PrintError(14, "ERROR: CG_ServerCmd_NightVisionSetState bad params\n");
       }
-      result = 1;
-      goto LABEL_86;
+      return 1;
     case 74:
-      v38 = Cmd_ArgInt(1);
-      v39 = v38;
-      if ( v38 )
+      v30 = Cmd_ArgInt(1);
+      v31 = v30;
+      if ( v30 )
       {
-        if ( !NetConstStrings_GetVisionSetName(v38, (const char **)&outVisionSetName) )
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6BC8, 232i64, v39);
+        if ( !NetConstStrings_GetVisionSetName(v30, (const char **)&outVisionSetName) )
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6BC8, 232i64, v31);
       }
       else
       {
         outVisionSetName = (char *)&queryFormat.fmt + 3;
       }
-      v40 = Cmd_ArgInt(2);
-      v41 = outVisionSetName;
-      v42 = v40;
+      v32 = Cmd_ArgInt(2);
+      v33 = outVisionSetName;
+      v34 = v32;
       if ( *outVisionSetName )
       {
-        CG_VisionSetUpdateToNode(&_RDI->cvsData, _RDI->time, VISIONSET_BLENDTYPE_CT_B);
-        CG_VisionSetClearScriptBlendInUseIfNeeded(&_RDI->cvsData, _RDI->time);
-        CG_VisionSetMergeBlendToLeaf(&_RDI->cvsData, _RDI->time, VISIONSET_BLENDTYPE_SCRIPT_BLEND, VISIONSET_LEAFTYPE_SCRIPT_FROM);
-        CG_VisionSetRegisterLeafByFile(&_RDI->cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, outVisionSetName);
-        CG_VisionSetRegisterBlendStart(&_RDI->cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, _RDI->time, v42, 1, VISIONSETLERP_SMOOTH);
-        v41 = outVisionSetName;
+        CG_VisionSetUpdateToNode(&LocalClientGlobals->cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_CT_B);
+        CG_VisionSetClearScriptBlendInUseIfNeeded(&LocalClientGlobals->cvsData, LocalClientGlobals->time);
+        CG_VisionSetMergeBlendToLeaf(&LocalClientGlobals->cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_SCRIPT_BLEND, VISIONSET_LEAFTYPE_SCRIPT_FROM);
+        CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, outVisionSetName);
+        CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, LocalClientGlobals->time, v34, 1, VISIONSETLERP_SMOOTH);
+        v33 = outVisionSetName;
       }
-      CG_VisionSetScriptOverride(&_RDI->cvsData, v41, _RDI->time, v42);
-      result = 1;
-      goto LABEL_86;
+      CG_VisionSetScriptOverride(&LocalClientGlobals->cvsData, v33, LocalClientGlobals->time, v34);
+      return 1;
     case 75:
-      v43 = Cmd_ArgInt(1);
-      v44 = CG_VisionSets_GetVisionName(v43);
-      CG_VisionSetRegisterLeafByFile(&_RDI->cvsData, VISIONSET_LEAFTYPE_NIGHTVISION, v44);
-      result = 1;
-      goto LABEL_86;
+      v35 = Cmd_ArgInt(1);
+      v36 = CG_VisionSets_GetVisionName(v35);
+      CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_NIGHTVISION, v36);
+      return 1;
     case 76:
-      v45 = Cmd_ArgInt(1);
-      v46 = CG_VisionSets_GetVisionName(v45);
-      CG_VisionSetRegisterLeafByFile(&_RDI->cvsData, VISIONSET_LEAFTYPE_PREDATOR, v46);
-      result = 1;
-      goto LABEL_86;
+      v37 = Cmd_ArgInt(1);
+      v38 = CG_VisionSets_GetVisionName(v37);
+      CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_PREDATOR, v38);
+      return 1;
     case 77:
-      v47 = Cmd_ArgInt(1);
-      v48 = CG_VisionSets_GetVisionName(v47);
-      CG_VisionSetRegisterLeafByFile(&_RDI->cvsData, VISIONSET_LEAFTYPE_THERMAL, v48);
-      result = 1;
-      goto LABEL_86;
+      v39 = Cmd_ArgInt(1);
+      v40 = CG_VisionSets_GetVisionName(v39);
+      CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_THERMAL, v40);
+      return 1;
     case 78:
-      v49 = Cmd_ArgInt(1);
-      v50 = CG_VisionSets_GetVisionName(v49);
-      CG_VisionSetRegisterLeafByFile(&_RDI->cvsData, VISIONSET_LEAFTYPE_PAIN, v50);
-      result = 1;
-      goto LABEL_86;
+      v41 = Cmd_ArgInt(1);
+      v42 = CG_VisionSets_GetVisionName(v41);
+      CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_PAIN, v42);
+      return 1;
     case 80:
-      v28 = Cmd_ArgInt(2);
+      v22 = Cmd_ArgInt(2);
       if ( Cmd_ArgInt(1) )
-        CG_View_StartWaterSheetFX(localClientNum, v28);
+        CG_View_StartWaterSheetFX(localClientNum, v22);
       else
         CG_View_StopWaterSheetFX(localClientNum);
-      result = 1;
-      goto LABEL_86;
+      return 1;
     case 82:
       if ( Cmd_Argc() != 3 )
       {
         Com_PrintError(14, "ERROR: CG_ServerCmd_OpenMenu bad params\n");
-        result = 1;
-        goto LABEL_86;
+        return 1;
       }
-      v80 = Cmd_Argv(1);
-      v81 = Cmd_Argv(2);
-      v82 = atoi(v81);
-      if ( !v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 612, ASSERT_TYPE_ASSERT, "(menu)", (const char *)&queryFormat, "menu") )
+      v70 = Cmd_Argv(1);
+      v71 = Cmd_Argv(2);
+      v72 = atoi(v71);
+      if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 612, ASSERT_TYPE_ASSERT, "(menu)", (const char *)&queryFormat, "menu") )
         __debugbreak();
-      if ( v82 < -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 613, ASSERT_TYPE_ASSERT, "(clientNum >= -1)", (const char *)&queryFormat, "clientNum >= -1") )
+      if ( v72 < -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 613, ASSERT_TYPE_ASSERT, "(clientNum >= -1)", (const char *)&queryFormat, "clientNum >= -1") )
         __debugbreak();
-      if ( !*v80 )
-        goto LABEL_113;
-      v83 = LOCAL_CLIENT_0;
+      if ( !*v70 )
+        return 1;
+      v73 = LOCAL_CLIENT_0;
       if ( CL_GetLocalClientActiveCount() <= 0 )
-        goto LABEL_113;
-      while ( CG_GetLocalClientGlobals(v83)->clientNum != v82 )
+        return 1;
+      while ( CG_GetLocalClientGlobals(v73)->clientNum != v72 )
       {
-        if ( ++v83 >= CL_GetLocalClientActiveCount() )
-        {
-          result = 1;
-          goto LABEL_86;
-        }
+        if ( ++v73 >= CL_GetLocalClientActiveCount() )
+          return 1;
       }
-      LUI_OpenMenu(v83, v80, 0, 0, 1);
-      result = 1;
-      goto LABEL_86;
+      LUI_OpenMenu(v73, v70, 0, 0, 1);
+      return 1;
     case 90:
       CG_ServerCmd_SoundSubmix(localClientNum);
-      result = 1;
-      goto LABEL_86;
+      return 1;
     case 98:
       if ( Cmd_Argc() != 2 )
       {
         Com_PrintError(14, "ERROR: CG_ServerCmds_ManualStreamMaterial expected a parameter (material index)\n");
-        result = 1;
-        goto LABEL_86;
+        return 1;
       }
-      v89 = Cmd_Argv(1);
-      v90 = atoi(v89);
-      v91 = CG_Draw_MaterialHandleForIndex(localClientNum, v90);
-      if ( v91 )
+      v79 = Cmd_Argv(1);
+      v80 = atoi(v79);
+      v81 = CG_Draw_MaterialHandleForIndex(localClientNum, v80);
+      if ( v81 )
       {
-        Stream_SetMaterialTouchedUntilLoaded(v91);
-        result = 1;
-        goto LABEL_86;
+        Stream_SetMaterialTouchedUntilLoaded(v81);
+        return 1;
       }
-      Com_PrintError(14, "ERROR: CG_ServerCmds_ManualStreamMaterial invalid material %u\n", v90);
-      goto LABEL_113;
+      Com_PrintError(14, "ERROR: CG_ServerCmds_ManualStreamMaterial invalid material %u\n", v80);
+      return 1;
     case 105:
-      v9 = Cmd_Argc();
-      if ( v9 <= 1 )
+      v5 = Cmd_Argc();
+      if ( v5 <= 1 )
         goto LABEL_17;
-      v10 = Cmd_Argv(1);
-      if ( !v10 )
+      v6 = Cmd_Argv(1);
+      if ( !v6 )
         goto LABEL_17;
-      v11 = *v10;
-      if ( !v11 )
+      v7 = *v6;
+      if ( !v7 )
         goto LABEL_17;
-      if ( v11 == 97 )
+      if ( v7 == 97 )
       {
-        if ( (unsigned int)(v9 - 5) <= 1 )
+        if ( (unsigned int)(v5 - 5) <= 1 )
         {
-          v12 = Cmd_ArgInt(2);
-          SndEntHandle = CG_GenerateSndEntHandle(localClientNum, v12);
-          v14 = Cmd_Argv(3);
-          v15 = strtoul(v14, NULL, 16);
-          v16 = Cmd_Argv(4);
-          v17 = strtoul(v16, NULL, 16);
-          if ( v9 == 6 )
-            *(double *)&_XMM0 = Cmd_ArgFloat(5);
+          v8 = Cmd_ArgInt(2);
+          SndEntHandle = CG_GenerateSndEntHandle(localClientNum, v8);
+          v10 = Cmd_Argv(3);
+          v11 = strtoul(v10, NULL, 16);
+          v12 = Cmd_Argv(4);
+          v13 = strtoul(v12, NULL, 16);
+          if ( v5 == 6 )
+            v14 = Cmd_ArgFloat(5);
           else
-            __asm { vxorps  xmm0, xmm0, xmm0 }
-          __asm { vmovaps xmm3, xmm0; fadeTime }
-          SND_SetEntContext(SndEntHandle, v15, v17, *(float *)&_XMM3);
-          result = 1;
-          goto LABEL_86;
+            LODWORD(v14) = 0;
+          SND_SetEntContext(SndEntHandle, v11, v13, *(float *)&v14);
+          return 1;
         }
 LABEL_17:
         Com_PrintError(14, "ERROR: CG_ServerCmd_SoundContext bad params\n");
-        result = 1;
-        goto LABEL_86;
+        return 1;
       }
-      if ( v11 != 98 || (unsigned int)(v9 - 4) > 1 )
+      if ( v7 != 98 || (unsigned int)(v5 - 4) > 1 )
         goto LABEL_17;
-      v20 = Cmd_Argv(2);
-      v21 = strtoul(v20, NULL, 16);
-      v22 = Cmd_Argv(3);
-      v23 = strtoul(v22, NULL, 16);
-      v24 = v23;
-      if ( v9 == 5 )
+      v16 = Cmd_Argv(2);
+      v17 = strtoul(v16, NULL, 16);
+      v18 = Cmd_Argv(3);
+      v19 = strtoul(v18, NULL, 16);
+      v20 = v19;
+      if ( v5 == 5 )
       {
-        *(double *)&_XMM0 = Cmd_ArgFloat(4);
-        __asm { vmovaps xmm2, xmm0; fadeTime }
-        SND_SetContext(v21, v24, *(float *)&_XMM2);
+        v21 = Cmd_ArgFloat(4);
+        SND_SetContext(v17, v20, *(float *)&v21);
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovaps xmm2, xmm0; fadeTime
-        }
-        SND_SetContext(v21, v23, *(float *)&_XMM2);
+        SND_SetContext(v17, v19, 0.0);
       }
-      result = 1;
-LABEL_86:
-      _R11 = &v94;
-      __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-      return result;
+      return 1;
     case 109:
       CG_ServerCmd_AudioZone(localClientNum);
-      result = 1;
-      goto LABEL_86;
+      return 1;
     case 112:
-      v58 = Cmd_Argc();
-      if ( v58 >= 3 )
+      v50 = Cmd_Argc();
+      if ( v50 >= 3 )
       {
-        v59 = Cmd_Argv(1);
-        v60 = strtoul(v59, NULL, 16);
-        v61 = Cmd_Argv(2);
-        v62 = strtoul(v61, NULL, 16);
-        v63 = v62;
-        if ( v62 > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned long>(unsigned long)", "signed", (int)v62, "unsigned", v62) )
+        v51 = Cmd_Argv(1);
+        v52 = strtoul(v51, NULL, 16);
+        v53 = Cmd_Argv(2);
+        v54 = strtoul(v53, NULL, 16);
+        v55 = v54;
+        if ( v54 > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned long>(unsigned long)", "signed", (int)v54, "unsigned", v54) )
           __debugbreak();
-        v64 = v58 - 3;
-        if ( v64 <= 96 )
+        v56 = v50 - 3;
+        if ( v56 <= 96 )
         {
-          if ( v64 > 0 )
+          if ( v56 > 0 )
           {
-            v65 = 0i64;
-            v66 = 3;
+            v57 = 0i64;
+            v58 = 3;
             do
             {
-              v67 = Cmd_Argv(v66);
-              assetIdPlaylist[v65] = strtoul(v67, NULL, 16);
-              ++v66;
-              ++v65;
+              v59 = Cmd_Argv(v58);
+              assetIdPlaylist[v57] = strtoul(v59, NULL, 16);
+              ++v58;
+              ++v57;
             }
-            while ( v65 < v64 );
+            while ( v57 < v56 );
           }
-          if ( v63 )
-            SND_StopMusicState(v60);
+          if ( v55 )
+            SND_StopMusicState(v52);
           else
-            SND_SetMusicState(v60, assetIdPlaylist, v64);
-          result = 1;
+            SND_SetMusicState(v52, assetIdPlaylist, v56);
+          return 1;
         }
         else
         {
           Com_PrintError(14, "ERROR: CG_ServerCmd_MusicState Too many params (music id's)\n");
-          result = 1;
+          return 1;
         }
       }
       else
       {
         Com_PrintError(14, "ERROR: CG_ServerCmd_MusicState bad params\n");
-        result = 1;
+        return 1;
       }
-      goto LABEL_86;
     case 115:
-      v68 = Cmd_ArgInt(1);
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovaps xmm1, xmm0; lerp }
-      SND_SetTimeScaleLerp(v68, *(const float *)&_XMM1);
-      result = 1;
-      goto LABEL_86;
+      v60 = Cmd_ArgInt(1);
+      v61 = Cmd_ArgFloat(2);
+      SND_SetTimeScaleLerp(v60, *(const float *)&v61);
+      return 1;
     case 116:
-      v70 = Cmd_Argc();
-      if ( v70 == 2 )
+      v62 = Cmd_Argc();
+      if ( v62 == 2 )
       {
-        v71 = Cmd_Argv(1);
+        v63 = Cmd_Argv(1);
         if ( !Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
           SND_ResetTimeScaleDefaults();
-        if ( CG_SetTimeScaleByPreset(v71) )
+        if ( CG_SetTimeScaleByPreset(v63) )
         {
-LABEL_113:
-          result = 1;
+          return 1;
         }
         else
         {
-          Com_PrintError(14, "CG_ServerCmd_SoundTimeScaleTableCmd did not find an entry for preset with name %s", v71);
-          result = 1;
+          Com_PrintError(14, "CG_ServerCmd_SoundTimeScaleTableCmd did not find an entry for preset with name %s", v63);
+          return 1;
         }
       }
       else
       {
-        Com_PrintError(14, "ERROR: CG_ServerCmd_SoundTimeScaleTableCmd called with %i args\n", v70);
-        result = 1;
+        Com_PrintError(14, "ERROR: CG_ServerCmd_SoundTimeScaleTableCmd called with %i args\n", v62);
+        return 1;
       }
-      goto LABEL_86;
     case 120:
       if ( Cmd_Argc() == 3 )
       {
-        v72 = Cmd_Argv(1);
-        v73 = strtoul(v72, NULL, 16);
-        v74 = Cmd_ArgInt(2);
-        SND_EnablePASpeaker(v73, v74 == 1);
+        v64 = Cmd_Argv(1);
+        v65 = strtoul(v64, NULL, 16);
+        v66 = Cmd_ArgInt(2);
+        SND_EnablePASpeaker(v65, v66 == 1);
       }
       else
       {
         Com_PrintError(14, "ERROR: CG_ServerCmd_EnablePASpeaker bad params\n");
       }
-      result = 1;
-      goto LABEL_86;
+      return 1;
     case 121:
       if ( Cmd_Argc() == 2 )
       {
-        v75 = Cmd_ArgInt(1);
-        CG_SND_PlayerBreathsEnable(localClientNum, v75 == 1);
+        v67 = Cmd_ArgInt(1);
+        CG_SND_PlayerBreathsEnable(localClientNum, v67 == 1);
       }
       else
       {
         Com_PrintError(14, "ERROR: CG_ServerCmd_PlayerBreathsEnable bad params\n");
       }
-      result = 1;
-      goto LABEL_86;
+      return 1;
     default:
-      goto LABEL_85;
+      return 0;
   }
 }
 
@@ -1038,239 +976,168 @@ CG_ServerCmd_SoundSubmix
 
 void __fastcall CG_ServerCmd_SoundSubmix(LocalClientNum_t localClientNum, double _XMM1_8)
 {
-  unsigned int v8; 
-  int v9; 
+  unsigned int v3; 
+  int v4; 
+  const char *v5; 
+  __int64 v6; 
+  const char *v9; 
   const char *v10; 
-  __int64 v11; 
-  const char *v17; 
+  const char *v11; 
+  const char *v12; 
+  const char *v13; 
+  const char *v14; 
+  const char *v15; 
+  unsigned int v16; 
+  char v17; 
+  const char *v18; 
   const char *v19; 
-  const char *v26; 
-  char v27; 
-  char v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  const char *v32; 
-  unsigned int v33; 
-  char v34; 
-  const char *v35; 
-  char v36; 
-  char v37; 
-  const char *v38; 
-  const char *v39; 
-  const char *v40; 
-  const char *v41; 
-  unsigned int v42; 
-  const char *v43; 
-  const char *v44; 
-  double v50; 
-  double v51; 
-  double v52; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  unsigned int v23; 
+  const char *v24; 
+  const char *v25; 
 
-  v8 = Cmd_Argc();
-  v9 = v8;
-  if ( v8 - 2 > 3 )
+  v3 = Cmd_Argc();
+  v4 = v3;
+  if ( v3 - 2 > 3 )
   {
-    Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix bad (%d) params, expecting 2-5\n", v8);
+    Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix bad (%d) params, expecting 2-5\n", v3);
   }
   else
   {
-    v10 = Cmd_Argv(1);
-    v11 = -1i64;
+    v5 = Cmd_Argv(1);
+    v6 = -1i64;
     do
-      ++v11;
-    while ( v10[v11] );
-    if ( v11 == 1 )
+      ++v6;
+    while ( v5[v6] );
+    if ( v6 == 1 )
     {
-      __asm
-      {
-        vmovaps [rsp+98h+var_18], xmm6
-        vmovaps [rsp+98h+var_28], xmm7
-        vmovaps [rsp+98h+var_38], xmm8
-        vmovaps [rsp+98h+var_48], xmm9
-        vmovaps [rsp+98h+var_58], xmm10
-        vmovss  xmm10, cs:__real@bf800000
-        vmovss  xmm8, cs:__real@3f800000
-        vmovaps xmm6, xmm10
-        vmovaps xmm7, xmm8
-        vxorps  xmm9, xmm9, xmm9
-      }
-      switch ( *v10 )
+      *(float *)&_XMM6 = FLOAT_N1_0;
+      *(float *)&_XMM7 = FLOAT_1_0;
+      switch ( *v5 )
       {
         case '0':
           goto $LN18_111;
         case '1':
           goto $LN15_119;
         case '2':
-          if ( v9 != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 398, ASSERT_TYPE_ASSERT, "(argc == 5)", (const char *)&queryFormat, "argc == 5") )
+          if ( v4 != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 398, ASSERT_TYPE_ASSERT, "(argc == 5)", (const char *)&queryFormat, "argc == 5") )
             __debugbreak();
-          v26 = Cmd_Argv(4);
-          *(double *)&_XMM0 = atof(v26);
-          __asm
+          v11 = Cmd_Argv(4);
+          *(double *)&_XMM0 = atof(v11);
+          __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
+          if ( *(float *)&_XMM7 < 0.0 || *(float *)&_XMM7 > 1.0 )
           {
-            vcvtsd2ss xmm7, xmm0, xmm0
-            vcomiss xmm7, xmm9
-          }
-          if ( v27 )
-            goto LABEL_19;
-          __asm { vcomiss xmm7, xmm8 }
-          if ( !(v27 | v28) )
-          {
-LABEL_19:
-            v29 = Cmd_Argv(5);
-            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Set scale (%s)\n", v29);
-            __asm { vmovaps xmm7, xmm8 }
+            v12 = Cmd_Argv(5);
+            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Set scale (%s)\n", v12);
+            *(float *)&_XMM7 = FLOAT_1_0;
           }
 $LN15_119:
-          if ( v9 < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 406, ASSERT_TYPE_ASSERT, "(argc >= 4)", (const char *)&queryFormat, "argc >= 4") )
+          if ( v4 < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 406, ASSERT_TYPE_ASSERT, "(argc >= 4)", (const char *)&queryFormat, "argc >= 4") )
             __debugbreak();
-          v30 = Cmd_Argv(3);
-          *(double *)&_XMM0 = atof(v30);
-          __asm
+          v13 = Cmd_Argv(3);
+          *(double *)&_XMM0 = atof(v13);
+          __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
+          if ( *(float *)&_XMM6 < 0.0 )
           {
-            vcvtsd2ss xmm6, xmm0, xmm0
-            vcomiss xmm6, xmm9
-          }
-          if ( v27 )
-          {
-            v31 = Cmd_Argv(3);
-            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Set fadeTime (%s)\n", v31);
-            __asm { vmovaps xmm6, xmm10 }
+            v14 = Cmd_Argv(3);
+            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Set fadeTime (%s)\n", v14);
+            *(float *)&_XMM6 = FLOAT_N1_0;
           }
 $LN18_111:
-          if ( v9 < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 414, ASSERT_TYPE_ASSERT, "(argc >= 3)", (const char *)&queryFormat, "argc >= 3") )
+          if ( v4 < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 414, ASSERT_TYPE_ASSERT, "(argc >= 3)", (const char *)&queryFormat, "argc >= 3") )
             __debugbreak();
           goto LABEL_28;
         case '3':
-          if ( v9 != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 420, ASSERT_TYPE_ASSERT, "(argc == 4)", (const char *)&queryFormat, "argc == 4") )
+          if ( v4 != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 420, ASSERT_TYPE_ASSERT, "(argc == 4)", (const char *)&queryFormat, "argc == 4") )
             __debugbreak();
-          __asm { vxorps  xmm6, xmm6, xmm6 }
-          v35 = Cmd_Argv(3);
-          *(double *)&_XMM0 = atof(v35);
-          __asm
+          LODWORD(_XMM6) = 0;
+          v18 = Cmd_Argv(3);
+          *(double *)&_XMM0 = atof(v18);
+          __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
+          if ( *(float *)&_XMM7 < 0.0 || *(float *)&_XMM7 > 1.0 )
           {
-            vcvtsd2ss xmm7, xmm0, xmm0
-            vcomiss xmm7, xmm9
-          }
-          if ( v36 )
-            goto LABEL_34;
-          __asm { vcomiss xmm7, xmm8 }
-          if ( !(v36 | v37) )
-          {
-LABEL_34:
-            v38 = Cmd_Argv(3);
-            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Scale argument (%s)\n", v38);
-            __asm { vmovaps xmm7, xmm8 }
+            v19 = Cmd_Argv(3);
+            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Scale argument (%s)\n", v19);
+            *(float *)&_XMM7 = FLOAT_1_0;
           }
 LABEL_28:
-          v32 = Cmd_Argv(2);
-          v33 = strtoul(v32, NULL, 16);
-          v34 = 1;
+          v15 = Cmd_Argv(2);
+          v16 = strtoul(v15, NULL, 16);
+          v17 = 1;
           goto LABEL_44;
         case '4':
           goto $LN27_77;
         case '5':
           goto $LN9_199;
         case '6':
-          if ( v9 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 385, ASSERT_TYPE_ASSERT, "(argc == 3)", (const char *)&queryFormat, "argc == 3") )
+          if ( v4 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 385, ASSERT_TYPE_ASSERT, "(argc == 3)", (const char *)&queryFormat, "argc == 3") )
             __debugbreak();
-          v17 = Cmd_Argv(2);
-          *(double *)&_XMM0 = atof(v17);
-          __asm
+          v9 = Cmd_Argv(2);
+          *(double *)&_XMM0 = atof(v9);
+          __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
+          if ( *(float *)&_XMM6 < 0.0 )
           {
-            vcvtsd2ss xmm6, xmm0, xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vcomiss xmm6, xmm1
-          }
-          if ( v27 )
-          {
-            v19 = Cmd_Argv(2);
-            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid ClearAll fadeTime (%s)\n", v19);
-            __asm { vmovaps xmm6, xmm10 }
+            v10 = Cmd_Argv(2);
+            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid ClearAll fadeTime (%s)\n", v10);
+            *(float *)&_XMM6 = FLOAT_N1_0;
           }
 $LN9_199:
-          __asm { vmovaps xmm1, xmm6; jumptable 0000000141D49B93 case 53 }
-          SND_SubmixClearAllFromSource(SND_SUBMIX_TYPE_SCRIPT, *(float *)&_XMM1);
+          SND_SubmixClearAllFromSource(SND_SUBMIX_TYPE_SCRIPT, *(float *)&_XMM6);
           break;
         case '7':
-          if ( v9 != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 433, ASSERT_TYPE_ASSERT, "(argc == 4)", (const char *)&queryFormat, "argc == 4") )
+          if ( v4 != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 433, ASSERT_TYPE_ASSERT, "(argc == 4)", (const char *)&queryFormat, "argc == 4") )
             __debugbreak();
-          v39 = Cmd_Argv(3);
-          *(double *)&_XMM0 = atof(v39);
-          __asm
+          v20 = Cmd_Argv(3);
+          *(double *)&_XMM0 = atof(v20);
+          __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
+          if ( *(float *)&_XMM6 < 0.0 )
           {
-            vcvtsd2ss xmm6, xmm0, xmm0
-            vcomiss xmm6, xmm9
-          }
-          if ( v27 )
-          {
-            v40 = Cmd_Argv(3);
-            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Clear fadeTime (%s)\n", v40);
-            __asm { vmovaps xmm6, xmm10 }
+            v21 = Cmd_Argv(3);
+            Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid Clear fadeTime (%s)\n", v21);
+            *(float *)&_XMM6 = FLOAT_N1_0;
           }
 $LN27_77:
-          if ( v9 < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 441, ASSERT_TYPE_ASSERT, "(argc >= 3)", (const char *)&queryFormat, "argc >= 3") )
+          if ( v4 < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 441, ASSERT_TYPE_ASSERT, "(argc >= 3)", (const char *)&queryFormat, "argc >= 3") )
             __debugbreak();
-          v41 = Cmd_Argv(2);
-          v33 = strtoul(v41, NULL, 16);
-          v34 = 0;
+          v22 = Cmd_Argv(2);
+          v16 = strtoul(v22, NULL, 16);
+          v17 = 0;
 LABEL_44:
-          v42 = v33;
-          if ( v33 )
+          v23 = v16;
+          if ( v16 )
           {
-            __asm
+            if ( *(float *)&_XMM7 < 0.0 || *(float *)&_XMM7 > 1.0 )
             {
-              vcomiss xmm7, xmm9
-              vcomiss xmm7, xmm8
-              vmovsd  xmm0, cs:__real@3ff0000000000000
-              vmovsd  [rsp+98h+var_60], xmm0
-              vxorpd  xmm1, xmm1, xmm1
-              vmovsd  [rsp+98h+var_68], xmm1
-              vcvtss2sd xmm2, xmm7, xmm7
-              vmovsd  [rsp+98h+var_70], xmm2
+              __asm { vxorpd  xmm1, xmm1, xmm1 }
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 453, ASSERT_TYPE_ASSERT, "( (0.0f) ) <= ( scale ) && ( scale ) <= ( (1.0f) )", "scale not in [SND_SUBMIX_SCALE_MIN, SND_SUBMIX_SCALE_MAX]\n\t%g not in [%g, %g]", *(float *)&_XMM7, *(double *)&_XMM1, DOUBLE_1_0) )
+                __debugbreak();
             }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 453, ASSERT_TYPE_ASSERT, "( (0.0f) ) <= ( scale ) && ( scale ) <= ( (1.0f) )", "scale not in [SND_SUBMIX_SCALE_MIN, SND_SUBMIX_SCALE_MAX]\n\t%g not in [%g, %g]", v50, v51, v52) )
+            if ( *(float *)&_XMM6 < 0.0 && *(float *)&_XMM6 != -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_servercmds.cpp", 454, ASSERT_TYPE_ASSERT, "(fadeTimeSec >= 0.0f || fadeTimeSec == (-1.0f))", (const char *)&queryFormat, "fadeTimeSec >= 0.0f || fadeTimeSec == SND_SUBMIX_USE_DEF_FADE") )
               __debugbreak();
-            __asm
-            {
-              vcomiss xmm6, xmm9
-              vmovaps xmm2, xmm6; fadeTimeSec
-            }
-            if ( v34 )
-            {
-              __asm { vmovaps xmm3, xmm7; scale }
-              SND_SubmixAddFromSource(SND_SUBMIX_TYPE_SCRIPT, v42, *(float *)&_XMM2, *(float *)&_XMM3);
-            }
+            if ( v17 )
+              SND_SubmixAddFromSource(SND_SUBMIX_TYPE_SCRIPT, v23, *(float *)&_XMM6, *(float *)&_XMM7);
             else
-            {
-              SND_SubmixClearFromSource(SND_SUBMIX_TYPE_SCRIPT, v42, *(float *)&_XMM2);
-            }
+              SND_SubmixClearFromSource(SND_SUBMIX_TYPE_SCRIPT, v23, *(float *)&_XMM6);
           }
           else
           {
-            v43 = Cmd_Argv(2);
-            v44 = "Clear";
-            if ( v34 )
-              v44 = "Set";
-            Com_PrintError(v42 + 14, "ERROR: CG_ServerCmd_SoundSubmix invalid %s submix hash (%s)\n", v44, v43);
+            v24 = Cmd_Argv(2);
+            v25 = "Clear";
+            if ( v17 )
+              v25 = "Set";
+            Com_PrintError(v23 + 14, "ERROR: CG_ServerCmd_SoundSubmix invalid %s submix hash (%s)\n", v25, v24);
           }
           break;
         default:
-          Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid subcmd (%c)\n", (unsigned int)*v10);
+          Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid subcmd (%c)\n", (unsigned int)*v5);
           break;
-      }
-      __asm
-      {
-        vmovaps xmm9, [rsp+98h+var_48]
-        vmovaps xmm8, [rsp+98h+var_38]
-        vmovaps xmm7, [rsp+98h+var_28]
-        vmovaps xmm6, [rsp+98h+var_18]
-        vmovaps xmm10, [rsp+98h+var_58]
       }
     }
     else
     {
-      Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid subcmd (%s)\n", v10);
+      Com_PrintError(14, "ERROR: CG_ServerCmd_SoundSubmix invalid subcmd (%s)\n", v5);
     }
   }
 }

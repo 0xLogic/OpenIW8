@@ -280,39 +280,37 @@ PartyClient_HandleHeartbeat
 */
 void PartyClient_HandleHeartbeat(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
-  int v8; 
-  const char *v9; 
-  int v11; 
-  const char *v12; 
+  int v7; 
+  const char *v8; 
+  int v9; 
+  const char *v10; 
   int addrHandleIndex; 
-  const char *v15; 
-  int v17; 
-  const char *v18; 
-  int v20; 
-  const char *v21; 
+  const char *v12; 
+  int v13; 
+  const char *v14; 
+  int v15; 
+  const char *v16; 
   const char *HostStatus; 
-  unsigned int v23; 
-  int v25; 
-  const char *v26; 
+  unsigned int v18; 
+  int v19; 
+  const char *v20; 
   PartyDisconnectReason disconnectReason; 
-  netadr_t v28; 
+  netadr_t v22; 
   PartyActiveClient mainActiveClient; 
 
-  _RDI = from;
   if ( party->inParty )
   {
     if ( Party_IsRunning(party) )
     {
       if ( party->areWeHost )
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        addrHandleIndex = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+88h+var_48], xmm0 }
-        v28.addrHandleIndex = addrHandleIndex;
-        v15 = NET_AdrToString(&v28);
-        Com_Printf(25, "[%s] Received stray Heartbeat message from %s - we are the host\n", party->partyName, v15);
+        addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+        v22.addrHandleIndex = addrHandleIndex;
+        v12 = NET_AdrToString(&v22);
+        Com_Printf(25, "[%s] Received stray Heartbeat message from %s - we are the host\n", party->partyName, v12);
       }
-      else if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], _RDI) )
+      else if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
       {
         if ( Party_IsHostDataAvailable(party) )
         {
@@ -325,8 +323,8 @@ void PartyClient_HandleHeartbeat(PartyData *party, const PartyActiveClient *dest
                 __debugbreak();
               HostStatus = Party_GetHostStatus(party);
               Com_Printf(25, "[%s] PartyClient - Heartbeat - Host is now PRESENT from %s\n", party->partyName, HostStatus);
-              v23 = Party_HostNum(party);
-              PartyClient_ChangeMemberStatus(party, v23, 5u);
+              v18 = Party_HostNum(party);
+              PartyClient_ChangeMemberStatus(party, v18, 5u);
             }
             if ( !Party_IsRunning(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2167, ASSERT_TYPE_ASSERT, "(Party_IsRunning( party ))", (const char *)&queryFormat, "Party_IsRunning( party )") )
               __debugbreak();
@@ -338,12 +336,11 @@ void PartyClient_HandleHeartbeat(PartyData *party, const PartyActiveClient *dest
           }
           else
           {
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            v20 = _RDI->addrHandleIndex;
-            __asm { vmovups [rsp+88h+var_48], xmm0 }
-            v28.addrHandleIndex = v20;
-            v21 = NET_AdrToString(&v28);
-            Com_PrintWarning(25, "[%s] Received Heartbeat message from %s, but we could not reply back.\n", party->partyName, v21);
+            v15 = from->addrHandleIndex;
+            *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+            v22.addrHandleIndex = v15;
+            v16 = NET_AdrToString(&v22);
+            Com_PrintWarning(25, "[%s] Received Heartbeat message from %s, but we could not reply back.\n", party->partyName, v16);
             mainActiveClient = Party_GetMainActiveClient(party, destClient->localControllerIndex);
             OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PARTY_t)0x20000, NULL);
             LOBYTE(disconnectReason) = 7;
@@ -352,42 +349,38 @@ void PartyClient_HandleHeartbeat(PartyData *party, const PartyActiveClient *dest
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v17 = _RDI->addrHandleIndex;
-          __asm { vmovups [rsp+88h+var_48], xmm0 }
-          v28.addrHandleIndex = v17;
-          v18 = NET_AdrToString(&v28);
-          Com_PrintWarning(25, "[%s] Received stray Heartbeat message from %s- from the host but we already removed him\n", party->partyName, v18);
+          v13 = from->addrHandleIndex;
+          *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+          v22.addrHandleIndex = v13;
+          v14 = NET_AdrToString(&v22);
+          Com_PrintWarning(25, "[%s] Received stray Heartbeat message from %s- from the host but we already removed him\n", party->partyName, v14);
         }
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v25 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+88h+var_48], xmm0 }
-        v28.addrHandleIndex = v25;
-        v26 = NET_AdrToString(&v28);
-        Com_Printf(25, "[%s] Received stray Heartbeat message from %s - not from the host\n", party->partyName, v26);
+        v19 = from->addrHandleIndex;
+        *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+        v22.addrHandleIndex = v19;
+        v20 = NET_AdrToString(&v22);
+        Com_Printf(25, "[%s] Received stray Heartbeat message from %s - not from the host\n", party->partyName, v20);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v11 = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+88h+var_48], xmm0 }
-      v28.addrHandleIndex = v11;
-      v12 = NET_AdrToString(&v28);
-      Com_Printf(25, "[%s] Received stray Heartbeat message from %s - party is not running\n", party->partyName, v12);
+      v9 = from->addrHandleIndex;
+      *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+      v22.addrHandleIndex = v9;
+      v10 = NET_AdrToString(&v22);
+      Com_Printf(25, "[%s] Received stray Heartbeat message from %s - party is not running\n", party->partyName, v10);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v8 = from->addrHandleIndex;
-    __asm { vmovups [rsp+88h+var_48], xmm0 }
-    v28.addrHandleIndex = v8;
-    v9 = NET_AdrToString(&v28);
-    Com_Printf(25, "[%s] Received stray Heartbeat message from %s - not in party\n", party->partyName, v9);
+    v7 = from->addrHandleIndex;
+    *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+    v22.addrHandleIndex = v7;
+    v8 = NET_AdrToString(&v22);
+    Com_Printf(25, "[%s] Received stray Heartbeat message from %s - not in party\n", party->partyName, v8);
   }
 }
 
@@ -398,33 +391,32 @@ PartyAtomicClient_HandleHostPresence
 */
 void PartyAtomicClient_HandleHostPresence(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
+  const char *v8; 
   const char *v9; 
+  const char *v10; 
   const char *v11; 
-  const char *v13; 
-  const char *v15; 
-  const char *v17; 
+  const char *v12; 
   int Byte; 
   __int64 Bits; 
-  int v20; 
-  bool v21; 
-  const char *v23; 
-  int v24; 
-  unsigned int v25; 
-  const char *v27; 
+  int v15; 
+  bool v16; 
+  const char *v17; 
+  int v18; 
+  unsigned int v19; 
+  const char *v20; 
   int hostPresenceIndex; 
-  const char *v30; 
-  unsigned int v31; 
+  const char *v22; 
+  unsigned int v23; 
   char *fmt; 
-  __int64 v33; 
-  bool v34; 
-  netadr_t v35; 
+  __int64 v25; 
+  bool v26; 
+  netadr_t v27; 
   XSECURITY_INFO *p_m_security; 
   PartyActiveClient mainActiveClient; 
-  __int64 v38; 
+  __int64 v30; 
   XSESSION_INFO newSessionInfo; 
 
-  v38 = -2i64;
-  _RSI = from;
+  v30 = -2i64;
   p_m_security = &newSessionInfo.m_security;
   bdSecurityID::bdSecurityID(&newSessionInfo.m_security.m_id);
   bdSecurityKey::bdSecurityKey(&newSessionInfo.m_security.m_key);
@@ -436,54 +428,39 @@ void PartyAtomicClient_HandleHostPresence(PartyData *party, const PartyActiveCli
     {
       if ( party->areWeHost )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rsp+150h+var_100], xmm0
-        }
-        v35.addrHandleIndex = _RSI->addrHandleIndex;
-        v13 = NET_AdrToString(&v35);
-        Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), we are the host\n", party->partyName, v13);
+        v27 = *from;
+        v10 = NET_AdrToString(&v27);
+        Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), we are the host\n", party->partyName, v10);
       }
-      else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], _RSI) )
+      else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
       {
         if ( Party_IsHostDedicated(party) )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rsp+150h+var_100], xmm0
-          }
-          v35.addrHandleIndex = _RSI->addrHandleIndex;
-          v17 = NET_AdrToString(&v35);
-          Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), host is dedicated.\n", party->partyName, v17);
+          v27 = *from;
+          v12 = NET_AdrToString(&v27);
+          Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), host is dedicated.\n", party->partyName, v12);
         }
         else if ( Party_IsHostDataAvailable(party) )
         {
           Byte = MSG_ReadByte(msg);
           LODWORD(p_m_security) = MSG_ReadByte(msg);
           Bits = MSG_ReadBits(msg, 8u);
-          v20 = truncate_cast<int,__int64>(Bits);
-          v34 = MSG_ReadBit(msg) != 0;
+          v15 = truncate_cast<int,__int64>(Bits);
+          v26 = MSG_ReadBit(msg) != 0;
           if ( Byte )
           {
-            v21 = 1;
+            v16 = 1;
           }
           else
           {
             XSESSION_INFO::Deserialize(&newSessionInfo, msg);
-            v21 = MSG_ReadBit(msg) != 0;
+            v16 = MSG_ReadBit(msg) != 0;
           }
           if ( msg->overflowed )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsi]
-              vmovups [rsp+150h+var_100], xmm0
-            }
-            v35.addrHandleIndex = _RSI->addrHandleIndex;
-            v23 = NET_AdrToString(&v35);
-            Com_PrintWarning(25, "PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), invalid packet.\n", v23);
+            v27 = *from;
+            v17 = NET_AdrToString(&v27);
+            Com_PrintWarning(25, "PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), invalid packet.\n", v17);
           }
           else
           {
@@ -491,7 +468,7 @@ void PartyAtomicClient_HandleHostPresence(PartyData *party, const PartyActiveCli
               __debugbreak();
             if ( g_partyData.areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2255, ASSERT_TYPE_ASSERT, "(!g_partyData.areWeHost)", (const char *)&queryFormat, "!g_partyData.areWeHost") )
               __debugbreak();
-            if ( v20 > g_partyData.hostPresenceIndex || v20 != g_partyData.hostPresenceIndex && (g_partyData.hostPresenceIndex <= 170 || v20 >= 85 ? (v24 = 0) : (v24 = 1), v24) )
+            if ( v15 > g_partyData.hostPresenceIndex || v15 != g_partyData.hostPresenceIndex && (g_partyData.hostPresenceIndex <= 170 || v15 >= 85 ? (v18 = 0) : (v18 = 1), v18) )
             {
               if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_party_debugClientIgnoreHostPresence, "party_debugClientIgnoreHostPresence") )
               {
@@ -500,23 +477,18 @@ void PartyAtomicClient_HandleHostPresence(PartyData *party, const PartyActiveCli
               else
               {
                 hostPresenceIndex = party->hostPresenceIndex;
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rsi]
-                  vmovups [rsp+150h+var_100], xmm0
-                }
-                v35.addrHandleIndex = _RSI->addrHandleIndex;
-                v30 = NET_AdrToString(&v35);
-                LODWORD(v33) = hostPresenceIndex;
+                v27 = *from;
+                v22 = NET_AdrToString(&v27);
+                LODWORD(v25) = hostPresenceIndex;
                 LODWORD(fmt) = Byte;
-                Com_Printf(25, "[%s] PartyClient - HandleHostPresence - Processing 'pa_presence' message from (%s), with type %i. Indices are %i > %i\n", party->partyName, v30, fmt, v33, v20);
+                Com_Printf(25, "[%s] PartyClient - HandleHostPresence - Processing 'pa_presence' message from (%s), with type %i. Indices are %i > %i\n", party->partyName, v22, fmt, v25, v15);
                 PartyClient_MarkPacketReceived(party, &party->currentHost);
-                party->hostPresenceIndex = v20;
+                party->hostPresenceIndex = v15;
                 if ( Party_IsHostAway(party) )
                 {
                   Com_Printf(25, "[%s] PartyClient - HandleHostPresence - Host is no longer away, since we got a presence message.\n", party->partyName);
-                  v31 = Party_HostNum(party);
-                  PartyClient_ChangeMemberStatus(party, v31, 4u);
+                  v23 = Party_HostNum(party);
+                  PartyClient_ChangeMemberStatus(party, v23, 4u);
                 }
                 if ( !Party_IsHostPresent(party) && !Party_IsHostCommitted(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2365, ASSERT_TYPE_ASSERT, "(Party_IsHostPresent( party ) || Party_IsHostCommitted( party ))", (const char *)&queryFormat, "Party_IsHostPresent( party ) || Party_IsHostCommitted( party )") )
                   __debugbreak();
@@ -528,24 +500,19 @@ void PartyAtomicClient_HandleHostPresence(PartyData *party, const PartyActiveCli
                 else
                 {
                   g_partyJoinInfo.partyCodPlayMode[0] = (_BYTE)p_m_security;
-                  g_partyJoinInfo.shouldGoToMPBlade = v34;
-                  PartyClient_JoinPartyHostLobby(&mainActiveClient, &newSessionInfo, v21);
+                  g_partyJoinInfo.shouldGoToMPBlade = v26;
+                  PartyClient_JoinPartyHostLobby(&mainActiveClient, &newSessionInfo, v16);
                   PartyClient_MarkAwayPartyMembersPresent(party);
                 }
               }
             }
             else
             {
-              v25 = party->hostPresenceIndex;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rsi]
-                vmovups [rsp+150h+var_100], xmm0
-              }
-              v35.addrHandleIndex = _RSI->addrHandleIndex;
-              v27 = NET_AdrToString(&v35);
-              LODWORD(fmt) = v20;
-              Com_PrintWarning(25, "PartyClient - HandleHostPresence - Received duplicate/old 'pa_presence' message from (%s), current index is %i, received %i.\n", v27, v25, fmt);
+              v19 = party->hostPresenceIndex;
+              v27 = *from;
+              v20 = NET_AdrToString(&v27);
+              LODWORD(fmt) = v15;
+              Com_PrintWarning(25, "PartyClient - HandleHostPresence - Received duplicate/old 'pa_presence' message from (%s), current index is %i, received %i.\n", v20, v19, fmt);
             }
           }
         }
@@ -556,38 +523,23 @@ void PartyAtomicClient_HandleHostPresence(PartyData *party, const PartyActiveCli
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rsp+150h+var_100], xmm0
-        }
-        v35.addrHandleIndex = _RSI->addrHandleIndex;
-        v15 = NET_AdrToString(&v35);
-        Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), not the host.\n", party->partyName, v15);
+        v27 = *from;
+        v11 = NET_AdrToString(&v27);
+        Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), not the host.\n", party->partyName, v11);
       }
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+150h+var_100], xmm0
-      }
-      v35.addrHandleIndex = _RSI->addrHandleIndex;
-      v11 = NET_AdrToString(&v35);
-      Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), not in party.\n", party->partyName, v11);
+      v27 = *from;
+      v9 = NET_AdrToString(&v27);
+      Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), not in party.\n", party->partyName, v9);
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+150h+var_100], xmm0
-    }
-    v35.addrHandleIndex = _RSI->addrHandleIndex;
-    v9 = NET_AdrToString(&v35);
-    Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), not targeted at a private party.\n", party->partyName, v9);
+    v27 = *from;
+    v8 = NET_AdrToString(&v27);
+    Com_PrintWarning(25, "[%s] PartyClient - HandleHostPresence - Received stray 'pa_presence' message from (%s), not targeted at a private party.\n", party->partyName, v8);
   }
   bdSecurityKey::~bdSecurityKey(&newSessionInfo.m_security.m_key);
   bdSecurityID::~bdSecurityID(&newSessionInfo.m_security.m_id);
@@ -601,13 +553,12 @@ PartyAtomicClient_HandleHostAccept
 void PartyAtomicClient_HandleHostAccept(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
-  netadr_t v6; 
+  netadr_t v5; 
 
-  __asm { vmovups xmm0, xmmword ptr [r8] }
   addrHandleIndex = from->addrHandleIndex;
-  __asm { vmovups [rsp+48h+var_28], xmm0 }
-  v6.addrHandleIndex = addrHandleIndex;
-  PartyAtomicClient_HandleHostAccept_Internal(party, destClient, &v6, msg);
+  *(_OWORD *)&v5.type = *(_OWORD *)&from->type;
+  v5.addrHandleIndex = addrHandleIndex;
+  PartyAtomicClient_HandleHostAccept_Internal(party, destClient, &v5, msg);
 }
 
 /*
@@ -621,25 +572,25 @@ void PartyAtomicClient_HandleHostJoined(PartyData *party, const PartyActiveClien
   bool v9; 
   bool v10; 
   PartyJoinState JoinState; 
+  __int128 v12; 
   const char *v13; 
   int addrHandleIndex; 
-  const char *v16; 
-  int v18; 
-  const char *v19; 
+  const char *v15; 
+  int v16; 
+  const char *v17; 
   __int64 localClientNum; 
-  int v22; 
-  bool v23; 
-  const char *v24; 
-  const char *v25; 
-  const char *v26; 
-  const dvar_t *v27; 
+  int v19; 
+  bool v20; 
+  const char *v21; 
+  const char *v22; 
+  const char *v23; 
+  const dvar_t *v24; 
   char *fmt; 
-  __int64 v29; 
-  int v30; 
-  netadr_t v31; 
+  __int64 v26; 
+  int v27; 
+  netadr_t v28; 
   XUID result; 
 
-  _RDI = from;
   Byte = MSG_ReadByte(msg);
   v9 = MSG_ReadBit(msg) != 0;
   v10 = MSG_ReadBit(msg) != 0;
@@ -647,60 +598,58 @@ void PartyAtomicClient_HandleHostJoined(PartyData *party, const PartyActiveClien
   {
     if ( PartyAtomic_HasErrorOccured(&g_partyJoinInfo) )
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      addrHandleIndex = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-      v31.addrHandleIndex = addrHandleIndex;
-      v16 = NET_AdrToString(&v31);
-      Com_PrintWarning(25, "HandleHostJoined - Received joined message from (%s), but we already decided to fail through some other message!\n", v16);
+      addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&v28.type = *(_OWORD *)&from->type;
+      v28.addrHandleIndex = addrHandleIndex;
+      v15 = NET_AdrToString(&v28);
+      Com_PrintWarning(25, "HandleHostJoined - Received joined message from (%s), but we already decided to fail through some other message!\n", v15);
     }
     else
     {
       if ( CL_AllLocalClientsInactive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2532, ASSERT_TYPE_ASSERT, "(!CL_AllLocalClientsInactive())", "%s\n\tPARTYJOIN_JOINING while we're not in the menus", "!CL_AllLocalClientsInactive()") )
         __debugbreak();
-      if ( PartyAtomic_PacketIsFromPotentialHost(&g_partyJoinInfo, (const LocalClientNum_t)destClient->localClientNum, (const PartyType)party->partyId, _RDI) )
+      if ( PartyAtomic_PacketIsFromPotentialHost(&g_partyJoinInfo, (const LocalClientNum_t)destClient->localClientNum, (const PartyType)party->partyId, from) )
       {
         if ( g_partyJoinInfo.joinType == PJT_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2539, ASSERT_TYPE_ASSERT, "(partyJoinInfo->joinType != PJT_NONE)", (const char *)&queryFormat, "partyJoinInfo->joinType != PJT_NONE") )
           __debugbreak();
         if ( destClient->localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT )
         {
-          v30 = 2;
-          LODWORD(v29) = destClient->localClientNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2540, ASSERT_TYPE_ASSERT, "(unsigned)( destClient->localClientNum ) < (unsigned)( 2 )", "destClient->localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v29, v30) )
+          v27 = 2;
+          LODWORD(v26) = destClient->localClientNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2540, ASSERT_TYPE_ASSERT, "(unsigned)( destClient->localClientNum ) < (unsigned)( 2 )", "destClient->localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
         localClientNum = destClient->localClientNum;
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v22 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-        v23 = g_partyJoinInfo.joinAccepted[localClientNum] == 0;
-        v31.addrHandleIndex = v22;
-        if ( v23 )
+        v19 = from->addrHandleIndex;
+        *(_OWORD *)&v28.type = *(_OWORD *)&from->type;
+        v20 = g_partyJoinInfo.joinAccepted[localClientNum] == 0;
+        v28.addrHandleIndex = v19;
+        if ( v20 )
         {
-          v25 = NET_AdrToString(&v31);
+          v22 = NET_AdrToString(&v28);
           LODWORD(fmt) = localClientNum;
-          Com_Printf(25, "[%s] HandleHostJoined - Received joined message from the host (%s), setting joinAccepted for client %i.\n", party->partyName, v25, fmt);
-          v26 = "a lobby";
+          Com_Printf(25, "[%s] HandleHostJoined - Received joined message from the host (%s), setting joinAccepted for client %i.\n", party->partyName, v22, fmt);
+          v23 = "a lobby";
           g_partyJoinInfo.joinAccepted[destClient->localClientNum] = 1;
           g_partyJoinInfo.partyCodPlayMode[0] = Byte;
           if ( v10 )
-            v26 = "a game in progress";
+            v23 = "a game in progress";
           g_partyJoinInfo.shouldGoToMPBlade = v9;
           g_partyJoinInfo.joiningAGameInProgress = v10;
-          Com_Printf(25, "[%s] HandleHostJoined - joining %s\n", party->partyName, v26);
+          Com_Printf(25, "[%s] HandleHostJoined - joining %s\n", party->partyName, v23);
           XUID::FromMsg(&result, msg);
         }
         else
         {
-          v24 = NET_AdrToString(&v31);
+          v21 = NET_AdrToString(&v28);
           LODWORD(fmt) = localClientNum;
-          Com_Printf(25, "[%s] HandleHostJoined - Received duplicate join message from host (%s) for client %i\n", party->partyName, v24, fmt);
+          Com_Printf(25, "[%s] HandleHostJoined - Received duplicate join message from host (%s) for client %i\n", party->partyName, v21, fmt);
         }
-        v27 = DVARINT_online_party_host_crossplay_change_toast_display_mode;
+        v24 = DVARINT_online_party_host_crossplay_change_toast_display_mode;
         if ( !DVARINT_online_party_host_crossplay_change_toast_display_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_party_host_crossplay_change_toast_display_mode") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v27);
-        if ( v27->current.integer && Dvar_GetBool_Internal_DebugName(DVARBOOL_onlinegame, "onlinegame") && Party_IsPrivateParty(party) )
+        Dvar_CheckFrontendServerThread(v24);
+        if ( v24->current.integer && Dvar_GetBool_Internal_DebugName(DVARBOOL_onlinegame, "onlinegame") && Party_IsPrivateParty(party) )
         {
           s_lastTimeAtWhichHostChangedCrossplaySettings = Sys_Milliseconds();
           s_shouldTryShowToastForPartyHostChangingCrossplaySetting = 1;
@@ -709,22 +658,21 @@ void PartyAtomicClient_HandleHostJoined(PartyData *party, const PartyActiveClien
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v18 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-        v31.addrHandleIndex = v18;
-        v19 = NET_AdrToString(&v31);
-        Com_PrintWarning(25, "HandleHostJoined - Received joined message from (%s), someone other than the potential host.\n", v19);
+        v16 = from->addrHandleIndex;
+        *(_OWORD *)&v28.type = *(_OWORD *)&from->type;
+        v28.addrHandleIndex = v16;
+        v17 = NET_AdrToString(&v28);
+        Com_PrintWarning(25, "HandleHostJoined - Received joined message from (%s), someone other than the potential host.\n", v17);
       }
     }
   }
   else
   {
     JoinState = PartyAtomic_GetJoinState(&g_partyJoinInfo);
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v31.addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-    v13 = NET_AdrToString(&v31);
+    v12 = *(_OWORD *)&from->type;
+    v28.addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v28.type = v12;
+    v13 = NET_AdrToString(&v28);
     Com_PrintWarning(25, "HandleHostJoined - Received joined message from (%s), not in the PARTYJOIN_JOINING state (%i).\n", v13, (unsigned int)JoinState);
   }
 }
@@ -786,28 +734,27 @@ PartyAtomicClient_HandleJoinLobbyRequest
 */
 void PartyAtomicClient_HandleJoinLobbyRequest(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
+  const char *v8; 
   const char *v9; 
-  const char *v11; 
-  const char *v13; 
-  bool v14; 
+  const char *v10; 
+  bool v11; 
   unsigned __int64 Int64; 
-  const char *v17; 
-  const char *v19; 
-  PartyDisconnectReason v20; 
-  const char *v22; 
+  const char *v13; 
+  const char *v14; 
+  PartyDisconnectReason v15; 
+  const char *v16; 
   const PartySplitscreenData *splitscreenData; 
-  int v24; 
+  int v18; 
   int Int_Internal_DebugName; 
-  PartyDisconnectReason v26; 
-  unsigned int v27; 
-  netadr_t v28; 
+  PartyDisconnectReason v20; 
+  unsigned int v21; 
+  netadr_t v22; 
   int controllerIndex[2]; 
-  __int64 v30; 
+  __int64 v24; 
   PartyJoinChallenge buffer[2]; 
   XSESSION_INFO session; 
 
-  v30 = -2i64;
-  _RBX = from;
+  v24 = -2i64;
   *(_QWORD *)controllerIndex = &session.m_security;
   bdSecurityID::bdSecurityID(&session.m_security.m_id);
   bdSecurityKey::bdSecurityKey(&session.m_security.m_key);
@@ -815,45 +762,30 @@ void PartyAtomicClient_HandleJoinLobbyRequest(PartyData *party, const PartyActiv
   {
     if ( party->areWeHost )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups [rsp+120h+var_F0], xmm0
-      }
-      v28.addrHandleIndex = _RBX->addrHandleIndex;
-      v11 = NET_AdrToString(&v28);
-      Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from %s but we're the party host\n", v11);
+      v22 = *from;
+      v9 = NET_AdrToString(&v22);
+      Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from %s but we're the party host\n", v9);
     }
-    else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], _RBX) )
+    else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
     {
       MSG_ReadData(msg, 6, buffer, 6);
       XSESSION_INFO::Deserialize(&session, msg);
-      v14 = MSG_ReadBit(msg) != 0;
+      v11 = MSG_ReadBit(msg) != 0;
       Int64 = MSG_ReadInt64(msg);
       if ( msg->overflowed )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx]
-          vmovups [rsp+120h+var_F0], xmm0
-        }
-        v28.addrHandleIndex = _RBX->addrHandleIndex;
-        v17 = NET_AdrToString(&v28);
-        Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' with invalid data from %s\n", v17);
+        v22 = *from;
+        v13 = NET_AdrToString(&v22);
+        Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' with invalid data from %s\n", v13);
       }
       else
       {
         PartyClient_MarkPacketReceived(party, &party->currentHost);
         if ( PartyAtomic_IsJoiningActiveForSpecificSession(&g_partyJoinInfo, &session) )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovups [rsp+120h+var_F0], xmm0
-          }
-          v28.addrHandleIndex = _RBX->addrHandleIndex;
-          v19 = NET_AdrToString(&v28);
-          Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from %s but we're already joining that other lobby.\n", v19);
+          v22 = *from;
+          v14 = NET_AdrToString(&v22);
+          Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from %s but we're already joining that other lobby.\n", v14);
         }
         else if ( XSESSION_INFO::operator==(&session, &party->session->dyn.sessionInfo) )
         {
@@ -865,27 +797,22 @@ void PartyAtomicClient_HandleJoinLobbyRequest(PartyData *party, const PartyActiv
         }
         else
         {
-          LOBYTE(v20) = 10;
-          PartyAtomic_AbortJoinAttempt(&g_partyJoinInfo, v20);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovups [rsp+120h+var_F0], xmm0
-          }
-          v28.addrHandleIndex = _RBX->addrHandleIndex;
-          v22 = NET_AdrToString(&v28);
-          Com_Printf(25, "[%s] PartyAtomicJoin - Received 'pa_joinlobbyrequest' from host at %s - We need to join a new game lobby with challenge '%s'.\n", party->partyName, v22, buffer[0].str);
+          LOBYTE(v15) = 10;
+          PartyAtomic_AbortJoinAttempt(&g_partyJoinInfo, v15);
+          v22 = *from;
+          v16 = NET_AdrToString(&v22);
+          Com_Printf(25, "[%s] PartyAtomicJoin - Received 'pa_joinlobbyrequest' from host at %s - We need to join a new game lobby with challenge '%s'.\n", party->partyName, v16, buffer[0].str);
           *(PartyActiveClient *)controllerIndex = Party_GetMainActiveClient(party, destClient->localControllerIndex);
           splitscreenData = Party_GetSplitscreenData(party);
-          v24 = PartyAtomic_SetupPotentialHostForJoining(controllerIndex[1], &session, GAME_LOBBY_ID, v14, &g_partyJoinInfo, splitscreenData);
+          v18 = PartyAtomic_SetupPotentialHostForJoining(controllerIndex[1], &session, GAME_LOBBY_ID, v11, &g_partyJoinInfo, splitscreenData);
           Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_pt_searchConnectAttempts, "pt_searchConnectAttempts");
           PartyAtomic_StartJoin(&g_partyJoinInfo, party, PJT_HOSTREQUEST, PARTYJOIN_JOIN, Int_Internal_DebugName);
           g_partyJoinInfo.lobbyId = Int64;
           g_partyJoinInfo.challenge = buffer[0];
-          if ( v24 )
+          if ( v18 )
           {
-            v27 = Sys_Milliseconds();
-            Com_Printf(14, "PartyAtomicJoin - pa_joinlobbyrequest: Trying to join new lobby host at %i.\n", v27);
+            v21 = Sys_Milliseconds();
+            Com_Printf(14, "PartyAtomicJoin - pa_joinlobbyrequest: Trying to join new lobby host at %i.\n", v21);
             if ( party->inParty )
               PartyMigrate_StopMigration(party);
           }
@@ -893,34 +820,24 @@ void PartyAtomicClient_HandleJoinLobbyRequest(PartyData *party, const PartyActiv
           {
             Com_PrintWarning(25, "PartyAtomicJoin - pa_joinlobbyrequest: Could not join potential host\n");
             OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PARTY_JOIN_t)0x2000000, NULL);
-            LOBYTE(v26) = 42;
-            PartyAtomic_JoinAttemptFailed(&g_partyJoinInfo, "EXE/HOSTUNREACH", v26);
+            LOBYTE(v20) = 42;
+            PartyAtomic_JoinAttemptFailed(&g_partyJoinInfo, "EXE/HOSTUNREACH", v20);
           }
         }
       }
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups [rsp+120h+var_F0], xmm0
-      }
-      v28.addrHandleIndex = _RBX->addrHandleIndex;
-      v13 = NET_AdrToString(&v28);
-      Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from someone other than our current party host (%s).\n", v13);
+      v22 = *from;
+      v10 = NET_AdrToString(&v22);
+      Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from someone other than our current party host (%s).\n", v10);
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+120h+var_F0], xmm0
-    }
-    v28.addrHandleIndex = _RBX->addrHandleIndex;
-    v9 = NET_AdrToString(&v28);
-    Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from %s but we're not in a party\n", v9);
+    v22 = *from;
+    v8 = NET_AdrToString(&v22);
+    Com_PrintWarning(25, "PartyAtomicJoin - Received 'pa_joinlobbyrequest' from %s but we're not in a party\n", v8);
   }
   bdSecurityKey::~bdSecurityKey(&session.m_security.m_key);
   bdSecurityID::~bdSecurityID(&session.m_security.m_id);
@@ -1016,11 +933,10 @@ void PartyClient_HandleClientTask(PartyData *party, const PartyActiveClient *des
   int Long; 
   PartyClientTaskData clientTaskData; 
   msg_t buf; 
-  __int64 v15; 
+  __int64 v14; 
   Mem_LargeLocal buffer; 
 
-  v15 = -2i64;
-  _RBX = party;
+  v14 = -2i64;
   if ( party->inParty )
   {
     if ( Party_AreWeHost(party) )
@@ -1040,21 +956,17 @@ void PartyClient_HandleClientTask(PartyData *party, const PartyActiveClient *des
         v8 = 0;
         clientTaskData.payload = NULL;
         clientTaskData.payloadSize = 0;
-        clientTaskData.party = _RBX;
+        clientTaskData.party = party;
         clientTaskData.localClientNum = destClient->localClientNum;
         clientTaskData.taskId = Byte;
         switch ( Byte )
         {
           case 1u:
-            if ( PlatformSessionsHSMEnabled() && !_RBX->createSessionForPartyRequestData.m_pending )
+            if ( PlatformSessionsHSMEnabled() && !party->createSessionForPartyRequestData.m_pending )
             {
-              _RBX->createSessionForPartyRequestData.m_pending = 1;
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+57h+clientTaskData.party]
-                vmovups ymmword ptr [rbx+59F88h], ymm0
-              }
-              _RBX->createSessionForPartyRequestData.m_completeCallback = (void (__fastcall *)(PlatformSessionType, _GUID, bool, unsigned int))PartyClient_RespondToCreateSessionRequest;
+              party->createSessionForPartyRequestData.m_pending = 1;
+              party->createSessionForPartyRequestData.m_taskData = clientTaskData;
+              party->createSessionForPartyRequestData.m_completeCallback = (void (__fastcall *)(PlatformSessionType, _GUID, bool, unsigned int))PartyClient_RespondToCreateSessionRequest;
             }
             break;
           case 3u:
@@ -1063,7 +975,7 @@ void PartyClient_HandleClientTask(PartyData *party, const PartyActiveClient *des
             {
               Com_PrintError(25, "Recieved update session client task with no payload, nothing to do.");
               clientTaskData.result = PARTY_CLIENT_TASK_RESULT_FAILED;
-              PartyClient_SendClientTaskResponse(_RBX, &clientTaskData);
+              PartyClient_SendClientTaskResponse(party, &clientTaskData);
             }
             else
             {
@@ -1073,19 +985,19 @@ void PartyClient_HandleClientTask(PartyData *party, const PartyActiveClient *des
               if ( !MSG_ReadByte(&buf) )
               {
                 LOBYTE(v8) = MSG_ReadBit(&buf) != 0;
-                Com_Printf(25, "[%s] Privacy client task recieved with value %u\n", _RBX->partyName, v8);
+                Com_Printf(25, "[%s] Privacy client task recieved with value %u\n", party->partyName, v8);
                 clientTaskData.result = PARTY_CLIENT_TASK_RESULT_OK;
-                clientTaskData.payload = &_RBX->ps4SessionId;
+                clientTaskData.payload = &party->ps4SessionId;
                 clientTaskData.payloadSize = 48;
-                PartyClient_SendClientTaskResponse(_RBX, &clientTaskData);
+                PartyClient_SendClientTaskResponse(party, &clientTaskData);
               }
             }
             break;
           case 4u:
-            PartyClient_RespondToMatchRulesRequest(_RBX, &clientTaskData);
+            PartyClient_RespondToMatchRulesRequest(party, &clientTaskData);
             break;
           case 5u:
-            PartyClient_RestoreCachedGameSettingsForDedi(_RBX);
+            PartyClient_RestoreCachedGameSettingsForDedi(party);
             Mem_LargeLocal::Mem_LargeLocal(&buffer, 0x9AAui64, "min_msg_buf msgBuf");
             MSG_Init(&buf, (unsigned __int8 *)buffer.m_ptr, 2474);
             MapName = Party_GetMapName();
@@ -1093,7 +1005,7 @@ void PartyClient_HandleClientTask(PartyData *party, const PartyActiveClient *des
             clientTaskData.result = PARTY_CLIENT_TASK_RESULT_OK;
             clientTaskData.payload = buf.data;
             clientTaskData.payloadSize = buf.cursize;
-            PartyClient_SendClientTaskResponse(_RBX, &clientTaskData);
+            PartyClient_SendClientTaskResponse(party, &clientTaskData);
             Mem_LargeLocal::~Mem_LargeLocal(&buffer);
             break;
           case 6u:
@@ -1104,12 +1016,12 @@ void PartyClient_HandleClientTask(PartyData *party, const PartyActiveClient *des
             clientTaskData.result = PARTY_CLIENT_TASK_RESULT_OK;
             clientTaskData.payload = buf.data;
             clientTaskData.payloadSize = buf.cursize;
-            PartyClient_SendClientTaskResponse(_RBX, &clientTaskData);
+            PartyClient_SendClientTaskResponse(party, &clientTaskData);
             Mem_LargeLocal::~Mem_LargeLocal(&buffer);
             break;
           default:
             Com_PrintWarning(25, "Unhandled DS task received with taskId(%u).\n", Byte);
-            PartyClient_SendClientTaskResponse(_RBX, &clientTaskData);
+            PartyClient_SendClientTaskResponse(party, &clientTaskData);
             break;
         }
       }
@@ -1128,28 +1040,26 @@ PartyClient_CreateTeamChat
 */
 void PartyClient_CreateTeamChat(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
-  int v8; 
-  const char *v9; 
+  int v7; 
+  const char *v8; 
   int addrHandleIndex; 
+  const char *v10; 
+  int v11; 
   const char *v12; 
-  int v14; 
-  const char *v15; 
-  int v17; 
-  const char *v18; 
+  int v13; 
+  const char *v14; 
   int Byte; 
-  netadr_t v20[2]; 
+  netadr_t v16[2]; 
 
-  _RDI = from;
   if ( party->inParty )
   {
     if ( party->areWeHost )
     {
-      __asm { vmovups xmm0, xmmword ptr [r8] }
       addrHandleIndex = from->addrHandleIndex;
-      __asm { vmovups [rsp+58h+var_38], xmm0 }
-      v20[0].addrHandleIndex = addrHandleIndex;
-      v12 = NET_AdrToString(v20);
-      Com_Printf(25, "[%s] Received stray create team chat message - we're the host (%s)\n", party->partyName, v12);
+      *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+      v16[0].addrHandleIndex = addrHandleIndex;
+      v10 = NET_AdrToString(v16);
+      Com_Printf(25, "[%s] Received stray create team chat message - we're the host (%s)\n", party->partyName, v10);
     }
     else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
     {
@@ -1160,32 +1070,29 @@ void PartyClient_CreateTeamChat(PartyData *party, const PartyActiveClient *destC
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v17 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+58h+var_38], xmm0 }
-        v20[0].addrHandleIndex = v17;
-        v18 = NET_AdrToString(v20);
-        Com_Printf(25, "[%s] Received stray create team chat message - from the host but we've removed him already (%s)\n", party->partyName, v18);
+        v13 = from->addrHandleIndex;
+        *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+        v16[0].addrHandleIndex = v13;
+        v14 = NET_AdrToString(v16);
+        Com_Printf(25, "[%s] Received stray create team chat message - from the host but we've removed him already (%s)\n", party->partyName, v14);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v14 = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+58h+var_38], xmm0 }
-      v20[0].addrHandleIndex = v14;
-      v15 = NET_AdrToString(v20);
-      Com_Printf(25, "[%s] Received stray create team chat message - not from host (%s)\n", party->partyName, v15);
+      v11 = from->addrHandleIndex;
+      *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+      v16[0].addrHandleIndex = v11;
+      v12 = NET_AdrToString(v16);
+      Com_Printf(25, "[%s] Received stray create team chat message - not from host (%s)\n", party->partyName, v12);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v8 = from->addrHandleIndex;
-    __asm { vmovups [rsp+58h+var_38], xmm0 }
-    v20[0].addrHandleIndex = v8;
-    v9 = NET_AdrToString(v20);
-    Com_Printf(25, "[%s] Received stray create team chat message - not in party (%s)\n", party->partyName, v9);
+    v7 = from->addrHandleIndex;
+    *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+    v16[0].addrHandleIndex = v7;
+    v8 = NET_AdrToString(v16);
+    Com_Printf(25, "[%s] Received stray create team chat message - not in party (%s)\n", party->partyName, v8);
   }
 }
 
@@ -1197,13 +1104,12 @@ PartyClient_HandlePartyChatData
 void PartyClient_HandlePartyChatData(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
-  netadr_t v6; 
+  netadr_t v5; 
 
-  __asm { vmovups xmm0, xmmword ptr [r8] }
   addrHandleIndex = from->addrHandleIndex;
-  __asm { vmovups [rsp+48h+var_28], xmm0 }
-  v6.addrHandleIndex = addrHandleIndex;
-  PartyChat_HandlePartyChatData(party, destClient, &v6, msg);
+  *(_OWORD *)&v5.type = *(_OWORD *)&from->type;
+  v5.addrHandleIndex = addrHandleIndex;
+  PartyChat_HandlePartyChatData(party, destClient, &v5, msg);
 }
 
 /*
@@ -1213,30 +1119,29 @@ PartyClient_HandleRequestMMInfo
 */
 void PartyClient_HandleRequestMMInfo(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
-  int v6; 
-  const char *v7; 
+  int v5; 
+  const char *v6; 
   int addrHandleIndex; 
-  const char *v10; 
-  int v11; 
+  const char *v8; 
+  int v9; 
   bool *m_matchmakingTokenSent; 
-  __int64 v13; 
-  __int64 v14; 
-  netadr_t v15; 
+  __int64 v11; 
+  __int64 v12; 
+  netadr_t v13; 
 
   if ( party->inParty )
   {
     if ( party->areWeHost )
     {
-      __asm { vmovups xmm0, xmmword ptr [r8] }
       addrHandleIndex = from->addrHandleIndex;
-      __asm { vmovups [rsp+78h+var_38], xmm0 }
-      v15.addrHandleIndex = addrHandleIndex;
-      v10 = NET_AdrToString(&v15);
-      Com_PrintWarning(25, "[%s] %s - Received stray 'preqmminfo' message from (%s), we are the host\n", party->partyName, "PartyClient_HandleRequestMMInfo", v10);
+      *(_OWORD *)&v13.type = *(_OWORD *)&from->type;
+      v13.addrHandleIndex = addrHandleIndex;
+      v8 = NET_AdrToString(&v13);
+      Com_PrintWarning(25, "[%s] %s - Received stray 'preqmminfo' message from (%s), we are the host\n", party->partyName, "PartyClient_HandleRequestMMInfo", v8);
     }
     else
     {
-      v11 = 0;
+      v9 = 0;
       m_matchmakingTokenSent = party->specificData.clientData.m_matchmakingTokenSent;
       do
       {
@@ -1244,28 +1149,27 @@ void PartyClient_HandleRequestMMInfo(PartyData *party, const PartyActiveClient *
           __debugbreak();
         if ( party->areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2079, ASSERT_TYPE_ASSERT, "(!party->areWeHost)", (const char *)&queryFormat, "!party->areWeHost") )
           __debugbreak();
-        if ( (unsigned int)v11 >= 2 )
+        if ( (unsigned int)v9 >= 2 )
         {
-          LODWORD(v14) = 2;
-          LODWORD(v13) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2080, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( sizeof( party->specificData.clientData.m_matchmakingTokenSent ) )", "localClientNum doesn't index sizeof( party->specificData.clientData.m_matchmakingTokenSent )\n\t%i not in [0, %i)", v13, v14) )
+          LODWORD(v12) = 2;
+          LODWORD(v11) = v9;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2080, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( sizeof( party->specificData.clientData.m_matchmakingTokenSent ) )", "localClientNum doesn't index sizeof( party->specificData.clientData.m_matchmakingTokenSent )\n\t%i not in [0, %i)", v11, v12) )
             __debugbreak();
         }
         *m_matchmakingTokenSent = 0;
-        ++v11;
+        ++v9;
         ++m_matchmakingTokenSent;
       }
-      while ( v11 < 2 );
+      while ( v9 < 2 );
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v6 = from->addrHandleIndex;
-    __asm { vmovups [rsp+78h+var_38], xmm0 }
-    v15.addrHandleIndex = v6;
-    v7 = NET_AdrToString(&v15);
-    Com_PrintWarning(25, "[%s] %s - Received stray 'preqmminfo' message from (%s), not in party.\n", party->partyName, "PartyClient_HandleRequestMMInfo", v7);
+    v5 = from->addrHandleIndex;
+    *(_OWORD *)&v13.type = *(_OWORD *)&from->type;
+    v13.addrHandleIndex = v5;
+    v6 = NET_AdrToString(&v13);
+    Com_PrintWarning(25, "[%s] %s - Received stray 'preqmminfo' message from (%s), not in party.\n", party->partyName, "PartyClient_HandleRequestMMInfo", v6);
   }
 }
 
@@ -1276,17 +1180,21 @@ PartyClient_HandleUpdateXnaddr
 */
 void PartyClient_HandleUpdateXnaddr(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
+  __int128 v5; 
   int addrHandleIndex; 
   const char *v10; 
   const char *v11; 
+  __int128 v12; 
   const char *v13; 
   NetConnection *HostConnection; 
   const char *String; 
+  __int128 v16; 
   const char *v17; 
   const char *v18; 
   bool IsRelay; 
   const char *v20; 
   const char *v21; 
+  __int128 v22; 
   const char *v23; 
   XNADDR *Address; 
   const char *v25; 
@@ -1295,15 +1203,14 @@ void PartyClient_HandleUpdateXnaddr(PartyData *party, const PartyActiveClient *d
   XNADDR buffer; 
   unsigned __int8 data[2480]; 
 
-  __asm { vmovups xmm0, xmmword ptr [r8] }
+  v5 = *(_OWORD *)&from->type;
   addrHandleIndex = from->addrHandleIndex;
-  _RDI = from;
   if ( party->inParty )
   {
     if ( party->areWeHost )
     {
       v26.addrHandleIndex = from->addrHandleIndex;
-      __asm { vmovups [rsp+0AE0h+var_AB0], xmm0 }
+      *(_OWORD *)&v26.type = v5;
       v11 = NET_AdrToString(&v26);
       Com_PrintWarning(25, "[%s] PartyClient - UpdateXnaddr - Received stray 'pa_updatexnaddr' message from (%s), we are the host\n", party->partyName, v11);
     }
@@ -1313,9 +1220,9 @@ void PartyClient_HandleUpdateXnaddr(PartyData *party, const PartyActiveClient *d
       MSG_ReadData(msg, 84, &buffer, 84);
       if ( XNADDR::IsNull(&buffer) )
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
+        v12 = *(_OWORD *)&from->type;
         v26.addrHandleIndex = addrHandleIndex;
-        __asm { vmovups [rsp+0AE0h+var_AB0], xmm0 }
+        *(_OWORD *)&v26.type = v12;
         v13 = NET_AdrToString(&v26);
         Com_PrintWarning(25, "[%s] PartyClient - UpdateXnaddr - Received invalid 'pa_updatexnaddr' message from (%s), xnaddr was null\n", party->partyName, v13);
       }
@@ -1325,9 +1232,9 @@ void PartyClient_HandleUpdateXnaddr(PartyData *party, const PartyActiveClient *d
         if ( NetConnection::CompareAddr(HostConnection, &buffer) )
         {
           String = XNADDR::GetString(&buffer);
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
+          v16 = *(_OWORD *)&from->type;
           v26.addrHandleIndex = addrHandleIndex;
-          __asm { vmovups [rsp+0AE0h+var_AB0], xmm0 }
+          *(_OWORD *)&v26.type = v16;
           v17 = String;
           v18 = NET_AdrToString(&v26);
           Com_PrintWarning(25, "[%s] PartyClient - UpdateXnaddr - Received 'pa_updatexnaddr' message from (%s) but updated xnaddr already matches current one (%s)\n", party->partyName, v18, v17);
@@ -1350,9 +1257,9 @@ void PartyClient_HandleUpdateXnaddr(PartyData *party, const PartyActiveClient *d
           }
           else
           {
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
+            v22 = *(_OWORD *)&from->type;
             v26.addrHandleIndex = addrHandleIndex;
-            __asm { vmovups [rsp+0AE0h+var_AB0], xmm0 }
+            *(_OWORD *)&v26.type = v22;
             v23 = NET_AdrToString(&v26);
             Com_PrintWarning(25, "[%s] PartyClient - UpdateXnaddr - Received 'pa_updatexnaddr' message from (%s) but we're not connected over relay (%s)\n", party->partyName, v23, v21);
           }
@@ -1363,7 +1270,7 @@ void PartyClient_HandleUpdateXnaddr(PartyData *party, const PartyActiveClient *d
   else
   {
     v26.addrHandleIndex = from->addrHandleIndex;
-    __asm { vmovups [rsp+0AE0h+var_AB0], xmm0 }
+    *(_OWORD *)&v26.type = v5;
     v10 = NET_AdrToString(&v26);
     Com_PrintWarning(25, "[%s] PartyClient - UpdateXnaddr - Received stray 'pa_updatexnaddr' message from (%s), not in party.\n", party->partyName, v10);
   }
@@ -1376,32 +1283,30 @@ PartyClient_HandleEndParty
 */
 void PartyClient_HandleEndParty(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
-  int v9; 
-  const char *v10; 
+  int v8; 
+  const char *v9; 
   int addrHandleIndex; 
+  const char *v11; 
+  int v12; 
   const char *v13; 
-  int v15; 
-  const char *v16; 
-  int v18; 
-  const char *v19; 
+  int v14; 
+  const char *v15; 
   __int64 Bits; 
-  int v22; 
-  const char *v23; 
-  netadr_t v24; 
+  int v17; 
+  const char *v18; 
+  netadr_t v19; 
   PartyActiveClient mainActiveClient; 
   char string[64]; 
 
-  _RDI = from;
   if ( party->inParty )
   {
     if ( party->areWeHost )
     {
-      __asm { vmovups xmm0, xmmword ptr [r8] }
       addrHandleIndex = from->addrHandleIndex;
-      __asm { vmovups [rsp+0F8h+var_A8], xmm0 }
-      v24.addrHandleIndex = addrHandleIndex;
-      v13 = NET_AdrToString(&v24);
-      Com_Printf(25, "[%s] Received stray endParty message - we're the host (%s)\n", party->partyName, v13);
+      *(_OWORD *)&v19.type = *(_OWORD *)&from->type;
+      v19.addrHandleIndex = addrHandleIndex;
+      v11 = NET_AdrToString(&v19);
+      Com_Printf(25, "[%s] Received stray endParty message - we're the host (%s)\n", party->partyName, v11);
     }
     else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
     {
@@ -1411,43 +1316,39 @@ void PartyClient_HandleEndParty(PartyData *party, const PartyActiveClient *destC
         if ( (unsigned __int64)(Bits + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum PartyEndType __cdecl truncate_cast_impl<enum PartyEndType,__int64>(__int64)", "signed", (int)Bits, "signed", Bits) )
           __debugbreak();
         MSG_ReadString(msg, string, 0x40u);
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v22 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+0F8h+var_A8], xmm0 }
-        v24.addrHandleIndex = v22;
-        v23 = NET_AdrToString(&v24);
-        Com_Printf(25, "[%s] Received endparty message from host with endType %i (%s): %s\n", party->partyName, (unsigned int)Bits, v23, string);
+        v17 = from->addrHandleIndex;
+        *(_OWORD *)&v19.type = *(_OWORD *)&from->type;
+        v19.addrHandleIndex = v17;
+        v18 = NET_AdrToString(&v19);
+        Com_Printf(25, "[%s] Received endparty message from host with endType %i (%s): %s\n", party->partyName, (unsigned int)Bits, v18, string);
         mainActiveClient = Party_GetMainActiveClient(party, destClient->localControllerIndex);
         PartyClient_EndParty_Internal(party, &mainActiveClient, (PartyEndType)Bits);
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v18 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+0F8h+var_A8], xmm0 }
-        v24.addrHandleIndex = v18;
-        v19 = NET_AdrToString(&v24);
-        Com_Printf(25, "[%s] Received stray endParty message - from the host but we've removed him already (%s)\n", party->partyName, v19);
+        v14 = from->addrHandleIndex;
+        *(_OWORD *)&v19.type = *(_OWORD *)&from->type;
+        v19.addrHandleIndex = v14;
+        v15 = NET_AdrToString(&v19);
+        Com_Printf(25, "[%s] Received stray endParty message - from the host but we've removed him already (%s)\n", party->partyName, v15);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v15 = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+0F8h+var_A8], xmm0 }
-      v24.addrHandleIndex = v15;
-      v16 = NET_AdrToString(&v24);
-      Com_Printf(25, "[%s] Received stray endParty message - not from host (%s)\n", party->partyName, v16);
+      v12 = from->addrHandleIndex;
+      *(_OWORD *)&v19.type = *(_OWORD *)&from->type;
+      v19.addrHandleIndex = v12;
+      v13 = NET_AdrToString(&v19);
+      Com_Printf(25, "[%s] Received stray endParty message - not from host (%s)\n", party->partyName, v13);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v9 = from->addrHandleIndex;
-    __asm { vmovups [rsp+0F8h+var_A8], xmm0 }
-    v24.addrHandleIndex = v9;
-    v10 = NET_AdrToString(&v24);
-    Com_Printf(25, "[%s] Received stray endParty message - not in party (%s)\n", party->partyName, v10);
+    v8 = from->addrHandleIndex;
+    *(_OWORD *)&v19.type = *(_OWORD *)&from->type;
+    v19.addrHandleIndex = v8;
+    v9 = NET_AdrToString(&v19);
+    Com_Printf(25, "[%s] Received stray endParty message - not in party (%s)\n", party->partyName, v9);
   }
 }
 
@@ -1511,46 +1412,43 @@ void PartyClient_HandlePartyStateMsg(PartyData *party, const PartyActiveClient *
   PartyType partyId; 
   LocalClientNum_t localClientNum; 
   int addrHandleIndex; 
+  int v12; 
+  const char *v13; 
   int v14; 
   const char *v15; 
-  int v17; 
-  const char *v18; 
-  int v20; 
-  const char *v21; 
-  int v23; 
-  const char *v24; 
+  int v16; 
+  const char *v17; 
+  int v18; 
+  const char *v19; 
   const char *HostStatus; 
-  unsigned int v26; 
-  netadr_t v27; 
+  unsigned int v21; 
+  netadr_t v22; 
   PartyActiveClient mainActiveClient; 
 
-  _RBX = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3868, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   v8 = Party_GetMainActiveClient(party, destClient->localControllerIndex);
   partyId = party->partyId;
   localClientNum = destClient->localClientNum;
   mainActiveClient = v8;
-  if ( PartyAtomic_PacketIsFromJoiningHost(&g_partyJoinInfo, localClientNum, partyId, _RBX) )
+  if ( PartyAtomic_PacketIsFromJoiningHost(&g_partyJoinInfo, localClientNum, partyId, from) )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    addrHandleIndex = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+98h+var_68], xmm0 }
-    v27.addrHandleIndex = addrHandleIndex;
-    PartyAtomicClient_HandlePartyStateMsg_FromAcceptedHost(party, mainActiveClient.localControllerIndex, &v27, msg, &g_partyJoinInfo, destClient);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+    v22.addrHandleIndex = addrHandleIndex;
+    PartyAtomicClient_HandlePartyStateMsg_FromAcceptedHost(party, mainActiveClient.localControllerIndex, &v22, msg, &g_partyJoinInfo, destClient);
   }
   else if ( party->inParty )
   {
     if ( party->areWeHost )
     {
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      v17 = _RBX->addrHandleIndex;
-      __asm { vmovups [rsp+98h+var_68], xmm0 }
-      v27.addrHandleIndex = v17;
-      v18 = NET_AdrToString(&v27);
-      Com_Printf(25, "[%s] Received stray partystate message from %s - we are the\n", party->partyName, v18);
+      v14 = from->addrHandleIndex;
+      *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+      v22.addrHandleIndex = v14;
+      v15 = NET_AdrToString(&v22);
+      Com_Printf(25, "[%s] Received stray partystate message from %s - we are the\n", party->partyName, v15);
     }
-    else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], _RBX) )
+    else if ( NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
     {
       if ( Party_IsRunning(party) )
       {
@@ -1569,8 +1467,8 @@ void PartyClient_HandlePartyStateMsg(PartyData *party, const PartyActiveClient *
                 __debugbreak();
               HostStatus = Party_GetHostStatus(party);
               Com_Printf(25, "[%s] PartyClient - HandlePartyStateMsg - Host is now PRESENT from %s\n", party->partyName, HostStatus);
-              v26 = Party_HostNum(party);
-              PartyClient_ChangeMemberStatus(party, v26, 5u);
+              v21 = Party_HostNum(party);
+              PartyClient_ChangeMemberStatus(party, v21, 5u);
             }
             Com_Printf(25, "[%s] PartyClient - HandlePartyStateMsg - Received party state bits from current host.\n", party->partyName);
             PartyClient_PreParsePartyState(&party->partyStateData, msg);
@@ -1585,32 +1483,29 @@ void PartyClient_HandlePartyStateMsg(PartyData *party, const PartyActiveClient *
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rbx] }
-        v23 = _RBX->addrHandleIndex;
-        __asm { vmovups [rsp+98h+var_68], xmm0 }
-        v27.addrHandleIndex = v23;
-        v24 = NET_AdrToString(&v27);
-        Com_Printf(25, "[%s] PartyClient - HandlePartyStateMsg - Ignoring party state message from '%s' while the party is not running\n", party->partyName, v24);
+        v18 = from->addrHandleIndex;
+        *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+        v22.addrHandleIndex = v18;
+        v19 = NET_AdrToString(&v22);
+        Com_Printf(25, "[%s] PartyClient - HandlePartyStateMsg - Ignoring party state message from '%s' while the party is not running\n", party->partyName, v19);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      v20 = _RBX->addrHandleIndex;
-      __asm { vmovups [rsp+98h+var_68], xmm0 }
-      v27.addrHandleIndex = v20;
-      v21 = NET_AdrToString(&v27);
-      Com_Printf(25, "[%s] Received stray partystate message from %s - not from the host\n", party->partyName, v21);
+      v16 = from->addrHandleIndex;
+      *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+      v22.addrHandleIndex = v16;
+      v17 = NET_AdrToString(&v22);
+      Com_Printf(25, "[%s] Received stray partystate message from %s - not from the host\n", party->partyName, v17);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    v14 = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+98h+var_68], xmm0 }
-    v27.addrHandleIndex = v14;
-    v15 = NET_AdrToString(&v27);
-    Com_Printf(25, "[%s] Received stray partystate message from %s - not in that party\n", party->partyName, v15);
+    v12 = from->addrHandleIndex;
+    *(_OWORD *)&v22.type = *(_OWORD *)&from->type;
+    v22.addrHandleIndex = v12;
+    v13 = NET_AdrToString(&v22);
+    Com_Printf(25, "[%s] Received stray partystate message from %s - not in that party\n", party->partyName, v13);
   }
 }
 
@@ -1622,15 +1517,14 @@ PartyClient_HandleNotPresentMsg
 void PartyClient_HandleNotPresentMsg(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
-  const char *v9; 
-  unsigned int v10; 
-  const char *v11; 
+  const char *v8; 
+  unsigned int v9; 
+  const char *v10; 
   PartyDisconnectReason disconnectReason; 
   PartyActiveClient mainActiveClient; 
   msg_t buf; 
   netadr_t data; 
 
-  _RBX = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3957, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( party->inParty )
@@ -1641,7 +1535,7 @@ void PartyClient_HandleNotPresentMsg(PartyData *party, const PartyActiveClient *
     }
     else if ( Party_IsPrivateParty(party) )
     {
-      if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], _RBX) )
+      if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
       {
         if ( Party_IsHostDedicated(party) )
         {
@@ -1649,21 +1543,20 @@ void PartyClient_HandleNotPresentMsg(PartyData *party, const PartyActiveClient *
         }
         else if ( Party_IsHostDataAvailable(party) )
         {
-          __asm { vmovups xmm0, xmmword ptr [rbx] }
-          addrHandleIndex = _RBX->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rsp+0C8h+data], xmm0 }
+          addrHandleIndex = from->addrHandleIndex;
+          *(_OWORD *)&data.type = *(_OWORD *)&from->type;
           data.addrHandleIndex = addrHandleIndex;
-          v9 = NET_AdrToString(&data);
-          Com_Printf(25, "[%s] PartyClient - Received 'notPresent' message from the host at %s\n", party->partyName, v9);
-          v10 = Party_HostNum(party);
+          v8 = NET_AdrToString(&data);
+          Com_Printf(25, "[%s] PartyClient - Received 'notPresent' message from the host at %s\n", party->partyName, v8);
+          v9 = Party_HostNum(party);
           PartyClient_MarkPacketReceived(party, &party->currentHost);
-          PartyClient_ChangeMemberStatus(party, v10, 4u);
+          PartyClient_ChangeMemberStatus(party, v9, 4u);
           if ( !Party_IsPrivateParty(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3938, ASSERT_TYPE_ASSERT, "(Party_IsPrivateParty( party ))", (const char *)&queryFormat, "Party_IsPrivateParty( party )") )
             __debugbreak();
           Com_Printf(25, "[%s] PartyClient - SendHostBackoutMessage - Asking the party host to get back to the party screen, we got left behind\n", party->partyName);
           MSG_Init(&buf, (unsigned __int8 *)&data, 32);
-          v11 = j_va("%ipa_clientpres", (unsigned int)party->partyId);
-          MSG_WriteString(&buf, v11);
+          v10 = j_va("%ipa_clientpres", (unsigned int)party->partyId);
+          MSG_WriteString(&buf, v10);
           party->currentHost.lastPacketSentTime = Sys_Milliseconds();
           if ( !PartyClient_SendMessageToHost(party, &buf, destClient) )
           {
@@ -1829,10 +1722,9 @@ PartyClient_HandleClearGoMsg
 void PartyClient_HandleClearGoMsg(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
-  const char *v9; 
-  netadr_t v10; 
+  const char *v8; 
+  netadr_t v9; 
 
-  _RSI = from;
   if ( Party_IsGameLobby(party) )
   {
     if ( !party->inParty )
@@ -1846,7 +1738,7 @@ LABEL_11:
   }
   if ( !party->inParty || !Party_IsRunning(party) )
     goto LABEL_11;
-  if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], _RSI) )
+  if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[destClient->localClientNum], from) )
   {
     Com_Printf(25, "[%s] Handling cleargo message\n", party->partyName);
     PartyClient_MarkPacketReceived(party, &party->currentHost);
@@ -1855,12 +1747,11 @@ LABEL_11:
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    __asm { vmovups [rsp+58h+var_38], xmm0 }
-    v10.addrHandleIndex = addrHandleIndex;
-    v9 = NET_AdrToString(&v10);
-    Com_PrintError(25, "[%s] Received cleargo message from unexpected source %s\n", party->partyName, v9);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v9.type = *(_OWORD *)&from->type;
+    v9.addrHandleIndex = addrHandleIndex;
+    v8 = NET_AdrToString(&v9);
+    Com_PrintError(25, "[%s] Received cleargo message from unexpected source %s\n", party->partyName, v8);
   }
 }
 
@@ -1929,34 +1820,24 @@ PartyAtomicClient_HandleHostAccept_Internal
 void PartyAtomicClient_HandleHostAccept_Internal(PartyData *party, const PartyActiveClient *destClient, netadr_t *from, msg_t *msg)
 {
   PartyJoinState JoinState; 
+  const char *v8; 
+  const char *v9; 
   const char *v10; 
-  const char *v12; 
-  const char *v14; 
-  const char *v16; 
-  netadr_t v17; 
+  const char *v11; 
+  netadr_t v12; 
   PartyJoinChallenge buffer; 
   netadr_t froma; 
 
-  froma.addrHandleIndex = from->addrHandleIndex;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rbp+from.type], xmm0
-  }
+  froma = *from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2401, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( PartyAtomic_GetJoinState(&g_partyJoinInfo) == PARTYJOIN_REQUEST || PartyAtomic_GetJoinState(&g_partyJoinInfo) == PARTYJOIN_REQUESTED )
   {
     if ( PartyAtomic_HasErrorOccured(&g_partyJoinInfo) )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+from.type]
-        vmovups [rbp+var_50], xmm0
-      }
-      v17.addrHandleIndex = froma.addrHandleIndex;
-      v12 = NET_AdrToString(&v17);
-      Com_PrintWarning(25, "HandleHostJoined - Received accept message from (%s), but we already decided to fail through some other message!\n", v12);
+      v12 = froma;
+      v9 = NET_AdrToString(&v12);
+      Com_PrintWarning(25, "HandleHostJoined - Received accept message from (%s), but we already decided to fail through some other message!\n", v9);
     }
     else
     {
@@ -1967,14 +1848,9 @@ void PartyAtomicClient_HandleHostAccept_Internal(PartyData *party, const PartyAc
         if ( !NetConnection::CompareAddr(&g_partyJoinInfo.connections[destClient->localClientNum], &froma) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2426, ASSERT_TYPE_ASSERT, "(partyJoinInfo->connections[destClient->localClientNum].CompareAddr( from ))", (const char *)&queryFormat, "partyJoinInfo->connections[destClient->localClientNum].CompareAddr( from )") )
           __debugbreak();
         MSG_ReadData(msg, 6, &buffer, 6);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+from.type]
-          vmovups [rbp+var_50], xmm0
-        }
-        v17.addrHandleIndex = froma.addrHandleIndex;
-        v16 = NET_AdrToString(&v17);
-        Com_Printf(25, "[%s] HandleHostAccept - Accept message from (%s), with challenge %s.\n", party->partyName, v16, buffer.str);
+        v12 = froma;
+        v11 = NET_AdrToString(&v12);
+        Com_Printf(25, "[%s] HandleHostAccept - Accept message from (%s), with challenge %s.\n", party->partyName, v11, buffer.str);
         if ( g_partyJoinInfo.joinType == PJT_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2454, ASSERT_TYPE_ASSERT, "(partyJoinInfo->joinType != PJT_NONE)", (const char *)&queryFormat, "partyJoinInfo->joinType != PJT_NONE") )
           __debugbreak();
         g_partyJoinInfo.challenge = buffer;
@@ -1983,25 +1859,18 @@ void PartyAtomicClient_HandleHostAccept_Internal(PartyData *party, const PartyAc
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+from.type]
-          vmovups [rbp+var_50], xmm0
-        }
-        v17.addrHandleIndex = froma.addrHandleIndex;
-        v14 = NET_AdrToString(&v17);
-        Com_PrintWarning(25, "HandleHostAccept - Received accept message from (%s), someone other than the potential host.\n", v14);
+        v12 = froma;
+        v10 = NET_AdrToString(&v12);
+        Com_PrintWarning(25, "HandleHostAccept - Received accept message from (%s), someone other than the potential host.\n", v10);
       }
     }
   }
   else
   {
     JoinState = PartyAtomic_GetJoinState(&g_partyJoinInfo);
-    __asm { vmovups xmm0, xmmword ptr [rbp+from.type] }
-    v17.addrHandleIndex = froma.addrHandleIndex;
-    __asm { vmovups [rbp+var_50], xmm0 }
-    v10 = NET_AdrToString(&v17);
-    Com_PrintWarning(25, "HandleHostAccept - Received stray accept message from (%s), not in the PARTYJOIN_REQUESTED state (%i)\n", v10, (unsigned int)JoinState);
+    v12 = froma;
+    v8 = NET_AdrToString(&v12);
+    Com_PrintWarning(25, "HandleHostAccept - Received stray accept message from (%s), not in the PARTYJOIN_REQUESTED state (%i)\n", v8, (unsigned int)JoinState);
   }
 }
 
@@ -2017,12 +1886,11 @@ void PartyAtomicClient_HandlePartyStateMsg_FromAcceptedHost(PartyData *party, co
   const char *v11; 
   int addrHandleIndex; 
   __int64 localClientNum; 
+  const char *v14; 
   const char *v15; 
-  const char *v16; 
-  __int64 v17; 
-  netadr_t v18[2]; 
+  __int64 v16; 
+  netadr_t v17[2]; 
 
-  _RSI = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3831, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3832, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
@@ -2032,15 +1900,15 @@ void PartyAtomicClient_HandlePartyStateMsg_FromAcceptedHost(PartyData *party, co
   partyType = partyJoinInfo->partyType;
   if ( partyType != ANY_PARTY_ID && partyType != party->partyId )
   {
-    LODWORD(v17) = partyJoinInfo->partyType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3838, ASSERT_TYPE_ASSERT, "( ( (partyJoinInfo->partyType == ANY_PARTY_ID) || (partyJoinInfo->partyType == party->partyId) ) )", "( partyJoinInfo->partyType ) = %i", v17) )
+    LODWORD(v16) = partyJoinInfo->partyType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3838, ASSERT_TYPE_ASSERT, "( ( (partyJoinInfo->partyType == ANY_PARTY_ID) || (partyJoinInfo->partyType == party->partyId) ) )", "( partyJoinInfo->partyType ) = %i", v16) )
       __debugbreak();
   }
   Com_Printf(25, "PartyAtomic: Received party state bits from commited host.\n");
   if ( PartyAtomic_GetJoinState(partyJoinInfo) != PARTYJOIN_COMMIT && PartyAtomic_GetJoinState(partyJoinInfo) != PARTYJOIN_COMMITTING )
   {
-    LODWORD(v17) = PartyAtomic_GetJoinState(partyJoinInfo);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3841, ASSERT_TYPE_ASSERT, "( ( PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_COMMIT || PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_COMMITTING ) )", "( PartyAtomic_GetJoinState( partyJoinInfo ) ) = %i", v17) )
+    LODWORD(v16) = PartyAtomic_GetJoinState(partyJoinInfo);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 3841, ASSERT_TYPE_ASSERT, "( ( PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_COMMIT || PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_COMMITTING ) )", "( PartyAtomic_GetJoinState( partyJoinInfo ) ) = %i", v16) )
       __debugbreak();
   }
   PartyClient_PreParsePartyState(&partyJoinInfo->partyStateData, msg);
@@ -2049,20 +1917,19 @@ void PartyAtomicClient_HandlePartyStateMsg_FromAcceptedHost(PartyData *party, co
   if ( !HaveAllPacketsForPartyState )
     v11 = "PartyAtomic: Waiting for all packets to be received from new/accepted host.\n";
   Com_Printf(25, v11);
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  addrHandleIndex = _RSI->addrHandleIndex;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v17[0].type = *(_OWORD *)&from->type;
   localClientNum = destClient->localClientNum;
-  v18[0].addrHandleIndex = addrHandleIndex;
+  v17[0].addrHandleIndex = addrHandleIndex;
   if ( partyJoinInfo->committingAccepted[localClientNum] )
   {
-    v15 = NET_AdrToString(v18);
-    Com_Printf(25, "HandleHostJoined - Received duplicate committing message from host (%s) for client %i\n", v15, (unsigned int)localClientNum);
+    v14 = NET_AdrToString(v17);
+    Com_Printf(25, "HandleHostJoined - Received duplicate committing message from host (%s) for client %i\n", v14, (unsigned int)localClientNum);
   }
   else
   {
-    v16 = NET_AdrToString(v18);
-    Com_Printf(25, "HandleHostJoined - Received committing message from the host (%s), setting committingAccepted for client %i.\n", v16, (unsigned int)localClientNum);
+    v15 = NET_AdrToString(v17);
+    Com_Printf(25, "HandleHostJoined - Received committing message from the host (%s), setting committingAccepted for client %i.\n", v15, (unsigned int)localClientNum);
     partyJoinInfo->committingAccepted[destClient->localClientNum] = 1;
   }
 }
@@ -3238,13 +3105,13 @@ __int64 PartyClient_HandlePacket(PartyData *party, const char *c, const PartyAct
   __int64 v19; 
   int v20; 
   const dvar_t *v21; 
+  __int128 v22; 
   __int128 v25; 
   int addrHandleIndex; 
   PartyProfile_Event outEventInfo; 
 
   string = messageHandlers_4[0].string;
   v6 = 0;
-  _R15 = from;
   if ( *messageHandlers_4[0].string )
   {
     v10 = 0i64;
@@ -3279,9 +3146,9 @@ LABEL_18:
             Com_Printf(25, "oob: %s\n", c);
           if ( !messageHandlers_4[v19].func && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 4741, ASSERT_TYPE_ASSERT, "(messageHandlers[handler].func)", (const char *)&queryFormat, "messageHandlers[handler].func") )
             __debugbreak();
-          __asm { vmovups xmm0, xmmword ptr [r15] }
-          addrHandleIndex = _R15->addrHandleIndex;
-          __asm { vmovups [rsp+0D8h+var_88], xmm0 }
+          v22 = *(_OWORD *)&from->type;
+          addrHandleIndex = from->addrHandleIndex;
+          v25 = v22;
           ((void (__fastcall *)(PartyData *, const PartyActiveClient *, __int128 *, msg_t *))messageHandlers_4[v19].func)(party, destClient, &v25, msg);
           return 1i64;
         }
@@ -3834,61 +3701,62 @@ __int64 PartyClient_ParseMemberListFromPacket(PartyData *party, const PartyActiv
   __int64 v48; 
   unsigned __int64 v49; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int> > *v50; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
   ntl::internal::pool_allocator_freelist<24> *p_m_freelist; 
-  PartyData *v54; 
-  LocalClientNum_t v55; 
+  PartyData *v53; 
+  LocalClientNum_t v54; 
   NetConnection *HostConnection; 
   NetConnection::Type ConnectionType; 
-  __int64 v58; 
+  __int64 v57; 
   SessionData *session; 
   netsrc_t LocalNetIDFromControllerIndex; 
-  Online_InvitationManager *v61; 
+  Online_InvitationManager *v60; 
+  int v61; 
   int v62; 
-  int v63; 
-  unsigned __int8 *v64; 
-  __int64 *v65; 
-  const int *v66; 
+  unsigned __int8 *v63; 
+  __int64 *v64; 
+  const int *v65; 
   char *fmt; 
   char *fmta; 
   __int64 type; 
   __int64 isJoinerNewToTheParty; 
-  __int64 v72; 
+  __int64 v71; 
   int Long; 
-  __int64 v74; 
+  __int64 v73; 
   XUID blockedPlayer; 
   int outMemberIndex; 
-  msg_t *v77; 
+  msg_t *v76; 
   PartyData *partya; 
   XUID player; 
-  int v80; 
-  const PartyActiveClient *v81; 
-  __int64 v82; 
-  PartyStateReadRecord *v83; 
+  int v79; 
+  const PartyActiveClient *v80; 
+  __int64 v81; 
+  PartyStateReadRecord *v82; 
   XUID xuid; 
-  __int128 v85; 
-  __int64 v86; 
+  __int128 v84; 
+  __int64 v85; 
   XUID result; 
   bdSecurityID outKid; 
-  bdSecurityID v89; 
+  bdSecurityID v88; 
   bdSecurityID privatePartyId; 
   XNADDR buffer; 
   XNADDR addr; 
-  int v93[32]; 
-  __int64 v94[4]; 
+  int v92[32]; 
+  __int64 v93[4]; 
 
-  v86 = -2i64;
+  v85 = -2i64;
   v5 = msg;
-  v77 = msg;
-  v81 = mainActiveClient;
+  v76 = msg;
+  v80 = mainActiveClient;
   v6 = party;
   partya = party;
   v7 = record;
-  v83 = record;
+  v82 = record;
   XUID::XUID(&blockedPlayer);
   XUID::XUID(&player);
   bdSecurityID::bdSecurityID(&privatePartyId);
-  memset(v94, 0, sizeof(v94));
-  memset_0(v93, 0, sizeof(v93));
+  memset(v93, 0, sizeof(v93));
+  memset_0(v92, 0, sizeof(v92));
   if ( !record && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1472, ASSERT_TYPE_ASSERT, "(record)", (const char *)&queryFormat, "record") )
     __debugbreak();
   if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1473, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
@@ -3910,9 +3778,9 @@ __int64 PartyClient_ParseMemberListFromPacket(PartyData *party, const PartyActiv
   UsedBitCount = MSG_GetUsedBitCount(v5);
   if ( MSG_ReadLong(v5) != UsedBitCount )
   {
-    LODWORD(v74) = UsedBitCount;
-    LODWORD(v72) = MSG_ReadLong(v5);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1479, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+    LODWORD(v73) = UsedBitCount;
+    LODWORD(v71) = MSG_ReadLong(v5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1479, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
       __debugbreak();
   }
   membersParsed = (unsigned int)record->membersParsed;
@@ -3939,17 +3807,17 @@ LABEL_207:
           __debugbreak();
         if ( MSG_ReadLong(v5) != (_DWORD)v11 )
         {
-          LODWORD(v74) = v11;
-          LODWORD(v72) = MSG_ReadLong(v5);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1494, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( memberIndex )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "memberIndex", v72, v74) )
+          LODWORD(v73) = v11;
+          LODWORD(v71) = MSG_ReadLong(v5);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1494, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( memberIndex )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "memberIndex", v71, v73) )
             __debugbreak();
         }
         v15 = MSG_GetUsedBitCount(v5);
         if ( MSG_ReadLong(v5) != v15 )
         {
-          LODWORD(v74) = v15;
-          LODWORD(v72) = MSG_ReadLong(v5);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1495, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+          LODWORD(v73) = v15;
+          LODWORD(v71) = MSG_ReadLong(v5);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1495, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
             __debugbreak();
         }
         if ( (int)v11 <= v13 )
@@ -3978,28 +3846,28 @@ LABEL_207:
             p_status += 504;
           }
           while ( v16 < (int)v11 );
-          v5 = v77;
+          v5 = v76;
         }
-        v82 = (__int64)v6 + 504 * (int)v11;
-        v18 = (PartyMember *)(v82 + 2192);
+        v81 = (__int64)v6 + 504 * (int)v11;
+        v18 = (PartyMember *)(v81 + 2192);
         if ( (unsigned int)v11 >= 0x100 )
         {
-          LODWORD(v74) = 256;
-          LODWORD(v72) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v72, v74) )
+          LODWORD(v73) = 256;
+          LODWORD(v71) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v71, v73) )
             __debugbreak();
         }
-        v19 = v83;
-        v83->membersParsedMask.array[v11 >> 5] |= 0x80000000 >> (v11 & 0x1F);
+        v19 = v82;
+        v82->membersParsedMask.array[v11 >> 5] |= 0x80000000 >> (v11 & 0x1F);
         ++v19->membersParsed;
         if ( MSG_ReadBit(v5) )
         {
           v21 = MSG_GetUsedBitCount(v5);
           if ( MSG_ReadLong(v5) != v21 )
           {
-            LODWORD(v74) = v21;
-            LODWORD(v72) = MSG_ReadLong(v5);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1540, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+            LODWORD(v73) = v21;
+            LODWORD(v71) = MSG_ReadLong(v5);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1540, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
               __debugbreak();
           }
           if ( MSG_ReadBit(v5) )
@@ -4009,16 +3877,16 @@ LABEL_207:
             v22 = MSG_ReadLong(v5);
             if ( (int)v11 < 32 )
             {
-              v93[(int)v11] = v22;
-              *((_BYTE *)v94 + (int)v11) = 1;
+              v92[(int)v11] = v22;
+              *((_BYTE *)v93 + (int)v11) = 1;
             }
           }
           v23 = MSG_GetUsedBitCount(v5);
           if ( MSG_ReadLong(v5) != v23 )
           {
-            LODWORD(v74) = v23;
-            LODWORD(v72) = MSG_ReadLong(v5);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1555, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+            LODWORD(v73) = v23;
+            LODWORD(v71) = MSG_ReadLong(v5);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1555, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
               __debugbreak();
           }
           if ( MSG_ReadBit(v5) )
@@ -4026,9 +3894,9 @@ LABEL_207:
             v24 = MSG_GetUsedBitCount(v5);
             if ( MSG_ReadLong(v5) != v24 )
             {
-              LODWORD(v74) = v24;
-              LODWORD(v72) = MSG_ReadLong(v5);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1560, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+              LODWORD(v73) = v24;
+              LODWORD(v71) = MSG_ReadLong(v5);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1560, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
                 __debugbreak();
             }
             if ( Party_IsMemberDataAvailable(v18) )
@@ -4053,7 +3921,7 @@ LABEL_207:
             XUID::Deserialize(&blockedPlayer, v5);
             v29 = v6->lobbyFlags >> 10;
             LOBYTE(v29) = (v6->lobbyFlags & 0x400) != 0;
-            v80 = v29;
+            v79 = v29;
             v30 = XUID::operator!=(&blockedPlayer, &player) && XUID::IsValid(&player);
             if ( (_BYTE)v29 )
             {
@@ -4113,8 +3981,8 @@ LABEL_94:
               if ( !LUI_IsMenuOpenAndVisible(LOCAL_CLIENT_0, "leavelobbyblockedplayerwarning") )
               {
                 Instance = Online_BlockList::GetInstance();
-                v39 = v81;
-                if ( Online_BlockList::IsBlocked(Instance, v81->localControllerIndex, blockedPlayer) )
+                v39 = v80;
+                if ( Online_BlockList::IsBlocked(Instance, v80->localControllerIndex, blockedPlayer) )
                 {
                   ClientFromController = CL_Mgr_GetClientFromController(v39->localControllerIndex);
                   LUI_OpenMenu(ClientFromController, "leavelobbyblockedplayerwarning", 1, 0, 1);
@@ -4173,24 +4041,24 @@ LABEL_94:
                 v6 = partya;
                 if ( !Party_FindMemberByXUID_Internal(partya, blockedPlayer, &outMemberIndex) || outMemberIndex != (_DWORD)v11 )
                 {
-                  LODWORD(v72) = v11;
+                  LODWORD(v71) = v11;
                   LODWORD(isJoinerNewToTheParty) = outMemberIndex;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1695, ASSERT_TYPE_ASSERT, "(Party_FindMemberByXUID_Internal( party, xuid, &foundMember ) && (foundMember == memberIndex))", "%s\n\t%d != %d", "Party_FindMemberByXUID_Internal( party, xuid, &foundMember ) && (foundMember == memberIndex)", isJoinerNewToTheParty, v72) )
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1695, ASSERT_TYPE_ASSERT, "(Party_FindMemberByXUID_Internal( party, xuid, &foundMember ) && (foundMember == memberIndex))", "%s\n\t%d != %d", "Party_FindMemberByXUID_Internal( party, xuid, &foundMember ) && (foundMember == memberIndex)", isJoinerNewToTheParty, v71) )
                     __debugbreak();
                 }
                 if ( privatePartyId != *(_QWORD *)&v18->info.privatePartyId )
                 {
-                  bdSecurityID::bdSecurityID(&v89);
-                  Party_GetOurPrivatePartyId(&v89);
-                  if ( Live_XUIDIsLocalPlayer(blockedPlayer) && !bdSecurityID::operator==(&v89, &v18->info.privatePartyId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1704, ASSERT_TYPE_ASSERT, "(!Live_XUIDIsLocalPlayer( xuid ) || privatePartyId == partyMember->info.privatePartyId)", "%s\n\tHost has the wrong information about our private party Id", "!Live_XUIDIsLocalPlayer( xuid ) || privatePartyId == partyMember->info.privatePartyId") )
+                  bdSecurityID::bdSecurityID(&v88);
+                  Party_GetOurPrivatePartyId(&v88);
+                  if ( Live_XUIDIsLocalPlayer(blockedPlayer) && !bdSecurityID::operator==(&v88, &v18->info.privatePartyId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1704, ASSERT_TYPE_ASSERT, "(!Live_XUIDIsLocalPlayer( xuid ) || privatePartyId == partyMember->info.privatePartyId)", "%s\n\tHost has the wrong information about our private party Id", "!Live_XUIDIsLocalPlayer( xuid ) || privatePartyId == partyMember->info.privatePartyId") )
                     __debugbreak();
-                  Party_CheckUpdatedPartyMemberPartyId(v6, v81->localControllerIndex, v11);
-                  bdSecurityID::~bdSecurityID(&v89);
+                  Party_CheckUpdatedPartyMemberPartyId(v6, v80->localControllerIndex, v11);
+                  bdSecurityID::~bdSecurityID(&v88);
                 }
               }
               else
               {
-                if ( !(_BYTE)v80 && Party_FindMemberByXUID_Internal(v44, blockedPlayer, &outMemberIndex) )
+                if ( !(_BYTE)v79 && Party_FindMemberByXUID_Internal(v44, blockedPlayer, &outMemberIndex) )
                 {
                   LODWORD(isJoinerNewToTheParty) = outMemberIndex;
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1713, ASSERT_TYPE_ASSERT, "(!Party_FindMemberByXUID_Internal( party, xuid, &foundMember ))", "%s\n\tTrying to add member %d but member is already in the party", "!Party_FindMemberByXUID_Internal( party, xuid, &foundMember )", isJoinerNewToTheParty) )
@@ -4202,13 +4070,13 @@ LABEL_94:
                 if ( v49 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                   __debugbreak();
                 v50 = &partya->memberMap.m_buckets.m_data[v49];
-                _RBX = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50->m_listHead.m_sentinel.mp_next;
+                mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50->m_listHead.m_sentinel.mp_next;
                 if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int> > *)v50->m_listHead.m_sentinel.mp_next == v50 )
                 {
 LABEL_160:
-                  *(_QWORD *)&v85 = v47;
-                  DWORD2(v85) = 0;
-                  if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50 )
+                  *(_QWORD *)&v84 = v47;
+                  DWORD2(v84) = 0;
+                  if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50 )
                   {
 LABEL_166:
                     p_m_freelist = &partya->memberMap.m_freelist;
@@ -4221,93 +4089,89 @@ LABEL_166:
                     }
                     if ( (ntl::internal::pool_allocator_freelist<24> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0xCAui64) )
                       __debugbreak();
-                    _RBX = p_m_freelist->m_head.mp_next;
+                    mp_next = p_m_freelist->m_head.mp_next;
                     p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-                    _RBX->mp_next = NULL;
-                    __asm
-                    {
-                      vmovups xmm0, [rbp+180h+var_1E0]
-                      vmovups xmmword ptr [rbx+8], xmm0
-                    }
-                    _RBX->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50->m_listHead.m_sentinel.mp_next;
-                    v50->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)_RBX;
+                    mp_next->mp_next = NULL;
+                    *(_OWORD *)&mp_next[1].mp_next = v84;
+                    mp_next->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50->m_listHead.m_sentinel.mp_next;
+                    v50->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)mp_next;
                   }
                   else
                   {
                     while ( 1 )
                     {
-                      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+                      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
                         __debugbreak();
-                      if ( _RBX[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v47 )
+                      if ( mp_next[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v47 )
                         break;
-                      _RBX = _RBX->mp_next;
-                      if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50 )
+                      mp_next = mp_next->mp_next;
+                      if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50 )
                         goto LABEL_166;
                     }
-                    _RBX = NULL;
+                    mp_next = NULL;
                   }
                   ++partya->memberMap.m_currentNumItems;
-                  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table.h", 331, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
+                  if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table.h", 331, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
                     __debugbreak();
                 }
                 else
                 {
                   while ( 1 )
                   {
-                    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+                    if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
                       __debugbreak();
-                    if ( _RBX[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v47 )
+                    if ( mp_next[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v47 )
                       break;
-                    _RBX = _RBX->mp_next;
-                    if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50 )
+                    mp_next = mp_next->mp_next;
+                    if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50 )
                     {
-                      _RBX = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50->m_listHead.m_sentinel.mp_next;
+                      mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v50->m_listHead.m_sentinel.mp_next;
                       goto LABEL_160;
                     }
                   }
                 }
-                LODWORD(_RBX[2].mp_next) = v11;
-                v54 = partya;
-                Party_CheckUpdatedPartyMemberPartyId(partya, v81->localControllerIndex, v11);
+                LODWORD(mp_next[2].mp_next) = v11;
+                v53 = partya;
+                Party_CheckUpdatedPartyMemberPartyId(partya, v80->localControllerIndex, v11);
                 if ( v28 == 6 )
                 {
-                  v6 = v54;
+                  v6 = v53;
                 }
                 else
                 {
                   if ( StartingControllerIndex < 0 )
-                    StartingControllerIndex = Party_GetStartingControllerIndex(v54);
-                  v55 = CL_Mgr_GetClientFromController(StartingControllerIndex);
-                  HostConnection = Party_GetHostConnection(v54, v55);
-                  if ( NetConnection::CompareAddr(HostConnection, &buffer) || Party_IsMemberLocalPlayer(v54, v11) || PeerMesh_IsEnabled(v54) )
+                    StartingControllerIndex = Party_GetStartingControllerIndex(v53);
+                  v54 = CL_Mgr_GetClientFromController(StartingControllerIndex);
+                  HostConnection = Party_GetHostConnection(v53, v54);
+                  if ( NetConnection::CompareAddr(HostConnection, &buffer) || Party_IsMemberLocalPlayer(v53, v11) || PeerMesh_IsEnabled(v53) )
                   {
-                    ConnectionType = Party_GetConnectionType(v54);
-                    v58 = v82;
+                    ConnectionType = Party_GetConnectionType(v53);
+                    v57 = v81;
                     if ( XNADDR::IsNull(&buffer) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 222, ASSERT_TYPE_ASSERT, "(!xnaddr.IsNull())", "%s\n\tNull xnaddr - most likely peer mesh mismatch", "!xnaddr.IsNull()") )
                       __debugbreak();
-                    NetConnection::Close((NetConnection *)(v58 + 2432), NET_CLOSE_SOFT);
-                    session = v54->session;
+                    NetConnection::Close((NetConnection *)(v57 + 2432), NET_CLOSE_SOFT);
+                    session = v53->session;
                     LocalNetIDFromControllerIndex = NET_GetLocalNetIDFromControllerIndex(StartingControllerIndex);
-                    NetConnection::Open((NetConnection *)(v58 + 2432), LocalNetIDFromControllerIndex, &session->dyn.sessionInfo, &buffer, v37, ConnectionType);
+                    NetConnection::Open((NetConnection *)(v57 + 2432), LocalNetIDFromControllerIndex, &session->dyn.sessionInfo, &buffer, v37, ConnectionType);
                   }
                   else
                   {
-                    v58 = v82;
+                    v57 = v81;
                   }
                   v6 = partya;
                   Party_RegisterPlayer(partya, StartingControllerIndex, v11, &buffer);
-                  if ( !(_BYTE)v80 || !Party_FindMemberByXUID_Internal(v6, blockedPlayer, &outMemberIndex) )
+                  if ( !(_BYTE)v79 || !Party_FindMemberByXUID_Internal(v6, blockedPlayer, &outMemberIndex) )
                   {
                     Party_PlayPlayerJoinSound(v6, LOCAL_CLIENT_0);
                     if ( Party_IsPrivateParty(v6) && !Party_IsMemberHost(v6, v11) && !Party_IsMemberLocalPlayer(v6, v11) && !InviteJoinHSM::IsHSMHandlingInvitation(&g_invitationHSM) )
                     {
-                      v61 = Online_InvitationManager::GetInstance();
-                      Online_InvitationManager::OnReceiveIncomingPartyMember(v61, StartingControllerIndex, *(const XUID *)(v58 + 2608), (const char *)(v58 + 2244), v6->partyId, 0, 1);
+                      v60 = Online_InvitationManager::GetInstance();
+                      Online_InvitationManager::OnReceiveIncomingPartyMember(v60, StartingControllerIndex, *(const XUID *)(v57 + 2608), (const char *)(v57 + 2244), v6->partyId, 0, 1);
                     }
                   }
                 }
               }
-              v5 = v77;
+              v5 = v76;
               goto LABEL_203;
             }
             v31 = XUID::ToDevString(&player);
@@ -4318,12 +4182,12 @@ LABEL_166:
             PartyClient_RemovePartyMember(v6, v11);
             goto LABEL_94;
           }
-          v62 = MSG_GetUsedBitCount(v5);
-          if ( MSG_ReadLong(v5) != v62 )
+          v61 = MSG_GetUsedBitCount(v5);
+          if ( MSG_ReadLong(v5) != v61 )
           {
-            LODWORD(v74) = v62;
-            LODWORD(v72) = MSG_ReadLong(v5);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1763, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+            LODWORD(v73) = v61;
+            LODWORD(v71) = MSG_ReadLong(v5);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1763, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
               __debugbreak();
           }
         }
@@ -4331,17 +4195,17 @@ LABEL_166:
         {
           if ( !Party_IsMemberAway(v18) && (!Party_FindMemberByXUID_Internal(v6, v18->playerUID, &outMemberIndex) || outMemberIndex != (_DWORD)v11) )
           {
-            LODWORD(v72) = v11;
+            LODWORD(v71) = v11;
             LODWORD(isJoinerNewToTheParty) = outMemberIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1529, ASSERT_TYPE_ASSERT, "(memberIsAway || (Party_FindMemberByXUID_Internal( party, partyMember->playerUID, &foundMember ) && (foundMember == memberIndex)))", "%s\n\t%d != %d", "memberIsAway || (Party_FindMemberByXUID_Internal( party, partyMember->playerUID, &foundMember ) && (foundMember == memberIndex))", isJoinerNewToTheParty, v72) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1529, ASSERT_TYPE_ASSERT, "(memberIsAway || (Party_FindMemberByXUID_Internal( party, partyMember->playerUID, &foundMember ) && (foundMember == memberIndex)))", "%s\n\t%d != %d", "memberIsAway || (Party_FindMemberByXUID_Internal( party, partyMember->playerUID, &foundMember ) && (foundMember == memberIndex))", isJoinerNewToTheParty, v71) )
               __debugbreak();
           }
           v20 = MSG_GetUsedBitCount(v5);
           if ( MSG_ReadLong(v5) != v20 )
           {
-            LODWORD(v74) = v20;
-            LODWORD(v72) = MSG_ReadLong(v5);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1532, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v72, v74) )
+            LODWORD(v73) = v20;
+            LODWORD(v71) = MSG_ReadLong(v5);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1532, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v71, v73) )
               __debugbreak();
           }
           if ( !Party_IsMemberDataAvailable(v18) )
@@ -4352,9 +4216,9 @@ LABEL_166:
           }
         }
 LABEL_203:
-        v7 = v83;
-        membersParsed = (unsigned int)v83->membersParsed;
-        if ( (int)membersParsed >= v83->totalMembers )
+        v7 = v82;
+        membersParsed = (unsigned int)v82->membersParsed;
+        if ( (int)membersParsed >= v82->totalMembers )
           goto LABEL_207;
       }
     }
@@ -4362,35 +4226,35 @@ LABEL_203:
     v7->lastMemberIndex = v11;
     if ( v7->membersParsed >= v7->totalMembers )
     {
-      v63 = v11 + 1;
-      if ( v63 < 200 )
+      v62 = v11 + 1;
+      if ( v62 < 200 )
       {
-        v64 = &v6->partyMembers[v63].status;
+        v63 = &v6->partyMembers[v62].status;
         do
         {
-          if ( *v64 )
+          if ( *v63 )
           {
-            Com_DPrintf(25, "Removing player at index '%i' because he is not on the list. The last member index received is %i.\n", (unsigned int)v63, (unsigned int)v7->lastMemberIndex);
-            PartyClient_RemovePartyMember(v6, v63);
+            Com_DPrintf(25, "Removing player at index '%i' because he is not on the list. The last member index received is %i.\n", (unsigned int)v62, (unsigned int)v7->lastMemberIndex);
+            PartyClient_RemovePartyMember(v6, v62);
           }
-          ++v63;
-          v64 += 504;
+          ++v62;
+          v63 += 504;
         }
-        while ( v63 < 200 );
+        while ( v62 < 200 );
       }
-      v65 = v94;
-      v66 = v93;
+      v64 = v93;
+      v65 = v92;
       do
       {
-        if ( *(_BYTE *)v65 )
-          PeerMesh_SetClientConnectivity(v6, v12, *v66);
+        if ( *(_BYTE *)v64 )
+          PeerMesh_SetClientConnectivity(v6, v12, *v65);
         ++v12;
-        v65 = (__int64 *)((char *)v65 + 1);
-        ++v66;
+        v64 = (__int64 *)((char *)v64 + 1);
+        ++v65;
       }
       while ( v12 < 0x20 );
       v10 = 1;
-      PlayercardCache_MarkPartyDirty(v81->localControllerIndex, 1);
+      PlayercardCache_MarkPartyDirty(v80->localControllerIndex, 1);
     }
   }
 LABEL_219:
@@ -4472,13 +4336,14 @@ char PartyClient_ParsePartyStateHeaderData(PartyData *party, const PartyActiveCl
   PartyUIRoot v72; 
   const dvar_t *v73; 
   int v74; 
-  unsigned int v76; 
+  unsigned int v75; 
   Online_ErrorReporting *InstancePtr; 
-  unsigned int v79; 
+  unsigned int v78; 
   unsigned int VersionNumber; 
+  const char *v80; 
   const char *v81; 
   const char *v82; 
-  const char *v83; 
+  int v83; 
   int v84; 
   int v85; 
   int v86; 
@@ -4486,21 +4351,20 @@ char PartyClient_ParsePartyStateHeaderData(PartyData *party, const PartyActiveCl
   int v88; 
   int v89; 
   int v90; 
-  int v91; 
-  PartyPrivacySetting v92; 
-  bool v93; 
-  int v94; 
-  ClientPlatform v95; 
-  int v96; 
-  ClientPlatform v97; 
+  PartyPrivacySetting v91; 
+  bool v92; 
+  int v93; 
+  ClientPlatform v94; 
+  int v95; 
+  ClientPlatform v96; 
   char *fmt; 
+  __int64 v98; 
   __int64 v99; 
   __int64 v100; 
-  __int64 v101; 
   int Long; 
-  __int64 v103; 
-  char v104; 
-  int v105; 
+  __int64 v102; 
+  char v103; 
+  int v104; 
   int value; 
   XUID result; 
   unsigned __int64 high_filters; 
@@ -4508,8 +4372,8 @@ char PartyClient_ParsePartyStateHeaderData(PartyData *party, const PartyActiveCl
   PartyActiveClient outPartyActiveClient; 
   unsigned __int64 high_filter_out; 
   unsigned __int64 filter_out; 
+  _GUID v112; 
   _GUID v113; 
-  __int128 v114; 
   char buffer[48]; 
   char string[1024]; 
 
@@ -4542,9 +4406,9 @@ char PartyClient_ParsePartyStateHeaderData(PartyData *party, const PartyActiveCl
   UsedBitCount = MSG_GetUsedBitCount(msg);
   if ( MSG_ReadLong(msg) != UsedBitCount )
   {
-    LODWORD(v103) = UsedBitCount;
-    LODWORD(v101) = MSG_ReadLong(msg);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 925, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v101, v103) )
+    LODWORD(v102) = UsedBitCount;
+    LODWORD(v100) = MSG_ReadLong(msg);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 925, ASSERT_TYPE_ASSERT, "( MSG_ReadLong( msg ) ) == ( bits )", "%s == %s\n\t%i, %i", "MSG_ReadLong( msg )", "bits", v100, v102) )
       __debugbreak();
   }
   record->totalMembers = MSG_ReadByte(msg);
@@ -4595,13 +4459,13 @@ char PartyClient_ParsePartyStateHeaderData(PartyData *party, const PartyActiveCl
   v23 = !Party_IsGameLobby(party) && record->isSystemLinkMatch;
   if ( v22 || v23 )
   {
-    v104 = 1;
+    v103 = 1;
     v21->usingRecipe = MSG_ReadBit(msg) != 0;
     v24 = MSG_ReadBit(msg) != 0;
   }
   else
   {
-    v104 = 0;
+    v103 = 0;
     v24 = 0;
     v21->usingRecipe = 0;
   }
@@ -4684,12 +4548,12 @@ LABEL_138:
     v51 = 0;
   party->interEndTime = v51;
   v52 = MSG_ReadByte(msg);
-  v105 = v52;
+  v104 = v52;
   v53 = v52;
   if ( v52 > 200 )
   {
-    LODWORD(v100) = v52;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1078, ASSERT_TYPE_ASSERT, "(numSlots <= 200)", "%s\n\tslots = %i", "numSlots <= MAX_PARTY_MEMBERS", v100) )
+    LODWORD(v99) = v52;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1078, ASSERT_TYPE_ASSERT, "(numSlots <= 200)", "%s\n\tslots = %i", "numSlots <= MAX_PARTY_MEMBERS", v99) )
       __debugbreak();
   }
   Short = MSG_ReadShort(msg);
@@ -4740,29 +4604,29 @@ LABEL_138:
     Party_ResetTweakDvars();
     if ( record->inPrivateMatch || record->isSystemLinkMatch )
     {
+      v81 = MSG_ReadString(msg, string, 0x400u);
+      Dvar_SetString_Internal(DVARSTR_ui_mapname, v81);
       v82 = MSG_ReadString(msg, string, 0x400u);
-      Dvar_SetString_Internal(DVARSTR_ui_mapname, v82);
-      v83 = MSG_ReadString(msg, string, 0x400u);
-      Dvar_SetString_Internal(DVARSTR_ui_gametype, v83);
+      Dvar_SetString_Internal(DVARSTR_ui_gametype, v82);
+      v83 = MSG_ReadBit(msg);
+      Dvar_SetBool_Internal(DVARBOOL_ui_hardcore, v83 != 0);
       v84 = MSG_ReadBit(msg);
-      Dvar_SetBool_Internal(DVARBOOL_ui_hardcore, v84 != 0);
+      Dvar_SetBool_Internal(DVARBOOL_ui_tactical, v84 != 0);
       v85 = MSG_ReadBit(msg);
-      Dvar_SetBool_Internal(DVARBOOL_ui_tactical, v85 != 0);
+      Party_SetCodcastingEnabled(party, v85 != 0);
       v86 = MSG_ReadBit(msg);
-      Party_SetCodcastingEnabled(party, v86 != 0);
-      v87 = MSG_ReadBit(msg);
-      Party_SetTeamAssignmentEnabled(party, v87 != 0);
-      Dvar_SetBool_Internal(DVARBOOL_lobby_team_select, v87 != 0);
+      Party_SetTeamAssignmentEnabled(party, v86 != 0);
+      Dvar_SetBool_Internal(DVARBOOL_lobby_team_select, v86 != 0);
+      v87 = MSG_ReadByte(msg);
+      Party_SetDraftLoadoutTimer(party, v87);
       v88 = MSG_ReadByte(msg);
-      Party_SetDraftLoadoutTimer(party, v88);
+      Party_SetDraftWeaponTimer(party, v88);
       v89 = MSG_ReadByte(msg);
-      Party_SetDraftWeaponTimer(party, v89);
-      v90 = MSG_ReadByte(msg);
-      Party_SetDraftRigTimer(party, v90);
+      Party_SetDraftRigTimer(party, v89);
       if ( MSG_ReadBit(msg) )
       {
-        v91 = MSG_ReadByte(msg);
-        Party_SetAliensDifficulty(party, v91);
+        v90 = MSG_ReadByte(msg);
+        Party_SetAliensDifficulty(party, v90);
       }
       else
       {
@@ -4780,9 +4644,9 @@ LABEL_138:
       Party_SetDraftRigTimer(party, 30);
       if ( party->currentEntry >= 8u )
       {
-        LODWORD(v100) = 8;
-        LODWORD(v99) = party->currentEntry;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1223, ASSERT_TYPE_ASSERT, "(unsigned)( party->currentEntry ) < (unsigned)( 8 )", "party->currentEntry doesn't index NUM_LAST_ENTRIES\n\t%i not in [0, %i)", v99, v100) )
+        LODWORD(v99) = 8;
+        LODWORD(v98) = party->currentEntry;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1223, ASSERT_TYPE_ASSERT, "(unsigned)( party->currentEntry ) < (unsigned)( 8 )", "party->currentEntry doesn't index NUM_LAST_ENTRIES\n\t%i not in [0, %i)", v98, v99) )
           __debugbreak();
       }
       v64 = MSG_ReadByte(msg);
@@ -4828,10 +4692,10 @@ LABEL_137:
       if ( PlaylistEntry < 0 || (v71 = Dvar_GetInt_Internal_DebugName(DVARINT_playlist, "playlist"), PlaylistEntry >= Playlist_CountEntries(v71)) )
       {
         InstancePtr = Online_ErrorReporting::GetInstancePtr();
-        v79 = Dvar_GetInt_Internal_DebugName(DVARINT_playlist, "playlist");
+        v78 = Dvar_GetInt_Internal_DebugName(DVARINT_playlist, "playlist");
         VersionNumber = Playlist_GetVersionNumber();
-        v81 = j_va("version:%d list:%d entry:%d", VersionNumber, v79, (unsigned int)PlaylistEntry);
-        Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PARTY_t)1024, v81);
+        v80 = j_va("version:%d list:%d entry:%d", VersionNumber, v78, (unsigned int)PlaylistEntry);
+        Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PARTY_t)1024, v80);
         return 0;
       }
       if ( Playlist_CanRunRules() )
@@ -4849,12 +4713,12 @@ LABEL_137:
       {
         BG_GameStateInfo_DisableGameLaunchWithBots();
       }
-      v53 = v105;
+      v53 = v104;
     }
   }
   LOBYTE(v4) = MSG_ReadBit(msg) != 0;
   Party_SetUsesMLGRules(party, v4);
-  if ( v104 && record->usingRecipe )
+  if ( v103 && record->usingRecipe )
   {
     record->fromSnapTime = MSG_ReadLong(msg);
     record->toSnapTime = MSG_ReadLong(msg);
@@ -4873,23 +4737,19 @@ LABEL_137:
   Party_SetMapPackFlags(party, v74);
   MSG_ReadData(msg, 48, buffer, 48);
   XUID::Deserialize(&party->ps4PlatformHostXUID, msg);
-  MSG_ReadData(msg, 16, &v114, 16);
+  MSG_ReadData(msg, 16, &v113, 16);
   XUID::Deserialize(&party->xb3PlatformHostXUID, msg);
-  __asm
-  {
-    vmovups xmm0, [rsp+538h+var_498]
-    vmovdqa [rsp+538h+var_4A8], xmm0
-  }
-  Party_SetXb3SessionId(party, &v113);
+  v112 = v113;
+  Party_SetXb3SessionId(party, &v112);
   if ( Party_IsPrivateParty(party) )
     Party_ReadPrivatePartyChatData(party, msg);
-  v76 = v43 & 0xFFFFCFFF;
-  Party_SetGameFlags(party, v76);
-  if ( Party_GetGameFlags(party) != v76 )
+  v75 = v43 & 0xFFFFCFFF;
+  Party_SetGameFlags(party, v75);
+  if ( Party_GetGameFlags(party) != v75 )
   {
-    LODWORD(v103) = v76;
-    LODWORD(v101) = Party_GetGameFlags(party);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1386, ASSERT_TYPE_ASSERT, "( Party_GetGameFlags( party ) ) == ( sessionFlags )", "%s == %s\n\t%i, %i", "Party_GetGameFlags( party )", "sessionFlags", v101, v103) )
+    LODWORD(v102) = v75;
+    LODWORD(v100) = Party_GetGameFlags(party);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1386, ASSERT_TYPE_ASSERT, "( Party_GetGameFlags( party ) ) == ( sessionFlags )", "%s == %s\n\t%i, %i", "Party_GetGameFlags( party )", "sessionFlags", v100, v102) )
       __debugbreak();
   }
   if ( !Session_IsValid(party->session) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 1388, ASSERT_TYPE_ASSERT, "(Session_IsValid( party->session ))", (const char *)&queryFormat, "Session_IsValid( party->session )") )
@@ -4902,13 +4762,13 @@ LABEL_137:
   Party_SetNumGameSlots(party, v53);
   Dvar_SetInt_Internal(DVARINT_party_maxplayers, v53);
   Dvar_SetInt_Internal(DVARINT_ui_maxclients, v53);
-  v92 = (unsigned int)MSG_ReadBits(msg, 2u);
-  Party_SetPrivacySetting(party, v92);
+  v91 = (unsigned int)MSG_ReadBits(msg, 2u);
+  Party_SetPrivacySetting(party, v91);
   party->iscrossplayParty = MSG_ReadBit(msg) != 0;
-  v93 = MSG_ReadBit(msg) != 0;
-  if ( Dvar_GetInt_Internal_DebugName(DVARINT_online_party_host_crossplay_change_toast_display_mode, "online_party_host_crossplay_change_toast_display_mode") && Dvar_GetBool_Internal_DebugName(DVARBOOL_onlinegame, "onlinegame") && s_haveShownToastAtleastOnceAfterJoin && Party_IsPrivateParty(party) && Party_GetCrossplayEnabled(party) != v93 )
+  v92 = MSG_ReadBit(msg) != 0;
+  if ( Dvar_GetInt_Internal_DebugName(DVARINT_online_party_host_crossplay_change_toast_display_mode, "online_party_host_crossplay_change_toast_display_mode") && Dvar_GetBool_Internal_DebugName(DVARBOOL_onlinegame, "onlinegame") && s_haveShownToastAtleastOnceAfterJoin && Party_IsPrivateParty(party) && Party_GetCrossplayEnabled(party) != v92 )
   {
-    if ( s_crossplaySettingOfLastWarningToastShown == v93 )
+    if ( s_crossplaySettingOfLastWarningToastShown == v92 )
     {
       s_shouldTryShowToastForPartyHostChangingCrossplaySetting = 0;
     }
@@ -4918,13 +4778,13 @@ LABEL_137:
       s_shouldTryShowToastForPartyHostChangingCrossplaySetting = 1;
     }
   }
-  Party_SetCrossplayEnabled(party, v93);
-  v94 = MSG_ReadBit(msg);
-  LOBYTE(v95) = 4;
-  Party_SetPlatformSessionHandledByHost(party, v95, v94 != 0);
-  v96 = MSG_ReadBit(msg);
-  LOBYTE(v97) = 3;
-  Party_SetPlatformSessionHandledByHost(party, v97, v96 != 0);
+  Party_SetCrossplayEnabled(party, v92);
+  v93 = MSG_ReadBit(msg);
+  LOBYTE(v94) = 4;
+  Party_SetPlatformSessionHandledByHost(party, v94, v93 != 0);
+  v95 = MSG_ReadBit(msg);
+  LOBYTE(v96) = 3;
+  Party_SetPlatformSessionHandledByHost(party, v96, v95 != 0);
   party->inviteJoinsDisabledForNoJIP = MSG_ReadBit(msg) != 0;
   party->restrictsF2PUsers = MSG_ReadBit(msg) != 0;
   return 1;
@@ -5078,61 +4938,54 @@ void PartyClient_PreParsePartyState(PartyStateData *partyStateData, msg_t *msg)
   int cursize; 
   unsigned __int8 *data; 
   unsigned __int8 *v12; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
 
-  _RSI = msg;
-  _R14 = partyStateData;
   if ( !partyStateData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2001, ASSERT_TYPE_ASSERT, "(partyStateData)", (const char *)&queryFormat, "partyStateData") )
     __debugbreak();
-  Long = MSG_ReadLong(_RSI);
-  Bits = MSG_ReadBits(_RSI, 5u);
+  Long = MSG_ReadLong(msg);
+  Bits = MSG_ReadBits(msg, 5u);
   v6 = truncate_cast<int,__int64>(Bits);
-  v7 = MSG_ReadBits(_RSI, 5u);
+  v7 = MSG_ReadBits(msg, 5u);
   v8 = truncate_cast<int,__int64>(v7);
   v9 = v8;
   if ( v8 > 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2008, ASSERT_TYPE_ASSERT, "(totalPackets <= ( 31 ))", "%s\n\tPartyState packet part %i says that there are %i packets for this partyState, but that's impossible!", "totalPackets <= MAX_PARTYSTATE_PACKETS", v6, v8) )
     __debugbreak();
   if ( (unsigned int)v6 > 0x1E )
   {
-    LODWORD(v17) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2009, ASSERT_TYPE_ASSERT, "(partNum >= 0 && partNum < ( 31 ))", "%s\n\tinvalid partystate portion - claims to be part %i", "partNum >= 0 && partNum < MAX_PARTYSTATE_PACKETS", v17) )
+    LODWORD(v14) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2009, ASSERT_TYPE_ASSERT, "(partNum >= 0 && partNum < ( 31 ))", "%s\n\tinvalid partystate portion - claims to be part %i", "partNum >= 0 && partNum < MAX_PARTYSTATE_PACKETS", v14) )
       __debugbreak();
   }
-  if ( _RSI->cursize >= 1252 )
+  if ( msg->cursize >= 1252 )
   {
-    LODWORD(v18) = v6;
-    LODWORD(v17) = _RSI->cursize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2010, ASSERT_TYPE_ASSERT, "(msg->cursize < static_cast<int>( sizeof( partyStateData->partMsgBufs[partNum] ) ))", "%s\n\tReceived a %i byte partyState part %i message", "msg->cursize < static_cast<int>( sizeof( partyStateData->partMsgBufs[partNum] ) )", v17, v18) )
+    LODWORD(v15) = v6;
+    LODWORD(v14) = msg->cursize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2010, ASSERT_TYPE_ASSERT, "(msg->cursize < static_cast<int>( sizeof( partyStateData->partMsgBufs[partNum] ) ))", "%s\n\tReceived a %i byte partyState part %i message", "msg->cursize < static_cast<int>( sizeof( partyStateData->partMsgBufs[partNum] ) )", v14, v15) )
       __debugbreak();
   }
-  if ( _RSI->readcount != 22 )
+  if ( msg->readcount != 22 )
   {
-    LODWORD(v18) = _RSI->readcount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2011, ASSERT_TYPE_ASSERT, "( msg->readcount ) == ( ( ( 18 ) + 4 ) )", "%s == %s\n\t%i, %i", "msg->readcount", "PARTYSTATE_OOB_READ_HEADER_SIZE", v18, 22) )
+    LODWORD(v15) = msg->readcount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyclient.cpp", 2011, ASSERT_TYPE_ASSERT, "( msg->readcount ) == ( ( ( 18 ) + 4 ) )", "%s == %s\n\t%i, %i", "msg->readcount", "PARTYSTATE_OOB_READ_HEADER_SIZE", v15, 22) )
       __debugbreak();
   }
-  _R14->unfinishedPartServerTimes[v6] = Long;
-  _R14->packetCount = v9;
-  cursize = _RSI->cursize;
-  data = _RSI->data;
-  _RSI->bit = 8 * _RSI->readcount;
+  partyStateData->unfinishedPartServerTimes[v6] = Long;
+  partyStateData->packetCount = v9;
+  cursize = msg->cursize;
+  data = msg->data;
+  msg->bit = 8 * msg->readcount;
   if ( cursize > 1252 )
     cursize = 1252;
-  v12 = _R14->partMsgBufs[v6];
+  v12 = partyStateData->partMsgBufs[v6];
   memcpy_0(v12, data, cursize);
-  __asm { vmovups ymm0, ymmword ptr [rsi] }
-  _RAX = v6;
-  __asm
-  {
-    vmovups ymmword ptr [rax+r14+80h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rax+r14+0A0h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+30h]
-    vmovsd  qword ptr [rax+r14+0B0h], xmm0
-  }
-  _R14->partMsgs[_RAX].data = v12;
-  _R14->partMsgs[_RAX].maxsize = 1252;
+  v13 = v6;
+  *(__m256i *)&partyStateData->partMsgs[v13].overflowed = *(__m256i *)&msg->overflowed;
+  *(_OWORD *)&partyStateData->partMsgs[v13].splitSize = *(_OWORD *)&msg->splitSize;
+  *(double *)&partyStateData->partMsgs[v13].targetLocalNetID = *(double *)&msg->targetLocalNetID;
+  partyStateData->partMsgs[v13].data = v12;
+  partyStateData->partMsgs[v13].maxsize = 1252;
 }
 
 /*

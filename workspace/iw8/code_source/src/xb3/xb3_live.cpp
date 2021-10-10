@@ -1706,36 +1706,31 @@ XB3NotificationHandler::InitializeControllerNotificationHandlers
 */
 void XB3NotificationHandler::InitializeControllerNotificationHandlers(XB3NotificationHandler *this)
 {
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
   int ActivationFactoryByPCWSTR; 
-  int v6; 
-  __int64 v8; 
-  __int64 v9; 
-  int v10; 
-  int v11; 
-  __int64 v13; 
-  __int64 v14; 
-  int v15; 
-  int v16; 
+  int v5; 
+  __int64 v6; 
+  __int64 v7; 
+  int v8; 
+  int v9; 
+  __int64 v10; 
+  __int64 v11; 
+  int v12; 
+  int v13; 
   Platform::Guid pGuid; 
   void *ppActivationFactory; 
-  __int64 v19; 
-  __int64 v20; 
+  __int64 v16; 
+  __int64 v17; 
 
   if ( !this->m_controllerHandlersInitialized )
   {
     ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
     pGuid.__vftable = (Platform::Object_vtbl *)XB3NotificationHandler::OnControllerAddedEvent;
     *(_DWORD *)&pGuid.__d = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable]
-      vmovdqa xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable], xmm0
-    }
     Windows::Foundation::EventHandler<Windows::Xbox::Input::ControllerAddedEventArgs __gc *>::EventHandler<Windows::Xbox::Input::ControllerAddedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::Input::ControllerAddedEventArgs _> *)ppActivationFactory, this, (__int128 *)&pGuid, (Platform::CallbackContext)2, 0);
-    v4 = v3;
-    v20 = v3;
+    v3 = v2;
+    v17 = v2;
     pGuid.__vftable = (Platform::Object_vtbl *)0x47FC144B7400624Fi64;
     *(_DWORD *)&pGuid.__d = -904053857;
     *(_DWORD *)&pGuid.__h = 1932019963;
@@ -1743,66 +1738,56 @@ void XB3NotificationHandler::InitializeControllerNotificationHandlers(XB3Notific
     ActivationFactoryByPCWSTR = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.Input.Controller", &pGuid, &ppActivationFactory);
     if ( ActivationFactoryByPCWSTR < 0 )
       __abi_WinRTraiseException(ActivationFactoryByPCWSTR);
-    v19 = 0i64;
-    v6 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 56i64))(ppActivationFactory, v4, &v19);
-    if ( v6 < 0 )
-      __abi_WinRTraiseException(v6);
+    v16 = 0i64;
+    v5 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 56i64))(ppActivationFactory, v3, &v16);
+    if ( v5 < 0 )
+      __abi_WinRTraiseException(v5);
     if ( ppActivationFactory )
       (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-    if ( v4 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v4 + 16i64))(v4);
+    if ( v3 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v3 + 16i64))(v3);
     ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
     pGuid.__vftable = (Platform::Object_vtbl *)XB3NotificationHandler::OnControllerRemovedEvent;
     *(_DWORD *)&pGuid.__d = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable]
-      vmovdqa xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable], xmm0
-    }
     Windows::Foundation::EventHandler<Windows::Xbox::Input::ControllerRemovedEventArgs __gc *>::EventHandler<Windows::Xbox::Input::ControllerRemovedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::Input::ControllerRemovedEventArgs _> *)ppActivationFactory, this, (__int128 *)&pGuid, (Platform::CallbackContext)2, 0);
-    v9 = v8;
-    v20 = v8;
+    v7 = v6;
+    v17 = v6;
     pGuid.__vftable = (Platform::Object_vtbl *)0x47FC144B7400624Fi64;
     *(_DWORD *)&pGuid.__d = -904053857;
     *(_DWORD *)&pGuid.__h = 1932019963;
     ppActivationFactory = NULL;
-    v10 = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.Input.Controller", &pGuid, &ppActivationFactory);
-    if ( v10 < 0 )
-      __abi_WinRTraiseException(v10);
-    v19 = 0i64;
-    v11 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 72i64))(ppActivationFactory, v9, &v19);
-    if ( v11 < 0 )
-      __abi_WinRTraiseException(v11);
+    v8 = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.Input.Controller", &pGuid, &ppActivationFactory);
+    if ( v8 < 0 )
+      __abi_WinRTraiseException(v8);
+    v16 = 0i64;
+    v9 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 72i64))(ppActivationFactory, v7, &v16);
+    if ( v9 < 0 )
+      __abi_WinRTraiseException(v9);
     if ( ppActivationFactory )
       (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
+    if ( v7 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v7 + 16i64))(v7);
     ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
     pGuid.__vftable = (Platform::Object_vtbl *)XB3NotificationHandler::OnControllerPairingChangedEvent;
     *(_DWORD *)&pGuid.__d = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable]
-      vmovdqa xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable], xmm0
-    }
     Windows::Foundation::EventHandler<Windows::Xbox::Input::ControllerPairingChangedEventArgs __gc *>::EventHandler<Windows::Xbox::Input::ControllerPairingChangedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::Input::ControllerPairingChangedEventArgs _> *)ppActivationFactory, this, (__int128 *)&pGuid, (Platform::CallbackContext)2, 0);
-    v14 = v13;
-    v20 = v13;
+    v11 = v10;
+    v17 = v10;
     pGuid.__vftable = (Platform::Object_vtbl *)0x47FC144B7400624Fi64;
     *(_DWORD *)&pGuid.__d = -904053857;
     *(_DWORD *)&pGuid.__h = 1932019963;
     ppActivationFactory = NULL;
-    v15 = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.Input.Controller", &pGuid, &ppActivationFactory);
-    if ( v15 < 0 )
-      __abi_WinRTraiseException(v15);
-    v19 = 0i64;
-    v16 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 88i64))(ppActivationFactory, v14, &v19);
-    if ( v16 < 0 )
-      __abi_WinRTraiseException(v16);
+    v12 = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.Input.Controller", &pGuid, &ppActivationFactory);
+    if ( v12 < 0 )
+      __abi_WinRTraiseException(v12);
+    v16 = 0i64;
+    v13 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 88i64))(ppActivationFactory, v11, &v16);
+    if ( v13 < 0 )
+      __abi_WinRTraiseException(v13);
     if ( ppActivationFactory )
       (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-    if ( v14 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v14 + 16i64))(v14);
+    if ( v11 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 16i64))(v11);
     Content_InitDownloadableContentPackageManager();
     this->m_controllerHandlersInitialized = 1;
   }
@@ -1815,18 +1800,18 @@ XB3NotificationHandler::InitializeNetworkStatusEventHandlers
 */
 void XB3NotificationHandler::InitializeNetworkStatusEventHandlers(XB3NotificationHandler *this)
 {
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
   int ActivationFactoryByPCWSTR; 
-  int v6; 
-  __int64 v8; 
-  __int64 v9; 
-  int v10; 
-  int v11; 
+  int v5; 
+  __int64 v6; 
+  __int64 v7; 
+  int v8; 
+  int v9; 
   Platform::Guid pGuid; 
   void *ppActivationFactory; 
-  __int64 v14; 
-  __int64 v15; 
+  __int64 v12; 
+  __int64 v13; 
 
   if ( !this->m_networkStatusHandlersInitialized )
   {
@@ -1835,14 +1820,9 @@ void XB3NotificationHandler::InitializeNetworkStatusEventHandlers(XB3Notificatio
     ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
     pGuid.__vftable = (Platform::Object_vtbl *)XB3NotificationHandler::OnNetworkStatusChangedEvent;
     *(_DWORD *)&pGuid.__d = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable]
-      vmovdqa xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable], xmm0
-    }
     Windows::Networking::Connectivity::NetworkStatusChangedEventHandler::NetworkStatusChangedEventHandler((Windows::Networking::Connectivity::NetworkStatusChangedEventHandler *)ppActivationFactory, this, (__int128 *)&pGuid, (Platform::CallbackContext)2, 0);
-    v4 = v3;
-    v15 = v3;
+    v3 = v2;
+    v13 = v2;
     pGuid.__vftable = (Platform::Object_vtbl *)0x4165950D5074F851i64;
     *(_DWORD *)&pGuid.__d = 1446385052;
     *(_DWORD *)&pGuid.__h = -367114215;
@@ -1850,41 +1830,36 @@ void XB3NotificationHandler::InitializeNetworkStatusEventHandlers(XB3Notificatio
     ActivationFactoryByPCWSTR = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Networking.Connectivity.NetworkInformation", &pGuid, &ppActivationFactory);
     if ( ActivationFactoryByPCWSTR < 0 )
       __abi_WinRTraiseException(ActivationFactoryByPCWSTR);
-    v14 = 0i64;
-    v6 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 96i64))(ppActivationFactory, v4, &v14);
-    if ( v6 < 0 )
-      __abi_WinRTraiseException(v6);
+    v12 = 0i64;
+    v5 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 96i64))(ppActivationFactory, v3, &v12);
+    if ( v5 < 0 )
+      __abi_WinRTraiseException(v5);
     if ( ppActivationFactory )
       (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-    if ( v4 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v4 + 16i64))(v4);
+    if ( v3 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v3 + 16i64))(v3);
     this->m_networkStatusHandlersInitialized = 1;
     ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
     pGuid.__vftable = (Platform::Object_vtbl *)XB3NotificationHandler::OnCurrentUserChangedEvent;
     *(_DWORD *)&pGuid.__d = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable]
-      vmovdqa xmmword ptr [rbp+pGuid.baseclass_0.baseclass_0.__vftable], xmm0
-    }
     Windows::Foundation::EventHandler<Platform::Object __gc *>::EventHandler<Platform::Object __gc *>((Windows::Foundation::EventHandler<Platform::Object _> *)ppActivationFactory, this, (__int128 *)&pGuid, (Platform::CallbackContext)2, 0);
-    v9 = v8;
-    v15 = v8;
+    v7 = v6;
+    v13 = v6;
     pGuid.__vftable = (Platform::Object_vtbl *)0x4D41B9ACD8D4C59Fi64;
     *(_DWORD *)&pGuid.__d = 480259460;
     *(_DWORD *)&pGuid.__h = -417876391;
     ppActivationFactory = NULL;
-    v10 = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.ApplicationModel.Core.CoreApplicationContext", &pGuid, &ppActivationFactory);
-    if ( v10 < 0 )
-      __abi_WinRTraiseException(v10);
-    v14 = 0i64;
-    v11 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 56i64))(ppActivationFactory, v9, &v14);
-    if ( v11 < 0 )
-      __abi_WinRTraiseException(v11);
+    v8 = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Xbox.ApplicationModel.Core.CoreApplicationContext", &pGuid, &ppActivationFactory);
+    if ( v8 < 0 )
+      __abi_WinRTraiseException(v8);
+    v12 = 0i64;
+    v9 = (*(__int64 (__fastcall **)(void *, __int64, __int64 *))(*(_QWORD *)ppActivationFactory + 56i64))(ppActivationFactory, v7, &v12);
+    if ( v9 < 0 )
+      __abi_WinRTraiseException(v9);
     if ( ppActivationFactory )
       (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-    if ( v9 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
+    if ( v7 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v7 + 16i64))(v7);
   }
 }
 
@@ -4081,11 +4056,8 @@ void Live_GetAchievementStats(const int controllerIndex)
   v39._M_CancellationToken._M_Impl = NULL;
   v39._M_ContinuationContext._M_context._M_captureMethod = 1i64;
   v39._M_ContinuationContext._M_RunInline = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+1A8h+var_F0], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v39._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myfirst = _XMM0;
   v39._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myend = NULL;
   v39._M_InternalTaskOptions._M_presetCreationCallstack._M_SingleFrame = NULL;
   v39._M_InternalTaskOptions._M_hasPresetCreationCallstack = 0;
@@ -4176,63 +4148,48 @@ __int64 Live_GetConsoleDetails(int verboseIfErrorIn, unsigned __int8 *consoleInt
   bdCommonAddr *v11; 
   __int64 *LocalCommonAddr; 
   unsigned __int8 In4AddrByte; 
-  __int64 v22; 
-  __int64 v23; 
-  bdCommonAddr *v24; 
-  int v25; 
-  __int64 v26; 
-  bdAddr v27; 
+  __int64 v15; 
+  __int64 v16; 
+  bdCommonAddr *v17; 
+  int v18; 
+  __int64 v19; 
+  bdAddr v20; 
 
-  v26 = -2i64;
+  v19 = -2i64;
   v9 = NULL;
-  v24 = NULL;
-  bdAddr::bdAddr(&v27);
+  v17 = NULL;
+  bdAddr::bdAddr(&v20);
   if ( Live_GetMachineId(machineIDLow, machineIDHigh) )
   {
     if ( Live_GetMACAddressAsUint64(macAddress) )
     {
-      v25 = *Sys_GetLocalIP(0);
-      *(_DWORD *)consoleInternalIP = v25;
+      v18 = *Sys_GetLocalIP(0);
+      *(_DWORD *)consoleInternalIP = v18;
       Com_Printf(16, "Live_GetConsoleDetails retrieved local ip %i.%i.%i.%i\n", *consoleInternalIP, consoleInternalIP[1], consoleInternalIP[2], consoleInternalIP[3]);
       LocalCommonAddr = (__int64 *)NET_GetLocalCommonAddr();
       v11 = NULL;
-      if ( LocalCommonAddr != (__int64 *)&v24 )
+      if ( LocalCommonAddr != (__int64 *)&v17 )
       {
         v9 = (bdCommonAddr *)*LocalCommonAddr;
         v11 = v9;
-        v24 = (bdCommonAddr *)*LocalCommonAddr;
+        v17 = (bdCommonAddr *)*LocalCommonAddr;
         if ( v9 )
         {
           _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
-          v9 = v24;
+          v9 = v17;
         }
       }
-      _RAX = bdCommonAddr::getPublicAddr(v9);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+128h+var_D8.m_address.inUn], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+128h+var_D8.m_address.inUn+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rsp+128h+var_D8.m_address.inUn+40h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rsp+128h+var_D8.m_address.inUn+60h], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rsp+128h+var_D8.m_relayRoute.m_relayID], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  qword ptr [rsp+128h+var_D8.m_type], xmm1
-      }
-      *consoleExternalIP = bdSockAddr::getIn4AddrByte(&v27.m_address, 0);
-      consoleExternalIP[1] = bdSockAddr::getIn4AddrByte(&v27.m_address, 1);
-      consoleExternalIP[2] = bdSockAddr::getIn4AddrByte(&v27.m_address, 2);
-      In4AddrByte = bdSockAddr::getIn4AddrByte(&v27.m_address, 3);
+      v20 = *bdCommonAddr::getPublicAddr(v9);
+      *consoleExternalIP = bdSockAddr::getIn4AddrByte(&v20.m_address, 0);
+      consoleExternalIP[1] = bdSockAddr::getIn4AddrByte(&v20.m_address, 1);
+      consoleExternalIP[2] = bdSockAddr::getIn4AddrByte(&v20.m_address, 2);
+      In4AddrByte = bdSockAddr::getIn4AddrByte(&v20.m_address, 3);
       consoleExternalIP[3] = In4AddrByte;
       if ( *consoleExternalIP || consoleExternalIP[1] != 0xFF || consoleExternalIP[2] || In4AddrByte != 0xFF )
       {
-        LODWORD(v23) = In4AddrByte;
-        LODWORD(v22) = consoleExternalIP[2];
-        Com_Printf(16, "Our remote IP:  %d.%d.%d.%d\n", *consoleExternalIP, consoleExternalIP[1], v22, v23);
+        LODWORD(v16) = In4AddrByte;
+        LODWORD(v15) = consoleExternalIP[2];
+        Com_Printf(16, "Our remote IP:  %d.%d.%d.%d\n", *consoleExternalIP, consoleExternalIP[1], v15, v16);
       }
       else
       {
@@ -4254,7 +4211,7 @@ __int64 Live_GetConsoleDetails(int verboseIfErrorIn, unsigned __int8 *consoleInt
     v11 = NULL;
   }
   if ( v9 && _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 0xFFFFFFFF) == 1 )
-    ((void (__fastcall *)(bdCommonAddr *, __int64))v24->~bdReferencable)(v24, 1i64);
+    ((void (__fastcall *)(bdCommonAddr *, __int64))v17->~bdReferencable)(v17, 1i64);
   return v10;
 }
 
@@ -9108,85 +9065,85 @@ __int64 Live_XB3ProfanityFilter_CheckStrings(const int controllerIndex, Platform
   std::_Ref_count_base *Rep; 
   Concurrency::task<void> *v19; 
   std::_Ref_count_base *v20; 
-  volatile signed __int32 *v23; 
-  unsigned __int8 v24; 
-  Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *v26; 
-  __int64 v27; 
-  Concurrency::task<void> v28; 
-  __int64 v29; 
-  Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *v30; 
-  Microsoft::Xbox::Services::XboxLiveContext *v31; 
-  __int64 v32; 
+  volatile signed __int32 *v22; 
+  unsigned __int8 v23; 
+  Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *v25; 
+  __int64 v26; 
+  Concurrency::task<void> v27; 
+  __int64 v28; 
+  Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *v29; 
+  Microsoft::Xbox::Services::XboxLiveContext *v30; 
+  __int64 v31; 
   Live_XB3ProfanityFilter_CheckStrings::__l3::<lambda_1213adf5df6b34aa048411708a000ca6> _Func; 
-  bool **v34; 
-  char *v35; 
-  Concurrency::task_options v36; 
+  bool **v33; 
+  char *v34; 
+  Concurrency::task_options v35; 
+  __int64 v36; 
   __int64 v37; 
   __int64 v38; 
-  __int64 v39; 
   Concurrency::scheduler_interface *Ptr; 
-  Concurrency::task<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> v41; 
-  bool *v42; 
-  unsigned __int8 v43; 
+  Concurrency::task<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> v40; 
+  bool *v41; 
+  unsigned __int8 v42; 
 
-  v42 = pIsVulgar;
-  v37 = -2i64;
-  v29 = 0i64;
-  v43 = 0;
+  v41 = pIsVulgar;
+  v36 = -2i64;
+  v28 = 0i64;
+  v42 = 0;
   UsersXboxLiveContext = Live_GetUsersXboxLiveContext(controllerIndex);
   v6 = (__int64)UsersXboxLiveContext;
-  v31 = UsersXboxLiveContext;
+  v30 = UsersXboxLiveContext;
   if ( UsersXboxLiveContext )
     UsersXboxLiveContext->__abi_AddRef(UsersXboxLiveContext);
-  v38 = v6;
+  v37 = v6;
   if ( v6 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
-  v27 = 0i64;
-  v7 = (*(__int64 (__fastcall **)(__int64, __int64 *))(*(_QWORD *)v6 + 168i64))(v6, &v27);
+  v26 = 0i64;
+  v7 = (*(__int64 (__fastcall **)(__int64, __int64 *))(*(_QWORD *)v6 + 168i64))(v6, &v26);
   if ( v7 < 0 )
     __abi_WinRTraiseException(v7);
-  v8 = v27;
-  v9 = v27;
-  v32 = v27;
-  if ( v27 )
+  v8 = v26;
+  v9 = v26;
+  v31 = v26;
+  if ( v26 )
   {
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v27 + 8i64))(v27);
-    v8 = v27;
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v26 + 8i64))(v26);
+    v8 = v26;
   }
   if ( v8 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v8 + 16i64))(v8);
-  v26 = (Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *)v9;
+  v25 = (Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *)v9;
   if ( v9 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 8i64))(v9);
-  v39 = v9;
+  v38 = v9;
   if ( v9 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
   v10 = (Platform::Collections::VectorView<Platform::String _,std::equal_to<Platform::String _>,1> *)Platform::Details::Heap::Allocate(0x58ui64, 0x70ui64);
   Platform::Collections::VectorView<Platform::String __gc *,std::equal_to<Platform::String __gc *>,1>::VectorView<Platform::String __gc *,std::equal_to<Platform::String __gc *>,1>(v10, &stringsToVerify->m_ctr, &stringsToVerify->m_vec);
   v12 = (Concurrency::details::_Task_impl<unsigned char> *)v11;
-  v26 = (Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *)v11;
+  v25 = (Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> *)v11;
   if ( v11 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 8i64))(v11);
   if ( v12 )
     v12->__vftable[1].~_Task_impl_base(v12);
-  v28._M_unitTask._M_Impl._Ptr = v12;
-  v26 = NULL;
-  v13 = (*(__int64 (__fastcall **)(__int64, Concurrency::details::_Task_impl<unsigned char> *, Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> **))(*(_QWORD *)v9 + 56i64))(v9, v12, &v26);
+  v27._M_unitTask._M_Impl._Ptr = v12;
+  v25 = NULL;
+  v13 = (*(__int64 (__fastcall **)(__int64, Concurrency::details::_Task_impl<unsigned char> *, Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult _> _> **))(*(_QWORD *)v9 + 56i64))(v9, v12, &v25);
   if ( v13 < 0 )
     __abi_WinRTraiseException(v13);
-  v14 = (__int64)v26;
-  v15 = v26;
-  if ( v26 )
+  v14 = (__int64)v25;
+  v15 = v25;
+  if ( v25 )
   {
-    v26->__abi_AddRef(v26);
-    v14 = (__int64)v26;
+    v25->__abi_AddRef(v25);
+    v14 = (__int64)v25;
   }
   if ( v14 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v14 + 16i64))(v14);
-  v30 = v15;
+  v29 = v15;
   if ( v15 )
     v15->__abi_AddRef(v15);
-  v30 = v15;
+  v29 = v15;
   if ( v15 )
     v15->__abi_Release(v15);
   if ( v12 )
@@ -9199,68 +9156,58 @@ __int64 Live_XB3ProfanityFilter_CheckStrings(const int controllerIndex, Platform
     Rep = ambient_scheduler->_Rep;
   }
   Ptr = ambient_scheduler->_Ptr;
-  v36._M_Scheduler._M_sharedScheduler._Ptr = Ptr;
-  v36._M_Scheduler._M_sharedScheduler._Rep = Rep;
-  v36._M_Scheduler._M_scheduler = Ptr;
-  v36._M_CancellationToken._M_Impl = NULL;
-  v36._M_ContinuationContext._M_context._M_captureMethod = 1i64;
-  v36._M_ContinuationContext._M_RunInline = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+148h+var_80], xmm0
-  }
-  v36._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myend = NULL;
-  v36._M_InternalTaskOptions._M_presetCreationCallstack._M_SingleFrame = NULL;
-  v36._M_InternalTaskOptions._M_hasPresetCreationCallstack = 0;
-  *(_WORD *)&v36._M_HasCancellationToken = 0;
-  v19 = (Concurrency::task<void> *)Concurrency::create_task<Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult __gc *> __gc *> __gc *>(&v41, v15, &v36);
-  _Func.RetVal = (bool *)&v29;
-  v34 = &v42;
-  v35 = (char *)&v43;
+  v35._M_Scheduler._M_sharedScheduler._Ptr = Ptr;
+  v35._M_Scheduler._M_sharedScheduler._Rep = Rep;
+  v35._M_Scheduler._M_scheduler = Ptr;
+  v35._M_CancellationToken._M_Impl = NULL;
+  v35._M_ContinuationContext._M_context._M_captureMethod = 1i64;
+  v35._M_ContinuationContext._M_RunInline = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v35._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myfirst = _XMM0;
+  v35._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myend = NULL;
+  v35._M_InternalTaskOptions._M_presetCreationCallstack._M_SingleFrame = NULL;
+  v35._M_InternalTaskOptions._M_hasPresetCreationCallstack = 0;
+  *(_WORD *)&v35._M_HasCancellationToken = 0;
+  v19 = (Concurrency::task<void> *)Concurrency::create_task<Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<Microsoft::Xbox::Services::System::VerifyStringResult __gc *> __gc *> __gc *>(&v40, v15, &v35);
+  _Func.RetVal = (bool *)&v28;
+  v33 = &v41;
+  v34 = (char *)&v42;
   Concurrency::task_Windows::Foundation::Collections::IVectorView_Microsoft::Xbox::Services::System::VerifyStringResult______::then__lambda_1213adf5df6b34aa048411708a000ca6___(v19, &_Func);
-  v20 = v41._M_Impl._Rep;
-  if ( v41._M_Impl._Rep )
+  v20 = v40._M_Impl._Rep;
+  if ( v40._M_Impl._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v41._M_Impl._Rep->_Uses, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v40._M_Impl._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
       v20->_Destroy(v20);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v20->_Weaks, 0xFFFFFFFF) == 1 )
         *(double *)&_XMM0 = ((double (__fastcall *)(std::_Ref_count_base *))v20->_Delete_this)(v20);
     }
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+148h+var_118], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v27 = _XMM0;
   if ( _Func.pIsVulgar )
     _InterlockedIncrement((volatile signed __int32 *)_Func.pIsVulgar + 2);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+148h+_Func.result]
-    vmovdqa [rsp+148h+var_118], xmm0
-  }
-  Sys_SafeWait<Concurrency::task<void>>(&v28);
-  v23 = (volatile signed __int32 *)_Func.pIsVulgar;
+  v27 = *(Concurrency::task<void> *)&_Func.result;
+  Sys_SafeWait<Concurrency::task<void>>(&v27);
+  v22 = (volatile signed __int32 *)_Func.pIsVulgar;
   if ( _Func.pIsVulgar )
   {
     if ( _InterlockedExchangeAdd((volatile signed __int32 *)_Func.pIsVulgar + 2, 0xFFFFFFFF) == 1 )
     {
-      (**(void (__fastcall ***)(volatile signed __int32 *))v23)(v23);
-      if ( _InterlockedExchangeAdd(v23 + 3, 0xFFFFFFFF) == 1 )
-        (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v23 + 8i64))(v23);
+      (**(void (__fastcall ***)(volatile signed __int32 *))v22)(v22);
+      if ( _InterlockedExchangeAdd(v22 + 3, 0xFFFFFFFF) == 1 )
+        (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v22 + 8i64))(v22);
     }
   }
   if ( v15 )
     v15->__abi_Release(v15);
-  v24 = v43;
+  v23 = v42;
   if ( v9 )
     (*(void (__fastcall **)(__int64))(*(_QWORD *)v9 + 16i64))(v9);
   (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
-  if ( v29 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v29 + 16i64))(v29);
-  return v24;
+  if ( v28 )
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v28 + 16i64))(v28);
+  return v23;
 }
 
 /*
@@ -9935,32 +9882,32 @@ void UpdateConsoleIdCache()
   char v13; 
   char v14; 
   const char *Buffer; 
-  bdString v17; 
+  bdString v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
-  bdAddr v20; 
-  __int128 v21; 
-  int v22; 
+  bdAddr v19; 
+  __int128 v20; 
+  int v21; 
 
-  v19 = -2i64;
-  v18 = 0i64;
-  bdAddr::bdAddr(&v20);
+  v18 = -2i64;
+  v17 = 0i64;
+  bdAddr::bdAddr(&v19);
   v0 = NULL;
-  bdString::bdString(&v17);
+  bdString::bdString(&v16);
   Instance = DWServicesAccess::GetInstance();
   Login = DWServicesAccess::GetLogin(Instance, 0);
   if ( DWLogin::succeeded(Login) )
   {
     Result = (bdLoginResult *)DWLogin::getResult(Login);
     MachineId = bdLoginResult::getMachineId(Result);
-    bdString::operator=(&v17, MachineId);
-    v0 = &v17;
+    bdString::operator=(&v16, MachineId);
+    v0 = &v16;
   }
   if ( !s_cachedConsoleID[0] && v0 )
   {
     v5 = 0;
-    v21 = 0ui64;
-    v22 = 0;
+    v20 = 0ui64;
+    v21 = 0;
     Length = bdString::getLength(v0);
     v7 = Length;
     if ( Length )
@@ -10002,18 +9949,14 @@ void UpdateConsoleIdCache()
               __debugbreak();
             if ( v14 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_live.cpp", 3788, ASSERT_TYPE_ASSERT, "(low != 255)", (const char *)&queryFormat, "low != 255") )
               __debugbreak();
-            *((_BYTE *)&v21 + ((unsigned __int64)v8 >> 1)) = v14 + 16 * v12;
+            *((_BYTE *)&v20 + ((unsigned __int64)v8 >> 1)) = v14 + 16 * v12;
             v8 += 2;
             v10 += 2i64;
           }
           while ( v10 < v9 );
-          v5 = v22;
+          v5 = v21;
         }
-        __asm
-        {
-          vmovups xmm0, [rsp+138h+var_48]
-          vmovups xmmword ptr cs:s_cachedConsoleID, xmm0
-        }
+        *(_OWORD *)s_cachedConsoleID = v20;
         LODWORD(s_cachedConsoleID[2]) = v5;
         goto LABEL_31;
       }
@@ -10026,7 +9969,7 @@ void UpdateConsoleIdCache()
     Com_Printf(16, "Live_GetConsoleDetails failed with invalid machineId (%s) with length (%i).\n", Buffer, v7);
   }
 LABEL_31:
-  bdString::~bdString(&v17);
+  bdString::~bdString(&v16);
 }
 
 /*
@@ -10034,126 +9977,69 @@ LABEL_31:
 WriteAchievementProgress
 ==============
 */
-
-void __fastcall WriteAchievementProgress(const int controllerIndex, __int64 a2, double _XMM2_8, double _XMM3_8)
+void WriteAchievementProgress(const int controllerIndex)
 {
-  int v11; 
-  int v12; 
-  int v13; 
-  int v14; 
-  __int64 v15; 
-  __m256i v46; 
-  void *retaddr; 
+  __int64 v2; 
+  const AchievementListing *v3; 
+  int v4; 
+  int v5; 
+  int v6; 
+  int v7; 
+  __int64 v8; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __m256i v15; 
 
-  _R11 = &retaddr;
+  v2 = controllerIndex;
   if ( s_achievementUnlockStatus[controllerIndex].read )
   {
-    _RAX = gameAchievementList;
-    v11 = 0;
-    v12 = 0;
-    v13 = 0;
-    __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-    v14 = 0;
-    __asm { vmovaps xmmword ptr [r11-48h], xmm7 }
-    v15 = 0i64;
-    __asm { vmovaps xmmword ptr [r11-58h], xmm8 }
+    v3 = gameAchievementList;
+    v4 = 0;
+    v5 = 0;
+    v6 = 0;
+    v7 = 0;
+    v8 = 0i64;
     do
     {
+      v15 = *(__m256i *)&v3->achievementId;
       __asm
       {
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0C8h+var_88], ymm1
         vextractf128 xmm1, ymm1, 1
         vpextrb rax, xmm1, 1
       }
       if ( (_BYTE)_RAX )
-        ++v11;
-      if ( v46.m256i_i8[16] == 1 )
+        ++v4;
+      if ( v15.m256i_i8[16] == 1 )
       {
-        ++v12;
+        ++v5;
       }
-      else if ( BG_GameInterface_GameModeIsMP((GameModeType)v46.m256i_u8[16]) )
+      else if ( BG_GameInterface_GameModeIsMP((GameModeType)v15.m256i_u8[16]) )
       {
-        ++v13;
+        ++v6;
       }
-      else if ( v46.m256i_i8[16] == 3 )
+      else if ( v15.m256i_i8[16] == 3 )
       {
-        ++v14;
+        ++v7;
       }
-      _RAX = &gameAchievementList[++v15];
+      v3 = &gameAchievementList[++v8];
     }
-    while ( _RAX->achievementName[0] );
-    __asm
-    {
-      vmovss  xmm4, cs:__real@42c80000
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm2, xmm2, xmm2
-    }
-    if ( v11 > 0 )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rax+r12*8+48h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm1, xmm4
-      }
-    }
-    __asm { vxorps  xmm8, xmm8, xmm8 }
-    if ( v12 > 0 )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rax+r12*8+3Ch]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm8, xmm1, xmm4
-      }
-    }
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    if ( v13 > 0 )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rax+r12*8+40h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r14d
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm7, xmm1, xmm4
-      }
-    }
-    if ( v14 > 0 )
-    {
-      __asm
-      {
-        vxorps  xmm3, xmm3, xmm3
-        vcvtsi2ss xmm3, xmm3, dword ptr [rax+r12*8+44h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r15d
-        vdivss  xmm3, xmm3, xmm0
-        vmulss  xmm6, xmm3, xmm4
-      }
-    }
-    __asm { vmovaps xmm1, xmm2; completionPercentage }
-    XB3GameEvent_GameProgress(controllerIndex, *(const float *)&_XMM1);
-    __asm
-    {
-      vmovaps xmm3, xmm6; percentageCP
-      vmovaps xmm2, xmm7; percentageMP
-      vmovaps xmm1, xmm8; percentageSP
-    }
-    XB3GameEvent_HeroStats(controllerIndex, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0C8h+var_58]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
+    while ( v3->achievementName[0] );
+    v11 = 0.0;
+    v12 = 0.0;
+    if ( v4 > 0 )
+      v12 = (float)((float)s_achievementUnlockStatus[v2].unlockCountGameProgress / (float)v4) * 100.0;
+    v13 = 0.0;
+    if ( v5 > 0 )
+      v13 = (float)((float)s_achievementUnlockStatus[v2].unlockCountGameMode[1] / (float)v5) * 100.0;
+    v14 = 0.0;
+    if ( v6 > 0 )
+      v14 = (float)((float)s_achievementUnlockStatus[v2].unlockCountGameMode[2] / (float)v6) * 100.0;
+    if ( v7 > 0 )
+      v11 = (float)((float)s_achievementUnlockStatus[v2].unlockCountGameMode[3] / (float)v7) * 100.0;
+    XB3GameEvent_GameProgress(controllerIndex, v12);
+    XB3GameEvent_HeroStats(controllerIndex, v13, v14, v11);
   }
 }
 

@@ -312,46 +312,36 @@ R_GenerateWorldTransientCache
 void R_GenerateWorldTransientCache(const GfxWorldDraw *worldDraw, GfxWorldTransientDrawContext *outDrawContext, GfxWorldTransientDrawCache *outDrawCache)
 {
   __int64 i; 
-  GfxWorldDrawCells *v12; 
+  GfxWorldTransientZone *v7; 
+  __int64 v8; 
+  GfxWorldDrawCells *v9; 
+  __m256i *v10; 
 
-  _RSI = outDrawCache;
   if ( !worldDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 533, ASSERT_TYPE_ASSERT, "(worldDraw)", (const char *)&queryFormat, "worldDraw") )
     __debugbreak();
-  DebugWipe(_RSI, 0x39000ui64);
+  DebugWipe(outDrawCache, 0x39000ui64);
   memset_0(outDrawContext, 0, sizeof(GfxWorldTransientDrawContext));
   outDrawContext->zoneCount = worldDraw->transientZoneCount;
   for ( i = 0i64; (unsigned int)i < worldDraw->transientZoneCount; i = (unsigned int)(i + 1) )
   {
-    _R8 = worldDraw->transientZones[i];
-    if ( _R8 )
+    v7 = worldDraw->transientZones[i];
+    if ( v7 )
     {
-      __asm { vmovups xmm0, xmmword ptr [r8+90h] }
-      _RCX = 3 * i + 24576;
-      __asm
-      {
-        vmovups xmmword ptr [rsi+rcx*8], xmm0
-        vmovsd  xmm1, qword ptr [r8+0A0h]
-        vmovsd  qword ptr [rsi+rcx*8+10h], xmm1
-        vmovups ymm0, ymmword ptr [r8+10h]
-      }
-      v12 = (GfxWorldDrawCells *)((char *)_RSI + 8 * _RCX);
-      _RCX = &_RSI->drawVerts[(unsigned __int64)(unsigned int)i];
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm1, ymmword ptr [r8+30h]
-        vmovups ymmword ptr [rcx+20h], ymm1
-        vmovups ymm0, ymmword ptr [r8+50h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm1, ymmword ptr [r8+70h]
-        vmovups ymmword ptr [rcx+60h], ymm1
-      }
-      outDrawContext->drawCellsPtrs[i] = v12;
-      outDrawContext->drawVertsPtr[i] = _RCX;
-      outDrawContext->gpuLightGrid[i] = _R8->gpuLightGrid.gpuLightGrid;
-      outDrawContext->dynLightSets[i] = _R8->gpuLightGrid.SMLGppZone;
-      outDrawContext->reflectionProbes[i] = _R8->reflectionProbes;
-      outDrawContext->decalVolumes[i] = _R8->decalVolumes;
+      v8 = 3 * i + 24576;
+      *(_OWORD *)(&outDrawCache->drawVerts[0].posDataSize + 2 * v8) = *(_OWORD *)&v7->drawCells.cellCount;
+      *((double *)&outDrawCache->drawVerts[0].auxData + v8) = *(double *)&v7->drawCells.aabbTrees;
+      v9 = (GfxWorldDrawCells *)((char *)outDrawCache + 8 * v8);
+      v10 = (__m256i *)&outDrawCache->drawVerts[(unsigned __int64)(unsigned int)i];
+      *v10 = *(__m256i *)&v7->drawVerts.posDataSize;
+      v10[1] = *(__m256i *)((char *)&v7->drawVerts.posBuffer + 8);
+      v10[2] = *(__m256i *)((char *)&v7->drawVerts.auxBuffer + 8);
+      v10[3] = *(__m256i *)&v7->drawVerts.indices;
+      outDrawContext->drawCellsPtrs[i] = v9;
+      outDrawContext->drawVertsPtr[i] = (GfxWorldDrawVerts *)v10;
+      outDrawContext->gpuLightGrid[i] = v7->gpuLightGrid.gpuLightGrid;
+      outDrawContext->dynLightSets[i] = v7->gpuLightGrid.SMLGppZone;
+      outDrawContext->reflectionProbes[i] = v7->reflectionProbes;
+      outDrawContext->decalVolumes[i] = v7->decalVolumes;
     }
   }
 }
@@ -480,15 +470,7 @@ __int64 R_GetSunColorOverride(vec3_t *sunColorLinearSrgbOut)
 {
   if ( !rg.useSunColorLinearSrgbOverride )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride; r_globals_t rg
-    vmovss  dword ptr [rcx], xmm0
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+4; r_globals_t rg
-    vmovss  dword ptr [rcx+4], xmm1
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+8; r_globals_t rg
-    vmovss  dword ptr [rcx+8], xmm0
-  }
+  *sunColorLinearSrgbOut = rg.sunColorLinearSrgbOverride;
   return 1i64;
 }
 
@@ -502,21 +484,9 @@ __int64 R_GetSunDirectionOverride(const int time, vec3_t *sunDirOut)
   if ( !rg.useSunDirOverride )
     return 0i64;
   if ( rg.useSunDirLerp )
-  {
     R_LerpSunDir(&rg.sunDirOverride, &rg.sunDirOverrideTarget, rg.sunDirLerpBeginTime, rg.sunDirLerpEndTime, rg.sunDirLerpAccelTime, rg.sunDirLerpDecelTime, time, sunDirOut);
-  }
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride; r_globals_t rg
-      vmovss  dword ptr [rdx], xmm0
-      vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+4; r_globals_t rg
-      vmovss  dword ptr [rdx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+8; r_globals_t rg
-      vmovss  dword ptr [rdx+8], xmm0
-    }
-  }
+    *sunDirOut = rg.sunDirOverride;
   return 1i64;
 }
 
@@ -527,16 +497,11 @@ R_GetSunIntensityOverride
 */
 __int64 R_GetSunIntensityOverride(float *sunIntensityOut)
 {
-  _RBX = sunIntensityOut;
   if ( !sunIntensityOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 151, ASSERT_TYPE_ASSERT, "(sunIntensityOut)", (const char *)&queryFormat, "sunIntensityOut") )
     __debugbreak();
   if ( !rg.useSunIntensityOverride )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.sunIntensityOverride; r_globals_t rg
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *sunIntensityOut = rg.sunIntensityOverride;
   return 1i64;
 }
 
@@ -547,269 +512,162 @@ R_LerpSunDir
 */
 void R_LerpSunDir(const vec3_t *dirBegin, const vec3_t *dirEnd, const int beginLerpTime, const int endLerpTime, const int accelLerpTime, const int decelLerpTime, const int currTime, vec3_t *result)
 {
-  int v49; 
-  int v59; 
-  char v79; 
-  int v96; 
-  __int64 v128; 
+  float v12; 
+  double v13; 
+  unsigned int v14; 
+  float v15; 
+  float v16; 
+  int v17; 
+  const vec3_t *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  int v35; 
+  float v36; 
+  float v37; 
+  __int128 v38; 
+  float v39; 
+  __int128 v40; 
+  __int64 v44; 
   int atTime; 
   trajectory_t_secure tr; 
-  vec3_t v132; 
-  __int64 v140; 
-  char v141; 
-  void *retaddr; 
+  vec3_t v48; 
 
-  _RAX = &retaddr;
-  _RBP = &v140;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _ER14 = accelLerpTime;
-  _RBX = result;
-  _R12 = (vec3_t *)dirEnd;
   if ( endLerpTime <= beginLerpTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 228, ASSERT_TYPE_ASSERT, "(endLerpTime > beginLerpTime)", (const char *)&queryFormat, "endLerpTime > beginLerpTime") )
     __debugbreak();
-  _EDI = decelLerpTime;
   if ( accelLerpTime > 0 || decelLerpTime > 0 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+140h+var_68+8], xmm8
-      vmovaps [rsp+140h+var_78+8], xmm9
-      vmovaps [rsp+140h+var_88+8], xmm11
-      vmovaps [rsp+140h+var_98+8], xmm12
-      vmovaps [rsp+140h+var_A8+8], xmm13
-      vmovaps [rsp+140h+var_B8+8], xmm14
-      vmovaps [rsp+140h+var_C8+8], xmm15
-    }
     if ( accelLerpTime < 0 )
     {
-      LODWORD(v128) = accelLerpTime;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 234, ASSERT_TYPE_ASSERT, "( ( accelLerpTime >= 0 ) )", "( accelLerpTime ) = %i", v128) )
+      LODWORD(v44) = accelLerpTime;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 234, ASSERT_TYPE_ASSERT, "( ( accelLerpTime >= 0 ) )", "( accelLerpTime ) = %i", v44) )
         __debugbreak();
     }
     if ( decelLerpTime < 0 )
     {
-      LODWORD(v128) = decelLerpTime;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 235, ASSERT_TYPE_ASSERT, "( ( decelLerpTime >= 0 ) )", "( decelLerpTime ) = %i", v128) )
+      LODWORD(v44) = decelLerpTime;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 235, ASSERT_TYPE_ASSERT, "( ( decelLerpTime >= 0 ) )", "( decelLerpTime ) = %i", v44) )
         __debugbreak();
     }
-    _ESI = endLerpTime - beginLerpTime;
+    v14 = endLerpTime - beginLerpTime;
     if ( accelLerpTime + decelLerpTime > endLerpTime - beginLerpTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 236, ASSERT_TYPE_ASSERT, "((accelLerpTime + decelLerpTime) <= (endLerpTime - beginLerpTime))", (const char *)&queryFormat, "(accelLerpTime + decelLerpTime) <= (endLerpTime - beginLerpTime)") )
       __debugbreak();
-    v49 = I_clamp(currTime, beginLerpTime, endLerpTime);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3a83126f
-      vmovss  xmm7, cs:__real@40000000
-      vmovd   xmm0, esi
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm12, xmm0, xmm2
-      vmovd   xmm0, r14d
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm13, xmm0, xmm2
-      vmovss  xmm0, dword ptr [r12]
-    }
-    v59 = v49;
-    atTime = v49;
-    _RAX = dirBegin;
-    __asm
-    {
-      vmovd   xmm1, edi
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm14, xmm1, xmm2
-      vsubss  xmm8, xmm0, dword ptr [rax]
-      vmovss  xmm0, dword ptr [r12+4]
-      vsubss  xmm9, xmm0, dword ptr [rax+4]
-      vmovss  xmm0, dword ptr [r12+8]
-      vsubss  xmm11, xmm0, dword ptr [rax+8]
-      vmulss  xmm0, xmm8, xmm8
-      vmulss  xmm1, xmm9, xmm9
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm11, xmm11
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm12, xmm7
-      vsubss  xmm1, xmm0, xmm13
-      vsqrtss xmm6, xmm2, xmm2
-      vsubss  xmm15, xmm1, xmm14
-      vxorps  xmm2, xmm2, xmm2
-      vucomiss xmm15, xmm2
-    }
-    if ( v79 )
+    v15 = _mm_cvtepi32_ps((__m128i)v14).m128_f32[0] * 0.001;
+    v16 = _mm_cvtepi32_ps((__m128i)(unsigned int)accelLerpTime).m128_f32[0] * 0.001;
+    v17 = I_clamp(currTime, beginLerpTime, endLerpTime);
+    atTime = v17;
+    v18 = dirBegin;
+    v19 = _mm_cvtepi32_ps((__m128i)(unsigned int)decelLerpTime).m128_f32[0] * 0.001;
+    v20 = dirEnd->v[0] - dirBegin->v[0];
+    v24 = LODWORD(dirEnd->v[1]);
+    v21 = dirEnd->v[1] - dirBegin->v[1];
+    v22 = dirEnd->v[2] - dirBegin->v[2];
+    *(float *)&v24 = fsqrt((float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v22 * v22));
+    _XMM6 = v24;
+    v25 = (float)((float)(v15 * 2.0) - v16) - v19;
+    if ( v25 == 0.0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 246, ASSERT_TYPE_ASSERT, "(fSpeedQuotient)", (const char *)&queryFormat, "fSpeedQuotient") )
         __debugbreak();
-      _RAX = dirBegin;
-      v59 = atTime;
+      v18 = dirBegin;
+      v17 = atTime;
     }
+    v26 = v18->v[1];
+    v27 = v18->v[2];
+    v28 = *(float *)&v24 * 2.0;
+    v12 = FLOAT_1_0;
     __asm
     {
-      vmovss  xmm5, dword ptr [rax+4]
-      vmovss  xmm4, dword ptr [rax+8]
-      vmulss  xmm0, xmm6, xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vdivss  xmm3, xmm0, xmm15
       vcmpless xmm0, xmm6, cs:__real@80000000
-      vmovaps xmm15, [rsp+140h+var_C8+8]
       vblendvps xmm0, xmm6, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm8, xmm2
-      vmulss  xmm1, xmm9, xmm2
-      vmulss  xmm6, xmm0, xmm3
-      vmulss  xmm0, xmm11, xmm2
-      vmovss  xmm2, dword ptr [rax]
-      vmovaps xmm11, [rsp+140h+var_88+8]
     }
+    v31 = (float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v28 / v25);
+    v32 = v18->v[0];
     tr.trType = TR_ACCELERATE;
     tr.trTime = beginLerpTime;
     tr.trDuration = accelLerpTime;
-    __asm
+    v33 = (float)(v21 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v28 / v25);
+    v34 = (float)(v22 * (float)(1.0 / *(float *)&_XMM0)) * (float)(v28 / v25);
+    tr.trBase.v[0] = v32;
+    tr.trBase.v[1] = v26;
+    tr.trBase.v[2] = v27;
+    tr.trDelta.v[0] = v31;
+    tr.trDelta.v[1] = v33;
+    tr.trDelta.v[2] = v34;
+    if ( v17 - beginLerpTime >= accelLerpTime )
     {
-      vmulss  xmm8, xmm1, xmm3
-      vmulss  xmm9, xmm0, xmm3
-      vmovss  dword ptr [rsp+140h+tr.trBase], xmm2
-      vmovss  dword ptr [rsp+140h+tr.trBase+4], xmm5
-      vmovss  dword ptr [rsp+140h+tr.trBase+8], xmm4
-      vmovss  dword ptr [rsp+140h+tr.trDelta], xmm6
-      vmovss  dword ptr [rsp+140h+tr.trDelta+4], xmm8
-      vmovss  dword ptr [rsp+140h+tr.trDelta+8], xmm9
-    }
-    if ( v59 - beginLerpTime >= accelLerpTime )
-    {
-      v96 = accelLerpTime + beginLerpTime;
+      v35 = accelLerpTime + beginLerpTime;
       if ( accelLerpTime <= 0 )
       {
-        __asm
-        {
-          vmovss  dword ptr [rsp+140h+var_D8], xmm2
-          vmovss  dword ptr [rsp+140h+var_D8+4], xmm5
-          vmovss  dword ptr [rsp+140h+var_D8+8], xmm4
-        }
+        v48.v[0] = v32;
+        v48.v[1] = v26;
+        v48.v[2] = v27;
       }
       else
       {
-        BgTrajectory::LegacyEvaluateTrajectory(&tr, v96, &v132);
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+140h+var_D8+8]
-          vmovss  xmm5, dword ptr [rsp+140h+var_D8+4]
-          vmovss  xmm2, dword ptr [rsp+140h+var_D8]
-        }
-        v59 = atTime;
+        BgTrajectory::LegacyEvaluateTrajectory(&tr, v35, &v48);
+        v27 = v48.v[2];
+        v26 = v48.v[1];
+        v32 = v48.v[0];
+        v17 = atTime;
       }
-      if ( endLerpTime - v59 > decelLerpTime )
+      if ( endLerpTime - v17 > decelLerpTime )
       {
         tr.trType = TR_LINEAR;
-        tr.trTime = v96;
-        tr.trDuration = _ESI - accelLerpTime - decelLerpTime;
-        __asm
-        {
-          vmovss  dword ptr [rsp+140h+tr.trBase], xmm2
-          vmovss  dword ptr [rsp+140h+tr.trBase+4], xmm5
-          vmovss  dword ptr [rsp+140h+tr.trBase+8], xmm4
-        }
-        BgTrajectory::LegacyEvaluateTrajectory(&tr, v59, result);
-LABEL_30:
-        __asm
-        {
-          vmovaps xmm13, [rsp+140h+var_A8+8]
-          vmovaps xmm12, [rsp+140h+var_98+8]
-          vmovaps xmm9, [rsp+140h+var_78+8]
-          vmovaps xmm8, xmmword ptr [rsp+140h+var_68+8]
-          vmovaps xmm14, [rsp+140h+var_B8+8]
-        }
-        goto LABEL_31;
+        tr.trTime = v35;
+        tr.trDuration = v14 - accelLerpTime - decelLerpTime;
+        tr.trBase.v[0] = v32;
+        tr.trBase.v[1] = v26;
+        tr.trBase.v[2] = v27;
+        BgTrajectory::LegacyEvaluateTrajectory(&tr, v17, result);
+        goto LABEL_30;
       }
       if ( decelLerpTime <= 0 )
       {
-        *result = *_R12;
+        *result = *dirEnd;
         goto LABEL_30;
       }
-      __asm
-      {
-        vsubss  xmm0, xmm12, xmm13
-        vsubss  xmm3, xmm0, xmm14
-        vmulss  xmm1, xmm6, xmm3
-        vaddss  xmm2, xmm1, xmm2
-        vmulss  xmm0, xmm8, xmm3
-        vaddss  xmm1, xmm0, xmm5
-        vmovss  dword ptr [rsp+140h+tr.trBase], xmm2
-        vmulss  xmm2, xmm9, xmm3
-        vaddss  xmm0, xmm2, xmm4
-      }
+      v36 = (float)(v15 - v16) - v19;
+      tr.trBase.v[0] = (float)(v31 * v36) + v32;
       tr.trType = TR_DECELERATE;
-      __asm
-      {
-        vmovss  dword ptr [rsp+140h+tr.trBase+8], xmm0
-        vmovss  dword ptr [rsp+140h+tr.trBase+4], xmm1
-      }
+      tr.trBase.v[2] = (float)(v34 * v36) + v27;
+      tr.trBase.v[1] = (float)(v33 * v36) + v26;
       tr.trTime = endLerpTime - decelLerpTime;
       tr.trDuration = decelLerpTime;
     }
-    BgTrajectory::LegacyEvaluateTrajectory(&tr, v59, result);
+    BgTrajectory::LegacyEvaluateTrajectory(&tr, v17, result);
     goto LABEL_30;
   }
+  v12 = FLOAT_1_0;
+  v13 = I_fclamp((float)(currTime - beginLerpTime) / (float)(endLerpTime - beginLerpTime), 0.0, 1.0);
+  result->v[0] = (float)((float)(dirEnd->v[0] - dirBegin->v[0]) * *(float *)&v13) + dirBegin->v[0];
+  result->v[1] = (float)((float)(dirEnd->v[1] - dirBegin->v[1]) * *(float *)&v13) + dirBegin->v[1];
+  result->v[2] = (float)((float)(dirEnd->v[2] - dirBegin->v[2]) * *(float *)&v13) + dirBegin->v[2];
+LABEL_30:
+  v37 = result->v[1];
+  v38 = LODWORD(result->v[0]);
+  v39 = result->v[2];
+  v40 = v38;
+  *(float *)&v40 = fsqrt((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(v37 * v37)) + (float)(v39 * v39));
+  _XMM3 = v40;
   __asm
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, eax
-    vcvtsi2ss xmm0, xmm0, r15d
-    vdivss  xmm0, xmm1, xmm0; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm7; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r12]
-    vsubss  xmm2, xmm1, dword ptr [rsi]
-    vmulss  xmm3, xmm2, xmm0
-    vaddss  xmm4, xmm3, dword ptr [rsi]
-    vmovss  dword ptr [rbx], xmm4
-    vmovss  xmm1, dword ptr [r12+4]
-    vsubss  xmm2, xmm1, dword ptr [rsi+4]
-    vmulss  xmm3, xmm2, xmm0
-    vaddss  xmm4, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rbx+4], xmm4
-    vmovss  xmm1, dword ptr [r12+8]
-    vmovaps xmm6, xmm0
-    vsubss  xmm0, xmm1, dword ptr [rsi+8]
-    vmulss  xmm2, xmm0, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+8], xmm3
-  }
-LABEL_31:
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx]
-    vmovss  xmm5, dword ptr [rbx+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vmulss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
   }
-  _R11 = &v141;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  result->v[0] = (float)(v12 / *(float *)&_XMM0) * *(float *)&v38;
+  result->v[2] = (float)(v12 / *(float *)&_XMM0) * v39;
+  result->v[1] = (float)(v12 / *(float *)&_XMM0) * v37;
 }
 
 /*
@@ -819,25 +677,16 @@ R_LerpSunDirectionOverride
 */
 void R_LerpSunDirectionOverride(const vec3_t *sunDirBegin, const vec3_t *sunDirEnd, const int lerpBeginTime, const int lerpEndTime, const int lerpAccelTime, const int lerpDecelTime, const int bAllowSlowRecomputeShadows)
 {
+  float v7; 
+
   *(_WORD *)&rg.useSunDirOverride = 257;
   rg.useSunDirOverrideAllowSlowRecomputeShadows = bAllowSlowRecomputeShadows != 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride, xmm0; r_globals_t rg
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+4, xmm1; r_globals_t rg
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+8, xmm0; r_globals_t rg
-    vmovss  xmm1, dword ptr [rdx]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverrideTarget, xmm1; r_globals_t rg
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverrideTarget+4, xmm0; r_globals_t rg
-    vmovss  xmm1, dword ptr [rdx+8]
-  }
+  rg.sunDirOverride = *sunDirBegin;
+  *(_QWORD *)rg.sunDirOverrideTarget.v = *(_QWORD *)sunDirEnd->v;
+  v7 = sunDirEnd->v[2];
   rg.sunDirLerpAccelTime = lerpAccelTime;
   rg.sunDirLerpDecelTime = lerpDecelTime;
-  __asm { vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverrideTarget+8, xmm1; r_globals_t rg }
+  rg.sunDirOverrideTarget.v[2] = v7;
   rg.sunDirLerpBeginTime = lerpBeginTime;
   rg.sunDirLerpEndTime = lerpEndTime;
 }
@@ -862,8 +711,8 @@ void R_LoadWorld(const unsigned int clientCount, const char *name, int *checksum
   unsigned __int64 v17; 
   int v18; 
   char *v19; 
-  int v23; 
-  unsigned int v24; 
+  int v20; 
+  unsigned int v21; 
 
   if ( rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 590, ASSERT_TYPE_ASSERT, "(rgp.world == nullptr)", (const char *)&queryFormat, "rgp.world == nullptr") )
     __debugbreak();
@@ -918,9 +767,9 @@ void R_LoadWorld(const unsigned int clientCount, const char *name, int *checksum
       v18 = v16 - 1;
       if ( v18 != 4 * (s_world.surfaces.count + (unsigned __int64)s_world.surfaces.himipRadiusInvSqCompactedCount) )
       {
-        v24 = 4 * (s_world.surfaces.himipRadiusInvSqCompactedCount + s_world.surfaces.count);
-        v23 = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 639, ASSERT_TYPE_ASSERT, "( len - 1 ) == ( s_world.surfaces.count * sizeof( uint ) + s_world.surfaces.himipRadiusInvSqCompactedCount * sizeof( float ) )", "%s == %s\n\t%i, %i", "len - 1", "s_world.surfaces.count * sizeof( uint ) + s_world.surfaces.himipRadiusInvSqCompactedCount * sizeof( float )", v23, v24) )
+        v21 = 4 * (s_world.surfaces.himipRadiusInvSqCompactedCount + s_world.surfaces.count);
+        v20 = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.cpp", 639, ASSERT_TYPE_ASSERT, "( len - 1 ) == ( s_world.surfaces.count * sizeof( uint ) + s_world.surfaces.himipRadiusInvSqCompactedCount * sizeof( float ) )", "%s == %s\n\t%i, %i", "len - 1", "s_world.surfaces.count * sizeof( uint ) + s_world.surfaces.himipRadiusInvSqCompactedCount * sizeof( float )", v20, v21) )
           __debugbreak();
       }
       v19 = (char *)Mem_Virtual_Alloc(v17, "himipradiusinvsqbsp", TRACK_MISC);
@@ -928,16 +777,10 @@ void R_LoadWorld(const unsigned int clientCount, const char *name, int *checksum
       s_world.surfaces.himipRadiusInvSqIndirection = (unsigned int *)v19;
       s_world.surfaces.himipRadiusInvSqCompacted = (float *)&v19[4 * s_world.surfaces.count];
     }
-    _RCX = rgp.world;
     g_worldDpvs = &rgp.world->dpvs;
     g_worldDraw = &rgp.world->draw;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+3AE8h]
-      vmovups ymmword ptr cs:?g_drawConsts@@3UGfxDrawConsts@@A.outdoorLookupMatrix, ymm0; GfxDrawConsts g_drawConsts
-      vmovups ymm1, ymmword ptr [rcx+3B08h]
-      vmovups ymmword ptr cs:?g_drawConsts@@3UGfxDrawConsts@@A.outdoorLookupMatrix+20h, ymm1; GfxDrawConsts g_drawConsts
-    }
+    *(__m256i *)g_drawConsts.outdoorLookupMatrix.m[0].v = *(__m256i *)rgp.world->outdoorLookupMatrix.m[0].v;
+    *(__m256i *)g_drawConsts.outdoorLookupMatrix.row2.v = *(__m256i *)rgp.world->outdoorLookupMatrix.row2.v;
     if ( checksum )
       *checksum = rgp.world->checksum;
     R_LightTweak_Init();
@@ -1097,15 +940,7 @@ R_SetSunColorOverride
 void R_SetSunColorOverride(const vec3_t *sunColorLinearSrgb)
 {
   rg.useSunColorLinearSrgbOverride = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride, xmm0; r_globals_t rg
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+4, xmm1; r_globals_t rg
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+8, xmm0; r_globals_t rg
-  }
+  rg.sunColorLinearSrgbOverride = *sunColorLinearSrgb;
 }
 
 /*
@@ -1117,15 +952,7 @@ void R_SetSunDirectionOverride(const vec3_t *sunDir, const int bAllowSlowRecompu
 {
   *(_WORD *)&rg.useSunDirOverride = 1;
   rg.useSunDirOverrideAllowSlowRecomputeShadows = bAllowSlowRecomputeShadows != 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride, xmm0; r_globals_t rg
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+4, xmm1; r_globals_t rg
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+8, xmm0; r_globals_t rg
-  }
+  rg.sunDirOverride = *sunDir;
 }
 
 /*
@@ -1133,10 +960,9 @@ void R_SetSunDirectionOverride(const vec3_t *sunDir, const int bAllowSlowRecompu
 R_SetSunIntensityOverride
 ==============
 */
-
-void __fastcall R_SetSunIntensityOverride(double sunIntensity)
+void R_SetSunIntensityOverride(const float sunIntensity)
 {
-  __asm { vmovss  cs:?rg@@3Ur_globals_t@@A.sunIntensityOverride, xmm0; r_globals_t rg }
+  rg.sunIntensityOverride = sunIntensity;
   rg.useSunIntensityOverride = 1;
 }
 

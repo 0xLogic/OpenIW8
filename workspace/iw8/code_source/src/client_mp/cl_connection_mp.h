@@ -170,27 +170,23 @@ ClConnectionMP::GetPacketBackup
 */
 char ClConnectionMP::GetPacketBackup(ClConnectionMP *this, const int sequence, ClOutPacketMP *const outPacket)
 {
-  __int64 v9; 
+  ClOutPacketMP *v6; 
+  __int64 v8; 
 
-  _RSI = outPacket;
   if ( sequence < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 178, ASSERT_TYPE_ASSERT, "( sequence ) >= ( 0 )", "%s >= %s\n\t%i, %i", "sequence", "0", sequence, 0i64) )
     __debugbreak();
   if ( this->m_packetBackupCount <= 0 )
   {
-    LODWORD(v9) = this->m_packetBackupCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 179, ASSERT_TYPE_ASSERT, "( m_packetBackupCount ) > ( 0 )", "%s > %s\n\t%i, %i", "m_packetBackupCount", "0", v9, 0i64) )
+    LODWORD(v8) = this->m_packetBackupCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 179, ASSERT_TYPE_ASSERT, "( m_packetBackupCount ) > ( 0 )", "%s > %s\n\t%i, %i", "m_packetBackupCount", "0", v8, 0i64) )
       __debugbreak();
   }
   if ( !this->m_packetBackupData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 180, ASSERT_TYPE_ASSERT, "(m_packetBackupData != nullptr)", (const char *)&queryFormat, "m_packetBackupData != nullptr") )
     __debugbreak();
-  _RAX = &this->m_packetBackupData[sequence % this->m_packetBackupCount];
-  if ( _RAX->p_packetSeq != sequence )
+  v6 = &this->m_packetBackupData[sequence % this->m_packetBackupCount];
+  if ( v6->p_packetSeq != sequence )
     return 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsi], xmm0
-  }
+  *outPacket = *(ClOutPacketMP *const)v6;
   return 1;
 }
 

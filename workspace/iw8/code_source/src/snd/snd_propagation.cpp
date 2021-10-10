@@ -82,86 +82,55 @@ DebugPrintPath
 */
 void DebugPrintPath(const SndPropagationPathWorkspace *workSpace, const __int16 pathEnd, const __int16 listener)
 {
-  __int16 v9; 
-  __int16 v11; 
-  char v17; 
-  const char *v19; 
-  const vec4_t *v20; 
-  __int64 v21; 
-  __int64 v22; 
-  const vec4_t *v23; 
-  int v28; 
+  __int16 v3; 
+  __int16 i; 
+  float v7; 
+  float v8; 
+  const char *v9; 
+  const vec4_t *v10; 
+  __int64 v11; 
+  __int64 v12; 
+  const vec4_t *v13; 
   vec3_t outCenter; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v9 = -1;
-  v11 = pathEnd;
-  if ( pathEnd != -1 )
+  v3 = -1;
+  for ( i = pathEnd; i != -1; i = workSpace->cameFrom[i] )
   {
-    __asm
+    v7 = fsqrt(COERCE_FLOAT(COERCE_UNSIGNED_INT64(SND_DistSqToNearestListener(&cm.mapEnts->audioPropNodes[i].position))));
+    if ( v7 >= 10.0 )
+      v8 = v7 * 0.0017500001;
+    else
+      v8 = FLOAT_0_050000001;
+    v9 = j_va("%d", (unsigned int)i);
+    v10 = &colorMagenta;
+    if ( listener != i )
+      v10 = &colorGreen;
+    CL_AddDebugStarWithText(&cm.mapEnts->audioPropNodes[i].position, v10, &colorWhite, v9, v8, 0, 1, 0);
+    if ( v3 > -1 )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovss  xmm7, cs:__real@3d4ccccd
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovss  xmm8, cs:__real@3ae56042
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovss  xmm9, cs:__real@41200000
-    }
-    do
-    {
-      *(double *)&_XMM0 = SND_DistSqToNearestListener(&cm.mapEnts->audioPropNodes[v11].position);
-      __asm
+      v11 = workSpace->cameFromPortal[v3];
+      v12 = v3;
+      if ( (_DWORD)v11 == -1 )
       {
-        vsqrtss xmm1, xmm0, xmm0
-        vcomiss xmm1, xmm9
+        v13 = &colorWhite;
       }
-      if ( v17 )
-        __asm { vmovaps xmm6, xmm7 }
       else
-        __asm { vmulss  xmm6, xmm1, xmm8 }
-      v19 = j_va("%d", (unsigned int)v11);
-      v20 = &colorMagenta;
-      if ( listener != v11 )
-        v20 = &colorGreen;
-      __asm { vmovss  [rsp+0D8h+var_B8], xmm6 }
-      CL_AddDebugStarWithText(&cm.mapEnts->audioPropNodes[v11].position, v20, &colorWhite, v19, *(float *)&v28, 0, 1, 0);
-      if ( v9 > -1 )
       {
-        v21 = workSpace->cameFromPortal[v9];
-        v22 = v9;
-        if ( (_DWORD)v21 == -1 )
+        CG_GetTriggerCenter(LOCAL_CLIENT_0, v11, &outCenter);
+        if ( g_audioTriggerDisabled[v11] )
         {
-          v23 = &colorWhite;
+          CL_AddDebugStar(&outCenter, &colorRed, 0, 1, 0);
+          v13 = &colorLtRed;
         }
         else
         {
-          CG_GetTriggerCenter(LOCAL_CLIENT_0, v21, &outCenter);
-          if ( g_audioTriggerDisabled[v21] )
-          {
-            CL_AddDebugStar(&outCenter, &colorRed, 0, 1, 0);
-            v23 = &colorLtRed;
-          }
-          else
-          {
-            CL_AddDebugStar(&outCenter, &colorYellow, 0, 1, 0);
-            v23 = &colorLtCyan;
-          }
+          CL_AddDebugStar(&outCenter, &colorYellow, 0, 1, 0);
+          v13 = &colorLtCyan;
         }
-        CL_AddDebugLine(&cm.mapEnts->audioPropNodes[v22].position, &cm.mapEnts->audioPropNodes[v11].position, v23, 0, 1, 0);
       }
-      v9 = v11;
-      v11 = workSpace->cameFrom[v11];
+      CL_AddDebugLine(&cm.mapEnts->audioPropNodes[v12].position, &cm.mapEnts->audioPropNodes[i].position, v13, 0, 1, 0);
     }
-    while ( v11 != -1 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0D8h+var_78]
-      vmovaps xmm8, [rsp+0D8h+var_68]
-      vmovaps xmm7, [rsp+0D8h+var_58]
-      vmovaps xmm6, [rsp+0D8h+var_48]
-    }
+    v3 = i;
   }
 }
 
@@ -183,319 +152,225 @@ SND_DrawPropagationDebug
 */
 void SND_DrawPropagationDebug(LocalClientNum_t localClientNum)
 {
-  __int64 v6; 
-  bool v7; 
+  __int128 v1; 
+  __int128 v2; 
+  __int64 v3; 
+  bool v4; 
+  ScreenPlacement *v5; 
+  float v6; 
+  float v7; 
   __int16 NodeForPosition; 
   GfxFont *smallDevFont; 
   const char *s; 
-  const dvar_t *v20; 
+  const dvar_t *v11; 
   MapEnts *mapEnts; 
-  __int64 v22; 
-  unsigned __int16 v34; 
-  __int64 v37; 
-  char v42; 
-  const char *v56; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v59; 
-  AudioPropagationNode *v60; 
-  const dvar_t *v61; 
-  const vec4_t *v62; 
-  __int64 v65; 
-  unsigned __int16 v69; 
+  __int64 v13; 
+  AudioPropagationNode *audioPropNodes; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  AudioPropagationNode *v18; 
+  unsigned __int16 numEdges; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  const char *v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  AudioPropagationNode *v28; 
+  const dvar_t *v29; 
+  const vec4_t *v30; 
+  __int64 v31; 
+  vec3_t *origins; 
+  unsigned __int16 v33; 
+  float v34; 
+  float v35; 
+  const dvar_t *v36; 
+  float v37; 
   ClientTriggerModel *models; 
   unsigned __int16 hullCount; 
-  __int64 v86; 
-  const dvar_t *v95; 
-  float fmt; 
-  float fmta; 
-  int v107; 
-  int v108; 
+  vec4_t v40; 
+  __int64 v41; 
+  __int64 v42; 
+  ClientTriggerHull *hulls; 
+  const dvar_t *v44; 
+  __int64 p_halfSize; 
+  int v46; 
+  int i; 
   signed int firstHull; 
   vec3_t outOrigin; 
   vec3_t mins; 
   vec3_t origin; 
-  vec4_t v114; 
+  vec4_t v53; 
   vec3_t outCenter; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
+  __int128 v56; 
+  __int128 v57; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v6 = localClientNum;
+  v3 = localClientNum;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_propagation.cpp", 775, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      _RDI = &scrPlaceViewDisplay[v6];
+      v5 = &scrPlaceViewDisplay[v3];
       goto LABEL_11;
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v7 )
+      v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v4 )
       __debugbreak();
   }
-  _RDI = &scrPlaceFull;
+  v5 = &scrPlaceFull;
 LABEL_11:
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+30h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm1, cs:__real@3f000000
-    vaddss  xmm7, xmm2, dword ptr [rdi+28h]
-    vmovss  xmm6, dword ptr [rdi+2Ch]
-  }
-  SND_GetListenerOrigin((const LocalClientNum_t)v6, &outOrigin);
+  v6 = (float)((float)(v5->virtualViewableMax.v[0] - v5->virtualViewableMin.v[0]) * 0.5) + v5->virtualViewableMin.v[0];
+  v7 = v5->virtualViewableMin.v[1];
+  SND_GetListenerOrigin((const LocalClientNum_t)v3, &outOrigin);
   NodeForPosition = SND_PropagationFindNodeForPosition(&outOrigin);
   smallDevFont = cls.smallDevFont;
   s = j_va("Current listener node: %d", (unsigned int)NodeForPosition);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f0ccccd; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm7; x
-    vmovss  dword ptr [rsp+140h+fmt], xmm3
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, s, &colorGreen, 5, smallDevFont);
-  v20 = DCONST_DVARINT_snd_debugPropagation;
+  CG_DrawDevString(v5, v6, v7, 0.55000001, 0.55000001, s, &colorGreen, 5, smallDevFont);
+  v11 = DCONST_DVARINT_snd_debugPropagation;
   if ( !DCONST_DVARINT_snd_debugPropagation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( v20->current.integer > 1 )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.integer > 1 )
   {
     mapEnts = cm.mapEnts;
-    v22 = 0i64;
-    v107 = 0;
+    v13 = 0i64;
+    v46 = 0;
     if ( cm.mapEnts->numAudioPropNodes )
     {
-      __asm
-      {
-        vmovss  xmm7, cs:__real@3d4ccccd
-        vmovaps [rsp+140h+var_58+8], xmm8
-        vmovss  xmm8, cs:__real@3ae56042
-        vmovaps [rsp+140h+var_68+8], xmm9
-        vmovss  xmm9, cs:__real@41200000
-      }
+      v57 = v1;
+      v56 = v2;
       do
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+140h+outOrigin]
-          vsubss  xmm3, xmm0, dword ptr [rax+rcx*4]
-          vmovss  xmm1, dword ptr [rsp+140h+outOrigin+4]
-          vsubss  xmm2, xmm1, dword ptr [rax+rcx*4+4]
-          vmovss  xmm0, dword ptr [rsp+140h+outOrigin+8]
-          vsubss  xmm4, xmm0, dword ptr [rax+rcx*4+8]
-        }
-        _RBX = DCONST_DVARFLT_snd_debugPropagationCullDist;
-        _R14 = (__int64)&mapEnts->audioPropNodes[v22];
-        v34 = *(_WORD *)(_R14 + 12);
-        __asm
-        {
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-        }
-        v37 = (__int64)&mapEnts->audioPropEdges[*(unsigned int *)(_R14 + 16)];
-        __asm
-        {
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm6, xmm2, xmm2
-        }
+        audioPropNodes = mapEnts->audioPropNodes;
+        v15 = outOrigin.v[1] - audioPropNodes[v13].position.v[1];
+        v16 = outOrigin.v[2] - audioPropNodes[v13].position.v[2];
+        v17 = DCONST_DVARFLT_snd_debugPropagationCullDist;
+        v18 = &audioPropNodes[v13];
+        numEdges = v18->numEdges;
+        v20 = (__int64)&mapEnts->audioPropEdges[v18->edgeStartIndex];
+        v21 = fsqrt((float)((float)(v15 * v15) + (float)((float)(outOrigin.v[0] - v18->position.v[0]) * (float)(outOrigin.v[0] - v18->position.v[0]))) + (float)(v16 * v16));
         if ( !DCONST_DVARFLT_snd_debugPropagationCullDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCullDist") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-        if ( v42 )
+        Dvar_CheckFrontendServerThread(v17);
+        if ( v21 < v17->current.value )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14]
-            vsubss  xmm3, xmm0, dword ptr [rsp+140h+outOrigin]
-            vmovss  xmm1, dword ptr [r14+4]
-            vsubss  xmm2, xmm1, dword ptr [rsp+140h+outOrigin+4]
-            vmovss  xmm0, dword ptr [r14+8]
-            vsubss  xmm4, xmm0, dword ptr [rsp+140h+outOrigin+8]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm1, xmm2, xmm2
-            vcomiss xmm1, xmm9
-          }
-          if ( v42 )
-            __asm { vmovaps xmm6, xmm7 }
-          else
-            __asm { vmulss  xmm6, xmm1, xmm8 }
-          v56 = j_va("%d", (unsigned int)v22);
-          __asm { vmovss  dword ptr [rsp+140h+fmt], xmm6 }
-          CL_AddDebugStarWithText((const vec3_t *)_R14, &colorGreen, &colorWhite, v56, fmta, 0, 1, 0);
-          v57 = 0i64;
-          v58 = v34;
-          if ( v34 )
+          v22 = fsqrt((float)((float)((float)(v18->position.v[1] - outOrigin.v[1]) * (float)(v18->position.v[1] - outOrigin.v[1])) + (float)((float)(v18->position.v[0] - outOrigin.v[0]) * (float)(v18->position.v[0] - outOrigin.v[0]))) + (float)((float)(v18->position.v[2] - outOrigin.v[2]) * (float)(v18->position.v[2] - outOrigin.v[2])));
+          v23 = v22 >= 10.0 ? v22 * 0.0017500001 : FLOAT_0_050000001;
+          v24 = j_va("%d", (unsigned int)v13);
+          CL_AddDebugStarWithText(&v18->position, &colorGreen, &colorWhite, v24, v23, 0, 1, 0);
+          v25 = 0i64;
+          v26 = numEdges;
+          if ( numEdges )
           {
             do
             {
-              v59 = *(__int16 *)(v37 + 4 * v57 + 2);
-              v60 = &cm.mapEnts->audioPropNodes[*(__int16 *)(v37 + 4 * v57)];
-              if ( (_DWORD)v59 == -1 || g_audioTriggerDisabled[v59] )
+              v27 = *(__int16 *)(v20 + 4 * v25 + 2);
+              v28 = &cm.mapEnts->audioPropNodes[*(__int16 *)(v20 + 4 * v25)];
+              if ( (_DWORD)v27 == -1 || g_audioTriggerDisabled[v27] )
               {
-                v61 = DCONST_DVARBOOL_snd_debugPropagationCull;
+                v29 = DCONST_DVARBOOL_snd_debugPropagationCull;
                 if ( !DCONST_DVARBOOL_snd_debugPropagationCull && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCull") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v61);
-                v62 = &colorWhite;
+                Dvar_CheckFrontendServerThread(v29);
+                v30 = &colorWhite;
               }
               else
               {
-                v61 = DCONST_DVARBOOL_snd_debugPropagationCull;
+                v29 = DCONST_DVARBOOL_snd_debugPropagationCull;
                 if ( !DCONST_DVARBOOL_snd_debugPropagationCull && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCull") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v61);
-                v62 = &colorLtCyan;
+                Dvar_CheckFrontendServerThread(v29);
+                v30 = &colorLtCyan;
               }
-              CL_AddDebugLine((const vec3_t *)_R14, &v60->position, v62, v61->current.color[0], 1, 0);
-              ++v57;
+              CL_AddDebugLine(&v18->position, &v28->position, v30, v29->current.color[0], 1, 0);
+              ++v25;
             }
-            while ( v57 < v58 );
-            LODWORD(v22) = v107;
+            while ( v25 < v26 );
+            LODWORD(v13) = v46;
           }
         }
         mapEnts = cm.mapEnts;
-        v22 = (unsigned int)(v22 + 1);
-        v107 = v22;
+        v13 = (unsigned int)(v13 + 1);
+        v46 = v13;
       }
-      while ( (unsigned int)v22 < cm.mapEnts->numAudioPropNodes );
-      LODWORD(v6) = localClientNum;
-      __asm
-      {
-        vmovaps xmm9, [rsp+140h+var_68+8]
-        vmovaps xmm8, [rsp+140h+var_58+8]
-      }
+      while ( (unsigned int)v13 < cm.mapEnts->numAudioPropNodes );
+      LODWORD(v3) = localClientNum;
     }
-    v65 = 0i64;
-    v108 = 0;
-    if ( mapEnts->clientTrigger.trigger.count )
+    v31 = 0i64;
+    for ( i = 0; (unsigned int)v31 < mapEnts->clientTrigger.trigger.count; i = v31 )
     {
-      __asm { vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000 }
-      do
+      origins = mapEnts->clientTrigger.origins;
+      v33 = mapEnts->clientTrigger.triggerType[v31];
+      if ( (v33 & 0x180) != 0 )
       {
-        _R14 = 3 * v65;
-        _R12 = mapEnts->clientTrigger.origins;
-        v69 = mapEnts->clientTrigger.triggerType[v65];
-        if ( (v69 & 0x180) != 0 )
+        v34 = outOrigin.v[1] - origins[v31].v[1];
+        v35 = outOrigin.v[2] - origins[v31].v[2];
+        v36 = DCONST_DVARFLT_snd_debugPropagationCullDist;
+        v37 = fsqrt((float)((float)(v34 * v34) + (float)((float)(outOrigin.v[0] - origins[v31].v[0]) * (float)(outOrigin.v[0] - origins[v31].v[0]))) + (float)(v35 * v35));
+        if ( !DCONST_DVARFLT_snd_debugPropagationCullDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCullDist") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v36);
+        if ( v37 < v36->current.value )
         {
-          __asm
+          models = cm.mapEnts->clientTrigger.trigger.models;
+          hullCount = models[v31].hullCount;
+          firstHull = models[v31].firstHull;
+          if ( (v33 & 0x100) != 0 )
           {
-            vmovss  xmm0, dword ptr [rsp+140h+outOrigin]
-            vsubss  xmm3, xmm0, dword ptr [r12+r14*4]
-            vmovss  xmm1, dword ptr [rsp+140h+outOrigin+4]
-            vsubss  xmm2, xmm1, dword ptr [r12+r14*4+4]
-            vmovss  xmm0, dword ptr [rsp+140h+outOrigin+8]
-            vsubss  xmm4, xmm0, dword ptr [r12+r14*4+8]
+            v40 = colorRedHeat;
           }
-          _RDI = DCONST_DVARFLT_snd_debugPropagationCullDist;
-          __asm
+          else if ( g_audioTriggerDisabled[v31] )
           {
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm7, xmm2, xmm2
+            v40 = colorPurple;
           }
-          if ( !DCONST_DVARFLT_snd_debugPropagationCullDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCullDist") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm { vcomiss xmm7, dword ptr [rdi+28h] }
-          if ( v42 )
+          else
           {
-            models = cm.mapEnts->clientTrigger.trigger.models;
-            hullCount = models[v65].hullCount;
-            firstHull = models[v65].firstHull;
-            if ( (v69 & 0x100) != 0 )
-            {
-              __asm { vmovups xmm0, xmmword ptr cs:?colorRedHeat@@3Tvec4_t@@B; vec4_t const colorRedHeat }
-            }
-            else if ( g_audioTriggerDisabled[v65] )
-            {
-              __asm { vmovups xmm0, xmmword ptr cs:?colorPurple@@3Tvec4_t@@B; vec4_t const colorPurple }
-            }
-            else
-            {
-              __asm { vmovups xmm0, xmmword ptr cs:?colorLtCyan@@3Tvec4_t@@B; vec4_t const colorLtCyan }
-            }
-            __asm { vmovups xmmword ptr [rbp+40h+var_B0], xmm0 }
-            CG_GetTriggerCenter((LocalClientNum_t)v6, v65, &outCenter);
-            v86 = hullCount;
-            if ( hullCount )
-            {
-              _RDI = firstHull;
-              do
-              {
-                __asm { vmovss  xmm0, dword ptr [r12+r14*4] }
-                _RBX = cm.mapEnts->clientTrigger.trigger.hulls;
-                __asm
-                {
-                  vaddss  xmm1, xmm0, dword ptr [rdi+rbx]
-                  vmovss  dword ptr [rbp+40h+origin], xmm1
-                  vmovss  xmm2, dword ptr [rdi+rbx+4]
-                  vaddss  xmm0, xmm2, dword ptr [r12+r14*4+4]
-                  vmovss  dword ptr [rbp+40h+origin+4], xmm0
-                  vmovss  xmm1, dword ptr [rdi+rbx+8]
-                  vaddss  xmm2, xmm1, dword ptr [r12+r14*4+8]
-                  vmovss  dword ptr [rbp+40h+origin+8], xmm2
-                }
-                AxisClear(&axis);
-                v95 = DCONST_DVARBOOL_snd_debugPropagationCull;
-                _RBX = &_RBX[_RDI].triggerSpaceBounds.halfSize;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx]
-                  vxorps  xmm1, xmm0, xmm6
-                  vmovss  dword ptr [rsp+140h+mins], xmm1
-                  vmovss  xmm2, dword ptr [rbx+4]
-                  vxorps  xmm0, xmm2, xmm6
-                  vmovss  dword ptr [rsp+140h+mins+4], xmm0
-                  vmovss  xmm1, dword ptr [rbx+8]
-                  vxorps  xmm2, xmm1, xmm6
-                  vmovss  dword ptr [rsp+140h+mins+8], xmm2
-                }
-                if ( !DCONST_DVARBOOL_snd_debugPropagationCull && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCull") )
-                  __debugbreak();
-                Dvar_CheckFrontendServerThread(v95);
-                CL_AddDebugBox(&axis, &origin, &mins, _RBX, &v114, v95->current.color[0], 1, 0);
-                ++_RDI;
-                --v86;
-              }
-              while ( v86 );
-              LODWORD(v65) = v108;
-            }
-            CL_AddDebugStar(&outCenter, &v114, 0, 1, 0);
+            v40 = colorLtCyan;
           }
-          mapEnts = cm.mapEnts;
+          v53 = v40;
+          CG_GetTriggerCenter((LocalClientNum_t)v3, v31, &outCenter);
+          v41 = hullCount;
+          if ( hullCount )
+          {
+            v42 = firstHull;
+            do
+            {
+              hulls = cm.mapEnts->clientTrigger.trigger.hulls;
+              origin.v[0] = origins[v31].v[0] + hulls[v42].triggerSpaceBounds.midPoint.v[0];
+              origin.v[1] = hulls[v42].triggerSpaceBounds.midPoint.v[1] + origins[v31].v[1];
+              origin.v[2] = hulls[v42].triggerSpaceBounds.midPoint.v[2] + origins[v31].v[2];
+              AxisClear(&axis);
+              v44 = DCONST_DVARBOOL_snd_debugPropagationCull;
+              p_halfSize = (__int64)&hulls[v42].triggerSpaceBounds.halfSize;
+              LODWORD(mins.v[0]) = *(_DWORD *)p_halfSize ^ _xmm;
+              LODWORD(mins.v[1]) = *(_DWORD *)(p_halfSize + 4) ^ _xmm;
+              LODWORD(mins.v[2]) = *(_DWORD *)(p_halfSize + 8) ^ _xmm;
+              if ( !DCONST_DVARBOOL_snd_debugPropagationCull && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagationCull") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v44);
+              CL_AddDebugBox(&axis, &origin, &mins, (const vec3_t *)p_halfSize, &v53, v44->current.color[0], 1, 0);
+              ++v42;
+              --v41;
+            }
+            while ( v41 );
+            LODWORD(v31) = i;
+          }
+          CL_AddDebugStar(&outCenter, &v53, 0, 1, 0);
         }
-        LODWORD(v6) = localClientNum;
-        v65 = (unsigned int)(v65 + 1);
-        v108 = v65;
+        mapEnts = cm.mapEnts;
       }
-      while ( (unsigned int)v65 < mapEnts->clientTrigger.trigger.count );
+      LODWORD(v3) = localClientNum;
+      v31 = (unsigned int)(v31 + 1);
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+140h+var_38+8]
-    vmovaps xmm7, [rsp+140h+var_48+8]
   }
 }
 
@@ -507,198 +382,181 @@ SND_PropagationFindEdges
 void SND_PropagationFindEdges(Physics_WorldId worldId, unsigned int startNodeIndex, AudioPropagationEdge *edgeArray, AudioPropagationNode *audioPropNodes, const unsigned int numAudioPropNodes)
 {
   signed __int64 v5; 
-  void *v8; 
-  unsigned int v9; 
-  Physics_WorldId v10; 
+  void *v6; 
+  unsigned int v7; 
+  Physics_WorldId v8; 
   scr_string_t String; 
-  scr_string_t v12; 
-  unsigned int v13; 
-  int v14; 
-  __int64 v15; 
-  __int64 v16; 
-  int v17; 
-  int *v18; 
+  scr_string_t v10; 
+  unsigned int v11; 
+  int v12; 
+  __int64 v13; 
+  __int64 v14; 
+  int v15; 
+  int *v16; 
   HavokPhysics_CollisionQueryResult *AnyResult; 
-  AudioPropagationNode *v21; 
+  AudioPropagationNode *v18; 
+  AudioPropagationNode *v19; 
+  __int64 v20; 
+  int v21; 
   AudioPropagationNode *v22; 
-  __int64 v23; 
-  int v24; 
+  float v23; 
+  float v24; 
   int numEdges; 
-  __int64 v39; 
-  AudioPropagationEdge *v40; 
-  int v41; 
-  __int64 v42; 
-  AudioPropagationEdge *v43; 
-  hkMemoryAllocator *v44; 
-  hkMemoryAllocator *v45; 
+  __int64 v26; 
+  AudioPropagationEdge *v27; 
+  int v28; 
+  __int64 v29; 
+  AudioPropagationEdge *v30; 
+  hkMemoryAllocator *v31; 
+  hkMemoryAllocator *v32; 
   __int64 parent; 
   __int64 siblings; 
   int inoutNumIgnoreEntities; 
   Physics_WorldId worldIda; 
-  AudioPropagationNode *v52; 
-  AudioPropagationEdge *v53; 
-  HavokPhysics_CollisionQueryResult *v54; 
+  AudioPropagationNode *v38; 
+  AudioPropagationEdge *v39; 
+  HavokPhysics_CollisionQueryResult *v40; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v56; 
-  __int64 v57; 
+  HavokPhysics_IgnoreBodies v42; 
+  __int64 v43; 
   vec3_t outIntersectPos; 
   int inoutIgnoreEntities[2048]; 
 
-  v8 = alloca(v5);
-  v57 = -2i64;
-  __asm { vmovaps [rsp+2150h+var_50], xmm6 }
-  v52 = audioPropNodes;
-  v53 = edgeArray;
-  v9 = startNodeIndex;
-  v10 = worldId;
+  v6 = alloca(v5);
+  v43 = -2i64;
+  v38 = audioPropNodes;
+  v39 = edgeArray;
+  v7 = startNodeIndex;
+  v8 = worldId;
   worldIda = worldId;
   memset_0(inoutIgnoreEntities, 0, sizeof(inoutIgnoreEntities));
   inoutNumIgnoreEntities = 1;
   SND_PropagationIgnoreDynamicDoors(inoutIgnoreEntities, &inoutNumIgnoreEntities);
   String = SL_FindString("bake_shadow_brush");
-  v12 = SL_FindString("bake_shadow_single_brush");
-  v13 = 0;
-  v14 = inoutNumIgnoreEntities;
+  v10 = SL_FindString("bake_shadow_single_brush");
+  v11 = 0;
+  v12 = inoutNumIgnoreEntities;
   if ( level.num_entities > 0 )
   {
-    v15 = 0i64;
-    v16 = 0i64;
+    v13 = 0i64;
+    v14 = 0i64;
     do
     {
-      if ( v13 >= 0x800 )
+      if ( v11 >= 0x800 )
       {
         LODWORD(siblings) = 2048;
-        LODWORD(parent) = v13;
+        LODWORD(parent) = v11;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", parent, siblings) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v16].r.isInUse != g_entityIsInUse[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v14].r.isInUse != g_entityIsInUse[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v15] )
+      if ( g_entityIsInUse[v13] )
       {
-        if ( v13 >= 0x800 )
+        if ( v11 >= 0x800 )
         {
           LODWORD(siblings) = 2048;
-          LODWORD(parent) = v13;
+          LODWORD(parent) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", parent, siblings) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        if ( String && g_entities[v16].targetname == String || v12 && g_entities[v16].targetname == v12 )
-          inoutIgnoreEntities[v14++] = v13;
+        if ( String && g_entities[v14].targetname == String || v10 && g_entities[v14].targetname == v10 )
+          inoutIgnoreEntities[v12++] = v11;
       }
+      ++v11;
       ++v13;
-      ++v15;
-      ++v16;
+      ++v14;
     }
-    while ( (int)v13 < level.num_entities );
-    v9 = startNodeIndex;
-    v10 = worldIda;
+    while ( (int)v11 < level.num_entities );
+    v7 = startNodeIndex;
+    v8 = worldIda;
   }
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v56, v14, 0);
-  v17 = 0;
-  if ( v14 > 0 )
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v42, v12, 0);
+  v15 = 0;
+  if ( v12 > 0 )
   {
-    v18 = inoutIgnoreEntities;
+    v16 = inoutIgnoreEntities;
     do
-      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v56, v17++, *v18++, 1, 1, 0, 1, 1);
-    while ( v17 < v14 );
+      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v42, v15++, *v16++, 1, 1, 0, 1, 1);
+    while ( v15 < v12 );
   }
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+2050h+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = 2097153;
-  extendedData.ignoreBodies = &v56;
-  AnyResult = PhysicsQuery_GetAnyResult(v10);
-  v54 = AnyResult;
+  extendedData.ignoreBodies = &v42;
+  AnyResult = PhysicsQuery_GetAnyResult(v8);
+  v40 = AnyResult;
   if ( !AnyResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_propagation.cpp", 242, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  v21 = v52;
-  v22 = &v52[v9];
-  v23 = 0i64;
+  v18 = v38;
+  v19 = &v38[v7];
+  v20 = 0i64;
   if ( numAudioPropNodes )
   {
-    v24 = 0;
-    __asm { vmovss  xmm6, cs:__real@4a742400 }
+    v21 = 0;
     do
     {
-      if ( (_DWORD)v23 != v9 )
+      if ( (_DWORD)v20 != v7 )
       {
-        _RDI = &v21[v23];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vsubss  xmm3, xmm0, dword ptr [r14]
-          vmovss  xmm1, dword ptr [rdi+4]
-          vsubss  xmm2, xmm1, dword ptr [r14+4]
-          vmovss  xmm0, dword ptr [rdi+8]
-          vsubss  xmm4, xmm0, dword ptr [r14+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( (unsigned int)v23 <= v9 )
+        v22 = &v18[v20];
+        v23 = v22->position.v[1] - v19->position.v[1];
+        v24 = v22->position.v[2] - v19->position.v[2];
+        if ( (float)((float)((float)(v23 * v23) + (float)((float)(v22->position.v[0] - v19->position.v[0]) * (float)(v22->position.v[0] - v19->position.v[0]))) + (float)(v24 * v24)) <= 4000000.0 )
         {
           HavokPhysics_CollisionQueryResult::Reset(AnyResult, 1);
-          Physics_Raycast(worldIda, &v22->position, &_RDI->position, &extendedData, AnyResult);
-          if ( !HavokPhysics_CollisionQueryResult::HasHit(AnyResult) && !CG_DoesLineSegmentIntersectTrigger(LOCAL_CLIENT_0, CLIENT_TRIGGER_AUDIO_PROP_OCCLUDER, &v22->position, &_RDI->position, (unsigned int *)&inoutNumIgnoreEntities, &outIntersectPos) )
+          Physics_Raycast(worldIda, &v19->position, &v22->position, &extendedData, AnyResult);
+          if ( !HavokPhysics_CollisionQueryResult::HasHit(AnyResult) && !CG_DoesLineSegmentIntersectTrigger(LOCAL_CLIENT_0, CLIENT_TRIGGER_AUDIO_PROP_OCCLUDER, &v19->position, &v22->position, (unsigned int *)&inoutNumIgnoreEntities, &outIntersectPos) )
           {
-            numEdges = v22->numEdges;
-            v22->numEdges = numEdges + 1;
-            v39 = (int)(numEdges + numAudioPropNodes * startNodeIndex);
-            if ( ((unsigned int)v23 > 0x7FFFFFFF || (unsigned int)(v23 + 0x8000) > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)v23, "unsigned", (unsigned int)v23) )
+            numEdges = v19->numEdges;
+            v19->numEdges = numEdges + 1;
+            v26 = (int)(numEdges + numAudioPropNodes * startNodeIndex);
+            if ( ((unsigned int)v20 > 0x7FFFFFFF || (unsigned int)(v20 + 0x8000) > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)v20, "unsigned", (unsigned int)v20) )
               __debugbreak();
-            v40 = v53;
-            v53[v39].neighbor = v23;
-            v40[v39].portalIndex = -1;
-            if ( CG_DoesLineSegmentIntersectTrigger(LOCAL_CLIENT_0, CLIENT_TRIGGER_AUDIO_PROP_PORTAL, &v22->position, &_RDI->position, (unsigned int *)&inoutNumIgnoreEntities, &outIntersectPos) )
-              v40[v39].portalIndex = truncate_cast<short,unsigned int>(inoutNumIgnoreEntities);
-            v41 = _RDI->numEdges;
-            _RDI->numEdges = v41 + 1;
-            v42 = v24 + v41;
-            v9 = startNodeIndex;
+            v27 = v39;
+            v39[v26].neighbor = v20;
+            v27[v26].portalIndex = -1;
+            if ( CG_DoesLineSegmentIntersectTrigger(LOCAL_CLIENT_0, CLIENT_TRIGGER_AUDIO_PROP_PORTAL, &v19->position, &v22->position, (unsigned int *)&inoutNumIgnoreEntities, &outIntersectPos) )
+              v27[v26].portalIndex = truncate_cast<short,unsigned int>(inoutNumIgnoreEntities);
+            v28 = v22->numEdges;
+            v22->numEdges = v28 + 1;
+            v29 = v21 + v28;
+            v7 = startNodeIndex;
             if ( (startNodeIndex > 0x7FFFFFFF || startNodeIndex + 0x8000 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)startNodeIndex, "unsigned", startNodeIndex) )
               __debugbreak();
-            v43 = v53;
-            v53[v42].neighbor = startNodeIndex;
-            v43[v42].portalIndex = v43[v39].portalIndex;
-            AnyResult = v54;
-            v21 = v52;
+            v30 = v39;
+            v39[v29].neighbor = startNodeIndex;
+            v30[v29].portalIndex = v30[v26].portalIndex;
+            AnyResult = v40;
+            v18 = v38;
             goto LABEL_51;
           }
-          v21 = v52;
+          v18 = v38;
         }
-        v9 = startNodeIndex;
+        v7 = startNodeIndex;
       }
 LABEL_51:
-      v23 = (unsigned int)(v23 + 1);
-      v24 += numAudioPropNodes;
+      v20 = (unsigned int)(v20 + 1);
+      v21 += numAudioPropNodes;
     }
-    while ( (unsigned int)v23 < numAudioPropNodes );
+    while ( (unsigned int)v20 < numAudioPropNodes );
   }
-  v44 = hkMemHeapAllocator();
-  v56.m_ignoreBodies.m_size = 0;
-  if ( v56.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v44, v56.m_ignoreBodies.m_data, 4, v56.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v56.m_ignoreBodies.m_data = NULL;
-  v56.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v45 = hkMemHeapAllocator();
-  v56.m_ignoreEntities.m_size = 0;
-  if ( v56.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v45, v56.m_ignoreEntities.m_data, 8, v56.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  __asm { vmovaps xmm6, [rsp+2150h+var_50] }
+  v31 = hkMemHeapAllocator();
+  v42.m_ignoreBodies.m_size = 0;
+  if ( v42.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v31, v42.m_ignoreBodies.m_data, 4, v42.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v42.m_ignoreBodies.m_data = NULL;
+  v42.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v32 = hkMemHeapAllocator();
+  v42.m_ignoreEntities.m_size = 0;
+  if ( v42.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v32, v42.m_ignoreEntities.m_data, 8, v42.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -709,65 +567,50 @@ SND_PropagationFindNodeForPosition
 __int64 SND_PropagationFindNodeForPosition(const vec3_t *position)
 {
   MapEnts *mapEnts; 
-  unsigned __int16 v5; 
-  __int16 v6; 
+  unsigned __int16 v4; 
+  __int16 v5; 
   unsigned int numAudioPropNodes; 
-  unsigned __int16 v8; 
+  unsigned __int16 v7; 
+  float v8; 
+  __int64 v9; 
   __int64 v10; 
-  bool v11; 
-  __int64 result; 
+  AudioPropagationNode *audioPropNodes; 
+  float v12; 
+  __int128 v13; 
+  float v14; 
 
   mapEnts = cm.mapEnts;
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovss  xmm6, cs:__real@7f800000
-    vmovaps [rsp+98h+var_48], xmm7
-  }
-  v5 = -1;
-  v6 = 0;
+  *(float *)&_XMM6 = FLOAT__Inf;
+  v4 = -1;
+  v5 = 0;
   while ( 1 )
   {
     numAudioPropNodes = mapEnts->numAudioPropNodes;
-    v8 = v6;
-    __asm { vmovaps xmm7, xmm6 }
+    v7 = v5;
+    v8 = *(float *)&_XMM6;
     if ( numAudioPropNodes > 0x7FFFFFFF || numAudioPropNodes + 0x8000 > 0xFFFF )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)numAudioPropNodes, "unsigned", numAudioPropNodes) )
         __debugbreak();
       mapEnts = cm.mapEnts;
     }
-    if ( v6 >= (__int16)numAudioPropNodes )
+    if ( v5 >= (__int16)numAudioPropNodes )
       break;
-    v10 = v6;
-    v11 = (unsigned __int16)v6 < (unsigned __int16)numAudioPropNodes || v6 == -1;
-    ++v6;
-    _RCX = 5 * v10;
-    _RAX = mapEnts->audioPropNodes;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+rcx*4]
-      vsubss  xmm3, xmm0, dword ptr [r14]
-      vmovss  xmm1, dword ptr [rax+rcx*4+4]
-      vmovss  xmm0, dword ptr [rax+rcx*4+8]
-      vsubss  xmm2, xmm1, dword ptr [r14+4]
-      vsubss  xmm4, xmm0, dword ptr [r14+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm5, xmm3, xmm0
-      vcomiss xmm7, xmm5
-      vminss  xmm6, xmm5, xmm6
-    }
-    if ( v11 )
-      v8 = v5;
-    v5 = v8;
+    v9 = v5++;
+    v10 = v9;
+    audioPropNodes = mapEnts->audioPropNodes;
+    v12 = audioPropNodes[v10].position.v[0] - position->v[0];
+    v13 = LODWORD(audioPropNodes[v10].position.v[1]);
+    *(float *)&v13 = audioPropNodes[v10].position.v[1] - position->v[1];
+    v14 = audioPropNodes[v10].position.v[2] - position->v[2];
+    *(float *)&v13 = (float)((float)(*(float *)&v13 * *(float *)&v13) + (float)(v12 * v12)) + (float)(v14 * v14);
+    _XMM5 = v13;
+    __asm { vminss  xmm6, xmm5, xmm6 }
+    if ( v8 <= *(float *)&v13 )
+      v7 = v4;
+    v4 = v7;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  result = v5;
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
-  return result;
+  return v4;
 }
 
 /*
@@ -777,44 +620,64 @@ SND_PropagationFindPortalLocation
 */
 bool SND_PropagationFindPortalLocation(__int16 reverbTrigger, const __int16 listener, const vec3_t *listenerPos, __int16 emitter, vec3_t *outPortalLocation)
 {
-  vec3_t *v8; 
+  vec3_t *v5; 
+  const vec3_t *v6; 
+  __int16 v7; 
   __int16 v10; 
-  __int16 v13; 
   __int64 numAudioPropNodes; 
   float *fScore; 
   __int16 *cameFromPortal; 
+  unsigned int v14; 
+  int v15; 
+  __int64 v16; 
   unsigned int v17; 
-  int v18; 
-  __int64 v19; 
-  unsigned int v20; 
   unsigned int numValues; 
   MapEnts *mapEnts; 
-  __int16 v24; 
-  unsigned __int16 v25; 
-  bool v27; 
+  __int16 v20; 
+  unsigned __int16 v21; 
+  __int64 v23; 
+  bool v25; 
+  int v26; 
+  int v27; 
+  __int64 v28; 
+  unsigned int v29; 
   int v30; 
-  int v31; 
-  __int64 v32; 
-  unsigned int v33; 
-  int v34; 
   AudioPropagationNode *audioPropNodes; 
-  __int64 v36; 
+  __int64 v32; 
   __int64 numEdges; 
-  __int64 v38; 
-  int v40; 
-  __int64 v41; 
-  unsigned int v42; 
-  MapEnts *v57; 
-  const dvar_t *v70; 
-  bool result; 
-  const dvar_t *v72; 
+  __int64 v34; 
+  __int64 v35; 
+  int v36; 
+  __int64 v37; 
+  unsigned int v38; 
+  AudioPropagationNode *v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  MapEnts *v50; 
+  float v51; 
+  AudioPropagationNode *v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  const dvar_t *v57; 
+  const dvar_t *v59; 
+  __int64 v62; 
   SndPropagationPathWorkspace workSpace; 
 
-  v8 = outPortalLocation;
-  _R14 = listenerPos;
-  v10 = listener;
+  v5 = outPortalLocation;
+  v6 = listenerPos;
+  v7 = listener;
   memset_0(&workSpace.openSet, 0, 0x408ui64);
-  v13 = -1;
+  v10 = -1;
   numAudioPropNodes = cm.mapEnts->numAudioPropNodes;
   if ( (_DWORD)numAudioPropNodes )
   {
@@ -832,214 +695,187 @@ bool SND_PropagationFindPortalLocation(__int16 reverbTrigger, const __int16 list
     while ( numAudioPropNodes );
   }
   workSpace.reverbTrigger = reverbTrigger;
-  v17 = 0;
+  v14 = 0;
+  v62 = emitter;
   workSpace.gScore[emitter] = 0.0;
   workSpace.fScore[emitter] = 1.0;
-  v18 = 1 << (emitter & 0x1F);
+  v15 = 1 << (emitter & 0x1F);
   workSpace.openList[workSpace.openSet.numValues] = emitter;
-  v19 = (__int64)emitter >> 5;
-  v20 = workSpace.openSet.array[v19];
-  if ( (v18 & v20) != 0 )
+  v16 = (__int64)emitter >> 5;
+  v17 = workSpace.openSet.array[v16];
+  if ( (v15 & v17) != 0 )
   {
     numValues = workSpace.openSet.numValues;
   }
   else
   {
-    workSpace.openSet.array[v19] = v20 | v18;
+    workSpace.openSet.array[v16] = v17 | v15;
     numValues = ++workSpace.openSet.numValues;
-  }
-  __asm
-  {
-    vmovaps [rsp+0E4F0h+var_40], xmm6
-    vmovaps [rsp+0E4F0h+var_50], xmm7
-    vmovaps [rsp+0E4F0h+var_60], xmm8
   }
   if ( numValues )
   {
-    __asm { vmovss  xmm8, cs:__real@7f800000 }
     mapEnts = cm.mapEnts;
     while ( 1 )
     {
-      v24 = -1;
-      v25 = 0;
-      __asm { vmovaps xmm1, xmm8 }
-      v27 = numValues == 0;
+      v20 = -1;
+      v21 = 0;
+      *(float *)&_XMM1 = FLOAT__Inf;
       do
       {
-        _RCX = workSpace.openList[v25];
-        __asm
-        {
-          vmovss  xmm0, [rbp+rcx*4+0E3F0h+workSpace.fScore]
-          vcomiss xmm1, xmm0
-          vminss  xmm1, xmm0, xmm1
-        }
-        if ( v27 )
-          LOWORD(_RCX) = v24;
-        ++v25;
-        v24 = _RCX;
-        v27 = v25 <= numValues;
+        v23 = workSpace.openList[v21];
+        _XMM0 = LODWORD(workSpace.fScore[v23]);
+        v25 = *(float *)&_XMM1 <= *(float *)&_XMM0;
+        __asm { vminss  xmm1, xmm0, xmm1 }
+        if ( v25 )
+          LOWORD(v23) = v20;
+        ++v21;
+        v20 = v23;
       }
-      while ( v25 < numValues );
-      if ( (_WORD)_RCX == v10 )
+      while ( v21 < numValues );
+      if ( (_WORD)v23 == v7 )
         break;
-      v30 = 0;
-      while ( workSpace.openList[v30] != (_WORD)_RCX )
+      v26 = 0;
+      while ( workSpace.openList[v26] != (_WORD)v23 )
       {
-        if ( ++v30 >= numValues )
+        if ( ++v26 >= numValues )
           goto LABEL_19;
       }
-      workSpace.openList[v30] = workSpace.openList[numValues - 1];
+      workSpace.openList[v26] = workSpace.openList[numValues - 1];
       numValues = workSpace.openSet.numValues;
 LABEL_19:
-      v31 = 1 << (_RCX & 0x1F);
-      v32 = (__int64)(__int16)_RCX >> 5;
-      v33 = workSpace.openSet.array[v32];
-      if ( (v31 & v33) != 0 )
+      v27 = 1 << (v23 & 0x1F);
+      v28 = (__int64)(__int16)v23 >> 5;
+      v29 = workSpace.openSet.array[v28];
+      if ( (v27 & v29) != 0 )
       {
-        workSpace.openSet.array[v32] = v33 & ~v31;
+        workSpace.openSet.array[v28] = v29 & ~v27;
         numValues = --workSpace.openSet.numValues;
       }
-      v34 = *(_DWORD *)&workSpace.openList[2 * v32 - 256];
-      if ( (v31 & v34) == 0 )
+      v30 = *(_DWORD *)&workSpace.openList[2 * v28 - 256];
+      if ( (v27 & v30) == 0 )
       {
-        *(_DWORD *)&workSpace.openList[2 * v32 - 256] = v34 | v31;
+        *(_DWORD *)&workSpace.openList[2 * v28 - 256] = v30 | v27;
         ++workSpace.closedSet.numValues;
         numValues = workSpace.openSet.numValues;
       }
       audioPropNodes = mapEnts->audioPropNodes;
-      v36 = 0i64;
-      numEdges = audioPropNodes[v24].numEdges;
-      v38 = (__int64)&mapEnts->audioPropEdges[audioPropNodes[v24].edgeStartIndex];
-      if ( audioPropNodes[v24].numEdges )
+      v32 = 0i64;
+      numEdges = audioPropNodes[v20].numEdges;
+      v34 = (__int64)&mapEnts->audioPropEdges[audioPropNodes[v20].edgeStartIndex];
+      if ( audioPropNodes[v20].numEdges )
       {
         do
         {
-          _R11 = *(__int16 *)(v38 + 4 * v36);
-          v40 = 1 << (*(_WORD *)(v38 + 4 * v36) & 0x1F);
-          v41 = _R11 >> 5;
-          if ( (v40 & *(_DWORD *)&workSpace.openList[2 * (_R11 >> 5) - 256]) == 0 )
+          v35 = *(__int16 *)(v34 + 4 * v32);
+          v36 = 1 << (*(_WORD *)(v34 + 4 * v32) & 0x1F);
+          v37 = v35 >> 5;
+          if ( (v36 & *(_DWORD *)&workSpace.openList[2 * (v35 >> 5) - 256]) == 0 )
           {
-            workSpace.openList[numValues] = *(_WORD *)(v38 + 4 * v36);
-            v42 = workSpace.openSet.array[v41];
-            if ( (v40 & v42) != 0 )
+            workSpace.openList[numValues] = *(_WORD *)(v34 + 4 * v32);
+            v38 = workSpace.openSet.array[v37];
+            if ( (v36 & v38) != 0 )
             {
               numValues = workSpace.openSet.numValues;
             }
             else
             {
-              workSpace.openSet.array[v41] = v42 | v40;
+              workSpace.openSet.array[v37] = v38 | v36;
               numValues = ++workSpace.openSet.numValues;
             }
             mapEnts = cm.mapEnts;
-            _RAX = 5 * _R11;
-            _RCX = cm.mapEnts->audioPropNodes;
-            __asm
+            v39 = cm.mapEnts->audioPropNodes;
+            v40 = v39[v35].position.v[1];
+            v41 = v40 - v39[v20].position.v[1];
+            v42 = v39[v35].position.v[0];
+            v43 = v42 - v39[v20].position.v[0];
+            v44 = v39[v35].position.v[2];
+            v45 = v44 - v39[v20].position.v[2];
+            v46 = (float)((float)((float)(v41 * v41) + (float)(v43 * v43)) + (float)(v45 * v45)) + workSpace.gScore[v20];
+            if ( v46 < workSpace.gScore[v35] )
             {
-              vmovss  xmm6, dword ptr [rcx+rax*4+4]
-              vsubss  xmm0, xmm6, dword ptr [rcx+rsi*4+4]
-              vmovss  xmm4, dword ptr [rcx+rax*4]
-              vsubss  xmm2, xmm4, dword ptr [rcx+rsi*4]
-              vmovss  xmm7, dword ptr [rcx+rax*4+8]
-              vsubss  xmm3, xmm7, dword ptr [rcx+rsi*4+8]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vaddss  xmm5, xmm2, [rbp+r12*4+0E3F0h+workSpace.gScore]
-              vcomiss xmm5, [rbp+r11*4+0E3F0h+workSpace.gScore]
+              workSpace.cameFromPortal[v35] = *(_WORD *)(v34 + 4 * v32 + 2);
+              v47 = v39[v62].position.v[0] - v42;
+              v48 = v39[v62].position.v[2];
+              v49 = v39[v62].position.v[1] - v40;
+              workSpace.cameFrom[v35] = v20;
+              workSpace.fScore[v35] = (float)((float)((float)(v49 * v49) + (float)(v47 * v47)) + (float)((float)(v48 - v44) * (float)(v48 - v44))) + v46;
+              workSpace.gScore[v35] = v46;
+              numValues = workSpace.openSet.numValues;
             }
           }
-          ++v36;
+          ++v32;
         }
-        while ( v36 < numEdges );
-        v17 = 0;
+        while ( v32 < numEdges );
+        v14 = 0;
       }
-      v10 = listener;
-      v13 = -1;
+      v7 = listener;
+      v10 = -1;
       if ( !numValues )
       {
-        _R14 = listenerPos;
-        v8 = outPortalLocation;
-        goto LABEL_33;
+        v6 = listenerPos;
+        v5 = outPortalLocation;
+        goto LABEL_34;
       }
     }
-    v72 = DCONST_DVARINT_snd_debugPropagation;
+    v59 = DCONST_DVARINT_snd_debugPropagation;
     if ( !DCONST_DVARINT_snd_debugPropagation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagation") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v72);
-    if ( v72->current.integer == 1 && Sys_IsMainThread() )
-      DebugPrintPath(&workSpace, v24, v10);
-    result = SND_PropagationGetPortalLocation(&workSpace, v24, listenerPos, outPortalLocation);
+    Dvar_CheckFrontendServerThread(v59);
+    if ( v59->current.integer == 1 && Sys_IsMainThread() )
+      DebugPrintPath(&workSpace, v20, v7);
+    return SND_PropagationGetPortalLocation(&workSpace, v20, listenerPos, outPortalLocation);
   }
   else
   {
-LABEL_33:
+LABEL_34:
     Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_PropagationFindClosestPortal");
-    v57 = cm.mapEnts;
-    __asm { vmovss  xmm6, cs:__real@7f7fffff }
+    v50 = cm.mapEnts;
+    v51 = FLOAT_3_4028235e38;
     if ( cm.mapEnts->numAudioPropNodes )
     {
       do
       {
-        if ( workSpace.cameFromPortal[v17] != -1 )
+        if ( workSpace.cameFromPortal[v14] != -1 )
         {
-          __asm
+          v52 = v50->audioPropNodes;
+          v53 = v6->v[0] - v52[v14].position.v[0];
+          v54 = v6->v[1] - v52[v14].position.v[1];
+          v55 = v6->v[2] - v52[v14].position.v[2];
+          v56 = (float)((float)(v54 * v54) + (float)(v53 * v53)) + (float)(v55 * v55);
+          if ( v56 < v51 )
           {
-            vmovss  xmm0, dword ptr [r14]
-            vmovss  xmm1, dword ptr [r14+4]
-            vsubss  xmm3, xmm0, dword ptr [rax+rcx*4]
-            vmovss  xmm0, dword ptr [r14+8]
-            vsubss  xmm2, xmm1, dword ptr [rax+rcx*4+4]
-            vsubss  xmm4, xmm0, dword ptr [rax+rcx*4+8]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-            vcomiss xmm5, xmm6
-          }
-          if ( workSpace.cameFromPortal[v17] != -1 )
-          {
-            __asm { vmovaps xmm6, xmm5 }
-            if ( v17 > 0x7FFFFFFF || v17 + 0x8000 > 0xFFFF )
+            v51 = v56;
+            if ( v14 > 0x7FFFFFFF || v14 + 0x8000 > 0xFFFF )
             {
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)v17, "unsigned", v17) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)v14, "unsigned", v14) )
                 __debugbreak();
-              v57 = cm.mapEnts;
+              v50 = cm.mapEnts;
             }
-            v13 = v17;
+            v10 = v14;
           }
         }
-        ++v17;
+        ++v14;
       }
-      while ( v17 < v57->numAudioPropNodes );
-      v10 = listener;
-      v8 = outPortalLocation;
+      while ( v14 < v50->numAudioPropNodes );
+      v7 = listener;
+      v5 = outPortalLocation;
     }
     Sys_ProfEndNamedEvent();
-    if ( v13 <= -1 )
+    if ( v10 <= -1 )
     {
-      result = 0;
+      return 0;
     }
     else
     {
-      v70 = DCONST_DVARINT_snd_debugPropagation;
+      v57 = DCONST_DVARINT_snd_debugPropagation;
       if ( !DCONST_DVARINT_snd_debugPropagation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_debugPropagation") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v70);
-      if ( v70->current.integer == 1 && Sys_IsMainThread() )
-        DebugPrintPath(&workSpace, v13, v10);
-      result = SND_PropagationGetPortalLocation(&workSpace, v13, _R14, v8);
+      Dvar_CheckFrontendServerThread(v57);
+      if ( v57->current.integer == 1 && Sys_IsMainThread() )
+        DebugPrintPath(&workSpace, v10, v7);
+      return SND_PropagationGetPortalLocation(&workSpace, v10, v6, v5);
     }
   }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0E4F0h+var_60]
-    vmovaps xmm7, [rsp+0E4F0h+var_50]
-    vmovaps xmm6, [rsp+0E4F0h+var_40]
-  }
-  return result;
 }
 
 /*
@@ -1047,66 +883,148 @@ LABEL_33:
 SND_PropagationGetPortalLocation
 ==============
 */
-bool SND_PropagationGetPortalLocation(const SndPropagationPathWorkspace *workSpace, __int16 pathEnd, const vec3_t *listenerPos, vec3_t *outPortalLocation)
+char SND_PropagationGetPortalLocation(const SndPropagationPathWorkspace *workSpace, __int16 pathEnd, const vec3_t *listenerPos, vec3_t *outPortalLocation)
 {
-  __int16 v9; 
-  char v11; 
-  __int64 v12; 
-  __int16 v13; 
-  bool result; 
+  __int64 v4; 
+  __int16 v6; 
+  char v8; 
+  __int16 v10; 
+  __int64 v11; 
+  __int16 v12; 
+  float v13; 
+  float v14; 
+  __int16 v15; 
+  __int64 v16; 
+  __int16 v17; 
+  __int16 reverbTrigger; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  __int128 v43; 
+  float v47; 
+  vec3_t outCenter; 
 
-  v9 = -1;
-  _RDI = outPortalLocation;
-  v11 = 0;
-  v12 = pathEnd;
+  LOWORD(v4) = pathEnd;
+  v6 = -1;
+  v8 = 0;
+  v10 = -1;
+  v11 = pathEnd;
   if ( workSpace->cameFrom[pathEnd] == -1 )
     return 0;
   do
   {
-    v13 = workSpace->cameFromPortal[v12];
-    if ( v13 != -1 )
+    v12 = workSpace->cameFromPortal[v11];
+    if ( v12 != -1 )
     {
-      if ( g_audioTriggerDisabled[v13] )
+      if ( g_audioTriggerDisabled[v12] )
         return 0;
-      if ( v9 == -1 )
+      if ( v6 == -1 )
       {
-        v9 = workSpace->cameFromPortal[v12];
-        v11 = 1;
+        v6 = workSpace->cameFromPortal[v11];
+        v10 = v4;
+        v8 = 1;
       }
     }
-    v12 = workSpace->cameFrom[v12];
+    v4 = workSpace->cameFrom[v11];
+    v11 = v4;
   }
-  while ( workSpace->cameFrom[v12] != -1 );
-  if ( !v11 || !CG_GetTriggerCenter(LOCAL_CLIENT_0, v9, _RDI) )
+  while ( workSpace->cameFrom[v4] != -1 );
+  if ( !v8 || !CG_GetTriggerCenter(LOCAL_CLIENT_0, v6, outPortalLocation) )
+    return 0;
+  v13 = outPortalLocation->v[1] - listenerPos->v[1];
+  v14 = outPortalLocation->v[2] - listenerPos->v[2];
+  if ( (float)((float)((float)(v13 * v13) + (float)((float)(outPortalLocation->v[0] - listenerPos->v[0]) * (float)(outPortalLocation->v[0] - listenerPos->v[0]))) + (float)(v14 * v14)) >= 10000.0 )
+    return 1;
+  v15 = workSpace->cameFrom[v10];
+  if ( v15 == -1 || (v16 = v15, v17 = workSpace->cameFrom[v15], v17 == -1) )
+  {
+LABEL_14:
+    reverbTrigger = workSpace->reverbTrigger;
+  }
+  else
+  {
+    while ( 1 )
+    {
+      reverbTrigger = workSpace->cameFromPortal[v16];
+      if ( reverbTrigger != -1 )
+        break;
+      v16 = v17;
+      v17 = workSpace->cameFrom[v17];
+      if ( v17 == -1 )
+        goto LABEL_14;
+    }
+  }
+  if ( !CG_GetTriggerCenter(LOCAL_CLIENT_0, reverbTrigger, &outCenter) )
+    return 1;
+  v19 = listenerPos->v[1];
+  v20 = outCenter.v[1];
+  v21 = listenerPos->v[0];
+  v22 = listenerPos->v[2];
+  v23 = outCenter.v[2];
+  if ( (float)((float)((float)((float)(outCenter.v[1] - v19) * (float)(outCenter.v[1] - v19)) + (float)((float)(outCenter.v[0] - v21) * (float)(outCenter.v[0] - v21))) + (float)((float)(outCenter.v[2] - v22) * (float)(outCenter.v[2] - v22))) < 10000.0 )
+  {
+    outPortalLocation->v[0] = outCenter.v[0];
+    outPortalLocation->v[1] = v20;
+    outPortalLocation->v[2] = v23;
+    return 1;
+  }
+  v24 = outPortalLocation->v[1];
+  v25 = outPortalLocation->v[2];
+  v26 = outCenter.v[0] - outPortalLocation->v[0];
+  v28 = LODWORD(outCenter.v[1]);
+  *(float *)&v28 = outCenter.v[1] - v24;
+  v27 = v28;
+  v29 = v25 - v22;
+  v30 = v24 - v19;
+  v32 = LODWORD(outPortalLocation->v[0]);
+  *(float *)&v32 = outPortalLocation->v[0] - v21;
+  v31 = v32;
+  v33 = v27;
+  *(float *)&v33 = fsqrt((float)((float)(*(float *)&v27 * *(float *)&v27) + (float)(v26 * v26)) + (float)((float)(outCenter.v[2] - v25) * (float)(outCenter.v[2] - v25)));
+  _XMM1 = v33;
+  __asm
+  {
+    vcmpless xmm0, xmm1, cs:__real@80000000
+    vblendvps xmm0, xmm1, xmm8, xmm0
+  }
+  v37 = (float)(1.0 / *(float *)&_XMM0) * v26;
+  v38 = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v27;
+  v39 = (float)(1.0 / *(float *)&_XMM0) * (float)(outCenter.v[2] - v25);
+  v43 = v31;
+  v40 = (float)((float)(v38 * v38) + (float)(v37 * v37)) + (float)(v39 * v39);
+  v41 = (float)((float)(*(float *)&v31 * v37) + (float)(v38 * v30)) + (float)(v39 * v29);
+  LODWORD(v27) = fsqrt((float)((float)(v41 * v41) * 4.0) - (float)((float)((float)((float)((float)((float)(*(float *)&v31 * *(float *)&v31) + (float)(v30 * v30)) + (float)(v29 * v29)) - 10000.0) * v40) * 4.0));
+  *(float *)&v43 = (float)((float)((float)(v41 * -2.0) - *(float *)&v27) * 0.5) * (float)(1.0 / v40);
+  _XMM2 = v43;
+  if ( (float)((float)((float)(*(float *)&v27 * 0.5) - v41) * (float)(1.0 / v40)) <= 0.0 && *(float *)&v43 <= 0.0 )
     return 0;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm3, xmm0, dword ptr [rbp+0]
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rbp+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm4, xmm0, dword ptr [rbp+8]
-    vmovaps [rsp+0E8h+var_28], xmm6
-    vmulss  xmm2, xmm1, xmm1
-    vmovaps [rsp+0E8h+var_38], xmm7
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm4, cs:__real@461c4000
-    vmovaps [rsp+0E8h+var_48], xmm8
-    vmovaps [rsp+0E8h+var_68], xmm10
+    vmaxss  xmm0, xmm2, xmm6
+    vminss  xmm3, xmm0, [rsp+0E8h+var_C8]
   }
-  result = 1;
-  __asm
-  {
-    vmovaps xmm8, [rsp+0E8h+var_48]
-    vmovaps xmm7, [rsp+0E8h+var_38]
-    vmovaps xmm6, [rsp+0E8h+var_28]
-    vmovaps xmm10, [rsp+0E8h+var_68]
-  }
-  return result;
+  v47 = (float)(*(float *)&_XMM3 * v38) + outPortalLocation->v[1];
+  outPortalLocation->v[0] = (float)(*(float *)&_XMM3 * v37) + outPortalLocation->v[0];
+  outPortalLocation->v[2] = (float)(*(float *)&_XMM3 * v39) + outPortalLocation->v[2];
+  outPortalLocation->v[1] = v47;
+  return 1;
 }
 
 /*
@@ -1268,66 +1186,61 @@ LABEL_45:
 SND_PropagationInit
 ==============
 */
-void SND_PropagationInit()
+void SND_PropagationInit(void)
 {
   ntl::fixed_hash_map<unsigned int,PropagationPortalToDoubleDoorData,256,389,ntl::hash<unsigned int>,ntl::equal_to<unsigned int> > *p_m_buckets; 
   ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *i; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v9; 
-  unsigned int v10; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v2; 
+  unsigned int v3; 
   const ScriptableDef *def; 
-  __int64 v38; 
-  unsigned __int64 v39; 
-  unsigned __int64 v40; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v41; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
+  XModel **models; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int64 v11; 
+  unsigned __int64 v12; 
+  unsigned __int64 v13; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v14; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *mp_next; 
-  unsigned int v43; 
-  unsigned __int64 v44; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **v45; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v46; 
-  unsigned __int64 v49; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v50; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v51; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v52; 
-  __int64 v53; 
+  unsigned int v16; 
+  unsigned __int64 v17; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **v18; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v19; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v20; 
+  unsigned __int64 v21; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v22; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v23; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v24; 
+  __int64 v25; 
   char *fmt; 
-  __int64 v62; 
+  __int64 v27; 
   unsigned int outTrigger; 
   vec3_t outOrigin; 
-  unsigned __int64 v65; 
-  _BYTE v66[12]; 
-  _QWORD v67[4]; 
-  char v68; 
+  unsigned __int64 v30; 
+  _BYTE v31[12]; 
+  _QWORD v32[3]; 
+  char v33; 
   vec3_t angles; 
   vec3_t point; 
   tmat33_t<vec3_t> axis; 
-  char v72; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v67[0] = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
+  v32[0] = -2i64;
   Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_PropagationInit");
   s_numscriptableDoors = 0;
   p_m_buckets = (ntl::fixed_hash_map<unsigned int,PropagationPortalToDoubleDoorData,256,389,ntl::hash<unsigned int>,ntl::equal_to<unsigned int> > *)&s_portalToDoubleDoorMap.m_buckets;
   do
   {
-    for ( i = *(ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)p_m_buckets->m_data.m_buffer; i != (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)p_m_buckets; s_portalToDoubleDoorMap.m_freelist.m_head.mp_next = v9 )
+    for ( i = *(ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)p_m_buckets->m_data.m_buffer; i != (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)p_m_buckets; s_portalToDoubleDoorMap.m_freelist.m_head.mp_next = v2 )
     {
       if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 72, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      v9 = i;
+      v2 = i;
       if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 93, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
       i = i->mp_next;
-      v9->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)s_portalToDoubleDoorMap.m_freelist.m_head;
+      v2->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)s_portalToDoubleDoorMap.m_freelist.m_head;
     }
     *(_QWORD *)p_m_buckets->m_data.m_buffer = p_m_buckets;
     p_m_buckets = (ntl::fixed_hash_map<unsigned int,PropagationPortalToDoubleDoorData,256,389,ntl::hash<unsigned int>,ntl::equal_to<unsigned int> > *)((char *)p_m_buckets + 8);
@@ -1337,116 +1250,84 @@ void SND_PropagationInit()
   s_nextDoorToUpdate = 0;
   if ( !CL_TransientsWorldMP_IsActive() )
   {
-    v10 = 0;
+    v3 = 0;
     ScriptableCommon_AssertCountsInitialized();
     if ( g_scriptableWorldCounts.totalInstanceCount )
     {
-      __asm { vxorps  xmm11, xmm11, xmm11 }
       while ( 1 )
       {
-        def = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v10)->def;
+        def = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v3)->def;
         if ( !def || (def->flags & 0x180000) == 0 )
-          goto LABEL_54;
-        _RBX = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v10);
-        ScriptableInstanceContextSecure::GetOrigin(_RBX, v10, &outOrigin);
+          goto LABEL_53;
+        InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v3);
+        ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v3, &outOrigin);
         if ( def->numXModels )
         {
           if ( !*def->models && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_propagation.cpp", 80, ASSERT_TYPE_ASSERT, "(def->models[0])", (const char *)&queryFormat, "def->models[0]") )
             __debugbreak();
-          _RCX = *def->models;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rcx+2Ch]
-            vshufps xmm7, xmm1, xmm1, 0AAh ; 'ª'
-            vmovups xmmword ptr [rsp+170h+var_100+8], xmm1
-            vmovss  xmm8, dword ptr [rsp+170h+var_100+0Ch]
-            vmovss  xmm9, dword ptr [rsp+170h+var_100+8]
-          }
+          models = def->models;
+          LODWORD(v7) = _mm_shuffle_ps(*(__m128 *)(*models)->bounds.midPoint.v, *(__m128 *)(*models)->bounds.midPoint.v, 170).m128_u32[0];
+          *(_OWORD *)&v32[1] = *(_OWORD *)(*models)->bounds.midPoint.v;
+          v8 = *((float *)&v32[1] + 1);
+          v9 = *(float *)&v32[1];
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm9, dword ptr [rsp+170h+outOrigin]
-            vmovss  xmm8, dword ptr [rsp+170h+outOrigin+4]
-            vmovss  xmm7, dword ptr [rsp+170h+outOrigin+8]
-          }
+          v9 = outOrigin.v[0];
+          v8 = outOrigin.v[1];
+          v7 = outOrigin.v[2];
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+18h]
-          vmovss  dword ptr [rbp+70h+angles], xmm11
-          vmovss  dword ptr [rbp+70h+angles+4], xmm0
-          vmovss  dword ptr [rbp+70h+angles+8], xmm11
-        }
+        v10 = InstanceCommonContext->anglesInitial.v[1];
+        angles.v[0] = 0.0;
+        angles.v[1] = v10;
+        angles.v[2] = 0.0;
         AnglesToAxis(&angles, &axis);
-        __asm
-        {
-          vmulss  xmm3, xmm8, dword ptr [rbp+70h+axis+0Ch]
-          vmulss  xmm2, xmm9, dword ptr [rbp+70h+axis]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm1, xmm7, dword ptr [rbp+70h+axis+18h]
-          vaddss  xmm6, xmm4, xmm1
-          vmulss  xmm3, xmm8, dword ptr [rbp+70h+axis+10h]
-          vmulss  xmm1, xmm9, dword ptr [rbp+70h+axis+4]
-          vaddss  xmm4, xmm3, xmm1
-          vmulss  xmm0, xmm7, dword ptr [rbp+70h+axis+1Ch]
-          vaddss  xmm5, xmm4, xmm0
-          vmulss  xmm3, xmm8, dword ptr [rbp+70h+axis+14h]
-          vmulss  xmm2, xmm9, dword ptr [rbp+70h+axis+8]
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm0, xmm7, dword ptr [rbp+70h+axis+20h]
-          vaddss  xmm3, xmm4, xmm0
-          vaddss  xmm2, xmm6, dword ptr [rsp+170h+outOrigin]
-          vmovss  dword ptr [rbp+70h+point], xmm2
-          vaddss  xmm0, xmm5, dword ptr [rsp+170h+outOrigin+4]
-          vmovss  dword ptr [rbp+70h+point+4], xmm0
-          vaddss  xmm1, xmm3, dword ptr [rsp+170h+outOrigin+8]
-          vmovss  dword ptr [rbp+70h+point+8], xmm1
-        }
+        point.v[0] = (float)((float)((float)(v8 * axis.m[1].v[0]) + (float)(v9 * axis.m[0].v[0])) + (float)(v7 * axis.m[2].v[0])) + outOrigin.v[0];
+        point.v[1] = (float)((float)((float)(v8 * axis.m[1].v[1]) + (float)(v9 * axis.m[0].v[1])) + (float)(v7 * axis.m[2].v[1])) + outOrigin.v[1];
+        point.v[2] = (float)((float)((float)(v8 * axis.m[1].v[2]) + (float)(v9 * axis.m[0].v[2])) + (float)(v7 * axis.m[2].v[2])) + outOrigin.v[2];
         if ( CG_FindAudioPropagationPortalAtPoint(LOCAL_CLIENT_0, &point, &outTrigger) )
           break;
-LABEL_53:
+LABEL_52:
         memset(&outOrigin, 0, sizeof(outOrigin));
-LABEL_54:
-        ++v10;
+LABEL_53:
+        ++v3;
         ScriptableCommon_AssertCountsInitialized();
-        if ( v10 >= g_scriptableWorldCounts.totalInstanceCount )
-          goto LABEL_83;
+        if ( v3 >= g_scriptableWorldCounts.totalInstanceCount )
+          goto LABEL_82;
       }
-      v38 = s_numscriptableDoors;
+      v11 = s_numscriptableDoors;
       if ( s_numscriptableDoors >= 0x100 )
       {
         Com_PrintError(9, "Exceeded MAX_DOOR_PROPAGATION_PORTALS (%d). Some door portals will not function!\n", 256i64);
         memset(&outOrigin, 0, sizeof(outOrigin));
-        goto LABEL_83;
+        goto LABEL_82;
       }
-      s_scriptableDoorData[s_numscriptableDoors].scriptableDoorIndex = v10;
-      v39 = outTrigger;
-      s_scriptableDoorData[v38].portalTrigger = outTrigger;
-      s_numscriptableDoors = v38 + 1;
+      s_scriptableDoorData[s_numscriptableDoors].scriptableDoorIndex = v3;
+      v12 = outTrigger;
+      s_scriptableDoorData[v11].portalTrigger = outTrigger;
+      s_numscriptableDoors = v11 + 1;
       if ( !s_portalToDoubleDoorMap.m_currentNumItems )
-        goto LABEL_34;
-      v40 = (unsigned int)v39 - 389 * ((unsigned __int64)(((v39 * (unsigned __int128)0x50F22E111C4C56DFui64) >> 64) + ((unsigned __int64)((unsigned int)v39 - ((v39 * (unsigned __int128)0x50F22E111C4C56DFui64) >> 64)) >> 1)) >> 8);
-      if ( v40 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 80, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+        goto LABEL_33;
+      v13 = (unsigned int)v12 - 389 * ((unsigned __int64)(((v12 * (unsigned __int128)0x50F22E111C4C56DFui64) >> 64) + ((unsigned __int64)((unsigned int)v12 - ((v12 * (unsigned __int128)0x50F22E111C4C56DFui64) >> 64)) >> 1)) >> 8);
+      if ( v13 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 80, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      v41 = &s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v40];
-      mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v41->m_listHead.m_sentinel.mp_next;
-      if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v41->m_listHead.m_sentinel.mp_next == v41 )
+      v14 = &s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v13];
+      mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v14->m_listHead.m_sentinel.mp_next;
+      if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v14->m_listHead.m_sentinel.mp_next == v14 )
       {
-LABEL_34:
-        v65 = v10 | 0xFFFFFFFF00000000ui64;
-        v43 = outTrigger;
-        *(_DWORD *)v66 = outTrigger;
-        *(_QWORD *)&v66[4] = v65;
-        v44 = outTrigger % 0x185ui64;
-        if ( v44 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+LABEL_33:
+        v30 = v3 | 0xFFFFFFFF00000000ui64;
+        v16 = outTrigger;
+        *(_DWORD *)v31 = outTrigger;
+        *(_QWORD *)&v31[4] = v30;
+        v17 = outTrigger % 0x185ui64;
+        if ( v17 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
-        v45 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)&s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v44];
-        v46 = *v45;
-        if ( *v45 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v45 )
+        v18 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)&s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v17];
+        v19 = *v18;
+        if ( *v18 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18 )
         {
-LABEL_43:
+LABEL_42:
           if ( !s_portalToDoubleDoorMap.m_freelist.m_head.mp_next )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
@@ -1456,39 +1337,35 @@ LABEL_43:
           }
           if ( (ntl::internal::pool_allocator_freelist<24> *)s_portalToDoubleDoorMap.m_freelist.m_head.mp_next == &s_portalToDoubleDoorMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0x100ui64) )
             __debugbreak();
-          _RCX = s_portalToDoubleDoorMap.m_freelist.m_head.mp_next;
+          v20 = s_portalToDoubleDoorMap.m_freelist.m_head.mp_next;
           s_portalToDoubleDoorMap.m_freelist.m_head.mp_next = s_portalToDoubleDoorMap.m_freelist.m_head.mp_next->mp_next;
-          _RCX->mp_next = NULL;
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsp+170h+var_110]
-            vmovsd  qword ptr [rcx+8], xmm0
-          }
-          LODWORD(_RCX[2].mp_next) = *(_DWORD *)&v66[8];
-          _RCX->mp_next = *v45;
-          *v45 = _RCX;
+          v20->mp_next = NULL;
+          v20[1].mp_next = *(ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)v31;
+          LODWORD(v20[2].mp_next) = *(_DWORD *)&v31[8];
+          v20->mp_next = *v18;
+          *v18 = v20;
           ++s_portalToDoubleDoorMap.m_currentNumItems;
-          v67[1] = _RCX;
-          v68 = 1;
+          v32[1] = v20;
+          v33 = 1;
         }
         else
         {
           while ( 1 )
           {
-            if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+            if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( LODWORD(v46[1].mp_next) == v43 )
+            if ( LODWORD(v19[1].mp_next) == v16 )
               break;
-            v46 = v46->mp_next;
-            if ( v46 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v45 )
-              goto LABEL_43;
+            v19 = v19->mp_next;
+            if ( v19 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18 )
+              goto LABEL_42;
           }
-          v67[1] = 0i64;
-          v68 = 0;
+          v32[1] = 0i64;
+          v33 = 0;
           LODWORD(fmt) = 256;
-          Com_PrintError(9, "Failed to add propagation portal mapping for scriptable door %d. %lu of %d entries used.\n", v10, s_portalToDoubleDoorMap.m_currentNumItems, fmt);
+          Com_PrintError(9, "Failed to add propagation portal mapping for scriptable door %d. %lu of %d entries used.\n", v3, s_portalToDoubleDoorMap.m_currentNumItems, fmt);
         }
-        goto LABEL_53;
+        goto LABEL_52;
       }
       while ( 1 )
       {
@@ -1497,68 +1374,58 @@ LABEL_43:
         if ( LODWORD(mp_next[1].m_listHead.m_sentinel.mp_next) == outTrigger )
           break;
         mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)mp_next->m_listHead.m_sentinel.mp_next;
-        if ( mp_next == v41 )
-          goto LABEL_34;
+        if ( mp_next == v14 )
+          goto LABEL_33;
       }
-      v49 = outTrigger % 0x185ui64;
-      if ( v49 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+      v21 = outTrigger % 0x185ui64;
+      if ( v21 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      v50 = &s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v49];
-      v51 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v50->m_listHead.m_sentinel.mp_next;
-      if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v50->m_listHead.m_sentinel.mp_next == v50 )
+      v22 = &s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v21];
+      v23 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v22->m_listHead.m_sentinel.mp_next;
+      if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v22->m_listHead.m_sentinel.mp_next == v22 )
       {
-LABEL_65:
-        v51 = NULL;
+LABEL_64:
+        v23 = NULL;
       }
       else
       {
         while ( 1 )
         {
-          if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          if ( LODWORD(v51[1].m_listHead.m_sentinel.mp_next) == outTrigger )
+          if ( LODWORD(v23[1].m_listHead.m_sentinel.mp_next) == outTrigger )
             break;
-          v51 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v51->m_listHead.m_sentinel.mp_next;
-          if ( v51 == v50 )
-            goto LABEL_65;
+          v23 = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v23->m_listHead.m_sentinel.mp_next;
+          if ( v23 == v22 )
+            goto LABEL_64;
         }
-        if ( v51 )
+        if ( v23 )
         {
-          v52 = v51;
-LABEL_67:
-          if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          v24 = v23;
+LABEL_66:
+          if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v53 = (__int64)&v52[2];
-          if ( !v52 )
-            v53 = 8i64;
-          if ( *(_DWORD *)v53 != -1 )
+          v25 = (__int64)&v24[2];
+          if ( !v24 )
+            v25 = 8i64;
+          if ( *(_DWORD *)v25 != -1 )
           {
-            LODWORD(v62) = outTrigger;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_propagation.cpp", 126, ASSERT_TYPE_ASSERT, "(iter->second.secondDoor == -1)", "%s\n\tMore than two doors linked to propagation portal %d", "iter->second.secondDoor == -1", v62) )
+            LODWORD(v27) = outTrigger;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_propagation.cpp", 126, ASSERT_TYPE_ASSERT, "(iter->second.secondDoor == -1)", "%s\n\tMore than two doors linked to propagation portal %d", "iter->second.secondDoor == -1", v27) )
               __debugbreak();
           }
-          if ( !v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          *(_DWORD *)v53 = v10;
-          goto LABEL_53;
+          *(_DWORD *)v25 = v3;
+          goto LABEL_52;
         }
       }
-      v52 = NULL;
-      goto LABEL_67;
+      v24 = NULL;
+      goto LABEL_66;
     }
   }
-LABEL_83:
+LABEL_82:
   Sys_ProfEndNamedEvent();
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -1691,70 +1558,57 @@ SND_UpdateDoorPropagation
 */
 void SND_UpdateDoorPropagation(const SndDoorPropagationWorkerCmd *const cmd)
 {
-  unsigned int v3; 
-  unsigned int v4; 
-  __int64 v7; 
+  unsigned int v1; 
+  unsigned int v2; 
+  __int64 v3; 
   __int64 scriptableDoorIndex; 
   unsigned __int64 portalTrigger; 
-  char v14; 
-  char v15; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v16; 
+  ScriptableInstanceClientContext *v6; 
+  double v7; 
+  char v8; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v9; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *mp_next; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v18; 
-  __int64 v19; 
-  __int64 v26; 
-  __int64 v27; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *v11; 
+  __int64 v12; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
+  double v14; 
+  __int64 v15; 
+  __int64 v16; 
 
   Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_UpdateDoorPropagation");
-  v3 = 20;
+  v1 = 20;
   if ( (int)s_numscriptableDoors < 20 )
-    v3 = s_numscriptableDoors;
-  if ( v3 )
+    v1 = s_numscriptableDoors;
+  if ( v1 )
   {
-    v4 = s_nextDoorToUpdate;
-    __asm
-    {
-      vmovaps [rsp+88h+var_38], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+88h+var_48], xmm7
-      vmovss  xmm7, cs:__real@3c23d70a
-    }
-    v7 = v3;
+    v2 = s_nextDoorToUpdate;
+    v3 = v1;
     while ( 1 )
     {
-      scriptableDoorIndex = s_scriptableDoorData[v4].scriptableDoorIndex;
-      portalTrigger = s_scriptableDoorData[v4].portalTrigger;
+      scriptableDoorIndex = s_scriptableDoorData[v2].scriptableDoorIndex;
+      portalTrigger = s_scriptableDoorData[v2].portalTrigger;
       ScriptableCommon_AssertCountsInitialized();
       if ( (unsigned int)scriptableDoorIndex >= g_scriptableWorldCounts.totalInstanceCount )
       {
         ScriptableCommon_AssertCountsInitialized();
-        LODWORD(v27) = g_scriptableWorldCounts.totalInstanceCount;
-        LODWORD(v26) = scriptableDoorIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v26, v27) )
+        LODWORD(v16) = g_scriptableWorldCounts.totalInstanceCount;
+        LODWORD(v15) = scriptableDoorIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
       if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
         __debugbreak();
-      _RSI = &g_scriptableCl_instanceContexts[0][scriptableDoorIndex];
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+18h]; angle2
-        vmovss  xmm0, dword ptr [rsi+30h]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, xmm7
-      }
-      v15 = v14;
-      if ( !v14 )
+      v6 = &g_scriptableCl_instanceContexts[0][scriptableDoorIndex];
+      v7 = AngleDelta(v6->commonContext.angles.v[1], v6->commonContext.anglesInitial.v[1]);
+      LODWORD(v7) &= _xmm;
+      v8 = *(float *)&v7 < 0.0099999998;
+      if ( *(float *)&v7 >= 0.0099999998 )
         goto LABEL_46;
       if ( portalTrigger % 0x185 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      v16 = &s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[portalTrigger % 0x185];
-      mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v16->m_listHead.m_sentinel.mp_next;
-      if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v16->m_listHead.m_sentinel.mp_next == v16 )
+      v9 = &s_portalToDoubleDoorMap.m_buckets.ntl::internal::hash_table<unsigned int,PropagationPortalToDoubleDoorData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData>,256,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> >,389>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[portalTrigger % 0x185];
+      mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v9->m_listHead.m_sentinel.mp_next;
+      if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)v9->m_listHead.m_sentinel.mp_next == v9 )
         break;
       while ( 1 )
       {
@@ -1763,52 +1617,42 @@ void SND_UpdateDoorPropagation(const SndDoorPropagationWorkerCmd *const cmd)
         if ( LODWORD(mp_next[1].m_listHead.m_sentinel.mp_next) == (_DWORD)portalTrigger )
           break;
         mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,PropagationPortalToDoubleDoorData> > *)mp_next->m_listHead.m_sentinel.mp_next;
-        if ( mp_next == v16 )
+        if ( mp_next == v9 )
           goto LABEL_21;
       }
       if ( !mp_next )
         goto LABEL_22;
-      v18 = mp_next;
+      v11 = mp_next;
 LABEL_23:
       if ( mp_next )
       {
-        if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        v19 = (__int64)&v18[1].m_listHead.m_sentinel.mp_next + 4;
-        if ( !v18 )
-          v19 = 4i64;
-        if ( *(_DWORD *)v19 == (_DWORD)scriptableDoorIndex )
+        v12 = (__int64)&v11[1].m_listHead.m_sentinel.mp_next + 4;
+        if ( !v11 )
+          v12 = 4i64;
+        if ( *(_DWORD *)v12 == (_DWORD)scriptableDoorIndex )
         {
-          if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v19 = (__int64)&v18[2];
-          if ( !v18 )
-            v19 = 8i64;
+          v12 = (__int64)&v11[2];
+          if ( !v11 )
+            v12 = 8i64;
         }
-        else if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        else if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 117, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         {
           __debugbreak();
         }
-        if ( *(_DWORD *)v19 == -1 )
+        if ( *(_DWORD *)v12 == -1 )
         {
-          if ( (_RSI->commonContext.def->flags & 0x100000) != 0 )
+          if ( (v6->commonContext.def->flags & 0x100000) != 0 )
             Com_PrintWarning(9, "Scriptable double door %d has no associated second door.\n", (unsigned int)scriptableDoorIndex);
         }
         else
         {
-          _RAX = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, *(_DWORD *)v19);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rax+18h]; angle2
-            vmovss  xmm0, dword ptr [rax+30h]; angle1
-          }
-          *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-          __asm
-          {
-            vandps  xmm0, xmm0, xmm6
-            vcomiss xmm0, xmm7
-          }
-          v15 &= v14;
+          InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, *(_DWORD *)v12);
+          v14 = AngleDelta(InstanceCommonContext->angles.v[1], InstanceCommonContext->anglesInitial.v[1]);
+          v8 &= COERCE_FLOAT(LODWORD(v14) & _xmm) < 0.0099999998;
         }
       }
       else
@@ -1816,26 +1660,19 @@ LABEL_23:
         Com_PrintWarning(9, "Scriptable door %d has no associated propagation portal mapping.\n", (unsigned int)scriptableDoorIndex);
       }
 LABEL_46:
-      CG_EnableAudioTriggerByIndex(portalTrigger, v15 != 1);
-      v4 = (s_nextDoorToUpdate + 1) % s_numscriptableDoors;
-      s_nextDoorToUpdate = v4;
-      if ( !--v7 )
-      {
-        __asm
-        {
-          vmovaps xmm7, [rsp+88h+var_48]
-          vmovaps xmm6, [rsp+88h+var_38]
-        }
-        goto LABEL_48;
-      }
+      CG_EnableAudioTriggerByIndex(portalTrigger, v8 != 1);
+      v2 = (s_nextDoorToUpdate + 1) % s_numscriptableDoors;
+      s_nextDoorToUpdate = v2;
+      if ( !--v3 )
+        goto LABEL_47;
     }
 LABEL_21:
     mp_next = NULL;
 LABEL_22:
-    v18 = NULL;
+    v11 = NULL;
     goto LABEL_23;
   }
-LABEL_48:
+LABEL_47:
   Sys_ProfEndNamedEvent();
 }
 

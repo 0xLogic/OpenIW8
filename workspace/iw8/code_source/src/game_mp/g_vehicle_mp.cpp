@@ -337,22 +337,20 @@ G_VehicleMP_Think
 */
 void G_VehicleMP_Think(gentity_s *pSelf)
 {
+  Vehicle *vehicle; 
+  const VehicleDef *ServerDef; 
   gentity_s *Player; 
-  gentity_s *v6; 
-  bool v7; 
-  gclient_s *client; 
-  unsigned int number; 
+  gentity_s *v5; 
   bool NoBroadphaseQueriesAllowed; 
-  double v17; 
+  float speed; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 53, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  _RDI = pSelf->vehicle;
-  _RBP = G_Vehicle_GetServerDef(_RDI->defIndex);
+  vehicle = pSelf->vehicle;
+  ServerDef = G_Vehicle_GetServerDef(vehicle->defIndex);
   Player = G_Vehicle_GetPlayer(pSelf);
-  v6 = Player;
-  v7 = 0;
-  if ( Player && (client = Player->client, number = pSelf->s.number, v7 = client->ps.vehicleState.entity < number, client->ps.vehicleState.entity == number) )
+  v5 = Player;
+  if ( Player && Player->client->ps.vehicleState.entity == pSelf->s.number )
   {
     G_Vehicle_UpdateCameraState(pSelf->vehicle);
     NoBroadphaseQueriesAllowed = Physics_GetNoBroadphaseQueriesAllowed(PHYSICS_WORLD_ID_FIRST);
@@ -370,47 +368,28 @@ void G_VehicleMP_Think(gentity_s *pSelf)
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+588h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm1, xmm0
-    }
-    if ( v7 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm1, xmm1
-        vmovsd  [rsp+48h+var_18], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 83, ASSERT_TYPE_ASSERT, "( ( vehicle->speed >= 0.0f ) )", "%s\n\t( vehicle->speed ) = %g", "( vehicle->speed >= 0.0f )", v17) )
-        __debugbreak();
-    }
+    speed = vehicle->speed;
+    if ( speed < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 83, ASSERT_TYPE_ASSERT, "( ( vehicle->speed >= 0.0f ) )", "%s\n\t( vehicle->speed ) = %g", "( vehicle->speed >= 0.0f )", speed) )
+      __debugbreak();
     pSelf->s.lerp.u.anonymous.data[1] &= ~2u;
-    if ( !BGVehicles::PhysicsIsValid(_RDI->physicsVehicle) || _RDI->ent->scripted )
+    if ( !BGVehicles::PhysicsIsValid(vehicle->physicsVehicle) || vehicle->ent->scripted )
     {
-      if ( _RDI->drivingState == VEH_DRIVE_PATH_CONSTRAINED )
-        _RDI->speed = _RDI->pathSpeed;
+      if ( vehicle->drivingState == VEH_DRIVE_PATH_CONSTRAINED )
+        vehicle->speed = vehicle->pathSpeed;
     }
     else
     {
-      G_Vehicle_UpdatePhysics(pSelf, v6);
+      G_Vehicle_UpdatePhysics(pSelf, v5);
     }
-    G_Vehicle_UpdatePosition(pSelf, v6);
-    G_Vehicle_DrawDebugOrigin(_RBP, &_RDI->phys);
-    _RDI->turret.barrelBlocked = 0;
+    G_Vehicle_UpdatePosition(pSelf, v5);
+    G_Vehicle_DrawDebugOrigin(ServerDef, &vehicle->phys);
+    vehicle->turret.barrelBlocked = 0;
     G_Vehicle_UpdatePlayerControlledWeapon(pSelf);
     G_Vehicle_UpdateAim(pSelf);
-    G_Vehicle_UpdateBody(_RDI);
+    G_Vehicle_UpdateBody(vehicle);
     G_Vehicle_UpdateSteering(pSelf);
     G_Vehicle_UpdateSounds(pSelf);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+2E4h]
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si eax, xmm1
-    }
-    pSelf->s.time2 = _EAX;
+    pSelf->s.time2 = (int)(float)(ServerDef->vehiclePhysicsDef.suspensionTravel * 1000.0);
   }
   pSelf->nextthink = G_Vehicle_GetNextThinkTime();
 }
@@ -422,63 +401,25 @@ G_VehicleMP_UpdatePathMove_NonPhysics
 */
 void G_VehicleMP_UpdatePathMove_NonPhysics(Vehicle *veh)
 {
-  __int64 v6; 
-  char v15; 
-  char v16; 
+  float pathSpeed; 
   bool updated; 
-  __int16 v20; 
-  __int64 v21; 
-  int v22; 
 
-  __asm { vmovaps [rsp+128h+var_18], xmm6 }
-  _RDI = veh;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 124, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  G_Vehicle_GetServerDef(_RDI->defIndex);
-  if ( !_RDI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 130, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  G_Vehicle_GetServerDef(veh->defIndex);
+  if ( !veh->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 130, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  __asm
+  pathSpeed = veh->pathSpeed;
+  if ( (__int16)*(_BYTE (*)[32])&veh->pathPos.nodeIdx >= 0 )
   {
-    vmovups ymm0, ymmword ptr [rdi+10h]
-    vmovups ymm1, ymmword ptr [rdi+90h]
-  }
-  v6 = *(_QWORD *)&_RDI->pathPos.switchNode[1].length;
-  _RDX = &v20;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+58Ch]
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups ymm0, ymmword ptr [rdi+30h]
-    vmovups ymmword ptr [rdx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+50h]
-    vmovups ymmword ptr [rdx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+70h]
-    vmovups ymmword ptr [rdx+60h], ymm0
-    vmovups ymmword ptr [rdx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rdi+0B0h]
-    vmovups ymmword ptr [rdx+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rdi+0D0h]
-    vmovups xmmword ptr [rdx+0C0h], xmm1
-  }
-  v21 = v6;
-  v22 = *(_DWORD *)&_RDI->pathPos.switchNode[1].notifyIdx;
-  if ( v20 >= 0 )
-  {
-    G_Vehicle_UpdatePathSpeed(_RDI);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+58Ch]
-    }
-    if ( !(v15 | v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 141, ASSERT_TYPE_ASSERT, "(veh->pathSpeed >= 0.0f)", (const char *)&queryFormat, "veh->pathSpeed >= 0.0f") )
+    G_Vehicle_UpdatePathSpeed(veh);
+    if ( veh->pathSpeed < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 141, ASSERT_TYPE_ASSERT, "(veh->pathSpeed >= 0.0f)", (const char *)&queryFormat, "veh->pathSpeed >= 0.0f") )
       __debugbreak();
-    updated = G_Vehicle_UpdatePathPosition(_RDI);
-    G_Vehicle_DrawDebugLookahead(_RDI);
-    G_Vehicle_CalcPhysVelFromPrevState(_RDI);
-    __asm { vmovaps xmm1, xmm6; prevSpeed }
-    G_Vehicle_UpdatePathScript(_RDI, *(float *)&_XMM1, updated);
+    updated = G_Vehicle_UpdatePathPosition(veh);
+    G_Vehicle_DrawDebugLookahead(veh);
+    G_Vehicle_CalcPhysVelFromPrevState(veh);
+    G_Vehicle_UpdatePathScript(veh, pathSpeed, updated);
   }
-  __asm { vmovaps xmm6, [rsp+128h+var_18] }
 }
 
 /*
@@ -518,8 +459,7 @@ GVehiclesMP::GetVehicleBoatRockingScale
 */
 float GVehiclesMP::GetVehicleBoatRockingScale(GVehiclesMP *this)
 {
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -564,22 +504,14 @@ void GVehiclesMP::GetVehicleSubPlayerMove(GVehiclesMP *this, const usercmd_s *cm
 GVehiclesMP::GetVehicleTankPlayerThrottle
 ==============
 */
-
-float __fastcall GVehiclesMP::GetVehicleTankPlayerThrottle(GVehiclesMP *this, const usercmd_s *cmd, double _XMM2_8)
+float GVehiclesMP::GetVehicleTankPlayerThrottle(GVehiclesMP *this, const usercmd_s *cmd)
 {
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 376, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  _RAX = cmd->buttons & 0x1000000;
-  __asm { vmovq   xmm0, rax }
-  _RCX = 0i64;
-  __asm
-  {
-    vmovq   xmm1, rcx
-    vpcmpeqq xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm2, xmm2, xmm2
-    vblendvps xmm0, xmm1, xmm2, xmm3
-  }
+  _XMM0 = cmd->buttons & 0x1000000;
+  __asm { vpcmpeqq xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_1_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   return *(float *)&_XMM0;
 }
 
@@ -706,57 +638,46 @@ GVehiclesMP::UpdateHelicopterAIMove
 void GVehiclesMP::UpdateHelicopterAIMove(GVehiclesMP *this, Vehicle *veh)
 {
   unsigned int defIndex; 
+  const VehicleDef *ServerDef; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   float s; 
   float c; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RDI = veh;
   G_VehicleHeli_PathFromVeh(&veh->heliPathPos, veh);
-  if ( _RDI->useDroneLogic )
-    G_VehicleHeliMP_DroneUpdateMoveInternal(_RDI, &_RDI->heliPathPos);
+  if ( veh->useDroneLogic )
+    G_VehicleHeliMP_DroneUpdateMoveInternal(veh, &veh->heliPathPos);
   else
-    G_VehicleHeli_UpdateAiMoveInternal(&_RDI->heliPathPos);
-  _RDI->phys.origin.v[0] = _RDI->heliPathPos.origin.v[0];
-  _RDI->phys.origin.v[1] = _RDI->heliPathPos.origin.v[1];
-  _RDI->phys.origin.v[2] = _RDI->heliPathPos.origin.v[2];
-  _RDI->phys.angles.v[0] = _RDI->heliPathPos.angles.v[0];
-  _RDI->phys.angles.v[1] = _RDI->heliPathPos.angles.v[1];
-  _RDI->phys.angles.v[2] = _RDI->heliPathPos.angles.v[2];
-  _RDI->phys.vel.v[0] = _RDI->heliPathPos.vel.v[0];
-  _RDI->phys.vel.v[1] = _RDI->heliPathPos.vel.v[1];
-  _RDI->phys.vel.v[2] = _RDI->heliPathPos.vel.v[2];
-  _RDI->phys.rotVel.v[0] = _RDI->heliPathPos.rotVel.v[0];
-  _RDI->phys.rotVel.v[1] = _RDI->heliPathPos.rotVel.v[1];
-  _RDI->phys.rotVel.v[2] = _RDI->heliPathPos.rotVel.v[2];
-  _RDI->phys.accel.v[0] = _RDI->heliPathPos.accel.v[0];
-  _RDI->phys.accel.v[1] = _RDI->heliPathPos.accel.v[1];
-  _RDI->phys.accel.v[2] = _RDI->heliPathPos.accel.v[2];
-  defIndex = _RDI->defIndex;
-  _RDI->speed = _RDI->heliPathPos.speed;
-  G_Vehicle_GetServerDef(defIndex);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+10Ch]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+108h]
-    vsubss  xmm1, xmm0, dword ptr [rbx+604h]
-    vdivss  xmm6, xmm1, dword ptr [rbx+650h]
-    vmovss  xmm2, dword ptr [rdi+110h]
-    vdivss  xmm5, xmm2, dword ptr [rbx+654h]
-    vmulss  xmm0, xmm6, [rsp+38h+c]
-    vmulss  xmm1, xmm5, [rsp+38h+s]
-    vmulss  xmm2, xmm6, [rsp+38h+s]
-    vmovaps xmm6, [rsp+38h+var_18]
-    vaddss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, [rsp+38h+c]
-    vmovss  dword ptr [rdi+26Ch], xmm1
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rdi+270h], xmm1
-  }
+    G_VehicleHeli_UpdateAiMoveInternal(&veh->heliPathPos);
+  veh->phys.origin.v[0] = veh->heliPathPos.origin.v[0];
+  veh->phys.origin.v[1] = veh->heliPathPos.origin.v[1];
+  veh->phys.origin.v[2] = veh->heliPathPos.origin.v[2];
+  veh->phys.angles.v[0] = veh->heliPathPos.angles.v[0];
+  veh->phys.angles.v[1] = veh->heliPathPos.angles.v[1];
+  veh->phys.angles.v[2] = veh->heliPathPos.angles.v[2];
+  veh->phys.vel.v[0] = veh->heliPathPos.vel.v[0];
+  veh->phys.vel.v[1] = veh->heliPathPos.vel.v[1];
+  veh->phys.vel.v[2] = veh->heliPathPos.vel.v[2];
+  veh->phys.rotVel.v[0] = veh->heliPathPos.rotVel.v[0];
+  veh->phys.rotVel.v[1] = veh->heliPathPos.rotVel.v[1];
+  veh->phys.rotVel.v[2] = veh->heliPathPos.rotVel.v[2];
+  veh->phys.accel.v[0] = veh->heliPathPos.accel.v[0];
+  veh->phys.accel.v[1] = veh->heliPathPos.accel.v[1];
+  veh->phys.accel.v[2] = veh->heliPathPos.accel.v[2];
+  defIndex = veh->defIndex;
+  veh->speed = veh->heliPathPos.speed;
+  ServerDef = G_Vehicle_GetServerDef(defIndex);
+  FastSinCos(veh->phys.angles.v[1] * 0.017453292, &s, &c);
+  v5 = (float)(veh->phys.angles.v[0] - ServerDef->vehHelicopterPitchOffset) / ServerDef->vehHelicopterMaxPitch;
+  v6 = veh->phys.angles.v[2] / ServerDef->vehHelicopterMaxRoll;
+  v7 = v5 * s;
+  v8 = (float)(v6 * s) + (float)(v5 * c);
+  v9 = v6 * c;
+  veh->phys.worldTilt.v[0] = v8;
+  veh->phys.worldTilt.v[1] = v7 + v9;
 }
 
 /*
@@ -766,67 +687,27 @@ GVehiclesMP::UpdatePathConstrainedMove
 */
 void GVehiclesMP::UpdatePathConstrainedMove(GVehiclesMP *this, Vehicle *veh)
 {
-  unsigned int defIndex; 
-  __int64 v8; 
-  char v17; 
-  char v18; 
+  float pathSpeed; 
   bool updated; 
-  __int16 v22; 
-  __int64 v23; 
-  int v24; 
 
-  _RDI = veh;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 216, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !BGVehicles::PhysicsIsValid(_RDI->physicsVehicle) )
+  if ( !BGVehicles::PhysicsIsValid(veh->physicsVehicle) )
   {
-    defIndex = _RDI->defIndex;
-    __asm { vmovaps [rsp+128h+var_18], xmm6 }
-    G_Vehicle_GetServerDef(defIndex);
-    if ( !_RDI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 130, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+    G_Vehicle_GetServerDef(veh->defIndex);
+    if ( !veh->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 130, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
       __debugbreak();
-    __asm
+    pathSpeed = veh->pathSpeed;
+    if ( (__int16)*(_BYTE (*)[32])&veh->pathPos.nodeIdx >= 0 )
     {
-      vmovups ymm0, ymmword ptr [rdi+10h]
-      vmovups ymm1, ymmword ptr [rdi+90h]
-    }
-    v8 = *(_QWORD *)&_RDI->pathPos.switchNode[1].length;
-    _RDX = &v22;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rdi+58Ch]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rdi+30h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+50h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+70h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups ymmword ptr [rdx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rdi+0B0h]
-      vmovups ymmword ptr [rdx+0A0h], ymm1
-      vmovups xmm1, xmmword ptr [rdi+0D0h]
-      vmovups xmmword ptr [rdx+0C0h], xmm1
-    }
-    v23 = v8;
-    v24 = *(_DWORD *)&_RDI->pathPos.switchNode[1].notifyIdx;
-    if ( v22 >= 0 )
-    {
-      G_Vehicle_UpdatePathSpeed(_RDI);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rdi+58Ch]
-      }
-      if ( !(v17 | v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 141, ASSERT_TYPE_ASSERT, "(veh->pathSpeed >= 0.0f)", (const char *)&queryFormat, "veh->pathSpeed >= 0.0f") )
+      G_Vehicle_UpdatePathSpeed(veh);
+      if ( veh->pathSpeed < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_vehicle_mp.cpp", 141, ASSERT_TYPE_ASSERT, "(veh->pathSpeed >= 0.0f)", (const char *)&queryFormat, "veh->pathSpeed >= 0.0f") )
         __debugbreak();
-      updated = G_Vehicle_UpdatePathPosition(_RDI);
-      G_Vehicle_DrawDebugLookahead(_RDI);
-      G_Vehicle_CalcPhysVelFromPrevState(_RDI);
-      __asm { vmovaps xmm1, xmm6; prevSpeed }
-      G_Vehicle_UpdatePathScript(_RDI, *(float *)&_XMM1, updated);
+      updated = G_Vehicle_UpdatePathPosition(veh);
+      G_Vehicle_DrawDebugLookahead(veh);
+      G_Vehicle_CalcPhysVelFromPrevState(veh);
+      G_Vehicle_UpdatePathScript(veh, pathSpeed, updated);
     }
-    __asm { vmovaps xmm6, [rsp+128h+var_18] }
   }
 }
 

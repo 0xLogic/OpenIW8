@@ -1427,22 +1427,16 @@ scr_string_t SL_GetString(const char *str, unsigned int user)
 SL_GetStringForFloat
 ==============
 */
-
-scr_string_t __fastcall SL_GetStringForFloat(double f)
+scr_string_t SL_GetStringForFloat(float f)
 {
-  __int64 v3; 
+  __int64 v1; 
   char dest[128]; 
 
-  __asm
-  {
-    vcvtss2sd xmm3, xmm0, xmm0
-    vmovq   r9, xmm3
-  }
-  Com_sprintf(dest, 0x80ui64, "%g", *(double *)&_XMM3);
-  v3 = -1i64;
-  while ( dest[++v3] != 0 )
+  Com_sprintf(dest, 0x80ui64, "%g", f);
+  v1 = -1i64;
+  while ( dest[++v1] != 0 )
     ;
-  return j_SL_GetStringOfSize(dest, 0, (unsigned int)(v3 + 1), 17);
+  return j_SL_GetStringOfSize(dest, 0, (unsigned int)(v1 + 1), 17);
 }
 
 /*
@@ -1469,28 +1463,14 @@ SL_GetStringForVector
 */
 scr_string_t SL_GetStringForVector(const float *v)
 {
-  __int64 v8; 
-  double v11; 
-  double v12; 
+  __int64 v1; 
   char dest[128]; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  xmm3, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+0C8h+var_A0], xmm0
-    vmovq   r9, xmm3
-    vmovsd  [rsp+0C8h+var_A8], xmm1
-  }
-  Com_sprintf(dest, 0x80ui64, "(%g, %g, %g)", *(double *)&_XMM3, v11, v12);
-  v8 = -1i64;
-  while ( dest[++v8] != 0 )
+  Com_sprintf(dest, 0x80ui64, "(%g, %g, %g)", *v, v[1], v[2]);
+  v1 = -1i64;
+  while ( dest[++v1] != 0 )
     ;
-  return j_SL_GetStringOfSize(dest, 0, (unsigned int)(v8 + 1), 17);
+  return j_SL_GetStringOfSize(dest, 0, (unsigned int)(v1 + 1), 17);
 }
 
 /*

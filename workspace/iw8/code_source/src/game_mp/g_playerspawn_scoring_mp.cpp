@@ -471,35 +471,27 @@ avoidCloseEnemies
 */
 __int64 avoidCloseEnemies(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  char v3; 
-  char v4; 
+  float minDistSquared; 
+  bool v4; 
+  __int64 result; 
 
-  __asm
+  minDistSquared = point->distanceData[1].minDistSquared;
+  if ( minDistSquared <= 0.0 )
+    return 1i64;
+  if ( sData->isGroundWar )
   {
-    vmovss  xmm2, dword ptr [rcx+5Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
+    if ( minDistSquared < (float)(sData->groundWarNearbyEnemyBadDist * sData->groundWarNearbyEnemyBadDist) )
+      return 3i64;
+    v4 = minDistSquared < (float)(sData->groundWarNearbyEnemyOkDist * sData->groundWarNearbyEnemyOkDist);
   }
-  if ( !(v3 | v4) )
+  else
   {
-    if ( sData->isGroundWar )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8+0Ch]
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm2, xmm1
-        vmovss  xmm0, dword ptr [r8+10h]
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm2, xmm1
-      }
-    }
-    else
-    {
-      __asm { vcomiss xmm2, cs:__real@48742400 }
-    }
+    v4 = minDistSquared < 250000.0;
   }
-  return 1i64;
+  result = 2i64;
+  if ( !v4 )
+    return 1i64;
+  return result;
 }
 
 /*
@@ -509,32 +501,18 @@ avoidClosestEnemy
 */
 float avoidClosestEnemy(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  char v3; 
-  char v4; 
+  float result; 
 
-  __asm
+  _XMM1 = LODWORD(point->distanceData[1].minDistSquared);
+  result = 0.0;
+  if ( *(float *)&_XMM1 <= 0.0 )
+    return FLOAT_100_0;
+  if ( *(float *)&_XMM1 >= 250000.0 )
   {
-    vmovss  xmm1, dword ptr [rcx+5Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
+    __asm { vminss  xmm0, xmm1, cs:__real@4a45c100 }
+    return *(float *)&_XMM0 * 0.000030864197;
   }
-  if ( v3 | v4 )
-  {
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  }
-  else
-  {
-    __asm { vcomiss xmm1, cs:__real@48742400 }
-    if ( !v3 )
-    {
-      __asm
-      {
-        vminss  xmm0, xmm1, cs:__real@4a45c100
-        vmulss  xmm0, xmm0, cs:__real@3801742e
-      }
-    }
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -560,20 +538,19 @@ avoidEnemiesByDistance
 */
 float avoidEnemiesByDistance(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  if ( point->distanceData[1].totalPlayers )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@48742400
-      vcomiss xmm0, dword ptr [rcx+5Ch]
-      vxorps  xmm0, xmm0, xmm0
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  }
-  return *(float *)&_XMM0;
+  unsigned __int8 totalPlayers; 
+  __int128 distSumSquaredCapped_low; 
+
+  totalPlayers = point->distanceData[1].totalPlayers;
+  if ( !totalPlayers )
+    return FLOAT_100_0;
+  if ( point->distanceData[1].minDistSquared < 250000.0 )
+    return 0.0;
+  distSumSquaredCapped_low = LODWORD(point->distanceData[1].distSumSquaredCapped);
+  *(float *)&distSumSquaredCapped_low = point->distanceData[1].distSumSquaredCapped / (float)totalPlayers;
+  _XMM1 = distSumSquaredCapped_low;
+  __asm { vminss  xmm2, xmm1, cs:__real@4ade7920 }
+  return *(float *)&_XMM2 * 0.000013717421;
 }
 
 /*
@@ -583,27 +560,23 @@ avoidEnemyInfluence
 */
 float avoidEnemyInfluence(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  int v5; 
+  int v4; 
   unsigned __int16 *i; 
-  const gentity_s *v7; 
+  const gentity_s *v6; 
 
-  v5 = 0;
+  v4 = 0;
   for ( i = point->distToPlayer; ; ++i )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( v5 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
+    if ( v4 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
       break;
-    v7 = &level.gentities[v5];
-    if ( G_PlayerSpawnPoints_EntityIsSpawnViewer(v7) && !G_PlayerSpawnPoints_IsSpectatorEnt(v7) && *i && G_PlayerSpawnPoints_GetRelativeSpawnTeam(v7, sData->spawningTeam) && *i < 0x384u )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      return *(float *)&_XMM0;
-    }
-    ++v5;
+    v6 = &level.gentities[v4];
+    if ( G_PlayerSpawnPoints_EntityIsSpawnViewer(v6) && !G_PlayerSpawnPoints_IsSpectatorEnt(v6) && *i && G_PlayerSpawnPoints_GetRelativeSpawnTeam(v6, sData->spawningTeam) && *i < 0x384u )
+      return 0.0;
+    ++v4;
   }
-  __asm { vmovss  xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+  return FLOAT_100_0;
 }
 
 /*
@@ -656,10 +629,10 @@ avoidLastAttackerLocation
 float avoidLastAttackerLocation(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
   int LastAttackerEntnum; 
-  __int64 v5; 
-  char v17; 
-  __int64 v20; 
-  __int64 v21; 
+  __int64 v6; 
+  float v7; 
+  __int64 v9; 
+  __int64 v10; 
   vec3_t outLoc; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 439, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
@@ -670,49 +643,29 @@ float avoidLastAttackerLocation(SpawnPointInfo *point, const gentity_s *const en
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v20) = ent->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 440, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "ent->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v20, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v9) = ent->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 440, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "ent->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v9, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   if ( !G_PlayerSpawnPoints_GetLastDeathTime(ent) )
-    goto LABEL_26;
+    return FLOAT_100_0;
   LastAttackerEntnum = G_PlayerSpawnPoints_GetLastAttackerEntnum(ent);
-  v5 = LastAttackerEntnum;
-  if ( (unsigned int)(LastAttackerEntnum - 2046) <= 1 || !G_IsEntityInUse(LastAttackerEntnum) || (int)v5 >= ComCharacterLimits::GetCharacterMaxCount() )
-    goto LABEL_26;
-  if ( (unsigned int)v5 >= 0x800 )
+  v6 = LastAttackerEntnum;
+  if ( (unsigned int)(LastAttackerEntnum - 2046) <= 1 || !G_IsEntityInUse(LastAttackerEntnum) || (int)v6 >= ComCharacterLimits::GetCharacterMaxCount() )
+    return FLOAT_100_0;
+  if ( (unsigned int)v6 >= 0x800 )
   {
-    LODWORD(v21) = 2048;
-    LODWORD(v20) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v10) = 2048;
+    LODWORD(v9) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  if ( !G_PlayerSpawnPoints_EntityIsAlive(&g_entities[v5]) )
-    goto LABEL_26;
-  G_PlayerSpawnPoints_GetLastAttackerLoc(ent, 1, &outLoc);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+outLoc]
-    vmovss  xmm1, dword ptr [rsp+68h+outLoc+4]
-    vsubss  xmm3, xmm0, dword ptr [rax+10h]
-    vmovss  xmm0, dword ptr [rsp+68h+outLoc+8]
-    vsubss  xmm2, xmm1, dword ptr [rax+14h]
-    vsubss  xmm4, xmm0, dword ptr [rax+18h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm5, xmm3, xmm0
-    vcomiss xmm5, cs:__real@4945c100
-  }
-  if ( v17 )
-    __asm { vmulss  xmm0, xmm5, cs:__real@3901742e }
+  if ( G_PlayerSpawnPoints_EntityIsAlive(&g_entities[v6]) && (G_PlayerSpawnPoints_GetLastAttackerLoc(ent, 1, &outLoc), v7 = (float)((float)((float)(outLoc.v[1] - point->record->origin.v[1]) * (float)(outLoc.v[1] - point->record->origin.v[1])) + (float)((float)(outLoc.v[0] - point->record->origin.v[0]) * (float)(outLoc.v[0] - point->record->origin.v[0]))) + (float)((float)(outLoc.v[2] - point->record->origin.v[2]) * (float)(outLoc.v[2] - point->record->origin.v[2])), v7 < 810000.0) )
+    return v7 * 0.00012345679;
   else
-LABEL_26:
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+    return FLOAT_100_0;
 }
 
 /*
@@ -722,8 +675,8 @@ avoidLastDeathLocation
 */
 float avoidLastDeathLocation(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  char v15; 
-  __int64 v18; 
+  float v5; 
+  __int64 v7; 
   vec3_t outLoc; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 413, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
@@ -734,34 +687,14 @@ float avoidLastDeathLocation(SpawnPointInfo *point, const gentity_s *const ent, 
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v18) = ent->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 414, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "ent->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v18, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v7) = ent->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 414, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "ent->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v7, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
-  if ( !G_PlayerSpawnPoints_GetLastDeathTime(ent) )
-    goto LABEL_16;
-  G_PlayerSpawnPoints_GetLastDeathLoc(ent, &outLoc);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+outLoc]
-    vmovss  xmm1, dword ptr [rsp+68h+outLoc+4]
-    vsubss  xmm3, xmm0, dword ptr [rax+10h]
-    vmovss  xmm0, dword ptr [rsp+68h+outLoc+8]
-    vsubss  xmm2, xmm1, dword ptr [rax+14h]
-    vsubss  xmm4, xmm0, dword ptr [rax+18h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm5, xmm3, xmm0
-    vcomiss xmm5, cs:__real@4945c100
-  }
-  if ( v15 )
-    __asm { vmulss  xmm0, xmm5, cs:__real@3901742e }
+  if ( G_PlayerSpawnPoints_GetLastDeathTime(ent) && (G_PlayerSpawnPoints_GetLastDeathLoc(ent, &outLoc), v5 = (float)((float)((float)(outLoc.v[1] - point->record->origin.v[1]) * (float)(outLoc.v[1] - point->record->origin.v[1])) + (float)((float)(outLoc.v[0] - point->record->origin.v[0]) * (float)(outLoc.v[0] - point->record->origin.v[0]))) + (float)((float)(outLoc.v[2] - point->record->origin.v[2]) * (float)(outLoc.v[2] - point->record->origin.v[2])), v5 < 810000.0) )
+    return v5 * 0.00012345679;
   else
-LABEL_16:
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+    return FLOAT_100_0;
 }
 
 /*
@@ -772,14 +705,15 @@ avoidMissiles
 __int64 avoidMissiles(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
   int v6; 
-  int *missileEnts; 
+  int *i; 
+  __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
-  bool v11; 
-  bool v13; 
-  __int64 result; 
-  __int64 v27; 
-  __int64 v28; 
+  gentity_s *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v15; 
+  __int64 v16; 
 
   if ( !point && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 686, ASSERT_TYPE_ASSERT, "(point)", (const char *)&queryFormat, "point") )
     __debugbreak();
@@ -788,68 +722,37 @@ __int64 avoidMissiles(SpawnPointInfo *point, const gentity_s *const ent, spawnPo
   if ( !sData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 688, ASSERT_TYPE_ASSERT, "(sData)", (const char *)&queryFormat, "sData") )
     __debugbreak();
   v6 = 0;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   if ( sData->missileCount <= 0 )
+    return 1i64;
+  for ( i = sData->missileEnts; ; ++i )
   {
-LABEL_29:
-    result = 1i64;
-  }
-  else
-  {
-    __asm { vmovss  xmm6, cs:__real@47ef4200 }
-    missileEnts = sData->missileEnts;
-    while ( 1 )
+    v8 = *i;
+    if ( (unsigned int)v8 >= 0x800 )
     {
-      v9 = *missileEnts;
-      if ( (unsigned int)v9 >= 0x800 )
-      {
-        LODWORD(v28) = 2048;
-        LODWORD(v27) = *missileEnts;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v27, v28) )
-          __debugbreak();
-      }
-      if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+      LODWORD(v16) = 2048;
+      LODWORD(v15) = *i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
-      v10 = v9;
-      if ( g_entities[v9].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
-        __debugbreak();
-      if ( !g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 697, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( missileEntIdx ))", (const char *)&queryFormat, "G_IsEntityInUse( missileEntIdx )") )
-        __debugbreak();
-      v11 = __CFADD__(v10 * 1456, g_entities);
-      _RBX = &g_entities[v10];
-      if ( !&g_entities[v10] )
-      {
-        v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 699, ASSERT_TYPE_ASSERT, "(missile)", (const char *)&queryFormat, "missile");
-        v11 = 0;
-        if ( v13 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vsubss  xmm3, xmm0, dword ptr [rax+10h]
-        vsubss  xmm2, xmm1, dword ptr [rax+14h]
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vsubss  xmm4, xmm0, dword ptr [rax+18h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, xmm6
-      }
-      if ( v11 )
-        break;
-      ++v6;
-      ++missileEnts;
-      if ( v6 >= sData->missileCount )
-        goto LABEL_29;
     }
-    result = 3i64;
+    if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+      __debugbreak();
+    v9 = v8;
+    if ( g_entities[v8].r.isInUse != g_entityIsInUse[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      __debugbreak();
+    if ( !g_entityIsInUse[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 697, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( missileEntIdx ))", (const char *)&queryFormat, "G_IsEntityInUse( missileEntIdx )") )
+      __debugbreak();
+    v10 = &g_entities[v9];
+    if ( !&g_entities[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 699, ASSERT_TYPE_ASSERT, "(missile)", (const char *)&queryFormat, "missile") )
+      __debugbreak();
+    v11 = v10->r.currentOrigin.v[0] - point->record->origin.v[0];
+    v12 = v10->r.currentOrigin.v[1] - point->record->origin.v[1];
+    v13 = v10->r.currentOrigin.v[2] - point->record->origin.v[2];
+    if ( (float)((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v13 * v13)) < 122500.0 )
+      break;
+    if ( ++v6 >= sData->missileCount )
+      return 1i64;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  return 3i64;
 }
 
 /*
@@ -863,19 +766,9 @@ float avoidRecentlyUsedByAnyone(SpawnPointInfo *point, const gentity_s *const en
 
   lastSpawnTime = point->lastSpawnTime;
   if ( lastSpawnTime && level.time - lastSpawnTime < 4000 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, cs:__real@3ccccccd
-    }
-  }
+    return (float)(level.time - lastSpawnTime) * 0.025;
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  }
-  return *(float *)&_XMM0;
+    return FLOAT_100_0;
 }
 
 /*
@@ -886,27 +779,18 @@ avoidRecentlyUsedByEnemies
 float avoidRecentlyUsedByEnemies(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
   int lastSpawnTime; 
+  int v5; 
 
   lastSpawnTime = point->lastSpawnTime;
   if ( !lastSpawnTime || point->lastSpawnEntityNum == sData->spawningPlayerEntNum || sData->usingTeams && point->lastSpawnTeam == sData->spawningTeam )
-    goto LABEL_10;
+    return FLOAT_100_0;
   if ( lastSpawnTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 272, ASSERT_TYPE_ASSERT, "(point->lastSpawnTime > 0)", (const char *)&queryFormat, "point->lastSpawnTime > 0") )
     __debugbreak();
-  if ( level.time - point->lastSpawnTime > 4000 )
-  {
-LABEL_10:
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  }
+  v5 = level.time - point->lastSpawnTime;
+  if ( v5 > 4000 )
+    return FLOAT_100_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vmulss  xmm0, xmm0, cs:__real@42c80000
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)(v5 / 4000) * 100.0;
 }
 
 /*
@@ -916,7 +800,7 @@ avoidSameSpawn
 */
 float avoidSameSpawn(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  __int64 v9; 
+  __int64 v7; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 312, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -926,15 +810,14 @@ float avoidSameSpawn(SpawnPointInfo *point, const gentity_s *const ent, spawnPoi
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v9) = ent->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 313, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "ent->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v9, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v7) = ent->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 313, ASSERT_TYPE_ASSERT, "(unsigned)( ent->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "ent->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v7, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   if ( point->lastSpawnTime && point->lastSpawnEntityNum == sData->spawningPlayerEntNum )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    return 0.0;
   else
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+    return FLOAT_100_0;
 }
 
 /*
@@ -944,34 +827,17 @@ avoidShortTimeToEnemySight
 */
 float avoidShortTimeToEnemySight(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  double v15; 
-  double v16; 
-  double v17; 
+  double v5; 
 
-  __asm
+  _XMM1 = LODWORD(point->enemySightData.maxSightValue);
+  if ( *(float *)&_XMM1 < 0.0 || *(float *)&_XMM1 > 1.0 )
   {
-    vmovss  xmm1, dword ptr [rcx+40h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm1, xmm6
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vmovsd  [rsp+58h+var_20], xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vxorpd  xmm1, xmm1, xmm1
-    vmovsd  [rsp+58h+var_28], xmm1
-    vmovsd  [rsp+58h+var_30], xmm2
+    v5 = *(float *)&_XMM1;
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 84, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxSightValue ) && ( point->enemySightData.maxSightValue ) <= ( 1.f )", "point->enemySightData.maxSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v5, *(double *)&_XMM1, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 84, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxSightValue ) && ( point->enemySightData.maxSightValue ) <= ( 1.f )", "point->enemySightData.maxSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v15, v16, v17) )
-    __debugbreak();
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [rbx+40h]
-    vmulss  xmm0, xmm0, cs:__real@42c80000
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return (float)(1.0 - point->enemySightData.maxSightValue) * 100.0;
 }
 
 /*
@@ -981,34 +847,17 @@ avoidShortTimeToJumpingEnemySight
 */
 float avoidShortTimeToJumpingEnemySight(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  double v15; 
-  double v16; 
-  double v17; 
+  double v5; 
 
-  __asm
+  _XMM1 = LODWORD(point->enemySightData.maxJumpSightValue);
+  if ( *(float *)&_XMM1 < 0.0 || *(float *)&_XMM1 > 1.0 )
   {
-    vmovss  xmm1, dword ptr [rcx+44h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm1, xmm6
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vmovsd  [rsp+58h+var_20], xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vxorpd  xmm1, xmm1, xmm1
-    vmovsd  [rsp+58h+var_28], xmm1
-    vmovsd  [rsp+58h+var_30], xmm2
+    v5 = *(float *)&_XMM1;
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 93, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxJumpSightValue ) && ( point->enemySightData.maxJumpSightValue ) <= ( 1.f )", "point->enemySightData.maxJumpSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v5, *(double *)&_XMM1, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 93, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxJumpSightValue ) && ( point->enemySightData.maxJumpSightValue ) <= ( 1.f )", "point->enemySightData.maxJumpSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v15, v16, v17) )
-    __debugbreak();
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [rbx+44h]
-    vmulss  xmm0, xmm0, cs:__real@42c80000
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return (float)(1.0 - point->enemySightData.maxJumpSightValue) * 100.0;
 }
 
 /*
@@ -1018,65 +867,57 @@ avoidTelefrag
 */
 __int64 avoidTelefrag(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
+  double v4; 
   float v5; 
-  float v7; 
-  int v9; 
-  float v12; 
-  float v13; 
-  vec3_t v17[2]; 
+  float v6; 
+  int v8; 
+  vec3_t *alternateGroundPositions; 
+  float v10; 
+  float v11; 
+  __int64 v12; 
+  vec3_t v13[2]; 
 
-  _RBX = point;
   if ( sData->skipTelefragFactor )
     return 1i64;
-  __asm { vmovsd  xmm0, qword ptr [rcx+8] }
+  v4 = *(double *)point->groundPos.v;
   v5 = point->groundPos.v[2];
   point->ranTelefrag = 1;
-  __asm { vmovsd  [rsp+38h+var_18], xmm0 }
-  v17[0].v[2] = v5;
-  if ( !G_PlayerSpawnPoints_PositionWouldTelefrag(v17) )
+  *(double *)v13[0].v = v4;
+  v13[0].v[2] = v5;
+  if ( !G_PlayerSpawnPoints_PositionWouldTelefrag(v13) )
   {
-    __asm { vmovsd  xmm0, qword ptr [rbx+8] }
-    v7 = _RBX->groundPos.v[2];
-    __asm { vmovsd  qword ptr [rbx+5FCh], xmm0 }
-    _RBX->finalGroundPos.v[2] = v7;
+    v6 = point->groundPos.v[2];
+    *(double *)point->finalGroundPos.v = *(double *)point->groundPos.v;
+    point->finalGroundPos.v[2] = v6;
     return 1i64;
   }
-  v9 = 0;
-  if ( _RBX->alternateGroundPositionsCount <= 0 )
+  v8 = 0;
+  if ( point->alternateGroundPositionsCount <= 0 )
   {
 LABEL_9:
-    v13 = _RBX->groundPos.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+8]
-      vmovsd  qword ptr [rbx+5FCh], xmm0
-    }
-    _RBX->finalGroundPos.v[2] = v13;
+    v11 = point->groundPos.v[2];
+    *(double *)point->finalGroundPos.v = *(double *)point->groundPos.v;
+    point->finalGroundPos.v[2] = v11;
     return 3i64;
   }
   else
   {
-    _RSI = _RBX->alternateGroundPositions;
+    alternateGroundPositions = point->alternateGroundPositions;
     while ( 1 )
     {
-      __asm { vmovsd  xmm0, qword ptr [rsi] }
-      v12 = _RSI->v[2];
-      __asm { vmovsd  [rsp+38h+var_18], xmm0 }
-      v17[0].v[2] = v12;
-      if ( !G_PlayerSpawnPoints_PositionWouldTelefrag(v17) )
+      v10 = alternateGroundPositions->v[2];
+      *(_QWORD *)v13[0].v = *(_QWORD *)alternateGroundPositions->v;
+      v13[0].v[2] = v10;
+      if ( !G_PlayerSpawnPoints_PositionWouldTelefrag(v13) )
         break;
-      ++v9;
-      ++_RSI;
-      if ( v9 >= _RBX->alternateGroundPositionsCount )
+      ++v8;
+      ++alternateGroundPositions;
+      if ( v8 >= point->alternateGroundPositionsCount )
         goto LABEL_9;
     }
-    _RAX = 3i64 * v9 + 6;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+rax*4]
-      vmovsd  qword ptr [rbx+5FCh], xmm0
-    }
-    _RBX->finalGroundPos.v[2] = _RBX->groundPos.v[_RAX];
+    v12 = 3i64 * v8 + 6;
+    *(double *)point->finalGroundPos.v = *(double *)((char *)&point->record + 4 * v12);
+    point->finalGroundPos.v[2] = point->groundPos.v[v12];
     return 1i64;
   }
 }
@@ -1088,38 +929,22 @@ avoidVeryShortTimeToJumpingEnemySight
 */
 float avoidVeryShortTimeToJumpingEnemySight(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  double v20; 
-  double v21; 
-  double v22; 
+  float maxJumpSightValue; 
+  __int128 v7; 
 
-  __asm
+  maxJumpSightValue = point->enemySightData.maxJumpSightValue;
+  if ( maxJumpSightValue < 0.0 || maxJumpSightValue > 1.0 )
   {
-    vmovss  xmm0, dword ptr [rcx+44h]
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps [rsp+68h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vmovsd  [rsp+68h+var_30], xmm0
-    vxorpd  xmm1, xmm1, xmm1
-    vmovsd  [rsp+68h+var_38], xmm1
-    vmovsd  [rsp+68h+var_40], xmm2
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 102, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxJumpSightValue ) && ( point->enemySightData.maxJumpSightValue ) <= ( 1.f )", "point->enemySightData.maxJumpSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", maxJumpSightValue, *(double *)&_XMM1, DOUBLE_1_0) )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 102, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxJumpSightValue ) && ( point->enemySightData.maxJumpSightValue ) <= ( 1.f )", "point->enemySightData.maxJumpSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v20, v21, v22) )
-    __debugbreak();
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [rbx+44h]
-    vmulss  xmm1, xmm0, cs:__real@451f6000
-    vcmpltss xmm2, xmm1, cs:__real@43960000
-    vmovss  xmm0, cs:__real@42c80000
-    vmovaps xmm6, [rsp+68h+var_18]
-    vblendvps xmm0, xmm0, xmm7, xmm2
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
+  v7 = LODWORD(FLOAT_1_0);
+  *(float *)&v7 = (float)(1.0 - point->enemySightData.maxJumpSightValue) * 2550.0;
+  _XMM1 = v7;
+  __asm { vcmpltss xmm2, xmm1, cs:__real@43960000 }
+  _XMM0 = LODWORD(FLOAT_100_0);
+  __asm { vblendvps xmm0, xmm0, xmm7, xmm2 }
   return *(float *)&_XMM0;
 }
 
@@ -1130,144 +955,112 @@ considerInfluencePoints
 */
 __int64 considerInfluencePoints(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  int v7; 
-  bool v10; 
-  bool v11; 
+  int v5; 
+  EntHandle *p_ownerEnt; 
+  bool v7; 
+  bool v8; 
   unsigned __int16 number; 
-  __int64 v13; 
-  unsigned int v14; 
+  __int64 v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  unsigned __int16 v13; 
+  __int64 v14; 
   __int64 v15; 
-  unsigned __int16 v16; 
-  __int64 v17; 
-  __int64 v18; 
-  bool v19; 
-  char v20; 
-  char v21; 
-  unsigned int v36; 
-  __int64 result; 
-  __int64 v39; 
-  __int64 v40; 
+  bool v16; 
+  float v17; 
+  unsigned int v18; 
+  __int64 v20; 
+  __int64 v21; 
   vec3_t outPos; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   Sys_ProfBeginNamedEvent(0xFFFFA500, "EvalPlayerSpawns_ConsiderInfluencePoints");
-  v7 = 0;
-  _RBX = &G_PlayerSpawnPoints_GetInfluencePointData()->influencePoints[0].ownerEnt;
-  __asm { vmovss  xmm6, cs:__real@428c0000 }
+  v5 = 0;
+  p_ownerEnt = &G_PlayerSpawnPoints_GetInfluencePointData()->influencePoints[0].ownerEnt;
   while ( 1 )
   {
-    if ( LOBYTE(_RBX[4].number) )
+    if ( LOBYTE(p_ownerEnt[4].number) )
     {
-      v10 = sData->spawningTeam == *(_DWORD *)&_RBX[2] && sData->usingTeams;
-      v11 = 0;
-      number = _RBX->number;
-      if ( _RBX->number )
+      v7 = sData->spawningTeam == *(_DWORD *)&p_ownerEnt[2] && sData->usingTeams;
+      v8 = 0;
+      number = p_ownerEnt->number;
+      if ( p_ownerEnt->number )
       {
-        v13 = number;
-        v14 = number - 1;
-        if ( v14 >= 0x800 )
+        v10 = number;
+        v11 = number - 1;
+        if ( v11 >= 0x800 )
         {
-          LODWORD(v40) = 2048;
-          LODWORD(v39) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v21) = 2048;
+          LODWORD(v20) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v15 = v13 - 1;
-        if ( g_entities[v15].r.isInUse != g_entityIsInUse[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v12 = v10 - 1;
+        if ( g_entities[v12].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v15] )
+        if ( !g_entityIsInUse[v12] )
         {
-          LODWORD(v40) = _RBX->number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v40) )
+          LODWORD(v21) = p_ownerEnt->number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v21) )
             __debugbreak();
         }
-        v16 = _RBX->number;
-        if ( _RBX->number )
+        v13 = p_ownerEnt->number;
+        if ( p_ownerEnt->number )
         {
-          if ( (unsigned int)v16 - 1 >= 0x7FF )
+          if ( (unsigned int)v13 - 1 >= 0x7FF )
           {
-            LODWORD(v40) = 2047;
-            LODWORD(v39) = v16 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v39, v40) )
+            LODWORD(v21) = 2047;
+            LODWORD(v20) = v13 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v20, v21) )
               __debugbreak();
           }
-          v17 = _RBX->number;
-          if ( (unsigned int)(v17 - 1) >= 0x800 )
+          v14 = p_ownerEnt->number;
+          if ( (unsigned int)(v14 - 1) >= 0x800 )
           {
-            LODWORD(v40) = 2048;
-            LODWORD(v39) = v17 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v39, v40) )
+            LODWORD(v21) = 2048;
+            LODWORD(v20) = v14 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          v18 = v17 - 1;
-          if ( g_entities[v18].r.isInUse != g_entityIsInUse[v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          v15 = v14 - 1;
+          if ( g_entities[v15].r.isInUse != g_entityIsInUse[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[v18] )
+          if ( !g_entityIsInUse[v15] )
           {
-            LODWORD(v40) = _RBX->number - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v40) )
+            LODWORD(v21) = p_ownerEnt->number - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v21) )
               __debugbreak();
           }
-          v11 = sData->spawningPlayerEntNum == g_entities[_RBX->number - 1].s.number;
+          v8 = sData->spawningPlayerEntNum == g_entities[p_ownerEnt->number - 1].s.number;
         }
       }
-      v19 = !v10 || v11 && (_RBX[1].number & 2) != 0;
-      if ( (_RBX[1].number & 1) != 0 && v19 )
+      v16 = !v7 || v8 && (p_ownerEnt[1].number & 2) != 0;
+      if ( (p_ownerEnt[1].number & 1) != 0 && v16 )
       {
-        G_PlayerSpawnPoints_GetInfluencePointPosition(v7, &outPos);
-        _RAX = point->record;
-        __asm
+        G_PlayerSpawnPoints_GetInfluencePointPosition(v5, &outPos);
+        if ( (float)((float)((float)(outPos.v[1] - point->record->origin.v[1]) * (float)(outPos.v[1] - point->record->origin.v[1])) + (float)((float)(outPos.v[0] - point->record->origin.v[0]) * (float)(outPos.v[0] - point->record->origin.v[0]))) <= (float)(*(float *)&p_ownerEnt[-2] * *(float *)&p_ownerEnt[-2]) )
         {
-          vmovss  xmm0, dword ptr [rsp+0A8h+outPos]
-          vsubss  xmm4, xmm0, dword ptr [rax+10h]
-          vmovss  xmm1, dword ptr [rsp+0A8h+outPos+4]
-          vsubss  xmm2, xmm1, dword ptr [rax+14h]
-          vmulss  xmm3, xmm2, xmm2
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm4, xmm3, xmm0
-          vmovss  xmm1, dword ptr [rbx-8]
-          vmulss  xmm2, xmm1, xmm1
-          vcomiss xmm4, xmm2
-        }
-        if ( v20 | v21 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0A8h+outPos+8]
-            vsubss  xmm1, xmm0, xmm6
-            vaddss  xmm3, xmm0, dword ptr [rbx-4]
-            vmovss  xmm2, dword ptr [rax+18h]
-            vcomiss xmm2, xmm1
-          }
-          if ( !v20 )
-          {
-            __asm { vcomiss xmm2, xmm3 }
-            if ( v20 | v21 )
-              break;
-          }
+          v17 = point->record->origin.v[2];
+          if ( v17 >= (float)(outPos.v[2] - 70.0) && v17 <= (float)(outPos.v[2] + *(float *)&p_ownerEnt[-1]) )
+            break;
         }
       }
     }
-    ++v7;
-    _RBX += 10;
-    if ( v7 >= 256 )
+    ++v5;
+    p_ownerEnt += 10;
+    if ( v5 >= 256 )
     {
-      v36 = 1;
+      v18 = 1;
       goto LABEL_49;
     }
   }
-  v36 = 3;
+  v18 = 3;
 LABEL_49:
   Sys_ProfEndNamedEvent();
-  result = v36;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  return v18;
 }
 
 /*
@@ -1277,28 +1070,19 @@ preferAlliesByDistance
 */
 float preferAlliesByDistance(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  _RBX = point;
+  unsigned __int8 totalPlayers; 
+  __int128 distSumSquared_low; 
+
   if ( !G_PlayerSpawnPoints_AreTeamsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 120, ASSERT_TYPE_ASSERT, "(G_PlayerSpawnPoints_AreTeamsEnabled())", (const char *)&queryFormat, "G_PlayerSpawnPoints_AreTeamsEnabled()") )
     __debugbreak();
-  if ( _RBX->distanceData[0].totalPlayers )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vdivss  xmm1, xmm0, xmm1
-      vminss  xmm2, xmm1, cs:__real@4a45c100
-      vmulss  xmm3, xmm2, cs:__real@3801742e
-      vmovss  xmm0, cs:__real@42c80000
-      vsubss  xmm0, xmm0, xmm3
-    }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  totalPlayers = point->distanceData[0].totalPlayers;
+  if ( !totalPlayers )
+    return 0.0;
+  distSumSquared_low = LODWORD(point->distanceData[0].distSumSquared);
+  *(float *)&distSumSquared_low = point->distanceData[0].distSumSquared / (float)totalPlayers;
+  _XMM1 = distSumSquared_low;
+  __asm { vminss  xmm2, xmm1, cs:__real@4a45c100 }
+  return 100.0 - (float)(*(float *)&_XMM2 * 0.000030864197);
 }
 
 /*
@@ -1308,18 +1092,11 @@ preferCloseToAlly
 */
 float preferCloseToAlly(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  _RBX = point;
   if ( !G_PlayerSpawnPoints_AreTeamsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 139, ASSERT_TYPE_ASSERT, "(G_PlayerSpawnPoints_AreTeamsEnabled())", (const char *)&queryFormat, "G_PlayerSpawnPoints_AreTeamsEnabled()") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4Ch]
-    vminss  xmm1, xmm0, cs:__real@4a45c100
-    vmulss  xmm3, xmm1, cs:__real@3801742e
-    vmovss  xmm2, cs:__real@42c80000
-    vsubss  xmm0, xmm2, xmm3
-  }
-  return *(float *)&_XMM0;
+  _XMM0 = LODWORD(point->distanceData[0].minDistSquared);
+  __asm { vminss  xmm1, xmm0, cs:__real@4a45c100 }
+  return 100.0 - (float)(*(float *)&_XMM1 * 0.000030864197);
 }
 
 /*
@@ -1329,40 +1106,14 @@ preferNearFrontline
 */
 float preferNearFrontline(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  char v3; 
-  char v4; 
+  float distToFrontline; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+5ECh]
-    vmovss  xmm1, cs:__real@44160000
-    vcomiss xmm0, xmm1
-  }
-  if ( v3 )
-  {
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  }
-  else
-  {
-    __asm { vcomiss xmm0, cs:__real@453b8000 }
-    if ( v3 | v4 )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm1
-        vmulss  xmm2, xmm0, cs:__real@39da740e
-        vmovss  xmm1, cs:__real@3f800000
-        vsubss  xmm2, xmm1, xmm2
-        vmulss  xmm0, xmm2, xmm2
-        vmulss  xmm0, xmm0, cs:__real@42c80000
-      }
-    }
-    else
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-    }
-  }
-  return *(float *)&_XMM0;
+  distToFrontline = point->distToFrontline;
+  if ( distToFrontline < 600.0 )
+    return FLOAT_100_0;
+  if ( distToFrontline <= 3000.0 )
+    return (float)((float)(1.0 - (float)((float)(distToFrontline - 600.0) * 0.00041666668)) * (float)(1.0 - (float)((float)(distToFrontline - 600.0) * 0.00041666668))) * 100.0;
+  return 0.0;
 }
 
 /*
@@ -1373,84 +1124,47 @@ preferNearGroupedTeamMates
 float preferNearGroupedTeamMates(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
   const ClusterData *ClusterData; 
-  const ClusterData *v9; 
+  const ClusterData *v6; 
   int *clusterAssignment; 
-  unsigned int v13; 
+  int v9; 
   unsigned __int16 *i; 
-  __int64 v15; 
+  __int64 v11; 
+  __int128 v12; 
 
-  __asm { vmovaps [rsp+78h+var_48], xmm7 }
   if ( !G_PlayerSpawnPoints_AreTeamsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 201, ASSERT_TYPE_ASSERT, "(G_PlayerSpawnPoints_AreTeamsEnabled())", (const char *)&queryFormat, "G_PlayerSpawnPoints_AreTeamsEnabled()") )
     __debugbreak();
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   ClusterData = G_PlayerSpawnPoints_GetClusterData();
-  v9 = ClusterData;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v6 = ClusterData;
   if ( !ClusterData->validData )
-    goto LABEL_22;
-  __asm { vmovss  xmm6, cs:__real@bf800000 }
+    return 0.0;
+  _XMM6 = LODWORD(FLOAT_N1_0);
   clusterAssignment = ClusterData->clusterAssignment;
-  v13 = 0;
+  v9 = 0;
   for ( i = point->distToPlayer; ; ++i )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( (int)v13 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
+    if ( v9 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
       break;
-    v15 = *clusterAssignment;
-    if ( (_DWORD)v15 != -1 && v9->playerClusters[v15].size > 1 && *i )
+    v11 = *clusterAssignment;
+    if ( (_DWORD)v11 != -1 && v6->playerClusters[v11].size > 1 && *i )
     {
-      if ( G_PlayerSpawnPoints_GetRelativeSpawnTeam(&level.gentities[v13], sData->spawningTeam) )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 230, ASSERT_TYPE_ASSERT, "(G_PlayerSpawnPoints_GetRelativeSpawnTeam( &level.gentities[charIdx], sData->spawningTeam ) == 0)", (const char *)&queryFormat, "G_PlayerSpawnPoints_GetRelativeSpawnTeam( &level.gentities[charIdx], sData->spawningTeam ) == SPAWN_TEAM_FRIENDLY") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vcomiss xmm6, xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcomiss xmm0, xmm6
-      }
+      if ( G_PlayerSpawnPoints_GetRelativeSpawnTeam(&level.gentities[v9], sData->spawningTeam) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 230, ASSERT_TYPE_ASSERT, "(G_PlayerSpawnPoints_GetRelativeSpawnTeam( &level.gentities[charIdx], sData->spawningTeam ) == 0)", (const char *)&queryFormat, "G_PlayerSpawnPoints_GetRelativeSpawnTeam( &level.gentities[charIdx], sData->spawningTeam ) == SPAWN_TEAM_FRIENDLY") )
+        __debugbreak();
+      v12 = 0i64;
+      *(float *)&v12 = (float)*i;
+      if ( *(float *)&_XMM6 < 0.0 || *(float *)&v12 < *(float *)&_XMM6 )
+        _XMM6 = v12;
     }
-    ++v13;
+    ++v9;
     ++clusterAssignment;
   }
-  __asm { vcomiss xmm6, xmm7 }
-  if ( v13 >= ComCharacterLimits::ms_gameData.m_characterCount )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@43fa0000
-      vcomiss xmm6, xmm1
-    }
-    if ( v13 >= ComCharacterLimits::ms_gameData.m_characterCount )
-    {
-      __asm
-      {
-        vminss  xmm0, xmm6, cs:__real@453b8000
-        vmovss  xmm2, cs:__real@42c80000
-        vsubss  xmm1, xmm0, xmm1
-        vmulss  xmm3, xmm1, cs:__real@3d23d70a
-        vsubss  xmm0, xmm2, xmm3
-      }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, cs:__real@42c80000 }
-    }
-  }
-  else
-  {
-LABEL_22:
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
-  }
-  return *(float *)&_XMM0;
+  if ( *(float *)&_XMM6 < 0.0 )
+    return 0.0;
+  if ( *(float *)&_XMM6 < 500.0 )
+    return FLOAT_100_0;
+  __asm { vminss  xmm0, xmm6, cs:__real@453b8000 }
+  return 100.0 - (float)((float)(*(float *)&_XMM0 - 500.0) * 0.039999999);
 }
 
 /*
@@ -1461,87 +1175,43 @@ preferNearGroupsOfTeamMates
 float preferNearGroupsOfTeamMates(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
   const ClusterData *ClusterData; 
-  float *v9; 
-  unsigned int i; 
+  float *v6; 
+  int i; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
   if ( !G_PlayerSpawnPoints_AreTeamsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 153, ASSERT_TYPE_ASSERT, "(G_PlayerSpawnPoints_AreTeamsEnabled())", (const char *)&queryFormat, "G_PlayerSpawnPoints_AreTeamsEnabled()") )
     __debugbreak();
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   ClusterData = G_PlayerSpawnPoints_GetClusterData();
-  __asm { vxorps  xmm7, xmm7, xmm7 }
   if ( !ClusterData->validData )
-    goto LABEL_19;
-  __asm { vmovss  xmm6, cs:__real@bf800000 }
-  v9 = &ClusterData->playerClusters[0].center.v[2];
+    return 0.0;
+  _XMM6 = LODWORD(FLOAT_N1_0);
+  v6 = &ClusterData->playerClusters[0].center.v[2];
   for ( i = 0; ; ++i )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    if ( (int)i >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
+    if ( i >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
       break;
-    if ( *((int *)v9 - 3) > 1 )
+    if ( *((int *)v6 - 3) > 1 )
     {
-      __asm { vcomiss xmm6, xmm7 }
-      _RAX = point->record;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+10h]
-        vsubss  xmm3, xmm0, dword ptr [rbx-8]
-        vmovss  xmm1, dword ptr [rax+14h]
-        vmovss  xmm0, dword ptr [rax+18h]
-        vsubss  xmm2, xmm1, dword ptr [rbx-4]
-        vsubss  xmm4, xmm0, dword ptr [rbx]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm5, xmm3, xmm0
-      }
-      if ( !*((_DWORD *)v9 - 3) )
-        goto LABEL_13;
-      __asm { vcomiss xmm5, xmm6 }
-      if ( !*((_DWORD *)v9 - 3) )
-LABEL_13:
-        __asm { vmovaps xmm6, xmm5 }
+      v8 = point->record->origin.v[0] - *(v6 - 2);
+      v10 = LODWORD(point->record->origin.v[1]);
+      *(float *)&v10 = point->record->origin.v[1] - *(v6 - 1);
+      v9 = point->record->origin.v[2] - *v6;
+      *(float *)&v10 = (float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v8 * v8)) + (float)(v9 * v9);
+      if ( *(float *)&_XMM6 < 0.0 || *(float *)&v10 < *(float *)&_XMM6 )
+        _XMM6 = v10;
     }
-    v9 += 4;
+    v6 += 4;
   }
-  __asm { vcomiss xmm6, xmm7 }
-  if ( i >= ComCharacterLimits::ms_gameData.m_characterCount )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@461c4000
-      vcomiss xmm6, xmm1
-    }
-    if ( i >= ComCharacterLimits::ms_gameData.m_characterCount )
-    {
-      __asm
-      {
-        vminss  xmm0, xmm6, cs:__real@4b095440
-        vmovss  xmm2, cs:__real@42c80000
-        vsubss  xmm1, xmm0, xmm1
-        vmulss  xmm3, xmm1, cs:__real@373a9ef1
-        vsubss  xmm0, xmm2, xmm3
-      }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, cs:__real@42c80000 }
-    }
-  }
-  else
-  {
-LABEL_19:
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return *(float *)&_XMM0;
+  if ( *(float *)&_XMM6 < 0.0 )
+    return 0.0;
+  if ( *(float *)&_XMM6 < 10000.0 )
+    return FLOAT_100_0;
+  __asm { vminss  xmm0, xmm6, cs:__real@4b095440 }
+  return 100.0 - (float)((float)(*(float *)&_XMM0 - 10000.0) * 0.00001112347);
 }
 
 /*
@@ -1551,54 +1221,31 @@ preferNearLastTeamSpawn
 */
 float preferNearLastTeamSpawn(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  team_t v7; 
+  team_t v5; 
+  __int64 v6; 
   int LastTeamSpawnIndex; 
+  float result; 
+  const SpawnPointInfo *SpawnInfo; 
+  float v10; 
+  float v11; 
+  float v12; 
+  double v13; 
 
-  _RDI = point;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v7 = ((unsigned int (__fastcall *)(GUtils *, const gentity_s *const, spawnPointEvaluationData *))GUtils::ms_gUtils->GetEntityTeam)(GUtils::ms_gUtils, ent, sData);
-  _RBX = v7;
-  LastTeamSpawnIndex = G_PlayerSpawnPoints_GetLastTeamSpawnIndex(v7);
-  if ( LastTeamSpawnIndex >= 0 )
-  {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-    }
-    _RCX = G_PlayerSpawnPoints_GetSpawnInfo(LastTeamSpawnIndex)->record;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+10h]
-      vsubss  xmm3, xmm0, dword ptr [rax+10h]
-      vmovss  xmm1, dword ptr [rcx+14h]
-      vsubss  xmm2, xmm1, dword ptr [rax+14h]
-      vmovss  xmm0, dword ptr [rcx+18h]
-      vsubss  xmm4, xmm0, dword ptr [rax+18h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm0, xmm2, cs:__real@33ee9bfb; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm0
-      vmulss  xmm0, xmm0, cs:__real@42c80000
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovss  dword ptr [rdi+rbx*4+2B4h], xmm0
-    }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  v5 = ((unsigned int (__fastcall *)(GUtils *, const gentity_s *const, spawnPointEvaluationData *))GUtils::ms_gUtils->GetEntityTeam)(GUtils::ms_gUtils, ent, sData);
+  v6 = v5;
+  LastTeamSpawnIndex = G_PlayerSpawnPoints_GetLastTeamSpawnIndex(v5);
+  if ( LastTeamSpawnIndex < 0 )
+    return 0.0;
+  SpawnInfo = G_PlayerSpawnPoints_GetSpawnInfo(LastTeamSpawnIndex);
+  v10 = SpawnInfo->record->origin.v[0] - point->record->origin.v[0];
+  v11 = SpawnInfo->record->origin.v[1] - point->record->origin.v[1];
+  v12 = SpawnInfo->record->origin.v[2] - point->record->origin.v[2];
+  v13 = I_fclamp((float)((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v12 * v12)) * 0.00000011111111, 0.0, 1.0);
+  result = (float)(1.0 - *(float *)&v13) * 100.0;
+  point->preferNearLastTeamSpawnScores[v6] = result;
+  return result;
 }
 
 /*
@@ -1608,20 +1255,10 @@ preferOccupiedLanes
 */
 float preferOccupiedLanes(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  unsigned __int8 v5; 
-
-  __asm { vxorps  xmm2, xmm2, xmm2 }
-  v5 = point->mapLanes & G_PlayerSpawnPoints_GetMapLanesData()->occupiedLanes[1];
-  _EAX = 0;
-  __asm { vmovd   xmm1, eax }
-  _EAX = v5;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@42c80000
-    vblendvps xmm0, xmm1, xmm2, xmm3
-  }
+  _XMM0 = (unsigned __int8)(point->mapLanes & G_PlayerSpawnPoints_GetMapLanesData()->occupiedLanes[1]);
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_100_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   return *(float *)&_XMM0;
 }
 
@@ -1632,54 +1269,22 @@ preferOptimalTTLOS
 */
 float preferOptimalTTLOS(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  bool v11; 
-  double v20; 
-  double v21; 
-  double v22; 
+  double v5; 
+  float v7; 
 
-  __asm
+  _XMM1 = LODWORD(point->enemySightData.maxSightValue);
+  if ( *(float *)&_XMM1 < 0.0 || *(float *)&_XMM1 > 1.0 )
   {
-    vmovss  xmm1, dword ptr [rcx+40h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm1, xmm6
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vmovsd  [rsp+58h+var_20], xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vxorpd  xmm1, xmm1, xmm1
-    vmovsd  [rsp+58h+var_28], xmm1
-    vmovsd  [rsp+58h+var_30], xmm2
+    v5 = *(float *)&_XMM1;
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 64, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxSightValue ) && ( point->enemySightData.maxSightValue ) <= ( 1.f )", "point->enemySightData.maxSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v5, *(double *)&_XMM1, DOUBLE_1_0) )
+      __debugbreak();
   }
-  v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_playerspawn_scoring_mp.cpp", 64, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( point->enemySightData.maxSightValue ) && ( point->enemySightData.maxSightValue ) <= ( 1.f )", "point->enemySightData.maxSightValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v20, v21, v22);
-  if ( v11 )
-    __debugbreak();
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [rbx+40h]
-    vmovss  xmm2, cs:__real@451f6000
-    vmulss  xmm1, xmm0, xmm2
-    vcomiss xmm1, cs:__real@44960000
-  }
-  if ( v11 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm2, xmm1
-      vmulss  xmm0, xmm0, cs:__real@3d97b426
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
+  v7 = (float)(1.0 - point->enemySightData.maxSightValue) * 2550.0;
+  if ( v7 <= 1200.0 )
+    return v7 * 0.083333336;
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm1, cs:__real@3daaaaab
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)(2550.0 - v7) * 0.074074075;
 }
 
 /*
@@ -1695,10 +1300,9 @@ float preferToBalanceLanes(SpawnPointInfo *point, const gentity_s *const ent, sp
   MapLanesData = G_PlayerSpawnPoints_GetMapLanesData();
   mapLanes = point->mapLanes;
   if ( (mapLanes & MapLanesData->occupiedLanes[1]) == 0 || (mapLanes & MapLanesData->occupiedLanes[0]) != 0 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    return 0.0;
   else
-    __asm { vmovss  xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+    return FLOAT_100_0;
 }
 
 /*
@@ -1708,9 +1312,10 @@ randomScore
 */
 float randomScore(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  *(double *)&_XMM0 = G_random();
-  __asm { vmulss  xmm0, xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+  double v3; 
+
+  v3 = G_random();
+  return *(float *)&v3 * 100.0;
 }
 
 /*
@@ -1743,51 +1348,36 @@ scriptCriticalFactor
 */
 __int64 scriptCriticalFactor(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  const dvar_t *v4; 
-  unsigned int v8; 
+  const dvar_t *v3; 
+  unsigned int v7; 
   team_t spawningTeam; 
-  scrContext_t *v11; 
+  scrContext_t *v9; 
   GameScriptDataMP *GameScriptDataMP; 
-  unsigned int v13; 
-  char v15; 
-  int outReturnValue; 
+  unsigned int v11; 
+  float outReturnValue; 
 
-  v4 = DVARBOOL_g_playerspawns_enableScriptCritFactorCallback;
-  v8 = 1;
+  v3 = DVARBOOL_g_playerspawns_enableScriptCritFactorCallback;
+  v7 = 1;
   if ( !DVARBOOL_g_playerspawns_enableScriptCritFactorCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_playerspawns_enableScriptCritFactorCallback") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
     Sys_ProfBeginNamedEvent(0xFFFFA500, "EvalPlayerSpawns_ScriptCriticalFactor");
     spawningTeam = sData->spawningTeam;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rsp+68h+arg_18], xmm6
-    }
-    v11 = ScriptContext_Server();
-    Scr_AddSpawnTeam(v11, spawningTeam);
-    Scr_AddSpawnPointStruct(v11, point);
+    outReturnValue = 0.0;
+    v9 = ScriptContext_Server();
+    Scr_AddSpawnTeam(v9, spawningTeam);
+    Scr_AddSpawnPointStruct(v9, point);
     GScr_AddEntity(ent);
     GameScriptDataMP = GameScriptDataMP::GetGameScriptDataMP();
-    v13 = Scr_ExecThreadWithReturnValue(v11, GameScriptDataMP->gametype.spawnpointcritscore, 3u, Scr_ExecThreadCallback_Float, NULL, &outReturnValue);
-    Scr_FreeThread(v11, v13);
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+arg_18]
-      vcomiss xmm0, cs:__real@42c80000
-    }
-    if ( v15 )
-    {
-      __asm { vcomiss xmm0, xmm6 }
-      v8 = 3;
-    }
+    v11 = Scr_ExecThreadWithReturnValue(v9, GameScriptDataMP->gametype.spawnpointcritscore, 3u, Scr_ExecThreadCallback_Float, NULL, &outReturnValue);
+    Scr_FreeThread(v9, v11);
+    if ( outReturnValue < 100.0 )
+      v7 = (outReturnValue <= 0.0) + 2;
     Sys_ProfEndNamedEvent();
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
   }
-  return v8;
+  return v7;
 }
 
 /*
@@ -1797,28 +1387,23 @@ scriptScoreFactor
 */
 float scriptScoreFactor(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  scrContext_t *v8; 
+  scrContext_t *v6; 
   GameScriptDataMP *GameScriptDataMP; 
-  unsigned int v10; 
-  int outReturnValue; 
+  unsigned int v8; 
+  float outReturnValue; 
 
   Sys_ProfBeginNamedEvent(0xFFFFA500, "EvalPlayerSpawns_ScriptScoreFactor");
   LODWORD(sData) = sData->spawningTeam;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  v8 = ScriptContext_Server();
-  Scr_AddSpawnTeam(v8, (team_t)sData);
-  Scr_AddSpawnPointStruct(v8, point);
+  outReturnValue = 0.0;
+  v6 = ScriptContext_Server();
+  Scr_AddSpawnTeam(v6, (team_t)sData);
+  Scr_AddSpawnPointStruct(v6, point);
   GScr_AddEntity(ent);
   GameScriptDataMP = GameScriptDataMP::GetGameScriptDataMP();
-  v10 = Scr_ExecThreadWithReturnValue(v8, GameScriptDataMP->gametype.spawnpointscore, 3u, Scr_ExecThreadCallback_Float, NULL, &outReturnValue);
-  Scr_FreeThread(v8, v10);
+  v8 = Scr_ExecThreadWithReturnValue(v6, GameScriptDataMP->gametype.spawnpointscore, 3u, Scr_ExecThreadCallback_Float, NULL, &outReturnValue);
+  Scr_FreeThread(v6, v8);
   Sys_ProfEndNamedEvent();
-  __asm { vmovss  xmm0, [rsp+38h+arg_10] }
-  return *(float *)&_XMM0;
+  return outReturnValue;
 }
 
 /*
@@ -1828,7 +1413,6 @@ stubFactor
 */
 float stubFactor(SpawnPointInfo *point, const gentity_s *const ent, spawnPointEvaluationData *sData)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 

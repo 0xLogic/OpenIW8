@@ -293,27 +293,25 @@ BG_Demeanor_GetInterruptFactor
 */
 float BG_Demeanor_GetInterruptFactor(const DemeanorStateType state)
 {
+  const dvar_t *v1; 
+
   if ( state == DEMEANOR_STATE_SAFE )
   {
-    _RBX = DCONST_DVARFLT_demeanor_safe_blend_in_factor;
+    v1 = DCONST_DVARFLT_demeanor_safe_blend_in_factor;
     if ( !DCONST_DVARFLT_demeanor_safe_blend_in_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "demeanor_safe_blend_in_factor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+LABEL_5:
+    Dvar_CheckFrontendServerThread(v1);
+    return v1->current.value;
   }
-  else if ( state == DEMEANOR_STATE_RELAXED )
+  if ( state == DEMEANOR_STATE_RELAXED )
   {
-    _RBX = DCONST_DVARFLT_demeanor_relaxed_blend_in_factor;
+    v1 = DCONST_DVARFLT_demeanor_relaxed_blend_in_factor;
     if ( !DCONST_DVARFLT_demeanor_relaxed_blend_in_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "demeanor_relaxed_blend_in_factor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    goto LABEL_5;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -791,6 +789,8 @@ void PM_Demeanor_PlayGesture(const BgWeaponMap *weaponMap, playerState_s *ps, co
 {
   int StartTime; 
   bool v12; 
+  GesturePlayRequest *v13; 
+  double v14; 
   GesturePlayRequest request; 
   GesturePlayRequest result; 
   unsigned int outSlot; 
@@ -803,17 +803,12 @@ void PM_Demeanor_PlayGesture(const BgWeaponMap *weaponMap, playerState_s *ps, co
   v12 = blendToDemeanorLoop;
   if ( useStartTime || blendToDemeanorLoop )
     StartTime = BG_Demeanor_GetStartTime(ps, ps->demeanorState.gestureIndex, (const DemeanorStateType)ps->demeanorState.targetState, betweenDemeanors, blendToDemeanorLoop);
-  _RAX = BG_GesturePriority_SetupRequest(&result, weaponMap, ps, pmHandler, ps->demeanorState.gestureIndex, gameTime);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+request.weaponMap], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0B8h+request.startTime], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-  }
+  v13 = BG_GesturePriority_SetupRequest(&result, weaponMap, ps, pmHandler, ps->demeanorState.gestureIndex, gameTime);
+  *(__m256i *)&request.weaponMap = *(__m256i *)&v13->weaponMap;
+  *(_OWORD *)&request.startTime = *(_OWORD *)&v13->startTime;
+  v14 = *(double *)&v13->cancelTransitions;
   request.startTime = StartTime;
-  __asm { vmovsd  qword ptr [rsp+0B8h+request.cancelTransitions], xmm0 }
+  *(double *)&request.cancelTransitions = v14;
   if ( v12 )
   {
     *(_WORD *)&request.stopAllGestures = 257;
@@ -838,24 +833,24 @@ void PM_Demeanor_ProcessState(pmove_t *pm)
   DemeanorStateType currentState; 
   DemeanorStateType targetState; 
   int serverTime; 
-  int v11; 
+  int v7; 
   unsigned int gestureSlot; 
   bool *outUseStartTime; 
   bool *outBlendToDemeanorLoop; 
-  bool v15; 
+  bool v11; 
   GesturePlayRequest request; 
   GesturePlayRequest result; 
   bool outShouldEnter; 
   bool outEnterImmediately; 
   bool outStopCurrent; 
-  bool v21; 
+  bool v17; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_demeanor.cpp", 452, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_demeanor.cpp", 452, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  PM_Demeanor_ShouldTryEntering(pm, pm->cmd.serverTime, &outShouldEnter, &outEnterImmediately, &outStopCurrent, &v15, &v21);
+  PM_Demeanor_ShouldTryEntering(pm, pm->cmd.serverTime, &outShouldEnter, &outEnterImmediately, &outStopCurrent, &v11, &v17);
   v3 = outShouldEnter;
   if ( outShouldEnter )
   {
@@ -894,24 +889,15 @@ void PM_Demeanor_ProcessState(pmove_t *pm)
     else if ( v3 )
     {
       serverTime = pm->cmd.serverTime;
-      _RAX = BG_GesturePriority_SetupRequest(&result, pm->weaponMap, ps, pm->m_bgHandler, ps->demeanorState.gestureIndex, serverTime);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0E8h+request.weaponMap], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0E8h+request.startTime], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0E8h+request.cancelTransitions], xmm0
-      }
+      request = *BG_GesturePriority_SetupRequest(&result, pm->weaponMap, ps, pm->m_bgHandler, ps->demeanorState.gestureIndex, serverTime);
       if ( !BG_GesturePriority_CanPlay(&request) )
       {
         ps->demeanorState.reEnterTime = 0;
         PM_Demeanor_CalcSetEnterTime(ps, 0, serverTime);
       }
-      v11 = pm->cmd.serverTime;
-      if ( v11 >= ps->demeanorState.reEnterTime )
-        PM_Demeanor_PlayGesture(pm->weaponMap, ps, pm->m_bgHandler, v11, v15, 0, v21);
+      v7 = pm->cmd.serverTime;
+      if ( v7 >= ps->demeanorState.reEnterTime )
+        PM_Demeanor_PlayGesture(pm->weaponMap, ps, pm->m_bgHandler, v7, v11, 0, v17);
     }
   }
 }
@@ -923,27 +909,30 @@ PM_Demeanor_ShouldTryEntering
 */
 void PM_Demeanor_ShouldTryEntering(pmove_t *pm, int gameTime, bool *outShouldEnter, bool *outEnterImmediately, bool *outStopCurrent, bool *outUseStartTime, bool *outBlendToDemeanorLoop)
 {
-  bool v9; 
+  bool v7; 
   playerState_s *ps; 
   bool IsPlaying; 
   DemeanorStateType targetState; 
-  playerState_s *v19; 
+  int v16; 
+  playerState_s *v17; 
   const Weapon *ViewmodelWeapon; 
   unsigned int gestureIndex; 
   const Gesture *AssetFromIndex; 
   GestureAnimationSettings *AnimationSettings; 
-  DemeanorStateType v24; 
-  const char *v27; 
+  DemeanorStateType v22; 
+  float value; 
+  const dvar_t *v24; 
+  const char *v25; 
   unsigned int BlendingOutCount; 
   unsigned int AvailableSlotCount; 
-  bool v34; 
-  unsigned int v35; 
-  const Gesture *v36; 
+  bool v28; 
+  unsigned int v29; 
+  const Gesture *v30; 
   int weaponState; 
-  const dvar_t *v38; 
+  const dvar_t *v32; 
   bool outUseStartTimea; 
 
-  v9 = 0;
+  v7 = 0;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_demeanor.cpp", 303, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !outEnterImmediately && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_demeanor.cpp", 304, ASSERT_TYPE_ASSERT, "(outEnterImmediately)", (const char *)&queryFormat, "outEnterImmediately") )
@@ -965,21 +954,21 @@ void PM_Demeanor_ShouldTryEntering(pmove_t *pm, int gameTime, bool *outShouldEnt
   outUseStartTimea = IsPlaying;
   if ( IsPlaying )
   {
-    _EBX = 0;
+    v16 = 0;
     if ( targetState == DEMEANOR_STATE_NORMAL )
       goto LABEL_45;
     if ( BG_Gesture_IsPlayingByIndex(ps, ps->demeanorState.gestureIndex, NULL) )
     {
-      v19 = pm->ps;
-      if ( !v19 )
+      v17 = pm->ps;
+      if ( !v17 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_demeanor.cpp", 249, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_demeanor.cpp", 251, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
       }
-      ViewmodelWeapon = BG_GetViewmodelWeapon(pm->weaponMap, v19);
-      *outStopCurrent = v19->weapState[0].weaponState == 1 && BG_Gesture_IsStoppingByIndex(v19, v19->demeanorState.gestureIndex) || !ViewmodelWeapon->weaponIdx || BG_HasLadderHand(v19);
+      ViewmodelWeapon = BG_GetViewmodelWeapon(pm->weaponMap, v17);
+      *outStopCurrent = v17->weapState[0].weaponState == 1 && BG_Gesture_IsStoppingByIndex(v17, v17->demeanorState.gestureIndex) || !ViewmodelWeapon->weaponIdx || BG_HasLadderHand(v17);
       return;
     }
     gestureIndex = ps->demeanorState.gestureIndex;
@@ -993,61 +982,55 @@ void PM_Demeanor_ShouldTryEntering(pmove_t *pm, int gameTime, bool *outShouldEnt
       __debugbreak();
     if ( !AnimationSettings->hasTransitions )
       goto LABEL_45;
-    v24 = ps->demeanorState.targetState;
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    if ( v24 == DEMEANOR_STATE_SAFE )
+    v22 = ps->demeanorState.targetState;
+    value = 0.0;
+    if ( v22 == DEMEANOR_STATE_SAFE )
     {
-      _RBX = DCONST_DVARFLT_demeanor_safe_blend_in_factor;
+      v24 = DCONST_DVARFLT_demeanor_safe_blend_in_factor;
       if ( !DCONST_DVARFLT_demeanor_safe_blend_in_factor )
       {
-        v27 = "demeanor_safe_blend_in_factor";
+        v25 = "demeanor_safe_blend_in_factor";
         goto LABEL_41;
       }
     }
     else
     {
-      if ( v24 != DEMEANOR_STATE_RELAXED )
+      if ( v22 != DEMEANOR_STATE_RELAXED )
       {
 LABEL_44:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi+4]
-          vmulss  xmm1, xmm0, xmm1
-          vcvttss2si ebx, xmm1
-        }
+        v16 = (int)(float)((float)AnimationSettings->inAnimLength * value);
 LABEL_45:
-        BlendingOutCount = BG_Gesture_GetBlendingOutCount(ps, gameTime, _EBX);
+        BlendingOutCount = BG_Gesture_GetBlendingOutCount(ps, gameTime, v16);
         AvailableSlotCount = BG_Gesture_GetAvailableSlotCount(ps);
         if ( BlendingOutCount == 1 && AvailableSlotCount == 1 )
         {
-          v9 = 1;
+          v7 = 1;
           *outBlendToDemeanorLoop = BG_Gesture_GetBlendToDemeanorLoop(ps);
         }
         goto LABEL_48;
       }
-      _RBX = DCONST_DVARFLT_demeanor_relaxed_blend_in_factor;
+      v24 = DCONST_DVARFLT_demeanor_relaxed_blend_in_factor;
       if ( !DCONST_DVARFLT_demeanor_relaxed_blend_in_factor )
       {
-        v27 = "demeanor_relaxed_blend_in_factor";
+        v25 = "demeanor_relaxed_blend_in_factor";
 LABEL_41:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v27) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v25) )
           __debugbreak();
       }
     }
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v24);
+    value = v24->current.value;
     goto LABEL_44;
   }
   if ( targetState == DEMEANOR_STATE_NORMAL )
     goto LABEL_48;
-  v35 = ps->demeanorState.gestureIndex;
-  if ( v35 == 256 )
+  v29 = ps->demeanorState.gestureIndex;
+  if ( v29 == 256 )
     goto LABEL_48;
-  v36 = BG_Gesture_GetAssetFromIndex(v35);
-  if ( !v36 )
+  v30 = BG_Gesture_GetAssetFromIndex(v29);
+  if ( !v30 )
     goto LABEL_48;
-  if ( BG_GesturePriority_GetGestureInterruptingState(pm->weaponMap, ps, pm->m_bgHandler, v36, GESTURE_HAND_CHECK_RIGHT) != GESTURE_WEAPON_STATE_NUM || BG_HasLadderHand(ps) )
+  if ( BG_GesturePriority_GetGestureInterruptingState(pm->weaponMap, ps, pm->m_bgHandler, v30, GESTURE_HAND_CHECK_RIGHT) != GESTURE_WEAPON_STATE_NUM || BG_HasLadderHand(ps) )
     return;
   weaponState = ps->weapState[0].weaponState;
   if ( (unsigned int)(weaponState - 1) > 4 || ps->demeanorState.targetState != DEMEANOR_STATE_SAFE )
@@ -1061,16 +1044,16 @@ LABEL_65:
       return;
     }
 LABEL_48:
-    *outEnterImmediately = v9;
-    v34 = !outUseStartTimea || v9;
-    *outShouldEnter = v34;
+    *outEnterImmediately = v7;
+    v28 = !outUseStartTimea || v7;
+    *outShouldEnter = v28;
     return;
   }
-  v38 = DCONST_DVARINT_demeanor_safe_enter_delay_raise;
+  v32 = DCONST_DVARINT_demeanor_safe_enter_delay_raise;
   if ( !DCONST_DVARINT_demeanor_safe_enter_delay_raise && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "demeanor_safe_enter_delay_raise") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v38);
-  if ( ps->weapState[0].weaponTime <= v38->current.integer )
+  Dvar_CheckFrontendServerThread(v32);
+  if ( ps->weapState[0].weaponTime <= v32->current.integer )
     goto LABEL_65;
 }
 

@@ -1723,60 +1723,56 @@ __int64 LUI_CoD_LuaCall_CreateFull_impl(lua_State *const luaVM)
 LUI_CoD_LuaCall_GetAccountAge_impl
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetAccountAge_impl(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetAccountAge_impl(lua_State *const luaVM)
 {
+  unsigned int v3; 
   unsigned int v4; 
-  unsigned int v5; 
-  int v6; 
+  int v5; 
   DWServicesAccess *Instance; 
   DWLogin *Login; 
-  bdLoginResult *v9; 
-  __time64_t v10; 
+  bdLoginResult *v8; 
+  __time64_t v9; 
   unsigned int UTC; 
   struct tm Tm; 
   bdCrossPlatformAccountInfo result; 
   char dest[24]; 
 
-  v4 = 1;
+  v3 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: AccountRegistration.GetAccountAge( <controllerIndex> )");
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     return 0i64;
-  v5 = lui_tointeger32(luaVM, 1);
-  v6 = v5;
-  if ( v5 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_account_registration.cpp", 1244, ASSERT_TYPE_SANITY, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v5, 8) )
+  v4 = lui_tointeger32(luaVM, 1);
+  v5 = v4;
+  if ( v4 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_account_registration.cpp", 1244, ASSERT_TYPE_SANITY, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v4, 8) )
     __debugbreak();
   Instance = DWServicesAccess::GetInstance();
-  Login = DWServicesAccess::GetLogin(Instance, v6);
+  Login = DWServicesAccess::GetLogin(Instance, v5);
   if ( !DWLogin::succeeded(Login) )
     return 0i64;
-  v9 = (bdLoginResult *)DWLogin::getResult(Login);
-  bdLoginResult::getCrossPlatformAccountInfo(v9, &result);
+  v8 = (bdLoginResult *)DWLogin::getResult(Login);
+  bdLoginResult::getCrossPlatformAccountInfo(v8, &result);
   memset(&Tm, 0, sizeof(Tm));
   Core_strcpy(dest, 0x15ui64, result.m_createdTime);
   if ( j_sscanf(dest, "%d-%d-%dT%d:%d:%dZ", &Tm.tm_year, &Tm.tm_mon, &Tm.tm_mday, &Tm.tm_hour, &Tm.tm_min, &Tm) == 6 )
   {
     Tm.tm_year -= 1900;
     --Tm.tm_mon;
-    v10 = _mktime64(&Tm);
+    v9 = _mktime64(&Tm);
     UTC = LiveStorage_GetUTC();
-    *(double *)&_XMM0 = _difftime64(UTC, v10);
-    __asm
-    {
-      vcvttsd2si edx, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, edx; n
-    }
+    *(double *)&_XMM0 = _difftime64(UTC, v9);
+    __asm { vcvttsd2si edx, xmm0 }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, edx; n }
     j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   }
   else
   {
     Com_PrintError(25, "AccountRegistration.GetAccountAge error parsing created timestamp: %s", dest);
-    v4 = 0;
+    v3 = 0;
   }
   bdCrossPlatformAccountInfo::~bdCrossPlatformAccountInfo(&result);
-  return v4;
+  return v3;
 }
 
 /*

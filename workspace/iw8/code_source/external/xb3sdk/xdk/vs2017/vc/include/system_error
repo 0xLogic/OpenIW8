@@ -11,17 +11,6 @@ bool __fastcall std::error_category::equivalent(std::error_category *this, const
 
 /*
 ==============
-std::error_category::equivalent
-==============
-*/
-
-bool __fastcall std::error_category::equivalent(std::error_category *this, const std::error_code *_Code, int _Errval)
-{
-  return ?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z(this, _Code, _Errval);
-}
-
-/*
-==============
 std::error_category::default_error_condition
 ==============
 */

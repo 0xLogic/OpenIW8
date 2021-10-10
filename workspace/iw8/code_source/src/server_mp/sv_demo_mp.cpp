@@ -727,28 +727,23 @@ SvDemoMP::GetFloat
 */
 float SvDemoMP::GetFloat(SvDemoMP *this)
 {
+  double Float; 
+
   if ( !sv_demo.playing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 1192, ASSERT_TYPE_ASSERT, "( sv_demo.playing )", (const char *)&queryFormat, "sv_demo.playing") )
     __debugbreak();
   if ( sv_demo.serverThreadStarted && !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 957, ASSERT_TYPE_ASSERT, "( Sys_IsServerThread() )", (const char *)&queryFormat, "Sys_IsServerThread()") )
     __debugbreak();
   if ( sv_demo.readType == 10 )
   {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
-    *(double *)&_XMM0 = MSG_ReadFloat(&sv_demo.msg);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = MSG_ReadFloat(&sv_demo.msg);
     SV_DemoMP_ReadNextDemoType();
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
   }
   else
   {
-    *(double *)&_XMM0 = SV_DemoMP_EndDemoError(this);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    SV_DemoMP_EndDemoError(this);
+    LODWORD(Float) = 0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&Float;
 }
 
 /*
@@ -940,14 +935,8 @@ void SvDemoMP::RecordCheatsOk(SvDemoMP *this, int cheatsOk)
 SvDemoMP::RecordFloat
 ==============
 */
-
-void __fastcall SvDemoMP::RecordFloat(SvDemoMP *this, double value)
+void SvDemoMP::RecordFloat(SvDemoMP *this, float value)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( SV_Demo_IsRecording() )
   {
     if ( sv_demo.serverThreadStarted && !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 957, ASSERT_TYPE_ASSERT, "( Sys_IsServerThread() )", (const char *)&queryFormat, "Sys_IsServerThread()") )
@@ -957,14 +946,12 @@ void __fastcall SvDemoMP::RecordFloat(SvDemoMP *this, double value)
       __debugbreak();
     s_svdMsgProf[10].start = sv_demo.msg.cursize;
     MSG_WriteByte(&sv_demo.msg, 10i64);
-    __asm { vmovaps xmm1, xmm6; f }
-    MSG_WriteFloat(&sv_demo.msg, *(float *)&_XMM1);
+    MSG_WriteFloat(&sv_demo.msg, value);
     if ( s_svdMsgProf[10].start == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 195, ASSERT_TYPE_ASSERT, "( s_svdMsgProf[type].start != -1 )", (const char *)&queryFormat, "s_svdMsgProf[type].start != -1") )
       __debugbreak();
     s_svdMsgProf[10].total += sv_demo.msg.cursize - s_svdMsgProf[10].start;
     s_svdMsgProf[10].start = -1;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1068,24 +1055,24 @@ SV_DemoMP_AddDemoSave
 */
 char SV_DemoMP_AddDemoSave(server_demo_save_t *save, const bool restart, const bool fullState, const char *cacheFilename)
 {
-  server_demo_history_t *v9; 
-  SvDemo *v10; 
+  server_demo_history_t *v8; 
+  SvDemo *v9; 
   unsigned __int8 *Buffer; 
   unsigned int BufferSize; 
-  const char *v13; 
-  sysFileHandle_t *v15; 
-  unsigned __int64 v16; 
-  unsigned __int8 *v17; 
+  const char *v12; 
+  sysFileHandle_t *v14; 
+  unsigned __int64 v15; 
+  unsigned __int8 *v16; 
   unsigned __int64 FileSize; 
   __int64 handle; 
-  unsigned __int64 v20; 
+  unsigned __int64 v19; 
   signed int i; 
   SvClientMP *CommonClient; 
-  unsigned __int64 v23; 
+  unsigned __int64 v22; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
+  unsigned __int64 v24; 
   unsigned __int64 v25; 
   unsigned __int64 v26; 
-  unsigned __int64 v27; 
   int ptr; 
   unsigned __int8 *pData; 
   MemoryFile memFile; 
@@ -1101,13 +1088,13 @@ char SV_DemoMP_AddDemoSave(server_demo_save_t *save, const bool restart, const b
   __rdtsc();
   if ( !BG_GameInterface_GameModeIsMP((GameModeType)(unsigned __int8)SvDemo::ms_allocatedType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.h", 173, ASSERT_TYPE_ASSERT, "( BG_GameInterface_GameModeIsMP( ms_allocatedType ) )", (const char *)&queryFormat, "BG_GameInterface_GameModeIsMP( ms_allocatedType )") )
     __debugbreak();
-  v9 = s_demoMP_history;
-  v10 = SvDemo::ms_gServerDemoSystem;
+  v8 = s_demoMP_history;
+  v9 = SvDemo::ms_gServerDemoSystem;
   if ( !s_demoMP_history )
   {
     if ( s_demoMP_historySaving && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 1787, ASSERT_TYPE_ASSERT, "( s_demoMP_historySaving == nullptr )", (const char *)&queryFormat, "s_demoMP_historySaving == nullptr") )
       __debugbreak();
-    v9 = (server_demo_history_t *)&v10[786437];
+    v8 = (server_demo_history_t *)&v9[786437];
   }
   Buffer = G_SaveMemoryMP_GetBuffer(SAVE_DEMO_HANDLE);
   BufferSize = G_SaveMemoryMP_GetBufferSize(SAVE_DEMO_HANDLE);
@@ -1121,29 +1108,29 @@ char SV_DemoMP_AddDemoSave(server_demo_save_t *save, const bool restart, const b
   }
   else
   {
-    v15 = SV_DemoMP_OpenFile((sysFileHandle_t *)cacheFilename, v13);
-    if ( v15 == (sysFileHandle_t *)-1i64 )
+    v14 = SV_DemoMP_OpenFile((sysFileHandle_t *)cacheFilename, v12);
+    if ( v14 == (sysFileHandle_t *)-1i64 )
     {
       Com_PrintError(16, "SV_DemoMP_AddDemoSave: Could not open demo cache filename '%s'\n", cacheFilename);
       return 0;
     }
     else
     {
-      v16 = MemFile_CopySegments(&memFile, 0, NULL);
-      if ( SV_DemoMP_HistoryAlloc(v9, &pData, v16) )
+      v15 = MemFile_CopySegments(&memFile, 0, NULL);
+      if ( SV_DemoMP_HistoryAlloc(v8, &pData, v15) )
       {
-        v17 = pData;
+        v16 = pData;
         MemFile_CopySegments(&memFile, 0, pData);
-        save->file.handle = (__int64)v15;
-        save->buf = v17;
-        save->bufLen = v16;
-        FileSize = FS_FileGetFileSize((sysFileHandle_t)v15);
+        save->file.handle = (__int64)v14;
+        save->buf = v16;
+        save->bufLen = v15;
+        FileSize = FS_FileGetFileSize((sysFileHandle_t)v14);
         ProfMem_Begin("Demo cache file", FileSize);
-        FS_FileWrite(&v10[865216], 4ui64, save->file);
+        FS_FileWrite(&v9[865216], 4ui64, save->file);
         handle = save->file.handle;
         ptr = SvClient::ms_clientCount;
-        v20 = FS_FileGetFileSize((sysFileHandle_t)handle);
-        ProfMem_Begin("svPers clients", v20);
+        v19 = FS_FileGetFileSize((sysFileHandle_t)handle);
+        ProfMem_Begin("svPers clients", v19);
         FS_FileWrite(&ptr, 4ui64, save->file);
         for ( i = 0; i < ptr; ++i )
         {
@@ -1152,35 +1139,30 @@ char SV_DemoMP_AddDemoSave(server_demo_save_t *save, const bool restart, const b
           CommonClient = (SvClientMP *)SvClient::GetCommonClient(i);
           SvClientMP::DemoSaveState(CommonClient, save->file);
         }
-        v23 = FS_FileGetFileSize(save->file);
-        ProfMem_End(v23);
+        v22 = FS_FileGetFileSize(save->file);
+        ProfMem_End(v22);
         PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
         FS_FileWrite(&PersistentGlobalsMP->agentCount, 4ui64, save->file);
-        v25 = FS_FileGetFileSize(save->file);
-        ProfMem_Begin("snapshotData", v25);
+        v24 = FS_FileGetFileSize(save->file);
+        ProfMem_Begin("snapshotData", v24);
         SV_SnapshotMP_SaveDemoState(save->file);
+        v25 = FS_FileGetFileSize(save->file);
+        ProfMem_End(v25);
         v26 = FS_FileGetFileSize(save->file);
         ProfMem_End(v26);
-        v27 = FS_FileGetFileSize(save->file);
-        ProfMem_End(v27);
         ProfMem_PrintTree(0);
         FS_FileClose((HANDLE)save->file.handle);
         save->file.handle = -1i64;
         __rdtsc();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rax
-          vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-          vmovq   r8, xmm2
-        }
-        Com_Printf(15, "SV_DemoMP_AddDemoSave: %fms\n", *(double *)&_XMM2);
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
+        Com_Printf(15, "SV_DemoMP_AddDemoSave: %fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
         return 1;
       }
       else
       {
         Com_PrintError(16, "SV_DemoMP_AddDemoSave: Could not allocate demo history buffer for file '%s'\n", cacheFilename);
-        FS_FileClose(v15);
+        FS_FileClose(v14);
         return 0;
       }
     }
@@ -1208,7 +1190,7 @@ void SV_DemoMP_AutoSaveEndDemo(void)
   unsigned int BuildNumberAsInt; 
   const char *GameType; 
   const char *MapName; 
-  __int64 v5; 
+  __int64 v4; 
   char dest[64]; 
 
   v0 = DVARBOOL_replay_autosave_mp;
@@ -1225,8 +1207,8 @@ void SV_DemoMP_AutoSaveEndDemo(void)
         BuildNumberAsInt = j_getBuildNumberAsInt();
         GameType = SV_GameMP_GetGameType();
         MapName = SV_Game_GetMapName();
-        LODWORD(v5) = BuildNumberAsInt;
-        Com_sprintf(dest, 0x40ui64, "%s_%s_%i", MapName, GameType, v5);
+        LODWORD(v4) = BuildNumberAsInt;
+        Com_sprintf(dest, 0x40ui64, "%s_%s_%i", MapName, GameType, v4);
         SV_DemoMP_AutoSaveInternal(COUNT|DODGE, dest, "SV_DemoMP_AutoSaveEndDemo", 50, 0);
       }
     }
@@ -1240,15 +1222,11 @@ void SV_DemoMP_AutoSaveEndDemo(void)
       sv_demo.msg.data = NULL;
       sv_demo.msg.maxsize = 0;
     }
-    __asm { vmovaps ymm0, cs:__ymm@00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff }
     s_svdMsgProf[12].start = -1;
     s_svdMsgProf[12].total = 0;
-    __asm
-    {
-      vmovups ymmword ptr cs:s_svdMsgProf.start, ymm0
-      vmovups ymmword ptr cs:s_svdMsgProf.start+20h, ymm0
-      vmovups ymmword ptr cs:s_svdMsgProf.start+40h, ymm0
-    }
+    *(__m256i *)&s_svdMsgProf[0].start = _ymm;
+    *(__m256i *)&s_svdMsgProf[4].start = _ymm;
+    *(__m256i *)&s_svdMsgProf[8].start = _ymm;
     if ( s_demoMP_history )
     {
       SV_DemoMP_FreeHistoryData(s_demoMP_history);
@@ -1323,12 +1301,13 @@ SV_DemoMP_Back_f
 ==============
 */
 
-void __fastcall SV_DemoMP_Back_f(double _XMM0_8, __int64 a2, double _XMM2_8)
+void __fastcall SV_DemoMP_Back_f(double a1)
 {
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
-  const char *v5; 
-  int v13; 
+  const char *v3; 
+  __int128 v5; 
+  int v7; 
 
   if ( sv_demo.msg.data )
   {
@@ -1343,27 +1322,20 @@ void __fastcall SV_DemoMP_Back_f(double _XMM0_8, __int64 a2, double _XMM2_8)
       FrameDuration = SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
       if ( SV_Cmd_Argc() <= 1 )
         goto LABEL_8;
-      v5 = SV_Cmd_Argv(1);
-      _XMM0_8 = atof(v5);
-      __asm
-      {
-        vmovss  xmm1, cs:__real@447a0000
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, edi
-        vdivss  xmm2, xmm1, xmm2
-        vcvtss2sd xmm3, xmm2, xmm2
-        vmulsd  xmm0, xmm0, xmm3
-        vcvttsd2si eax, xmm0
-      }
+      v3 = SV_Cmd_Argv(1);
+      *((double *)&v5 + 1) = *(&a1 + 1);
+      *(double *)&v5 = atof(v3) * (float)(1000.0 / (float)FrameDuration);
+      _XMM0 = v5;
+      __asm { vcvttsd2si eax, xmm0 }
       FrameDuration *= _EAX;
       if ( FrameDuration > 0 )
       {
 LABEL_8:
-        v13 = G_Main_GetTime() - FrameDuration;
-        SV_DemoMP_LoadHistoryForTime(v13);
+        v7 = G_Main_GetTime() - FrameDuration;
+        SV_DemoMP_LoadHistoryForTime(v7);
         sv_demo.nextLevelSave = s_demoMP_history;
         SV_DemoMP_Restart(0);
-        sv_demo.nextLevelTime = v13;
+        sv_demo.nextLevelTime = v7;
       }
       else
       {
@@ -1547,13 +1519,14 @@ SV_DemoMP_Forward_f
 ==============
 */
 
-void __fastcall SV_DemoMP_Forward_f(double _XMM0_8, __int64 a2, double _XMM2_8)
+void __fastcall SV_DemoMP_Forward_f(double a1)
 {
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
-  const char *v5; 
-  int v13; 
-  int v14; 
+  const char *v3; 
+  __int128 v5; 
+  int v7; 
+  int v8; 
 
   if ( SV_IsDemoPlaying() )
   {
@@ -1568,24 +1541,17 @@ void __fastcall SV_DemoMP_Forward_f(double _XMM0_8, __int64 a2, double _XMM2_8)
       FrameDuration = SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
       if ( SV_Cmd_Argc() > 1 )
       {
-        v5 = SV_Cmd_Argv(1);
-        _XMM0_8 = atof(v5);
-        __asm
+        v3 = SV_Cmd_Argv(1);
+        *((double *)&v5 + 1) = *(&a1 + 1);
+        *(double *)&v5 = atof(v3) * (float)(1000.0 / (float)FrameDuration);
+        _XMM0 = v5;
+        __asm { vcvttsd2si edi, xmm0 }
+        v7 = FrameDuration * _EDI;
+        if ( v7 > 0 )
         {
-          vmovss  xmm1, cs:__real@447a0000
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, ebx
-          vdivss  xmm2, xmm1, xmm2
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmulsd  xmm0, xmm0, xmm3
-          vcvttsd2si edi, xmm0
-        }
-        v13 = FrameDuration * _EDI;
-        if ( v13 > 0 )
-        {
-          v14 = v13 + G_Main_GetTime();
-          SV_DemoMP_LoadHistoryForTime(v14);
-          sv_demo.forwardTime = v14;
+          v8 = v7 + G_Main_GetTime();
+          SV_DemoMP_LoadHistoryForTime(v8);
+          sv_demo.forwardTime = v8;
           sv_demo.nextLevelSave = NULL;
           sv_demo.nextLevelTime = 0;
         }
@@ -1647,12 +1613,13 @@ SV_DemoMP_FullForward_f
 ==============
 */
 
-void __fastcall SV_DemoMP_FullForward_f(double _XMM0_8, __int64 a2, double _XMM2_8)
+void __fastcall SV_DemoMP_FullForward_f(double a1)
 {
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
-  const char *v5; 
-  int v13; 
+  const char *v3; 
+  __int128 v5; 
+  int v7; 
 
   if ( SV_IsDemoPlaying() )
   {
@@ -1667,22 +1634,15 @@ void __fastcall SV_DemoMP_FullForward_f(double _XMM0_8, __int64 a2, double _XMM2
       FrameDuration = SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
       if ( SV_Cmd_Argc() > 1 )
       {
-        v5 = SV_Cmd_Argv(1);
-        _XMM0_8 = atof(v5);
-        __asm
+        v3 = SV_Cmd_Argv(1);
+        *((double *)&v5 + 1) = *(&a1 + 1);
+        *(double *)&v5 = atof(v3) * (float)(1000.0 / (float)FrameDuration);
+        _XMM0 = v5;
+        __asm { vcvttsd2si edi, xmm0 }
+        v7 = FrameDuration * _EDI;
+        if ( v7 > 0 )
         {
-          vmovss  xmm1, cs:__real@447a0000
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, ebx
-          vdivss  xmm2, xmm1, xmm2
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmulsd  xmm0, xmm0, xmm3
-          vcvttsd2si edi, xmm0
-        }
-        v13 = FrameDuration * _EDI;
-        if ( v13 > 0 )
-        {
-          sv_demo.forwardTime = v13 + G_Main_GetTime();
+          sv_demo.forwardTime = v7 + G_Main_GetTime();
           sv_demo.nextLevelSave = NULL;
           sv_demo.nextLevelTime = 0;
         }
@@ -1931,20 +1891,18 @@ __int64 SV_DemoMP_HostNum()
 SV_DemoMP_Info_f
 ==============
 */
-
-void __fastcall SV_DemoMP_Info_f(__int64 a1, double _XMM1_8)
+void SV_DemoMP_Info_f(void)
 {
-  __int64 v4; 
+  __int64 v0; 
   unsigned int i; 
   SvClient *CommonClient; 
-  int v7; 
-  unsigned int *v8; 
-  unsigned int cursize; 
-  __int64 v15; 
-  char *fmt; 
+  int v3; 
+  unsigned int *v4; 
+  int cursize; 
+  __int64 v6; 
 
   Com_Printf(0, "Active clients:\n");
-  v4 = 0i64;
+  v0 = 0i64;
   for ( i = 0; (int)i < (int)SvClient::ms_clientCount; ++i )
   {
     if ( SvClient::GetCommonClient(i)->state == CS_ACTIVE )
@@ -1960,60 +1918,33 @@ void __fastcall SV_DemoMP_Info_f(__int64 a1, double _XMM1_8)
     if ( s_demoMP_fileTimeHistory.handle == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 3517, ASSERT_TYPE_ASSERT, "( s_demoMP_fileTimeHistory != INVALID_SYS_FILE_HANDLE )", (const char *)&queryFormat, "s_demoMP_fileTimeHistory != INVALID_SYS_FILE_HANDLE") )
       __debugbreak();
     Com_Printf(0, "\nTime Marks(%d):\n", (unsigned int)s_demoMP_numFileSkips);
-    v7 = 0;
+    v3 = 0;
     if ( s_demoMP_numFileSkips > 0 )
     {
-      v8 = (unsigned int *)s_demoMP_fileSkips;
+      v4 = (unsigned int *)s_demoMP_fileSkips;
       do
       {
-        Com_Printf(0, "\t%d:%d\n", *v8, v8[1]);
-        ++v7;
-        v8 += 2;
+        Com_Printf(0, "\t%d:%d\n", *v4, v4[1]);
+        ++v3;
+        v4 += 2;
       }
-      while ( v7 < s_demoMP_numFileSkips );
+      while ( v3 < s_demoMP_numFileSkips );
     }
   }
   if ( SV_Demo_IsRecording() )
   {
     cursize = sv_demo.msg.cursize;
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-    }
     Com_Printf(15, "Demo Msg Profile:\n");
     Com_Printf(15, "\n\ntype\t\t\t\tbytes\tperc\n");
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  xmm7, cs:__real@42c80000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edi
-      vdivss  xmm6, xmm0, xmm1
-    }
-    v15 = 13i64;
+    v6 = 13i64;
     do
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r9d
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm2, xmm1, xmm6
-        vcvtss2sd xmm3, xmm2, xmm2
-        vmovsd  [rsp+58h+fmt], xmm3
-      }
-      Com_Printf(15, "%s\t\t\t%i\t%.2f\n", serverDemoTypeNames[v4], (unsigned int)s_svdMsgProf[v4].total, *(double *)&fmt);
-      ++v4;
-      --v15;
+      Com_Printf(15, "%s\t\t\t%i\t%.2f\n", serverDemoTypeNames[v0], (unsigned int)s_svdMsgProf[v0].total, (float)((float)((float)s_svdMsgProf[v0].total * 100.0) * (float)(1.0 / (float)cursize)));
+      ++v0;
+      --v6;
     }
-    while ( v15 );
-    Com_Printf(15, "total size: \t\t\t%i bytes\n\n", cursize);
-    __asm
-    {
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    while ( v6 );
+    Com_Printf(15, "total size: \t\t\t%i bytes\n\n", (unsigned int)cursize);
   }
 }
 
@@ -2308,13 +2239,9 @@ void SV_DemoMP_InitSystem(__int64 a1, const char *a2)
   if ( s_demoMP_fileTimeHistory.handle != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 1461, ASSERT_TYPE_ASSERT, "( s_demoMP_fileTimeHistory == INVALID_SYS_FILE_HANDLE )", (const char *)&queryFormat, "s_demoMP_fileTimeHistory == INVALID_SYS_FILE_HANDLE") )
     __debugbreak();
   v2 = SV_DemoMP_OpenFile(DEMO_MP_TIMEHISTORY_FILEPATH, a2);
-  __asm
-  {
-    vmovaps ymm0, cs:__ymm@00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff
-    vmovups ymmword ptr cs:s_svdMsgProf.start, ymm0
-    vmovups ymmword ptr cs:s_svdMsgProf.start+20h, ymm0
-    vmovups ymmword ptr cs:s_svdMsgProf.start+40h, ymm0
-  }
+  *(__m256i *)&s_svdMsgProf[0].start = _ymm;
+  *(__m256i *)&s_svdMsgProf[4].start = _ymm;
+  *(__m256i *)&s_svdMsgProf[8].start = _ymm;
   s_demoMP_fileTimeHistory.handle = (__int64)v2;
   s_svdMsgProf[12].start = -1;
   s_svdMsgProf[12].total = 0;
@@ -2349,13 +2276,9 @@ void SV_DemoMP_InitWrite(unsigned int randomSeed, int levelTime)
   sv_demo.recording = 1;
   sv_demo.startTime = levelTime;
   sv_demo.autoSaveTime = levelTime;
-  __asm
-  {
-    vmovaps ymm0, cs:__ymm@00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff
-    vmovups ymmword ptr cs:s_svdMsgProf.start, ymm0
-    vmovups ymmword ptr cs:s_svdMsgProf.start+20h, ymm0
-    vmovups ymmword ptr cs:s_svdMsgProf.start+40h, ymm0
-  }
+  *(__m256i *)&s_svdMsgProf[0].start = _ymm;
+  *(__m256i *)&s_svdMsgProf[4].start = _ymm;
+  *(__m256i *)&s_svdMsgProf[8].start = _ymm;
   if ( data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 2554, ASSERT_TYPE_ASSERT, "( !sv_demo.msg.data )", (const char *)&queryFormat, "!sv_demo.msg.data") )
     __debugbreak();
   MSG_Init(&sv_demo.msg, NULL, 0);
@@ -2389,22 +2312,22 @@ void SV_DemoMP_LoadDemo(const SaveHeader *header, MemoryFile *memFile, MemCardFi
   MemoryFile *v4; 
   const SaveHeader *v5; 
   void *m_ptr; 
-  unsigned int v8; 
-  const char *v9; 
+  unsigned int v7; 
+  const char *v8; 
   sysFileHandle_t *handle; 
+  int v10; 
   int v11; 
-  int v12; 
-  unsigned __int64 v13; 
-  __int64 v14; 
-  int v15; 
-  bool v16; 
-  SvDemo *v17; 
+  unsigned __int64 v12; 
+  __int64 v13; 
+  int v14; 
+  bool v15; 
+  SvDemo *v16; 
   int buffer; 
-  __int64 v19; 
+  __int64 v18; 
   Mem_LargeLocal ptr[3]; 
-  int v23; 
+  int v22; 
 
-  v19 = -2i64;
+  v18 = -2i64;
   v4 = memFile;
   v5 = header;
   Mem_LargeLocal::Mem_LargeLocal(ptr, 0x20000ui64, "saveBuf_t saveBuf");
@@ -2418,13 +2341,9 @@ void SV_DemoMP_LoadDemo(const SaveHeader *header, MemoryFile *memFile, MemCardFi
     sv_demo.msg.data = NULL;
     sv_demo.msg.maxsize = 0;
   }
-  __asm
-  {
-    vmovaps ymm0, cs:__ymm@00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff
-    vmovups ymmword ptr cs:s_svdMsgProf.start, ymm0
-    vmovups ymmword ptr cs:s_svdMsgProf.start+20h, ymm0
-    vmovups ymmword ptr cs:s_svdMsgProf.start+40h, ymm0
-  }
+  *(__m256i *)&s_svdMsgProf[0].start = _ymm;
+  *(__m256i *)&s_svdMsgProf[4].start = _ymm;
+  *(__m256i *)&s_svdMsgProf[8].start = _ymm;
   s_svdMsgProf[12].start = -1;
   s_svdMsgProf[12].total = 0;
   if ( sv_demo.save.buf )
@@ -2438,8 +2357,8 @@ void SV_DemoMP_LoadDemo(const SaveHeader *header, MemoryFile *memFile, MemCardFi
     FS_FileClose((HANDLE)sv_demo.save.file.handle);
     sv_demo.save.file.handle = -1i64;
   }
-  v8 = MemCard_FilePosition(fileHandle);
-  Com_Printf(15, "Load:%i\n", v8);
+  v7 = MemCard_FilePosition(fileHandle);
+  Com_Printf(15, "Load:%i\n", v7);
   ReadFromDevice(&sv_demo, 4ui64, fileHandle);
   ReadFromDevice(&sv_demo.endTime, 4ui64, fileHandle);
   ReadFromDevice(&buffer, 4ui64, fileHandle);
@@ -2450,32 +2369,32 @@ void SV_DemoMP_LoadDemo(const SaveHeader *header, MemoryFile *memFile, MemCardFi
   MSG_Init(&sv_demo.msg, sv_demo.msg.data, sv_demo.msg.maxsize);
   sv_demo.msg.cursize = buffer;
   ReadFromDevice(sv_demo.msg.data, buffer, fileHandle);
-  ReadFromDevice(&v23, 4ui64, fileHandle);
-  handle = SV_DemoMP_OpenFile(DEMO_MP_CACHE_FILEPATH, v9);
+  ReadFromDevice(&v22, 4ui64, fileHandle);
+  handle = SV_DemoMP_OpenFile(DEMO_MP_CACHE_FILEPATH, v8);
   sv_demo.save.file.handle = (__int64)handle;
   if ( handle == (sysFileHandle_t *)-1i64 )
   {
     G_SaveError(SAVE_ERROR_CORRUPT_SAVE, &byte_1440E0480);
     handle = (sysFileHandle_t *)sv_demo.save.file.handle;
   }
-  v11 = v23;
-  if ( v23 )
+  v10 = v22;
+  if ( v22 )
   {
     do
     {
-      v12 = 0x20000;
-      if ( v11 < 0x20000 )
-        v12 = v11;
-      v13 = ReadFromDevice(m_ptr, v12, fileHandle);
-      v14 = FS_FileWrite(m_ptr, v13, sv_demo.save.file);
-      v15 = v14;
-      if ( (unsigned __int64)(v14 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v14, "signed", v14) )
+      v11 = 0x20000;
+      if ( v10 < 0x20000 )
+        v11 = v10;
+      v12 = ReadFromDevice(m_ptr, v11, fileHandle);
+      v13 = FS_FileWrite(m_ptr, v12, sv_demo.save.file);
+      v14 = v13;
+      if ( (unsigned __int64)(v13 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v13, "signed", v13) )
         __debugbreak();
-      v16 = v23 == v15;
-      v11 = v23 - v15;
-      v23 -= v15;
+      v15 = v22 == v14;
+      v10 = v22 - v14;
+      v22 -= v14;
     }
-    while ( !v16 );
+    while ( !v15 );
     handle = (sysFileHandle_t *)sv_demo.save.file.handle;
     v5 = header;
     v4 = memFile;
@@ -2487,10 +2406,10 @@ void SV_DemoMP_LoadDemo(const SaveHeader *header, MemoryFile *memFile, MemCardFi
   sv_demo.save.bufLen = v5->bodySize;
   if ( !BG_GameInterface_GameModeIsMP((GameModeType)(unsigned __int8)SvDemo::ms_allocatedType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.h", 173, ASSERT_TYPE_ASSERT, "( BG_GameInterface_GameModeIsMP( ms_allocatedType ) )", (const char *)&queryFormat, "BG_GameInterface_GameModeIsMP( ms_allocatedType )") )
     __debugbreak();
-  v17 = SvDemo::ms_gServerDemoSystem;
+  v16 = SvDemo::ms_gServerDemoSystem;
   if ( sv_demo.save.buf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 2890, ASSERT_TYPE_ASSERT, "( !sv_demo.save.buf )", (const char *)&queryFormat, "!sv_demo.save.buf") )
     __debugbreak();
-  if ( !(unsigned int)SV_DemoMP_HistoryAlloc((server_demo_history_t *)&v17[786437], &sv_demo.save.buf, sv_demo.save.bufLen) )
+  if ( !(unsigned int)SV_DemoMP_HistoryAlloc((server_demo_history_t *)&v16[786437], &sv_demo.save.buf, sv_demo.save.bufLen) )
     Mem_Error_CannotAlloc_Dev(COUNT|DODGE|0x8, "SV_DemoMP_LoadDemo", "c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 2893, "Out of memory for history buffer");
   MemFile_CopySegments(v4, 0, sv_demo.save.buf);
   Mem_LargeLocal::~Mem_LargeLocal(ptr);
@@ -2963,21 +2882,21 @@ void SV_DemoMP_ReadPacket(void)
   const bdSecurityID *SecurityId; 
   unsigned int Long; 
   const dvar_t *VarByChecksum; 
-  netadr_t v10; 
-  __int64 v11; 
-  Mem_LargeLocal v12; 
+  netadr_t v9; 
+  __int64 v10; 
+  Mem_LargeLocal v11; 
   msg_t buf; 
   netadr_t netId; 
-  NetPingInfo v15; 
+  NetPingInfo v14; 
   XSESSION_INFO hostInfo; 
   XNADDR buffer; 
   char string[1024]; 
 
-  v11 = -2i64;
+  v10 = -2i64;
   if ( SV_IsDemoPlaying() )
   {
-    Mem_LargeLocal::Mem_LargeLocal(&v12, 0x243D8ui64, "msg_buf_t msgBuf");
-    m_ptr = (unsigned __int8 *)v12.m_ptr;
+    Mem_LargeLocal::Mem_LargeLocal(&v11, 0x243D8ui64, "msg_buf_t msgBuf");
+    m_ptr = (unsigned __int8 *)v11.m_ptr;
     PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
     time = PersistentGlobalsMP->time;
     if ( time <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_demo_mp.cpp", 2358, ASSERT_TYPE_ASSERT, "( ( levelTime > 0 ) )", "( levelTime ) = %i", PersistentGlobalsMP->time) )
@@ -3015,17 +2934,12 @@ void SV_DemoMP_ReadPacket(void)
             {
               MSG_ReadData(&sv_demo.msg, 20, &netId, 20);
             }
-            MSG_ReadData(&sv_demo.msg, 24, &v15, 24);
+            MSG_ReadData(&sv_demo.msg, 24, &v14, 24);
             buf.cursize = MSG_ReadLong(&sv_demo.msg);
             MSG_ReadData(&sv_demo.msg, buf.cursize, buf.data, buf.maxsize);
             SV_DemoMP_ReadNextDemoType();
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbp+4D0h+netId]
-              vmovups xmmword ptr [rsp+5D0h+var_5A8.port], xmm0
-            }
-            v10.addrHandleIndex = netId.addrHandleIndex;
-            SV_MainMP_PacketEventInternal(&v10, &buf, &v15);
+            v9 = netId;
+            SV_MainMP_PacketEventInternal(&v9, &buf, &v14);
             break;
           case 4:
             v3 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
@@ -3058,7 +2972,7 @@ LABEL_24:
       goto LABEL_27;
     }
 LABEL_28:
-    Mem_LargeLocal::~Mem_LargeLocal(&v12);
+    Mem_LargeLocal::~Mem_LargeLocal(&v11);
   }
 }
 

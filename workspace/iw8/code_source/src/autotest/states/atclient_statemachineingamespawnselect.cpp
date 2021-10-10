@@ -38,23 +38,18 @@ ATClient_StateMachineInGameSpawnSelectEnter
 */
 void ATClient_StateMachineInGameSpawnSelectEnter(const LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   AutomatedInput_Record records; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   if ( !LUI_IsMenuOpenAndVisible(localClientNum, "???") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachineingamespawnselect.cpp", 21, ASSERT_TYPE_ASSERT, "(LUI_IsMenuOpenAndVisible( localClientNum, ATCLIENT_MENU_SPAWN_SELECT ))", (const char *)&queryFormat, "LUI_IsMenuOpenAndVisible( localClientNum, ATCLIENT_MENU_SPAWN_SELECT )") )
     __debugbreak();
   records.keys.keyBits.array[0] = 0x40000000;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  memset(&records.keys.keyBits.array[1], 0, 24);
-  __asm
-  {
-    vmovss  [rsp+78h+records.deferTimeSeconds], xmm0
-    vmovss  [rsp+78h+records.holdTimeSeconds], xmm0
-    vmovups xmmword ptr [rsp+78h+records.moveStick], xmm0
-  }
-  CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 1);
-  s_durationMS_4[v2] = 1000;
+  memset(&records.keys.keyBits.array[1], 0, 40);
+  records.deferTimeSeconds = 0.0;
+  records.holdTimeSeconds = 0.0;
+  CL_Input_AddAutomatedSequence((LocalClientNum_t)v1, &records, 1);
+  s_durationMS_4[v1] = 1000;
 }
 
 /*

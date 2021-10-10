@@ -195,174 +195,173 @@ void Axis_BindC_f()
 Axis_Bind_Cmd
 ==============
 */
-
-void __fastcall Axis_Bind_Cmd(bool withInputContext, double _XMM1_8)
+void Axis_Bind_Cmd(bool withInputContext)
 {
-  BOOL v5; 
-  int v6; 
-  const char *v7; 
-  int v8; 
+  BOOL v1; 
+  int v2; 
+  const char *v3; 
+  int v4; 
   GamepadMapping mapType; 
-  const char *v10; 
+  const char *v6; 
   int keynumOther; 
-  GamepadPhysicalAxis v12; 
+  GamepadPhysicalAxis v8; 
+  const char *v9; 
+  int v10; 
+  const char *v11; 
+  int v12; 
   const char *v13; 
-  int v14; 
-  const char *v15; 
-  int v16; 
-  const char *v17; 
-  unsigned int v18; 
-  const char **v19; 
-  const char *v20; 
-  __int64 v21; 
-  signed __int64 v22; 
+  unsigned int v14; 
+  const char **v15; 
+  const char *v16; 
+  __int64 v17; 
+  signed __int64 v18; 
+  int v19; 
+  __int64 v20; 
+  int v21; 
+  int v22; 
   int v23; 
-  __int64 v24; 
-  int v25; 
-  int v26; 
-  int v27; 
   GamepadPhysicalAxis physAxisOther; 
+  float v25; 
+  const char *v26; 
+  GamepadPhysicalAxis v27; 
+  const char *v28; 
+  const char *v29; 
   const char *v30; 
-  GamepadPhysicalAxis v31; 
-  const char *v32; 
-  const char *v33; 
+  const char *v31; 
+  float v32; 
+  float v33; 
   const char *v34; 
-  const char *v35; 
-  const char *v37; 
-  LocalClientNum_t v42; 
-  float v44; 
-  GamepadPhysicalAxis v45; 
-  InputContext v48; 
+  double v35; 
+  LocalClientNum_t v36; 
+  GamepadPhysicalAxis v37; 
+  InputContext v38; 
   int keynumMain; 
   GamepadVirtualAxis vaxisIndex; 
   char *EndPtr; 
 
-  v5 = withInputContext;
+  v1 = withInputContext;
   LODWORD(EndPtr) = Cmd_Argc();
-  v6 = (int)EndPtr;
-  if ( (int)EndPtr >= v5 + 2 )
+  v2 = (int)EndPtr;
+  if ( (int)EndPtr >= v1 + 2 )
   {
-    v8 = 2;
+    v4 = 2;
     mapType = GPAD_MAP_SQUARED;
-    v10 = Cmd_Argv(1);
+    v6 = Cmd_Argv(1);
     keynumOther = -1;
-    v45 = Gamepad_StringToPhysicalAxis(v10);
+    v37 = Gamepad_StringToPhysicalAxis(v6);
     keynumMain = -1;
-    v12 = v45;
-    if ( v45 == GPAD_PHYSAXIS_NONE )
+    v8 = v37;
+    if ( v37 == GPAD_PHYSAXIS_NONE )
     {
-      keynumMain = Com_Keys_StringToKeynum(v10);
+      keynumMain = Com_Keys_StringToKeynum(v6);
       if ( keynumMain == -1 )
       {
-        Com_Printf(14, "\"%s\" isn't a valid axis or keynum/button for main axis value\n", v10);
+        Com_Printf(14, "\"%s\" isn't a valid axis or keynum/button for main axis value\n", v6);
         return;
       }
     }
-    v48 = BYTE_VALUE;
-    if ( v5 )
+    v38 = BYTE_VALUE;
+    if ( v1 )
     {
-      v8 = 3;
-      v13 = Cmd_Argv(2);
-      v48 = CL_InputContext_FromName(v13);
-      if ( v48 == (STRUCT_POINTER|FLOAT_POINTER) )
+      v4 = 3;
+      v9 = Cmd_Argv(2);
+      v38 = CL_InputContext_FromName(v9);
+      if ( v38 == (STRUCT_POINTER|FLOAT_POINTER) )
       {
-        Com_Printf(14, "\"%s\" isn't a valid input context\n", v13);
+        Com_Printf(14, "\"%s\" isn't a valid input context\n", v9);
         return;
       }
     }
     vaxisIndex = GPAD_VIRTAXIS_NONE;
-    if ( v8 < v6 )
+    if ( v4 < v2 )
     {
-      v14 = v8++;
-      v15 = Cmd_Argv(v14);
-      vaxisIndex = Axis_StringToVirtualAxis(v15);
+      v10 = v4++;
+      v11 = Cmd_Argv(v10);
+      vaxisIndex = Axis_StringToVirtualAxis(v11);
       if ( vaxisIndex == GPAD_VIRTAXIS_NONE )
       {
-        Com_Printf(14, "\"%s\" isn't a valid virtual axis\n", v15);
+        Com_Printf(14, "\"%s\" isn't a valid virtual axis\n", v11);
         return;
       }
     }
-    if ( v8 < v6 )
+    if ( v4 < v2 )
     {
-      v16 = v8++;
-      v17 = Cmd_Argv(v16);
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 236, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
+      v12 = v4++;
+      v13 = Cmd_Argv(v12);
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 236, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
         __debugbreak();
-      v18 = 0;
-      v19 = inputTypeNames;
+      v14 = 0;
+      v15 = inputTypeNames;
 LABEL_19:
-      v20 = *v19;
-      v21 = 0x7FFFFFFFi64;
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v16 = *v15;
+      v17 = 0x7FFFFFFFi64;
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v22 = v17 - v20;
+      v18 = v13 - v16;
       do
       {
-        v23 = (unsigned __int8)v20[v22];
-        v24 = v21;
-        v25 = *(unsigned __int8 *)v20++;
-        --v21;
-        if ( !v24 )
+        v19 = (unsigned __int8)v16[v18];
+        v20 = v17;
+        v21 = *(unsigned __int8 *)v16++;
+        --v17;
+        if ( !v20 )
           break;
-        if ( v23 != v25 )
+        if ( v19 != v21 )
         {
-          v26 = v23 + 32;
-          if ( (unsigned int)(v23 - 65) > 0x19 )
-            v26 = v23;
-          v23 = v26;
-          v27 = v25 + 32;
-          if ( (unsigned int)(v25 - 65) > 0x19 )
-            v27 = v25;
-          if ( v23 != v27 )
+          v22 = v19 + 32;
+          if ( (unsigned int)(v19 - 65) > 0x19 )
+            v22 = v19;
+          v19 = v22;
+          v23 = v21 + 32;
+          if ( (unsigned int)(v21 - 65) > 0x19 )
+            v23 = v21;
+          if ( v19 != v23 )
           {
-            ++v18;
-            ++v19;
-            if ( v18 >= 5 )
+            ++v14;
+            ++v15;
+            if ( v14 >= 5 )
             {
-              Com_Printf(14, "\"%s\" isn't a valid mapping input type\n", v17);
+              Com_Printf(14, "\"%s\" isn't a valid mapping input type\n", v13);
               return;
             }
             goto LABEL_19;
           }
         }
       }
-      while ( v23 );
-      mapType = v18;
-      v6 = (int)EndPtr;
-      v12 = v45;
+      while ( v19 );
+      mapType = v14;
+      v2 = (int)EndPtr;
+      v8 = v37;
     }
-    __asm { vmovaps [rsp+0C8h+var_58], xmm6 }
-    if ( v12 == GPAD_PHYSAXIS_NONE )
+    if ( v8 == GPAD_PHYSAXIS_NONE )
       physAxisOther = GPAD_PHYSAXIS_NONE;
     else
-      physAxisOther = axisSameStickDefault[v12];
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( v8 < v6 )
+      physAxisOther = axisSameStickDefault[v8];
+    v25 = 0.0;
+    if ( v4 < v2 )
     {
       if ( mapType == GPAD_MAP_LINEAR_COMPLEMENT )
       {
-        v30 = Cmd_Argv(v8);
-        v31 = Gamepad_StringToPhysicalAxis(v30);
-        physAxisOther = v31;
-        if ( v31 == GPAD_PHYSAXIS_NONE )
+        v26 = Cmd_Argv(v4);
+        v27 = Gamepad_StringToPhysicalAxis(v26);
+        physAxisOther = v27;
+        if ( v27 == GPAD_PHYSAXIS_NONE )
         {
-          keynumOther = Com_Keys_StringToKeynum(v30);
+          keynumOther = Com_Keys_StringToKeynum(v26);
           if ( keynumOther == -1 )
           {
-            v32 = Gamepad_InputTypeName(GPAD_MAP_LINEAR_COMPLEMENT);
-            Com_Printf(14, "\"%s\" isn't a valid axis or keynum/button for other axis value when using \"%s\"\n", v30, v32);
-LABEL_58:
-            __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
+            v28 = Gamepad_InputTypeName(GPAD_MAP_LINEAR_COMPLEMENT);
+            Com_Printf(14, "\"%s\" isn't a valid axis or keynum/button for other axis value when using \"%s\"\n", v26, v28);
             return;
           }
         }
-        else if ( v31 == v12 )
+        else if ( v27 == v8 )
         {
-          v33 = Gamepad_InputTypeName(GPAD_MAP_LINEAR_COMPLEMENT);
-          Com_Printf(14, "Warning, main and other axis for \"%s\" is the same when using \"%s\"", v30, v33);
-          goto LABEL_58;
+          v29 = Gamepad_InputTypeName(GPAD_MAP_LINEAR_COMPLEMENT);
+          Com_Printf(14, "Warning, main and other axis for \"%s\" is the same when using \"%s\"", v26, v29);
+          return;
         }
       }
       else
@@ -370,54 +369,38 @@ LABEL_58:
         if ( (unsigned int)(mapType - 3) > 1 )
         {
           Com_Printf(14, "Other physical axis or keynum or threshold specified but the map type is not supported");
-          goto LABEL_58;
+          return;
         }
-        __asm { vmovaps [rsp+0C8h+var_68], xmm7 }
-        v34 = Cmd_Argv(v8);
+        v30 = Cmd_Argv(v4);
         EndPtr = NULL;
-        v35 = v34;
-        *(float *)&_XMM0 = strtof(v34, &EndPtr);
-        __asm { vmovaps xmm7, xmm0 }
-        if ( EndPtr == v35 )
+        v31 = v30;
+        v32 = strtof(v30, &EndPtr);
+        v33 = v32;
+        if ( EndPtr == v31 )
         {
-          v37 = Gamepad_InputTypeName(mapType);
-          Com_Printf(14, "Warning, threshold value is not valid \"%s\" when using \"%s\". Using 0.", v35, v37);
-          __asm { vxorps  xmm7, xmm7, xmm7 }
+          v34 = Gamepad_InputTypeName(mapType);
+          Com_Printf(14, "Warning, threshold value is not valid \"%s\" when using \"%s\". Using 0.", v31, v34);
+          v33 = 0.0;
         }
-        else
+        else if ( v32 < 0.0 || v32 > 1.0 )
         {
-          __asm { vcomiss xmm0, xmm6 }
-          if ( EndPtr < v35 )
-            goto LABEL_55;
-          __asm { vcomiss xmm0, cs:__real@3f800000 }
-          if ( EndPtr > v35 )
-LABEL_55:
-            Com_Printf(14, "Warning, bindaxis threshold value (%s) must be [0,1]. Clamping...", v35);
+          Com_Printf(14, "Warning, bindaxis threshold value (%s) must be [0,1]. Clamping...", v31);
         }
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3f800000; max
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps xmm0, xmm7; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm7, [rsp+0C8h+var_68]
-          vmovaps xmm6, xmm0
-        }
+        v35 = I_fclamp(v33, 0.0, 1.0);
+        v25 = *(float *)&v35;
       }
     }
-    v42 = Cmd_LocalClientNum();
-    __asm { vmovss  [rsp+0C8h+var_88], xmm6 }
-    CL_Gamepad_BindAxis(v42, v48, vaxisIndex, v12, keynumMain, physAxisOther, keynumOther, mapType, v44);
-    goto LABEL_58;
+    v36 = Cmd_LocalClientNum();
+    CL_Gamepad_BindAxis(v36, v38, vaxisIndex, v8, keynumMain, physAxisOther, keynumOther, mapType, v25);
   }
-  v7 = "bindaxisc <physical axis | key> <input context> ";
-  if ( !v5 )
-    v7 = "bindaxis <physical axis | key> ";
-  Com_Printf(14, v7);
-  Com_Printf(14, "[virtual axis] [map type] [other physical axis | other key | threshold] : setup pad axis\n");
+  else
+  {
+    v3 = "bindaxisc <physical axis | key> <input context> ";
+    if ( !v1 )
+      v3 = "bindaxis <physical axis | key> ";
+    Com_Printf(14, v3);
+    Com_Printf(14, "[virtual axis] [map type] [other physical axis | other key | threshold] : setup pad axis\n");
+  }
 }
 
 /*
@@ -425,9 +408,9 @@ LABEL_55:
 Axis_Bind_f
 ==============
 */
-void Axis_Bind_f(__int64 a1, double a2)
+void Axis_Bind_f()
 {
-  Axis_Bind_Cmd(0, a2);
+  Axis_Bind_Cmd(0);
 }
 
 /*
@@ -506,10 +489,14 @@ __int64 Axis_Swap(GamepadPhysicalAxis physAxisIndex1, GamepadPhysicalAxis physAx
   GamepadVirtualAxisState *virtualAxes; 
   InputContext *p_activeInputContext; 
   __int64 v11; 
+  double *v12; 
   GamepadVirtualAxisState *v13; 
+  double *v14; 
   GamepadVirtualAxisState *v15; 
+  __int128 v16; 
+  double v17; 
   __int64 result; 
-  __int128 v21; 
+  __int128 v19; 
 
   v4 = 0;
   v5 = 0;
@@ -521,7 +508,7 @@ __int64 Axis_Swap(GamepadPhysicalAxis physAxisIndex1, GamepadPhysicalAxis physAx
   v11 = 15i64;
   do
   {
-    _R9 = NULL;
+    v12 = NULL;
     v13 = gaGlobs[v6].virtualAxes;
     if ( virtualAxes != (GamepadVirtualAxisState *)p_activeInputContext )
     {
@@ -529,17 +516,17 @@ __int64 Axis_Swap(GamepadPhysicalAxis physAxisIndex1, GamepadPhysicalAxis physAx
       {
         if ( v13->mappings[v7].physicalAxisOther == physAxisIndex1 )
         {
-          _R9 = (_DWORD *)((char *)v13 + v8);
+          v12 = (double *)((char *)v13 + v8);
           v5 = 1;
         }
         if ( ++v13 == (GamepadVirtualAxisState *)p_activeInputContext )
           goto LABEL_9;
       }
-      _R9 = (_DWORD *)((char *)v13 + v8);
+      v12 = (double *)((char *)v13 + v8);
       v5 = 0;
     }
 LABEL_9:
-    _RDX = NULL;
+    v14 = NULL;
     v15 = gaGlobs[v6].virtualAxes;
     if ( virtualAxes != (GamepadVirtualAxisState *)p_activeInputContext )
     {
@@ -547,40 +534,32 @@ LABEL_9:
       {
         if ( v15->mappings[v7].physicalAxisOther == physAxisIndex2 )
         {
-          _RDX = (_DWORD *)((char *)v15 + v8);
+          v14 = (double *)((char *)v15 + v8);
           v5 = 1;
         }
         if ( ++v15 == (GamepadVirtualAxisState *)p_activeInputContext )
           goto LABEL_16;
       }
-      _RDX = (_DWORD *)((char *)v15 + v8);
+      v14 = (double *)((char *)v15 + v8);
       v5 = 0;
     }
 LABEL_16:
-    if ( _R9 && _RDX )
+    if ( v12 && v14 )
     {
-      __asm
+      v16 = *(_OWORD *)v14;
+      v17 = v14[2];
+      v19 = *(_OWORD *)v14;
+      if ( v12 == v14 && v5 )
       {
-        vmovups xmm2, xmmword ptr [rdx]
-        vmovsd  xmm3, qword ptr [rdx+10h]
-        vmovups [rsp+58h+var_38], xmm2
-      }
-      if ( _R9 == _RDX && v5 )
-      {
-        *_RDX = _R9[1];
-        _R9[1] = v21;
+        *(_DWORD *)v14 = *((_DWORD *)v12 + 1);
+        *((_DWORD *)v12 + 1) = v19;
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r9]
-          vmovups xmmword ptr [rdx], xmm0
-          vmovsd  xmm1, qword ptr [r9+10h]
-          vmovsd  qword ptr [rdx+10h], xmm1
-          vmovups xmmword ptr [r9], xmm2
-          vmovsd  qword ptr [r9+10h], xmm3
-        }
+        *(_OWORD *)v14 = *(_OWORD *)v12;
+        v14[2] = v12[2];
+        *(_OWORD *)v12 = v16;
+        v12[2] = v17;
       }
       v4 = 1;
     }
@@ -838,183 +817,94 @@ CL_GamepadAxisValue
 */
 float CL_GamepadAxisValue(LocalClientNum_t localClientNum, int virtualAxis)
 {
-  __int64 v7; 
-  __int64 v8; 
+  __int64 v2; 
+  __int64 v3; 
+  GamepadVirtualAxisMapping *p_activeMapping; 
+  __int64 physicalAxisMain; 
+  __int128 v7; 
+  __int128 v8; 
   int keynumMain; 
+  __int128 v10; 
   __int64 physicalAxisOther; 
-  bool v19; 
+  float IsKeyDown; 
   int keynumOther; 
-  bool v24; 
-  int v25; 
-  bool v46; 
-  double v55; 
+  __int128 v14; 
 
-  v7 = virtualAxis;
-  v8 = localClientNum;
+  v2 = virtualAxis;
+  v3 = localClientNum;
   if ( (unsigned int)virtualAxis > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 822, ASSERT_TYPE_ASSERT, "( ( virtualAxis >= 0 && virtualAxis < GPAD_VIRTAXIS_COUNT ) )", "( virtualAxis ) = %i", virtualAxis) )
     __debugbreak();
-  _RBX = &gaGlobs[v8].virtualAxes[v7].activeMapping;
+  p_activeMapping = &gaGlobs[v3].virtualAxes[v2].activeMapping;
   if ( DevGui_IsActive() || CL_Pause_IsGamePaused() && CL_Pause_GetPauseReason() == 2048 )
+    return 0.0;
+  physicalAxisMain = p_activeMapping->physicalAxisMain;
+  _XMM9 = 0i64;
+  v7 = 0i64;
+  if ( (_DWORD)physicalAxisMain == -1 )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    keynumMain = p_activeMapping->keynumMain;
+    if ( keynumMain != -1 )
+    {
+      v10 = 0i64;
+      *(float *)&v10 = (float)CL_Keys_IsKeyDown((LocalClientNum_t)v3, keynumMain);
+      v7 = v10;
+    }
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-      vmovaps [rsp+78h+var_38], xmm8
-      vmovaps [rsp+78h+var_48], xmm9
-      vmovss  xmm8, cs:__real@37800080
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( _RBX->physicalAxisMain == GPAD_PHYSAXIS_NONE )
-    {
-      keynumMain = _RBX->keynumMain;
-      if ( keynumMain != -1 )
-      {
-        CL_Keys_IsKeyDown((LocalClientNum_t)v8, keynumMain);
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr ss:rva gaGlobs.axesValues[rbp+rcx*4]
-        vmulss  xmm6, xmm0, xmm8
-      }
-    }
-    physicalAxisOther = _RBX->physicalAxisOther;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    if ( (_DWORD)physicalAxisOther == -1 )
-    {
-      keynumOther = _RBX->keynumOther;
-      v19 = keynumOther != -1;
-      if ( keynumOther != -1 )
-      {
-        CL_Keys_IsKeyDown((LocalClientNum_t)v8, keynumOther);
-        __asm
-        {
-          vxorps  xmm7, xmm7, xmm7
-          vcvtsi2ss xmm7, xmm7, eax
-        }
-      }
-    }
-    else
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      v19 = __CFADD__(physicalAxisOther, 583 * v8);
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, dword ptr ss:rva gaGlobs.axesValues[rbp+rcx*4]
-        vmulss  xmm7, xmm0, xmm8
-      }
-    }
-    __asm { vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-    v24 = _RBX->mapType == GPAD_MAP_NONE;
-    v25 = _RBX->mapType + 1;
-    switch ( _RBX->mapType )
-    {
-      case GPAD_MAP_NONE:
-      case GPAD_MAP_COUNT:
-        v46 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 868, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false");
-        v19 = 0;
-        v24 = !v46;
-        if ( v46 )
-          __debugbreak();
-        break;
-      case GPAD_MAP_SQUARED:
-        __asm
-        {
-          vmulss  xmm1, xmm7, xmm7; jumptable 0000000141A10708 case 1
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vmulss  xmm6, xmm2, xmm6
-        }
-        break;
-      case GPAD_MAP_LINEAR_COMPLEMENT:
-        __asm { vsubss  xmm6, xmm6, xmm7; jumptable 0000000141A10708 case 2 }
-        break;
-      case GPAD_MAP_SQRT:
-        __asm
-        {
-          vandps  xmm0, xmm6, xmm8; jumptable 0000000141A10708 case 3
-          vcomiss xmm0, dword ptr [rbx+14h]
-        }
-        if ( !v19 && v25 != 0 )
-        {
-          __asm
-          {
-            vsqrtss xmm4, xmm0, xmm0
-            vxorps  xmm2, xmm4, cs:__xmm@80000000800000008000000080000000
-            vmulss  xmm0, xmm6, xmm6
-            vmulss  xmm1, xmm7, xmm7
-            vaddss  xmm1, xmm1, xmm0
-            vcmpless xmm0, xmm9, xmm6
-            vblendvps xmm0, xmm2, xmm4, xmm0
-            vsqrtss xmm3, xmm1, xmm1
-            vmulss  xmm6, xmm3, xmm0
-          }
-        }
-        break;
-      case GPAD_MAP_CBRT:
-        __asm
-        {
-          vandps  xmm0, xmm6, xmm8; jumptable 0000000141A10708 case 4
-          vcomiss xmm0, dword ptr [rbx+14h]
-        }
-        if ( !v19 && v25 != 0 )
-        {
-          __asm { vmovaps xmm0, xmm6; X }
-          *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-          __asm
-          {
-            vmovaps xmm3, xmm0
-            vmulss  xmm0, xmm6, xmm6
-            vmulss  xmm1, xmm7, xmm7
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
-            vmulss  xmm6, xmm3, xmm2
-          }
-        }
-        break;
-      default:
-        break;
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+78h+var_48]; jumptable 0000000141A10708 default case, case 0
-      vmovaps xmm7, [rsp+78h+var_28]
-      vandps  xmm0, xmm6, xmm8
-      vcomiss xmm0, cs:__real@3f800054
-      vmovaps xmm8, [rsp+78h+var_38]
-    }
-    if ( !v19 && !v24 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+78h+var_50], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 872, ASSERT_TYPE_SANITY, "( ( I_fabs( axisFinalDeflectionValue ) <= 1.00001f ) )", "( axisFinalDeflectionValue ) = %g", v55) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+78h+var_18]
-    }
+    v8 = 0i64;
+    *(float *)&v8 = (float)gaGlobs[v3].axesValues[physicalAxisMain] * 0.000015259022;
+    v7 = v8;
   }
-  return *(float *)&_XMM0;
+  physicalAxisOther = p_activeMapping->physicalAxisOther;
+  IsKeyDown = 0.0;
+  if ( (_DWORD)physicalAxisOther == -1 )
+  {
+    keynumOther = p_activeMapping->keynumOther;
+    if ( keynumOther != -1 )
+      IsKeyDown = (float)CL_Keys_IsKeyDown((LocalClientNum_t)v3, keynumOther);
+  }
+  else
+  {
+    IsKeyDown = (float)gaGlobs[v3].axesValues[physicalAxisOther] * 0.000015259022;
+  }
+  switch ( p_activeMapping->mapType )
+  {
+    case GPAD_MAP_NONE:
+    case GPAD_MAP_COUNT:
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 868, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
+        __debugbreak();
+      break;
+    case GPAD_MAP_SQUARED:
+      *(float *)&v7 = fsqrt((float)(IsKeyDown * IsKeyDown) + (float)(*(float *)&v7 * *(float *)&v7)) * *(float *)&v7;
+      break;
+    case GPAD_MAP_LINEAR_COMPLEMENT:
+      *(float *)&v7 = *(float *)&v7 - IsKeyDown;
+      break;
+    case GPAD_MAP_SQRT:
+      if ( COERCE_FLOAT(v7 & _xmm) > p_activeMapping->thresholdAbs )
+      {
+        v14 = v7 & (unsigned int)_xmm;
+        *(float *)&v14 = fsqrt(COERCE_FLOAT(v7 & _xmm));
+        _XMM2 = v14 ^ _xmm;
+        __asm
+        {
+          vcmpless xmm0, xmm9, xmm6
+          vblendvps xmm0, xmm2, xmm4, xmm0
+        }
+        *(float *)&v7 = fsqrt((float)(IsKeyDown * IsKeyDown) + (float)(*(float *)&v7 * *(float *)&v7)) * *(float *)&_XMM0;
+      }
+      break;
+    case GPAD_MAP_CBRT:
+      if ( COERCE_FLOAT(v7 & _xmm) > p_activeMapping->thresholdAbs )
+        *(float *)&v7 = cbrtf(*(float *)&v7) * fsqrt((float)(IsKeyDown * IsKeyDown) + (float)(*(float *)&v7 * *(float *)&v7));
+      break;
+    default:
+      break;
+  }
+  if ( COERCE_FLOAT(v7 & _xmm) > 1.00001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 872, ASSERT_TYPE_SANITY, "( ( I_fabs( axisFinalDeflectionValue ) <= 1.00001f ) )", "( axisFinalDeflectionValue ) = %g", *(float *)&v7) )
+    __debugbreak();
+  return *(float *)&v7;
 }
 
 /*
@@ -1544,82 +1434,81 @@ CL_GamepadGenerateAPad
 */
 void CL_GamepadGenerateAPad(LocalClientNum_t localClientNum, int portIndex, int physicalAxis, int time)
 {
-  int v5; 
-  __int64 v6; 
-  GamePadStick v10; 
-  int v11; 
-  StickToCodeMap *v12; 
+  int v4; 
+  __int64 v5; 
+  GamePadStick v9; 
+  int v10; 
+  StickToCodeMap *v11; 
   int posCode; 
-  int v14; 
+  int v13; 
+  StickToCodeMap *v14; 
   StickToCodeMap *v15; 
-  StickToCodeMap *v16; 
   int negCode; 
-  StickToCodeMap *v18; 
+  StickToCodeMap *v17; 
   GamePadStick stick[4]; 
-  __int64 v20; 
+  __int64 v19; 
 
-  __asm { vmovdqu xmm0, cs:__xmm@40000001400000004000000340000002 }
-  v5 = 0;
-  v6 = physicalAxis;
-  v20 = 0i64;
-  __asm { vmovdqu xmmword ptr [rsp+88h+stick], xmm0 }
-  if ( (unsigned int)physicalAxis > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 720, ASSERT_TYPE_ASSERT, "(physicalAxis >= 0 && physicalAxis < GPAD_PHYSAXIS_COUNT)", (const char *)&queryFormat, "physicalAxis >= 0 && physicalAxis < GPAD_PHYSAXIS_COUNT", *(_QWORD *)stick, *(_QWORD *)&stick[2], v20) )
+  v4 = 0;
+  v5 = physicalAxis;
+  v19 = 0i64;
+  *(_OWORD *)stick = _xmm;
+  if ( (unsigned int)physicalAxis > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 720, ASSERT_TYPE_ASSERT, "(physicalAxis >= 0 && physicalAxis < GPAD_PHYSAXIS_COUNT)", (const char *)&queryFormat, "physicalAxis >= 0 && physicalAxis < GPAD_PHYSAXIS_COUNT", *(_QWORD *)stick, *(_QWORD *)&stick[2], v19) )
     __debugbreak();
-  v10 = stick[v6];
-  if ( v10 == GPAD_INVALID )
+  v9 = stick[v5];
+  if ( v9 == GPAD_INVALID )
     return;
-  if ( GPad_IsStickPressed(portIndex, v10, GPAD_STICK_POS) )
+  if ( GPad_IsStickPressed(portIndex, v9, GPAD_STICK_POS) )
   {
-    v11 = 0;
-    v12 = menuScrollAnalogList;
-    while ( v12->physicalAxis != (_DWORD)v6 )
+    v10 = 0;
+    v11 = menuScrollAnalogList;
+    while ( v11->physicalAxis != (_DWORD)v5 )
     {
-      ++v11;
-      if ( (__int64)++v12 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
+      ++v10;
+      if ( (__int64)++v11 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
         goto LABEL_18;
     }
-    posCode = menuScrollAnalogList[v11].posCode;
+    posCode = menuScrollAnalogList[v10].posCode;
 LABEL_17:
     CL_GamepadButtonEvent(localClientNum, portIndex, posCode, 1, time, 0);
     goto LABEL_18;
   }
-  if ( GPad_IsStickPressed(portIndex, v10, GPAD_STICK_NEG) )
+  if ( GPad_IsStickPressed(portIndex, v9, GPAD_STICK_NEG) )
   {
-    v14 = 0;
-    v15 = menuScrollAnalogList;
-    while ( v15->physicalAxis != (_DWORD)v6 )
+    v13 = 0;
+    v14 = menuScrollAnalogList;
+    while ( v14->physicalAxis != (_DWORD)v5 )
     {
-      ++v14;
-      if ( (__int64)++v15 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
+      ++v13;
+      if ( (__int64)++v14 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
         goto LABEL_18;
     }
-    posCode = menuScrollAnalogList[v14].negCode;
+    posCode = menuScrollAnalogList[v13].negCode;
     goto LABEL_17;
   }
 LABEL_18:
-  if ( GPad_IsStickReleased(portIndex, v10, GPAD_STICK_POS) )
+  if ( GPad_IsStickReleased(portIndex, v9, GPAD_STICK_POS) )
   {
-    v16 = menuScrollAnalogList;
-    while ( v16->physicalAxis != (_DWORD)v6 )
+    v15 = menuScrollAnalogList;
+    while ( v15->physicalAxis != (_DWORD)v5 )
     {
-      ++v5;
-      if ( (__int64)++v16 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
+      ++v4;
+      if ( (__int64)++v15 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
         return;
     }
-    negCode = menuScrollAnalogList[v5].posCode;
+    negCode = menuScrollAnalogList[v4].posCode;
   }
   else
   {
-    if ( !GPad_IsStickReleased(portIndex, v10, GPAD_STICK_NEG) )
+    if ( !GPad_IsStickReleased(portIndex, v9, GPAD_STICK_NEG) )
       return;
-    v18 = menuScrollAnalogList;
-    while ( v18->physicalAxis != (_DWORD)v6 )
+    v17 = menuScrollAnalogList;
+    while ( v17->physicalAxis != (_DWORD)v5 )
     {
-      ++v5;
-      if ( (__int64)++v18 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
+      ++v4;
+      if ( (__int64)++v17 >= (__int64)&MAX_TRANSIENT_WORLD_FASTFILES_1002 )
         return;
     }
-    negCode = menuScrollAnalogList[v5].negCode;
+    negCode = menuScrollAnalogList[v4].negCode;
   }
   CL_GamepadButtonEvent(localClientNum, portIndex, negCode, 0, time, 0);
 }
@@ -1663,57 +1552,21 @@ CL_GamepadPhysicalAxisValue
 */
 float CL_GamepadPhysicalAxisValue(LocalClientNum_t localClientNum, GamepadPhysicalAxis physicalAxis)
 {
-  __int64 v4; 
-  __int64 v5; 
-  bool v7; 
-  double v15; 
+  __int64 v2; 
+  __int64 v3; 
+  float v5; 
 
-  v4 = physicalAxis;
-  v5 = localClientNum;
+  v2 = physicalAxis;
+  v3 = localClientNum;
   if ( DevGui_IsActive() )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+    return 0.0;
+  if ( (_DWORD)v2 == -1 )
+    v5 = 0.0;
   else
-  {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
-    v7 = 1;
-    if ( (_DWORD)v4 == -1 )
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-    }
-    else
-    {
-      v7 = __CFADD__(v4, 583 * v5) || v4 + 583 * v5 == 0;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+rcx*4]
-        vmulss  xmm6, xmm0, cs:__real@37800080
-      }
-    }
-    __asm
-    {
-      vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@3f800054
-    }
-    if ( !v7 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+48h+var_20], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 791, ASSERT_TYPE_SANITY, "( ( I_fabs( axisDeflection ) <= 1.00001f ) )", "( axisDeflection ) = %g", v15) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+    v5 = (float)gaGlobs[v3].axesValues[v2] * 0.000015259022;
+  if ( COERCE_FLOAT(LODWORD(v5) & _xmm) > 1.00001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 791, ASSERT_TYPE_SANITY, "( ( I_fabs( axisDeflection ) <= 1.00001f ) )", "( axisDeflection ) = %g", v5) )
+    __debugbreak();
+  return v5;
 }
 
 /*
@@ -1785,6 +1638,7 @@ void CL_Gamepad_BindAxis(LocalClientNum_t localClientNum, InputContext inputCont
 {
   __int64 v9; 
   __int64 v10; 
+  GamepadVirtualAxisMapping *v13; 
 
   v9 = vaxisIndex;
   v10 = localClientNum;
@@ -1796,14 +1650,13 @@ void CL_Gamepad_BindAxis(LocalClientNum_t localClientNum, InputContext inputCont
     __debugbreak();
   if ( inputContext == (STRUCT_POINTER|FLOAT_POINTER) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_gamepad.cpp", 260, ASSERT_TYPE_ASSERT, "(inputContext != InputContext::INVALID)", (const char *)&queryFormat, "inputContext != InputContext::INVALID") )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+48h+thresholdAbs] }
-  _RCX = &gaGlobs[v10].virtualAxes[v9].mappings[(unsigned __int8)inputContext];
-  _RCX->physicalAxisOther = physAxisOther;
-  _RCX->keynumOther = keynumOther;
-  _RCX->physicalAxisMain = physAxisMain;
-  _RCX->keynumMain = keynumMain;
-  _RCX->mapType = mapType;
-  __asm { vmovss  dword ptr [rcx+14h], xmm0 }
+  v13 = &gaGlobs[v10].virtualAxes[v9].mappings[(unsigned __int8)inputContext];
+  v13->physicalAxisOther = physAxisOther;
+  v13->keynumOther = keynumOther;
+  v13->physicalAxisMain = physAxisMain;
+  v13->keynumMain = keynumMain;
+  v13->mapType = mapType;
+  v13->thresholdAbs = thresholdAbs;
   gaGlobs[v10].activeInputContext = STRUCT_POINTER|FLOAT_POINTER;
 }
 
@@ -2004,70 +1857,58 @@ void CL_Gamepad_UnbindAxis(LocalClientNum_t localClientNum, const InputContext i
 CL_Gamepad_UpdateActiveMappings
 ==============
 */
-
-void __fastcall CL_Gamepad_UpdateActiveMappings(LocalClientNum_t localClientNum, InputContext newActiveContext, double _XMM2_8)
+void CL_Gamepad_UpdateActiveMappings(LocalClientNum_t localClientNum, InputContext newActiveContext)
 {
-  __int64 v3; 
+  __int64 v2; 
+  GamepadVirtualAxisState *virtualAxes; 
   InputContext *p_activeInputContext; 
   __int64 Inherited; 
-  __int64 v10; 
-  __int128 v15; 
-  __int64 v16; 
-  InputContext v17[16]; 
+  GamepadVirtualAxisMapping *p_activeMapping; 
+  __int64 v8; 
+  double v10; 
+  __int128 v12; 
+  InputContext v13[16]; 
 
-  v3 = localClientNum;
-  if ( gaGlobs[v3].activeInputContext != newActiveContext )
+  v2 = localClientNum;
+  if ( gaGlobs[v2].activeInputContext != newActiveContext )
   {
-    _RBX = gaGlobs[v3].virtualAxes;
-    p_activeInputContext = &gaGlobs[v3].activeInputContext;
-    Inherited = CL_InputContext_GetInherited(newActiveContext, (InputContext (*)[15])v17);
-    if ( _RBX != (GamepadVirtualAxisState *)p_activeInputContext )
+    virtualAxes = gaGlobs[v2].virtualAxes;
+    p_activeInputContext = &gaGlobs[v2].activeInputContext;
+    Inherited = CL_InputContext_GetInherited(newActiveContext, (InputContext (*)[15])v13);
+    if ( virtualAxes != (GamepadVirtualAxisState *)p_activeInputContext )
     {
-      _R9 = &gaGlobs[v3].virtualAxes[0].activeMapping;
-      __asm { vxorps  xmm2, xmm2, xmm2 }
+      p_activeMapping = &gaGlobs[v2].virtualAxes[0].activeMapping;
       do
       {
-        v10 = 0i64;
-        *(_QWORD *)&v15 = -1i64;
-        LODWORD(v16) = 3;
-        *((_QWORD *)&v15 + 1) = -1i64;
-        __asm { vmovss  dword ptr [rsp+68h+var_38+4], xmm2 }
+        v8 = 0i64;
+        *(_QWORD *)&v12 = -1i64;
+        *((_QWORD *)&v12 + 1) = -1i64;
         if ( Inherited <= 0 )
         {
-          __asm
-          {
-            vmovsd  xmm1, [rsp+68h+var_38]
-            vmovups xmm0, [rsp+68h+var_48]
-          }
+          *(_QWORD *)&v10 = 3i64;
+          _XMM0 = v12;
         }
         else
         {
           do
           {
-            _RCX = 3i64 * (unsigned __int8)v17[v10];
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbx+rcx*8]
-              vmovsd  xmm1, qword ptr [rbx+rcx*8+10h]
-              vpextrd rax, xmm0, 2
-            }
+            _XMM0 = *(_OWORD *)&virtualAxes->mappings[(unsigned __int8)v13[v8]].physicalAxisMain;
+            v10 = *(double *)&virtualAxes->mappings[(unsigned __int8)v13[v8]].mapType;
+            __asm { vpextrd rax, xmm0, 2 }
             if ( (_DWORD)_RAX != 222 )
               break;
-            ++v10;
+            ++v8;
           }
-          while ( v10 < Inherited );
+          while ( v8 < Inherited );
         }
-        __asm
-        {
-          vmovups xmmword ptr [r9], xmm0
-          vmovsd  qword ptr [r9+10h], xmm1
-        }
-        _R9 += 16;
-        ++_RBX;
+        *(_OWORD *)&p_activeMapping->physicalAxisMain = _XMM0;
+        *(double *)&p_activeMapping->mapType = v10;
+        p_activeMapping += 16;
+        ++virtualAxes;
       }
-      while ( _RBX != (GamepadVirtualAxisState *)p_activeInputContext );
+      while ( virtualAxes != (GamepadVirtualAxisState *)p_activeInputContext );
     }
-    gaGlobs[v3].activeInputContext = newActiveContext;
+    gaGlobs[v2].activeInputContext = newActiveContext;
   }
 }
 
@@ -2110,7 +1951,7 @@ CL_InitGamepadCommands
 */
 void CL_InitGamepadCommands(void)
 {
-  Cmd_AddCommandInternal("bindaxis", (void (__fastcall *)())Axis_Bind_f, &Axis_Bind_f_VAR);
+  Cmd_AddCommandInternal("bindaxis", Axis_Bind_f, &Axis_Bind_f_VAR);
   Cmd_AddCommandInternal("bindaxisc", Axis_BindC_f, &Axis_BindC_f_VAR);
   Cmd_AddCommandInternal("unbindaxis", Axis_Unbind_f, &Axis_Unbind_f_VAR);
   Cmd_AddCommandInternal("unbindallaxis", Axis_Unbindall_f, &Axis_Unbindall_f_VAR);

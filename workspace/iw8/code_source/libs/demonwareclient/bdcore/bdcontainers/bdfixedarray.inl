@@ -54,6 +54,8 @@ void bdFixedArray<bdAddr,5>::bdFixedArray<bdAddr,5>(bdFixedArray<bdAddr,5> *this
   unsigned int m_size; 
   unsigned int v7; 
   bool v8; 
+  bdFixedArray<bdAddr,5> *v9; 
+  signed __int64 v10; 
   __int64 v11; 
 
   v4 = this;
@@ -71,31 +73,22 @@ void bdFixedArray<bdAddr,5>::bdFixedArray<bdAddr,5>(bdFixedArray<bdAddr,5> *this
   if ( v7 )
   {
     v8 = m_size <= v7;
-    _RAX = this;
+    v9 = this;
     if ( v8 )
     {
       if ( m_size )
       {
-        _RBP = (char *)other - (char *)this;
+        v10 = (char *)other - (char *)this;
         v11 = m_size;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax+rbp]
-            vmovups ymmword ptr [rax], ymm0
-            vmovups ymm1, ymmword ptr [rax+rbp+20h]
-            vmovups ymmword ptr [rax+20h], ymm1
-            vmovups ymm0, ymmword ptr [rax+rbp+40h]
-            vmovups ymmword ptr [rax+40h], ymm0
-            vmovups ymm1, ymmword ptr [rax+rbp+60h]
-            vmovups ymmword ptr [rax+60h], ymm1
-            vmovups xmm0, xmmword ptr [rax+rbp+80h]
-            vmovups xmmword ptr [rax+80h], xmm0
-            vmovsd  xmm1, qword ptr [rax+rbp+90h]
-            vmovsd  qword ptr [rax+90h], xmm1
-          }
-          _RAX = (bdFixedArray<bdAddr,5> *)((char *)_RAX + 152);
+          *(__m256i *)&v9->m_array[0].m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)((char *)&v9->m_array[0].m_address.inUn.m_sockaddrStorage.ss_family + v10);
+          *((__m256i *)&v9->m_array[0].m_address.inUn.m_ipv6Sockaddr + 1) = *(__m256i *)((char *)&v9->m_array[0].m_address.inUn.m_ipv6Sockaddr + v10 + 32);
+          *((__m256i *)&v9->m_array[0].m_address.inUn.m_ipv6Sockaddr + 2) = *(__m256i *)((char *)&v9->m_array[0].m_address.inUn.m_ipv6Sockaddr + v10 + 64);
+          *((__m256i *)&v9->m_array[0].m_address.inUn.m_ipv6Sockaddr + 3) = *(__m256i *)((char *)&v9->m_array[0].m_address.inUn.m_ipv6Sockaddr + v10 + 96);
+          v9->m_array[0].m_relayRoute = *(bdRelayRoute *)((char *)&v9->m_array[0].m_relayRoute + v10);
+          *(double *)&v9->m_array[0].m_type = *(double *)((char *)&v9->m_array[0].m_type + v10);
+          v9 = (bdFixedArray<bdAddr,5> *)((char *)v9 + 152);
           --v11;
         }
         while ( v11 );
@@ -115,9 +108,10 @@ void bdFixedArray<bdAddr,5>::bdFixedArray<bdAddr,5>(bdFixedArray<bdAddr,5> *this
   __int64 v5; 
   unsigned int m_size; 
   unsigned int v7; 
+  __int64 v8; 
   __int64 v9; 
+  bdAddr *m_data; 
 
-  _RSI = this;
   v4 = this;
   v5 = 5i64;
   do
@@ -130,37 +124,28 @@ void bdFixedArray<bdAddr,5>::bdFixedArray<bdAddr,5>(bdFixedArray<bdAddr,5> *this
   m_size = 5;
   if ( other->m_size < 5 )
     m_size = other->m_size;
-  _RSI->m_size = m_size;
+  this->m_size = m_size;
   v7 = other->m_size;
   if ( v7 > 5 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdCore/bdContainers/bdFixedArray", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfixedarray.inl", "bdFixedArray<class bdAddr,5>::bdFixedArray", 0x39u, "Input bdArray<T> size[%u] exceeds bdFixedArray<T, MAX_SIZE[%u]>, copy MAX_SIZE elements", other->m_size, 5);
-    m_size = _RSI->m_size;
+    m_size = this->m_size;
     v7 = other->m_size;
   }
   if ( v7 && m_size <= v7 && m_size )
   {
-    _RCX = 0i64;
+    v8 = 0i64;
     v9 = m_size;
     do
     {
-      _RAX = other->m_data;
-      _RCX += 152i64;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx+rax-98h]
-        vmovups ymmword ptr [rcx+rsi-98h], ymm0
-        vmovups ymm1, ymmword ptr [rcx+rax-78h]
-        vmovups ymmword ptr [rcx+rsi-78h], ymm1
-        vmovups ymm0, ymmword ptr [rcx+rax-58h]
-        vmovups ymmword ptr [rcx+rsi-58h], ymm0
-        vmovups ymm1, ymmword ptr [rcx+rax-38h]
-        vmovups ymmword ptr [rcx+rsi-38h], ymm1
-        vmovups xmm0, xmmword ptr [rcx+rax-18h]
-        vmovups xmmword ptr [rcx+rsi-18h], xmm0
-        vmovsd  xmm1, qword ptr [rcx+rax-8]
-        vmovsd  qword ptr [rcx+rsi-8], xmm1
-      }
+      m_data = other->m_data;
+      ++v8;
+      *(__m256i *)&this->m_array[v8 - 1].m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&other->m_data[v8 - 1].m_address.inUn.m_sockaddrStorage.ss_family;
+      *((__m256i *)&this->m_array[v8 - 1].m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&m_data[v8 - 1].m_address.inUn.m_ipv6Sockaddr + 1);
+      *((__m256i *)&this->m_array[v8 - 1].m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&m_data[v8 - 1].m_address.inUn.m_ipv6Sockaddr + 2);
+      *((__m256i *)&this->m_array[v8 - 1].m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&m_data[v8 - 1].m_address.inUn.m_ipv6Sockaddr + 3);
+      this->m_array[v8 - 1].m_relayRoute = m_data[v8 - 1].m_relayRoute;
+      *(double *)&this->m_array[v8 - 1].m_type = *(double *)&m_data[v8 - 1].m_type;
       --v9;
     }
     while ( v9 );
@@ -189,30 +174,20 @@ bdFixedArray<bdAddr,5>::pushBack
 void bdFixedArray<bdAddr,5>::pushBack(bdFixedArray<bdAddr,5> *this, const bdAddr *element)
 {
   __int64 m_size; 
+  __int64 v5; 
 
-  _RDI = this;
-  _RBX = element;
   bdHandleAssert(this->m_size < 5, "(m_size < MAX_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfixedarray.inl", "bdFixedArray<class bdAddr,5>::pushBack", 0xBEu, "Cannot add, too many elements");
-  m_size = _RDI->m_size;
+  m_size = this->m_size;
   if ( (unsigned int)m_size < 5 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rbx] }
-    _RCX = 152 * m_size;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rcx+rdi+20h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+40h]
-      vmovups ymmword ptr [rcx+rdi+40h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+60h]
-      vmovups ymmword ptr [rcx+rdi+60h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+80h]
-      vmovups xmmword ptr [rcx+rdi+80h], xmm0
-      vmovsd  xmm1, qword ptr [rbx+90h]
-      vmovsd  qword ptr [rcx+rdi+90h], xmm1
-    }
-    ++_RDI->m_size;
+    v5 = m_size;
+    *(__m256i *)&this->m_array[v5].m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&element->m_address.inUn.m_sockaddrStorage.ss_family;
+    *((__m256i *)&this->m_array[v5].m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&element->m_address.inUn.m_ipv6Sockaddr + 1);
+    *((__m256i *)&this->m_array[v5].m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&element->m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&this->m_array[v5].m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&element->m_address.inUn.m_ipv6Sockaddr + 3);
+    this->m_array[v5].m_relayRoute = element->m_relayRoute;
+    *(double *)&this->m_array[v5].m_type = *(double *)&element->m_type;
+    ++this->m_size;
   }
 }
 

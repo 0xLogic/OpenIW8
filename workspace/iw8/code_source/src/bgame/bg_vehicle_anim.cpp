@@ -240,10 +240,7 @@ void BG_VehicleAnim_Reset_AlwaysLoaded(BGVehicles *vehicleSystem, const entitySt
   __int64 v8; 
   const DObj *DObjFromEntityNumber; 
   unsigned int v10; 
-  float fmt; 
   __int64 goalTime; 
-  float goalTimea; 
-  float rate; 
 
   if ( !vehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_anim.cpp", 173, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
     __debugbreak();
@@ -278,18 +275,7 @@ void BG_VehicleAnim_Reset_AlwaysLoaded(BGVehicles *vehicleSystem, const entitySt
             {
               v10 = s_bh_rotors_idx[v8];
               if ( v10 != -1 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, cs:__real@3fc00000
-                  vmovss  xmm1, cs:__real@3e4ccccd
-                  vmovss  [rsp+78h+rate], xmm0
-                  vmovss  xmm0, cs:__real@3f800000
-                  vmovss  [rsp+78h+goalTime], xmm1
-                  vmovss  dword ptr [rsp+78h+fmt], xmm0
-                }
-                XAnimSetCompleteGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, v10, fmt, goalTimea, rate, (scr_string_t)0, 0, 1, LINEAR, NULL);
-              }
+                XAnimSetCompleteGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, v10, 1.0, 0.2, 1.5, (scr_string_t)0, 0, 1, LINEAR, NULL);
             }
           }
         }
@@ -311,56 +297,46 @@ void BG_VehicleAnim_Reset_AlwaysLoaded(BGVehicles *vehicleSystem, const entitySt
 BG_VehicleAnim_Update
 ==============
 */
-
-void __fastcall BG_VehicleAnim_Update(BGVehicles *vehicleSystem, entityState_t *es, BGVehicleInfo *info, double deltaTime)
+void BG_VehicleAnim_Update(BGVehicles *vehicleSystem, entityState_t *es, BGVehicleInfo *info, float deltaTime)
 {
-  BGVehicleInfo *v4; 
+  __m256i *p_prevInfo; 
+  BGVehicleInfo *v8; 
   __int64 v9; 
-  __int64 v16; 
+  __m256i v10; 
+  __int128 v11; 
+  __m256i v12; 
+  __int64 v13; 
   BGVehicleInfo prevInfo; 
 
-  v4 = info;
-  _R9 = &prevInfo;
-  _RAX = info;
+  p_prevInfo = (__m256i *)&prevInfo;
+  v8 = info;
   v9 = 2i64;
   do
   {
-    _R9 = (BGVehicleInfo *)((char *)_R9 + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (BGVehicleInfo *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [r9-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [r9-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [r9-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r9-20h], xmm0
-      vmovups xmmword ptr [r9-10h], xmm1
-    }
+    p_prevInfo += 4;
+    v10 = *(__m256i *)&v8->m_animInfo.animTime;
+    v11 = *(_OWORD *)&v8->m_attachModels[1][40];
+    v8 = (BGVehicleInfo *)((char *)v8 + 128);
+    p_prevInfo[-4] = v10;
+    p_prevInfo[-3] = *(__m256i *)&v8[-1].m_handBlendRight.z;
+    p_prevInfo[-2] = *(__m256i *)&v8[-1].m_desiredMove.z;
+    *(_OWORD *)p_prevInfo[-1].m256i_i8 = *(_OWORD *)&v8[-1].m_vignetteAnimBlendTime;
+    *(_OWORD *)&p_prevInfo[-1].m256i_u64[2] = v11;
     --v9;
   }
   while ( v9 );
-  __asm { vmovups ymm0, ymmword ptr [rax] }
-  v16 = *(_QWORD *)&_RAX->m_attachModels[0][24];
-  __asm
-  {
-    vmovss  dword ptr [r8+94h], xmm3
-    vmovups ymmword ptr [r9], ymm0
-  }
-  *(_QWORD *)&_R9->m_attachModels[0][24] = v16;
+  v12 = *(__m256i *)&v8->m_animInfo.animTime;
+  v13 = *(_QWORD *)&v8->m_attachModels[0][24];
+  info->m_deltaTime = deltaTime;
+  *p_prevInfo = v12;
+  p_prevInfo[1].m256i_i64[0] = v13;
   *(_QWORD *)&info->m_vignetteAnim = 0i64;
-  LOBYTE(v16) = (es->lerp.u.anonymous.data[1] & 0x4000) != 0;
+  LOBYTE(v13) = (es->lerp.u.anonymous.data[1] & 0x4000) != 0;
   info->m_animRate = 1.0;
-  info->m_desiredRemoveCodeAnims = v16;
+  info->m_desiredRemoveCodeAnims = v13;
   ((void (__fastcall *)(BGVehicles *))vehicleSystem->UpdateGameModeSpecificVehicleInfo)(vehicleSystem);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE) )
-    BG_VehicleAnim_Update_AlwaysLoadedAnims(vehicleSystem, es, v4, &prevInfo);
+    BG_VehicleAnim_Update_AlwaysLoadedAnims(vehicleSystem, es, info, &prevInfo);
 }
 
 /*
@@ -387,28 +363,19 @@ BG_VehicleAnim_Update_AlwaysLoadedAnims
 */
 void BG_VehicleAnim_Update_AlwaysLoadedAnims(BGVehicles *vehicleSystem, const entityState_t *es, BGVehicleInfo *info, const BGVehicleInfo *prevInfo)
 {
-  __int64 v10; 
+  __int64 v8; 
   VehicleType type; 
-  unsigned int v12; 
+  unsigned int v10; 
   DObj *DObjFromEntityNumber; 
-  unsigned int v14; 
-  unsigned int v15; 
-  unsigned int v18; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  unsigned int v12; 
+  unsigned int j; 
+  unsigned int i; 
   __int64 goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float goalTimec; 
-  float rate; 
-  float ratea; 
-  float rateb; 
 
-  v10 = vehicleSystem->GetScriptUser(vehicleSystem);
+  v8 = vehicleSystem->GetScriptUser(vehicleSystem);
   type = vehicleSystem->GetVehicleDef(vehicleSystem, es)->type;
-  v12 = info->m_animInfo.animData >> 1;
-  if ( v12 != prevInfo->m_animInfo.animData >> 1 )
+  v10 = info->m_animInfo.animData >> 1;
+  if ( v10 != prevInfo->m_animInfo.animData >> 1 )
   {
     DObjFromEntityNumber = BG_GetDObjFromEntityNumber(vehicleSystem, es->number);
     if ( !DObjFromEntityNumber && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_anim.cpp", 298, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
@@ -420,92 +387,40 @@ void BG_VehicleAnim_Update_AlwaysLoadedAnims(BGVehicles *vehicleSystem, const en
     if ( DObjFromEntityNumber->tree )
     {
 LABEL_9:
-      __asm
+      v12 = *((_DWORD *)&s_vehicleAlwaysLoadedAnimData[0].anims.m_size + 15616 * v8) + 1;
+      if ( v10 )
       {
-        vmovaps [rsp+0A8h+var_38], xmm6
-        vmovaps [rsp+0A8h+var_48], xmm7
-      }
-      v14 = *((_DWORD *)&s_vehicleAlwaysLoadedAnimData[0].anims.m_size + 15616 * v10) + 1;
-      if ( v12 )
-      {
-        if ( v12 >= v14 )
+        if ( v10 >= v12 )
         {
-          LODWORD(goalTime) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_anim.cpp", 330, ASSERT_TYPE_ASSERT, "(unsigned)( animIndex ) < (unsigned)( numAnims )", "animIndex doesn't index numAnims\n\t%i not in [0, %i)", goalTime, *((_DWORD *)&s_vehicleAlwaysLoadedAnimData[0].anims.m_size + 15616 * v10) + 1) )
+          LODWORD(goalTime) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_anim.cpp", 330, ASSERT_TYPE_ASSERT, "(unsigned)( animIndex ) < (unsigned)( numAnims )", "animIndex doesn't index numAnims\n\t%i not in [0, %i)", goalTime, *((_DWORD *)&s_vehicleAlwaysLoadedAnimData[0].anims.m_size + 15616 * v8) + 1) )
             __debugbreak();
         }
-        v18 = 0;
-        if ( v14 )
+        for ( i = 0; i < v12; ++i )
         {
-          __asm
+          if ( v10 == i )
           {
-            vmovss  xmm7, cs:__real@3f800000
-            vxorps  xmm6, xmm6, xmm6
+            XAnimSetGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, i, 1.0, 0.0, 1.0, (scr_string_t)0, 0, (info->m_animInfo.animData & 1) == 0, LINEAR, NULL);
           }
-          do
+          else if ( (*(_BYTE *)&info->m_animInfo.selectAnim & 1) != 0 && (type != VEH_HELICOPTER || i != s_bh_rotors_idx[v8]) )
           {
-            if ( v12 == v18 )
-            {
-              __asm
-              {
-                vmovss  [rsp+0A8h+rate], xmm7
-                vmovss  [rsp+0A8h+goalTime], xmm6
-                vmovss  dword ptr [rsp+0A8h+fmt], xmm7
-              }
-              XAnimSetGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, v18, fmta, goalTimeb, ratea, (scr_string_t)0, 0, (info->m_animInfo.animData & 1) == 0, LINEAR, NULL);
-            }
-            else if ( (*(_BYTE *)&info->m_animInfo.selectAnim & 1) != 0 && (type != VEH_HELICOPTER || v18 != s_bh_rotors_idx[v10]) )
-            {
-              __asm
-              {
-                vmovss  [rsp+0A8h+rate], xmm7
-                vmovss  [rsp+0A8h+goalTime], xmm6
-                vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-              }
-              XAnimSetGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, v18, fmtb, goalTimec, rateb, (scr_string_t)0, 0, 0, LINEAR, NULL);
-            }
-            ++v18;
+            XAnimSetGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, i, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
           }
-          while ( v18 < v14 );
         }
       }
       else
       {
-        if ( *((_DWORD *)&s_vehicleAlwaysLoadedAnimData[0].anims.m_size + 15616 * v10) == -1 )
+        if ( *((_DWORD *)&s_vehicleAlwaysLoadedAnimData[0].anims.m_size + 15616 * v8) == -1 )
         {
           LODWORD(goalTime) = 0;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_anim.cpp", 312, ASSERT_TYPE_ASSERT, "(unsigned)( animIndex ) < (unsigned)( numAnims )", "animIndex doesn't index numAnims\n\t%i not in [0, %i)", goalTime, 0) )
             __debugbreak();
         }
-        v15 = 0;
-        if ( v14 )
+        for ( j = 0; j < v12; ++j )
         {
-          __asm
-          {
-            vmovss  xmm7, cs:__real@3f800000
-            vxorps  xmm6, xmm6, xmm6
-          }
-          do
-          {
-            if ( type != VEH_HELICOPTER || v15 != s_bh_rotors_idx[v10] )
-            {
-              __asm
-              {
-                vmovss  [rsp+0A8h+rate], xmm7
-                vmovss  [rsp+0A8h+goalTime], xmm6
-                vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-              }
-              XAnimSetGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, v15, fmt, goalTimea, rate, (scr_string_t)0, 0, 0, LINEAR, NULL);
-            }
-            ++v15;
-          }
-          while ( v15 < v14 );
+          if ( type != VEH_HELICOPTER || j != s_bh_rotors_idx[v8] )
+            XAnimSetGoalWeight(DObjFromEntityNumber, 0, XANIM_SUBTREE_DEFAULT, j, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
         }
-      }
-      __asm
-      {
-        vmovaps xmm6, [rsp+0A8h+var_38]
-        vmovaps xmm7, [rsp+0A8h+var_48]
       }
     }
   }

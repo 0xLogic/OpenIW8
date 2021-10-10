@@ -200,52 +200,47 @@ bdLoginTaskFetchXboxOneToken::abortTask
 void bdLoginTaskFetchXboxOneToken::abortTask(bdLoginTaskFetchXboxOneToken *this)
 {
   bdWinRTPtr *m_ptr; 
+  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v3; 
   Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v4; 
-  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v5; 
-  __int64 v6; 
+  __int64 v5; 
+  int v6; 
   int v7; 
-  int v8; 
-  double v10; 
+  double ElapsedTimeInSeconds; 
   bdReference<bdWinRTPtr> asyncOp; 
+  __int64 v10; 
+  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v11; 
   __int64 v12; 
-  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v13; 
-  __int64 v14; 
 
   m_ptr = this->m_asyncOp.m_ptr;
   if ( m_ptr )
   {
     asyncOp.m_ptr = this->m_asyncOp.m_ptr;
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-    v4 = getAsyncOp((bdReference<bdWinRTPtr>)&asyncOp);
-    v5 = v4;
-    v13 = v4;
-    v6 = 0i64;
-    v12 = 0i64;
-    if ( v4 )
+    v3 = getAsyncOp((bdReference<bdWinRTPtr>)&asyncOp);
+    v4 = v3;
+    v11 = v3;
+    v5 = 0i64;
+    v10 = 0i64;
+    if ( v3 )
     {
-      v7 = v4->__abi_QueryInterface(v4, (Platform::Guid *)&_uuidof__AUIAsyncInfo_Foundation_Windows__, (void **)&v12);
-      if ( v7 < 0 )
-        __abi_WinRTraiseException(v7);
-      v6 = v12;
+      v6 = v3->__abi_QueryInterface(v3, (Platform::Guid *)&_uuidof__AUIAsyncInfo_Foundation_Windows__, (void **)&v10);
+      if ( v6 < 0 )
+        __abi_WinRTraiseException(v6);
+      v5 = v10;
     }
-    v14 = v6;
-    v8 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v6 + 72i64))(v6);
-    if ( v8 < 0 )
-      __abi_WinRTraiseException(v8);
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
-    if ( v5 )
-      v5->__abi_Release(v5);
+    v12 = v5;
+    v7 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v5 + 72i64))(v5);
+    if ( v7 < 0 )
+      __abi_WinRTraiseException(v7);
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v5 + 16i64))(v5);
+    if ( v4 )
+      v4->__abi_Release(v4);
   }
   bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xCAu, "Must provide valid message to update auth task status!");
   this->m_fetchXboxOneTokenStatusCode = FIRST_PARTY_AUTHED;
   bdStrlcpy(this->m_fetchXboxOneTokenStatusMessage, "Xbox One platform token task aborted", 0x400ui64);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+68h+var_30], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", v10);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   this->m_firstPartyTokenStatusCode = FIRST_PARTY_AUTHED;
 }
 
@@ -344,132 +339,132 @@ bdLoginTaskFetchXboxOneToken::executeAsyncOp
 */
 void bdLoginTaskFetchXboxOneToken::executeAsyncOp(bdLoginTaskFetchXboxOneToken *this)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  HSTRING v5; 
-  bdWinRTPtr *v6; 
+  HSTRING v4; 
+  bdWinRTPtr *v5; 
+  int v6; 
   int v7; 
-  int v8; 
-  HSTRING v9; 
+  HSTRING v8; 
+  int v9; 
   int v10; 
-  int v11; 
-  HSTRING v12; 
+  HSTRING v11; 
   bdWinRTPtr *m_ptr; 
+  bdWinRTPtr *v13; 
   bdWinRTPtr *v14; 
-  bdWinRTPtr *v15; 
-  IUnknown *v16; 
-  HSTRING v17; 
-  int v18; 
+  IUnknown *v15; 
+  HSTRING v16; 
+  int v17; 
+  IUnknown *v18; 
   IUnknown *v19; 
-  IUnknown *v20; 
+  bdWinRTPtr *v20; 
   bdWinRTPtr *v21; 
-  bdWinRTPtr *v22; 
-  double v24; 
+  double ElapsedTimeInSeconds; 
   HSTRING string; 
   HSTRING newString; 
+  HSTRING v25; 
+  HSTRING v26; 
   HSTRING v27; 
-  HSTRING v28; 
-  HSTRING v29; 
-  HSTRING v30[6]; 
+  HSTRING v28[6]; 
   HSTRING_HEADER hstringHeader; 
-  HSTRING_HEADER v32; 
-  HSTRING_HEADER v33; 
+  HSTRING_HEADER v30; 
+  HSTRING_HEADER v31; 
   IUnknown *ptr; 
-  HSTRING v35; 
-  HSTRING v36; 
+  HSTRING v33; 
+  HSTRING v34; 
 
-  v30[2] = (HSTRING)-2i64;
-  v3 = WindowsCreateStringReference_0(L"POST", 4u, &hstringHeader, &string);
-  if ( v3 < 0 )
-    __abi_WinRTraiseException(v3);
+  v28[2] = (HSTRING)-2i64;
+  v2 = WindowsCreateStringReference_0(L"POST", 4u, &hstringHeader, &string);
+  if ( v2 < 0 )
+    __abi_WinRTraiseException(v2);
   if ( string )
   {
-    v4 = WindowsDuplicateString_0(string, &newString);
-    if ( v4 < 0 )
-      __abi_WinRTraiseException(v4);
-    v5 = newString;
-    v35 = newString;
-    v6 = NULL;
+    v3 = WindowsDuplicateString_0(string, &newString);
+    if ( v3 < 0 )
+      __abi_WinRTraiseException(v3);
+    v4 = newString;
+    v33 = newString;
+    v5 = NULL;
   }
   else
   {
-    v6 = NULL;
     v5 = NULL;
-    v35 = NULL;
+    v4 = NULL;
+    v33 = NULL;
   }
-  v7 = WindowsCreateStringReference_0(L"Content-Type: application/json", 0x1Eu, &v32, &v27);
-  if ( v7 < 0 )
-    __abi_WinRTraiseException(v7);
+  v6 = WindowsCreateStringReference_0(L"Content-Type: application/json", 0x1Eu, &v30, &v25);
+  if ( v6 < 0 )
+    __abi_WinRTraiseException(v6);
+  if ( v25 )
+  {
+    v7 = WindowsDuplicateString_0(v25, &v26);
+    if ( v7 < 0 )
+      __abi_WinRTraiseException(v7);
+    v8 = v26;
+    v34 = v26;
+  }
+  else
+  {
+    v8 = NULL;
+    v34 = NULL;
+  }
+  v9 = WindowsCreateStringReference_0(L"https:
+  if ( v9 < 0 )
+    __abi_WinRTraiseException(v9);
   if ( v27 )
   {
-    v8 = WindowsDuplicateString_0(v27, &v28);
-    if ( v8 < 0 )
-      __abi_WinRTraiseException(v8);
-    v9 = v28;
-    v36 = v28;
+    v10 = WindowsDuplicateString_0(v27, v28);
+    if ( v10 < 0 )
+      __abi_WinRTraiseException(v10);
+    v11 = v28[0];
   }
   else
   {
-    v9 = NULL;
-    v36 = NULL;
-  }
-  v10 = WindowsCreateStringReference_0(L"https:
-  if ( v10 < 0 )
-    __abi_WinRTraiseException(v10);
-  if ( v29 )
-  {
-    v11 = WindowsDuplicateString_0(v29, v30);
-    if ( v11 < 0 )
-      __abi_WinRTraiseException(v11);
-    v12 = v30[0];
-  }
-  else
-  {
-    v12 = NULL;
+    v11 = NULL;
   }
   m_ptr = this->m_asyncOp.m_ptr;
   if ( m_ptr )
   {
     if ( _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      v14 = this->m_asyncOp.m_ptr;
-      if ( v14 )
-        ((void (__fastcall *)(bdWinRTPtr *, __int64))v14->~bdReferencable)(v14, 1i64);
+      v13 = this->m_asyncOp.m_ptr;
+      if ( v13 )
+        ((void (__fastcall *)(bdWinRTPtr *, __int64))v13->~bdReferencable)(v13, 1i64);
     }
   }
   this->m_asyncOp.m_ptr = NULL;
-  v15 = this->m_user.m_ptr;
-  if ( v15 && bdWinRTPtr::notNull(v15) )
+  v14 = this->m_user.m_ptr;
+  if ( v14 && bdWinRTPtr::notNull(v14) )
   {
-    v16 = bdWinRTPtr::get(this->m_user.m_ptr);
-    v17 = (HSTRING)v16;
-    v30[1] = (HSTRING)v16;
-    if ( v16 )
-      v16->AddRef(v16);
-    v30[3] = v17;
+    v15 = bdWinRTPtr::get(this->m_user.m_ptr);
+    v16 = (HSTRING)v15;
+    v28[1] = (HSTRING)v15;
+    if ( v15 )
+      v15->AddRef(v15);
+    v28[3] = v16;
     ptr = NULL;
-    v18 = (*(__int64 (__fastcall **)(HSTRING, HSTRING, HSTRING, HSTRING, IUnknown **))(*(_QWORD *)v17 + 128i64))(v17, v5, v12, v9, &ptr);
-    if ( v18 < 0 )
-      __abi_WinRTraiseException(v18);
+    v17 = (*(__int64 (__fastcall **)(HSTRING, HSTRING, HSTRING, HSTRING, IUnknown **))(*(_QWORD *)v16 + 128i64))(v16, v4, v11, v8, &ptr);
+    if ( v17 < 0 )
+      __abi_WinRTraiseException(v17);
+    v18 = ptr;
     v19 = ptr;
-    v20 = ptr;
     if ( ptr )
     {
       ptr->AddRef(ptr);
-      v19 = ptr;
+      v18 = ptr;
     }
+    if ( v18 )
+      v18->Release(v18);
+    v28[4] = (HSTRING)v19;
     if ( v19 )
-      v19->Release(v19);
-    v30[4] = (HSTRING)v20;
-    if ( v20 )
     {
-      v21 = (bdWinRTPtr *)bdMemory::allocate(0x18ui64);
-      if ( v21 )
+      v20 = (bdWinRTPtr *)bdMemory::allocate(0x18ui64);
+      if ( v20 )
       {
-        bdWinRTPtr::bdWinRTPtr(v21, v20);
-        v6 = v22;
+        bdWinRTPtr::bdWinRTPtr(v20, v19);
+        v5 = v21;
       }
-      bdReference<bdWinRTPtr>::operator=(&this->m_asyncOp, v6);
+      bdReference<bdWinRTPtr>::operator=(&this->m_asyncOp, v5);
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::executeAsyncOp", 0xA2u, "Setting state to FETCHING_FIRST_PARTY_TOKEN");
       bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus(this, "Attempting fetch Xbox One platform token.", FETCHING_FIRST_PARTY_TOKEN);
     }
@@ -478,9 +473,9 @@ void bdLoginTaskFetchXboxOneToken::executeAsyncOp(bdLoginTaskFetchXboxOneToken *
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::executeAsyncOp", 0x9Cu, "asyncOp returned from GetTokenAndSignatureAsync() is invalid.\n");
       bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus(this, "Failed to fetch Xbox One platform token.", FIRST_PARTY_AUTHED);
     }
-    if ( v20 )
-      v20->Release(v20);
-    (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v17 + 16i64))(v17);
+    if ( v19 )
+      v19->Release(v19);
+    (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v16 + 16i64))(v16);
   }
   else
   {
@@ -488,18 +483,13 @@ void bdLoginTaskFetchXboxOneToken::executeAsyncOp(bdLoginTaskFetchXboxOneToken *
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xCAu, "Must provide valid message to update auth task status!");
     this->m_fetchXboxOneTokenStatusCode = FIRST_PARTY_AUTHED;
     bdStrlcpy(this->m_fetchXboxOneTokenStatusMessage, "Failed to fetch Xbox One platform token.", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+128h+var_F0], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", v24);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     this->m_firstPartyTokenStatusCode = FIRST_PARTY_AUTHED;
   }
-  WindowsDeleteString_0(v12);
-  WindowsDeleteString_0(v9);
-  WindowsDeleteString_0(v5);
+  WindowsDeleteString_0(v11);
+  WindowsDeleteString_0(v8);
+  WindowsDeleteString_0(v4);
 }
 
 /*
@@ -606,116 +596,116 @@ bdLoginTaskFetchXboxOneToken::processAsyncOpResult
 void bdLoginTaskFetchXboxOneToken::processAsyncOpResult(bdLoginTaskFetchXboxOneToken *this)
 {
   bdWinRTPtr *m_ptr; 
-  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v4; 
+  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v3; 
+  HSTRING v4; 
   HSTRING v5; 
-  HSTRING v6; 
-  __int64 v7; 
+  __int64 v6; 
+  int v7; 
   int v8; 
   int v9; 
-  int v10; 
-  int v12; 
+  double ElapsedTimeInSeconds; 
+  int v11; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  int v15; 
-  HSTRING v16; 
-  int v17; 
+  int v14; 
+  HSTRING v15; 
+  int v16; 
   const wchar_t *StringRawBuffer_0; 
   bdEnvironment Environment; 
-  __int64 v20; 
+  __int64 v19; 
+  int v20; 
   int v21; 
-  int v22; 
-  bool v23; 
-  __int64 v24; 
+  bool v22; 
+  __int64 v23; 
+  int v24; 
   int v25; 
-  int v26; 
-  bool v27; 
-  __int64 v28; 
+  bool v26; 
+  __int64 v27; 
+  int v28; 
   int v29; 
   int v30; 
   int v31; 
-  double v32; 
-  int v33; 
-  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v34; 
-  __int64 v35; 
+  Windows::Foundation::IAsyncOperation<Windows::Xbox::System::GetTokenAndSignatureResult _> *v32; 
+  __int64 v33; 
   HSTRING string; 
-  __int64 v37; 
+  __int64 v35; 
   bdReference<bdWinRTPtr> asyncOp; 
-  __int64 v39; 
+  __int64 v37; 
   size_t PtNumOfCharConverted; 
-  __int64 v41; 
+  __int64 v39; 
   HSTRING newString[12]; 
-  __int64 v43; 
-  int v44; 
-  int v45; 
+  __int64 v41; 
+  int v42; 
+  int v43; 
 
   newString[1] = (HSTRING)-2i64;
   m_ptr = this->m_asyncOp.m_ptr;
   asyncOp.m_ptr = m_ptr;
   if ( m_ptr )
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-  v4 = getAsyncOp((bdReference<bdWinRTPtr>)&asyncOp);
-  v5 = (HSTRING)v4;
-  v34 = v4;
+  v3 = getAsyncOp((bdReference<bdWinRTPtr>)&asyncOp);
+  v4 = (HSTRING)v3;
+  v32 = v3;
+  if ( v3 )
+    v3->__abi_AddRef(v3);
+  newString[2] = v4;
   if ( v4 )
-    v4->__abi_AddRef(v4);
-  newString[2] = v5;
-  if ( v5 )
-    (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v5 + 16i64))(v5);
-  v6 = NULL;
-  v7 = 0i64;
-  v39 = 0i64;
-  if ( v5 )
+    (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v4 + 16i64))(v4);
+  v5 = NULL;
+  v6 = 0i64;
+  v37 = 0i64;
+  if ( v4 )
   {
-    v8 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v5)(v5, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v39);
-    if ( v8 < 0 )
-      __abi_WinRTraiseException(v8);
-    v7 = v39;
+    v7 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v4)(v4, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v37);
+    if ( v7 < 0 )
+      __abi_WinRTraiseException(v7);
+    v6 = v37;
   }
-  v37 = v7;
-  LODWORD(v43) = 0;
-  v9 = (*(__int64 (__fastcall **)(__int64, __int64 *))(*(_QWORD *)v7 + 56i64))(v7, &v43);
-  if ( v9 < 0 )
-    __abi_WinRTraiseException(v9);
-  (*(void (__fastcall **)(__int64))(*(_QWORD *)v7 + 16i64))(v7);
-  v10 = v43;
-  if ( (_DWORD)v43 )
+  v35 = v6;
+  LODWORD(v41) = 0;
+  v8 = (*(__int64 (__fastcall **)(__int64, __int64 *))(*(_QWORD *)v6 + 56i64))(v6, &v41);
+  if ( v8 < 0 )
+    __abi_WinRTraiseException(v8);
+  (*(void (__fastcall **)(__int64))(*(_QWORD *)v6 + 16i64))(v6);
+  v9 = v41;
+  if ( (_DWORD)v41 )
   {
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::processAsyncOpResult", 0x4Cu, "Processing bdLogin fetchXboxOneToken task reply");
-    if ( v10 == 1 )
+    if ( v9 == 1 )
     {
       PtNumOfCharConverted = 0i64;
-      v35 = 0i64;
-      v12 = (*(__int64 (__fastcall **)(HSTRING, __int64 *))(*(_QWORD *)v5 + 64i64))(v5, &v35);
-      if ( v12 < 0 )
-        __abi_WinRTraiseException(v12);
-      v13 = v35;
-      v14 = v35;
-      if ( v35 )
+      v33 = 0i64;
+      v11 = (*(__int64 (__fastcall **)(HSTRING, __int64 *))(*(_QWORD *)v4 + 64i64))(v4, &v33);
+      if ( v11 < 0 )
+        __abi_WinRTraiseException(v11);
+      v12 = v33;
+      v13 = v33;
+      if ( v33 )
       {
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v35 + 8i64))(v35);
-        v13 = v35;
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v33 + 8i64))(v33);
+        v12 = v33;
       }
-      if ( v13 )
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v13 + 16i64))(v13);
-      v43 = v14;
+      if ( v12 )
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v12 + 16i64))(v12);
+      v41 = v13;
       string = NULL;
-      v15 = (*(__int64 (__fastcall **)(__int64, HSTRING *))(*(_QWORD *)v14 + 56i64))(v14, &string);
-      if ( v15 < 0 )
-        __abi_WinRTraiseException(v15);
-      v16 = string;
+      v14 = (*(__int64 (__fastcall **)(__int64, HSTRING *))(*(_QWORD *)v13 + 56i64))(v13, &string);
+      if ( v14 < 0 )
+        __abi_WinRTraiseException(v14);
+      v15 = string;
       if ( string )
       {
-        v17 = WindowsDuplicateString_0(string, newString);
-        if ( v17 < 0 )
-          __abi_WinRTraiseException(v17);
-        v6 = newString[0];
-        v16 = string;
+        v16 = WindowsDuplicateString_0(string, newString);
+        if ( v16 < 0 )
+          __abi_WinRTraiseException(v16);
+        v5 = newString[0];
+        v15 = string;
       }
-      WindowsDeleteString_0(v16);
-      StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v6, NULL);
+      WindowsDeleteString_0(v15);
+      StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v5, NULL);
       wcstombs_s(&PtNumOfCharConverted, this->m_xstsToken, 0x1A80ui64, StringRawBuffer_0, 0x1A80ui64);
-      WindowsDeleteString_0(v6);
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v14 + 16i64))(v14);
+      WindowsDeleteString_0(v5);
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v13 + 16i64))(v13);
       if ( PtNumOfCharConverted )
       {
         Environment = bdLoginConfig::getEnvironment((bdLoginConfig *)this->m_loginConfig);
@@ -736,64 +726,64 @@ void bdLoginTaskFetchXboxOneToken::processAsyncOpResult(bdLoginTaskFetchXboxOneT
     }
     else
     {
-      v20 = 0i64;
-      v41 = 0i64;
-      if ( v5 )
+      v19 = 0i64;
+      v39 = 0i64;
+      if ( v4 )
       {
-        v21 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v5)(v5, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v41);
-        if ( v21 < 0 )
-          __abi_WinRTraiseException(v21);
-        v20 = v41;
+        v20 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v4)(v4, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v39);
+        if ( v20 < 0 )
+          __abi_WinRTraiseException(v20);
+        v19 = v39;
       }
-      v44 = 0;
-      v22 = (*(__int64 (__fastcall **)(__int64, int *))(*(_QWORD *)v20 + 64i64))(v20, &v44);
-      if ( v22 < 0 )
-        __abi_WinRTraiseException(v22);
-      v23 = v44 == -2146051054;
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v20 + 16i64))(v20);
-      if ( v23 )
+      v42 = 0;
+      v21 = (*(__int64 (__fastcall **)(__int64, int *))(*(_QWORD *)v19 + 64i64))(v19, &v42);
+      if ( v21 < 0 )
+        __abi_WinRTraiseException(v21);
+      v22 = v42 == -2146051054;
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v19 + 16i64))(v19);
+      if ( v22 )
       {
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::processAsyncOpResult", 0x74u, "GetTokenAndSignatureAsync failed with error XO_E_CONTENT_ISOLATION. Check XDP & Check SandboxId is correct and User is authorized to access the Sandbox.");
       }
       else
       {
-        v24 = 0i64;
-        v37 = 0i64;
-        if ( v5 )
+        v23 = 0i64;
+        v35 = 0i64;
+        if ( v4 )
         {
-          v25 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v5)(v5, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v37);
-          if ( v25 < 0 )
-            __abi_WinRTraiseException(v25);
-          v24 = v37;
+          v24 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v4)(v4, &_uuidof__AUIAsyncInfo_Foundation_Windows__, &v35);
+          if ( v24 < 0 )
+            __abi_WinRTraiseException(v24);
+          v23 = v35;
         }
-        v45 = 0;
-        v26 = (*(__int64 (__fastcall **)(__int64, int *))(*(_QWORD *)v24 + 64i64))(v24, &v45);
-        if ( v26 < 0 )
-          __abi_WinRTraiseException(v26);
-        v27 = v45 == -2015559647;
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v24 + 16i64))(v24);
-        if ( v27 )
+        v43 = 0;
+        v25 = (*(__int64 (__fastcall **)(__int64, int *))(*(_QWORD *)v23 + 64i64))(v23, &v43);
+        if ( v25 < 0 )
+          __abi_WinRTraiseException(v25);
+        v26 = v43 == -2015559647;
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v23 + 16i64))(v23);
+        if ( v26 )
         {
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::processAsyncOpResult", 0x7Au, "GetTokenAndSignatureAsync failed with error AM_E_NO_TOKEN_REQUIRED. Ensure auth3 url is included in your NSAL configuration.");
         }
         else
         {
-          v28 = 0i64;
-          v34 = NULL;
-          if ( v5 )
+          v27 = 0i64;
+          v32 = NULL;
+          if ( v4 )
           {
-            v29 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v5)(v5, &_uuidof__AUIAsyncInfo_Foundation_Windows__, (__int64 *)&v34);
-            if ( v29 < 0 )
-              __abi_WinRTraiseException(v29);
-            v28 = (__int64)v34;
+            v28 = (**(__int64 (__fastcall ***)(HSTRING, void *, __int64 *))v4)(v4, &_uuidof__AUIAsyncInfo_Foundation_Windows__, (__int64 *)&v32);
+            if ( v28 < 0 )
+              __abi_WinRTraiseException(v28);
+            v27 = (__int64)v32;
           }
-          v33 = 0;
-          v30 = (*(__int64 (__fastcall **)(__int64, int *))(*(_QWORD *)v28 + 64i64))(v28, &v33);
-          if ( v30 < 0 )
-            __abi_WinRTraiseException(v30);
-          v31 = v33;
-          (*(void (__fastcall **)(__int64))(*(_QWORD *)v28 + 16i64))(v28);
-          bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::processAsyncOpResult", 0x83u, "GetTokenAndSignatureAsync(): Failure Microsoft Error Code: [0x%X]", v31);
+          v31 = 0;
+          v29 = (*(__int64 (__fastcall **)(__int64, int *))(*(_QWORD *)v27 + 64i64))(v27, &v31);
+          if ( v29 < 0 )
+            __abi_WinRTraiseException(v29);
+          v30 = v31;
+          (*(void (__fastcall **)(__int64))(*(_QWORD *)v27 + 16i64))(v27);
+          bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::processAsyncOpResult", 0x83u, "GetTokenAndSignatureAsync(): Failure Microsoft Error Code: [0x%X]", v30);
         }
       }
       bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus(this, "Failed to fetch Xbox One platform token.", FIRST_PARTY_AUTHED);
@@ -805,17 +795,12 @@ void bdLoginTaskFetchXboxOneToken::processAsyncOpResult(bdLoginTaskFetchXboxOneT
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xCAu, "Must provide valid message to update auth task status!");
     this->m_fetchXboxOneTokenStatusCode = FIRST_PARTY_AUTHED;
     bdStrlcpy(this->m_fetchXboxOneTokenStatusMessage, "Failed to process Xbox One platform token response.", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0E8h+var_B0], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", v32);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     this->m_firstPartyTokenStatusCode = FIRST_PARTY_AUTHED;
   }
-  if ( v5 )
-    (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v5 + 16i64))(v5);
+  if ( v4 )
+    (*(void (__fastcall **)(HSTRING))(*(_QWORD *)v4 + 16i64))(v4);
 }
 
 /*
@@ -988,20 +973,15 @@ bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus
 */
 void bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus(bdLoginTaskFetchXboxOneToken *this, const char *messageInfo, const bdLoginTaskFetchXboxOneToken::XboxOneFetchTokenStatusCode code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xCAu, "Must provide valid message to update auth task status!");
   this->m_fetchXboxOneTokenStatusCode = code;
   bdStrlcpy(this->m_fetchXboxOneTokenStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(code - 2) <= 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskfetchxboxonetoken.cpp", "bdLoginTaskFetchXboxOneToken::updateXboxOneFetchTokenStatus", 0xD2u, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     this->m_firstPartyTokenStatusCode = (code != FIRST_PARTY_AUTHED) + 2;
   }
 }

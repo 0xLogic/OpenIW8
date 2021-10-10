@@ -50,10 +50,10 @@ CL_ParseSP_ParseCommandString
 void CL_ParseSP_ParseCommandString(LocalClientNum_t localClientNum, ServerCommandsSP *serverCommands)
 {
   __int64 v3; 
+  ClConnection *v4; 
   int i; 
-  char v7; 
+  char v6; 
 
-  _RBX = serverCommands;
   v3 = localClientNum;
   if ( (unsigned int)localClientNum >= LODWORD(cl_maxLocalClients) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_connection_sp.h", 49, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, cl_maxLocalClients) )
     __debugbreak();
@@ -61,25 +61,21 @@ void CL_ParseSP_ParseCommandString(LocalClientNum_t localClientNum, ServerComman
     __debugbreak();
   if ( !ClConnection::ms_connections[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_connection_sp.h", 51, ASSERT_TYPE_ASSERT, "(ms_connections[localClientNum])", (const char *)&queryFormat, "ms_connections[localClientNum]") )
     __debugbreak();
-  _RDI = ClConnection::ms_connections[v3];
-  CG_ServerCmdSP_WaitNewServerCommands((LocalClientNum_t)v3, HIDWORD(_RDI[8259].__vftable));
-  if ( _RDI[8259].m_localClientNum != HIDWORD(_RDI[8259].__vftable) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_parse_sp.cpp", 102, ASSERT_TYPE_ASSERT, "( clcData->serverCommands.header.sent ) == ( clcData->serverCommands.header.sequence )", "%s == %s\n\t%i, %i", "clcData->serverCommands.header.sent", "clcData->serverCommands.header.sequence", _RDI[8259].m_localClientNum, HIDWORD(_RDI[8259].__vftable)) )
+  v4 = ClConnection::ms_connections[v3];
+  CG_ServerCmdSP_WaitNewServerCommands((LocalClientNum_t)v3, HIDWORD(v4[8259].__vftable));
+  if ( v4[8259].m_localClientNum != HIDWORD(v4[8259].__vftable) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_parse_sp.cpp", 102, ASSERT_TYPE_ASSERT, "( clcData->serverCommands.header.sent ) == ( clcData->serverCommands.header.sequence )", "%s == %s\n\t%i, %i", "clcData->serverCommands.header.sent", "clcData->serverCommands.header.sequence", v4[8259].m_localClientNum, HIDWORD(v4[8259].__vftable)) )
     __debugbreak();
-  if ( LODWORD(_RDI[8259].__vftable) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_parse_sp.cpp", 103, ASSERT_TYPE_ASSERT, "(!clcData->serverCommands.header.rover)", "%s\n\t%s", "!clcData->serverCommands.header.rover", (const char *)&_RDI[8259].m_numPacketsReceived) )
+  if ( LODWORD(v4[8259].__vftable) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_parse_sp.cpp", 103, ASSERT_TYPE_ASSERT, "(!clcData->serverCommands.header.rover)", "%s\n\t%s", "!clcData->serverCommands.header.rover", (const char *)&v4[8259].m_numPacketsReceived) )
     __debugbreak();
-  if ( HIDWORD(_RDI[8259].__vftable) - _RBX->header.sequence > 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_parse_sp.cpp", 106, ASSERT_TYPE_ASSERT, "(clcData->serverCommands.header.sequence - serverCommands->header.sequence <= 0)", (const char *)&queryFormat, "clcData->serverCommands.header.sequence - serverCommands->header.sequence <= 0") )
+  if ( HIDWORD(v4[8259].__vftable) - serverCommands->header.sequence > 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_sp\\cl_parse_sp.cpp", 106, ASSERT_TYPE_ASSERT, "(clcData->serverCommands.header.sequence - serverCommands->header.sequence <= 0)", (const char *)&queryFormat, "clcData->serverCommands.header.sequence - serverCommands->header.sequence <= 0") )
     __debugbreak();
-  if ( HIDWORD(_RDI[8259].__vftable) != _RBX->header.sequence )
+  if ( HIDWORD(v4[8259].__vftable) != serverCommands->header.sequence )
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx]
-      vmovsd  qword ptr [rdi+20430h], xmm0
-    }
-    _RDI[8259].m_localClientNum = _RBX->header.sent;
-    memcpy_0(&_RDI[8259].m_numPacketsReceived, _RBX->buf, _RBX->header.rover);
-    for ( i = _RBX->header.sent + 1; i <= _RBX->header.sequence; *(&_RDI[8771].m_numPacketsReceived + (v7 & 0x7F)) = _RBX->commands[v7 & 0x7F] )
-      v7 = i++;
+    v4[8259].__vftable = *(ClConnection_vtbl **)&serverCommands->header.rover;
+    v4[8259].m_localClientNum = serverCommands->header.sent;
+    memcpy_0(&v4[8259].m_numPacketsReceived, serverCommands->buf, serverCommands->header.rover);
+    for ( i = serverCommands->header.sent + 1; i <= serverCommands->header.sequence; *(&v4[8771].m_numPacketsReceived + (v6 & 0x7F)) = serverCommands->commands[v6 & 0x7F] )
+      v6 = i++;
   }
 }
 

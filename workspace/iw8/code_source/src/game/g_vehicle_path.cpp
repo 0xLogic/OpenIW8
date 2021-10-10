@@ -636,149 +636,221 @@ G_VehiclePath_AdvanceAnimPathPosForward
 */
 void G_VehiclePath_AdvanceAnimPathPosForward(VehiclePathPos *vpp)
 {
-  unsigned int v12; 
-  int v13; 
+  unsigned int v2; 
+  int v3; 
   unsigned int nodeIdx; 
-  __int16 nextIdx; 
+  char v5; 
+  VehiclePathNode *v6; 
+  __int64 index; 
+  float length; 
+  float v9; 
+  float v10; 
+  const dvar_t *v11; 
+  int integer; 
+  int v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  VehiclePathNode *v17; 
+  VehiclePathNode *v18; 
+  unsigned int v20; 
+  __int64 v21; 
+  __int64 nextIdx; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v28; 
+  float v29; 
+  __int128 v30; 
+  VehiclePathNode *v31; 
+  __int64 v32; 
+  __int128 v35; 
+  float v36; 
+  float v37; 
+  VehiclePathNode *v38; 
+  __int64 v39; 
+  __int128 v41; 
+  __int64 v45; 
+  VehiclePathNode *v46; 
+  __int128 v47; 
+  bool v49; 
+  float v50; 
   __int16 flags; 
-  __int16 v41; 
-  __int16 v42; 
-  __int16 v43; 
-  __int16 v45; 
-  __int16 v51; 
-  __int64 v58; 
-  __int64 v59; 
+  __int16 v52; 
+  __int16 v53; 
+  __int16 v54; 
+  __int64 v55; 
+  __int16 v56; 
+  float speed; 
+  __int16 v58; 
+  float lookAhead; 
+  __int64 v60; 
+  __int64 v61; 
+  float frac; 
+  float v63; 
 
-  _RDI = vpp;
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1875, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
-  v12 = s_numNodes;
-  v13 = 0;
-  nodeIdx = _RDI->nodeIdx;
-  __asm
+  v2 = s_numNodes;
+  v3 = 0;
+  nodeIdx = vpp->nodeIdx;
+  v5 = 1;
+  frac = vpp->frac;
+  if ( s_numNodes <= 0 )
+    return;
+  while ( 1 )
   {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+118h+var_D8], xmm0
+    ++v3;
+    if ( nodeIdx >= v2 )
+    {
+      LODWORD(v61) = v2;
+      LODWORD(v60) = nodeIdx;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1894, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v60, v61) )
+        __debugbreak();
+    }
+    v6 = &s_nodes[nodeIdx];
+    LOWORD(index) = v6->nextIdx;
+    if ( (index & 0x8000u) != 0i64 || (length = v6->length, length == 0.0) || (v10 = (float)((float)((float)(vpp->origin.v[1] - v6->origin.v[1]) * v6->dir.v[1]) + (float)((float)(vpp->origin.v[0] - v6->origin.v[0]) * v6->dir.v[0])) + (float)((float)(vpp->origin.v[2] - v6->origin.v[2]) * v6->dir.v[2]), v9 = v10, v63 = v10, v10 <= 0.0) )
+    {
+      v50 = 0.0;
+      goto LABEL_42;
+    }
+    if ( v10 <= length )
+      break;
+LABEL_34:
+    v2 = s_numNodes;
+    nodeIdx = (__int16)index;
+    if ( v3 >= s_numNodes )
+    {
+      v50 = frac;
+      goto LABEL_42;
+    }
   }
-  if ( s_numNodes > 0 )
+  if ( !v5 )
+    goto LABEL_37;
+  v11 = DCONST_DVARINT_bg_vehiclePathLookAheadNodeCount;
+  if ( !DCONST_DVARINT_bg_vehiclePathLookAheadNodeCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehiclePathLookAheadNodeCount") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v11);
+  integer = v11->current.integer;
+  v13 = 0;
+  v14 = vpp->origin.v[0];
+  v15 = vpp->origin.v[1];
+  v16 = vpp->origin.v[2];
+  v17 = &s_nodes[v6->nextIdx];
+  v18 = v17;
+  *(float *)&_XMM12 = (float)((float)((float)(v6->origin.v[1] - v15) * (float)(v6->origin.v[1] - v15)) + (float)((float)(v6->origin.v[0] - v14) * (float)(v6->origin.v[0] - v14))) + (float)((float)(v6->origin.v[2] - v16) * (float)(v6->origin.v[2] - v16));
+  if ( integer >= 4 )
   {
-    _R12 = s_nodes;
-    __asm
+    v20 = ((unsigned int)(integer - 4) >> 2) + 1;
+    v21 = v20;
+    v13 = 4 * v20;
+    do
     {
-      vmovaps [rsp+118h+var_38], xmm6
-      vmovaps [rsp+118h+var_48], xmm7
-      vmovaps [rsp+118h+var_58], xmm8
-      vmovaps [rsp+118h+var_68], xmm9
-      vmovaps [rsp+118h+var_78], xmm10
-      vmovaps [rsp+118h+var_88], xmm11
-      vmovaps [rsp+118h+var_98], xmm12
-      vmovaps [rsp+118h+var_A8], xmm13
-      vmovaps [rsp+118h+var_B8], xmm14
-      vmovaps [rsp+118h+var_C8], xmm15
-    }
-    while ( 1 )
-    {
-      ++v13;
-      if ( nodeIdx >= v12 )
-      {
-        LODWORD(v59) = v12;
-        LODWORD(v58) = nodeIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1894, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v58, v59) )
-          __debugbreak();
-      }
-      _RBX = &s_nodes[nodeIdx];
-      nextIdx = _RBX->nextIdx;
-      if ( nextIdx < 0 )
-        break;
+      nextIdx = v17->nextIdx;
+      v23 = LODWORD(v17->origin.v[1]);
+      *(float *)&v23 = (float)((float)(v17->origin.v[1] - v15) * (float)(v17->origin.v[1] - v15)) + (float)((float)(v17->origin.v[0] - v14) * (float)(v17->origin.v[0] - v14));
+      v24 = v23;
+      v26 = LODWORD(s_nodes[nextIdx].origin.v[1]);
+      *(float *)&v26 = s_nodes[nextIdx].origin.v[1] - v15;
+      v25 = v26;
+      v28 = v24;
+      *(float *)&v28 = *(float *)&v24 + (float)((float)(v17->origin.v[2] - v16) * (float)(v17->origin.v[2] - v16));
+      _XMM10 = v28;
+      v29 = s_nodes[nextIdx].origin.v[2] - v16;
+      v30 = v25;
+      *(float *)&v30 = (float)(*(float *)&v25 * *(float *)&v25) + (float)((float)(s_nodes[nextIdx].origin.v[0] - v14) * (float)(s_nodes[nextIdx].origin.v[0] - v14));
+      v31 = &s_nodes[nextIdx];
+      v32 = s_nodes[nextIdx].nextIdx;
+      *(float *)&v30 = *(float *)&v30 + (float)(v29 * v29);
+      _XMM8 = v30;
+      __asm { vminss  xmm11, xmm10, xmm12 }
+      v35 = LODWORD(s_nodes[v32].origin.v[1]);
+      *(float *)&v35 = s_nodes[v32].origin.v[1] - v15;
+      v36 = s_nodes[v32].origin.v[2] - v16;
+      v37 = (float)(s_nodes[v32].origin.v[0] - v14) * (float)(s_nodes[v32].origin.v[0] - v14);
+      v38 = &s_nodes[v32];
+      v39 = s_nodes[v32].nextIdx;
+      if ( *(float *)&_XMM12 <= *(float *)&_XMM10 )
+        v17 = v18;
+      *(float *)&v35 = (float)((float)(*(float *)&v35 * *(float *)&v35) + v37) + (float)(v36 * v36);
+      _XMM6 = v35;
+      if ( *(float *)&_XMM11 <= *(float *)&_XMM8 )
+        v31 = v17;
+      v41 = LODWORD(s_nodes[v39].origin.v[1]);
+      *(float *)&v41 = s_nodes[v39].origin.v[1] - v15;
       __asm
       {
-        vmovss  xmm5, dword ptr [rbx+40h]
-        vxorps  xmm7, xmm7, xmm7
-        vucomiss xmm5, xmm7
+        vminss  xmm9, xmm8, xmm11
+        vminss  xmm7, xmm6, xmm9
       }
-      if ( !nextIdx )
-        break;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+18h]
-        vsubss  xmm1, xmm0, dword ptr [rbx+20h]
-        vmulss  xmm3, xmm1, dword ptr [rbx+2Ch]
-        vmovss  xmm2, dword ptr [rdi+14h]
-        vsubss  xmm0, xmm2, dword ptr [rbx+1Ch]
-        vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-        vmovss  xmm2, dword ptr [rdi+1Ch]
-        vsubss  xmm0, xmm2, dword ptr [rbx+24h]
-        vaddss  xmm4, xmm3, xmm1
-        vmulss  xmm1, xmm0, dword ptr [rbx+30h]
-        vaddss  xmm6, xmm4, xmm1
-        vcomiss xmm6, xmm7
-        vmovss  [rsp+118h+var_D4], xmm6
-        vcomiss xmm6, xmm5
-      }
-      v12 = s_numNodes;
-      nodeIdx = nextIdx;
-      if ( v13 >= s_numNodes )
-      {
-        __asm { vmovss  xmm6, [rsp+118h+var_D8] }
-        goto LABEL_14;
-      }
+      if ( *(float *)&_XMM9 <= *(float *)&_XMM6 )
+        v38 = v31;
+      v18 = &s_nodes[v39];
+      *(float *)&v41 = (float)((float)(*(float *)&v41 * *(float *)&v41) + (float)((float)(s_nodes[v39].origin.v[0] - v14) * (float)(s_nodes[v39].origin.v[0] - v14))) + (float)((float)(s_nodes[v39].origin.v[2] - v16) * (float)(s_nodes[v39].origin.v[2] - v16));
+      _XMM5 = v41;
+      __asm { vminss  xmm12, xmm5, xmm7 }
+      if ( *(float *)&_XMM7 <= *(float *)&v41 )
+        v18 = v38;
+      v17 = &s_nodes[s_nodes[v39].nextIdx];
+      --v21;
     }
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-LABEL_14:
-    __asm
+    while ( v21 );
+  }
+  if ( v13 < integer )
+  {
+    v45 = (unsigned int)(integer - v13);
+    do
     {
-      vmovaps xmm15, [rsp+118h+var_C8]
-      vmovaps xmm14, [rsp+118h+var_B8]
-      vmovaps xmm13, [rsp+118h+var_A8]
-      vmovaps xmm12, [rsp+118h+var_98]
-      vmovaps xmm11, [rsp+118h+var_88]
-      vmovaps xmm10, [rsp+118h+var_78]
-      vmovaps xmm9, [rsp+118h+var_68]
-      vmovaps xmm8, [rsp+118h+var_58]
-      vmovaps xmm7, [rsp+118h+var_48]
+      v46 = v17;
+      v47 = LODWORD(v17->origin.v[1]);
+      *(float *)&v47 = (float)((float)((float)(v17->origin.v[1] - v15) * (float)(v17->origin.v[1] - v15)) + (float)((float)(v17->origin.v[0] - v14) * (float)(v17->origin.v[0] - v14))) + (float)((float)(v17->origin.v[2] - v16) * (float)(v17->origin.v[2] - v16));
+      _XMM5 = v47;
+      v49 = *(float *)&_XMM12 <= *(float *)&v47;
+      __asm { vminss  xmm12, xmm5, xmm12 }
+      if ( v49 )
+        v46 = v18;
+      v18 = v46;
+      v17 = &s_nodes[v17->nextIdx];
+      --v45;
     }
-    if ( _RBX )
-    {
-      flags = _RDI->flags;
-      v41 = flags | 1;
-      v42 = flags & 0xFFFE;
-      if ( _RBX->nextIdx >= 0 )
-        v41 = v42;
-      _RDI->flags = v41;
-      v43 = truncate_cast<short,int>(nodeIdx);
-      _RDI->nodeIdx = v43;
-      _RDX = v43;
-      __asm { vmovss  dword ptr [rdi+4], xmm6 }
-      v45 = s_nodes[_RDX].nextIdx;
-      __asm { vmovss  xmm3, dword ptr [rdx+r12+14h] }
-      if ( v45 >= 0 )
-      {
-        _RCX = 76i64 * v45;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+r12+14h]
-          vsubss  xmm1, xmm0, xmm3
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, xmm3
-        }
-      }
-      __asm { vmovss  dword ptr [rdi+8], xmm3 }
-      v51 = s_nodes[_RDX].nextIdx;
-      __asm { vmovss  xmm3, dword ptr [rdx+r12+18h] }
-      if ( v51 >= 0 )
-      {
-        _RCX = 76i64 * v51;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+r12+18h]
-          vsubss  xmm1, xmm0, xmm3
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, xmm3
-        }
-      }
-      __asm { vmovss  dword ptr [rdi+10h], xmm3 }
-    }
-    __asm { vmovaps xmm6, [rsp+118h+var_38] }
+    while ( v45 );
+  }
+  index = v18->index;
+  if ( s_nodes[index].prevIdx != v6->index )
+  {
+    v5 = 0;
+    goto LABEL_34;
+  }
+  v9 = v63;
+LABEL_37:
+  if ( v6->length == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1962, ASSERT_TYPE_SANITY, "( cnode->length != 0.0f )", (const char *)&queryFormat, "cnode->length != 0.0f") )
+    __debugbreak();
+  v50 = v9 / v6->length;
+LABEL_42:
+  if ( v6 )
+  {
+    flags = vpp->flags;
+    v52 = flags | 1;
+    v53 = flags & 0xFFFE;
+    if ( v6->nextIdx >= 0 )
+      v52 = v53;
+    vpp->flags = v52;
+    v54 = truncate_cast<short,int>(nodeIdx);
+    vpp->nodeIdx = v54;
+    v55 = v54;
+    vpp->frac = v50;
+    v56 = s_nodes[v55].nextIdx;
+    speed = s_nodes[v55].speed;
+    if ( v56 >= 0 )
+      speed = (float)((float)(s_nodes[v56].speed - speed) * v50) + speed;
+    vpp->speed = speed;
+    v58 = s_nodes[v55].nextIdx;
+    lookAhead = s_nodes[v55].lookAhead;
+    if ( v58 >= 0 )
+      lookAhead = (float)((float)(s_nodes[v58].lookAhead - lookAhead) * v50) + lookAhead;
+    vpp->lookAhead = lookAhead;
   }
 }
 
@@ -789,156 +861,102 @@ G_VehiclePath_AdvanceAnimPathPosReverse
 */
 void G_VehiclePath_AdvanceAnimPathPosReverse(VehiclePathPos *vpp)
 {
-  unsigned int v6; 
-  int v7; 
+  unsigned int v2; 
+  int v3; 
   int nodeIdx; 
-  __int64 v13; 
+  float frac; 
+  __int64 v6; 
+  VehiclePathNode *v7; 
+  float length; 
+  float v9; 
   __int16 prevIdx; 
-  __int16 v30; 
+  __int16 v11; 
+  __int64 v12; 
   __int16 nextIdx; 
-  __int16 v38; 
-  __int64 v46; 
-  __int64 v47; 
+  float speed; 
+  __int16 v15; 
+  float lookAhead; 
+  __int64 v17; 
+  __int64 v18; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _RSI = vpp;
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1988, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
-  v6 = s_numNodes;
-  v7 = 0;
-  nodeIdx = _RSI->nodeIdx;
-  __asm { vmovss  xmm6, dword ptr [rsi+4] }
+  v2 = s_numNodes;
+  v3 = 0;
+  nodeIdx = vpp->nodeIdx;
+  frac = vpp->frac;
   if ( s_numNodes <= 0 )
-    goto LABEL_35;
-  _R15 = s_nodes;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_68], xmm9
-    vmovss  xmm9, cs:__real@3f800000
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vxorps  xmm7, xmm7, xmm7
-  }
+    return;
   while ( 1 )
   {
-    ++v7;
-    if ( nodeIdx >= v6 )
+    ++v3;
+    if ( nodeIdx >= v2 )
     {
-      LODWORD(v47) = v6;
-      LODWORD(v46) = nodeIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2006, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v46, v47) )
+      LODWORD(v18) = v2;
+      LODWORD(v17) = nodeIdx;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2006, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
-    v13 = nodeIdx;
-    _RBX = &s_nodes[v13];
-    if ( s_nodes[v13].nextIdx >= 0 )
+    v6 = nodeIdx;
+    v7 = &s_nodes[v6];
+    if ( s_nodes[v6].nextIdx >= 0 )
     {
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbx+40h]
-        vucomiss xmm5, xmm7
-      }
-      if ( s_nodes[v13].nextIdx )
+      length = v7->length;
+      if ( length != 0.0 )
         break;
     }
-    prevIdx = s_nodes[v13].prevIdx;
+    prevIdx = s_nodes[v6].prevIdx;
     if ( prevIdx < 0 )
     {
-LABEL_14:
-      __asm { vmovaps xmm6, xmm7 }
-      goto LABEL_15;
-    }
-    __asm { vmovaps xmm6, xmm9 }
-LABEL_21:
-    nodeIdx = prevIdx;
-    v6 = s_numNodes;
-    if ( v7 >= s_numNodes )
-      goto LABEL_15;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vsubss  xmm1, xmm0, dword ptr [rbx+20h]
-    vmulss  xmm3, xmm1, dword ptr [rbx+2Ch]
-    vmovss  xmm2, dword ptr [rsi+14h]
-    vsubss  xmm0, xmm2, dword ptr [rbx+1Ch]
-    vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    vmovss  xmm2, dword ptr [rsi+1Ch]
-    vsubss  xmm0, xmm2, dword ptr [rbx+24h]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm1, xmm0, dword ptr [rbx+30h]
-    vaddss  xmm8, xmm4, xmm1
-    vcomiss xmm8, xmm5
-  }
-  if ( s_nodes[v13].nextIdx )
-  {
-    __asm { vmovaps xmm6, xmm9 }
-    goto LABEL_15;
-  }
-  __asm { vcomiss xmm8, xmm7 }
-  if ( !s_nodes[v13].nextIdx )
-  {
-    prevIdx = _RBX->prevIdx;
-    if ( prevIdx < 0 )
+LABEL_13:
+      frac = 0.0;
       goto LABEL_14;
-    goto LABEL_21;
+    }
+    frac = FLOAT_1_0;
+LABEL_20:
+    nodeIdx = prevIdx;
+    v2 = s_numNodes;
+    if ( v3 >= s_numNodes )
+      goto LABEL_14;
   }
-  __asm { vucomiss xmm5, xmm7 }
-  if ( !s_nodes[v13].nextIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2057, ASSERT_TYPE_SANITY, "( cnode->length != 0.0f )", (const char *)&queryFormat, "cnode->length != 0.0f") )
+  v9 = (float)((float)((float)(vpp->origin.v[1] - v7->origin.v[1]) * v7->dir.v[1]) + (float)((float)(vpp->origin.v[0] - v7->origin.v[0]) * v7->dir.v[0])) + (float)((float)(vpp->origin.v[2] - v7->origin.v[2]) * v7->dir.v[2]);
+  if ( v9 > length )
+  {
+    frac = FLOAT_1_0;
+    goto LABEL_14;
+  }
+  if ( v9 <= 0.0 )
+  {
+    prevIdx = v7->prevIdx;
+    if ( prevIdx < 0 )
+      goto LABEL_13;
+    goto LABEL_20;
+  }
+  if ( length == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2057, ASSERT_TYPE_SANITY, "( cnode->length != 0.0f )", (const char *)&queryFormat, "cnode->length != 0.0f") )
     __debugbreak();
-  __asm { vdivss  xmm6, xmm8, dword ptr [r14+r15+40h] }
-LABEL_15:
-  __asm
+  frac = v9 / s_nodes[v6].length;
+LABEL_14:
+  if ( v7 )
   {
-    vmovaps xmm9, [rsp+0A8h+var_68]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-  }
-  if ( _RBX )
-  {
-    if ( s_nodes[v13].prevIdx >= 0 )
-      goto LABEL_28;
-    __asm { vucomiss xmm6, xmm7 }
-    if ( s_nodes[v13].prevIdx )
-LABEL_28:
-      _RSI->flags &= ~1u;
+    if ( s_nodes[v6].prevIdx < 0 && frac == 0.0 )
+      vpp->flags |= 1u;
     else
-      _RSI->flags |= 1u;
-    v30 = truncate_cast<short,int>(nodeIdx);
-    _RSI->nodeIdx = v30;
-    _RDX = v30;
-    __asm { vmovss  dword ptr [rsi+4], xmm6 }
-    nextIdx = s_nodes[_RDX].nextIdx;
-    __asm { vmovss  xmm3, dword ptr [rdx+r15+14h] }
+      vpp->flags &= ~1u;
+    v11 = truncate_cast<short,int>(nodeIdx);
+    vpp->nodeIdx = v11;
+    v12 = v11;
+    vpp->frac = frac;
+    nextIdx = s_nodes[v12].nextIdx;
+    speed = s_nodes[v12].speed;
     if ( nextIdx >= 0 )
-    {
-      _RCX = 76i64 * nextIdx;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+r15+14h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm3
-      }
-    }
-    __asm { vmovss  dword ptr [rsi+8], xmm3 }
-    v38 = s_nodes[_RDX].nextIdx;
-    __asm { vmovss  xmm3, dword ptr [rdx+r15+18h] }
-    if ( v38 >= 0 )
-    {
-      _RCX = 76i64 * v38;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+r15+18h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm3
-      }
-    }
-    __asm { vmovss  dword ptr [rsi+10h], xmm3 }
+      speed = (float)((float)(s_nodes[nextIdx].speed - speed) * frac) + speed;
+    vpp->speed = speed;
+    v15 = s_nodes[v12].nextIdx;
+    lookAhead = s_nodes[v12].lookAhead;
+    if ( v15 >= 0 )
+      lookAhead = (float)((float)(s_nodes[v15].lookAhead - lookAhead) * frac) + lookAhead;
+    vpp->lookAhead = lookAhead;
   }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_48] }
-LABEL_35:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -948,165 +966,120 @@ G_VehiclePath_AdvancePathPosForward
 */
 void G_VehiclePath_AdvancePathPosForward(VehiclePathPos *vpp, const vec3_t *dir)
 {
+  unsigned int v4; 
+  int v5; 
   unsigned int nodeIdx; 
+  float frac; 
+  VehiclePathNode *v9; 
   __int16 nextIdx; 
-  const VehiclePathNode *v16; 
+  const VehiclePathNode *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  double v18; 
   __int16 flags; 
-  __int16 v49; 
-  __int16 v50; 
-  __int16 v51; 
-  __int64 v52; 
-  __int16 v54; 
-  __int16 v61; 
-  __int64 v68; 
-  __int64 v69; 
-  SmoothedPathNodeInfo v70; 
+  __int16 v20; 
+  __int16 v21; 
+  __int16 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int16 v25; 
+  float speed; 
+  __int16 v27; 
+  float lookAhead; 
+  __int64 v29; 
+  __int64 v30; 
+  SmoothedPathNodeInfo v31; 
   SmoothedPathNodeInfo params; 
 
-  __asm { vmovaps [rsp+118h+var_48], xmm7 }
-  _RSI = vpp;
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1680, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
-  nodeIdx = _RSI->nodeIdx;
-  __asm { vmovss  xmm7, dword ptr [rsi+4] }
+  v4 = s_numNodes;
+  v5 = 0;
+  nodeIdx = vpp->nodeIdx;
+  frac = vpp->frac;
   if ( s_numNodes > 0 )
   {
-    _R12 = s_nodes;
-    __asm
+    _XMM8 = LODWORD(FLOAT_1_0);
+    while ( 1 )
     {
-      vmovaps [rsp+118h+var_38], xmm6
-      vmovaps [rsp+118h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-      vmovaps [rsp+118h+var_68], xmm9
-      vmovss  xmm9, cs:__real@bf800000
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( nodeIdx >= s_numNodes )
-    {
-      LODWORD(v68) = nodeIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1697, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v68, s_numNodes) )
-        __debugbreak();
-    }
-    _RDI = &s_nodes[nodeIdx];
-    nextIdx = _RDI->nextIdx;
-    if ( nextIdx < 0 )
-      goto LABEL_17;
-    __asm { vucomiss xmm6, dword ptr [rdi+40h] }
-    if ( nextIdx )
-    {
-      if ( nextIdx >= (unsigned int)s_numNodes )
+      ++v5;
+      if ( nodeIdx >= v4 )
       {
-        LODWORD(v69) = s_numNodes;
-        LODWORD(v68) = nextIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1708, ASSERT_TYPE_ASSERT, "(unsigned)( currentNode->nextIdx ) < (unsigned)( s_numNodes )", "currentNode->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v68, v69) )
+        LODWORD(v30) = v4;
+        LODWORD(v29) = nodeIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1697, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v29, v30) )
           __debugbreak();
       }
-      v16 = &s_nodes[_RDI->nextIdx];
-      G_VehiclePath_GetSmoothedPathNodeInfo(_RSI, dir, &s_nodes[nodeIdx], &params);
-      G_VehiclePath_GetSmoothedPathNodeInfo(_RSI, dir, v16, &v70);
-      if ( v70.straightLine )
+      v9 = &s_nodes[nodeIdx];
+      nextIdx = v9->nextIdx;
+      if ( nextIdx < 0 || v9->length == 0.0 )
+        break;
+      if ( nextIdx >= (unsigned int)s_numNodes )
       {
+        LODWORD(v30) = s_numNodes;
+        LODWORD(v29) = nextIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1708, ASSERT_TYPE_ASSERT, "(unsigned)( currentNode->nextIdx ) < (unsigned)( s_numNodes )", "currentNode->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v29, v30) )
+          __debugbreak();
+      }
+      v11 = &s_nodes[v9->nextIdx];
+      G_VehiclePath_GetSmoothedPathNodeInfo(vpp, dir, &s_nodes[nodeIdx], &params);
+      G_VehiclePath_GetSmoothedPathNodeInfo(vpp, dir, v11, &v31);
+      if ( v31.straightLine )
+      {
+        v12 = vpp->origin.v[0] - v9->origin.v[0];
+        v13 = vpp->origin.v[1] - v9->origin.v[1];
+        v14 = vpp->origin.v[2] - v9->origin.v[2];
+        _XMM1 = LODWORD(v9->length);
+        fsqrt((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14));
         __asm
         {
-          vmovss  xmm0, dword ptr [rsi+14h]
-          vsubss  xmm3, xmm0, dword ptr [rdi+1Ch]
-          vmovss  xmm1, dword ptr [rsi+18h]
-          vsubss  xmm2, xmm1, dword ptr [rdi+20h]
-          vmovss  xmm0, dword ptr [rsi+1Ch]
-          vsubss  xmm4, xmm0, dword ptr [rdi+24h]
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmovss  xmm1, dword ptr [rdi+40h]
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm4, xmm2, xmm2
           vcmpltss xmm0, xmm1, xmm4
           vblendvps xmm1, xmm8, xmm9, xmm0
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+118h+var_D0.perpToBisector+4]
-          vmovss  xmm1, dword ptr [rsp+118h+var_D0.perpToBisector]
-          vmulss  xmm2, xmm1, dword ptr [rsp+118h+var_D0.frontPlane]
-          vmulss  xmm3, xmm0, dword ptr [rsp+118h+var_D0.frontPlane+4]
-          vmovss  xmm0, dword ptr [rsp+118h+var_D0.perpToBisector+8]
-          vmulss  xmm1, xmm0, dword ptr [rsp+118h+var_D0.frontPlane+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm1, xmm4, xmm1
-        }
+        *(float *)&_XMM1 = (float)((float)(v31.perpToBisector.v[1] * v31.frontPlane.v[1]) + (float)(v31.perpToBisector.v[0] * v31.frontPlane.v[0])) + (float)(v31.perpToBisector.v[2] * v31.frontPlane.v[2]);
       }
-      __asm
+      if ( *(float *)&_XMM1 >= 0.0 )
       {
-        vcomiss xmm1, xmm6
-        vmovss  xmm4, [rsp+118h+params.distanceToBisector]
-        vaddss  xmm3, xmm4, [rsp+118h+var_D0.distanceToBisector]
-        vdivss  xmm0, xmm4, xmm3; val
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm6; min
+        v18 = I_fclamp(params.distanceToBisector / (float)(params.distanceToBisector + v31.distanceToBisector), 0.0, 1.0);
+        frac = *(float *)&v18;
+        goto LABEL_22;
       }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm7, xmm0 }
+      v4 = s_numNodes;
+      nodeIdx = v9->nextIdx;
+      if ( v5 >= s_numNodes )
+        goto LABEL_22;
     }
-    else
+    frac = 0.0;
+LABEL_22:
+    if ( v9 )
     {
-LABEL_17:
-      __asm { vmovaps xmm7, xmm6 }
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+118h+var_68]
-      vmovaps xmm8, [rsp+118h+var_58]
-      vmovaps xmm6, [rsp+118h+var_38]
-    }
-    if ( _RDI )
-    {
-      flags = _RSI->flags;
-      v49 = flags | 1;
-      v50 = flags & 0xFFFE;
-      if ( _RDI->nextIdx >= 0 )
-        v49 = v50;
-      _RSI->flags = v49;
-      v51 = truncate_cast<short,int>(nodeIdx);
-      _RSI->nodeIdx = v51;
-      __asm { vmovss  dword ptr [rsi+4], xmm7 }
-      v52 = v51;
-      _RAX = v51;
-      v54 = s_nodes[_RAX].nextIdx;
-      __asm { vmovss  xmm3, dword ptr [rax+r12+14h] }
-      if ( v54 >= 0 )
-      {
-        _RCX = 76i64 * v54;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+r12+14h]
-          vsubss  xmm1, xmm0, xmm3
-          vmulss  xmm2, xmm1, xmm7
-          vaddss  xmm3, xmm2, xmm3
-        }
-      }
-      _RAX = 76 * v52;
-      __asm { vmovss  dword ptr [rsi+8], xmm3 }
-      v61 = s_nodes[v52].nextIdx;
-      __asm { vmovss  xmm3, dword ptr [rax+r12+18h] }
-      if ( v61 >= 0 )
-      {
-        _RCX = 76i64 * v61;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+r12+18h]
-          vsubss  xmm1, xmm0, xmm3
-          vmulss  xmm2, xmm1, xmm7
-          vaddss  xmm3, xmm2, xmm3
-        }
-      }
-      __asm { vmovss  dword ptr [rsi+10h], xmm3 }
+      flags = vpp->flags;
+      v20 = flags | 1;
+      v21 = flags & 0xFFFE;
+      if ( v9->nextIdx >= 0 )
+        v20 = v21;
+      vpp->flags = v20;
+      v22 = truncate_cast<short,int>(nodeIdx);
+      vpp->nodeIdx = v22;
+      vpp->frac = frac;
+      v23 = v22;
+      v24 = v22;
+      v25 = s_nodes[v24].nextIdx;
+      speed = s_nodes[v24].speed;
+      if ( v25 >= 0 )
+        speed = (float)((float)(s_nodes[v25].speed - speed) * frac) + speed;
+      vpp->speed = speed;
+      v27 = s_nodes[v23].nextIdx;
+      lookAhead = s_nodes[v23].lookAhead;
+      if ( v27 >= 0 )
+        lookAhead = (float)((float)(s_nodes[v27].lookAhead - lookAhead) * frac) + lookAhead;
+      vpp->lookAhead = lookAhead;
     }
   }
-  __asm { vmovaps xmm7, [rsp+118h+var_48] }
 }
 
 /*
@@ -1116,209 +1089,126 @@ G_VehiclePath_AdvancePathPosReverse
 */
 void G_VehiclePath_AdvancePathPosReverse(VehiclePathPos *vpp, const vec3_t *dir)
 {
-  unsigned int v13; 
-  int v14; 
+  unsigned int v4; 
+  int v5; 
   int nodeIdx; 
+  float frac; 
+  __int64 v8; 
   __int16 nextIdx; 
-  char v28; 
+  VehiclePathNode *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
   __int16 prevIdx; 
-  __int16 v65; 
-  __int16 v67; 
-  __int16 v73; 
-  __int64 v81; 
-  __int64 v82; 
+  float v20; 
+  double v21; 
+  __int16 v22; 
+  __int64 v23; 
+  __int16 v24; 
+  float speed; 
+  __int16 v26; 
+  float lookAhead; 
+  __int64 v28; 
+  __int64 v29; 
 
-  _R14 = vpp;
-  __asm { vmovaps [rsp+108h+var_68], xmm9 }
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1765, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
-  v13 = s_numNodes;
-  v14 = 0;
-  nodeIdx = _R14->nodeIdx;
-  __asm { vmovss  xmm9, dword ptr [r14+4] }
+  v4 = s_numNodes;
+  v5 = 0;
+  nodeIdx = vpp->nodeIdx;
+  frac = vpp->frac;
   if ( s_numNodes <= 0 )
-    goto LABEL_41;
-  _R12 = s_nodes;
-  __asm
-  {
-    vmovaps [rsp+108h+var_58], xmm8
-    vmovaps [rsp+108h+var_38], xmm6
-    vmovaps [rsp+108h+var_48], xmm7
-    vmovaps [rsp+108h+var_78], xmm10
-    vmovaps [rsp+108h+var_88], xmm11
-    vmovaps [rsp+108h+var_98], xmm12
-    vmovaps [rsp+108h+var_A8], xmm13
-    vmovaps [rsp+108h+var_B8], xmm14
-    vmovaps [rsp+108h+var_C8], xmm15
-    vxorps  xmm8, xmm8, xmm8
-  }
+    return;
   while ( 1 )
   {
-    ++v14;
-    if ( nodeIdx >= v13 )
+    ++v5;
+    if ( nodeIdx >= v4 )
     {
-      LODWORD(v82) = v13;
-      LODWORD(v81) = nodeIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1782, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v81, v82) )
+      LODWORD(v29) = v4;
+      LODWORD(v28) = nodeIdx;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1782, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v28, v29) )
         __debugbreak();
     }
-    _RSI = nodeIdx;
-    nextIdx = s_nodes[_RSI].nextIdx;
-    _RDI = &s_nodes[_RSI];
-    if ( nextIdx >= 0 )
-    {
-      __asm { vucomiss xmm8, dword ptr [rdi+40h] }
-      if ( nextIdx )
-        break;
-    }
-    prevIdx = s_nodes[_RSI].prevIdx;
+    v8 = nodeIdx;
+    nextIdx = s_nodes[v8].nextIdx;
+    v10 = &s_nodes[v8];
+    if ( nextIdx >= 0 && v10->length != 0.0 )
+      break;
+    prevIdx = s_nodes[v8].prevIdx;
     if ( prevIdx < 0 )
-      goto LABEL_18;
-    __asm { vmovss  xmm9, cs:__real@3f800000 }
-LABEL_28:
+      goto LABEL_17;
+    frac = FLOAT_1_0;
+LABEL_27:
     nodeIdx = prevIdx;
-    v13 = s_numNodes;
-    if ( v14 >= s_numNodes )
-      goto LABEL_19;
+    v4 = s_numNodes;
+    if ( v5 >= s_numNodes )
+      goto LABEL_18;
   }
   if ( nextIdx >= (unsigned int)s_numNodes )
   {
-    LODWORD(v82) = s_numNodes;
-    LODWORD(v81) = nextIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1802, ASSERT_TYPE_ASSERT, "(unsigned)( currentNode->nextIdx ) < (unsigned)( s_numNodes )", "currentNode->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v81, v82) )
+    LODWORD(v29) = s_numNodes;
+    LODWORD(v28) = nextIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1802, ASSERT_TYPE_ASSERT, "(unsigned)( currentNode->nextIdx ) < (unsigned)( s_numNodes )", "currentNode->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v28, v29) )
       __debugbreak();
   }
-  __asm
+  v11 = vpp->origin.v[1];
+  v12 = vpp->origin.v[0];
+  v13 = vpp->origin.v[2];
+  v14 = v10->origin.v[1];
+  v15 = v10->origin.v[0];
+  v16 = v10->origin.v[2];
+  v17 = (float)((float)((float)(v11 - s_nodes[v10->nextIdx].origin.v[1]) * dir->v[1]) + (float)((float)(v12 - s_nodes[v10->nextIdx].origin.v[0]) * dir->v[0])) + (float)((float)(v13 - s_nodes[v10->nextIdx].origin.v[2]) * dir->v[2]);
+  v18 = (float)((float)((float)(v14 - v11) * dir->v[1]) + (float)((float)(v15 - v12) * dir->v[0])) + (float)((float)(v16 - v13) * dir->v[2]);
+  if ( v17 == 0.0 && v18 == 0.0 )
   {
-    vmovss  xmm12, dword ptr [r14+18h]
-    vmovss  xmm11, dword ptr [r14+14h]
-    vmovss  xmm13, dword ptr [r14+1Ch]
-    vmovss  xmm15, dword ptr [rdi+20h]
-    vmovss  xmm14, dword ptr [rdi+1Ch]
-    vmovss  xmm5, dword ptr [rdi+24h]
-    vsubss  xmm0, xmm12, dword ptr [rcx+rax+4]
-    vmulss  xmm3, xmm0, dword ptr [r15+4]
-    vsubss  xmm1, xmm11, dword ptr [rcx+rax]
-    vmulss  xmm2, xmm1, dword ptr [r15]
-    vsubss  xmm0, xmm13, dword ptr [rcx+rax+8]
-    vmulss  xmm1, xmm0, dword ptr [r15+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm10, xmm4, xmm1
-    vucomiss xmm10, xmm8
-    vsubss  xmm0, xmm15, xmm12
-    vmulss  xmm3, xmm0, dword ptr [r15+4]
-    vsubss  xmm1, xmm14, xmm11
-    vmulss  xmm2, xmm1, dword ptr [r15]
-    vsubss  xmm0, xmm5, xmm13
-    vmulss  xmm1, xmm0, dword ptr [r15+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
+LABEL_17:
+    frac = 0.0;
+    goto LABEL_18;
   }
-  if ( v28 )
+  if ( v17 < 0.0 )
   {
-    __asm { vucomiss xmm2, xmm8 }
-    if ( v28 )
-    {
-LABEL_18:
-      __asm { vmovaps xmm9, xmm8 }
-      goto LABEL_19;
-    }
-  }
-  __asm { vcomiss xmm10, xmm8 }
-  if ( !is_mul_ok(0x4Cui64, _RDI->nextIdx) )
-  {
-    __asm { vcomiss xmm2, xmm8 }
-    if ( !(((unsigned __int128)(76 * (__int128)_RDI->nextIdx) >> 64 != 0) | v28) )
-      goto LABEL_18;
-LABEL_24:
-    prevIdx = _RDI->prevIdx;
+    if ( v18 > 0.0 )
+      goto LABEL_17;
+LABEL_23:
+    prevIdx = v10->prevIdx;
     if ( prevIdx < 0 )
-      goto LABEL_18;
-    goto LABEL_28;
+      goto LABEL_17;
+    goto LABEL_27;
   }
-  __asm { vcomiss xmm2, xmm8 }
-  if ( !is_mul_ok(0x4Cui64, _RDI->nextIdx) )
-    goto LABEL_24;
-  __asm
-  {
-    vucomiss xmm8, dword ptr [rsi+r12+40h]
-    vsubss  xmm0, xmm12, xmm15
-    vmulss  xmm3, xmm0, dword ptr [rsi+r12+2Ch]
-    vsubss  xmm1, xmm11, xmm14
-    vmulss  xmm2, xmm1, dword ptr [rsi+r12+28h]
-    vsubss  xmm0, xmm13, xmm5
-    vmulss  xmm1, xmm0, dword ptr [rsi+r12+30h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm6, xmm4, xmm1
-  }
-  if ( v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1849, ASSERT_TYPE_SANITY, "( currentNode->length != 0.0f )", (const char *)&queryFormat, "currentNode->length != 0.0f") )
+  if ( v18 < 0.0 )
+    goto LABEL_23;
+  v20 = (float)((float)((float)(v11 - v14) * s_nodes[v8].dir.v[1]) + (float)((float)(v12 - v15) * s_nodes[v8].dir.v[0])) + (float)((float)(v13 - v16) * s_nodes[v8].dir.v[2]);
+  if ( s_nodes[v8].length == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1849, ASSERT_TYPE_SANITY, "( currentNode->length != 0.0f )", (const char *)&queryFormat, "currentNode->length != 0.0f") )
     __debugbreak();
-  __asm
+  v21 = I_fclamp(v20 / s_nodes[v8].length, 0.0, 1.0);
+  frac = *(float *)&v21;
+LABEL_18:
+  if ( v10 )
   {
-    vdivss  xmm0, xmm6, dword ptr [rsi+r12+40h]; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovaps xmm1, xmm8; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm9, xmm0 }
-LABEL_19:
-  __asm
-  {
-    vmovaps xmm15, [rsp+108h+var_C8]
-    vmovaps xmm14, [rsp+108h+var_B8]
-    vmovaps xmm13, [rsp+108h+var_A8]
-    vmovaps xmm12, [rsp+108h+var_98]
-    vmovaps xmm11, [rsp+108h+var_88]
-    vmovaps xmm10, [rsp+108h+var_78]
-    vmovaps xmm7, [rsp+108h+var_48]
-    vmovaps xmm6, [rsp+108h+var_38]
-  }
-  if ( _RDI )
-  {
-    if ( s_nodes[_RSI].prevIdx >= 0 )
-      goto LABEL_34;
-    __asm { vucomiss xmm9, xmm8 }
-    if ( s_nodes[_RSI].prevIdx )
-LABEL_34:
-      _R14->flags &= ~1u;
+    if ( s_nodes[v8].prevIdx < 0 && frac == 0.0 )
+      vpp->flags |= 1u;
     else
-      _R14->flags |= 1u;
-    v65 = truncate_cast<short,int>(nodeIdx);
-    _R14->nodeIdx = v65;
-    _RDX = v65;
-    __asm { vmovss  dword ptr [r14+4], xmm9 }
-    v67 = s_nodes[_RDX].nextIdx;
-    __asm { vmovss  xmm3, dword ptr [rdx+r12+14h] }
-    if ( v67 >= 0 )
-    {
-      _RCX = 76i64 * v67;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+r12+14h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm9
-        vaddss  xmm3, xmm2, xmm3
-      }
-    }
-    __asm { vmovss  dword ptr [r14+8], xmm3 }
-    v73 = s_nodes[_RDX].nextIdx;
-    __asm { vmovss  xmm3, dword ptr [rdx+r12+18h] }
-    if ( v73 >= 0 )
-    {
-      _RCX = 76i64 * v73;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+r12+18h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm9
-        vaddss  xmm3, xmm2, xmm3
-      }
-    }
-    __asm { vmovss  dword ptr [r14+10h], xmm3 }
+      vpp->flags &= ~1u;
+    v22 = truncate_cast<short,int>(nodeIdx);
+    vpp->nodeIdx = v22;
+    v23 = v22;
+    vpp->frac = frac;
+    v24 = s_nodes[v23].nextIdx;
+    speed = s_nodes[v23].speed;
+    if ( v24 >= 0 )
+      speed = (float)((float)(s_nodes[v24].speed - speed) * frac) + speed;
+    vpp->speed = speed;
+    v26 = s_nodes[v23].nextIdx;
+    lookAhead = s_nodes[v23].lookAhead;
+    if ( v26 >= 0 )
+      lookAhead = (float)((float)(s_nodes[v26].lookAhead - lookAhead) * frac) + lookAhead;
+    vpp->lookAhead = lookAhead;
   }
-  __asm { vmovaps xmm8, [rsp+108h+var_58] }
-LABEL_41:
-  __asm { vmovaps xmm9, [rsp+108h+var_68] }
 }
 
 /*
@@ -1330,76 +1220,59 @@ bool G_VehiclePath_AttachPathPos(VehiclePathPos *vpp, __int16 nodeIdx)
 {
   __int64 v4; 
   bool result; 
-  __int64 v12; 
+  __int64 v6; 
 
-  _RBX = vpp;
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1185, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
   if ( nodeIdx >= (unsigned int)s_numNodes )
   {
-    LODWORD(v12) = nodeIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1186, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v12, s_numNodes) )
+    LODWORD(v6) = nodeIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1186, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIdx ) < (unsigned)( s_numNodes )", "nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v6, s_numNodes) )
       __debugbreak();
   }
   v4 = nodeIdx;
   if ( (s_nodes[v4].flags & 4) != 0 )
     return 0;
-  _RBX->nodeIdx = nodeIdx;
-  _RBX->flags = 0;
-  _RBX->frac = 0.0;
-  _RBX->speed = s_nodes[v4].speed;
-  _RBX->speedOverride = -1.0;
-  _RBX->lookAhead = s_nodes[v4].lookAhead;
-  _RBX->origin.v[0] = s_nodes[v4].origin.v[0];
-  _RBX->origin.v[1] = s_nodes[v4].origin.v[1];
-  _RBX->origin.v[2] = s_nodes[v4].origin.v[2];
-  _RBX->angles.v[0] = s_nodes[v4].angles.v[0];
-  _RBX->angles.v[1] = s_nodes[v4].angles.v[1];
-  _RBX->angles.v[2] = s_nodes[v4].angles.v[2];
-  _RBX->lookPos.v[0] = s_nodes[v4].origin.v[0];
-  _RBX->lookPos.v[1] = s_nodes[v4].origin.v[1];
-  _RBX->lookPos.v[2] = s_nodes[v4].origin.v[2];
+  vpp->nodeIdx = nodeIdx;
+  vpp->flags = 0;
+  vpp->frac = 0.0;
+  vpp->speed = s_nodes[v4].speed;
+  vpp->speedOverride = -1.0;
+  vpp->lookAhead = s_nodes[v4].lookAhead;
+  vpp->origin.v[0] = s_nodes[v4].origin.v[0];
+  vpp->origin.v[1] = s_nodes[v4].origin.v[1];
+  vpp->origin.v[2] = s_nodes[v4].origin.v[2];
+  vpp->angles.v[0] = s_nodes[v4].angles.v[0];
+  vpp->angles.v[1] = s_nodes[v4].angles.v[1];
+  vpp->angles.v[2] = s_nodes[v4].angles.v[2];
+  vpp->lookPos.v[0] = s_nodes[v4].origin.v[0];
+  vpp->lookPos.v[1] = s_nodes[v4].origin.v[1];
+  vpp->lookPos.v[2] = s_nodes[v4].origin.v[2];
   result = 1;
-  *(_QWORD *)&_RBX->switchNode[0].name = 0i64;
-  *(_QWORD *)&_RBX->switchNode[0].script_linkname = 0i64;
-  *(_DWORD *)&_RBX->switchNode[0].index = 0xFFFF;
-  _RBX->switchNode[0].speed = -1.0;
-  _RBX->switchNode[0].lookAhead = -1.0;
-  *(_QWORD *)_RBX->switchNode[0].origin.v = 0i64;
-  *(_QWORD *)&_RBX->switchNode[0].origin.z = 0i64;
-  *(_QWORD *)&_RBX->switchNode[0].dir.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  dword ptr [rbx+78h], xmm0
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-    vmovss  dword ptr [rbx+7Ch], xmm1
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rbx+80h], xmm0
-  }
-  _RBX->switchNode[0].notifyIdx = -1;
-  _RBX->switchNode[0].length = 0.0;
-  *(_DWORD *)&_RBX->switchNode[0].nextIdx = -1;
-  *(_QWORD *)&_RBX->switchNode[1].name = 0i64;
-  *(_QWORD *)&_RBX->switchNode[1].script_linkname = 0i64;
-  *(_DWORD *)&_RBX->switchNode[1].index = 0xFFFF;
-  _RBX->switchNode[1].speed = -1.0;
-  _RBX->switchNode[1].lookAhead = -1.0;
-  *(_QWORD *)_RBX->switchNode[1].origin.v = 0i64;
-  *(_QWORD *)&_RBX->switchNode[1].origin.z = 0i64;
-  *(_QWORD *)&_RBX->switchNode[1].dir.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  dword ptr [rbx+0C4h], xmm0
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-    vmovss  dword ptr [rbx+0C8h], xmm1
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rbx+0CCh], xmm0
-  }
-  _RBX->switchNode[1].notifyIdx = -1;
-  _RBX->switchNode[1].length = 0.0;
-  *(_DWORD *)&_RBX->switchNode[1].nextIdx = -1;
+  *(_QWORD *)&vpp->switchNode[0].name = 0i64;
+  *(_QWORD *)&vpp->switchNode[0].script_linkname = 0i64;
+  *(_DWORD *)&vpp->switchNode[0].index = 0xFFFF;
+  vpp->switchNode[0].speed = -1.0;
+  vpp->switchNode[0].lookAhead = -1.0;
+  *(_QWORD *)vpp->switchNode[0].origin.v = 0i64;
+  *(_QWORD *)&vpp->switchNode[0].origin.z = 0i64;
+  *(_QWORD *)&vpp->switchNode[0].dir.y = 0i64;
+  vpp->switchNode[0].angles = s_invalidAngles;
+  vpp->switchNode[0].notifyIdx = -1;
+  vpp->switchNode[0].length = 0.0;
+  *(_DWORD *)&vpp->switchNode[0].nextIdx = -1;
+  *(_QWORD *)&vpp->switchNode[1].name = 0i64;
+  *(_QWORD *)&vpp->switchNode[1].script_linkname = 0i64;
+  *(_DWORD *)&vpp->switchNode[1].index = 0xFFFF;
+  vpp->switchNode[1].speed = -1.0;
+  vpp->switchNode[1].lookAhead = -1.0;
+  *(_QWORD *)vpp->switchNode[1].origin.v = 0i64;
+  *(_QWORD *)&vpp->switchNode[1].origin.z = 0i64;
+  *(_QWORD *)&vpp->switchNode[1].dir.y = 0i64;
+  vpp->switchNode[1].angles = s_invalidAngles;
+  vpp->switchNode[1].notifyIdx = -1;
+  vpp->switchNode[1].length = 0.0;
+  *(_DWORD *)&vpp->switchNode[1].nextIdx = -1;
   return result;
 }
 
@@ -1445,242 +1318,141 @@ G_VehiclePath_CalcNodeAngles
 */
 void G_VehiclePath_CalcNodeAngles(int nodeIdx, vec3_t *outAngles)
 {
-  bool v14; 
-  bool v16; 
+  __int64 v3; 
+  VehiclePathNode *v5; 
+  float v6; 
   __int16 prevIdx; 
-  bool v30; 
-  bool v31; 
+  float v8; 
+  __int128 v9; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
+  int v13; 
+  VehiclePathNode *v14; 
+  __int128 v15; 
+  __int16 v16; 
+  int v17; 
+  float v18; 
+  __int16 nextIdx; 
+  float v20; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
 
-  _R14 = s_nodes;
-  _RSI = nodeIdx;
-  _RDI = outAngles;
-  v14 = (s_nodes[_RSI].flags & 4) == 0;
-  _RBX = &s_nodes[_RSI];
-  if ( (s_nodes[_RSI].flags & 4) != 0 )
+  v3 = nodeIdx;
+  v5 = &s_nodes[v3];
+  if ( (s_nodes[v3].flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 602, ASSERT_TYPE_SANITY, "( !(node->flags & VN_FLAG_NOTIFY) )", (const char *)&queryFormat, "!(node->flags & VN_FLAG_NOTIFY)") )
+    __debugbreak();
+  v6 = s_nodes[v3].angles.v[0];
+  if ( v6 != s_invalidAngles.v[0] || s_invalidAngles.v[1] != s_nodes[v3].angles.v[1] || s_invalidAngles.v[2] != s_nodes[v3].angles.v[2] )
   {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 602, ASSERT_TYPE_SANITY, "( !(node->flags & VN_FLAG_NOTIFY) )", (const char *)&queryFormat, "!(node->flags & VN_FLAG_NOTIFY)");
-    v14 = !v16;
-    if ( v16 )
-      __debugbreak();
+    outAngles->v[0] = v6;
+    outAngles->v[1] = s_nodes[v3].angles.v[1];
+    outAngles->v[2] = s_nodes[v3].angles.v[2];
+    return;
   }
-  __asm
+  prevIdx = s_nodes[v3].prevIdx;
+  v8 = s_invalidAngles.v[2];
+  v9 = 0i64;
+  v10 = 0i64;
+  v11 = s_invalidAngles.v[0];
+  v12 = s_invalidAngles.v[1];
+  if ( prevIdx >= 0 )
   {
-    vmovss  xmm0, dword ptr [rsi+r14+34h]
-    vmovss  xmm3, dword ptr cs:s_invalidAngles
-    vucomiss xmm0, xmm3
-  }
-  if ( v14 )
-  {
-    __asm
+    v13 = 0;
+    v14 = &s_nodes[prevIdx];
+    if ( s_numNodes > 0 )
     {
-      vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-      vucomiss xmm1, dword ptr [rsi+r14+38h]
-    }
-    if ( v14 )
-    {
-      __asm
+      while ( 1 )
       {
-        vmovss  xmm2, dword ptr cs:s_invalidAngles+8
-        vucomiss xmm2, dword ptr [rsi+r14+3Ch]
+        v15 = v9;
+        *(float *)&v15 = *(float *)&v9 + v14->length;
+        v9 = v15;
+        ++v13;
+        if ( v14->angles.v[0] != s_invalidAngles.v[0] || s_invalidAngles.v[1] != v14->angles.v[1] || s_invalidAngles.v[2] != v14->angles.v[2] )
+          break;
+        v16 = v14->prevIdx;
+        if ( v16 >= 0 && v16 != nodeIdx )
+        {
+          v14 = &s_nodes[v16];
+          if ( v13 < s_numNodes )
+            continue;
+        }
+        goto LABEL_17;
       }
-      if ( v14 )
-      {
-        prevIdx = s_nodes[_RSI].prevIdx;
-        __asm
-        {
-          vmovaps [rsp+0D8h+var_28], xmm6
-          vmovaps [rsp+0D8h+var_38], xmm7
-          vmovaps [rsp+0D8h+var_48], xmm8
-          vmovaps [rsp+0D8h+var_58], xmm9
-          vmovaps [rsp+0D8h+var_78], xmm11
-          vmovaps [rsp+0D8h+var_88], xmm12
-          vmovaps [rsp+0D8h+var_98], xmm13
-          vmovaps [rsp+0D8h+var_A8], xmm14
-          vmovaps xmm14, xmm2
-          vxorps  xmm11, xmm11, xmm11
-          vxorps  xmm8, xmm8, xmm8
-          vxorps  xmm9, xmm9, xmm9
-          vmovaps xmm12, xmm3
-          vmovaps xmm13, xmm1
-        }
-        if ( prevIdx >= 0 )
-        {
-          _RCX = &s_nodes[prevIdx];
-          if ( s_numNodes > 0 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+34h]
-              vaddss  xmm8, xmm8, dword ptr [rcx+40h]
-              vucomiss xmm0, xmm3
-              vmovss  xmm13, dword ptr [rcx+38h]
-              vmovss  xmm14, dword ptr [rcx+3Ch]
-              vmovaps xmm12, xmm0
-            }
-          }
-        }
-        __asm { vmovaps [rsp+0D8h+var_68], xmm10 }
-        v30 = s_numNodes == 0;
-        v31 = v30;
-        if ( s_numNodes <= 0 )
-        {
-          __asm
-          {
-            vmovaps xmm0, xmm3
-            vmovaps xmm4, xmm1
-            vmovaps xmm10, xmm2
-          }
-        }
-        else
-        {
-          __asm { vmovss  xmm0, dword ptr [rbx+34h] }
-          v30 = 0;
-          v31 = 0;
-          __asm
-          {
-            vucomiss xmm0, xmm3
-            vmovss  xmm4, dword ptr [rbx+38h]
-            vmovss  xmm10, dword ptr [rbx+3Ch]
-          }
-        }
-        __asm { vucomiss xmm12, xmm3 }
-        if ( v30 )
-        {
-          __asm { vucomiss xmm13, xmm1 }
-          if ( v30 )
-          {
-            __asm { vucomiss xmm14, xmm2 }
-            if ( v30 )
-            {
-              __asm { vucomiss xmm0, xmm3 }
-              if ( v30 )
-              {
-                __asm { vucomiss xmm4, xmm1 }
-                if ( v30 )
-                {
-                  __asm { vucomiss xmm10, xmm2 }
-                  if ( v30 )
-                    goto LABEL_29;
-                }
-              }
-            }
-          }
-          __asm { vucomiss xmm12, xmm3 }
-          if ( v30 )
-          {
-            __asm { vucomiss xmm13, xmm1 }
-            if ( v30 )
-            {
-              __asm { vucomiss xmm14, xmm2 }
-              if ( v30 )
-              {
-                __asm
-                {
-                  vmovss  dword ptr [rdi], xmm0
-                  vmovss  dword ptr [rdi+4], xmm4
-                  vmovss  dword ptr [rdi+8], xmm10
-                }
-LABEL_23:
-                __asm
-                {
-                  vmovaps xmm10, [rsp+0D8h+var_68]
-                  vmovaps xmm12, [rsp+0D8h+var_88]
-                  vmovaps xmm11, [rsp+0D8h+var_78]
-                  vmovaps xmm13, [rsp+0D8h+var_98]
-                  vmovaps xmm9, [rsp+0D8h+var_58]
-                  vmovaps xmm8, [rsp+0D8h+var_48]
-                  vmovaps xmm7, [rsp+0D8h+var_38]
-                  vmovaps xmm6, [rsp+0D8h+var_28]
-                  vmovaps xmm14, [rsp+0D8h+var_A8]
-                }
-                return;
-              }
-            }
-          }
-        }
-        __asm { vucomiss xmm0, xmm3 }
-        if ( v30 )
-        {
-          __asm { vucomiss xmm4, xmm1 }
-          if ( v30 )
-          {
-            __asm { vucomiss xmm10, xmm2 }
-            if ( v30 )
-            {
-              __asm
-              {
-                vmovss  dword ptr [rdi], xmm12
-                vmovss  dword ptr [rdi+4], xmm13
-                vmovss  dword ptr [rdi+8], xmm14
-              }
-              goto LABEL_23;
-            }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm1, xmm9, xmm8
-          vcomiss xmm1, xmm11
-        }
-        if ( !v31 )
-        {
-          __asm
-          {
-            vmovss  xmm7, cs:__real@3b360b61
-            vmovss  xmm6, cs:__real@3f000000
-            vmovss  xmm5, cs:__real@43b40000
-            vsubss  xmm0, xmm0, xmm12
-            vmulss  xmm3, xmm0, xmm7
-            vdivss  xmm9, xmm8, xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vaddss  xmm1, xmm3, xmm6
-            vmovss  xmm1, xmm0, xmm1
-            vxorps  xmm8, xmm8, xmm8
-            vroundss xmm2, xmm8, xmm1, 1
-            vsubss  xmm0, xmm3, xmm2
-            vmulss  xmm0, xmm0, xmm5
-            vmulss  xmm1, xmm0, xmm9
-            vaddss  xmm2, xmm1, xmm12
-            vmovss  dword ptr [rdi], xmm2
-            vxorps  xmm1, xmm1, xmm1
-            vsubss  xmm0, xmm4, xmm13
-            vmulss  xmm4, xmm0, xmm7
-            vaddss  xmm2, xmm4, xmm6
-            vmovss  xmm0, xmm1, xmm2
-            vroundss xmm3, xmm8, xmm0, 1
-            vsubss  xmm1, xmm4, xmm3
-            vmulss  xmm0, xmm1, xmm5
-            vmulss  xmm2, xmm0, xmm9
-            vaddss  xmm3, xmm2, xmm13
-            vmovss  dword ptr [rdi+4], xmm3
-            vsubss  xmm0, xmm10, xmm14
-            vmulss  xmm4, xmm0, xmm7
-            vaddss  xmm2, xmm4, xmm6
-            vxorps  xmm1, xmm1, xmm1
-            vmovss  xmm0, xmm1, xmm2
-            vroundss xmm3, xmm8, xmm0, 1
-            vsubss  xmm1, xmm4, xmm3
-            vmulss  xmm0, xmm1, xmm5
-            vmulss  xmm2, xmm0, xmm9
-            vaddss  xmm3, xmm2, xmm14
-            vmovss  dword ptr [rdi+8], xmm3
-          }
-          goto LABEL_23;
-        }
-LABEL_29:
-        *(_QWORD *)_RDI->v = 0i64;
-        __asm { vmovss  dword ptr [rdi+8], xmm11 }
-        goto LABEL_23;
-      }
+      v12 = v14->angles.v[1];
+      v8 = v14->angles.v[2];
+      v11 = v14->angles.v[0];
     }
   }
-  __asm { vmovss  dword ptr [rdi], xmm0 }
-  _RDI->v[1] = s_nodes[_RSI].angles.v[1];
-  __asm
+LABEL_17:
+  v17 = 0;
+  if ( s_numNodes <= 0 )
   {
-    vmovss  xmm0, dword ptr [rsi+r14+3Ch]
-    vmovss  dword ptr [rdi+8], xmm0
+LABEL_24:
+    v18 = s_invalidAngles.v[0];
+    v20 = s_invalidAngles.v[1];
+    v21 = s_invalidAngles.v[2];
   }
+  else
+  {
+    while ( 1 )
+    {
+      v18 = v5->angles.v[0];
+      ++v17;
+      if ( v18 != s_invalidAngles.v[0] || s_invalidAngles.v[1] != v5->angles.v[1] || s_invalidAngles.v[2] != v5->angles.v[2] )
+        break;
+      nextIdx = v5->nextIdx;
+      v18 = s_invalidAngles.v[0];
+      v20 = s_invalidAngles.v[1];
+      v21 = s_invalidAngles.v[2];
+      if ( nextIdx < 0 || nextIdx == nodeIdx )
+        goto LABEL_25;
+      v22 = v10;
+      *(float *)&v22 = *(float *)&v10 + v5->length;
+      v10 = v22;
+      v5 = &s_nodes[nextIdx];
+      if ( v17 >= s_numNodes )
+        goto LABEL_24;
+    }
+    v20 = v5->angles.v[1];
+    v21 = v5->angles.v[2];
+  }
+LABEL_25:
+  if ( v11 != s_invalidAngles.v[0] )
+    goto LABEL_39;
+  if ( v12 == s_invalidAngles.v[1] && v8 == s_invalidAngles.v[2] && v18 == s_invalidAngles.v[0] && v20 == s_invalidAngles.v[1] && v21 == s_invalidAngles.v[2] )
+    goto LABEL_42;
+  if ( v11 != s_invalidAngles.v[0] || v12 != s_invalidAngles.v[1] || v8 != s_invalidAngles.v[2] )
+  {
+LABEL_39:
+    if ( v18 == s_invalidAngles.v[0] && v20 == s_invalidAngles.v[1] && v21 == s_invalidAngles.v[2] )
+    {
+      outAngles->v[0] = v11;
+      outAngles->v[1] = v12;
+      outAngles->v[2] = v8;
+      return;
+    }
+    if ( (float)(*(float *)&v10 + *(float *)&v9) > 0.0 )
+    {
+      v23 = *(float *)&v9 / (float)(*(float *)&v10 + *(float *)&v9);
+      _XMM8 = 0i64;
+      __asm { vroundss xmm2, xmm8, xmm1, 1 }
+      outAngles->v[0] = (float)((float)((float)((float)((float)(v18 - v11) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v23) + v11;
+      __asm { vroundss xmm3, xmm8, xmm0, 1 }
+      outAngles->v[1] = (float)((float)((float)((float)((float)(v20 - v12) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * v23) + v12;
+      __asm { vroundss xmm3, xmm8, xmm0, 1 }
+      outAngles->v[2] = (float)((float)((float)((float)((float)(v21 - v8) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * v23) + v8;
+      return;
+    }
+LABEL_42:
+    *(_QWORD *)outAngles->v = 0i64;
+    outAngles->v[2] = 0;
+    return;
+  }
+  outAngles->v[0] = v18;
+  outAngles->v[1] = v20;
+  outAngles->v[2] = v21;
 }
 
 /*
@@ -1690,18 +1462,101 @@ G_VehiclePath_CalcNodeLookAhead
 */
 float G_VehiclePath_CalcNodeLookAhead(int nodeIdx)
 {
-  _RBP = s_nodes;
-  _RDI = nodeIdx;
-  if ( (s_nodes[_RDI].flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 499, ASSERT_TYPE_SANITY, "( !(node->flags & VN_FLAG_NOTIFY) )", (const char *)&queryFormat, "!(node->flags & VN_FLAG_NOTIFY)") )
+  __int64 v2; 
+  VehiclePathNode *v3; 
+  float result; 
+  __int16 prevIdx; 
+  int v6; 
+  float lookAhead; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  int v11; 
+  VehiclePathNode *v12; 
+  __int128 v13; 
+  __int16 v14; 
+  __int16 nextIdx; 
+  __int128 v16; 
+
+  v2 = nodeIdx;
+  v3 = &s_nodes[v2];
+  if ( (s_nodes[v2].flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 499, ASSERT_TYPE_SANITY, "( !(node->flags & VN_FLAG_NOTIFY) )", (const char *)&queryFormat, "!(node->flags & VN_FLAG_NOTIFY)") )
     __debugbreak();
-  __asm
+  result = 0.0;
+  if ( s_nodes[v2].lookAhead >= 0.0 )
+    return s_nodes[v2].lookAhead;
+  prevIdx = s_nodes[v2].prevIdx;
+  v6 = 0;
+  lookAhead = FLOAT_N1_0;
+  v8 = 0i64;
+  v9 = 0i64;
+  v10 = FLOAT_N1_0;
+  if ( prevIdx >= 0 )
   {
-    vmovss  xmm1, dword ptr [rdi+rbp+18h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps xmm0, xmm1
+    v11 = 0;
+    v12 = &s_nodes[prevIdx];
+    if ( s_numNodes > 0 )
+    {
+      while ( 1 )
+      {
+        v13 = v8;
+        *(float *)&v13 = *(float *)&v8 + v12->length;
+        v8 = v13;
+        ++v11;
+        if ( v12->lookAhead > 0.0 )
+          break;
+        v14 = v12->prevIdx;
+        if ( v14 >= 0 && v14 != nodeIdx )
+        {
+          v12 = &s_nodes[v14];
+          if ( v11 < s_numNodes )
+            continue;
+        }
+        goto LABEL_14;
+      }
+      lookAhead = v12->lookAhead;
+    }
   }
-  return *(float *)&_XMM0;
+LABEL_14:
+  if ( s_numNodes > 0 )
+  {
+    while ( 1 )
+    {
+      ++v6;
+      if ( v3->lookAhead > 0.0 )
+        break;
+      nextIdx = v3->nextIdx;
+      if ( nextIdx >= 0 && nextIdx != nodeIdx )
+      {
+        v16 = v9;
+        *(float *)&v16 = *(float *)&v9 + v3->length;
+        v9 = v16;
+        v3 = &s_nodes[nextIdx];
+        if ( v6 < s_numNodes )
+          continue;
+      }
+      goto LABEL_21;
+    }
+    v10 = v3->lookAhead;
+  }
+LABEL_21:
+  if ( lookAhead >= 0.0 )
+  {
+    if ( v10 >= 0.0 )
+    {
+      if ( (float)(*(float *)&v9 + *(float *)&v8) > 0.0 )
+        return (float)((float)(*(float *)&v8 / (float)(*(float *)&v9 + *(float *)&v8)) * (float)(v10 - lookAhead)) + lookAhead;
+    }
+    else
+    {
+      return lookAhead;
+    }
+  }
+  else if ( v10 >= 0.0 )
+  {
+    return v10;
+  }
+  return result;
 }
 
 /*
@@ -1711,18 +1566,101 @@ G_VehiclePath_CalcNodeSpeed
 */
 float G_VehiclePath_CalcNodeSpeed(int nodeIdx)
 {
-  _RBP = s_nodes;
-  _RDI = nodeIdx;
-  if ( (s_nodes[_RDI].flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 393, ASSERT_TYPE_SANITY, "( !(node->flags & VN_FLAG_NOTIFY) )", (const char *)&queryFormat, "!(node->flags & VN_FLAG_NOTIFY)") )
+  __int64 v2; 
+  VehiclePathNode *v3; 
+  float result; 
+  __int16 prevIdx; 
+  int v6; 
+  float speed; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  int v11; 
+  VehiclePathNode *v12; 
+  __int128 v13; 
+  __int16 v14; 
+  __int16 nextIdx; 
+  __int128 v16; 
+
+  v2 = nodeIdx;
+  v3 = &s_nodes[v2];
+  if ( (s_nodes[v2].flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 393, ASSERT_TYPE_SANITY, "( !(node->flags & VN_FLAG_NOTIFY) )", (const char *)&queryFormat, "!(node->flags & VN_FLAG_NOTIFY)") )
     __debugbreak();
-  __asm
+  result = 0.0;
+  if ( s_nodes[v2].speed >= 0.0 )
+    return s_nodes[v2].speed;
+  prevIdx = s_nodes[v2].prevIdx;
+  v6 = 0;
+  speed = FLOAT_N1_0;
+  v8 = 0i64;
+  v9 = 0i64;
+  v10 = FLOAT_N1_0;
+  if ( prevIdx >= 0 )
   {
-    vmovss  xmm1, dword ptr [rdi+rbp+14h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps xmm0, xmm1
+    v11 = 0;
+    v12 = &s_nodes[prevIdx];
+    if ( s_numNodes > 0 )
+    {
+      while ( 1 )
+      {
+        v13 = v8;
+        *(float *)&v13 = *(float *)&v8 + v12->length;
+        v8 = v13;
+        ++v11;
+        if ( v12->speed >= 0.0 )
+          break;
+        v14 = v12->prevIdx;
+        if ( v14 >= 0 && v14 != nodeIdx )
+        {
+          v12 = &s_nodes[v14];
+          if ( v11 < s_numNodes )
+            continue;
+        }
+        goto LABEL_14;
+      }
+      speed = v12->speed;
+    }
   }
-  return *(float *)&_XMM0;
+LABEL_14:
+  if ( s_numNodes > 0 )
+  {
+    while ( 1 )
+    {
+      ++v6;
+      if ( v3->speed >= 0.0 )
+        break;
+      nextIdx = v3->nextIdx;
+      if ( nextIdx >= 0 && nextIdx != nodeIdx )
+      {
+        v16 = v9;
+        *(float *)&v16 = *(float *)&v9 + v3->length;
+        v9 = v16;
+        v3 = &s_nodes[nextIdx];
+        if ( v6 < s_numNodes )
+          continue;
+      }
+      goto LABEL_21;
+    }
+    v10 = v3->speed;
+  }
+LABEL_21:
+  if ( speed >= 0.0 )
+  {
+    if ( v10 >= 0.0 )
+    {
+      if ( (float)(*(float *)&v9 + *(float *)&v8) > 0.0 )
+        return (float)((float)(*(float *)&v8 / (float)(*(float *)&v9 + *(float *)&v8)) * (float)(v10 - speed)) + speed;
+    }
+    else
+    {
+      return speed;
+    }
+  }
+  else if ( v10 >= 0.0 )
+  {
+    return v10;
+  }
+  return result;
 }
 
 /*
@@ -1730,40 +1668,30 @@ float G_VehiclePath_CalcNodeSpeed(int nodeIdx)
 G_VehiclePath_ComputeLookAhead
 ==============
 */
-
-void __fastcall G_VehiclePath_ComputeLookAhead(__int16 nodeIdx, const vec3_t *curPos, double lookAheadDist, vec3_t *outLookAhead)
+void G_VehiclePath_ComputeLookAhead(__int16 nodeIdx, const vec3_t *curPos, float lookAheadDist, vec3_t *outLookAhead)
 {
+  __int64 v7; 
+  __int16 nextIdx; 
+  float length; 
+  double v10; 
   VehiclePathPos vpp; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( nodeIdx == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1393, ASSERT_TYPE_SANITY, "( nodeIdx != -1 )", (const char *)&queryFormat, "nodeIdx != -1") )
     __debugbreak();
-  _R8 = s_nodes;
-  _RDX = nodeIdx;
-  __asm { vxorps  xmm1, xmm1, xmm1; min }
+  v7 = nodeIdx;
   vpp.nodeIdx = nodeIdx;
-  __asm { vmovss  [rsp+138h+vpp.lookAhead], xmm1 }
-  if ( s_nodes[_RDX].nextIdx != -1 )
+  vpp.lookAhead = 0.0;
+  nextIdx = s_nodes[v7].nextIdx;
+  if ( nextIdx == -1 || (length = s_nodes[v7].length, length <= 0.0) )
   {
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rdx+r8+40h]
-      vcomiss xmm5, xmm1
-    }
+    vpp.frac = 0.0;
   }
-  __asm
+  else
   {
-    vmovss  [rsp+138h+vpp.frac], xmm1
-    vmovaps xmm2, xmm7; lookAheadOffset
+    v10 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(s_nodes[nextIdx].origin.v[1] - curPos->v[1]) * s_nodes[v7].dir.v[1]) + (float)((float)(s_nodes[nextIdx].origin.v[0] - curPos->v[0]) * s_nodes[v7].dir.v[0])) & _xmm) / length, 0.0, 1.0);
+    vpp.frac = 1.0 - *(float *)&v10;
   }
-  G_VehiclePath_GetForwardLookAheadOrigin(&vpp, outLookAhead, *(float *)&_XMM2);
-  __asm { vmovaps xmm7, [rsp+138h+var_28] }
+  G_VehiclePath_GetForwardLookAheadOrigin(&vpp, outLookAhead, lookAheadDist);
 }
 
 /*
@@ -1852,22 +1780,17 @@ G_VehiclePath_DebugLine
 */
 void G_VehiclePath_DebugLine(const vec3_t *start, const vec3_t *end, bool mainPath)
 {
-  bool v5; 
+  bool v3; 
   vec4_t *p_color; 
-  __int128 v7; 
+  __int128 v5; 
   vec4_t color; 
 
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f80000000000000000000003f800000
-    vmovups xmm1, cs:__xmm@3f8000003f800000000000003f800000
-  }
-  v5 = !mainPath;
-  p_color = (vec4_t *)&v7;
-  __asm { vmovups [rsp+58h+var_38], xmm0 }
-  if ( v5 )
+  v3 = !mainPath;
+  p_color = (vec4_t *)&v5;
+  v5 = _xmm;
+  if ( v3 )
     p_color = &color;
-  __asm { vmovups xmmword ptr [rsp+58h+color], xmm1 }
+  color = (vec4_t)_xmm;
   G_DebugLine(start, end, p_color, 1);
 }
 
@@ -1876,41 +1799,27 @@ void G_VehiclePath_DebugLine(const vec3_t *start, const vec3_t *end, bool mainPa
 G_VehiclePath_DrawCurrentPath
 ==============
 */
-void G_VehiclePath_DrawCurrentPath()
+void G_VehiclePath_DrawCurrentPath(void)
 {
-  const dvar_t *v1; 
-  __int16 v2; 
-  __int16 v3; 
+  const dvar_t *v0; 
+  __int16 v1; 
+  __int16 i; 
 
-  v1 = DCONST_DVARINT_bg_vehicleDebug;
+  v0 = DCONST_DVARINT_bg_vehicleDebug;
   if ( !DCONST_DVARINT_bg_vehicleDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicleDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v1);
-  if ( v1->current.integer )
+  Dvar_CheckFrontendServerThread(v0);
+  if ( v0->current.integer )
   {
-    v2 = s_numNodes;
-    v3 = 0;
-    if ( s_numNodes > 0 )
+    v1 = s_numNodes;
+    for ( i = 0; i < s_numNodes; ++i )
     {
-      __asm
-      {
-        vmovaps [rsp+68h+var_28], xmm6
-        vmovss  xmm6, cs:__real@40600000
-      }
-      do
-      {
-        if ( v3 < v2 - 1 )
-          G_DebugLine(&s_nodes[v3].origin, &s_nodes[v3 + 1].origin, &colorYellow, 1);
-        __asm { vmovaps xmm1, xmm6; radius }
-        G_DebugSphere(&s_nodes[v3].origin, *(float *)&_XMM1, &colorCyan, 0, 0);
-        Com_sprintf(tmp, 0x10ui64, "%d", (unsigned int)v3);
-        __asm { vmovss  xmm2, cs:textScale; scale }
-        CL_AddDebugString(&s_nodes[v3].origin, &colorWhite, *(float *)&_XMM2, tmp, 1, 0);
-        v2 = s_numNodes;
-        ++v3;
-      }
-      while ( v3 < s_numNodes );
-      __asm { vmovaps xmm6, [rsp+68h+var_28] }
+      if ( i < v1 - 1 )
+        G_DebugLine(&s_nodes[i].origin, &s_nodes[i + 1].origin, &colorYellow, 1);
+      G_DebugSphere(&s_nodes[i].origin, 3.5, &colorCyan, 0, 0);
+      Com_sprintf(tmp, 0x10ui64, "%d", (unsigned int)i);
+      CL_AddDebugString(&s_nodes[i].origin, &colorWhite, textScale, tmp, 1, 0);
+      v1 = s_numNodes;
     }
   }
 }
@@ -1923,31 +1832,33 @@ G_VehiclePath_DrawDebug
 
 void __fastcall G_VehiclePath_DrawDebug(double _XMM0_8)
 {
+  __int128 v1; 
   const dvar_t *v2; 
   const dvar_t *v3; 
   __int64 v4; 
   int v5; 
   __int16 *p_flags; 
-  __int64 v8; 
+  __int64 v7; 
+  const char *v8; 
   const char *v9; 
-  const char *v10; 
-  __int64 v11; 
-  signed __int64 v12; 
-  int v13; 
-  __int64 v14; 
+  __int64 v10; 
+  signed __int64 v11; 
+  int v12; 
+  __int64 v13; 
+  int v14; 
   int v15; 
   int v16; 
   int v17; 
-  int v20; 
   VehiclePathNode *i; 
-  const char *v22; 
-  const dvar_t *v23; 
-  const char *v24; 
-  __int64 v25; 
-  int v26; 
-  int v27; 
-  __int16 v29; 
+  const char *v19; 
+  const dvar_t *v20; 
+  const char *v21; 
+  __int64 v22; 
+  int v23; 
+  int v24; 
+  __int16 v26; 
   VehiclePathPos vpp; 
+  __int128 v28; 
 
   v2 = DVARSTR_g_vehicleDrawPath;
   if ( !DVARSTR_g_vehicleDrawPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_vehicleDrawPath") )
@@ -1965,58 +1876,56 @@ void __fastcall G_VehiclePath_DrawDebug(double _XMM0_8)
       v5 = 0;
       if ( s_numNodes > 0 )
       {
-        __asm { vmovaps [rsp+7D88h+var_38], xmm6 }
+        v28 = v1;
         p_flags = &s_nodes[0].flags;
-        __asm { vmovss  xmm6, cs:__real@3f800000 }
-        v8 = 0i64;
+        v7 = 0i64;
         do
         {
           if ( (*(_BYTE *)p_flags & 1) != 0 )
           {
-            v9 = SL_ConvertToString((scr_string_t)*(_DWORD *)(p_flags - 9));
-            if ( v8 <= 0 )
+            v8 = SL_ConvertToString((scr_string_t)*(_DWORD *)(p_flags - 9));
+            if ( v7 <= 0 )
             {
 LABEL_30:
-              __asm { vmovaps xmm2, xmm6; scale }
-              CL_AddDebugString((const vec3_t *)(p_flags + 5), &colorRed, *(float *)&_XMM2, v9, 1, 1);
-              *((_QWORD *)&vpp.nodeIdx + v8++) = v9;
+              CL_AddDebugString((const vec3_t *)(p_flags + 5), &colorRed, 1.0, v8, 1, 1);
+              *((_QWORD *)&vpp.nodeIdx + v7++) = v8;
             }
             else
             {
 LABEL_13:
-              v10 = (const char *)*((_QWORD *)&vpp.nodeIdx + v4);
-              v11 = 0x7FFFFFFFi64;
-              if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+              v9 = (const char *)*((_QWORD *)&vpp.nodeIdx + v4);
+              v10 = 0x7FFFFFFFi64;
+              if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                 __debugbreak();
-              if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+              if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                 __debugbreak();
-              v12 = v9 - v10;
+              v11 = v8 - v9;
               do
               {
-                v13 = (unsigned __int8)v10[v12];
-                v14 = v11;
-                v15 = *(unsigned __int8 *)v10++;
-                --v11;
-                if ( !v14 )
+                v12 = (unsigned __int8)v9[v11];
+                v13 = v10;
+                v14 = *(unsigned __int8 *)v9++;
+                --v10;
+                if ( !v13 )
                   break;
-                if ( v13 != v15 )
+                if ( v12 != v14 )
                 {
-                  v16 = v13 + 32;
-                  if ( (unsigned int)(v13 - 65) > 0x19 )
-                    v16 = v13;
-                  v13 = v16;
-                  v17 = v15 + 32;
-                  if ( (unsigned int)(v15 - 65) > 0x19 )
-                    v17 = v15;
-                  if ( v13 != v17 )
+                  v15 = v12 + 32;
+                  if ( (unsigned int)(v12 - 65) > 0x19 )
+                    v15 = v12;
+                  v12 = v15;
+                  v16 = v14 + 32;
+                  if ( (unsigned int)(v14 - 65) > 0x19 )
+                    v16 = v14;
+                  if ( v12 != v16 )
                   {
-                    if ( ++v4 < v8 )
+                    if ( ++v4 < v7 )
                       goto LABEL_13;
                     goto LABEL_30;
                   }
                 }
               }
-              while ( v13 );
+              while ( v12 );
             }
             v4 = 0i64;
           }
@@ -2024,43 +1933,42 @@ LABEL_13:
           p_flags += 38;
         }
         while ( v5 < s_numNodes );
-        __asm { vmovaps xmm6, [rsp+7D88h+var_38] }
       }
-      v20 = 0;
+      v17 = 0;
       if ( s_numNodes > 0 )
       {
         for ( i = s_nodes; ; ++i )
         {
           if ( (i->flags & 4) == 0 )
           {
-            v22 = SL_ConvertToString(i->name);
-            v23 = DVARSTR_g_vehicleDrawPath;
-            v24 = v22;
+            v19 = SL_ConvertToString(i->name);
+            v20 = DVARSTR_g_vehicleDrawPath;
+            v21 = v19;
             if ( !DVARSTR_g_vehicleDrawPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_vehicleDrawPath") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v23);
-            v25 = v23->current.integer64 - (_QWORD)v24;
+            Dvar_CheckFrontendServerThread(v20);
+            v22 = v20->current.integer64 - (_QWORD)v21;
             do
             {
-              v26 = (unsigned __int8)v24[v25];
-              v27 = *(unsigned __int8 *)v24 - v26;
-              if ( v27 )
+              v23 = (unsigned __int8)v21[v22];
+              v24 = *(unsigned __int8 *)v21 - v23;
+              if ( v24 )
                 break;
-              ++v24;
+              ++v21;
             }
-            while ( v26 );
-            if ( !v27 )
+            while ( v23 );
+            if ( !v24 )
               break;
           }
-          if ( ++v20 >= s_numNodes )
+          if ( ++v17 >= s_numNodes )
             return;
         }
         __asm { vpxor   xmm0, xmm0, xmm0 }
         *(_QWORD *)&vpp.switchNode[0].name = 0i64;
         *(_QWORD *)&vpp.switchNode[0].script_linkname = 0i64;
-        __asm { vmovdqu xmmword ptr [rsp+7D88h+vpp.switchNode.name+4Ch], xmm0 }
-        v29 = truncate_cast<short,int>(v20);
-        if ( G_VehiclePath_AttachPathPos(&vpp, v29) )
+        *(_OWORD *)&vpp.switchNode[1].name = _XMM0;
+        v26 = truncate_cast<short,int>(v17);
+        if ( G_VehiclePath_AttachPathPos(&vpp, v26) )
           G_VehiclePath_DrawPath(&vpp);
       }
     }
@@ -2074,367 +1982,246 @@ G_VehiclePath_DrawPath
 */
 void G_VehiclePath_DrawPath(const VehiclePathPos *vpp)
 {
-  __int64 v12; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int64 v10; 
+  __m256i v11; 
+  __m256i v12; 
+  int v13; 
+  __m256i v14; 
+  __int16 v15; 
+  const VehiclePathPos *v16; 
+  __int128 v17; 
+  int v18; 
+  int v19; 
   int v20; 
-  __int16 v23; 
-  const VehiclePathPos *v24; 
-  int v26; 
-  int v27; 
-  int v28; 
-  __int16 v29; 
-  __int64 v31; 
+  __int16 v21; 
+  __int64 v22; 
   __int16 nodeIdx; 
-  bool v39; 
-  __int64 v48; 
-  bool v52; 
-  __int16 v53; 
-  VehiclePathNode *v54; 
-  char v55; 
-  __int64 v93; 
-  const vec4_t *v110; 
+  bool v24; 
+  bool v25; 
+  __int16 v26; 
+  VehiclePathNode *v27; 
+  float NotifyFraction; 
+  __int128 v29; 
+  float v33; 
+  float v34; 
+  float v35; 
+  __int64 v36; 
+  VehiclePathNode *v37; 
+  float v38; 
+  __int128 *v39; 
   __int16 notifyIdx; 
   __int16 nextIdx; 
   __int64 entIndex; 
   __int64 entIndexa; 
-  __int64 v118; 
+  __int64 v44; 
   const VehiclePathPos *color; 
   Bounds color_8; 
-  __int128 v121; 
-  __int128 v122; 
-  vec4_t v123; 
+  __int128 v47; 
+  __int128 v48; 
+  vec4_t v49; 
   VehiclePathPos prevVpp; 
   VehiclePathPos vppa; 
-  void *retaddr; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
 
-  _R11 = &retaddr;
-  v12 = *(_QWORD *)&vpp->switchNode[1].length;
-  _RDX = &prevVpp;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymm1, ymmword ptr [rcx+80h]
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups ymm0, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr [rdx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr [rdx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rcx+60h]
-    vmovups ymmword ptr [rdx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovaps xmmword ptr [r11-0C8h], xmm15
-  }
+  v10 = *(_QWORD *)&vpp->switchNode[1].length;
+  v11 = *(__m256i *)&vpp->switchNode[0].angles.z;
+  *(__m256i *)&prevVpp.nodeIdx = *(__m256i *)&vpp->nodeIdx;
+  *(__m256i *)prevVpp.angles.v = *(__m256i *)vpp->angles.v;
+  *(__m256i *)&prevVpp.driftOffset.z = *(__m256i *)&vpp->driftOffset.z;
+  *(__m256i *)prevVpp.switchNode[0].origin.v = *(__m256i *)vpp->switchNode[0].origin.v;
+  v12 = *(__m256i *)&vpp->nodeIdx;
+  v52 = v9;
+  v13 = 0;
+  *(__m256i *)&prevVpp.switchNode[0].angles.z = v11;
+  v14 = *(__m256i *)&vpp->switchNode[1].index;
+  v60 = v1;
+  v15 = -1;
+  v59 = v2;
+  v16 = vpp;
+  *(__m256i *)&prevVpp.switchNode[1].index = v14;
+  v17 = *(_OWORD *)&vpp->switchNode[1].dir.z;
+  v58 = v3;
+  v18 = 0;
+  v57 = v4;
+  v19 = 0;
+  *(_OWORD *)&prevVpp.switchNode[1].dir.z = v17;
+  *(_QWORD *)&prevVpp.switchNode[1].length = v10;
   v20 = 0;
-  __asm
-  {
-    vmovss  xmm15, cs:__real@3a83126f
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovups ymmword ptr [rdx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rcx+0A0h]
-    vmovaps xmmword ptr [r11-48h], xmm7
-  }
-  v23 = -1;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm8 }
-  v24 = vpp;
-  __asm
-  {
-    vmovups ymmword ptr [rdx+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rcx+0C0h]
-    vmovaps xmmword ptr [r11-68h], xmm9
-  }
-  v26 = 0;
-  __asm { vmovaps xmmword ptr [r11-78h], xmm10 }
-  v27 = 0;
-  __asm { vmovups xmmword ptr [rdx+0C0h], xmm1 }
-  *(_QWORD *)&prevVpp.switchNode[1].length = v12;
-  v28 = 0;
-  v29 = -1;
+  v21 = -1;
   *(_DWORD *)&prevVpp.switchNode[1].notifyIdx = *(_DWORD *)&vpp->switchNode[1].notifyIdx;
-  _RDX = &vppa;
-  v31 = *(_QWORD *)&vpp->switchNode[1].length;
-  __asm
-  {
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups ymm0, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr [rdx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr [rdx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rcx+60h]
-    vmovups ymmword ptr [rdx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rcx+80h]
-    vmovups ymmword ptr [rdx+80h], ymm0
-    vmovups ymm0, ymmword ptr [rcx+0A0h]
-    vmovups ymmword ptr [rdx+0A0h], ymm0
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovups xmmword ptr [rdx+0C0h], xmm1
-  }
-  *(_QWORD *)&vppa.switchNode[1].length = v31;
-  LODWORD(v31) = *(_DWORD *)&vpp->switchNode[1].notifyIdx;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-98h], xmm12
-    vmovaps xmmword ptr [r11-0A8h], xmm13
-  }
-  *(_DWORD *)&vppa.switchNode[1].notifyIdx = v31;
+  v22 = *(_QWORD *)&vpp->switchNode[1].length;
+  *(__m256i *)&vppa.nodeIdx = v12;
+  *(__m256i *)vppa.angles.v = *(__m256i *)vpp->angles.v;
+  *(__m256i *)&vppa.driftOffset.z = *(__m256i *)&vpp->driftOffset.z;
+  *(__m256i *)vppa.switchNode[0].origin.v = *(__m256i *)vpp->switchNode[0].origin.v;
+  *(__m256i *)&vppa.switchNode[0].angles.z = *(__m256i *)&vpp->switchNode[0].angles.z;
+  *(__m256i *)&vppa.switchNode[1].index = *(__m256i *)&vpp->switchNode[1].index;
+  v56 = v5;
+  *(_OWORD *)&vppa.switchNode[1].dir.z = v17;
+  *(_QWORD *)&vppa.switchNode[1].length = v22;
+  LODWORD(v22) = *(_DWORD *)&vpp->switchNode[1].notifyIdx;
+  v55 = v6;
+  v54 = v7;
+  *(_DWORD *)&vppa.switchNode[1].notifyIdx = v22;
   color = vpp;
   s_newDebugLine = 1;
-  __asm { vmovaps xmmword ptr [r11-0B8h], xmm14 }
-  while ( ++v27 <= 50000 )
+  v53 = v8;
+  while ( ++v19 <= 50000 )
   {
-    nodeIdx = v24->nodeIdx;
-    _RCX = &vppa;
-    v39 = prevVpp.nodeIdx == v24->nodeIdx;
-    _RDX = &prevVpp;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+60h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+80h]
-      vmovups ymmword ptr [rdx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+0A0h]
-      vmovups ymmword ptr [rdx+0A0h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+0C0h]
-    }
-    if ( !v39 )
-      v23 = nodeIdx;
-    v48 = *(_QWORD *)&vppa.switchNode[1].length;
-    v39 = level.frameDuration == 0;
-    __asm { vmovups xmmword ptr [rdx+0C0h], xmm0 }
-    *(_QWORD *)&prevVpp.switchNode[1].length = v48;
+    nodeIdx = v16->nodeIdx;
+    v24 = prevVpp.nodeIdx == v16->nodeIdx;
+    *(__m256i *)&prevVpp.nodeIdx = *(__m256i *)&vppa.nodeIdx;
+    *(__m256i *)prevVpp.angles.v = *(__m256i *)vppa.angles.v;
+    *(__m256i *)&prevVpp.driftOffset.z = *(__m256i *)&vppa.driftOffset.z;
+    *(__m256i *)prevVpp.switchNode[0].origin.v = *(__m256i *)vppa.switchNode[0].origin.v;
+    *(__m256i *)&prevVpp.switchNode[0].angles.z = *(__m256i *)&vppa.switchNode[0].angles.z;
+    *(__m256i *)&prevVpp.switchNode[1].index = *(__m256i *)&vppa.switchNode[1].index;
+    if ( !v24 )
+      v15 = nodeIdx;
+    *(_OWORD *)&prevVpp.switchNode[1].dir.z = *(_OWORD *)&vppa.switchNode[1].dir.z;
+    *(_QWORD *)&prevVpp.switchNode[1].length = *(_QWORD *)&vppa.switchNode[1].length;
     *(_DWORD *)&prevVpp.switchNode[1].notifyIdx = *(_DWORD *)&vppa.switchNode[1].notifyIdx;
-    if ( v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+    if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-      vmulss  xmm2, xmm0, xmm15; deltaTime
-    }
-    G_VehiclePath_UpdatePathPos(&vppa, VEH_PATH_FORWARD, *(float *)&_XMM2);
-    v52 = 0;
+    G_VehiclePath_UpdatePathPos(&vppa, VEH_PATH_FORWARD, (float)level.frameDuration * 0.001);
+    v25 = 0;
     G_VehiclePath_BeginSwitchNode(&prevVpp);
-    v53 = prevVpp.nodeIdx;
+    v26 = prevVpp.nodeIdx;
     if ( prevVpp.nodeIdx == vppa.nodeIdx )
     {
       if ( prevVpp.nodeIdx >= (unsigned int)s_numNodes )
       {
-        LODWORD(v118) = s_numNodes;
+        LODWORD(v44) = s_numNodes;
         LODWORD(entIndex) = prevVpp.nodeIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2444, ASSERT_TYPE_ASSERT, "(unsigned)( prevVpp->nodeIdx ) < (unsigned)( s_numNodes )", "prevVpp->nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", entIndex, v118) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2444, ASSERT_TYPE_ASSERT, "(unsigned)( prevVpp->nodeIdx ) < (unsigned)( s_numNodes )", "prevVpp->nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", entIndex, v44) )
           __debugbreak();
-        v53 = prevVpp.nodeIdx;
+        v26 = prevVpp.nodeIdx;
       }
-      v54 = &s_nodes[v53];
-      if ( v54->notifyIdx >= 0 )
+      v27 = &s_nodes[v26];
+      if ( v27->notifyIdx >= 0 )
       {
-        *(float *)&_XMM0 = G_VehiclePath_GetNotifyFraction(&s_nodes[v53]);
-        __asm
-        {
-          vmovss  xmm1, [rbp+220h+prevVpp.frac]
-          vcomiss xmm1, xmm0
-        }
-        if ( v55 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rbp+220h+vpp.frac]
-            vcomiss xmm1, xmm0
-          }
-          if ( !v55 )
-            G_VehiclePath_ProcessNotify(v54->notifyIdx, 2047, &vppa.origin, VEH_PATH_NOTIFY_DRAW);
-        }
+        NotifyFraction = G_VehiclePath_GetNotifyFraction(&s_nodes[v26]);
+        if ( prevVpp.frac < NotifyFraction && vppa.frac >= NotifyFraction )
+          G_VehiclePath_ProcessNotify(v27->notifyIdx, 2047, &vppa.origin, VEH_PATH_NOTIFY_DRAW);
       }
-      v20 = 0;
+      v13 = 0;
     }
     else
     {
-      v52 = G_VehiclePath_ProcessNotify_Forward(&prevVpp, &vppa, VEH_PATH_NOTIFY_DRAW, prevVpp.nodeIdx, v23, 2047);
+      v25 = G_VehiclePath_ProcessNotify_Forward(&prevVpp, &vppa, VEH_PATH_NOTIFY_DRAW, prevVpp.nodeIdx, v15, 2047);
     }
     G_VehiclePath_EndSwitchNode(&prevVpp);
     if ( (vppa.flags & 1) != 0 )
-      v26 = 1;
-    if ( v28 > 0 && vppa.nodeIdx != v29 )
+      v18 = 1;
+    if ( v20 > 0 && vppa.nodeIdx != v21 )
     {
-      --v28;
-      v29 = vppa.nodeIdx;
-      if ( !v28 )
-        v26 = 1;
+      --v20;
+      v21 = vppa.nodeIdx;
+      if ( !v20 )
+        v18 = 1;
     }
-    if ( v52 && !v28 )
+    if ( v25 && !v20 )
     {
-      v28 = 2;
-      v29 = vppa.nodeIdx;
+      v20 = 2;
+      v21 = vppa.nodeIdx;
     }
+    v29 = LODWORD(vppa.origin.v[1]);
+    *(float *)&v29 = fsqrt((float)((float)((float)(vppa.origin.v[1] - prevVpp.origin.v[1]) * (float)(vppa.origin.v[1] - prevVpp.origin.v[1])) + (float)((float)(vppa.origin.v[0] - prevVpp.origin.v[0]) * (float)(vppa.origin.v[0] - prevVpp.origin.v[0]))) + (float)((float)(vppa.origin.v[2] - prevVpp.origin.v[2]) * (float)(vppa.origin.v[2] - prevVpp.origin.v[2])));
+    _XMM3 = v29;
     __asm
     {
-      vmovss  xmm9, dword ptr [rbp+220h+vpp.origin]
-      vmovss  xmm12, dword ptr [rbp+220h+prevVpp.origin]
-      vmovss  xmm10, dword ptr [rbp+220h+vpp.origin+4]
-      vmovss  xmm13, dword ptr [rbp+220h+prevVpp.origin+4]
-      vmovss  xmm11, dword ptr [rbp+220h+vpp.origin+8]
-      vmovss  xmm14, dword ptr [rbp+220h+prevVpp.origin+8]
-      vsubss  xmm6, xmm9, xmm12
-      vmulss  xmm0, xmm6, xmm6
-      vsubss  xmm5, xmm10, xmm13
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vsubss  xmm4, xmm11, xmm14
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm6, xmm6, xmm1
-      vmulss  xmm7, xmm5, xmm1
-      vmulss  xmm8, xmm4, xmm1
     }
+    v33 = (float)(vppa.origin.v[0] - prevVpp.origin.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+    v34 = (float)(vppa.origin.v[1] - prevVpp.origin.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+    v35 = (float)(vppa.origin.v[2] - prevVpp.origin.v[2]) * (float)(1.0 / *(float *)&_XMM0);
     if ( s_newDebugLine )
     {
-      __asm
-      {
-        vmovss  dword ptr cs:s_start, xmm12
-        vmovss  dword ptr cs:s_start+4, xmm13
-        vmovss  dword ptr cs:s_start+8, xmm14
-        vmovss  dword ptr cs:s_end, xmm9
-        vmovss  dword ptr cs:s_end+4, xmm10
-        vmovss  dword ptr cs:s_end+8, xmm11
-      }
+      s_start = prevVpp.origin;
+      s_end = vppa.origin;
       s_newDebugLine = 0;
-LABEL_33:
-      v24 = color;
-      __asm
-      {
-        vmovss  dword ptr cs:s_dir+8, xmm8
-        vmovss  dword ptr cs:s_dir+4, xmm7
-        vmovss  dword ptr cs:s_dir, xmm6
-      }
-      if ( v26 )
-        goto LABEL_36;
+LABEL_34:
+      v16 = color;
+      s_dir.v[2] = v35;
+      s_dir.v[1] = v34;
+      s_dir.v[0] = v33;
+      if ( v18 )
+        goto LABEL_37;
     }
     else
     {
-      __asm
+      if ( (float)((float)((float)(v34 * s_dir.v[1]) + (float)(v33 * s_dir.v[0])) + (float)(v35 * s_dir.v[2])) < 0.99989998 || v18 )
       {
-        vmulss  xmm2, xmm6, dword ptr cs:s_dir
-        vmulss  xmm3, xmm7, dword ptr cs:s_dir+4
-        vmulss  xmm1, xmm8, dword ptr cs:s_dir+8
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vcomiss xmm2, cs:__real@3f7ff972
-      }
-      if ( v26 )
-      {
-        __asm
-        {
-          vmovups xmm0, cs:__xmm@3f80000000000000000000003f800000
-          vmovups xmmword ptr [rsp+320h+color+8], xmm0
-        }
+        *(_OWORD *)color_8.midPoint.v = _xmm;
         G_DebugLine(&s_start, &s_end, (const vec4_t *)&color_8, 1);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+220h+prevVpp.origin]
-          vmovss  xmm1, dword ptr [rbp+220h+prevVpp.origin+4]
-          vmovss  dword ptr cs:s_start, xmm0
-          vmovss  xmm0, dword ptr [rbp+220h+prevVpp.origin+8]
-          vmovss  dword ptr cs:s_start+4, xmm1
-          vmovss  xmm1, dword ptr [rbp+220h+vpp.origin]
-          vmovss  dword ptr cs:s_start+8, xmm0
-          vmovss  xmm0, dword ptr [rbp+220h+vpp.origin+4]
-          vmovss  dword ptr cs:s_end, xmm1
-          vmovss  xmm1, dword ptr [rbp+220h+vpp.origin+8]
-          vmovss  dword ptr cs:s_end+4, xmm0
-          vmovss  dword ptr cs:s_end+8, xmm1
-        }
-        goto LABEL_33;
+        s_start = prevVpp.origin;
+        s_end = vppa.origin;
+        goto LABEL_34;
       }
-      v24 = color;
-      __asm
-      {
-        vmovss  dword ptr cs:s_end, xmm9
-        vmovss  dword ptr cs:s_end+4, xmm10
-        vmovss  dword ptr cs:s_end+8, xmm11
-      }
+      v16 = color;
+      s_end = vppa.origin;
     }
   }
   Com_PrintWarning(16, "WARNING: Invalid vehicle path.  Possible infinite loop\n", "level.frameDuration", "%s\n\tAccessing frame duration before it's been set");
-LABEL_36:
-  __asm { vmovups xmm0, cs:__xmm@3f800000000000003f80000000000000 }
-  v93 = v24->nodeIdx;
-  _R15 = s_nodes;
-  __asm
-  {
-    vmovups xmm1, cs:__xmm@3f8000003f8000000000000000000000
-    vmovaps xmm15, [rsp+320h+var_C8+8]
-    vmovaps xmm14, [rsp+320h+var_B8+8]
-    vmovaps xmm13, [rsp+320h+var_A8+8]
-    vmovaps xmm12, [rsp+320h+var_98+8]
-    vmovaps xmm11, [rsp+320h+var_88+8]
-    vmovaps xmm10, [rsp+320h+var_78+8]
-    vmovaps xmm9, [rsp+320h+var_68+8]
-    vmovaps xmm8, [rsp+320h+var_58+8]
-    vmovaps xmm7, [rsp+320h+var_48+8]
-    vmovups xmmword ptr [rsp+320h+var_2B8+8], xmm0
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f80000000000000
-  }
-  _RBX = &s_nodes[v93];
-  __asm
-  {
-    vmovups [rsp+320h+var_2C8+8], xmm1
-    vmovups xmmword ptr [rbp+220h+var_2A0], xmm0
-  }
+LABEL_37:
+  v36 = v16->nodeIdx;
+  v48 = _xmm;
+  v37 = &s_nodes[v36];
+  v47 = _xmm;
+  v49 = (vec4_t)_xmm;
   if ( s_numNodes > 0 )
   {
-    __asm { vmovss  xmm6, cs:__real@40800000 }
     do
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@40800000000000000000000000000000
-        vmovss  xmm2, dword ptr [rbx+38h]; yaw
-      }
-      v110 = (const vec4_t *)&v121;
-      ++v20;
-      __asm { vmovss  dword ptr [rsp+320h+var_2C8], xmm6 }
-      if ( _RBX == &s_nodes[(__int16)v93] )
-        v110 = (const vec4_t *)&v122;
-      __asm
-      {
-        vmovss  dword ptr [rsp+320h+var_2C8+4], xmm6
-        vmovups xmmword ptr [rsp+320h+color+8], xmm0
-      }
-      G_DebugBox(&_RBX->origin, &color_8, *(float *)&_XMM2, v110, 1, 0);
-      notifyIdx = _RBX->notifyIdx;
+      v38 = v37->angles.v[1];
+      v39 = &v47;
+      ++v13;
+      color_8.halfSize.v[1] = FLOAT_4_0;
+      if ( v37 == &s_nodes[(__int16)v36] )
+        v39 = &v48;
+      color_8.halfSize.v[2] = FLOAT_4_0;
+      *(_OWORD *)color_8.midPoint.v = _xmm;
+      G_DebugBox(&v37->origin, &color_8, v38, (const vec4_t *)v39, 1, 0);
+      notifyIdx = v37->notifyIdx;
       if ( notifyIdx >= 0 )
       {
         if ( notifyIdx >= (unsigned int)s_numNodes )
         {
-          LODWORD(v118) = s_numNodes;
+          LODWORD(v44) = s_numNodes;
           LODWORD(entIndexa) = notifyIdx;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1132, ASSERT_TYPE_ASSERT, "(unsigned)( node->notifyIdx ) < (unsigned)( s_numNodes )", "node->notifyIdx doesn't index s_numNodes\n\t%i not in [0, %i)", entIndexa, v118) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1132, ASSERT_TYPE_ASSERT, "(unsigned)( node->notifyIdx ) < (unsigned)( s_numNodes )", "node->notifyIdx doesn't index s_numNodes\n\t%i not in [0, %i)", entIndexa, v44) )
             __debugbreak();
         }
-        _RDX = _RBX->notifyIdx;
-        __asm { vmovss  xmm2, dword ptr [rdx+r15+38h]; yaw }
-        G_DebugBox(&s_nodes[_RDX].origin, &color_8, *(float *)&_XMM2, &v123, 1, 0);
+        G_DebugBox(&s_nodes[v37->notifyIdx].origin, &color_8, s_nodes[v37->notifyIdx].angles.v[1], &v49, 1, 0);
       }
-      nextIdx = _RBX->nextIdx;
+      nextIdx = v37->nextIdx;
       if ( nextIdx < 0 )
         break;
-      LOWORD(v93) = v24->nodeIdx;
-      if ( nextIdx == v24->nodeIdx )
+      LOWORD(v36) = v16->nodeIdx;
+      if ( nextIdx == v16->nodeIdx )
         break;
-      _RBX = &s_nodes[nextIdx];
+      v37 = &s_nodes[nextIdx];
     }
-    while ( v20 < s_numNodes );
+    while ( v13 < s_numNodes );
   }
-  __asm { vmovaps xmm6, xmmword ptr [rsp+320h+var_38+8] }
 }
 
 /*
@@ -2547,176 +2334,136 @@ G_VehiclePath_GetAngles
 */
 void G_VehiclePath_GetAngles(const VehiclePathPos *vpp, vec3_t *outAngles)
 {
+  __int64 nodeIdx; 
   __int16 nextIdx; 
-  __int16 v13; 
-  bool v15; 
-  unsigned int v32; 
-  __int64 v57; 
-  __int64 v58; 
+  __int16 v6; 
+  __int64 v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  unsigned int v17; 
+  __int64 v18; 
+  float frac; 
+  float v21; 
+  float v23; 
+  float v25; 
+  __int64 v26; 
+  __int64 v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
 
-  _R9 = s_nodes;
-  _RSI = outAngles;
-  _RBP = vpp;
-  _RDX = vpp->nodeIdx;
-  nextIdx = s_nodes[_RDX].nextIdx;
-  v13 = s_nodes[_RDX].flags & 2;
+  nodeIdx = vpp->nodeIdx;
+  nextIdx = s_nodes[nodeIdx].nextIdx;
+  v6 = s_nodes[nodeIdx].flags & 2;
   if ( nextIdx >= 0 )
   {
-    _RCX = nextIdx;
-    if ( v13 || (s_nodes[_RCX].flags & 2) != 0 )
+    v7 = nextIdx;
+    if ( v6 || (s_nodes[v7].flags & 2) != 0 )
     {
-      v15 = (s_nodes[_RCX].flags & 2) == 0;
-      __asm
+      if ( (s_nodes[v7].flags & 2) != 0 )
       {
-        vmovaps [rsp+0E8h+var_28], xmm6
-        vmovaps [rsp+0E8h+var_38], xmm7
-        vmovaps [rsp+0E8h+var_48], xmm8
-        vmovaps [rsp+0E8h+var_58], xmm9
-        vmovaps [rsp+0E8h+var_68], xmm10
-        vmovaps [rsp+0E8h+var_78], xmm11
-      }
-      if ( v15 )
-      {
-        __asm
+        if ( v6 )
         {
-          vmovss  xmm0, dword ptr [rdx+r9+34h]
-          vmovss  xmm1, dword ptr [rdx+r9+38h]
-          vmovss  [rsp+0E8h+var_98], xmm0
-          vmovss  xmm0, dword ptr [rdx+r9+3Ch]
-          vmovss  [rsp+0E8h+var_94], xmm1
-          vmovss  xmm1, dword ptr [rsi]
-          vmovss  [rsp+0E8h+var_90], xmm0
-          vmovss  xmm0, dword ptr [rsi+4]
-          vmovss  [rsp+0E8h+var_A8], xmm1
-          vmovss  xmm1, dword ptr [rsi+8]
-          vmovss  [rsp+0E8h+var_A4], xmm0
-          vmovss  [rsp+0E8h+var_A0], xmm1
-        }
-      }
-      else
-      {
-        if ( v13 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx+r9+34h]
-            vmovss  xmm1, dword ptr [rdx+r9+38h]
-            vmovss  [rsp+0E8h+var_98], xmm0
-            vmovss  xmm0, dword ptr [rdx+r9+3Ch]
-          }
+          v8 = s_nodes[nodeIdx].angles.v[1];
+          v31 = s_nodes[nodeIdx].angles.v[0];
+          v9 = s_nodes[nodeIdx].angles.v[2];
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vmovss  xmm1, dword ptr [rsi+4]
-            vmovss  [rsp+0E8h+var_98], xmm0
-            vmovss  xmm0, dword ptr [rsi+8]
-          }
+          v8 = outAngles->v[1];
+          v31 = outAngles->v[0];
+          v9 = outAngles->v[2];
         }
-        __asm
-        {
-          vmovss  [rsp+0E8h+var_90], xmm0
-          vmovss  xmm0, dword ptr [rcx+r9+34h]
-          vmovss  [rsp+0E8h+var_A8], xmm0
-          vmovss  xmm0, dword ptr [rcx+r9+3Ch]
-          vmovss  [rsp+0E8h+var_94], xmm1
-          vmovss  xmm1, dword ptr [rcx+r9+38h]
-          vmovss  [rsp+0E8h+var_A0], xmm0
-          vmovss  [rsp+0E8h+var_A4], xmm1
-        }
+        v33 = v9;
+        v28 = s_nodes[v7].angles.v[0];
+        v10 = s_nodes[v7].angles.v[2];
+        v32 = v8;
+        v11 = s_nodes[v7].angles.v[1];
+        v30 = v10;
+        v29 = v11;
       }
-      __asm
+      else
       {
-        vmovss  xmm9, cs:__real@3b360b61
-        vmovss  xmm10, cs:__real@3f000000
-        vmovss  xmm11, cs:__real@43b40000
+        v12 = s_nodes[nodeIdx].angles.v[1];
+        v31 = s_nodes[nodeIdx].angles.v[0];
+        v13 = s_nodes[nodeIdx].angles.v[2];
+        v32 = v12;
+        v14 = outAngles->v[0];
+        v33 = v13;
+        v15 = outAngles->v[1];
+        v28 = v14;
+        v16 = outAngles->v[2];
+        v29 = v15;
+        v30 = v16;
       }
-      v32 = 0;
-      _RDI = 0i64;
-      __asm { vxorps  xmm8, xmm8, xmm8 }
+      v17 = 0;
+      v18 = 0i64;
+      _XMM8 = 0i64;
       do
       {
-        __asm { vmovss  xmm7, dword ptr [rbp+4] }
-        if ( v32 >= 3 )
+        frac = vpp->frac;
+        if ( v17 >= 3 )
         {
-          LODWORD(v58) = 3;
-          LODWORD(v57) = v32;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v57, v58) )
+          LODWORD(v27) = 3;
+          LODWORD(v26) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        __asm { vmovss  xmm6, [rsp+rdi+0E8h+var_A8] }
-        if ( v32 >= 3 )
+        v21 = *(float *)((char *)&v28 + v18 * 4);
+        if ( v17 >= 3 )
         {
-          LODWORD(v58) = 3;
-          LODWORD(v57) = v32;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v57, v58) )
+          LODWORD(v27) = 3;
+          LODWORD(v26) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        __asm
+        __asm { vroundss xmm3, xmm8, xmm2, 1 }
+        v23 = (float)((float)((float)((float)((float)(v21 - *(float *)((char *)&v31 + v18 * 4)) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * frac) + *(float *)((char *)&v31 + v18 * 4);
+        if ( v17 >= 3 )
         {
-          vmovss  xmm5, [rsp+rdi+0E8h+var_98]
-          vsubss  xmm0, xmm6, xmm5
-          vmulss  xmm4, xmm0, xmm9
-          vaddss  xmm2, xmm4, xmm10
-          vroundss xmm3, xmm8, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm11
-          vmulss  xmm2, xmm0, xmm7
-          vaddss  xmm6, xmm2, xmm5
-        }
-        if ( v32 >= 3 )
-        {
-          LODWORD(v58) = 3;
-          LODWORD(v57) = v32;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v57, v58) )
+          LODWORD(v27) = 3;
+          LODWORD(v26) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rdi+rsi], xmm6 }
-        if ( v32 >= 3 )
+        outAngles->v[v18] = v23;
+        if ( v17 >= 3 )
         {
-          LODWORD(v58) = 3;
-          LODWORD(v57) = v32;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v57, v58) )
+          LODWORD(v27) = 3;
+          LODWORD(v26) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        __asm
+        __asm { vroundss xmm3, xmm8, xmm2, 1 }
+        v25 = (float)((float)(0.0027777778 * outAngles->v[v18]) - *(float *)&_XMM3) * 360.0;
+        if ( v17 >= 3 )
         {
-          vmulss  xmm4, xmm9, dword ptr [rdi+rsi]
-          vaddss  xmm2, xmm4, xmm10
-          vroundss xmm3, xmm8, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm6, xmm1, xmm11
-        }
-        if ( v32 >= 3 )
-        {
-          LODWORD(v58) = 3;
-          LODWORD(v57) = v32;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v57, v58) )
+          LODWORD(v27) = 3;
+          LODWORD(v26) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rdi+rsi], xmm6 }
-        _RDI += 4i64;
-        ++v32;
+        outAngles->v[v18++] = v25;
+        ++v17;
       }
-      while ( (int)v32 < 3 );
-      __asm
-      {
-        vmovaps xmm11, [rsp+0E8h+var_78]
-        vmovaps xmm10, [rsp+0E8h+var_68]
-        vmovaps xmm9, [rsp+0E8h+var_58]
-        vmovaps xmm8, [rsp+0E8h+var_48]
-        vmovaps xmm7, [rsp+0E8h+var_38]
-        vmovaps xmm6, [rsp+0E8h+var_28]
-      }
+      while ( (int)v17 < 3 );
     }
   }
-  else if ( v13 )
+  else if ( v6 )
   {
-    _RSI->v[0] = s_nodes[_RDX].angles.v[0];
-    _RSI->v[1] = s_nodes[_RDX].angles.v[1];
-    _RSI->v[2] = s_nodes[_RDX].angles.v[2];
+    outAngles->v[0] = s_nodes[nodeIdx].angles.v[0];
+    outAngles->v[1] = s_nodes[nodeIdx].angles.v[1];
+    outAngles->v[2] = s_nodes[nodeIdx].angles.v[2];
   }
 }
 
@@ -2725,76 +2472,44 @@ void G_VehiclePath_GetAngles(const VehiclePathPos *vpp, vec3_t *outAngles)
 G_VehiclePath_GetForwardLookAheadOrigin
 ==============
 */
-
-void __fastcall G_VehiclePath_GetForwardLookAheadOrigin(const VehiclePathPos *vpp, vec3_t *outLookXYZ, double lookAheadOffset)
+void G_VehiclePath_GetForwardLookAheadOrigin(const VehiclePathPos *vpp, vec3_t *outLookXYZ, float lookAheadOffset)
 {
-  __int64 nodeIdx; 
-  int v15; 
+  float speedOverride; 
+  VehiclePathNode *v6; 
+  int v7; 
+  __int128 length_low; 
+  __int128 i; 
   __int16 nextIdx; 
+  float length; 
+  __int128 v12; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = outLookXYZ;
-  _RBX = vpp;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1353, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
-  nodeIdx = _RBX->nodeIdx;
-  __asm
+  speedOverride = vpp->speedOverride;
+  v6 = &s_nodes[vpp->nodeIdx];
+  if ( speedOverride < 0.0 )
+    speedOverride = vpp->speed;
+  v7 = 0;
+  length_low = LODWORD(v6->length);
+  *(float *)&length_low = (float)(v6->length * vpp->frac) + (float)((float)(vpp->lookAhead * speedOverride) + lookAheadOffset);
+  for ( i = length_low; v7 < s_numNodes; v6 = &s_nodes[nextIdx] )
   {
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm2, dword ptr [rbx+10h]
-    vxorps  xmm5, xmm5, xmm5
+    nextIdx = v6->nextIdx;
+    ++v7;
+    if ( nextIdx < 0 )
+      break;
+    length = v6->length;
+    if ( length <= 0.0 )
+      break;
+    if ( *(float *)&i < length )
+      break;
+    v12 = i;
+    *(float *)&v12 = *(float *)&i - length;
+    i = v12;
   }
-  _RCX = &s_nodes[nodeIdx];
-  __asm { vcomiss xmm1, xmm5 }
-  if ( __CFADD__(s_nodes, 76 * nodeIdx) )
-    __asm { vmovss  xmm1, dword ptr [rbx+8] }
-  __asm { vmovss  xmm0, dword ptr [rcx+40h] }
-  v15 = 0;
-  __asm
-  {
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm2, xmm1
-    vaddss  xmm2, xmm1, xmm6
-    vaddss  xmm4, xmm3, xmm2
-  }
-  if ( s_numNodes > 0 )
-  {
-    do
-    {
-      nextIdx = _RCX->nextIdx;
-      ++v15;
-      if ( nextIdx < 0 )
-        break;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+40h]
-        vcomiss xmm0, xmm5
-      }
-      if ( !nextIdx )
-        break;
-      __asm
-      {
-        vcomiss xmm4, xmm0
-        vsubss  xmm4, xmm4, xmm0
-      }
-      _RCX = &s_nodes[nextIdx];
-    }
-    while ( v15 < s_numNodes );
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm4, dword ptr [rcx+28h]
-    vaddss  xmm1, xmm0, dword ptr [rcx+1Ch]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm4, dword ptr [rcx+2Ch]
-    vaddss  xmm1, xmm0, dword ptr [rcx+20h]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm0, xmm4, dword ptr [rcx+30h]
-    vaddss  xmm1, xmm0, dword ptr [rcx+24h]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
+  outLookXYZ->v[0] = (float)(*(float *)&i * v6->dir.v[0]) + v6->origin.v[0];
+  outLookXYZ->v[1] = (float)(*(float *)&i * v6->dir.v[1]) + v6->origin.v[1];
+  outLookXYZ->v[2] = (float)(*(float *)&i * v6->dir.v[2]) + v6->origin.v[2];
 }
 
 /*
@@ -2814,49 +2529,21 @@ G_VehiclePath_GetNotifyFraction
 */
 double G_VehiclePath_GetNotifyFraction(const VehiclePathNode *node)
 {
-  char v4; 
-  __int64 v25; 
+  float v2; 
+  __int64 v4; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBX = node;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2232, ASSERT_TYPE_SANITY, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( _RBX->notifyIdx >= (unsigned int)s_numNodes )
+  if ( node->notifyIdx >= (unsigned int)s_numNodes )
   {
-    LODWORD(v25) = _RBX->notifyIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2235, ASSERT_TYPE_ASSERT, "(unsigned)( node->notifyIdx ) < (unsigned)( s_numNodes )", "node->notifyIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v25, s_numNodes) )
+    LODWORD(v4) = node->notifyIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2235, ASSERT_TYPE_ASSERT, "(unsigned)( node->notifyIdx ) < (unsigned)( s_numNodes )", "node->notifyIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v4, s_numNodes) )
       __debugbreak();
   }
-  _RCX = 76i64 * _RBX->notifyIdx;
-  _RAX = &s_nodes[0].origin;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rbx+40h]
-    vmovss  xmm0, dword ptr [rcx+rax+4]
-    vsubss  xmm1, xmm0, dword ptr [rbx+20h]
-    vmulss  xmm3, xmm1, dword ptr [rbx+2Ch]
-    vmovss  xmm2, dword ptr [rcx+rax]
-    vsubss  xmm0, xmm2, dword ptr [rbx+1Ch]
-    vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    vmovss  xmm2, dword ptr [rcx+rax+8]
-    vsubss  xmm0, xmm2, dword ptr [rbx+24h]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm1, xmm0, dword ptr [rbx+30h]
-    vaddss  xmm7, xmm4, xmm1
-  }
-  if ( v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2246, ASSERT_TYPE_SANITY, "( node->length != 0.0f )", (const char *)&queryFormat, "node->length != 0.0f") )
+  v2 = (float)((float)((float)(s_nodes[node->notifyIdx].origin.v[1] - node->origin.v[1]) * node->dir.v[1]) + (float)((float)(s_nodes[node->notifyIdx].origin.v[0] - node->origin.v[0]) * node->dir.v[0])) + (float)((float)(s_nodes[node->notifyIdx].origin.v[2] - node->origin.v[2]) * node->dir.v[2]);
+  if ( node->length == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2246, ASSERT_TYPE_SANITY, "( node->length != 0.0f )", (const char *)&queryFormat, "node->length != 0.0f") )
     __debugbreak();
-  __asm
-  {
-    vdivss  xmm0, xmm7, dword ptr [rbx+40h]; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  return I_fclamp(v2 / node->length, 0.0, 1.0);
 }
 
 /*
@@ -2874,78 +2561,44 @@ __int64 G_VehiclePath_GetNumTotalNodes()
 G_VehiclePath_GetReverseLookAheadOrigin
 ==============
 */
-
-void __fastcall G_VehiclePath_GetReverseLookAheadOrigin(const VehiclePathPos *vpp, vec3_t *outLookXYZ, double lookAheadOffset)
+void G_VehiclePath_GetReverseLookAheadOrigin(const VehiclePathPos *vpp, vec3_t *outLookXYZ, float lookAheadOffset)
 {
-  __int64 nodeIdx; 
-  unsigned int v16; 
-  bool v21; 
-  char v22; 
+  float speedOverride; 
+  VehiclePathNode *v6; 
+  int v7; 
+  __int128 length_low; 
+  __int128 i; 
   __int16 prevIdx; 
-  char v24; 
+  __int64 v11; 
+  __int128 v12; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = outLookXYZ;
-  _RBX = vpp;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1450, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
-  nodeIdx = _RBX->nodeIdx;
-  _R10 = s_nodes;
-  __asm
+  speedOverride = vpp->speedOverride;
+  v6 = &s_nodes[vpp->nodeIdx];
+  if ( speedOverride < 0.0 )
+    speedOverride = vpp->speed;
+  v7 = 0;
+  length_low = LODWORD(v6->length);
+  *(float *)&length_low = (float)(v6->length * vpp->frac) - (float)((float)(vpp->lookAhead * speedOverride) + lookAheadOffset);
+  for ( i = length_low; v7 < s_numNodes; i = v12 )
   {
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm2, dword ptr [rbx+10h]
-    vxorps  xmm5, xmm5, xmm5
+    ++v7;
+    if ( *(float *)&i > 0.0 )
+      break;
+    prevIdx = v6->prevIdx;
+    if ( prevIdx < 0 )
+      break;
+    v11 = prevIdx;
+    if ( s_nodes[v11].length == 0.0 )
+      break;
+    v6 = &s_nodes[v11];
+    v12 = i;
+    *(float *)&v12 = *(float *)&i + s_nodes[v11].length;
   }
-  _RCX = &s_nodes[nodeIdx];
-  __asm { vcomiss xmm1, xmm5 }
-  if ( __CFADD__(s_nodes, 76 * nodeIdx) )
-    __asm { vmovss  xmm1, dword ptr [rbx+8] }
-  __asm { vmovss  xmm0, dword ptr [rcx+40h] }
-  v16 = 0;
-  __asm
-  {
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm2, xmm1
-    vaddss  xmm2, xmm1, xmm6
-    vsubss  xmm4, xmm3, xmm2
-  }
-  v21 = 0;
-  if ( s_numNodes > 0 )
-  {
-    do
-    {
-      v22 = v21 | (v16++ == -1);
-      __asm { vcomiss xmm4, xmm5 }
-      if ( !v22 )
-        break;
-      prevIdx = _RCX->prevIdx;
-      if ( prevIdx < 0 )
-        break;
-      _R8 = prevIdx;
-      __asm { vucomiss xmm5, dword ptr [r8+r10+40h] }
-      if ( v24 )
-        break;
-      _RCX = &s_nodes[_R8];
-      __asm { vaddss  xmm4, xmm4, dword ptr [rcx+40h] }
-      v21 = v16 < s_numNodes;
-    }
-    while ( (int)v16 < s_numNodes );
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm4, dword ptr [rcx+28h]
-    vaddss  xmm1, xmm0, dword ptr [rcx+1Ch]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm4, dword ptr [rcx+2Ch]
-    vaddss  xmm1, xmm0, dword ptr [rcx+20h]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm0, xmm4, dword ptr [rcx+30h]
-    vaddss  xmm1, xmm0, dword ptr [rcx+24h]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
+  outLookXYZ->v[0] = (float)(*(float *)&i * v6->dir.v[0]) + v6->origin.v[0];
+  outLookXYZ->v[1] = (float)(*(float *)&i * v6->dir.v[1]) + v6->origin.v[1];
+  outLookXYZ->v[2] = (float)(*(float *)&i * v6->dir.v[2]) + v6->origin.v[2];
 }
 
 /*
@@ -2956,258 +2609,195 @@ G_VehiclePath_GetSmoothedPathNodeInfo
 void G_VehiclePath_GetSmoothedPathNodeInfo(const VehiclePathPos *vpp, const vec3_t *dir, const VehiclePathNode *cnode, SmoothedPathNodeInfo *params)
 {
   __int16 prevIdx; 
+  VehiclePathNode *v8; 
+  VehiclePathNode *v9; 
   __int16 nextIdx; 
-  const dvar_t *v114; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  __int128 v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  __int128 v24; 
+  float v28; 
+  __int128 v29; 
+  float v33; 
+  float v34; 
+  __int128 v35; 
+  float v36; 
+  __int128 v37; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  const dvar_t *v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float distanceToBisector; 
+  float v58; 
+  float v59; 
+  float v60; 
   vec3_t v0; 
-  vec4_t cross; 
+  __int128 cross; 
   vec4_t color; 
-  vec4_t v149; 
-  char v150; 
-  void *retaddr; 
+  vec4_t v64; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-  }
-  _RDI = params;
-  _RBX = cnode;
-  _R15 = vpp;
   if ( *(_DWORD *)&cnode->nextIdx == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1496, ASSERT_TYPE_SANITY, "( cnode->nextIdx != -1 || cnode->prevIdx != -1 )", (const char *)&queryFormat, "cnode->nextIdx != -1 || cnode->prevIdx != -1") )
     __debugbreak();
-  prevIdx = _RBX->prevIdx;
-  _RCX = NULL;
+  prevIdx = cnode->prevIdx;
+  v8 = NULL;
   if ( prevIdx == -1 )
-    _RDX = NULL;
+    v9 = NULL;
   else
-    _RDX = &s_nodes[prevIdx];
-  nextIdx = _RBX->nextIdx;
+    v9 = &s_nodes[prevIdx];
+  nextIdx = cnode->nextIdx;
   if ( nextIdx != -1 )
-    _RCX = &s_nodes[nextIdx];
-  __asm
+    v8 = &s_nodes[nextIdx];
+  v11 = cnode->origin.v[0];
+  v12 = cnode->origin.v[1];
+  v13 = cnode->origin.v[2];
+  if ( v9 )
   {
-    vmovss  xmm2, dword ptr [rbx+1Ch]
-    vmovss  xmm3, dword ptr [rbx+20h]
-    vmovss  xmm4, dword ptr [rbx+24h]
-  }
-  if ( _RDX )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+1Ch]
-      vmovss  xmm1, dword ptr [rdx+20h]
-      vsubss  xmm8, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rdx+24h]
-      vsubss  xmm10, xmm0, xmm4
-      vsubss  xmm9, xmm1, xmm3
-    }
+    v18 = LODWORD(v9->origin.v[0]);
+    *(float *)&v18 = v9->origin.v[0] - v11;
+    v14 = v18;
+    v17 = v9->origin.v[2] - v13;
+    v16 = v9->origin.v[1] - v12;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm8, xmm2, dword ptr [rcx+1Ch]
-      vsubss  xmm9, xmm3, dword ptr [rcx+20h]
-      vsubss  xmm10, xmm4, dword ptr [rcx+24h]
-    }
+    v15 = LODWORD(cnode->origin.v[0]);
+    *(float *)&v15 = v11 - v8->origin.v[0];
+    v14 = v15;
+    v16 = v12 - v8->origin.v[1];
+    v17 = v13 - v8->origin.v[2];
   }
-  if ( _RCX )
+  if ( v8 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+1Ch]
-      vmovss  xmm1, dword ptr [rcx+20h]
-      vsubss  xmm6, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rcx+24h]
-      vsubss  xmm4, xmm0, xmm4
-      vsubss  xmm7, xmm1, xmm3
-    }
+    v19 = v8->origin.v[0] - v11;
+    v22 = v8->origin.v[2] - v13;
+    v23 = LODWORD(v8->origin.v[1]);
+    *(float *)&v23 = v8->origin.v[1] - v12;
+    v20 = v23;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm6, xmm2, dword ptr [rdx+1Ch]
-      vsubss  xmm7, xmm3, dword ptr [rdx+20h]
-      vsubss  xmm4, xmm4, dword ptr [rdx+24h]
-    }
+    v19 = v11 - v9->origin.v[0];
+    v21 = LODWORD(cnode->origin.v[1]);
+    *(float *)&v21 = v12 - v9->origin.v[1];
+    v20 = v21;
+    v22 = v13 - v9->origin.v[2];
   }
+  v24 = v14;
+  *(float *)&v24 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(v16 * v16)) + (float)(v17 * v17));
+  _XMM3 = v24;
   __asm
   {
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm12, cs:__real@80000000
-    vmulss  xmm0, xmm9, xmm9
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm12
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm5, xmm11, xmm0
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vcmpless xmm0, xmm3, xmm12
-    vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm1, xmm11, xmm0
-    vmulss  xmm3, xmm7, xmm1
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm4, xmm4, xmm1
-    vmovss  dword ptr [rsp+130h+v0], xmm2
-    vmulss  xmm0, xmm8, xmm5
-    vaddss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmulss  xmm2, xmm9, xmm5
-    vaddss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rdi+14h], xmm0
-    vmulss  xmm1, xmm10, xmm5
-    vaddss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [rdi+18h], xmm2
   }
-  _RDI->straightLine = 0;
+  v28 = 1.0 / *(float *)&_XMM0;
+  v29 = v20;
+  *(float *)&v29 = fsqrt((float)((float)(*(float *)&v20 * *(float *)&v20) + (float)(v19 * v19)) + (float)(v22 * v22));
+  _XMM3 = v29;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+10h]
-    vmovss  xmm5, dword ptr [rdi+18h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  dword ptr [rsp+130h+v0+4], xmm3
-    vmovss  xmm3, dword ptr [rdi+14h]
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm0, cs:__real@3727c5ac
-    vmovss  dword ptr [rsp+130h+v0+8], xmm4
-    vmovss  xmm4, dword ptr [rdi+10h]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm12
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm2, xmm11, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rdi+10h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rdi+14h]
-    vmovss  dword ptr [rdi+14h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+18h]
-    vmovss  dword ptr [rdi+18h], xmm0
   }
-  Vec3Cross(&_RDI->normalizedBisector, &v0, (vec3_t *)&cross);
-  Vec3Cross((const vec3_t *)&cross, &_RDI->normalizedBisector, &_RDI->frontPlane);
+  v33 = v22 * (float)(1.0 / *(float *)&_XMM0);
+  v0.v[0] = v19 * (float)(1.0 / *(float *)&_XMM0);
+  params->normalizedBisector.v[0] = (float)(*(float *)&v14 * v28) + v0.v[0];
+  params->normalizedBisector.v[1] = (float)(v16 * v28) + (float)(*(float *)&v20 * (float)(1.0 / *(float *)&_XMM0));
+  params->normalizedBisector.v[2] = (float)(v17 * v28) + v33;
+  params->straightLine = 0;
+  v34 = params->normalizedBisector.v[2];
+  *(float *)&v29 = params->normalizedBisector.v[0] * params->normalizedBisector.v[0];
+  v0.v[1] = *(float *)&v20 * (float)(1.0 / *(float *)&_XMM0);
+  v35 = LODWORD(params->normalizedBisector.v[1]);
+  v0.v[2] = v33;
+  if ( fsqrt((float)(*(float *)&v29 + (float)(*(float *)&v35 * *(float *)&v35)) + (float)(v34 * v34)) < 0.0000099999997 )
+  {
+    Vec3Cross(&v0, &s_vehiclePathUpAxis, &params->normalizedBisector);
+    params->straightLine = 1;
+    v35 = LODWORD(params->normalizedBisector.v[1]);
+    v34 = params->normalizedBisector.v[2];
+  }
+  v36 = params->normalizedBisector.v[0];
+  v37 = v35;
+  *(float *)&v37 = fsqrt((float)((float)(*(float *)&v35 * *(float *)&v35) + (float)(v36 * v36)) + (float)(v34 * v34));
+  _XMM3 = v37;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+14h]
-    vsubss  xmm7, xmm0, dword ptr [rbx+1Ch]
-    vmovss  xmm1, dword ptr [r15+18h]
-    vsubss  xmm8, xmm1, dword ptr [rbx+20h]
-    vmovss  xmm0, dword ptr [r15+1Ch]
-    vsubss  xmm9, xmm0, dword ptr [rbx+24h]
-    vmulss  xmm0, xmm7, dword ptr [rdi+10h]
-    vmulss  xmm1, xmm8, dword ptr [rdi+14h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+18h]
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm0, xmm4, dword ptr [rdi+10h]
-    vmulss  xmm1, xmm4, dword ptr [rdi+14h]
-    vsubss  xmm10, xmm0, xmm7
-    vmulss  xmm0, xmm4, dword ptr [rdi+18h]
-    vsubss  xmm5, xmm0, xmm9
-    vsubss  xmm7, xmm1, xmm8
-    vmulss  xmm0, xmm10, xmm10
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm12
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm2, xmm11, xmm0
-    vmulss  xmm0, xmm2, xmm10
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [rdi+8], xmm0
-    vmulss  xmm1, xmm2, xmm7
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  dword ptr [rdi+0Ch], xmm3
   }
-  v114 = DVARBOOL_vehicle_pathsmoothdebug;
+  params->normalizedBisector.v[0] = v36 * (float)(1.0 / *(float *)&_XMM0);
+  params->normalizedBisector.v[1] = (float)(1.0 / *(float *)&_XMM0) * params->normalizedBisector.v[1];
+  params->normalizedBisector.v[2] = (float)(1.0 / *(float *)&_XMM0) * params->normalizedBisector.v[2];
+  Vec3Cross(&params->normalizedBisector, &v0, (vec3_t *)&cross);
+  Vec3Cross((const vec3_t *)&cross, &params->normalizedBisector, &params->frontPlane);
+  v41 = vpp->origin.v[0] - cnode->origin.v[0];
+  v43 = LODWORD(vpp->origin.v[1]);
+  v42 = vpp->origin.v[1] - cnode->origin.v[1];
+  v44 = vpp->origin.v[2] - cnode->origin.v[2];
+  v45 = (float)((float)(v42 * params->normalizedBisector.v[1]) + (float)(v41 * params->normalizedBisector.v[0])) + (float)(v44 * params->normalizedBisector.v[2]);
+  v46 = (float)(v45 * params->normalizedBisector.v[0]) - v41;
+  v47 = (float)(v45 * params->normalizedBisector.v[2]) - v44;
+  v48 = (float)(v45 * params->normalizedBisector.v[1]) - v42;
+  *(float *)&v43 = fsqrt((float)((float)(v48 * v48) + (float)(v46 * v46)) + (float)(v47 * v47));
+  _XMM3 = v43;
+  __asm
+  {
+    vcmpless xmm0, xmm3, xmm12
+    vblendvps xmm0, xmm3, xmm11, xmm0
+  }
+  params->perpToBisector.v[0] = (float)(1.0 / *(float *)&_XMM0) * v46;
+  params->perpToBisector.v[2] = (float)(1.0 / *(float *)&_XMM0) * v47;
+  params->perpToBisector.v[1] = (float)(1.0 / *(float *)&_XMM0) * v48;
+  params->distanceToBisector = *(float *)&v43;
+  v52 = DVARBOOL_vehicle_pathsmoothdebug;
   if ( !DVARBOOL_vehicle_pathsmoothdebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehicle_pathsmoothdebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v114);
-  if ( v114->current.enabled )
+  Dvar_CheckFrontendServerThread(v52);
+  if ( v52->current.enabled )
   {
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f800000000000003f8000003f800000
-      vmovss  xmm6, cs:__real@43960000
-      vmovups xmm1, cs:__xmm@3f8000003f8000003f8000003f800000
-      vmovups [rsp+130h+cross], xmm0
-      vmovups xmm0, cs:__xmm@3f8000003f8000000000000000000000
-      vmovups xmmword ptr [rbp+57h+var_C0], xmm0
-      vmulss  xmm0, xmm6, dword ptr [rdi+10h]
-      vmovups xmmword ptr [rbp+57h+color], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+1Ch]
-      vmulss  xmm0, xmm6, dword ptr [rdi+14h]
-      vmovss  dword ptr [rsp+130h+v0], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-      vmulss  xmm0, xmm6, dword ptr [rdi+18h]
-      vmovss  dword ptr [rsp+130h+v0+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+24h]
-      vmovss  dword ptr [rsp+130h+v0+8], xmm1
-    }
-    G_DebugLine(&_RBX->origin, &v0, &cross, 1);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+0Ch]
-      vmulss  xmm0, xmm3, dword ptr [rdi]
-      vaddss  xmm1, xmm0, dword ptr [r15+14h]
-      vmulss  xmm2, xmm3, dword ptr [rdi+4]
-      vaddss  xmm0, xmm2, dword ptr [r15+18h]
-      vmovss  dword ptr [rsp+130h+v0], xmm1
-      vmulss  xmm1, xmm3, dword ptr [rdi+8]
-      vaddss  xmm2, xmm1, dword ptr [r15+1Ch]
-      vmovss  dword ptr [rsp+130h+v0+8], xmm2
-      vmovss  dword ptr [rsp+130h+v0+4], xmm0
-    }
-    G_DebugLine(&_R15->origin, &v0, &color, 1);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rdi+20h]
-      vaddss  xmm2, xmm1, dword ptr [rbx+1Ch]
-      vmulss  xmm1, xmm6, dword ptr [rdi+24h]
-      vmovss  dword ptr [rsp+130h+v0], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+20h]
-      vmulss  xmm1, xmm6, dword ptr [rdi+28h]
-      vmovss  dword ptr [rsp+130h+v0+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+24h]
-      vmovss  dword ptr [rsp+130h+v0+8], xmm2
-    }
-    G_DebugLine(&_RBX->origin, &v0, &v149, 1);
-  }
-  _R11 = &v150;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
+    cross = _xmm;
+    v64 = (vec4_t)_xmm;
+    v53 = 300.0 * params->normalizedBisector.v[0];
+    color = (vec4_t)_xmm;
+    v54 = v53 + cnode->origin.v[0];
+    v55 = 300.0 * params->normalizedBisector.v[1];
+    v0.v[0] = v54;
+    v56 = 300.0 * params->normalizedBisector.v[2];
+    v0.v[1] = v55 + cnode->origin.v[1];
+    v0.v[2] = v56 + cnode->origin.v[2];
+    G_DebugLine(&cnode->origin, &v0, (const vec4_t *)&cross, 1);
+    distanceToBisector = params->distanceToBisector;
+    v58 = (float)(distanceToBisector * params->perpToBisector.v[1]) + vpp->origin.v[1];
+    v0.v[0] = (float)(distanceToBisector * params->perpToBisector.v[0]) + vpp->origin.v[0];
+    v0.v[2] = (float)(distanceToBisector * params->perpToBisector.v[2]) + vpp->origin.v[2];
+    v0.v[1] = v58;
+    G_DebugLine(&vpp->origin, &v0, &color, 1);
+    v59 = 300.0 * params->frontPlane.v[1];
+    v0.v[0] = (float)(300.0 * params->frontPlane.v[0]) + cnode->origin.v[0];
+    v60 = 300.0 * params->frontPlane.v[2];
+    v0.v[1] = v59 + cnode->origin.v[1];
+    v0.v[2] = v60 + cnode->origin.v[2];
+    G_DebugLine(&cnode->origin, &v0, &v64, 1);
   }
 }
 
@@ -3242,15 +2832,7 @@ void G_VehiclePath_InitPathPos(VehiclePathPos *vpp)
   vpp->switchNode[0].lookAhead = -1.0;
   *(_OWORD *)vpp->switchNode[0].origin.v = 0ui64;
   *(_QWORD *)&vpp->switchNode[0].dir.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  dword ptr [rcx+78h], xmm0
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-    vmovss  dword ptr [rcx+7Ch], xmm1
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rcx+80h], xmm0
-  }
+  vpp->switchNode[0].angles = s_invalidAngles;
   vpp->switchNode[0].length = 0.0;
   *(_DWORD *)&vpp->switchNode[0].nextIdx = -1;
   vpp->switchNode[0].notifyIdx = -1;
@@ -3261,15 +2843,7 @@ void G_VehiclePath_InitPathPos(VehiclePathPos *vpp)
   vpp->switchNode[1].lookAhead = -1.0;
   *(_OWORD *)vpp->switchNode[1].origin.v = 0ui64;
   *(_QWORD *)&vpp->switchNode[1].dir.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  dword ptr [rcx+0C4h], xmm0
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-    vmovss  dword ptr [rcx+0C8h], xmm1
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rcx+0CCh], xmm0
-  }
+  vpp->switchNode[1].angles = s_invalidAngles;
   vpp->switchNode[1].length = 0.0;
   *(_DWORD *)&vpp->switchNode[1].nextIdx = -1;
   vpp->switchNode[1].notifyIdx = -1;
@@ -3304,118 +2878,87 @@ G_VehiclePath_ParseAllFields
 */
 void G_VehiclePath_ParseAllFields(VehiclePathNode *node)
 {
-  int v4; 
+  int v3; 
   char *(*spawnVars)[2]; 
-  const char *v7; 
-  const char *v8; 
+  const char *v5; 
+  const char *v6; 
   scr_string_t String; 
   scr_string_t *name; 
-  VehicleNodeField *v11; 
+  VehicleNodeField *v9; 
   unsigned int CanonicalString; 
-  scrContext_t *v13; 
+  scrContext_t *v11; 
   unsigned int Field; 
   const char *NameForType; 
-  const char *v16; 
-  int v25; 
+  const char *v14; 
+  int v16; 
   VariableType type[8]; 
-  int v29; 
-  int v30; 
-  int v31; 
+  float v19; 
+  float v20; 
+  float v21; 
   float value; 
-  int v33; 
-  int v34; 
+  float v23; 
+  float v24; 
 
-  _R12 = node;
   if ( !level.spawnVar.spawnVarsValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2664, ASSERT_TYPE_SANITY, "( level.spawnVar.spawnVarsValid )", (const char *)&queryFormat, "level.spawnVar.spawnVarsValid") )
     __debugbreak();
-  v4 = 0;
+  v3 = 0;
   if ( level.spawnVar.numSpawnVars > 0 )
   {
     spawnVars = level.spawnVar.spawnVars;
-    __asm
+    do
     {
-      vmovaps [rsp+80h+var_20], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    while ( 1 )
-    {
-      v7 = (*spawnVars)[0];
-      v8 = (*spawnVars)[1];
+      v5 = (*spawnVars)[0];
+      v6 = (*spawnVars)[1];
       String = SL_FindString((*spawnVars)[0]);
       name = vehicleNodeFields[0].name;
-      v11 = vehicleNodeFields;
+      v9 = vehicleNodeFields;
       if ( vehicleNodeFields[0].name )
       {
         while ( *name != String )
         {
-          name = v11[1].name;
-          ++v11;
+          name = v9[1].name;
+          ++v9;
           if ( !name )
             goto LABEL_9;
         }
-        switch ( v11->type )
+        switch ( v9->type )
         {
           case F_INT:
-            *(scr_string_t *)((char *)&_R12->name + v11->ofs) = atoi(v8);
+            *(scr_string_t *)((char *)&node->name + v9->ofs) = atoi(v6);
             break;
           case F_SHORT:
-            *(_WORD *)((char *)&_R12->name + v11->ofs) = atoi(v8);
+            *(_WORD *)((char *)&node->name + v9->ofs) = atoi(v6);
             break;
           case F_BYTE:
-            *((_BYTE *)&_R12->name + v11->ofs) = atoi(v8);
+            *((_BYTE *)&node->name + v9->ofs) = atoi(v6);
             break;
           case F_FLOAT:
-            *(double *)&_XMM0 = atof(v8);
-            _RAX = v11->ofs;
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [r12+rax], xmm1
-            }
+            *(double *)&_XMM0 = atof(v6);
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            *(scr_string_t *)((char *)&node->name + v9->ofs) = _XMM1;
             break;
           case F_STRING:
-            Scr_SetString((scr_string_t *)((char *)&_R12->name + v11->ofs), (scr_string_t)0);
-            *(scr_string_t *)((char *)&_R12->name + v11->ofs) = Scr_NewString(v8);
+            Scr_SetString((scr_string_t *)((char *)&node->name + v9->ofs), (scr_string_t)0);
+            *(scr_string_t *)((char *)&node->name + v9->ofs) = Scr_NewString(v6);
             break;
           case F_VECTOR:
-            __asm
-            {
-              vmovss  [rbp+var_48], xmm6
-              vmovss  [rbp+var_44], xmm6
-              vmovss  [rbp+var_40], xmm6
-            }
-            j_sscanf(v8, "%f %f %f", &v29, &v30, &v31);
-            _RAX = v11->ofs;
-            __asm
-            {
-              vmovss  xmm0, [rbp+var_48]
-              vmovss  dword ptr [r12+rax], xmm0
-            }
-            _RAX = v11->ofs;
-            __asm
-            {
-              vmovss  xmm1, [rbp+var_44]
-              vmovss  dword ptr [rax+r12+4], xmm1
-            }
-            _RAX = v11->ofs;
-            __asm
-            {
-              vmovss  xmm0, [rbp+var_40]
-              vmovss  dword ptr [rax+r12+8], xmm0
-            }
+            v19 = 0.0;
+            v20 = 0.0;
+            v21 = 0.0;
+            j_sscanf(v6, "%f %f %f", &v19, &v20, &v21);
+            *(float *)((char *)&node->name + v9->ofs) = v19;
+            *(float *)((char *)&node->target + v9->ofs) = v20;
+            _XMM0 = LODWORD(v21);
+            *(float *)((char *)&node->script_linkname + v9->ofs) = v21;
             break;
           case F_ANGLES_YAW:
-            __asm
-            {
-              vmovss  [rbp+var_48], xmm6
-              vmovss  [rbp+var_44], xmm6
-              vmovss  [rbp+var_40], xmm6
-            }
-            j_sscanf(v8, "%f %f %f", &v29, &v30, &v31);
-            __asm { vmovss  xmm0, [rbp+var_44]; angle }
-            *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-            _RAX = v11->ofs;
-            __asm { vmovss  dword ptr [r12+rax], xmm0 }
+            v19 = 0.0;
+            v20 = 0.0;
+            v21 = 0.0;
+            j_sscanf(v6, "%f %f %f", &v19, &v20, &v21);
+            _XMM0 = LODWORD(v20);
+            *(double *)&_XMM0 = AngleNormalize360(v20);
+            *(scr_string_t *)((char *)&node->name + v9->ofs) = _XMM0;
             break;
           default:
             goto LABEL_28;
@@ -3423,51 +2966,44 @@ void G_VehiclePath_ParseAllFields(VehiclePathNode *node)
         goto LABEL_28;
       }
 LABEL_9:
-      CanonicalString = SL_GetCanonicalString(v7);
-      v13 = ScriptContext_Server();
-      Field = Scr_FindField(v13, CanonicalString, type);
+      CanonicalString = SL_GetCanonicalString(v5);
+      v11 = ScriptContext_Server();
+      Field = Scr_FindField(v11, CanonicalString, type);
       if ( Field )
       {
         switch ( type[0] )
         {
           case VAR_STRING:
-            Scr_AddString(v13, v8);
+            Scr_AddString(v11, v6);
             goto LABEL_27;
           case VAR_VECTOR:
-            __asm
-            {
-              vmovss  [rbp+value], xmm6
-              vmovss  [rbp+var_34], xmm6
-              vmovss  [rbp+var_30], xmm6
-            }
-            j_sscanf(v8, "%f %f %f", &value, &v33, &v34);
-            Scr_AddVector(v13, &value);
+            value = 0.0;
+            v23 = 0.0;
+            v24 = 0.0;
+            j_sscanf(v6, "%f %f %f", &value, &v23, &v24);
+            Scr_AddVector(v11, &value);
             goto LABEL_27;
           case VAR_FLOAT:
-            *(double *)&_XMM0 = atof(v8);
+            *(double *)&_XMM0 = atof(v6);
             __asm { vcvtsd2ss xmm1, xmm0, xmm0; value }
-            Scr_AddFloat(v13, *(float *)&_XMM1);
+            Scr_AddFloat(v11, *(float *)&_XMM1);
             goto LABEL_27;
           case VAR_INTEGER:
-            v25 = atoi(v8);
-            Scr_AddInt(v13, v25);
+            v16 = atoi(v6);
+            Scr_AddInt(v11, v16);
 LABEL_27:
-            Scr_SetDynamicEntityField(v13, LOCAL_CLIENT_0, _R12->index, ENTITY_CLASS_VEHICLENODE, Field);
+            Scr_SetDynamicEntityField(v11, LOCAL_CLIENT_0, node->index, ENTITY_CLASS_VEHICLENODE, Field);
             goto LABEL_28;
         }
         NameForType = Scr_GetNameForType(type[0]);
-        v16 = j_va("G_VehiclePath_SetScriptVariable: unsupported type %s", NameForType);
-        Scr_Error(COM_ERR_2948, v13, v16);
+        v14 = j_va("G_VehiclePath_SetScriptVariable: unsupported type %s", NameForType);
+        Scr_Error(COM_ERR_2948, v11, v14);
       }
 LABEL_28:
-      ++v4;
+      ++v3;
       ++spawnVars;
-      if ( v4 >= level.spawnVar.numSpawnVars )
-      {
-        __asm { vmovaps xmm6, [rsp+80h+var_20] }
-        return;
-      }
     }
+    while ( v3 < level.spawnVar.numSpawnVars );
   }
 }
 
@@ -3478,122 +3014,50 @@ G_VehiclePath_PathDebugLine
 */
 void G_VehiclePath_PathDebugLine(const vec3_t *start, const vec3_t *end, int forceDraw)
 {
+  float v4; 
+  __int128 v5; 
+  float v6; 
+  float v7; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec4_t color; 
-  char v58; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v5 = LODWORD(end->v[1]);
+  v4 = end->v[1] - start->v[1];
+  v6 = end->v[2] - start->v[2];
+  v7 = end->v[0] - start->v[0];
+  *(float *)&v5 = fsqrt((float)((float)(v4 * v4) + (float)(v7 * v7)) + (float)(v6 * v6));
+  _XMM4 = v5;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  _RBX = end;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vsubss  xmm6, xmm0, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm5, xmm0, dword ptr [rcx+8]
-    vmovss  xmm9, dword ptr [rdx]
-    vmovss  xmm10, dword ptr [rcx]
-    vmulss  xmm2, xmm6, xmm6
-    vsubss  xmm7, xmm9, xmm10
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm7, xmm7, xmm2
-    vmulss  xmm6, xmm6, xmm2
-    vmulss  xmm8, xmm5, xmm2
   }
-  _RDI = start;
+  v11 = v7 * (float)(1.0 / *(float *)&_XMM0);
+  v12 = v4 * (float)(1.0 / *(float *)&_XMM0);
+  v13 = v6 * (float)(1.0 / *(float *)&_XMM0);
   if ( s_newDebugLine )
   {
-    __asm
-    {
-      vmovss  dword ptr cs:s_start, xmm10
-      vmovss  xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr cs:s_start+4, xmm0
-      vmovss  xmm1, dword ptr [rcx+8]
-      vmovss  dword ptr cs:s_start+8, xmm1
-      vmovss  xmm0, dword ptr [rdx]
-      vmovss  dword ptr cs:s_end, xmm0
-      vmovss  xmm1, dword ptr [rdx+4]
-      vmovss  dword ptr cs:s_end+4, xmm1
-      vmovss  xmm0, dword ptr [rdx+8]
-      vmovss  dword ptr cs:s_end+8, xmm0
-    }
+    s_start = *start;
+    s_end = *end;
     s_newDebugLine = 0;
-LABEL_6:
-    __asm
-    {
-      vmovss  dword ptr cs:s_dir+8, xmm8
-      vmovss  dword ptr cs:s_dir+4, xmm6
-      vmovss  dword ptr cs:s_dir, xmm7
-    }
-    goto LABEL_7;
   }
-  __asm
+  else
   {
-    vmulss  xmm1, xmm6, dword ptr cs:s_dir+4
-    vmulss  xmm0, xmm7, dword ptr cs:s_dir
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, dword ptr cs:s_dir+8
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@3f7ff972
-  }
-  if ( forceDraw )
-  {
-    __asm
+    if ( (float)((float)((float)(v12 * s_dir.v[1]) + (float)(v11 * s_dir.v[0])) + (float)(v13 * s_dir.v[2])) >= 0.99989998 && !forceDraw )
     {
-      vmovups xmm0, cs:__xmm@3f80000000000000000000003f800000
-      vmovups xmmword ptr [rsp+98h+color], xmm0
+      s_end = *end;
+      return;
     }
+    color = (vec4_t)_xmm;
     G_DebugLine(&s_start, &s_end, &color, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  dword ptr cs:s_start, xmm0
-      vmovss  xmm1, dword ptr [rdi+4]
-      vmovss  dword ptr cs:s_start+4, xmm1
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr cs:s_start+8, xmm0
-      vmovss  xmm1, dword ptr [rbx]
-      vmovss  dword ptr cs:s_end, xmm1
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  dword ptr cs:s_end+4, xmm0
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr cs:s_end+8, xmm1
-    }
-    goto LABEL_6;
+    s_start = *start;
+    s_end = *end;
   }
-  __asm
-  {
-    vmovss  dword ptr cs:s_end, xmm9
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  dword ptr cs:s_end+4, xmm0
-    vmovss  xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr cs:s_end+8, xmm1
-  }
-LABEL_7:
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  s_dir.v[2] = v13;
+  s_dir.v[1] = v12;
+  s_dir.v[0] = v11;
 }
 
 /*
@@ -3669,69 +3133,65 @@ G_VehiclePath_ProcessNotify_Forward
 */
 char G_VehiclePath_ProcessNotify_Forward(const VehiclePathPos *const prevVpp, const VehiclePathPos *const nextVpp, const VehiclePathNotifyMode notifyMode, const __int16 nodeIndex, const int waitNode, const int entIndex)
 {
-  bool v11; 
+  bool v10; 
   char result; 
-  VehiclePathNode *v13; 
+  VehiclePathNode *v12; 
   __int16 nextIdx; 
   __int16 notifyIdx; 
-  char v16; 
-  char v17; 
-  __int64 v18; 
+  double NotifyFraction; 
+  double v16; 
+  __int64 v17; 
 
-  _RBP = prevVpp;
-  _RSI = nextVpp;
   if ( !prevVpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2308, ASSERT_TYPE_SANITY, "( prevVpp )", (const char *)&queryFormat, "prevVpp") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2309, ASSERT_TYPE_SANITY, "( nextVpp )", (const char *)&queryFormat, "nextVpp") )
+  if ( !nextVpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2309, ASSERT_TYPE_SANITY, "( nextVpp )", (const char *)&queryFormat, "nextVpp") )
     __debugbreak();
-  v11 = 0;
+  v10 = 0;
   if ( nodeIndex < 0 )
     return 0;
   if ( nodeIndex >= (unsigned int)s_numNodes )
   {
-    LODWORD(v18) = nodeIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2321, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( s_numNodes )", "nodeIndex doesn't index s_numNodes\n\t%i not in [0, %i)", v18, s_numNodes) )
+    LODWORD(v17) = nodeIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2321, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( s_numNodes )", "nodeIndex doesn't index s_numNodes\n\t%i not in [0, %i)", v17, s_numNodes) )
       __debugbreak();
   }
-  v13 = &s_nodes[nodeIndex];
-  if ( nodeIndex != _RSI->nodeIdx )
+  v12 = &s_nodes[nodeIndex];
+  if ( nodeIndex != nextVpp->nodeIdx )
   {
-    nextIdx = v13->nextIdx;
-    if ( nextIdx != _RBP->nodeIdx )
-      v11 = G_VehiclePath_ProcessNotify_Forward(_RBP, _RSI, notifyMode, nextIdx, waitNode, entIndex);
+    nextIdx = v12->nextIdx;
+    if ( nextIdx != prevVpp->nodeIdx )
+      v10 = G_VehiclePath_ProcessNotify_Forward(prevVpp, nextVpp, notifyMode, nextIdx, waitNode, entIndex);
   }
-  notifyIdx = v13->notifyIdx;
+  notifyIdx = v12->notifyIdx;
   if ( notifyIdx >= 0 )
   {
-    if ( _RSI->nodeIdx == nodeIndex )
+    if ( nextVpp->nodeIdx == nodeIndex )
     {
-      *(double *)&_XMM0 = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
-      __asm { vcomiss xmm0, dword ptr [rsi+4] }
-      if ( v16 | v17 )
+      NotifyFraction = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
+      if ( *(float *)&NotifyFraction <= nextVpp->frac )
         goto LABEL_21;
     }
     else
     {
-      if ( _RBP->nodeIdx != nodeIndex )
+      if ( prevVpp->nodeIdx != nodeIndex )
       {
 LABEL_22:
-        G_VehiclePath_ProcessNotify(notifyIdx, entIndex, &_RSI->origin, notifyMode);
+        G_VehiclePath_ProcessNotify(notifyIdx, entIndex, &nextVpp->origin, notifyMode);
         goto LABEL_23;
       }
-      *(double *)&_XMM0 = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
-      __asm { vcomiss xmm0, dword ptr [rbp+4] }
-      if ( !(v16 | v17) )
+      v16 = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
+      if ( *(float *)&v16 > prevVpp->frac )
       {
 LABEL_21:
-        notifyIdx = v13->notifyIdx;
+        notifyIdx = v12->notifyIdx;
         goto LABEL_22;
       }
     }
   }
 LABEL_23:
-  if ( nodeIndex != _RBP->nodeIdx )
-    G_VehiclePath_ProcessNotify(nodeIndex, entIndex, &_RSI->origin, notifyMode);
-  result = v11;
+  if ( nodeIndex != prevVpp->nodeIdx )
+    G_VehiclePath_ProcessNotify(nodeIndex, entIndex, &nextVpp->origin, notifyMode);
+  result = v10;
   if ( nodeIndex == waitNode )
     return 1;
   return result;
@@ -3744,63 +3204,59 @@ G_VehiclePath_ProcessNotify_Reverse
 */
 char G_VehiclePath_ProcessNotify_Reverse(const VehiclePathPos *const prevVpp, const VehiclePathPos *const nextVpp, const VehiclePathNotifyMode notifyMode, const __int16 nodeIndex, const int waitNode, const int entIndex)
 {
-  bool v11; 
+  bool v10; 
   char result; 
-  VehiclePathNode *v13; 
+  VehiclePathNode *v12; 
   __int16 prevIdx; 
   __int16 notifyIdx; 
-  char v16; 
-  char v17; 
-  __int64 v18; 
+  double NotifyFraction; 
+  double v16; 
+  __int64 v17; 
 
-  _RBP = prevVpp;
-  _RBX = nextVpp;
   if ( !prevVpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2371, ASSERT_TYPE_SANITY, "( prevVpp )", (const char *)&queryFormat, "prevVpp") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2372, ASSERT_TYPE_SANITY, "( nextVpp )", (const char *)&queryFormat, "nextVpp") )
+  if ( !nextVpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2372, ASSERT_TYPE_SANITY, "( nextVpp )", (const char *)&queryFormat, "nextVpp") )
     __debugbreak();
-  v11 = 0;
+  v10 = 0;
   if ( nodeIndex < 0 )
     return 0;
   if ( nodeIndex >= (unsigned int)s_numNodes )
   {
-    LODWORD(v18) = nodeIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2384, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( s_numNodes )", "nodeIndex doesn't index s_numNodes\n\t%i not in [0, %i)", v18, s_numNodes) )
+    LODWORD(v17) = nodeIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2384, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( s_numNodes )", "nodeIndex doesn't index s_numNodes\n\t%i not in [0, %i)", v17, s_numNodes) )
       __debugbreak();
   }
-  v13 = &s_nodes[nodeIndex];
-  prevIdx = v13->prevIdx;
-  if ( prevIdx != _RBX->nodeIdx && prevIdx != _RBP->nodeIdx )
-    v11 = G_VehiclePath_ProcessNotify_Reverse(_RBP, _RBX, notifyMode, prevIdx, waitNode, entIndex);
-  notifyIdx = v13->notifyIdx;
+  v12 = &s_nodes[nodeIndex];
+  prevIdx = v12->prevIdx;
+  if ( prevIdx != nextVpp->nodeIdx && prevIdx != prevVpp->nodeIdx )
+    v10 = G_VehiclePath_ProcessNotify_Reverse(prevVpp, nextVpp, notifyMode, prevIdx, waitNode, entIndex);
+  notifyIdx = v12->notifyIdx;
   if ( notifyIdx >= 0 )
   {
-    if ( _RBX->nodeIdx == nodeIndex )
+    if ( nextVpp->nodeIdx == nodeIndex )
     {
-      *(double *)&_XMM0 = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
-      __asm { vcomiss xmm0, dword ptr [rbx+4] }
-      if ( v16 | v17 )
+      NotifyFraction = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
+      if ( *(float *)&NotifyFraction <= nextVpp->frac )
         goto LABEL_23;
     }
     else
     {
-      if ( _RBP->nodeIdx != nodeIndex )
+      if ( prevVpp->nodeIdx != nodeIndex )
       {
 LABEL_22:
-        G_VehiclePath_ProcessNotify(notifyIdx, entIndex, &_RBX->origin, notifyMode);
+        G_VehiclePath_ProcessNotify(notifyIdx, entIndex, &nextVpp->origin, notifyMode);
         goto LABEL_23;
       }
-      *(double *)&_XMM0 = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
-      __asm { vcomiss xmm0, dword ptr [rbp+4] }
-      if ( !(v16 | v17) )
+      v16 = G_VehiclePath_GetNotifyFraction(&s_nodes[nodeIndex]);
+      if ( *(float *)&v16 > prevVpp->frac )
         goto LABEL_23;
     }
-    notifyIdx = v13->notifyIdx;
+    notifyIdx = v12->notifyIdx;
     goto LABEL_22;
   }
 LABEL_23:
-  G_VehiclePath_ProcessNotify(nodeIndex, entIndex, &_RBX->origin, notifyMode);
-  result = v11;
+  G_VehiclePath_ProcessNotify(nodeIndex, entIndex, &nextVpp->origin, notifyMode);
+  result = v10;
   if ( nodeIndex == waitNode )
     return 1;
   return result;
@@ -3813,94 +3269,69 @@ G_VehiclePath_SetPathPosSwitchNode
 */
 void G_VehiclePath_SetPathPosSwitchNode(VehiclePathPos *vpp, __int16 srcNodeIdx, __int16 dstNodeIdx)
 {
-  const VehiclePathNode *v12; 
+  VehiclePathNode *v6; 
+  __int64 v7; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
 
-  _RBP = vpp;
   Scr_SetString(&vpp->switchNode[0].name, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[0].target, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[0].script_linkname, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[0].script_noteworthy, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[1].name, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[1].target, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[1].script_linkname, (scr_string_t)0);
-  Scr_SetString(&_RBP->switchNode[1].script_noteworthy, (scr_string_t)0);
-  *(_DWORD *)&_RBP->switchNode[0].index = 0xFFFF;
-  *(_QWORD *)&_RBP->switchNode[0].name = 0i64;
-  *(_QWORD *)&_RBP->switchNode[0].script_linkname = 0i64;
-  _RBP->switchNode[0].speed = -1.0;
-  _RBP->switchNode[0].lookAhead = -1.0;
-  *(_QWORD *)_RBP->switchNode[0].origin.v = 0i64;
-  *(_QWORD *)&_RBP->switchNode[0].origin.z = 0i64;
-  *(_QWORD *)&_RBP->switchNode[0].dir.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  dword ptr [rbp+78h], xmm0
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-    vmovss  dword ptr [rbp+7Ch], xmm1
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rbp+80h], xmm0
-  }
-  _RBP->switchNode[0].length = 0.0;
-  *(_DWORD *)&_RBP->switchNode[0].nextIdx = -1;
-  _RBP->switchNode[0].notifyIdx = -1;
-  *(_QWORD *)&_RBP->switchNode[1].name = 0i64;
-  *(_QWORD *)&_RBP->switchNode[1].script_linkname = 0i64;
-  *(_DWORD *)&_RBP->switchNode[1].index = 0xFFFF;
-  _RBP->switchNode[1].speed = -1.0;
-  _RBP->switchNode[1].lookAhead = -1.0;
-  *(_QWORD *)_RBP->switchNode[1].origin.v = 0i64;
-  *(_QWORD *)&_RBP->switchNode[1].origin.z = 0i64;
-  *(_QWORD *)&_RBP->switchNode[1].dir.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  dword ptr [rbp+0C4h], xmm0
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-    vmovss  dword ptr [rbp+0C8h], xmm1
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rbp+0CCh], xmm0
-  }
-  _RBP->switchNode[1].length = 0.0;
-  *(_DWORD *)&_RBP->switchNode[1].nextIdx = -1;
-  _RBP->switchNode[1].notifyIdx = -1;
+  Scr_SetString(&vpp->switchNode[0].target, (scr_string_t)0);
+  Scr_SetString(&vpp->switchNode[0].script_linkname, (scr_string_t)0);
+  Scr_SetString(&vpp->switchNode[0].script_noteworthy, (scr_string_t)0);
+  Scr_SetString(&vpp->switchNode[1].name, (scr_string_t)0);
+  Scr_SetString(&vpp->switchNode[1].target, (scr_string_t)0);
+  Scr_SetString(&vpp->switchNode[1].script_linkname, (scr_string_t)0);
+  Scr_SetString(&vpp->switchNode[1].script_noteworthy, (scr_string_t)0);
+  *(_DWORD *)&vpp->switchNode[0].index = 0xFFFF;
+  *(_QWORD *)&vpp->switchNode[0].name = 0i64;
+  *(_QWORD *)&vpp->switchNode[0].script_linkname = 0i64;
+  vpp->switchNode[0].speed = -1.0;
+  vpp->switchNode[0].lookAhead = -1.0;
+  *(_QWORD *)vpp->switchNode[0].origin.v = 0i64;
+  *(_QWORD *)&vpp->switchNode[0].origin.z = 0i64;
+  *(_QWORD *)&vpp->switchNode[0].dir.y = 0i64;
+  vpp->switchNode[0].angles = s_invalidAngles;
+  vpp->switchNode[0].length = 0.0;
+  *(_DWORD *)&vpp->switchNode[0].nextIdx = -1;
+  vpp->switchNode[0].notifyIdx = -1;
+  *(_QWORD *)&vpp->switchNode[1].name = 0i64;
+  *(_QWORD *)&vpp->switchNode[1].script_linkname = 0i64;
+  *(_DWORD *)&vpp->switchNode[1].index = 0xFFFF;
+  vpp->switchNode[1].speed = -1.0;
+  vpp->switchNode[1].lookAhead = -1.0;
+  *(_QWORD *)vpp->switchNode[1].origin.v = 0i64;
+  *(_QWORD *)&vpp->switchNode[1].origin.z = 0i64;
+  *(_QWORD *)&vpp->switchNode[1].dir.y = 0i64;
+  vpp->switchNode[1].angles = s_invalidAngles;
+  vpp->switchNode[1].length = 0.0;
+  *(_DWORD *)&vpp->switchNode[1].nextIdx = -1;
+  vpp->switchNode[1].notifyIdx = -1;
   if ( srcNodeIdx >= 0 && dstNodeIdx >= 0 )
   {
-    v12 = &s_nodes[srcNodeIdx];
-    G_VehiclePath_CopyNode(v12, _RBP->switchNode);
-    G_VehiclePath_CopyNode(v12, &_RBP->switchNode[1]);
-    _RBP->switchNode[0].nextIdx = dstNodeIdx;
-    _RCX = 76i64 * dstNodeIdx;
-    _RAX = &s_nodes[0].origin;
+    v6 = &s_nodes[srcNodeIdx];
+    G_VehiclePath_CopyNode(v6, vpp->switchNode);
+    G_VehiclePath_CopyNode(v6, &vpp->switchNode[1]);
+    vpp->switchNode[0].nextIdx = dstNodeIdx;
+    v7 = dstNodeIdx;
+    v8 = s_nodes[v7].origin.v[0] - v6->origin.v[0];
+    vpp->switchNode[0].dir.v[0] = v8;
+    v9 = LODWORD(s_nodes[v7].origin.v[1]);
+    *(float *)&v9 = s_nodes[v7].origin.v[1] - v6->origin.v[1];
+    vpp->switchNode[0].dir.v[1] = *(float *)&v9;
+    v10 = s_nodes[v7].origin.v[2] - v6->origin.v[2];
+    vpp->switchNode[0].dir.v[2] = v10;
+    *(float *)&v9 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v8 * v8)) + (float)(v10 * v10));
+    _XMM4 = v9;
     __asm
     {
-      vmovss  xmm0, dword ptr [rcx+rax]
-      vsubss  xmm5, xmm0, dword ptr [rbx+1Ch]
-      vmovss  dword ptr [rbp+6Ch], xmm5
-      vmovss  xmm0, dword ptr [rcx+rax+4]
-      vsubss  xmm2, xmm0, dword ptr [rbx+20h]
-      vmovss  dword ptr [rbp+70h], xmm2
-      vmovss  xmm1, dword ptr [rcx+rax+8]
-      vsubss  xmm3, xmm1, dword ptr [rbx+24h]
-      vmovss  dword ptr [rbp+74h], xmm3
-      vmulss  xmm1, xmm2, xmm2
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbp+6Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbp+70h]
-      vmovss  dword ptr [rbp+70h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbp+74h]
-      vmovss  dword ptr [rbp+74h], xmm0
-      vmovss  dword ptr [rbp+84h], xmm4
     }
+    vpp->switchNode[0].dir.v[0] = v8 * (float)(1.0 / *(float *)&_XMM0);
+    vpp->switchNode[0].dir.v[1] = (float)(1.0 / *(float *)&_XMM0) * vpp->switchNode[0].dir.v[1];
+    vpp->switchNode[0].dir.v[2] = (float)(1.0 / *(float *)&_XMM0) * vpp->switchNode[0].dir.v[2];
+    vpp->switchNode[0].length = *(float *)&v9;
   }
 }
 
@@ -3909,29 +3340,17 @@ void G_VehiclePath_SetPathPosSwitchNode(VehiclePathPos *vpp, __int16 srcNodeIdx,
 G_VehiclePath_SetSpeedOverride
 ==============
 */
-
-void __fastcall G_VehiclePath_SetSpeedOverride(VehiclePathPos *vpp, double newSpeedOverride)
+void G_VehiclePath_SetSpeedOverride(VehiclePathPos *vpp, const float newSpeedOverride)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = vpp;
-  __asm { vmovaps xmm6, xmm1 }
   if ( vpp )
   {
-    __asm
-    {
-      vmovss  dword ptr [rcx+0Ch], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    vpp->speedOverride = newSpeedOverride;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 1241, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
       __debugbreak();
-    __asm
-    {
-      vmovss  dword ptr [rbx+0Ch], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    MEMORY[0xC] = newSpeedOverride;
   }
 }
 
@@ -3940,101 +3359,107 @@ void __fastcall G_VehiclePath_SetSpeedOverride(VehiclePathPos *vpp, double newSp
 G_VehiclePath_Setup
 ==============
 */
-
-void __fastcall G_VehiclePath_Setup(double _XMM0_8)
+void G_VehiclePath_Setup(void)
 {
-  int v5; 
+  int v0; 
   __int16 *p_nextIdx; 
-  int v7; 
+  int v2; 
+  int v3; 
+  __int64 v4; 
+  VehiclePathNode *v5; 
+  __int16 v6; 
+  __int64 v7; 
   int v8; 
-  __int64 v9; 
-  VehiclePathNode *v10; 
-  __int16 v11; 
-  __int64 v12; 
-  int v13; 
-  unsigned int v14; 
-  int v15; 
+  unsigned int v9; 
+  int v10; 
   __int16 *p_prevIdx; 
-  __int16 v17; 
-  __int16 v18; 
-  int v19; 
-  __int16 v24; 
-  int v42; 
-  char v56; 
-  bool v57; 
-  char *fmt; 
-  __int64 v79; 
-  __int64 v80; 
-  __int64 v81; 
+  __int16 v12; 
+  __int16 v13; 
+  int v14; 
+  float *v15; 
+  __int16 v16; 
+  __int64 v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  float v21; 
+  bool v25; 
+  int v26; 
+  float *v27; 
+  float v28; 
+  bool v29; 
+  float v34; 
+  __int64 v35; 
+  __int64 v36; 
 
-  v5 = 0;
+  v0 = 0;
   if ( s_numNodes > 0 )
   {
     p_nextIdx = &s_nodes[0].nextIdx;
     do
     {
-      v7 = *((_DWORD *)p_nextIdx - 16);
-      if ( v7 )
+      v2 = *((_DWORD *)p_nextIdx - 16);
+      if ( v2 )
       {
-        v8 = 0;
-        v9 = 0i64;
+        v3 = 0;
+        v4 = 0i64;
         if ( s_numNodes <= 0 )
         {
 LABEL_8:
-          v11 = -1;
+          v6 = -1;
         }
         else
         {
-          v10 = s_nodes;
-          while ( v10->name != v7 )
+          v5 = s_nodes;
+          while ( v5->name != v2 )
           {
-            ++v8;
-            ++v9;
-            ++v10;
-            if ( v9 >= s_numNodes )
+            ++v3;
+            ++v4;
+            ++v5;
+            if ( v4 >= s_numNodes )
               goto LABEL_8;
           }
-          v11 = truncate_cast<short,int>(v8);
+          v6 = truncate_cast<short,int>(v3);
         }
-        *p_nextIdx = v11;
-        if ( v11 >= 0 )
+        *p_nextIdx = v6;
+        if ( v6 >= 0 )
         {
-          if ( v11 >= (unsigned int)s_numNodes )
+          if ( v6 >= (unsigned int)s_numNodes )
           {
-            LODWORD(v81) = s_numNodes;
-            LODWORD(v79) = v11;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 797, ASSERT_TYPE_ASSERT, "(unsigned)( node->nextIdx ) < (unsigned)( s_numNodes )", "node->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v79, v81) )
+            LODWORD(v36) = s_numNodes;
+            LODWORD(v35) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 797, ASSERT_TYPE_ASSERT, "(unsigned)( node->nextIdx ) < (unsigned)( s_numNodes )", "node->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v35, v36) )
               __debugbreak();
           }
-          v12 = *p_nextIdx;
-          if ( (s_nodes[v12].flags & 4) != 0 )
-            p_nextIdx[2] = v12;
+          v7 = *p_nextIdx;
+          if ( (s_nodes[v7].flags & 4) != 0 )
+            p_nextIdx[2] = v7;
         }
       }
-      v13 = 0;
+      v8 = 0;
       if ( s_numNodes > 0 )
       {
-        while ( v5 == v13 || *((_DWORD *)p_nextIdx - 17) != s_nodes[v13].target )
+        while ( v0 == v8 || *((_DWORD *)p_nextIdx - 17) != s_nodes[v8].target )
         {
-          if ( ++v13 >= s_numNodes )
+          if ( ++v8 >= s_numNodes )
             goto LABEL_25;
         }
-        if ( (unsigned int)(v13 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v13, "signed", v13) )
+        if ( (unsigned int)(v8 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v8, "signed", v8) )
           __debugbreak();
-        p_nextIdx[1] = v13;
+        p_nextIdx[1] = v8;
       }
 LABEL_25:
-      if ( *p_nextIdx == v5 )
+      if ( *p_nextIdx == v0 )
         *p_nextIdx = -1;
-      if ( p_nextIdx[1] == v5 )
+      if ( p_nextIdx[1] == v0 )
         p_nextIdx[1] = -1;
-      ++v5;
+      ++v0;
       p_nextIdx += 38;
     }
-    while ( v5 < s_numNodes );
+    while ( v0 < s_numNodes );
   }
-  v14 = s_numNodes;
-  v15 = 0;
+  v9 = s_numNodes;
+  v10 = 0;
   if ( s_numNodes > 0 )
   {
     p_prevIdx = &s_nodes[0].prevIdx;
@@ -4042,234 +3467,126 @@ LABEL_25:
     {
       if ( (*(_BYTE *)(p_prevIdx - 26) & 4) != 0 )
       {
-        v17 = *p_prevIdx;
+        v12 = *p_prevIdx;
         if ( *p_prevIdx >= 0 )
         {
-          if ( v17 >= v14 )
+          if ( v12 >= v9 )
           {
-            LODWORD(v81) = v14;
-            LODWORD(v79) = v17;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 846, ASSERT_TYPE_ASSERT, "(unsigned)( node->prevIdx ) < (unsigned)( s_numNodes )", "node->prevIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v79, v81) )
+            LODWORD(v36) = v9;
+            LODWORD(v35) = v12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 846, ASSERT_TYPE_ASSERT, "(unsigned)( node->prevIdx ) < (unsigned)( s_numNodes )", "node->prevIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v35, v36) )
               __debugbreak();
           }
           s_nodes[*p_prevIdx].nextIdx = *(p_prevIdx - 1);
         }
-        v18 = *(p_prevIdx - 1);
-        if ( v18 >= 0 )
+        v13 = *(p_prevIdx - 1);
+        if ( v13 >= 0 )
         {
-          if ( v18 >= (unsigned int)s_numNodes )
+          if ( v13 >= (unsigned int)s_numNodes )
           {
-            LODWORD(v81) = s_numNodes;
-            LODWORD(v79) = v18;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 852, ASSERT_TYPE_ASSERT, "(unsigned)( node->nextIdx ) < (unsigned)( s_numNodes )", "node->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v79, v81) )
+            LODWORD(v36) = s_numNodes;
+            LODWORD(v35) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 852, ASSERT_TYPE_ASSERT, "(unsigned)( node->nextIdx ) < (unsigned)( s_numNodes )", "node->nextIdx doesn't index s_numNodes\n\t%i not in [0, %i)", v35, v36) )
               __debugbreak();
           }
           s_nodes[*(p_prevIdx - 1)].prevIdx = *p_prevIdx;
         }
       }
-      v14 = s_numNodes;
-      ++v15;
+      v9 = s_numNodes;
+      ++v10;
       p_prevIdx += 38;
     }
-    while ( v15 < s_numNodes );
+    while ( v10 < s_numNodes );
   }
-  v19 = 0;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-    vmovaps [rsp+0B8h+var_58], xmm8
-  }
+  v14 = 0;
   if ( s_numNodes > 0 )
   {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@80000000
-      vmovss  xmm7, cs:__real@3f800000
-    }
-    _RBX = &s_nodes[0].dir.v[1];
-    _RSI = &s_nodes[0].origin;
+    v15 = &s_nodes[0].dir.v[1];
     do
     {
-      if ( (*((_BYTE *)_RBX - 26) & 4) == 0 )
+      if ( (*((_BYTE *)v15 - 26) & 4) == 0 )
       {
-        v24 = *((_WORD *)_RBX + 12);
-        if ( v24 >= 0 )
+        v16 = *((_WORD *)v15 + 12);
+        if ( v16 >= 0 )
         {
-          _RCX = 76i64 * v24;
+          v17 = v16;
+          v18 = s_nodes[v17].origin.v[0] - *(v15 - 4);
+          *(v15 - 1) = v18;
+          v20 = LODWORD(s_nodes[v17].origin.v[1]);
+          v19 = s_nodes[v17].origin.v[1] - *(v15 - 3);
+          *v15 = v19;
+          v21 = s_nodes[v17].origin.v[2] - *(v15 - 2);
+          *(float *)&v20 = fsqrt((float)((float)(v19 * v19) + (float)(v18 * v18)) + (float)(v21 * v21));
+          _XMM3 = v20;
           __asm
           {
-            vmovss  xmm0, dword ptr [rcx+rsi]
-            vsubss  xmm6, xmm0, dword ptr [rbx-10h]
-            vmovss  dword ptr [rbx-4], xmm6
-            vmovss  xmm0, dword ptr [rcx+rsi+4]
-            vsubss  xmm5, xmm0, dword ptr [rbx-0Ch]
-            vmovss  dword ptr [rbx], xmm5
-            vmovss  xmm0, dword ptr [rcx+rsi+8]
-            vsubss  xmm4, xmm0, dword ptr [rbx-8]
-            vmulss  xmm0, xmm6, xmm6
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm3, xmm2, xmm2
             vcmpless xmm0, xmm3, xmm8
             vblendvps xmm0, xmm3, xmm7, xmm0
-            vdivss  xmm2, xmm7, xmm0
-            vmulss  xmm0, xmm6, xmm2
-            vmovss  dword ptr [rbx-4], xmm0
-            vmulss  xmm0, xmm4, xmm2
-            vmovss  dword ptr [rbx+4], xmm0
-            vmulss  xmm1, xmm5, xmm2
-            vmovss  dword ptr [rbx], xmm1
           }
-          v57 = (*((_BYTE *)_RBX - 26) & 2) == 0;
-          __asm { vmovss  dword ptr [rbx+14h], xmm3 }
-          if ( v57 )
-            vectoangles((const vec3_t *)(_RBX - 1), (vec3_t *)(_RBX + 2));
+          *(v15 - 1) = v18 * (float)(1.0 / *(float *)&_XMM0);
+          v15[1] = v21 * (float)(1.0 / *(float *)&_XMM0);
+          *v15 = v19 * (float)(1.0 / *(float *)&_XMM0);
+          v25 = (*((_BYTE *)v15 - 26) & 2) == 0;
+          v15[5] = *(float *)&v20;
+          if ( v25 )
+            vectoangles((const vec3_t *)(v15 - 1), (vec3_t *)(v15 + 2));
         }
       }
-      ++v19;
-      _RBX += 19;
+      ++v14;
+      v15 += 19;
     }
-    while ( v19 < s_numNodes );
+    while ( v14 < s_numNodes );
   }
-  v42 = 0;
+  v26 = 0;
   if ( s_numNodes > 0 )
   {
-    __asm
+    v27 = &s_nodes[0].angles.v[2];
+    do
     {
-      vmovss  xmm7, cs:__real@3b360b61
-      vmovss  xmm8, cs:__real@3f000000
-      vmovaps [rsp+0B8h+var_68], xmm9
-    }
-    _RBX = &s_nodes[0].angles.v[2];
-    __asm
-    {
-      vmovss  xmm9, cs:__real@43b40000
-      vxorps  xmm6, xmm6, xmm6
-    }
-    while ( 1 )
-    {
-      if ( (*((_BYTE *)_RBX - 42) & 4) != 0 )
+      if ( (*((_BYTE *)v27 - 42) & 4) != 0 )
       {
-        __asm
+        if ( s_invalidAngles.v[0] == *(v27 - 2) && s_invalidAngles.v[1] == *(v27 - 1) && s_invalidAngles.v[2] == *v27 )
         {
-          vmovss  xmm0, dword ptr cs:s_invalidAngles
-          vucomiss xmm0, dword ptr [rbx-8]
-        }
-        if ( (*((_BYTE *)_RBX - 42) & 4) == 0 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:s_invalidAngles+4
-            vucomiss xmm0, dword ptr [rbx-4]
-          }
-          if ( (*((_BYTE *)_RBX - 42) & 4) == 0 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-              vucomiss xmm0, dword ptr [rbx]
-            }
-            if ( (*((_BYTE *)_RBX - 42) & 4) == 0 )
-            {
-              *((_QWORD *)_RBX - 1) = 0i64;
-              *_RBX = 0.0;
-            }
-          }
+          *((_QWORD *)v27 - 1) = 0i64;
+          *v27 = 0.0;
         }
       }
       else
       {
-        *(float *)&_XMM0_8 = G_VehiclePath_CalcNodeSpeed(v42);
-        __asm { vmovss  dword ptr [rbx-28h], xmm0 }
-        *(float *)&_XMM0_8 = G_VehiclePath_CalcNodeLookAhead(v42);
-        __asm
+        *(v27 - 10) = G_VehiclePath_CalcNodeSpeed(v26);
+        v28 = G_VehiclePath_CalcNodeLookAhead(v26);
+        v29 = *(v27 - 10) >= 0.0;
+        *(v27 - 9) = v28;
+        if ( !v29 )
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E39E60, 800i64, *(v27 - 8), *(v27 - 7), *(v27 - 6));
+        if ( (*((_BYTE *)v27 - 42) & 2) != 0 )
+          G_VehiclePath_CalcNodeAngles(v26, (vec3_t *)(v27 - 2));
+        _XMM5 = 0i64;
+        __asm { vroundss xmm2, xmm5, xmm1, 1 }
+        *(v27 - 2) = (float)((float)(0.0027777778 * *(v27 - 2)) - *(float *)&_XMM2) * 360.0;
+        __asm { vroundss xmm3, xmm5, xmm2, 1 }
+        *(v27 - 1) = (float)((float)(0.0027777778 * *(v27 - 1)) - *(float *)&_XMM3) * 360.0;
+        __asm { vroundss xmm2, xmm5, xmm1, 1 }
+        *v27 = (float)((float)(0.0027777778 * *v27) - *(float *)&_XMM2) * 360.0;
+        v34 = *(v27 - 10);
+        if ( v34 <= 0.0 || *(v27 - 9) <= 0.0 )
         {
-          vcomiss xmm6, dword ptr [rbx-28h]
-          vmovss  dword ptr [rbx-24h], xmm0
-        }
-        if ( !(v56 | v57) )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-18h]
-            vmovss  xmm3, dword ptr [rbx-20h]
-            vmovss  xmm1, dword ptr [rbx-1Ch]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  [rsp+0B8h+var_90], xmm0
-            vmovq   r9, xmm3
-            vmovsd  [rsp+0B8h+fmt], xmm1
-          }
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E39E60, 800i64, _R9, fmt, v80);
-        }
-        v56 = 0;
-        v57 = (*((_BYTE *)_RBX - 42) & 2) == 0;
-        if ( (*((_BYTE *)_RBX - 42) & 2) != 0 )
-          G_VehiclePath_CalcNodeAngles(v42, (vec3_t *)(_RBX - 2));
-        __asm
-        {
-          vmulss  xmm3, xmm7, dword ptr [rbx-8]
-          vaddss  xmm1, xmm3, xmm8
-          vxorps  xmm5, xmm5, xmm5
-          vroundss xmm2, xmm5, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [rbx-8], xmm1
-          vmulss  xmm4, xmm7, dword ptr [rbx-4]
-          vaddss  xmm2, xmm4, xmm8
-          vroundss xmm3, xmm5, xmm2, 1
-          vsubss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm1, xmm9
-          vmovss  dword ptr [rbx-4], xmm0
-          vmulss  xmm3, xmm7, dword ptr [rbx]
-          vaddss  xmm1, xmm3, xmm8
-          vroundss xmm2, xmm5, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [rbx], xmm1
-          vmovss  xmm2, dword ptr [rbx-28h]
-          vcomiss xmm2, xmm6
-        }
-        if ( v56 | v57 )
-          goto LABEL_66;
-        __asm { vcomiss xmm6, dword ptr [rbx-24h] }
-        if ( !v56 )
-        {
-LABEL_66:
-          *((_WORD *)_RBX + 4) = -1;
+          *((_WORD *)v27 + 4) = -1;
 LABEL_67:
-          __asm { vcomiss xmm2, xmm6 }
-          if ( v56 | v57 )
-            *(_RBX - 10) = 1.0;
-          __asm { vcomiss xmm6, dword ptr [rbx-24h] }
-          if ( !v56 )
-            *(_RBX - 9) = 1.0;
+          if ( v34 <= 0.0 )
+            *(v27 - 10) = 1.0;
+          if ( *(v27 - 9) <= 0.0 )
+            *(v27 - 9) = 1.0;
           goto LABEL_71;
         }
-        v56 = 0;
-        v57 = *((_WORD *)_RBX + 4) == 0;
-        if ( *((__int16 *)_RBX + 4) < 0 )
+        if ( *((__int16 *)v27 + 4) < 0 )
           goto LABEL_67;
       }
 LABEL_71:
-      ++v42;
-      _RBX += 19;
-      if ( v42 >= s_numNodes )
-      {
-        __asm { vmovaps xmm9, [rsp+0B8h+var_68] }
-        break;
-      }
+      ++v26;
+      v27 += 19;
     }
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm6, [rsp+0B8h+var_38]
+    while ( v26 < s_numNodes );
   }
 }
 
@@ -4281,9 +3598,10 @@ G_VehiclePath_SpawnNode
 void G_VehiclePath_SpawnNode(const char *className)
 {
   __int16 v1; 
-  char v7; 
-  __int64 v17; 
-  __int64 v18; 
+  float v3; 
+  float v4; 
+  VehiclePathNode *v5; 
+  float speed; 
 
   v1 = s_numNodes;
   if ( s_numNodes >= 4000 )
@@ -4291,70 +3609,37 @@ void G_VehiclePath_SpawnNode(const char *className)
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E3A500, 801i64);
     v1 = s_numNodes;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:s_invalidAngles
-    vmovss  xmm1, dword ptr cs:s_invalidAngles+4
-  }
+  v3 = s_invalidAngles.v[0];
+  v4 = s_invalidAngles.v[1];
   s_numNodes = v1 + 1;
-  _RBX = &s_nodes[v1];
-  *(_QWORD *)&_RBX->name = 0i64;
-  *(_QWORD *)&_RBX->script_linkname = 0i64;
-  _RBX->flags = 0;
-  _RBX->index = v1;
-  _RBX->speed = -1.0;
-  _RBX->lookAhead = -1.0;
-  *(_QWORD *)_RBX->origin.v = 0i64;
-  *(_QWORD *)&_RBX->origin.z = 0i64;
-  *(_QWORD *)&_RBX->dir.y = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbx+34h], xmm0
-    vmovss  xmm0, dword ptr cs:s_invalidAngles+8
-    vmovss  dword ptr [rbx+3Ch], xmm0
-    vmovss  dword ptr [rbx+38h], xmm1
-  }
-  _RBX->length = 0.0;
-  _RBX->notifyIdx = -1;
-  *(_DWORD *)&_RBX->nextIdx = -1;
-  G_VehiclePath_ParseAllFields(_RBX);
-  if ( (_RBX->flags & 1) != 0 )
-    _RBX->flags = 1;
+  v5 = &s_nodes[v1];
+  *(_QWORD *)&v5->name = 0i64;
+  *(_QWORD *)&v5->script_linkname = 0i64;
+  v5->flags = 0;
+  v5->index = v1;
+  v5->speed = -1.0;
+  v5->lookAhead = -1.0;
+  *(_QWORD *)v5->origin.v = 0i64;
+  *(_QWORD *)&v5->origin.z = 0i64;
+  *(_QWORD *)&v5->dir.y = 0i64;
+  v5->angles.v[0] = v3;
+  v5->angles.v[2] = s_invalidAngles.v[2];
+  v5->angles.v[1] = v4;
+  v5->length = 0.0;
+  v5->notifyIdx = -1;
+  *(_DWORD *)&v5->nextIdx = -1;
+  G_VehiclePath_ParseAllFields(v5);
+  if ( (v5->flags & 1) != 0 )
+    v5->flags = 1;
   if ( IsParentClassname(className, "info_vehicle_node_rotate") )
-    _RBX->flags |= 2u;
+    v5->flags |= 2u;
   if ( IsParentClassname(className, "info_vehicle_node_notify") )
-    _RBX->flags |= 4u;
-  v7 = 0;
-  if ( !_RBX->name )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vmovss  xmm3, dword ptr [rbx+1Ch]
-      vmovss  xmm1, dword ptr [rbx+20h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+38h+var_10], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+38h+var_18], xmm1
-    }
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E3A590, 802i64, _R9, v17, v18);
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+14h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( !v7 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm1, cs:__real@418ccccd
-      vmovss  dword ptr [rbx+14h], xmm0
-    }
-  }
+    v5->flags |= 4u;
+  if ( !v5->name )
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E3A590, 802i64, v5->origin.v[0], v5->origin.v[1], v5->origin.v[2]);
+  speed = v5->speed;
+  if ( speed >= 0.0 )
+    v5->speed = speed * 17.6;
 }
 
 /*
@@ -4385,13 +3670,7 @@ void G_VehiclePath_UpdatePathPos(VehiclePathPos *vpp, VehiclePathDir pathDir)
 {
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm2, xmm0, cs:__real@3a83126f; deltaTime
-  }
-  G_VehiclePath_UpdatePathPos(vpp, pathDir, *(float *)&_XMM2);
+  G_VehiclePath_UpdatePathPos(vpp, pathDir, (float)level.frameDuration * 0.001);
 }
 
 /*
@@ -4399,132 +3678,73 @@ void G_VehiclePath_UpdatePathPos(VehiclePathPos *vpp, VehiclePathDir pathDir)
 G_VehiclePath_UpdatePathPos
 ==============
 */
-
-void __fastcall G_VehiclePath_UpdatePathPos(VehiclePathPos *vpp, VehiclePathDir pathDir, double deltaTime)
+void G_VehiclePath_UpdatePathPos(VehiclePathPos *vpp, VehiclePathDir pathDir, float deltaTime)
 {
   vec3_t *p_lookPos; 
-  char v14; 
-  char v15; 
+  float v7; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  float speedOverride; 
+  float v19; 
+  float v20; 
+  float v21; 
   vec3_t vec; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_58], xmm10
-    vmovaps xmm10, xmm2
-  }
-  _RBX = vpp;
   if ( (vpp->flags & 1) == 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_18], xmm6
-      vmovaps [rsp+98h+var_28], xmm7
-      vmovaps [rsp+98h+var_48], xmm9
-    }
     G_VehiclePath_BeginSwitchNode(vpp);
-    p_lookPos = &_RBX->lookPos;
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm2, xmm2, xmm2; lookAheadOffset
-    }
+    p_lookPos = &vpp->lookPos;
     if ( pathDir )
-      G_VehiclePath_GetReverseLookAheadOrigin(_RBX, p_lookPos, *(double *)&_XMM2);
+      G_VehiclePath_GetReverseLookAheadOrigin(vpp, p_lookPos, 0.0);
     else
-      G_VehiclePath_GetForwardLookAheadOrigin(_RBX, p_lookPos, *(double *)&_XMM2);
+      G_VehiclePath_GetForwardLookAheadOrigin(vpp, p_lookPos, 0.0);
+    v7 = vpp->lookPos.v[0] - vpp->origin.v[0];
+    v9 = LODWORD(vpp->lookPos.v[1]);
+    v8 = vpp->lookPos.v[1] - vpp->origin.v[1];
+    v10 = vpp->lookPos.v[2] - vpp->origin.v[2];
+    *(float *)&v9 = fsqrt((float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v10 * v10));
+    _XMM4 = v9;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vsubss  xmm5, xmm0, dword ptr [rbx+14h]
-      vmovss  xmm1, dword ptr [rbx+30h]
-      vsubss  xmm6, xmm1, dword ptr [rbx+18h]
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vsubss  xmm7, xmm0, dword ptr [rbx+1Ch]
-      vmulss  xmm0, xmm7, xmm7
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm4, xmm2, xmm2
-      vcomiss xmm4, xmm9
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rsp+98h+vec], xmm0
-      vmulss  xmm0, xmm7, xmm2
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rsp+98h+vec+8], xmm0
-      vmovss  dword ptr [rsp+98h+vec+4], xmm1
     }
-    if ( v14 | v15 )
+    vec.v[0] = v7 * (float)(1.0 / *(float *)&_XMM0);
+    vec.v[2] = v10 * (float)(1.0 / *(float *)&_XMM0);
+    vec.v[1] = v8 * (float)(1.0 / *(float *)&_XMM0);
+    if ( *(float *)&v9 <= 0.0 )
     {
-      _RBX->flags |= 1u;
+      vpp->flags |= 1u;
     }
     else
     {
-      __asm { vmovaps [rsp+98h+var_38], xmm8 }
-      vectoangles(&vec, &_RBX->angles);
-      __asm
-      {
-        vmovss  xmm7, cs:__real@3b360b61
-        vmulss  xmm3, xmm7, dword ptr [rbx+20h]
-        vmovss  xmm6, cs:__real@3f000000
-        vmovss  xmm5, cs:__real@43b40000
-        vaddss  xmm1, xmm3, xmm6
-        vxorps  xmm8, xmm8, xmm8
-        vroundss xmm2, xmm8, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm0, xmm0, xmm5
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmulss  xmm4, xmm7, dword ptr [rbx+24h]
-        vaddss  xmm2, xmm4, xmm6
-        vroundss xmm3, xmm8, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm5
-        vmovss  dword ptr [rbx+24h], xmm1
-        vmulss  xmm4, xmm7, dword ptr [rbx+28h]
-        vaddss  xmm2, xmm4, xmm6
-        vroundss xmm3, xmm8, xmm2, 1
-        vmovaps xmm8, [rsp+98h+var_38]
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm5
-        vmovss  dword ptr [rbx+28h], xmm0
-        vmovss  xmm2, dword ptr [rbx+0Ch]
-        vcomiss xmm2, xmm9
-      }
-      if ( v14 )
-        __asm { vmulss  xmm3, xmm10, dword ptr [rbx+8] }
+      vectoangles(&vec, &vpp->angles);
+      _XMM8 = 0i64;
+      __asm { vroundss xmm2, xmm8, xmm1, 1 }
+      vpp->angles.v[0] = (float)((float)(0.0027777778 * vpp->angles.v[0]) - *(float *)&_XMM2) * 360.0;
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      vpp->angles.v[1] = (float)((float)(0.0027777778 * vpp->angles.v[1]) - *(float *)&_XMM3) * 360.0;
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      vpp->angles.v[2] = (float)((float)(0.0027777778 * vpp->angles.v[2]) - *(float *)&_XMM3) * 360.0;
+      speedOverride = vpp->speedOverride;
+      if ( speedOverride < 0.0 )
+        v19 = deltaTime * vpp->speed;
       else
-        __asm { vmulss  xmm3, xmm2, xmm10 }
-      __asm
-      {
-        vmulss  xmm1, xmm3, dword ptr [rsp+98h+vec]
-        vaddss  xmm2, xmm1, dword ptr [rbx+14h]
-        vmulss  xmm1, xmm3, dword ptr [rsp+98h+vec+4]
-        vmovss  dword ptr [rbx+14h], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbx+18h]
-        vmulss  xmm1, xmm3, dword ptr [rsp+98h+vec+8]
-        vmovss  dword ptr [rbx+18h], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbx+1Ch]
-        vmovss  dword ptr [rbx+1Ch], xmm2
-      }
+        v19 = speedOverride * deltaTime;
+      v20 = v19 * vec.v[1];
+      vpp->origin.v[0] = (float)(v19 * vec.v[0]) + vpp->origin.v[0];
+      v21 = v19 * vec.v[2];
+      vpp->origin.v[1] = v20 + vpp->origin.v[1];
+      vpp->origin.v[2] = v21 + vpp->origin.v[2];
       if ( pathDir )
-        G_VehiclePath_AdvancePathPosReverse(_RBX, &vec);
+        G_VehiclePath_AdvancePathPosReverse(vpp, &vec);
       else
-        G_VehiclePath_AdvancePathPosForward(_RBX, &vec);
-      G_VehiclePath_GetAngles(_RBX, &_RBX->angles);
+        G_VehiclePath_AdvancePathPosForward(vpp, &vec);
+      G_VehiclePath_GetAngles(vpp, &vpp->angles);
     }
-    G_VehiclePath_EndSwitchNode(_RBX);
-    __asm
-    {
-      vmovaps xmm9, [rsp+98h+var_48]
-      vmovaps xmm7, [rsp+98h+var_28]
-      vmovaps xmm6, [rsp+98h+var_18]
-    }
+    G_VehiclePath_EndSwitchNode(vpp);
   }
-  __asm { vmovaps xmm10, [rsp+98h+var_58] }
 }
 
 /*
@@ -4539,8 +3759,7 @@ void G_VehiclePath_UpdatePathPosAnimated(VehiclePathPos *vpp, const vec3_t *orig
   if ( (vpp->flags & 1) == 0 )
   {
     G_VehiclePath_BeginSwitchNode(vpp);
-    __asm { vxorps  xmm2, xmm2, xmm2; lookAheadOffset }
-    G_VehiclePath_GetForwardLookAheadOrigin(vpp, &vpp->lookPos, *(double *)&_XMM2);
+    G_VehiclePath_GetForwardLookAheadOrigin(vpp, &vpp->lookPos, 0.0);
     vpp->origin.v[0] = origin->v[0];
     vpp->origin.v[1] = origin->v[1];
     vpp->origin.v[2] = origin->v[2];
@@ -4557,26 +3776,18 @@ void G_VehiclePath_UpdatePathPosAnimated(VehiclePathPos *vpp, const vec3_t *orig
 G_VehiclePath_UpdatePathPosLookAhead
 ==============
 */
-
-void __fastcall G_VehiclePath_UpdatePathPosLookAhead(VehiclePathPos *vpp, double lookAheadOffset, VehiclePathDir pathDir)
+void G_VehiclePath_UpdatePathPosLookAhead(VehiclePathPos *vpp, float lookAheadOffset, VehiclePathDir pathDir)
 {
   vec3_t *p_lookPos; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !vpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2212, ASSERT_TYPE_SANITY, "( vpp )", (const char *)&queryFormat, "vpp") )
     __debugbreak();
   G_VehiclePath_BeginSwitchNode(vpp);
   p_lookPos = &vpp->lookPos;
-  __asm { vmovaps xmm2, xmm6; lookAheadOffset }
   if ( pathDir )
-    G_VehiclePath_GetReverseLookAheadOrigin(vpp, p_lookPos, *(double *)&_XMM2);
+    G_VehiclePath_GetReverseLookAheadOrigin(vpp, p_lookPos, lookAheadOffset);
   else
-    G_VehiclePath_GetForwardLookAheadOrigin(vpp, p_lookPos, *(double *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    G_VehiclePath_GetForwardLookAheadOrigin(vpp, p_lookPos, lookAheadOffset);
   G_VehiclePath_EndSwitchNode(vpp);
 }
 
@@ -4587,14 +3798,15 @@ G_VehiclePath_UpdatePathPosNotifies
 */
 __int64 G_VehiclePath_UpdatePathPosNotifies(const VehiclePathPos *prevVpp, const VehiclePathPos *nextVpp, int entIndex, __int16 waitNode, VehiclePathNotifyMode notifyMode, VehiclePathDir pathDir)
 {
-  unsigned __int8 v11; 
+  unsigned __int8 v10; 
   __int16 nodeIdx; 
+  __int64 v12; 
   VehiclePathNode *v13; 
-  char v14; 
+  double NotifyFraction; 
+  char v15; 
   __int64 entIndexa; 
-  __int64 v17; 
+  __int64 v18; 
 
-  _RBX = prevVpp;
   if ( !prevVpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2431, ASSERT_TYPE_SANITY, "( prevVpp )", (const char *)&queryFormat, "prevVpp") )
     __debugbreak();
   if ( !nextVpp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2432, ASSERT_TYPE_SANITY, "( nextVpp )", (const char *)&queryFormat, "nextVpp") )
@@ -4605,56 +3817,52 @@ __int64 G_VehiclePath_UpdatePathPosNotifies(const VehiclePathPos *prevVpp, const
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2433, ASSERT_TYPE_ASSERT, "(unsigned)( entIndex ) < (unsigned)( ( 2048 ) )", "entIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entIndexa, 2048) )
       __debugbreak();
   }
-  v11 = 0;
-  G_VehiclePath_BeginSwitchNode(_RBX);
-  nodeIdx = _RBX->nodeIdx;
-  if ( _RBX->nodeIdx != nextVpp->nodeIdx )
+  v10 = 0;
+  G_VehiclePath_BeginSwitchNode(prevVpp);
+  nodeIdx = prevVpp->nodeIdx;
+  if ( prevVpp->nodeIdx != nextVpp->nodeIdx )
   {
     if ( pathDir )
     {
       if ( pathDir != VEH_PATH_REVERSE )
-        goto LABEL_27;
-      v14 = G_VehiclePath_ProcessNotify_Reverse(_RBX, nextVpp, notifyMode, nodeIdx, waitNode, entIndex);
+        goto LABEL_33;
+      v15 = G_VehiclePath_ProcessNotify_Reverse(prevVpp, nextVpp, notifyMode, nodeIdx, waitNode, entIndex);
     }
     else
     {
-      v14 = G_VehiclePath_ProcessNotify_Forward(_RBX, nextVpp, notifyMode, nodeIdx, waitNode, entIndex);
+      v15 = G_VehiclePath_ProcessNotify_Forward(prevVpp, nextVpp, notifyMode, nodeIdx, waitNode, entIndex);
     }
-    v11 = v14;
-    goto LABEL_27;
+    v10 = v15;
+    goto LABEL_33;
   }
   if ( nodeIdx >= (unsigned int)s_numNodes )
   {
-    LODWORD(v17) = s_numNodes;
+    LODWORD(v18) = s_numNodes;
     LODWORD(entIndexa) = nodeIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2444, ASSERT_TYPE_ASSERT, "(unsigned)( prevVpp->nodeIdx ) < (unsigned)( s_numNodes )", "prevVpp->nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", entIndexa, v17) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_path.cpp", 2444, ASSERT_TYPE_ASSERT, "(unsigned)( prevVpp->nodeIdx ) < (unsigned)( s_numNodes )", "prevVpp->nodeIdx doesn't index s_numNodes\n\t%i not in [0, %i)", entIndexa, v18) )
       __debugbreak();
   }
-  v13 = &s_nodes[_RBX->nodeIdx];
-  if ( pathDir == VEH_PATH_REVERSE && v13->prevIdx < 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbx+4]
-    }
-  }
+  v12 = prevVpp->nodeIdx;
+  v13 = &s_nodes[v12];
+  if ( pathDir == VEH_PATH_REVERSE && v13->prevIdx < 0 && prevVpp->frac > 0.0 && nextVpp->frac == 0.0 )
+    G_VehiclePath_ProcessNotify(v12, entIndex, &nextVpp->origin, notifyMode);
   if ( v13->notifyIdx >= 0 )
   {
-    *(double *)&_XMM0 = G_VehiclePath_GetNotifyFraction(v13);
+    NotifyFraction = G_VehiclePath_GetNotifyFraction(v13);
     if ( pathDir )
     {
-      if ( pathDir == VEH_PATH_REVERSE )
-        __asm { vcomiss xmm0, dword ptr [rbx+4] }
+      if ( pathDir == VEH_PATH_REVERSE && *(float *)&NotifyFraction < prevVpp->frac && *(float *)&NotifyFraction >= nextVpp->frac )
+        goto LABEL_27;
     }
-    else
+    else if ( *(float *)&NotifyFraction > prevVpp->frac && *(float *)&NotifyFraction <= nextVpp->frac )
     {
-      __asm { vcomiss xmm0, dword ptr [rbx+4] }
+LABEL_27:
+      G_VehiclePath_ProcessNotify(v13->notifyIdx, entIndex, &nextVpp->origin, notifyMode);
     }
   }
-LABEL_27:
-  G_VehiclePath_EndSwitchNode(_RBX);
-  return v11;
+LABEL_33:
+  G_VehiclePath_EndSwitchNode(prevVpp);
+  return v10;
 }
 
 /*

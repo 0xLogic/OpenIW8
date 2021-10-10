@@ -76,14 +76,15 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
   const DObj *v19; 
   const cpose_t *Pose; 
   ConeTargetHitResults *HitResults; 
-  scr_string_t v26; 
-  ConeTargetHitResults *v27; 
-  __int64 v29; 
-  __int64 v30; 
+  ConeTargetHitResults *v22; 
+  scr_string_t v23; 
+  ConeTargetHitResults *v24; 
+  __int64 v26; 
+  __int64 v27; 
   unsigned __int8 inOutIndex[8]; 
   char *outClientTagName; 
-  __int64 v33; 
-  ThreatSight *v34; 
+  __int64 v30; 
+  ThreatSight *v31; 
   int modelIndex; 
   tmat33_t<vec3_t> outTagMat; 
   vec3_t outOrigin; 
@@ -93,8 +94,8 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
     __debugbreak();
   v7 = 0;
   threatSight = beamEnt->nextState.lerp.u.actor.threatSight;
-  v33 = 0i64;
-  v34 = threatSight;
+  v30 = 0i64;
+  v31 = threatSight;
   v9 = v6;
   do
   {
@@ -105,21 +106,21 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
       break;
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v30) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v30) )
+      LODWORD(v27) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v27) )
         __debugbreak();
     }
     if ( (unsigned int)v6 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v30) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(v29) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v29, v30) )
+      LODWORD(v27) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(v26) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v26, v27) )
         __debugbreak();
     }
     if ( !CgEntitySystem::ms_entitySystemArray[v9] )
     {
-      LODWORD(v30) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v30) )
+      LODWORD(v27) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v27) )
         __debugbreak();
     }
     v11 = CgEntitySystem::ms_entitySystemArray[v9];
@@ -136,16 +137,16 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
         String = SL_FindString(outClientTagName);
         if ( (unsigned int)v6 >= 2 )
         {
-          LODWORD(v30) = 2;
-          LODWORD(v29) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v29, v30) )
+          LODWORD(v27) = 2;
+          LODWORD(v26) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
         v17 = v10 + 2533 * v6;
         if ( v17 >= 0x13CA )
         {
-          LODWORD(v30) = v10 + 2533 * v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v30) )
+          LODWORD(v27) = v10 + 2533 * v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v27) )
             __debugbreak();
         }
         v18 = clientObjMap[v17];
@@ -153,8 +154,8 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
         {
           if ( v18 >= (unsigned int)s_objCount )
           {
-            LODWORD(v30) = v18;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v30) )
+            LODWORD(v27) = v18;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v27) )
               __debugbreak();
           }
           v19 = (const DObj *)s_objBuf[v18];
@@ -171,28 +172,20 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
                 v14 = 1;
                 if ( (unsigned __int64)v7 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                   __debugbreak();
-                _RAX = ConeTargetInfo::GetHitResults(&targetArray->m_data[v7]);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin]
-                  vmovss  dword ptr [rax], xmm0
-                  vmovss  xmm1, dword ptr [rsp+0D8h+outOrigin+4]
-                  vmovss  dword ptr [rax+4], xmm1
-                  vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin+8]
-                  vmovss  dword ptr [rax+8], xmm0
-                }
+                HitResults = ConeTargetInfo::GetHitResults(&targetArray->m_data[v7]);
+                HitResults->hits[0].tagWorldPos = outOrigin;
                 if ( (unsigned __int64)v7 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                   __debugbreak();
-                HitResults = ConeTargetInfo::GetHitResults(&targetArray->m_data[v7]);
-                MatrixCopy33(&outTagMat, &HitResults->hits[0].tagWorldRot);
+                v22 = ConeTargetInfo::GetHitResults(&targetArray->m_data[v7]);
+                MatrixCopy33(&outTagMat, &v22->hits[0].tagWorldRot);
               }
             }
           }
         }
       }
-      v26 = 0;
+      v23 = 0;
       if ( v14 )
-        v26 = String;
+        v23 = String;
       if ( (unsigned __int64)v7 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
       CAssistTarget::SetTarget(&targetArray->m_data[v7], v13);
@@ -201,20 +194,20 @@ __int64 CG_BeamEntity_BuildTargetArray(const LocalClientNum_t localClientNum, co
       ConeTargetInfo::GetHitResults(&targetArray->m_data[v7])->hitCount = 1;
       if ( (unsigned __int64)v7 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      ConeTargetInfo::GetHitResults(&targetArray->m_data[v7])->hits[0].tagName = v26;
+      ConeTargetInfo::GetHitResults(&targetArray->m_data[v7])->hits[0].tagName = v23;
       if ( (unsigned __int64)v7 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
-      v27 = ConeTargetInfo::GetHitResults(&targetArray->m_data[v7]);
-      threatSight = v34;
+      v24 = ConeTargetInfo::GetHitResults(&targetArray->m_data[v7]);
+      threatSight = v31;
       ++v7;
       v9 = v6;
-      v27->firstVisibleHitIndex = 0;
+      v24->firstVisibleHitIndex = 0;
     }
     threatSight += 2;
-    ++v33;
-    v34 = threatSight;
+    ++v30;
+    v31 = threatSight;
   }
-  while ( v33 < 7 );
+  while ( v30 < 7 );
   return (unsigned int)v7;
 }
 

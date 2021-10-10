@@ -551,24 +551,13 @@ bool CG_LookingThroughNightVision(const LocalClientNum_t localClientNum)
 CG_SetDigitalDistortParams
 ==============
 */
-
-void __fastcall CG_SetDigitalDistortParams(const LocalClientNum_t localClientNum, double intensity, double timeScale)
+void CG_SetDigitalDistortParams(const LocalClientNum_t localClientNum, const float intensity, const float timeScale)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  dword ptr [rax+17080h], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rax+17084h], xmm7
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
+  cg_t *LocalClientGlobals; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals->refdef.digitalDistort.intensity = intensity;
+  LocalClientGlobals->refdef.digitalDistort.timeScale = timeScale;
 }
 
 /*
@@ -810,15 +799,10 @@ CG_VisionSetClearScriptBlendInUseIfNeeded
 */
 void CG_VisionSetClearScriptBlendInUseIfNeeded(ClientVisionSetData *cvsData, const int time)
 {
-  char v6; 
+  double Lerp; 
 
-  *(double *)&_XMM0 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[16], time);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( v6 )
+  Lerp = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[16], time);
+  if ( *(float *)&Lerp == 0.0 )
   {
     *(_QWORD *)cvsData->archived.visionBlends[21].inUse.array = 0i64;
     *(_QWORD *)&cvsData->archived.visionBlends[21].inUse.array[2] = 0i64;
@@ -834,85 +818,83 @@ CG_VisionSetDebugBlendTree
 */
 char CG_VisionSetDebugBlendTree(const LocalClientNum_t localClientNum, char *buffer, unsigned int length)
 {
-  unsigned __int64 v4; 
+  unsigned __int64 v3; 
   cg_t *LocalClientGlobals; 
-  int v8; 
-  unsigned int v9; 
-  char *v10; 
-  int v11; 
-  unsigned int v12; 
-  char *v13; 
+  int v7; 
+  unsigned int v8; 
+  char *v9; 
+  int v10; 
+  unsigned int v11; 
+  char *v12; 
   int i; 
-  int v15; 
-  visionSetBlend_t::ChildRef *v16; 
-  cg_t *v17; 
-  int v18; 
+  int v14; 
+  visionSetBlend_t::ChildRef *v15; 
+  cg_t *v16; 
+  int v17; 
   int m_index; 
-  int v20; 
-  __int64 v21; 
+  int v19; 
+  __int64 v20; 
+  BOOL v21; 
   BOOL v22; 
-  BOOL v23; 
-  int v25; 
-  char *fmt; 
+  double Lerp; 
+  int v24; 
+  __int64 v26; 
+  __int64 v27; 
   __int64 v28; 
   __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
   visionSetBlend_t::ChildRef *j; 
-  cg_t *v33; 
+  cg_t *v31; 
 
-  v4 = length;
+  v3 = length;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   if ( localClientNum >= cg_t::ms_allocatedCount )
     return 0;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v33 = LocalClientGlobals;
+  v31 = LocalClientGlobals;
   if ( !LocalClientGlobals->cvsData.archived.visionInitialized )
     return 0;
-  v8 = Com_sprintf(buffer, v4, "%d,", 25i64);
-  v9 = v4 - v8;
-  v10 = &buffer[v8];
-  v11 = Com_sprintf(v10, v9, "%d,", 24i64);
-  v12 = v9 - v11;
-  v13 = &v10[v11];
+  v7 = Com_sprintf(buffer, v3, "%d,", 25i64);
+  v8 = v3 - v7;
+  v9 = &buffer[v7];
+  v10 = Com_sprintf(v9, v8, "%d,", 24i64);
+  v11 = v8 - v10;
+  v12 = &v9[v10];
   for ( i = 0; i < 25; ++i )
   {
-    v15 = Com_sprintf(v13, v12, "%s,", LocalClientGlobals->cvsData.archived.visionLeaves[i].name);
-    if ( v15 < 0 )
+    v14 = Com_sprintf(v12, v11, "%s,", LocalClientGlobals->cvsData.archived.visionLeaves[i].name);
+    if ( v14 < 0 )
     {
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442D56D8, 1157i64);
       return 0;
     }
-    v12 -= v15;
-    v13 += v15;
+    v11 -= v14;
+    v12 += v14;
   }
-  v16 = &LocalClientGlobals->cvsData.archived.visionBlends[0].childRefs[1];
-  v17 = LocalClientGlobals;
-  v18 = 0;
+  v15 = &LocalClientGlobals->cvsData.archived.visionBlends[0].childRefs[1];
+  v16 = LocalClientGlobals;
+  v17 = 0;
   for ( j = &LocalClientGlobals->cvsData.archived.visionBlends[0].childRefs[1]; ; j += 610 )
   {
-    m_index = v16[-1].m_index;
-    v20 = v16->m_index;
-    v21 = v18;
-    v22 = v16->m_type != Type_Blend;
-    v23 = v16[-1].m_type != Type_Blend;
-    *(double *)&_XMM0 = CG_VisionSetGetLerp(&v17->cvsData.archived.visionBlends[v21], v17->time - v17->cvsData.transitory.playbackDelta);
-    LODWORD(v31) = v20;
-    LODWORD(v30) = v22;
-    __asm { vcvtss2sd xmm1, xmm0, xmm0 }
-    LODWORD(v29) = m_index;
-    LODWORD(v28) = v23;
-    __asm { vmovsd  [rsp+88h+fmt], xmm1 }
-    v25 = Com_sprintf(v13, v12, "%s,%f,%d,%d,%d,%d,", v33->cvsData.archived.visionBlends[v21].name, *(double *)&fmt, v28, v29, v30, v31);
-    if ( v25 < 0 )
+    m_index = v15[-1].m_index;
+    v19 = v15->m_index;
+    v20 = v17;
+    v21 = v15->m_type != Type_Blend;
+    v22 = v15[-1].m_type != Type_Blend;
+    Lerp = CG_VisionSetGetLerp(&v16->cvsData.archived.visionBlends[v20], v16->time - v16->cvsData.transitory.playbackDelta);
+    LODWORD(v29) = v19;
+    LODWORD(v28) = v21;
+    LODWORD(v27) = m_index;
+    LODWORD(v26) = v22;
+    v24 = Com_sprintf(v12, v11, "%s,%f,%d,%d,%d,%d,", v31->cvsData.archived.visionBlends[v20].name, *(float *)&Lerp, v26, v27, v28, v29);
+    if ( v24 < 0 )
       break;
-    v17 = v33;
-    v12 -= v25;
-    ++v18;
-    v13 += v25;
-    v16 = j + 610;
-    if ( v18 >= 24 )
+    v16 = v31;
+    v11 -= v24;
+    ++v17;
+    v12 += v24;
+    v15 = j + 610;
+    if ( v17 >= 24 )
       return 1;
   }
   Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442D56D8, 1158i64);
@@ -926,61 +908,55 @@ CG_VisionSetDebugDraw
 */
 void CG_VisionSetDebugDraw(const LocalClientNum_t localClientNum, visionSetPrintMode_t printMode)
 {
-  __int64 v3; 
+  __int64 v2; 
   cg_t *LocalClientGlobals; 
   const ClientVisionSetData *p_cvsData; 
-  int v7; 
-  bool v8; 
-  const ScreenPlacement *v9; 
+  int v6; 
+  bool v7; 
+  const ScreenPlacement *v8; 
   float y; 
   float x; 
 
-  v3 = localClientNum;
+  v2 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   p_cvsData = &LocalClientGlobals->cvsData;
-  v7 = LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime;
+  v6 = LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime;
   if ( activeScreenPlacementMode == SCRMODE_FULL )
   {
 LABEL_7:
-    v9 = &scrPlaceFull;
+    v8 = &scrPlaceFull;
     goto LABEL_8;
   }
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v8 )
+      v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v7 )
       __debugbreak();
     goto LABEL_7;
   }
-  v9 = &scrPlaceViewDisplay[v3];
+  v8 = &scrPlaceViewDisplay[v2];
 LABEL_8:
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+68h+x], xmm0
-    vmovss  [rsp+68h+arg_8], xmm0
-  }
+  x = 0.0;
+  y = 0.0;
   switch ( printMode )
   {
     case VISIONSET_PRINT_MINIMAL:
-      __asm { vmovss  xmm0, cs:__real@3f800000; weight }
-      CG_VisionSetDebugDrawMinimalDepthFirstPrint(*(float *)&_XMM0, p_cvsData, v7, v9, &x, &y, p_cvsData->archived.visionBlends, 0, printMode);
+      CG_VisionSetDebugDrawMinimalDepthFirstPrint(1.0, p_cvsData, v6, v8, &x, &y, p_cvsData->archived.visionBlends, 0, VISIONSET_PRINT_MINIMAL);
       break;
     case VISIONSET_PRINT_ARTIST_FRIENDLY:
-      __asm { vmovss  xmm0, cs:__real@3f800000; weight }
-      CG_VisionSetDebugDrawArtistFriendlyDepthFirstPrint(*(float *)&_XMM0, p_cvsData, v7, v9, &x, &y, p_cvsData->archived.visionBlends, 0, printMode);
+      CG_VisionSetDebugDrawArtistFriendlyDepthFirstPrint(1.0, p_cvsData, v6, v8, &x, &y, p_cvsData->archived.visionBlends, 0, VISIONSET_PRINT_ARTIST_FRIENDLY);
       break;
     case VISIONSET_PRINT_BLEND:
-      CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(p_cvsData, v7, v9, &x, &y, p_cvsData->archived.visionBlends, 0, VISIONSET_PRINT_BLEND);
+      CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(p_cvsData, v6, v8, &x, &y, p_cvsData->archived.visionBlends, 0, VISIONSET_PRINT_BLEND);
       break;
     case VISIONSET_PRINT_ROOT_CONTENTS:
-      CG_VisionSetDebugDrawRootContents(p_cvsData, v9, &x, &y);
+      CG_VisionSetDebugDrawRootContents(p_cvsData, v8, &x, &y);
       break;
     case VISIONSET_CURRENT_HDR_VALUES:
-      CG_VisionSetDebugHdrValues(p_cvsData, v9, &x, &y, rgp.world);
+      CG_VisionSetDebugHdrValues(p_cvsData, v8, &x, &y, rgp.world);
       break;
   }
 }
@@ -994,54 +970,31 @@ CG_VisionSetDebugDrawArtistFriendlyDepthFirstPrint
 void __fastcall CG_VisionSetDebugDrawArtistFriendlyDepthFirstPrint(double weight, const ClientVisionSetData *cvsData, const int time, const ScreenPlacement *scrPlace, float *x, float *y, const visionSetVarsBase_t *node, int level, visionSetPrintMode_t printMode)
 {
   visionSetBlend_t *visionBlends; 
-  int v15; 
+  int v11; 
+  __int128 v15; 
+  double Lerp; 
   const visionSetVarsBase_t *Child; 
-  const visionSetVarsBase_t *v25; 
-  char v34; 
-  void *retaddr; 
+  const visionSetVarsBase_t *v18; 
+  __int128 v19; 
 
-  _RAX = &retaddr;
   visionBlends = cvsData->archived.visionBlends;
-  v15 = time;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmm7, xmm0
-  }
+  v11 = time;
+  v15 = *(_OWORD *)&weight;
   while ( node >= visionBlends && node <= &cvsData->archived.visionBlends[23] )
   {
-    __asm { vmovaps xmm0, xmm7; weight }
-    CG_VisionSetDebugDrawNode(*(float *)&_XMM0, (const visionSetBlend_t *)node, v15, scrPlace, x, y, level, printMode);
-    *(double *)&_XMM0 = CG_VisionSetGetLerp((const visionSetBlend_t *)node, time);
-    __asm { vmovaps xmm6, xmm0 }
+    CG_VisionSetDebugDrawNode(*(float *)&v15, (const visionSetBlend_t *)node, v11, scrPlace, x, y, level, printMode);
+    Lerp = CG_VisionSetGetLerp((const visionSetBlend_t *)node, time);
     ++level;
     Child = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1].r_primaryLightTweakDiffuseStrength + 1);
-    __asm { vmulss  xmm0, xmm6, xmm7; weight }
-    CG_VisionSetDebugDrawArtistFriendlyDepthFirstPrint(*(float *)&_XMM0, cvsData, time, scrPlace, x, y, Child, level, printMode);
-    v25 = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1]);
-    v15 = time;
-    node = v25;
-    __asm
-    {
-      vsubss  xmm0, xmm8, xmm6
-      vmulss  xmm7, xmm7, xmm0
-    }
+    CG_VisionSetDebugDrawArtistFriendlyDepthFirstPrint(*(float *)&Lerp * *(float *)&v15, cvsData, time, scrPlace, x, y, Child, level, printMode);
+    v18 = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1]);
+    v11 = time;
+    node = v18;
+    v19 = v15;
+    *(float *)&v19 = *(float *)&v15 * (float)(1.0 - *(float *)&Lerp);
+    v15 = v19;
   }
-  __asm
-  {
-    vmovaps xmm0, xmm7
-    vmovaps xmm6, [rsp+0A8h+var_38]
-  }
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
-  CG_VisionSetDebugDrawLeaf(*(float *)&_XMM0, (const visionSetVars_t *)node, scrPlace, x, y, level, printMode);
+  CG_VisionSetDebugDrawLeaf(*(float *)&v15, (const visionSetVars_t *)node, scrPlace, x, y, level, printMode);
 }
 
 /*
@@ -1051,18 +1004,16 @@ CG_VisionSetDebugDrawBlendTreeDepthFirstPrint
 */
 void CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(const ClientVisionSetData *cvsData, const int time, const ScreenPlacement *scrPlace, float *x, float *y, const visionSetVarsBase_t *node, int level, visionSetPrintMode_t printMode)
 {
-  char v15; 
-  vec4_t *v18; 
+  double Lerp; 
+  vec4_t *v14; 
   GfxFont *font; 
   const char *s; 
-  const visionSetBlend_t::ChildRef *v35; 
-  __int64 v36; 
+  const visionSetBlend_t::ChildRef *v19; 
+  __int64 v20; 
   const visionSetVarsBase_t *Child; 
   GfxFont *smallDevFont; 
   char *name; 
-  const char *v40; 
-  float yScale; 
-  float yScalea; 
+  const char *v24; 
   const vec4_t *nodea; 
 
   if ( node < cvsData->archived.visionBlends || node > &cvsData->archived.visionBlends[23] )
@@ -1073,25 +1024,8 @@ void CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(const ClientVisionSetData *cv
       name = "---";
       if ( node->name[0] )
         name = node->name;
-      v40 = j_va((const char *)&queryFormat, name);
-      __asm { vmovss  xmm3, cs:__real@3f19999a; xScale }
-      _RDI = y;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edx
-        vaddss  xmm1, xmm0, dword ptr [r12]; x
-        vmovss  [rsp+78h+yScale], xmm3
-      }
-      CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, yScalea, v40, &colorCyan, 5, smallDevFont);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm0, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm0
-      }
+      v24 = j_va((const char *)&queryFormat, name);
+      *y = (float)CG_DrawDevString(scrPlace, (float)(6 * level) + *x, *y, 0.60000002, 0.60000002, v24, &colorCyan, 5, smallDevFont) + *y;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 448, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported printMode, %d", printMode) )
     {
@@ -1100,73 +1034,40 @@ void CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(const ClientVisionSetData *cv
   }
   else
   {
-    *(double *)&_XMM0 = CG_VisionSetGetLerp((const visionSetBlend_t *)node, time);
-    __asm
+    Lerp = CG_VisionSetGetLerp((const visionSetBlend_t *)node, time);
+    if ( *(float *)&Lerp == 0.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( v15 )
-    {
-      v18 = &colorLtBlue;
+      v14 = &colorLtBlue;
     }
     else
     {
-      __asm { vucomiss xmm0, cs:__real@3f800000 }
-      v18 = &colorGreen;
-      if ( !v15 )
-        v18 = &colorOrange;
+      v14 = &colorGreen;
+      if ( *(float *)&Lerp != 1.0 )
+        v14 = &colorOrange;
     }
-    _R15 = y;
-    nodea = v18;
+    nodea = v14;
     if ( printMode == VISIONSET_PRINT_BLEND )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@42c80000
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-      }
       font = cls.smallDevFont;
-      __asm
-      {
-        vmovss  xmm3, xmm1, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm3, 1
-        vcvttss2si r8d, xmm4
-      }
-      s = j_va("%s (%d%%)", node->name, _R8);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f19999a; xScale
-        vmovss  xmm2, dword ptr [r15]; y
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vaddss  xmm1, xmm0, dword ptr [r12]; x
-        vmovss  [rsp+78h+yScale], xmm3
-      }
-      CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, yScale, s, nodea, 5, font);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm0, xmm0, dword ptr [r15]
-        vmovss  dword ptr [r15], xmm0
-      }
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm3, 1 }
+      s = j_va("%s (%d%%)", node->name, (unsigned int)(int)*(float *)&_XMM4);
+      *y = (float)CG_DrawDevString(scrPlace, (float)(6 * level) + *x, *y, 0.60000002, 0.60000002, s, nodea, 5, font) + *y;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 435, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported printMode, %d", printMode) )
     {
       __debugbreak();
     }
-    v35 = (const visionSetBlend_t::ChildRef *)&node[1];
-    v36 = 2i64;
+    v19 = (const visionSetBlend_t::ChildRef *)&node[1];
+    v20 = 2i64;
     do
     {
-      Child = CG_VisionSet_GetChild(cvsData, v35);
+      Child = CG_VisionSet_GetChild(cvsData, v19);
       CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(cvsData, time, scrPlace, x, y, Child, level + 1, printMode);
-      ++v35;
-      --v36;
+      ++v19;
+      --v20;
     }
-    while ( v36 );
+    while ( v20 );
   }
 }
 
@@ -1175,82 +1076,33 @@ void CG_VisionSetDebugDrawBlendTreeDepthFirstPrint(const ClientVisionSetData *cv
 CG_VisionSetDebugDrawLeaf
 ==============
 */
-
-void __fastcall CG_VisionSetDebugDrawLeaf(double weight, const visionSetVars_t *node, const ScreenPlacement *scrPlace, float *x, float *y, int level, visionSetPrintMode_t printMode)
+void CG_VisionSetDebugDrawLeaf(float weight, const visionSetVars_t *node, const ScreenPlacement *scrPlace, float *x, float *y, int level, visionSetPrintMode_t printMode)
 {
-  const ScreenPlacement *v9; 
-  bool v12; 
-  bool v13; 
   const vec4_t *color; 
   GfxFont *font; 
   char *name; 
-  const char *v24; 
-  float fmt; 
+  const char *v15; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  v9 = scrPlace;
-  __asm { vmovaps xmm6, xmm0 }
-  v12 = printMode == VISIONSET_PRINT_ARTIST_FRIENDLY;
-  if ( (unsigned int)(printMode - 1) > 1 )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 396, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported printMode, %d", printMode);
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( v12 )
+  if ( (unsigned int)(printMode - 1) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 396, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported printMode, %d", printMode) )
+    __debugbreak();
+  if ( weight == 0.0 )
   {
     color = &colorDkCyan;
   }
   else
   {
-    __asm { vucomiss xmm6, cs:__real@3f800000 }
     color = &colorCyan;
-    if ( !v12 )
+    if ( weight != 1.0 )
       color = &colorYellow;
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@42c80000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
   }
   font = cls.smallDevFont;
   name = "---";
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm4
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
   if ( node->name[0] )
     name = node->name;
-  v24 = j_va("%s (%d%%)", name, scrPlace);
-  __asm { vmovss  xmm3, cs:__real@3f19999a; xScale }
-  _RBX = y;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]; x
-    vmovss  dword ptr [rsp+68h+fmt], xmm3
-  }
-  CG_DrawDevString(v9, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v24, color, 5, font);
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm0, xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-  }
+  v15 = j_va("%s (%d%%)", name, (unsigned int)(int)*(float *)&_XMM4);
+  *y = (float)CG_DrawDevString(scrPlace, (float)(6 * level) + *x, *y, 0.60000002, 0.60000002, v15, color, 5, font) + *y;
 }
 
 /*
@@ -1261,104 +1113,69 @@ CG_VisionSetDebugDrawMinimalDepthFirstPrint
 
 void __fastcall CG_VisionSetDebugDrawMinimalDepthFirstPrint(double weight, const ClientVisionSetData *cvsData, const int time, const ScreenPlacement *scrPlace, float *x, float *y, const visionSetVarsBase_t *node, int level, visionSetPrintMode_t printMode)
 {
-  const ScreenPlacement *v18; 
+  __int128 v11; 
+  const ScreenPlacement *v12; 
   visionSetBlend_t *visionBlends; 
-  visionSetPrintMode_t v22; 
-  visionSetBlend_t *v24; 
+  visionSetPrintMode_t v16; 
+  visionSetBlend_t *v17; 
+  double Lerp; 
   const visionSetVarsBase_t *Child; 
-  bool v27; 
-  const visionSetVarsBase_t *v28; 
-  bool v29; 
-  char v30; 
-  int v32; 
-  const visionSetVarsBase_t *v33; 
-  void *retaddr; 
+  bool v20; 
+  const visionSetVarsBase_t *v21; 
+  bool v22; 
+  int v23; 
+  const visionSetVarsBase_t *v24; 
+  __int128 v25; 
 
-  _RAX = &retaddr;
-  __asm
+  v11 = *(_OWORD *)&weight;
+  if ( *(float *)&weight != 0.0 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm0, xmm8
-    vmovaps xmm7, xmm0
-  }
-  v18 = scrPlace;
-  visionBlends = cvsData->archived.visionBlends;
-  v22 = printMode;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm9, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-38h], xmm6
-  }
-  while ( node >= visionBlends )
-  {
-    v24 = &cvsData->archived.visionBlends[23];
-    if ( node > &cvsData->archived.visionBlends[23] )
-      break;
-    weight = CG_VisionSetGetLerp((const visionSetBlend_t *)node, time);
-    __asm { vmovaps xmm6, xmm0 }
-    Child = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1]);
-    v27 = Child < visionBlends || Child > v24;
-    v28 = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1].r_primaryLightTweakDiffuseStrength + 1);
-    v29 = v28 == visionBlends;
-    if ( v28 < visionBlends || (v29 = v28 == v24, v28 > v24) )
+    v12 = scrPlace;
+    visionBlends = cvsData->archived.visionBlends;
+    v16 = printMode;
+    while ( 1 )
     {
-      v30 = 1;
-    }
-    else
-    {
-      v30 = 0;
-      v29 = 1;
-    }
-    __asm { vucomiss xmm6, xmm8 }
-    if ( !v29 )
-    {
-      __asm { vucomiss xmm6, xmm9 }
-      if ( !v29 )
+      if ( node < visionBlends || (v17 = &cvsData->archived.visionBlends[23], node > &cvsData->archived.visionBlends[23]) )
       {
-        if ( !v27 && !v30 )
-          goto LABEL_21;
-        v27 = 1;
-LABEL_20:
-        __asm { vmovaps xmm0, xmm7; weight }
-        CG_VisionSetDebugDrawNode(*(float *)&_XMM0, (const visionSetBlend_t *)node, time, scrPlace, x, y, level, printMode);
-        goto LABEL_21;
+        CG_VisionSetDebugDrawLeaf(*(float *)&v11, (const visionSetVars_t *)node, v12, x, y, level, v16);
+        return;
       }
-      v27 = v30;
-    }
-    if ( v27 )
-      goto LABEL_20;
+      Lerp = CG_VisionSetGetLerp((const visionSetBlend_t *)node, time);
+      Child = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1]);
+      v20 = Child < visionBlends || Child > v17;
+      v21 = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1].r_primaryLightTweakDiffuseStrength + 1);
+      v22 = v21 < visionBlends || v21 > v17;
+      if ( *(float *)&Lerp == 0.0 )
+        goto LABEL_16;
+      if ( *(float *)&Lerp == 1.0 )
+        break;
+      if ( v20 || v22 )
+      {
+        v20 = 1;
 LABEL_21:
-    v32 = level + 1;
-    if ( !v27 )
-      v32 = level;
-    level = v32;
-    v33 = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1].r_primaryLightTweakDiffuseStrength + 1);
-    v22 = printMode;
-    v18 = scrPlace;
-    __asm { vmulss  xmm0, xmm6, xmm7; weight }
-    CG_VisionSetDebugDrawMinimalDepthFirstPrint(*(float *)&_XMM0, cvsData, time, scrPlace, x, y, v33, level, printMode);
-    __asm
-    {
-      vsubss  xmm0, xmm9, xmm6
-      vmulss  xmm7, xmm7, xmm0
-      vucomiss xmm7, xmm8
+        CG_VisionSetDebugDrawNode(*(float *)&v11, (const visionSetBlend_t *)node, time, scrPlace, x, y, level, printMode);
+      }
+LABEL_22:
+      v23 = level + 1;
+      if ( !v20 )
+        v23 = level;
+      level = v23;
+      v24 = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1].r_primaryLightTweakDiffuseStrength + 1);
+      v16 = printMode;
+      v12 = scrPlace;
+      CG_VisionSetDebugDrawMinimalDepthFirstPrint(*(float *)&Lerp * *(float *)&v11, cvsData, time, scrPlace, x, y, v24, level, printMode);
+      v25 = v11;
+      *(float *)&v25 = *(float *)&v11 * (float)(1.0 - *(float *)&Lerp);
+      v11 = v25;
+      node = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1]);
+      if ( *(float *)&v25 == 0.0 )
+        return;
     }
-    node = CG_VisionSet_GetChild(cvsData, (const visionSetBlend_t::ChildRef *)&node[1]);
-    if ( v29 )
-      goto LABEL_26;
-  }
-  __asm { vmovaps xmm0, xmm7; weight }
-  CG_VisionSetDebugDrawLeaf(*(double *)&_XMM0, (const visionSetVars_t *)node, v18, x, y, level, v22);
-LABEL_26:
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_38]
-    vmovaps xmm9, [rsp+0C8h+var_68]
-    vmovaps xmm7, [rsp+0C8h+var_48]
-    vmovaps xmm8, [rsp+0C8h+var_58]
+    v20 = v22;
+LABEL_16:
+    if ( v20 )
+      goto LABEL_21;
+    goto LABEL_22;
   }
 }
 
@@ -1367,71 +1184,22 @@ LABEL_26:
 CG_VisionSetDebugDrawNode
 ==============
 */
-
-void __fastcall CG_VisionSetDebugDrawNode(double weight, const visionSetBlend_t *node, __int64 time, const ScreenPlacement *scrPlace, float *x, float *y, int level, visionSetPrintMode_t printMode)
+void CG_VisionSetDebugDrawNode(float weight, const visionSetBlend_t *node, const int time, const ScreenPlacement *scrPlace, float *x, float *y, int level, visionSetPrintMode_t printMode)
 {
-  bool v13; 
-  bool v14; 
   const vec4_t *color; 
   GfxFont *font; 
-  const char *v24; 
-  float fmt; 
+  const char *v14; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
-  v13 = printMode == VISIONSET_PRINT_ARTIST_FRIENDLY;
-  if ( (unsigned int)(printMode - 1) > 1 )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 383, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported printMode, %d", printMode);
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
+  if ( (unsigned int)(printMode - 1) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 383, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported printMode, %d", printMode) )
+    __debugbreak();
   color = &colorDkGrey;
-  if ( !v13 )
+  if ( weight != 0.0 )
     color = &colorLtGrey;
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@42c80000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-  }
   font = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm4
-  }
-  v24 = j_va("%s Blender (%d%%)", node->name, time);
-  __asm { vmovss  xmm3, cs:__real@3f19999a; xScale }
-  _RDI = y;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vaddss  xmm1, xmm0, dword ptr [rcx]; x
-    vmovss  dword ptr [rsp+68h+fmt], xmm3
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v24, color, 5, font);
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm0, xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  v14 = j_va("%s Blender (%d%%)", node->name, (unsigned int)(int)*(float *)&_XMM4);
+  *y = (float)CG_DrawDevString(scrPlace, (float)(6 * level) + *x, *y, 0.60000002, 0.60000002, v14, color, 5, font) + *y;
 }
 
 /*
@@ -1441,191 +1209,99 @@ CG_VisionSetDebugDrawRootContents
 */
 void CG_VisionSetDebugDrawRootContents(const ClientVisionSetData *cvsData, const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  int v18; 
+  visionSetBlend_t *visionBlends; 
+  float v8; 
+  int v9; 
   unsigned __int16 *p_offset; 
   const char *UnobfuscatedName; 
-  int v22; 
-  const char *v23; 
+  int v12; 
+  const char *v13; 
   GfxFont *font; 
   const char *s; 
-  char *v43; 
-  __int64 v44; 
-  char v45; 
+  char *v16; 
+  __int64 v17; 
+  unsigned __int8 v18; 
   const char *AssetName; 
-  float fmt; 
-  char *fmta; 
-  char *fmtb; 
-  float fmtc; 
-  int v64; 
-  unsigned __int16 *v65; 
-  visionSetBlend_t *visionBlends; 
+  int v20; 
+  unsigned __int16 *v21; 
+  visionSetBlend_t *v22; 
   char dest[64]; 
-  char v68[1024]; 
-  char v69; 
-  void *retaddr; 
+  char v24[1024]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
-  _RDI = cvsData->archived.visionBlends;
   visionBlends = cvsData->archived.visionBlends;
-  _RBP = y;
-  _R12 = x;
+  v22 = cvsData->archived.visionBlends;
   if ( !s_CG_VisionSet.m_wasReset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 555, ASSERT_TYPE_ASSERT, "(s_CG_VisionSet.m_wasReset)", (const char *)&queryFormat, "s_CG_VisionSet.m_wasReset") )
     __debugbreak();
-  if ( _RDI->assetTableResetCounter != s_CG_VisionSet.m_resetCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 556, ASSERT_TYPE_ASSERT, "(root->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", (const char *)&queryFormat, "root->assetTableResetCounter == s_CG_VisionSet.m_resetCounter") )
+  if ( visionBlends->assetTableResetCounter != s_CG_VisionSet.m_resetCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 556, ASSERT_TYPE_ASSERT, "(root->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", (const char *)&queryFormat, "root->assetTableResetCounter == s_CG_VisionSet.m_resetCounter") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbp+0]
-    vmovss  xmm9, cs:__real@43480000
-    vmovss  xmm6, cs:__real@3ef5c290
-    vmovss  xmm7, cs:__real@3ec8c8ca
-  }
-  v18 = 0;
+  v8 = *y;
+  v9 = 0;
   p_offset = &visionDefFields[0].offset;
-  v64 = 0;
-  v65 = &visionDefFields[0].offset;
+  v20 = 0;
+  v21 = &visionDefFields[0].offset;
   do
   {
-    if ( v18 > 0 && v18 == 62 * (v18 / 0x3Eu) )
+    if ( v9 > 0 && v9 == 62 * (v9 / 0x3Eu) )
     {
-      __asm
-      {
-        vaddss  xmm1, xmm9, dword ptr [r12]
-        vmovss  dword ptr [r12], xmm1
-        vmovss  dword ptr [rbp+0], xmm8
-      }
+      *x = *x + 200.0;
+      *y = v8;
     }
     UnobfuscatedName = Dvar_DevGetUnobfuscatedName(*((const char **)p_offset - 1));
-    v22 = *((_DWORD *)p_offset + 1);
-    switch ( v22 )
+    v12 = *((_DWORD *)p_offset + 1);
+    switch ( v12 )
     {
       case 0:
-        v23 = "false";
+        v13 = "false";
         font = cls.smallDevFont;
-        if ( *((_BYTE *)&_RDI->r_primaryLightTweakDiffuseStrength + *p_offset) )
-          v23 = "true";
-        s = j_va("%s = %s\n", UnobfuscatedName, v23);
+        if ( *((_BYTE *)&visionBlends->r_primaryLightTweakDiffuseStrength + *p_offset) )
+          v13 = "true";
+        s = j_va("%s = %s\n", UnobfuscatedName, v13);
         goto LABEL_15;
       case 1:
-        _RAX = *p_offset;
         font = cls.smallDevFont;
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rax+rdi]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovq   r8, xmm2
-        }
-        s = j_va("%s = %.5f\n", UnobfuscatedName, _R8);
+        s = j_va("%s = %.5f\n", UnobfuscatedName, *(float *)((char *)&visionBlends->r_primaryLightTweakDiffuseStrength + *p_offset));
 LABEL_15:
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbp+0]; y
-          vmovss  xmm1, dword ptr [r12]; x
-          vmovaps xmm3, xmm6; xScale
-          vmovss  dword ptr [rsp+548h+fmt], xmm6
-        }
-        CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, s, &colorCyan, 5, font);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vaddss  xmm0, xmm0, dword ptr [rbp+0]
-          vmovss  dword ptr [rbp+0], xmm0
-        }
+        *y = (float)CG_DrawDevString(scrPlace, *x, *y, 0.48000002, 0.48000002, s, &colorCyan, 5, font) + *y;
         goto LABEL_30;
       case 2:
-        _RAX = *p_offset;
         font = cls.smallDevFont;
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rax+rdi+4]
-          vmovss  xmm2, dword ptr [rax+rdi]
-          vmovss  xmm0, dword ptr [rax+rdi+8]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovsd  [rsp+548h+fmt], xmm0
-        }
-        s = j_va("%s = %.2f %.2f %.2f\n", UnobfuscatedName, _R8, _R9, fmta);
+        s = j_va("%s = %.2f %.2f %.2f\n", UnobfuscatedName, *(float *)((char *)&visionBlends->r_primaryLightTweakDiffuseStrength + *p_offset), *(float *)((char *)&visionBlends->r_primaryLightTweakSpecularStrength + *p_offset), *(float *)((char *)visionBlends->r_charLightAmbient.v + *p_offset));
         goto LABEL_15;
     }
-    if ( (unsigned int)(v22 - 3) <= 2 )
+    if ( (unsigned int)(v12 - 3) <= 2 )
     {
       Com_sprintf(dest, 0x40ui64, "%s = ", UnobfuscatedName);
-      v43 = (char *)_RDI + *p_offset;
-      v44 = 0i64;
+      v16 = (char *)visionBlends + *p_offset;
+      v17 = 0i64;
       do
       {
-        v45 = v43[2 * v44 + 1];
-        if ( !v45 )
+        v18 = v16[2 * v17 + 1];
+        if ( !v18 )
           break;
-        AssetName = CG_VisionSetGetAssetName((const CG_VisionSet_Asset *)&s_CG_VisionSet.m_assetNodes[16 * (unsigned __int8)v43[2 * v44] - 4080]);
-        if ( v45 == -1 )
-        {
-          Com_sprintf(v68, 0x400ui64, "%s%s\n", dest, AssetName);
-        }
+        AssetName = CG_VisionSetGetAssetName((const CG_VisionSet_Asset *)&s_CG_VisionSet.m_assetNodes[16 * (unsigned __int8)v16[2 * v17] - 4080]);
+        if ( v18 == 0xFF )
+          Com_sprintf(v24, 0x400ui64, "%s%s\n", dest, AssetName);
         else
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm7
-            vcvtss2sd xmm2, xmm1, xmm1
-            vmovsd  [rsp+548h+fmt], xmm2
-          }
-          Com_sprintf(v68, 0x400ui64, "%s%4.1f%% %s\n", dest, *(double *)&fmtb, AssetName);
-        }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbp+0]; y
-          vmovss  xmm1, dword ptr [r12]; x
-          vmovaps xmm3, xmm6; xScale
-          vmovss  dword ptr [rsp+548h+fmt], xmm6
-        }
-        CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v68, &colorCyan, 5, cls.smallDevFont);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vaddss  xmm0, xmm0, dword ptr [rbp+0]
-        }
-        v44 = (unsigned int)(v44 + 1);
-        __asm { vmovss  dword ptr [rbp+0], xmm0 }
+          Com_sprintf(v24, 0x400ui64, "%s%4.1f%% %s\n", dest, (float)((float)v18 * 0.3921569), AssetName);
+        v17 = (unsigned int)(v17 + 1);
+        *y = (float)CG_DrawDevString(scrPlace, *x, *y, 0.48000002, 0.48000002, v24, &colorCyan, 5, cls.smallDevFont) + *y;
       }
-      while ( (_DWORD)v44 != 9 );
-      v18 = v64;
-      p_offset = v65;
-      _RDI = visionBlends;
+      while ( (_DWORD)v17 != 9 );
+      v9 = v20;
+      p_offset = v21;
+      visionBlends = v22;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 621, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown field type") )
     {
       __debugbreak();
     }
 LABEL_30:
-    ++v18;
+    ++v9;
     p_offset += 20;
-    v64 = v18;
-    v65 = p_offset;
+    v20 = v9;
+    v21 = p_offset;
   }
-  while ( v18 < 218 );
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
+  while ( v9 < 218 );
 }
 
 /*
@@ -1635,438 +1311,193 @@ CG_VisionSetDebugHdrValues
 */
 void CG_VisionSetDebugHdrValues(const ClientVisionSetData *cvsData, const ScreenPlacement *scrPlace, float *x, float *y, const GfxWorld *gfxWorld)
 {
-  const char *v16; 
-  const char *v17; 
-  char v22; 
-  bool v23; 
-  char v65; 
-  char v66; 
+  __int128 v5; 
+  __int128 v6; 
+  GfxLight *v11; 
+  double SunGameIntensity; 
+  const char *v13; 
+  const char *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float sunIntensityOverride; 
+  float v20; 
+  float v21; 
+  float v22; 
+  int v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  bool v27; 
+  bool v28; 
+  float v29; 
+  float v30; 
   GfxFont *font; 
-  const char *v81; 
+  const char *v32; 
   GfxFont *smallDevFont; 
-  const char *v93; 
-  GfxFont *v100; 
-  const char *v103; 
-  const char *v118; 
-  int v127; 
-  __int64 v128; 
+  const char *v34; 
+  GfxFont *v35; 
+  const char *v36; 
+  int v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  int v41; 
+  const char *v42; 
+  float v43; 
+  int v44; 
+  __int64 v45; 
   unsigned __int8 m_weight; 
   unsigned __int8 m_assetIndex; 
   const char *AssetName; 
-  char *v132; 
-  float fmt; 
-  char *fmta; 
-  float fmtb; 
-  char *fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  float fmtl; 
-  float fmtm; 
-  float fmtn; 
-  char *sa; 
+  char *v49; 
   char *s; 
-  vec4_t *colora; 
-  vec4_t *color; 
   vec3_t outSunColorGammaSrgb; 
-  char v160[64]; 
+  char v52[64]; 
   char dest[1024]; 
-  void *retaddr; 
+  __int128 v54; 
+  __int128 v55; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm8
-  }
-  _RDI = y;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm6 }
-  _R15 = x;
-  _R13 = cvsData;
+  v55 = v5;
   if ( !gfxWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 798, ASSERT_TYPE_ASSERT, "(gfxWorld)", (const char *)&queryFormat, "gfxWorld") )
     __debugbreak();
-  _RBX = &gfxWorld->primaryLights[frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex].stageInfo.activeStage.sunPrimaryLightIndex];
+  v11 = &gfxWorld->primaryLights[frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex].stageInfo.activeStage.sunPrimaryLightIndex];
   if ( R_LightTweak_Enabled() )
   {
     R_LightTweak_GetSunColorGammaSrgb(&outSunColorGammaSrgb);
-    *(double *)&_XMM0 = R_LightTweak_GetSunGameIntensity();
-    v16 = " (light_tweak)";
-    v17 = " (light_tweak)";
-    __asm { vmovaps xmm6, xmm0 }
+    SunGameIntensity = R_LightTweak_GetSunGameIntensity();
+    v13 = " (light_tweak)";
+    v14 = " (light_tweak)";
+    v15 = *(float *)&SunGameIntensity;
   }
   else
   {
-    v16 = " (script)";
-    __asm { vmovaps [rsp+538h+var_88], xmm13 }
+    v13 = " (script)";
+    v54 = v6;
     if ( rg.useSunColorLinearSrgbOverride )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride; r_globals_t rg
-        vmovss  xmm7, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+4; r_globals_t rg
-        vmovss  xmm6, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+8; r_globals_t rg
-        vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb], xmm0
-        vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb+4], xmm7
-      }
-      v17 = " (script)";
+      v16 = rg.sunColorLinearSrgbOverride.v[0];
+      v17 = rg.sunColorLinearSrgbOverride.v[1];
+      v18 = rg.sunColorLinearSrgbOverride.v[2];
+      outSunColorGammaSrgb.v[0] = rg.sunColorLinearSrgbOverride.v[0];
+      outSunColorGammaSrgb.v[1] = rg.sunColorLinearSrgbOverride.v[1];
+      v14 = " (script)";
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+14h]; X
-        vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb], xmm0
-        vmovss  xmm7, dword ptr [rbx+18h]
-        vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb+4], xmm7
-        vmovss  xmm6, dword ptr [rbx+1Ch]
-      }
-      v17 = (char *)&queryFormat.fmt + 3;
+      v16 = v11->colorLinearSrgb.v[0];
+      outSunColorGammaSrgb.v[0] = v16;
+      v17 = v11->colorLinearSrgb.v[1];
+      outSunColorGammaSrgb.v[1] = v17;
+      v18 = v11->colorLinearSrgb.v[2];
+      v14 = (char *)&queryFormat.fmt + 3;
     }
-    v22 = 0;
-    v23 = !rg.useSunIntensityOverride;
-    __asm { vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb+8], xmm6 }
+    outSunColorGammaSrgb.v[2] = v18;
     if ( rg.useSunIntensityOverride )
     {
-      __asm { vmovss  xmm13, cs:?rg@@3Ur_globals_t@@A.sunIntensityOverride; r_globals_t rg }
+      sunIntensityOverride = rg.sunIntensityOverride;
     }
     else
     {
-      __asm { vmovss  xmm13, dword ptr [rbx+10h] }
-      v16 = (char *)&queryFormat.fmt + 3;
+      sunIntensityOverride = v11->intensity;
+      v13 = (char *)&queryFormat.fmt + 3;
     }
-    __asm
-    {
-      vcomiss xmm0, cs:__real@3b4d2e1c
-      vmovss  xmm8, cs:__real@414eb852
-    }
-    if ( rg.useSunIntensityOverride )
-    {
-      __asm { vmovss  xmm1, cs:__real@3ed55555; Y }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f870a3d
-        vsubss  xmm1, xmm1, cs:__real@3d6147ae
-      }
-    }
+    if ( v16 > 0.0031308001 )
+      v20 = (float)(powf_0(v16, 0.41666666) * 1.0549999) - 0.055;
     else
-    {
-      __asm { vmulss  xmm1, xmm0, xmm8 }
-    }
-    __asm
-    {
-      vcomiss xmm7, cs:__real@3b4d2e1c
-      vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb], xmm1
-    }
-    if ( v22 | v23 )
-    {
-      __asm { vmulss  xmm0, xmm7, xmm8 }
-    }
+      v20 = v16 * 12.92;
+    outSunColorGammaSrgb.v[0] = v20;
+    if ( v17 > 0.0031308001 )
+      v21 = (float)(powf_0(v17, 0.41666666) * 1.0549999) - 0.055;
     else
-    {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3ed55555; Y
-        vmovaps xmm0, xmm7; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f870a3d
-        vsubss  xmm0, xmm1, cs:__real@3d6147ae
-      }
-    }
-    __asm
-    {
-      vcomiss xmm6, cs:__real@3b4d2e1c
-      vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb+4], xmm0
-    }
-    if ( v22 | v23 )
-    {
-      __asm { vmulss  xmm0, xmm6, xmm8 }
-    }
+      v21 = v17 * 12.92;
+    outSunColorGammaSrgb.v[1] = v21;
+    if ( v18 > 0.0031308001 )
+      v22 = (float)(powf_0(v18, 0.41666666) * 1.0549999) - 0.055;
     else
-    {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3ed55555; Y
-        vmovaps xmm0, xmm6; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f870a3d
-        vsubss  xmm0, xmm1, cs:__real@3d6147ae
-      }
-    }
-    __asm
-    {
-      vmulss  xmm6, xmm13, cs:__real@40490fdb
-      vmovaps xmm13, [rsp+538h+var_88]
-      vmovss  dword ptr [rsp+538h+outSunColorGammaSrgb+8], xmm0
-    }
+      v22 = v18 * 12.92;
+    v15 = sunIntensityOverride * 3.1415927;
+    outSunColorGammaSrgb.v[2] = v22;
   }
-  __asm
+  v23 = CG_DrawDevString(scrPlace, *x, *y, 0.60000002, 0.60000002, "Sunlight:", &colorWhite, 5, cls.smallDevFont);
+  v24 = outSunColorGammaSrgb.v[2];
+  v25 = outSunColorGammaSrgb.v[1];
+  *y = (float)v23 + *y;
+  Com_sprintf(dest, 0x400ui64, "color%s: %g %g %g", v14, outSunColorGammaSrgb.v[0], v25, v24);
+  *y = (float)CG_DrawDevString(scrPlace, *x + 6.0, *y, 0.60000002, 0.60000002, dest, &colorWhite, 5, cls.smallDevFont) + *y;
+  Com_sprintf(dest, 0x400ui64, "intensity%s: %g ", v13, v15);
+  v26 = (float)CG_DrawDevString(scrPlace, *x + 6.0, *y, 0.60000002, 0.60000002, dest, &colorWhite, 5, cls.smallDevFont) + *y;
+  *y = v26;
+  v27 = cvsData->archived.visionBlends[0].tonemapAuto > 0.5;
+  v28 = cvsData->archived.visionBlends[0].tonemapAutoExposureAdjustCurve > 0.5;
+  v29 = (float)CG_DrawDevString(scrPlace, *x, v26, 0.60000002, 0.60000002, "Exposure:", &colorWhite, 5, cls.smallDevFont) + *y;
+  *y = v29;
+  v30 = *x + 6.0;
+  if ( v27 )
   {
-    vmovss  xmm7, cs:__real@3f19999a
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; xScale
-    vmovss  dword ptr [rsp+538h+fmt], xmm7
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, "Sunlight:", &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+538h+outSunColorGammaSrgb+8]
-    vmovss  xmm2, dword ptr [rsp+538h+outSunColorGammaSrgb+4]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm0, xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rsp+538h+outSunColorGammaSrgb]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+538h+color], xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+538h+s], xmm2
-    vmovsd  [rsp+538h+fmt], xmm0
-  }
-  Com_sprintf(dest, 0x400ui64, "color%s: %g %g %g", v17, *(double *)&fmta, *(double *)&sa, *(double *)&colora);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@40c00000
-    vaddss  xmm1, xmm8, dword ptr [r15]; x
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovaps xmm3, xmm7; xScale
-    vmovss  dword ptr [rsp+538h+fmt], xmm7
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, dest, &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm0, xmm0, dword ptr [rdi]
-    vcvtss2sd xmm1, xmm6, xmm6
-    vmovss  dword ptr [rdi], xmm0
-    vmovsd  [rsp+538h+fmt], xmm1
-  }
-  Com_sprintf(dest, 0x400ui64, "intensity%s: %g ", v16, *(double *)&fmtc);
-  __asm
-  {
-    vaddss  xmm1, xmm8, dword ptr [r15]; x
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovaps xmm3, xmm7; xScale
-    vmovss  dword ptr [rsp+538h+fmt], xmm7
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, dest, &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm2, xmm0, dword ptr [rdi]; y
-    vmovss  dword ptr [rdi], xmm2
-    vcomiss xmm1, dword ptr [r13+76A4h]
-  }
-  v65 = v22;
-  __asm { vcomiss xmm1, dword ptr [r13+76A8h] }
-  v66 = v22;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; xScale
-    vmovss  dword ptr [rsp+538h+fmt], xmm7
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, "Exposure:", &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm2, xmm0, dword ptr [rdi]; y
-    vmovss  dword ptr [rdi], xmm2
-    vaddss  xmm1, xmm8, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; xScale
-  }
-  if ( v65 )
-  {
-    __asm { vmovss  dword ptr [rsp+538h+fmt], xmm7 }
-    CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, "Enabled", &colorGreen, 5, cls.smallDevFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm0, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [r13+76B4h]
-    }
+    *y = (float)CG_DrawDevString(scrPlace, v30, v29, 0.60000002, 0.60000002, "Enabled", &colorGreen, 5, cls.smallDevFont) + *y;
     font = cls.smallDevFont;
-    __asm
-    {
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v81 = j_va("Min exposure: %f", _RDX);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@41400000
-      vaddss  xmm1, xmm6, dword ptr [r15]; x
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovaps xmm3, xmm7; xScale
-      vmovss  dword ptr [rsp+538h+fmt], xmm7
-    }
-    CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, v81, &colorWhite, 5, font);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm0, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [r13+76B8h]
-    }
+    v32 = j_va("Min exposure: %f", cvsData->archived.visionBlends[0].tonemapMaxExposure);
+    *y = (float)CG_DrawDevString(scrPlace, *x + 12.0, *y, 0.60000002, 0.60000002, v32, &colorWhite, 5, font) + *y;
     smallDevFont = cls.smallDevFont;
-    __asm
-    {
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v93 = j_va("Exposure Adjust: %f", _RDX);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [r15]; x
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovaps xmm3, xmm7; xScale
-      vmovss  dword ptr [rsp+538h+fmt], xmm7
-    }
-    CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmth, v93, &colorWhite, 5, smallDevFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm0, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [r13+76BCh]
-    }
-    v100 = cls.smallDevFont;
-    __asm
-    {
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v103 = j_va("Exposure Adapt Speed: %f", _RDX);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [r15]; x
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovaps xmm3, xmm7; xScale
-      vmovss  dword ptr [rsp+538h+fmt], xmm7
-    }
-    CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmti, v103, &colorWhite, 5, v100);
+    v34 = j_va("Exposure Adjust: %f", cvsData->archived.visionBlends[0].tonemapExposureAdjust);
+    *y = (float)CG_DrawDevString(scrPlace, *x + 12.0, *y, 0.60000002, 0.60000002, v34, &colorWhite, 5, smallDevFont) + *y;
+    v35 = cls.smallDevFont;
+    v36 = j_va("Exposure Adapt Speed: %f", cvsData->archived.visionBlends[0].tonemapAdaptSpeed);
+    v37 = CG_DrawDevString(scrPlace, *x + 12.0, *y, 0.60000002, 0.60000002, v36, &colorWhite, 5, v35);
   }
   else
   {
-    __asm { vmovss  dword ptr [rsp+538h+fmt], xmm7 }
-    CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtj, "Disabled", &colorRed, 5, cls.smallDevFont);
+    v37 = CG_DrawDevString(scrPlace, v30, v29, 0.60000002, 0.60000002, "Disabled", &colorRed, 5, cls.smallDevFont);
   }
-  __asm
+  v38 = (float)v37 + *y;
+  *y = v38;
+  v39 = (float)CG_DrawDevString(scrPlace, *x, v38, 0.60000002, 0.60000002, "Exposure Adjust:", &colorWhite, 5, cls.smallDevFont) + *y;
+  *y = v39;
+  v40 = *x + 6.0;
+  if ( !v28 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm2, xmm0, dword ptr [rdi]; y
-    vmovss  dword ptr [rdi], xmm2
-    vmovss  xmm1, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; xScale
-    vmovss  dword ptr [rsp+538h+fmt], xmm7
+    v42 = "Disabled";
+    goto LABEL_30;
   }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtk, "Exposure Adjust:", &colorWhite, 5, cls.smallDevFont);
-  __asm
+  if ( !v27 )
   {
-    vmovaps xmm6, [rsp+538h+var_58]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm2, xmm0, dword ptr [rdi]; y
-    vmovss  dword ptr [rdi], xmm2
-    vaddss  xmm1, xmm8, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; xScale
+    v42 = "Enabled, but autoExposure is disabled rendering this non-functional";
+LABEL_30:
+    v41 = CG_DrawDevString(scrPlace, v40, v39, 0.60000002, 0.60000002, v42, &colorRed, 5, cls.smallDevFont);
+    goto LABEL_31;
   }
-  if ( v66 )
-  {
-    color = &colorGreen;
-    v118 = "Enabled";
-  }
-  else
-  {
-    v118 = "Disabled";
-    color = &colorRed;
-  }
-  __asm { vmovss  dword ptr [rsp+538h+fmt], xmm7 }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtl, v118, color, 5, cls.smallDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm2, xmm0, dword ptr [rdi]; y
-    vmovss  dword ptr [rdi], xmm2
-    vmovss  xmm1, dword ptr [r15]; x
-    vmovaps xmm3, xmm7; xScale
-    vmovss  dword ptr [rsp+538h+fmt], xmm7
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtm, "CLUTs:", &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm1
-  }
-  v127 = Com_sprintf(v160, 0x40ui64, "clut0: ");
-  v128 = 0i64;
+  v41 = CG_DrawDevString(scrPlace, v40, v39, 0.60000002, 0.60000002, "Enabled", &colorGreen, 5, cls.smallDevFont);
+LABEL_31:
+  v43 = (float)v41 + *y;
+  *y = v43;
+  *y = (float)CG_DrawDevString(scrPlace, *x, v43, 0.60000002, 0.60000002, "CLUTs:", &colorWhite, 5, cls.smallDevFont) + *y;
+  v44 = Com_sprintf(v52, 0x40ui64, "clut0: ");
+  v45 = 0i64;
   do
   {
-    m_weight = _R13->archived.visionBlends[0].clutSet.m_assets[v128].m_weight;
+    m_weight = cvsData->archived.visionBlends[0].clutSet.m_assets[v45].m_weight;
     if ( !m_weight )
       break;
-    m_assetIndex = _R13->archived.visionBlends[0].clutSet.m_assets[v128].m_assetIndex;
+    m_assetIndex = cvsData->archived.visionBlends[0].clutSet.m_assets[v45].m_assetIndex;
     AssetName = CG_VisionSetGetAssetName((const CG_VisionSet_Asset *)&s_CG_VisionSet.m_assetNodes[16 * m_assetIndex - 4080]);
-    v132 = v160;
+    v49 = v52;
     if ( m_assetIndex )
-      v132 = (char *)&queryFormat.fmt + 3;
+      v49 = (char *)&queryFormat.fmt + 3;
     if ( m_weight == 0xFF )
     {
-      Com_sprintf(dest, 0x400ui64, "%*s%s\n", v127, v132, AssetName);
+      Com_sprintf(dest, 0x400ui64, "%*s%s\n", v44, v49, AssetName);
     }
     else
     {
       LODWORD(s) = (100 * (unsigned int)m_weight + 127) / 0xFF;
-      Com_sprintf(dest, 0x400ui64, "%*s%3d%% %s\n", v127, v132, s, AssetName);
+      Com_sprintf(dest, 0x400ui64, "%*s%3d%% %s\n", v44, v49, s, AssetName);
     }
-    __asm
-    {
-      vaddss  xmm1, xmm8, dword ptr [r15]; x
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovaps xmm3, xmm7; xScale
-      vmovss  dword ptr [rsp+538h+fmt], xmm7
-    }
-    CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtn, dest, &colorWhite, 5, cls.smallDevFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-    }
-    v128 = (unsigned int)(v128 + 1);
-    __asm { vmovss  dword ptr [rdi], xmm1 }
+    v45 = (unsigned int)(v45 + 1);
+    *y = (float)CG_DrawDevString(scrPlace, *x + 6.0, *y, 0.60000002, 0.60000002, dest, &colorWhite, 5, cls.smallDevFont) + *y;
   }
-  while ( (_DWORD)v128 != 9 );
-  __asm
-  {
-    vmovaps xmm7, [rsp+538h+var_68]
-    vmovaps xmm8, [rsp+538h+var_78]
-  }
+  while ( (_DWORD)v45 != 9 );
 }
 
 /*
@@ -2080,6 +1511,7 @@ char CG_VisionSetDebugResult(const LocalClientNum_t localClientNum, char *buffer
   visField_t *v7; 
   visionSetBlend_t *visionBlends; 
   VisionFieldType fieldType; 
+  float *v10; 
   int v11; 
   __int64 v12; 
   unsigned __int8 v13; 
@@ -2087,10 +1519,6 @@ char CG_VisionSetDebugResult(const LocalClientNum_t localClientNum, char *buffer
   int v15; 
   int v16; 
   char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  double v29; 
-  double v30; 
 
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
@@ -2104,10 +1532,10 @@ char CG_VisionSetDebugResult(const LocalClientNum_t localClientNum, char *buffer
       while ( 1 )
       {
         fieldType = v7->fieldType;
-        _RSI = (unsigned __int8 *)visionBlends + v7->offset;
+        v10 = (float *)((char *)&visionBlends->r_primaryLightTweakDiffuseStrength + v7->offset);
         if ( fieldType == FTYPE_BOOL )
         {
-          LODWORD(fmt) = *_RSI;
+          LODWORD(fmt) = *(unsigned __int8 *)v10;
           v16 = Com_sprintf(buffer, length, "%s \"%d\"\n", v7->name, fmt);
           goto LABEL_21;
         }
@@ -2115,19 +1543,7 @@ char CG_VisionSetDebugResult(const LocalClientNum_t localClientNum, char *buffer
           break;
         if ( fieldType == FTYPE_VEC3 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+8]
-            vmovss  xmm1, dword ptr [rsi+4]
-            vmovss  xmm2, dword ptr [rsi]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+68h+var_38], xmm0
-            vcvtss2sd xmm1, xmm1, xmm1
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovsd  [rsp+68h+var_40], xmm1
-            vmovsd  [rsp+68h+fmt], xmm2
-          }
-          v16 = Com_sprintf(buffer, length, "%s \"%g %g %g\"\n", v7->name, *(double *)&fmta, v29, v30);
+          v16 = Com_sprintf(buffer, length, "%s \"%g %g %g\"\n", v7->name, *v10, v10[1], v10[2]);
 LABEL_21:
           buffer += v16;
           length -= v16;
@@ -2141,9 +1557,9 @@ LABEL_21:
           v12 = 0i64;
           do
           {
-            if ( !_RSI[2 * v12 + 1] )
+            if ( !*((_BYTE *)v10 + 2 * v12 + 1) )
               break;
-            v13 = _RSI[2 * v12];
+            v13 = *((_BYTE *)v10 + 2 * v12);
             v14 = v13 ? CG_VisionSetGetAssetName((const CG_VisionSet_Asset *)&s_CG_VisionSet.m_assetNodes[16 * v13 - 4080]) : (char *)&queryFormat.fmt + 3;
             v15 = Com_sprintf(buffer, length, " \"%s\"", v14);
             length -= v15;
@@ -2158,13 +1574,7 @@ LABEL_22:
         if ( (__int64)++v7 >= (__int64)visionDefFieldsNotInUse )
           return 1;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+68h+fmt], xmm0
-      }
-      v16 = Com_sprintf(buffer, length, "%s \"%g\"\n", v7->name, fmtb);
+      v16 = Com_sprintf(buffer, length, "%s \"%g\"\n", v7->name, *v10);
       goto LABEL_21;
     }
   }
@@ -2290,36 +1700,39 @@ CG_VisionSetFromScript
 */
 void CG_VisionSetFromScript(const LocalClientNum_t localClientNum, const visionSetMode_t visMode, const visionSetCodeLeafType_t leaf, const char *name, const int duration)
 {
-  __int64 v9; 
+  __int64 v7; 
   cg_t *LocalClientGlobals; 
-  cg_t *v12; 
-  char v14; 
-  __int64 v16; 
-  int v28; 
+  cg_t *v10; 
+  double Lerp; 
+  visionSetVars_t *v12; 
+  __int64 v13; 
+  visionSetBlend_t *v14; 
+  __int128 v15; 
+  int v16; 
 
-  v9 = (unsigned int)visMode;
+  v7 = (unsigned int)visMode;
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 2562, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v12 = LocalClientGlobals;
-  if ( (_DWORD)v9 )
+  v10 = LocalClientGlobals;
+  if ( (_DWORD)v7 )
   {
-    if ( (_DWORD)v9 == 5 )
+    if ( (_DWORD)v7 == 5 )
     {
       if ( *name )
       {
         CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_FADE_BLACK, name);
-        v28 = 1;
+        v16 = 1;
       }
       else
       {
-        v28 = 0;
+        v16 = 0;
       }
-      CG_VisionSetRegisterBlendStart(&v12->cvsData, VISIONSET_BLENDTYPE_FADE_BLACK, v12->time, duration, v28, VISIONSETLERP_SMOOTH);
+      CG_VisionSetRegisterBlendStart(&v10->cvsData, VISIONSET_BLENDTYPE_FADE_BLACK, v10->time, duration, v16, VISIONSETLERP_SMOOTH);
     }
-    else if ( CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, leaf, name) && (_DWORD)v9 == 6 )
+    else if ( CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, leaf, name) && (_DWORD)v7 == 6 )
     {
-      v12->hasKillcamThirdpersonVisionSet = 1;
+      v10->hasKillcamThirdpersonVisionSet = 1;
     }
   }
   else
@@ -2327,61 +1740,41 @@ void CG_VisionSetFromScript(const LocalClientNum_t localClientNum, const visionS
     if ( *name )
     {
       CG_VisionSetUpdateToNode(&LocalClientGlobals->cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_CT_B);
-      *(double *)&_XMM0 = CG_VisionSetGetLerp(&v12->cvsData.archived.visionBlends[16], v12->time);
-      __asm
+      Lerp = CG_VisionSetGetLerp(&v10->cvsData.archived.visionBlends[16], v10->time);
+      if ( *(float *)&Lerp == 0.0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm0, xmm1
+        *(_QWORD *)v10->cvsData.archived.visionBlends[21].inUse.array = v7;
+        *(_QWORD *)&v10->cvsData.archived.visionBlends[21].inUse.array[2] = v7;
+        *(_QWORD *)&v10->cvsData.archived.visionBlends[21].inUse.array[4] = v7;
+        v10->cvsData.archived.visionBlends[21].inUse.array[6] = 0;
       }
-      if ( v14 )
-      {
-        *(_QWORD *)v12->cvsData.archived.visionBlends[21].inUse.array = v9;
-        *(_QWORD *)&v12->cvsData.archived.visionBlends[21].inUse.array[2] = v9;
-        *(_QWORD *)&v12->cvsData.archived.visionBlends[21].inUse.array[4] = v9;
-        v12->cvsData.archived.visionBlends[21].inUse.array[6] = 0;
-      }
-      _RCX = &v12->cvsData.archived.visionLeaves[23];
-      v16 = 9i64;
-      _RDX = &v12->cvsData.archived.visionBlends[21];
+      v12 = &v10->cvsData.archived.visionLeaves[23];
+      v13 = 9i64;
+      v14 = &v10->cvsData.archived.visionBlends[21];
       do
       {
-        _RCX = (visionSetVars_t *)((char *)_RCX + 128);
-        __asm { vmovups xmm0, xmmword ptr [rdx] }
-        _RDX = (visionSetBlend_t *)((char *)_RDX + 128);
-        __asm
-        {
-          vmovups xmmword ptr [rcx-80h], xmm0
-          vmovups xmm1, xmmword ptr [rdx-70h]
-          vmovups xmmword ptr [rcx-70h], xmm1
-          vmovups xmm0, xmmword ptr [rdx-60h]
-          vmovups xmmword ptr [rcx-60h], xmm0
-          vmovups xmm1, xmmword ptr [rdx-50h]
-          vmovups xmmword ptr [rcx-50h], xmm1
-          vmovups xmm0, xmmword ptr [rdx-40h]
-          vmovups xmmword ptr [rcx-40h], xmm0
-          vmovups xmm1, xmmword ptr [rdx-30h]
-          vmovups xmmword ptr [rcx-30h], xmm1
-          vmovups xmm0, xmmword ptr [rdx-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmm1, xmmword ptr [rdx-10h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v16;
+        v12 = (visionSetVars_t *)((char *)v12 + 128);
+        v15 = *(_OWORD *)&v14->r_primaryLightTweakDiffuseStrength;
+        v14 = (visionSetBlend_t *)((char *)v14 + 128);
+        *(_OWORD *)v12[-1].hdrColorizeGain.v = v15;
+        *(_OWORD *)&v12[-1].name[4] = *(_OWORD *)&v14[-1].name[28];
+        *(_OWORD *)&v12[-1].name[20] = *(_OWORD *)&v14[-1].name[44];
+        *(_OWORD *)&v12[-1].name[36] = *(_OWORD *)&v14[-1].name[60];
+        *(_OWORD *)&v12[-1].name[52] = *(_OWORD *)&v14[-1].inUse.array[3];
+        *(_OWORD *)&v12[-1].inUse.array[1] = *(_OWORD *)&v14[-1].decalVolumeDrawDistance;
+        *(_OWORD *)&v12[-1].inUse.array[5] = *(_OWORD *)&v14[-1].dummy2;
+        *(_OWORD *)&v12[-1].scopedNVG = *(_OWORD *)&v14[-1].lerpInfo.style;
+        --v13;
       }
-      while ( v16 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rdx+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-      }
-      *(_QWORD *)&_RCX->r_viewModelLightAmbient.y = *(_QWORD *)&_RDX->r_viewModelLightAmbient.y;
-      _RCX->r_lightTweakUVIntensityScale = _RDX->r_lightTweakUVIntensityScale;
-      CG_VisionSetRegisterLeafByFile(&v12->cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, name);
-      CG_VisionSetRegisterBlendStart(&v12->cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, v12->time, duration, 1, VISIONSETLERP_SMOOTH);
+      while ( v13 );
+      *(_OWORD *)&v12->r_primaryLightTweakDiffuseStrength = *(_OWORD *)&v14->r_primaryLightTweakDiffuseStrength;
+      *(_OWORD *)&v12->r_charLightAmbient.z = *(_OWORD *)&v14->r_charLightAmbient.z;
+      *(_QWORD *)&v12->r_viewModelLightAmbient.y = *(_QWORD *)&v14->r_viewModelLightAmbient.y;
+      v12->r_lightTweakUVIntensityScale = v14->r_lightTweakUVIntensityScale;
+      CG_VisionSetRegisterLeafByFile(&v10->cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, name);
+      CG_VisionSetRegisterBlendStart(&v10->cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, v10->time, duration, 1, VISIONSETLERP_SMOOTH);
     }
-    CG_VisionSetScriptOverride(&v12->cvsData, name, v12->time, duration);
+    CG_VisionSetScriptOverride(&v10->cvsData, name, v10->time, duration);
   }
 }
 
@@ -2393,30 +1786,19 @@ CG_VisionSetGetLerp
 float CG_VisionSetGetLerp(const visionSetBlend_t *blend, const int time)
 {
   visionBlendType_t type; 
-  const visionSetBlend_t *v6; 
+  int duration; 
+  double v5; 
 
   type = blend->lerpInfo.type;
-  v6 = blend;
   if ( type == VISIONSETBLENDTYPE_TIME )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    if ( blend->lerpInfo.timeData.duration > 0 )
+    duration = blend->lerpInfo.timeData.duration;
+    LODWORD(v5) = 0;
+    if ( duration > 0 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edx
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm0, xmm1, xmm0; val
-        vmovaps [rsp+48h+var_18], xmm6
-        vmovss  xmm6, cs:__real@3f800000
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm6; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      if ( !v6->lerpInfo.timeData.forward )
-        __asm { vsubss  xmm0, xmm6, xmm0 }
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
+      v5 = I_fclamp((float)(time - blend->lerpInfo.timeData.startTime) / (float)duration, 0.0, 1.0);
+      if ( !blend->lerpInfo.timeData.forward )
+        *(float *)&v5 = 1.0 - *(float *)&v5;
     }
   }
   else
@@ -2427,18 +1809,18 @@ float CG_VisionSetGetLerp(const visionSetBlend_t *blend, const int time)
       {
         if ( type == VISIONSETBLENDTYPE_ON )
         {
-          __asm { vmovss  xmm0, cs:__real@3f800000 }
-          return *(float *)&_XMM0;
+          *(float *)&v5 = FLOAT_1_0;
+          return *(float *)&v5;
         }
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 368, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_VisionSetGetLerp found an unsupported blend type %d", blend->lerpInfo.type) )
           __debugbreak();
       }
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      return *(float *)&_XMM0;
+      LODWORD(v5) = 0;
+      return *(float *)&v5;
     }
-    __asm { vmovss  xmm0, dword ptr [rcx+4B8h] }
+    LODWORD(v5) = blend->lerpInfo.timeData.startTime;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&v5;
 }
 
 /*
@@ -2479,35 +1861,31 @@ CG_VisionSetIsComplete
 */
 _BOOL8 CG_VisionSetIsComplete(ClientVisionSetData *cvsData, const visionSetCodeBlendType_t blend, const int time)
 {
-  __int64 v8; 
-  char v9; 
-  __int64 v12; 
+  __int64 v6; 
+  double v7; 
+  double Lerp; 
+  _BOOL8 result; 
+  __int64 v10; 
 
   if ( !cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1204, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
   if ( (unsigned __int8)blend >= VISIONSET_BLENDTYPE_COUNT )
   {
-    LODWORD(v12) = (unsigned __int8)blend;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1205, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v12, 24) )
+    LODWORD(v10) = (unsigned __int8)blend;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1205, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v10, 24) )
       __debugbreak();
   }
-  v8 = (unsigned __int8)blend;
-  if ( CG_VisionSetForward(cvsData, blend) )
+  v6 = (unsigned __int8)blend;
+  result = 1;
+  if ( !CG_VisionSetForward(cvsData, blend) || (v7 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[v6], time), *(float *)&v7 != 1.0) )
   {
-    *(double *)&_XMM0 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[v8], time);
-    __asm { vucomiss xmm0, cs:__real@3f800000 }
-    if ( v9 )
-      return 1i64;
+    if ( CG_VisionSetForward(cvsData, blend) )
+      return 0;
+    Lerp = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[v6], time);
+    if ( *(float *)&Lerp != 0.0 )
+      return 0;
   }
-  if ( CG_VisionSetForward(cvsData, blend) )
-    return 0i64;
-  *(double *)&_XMM0 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[v8], time);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  return v9 != 0;
+  return result;
 }
 
 /*
@@ -2567,261 +1945,194 @@ __int64 CG_VisionSetIsLeafDifferent(ClientVisionSetData *cvsData, const visionSe
 CG_VisionSetLerp
 ==============
 */
-
-void __fastcall CG_VisionSetLerp(const visionSetVarsBase_t *a, const visionSetVarsBase_t *b, double lerp, const visionSetLerpStyle_t style, visionSetVarsBase_t *result)
+void CG_VisionSetLerp(const visionSetVarsBase_t *a, const visionSetVarsBase_t *b, float lerp, const visionSetLerpStyle_t style, visionSetVarsBase_t *result)
 {
-  const visionSetVarsBase_t *v10; 
-  const visionSetVarsBase_t *v11; 
+  const visionSetVarsBase_t *v5; 
+  const visionSetVarsBase_t *v6; 
   unsigned int m_resetCounter; 
-  unsigned int v20; 
+  double v8; 
+  float v9; 
+  unsigned int v10; 
   VisionFieldType *p_fieldType; 
-  unsigned __int64 v22; 
-  unsigned int v23; 
-  int v24; 
-  int v25; 
+  unsigned __int64 v12; 
+  unsigned int v13; 
+  int v14; 
+  int v15; 
+  __int64 v16; 
+  const float *v17; 
+  float *v18; 
+  const float *v19; 
+  VisionFieldType v20; 
+  float v21; 
+  float v22; 
+  char v23; 
+  char v24; 
+  __int64 v25; 
   __int64 v26; 
-  VisionFieldType v30; 
-  char v51; 
-  char v52; 
-  __int64 v56; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v59; 
-  void *retaddr; 
+  __int64 v27; 
+  __int64 v28; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v10 = b;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  v11 = a;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmm6, xmm2
-  }
+  v5 = b;
+  v6 = a;
   if ( !a && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1492, ASSERT_TYPE_ASSERT, "(a)", (const char *)&queryFormat, "a") )
     __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1493, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1493, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
     __debugbreak();
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1494, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   if ( !s_CG_VisionSet.m_wasReset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1496, ASSERT_TYPE_ASSERT, "(s_CG_VisionSet.m_wasReset)", (const char *)&queryFormat, "s_CG_VisionSet.m_wasReset") )
     __debugbreak();
   m_resetCounter = s_CG_VisionSet.m_resetCounter;
-  if ( v11->assetTableResetCounter != s_CG_VisionSet.m_resetCounter )
+  if ( v6->assetTableResetCounter != s_CG_VisionSet.m_resetCounter )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1497, ASSERT_TYPE_ASSERT, "(a->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", "%s\n\ta->assetTableResetCounter=%d, s_CG_VisionSet.m_resetCounter=%d", "a->assetTableResetCounter == s_CG_VisionSet.m_resetCounter", v11->assetTableResetCounter, s_CG_VisionSet.m_resetCounter) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1497, ASSERT_TYPE_ASSERT, "(a->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", "%s\n\ta->assetTableResetCounter=%d, s_CG_VisionSet.m_resetCounter=%d", "a->assetTableResetCounter == s_CG_VisionSet.m_resetCounter", v6->assetTableResetCounter, s_CG_VisionSet.m_resetCounter) )
       __debugbreak();
     m_resetCounter = s_CG_VisionSet.m_resetCounter;
   }
-  if ( v10->assetTableResetCounter != m_resetCounter )
+  if ( v5->assetTableResetCounter != m_resetCounter )
   {
-    LODWORD(v58) = m_resetCounter;
-    LODWORD(v57) = v10->assetTableResetCounter;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1498, ASSERT_TYPE_ASSERT, "(b->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", "%s\n\tb->assetTableResetCounter=%d, s_CG_VisionSet.m_resetCounter=%d", "b->assetTableResetCounter == s_CG_VisionSet.m_resetCounter", v57, v58) )
+    LODWORD(v27) = m_resetCounter;
+    LODWORD(v26) = v5->assetTableResetCounter;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1498, ASSERT_TYPE_ASSERT, "(b->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", "%s\n\tb->assetTableResetCounter=%d, s_CG_VisionSet.m_resetCounter=%d", "b->assetTableResetCounter == s_CG_VisionSet.m_resetCounter", v26, v27) )
       __debugbreak();
     m_resetCounter = s_CG_VisionSet.m_resetCounter;
-  }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm6; val
   }
   result->assetTableResetCounter = m_resetCounter;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
-  v20 = 0;
+  v8 = I_fclamp(lerp, 0.0, 1.0);
+  v9 = *(float *)&v8;
+  v10 = 0;
   p_fieldType = &visionDefFields[0].fieldType;
   while ( 1 )
   {
-    if ( v20 >= 0xE0 )
+    if ( v10 >= 0xE0 )
     {
-      LODWORD(v57) = 224;
-      LODWORD(v56) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v56, v57) )
+      LODWORD(v26) = 224;
+      LODWORD(v25) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v25, v26) )
         __debugbreak();
     }
-    v22 = (unsigned __int64)v20 >> 5;
-    v23 = 0x80000000 >> (v20 & 0x1F);
-    v24 = v23 & v11->inUse.array[v22];
-    if ( v20 >= 0xE0 )
+    v12 = (unsigned __int64)v10 >> 5;
+    v13 = 0x80000000 >> (v10 & 0x1F);
+    v14 = v13 & v6->inUse.array[v12];
+    if ( v10 >= 0xE0 )
     {
-      LODWORD(v57) = 224;
-      LODWORD(v56) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v56, v57) )
+      LODWORD(v26) = 224;
+      LODWORD(v25) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v25, v26) )
         __debugbreak();
     }
-    v25 = v23 & v10->inUse.array[v22];
-    if ( v24 || v25 )
+    v15 = v13 & v5->inUse.array[v12];
+    if ( v14 || v15 )
     {
-      bitarray_base<bitarray<224>>::setBit(&result->inUse, v20);
-      v26 = *((unsigned __int16 *)p_fieldType - 2);
-      _R14 = (char *)v11 + v26;
-      _RBX = (char *)result + v26;
-      _RDI = (char *)b + v26;
-      v30 = *p_fieldType;
+      bitarray_base<bitarray<224>>::setBit(&result->inUse, v10);
+      v16 = *((unsigned __int16 *)p_fieldType - 2);
+      v17 = (const float *)((char *)&v6->r_primaryLightTweakDiffuseStrength + v16);
+      v18 = (float *)((char *)&result->r_primaryLightTweakDiffuseStrength + v16);
+      v19 = (const float *)((char *)&b->r_primaryLightTweakDiffuseStrength + v16);
+      v20 = *p_fieldType;
       if ( *p_fieldType )
       {
-        if ( v30 != FTYPE_FLOAT )
+        if ( v20 != FTYPE_FLOAT )
         {
-          if ( v30 == FTYPE_VEC3 )
+          if ( v20 == FTYPE_VEC3 )
           {
-            if ( v24 )
+            if ( v14 )
             {
-              if ( v25 )
+              if ( v15 )
               {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [rdi]; to
-                  vmovss  xmm0, dword ptr [r14]; from
-                  vmovaps xmm2, xmm6; lerp
-                }
-                *(float *)&_XMM0 = CG_VisionSetLerpFloat(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, style);
-                __asm
-                {
-                  vmovss  dword ptr [rbx], xmm0
-                  vmovss  xmm1, dword ptr [rdi+4]; to
-                  vmovss  xmm0, dword ptr [r14+4]; from
-                  vmovaps xmm2, xmm6; lerp
-                }
-                *(float *)&_XMM0 = CG_VisionSetLerpFloat(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, style);
-                __asm
-                {
-                  vmovss  dword ptr [rbx+4], xmm0
-                  vmovss  xmm1, dword ptr [rdi+8]; to
-                  vmovss  xmm0, dword ptr [r14+8]; from
-                  vmovaps xmm2, xmm6; lerp
-                }
-                *(float *)&_XMM0 = CG_VisionSetLerpFloat(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, style);
-                __asm { vmovss  dword ptr [rbx+8], xmm0 }
+                *v18 = CG_VisionSetLerpFloat(*v17, *v19, v9, style);
+                v18[1] = CG_VisionSetLerpFloat(v17[1], v19[1], v9, style);
+                v18[2] = CG_VisionSetLerpFloat(v17[2], v19[2], v9, style);
               }
               else
               {
-                *(_DWORD *)_RBX = *(_DWORD *)_R14;
-                *((_DWORD *)_RBX + 1) = *((_DWORD *)_R14 + 1);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [r14+8]
-                  vmovss  dword ptr [rbx+8], xmm0
-                }
+                *v18 = *v17;
+                v18[1] = v17[1];
+                v18[2] = v17[2];
               }
             }
             else
             {
-              *(_DWORD *)_RBX = *(_DWORD *)_RDI;
-              *((_DWORD *)_RBX + 1) = *((_DWORD *)_RDI + 1);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+8]
-                vmovss  dword ptr [rbx+8], xmm0
-              }
+              *v18 = *v19;
+              v18[1] = v19[1];
+              v18[2] = v19[2];
             }
           }
           else
           {
-            if ( (unsigned int)(v30 - 3) > 2 )
+            if ( (unsigned int)(v20 - 3) > 2 )
             {
               CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1577, ASSERT_TYPE_ASSERT, "(( 0, ( 0 ) ))", (const char *)&queryFormat, "C4127_DISABLE( 0 )");
               __debugbreak();
             }
-            if ( v24 )
+            if ( v14 )
             {
-              if ( v25 )
+              if ( v15 )
               {
-                __asm
-                {
-                  vmovaps xmm2, xmm6; lerp
-                  vmovaps xmm1, xmm7; to
-                  vmovaps xmm0, xmm8; from
-                }
-                *(float *)&_XMM0 = CG_VisionSetLerpFloat(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, style);
-                __asm { vmovaps xmm2, xmm0; t }
-                CG_VisionSetLerpAssetBlendSet((const CG_VisionSet_AssetBlendSet *)_R14, (const CG_VisionSet_AssetBlendSet *)_RDI, *(float *)&_XMM2, (CG_VisionSet_AssetBlendSet *)_RBX);
+                v21 = CG_VisionSetLerpFloat(0.0, 1.0, v9, style);
+                CG_VisionSetLerpAssetBlendSet((const CG_VisionSet_AssetBlendSet *)v17, (const CG_VisionSet_AssetBlendSet *)v19, v21, (CG_VisionSet_AssetBlendSet *)v18);
               }
               else
               {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r14]
-                  vmovups xmmword ptr [rbx], xmm0
-                }
-                *((_WORD *)_RBX + 8) = *((_WORD *)_R14 + 8);
+                *(_OWORD *)v18 = *(_OWORD *)v17;
+                *((_WORD *)v18 + 8) = *((_WORD *)v17 + 8);
               }
             }
             else
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rdi]
-                vmovups xmmword ptr [rbx], xmm0
-              }
-              *((_WORD *)_RBX + 8) = *((_WORD *)_RDI + 8);
+              *(_OWORD *)v18 = *(_OWORD *)v19;
+              *((_WORD *)v18 + 8) = *((_WORD *)v19 + 8);
             }
           }
           goto LABEL_58;
         }
-        __asm
+        v22 = *v17;
+        if ( v14 )
         {
-          vmovss  xmm0, dword ptr [r14]; from
-          vmovss  xmm1, dword ptr [rdi]; to
-        }
-        if ( v24 )
-        {
-          if ( v25 )
+          if ( v15 )
           {
-            __asm { vmovaps xmm2, xmm6; lerp }
-            *(float *)&_XMM0 = CG_VisionSetLerpFloat(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, style);
-            __asm { vmovss  dword ptr [rbx], xmm0 }
+            *v18 = CG_VisionSetLerpFloat(v22, *v19, v9, style);
             goto LABEL_58;
           }
         }
         else
         {
-          __asm { vmovaps xmm0, xmm1 }
+          v22 = *v19;
         }
-        __asm { vmovss  dword ptr [rbx], xmm0 }
+        *v18 = v22;
         goto LABEL_58;
       }
-      v51 = *_R14;
-      v52 = *_RDI;
-      if ( v24 )
+      v23 = *(_BYTE *)v17;
+      v24 = *(_BYTE *)v19;
+      if ( v14 )
       {
-        if ( !v25 )
+        if ( !v15 )
         {
-          *_RBX = v51;
+          *(_BYTE *)v18 = v23;
           goto LABEL_58;
         }
-        if ( v52 || v51 )
-          v52 = 1;
+        if ( v24 || v23 )
+          v24 = 1;
       }
-      *_RBX = v52;
+      *(_BYTE *)v18 = v24;
 LABEL_58:
-      v11 = a;
+      v6 = a;
       goto LABEL_59;
     }
-    if ( v20 >= 0xE0 )
+    if ( v10 >= 0xE0 )
     {
-      LODWORD(v59) = 224;
-      LODWORD(v58) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v58, v59) )
+      LODWORD(v28) = 224;
+      LODWORD(v27) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v27, v28) )
         __debugbreak();
     }
-    result->inUse.array[v22] &= ~v23;
+    result->inUse.array[v12] &= ~v13;
 LABEL_59:
-    ++v20;
+    ++v10;
     p_fieldType += 10;
-    if ( (int)v20 >= 218 )
+    if ( (int)v10 >= 218 )
       break;
-    v10 = b;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_68]
+    v5 = b;
   }
 }
 
@@ -2830,362 +2141,325 @@ LABEL_59:
 CG_VisionSetLerpAssetBlendSet
 ==============
 */
-
-void __fastcall CG_VisionSetLerpAssetBlendSet(const CG_VisionSet_AssetBlendSet *fromAssetBlendSet, const CG_VisionSet_AssetBlendSet *toAssetBlendSet, double t, CG_VisionSet_AssetBlendSet *outAssetBlendSet)
+void CG_VisionSetLerpAssetBlendSet(const CG_VisionSet_AssetBlendSet *fromAssetBlendSet, const CG_VisionSet_AssetBlendSet *toAssetBlendSet, float t, CG_VisionSet_AssetBlendSet *outAssetBlendSet)
 {
-  bool v12; 
-  int v17; 
-  int v18; 
-  __int64 v19; 
-  unsigned int v21; 
-  int v22; 
-  int v23; 
-  unsigned __int8 *v25; 
-  unsigned __int8 *v26; 
-  unsigned __int8 v27; 
-  unsigned __int8 v28; 
-  unsigned __int8 v29; 
-  unsigned int v35; 
-  unsigned int v38; 
-  unsigned int v39; 
-  unsigned int v42; 
-  bool v45; 
+  bool v7; 
+  float v8; 
+  float v9; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  unsigned int v14; 
+  int v15; 
+  int v16; 
+  __int128 v17; 
+  unsigned __int8 *v18; 
+  unsigned __int8 *v19; 
+  unsigned __int8 v20; 
+  unsigned __int8 v21; 
+  unsigned __int8 v22; 
+  unsigned __int8 v23; 
+  float v24; 
+  __int64 v25; 
+  __int128 v26; 
+  unsigned int v27; 
+  float v28; 
+  char v29; 
+  unsigned int v30; 
+  unsigned int v31; 
+  unsigned int v32; 
+  unsigned int v33; 
+  float v34; 
+  __int64 v37; 
+  char v38; 
+  char v39; 
+  unsigned int v40; 
+  float v41; 
+  int v42; 
+  __int128 v43; 
+  unsigned int v44; 
+  unsigned int v45; 
+  unsigned int v46; 
+  unsigned int v47; 
   __int64 v48; 
-  char v49; 
-  char v52; 
-  unsigned int v53; 
-  unsigned int v59; 
-  unsigned int v60; 
-  int v61; 
-  __int64 v66; 
-  unsigned int v67; 
-  unsigned __int8 v68; 
-  unsigned __int8 v69; 
+  unsigned int v49; 
+  unsigned __int8 v50; 
+  unsigned __int8 v51; 
   unsigned __int8 m_weight; 
-  CG_VisionSet_AssetBlendSet *v71; 
-  CG_VisionSet_AssetBlendSet *v72; 
+  CG_VisionSet_AssetBlendSet *v53; 
+  CG_VisionSet_AssetBlendSet *v54; 
   unsigned __int8 m_assetIndex; 
-  CG_VisionSet_AssetBlendSet *v74; 
-  CG_VisionSet_AssetBlendSet *v75; 
-  CG_VisionSet_AssetBlendSet *v76; 
-  unsigned __int8 v77; 
-  CG_VisionSet_AssetBlendSet *v78; 
-  CG_VisionSet_AssetBlend v79; 
-  _QWORD v84[2]; 
-  _BYTE v85[81]; 
-  char v86; 
-  void *retaddr; 
+  CG_VisionSet_AssetBlendSet *v56; 
+  CG_VisionSet_AssetBlendSet *v57; 
+  CG_VisionSet_AssetBlendSet *v58; 
+  unsigned __int8 v59; 
+  CG_VisionSet_AssetBlendSet *v60; 
+  CG_VisionSet_AssetBlend v61; 
+  _QWORD v62[2]; 
+  float v63; 
+  float v64; 
+  char v65; 
+  char v66; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmm6, xmm2
-  }
   if ( (!fromAssetBlendSet->m_assets[0].m_weight || !toAssetBlendSet->m_assets[0].m_weight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1362, ASSERT_TYPE_ASSERT, "(fromAssetBlendSet->m_assets[0].m_weight && toAssetBlendSet->m_assets[0].m_weight)", (const char *)&queryFormat, "fromAssetBlendSet->m_assets[0].m_weight && toAssetBlendSet->m_assets[0].m_weight") )
     __debugbreak();
-  v12 = fromAssetBlendSet->m_assets[0].m_weight == 0;
-  __asm
+  v7 = fromAssetBlendSet->m_assets[0].m_weight == 0;
+  v8 = (float)(1.0 - t) * 0.0039215689;
+  v9 = t * 0.0039215689;
+  LOWORD(v62[0]) = 255;
+  if ( !v7 )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm7, xmm1, cs:__real@3b808081
-    vmulss  xmm6, xmm6, cs:__real@3b808081
-  }
-  LOWORD(v84[0]) = 255;
-  if ( !v12 )
-  {
-    v17 = 1;
-    while ( fromAssetBlendSet->m_assets[v17].m_weight )
+    v10 = 1;
+    while ( fromAssetBlendSet->m_assets[v10].m_weight )
     {
-      if ( fromAssetBlendSet->m_assets[v17 - 1].m_assetIndex >= fromAssetBlendSet->m_assets[v17].m_assetIndex )
+      if ( fromAssetBlendSet->m_assets[v10 - 1].m_assetIndex >= fromAssetBlendSet->m_assets[v10].m_assetIndex )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1375, ASSERT_TYPE_ASSERT, "(CG_VisionSet_AreAssetsSortedByIndex( fromAssetBlendSet->m_assets ))", (const char *)&queryFormat, "CG_VisionSet_AreAssetsSortedByIndex( fromAssetBlendSet->m_assets )", v84[0]) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1375, ASSERT_TYPE_ASSERT, "(CG_VisionSet_AreAssetsSortedByIndex( fromAssetBlendSet->m_assets ))", (const char *)&queryFormat, "CG_VisionSet_AreAssetsSortedByIndex( fromAssetBlendSet->m_assets )", v62[0]) )
           __debugbreak();
         break;
       }
-      if ( ++v17 == 9 )
+      if ( ++v10 == 9 )
         break;
     }
   }
   if ( toAssetBlendSet->m_assets[0].m_weight )
   {
-    v18 = 1;
-    while ( toAssetBlendSet->m_assets[v18].m_weight )
+    v11 = 1;
+    while ( toAssetBlendSet->m_assets[v11].m_weight )
     {
-      if ( toAssetBlendSet->m_assets[v18 - 1].m_assetIndex >= toAssetBlendSet->m_assets[v18].m_assetIndex )
+      if ( toAssetBlendSet->m_assets[v11 - 1].m_assetIndex >= toAssetBlendSet->m_assets[v11].m_assetIndex )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1376, ASSERT_TYPE_ASSERT, "(CG_VisionSet_AreAssetsSortedByIndex( toAssetBlendSet->m_assets ))", (const char *)&queryFormat, "CG_VisionSet_AreAssetsSortedByIndex( toAssetBlendSet->m_assets )") )
           __debugbreak();
         break;
       }
-      if ( ++v18 == 9 )
+      if ( ++v11 == 9 )
         break;
     }
   }
-  v19 = 0i64;
-  LODWORD(_RDI) = 0;
-  v21 = 0;
-  v22 = 0;
-  v23 = 0;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v12 = 0i64;
+  LODWORD(v13) = 0;
+  v14 = 0;
+  v15 = 0;
+  v16 = 0;
+  v17 = 0i64;
   while ( 1 )
   {
-    v25 = (unsigned __int8 *)(v22 == 9 ? v84 : &fromAssetBlendSet->m_assets[v22]);
-    v26 = (unsigned __int8 *)(v23 == 9 ? v84 : &toAssetBlendSet->m_assets[v23]);
-    v27 = v26[1];
-    if ( !v25[1] )
+    v18 = (unsigned __int8 *)(v15 == 9 ? v62 : &fromAssetBlendSet->m_assets[v15]);
+    v19 = (unsigned __int8 *)(v16 == 9 ? v62 : &toAssetBlendSet->m_assets[v16]);
+    v20 = v18[1];
+    v21 = v19[1];
+    if ( !v20 )
       break;
-    v28 = *v25;
+    v22 = *v18;
 LABEL_32:
-    v29 = -1;
-    if ( v27 )
-      v29 = *v26;
-    __asm
+    v23 = -1;
+    if ( v21 )
+      v23 = *v19;
+    v24 = (float)v20 * v8;
+    if ( v22 == v23 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm2, xmm0, xmm7
-      vmulss  xmm0, xmm1, xmm6
-    }
-    if ( v28 == v29 )
-    {
-      __asm { vaddss  xmm2, xmm0, xmm2 }
-      ++v22;
+      v24 = (float)((float)v21 * v9) + v24;
+      ++v15;
     }
     else
     {
-      if ( v28 < v29 )
+      if ( v22 < v23 )
       {
-        ++v22;
+        ++v15;
         goto LABEL_40;
       }
-      v28 = v29;
-      __asm { vmovaps xmm2, xmm0 }
+      v22 = v23;
+      v24 = (float)v21 * v9;
     }
-    ++v23;
+    ++v16;
 LABEL_40:
-    _RAX = (unsigned int)_RDI;
-    LODWORD(_RDI) = _RDI + 1;
-    __asm
-    {
-      vaddss  xmm8, xmm8, xmm2
-      vmovss  [rsp+rax*4+108h+var_C8], xmm2
-    }
-    v85[_RAX + 80] = v28;
-    v35 = v21 + 1;
-    if ( !v28 )
-      v35 = v21;
-    v21 = v35;
+    v25 = (unsigned int)v13;
+    LODWORD(v13) = v13 + 1;
+    v26 = v17;
+    *(float *)&v26 = *(float *)&v17 + v24;
+    v17 = v26;
+    *(&v63 + v25) = v24;
+    *(&v65 + v25) = v22;
+    v27 = v14 + 1;
+    if ( !v22 )
+      v27 = v14;
+    v14 = v27;
   }
-  if ( v27 )
+  if ( v21 )
   {
-    v28 = -1;
+    v22 = -1;
     goto LABEL_32;
   }
-  if ( !(_DWORD)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 124, ASSERT_TYPE_ASSERT, "(assetCount > 0)", (const char *)&queryFormat, "assetCount > 0") )
+  if ( !(_DWORD)v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 124, ASSERT_TYPE_ASSERT, "(assetCount > 0)", (const char *)&queryFormat, "assetCount > 0") )
     __debugbreak();
-  if ( (_DWORD)_RDI != 1 )
+  if ( (_DWORD)v13 != 1 )
   {
-    if ( (_DWORD)_RDI == 2 )
+    if ( (_DWORD)v13 == 2 )
     {
-      __asm
+      v28 = v63;
+      if ( v64 > v63 )
       {
-        vmovss  xmm0, [rsp+108h+var_C8]
-        vmovss  xmm1, [rsp+108h+var_C4]
-        vcomiss xmm1, xmm0
+        v29 = v65;
+        v65 = v66;
+        v66 = v29;
+        v63 = v64;
+        v64 = v28;
       }
     }
     else
     {
-      v38 = 0;
-      if ( (_DWORD)_RDI )
+      v30 = 0;
+      if ( (_DWORD)v13 )
       {
         do
         {
-          v39 = v38 + 1;
-          _R10 = v38;
-          LODWORD(_R8) = v38;
-          v42 = v38 + 1;
-          __asm
-          {
-            vmovss  xmm2, [rsp+r10*4+108h+var_C8]
-            vmovaps xmm1, xmm2
-          }
-          v45 = v38 + 1 <= (unsigned int)_RDI;
-          if ( v38 + 1 != (_DWORD)_RDI )
+          v31 = v30 + 1;
+          v32 = v30;
+          v33 = v30 + 1;
+          v34 = *(&v63 + v30);
+          *(float *)&_XMM1 = v34;
+          if ( v30 + 1 != (_DWORD)v13 )
           {
             do
             {
-              _RAX = v42;
-              __asm
-              {
-                vmovss  xmm0, [rsp+rax*4+108h+var_C8]
-                vcomiss xmm0, xmm1
-              }
-              v48 = v42;
-              if ( v45 )
-                v48 = (unsigned int)_R8;
-              ++v42;
-              _R8 = (unsigned int)v48;
+              _XMM0 = *((unsigned int *)&v63 + v33);
+              v37 = v33;
+              if ( *(float *)&_XMM0 <= *(float *)&_XMM1 )
+                v37 = v32;
+              ++v33;
+              v32 = v37;
               __asm { vmaxss  xmm1, xmm0, xmm1 }
-              v45 = v42 <= (unsigned int)_RDI;
             }
-            while ( v42 != (_DWORD)_RDI );
-            if ( (_DWORD)v48 != v38 )
+            while ( v33 != (_DWORD)v13 );
+            if ( (_DWORD)v37 != v30 )
             {
-              v49 = v85[v38 + 80];
-              v85[v38 + 80] = v85[v48 + 80];
-              *(_DWORD *)&v85[4 * v38] = *(_DWORD *)&v85[4 * (unsigned int)v48];
-              __asm { vmovss  [rsp+r8*4+108h+var_C8], xmm2 }
-              v85[(unsigned int)v48 + 80] = v49;
+              v38 = *(&v65 + v30);
+              *(&v65 + v30) = *(&v65 + v37);
+              *(&v63 + v30) = *(&v63 + (unsigned int)v37);
+              *(&v63 + (unsigned int)v37) = v34;
+              *(&v65 + (unsigned int)v37) = v38;
             }
           }
-          ++v38;
+          ++v30;
         }
-        while ( v39 != (_DWORD)_RDI );
+        while ( v31 != (_DWORD)v13 );
       }
     }
   }
-  __asm
+  if ( v14 > 8 )
   {
-    vmovss  xmm7, cs:__real@437f0000
-    vmovss  xmm6, cs:__real@3f000000
-  }
-  if ( v21 > 8 )
-  {
-    v52 = 0;
+    v39 = 0;
     do
     {
-      _RDI = (unsigned int)(_RDI - 1);
-      v53 = v21 - 1;
-      __asm { vmovss  xmm3, [rsp+rdi*4+108h+var_C8] }
-      if ( !v85[_RDI + 80] )
-        v53 = v21;
-      v21 = v53;
-      __asm
-      {
-        vmulss  xmm0, xmm3, xmm7
-        vdivss  xmm1, xmm0, xmm8
-        vaddss  xmm2, xmm1, xmm6
-        vcvttss2si rax, xmm2
-        vsubss  xmm8, xmm8, xmm3
-      }
-      if ( (_DWORD)_RAX )
-        v52 = 1;
+      v13 = (unsigned int)(v13 - 1);
+      v40 = v14 - 1;
+      v41 = *(&v63 + v13);
+      if ( !*(&v65 + v13) )
+        v40 = v14;
+      v14 = v40;
+      v42 = (int)(float)((float)((float)(v41 * 255.0) / *(float *)&v17) + 0.5);
+      v43 = v17;
+      *(float *)&v43 = *(float *)&v17 - v41;
+      v17 = v43;
+      if ( v42 )
+        v39 = 1;
     }
-    while ( v21 > 8 );
-    if ( v52 )
+    while ( v14 > 8 );
+    if ( v39 )
       R_WarnOncePerFrame(R_WARN_TOO_MANY_VISIONSET_ASSETS, 8i64);
   }
-  v59 = 255;
-  v60 = 0;
-  v61 = 0;
-  __asm { vdivss  xmm2, xmm7, xmm8 }
-  if ( (_DWORD)_RDI )
+  v44 = 255;
+  v45 = 0;
+  v46 = 0;
+  if ( (_DWORD)v13 )
   {
     do
     {
-      __asm
+      v47 = (int)(float)((float)((float)(255.0 / *(float *)&v17) * *(&v63 + v46)) + 0.5);
+      if ( v47 > v44 )
+        v47 = v44;
+      if ( v47 )
       {
-        vmulss  xmm0, xmm2, [rsp+rax*4+108h+var_C8]
-        vaddss  xmm1, xmm0, xmm6
-        vcvttss2si rdx, xmm1
+        v44 -= v47;
+        v48 = v45++;
+        outAssetBlendSet->m_assets[v48].m_assetIndex = *(&v65 + v46);
+        outAssetBlendSet->m_assets[v48].m_weight = v47;
       }
-      if ( (unsigned int)_RDX > v59 )
-        LODWORD(_RDX) = v59;
-      if ( (_DWORD)_RDX )
-      {
-        v59 -= _RDX;
-        v66 = v60++;
-        outAssetBlendSet->m_assets[v66].m_assetIndex = v85[v61 + 80];
-        outAssetBlendSet->m_assets[v66].m_weight = _RDX;
-      }
-      ++v61;
+      ++v46;
     }
-    while ( v61 != (_DWORD)_RDI );
+    while ( v46 != (_DWORD)v13 );
   }
-  for ( ; v59; v59 -= v67 )
+  for ( ; v44; v44 -= v49 )
   {
-    if ( (_DWORD)v19 == v60 )
+    if ( (_DWORD)v12 == v45 )
       break;
-    v67 = (v60 - (_DWORD)v19 + v59 - 1) / (v60 - (unsigned int)v19);
-    outAssetBlendSet->m_assets[v19].m_weight += v67;
-    v19 = (unsigned int)(v19 + 1);
+    v49 = (v45 - (_DWORD)v12 + v44 - 1) / (v45 - (unsigned int)v12);
+    outAssetBlendSet->m_assets[v12].m_weight += v49;
+    v12 = (unsigned int)(v12 + 1);
   }
-  if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 171, ASSERT_TYPE_ASSERT, "(assetCount > 0)", (const char *)&queryFormat, "assetCount > 0") )
+  if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 171, ASSERT_TYPE_ASSERT, "(assetCount > 0)", (const char *)&queryFormat, "assetCount > 0") )
     __debugbreak();
-  if ( v60 == 1 )
+  if ( v45 == 1 )
   {
-LABEL_92:
-    if ( v60 < 9 )
-      goto LABEL_93;
-    goto LABEL_94;
+LABEL_93:
+    if ( v45 < 9 )
+      goto LABEL_94;
+    return;
   }
-  if ( v60 != 2 )
+  if ( v45 != 2 )
   {
-    v71 = outAssetBlendSet;
-    v72 = (CG_VisionSet_AssetBlendSet *)((char *)outAssetBlendSet + 2 * v60);
-    if ( outAssetBlendSet != v72 )
+    v53 = outAssetBlendSet;
+    v54 = (CG_VisionSet_AssetBlendSet *)((char *)outAssetBlendSet + 2 * v45);
+    if ( outAssetBlendSet != v54 )
     {
       do
       {
-        m_assetIndex = v71->m_assets[0].m_assetIndex;
-        v74 = (CG_VisionSet_AssetBlendSet *)&v71->m_assets[1];
-        v75 = v71;
-        v76 = (CG_VisionSet_AssetBlendSet *)&v71->m_assets[1];
-        if ( &v71->m_assets[1] != (CG_VisionSet_AssetBlend *)v72 )
+        m_assetIndex = v53->m_assets[0].m_assetIndex;
+        v56 = (CG_VisionSet_AssetBlendSet *)&v53->m_assets[1];
+        v57 = v53;
+        v58 = (CG_VisionSet_AssetBlendSet *)&v53->m_assets[1];
+        if ( &v53->m_assets[1] != (CG_VisionSet_AssetBlend *)v54 )
         {
           do
           {
-            v77 = v76->m_assets[0].m_assetIndex;
-            v78 = v76;
-            if ( v76->m_assets[0].m_assetIndex >= m_assetIndex )
-              v78 = v75;
-            v76 = (CG_VisionSet_AssetBlendSet *)((char *)v76 + 2);
-            v75 = v78;
-            if ( v77 >= m_assetIndex )
-              v77 = m_assetIndex;
-            m_assetIndex = v77;
+            v59 = v58->m_assets[0].m_assetIndex;
+            v60 = v58;
+            if ( v58->m_assets[0].m_assetIndex >= m_assetIndex )
+              v60 = v57;
+            v58 = (CG_VisionSet_AssetBlendSet *)((char *)v58 + 2);
+            v57 = v60;
+            if ( v59 >= m_assetIndex )
+              v59 = m_assetIndex;
+            m_assetIndex = v59;
           }
-          while ( v76 != v72 );
-          if ( v78 != v71 )
+          while ( v58 != v54 );
+          if ( v60 != v53 )
           {
-            v79 = v71->m_assets[0];
-            v71->m_assets[0] = v75->m_assets[0];
-            v75->m_assets[0] = v79;
+            v61 = v53->m_assets[0];
+            v53->m_assets[0] = v57->m_assets[0];
+            v57->m_assets[0] = v61;
           }
         }
-        v71 = (CG_VisionSet_AssetBlendSet *)((char *)v71 + 2);
+        v53 = (CG_VisionSet_AssetBlendSet *)((char *)v53 + 2);
       }
-      while ( v74 != v72 );
+      while ( v56 != v54 );
     }
-    goto LABEL_92;
+    goto LABEL_93;
   }
-  v68 = outAssetBlendSet->m_assets[0].m_assetIndex;
-  v69 = outAssetBlendSet->m_assets[1].m_assetIndex;
+  v50 = outAssetBlendSet->m_assets[0].m_assetIndex;
+  v51 = outAssetBlendSet->m_assets[1].m_assetIndex;
   m_weight = outAssetBlendSet->m_assets[0].m_weight;
-  if ( v69 < outAssetBlendSet->m_assets[0].m_assetIndex )
+  if ( v51 < outAssetBlendSet->m_assets[0].m_assetIndex )
   {
-    outAssetBlendSet->m_assets[0].m_assetIndex = v69;
+    outAssetBlendSet->m_assets[0].m_assetIndex = v51;
     outAssetBlendSet->m_assets[0].m_weight = outAssetBlendSet->m_assets[1].m_weight;
-    outAssetBlendSet->m_assets[1].m_assetIndex = v68;
+    outAssetBlendSet->m_assets[1].m_assetIndex = v50;
     outAssetBlendSet->m_assets[1].m_weight = m_weight;
   }
-LABEL_93:
-  outAssetBlendSet->m_assets[v60].m_weight = 0;
 LABEL_94:
-  _R11 = &v86;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  outAssetBlendSet->m_assets[v45].m_weight = 0;
 }
 
 /*
@@ -3193,45 +2467,15 @@ LABEL_94:
 CG_VisionSetLerpFloat
 ==============
 */
-
-float __fastcall CG_VisionSetLerpFloat(double from, double to, double lerp, const visionSetLerpStyle_t style)
+float CG_VisionSetLerpFloat(const float from, const float to, const float lerp, const visionSetLerpStyle_t style)
 {
-  __asm
-  {
-    vmovaps xmm3, xmm2
-    vmovaps xmm5, xmm1
-    vmovaps xmm4, xmm0
-  }
   if ( style == VISIONSETLERP_LINEAR )
-  {
-    __asm
-    {
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm2
-      vaddss  xmm0, xmm2, xmm0
-    }
-  }
-  else if ( style )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1340, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported visionSetLerpStyle_t") )
-      __debugbreak();
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm3, cs:__real@40000000
-      vmovss  xmm0, cs:__real@40400000
-      vsubss  xmm2, xmm0, xmm1
-      vsubss  xmm0, xmm5, xmm4
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm3, xmm0
-      vaddss  xmm0, xmm2, xmm4
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)((float)(to - from) * lerp) + from;
+  if ( style == VISIONSETLERP_SMOOTH )
+    return (float)((float)((float)(3.0 - (float)(lerp * 2.0)) * (float)(lerp * lerp)) * (float)(to - from)) + from;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1340, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported visionSetLerpStyle_t") )
+    __debugbreak();
+  return 0.0;
 }
 
 /*
@@ -3247,8 +2491,12 @@ void CG_VisionSetLoadDefault(ClientVisionSetData *cvsData, const char *mapname)
   char v7; 
   __int64 v8; 
   char v9; 
+  __m256i *v10; 
   __int64 v11; 
-  __int64 v18; 
+  visionSetVars_t *v12; 
+  __m256i v13; 
+  __int128 v14; 
+  __int64 v15; 
   char dest[64]; 
 
   if ( !mapname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 2226, ASSERT_TYPE_ASSERT, "(mapname)", (const char *)&queryFormat, "mapname") )
@@ -3279,40 +2527,27 @@ void CG_VisionSetLoadDefault(ClientVisionSetData *cvsData, const char *mapname)
     }
   }
   while ( v7 );
-  _RDX = &cvsData->archived.visionLeaves[21];
+  v10 = (__m256i *)&cvsData->archived.visionLeaves[21];
   v11 = 9i64;
-  _R8 = &cvsData->archived.visionLeaves[20];
+  v12 = &cvsData->archived.visionLeaves[20];
   do
   {
-    _RDX = (visionSetVars_t *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r8]
-      vmovups xmm1, xmmword ptr [r8+70h]
-    }
-    _R8 = (visionSetVars_t *)((char *)_R8 + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [r8-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [r8-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [r8-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v10 += 4;
+    v13 = *(__m256i *)&v12->r_primaryLightTweakDiffuseStrength;
+    v14 = *(_OWORD *)&v12->volumetricOmniBrightness;
+    v12 = (visionSetVars_t *)((char *)v12 + 128);
+    v10[-4] = v13;
+    v10[-3] = *(__m256i *)&v12[-1].name[20];
+    v10[-2] = *(__m256i *)&v12[-1].name[52];
+    *(_OWORD *)v10[-1].m256i_i8 = *(_OWORD *)&v12[-1].inUse.array[5];
+    *(_OWORD *)&v10[-1].m256i_u64[2] = v14;
     --v11;
   }
   while ( v11 );
-  v18 = *(_QWORD *)&_R8->r_viewModelLightAmbient.y;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymmword ptr [rdx], ymm0
-  }
-  *(_QWORD *)&_RDX->r_viewModelLightAmbient.y = v18;
-  _RDX->r_lightTweakUVIntensityScale = _R8->r_lightTweakUVIntensityScale;
+  v15 = *(_QWORD *)&v12->r_viewModelLightAmbient.y;
+  *v10 = *(__m256i *)&v12->r_primaryLightTweakDiffuseStrength;
+  v10[1].m256i_i64[0] = v15;
+  v10[1].m256i_i32[2] = LODWORD(v12->r_lightTweakUVIntensityScale);
   cvsData->archived.visionBlends[17].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
   CG_VisionSetValidateIsComplete(cvsData, VISIONSET_LEAFTYPE_DEFAULT);
   CG_VisionSetDefaultAlternates(cvsData);
@@ -3453,56 +2688,44 @@ CG_VisionSetMergeBlendToLeaf
 void CG_VisionSetMergeBlendToLeaf(ClientVisionSetData *cvsData, const int time, const visionSetCodeBlendType_t blend, const visionSetCodeLeafType_t leaf)
 {
   __int64 v7; 
-  __int64 v20; 
-  __int64 v21; 
+  visionSetBlend_t *v8; 
+  visionSetVars_t *v9; 
+  __int128 v10; 
+  __int64 v11; 
+  __int64 v12; 
 
   if ( (unsigned __int8)leaf >= VISIONSET_LEAFTYPE_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1619, ASSERT_TYPE_ASSERT, "(unsigned)( leaf ) < (unsigned)( VISIONSET_LEAFTYPE_COUNT )", "leaf doesn't index VISIONSET_LEAFTYPE_COUNT\n\t%i not in [0, %i)", (unsigned __int8)leaf, 25) )
     __debugbreak();
   if ( (unsigned __int8)blend >= VISIONSET_BLENDTYPE_COUNT )
   {
-    LODWORD(v21) = 24;
-    LODWORD(v20) = (unsigned __int8)blend;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1620, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v12) = 24;
+    LODWORD(v11) = (unsigned __int8)blend;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1620, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   v7 = 9i64;
-  _RAX = &cvsData->archived.visionBlends[(unsigned __int8)blend];
-  _R8 = &cvsData->archived.visionLeaves[(unsigned __int8)leaf];
+  v8 = &cvsData->archived.visionBlends[(unsigned __int8)blend];
+  v9 = &cvsData->archived.visionLeaves[(unsigned __int8)leaf];
   do
   {
-    _R8 = (visionSetVars_t *)((char *)_R8 + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (visionSetBlend_t *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [r8-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [r8-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [r8-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [r8-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [r8-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [r8-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r8-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [r8-10h], xmm1
-    }
+    v9 = (visionSetVars_t *)((char *)v9 + 128);
+    v10 = *(_OWORD *)&v8->r_primaryLightTweakDiffuseStrength;
+    v8 = (visionSetBlend_t *)((char *)v8 + 128);
+    *(_OWORD *)v9[-1].hdrColorizeGain.v = v10;
+    *(_OWORD *)&v9[-1].name[4] = *(_OWORD *)&v8[-1].name[28];
+    *(_OWORD *)&v9[-1].name[20] = *(_OWORD *)&v8[-1].name[44];
+    *(_OWORD *)&v9[-1].name[36] = *(_OWORD *)&v8[-1].name[60];
+    *(_OWORD *)&v9[-1].name[52] = *(_OWORD *)&v8[-1].inUse.array[3];
+    *(_OWORD *)&v9[-1].inUse.array[1] = *(_OWORD *)&v8[-1].decalVolumeDrawDistance;
+    *(_OWORD *)&v9[-1].inUse.array[5] = *(_OWORD *)&v8[-1].dummy2;
+    *(_OWORD *)&v9[-1].scopedNVG = *(_OWORD *)&v8[-1].lerpInfo.style;
     --v7;
   }
   while ( v7 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [r8], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [r8+10h], xmm1
-  }
-  *(_QWORD *)&_R8->r_viewModelLightAmbient.y = *(_QWORD *)&_RAX->r_viewModelLightAmbient.y;
-  _R8->r_lightTweakUVIntensityScale = _RAX->r_lightTweakUVIntensityScale;
+  *(_OWORD *)&v9->r_primaryLightTweakDiffuseStrength = *(_OWORD *)&v8->r_primaryLightTweakDiffuseStrength;
+  *(_OWORD *)&v9->r_charLightAmbient.z = *(_OWORD *)&v8->r_charLightAmbient.z;
+  *(_QWORD *)&v9->r_viewModelLightAmbient.y = *(_QWORD *)&v8->r_viewModelLightAmbient.y;
+  v9->r_lightTweakUVIntensityScale = v8->r_lightTweakUVIntensityScale;
 }
 
 /*
@@ -3622,61 +2845,48 @@ void CG_VisionSetParamCmd(const LocalClientNum_t localClientNum, const int durat
 {
   cg_t *LocalClientGlobals; 
   ClientVisionSetData *p_cvsData; 
-  __int64 v11; 
+  double Lerp; 
+  visionSetVars_t *v8; 
+  __int64 v9; 
+  visionSetBlend_t *v10; 
+  __int128 v11; 
   int time; 
-  int v24; 
+  int v13; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   p_cvsData = &LocalClientGlobals->cvsData;
   CG_VisionSetUpdateToNode(&LocalClientGlobals->cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_CT_B);
-  *(double *)&_XMM0 = CG_VisionSetGetLerp(&LocalClientGlobals->cvsData.archived.visionBlends[16], LocalClientGlobals->time);
-  __asm
+  Lerp = CG_VisionSetGetLerp(&LocalClientGlobals->cvsData.archived.visionBlends[16], LocalClientGlobals->time);
+  if ( *(float *)&Lerp == 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
+    *(_QWORD *)LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array = 0i64;
+    *(_QWORD *)&LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array[2] = 0i64;
+    *(_QWORD *)&LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array[4] = 0i64;
+    LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array[6] = 0;
   }
-  *(_QWORD *)LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array = 0i64;
-  *(_QWORD *)&LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array[2] = 0i64;
-  *(_QWORD *)&LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array[4] = 0i64;
-  LocalClientGlobals->cvsData.archived.visionBlends[21].inUse.array[6] = 0;
-  _RCX = &LocalClientGlobals->cvsData.archived.visionLeaves[23];
-  v11 = 9i64;
-  _RDX = &LocalClientGlobals->cvsData.archived.visionBlends[21];
+  v8 = &LocalClientGlobals->cvsData.archived.visionLeaves[23];
+  v9 = 9i64;
+  v10 = &LocalClientGlobals->cvsData.archived.visionBlends[21];
   do
   {
-    _RCX = (visionSetVars_t *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rdx] }
-    _RDX = (visionSetBlend_t *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v11;
+    v8 = (visionSetVars_t *)((char *)v8 + 128);
+    v11 = *(_OWORD *)&v10->r_primaryLightTweakDiffuseStrength;
+    v10 = (visionSetBlend_t *)((char *)v10 + 128);
+    *(_OWORD *)v8[-1].hdrColorizeGain.v = v11;
+    *(_OWORD *)&v8[-1].name[4] = *(_OWORD *)&v10[-1].name[28];
+    *(_OWORD *)&v8[-1].name[20] = *(_OWORD *)&v10[-1].name[44];
+    *(_OWORD *)&v8[-1].name[36] = *(_OWORD *)&v10[-1].name[60];
+    *(_OWORD *)&v8[-1].name[52] = *(_OWORD *)&v10[-1].inUse.array[3];
+    *(_OWORD *)&v8[-1].inUse.array[1] = *(_OWORD *)&v10[-1].decalVolumeDrawDistance;
+    *(_OWORD *)&v8[-1].inUse.array[5] = *(_OWORD *)&v10[-1].dummy2;
+    *(_OWORD *)&v8[-1].scopedNVG = *(_OWORD *)&v10[-1].lerpInfo.style;
+    --v9;
   }
-  while ( v11 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-  }
-  *(_QWORD *)&_RCX->r_viewModelLightAmbient.y = *(_QWORD *)&_RDX->r_viewModelLightAmbient.y;
-  _RCX->r_lightTweakUVIntensityScale = _RDX->r_lightTweakUVIntensityScale;
+  while ( v9 );
+  *(_OWORD *)&v8->r_primaryLightTweakDiffuseStrength = *(_OWORD *)&v10->r_primaryLightTweakDiffuseStrength;
+  *(_OWORD *)&v8->r_charLightAmbient.z = *(_OWORD *)&v10->r_charLightAmbient.z;
+  *(_QWORD *)&v8->r_viewModelLightAmbient.y = *(_QWORD *)&v10->r_viewModelLightAmbient.y;
+  v8->r_lightTweakUVIntensityScale = v10->r_lightTweakUVIntensityScale;
   time = LocalClientGlobals->time;
   if ( LocalClientGlobals == (cg_t *)-304604i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 982, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
@@ -3684,16 +2894,16 @@ void CG_VisionSetParamCmd(const LocalClientNum_t localClientNum, const int durat
   {
     if ( LocalClientGlobals->cvsData.transitory.playbackDelta < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 994, ASSERT_TYPE_ASSERT, "(cvsData->transitory.playbackDelta >= 0)", (const char *)&queryFormat, "cvsData->transitory.playbackDelta >= 0") )
       __debugbreak();
-    v24 = 1;
+    v13 = 1;
     LocalClientGlobals->cvsData.archived.visionBlends[21].lerpInfo.timeData.startTime = time - LocalClientGlobals->cvsData.transitory.playbackDelta;
     LocalClientGlobals->cvsData.archived.visionBlends[21].lerpInfo.timeData.forward = 1;
     LocalClientGlobals->cvsData.archived.visionBlends[21].lerpInfo.timeData.duration = duration;
   }
   else
   {
-    v24 = 3;
+    v13 = 3;
   }
-  LocalClientGlobals->cvsData.archived.visionBlends[21].lerpInfo.type = v24;
+  LocalClientGlobals->cvsData.archived.visionBlends[21].lerpInfo.type = v13;
   LocalClientGlobals->cvsData.archived.visionBlends[21].lerpInfo.style = VISIONSETLERP_SMOOTH;
   CG_VisionSetRegisterLeafByParameters(p_cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, kvps);
   CG_VisionSetScriptOverride(p_cvsData, kvps, LocalClientGlobals->time, duration);
@@ -3744,32 +2954,26 @@ CG_VisionSetRegisterLeafByFile
 */
 bool CG_VisionSetRegisterLeafByFile(ClientVisionSetData *cvsData, const visionSetCodeLeafType_t leaf, const char *name)
 {
+  visionSetVars_t *v6; 
   bool VisionSet; 
-  __int64 v11; 
+  __int64 v9; 
 
   if ( !cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1069, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
   if ( (unsigned __int8)leaf >= VISIONSET_LEAFTYPE_COUNT )
   {
-    LODWORD(v11) = (unsigned __int8)leaf;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1070, ASSERT_TYPE_ASSERT, "(unsigned)( leaf ) < (unsigned)( VISIONSET_LEAFTYPE_COUNT )", "leaf doesn't index VISIONSET_LEAFTYPE_COUNT\n\t%i not in [0, %i)", v11, 25) )
+    LODWORD(v9) = (unsigned __int8)leaf;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1070, ASSERT_TYPE_ASSERT, "(unsigned)( leaf ) < (unsigned)( VISIONSET_LEAFTYPE_COUNT )", "leaf doesn't index VISIONSET_LEAFTYPE_COUNT\n\t%i not in [0, %i)", v9, 25) )
       __debugbreak();
   }
-  _RDI = &cvsData->archived.visionLeaves[(unsigned __int8)leaf];
-  if ( !I_strncmp(name, _RDI->name, 0x7FFFFFFFui64) )
+  v6 = &cvsData->archived.visionLeaves[(unsigned __int8)leaf];
+  if ( !I_strncmp(name, v6->name, 0x7FFFFFFFui64) )
     return 0;
-  VisionSet = CG_VisionSetGetVisionSet(name, _RDI);
+  VisionSet = CG_VisionSetGetVisionSet(name, v6);
   if ( !VisionSet )
     Com_PrintError(14, "Failed to load visionset of name '%s'\n", name);
-  if ( leaf == VISIONSET_LEAFTYPE_NIGHTVISION )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi+2FCh]
-    }
+  if ( leaf == VISIONSET_LEAFTYPE_NIGHTVISION && v6->nightAndThermalVisionCombo == 0.0 )
     Com_PrintWarning(14, "Vision Set Night called on a vision set that does not have night vision enabled.\n");
-  }
   return VisionSet;
 }
 
@@ -3889,47 +3093,26 @@ CG_VisionSetReverseBlend
 */
 void CG_VisionSetReverseBlend(ClientVisionSetData *cvsData, const visionSetCodeBlendType_t blend, const int time, const int duration)
 {
+  __int64 v6; 
   __int64 v9; 
-  __int64 v27; 
 
   if ( !cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1018, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
   if ( (unsigned __int8)blend >= VISIONSET_BLENDTYPE_COUNT )
   {
-    LODWORD(v27) = (unsigned __int8)blend;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1019, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v27, 24) )
+    LODWORD(v9) = (unsigned __int8)blend;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1019, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v9, 24) )
       __debugbreak();
   }
-  v9 = (unsigned __int8)blend;
-  if ( cvsData->archived.visionBlends[v9].lerpInfo.type != VISIONSETBLENDTYPE_TIME && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1022, ASSERT_TYPE_ASSERT, "(blendNode->lerpInfo.type == VISIONSETBLENDTYPE_TIME)", (const char *)&queryFormat, "blendNode->lerpInfo.type == VISIONSETBLENDTYPE_TIME") )
+  v6 = (unsigned __int8)blend;
+  if ( cvsData->archived.visionBlends[v6].lerpInfo.type != VISIONSETBLENDTYPE_TIME && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1022, ASSERT_TYPE_ASSERT, "(blendNode->lerpInfo.type == VISIONSETBLENDTYPE_TIME)", (const char *)&queryFormat, "blendNode->lerpInfo.type == VISIONSETBLENDTYPE_TIME") )
     __debugbreak();
-  if ( !cvsData->archived.visionBlends[v9].lerpInfo.timeData.duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1024, ASSERT_TYPE_ASSERT, "(blendNode->lerpInfo.timeData.duration)", (const char *)&queryFormat, "blendNode->lerpInfo.timeData.duration") )
+  if ( !cvsData->archived.visionBlends[v6].lerpInfo.timeData.duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1024, ASSERT_TYPE_ASSERT, "(blendNode->lerpInfo.timeData.duration)", (const char *)&queryFormat, "blendNode->lerpInfo.timeData.duration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+rbx+7988h]
-  }
-  cvsData->archived.visionBlends[v9].lerpInfo.timeData.forward = cvsData->archived.visionBlends[v9].lerpInfo.timeData.forward == 0;
-  __asm
-  {
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, esi
-    vcvtsi2ss xmm1, xmm1, esi
-    vdivss  xmm2, xmm1, xmm0
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vmulss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm4, xmm2
-    vaddss  xmm4, xmm1, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm4, 1
-    vcvttss2si eax, xmm3
-  }
-  cvsData->archived.visionBlends[v9].lerpInfo.timeData.startTime = _EAX;
+  cvsData->archived.visionBlends[v6].lerpInfo.timeData.forward = cvsData->archived.visionBlends[v6].lerpInfo.timeData.forward == 0;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm4, 1 }
+  cvsData->archived.visionBlends[v6].lerpInfo.timeData.startTime = (int)*(float *)&_XMM3;
 }
 
 /*
@@ -3939,54 +3122,38 @@ CG_VisionSetScriptOverride
 */
 void CG_VisionSetScriptOverride(ClientVisionSetData *cvsData, const char *name, const int time, const int duration)
 {
-  char v10; 
-  int v12; 
+  double v8; 
+  double Lerp; 
+  BOOL v10; 
   visionBlendType_t type; 
   int startTime; 
-  bool v15; 
-  int v16; 
+  bool v13; 
+  int v14; 
   int forward; 
 
   if ( !cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1204, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
-  if ( cvsData->archived.visionBlends[16].lerpInfo.type != VISIONSETBLENDTYPE_TIME || cvsData->archived.visionBlends[16].lerpInfo.timeData.forward )
+  v10 = 1;
+  if ( cvsData->archived.visionBlends[16].lerpInfo.type == VISIONSETBLENDTYPE_TIME && !cvsData->archived.visionBlends[16].lerpInfo.timeData.forward || (v8 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[16], time), *(float *)&v8 != 1.0) )
   {
-    *(double *)&_XMM0 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[16], time);
-    __asm { vucomiss xmm0, cs:__real@3f800000 }
-    if ( v10 )
-      goto LABEL_11;
+    if ( cvsData->archived.visionBlends[16].lerpInfo.type != VISIONSETBLENDTYPE_TIME || cvsData->archived.visionBlends[16].lerpInfo.timeData.forward || (Lerp = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[16], time), *(float *)&Lerp != 0.0) )
+      v10 = 0;
   }
-  if ( cvsData->archived.visionBlends[16].lerpInfo.type != VISIONSETBLENDTYPE_TIME )
-    goto LABEL_10;
-  if ( cvsData->archived.visionBlends[16].lerpInfo.timeData.forward )
-    goto LABEL_10;
-  *(double *)&_XMM0 = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[16], time);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( v10 )
-LABEL_11:
-    v12 = 1;
-  else
-LABEL_10:
-    v12 = 0;
   type = cvsData->archived.visionBlends[16].lerpInfo.type;
-  if ( type != VISIONSETBLENDTYPE_TIME || time <= 0 || (startTime = cvsData->archived.visionBlends[16].lerpInfo.timeData.startTime, time <= startTime) || (v15 = time < cvsData->archived.visionBlends[16].lerpInfo.timeData.duration + startTime, v16 = 1, !v15) )
-    v16 = 0;
+  if ( type != VISIONSETBLENDTYPE_TIME || time <= 0 || (startTime = cvsData->archived.visionBlends[16].lerpInfo.timeData.startTime, time <= startTime) || (v13 = time < cvsData->archived.visionBlends[16].lerpInfo.timeData.duration + startTime, v14 = 1, !v13) )
+    v14 = 0;
   if ( type == VISIONSETBLENDTYPE_TIME )
     forward = cvsData->archived.visionBlends[16].lerpInfo.timeData.forward;
   else
     forward = 1;
   if ( !*name )
   {
-    if ( v12 )
+    if ( v10 )
     {
       if ( !forward )
         return;
     }
-    else if ( v16 )
+    else if ( v14 )
     {
       if ( !forward )
         return;
@@ -3995,7 +3162,7 @@ LABEL_10:
     CG_VisionSetRegisterBlendStart(cvsData, VISIONSET_BLENDTYPE_SCRIPT_OVERRIDE, time, duration, 0, VISIONSETLERP_SMOOTH);
     return;
   }
-  if ( v12 )
+  if ( v10 )
   {
     if ( !forward )
     {
@@ -4005,7 +3172,7 @@ LABEL_23:
     }
     return;
   }
-  if ( !v16 )
+  if ( !v14 )
     goto LABEL_23;
   if ( !forward )
 LABEL_33:
@@ -4057,36 +3224,24 @@ void CG_VisionSetSetBlendOn(ClientVisionSetData *cvsData, const visionSetCodeBle
 CG_VisionSetSetBlendPush
 ==============
 */
-
-void __fastcall CG_VisionSetSetBlendPush(ClientVisionSetData *cvsData, const visionSetCodeBlendType_t blend, double lerp)
+void CG_VisionSetSetBlendPush(ClientVisionSetData *cvsData, const visionSetCodeBlendType_t blend, const float lerp)
 {
-  __int64 v13; 
+  __int64 v5; 
+  double v6; 
+  __int64 v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = cvsData;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1051, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
   if ( (unsigned __int8)blend >= VISIONSET_BLENDTYPE_COUNT )
   {
-    LODWORD(v13) = (unsigned __int8)blend;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1052, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v13, 24) )
+    LODWORD(v7) = (unsigned __int8)blend;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1052, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v7, 24) )
       __debugbreak();
   }
-  __asm { vmovss  xmm2, cs:__real@3f800000; max }
-  _RBX = (unsigned __int8)blend;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm6; val
-  }
-  _RDI->archived.visionBlends[_RBX].lerpInfo.type = VISIONSETBLENDTYPE_PUSH;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rbx+rdi+7984h], xmm0
-  }
+  v5 = (unsigned __int8)blend;
+  cvsData->archived.visionBlends[v5].lerpInfo.type = VISIONSETBLENDTYPE_PUSH;
+  v6 = I_fclamp(lerp, 0.0, 1.0);
+  cvsData->archived.visionBlends[v5].lerpInfo.pushData.lerp = *(float *)&v6;
 }
 
 /*
@@ -4096,9 +3251,10 @@ CG_VisionSetSetBlendStop
 */
 void CG_VisionSetSetBlendStop(ClientVisionSetData *cvsData, const visionSetCodeBlendType_t blend, const int time)
 {
+  __int64 v6; 
+  double Lerp; 
   __int64 v8; 
 
-  _RDI = cvsData;
   if ( !cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1059, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
     __debugbreak();
   if ( (unsigned __int8)blend >= VISIONSET_BLENDTYPE_COUNT )
@@ -4107,10 +3263,10 @@ void CG_VisionSetSetBlendStop(ClientVisionSetData *cvsData, const visionSetCodeB
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1060, ASSERT_TYPE_ASSERT, "(unsigned)( blend ) < (unsigned)( VISIONSET_BLENDTYPE_COUNT )", "blend doesn't index VISIONSET_BLENDTYPE_COUNT\n\t%i not in [0, %i)", v8, 24) )
       __debugbreak();
   }
-  _RBX = (unsigned __int8)blend;
-  *(double *)&_XMM0 = CG_VisionSetGetLerp(&_RDI->archived.visionBlends[_RBX], time);
-  __asm { vmovss  dword ptr [rbx+rdi+7984h], xmm0 }
-  _RDI->archived.visionBlends[_RBX].lerpInfo.type = VISIONSETBLENDTYPE_PUSH;
+  v6 = (unsigned __int8)blend;
+  Lerp = CG_VisionSetGetLerp(&cvsData->archived.visionBlends[v6], time);
+  cvsData->archived.visionBlends[v6].lerpInfo.pushData.lerp = *(float *)&Lerp;
+  cvsData->archived.visionBlends[v6].lerpInfo.type = VISIONSETBLENDTYPE_PUSH;
 }
 
 /*
@@ -4252,41 +3408,36 @@ CG_VisionSetUpdateToNode
 void CG_VisionSetUpdateToNode(ClientVisionSetData *cvsData, const int time, visionSetCodeBlendType_t node)
 {
   visionSetBlend_t::ChildRef *childRefs; 
-  __int64 v9; 
-  visionSetLerpStyle_t v10; 
+  __int64 v6; 
+  visionSetLerpStyle_t v7; 
+  double Lerp; 
   const visionSetVarsBase_t *Child; 
-  const visionSetVarsBase_t *v13; 
-  __int64 v16; 
-  void *retaddr; 
+  const visionSetVarsBase_t *v10; 
+  __int64 v11; 
 
-  _RAX = &retaddr;
   if ( (unsigned __int8)node <= VISIONSET_BLENDTYPE_WORLDSPAWN_ALTERNATES )
   {
     childRefs = cvsData->archived.visionBlends[23].childRefs;
-    v9 = 24 - (unsigned int)(unsigned __int8)node;
-    __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
+    v6 = 24 - (unsigned int)(unsigned __int8)node;
     do
     {
       if ( !*(_DWORD *)&childRefs[2].m_type )
       {
-        LODWORD(v16) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1592, ASSERT_TYPE_ASSERT, "( ( blend->lerpInfo.type != VISIONSETBLENDTYPE_UNSET ) )", "( blend->lerpInfo.type ) = %i", v16) )
+        LODWORD(v11) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1592, ASSERT_TYPE_ASSERT, "( ( blend->lerpInfo.type != VISIONSETBLENDTYPE_UNSET ) )", "( blend->lerpInfo.type ) = %i", v11) )
           __debugbreak();
       }
       if ( (childRefs->m_type == Type_Null || childRefs[1].m_type == Type_Null) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1593, ASSERT_TYPE_ASSERT, "(blend->childRefs[0].m_type != visionSetBlend_t::ChildRef::Type_Null && blend->childRefs[1].m_type != visionSetBlend_t::ChildRef::Type_Null)", (const char *)&queryFormat, "blend->childRefs[0].m_type != visionSetBlend_t::ChildRef::Type_Null && blend->childRefs[1].m_type != visionSetBlend_t::ChildRef::Type_Null") )
         __debugbreak();
-      v10 = *(_DWORD *)&childRefs[4].m_type;
-      *(double *)&_XMM0 = CG_VisionSetGetLerp((const visionSetBlend_t *)&childRefs[-598], time);
-      __asm { vmovaps xmm6, xmm0 }
+      v7 = *(_DWORD *)&childRefs[4].m_type;
+      Lerp = CG_VisionSetGetLerp((const visionSetBlend_t *)&childRefs[-598], time);
       Child = CG_VisionSet_GetChild(cvsData, childRefs + 1);
-      v13 = CG_VisionSet_GetChild(cvsData, childRefs);
-      __asm { vmovaps xmm2, xmm6; lerp }
-      CG_VisionSetLerp(v13, Child, *(double *)&_XMM2, v10, (visionSetVarsBase_t *)&childRefs[-598]);
+      v10 = CG_VisionSet_GetChild(cvsData, childRefs);
+      CG_VisionSetLerp(v10, Child, *(float *)&Lerp, v7, (visionSetVarsBase_t *)&childRefs[-598]);
       childRefs -= 610;
-      --v9;
+      --v6;
     }
-    while ( v9 );
-    __asm { vmovaps xmm6, [rsp+68h+var_38] }
+    while ( v6 );
   }
 }
 
@@ -4499,71 +3650,71 @@ CG_VisionSet_LoadSP
 */
 void CG_VisionSet_LoadSP(MemoryFile *memFile, ClientVisionSetData *cvsData)
 {
+  double Float; 
   unsigned int p; 
 
-  _RBX = cvsData;
   MemFile_ReadData(memFile, 0x4ACui64, cvsData);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[3]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[1]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[2]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[4]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[5]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[6]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[9]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[11]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[12]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[16]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[17]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[18]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[19]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[20]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[21]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[22]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[23]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[24]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[14]);
-  MemFile_ReadData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[15]);
-  MemFile_ReadData(memFile, 0x4C4ui64, _RBX->archived.visionBlends);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[1]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[2]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[3]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[4]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[5]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[6]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[7]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[8]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[11]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[12]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[9]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[10]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[13]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[16]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[17]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[18]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[19]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[20]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[21]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[22]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[23]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[14]);
-  MemFile_ReadData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[15]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[3]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[1]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[2]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[4]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[5]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[6]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[9]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[11]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[12]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[16]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[17]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[18]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[19]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[20]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[21]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[22]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[23]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[24]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[14]);
+  MemFile_ReadData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[15]);
+  MemFile_ReadData(memFile, 0x4C4ui64, cvsData->archived.visionBlends);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[1]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[2]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[3]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[4]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[5]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[6]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[7]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[8]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[11]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[12]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[9]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[10]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[13]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[16]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[17]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[18]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[19]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[20]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[21]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[22]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[23]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[14]);
+  MemFile_ReadData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[15]);
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RBX->archived.visionInitialized = p;
+  cvsData->archived.visionInitialized = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RBX->archived.prevTrigA = p;
+  cvsData->archived.prevTrigA = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RBX->archived.prevTrigB = p;
+  cvsData->archived.prevTrigB = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RBX->archived.stagedVisionStateTo = p;
+  cvsData->archived.stagedVisionStateTo = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RBX->archived.stagedVisionDuration = p;
+  cvsData->archived.stagedVisionDuration = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RBX->archived.stagedVisionStart = p;
+  cvsData->archived.stagedVisionStart = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RBX->archived.painVisionActive = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rbx+0E748h], xmm0 }
-  CG_VisionSet_LoadAssetList(memFile, _RBX);
+  cvsData->archived.painVisionActive = p;
+  Float = MemFile_ReadFloat(memFile);
+  cvsData->archived.painVisionLerp = *(float *)&Float;
+  CG_VisionSet_LoadAssetList(memFile, cvsData);
 }
 
 /*
@@ -4604,69 +3755,67 @@ void CG_VisionSet_SaveSP(MemoryFile *memFile, const ClientVisionSetData *cvsData
 {
   unsigned int p; 
 
-  _RBX = cvsData;
   MemFile_WriteData(memFile, 0x4ACui64, cvsData);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[3]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[1]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[2]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[4]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[5]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[6]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[9]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[11]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[12]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[16]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[17]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[18]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[19]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[20]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[21]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[22]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[23]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[24]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[14]);
-  MemFile_WriteData(memFile, 0x4ACui64, &_RBX->archived.visionLeaves[15]);
-  MemFile_WriteData(memFile, 0x4C4ui64, _RBX->archived.visionBlends);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[1]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[2]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[3]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[4]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[5]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[6]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[7]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[8]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[11]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[12]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[9]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[10]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[13]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[16]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[17]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[18]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[19]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[20]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[21]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[22]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[23]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[14]);
-  MemFile_WriteData(memFile, 0x4C4ui64, &_RBX->archived.visionBlends[15]);
-  LOBYTE(p) = _RBX->archived.visionInitialized;
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[3]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[1]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[2]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[4]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[5]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[6]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[9]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[11]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[12]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[16]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[17]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[18]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[19]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[20]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[21]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[22]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[23]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[24]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[14]);
+  MemFile_WriteData(memFile, 0x4ACui64, &cvsData->archived.visionLeaves[15]);
+  MemFile_WriteData(memFile, 0x4C4ui64, cvsData->archived.visionBlends);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[1]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[2]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[3]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[4]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[5]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[6]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[7]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[8]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[11]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[12]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[9]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[10]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[13]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[16]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[17]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[18]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[19]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[20]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[21]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[22]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[23]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[14]);
+  MemFile_WriteData(memFile, 0x4C4ui64, &cvsData->archived.visionBlends[15]);
+  LOBYTE(p) = cvsData->archived.visionInitialized;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RBX->archived.prevTrigA;
+  p = cvsData->archived.prevTrigA;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->archived.prevTrigB;
+  p = cvsData->archived.prevTrigB;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->archived.stagedVisionStateTo;
+  p = cvsData->archived.stagedVisionStateTo;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->archived.stagedVisionDuration;
+  p = cvsData->archived.stagedVisionDuration;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->archived.stagedVisionStart;
+  p = cvsData->archived.stagedVisionStart;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RBX->archived.painVisionActive;
+  LOBYTE(p) = cvsData->archived.painVisionActive;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+0E748h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  CG_VisionSet_SaveAssetList(memFile, _RBX);
+  MemFile_WriteFloat(memFile, cvsData->archived.painVisionLerp);
+  CG_VisionSet_SaveAssetList(memFile, cvsData);
 }
 
 /*
@@ -4791,82 +3940,80 @@ CG_VisionSetsUpdate_PrePlayerStatePrediction
 */
 void CG_VisionSetsUpdate_PrePlayerStatePrediction(const LocalClientNum_t localClientNum)
 {
-  LocalClientNum_t v3; 
-  ClientVisionSetData *p_cvsData; 
-  char v6; 
+  LocalClientNum_t v1; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v8; 
-  ClientVisionSetData *v9; 
-  int v10; 
+  ClientVisionSetData *p_cvsData; 
+  char v4; 
+  cg_t *v5; 
+  const dvar_t *v6; 
+  ClientVisionSetData *v7; 
+  int v8; 
   int integer; 
-  unsigned __int64 v12; 
-  visionSetCodeBlendType_t v14; 
-  char v15; 
+  unsigned __int64 i; 
+  visionSetCodeBlendType_t v11; 
+  double Lerp; 
   int thermalOverrideVisionSetIndex; 
   const char *VisionName; 
   int missileOverrideVisionSetIndex; 
-  const char *v20; 
-  cg_t *v21; 
-  ClientVisionSetData *v22; 
-  ClientVisionSetData *v23; 
+  const char *v16; 
+  cg_t *v17; 
+  ClientVisionSetData *v18; 
+  ClientVisionSetData *v19; 
   int painOverrideVisionSetIndex; 
-  char *v25; 
-  unsigned int v26; 
+  char *v21; 
+  unsigned int v22; 
   CgMLGSpectator *MLGSpectator; 
   CgMLGCameraManager *CameraManager; 
   CoDCasterCameraType MLGCameraType; 
-  bool v30; 
+  bool v26; 
   int killstreakOverrideVisionSetIndex; 
-  const char *v32; 
-  cg_t *v33; 
-  __int64 v38; 
-  char *v49; 
+  const char *v28; 
+  cg_t *v29; 
+  unsigned int *p_visionSetIndex; 
+  visionSetVars_t *v32; 
+  __int64 v33; 
+  visionSetBlend_t *v34; 
+  __int128 v35; 
+  char *v36; 
   __int64 style; 
-  __int64 v52; 
+  __int64 v38; 
   char *outVisionSetName; 
 
-  v3 = localClientNum;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  p_cvsData = &_RBX->cvsData;
-  _RBX->cvsData.transitory.nightVisionCanBlendInPostPlayerState = 0;
-  LOBYTE(outVisionSetName) = CG_View_IsKillCamEntityView(v3);
-  v6 = (char)outVisionSetName;
+  v1 = localClientNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  p_cvsData = &LocalClientGlobals->cvsData;
+  LocalClientGlobals->cvsData.transitory.nightVisionCanBlendInPostPlayerState = 0;
+  LOBYTE(outVisionSetName) = CG_View_IsKillCamEntityView(v1);
+  v4 = (char)outVisionSetName;
   if ( (_BYTE)outVisionSetName )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm6 }
-    LocalClientGlobals = CG_GetLocalClientGlobals(v3);
-    v8 = DCONST_DVARINT_visionSetKillcamEntBlendDuration;
-    v9 = &LocalClientGlobals->cvsData;
-    v10 = LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime;
+    v5 = CG_GetLocalClientGlobals(v1);
+    v6 = DCONST_DVARINT_visionSetKillcamEntBlendDuration;
+    v7 = &v5->cvsData;
+    v8 = v5->time - v5->predictedPlayerState.deltaTime;
     if ( !DCONST_DVARINT_visionSetKillcamEntBlendDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "visionSetKillcamEntBlendDuration") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    integer = v8->current.integer;
-    v12 = 0i64;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    do
+    Dvar_CheckFrontendServerThread(v6);
+    integer = v6->current.integer;
+    for ( i = 0i64; i < 6; ++i )
     {
-      v14 = byte_1442D636C[v12];
-      *(double *)&_XMM0 = CG_VisionSetGetLerp(&v9->archived.visionBlends[(unsigned __int8)v14], v10);
-      __asm { vucomiss xmm0, xmm6 }
-      if ( (!v15 || CG_VisionSetIsBlending(v9, v14, v10)) && (!CG_VisionSetIsBlending(v9, v14, v10) || CG_VisionSetForward(v9, v14)) )
-        CG_VisionSetRegisterBlendStart(v9, v14, v10, integer, 0, VISIONSETLERP_SMOOTH);
-      ++v12;
+      v11 = byte_1442D636C[i];
+      Lerp = CG_VisionSetGetLerp(&v7->archived.visionBlends[(unsigned __int8)v11], v8);
+      if ( (*(float *)&Lerp != 0.0 || CG_VisionSetIsBlending(v7, v11, v8)) && (!CG_VisionSetIsBlending(v7, v11, v8) || CG_VisionSetForward(v7, v11)) )
+        CG_VisionSetRegisterBlendStart(v7, v11, v8, integer, 0, VISIONSETLERP_SMOOTH);
     }
-    while ( v12 < 6 );
-    v6 = (char)outVisionSetName;
-    p_cvsData = &_RBX->cvsData;
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
-    _RBX->cvsData.transitory.prevThermalOverrideVisionSetIndex = 0;
-    _RBX->cvsData.transitory.prevMissileOverrideVisionSetIndex = 0;
-    v3 = localClientNum;
+    v4 = (char)outVisionSetName;
+    p_cvsData = &LocalClientGlobals->cvsData;
+    LocalClientGlobals->cvsData.transitory.prevThermalOverrideVisionSetIndex = 0;
+    LocalClientGlobals->cvsData.transitory.prevMissileOverrideVisionSetIndex = 0;
+    v1 = localClientNum;
   }
-  else if ( _RBX->cvsData.transitory.thermalVisionActive )
+  else if ( LocalClientGlobals->cvsData.transitory.thermalVisionActive )
   {
-    thermalOverrideVisionSetIndex = _RBX->predictedPlayerState.thermalOverrideVisionSetIndex;
-    if ( _RBX->cvsData.transitory.prevThermalOverrideVisionSetIndex != thermalOverrideVisionSetIndex )
+    thermalOverrideVisionSetIndex = LocalClientGlobals->predictedPlayerState.thermalOverrideVisionSetIndex;
+    if ( LocalClientGlobals->cvsData.transitory.prevThermalOverrideVisionSetIndex != thermalOverrideVisionSetIndex )
     {
-      _RBX->cvsData.transitory.prevThermalOverrideVisionSetIndex = thermalOverrideVisionSetIndex;
+      LocalClientGlobals->cvsData.transitory.prevThermalOverrideVisionSetIndex = thermalOverrideVisionSetIndex;
       VisionName = CG_VisionSets_GetVisionName(thermalOverrideVisionSetIndex);
       if ( VisionName )
       {
@@ -4874,69 +4021,69 @@ void CG_VisionSetsUpdate_PrePlayerStatePrediction(const LocalClientNum_t localCl
           CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_THERMAL, VisionName);
       }
     }
-    if ( !_RBX->cvsData.archived.visionLeaves[11].name[0] )
+    if ( !LocalClientGlobals->cvsData.archived.visionLeaves[11].name[0] )
       Com_Error_impl(ERR_SCRIPT, (const ObfuscateErrorText)&stru_1442D63D0, 1160i64);
-    _RBX->cvsData.archived.visionBlends[6].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
-    _RBX->cvsData.archived.visionBlends[7].lerpInfo.type = VISIONSETBLENDTYPE_ON;
+    LocalClientGlobals->cvsData.archived.visionBlends[6].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
+    LocalClientGlobals->cvsData.archived.visionBlends[7].lerpInfo.type = VISIONSETBLENDTYPE_ON;
   }
-  else if ( _RBX->cvsData.transitory.remoteMissileCam )
+  else if ( LocalClientGlobals->cvsData.transitory.remoteMissileCam )
   {
-    missileOverrideVisionSetIndex = _RBX->predictedPlayerState.missileOverrideVisionSetIndex;
-    if ( _RBX->cvsData.transitory.prevMissileOverrideVisionSetIndex != missileOverrideVisionSetIndex )
+    missileOverrideVisionSetIndex = LocalClientGlobals->predictedPlayerState.missileOverrideVisionSetIndex;
+    if ( LocalClientGlobals->cvsData.transitory.prevMissileOverrideVisionSetIndex != missileOverrideVisionSetIndex )
     {
-      _RBX->cvsData.transitory.prevMissileOverrideVisionSetIndex = missileOverrideVisionSetIndex;
-      v20 = CG_VisionSets_GetVisionName(missileOverrideVisionSetIndex);
-      if ( v20 )
+      LocalClientGlobals->cvsData.transitory.prevMissileOverrideVisionSetIndex = missileOverrideVisionSetIndex;
+      v16 = CG_VisionSets_GetVisionName(missileOverrideVisionSetIndex);
+      if ( v16 )
       {
-        if ( *v20 )
-          CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_PREDATOR, v20);
+        if ( *v16 )
+          CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_PREDATOR, v16);
       }
     }
-    if ( !_RBX->cvsData.archived.visionLeaves[12].name[0] )
+    if ( !LocalClientGlobals->cvsData.archived.visionLeaves[12].name[0] )
       Com_Error_impl(ERR_SCRIPT, (const ObfuscateErrorText)&stru_1442D6420, 1161i64);
-    _RBX->cvsData.archived.visionBlends[6].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
-    _RBX->cvsData.archived.visionBlends[7].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
-    _RBX->cvsData.archived.visionBlends[8].lerpInfo.type = VISIONSETBLENDTYPE_ON;
+    LocalClientGlobals->cvsData.archived.visionBlends[6].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
+    LocalClientGlobals->cvsData.archived.visionBlends[7].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
+    LocalClientGlobals->cvsData.archived.visionBlends[8].lerpInfo.type = VISIONSETBLENDTYPE_ON;
   }
   else
   {
-    _RBX->cvsData.transitory.nightVisionCanBlendInPostPlayerState = 1;
+    LocalClientGlobals->cvsData.transitory.nightVisionCanBlendInPostPlayerState = 1;
   }
-  if ( _RBX->cvsData.archived.visionLeaves[15].name[0] )
+  if ( LocalClientGlobals->cvsData.archived.visionLeaves[15].name[0] )
   {
-    if ( (unsigned int)v3 >= LOCAL_CLIENT_COUNT )
+    if ( (unsigned int)v1 >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v52) = 2;
-      LODWORD(style) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1861, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", style, v52) )
+      LODWORD(v38) = 2;
+      LODWORD(style) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1861, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", style, v38) )
         __debugbreak();
     }
-    v21 = CG_GetLocalClientGlobals(v3);
-    if ( v21->inKillCam && v21->killCamEntityType )
+    v17 = CG_GetLocalClientGlobals(v1);
+    if ( v17->inKillCam && v17->killCamEntityType )
     {
-      v22 = &v21->cvsData;
-      if ( v21 == (cg_t *)-304604i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1035, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
+      v18 = &v17->cvsData;
+      if ( v17 == (cg_t *)-304604i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1035, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
         __debugbreak();
-      v22->archived.visionBlends[15].lerpInfo.type = VISIONSETBLENDTYPE_ON;
+      v18->archived.visionBlends[15].lerpInfo.type = VISIONSETBLENDTYPE_ON;
     }
     else
     {
-      v23 = &v21->cvsData;
-      if ( v21 == (cg_t *)-304604i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1043, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
+      v19 = &v17->cvsData;
+      if ( v17 == (cg_t *)-304604i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1043, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
         __debugbreak();
-      v23->archived.visionBlends[15].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
+      v19->archived.visionBlends[15].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
     }
   }
-  painOverrideVisionSetIndex = _RBX->predictedPlayerState.painOverrideVisionSetIndex;
-  v25 = (char *)&queryFormat.fmt + 3;
-  if ( _RBX->cvsData.transitory.prevPainOverrideVisionSetIndex != painOverrideVisionSetIndex )
+  painOverrideVisionSetIndex = LocalClientGlobals->predictedPlayerState.painOverrideVisionSetIndex;
+  v21 = (char *)&queryFormat.fmt + 3;
+  if ( LocalClientGlobals->cvsData.transitory.prevPainOverrideVisionSetIndex != painOverrideVisionSetIndex )
   {
-    _RBX->cvsData.transitory.prevPainOverrideVisionSetIndex = painOverrideVisionSetIndex;
-    v26 = painOverrideVisionSetIndex;
+    LocalClientGlobals->cvsData.transitory.prevPainOverrideVisionSetIndex = painOverrideVisionSetIndex;
+    v22 = painOverrideVisionSetIndex;
     if ( painOverrideVisionSetIndex > 0 && NetConstStrings_GetVisionSetStringCount() )
     {
-      if ( !NetConstStrings_GetVisionSetName(v26, (const char **)&outVisionSetName) )
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6BC8, 1159i64, v26);
+      if ( !NetConstStrings_GetVisionSetName(v22, (const char **)&outVisionSetName) )
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6BC8, 1159i64, v22);
       if ( outVisionSetName && *outVisionSetName )
         CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_PAIN, outVisionSetName);
     }
@@ -4945,12 +4092,12 @@ void CG_VisionSetsUpdate_PrePlayerStatePrediction(const LocalClientNum_t localCl
       outVisionSetName = (char *)&queryFormat.fmt + 3;
     }
   }
-  if ( _RBX->m_isMLGSpectator && _RBX->cvsData.transitory.prevKillstreakOverrideVisionSetIndex )
+  if ( LocalClientGlobals->m_isMLGSpectator && LocalClientGlobals->cvsData.transitory.prevKillstreakOverrideVisionSetIndex )
   {
-    MLGSpectator = CgMLGSpectator::GetMLGSpectator(v3);
+    MLGSpectator = CgMLGSpectator::GetMLGSpectator(v1);
     CameraManager = CgMLGSpectator::GetCameraManager(MLGSpectator);
-    MLGCameraType = CgMLGCameraManager::GetMLGCameraType(CameraManager, v3);
-    v30 = MLGCameraType == SPECTATOR;
+    MLGCameraType = CgMLGCameraManager::GetMLGCameraType(CameraManager, v1);
+    v26 = MLGCameraType == SPECTATOR;
     if ( MLGCameraType && CgMLGSpectator::GetVisionSetMode(MLGSpectator) == IN_KILLSTREAK_VISION_SET )
     {
       if ( !p_cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1043, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
@@ -4959,7 +4106,7 @@ void CG_VisionSetsUpdate_PrePlayerStatePrediction(const LocalClientNum_t localCl
       CgMLGSpectator::SetVisionSetMode(MLGSpectator, NO_VISION_SET);
       return;
     }
-    if ( v30 && CgMLGSpectator::GetVisionSetMode(MLGSpectator) == NO_VISION_SET )
+    if ( v26 && CgMLGSpectator::GetVisionSetMode(MLGSpectator) == NO_VISION_SET )
     {
       if ( !p_cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1035, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
         __debugbreak();
@@ -4967,14 +4114,14 @@ void CG_VisionSetsUpdate_PrePlayerStatePrediction(const LocalClientNum_t localCl
       CgMLGSpectator::SetVisionSetMode(MLGSpectator, IN_KILLSTREAK_VISION_SET);
     }
   }
-  killstreakOverrideVisionSetIndex = _RBX->predictedPlayerState.killstreakOverrideVisionSetIndex;
-  if ( _RBX->cvsData.transitory.prevKillstreakOverrideVisionSetIndex != killstreakOverrideVisionSetIndex )
+  killstreakOverrideVisionSetIndex = LocalClientGlobals->predictedPlayerState.killstreakOverrideVisionSetIndex;
+  if ( LocalClientGlobals->cvsData.transitory.prevKillstreakOverrideVisionSetIndex != killstreakOverrideVisionSetIndex )
   {
-    _RBX->cvsData.transitory.prevKillstreakOverrideVisionSetIndex = killstreakOverrideVisionSetIndex;
-    v32 = CG_VisionSets_GetVisionName(killstreakOverrideVisionSetIndex);
-    if ( v32 && *v32 )
+    LocalClientGlobals->cvsData.transitory.prevKillstreakOverrideVisionSetIndex = killstreakOverrideVisionSetIndex;
+    v28 = CG_VisionSets_GetVisionName(killstreakOverrideVisionSetIndex);
+    if ( v28 && *v28 )
     {
-      CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_KILLSTREAK, v32);
+      CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_KILLSTREAK, v28);
       if ( !p_cvsData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1035, ASSERT_TYPE_ASSERT, "(cvsData)", (const char *)&queryFormat, "cvsData") )
         __debugbreak();
       p_cvsData->archived.visionBlends[13].lerpInfo.type = VISIONSETBLENDTYPE_ON;
@@ -4986,89 +4133,70 @@ void CG_VisionSetsUpdate_PrePlayerStatePrediction(const LocalClientNum_t localCl
       p_cvsData->archived.visionBlends[13].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
     }
   }
-  v33 = CG_GetLocalClientGlobals(v3);
-  _RDI = &v33->predictedPlayerState.visionSetOverride.visionSetIndex;
-  if ( v33->cvsData.transitory.prevOverride.duration == v33->predictedPlayerState.visionSetOverride.duration && v33->cvsData.transitory.prevOverride.startTime == v33->predictedPlayerState.visionSetOverride.startTime && v33->cvsData.transitory.prevOverride.visionSetIndex == *_RDI )
-    _RDI = NULL;
-  if ( v6 )
+  v29 = CG_GetLocalClientGlobals(v1);
+  p_visionSetIndex = &v29->predictedPlayerState.visionSetOverride.visionSetIndex;
+  if ( v29->cvsData.transitory.prevOverride.duration == v29->predictedPlayerState.visionSetOverride.duration && v29->cvsData.transitory.prevOverride.startTime == v29->predictedPlayerState.visionSetOverride.startTime && v29->cvsData.transitory.prevOverride.visionSetIndex == *p_visionSetIndex )
+    p_visionSetIndex = NULL;
+  if ( v4 )
   {
-    *(_QWORD *)&_RBX->cvsData.transitory.prevOverride.visionSetIndex = 0i64;
-    _RBX->cvsData.transitory.prevOverride.duration = 0;
+    *(_QWORD *)&LocalClientGlobals->cvsData.transitory.prevOverride.visionSetIndex = 0i64;
+    LocalClientGlobals->cvsData.transitory.prevOverride.duration = 0;
   }
-  else if ( _RDI && NetConstStrings_GetVisionSetStringCount() )
+  else if ( p_visionSetIndex && NetConstStrings_GetVisionSetStringCount() )
   {
-    __asm
+    *(double *)&LocalClientGlobals->cvsData.transitory.prevOverride.visionSetIndex = *(double *)p_visionSetIndex;
+    LocalClientGlobals->cvsData.transitory.prevOverride.duration = p_visionSetIndex[2];
+    if ( *p_visionSetIndex )
     {
-      vmovsd  xmm0, qword ptr [rdi]
-      vmovsd  qword ptr [rbx+58F34h], xmm0
-    }
-    _RBX->cvsData.transitory.prevOverride.duration = _RDI[2];
-    if ( *_RDI )
-    {
-      if ( !NetConstStrings_GetVisionSetName(*_RDI, (const char **)&outVisionSetName) )
+      if ( !NetConstStrings_GetVisionSetName(*p_visionSetIndex, (const char **)&outVisionSetName) )
       {
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6BC8, 1163i64, *_RDI);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442C6BC8, 1163i64, *p_visionSetIndex);
         return;
       }
-      v25 = outVisionSetName;
+      v21 = outVisionSetName;
       if ( *outVisionSetName )
       {
-        CG_VisionSetUpdateToNode(p_cvsData, _RBX->time, VISIONSET_BLENDTYPE_CT_B);
-        CG_VisionSetClearScriptBlendInUseIfNeeded(p_cvsData, _RBX->time);
-        _RCX = &_RBX->cvsData.archived.visionLeaves[23];
-        v38 = 9i64;
-        _RDX = &_RBX->cvsData.archived.visionBlends[21];
+        CG_VisionSetUpdateToNode(p_cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_CT_B);
+        CG_VisionSetClearScriptBlendInUseIfNeeded(p_cvsData, LocalClientGlobals->time);
+        v32 = &LocalClientGlobals->cvsData.archived.visionLeaves[23];
+        v33 = 9i64;
+        v34 = &LocalClientGlobals->cvsData.archived.visionBlends[21];
         do
         {
-          _RCX = (visionSetVars_t *)((char *)_RCX + 128);
-          __asm { vmovups xmm0, xmmword ptr [rdx] }
-          _RDX = (visionSetBlend_t *)((char *)_RDX + 128);
-          __asm
-          {
-            vmovups xmmword ptr [rcx-80h], xmm0
-            vmovups xmm1, xmmword ptr [rdx-70h]
-            vmovups xmmword ptr [rcx-70h], xmm1
-            vmovups xmm0, xmmword ptr [rdx-60h]
-            vmovups xmmword ptr [rcx-60h], xmm0
-            vmovups xmm1, xmmword ptr [rdx-50h]
-            vmovups xmmword ptr [rcx-50h], xmm1
-            vmovups xmm0, xmmword ptr [rdx-40h]
-            vmovups xmmword ptr [rcx-40h], xmm0
-            vmovups xmm1, xmmword ptr [rdx-30h]
-            vmovups xmmword ptr [rcx-30h], xmm1
-            vmovups xmm0, xmmword ptr [rdx-20h]
-            vmovups xmmword ptr [rcx-20h], xmm0
-            vmovups xmm1, xmmword ptr [rdx-10h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          --v38;
+          v32 = (visionSetVars_t *)((char *)v32 + 128);
+          v35 = *(_OWORD *)&v34->r_primaryLightTweakDiffuseStrength;
+          v34 = (visionSetBlend_t *)((char *)v34 + 128);
+          *(_OWORD *)v32[-1].hdrColorizeGain.v = v35;
+          *(_OWORD *)&v32[-1].name[4] = *(_OWORD *)&v34[-1].name[28];
+          *(_OWORD *)&v32[-1].name[20] = *(_OWORD *)&v34[-1].name[44];
+          *(_OWORD *)&v32[-1].name[36] = *(_OWORD *)&v34[-1].name[60];
+          *(_OWORD *)&v32[-1].name[52] = *(_OWORD *)&v34[-1].inUse.array[3];
+          *(_OWORD *)&v32[-1].inUse.array[1] = *(_OWORD *)&v34[-1].decalVolumeDrawDistance;
+          *(_OWORD *)&v32[-1].inUse.array[5] = *(_OWORD *)&v34[-1].dummy2;
+          *(_OWORD *)&v32[-1].scopedNVG = *(_OWORD *)&v34[-1].lerpInfo.style;
+          --v33;
         }
-        while ( v38 );
-        __asm { vmovups xmm0, xmmword ptr [rdx] }
-        v49 = outVisionSetName;
-        __asm
-        {
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rdx+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-        }
-        *(_QWORD *)&_RCX->r_viewModelLightAmbient.y = *(_QWORD *)&_RDX->r_viewModelLightAmbient.y;
-        _RCX->r_lightTweakUVIntensityScale = _RDX->r_lightTweakUVIntensityScale;
-        CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, v49);
-        CG_VisionSetRegisterBlendStart(p_cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, _RDI[1], _RDI[2], 1, VISIONSETLERP_SMOOTH);
-        v25 = outVisionSetName;
+        while ( v33 );
+        v36 = outVisionSetName;
+        *(_OWORD *)&v32->r_primaryLightTweakDiffuseStrength = *(_OWORD *)&v34->r_primaryLightTweakDiffuseStrength;
+        *(_OWORD *)&v32->r_charLightAmbient.z = *(_OWORD *)&v34->r_charLightAmbient.z;
+        *(_QWORD *)&v32->r_viewModelLightAmbient.y = *(_QWORD *)&v34->r_viewModelLightAmbient.y;
+        v32->r_lightTweakUVIntensityScale = v34->r_lightTweakUVIntensityScale;
+        CG_VisionSetRegisterLeafByFile(p_cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, v36);
+        CG_VisionSetRegisterBlendStart(p_cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, p_visionSetIndex[1], p_visionSetIndex[2], 1, VISIONSETLERP_SMOOTH);
+        v21 = outVisionSetName;
       }
     }
     else
     {
       outVisionSetName = (char *)&queryFormat.fmt + 3;
     }
-    CG_VisionSetScriptOverride(p_cvsData, v25, _RDI[1], _RDI[2]);
+    CG_VisionSetScriptOverride(p_cvsData, v21, p_visionSetIndex[1], p_visionSetIndex[2]);
   }
-  if ( _RBX->predictedPlayerState.pm_type >= 7 )
+  if ( LocalClientGlobals->predictedPlayerState.pm_type >= 7 )
   {
-    _RBX->cvsData.archived.visionBlends[5].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
-    _RBX->cvsData.archived.visionBlends[12].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
+    LocalClientGlobals->cvsData.archived.visionBlends[5].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
+    LocalClientGlobals->cvsData.archived.visionBlends[12].lerpInfo.type = VISIONSETBLENDTYPE_OFF;
   }
 }
 
@@ -5130,76 +4258,73 @@ CG_VisionSets_UpdateWeaponADS
 */
 void CG_VisionSets_UpdateWeaponADS(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
   cg_t *LocalClientGlobals; 
   const playerState_s *p_predictedPlayerState; 
-  CgWeaponMap *v6; 
+  CgWeaponMap *v4; 
   const Weapon *ViewmodelOrOffhandADSSupportWeapon; 
-  bool v8; 
-  bool v9; 
+  bool v6; 
+  bool v7; 
   int EquippedWeaponIndex; 
-  __int64 v11; 
-  bool v12; 
+  __int64 v9; 
+  bool v10; 
   CgHandler *Handler; 
-  bool v14; 
+  bool v12; 
+  double Lerp; 
   int time; 
   int startTime; 
-  bool v18; 
-  bool v19; 
-  bool v23; 
+  bool v16; 
   BgAdsVisionSetInfo outVisionSetInfo; 
   bool outIsAlternate; 
 
-  v3 = localClientNum;
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1794, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
-  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v6 = CgWeaponMap::ms_instance[v3];
-  ViewmodelOrOffhandADSSupportWeapon = BG_GetViewmodelOrOffhandADSSupportWeapon(v6, p_predictedPlayerState, &outIsAlternate);
-  v8 = LocalClientGlobals->renderingThirdPerson || BG_IsThirdPersonMode(v6, p_predictedPlayerState);
-  v9 = 0;
-  if ( BG_IsUsingOffhandGestureWeaponADSSupport(v6, p_predictedPlayerState) && BG_HasThermalScope(p_predictedPlayerState, ViewmodelOrOffhandADSSupportWeapon, 0) )
+  v4 = CgWeaponMap::ms_instance[v1];
+  ViewmodelOrOffhandADSSupportWeapon = BG_GetViewmodelOrOffhandADSSupportWeapon(v4, p_predictedPlayerState, &outIsAlternate);
+  v6 = LocalClientGlobals->renderingThirdPerson || BG_IsThirdPersonMode(v4, p_predictedPlayerState);
+  v7 = 0;
+  if ( BG_IsUsingOffhandGestureWeaponADSSupport(v4, p_predictedPlayerState) && BG_HasThermalScope(p_predictedPlayerState, ViewmodelOrOffhandADSSupportWeapon, 0) )
   {
-    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1089, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1089, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1090, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v9 = 0;
+    v7 = 0;
     if ( ViewmodelOrOffhandADSSupportWeapon->weaponIdx )
     {
-      EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v6, p_predictedPlayerState, ViewmodelOrOffhandADSSupportWeapon);
+      EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v4, p_predictedPlayerState, ViewmodelOrOffhandADSSupportWeapon);
       if ( EquippedWeaponIndex >= 0 )
       {
-        v11 = EquippedWeaponIndex;
-        if ( (const playerState_s *)((char *)p_predictedPlayerState + 4 * v11) != (const playerState_s *)-1540i64 && !p_predictedPlayerState->weapEquippedData[v11].thermalEnabled )
-          v9 = 1;
+        v9 = EquippedWeaponIndex;
+        if ( (const playerState_s *)((char *)p_predictedPlayerState + 4 * v9) != (const playerState_s *)-1540i64 && !p_predictedPlayerState->weapEquippedData[v9].thermalEnabled )
+          v7 = 1;
       }
     }
   }
   memset(&outVisionSetInfo, 0, sizeof(outVisionSetInfo));
-  v14 = 0;
-  if ( !v8 )
+  v12 = 0;
+  if ( !v6 )
   {
-    v12 = outIsAlternate;
-    Handler = CgHandler::getHandler((LocalClientNum_t)v3);
-    if ( BG_IsAdsVisionSetActive(Handler, p_predictedPlayerState, ViewmodelOrOffhandADSSupportWeapon, v12, &outVisionSetInfo) && !CG_View_IsEMPJammed((const LocalClientNum_t)v3) && !v9 )
-      v14 = 1;
+    v10 = outIsAlternate;
+    Handler = CgHandler::getHandler((LocalClientNum_t)v1);
+    if ( BG_IsAdsVisionSetActive(Handler, p_predictedPlayerState, ViewmodelOrOffhandADSSupportWeapon, v10, &outVisionSetInfo) && !CG_View_IsEMPJammed((const LocalClientNum_t)v1) && !v7 )
+      v12 = 1;
   }
-  *(double *)&_XMM0 = CG_VisionSetGetLerp(&LocalClientGlobals->cvsData.archived.visionBlends[14], LocalClientGlobals->time);
+  Lerp = CG_VisionSetGetLerp(&LocalClientGlobals->cvsData.archived.visionBlends[14], LocalClientGlobals->time);
   time = LocalClientGlobals->time;
-  __asm { vmovaps xmm6, xmm0 }
-  v18 = 0;
+  v16 = 0;
   if ( LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.type == VISIONSETBLENDTYPE_TIME && time > 0 )
   {
     startTime = LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.startTime;
     if ( time > startTime && time < LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.duration + startTime )
-      v18 = 1;
+      v16 = 1;
   }
-  if ( v14 )
+  if ( v12 )
   {
     if ( !outVisionSetInfo.visionSetName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets.cpp", 1827, ASSERT_TYPE_ASSERT, "(adsVisionSetInfo.visionSetName)", (const char *)&queryFormat, "adsVisionSetInfo.visionSetName") )
       __debugbreak();
@@ -5208,37 +4333,14 @@ void CG_VisionSets_UpdateWeaponADS(const LocalClientNum_t localClientNum)
       CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->cvsData, VISIONSET_LEAFTYPE_WEAPON_ADS, outVisionSetInfo.visionSetName);
 LABEL_43:
       CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_WEAPON_ADS, LocalClientGlobals->time, outVisionSetInfo.visionSetBlendInTimeMs, 1, VISIONSETLERP_SMOOTH);
-      goto LABEL_52;
+      return;
     }
-    v19 = !v18;
-    if ( !v18 || (v19 = LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.forward == 0, !LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.forward) )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm6, cs:__real@3f800000
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-      }
-      if ( !v19 )
-        goto LABEL_43;
-    }
+    if ( (!v16 || !LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.forward) && COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&Lerp - 1.0) & _xmm) > 0.000001 )
+      goto LABEL_43;
   }
-  else
+  else if ( (!v16 || LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.forward) && *(float *)&Lerp > 0.000001 )
   {
-    v23 = !v18;
-    if ( !v18 || (v23 = LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.forward == 0, LocalClientGlobals->cvsData.archived.visionBlends[14].lerpInfo.timeData.forward) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-      }
-      if ( !v23 )
-        CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_WEAPON_ADS, time, outVisionSetInfo.visionSetBlendOutTimeMs, 0, VISIONSETLERP_SMOOTH);
-    }
+    CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_WEAPON_ADS, time, outVisionSetInfo.visionSetBlendOutTimeMs, 0, VISIONSETLERP_SMOOTH);
   }
-LABEL_52:
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 

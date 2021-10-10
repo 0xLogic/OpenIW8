@@ -313,232 +313,215 @@ PartyMigrate_HandleNomineeMsg
 */
 void PartyMigrate_HandleNomineeMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
+  __int128 v8; 
   __int64 Bits; 
   unsigned int v10; 
   __int64 v11; 
   __int64 v12; 
-  int v14; 
-  const char *v15; 
-  int v17; 
-  const char *v18; 
+  int v13; 
+  const char *v14; 
+  int v15; 
+  const char *v16; 
   unsigned __int64 m_id; 
   __int64 MemberByXUID_AllowNotPresent; 
-  const char *v21; 
+  const char *v19; 
   const char *MemberName; 
+  __int64 v21; 
+  __int64 v22; 
   __int64 v23; 
   __int64 v24; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  const char *v36; 
-  const char *v37; 
-  int v41; 
-  const char *v42; 
+  __int64 v25; 
+  const char *v26; 
+  const char *v27; 
+  NomineeInfo v28; 
+  __int64 v29; 
+  int v30; 
+  const char *v31; 
   int addrHandleIndex; 
-  const char *v45; 
+  const char *v33; 
   char *fmt; 
   char *fmta; 
-  __int64 v48; 
+  __int64 v36; 
   XUID player; 
-  netadr_t v50; 
-  __m256i buffer; 
+  netadr_t v38; 
+  NomineeInfo buffer; 
   char dest[512]; 
 
-  _RDI = party;
-  _RBX = from;
   XUID::XUID(&player);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1800, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
+  if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1800, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  if ( !_RDI->inParty )
+  if ( !party->inParty )
   {
-    Com_PrintError(25, "[%s] Received party nominee msg for a party type that we're not in\n", _RDI->partyName);
+    Com_PrintError(25, "[%s] Received party nominee msg for a party type that we're not in\n", party->partyName);
     return;
   }
-  if ( !PartyMigrate_HostMigrationEnabled(_RDI) )
+  if ( !PartyMigrate_HostMigrationEnabled(party) )
   {
-    Com_Printf(25, "[%s] Received party nominee msg but host migration is not enabled.\n", _RDI->partyName);
+    Com_Printf(25, "[%s] Received party nominee msg but host migration is not enabled.\n", party->partyName);
     return;
   }
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  v50.addrHandleIndex = _RBX->addrHandleIndex;
-  __asm { vmovups [rsp+2E0h+var_290], xmm0 }
-  if ( Party_FindFirstMemberAtAddr(_RDI, &v50) < 0 )
+  v8 = *(_OWORD *)&from->type;
+  v38.addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v38.type = v8;
+  if ( Party_FindFirstMemberAtAddr(party, &v38) < 0 )
   {
-    Com_Printf(25, "[%s] Received party nominee msg but we don't know who it's from.\n", _RDI->partyName);
+    Com_Printf(25, "[%s] Received party nominee msg but we don't know who it's from.\n", party->partyName);
     return;
   }
-  if ( _RDI->partyMembersBits <= 0 )
+  if ( party->partyMembersBits <= 0 )
   {
-    LODWORD(v48) = _RDI->partyMembersBits;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1819, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v48) )
+    LODWORD(v36) = party->partyMembersBits;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1819, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v36) )
       __debugbreak();
   }
   Bits = MSG_ReadBits(msg, 2u);
   v10 = truncate_cast<int,__int64>(Bits);
-  v11 = MSG_ReadBits(msg, _RDI->partyMembersBits);
+  v11 = MSG_ReadBits(msg, party->partyMembersBits);
   v12 = truncate_cast<int,__int64>(v11);
   XUID::Deserialize(&player, msg);
   MSG_ReadData(msg, 32, &buffer, 32);
   if ( msg->overflowed || msg->readcount != msg->cursize + msg->splitSize )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    addrHandleIndex = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+2E0h+var_290], xmm0 }
-    v50.addrHandleIndex = addrHandleIndex;
-    v45 = NET_AdrToString(&v50);
-    Com_PrintError(25, "[%s] Received party nominee msg with invalid payload from %s\n", _RDI->partyName, v45);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v38.type = *(_OWORD *)&from->type;
+    v38.addrHandleIndex = addrHandleIndex;
+    v33 = NET_AdrToString(&v38);
+    Com_PrintError(25, "[%s] Received party nominee msg with invalid payload from %s\n", party->partyName, v33);
   }
   else if ( (unsigned int)v12 > 0xC7 )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    v41 = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+2E0h+var_290], xmm0 }
-    v50.addrHandleIndex = v41;
-    v42 = NET_AdrToString(&v50);
-    Com_Printf(25, "[%s] Received party nominee msg from invalid clientNum %i. (%s)\n", _RDI->partyName, (unsigned int)v12, v42);
+    v30 = from->addrHandleIndex;
+    *(_OWORD *)&v38.type = *(_OWORD *)&from->type;
+    v38.addrHandleIndex = v30;
+    v31 = NET_AdrToString(&v38);
+    Com_Printf(25, "[%s] Received party nominee msg from invalid clientNum %i. (%s)\n", party->partyName, (unsigned int)v12, v31);
   }
   else
   {
-    if ( !PartyMigrate_IsStatusValidForMigration(_RDI, v12) )
+    if ( !PartyMigrate_IsStatusValidForMigration(party, v12) )
     {
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      v14 = _RBX->addrHandleIndex;
-      __asm { vmovups [rsp+2E0h+var_290], xmm0 }
-      v50.addrHandleIndex = v14;
-      v15 = NET_AdrToString(&v50);
+      v13 = from->addrHandleIndex;
+      *(_OWORD *)&v38.type = *(_OWORD *)&from->type;
+      v38.addrHandleIndex = v13;
+      v14 = NET_AdrToString(&v38);
       LODWORD(fmt) = v12;
-      Com_Printf(25, "[%s] Received party nominee msg from clientNum %i but client %i is not in a valid state for migration (%s)\n", _RDI->partyName, (unsigned int)v12, fmt, v15);
+      Com_Printf(25, "[%s] Received party nominee msg from clientNum %i but client %i is not in a valid state for migration (%s)\n", party->partyName, (unsigned int)v12, fmt, v14);
       return;
     }
-    if ( Party_MemberHasLoopbackAddr(_RDI, v12) )
+    if ( Party_MemberHasLoopbackAddr(party, v12) )
     {
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      v17 = _RBX->addrHandleIndex;
-      __asm { vmovups [rsp+2E0h+var_290], xmm0 }
-      v50.addrHandleIndex = v17;
-      v18 = NET_AdrToString(&v50);
-      Com_PrintWarning(25, "[%s] We got a nominee msg from clientNum %i, which is a local client. Ignoring. (%s)\n", _RDI->partyName, (unsigned int)v12, v18);
+      v15 = from->addrHandleIndex;
+      *(_OWORD *)&v38.type = *(_OWORD *)&from->type;
+      v38.addrHandleIndex = v15;
+      v16 = NET_AdrToString(&v38);
+      Com_PrintWarning(25, "[%s] We got a nominee msg from clientNum %i, which is a local client. Ignoring. (%s)\n", party->partyName, (unsigned int)v12, v16);
       return;
     }
-    if ( v10 != _RDI->migrateData.indexBits )
+    if ( v10 != party->migrateData.indexBits )
     {
-      LODWORD(v48) = _RDI->migrateData.indexBits;
+      LODWORD(v36) = party->migrateData.indexBits;
       LODWORD(fmt) = v12;
-      Com_Printf(25, "[%s] Received stale nominee msg (index %i) from client %i - current indexBits are %i\n", _RDI->partyName, v10, fmt, v48);
+      Com_Printf(25, "[%s] Received stale nominee msg (index %i) from client %i - current indexBits are %i\n", party->partyName, v10, fmt, v36);
       return;
     }
-    if ( !PartyMigrate_MigrateActive(_RDI) )
+    if ( !PartyMigrate_MigrateActive(party) )
     {
-      if ( !Party_IsRunning(_RDI) && !Party_IsInGameLobbyMigrationAllowed(_RDI) )
+      if ( !Party_IsRunning(party) && !Party_IsInGameLobbyMigrationAllowed(party) )
       {
-        Com_Printf(25, "[%s] Received stray nominee for game lobby while it is inactive.\n", _RDI->partyName);
+        Com_Printf(25, "[%s] Received stray nominee for game lobby while it is inactive.\n", party->partyName);
         return;
       }
-      LODWORD(fmt) = _RDI->migrateData.indexBits;
-      Com_Printf(25, "[%s] We're not currently migrating but we got a migration message from client %i with index %i, which is the valid next index\n", _RDI->partyName, (unsigned int)v12, fmt);
-      PartyMigrate_StartTimeout(_RDI);
-      PartyMigrate_StartNegotiation(_RDI, mainActiveClient);
-      PartyMigrate_CheckNegotiationDisconnect(_RDI, mainActiveClient);
+      LODWORD(fmt) = party->migrateData.indexBits;
+      Com_Printf(25, "[%s] We're not currently migrating but we got a migration message from client %i with index %i, which is the valid next index\n", party->partyName, (unsigned int)v12, fmt);
+      PartyMigrate_StartTimeout(party);
+      PartyMigrate_StartNegotiation(party, mainActiveClient);
+      PartyMigrate_CheckNegotiationDisconnect(party, mainActiveClient);
     }
-    if ( _RDI->migrateData.weAreArbitrating )
+    if ( party->migrateData.weAreArbitrating )
     {
       if ( (unsigned int)v12 >= 0xC8 )
       {
-        LODWORD(v48) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1877, ASSERT_TYPE_ASSERT, "(unsigned)( fromWhom ) < (unsigned)( 200 )", "fromWhom doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v48, 200) )
+        LODWORD(v36) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1877, ASSERT_TYPE_ASSERT, "(unsigned)( fromWhom ) < (unsigned)( 200 )", "fromWhom doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v36, 200) )
           __debugbreak();
       }
       m_id = player.m_id;
-      _RDI->partyMembers[v12].migrateHeardFrom = 1;
-      MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(_RDI, (const XUID)m_id);
+      party->partyMembers[v12].migrateHeardFrom = 1;
+      MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, (const XUID)m_id);
       if ( XUID::IsValid(&player) && (int)MemberByXUID_AllowNotPresent < 0 )
       {
-        v21 = XUID::ToDevString(&player);
-        MemberName = Party_GetMemberName(_RDI, v12);
-        Com_PrintError(25, "[%s] Client %i (%s) wants the host to be client with XUID %s, but we can't find that XUID in the party!\n", _RDI->partyName, (unsigned int)v12, MemberName, v21);
+        v19 = XUID::ToDevString(&player);
+        MemberName = Party_GetMemberName(party, v12);
+        Com_PrintError(25, "[%s] Client %i (%s) wants the host to be client with XUID %s, but we can't find that XUID in the party!\n", party->partyName, (unsigned int)v12, MemberName, v19);
       }
       if ( (_DWORD)MemberByXUID_AllowNotPresent == -1 || (_DWORD)MemberByXUID_AllowNotPresent == (_DWORD)v12 )
       {
         if ( (unsigned int)(MemberByXUID_AllowNotPresent + 1) > 0xC8 )
         {
-          Com_Printf(25, "[%s] Received party nominee msg for invalid clientNum %i!\n", _RDI->partyName, (unsigned int)MemberByXUID_AllowNotPresent);
+          Com_Printf(25, "[%s] Received party nominee msg for invalid clientNum %i!\n", party->partyName, (unsigned int)MemberByXUID_AllowNotPresent);
         }
         else
         {
           if ( (int)MemberByXUID_AllowNotPresent < 0 )
           {
-            Com_Printf(25, "[%s] Client %i doesn't have a nominee\n", _RDI->partyName, (unsigned int)v12);
+            Com_Printf(25, "[%s] Client %i doesn't have a nominee\n", party->partyName, (unsigned int)v12);
           }
           else
           {
-            LODWORD(fmt) = buffer.m256i_i32[2];
-            Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", buffer.m256i_u32[0], buffer.m256i_u32[1], fmt);
+            LODWORD(fmt) = buffer.connectivity;
+            Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)buffer.upload, (unsigned int)buffer.NAT, fmt);
+            v21 = -1i64;
+            v22 = -1i64;
+            do
+              ++v22;
+            while ( dest[v22] );
+            Com_sprintf_truncate(&dest[v22], 512 - v22, ", CPU %g", (float)((float)buffer.cpuSpeed * 0.001));
             v23 = -1i64;
+            do
+              ++v23;
+            while ( dest[v23] );
+            Com_sprintf_truncate(&dest[v23], 512 - v23, ", RAM %i", (unsigned int)buffer.physMemory);
             v24 = -1i64;
             do
               ++v24;
             while ( dest[v24] );
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rsp+2E0h+buffer+0Ch]
-              vmulss  xmm1, xmm0, cs:__real@3a83126f
-              vcvtss2sd xmm3, xmm1, xmm1
-              vmovq   r9, xmm3
-            }
-            Com_sprintf_truncate(&dest[v24], 512 - v24, ", CPU %g", *(double *)&_XMM3);
-            v30 = -1i64;
+            Com_sprintf_truncate(&dest[v24], 512 - v24, ", avgPing %i", (unsigned int)buffer.avgPing);
+            v25 = -1i64;
             do
-              ++v30;
-            while ( dest[v30] );
-            Com_sprintf_truncate(&dest[v30], 512 - v30, ", RAM %i", buffer.m256i_u32[4]);
-            v31 = -1i64;
+              ++v25;
+            while ( dest[v25] );
+            Com_sprintf_truncate(&dest[v25], 512 - v25, ", hostScore %0.2f", buffer.hostScore);
             do
-              ++v31;
-            while ( dest[v31] );
-            Com_sprintf_truncate(&dest[v31], 512 - v31, ", avgPing %i", buffer.m256i_u32[5]);
-            v32 = -1i64;
-            do
-              ++v32;
-            while ( dest[v32] );
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rbp+1E0h+buffer+18h]
-              vcvtss2sd xmm3, xmm3, xmm3
-              vmovq   r9, xmm3
-            }
-            Com_sprintf_truncate(&dest[v32], 512 - v32, ", hostScore %0.2f", *(double *)&_XMM3);
-            do
-              ++v23;
-            while ( dest[v23] );
-            Com_sprintf_truncate(&dest[v23], 512 - v23, ")");
-            v36 = XUID::ToDevString(&player);
-            v37 = Party_GetMemberName(_RDI, MemberByXUID_AllowNotPresent);
+              ++v21;
+            while ( dest[v21] );
+            Com_sprintf_truncate(&dest[v21], 512 - v21, ")");
+            v26 = XUID::ToDevString(&player);
+            v27 = Party_GetMemberName(party, MemberByXUID_AllowNotPresent);
             LODWORD(fmta) = MemberByXUID_AllowNotPresent;
-            Com_Printf(25, "[%s] Client %i wants the host to be client %i (%s - xuid %s) %s\n", _RDI->partyName, (unsigned int)v12, fmta, v37, v36, dest);
+            Com_Printf(25, "[%s] Client %i wants the host to be client %i (%s - xuid %s) %s\n", party->partyName, (unsigned int)v12, fmta, v27, v26, dest);
           }
           if ( (int)MemberByXUID_AllowNotPresent >= 0 )
           {
             if ( (_DWORD)MemberByXUID_AllowNotPresent != (_DWORD)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1912, ASSERT_TYPE_ASSERT, "(theirNominee == fromWhom)", (const char *)&queryFormat, "theirNominee == fromWhom") )
               __debugbreak();
-            if ( !PartyMigrate_IsStatusValidForMigration(_RDI, MemberByXUID_AllowNotPresent) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1913, ASSERT_TYPE_ASSERT, "(PartyMigrate_IsStatusValidForMigration( party, theirNominee ))", (const char *)&queryFormat, "PartyMigrate_IsStatusValidForMigration( party, theirNominee )") )
+            if ( !PartyMigrate_IsStatusValidForMigration(party, MemberByXUID_AllowNotPresent) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1913, ASSERT_TYPE_ASSERT, "(PartyMigrate_IsStatusValidForMigration( party, theirNominee ))", (const char *)&queryFormat, "PartyMigrate_IsStatusValidForMigration( party, theirNominee )") )
               __debugbreak();
-            __asm { vmovups ymm0, [rsp+2E0h+buffer] }
-            _RCX = MemberByXUID_AllowNotPresent;
-            _RDI->partyMembers[_RCX].migrateNominated = 1;
-            __asm { vmovups ymmword ptr [rcx+rdi+948h], ymm0 }
+            v28 = buffer;
+            v29 = MemberByXUID_AllowNotPresent;
+            party->partyMembers[v29].migrateNominated = 1;
+            party->partyMembers[v29].migrateNomineeInfo = v28;
           }
         }
       }
       else
       {
         LODWORD(fmt) = MemberByXUID_AllowNotPresent;
-        Com_PrintWarning(25, "[%s] Received nomination from client %i for client %i - XUID/client mismatch - clients can only nominate themselves\n", _RDI->partyName, (unsigned int)v12, fmt);
+        Com_PrintWarning(25, "[%s] Received nomination from client %i for client %i - XUID/client mismatch - clients can only nominate themselves\n", party->partyName, (unsigned int)v12, fmt);
       }
     }
     else
     {
-      Com_Printf(25, "[%s] Received nominee msg from clientNum %i, but we are not arbitrating.\n", _RDI->partyName, (unsigned int)v12);
+      Com_Printf(25, "[%s] Received nominee msg from clientNum %i, but we are not arbitrating.\n", party->partyName, (unsigned int)v12);
     }
   }
 }
@@ -550,29 +533,29 @@ PartyMigrate_HandleMakeHostMsg
 */
 void PartyMigrate_HandleMakeHostMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
-  int v10; 
-  const char *v11; 
+  __int128 v8; 
+  int v9; 
+  const char *v10; 
   int ArbitratorClientNum; 
   __int64 Bits; 
-  unsigned int v14; 
-  __int64 v15; 
-  unsigned int v16; 
+  unsigned int v13; 
+  __int64 v14; 
+  unsigned int v15; 
   int indexBits; 
   int addrHandleIndex; 
-  const char *v20; 
-  const char *v21; 
+  const char *v18; 
+  const char *v19; 
   int HasHostAddress; 
   const char *partyName; 
-  int v24; 
+  int v22; 
+  const char *v23; 
+  const dvar_t *v24; 
   const char *v25; 
-  const dvar_t *v26; 
-  const char *v27; 
   char *fmt; 
-  __int64 v29; 
+  __int64 v27; 
   XUID player; 
-  netadr_t v31; 
+  netadr_t v29; 
 
-  _RSI = from;
   XUID::XUID(&player);
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1990, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
@@ -582,19 +565,13 @@ void PartyMigrate_HandleMakeHostMsg(PartyData *party, const PartyActiveClient *m
     {
       if ( Party_IsRunning(party) )
       {
-        if ( Party_IsHostDedicated(party) )
-          goto LABEL_54;
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
-        v31.addrHandleIndex = _RSI->addrHandleIndex;
-        __asm { vmovups [rsp+0A8h+var_58], xmm0 }
-        if ( Party_FindFirstMemberAtAddr(party, &v31) >= 0 )
+        if ( Party_IsHostDedicated(party) || (v8 = *(_OWORD *)&from->type, v29.addrHandleIndex = from->addrHandleIndex, *(_OWORD *)&v29.type = v8, Party_FindFirstMemberAtAddr(party, &v29) >= 0) )
         {
-LABEL_54:
           if ( party->areWeHost )
           {
             Com_PrintError(25, "[%s] Received invalid makeHost msg as a host\n", party->partyName);
           }
-          else if ( Party_PacketIsFromHost(party, (const LocalClientNum_t)mainActiveClient->localClientNum, _RSI) )
+          else if ( Party_PacketIsFromHost(party, (const LocalClientNum_t)mainActiveClient->localClientNum, from) )
           {
             if ( PartyMigrate_HostMigrationEnabled(party) )
             {
@@ -609,91 +586,90 @@ LABEL_54:
                 {
                   if ( party->partyMembersBits <= 0 )
                   {
-                    LODWORD(v29) = party->partyMembersBits;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2040, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v29) )
+                    LODWORD(v27) = party->partyMembersBits;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2040, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v27) )
                       __debugbreak();
                   }
                   Bits = MSG_ReadBits(msg, 2u);
-                  v14 = truncate_cast<int,__int64>(Bits);
-                  v15 = MSG_ReadBits(msg, party->partyMembersBits);
-                  v16 = truncate_cast<int,__int64>(v15);
+                  v13 = truncate_cast<int,__int64>(Bits);
+                  v14 = MSG_ReadBits(msg, party->partyMembersBits);
+                  v15 = truncate_cast<int,__int64>(v14);
                   XUID::Deserialize(&player, msg);
                   indexBits = party->migrateData.indexBits;
-                  if ( v14 == indexBits )
+                  if ( v13 == indexBits )
                   {
-                    if ( v16 > 0xC7 || XUID::IsNull(&player) )
+                    if ( v15 > 0xC7 || XUID::IsNull(&player) )
                     {
-                      v27 = XUID::ToDevString(&player);
-                      Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i and xuid %s invalid.\n", party->partyName, v16, v27);
+                      v25 = XUID::ToDevString(&player);
+                      Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i and xuid %s invalid.\n", party->partyName, v15, v25);
                     }
-                    else if ( Party_FindMemberByXUID(party, player) == v16 )
+                    else if ( Party_FindMemberByXUID(party, player) == v15 )
                     {
-                      if ( PartyMigrate_IsStatusValidForMigration(party, v16) )
+                      if ( PartyMigrate_IsStatusValidForMigration(party, v15) )
                       {
-                        HasHostAddress = Party_MemberHasHostAddress(party, v16);
+                        HasHostAddress = Party_MemberHasHostAddress(party, v15);
                         partyName = party->partyName;
                         if ( HasHostAddress )
                         {
-                          Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i is the host machine.\n", partyName, v16);
+                          Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i is the host machine.\n", partyName, v15);
                         }
                         else
                         {
-                          LODWORD(fmt) = v16;
-                          Com_Printf(25, "[%s] Host told us to make someone else the host. Index bits are %i. New host is client %i.\n", partyName, v14, fmt);
-                          v24 = PartyMigrate_SetupMigration(party, mainActiveClient);
-                          v25 = party->partyName;
-                          if ( v24 )
+                          LODWORD(fmt) = v15;
+                          Com_Printf(25, "[%s] Host told us to make someone else the host. Index bits are %i. New host is client %i.\n", partyName, v13, fmt);
+                          v22 = PartyMigrate_SetupMigration(party, mainActiveClient);
+                          v23 = party->partyName;
+                          if ( v22 )
                           {
-                            Com_Printf(25, "[%s] Setting migrateToRequestedHost to %i.\n", v25, v16);
+                            Com_Printf(25, "[%s] Setting migrateToRequestedHost to %i.\n", v23, v15);
                             if ( !party->migrateData.weAreArbitrating && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2084, ASSERT_TYPE_ASSERT, "(party->migrateData.weAreArbitrating)", (const char *)&queryFormat, "party->migrateData.weAreArbitrating") )
                               __debugbreak();
                             if ( party->migrateData.migrateToRequestedHost != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2085, ASSERT_TYPE_ASSERT, "(party->migrateData.migrateToRequestedHost == -1)", (const char *)&queryFormat, "party->migrateData.migrateToRequestedHost == -1") )
                               __debugbreak();
-                            party->migrateData.migrateToRequestedHost = v16;
+                            party->migrateData.migrateToRequestedHost = v15;
                             party->migrateData.bestHost.lastSentTo = -1;
                             if ( Party_IsPrivateDSMatch(party) )
                             {
                               party->migrateData.startTime = Sys_Milliseconds();
-                              v26 = DVARINT_partymigrate_makePrivateDSHostTimeout;
+                              v24 = DVARINT_partymigrate_makePrivateDSHostTimeout;
                               if ( !DVARINT_partymigrate_makePrivateDSHostTimeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_makePrivateDSHostTimeout") )
                                 __debugbreak();
-                              Dvar_CheckFrontendServerThread(v26);
-                              party->migrateData.timeoutDuration = v26->current.integer;
+                              Dvar_CheckFrontendServerThread(v24);
+                              party->migrateData.timeoutDuration = v24->current.integer;
                               party->migrateData.partyTime = party->migrateData.startTime;
-                              PartyMigrate_AskForPredeterminedHostNominee(party, v16, mainActiveClient);
+                              PartyMigrate_AskForPredeterminedHostNominee(party, v15, mainActiveClient);
                             }
                             else
                             {
                               PartyMigrate_StartMakeHostTimeout(party);
-                              PartyMigrate_AskForPredeterminedHostNominee(party, v16, mainActiveClient);
+                              PartyMigrate_AskForPredeterminedHostNominee(party, v15, mainActiveClient);
                             }
                           }
                           else
                           {
-                            Com_PrintError(25, "[%s] Could not setup migration for makeHost as planned\n", v25);
+                            Com_PrintError(25, "[%s] Could not setup migration for makeHost as planned\n", v23);
                           }
                         }
                       }
                       else
                       {
-                        Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i not valid for migration.\n", party->partyName, v16);
+                        Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i not valid for migration.\n", party->partyName, v15);
                       }
                     }
                     else
                     {
-                      v21 = XUID::ToDevString(&player);
-                      Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i and xuid %s don't match our party information.\n", party->partyName, v16, v21);
+                      v19 = XUID::ToDevString(&player);
+                      Com_Printf(25, "[%s] Received invalid makeHost msg - new host num %i and xuid %s don't match our party information.\n", party->partyName, v15, v19);
                     }
                   }
                   else
                   {
-                    __asm { vmovups xmm0, xmmword ptr [rsi] }
-                    addrHandleIndex = _RSI->addrHandleIndex;
-                    __asm { vmovups [rsp+0A8h+var_58], xmm0 }
-                    v31.addrHandleIndex = addrHandleIndex;
-                    v20 = NET_AdrToString(&v31);
-                    LODWORD(v29) = indexBits;
-                    Com_Printf(25, "[%s] Received invalid makeHost msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v14, v20, v29);
+                    addrHandleIndex = from->addrHandleIndex;
+                    *(_OWORD *)&v29.type = *(_OWORD *)&from->type;
+                    v29.addrHandleIndex = addrHandleIndex;
+                    v18 = NET_AdrToString(&v29);
+                    LODWORD(v27) = indexBits;
+                    Com_Printf(25, "[%s] Received invalid makeHost msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v13, v18, v27);
                   }
                 }
                 else
@@ -714,12 +690,11 @@ LABEL_54:
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr [rsi] }
-          v10 = _RSI->addrHandleIndex;
-          __asm { vmovups [rsp+0A8h+var_58], xmm0 }
-          v31.addrHandleIndex = v10;
-          v11 = NET_AdrToString(&v31);
-          Com_Printf(25, "[%s] Received invalid makeHost msg from unknown client (%s).\n", party->partyName, v11);
+          v9 = from->addrHandleIndex;
+          *(_OWORD *)&v29.type = *(_OWORD *)&from->type;
+          v29.addrHandleIndex = v9;
+          v10 = NET_AdrToString(&v29);
+          Com_Printf(25, "[%s] Received invalid makeHost msg from unknown client (%s).\n", party->partyName, v10);
         }
       }
       else
@@ -746,33 +721,32 @@ PartyMigrate_HandleMakeHostTestMsg
 void PartyMigrate_HandleMakeHostTestMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
+  __int128 v9; 
   int ArbitratorClientNum; 
   __int64 Bits; 
-  unsigned int v13; 
-  __int64 v14; 
-  unsigned int v15; 
-  __int64 v16; 
-  unsigned int v17; 
+  unsigned int v12; 
+  __int64 v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  unsigned int v16; 
   int indexBits; 
-  int v20; 
-  const char *v21; 
-  const char *v22; 
+  int v18; 
+  const char *v19; 
+  const char *v20; 
   int OurClientNum; 
   const char *partyName; 
   char *fmt; 
-  __int64 v26; 
-  netadr_t v27; 
+  __int64 v24; 
+  netadr_t v25; 
   XUID player; 
 
-  _RDI = from;
   XUID::XUID(&player);
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2115, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  addrHandleIndex = _RDI->addrHandleIndex;
-  __asm { vmovups [rsp+78h+var_48], xmm0 }
-  v27.addrHandleIndex = addrHandleIndex;
-  if ( NET_IsLocalAddress(&v27) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2116, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", "%s\n\tWe sent a hostTest message to ourself", "!NET_IsLocalAddress( from )") )
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v25.type = *(_OWORD *)&from->type;
+  v25.addrHandleIndex = addrHandleIndex;
+  if ( NET_IsLocalAddress(&v25) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2116, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", "%s\n\tWe sent a hostTest message to ourself", "!NET_IsLocalAddress( from )") )
     __debugbreak();
   if ( party->inParty )
   {
@@ -784,10 +758,10 @@ void PartyMigrate_HandleMakeHostTestMsg(PartyData *party, const PartyActiveClien
     {
       if ( Party_IsRunning(party) )
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v27.addrHandleIndex = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+78h+var_48], xmm0 }
-        if ( Party_FindFirstMemberAtAddr(party, &v27) >= 0 )
+        v9 = *(_OWORD *)&from->type;
+        v25.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v25.type = v9;
+        if ( Party_FindFirstMemberAtAddr(party, &v25) >= 0 )
         {
           if ( PartyMigrate_HostMigrationEnabled(party) )
           {
@@ -806,34 +780,34 @@ void PartyMigrate_HandleMakeHostTestMsg(PartyData *party, const PartyActiveClien
               {
                 if ( party->partyMembersBits <= 0 )
                 {
-                  LODWORD(v26) = party->partyMembersBits;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2167, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v26) )
+                  LODWORD(v24) = party->partyMembersBits;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2167, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v24) )
                     __debugbreak();
                 }
                 Bits = MSG_ReadBits(msg, 2u);
-                v13 = truncate_cast<int,__int64>(Bits);
-                v14 = MSG_ReadBits(msg, party->partyMembersBits);
-                v15 = truncate_cast<int,__int64>(v14);
-                v16 = MSG_ReadBits(msg, party->partyMembersBits);
-                v17 = truncate_cast<int,__int64>(v16);
+                v12 = truncate_cast<int,__int64>(Bits);
+                v13 = MSG_ReadBits(msg, party->partyMembersBits);
+                v14 = truncate_cast<int,__int64>(v13);
+                v15 = MSG_ReadBits(msg, party->partyMembersBits);
+                v16 = truncate_cast<int,__int64>(v15);
                 XUID::Deserialize(&player, msg);
                 indexBits = party->migrateData.indexBits;
-                if ( v13 == indexBits )
+                if ( v12 == indexBits )
                 {
-                  if ( v15 > 0xC7 )
+                  if ( v14 > 0xC7 )
                   {
-                    Com_Printf(25, "[%s] Received invalid hostTest msg  with invalid newHostNum %i\n", party->partyName, v15);
+                    Com_Printf(25, "[%s] Received invalid hostTest msg  with invalid newHostNum %i\n", party->partyName, v14);
                   }
-                  else if ( v17 == ArbitratorClientNum )
+                  else if ( v16 == ArbitratorClientNum )
                   {
-                    if ( Party_FindMemberByXUID(party, player) == v17 )
+                    if ( Party_FindMemberByXUID(party, player) == v16 )
                     {
                       OurClientNum = Live_GetOurClientNum(mainActiveClient->localControllerIndex, party);
                       partyName = party->partyName;
-                      if ( v15 == OurClientNum )
+                      if ( v14 == OurClientNum )
                       {
-                        LODWORD(fmt) = v17;
-                        Com_Printf(25, "[%s] We got a hostTest message from the arbitrator, sending our nominee info. Indexbits %i, from %i\n", partyName, v13, fmt);
+                        LODWORD(fmt) = v16;
+                        Com_Printf(25, "[%s] We got a hostTest message from the arbitrator, sending our nominee info. Indexbits %i, from %i\n", partyName, v12, fmt);
                         PartyMigrate_StartMakeHostTimeout(party);
                         if ( PartyMigrate_SetupMigration(party, mainActiveClient) )
                         {
@@ -841,7 +815,7 @@ void PartyMigrate_HandleMakeHostTestMsg(PartyData *party, const PartyActiveClien
                             __debugbreak();
                           if ( party->migrateData.migrateToRequestedHost != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2216, ASSERT_TYPE_ASSERT, "(party->migrateData.migrateToRequestedHost == -1)", (const char *)&queryFormat, "party->migrateData.migrateToRequestedHost == -1") )
                             __debugbreak();
-                          party->migrateData.migrateToRequestedHost = v15;
+                          party->migrateData.migrateToRequestedHost = v14;
                           PartyMigrate_SelectOurNominee(party, mainActiveClient);
                           PartyMigrate_StopMigration(party);
                         }
@@ -853,30 +827,29 @@ void PartyMigrate_HandleMakeHostTestMsg(PartyData *party, const PartyActiveClien
                       else
                       {
                         LODWORD(fmt) = OurClientNum;
-                        Com_Printf(25, "[%s] Received invalid hostTest msg - requester host num %i is not our client num (%i).\n", partyName, v15, fmt);
+                        Com_Printf(25, "[%s] Received invalid hostTest msg - requester host num %i is not our client num (%i).\n", partyName, v14, fmt);
                       }
                     }
                     else
                     {
-                      v22 = XUID::ToDevString(&player);
-                      Com_Printf(25, "[%s] Received invalid hostTest msg - requester client num %i and xuid %s don't match our party information.\n", party->partyName, v17, v22);
+                      v20 = XUID::ToDevString(&player);
+                      Com_Printf(25, "[%s] Received invalid hostTest msg - requester client num %i and xuid %s don't match our party information.\n", party->partyName, v16, v20);
                     }
                   }
                   else
                   {
                     LODWORD(fmt) = ArbitratorClientNum;
-                    Com_Printf(25, "[%s] Received invalid hostTest msg - not from the arbitrator (%i vs %i).\n", party->partyName, v17, fmt);
+                    Com_Printf(25, "[%s] Received invalid hostTest msg - not from the arbitrator (%i vs %i).\n", party->partyName, v16, fmt);
                   }
                 }
                 else
                 {
-                  __asm { vmovups xmm0, xmmword ptr [rdi] }
-                  v20 = _RDI->addrHandleIndex;
-                  __asm { vmovups [rsp+78h+var_48], xmm0 }
-                  v27.addrHandleIndex = v20;
-                  v21 = NET_AdrToString(&v27);
-                  LODWORD(v26) = indexBits;
-                  Com_Printf(25, "[%s] Received invalid hostTest msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v13, v21, v26);
+                  v18 = from->addrHandleIndex;
+                  *(_OWORD *)&v25.type = *(_OWORD *)&from->type;
+                  v25.addrHandleIndex = v18;
+                  v19 = NET_AdrToString(&v25);
+                  LODWORD(v24) = indexBits;
+                  Com_Printf(25, "[%s] Received invalid hostTest msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v12, v19, v24);
                 }
               }
             }
@@ -914,6 +887,7 @@ PartyMigrate_HandleMakeHostErrorMsg
 */
 void PartyMigrate_HandleMakeHostErrorMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
+  __int128 v8; 
   int OurClientNum; 
   int ArbitratorClientNum; 
   __int64 Bits; 
@@ -922,14 +896,13 @@ void PartyMigrate_HandleMakeHostErrorMsg(PartyData *party, const PartyActiveClie
   unsigned int v14; 
   int indexBits; 
   int addrHandleIndex; 
+  const char *v17; 
   const char *v18; 
-  const char *v19; 
   char *fmt; 
-  __int64 v21; 
-  netadr_t v22[2]; 
+  __int64 v20; 
+  netadr_t v21[2]; 
   XUID player; 
 
-  _RBP = from;
   XUID::XUID(&player);
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2235, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
@@ -941,10 +914,10 @@ void PartyMigrate_HandleMakeHostErrorMsg(PartyData *party, const PartyActiveClie
       {
         if ( Party_IsRunning(party) )
         {
-          __asm { vmovups xmm0, xmmword ptr [rbp+0] }
-          v22[0].addrHandleIndex = _RBP->addrHandleIndex;
-          __asm { vmovups [rsp+68h+var_38], xmm0 }
-          if ( Party_FindFirstMemberAtAddr(party, v22) >= 0 )
+          v8 = *(_OWORD *)&from->type;
+          v21[0].addrHandleIndex = from->addrHandleIndex;
+          *(_OWORD *)&v21[0].type = v8;
+          if ( Party_FindFirstMemberAtAddr(party, v21) >= 0 )
           {
             if ( PartyMigrate_HostMigrationEnabled(party) )
             {
@@ -966,8 +939,8 @@ void PartyMigrate_HandleMakeHostErrorMsg(PartyData *party, const PartyActiveClie
                   {
                     if ( party->partyMembersBits <= 0 )
                     {
-                      LODWORD(v21) = party->partyMembersBits;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2292, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v21) )
+                      LODWORD(v20) = party->partyMembersBits;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2292, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v20) )
                         __debugbreak();
                     }
                     Bits = MSG_ReadBits(msg, 2u);
@@ -990,8 +963,8 @@ void PartyMigrate_HandleMakeHostErrorMsg(PartyData *party, const PartyActiveClie
                         }
                         else
                         {
-                          v19 = XUID::ToDevString(&player);
-                          Com_Printf(25, "[%s] Received invalid makeHostError msg - requester client num %i and xuid %s don't match our party information.\n", party->partyName, v14, v19);
+                          v18 = XUID::ToDevString(&player);
+                          Com_Printf(25, "[%s] Received invalid makeHostError msg - requester client num %i and xuid %s don't match our party information.\n", party->partyName, v14, v18);
                         }
                       }
                       else
@@ -1002,13 +975,12 @@ void PartyMigrate_HandleMakeHostErrorMsg(PartyData *party, const PartyActiveClie
                     }
                     else
                     {
-                      __asm { vmovups xmm0, xmmword ptr [rbp+0] }
-                      addrHandleIndex = _RBP->addrHandleIndex;
-                      __asm { vmovups [rsp+68h+var_38], xmm0 }
-                      v22[0].addrHandleIndex = addrHandleIndex;
-                      v18 = NET_AdrToString(v22);
-                      LODWORD(v21) = indexBits;
-                      Com_Printf(25, "[%s] Received invalid makeHostError msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v12, v18, v21);
+                      addrHandleIndex = from->addrHandleIndex;
+                      *(_OWORD *)&v21[0].type = *(_OWORD *)&from->type;
+                      v21[0].addrHandleIndex = addrHandleIndex;
+                      v17 = NET_AdrToString(v21);
+                      LODWORD(v20) = indexBits;
+                      Com_Printf(25, "[%s] Received invalid makeHostError msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v12, v17, v20);
                     }
                   }
                 }
@@ -1061,28 +1033,27 @@ PartyMigrate_HandleFindBestCommand
 void PartyMigrate_HandleFindBestCommand(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
-  int v10; 
+  int v9; 
   int indexBits; 
-  unsigned int v12; 
-  const char *v14; 
+  unsigned int v11; 
+  __int128 v12; 
+  const char *v13; 
   int Bit; 
-  __int64 v16; 
-  netadr_t v17[2]; 
+  __int64 v15; 
+  netadr_t v16[2]; 
 
-  _RDI = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2428, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  addrHandleIndex = _RDI->addrHandleIndex;
-  __asm { vmovups [rsp+88h+var_58], xmm0 }
-  v17[0].addrHandleIndex = addrHandleIndex;
-  if ( NET_IsLocalAddress(v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2429, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", "%s\n\tSent a findBest message to ourself", "!NET_IsLocalAddress( from )") )
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+  v16[0].addrHandleIndex = addrHandleIndex;
+  if ( NET_IsLocalAddress(v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2429, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", "%s\n\tSent a findBest message to ourself", "!NET_IsLocalAddress( from )") )
     __debugbreak();
   if ( party->areWeHost )
   {
     Com_PrintError(25, "[%s] Received a findBest message as a host\n", party->partyName);
   }
-  else if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[mainActiveClient->localClientNum], _RDI) )
+  else if ( party->inParty && NetConnection::operator==(&party->currentHost.connections[mainActiveClient->localClientNum], from) )
   {
     if ( PartyMigrate_HostMigrationEnabled(party) )
     {
@@ -1092,10 +1063,10 @@ void PartyMigrate_HandleFindBestCommand(PartyData *party, const PartyActiveClien
       }
       else
       {
-        v10 = Cmd_ArgInt(1);
+        v9 = Cmd_ArgInt(1);
         indexBits = party->migrateData.indexBits;
-        v12 = v10;
-        if ( v10 == indexBits )
+        v11 = v9;
+        if ( v9 == indexBits )
         {
           Bit = MSG_ReadBit(msg);
           s_shouldLogHostSelection = Bit != 0;
@@ -1104,19 +1075,19 @@ void PartyMigrate_HandleFindBestCommand(PartyData *party, const PartyActiveClien
             s_hostSelectionLoggingData.migrationID = MSG_ReadInt64(msg);
             s_hostSelectionLoggingData.cause = 0;
           }
-          Com_Printf(25, "[%s] Host told us to find the best host. Index bits are %i\n", party->partyName, v12);
+          Com_Printf(25, "[%s] Host told us to find the best host. Index bits are %i\n", party->partyName, v11);
           PartyMigrate_StartTimeout(party);
           PartyMigrate_StartNegotiation(party, mainActiveClient);
           PartyMigrate_CheckNegotiationDisconnect(party, mainActiveClient);
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v17[0].addrHandleIndex = _RDI->addrHandleIndex;
-          __asm { vmovups [rsp+88h+var_58], xmm0 }
-          v14 = NET_AdrToString(v17);
-          LODWORD(v16) = indexBits;
-          Com_Printf(25, "[%s] Received stale findBest msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v12, v14, v16);
+          v12 = *(_OWORD *)&from->type;
+          v16[0].addrHandleIndex = from->addrHandleIndex;
+          *(_OWORD *)&v16[0].type = v12;
+          v13 = NET_AdrToString(v16);
+          LODWORD(v15) = indexBits;
+          Com_Printf(25, "[%s] Received stale findBest msg (index %i) from host at %s - current indexBits are %i\n", party->partyName, v11, v13, v15);
         }
       }
     }
@@ -1147,30 +1118,32 @@ void PartyMigrate_HandleToMsg(PartyData *party, const PartyActiveClient *mainAct
   __int64 v14; 
   __int64 v15; 
   int v16; 
-  int v19; 
-  const char *v20; 
+  __int128 v17; 
+  int v18; 
+  const char *v19; 
+  int v20; 
+  const char *v21; 
   int v22; 
   const char *v23; 
-  int v25; 
-  const char *v26; 
   unsigned int ArbitratorClientNum; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
+  __int128 v25; 
+  const char *v26; 
+  const char *v27; 
+  const char *v28; 
   const char *MemberName; 
+  __int128 v30; 
   const char *partyName; 
-  const char *v35; 
+  const char *v32; 
   clientMigState_t LocalClientMigrationState; 
   const XUID *Xuid; 
   int addrHandleIndex; 
-  const char *v40; 
+  const char *v36; 
   char *fmt; 
-  __int64 v42; 
-  netadr_t v43; 
+  __int64 v38; 
+  netadr_t v39; 
   MigrateToRequest memberIndex; 
   XUID result; 
 
-  _R15 = from;
   XUID::XUID(&memberIndex.newHostXuid);
   XUID::XUID(&memberIndex.senderXUID);
   if ( !party->inParty )
@@ -1196,35 +1169,32 @@ void PartyMigrate_HandleToMsg(PartyData *party, const PartyActiveClient *mainAct
   XUID::Deserialize(&memberIndex.newHostXuid, msg);
   if ( msg->overflowed || msg->readcount != msg->cursize + msg->splitSize )
   {
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    addrHandleIndex = _R15->addrHandleIndex;
-    __asm { vmovups [rbp+57h+var_80], xmm0 }
-    v43.addrHandleIndex = addrHandleIndex;
-    v40 = NET_AdrToString(&v43);
-    Com_PrintError(25, "[%s] Got migrateto msg with invalid payload from %s\n", party->partyName, v40);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v39.type = *(_OWORD *)&from->type;
+    v39.addrHandleIndex = addrHandleIndex;
+    v36 = NET_AdrToString(&v39);
+    Com_PrintError(25, "[%s] Got migrateto msg with invalid payload from %s\n", party->partyName, v36);
     return;
   }
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  v43.addrHandleIndex = _R15->addrHandleIndex;
-  __asm { vmovups [rbp+57h+var_80], xmm0 }
-  if ( Party_FindFirstMemberAtAddr(party, &v43) < 0 )
+  v17 = *(_OWORD *)&from->type;
+  v39.addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v39.type = v17;
+  if ( Party_FindFirstMemberAtAddr(party, &v39) < 0 )
   {
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    v19 = _R15->addrHandleIndex;
-    __asm { vmovups [rbp+57h+var_80], xmm0 }
-    v43.addrHandleIndex = v19;
-    v20 = NET_AdrToString(&v43);
-    Com_Printf(25, "[%s] Got migrateto msg but we don't know who it's from. They claim to be client %i from %s\n", party->partyName, (unsigned int)memberIndex.sender, v20);
+    v18 = from->addrHandleIndex;
+    *(_OWORD *)&v39.type = *(_OWORD *)&from->type;
+    v39.addrHandleIndex = v18;
+    v19 = NET_AdrToString(&v39);
+    Com_Printf(25, "[%s] Got migrateto msg but we don't know who it's from. They claim to be client %i from %s\n", party->partyName, (unsigned int)memberIndex.sender, v19);
     return;
   }
   if ( memberIndex.sender < 0 )
   {
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    v22 = _R15->addrHandleIndex;
-    __asm { vmovups [rbp+57h+var_80], xmm0 }
-    v43.addrHandleIndex = v22;
-    v23 = NET_AdrToString(&v43);
-    Com_PrintError(25, "[%s] Got stray migrateto msg with invalid sender client num from %s.\n", party->partyName, v23);
+    v20 = from->addrHandleIndex;
+    *(_OWORD *)&v39.type = *(_OWORD *)&from->type;
+    v39.addrHandleIndex = v20;
+    v21 = NET_AdrToString(&v39);
+    Com_PrintError(25, "[%s] Got stray migrateto msg with invalid sender client num from %s.\n", party->partyName, v21);
     return;
   }
   if ( memberIndex.isInGameMigration )
@@ -1237,14 +1207,13 @@ void PartyMigrate_HandleToMsg(PartyData *party, const PartyActiveClient *mainAct
         return;
       }
     }
-    else if ( !Party_PacketIsFromHost(party, (const LocalClientNum_t)mainActiveClient->localClientNum, _R15) )
+    else if ( !Party_PacketIsFromHost(party, (const LocalClientNum_t)mainActiveClient->localClientNum, from) )
     {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v25 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+57h+var_80], xmm0 }
-      v43.addrHandleIndex = v25;
-      v26 = NET_AdrToString(&v43);
-      Com_PrintWarning(25, "[%s] Received an ingame migrateto msg from someone other than the server (%s)\n", party->partyName, v26);
+      v22 = from->addrHandleIndex;
+      *(_OWORD *)&v39.type = *(_OWORD *)&from->type;
+      v39.addrHandleIndex = v22;
+      v23 = NET_AdrToString(&v39);
+      Com_PrintWarning(25, "[%s] Received an ingame migrateto msg from someone other than the server (%s)\n", party->partyName, v23);
       return;
     }
   }
@@ -1253,13 +1222,13 @@ void PartyMigrate_HandleToMsg(PartyData *party, const PartyActiveClient *mainAct
     ArbitratorClientNum = PartyMigrate_GetArbitratorClientNum(party, 0);
     if ( ArbitratorClientNum != memberIndex.sender )
     {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v43.addrHandleIndex = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+57h+var_80], xmm0 }
-      v29 = NET_AdrToString(&v43);
-      LODWORD(v42) = memberIndex.sender;
+      v25 = *(_OWORD *)&from->type;
+      v39.addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&v39.type = v25;
+      v26 = NET_AdrToString(&v39);
+      LODWORD(v38) = memberIndex.sender;
       LODWORD(fmt) = party->migrateData.arbitratorClientNum;
-      Com_PrintWarning(25, "[%s] Received a lobby migrateto msg from someone other than the arbitrator (arb %i (cached %i) != sender %i) from %s\n", party->partyName, ArbitratorClientNum, fmt, v42, v29);
+      Com_PrintWarning(25, "[%s] Received a lobby migrateto msg from someone other than the arbitrator (arb %i (cached %i) != sender %i) from %s\n", party->partyName, ArbitratorClientNum, fmt, v38, v26);
       return;
     }
   }
@@ -1281,20 +1250,20 @@ void PartyMigrate_HandleToMsg(PartyData *party, const PartyActiveClient *mainAct
   }
   if ( XUID::operator!=(&party->partyMembers[memberIndex.newHost].playerUID, &memberIndex.newHostXuid) )
   {
-    v30 = XUID::ToDevString(&party->partyMembers[memberIndex.newHost].playerUID);
-    v31 = XUID::ToDevString(&memberIndex.newHostXuid);
-    LODWORD(v42) = memberIndex.newHost;
-    Com_PrintError(25, "[%s] Got migrateto for clientNum %i, XUID %s - but clientNum %i has XUID %s\n", party->partyName, (unsigned int)memberIndex.newHost, v31, v42, v30);
+    v27 = XUID::ToDevString(&party->partyMembers[memberIndex.newHost].playerUID);
+    v28 = XUID::ToDevString(&memberIndex.newHostXuid);
+    LODWORD(v38) = memberIndex.newHost;
+    Com_PrintError(25, "[%s] Got migrateto for clientNum %i, XUID %s - but clientNum %i has XUID %s\n", party->partyName, (unsigned int)memberIndex.newHost, v28, v38, v27);
     return;
   }
   MemberName = Party_GetMemberName(party, memberIndex.newHost);
-  __asm { vmovups xmm0, xmmword ptr [r15] }
+  v30 = *(_OWORD *)&from->type;
   partyName = party->partyName;
-  v43.addrHandleIndex = _R15->addrHandleIndex;
-  __asm { vmovups [rbp+57h+var_80], xmm0 }
-  v35 = NET_AdrToString(&v43);
-  LODWORD(v42) = memberIndex.newHost;
-  Com_Printf(25, "[%s] PartyMigrate - Host/arbitrator (%s) told us to migrate party %s to client %i %s\n", party->partyName, v35, partyName, v42, MemberName);
+  v39.addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v39.type = v30;
+  v32 = NET_AdrToString(&v39);
+  LODWORD(v38) = memberIndex.newHost;
+  Com_Printf(25, "[%s] PartyMigrate - Host/arbitrator (%s) told us to migrate party %s to client %i %s\n", party->partyName, v32, partyName, v38, MemberName);
   if ( memberIndex.isInGameMigration )
   {
     if ( !Party_IsGameLobby(party) )
@@ -1395,14 +1364,13 @@ void PartyMigrate_HandleSessionInfoMsg(PartyData *party, const PartyActiveClient
   int partyMembersBits; 
   __int64 Bits; 
   int Byte; 
-  __int64 v13; 
+  __int64 v12; 
+  int v13; 
   int v14; 
-  int v15; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
   MigrationHostInfo newHostInfo; 
 
-  _RBP = from;
   XUID::XUID(&newHostInfo.xuid);
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2829, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
@@ -1410,14 +1378,13 @@ void PartyMigrate_HandleSessionInfoMsg(PartyData *party, const PartyActiveClient
   {
     if ( party->partyMembersBits <= 0 )
     {
-      LODWORD(v17) = party->partyMembersBits;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2837, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v17) )
+      LODWORD(v16) = party->partyMembersBits;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2837, ASSERT_TYPE_ASSERT, "( ( party->partyMembersBits > 0 ) )", "( party->partyMembersBits ) = %i", v16) )
         __debugbreak();
     }
-    __asm { vmovups xmm0, xmmword ptr [rbp+0] }
-    addrHandleIndex = _RBP->addrHandleIndex;
+    addrHandleIndex = from->addrHandleIndex;
     partyMembersBits = party->partyMembersBits;
-    __asm { vmovups xmmword ptr [rsp+98h+newHostInfo.netAddr.type], xmm0 }
+    *(_OWORD *)&newHostInfo.netAddr.type = *(_OWORD *)&from->type;
     newHostInfo.netAddr.addrHandleIndex = addrHandleIndex;
     Bits = MSG_ReadBits(msg, partyMembersBits);
     newHostInfo.clientNum = truncate_cast<int,__int64>(Bits);
@@ -1431,12 +1398,12 @@ void PartyMigrate_HandleSessionInfoMsg(PartyData *party, const PartyActiveClient
     }
     else
     {
-      v13 = MSG_ReadBits(msg, 2u);
-      v14 = truncate_cast<int,__int64>(v13);
-      v15 = party->partyMembersBits;
-      newHostInfo.migrationBits = v14;
-      v16 = MSG_ReadBits(msg, v15);
-      newHostInfo.claimedArbitratorNum = truncate_cast<int,__int64>(v16);
+      v12 = MSG_ReadBits(msg, 2u);
+      v13 = truncate_cast<int,__int64>(v12);
+      v14 = party->partyMembersBits;
+      newHostInfo.migrationBits = v13;
+      v15 = MSG_ReadBits(msg, v14);
+      newHostInfo.claimedArbitratorNum = truncate_cast<int,__int64>(v15);
     }
     if ( msg->overflowed )
       Com_Printf(25, "[%s] PartyMigrate - Ignoring badly formatted sessInfo message\n", party->partyName);
@@ -1457,51 +1424,48 @@ PartyMigrate_HandlePingMsg
 void PartyMigrate_HandlePingMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
-  unsigned int v9; 
+  unsigned int v8; 
   netsrc_t LocalNetIDFromLocalClientNum; 
-  const dvar_t *v11; 
-  netsrc_t v12; 
-  int v14; 
-  const char *v15; 
-  const char *v16; 
-  int v17; 
+  const dvar_t *v10; 
+  netsrc_t v11; 
+  int v12; 
+  const char *v13; 
+  const char *v14; 
+  int v15; 
   char *fmt; 
-  netadr_t v19; 
+  netadr_t v17; 
 
-  _RSI = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1103, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  addrHandleIndex = _RSI->addrHandleIndex;
-  __asm { vmovups [rsp+88h+var_48], xmm0 }
-  v19.addrHandleIndex = addrHandleIndex;
-  if ( NET_IsLocalAddress(&v19) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1106, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", (const char *)&queryFormat, "!NET_IsLocalAddress( from )") )
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v17.type = *(_OWORD *)&from->type;
+  v17.addrHandleIndex = addrHandleIndex;
+  if ( NET_IsLocalAddress(&v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1106, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", (const char *)&queryFormat, "!NET_IsLocalAddress( from )") )
     __debugbreak();
   if ( PartyMigrate_HostMigrationEnabled(party) )
   {
     if ( PartyMigrate_IsPingTestActive(party) )
     {
-      v9 = Cmd_ArgInt(1);
+      v8 = Cmd_ArgInt(1);
       LocalNetIDFromLocalClientNum = NET_GetLocalNetIDFromLocalClientNum((const LocalClientNum_t)mainActiveClient->localClientNum);
-      v11 = DVARBOOL_partymigrate_pingtest_debug;
-      v12 = LocalNetIDFromLocalClientNum;
+      v10 = DVARBOOL_partymigrate_pingtest_debug;
+      v11 = LocalNetIDFromLocalClientNum;
       if ( !DVARBOOL_partymigrate_pingtest_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_pingtest_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      if ( v11->current.enabled )
+      Dvar_CheckFrontendServerThread(v10);
+      if ( v10->current.enabled )
       {
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
-        v14 = _RSI->addrHandleIndex;
-        __asm { vmovups [rsp+88h+var_48], xmm0 }
-        v19.addrHandleIndex = v14;
-        v15 = NET_AdrToString(&v19);
-        LODWORD(fmt) = v9;
-        Com_Printf(25, "[%s] PartyMigrate - HandlePingMsg - From %s, time %i.\n", party->partyName, v15, fmt);
+        v12 = from->addrHandleIndex;
+        *(_OWORD *)&v17.type = *(_OWORD *)&from->type;
+        v17.addrHandleIndex = v12;
+        v13 = NET_AdrToString(&v17);
+        LODWORD(fmt) = v8;
+        Com_Printf(25, "[%s] PartyMigrate - HandlePingMsg - From %s, time %i.\n", party->partyName, v13, fmt);
       }
-      v16 = j_va("%impck %i", (unsigned int)party->partyId, v9);
-      v17 = NET_OutOfBandPrint(v12, _RSI, v16);
-      if ( v17 < 0 )
-        Com_Printf(25, "[%s] Got %d while trying respond to ping msg.\n", party->partyName, (unsigned int)v17);
+      v14 = j_va("%impck %i", (unsigned int)party->partyId, v8);
+      v15 = NET_OutOfBandPrint(v11, from, v14);
+      if ( v15 < 0 )
+        Com_Printf(25, "[%s] Got %d while trying respond to ping msg.\n", party->partyName, (unsigned int)v15);
     }
     else
     {
@@ -1522,26 +1486,25 @@ PartyMigrate_HandlePingAckMsg
 void PartyMigrate_HandlePingAckMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
+  __int128 v7; 
   unsigned int FirstMemberAtAddr; 
-  unsigned int v10; 
+  unsigned int v9; 
+  int v10; 
   int v11; 
-  int v12; 
   const char *MemberName; 
   unsigned int SplitscreenClientNumAtSameAddress; 
-  const char *v15; 
+  const char *v14; 
+  __int64 v15; 
   __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  netadr_t v19; 
+  netadr_t v18; 
 
-  _RDI = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1171, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  addrHandleIndex = _RDI->addrHandleIndex;
-  __asm { vmovups [rsp+78h+var_28], xmm0 }
-  v19.addrHandleIndex = addrHandleIndex;
-  if ( NET_IsLocalAddress(&v19) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1174, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", (const char *)&queryFormat, "!NET_IsLocalAddress( from )") )
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v18.type = *(_OWORD *)&from->type;
+  v18.addrHandleIndex = addrHandleIndex;
+  if ( NET_IsLocalAddress(&v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1174, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( from ))", (const char *)&queryFormat, "!NET_IsLocalAddress( from )") )
     __debugbreak();
   if ( PartyMigrate_HostMigrationEnabled(party) )
   {
@@ -1549,46 +1512,46 @@ void PartyMigrate_HandlePingAckMsg(PartyData *party, const PartyActiveClient *ma
     {
       if ( PartyMigrate_IsPingTestActive(party) )
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v19.addrHandleIndex = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+78h+var_28], xmm0 }
-        FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v19);
-        v10 = FirstMemberAtAddr;
+        v7 = *(_OWORD *)&from->type;
+        v18.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v18.type = v7;
+        FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v18);
+        v9 = FirstMemberAtAddr;
         if ( FirstMemberAtAddr > 0xC7 )
         {
           Com_Printf(25, "[%s] Received party ping ack msg from unknown clientnum %i.\n", party->partyName, FirstMemberAtAddr);
         }
         else
         {
-          v11 = Cmd_ArgInt(1);
-          v12 = Sys_Milliseconds() - v11;
+          v10 = Cmd_ArgInt(1);
+          v11 = Sys_Milliseconds() - v10;
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_partymigrate_pingtest_debug, "partymigrate_pingtest_debug") )
           {
-            MemberName = Party_GetMemberName(party, v10);
-            LODWORD(v16) = v11;
-            Com_Printf(25, "[%s] PartyMigrate - HandlePingAckMsg - Got ping from member %i (%s), sendtime %i, ping %i.\n", party->partyName, v10, MemberName, v16, v12);
+            MemberName = Party_GetMemberName(party, v9);
+            LODWORD(v15) = v10;
+            Com_Printf(25, "[%s] PartyMigrate - HandlePingAckMsg - Got ping from member %i (%s), sendtime %i, ping %i.\n", party->partyName, v9, MemberName, v15, v11);
           }
-          if ( v12 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1211, ASSERT_TYPE_ASSERT, "( ping ) >= ( 0 )", "%s >= %s\n\t%i, %i", "ping", "0", v12, 0i64) )
+          if ( v11 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1211, ASSERT_TYPE_ASSERT, "( ping ) >= ( 0 )", "%s >= %s\n\t%i, %i", "ping", "0", v11, 0i64) )
             __debugbreak();
-          if ( v12 > 60000 )
+          if ( v11 > 60000 )
           {
-            LODWORD(v18) = 60000;
-            LODWORD(v17) = v12;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1212, ASSERT_TYPE_ASSERT, "( ping ) <= ( 60*1000 )", "%s <= %s\n\t%i, %i", "ping", "60*1000", v17, v18) )
+            LODWORD(v17) = 60000;
+            LODWORD(v16) = v11;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1212, ASSERT_TYPE_ASSERT, "( ping ) <= ( 60*1000 )", "%s <= %s\n\t%i, %i", "ping", "60*1000", v16, v17) )
               __debugbreak();
           }
-          if ( v12 >= 0 )
+          if ( v11 >= 0 )
           {
-            PartyMigrate_UpdatePingForMember(party, v10, v12);
-            SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(party, v10);
+            PartyMigrate_UpdatePingForMember(party, v9, v11);
+            SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(party, v9);
             if ( SplitscreenClientNumAtSameAddress != -1 )
             {
               if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_partymigrate_pingtest_debug, "partymigrate_pingtest_debug") )
               {
-                v15 = Party_GetMemberName(party, SplitscreenClientNumAtSameAddress);
-                Com_Printf(25, "[%s] PartyMigrate - HandlePingAckMsg - Other member at address, setting for for client %i (%s).\n", party->partyName, SplitscreenClientNumAtSameAddress, v15);
+                v14 = Party_GetMemberName(party, SplitscreenClientNumAtSameAddress);
+                Com_Printf(25, "[%s] PartyMigrate - HandlePingAckMsg - Other member at address, setting for for client %i (%s).\n", party->partyName, SplitscreenClientNumAtSameAddress, v14);
               }
-              PartyMigrate_UpdatePingForMember(party, SplitscreenClientNumAtSameAddress, v12);
+              PartyMigrate_UpdatePingForMember(party, SplitscreenClientNumAtSameAddress, v11);
             }
           }
         }
@@ -1632,104 +1595,100 @@ void PartyMigrate_AnnounceOurNominee(PartyData *party, const PartyActiveClient *
 {
   __int64 v3; 
   unsigned int ArbitratorClientNum; 
-  int v7; 
+  unsigned int v7; 
   bool HasLoopbackAddr; 
   const char *v9; 
   int OurClientNum; 
   __int64 nominee; 
+  __int64 v12; 
+  int v13; 
   int v14; 
-  int v15; 
+  __int64 v15; 
   __int64 v16; 
   __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
   PartyActiveClient outPartyActiveClient; 
 
   v3 = mainClientNum;
-  _RBX = party;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 507, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !mainActiveClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 508, ASSERT_TYPE_ASSERT, "(mainActiveClient)", (const char *)&queryFormat, "mainActiveClient") )
     __debugbreak();
-  if ( !_RBX->migrateData.decidedOurNominee && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 509, ASSERT_TYPE_ASSERT, "(party->migrateData.decidedOurNominee)", (const char *)&queryFormat, "party->migrateData.decidedOurNominee") )
+  if ( !party->migrateData.decidedOurNominee && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 509, ASSERT_TYPE_ASSERT, "(party->migrateData.decidedOurNominee)", (const char *)&queryFormat, "party->migrateData.decidedOurNominee") )
     __debugbreak();
-  if ( !PartyMigrate_MigrateActive(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 510, ASSERT_TYPE_ASSERT, "(PartyMigrate_MigrateActive( party ))", (const char *)&queryFormat, "PartyMigrate_MigrateActive( party )") )
+  if ( !PartyMigrate_MigrateActive(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 510, ASSERT_TYPE_ASSERT, "(PartyMigrate_MigrateActive( party ))", (const char *)&queryFormat, "PartyMigrate_MigrateActive( party )") )
     __debugbreak();
-  if ( PartyMigrate_IsGameServerHostMigration(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 511, ASSERT_TYPE_ASSERT, "(!PartyMigrate_IsGameServerHostMigration( party ))", (const char *)&queryFormat, "!PartyMigrate_IsGameServerHostMigration( party )") )
+  if ( PartyMigrate_IsGameServerHostMigration(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 511, ASSERT_TYPE_ASSERT, "(!PartyMigrate_IsGameServerHostMigration( party ))", (const char *)&queryFormat, "!PartyMigrate_IsGameServerHostMigration( party )") )
     __debugbreak();
-  ArbitratorClientNum = PartyMigrate_GetArbitratorClientNum(_RBX, 1);
+  ArbitratorClientNum = PartyMigrate_GetArbitratorClientNum(party, 1);
   v7 = ArbitratorClientNum;
   if ( ArbitratorClientNum >= 0xC8 )
   {
-    LODWORD(v16) = ArbitratorClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 514, ASSERT_TYPE_ASSERT, "(unsigned)( arbitratorClientNum ) < (unsigned)( 200 )", "arbitratorClientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v16, 200) )
+    LODWORD(v15) = ArbitratorClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 514, ASSERT_TYPE_ASSERT, "(unsigned)( arbitratorClientNum ) < (unsigned)( 200 )", "arbitratorClientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v15, 200) )
       __debugbreak();
   }
-  if ( Party_IsMemberRegistered(_RBX, v7) )
+  if ( Party_IsMemberRegistered(party, v7) )
   {
-    if ( (_DWORD)v3 == v7 || (HasLoopbackAddr = Party_MemberHasLoopbackAddr(_RBX, v7)) )
+    if ( (_DWORD)v3 == v7 || (HasLoopbackAddr = Party_MemberHasLoopbackAddr(party, v7)) )
       HasLoopbackAddr = 1;
-    _RBX->migrateData.weAreArbitrating = HasLoopbackAddr;
+    party->migrateData.weAreArbitrating = HasLoopbackAddr;
     if ( HasLoopbackAddr )
-      v9 = j_va("We '%s' are", _RBX->partyMembers[(int)v3].info.gamertag);
+      v9 = j_va("We '%s' are", party->partyMembers[(int)v3].info.gamertag);
     else
-      v9 = j_va("Client '%s' is", _RBX->partyMembers[v7].info.gamertag);
-    Com_Printf(25, "[%s] %s arbitrating\n", _RBX->partyName, v9);
-    if ( _RBX->migrateData.weAreArbitrating )
+      v9 = j_va("Client '%s' is", party->partyMembers[v7].info.gamertag);
+    Com_Printf(25, "[%s] %s arbitrating\n", party->partyName, v9);
+    if ( party->migrateData.weAreArbitrating )
     {
       if ( (unsigned int)v3 >= 0xC8 )
       {
-        LODWORD(v17) = 200;
-        LODWORD(v16) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 532, ASSERT_TYPE_ASSERT, "(unsigned)( mainClientNum ) < (unsigned)( 200 )", "mainClientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v16, v17) )
+        LODWORD(v16) = 200;
+        LODWORD(v15) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 532, ASSERT_TYPE_ASSERT, "(unsigned)( mainClientNum ) < (unsigned)( 200 )", "mainClientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
-      _RBX->partyMembers[v3].migrateHeardFrom = 1;
-      if ( Party_GetSecondaryActiveClient(_RBX, &outPartyActiveClient) )
+      party->partyMembers[v3].migrateHeardFrom = 1;
+      if ( Party_GetSecondaryActiveClient(party, &outPartyActiveClient) )
       {
-        OurClientNum = Live_GetOurClientNum(outPartyActiveClient.localControllerIndex, _RBX);
+        OurClientNum = Live_GetOurClientNum(outPartyActiveClient.localControllerIndex, party);
         if ( OurClientNum < 0 )
-          Com_PrintError(25, "[%s] PartyMigrate - AnnounceOurNominee - Second client with controller %i is not in the session!\n", _RBX->partyName, (unsigned int)outPartyActiveClient.localControllerIndex);
+          Com_PrintError(25, "[%s] PartyMigrate - AnnounceOurNominee - Second client with controller %i is not in the session!\n", party->partyName, (unsigned int)outPartyActiveClient.localControllerIndex);
         else
-          _RBX->partyMembers[OurClientNum].migrateHeardFrom = 1;
+          party->partyMembers[OurClientNum].migrateHeardFrom = 1;
       }
-      nominee = _RBX->migrateData.bestHost.nominee;
+      nominee = party->migrateData.bestHost.nominee;
       if ( (int)nominee >= 0 )
       {
         if ( (_DWORD)nominee != (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 549, ASSERT_TYPE_ASSERT, "(ourNominee == mainClientNum)", (const char *)&queryFormat, "ourNominee == mainClientNum") )
           __debugbreak();
-        _RCX = nominee;
-        _RBX->partyMembers[_RCX].migrateNominated = 1;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+30h]
-          vmovups ymmword ptr [rcx+rbx+948h], ymm0
-        }
+        v12 = nominee;
+        party->partyMembers[v12].migrateNominated = 1;
+        party->partyMembers[v12].migrateNomineeInfo = party->migrateData.bestHost.info;
       }
     }
     else
     {
       if ( v7 == (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 556, ASSERT_TYPE_ASSERT, "( arbitratorClientNum ) != ( mainClientNum )", "%s != %s\n\t%i, %i", "arbitratorClientNum", "mainClientNum", v7, v3) )
         __debugbreak();
-      PartyMigrate_SendOurNominee(_RBX, mainActiveClient, v3, v7);
-      if ( Party_GetSecondaryActiveClient(_RBX, &outPartyActiveClient) )
+      PartyMigrate_SendOurNominee(party, mainActiveClient, v3, v7);
+      if ( Party_GetSecondaryActiveClient(party, &outPartyActiveClient) )
       {
-        v14 = Live_GetOurClientNum(outPartyActiveClient.localControllerIndex, _RBX);
-        v15 = v14;
-        if ( v14 < 0 )
+        v13 = Live_GetOurClientNum(outPartyActiveClient.localControllerIndex, party);
+        v14 = v13;
+        if ( v13 < 0 )
         {
-          Com_PrintError(25, "[%s] PartyMigrate - AnnounceOurNominee - Second client with controller %i is not in the session!\n", _RBX->partyName, (unsigned int)outPartyActiveClient.localControllerIndex);
+          Com_PrintError(25, "[%s] PartyMigrate - AnnounceOurNominee - Second client with controller %i is not in the session!\n", party->partyName, (unsigned int)outPartyActiveClient.localControllerIndex);
         }
         else
         {
-          if ( v7 == v14 )
+          if ( v7 == v13 )
           {
-            LODWORD(v19) = v14;
-            LODWORD(v18) = v7;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 566, ASSERT_TYPE_ASSERT, "( arbitratorClientNum ) != ( secondaryClientNum )", "%s != %s\n\t%i, %i", "arbitratorClientNum", "secondaryClientNum", v18, v19) )
+            LODWORD(v18) = v13;
+            LODWORD(v17) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 566, ASSERT_TYPE_ASSERT, "( arbitratorClientNum ) != ( secondaryClientNum )", "%s != %s\n\t%i, %i", "arbitratorClientNum", "secondaryClientNum", v17, v18) )
               __debugbreak();
           }
-          PartyMigrate_SendOurNominee(_RBX, &outPartyActiveClient, v15, v7);
+          PartyMigrate_SendOurNominee(party, &outPartyActiveClient, v14, v7);
         }
       }
     }
@@ -1738,8 +1697,8 @@ void PartyMigrate_AnnounceOurNominee(PartyData *party, const PartyActiveClient *
   {
     if ( (_DWORD)v3 == v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 519, ASSERT_TYPE_ASSERT, "( mainClientNum ) != ( arbitratorClientNum )", "%s != %s\n\t%i, %i", "mainClientNum", "arbitratorClientNum", v3, v7) )
       __debugbreak();
-    Com_PrintError(25, "[%s] PartyMigrate - AnnounceOurNominee - Arbitrator client %i is not registered to the session. Cannot announce nominee. The migration will time out...\n", _RBX->partyName, (unsigned int)v7);
-    _RBX->migrateData.weAreArbitrating = 0;
+    Com_PrintError(25, "[%s] PartyMigrate - AnnounceOurNominee - Arbitrator client %i is not registered to the session. Cannot announce nominee. The migration will time out...\n", party->partyName, v7);
+    party->migrateData.weAreArbitrating = 0;
   }
 }
 
@@ -2255,231 +2214,165 @@ PartyMigrate_ComputeMyHostScore
 float __fastcall PartyMigrate_ComputeMyHostScore(PartyData *party, const PartyActiveClient *mainActiveClient, const int ourClientNum, double _XMM3_8)
 {
   int AveragePing; 
-  unsigned int v18; 
+  const dvar_t *v8; 
+  int v9; 
+  float value; 
+  const dvar_t *v11; 
+  float v12; 
+  float v13; 
+  const dvar_t *v14; 
+  int NecessaryBandwidth; 
+  float v16; 
+  unsigned int v17; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  const dvar_t *v21; 
+  float v22; 
+  float v23; 
+  const dvar_t *v24; 
+  float v25; 
+  float v26; 
+  double OverallQuitRate; 
   const dvar_t *v29; 
-  unsigned int NecessaryBandwidth; 
+  float v30; 
+  float v31; 
+  const dvar_t *v32; 
+  float v33; 
+  float v34; 
+  float v35; 
   bool IsFullyInstalled; 
-  const dvar_t *v69; 
-  const char *v71; 
-  const char *v72; 
-  bool v73; 
-  const dvar_t *v74; 
+  const dvar_t *v37; 
+  const char *v38; 
+  const char *v39; 
+  bool v40; 
+  const dvar_t *v41; 
   int areWeHost; 
-  const dvar_t *v77; 
-  const char *v78; 
+  const dvar_t *v43; 
+  const char *v44; 
+  double v45; 
   int LocalNatType; 
   unsigned int ClientConnectivity; 
-  unsigned __int8 v82; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  char *fmte; 
-  char *fmtf; 
-  char *fmtg; 
   unsigned __int64 *macAddress; 
-  unsigned __int64 *macAddressa; 
   unsigned int country; 
-  int v111; 
-  int v112; 
-  double v113; 
-  double v114; 
-  double v115; 
+  int v51; 
+  int v52; 
   int physMemory; 
   BOOL onWifi; 
   BOOL isCurrentHost; 
   int natType; 
-  int v120; 
-  BOOL v121; 
+  int connectivity; 
+  BOOL v58; 
   unsigned __int8 consoleExternalIP[4]; 
   unsigned int countryCode; 
   unsigned __int8 consoleInternalIP[8]; 
-  unsigned __int64 v125; 
+  unsigned __int64 v62; 
   unsigned __int64 machineIDLow; 
   unsigned __int64 machineIDHigh; 
   char dest[1024]; 
-  char v129; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
   AveragePing = PartyMigrate_GetAveragePing(party);
-  _RBX = DVARFLT_pt_migrationPingBad;
-  v18 = AveragePing;
+  v8 = DVARFLT_pt_migrationPingBad;
+  v9 = AveragePing;
   if ( !DVARFLT_pt_migrationPingBad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationPingBad") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_pt_migrationPingWeight;
+  Dvar_CheckFrontendServerThread(v8);
+  value = v8->current.value;
+  v11 = DVARFLT_pt_migrationPingWeight;
   if ( !DVARFLT_pt_migrationPingWeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationPingWeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r15d; input
-    vxorps  xmm2, xmm2, xmm2; goodValue
-    vmovaps xmm1, xmm7; badValue
-    vxorps  xmm8, xmm8, xmm8
-  }
-  *(float *)&_XMM0 = PartyMigrate_NormalizeHostScore(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm7, xmm0, xmm6
-    vcvtss2sd xmm1, xmm7, xmm7
-    vmovsd  [rsp+578h+fmt], xmm1
-  }
-  Com_Printf(25, "[%s] average ping: %d, host score = %0.3f\n", party->partyName, v18, *(double *)&fmt);
-  v29 = DVARINT_party_maxplayers;
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = v11->current.value;
+  v13 = PartyMigrate_NormalizeHostScore((float)v9, value, 0.0) * v12;
+  Com_Printf(25, "[%s] average ping: %d, host score = %0.3f\n", party->partyName, (unsigned int)v9, v13);
+  v14 = DVARINT_party_maxplayers;
   if ( !DVARINT_party_maxplayers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax; uploadRate
-  }
-  NecessaryBandwidth = Live_GetNecessaryBandwidth(v29->current.integer);
-  *(double *)&_XMM0 = Live_ComputeMinUploadBandwidthProbability(*(float *)&_XMM0);
-  _RBX = DVARFLT_pt_migrationUploadBad;
-  __asm { vmovaps xmm11, xmm0 }
+  Dvar_CheckFrontendServerThread(v14);
+  NecessaryBandwidth = Live_GetNecessaryBandwidth(v14->current.integer);
+  v16 = (float)NecessaryBandwidth;
+  v17 = NecessaryBandwidth;
+  Live_ComputeMinUploadBandwidthProbability(v16);
+  v18 = DVARFLT_pt_migrationUploadBad;
+  v19 = v16;
   if ( !DVARFLT_pt_migrationUploadBad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationUploadBad") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_pt_migrationUploadWeight;
+  Dvar_CheckFrontendServerThread(v18);
+  v20 = v18->current.value;
+  v21 = DVARFLT_pt_migrationUploadWeight;
   if ( !DVARFLT_pt_migrationUploadWeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationUploadWeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; goodValue
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vmovaps xmm1, xmm9; badValue
-    vmovaps xmm0, xmm11; input
-  }
-  *(float *)&_XMM0 = PartyMigrate_NormalizeHostScore(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm7, xmm7, xmm1
-    vcvtss2sd xmm2, xmm7, xmm7
-    vcvtss2sd xmm0, xmm11, xmm11
-    vmovsd  [rsp+578h+macAddress], xmm2
-    vmovsd  [rsp+578h+fmt], xmm0
-  }
-  Com_Printf(25, "[%s] bandwidth up required: %d, probability: %0.3f, host score = %0.3f\n", party->partyName, NecessaryBandwidth, *(double *)&fmta, *(double *)&macAddress);
-  _RBX = DVARFLT_pt_migrationCPUWeight;
+  Dvar_CheckFrontendServerThread(v21);
+  v22 = v21->current.value;
+  v23 = PartyMigrate_NormalizeHostScore(v16, v20, 1.0) * v22;
+  Com_Printf(25, "[%s] bandwidth up required: %d, probability: %0.3f, host score = %0.3f\n", party->partyName, v17, v16, (float)(v13 + v23));
+  v24 = DVARFLT_pt_migrationCPUWeight;
   if ( !DVARFLT_pt_migrationCPUWeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationCPUWeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@42c80000; goodValue
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm1, xmm1, xmm1; badValue
-    vxorps  xmm0, xmm0, xmm0; input
-  }
-  *(float *)&_XMM0 = PartyMigrate_NormalizeHostScore(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm7, xmm7, xmm1
-    vxorpd  xmm3, xmm3, xmm3
-    vcvtss2sd xmm6, xmm7, xmm7
-    vmovq   r9, xmm3
-    vmovsd  [rsp+578h+fmt], xmm6
-  }
-  Com_Printf(25, "[%s] CPU speed: %0.2f, host score = %0.3f\n", party->partyName, *(double *)&_XMM3, *(double *)&fmtb);
-  __asm { vmovsd  [rsp+578h+fmt], xmm6 }
-  Com_Printf(25, "[%s] PhysMemory: %i, host score = %0.3f\n", party->partyName, 0i64, *(double *)&fmtc);
-  *(double *)&_XMM0 = Live_GetOverallQuitRate(mainActiveClient->localControllerIndex);
-  _RBX = DVARFLT_pt_migrationQuitsBad;
-  __asm { vmovaps xmm10, xmm0 }
+  Dvar_CheckFrontendServerThread(v24);
+  v25 = v24->current.value;
+  v26 = (float)(v13 + v23) + (float)(PartyMigrate_NormalizeHostScore(0.0, 0.0, 100.0) * v25);
+  __asm { vxorpd  xmm3, xmm3, xmm3 }
+  Com_Printf(25, "[%s] CPU speed: %0.2f, host score = %0.3f\n", party->partyName, *(double *)&_XMM3, v26);
+  Com_Printf(25, "[%s] PhysMemory: %i, host score = %0.3f\n", party->partyName, 0i64, v26);
+  OverallQuitRate = Live_GetOverallQuitRate(mainActiveClient->localControllerIndex);
+  v29 = DVARFLT_pt_migrationQuitsBad;
+  v30 = *(float *)&OverallQuitRate;
   if ( !DVARFLT_pt_migrationQuitsBad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationQuitsBad") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_pt_migrationQuitsWeight;
+  Dvar_CheckFrontendServerThread(v29);
+  v31 = v29->current.value;
+  v32 = DVARFLT_pt_migrationQuitsWeight;
   if ( !DVARFLT_pt_migrationQuitsWeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationQuitsWeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm2, xmm2, xmm2; goodValue
-    vmovaps xmm1, xmm9; badValue
-    vmovaps xmm0, xmm10; input
-  }
-  *(float *)&_XMM0 = PartyMigrate_NormalizeHostScore(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm6, xmm7, xmm1
-    vcvtss2sd xmm3, xmm10, xmm10
-    vcvtss2sd xmm2, xmm6, xmm6
-    vmovq   r9, xmm3
-    vmovsd  [rsp+578h+fmt], xmm2
-  }
-  Com_Printf(25, "[%s] quit rate: %0.3f, host score = %0.3f\n", party->partyName, *(double *)&_XMM3, *(double *)&fmtd);
+  Dvar_CheckFrontendServerThread(v32);
+  v33 = v32->current.value;
+  v35 = v26 + (float)(PartyMigrate_NormalizeHostScore(*(float *)&OverallQuitRate, v31, 0.0) * v33);
+  v34 = v35;
+  Com_Printf(25, "[%s] quit rate: %0.3f, host score = %0.3f\n", party->partyName, v30, v35);
   IsFullyInstalled = SI_IsFullyInstalled();
   if ( IsFullyInstalled )
   {
-    v69 = DVARFLT_pt_migrationNotInstalledWeight;
+    v37 = DVARFLT_pt_migrationNotInstalledWeight;
     if ( !DVARFLT_pt_migrationNotInstalledWeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationNotInstalledWeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v69);
-    __asm { vaddss  xmm6, xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v37);
+    v34 = v35 + v37->current.value;
   }
-  __asm { vcvtss2sd xmm0, xmm6, xmm6 }
-  v71 = "false";
-  v72 = "false";
+  v38 = "false";
+  v39 = "false";
   if ( IsFullyInstalled )
-    v72 = "true";
-  __asm { vmovsd  [rsp+578h+fmt], xmm0 }
-  Com_Printf(25, "[%s] fully installed: %s, host score = %0.3f\n", party->partyName, v72, fmte);
-  v73 = Live_IsOnWifi();
-  if ( v73 )
+    v39 = "true";
+  Com_Printf(25, "[%s] fully installed: %s, host score = %0.3f\n", party->partyName, v39, v34);
+  v40 = Live_IsOnWifi();
+  if ( v40 )
   {
-    v74 = DVARFLT_pt_migrationWifiPenalty;
+    v41 = DVARFLT_pt_migrationWifiPenalty;
     if ( !DVARFLT_pt_migrationWifiPenalty && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationWifiPenalty") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v74);
-    __asm { vmulss  xmm6, xmm6, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v41);
+    v34 = v34 * v41->current.value;
   }
-  __asm { vcvtss2sd xmm0, xmm6, xmm6 }
-  if ( v73 )
-    v71 = "true";
-  __asm { vmovsd  [rsp+578h+fmt], xmm0 }
-  Com_Printf(25, "[%s] wifi: %s, host score = %0.3f\n", party->partyName, v71, fmtf);
+  if ( v40 )
+    v38 = "true";
+  Com_Printf(25, "[%s] wifi: %s, host score = %0.3f\n", party->partyName, v38, v34);
   areWeHost = party->areWeHost;
   if ( areWeHost )
   {
-    v77 = DVARFLT_pt_migrationThreshold;
+    v43 = DVARFLT_pt_migrationThreshold;
     if ( !DVARFLT_pt_migrationThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationThreshold") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v77);
-    __asm { vaddss  xmm6, xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v43);
+    v34 = v34 + v43->current.value;
   }
-  v78 = "no";
-  __asm { vcvtss2sd xmm7, xmm6, xmm6 }
+  v44 = "no";
+  v45 = v34;
   if ( areWeHost )
-    v78 = "yes";
-  __asm { vmovsd  [rsp+578h+fmt], xmm7 }
-  Com_Printf(25, "[%s] currently the host? %s, host score = %0.3f\n", party->partyName, v78, *(double *)&fmtg);
+    v44 = "yes";
+  Com_Printf(25, "[%s] currently the host? %s, host score = %0.3f\n", party->partyName, v44, v45);
   if ( s_shouldLogHostSelection )
   {
-    Live_GetConsoleDetails(1, consoleInternalIP, consoleExternalIP, &machineIDHigh, &machineIDLow, &v125);
+    Live_GetConsoleDetails(1, consoleInternalIP, consoleExternalIP, &machineIDHigh, &machineIDLow, &v62);
     LiveRegionInfo_GetCountryCode(&countryCode);
     *(_QWORD *)&s_hostSelectionLoggingData.version = 5i64;
     s_hostSelectionLoggingData.migrationID = 0i64;
@@ -2493,71 +2386,33 @@ float __fastcall PartyMigrate_ComputeMyHostScore(PartyData *party, const PartyAc
     s_hostSelectionLoggingData.externalIP[2] = consoleExternalIP[2];
     s_hostSelectionLoggingData.externalIP[3] = consoleExternalIP[3];
     s_hostSelectionLoggingData.party_session = (unsigned __int64)*XSESSION_INFO::GetSecurityId(&party->session->dyn.sessionInfo);
-    __asm
-    {
-      vmovss  cs:s_hostSelectionLoggingData.uploadReliability, xmm11
-      vmovss  cs:s_hostSelectionLoggingData.quitRate, xmm10
-      vmovss  cs:s_hostSelectionLoggingData.cpuSpeed, xmm8
-    }
-    s_hostSelectionLoggingData.averagePing = v18;
+    s_hostSelectionLoggingData.uploadReliability = v19;
+    s_hostSelectionLoggingData.quitRate = v30;
+    s_hostSelectionLoggingData.cpuSpeed = 0.0;
+    s_hostSelectionLoggingData.averagePing = v9;
     s_hostSelectionLoggingData.physMemory = 0;
-    s_hostSelectionLoggingData.onWifi = v73;
+    s_hostSelectionLoggingData.onWifi = v40;
     s_hostSelectionLoggingData.isCurrentHost = areWeHost != 0;
     LocalNatType = Live_GetLocalNatType();
     s_hostSelectionLoggingData.natType = truncate_cast<unsigned char,int>(LocalNatType);
     ClientConnectivity = PartyMigrate_GetClientConnectivity(party, ourClientNum);
-    v82 = truncate_cast<unsigned char,int>(__popcnt(ClientConnectivity));
-    __asm
-    {
-      vmovss  xmm0, cs:s_hostSelectionLoggingData.cpuSpeed
-      vmovss  xmm1, cs:s_hostSelectionLoggingData.quitRate
-      vmovss  xmm2, cs:s_hostSelectionLoggingData.uploadReliability
-    }
-    s_hostSelectionLoggingData.connectivity = v82;
+    s_hostSelectionLoggingData.connectivity = truncate_cast<unsigned char,int>(__popcnt(ClientConnectivity));
     s_hostSelectionLoggingData.isFullyInstalled = IsFullyInstalled;
-    v121 = IsFullyInstalled;
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-    }
-    v120 = v82;
+    v58 = IsFullyInstalled;
+    connectivity = s_hostSelectionLoggingData.connectivity;
     natType = s_hostSelectionLoggingData.natType;
     isCurrentHost = s_hostSelectionLoggingData.isCurrentHost;
     onWifi = s_hostSelectionLoggingData.onWifi;
     physMemory = s_hostSelectionLoggingData.physMemory;
-    __asm
-    {
-      vmovsd  [rsp+578h+var_518], xmm0
-      vmovsd  [rsp+578h+var_520], xmm1
-      vmovsd  [rsp+578h+var_528], xmm2
-    }
-    v112 = s_hostSelectionLoggingData.averagePing;
-    v111 = s_hostSelectionLoggingData.externalIP[0] | ((s_hostSelectionLoggingData.externalIP[1] | (*(unsigned __int16 *)&s_hostSelectionLoggingData.externalIP[2] << 8)) << 8);
+    v52 = s_hostSelectionLoggingData.averagePing;
+    v51 = s_hostSelectionLoggingData.externalIP[0] | ((s_hostSelectionLoggingData.externalIP[1] | (*(unsigned __int16 *)&s_hostSelectionLoggingData.externalIP[2] << 8)) << 8);
     country = s_hostSelectionLoggingData.country;
-    LODWORD(macAddressa) = s_hostSelectionLoggingData.cause;
-    Com_sprintf(dest, 0x400ui64, "version %d, party_session %zu, cause %d, migration_id %zu, country %d, external_ip %u, average_ping %d, upload_reliability %0.3f, quit_rate %0.3f, cpu_speed %0.2f, phys_mem %d, on_wifi %u, is_host %u, nat_type %u, connectivity %u, fully_installed %u", s_hostSelectionLoggingData.version, s_hostSelectionLoggingData.party_session, macAddressa, s_hostSelectionLoggingData.migrationID, country, v111, v112, v113, v114, v115, physMemory, onWifi, isCurrentHost, natType, v120, v121);
+    LODWORD(macAddress) = s_hostSelectionLoggingData.cause;
+    Com_sprintf(dest, 0x400ui64, "version %d, party_session %zu, cause %d, migration_id %zu, country %d, external_ip %u, average_ping %d, upload_reliability %0.3f, quit_rate %0.3f, cpu_speed %0.2f, phys_mem %d, on_wifi %u, is_host %u, nat_type %u, connectivity %u, fully_installed %u", s_hostSelectionLoggingData.version, s_hostSelectionLoggingData.party_session, macAddress, s_hostSelectionLoggingData.migrationID, country, v51, v52, s_hostSelectionLoggingData.uploadReliability, s_hostSelectionLoggingData.quitRate, s_hostSelectionLoggingData.cpuSpeed, physMemory, onWifi, isCurrentHost, natType, connectivity, v58);
     dwRecordStringEventFF(dest, DW_EVENT_HOST_NOMINATION);
   }
-  __asm
-  {
-    vmovaps xmm3, xmm7
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "[%s] My host score is: %0.3f\n", party->partyName, *(double *)&_XMM3);
-  __asm { vmovaps xmm0, xmm6 }
-  _R11 = &v129;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return *(float *)&_XMM0;
+  Com_Printf(25, "[%s] My host score is: %0.3f\n", party->partyName, v45);
+  return v34;
 }
 
 /*
@@ -2693,15 +2548,16 @@ void PartyMigrate_DetermineBestHost_BuildInitialList(const PartyData *party, int
   int *p_NAT; 
   unsigned int v11; 
   int v12; 
+  __m256i *v13; 
   int v14; 
   const dvar_t *v15; 
   signed int v16; 
   signed int v17; 
   int v18; 
-  bool v20; 
+  bool v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __m256i v23; 
+  __m256i v22; 
   int NecessaryBandwidth; 
 
   v4 = acceptableNomineeList;
@@ -2738,7 +2594,7 @@ void PartyMigrate_DetermineBestHost_BuildInitialList(const PartyData *party, int
         v12 = 3743;
         goto LABEL_63;
       }
-      _RDI = p_NAT - 1;
+      v13 = (__m256i *)(p_NAT - 1);
       if ( p_NAT == (int *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3662, ASSERT_TYPE_ASSERT, "(theirNomineeInfo)", (const char *)&queryFormat, "theirNomineeInfo") )
         __debugbreak();
       if ( v11 == -1 )
@@ -2751,7 +2607,7 @@ void PartyMigrate_DetermineBestHost_BuildInitialList(const PartyData *party, int
         v14 = 1;
         goto LABEL_52;
       }
-      if ( v23.m256i_i8[28] )
+      if ( v22.m256i_i8[28] )
       {
         v14 = 0;
         goto LABEL_52;
@@ -2762,7 +2618,7 @@ void PartyMigrate_DetermineBestHost_BuildInitialList(const PartyData *party, int
       Dvar_CheckFrontendServerThread(v15);
       if ( !v15->current.enabled )
       {
-        if ( v23.m256i_i32[1] < *p_NAT )
+        if ( v22.m256i_i32[1] < *p_NAT )
         {
           v14 = 0;
 LABEL_51:
@@ -2780,35 +2636,34 @@ LABEL_52:
           }
           else
           {
-            __asm { vmovups ymm0, ymmword ptr [rdi] }
             v11 = v8;
-            __asm { vmovups ymmword ptr [rsp+98h+var_58], ymm0 }
+            v22 = *v13;
             memset_0(v4, 0, nomineeListSize);
           }
           *v9 = 1;
 LABEL_59:
           if ( v11 < 0xC8 )
             goto LABEL_66;
-          LODWORD(v22) = 200;
-          LODWORD(v21) = v11;
-          v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3767, ASSERT_TYPE_ASSERT, "(unsigned)( bestHostIndex ) < (unsigned)( 200 )", "bestHostIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v21, v22);
+          LODWORD(v21) = 200;
+          LODWORD(v20) = v11;
+          v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3767, ASSERT_TYPE_ASSERT, "(unsigned)( bestHostIndex ) < (unsigned)( 200 )", "bestHostIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v20, v21);
           goto LABEL_64;
         }
-        if ( v23.m256i_i32[1] > *p_NAT )
+        if ( v22.m256i_i32[1] > *p_NAT )
         {
           v14 = 1;
           goto LABEL_51;
         }
       }
-      v16 = __popcnt(v23.m256i_u32[2]);
+      v16 = __popcnt(v22.m256i_u32[2]);
       v17 = __popcnt(p_NAT[1]);
       if ( v16 <= v17 )
       {
         if ( v16 >= v17 )
         {
-          if ( v23.m256i_i32[0] < NecessaryBandwidth || *_RDI >= NecessaryBandwidth )
+          if ( v22.m256i_i32[0] < NecessaryBandwidth || v13->m256i_i32[0] >= NecessaryBandwidth )
           {
-            if ( v23.m256i_i32[0] >= NecessaryBandwidth || (v14 = 1, *_RDI < NecessaryBandwidth) )
+            if ( v22.m256i_i32[0] >= NecessaryBandwidth || (v14 = 1, v13->m256i_i32[0] < NecessaryBandwidth) )
               v14 = 2;
           }
           else
@@ -2831,9 +2686,9 @@ LABEL_59:
       goto LABEL_66;
     v12 = 3737;
 LABEL_63:
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", v12, ASSERT_TYPE_ASSERT, "(!acceptableNomineeList[memberIndex])", (const char *)&queryFormat, "!acceptableNomineeList[memberIndex]");
+    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", v12, ASSERT_TYPE_ASSERT, "(!acceptableNomineeList[memberIndex])", (const char *)&queryFormat, "!acceptableNomineeList[memberIndex]");
 LABEL_64:
-    if ( v20 )
+    if ( v19 )
       __debugbreak();
 LABEL_66:
     ++v8;
@@ -2850,31 +2705,46 @@ PartyMigrate_DetermineBestHost_FilterByPing
 */
 void PartyMigrate_DetermineBestHost_FilterByPing(const PartyData *party, bool *acceptableNomineeList)
 {
-  __int64 v9; 
-  char *v10; 
-  int v11; 
-  __int64 v12; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int64 v7; 
+  char *v8; 
+  int v9; 
+  __int64 v10; 
   int *p_cpuSpeed; 
-  bool *v15; 
-  unsigned int v16; 
-  const dvar_t *v18; 
-  char v25; 
-  char v26; 
-  const dvar_t *v27; 
+  bool *v12; 
+  unsigned int v13; 
+  const dvar_t *v14; 
+  int v15; 
+  int NecessaryBandwidth; 
+  int v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
   int integer; 
+  int v23; 
   int NumGameSlots; 
-  const dvar_t *v35; 
-  int v36; 
-  int v37; 
-  bool *v41; 
-  const dvar_t *v42; 
-  int v43; 
-  char *v44; 
-  __int64 v45; 
+  double NecessaryCPUSpeed; 
+  float v26; 
+  const dvar_t *v27; 
+  float v28; 
+  const dvar_t *v29; 
+  int v30; 
+  int v31; 
+  bool *v32; 
+  const dvar_t *v33; 
+  int v34; 
+  char *v35; 
+  __int64 v36; 
   char *fmt; 
-  int v47; 
-  __int64 v48; 
-  char v50[800]; 
+  int v38; 
+  __int64 v39; 
+  char v41[800]; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
 
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3779, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
@@ -2882,151 +2752,119 @@ void PartyMigrate_DetermineBestHost_FilterByPing(const PartyData *party, bool *a
     __debugbreak();
   if ( PartyMigrate_IsPingTestActive(party) )
   {
-    v10 = v50;
-    v11 = 999;
-    v12 = 200i64;
-    __asm { vmovaps [rsp+3F8h+var_58], xmm7 }
+    v8 = v41;
+    v9 = 999;
+    v10 = 200i64;
+    v43 = v3;
     p_cpuSpeed = &party->partyMembers[0].migrateNomineeInfo.cpuSpeed;
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3a83126f
-      vmovaps [rsp+3F8h+var_68], xmm8
-    }
-    v15 = acceptableNomineeList;
-    __asm { vmovaps [rsp+3F8h+var_48], xmm6 }
-    v16 = 0;
-    v47 = 999;
-    v48 = 200i64;
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    v42 = v4;
+    v12 = acceptableNomineeList;
+    v44 = v2;
+    v13 = 0;
+    v38 = 999;
+    v39 = 200i64;
     do
     {
-      if ( *v15 )
+      if ( *v12 )
       {
-        v18 = DVARINT_party_maxplayers;
-        *(_DWORD *)v10 = p_cpuSpeed[2];
-        if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
+        v14 = DVARINT_party_maxplayers;
+        v15 = *(p_cpuSpeed - 3);
+        *(_DWORD *)v8 = p_cpuSpeed[2];
+        if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v18);
-        if ( Live_GetNecessaryBandwidth(v18->current.integer) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1744, ASSERT_TYPE_ASSERT, "(necessaryBandwidth > 0)", (const char *)&queryFormat, "necessaryBandwidth > 0") )
+        Dvar_CheckFrontendServerThread(v14);
+        NecessaryBandwidth = Live_GetNecessaryBandwidth(v14->current.integer);
+        if ( NecessaryBandwidth <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1744, ASSERT_TYPE_ASSERT, "(necessaryBandwidth > 0)", (const char *)&queryFormat, "necessaryBandwidth > 0") )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-        }
-        _RBX = DVARFLT_pt_migrationBandwidthBonusThreshold;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, edi
-          vdivss  xmm6, xmm1, xmm0
-        }
+        v17 = v15 - NecessaryBandwidth;
+        v18 = (float)NecessaryBandwidth;
+        v19 = DVARFLT_pt_migrationBandwidthBonusThreshold;
+        v20 = (float)v17 / v18;
         if ( !DVARFLT_pt_migrationBandwidthBonusThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationBandwidthBonusThreshold") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-        if ( v25 | v26 )
+        Dvar_CheckFrontendServerThread(v19);
+        if ( v20 <= v19->current.value )
         {
           integer = 0;
         }
         else
         {
-          v27 = DVARINT_pt_migrationBandwidthBonusPing;
+          v21 = DVARINT_pt_migrationBandwidthBonusPing;
           if ( !DVARINT_pt_migrationBandwidthBonusPing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationBandwidthBonusPing") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v27);
-          integer = v27->current.integer;
+          Dvar_CheckFrontendServerThread(v21);
+          integer = v21->current.integer;
         }
-        *(_DWORD *)v10 -= integer;
+        *(_DWORD *)v8 -= integer;
+        v23 = *p_cpuSpeed;
         NumGameSlots = Party_GetNumGameSlots(party);
-        *(double *)&_XMM0 = Live_GetNecessaryCPUSpeed(NumGameSlots);
-        __asm
-        {
-          vcomiss xmm0, xmm8
-          vmovaps xmm6, xmm0
-        }
-        if ( v25 | v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1764, ASSERT_TYPE_ASSERT, "(necessaryCPU > 0.0f)", (const char *)&queryFormat, "necessaryCPU > 0.0f") )
+        NecessaryCPUSpeed = Live_GetNecessaryCPUSpeed(NumGameSlots);
+        if ( *(float *)&NecessaryCPUSpeed <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1764, ASSERT_TYPE_ASSERT, "(necessaryCPU > 0.0f)", (const char *)&queryFormat, "necessaryCPU > 0.0f") )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-        }
-        _RBX = DVARFLT_partymigrate_cpuBonusThreshold;
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm7
-          vsubss  xmm2, xmm1, xmm6
-          vdivss  xmm6, xmm2, xmm6
-        }
+        v26 = (float)v23;
+        v27 = DVARFLT_partymigrate_cpuBonusThreshold;
+        v28 = (float)((float)(v26 * 0.001) - *(float *)&NecessaryCPUSpeed) / *(float *)&NecessaryCPUSpeed;
         if ( !DVARFLT_partymigrate_cpuBonusThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_cpuBonusThreshold") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-        if ( v25 | v26 )
+        Dvar_CheckFrontendServerThread(v27);
+        if ( v28 <= v27->current.value )
         {
-          v36 = 0;
+          v30 = 0;
         }
         else
         {
-          v35 = DVARINT_partymigrate_cpuBonusPing;
+          v29 = DVARINT_partymigrate_cpuBonusPing;
           if ( !DVARINT_partymigrate_cpuBonusPing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_cpuBonusPing") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v35);
-          v36 = v35->current.integer;
+          Dvar_CheckFrontendServerThread(v29);
+          v30 = v29->current.integer;
         }
-        v37 = *(_DWORD *)v10 - v36;
+        v31 = *(_DWORD *)v8 - v30;
         if ( *((_BYTE *)p_cpuSpeed + 16) )
-          v37 = 1;
-        *(_DWORD *)v10 = v37;
-        if ( v47 < v37 )
-          v37 = v47;
-        v11 = v37;
-        v47 = v37;
-        v12 = v48;
+          v31 = 1;
+        *(_DWORD *)v8 = v31;
+        if ( v38 < v31 )
+          v31 = v38;
+        v9 = v31;
+        v38 = v31;
+        v10 = v39;
       }
-      ++v15;
+      ++v12;
       p_cpuSpeed += 126;
-      v10 += 4;
-      v48 = --v12;
+      v8 += 4;
+      v39 = --v10;
     }
-    while ( v12 );
-    __asm
+    while ( v10 );
+    v32 = acceptableNomineeList;
+    if ( v9 < 999 )
     {
-      vmovaps xmm8, [rsp+3F8h+var_68]
-      vmovaps xmm7, [rsp+3F8h+var_58]
-      vmovaps xmm6, [rsp+3F8h+var_48]
-    }
-    v41 = acceptableNomineeList;
-    if ( v11 < 999 )
-    {
-      v42 = DVARINT_partymigrate_pingtest_filterThreshold;
+      v33 = DVARINT_partymigrate_pingtest_filterThreshold;
       if ( !DVARINT_partymigrate_pingtest_filterThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_pingtest_filterThreshold") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v42);
-      v43 = v42->current.integer + v11;
-      v44 = v50;
+      Dvar_CheckFrontendServerThread(v33);
+      v34 = v33->current.integer + v9;
+      v35 = v41;
       do
       {
-        if ( *v41 )
+        if ( *v32 )
         {
-          v45 = *(unsigned int *)v44;
-          if ( (int)v45 > v43 )
+          v36 = *(unsigned int *)v35;
+          if ( (int)v36 > v34 )
           {
-            LODWORD(fmt) = v43;
-            Com_Printf(25, "PartyMigrate - DetermineBestHost - Member %i does not pass ping test ( %i > %i )\n", v16, v45, fmt);
-            *v41 = 0;
+            LODWORD(fmt) = v34;
+            Com_Printf(25, "PartyMigrate - DetermineBestHost - Member %i does not pass ping test ( %i > %i )\n", v13, v36, fmt);
+            *v32 = 0;
           }
         }
-        ++v16;
-        v44 += 4;
-        ++v41;
+        ++v13;
+        v35 += 4;
+        ++v32;
       }
-      while ( v16 < 0xC8 );
+      while ( v13 < 0xC8 );
     }
     else
     {
-      Com_PrintWarning(25, "PartyMigrate - DetermineBestHost - No members have a valid ping value, aborting ping filter.\n", v9, "party_maxplayers");
+      Com_PrintWarning(25, "PartyMigrate - DetermineBestHost - No members have a valid ping value, aborting ping filter.\n", v7, "party_maxplayers");
     }
   }
 }
@@ -3038,117 +2876,109 @@ PartyMigrate_DetermineBestHost_LogResults
 */
 void PartyMigrate_DetermineBestHost_LogResults(const PartyData *party, const PartyActiveClient *mainActiveClient, const int newHost)
 {
-  const dvar_t *v7; 
+  const dvar_t *v6; 
   bool IsGameLobby; 
-  const dvar_t *v9; 
-  bool v10; 
-  unsigned int v11; 
+  const dvar_t *v8; 
+  bool v9; 
+  unsigned int v10; 
   const char *CountryCodeString; 
-  int v14; 
-  unsigned int v16; 
-  char *v17; 
-  const char *v21; 
-  int v22; 
-  char v23; 
+  int v12; 
+  int *p_avgPing; 
+  unsigned int v14; 
+  char *v15; 
+  const char *v16; 
+  int v17; 
+  char v18; 
   char *fmt; 
   char *fmta; 
-  __int64 v27; 
-  __int64 v28; 
-  __int64 v29; 
+  __int64 v21; 
+  __int64 v22; 
+  double v23; 
   char dest[768]; 
 
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4003, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !mainActiveClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4004, ASSERT_TYPE_ASSERT, "(mainActiveClient)", (const char *)&queryFormat, "mainActiveClient") )
     __debugbreak();
-  v7 = DVARINT_partymigrate_logResults;
+  v6 = DVARINT_partymigrate_logResults;
   if ( !DVARINT_partymigrate_logResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_logResults") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer <= 0 )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.integer <= 0 )
     return;
   IsGameLobby = Party_IsGameLobby(party);
-  v9 = DVARINT_partymigrate_logResults;
+  v8 = DVARINT_partymigrate_logResults;
   if ( IsGameLobby )
   {
     if ( !DVARINT_partymigrate_logResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_logResults") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    v10 = v9->current.integer == 2;
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = v8->current.integer == 2;
   }
   else
   {
     if ( !DVARINT_partymigrate_logResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_logResults") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    v10 = v9->current.integer == 1;
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = v8->current.integer == 1;
   }
-  if ( v10 )
+  if ( v9 )
     return;
-  v11 = 0;
-  __asm { vmovaps [rsp+3A8h+var_48], xmm6 }
+  v10 = 0;
   CountryCodeString = LiveRegionInfo_GetCountryCodeString();
   LODWORD(fmt) = newHost;
-  __asm { vmovss  xmm6, cs:__real@41200000 }
-  v14 = Com_sprintf(dest, 0x300ui64, "besthost%i:%i(c%s)", (unsigned int)party->partyId, fmt, CountryCodeString);
-  _R14 = &party->partyMembers[0].migrateNomineeInfo.avgPing;
-  v16 = 0;
-  while ( !Party_IsMemberRegistered(party, v16) || !Party_IsMemberPresent(party, v16) && (!Party_IsPrivateParty(party) || !Party_IsMemberIndexCommitted(party, v16)) || !*((_BYTE *)_R14 + 291) )
+  v12 = Com_sprintf(dest, 0x300ui64, "besthost%i:%i(c%s)", (unsigned int)party->partyId, fmt, CountryCodeString);
+  p_avgPing = &party->partyMembers[0].migrateNomineeInfo.avgPing;
+  v14 = 0;
+  while ( !Party_IsMemberRegistered(party, v14) || !Party_IsMemberPresent(party, v14) && (!Party_IsPrivateParty(party) || !Party_IsMemberIndexCommitted(party, v14)) || !*((_BYTE *)p_avgPing + 291) )
   {
 LABEL_39:
-    ++v16;
-    _R14 += 126;
-    if ( v16 >= 0xC8 )
+    ++v14;
+    p_avgPing += 126;
+    if ( v14 >= 0xC8 )
       goto LABEL_42;
   }
-  v17 = &dest[v14];
-  if ( 768 - v14 > 10 )
+  v15 = &dest[v12];
+  if ( 768 - v12 > 10 )
   {
-    if ( *v17 )
+    if ( *v15 )
     {
-      LODWORD(v29) = *v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4046, ASSERT_TYPE_ASSERT, "( writeBuffer[0] ) == ( '\\0' )", "%s == %s\n\t%i, %i", "writeBuffer[0]", "'\\0'", v29, 0i64) )
+      LODWORD(v23) = *v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4046, ASSERT_TYPE_ASSERT, "( writeBuffer[0] ) == ( '\\0' )", "%s == %s\n\t%i, %i", "writeBuffer[0]", "'\\0'", v23, 0i64) )
         __debugbreak();
     }
     if ( DVARBOOL_pt_useMigrationWeights )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+4]
-        vmulss  xmm1, xmm0, xmm6
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovsd  [rsp+3A8h+var_370], xmm2
-      }
-      LODWORD(v28) = *(_R14 - 3);
-      v21 = "(i%u,p%i,u%i,c%x,h%f)";
+      v23 = (float)(*((float *)p_avgPing + 1) * 10.0);
+      LODWORD(v22) = *(p_avgPing - 3);
+      v16 = "(i%u,p%i,u%i,c%x,h%f)";
     }
     else
     {
-      v21 = "(i%u,p%i,u%i,c%x,n%i)";
-      LODWORD(v29) = *(_R14 - 4);
-      LODWORD(v28) = *(_R14 - 3);
+      v16 = "(i%u,p%i,u%i,c%x,n%i)";
+      LODWORD(v23) = *(p_avgPing - 4);
+      LODWORD(v22) = *(p_avgPing - 3);
     }
-    LODWORD(v27) = *(_R14 - 5) / 1024;
-    LODWORD(fmta) = *_R14;
-    v22 = Com_sprintf_truncate(&dest[v14], 768 - v14, v21, v16, fmta, v27, v28, v29);
-    if ( v22 > 0 )
+    LODWORD(v21) = *(p_avgPing - 5) / 1024;
+    LODWORD(fmta) = *p_avgPing;
+    v17 = Com_sprintf_truncate(&dest[v12], 768 - v12, v16, v14, fmta, v21, v22, v23);
+    if ( v17 > 0 )
     {
-      v14 += v22;
-      v23 = dest[v14];
-      if ( v23 )
+      v12 += v17;
+      v18 = dest[v12];
+      if ( v18 )
       {
-        LODWORD(v29) = v23;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4062, ASSERT_TYPE_ASSERT, "( bestHostResultString[writeIndex] ) == ( '\\0' )", "%s == %s\n\t%i, %i", "bestHostResultString[writeIndex]", "'\\0'", v29, 0i64) )
+        LODWORD(v23) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4062, ASSERT_TYPE_ASSERT, "( bestHostResultString[writeIndex] ) == ( '\\0' )", "%s == %s\n\t%i, %i", "bestHostResultString[writeIndex]", "'\\0'", v23, 0i64) )
           __debugbreak();
       }
-      ++v11;
+      ++v10;
       goto LABEL_39;
     }
   }
-  Com_PrintWarning(14, "[%s] PartyMigrate - DetermineBestHost - LogResults - Not enough space in buffer to log all members. Stopped at %i\n", party->partyName, v16);
+  Com_PrintWarning(14, "[%s] PartyMigrate - DetermineBestHost - LogResults - Not enough space in buffer to log all members. Stopped at %i\n", party->partyName, v14);
 LABEL_42:
-  Com_Printf(14, "[%s] PartyMigrate - DetermineBestHost - Results (%i): %s\n", party->partyName, v11, dest);
-  __asm { vmovaps xmm6, [rsp+3A8h+var_48] }
+  Com_Printf(14, "[%s] PartyMigrate - DetermineBestHost - Results (%i): %s\n", party->partyName, v10, dest);
 }
 
 /*
@@ -3159,14 +2989,15 @@ PartyMigrate_DetermineBestHost_PickBestHost
 __int64 PartyMigrate_DetermineBestHost_PickBestHost(const PartyData *party, bool *acceptableNomineeList)
 {
   unsigned int v4; 
+  NomineeInfo *p_migrateNomineeInfo; 
   unsigned int v6; 
   const dvar_t *v7; 
   NomineeFilterResult v8; 
   int v9; 
   const dvar_t *v10; 
   bool v11; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
   NomineeInfo ourNomineeInfo; 
 
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3924, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
@@ -3174,14 +3005,14 @@ __int64 PartyMigrate_DetermineBestHost_PickBestHost(const PartyData *party, bool
   if ( !acceptableNomineeList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3925, ASSERT_TYPE_ASSERT, "(acceptableNomineeList)", (const char *)&queryFormat, "acceptableNomineeList") )
     __debugbreak();
   v4 = 0;
-  _RBP = &party->partyMembers[0].migrateNomineeInfo;
+  p_migrateNomineeInfo = &party->partyMembers[0].migrateNomineeInfo;
   v6 = -1;
   while ( !*acceptableNomineeList )
   {
 LABEL_41:
     ++v4;
     ++acceptableNomineeList;
-    _RBP = (NomineeInfo *)((char *)_RBP + 504);
+    p_migrateNomineeInfo = (NomineeInfo *)((char *)p_migrateNomineeInfo + 504);
     if ( v4 >= 0xC8 )
       return v6;
   }
@@ -3191,16 +3022,16 @@ LABEL_41:
   Dvar_CheckFrontendServerThread(v7);
   if ( v7->current.enabled )
   {
-    v8 = PartyMigrate_DetermineBestHost_PickBestHostByWeight_Filter(party, v6, &ourNomineeInfo, v4, _RBP);
+    v8 = PartyMigrate_DetermineBestHost_PickBestHostByWeight_Filter(party, v6, &ourNomineeInfo, v4, p_migrateNomineeInfo);
     goto LABEL_38;
   }
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3836, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( v6 == v4 )
   {
-    LODWORD(v15) = v4;
-    LODWORD(v14) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3837, ASSERT_TYPE_ASSERT, "( ourNomineeIndex ) != ( theirNomineeIndex )", "%s != %s\n\t%i, %i", "ourNomineeIndex", "theirNomineeIndex", v14, v15) )
+    LODWORD(v14) = v4;
+    LODWORD(v13) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3837, ASSERT_TYPE_ASSERT, "( ourNomineeIndex ) != ( theirNomineeIndex )", "%s != %s\n\t%i, %i", "ourNomineeIndex", "theirNomineeIndex", v13, v14) )
       __debugbreak();
   }
   if ( v6 == -1 )
@@ -3208,7 +3039,7 @@ LABEL_41:
     v8 = NFR_BETTER;
     goto LABEL_38;
   }
-  if ( _RBP->forceHostSet )
+  if ( p_migrateNomineeInfo->forceHostSet )
   {
     v8 = NFR_BETTER;
     goto LABEL_38;
@@ -3218,7 +3049,7 @@ LABEL_41:
     v8 = NFR_WORSE;
     goto LABEL_38;
   }
-  v9 = ourNomineeInfo.upload - _RBP->upload;
+  v9 = ourNomineeInfo.upload - p_migrateNomineeInfo->upload;
   v10 = DVARINT_partymigrate_uploadtest_minThreshold;
   if ( !DVARINT_partymigrate_uploadtest_minThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_uploadtest_minThreshold") )
     __debugbreak();
@@ -3246,15 +3077,11 @@ LABEL_41:
 LABEL_37:
     v8 = NFR_EQUAL;
 LABEL_38:
-  if ( !_RBP->forceHostSet )
+  if ( !p_migrateNomineeInfo->forceHostSet )
   {
     if ( v8 == NFR_BETTER )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+0]
-        vmovups ymmword ptr [rsp+98h+ourNomineeInfo.upload], ymm0
-      }
+      ourNomineeInfo = *p_migrateNomineeInfo;
       v6 = v4;
     }
     goto LABEL_41;
@@ -3269,66 +3096,50 @@ PartyMigrate_DetermineBestHost_PickBestHostByWeight_Filter
 */
 __int64 PartyMigrate_DetermineBestHost_PickBestHostByWeight_Filter(const PartyData *party, const int ourNomineeIndex, const NomineeInfo *ourNomineeInfo, const int theirNomineeIndex, const NomineeInfo *theirNomineeInfo)
 {
-  const dvar_t *v10; 
-  bool v11; 
-  bool v12; 
+  const dvar_t *v9; 
   char MemberPlatform; 
-  unsigned __int8 v14; 
-  __int64 v17; 
-  __int64 v18; 
+  char v11; 
+  float hostScore; 
+  __int64 v14; 
+  __int64 v15; 
 
-  _R15 = ourNomineeInfo;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3876, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( ourNomineeIndex == theirNomineeIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3877, ASSERT_TYPE_ASSERT, "( ourNomineeIndex ) != ( theirNomineeIndex )", "%s != %s\n\t%i, %i", "ourNomineeIndex", "theirNomineeIndex", ourNomineeIndex, theirNomineeIndex) )
     __debugbreak();
   if ( (unsigned int)theirNomineeIndex >= 0xC8 )
   {
-    LODWORD(v18) = 200;
-    LODWORD(v17) = theirNomineeIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3878, ASSERT_TYPE_ASSERT, "(unsigned)( theirNomineeIndex ) < (unsigned)( 200 )", "theirNomineeIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v15) = 200;
+    LODWORD(v14) = theirNomineeIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3878, ASSERT_TYPE_ASSERT, "(unsigned)( theirNomineeIndex ) < (unsigned)( 200 )", "theirNomineeIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
-  if ( ourNomineeIndex == -1 )
+  if ( ourNomineeIndex == -1 || theirNomineeInfo->forceHostSet )
     return 1i64;
-  _R14 = theirNomineeInfo;
-  if ( theirNomineeInfo->forceHostSet )
-    return 1i64;
-  if ( _R15->forceHostSet )
+  if ( ourNomineeInfo->forceHostSet )
     return 0i64;
-  v10 = DVARBOOL_partymigrate_preferConsoleOverPC;
+  v9 = DVARBOOL_partymigrate_preferConsoleOverPC;
   if ( !DVARBOOL_partymigrate_preferConsoleOverPC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "partymigrate_preferConsoleOverPC") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  v11 = 0;
-  v12 = !v10->current.enabled;
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
   {
     MemberPlatform = Party_GetMemberPlatform(party, ourNomineeIndex);
-    v14 = Party_GetMemberPlatform(party, theirNomineeIndex);
+    v11 = Party_GetMemberPlatform(party, theirNomineeIndex);
     if ( MemberPlatform == 2 )
     {
-      v11 = v14 < 2u;
-      v12 = v14 <= 2u;
-      if ( v14 != 2 )
+      if ( v11 != 2 )
         return 1i64;
     }
-    else
+    else if ( v11 == 2 )
     {
-      v11 = v14 < 2u;
-      v12 = v14 <= 2u;
-      if ( v14 == 2 )
-        return 0i64;
+      return 0i64;
     }
   }
-  __asm
+  hostScore = ourNomineeInfo->hostScore;
+  if ( hostScore <= theirNomineeInfo->hostScore )
   {
-    vmovss  xmm0, dword ptr [r15+18h]
-    vcomiss xmm0, dword ptr [r14+18h]
-  }
-  if ( v12 )
-  {
-    if ( v11 )
+    if ( hostScore < theirNomineeInfo->hostScore )
       return 1i64;
     if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_partymigrate_preferSameHost, "partymigrate_preferSameHost") )
       return 2i64;
@@ -3353,16 +3164,16 @@ void PartyMigrate_ExecMigrateToRequest(PartyData *party, const PartyActiveClient
   unsigned int newHost; 
   const char *v8; 
   const char *v9; 
+  __int128 v10; 
   __int64 v11; 
   XUID xuid; 
   MigrationHostInfo newHostInfo; 
 
-  _RDI = party;
   XUID::XUID(&newHostInfo.xuid);
   isInGameMigration = req->isInGameMigration;
   newHost = req->newHost;
   xuid.m_id = req->newHostXuid.m_id;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2482, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
+  if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2482, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( newHost >= 0xC8 )
   {
@@ -3370,38 +3181,38 @@ void PartyMigrate_ExecMigrateToRequest(PartyData *party, const PartyActiveClient
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2483, ASSERT_TYPE_ASSERT, "(unsigned)( newHostNum ) < (unsigned)( 200 )", "newHostNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v11, 200) )
       __debugbreak();
   }
-  if ( !_RDI->migrateData.cachedNewHostInfo )
+  if ( !party->migrateData.cachedNewHostInfo )
     goto LABEL_10;
-  if ( _RDI->migrateData.newHostInfo.inGameMigration != isInGameMigration )
+  if ( party->migrateData.newHostInfo.inGameMigration != isInGameMigration )
   {
-    Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, but inGameMigration does not match. %i vs %i.\n", _RDI->partyName);
+    Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, but inGameMigration does not match. %i vs %i.\n", party->partyName);
 LABEL_10:
     newHostInfo.clientNum = -1;
     goto LABEL_11;
   }
-  if ( _RDI->migrateData.newHostInfo.clientNum != newHost )
+  if ( party->migrateData.newHostInfo.clientNum != newHost )
   {
-    Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, but the host num does not match. %i vs %i.\n", _RDI->partyName);
+    Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, but the host num does not match. %i vs %i.\n", party->partyName);
     goto LABEL_10;
   }
-  if ( XUID::operator!=(&_RDI->migrateData.newHostInfo.xuid, &xuid) )
+  if ( XUID::operator!=(&party->migrateData.newHostInfo.xuid, &xuid) )
   {
     v8 = XUID::ToDevString(&xuid);
-    v9 = XUID::ToDevString(&_RDI->migrateData.newHostInfo.xuid);
-    Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, but the xuid does not match. %s vs %s.\n", _RDI->partyName, v9, v8);
+    v9 = XUID::ToDevString(&party->migrateData.newHostInfo.xuid);
+    Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, but the xuid does not match. %s vs %s.\n", party->partyName, v9, v8);
     goto LABEL_10;
   }
-  if ( _RDI->migrateData.newHostInfo.clientNum == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2506, ASSERT_TYPE_ASSERT, "( party->migrateData.newHostInfo.clientNum ) != ( -1 )", "%s != %s\n\t%i, %i", "party->migrateData.newHostInfo.clientNum", "CLIENTNUM_NONE", -1, -1) )
+  if ( party->migrateData.newHostInfo.clientNum == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2506, ASSERT_TYPE_ASSERT, "( party->migrateData.newHostInfo.clientNum ) != ( -1 )", "%s != %s\n\t%i, %i", "party->migrateData.newHostInfo.clientNum", "CLIENTNUM_NONE", -1, -1) )
     __debugbreak();
-  Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, standing by for full migration.\n", _RDI->partyName);
-  newHostInfo.clientNum = _RDI->migrateData.newHostInfo.clientNum;
-  XUID::operator=(&newHostInfo.xuid, &_RDI->migrateData.newHostInfo.xuid);
-  __asm { vmovups xmm0, xmmword ptr [rdi+68h] }
-  newHostInfo.netAddr.addrHandleIndex = _RDI->migrateData.newHostInfo.netAddr.addrHandleIndex;
-  newHostInfo.inGameMigration = _RDI->migrateData.newHostInfo.inGameMigration;
-  newHostInfo.claimedArbitratorNum = _RDI->migrateData.newHostInfo.claimedArbitratorNum;
-  newHostInfo.migrationBits = _RDI->migrateData.newHostInfo.migrationBits;
-  __asm { vmovups xmmword ptr [rsp+0B8h+newHostInfo.netAddr.type], xmm0 }
+  Com_Printf(25, "[%s] PartyMigrate - HasValidNewHostInfo - We have cached the new host info, standing by for full migration.\n", party->partyName);
+  newHostInfo.clientNum = party->migrateData.newHostInfo.clientNum;
+  XUID::operator=(&newHostInfo.xuid, &party->migrateData.newHostInfo.xuid);
+  v10 = *(_OWORD *)&party->migrateData.newHostInfo.netAddr.type;
+  newHostInfo.netAddr.addrHandleIndex = party->migrateData.newHostInfo.netAddr.addrHandleIndex;
+  newHostInfo.inGameMigration = party->migrateData.newHostInfo.inGameMigration;
+  newHostInfo.claimedArbitratorNum = party->migrateData.newHostInfo.claimedArbitratorNum;
+  newHostInfo.migrationBits = party->migrateData.newHostInfo.migrationBits;
+  *(_OWORD *)&newHostInfo.netAddr.type = v10;
   if ( newHostInfo.clientNum == -1 )
   {
     LODWORD(v11) = -1;
@@ -3409,14 +3220,14 @@ LABEL_10:
       __debugbreak();
   }
 LABEL_11:
-  Com_Printf(25, "[%s] PartyMigrate - Processing newHost type %i\n", _RDI->partyName, (unsigned int)req->isInGameMigration);
-  PartyMigrate_StartMigrationFromMessage(_RDI, mainActiveClient, req->newHost, req->migrateFlags, req->isInGameMigration);
+  Com_Printf(25, "[%s] PartyMigrate - Processing newHost type %i\n", party->partyName, (unsigned int)req->isInGameMigration);
+  PartyMigrate_StartMigrationFromMessage(party, mainActiveClient, req->newHost, req->migrateFlags, req->isInGameMigration);
   if ( newHostInfo.clientNum != -1 )
   {
-    Com_Printf(25, "[%s] PartyMigrate - Processing newHost session from cached info.\n", _RDI->partyName);
-    if ( _RDI->migrateData.cachedNewHostInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2535, ASSERT_TYPE_ASSERT, "(!party->migrateData.cachedNewHostInfo)", "%s\n\tNew host info data should be cleared out when calling PartyMigrate_StartMigrationFromMessage", "!party->migrateData.cachedNewHostInfo") )
+    Com_Printf(25, "[%s] PartyMigrate - Processing newHost session from cached info.\n", party->partyName);
+    if ( party->migrateData.cachedNewHostInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2535, ASSERT_TYPE_ASSERT, "(!party->migrateData.cachedNewHostInfo)", "%s\n\tNew host info data should be cleared out when calling PartyMigrate_StartMigrationFromMessage", "!party->migrateData.cachedNewHostInfo") )
       __debugbreak();
-    PartyMigrate_MigrateToNewSession(_RDI, mainActiveClient, &newHostInfo, 1);
+    PartyMigrate_MigrateToNewSession(party, mainActiveClient, &newHostInfo, 1);
   }
 }
 
@@ -3609,44 +3420,28 @@ PartyMigrate_GetBandwidthPingBonus
 */
 __int64 PartyMigrate_GetBandwidthPingBonus(const int playerCount, const int uploadBandwidth)
 {
-  char v11; 
-  char v12; 
-  const dvar_t *v13; 
-  __int64 result; 
+  int NecessaryBandwidth; 
+  int v4; 
+  float v5; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  if ( Live_GetNecessaryBandwidth(playerCount) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1744, ASSERT_TYPE_ASSERT, "(necessaryBandwidth > 0)", (const char *)&queryFormat, "necessaryBandwidth > 0") )
+  NecessaryBandwidth = Live_GetNecessaryBandwidth(playerCount);
+  if ( NecessaryBandwidth <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1744, ASSERT_TYPE_ASSERT, "(necessaryBandwidth > 0)", (const char *)&queryFormat, "necessaryBandwidth > 0") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-  }
-  _RBX = DVARFLT_pt_migrationBandwidthBonusThreshold;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edi
-    vdivss  xmm6, xmm1, xmm0
-  }
+  v4 = uploadBandwidth - NecessaryBandwidth;
+  v5 = (float)NecessaryBandwidth;
+  v6 = DVARFLT_pt_migrationBandwidthBonusThreshold;
   if ( !DVARFLT_pt_migrationBandwidthBonusThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationBandwidthBonusThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-  if ( v11 | v12 )
-  {
-    result = 0i64;
-  }
-  else
-  {
-    v13 = DVARINT_pt_migrationBandwidthBonusPing;
-    if ( !DVARINT_pt_migrationBandwidthBonusPing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationBandwidthBonusPing") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    result = v13->current.unsignedInt;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v6);
+  if ( (float)((float)v4 / v5) <= v6->current.value )
+    return 0i64;
+  v7 = DVARINT_pt_migrationBandwidthBonusPing;
+  if ( !DVARINT_pt_migrationBandwidthBonusPing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_migrationBandwidthBonusPing") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v7);
+  return v7->current.unsignedInt;
 }
 
 /*
@@ -3993,13 +3788,13 @@ __int64 PartyMigrate_HandlePacket(PartyData *party, const char *c, const PartyAc
   int v18; 
   PartyActiveClient MainActiveClient; 
   const dvar_t *v20; 
+  __int128 v21; 
   PartyActiveClient v23; 
   __int128 v24; 
   int addrHandleIndex; 
 
   string = messageHandlers_1[0].string;
   v6 = 0;
-  _R13 = from;
   if ( *messageHandlers_1[0].string )
   {
     v10 = 0i64;
@@ -4031,9 +3826,9 @@ LABEL_18:
             Com_Printf(25, "oob: %s\n", c);
           if ( !messageHandlers_1[v6].func && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3085, ASSERT_TYPE_ASSERT, "(messageHandlers[handler].func)", (const char *)&queryFormat, "messageHandlers[handler].func") )
             __debugbreak();
-          __asm { vmovups xmm0, xmmword ptr [r13+0] }
-          addrHandleIndex = _R13->addrHandleIndex;
-          __asm { vmovups [rsp+98h+var_48], xmm0 }
+          v21 = *(_OWORD *)&from->type;
+          addrHandleIndex = from->addrHandleIndex;
+          v24 = v21;
           ((void (__fastcall *)(PartyData *, PartyActiveClient *, __int128 *, msg_t *))messageHandlers_1[v6].func)(party, &v23, &v24, msg);
           return 1i64;
         }
@@ -4292,12 +4087,13 @@ PartyMigrate_MigrateToNewSession
 void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient *mainActiveClient, const MigrationHostInfo *newHostInfo, const int isUsingHostInfoCache)
 {
   const char *v8; 
+  __int128 v9; 
   int clientNum; 
   const char *v11; 
   int MemberByXUID_AllowNotPresent; 
   const char *v13; 
   bool IsHost; 
-  unsigned int v15; 
+  int v15; 
   const char *MemberName; 
   clientMigState_t LocalClientMigrationState; 
   clientMigState_t v18; 
@@ -4319,18 +4115,17 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
   __int64 v34; 
   netadr_t v35; 
 
-  _R14 = newHostInfo;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2897, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !mainActiveClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2898, ASSERT_TYPE_ASSERT, "(mainActiveClient)", (const char *)&queryFormat, "mainActiveClient") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2899, ASSERT_TYPE_ASSERT, "(newHostInfo)", (const char *)&queryFormat, "newHostInfo") )
+  if ( !newHostInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2899, ASSERT_TYPE_ASSERT, "(newHostInfo)", (const char *)&queryFormat, "newHostInfo") )
     __debugbreak();
-  v8 = XUID::ToDevString(&_R14->xuid);
-  __asm { vmovups xmm0, xmmword ptr [r14+10h] }
-  clientNum = _R14->clientNum;
-  v35.addrHandleIndex = _R14->netAddr.addrHandleIndex;
-  __asm { vmovups [rsp+98h+var_48], xmm0 }
+  v8 = XUID::ToDevString(&newHostInfo->xuid);
+  v9 = *(_OWORD *)&newHostInfo->netAddr.type;
+  clientNum = newHostInfo->clientNum;
+  v35.addrHandleIndex = newHostInfo->netAddr.addrHandleIndex;
+  *(_OWORD *)&v35.type = v9;
   v11 = NET_AdrToString(&v35);
   LODWORD(fmt) = clientNum;
   Com_Printf(25, "[%s] PartyMigrate - MigrateToNewSession - Received sessinfo message from %s. (%i / %s)\n", party->partyName, v11, fmt, v8);
@@ -4339,34 +4134,34 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
     Com_Printf(25, "[%s] PartyMigrate - MigrateToNewSession - Received session info but we don't have a session to migrate.\n", party->partyName);
     return;
   }
-  MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, _R14->xuid);
-  if ( _R14->clientNum != MemberByXUID_AllowNotPresent )
+  MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, newHostInfo->xuid);
+  if ( newHostInfo->clientNum != MemberByXUID_AllowNotPresent )
   {
-    v13 = XUID::ToDevString(&_R14->xuid);
+    v13 = XUID::ToDevString(&newHostInfo->xuid);
     LODWORD(v32) = MemberByXUID_AllowNotPresent;
-    Com_Printf(25, "[%s] Ignoring new session info because newHost %i (xuid %s) does not match the found host index %i\n", party->partyName, (unsigned int)_R14->clientNum, v13, v32);
+    Com_Printf(25, "[%s] Ignoring new session info because newHost %i (xuid %s) does not match the found host index %i\n", party->partyName, (unsigned int)newHostInfo->clientNum, v13, v32);
     return;
   }
-  if ( _R14->clientNum >= 0xC8u )
+  if ( newHostInfo->clientNum >= 0xC8u )
   {
-    LODWORD(v32) = _R14->clientNum;
+    LODWORD(v32) = newHostInfo->clientNum;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2916, ASSERT_TYPE_ASSERT, "(unsigned)( newHostInfo->clientNum ) < (unsigned)( 200 )", "newHostInfo->clientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v32, 200) )
       __debugbreak();
   }
-  IsHost = Party_IsHost(party, _R14->clientNum);
-  v15 = _R14->clientNum;
+  IsHost = Party_IsHost(party, newHostInfo->clientNum);
+  v15 = newHostInfo->clientNum;
   if ( IsHost )
   {
     MemberName = Party_GetMemberName(party, v15);
-    Com_Printf(25, "[%s] Ignoring new session info because newHost is %i (%s), which is already the host (probably duplicate)\n", party->partyName, (unsigned int)_R14->clientNum, MemberName);
+    Com_Printf(25, "[%s] Ignoring new session info because newHost is %i (%s), which is already the host (probably duplicate)\n", party->partyName, (unsigned int)newHostInfo->clientNum, MemberName);
     return;
   }
   if ( Party_IsMemberLocalPlayer(party, v15) )
   {
-    Com_Printf(25, "[%s] PartyMigrate - Ignoring new session info because the new host number is a local player (%i)\n", party->partyName, (unsigned int)_R14->clientNum);
+    Com_Printf(25, "[%s] PartyMigrate - Ignoring new session info because the new host number is a local player (%i)\n", party->partyName, (unsigned int)newHostInfo->clientNum);
     return;
   }
-  if ( _R14->inGameMigration )
+  if ( newHostInfo->inGameMigration )
   {
     if ( !(unsigned int)PartyMigrate_IsGameServerHostMigration(party) )
     {
@@ -4387,7 +4182,7 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
         }
         Com_Printf(25, "[%s] Received session info while in the wrong state. Storing new host info for future use.\n", party->partyName);
         party->migrateData.cachedNewHostInfo = 1;
-        MigrationHostInfo::operator=(&party->migrateData.newHostInfo, _R14);
+        MigrationHostInfo::operator=(&party->migrateData.newHostInfo, newHostInfo);
       }
       LODWORD(v32) = isUsingHostInfoCache;
       LODWORD(fmta) = mainActiveClient->localClientNum;
@@ -4407,12 +4202,12 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
         __debugbreak();
     }
     expectedNewHost = party->migrateData.expectedNewHost;
-    v20 = _R14->clientNum;
-    if ( expectedNewHost != _R14->clientNum )
+    v20 = newHostInfo->clientNum;
+    if ( expectedNewHost != newHostInfo->clientNum )
     {
-      v21 = XUID::ToDevString(&_R14->xuid);
+      v21 = XUID::ToDevString(&newHostInfo->xuid);
       LODWORD(v32) = expectedNewHost;
-      Com_Printf(25, "[%s] PartyMigrate - MigrateToNewSession - Ignoring new game session info because newHost %i (xuid %s) does not match expected new host %i\n", party->partyName, (unsigned int)_R14->clientNum, v21, v32);
+      Com_Printf(25, "[%s] PartyMigrate - MigrateToNewSession - Ignoring new game session info because newHost %i (xuid %s) does not match expected new host %i\n", party->partyName, (unsigned int)newHostInfo->clientNum, v21, v32);
       return;
     }
     goto LABEL_59;
@@ -4424,7 +4219,7 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
       Com_Printf(25, "[%s] PartyMigrate - Ignoring new party/lobby session info because a party migration is not active and the game is running.\n", party->partyName);
       return;
     }
-    migrationBits = (unsigned int)_R14->migrationBits;
+    migrationBits = (unsigned int)newHostInfo->migrationBits;
     if ( (_DWORD)migrationBits != party->migrateData.indexBits )
     {
       LODWORD(fmta) = party->migrateData.indexBits;
@@ -4432,7 +4227,7 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
       return;
     }
     ArbitratorClientNum = PartyMigrate_GetArbitratorClientNum(party, 0);
-    claimedArbitratorNum = (unsigned int)_R14->claimedArbitratorNum;
+    claimedArbitratorNum = (unsigned int)newHostInfo->claimedArbitratorNum;
     if ( ArbitratorClientNum != (_DWORD)claimedArbitratorNum )
     {
       LODWORD(fmta) = ArbitratorClientNum;
@@ -4446,8 +4241,8 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
         __debugbreak();
     }
     Com_Printf(25, "[%s] PartyMigrate - Received sessInfo message while the migration is inactive, will start a new migration (we may have missed the migrateTo message).\n", party->partyName);
-    PartyMigrate_StartMigrationFromMessage(party, mainActiveClient, _R14->clientNum, 0, 0);
-    if ( party->migrateData.expectedNewHost != _R14->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2995, ASSERT_TYPE_ASSERT, "( party->migrateData.expectedNewHost ) == ( newHostInfo->clientNum )", "%s == %s\n\t%i, %i", "party->migrateData.expectedNewHost", "newHostInfo->clientNum", party->migrateData.expectedNewHost, _R14->clientNum) )
+    PartyMigrate_StartMigrationFromMessage(party, mainActiveClient, newHostInfo->clientNum, 0, 0);
+    if ( party->migrateData.expectedNewHost != newHostInfo->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2995, ASSERT_TYPE_ASSERT, "( party->migrateData.expectedNewHost ) == ( newHostInfo->clientNum )", "%s == %s\n\t%i, %i", "party->migrateData.expectedNewHost", "newHostInfo->clientNum", party->migrateData.expectedNewHost, newHostInfo->clientNum) )
       __debugbreak();
   }
   if ( (unsigned int)PartyMigrate_IsGameServerHostMigration(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 2998, ASSERT_TYPE_ASSERT, "(!PartyMigrate_IsGameServerHostMigration( party ))", (const char *)&queryFormat, "!PartyMigrate_IsGameServerHostMigration( party )") )
@@ -4456,11 +4251,11 @@ void PartyMigrate_MigrateToNewSession(PartyData *party, const PartyActiveClient 
   if ( v25 < 0 )
   {
     Com_Printf(25, "[%s] Received session info but the expected new host has not been set; it is probably the arbitrator and we didn't get the HostTo message yet. Proceeding anyway.\n", party->partyName);
-    v20 = _R14->clientNum;
+    v20 = newHostInfo->clientNum;
     goto LABEL_59;
   }
-  v20 = _R14->clientNum;
-  if ( v25 == _R14->clientNum )
+  v20 = newHostInfo->clientNum;
+  if ( v25 == newHostInfo->clientNum )
   {
 LABEL_59:
     PartyClient_CommitPartyHostMigration(party, v20);
@@ -4476,9 +4271,9 @@ LABEL_59:
       v26 = ((unsigned __int8)(((LOBYTE(party->migrateData.indexBits) + 1) & 3) - 1) | 0xFFFFFFFC) + 1;
     party->migrateData.indexBits = v26;
     Com_Printf(25, " to %i\n", v26);
-    if ( _R14->inGameMigration )
+    if ( newHostInfo->inGameMigration )
     {
-      v27 = Party_GetMemberName(party, _R14->clientNum);
+      v27 = Party_GetMemberName(party, newHostInfo->clientNum);
       Dvar_SetString_Internal(DVARSTR_party_hostname, v27);
       PartyMigrate_MigrateLocalClients(party);
       party->migrateData.expectedNewHost = -1;
@@ -4489,10 +4284,10 @@ LABEL_59:
         Party_RandomizeParty(party);
       PartyMigrate_StopMigration(party);
     }
-    if ( !Party_IsHost(party, _R14->clientNum) )
+    if ( !Party_IsHost(party, newHostInfo->clientNum) )
     {
       LODWORD(v34) = Party_HostNum(party);
-      LODWORD(v33) = _R14->clientNum;
+      LODWORD(v33) = newHostInfo->clientNum;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 3039, ASSERT_TYPE_SANITY, "(Party_IsHost( party, newHostInfo->clientNum ))", "%s\n\t\"Migration did not work properly, the new host num is not the known host (%i vs %i)\"", "Party_IsHost( party, newHostInfo->clientNum )", v33, v34) )
         __debugbreak();
     }
@@ -4507,9 +4302,9 @@ LABEL_59:
       __debugbreak();
   }
   v28 = party->migrateData.expectedNewHost;
-  v29 = XUID::ToDevString(&_R14->xuid);
+  v29 = XUID::ToDevString(&newHostInfo->xuid);
   LODWORD(v32) = v28;
-  Com_Printf(25, "[%s] Ignoring new party/lobby session info because newHost %i (xuid %s) does not match expected new host %i\n", party->partyName, (unsigned int)_R14->clientNum, v29, v32);
+  Com_Printf(25, "[%s] Ignoring new party/lobby session info because newHost %i (xuid %s) does not match expected new host %i\n", party->partyName, (unsigned int)newHostInfo->clientNum, v29, v32);
 }
 
 /*
@@ -4519,114 +4314,99 @@ PartyMigrate_NewHostDecided
 */
 void PartyMigrate_NewHostDecided(PartyData *party, const PartyActiveClient *mainActiveClient, const int newHost)
 {
-  __int64 v4; 
+  __int64 v3; 
   int expectedNewHost; 
-  const char *v8; 
-  int v9; 
+  const char *v7; 
+  int v8; 
   unsigned __int8 *p_status; 
-  const XUID *p_playerUID; 
+  XUID *p_playerUID; 
+  __int64 v11; 
   __int64 v12; 
   __int64 v13; 
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
-  const char *v25; 
+  __int64 v14; 
+  __int64 v15; 
+  const char *v16; 
   const char *MemberName; 
   char *fmt; 
   msg_t buf; 
   char dest[512]; 
   unsigned __int8 data[256]; 
 
-  v4 = newHost;
-  _RDI = party;
+  v3 = newHost;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4173, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !mainActiveClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4174, ASSERT_TYPE_ASSERT, "(mainActiveClient)", (const char *)&queryFormat, "mainActiveClient") )
     __debugbreak();
-  if ( !_RDI->migrateData.weAreArbitrating && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4175, ASSERT_TYPE_ASSERT, "(party->migrateData.weAreArbitrating)", (const char *)&queryFormat, "party->migrateData.weAreArbitrating") )
+  if ( !party->migrateData.weAreArbitrating && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4175, ASSERT_TYPE_ASSERT, "(party->migrateData.weAreArbitrating)", (const char *)&queryFormat, "party->migrateData.weAreArbitrating") )
     __debugbreak();
-  if ( (unsigned int)PartyMigrate_IsGameServerHostMigration(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4176, ASSERT_TYPE_ASSERT, "(!PartyMigrate_IsGameServerHostMigration( party ))", (const char *)&queryFormat, "!PartyMigrate_IsGameServerHostMigration( party )") )
+  if ( (unsigned int)PartyMigrate_IsGameServerHostMigration(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4176, ASSERT_TYPE_ASSERT, "(!PartyMigrate_IsGameServerHostMigration( party ))", (const char *)&queryFormat, "!PartyMigrate_IsGameServerHostMigration( party )") )
     __debugbreak();
-  if ( !PartyMigrate_MigrateActive(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4177, ASSERT_TYPE_ASSERT, "(PartyMigrate_MigrateActive( party ))", (const char *)&queryFormat, "PartyMigrate_MigrateActive( party )") )
+  if ( !PartyMigrate_MigrateActive(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4177, ASSERT_TYPE_ASSERT, "(PartyMigrate_MigrateActive( party ))", (const char *)&queryFormat, "PartyMigrate_MigrateActive( party )") )
     __debugbreak();
-  expectedNewHost = _RDI->migrateData.expectedNewHost;
-  if ( expectedNewHost >= 0 && expectedNewHost != (_DWORD)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4178, ASSERT_TYPE_ASSERT, "((party->migrateData.expectedNewHost < 0) || (party->migrateData.expectedNewHost == newHost))", "%s\n\tChanged our mind about the host! This will confuse clients. %i => %i", "(party->migrateData.expectedNewHost < 0) || (party->migrateData.expectedNewHost == newHost)", _RDI->migrateData.expectedNewHost, v4) )
+  expectedNewHost = party->migrateData.expectedNewHost;
+  if ( expectedNewHost >= 0 && expectedNewHost != (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4178, ASSERT_TYPE_ASSERT, "((party->migrateData.expectedNewHost < 0) || (party->migrateData.expectedNewHost == newHost))", "%s\n\tChanged our mind about the host! This will confuse clients. %i => %i", "(party->migrateData.expectedNewHost < 0) || (party->migrateData.expectedNewHost == newHost)", party->migrateData.expectedNewHost, v3) )
     __debugbreak();
-  if ( (int)v4 >= 0 )
+  if ( (int)v3 >= 0 )
   {
-    if ( (!Party_IsMemberRegistered(_RDI, v4) || !Party_IsMemberPresent(_RDI, v4) && (!Party_IsPrivateParty(_RDI) || !Party_IsMemberIndexCommitted(_RDI, v4))) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4189, ASSERT_TYPE_ASSERT, "(PartyMigrate_IsStatusValidForMigration( party, newHost ))", (const char *)&queryFormat, "PartyMigrate_IsStatusValidForMigration( party, newHost )") )
+    if ( (!Party_IsMemberRegistered(party, v3) || !Party_IsMemberPresent(party, v3) && (!Party_IsPrivateParty(party) || !Party_IsMemberIndexCommitted(party, v3))) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4189, ASSERT_TYPE_ASSERT, "(PartyMigrate_IsStatusValidForMigration( party, newHost ))", (const char *)&queryFormat, "PartyMigrate_IsStatusValidForMigration( party, newHost )") )
       __debugbreak();
-    LODWORD(fmt) = _RDI->migrateData.bestHost.info.connectivity;
-    Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)_RDI->migrateData.bestHost.info.upload, (unsigned int)_RDI->migrateData.bestHost.info.NAT, fmt);
+    LODWORD(fmt) = party->migrateData.bestHost.info.connectivity;
+    Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)party->migrateData.bestHost.info.upload, (unsigned int)party->migrateData.bestHost.info.NAT, fmt);
+    v11 = -1i64;
     v12 = -1i64;
+    do
+      ++v12;
+    while ( dest[v12] );
+    Com_sprintf_truncate(&dest[v12], 512 - v12, ", CPU %g", (float)((float)party->migrateData.bestHost.info.cpuSpeed * 0.001));
     v13 = -1i64;
     do
       ++v13;
     while ( dest[v13] );
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+3Ch]
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    Com_sprintf_truncate(&dest[v13], 512 - v13, ", CPU %g", *(double *)&_XMM3);
-    v19 = -1i64;
+    Com_sprintf_truncate(&dest[v13], 512 - v13, ", RAM %i", (unsigned int)party->migrateData.bestHost.info.physMemory);
+    v14 = -1i64;
     do
-      ++v19;
-    while ( dest[v19] );
-    Com_sprintf_truncate(&dest[v19], 512 - v19, ", RAM %i", (unsigned int)_RDI->migrateData.bestHost.info.physMemory);
-    v20 = -1i64;
+      ++v14;
+    while ( dest[v14] );
+    Com_sprintf_truncate(&dest[v14], 512 - v14, ", avgPing %i", (unsigned int)party->migrateData.bestHost.info.avgPing);
+    v15 = -1i64;
     do
-      ++v20;
-    while ( dest[v20] );
-    Com_sprintf_truncate(&dest[v20], 512 - v20, ", avgPing %i", (unsigned int)_RDI->migrateData.bestHost.info.avgPing);
-    v21 = -1i64;
+      ++v15;
+    while ( dest[v15] );
+    Com_sprintf_truncate(&dest[v15], 512 - v15, ", hostScore %0.2f", party->migrateData.bestHost.info.hostScore);
     do
-      ++v21;
-    while ( dest[v21] );
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+48h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
-    Com_sprintf_truncate(&dest[v21], 512 - v21, ", hostScore %0.2f", *(double *)&_XMM3);
-    do
-      ++v12;
-    while ( dest[v12] );
-    Com_sprintf_truncate(&dest[v12], 512 - v12, ")");
-    v25 = XUID::ToDevString(&_RDI->partyMembers[v4].playerUID);
-    MemberName = Party_GetMemberName(_RDI, v4);
-    Com_Printf(25, "[%s] Client %i (%s - %s) should be host %s\n", _RDI->partyName, (unsigned int)v4, MemberName, v25, dest);
-    PartyMigrate_TellNewHost(_RDI, mainActiveClient, v4);
-    PartyMigrate_To(_RDI, mainActiveClient, v4, 0);
+      ++v11;
+    while ( dest[v11] );
+    Com_sprintf_truncate(&dest[v11], 512 - v11, ")");
+    v16 = XUID::ToDevString(&party->partyMembers[v3].playerUID);
+    MemberName = Party_GetMemberName(party, v3);
+    Com_Printf(25, "[%s] Client %i (%s - %s) should be host %s\n", party->partyName, (unsigned int)v3, MemberName, v16, dest);
+    PartyMigrate_TellNewHost(party, mainActiveClient, v3);
+    PartyMigrate_To(party, mainActiveClient, v3, 0);
   }
   else
   {
-    Com_Printf(25, "[%s] Client %i should be host (disbanding)\n", _RDI->partyName, (unsigned int)v4);
+    Com_Printf(25, "[%s] Client %i should be host (disbanding)\n", party->partyName, (unsigned int)v3);
     if ( !mainActiveClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 456, ASSERT_TYPE_ASSERT, "(partyActiveclient)", (const char *)&queryFormat, "partyActiveclient") )
       __debugbreak();
-    if ( !_RDI->migrateData.weAreArbitrating && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 457, ASSERT_TYPE_ASSERT, "(party->migrateData.weAreArbitrating)", (const char *)&queryFormat, "party->migrateData.weAreArbitrating") )
+    if ( !party->migrateData.weAreArbitrating && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 457, ASSERT_TYPE_ASSERT, "(party->migrateData.weAreArbitrating)", (const char *)&queryFormat, "party->migrateData.weAreArbitrating") )
       __debugbreak();
     MSG_Init(&buf, data, 256);
-    v8 = j_va("%inomigrate %i", (unsigned int)_RDI->partyId, (unsigned int)_RDI->migrateData.indexBits);
-    MSG_WriteString(&buf, v8);
-    Com_Printf(25, "[%s] Telling everyone there will be no migration. :(\n", _RDI->partyName);
-    v9 = 0;
-    p_status = &_RDI->partyMembers[0].status;
-    p_playerUID = &_RDI->partyMembers[0].playerUID;
+    v7 = j_va("%inomigrate %i", (unsigned int)party->partyId, (unsigned int)party->migrateData.indexBits);
+    MSG_WriteString(&buf, v7);
+    Com_Printf(25, "[%s] Telling everyone there will be no migration. :(\n", party->partyName);
+    v8 = 0;
+    p_status = &party->partyMembers[0].status;
+    p_playerUID = &party->partyMembers[0].playerUID;
     do
     {
-      if ( *p_status != 6 && Party_IsMemberIndexDataAvailable(_RDI, v9) && v9 != _RDI->migrateData.arbitratorClientNum && !Live_XUIDIsLocalPlayer((const XUID)p_playerUID->m_id) )
-        PeerMesh_Send(_RDI, (const LocalClientNum_t)mainActiveClient->localClientNum, v9, buf.data, buf.cursize, 0, 1);
-      ++v9;
+      if ( *p_status != 6 && Party_IsMemberIndexDataAvailable(party, v8) && v8 != party->migrateData.arbitratorClientNum && !Live_XUIDIsLocalPlayer((const XUID)p_playerUID->m_id) )
+        PeerMesh_Send(party, (const LocalClientNum_t)mainActiveClient->localClientNum, v8, buf.data, buf.cursize, 0, 1);
+      ++v8;
       p_playerUID += 63;
       p_status += 504;
     }
-    while ( v9 < 200 );
-    PartyMigrate_CancelMigration(_RDI, mainActiveClient);
+    while ( v8 < 200 );
+    PartyMigrate_CancelMigration(party, mainActiveClient);
   }
 }
 
@@ -4635,33 +4415,13 @@ void PartyMigrate_NewHostDecided(PartyData *party, const PartyActiveClient *main
 PartyMigrate_NormalizeHostScore
 ==============
 */
-
-float __fastcall PartyMigrate_NormalizeHostScore(double input, double badValue, double goodValue)
+float PartyMigrate_NormalizeHostScore(float input, float badValue, float goodValue)
 {
-  __asm
-  {
-    vucomiss xmm2, xmm1
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm0
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-    vsubss  xmm1, xmm8, xmm6
-    vsubss  xmm0, xmm7, xmm6
-    vdivss  xmm6, xmm1, xmm0
-    vcomiss xmm6, cs:__real@3f8020c5
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1437, ASSERT_TYPE_SANITY, "( result < 1.0f + 0.001f )", (const char *)&queryFormat, "result < 1.0f + EQUAL_EPSILON") )
+  if ( goodValue == badValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1435, ASSERT_TYPE_ASSERT, "(goodValue != badValue)", (const char *)&queryFormat, "goodValue != badValue") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  return *(float *)&_XMM0;
+  if ( (float)((float)(input - badValue) / (float)(goodValue - badValue)) >= 1.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1437, ASSERT_TYPE_SANITY, "( result < 1.0f + 0.001f )", (const char *)&queryFormat, "result < 1.0f + EQUAL_EPSILON") )
+    __debugbreak();
+  return (float)(input - badValue) / (float)(goodValue - badValue);
 }
 
 /*
@@ -4751,15 +4511,18 @@ PartyMigrate_RequestFindBestHost
 */
 void PartyMigrate_RequestFindBestHost(PartyData *party, const int controllerIndex)
 {
+  __int128 v2; 
+  const char *v4; 
   const char *v5; 
-  const char *v6; 
-  char v12; 
+  const dvar_t *v6; 
+  float value; 
+  double v8; 
   int ControllerFromClient; 
-  char *v14; 
-  __int64 v15; 
-  int v16; 
-  int v17; 
-  char v18; 
+  char *v10; 
+  __int64 v11; 
+  int v12; 
+  int v13; 
+  char v14; 
   XUID *p_playerUID; 
   int i; 
   NetConnection *MemberConnection; 
@@ -4768,64 +4531,55 @@ void PartyMigrate_RequestFindBestHost(PartyData *party, const int controllerInde
   msg_t buf; 
   char nameBufferIn[256]; 
   unsigned __int8 data[256]; 
+  __int128 v23; 
 
   originalControllerNum[0] = controllerIndex;
-  v5 = "party";
+  v4 = "party";
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4293, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !party->areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 4294, ASSERT_TYPE_ASSERT, "(party->areWeHost)", (const char *)&queryFormat, "party->areWeHost") )
     __debugbreak();
   if ( PartyMigrate_HostMigrationEnabled(party) )
   {
-    __asm { vmovaps [rsp+2D8h+var_48], xmm6 }
+    v23 = v2;
     MSG_Init(&buf, data, 256);
-    v6 = j_va("%ifindbest %i", (unsigned int)party->partyId, (unsigned int)party->migrateData.indexBits);
-    MSG_WriteString(&buf, v6);
-    _RBX = DVARFLT_pt_logHostSelectionChance;
+    v5 = j_va("%ifindbest %i", (unsigned int)party->partyId, (unsigned int)party->migrateData.indexBits);
+    MSG_WriteString(&buf, v5);
+    v6 = DVARFLT_pt_logHostSelectionChance;
     if ( !DVARFLT_pt_logHostSelectionChance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_logHostSelectionChance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v6);
+    value = v6->current.value;
+    v8 = I_flrand(0.0, 1.0);
+    if ( *(float *)&v8 >= value )
     {
-      vmovss  xmm1, cs:__real@3f800000; max
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vxorps  xmm0, xmm0, xmm0; min
+      s_shouldLogHostSelection = 0;
+      MSG_WriteBit0(&buf);
     }
-    *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+2D8h+var_48]
-    }
-    if ( v12 )
+    else
     {
       s_shouldLogHostSelection = 1;
       MSG_WriteBit1(&buf);
       s_hostSelectionLoggingData.cause = 0;
       ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
       Live_GetOnlineUserName(ControllerFromClient, nameBufferIn, 256);
-      v14 = nameBufferIn;
-      v15 = 0xCBF29CE484222325ui64;
+      v10 = nameBufferIn;
+      v11 = 0xCBF29CE484222325ui64;
       while ( 1 )
       {
-        v16 = *v14;
-        v17 = v16 + 32;
-        if ( (unsigned __int8)(*v14 - 65) > 0x19u )
-          v17 = *v14;
-        v15 = 0x100000001B3i64 * (v17 ^ (unsigned __int64)v15);
-        if ( !(_BYTE)v16 )
+        v12 = *v10;
+        v13 = v12 + 32;
+        if ( (unsigned __int8)(*v10 - 65) > 0x19u )
+          v13 = *v10;
+        v11 = 0x100000001B3i64 * (v13 ^ (unsigned __int64)v11);
+        if ( !(_BYTE)v12 )
           break;
-        ++v14;
+        ++v10;
       }
-      s_hostSelectionLoggingData.migrationID = v15 ^ _time64(NULL);
+      s_hostSelectionLoggingData.migrationID = v11 ^ _time64(NULL);
       MSG_WriteInt64(&buf, s_hostSelectionLoggingData.migrationID);
     }
-    else
-    {
-      s_shouldLogHostSelection = 0;
-      MSG_WriteBit0(&buf);
-    }
-    v18 = 0;
+    v14 = 0;
     p_playerUID = &party->partyMembers[0].playerUID;
     for ( i = 0; i < 200; ++i )
     {
@@ -4837,16 +4591,16 @@ void PartyMigrate_RequestFindBestHost(PartyData *party, const int controllerInde
           __debugbreak();
         MemberConnection = (NetConnection *)Party_GetMemberConnection(party, i);
         NetConnection::SendReliable(MemberConnection, &buf);
-        v18 = 1;
+        v14 = 1;
       }
       p_playerUID += 63;
     }
-    if ( v18 )
+    if ( v14 )
     {
       *(PartyActiveClient *)originalControllerNum = Party_GetMainActiveClient(party, originalControllerNum[0]);
       if ( Party_IsGameLobby(party) )
-        v5 = "lobby";
-      Com_Printf(25, "[%s] We are the %s host and we're asking everyone to find the best host\n", party->partyName, v5);
+        v4 = "lobby";
+      Com_Printf(25, "[%s] We are the %s host and we're asking everyone to find the best host\n", party->partyName, v4);
       PartyMigrate_StartTimeout(party);
       if ( PartyMigrate_SetupMigration(party, (const PartyActiveClient *)originalControllerNum) )
       {
@@ -4860,8 +4614,8 @@ void PartyMigrate_RequestFindBestHost(PartyData *party, const int controllerInde
     {
       partyName = party->partyName;
       if ( Party_IsGameLobby(party) )
-        v5 = "lobby";
-      Com_PrintWarning(25, "[%s] We are the %s host and we cannot migrate party %s because all clients appear to be local!\n", party->partyName, v5, partyName);
+        v4 = "lobby";
+      Com_PrintWarning(25, "[%s] We are the %s host and we cannot migrate party %s because all clients appear to be local!\n", party->partyName, v4, partyName);
     }
   }
 }
@@ -5027,12 +4781,12 @@ void PartyMigrate_SelectOurNominee(PartyData *party, const PartyActiveClient *ma
   int ShouldWeHostPrivateParty; 
   int localControllerIndex; 
   int NumGameSlots; 
-  int v11; 
+  int v10; 
   int UploadSpeed; 
   int AveragePing; 
-  const dvar_t *v14; 
+  const dvar_t *v13; 
   bool enabled; 
-  int v16; 
+  int v15; 
   NomineeInfo info; 
   PartyActiveClient outPartyActiveClient; 
 
@@ -5065,10 +4819,10 @@ void PartyMigrate_SelectOurNominee(PartyData *party, const PartyActiveClient *ma
         {
           if ( Online_CanHostServer(NumGameSlots) )
           {
-            v11 = Live_GetOurClientNum(localControllerIndex, party);
-            if ( v11 >= 0 )
+            v10 = Live_GetOurClientNum(localControllerIndex, party);
+            if ( v10 >= 0 )
             {
-              if ( party->partyMembers[v11].status )
+              if ( party->partyMembers[v10].status )
                 ShouldWeHostPrivateParty = 1;
             }
           }
@@ -5081,8 +4835,7 @@ void PartyMigrate_SelectOurNominee(PartyData *party, const PartyActiveClient *ma
     {
       if ( !PartyMigrate_GetPings(party, mainActiveClient, OurClientNum) )
         return;
-      *(float *)&_XMM0 = PartyMigrate_ComputeMyHostScore(party, mainActiveClient, OurClientNum, a4);
-      __asm { vmovss  [rsp+78h+info.hostScore], xmm0 }
+      info.hostScore = PartyMigrate_ComputeMyHostScore(party, mainActiveClient, OurClientNum, a4);
       UploadSpeed = Online_GetUploadSpeed();
       if ( UploadSpeed > 2000000 )
         UploadSpeed = 2000000;
@@ -5090,13 +4843,13 @@ void PartyMigrate_SelectOurNominee(PartyData *party, const PartyActiveClient *ma
       info.NAT = Live_GetLocalNatType();
       info.connectivity = PartyMigrate_GetClientConnectivity(party, OurClientNum);
       AveragePing = PartyMigrate_GetAveragePing(party);
-      v14 = DVARBOOL_party_forceMeAsHost;
+      v13 = DVARBOOL_party_forceMeAsHost;
       info.avgPing = AveragePing;
       if ( !DVARBOOL_party_forceMeAsHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_forceMeAsHost") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v14);
-      enabled = v14->current.enabled;
-      v16 = OurClientNum;
+      Dvar_CheckFrontendServerThread(v13);
+      enabled = v13->current.enabled;
+      v15 = OurClientNum;
       info.forceHostSet = enabled;
       goto LABEL_39;
     }
@@ -5104,10 +4857,10 @@ LABEL_36:
     info.NAT = 3;
     if ( Party_IsGameLobby(party) )
       PartyMigrate_PrintCantHost(party, mainActiveClient->localControllerIndex, 0);
-    v16 = -1;
+    v15 = -1;
 LABEL_39:
     Com_Printf(25, "Due to a call to PartyMigrate_SelectOurNominee(), ");
-    PartyMigrate_SetOurNominee(party, OurClientNum, v16, &info);
+    PartyMigrate_SetOurNominee(party, OurClientNum, v15, &info);
     if ( !party->migrateData.decidedOurNominee && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 1733, ASSERT_TYPE_ASSERT, "(party->migrateData.decidedOurNominee)", (const char *)&queryFormat, "party->migrateData.decidedOurNominee") )
       __debugbreak();
     PartyMigrate_AnnounceOurNominee(party, mainActiveClient, OurClientNum);
@@ -5272,19 +5025,19 @@ PartyMigrate_SendOurNominee
 void PartyMigrate_SendOurNominee(PartyData *party, const PartyActiveClient *mainActiveClient, const int ourClientNum, const int destinationClientNum)
 {
   __int64 nominee; 
-  __int64 v11; 
+  __int64 v9; 
   XUID *p_playerUID; 
+  __int64 v11; 
+  __int64 v12; 
   __int64 v13; 
   __int64 v14; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v15; 
   char *fmta; 
   char *fmt; 
   NomineeInfo *info; 
   NomineeInfo *infoa; 
-  __int64 v30; 
-  __int64 v31; 
+  __int64 v20; 
+  __int64 v21; 
   XUID xuid; 
   XUID result; 
   char dest[512]; 
@@ -5303,76 +5056,61 @@ void PartyMigrate_SendOurNominee(PartyData *party, const PartyActiveClient *main
   }
   nominee = party->migrateData.bestHost.nominee;
   party->migrateData.bestHost.lastSentTo = Sys_Milliseconds();
-  _R14 = &party->migrateData.bestHost.info;
   if ( ourClientNum == destinationClientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 385, ASSERT_TYPE_ASSERT, "( ourClientNum ) != ( destinationClientNum )", "%s != %s\n\t%i, %i", "ourClientNum", "destinationClientNum", ourClientNum, destinationClientNum) )
     __debugbreak();
   XUID::XUID(&xuid);
-  v11 = party->migrateData.bestHost.nominee;
-  if ( (int)v11 < 0 )
+  v9 = party->migrateData.bestHost.nominee;
+  if ( (int)v9 < 0 )
   {
     p_playerUID = XUID::NullXUID(&result);
   }
   else
   {
-    if ( (unsigned int)v11 >= 0xC8 )
+    if ( (unsigned int)v9 >= 0xC8 )
     {
-      LODWORD(v30) = 200;
+      LODWORD(v20) = 200;
       LODWORD(info) = party->migrateData.bestHost.nominee;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 322, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 200 )", "clientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", info, v30) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 322, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 200 )", "clientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", info, v20) )
         __debugbreak();
     }
-    if ( !Party_IsMemberIndexDataAvailable(party, v11) )
+    if ( !Party_IsMemberIndexDataAvailable(party, v9) )
     {
-      LODWORD(v31) = party->partyMembers[v11].status;
-      LODWORD(v30) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 323, ASSERT_TYPE_ASSERT, "(Party_IsMemberIndexDataAvailable( party, clientNum ))", "%s\n\tclientNum is %i, their status is %i\n", "Party_IsMemberIndexDataAvailable( party, clientNum )", v30, v31) )
+      LODWORD(v21) = party->partyMembers[v9].status;
+      LODWORD(v20) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 323, ASSERT_TYPE_ASSERT, "(Party_IsMemberIndexDataAvailable( party, clientNum ))", "%s\n\tclientNum is %i, their status is %i\n", "Party_IsMemberIndexDataAvailable( party, clientNum )", v20, v21) )
         __debugbreak();
     }
-    p_playerUID = &party->partyMembers[v11].playerUID;
+    p_playerUID = &party->partyMembers[v9].playerUID;
   }
   XUID::operator=(&xuid, p_playerUID);
   PartyMigrate_SendNomineeMsg(party, mainActiveClient, ourClientNum, destinationClientNum, xuid, &party->migrateData.bestHost.info);
   LODWORD(fmta) = party->migrateData.bestHost.info.connectivity;
-  Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)_R14->upload, (unsigned int)party->migrateData.bestHost.info.NAT, fmta);
+  Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)party->migrateData.bestHost.info.upload, (unsigned int)party->migrateData.bestHost.info.NAT, fmta);
+  v11 = -1i64;
+  v12 = -1i64;
+  do
+    ++v12;
+  while ( dest[v12] );
+  Com_sprintf_truncate(&dest[v12], 512 - v12, ", CPU %g", (float)((float)party->migrateData.bestHost.info.cpuSpeed * 0.001));
   v13 = -1i64;
+  do
+    ++v13;
+  while ( dest[v13] );
+  Com_sprintf_truncate(&dest[v13], 512 - v13, ", RAM %i", (unsigned int)party->migrateData.bestHost.info.physMemory);
   v14 = -1i64;
   do
     ++v14;
   while ( dest[v14] );
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r14+0Ch]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-  }
-  Com_sprintf_truncate(&dest[v14], 512 - v14, ", CPU %g", *(double *)&_XMM3);
-  v20 = -1i64;
+  Com_sprintf_truncate(&dest[v14], 512 - v14, ", avgPing %i", (unsigned int)party->migrateData.bestHost.info.avgPing);
+  v15 = -1i64;
   do
-    ++v20;
-  while ( dest[v20] );
-  Com_sprintf_truncate(&dest[v20], 512 - v20, ", RAM %i", (unsigned int)party->migrateData.bestHost.info.physMemory);
-  v21 = -1i64;
+    ++v15;
+  while ( dest[v15] );
+  Com_sprintf_truncate(&dest[v15], 512 - v15, ", hostScore %0.2f", party->migrateData.bestHost.info.hostScore);
   do
-    ++v21;
-  while ( dest[v21] );
-  Com_sprintf_truncate(&dest[v21], 512 - v21, ", avgPing %i", (unsigned int)party->migrateData.bestHost.info.avgPing);
-  v22 = -1i64;
-  do
-    ++v22;
-  while ( dest[v22] );
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r14+18h]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovq   r9, xmm3
-  }
-  Com_sprintf_truncate(&dest[v22], 512 - v22, ", hostScore %0.2f", *(double *)&_XMM3);
-  do
-    ++v13;
-  while ( dest[v13] );
-  Com_sprintf_truncate(&dest[v13], 512 - v13, ")");
+    ++v11;
+  while ( dest[v11] );
+  Com_sprintf_truncate(&dest[v11], 512 - v11, ")");
   LODWORD(infoa) = nominee;
   LODWORD(fmt) = destinationClientNum;
   Com_Printf(25, "[%s] PartyMigrate - SendOurNominee - (%i) Telling client %i that our current nominee is client %i (%s), %s\n", party->partyName, (unsigned int)ourClientNum, fmt, infoa, party->partyMembers[nominee].info.gamertag, dest);
@@ -5405,74 +5143,54 @@ PartyMigrate_SetOurNominee
 */
 void PartyMigrate_SetOurNominee(PartyData *party, int ourClientNum, int nominee, NomineeInfo *info)
 {
+  __int64 v7; 
   __int64 v8; 
   __int64 v9; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v10; 
+  __int64 v11; 
   char *fmt; 
-  int v24; 
+  int v14; 
   char dest[512]; 
 
-  _RDI = info;
-  _RBP = party;
   if ( (unsigned int)ourClientNum >= 0xC8 )
   {
-    v24 = 200;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 581, ASSERT_TYPE_ASSERT, "(unsigned)( ourClientNum ) < (unsigned)( 200 )", "ourClientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", ourClientNum, v24) )
+    v14 = 200;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partymigrate.cpp", 581, ASSERT_TYPE_ASSERT, "(unsigned)( ourClientNum ) < (unsigned)( 200 )", "ourClientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", ourClientNum, v14) )
       __debugbreak();
   }
-  LODWORD(fmt) = _RDI->connectivity;
-  Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)_RDI->upload, (unsigned int)_RDI->NAT, fmt);
+  LODWORD(fmt) = info->connectivity;
+  Com_sprintf_truncate<512>((char (*)[512])dest, "(Upload %i, NAT %i, connectivity %x", (unsigned int)info->upload, (unsigned int)info->NAT, fmt);
+  v7 = -1i64;
   v8 = -1i64;
+  do
+    ++v8;
+  while ( dest[v8] );
+  Com_sprintf_truncate(&dest[v8], 512 - v8, ", CPU %g", (float)((float)info->cpuSpeed * 0.001));
   v9 = -1i64;
   do
     ++v9;
   while ( dest[v9] );
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+0Ch]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-  }
-  Com_sprintf_truncate(&dest[v9], 512 - v9, ", CPU %g", *(double *)&_XMM3);
-  v15 = -1i64;
+  Com_sprintf_truncate(&dest[v9], 512 - v9, ", RAM %i", (unsigned int)info->physMemory);
+  v10 = -1i64;
   do
-    ++v15;
-  while ( dest[v15] );
-  Com_sprintf_truncate(&dest[v15], 512 - v15, ", RAM %i", (unsigned int)_RDI->physMemory);
-  v16 = -1i64;
+    ++v10;
+  while ( dest[v10] );
+  Com_sprintf_truncate(&dest[v10], 512 - v10, ", avgPing %i", (unsigned int)info->avgPing);
+  v11 = -1i64;
   do
-    ++v16;
-  while ( dest[v16] );
-  Com_sprintf_truncate(&dest[v16], 512 - v16, ", avgPing %i", (unsigned int)_RDI->avgPing);
-  v17 = -1i64;
+    ++v11;
+  while ( dest[v11] );
+  Com_sprintf_truncate(&dest[v11], 512 - v11, ", hostScore %0.2f", info->hostScore);
   do
-    ++v17;
-  while ( dest[v17] );
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+18h]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovq   r9, xmm3
-  }
-  Com_sprintf_truncate(&dest[v17], 512 - v17, ", hostScore %0.2f", *(double *)&_XMM3);
-  do
-    ++v8;
-  while ( dest[v8] );
-  Com_sprintf_truncate(&dest[v8], 512 - v8, ")");
-  Com_Printf(25, "[%s] Changing our current nominee for to client %i %s\n", _RBP->partyName, (unsigned int)nominee, dest);
-  _RBP->migrateData.decidedOurNominee = 1;
-  _RBP->migrateData.bestHost.nominee = nominee;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbp+30h], ymm0
-  }
-  _RBP->migrateData.bestHost.lastHeardFrom = Sys_Milliseconds();
-  _RBP->migrateData.bestHost.lastSentTo = Sys_Milliseconds();
+    ++v7;
+  while ( dest[v7] );
+  Com_sprintf_truncate(&dest[v7], 512 - v7, ")");
+  Com_Printf(25, "[%s] Changing our current nominee for to client %i %s\n", party->partyName, (unsigned int)nominee, dest);
+  party->migrateData.decidedOurNominee = 1;
+  party->migrateData.bestHost.nominee = nominee;
+  party->migrateData.bestHost.info = *info;
+  party->migrateData.bestHost.lastHeardFrom = Sys_Milliseconds();
+  party->migrateData.bestHost.lastSentTo = Sys_Milliseconds();
 }
 
 /*

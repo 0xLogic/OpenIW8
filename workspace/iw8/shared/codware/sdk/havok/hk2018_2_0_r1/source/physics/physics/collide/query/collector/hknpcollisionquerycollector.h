@@ -81,11 +81,7 @@ hknpCollisionQueryCollector::reset
 void hknpCollisionQueryCollector::reset(hknpCollisionQueryCollector *this)
 {
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rcx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
 }
 

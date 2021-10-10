@@ -894,268 +894,257 @@ __int64 Online_DcQos_GetResultState(DcQosResult result)
 Online_DcQos_GetRetailDebug
 ==============
 */
-
-void __fastcall Online_DcQos_GetRetailDebug(char *destString, const int maxLength, __int64 a3, double _XMM3_8)
+void Online_DcQos_GetRetailDebug(char *destString, const int maxLength)
 {
-  unsigned __int64 v7; 
-  unsigned __int64 v9; 
-  const char *v10; 
-  int v11; 
-  int v12; 
-  const char *v13; 
+  unsigned __int64 v2; 
+  unsigned __int64 v4; 
+  const char *v5; 
+  int v6; 
+  int v7; 
+  const char *v8; 
   bdAddr *RelayAddr; 
-  __int64 v15; 
+  __int64 v10; 
   unsigned __int64 RelayID; 
-  unsigned __int64 v17; 
-  int v18; 
+  unsigned __int64 v12; 
+  int v13; 
+  const char *v14; 
+  const char *v15; 
+  int v16; 
   const char *v19; 
-  const char *v20; 
-  int v21; 
-  const char *v28; 
-  unsigned int v29; 
-  bool v31; 
-  bdQoSProbeInfo *v32; 
+  unsigned int v20; 
+  bool v21; 
+  bdQoSProbeInfo *v22; 
   unsigned int m_hash; 
   bdHashMap<unsigned int,bdString,bdHashingClass> *datacenterHash; 
-  bdHashMap<unsigned int,bdString,bdHashingClass>::Node *v35; 
-  char v36; 
+  bdHashMap<unsigned int,bdString,bdHashingClass>::Node *v25; 
+  char v26; 
   unsigned __int64 Length; 
   const char *Buffer; 
-  char *v40; 
+  char *v29; 
   bdAddr *PublicAddr; 
-  const char *v43; 
+  const char *v31; 
   __int64 m_numProbesExpected; 
   __int64 m_numProbesReceived; 
-  const char *v46; 
+  const char *v34; 
   __int64 m_failureReason; 
-  const char *v48; 
-  const char *v49; 
-  int v50; 
-  int v51; 
+  const char *v36; 
+  const char *v37; 
+  int v38; 
+  int v39; 
   __int64 m_numDataCenterPreferences; 
-  const char *v53; 
+  const char *v41; 
   const char *bytes_20; 
-  const char *v55; 
-  bdString v57; 
+  const char *v43; 
+  bdString v44; 
+  __int64 v45; 
+  __int64 v46; 
+  char dest[8]; 
+  __int64 v48; 
+  __int64 v49; 
+  __int64 v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
+  __int64 v54; 
+  char v55[8]; 
+  __int64 v56; 
+  __int64 v57; 
   __int64 v58; 
   __int64 v59; 
-  char dest[8]; 
+  __int64 v60; 
   __int64 v61; 
   __int64 v62; 
-  __int64 v63; 
-  __int64 v64; 
-  __int64 v65; 
-  __int64 v66; 
-  __int64 v67; 
-  char v68[8]; 
-  __int64 v69; 
-  __int64 v70; 
-  __int64 v71; 
-  __int64 v72; 
-  __int64 v73; 
-  __int64 v74; 
-  __int64 v75; 
   char str[24]; 
-  char v77[24]; 
-  void *retaddr; 
+  char v64[24]; 
 
-  _RAX = &retaddr;
-  v59 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v7 = maxLength;
-  if ( !Com_FrontEnd_IsInFrontEnd() )
-    goto LABEL_51;
-  if ( s_dcqos.state == QOSING )
+  v46 = -2i64;
+  v2 = maxLength;
+  if ( Com_FrontEnd_IsInFrontEnd() )
   {
-    v9 = v7;
-    v10 = "\nDC QoS FAILED!";
+    if ( s_dcqos.state == QOSING )
+    {
+      v4 = v2;
+      v5 = "\nDC QoS FAILED!";
 LABEL_50:
-    I_strcat_truncate(destString, v9, v10);
-    goto LABEL_51;
-  }
-  if ( s_dcqos.state == IDLE )
-    goto LABEL_51;
-  v11 = Online_DcQos_GetResultState(DCQOS_RESULT_RELAY) - 2;
-  if ( !v11 )
-  {
-    v13 = "\nUDP Relay FETCHING\n";
-    goto LABEL_13;
-  }
-  v12 = v11 - 1;
-  if ( !v12 )
-  {
-    *(_QWORD *)dest = 0i64;
-    v61 = 0i64;
-    v62 = 0i64;
-    v63 = 0i64;
-    v64 = 0i64;
-    v65 = 0i64;
-    v66 = 0i64;
-    v67 = 0i64;
-    RelayAddr = (bdAddr *)bdRelayAuthToken::getRelayAddr(&s_dcqos.relayAuthToken);
-    bdAddr::toString(RelayAddr, str, 0x16ui64);
-    v15 = -1i64;
-    do
-      ++v15;
-    while ( s_dcqos.relayDatacenterBase64[v15] );
-    bdBase64::decode(s_dcqos.relayDatacenterBase64, v15, dest, 0x40u);
-    RelayID = bdRelayAuthToken::getRelayID(&s_dcqos.relayAuthToken);
-    v13 = j_va("\nUDP Relay Fetch Success: %s %s %zu\n", dest, str, RelayID);
-    goto LABEL_13;
-  }
-  if ( v12 == 1 )
-  {
-    v13 = "\nUDP Relay Fetch FAILED\n";
-LABEL_13:
-    I_strcat_truncate(destString, v7, v13);
-  }
-  v17 = v7;
-  if ( s_dcqos.state == INITIALIZING )
-  {
-    v18 = Sys_Milliseconds();
-    v19 = j_va("\nDC QoS In Progress: %i secs", (unsigned int)((v18 - s_dcqos.startTime) / 1000));
-    I_strcat_truncate(destString, v7, v19);
-  }
-  else
-  {
-    v20 = j_va("\nDC QoS Complete: %i secs\n", (unsigned int)s_dcqos.duration);
-    I_strcat_truncate(destString, v7, v20);
-    v21 = Sys_Milliseconds();
-    Online_Backoff::GetTimeRemaining(&s_dcqos.backoff, v21);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vxorps  xmm3, xmm3, xmm3
-      vroundss xmm3, xmm3, xmm1, 2
-      vcvttss2si r8d, xmm3
+      I_strcat_truncate(destString, v4, v5);
+      return;
     }
-    v28 = j_va("Refreshing in %i:%i\n", (unsigned int)(_ER8 / 60), (unsigned int)(_ER8 % 60));
-    I_strcat_truncate(destString, v7, v28);
-    v29 = 0;
-    if ( s_dcqos.qosProbeInfo.m_size )
+    if ( s_dcqos.state == IDLE )
+      return;
+    v6 = Online_DcQos_GetResultState(DCQOS_RESULT_RELAY) - 2;
+    if ( v6 )
     {
-      __asm { vmovss  xmm6, cs:__real@447a0000 }
-      v31 = s_dcqos.qosProbeInfo.m_size != 0;
-      do
+      v7 = v6 - 1;
+      if ( v7 )
       {
-        bdHandleAssert(v31, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-        v32 = &s_dcqos.qosProbeInfo.m_data[v29];
-        bdString::bdString(&v57);
-        m_hash = v32->m_addr.m_ptr->m_hash;
-        LODWORD(v58) = m_hash;
-        datacenterHash = s_dcqos.datacenterHash;
-        if ( s_dcqos.datacenterHash->m_size && (v35 = s_dcqos.datacenterHash->m_map[(s_dcqos.datacenterHash->m_capacity - 1) & (HIBYTE(m_hash) ^ (16777619 * (BYTE2(m_hash) ^ (16777619 * (BYTE1(m_hash) ^ (16777619 * (unsigned __int8)m_hash))))))]) != NULL )
+        if ( v7 != 1 )
         {
-          while ( m_hash != v35->m_key )
+LABEL_14:
+          v12 = v2;
+          if ( s_dcqos.state == INITIALIZING )
           {
-            v35 = v35->m_next;
-            if ( !v35 )
-              goto LABEL_22;
+            v13 = Sys_Milliseconds();
+            v14 = j_va("\nDC QoS In Progress: %i secs", (unsigned int)((v13 - s_dcqos.startTime) / 1000));
+            I_strcat_truncate(destString, v2, v14);
           }
-          _InterlockedExchangeAdd((volatile signed __int32 *)&s_dcqos.datacenterHash->m_numIterators, 1u);
-          bdString::operator=(&v57, &v35->m_data);
-          bdHandleAssert(datacenterHash->m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,class bdString,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
-          _InterlockedExchangeAdd((volatile signed __int32 *)&datacenterHash->m_numIterators, 0xFFFFFFFF);
-          v36 = 1;
-        }
-        else
-        {
+          else
+          {
+            v15 = j_va("\nDC QoS Complete: %i secs\n", (unsigned int)s_dcqos.duration);
+            I_strcat_truncate(destString, v2, v15);
+            v16 = Sys_Milliseconds();
+            Online_Backoff::GetTimeRemaining(&s_dcqos.backoff, v16);
+            _XMM3 = 0i64;
+            __asm { vroundss xmm3, xmm3, xmm1, 2 }
+            v19 = j_va("Refreshing in %i:%i\n", (unsigned int)((int)*(float *)&_XMM3 / 60), (unsigned int)((int)*(float *)&_XMM3 % 60));
+            I_strcat_truncate(destString, v2, v19);
+            v20 = 0;
+            if ( s_dcqos.qosProbeInfo.m_size )
+            {
+              v21 = s_dcqos.qosProbeInfo.m_size != 0;
+              do
+              {
+                bdHandleAssert(v21, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdQoSProbeInfo>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+                v22 = &s_dcqos.qosProbeInfo.m_data[v20];
+                bdString::bdString(&v44);
+                m_hash = v22->m_addr.m_ptr->m_hash;
+                LODWORD(v45) = m_hash;
+                datacenterHash = s_dcqos.datacenterHash;
+                if ( s_dcqos.datacenterHash->m_size && (v25 = s_dcqos.datacenterHash->m_map[(s_dcqos.datacenterHash->m_capacity - 1) & (HIBYTE(m_hash) ^ (16777619 * (BYTE2(m_hash) ^ (16777619 * (BYTE1(m_hash) ^ (16777619 * (unsigned __int8)m_hash))))))]) != NULL )
+                {
+                  while ( m_hash != v25->m_key )
+                  {
+                    v25 = v25->m_next;
+                    if ( !v25 )
+                      goto LABEL_22;
+                  }
+                  _InterlockedExchangeAdd((volatile signed __int32 *)&s_dcqos.datacenterHash->m_numIterators, 1u);
+                  bdString::operator=(&v44, &v25->m_data);
+                  bdHandleAssert(datacenterHash->m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,class bdString,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
+                  _InterlockedExchangeAdd((volatile signed __int32 *)&datacenterHash->m_numIterators, 0xFFFFFFFF);
+                  v26 = 1;
+                }
+                else
+                {
 LABEL_22:
-          v36 = 0;
+                  v26 = 0;
+                }
+                if ( v26 )
+                {
+                  *(_QWORD *)v55 = 0i64;
+                  v56 = 0i64;
+                  v57 = 0i64;
+                  v58 = 0i64;
+                  v59 = 0i64;
+                  v60 = 0i64;
+                  v61 = 0i64;
+                  v62 = 0i64;
+                  Length = bdString::getLength(&v44);
+                  if ( Length > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)Length, "unsigned", Length) )
+                    __debugbreak();
+                  Buffer = bdString::getBuffer(&v44);
+                  bdBase64::decode(Buffer, Length, v55, 0x40u);
+                  v29 = v55;
+                }
+                else
+                {
+                  PublicAddr = (bdAddr *)bdCommonAddr::getPublicAddr(v22->m_addr.m_ptr);
+                  bdAddr::toString(PublicAddr, v64, 0x16ui64);
+                  v29 = v64;
+                }
+                v31 = j_va("%s %ims ", v29, (unsigned int)(int)(float)(1000.0 * v22->m_latency));
+                I_strcat_truncate(destString, v12, v31);
+                m_numProbesExpected = v22->m_numProbesExpected;
+                m_numProbesReceived = v22->m_numProbesReceived;
+                if ( (_DWORD)m_numProbesExpected != (_DWORD)m_numProbesReceived )
+                {
+                  v34 = j_va("(%i,%i) ", m_numProbesReceived, m_numProbesExpected);
+                  I_strcat_truncate(destString, v12, v34);
+                }
+                m_failureReason = (unsigned int)v22->m_failureReason;
+                if ( (_DWORD)m_failureReason )
+                {
+                  v36 = j_va("%i", m_failureReason);
+                  I_strcat_truncate(destString, v12, v36);
+                }
+                v37 = ",\t";
+                if ( (v20 & 1) != 0 )
+                  v37 = "\n";
+                I_strcat_truncate(destString, v12, v37);
+                bdString::~bdString(&v44);
+                v21 = ++v20 < s_dcqos.qosProbeInfo.m_size;
+              }
+              while ( v20 < s_dcqos.qosProbeInfo.m_size );
+            }
+          }
+          v38 = Online_DcQos_GetResultState(DCQOS_RESULT_DATACENTERS) - 2;
+          if ( v38 )
+          {
+            v39 = v38 - 1;
+            if ( v39 )
+            {
+              if ( v39 != 1 )
+                return;
+              v5 = "\n\nDatacenter Preferences FAILED\n";
+            }
+            else
+            {
+              if ( (unsigned int)Online_DcQos_GetResultState(DCQOS_RESULT_DATACENTERS) != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_dcqos.cpp", 268, ASSERT_TYPE_ASSERT, "(Online_DcQos_IsResultValid( DCQOS_RESULT_DATACENTERS ))", (const char *)&queryFormat, "Online_DcQos_IsResultValid( DCQOS_RESULT_DATACENTERS )") )
+                __debugbreak();
+              m_numDataCenterPreferences = s_dcqos.m_datacenters.m_numDataCenterPreferences;
+              v41 = j_va("\n\nDatacenter Preferences: %i\n", s_dcqos.m_datacenters.m_numDataCenterPreferences);
+              I_strcat_truncate(destString, v12, v41);
+              if ( (int)m_numDataCenterPreferences > 0 )
+              {
+                bytes_20 = s_dcqos.m_datacenters._bytes_20;
+                do
+                {
+                  v43 = j_va("%s, ", bytes_20);
+                  I_strcat_truncate(destString, v12, v43);
+                  bytes_20 += 64;
+                  --m_numDataCenterPreferences;
+                }
+                while ( m_numDataCenterPreferences );
+              }
+              v5 = "\n";
+            }
+          }
+          else
+          {
+            v5 = "\n\nDatacenter Preferences FETCHING\n";
+          }
+          v4 = v12;
+          goto LABEL_50;
         }
-        if ( v36 )
-        {
-          *(_QWORD *)v68 = 0i64;
-          v69 = 0i64;
-          v70 = 0i64;
-          v71 = 0i64;
-          v72 = 0i64;
-          v73 = 0i64;
-          v74 = 0i64;
-          v75 = 0i64;
-          Length = bdString::getLength(&v57);
-          if ( Length > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)Length, "unsigned", Length) )
-            __debugbreak();
-          Buffer = bdString::getBuffer(&v57);
-          bdBase64::decode(Buffer, Length, v68, 0x40u);
-          v40 = v68;
-        }
-        else
-        {
-          PublicAddr = (bdAddr *)bdCommonAddr::getPublicAddr(v32->m_addr.m_ptr);
-          bdAddr::toString(PublicAddr, v77, 0x16ui64);
-          v40 = v77;
-        }
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rsi+0A0h]
-          vcvttss2si r8d, xmm1
-        }
-        v43 = j_va("%s %ims ", v40, _R8);
-        I_strcat_truncate(destString, v17, v43);
-        m_numProbesExpected = v32->m_numProbesExpected;
-        m_numProbesReceived = v32->m_numProbesReceived;
-        if ( (_DWORD)m_numProbesExpected != (_DWORD)m_numProbesReceived )
-        {
-          v46 = j_va("(%i,%i) ", m_numProbesReceived, m_numProbesExpected);
-          I_strcat_truncate(destString, v17, v46);
-        }
-        m_failureReason = (unsigned int)v32->m_failureReason;
-        if ( (_DWORD)m_failureReason )
-        {
-          v48 = j_va("%i", m_failureReason);
-          I_strcat_truncate(destString, v17, v48);
-        }
-        v49 = ",\t";
-        if ( (v29 & 1) != 0 )
-          v49 = "\n";
-        I_strcat_truncate(destString, v17, v49);
-        bdString::~bdString(&v57);
-        v31 = ++v29 < s_dcqos.qosProbeInfo.m_size;
+        v8 = "\nUDP Relay Fetch FAILED\n";
       }
-      while ( v29 < s_dcqos.qosProbeInfo.m_size );
-    }
-  }
-  v50 = Online_DcQos_GetResultState(DCQOS_RESULT_DATACENTERS) - 2;
-  if ( !v50 )
-  {
-    v10 = "\n\nDatacenter Preferences FETCHING\n";
-    goto LABEL_49;
-  }
-  v51 = v50 - 1;
-  if ( !v51 )
-  {
-    if ( (unsigned int)Online_DcQos_GetResultState(DCQOS_RESULT_DATACENTERS) != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_dcqos.cpp", 268, ASSERT_TYPE_ASSERT, "(Online_DcQos_IsResultValid( DCQOS_RESULT_DATACENTERS ))", (const char *)&queryFormat, "Online_DcQos_IsResultValid( DCQOS_RESULT_DATACENTERS )") )
-      __debugbreak();
-    m_numDataCenterPreferences = s_dcqos.m_datacenters.m_numDataCenterPreferences;
-    v53 = j_va("\n\nDatacenter Preferences: %i\n", s_dcqos.m_datacenters.m_numDataCenterPreferences);
-    I_strcat_truncate(destString, v17, v53);
-    if ( (int)m_numDataCenterPreferences > 0 )
-    {
-      bytes_20 = s_dcqos.m_datacenters._bytes_20;
-      do
+      else
       {
-        v55 = j_va("%s, ", bytes_20);
-        I_strcat_truncate(destString, v17, v55);
-        bytes_20 += 64;
-        --m_numDataCenterPreferences;
+        *(_QWORD *)dest = 0i64;
+        v48 = 0i64;
+        v49 = 0i64;
+        v50 = 0i64;
+        v51 = 0i64;
+        v52 = 0i64;
+        v53 = 0i64;
+        v54 = 0i64;
+        RelayAddr = (bdAddr *)bdRelayAuthToken::getRelayAddr(&s_dcqos.relayAuthToken);
+        bdAddr::toString(RelayAddr, str, 0x16ui64);
+        v10 = -1i64;
+        do
+          ++v10;
+        while ( s_dcqos.relayDatacenterBase64[v10] );
+        bdBase64::decode(s_dcqos.relayDatacenterBase64, v10, dest, 0x40u);
+        RelayID = bdRelayAuthToken::getRelayID(&s_dcqos.relayAuthToken);
+        v8 = j_va("\nUDP Relay Fetch Success: %s %s %zu\n", dest, str, RelayID);
       }
-      while ( m_numDataCenterPreferences );
     }
-    v10 = "\n";
-    goto LABEL_49;
+    else
+    {
+      v8 = "\nUDP Relay FETCHING\n";
+    }
+    I_strcat_truncate(destString, v2, v8);
+    goto LABEL_14;
   }
-  if ( v51 == 1 )
-  {
-    v10 = "\n\nDatacenter Preferences FAILED\n";
-LABEL_49:
-    v9 = v17;
-    goto LABEL_50;
-  }
-LABEL_51:
-  __asm { vmovaps xmm6, xmmword ptr [rsp+170h+var_48+8] }
 }
 
 /*
@@ -1163,63 +1152,58 @@ LABEL_51:
 Online_DcQos_Init
 ==============
 */
-void Online_DcQos_Init()
+void Online_DcQos_Init(void)
 {
-  const bdRelayAuthToken *v2; 
-  const dvar_t *v3; 
+  const bdRelayAuthToken *v0; 
+  const dvar_t *v1; 
   int successDelay; 
-  const dvar_t *v5; 
+  const dvar_t *v3; 
   bool enabled; 
-  const dvar_t *v9; 
+  const dvar_t *v5; 
+  float value; 
+  const dvar_t *v7; 
   int integer; 
-  const dvar_t *v11; 
+  const dvar_t *v9; 
   PublisherVariableManager *Instance; 
-  bdRelayAuthToken v16; 
-  char v17; 
-  void *retaddr; 
+  bdRelayAuthToken v11; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   *(_QWORD *)s_dcqos.result._bytes_20 = s_dcqos.buffer;
   *(_DWORD *)&s_dcqos.result._bytes_20[8] = 0x4000;
-  bdRelayAuthToken::bdRelayAuthToken(&v16);
-  s_dcqos.relayAuthToken.operator=(&s_dcqos.relayAuthToken, v2);
-  bdRelayAuthToken::~bdRelayAuthToken(&v16);
+  bdRelayAuthToken::bdRelayAuthToken(&v11);
+  s_dcqos.relayAuthToken.operator=(&s_dcqos.relayAuthToken, v0);
+  bdRelayAuthToken::~bdRelayAuthToken(&v11);
   s_dcqos.state = IDLE;
   *(_WORD *)&s_dcqos.requested = 0;
   s_dcqos.resultRequests = 0;
-  v3 = DVARINT_online_qos_backoff_success_delay;
+  v1 = DVARINT_online_qos_backoff_success_delay;
   if ( !DVARINT_online_qos_backoff_success_delay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_qos_backoff_success_delay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  successDelay = v3->current.integer;
-  v5 = DVARBOOL_online_qos_backoff_stop_at_max_attempts;
+  Dvar_CheckFrontendServerThread(v1);
+  successDelay = v1->current.integer;
+  v3 = DVARBOOL_online_qos_backoff_stop_at_max_attempts;
   if ( !DVARBOOL_online_qos_backoff_stop_at_max_attempts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_qos_backoff_stop_at_max_attempts") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  enabled = v5->current.enabled;
-  _RBX = DVARFLT_online_qos_backoff_factor;
+  Dvar_CheckFrontendServerThread(v3);
+  enabled = v3->current.enabled;
+  v5 = DVARFLT_online_qos_backoff_factor;
   if ( !DVARFLT_online_qos_backoff_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_qos_backoff_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v9 = DVARINT_online_qos_backoff_max_attempts;
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
+  v7 = DVARINT_online_qos_backoff_max_attempts;
   if ( !DVARINT_online_qos_backoff_max_attempts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_qos_backoff_max_attempts") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  integer = v9->current.integer;
-  v11 = DVARINT_online_qos_backoff_fail_delay;
+  Dvar_CheckFrontendServerThread(v7);
+  integer = v7->current.integer;
+  v9 = DVARINT_online_qos_backoff_fail_delay;
   if ( !DVARINT_online_qos_backoff_fail_delay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_qos_backoff_fail_delay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  __asm { vmovaps xmm3, xmm6; factor }
-  Online_Backoff::Init(&s_dcqos.backoff, v11->current.integer, integer, *(float *)&_XMM3, enabled, successDelay);
+  Dvar_CheckFrontendServerThread(v9);
+  Online_Backoff::Init(&s_dcqos.backoff, v9->current.integer, integer, value, enabled, successDelay);
   *(_QWORD *)s_dcqos.resultStates = 0i64;
   FenceManager_RegisterForFenceDependenciesUpdatesForAllControllers(FENCE_DCQOS, Online_DcQos_FenceDependenciesUpdated);
   Instance = PublisherVariableManager::GetInstance();
   PublisherVariableManager::AddRetrievedCallback(Instance, Online_DcQos_PublisherVariablesFetched);
-  _R11 = &v17;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -1715,37 +1699,39 @@ void Online_DcQos_ProbeComplete(const tQosEntry *result, void *data)
   bdQoSProbeInfo *v8; 
   unsigned int v9; 
   bdQoSProbeInfo *v10; 
+  char *p_m_latency; 
+  float *v12; 
   __int64 v13; 
   __int64 v14; 
   bdQoSProbeInfo *m_data; 
-  __int64 v18; 
+  __int64 v16; 
   __int64 m_size; 
-  bool v20; 
-  bdQoSProbeInfo *v21; 
+  bool v18; 
+  bdQoSProbeInfo *v19; 
   DWServicesAccess *Instance; 
   DWAsyncMatchMaking *AsyncMatchmaking; 
-  TaskCreateRequest *v24; 
-  bdRemoteTask *v25; 
-  TaskManager *v26; 
-  OnlineTimeSeriesLog *v27; 
+  TaskCreateRequest *v22; 
+  bdRemoteTask *v23; 
+  TaskManager *v24; 
+  OnlineTimeSeriesLog *v25; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest pTaskCreateRequest; 
-  ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint> > *v30; 
-  bdQoSProbeInfo *v31; 
+  ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint> > *v28; 
+  bdQoSProbeInfo *v29; 
   TaskCreateResult pTaskCreateResult; 
-  __int64 v33; 
-  char *v34; 
-  bdQoSProbeInfo *v35; 
+  __int64 v31; 
+  char *v32; 
+  bdQoSProbeInfo *v33; 
   bdReference<bdRemoteTask> remoteTask; 
   bdReference<bdRemoteTask> resulta; 
 
-  v33 = -2i64;
+  v31 = -2i64;
   Com_Printf(25, "[NET] Datacenter QoS probe complete\n");
   v3 = OnlineTimeSeriesLog::Get();
   OnlineTimeSeriesLog::WriteEventCounter(v3, "event.qoshosts.completed.count", 1u);
   mp_next = result->m_addressesToQos.m_listHead.m_sentinel.mp_next;
   p_m_listHead = &result->m_addressesToQos.m_listHead;
-  v30 = p_m_listHead;
+  v28 = p_m_listHead;
   if ( mp_next != (ntl::internal::list_node_base *)p_m_listHead )
   {
     while ( 1 )
@@ -1771,15 +1757,15 @@ LABEL_24:
       s_dcqos.qosProbeInfo.m_data = v8;
       s_dcqos.qosProbeInfo.m_capacity = v9;
       p_mp_next = (const bdQoSProbeInfo *)&mp_next[3].mp_next;
-      p_m_listHead = v30;
+      p_m_listHead = v28;
 LABEL_25:
       m_size = s_dcqos.qosProbeInfo.m_size;
-      v20 = &s_dcqos.qosProbeInfo.m_data[m_size] == NULL;
-      v21 = &s_dcqos.qosProbeInfo.m_data[m_size];
-      v35 = v21;
-      v31 = v21;
-      if ( !v20 )
-        bdQoSProbeInfo::bdQoSProbeInfo(v21, p_mp_next);
+      v18 = &s_dcqos.qosProbeInfo.m_data[m_size] == NULL;
+      v19 = &s_dcqos.qosProbeInfo.m_data[m_size];
+      v33 = v19;
+      v29 = v19;
+      if ( !v18 )
+        bdQoSProbeInfo::bdQoSProbeInfo(v19, p_mp_next);
       ++s_dcqos.qosProbeInfo.m_size;
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
@@ -1787,42 +1773,37 @@ LABEL_25:
       if ( mp_next == (ntl::internal::list_node_base *)p_m_listHead )
         goto LABEL_31;
     }
-    _RDI = (char *)&v10->m_latency;
-    _RSI = &s_dcqos.qosProbeInfo.m_data->m_latency;
+    p_m_latency = (char *)&v10->m_latency;
+    v12 = &s_dcqos.qosProbeInfo.m_data->m_latency;
     v13 = s_dcqos.qosProbeInfo.m_size;
     do
     {
-      v34 = _RDI - 160;
-      v31 = (bdQoSProbeInfo *)(_RDI - 160);
-      if ( _RDI != (char *)160 )
+      v32 = p_m_latency - 160;
+      v29 = (bdQoSProbeInfo *)(p_m_latency - 160);
+      if ( p_m_latency != (char *)160 )
       {
-        v14 = *((_QWORD *)_RSI - 20);
-        *((_QWORD *)_RDI - 20) = v14;
+        v14 = *((_QWORD *)v12 - 20);
+        *((_QWORD *)p_m_latency - 20) = v14;
         if ( v14 )
           _InterlockedExchangeAdd((volatile signed __int32 *)(v14 + 8), 1u);
-        bdAddr::bdAddr((bdAddr *)_RDI - 1, (const bdAddr *)_RSI - 1);
-        *(float *)_RDI = *_RSI;
-        *((_QWORD *)_RDI + 1) = *((_QWORD *)_RSI + 1);
-        *((float *)_RDI + 4) = _RSI[4];
-        _RDI[20] = *((_BYTE *)_RSI + 20);
-        *((float *)_RDI + 6) = _RSI[6];
-        *((float *)_RDI + 7) = _RSI[7];
-        *((float *)_RDI + 8) = _RSI[8];
-        *((float *)_RDI + 9) = _RSI[9];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+28h]
-          vmovups ymmword ptr [rdi+28h], ymm0
-          vmovups ymm1, ymmword ptr [rsi+48h]
-          vmovups ymmword ptr [rdi+48h], ymm1
-        }
-        *((float *)_RDI + 26) = _RSI[26];
-        *((float *)_RDI + 27) = _RSI[27];
-        *((float *)_RDI + 28) = _RSI[28];
-        *((float *)_RDI + 29) = _RSI[29];
+        bdAddr::bdAddr((bdAddr *)p_m_latency - 1, (const bdAddr *)v12 - 1);
+        *(float *)p_m_latency = *v12;
+        *((_QWORD *)p_m_latency + 1) = *((_QWORD *)v12 + 1);
+        *((float *)p_m_latency + 4) = v12[4];
+        p_m_latency[20] = *((_BYTE *)v12 + 20);
+        *((float *)p_m_latency + 6) = v12[6];
+        *((float *)p_m_latency + 7) = v12[7];
+        *((float *)p_m_latency + 8) = v12[8];
+        *((float *)p_m_latency + 9) = v12[9];
+        *(__m256i *)(p_m_latency + 40) = *(__m256i *)(v12 + 10);
+        *(__m256i *)(p_m_latency + 72) = *(__m256i *)(v12 + 18);
+        *((float *)p_m_latency + 26) = v12[26];
+        *((float *)p_m_latency + 27) = v12[27];
+        *((float *)p_m_latency + 28) = v12[28];
+        *((float *)p_m_latency + 29) = v12[29];
       }
-      _RDI += 280;
-      _RSI += 70;
+      p_m_latency += 280;
+      v12 += 70;
       --v13;
     }
     while ( v13 );
@@ -1830,7 +1811,7 @@ LABEL_16:
     if ( s_dcqos.qosProbeInfo.m_size )
     {
       m_data = s_dcqos.qosProbeInfo.m_data;
-      v18 = s_dcqos.qosProbeInfo.m_size;
+      v16 = s_dcqos.qosProbeInfo.m_size;
       do
       {
         if ( m_data->m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_data->m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
@@ -1840,9 +1821,9 @@ LABEL_16:
           m_data->m_addr.m_ptr = NULL;
         }
         ++m_data;
-        --v18;
+        --v16;
       }
-      while ( v18 );
+      while ( v16 );
     }
     goto LABEL_24;
   }
@@ -1858,20 +1839,20 @@ LABEL_31:
   pTaskCreateRequest.m_controllerIndex = s_dcqos.controllerIndex;
   Instance = DWServicesAccess::GetInstance();
   AsyncMatchmaking = DWServicesAccess::GetAsyncMatchmaking(Instance, s_dcqos.controllerIndex);
-  v24 = (TaskCreateRequest *)DWAsyncMatchMaking::qosHostsReply(AsyncMatchmaking, &resulta, result->m_DWQosTransactionId, &s_dcqos.qosProbeInfo);
-  if ( v24 != (TaskCreateRequest *)&pTaskCreateRequest.m_remoteDemonwareTask )
+  v22 = (TaskCreateRequest *)DWAsyncMatchMaking::qosHostsReply(AsyncMatchmaking, &resulta, result->m_DWQosTransactionId, &s_dcqos.qosProbeInfo);
+  if ( v22 != (TaskCreateRequest *)&pTaskCreateRequest.m_remoteDemonwareTask )
   {
-    v25 = *(bdRemoteTask **)&v24->m_controllerIndex;
-    pTaskCreateRequest.m_remoteDemonwareTask.m_ptr = v25;
-    if ( v25 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v25->m_refCount, 1u);
+    v23 = *(bdRemoteTask **)&v22->m_controllerIndex;
+    pTaskCreateRequest.m_remoteDemonwareTask.m_ptr = v23;
+    if ( v23 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v23->m_refCount, 1u);
   }
   if ( resulta.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&resulta.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && resulta.m_ptr )
     ((void (__fastcall *)(bdRemoteTask *, __int64))resulta.m_ptr->~bdReferencable)(resulta.m_ptr, 1i64);
-  if ( pTaskCreateRequest.m_remoteDemonwareTask.m_ptr && (v26 = TaskManager::GetInstance(), TaskManager::CreateTask(v26, &pTaskCreateRequest, &pTaskCreateResult)) )
+  if ( pTaskCreateRequest.m_remoteDemonwareTask.m_ptr && (v24 = TaskManager::GetInstance(), TaskManager::CreateTask(v24, &pTaskCreateRequest, &pTaskCreateResult)) )
   {
-    v27 = OnlineTimeSeriesLog::Get();
-    OnlineTimeSeriesLog::WriteEventCounter(v27, "mming.qoshostsreply.initiate.count", 1u);
+    v25 = OnlineTimeSeriesLog::Get();
+    OnlineTimeSeriesLog::WriteEventCounter(v25, "mming.qoshostsreply.initiate.count", 1u);
   }
   else
   {
@@ -2006,30 +1987,31 @@ Online_DcQos_Start
 */
 void Online_DcQos_Start(int controllerIndex)
 {
+  DcQosResultState v2; 
   DcQosResultState v3; 
-  DcQosResultState v4; 
   bdHashMap<unsigned int,bdString,bdHashingClass> *datacenterHash; 
+  _DWORD *v5; 
   _DWORD *v6; 
-  _DWORD *v7; 
   unsigned int PowerOf2; 
-  void *v13; 
+  float v8; 
+  void *v9; 
   unsigned int i; 
   bdHashMap<unsigned int,bdString,bdHashingClass>::Node **m_map; 
   bdString *p_m_data; 
-  bdString *v17; 
+  bdString *v13; 
   bdQoSProbeInfo *m_data; 
   __int64 m_size; 
 
   if ( !Online_DcQos_CanStart() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_dcqos.cpp", 151, ASSERT_TYPE_ASSERT, "(Online_DcQos_CanStart())", (const char *)&queryFormat, "Online_DcQos_CanStart()", -2i64) )
     __debugbreak();
-  v3 = s_dcqos.resultStates[0];
+  v2 = s_dcqos.resultStates[0];
   if ( (s_dcqos.resultRequests & 1) != 0 )
-    v3 = HALF;
-  s_dcqos.resultStates[0] = v3;
-  v4 = s_dcqos.resultStates[1];
+    v2 = HALF;
+  s_dcqos.resultStates[0] = v2;
+  v3 = s_dcqos.resultStates[1];
   if ( (s_dcqos.resultRequests & 2) != 0 )
-    v4 = HALF;
-  s_dcqos.resultStates[1] = v4;
+    v3 = HALF;
+  s_dcqos.resultStates[1] = v3;
   s_dcqos.controllerIndex = controllerIndex;
   s_dcqos.requested = 0;
   if ( s_dcqos.qosRequested )
@@ -2046,10 +2028,10 @@ void Online_DcQos_Start(int controllerIndex)
         {
           do
           {
-            v17 = p_m_data;
+            v13 = p_m_data;
             p_m_data = (bdString *)p_m_data[2].m_string;
-            bdString::~bdString(v17);
-            bdMemory::deallocate(v17);
+            bdString::~bdString(v13);
+            bdMemory::deallocate(v13);
           }
           while ( p_m_data );
           m_map = datacenterHash->m_map;
@@ -2060,32 +2042,26 @@ void Online_DcQos_Start(int controllerIndex)
     }
     else
     {
-      v6 = bdMemory::allocate((unsigned int)(LODWORD(s_dcqos.datacenterHash) + 32));
-      v7 = v6;
-      if ( v6 )
+      v5 = bdMemory::allocate((unsigned int)(LODWORD(s_dcqos.datacenterHash) + 32));
+      v6 = v5;
+      if ( v5 )
       {
-        v6[7] = 0;
-        *v6 = 0;
+        v5[7] = 0;
+        *v5 = 0;
         PowerOf2 = bdBitOperations::nextPowerOf2((_DWORD)datacenterHash + 4);
-        v7[1] = PowerOf2;
-        v7[2] = 1061158912;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm1, xmm0, cs:__real@3f400000
-          vcvttss2si rcx, xmm1
-        }
-        v7[3] = _RCX;
-        v13 = bdMemory::allocate(8i64 * PowerOf2);
-        *((_QWORD *)v7 + 2) = v13;
-        memset_0(v13, 0, 8i64 * (unsigned int)v7[1]);
+        v6[1] = PowerOf2;
+        v6[2] = 1061158912;
+        v8 = (float)PowerOf2;
+        v6[3] = (int)(float)(v8 * 0.75);
+        v9 = bdMemory::allocate(8i64 * PowerOf2);
+        *((_QWORD *)v6 + 2) = v9;
+        memset_0(v9, 0, 8i64 * (unsigned int)v6[1]);
       }
       else
       {
-        v7 = NULL;
+        v6 = NULL;
       }
-      s_dcqos.datacenterHash = (bdHashMap<unsigned int,bdString,bdHashingClass> *)v7;
+      s_dcqos.datacenterHash = (bdHashMap<unsigned int,bdString,bdHashingClass> *)v6;
     }
     if ( s_dcqos.qosProbeInfo.m_size )
     {

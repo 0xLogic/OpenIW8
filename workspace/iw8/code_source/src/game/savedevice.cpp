@@ -417,12 +417,7 @@ SaveDevice_SetTimeOfLastSave
 */
 void SaveDevice_SetTimeOfLastSave(const qtime_s *time)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr cs:s_timeOfLastSave.tm_sec, ymm0
-  }
-  s_timeOfLastSave.tm_isdst = time->tm_isdst;
+  s_timeOfLastSave = *time;
 }
 
 /*
@@ -432,12 +427,14 @@ SaveExists
 */
 bool SaveExists(const char *savename)
 {
+  unsigned __int64 v1; 
   int v3; 
   MemcardSizeHint ControllerFromClient; 
   MemCardFileHandle *v5; 
   const MemcardError *OpenError; 
   int v7; 
   int v8; 
+  __m256i v9; 
   bool result; 
   int fmt; 
   char *fmta; 
@@ -445,7 +442,7 @@ bool SaveExists(const char *savename)
   int BuildType; 
   MemcardError error; 
 
-  _RBP = (unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64;
+  v1 = (unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64;
   v3 = Sys_Milliseconds();
   if ( !savename )
   {
@@ -468,14 +465,14 @@ bool SaveExists(const char *savename)
     else
     {
       R_BeginRemoteScreenUpdate();
-      MemCard_ReadFile((MemCardFileHandle)v5, (void *)(_RBP + 128), 0x380ui64, (MemcardError *)((unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64));
+      MemCard_ReadFile((MemCardFileHandle)v5, (void *)(v1 + 128), 0x380ui64, (MemcardError *)((unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64));
       R_BeginRemoteScreenUpdate();
       MemCard_CloseFile((MemCardFileHandle)v5, 1);
       R_EndRemoteScreenUpdate();
       R_EndRemoteScreenUpdate();
       v7 = Sys_Milliseconds();
       Com_Printf(16, "SaveExists() took %ims\n", (unsigned int)(v7 - v3));
-      if ( *(_BYTE *)_RBP )
+      if ( *(_BYTE *)v1 )
       {
         Com_Printf(0, "SaveExists(\"%s\"): returning false, error.isError\n", savename);
       }
@@ -484,12 +481,12 @@ bool SaveExists(const char *savename)
         v8 = *(_DWORD *)(((unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64) + 0x80);
         if ( v8 == 321 )
         {
-          if ( SaveMemory_IsFromSameBuild((const SaveHeader *const)(_RBP + 128)) )
+          if ( SaveMemory_IsFromSameBuild((const SaveHeader *const)(v1 + 128)) )
           {
-            __asm { vmovups ymm0, [rbp+410h+var_370] }
+            v9 = *(__m256i *)(((unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64) + 0xA0);
             s_timeOfLastSave.tm_isdst = *(_DWORD *)(((unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64) + 0xC0);
             result = 1;
-            __asm { vmovups ymmword ptr cs:s_timeOfLastSave.tm_sec, ymm0 }
+            *(__m256i *)&s_timeOfLastSave.tm_sec = v9;
             return result;
           }
           v8 = *(_DWORD *)(((unsigned __int64)&error & 0xFFFFFFFFFFFFFF80ui64) + 0x80);

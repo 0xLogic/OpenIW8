@@ -104,22 +104,22 @@ EXR_GetScanlineBlockData_HalfFromR16G16B16A16F
 */
 void EXR_GetScanlineBlockData_HalfFromR16G16B16A16F(ExrPixelSource *source, ExrWriteDesc *desc, ExrBox2i *blockRegion, BufferedStream *bufferedStream)
 {
-  unsigned int v9; 
-  __int64 v10; 
+  unsigned int v8; 
+  __int64 v9; 
   __int64 Box2iWidth; 
-  __int64 v12; 
-  const unsigned __int8 *v13; 
-  unsigned int v14; 
-  __int64 v15; 
-  const unsigned __int8 *v16; 
-  __int16 v17; 
+  __int64 v11; 
+  const unsigned __int8 *v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  const unsigned __int8 *v15; 
+  __int16 v16; 
   unsigned __int8 *end; 
   unsigned __int8 *current; 
   unsigned __int8 src[2]; 
-  BufferedStreamWriter v21; 
+  BufferedStreamWriter v20; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
-  __int128 v24; 
+  __int128 v23; 
 
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 278, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
@@ -133,60 +133,59 @@ void EXR_GetScanlineBlockData_HalfFromR16G16B16A16F(ExrPixelSource *source, ExrW
     __debugbreak();
   if ( desc->pixelType != EXR_PIXEL_TYPE_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 284, ASSERT_TYPE_ASSERT, "(desc->pixelType == EXR_PIXEL_TYPE_HALF)", (const char *)&queryFormat, "desc->pixelType == EXR_PIXEL_TYPE_HALF") )
     __debugbreak();
-  __asm { vmovdqu xmm0, cs:__xmm@00000000000000010000000200000003 }
-  v21.m_stream = bufferedStream;
-  v9 = 4 - desc->channelCount;
-  v10 = (unsigned int)(8 * desc->width);
-  v23 = (unsigned int)v10;
-  __asm { vmovdqu [rsp+0A8h+var_58], xmm0 }
+  v20.m_stream = bufferedStream;
+  v8 = 4 - desc->channelCount;
+  v9 = (unsigned int)(8 * desc->width);
+  v22 = (unsigned int)v9;
+  v23 = _xmm;
   Box2iWidth = (unsigned int)EXR_GetBox2iWidth(blockRegion);
-  LODWORD(v12) = EXR_GetBox2iHeight(blockRegion);
-  v13 = &source->buffer[(unsigned int)v10 * (__int64)blockRegion->yMin];
-  if ( (int)v12 > 0 )
+  LODWORD(v11) = EXR_GetBox2iHeight(blockRegion);
+  v12 = &source->buffer[(unsigned int)v9 * (__int64)blockRegion->yMin];
+  if ( (int)v11 > 0 )
   {
-    v12 = (unsigned int)v12;
-    v22 = (unsigned int)v12;
+    v11 = (unsigned int)v11;
+    v21 = (unsigned int)v11;
     do
     {
-      v14 = 0;
+      v13 = 0;
       if ( desc->channelCount )
       {
         do
         {
           if ( (int)Box2iWidth > 0 )
           {
-            v15 = Box2iWidth;
-            v16 = &v13[2 * *((int *)&v24 + v14 + v9) + 8 * blockRegion->xMin];
+            v14 = Box2iWidth;
+            v15 = &v12[2 * *((int *)&v23 + v13 + v8) + 8 * blockRegion->xMin];
             do
             {
-              v17 = *(_WORD *)v16;
-              *(_WORD *)src = *(_WORD *)v16;
-              end = v21.m_stream->end;
-              current = v21.m_stream->current;
+              v16 = *(_WORD *)v15;
+              *(_WORD *)src = *(_WORD *)v15;
+              end = v20.m_stream->end;
+              current = v20.m_stream->current;
               if ( end <= current || (unsigned __int64)(end - current) < 2 )
               {
-                BufferedStreamWriter::WriteData(&v21, src, 2ui64);
+                BufferedStreamWriter::WriteData(&v20, src, 2ui64);
               }
               else
               {
-                *(_WORD *)current = v17;
-                v21.m_stream->current += 2;
+                *(_WORD *)current = v16;
+                v20.m_stream->current += 2;
               }
-              v16 += 8;
-              --v15;
+              v15 += 8;
+              --v14;
             }
-            while ( v15 );
+            while ( v14 );
           }
-          ++v14;
+          ++v13;
         }
-        while ( v14 < desc->channelCount );
-        v12 = v22;
-        v10 = v23;
+        while ( v13 < desc->channelCount );
+        v11 = v21;
+        v9 = v22;
       }
-      v13 += v10;
-      v22 = --v12;
+      v12 += v9;
+      v21 = --v11;
     }
-    while ( v12 );
+    while ( v11 );
   }
 }
 
@@ -197,20 +196,23 @@ EXR_GetScanlineBlockData_PQFloatFromLinearR16G16B16A16F
 */
 void EXR_GetScanlineBlockData_PQFloatFromLinearR16G16B16A16F(ExrPixelSource *source, ExrWriteDesc *desc, ExrBox2i *blockRegion, BufferedStream *bufferedStream)
 {
-  unsigned int v17; 
-  __int64 v18; 
+  unsigned int v8; 
+  __int64 v9; 
   __int64 Box2iWidth; 
-  __int64 v20; 
-  const unsigned __int8 *v21; 
-  unsigned int v30; 
-  __int64 v31; 
-  unsigned __int16 *v32; 
+  __int64 v11; 
+  const unsigned __int8 *v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  unsigned __int16 *v15; 
+  double v16; 
+  float v17; 
   unsigned __int8 *end; 
+  unsigned __int8 *current; 
   unsigned __int8 src[4]; 
-  BufferedStreamWriter v52; 
-  __int64 v53; 
-  __int64 v54; 
-  __int128 v55; 
+  BufferedStreamWriter v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int128 v24; 
 
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 301, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
@@ -224,110 +226,61 @@ void EXR_GetScanlineBlockData_PQFloatFromLinearR16G16B16A16F(ExrPixelSource *sou
     __debugbreak();
   if ( desc->pixelType != EXR_PIXEL_TYPE_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 307, ASSERT_TYPE_ASSERT, "(desc->pixelType == EXR_PIXEL_TYPE_FLOAT)", (const char *)&queryFormat, "desc->pixelType == EXR_PIXEL_TYPE_FLOAT") )
     __debugbreak();
-  __asm { vmovdqu xmm0, cs:__xmm@00000000000000010000000200000003 }
-  v52.m_stream = bufferedStream;
-  v17 = 4 - desc->channelCount;
-  v18 = (unsigned int)(8 * desc->width);
-  v54 = (unsigned int)v18;
-  __asm { vmovdqu [rsp+128h+var_D8], xmm0 }
+  v21.m_stream = bufferedStream;
+  v8 = 4 - desc->channelCount;
+  v9 = (unsigned int)(8 * desc->width);
+  v23 = (unsigned int)v9;
+  v24 = _xmm;
   Box2iWidth = (unsigned int)EXR_GetBox2iWidth(blockRegion);
-  LODWORD(v20) = EXR_GetBox2iHeight(blockRegion);
-  v21 = &source->buffer[(unsigned int)v18 * (__int64)blockRegion->yMin];
-  if ( (int)v20 > 0 )
+  LODWORD(v11) = EXR_GetBox2iHeight(blockRegion);
+  v12 = &source->buffer[(unsigned int)v9 * (__int64)blockRegion->yMin];
+  if ( (int)v11 > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+128h+var_48], xmm6
-      vmovss  xmm6, cs:__real@461c4000
-      vmovaps [rsp+128h+var_58], xmm7
-      vmovss  xmm7, cs:__real@33d1b717
-      vmovaps [rsp+128h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3e232000
-      vmovaps [rsp+128h+var_78], xmm9
-      vmovss  xmm9, cs:__real@4196d000
-      vmovaps [rsp+128h+var_88], xmm10
-      vmovss  xmm10, cs:__real@3f560000
-      vmovaps [rsp+128h+var_98], xmm11
-      vmovss  xmm11, cs:__real@41958000
-      vmovaps [rsp+128h+var_A8], xmm12
-      vmovss  xmm12, cs:__real@3f800000
-    }
-    v20 = (unsigned int)v20;
-    __asm
-    {
-      vmovaps [rsp+128h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@429db000
-    }
-    v53 = (unsigned int)v20;
+    v11 = (unsigned int)v11;
+    v22 = (unsigned int)v11;
     do
     {
-      v30 = 0;
+      v13 = 0;
       if ( desc->channelCount )
       {
         do
         {
           if ( (int)Box2iWidth > 0 )
           {
-            v31 = Box2iWidth;
-            v32 = (unsigned __int16 *)&v21[2 * *((int *)&v55 + v30 + v17) + 8 * blockRegion->xMin];
+            v14 = Box2iWidth;
+            v15 = (unsigned __int16 *)&v12[2 * *((int *)&v24 + v13 + v8) + 8 * blockRegion->xMin];
             do
             {
-              *(double *)&_XMM0 = FloatFromHalf(*v32);
-              __asm
+              v16 = FloatFromHalf(*v15);
+              *(float *)&v16 = powf_0((float)(*(float *)&v16 * 10000.0) * 0.000000097656248, 0.15930176);
+              v17 = powf_0((float)((float)(*(float *)&v16 * 18.851562) + 0.8359375) / (float)((float)(*(float *)&v16 * 18.6875) + 1.0), 78.84375);
+              *(float *)src = v17;
+              end = v21.m_stream->end;
+              current = v21.m_stream->current;
+              if ( end <= current || (unsigned __int64)(end - current) < 4 )
               {
-                vmulss  xmm1, xmm0, xmm6
-                vmulss  xmm0, xmm1, xmm7; X
-                vmovaps xmm1, xmm8; Y
-              }
-              *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm
-              {
-                vmulss  xmm1, xmm0, xmm9
-                vmulss  xmm0, xmm0, xmm11
-                vaddss  xmm3, xmm1, xmm10
-                vaddss  xmm2, xmm0, xmm12
-                vdivss  xmm0, xmm3, xmm2; X
-                vmovaps xmm1, xmm13; Y
-              }
-              *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm { vmovss  dword ptr [rsp+128h+src], xmm0 }
-              end = v52.m_stream->end;
-              _RDX = v52.m_stream->current;
-              if ( end <= _RDX || (unsigned __int64)(end - _RDX) < 4 )
-              {
-                BufferedStreamWriter::WriteData(&v52, src, 4ui64);
+                BufferedStreamWriter::WriteData(&v21, src, 4ui64);
               }
               else
               {
-                __asm { vmovss  dword ptr [rdx], xmm0 }
-                v52.m_stream->current += 4;
+                *(float *)current = v17;
+                v21.m_stream->current += 4;
               }
-              v32 += 4;
-              --v31;
+              v15 += 4;
+              --v14;
             }
-            while ( v31 );
+            while ( v14 );
           }
-          ++v30;
+          ++v13;
         }
-        while ( v30 < desc->channelCount );
-        v20 = v53;
-        v18 = v54;
+        while ( v13 < desc->channelCount );
+        v11 = v22;
+        v9 = v23;
       }
-      v21 += v18;
-      v53 = --v20;
+      v12 += v9;
+      v22 = --v11;
     }
-    while ( v20 );
-    __asm
-    {
-      vmovaps xmm13, [rsp+128h+var_B8]
-      vmovaps xmm12, [rsp+128h+var_A8]
-      vmovaps xmm11, [rsp+128h+var_98]
-      vmovaps xmm10, [rsp+128h+var_88]
-      vmovaps xmm9, [rsp+128h+var_78]
-      vmovaps xmm8, [rsp+128h+var_68]
-      vmovaps xmm7, [rsp+128h+var_58]
-      vmovaps xmm6, [rsp+128h+var_48]
-    }
+    while ( v11 );
   }
 }
 
@@ -550,71 +503,66 @@ void R_TakeScreenshotExr(const char *filename, int useFS, R_RT_ColorHandle *colo
 {
   unsigned __int8 *v13; 
   unsigned __int8 *v14; 
-  GfxHdrGradingClutOutputColorimetry v16; 
-  GfxHdrGradingClutInputColorimetry v17; 
+  GfxHdrGradingClutOutputColorimetry v15; 
+  GfxHdrGradingClutInputColorimetry v16; 
+  int v17; 
   int v18; 
-  int v19; 
-  unsigned __int64 v20; 
+  unsigned __int64 v19; 
+  unsigned __int8 *v20; 
   unsigned __int8 *v21; 
-  unsigned __int8 *v22; 
+  int v22; 
   int v23; 
-  int v24; 
-  unsigned __int64 v25; 
+  unsigned __int64 v24; 
   const char *StatusString; 
-  unsigned __int8 *v27; 
-  size_t v28; 
-  _DWORD *v29; 
+  unsigned __int8 *v26; 
+  size_t v27; 
+  _DWORD *v28; 
   ExrPixelSource source; 
   BufferedStream clutImageDesc; 
   ImageDesc image; 
   ImageDesc versionInfoImageDesc; 
-  R_RT_ColorHandle v36; 
+  R_RT_ColorHandle v35; 
 
-  _RBX = colorRt;
   v13 = (unsigned __int8 *)Mem_Virtual_Alloc(8 * width * height, "R_TakeScreenshotExr", TRACK_RENDERER_MISC);
   v14 = v13;
   if ( v13 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups [rbp+60h+var_60], ymm0
-    }
-    if ( R_GetBufferData(&v36, x, y, width, height, 8, v13) )
+    v35 = *colorRt;
+    if ( R_GetBufferData(&v35, x, y, width, height, 8, v13) )
     {
       if ( addClut )
       {
-        v16 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_UNKNOWN;
+        v15 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_UNKNOWN;
         if ( colorimetry.primaries[0] == 2 )
         {
           if ( colorimetry.transfer == EASE_OUT_QUAD )
           {
-            v16 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_PQ;
+            v15 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_PQ;
           }
           else
           {
-            v16 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_UNKNOWN;
+            v15 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_UNKNOWN;
             if ( colorimetry.transfer == LINEAR )
-              v16 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_LINEAR;
+              v15 = HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_LINEAR;
           }
         }
-        v17 = HDR_GRADING_CLUT_INPUT_COLORIMETRY_BT2020_PQ;
+        v16 = HDR_GRADING_CLUT_INPUT_COLORIMETRY_BT2020_PQ;
         if ( clutInputColorimetry.transfer != EASE_OUT_QUAD && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 342, ASSERT_TYPE_ASSERT, "(clutInputColorimetry.transfer == GfxScreenshotColorimetry::Transfer::PQ)", (const char *)&queryFormat, "clutInputColorimetry.transfer == GfxScreenshotColorimetry::Transfer::PQ") )
           __debugbreak();
         if ( clutInputColorimetry.primaries[0] == 1 )
         {
-          v17 = HDR_GRADING_CLUT_INPUT_COLORIMETRY_BT709_PQ;
+          v16 = HDR_GRADING_CLUT_INPUT_COLORIMETRY_BT709_PQ;
         }
         else if ( clutInputColorimetry.primaries[0] == 2 )
         {
-          v17 = HDR_GRADING_CLUT_INPUT_COLORIMETRY_BT2020_PQ;
+          v16 = HDR_GRADING_CLUT_INPUT_COLORIMETRY_BT2020_PQ;
         }
         else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 355, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported screenshot CLUT input primaries") )
         {
           __debugbreak();
         }
-        R_HDRGradingClutImage_GenerateVersionInfoImage(&versionInfoImageDesc, v17, v16);
-        R_HDRGradingClutImage_GenerateImage((ImageDesc *)&clutImageDesc, GFX_PF_R32G32B32A32F, v17);
+        R_HDRGradingClutImage_GenerateVersionInfoImage(&versionInfoImageDesc, v16, v15);
+        R_HDRGradingClutImage_GenerateImage((ImageDesc *)&clutImageDesc, GFX_PF_R32G32B32A32F, v16);
         R_ImageUtil_SetupDesc(&image, GFX_PF_R16G16B16A16F, width, height, 0);
         image.imageBufferTypeless = v14;
         R_ImageUtil_CopyTile(&versionInfoImageDesc, &image, 0, 0);
@@ -622,14 +570,14 @@ void R_TakeScreenshotExr(const char *filename, int useFS, R_RT_ColorHandle *colo
         R_ImageUtil_ReleaseBuffer((ImageDesc *)&clutImageDesc);
         R_ImageUtil_ReleaseBuffer(&versionInfoImageDesc);
       }
+      v17 = 1;
       v18 = 1;
-      v19 = 1;
       if ( colorimetry.transfer )
       {
         if ( colorimetry.transfer == EASE_OUT_QUAD )
         {
           source.GetScanlineBlockData = EXR_GetScanlineBlockData_PQFloatFromLinearR16G16B16A16F;
-          v19 = 2;
+          v18 = 2;
         }
         else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 389, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Transfer type not yet implemented.") )
         {
@@ -640,50 +588,50 @@ void R_TakeScreenshotExr(const char *filename, int useFS, R_RT_ColorHandle *colo
       {
         source.GetScanlineBlockData = EXR_GetScanlineBlockData_HalfFromR16G16B16A16F;
       }
-      *(_DWORD *)&v36.m_surfaceID = v19;
+      *(_DWORD *)&v35.m_surfaceID = v18;
       if ( colorimetry.primaries[0] == 2 )
-        v18 = 2;
+        v17 = 2;
       source.buffer = v14;
-      HIDWORD(v36.m_tracking.m_name) = v18;
-      *((_DWORD *)&v36.m_surfaceID + 1) = width;
-      v36.m_tracking.m_allocCounter = height;
-      *(&v36.m_tracking.m_allocCounter + 1) = 3;
-      LOBYTE(v36.m_tracking.m_name) = 0;
+      HIDWORD(v35.m_tracking.m_name) = v17;
+      *((_DWORD *)&v35.m_surfaceID + 1) = width;
+      v35.m_tracking.m_allocCounter = height;
+      *(&v35.m_tracking.m_allocCounter + 1) = 3;
+      LOBYTE(v35.m_tracking.m_name) = 0;
       if ( exrTmp )
       {
-        v28 = 8 * width * (__int64)height;
-        v29 = Mem_Virtual_Alloc(v28 + 11, "R_TakeScreenshotExr", TRACK_RENDERER_MISC);
-        *v29 = *((_DWORD *)&v36.m_surfaceID + 1);
-        v29[1] = v36.m_tracking.m_allocCounter;
-        *((_BYTE *)v29 + 8) = v36.m_surfaceID;
-        *((_BYTE *)v29 + 9) = *((_BYTE *)&v36.m_tracking.m_allocCounter + 4);
-        *((_BYTE *)v29 + 10) = BYTE4(v36.m_tracking.m_name);
-        memcpy_0((char *)v29 + 11, v14, v28);
-        R_Screenshot_WriteFile(filename, useFS, v29, v28 + 11);
-        v27 = (unsigned __int8 *)v29;
+        v27 = 8 * width * (__int64)height;
+        v28 = Mem_Virtual_Alloc(v27 + 11, "R_TakeScreenshotExr", TRACK_RENDERER_MISC);
+        *v28 = *((_DWORD *)&v35.m_surfaceID + 1);
+        v28[1] = v35.m_tracking.m_allocCounter;
+        *((_BYTE *)v28 + 8) = v35.m_surfaceID;
+        *((_BYTE *)v28 + 9) = *((_BYTE *)&v35.m_tracking.m_allocCounter + 4);
+        *((_BYTE *)v28 + 10) = BYTE4(v35.m_tracking.m_name);
+        memcpy_0((char *)v28 + 11, v14, v27);
+        R_Screenshot_WriteFile(filename, useFS, v28, v27 + 11);
+        v26 = (unsigned __int8 *)v28;
         goto LABEL_34;
       }
-      v20 = EXR_WriteImage_EstimateBufferSize((ExrWriteDesc *)&v36);
-      v21 = (unsigned __int8 *)Mem_Virtual_Alloc(v20, "R_TakeScreenshotExr", TRACK_RENDERER_MISC);
-      v22 = v21;
-      if ( v21 )
+      v19 = EXR_WriteImage_EstimateBufferSize((ExrWriteDesc *)&v35);
+      v20 = (unsigned __int8 *)Mem_Virtual_Alloc(v19, "R_TakeScreenshotExr", TRACK_RENDERER_MISC);
+      v21 = v20;
+      if ( v20 )
       {
-        BufferedStream_MemoryStreamInit(&clutImageDesc, v21, v20);
-        LOBYTE(v23) = EXR_WriteImage(&clutImageDesc, (ExrWriteDesc *)&v36, &source);
-        v24 = v23;
-        v25 = clutImageDesc.GetPosition(&clutImageDesc);
-        if ( v24 )
+        BufferedStream_MemoryStreamInit(&clutImageDesc, v20, v19);
+        LOBYTE(v22) = EXR_WriteImage(&clutImageDesc, (ExrWriteDesc *)&v35, &source);
+        v23 = v22;
+        v24 = clutImageDesc.GetPosition(&clutImageDesc);
+        if ( v23 )
         {
-          StatusString = EXR_GetStatusString((const ExrStatus)v24);
+          StatusString = EXR_GetStatusString((const ExrStatus)v23);
           Com_Printf(8, "ScreenShot: Exr write error:'%s' when writing %s\n", StatusString, filename);
-          v27 = v22;
+          v26 = v21;
 LABEL_34:
-          Mem_Virtual_Free(v27);
+          Mem_Virtual_Free(v26);
           goto LABEL_35;
         }
-        R_Screenshot_WriteFile(filename, useFS, v22, v25);
+        R_Screenshot_WriteFile(filename, useFS, v21, v24);
       }
-      v27 = v22;
+      v26 = v21;
       goto LABEL_34;
     }
   }
@@ -698,16 +646,12 @@ R_TakeScreenshotJpg
 */
 void R_TakeScreenshotJpg(const char *filename, int useFS, R_RT_ColorHandle *colorRt, int x, int y, int width, int height)
 {
-  unsigned __int8 *v11; 
   unsigned __int8 *image_buffer; 
-  R_RT_ColorHandle v14; 
+  R_RT_ColorHandle v12; 
 
-  _RBX = colorRt;
-  v11 = (unsigned __int8 *)Mem_Virtual_Alloc(3 * height * width, "R_TakeScreenshotJpg", TRACK_RENDERER_MISC);
-  __asm { vmovups ymm0, ymmword ptr [rbx] }
-  image_buffer = v11;
-  __asm { vmovups [rsp+88h+var_38], ymm0 }
-  if ( R_GetBufferData(&v14, x, y, width, height, 3, v11) )
+  image_buffer = (unsigned __int8 *)Mem_Virtual_Alloc(3 * height * width, "R_TakeScreenshotJpg", TRACK_RENDERER_MISC);
+  v12 = *colorRt;
+  if ( R_GetBufferData(&v12, x, y, width, height, 3, image_buffer) )
   {
     Profile_Begin(249);
     R_SaveJpg(filename, 90, useFS, width, height, image_buffer, NULL, NULL, NULL);
@@ -725,9 +669,9 @@ void R_TakeScreenshotTga(const char *filename, int useFS, R_RT_ColorHandle *colo
 {
   unsigned __int64 v10; 
   unsigned __int8 *v11; 
-  R_RT_ColorHandle v13; 
+  R_RT_ColorHandle v12; 
+  __m256i v13[2]; 
 
-  _RSI = colorRt;
   v10 = 3 * height * width + 18;
   v11 = (unsigned __int8 *)Mem_Virtual_Alloc(v10, "R_TakeScreenshotTga", TRACK_RENDERER_MISC);
   if ( addClut )
@@ -741,7 +685,7 @@ void R_TakeScreenshotTga(const char *filename, int useFS, R_RT_ColorHandle *colo
     if ( height < 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_screenshot_utils.cpp", 194, ASSERT_TYPE_ASSERT, "(height >= 32)", (const char *)&queryFormat, "height >= 32") )
       __debugbreak();
   }
-  __asm { vmovups ymm0, ymmword ptr [rsi] }
+  v12 = *colorRt;
   *(_QWORD *)v11 = 0i64;
   *((_QWORD *)v11 + 1) = 0i64;
   v11[13] = BYTE1(width);
@@ -750,8 +694,8 @@ void R_TakeScreenshotTga(const char *filename, int useFS, R_RT_ColorHandle *colo
   v11[12] = width;
   v11[14] = height;
   *((_WORD *)v11 + 8) = 8216;
-  __asm { vmovups [rsp+88h+var_48], ymm0 }
-  if ( R_GetBufferData(&v13, x, y, width, height, 3, v11 + 18) )
+  v13[0] = (__m256i)v12;
+  if ( R_GetBufferData((R_RT_ColorHandle *)v13, x, y, width, height, 3, v11 + 18) )
   {
     Profile_Begin(249);
     if ( addClut )
@@ -796,38 +740,27 @@ WritePQFloatFromR16G16B16A16F
 */
 void WritePQFloatFromR16G16B16A16F(BufferedStreamWriter *stream, unsigned __int16 value)
 {
+  double v3; 
+  float v4; 
   BufferedStream *m_stream; 
   unsigned __int8 *end; 
-  int src; 
+  float *current; 
+  float src; 
 
-  *(double *)&_XMM0 = FloatFromHalf(value);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3a800000; X
-    vmovss  xmm1, cs:__real@3e232000; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@4196d000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vaddss  xmm3, xmm1, cs:__real@3f560000
-    vaddss  xmm2, xmm0, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@429db000; Y
-    vdivss  xmm0, xmm3, xmm2; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+  v3 = FloatFromHalf(value);
+  *(float *)&v3 = powf_0(*(float *)&v3 * 0.0009765625, 0.15930176);
+  v4 = powf_0((float)((float)(*(float *)&v3 * 18.851562) + 0.8359375) / (float)((float)(*(float *)&v3 * 18.6875) + 1.0), 78.84375);
   m_stream = stream->m_stream;
-  __asm { vmovss  [rsp+28h+src], xmm0 }
+  src = v4;
   end = m_stream->end;
-  _RDX = m_stream->current;
-  if ( end <= _RDX || (unsigned __int64)(end - _RDX) < 4 )
+  current = (float *)m_stream->current;
+  if ( end <= (unsigned __int8 *)current || (unsigned __int64)(end - (unsigned __int8 *)current) < 4 )
   {
     BufferedStreamWriter::WriteData(stream, (unsigned __int8 *)&src, 4ui64);
   }
   else
   {
-    __asm { vmovss  dword ptr [rdx], xmm0 }
+    *current = v4;
     m_stream->current += 4;
   }
 }

@@ -255,13 +255,13 @@ _BOOL8 bdObjectStoreGetUserObjectsVectorizedRequest::serializeWithLobbyService(b
   bool v9; 
   unsigned int v10; 
   bool v11; 
-  bool v25; 
-  unsigned __int64 v26; 
-  size_t v27; 
-  bool v28; 
+  bool v12; 
+  unsigned __int64 v13; 
+  size_t v14; 
+  bool v15; 
   bdJSONSerializer json; 
-  bdObjectStoreCacheAwareObjectID v31; 
-  bdObjectStoreHTTPHeader v32; 
+  bdObjectStoreCacheAwareObjectID v18; 
+  bdObjectStoreHTTPHeader v19; 
   char url[1024]; 
 
   v5 = (bdObjectStoreGetUserObjectsVectorizedRequest *)((char *)this - 32);
@@ -269,8 +269,8 @@ _BOOL8 bdObjectStoreGetUserObjectsVectorizedRequest::serializeWithLobbyService(b
   ClientIDFromAuthInfo = bdObjectStoreRequestBase::getClientIDFromAuthInfo((bdObjectStoreGetUserObjectsVectorizedRequest *)((char *)this - 32), lobbyService);
   bdObjectStoreRequestBase::buildUserObjectsVectorizedURL(v5, url, 0x400u, ClientIDFromAuthInfo, context, 0, 0);
   v8 = bdStructBufferSerializer::writeString(serializer, 1u, "GET", 0x10u) && bdStructBufferSerializer::writeString(serializer, 2u, url, 0x400u);
-  bdObjectStoreHTTPHeader::bdObjectStoreHTTPHeader(&v32);
-  bdJSONSerializer::bdJSONSerializer(&json, v32.m_value, 0x1000u);
+  bdObjectStoreHTTPHeader::bdObjectStoreHTTPHeader(&v19);
+  bdJSONSerializer::bdJSONSerializer(&json, v19.m_value, 0x1000u);
   v9 = v8 && bdJSONSerializer::writeBeginArray(&json);
   v10 = 0;
   if ( HIDWORD(this->bdStructBufferSerializable::__vftable) )
@@ -279,55 +279,28 @@ _BOOL8 bdObjectStoreGetUserObjectsVectorizedRequest::serializeWithLobbyService(b
     do
     {
       bdHandleAssert(v11, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreCacheAwareObjectID>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      _RAX = 184i64 * v10 + *(_QWORD *)&this->m_context[12];
-      _RCX = &v31;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups xmmword ptr [rcx+50h], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rcx+70h], xmm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rcx+80h], xmm0
-        vmovups xmm1, xmmword ptr [rax+90h]
-        vmovups xmmword ptr [rcx+90h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0A0h]
-        vmovups xmmword ptr [rcx+0A0h], xmm0
-      }
-      *(_QWORD *)&v31.m_cachedChecksum[31] = *(_QWORD *)(_RAX + 176);
-      v9 = v9 && bdObjectStoreCacheAwareObjectID::serializeToJSON(&v31, &json);
-      bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID(&v31);
+      v18 = *(bdObjectStoreCacheAwareObjectID *)(184i64 * v10 + *(_QWORD *)&this->m_context[12]);
+      v9 = v9 && bdObjectStoreCacheAwareObjectID::serializeToJSON(&v18, &json);
+      bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID(&v18);
       v11 = ++v10 < HIDWORD(this->bdStructBufferSerializable::__vftable);
     }
     while ( v10 < HIDWORD(this->bdStructBufferSerializable::__vftable) );
   }
-  v25 = v9 && bdJSONSerializer::writeEndArray(&json);
+  v12 = v9 && bdJSONSerializer::writeEndArray(&json);
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-  v26 = -1i64;
+  v13 = -1i64;
   do
-    ++v26;
-  while ( aDwObjectstoreO[v26] );
-  v27 = 99i64;
-  if ( v26 < 0x63 )
-    v27 = v26;
-  memcpy_0(&v32.__vftable + 2, "DW-Objectstore-ObjectIDs", v27);
-  v32.m_key[v27 - 16] = 0;
-  v28 = v25 && bdStructBufferSerializer::writeObject(serializer, 4u, &v32);
+    ++v13;
+  while ( aDwObjectstoreO[v13] );
+  v14 = 99i64;
+  if ( v13 < 0x63 )
+    v14 = v13;
+  memcpy_0(&v19.__vftable + 2, "DW-Objectstore-ObjectIDs", v14);
+  v19.m_key[v14 - 16] = 0;
+  v15 = v12 && bdStructBufferSerializer::writeObject(serializer, 4u, &v19);
   bdJSONSerializer::~bdJSONSerializer(&json);
-  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v32.__vftable + 2));
-  bdReferencable::~bdReferencable((bdReferencable *)&v32.gap1074[4]);
-  return v28;
+  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v19.__vftable + 2));
+  bdReferencable::~bdReferencable((bdReferencable *)&v19.gap1074[4]);
+  return v15;
 }
 

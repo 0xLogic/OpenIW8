@@ -261,47 +261,28 @@ double __fastcall AIScriptedInterface::GetPlayerMountAccuracy(AIScriptedInterfac
 AI_DrawDebugAccuracy
 ==============
 */
-
-void __fastcall AI_DrawDebugAccuracy(vec3_t *pos, double scale, double rowHeight)
+void AI_DrawDebugAccuracy(vec3_t *pos, float scale, float rowHeight)
 {
-  char (*v5)[32]; 
-  const vec4_t *v6; 
-  const char *v8; 
-  __int64 v11; 
+  char (*v3)[32]; 
+  const vec4_t *v4; 
+  const char *v5; 
+  __int64 v7; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v5 = debugAccuracyStrings;
-  __asm { vmovaps [rsp+48h+var_28], xmm7 }
-  v6 = debugAccuracyColors;
-  __asm { vmovaps xmm7, xmm1 }
-  v8 = debugAccuracyStrings[0];
-  _RDI = pos;
-  __asm { vmovaps xmm6, xmm2 }
-  v11 = 11i64;
+  v3 = debugAccuracyStrings;
+  v4 = debugAccuracyColors;
+  v5 = debugAccuracyStrings[0];
+  v7 = 11i64;
   do
   {
-    if ( *(_BYTE *)v5 )
-    {
-      __asm { vmovaps xmm2, xmm7; scale }
-      G_Main_AddDebugString(_RDI, v6, *(float *)&_XMM2, v8);
-    }
-    __asm { vmovss  xmm0, dword ptr [rdi+8] }
-    v8 += 32;
-    ++v6;
-    ++v5;
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi+8], xmm1
-    }
-    --v11;
+    if ( *(_BYTE *)v3 )
+      G_Main_AddDebugString(pos, v4, scale, v5);
+    v5 += 32;
+    ++v4;
+    ++v3;
+    pos->v[2] = pos->v[2] - rowHeight;
+    --v7;
   }
-  while ( v11 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
+  while ( v7 );
 }
 
 /*
@@ -311,93 +292,33 @@ AI_DrawSetAngleCalc
 */
 void AI_DrawSetAngleCalc(const vec3_t *entPos, const vec3_t *entAngles, const vec3_t *from, const vec3_t *angles, const vec3_t *postClamp)
 {
+  float v8; 
+  double v9; 
+  double v10; 
   vec3_t forward; 
   vec3_t point; 
   tmat33_t<vec3_t> axis; 
   vec3_t end; 
   char dest[64]; 
 
-  __asm { vmovaps [rsp+110h+var_30], xmm6 }
-  _R14 = postClamp;
-  _RSI = angles;
   AnglesToAxis(entAngles, &axis);
-  __asm { vmovss  xmm2, cs:__real@41f00000; length }
-  G_DebugAxis(&axis, entPos, *(float *)&_XMM2, 0, 1);
-  AngleVectors(_RSI, &forward, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+110h+forward+8]
-    vmovss  xmm5, cs:__real@453b8000
-    vmovss  xmm0, dword ptr [rbp+4Fh+axis]
-    vmulss  xmm2, xmm0, dword ptr [rsp+110h+forward]
-    vmovss  xmm1, dword ptr [rbp+4Fh+axis+0Ch]
-    vmulss  xmm0, xmm1, dword ptr [rsp+110h+forward+4]
-    vmulss  xmm1, xmm6, dword ptr [rbp+4Fh+axis+18h]
-    vaddss  xmm2, xmm2, xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vmulss  xmm0, xmm0, xmm5
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rbp+4Fh+axis+4]
-    vmulss  xmm3, xmm0, dword ptr [rsp+110h+forward]
-    vmovss  dword ptr [rbp+4Fh+end], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+axis+10h]
-    vmulss  xmm2, xmm1, dword ptr [rsp+110h+forward+4]
-    vmulss  xmm1, xmm6, dword ptr [rbp+4Fh+axis+1Ch]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+axis+8]
-    vmulss  xmm3, xmm2, xmm5
-    vaddss  xmm0, xmm3, dword ptr [rdi+4]
-    vmulss  xmm3, xmm1, dword ptr [rsp+110h+forward]
-    vmovss  dword ptr [rbp+4Fh+end+4], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+axis+14h]
-    vmulss  xmm2, xmm0, dword ptr [rsp+110h+forward+4]
-    vmulss  xmm0, xmm6, dword ptr [rbp+4Fh+axis+20h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm3, xmm2, xmm5
-    vaddss  xmm1, xmm3, dword ptr [rdi+8]
-    vmovss  dword ptr [rbp+4Fh+end+8], xmm1
-  }
+  G_DebugAxis(&axis, entPos, 30.0, 0, 1);
+  AngleVectors(angles, &forward, NULL, NULL);
+  end.v[0] = (float)((float)((float)((float)(axis.m[0].v[0] * forward.v[0]) + (float)(axis.m[1].v[0] * forward.v[1])) + (float)(forward.v[2] * axis.m[2].v[0])) * 3000.0) + from->v[0];
+  end.v[1] = (float)((float)((float)((float)(axis.m[0].v[1] * forward.v[0]) + (float)(axis.m[1].v[1] * forward.v[1])) + (float)(forward.v[2] * axis.m[2].v[1])) * 3000.0) + from->v[1];
+  end.v[2] = (float)((float)((float)((float)(axis.m[0].v[2] * forward.v[0]) + (float)(axis.m[1].v[2] * forward.v[1])) + (float)(forward.v[2] * axis.m[2].v[2])) * 3000.0) + from->v[2];
   G_DebugLine(from, &end, &colorPurple, 0);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000
-    vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+axis+0Ch]
-    vaddss  xmm2, xmm1, dword ptr [rdi]
-    vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+axis+10h]
-    vmovss  dword ptr [rsp+110h+point], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rdi+4]
-    vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+axis+14h]
-    vmovss  xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+4Fh+point+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rbp+4Fh+point+8], xmm2
-    vmovss  xmm2, dword ptr [rsi]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovq   r8, xmm2
-    vmovq   r9, xmm3
-  }
-  Com_sprintf<64>((char (*)[64])dest, "aim angles [%.2f, %.2f]", *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  G_DebugString(&point, &colorGreen, *(float *)&_XMM2, dest, 1);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4Fh+point+8]
-    vmovss  xmm3, dword ptr [r14+4]
-    vmovss  xmm2, dword ptr [r14]
-    vaddss  xmm1, xmm0, cs:__real@c1200000
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovss  dword ptr [rbp+4Fh+point+8], xmm1
-  }
-  Com_sprintf<64>((char (*)[64])dest, "post clamp [%.2f %.2f]", *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  G_DebugString(&point, &colorGreen, *(float *)&_XMM2, dest, 1);
-  __asm { vmovaps xmm6, [rsp+110h+var_30] }
+  point.v[0] = (float)(10.0 * axis.m[1].v[0]) + from->v[0];
+  v8 = angles->v[1];
+  point.v[1] = (float)(10.0 * axis.m[1].v[1]) + from->v[1];
+  point.v[2] = (float)(10.0 * axis.m[1].v[2]) + from->v[2];
+  Com_sprintf<64>((char (*)[64])dest, "aim angles [%.2f, %.2f]", angles->v[0], v8);
+  G_DebugString(&point, &colorGreen, 0.5, dest, 1);
+  v9 = postClamp->v[1];
+  v10 = postClamp->v[0];
+  point.v[2] = point.v[2] + -10.0;
+  Com_sprintf<64>((char (*)[64])dest, "post clamp [%.2f %.2f]", v10, v9);
+  G_DebugString(&point, &colorGreen, 0.5, dest, 1);
 }
 
 /*
@@ -408,176 +329,48 @@ AIScriptedInterface::FillWeaponParms
 void AIScriptedInterface::FillWeaponParms(AIScriptedInterface *this, BgWeaponParms *wp)
 {
   ai_scripted_t *m_pAI; 
-  ai_scripted_t *v17; 
-  ai_scripted_t *v18; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
+  ai_scripted_t *v5; 
+  ai_scripted_t *v6; 
+  ai_scripted_t *v7; 
+  ai_scripted_t *v8; 
+  ai_scripted_t *v9; 
 
-  _RBX = wp;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 643, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 644, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
+  if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 644, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
     __debugbreak();
-  _RCX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+15Ch]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+160h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+164h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_36:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 646, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_pAI->orientation.vLookForward )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_pAI->orientation.vLookForward )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[2] )") )
-      __debugbreak();
-  }
-  _RCX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+168h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+16Ch]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+170h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-  {
-LABEL_37:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 647, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_pAI->orientation.vLookRight )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_pAI->orientation.vLookRight )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[2] )") )
-      __debugbreak();
-  }
-  _RCX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+174h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_38;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+178h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_38;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+17Ch]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-  {
-LABEL_38:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 648, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_pAI->orientation.vLookUp )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_pAI->orientation.vLookUp )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[2] )") )
-      __debugbreak();
-  }
   m_pAI = this->m_pAI;
-  _RBX->forward.v[0] = m_pAI->orientation.vLookForward.v[0];
-  _RBX->forward.v[1] = m_pAI->orientation.vLookForward.v[1];
-  _RBX->forward.v[2] = m_pAI->orientation.vLookForward.v[2];
-  v17 = this->m_pAI;
-  _RBX->right.v[0] = v17->orientation.vLookRight.v[0];
-  _RBX->right.v[1] = v17->orientation.vLookRight.v[1];
-  _RBX->right.v[2] = v17->orientation.vLookRight.v[2];
-  v18 = this->m_pAI;
-  _RBX->up.v[0] = v18->orientation.vLookUp.v[0];
-  _RBX->up.v[1] = v18->orientation.vLookUp.v[1];
-  _RBX->up.v[2] = v18->orientation.vLookUp.v[2];
-  if ( !AIScriptedInterface::GetMuzzleInfo(this, &_RBX->muzzleTrace, &_RBX->gunForward) )
+  if ( ((LODWORD(m_pAI->orientation.vLookForward.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(m_pAI->orientation.vLookForward.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(m_pAI->orientation.vLookForward.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 646, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_pAI->orientation.vLookForward )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_pAI->orientation.vLookForward )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookForward )[2] )") )
+    __debugbreak();
+  v5 = this->m_pAI;
+  if ( ((LODWORD(v5->orientation.vLookRight.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v5->orientation.vLookRight.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v5->orientation.vLookRight.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 647, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_pAI->orientation.vLookRight )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_pAI->orientation.vLookRight )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookRight )[2] )") )
+    __debugbreak();
+  v6 = this->m_pAI;
+  if ( ((LODWORD(v6->orientation.vLookUp.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v6->orientation.vLookUp.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v6->orientation.vLookUp.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 648, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_pAI->orientation.vLookUp )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_pAI->orientation.vLookUp )[0] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[1] ) && !IS_NAN( ( m_pAI->orientation.vLookUp )[2] )") )
+    __debugbreak();
+  v7 = this->m_pAI;
+  wp->forward.v[0] = v7->orientation.vLookForward.v[0];
+  wp->forward.v[1] = v7->orientation.vLookForward.v[1];
+  wp->forward.v[2] = v7->orientation.vLookForward.v[2];
+  v8 = this->m_pAI;
+  wp->right.v[0] = v8->orientation.vLookRight.v[0];
+  wp->right.v[1] = v8->orientation.vLookRight.v[1];
+  wp->right.v[2] = v8->orientation.vLookRight.v[2];
+  v9 = this->m_pAI;
+  wp->up.v[0] = v9->orientation.vLookUp.v[0];
+  wp->up.v[1] = v9->orientation.vLookUp.v[1];
+  wp->up.v[2] = v9->orientation.vLookUp.v[2];
+  if ( !AIScriptedInterface::GetMuzzleInfo(this, &wp->muzzleTrace, &wp->gunForward) )
   {
-    this->GetEyePosition(this, &_RBX->muzzleTrace);
-    _RBX->gunForward.v[0] = _RBX->forward.v[0];
-    _RBX->gunForward.v[1] = _RBX->forward.v[1];
-    _RBX->gunForward.v[2] = _RBX->forward.v[2];
+    this->GetEyePosition(this, &wp->muzzleTrace);
+    wp->gunForward.v[0] = wp->forward.v[0];
+    wp->gunForward.v[1] = wp->forward.v[1];
+    wp->gunForward.v[2] = wp->forward.v[2];
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-  {
-LABEL_39:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 664, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->muzzleTrace )[0] ) && !IS_NAN( ( wp->muzzleTrace )[1] ) && !IS_NAN( ( wp->muzzleTrace )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->muzzleTrace )[0] ) && !IS_NAN( ( wp->muzzleTrace )[1] ) && !IS_NAN( ( wp->muzzleTrace )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+38h]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 )
-  {
-LABEL_40:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 665, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->gunForward )[0] ) && !IS_NAN( ( wp->gunForward )[1] ) && !IS_NAN( ( wp->gunForward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->gunForward )[0] ) && !IS_NAN( ( wp->gunForward )[1] ) && !IS_NAN( ( wp->gunForward )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(wp->muzzleTrace.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(wp->muzzleTrace.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(wp->muzzleTrace.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 664, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->muzzleTrace )[0] ) && !IS_NAN( ( wp->muzzleTrace )[1] ) && !IS_NAN( ( wp->muzzleTrace )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->muzzleTrace )[0] ) && !IS_NAN( ( wp->muzzleTrace )[1] ) && !IS_NAN( ( wp->muzzleTrace )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(wp->gunForward.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(wp->gunForward.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(wp->gunForward.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 665, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->gunForward )[0] ) && !IS_NAN( ( wp->gunForward )[1] ) && !IS_NAN( ( wp->gunForward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->gunForward )[0] ) && !IS_NAN( ( wp->gunForward )[1] ) && !IS_NAN( ( wp->gunForward )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -588,99 +381,92 @@ AICommonInterface::GetAccuracyFraction
 
 float __fastcall AICommonInterface::GetAccuracyFraction(ai_common_t *self, double dist, const Weapon *r_weapon, WeapAccuracyType accuracyType)
 {
+  __int128 v4; 
+  __int128 v5; 
   unsigned __int16 weaponIdx; 
-  __int64 v10; 
-  __int64 v14; 
-  WeaponCompleteDef *v15; 
+  __int64 v8; 
+  double ValueFromFraction; 
+  __int64 v11; 
+  WeaponCompleteDef *v12; 
+  __int128 v14; 
+  vec2_t *v15; 
+  unsigned __int16 v16; 
+  float v17; 
   const char *WeaponName; 
-  char *v26; 
+  char *v20; 
   char *fmt; 
-  double v31; 
   char output[1024]; 
+  __int128 v24; 
+  __int128 v25; 
 
-  __asm { vmovaps [rsp+4B8h+var_48], xmm6 }
   weaponIdx = r_weapon->weaponIdx;
-  v10 = accuracyType;
-  __asm { vmovaps xmm6, xmm1 }
+  v8 = accuracyType;
   if ( r_weapon->weaponIdx )
   {
-    v14 = weaponIdx;
-    __asm { vmovaps [rsp+4B8h+var_68], xmm8 }
+    v11 = weaponIdx;
+    v24 = v5;
     if ( weaponIdx > bg_lastParsedWeaponIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", weaponIdx, bg_lastParsedWeaponIndex) )
       __debugbreak();
-    if ( !bg_weaponCompleteDefs[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+    if ( !bg_weaponCompleteDefs[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
       __debugbreak();
-    v15 = bg_weaponCompleteDefs[v14];
-    __asm { vmulss  xmm8, xmm6, cs:__real@3983126f }
-    if ( (unsigned int)v10 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 103, ASSERT_TYPE_ASSERT, "(accuracyType >= WEAP_ACCURACY_AI_VS_AI && accuracyType < WEAP_ACCURACY_COUNT)", (const char *)&queryFormat, "accuracyType >= WEAP_ACCURACY_AI_VS_AI && accuracyType < WEAP_ACCURACY_COUNT") )
+    v12 = bg_weaponCompleteDefs[v11];
+    v14 = *(_OWORD *)&dist;
+    *(float *)&v14 = *(float *)&dist * 0.00025000001;
+    _XMM8 = v14;
+    if ( (unsigned int)v8 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 103, ASSERT_TYPE_ASSERT, "(accuracyType >= WEAP_ACCURACY_AI_VS_AI && accuracyType < WEAP_ACCURACY_COUNT)", (const char *)&queryFormat, "accuracyType >= WEAP_ACCURACY_AI_VS_AI && accuracyType < WEAP_ACCURACY_COUNT") )
       __debugbreak();
-    _RCX = v15->accuracyGraphKnots[v10];
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( _RCX )
+    v15 = v12->accuracyGraphKnots[v8];
+    if ( v15 )
     {
-      LOWORD(_RAX) = v15->accuracyGraphKnotCount[v10];
-      if ( (_WORD)_RAX )
+      v16 = v12->accuracyGraphKnotCount[v8];
+      if ( v16 )
       {
-        _RAX = (unsigned __int16)_RAX;
-        __asm
+        v25 = v4;
+        v17 = v15[v16 - 1].v[0];
+        if ( v17 != 1.0 )
         {
-          vmovaps [rsp+4B8h+var_58], xmm7
-          vmovss  xmm7, dword ptr [rcx+rax*8-8]
-          vucomiss xmm7, xmm6
+          WeaponName = BG_GetWeaponName(r_weapon, output, 0x400u);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 104, ASSERT_TYPE_ASSERT, "(weapCompleteDef->accuracyGraphKnots[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnotCount[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnots[accuracyType][weapCompleteDef->accuracyGraphKnotCount[accuracyType] - 1][0] == 1.0f)", "%s\n\tweapon '%s' has invalid graph...max range %f != 1.0.", "weapCompleteDef->accuracyGraphKnots[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnotCount[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnots[accuracyType][weapCompleteDef->accuracyGraphKnotCount[accuracyType] - 1][0] == 1.0f", WeaponName, v17) )
+            __debugbreak();
         }
-        WeaponName = BG_GetWeaponName(r_weapon, output, 0x400u);
-        __asm
-        {
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+4B8h+var_480], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 104, ASSERT_TYPE_ASSERT, "(weapCompleteDef->accuracyGraphKnots[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnotCount[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnots[accuracyType][weapCompleteDef->accuracyGraphKnotCount[accuracyType] - 1][0] == 1.0f)", "%s\n\tweapon '%s' has invalid graph...max range %f != 1.0.", "weapCompleteDef->accuracyGraphKnots[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnotCount[accuracyType] == 0 || weapCompleteDef->accuracyGraphKnots[accuracyType][weapCompleteDef->accuracyGraphKnotCount[accuracyType] - 1][0] == 1.0f", WeaponName, v31) )
-          __debugbreak();
-        __asm { vmovaps xmm7, [rsp+4B8h+var_58] }
       }
     }
-    __asm
+    __asm { vminss  xmm6, xmm8, xmm6 }
+    if ( !v12->accuracyGraphKnots[v8] || !v12->accuracyGraphKnotCount[v8] )
     {
-      vminss  xmm6, xmm8, xmm6
-      vmovaps xmm8, [rsp+4B8h+var_68]
-    }
-    if ( !v15->accuracyGraphKnots[v10] || !v15->accuracyGraphKnotCount[v10] )
-    {
-      v26 = BG_GetWeaponName(r_weapon, output, 0x400u);
-      if ( (_DWORD)v10 )
+      v20 = BG_GetWeaponName(r_weapon, output, 0x400u);
+      if ( (_DWORD)v8 )
       {
-        if ( (_DWORD)v10 == 1 )
+        if ( (_DWORD)v8 == 1 )
         {
           if ( self )
           {
             LODWORD(fmt) = self->ent->s.number;
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E15C30, 432i64, v26, fmt);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E15C30, 432i64, v20, fmt);
           }
           else
           {
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_143E15C90, 433i64, v26);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_143E15C90, 433i64, v20);
           }
         }
       }
       else if ( self )
       {
         LODWORD(fmt) = self->ent->s.number;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E15B80, 430i64, v26, fmt);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E15B80, 430i64, v20, fmt);
       }
       else
       {
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E15BD8, 431i64, v26);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E15BD8, 431i64, v20);
       }
     }
-    __asm { vmovaps xmm2, xmm6; fraction }
-    *(double *)&_XMM0 = GraphGetValueFromFraction(v15->accuracyGraphKnotCount[v10], v15->accuracyGraphKnots[v10], *(const float *)&_XMM2);
+    ValueFromFraction = GraphGetValueFromFraction(v12->accuracyGraphKnotCount[v8], v12->accuracyGraphKnots[v8], *(const float *)&_XMM6);
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(ValueFromFraction) = 0;
   }
-  __asm { vmovaps xmm6, [rsp+4B8h+var_48] }
-  return *(float *)&_XMM0;
+  return *(float *)&ValueFromFraction;
 }
 
 /*
@@ -697,15 +483,9 @@ float AIScriptedInterface::GetAttackerCountAccuracy(AIScriptedInterface *this, c
   if ( !enemy->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 395, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
     __debugbreak();
   if ( this->m_pAI->combat.noAttackerAccuracyMod )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
+    return FLOAT_1_0;
   else
-  {
-    _RCX = enemy->ent->client;
-    __asm { vmovss  xmm0, dword ptr [rcx+0B684h] }
-  }
-  return *(float *)&_XMM0;
+    return enemy->ent->client->attackerAccuracyMultiplier;
 }
 
 /*
@@ -798,309 +578,185 @@ LABEL_22:
 AIScriptedInterface::GetFinalAccuracy
 ==============
 */
-
-float __fastcall AIScriptedInterface::GetFinalAccuracy(AIScriptedInterface *this, sentient_s *enemy, BgWeaponParms *wp, double accuracyMod)
+float AIScriptedInterface::GetFinalAccuracy(AIScriptedInterface *this, sentient_s *enemy, BgWeaponParms *wp, float accuracyMod)
 {
-  bool v16; 
+  __int128 v4; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  bool v10; 
+  float accuracy; 
   gentity_s *ent; 
   Weapon *p_weapon; 
-  const dvar_t *v38; 
-  const dvar_t *v48; 
-  bool v86; 
-  int v89; 
-  char (*v90)[32]; 
-  __int64 v109; 
-  double v110; 
-  __int64 v111; 
-  AIWrapper v112; 
-  char v119; 
-  void *retaddr; 
+  double WeaponAccuracy; 
+  float v18; 
+  double PlayerStanceAccuracy; 
+  float v20; 
+  double PlayerMovementAccuracy; 
+  ai_scripted_t *m_pAI; 
+  float v23; 
+  float v24; 
+  float attackerAccuracyMultiplier; 
+  double PlayerMountAccuracy; 
+  float v27; 
+  float v29; 
+  const dvar_t *v30; 
+  float v31; 
+  const dvar_t *v32; 
+  ai_scripted_t *v33; 
+  double v34; 
+  double v35; 
+  int v36; 
+  char (*v37)[32]; 
+  bool v38; 
+  float *v39; 
+  double v40; 
+  __int64 v42; 
+  __int64 v43; 
+  AIWrapper v44; 
+  __int128 v45; 
+  __int128 v46; 
+  __int128 v47; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v50; 
+  float playerSightAccuracy; 
 
-  _RAX = &retaddr;
-  v16 = this->m_pAI == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RBX = enemy;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovaps xmm8, xmm3
-  }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 469, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+  v10 = this->m_pAI == NULL;
+  v50 = v4;
+  v48 = v6;
+  v47 = v7;
+  v46 = v8;
+  v45 = v9;
+  if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 469, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 470, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 471, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
+  if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 471, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
     __debugbreak();
   if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 472, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
     __debugbreak();
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  xmm0, dword ptr [rax+430h]
-    vcomiss xmm0, xmm7
-    vcomiss xmm8, xmm7
-  }
-  ent = _RBX->ent;
+  accuracy = this->m_pAI->shoot.accuracy;
+  if ( accuracy < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 474, ASSERT_TYPE_ASSERT, "( ( m_pAI->shoot.accuracy >= 0.0f ) )", "( m_pAI->shoot.accuracy ) = %g", accuracy) )
+    __debugbreak();
+  if ( accuracyMod < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 475, ASSERT_TYPE_ASSERT, "( ( accuracyMod >= 0.0f ) )", "( accuracyMod ) = %g", accuracyMod) )
+    __debugbreak();
+  ent = enemy->ent;
   p_weapon = &wp->weapon;
-  __asm { vmovaps [rsp+148h+var_78], xmm11 }
+  v49 = _XMM11;
   if ( ent->client )
   {
-    *(double *)&_XMM0 = AICommonInterface::GetWeaponAccuracy(this, _RBX, p_weapon, WEAP_ACCURACY_AI_VS_PLAYER);
-    __asm { vmovaps xmm13, xmm0 }
-    *(double *)&_XMM0 = AICommonInterface::GetPlayerStanceAccuracy(this, _RBX);
-    __asm { vmovaps xmm14, xmm0 }
-    *(double *)&_XMM0 = AICommonInterface::GetPlayerMovementAccuracy(this, _RBX);
-    _RAX = this->m_pAI;
-    __asm
-    {
-      vmovaps xmm15, xmm0
-      vmovss  xmm0, dword ptr [rax+434h]
-      vmovss  [rsp+148h+arg_18], xmm0
-    }
-    if ( !_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 393, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+    WeaponAccuracy = AICommonInterface::GetWeaponAccuracy(this, enemy, p_weapon, WEAP_ACCURACY_AI_VS_PLAYER);
+    v18 = *(float *)&WeaponAccuracy;
+    PlayerStanceAccuracy = AICommonInterface::GetPlayerStanceAccuracy(this, enemy);
+    v20 = *(float *)&PlayerStanceAccuracy;
+    PlayerMovementAccuracy = AICommonInterface::GetPlayerMovementAccuracy(this, enemy);
+    m_pAI = this->m_pAI;
+    v23 = *(float *)&PlayerMovementAccuracy;
+    playerSightAccuracy = m_pAI->shoot.playerSightAccuracy;
+    if ( !m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 393, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
       __debugbreak();
-    if ( !_RBX->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 395, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
+    if ( !enemy->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 395, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
       __debugbreak();
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    v24 = FLOAT_1_0;
     if ( this->m_pAI->combat.noAttackerAccuracyMod )
-    {
-      __asm { vmovaps xmm9, xmm6 }
-    }
+      attackerAccuracyMultiplier = FLOAT_1_0;
     else
-    {
-      _RCX = _RBX->ent->client;
-      __asm { vmovss  xmm9, dword ptr [rcx+0B684h] }
-    }
-    *(double *)&_XMM0 = AIScriptedInterface::GetPlayerMountAccuracy(this, _RBX);
-    __asm { vmovaps xmm12, xmm0 }
+      attackerAccuracyMultiplier = enemy->ent->client->attackerAccuracyMultiplier;
+    PlayerMountAccuracy = AIScriptedInterface::GetPlayerMountAccuracy(this, enemy);
+    v27 = *(float *)&PlayerMountAccuracy;
   }
   else
   {
-    *(double *)&_XMM0 = AICommonInterface::GetWeaponAccuracy(this, _RBX, p_weapon, WEAP_ACCURACY_AI_VS_AI);
-    __asm
+    v35 = AICommonInterface::GetWeaponAccuracy(this, enemy, p_weapon, WEAP_ACCURACY_AI_VS_AI);
+    v24 = FLOAT_1_0;
+    playerSightAccuracy = FLOAT_1_0;
+    v20 = FLOAT_1_0;
+    v23 = FLOAT_1_0;
+    attackerAccuracyMultiplier = FLOAT_1_0;
+    v27 = FLOAT_1_0;
+    v18 = *(float *)&v35;
+    AIWrapper::AIWrapper(&v44, enemy->ent);
+    if ( v44.m_pAI && AIScriptedInterface::ShouldIgnorePain(v44.m_pAI) )
     {
-      vmovss  xmm6, cs:__real@3f800000
-      vmovss  [rsp+148h+arg_18], xmm6
-      vmovaps xmm14, xmm6
-      vmovaps xmm15, xmm6
-      vmovaps xmm9, xmm6
-      vmovaps xmm12, xmm6
-      vmovaps xmm13, xmm0
-    }
-    AIWrapper::AIWrapper(&v112, _RBX->ent);
-    if ( v112.m_pAI && AIScriptedInterface::ShouldIgnorePain(v112.m_pAI) )
-    {
-      __asm
-      {
-        vxorpd  xmm11, xmm11, xmm11
-        vxorps  xmm2, xmm2, xmm2
-      }
-      goto LABEL_25;
+      __asm { vxorpd  xmm11, xmm11, xmm11 }
+      v29 = 0.0;
+      goto LABEL_31;
     }
   }
-  __asm
-  {
-    vmovsd  xmm11, cs:__real@3ff0000000000000
-    vmovaps xmm2, xmm8
-  }
-LABEL_25:
-  _RAX = this->m_pAI;
-  v38 = DVARBOOL_ai_debugAccuracy;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+430h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+64h]
-    vmulss  xmm2, xmm1, xmm2
-    vmulss  xmm3, xmm2, xmm13
-    vmulss  xmm0, xmm3, xmm14
-    vmulss  xmm1, xmm0, xmm15
-    vmulss  xmm2, xmm1, [rsp+148h+arg_18]
-    vmulss  xmm3, xmm2, xmm9
-    vmulss  xmm10, xmm3, xmm12
-  }
+  *(double *)&_XMM11 = DOUBLE_1_0;
+  v29 = accuracyMod;
+LABEL_31:
+  v30 = DVARBOOL_ai_debugAccuracy;
+  v31 = (float)((float)((float)((float)((float)((float)((float)(this->m_pAI->shoot.accuracy * enemy->attackerAccuracy) * v29) * v18) * v20) * v23) * playerSightAccuracy) * attackerAccuracyMultiplier) * v27;
   if ( !DVARBOOL_ai_debugAccuracy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugAccuracy") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v38);
-  if ( !v38->current.enabled )
-    goto LABEL_37;
-  v48 = DVARINT_ai_debugEntIndex;
+  Dvar_CheckFrontendServerThread(v30);
+  if ( !v30->current.enabled )
+    goto LABEL_43;
+  v32 = DVARINT_ai_debugEntIndex;
   if ( !DVARINT_ai_debugEntIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugEntIndex") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  _RDX = this->m_pAI;
-  if ( v48->current.integer == _RDX->ent->s.number )
+  Dvar_CheckFrontendServerThread(v32);
+  v33 = this->m_pAI;
+  if ( v32->current.integer == v33->ent->s.number )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdx+430h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
-    Com_sprintf_truncate<32>(debugAccuracyStrings, "%s: %1.3f", "m_pAI    ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovaps xmmword ptr cs:debugAccuracyColors, xmm0
-      vmovss  xmm3, dword ptr [rbx+64h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[1], "%s: %1.3f", "Target  ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm8, xmm8
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+10h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[2], "%s: %1.3f", "Script  ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm13, xmm13
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+20h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[3], "%s: %1.3f", "Weapon  ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm14, xmm14
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+30h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[4], "%s: %1.3f", "Stance  ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm15, xmm15
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+40h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[5], "%s: %1.3f", "Movement", *(double *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm3, [rsp+148h+arg_18]
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+50h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[6], "%s: %1.3f", "Sight   ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm9, xmm9
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+60h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[7], "%s: %1.3f", "Attacker", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm3, xmm12, xmm12
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+70h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[8], "%s: %1.3f", "Mount   ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovaps xmm3, xmm11
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+80h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[9], "%s: %1.3f", "Pain   ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vcvtss2sd xmm8, xmm10, xmm10
-      vmovaps xmm3, xmm8
-      vmovq   r9, xmm3
-      vmovaps xmmword ptr cs:debugAccuracyColors+90h, xmm0
-    }
-    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[10], "%s: %1.3f", "TOTAL   ", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-      vmovaps xmmword ptr cs:debugAccuracyColors+0A0h, xmm0
-    }
+    Com_sprintf_truncate<32>(debugAccuracyStrings, "%s: %1.3f", "m_pAI    ", v33->shoot.accuracy);
+    debugAccuracyColors[0] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[1], "%s: %1.3f", "Target  ", enemy->attackerAccuracy);
+    debugAccuracyColors[1] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[2], "%s: %1.3f", "Script  ", accuracyMod);
+    debugAccuracyColors[2] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[3], "%s: %1.3f", "Weapon  ", v18);
+    debugAccuracyColors[3] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[4], "%s: %1.3f", "Stance  ", v20);
+    debugAccuracyColors[4] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[5], "%s: %1.3f", "Movement", v23);
+    debugAccuracyColors[5] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[6], "%s: %1.3f", "Sight   ", playerSightAccuracy);
+    debugAccuracyColors[6] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[7], "%s: %1.3f", "Attacker", attackerAccuracyMultiplier);
+    debugAccuracyColors[7] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[8], "%s: %1.3f", "Mount   ", v27);
+    debugAccuracyColors[8] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[9], "%s: %1.3f", "Pain   ", *(double *)&_XMM11);
+    v34 = v31;
+    debugAccuracyColors[9] = colorWhite;
+    Com_sprintf_truncate<32>((char (*)[32])debugAccuracyStrings[10], "%s: %1.3f", "TOTAL   ", v31);
+    debugAccuracyColors[10] = colorRed;
   }
   else
   {
-LABEL_37:
-    v89 = 0;
-    v90 = debugAccuracyStrings;
-    v86 = 1;
-    _RBX = &debugAccuracyColors[0].v[2];
+LABEL_43:
+    v36 = 0;
+    v37 = debugAccuracyStrings;
+    v38 = 1;
+    v39 = &debugAccuracyColors[0].v[2];
     do
     {
-      if ( !v86 )
+      if ( !v38 )
       {
-        LODWORD(v111) = 11;
-        LODWORD(v109) = v89;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 66, ASSERT_TYPE_ASSERT, "(unsigned)( msgIndex ) < (unsigned)( 11 )", "msgIndex doesn't index AI_DEBUG_ACCURACY_MSG_COUNT\n\t%i not in [0, %i)", v109, v111) )
+        LODWORD(v43) = 11;
+        LODWORD(v42) = v36;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 66, ASSERT_TYPE_ASSERT, "(unsigned)( msgIndex ) < (unsigned)( 11 )", "msgIndex doesn't index AI_DEBUG_ACCURACY_MSG_COUNT\n\t%i not in [0, %i)", v42, v43) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-        vmovups xmmword ptr [rbx-8], xmm0
-      }
-      *(_BYTE *)v90 = 0;
-      _RBX += 4;
-      ++v89;
-      ++v90;
-      v86 = (unsigned int)v89 < 0xB;
+      *(vec4_t *)(v39 - 2) = colorWhite;
+      *(_BYTE *)v37 = 0;
+      v39 += 4;
+      ++v36;
+      ++v37;
+      v38 = (unsigned int)v36 < 0xB;
     }
-    while ( v89 < 11 );
-    __asm { vcvtss2sd xmm8, xmm10, xmm10 }
+    while ( v36 < 11 );
+    v34 = v31;
   }
-  __asm
-  {
-    vcomiss xmm10, xmm7
-    vmovaps xmm15, [rsp+148h+var_B8]
-    vmovaps xmm14, [rsp+148h+var_A8]
-    vmovaps xmm13, [rsp+148h+var_98]
-    vmovaps xmm12, [rsp+148h+var_88]
-    vmovaps xmm11, [rsp+148h+var_78]
-    vmovaps xmm9, [rsp+148h+var_58]
-  }
-  if ( v86 )
-  {
-    __asm { vmovsd  [rsp+148h+var_120], xmm8 }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 560, ASSERT_TYPE_ASSERT, "( ( accuracy >= 0.0f ) )", "( accuracy ) = %g", v110) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vmovaps xmm1, xmm7; min
-    vmovaps xmm0, xmm10; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = this->m_pAI;
-  _R11 = &v119;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovss  dword ptr [rax+440h], xmm0
-  }
-  return *(float *)&_XMM0;
+  if ( v31 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 560, ASSERT_TYPE_ASSERT, "( ( accuracy >= 0.0f ) )", "( accuracy ) = %g", v34) )
+    __debugbreak();
+  v40 = I_fclamp(v31, 0.0, v24);
+  this->m_pAI->shoot.debugLastAccuracy = *(float *)&v40;
+  return *(float *)&v40;
 }
 
 /*
@@ -1110,144 +766,72 @@ AICommonInterface::GetMaxMountCover
 */
 float AICommonInterface::GetMaxMountCover(AICommonInterface *this, const playerState_s *const enemyPs)
 {
-  AICommonInterface_vtbl *v13; 
   GHandler *Handler; 
-  bool v15; 
-  bool v16; 
-  unsigned int v24; 
-  bool v25; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  double v12; 
   vec3_t outNormal; 
-  int v66[4]; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t outMountPoint; 
   tmat33_t<vec3_t> axis; 
   vec3_t outBelow; 
   vec3_t outParallel; 
   MountSurfaceProperties mount; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-58h], xmm9
-  }
-  _RBX = enemyPs;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 185, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 186, ASSERT_TYPE_ASSERT, "(enemyPs)", (const char *)&queryFormat, "enemyPs") )
+  if ( !enemyPs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 186, ASSERT_TYPE_ASSERT, "(enemyPs)", (const char *)&queryFormat, "enemyPs") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm7, dword ptr [rbx+4C0h]
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 187, ASSERT_TYPE_ASSERT, "(0.0f < enemyPs->mountState.mountFraction)", (const char *)&queryFormat, "0.0f < enemyPs->mountState.mountFraction") )
+  if ( enemyPs->mountState.mountFraction <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 187, ASSERT_TYPE_ASSERT, "(0.0f < enemyPs->mountState.mountFraction)", (const char *)&queryFormat, "0.0f < enemyPs->mountState.mountFraction") )
     __debugbreak();
-  v13 = this->__vftable;
-  __asm
-  {
-    vmovaps [rsp+178h+var_68], xmm10
-    vmovaps [rsp+178h+var_78], xmm11
-    vmovaps [rsp+178h+var_88], xmm12
-  }
-  v13->GetEyePosition(this, (vec3_t *)v66);
+  this->GetEyePosition(this, (vec3_t *)&v18);
   Handler = GHandler::getHandler();
-  MountSurfaceProperties::Initialize(&mount, Handler, &_RBX->mountState.surface);
+  MountSurfaceProperties::Initialize(&mount, Handler, &enemyPs->mountState.surface);
   BG_ContextMount_CalcMountPoint(Handler, &mount, &outMountPoint);
-  if ( _RBX->mountState.surface.type == MOUNT_TYPE_TOP )
+  if ( enemyPs->mountState.surface.type == MOUNT_TYPE_TOP )
   {
     BG_ContextMount_CalcMountVectors(Handler, &mount, &outNormal, &outParallel, &outBelow);
-    __asm
-    {
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rsp+178h+outNormal]
-      vmovss  xmm1, dword ptr [rsp+178h+outNormal+4]
-      vxorps  xmm10, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rsp+178h+outNormal+8]
-      vxorps  xmm12, xmm0, xmm2
-      vxorps  xmm11, xmm1, xmm2
-    }
+    LODWORD(v5) = LODWORD(outNormal.v[0]) ^ _xmm;
+    LODWORD(v6) = LODWORD(outNormal.v[2]) ^ _xmm;
+    LODWORD(v7) = LODWORD(outNormal.v[1]) ^ _xmm;
   }
   else
   {
-    AnglesToAxis(&_RBX->viewangles, &axis);
-    v24 = _RBX->mountState.surface.type - 2;
-    v15 = _RBX->mountState.surface.type == MOUNT_TYPE_LEFT;
-    v16 = v24 == 1;
-    if ( v24 > 1 )
-    {
-      v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 214, ASSERT_TYPE_ASSERT, "(enemyPs->mountState.surface.type == MOUNT_TYPE_LEFT || enemyPs->mountState.surface.type == MOUNT_TYPE_RIGHT)", (const char *)&queryFormat, "enemyPs->mountState.surface.type == MOUNT_TYPE_LEFT || enemyPs->mountState.surface.type == MOUNT_TYPE_RIGHT");
-      v15 = 0;
-      v16 = !v25;
-      if ( v25 )
-        __debugbreak();
-    }
+    AnglesToAxis(&enemyPs->viewangles, &axis);
+    if ( (unsigned int)(enemyPs->mountState.surface.type - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 214, ASSERT_TYPE_ASSERT, "(enemyPs->mountState.surface.type == MOUNT_TYPE_LEFT || enemyPs->mountState.surface.type == MOUNT_TYPE_RIGHT)", (const char *)&queryFormat, "enemyPs->mountState.surface.type == MOUNT_TYPE_LEFT || enemyPs->mountState.surface.type == MOUNT_TYPE_RIGHT") )
+      __debugbreak();
+    v5 = axis.m[0].v[0];
+    v7 = axis.m[0].v[1];
+    v6 = axis.m[0].v[2];
+  }
+  v8 = v18 - outMountPoint.v[0];
+  v11 = LODWORD(v19);
+  v9 = v19 - outMountPoint.v[1];
+  v10 = v20 - outMountPoint.v[2];
+  *(float *)&v11 = (float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10);
+  if ( *(float *)&v11 > 0.000001 )
+  {
+    *(float *)&v11 = fsqrt(*(float *)&v11);
+    _XMM1 = v11;
     __asm
     {
-      vmovss  xmm10, dword ptr [rsp+178h+axis]
-      vmovss  xmm11, dword ptr [rsp+178h+axis+4]
-      vmovss  xmm12, dword ptr [rsp+178h+axis+8]
-    }
-  }
-  __asm
-  {
-    vmovss  xmm1, [rsp+178h+var_138]
-    vsubss  xmm5, xmm1, dword ptr [rsp+178h+outMountPoint]
-    vmovss  xmm2, [rsp+178h+var_134]
-    vsubss  xmm8, xmm2, dword ptr [rsp+178h+outMountPoint+4]
-    vmovss  xmm1, [rsp+178h+var_130]
-    vsubss  xmm9, xmm1, dword ptr [rsp+178h+outMountPoint+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm3, xmm8, xmm8
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm0, xmm4, xmm1
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcomisd xmm2, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v15 || v16 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vsqrtss xmm1, xmm0, xmm0
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm2, xmm0
-      vmovaps [rsp+178h+var_28], xmm6
-      vdivss  xmm6, xmm2, xmm0
-      vmulss  xmm1, xmm5, xmm6
-      vmulss  xmm3, xmm1, xmm10
-      vmulss  xmm0, xmm8, xmm6
-      vmulss  xmm4, xmm0, xmm11
-      vmulss  xmm0, xmm9, xmm6
-      vmulss  xmm1, xmm0, xmm12
-      vaddss  xmm5, xmm4, xmm3
-      vaddss  xmm3, xmm5, xmm1
-      vmulss  xmm0, xmm3, cs:__real@40000000; val
-      vxorps  xmm1, xmm1, xmm1; min
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, [rsp+178h+var_28] }
+    v12 = I_fclamp((float)((float)((float)((float)(v9 * (float)(1.0 / *(float *)&_XMM0)) * v7) + (float)((float)(v8 * (float)(1.0 / *(float *)&_XMM0)) * v5)) + (float)((float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * v6)) * 2.0, 0.0, 1.0);
   }
-  __asm
+  else
   {
-    vmovaps xmm12, [rsp+178h+var_88]
-    vmovaps xmm11, [rsp+178h+var_78]
-    vmovaps xmm10, [rsp+178h+var_68]
+    LODWORD(v12) = 0;
   }
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm9, xmmword ptr [r11-58h]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v12;
 }
 
 /*
@@ -1257,20 +841,55 @@ AIScriptedInterface::GetPlayerMountAccuracy
 */
 float AIScriptedInterface::GetPlayerMountAccuracy(AIScriptedInterface *this, const sentient_s *const enemy)
 {
+  gclient_s *client; 
+  double MaxMountCover; 
+  ContextMountType type; 
+  const dvar_t *v7; 
+  const char *v8; 
+  vec3_t vOriginOut; 
+  vec3_t v11; 
+
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 410, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 411, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
     __debugbreak();
   if ( !enemy->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 412, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
     __debugbreak();
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _RDI = enemy->ent->client;
-  __asm
+  client = enemy->ent->client;
+  if ( client->ps.mountState.mountFraction > 0.0 )
   {
-    vcomiss xmm0, dword ptr [rdi+4C0h]
-    vmovss  xmm0, cs:__real@3f800000
+    Sentient_GetOrigin(this->m_pAI->sentient, &vOriginOut);
+    Sentient_GetOrigin(enemy, &v11);
+    if ( (float)((float)((float)((float)(vOriginOut.v[1] - v11.v[1]) * (float)(vOriginOut.v[1] - v11.v[1])) + (float)((float)(vOriginOut.v[0] - v11.v[0]) * (float)(vOriginOut.v[0] - v11.v[0]))) + (float)((float)(vOriginOut.v[2] - v11.v[2]) * (float)(vOriginOut.v[2] - v11.v[2]))) >= 62500.0 )
+    {
+      MaxMountCover = AICommonInterface::GetMaxMountCover(this, &client->ps);
+      type = client->ps.mountState.surface.type;
+      if ( type == MOUNT_TYPE_TOP )
+      {
+        v7 = DCONST_DVARMPFLT_mount_ai_top_victim_accuracy;
+        if ( DCONST_DVARMPFLT_mount_ai_top_victim_accuracy )
+        {
+LABEL_22:
+          Dvar_CheckFrontendServerThread(v7);
+          return (float)((float)(*(float *)&MaxMountCover * client->ps.mountState.mountFraction) * v7->current.value) + (float)(1.0 - (float)(*(float *)&MaxMountCover * client->ps.mountState.mountFraction));
+        }
+        v8 = "mount_ai_top_victim_accuracy";
+      }
+      else
+      {
+        if ( (unsigned int)(type - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 446, ASSERT_TYPE_ASSERT, "(enemyPs->mountState.surface.type == MOUNT_TYPE_LEFT || enemyPs->mountState.surface.type == MOUNT_TYPE_RIGHT)", (const char *)&queryFormat, "enemyPs->mountState.surface.type == MOUNT_TYPE_LEFT || enemyPs->mountState.surface.type == MOUNT_TYPE_RIGHT") )
+          __debugbreak();
+        v7 = DCONST_DVARMPFLT_mount_ai_side_victim_accuracy;
+        if ( DCONST_DVARMPFLT_mount_ai_side_victim_accuracy )
+          goto LABEL_22;
+        v8 = "mount_ai_side_victim_accuracy";
+      }
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v8) )
+        __debugbreak();
+      goto LABEL_22;
+    }
   }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -1280,32 +899,42 @@ AICommonInterface::GetPlayerMovementAccuracy
 */
 float AICommonInterface::GetPlayerMovementAccuracy(AICommonInterface *this, const sentient_s *enemy)
 {
-  const dvar_t *v37; 
-  char v58; 
-  bool v59; 
-  double v104; 
-  double v105; 
-  double v106; 
-  vec3_t v107; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  bool v10; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float value; 
+  const dvar_t *v22; 
+  gclient_s *client; 
+  __int128 v24; 
+  vec3_t v35; 
   vec3_t vOriginOut; 
-  void *retaddr; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-78h], xmm11
-  }
-  v59 = this->m_pAI == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-98h], xmm13
-    vmovaps xmmword ptr [r11-0A8h], xmm14
-    vmovaps [rsp+128h+var_B8], xmm15
-  }
-  if ( v59 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 280, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+  v10 = this->m_pAI == NULL;
+  v44 = v2;
+  v42 = v4;
+  v39 = v7;
+  v38 = v8;
+  v37 = v9;
+  if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 280, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 281, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
     __debugbreak();
@@ -1314,155 +943,62 @@ float AICommonInterface::GetPlayerMovementAccuracy(AICommonInterface *this, cons
   if ( !enemy->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 283, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
     __debugbreak();
   Sentient_GetOrigin(this->m_pAI->sentient, &vOriginOut);
-  Sentient_GetOrigin(enemy, &v107);
+  Sentient_GetOrigin(enemy, &v35);
+  v13 = LODWORD(v35.v[1]);
+  *(float *)&v13 = fsqrt((float)((float)((float)(v35.v[1] - vOriginOut.v[1]) * (float)(v35.v[1] - vOriginOut.v[1])) + (float)((float)(v35.v[0] - vOriginOut.v[0]) * (float)(v35.v[0] - vOriginOut.v[0]))) + (float)((float)(v35.v[2] - vOriginOut.v[2]) * (float)(v35.v[2] - vOriginOut.v[2])));
+  _XMM1 = v13;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+128h+var_E8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+128h+vOriginOut]
-    vmovss  xmm1, dword ptr [rsp+128h+var_E8+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+128h+vOriginOut+4]
-    vmovss  xmm0, dword ptr [rsp+128h+var_E8+8]
-    vsubss  xmm6, xmm0, dword ptr [rsp+128h+vOriginOut+8]
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@80000000
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, xmm7
     vblendvps xmm0, xmm1, xmm11, xmm0
-    vdivss  xmm1, xmm11, xmm0
-    vmulss  xmm13, xmm4, xmm1
-    vmulss  xmm14, xmm5, xmm1
-    vmulss  xmm15, xmm6, xmm1
   }
+  v17 = (float)(v35.v[0] - vOriginOut.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+  v18 = (float)(v35.v[1] - vOriginOut.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+  v19 = (float)(v35.v[2] - vOriginOut.v[2]) * (float)(1.0 / *(float *)&_XMM0);
   if ( this->Is3D(this) )
   {
-    _RDI = DVARFLT_player_zeroGravSpeed;
-    __asm
-    {
-      vmovaps [rsp+128h+var_48], xmm8
-      vmovaps [rsp+128h+var_68], xmm10
-      vmovaps [rsp+128h+var_88], xmm12
-    }
+    v20 = DVARFLT_player_zeroGravSpeed;
+    v43 = v3;
+    v41 = v5;
+    v40 = v6;
     if ( !DVARFLT_player_zeroGravSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm12, dword ptr [rdi+28h] }
-    v37 = DVARFLT_player_zeroGravBoostScalar;
+    Dvar_CheckFrontendServerThread(v20);
+    value = v20->current.value;
+    v22 = DVARFLT_player_zeroGravBoostScalar;
     if ( !DVARFLT_player_zeroGravBoostScalar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_zeroGravBoostScalar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v37);
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-    _RCX = enemy->ent->client;
+    Dvar_CheckFrontendServerThread(v22);
+    client = enemy->ent->client;
+    v24 = LODWORD(client->ps.velocity.v[0]);
+    *(float *)&v24 = fsqrt((float)((float)(*(float *)&v24 * *(float *)&v24) + (float)(client->ps.velocity.v[1] * client->ps.velocity.v[1])) + (float)(client->ps.velocity.v[2] * client->ps.velocity.v[2]));
+    _XMM3 = v24;
     __asm
     {
-      vmovss  xmm4, dword ptr [rcx+3Ch]
-      vmovss  xmm5, dword ptr [rcx+44h]
-      vmovss  xmm10, dword ptr [rcx+40h]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm10, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm7
       vblendvps xmm0, xmm3, xmm11, xmm0
-      vdivss  xmm6, xmm11, xmm0
-      vmulss  xmm0, xmm12, dword ptr [rdi+28h]
-      vdivss  xmm0, xmm3, xmm0; val
-      vmovaps xmm2, xmm11; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmulss  xmm7, xmm4, xmm6
-      vmulss  xmm8, xmm5, xmm6
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm12, [rsp+128h+var_88]
-      vmulss  xmm1, xmm10, xmm6
-      vmovaps xmm10, [rsp+128h+var_68]
-      vmulss  xmm3, xmm1, xmm14
-      vmulss  xmm1, xmm15, xmm8
-      vmovaps xmm8, [rsp+128h+var_48]
-      vmulss  xmm2, xmm13, xmm7
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm5, xmm4, xmm1
-      vandps  xmm5, xmm5, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vsubss  xmm1, xmm11, xmm5
-      vmulss  xmm0, xmm0, xmm1
-      vsubss  xmm4, xmm11, xmm0
-    }
+    I_fclamp(*(float *)&v24 / (float)(value * v22->current.value), 0.0, 1.0);
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vmulss  xmm1, xmm14, dword ptr [rcx+3Ch]
-      vmulss  xmm0, xmm13, dword ptr [rcx+40h]
-      vsubss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm15, dword ptr [rcx+44h]
-      vaddss  xmm0, xmm2, xmm1
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; val
-      vmovss  xmm2, cs:__real@437a0000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3b83126f
-      vsubss  xmm4, xmm11, xmm1
-    }
+    I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v18 * enemy->ent->client->ps.velocity.v[0]) - (float)(v17 * enemy->ent->client->ps.velocity.v[1])) + (float)(v19 * enemy->ent->client->ps.velocity.v[2])) & _xmm), 0.0, 250.0);
   }
+  _XMM0 = (unsigned int)enemy->ent->client->ps.groundEntityNum;
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_0_30000001);
   __asm
   {
-    vmovss  xmm2, cs:__real@3f333333
-    vmovaps xmm15, [rsp+128h+var_B8]
-    vmovaps xmm14, [rsp+128h+var_A8]
-    vmovaps xmm13, [rsp+128h+var_98]
-    vmovaps xmm7, [rsp+128h+var_38]
-  }
-  _EAX = 2047;
-  __asm { vmovd   xmm1, eax }
-  _EAX = enemy->ent->client->ps.groundEntityNum;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3e99999a
     vblendvps xmm0, xmm1, xmm2, xmm3
     vmaxss  xmm6, xmm0, xmm4
-    vcomiss xmm6, xmm9
-    vmovaps xmm9, [rsp+128h+var_58]
   }
-  if ( v58 )
-    goto LABEL_24;
-  __asm { vcomiss xmm6, xmm11 }
-  if ( !(v58 | v59) )
+  if ( *(float *)&_XMM6 < 0.0 || *(float *)&_XMM6 > 1.0 )
   {
-LABEL_24:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+128h+var_F0], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+128h+var_F8], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+128h+var_100], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 331, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v104, v105, v106) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 331, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&_XMM6, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+128h+var_28]
-    vmovaps xmm11, [rsp+128h+var_78]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -1472,29 +1008,19 @@ AICommonInterface::GetPlayerSightAccuracy
 */
 float AICommonInterface::GetPlayerSightAccuracy(AICommonInterface *this, const sentient_s *enemy)
 {
-  int CanSeeEntityPoint; 
-  double v78; 
-  double v79; 
-  double v80; 
+  gclient_s *client; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v16; 
+  float v18; 
   vec3_t vPoint; 
   vec3_t vEyePosOut; 
-  char v84; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-  }
   Sys_ProfBeginNamedEvent(0xFF808080, "AI_GetPlayerSightAccuracy");
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 350, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
@@ -1505,128 +1031,47 @@ float AICommonInterface::GetPlayerSightAccuracy(AICommonInterface *this, const s
   if ( !enemy->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 353, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
     __debugbreak();
   Sentient_GetEyePosition(enemy, &vEyePosOut);
-  _RAX = enemy->ent->client;
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rax+30h]
-    vmovss  xmm10, dword ptr [rax+34h]
-    vmovss  xmm11, dword ptr [rax+38h]
-    vmovss  xmm0, dword ptr [rsp+128h+vEyePosOut]
-    vsubss  xmm12, xmm0, xmm9
-    vmovss  xmm1, dword ptr [rsp+128h+vEyePosOut+4]
-    vsubss  xmm13, xmm1, xmm10
-    vmovss  xmm0, dword ptr [rsp+128h+vEyePosOut+8]
-    vsubss  xmm14, xmm0, xmm11
-    vxorps  xmm15, xmm15, xmm15
-  }
-  _EAX = AICommonInterface::CanSeeEntityPoint(this, &vEyePosOut, enemy->ent);
-  _ECX = 0;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@41200000
-    vblendvps xmm0, xmm1, xmm15, xmm2
-    vmovss  [rsp+128h+var_E8], xmm0
-    vmovss  xmm3, cs:__real@3f400000
-    vmulss  xmm0, xmm12, xmm3
-    vaddss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [rsp+128h+vPoint], xmm1
-    vmulss  xmm2, xmm13, xmm3
-    vaddss  xmm0, xmm2, xmm10
-    vmovss  dword ptr [rsp+128h+vPoint+4], xmm0
-    vmulss  xmm1, xmm14, xmm3
-    vaddss  xmm2, xmm1, xmm11
-    vmovss  dword ptr [rsp+128h+vPoint+8], xmm2
-    vmovss  xmm8, cs:__real@41f00000
-  }
+  client = enemy->ent->client;
+  v5 = client->ps.origin.v[0];
+  v6 = client->ps.origin.v[1];
+  v7 = client->ps.origin.v[2];
+  v8 = vEyePosOut.v[0] - v5;
+  v9 = vEyePosOut.v[1] - v6;
+  v11 = LODWORD(vEyePosOut.v[2]);
+  *(float *)&v11 = vEyePosOut.v[2] - v7;
+  v10 = *(float *)&v11;
+  _XMM0 = (unsigned int)AICommonInterface::CanSeeEntityPoint(this, &vEyePosOut, enemy->ent);
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_10_0);
+  __asm { vblendvps xmm0, xmm1, xmm15, xmm2 }
+  vPoint.v[0] = (float)(v8 * 0.75) + v5;
+  vPoint.v[1] = (float)(v9 * 0.75) + v6;
+  vPoint.v[2] = (float)(*(float *)&v11 * 0.75) + v7;
   if ( AICommonInterface::CanSeeEntityPoint(this, &vPoint, enemy->ent) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+128h+var_E8]
-      vaddss  xmm6, xmm0, xmm8
-    }
-  }
+    v16 = *(float *)&_XMM0 + 30.0;
   else
-  {
-    __asm { vmovss  xmm6, [rsp+128h+var_E8] }
-  }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f000000
-    vmulss  xmm0, xmm12, xmm7
-    vaddss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [rsp+128h+vPoint], xmm1
-    vmulss  xmm2, xmm13, xmm7
-    vaddss  xmm0, xmm2, xmm10
-    vmovss  dword ptr [rsp+128h+vPoint+4], xmm0
-    vmulss  xmm1, xmm14, xmm7
-    vaddss  xmm2, xmm1, xmm11
-    vmovss  dword ptr [rsp+128h+vPoint+8], xmm2
-  }
+    v16 = *(float *)&_XMM0;
+  vPoint.v[0] = (float)(v8 * 0.5) + v5;
+  vPoint.v[1] = (float)(v9 * 0.5) + v6;
+  vPoint.v[2] = (float)(*(float *)&v11 * 0.5) + v7;
   if ( AICommonInterface::CanSeeEntityPoint(this, &vPoint, enemy->ent) )
-    __asm { vaddss  xmm6, xmm6, xmm8 }
-  __asm
+    v16 = v16 + 30.0;
+  vPoint.v[0] = (float)(v8 * 0.25) + v5;
+  vPoint.v[1] = (float)(v9 * 0.25) + v6;
+  *(float *)&v11 = *(float *)&v11 * 0.25;
+  _XMM1 = v11;
+  vPoint.v[2] = (float)(v10 * 0.25) + v7;
+  if ( AICommonInterface::CanSeeEntityPoint(this, &vPoint, enemy->ent) )
+    v16 = v16 + 30.0;
+  v18 = v16 * 0.0099999998;
+  if ( (float)(v16 * 0.0099999998) < 0.0 || v18 > 1.0 )
   {
-    vmovss  xmm3, cs:__real@3e800000
-    vmulss  xmm0, xmm12, xmm3
-    vaddss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [rsp+128h+vPoint], xmm1
-    vmulss  xmm2, xmm13, xmm3
-    vaddss  xmm0, xmm2, xmm10
-    vmovss  dword ptr [rsp+128h+vPoint+4], xmm0
-    vmulss  xmm1, xmm14, xmm3
-    vaddss  xmm2, xmm1, xmm11
-    vmovss  dword ptr [rsp+128h+vPoint+8], xmm2
-  }
-  CanSeeEntityPoint = AICommonInterface::CanSeeEntityPoint(this, &vPoint, enemy->ent);
-  if ( CanSeeEntityPoint )
-    __asm { vaddss  xmm6, xmm6, xmm8 }
-  __asm
-  {
-    vmulss  xmm6, xmm6, cs:__real@3c23d70a
-    vmovss  xmm8, cs:__real@3f800000
-    vcomiss xmm6, xmm15
-    vcomiss xmm6, xmm8
-  }
-  if ( CanSeeEntityPoint )
-  {
-    __asm
-    {
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+128h+var_F0], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+128h+var_F8], xmm1
-      vmovsd  [rsp+128h+var_100], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 380, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v78, v79, v80) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 380, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v18, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
-  {
-    vaddss  xmm0, xmm6, xmm8
-    vmulss  xmm6, xmm0, xmm7
-  }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm0, xmm6 }
-  _R11 = &v84;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return *(float *)&_XMM0;
+  return (float)(v18 + 1.0) * 0.5;
 }
 
 /*
@@ -1636,29 +1081,10 @@ AICommonInterface::GetPlayerStanceAccuracy
 */
 float AICommonInterface::GetPlayerStanceAccuracy(AICommonInterface *this, const sentient_s *enemy)
 {
-  bool v9; 
-  bool v11; 
-  bool v25; 
-  double v39; 
-  double v40; 
-  double v41; 
-  double v42; 
-  double v43; 
-  double v44; 
-  char v46; 
-  void *retaddr; 
+  float mountFraction; 
+  float v10; 
 
-  _RAX = &retaddr;
-  v11 = this->m_pAI == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 241, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+  if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 241, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 242, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
     __debugbreak();
@@ -1666,90 +1092,29 @@ float AICommonInterface::GetPlayerStanceAccuracy(AICommonInterface *this, const 
     __debugbreak();
   if ( !enemy->ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 244, ASSERT_TYPE_ASSERT, "(enemy->ent->client)", (const char *)&queryFormat, "enemy->ent->client") )
     __debugbreak();
-  v9 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&enemy->ent->client->ps.pm_flags, ACTIVE, 0);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  v11 = !v9;
-  if ( v9 )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&enemy->ent->client->ps.pm_flags, ACTIVE, 0) )
   {
-    __asm { vmovss  xmm6, cs:__real@3f000000 }
+    *(float *)&_XMM6 = FLOAT_0_5;
   }
   else
   {
-    _EAX = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&enemy->ent->client->ps.pm_flags, ACTIVE, 1u);
-    v11 = 1;
-    _ECX = 0;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3f400000
-      vblendvps xmm6, xmm1, xmm7, xmm2
-    }
+    _XMM0 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&enemy->ent->client->ps.pm_flags, ACTIVE, 1u);
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_0_75);
+    __asm { vblendvps xmm6, xmm1, xmm7, xmm2 }
   }
-  __asm
+  __asm { vxorpd  xmm10, xmm10, xmm10 }
+  mountFraction = enemy->ent->client->ps.mountState.mountFraction;
+  if ( mountFraction > 0.0 )
   {
-    vmovsd  xmm9, cs:__real@3ff0000000000000
-    vxorps  xmm8, xmm8, xmm8
-    vxorpd  xmm10, xmm10, xmm10
-  }
-  _RCX = enemy->ent->client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4C0h]
-    vcomiss xmm0, xmm8
-  }
-  if ( !v11 )
-  {
-    __asm
-    {
-      vcomiss xmm0, xmm7
-      vmovsd  [rsp+98h+var_60], xmm9
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+98h+var_68], xmm10
-      vmovsd  [rsp+98h+var_70], xmm0
-    }
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 257, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( enemy->ent->client->ps.mountState.mountFraction ) && ( enemy->ent->client->ps.mountState.mountFraction ) <= ( 1.0f )", "enemy->ent->client->ps.mountState.mountFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v39, v41, v43);
-    v11 = !v25;
-    if ( v25 )
+    if ( mountFraction > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 257, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( enemy->ent->client->ps.mountState.mountFraction ) && ( enemy->ent->client->ps.mountState.mountFraction ) <= ( 1.0f )", "enemy->ent->client->ps.mountState.mountFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", mountFraction, *(double *)&_XMM10, DOUBLE_1_0) )
       __debugbreak();
-    _RCX = enemy->ent->client;
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rcx+4C0h]
-      vsubss  xmm1, xmm7, xmm3
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm6, xmm2, xmm3
-    }
+    v10 = enemy->ent->client->ps.mountState.mountFraction;
+    *(float *)&_XMM6 = (float)((float)(1.0 - v10) * *(float *)&_XMM6) + v10;
   }
-  __asm
-  {
-    vcomiss xmm6, xmm8
-    vcomiss xmm6, xmm7
-  }
-  if ( !v11 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+98h+var_60], xmm9
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+98h+var_68], xmm10
-      vmovsd  [rsp+98h+var_70], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 262, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v40, v42, v44) )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, xmmword ptr [r11-10h]
-  }
-  return *(float *)&_XMM0;
+  if ( (*(float *)&_XMM6 < 0.0 || *(float *)&_XMM6 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 262, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&_XMM6, *(double *)&_XMM10, DOUBLE_1_0) )
+    __debugbreak();
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -1759,17 +1124,14 @@ AICommonInterface::GetWeaponAccuracy
 */
 float AICommonInterface::GetWeaponAccuracy(AICommonInterface *this, const sentient_s *enemy, const Weapon *r_weapon, WeapAccuracyType accuracyType)
 {
-  const dvar_t *v21; 
-  char v23; 
-  char v24; 
-  __int64 v31; 
-  double v32; 
-  double v33; 
-  double v34; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  double AccuracyFraction; 
+  __int64 v13; 
   vec3_t vOriginOut; 
-  vec3_t v36; 
+  vec3_t v15; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 160, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 161, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
@@ -1778,63 +1140,26 @@ float AICommonInterface::GetWeaponAccuracy(AICommonInterface *this, const sentie
     __debugbreak();
   if ( (unsigned int)accuracyType >= WEAP_ACCURACY_COUNT )
   {
-    LODWORD(v31) = accuracyType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 163, ASSERT_TYPE_ASSERT, "(unsigned)( accuracyType ) < (unsigned)( WEAP_ACCURACY_COUNT )", "accuracyType doesn't index WEAP_ACCURACY_COUNT\n\t%i not in [0, %i)", v31, 2) )
+    LODWORD(v13) = accuracyType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 163, ASSERT_TYPE_ASSERT, "(unsigned)( accuracyType ) < (unsigned)( WEAP_ACCURACY_COUNT )", "accuracyType doesn't index WEAP_ACCURACY_COUNT\n\t%i not in [0, %i)", v13, 2) )
       __debugbreak();
   }
   Sentient_GetOrigin(this->m_pAI->sentient, &vOriginOut);
-  Sentient_GetOrigin(enemy, &v36);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0A8h+vOriginOut]
-    vsubss  xmm3, xmm0, dword ptr [rsp+0A8h+var_58]
-    vmovss  xmm1, dword ptr [rsp+0A8h+vOriginOut+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+0A8h+var_58+4]
-    vmovss  xmm0, dword ptr [rsp+0A8h+vOriginOut+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+var_58+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-  }
+  Sentient_GetOrigin(enemy, &v15);
+  v9 = fsqrt((float)((float)((float)(vOriginOut.v[1] - v15.v[1]) * (float)(vOriginOut.v[1] - v15.v[1])) + (float)((float)(vOriginOut.v[0] - v15.v[0]) * (float)(vOriginOut.v[0] - v15.v[0]))) + (float)((float)(vOriginOut.v[2] - v15.v[2]) * (float)(vOriginOut.v[2] - v15.v[2])));
+  v8 = v9;
   if ( accuracyType == WEAP_ACCURACY_AI_VS_PLAYER )
   {
-    v21 = DVARFLT_ai_accuracyDistScale;
+    v10 = DVARFLT_ai_accuracyDistScale;
     if ( !DVARFLT_ai_accuracyDistScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_accuracyDistScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v10);
+    v8 = v9 * v10->current.value;
   }
-  __asm { vmovaps xmm1, xmm6; dist }
-  *(double *)&_XMM0 = AICommonInterface::GetAccuracyFraction(this->m_pAI, *(float *)&_XMM1, r_weapon, accuracyType);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v23 )
-    goto LABEL_20;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v23 | v24) )
-  {
-LABEL_20:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+0A8h+var_70], xmm0
-      vmovsd  [rsp+0A8h+var_78], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+0A8h+var_80], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 176, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v32, v33, v34) )
-      __debugbreak();
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return *(float *)&_XMM0;
+  AccuracyFraction = AICommonInterface::GetAccuracyFraction(this->m_pAI, v8, r_weapon, accuracyType);
+  if ( (*(float *)&AccuracyFraction < 0.0 || *(float *)&AccuracyFraction > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 176, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( accuracy ) && ( accuracy ) <= ( 1.0f )", "accuracy not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&AccuracyFraction, 0.0, DOUBLE_1_0) )
+    __debugbreak();
+  return *(float *)&AccuracyFraction;
 }
 
 /*
@@ -1842,32 +1167,63 @@ LABEL_20:
 AIScriptedInterface::HitSentient
 ==============
 */
-
-void __fastcall AIScriptedInterface::HitSentient(AIScriptedInterface *this, BgWeaponParms *wp, sentient_s *enemy, double accuracy)
+void AIScriptedInterface::HitSentient(AIScriptedInterface *this, BgWeaponParms *wp, sentient_s *enemy, float accuracy)
 {
-  int v53; 
-  AIWrapper v134; 
+  __int128 v4; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  float v13; 
+  __int128 v15; 
+  __int128 v18; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  float v30; 
+  int v31; 
+  gentity_s *ent; 
+  __int128 v33; 
+  gclient_s *client; 
+  float v38; 
+  __int128 v39; 
+  __int128 v40; 
+  float v41; 
+  __int128 v42; 
+  __int128 v43; 
+  float mountFraction; 
+  __int128 v45; 
+  double Float_Internal_DebugName; 
+  float v47; 
+  double MaxMountCover; 
+  __int128 v49; 
+  __int128 v51; 
+  float v55; 
+  float v56; 
+  double v57; 
+  float v58; 
+  float v59; 
+  double v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  __int128 v64; 
+  __int128 v65; 
+  float v66; 
+  __int128 v67; 
+  AIWrapper v71; 
   vec3_t vEyePosOut; 
   vec3_t up; 
   vec3_t entAnglesOut; 
-  char v138; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmm10, xmm3
-  }
-  _R14 = wp;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 734, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 735, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
@@ -1875,211 +1231,147 @@ void __fastcall AIScriptedInterface::HitSentient(AIScriptedInterface *this, BgWe
   if ( !enemy->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 736, ASSERT_TYPE_ASSERT, "(enemy->ent)", (const char *)&queryFormat, "enemy->ent") )
     __debugbreak();
   Sentient_GetEyePosition(enemy, &vEyePosOut);
-  *(double *)&_XMM0 = Sentient_GetHeadHeight(enemy);
+  *(double *)&v4 = Sentient_GetHeadHeight(enemy);
+  v10 = LODWORD(vEyePosOut.v[0]);
+  *(float *)&v10 = vEyePosOut.v[0] - wp->muzzleTrace.v[0];
+  v9 = v10;
+  v12 = LODWORD(vEyePosOut.v[1]);
+  *(float *)&v12 = vEyePosOut.v[1] - wp->muzzleTrace.v[1];
+  v11 = v12;
+  v13 = vEyePosOut.v[2] - wp->muzzleTrace.v[2];
+  *(float *)&v12 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(*(float *)&v9 * *(float *)&v9)) + (float)(v13 * v13));
+  _XMM2 = v12;
+  v15 = v4;
   __asm
   {
-    vmovss  xmm1, dword ptr [rbp+70h+vEyePosOut]
-    vsubss  xmm5, xmm1, dword ptr [r14+24h]
-    vmovss  xmm2, dword ptr [rbp+70h+vEyePosOut+4]
-    vsubss  xmm7, xmm2, dword ptr [r14+28h]
-    vmovss  xmm1, dword ptr [rbp+70h+vEyePosOut+8]
-    vsubss  xmm6, xmm1, dword ptr [r14+2Ch]
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm3, xmm7, xmm7
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm3, xmm4, xmm1
-    vsqrtss xmm2, xmm3, xmm3
-    vmovaps xmm9, xmm0
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm13, xmm5, xmm1
-    vmulss  xmm14, xmm7, xmm1
-    vmulss  xmm12, xmm6, xmm1
-    vxorps  xmm6, xmm6, xmm6
   }
+  v19 = v9;
+  *(float *)&v19 = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+  v18 = v19;
+  v21 = v11;
+  v20 = *(float *)&v11 * (float)(1.0 / *(float *)&_XMM0);
+  v22 = v13 * (float)(1.0 / *(float *)&_XMM0);
   if ( AIScriptedInterface::IsEntZeroG(enemy->ent) )
   {
     AIScriptedInterface::GetEntZeroGAngles(enemy->ent, &entAnglesOut);
     AngleVectors(&entAnglesOut, NULL, NULL, &up);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+70h+up+4]
-      vmovss  xmm7, dword ptr [rbp+70h+up+8]
-      vmovss  xmm5, dword ptr [rbp+70h+up]
-      vmulss  xmm0, xmm4, xmm12
-      vmulss  xmm1, xmm7, xmm14
-      vsubss  xmm11, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm12
-      vmulss  xmm0, xmm7, xmm13
-      vsubss  xmm12, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm14
-      vmulss  xmm2, xmm4, xmm13
-      vsubss  xmm13, xmm2, xmm1
-    }
-    v53 = 1;
+    v23 = LODWORD(up.v[1]);
+    v24 = up.v[2];
+    v25 = up.v[0];
+    v26 = LODWORD(up.v[2]);
+    *(float *)&v26 = (float)(up.v[2] * v20) - (float)(up.v[1] * v22);
+    v27 = v26;
+    v28 = LODWORD(up.v[0]);
+    *(float *)&v28 = (float)(up.v[0] * v22) - (float)(up.v[2] * *(float *)&v18);
+    v29 = v28;
+    v30 = (float)(up.v[1] * *(float *)&v18) - (float)(up.v[0] * v20);
+    v31 = 1;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm12, xmm13, cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm13, xmm13, xmm13
-      vmovss  dword ptr [rbp+70h+up], xmm6
-      vmovss  dword ptr [rbp+70h+up+4], xmm6
-      vmovss  dword ptr [rbp+70h+up+8], xmm8
-      vmovaps xmm11, xmm14
-    }
-    v53 = 0;
-    __asm
-    {
-      vxorps  xmm5, xmm5, xmm5
-      vxorps  xmm4, xmm4, xmm4
-      vmovaps xmm7, xmm8
-    }
+    v29 = v18 ^ _xmm;
+    v30 = 0.0;
+    up.v[0] = 0.0;
+    up.v[1] = 0.0;
+    up.v[2] = FLOAT_1_0;
+    *(float *)&v21 = *(float *)&v11 * (float)(1.0 / *(float *)&_XMM0);
+    v27 = v21;
+    v31 = 0;
+    v25 = 0.0;
+    v23 = 0i64;
+    v24 = FLOAT_1_0;
   }
-  __asm { vmovss  xmm14, cs:__real@80000000 }
-  _RAX = enemy->ent;
+  ent = enemy->ent;
+  v33 = v27;
+  client = enemy->ent->client;
+  *(float *)&v33 = fsqrt((float)((float)(*(float *)&v27 * *(float *)&v27) + (float)(*(float *)&v29 * *(float *)&v29)) + (float)(v30 * v30));
+  _XMM3 = v33;
   __asm
   {
-    vmulss  xmm1, xmm11, xmm11
-    vmulss  xmm0, xmm12, xmm12
-    vaddss  xmm2, xmm1, xmm0
-  }
-  _RDI = enemy->ent->client;
-  __asm
-  {
-    vmulss  xmm1, xmm13, xmm13
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm14
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm11, xmm11, xmm1
-    vmulss  xmm12, xmm12, xmm1
-    vmulss  xmm13, xmm13, xmm1
   }
-  if ( _RDI )
+  v38 = *(float *)&v27 * (float)(1.0 / *(float *)&_XMM0);
+  v40 = v29;
+  *(float *)&v40 = *(float *)&v29 * (float)(1.0 / *(float *)&_XMM0);
+  v39 = v40;
+  v41 = v30 * (float)(1.0 / *(float *)&_XMM0);
+  if ( client )
   {
-    if ( v53 )
+    if ( v31 )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm9
-        vaddss  xmm1, xmm0, dword ptr [rbp+70h+vEyePosOut+4]
-        vsubss  xmm2, xmm1, dword ptr [rax+134h]
-        vmulss  xmm0, xmm5, xmm9
-        vaddss  xmm1, xmm0, dword ptr [rbp+70h+vEyePosOut]
-        vmulss  xmm4, xmm2, xmm4
-        vsubss  xmm2, xmm1, dword ptr [rax+130h]
-        vmulss  xmm3, xmm2, xmm5
-        vmulss  xmm0, xmm7, xmm9
-        vaddss  xmm1, xmm0, dword ptr [rbp+70h+vEyePosOut+8]
-        vsubss  xmm2, xmm1, dword ptr [rax+138h]
-        vaddss  xmm5, xmm4, xmm3
-        vmulss  xmm3, xmm2, xmm7
-        vaddss  xmm7, xmm5, xmm3
-      }
+      v42 = v23;
+      *(float *)&v42 = (float)((float)((float)((float)((float)(*(float *)&v23 * *(float *)&v15) + vEyePosOut.v[1]) - ent->r.currentOrigin.v[1]) * *(float *)&v23) + (float)((float)((float)((float)(v25 * *(float *)&v15) + vEyePosOut.v[0]) - ent->r.currentOrigin.v[0]) * v25)) + (float)((float)((float)((float)(v24 * *(float *)&v15) + vEyePosOut.v[2]) - ent->r.currentOrigin.v[2]) * v24);
+      v43 = v42;
     }
     else
     {
-      __asm
+      mountFraction = client->ps.mountState.mountFraction;
+      v45 = v15;
+      *(float *)&v45 = (float)(*(float *)&v15 + vEyePosOut.v[2]) - ent->r.currentOrigin.v[2];
+      v43 = v45;
+      if ( mountFraction > 0.0 && client->ps.mountState.surface.type == MOUNT_TYPE_TOP )
       {
-        vmovss  xmm10, dword ptr [rdi+4C0h]
-        vcomiss xmm10, xmm6
-        vaddss  xmm1, xmm9, dword ptr [rbp+70h+vEyePosOut+8]
-        vsubss  xmm7, xmm1, dword ptr [rax+138h]
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_tuning_ai_top_victim_eye_height, "mount_tuning_ai_top_victim_eye_height");
+        v47 = *(float *)&Float_Internal_DebugName + *(float *)&v15;
+        MaxMountCover = AICommonInterface::GetMaxMountCover(this, &client->ps);
+        ent = enemy->ent;
+        v49 = LODWORD(FLOAT_1_0);
+        *(float *)&v49 = (float)((float)(1.0 - (float)(*(float *)&MaxMountCover * mountFraction)) * *(float *)&v43) + (float)((float)(*(float *)&MaxMountCover * mountFraction) * v47);
+        v43 = v49;
       }
     }
+    v51 = LODWORD(ent->r.box.halfSize.v[0]);
+    *(float *)&v51 = ent->r.box.halfSize.v[0] * 0.75;
+    _XMM1 = v51;
+    _XMM2 = v43 ^ _xmm;
     __asm
     {
-      vmovss  xmm0, dword ptr [rax+10Ch]
-      vmulss  xmm1, xmm0, cs:__real@3f400000
-      vxorps  xmm2, xmm7, cs:__xmm@80000000800000008000000080000000
       vminss  xmm10, xmm1, cs:__real@41000000
       vmaxss  xmm7, xmm2, cs:__real@c2300000
     }
   }
   else
   {
-    __asm
-    {
-      vcomiss xmm10, xmm6
-      vcomiss xmm10, xmm8
-      vsubss  xmm6, xmm8, xmm10
-      vmulss  xmm10, xmm6, dword ptr [rdx+10Ch]
-    }
-    AIWrapper::AIWrapper(&v134, enemy->ent);
-    if ( v134.m_pAI )
-    {
-      __asm { vmovss  xmm0, cs:__real@c2300000 }
-    }
+    if ( (accuracy < 0.0 || accuracy > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 801, ASSERT_TYPE_ASSERT, "( ( accuracy >= 0 && accuracy <= 1.0f ) )", "( accuracy ) = %g", accuracy) )
+      __debugbreak();
+    v55 = 1.0 - accuracy;
+    *(float *)&_XMM10 = (float)(1.0 - accuracy) * enemy->ent->r.box.halfSize.v[0];
+    AIWrapper::AIWrapper(&v71, enemy->ent);
+    if ( v71.m_pAI )
+      v56 = FLOAT_N44_0;
     else
-    {
-      _RAX = enemy->ent;
-      __asm { vmovss  xmm0, dword ptr [rax+114h] }
-    }
-    __asm
-    {
-      vmulss  xmm7, xmm0, xmm6
-      vmulss  xmm9, xmm9, xmm6
-    }
+      v56 = enemy->ent->r.box.halfSize.v[2];
+    *(float *)&_XMM7 = v56 * v55;
+    *(float *)&v15 = *(float *)&v15 * v55;
   }
-  G_crandom();
-  __asm { vmulss  xmm6, xmm10, xmm0 }
-  *(double *)&_XMM0 = G_random();
+  v57 = G_crandom();
+  v59 = *(float *)&_XMM10 * *(float *)&v57;
+  v58 = *(float *)&_XMM10 * *(float *)&v57;
+  v60 = G_random();
+  v61 = (float)(*(float *)&v60 * *(float *)&_XMM7) + *(float *)&v15;
+  v62 = (float)((float)((float)(v38 * v59) + vEyePosOut.v[0]) + (float)(v61 * up.v[0])) - wp->muzzleTrace.v[0];
+  v63 = v61 * up.v[1];
+  wp->forward.v[0] = v62;
+  v64 = v39;
+  *(float *)&v64 = (float)((float)((float)(*(float *)&v39 * v58) + vEyePosOut.v[1]) + v63) - wp->muzzleTrace.v[1];
+  v65 = v64;
+  *(float *)&v64 = (float)((float)(v41 * v58) + vEyePosOut.v[2]) + (float)(v61 * up.v[2]);
+  wp->forward.v[1] = *(float *)&v65;
+  v66 = *(float *)&v64 - wp->muzzleTrace.v[2];
+  v67 = v65;
+  *(float *)&v67 = fsqrt((float)((float)(*(float *)&v65 * *(float *)&v65) + (float)(v62 * v62)) + (float)(v66 * v66));
+  _XMM1 = v67;
   __asm
   {
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm4, xmm1, xmm9
-    vmulss  xmm2, xmm4, dword ptr [rbp+70h+up]
-    vmulss  xmm0, xmm11, xmm6
-    vaddss  xmm3, xmm0, dword ptr [rbp+70h+vEyePosOut]
-    vaddss  xmm0, xmm3, xmm2
-    vsubss  xmm7, xmm0, dword ptr [r14+24h]
-    vmulss  xmm2, xmm4, dword ptr [rbp+70h+up+4]
-    vmovss  dword ptr [r14], xmm7
-    vmulss  xmm0, xmm12, xmm6
-    vaddss  xmm3, xmm0, dword ptr [rbp+70h+vEyePosOut+4]
-    vaddss  xmm0, xmm3, xmm2
-    vsubss  xmm5, xmm0, dword ptr [r14+28h]
-    vmulss  xmm2, xmm4, dword ptr [rbp+70h+up+8]
-    vmulss  xmm0, xmm13, xmm6
-    vaddss  xmm3, xmm0, dword ptr [rbp+70h+vEyePosOut+8]
-    vaddss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [r14+4], xmm5
-    vsubss  xmm4, xmm0, dword ptr [r14+2Ch]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm3, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm1
-    vaddss  xmm2, xmm2, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, xmm14
     vblendvps xmm0, xmm1, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [r14], xmm0
-    vmulss  xmm0, xmm2, xmm4
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [r14+8], xmm0
-    vmovss  dword ptr [r14+4], xmm1
   }
-  _R11 = &v138;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
+  wp->forward.v[0] = v62 * (float)(1.0 / *(float *)&_XMM0);
+  wp->forward.v[2] = (float)(1.0 / *(float *)&_XMM0) * v66;
+  wp->forward.v[1] = *(float *)&v65 * (float)(1.0 / *(float *)&_XMM0);
 }
 
 /*
@@ -2089,132 +1381,78 @@ AIScriptedInterface::HitTarget
 */
 void AIScriptedInterface::HitTarget(const BgWeaponParms *wp, const vec3_t *target, vec3_t *outForward)
 {
+  float v3; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
+  __int128 v13; 
+  __int128 v14; 
+  float v15; 
+  __int128 v16; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
   vec3_t v0; 
   vec3_t cross; 
-  char v100; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v3 = target->v[0] - wp->muzzleTrace.v[0];
+  v5 = LODWORD(target->v[1]);
+  v4 = target->v[1] - wp->muzzleTrace.v[1];
+  v6 = target->v[2] - wp->muzzleTrace.v[2];
+  *(float *)&v5 = fsqrt((float)((float)(v4 * v4) + (float)(v3 * v3)) + (float)(v6 * v6));
+  _XMM1 = v5;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0F8h+var_88], xmm12
-    vmovaps [rsp+0F8h+var_98], xmm13
-    vmovaps [rsp+0F8h+var_A8], xmm14
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm6, xmm0, dword ptr [rcx+24h]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm5, xmm1, dword ptr [rcx+28h]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+2Ch]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rsp+0F8h+v0], xmm0
   }
-  _RDI = target;
-  _RBP = outForward;
-  __asm { vmulss  xmm0, xmm4, xmm2 }
-  _RSI = wp;
-  __asm
-  {
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+0F8h+v0+8], xmm0
-    vmovss  dword ptr [rsp+0F8h+v0+4], xmm1
-  }
+  v0.v[0] = v3 * (float)(1.0 / *(float *)&_XMM0);
+  v0.v[2] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  v0.v[1] = v4 * (float)(1.0 / *(float *)&_XMM0);
   Vec3Cross(&v0, &wp->up, &cross);
+  v13 = LODWORD(cross.v[0]);
+  v14 = LODWORD(cross.v[1]);
+  v15 = cross.v[2];
+  v16 = v13;
+  *(float *)&v16 = fsqrt((float)((float)(*(float *)&v13 * *(float *)&v13) + (float)(*(float *)&v14 * *(float *)&v14)) + (float)(v15 * v15));
+  _XMM3 = v16;
   __asm
   {
-    vmovss  xmm11, dword ptr [rsp+0F8h+cross]
-    vmovss  xmm13, dword ptr [rsp+0F8h+cross+4]
-    vmovss  xmm14, dword ptr [rsp+0F8h+cross+8]
-    vmulss  xmm1, xmm11, xmm11
-    vmulss  xmm0, xmm13, xmm13
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, xmm14
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm12, xmm7, xmm0
   }
+  v20 = 1.0 / *(float *)&_XMM0;
   *(double *)&_XMM0 = G_crandom();
+  *(float *)&v16 = *(float *)&_XMM0 * 8.0;
+  v21 = *(float *)&_XMM0 * 8.0;
+  v22 = target->v[0];
+  v23 = target->v[1];
+  v24 = target->v[2];
+  *(double *)&_XMM0 = G_crandom();
+  *(float *)&v13 = (float)((float)((float)((float)(*(float *)&v13 * v20) * *(float *)&v16) + v22) + (float)((float)(*(float *)&_XMM0 * 8.0) * wp->up.v[0])) - wp->muzzleTrace.v[0];
+  v25 = v14;
+  *(float *)&v25 = (float)((float)((float)(*(float *)&v14 * v20) * v21) + v23) + (float)((float)(*(float *)&_XMM0 * 8.0) * wp->up.v[1]);
+  v26 = (float)(*(float *)&_XMM0 * 8.0) * wp->up.v[2];
+  outForward->v[0] = *(float *)&v13;
+  v27 = *(float *)&v25 - wp->muzzleTrace.v[1];
+  outForward->v[1] = v27;
+  v28 = (float)((float)((float)((float)(v15 * v20) * v21) + v24) + v26) - wp->muzzleTrace.v[2];
+  *(float *)&v25 = fsqrt((float)((float)(v27 * v27) + (float)(*(float *)&v13 * *(float *)&v13)) + (float)(v28 * v28));
+  _XMM1 = v25;
   __asm
   {
-    vmulss  xmm10, xmm0, cs:__real@41000000
-    vmovss  xmm7, dword ptr [rdi]
-    vmovss  xmm8, dword ptr [rdi+4]
-    vmovss  xmm9, dword ptr [rdi+8]
-  }
-  *(double *)&_XMM0 = G_crandom();
-  __asm
-  {
-    vmulss  xmm6, xmm0, cs:__real@41000000
-    vmovss  xmm4, dword ptr [rsi+1Ch]
-    vmovss  xmm5, dword ptr [rsi+20h]
-    vmulss  xmm0, xmm11, xmm12
-    vmulss  xmm1, xmm0, xmm10
-    vmulss  xmm0, xmm6, dword ptr [rsi+18h]
-    vaddss  xmm2, xmm1, xmm7
-    vaddss  xmm1, xmm2, xmm0
-    vsubss  xmm11, xmm1, dword ptr [rsi+24h]
-    vmulss  xmm2, xmm6, xmm4
-    vmulss  xmm0, xmm13, xmm12
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm3, xmm1, xmm8
-    vaddss  xmm0, xmm3, xmm2
-    vmulss  xmm2, xmm6, xmm5
-    vmovss  dword ptr [rbp+0], xmm11
-    vsubss  xmm7, xmm0, dword ptr [rsi+28h]
-    vmulss  xmm0, xmm14, xmm12
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm3, xmm1, xmm9
-    vaddss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm11, xmm11
-    vmovss  dword ptr [rbp+4], xmm7
-    vsubss  xmm5, xmm0, dword ptr [rsi+2Ch]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm4, xmm7, xmm7
-    vaddss  xmm2, xmm4, xmm1
-    vaddss  xmm2, xmm2, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm0, xmm1, xmm2, xmm0
-    vdivss  xmm2, xmm2, xmm0
-    vmulss  xmm0, xmm11, xmm2
-    vmovss  dword ptr [rbp+0], xmm0
-    vmulss  xmm1, xmm7, xmm2
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+4], xmm1
-    vmovss  dword ptr [rbp+8], xmm0
   }
-  _R11 = &v100;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+0F8h+var_A8]
-  }
+  outForward->v[0] = *(float *)&v13 * (float)(1.0 / *(float *)&_XMM0);
+  outForward->v[1] = v27 * (float)(1.0 / *(float *)&_XMM0);
+  outForward->v[2] = v28 * (float)(1.0 / *(float *)&_XMM0);
 }
 
 /*
@@ -2222,26 +1460,15 @@ void AIScriptedInterface::HitTarget(const BgWeaponParms *wp, const vec3_t *targe
 AIScriptedInterface::HitTargetSentient
 ==============
 */
-
-void __fastcall AIScriptedInterface::HitTargetSentient(AIScriptedInterface *this, sentient_s *pTargetSentient, BgWeaponParms *wp, double accuracy)
+void AIScriptedInterface::HitTargetSentient(AIScriptedInterface *this, sentient_s *pTargetSentient, BgWeaponParms *wp, float accuracy)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   this->m_pAI->shoot.missCount = 0;
   ++this->m_pAI->shoot.hitCount;
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 866, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
   if ( !pTargetSentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 867, ASSERT_TYPE_ASSERT, "(pTargetSentient)", (const char *)&queryFormat, "pTargetSentient") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; accuracy
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  AIScriptedInterface::HitSentient(this, wp, pTargetSentient, *(float *)&_XMM3);
+  AIScriptedInterface::HitSentient(this, wp, pTargetSentient, accuracy);
 }
 
 /*
@@ -2288,303 +1515,220 @@ bool AIScriptedInterface::IsEntZeroG(const gentity_s *ent)
 AIScriptedInterface::MissSentient
 ==============
 */
-
-__int64 __fastcall AIScriptedInterface::MissSentient(BgWeaponParms *wp, sentient_s *enemy, double accuracy)
+_BOOL8 AIScriptedInterface::MissSentient(BgWeaponParms *wp, sentient_s *enemy, float accuracy)
 {
+  __int128 v6; 
+  __int128 v7; 
+  float v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v15; 
+  __int128 v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
+  __int128 v24; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  BOOL v32; 
+  double v38; 
   gclient_s *client; 
+  float v40; 
+  __int128 v41; 
+  double v42; 
   const WeaponDef *weapDef; 
-  __int64 result; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
+  const dvar_t *v47; 
+  float value; 
+  const dvar_t *v49; 
+  float v52; 
+  float v53; 
+  float v54; 
+  __int128 v55; 
+  __int128 v56; 
+  float v57; 
+  __int128 v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v66; 
   vec3_t vEyePosOut; 
   vec3_t up; 
   vec3_t entAnglesOut; 
-  char v167; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _RDI = wp;
-  __asm { vmovaps xmm9, xmm2 }
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 899, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
     __debugbreak();
   if ( !enemy->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 900, ASSERT_TYPE_ASSERT, "(enemy->ent)", (const char *)&queryFormat, "enemy->ent") )
     __debugbreak();
   Sentient_GetEyePosition(enemy, &vEyePosOut);
+  v7 = LODWORD(vEyePosOut.v[0]);
+  *(float *)&v7 = vEyePosOut.v[0] - wp->muzzleTrace.v[0];
+  v6 = v7;
+  v8 = vEyePosOut.v[1] - wp->muzzleTrace.v[1];
+  v10 = LODWORD(vEyePosOut.v[2]);
+  *(float *)&v10 = vEyePosOut.v[2] - wp->muzzleTrace.v[2];
+  v9 = v10;
+  v11 = v6;
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v6 * *(float *)&v6) + (float)(v8 * v8)) + (float)(*(float *)&v9 * *(float *)&v9));
+  _XMM10 = v11;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+150h+vEyePosOut]
-    vsubss  xmm4, xmm0, dword ptr [rdi+24h]
-    vmovss  xmm1, dword ptr [rsp+150h+vEyePosOut+4]
-    vsubss  xmm5, xmm1, dword ptr [rdi+28h]
-    vmovss  xmm0, dword ptr [rsp+150h+vEyePosOut+8]
-    vsubss  xmm6, xmm0, dword ptr [rdi+2Ch]
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm11, cs:__real@80000000
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, xmm11
     vblendvps xmm0, xmm10, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm12, xmm4, xmm1
-    vmulss  xmm13, xmm5, xmm1
-    vmulss  xmm14, xmm6, xmm1
-    vxorps  xmm8, xmm8, xmm8
   }
+  v16 = v6;
+  *(float *)&v16 = *(float *)&v6 * (float)(1.0 / *(float *)&_XMM0);
+  v15 = v16;
+  v17 = v8 * (float)(1.0 / *(float *)&_XMM0);
+  v19 = v9;
+  *(float *)&v19 = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+  v18 = *(float *)&v19;
+  _XMM8 = 0i64;
   if ( AIScriptedInterface::IsEntZeroG(enemy->ent) )
   {
     AIScriptedInterface::GetEntZeroGAngles(enemy->ent, &entAnglesOut);
     AngleVectors(&entAnglesOut, NULL, NULL, &up);
-    __asm
-    {
-      vmulss  xmm1, xmm13, dword ptr [rsp+150h+up+8]
-      vmulss  xmm0, xmm14, dword ptr [rsp+150h+up+4]
-      vmulss  xmm2, xmm12, dword ptr [rsp+150h+up+4]
-      vsubss  xmm5, xmm1, xmm0
-      vmulss  xmm1, xmm14, dword ptr [rsp+150h+up]
-      vmulss  xmm0, xmm12, dword ptr [rsp+150h+up+8]
-      vsubss  xmm6, xmm1, xmm0
-      vmulss  xmm1, xmm13, dword ptr [rsp+150h+up]
-      vsubss  xmm4, xmm2, xmm1
-    }
+    v21 = (float)(v17 * up.v[2]) - (float)(*(float *)&v19 * up.v[1]);
+    *(float *)&v19 = (float)(*(float *)&v19 * up.v[0]) - (float)(*(float *)&v15 * up.v[2]);
+    v22 = v19;
+    v23 = (float)(*(float *)&v15 * up.v[1]) - (float)(v17 * up.v[0]);
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm6, xmm12, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rsp+150h+up], xmm8
-      vmovss  dword ptr [rsp+150h+up+4], xmm8
-      vmovss  dword ptr [rsp+150h+up+8], xmm7
-      vmovaps xmm5, xmm13
-      vxorps  xmm4, xmm4, xmm4
-    }
+    v22 = v15 ^ _xmm;
+    up.v[0] = 0.0;
+    up.v[1] = 0.0;
+    up.v[2] = FLOAT_1_0;
+    v21 = v17;
+    v23 = 0.0;
   }
+  v24 = v22;
+  *(float *)&v24 = fsqrt((float)((float)(*(float *)&v22 * *(float *)&v22) + (float)(v21 * v21)) + (float)(v23 * v23));
+  _XMM3 = v24;
   __asm
   {
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm11
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm1
-    vmovss  xmm4, dword ptr [rdi+34h]
-    vmulss  xmm11, xmm6, xmm1
-    vmovss  xmm6, dword ptr [rdi+38h]
-    vmulss  xmm15, xmm5, xmm1
-    vmovss  xmm5, dword ptr [rdi+30h]
-    vmulss  xmm1, xmm12, xmm5
-    vmovss  [rsp+150h+var_10C], xmm0
-    vmulss  xmm0, xmm4, xmm13
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, cs:__real@3f7c1c61
-    vmovss  [rsp+150h+var_108], xmm11
   }
-  G_random();
-  __asm
+  v28 = *(float *)&v22 * (float)(1.0 / *(float *)&_XMM0);
+  v29 = wp->gunForward.v[2];
+  v30 = v21 * (float)(1.0 / *(float *)&_XMM0);
+  v66 = v23 * (float)(1.0 / *(float *)&_XMM0);
+  v31 = (float)(*(float *)&v15 * wp->gunForward.v[0]) + (float)(wp->gunForward.v[1] * v17);
+  v32 = (float)(v31 + (float)(v18 * v29)) < 0.98480803;
+  if ( (float)(v31 + (float)(v18 * v29)) >= 0.98480803 )
   {
-    vmovss  xmm1, cs:__real@3f000000
-    vcmpltss xmm2, xmm1, xmm0
-    vmovss  xmm0, cs:__real@bf800000
-    vblendvps xmm1, xmm0, xmm7, xmm2
-    vmovss  [rsp+150h+var_110], xmm1
+    G_random();
+    _XMM1 = LODWORD(FLOAT_0_5);
+    __asm { vcmpltss xmm2, xmm1, xmm0 }
+    _XMM0 = LODWORD(FLOAT_N1_0);
+    __asm { vblendvps xmm1, xmm0, xmm7, xmm2 }
   }
-  *(_QWORD *)entAnglesOut.v = 0i64;
-  if ( !_RDI->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 936, ASSERT_TYPE_ASSERT, "(wp->weapDef)", (const char *)&queryFormat, "wp->weapDef") )
-    __debugbreak();
-  if ( BG_GetWeaponType(&_RDI->weapon, _RDI->isAlternate) == WEAPTYPE_BULLET && BG_WeaponBulletFire_ShouldSpread(*(const bitarray<64> *)entAnglesOut.v, &_RDI->weapon, _RDI->isAlternate) )
+  else
   {
-    *(double *)&_XMM0 = BG_ADSSpread(&_RDI->weapon, _RDI->isAlternate, 0, 0);
-    __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; X }
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
+    _XMM0 = LODWORD(FLOAT_N1_0);
     __asm
     {
-      vmulss  xmm2, xmm0, xmm10
-      vsubss  xmm1, xmm7, xmm9
-      vmulss  xmm8, xmm2, xmm1
+      vcmpltss xmm4, xmm8, xmm3
+      vblendvps xmm1, xmm0, xmm7, xmm4
     }
   }
-  if ( !_RDI->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 948, ASSERT_TYPE_ASSERT, "(wp && wp->weapDef)", (const char *)&queryFormat, "wp && wp->weapDef") )
+  *(_QWORD *)entAnglesOut.v = 0i64;
+  if ( !wp->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 936, ASSERT_TYPE_ASSERT, "(wp->weapDef)", (const char *)&queryFormat, "wp->weapDef") )
+    __debugbreak();
+  if ( BG_GetWeaponType(&wp->weapon, wp->isAlternate) == WEAPTYPE_BULLET && BG_WeaponBulletFire_ShouldSpread(*(const bitarray<64> *)entAnglesOut.v, &wp->weapon, wp->isAlternate) )
+  {
+    v38 = BG_ADSSpread(&wp->weapon, wp->isAlternate, 0, 0);
+    *(float *)&_XMM8 = (float)(tanf_0(*(float *)&v38 * 0.017453292) * *(float *)&_XMM10) * (float)(1.0 - accuracy);
+  }
+  if ( !wp->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 948, ASSERT_TYPE_ASSERT, "(wp && wp->weapDef)", (const char *)&queryFormat, "wp && wp->weapDef") )
     __debugbreak();
   client = enemy->ent->client;
   *(double *)&_XMM0 = G_random();
   if ( client )
   {
-    __asm
-    {
-      vmovss  xmm10, cs:__real@41000000
-      vmovss  xmm11, [rsp+150h+var_110]
-      vaddss  xmm0, xmm0, xmm7
-      vmulss  xmm0, xmm0, xmm10
-      vaddss  xmm1, xmm0, xmm8
-      vmulss  xmm8, xmm1, xmm11
-    }
+    v40 = (float)((float)((float)(*(float *)&_XMM0 + 1.0) * 8.0) + *(float *)&_XMM8) * *(float *)&_XMM1;
     *(double *)&_XMM0 = Sentient_GetHeadHeight(enemy);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = G_random();
-    weapDef = _RDI->weapDef;
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42300000
-      vsubss  xmm9, xmm6, xmm1
-    }
+    v41 = _XMM0;
+    v42 = G_random();
+    weapDef = wp->weapDef;
+    v45 = v41;
+    *(float *)&v45 = *(float *)&v41 - (float)(*(float *)&v42 * 44.0);
+    v44 = v45;
     if ( weapDef->weapClass == WEAPCLASS_SNIPER )
     {
       *(double *)&_XMM0 = G_crandom();
-      __asm { vmulss  xmm9, xmm0, cs:__real@40400000 }
-      weapDef = _RDI->weapDef;
-      __asm { vmulss  xmm8, xmm11, xmm10 }
+      v46 = _XMM0;
+      *(float *)&v46 = *(float *)&_XMM0 * 3.0;
+      v44 = v46;
+      weapDef = wp->weapDef;
+      v40 = *(float *)&_XMM1 * 8.0;
     }
     if ( weapDef->weapClass == WEAPCLASS_SPREAD )
     {
-      _RBX = DCONST_DVARFLT_ai_shotgunMissMax;
+      v47 = DCONST_DVARFLT_ai_shotgunMissMax;
       if ( !DCONST_DVARFLT_ai_shotgunMissMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_shotgunMissMax") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_ai_shotgunMissMin;
+      Dvar_CheckFrontendServerThread(v47);
+      value = v47->current.value;
+      v49 = DCONST_DVARFLT_ai_shotgunMissMin;
       if ( !DCONST_DVARFLT_ai_shotgunMissMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_shotgunMissMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]; min
-        vmovaps xmm1, xmm6; max
-      }
-      *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vminss  xmm1, xmm0, xmm7
-        vmulss  xmm8, xmm8, xmm1
-      }
+      Dvar_CheckFrontendServerThread(v49);
+      _XMM0 = v49->current.unsignedInt;
+      *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, value);
+      __asm { vminss  xmm1, xmm0, xmm7 }
+      v40 = v40 * *(float *)&_XMM1;
     }
-    __asm
-    {
-      vmovss  xmm4, cs:__real@41800000
-      vmovss  xmm0, dword ptr [rsp+150h+vEyePosOut]
-      vmulss  xmm1, xmm12, xmm4
-      vsubss  xmm2, xmm0, xmm1
-      vmovss  xmm0, dword ptr [rsp+150h+vEyePosOut+4]
-      vmulss  xmm1, xmm15, xmm8
-      vaddss  xmm6, xmm2, xmm1
-      vmulss  xmm1, xmm8, [rsp+150h+var_108]
-      vmulss  xmm3, xmm13, xmm4
-      vsubss  xmm2, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rsp+150h+vEyePosOut+8]
-      vmulss  xmm3, xmm14, xmm4
-      vaddss  xmm10, xmm2, xmm1
-      vsubss  xmm2, xmm0, xmm3
-    }
+    v52 = (float)(vEyePosOut.v[0] - (float)(*(float *)&v15 * 16.0)) + (float)(v30 * v40);
+    v53 = (float)(vEyePosOut.v[1] - (float)(v17 * 16.0)) + (float)(v40 * v28);
+    v54 = vEyePosOut.v[2] - (float)(v18 * 16.0);
   }
   else
   {
-    __asm
+    *((_QWORD *)&_XMM0 + 1) = 0i64;
+    v40 = (float)((float)((float)(*(float *)&_XMM0 * 10.0) * (float)(1.0 - accuracy)) + *(float *)&_XMM8) + (float)(*(float *)&_XMM1 * 36.734997);
+    *(double *)&v55 = G_crandom();
+    v56 = (unsigned __int64)v55;
+    *(float *)&v56 = (float)(*(float *)&v55 * -22.0) * (float)(1.0 - accuracy);
+    v44 = v56;
+    if ( wp->weapDef->weapClass == WEAPCLASS_SNIPER )
     {
-      vmulss  xmm0, xmm0, cs:__real@41200000
-      vmovss  xmm10, [rsp+150h+var_110]
-      vsubss  xmm6, xmm7, xmm9
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm0, xmm10, cs:__real@4212f0a3
-      vaddss  xmm2, xmm1, xmm8
-      vaddss  xmm8, xmm2, xmm0
+      v40 = *(float *)&_XMM1 * 8.0;
+      *(double *)&v55 = Sentient_GetHeadHeight(enemy);
+      v44 = v55;
     }
-    *(double *)&_XMM0 = G_crandom();
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@c1b00000
-      vmulss  xmm9, xmm1, xmm6
-    }
-    if ( _RDI->weapDef->weapClass == WEAPCLASS_SNIPER )
-    {
-      __asm { vmulss  xmm8, xmm10, cs:__real@41000000 }
-      *(double *)&_XMM0 = Sentient_GetHeadHeight(enemy);
-      __asm { vmovaps xmm9, xmm0 }
-    }
-    __asm
-    {
-      vmovss  xmm5, cs:__real@41800000
-      vmovss  xmm1, dword ptr [rsp+150h+vEyePosOut]
-      vmovss  xmm0, dword ptr [rsp+150h+vEyePosOut+8]
-      vmulss  xmm2, xmm12, xmm5
-      vsubss  xmm3, xmm1, xmm2
-      vmovss  xmm1, dword ptr [rsp+150h+vEyePosOut+4]
-      vmulss  xmm2, xmm15, xmm8
-      vaddss  xmm6, xmm3, xmm2
-      vmulss  xmm2, xmm11, xmm8
-      vmulss  xmm4, xmm13, xmm5
-      vsubss  xmm3, xmm1, xmm4
-      vmulss  xmm1, xmm14, xmm5
-      vaddss  xmm10, xmm3, xmm2
-      vsubss  xmm2, xmm0, xmm1
-    }
+    v52 = (float)(vEyePosOut.v[0] - (float)(*(float *)&v15 * 16.0)) + (float)(v30 * v40);
+    v53 = (float)(vEyePosOut.v[1] - (float)(v17 * 16.0)) + (float)(v28 * v40);
+    v54 = vEyePosOut.v[2] - (float)(v18 * 16.0);
   }
+  v57 = (float)((float)(*(float *)&v44 * up.v[0]) + v52) - wp->muzzleTrace.v[0];
+  v58 = v44;
+  *(float *)&v58 = (float)(*(float *)&v44 * up.v[1]) + v53;
+  v59 = *(float *)&v44 * up.v[2];
+  wp->forward.v[0] = v57;
+  v60 = *(float *)&v58 - wp->muzzleTrace.v[1];
+  wp->forward.v[1] = v60;
+  v61 = (float)(v59 + (float)(v54 + (float)(v40 * v66))) - wp->muzzleTrace.v[2];
+  *(float *)&v58 = fsqrt((float)((float)(v60 * v60) + (float)(v57 * v57)) + (float)(v61 * v61));
+  _XMM3 = v58;
   __asm
   {
-    vmulss  xmm1, xmm8, [rsp+150h+var_10C]
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rsp+150h+up]
-    vaddss  xmm2, xmm1, xmm6
-    vsubss  xmm6, xmm2, dword ptr [rdi+24h]
-    vmulss  xmm1, xmm9, dword ptr [rsp+150h+up+4]
-    vaddss  xmm2, xmm1, xmm10
-    vmulss  xmm1, xmm9, dword ptr [rsp+150h+up+8]
-    vmovss  dword ptr [rdi], xmm6
-    vsubss  xmm5, xmm2, dword ptr [rdi+28h]
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm0, xmm6, xmm6
-    vmovss  dword ptr [rdi+4], xmm5
-    vsubss  xmm4, xmm2, dword ptr [rdi+2Ch]
-    vmulss  xmm3, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm2, xmm6
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm2, xmm5
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  dword ptr [rdi+4], xmm1
   }
-  result = 0i64;
-  _R11 = &v167;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  wp->forward.v[0] = (float)(1.0 / *(float *)&_XMM0) * v57;
+  wp->forward.v[2] = v61 * (float)(1.0 / *(float *)&_XMM0);
+  wp->forward.v[1] = (float)(1.0 / *(float *)&_XMM0) * v60;
+  return v32;
 }
 
 /*
@@ -2594,150 +1738,91 @@ AIScriptedInterface::MissTarget
 */
 void AIScriptedInterface::MissTarget(const BgWeaponParms *wp, const vec3_t *target, vec3_t *outForward)
 {
+  float v6; 
+  __int128 v7; 
+  float v8; 
+  float v9; 
+  float v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float v22; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  float v30; 
+  float v31; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  float v35; 
   vec3_t v0; 
   vec3_t cross; 
-  char v117; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  _XMM2 = LODWORD(outerRadius);
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps [rsp+108h+var_98], xmm13
-    vmovaps [rsp+108h+var_A8], xmm14
-    vmovaps [rsp+108h+var_B8], xmm15
-    vmovss  xmm2, cs:outerRadius
     vcmpeqss xmm1, xmm2, cs:__real@45d9c800
-    vmovss  xmm0, cs:__real@4212f82a
-    vmovss  xmm8, cs:__real@3f800000
     vblendvps xmm0, xmm2, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm5, xmm1, dword ptr [rcx+28h]
-    vmovss  cs:outerRadius, xmm0
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm6, xmm0, dword ptr [rcx+24h]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+2Ch]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
+  }
+  v7 = LODWORD(target->v[1]);
+  v6 = target->v[1] - wp->muzzleTrace.v[1];
+  outerRadius = *(float *)&_XMM0;
+  v8 = target->v[0] - wp->muzzleTrace.v[0];
+  v9 = target->v[2] - wp->muzzleTrace.v[2];
+  *(float *)&v7 = fsqrt((float)((float)(v6 * v6) + (float)(v8 * v8)) + (float)(v9 * v9));
+  _XMM1 = v7;
+  __asm
+  {
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm1
-    vmovss  dword ptr [rsp+108h+v0+4], xmm0
   }
-  _RDI = target;
-  _RBP = outForward;
-  __asm { vmulss  xmm0, xmm4, xmm1 }
-  _RSI = wp;
-  __asm
-  {
-    vmulss  xmm15, xmm6, xmm1
-    vmovss  dword ptr [rsp+108h+v0+8], xmm0
-    vmovss  dword ptr [rsp+108h+v0], xmm15
-  }
+  v0.v[1] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  v16 = v8 * (float)(1.0 / *(float *)&_XMM0);
+  v0.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v0.v[0] = v16;
   Vec3Cross(&v0, &wp->up, &cross);
+  v17 = LODWORD(cross.v[0]);
+  v18 = v17;
+  *(float *)&v18 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(cross.v[1] * cross.v[1])) + (float)(cross.v[2] * cross.v[2]));
+  _XMM3 = v18;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+108h+cross+4]
-    vmovss  xmm12, dword ptr [rsp+108h+cross]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm12, xmm12
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rsp+108h+cross+8]
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm14, xmm8, xmm0
   }
+  v22 = 1.0 / *(float *)&_XMM0;
   G_random();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm6, dword ptr [rdi]
-    vmovss  xmm7, dword ptr [rdi+4]
-    vmovss  xmm10, dword ptr [rdi+8]
-    vcmpltss xmm2, xmm1, xmm0
-    vmovss  xmm0, cs:__real@bf800000
-    vblendvps xmm1, xmm0, xmm8, xmm2
-    vmulss  xmm13, xmm1, cs:outerRadius
-  }
+  _XMM1 = LODWORD(FLOAT_0_5);
+  v24 = target->v[0];
+  v25 = LODWORD(target->v[1]);
+  v26 = target->v[2];
+  __asm { vcmpltss xmm2, xmm1, xmm0 }
+  _XMM0 = LODWORD(FLOAT_N1_0);
+  __asm { vblendvps xmm1, xmm0, xmm8, xmm2 }
+  *(float *)&v18 = *(float *)&_XMM1 * outerRadius;
+  v30 = *(float *)&_XMM1 * outerRadius;
   *(double *)&_XMM0 = G_crandom();
+  v31 = *(float *)&_XMM0 * 12.0;
+  v32 = wp->up.v[2];
+  *(float *)&v17 = (float)((float)((float)(v24 - (float)(v16 * 16.0)) + (float)((float)(*(float *)&v17 * v22) * *(float *)&v18)) + (float)((float)(*(float *)&_XMM0 * 12.0) * wp->up.v[0])) - wp->muzzleTrace.v[0];
+  v33 = v25;
+  *(float *)&v33 = (float)((float)(*(float *)&v25 - (float)(16.0 * v0.v[1])) + (float)((float)(v22 * cross.v[1]) * v30)) + (float)((float)(*(float *)&_XMM0 * 12.0) * wp->up.v[1]);
+  *(float *)&_XMM0 = 16.0 * v0.v[2];
+  outForward->v[0] = *(float *)&v17;
+  v34 = *(float *)&v33 - wp->muzzleTrace.v[1];
+  *(float *)&_XMM1 = v22 * cross.v[2];
+  outForward->v[1] = v34;
+  v35 = (float)((float)((float)(v26 - *(float *)&_XMM0) + (float)(*(float *)&_XMM1 * v30)) + (float)(v31 * v32)) - wp->muzzleTrace.v[2];
+  *(float *)&v33 = fsqrt((float)((float)(v34 * v34) + (float)(*(float *)&v17 * *(float *)&v17)) + (float)(v35 * v35));
+  _XMM4 = v33;
   __asm
   {
-    vmulss  xmm11, xmm0, cs:__real@41400000
-    vmovss  xmm8, cs:__real@41800000
-    vmovss  xmm5, dword ptr [rsi+1Ch]
-    vmovss  xmm9, dword ptr [rsi+20h]
-    vmulss  xmm1, xmm12, xmm14
-    vmulss  xmm2, xmm1, xmm13
-    vmulss  xmm0, xmm15, xmm8
-    vsubss  xmm3, xmm6, xmm0
-    vmulss  xmm0, xmm11, dword ptr [rsi+18h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm1, xmm4, xmm0
-    vsubss  xmm12, xmm1, dword ptr [rsi+24h]
-    vmulss  xmm1, xmm14, dword ptr [rsp+108h+cross+4]
-    vmulss  xmm0, xmm8, dword ptr [rsp+108h+v0+4]
-    vsubss  xmm3, xmm7, xmm0
-    vmulss  xmm2, xmm1, xmm13
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm11, xmm5
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm0, xmm8, dword ptr [rsp+108h+v0+8]
-    vmovss  dword ptr [rbp+0], xmm12
-    vsubss  xmm6, xmm1, dword ptr [rsi+28h]
-    vmulss  xmm1, xmm14, dword ptr [rsp+108h+cross+8]
-    vmovss  dword ptr [rbp+4], xmm6
-    vsubss  xmm3, xmm10, xmm0
-    vmulss  xmm2, xmm1, xmm13
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm11, xmm9
-    vaddss  xmm1, xmm3, xmm0
-    vsubss  xmm5, xmm1, dword ptr [rsi+2Ch]
-    vmulss  xmm0, xmm12, xmm12
-    vmulss  xmm2, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm12, xmm2
-    vmovss  dword ptr [rbp+0], xmm0
-    vmulss  xmm1, xmm6, xmm2
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+4], xmm1
-    vmovss  dword ptr [rbp+8], xmm0
   }
-  _R11 = &v117;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_A8]
-    vmovaps xmm15, [rsp+108h+var_B8]
-  }
+  outForward->v[0] = *(float *)&v17 * (float)(1.0 / *(float *)&_XMM0);
+  outForward->v[1] = v34 * (float)(1.0 / *(float *)&_XMM0);
+  outForward->v[2] = v35 * (float)(1.0 / *(float *)&_XMM0);
 }
 
 /*
@@ -2745,25 +1830,14 @@ void AIScriptedInterface::MissTarget(const BgWeaponParms *wp, const vec3_t *targ
 AIScriptedInterface::MissTargetSentient
 ==============
 */
-
-int __fastcall AIScriptedInterface::MissTargetSentient(AIScriptedInterface *this, sentient_s *pTargetSentient, BgWeaponParms *wp, double accuracy)
+int AIScriptedInterface::MissTargetSentient(AIScriptedInterface *this, sentient_s *pTargetSentient, BgWeaponParms *wp, float accuracy)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   ++this->m_pAI->shoot.missCount;
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 1042, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
   if ( !pTargetSentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 1043, ASSERT_TYPE_ASSERT, "(pTargetSentient)", (const char *)&queryFormat, "pTargetSentient") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm2, xmm6; accuracy
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return AIScriptedInterface::MissSentient(wp, pTargetSentient, *(float *)&_XMM2);
+  return AIScriptedInterface::MissSentient(wp, pTargetSentient, accuracy);
 }
 
 /*
@@ -2773,27 +1847,24 @@ AIScriptedInterface::ShootSentient
 */
 _BOOL8 AIScriptedInterface::ShootSentient(AIScriptedInterface *this, sentient_s *pTargetSentient, BgWeaponParms *wp, float accuracyMod, bool bDontChangeTargetPosOnHit, bool *bCleanMiss)
 {
-  char v12; 
-  char v13; 
-  _BOOL8 result; 
-  int v17; 
+  double FinalAccuracy; 
+  float v10; 
+  double v11; 
+  int v13; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  *(double *)&_XMM0 = AIScriptedInterface::GetFinalAccuracy(this, pTargetSentient, wp, accuracyMod);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = G_random();
-  __asm { vcomiss xmm6, xmm0 }
-  if ( v12 | v13 )
+  FinalAccuracy = AIScriptedInterface::GetFinalAccuracy(this, pTargetSentient, wp, accuracyMod);
+  v10 = *(float *)&FinalAccuracy;
+  v11 = G_random();
+  if ( v10 <= *(float *)&v11 )
   {
     ++this->m_pAI->shoot.missCount;
     if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 1042, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
       __debugbreak();
     if ( !pTargetSentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 1043, ASSERT_TYPE_ASSERT, "(pTargetSentient)", (const char *)&queryFormat, "pTargetSentient") )
       __debugbreak();
-    __asm { vmovaps xmm2, xmm6; accuracy }
-    v17 = AIScriptedInterface::MissSentient(wp, pTargetSentient, *(float *)&_XMM2);
-    *bCleanMiss = v17 != 0;
-    result = v17 != 0;
+    v13 = AIScriptedInterface::MissSentient(wp, pTargetSentient, v10);
+    *bCleanMiss = v13 != 0;
+    return v13 != 0;
   }
   else
   {
@@ -2805,12 +1876,9 @@ _BOOL8 AIScriptedInterface::ShootSentient(AIScriptedInterface *this, sentient_s 
         __debugbreak();
       if ( !pTargetSentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_aim.cpp", 867, ASSERT_TYPE_ASSERT, "(pTargetSentient)", (const char *)&queryFormat, "pTargetSentient") )
         __debugbreak();
-      __asm { vmovaps xmm3, xmm6; accuracy }
-      AIScriptedInterface::HitSentient(this, wp, pTargetSentient, *(float *)&_XMM3);
+      AIScriptedInterface::HitSentient(this, wp, pTargetSentient, v10);
     }
-    result = 1i64;
+    return 1i64;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
 }
 

@@ -434,9 +434,10 @@ void OnStatsDownloadComplete(OnlineStorageTask *storageTask)
   __int64 v3; 
   unsigned __int64 controllerIndex; 
   const dvar_t *v5; 
-  unsigned int v8; 
+  const dvar_t *v6; 
+  unsigned int v7; 
   unsigned int m_size; 
-  __int64 v10; 
+  __int64 v9; 
   const bdArray<bdObjectStoreErrorWrappedObject> *ObjectList; 
   bdObjectStoreObject *Object; 
   unsigned __int8 *Content; 
@@ -467,33 +468,32 @@ void OnStatsDownloadComplete(OnlineStorageTask *storageTask)
       LiveStorage_FinalizeStatsRead(controllerIndex, STATS_ONLINE);
       CL_PlayerData_SetMountedDLCBits(controllerIndex);
       Live_SetIsBadPreviewByte(controllerIndex);
-      _RSI = DVARFLT_online_cohort_sample_percentage;
+      v6 = DVARFLT_online_cohort_sample_percentage;
       if ( !DVARFLT_online_cohort_sample_percentage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_cohort_sample_percentage") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm1, dword ptr [rsi+28h]; percentOfPopulation }
-      Online_PlayerData_StartCohortSampling(controllerIndex, *(const float *)&_XMM1);
+      Dvar_CheckFrontendServerThread(v6);
+      Online_PlayerData_StartCohortSampling(controllerIndex, v6->current.value);
     }
   }
   if ( !storageTask->getUserStorageResponse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_storage_download.cpp", 215, ASSERT_TYPE_ASSERT, "(storageTask->getUserStorageResponse)", (const char *)&queryFormat, "storageTask->getUserStorageResponse") )
     __debugbreak();
-  v8 = 0;
+  v7 = 0;
   m_size = bdObjectStoreGetUserObjectsVectorizedResponse::getObjectList(storageTask->getUserStorageResponse)->m_size;
   if ( m_size )
   {
-    v10 = 0i64;
+    v9 = 0i64;
     do
     {
       ObjectList = bdObjectStoreGetUserObjectsVectorizedResponse::getObjectList(storageTask->getUserStorageResponse);
-      bdHandleAssert(v8 < ObjectList->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreErrorWrappedObject>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      Object = (bdObjectStoreObject *)bdObjectStoreErrorWrappedObject::getObject(&ObjectList->m_data[v10]);
+      bdHandleAssert(v7 < ObjectList->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreErrorWrappedObject>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
+      Object = (bdObjectStoreObject *)bdObjectStoreErrorWrappedObject::getObject(&ObjectList->m_data[v9]);
       Content = (unsigned __int8 *)bdObjectStoreObject::getContent(Object);
       Instance = OnlineStorage::GetInstance();
       OnlineStorage::FreeFileResultBuffer(Instance, Content);
-      ++v8;
-      ++v10;
+      ++v7;
+      ++v9;
     }
-    while ( v8 < m_size );
+    while ( v7 < m_size );
   }
   storageTask->getUserStorageResponse = NULL;
 }

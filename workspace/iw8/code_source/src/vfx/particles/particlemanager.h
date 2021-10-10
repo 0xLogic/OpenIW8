@@ -235,12 +235,12 @@ ParticleManager::UnlockHandleManager
 void ParticleManager::UnlockHandleManager(ParticleManager *this)
 {
   volatile int *p_writeCount; 
+  TempThreadPriority v3; 
   int v4; 
   int v5; 
   TempThreadPriority tempPriority; 
 
   p_writeCount = &this->m_handleManagerLock.writeCount;
-  _RDI = this;
   if ( this->m_handleManagerLock.writeCount != 1 )
   {
     v5 = 1;
@@ -248,11 +248,11 @@ void ParticleManager::UnlockHandleManager(ParticleManager *this)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", v4, v5) )
       __debugbreak();
   }
-  if ( _RDI->m_handleManagerLock.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
+  if ( this->m_handleManagerLock.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi+4C848h] }
-  _RDI->m_handleManagerLock.writeThreadId = 0;
-  __asm { vmovups xmmword ptr [rsp+68h+tempPriority.threadHandle], xmm0 }
+  v3 = this->m_handleManagerLock.tempPriority;
+  this->m_handleManagerLock.writeThreadId = 0;
+  tempPriority = v3;
   if ( ((unsigned __int8)p_writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_writeCount) )
     __debugbreak();
   if ( _InterlockedCompareExchange(p_writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )

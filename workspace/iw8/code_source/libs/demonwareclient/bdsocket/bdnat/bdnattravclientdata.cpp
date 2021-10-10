@@ -63,61 +63,56 @@ void bdNATTravClientData::bdNATTravClientData(bdNATTravClientData *this, const b
   bdCommonAddr *m_ptr; 
   bdCommonAddr *v4; 
   bdNATTravTelemetry *p_m_telemetry; 
-  bdNATTravTelemetry::bdNATTravEvent *m_attemptRecords; 
-  __int64 v8; 
-  char *v9; 
+  bdNATTravTelemetry *v6; 
+  __int64 v7; 
+  signed __int64 v8; 
+  bdCommonAddr *v9; 
   bdCommonAddr *v10; 
-  bdCommonAddr *v11; 
 
-  _R14 = this;
   this->m_state = __that->m_state;
   m_ptr = __that->m_local.m_ptr;
-  _R14->m_local.m_ptr = m_ptr;
+  this->m_local.m_ptr = m_ptr;
   if ( m_ptr )
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
   v4 = __that->m_remote.m_ptr;
-  _R14->m_remote.m_ptr = v4;
+  this->m_remote.m_ptr = v4;
   if ( v4 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v4->m_refCount, 1u);
-  _R14->m_listener = __that->m_listener;
-  _R14->m_secondaryListener = __that->m_secondaryListener;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+28h]
-    vmovups xmmword ptr [r14+28h], xmm0
-  }
-  _R14->m_lastSent.m_start = __that->m_lastSent.m_start;
-  _R14->m_throttled = __that->m_throttled;
-  _R14->m_age.m_start = __that->m_age.m_start;
+  this->m_listener = __that->m_listener;
+  this->m_secondaryListener = __that->m_secondaryListener;
+  *(_OWORD *)this->m_tries = *(_OWORD *)__that->m_tries;
+  this->m_lastSent.m_start = __that->m_lastSent.m_start;
+  this->m_throttled = __that->m_throttled;
+  this->m_age.m_start = __that->m_age.m_start;
   p_m_telemetry = &__that->m_telemetry;
-  m_attemptRecords = _R14->m_telemetry.m_attemptRecords;
-  v8 = 32i64;
-  v9 = (char *)((char *)__that - (char *)_R14);
+  v6 = &this->m_telemetry;
+  v7 = 32i64;
+  v8 = (char *)__that - (char *)this;
   do
   {
-    bdNATTravTelemetry::bdNATTravEvent::bdNATTravEvent(m_attemptRecords, (const bdNATTravTelemetry::bdNATTravEvent *)((char *)m_attemptRecords + (_QWORD)v9));
-    ++m_attemptRecords;
-    --v8;
+    bdNATTravTelemetry::bdNATTravEvent::bdNATTravEvent(v6->m_attemptRecords, (const bdNATTravTelemetry::bdNATTravEvent *)((char *)v6->m_attemptRecords + v8));
+    v6 = (bdNATTravTelemetry *)((char *)v6 + 320);
+    --v7;
   }
-  while ( v8 );
-  _R14->m_telemetry.m_attemptRecordsCount = p_m_telemetry->m_attemptRecordsCount;
-  _R14->m_telemetry.m_age.m_start = p_m_telemetry->m_age.m_start;
-  v10 = p_m_telemetry->m_localCommonAddr.m_ptr;
-  _R14->m_telemetry.m_localCommonAddr.m_ptr = v10;
+  while ( v7 );
+  this->m_telemetry.m_attemptRecordsCount = p_m_telemetry->m_attemptRecordsCount;
+  this->m_telemetry.m_age.m_start = p_m_telemetry->m_age.m_start;
+  v9 = p_m_telemetry->m_localCommonAddr.m_ptr;
+  this->m_telemetry.m_localCommonAddr.m_ptr = v9;
+  if ( v9 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
+  v10 = p_m_telemetry->m_remoteCommonAddr.m_ptr;
+  this->m_telemetry.m_remoteCommonAddr.m_ptr = v10;
   if ( v10 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v10->m_refCount, 1u);
-  v11 = p_m_telemetry->m_remoteCommonAddr.m_ptr;
-  _R14->m_telemetry.m_remoteCommonAddr.m_ptr = v11;
-  if ( v11 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
-  bdAddr::bdAddr(&_R14->m_telemetry.m_realAddr, &p_m_telemetry->m_realAddr);
-  bdAddr::bdAddr(&_R14->m_telemetry.m_stunAddr, &p_m_telemetry->m_stunAddr);
-  _R14->m_telemetry.m_result = p_m_telemetry->m_result;
-  _R14->m_telemetry.m_triesStage1 = p_m_telemetry->m_triesStage1;
-  _R14->m_telemetry.m_triesStage2 = p_m_telemetry->m_triesStage2;
-  _R14->m_telemetry.m_triesStage3 = p_m_telemetry->m_triesStage3;
-  _R14->m_telemetry.m_throttled = p_m_telemetry->m_throttled;
-  _R14->m_telemetry.m_duration = p_m_telemetry->m_duration;
+  bdAddr::bdAddr(&this->m_telemetry.m_realAddr, &p_m_telemetry->m_realAddr);
+  bdAddr::bdAddr(&this->m_telemetry.m_stunAddr, &p_m_telemetry->m_stunAddr);
+  this->m_telemetry.m_result = p_m_telemetry->m_result;
+  this->m_telemetry.m_triesStage1 = p_m_telemetry->m_triesStage1;
+  this->m_telemetry.m_triesStage2 = p_m_telemetry->m_triesStage2;
+  this->m_telemetry.m_triesStage3 = p_m_telemetry->m_triesStage3;
+  this->m_telemetry.m_throttled = p_m_telemetry->m_throttled;
+  this->m_telemetry.m_duration = p_m_telemetry->m_duration;
 }
 
 /*

@@ -251,21 +251,7 @@ void CgWeaponMap::CopyMap(CgWeaponMap *this, const BgWeaponMap *src)
       if ( v7 >= BgWeaponMap::ms_runtimeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 165, ASSERT_TYPE_ASSERT, "(mapEntryIndex < BgWeaponMap::GetRuntimeSize())", "%s\n\tHandle supplied to BgWeaponMap::GetWeapon does not index the map.", "mapEntryIndex < BgWeaponMap::GetRuntimeSize()") )
         __debugbreak();
       if ( src->m_entries[v7].index == v7 )
-      {
-        _RAX = BgWeaponMap::GetWeaponEntry((BgWeaponMap *)src, v5);
-        _RDX = &this->m_entries[v6];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rdx], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rdx+20h], xmm1
-          vmovsd  xmm0, qword ptr [rax+30h]
-          vmovsd  qword ptr [rdx+30h], xmm0
-        }
-        *(_DWORD *)&_RDX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RAX->weapon.attachmentVariationIndices[27];
-        *(_WORD *)&_RDX->weapon.scopeVariation = *(_WORD *)&_RAX->weapon.scopeVariation;
-      }
+        this->m_entries[v6] = *BgWeaponMap::GetWeaponEntry((BgWeaponMap *)src, v5);
       ++v5;
       ++v6;
     }
@@ -376,38 +362,32 @@ CgWeaponMap::SetWeaponEntry
 void CgWeaponMap::SetWeaponEntry(CgWeaponMap *this, const WeaponMapEntry *weaponEntry)
 {
   unsigned __int16 index; 
-  __int64 v9; 
+  WeaponMapEntry *v5; 
+  __int64 v6; 
 
-  _RBX = weaponEntry;
   if ( !weaponEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 181, ASSERT_TYPE_ASSERT, "(weaponEntry)", (const char *)&queryFormat, "weaponEntry") )
     __debugbreak();
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 182, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr") )
     __debugbreak();
-  index = _RBX->index;
+  index = weaponEntry->index;
   if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
     __debugbreak();
   if ( index >= BgWeaponMap::ms_runtimeSize )
   {
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    LODWORD(v9) = index;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 186, ASSERT_TYPE_ASSERT, "(unsigned)( weaponMapIndex ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponMapIndex doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v9, BgWeaponMap::ms_runtimeSize) )
+    LODWORD(v6) = index;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 186, ASSERT_TYPE_ASSERT, "(unsigned)( weaponMapIndex ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponMapIndex doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v6, BgWeaponMap::ms_runtimeSize) )
       __debugbreak();
   }
-  if ( index && !_RBX->weapon.weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 187, ASSERT_TYPE_ASSERT, "(weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon ))", "%s\n\tTrying to add an invalid weapon to the client's weapon map.", "weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon )") )
+  if ( index && !weaponEntry->weapon.weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 187, ASSERT_TYPE_ASSERT, "(weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon ))", "%s\n\tTrying to add an invalid weapon to the client's weapon map.", "weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon )") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbx] }
-  _RCX = &this->m_entries[index];
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)&_RCX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RBX->weapon.attachmentVariationIndices[27];
-  *(_WORD *)&_RCX->weapon.scopeVariation = *(_WORD *)&_RBX->weapon.scopeVariation;
+  v5 = &this->m_entries[index];
+  *(__m256i *)&v5->index = *(__m256i *)&weaponEntry->index;
+  *(_OWORD *)&v5->weapon.attachmentVariationIndices[3] = *(_OWORD *)&weaponEntry->weapon.attachmentVariationIndices[3];
+  *(double *)&v5->weapon.attachmentVariationIndices[19] = *(double *)&weaponEntry->weapon.attachmentVariationIndices[19];
+  *(_DWORD *)&v5->weapon.attachmentVariationIndices[27] = *(_DWORD *)&weaponEntry->weapon.attachmentVariationIndices[27];
+  *(_WORD *)&v5->weapon.scopeVariation = *(_WORD *)&weaponEntry->weapon.scopeVariation;
 }
 
 /*
@@ -418,14 +398,16 @@ CgWeaponMap::SetWeaponEntryRange
 void CgWeaponMap::SetWeaponEntryRange(CgWeaponMap *this, const WeaponMapEntry *weaponEntries, const int count)
 {
   __int64 v3; 
+  const WeaponMapEntry *v4; 
   __int64 v6; 
   unsigned __int16 index; 
-  __int16 v12; 
-  __int64 v13; 
-  __int64 v14; 
+  WeaponMapEntry *v8; 
+  __int16 v9; 
+  __int64 v10; 
+  __int64 v11; 
 
   v3 = count;
-  _RDI = weaponEntries;
+  v4 = weaponEntries;
   if ( !weaponEntries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 171, ASSERT_TYPE_ASSERT, "(weaponEntries)", (const char *)&queryFormat, "weaponEntries") )
     __debugbreak();
   if ( (int)v3 < 0 )
@@ -437,8 +419,8 @@ void CgWeaponMap::SetWeaponEntryRange(CgWeaponMap *this, const WeaponMapEntry *w
 LABEL_37:
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    LODWORD(v13) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 172, ASSERT_TYPE_ASSERT, "( 0 ) <= ( count ) && ( count ) <= ( BgWeaponMap::GetRuntimeSize() )", "count not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v13, 0i64, BgWeaponMap::ms_runtimeSize) )
+    LODWORD(v10) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 172, ASSERT_TYPE_ASSERT, "( 0 ) <= ( count ) && ( count ) <= ( BgWeaponMap::GetRuntimeSize() )", "count not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v10, 0i64, BgWeaponMap::ms_runtimeSize) )
       __debugbreak();
   }
   v6 = v3;
@@ -446,38 +428,32 @@ LABEL_37:
   {
     do
     {
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 181, ASSERT_TYPE_ASSERT, "(weaponEntry)", (const char *)&queryFormat, "weaponEntry") )
+      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 181, ASSERT_TYPE_ASSERT, "(weaponEntry)", (const char *)&queryFormat, "weaponEntry") )
         __debugbreak();
       if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 182, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr") )
         __debugbreak();
-      index = _RDI->index;
+      index = v4->index;
       if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
         __debugbreak();
       if ( index >= BgWeaponMap::ms_runtimeSize )
       {
         if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
           __debugbreak();
-        LODWORD(v14) = BgWeaponMap::ms_runtimeSize;
-        LODWORD(v13) = index;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 186, ASSERT_TYPE_ASSERT, "(unsigned)( weaponMapIndex ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponMapIndex doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v11) = BgWeaponMap::ms_runtimeSize;
+        LODWORD(v10) = index;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 186, ASSERT_TYPE_ASSERT, "(unsigned)( weaponMapIndex ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponMapIndex doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v10, v11) )
           __debugbreak();
       }
-      if ( index && !_RDI->weapon.weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 187, ASSERT_TYPE_ASSERT, "(weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon ))", "%s\n\tTrying to add an invalid weapon to the client's weapon map.", "weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon )") )
+      if ( index && !v4->weapon.weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 187, ASSERT_TYPE_ASSERT, "(weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon ))", "%s\n\tTrying to add an invalid weapon to the client's weapon map.", "weaponMapIndex == 0 || !BG_IsNullWeapon( weaponEntry->weapon )") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rdi] }
-      _RCX = &this->m_entries[index];
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmm1, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rcx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rdi+30h]
-        vmovsd  qword ptr [rcx+30h], xmm0
-      }
-      *(_DWORD *)&_RCX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RDI->weapon.attachmentVariationIndices[27];
-      v12 = *(_WORD *)&_RDI->weapon.scopeVariation;
-      ++_RDI;
-      *(_WORD *)&_RCX->weapon.scopeVariation = v12;
+      v8 = &this->m_entries[index];
+      *(__m256i *)&v8->index = *(__m256i *)&v4->index;
+      *(_OWORD *)&v8->weapon.attachmentVariationIndices[3] = *(_OWORD *)&v4->weapon.attachmentVariationIndices[3];
+      *(double *)&v8->weapon.attachmentVariationIndices[19] = *(double *)&v4->weapon.attachmentVariationIndices[19];
+      *(_DWORD *)&v8->weapon.attachmentVariationIndices[27] = *(_DWORD *)&v4->weapon.attachmentVariationIndices[27];
+      v9 = *(_WORD *)&v4->weapon.scopeVariation;
+      ++v4;
+      *(_WORD *)&v8->weapon.scopeVariation = v9;
       --v6;
     }
     while ( v6 );
@@ -498,14 +474,14 @@ char CgWeaponMap::SetWeaponIfExists(CgWeaponMap *this, BgWeaponHandle *handle, c
   WeaponMapEntry *m_entries; 
   unsigned __int16 v11; 
   unsigned __int16 v12; 
-  __int64 v14; 
+  __int64 v13; 
+  Weapon *p_weapon; 
 
   v4 = 0;
-  _R13 = r_weapon;
   v6 = handle;
   if ( !handle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 118, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
     __debugbreak();
-  if ( !BG_ValidateWeapon(_R13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 119, ASSERT_TYPE_ASSERT, "(BG_ValidateWeapon( r_weapon ))", (const char *)&queryFormat, "BG_ValidateWeapon( r_weapon )") )
+  if ( !BG_ValidateWeapon(r_weapon) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 119, ASSERT_TYPE_ASSERT, "(BG_ValidateWeapon( r_weapon ))", (const char *)&queryFormat, "BG_ValidateWeapon( r_weapon )") )
     __debugbreak();
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.cpp", 120, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr") )
     __debugbreak();
@@ -528,7 +504,7 @@ char CgWeaponMap::SetWeaponIfExists(CgWeaponMap *this, BgWeaponHandle *handle, c
       m_entries = this->m_entries;
       if ( m_entries[v11].index == v11 )
       {
-        if ( !memcmp_0(_R13, &m_entries[v9].weapon, 0x3Cui64) )
+        if ( !memcmp_0(r_weapon, &m_entries[v9].weapon, 0x3Cui64) )
         {
           BgWeaponMap::SetMapIndexForHandle(this, handle, v9);
           return 1;
@@ -552,19 +528,13 @@ char CgWeaponMap::SetWeaponIfExists(CgWeaponMap *this, BgWeaponHandle *handle, c
   {
     if ( v4 )
     {
-      __asm { vmovups ymm0, ymmword ptr [r13+0] }
-      v14 = v4;
-      _RCX = &this->m_entries[v14].weapon;
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmm1, xmmword ptr [r13+20h]
-        vmovups xmmword ptr [rcx+20h], xmm1
-        vmovsd  xmm0, qword ptr [r13+30h]
-        vmovsd  qword ptr [rcx+30h], xmm0
-      }
-      *(_DWORD *)&_RCX->weaponCamo = *(_DWORD *)&_R13->weaponCamo;
-      this->m_entries[v14].index = v4;
+      v13 = v4;
+      p_weapon = &this->m_entries[v13].weapon;
+      *(__m256i *)&p_weapon->weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+      *(_OWORD *)&p_weapon->attachmentVariationIndices[5] = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+      *(double *)&p_weapon->attachmentVariationIndices[21] = *(double *)&r_weapon->attachmentVariationIndices[21];
+      *(_DWORD *)&p_weapon->weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
+      this->m_entries[v13].index = v4;
       BgWeaponMap::SetMapIndexForHandle(this, v6, v4);
     }
   }

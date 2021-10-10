@@ -19,32 +19,18 @@ void XAnimNullNode_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, 
   const XAnim_s *SubTreeAnims; 
   int NumChildren; 
   unsigned int GraftAnimIndex; 
-  signed int v11; 
-  unsigned int v12; 
+  signed int v10; 
+  unsigned int i; 
   unsigned int ChildAt; 
-  float v16; 
 
   SubTreeAnims = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)animInfo->subTreeID);
   NumChildren = XAnimGetNumChildren(SubTreeAnims, animInfo->animIndex);
   GraftAnimIndex = XAnimGetGraftAnimIndex(animInfoIndex);
-  v11 = 0;
-  v12 = GraftAnimIndex;
-  if ( NumChildren > 0 )
+  v10 = 0;
+  for ( i = GraftAnimIndex; v10 < NumChildren; ++v10 )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    do
-    {
-      ChildAt = XAnimGetChildAt(SubTreeAnims, animInfo->animIndex, v11);
-      __asm { vmovss  [rsp+58h+var_38], xmm6 }
-      XAnimClearGoalWeight(obj->tree, v12, (const XAnimSubTreeID)animInfo->subTreeID, ChildAt, v16, LINEAR);
-      ++v11;
-    }
-    while ( v11 < NumChildren );
-    __asm { vmovaps xmm6, [rsp+58h+var_28] }
+    ChildAt = XAnimGetChildAt(SubTreeAnims, animInfo->animIndex, v10);
+    XAnimClearGoalWeight(obj->tree, i, (const XAnimSubTreeID)animInfo->subTreeID, ChildAt, 0.0, LINEAR);
   }
 }
 

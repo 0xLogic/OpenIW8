@@ -593,8 +593,12 @@ bdClansGroupInfo::bdClansGroupInfo
 */
 void bdClansGroupInfo::bdClansGroupInfo(bdClansGroupInfo *this, const bdClansGroupInfo *__that, int a3)
 {
+  unsigned __int64 *v5; 
+  unsigned __int64 *v6; 
   __int64 v7; 
   __int64 v8; 
+  bdStructFixedSizeString<255> *p_m_uniqueTag; 
+  bdStructFixedSizeString<255> *v10; 
 
   if ( a3 )
   {
@@ -610,67 +614,39 @@ void bdClansGroupInfo::bdClansGroupInfo(bdClansGroupInfo *this, const bdClansGro
   this->m_rootID = __that->m_rootID;
   this->__vftable = (bdClansGroupInfo_vtbl *)&bdClansGroupInfo::`vftable'{for `bdStructBufferSerializable'};
   *(bdClansGroupInfo_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdClansGroupInfo_vtbl *)&bdClansGroupInfo::`vftable'{for `bdReferencable'};
-  _RAX = &this->m_rootID + 1;
-  _RCX = &__that->m_rootID + 1;
+  v5 = &this->m_rootID + 1;
+  v6 = &__that->m_rootID + 1;
   v7 = 2i64;
   v8 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rax+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rax+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rax+30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+50h]
-      vmovups xmmword ptr [rax+50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 16;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 16;
+    *(_OWORD *)v5 = *(_OWORD *)v6;
+    *((_OWORD *)v5 + 1) = *((_OWORD *)v6 + 1);
+    *((_OWORD *)v5 + 2) = *((_OWORD *)v6 + 2);
+    *((_OWORD *)v5 + 3) = *((_OWORD *)v6 + 3);
+    *((_OWORD *)v5 + 4) = *((_OWORD *)v6 + 4);
+    *((_OWORD *)v5 + 5) = *((_OWORD *)v6 + 5);
+    *((_OWORD *)v5 + 6) = *((_OWORD *)v6 + 6);
+    v5 += 16;
+    *((_OWORD *)v5 - 1) = *((_OWORD *)v6 + 7);
+    v6 += 16;
     --v8;
   }
   while ( v8 );
-  _RCX = &this->m_uniqueTag;
-  _RAX = &__that->m_uniqueTag;
+  p_m_uniqueTag = &this->m_uniqueTag;
+  v10 = &__that->m_uniqueTag;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (bdStructFixedSizeString<255> *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (bdStructFixedSizeString<255> *)((char *)_RAX + 128);
+    *(_OWORD *)p_m_uniqueTag->m_buffer = *(_OWORD *)v10->m_buffer;
+    *(_OWORD *)&p_m_uniqueTag->m_buffer[16] = *(_OWORD *)&v10->m_buffer[16];
+    *(_OWORD *)&p_m_uniqueTag->m_buffer[32] = *(_OWORD *)&v10->m_buffer[32];
+    *(_OWORD *)&p_m_uniqueTag->m_buffer[48] = *(_OWORD *)&v10->m_buffer[48];
+    *(_OWORD *)&p_m_uniqueTag->m_buffer[64] = *(_OWORD *)&v10->m_buffer[64];
+    *(_OWORD *)&p_m_uniqueTag->m_buffer[80] = *(_OWORD *)&v10->m_buffer[80];
+    *(_OWORD *)&p_m_uniqueTag->m_buffer[96] = *(_OWORD *)&v10->m_buffer[96];
+    p_m_uniqueTag = (bdStructFixedSizeString<255> *)((char *)p_m_uniqueTag + 128);
+    *(_OWORD *)&p_m_uniqueTag[-1].m_buffer[240] = *(_OWORD *)&v10->m_buffer[112];
+    v10 = (bdStructFixedSizeString<255> *)((char *)v10 + 128);
     --v7;
   }
   while ( v7 );

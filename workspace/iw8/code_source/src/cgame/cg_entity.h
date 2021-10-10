@@ -270,74 +270,50 @@ CgEntitySystem::SetEntityOrigin
 void CgEntitySystem::SetEntityOrigin(CgEntitySystem *this, const int entityIndex, const vec3_t *origin)
 {
   __int64 v3; 
+  unsigned int v6; 
   unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  vec3_t *v12; 
-  unsigned int v13; 
-  unsigned int v14; 
-  unsigned int v15; 
+  vec3_t *v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  int v13; 
+  __int64 v14; 
   int v16; 
   __int64 v17; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  __int64 v23; 
 
   v3 = entityIndex;
-  _RDI = origin;
   if ( (unsigned int)entityIndex >= 0x800 )
   {
-    v19 = 2048;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", entityIndex, v19) )
+    v16 = 2048;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", entityIndex, v16) )
       __debugbreak();
   }
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
   if ( (int)v3 > (int)ComCharacterLimits::ms_gameData.m_clientCount )
   {
-    v17 = 3 * v3 + 389124;
-    *((_DWORD *)&this->__vftable + v17) = LODWORD(_RDI->v[0]);
-    *((_DWORD *)&this->__vftable + v17 + 1) = LODWORD(_RDI->v[1]);
-    *((_DWORD *)&this->m_localClientNum + v17) = LODWORD(_RDI->v[2]);
+    v14 = 3 * v3 + 389124;
+    *((_DWORD *)&this->__vftable + v14) = LODWORD(origin->v[0]);
+    *((_DWORD *)&this->__vftable + v14 + 1) = LODWORD(origin->v[1]);
+    *((_DWORD *)&this->m_localClientNum + v14) = LODWORD(origin->v[2]);
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi] }
-    v7 = s_entity_aab_X;
-    v8 = s_entity_aab_Z;
-    __asm { vmovss  [rsp+68h+arg_8], xmm0 }
-    v9 = s_entity_aab_Y;
-    if ( (v20 & 0x7F800000) == 2139095040 )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  [rsp+68h+arg_8], xmm0
-    }
-    if ( (v21 & 0x7F800000) == 2139095040 )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  [rsp+68h+arg_8], xmm0
-    }
-    if ( (v22 & 0x7F800000) == 2139095040 )
-    {
-LABEL_17:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
-        __debugbreak();
-    }
-    v12 = &this->m_entityOrigin[v3];
-    v13 = (unsigned int)v12 ^ LODWORD(_RDI->v[2]);
-    v14 = LODWORD(_RDI->v[0]) ^ (unsigned int)v12 ^ ~v7;
-    v15 = v14 ^ (unsigned int)v12 ^ LODWORD(_RDI->v[1]);
-    LODWORD(v12->v[0]) = v14;
-    v16 = v9 ^ v15;
-    LODWORD(v12->v[1]) = v16;
-    LODWORD(v12->v[2]) = v8 ^ v16 ^ v13;
-    memset(&v23, 0, sizeof(v23));
+    v6 = s_entity_aab_X;
+    v7 = s_entity_aab_Z;
+    v8 = s_entity_aab_Y;
+    if ( ((LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
+      __debugbreak();
+    v9 = &this->m_entityOrigin[v3];
+    v10 = (unsigned int)v9 ^ LODWORD(origin->v[2]);
+    v11 = LODWORD(origin->v[0]) ^ (unsigned int)v9 ^ ~v6;
+    v12 = v11 ^ (unsigned int)v9 ^ LODWORD(origin->v[1]);
+    LODWORD(v9->v[0]) = v11;
+    v13 = v8 ^ v12;
+    LODWORD(v9->v[1]) = v13;
+    LODWORD(v9->v[2]) = v7 ^ v13 ^ v10;
+    memset(&v17, 0, sizeof(v17));
   }
 }
 

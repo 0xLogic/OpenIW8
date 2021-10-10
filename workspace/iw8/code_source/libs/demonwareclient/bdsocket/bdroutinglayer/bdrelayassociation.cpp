@@ -417,78 +417,57 @@ void bdRelayAssociation::bdRelayAssociation(bdRelayAssociation *this, bdSocket *
 {
   const bdAddr *RelayAddr; 
 
-  _RSI = (bdRelayAuthToken *)relayToken;
-  _R14 = this;
   this->m_refCount.m_value._My_val = 0;
   this->__vftable = (bdRelayAssociation_vtbl *)&bdRelayAssociation::`vftable';
   this->m_clientToken.__vftable = (bdClientAuthToken_vtbl *)&bdClientAuthToken::`vftable';
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9+8]
-    vmovups ymmword ptr [rcx+18h], ymm0
-    vmovups xmm1, xmmword ptr [r9+28h]
-    vmovups xmmword ptr [rcx+38h], xmm1
-    vmovsd  xmm0, qword ptr [r9+38h]
-    vmovsd  qword ptr [rcx+48h], xmm0
-  }
+  *(__m256i *)this->m_clientToken.m_encrypted = *(__m256i *)clientToken->m_encrypted;
+  *(_OWORD *)&this->m_clientToken.m_encrypted[32] = *(_OWORD *)&clientToken->m_encrypted[32];
+  *(double *)&this->m_clientToken.m_encrypted[48] = *(double *)&clientToken->m_encrypted[48];
   this->m_clientToken.m_version = clientToken->m_version;
   this->m_clientToken.m_expiresIn = clientToken->m_expiresIn;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9+48h]
-    vmovups xmmword ptr [rcx+58h], xmm0
-  }
+  *(_OWORD *)this->m_clientToken.m_secret = *(_OWORD *)clientToken->m_secret;
   this->m_relayToken.__vftable = (bdRelayAuthToken_vtbl *)&bdRelayAuthToken::`vftable';
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8+8]
-    vmovups ymmword ptr [rcx+70h], ymm0
-    vmovups xmm1, xmmword ptr [r8+28h]
-    vmovups xmmword ptr [rcx+90h], xmm1
-  }
+  *(__m256i *)this->m_relayToken.m_encrypted = *(__m256i *)relayToken->m_encrypted;
+  *(_OWORD *)&this->m_relayToken.m_encrypted[32] = *(_OWORD *)&relayToken->m_encrypted[32];
   *(_DWORD *)&this->m_relayToken.m_encrypted[48] = *(_DWORD *)&relayToken->m_encrypted[48];
   this->m_relayToken.m_version = relayToken->m_version;
   bdAddr::bdAddr(&this->m_relayToken.m_relayAddr, &relayToken->m_relayAddr);
-  _R14->m_relayToken.m_relayID = _RSI->m_relayID;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+0E0h]
-    vmovups xmmword ptr [r14+148h], xmm0
-  }
-  _R14->m_titleID = titleID;
-  _R14->m_userID = userID;
-  bdSequenceNumber::bdSequenceNumber(&_R14->m_clientSeqNum, 0);
+  this->m_relayToken.m_relayID = relayToken->m_relayID;
+  *(_OWORD *)this->m_relayToken.m_secret = *(_OWORD *)relayToken->m_secret;
+  this->m_titleID = titleID;
+  this->m_userID = userID;
+  bdSequenceNumber::bdSequenceNumber(&this->m_clientSeqNum, 0);
   bdSequenceNumber::bdSequenceNumber((bdSequenceNumber *)&titleID, -1);
-  bdSequenceNumberStore::bdSequenceNumberStore(&_R14->m_incomingSeqNum, (const bdSequenceNumber *)&titleID);
-  _R14->m_notifyList.m_data = NULL;
-  *(_QWORD *)&_R14->m_notifyList.m_capacity = 2i64;
-  _R14->m_notifyList.m_data = (bdReference<bdCommonAddr> *)bdMemory::allocate(0x10ui64);
-  _R14->m_listener = listener;
-  _R14->m_socket = socket;
-  RelayAddr = bdRelayAuthToken::getRelayAddr(_RSI);
-  bdAddr::bdAddr(&_R14->m_relayAddr, RelayAddr);
-  _R14->m_relayID = bdRelayAuthToken::getRelayID(_RSI);
-  bdRelayJoinData::bdRelayJoinData(&_R14->m_remoteJoinData);
-  bdRelayJoinData::bdRelayJoinData(&_R14->m_localJoinData);
-  _R14->m_status = BD_RELAY_ASSOC_STATUS_CLOSED;
-  _R14->m_type = BD_ASSOC_TYPE_BINDING;
-  _R14->m_upgradeAfterJoin = 0;
-  _R14->m_lastError = BD_ASSOC_E_OK;
-  _R14->m_initResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_initResendsTimer);
-  _R14->m_verifyResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_verifyResendsTimer);
-  _R14->m_upgradeResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_upgradeResendsTimer);
-  _R14->m_disconnectResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_disconnectResendsTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_keepAliveTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_lastValidPacketTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_lastReceivedPacketTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_telemetryTimer);
-  bdRelayAssociationTelemetry::bdRelayAssociationTelemetry(&_R14->m_telemetry, 1u, _R14->m_relayID, &_R14->m_relayAddr);
-  bdMutex::bdMutex(&_R14->m_mutex);
-  _R14->m_lastPing = 0.0;
+  bdSequenceNumberStore::bdSequenceNumberStore(&this->m_incomingSeqNum, (const bdSequenceNumber *)&titleID);
+  this->m_notifyList.m_data = NULL;
+  *(_QWORD *)&this->m_notifyList.m_capacity = 2i64;
+  this->m_notifyList.m_data = (bdReference<bdCommonAddr> *)bdMemory::allocate(0x10ui64);
+  this->m_listener = listener;
+  this->m_socket = socket;
+  RelayAddr = bdRelayAuthToken::getRelayAddr((bdRelayAuthToken *)relayToken);
+  bdAddr::bdAddr(&this->m_relayAddr, RelayAddr);
+  this->m_relayID = bdRelayAuthToken::getRelayID((bdRelayAuthToken *)relayToken);
+  bdRelayJoinData::bdRelayJoinData(&this->m_remoteJoinData);
+  bdRelayJoinData::bdRelayJoinData(&this->m_localJoinData);
+  this->m_status = BD_RELAY_ASSOC_STATUS_CLOSED;
+  this->m_type = BD_ASSOC_TYPE_BINDING;
+  this->m_upgradeAfterJoin = 0;
+  this->m_lastError = BD_ASSOC_E_OK;
+  this->m_initResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_initResendsTimer);
+  this->m_verifyResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_verifyResendsTimer);
+  this->m_upgradeResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_upgradeResendsTimer);
+  this->m_disconnectResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_disconnectResendsTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_keepAliveTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_lastValidPacketTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_lastReceivedPacketTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_telemetryTimer);
+  bdRelayAssociationTelemetry::bdRelayAssociationTelemetry(&this->m_telemetry, 1u, this->m_relayID, &this->m_relayAddr);
+  bdMutex::bdMutex(&this->m_mutex);
+  this->m_lastPing = 0.0;
 }
 
 /*
@@ -500,87 +479,61 @@ void bdRelayAssociation::bdRelayAssociation(bdRelayAssociation *this, bdSocket *
 {
   const bdAddr *RelayAddr; 
 
-  _RSI = (bdRelayJoinData *)joinData;
-  _R14 = this;
   this->m_refCount.m_value._My_val = 0;
   this->__vftable = (bdRelayAssociation_vtbl *)&bdRelayAssociation::`vftable';
   this->m_clientToken.__vftable = (bdClientAuthToken_vtbl *)&bdClientAuthToken::`vftable';
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9+8]
-    vmovups ymmword ptr [rcx+18h], ymm0
-    vmovups xmm1, xmmword ptr [r9+28h]
-    vmovups xmmword ptr [rcx+38h], xmm1
-    vmovsd  xmm0, qword ptr [r9+38h]
-    vmovsd  qword ptr [rcx+48h], xmm0
-  }
+  *(__m256i *)this->m_clientToken.m_encrypted = *(__m256i *)clientToken->m_encrypted;
+  *(_OWORD *)&this->m_clientToken.m_encrypted[32] = *(_OWORD *)&clientToken->m_encrypted[32];
+  *(double *)&this->m_clientToken.m_encrypted[48] = *(double *)&clientToken->m_encrypted[48];
   this->m_clientToken.m_version = clientToken->m_version;
   this->m_clientToken.m_expiresIn = clientToken->m_expiresIn;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9+48h]
-    vmovups xmmword ptr [rcx+58h], xmm0
-  }
+  *(_OWORD *)this->m_clientToken.m_secret = *(_OWORD *)clientToken->m_secret;
   bdRelayAuthToken::bdRelayAuthToken(&this->m_relayToken);
-  _R14->m_titleID = titleID;
-  _R14->m_userID = userID;
-  bdSequenceNumber::bdSequenceNumber(&_R14->m_clientSeqNum, 0);
+  this->m_titleID = titleID;
+  this->m_userID = userID;
+  bdSequenceNumber::bdSequenceNumber(&this->m_clientSeqNum, 0);
   bdSequenceNumber::bdSequenceNumber((bdSequenceNumber *)&titleID, -1);
-  bdSequenceNumberStore::bdSequenceNumberStore(&_R14->m_incomingSeqNum, (const bdSequenceNumber *)&titleID);
-  _R14->m_notifyList.m_data = NULL;
-  *(_QWORD *)&_R14->m_notifyList.m_capacity = 2i64;
-  _R14->m_notifyList.m_data = (bdReference<bdCommonAddr> *)bdMemory::allocate(0x10ui64);
-  _R14->m_listener = listener;
-  _R14->m_socket = socket;
-  RelayAddr = bdRelayJoinData::getRelayAddr(_RSI);
-  bdAddr::bdAddr(&_R14->m_relayAddr, RelayAddr);
-  _R14->m_relayID = bdRelayJoinData::getRelayID(_RSI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [r14+268h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [r14+288h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vmovups xmmword ptr [r14+2A8h], xmm0
-  }
-  *(_DWORD *)&_R14->m_remoteJoinData.m_encrypted[80] = *(_DWORD *)&_RSI->m_encrypted[80];
-  *(_WORD *)&_R14->m_remoteJoinData.m_encrypted[84] = *(_WORD *)&_RSI->m_encrypted[84];
-  _R14->m_remoteJoinData.m_version = _RSI->m_version;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+57h]
-    vmovups xmmword ptr [r14+2BFh], xmm0
-  }
-  _R14->m_remoteJoinData.m_relayID = _RSI->m_relayID;
-  _R14->m_remoteJoinData.m_routingID = _RSI->m_routingID;
-  _R14->m_remoteJoinData.m_joinID = _RSI->m_joinID;
-  bdAddr::bdAddr(&_R14->m_remoteJoinData.m_relayAddr, &_RSI->m_relayAddr);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+118h]
-    vmovups xmmword ptr [r14+380h], xmm0
-  }
-  bdRelayJoinData::bdRelayJoinData(&_R14->m_localJoinData);
-  _R14->m_status = BD_RELAY_ASSOC_STATUS_CLOSED;
-  _R14->m_type = BD_ASSOC_TYPE_JOINING;
-  _R14->m_upgradeAfterJoin = 0;
-  _R14->m_lastError = BD_ASSOC_E_OK;
-  _R14->m_initResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_initResendsTimer);
-  _R14->m_verifyResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_verifyResendsTimer);
-  _R14->m_upgradeResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_upgradeResendsTimer);
-  _R14->m_disconnectResends = 0;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_disconnectResendsTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_keepAliveTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_lastValidPacketTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_lastReceivedPacketTimer);
-  bdGlobalStopwatch::bdGlobalStopwatch(&_R14->m_telemetryTimer);
-  bdRelayAssociationTelemetry::bdRelayAssociationTelemetry(&_R14->m_telemetry, 2u, _R14->m_relayID, &_R14->m_relayAddr);
-  bdMutex::bdMutex(&_R14->m_mutex);
-  _R14->m_lastPing = 0.0;
+  bdSequenceNumberStore::bdSequenceNumberStore(&this->m_incomingSeqNum, (const bdSequenceNumber *)&titleID);
+  this->m_notifyList.m_data = NULL;
+  *(_QWORD *)&this->m_notifyList.m_capacity = 2i64;
+  this->m_notifyList.m_data = (bdReference<bdCommonAddr> *)bdMemory::allocate(0x10ui64);
+  this->m_listener = listener;
+  this->m_socket = socket;
+  RelayAddr = bdRelayJoinData::getRelayAddr((bdRelayJoinData *)joinData);
+  bdAddr::bdAddr(&this->m_relayAddr, RelayAddr);
+  this->m_relayID = bdRelayJoinData::getRelayID((bdRelayJoinData *)joinData);
+  *(__m256i *)this->m_remoteJoinData.m_encrypted = *(__m256i *)joinData->m_encrypted;
+  *(__m256i *)&this->m_remoteJoinData.m_encrypted[32] = *(__m256i *)&joinData->m_encrypted[32];
+  *(_OWORD *)&this->m_remoteJoinData.m_encrypted[64] = *(_OWORD *)&joinData->m_encrypted[64];
+  *(_DWORD *)&this->m_remoteJoinData.m_encrypted[80] = *(_DWORD *)&joinData->m_encrypted[80];
+  *(_WORD *)&this->m_remoteJoinData.m_encrypted[84] = *(_WORD *)&joinData->m_encrypted[84];
+  this->m_remoteJoinData.m_version = joinData->m_version;
+  *(_OWORD *)this->m_remoteJoinData.m_secret = *(_OWORD *)joinData->m_secret;
+  this->m_remoteJoinData.m_relayID = joinData->m_relayID;
+  this->m_remoteJoinData.m_routingID = joinData->m_routingID;
+  this->m_remoteJoinData.m_joinID = joinData->m_joinID;
+  bdAddr::bdAddr(&this->m_remoteJoinData.m_relayAddr, &joinData->m_relayAddr);
+  *(_OWORD *)this->m_remoteJoinData.m_verification = *(_OWORD *)joinData->m_verification;
+  bdRelayJoinData::bdRelayJoinData(&this->m_localJoinData);
+  this->m_status = BD_RELAY_ASSOC_STATUS_CLOSED;
+  this->m_type = BD_ASSOC_TYPE_JOINING;
+  this->m_upgradeAfterJoin = 0;
+  this->m_lastError = BD_ASSOC_E_OK;
+  this->m_initResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_initResendsTimer);
+  this->m_verifyResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_verifyResendsTimer);
+  this->m_upgradeResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_upgradeResendsTimer);
+  this->m_disconnectResends = 0;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_disconnectResendsTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_keepAliveTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_lastValidPacketTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_lastReceivedPacketTimer);
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_telemetryTimer);
+  bdRelayAssociationTelemetry::bdRelayAssociationTelemetry(&this->m_telemetry, 2u, this->m_relayID, &this->m_relayAddr);
+  bdMutex::bdMutex(&this->m_mutex);
+  this->m_lastPing = 0.0;
 }
 
 /*
@@ -680,8 +633,7 @@ bdRelayAssociation::getLastPing
 */
 float bdRelayAssociation::getLastPing(bdRelayAssociation *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+580h] }
-  return *(float *)&_XMM0;
+  return this->m_lastPing;
 }
 
 /*
@@ -1045,64 +997,53 @@ void bdRelayAssociation::handleInitAck(bdRelayAssociation *this, const void *dat
   char *format; 
   unsigned int cToSHmac; 
   unsigned int newOffset; 
-  __int64 v20; 
-  bdRelayInitAck v21; 
+  __int64 v16; 
+  bdRelayInitAck v17; 
   bdRelayJoinData relayJoinData; 
   unsigned __int8 sToCHmac[16]; 
   unsigned __int8 sToCCipher[16]; 
-  unsigned __int8 v25[16]; 
+  unsigned __int8 v21[16]; 
 
-  v20 = -2i64;
-  _RSI = this;
+  v16 = -2i64;
   cToSHmac = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-  bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleInitAck", 0x17Au, "Association [%llu:%u] got INIT_ACK message from relay.", _RSI->m_relayID, cToSHmac);
-  if ( _RSI->m_status != BD_RELAY_ASSOC_STATUS_WAITING_INIT_ACK )
+  bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleInitAck", 0x17Au, "Association [%llu:%u] got INIT_ACK message from relay.", this->m_relayID, cToSHmac);
+  if ( this->m_status != BD_RELAY_ASSOC_STATUS_WAITING_INIT_ACK )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleInitAck", 0x17Eu, "Association was not expecting an INIT_ACK message, ignoring.");
     return;
   }
   bdRelayJoinData::bdRelayJoinData(&relayJoinData);
-  bdRelayInitAck::bdRelayInitAck(&v21, &relayJoinData, NULL, NULL);
+  bdRelayInitAck::bdRelayInitAck(&v17, &relayJoinData, NULL, NULL);
   newOffset = 0;
-  if ( bdRelayInitAck::deserialize(&v21, data, dataLength, 0, &newOffset) )
+  if ( bdRelayInitAck::deserialize(&v17, data, dataLength, 0, &newOffset) )
   {
-    ClientRandom = bdRelayInitAck::getClientRandom(&v21);
-    if ( *(_QWORD *)ClientRandom == *(_QWORD *)_RSI->m_clientRandom && *((_QWORD *)ClientRandom + 1) == *(_QWORD *)&_RSI->m_clientRandom[8] )
+    ClientRandom = bdRelayInitAck::getClientRandom(&v17);
+    if ( *(_QWORD *)ClientRandom == *(_QWORD *)this->m_clientRandom && *((_QWORD *)ClientRandom + 1) == *(_QWORD *)&this->m_clientRandom[8] )
     {
-      if ( _RSI->m_type == BD_ASSOC_TYPE_BINDING )
+      if ( this->m_type == BD_ASSOC_TYPE_BINDING )
       {
-        ServerRandom = bdRelayInitAck::getServerRandom(&v21);
-        Secret = bdRelayAuthToken::getSecret(&_RSI->m_relayToken);
+        ServerRandom = bdRelayInitAck::getServerRandom(&v17);
+        Secret = bdRelayAuthToken::getSecret(&this->m_relayToken);
       }
       else
       {
-        ServerRandom = bdRelayInitAck::getServerRandom(&v21);
-        Secret = bdRelayJoinData::getSecret(&_RSI->m_remoteJoinData);
+        ServerRandom = bdRelayInitAck::getServerRandom(&v17);
+        Secret = bdRelayJoinData::getSecret(&this->m_remoteJoinData);
       }
       v9 = Secret;
-      v10 = bdClientAuthToken::getSecret(&_RSI->m_clientToken);
-      if ( bdRelayFunctions::deriveSecrets(_RSI->m_titleID, _RSI->m_userID, v10, v9, _RSI->m_clientRandom, ServerRandom, sToCHmac, sToCCipher, v25) && bdRelayInitAck::verifyHmac(&v21, data, dataLength, newOffset, sToCHmac) )
+      v10 = bdClientAuthToken::getSecret(&this->m_clientToken);
+      if ( bdRelayFunctions::deriveSecrets(this->m_titleID, this->m_userID, v10, v9, this->m_clientRandom, ServerRandom, sToCHmac, sToCCipher, v21) && bdRelayInitAck::verifyHmac(&v17, data, dataLength, newOffset, sToCHmac) )
       {
-        __asm
+        *(_OWORD *)this->m_serverToClientHmacSecret = *(_OWORD *)sToCHmac;
+        *(_OWORD *)this->m_serverToClientCipherSecret = *(_OWORD *)sToCCipher;
+        *(_OWORD *)this->m_clientToServerHmacSecret = *(_OWORD *)v21;
+        if ( bdRelayJoinData::decrypt(&relayJoinData, this->m_serverToClientCipherSecret) )
         {
-          vmovups xmm0, xmmword ptr [rbp+150h+sToCHmac]
-          vmovups xmmword ptr [rsi+184h], xmm0
-        }
-        _RDX = _RSI->m_serverToClientCipherSecret;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+150h+var_60]
-          vmovups xmmword ptr [rdx], xmm0
-          vmovups xmm1, xmmword ptr [rbp+150h+var_50]
-          vmovups xmmword ptr [rsi+174h], xmm1
-        }
-        if ( bdRelayJoinData::decrypt(&relayJoinData, _RSI->m_serverToClientCipherSecret) )
-        {
-          bdRelayJoinData::operator=(&_RSI->m_localJoinData, &relayJoinData);
-          RoutingID = bdRelayJoinData::getRoutingID(&_RSI->m_localJoinData);
-          bdRelayAssociationTelemetry::setRoutingID(&_RSI->m_telemetry, RoutingID);
-          bdRelayAssociationTelemetry::setInitAckStageTime(&_RSI->m_telemetry);
-          bdRelayAssociation::sendVerify(_RSI);
+          bdRelayJoinData::operator=(&this->m_localJoinData, &relayJoinData);
+          RoutingID = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+          bdRelayAssociationTelemetry::setRoutingID(&this->m_telemetry, RoutingID);
+          bdRelayAssociationTelemetry::setInitAckStageTime(&this->m_telemetry);
+          bdRelayAssociation::sendVerify(this);
         }
         else
         {
@@ -1125,7 +1066,7 @@ void bdRelayAssociation::handleInitAck(bdRelayAssociation *this, const void *dat
   }
   bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleInitAck", line, format);
 LABEL_18:
-  bdRelayBasePacket::~bdRelayBasePacket(&v21);
+  bdRelayBasePacket::~bdRelayBasePacket(&v17);
 }
 
 /*
@@ -1178,49 +1119,49 @@ bdRelayAssociation::handleRelayPing
 */
 void bdRelayAssociation::handleRelayPing(bdRelayAssociation *this, void *data, const unsigned int dataLength)
 {
-  unsigned int v7; 
+  unsigned int v6; 
   unsigned int Value; 
-  int v9; 
+  int v8; 
   unsigned __int64 HiResTimeStamp; 
   unsigned __int64 Time; 
+  double ElapsedTime; 
   __int64 v12; 
   unsigned int RoutingID; 
   bdRelayPing v14; 
   unsigned int offset; 
   bdSequenceNumber result; 
 
-  _RSI = this;
   RoutingID = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-  bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleRelayPing", 0x207u, "Association [%llu:%u] got PING from relay.", _RSI->m_relayID, RoutingID);
-  if ( bdRelayAssociation::getStatus(_RSI) == BD_RELAY_STATUS_CONNECTED )
+  bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleRelayPing", 0x207u, "Association [%llu:%u] got PING from relay.", this->m_relayID, RoutingID);
+  if ( bdRelayAssociation::getStatus(this) == BD_RELAY_STATUS_CONNECTED )
   {
     offset = 0;
     bdRelayPing::bdRelayPing(&v14, 0i64, EVALUATION, 0, 0);
     if ( bdRelayPing::deserialize(&v14, data, dataLength, offset, &offset) )
     {
-      v7 = bdRelayJoinData::getRoutingID(&_RSI->m_localJoinData);
-      if ( bdRelayBasePacket::getRoutingID(&v14) == v7 )
+      v6 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+      if ( bdRelayBasePacket::getRoutingID(&v14) == v6 )
       {
-        if ( bdRelayBasePacket::verifySeqNum(&v14, &_RSI->m_incomingSeqNum) && bdRelayBasePacket::verifyHmac(&v14, data, dataLength, offset, _RSI->m_serverToClientHmacSecret) )
+        if ( bdRelayBasePacket::verifySeqNum(&v14, &this->m_incomingSeqNum) && bdRelayBasePacket::verifyHmac(&v14, data, dataLength, offset, this->m_serverToClientHmacSecret) )
         {
-          bdGlobalStopwatch::start(&_RSI->m_lastValidPacketTimer);
+          bdGlobalStopwatch::start(&this->m_lastValidPacketTimer);
           if ( bdRelayPing::getInitiator(&v14) )
           {
             HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
             Time = bdRelayPing::getTime(&v14);
-            *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(Time, HiResTimeStamp);
-            __asm { vmovss  dword ptr [rsi+580h], xmm0 }
+            ElapsedTime = bdPlatformTiming::getElapsedTime(Time, HiResTimeStamp);
+            this->m_lastPing = *(float *)&ElapsedTime;
           }
           else
           {
-            bdSequenceNumber::operator++(&_RSI->m_clientSeqNum, &result, 0);
-            Value = bdSequenceNumber::getValue(&_RSI->m_clientSeqNum);
-            if ( bdRelayBasePacket::rewrite(&v14, data, dataLength, Value, _RSI->m_clientToServerHmacSecret) )
+            bdSequenceNumber::operator++(&this->m_clientSeqNum, &result, 0);
+            Value = bdSequenceNumber::getValue(&this->m_clientSeqNum);
+            if ( bdRelayBasePacket::rewrite(&v14, data, dataLength, Value, this->m_clientToServerHmacSecret) )
             {
-              v9 = _RSI->m_socket->sendTo(_RSI->m_socket, &_RSI->m_relayAddr, data, dataLength);
-              if ( v9 <= 0 )
+              v8 = this->m_socket->sendTo(this->m_socket, &this->m_relayAddr, data, dataLength);
+              if ( v8 <= 0 )
               {
-                LODWORD(v12) = v9;
+                LODWORD(v12) = v8;
                 bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::handleRelayPing", 0x23Du, "Could not send back PING to relay, socket sendTo returned [%d].", v12);
               }
             }
@@ -1302,18 +1243,18 @@ char bdRelayAssociation::notifyWhenComplete(bdRelayAssociation *this, const bdRe
 {
   bdMutex *p_m_mutex; 
   bdCommonAddr_vtbl *v5; 
+  bdReference<bdCommonAddr> *m_data; 
   int v7; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v14; 
+  __int64 v15; 
   unsigned int RoutingID; 
-  unsigned int v19; 
+  unsigned int v17; 
 
-  _R14 = remote.m_ptr;
   p_m_mutex = &this->m_mutex;
   bdMutex::lock(&this->m_mutex);
   if ( this->m_status == BD_RELAY_ASSOC_STATUS_OPEN )
@@ -1321,13 +1262,13 @@ char bdRelayAssociation::notifyWhenComplete(bdRelayAssociation *this, const bdRe
     RoutingID = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
     bdLogMessage(BD_LOG_WARNING, "warn/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::notifyWhenComplete", 0x308u, "Association [%llu:%u] did not add the remote to the notify list: association already OPEN.", this->m_relayID, RoutingID);
     bdMutex::unlock(p_m_mutex);
-    if ( !_R14->__vftable || _InterlockedDecrement((volatile signed __int32 *)&_R14->__vftable[1]) )
+    if ( !remote.m_ptr->__vftable || _InterlockedDecrement((volatile signed __int32 *)&remote.m_ptr->__vftable[1]) )
       return 0;
-    v5 = _R14->__vftable;
-    if ( !_R14->__vftable )
+    v5 = remote.m_ptr->__vftable;
+    if ( !remote.m_ptr->__vftable )
     {
 LABEL_24:
-      _R14->__vftable = NULL;
+      remote.m_ptr->__vftable = NULL;
       return 0;
     }
 LABEL_23:
@@ -1336,29 +1277,29 @@ LABEL_23:
   }
   if ( !this->m_listener )
   {
-    v19 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::notifyWhenComplete", 0x319u, "notifyWhenComplete was called but association [%llu:%u] has no registered listener.", this->m_relayID, v19);
+    v17 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::notifyWhenComplete", 0x319u, "notifyWhenComplete was called but association [%llu:%u] has no registered listener.", this->m_relayID, v17);
     bdMutex::unlock(p_m_mutex);
-    if ( !_R14->__vftable || _InterlockedDecrement((volatile signed __int32 *)&_R14->__vftable[1]) )
+    if ( !remote.m_ptr->__vftable || _InterlockedDecrement((volatile signed __int32 *)&remote.m_ptr->__vftable[1]) )
       return 0;
-    v5 = _R14->__vftable;
-    if ( !_R14->__vftable )
+    v5 = remote.m_ptr->__vftable;
+    if ( !remote.m_ptr->__vftable )
       goto LABEL_24;
     goto LABEL_23;
   }
-  _RSI = NULL;
+  m_data = NULL;
   v7 = 0;
   m_size = this->m_notifyList.m_size;
   if ( m_size )
   {
-    while ( _R14->__vftable != (bdCommonAddr_vtbl *)this->m_notifyList.m_data[v7].m_ptr )
+    while ( remote.m_ptr->__vftable != (bdCommonAddr_vtbl *)this->m_notifyList.m_data[v7].m_ptr )
     {
       if ( ++v7 >= m_size )
         goto LABEL_10;
     }
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::notifyWhenComplete", 0x314u, "Association [%llu:%u] did not add the remote to the notify list: remote already present.", v16, v17);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::notifyWhenComplete", 0x314u, "Association [%llu:%u] did not add the remote to the notify list: remote already present.", v14, v15);
     bdMutex::unlock(p_m_mutex);
-    bdReference<bdCommonAddr>::~bdReference<bdCommonAddr>((bdReference<bdCommonAddr> *)_R14);
+    bdReference<bdCommonAddr>::~bdReference<bdCommonAddr>((bdReference<bdCommonAddr> *)remote.m_ptr);
     return 0;
   }
 LABEL_10:
@@ -1371,28 +1312,22 @@ LABEL_10:
     v11 = m_capacity + v10;
     if ( m_capacity + v10 )
     {
-      _RSI = (bdReference<bdCommonAddr> *)bdMemory::allocate(8i64 * v11);
+      m_data = (bdReference<bdCommonAddr> *)bdMemory::allocate(8i64 * v11);
       v12 = this->m_notifyList.m_size;
       if ( v12 )
-        memcpy_0(_RSI, this->m_notifyList.m_data, 8i64 * v12);
+        memcpy_0(m_data, this->m_notifyList.m_data, 8i64 * v12);
     }
     bdMemory::deallocate(this->m_notifyList.m_data);
-    this->m_notifyList.m_data = _RSI;
+    this->m_notifyList.m_data = m_data;
     this->m_notifyList.m_capacity = v11;
   }
   else
   {
-    _RSI = this->m_notifyList.m_data;
+    m_data = this->m_notifyList.m_data;
   }
-  _RAX = this->m_notifyList.m_size;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r14]
-    vmovsd  qword ptr [rsi+rax*8], xmm0
-  }
-  ++this->m_notifyList.m_size;
+  m_data[this->m_notifyList.m_size++] = (bdReference<bdCommonAddr>)remote.m_ptr->__vftable;
   bdMutex::unlock(p_m_mutex);
-  bdReference<bdCommonAddr>::~bdReference<bdCommonAddr>((bdReference<bdCommonAddr> *)_R14);
+  bdReference<bdCommonAddr>::~bdReference<bdCommonAddr>((bdReference<bdCommonAddr> *)remote.m_ptr);
   return 1;
 }
 
@@ -1635,45 +1570,50 @@ bdRelayAssociation::pump
 void bdRelayAssociation::pump(bdRelayAssociation *this)
 {
   bdMutex *p_m_mutex; 
-  char v4; 
-  char v5; 
+  double v3; 
+  double ElapsedTimeInSeconds; 
   bdRelayAssociationType m_type; 
+  double v6; 
+  double v7; 
   bdRelayJoinData *p_m_localJoinData; 
-  unsigned int v8; 
+  unsigned int v9; 
   unsigned int Value; 
   unsigned __int64 HiResTimeStamp; 
-  int v11; 
+  int v12; 
+  double v13; 
   bdRelayAssociationListener *m_listener; 
-  bdRelayAssociationListener *v13; 
-  __int64 v14; 
-  unsigned int v15; 
-  unsigned int RoutingID; 
-  unsigned int v17; 
-  unsigned int v18; 
-  unsigned int v19; 
+  double v15; 
+  bdRelayAssociationListener *v16; 
+  double v17; 
+  double v18; 
+  __int64 v19; 
   unsigned int v20; 
-  unsigned int v21; 
-  int v22; 
+  unsigned int RoutingID; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  int v27; 
   bdRelayAssociation::bdRelayAssociationInternalStatus m_status; 
   unsigned int offset; 
   bdSequenceNumber result; 
-  __int64 v26; 
-  bdMutex *v27; 
-  bdRelayPing v28; 
+  __int64 v31; 
+  bdMutex *v32; 
+  bdRelayPing v33; 
   char data[1296]; 
 
-  v26 = -2i64;
+  v31 = -2i64;
   p_m_mutex = &this->m_mutex;
-  v27 = &this->m_mutex;
+  v32 = &this->m_mutex;
   bdMutex::lock(&this->m_mutex);
   switch ( this->m_status )
   {
     case BD_RELAY_ASSOC_STATUS_CLOSED:
       break;
     case BD_RELAY_ASSOC_STATUS_WAITING_INIT_ACK:
-      *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_initResendsTimer);
-      __asm { vcomiss xmm0, cs:__real@40000000 }
-      if ( !(v4 | v5) )
+      ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_initResendsTimer);
+      if ( *(float *)&ElapsedTimeInSeconds > 2.0 )
       {
         RoutingID = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
         bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0xEEu, "initResendsTimer elapsed for [%llu:%u], resending INIT.", this->m_relayID, RoutingID);
@@ -1689,19 +1629,17 @@ void bdRelayAssociation::pump(bdRelayAssociation *this)
       }
       break;
     case BD_RELAY_ASSOC_STATUS_WAITING_ESTABLISHED:
-      *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_verifyResendsTimer);
-      __asm { vcomiss xmm0, cs:__real@40000000 }
-      if ( !(v4 | v5) )
+      v6 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_verifyResendsTimer);
+      if ( *(float *)&v6 > 2.0 )
       {
-        v17 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0xFCu, "verifyResendsTimer elapsed for [%llu:%u], resending VERIFY.", this->m_relayID, v17);
+        v22 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0xFCu, "verifyResendsTimer elapsed for [%llu:%u], resending VERIFY.", this->m_relayID, v22);
         bdRelayAssociation::sendVerify(this);
       }
       break;
     case BD_RELAY_ASSOC_STATUS_OPEN:
-      *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
-      __asm { vcomiss xmm0, cs:__real@41200000 }
-      if ( v4 | v5 )
+      v7 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
+      if ( *(float *)&v7 <= 10.0 )
       {
         p_m_localJoinData = &this->m_localJoinData;
       }
@@ -1710,34 +1648,33 @@ void bdRelayAssociation::pump(bdRelayAssociation *this)
         offset = 0;
         bdSequenceNumber::operator++(&this->m_clientSeqNum, &result, 0);
         p_m_localJoinData = &this->m_localJoinData;
-        v8 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+        v9 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
         Value = bdSequenceNumber::getValue(&this->m_clientSeqNum);
         HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-        bdRelayPing::bdRelayPing(&v28, HiResTimeStamp, CLIENT, Value, v8);
-        if ( bdRelayPing::serialize(&v28, data, 0x508u, 0, &offset, this->m_clientToServerHmacSecret) )
+        bdRelayPing::bdRelayPing(&v33, HiResTimeStamp, CLIENT, Value, v9);
+        if ( bdRelayPing::serialize(&v33, data, 0x508u, 0, &offset, this->m_clientToServerHmacSecret) )
         {
-          v11 = this->m_socket->sendTo(this->m_socket, &this->m_relayAddr, data, offset);
-          if ( v11 <= 0 )
+          v12 = this->m_socket->sendTo(this->m_socket, &this->m_relayAddr, data, offset);
+          if ( v12 <= 0 )
           {
-            v22 = v11;
-            v18 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-            bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::sendKeepAlive", 0x424u, "Could not send PING to relay for association [%llu:%u], socket sendTo returned [%d].", this->m_relayID, v18, v22);
+            v27 = v12;
+            v23 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+            bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::sendKeepAlive", 0x424u, "Could not send PING to relay for association [%llu:%u], socket sendTo returned [%d].", this->m_relayID, v23, v27);
           }
         }
         else
         {
-          v19 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-          bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::sendKeepAlive", 0x429u, "Serialization of PING failed for relay [%llu:%u].", this->m_relayID, v19);
+          v24 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+          bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::sendKeepAlive", 0x429u, "Serialization of PING failed for relay [%llu:%u].", this->m_relayID, v24);
         }
         bdGlobalStopwatch::start(&this->m_keepAliveTimer);
-        bdRelayBasePacket::~bdRelayBasePacket(&v28);
+        bdRelayBasePacket::~bdRelayBasePacket(&v33);
       }
-      *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_lastValidPacketTimer);
-      __asm { vcomiss xmm0, cs:__real@44e10000 }
-      if ( !(v4 | v5) )
+      v13 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_lastValidPacketTimer);
+      if ( *(float *)&v13 > 1800.0 )
       {
-        LODWORD(v14) = bdRelayJoinData::getRoutingID(p_m_localJoinData);
-        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x108u, "Association [%llu:%u] timed out.", this->m_relayID, v14);
+        LODWORD(v19) = bdRelayJoinData::getRoutingID(p_m_localJoinData);
+        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x108u, "Association [%llu:%u] timed out.", this->m_relayID, v19);
         this->m_status = BD_RELAY_ASSOC_STATUS_CLOSED;
         this->m_lastError = BD_ASSOC_E_TIMEOUT;
         m_listener = this->m_listener;
@@ -1747,50 +1684,46 @@ void bdRelayAssociation::pump(bdRelayAssociation *this)
       }
       if ( this->m_type == BD_ASSOC_TYPE_JOINING )
       {
-        *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_lastReceivedPacketTimer);
-        __asm { vcomiss xmm0, cs:__real@44e10000 }
-        if ( !(v4 | v5) )
+        v15 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_lastReceivedPacketTimer);
+        if ( *(float *)&v15 > 1800.0 )
         {
-          LODWORD(v14) = bdRelayJoinData::getRoutingID(p_m_localJoinData);
-          bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x113u, "Association [%llu:%u] timed out: no data received for too long.", this->m_relayID, v14);
+          LODWORD(v19) = bdRelayJoinData::getRoutingID(p_m_localJoinData);
+          bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x113u, "Association [%llu:%u] timed out: no data received for too long.", this->m_relayID, v19);
           this->m_status = BD_RELAY_ASSOC_STATUS_CLOSED;
           this->m_lastError = BD_ASSOC_E_TIMEOUT_NO_DATA;
-          v13 = this->m_listener;
-          if ( v13 )
-            v13->onRelayAssociationError(v13, this);
+          v16 = this->m_listener;
+          if ( v16 )
+            v16->onRelayAssociationError(v16, this);
           bdRelayAssociation::reset(this);
         }
       }
       break;
     case BD_RELAY_ASSOC_STATUS_WAITING_UPGRADE:
-      *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_upgradeResendsTimer);
-      __asm { vcomiss xmm0, cs:__real@40000000 }
-      if ( !(v4 | v5) )
+      v17 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_upgradeResendsTimer);
+      if ( *(float *)&v17 > 2.0 )
       {
-        v20 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x120u, "upgradeResendsTimer elapsed for [%llu:%u], resending UPGRADE.", this->m_relayID, v20);
+        v25 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x120u, "upgradeResendsTimer elapsed for [%llu:%u], resending UPGRADE.", this->m_relayID, v25);
         bdRelayAssociation::sendUpgradeRequest(this);
       }
       break;
     case BD_RELAY_ASSOC_STATUS_WAITING_DISCONNECT:
-      *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_disconnectResendsTimer);
-      __asm { vcomiss xmm0, cs:__real@40000000 }
-      if ( !(v4 | v5) )
+      v3 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_disconnectResendsTimer);
+      if ( *(float *)&v3 > 2.0 )
       {
-        v15 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0xE7u, "disconnectResendsTimer elapsed for [%llu:%u], resending DISCONNECT.", this->m_relayID, v15);
+        v20 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+        bdLogMessage(BD_LOG_INFO, "info/", "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0xE7u, "disconnectResendsTimer elapsed for [%llu:%u], resending DISCONNECT.", this->m_relayID, v20);
         bdRelayAssociation::sendDisconnectRequest(this);
       }
       break;
     default:
       m_status = this->m_status;
-      v21 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x125u, "Association [%llu:%u] pump: unknown state [%u].", this->m_relayID, v21, m_status);
+      v26 = bdRelayJoinData::getRoutingID(&this->m_localJoinData);
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "client-association", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdroutinglayer\\bdrelayassociation.cpp", "bdRelayAssociation::pump", 0x125u, "Association [%llu:%u] pump: unknown state [%u].", this->m_relayID, v26, m_status);
       break;
   }
-  *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_telemetryTimer);
-  __asm { vcomiss xmm0, cs:__real@44e10000 }
-  if ( !(v4 | v5) )
+  v18 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_telemetryTimer);
+  if ( *(float *)&v18 > 1800.0 )
     bdRelayAssociation::finalizeTelemetry(this);
   bdMutex::unlock(p_m_mutex);
 }

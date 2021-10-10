@@ -172,59 +172,45 @@ __int64 CL_GetUserCmd(LocalClientNum_t localClientNum, int cmdNumber, usercmd_s 
   int v6; 
   int v7; 
   __int64 result; 
+  __int64 v9; 
   __int64 v10; 
-  int v19; 
+  int v11; 
 
-  _RSI = ucmd;
   Client = ClActiveClient::GetClient(localClientNum);
   v6 = ClActiveClient_GetCmdNumber(Client);
   v7 = v6;
-  v19 = v6;
+  v11 = v6;
   if ( cmdNumber > v6 )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CEE128, 754i64, (unsigned int)cmdNumber, v6);
   if ( cmdNumber > v7 - 128 && cmdNumber > 0 )
   {
-    _RBX = &Client->cmds[cmdNumber & 0x7F];
-    memset(&v19, 0, sizeof(v19));
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd", -2i64) )
+    v9 = (__int64)&Client->cmds[cmdNumber & 0x7F];
+    memset(&v11, 0, sizeof(v11));
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd", -2i64) )
       __debugbreak();
     v10 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rsi], xmm0
-        vmovups xmm1, xmmword ptr [rbx+10h]
-        vmovups xmmword ptr [rsi+10h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rsi+20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+30h]
-        vmovups xmmword ptr [rsi+30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rsi+40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+50h]
-        vmovups xmmword ptr [rsi+50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rsi+60h], xmm0
-      }
-      _RSI = (usercmd_s *)((char *)_RSI + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rsi-10h], xmm1
-      }
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
+      *(_OWORD *)&ucmd->buttons = *(_OWORD *)v9;
+      *(_OWORD *)&ucmd->commandTime = *(_OWORD *)(v9 + 16);
+      *(_OWORD *)(&ucmd->angles.xy + 1) = *(_OWORD *)(v9 + 32);
+      *(_OWORD *)&ucmd->weapon.weaponOthers = *(_OWORD *)(v9 + 48);
+      *(_OWORD *)&ucmd->weapon.attachmentVariationIndices[1] = *(_OWORD *)(v9 + 64);
+      *(_OWORD *)&ucmd->weapon.attachmentVariationIndices[17] = *(_OWORD *)(v9 + 80);
+      *(_OWORD *)&ucmd->offHand.weaponIdx = *(_OWORD *)(v9 + 96);
+      ucmd = (usercmd_s *)((char *)ucmd + 128);
+      *(_OWORD *)&ucmd[-1].sightedClientsMask.data[4] = *(_OWORD *)(v9 + 112);
+      v9 += 128i64;
       --v10;
     }
     while ( v10 );
-    _RSI->buttons = _RBX->buttons;
+    ucmd->buttons = *(_QWORD *)v9;
     return 1i64;
   }
   else
   {
     result = 0i64;
-    memset(&v19, 0, sizeof(v19));
+    memset(&v11, 0, sizeof(v11));
   }
   return result;
 }
@@ -310,14 +296,11 @@ void ClActiveClient_Init_Obfuscation(ClActiveClient *clientActive)
 ClActiveClient_SetCLViewangle
 ==============
 */
-
-void __fastcall ClActiveClient_SetCLViewangle(ClActiveClient *activeClient, const int inAngle, double inAngleValue)
+void ClActiveClient_SetCLViewangle(ClActiveClient *activeClient, const int inAngle, const float inAngleValue)
 {
   __int64 v3; 
   __int64 v5; 
-  int v6; 
 
-  __asm { vmovss  [rsp+arg_10], xmm2 }
   v3 = inAngle;
   if ( !activeClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 245, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
     __debugbreak();
@@ -327,7 +310,7 @@ void __fastcall ClActiveClient_SetCLViewangle(ClActiveClient *activeClient, cons
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v5, 3) )
       __debugbreak();
   }
-  LODWORD(activeClient->clViewangles.clViewangles.v[v3]) = v6 ^ ((((_DWORD)activeClient + 4 * v3 + 428) ^ activeClient->clviewangles_aab) * ((((_DWORD)activeClient + 4 * v3 + 428) ^ activeClient->clviewangles_aab) + 2));
+  LODWORD(activeClient->clViewangles.clViewangles.v[v3]) = LODWORD(inAngleValue) ^ ((((_DWORD)activeClient + 4 * v3 + 428) ^ activeClient->clviewangles_aab) * ((((_DWORD)activeClient + 4 * v3 + 428) ^ activeClient->clviewangles_aab) + 2));
 }
 
 /*
@@ -341,14 +324,14 @@ bool CL_Input_AddCommand(ClActiveClient *cl, const usercmd_s *const cmd)
   bool result; 
   int v6; 
   __int64 v7; 
+  usercmd_s *v8; 
   __int64 v9; 
   int cmdTimeMsec; 
-  int v19; 
+  int v11; 
 
-  _RBX = cmd;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 401, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl", -2i64) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 402, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
+  if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 402, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
   if ( Com_UseConstantUserCommandTime() )
   {
@@ -362,44 +345,30 @@ bool CL_Input_AddCommand(ClActiveClient *cl, const usercmd_s *const cmd)
     cl->cmdTimeMsec = v4;
   }
   v6 = ClActiveClient_GetCmdNumber(cl) + 1;
-  v19 = v6;
+  v11 = v6;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 177, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
     __debugbreak();
   cl->cmd_number_aab -= cl->cmd_number_set_aab;
   cl->cmdNumber.cmdNumber = ((((_DWORD)cl + 34264) ^ cl->cmd_number_aab) * ((((_DWORD)cl + 34264) ^ cl->cmd_number_aab) + 2)) ^ v6;
   v7 = v6 & 0x7F;
-  _RCX = &cl->cmds[v7];
+  v8 = &cl->cmds[v7];
   v9 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RBX = (const usercmd_s *)((char *)_RBX + 128);
+    *(_OWORD *)&v8->buttons = *(_OWORD *)&cmd->buttons;
+    *(_OWORD *)&v8->commandTime = *(_OWORD *)&cmd->commandTime;
+    *(_OWORD *)(&v8->angles.xy + 1) = *(_OWORD *)(&cmd->angles.xy + 1);
+    *(_OWORD *)&v8->weapon.weaponOthers = *(_OWORD *)&cmd->weapon.weaponOthers;
+    *(_OWORD *)&v8->weapon.attachmentVariationIndices[1] = *(_OWORD *)&cmd->weapon.attachmentVariationIndices[1];
+    *(_OWORD *)&v8->weapon.attachmentVariationIndices[17] = *(_OWORD *)&cmd->weapon.attachmentVariationIndices[17];
+    *(_OWORD *)&v8->offHand.weaponIdx = *(_OWORD *)&cmd->offHand.weaponIdx;
+    v8 = (usercmd_s *)((char *)v8 + 128);
+    *(_OWORD *)&v8[-1].sightedClientsMask.data[4] = *(_OWORD *)&cmd->offHand.weaponAttachments[2];
+    cmd = (const usercmd_s *const)((char *)cmd + 128);
     --v9;
   }
   while ( v9 );
-  _RCX->buttons = _RBX->buttons;
+  v8->buttons = cmd->buttons;
   if ( Com_UseConstantUserCommandTime() )
     cmdTimeMsec = cl->cmdTimeMsec;
   else
@@ -408,7 +377,7 @@ bool CL_Input_AddCommand(ClActiveClient *cl, const usercmd_s *const cmd)
   result = 1;
   cl->cgameExtraButtons = 0i64;
   cl->cgameUserCmdStateFlags = NONE;
-  memset(&v19, 0, sizeof(v19));
+  memset(&v11, 0, sizeof(v11));
   return result;
 }
 
@@ -435,66 +404,43 @@ void CL_SetViewAngles(LocalClientNum_t localClientNum, const vec3_t *angles)
 CL_ClampViewAngle
 ==============
 */
-
-void __fastcall CL_ClampViewAngle(LocalClientNum_t localClientNum, const int angle, double min, double max)
+void CL_ClampViewAngle(LocalClientNum_t localClientNum, const int angle, const float min, const float max)
 {
-  __int64 v9; 
+  __int64 v5; 
   ClActiveClient *Client; 
-  __int64 v11; 
-  __int64 v17; 
-  __int64 v18; 
-  int v21; 
-  int v22; 
+  __int64 v7; 
+  double v8; 
+  __int64 v9; 
+  __int64 v10; 
 
-  __asm
-  {
-    vcomiss xmm2, xmm3
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
-  v9 = angle;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 461, ASSERT_TYPE_ASSERT, "(min <= max)", (const char *)&queryFormat, "min <= max") )
+  v5 = angle;
+  if ( min > max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 461, ASSERT_TYPE_ASSERT, "(min <= max)", (const char *)&queryFormat, "min <= max") )
     __debugbreak();
-  if ( (unsigned int)v9 >= 3 )
+  if ( (unsigned int)v5 >= 3 )
   {
-    LODWORD(v17) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 462, ASSERT_TYPE_ASSERT, "(unsigned)( angle ) < (unsigned)( 3 )", "angle doesn't index 3\n\t%i not in [0, %i)", v17, 3) )
+    LODWORD(v9) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 462, ASSERT_TYPE_ASSERT, "(unsigned)( angle ) < (unsigned)( 3 )", "angle doesn't index 3\n\t%i not in [0, %i)", v9, 3) )
       __debugbreak();
   }
   Client = ClActiveClient::GetClient(localClientNum);
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 283, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
     __debugbreak();
-  if ( (unsigned int)v9 >= 3 )
+  if ( (unsigned int)v5 >= 3 )
   {
-    LODWORD(v18) = 3;
-    LODWORD(v17) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v10) = 3;
+    LODWORD(v9) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  v11 = (__int64)&Client->clViewangles + 4 * v9;
-  __asm
+  v7 = (__int64)&Client->clViewangles + 4 * v5;
+  v8 = I_fclamp(COERCE_FLOAT(*(_DWORD *)v7 ^ ((v7 ^ Client->clviewangles_aab) * ((v7 ^ Client->clviewangles_aab) + 2))), min, max);
+  if ( (unsigned int)v5 >= 3 )
   {
-    vmovaps xmm2, xmm6; max
-    vmovaps xmm1, xmm7; min
-  }
-  v21 = *(_DWORD *)v11 ^ ((v11 ^ Client->clviewangles_aab) * ((v11 ^ Client->clviewangles_aab) + 2));
-  __asm { vmovss  xmm0, [rsp+68h+arg_8]; val }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  [rsp+68h+arg_8], xmm0 }
-  if ( (unsigned int)v9 >= 3 )
-  {
-    LODWORD(v18) = 3;
-    LODWORD(v17) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v10) = 3;
+    LODWORD(v9) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  *(_DWORD *)v11 = v22 ^ ((v11 ^ Client->clviewangles_aab) * ((v11 ^ Client->clviewangles_aab) + 2));
+  *(_DWORD *)v7 = LODWORD(v8) ^ ((v7 ^ Client->clviewangles_aab) * ((v7 ^ Client->clviewangles_aab) + 2));
 }
 

@@ -93,38 +93,35 @@ StaticModels_HavokShape::addInstancesToBoundingVolume
 */
 void StaticModels_HavokShape::addInstancesToBoundingVolume(StaticModels_HavokShape *this, const hkHandle<unsigned short,65535,StaticModels_HavokShapeInstanceIdDiscriminant> *instanceIds, int numIds)
 {
-  __int64 v4; 
-  __int64 v7; 
-  hkMemoryAllocator *v8; 
+  __int64 v3; 
+  __int64 v6; 
+  hkMemoryAllocator *v7; 
   int m_size; 
+  hkVector4f *v9; 
 
-  v4 = numIds;
+  v3 = numIds;
   if ( numIds > 0 )
   {
-    v7 = 0i64;
+    v6 = 0i64;
     do
     {
-      if ( instanceIds[v7].m_value != 0xFFFF )
+      if ( instanceIds[v6].m_value != 0xFFFF )
       {
-        v8 = hkMemHeapAllocator();
+        v7 = hkMemHeapAllocator();
         m_size = this->m_boundingVolumeData.m_simdTree.m_points.m_size;
         if ( m_size == (this->m_boundingVolumeData.m_simdTree.m_points.m_capacityAndFlags & 0x3FFFFFFF) )
         {
-          hkArrayUtil::_reserveMore(v8, &this->m_boundingVolumeData.m_simdTree.m_points, 16);
+          hkArrayUtil::_reserveMore(v7, &this->m_boundingVolumeData.m_simdTree.m_points, 16);
           m_size = this->m_boundingVolumeData.m_simdTree.m_points.m_size;
         }
-        _RCX = &this->m_boundingVolumeData.m_simdTree.m_points.m_data[m_size];
+        v9 = &this->m_boundingVolumeData.m_simdTree.m_points.m_data[m_size];
         this->m_boundingVolumeData.m_simdTree.m_points.m_size = m_size + 1;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [rcx], xmm0
-        }
-        _RCX->m_quad.m128_i32[3] = instanceIds[v7].m_value | 0x3F000000;
+        *v9 = 0i64;
+        v9->m_quad.m128_i32[3] = instanceIds[v6].m_value | 0x3F000000;
       }
-      ++v7;
+      ++v6;
     }
-    while ( v7 < v4 );
+    while ( v6 < v3 );
   }
   StaticModels_HavokShape::rebuild(this);
 }
@@ -228,29 +225,32 @@ void StaticModels_HavokShape::rebuild(StaticModels_HavokShape *this)
   unsigned int v10; 
   int v11; 
   int v12; 
+  __int64 v13; 
   hkVector4f *m_data; 
+  hkAabb *v15; 
+  hkVector4f *v18; 
+  hkMemoryAllocator *v19; 
   hkMemoryAllocator *v20; 
-  hkMemoryAllocator *v21; 
-  int v22; 
-  char *v23; 
-  int v24; 
-  hkMemoryRouter *v25; 
-  signed int v26; 
-  int v27; 
-  hkMemoryAllocator *v28; 
+  int v21; 
+  char *v22; 
+  int v23; 
+  hkMemoryRouter *v24; 
+  signed int v25; 
+  int v26; 
+  hkMemoryAllocator *v27; 
   hkAabb *array; 
+  int v29; 
   int v30; 
-  int v31; 
   void *p; 
-  int v33; 
+  int v32; 
   hkcdSimdTree::BuildContext buildContext; 
 
   m_capacityAndFlags = this->m_instances.m_capacityAndFlags;
   v3 = m_capacityAndFlags & 0x3FFFFFFF;
   array = NULL;
-  v30 = 0;
-  v31 = 0x80000000;
-  v33 = m_capacityAndFlags & 0x3FFFFFFF;
+  v29 = 0;
+  v30 = 0x80000000;
+  v32 = m_capacityAndFlags & 0x3FFFFFFF;
   if ( (m_capacityAndFlags & 0x3FFFFFFF) != 0 )
   {
     Value = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
@@ -275,7 +275,7 @@ void StaticModels_HavokShape::rebuild(StaticModels_HavokShape *this)
     m_cur = NULL;
   }
   array = m_cur;
-  v31 = v3 | 0x80000000;
+  v30 = v3 | 0x80000000;
   p = m_cur;
   v8 = m_capacityAndFlags & 0x3FFFFFFF;
   v9 = hkMemHeapAllocator();
@@ -289,25 +289,21 @@ void StaticModels_HavokShape::rebuild(StaticModels_HavokShape *this)
       v11 = v10;
     hkArrayUtil::_reserve(v9, &array, v11, 32);
   }
-  v30 = v8;
+  v29 = v8;
   v12 = 0;
   if ( this->m_boundingVolumeData.m_simdTree.m_points.m_size > 0 )
   {
-    _R12 = 0i64;
+    v13 = 0i64;
     do
     {
-      _RDI = this->m_boundingVolumeData.m_simdTree.m_points.m_data;
-      _RBX = &array[(unsigned __int16)_RDI[_R12].m_quad.m128_i32[3]];
-      StaticModels_HavokShapeInstance::calculateAabb(&this->m_instances.m_data[(unsigned __int16)_RDI[_R12].m_quad.m128_i32[3]], this->m_tileIdx, _RBX);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+10h]
-        vaddps  xmm1, xmm0, xmmword ptr [rbx]
-        vblendps xmm1, xmm1, xmmword ptr [rdi+r12], 8
-        vmovups xmmword ptr [rdi+r12], xmm1
-      }
+      m_data = this->m_boundingVolumeData.m_simdTree.m_points.m_data;
+      v15 = &array[(unsigned __int16)m_data[v13].m_quad.m128_i32[3]];
+      StaticModels_HavokShapeInstance::calculateAabb(&this->m_instances.m_data[(unsigned __int16)m_data[v13].m_quad.m128_i32[3]], this->m_tileIdx, v15);
+      _XMM1 = _mm128_add_ps(v15->m_max.m_quad, v15->m_min.m_quad);
+      __asm { vblendps xmm1, xmm1, xmmword ptr [rdi+r12], 8 }
+      m_data[v13] = (hkVector4f)_XMM1.m_quad;
       ++v12;
-      ++_R12;
+      ++v13;
     }
     while ( v12 < this->m_boundingVolumeData.m_simdTree.m_points.m_size );
   }
@@ -327,47 +323,47 @@ void StaticModels_HavokShape::rebuild(StaticModels_HavokShape *this)
   buildContext.m_points.m_capacityAndFlags = this->m_boundingVolumeData.m_simdTree.m_points.m_capacityAndFlags;
   this->m_boundingVolumeData.m_simdTree.m_points.m_capacityAndFlags = 0x80000000;
   hkcdSimdTree::buildFromAabbs(&this->m_boundingVolumeData.m_simdTree, &buildContext, array);
-  m_data = buildContext.m_points.m_data;
+  v18 = buildContext.m_points.m_data;
   buildContext.m_points.m_data = this->m_boundingVolumeData.m_simdTree.m_points.m_data;
-  this->m_boundingVolumeData.m_simdTree.m_points.m_data = m_data;
-  LODWORD(m_data) = buildContext.m_points.m_size;
+  this->m_boundingVolumeData.m_simdTree.m_points.m_data = v18;
+  LODWORD(v18) = buildContext.m_points.m_size;
   buildContext.m_points.m_size = this->m_boundingVolumeData.m_simdTree.m_points.m_size;
-  this->m_boundingVolumeData.m_simdTree.m_points.m_size = (int)m_data;
-  LODWORD(m_data) = buildContext.m_points.m_capacityAndFlags;
+  this->m_boundingVolumeData.m_simdTree.m_points.m_size = (int)v18;
+  LODWORD(v18) = buildContext.m_points.m_capacityAndFlags;
   buildContext.m_points.m_capacityAndFlags = this->m_boundingVolumeData.m_simdTree.m_points.m_capacityAndFlags;
-  this->m_boundingVolumeData.m_simdTree.m_points.m_capacityAndFlags = (int)m_data;
+  this->m_boundingVolumeData.m_simdTree.m_points.m_capacityAndFlags = (int)v18;
   buildContext.__vftable = (hkcdSimdTree::BuildContext_vtbl *)hkcdSimdTree::BuildContext::`vftable';
-  v20 = hkMemHeapAllocator();
+  v19 = hkMemHeapAllocator();
   buildContext.m_compounds.m_size = 0;
   if ( buildContext.m_compounds.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v20, buildContext.m_compounds.m_data, 32, buildContext.m_compounds.m_capacityAndFlags & 0x3FFFFFFF);
+    hkMemoryAllocator::bufFree2(v19, buildContext.m_compounds.m_data, 32, buildContext.m_compounds.m_capacityAndFlags & 0x3FFFFFFF);
   buildContext.m_compounds.m_data = NULL;
   buildContext.m_compounds.m_capacityAndFlags = 0x80000000;
-  v21 = hkMemHeapAllocator();
+  v20 = hkMemHeapAllocator();
   buildContext.m_points.m_size = 0;
   if ( buildContext.m_points.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v21, buildContext.m_points.m_data, 16, buildContext.m_points.m_capacityAndFlags & 0x3FFFFFFF);
+    hkMemoryAllocator::bufFree2(v20, buildContext.m_points.m_data, 16, buildContext.m_points.m_capacityAndFlags & 0x3FFFFFFF);
   buildContext.m_points.m_data = NULL;
   buildContext.m_points.m_capacityAndFlags = 0x80000000;
-  v22 = v30;
-  v23 = (char *)p;
+  v21 = v29;
+  v22 = (char *)p;
   if ( p == array )
-    v22 = 0;
-  v30 = v22;
-  v24 = v33;
-  v25 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
-  if ( !v25 )
-    v25 = hkMemoryRouter::s_fallbackRouter;
-  v26 = (32 * v24 + 127) & 0xFFFFFF80;
-  v27 = (v26 + 15) & 0xFFFFFFF0;
-  if ( v26 > v25->m_stack.m_slabSize || &v23[v27] != v25->m_stack.m_cur || v25->m_stack.m_firstNonLifoEnd == v23 )
-    hkLifoAllocator::slowBlockFree(&v25->m_stack, v23, v27);
+    v21 = 0;
+  v29 = v21;
+  v23 = v32;
+  v24 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
+  if ( !v24 )
+    v24 = hkMemoryRouter::s_fallbackRouter;
+  v25 = (32 * v23 + 127) & 0xFFFFFF80;
+  v26 = (v25 + 15) & 0xFFFFFFF0;
+  if ( v25 > v24->m_stack.m_slabSize || &v22[v26] != v24->m_stack.m_cur || v24->m_stack.m_firstNonLifoEnd == v22 )
+    hkLifoAllocator::slowBlockFree(&v24->m_stack, v22, v26);
   else
-    v25->m_stack.m_cur = v23;
-  v28 = hkMemHeapAllocator();
-  v30 = 0;
-  if ( v31 >= 0 )
-    hkMemoryAllocator::bufFree2(v28, array, 32, v31 & 0x3FFFFFFF);
+    v24->m_stack.m_cur = v22;
+  v27 = hkMemHeapAllocator();
+  v29 = 0;
+  if ( v30 >= 0 )
+    hkMemoryAllocator::bufFree2(v27, array, 32, v30 & 0x3FFFFFFF);
 }
 
 /*
@@ -433,224 +429,190 @@ LABEL_10:
 StaticModels_HavokShape::updateCachedBounds
 ==============
 */
-
-__int64 __fastcall StaticModels_HavokShape::updateCachedBounds(StaticModels_HavokShape *this, __int64 a2, double _XMM2_8)
+__int64 StaticModels_HavokShape::updateCachedBounds(StaticModels_HavokShape *this)
 {
   hkMonitorStream *Value; 
-  hkMonitorStream *v15; 
-  unsigned __int8 v20; 
+  hkMonitorStream *v4; 
+  unsigned __int8 v8; 
   int m_size; 
-  hkMemoryRouter *v23; 
-  int v24; 
-  char *m_cur; 
-  char *v26; 
-  int v27; 
-  int v28; 
-  hkcdSimdTree::Node *v38; 
+  hkMemoryRouter *v11; 
+  int v12; 
+  __m128 *m_cur; 
+  char *v14; 
+  int v15; 
+  int v16; 
+  hkcdSimdTree::Node *m_data; 
+  hkcdSimdTree::Node *v26; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  unsigned int v30; 
   __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  unsigned int v42; 
-  __int64 v50; 
-  StaticModels_HavokShapeInstance *m_data; 
+  StaticModels_HavokShapeInstance *v40; 
   __int16 m_modelIdxAndFlags; 
   const void *CollisionTileModelShape; 
-  __int64 v81; 
-  char *v84; 
-  hkMemoryRouter *v127; 
-  int v128; 
-  __int64 result; 
-  int v140; 
-  int v141; 
-  __int64 v142; 
-  char *v143; 
-  hkcdSimdTree::Node *v144; 
-  hkMonitorStream *v145; 
+  double CollisionTileModelInstanceScale; 
+  _OWORD *v46; 
+  __m128 v55; 
+  __int64 v56; 
+  __m128 *v57; 
+  __int128 v64; 
+  __int128 v72; 
+  hkMemoryRouter *v83; 
+  int v84; 
+  int v86; 
+  int v87; 
+  __int64 v88; 
+  _OWORD *m128_f32; 
+  hkcdSimdTree::Node *v90; 
+  hkMonitorStream *v91; 
   vec3_t origin; 
   hkVector4f b; 
-  hkAabb v148; 
-  hkTransformf v149; 
+  hkAabb v94; 
+  hkTransformf v95; 
   vec4_t orientationAsQuat; 
   hkQuaternionf qi; 
-  hkVector4f v152; 
-  __int128 v153; 
-  char v154; 
-  void *retaddr; 
+  hkVector4f v98; 
+  __m128 v99; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-  }
-  _R13 = this;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v15 = Value;
-  v145 = Value;
+  v4 = Value;
+  v91 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtStaticModels_HavokShape::updateCachedBounds()");
-  _RCX = _R13->m_boundingVolumeData.m_simdTree.m_nodes.m_data;
+  _XMM0.m_quad = (__m128)this->m_boundingVolumeData.m_simdTree.m_nodes.m_data[1].m_lx;
   __asm
   {
-    vmovups xmm0, xmmword ptr [rcx+80h]
     vcmpleps xmm1, xmm0, xmmword ptr [rcx+90h]
     vmovmskps eax, xmm1
   }
   if ( _EAX )
   {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    m_size = _R13->m_instances.m_size;
-    v23 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
-    if ( !v23 )
-      v23 = hkMemoryRouter::s_fallbackRouter;
-    v24 = (16 * m_size + 127) & 0xFFFFFF80;
-    v140 = v24;
-    m_cur = (char *)v23->m_stack.m_cur;
-    v26 = &m_cur[v24];
-    if ( v24 > v23->m_stack.m_slabSize || v26 > v23->m_stack.m_end )
-      m_cur = (char *)hkLifoAllocator::allocateFromNewSlab(&v23->m_stack, v24);
+    LODWORD(_XMM7) = 0;
+    m_size = this->m_instances.m_size;
+    v11 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
+    if ( !v11 )
+      v11 = hkMemoryRouter::s_fallbackRouter;
+    v12 = (16 * m_size + 127) & 0xFFFFFF80;
+    v86 = v12;
+    m_cur = (__m128 *)v11->m_stack.m_cur;
+    v14 = (char *)m_cur + v12;
+    if ( v12 > v11->m_stack.m_slabSize || v14 > v11->m_stack.m_end )
+      m_cur = (__m128 *)hkLifoAllocator::allocateFromNewSlab(&v11->m_stack, v12);
     else
-      v23->m_stack.m_cur = v26;
-    v27 = 0;
-    v28 = 0;
-    v141 = 0;
+      v11->m_stack.m_cur = v14;
+    v15 = 0;
+    v16 = 0;
+    v87 = 0;
+    _XMM8.m_quad = g_vectorfConstants[36];
     __asm
     {
-      vmovups xmm8, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+240h; __m128 const near * const g_vectorfConstants
       vpxor   xmm14, xmm14, xmm14
       vpinsrw xmm0, xmm14, eax, 1
       vpshufd xmm1, xmm0, 0
-      vxorps  xmm11, xmm8, xmm1
     }
-    _RDI = _R13->m_boundingVolumeData.m_simdTree.m_nodes.m_data;
+    _XMM11.m_quad = (__m128)(*(_OWORD *)&g_vectorfConstants[36] ^ _XMM1);
+    m_data = this->m_boundingVolumeData.m_simdTree.m_nodes.m_data;
+    _XMM0.m_quad = (__m128)m_data[1].m_lx;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rdi+80h]
       vcmpleps xmm1, xmm0, xmmword ptr [rdi+90h]
       vmovmskps eax, xmm1
     }
     if ( _EAX )
     {
-      v38 = &_RDI[(__int64)_R13->m_boundingVolumeData.m_simdTree.m_nodes.m_size];
-      v144 = v38;
-      if ( _RDI != v38 )
+      v26 = &m_data[(__int64)this->m_boundingVolumeData.m_simdTree.m_nodes.m_size];
+      v90 = v26;
+      if ( m_data != v26 )
       {
-        v39 = 0i64;
-        v142 = 0i64;
-        __asm { vmovss  xmm6, cs:__real@3d000000 }
+        v27 = 0i64;
+        v88 = 0i64;
         do
         {
-          if ( _RDI->m_isLeaf )
+          if ( m_data->m_isLeaf )
           {
-            v40 = 0i64;
-            v143 = &m_cur[16 * v39];
-            v41 = 4i64;
+            v28 = 0i64;
+            m128_f32 = (_OWORD *)m_cur[v27].m128_f32;
+            v29 = 4i64;
             do
             {
-              v42 = _RDI->m_data[v40];
-              if ( v42 != -1 )
+              v30 = m_data->m_data[v28];
+              if ( v30 != -1 )
               {
+                _XMM2 = 0i64;
                 __asm
                 {
-                  vxorps  xmm2, xmm2, xmm2
                   vinsertps xmm2, xmm2, dword ptr [rbx+rdi], 0
                   vinsertps xmm2, xmm2, dword ptr [rbx+rdi+20h], 10h
                   vinsertps xmm2, xmm2, dword ptr [rbx+rdi+40h], 20h ; ' '
-                  vmovups xmmword ptr [rbp+100h+var_160.m_min.m_quad], xmm2
-                  vxorps  xmm2, xmm2, xmm2
+                }
+                v94.m_min = (hkVector4f)_XMM2.m_quad;
+                _XMM2 = 0i64;
+                __asm
+                {
                   vinsertps xmm2, xmm2, dword ptr [rbx+rdi+10h], 0
                   vinsertps xmm2, xmm2, dword ptr [rbx+rdi+30h], 10h
                   vinsertps xmm2, xmm2, dword ptr [rbx+rdi+50h], 20h ; ' '
-                  vmovups xmmword ptr [rbp+100h+var_160.m_max.m_quad], xmm2
                 }
-                v50 = (unsigned __int16)v42;
-                m_data = _R13->m_instances.m_data;
-                if ( hkAabb::isValid(&v148) && (m_modelIdxAndFlags = m_data[v50].m_modelIdxAndFlags, m_modelIdxAndFlags < 0) )
+                v94.m_max = (hkVector4f)_XMM2.m_quad;
+                v39 = (unsigned __int16)v30;
+                v40 = this->m_instances.m_data;
+                if ( hkAabb::isValid(&v94) && (m_modelIdxAndFlags = v40[v39].m_modelIdxAndFlags, m_modelIdxAndFlags < 0) )
                 {
                   __asm
                   {
-                    vmovups xmm1, xmmword ptr [rbp+100h+var_160.m_min.m_quad]
                     vminps  xmm8, xmm8, xmm1
                     vmaxps  xmm11, xmm11, xmmword ptr [rbp+100h+var_160.m_max.m_quad]
-                    vaddps  xmm0, xmm1, xmmword ptr [rbp+100h+var_160.m_max.m_quad]
-                    vmulps  xmm0, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+150h; __m128 const near * const g_vectorfConstants
-                    vmovups xmmword ptr [rbp+100h+b.m_quad], xmm0
                   }
-                  StaticModels_GetCollisionTileModelInstanceTransform(_R13->m_tileIdx, m_modelIdxAndFlags & 0x3FFF, m_data[v50].m_instanceIdx, &origin, &orientationAsQuat);
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rbp+100h+var_100]
-                    vmovups xmmword ptr [rbp+100h+qi.m_vec.m_quad], xmm0
-                    vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-                    vmovups ymmword ptr [rbp+100h+var_140], ymm1
-                    vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-                    vmovups ymmword ptr [rbp+100h+var_140+20h], ymm1
-                  }
-                  hkRotationImpl<float>::set(&v149.m_rotation, &qi);
-                  __asm
-                  {
-                    vmulss  xmm1, xmm6, dword ptr [rbp+100h+origin]
-                    vmovss  dword ptr [rbp+100h+var_140+30h], xmm1
-                    vmulss  xmm0, xmm6, dword ptr [rbp+100h+origin+4]
-                    vmovss  dword ptr [rbp+100h+var_140+34h], xmm0
-                    vmovss  xmm1, dword ptr [rbp+100h+origin+8]
-                    vmulss  xmm2, xmm1, xmm6
-                    vmovss  dword ptr [rbp+100h+var_140+38h], xmm2
-                    vmovss  dword ptr [rbp+100h+var_140+3Ch], xmm7
-                  }
-                  hkVector4f::setTransformedInversePos(&v152, &v149, &b);
-                  CollisionTileModelShape = StaticModels_GetCollisionTileModelShape((m_data[v50].m_modelIdxAndFlags & 0x4000) != 0, _R13->m_tileIdx, m_data[v50].m_modelIdxAndFlags & 0x3FFF);
-                  (*(void (__fastcall **)(const void *, hkVector4f *, __int128 *))(*(_QWORD *)CollisionTileModelShape + 48i64))(CollisionTileModelShape, &v152, &v153);
-                  *(double *)&_XMM0 = StaticModels_GetCollisionTileModelInstanceScale(_R13->m_tileIdx, m_data[v50].m_modelIdxAndFlags & 0x3FFF, m_data[v50].m_instanceIdx);
-                  __asm
-                  {
-                    vmovaps xmm1, xmm0
-                    vshufps xmm1, xmm1, xmm1, 0
-                    vmovups xmm0, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
-                    vandnps xmm3, xmm0, xmm1
-                  }
-                  _RAX = v143;
-                  v28 = ++v141;
-                  v39 = ++v142;
-                  v143 += 16;
-                  __asm
-                  {
-                    vshufps xmm1, xmm3, xmm3, 0
-                    vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-                    vmaxps  xmm2, xmm0, xmm1
-                    vshufps xmm1, xmm3, xmm3, 0AAh ; 'ª'
-                    vmaxps  xmm2, xmm1, xmm2
-                    vmulps  xmm3, xmm2, [rbp+100h+var_D0]
-                    vmovups xmm1, xmmword ptr [rbp+100h+b.m_quad]
-                    vblendps xmm0, xmm1, xmm3, 8
-                    vmovups xmmword ptr [rax], xmm0
-                  }
+                  b.m_quad = _mm128_mul_ps(_mm128_add_ps(v94.m_min.m_quad, v94.m_max.m_quad), g_vectorfConstants[21]);
+                  StaticModels_GetCollisionTileModelInstanceTransform(this->m_tileIdx, m_modelIdxAndFlags & 0x3FFF, v40[v39].m_instanceIdx, &origin, &orientationAsQuat);
+                  qi.m_vec.m_quad = (__m128)orientationAsQuat;
+                  *(__m256i *)v95.m_rotation.m_col0.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+                  *(__m256i *)v95.m_rotation.m_col2.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[34].m128_f32;
+                  hkRotationImpl<float>::set(&v95.m_rotation, &qi);
+                  v95.m_translation.m_quad.m128_f32[0] = 0.03125 * origin.v[0];
+                  v95.m_translation.m_quad.m128_f32[1] = 0.03125 * origin.v[1];
+                  v95.m_translation.m_quad.m128_f32[2] = origin.v[2] * 0.03125;
+                  v95.m_translation.m_quad.m128_f32[3] = 0.0;
+                  hkVector4f::setTransformedInversePos(&v98, &v95, &b);
+                  CollisionTileModelShape = StaticModels_GetCollisionTileModelShape((v40[v39].m_modelIdxAndFlags & 0x4000) != 0, this->m_tileIdx, v40[v39].m_modelIdxAndFlags & 0x3FFF);
+                  (*(void (__fastcall **)(const void *, hkVector4f *, __m128 *))(*(_QWORD *)CollisionTileModelShape + 48i64))(CollisionTileModelShape, &v98, &v99);
+                  CollisionTileModelInstanceScale = StaticModels_GetCollisionTileModelInstanceScale(this->m_tileIdx, v40[v39].m_modelIdxAndFlags & 0x3FFF, v40[v39].m_instanceIdx);
+                  _mm_shuffle_ps((__m128)*(unsigned __int64 *)&CollisionTileModelInstanceScale, (__m128)*(unsigned __int64 *)&CollisionTileModelInstanceScale, 0);
+                  _XMM0 = *(_OWORD *)hkMath::hkSse_signMask;
+                  __asm { vandnps xmm3, xmm0, xmm1 }
+                  v46 = m128_f32;
+                  v16 = ++v87;
+                  v27 = ++v88;
+                  ++m128_f32;
+                  _mm_shuffle_ps(_XMM3, _XMM3, 0);
+                  _XMM0 = _mm_shuffle_ps(_XMM3, _XMM3, 85);
+                  __asm { vmaxps  xmm2, xmm0, xmm1 }
+                  _XMM1 = _mm_shuffle_ps(_XMM3, _XMM3, 170);
+                  __asm { vmaxps  xmm2, xmm1, xmm2 }
+                  _mm128_mul_ps(_XMM2, v99);
+                  _XMM1 = b.m_quad;
+                  __asm { vblendps xmm0, xmm1, xmm3, 8 }
+                  *v46 = _XMM0;
                 }
                 else
                 {
-                  v28 = v141;
-                  v39 = v142;
+                  v16 = v87;
+                  v27 = v88;
                 }
               }
-              ++v40;
-              --v41;
+              ++v28;
+              --v29;
             }
-            while ( v41 );
-            v38 = v144;
-            v27 = 0;
+            while ( v29 );
+            v26 = v90;
+            v15 = 0;
           }
-          ++_RDI;
+          ++m_data;
         }
-        while ( _RDI != v38 );
-        v24 = v140;
-        v15 = v145;
+        while ( m_data != v26 );
+        v12 = v86;
+        v4 = v91;
       }
     }
     __asm
@@ -660,123 +622,91 @@ __int64 __fastcall StaticModels_HavokShape::updateCachedBounds(StaticModels_Havo
     }
     if ( (_EAX & 7) != 0 )
     {
-      __asm
-      {
-        vmovups xmm8, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+50h; __m128 const near * const g_vectorfConstants
-        vmovups xmm11, xmm8
-      }
+      _XMM8.m_quad = g_vectorfConstants[5];
+      _XMM11.m_quad = g_vectorfConstants[5];
     }
-    __asm
+    v55 = _mm128_mul_ps(_mm128_add_ps(_XMM11.m_quad, _XMM8.m_quad), g_vectorfConstants[21]);
+    v56 = v16;
+    if ( v16 > 0 )
     {
-      vaddps  xmm0, xmm11, xmm8
-      vmovups xmm13, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+150h; __m128 const near * const g_vectorfConstants
-      vmulps  xmm12, xmm0, xmm13
-    }
-    v81 = v28;
-    __asm
-    {
-      vmovups xmm9, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-      vmovups xmm10, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-    }
-    if ( v28 > 0 )
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      v84 = m_cur;
+      v57 = m_cur;
       do
       {
+        _XMM0 = _mm128_sub_ps(v55, *v57);
         __asm
         {
-          vsubps  xmm0, xmm12, xmmword ptr [rax]
           vdpps   xmm4, xmm0, xmm0, 7Fh
           vcmpleps xmm5, xmm4, xmm6
           vrsqrtps xmm1, xmm4
-          vmulps  xmm3, xmm1, xmm9
-          vmulps  xmm0, xmm4, xmm1
-          vmulps  xmm1, xmm1, xmm0
-          vsubps  xmm2, xmm10, xmm1
-          vmulps  xmm0, xmm2, xmm3
-          vmulps  xmm1, xmm0, xmm4
-          vandnps xmm2, xmm5, xmm1
-          vaddss  xmm1, xmm2, dword ptr [rax+0Ch]
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  xmm2, xmm0, xmm1
-          vmovss  xmm7, xmm0, xmm7
-          vmaxss  xmm7, xmm7, xmm2
         }
-        v84 += 16;
-        --v81;
+        _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_XMM1, _mm128_mul_ps(_XMM4, _XMM1))), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM4);
+        __asm { vandnps xmm2, xmm5, xmm1 }
+        v64 = 0i64;
+        *(float *)&v64 = *(float *)&_XMM7;
+        _XMM7 = v64;
+        __asm { vmaxss  xmm7, xmm7, xmm2 }
+        ++v57;
+        --v56;
       }
-      while ( v81 );
+      while ( v56 );
     }
+    _XMM1 = _mm128_mul_ps(_mm128_sub_ps(_XMM11.m_quad, _XMM8.m_quad), g_vectorfConstants[21]);
+    __asm { vdpps   xmm5, xmm1, xmm1, 7Fh }
+    _XMM6 = 0i64;
     __asm
     {
-      vsubps  xmm0, xmm11, xmm8
-      vmulps  xmm1, xmm0, xmm13
-      vdpps   xmm5, xmm1, xmm1, 7Fh
-      vxorps  xmm6, xmm6, xmm6
       vcmpleps xmm4, xmm5, xmm6
       vrsqrtps xmm1, xmm5
-      vmulps  xmm3, xmm1, xmm9
-      vmulps  xmm0, xmm5, xmm1
-      vmulps  xmm1, xmm1, xmm0
-      vsubps  xmm2, xmm10, xmm1
-      vmulps  xmm0, xmm2, xmm3
-      vmulps  xmm1, xmm0, xmm5
-      vandnps xmm2, xmm4, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm2
-      vmovss  xmm4, xmm0, xmm7
+    }
+    _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_XMM1, _mm128_mul_ps(_XMM5, _XMM1))), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM5);
+    __asm { vandnps xmm2, xmm4, xmm1 }
+    v72 = 0i64;
+    *(float *)&v72 = *(float *)&_XMM7;
+    _XMM4 = v72;
+    __asm
+    {
       vminss  xmm4, xmm4, xmm1
       vcmpeqps xmm2, xmm8, xmmword ptr [r13+70h]
-      vmovups xmm0, xmmword ptr [r13+80h]
-      vcmpeqps xmm1, xmm0, xmm11
-      vandps  xmm3, xmm2, xmm1
+    }
+    _XMM0.m_quad = (__m128)this->m_aabb.m_max;
+    __asm { vcmpeqps xmm1, xmm0, xmm11 }
+    _XMM3 = _XMM2 & _XMM1;
+    __asm
+    {
       vpcmpeqd xmm0, xmm14, xmm14
       vblendps xmm2, xmm6, xmm0, 7
       vpand   xmm1, xmm3, xmm2
       vptest  xmm1, xmm2
     }
     if ( _CF )
-      v27 = 1;
-    if ( v27 )
-      __asm { vucomiss xmm4, dword ptr [r13+90h] }
-    __asm
+      v15 = 1;
+    if ( v15 && *(float *)&_XMM4 == this->m_boundingRadius )
     {
-      vmovups xmmword ptr [r13+70h], xmm8
-      vmovups xmmword ptr [r13+80h], xmm11
-      vmovss  dword ptr [r13+90h], xmm4
+      v8 = 0;
     }
-    v20 = 1;
-    v127 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
-    if ( !v127 )
-      v127 = hkMemoryRouter::s_fallbackRouter;
-    v128 = (v24 + 15) & 0xFFFFFFF0;
-    if ( v24 > v127->m_stack.m_slabSize || &m_cur[v128] != v127->m_stack.m_cur || v127->m_stack.m_firstNonLifoEnd == m_cur )
-      hkLifoAllocator::slowBlockFree(&v127->m_stack, m_cur, v128);
     else
-      v127->m_stack.m_cur = m_cur;
+    {
+      this->m_aabb.m_min = (hkVector4f)_XMM8.m_quad;
+      this->m_aabb.m_max = (hkVector4f)_XMM11.m_quad;
+      this->m_boundingRadius = *(float *)&_XMM4;
+      v8 = 1;
+    }
+    v83 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
+    if ( !v83 )
+      v83 = hkMemoryRouter::s_fallbackRouter;
+    v84 = (v12 + 15) & 0xFFFFFFF0;
+    if ( v12 > v83->m_stack.m_slabSize || (char *)m_cur + v84 != v83->m_stack.m_cur || v83->m_stack.m_firstNonLifoEnd == m_cur )
+      hkLifoAllocator::slowBlockFree(&v83->m_stack, m_cur, v84);
+    else
+      v83->m_stack.m_cur = m_cur;
   }
   else
   {
-    v20 = 0;
+    v8 = 0;
   }
-  if ( v15 )
-    hkMonitorStream::timerEnd(v15, "Et");
-  result = v20;
-  _R11 = &v154;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
-  return result;
+  if ( v4 )
+    hkMonitorStream::timerEnd(v4, "Et");
+  return v8;
 }
 
 /*

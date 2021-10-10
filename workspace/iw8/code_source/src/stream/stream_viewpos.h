@@ -25,116 +25,64 @@ float __fastcall Stream_CalculateDistanceSq_Sphere(const vec3_t *sphereCenter, f
 Stream_CalculateDistanceSq_ApplyZoomFactor
 ==============
 */
-
-float __fastcall Stream_CalculateDistanceSq_ApplyZoomFactor(const float4 *minBound, const float4 *maxBound, double distanceSq, const float4 *pt, const float4 *viewPos, const float4 *viewDir, float zoomFactor)
+float Stream_CalculateDistanceSq_ApplyZoomFactor(const float4 *minBound, const float4 *maxBound, float distanceSq, const float4 *pt, const float4 *viewPos, const float4 *viewDir, float zoomFactor, float cosFovLimit, float viewDistanceScaleSq)
 {
-  char v15; 
-  char v16; 
-  void *retaddr; 
+  const dvar_t *v10; 
+  float v12; 
+  __m128 v19; 
+  __int128 v23; 
+  float v27; 
+  float v30; 
+  float v31; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-  }
-  _RDI = maxBound;
-  _RBX = DCONST_DVARFLT_stream_minZoomFactorForViewDirectionRelativeCalculations;
-  __asm { vmovaps xmm6, xmm2 }
+  v10 = DCONST_DVARFLT_stream_minZoomFactorForViewDirectionRelativeCalculations;
+  v12 = distanceSq;
   if ( !DCONST_DVARFLT_stream_minZoomFactorForViewDirectionRelativeCalculations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_minZoomFactorForViewDirectionRelativeCalculations") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
+  Dvar_CheckFrontendServerThread(v10);
+  if ( zoomFactor <= v10->current.value )
+    return distanceSq * viewDistanceScaleSq;
+  if ( distanceSq <= 0.0 )
+    return distanceSq * viewDistanceScaleSq;
+  _XMM3 = _mm128_mul_ps(_mm128_sub_ps(_mm128_mul_ps(_mm128_add_ps(maxBound->v, minBound->v), (__m128)_xmm), viewPos->v), viewDir->v);
+  __asm { vhaddps xmm0, xmm3, xmm3 }
+  _XMM3 = maxBound->v;
+  __asm { vhaddps xmm0, xmm0, xmm0 }
+  _mm128_add_ps(_mm128_mul_ps(_XMM0, viewDir->v), viewPos->v);
   __asm
   {
-    vmovss  xmm7, [rsp+98h+arg_30]
-    vcomiss xmm7, dword ptr [rbx+28h]
+    vminps  xmm3, xmm3, xmm2
+    vmaxps  xmm5, xmm3, xmmword ptr [rsi]
   }
-  if ( v15 | v16 )
+  v19 = _mm128_sub_ps(_XMM5, viewPos->v);
+  _XMM0 = _mm128_mul_ps(v19, viewDir->v);
+  __asm
   {
-    __asm { vmulss  xmm0, xmm6, [rsp+98h+arg_40] }
+    vhaddps xmm1, xmm0, xmm0
+    vhaddps xmm5, xmm1, xmm1
   }
-  else
+  v23 = LODWORD(FLOAT_1_0);
+  *(float *)&v23 = 1.0 - cosFovLimit;
+  if ( *(float *)&_XMM5 > 0.0 )
   {
+    _XMM0 = _mm128_mul_ps(v19, v19);
     __asm
     {
-      vmovaps [rsp+98h+var_38], xmm8
-      vxorps  xmm8, xmm8, xmm8
-      vcomiss xmm6, xmm8
+      vhaddps xmm1, xmm0, xmm0
+      vhaddps xmm0, xmm1, xmm1
     }
-    if ( v15 | v16 )
+    v27 = _mm_sqrt_ps(_XMM0).m128_f32[0];
+    *(float *)&v23 = (float)(*(float *)&v23 * *(float *)&v23) * v12;
+    _XMM1 = v23;
+    __asm { vminss  xmm2, xmm1, xmm9 }
+    v30 = (float)(*(float *)&_XMM2 * cosFovLimit) * v27;
+    if ( *(float *)&_XMM5 > v30 )
     {
-      __asm { vmulss  xmm0, xmm6, [rsp+98h+arg_40] }
+      v31 = (float)((float)(*(float *)&_XMM5 - v30) / (float)(v27 - v30)) * (float)((float)(*(float *)&_XMM5 - v30) / (float)(v27 - v30));
+      v12 = v12 / (float)((float)((float)(v31 * zoomFactor) + (float)(1.0 - v31)) * (float)((float)(v31 * zoomFactor) + (float)(1.0 - v31)));
     }
-    else
-    {
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rdi]
-        vaddps  xmm1, xmm1, xmmword ptr [rsi]
-        vmulps  xmm1, xmm1, cs:__xmm@3f0000003f0000003f0000003f000000
-        vsubps  xmm2, xmm1, xmmword ptr [rcx]
-        vmulps  xmm3, xmm2, xmmword ptr [rax]
-        vhaddps xmm0, xmm3, xmm3
-        vmovups xmm3, xmmword ptr [rdi]
-        vhaddps xmm0, xmm0, xmm0
-        vmulps  xmm1, xmm0, xmmword ptr [rax]
-        vaddps  xmm2, xmm1, xmmword ptr [rcx]
-        vminps  xmm3, xmm3, xmm2
-        vmaxps  xmm5, xmm3, xmmword ptr [rsi]
-        vsubps  xmm2, xmm5, xmmword ptr [rcx]
-        vmulps  xmm0, xmm2, xmmword ptr [rax]
-        vhaddps xmm1, xmm0, xmm0
-        vhaddps xmm5, xmm1, xmm1
-        vcomiss xmm5, xmm8
-        vmovaps [rsp+98h+var_48], xmm9
-        vmovss  xmm9, cs:__real@3f800000
-        vsubss  xmm3, xmm9, [rsp+98h+arg_38]
-      }
-      if ( !(v15 | v16) )
-      {
-        __asm
-        {
-          vmulps  xmm0, xmm2, xmm2
-          vhaddps xmm1, xmm0, xmm0
-          vhaddps xmm0, xmm1, xmm1
-          vsqrtps xmm4, xmm0
-          vmulss  xmm0, xmm3, xmm3
-          vmulss  xmm1, xmm0, xmm6
-          vminss  xmm2, xmm1, xmm9
-          vmulss  xmm3, xmm2, [rsp+98h+arg_38]
-          vmulss  xmm0, xmm3, xmm4
-          vcomiss xmm5, xmm0
-        }
-        if ( !(v15 | v16) )
-        {
-          __asm
-          {
-            vsubss  xmm1, xmm5, xmm0
-            vsubss  xmm0, xmm4, xmm0
-            vdivss  xmm1, xmm1, xmm0
-            vmulss  xmm2, xmm1, xmm1
-            vmulss  xmm3, xmm2, xmm7
-            vsubss  xmm0, xmm9, xmm2
-            vaddss  xmm1, xmm3, xmm0
-            vmulss  xmm2, xmm1, xmm1
-            vdivss  xmm6, xmm6, xmm2
-          }
-        }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm6, [rsp+98h+arg_40]
-        vmovaps xmm9, [rsp+98h+var_48]
-      }
-    }
-    __asm { vmovaps xmm8, [rsp+98h+var_38] }
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return v12 * viewDistanceScaleSq;
 }
 
 /*
@@ -142,44 +90,67 @@ float __fastcall Stream_CalculateDistanceSq_ApplyZoomFactor(const float4 *minBou
 Stream_CalculateDistanceSq_Sphere
 ==============
 */
-
-float __fastcall Stream_CalculateDistanceSq_Sphere(const vec3_t *sphereCenter, double sphereRadius, const float4 *viewPos, const float4 *viewDir, float zoomFactor)
+float Stream_CalculateDistanceSq_Sphere(const vec3_t *sphereCenter, float sphereRadius, const float4 *viewPos, const float4 *viewDir, float zoomFactor, float cosFovLimit, float viewDistanceScaleSq)
 {
+  __int128 v9; 
+  __m128 v12; 
+  __m128 v17; 
+  __m128 v18; 
+  float v19; 
+  float v20; 
+  __m128 v21; 
+  float v28; 
+  float v29; 
   __int128 v31; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm6, xmm1
-  }
   HIDWORD(v31) = 0;
+  v9 = v31;
+  *(float *)&v9 = sphereCenter->v[0];
+  _XMM2 = v9;
   __asm
   {
-    vmovups xmm2, xmmword ptr [rsp]
-    vmovss  xmm2, xmm2, xmm0
     vinsertps xmm2, xmm2, dword ptr [rcx+4], 10h
     vinsertps xmm2, xmm2, dword ptr [rcx+8], 20h ; ' '
-    vsubps  xmm5, xmm2, xmmword ptr [r8]
-    vmulps  xmm0, xmm5, xmm5
+  }
+  v12 = _mm128_sub_ps(_XMM2, viewPos->v);
+  _XMM0 = _mm128_mul_ps(v12, v12);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm3, xmm0
-    vsubss  xmm2, xmm3, xmm6
-    vmovss  xmm6, [rsp+48h+arg_20]
-    vcomiss xmm6, xmm7
-    vdivss  xmm0, xmm2, xmm3
-    vshufps xmm0, xmm0, xmm0, 0
-    vmulps  xmm0, xmm0, xmm5
-    vaddps  xmm3, xmm0, xmmword ptr [r8]
-    vmulss  xmm4, xmm2, xmm2
-    vmulss  xmm0, xmm4, [rsp+48h+arg_30]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
   }
-  return *(float *)&_XMM0;
+  v17 = _mm_sqrt_ps(_XMM0);
+  *(float *)&_XMM2 = v17.m128_f32[0] - sphereRadius;
+  v17.m128_f32[0] = (float)(v17.m128_f32[0] - sphereRadius) / v17.m128_f32[0];
+  v18 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v17, v17, 0), v12), viewPos->v);
+  v20 = *(float *)&_XMM2 * *(float *)&_XMM2;
+  v19 = *(float *)&_XMM2 * *(float *)&_XMM2;
+  if ( zoomFactor > 1.0 && v20 > 0.0 )
+  {
+    v21 = _mm128_sub_ps(v18, viewPos->v);
+    _XMM0 = _mm128_mul_ps(v21, viewDir->v);
+    __asm
+    {
+      vhaddps xmm1, xmm0, xmm0
+      vhaddps xmm3, xmm1, xmm1
+    }
+    if ( *(float *)&_XMM3 > 0.0 )
+    {
+      _XMM0 = _mm128_mul_ps(v21, v21);
+      __asm
+      {
+        vhaddps xmm1, xmm0, xmm0
+        vhaddps xmm0, xmm1, xmm1
+      }
+      v28 = _mm_sqrt_ps(_XMM0).m128_f32[0];
+      if ( *(float *)&_XMM3 > (float)(v28 * cosFovLimit) )
+      {
+        v29 = (float)((float)(*(float *)&_XMM3 - (float)(v28 * cosFovLimit)) / (float)(v28 - (float)(v28 * cosFovLimit))) * (float)((float)(*(float *)&_XMM3 - (float)(v28 * cosFovLimit)) / (float)(v28 - (float)(v28 * cosFovLimit)));
+        v19 = v20 / (float)((float)((float)(v29 * zoomFactor) + (float)(1.0 - v29)) * (float)((float)(v29 * zoomFactor) + (float)(1.0 - v29)));
+      }
+    }
+  }
+  return v19 * viewDistanceScaleSq;
 }
 

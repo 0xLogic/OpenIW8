@@ -1305,13 +1305,14 @@ void SvClientMP::AddClientAtAddress(const netadr_t *addr, const unsigned int cli
   unsigned __int64 v5; 
   ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **v6; 
   ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v7; 
-  __int128 v10; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  __int128 v9; 
 
   if ( !SV_IsDemoPlaying() )
   {
     v4 = (int)addr->localNetID | (unsigned __int64)((__int64)addr->addrHandleIndex << 32);
-    DWORD2(v10) = clientNum;
-    *(_QWORD *)&v10 = v4;
+    DWORD2(v9) = clientNum;
+    *(_QWORD *)&v9 = v4;
     v5 = ((unsigned int)v4 ^ HIDWORD(v4)) % 0x10D;
     if ( v5 >= 0x10D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
@@ -1329,13 +1330,12 @@ LABEL_11:
       }
       if ( (ntl::internal::pool_allocator_freelist<24> *)SvClientMP::ms_clientAddrMap.m_freelist.m_head.mp_next == &SvClientMP::ms_clientAddrMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0xC8ui64) )
         __debugbreak();
-      _RCX = SvClientMP::ms_clientAddrMap.m_freelist.m_head.mp_next;
-      __asm { vmovups xmm0, [rsp+58h+var_18] }
+      mp_next = SvClientMP::ms_clientAddrMap.m_freelist.m_head.mp_next;
       SvClientMP::ms_clientAddrMap.m_freelist.m_head.mp_next = SvClientMP::ms_clientAddrMap.m_freelist.m_head.mp_next->mp_next;
-      _RCX->mp_next = NULL;
-      __asm { vmovups xmmword ptr [rcx+8], xmm0 }
-      _RCX->mp_next = *v6;
-      *v6 = _RCX;
+      mp_next->mp_next = NULL;
+      *(_OWORD *)&mp_next[1].mp_next = v9;
+      mp_next->mp_next = *v6;
+      *v6 = mp_next;
       ++SvClientMP::ms_clientAddrMap.m_currentNumItems;
     }
     else
@@ -1428,62 +1428,52 @@ void SvClientMP::DemoReadState(SvClientMP *this, sysFileHandle_t fileDemo)
 {
   clientSnapshot_t *m_fullSnapshotFrames; 
   clientSnapshotEncodingOutput_t *m_fullSnapshotEncodingOutputs; 
-  unsigned int v9; 
-  unsigned int v10; 
-  __int64 v14; 
-  int v15; 
+  unsigned int v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  int v9; 
   GSnapshotWeaponMap weaponMapCopy; 
+  __m256i v11; 
+  __m256i v12; 
+  __m256i v13; 
   int buffer; 
 
-  _RSI = this;
   if ( !this->m_fullSnapshotFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4854, ASSERT_TYPE_ASSERT, "( m_fullSnapshotFrames != nullptr )", (const char *)&queryFormat, "m_fullSnapshotFrames != nullptr") )
     __debugbreak();
-  m_fullSnapshotFrames = _RSI->m_fullSnapshotFrames;
-  GSnapshotWeaponMap::GSnapshotWeaponMap(&weaponMapCopy, &_RSI->m_blindSnapshotFrame.weaponMap);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+5AEC8h]
-    vmovups [rsp+0D8h+var_80], ymm0
-    vmovups ymm0, ymmword ptr [rsi+5AEE8h]
-    vmovups [rsp+0D8h+var_60], ymm0
-    vmovups ymm0, ymmword ptr [rsi+5AF08h]
-    vmovups [rsp+0D8h+var_40], ymm0
-  }
-  if ( !_RSI->m_fullSnapshotEncodingOutputs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4859, ASSERT_TYPE_ASSERT, "( m_fullSnapshotEncodingOutputs != nullptr )", (const char *)&queryFormat, "m_fullSnapshotEncodingOutputs != nullptr") )
+  m_fullSnapshotFrames = this->m_fullSnapshotFrames;
+  GSnapshotWeaponMap::GSnapshotWeaponMap(&weaponMapCopy, &this->m_blindSnapshotFrame.weaponMap);
+  v11 = *(__m256i *)&this->m_blindSnapshotFrame.streamSync.streamSyncLists[0].itemCount;
+  v12 = *(__m256i *)&this->m_blindSnapshotFrame.streamSync.streamSyncLists[2].itemCount;
+  v13 = *(__m256i *)&this->m_blindSnapshotFrame.streamSync.streamSyncLists[4].itemCount;
+  if ( !this->m_fullSnapshotEncodingOutputs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4859, ASSERT_TYPE_ASSERT, "( m_fullSnapshotEncodingOutputs != nullptr )", (const char *)&queryFormat, "m_fullSnapshotEncodingOutputs != nullptr") )
     __debugbreak();
-  m_fullSnapshotEncodingOutputs = _RSI->m_fullSnapshotEncodingOutputs;
-  SV_DemoMP_Read(&_RSI->state, 0x5CA58ui64, fileDemo);
-  v9 = 0;
-  _RSI->scriptId = 0;
+  m_fullSnapshotEncodingOutputs = this->m_fullSnapshotEncodingOutputs;
+  SV_DemoMP_Read(&this->state, 0x5CA58ui64, fileDemo);
+  v6 = 0;
+  this->scriptId = 0;
   SV_DemoMP_Read(&buffer, 4ui64, fileDemo);
-  v10 = SvClientMP::ms_fullSnapFrameCountPerClient;
+  v7 = SvClientMP::ms_fullSnapFrameCountPerClient;
   if ( SvClientMP::ms_fullSnapFrameCountPerClient != buffer )
   {
-    v15 = buffer;
-    LODWORD(v14) = SvClientMP::ms_fullSnapFrameCountPerClient;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4868, ASSERT_TYPE_ASSERT, "( ms_fullSnapFrameCountPerClient ) == ( snapshotFrameCount )", "ms_fullSnapFrameCountPerClient == snapshotFrameCount\n\t%i, %i", v14, v15) )
+    v9 = buffer;
+    LODWORD(v8) = SvClientMP::ms_fullSnapFrameCountPerClient;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4868, ASSERT_TYPE_ASSERT, "( ms_fullSnapFrameCountPerClient ) == ( snapshotFrameCount )", "ms_fullSnapFrameCountPerClient == snapshotFrameCount\n\t%i, %i", v8, v9) )
       __debugbreak();
-    v10 = SvClientMP::ms_fullSnapFrameCountPerClient;
+    v7 = SvClientMP::ms_fullSnapFrameCountPerClient;
   }
-  if ( v10 )
+  if ( v7 )
   {
     do
-      SvClientMP::ClearClientSnapshot(&m_fullSnapshotFrames[v9++]);
-    while ( v9 < SvClientMP::ms_fullSnapFrameCountPerClient );
+      SvClientMP::ClearClientSnapshot(&m_fullSnapshotFrames[v6++]);
+    while ( v6 < SvClientMP::ms_fullSnapFrameCountPerClient );
   }
-  _RSI->m_fullSnapshotFrames = m_fullSnapshotFrames;
-  GSnapshotWeaponMap::GSnapshotWeaponMap(&_RSI->m_blindSnapshotFrame.weaponMap, &weaponMapCopy);
-  __asm
-  {
-    vmovups ymm0, [rsp+0D8h+var_80]
-    vmovups ymmword ptr [rsi+5AEC8h], ymm0
-    vmovups ymm1, [rsp+0D8h+var_60]
-    vmovups ymmword ptr [rsi+5AEE8h], ymm1
-    vmovups ymm0, [rsp+0D8h+var_40]
-    vmovups ymmword ptr [rsi+5AF08h], ymm0
-  }
-  SvClientMP::ClearClientSnapshot(&_RSI->m_blindSnapshotFrame);
-  _RSI->m_fullSnapshotEncodingOutputs = m_fullSnapshotEncodingOutputs;
+  this->m_fullSnapshotFrames = m_fullSnapshotFrames;
+  GSnapshotWeaponMap::GSnapshotWeaponMap(&this->m_blindSnapshotFrame.weaponMap, &weaponMapCopy);
+  *(__m256i *)&this->m_blindSnapshotFrame.streamSync.streamSyncLists[0].itemCount = v11;
+  *(__m256i *)&this->m_blindSnapshotFrame.streamSync.streamSyncLists[2].itemCount = v12;
+  *(__m256i *)&this->m_blindSnapshotFrame.streamSync.streamSyncLists[4].itemCount = v13;
+  SvClientMP::ClearClientSnapshot(&this->m_blindSnapshotFrame);
+  this->m_fullSnapshotEncodingOutputs = m_fullSnapshotEncodingOutputs;
   SV_DemoMP_Read(m_fullSnapshotEncodingOutputs, 104i64 * SvClientMP::ms_fullSnapFrameCountPerClient, fileDemo);
   GSnapshotWeaponMap::~GSnapshotWeaponMap(&weaponMapCopy);
 }
@@ -1591,15 +1581,18 @@ SvClientMP::GetCommandDeltaBaselineForSequence
 */
 char SvClientMP::GetCommandDeltaBaselineForSequence(SvClientMP *this, const int cmdDelta, usercmd_s *const outCmd, CmdPredict *const outPredict)
 {
+  usercmd_s *v5; 
   unsigned int v8; 
   int v9; 
   __int64 v11; 
+  CmdPredict *v12; 
   __int64 v13; 
-  float v26; 
-  __int64 v27; 
+  usercmd_s *v14; 
+  __int128 v15; 
+  float v16; 
+  __int64 v17; 
 
-  _RDI = outPredict;
-  _RBX = outCmd;
+  v5 = outCmd;
   if ( !outCmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4580, ASSERT_TYPE_ASSERT, "( outCmd != nullptr )", (const char *)&queryFormat, "outCmd != nullptr") )
     __debugbreak();
   if ( !this->m_cmdRecvBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4581, ASSERT_TYPE_ASSERT, "( m_cmdRecvBuffer != nullptr )", (const char *)&queryFormat, "m_cmdRecvBuffer != nullptr") )
@@ -1611,8 +1604,8 @@ char SvClientMP::GetCommandDeltaBaselineForSequence(SvClientMP *this, const int 
   v8 = SvClientMP::ms_cmdCountPerClient;
   if ( !SvClientMP::ms_cmdCountPerClient )
   {
-    LODWORD(v27) = SvClientMP::ms_cmdCountPerClient;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4584, ASSERT_TYPE_ASSERT, "( ms_cmdCountPerClient ) > ( 0 )", "ms_cmdCountPerClient > 0\n\t%i, %i", v27, 0i64) )
+    LODWORD(v17) = SvClientMP::ms_cmdCountPerClient;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4584, ASSERT_TYPE_ASSERT, "( ms_cmdCountPerClient ) > ( 0 )", "ms_cmdCountPerClient > 0\n\t%i, %i", v17, 0i64) )
       __debugbreak();
     v8 = SvClientMP::ms_cmdCountPerClient;
   }
@@ -1630,63 +1623,47 @@ char SvClientMP::GetCommandDeltaBaselineForSequence(SvClientMP *this, const int 
       Com_Printf(131087, "GetCommandDeltaBaselineForSequence: Delta from command that is too old.\n");
       return 0;
     }
-    _RDX = &this->m_cmdRecvPredict[v11];
+    v12 = &this->m_cmdRecvPredict[v11];
     v13 = 2i64;
-    _RAX = &this->m_cmdRecvBuffer[v11];
+    v14 = &this->m_cmdRecvBuffer[v11];
     do
     {
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rbx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [rbx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [rbx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [rbx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [rbx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [rbx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rbx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [rbx-10h], xmm1
-      }
+      v5 = (usercmd_s *)((char *)v5 + 128);
+      v15 = *(_OWORD *)&v14->buttons;
+      v14 = (usercmd_s *)((char *)v14 + 128);
+      *(_OWORD *)&v5[-1].offHand.attachmentVariationIndices[13] = v15;
+      *(_OWORD *)&v5[-1].offHand.weaponCamo = *(_OWORD *)&v14[-1].offHand.weaponCamo;
+      *(_OWORD *)v5[-1].remoteControlMove = *(_OWORD *)v14[-1].remoteControlMove;
+      *(_OWORD *)v5[-1].vehAngles = *(_OWORD *)v14[-1].vehAngles;
+      *(_OWORD *)&v5[-1].vehOrgZ = *(_OWORD *)&v14[-1].vehOrgZ;
+      *(_OWORD *)&v5[-1].gunYOfs = *(_OWORD *)&v14[-1].gunYOfs;
+      *(_OWORD *)v5[-1].sightedClientsMask.data = *(_OWORD *)v14[-1].sightedClientsMask.data;
+      *(_OWORD *)&v5[-1].sightedClientsMask.data[4] = *(_OWORD *)&v14[-1].sightedClientsMask.data[4];
       --v13;
     }
     while ( v13 );
-    _RBX->buttons = _RAX->buttons;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr [rdx+20h]
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  xmm0, qword ptr [rdx+30h]
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    v26 = _RDX->vehOrigin.v[2];
+    v5->buttons = v14->buttons;
+    *(__m256i *)outPredict->origin.v = *(__m256i *)v12->origin.v;
+    *(_OWORD *)outPredict->extrapData.packedBobCycle = *(_OWORD *)v12->extrapData.packedBobCycle;
+    *(double *)outPredict->vehOrigin.v = *(double *)v12->vehOrigin.v;
+    v16 = v12->vehOrigin.v[2];
   }
   else
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.h", 258, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
+    if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.h", 258, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
       __debugbreak();
-    memset_0(_RBX, 0, sizeof(usercmd_s));
-    BG_ClearMeleeChargeCmd(_RBX);
-    v26 = 0.0;
-    *(_QWORD *)_RDI->origin.v = 0i64;
-    *(_QWORD *)&_RDI->origin.z = 0i64;
-    *(_QWORD *)&_RDI->extrapData.offset.xy.y = 0i64;
-    *(_QWORD *)&_RDI->extrapData.time = 0i64;
-    *(_QWORD *)_RDI->extrapData.packedBobCycle = 0i64;
-    *(_QWORD *)&_RDI->vehActive = 0i64;
-    *(_QWORD *)_RDI->vehOrigin.v = 0i64;
+    memset_0(v5, 0, sizeof(usercmd_s));
+    BG_ClearMeleeChargeCmd(v5);
+    v16 = 0.0;
+    *(_QWORD *)outPredict->origin.v = 0i64;
+    *(_QWORD *)&outPredict->origin.z = 0i64;
+    *(_QWORD *)&outPredict->extrapData.offset.xy.y = 0i64;
+    *(_QWORD *)&outPredict->extrapData.time = 0i64;
+    *(_QWORD *)outPredict->extrapData.packedBobCycle = 0i64;
+    *(_QWORD *)&outPredict->vehActive = 0i64;
+    *(_QWORD *)outPredict->vehOrigin.v = 0i64;
   }
-  _RDI->vehOrigin.v[2] = v26;
+  outPredict->vehOrigin.v[2] = v16;
   return 1;
 }
 
@@ -1735,54 +1712,47 @@ char SvClientMP::GetPredictedOrigin(SvClientMP *this, const int commandTime, SvC
 {
   int v6; 
   unsigned int v7; 
+  __int64 v8; 
   char result; 
-  __int64 v13; 
-  __int64 v14; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _RBX = outPredictedOrigin;
-  _RBP = this;
   if ( commandTime <= 0 )
   {
 LABEL_8:
     result = 0;
-    *(_QWORD *)&_RBX->commandTime = 0i64;
-    *(_QWORD *)_RBX->origin.v = 0i64;
-    *(_QWORD *)&_RBX->origin.z = 0i64;
-    *(_QWORD *)&_RBX->vehicleOrigin.y = 0i64;
-    *(_QWORD *)_RBX->extrapData.offset.v = 0i64;
-    *(_QWORD *)&_RBX->extrapData.offset.z = 0i64;
-    *(_QWORD *)&_RBX->extrapData.inputTime = 0i64;
-    _RBX->extrapData.packedBobCycle[1] = 0;
+    *(_QWORD *)&outPredictedOrigin->commandTime = 0i64;
+    *(_QWORD *)outPredictedOrigin->origin.v = 0i64;
+    *(_QWORD *)&outPredictedOrigin->origin.z = 0i64;
+    *(_QWORD *)&outPredictedOrigin->vehicleOrigin.y = 0i64;
+    *(_QWORD *)outPredictedOrigin->extrapData.offset.v = 0i64;
+    *(_QWORD *)&outPredictedOrigin->extrapData.offset.z = 0i64;
+    *(_QWORD *)&outPredictedOrigin->extrapData.inputTime = 0i64;
+    outPredictedOrigin->extrapData.packedBobCycle[1] = 0;
   }
   else
   {
     v6 = 37;
     while ( 1 )
     {
-      v7 = (v6 + _RBP->m_nextPredictedIndex) % 0x26;
+      v7 = (v6 + this->m_nextPredictedIndex) % 0x26;
       if ( v7 >= 0x26 )
       {
-        LODWORD(v14) = 38;
-        LODWORD(v13) = (v6 + _RBP->m_nextPredictedIndex) % 0x26;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4283, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( ( sizeof( *array_counter( m_predictedOrigins ) ) + 0 ) )", "predictedIndex doesn't index ARRAY_COUNT( m_predictedOrigins )\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v11) = 38;
+        LODWORD(v10) = (v6 + this->m_nextPredictedIndex) % 0x26;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4283, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( ( sizeof( *array_counter( m_predictedOrigins ) ) + 0 ) )", "predictedIndex doesn't index ARRAY_COUNT( m_predictedOrigins )\n\t%i not in [0, %i)", v10, v11) )
           __debugbreak();
       }
-      _RCX = (int)v7;
-      if ( _RBP->m_predictedOrigins[_RCX].commandTime == commandTime )
+      v8 = (int)v7;
+      if ( this->m_predictedOrigins[v8].commandTime == commandTime )
         break;
       if ( --v6 < 0 )
         goto LABEL_8;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+rbp+5C158h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr [rcx+rbp+5C178h]
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  xmm0, qword ptr [rcx+rbp+5C188h]
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    _RBX->extrapData.packedBobCycle[1] = _RBP->m_predictedOrigins[_RCX].extrapData.packedBobCycle[1];
+    *(__m256i *)&outPredictedOrigin->commandTime = *(__m256i *)&this->m_predictedOrigins[v8].commandTime;
+    *(_OWORD *)outPredictedOrigin->extrapData.offset.v = *(_OWORD *)this->m_predictedOrigins[v8].extrapData.offset.v;
+    *(double *)&outPredictedOrigin->extrapData.inputTime = *(double *)&this->m_predictedOrigins[v8].extrapData.inputTime;
+    outPredictedOrigin->extrapData.packedBobCycle[1] = this->m_predictedOrigins[v8].extrapData.packedBobCycle[1];
     return 1;
   }
   return result;
@@ -2043,34 +2013,27 @@ void SvClientMP::RecordPredictedOrigin(SvClientMP *this, const SvClientPredicted
 {
   unsigned int m_nextPredictedIndex; 
   unsigned int v5; 
-  __int64 v10; 
+  __int64 v6; 
+  __int64 v7; 
 
-  _RBX = inPredictedOrigin;
-  _RSI = this;
   if ( !inPredictedOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4259, ASSERT_TYPE_ASSERT, "( inPredictedOrigin )", (const char *)&queryFormat, "inPredictedOrigin") )
     __debugbreak();
-  if ( _RBX->commandTime > 0 )
+  if ( inPredictedOrigin->commandTime > 0 )
   {
-    m_nextPredictedIndex = _RSI->m_nextPredictedIndex;
+    m_nextPredictedIndex = this->m_nextPredictedIndex;
     v5 = m_nextPredictedIndex % 0x26;
-    _RSI->m_nextPredictedIndex = m_nextPredictedIndex + 1;
+    this->m_nextPredictedIndex = m_nextPredictedIndex + 1;
     if ( m_nextPredictedIndex % 0x26 >= 0x26 )
     {
-      LODWORD(v10) = m_nextPredictedIndex % 0x26;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4268, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( ( sizeof( *array_counter( m_predictedOrigins ) ) + 0 ) )", "predictedIndex doesn't index ARRAY_COUNT( m_predictedOrigins )\n\t%i not in [0, %i)", v10, 38) )
+      LODWORD(v7) = m_nextPredictedIndex % 0x26;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4268, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( ( sizeof( *array_counter( m_predictedOrigins ) ) + 0 ) )", "predictedIndex doesn't index ARRAY_COUNT( m_predictedOrigins )\n\t%i not in [0, %i)", v7, 38) )
         __debugbreak();
     }
-    __asm { vmovups ymm0, ymmword ptr [rbx] }
-    _RCX = v5;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rsi+5C158h], ymm0
-      vmovups xmm1, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rcx+rsi+5C178h], xmm1
-      vmovsd  xmm0, qword ptr [rbx+30h]
-      vmovsd  qword ptr [rcx+rsi+5C188h], xmm0
-    }
-    _RSI->m_predictedOrigins[_RCX].extrapData.packedBobCycle[1] = _RBX->extrapData.packedBobCycle[1];
+    v6 = v5;
+    *(__m256i *)&this->m_predictedOrigins[v6].commandTime = *(__m256i *)&inPredictedOrigin->commandTime;
+    *(_OWORD *)this->m_predictedOrigins[v6].extrapData.offset.v = *(_OWORD *)inPredictedOrigin->extrapData.offset.v;
+    *(double *)&this->m_predictedOrigins[v6].extrapData.inputTime = *(double *)&inPredictedOrigin->extrapData.inputTime;
+    this->m_predictedOrigins[v6].extrapData.packedBobCycle[1] = inPredictedOrigin->extrapData.packedBobCycle[1];
   }
 }
 
@@ -2351,8 +2314,11 @@ SV_ClientMP_AddBot
 gentity_s *SV_ClientMP_AddBot(const char *bot_name, unsigned int head, unsigned int body, unsigned int helmet)
 {
   const char *RandomName; 
+  ClientCustomizationInfo *NextPresetCustomization; 
+  netadr_t *v10; 
+  __int128 v11; 
   SvClientMP *ClientAtAddress; 
-  const SvClientMP *v15; 
+  const SvClientMP *v13; 
   __int64 MpClientIndex; 
   netadr_t addr; 
   netadr_t result; 
@@ -2370,29 +2336,23 @@ gentity_s *SV_ClientMP_AddBot(const char *bot_name, unsigned int head, unsigned 
   {
     RandomName = SV_BotGetRandomName();
     Core_strcpy(dest, 0x20ui64, RandomName);
-    _RBX = SV_StreamSync_GetNextPresetCustomization();
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7330, ASSERT_TYPE_ASSERT, "( presetCustomization )", (const char *)&queryFormat, "presetCustomization") )
+    NextPresetCustomization = (ClientCustomizationInfo *)SV_StreamSync_GetNextPresetCustomization();
+    if ( !NextPresetCustomization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7330, ASSERT_TYPE_ASSERT, "( presetCustomization )", (const char *)&queryFormat, "presetCustomization") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+0C8h+outCustomizationInfo.modelIndex], xmm0
-      vmovsd  xmm1, qword ptr [rbx+10h]
-      vmovsd  qword ptr [rsp+0C8h+outCustomizationInfo.modelIndexMLG+4], xmm1
-    }
+    outCustomizationInfo = *NextPresetCustomization;
   }
-  _RAX = SV_ClientMP_ConnectBot(&result, dest, outCustomizationInfo.modelIndex[0], outCustomizationInfo.modelIndex[1]);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  LODWORD(_RAX) = _RAX->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+0C8h+addr.type], xmm0 }
-  addr.addrHandleIndex = (int)_RAX;
+  v10 = SV_ClientMP_ConnectBot(&result, dest, outCustomizationInfo.modelIndex[0], outCustomizationInfo.modelIndex[1]);
+  v11 = *(_OWORD *)&v10->type;
+  LODWORD(v10) = v10->addrHandleIndex;
+  *(_OWORD *)&addr.type = v11;
+  addr.addrHandleIndex = (int)v10;
   ClientAtAddress = SvClientMP::FindClientAtAddress(&addr);
-  v15 = ClientAtAddress;
+  v13 = ClientAtAddress;
   if ( !ClientAtAddress )
     return 0i64;
   ClientAtAddress->testClient = TC_BOT;
   SV_BotInitDataSafety(ClientAtAddress);
-  MpClientIndex = (int)SV_Client_GetMpClientIndex(v15);
+  MpClientIndex = (int)SV_Client_GetMpClientIndex(v13);
   return &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[MpClientIndex];
 }
 
@@ -2406,6 +2366,8 @@ gentity_s *SV_ClientMP_AddMPBotToTeam(int team)
   int v2; 
   unsigned int v3; 
   __int64 v4; 
+  netadr_t *v5; 
+  __int128 v6; 
   const SvClientMP *ClientAtAddress; 
   SvClientMP *v8; 
   signed int MpClientIndex; 
@@ -2423,11 +2385,11 @@ gentity_s *SV_ClientMP_AddMPBotToTeam(int team)
   if ( v2 < 0 )
     return 0i64;
   v4 = v2;
-  _RAX = SV_ClientMP_ConnectBot(&result, g_svMPBotData[v4].botDisplayData.displayName, g_svMPBotData[v4].botPlayerData.botCustomization.modelIndex[0], g_svMPBotData[v4].botPlayerData.botCustomization.modelIndex[1]);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  LODWORD(_RAX) = _RAX->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+98h+addr.type], xmm0 }
-  addr.addrHandleIndex = (int)_RAX;
+  v5 = SV_ClientMP_ConnectBot(&result, g_svMPBotData[v4].botDisplayData.displayName, g_svMPBotData[v4].botPlayerData.botCustomization.modelIndex[0], g_svMPBotData[v4].botPlayerData.botCustomization.modelIndex[1]);
+  v6 = *(_OWORD *)&v5->type;
+  LODWORD(v5) = v5->addrHandleIndex;
+  *(_OWORD *)&addr.type = v6;
+  addr.addrHandleIndex = (int)v5;
   ClientAtAddress = SvClientMP::FindClientAtAddress(&addr);
   v8 = (SvClientMP *)ClientAtAddress;
   if ( ClientAtAddress )
@@ -2458,32 +2420,32 @@ SV_ClientMP_AddTestClient
 gentity_s *SV_ClientMP_AddTestClient()
 {
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
+  const ClientCustomizationInfo *NextPresetCustomization; 
+  int v4; 
+  netadr_t *v5; 
+  __int128 v6; 
   SvClientMP *ClientAtAddress; 
   __int64 MpClientIndex; 
   netadr_t addr; 
-  _BYTE result[24]; 
+  _QWORD result[3]; 
   char dest[32]; 
 
   if ( !SV_ClientMP_CanSpawnBot() )
     return 0i64;
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
   Com_sprintf<32>((char (*)[32])dest, "tcBot%d", PersistentGlobalsMP->botport);
-  _RBX = SV_StreamSync_GetNextPresetCustomization();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7291, ASSERT_TYPE_ASSERT, "( presetCustomization )", (const char *)&queryFormat, "presetCustomization") )
+  NextPresetCustomization = SV_StreamSync_GetNextPresetCustomization();
+  if ( !NextPresetCustomization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7291, ASSERT_TYPE_ASSERT, "( presetCustomization )", (const char *)&queryFormat, "presetCustomization") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rbx]
-    vmovsd  xmm0, qword ptr [rbx+10h]
-    vpextrd r9d, xmm1, 1; bodyModelIndex
-    vmovd   r8d, xmm1; headModelIndex
-    vmovsd  qword ptr [rsp+98h+result.addrHandleIndex], xmm0
-  }
-  _RAX = SV_ClientMP_ConnectBot((netadr_t *)result, dest, _ER8, _ER9);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  LODWORD(_RAX) = _RAX->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+98h+addr.type], xmm0 }
-  addr.addrHandleIndex = (int)_RAX;
+  _XMM1 = *(_OWORD *)NextPresetCustomization->modelIndex;
+  __asm { vpextrd r9d, xmm1, 1; bodyModelIndex }
+  v4 = *(_OWORD *)NextPresetCustomization->modelIndex;
+  result[2] = *(_QWORD *)&NextPresetCustomization->modelIndexMLG[1];
+  v5 = SV_ClientMP_ConnectBot((netadr_t *)result, dest, v4, _ER9);
+  v6 = *(_OWORD *)&v5->type;
+  LODWORD(v5) = v5->addrHandleIndex;
+  *(_OWORD *)&addr.type = v6;
+  addr.addrHandleIndex = (int)v5;
   ClientAtAddress = SvClientMP::FindClientAtAddress(&addr);
   if ( !ClientAtAddress )
     return 0i64;
@@ -2865,29 +2827,28 @@ netadr_t *SV_ClientMP_ConnectBot(netadr_t *result, const char *name, const int h
   SessionDynamicData *DemoSession; 
   int v14; 
   int addrHandleIndex; 
+  __int64 v17; 
   __int64 v18; 
   __int64 v19; 
   __int64 v20; 
-  __int64 v21; 
-  int v22; 
+  int v21; 
+  __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
-  int v25; 
-  __int64 v26; 
+  int v24; 
+  __int64 v25; 
   unsigned int PlatformSignature; 
-  netadr_t v29; 
-  char v30[176]; 
+  netadr_t v28; 
+  char v29[176]; 
   char dest[1024]; 
   char _Buffer[1024]; 
 
-  _R14 = result;
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7149, ASSERT_TYPE_ASSERT, "(!SvPersistentGlobalsMP::IsFrontEndServer())", "%s\n\tNo stats access in front-end scene", "!SvPersistentGlobalsMP::IsFrontEndServer()") )
     __debugbreak();
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF_HALF )
   {
-    v22 = (unsigned __int8)SvGameGlobals::ms_allocatedType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v22) )
+    v21 = (unsigned __int8)SvGameGlobals::ms_allocatedType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", v21) )
       __debugbreak();
   }
   SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
@@ -2895,16 +2856,16 @@ netadr_t *SV_ClientMP_ConnectBot(netadr_t *result, const char *name, const int h
   PersistentDataDefFormatChecksum = LiveStorage_GetPersistentDataDefFormatChecksum();
   vmBuiltinTimeAccum = SvGameGlobalsCommon[2].profile.vmBuiltinTimeAccum;
   v12 = PersistentDataDefFormatChecksum;
-  LOBYTE(v29.type) = 0;
-  v30[0] = 0;
+  LOBYTE(v28.type) = 0;
+  v29[0] = 0;
   PlatformSignature = MSG_GetPlatformSignature();
-  v25 = PersistentDataDefVersion;
-  *(float *)&v21 = vmBuiltinTimeAccum;
-  LODWORD(v18) = GetProtocolVersion();
-  Com_sprintf(dest, 0x400ui64, "\\invited\\0\\cl_anonymous\\0\\color\\4\\rate\\5000\\xuid\\%s\\xnaddr\\%s\\natType\\2\\protocol\\%d\\checksum\\%d\\statver\\%d %llx\\platsig\\%d", (const char *)&v29, v30, v18, v21, v25, v12, PlatformSignature);
-  LODWORD(v23) = bodyModelIndex;
-  LODWORD(v19) = headModelIndex;
-  j_sprintf(_Buffer, "connect bot%d \"%s\\name\\%s\\ctzHead\\%d\\ctzBody\\%d\"", PersistentGlobalsMP->botport, dest, name, v19, v23);
+  v24 = PersistentDataDefVersion;
+  *(float *)&v20 = vmBuiltinTimeAccum;
+  LODWORD(v17) = GetProtocolVersion();
+  Com_sprintf(dest, 0x400ui64, "\\invited\\0\\cl_anonymous\\0\\color\\4\\rate\\5000\\xuid\\%s\\xnaddr\\%s\\natType\\2\\protocol\\%d\\checksum\\%d\\statver\\%d %llx\\platsig\\%d", (const char *)&v28, v29, v17, v20, v24, v12, PlatformSignature);
+  LODWORD(v22) = bodyModelIndex;
+  LODWORD(v18) = headModelIndex;
+  j_sprintf(_Buffer, "connect bot%d \"%s\\name\\%s\\ctzHead\\%d\\ctzBody\\%d\"", PersistentGlobalsMP->botport, dest, name, v18, v22);
   if ( SV_IsDemoPlaying() )
     DemoSession = (SessionDynamicData *)NET_GetDemoSession();
   else
@@ -2913,21 +2874,20 @@ netadr_t *SV_ClientMP_ConnectBot(netadr_t *result, const char *name, const int h
   v14 = PersistentGlobalsMP->botport + 4;
   if ( PersistentGlobalsMP->botport > 0x270Fu )
   {
-    LODWORD(v26) = 10003;
-    LODWORD(v24) = 4;
-    LODWORD(v20) = PersistentGlobalsMP->botport + 4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7261, ASSERT_TYPE_ASSERT, "( NS_BOT_FIRST ) <= ( botNetSrc ) && ( botNetSrc ) <= ( NS_BOT_LAST )", "botNetSrc not in [NS_BOT_FIRST, NS_BOT_LAST]\n\t%i not in [%i, %i]", v20, v24, v26) )
+    LODWORD(v25) = 10003;
+    LODWORD(v23) = 4;
+    LODWORD(v19) = PersistentGlobalsMP->botport + 4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7261, ASSERT_TYPE_ASSERT, "( NS_BOT_FIRST ) <= ( botNetSrc ) && ( botNetSrc ) <= ( NS_BOT_LAST )", "botNetSrc not in [NS_BOT_FIRST, NS_BOT_LAST]\n\t%i not in [%i, %i]", v19, v23, v25) )
       __debugbreak();
   }
-  NET_OpenConnection(&DemoSession->sessionInfo, (const netsrc_t)v14, _R14);
-  __asm { vmovups xmm0, xmmword ptr [r14] }
-  addrHandleIndex = _R14->addrHandleIndex;
-  __asm { vmovups [rsp+978h+var_918], xmm0 }
-  v29.addrHandleIndex = addrHandleIndex;
-  SV_ClientMP_DirectConnect(&v29);
+  NET_OpenConnection(&DemoSession->sessionInfo, (const netsrc_t)v14, result);
+  addrHandleIndex = result->addrHandleIndex;
+  *(_OWORD *)&v28.type = *(_OWORD *)&result->type;
+  v28.addrHandleIndex = addrHandleIndex;
+  SV_ClientMP_DirectConnect(&v28);
   SV_Cmd_EndTokenizedString();
   ++PersistentGlobalsMP->botport;
-  return _R14;
+  return result;
 }
 
 /*
@@ -2971,89 +2931,97 @@ void SV_ClientMP_DirectConnect(netadr_t *from)
   __int64 v3; 
   const char *v4; 
   char v5; 
+  __int128 v6; 
   const char *v7; 
   const char *v8; 
   const char *v9; 
   const char *v10; 
   const XUID *v11; 
+  __int128 v12; 
   unsigned int v13; 
   unsigned int v14; 
   __int64 v15; 
+  _DWORD *v16; 
+  int v17; 
   int v18; 
-  int v19; 
+  __int128 v19; 
   unsigned __int64 m_id; 
-  int v23; 
-  const char *v24; 
+  int v21; 
+  const char *v22; 
+  const char *v23; 
+  int v24; 
   const char *v25; 
-  int v27; 
+  const char *v26; 
+  __int128 v27; 
   const char *v28; 
-  const char *v29; 
-  const char *v31; 
-  unsigned __int64 v32; 
+  unsigned __int64 v29; 
   int Byte; 
   const PartyData *ServerLobby; 
-  SvClientMP *v35; 
+  SvClientMP *v32; 
   SvClientMP *MpClient; 
   char *playerGuid; 
-  char *v38; 
-  char v39; 
-  __int64 v40; 
-  char v41; 
-  const char *v43; 
-  const char *v45; 
-  OnlineTimeSeriesLog *v46; 
-  unsigned int v47; 
+  char *v35; 
+  char v36; 
+  __int64 v37; 
+  char v38; 
+  __int128 v39; 
+  const char *v40; 
+  __int128 v41; 
+  const char *v42; 
+  OnlineTimeSeriesLog *v43; 
+  unsigned int v44; 
   Online_ErrorReporting *Instance; 
-  int v50; 
+  int v46; 
   int j; 
-  int v53; 
-  const PartyData *v54; 
-  const PartyData *v55; 
+  int v48; 
+  const PartyData *v49; 
+  const PartyData *v50; 
   XUID *Xuid; 
-  const char *v57; 
+  const char *v52; 
   SvClient *CommonClient; 
   int addrHandleIndex; 
-  const char *v61; 
+  const char *v55; 
   signed int i; 
   SvClientConnectionState state; 
-  int v65; 
-  const char *v66; 
+  int v58; 
+  const char *v59; 
   __int64 MpClientIndex; 
-  scrContext_t *v68; 
+  scrContext_t *v61; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
   const netadr_t *Netadr; 
   NetchanTelemetry *NetchanTelemetry; 
-  const char *v74; 
-  const char *v75; 
-  const char *v76; 
+  const char *v65; 
+  const char *v66; 
+  const char *v67; 
   int time; 
   clientState_t *ClientState; 
-  const netadr_t *v80; 
-  signed int v83; 
+  const netadr_t *v70; 
+  netadr_t *v71; 
+  __int128 v72; 
+  signed int v73; 
   char *fmt; 
   char *fmta; 
   NetchanTelemetry *serverTelemetry; 
-  __int64 v87; 
-  __int64 v88; 
-  __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  __int64 v92; 
-  bool v93; 
-  bool v94; 
-  char v95; 
-  int v96; 
+  __int64 v77; 
+  __int64 v78; 
+  __int64 v79; 
+  __int64 v80; 
+  __int64 v81; 
+  __int64 v82; 
+  bool v83; 
+  bool v84; 
+  char v85; 
+  int v86; 
   XUID player; 
   XUID result; 
-  netadr_t v99; 
-  netadr_t v100; 
+  netadr_t v89; 
+  netadr_t v90; 
   char dest[16]; 
-  int v102; 
-  char v103; 
+  int v92; 
+  char v93; 
   char contextString[128]; 
   char s[1024]; 
 
-  _RDI = from;
   XUID::XUID(&player);
   Com_Printf(131087, "SV_ClientMP_DirectConnect()\n");
   v2 = SV_Cmd_Argv(1);
@@ -3063,45 +3031,38 @@ void SV_ClientMP_DirectConnect(netadr_t *from)
   Core_strcpy(s, 0x400ui64, v4);
   if ( SV_IsMigrating() )
   {
-    NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, "error\nEXE/MIGRATION_IN_PROGRESS");
+    NET_OutOfBandPrint(NS_MAXCLIENTS, from, "error\nEXE/MIGRATION_IN_PROGRESS");
     Com_Printf(131087, "    rejected connect: host migration in progress\n");
     return;
   }
   v5 = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0];
-  v95 = v5;
-  if ( v5 )
-    goto LABEL_90;
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  v100.addrHandleIndex = _RDI->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rbp+490h+var_4F0.type], xmm0 }
-  if ( SV_ClientMP_DirectConnect_ValidateGameProtocol(&v100, s) )
+  v85 = v5;
+  if ( v5 || (v6 = *(_OWORD *)&from->type, v90.addrHandleIndex = from->addrHandleIndex, *(_OWORD *)&v90.type = v6, SV_ClientMP_DirectConnect_ValidateGameProtocol(&v90, s)) )
   {
-LABEL_90:
     v7 = Info_ValueForKey(s, "challenge");
-    v96 = atoi(v7);
+    v86 = atoi(v7);
     v8 = Info_ValueForKey(s, "onlineStats");
-    v93 = atoi(v8) != 0;
+    v83 = atoi(v8) != 0;
     v9 = Info_ValueForKey(s, "migrating");
-    v94 = atoi(v9) != 0;
+    v84 = atoi(v9) != 0;
     v10 = Info_ValueForKey(s, "xuid");
     v11 = XUID::FromString(&result, v10);
     XUID::operator=(&player, v11);
-    if ( !SV_ClientMP_HandleReconnect(_RDI) )
+    if ( !SV_ClientMP_HandleReconnect(from) )
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
+      v12 = *(_OWORD *)&from->type;
       v13 = 0;
       if ( v5 )
       {
-        v99.addrHandleIndex = _RDI->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-        if ( !NET_IsLocalAddress(&v99) )
+        v89.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v89.type = v12;
+        if ( !NET_IsLocalAddress(&v89) )
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          addrHandleIndex = _RDI->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-          v99.addrHandleIndex = addrHandleIndex;
-          v61 = NET_AdrToString(&v99);
-          Com_Printf(131087, "SV_DirectConnect: %s:rejected non-local client for front end server\n", v61);
+          addrHandleIndex = from->addrHandleIndex;
+          *(_OWORD *)&v89.type = *(_OWORD *)&from->type;
+          v89.addrHandleIndex = addrHandleIndex;
+          v55 = NET_AdrToString(&v89);
+          Com_Printf(131087, "SV_DirectConnect: %s:rejected non-local client for front end server\n", v55);
           return;
         }
         SV_ClientMP_DirectConnect_VerifyFrontEndProtocol(s);
@@ -3114,12 +3075,11 @@ LABEL_90:
         state = MpClient->state;
         if ( state == CS_CONNECTED )
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v65 = _RDI->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-          v99.addrHandleIndex = v65;
-          v66 = NET_AdrToString(&v99);
-          Com_Printf(131087, "SV_DirectConnect: %s:replacing existing local client packet\n", v66);
+          v58 = from->addrHandleIndex;
+          *(_OWORD *)&v89.type = *(_OWORD *)&from->type;
+          v89.addrHandleIndex = v58;
+          v59 = NET_AdrToString(&v89);
+          Com_Printf(131087, "SV_DirectConnect: %s:replacing existing local client packet\n", v59);
           SV_ClientMP_FreeClient(MpClient, "SV_DirectConnect");
         }
         else if ( state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2100, ASSERT_TYPE_ASSERT, "(cl->state == SvClientConnectionState::CS_FREE)", (const char *)&queryFormat, "cl->state == SvClientConnectionState::CS_FREE") )
@@ -3128,35 +3088,31 @@ LABEL_90:
         }
         goto $gotnewcl;
       }
-      v100.addrHandleIndex = _RDI->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rbp+490h+var_4F0.type], xmm0 }
-      if ( !NET_IsLocalAddress(&v100) )
+      v90.addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&v90.type = v12;
+      if ( !NET_IsLocalAddress(&v90) )
       {
         result.m_id = (unsigned __int64)SvPersistentGlobalsMP::GetPersistentGlobalsMP();
         v14 = 0;
         v15 = 0i64;
-        _RBX = (_DWORD *)(result.m_id + 140);
+        v16 = (_DWORD *)(result.m_id + 140);
         while ( 1 )
         {
-          __asm { vmovups xmm0, xmmword ptr [rbx-14h] }
-          v18 = *(_RBX - 1);
-          v19 = _RDI->addrHandleIndex;
-          __asm
+          v17 = *(v16 - 1);
+          v18 = from->addrHandleIndex;
+          *(_OWORD *)&v90.type = *(_OWORD *)(v16 - 5);
+          v19 = *(_OWORD *)&from->type;
+          v90.addrHandleIndex = v17;
+          *(_OWORD *)&v89.type = v19;
+          v89.addrHandleIndex = v18;
+          if ( NET_CompareAdr(&v89, &v90) )
           {
-            vmovups xmmword ptr [rbp+490h+var_4F0.type], xmm0
-            vmovups xmm0, xmmword ptr [rdi]
-          }
-          v100.addrHandleIndex = v18;
-          __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-          v99.addrHandleIndex = v19;
-          if ( NET_CompareAdr(&v99, &v100) )
-          {
-            if ( v96 == *_RBX )
+            if ( v86 == *v16 )
               break;
           }
           ++v14;
           ++v15;
-          _RBX += 14;
+          v16 += 14;
           if ( v15 >= 1024 )
           {
             m_id = result.m_id;
@@ -3164,41 +3120,39 @@ LABEL_90:
           }
         }
         m_id = result.m_id;
-        v25 = (const char *)(56i64 * (int)v14 + result.m_id + 152);
-        if ( strcmp(dest, v25) )
+        v23 = (const char *)(56i64 * (int)v14 + result.m_id + 152);
+        if ( strcmp(dest, v23) )
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v27 = _RDI->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-          v99.addrHandleIndex = v27;
-          v28 = NET_AdrToString(&v99);
-          Com_Printf(131087, "SV_DirectConnect: challenge guid mismatch (received %s, expected %s) from %s\n", dest, v25, v28);
-          NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, "error\nEXE/BAD_CHALLENGE");
+          v24 = from->addrHandleIndex;
+          *(_OWORD *)&v89.type = *(_OWORD *)&from->type;
+          v89.addrHandleIndex = v24;
+          v25 = NET_AdrToString(&v89);
+          Com_Printf(131087, "SV_DirectConnect: challenge guid mismatch (received %s, expected %s) from %s\n", dest, v23, v25);
+          NET_OutOfBandPrint(NS_MAXCLIENTS, from, "error\nEXE/BAD_CHALLENGE");
           return;
         }
 LABEL_13:
         if ( v14 == 1024 )
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v23 = _RDI->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-          v99.addrHandleIndex = v23;
-          v24 = NET_AdrToString(&v99);
-          Com_Printf(131087, "SV_DirectConnect: could not find challenge for client %s at %s\n", dest, v24);
-          NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, "error\nEXE/BAD_CHALLENGE");
+          v21 = from->addrHandleIndex;
+          *(_OWORD *)&v89.type = *(_OWORD *)&from->type;
+          v89.addrHandleIndex = v21;
+          v22 = NET_AdrToString(&v89);
+          Com_Printf(131087, "SV_DirectConnect: could not find challenge for client %s at %s\n", dest, v22);
+          NET_OutOfBandPrint(NS_MAXCLIENTS, from, "error\nEXE/BAD_CHALLENGE");
           return;
         }
-        v29 = XUID::ToDevString(&player);
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v99.addrHandleIndex = _RDI->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-        v31 = NET_AdrToString(&v99);
-        Com_Printf(131087, "Client with challenge %i connecting from %s. xuid %s. guid %s\n", v14, v31, v29, dest);
+        v26 = XUID::ToDevString(&player);
+        v27 = *(_OWORD *)&from->type;
+        v89.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v89.type = v27;
+        v28 = NET_AdrToString(&v89);
+        Com_Printf(131087, "Client with challenge %i connecting from %s. xuid %s. guid %s\n", v14, v28, v26, dest);
         *(_DWORD *)(56i64 * (int)v14 + m_id + 148) = 1;
       }
       if ( XUID::IsValid(&player) )
       {
-        v32 = player.m_id;
+        v29 = player.m_id;
         if ( SV_IsDemoPlaying() )
         {
           Byte = SV_Demo_GetByte();
@@ -3206,35 +3160,35 @@ LABEL_13:
         else
         {
           ServerLobby = SV_MainMP_GetServerLobby();
-          Byte = Party_FindMemberByXUID(ServerLobby, (const XUID)v32);
+          Byte = Party_FindMemberByXUID(ServerLobby, (const XUID)v29);
           SV_Record_GetByte(Byte);
         }
         if ( Byte >= 0 && Byte < (int)SvClient::ms_clientCount )
         {
-          v35 = SV_Client_GetMpClient(Byte);
-          MpClient = v35;
-          if ( v35->state == CS_RECONNECTING && v94 )
+          v32 = SV_Client_GetMpClient(Byte);
+          MpClient = v32;
+          if ( v32->state == CS_RECONNECTING && v84 )
           {
-            playerGuid = v35->playerGuid;
-            if ( v35 == (SvClientMP *)-246208i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+            playerGuid = v32->playerGuid;
+            if ( v32 == (SvClientMP *)-246208i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
               __debugbreak();
-            v38 = (char *)(dest - playerGuid);
+            v35 = (char *)(dest - playerGuid);
             do
             {
-              v39 = playerGuid[(_QWORD)v38];
-              v40 = v3;
-              v41 = *playerGuid++;
+              v36 = playerGuid[(_QWORD)v35];
+              v37 = v3;
+              v38 = *playerGuid++;
               --v3;
-              if ( !v40 )
+              if ( !v37 )
                 break;
-              if ( v39 != v41 )
+              if ( v36 != v38 )
                 goto LABEL_34;
             }
-            while ( v39 );
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            v99.addrHandleIndex = _RDI->addrHandleIndex;
-            __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-            SV_ClientMP_ReconnectMigratedClient(MpClient, &v99, v96, dest, s, v93);
+            while ( v36 );
+            v39 = *(_OWORD *)&from->type;
+            v89.addrHandleIndex = from->addrHandleIndex;
+            *(_OWORD *)&v89.type = v39;
+            SV_ClientMP_ReconnectMigratedClient(MpClient, &v89, v86, dest, s, v83);
             return;
           }
 LABEL_34:
@@ -3249,46 +3203,41 @@ $gotnewcl:
           MpClient->gentity = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[MpClientIndex];
           if ( MpClient->scriptId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2138, ASSERT_TYPE_ASSERT, "(!newcl->scriptId)", (const char *)&queryFormat, "!newcl->scriptId") )
             __debugbreak();
-          v68 = ScriptContext_Server();
-          MpClient->scriptId = Scr_AllocExtArray(v68);
-          _R13 = MpClient->playerGuid;
-          MpClient->challenge = v96;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+490h+dest]
-            vmovups xmmword ptr [r13+0], xmm0
-          }
-          *(_DWORD *)&MpClient->playerGuid[16] = v102;
-          MpClient->playerGuid[20] = v103;
+          v61 = ScriptContext_Server();
+          MpClient->scriptId = Scr_AllocExtArray(v61);
+          MpClient->challenge = v86;
+          *(_OWORD *)MpClient->playerGuid = *(_OWORD *)dest;
+          *(_DWORD *)&MpClient->playerGuid[16] = v92;
+          MpClient->playerGuid[20] = v93;
           PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-          if ( NetConnection::Accept(&MpClient->clientConnection, _RDI, (const NetConnection::Type)(5 - (PersistentGlobalsMP->frontEndState[0] != 0)), ACCEPT_REPLACE) )
+          if ( NetConnection::Accept(&MpClient->clientConnection, from, (const NetConnection::Type)(5 - (PersistentGlobalsMP->frontEndState[0] != 0)), ACCEPT_REPLACE) )
           {
-            Netadr = NetConnection::GetNetadr(&MpClient->clientConnection, &v99);
+            Netadr = NetConnection::GetNetadr(&MpClient->clientConnection, &v89);
             SvClientMP::AddClientAtAddress(Netadr, MpClientIndex);
             NetchanTelemetry = SV_SnapshotMP_GetNetchanTelemetry();
             Netchan_Setup(NS_MAXCLIENTS, &MpClient->netchan, &MpClient->clientConnection, MpClient->netBuf.netchanBuffer, 4096, NetchanTelemetry);
             Core_strcpy(MpClient->userinfo, 0x400ui64, s);
-            v74 = G_ClientMP_Connect(MpClientIndex, MpClient->scriptId);
-            if ( v74 )
+            v65 = G_ClientMP_Connect(MpClientIndex, MpClient->scriptId);
+            if ( v65 )
             {
-              if ( v95 )
+              if ( v85 )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2186, ASSERT_TYPE_ASSERT, "(!isFrontEndServer)", "%s\n\tFront end client should not be rejected", "!isFrontEndServer") )
                   __debugbreak();
               }
-              v75 = j_va("error\n%s", v74);
-              NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, v75);
-              Com_Printf(131087, "Game rejected a connection: %s.\n", v74);
+              v66 = j_va("error\n%s", v65);
+              NET_OutOfBandPrint(NS_MAXCLIENTS, from, v66);
+              Com_Printf(131087, "Game rejected a connection: %s.\n", v65);
               SvClientMP::FreeScriptId(MpClient);
             }
             else
             {
-              v76 = Info_ValueForKey(MpClient->userinfo, (const char *)&stru_143C9A1A4);
-              if ( *v76 )
-                Com_Printf(131087, "Going from CS_FREE to CS_CONNECTED for \"%s\" (num %i guid \"%s\")\n", v76, (unsigned int)MpClientIndex, MpClient->playerGuid);
+              v67 = Info_ValueForKey(MpClient->userinfo, (const char *)&stru_143C9A1A4);
+              if ( *v67 )
+                Com_Printf(131087, "Going from CS_FREE to CS_CONNECTED for \"%s\" (num %i guid \"%s\")\n", v67, (unsigned int)MpClientIndex, MpClient->playerGuid);
               else
                 Com_Printf(131087, "Going from CS_FREE to CS_CONNECTED for unnamed client, probably a bot (see guid) (num %i guid \"%s\")\n", (unsigned int)MpClientIndex, MpClient->playerGuid);
-              MpClient->usingOnlineStatsOffline = v93;
+              MpClient->usingOnlineStatsOffline = v83;
               MpClient->state = CS_CONNECTED;
               time = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
               MpClient->nextSnapshotTime = time;
@@ -3300,13 +3249,9 @@ $gotnewcl:
               SV_ClientMP_ResetKillcam(MpClient);
               SV_ClientMP_ResetCommandThinkTime(MpClient);
               SV_SnapshotMP_CleanupClient(MpClientIndex);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbp+490h+dest]
-                vmovups xmmword ptr [r13+0], xmm0
-              }
-              *(_DWORD *)&MpClient->playerGuid[16] = v102;
-              MpClient->playerGuid[20] = v103;
+              *(_OWORD *)MpClient->playerGuid = *(_OWORD *)dest;
+              *(_DWORD *)&MpClient->playerGuid[16] = v92;
+              MpClient->playerGuid[20] = v93;
               MpClient->hasSentClientNetworkTelemetry = 0;
               memset_0(MpClient->cmdReceivedHistogram, 0, 0xC0ui64);
               *(_QWORD *)MpClient->cmdExtrapolationCmdLengthHistogram = 0i64;
@@ -3321,19 +3266,19 @@ $gotnewcl:
               SV_StreamSync_ClientConnect(MpClient, 0);
               ScriptableMsgWrite_ResetClientBuffers(MpClientIndex, 1);
               ClientState = G_MainMP_GetClientState(MpClientIndex);
-              v80 = NetConnection::GetNetadr(&MpClient->clientConnection, &v99);
-              ClientState->isBot = NET_IsBotAddr(v80);
+              v70 = NetConnection::GetNetadr(&MpClient->clientConnection, &v89);
+              ClientState->isBot = NET_IsBotAddr(v70);
               SV_ClientMP_UpdateConnectivityBits(MpClientIndex);
-              _RAX = NetConnection::GetNetadr(&MpClient->clientConnection, &v100);
-              __asm { vmovups xmm0, xmmword ptr [rax] }
-              LODWORD(_RAX) = _RAX->addrHandleIndex;
-              __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-              v99.addrHandleIndex = (int)_RAX;
-              SV_SendConnectResponseToClient(MpClient, &v99, 0);
-              v83 = 0;
-              for ( MpClient->gamestateMessageNum = -1; v83 < (int)SvClient::ms_clientCount; ++v83 )
+              v71 = NetConnection::GetNetadr(&MpClient->clientConnection, &v90);
+              v72 = *(_OWORD *)&v71->type;
+              LODWORD(v71) = v71->addrHandleIndex;
+              *(_OWORD *)&v89.type = v72;
+              v89.addrHandleIndex = (int)v71;
+              SV_SendConnectResponseToClient(MpClient, &v89, 0);
+              v73 = 0;
+              for ( MpClient->gamestateMessageNum = -1; v73 < (int)SvClient::ms_clientCount; ++v73 )
               {
-                if ( SV_ClientMP_IsClientConnected(v83) )
+                if ( SV_ClientMP_IsClientConnected(v73) )
                   ++v13;
               }
               LODWORD(serverTelemetry) = v13;
@@ -3342,52 +3287,50 @@ $gotnewcl:
           }
           else
           {
-            NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, "error\nEXE/ERR_UNREGISTERED_CONNECTION");
+            NET_OutOfBandPrint(NS_MAXCLIENTS, from, "error\nEXE/ERR_UNREGISTERED_CONNECTION");
             Com_Printf(131087, "Rejected a connection. Client connection accept failed.\n");
           }
           return;
         }
       }
-      if ( NET_IsBotAddr(_RDI) )
+      if ( NET_IsBotAddr(from) )
       {
-        if ( !NET_IsBotAddr(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2041, ASSERT_TYPE_ASSERT, "(NET_IsBotAddr( from ))", "%s\n\tOnly bots can claim a slot without existing in party", "NET_IsBotAddr( from )") )
+        if ( !NET_IsBotAddr(from) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2041, ASSERT_TYPE_ASSERT, "(NET_IsBotAddr( from ))", "%s\n\tOnly bots can claim a slot without existing in party", "NET_IsBotAddr( from )") )
           __debugbreak();
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v50 = _RDI->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-        v99.addrHandleIndex = v50;
-        for ( j = NET_IsLocalAddress(&v99) == 0; j < (int)SvClient::ms_clientCount; ++j )
+        v46 = from->addrHandleIndex;
+        *(_OWORD *)&v89.type = *(_OWORD *)&from->type;
+        v89.addrHandleIndex = v46;
+        for ( j = NET_IsLocalAddress(&v89) == 0; j < (int)SvClient::ms_clientCount; ++j )
         {
           MpClient = SV_Client_GetMpClient(j);
           if ( MpClient->state == CS_FREE )
           {
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            v53 = _RDI->addrHandleIndex;
-            __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-            v99.addrHandleIndex = v53;
-            if ( !NET_IsLocalAddress(&v99) && j <= 0 )
+            v48 = from->addrHandleIndex;
+            *(_OWORD *)&v89.type = *(_OWORD *)&from->type;
+            v89.addrHandleIndex = v48;
+            if ( !NET_IsLocalAddress(&v89) && j <= 0 )
             {
-              LODWORD(v92) = _RDI->ip[3];
-              LODWORD(v91) = _RDI->ip[2];
-              LODWORD(v90) = _RDI->ip[1];
-              LODWORD(v89) = _RDI->ip[0];
-              LODWORD(v88) = _RDI->type;
-              LODWORD(v87) = j;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2052, ASSERT_TYPE_ASSERT, "(NET_IsLocalAddress( from ) || i > 0)", "%s\n\ti is %i, from.type is %i, ip is %u.%u.%u.%u", "NET_IsLocalAddress( from ) || i > 0", v87, v88, v89, v90, v91, v92) )
+              LODWORD(v82) = from->ip[3];
+              LODWORD(v81) = from->ip[2];
+              LODWORD(v80) = from->ip[1];
+              LODWORD(v79) = from->ip[0];
+              LODWORD(v78) = from->type;
+              LODWORD(v77) = j;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2052, ASSERT_TYPE_ASSERT, "(NET_IsLocalAddress( from ) || i > 0)", "%s\n\ti is %i, from.type is %i, ip is %u.%u.%u.%u", "NET_IsLocalAddress( from ) || i > 0", v77, v78, v79, v80, v81, v82) )
                 __debugbreak();
             }
             if ( SV_IsDemoPlaying() )
               goto $gotnewcl;
-            v54 = SV_MainMP_GetServerLobby();
-            if ( !Party_IsMemberRegistered(v54, j) )
+            v49 = SV_MainMP_GetServerLobby();
+            if ( !Party_IsMemberRegistered(v49, j) )
               goto $gotnewcl;
-            v55 = SV_MainMP_GetServerLobby();
-            Xuid = Party_GetXuid(&result, v55, j);
-            v57 = XUID::ToDevString(Xuid);
-            Com_Printf(131087, "A client (XUID %s) is already registered for CS_FREE at client index %i, this is not an error, skipping over this index.\n", v57, (unsigned int)j);
+            v50 = SV_MainMP_GetServerLobby();
+            Xuid = Party_GetXuid(&result, v50, j);
+            v52 = XUID::ToDevString(Xuid);
+            Com_Printf(131087, "A client (XUID %s) is already registered for CS_FREE at client index %i, this is not an error, skipping over this index.\n", v52, (unsigned int)j);
           }
         }
-        NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, "error\nEXE/SERVERISFULL");
+        NET_OutOfBandPrint(NS_MAXCLIENTS, from, "error\nEXE/SERVERISFULL");
         Com_Printf(131087, "Rejected a connection.\n");
         Com_Printf(131087, "Current slots (maxclients is %i):\n", SvClient::ms_clientCount);
         if ( (int)SvClient::ms_clientCount > 0 )
@@ -3405,19 +3348,19 @@ $gotnewcl:
       }
       else if ( !SV_IsDemoPlaying() )
       {
-        v43 = XUID::ToDevString(&player);
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v99.addrHandleIndex = _RDI->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rbp+490h+var_510.type], xmm0 }
-        v45 = NET_AdrToString(&v99);
-        Com_Printf(131087, "%s:directConnect - xuid was %s, we don't know about this user.  Full userinfo is %s\n", v45, v43, s);
-        NET_OutOfBandPrint(NS_MAXCLIENTS, _RDI, "error\nEXE/ERR_UNREGISTERED_CONNECTION");
-        v46 = OnlineTimeSeriesLog::Get();
-        OnlineTimeSeriesLog::WriteEventCounter(v46, "2.unregistered.count", 1u);
-        LODWORD(v43) = Party_GetActiveParty()->migrateData.startTime;
-        v47 = Sys_Milliseconds();
-        LODWORD(fmta) = (_DWORD)v43;
-        Com_sprintf(contextString, 0x80ui64, "%d,2,false,%d,%s,%d", v47, fmta, "false", -1);
+        v40 = XUID::ToDevString(&player);
+        v41 = *(_OWORD *)&from->type;
+        v89.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v89.type = v41;
+        v42 = NET_AdrToString(&v89);
+        Com_Printf(131087, "%s:directConnect - xuid was %s, we don't know about this user.  Full userinfo is %s\n", v42, v40, s);
+        NET_OutOfBandPrint(NS_MAXCLIENTS, from, "error\nEXE/ERR_UNREGISTERED_CONNECTION");
+        v43 = OnlineTimeSeriesLog::Get();
+        OnlineTimeSeriesLog::WriteEventCounter(v43, "2.unregistered.count", 1u);
+        LODWORD(v40) = Party_GetActiveParty()->migrateData.startTime;
+        v44 = Sys_Milliseconds();
+        LODWORD(fmta) = (_DWORD)v40;
+        Com_sprintf(contextString, 0x80ui64, "%d,2,false,%d,%s,%d", v44, fmta, "false", -1);
         Instance = Online_ErrorReporting::GetInstance();
         Online_ErrorReporting::ReportError(Instance, DODGE, contextString);
       }
@@ -3856,46 +3799,39 @@ SV_ClientMP_DropUserCommand
 */
 void SV_ClientMP_DropUserCommand(SvClientMP *const cl, const usercmd_s *const cmd)
 {
+  usercmd_s *p_lastUsercmd; 
+  const usercmd_s *v5; 
   __int64 v6; 
-  bool v15; 
+  __int128 v7; 
+  bool v8; 
   int MpClientIndex; 
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4174, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4175, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  _RCX = &cl->lastUsercmd;
-  _RAX = cmd;
+  p_lastUsercmd = &cl->lastUsercmd;
+  v5 = cmd;
   v6 = 2i64;
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (const usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+    v7 = *(_OWORD *)&v5->buttons;
+    v5 = (const usercmd_s *)((char *)v5 + 128);
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.attachmentVariationIndices[13] = v7;
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo = *(_OWORD *)&v5[-1].offHand.weaponCamo;
+    *(_OWORD *)p_lastUsercmd[-1].remoteControlMove = *(_OWORD *)v5[-1].remoteControlMove;
+    *(_OWORD *)p_lastUsercmd[-1].vehAngles = *(_OWORD *)v5[-1].vehAngles;
+    *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ = *(_OWORD *)&v5[-1].vehOrgZ;
+    *(_OWORD *)&p_lastUsercmd[-1].gunYOfs = *(_OWORD *)&v5[-1].gunYOfs;
+    *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data = *(_OWORD *)v5[-1].sightedClientsMask.data;
+    *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v5[-1].sightedClientsMask.data[4];
     --v6;
   }
   while ( v6 );
-  v15 = cl->state == CS_ACTIVE;
-  _RCX->buttons = _RAX->buttons;
-  if ( v15 )
+  v8 = cl->state == CS_ACTIVE;
+  p_lastUsercmd->buttons = v5->buttons;
+  if ( v8 )
   {
     GStatic::SetActiveStatics();
     MpClientIndex = SV_Client_GetMpClientIndex(cl);
@@ -3915,14 +3851,17 @@ void SV_ClientMP_EnterWorld(SvClientMP *client, usercmd_s *cmd, bool firstConnec
   int MpClientIndex; 
   __int64 v8; 
   playerState_s *PlayerstateForClientNum; 
+  usercmd_s *v10; 
   __int64 v11; 
+  usercmd_s *p_lastUsercmd; 
+  __int128 v13; 
   int commandTime; 
   int loopbackProcessStopTime; 
   SvClientConnectionState migrationState; 
-  gentity_s *v24; 
-  int v25; 
-  int v26; 
-  int v27; 
+  gentity_s *v17; 
+  int v18; 
+  int v19; 
+  int v20; 
 
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
   MpClientIndex = SV_Client_GetMpClientIndex(client);
@@ -3930,38 +3869,28 @@ void SV_ClientMP_EnterWorld(SvClientMP *client, usercmd_s *cmd, bool firstConnec
   PlayerstateForClientNum = SV_Game_GetPlayerstateForClientNum(MpClientIndex);
   Com_Printf(131087, "%i: Going from CS_CLIENTLOADING to CS_ACTIVE for client %i %s\n", (unsigned int)PersistentGlobalsMP->time, (unsigned int)v8, client->name);
   client->state = CS_ACTIVE;
-  _RAX = cmd;
+  v10 = cmd;
   client->deltaMessage = -1;
   v11 = 2i64;
   client->nextSnapshotTime = PersistentGlobalsMP->time;
-  _RCX = &client->lastUsercmd;
+  p_lastUsercmd = &client->lastUsercmd;
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+    v13 = *(_OWORD *)&v10->buttons;
+    v10 = (usercmd_s *)((char *)v10 + 128);
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.attachmentVariationIndices[13] = v13;
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo = *(_OWORD *)&v10[-1].offHand.weaponCamo;
+    *(_OWORD *)p_lastUsercmd[-1].remoteControlMove = *(_OWORD *)v10[-1].remoteControlMove;
+    *(_OWORD *)p_lastUsercmd[-1].vehAngles = *(_OWORD *)v10[-1].vehAngles;
+    *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ = *(_OWORD *)&v10[-1].vehOrgZ;
+    *(_OWORD *)&p_lastUsercmd[-1].gunYOfs = *(_OWORD *)&v10[-1].gunYOfs;
+    *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data = *(_OWORD *)v10[-1].sightedClientsMask.data;
+    *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v10[-1].sightedClientsMask.data[4];
     --v11;
   }
   while ( v11 );
-  _RCX->buttons = _RAX->buttons;
+  p_lastUsercmd->buttons = v10->buttons;
   commandTime = cmd->commandTime;
   PlayerstateForClientNum->commandTime = commandTime;
   PlayerstateForClientNum->commandTimeInterpolated = commandTime;
@@ -3975,15 +3904,15 @@ void SV_ClientMP_EnterWorld(SvClientMP *client, usercmd_s *cmd, bool firstConnec
     __debugbreak();
   GStatic::SetActiveStatics();
   migrationState = client->migrationState;
-  v24 = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[v8];
+  v17 = &SvGameGlobals::GetSvGameGlobalsCommon()->gentities[v8];
   if ( migrationState == CS_ACTIVE )
   {
-    if ( client->gentity != v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 3158, ASSERT_TYPE_ASSERT, "(client->gentity == ent)", (const char *)&queryFormat, "client->gentity == ent") )
+    if ( client->gentity != v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 3158, ASSERT_TYPE_ASSERT, "(client->gentity == ent)", (const char *)&queryFormat, "client->gentity == ent") )
       __debugbreak();
-    if ( v24->s.number != (_DWORD)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 3159, ASSERT_TYPE_ASSERT, "(ent->s.number == clientNum)", (const char *)&queryFormat, "ent->s.number == clientNum") )
+    if ( v17->s.number != (_DWORD)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 3159, ASSERT_TYPE_ASSERT, "(ent->s.number == clientNum)", (const char *)&queryFormat, "ent->s.number == clientNum") )
       __debugbreak();
-    v25 = SV_Client_GetMpClientIndex(client);
-    G_ClientMP_Migrate(v25);
+    v18 = SV_Client_GetMpClientIndex(client);
+    G_ClientMP_Migrate(v18);
     if ( PlayerASM_IsEnabled() && !PlayerASM_IsConnectingPaths() )
     {
       *(_QWORD *)&PlayerstateForClientNum->animState.animSet = 0i64;
@@ -3994,12 +3923,12 @@ void SV_ClientMP_EnterWorld(SvClientMP *client, usercmd_s *cmd, bool firstConnec
   }
   else
   {
-    v24->s.number = truncate_cast<short,int>(v8);
-    client->gentity = v24;
-    v26 = SV_Client_GetMpClientIndex(client);
-    G_ClientMP_Begin(v26);
-    v27 = SV_Client_GetMpClientIndex(client);
-    if ( SV_BotIsBot(v27) )
+    v17->s.number = truncate_cast<short,int>(v8);
+    client->gentity = v17;
+    v19 = SV_Client_GetMpClientIndex(client);
+    G_ClientMP_Begin(v19);
+    v20 = SV_Client_GetMpClientIndex(client);
+    if ( SV_BotIsBot(v20) )
       SV_BotInit(client, firstConnect);
   }
   GStatic::ClearActiveStatics();
@@ -4641,95 +4570,87 @@ void SV_ClientMP_GetChallenge(netadr_t *from)
 {
   int v2; 
   int v3; 
+  __int64 challenges; 
   int v5; 
   int v6; 
   int v7; 
   int v8; 
-  int v10; 
+  int v9; 
+  __int128 v10; 
   int addrHandleIndex; 
+  int v12; 
   int v13; 
+  const char *v14; 
+  int v15; 
   int v16; 
-  const char *v17; 
-  int v18; 
-  int v19; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
   char *Str1; 
-  netadr_t v22; 
-  netadr_t v23; 
+  netadr_t v19; 
+  netadr_t v20; 
   msg_t buf; 
   unsigned __int8 data[32]; 
 
-  _R15 = from;
   v2 = 0;
   v3 = 0x7FFFFFFF;
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-  _RBX = (__int64)PersistentGlobalsMP->challenges;
+  challenges = (__int64)PersistentGlobalsMP->challenges;
   Str1 = (char *)SV_Cmd_Argv(2);
   v5 = 0;
   do
   {
     v6 = v3;
     v7 = v5;
-    v19 = v2;
+    v16 = v2;
     v8 = v3;
-    if ( !*(_DWORD *)(_RBX + 28) )
+    if ( !*(_DWORD *)(challenges + 28) )
     {
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      v10 = *(_DWORD *)(_RBX + 16);
-      __asm
+      v9 = *(_DWORD *)(challenges + 16);
+      *(_OWORD *)&v20.type = *(_OWORD *)challenges;
+      v10 = *(_OWORD *)&from->type;
+      v20.addrHandleIndex = v9;
+      addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&v19.type = v10;
+      v19.addrHandleIndex = addrHandleIndex;
+      if ( NET_CompareAdr(&v19, &v20) )
       {
-        vmovups [rsp+118h+var_A8], xmm0
-        vmovups xmm0, xmmword ptr [r15]
-      }
-      v23.addrHandleIndex = v10;
-      addrHandleIndex = _R15->addrHandleIndex;
-      __asm { vmovups [rsp+118h+var_C8], xmm0 }
-      v22.addrHandleIndex = addrHandleIndex;
-      if ( NET_CompareAdr(&v22, &v23) )
-      {
-        if ( !strncmp(Str1, (const char *)(_RBX + 32), 0x15ui64) )
+        if ( !strncmp(Str1, (const char *)(challenges + 32), 0x15ui64) )
           break;
       }
     }
-    v3 = *(_DWORD *)(_RBX + 24);
+    v3 = *(_DWORD *)(challenges + 24);
     ++v5;
-    _RBX += 56i64;
+    challenges += 56i64;
     v2 = v7;
     if ( v3 >= v8 )
-      v2 = v19;
+      v2 = v16;
     if ( v3 >= v6 )
       v3 = v6;
   }
   while ( v5 < 1024 );
   if ( v5 == 1024 )
   {
-    _RBX = (__int64)&PersistentGlobalsMP->challenges[v2];
-    v13 = G_rand() << 16;
+    challenges = (__int64)&PersistentGlobalsMP->challenges[v2];
+    v12 = G_rand() << 16;
     v5 = v2;
-    *(_DWORD *)(_RBX + 20) = PersistentGlobalsMP->time ^ v13 ^ G_rand();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rbx], xmm0
-    }
-    *(_DWORD *)(_RBX + 16) = _R15->addrHandleIndex;
-    *(_QWORD *)(_RBX + 24) = (unsigned int)PersistentGlobalsMP->time;
+    *(_DWORD *)(challenges + 20) = PersistentGlobalsMP->time ^ v12 ^ G_rand();
+    *(_OWORD *)challenges = *(_OWORD *)&from->type;
+    *(_DWORD *)(challenges + 16) = from->addrHandleIndex;
+    *(_QWORD *)(challenges + 24) = (unsigned int)PersistentGlobalsMP->time;
   }
   Core_strcpy(PersistentGlobalsMP->challenges[v5].playerGuid, 0x15ui64, Str1);
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  v16 = _R15->addrHandleIndex;
-  __asm { vmovups [rsp+118h+var_C8], xmm0 }
-  v22.addrHandleIndex = v16;
-  v17 = NET_AdrToString(&v22);
-  Com_Printf(131087, "SV - GetChallenge response '%i' to client at '%s'\n", *(unsigned int *)(_RBX + 20), v17);
+  v13 = from->addrHandleIndex;
+  *(_OWORD *)&v19.type = *(_OWORD *)&from->type;
+  v19.addrHandleIndex = v13;
+  v14 = NET_AdrToString(&v19);
+  Com_Printf(131087, "SV - GetChallenge response '%i' to client at '%s'\n", *(unsigned int *)(challenges + 20), v14);
   MSG_Init(&buf, data, 32);
   MSG_WriteString(&buf, "challengeResponse");
-  MSG_WriteLong(&buf, *(_DWORD *)(_RBX + 20));
+  MSG_WriteLong(&buf, *(_DWORD *)(challenges + 20));
   if ( buf.overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 466, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( &msgSend ))", "%s\n\tChallenge send buffer is too small, increase CHALLENGE_RESPONSE_SIZE", "!MSG_IsOverflowed( &msgSend )") )
     __debugbreak();
-  v18 = NET_OutOfBandData(NS_MAXCLIENTS, _R15, buf.data, buf.cursize);
-  if ( v18 < 0 )
-    Com_PrintError(131087, "Failed to send response to challenge: error %d.\n", (unsigned int)v18);
+  v15 = NET_OutOfBandData(NS_MAXCLIENTS, from, buf.data, buf.cursize);
+  if ( v15 < 0 )
+    Com_PrintError(131087, "Failed to send response to challenge: error %d.\n", (unsigned int)v15);
 }
 
 /*
@@ -4846,61 +4767,34 @@ int SV_ClientMP_GetCommandThinkTime(const SvClientMP *cl, const usercmd_s *cmd)
 SV_ClientMP_GetCurrentBurstTime
 ==============
 */
-
-int __fastcall SV_ClientMP_GetCurrentBurstTime(const SvClientMP *cl, double _XMM1_8)
+int SV_ClientMP_GetCurrentBurstTime(const SvClientMP *cl)
 {
-  const dvar_t *v5; 
-  const dvar_t *v6; 
-  __int64 v29; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
+  __int64 v7; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5078, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   if ( cl->startBufferBurstTime < cl->targetBufferBurstTime )
   {
-    LODWORD(v29) = cl->startBufferBurstTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5079, ASSERT_TYPE_ASSERT, "( cl->startBufferBurstTime ) >= ( cl->targetBufferBurstTime )", "cl->startBufferBurstTime >= cl->targetBufferBurstTime\n\t%i, %i", v29, cl->targetBufferBurstTime) )
+    LODWORD(v7) = cl->startBufferBurstTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5079, ASSERT_TYPE_ASSERT, "( cl->startBufferBurstTime ) >= ( cl->targetBufferBurstTime )", "cl->startBufferBurstTime >= cl->targetBufferBurstTime\n\t%i, %i", v7, cl->targetBufferBurstTime) )
       __debugbreak();
   }
-  v5 = DVARINT_sv_cmdBufferStepTime;
+  v2 = DVARINT_sv_cmdBufferStepTime;
   if ( !DVARINT_sv_cmdBufferStepTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdBufferStepTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.integer <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5080, ASSERT_TYPE_ASSERT, "( Dvar_GetInt_Internal_DebugName( DVARINT_sv_cmdBufferStepTime, \"sv_cmdBufferStepTime\" ) > 0 )", (const char *)&queryFormat, "Dvar_GetInt( sv_cmdBufferStepTime ) > 0") )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.integer <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5080, ASSERT_TYPE_ASSERT, "( Dvar_GetInt_Internal_DebugName( DVARINT_sv_cmdBufferStepTime, \"sv_cmdBufferStepTime\" ) > 0 )", (const char *)&queryFormat, "Dvar_GetInt( sv_cmdBufferStepTime ) > 0") )
     __debugbreak();
-  v6 = DVARINT_sv_cmdBufferStepTime;
+  v3 = DVARINT_sv_cmdBufferStepTime;
   if ( !DVARINT_sv_cmdBufferStepTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdBufferStepTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+2A5BCh]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+28h]
-    vdivss  xmm0, xmm1, xmm0; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm6; max
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm2, xmm6, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r8d
-    vmulss  xmm3, xmm2, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, edx
-    vmulss  xmm0, xmm2, xmm0
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si ecx, xmm1; val
-    vmovaps xmm6, [rsp+68h+var_28]
-  }
-  return I_clamp(_ECX, cl->targetBufferBurstTime, cl->startBufferBurstTime);
+  Dvar_CheckFrontendServerThread(v3);
+  I_fclamp((float)cl->lerpBufferBurstStep / (float)v3->current.integer, 0.0, 1.0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return I_clamp((int)*(float *)&_XMM1, cl->targetBufferBurstTime, cl->startBufferBurstTime);
 }
 
 /*
@@ -4911,177 +4805,76 @@ SV_ClientMP_GetExtrapAngles
 bool SV_ClientMP_GetExtrapAngles(const SvClientMP *const cl, const int commandTime, vec3_t *outAngles)
 {
   int beginCmdIndex; 
-  __int64 v17; 
-  int v18; 
-  __int64 v19; 
-  int v20; 
+  __int64 v7; 
+  int v8; 
+  __int64 v9; 
+  int v10; 
+  double v11; 
+  float v12; 
+  double v14; 
+  float v15; 
+  double v16; 
+  float v18; 
+  float v20; 
+  float v22; 
+  double v23; 
+  float v24; 
+  double v25; 
+  float v26; 
+  double v27; 
   bool result; 
-  __int64 v123; 
+  float v34; 
+  __int64 v36; 
+  float v37; 
 
-  _R14 = outAngles;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5434, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   if ( cl->beginCmdIndex != cl->currCmdIndex )
   {
-    LODWORD(v123) = cl->beginCmdIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5435, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) == ( cl->currCmdIndex )", "cl->beginCmdIndex == cl->currCmdIndex\n\t%i, %i", v123, cl->currCmdIndex) )
+    LODWORD(v36) = cl->beginCmdIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5435, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) == ( cl->currCmdIndex )", "cl->beginCmdIndex == cl->currCmdIndex\n\t%i, %i", v36, cl->currCmdIndex) )
       __debugbreak();
   }
   beginCmdIndex = cl->beginCmdIndex;
   if ( beginCmdIndex <= 1 )
     return 0;
-  v17 = (beginCmdIndex - 2) % 38;
-  v18 = cl->cmds[v17].commandTime;
-  v19 = (beginCmdIndex - 1) % 38;
-  v20 = cl->cmds[v19].commandTime;
-  if ( v20 <= v18 )
+  v7 = (beginCmdIndex - 2) % 38;
+  v8 = cl->cmds[v7].commandTime;
+  v9 = (beginCmdIndex - 1) % 38;
+  v10 = cl->cmds[v9].commandTime;
+  if ( v10 <= v8 )
     return 0;
-  __asm { vmovaps [rsp+108h+var_28], xmm6 }
-  _EBP = commandTime - v18;
-  __asm { vmovaps [rsp+108h+var_38], xmm7 }
-  _EAX = v20 - v18;
-  __asm
-  {
-    vmovaps [rsp+108h+var_48], xmm8
-    vmovaps [rsp+108h+var_58], xmm9
-    vmovss  xmm9, cs:__real@43340000
-    vmovaps [rsp+108h+var_68], xmm10
-    vmovaps [rsp+108h+var_78], xmm11
-    vmovaps [rsp+108h+var_88], xmm12
-    vmovd   xmm1, ebp
-    vcvtdq2ps xmm1, xmm1
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmovaps [rsp+108h+var_98], xmm13
-    vmovaps [rsp+108h+var_A8], xmm14
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmovaps [rsp+108h+var_B8], xmm15
-    vmovss  [rsp+108h+var_C8], xmm2
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cl->cmds[v17].angles.v[2], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3b360b61
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmulss  xmm7, xmm0, xmm14
-    vxorps  xmm15, xmm15, xmm15
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cl->cmds[v17].angles.v[1], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmulss  xmm6, xmm0, xmm14
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cl->cmds[v17].angles.v[0], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f000000
-    vmovss  xmm12, cs:__real@43b40000
-    vmulss  xmm3, xmm0, xmm14
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm3, xmm13
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm15, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm8, xmm0, xmm12
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm6, xmm13
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm15, xmm1, 1
-    vsubss  xmm0, xmm6, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm3, xmm7, xmm13
-    vmulss  xmm10, xmm0, xmm12
-    vmovss  xmm0, xmm1, xmm3
-    vroundss xmm2, xmm15, xmm0, 1
-    vsubss  xmm1, xmm7, xmm2
-    vmulss  xmm11, xmm1, xmm12
-    vmovaps xmm1, xmm9; maxAbsValueSize
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cl->cmds[v19].angles.v[2], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmulss  xmm7, xmm0, xmm14
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cl->cmds[v19].angles.v[1], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmulss  xmm6, xmm0, xmm14
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cl->cmds[v19].angles.v[0], *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmulss  xmm4, xmm0, xmm14
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm4, xmm13
-    vmovss  xmm0, xmm1, xmm2
-    vroundss xmm3, xmm15, xmm0, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, xmm12
-    vsubss  xmm2, xmm0, xmm8
-    vmulss  xmm3, xmm2, xmm14
-    vaddss  xmm1, xmm3, xmm13
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm5, [rsp+108h+var_C8]
-    vmovaps xmm9, [rsp+108h+var_58]
-  }
+  v37 = _mm_cvtepi32_ps((__m128i)(unsigned int)(commandTime - v8)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)(unsigned int)(v10 - v8)).m128_f32[0];
+  v11 = MSG_UnpackSignedFloat(cl->cmds[v7].angles.v[2], 180.0, 0x14u);
+  v12 = *(float *)&v11 * 0.0027777778;
+  _XMM15 = 0i64;
+  v14 = MSG_UnpackSignedFloat(cl->cmds[v7].angles.v[1], 180.0, 0x14u);
+  v15 = *(float *)&v14 * 0.0027777778;
+  v16 = MSG_UnpackSignedFloat(cl->cmds[v7].angles.v[0], 180.0, 0x14u);
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  v18 = (float)((float)(*(float *)&v16 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  v20 = (float)(v15 - *(float *)&_XMM2) * 360.0;
+  __asm { vroundss xmm2, xmm15, xmm0, 1 }
+  v22 = (float)(v12 - *(float *)&_XMM2) * 360.0;
+  v23 = MSG_UnpackSignedFloat(cl->cmds[v9].angles.v[2], 180.0, 0x14u);
+  v24 = *(float *)&v23 * 0.0027777778;
+  v25 = MSG_UnpackSignedFloat(cl->cmds[v9].angles.v[1], 180.0, 0x14u);
+  v26 = *(float *)&v25 * 0.0027777778;
+  v27 = MSG_UnpackSignedFloat(cl->cmds[v9].angles.v[0], 180.0, 0x14u);
+  __asm { vroundss xmm3, xmm15, xmm0, 1 }
   result = 1;
-  __asm
-  {
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm15, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, xmm12
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, xmm8
-    vmovaps xmm8, [rsp+108h+var_48]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [r14], xmm3
-    vaddss  xmm1, xmm6, xmm13
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm15, xmm1, 1
-    vsubss  xmm0, xmm6, xmm2
-    vmovaps xmm6, [rsp+108h+var_28]
-    vmulss  xmm1, xmm0, xmm12
-    vsubss  xmm2, xmm1, xmm10
-    vmulss  xmm4, xmm2, xmm14
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm3, xmm4, xmm13
-    vmovss  xmm1, xmm0, xmm3
-    vroundss xmm2, xmm15, xmm1, 1
-    vsubss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm0, xmm12
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, xmm10
-    vmovaps xmm10, [rsp+108h+var_68]
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm7, xmm13
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm15, xmm1, 1
-    vsubss  xmm0, xmm7, xmm2
-    vmovaps xmm7, [rsp+108h+var_38]
-    vmulss  xmm1, xmm0, xmm12
-    vsubss  xmm2, xmm1, xmm11
-    vmulss  xmm4, xmm2, xmm14
-    vmovaps xmm14, [rsp+108h+var_A8]
-    vmovss  dword ptr [r14+4], xmm3
-    vaddss  xmm3, xmm4, xmm13
-    vmovaps xmm13, [rsp+108h+var_98]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm3
-    vroundss xmm2, xmm15, xmm1, 1
-    vmovaps xmm15, [rsp+108h+var_B8]
-    vsubss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm0, xmm12
-    vmovaps xmm12, [rsp+108h+var_88]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, xmm11
-    vmovaps xmm11, [rsp+108h+var_78]
-    vmovss  dword ptr [r14+8], xmm3
-  }
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  outAngles->v[0] = (float)((float)((float)((float)((float)((float)((float)((float)(*(float *)&v27 * 0.0027777778) - *(float *)&_XMM3) * 360.0) - v18) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v37) + v18;
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  *(float *)&v27 = v26 - *(float *)&_XMM2;
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  *(float *)&_XMM3 = (float)((float)((float)((float)((float)((float)(*(float *)&v27 * 360.0) - v20) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v37) + v20;
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  v34 = (float)((float)((float)(v24 - *(float *)&_XMM2) * 360.0) - v22) * 0.0027777778;
+  outAngles->v[1] = *(float *)&_XMM3;
+  __asm { vroundss xmm2, xmm15, xmm1, 1 }
+  outAngles->v[2] = (float)((float)((float)(v34 - *(float *)&_XMM2) * 360.0) * v37) + v22;
   return result;
 }
 
@@ -5095,11 +4888,19 @@ char SV_ClientMP_GetExtrapCommand(const SvClientMP *const cl, usercmd_s *outCmd)
   const dvar_t *v4; 
   const dvar_t *v5; 
   int beginCmdIndex; 
+  usercmd_s *v7; 
+  usercmd_s *v8; 
   __int64 v9; 
-  __int64 v20; 
-  const dvar_t *v29; 
-  int v31; 
-  int v33; 
+  __int128 v10; 
+  usercmd_s *v11; 
+  usercmd_s *p_lastUsercmd; 
+  __int64 v13; 
+  __int128 v14; 
+  const dvar_t *v15; 
+  int v16; 
+  float v17; 
+  int v18; 
+  float v19; 
   vec3_t outAngles; 
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5980, ASSERT_TYPE_ASSERT, "( cl != nullptr )", (const char *)&queryFormat, "cl != nullptr") )
@@ -5121,84 +4922,63 @@ char SV_ClientMP_GetExtrapCommand(const SvClientMP *const cl, usercmd_s *outCmd)
   beginCmdIndex = cl->beginCmdIndex;
   if ( beginCmdIndex == cl->currCmdIndex )
   {
-    _R8 = outCmd;
-    _RAX = &cl->lastUsercmd;
-    v20 = 2i64;
+    v11 = outCmd;
+    p_lastUsercmd = &cl->lastUsercmd;
+    v13 = 2i64;
     do
     {
-      _R8 = (usercmd_s *)((char *)_R8 + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [r8-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [r8-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [r8-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [r8-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [r8-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [r8-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [r8-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [r8-10h], xmm1
-      }
-      --v20;
+      v11 = (usercmd_s *)((char *)v11 + 128);
+      v14 = *(_OWORD *)&p_lastUsercmd->buttons;
+      p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+      *(_OWORD *)&v11[-1].offHand.attachmentVariationIndices[13] = v14;
+      *(_OWORD *)&v11[-1].offHand.weaponCamo = *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo;
+      *(_OWORD *)v11[-1].remoteControlMove = *(_OWORD *)p_lastUsercmd[-1].remoteControlMove;
+      *(_OWORD *)v11[-1].vehAngles = *(_OWORD *)p_lastUsercmd[-1].vehAngles;
+      *(_OWORD *)&v11[-1].vehOrgZ = *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ;
+      *(_OWORD *)&v11[-1].gunYOfs = *(_OWORD *)&p_lastUsercmd[-1].gunYOfs;
+      *(_OWORD *)v11[-1].sightedClientsMask.data = *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data;
+      *(_OWORD *)&v11[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4];
+      --v13;
     }
-    while ( v20 );
-    _R8->buttons = _RAX->buttons;
-    v29 = DVARBOOL_sv_cmdExtrapAngles;
+    while ( v13 );
+    v11->buttons = p_lastUsercmd->buttons;
+    v15 = DVARBOOL_sv_cmdExtrapAngles;
     if ( !DVARBOOL_sv_cmdExtrapAngles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdExtrapAngles") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v29);
-    if ( v29->current.enabled && SV_ClientMP_GetExtrapAngles(cl, cl->cumulThinkError + cl->lastUsercmd.commandTime, &outAngles) )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.enabled && SV_ClientMP_GetExtrapAngles(cl, cl->cumulThinkError + cl->lastUsercmd.commandTime, &outAngles) )
     {
-      __asm { vmovss  xmm0, dword ptr [rsp+88h+outAngles]; angle }
-      v31 = BG_UsrCmdPackAngle(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rsp+88h+outAngles+4]; angle }
-      outCmd->angles.v[0] = v31;
-      v33 = BG_UsrCmdPackAngle(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rsp+88h+outAngles+8]; angle }
-      outCmd->angles.v[1] = v33;
-      outCmd->angles.v[2] = BG_UsrCmdPackAngle(*(const float *)&_XMM0);
+      v16 = BG_UsrCmdPackAngle(outAngles.v[0]);
+      v17 = outAngles.v[1];
+      outCmd->angles.v[0] = v16;
+      v18 = BG_UsrCmdPackAngle(v17);
+      v19 = outAngles.v[2];
+      outCmd->angles.v[1] = v18;
+      outCmd->angles.v[2] = BG_UsrCmdPackAngle(v19);
     }
   }
   else
   {
-    _RDX = outCmd;
-    _RAX = &cl->cmds[beginCmdIndex % 38];
+    v7 = outCmd;
+    v8 = &cl->cmds[beginCmdIndex % 38];
     v9 = 2i64;
     do
     {
-      _RDX = (usercmd_s *)((char *)_RDX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rdx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [rdx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [rdx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [rdx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [rdx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [rdx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v7 = (usercmd_s *)((char *)v7 + 128);
+      v10 = *(_OWORD *)&v8->buttons;
+      v8 = (usercmd_s *)((char *)v8 + 128);
+      *(_OWORD *)&v7[-1].offHand.attachmentVariationIndices[13] = v10;
+      *(_OWORD *)&v7[-1].offHand.weaponCamo = *(_OWORD *)&v8[-1].offHand.weaponCamo;
+      *(_OWORD *)v7[-1].remoteControlMove = *(_OWORD *)v8[-1].remoteControlMove;
+      *(_OWORD *)v7[-1].vehAngles = *(_OWORD *)v8[-1].vehAngles;
+      *(_OWORD *)&v7[-1].vehOrgZ = *(_OWORD *)&v8[-1].vehOrgZ;
+      *(_OWORD *)&v7[-1].gunYOfs = *(_OWORD *)&v8[-1].gunYOfs;
+      *(_OWORD *)v7[-1].sightedClientsMask.data = *(_OWORD *)v8[-1].sightedClientsMask.data;
+      *(_OWORD *)&v7[-1].sightedClientsMask.data[4] = *(_OWORD *)&v8[-1].sightedClientsMask.data[4];
       --v9;
     }
     while ( v9 );
-    _RDX->buttons = _RAX->buttons;
+    v7->buttons = v8->buttons;
   }
   outCmd->commandTime = cl->cumulThinkError + Com_GetUserCommandTime(&cl->lastUsercmd);
   return 1;
@@ -5660,11 +5440,11 @@ char SV_ClientMP_HandleReconnect(const netadr_t *from)
   const char *v8; 
   const dvar_t *v9; 
   const char *String; 
+  __int128 v11; 
   __int64 v12; 
   __int64 v13; 
   netadr_t v14; 
 
-  _R14 = from;
   v2 = 0;
   if ( (int)SvClient::ms_clientCount <= 0 )
     return 0;
@@ -5682,7 +5462,7 @@ char SV_ClientMP_HandleReconnect(const netadr_t *from)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 1797, ASSERT_TYPE_ASSERT, "( 0 ) <= ( cl->lastConnectTime ) && ( cl->lastConnectTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "cl->lastConnectTime not in [0, SvPersistentGlobalsMP::GetTime()]\n\t%i not in [%i, %i]", v12, 0i64, v13) )
           __debugbreak();
       }
-      if ( NetConnection::operator==(&CommonClient->clientConnection, _R14) )
+      if ( NetConnection::operator==(&CommonClient->clientConnection, from) )
         break;
     }
     if ( (int)++v2 >= (int)SvClient::ms_clientCount )
@@ -5704,9 +5484,9 @@ char SV_ClientMP_HandleReconnect(const netadr_t *from)
       return 0;
     String = NetConnection::GetString(&CommonClient->clientConnection);
     Com_Printf(131087, "SV_DirectConnect: reconnect accepted from %s at %dms - resending connect response\n", String, (unsigned int)v7);
-    __asm { vmovups xmm0, xmmword ptr [r14] }
-    v14.addrHandleIndex = _R14->addrHandleIndex;
-    __asm { vmovups [rsp+88h+var_48], xmm0 }
+    v11 = *(_OWORD *)&from->type;
+    v14.addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v14.type = v11;
     SV_SendConnectResponseToClient(CommonClient, &v14, 0);
   }
   else
@@ -6077,55 +5857,58 @@ char SV_ClientMP_PacketEvent(SvClientMP *const cl, msg_t *msg, NetPingInfo *info
   unsigned int MpClientIndex; 
   BgStatic *ActiveStatics; 
   __int64 v14; 
+  usercmd_s *p_lastRecvCommand; 
+  usercmd_s *v16; 
   __int64 v17; 
+  __int128 v18; 
+  CmdPredict *v19; 
   char *fmt; 
   char *fmta; 
-  __int64 v33; 
-  __int64 v34; 
+  __int64 v23; 
+  __int64 v24; 
 
-  _RBX = cl;
   cl->serverId = MSG_ReadByte(msg);
   Long = MSG_ReadLong(msg);
   Byte = MSG_ReadByte(msg);
   v8 = MSG_ReadLong(msg);
   if ( msg->overflowed )
   {
-    Com_Printf(131087, "Invalid message from %s, overflow detected\n", _RBX->name);
+    Com_Printf(131087, "Invalid message from %s, overflow detected\n", cl->name);
     return 0;
   }
   if ( Long < 0 || Byte < 0 || v8 < 0 )
   {
-    Com_Printf(131087, "Invalid acknowledge message from %s - messageAcknowledge is %i, messageAcknowledgeStart is %i, reliableAcknowledge is %i\n", _RBX->name, (unsigned int)Long, Byte, v8);
+    Com_Printf(131087, "Invalid acknowledge message from %s - messageAcknowledge is %i, messageAcknowledgeStart is %i, reliableAcknowledge is %i\n", cl->name, (unsigned int)Long, Byte, v8);
     return 0;
   }
-  reliableSent = _RBX->reliableSent;
-  _RBX->reliableAcknowledge = v8;
-  reliableSequence = _RBX->reliableSequence;
-  _RBX->messageAcknowledge = Long;
-  _RBX->messageAcknowedlgeStreak = Byte;
+  reliableSent = cl->reliableSent;
+  cl->reliableAcknowledge = v8;
+  reliableSequence = cl->reliableSequence;
+  cl->messageAcknowledge = Long;
+  cl->messageAcknowedlgeStreak = Byte;
   if ( reliableSequence < reliableSent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6952, ASSERT_TYPE_ASSERT, "( cl->reliableSequence ) >= ( cl->reliableSent )", "cl->reliableSequence >= cl->reliableSent\n\t%i, %i", reliableSequence, reliableSent) )
     __debugbreak();
-  if ( _RBX->reliableAcknowledge > _RBX->reliableSent )
+  if ( cl->reliableAcknowledge > cl->reliableSent )
   {
-    LODWORD(v34) = _RBX->reliableSent;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6955, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Out of range reliableAcknowledge message from %s - cl->reliableSent is %i, reliableAcknowledge is %i\n", _RBX->name, v34, _RBX->reliableAcknowledge) )
+    LODWORD(v24) = cl->reliableSent;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6955, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Out of range reliableAcknowledge message from %s - cl->reliableSent is %i, reliableAcknowledge is %i\n", cl->name, v24, cl->reliableAcknowledge) )
       __debugbreak();
-    LODWORD(fmta) = _RBX->reliableAcknowledge;
-    Com_Printf(131087, "Out of range reliableAcknowledge message from %s - cl->reliableSent is %i, reliableAcknowledge is %i\n", _RBX->name, (unsigned int)_RBX->reliableSent, fmta);
-    _RBX->reliableAcknowledge = _RBX->reliableSent;
+    LODWORD(fmta) = cl->reliableAcknowledge;
+    Com_Printf(131087, "Out of range reliableAcknowledge message from %s - cl->reliableSent is %i, reliableAcknowledge is %i\n", cl->name, (unsigned int)cl->reliableSent, fmta);
+    cl->reliableAcknowledge = cl->reliableSent;
     return 0;
   }
-  SvClientMP::SetMessageAcknowledged(_RBX, info);
-  if ( _RBX->reliableSequence - _RBX->reliableAcknowledge >= 512 )
+  SvClientMP::SetMessageAcknowledged(cl, info);
+  if ( cl->reliableSequence - cl->reliableAcknowledge >= 512 )
   {
-    LODWORD(fmt) = _RBX->reliableAcknowledge;
-    Com_Printf(131087, "Out of range reliableAcknowledge message from %s - cl->reliableSequence is %i, reliableAcknowledge is %i\n", _RBX->name, (unsigned int)_RBX->reliableSequence, fmt);
-    v11 = _RBX->reliableSequence;
-    _RBX->reliableAcknowledge = v11;
-    _RBX->reliableSent = v11;
+    LODWORD(fmt) = cl->reliableAcknowledge;
+    Com_Printf(131087, "Out of range reliableAcknowledge message from %s - cl->reliableSequence is %i, reliableAcknowledge is %i\n", cl->name, (unsigned int)cl->reliableSequence, fmt);
+    v11 = cl->reliableSequence;
+    cl->reliableAcknowledge = v11;
+    cl->reliableSent = v11;
     return 0;
   }
-  MpClientIndex = SV_Client_GetMpClientIndex(_RBX);
+  MpClientIndex = SV_Client_GetMpClientIndex(cl);
   if ( SvClient::GetCommonClient(MpClientIndex)->state != CS_ZOMBIE )
   {
     if ( *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) )
@@ -6134,65 +5917,49 @@ char SV_ClientMP_PacketEvent(SvClientMP *const cl, msg_t *msg, NetPingInfo *info
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6988, ASSERT_TYPE_ASSERT, "( ( !BgStatic::HasActiveStatics() ) )", "( BgStatic::GetActiveStatics() ) = %p", ActiveStatics) )
         __debugbreak();
     }
-    _RBX->lastPacketTime = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
-    if ( SV_ClientMP_ExecuteMessage(_RBX, msg) )
+    cl->lastPacketTime = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
+    if ( SV_ClientMP_ExecuteMessage(cl, msg) )
     {
-      if ( !_RBX->m_cmdRecvBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4631, ASSERT_TYPE_ASSERT, "( m_cmdRecvBuffer != nullptr )", (const char *)&queryFormat, "m_cmdRecvBuffer != nullptr") )
+      if ( !cl->m_cmdRecvBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4631, ASSERT_TYPE_ASSERT, "( m_cmdRecvBuffer != nullptr )", (const char *)&queryFormat, "m_cmdRecvBuffer != nullptr") )
         __debugbreak();
-      if ( !_RBX->m_cmdRecvPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4632, ASSERT_TYPE_ASSERT, "( m_cmdRecvPredict != nullptr )", (const char *)&queryFormat, "m_cmdRecvPredict != nullptr") )
+      if ( !cl->m_cmdRecvPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4632, ASSERT_TYPE_ASSERT, "( m_cmdRecvPredict != nullptr )", (const char *)&queryFormat, "m_cmdRecvPredict != nullptr") )
         __debugbreak();
-      if ( !_RBX->m_cmdRecvSequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4633, ASSERT_TYPE_ASSERT, "( m_cmdRecvSequence != nullptr )", (const char *)&queryFormat, "m_cmdRecvSequence != nullptr") )
+      if ( !cl->m_cmdRecvSequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4633, ASSERT_TYPE_ASSERT, "( m_cmdRecvSequence != nullptr )", (const char *)&queryFormat, "m_cmdRecvSequence != nullptr") )
         __debugbreak();
-      if ( _RBX->netchan.incomingSequence < 0 )
+      if ( cl->netchan.incomingSequence < 0 )
       {
-        LODWORD(v33) = _RBX->netchan.incomingSequence;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4634, ASSERT_TYPE_ASSERT, "( this->netchan.incomingSequence ) >= ( 0 )", "this->netchan.incomingSequence >= 0\n\t%i, %i", v33, 0i64) )
+        LODWORD(v23) = cl->netchan.incomingSequence;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4634, ASSERT_TYPE_ASSERT, "( this->netchan.incomingSequence ) >= ( 0 )", "this->netchan.incomingSequence >= 0\n\t%i, %i", v23, 0i64) )
           __debugbreak();
       }
-      v14 = (int)(_RBX->netchan.incomingSequence % SvClientMP::ms_cmdCountPerClient);
-      _RBX->m_cmdRecvSequence[v14] = _RBX->netchan.incomingSequence;
-      _RAX = &_RBX->lastRecvCommand;
-      _RDX = &_RBX->m_cmdRecvBuffer[v14];
+      v14 = (int)(cl->netchan.incomingSequence % SvClientMP::ms_cmdCountPerClient);
+      cl->m_cmdRecvSequence[v14] = cl->netchan.incomingSequence;
+      p_lastRecvCommand = &cl->lastRecvCommand;
+      v16 = &cl->m_cmdRecvBuffer[v14];
       v17 = 2i64;
       do
       {
-        _RDX = (usercmd_s *)((char *)_RDX + 128);
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RAX = (usercmd_s *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups xmmword ptr [rdx-80h], xmm0
-          vmovups xmm1, xmmword ptr [rax-70h]
-          vmovups xmmword ptr [rdx-70h], xmm1
-          vmovups xmm0, xmmword ptr [rax-60h]
-          vmovups xmmword ptr [rdx-60h], xmm0
-          vmovups xmm1, xmmword ptr [rax-50h]
-          vmovups xmmword ptr [rdx-50h], xmm1
-          vmovups xmm0, xmmword ptr [rax-40h]
-          vmovups xmmword ptr [rdx-40h], xmm0
-          vmovups xmm1, xmmword ptr [rax-30h]
-          vmovups xmmword ptr [rdx-30h], xmm1
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rdx-20h], xmm0
-          vmovups xmm1, xmmword ptr [rax-10h]
-          vmovups xmmword ptr [rdx-10h], xmm1
-        }
+        v16 = (usercmd_s *)((char *)v16 + 128);
+        v18 = *(_OWORD *)&p_lastRecvCommand->buttons;
+        p_lastRecvCommand = (usercmd_s *)((char *)p_lastRecvCommand + 128);
+        *(_OWORD *)&v16[-1].offHand.attachmentVariationIndices[13] = v18;
+        *(_OWORD *)&v16[-1].offHand.weaponCamo = *(_OWORD *)&p_lastRecvCommand[-1].offHand.weaponCamo;
+        *(_OWORD *)v16[-1].remoteControlMove = *(_OWORD *)p_lastRecvCommand[-1].remoteControlMove;
+        *(_OWORD *)v16[-1].vehAngles = *(_OWORD *)p_lastRecvCommand[-1].vehAngles;
+        *(_OWORD *)&v16[-1].vehOrgZ = *(_OWORD *)&p_lastRecvCommand[-1].vehOrgZ;
+        *(_OWORD *)&v16[-1].gunYOfs = *(_OWORD *)&p_lastRecvCommand[-1].gunYOfs;
+        *(_OWORD *)v16[-1].sightedClientsMask.data = *(_OWORD *)p_lastRecvCommand[-1].sightedClientsMask.data;
+        *(_OWORD *)&v16[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_lastRecvCommand[-1].sightedClientsMask.data[4];
         --v17;
       }
       while ( v17 );
-      _RDX->buttons = _RAX->buttons;
-      __asm { vmovups ymm0, ymmword ptr [rbx+2CF10h] }
-      _RDX = (__int64)&_RBX->m_cmdRecvPredict[v14];
-      __asm
-      {
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups xmm1, xmmword ptr [rbx+2CF30h]
-        vmovups xmmword ptr [rdx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+2CF40h]
-        vmovsd  qword ptr [rdx+30h], xmm0
-      }
-      *(float *)(_RDX + 56) = _RBX->lastRecvPredict.vehOrigin.v[2];
-      _RBX->commandSequence = _RBX->netchan.incomingSequence;
+      v16->buttons = p_lastRecvCommand->buttons;
+      v19 = &cl->m_cmdRecvPredict[v14];
+      *(__m256i *)v19->origin.v = *(__m256i *)cl->lastRecvPredict.origin.v;
+      *(_OWORD *)v19->extrapData.packedBobCycle = *(_OWORD *)cl->lastRecvPredict.extrapData.packedBobCycle;
+      *(double *)v19->vehOrigin.v = *(double *)cl->lastRecvPredict.vehOrigin.v;
+      v19->vehOrigin.v[2] = cl->lastRecvPredict.vehOrigin.v[2];
+      cl->commandSequence = cl->netchan.incomingSequence;
     }
   }
   return 1;
@@ -6357,49 +6124,42 @@ SV_ClientMP_PreThink
 */
 char SV_ClientMP_PreThink(SvClientMP *cl, const usercmd_s *cmd)
 {
+  const usercmd_s *v2; 
+  usercmd_s *p_lastUsercmd; 
   __int64 v5; 
-  __int64 v15; 
+  __int128 v6; 
+  __int64 v8; 
   int time; 
 
-  _RBX = cmd;
+  v2 = cmd;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4132, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  if ( _RBX->serverTime > SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time )
+  if ( v2->serverTime > SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time )
   {
     time = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
-    LODWORD(v15) = _RBX->serverTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4133, ASSERT_TYPE_ASSERT, "( cmd->serverTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "cmd->serverTime <= SvPersistentGlobalsMP::GetTime()\n\t%i, %i", v15, time) )
+    LODWORD(v8) = v2->serverTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4133, ASSERT_TYPE_ASSERT, "( cmd->serverTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "cmd->serverTime <= SvPersistentGlobalsMP::GetTime()\n\t%i, %i", v8, time) )
       __debugbreak();
   }
-  _RCX = &cl->lastUsercmd;
+  p_lastUsercmd = &cl->lastUsercmd;
   v5 = 2i64;
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (const usercmd_s *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+    v6 = *(_OWORD *)&v2->buttons;
+    v2 = (const usercmd_s *)((char *)v2 + 128);
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.attachmentVariationIndices[13] = v6;
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo = *(_OWORD *)&v2[-1].offHand.weaponCamo;
+    *(_OWORD *)p_lastUsercmd[-1].remoteControlMove = *(_OWORD *)v2[-1].remoteControlMove;
+    *(_OWORD *)p_lastUsercmd[-1].vehAngles = *(_OWORD *)v2[-1].vehAngles;
+    *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ = *(_OWORD *)&v2[-1].vehOrgZ;
+    *(_OWORD *)&p_lastUsercmd[-1].gunYOfs = *(_OWORD *)&v2[-1].gunYOfs;
+    *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data = *(_OWORD *)v2[-1].sightedClientsMask.data;
+    *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v2[-1].sightedClientsMask.data[4];
     --v5;
   }
   while ( v5 );
-  _RCX->buttons = _RBX->buttons;
+  p_lastUsercmd->buttons = v2->buttons;
   return 1;
 }
 
@@ -6413,17 +6173,25 @@ char SV_ClientMP_PredictCommand(SvClientMP *cl, int *outPredictTime, usercmd_s *
   int v6; 
   int beginCmdIndex; 
   int v8; 
+  usercmd_s *v9; 
   int CommandThinkTime; 
+  usercmd_s *v11; 
   __int64 v12; 
-  int v21; 
-  const dvar_t *v22; 
-  int v23; 
-  __int64 v25; 
-  const dvar_t *v35; 
-  int v37; 
-  int v39; 
-  __int64 v42; 
-  __int64 v43; 
+  __int128 v13; 
+  int v14; 
+  const dvar_t *v15; 
+  int v16; 
+  usercmd_s *v17; 
+  __int64 v18; 
+  usercmd_s *v19; 
+  __int128 v20; 
+  const dvar_t *v21; 
+  int v22; 
+  float v23; 
+  int v24; 
+  float v25; 
+  __int64 v27; 
+  __int64 v28; 
   int MaxExtrapTime; 
   vec3_t outAngles; 
 
@@ -6434,8 +6202,8 @@ char SV_ClientMP_PredictCommand(SvClientMP *cl, int *outPredictTime, usercmd_s *
   if ( cl->cumulThinkError <= (int)SV_ClientMP_GetMaxExtrapTime(cl) )
   {
     MaxExtrapTime = SV_ClientMP_GetMaxExtrapTime(cl);
-    LODWORD(v42) = cl->cumulThinkError;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5500, ASSERT_TYPE_ASSERT, "( cl->cumulThinkError ) > ( SV_ClientMP_GetMaxExtrapTime( cl ) )", "cl->cumulThinkError > SV_ClientMP_GetMaxExtrapTime( cl )\n\t%i, %i", v42, MaxExtrapTime) )
+    LODWORD(v27) = cl->cumulThinkError;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5500, ASSERT_TYPE_ASSERT, "( cl->cumulThinkError ) > ( SV_ClientMP_GetMaxExtrapTime( cl ) )", "cl->cumulThinkError > SV_ClientMP_GetMaxExtrapTime( cl )\n\t%i, %i", v27, MaxExtrapTime) )
       __debugbreak();
   }
   v6 = cl->cumulThinkError - SV_ClientMP_GetMaxExtrapTime(cl);
@@ -6443,134 +6211,113 @@ char SV_ClientMP_PredictCommand(SvClientMP *cl, int *outPredictTime, usercmd_s *
     __debugbreak();
   beginCmdIndex = cl->beginCmdIndex;
   v8 = 0;
-  if ( beginCmdIndex == cl->currCmdIndex || (_RBX = &cl->cmds[beginCmdIndex % 38], CommandThinkTime = SV_ClientMP_GetCommandThinkTime(cl, _RBX), !_RBX) )
+  if ( beginCmdIndex == cl->currCmdIndex || (v9 = &cl->cmds[beginCmdIndex % 38], CommandThinkTime = SV_ClientMP_GetCommandThinkTime(cl, v9), !v9) )
   {
-    v22 = DVARBOOL_command_prediction_enabled;
+    v15 = DVARBOOL_command_prediction_enabled;
     if ( !DVARBOOL_command_prediction_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_prediction_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( !v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( !v15->current.enabled )
       goto LABEL_50;
     if ( cl->beginCmdIndex != cl->currCmdIndex )
     {
-      LODWORD(v43) = cl->currCmdIndex;
-      LODWORD(v42) = cl->beginCmdIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5524, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) == ( cl->currCmdIndex )", "cl->beginCmdIndex == cl->currCmdIndex\n\t%i, %i", v42, v43) )
+      LODWORD(v28) = cl->currCmdIndex;
+      LODWORD(v27) = cl->beginCmdIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5524, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) == ( cl->currCmdIndex )", "cl->beginCmdIndex == cl->currCmdIndex\n\t%i, %i", v27, v28) )
         __debugbreak();
     }
     if ( !outPredictCmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5470, ASSERT_TYPE_ASSERT, "( outPredictCmd )", (const char *)&queryFormat, "outPredictCmd") )
       __debugbreak();
     if ( cl->beginCmdIndex != cl->currCmdIndex )
     {
-      LODWORD(v43) = cl->currCmdIndex;
-      LODWORD(v42) = cl->beginCmdIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5471, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) == ( cl->currCmdIndex )", "cl->beginCmdIndex == cl->currCmdIndex\n\t%i, %i", v42, v43) )
+      LODWORD(v28) = cl->currCmdIndex;
+      LODWORD(v27) = cl->beginCmdIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5471, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) == ( cl->currCmdIndex )", "cl->beginCmdIndex == cl->currCmdIndex\n\t%i, %i", v27, v28) )
         __debugbreak();
     }
-    v23 = cl->beginCmdIndex;
-    if ( v23 <= 0 )
+    v16 = cl->beginCmdIndex;
+    if ( v16 <= 0 )
     {
 LABEL_50:
       *outPredictTime = 0;
       return 0;
     }
-    _R8 = outPredictCmd;
-    v25 = 2i64;
-    _RAX = &cl->cmds[(v23 - 1) % 38];
+    v17 = outPredictCmd;
+    v18 = 2i64;
+    v19 = &cl->cmds[(v16 - 1) % 38];
     do
     {
-      _R8 = (usercmd_s *)((char *)_R8 + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [r8-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [r8-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [r8-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [r8-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [r8-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [r8-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [r8-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [r8-10h], xmm1
-      }
-      --v25;
+      v17 = (usercmd_s *)((char *)v17 + 128);
+      v20 = *(_OWORD *)&v19->buttons;
+      v19 = (usercmd_s *)((char *)v19 + 128);
+      *(_OWORD *)&v17[-1].offHand.attachmentVariationIndices[13] = v20;
+      *(_OWORD *)&v17[-1].offHand.weaponCamo = *(_OWORD *)&v19[-1].offHand.weaponCamo;
+      *(_OWORD *)v17[-1].remoteControlMove = *(_OWORD *)v19[-1].remoteControlMove;
+      *(_OWORD *)v17[-1].vehAngles = *(_OWORD *)v19[-1].vehAngles;
+      *(_OWORD *)&v17[-1].vehOrgZ = *(_OWORD *)&v19[-1].vehOrgZ;
+      *(_OWORD *)&v17[-1].gunYOfs = *(_OWORD *)&v19[-1].gunYOfs;
+      *(_OWORD *)v17[-1].sightedClientsMask.data = *(_OWORD *)v19[-1].sightedClientsMask.data;
+      *(_OWORD *)&v17[-1].sightedClientsMask.data[4] = *(_OWORD *)&v19[-1].sightedClientsMask.data[4];
+      --v18;
     }
-    while ( v25 );
-    _R8->buttons = _RAX->buttons;
-    v35 = DVARBOOL_sv_cmdPredictAngles;
+    while ( v18 );
+    v17->buttons = v19->buttons;
+    v21 = DVARBOOL_sv_cmdPredictAngles;
     if ( !DVARBOOL_sv_cmdPredictAngles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdPredictAngles") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v35);
-    if ( v35->current.enabled && SV_ClientMP_GetExtrapAngles(cl, v6 + cl->lastUsercmd.commandTime, &outAngles) )
+    Dvar_CheckFrontendServerThread(v21);
+    if ( v21->current.enabled && SV_ClientMP_GetExtrapAngles(cl, v6 + cl->lastUsercmd.commandTime, &outAngles) )
     {
-      __asm { vmovss  xmm0, dword ptr [rsp+98h+outAngles]; angle }
-      v37 = BG_UsrCmdPackAngle(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rsp+98h+outAngles+4]; angle }
-      outPredictCmd->angles.v[0] = v37;
-      v39 = BG_UsrCmdPackAngle(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rsp+98h+outAngles+8]; angle }
-      outPredictCmd->angles.v[1] = v39;
-      outPredictCmd->angles.v[2] = BG_UsrCmdPackAngle(*(const float *)&_XMM0);
+      v22 = BG_UsrCmdPackAngle(outAngles.v[0]);
+      v23 = outAngles.v[1];
+      outPredictCmd->angles.v[0] = v22;
+      v24 = BG_UsrCmdPackAngle(v23);
+      v25 = outAngles.v[2];
+      outPredictCmd->angles.v[1] = v24;
+      outPredictCmd->angles.v[2] = BG_UsrCmdPackAngle(v25);
     }
     *outPredictTime = v6;
-    v21 = v6;
+    v14 = v6;
   }
   else
   {
     if ( cl->beginCmdIndex >= cl->currCmdIndex )
     {
-      LODWORD(v43) = cl->currCmdIndex;
-      LODWORD(v42) = cl->beginCmdIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5509, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) < ( cl->currCmdIndex )", "cl->beginCmdIndex < cl->currCmdIndex\n\t%i, %i", v42, v43) )
+      LODWORD(v28) = cl->currCmdIndex;
+      LODWORD(v27) = cl->beginCmdIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5509, ASSERT_TYPE_ASSERT, "( cl->beginCmdIndex ) < ( cl->currCmdIndex )", "cl->beginCmdIndex < cl->currCmdIndex\n\t%i, %i", v27, v28) )
         __debugbreak();
     }
-    _RCX = outPredictCmd;
+    v11 = outPredictCmd;
     v12 = 2i64;
     do
     {
-      _RCX = (usercmd_s *)((char *)_RCX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rcx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-70h]
-        vmovups xmmword ptr [rcx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-60h]
-        vmovups xmmword ptr [rcx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-50h]
-        vmovups xmmword ptr [rcx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-40h]
-        vmovups xmmword ptr [rcx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-30h]
-        vmovups xmmword ptr [rcx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-10h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      v11 = (usercmd_s *)((char *)v11 + 128);
+      v13 = *(_OWORD *)&v9->buttons;
+      v9 = (usercmd_s *)((char *)v9 + 128);
+      *(_OWORD *)&v11[-1].offHand.attachmentVariationIndices[13] = v13;
+      *(_OWORD *)&v11[-1].offHand.weaponCamo = *(_OWORD *)&v9[-1].offHand.weaponCamo;
+      *(_OWORD *)v11[-1].remoteControlMove = *(_OWORD *)v9[-1].remoteControlMove;
+      *(_OWORD *)v11[-1].vehAngles = *(_OWORD *)v9[-1].vehAngles;
+      *(_OWORD *)&v11[-1].vehOrgZ = *(_OWORD *)&v9[-1].vehOrgZ;
+      *(_OWORD *)&v11[-1].gunYOfs = *(_OWORD *)&v9[-1].gunYOfs;
+      *(_OWORD *)v11[-1].sightedClientsMask.data = *(_OWORD *)v9[-1].sightedClientsMask.data;
+      *(_OWORD *)&v11[-1].sightedClientsMask.data[4] = *(_OWORD *)&v9[-1].sightedClientsMask.data[4];
       --v12;
     }
     while ( v12 );
-    _RCX->buttons = _RBX->buttons;
-    v21 = v6;
+    v11->buttons = v9->buttons;
+    v14 = v6;
     if ( CommandThinkTime < v6 )
-      v21 = CommandThinkTime;
-    *outPredictTime = v21;
+      v14 = CommandThinkTime;
+    *outPredictTime = v14;
     if ( CommandThinkTime <= v6 )
     {
       ++cl->beginCmdIndex;
-      v21 = *outPredictTime;
+      v14 = *outPredictTime;
     }
   }
-  outPredictCmd->serverTime = v21 + cl->lastUsercmd.serverTime;
+  outPredictCmd->serverTime = v14 + cl->lastUsercmd.serverTime;
   outPredictCmd->commandTime = *outPredictTime + cl->lastUsercmd.commandTime;
   outPredictCmd->inputTime = *outPredictTime + cl->lastUsercmd.inputTime;
   SV_ClientMP_ClampCmdServerTime(outPredictCmd);
@@ -6588,51 +6335,51 @@ LABEL_50:
 SV_ClientMP_PrintComandBufferDebug
 ==============
 */
-void SV_ClientMP_PrintComandBufferDebug(SvClientMP *cl, double a2)
+void SV_ClientMP_PrintComandBufferDebug(SvClientMP *cl)
 {
   int AvailableBufferThinkTime; 
   NetBurst *burstState; 
   int WindowDuration; 
-  NetBurst *v6; 
+  NetBurst *v5; 
   unsigned int MpClientIndex; 
-  const dvar_t *v8; 
+  const dvar_t *v7; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
   int beginCmdIndex; 
-  NetBurst *v11; 
-  int v12; 
+  NetBurst *v10; 
+  int v11; 
   int time; 
+  int v13; 
   int v14; 
-  int v15; 
   NetBurst::BufferState m_state; 
+  int v16; 
   int v17; 
   int v18; 
   int v19; 
   int v20; 
-  int v21; 
   int currCmdIndex; 
-  int v23; 
+  int v22; 
   int cumulTargetError; 
   int cumulBufferError; 
   int cumulThinkTime; 
   int maxCumulThinkTime; 
   int recvThinkTime; 
   int cumulCmdCount; 
-  SvPersistentGlobalsMP *v30; 
-  int v31; 
+  SvPersistentGlobalsMP *v29; 
+  int v30; 
   char *fmt; 
+  __int64 v32; 
   __int64 v33; 
   __int64 v34; 
   __int64 v35; 
-  __int64 v36; 
   int cmdTargetError; 
   int recvCmdCount; 
   int cmdCurrentError; 
   int CurrentBurstTime; 
   int m_windowMaximum; 
   int m_windowMinimum; 
+  int v42; 
   int v43; 
   int v44; 
-  int v45; 
   SvLatencyProfileMetrics metrics; 
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5160, ASSERT_TYPE_ASSERT, "( cl != nullptr )", (const char *)&queryFormat, "cl != nullptr") )
@@ -6647,110 +6394,110 @@ void SV_ClientMP_PrintComandBufferDebug(SvClientMP *cl, double a2)
   burstState = cl->burstState;
   metrics.value[4] = AvailableBufferThinkTime;
   WindowDuration = NetBurst::GetWindowDuration(burstState);
-  v6 = cl->burstState;
+  v5 = cl->burstState;
   metrics.value[5] = WindowDuration;
-  metrics.value[6] = v6->m_windowMaximum;
-  metrics.value[7] = v6->m_windowMinimum;
+  metrics.value[6] = v5->m_windowMaximum;
+  metrics.value[7] = v5->m_windowMinimum;
   MpClientIndex = SV_Client_GetMpClientIndex(cl);
   SV_LatencyProfileMP_RecordLatencyEvent(MpClientIndex, &metrics);
-  v8 = DVARBOOL_sv_cmdDebugBufferVerbose;
+  v7 = DVARBOOL_sv_cmdDebugBufferVerbose;
   if ( !DVARBOOL_sv_cmdDebugBufferVerbose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdDebugBufferVerbose") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
     if ( Com_UseConstantUserCommandTime() )
     {
       PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
       beginCmdIndex = cl->beginCmdIndex;
-      v11 = cl->burstState;
-      v12 = cl->currCmdIndex - beginCmdIndex;
+      v10 = cl->burstState;
+      v11 = cl->currCmdIndex - beginCmdIndex;
       time = PersistentGlobalsMP->time;
       if ( cl->currCmdIndex < beginCmdIndex )
-        v12 += 38;
-      v14 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
+        v11 += 38;
+      v13 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
       cmdTargetError = cl->cmdTargetError;
       cmdCurrentError = cl->cmdCurrentError;
-      m_windowMaximum = v11->m_windowMaximum;
-      m_windowMinimum = v11->m_windowMinimum;
-      v15 = NetBurst::GetWindowDuration(v11);
-      m_state = v11->m_state;
-      v44 = v15;
+      m_windowMaximum = v10->m_windowMaximum;
+      m_windowMinimum = v10->m_windowMinimum;
+      v14 = NetBurst::GetWindowDuration(v10);
+      m_state = v10->m_state;
+      v43 = v14;
       if ( m_state )
       {
-        v17 = 0;
+        v16 = 0;
       }
       else
       {
-        if ( time < v11->m_stateStartTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.h", 218, ASSERT_TYPE_ASSERT, "( systemMsec ) >= ( m_stateStartTime )", "%s >= %s\n\t%i, %i", "systemMsec", "m_stateStartTime", time, v11->m_stateStartTime) )
+        if ( time < v10->m_stateStartTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.h", 218, ASSERT_TYPE_ASSERT, "( systemMsec ) >= ( m_stateStartTime )", "%s >= %s\n\t%i, %i", "systemMsec", "m_stateStartTime", time, v10->m_stateStartTime) )
           __debugbreak();
-        m_state = v11->m_state;
-        v17 = time - v11->m_stateStartTime;
+        m_state = v10->m_state;
+        v16 = time - v10->m_stateStartTime;
       }
       if ( m_state == BUFF_STATE_DEFICIT )
       {
-        if ( time < v11->m_stateStartTime )
+        if ( time < v10->m_stateStartTime )
         {
-          LODWORD(v36) = v11->m_stateStartTime;
-          LODWORD(v35) = time;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.h", 206, ASSERT_TYPE_ASSERT, "( systemMsec ) >= ( m_stateStartTime )", "%s >= %s\n\t%i, %i", "systemMsec", "m_stateStartTime", v35, v36) )
+          LODWORD(v35) = v10->m_stateStartTime;
+          LODWORD(v34) = time;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.h", 206, ASSERT_TYPE_ASSERT, "( systemMsec ) >= ( m_stateStartTime )", "%s >= %s\n\t%i, %i", "systemMsec", "m_stateStartTime", v34, v35) )
             __debugbreak();
         }
-        m_state = v11->m_state;
-        v18 = time - v11->m_stateStartTime;
+        m_state = v10->m_state;
+        v17 = time - v10->m_stateStartTime;
+      }
+      else
+      {
+        v17 = 0;
+      }
+      if ( m_state == BUFF_STATE_SURPLUS )
+      {
+        if ( time < v10->m_stateStartTime )
+        {
+          LODWORD(v35) = v10->m_stateStartTime;
+          LODWORD(v34) = time;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.h", 194, ASSERT_TYPE_ASSERT, "( systemMsec ) >= ( m_stateStartTime )", "%s >= %s\n\t%i, %i", "systemMsec", "m_stateStartTime", v34, v35) )
+            __debugbreak();
+        }
+        v18 = time - v10->m_stateStartTime;
       }
       else
       {
         v18 = 0;
       }
-      if ( m_state == BUFF_STATE_SURPLUS )
-      {
-        if ( time < v11->m_stateStartTime )
-        {
-          LODWORD(v36) = v11->m_stateStartTime;
-          LODWORD(v35) = time;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.h", 194, ASSERT_TYPE_ASSERT, "( systemMsec ) >= ( m_stateStartTime )", "%s >= %s\n\t%i, %i", "systemMsec", "m_stateStartTime", v35, v36) )
-            __debugbreak();
-        }
-        v19 = time - v11->m_stateStartTime;
-      }
-      else
-      {
-        v19 = 0;
-      }
-      LODWORD(v36) = cl->recvThinkTime;
-      LODWORD(v35) = cl->cumulCmdCount;
-      LODWORD(v34) = v12;
-      LODWORD(v33) = cl->recvCmdCount;
+      LODWORD(v35) = cl->recvThinkTime;
+      LODWORD(v34) = cl->cumulCmdCount;
+      LODWORD(v33) = v11;
+      LODWORD(v32) = cl->recvCmdCount;
       LODWORD(fmt) = PersistentGlobalsMP->frameThinkTime;
-      Com_Printf(16, "[%s]  Time( sv:%d  frm:%d )  Count( recv:%d  buf:%d  cmd:%d )  Think( recv:%d  max:%d  err:%d  pred:%d  buff:%d  cumul:%d )  Throttle( surplus:%d  deficit:%d  ideal:%d  burst:%d  min:%d  max:%d  ::  %d->%d )\n", cl->name, (unsigned int)PersistentGlobalsMP->time, fmt, v33, v34, v35, v36, cl->maxCumulThinkTime, cl->cumulThinkError, cl->cumulExtrapError, v14, cl->cumulThinkTime, v19, v18, v17, v44, m_windowMinimum, m_windowMaximum, cmdCurrentError, cmdTargetError);
+      Com_Printf(16, "[%s]  Time( sv:%d  frm:%d )  Count( recv:%d  buf:%d  cmd:%d )  Think( recv:%d  max:%d  err:%d  pred:%d  buff:%d  cumul:%d )  Throttle( surplus:%d  deficit:%d  ideal:%d  burst:%d  min:%d  max:%d  ::  %d->%d )\n", cl->name, (unsigned int)PersistentGlobalsMP->time, fmt, v32, v33, v34, v35, cl->maxCumulThinkTime, cl->cumulThinkError, cl->cumulExtrapError, v13, cl->cumulThinkTime, v18, v17, v16, v43, m_windowMinimum, m_windowMaximum, cmdCurrentError, cmdTargetError);
     }
     else
     {
-      CurrentBurstTime = SV_ClientMP_GetCurrentBurstTime(cl, a2);
-      v20 = 0;
+      CurrentBurstTime = SV_ClientMP_GetCurrentBurstTime(cl);
+      v19 = 0;
       if ( CurrentBurstTime - cl->cumulBufferError > 0 )
-        v20 = CurrentBurstTime - cl->cumulBufferError;
-      v43 = v20;
-      v21 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
+        v19 = CurrentBurstTime - cl->cumulBufferError;
+      v42 = v19;
+      v20 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
       currCmdIndex = cl->currCmdIndex;
-      v23 = cl->beginCmdIndex;
+      v22 = cl->beginCmdIndex;
       cumulTargetError = cl->cumulTargetError;
       cumulBufferError = cl->cumulBufferError;
       cumulThinkTime = cl->cumulThinkTime;
       maxCumulThinkTime = cl->maxCumulThinkTime;
       recvThinkTime = cl->recvThinkTime;
       cumulCmdCount = cl->cumulCmdCount;
-      v45 = v21;
+      v44 = v20;
       recvCmdCount = cl->recvCmdCount;
-      v30 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-      v31 = currCmdIndex - v23;
-      if ( currCmdIndex < v23 )
-        v31 = currCmdIndex - v23 + 38;
-      LODWORD(v34) = cumulCmdCount;
-      LODWORD(v33) = v31;
+      v29 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+      v30 = currCmdIndex - v22;
+      if ( currCmdIndex < v22 )
+        v30 = currCmdIndex - v22 + 38;
+      LODWORD(v33) = cumulCmdCount;
+      LODWORD(v32) = v30;
       LODWORD(fmt) = recvCmdCount;
-      Com_Printf(16, "[%s]  Time( game:%d )  Count( recv:%d  buf:%d  cmd:%d )  Think( recv:%d  max:%d  cumul:%d )  Buffer( availError:%d  targetError:%d  avail:%d  target:%d  diff:%d )  Burst( observedError:%d )\n", cl->name, (unsigned int)v30->time, fmt, v33, v34, recvThinkTime, maxCumulThinkTime, cumulThinkTime, cumulBufferError, cumulTargetError, v45, v43, v45 - v43, CurrentBurstTime);
+      Com_Printf(16, "[%s]  Time( game:%d )  Count( recv:%d  buf:%d  cmd:%d )  Think( recv:%d  max:%d  cumul:%d )  Buffer( availError:%d  targetError:%d  avail:%d  target:%d  diff:%d )  Burst( observedError:%d )\n", cl->name, (unsigned int)v29->time, fmt, v32, v33, recvThinkTime, maxCumulThinkTime, cumulThinkTime, cumulBufferError, cumulTargetError, v44, v42, v44 - v42, CurrentBurstTime);
     }
   }
 }
@@ -6760,20 +6507,19 @@ void SV_ClientMP_PrintComandBufferDebug(SvClientMP *cl, double a2)
 SV_ClientMP_ProcessBufferedCommands
 ==============
 */
-
-__int64 __fastcall SV_ClientMP_ProcessBufferedCommands(SvClientMP *cl, double _XMM1_8, double _XMM2_8)
+__int64 SV_ClientMP_ProcessBufferedCommands(SvClientMP *cl)
 {
-  unsigned int v7; 
-  unsigned int v8; 
+  unsigned int v2; 
+  unsigned int v3; 
   __int64 result; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
+  int i; 
+  __int64 v8; 
+  usercmd_s *v9; 
   const dvar_t *v10; 
-  const dvar_t *v11; 
-  int beginCmdIndex; 
-  __int64 v14; 
-  usercmd_s *v15; 
-  const dvar_t *v16; 
-  int v17; 
-  bool v18; 
+  int v11; 
+  bool v12; 
   SvGameModeApplication *ActiveServerApplication; 
   int cumulThinkTime; 
   int CommandThinkTime; 
@@ -6781,107 +6527,76 @@ __int64 __fastcall SV_ClientMP_ProcessBufferedCommands(SvClientMP *cl, double _X
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4985, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  v7 = 0;
-  v8 = 0;
+  v2 = 0;
+  v3 = 0;
   if ( cl->state != CS_ACTIVE )
   {
     cl->beginCmdIndex = cl->currCmdIndex;
     return 0i64;
   }
-  v10 = DVARBOOL_command_buffering_enabled;
+  v5 = DVARBOOL_command_buffering_enabled;
   if ( !DVARBOOL_command_buffering_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_buffering_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( !v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled )
   {
-    v11 = DVARINT_sv_cumulThinkTime;
+    v6 = DVARINT_sv_cumulThinkTime;
     if ( !DVARINT_sv_cumulThinkTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cumulThinkTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    cl->maxCumulThinkTime = v11->current.integer;
+    Dvar_CheckFrontendServerThread(v6);
+    cl->maxCumulThinkTime = v6->current.integer;
   }
-  beginCmdIndex = cl->beginCmdIndex;
-  if ( beginCmdIndex != cl->currCmdIndex )
+  for ( i = cl->beginCmdIndex; i != cl->currCmdIndex; ++i )
   {
-    __asm
+    if ( v3 >= 6 )
+      break;
+    v8 = i % 38;
+    v9 = &cl->cmds[v8];
+    if ( (SvClientMP *)((char *)cl + v8 * 264) == (SvClientMP *)-173784i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4929, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
+      __debugbreak();
+    if ( SV_ClientMP_IsNormalPlaying(cl) )
     {
-      vmovaps [rsp+88h+var_48], xmm7
-      vmovss  xmm7, cs:__real@3f000000
-      vmovaps [rsp+88h+var_38], xmm6
-    }
-    while ( 1 )
-    {
-      if ( v8 >= 6 )
-      {
-LABEL_34:
-        __asm
-        {
-          vmovaps xmm6, [rsp+88h+var_38]
-          vmovaps xmm7, [rsp+88h+var_48]
-        }
+      if ( cl->cumulThinkTime >= cl->maxCumulThinkTime )
         break;
-      }
-      v14 = beginCmdIndex % 38;
-      v15 = &cl->cmds[v14];
-      if ( (SvClientMP *)((char *)cl + v14 * 264) == (SvClientMP *)-173784i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4929, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
+      v10 = DVARBOOL_command_buffering_enabled;
+      if ( !DVARBOOL_command_buffering_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_buffering_enabled") )
         __debugbreak();
-      if ( SV_ClientMP_IsNormalPlaying(cl) )
+      Dvar_CheckFrontendServerThread(v10);
+      if ( v10->current.enabled )
       {
-        if ( cl->cumulThinkTime >= cl->maxCumulThinkTime )
-          goto LABEL_34;
-        v16 = DVARBOOL_command_buffering_enabled;
-        if ( !DVARBOOL_command_buffering_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_buffering_enabled") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v16);
-        if ( v16->current.enabled )
+        v11 = SV_ClientMP_GetCommandThinkTime(cl, v9) + cl->cumulThinkTime;
+        if ( Com_UseConstantUserCommandTime() )
         {
-          v17 = SV_ClientMP_GetCommandThinkTime(cl, v15) + cl->cumulThinkTime;
-          if ( Com_UseConstantUserCommandTime() )
-          {
-            v18 = v17 <= cl->maxCumulThinkTime;
-            goto LABEL_30;
-          }
-          ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_sv_cmdMinCumulThinkFrac, "sv_cmdMinCumulThinkFrac");
-          __asm { vmovaps xmm6, xmm0 }
-          SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-          cumulThinkTime = cl->cumulThinkTime;
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, eax
-            vmulss  xmm0, xmm6, xmm1
-            vaddss  xmm3, xmm0, xmm7
-            vxorps  xmm2, xmm2, xmm2
-            vmovss  xmm1, xmm2, xmm3
-            vxorps  xmm0, xmm0, xmm0
-            vroundss xmm4, xmm0, xmm1, 1
-            vcvttss2si eax, xmm4
-          }
-          if ( cumulThinkTime >= _EAX )
-          {
-            v18 = (int)abs32(cl->maxCumulThinkTime - v17) <= (int)abs32(cl->maxCumulThinkTime - cumulThinkTime);
-LABEL_30:
-            if ( !v18 )
-              goto LABEL_34;
-          }
+          v12 = v11 <= cl->maxCumulThinkTime;
+          goto LABEL_29;
+        }
+        ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
+        Dvar_GetFloat_Internal_DebugName(DVARFLT_sv_cmdMinCumulThinkFrac, "sv_cmdMinCumulThinkFrac");
+        SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
+        cumulThinkTime = cl->cumulThinkTime;
+        _XMM0 = 0i64;
+        __asm { vroundss xmm4, xmm0, xmm1, 1 }
+        if ( cumulThinkTime >= (int)*(float *)&_XMM4 )
+        {
+          v12 = (int)abs32(cl->maxCumulThinkTime - v11) <= (int)abs32(cl->maxCumulThinkTime - cumulThinkTime);
+LABEL_29:
+          if ( !v12 )
+            break;
         }
       }
-      SV_ClientMP_ClampCmdServerTime(v15);
-      CommandThinkTime = SV_ClientMP_GetCommandThinkTime(cl, v15);
-      cl->cumulThinkTime += CommandThinkTime;
-      v7 += CommandThinkTime;
-      MpClientIndex = SV_Client_GetMpClientIndex(cl);
-      if ( !SV_UserMoveWorkersMP_TryQueueClientThinkCmd(MpClientIndex, v15) )
-        SV_ClientMP_Think(cl, v15);
-      ++cl->cumulCmdCount;
-      ++v8;
-      if ( ++beginCmdIndex == cl->currCmdIndex )
-        goto LABEL_34;
     }
+    SV_ClientMP_ClampCmdServerTime(v9);
+    CommandThinkTime = SV_ClientMP_GetCommandThinkTime(cl, v9);
+    cl->cumulThinkTime += CommandThinkTime;
+    v2 += CommandThinkTime;
+    MpClientIndex = SV_Client_GetMpClientIndex(cl);
+    if ( !SV_UserMoveWorkersMP_TryQueueClientThinkCmd(MpClientIndex, v9) )
+      SV_ClientMP_Think(cl, v9);
+    ++cl->cumulCmdCount;
+    ++v3;
   }
-  result = v7;
-  cl->beginCmdIndex = beginCmdIndex;
+  result = v2;
+  cl->beginCmdIndex = i;
   return result;
 }
 
@@ -6890,7 +6605,7 @@ LABEL_30:
 SV_ClientMP_ProcessClientThinks
 ==============
 */
-void SV_ClientMP_ProcessClientThinks(__int64 a1, double a2, double a3)
+void SV_ClientMP_ProcessClientThinks(void)
 {
   signed int i; 
   SvClientMP *CommonClient; 
@@ -6901,7 +6616,7 @@ void SV_ClientMP_ProcessClientThinks(__int64 a1, double a2, double a3)
     if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
       __debugbreak();
     CommonClient = (SvClientMP *)SvClient::GetCommonClient(i);
-    SV_ClientMP_ProcessBufferedCommands(CommonClient, a2, a3);
+    SV_ClientMP_ProcessBufferedCommands(CommonClient);
   }
 }
 
@@ -6957,46 +6672,42 @@ SV_ClientMP_ReceiveStartingCmd
 void SV_ClientMP_ReceiveStartingCmd(netadr_t *from, msg_t *msg)
 {
   SvClientMP *ClientAtAddress; 
-  const SvClientMP *v5; 
-  bool v6; 
-  const char *v7; 
-  const char *v8; 
+  int addrHandleIndex; 
+  const char *v5; 
+  const char *v6; 
   unsigned int MpClientIndex; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
+  __int128 v9; 
   int time; 
-  int v13; 
+  int v11; 
   netadr_t adr; 
 
-  _RDI = from;
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 792, ASSERT_TYPE_ASSERT, "(!SvPersistentGlobalsMP::IsFrontEndServer())", "%s\n\tShould not receive starting command on front-end server", "!SvPersistentGlobalsMP::IsFrontEndServer()") )
     __debugbreak();
-  ClientAtAddress = SvClientMP::FindClientAtAddress(_RDI);
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  v5 = ClientAtAddress;
-  v6 = ClientAtAddress == NULL;
-  LODWORD(ClientAtAddress) = _RDI->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+58h+adr.type], xmm0 }
-  adr.addrHandleIndex = (int)ClientAtAddress;
-  if ( v6 )
+  ClientAtAddress = SvClientMP::FindClientAtAddress(from);
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&adr.type = *(_OWORD *)&from->type;
+  adr.addrHandleIndex = addrHandleIndex;
+  if ( ClientAtAddress )
   {
-    v7 = NET_AdrToString(&adr);
-    Com_PrintWarning(15, "Received COM_CONNECT_HANDSHAKE_STARTING from unknown remote client %s\n", v7);
+    v6 = NET_AdrToString(&adr);
+    MpClientIndex = SV_Client_GetMpClientIndex(ClientAtAddress);
+    Com_Printf(15, "SV Client Starting Cmd at %i '%s'.\n", MpClientIndex, v6);
+    PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+    v9 = *(_OWORD *)&from->type;
+    time = PersistentGlobalsMP->time;
+    LODWORD(PersistentGlobalsMP) = from->addrHandleIndex;
+    ClientAtAddress->lastPacketTime = time;
+    *(_OWORD *)&adr.type = v9;
+    adr.addrHandleIndex = (int)PersistentGlobalsMP;
+    v11 = NET_OutOfBandPrint(NS_MAXCLIENTS, &adr, "strt_resp");
+    if ( v11 < 0 )
+      Com_PrintError(15, "SV_ClientMP_SendStartingResponseToClient failed with %d.\n", (unsigned int)v11);
   }
   else
   {
-    v8 = NET_AdrToString(&adr);
-    MpClientIndex = SV_Client_GetMpClientIndex(v5);
-    Com_Printf(15, "SV Client Starting Cmd at %i '%s'.\n", MpClientIndex, v8);
-    PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    time = PersistentGlobalsMP->time;
-    LODWORD(PersistentGlobalsMP) = _RDI->addrHandleIndex;
-    v5->lastPacketTime = time;
-    __asm { vmovups xmmword ptr [rsp+58h+adr.type], xmm0 }
-    adr.addrHandleIndex = (int)PersistentGlobalsMP;
-    v13 = NET_OutOfBandPrint(NS_MAXCLIENTS, &adr, "strt_resp");
-    if ( v13 < 0 )
-      Com_PrintError(15, "SV_ClientMP_SendStartingResponseToClient failed with %d.\n", (unsigned int)v13);
+    v5 = NET_AdrToString(&adr);
+    Com_PrintWarning(15, "Received COM_CONNECT_HANDSHAKE_STARTING from unknown remote client %s\n", v5);
   }
 }
 
@@ -7008,108 +6719,108 @@ SV_ClientMP_ReceiveStats
 void SV_ClientMP_ReceiveStats(netadr_t *from, msg_t *msg)
 {
   SvClientMP *ClientAtAddress; 
-  int v6; 
-  const char *v7; 
-  int v9; 
-  const char *v10; 
+  int v5; 
+  const char *v6; 
+  int v7; 
+  const char *v8; 
   unsigned int packetNum; 
   unsigned int StatsGroupBitOffset; 
-  unsigned int v13; 
+  unsigned int v11; 
   SvGameGlobalsMP *SvGameGlobalsMP; 
   unsigned int StatsGroupOffset; 
+  int v14; 
+  int v15; 
   int v16; 
   int v17; 
-  int v18; 
-  int v19; 
   unsigned __int64 statPacketsReceived; 
   unsigned int MpClientIndex; 
   int addrHandleIndex; 
   __int64 ClientRequiredStatPackets; 
-  const char *v26; 
-  int v27; 
+  __int128 v22; 
+  const char *v23; 
+  int v24; 
   char *fmt; 
-  __int64 v29; 
-  __int64 v30; 
+  __int64 v26; 
+  __int64 v27; 
   int startByte; 
-  char v32; 
+  char v29; 
   int bufferSize; 
-  netadr_t v34; 
+  netadr_t v31; 
   void *buffer; 
   netadr_t adr; 
   msg_t buf; 
-  statPacketHeader_t v38; 
+  statPacketHeader_t v35; 
   unsigned __int8 data[40]; 
   char Buf2[8336]; 
 
-  _RDI = from;
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 658, ASSERT_TYPE_ASSERT, "(!SvPersistentGlobalsMP::IsFrontEndServer())", "%s\n\tShould not receive stats on front-end server", "!SvPersistentGlobalsMP::IsFrontEndServer()") )
     __debugbreak();
-  ClientAtAddress = SvClientMP::FindClientAtAddress(_RDI);
+  ClientAtAddress = SvClientMP::FindClientAtAddress(from);
   if ( ClientAtAddress )
   {
-    if ( statPacketHeader_t::DeserializeFromMsg(&v38, msg) )
+    if ( statPacketHeader_t::DeserializeFromMsg(&v35, msg) )
     {
-      packetNum = v38.packetNum;
-      StatsGroupBitOffset = Com_PlayerData_GetStatsGroupBitOffset(v38.statsGroup);
-      v13 = StatsGroupBitOffset + v38.packetNum;
-      v32 = StatsGroupBitOffset;
+      packetNum = v35.packetNum;
+      StatsGroupBitOffset = Com_PlayerData_GetStatsGroupBitOffset(v35.statsGroup);
+      v11 = StatsGroupBitOffset + v35.packetNum;
+      v29 = StatsGroupBitOffset;
       SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
-      if ( (SvGameGlobalsMP->m_requiredStatsBitMask & (1i64 << v13)) != 0 )
+      if ( (SvGameGlobalsMP->m_requiredStatsBitMask & (1i64 << v11)) != 0 )
       {
-        LODWORD(v29) = SV_Client_GetMpClientIndex(ClientAtAddress);
-        LODWORD(fmt) = v38.statsGroup;
-        Com_Printf(15, "Received packet %i (adjusted %d) of stats group (%d) data from clientNum %i (%s)\n", packetNum, v13, fmt, v29, ClientAtAddress->name);
-        StatsGroupOffset = Com_PlayerData_GetStatsGroupOffset(v38.statsGroup);
-        v16 = msg->cursize - msg->readcount;
-        v17 = 1229 * packetNum + StatsGroupOffset;
-        v18 = 1229;
-        startByte = v17;
-        bufferSize = 66672 - v17;
-        if ( 66672 - v17 < 1229 )
-          v18 = 66672 - v17;
-        v19 = v18;
-        if ( v16 < v18 )
-          v19 = msg->cursize - msg->readcount;
-        if ( v16 > v18 )
+        LODWORD(v26) = SV_Client_GetMpClientIndex(ClientAtAddress);
+        LODWORD(fmt) = v35.statsGroup;
+        Com_Printf(15, "Received packet %i (adjusted %d) of stats group (%d) data from clientNum %i (%s)\n", packetNum, v11, fmt, v26, ClientAtAddress->name);
+        StatsGroupOffset = Com_PlayerData_GetStatsGroupOffset(v35.statsGroup);
+        v14 = msg->cursize - msg->readcount;
+        v15 = 1229 * packetNum + StatsGroupOffset;
+        v16 = 1229;
+        startByte = v15;
+        bufferSize = 66672 - v15;
+        if ( 66672 - v15 < 1229 )
+          v16 = 66672 - v15;
+        v17 = v16;
+        if ( v14 < v16 )
+          v17 = msg->cursize - msg->readcount;
+        if ( v14 > v16 )
         {
-          LODWORD(v30) = msg->cursize - msg->readcount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 707, ASSERT_TYPE_ASSERT, "( ( remainingMsgSize <= maxSize ) )", "%s\n\t( remainingMsgSize ) = %i", "( remainingMsgSize <= maxSize )", v30) )
+          LODWORD(v27) = msg->cursize - msg->readcount;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 707, ASSERT_TYPE_ASSERT, "( ( remainingMsgSize <= maxSize ) )", "%s\n\t( remainingMsgSize ) = %i", "( remainingMsgSize <= maxSize )", v27) )
             __debugbreak();
         }
-        if ( v19 > 1229 )
+        if ( v17 > 1229 )
         {
-          LODWORD(v30) = v19;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 708, ASSERT_TYPE_ASSERT, "( ( size <= ( ( ( 1270 - 16 - 2 ) - ( 3 * 4 + 2 + 1 ) ) - ( 8 ) ) ) )", "%s\n\t( size ) = %i", "( size <= ( ( ( 1270 - 16 - 2 ) - ( 3 * 4 + 2 + 1 ) ) - ( 8 ) ) )", v30) )
+          LODWORD(v27) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 708, ASSERT_TYPE_ASSERT, "( ( size <= ( ( ( 1270 - 16 - 2 ) - ( 3 * 4 + 2 + 1 ) ) - ( 8 ) ) ) )", "%s\n\t( size ) = %i", "( size <= ( ( ( 1270 - 16 - 2 ) - ( 3 * 4 + 2 + 1 ) ) - ( 8 ) ) )", v27) )
             __debugbreak();
         }
-        if ( v19 <= 0 )
+        if ( v17 <= 0 )
         {
-          LODWORD(v30) = v19;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 709, ASSERT_TYPE_ASSERT, "( ( size > 0 ) )", "%s\n\t( size ) = %i", "( size > 0 )", v30) )
+          LODWORD(v27) = v17;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 709, ASSERT_TYPE_ASSERT, "( ( size > 0 ) )", "%s\n\t( size ) = %i", "( size > 0 )", v27) )
             __debugbreak();
         }
-        if ( v19 + startByte > 66672 )
+        if ( v17 + startByte > 66672 )
         {
-          LODWORD(v30) = startByte;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 710, ASSERT_TYPE_ASSERT, "(start + size <= ( 66672 ))", "%s\n\tstart is %i, size is %i", "start + size <= PERSISTENT_STATS_SIZE", v30, v19) )
+          LODWORD(v27) = startByte;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 710, ASSERT_TYPE_ASSERT, "(start + size <= ( 66672 ))", "%s\n\tstart is %i, size is %i", "start + size <= PERSISTENT_STATS_SIZE", v27, v17) )
             __debugbreak();
         }
         buffer = &ClientAtAddress->stats[startByte];
-        if ( v38.moreFragments )
+        if ( v35.moreFragments )
         {
           statPacketsReceived = ClientAtAddress->statPacketsReceived;
-          _bittestandset64((__int64 *)&statPacketsReceived, (int)v13);
+          _bittestandset64((__int64 *)&statPacketsReceived, (int)v11);
           ClientAtAddress->statPacketsReceived = statPacketsReceived;
         }
         else
         {
-          ClientAtAddress->statPacketsReceived |= ((1i64 << (v32 + (unsigned __int8)Com_PlayerData_GetStatsGroupMaxPackets(v38.statsGroup))) - 1) ^ ((1i64 << v13) - 1);
+          ClientAtAddress->statPacketsReceived |= ((1i64 << (v29 + (unsigned __int8)Com_PlayerData_GetStatsGroupMaxPackets(v35.statsGroup))) - 1) ^ ((1i64 << v11) - 1);
         }
-        MSG_ReadData(msg, v19, buffer, bufferSize);
+        MSG_ReadData(msg, v17, buffer, bufferSize);
         if ( msg->readcount == msg->cursize + msg->splitSize )
         {
           ClientAtAddress->lastPacketTime = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
-          SV_ClientMP_ClearModifiedFlagRange(ClientAtAddress->statsModifiedFlags, startByte, v19);
+          SV_ClientMP_ClearModifiedFlagRange(ClientAtAddress->statsModifiedFlags, startByte, v17);
           if ( SV_HasAllClientStatPackets(ClientAtAddress) )
           {
             memset_0(Buf2, 0, 0x208Eui64);
@@ -7117,24 +6828,23 @@ void SV_ClientMP_ReceiveStats(netadr_t *from, msg_t *msg)
               __debugbreak();
             SV_ClientMP_ReceiveStatsValidateData(ClientAtAddress);
           }
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          addrHandleIndex = _RDI->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+20E0h+adr.type], xmm0 }
+          addrHandleIndex = from->addrHandleIndex;
+          *(_OWORD *)&adr.type = *(_OWORD *)&from->type;
           adr.addrHandleIndex = addrHandleIndex;
           ClientRequiredStatPackets = SV_GetClientRequiredStatPackets(ClientAtAddress);
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v34.addrHandleIndex = _RDI->addrHandleIndex;
-          __asm { vmovups [rsp+21E0h+var_2190], xmm0 }
-          v26 = NET_AdrToString(&v34);
-          Com_Printf(15, "SV_ClientMP_SendStatsResponseToClient: Sending '%s' to client at '%s'. statsDataNeeded = 0x%zx\n", "statResponse", v26, ClientRequiredStatPackets);
+          v22 = *(_OWORD *)&from->type;
+          v31.addrHandleIndex = from->addrHandleIndex;
+          *(_OWORD *)&v31.type = v22;
+          v23 = NET_AdrToString(&v31);
+          Com_Printf(15, "SV_ClientMP_SendStatsResponseToClient: Sending '%s' to client at '%s'. statsDataNeeded = 0x%zx\n", "statResponse", v23, ClientRequiredStatPackets);
           MSG_Init(&buf, data, 32);
           MSG_WriteString(&buf, "statResponse");
           MSG_WriteBits(&buf, ClientRequiredStatPackets, 0x36u);
           if ( buf.overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 575, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( &msg ))", "%s\n\tStats response send buffer is too small, increase STATS_MSG_BUF_SIZE", "!MSG_IsOverflowed( &msg )") )
             __debugbreak();
-          v27 = NET_OutOfBandData(NS_MAXCLIENTS, &adr, buf.data, buf.cursize);
-          if ( v27 < 0 )
-            Com_PrintError(15, "Failed to send response to stats: error %d.\n", (unsigned int)v27);
+          v24 = NET_OutOfBandData(NS_MAXCLIENTS, &adr, buf.data, buf.cursize);
+          if ( v24 < 0 )
+            Com_PrintError(15, "Failed to send response to stats: error %d.\n", (unsigned int)v24);
         }
         else
         {
@@ -7144,27 +6854,25 @@ void SV_ClientMP_ReceiveStats(netadr_t *from, msg_t *msg)
       }
       else
       {
-        Com_PrintWarning(15, "Received stat packet %i (adjusted %d) of stats data which is not in the requested list %zu, possibly cheating\n", packetNum, v13, SvGameGlobalsMP->m_requiredStatsBitMask);
+        Com_PrintWarning(15, "Received stat packet %i (adjusted %d) of stats data which is not in the requested list %zu, possibly cheating\n", packetNum, v11, SvGameGlobalsMP->m_requiredStatsBitMask);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v9 = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+21E0h+var_2190], xmm0 }
-      v34.addrHandleIndex = v9;
-      v10 = NET_AdrToString(&v34);
-      Com_PrintWarning(15, "Failed to deserialize stat packet header from client %s\n", v10);
+      v7 = from->addrHandleIndex;
+      *(_OWORD *)&v31.type = *(_OWORD *)&from->type;
+      v31.addrHandleIndex = v7;
+      v8 = NET_AdrToString(&v31);
+      Com_PrintWarning(15, "Failed to deserialize stat packet header from client %s\n", v8);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v6 = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+21E0h+var_2190], xmm0 }
-    v34.addrHandleIndex = v6;
-    v7 = NET_AdrToString(&v34);
-    Com_PrintWarning((unsigned __int8)ClientAtAddress + 15, "Received stats packet from unknown remote client %s\n", v7);
+    v5 = from->addrHandleIndex;
+    *(_OWORD *)&v31.type = *(_OWORD *)&from->type;
+    v31.addrHandleIndex = v5;
+    v6 = NET_AdrToString(&v31);
+    Com_PrintWarning(15, "Received stats packet from unknown remote client %s\n", v6);
   }
 }
 
@@ -7246,32 +6954,29 @@ SV_ClientMP_ReconnectMigratedClient
 void SV_ClientMP_ReconnectMigratedClient(SvClientMP *cl, netadr_t *from, const int challenge, const char *playerGuid, const char *userinfo, bool usingOnlineStatsOffline)
 {
   unsigned int MpClientIndex; 
-  unsigned int v13; 
+  unsigned int v11; 
   NetchanTelemetry *serverTelemetry; 
-  const char *v15; 
+  const char *v13; 
   int time; 
-  netadr_t v19; 
+  __int128 v15; 
+  netadr_t v16; 
 
-  _RSI = playerGuid;
-  _R15 = from;
   MpClientIndex = SV_Client_GetMpClientIndex(cl);
   if ( !cl->scriptId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 1609, ASSERT_TYPE_ASSERT, "(cl->scriptId)", (const char *)&queryFormat, "cl->scriptId") )
     __debugbreak();
   cl->challenge = challenge;
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  _RDI = cl->playerGuid;
-  __asm { vmovups xmmword ptr [rdi], xmm0 }
-  *(_DWORD *)&cl->playerGuid[16] = *((_DWORD *)_RSI + 4);
-  cl->playerGuid[20] = _RSI[20];
-  if ( NetConnection::Accept(&cl->clientConnection, _R15, TYPE_GAME, ACCEPT_OPEN) )
+  *(_OWORD *)cl->playerGuid = *(_OWORD *)playerGuid;
+  *(_DWORD *)&cl->playerGuid[16] = *((_DWORD *)playerGuid + 4);
+  cl->playerGuid[20] = playerGuid[20];
+  if ( NetConnection::Accept(&cl->clientConnection, from, TYPE_GAME, ACCEPT_OPEN) )
   {
-    v13 = SV_Client_GetMpClientIndex(cl);
-    SvClientMP::AddClientAtAddress(_R15, v13);
+    v11 = SV_Client_GetMpClientIndex(cl);
+    SvClientMP::AddClientAtAddress(from, v11);
   }
   serverTelemetry = SV_SnapshotMP_GetNetchanTelemetry();
   Netchan_Setup(NS_MAXCLIENTS, &cl->netchan, &cl->clientConnection, cl->netBuf.netchanBuffer, 4096, serverTelemetry);
   Core_strcpy(cl->userinfo, 0x400ui64, userinfo);
-  if ( cl->serverId == sv_serverId_value || (Com_Printf(15, "Calling client connect for client %s (num %i guid \"%s\")\n", cl->name, MpClientIndex, cl->playerGuid), cl->migrationState = CS_FREE, GStatic::SetActiveStatics(), v15 = G_ClientMP_Connect(MpClientIndex, cl->scriptId), GStatic::ClearActiveStatics(), !v15) )
+  if ( cl->serverId == sv_serverId_value || (Com_Printf(15, "Calling client connect for client %s (num %i guid \"%s\")\n", cl->name, MpClientIndex, cl->playerGuid), cl->migrationState = CS_FREE, GStatic::SetActiveStatics(), v13 = G_ClientMP_Connect(MpClientIndex, cl->scriptId), GStatic::ClearActiveStatics(), !v13) )
   {
     Com_Printf(15, "Reconnecting migrated client %s (num %i guid \"%s\")\n", cl->name, MpClientIndex, cl->playerGuid);
     SV_ClientMP_UpdateConnectivityBits(MpClientIndex);
@@ -7283,13 +6988,9 @@ void SV_ClientMP_ReconnectMigratedClient(SvClientMP *cl, netadr_t *from, const i
     cl->lastConnectTime = time;
     SV_ClientMP_ResetKillcam(cl);
     SV_ClientMP_ResetCommandThinkTime(cl);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rdi], xmm0
-    }
-    *(_DWORD *)&cl->playerGuid[16] = *((_DWORD *)_RSI + 4);
-    cl->playerGuid[20] = _RSI[20];
+    *(_OWORD *)cl->playerGuid = *(_OWORD *)playerGuid;
+    *(_DWORD *)&cl->playerGuid[16] = *((_DWORD *)playerGuid + 4);
+    cl->playerGuid[20] = playerGuid[20];
     cl->hasSentClientNetworkTelemetry = 0;
     memset_0(cl->cmdReceivedHistogram, 0, 0xC0ui64);
     *(_QWORD *)cl->cmdExtrapolationCmdLengthHistogram = 0i64;
@@ -7306,15 +7007,15 @@ void SV_ClientMP_ReconnectMigratedClient(SvClientMP *cl, netadr_t *from, const i
     SV_ClientMP_UpdateSplitscreenStateForConnection(&cl->clientConnection);
     SV_StreamSync_ClientConnect(cl, 1);
     ScriptableMsgWrite_ResetClientBuffers(MpClientIndex, 1);
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    v19.addrHandleIndex = _R15->addrHandleIndex;
-    __asm { vmovups [rsp+88h+var_58], xmm0 }
-    SV_SendConnectResponseToClient(cl, &v19, 1);
+    v15 = *(_OWORD *)&from->type;
+    v16.addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v16.type = v15;
+    SV_SendConnectResponseToClient(cl, &v16, 1);
     cl->gamestateMessageNum = -1;
   }
   else
   {
-    SV_ClientMP_DropClient(cl, v15, 1);
+    SV_ClientMP_DropClient(cl, v13, 1);
   }
 }
 
@@ -7326,29 +7027,19 @@ SV_ClientMP_ResetClientSnapshot
 void SV_ClientMP_ResetClientSnapshot(clientSnapshot_t *snapshot)
 {
   GSnapshotWeaponMap weaponMapCopy; 
+  __m256i v3; 
+  __m256i v4; 
+  __m256i v5; 
 
-  _RDI = snapshot;
   GSnapshotWeaponMap::GSnapshotWeaponMap(&weaponMapCopy, &snapshot->weaponMap);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+6BF8h]
-    vmovups [rsp+0A8h+var_70], ymm0
-    vmovups ymm0, ymmword ptr [rdi+6C18h]
-    vmovups [rsp+0A8h+var_50], ymm0
-    vmovups ymm0, ymmword ptr [rdi+6C38h]
-    vmovups [rsp+0A8h+var_30], ymm0
-  }
-  DebugWipe(_RDI, 0x6C78ui64);
-  GSnapshotWeaponMap::GSnapshotWeaponMap(&_RDI->weaponMap, &weaponMapCopy);
-  __asm
-  {
-    vmovups ymm0, [rsp+0A8h+var_70]
-    vmovups ymmword ptr [rdi+6BF8h], ymm0
-    vmovups ymm1, [rsp+0A8h+var_50]
-    vmovups ymmword ptr [rdi+6C18h], ymm1
-    vmovups ymm0, [rsp+0A8h+var_30]
-    vmovups ymmword ptr [rdi+6C38h], ymm0
-  }
+  v3 = *(__m256i *)&snapshot->streamSync.streamSyncLists[0].itemCount;
+  v4 = *(__m256i *)&snapshot->streamSync.streamSyncLists[2].itemCount;
+  v5 = *(__m256i *)&snapshot->streamSync.streamSyncLists[4].itemCount;
+  DebugWipe(snapshot, 0x6C78ui64);
+  GSnapshotWeaponMap::GSnapshotWeaponMap(&snapshot->weaponMap, &weaponMapCopy);
+  *(__m256i *)&snapshot->streamSync.streamSyncLists[0].itemCount = v3;
+  *(__m256i *)&snapshot->streamSync.streamSyncLists[2].itemCount = v4;
+  *(__m256i *)&snapshot->streamSync.streamSyncLists[4].itemCount = v5;
   GSnapshotWeaponMap::~GSnapshotWeaponMap(&weaponMapCopy);
 }
 
@@ -7679,47 +7370,37 @@ void SV_ClientMP_SetClientPersistentDataModified(int clientNum)
 SV_ClientMP_SetClientRankValue
 ==============
 */
-
-void __fastcall SV_ClientMP_SetClientRankValue(const int clientNum, double rankValue)
+void SV_ClientMP_SetClientRankValue(const int clientNum, const float rankValue)
 {
+  const char *v3; 
+  const char *v4; 
   const char *v5; 
-  const char *v6; 
-  const char *v7; 
-  const XUID *v8; 
-  int v11; 
-  unsigned int v12; 
+  const XUID *v6; 
+  int v7; 
+  unsigned int v8; 
   XUID xuid; 
   XUID result; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   XUID::XUID(&xuid);
   if ( clientNum >= SvClient::ms_clientCount )
   {
-    v12 = SvClient::ms_clientCount;
-    v11 = clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7503, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v11, v12) )
+    v8 = SvClient::ms_clientCount;
+    v7 = clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7503, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
   if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
-  v5 = (char *)&SvClient::GetCommonClient(clientNum)[1].lastUsercmd.buttons + 4;
-  v6 = Info_ValueForKey(v5, "guest");
-  if ( !atoi(v6) )
+  v3 = (char *)&SvClient::GetCommonClient(clientNum)[1].lastUsercmd.buttons + 4;
+  v4 = Info_ValueForKey(v3, "guest");
+  if ( !atoi(v4) )
   {
-    v7 = Info_ValueForKey(v5, "xuid");
-    v8 = XUID::FromString(&result, v7);
-    XUID::operator=(&xuid, v8);
+    v5 = Info_ValueForKey(v3, "xuid");
+    v6 = XUID::FromString(&result, v5);
+    XUID::operator=(&xuid, v6);
     if ( !XUID::IsNull(&xuid) )
-    {
-      __asm { vmovaps xmm1, xmm6; rank }
-      Online_Skill_SetRankForXuid(&xuid, *(const float *)&_XMM1);
-    }
+      Online_Skill_SetRankForXuid(&xuid, rankValue);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -8007,10 +7688,13 @@ SV_ClientMP_Think
 */
 void SV_ClientMP_Think(SvClientMP *cl, const usercmd_s *cmd)
 {
+  usercmd_s *p_lastUsercmd; 
+  const usercmd_s *v5; 
   __int64 v6; 
-  bool v15; 
+  __int128 v7; 
+  bool v8; 
   int MpClientIndex; 
-  __int64 v17; 
+  __int64 v10; 
   int time; 
 
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4132, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
@@ -8018,42 +7702,32 @@ void SV_ClientMP_Think(SvClientMP *cl, const usercmd_s *cmd)
   if ( cmd->serverTime > SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time )
   {
     time = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
-    LODWORD(v17) = cmd->serverTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4133, ASSERT_TYPE_ASSERT, "( cmd->serverTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "cmd->serverTime <= SvPersistentGlobalsMP::GetTime()\n\t%i, %i", v17, time) )
+    LODWORD(v10) = cmd->serverTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4133, ASSERT_TYPE_ASSERT, "( cmd->serverTime ) <= ( SvPersistentGlobalsMP::GetTime() )", "cmd->serverTime <= SvPersistentGlobalsMP::GetTime()\n\t%i, %i", v10, time) )
       __debugbreak();
   }
-  _RCX = &cl->lastUsercmd;
-  _RAX = cmd;
+  p_lastUsercmd = &cl->lastUsercmd;
+  v5 = cmd;
   v6 = 2i64;
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (const usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    p_lastUsercmd = (usercmd_s *)((char *)p_lastUsercmd + 128);
+    v7 = *(_OWORD *)&v5->buttons;
+    v5 = (const usercmd_s *)((char *)v5 + 128);
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.attachmentVariationIndices[13] = v7;
+    *(_OWORD *)&p_lastUsercmd[-1].offHand.weaponCamo = *(_OWORD *)&v5[-1].offHand.weaponCamo;
+    *(_OWORD *)p_lastUsercmd[-1].remoteControlMove = *(_OWORD *)v5[-1].remoteControlMove;
+    *(_OWORD *)p_lastUsercmd[-1].vehAngles = *(_OWORD *)v5[-1].vehAngles;
+    *(_OWORD *)&p_lastUsercmd[-1].vehOrgZ = *(_OWORD *)&v5[-1].vehOrgZ;
+    *(_OWORD *)&p_lastUsercmd[-1].gunYOfs = *(_OWORD *)&v5[-1].gunYOfs;
+    *(_OWORD *)p_lastUsercmd[-1].sightedClientsMask.data = *(_OWORD *)v5[-1].sightedClientsMask.data;
+    *(_OWORD *)&p_lastUsercmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v5[-1].sightedClientsMask.data[4];
     --v6;
   }
   while ( v6 );
-  v15 = cl->state == CS_ACTIVE;
-  _RCX->buttons = _RAX->buttons;
-  if ( v15 )
+  v8 = cl->state == CS_ACTIVE;
+  p_lastUsercmd->buttons = v5->buttons;
+  if ( v8 )
   {
     GStatic::SetActiveStatics();
     MpClientIndex = SV_Client_GetMpClientIndex(cl);
@@ -8094,13 +7768,13 @@ __int64 SV_ClientMP_UpdateBufferBurstTime(SvClientMP *cl, const int currBurstTim
   SvGameModeApplication *ActiveServerApplication; 
   int CurrentBurstTime; 
   __int64 result; 
-  const dvar_t *v9; 
+  const dvar_t *v7; 
   int startBufferBurstTime; 
-  int v11; 
-  int v12; 
+  int v9; 
+  int v10; 
   int Int_Internal_DebugName; 
-  __int64 v26; 
-  __int64 v27; 
+  __int64 v14; 
+  __int64 v15; 
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5097, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
@@ -8108,13 +7782,13 @@ __int64 SV_ClientMP_UpdateBufferBurstTime(SvClientMP *cl, const int currBurstTim
     goto LABEL_9;
   ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
   cl->lerpBufferBurstStep += SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-  CurrentBurstTime = SV_ClientMP_GetCurrentBurstTime(cl, *(double *)&_XMM1);
+  CurrentBurstTime = SV_ClientMP_GetCurrentBurstTime(cl);
   if ( currBurstTime > CurrentBurstTime )
   {
     if ( currBurstTime < cl->targetBufferBurstTime )
     {
-      LODWORD(v26) = currBurstTime;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5118, ASSERT_TYPE_ASSERT, "( currBurstTime ) >= ( cl->targetBufferBurstTime )", "currBurstTime >= cl->targetBufferBurstTime\n\t%i, %i", v26, cl->targetBufferBurstTime) )
+      LODWORD(v14) = currBurstTime;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5118, ASSERT_TYPE_ASSERT, "( currBurstTime ) >= ( cl->targetBufferBurstTime )", "currBurstTime >= cl->targetBufferBurstTime\n\t%i, %i", v14, cl->targetBufferBurstTime) )
         __debugbreak();
     }
 LABEL_9:
@@ -8122,48 +7796,35 @@ LABEL_9:
     cl->lerpBufferBurstStep = 0;
     return (unsigned int)currBurstTime;
   }
-  v9 = DVARINT_sv_cmdBufferStepTime;
+  v7 = DVARINT_sv_cmdBufferStepTime;
   if ( !DVARINT_sv_cmdBufferStepTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdBufferStepTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
+  Dvar_CheckFrontendServerThread(v7);
   result = (unsigned int)cl->targetBufferBurstTime;
-  if ( cl->lerpBufferBurstStep < v9->current.integer )
+  if ( cl->lerpBufferBurstStep < v7->current.integer )
   {
     if ( currBurstTime > (int)result )
     {
       startBufferBurstTime = cl->startBufferBurstTime;
-      v11 = startBufferBurstTime - CurrentBurstTime;
-      v12 = startBufferBurstTime - currBurstTime;
-      if ( v12 <= 0 )
+      v9 = startBufferBurstTime - CurrentBurstTime;
+      v10 = startBufferBurstTime - currBurstTime;
+      if ( v10 <= 0 )
       {
-        LODWORD(v26) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5142, ASSERT_TYPE_ASSERT, "( newBurstRange ) > ( 0 )", "newBurstRange > 0\n\t%i, %i", v26, 0i64) )
+        LODWORD(v14) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5142, ASSERT_TYPE_ASSERT, "( newBurstRange ) > ( 0 )", "newBurstRange > 0\n\t%i, %i", v14, 0i64) )
           __debugbreak();
       }
-      if ( v11 > v12 )
+      if ( v9 > v10 )
       {
-        LODWORD(v27) = v12;
-        LODWORD(v26) = v11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5145, ASSERT_TYPE_ASSERT, "( lastBurstRange ) <= ( newBurstRange )", "lastBurstRange <= newBurstRange\n\t%i, %i", v26, v27) )
+        LODWORD(v15) = v10;
+        LODWORD(v14) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5145, ASSERT_TYPE_ASSERT, "( lastBurstRange ) <= ( newBurstRange )", "lastBurstRange <= newBurstRange\n\t%i, %i", v14, v15) )
           __debugbreak();
       }
       Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_sv_cmdBufferStepTime, "sv_cmdBufferStepTime");
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebp
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vdivss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm2, xmm2, xmm1
-        vaddss  xmm3, xmm2, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm2, xmm1, xmm3, 1
-        vcvttss2si ecx, xmm2; val
-      }
-      cl->lerpBufferBurstStep = I_clamp(_ECX, 0, Int_Internal_DebugName);
+      _XMM1 = 0i64;
+      __asm { vroundss xmm2, xmm1, xmm3, 1 }
+      cl->lerpBufferBurstStep = I_clamp((int)*(float *)&_XMM2, 0, Int_Internal_DebugName);
       cl->targetBufferBurstTime = currBurstTime;
     }
     return (unsigned int)CurrentBurstTime;
@@ -8181,62 +7842,66 @@ LABEL_9:
 SV_ClientMP_UpdateClientBuffering
 ==============
 */
-
-void __fastcall SV_ClientMP_UpdateClientBuffering(double _XMM0_8, double _XMM1_8)
+void SV_ClientMP_UpdateClientBuffering(void)
 {
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  SvPersistentGlobalsMP *v3; 
-  unsigned __int64 v4; 
-  unsigned __int64 v5; 
+  SvPersistentGlobalsMP *v1; 
+  unsigned __int64 v2; 
+  unsigned __int64 v3; 
   unsigned __int64 lastCommandTimeUsec; 
-  __int64 v7; 
-  signed int v8; 
-  unsigned __int64 v16; 
-  unsigned __int64 v17; 
-  const dvar_t *v18; 
+  double TimescaleForSv; 
+  __int64 v6; 
+  signed int v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  unsigned __int64 v12; 
+  unsigned __int64 v13; 
+  unsigned __int64 v14; 
+  const dvar_t *v15; 
   int integer; 
-  int v20; 
+  int v17; 
   SvClient *CommonClient; 
 
   Sys_ProfBeginNamedEvent(0xFF00FF00, "SV_ClientMP_UpdateClientBuffering");
   PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-  v3 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
-  v4 = 1000i64 * Com_GetUserCommandConstantMsec();
-  v5 = Sys_Microseconds();
-  lastCommandTimeUsec = v3->lastCommandTimeUsec;
-  v3->lastCommandTimeUsec = v5;
-  _XMM0_8 = Com_GetTimescaleForSv();
-  v7 = v5 - lastCommandTimeUsec;
-  v8 = 0;
+  v1 = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
+  v2 = 1000i64 * Com_GetUserCommandConstantMsec();
+  v3 = Sys_Microseconds();
+  lastCommandTimeUsec = v1->lastCommandTimeUsec;
+  v1->lastCommandTimeUsec = v3;
+  TimescaleForSv = Com_GetTimescaleForSv();
+  v6 = v3 - lastCommandTimeUsec;
+  v7 = 0;
   if ( !lastCommandTimeUsec )
-    v7 = 0i64;
-  __asm
+    v6 = 0i64;
+  v8 = (float)v6;
+  if ( v6 < 0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rdi
+    v9 = (float)v6;
+    v8 = v9 + 1.8446744e19;
   }
-  if ( v7 < 0 )
-    __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-  __asm
+  v11 = *(float *)&TimescaleForSv * v8;
+  v10 = v11;
+  v12 = 0i64;
+  if ( v11 >= 9.223372e18 )
   {
-    vmulss  xmm0, xmm0, xmm1
-    vmovss  xmm1, cs:__real@5f000000
-    vcomiss xmm0, xmm1
-    vsubss  xmm0, xmm0, xmm1
-    vcomiss xmm0, xmm1
-    vcvttss2si rdi, xmm0
+    v10 = v11 - 9.223372e18;
+    if ( (float)(v11 - 9.223372e18) < 9.223372e18 )
+      v12 = 0x8000000000000000ui64;
   }
-  v16 = v3->accumCommandTimeUsec + _RDI;
-  v17 = v16 - v16 % v4;
-  v3->accumCommandTimeUsec = v16 % v4;
-  v18 = DCONST_DVARINT_com_userCmdMaxTimeStep;
+  v13 = v1->accumCommandTimeUsec + v12 + (unsigned int)(int)v10;
+  v14 = v13 - v13 % v2;
+  v1->accumCommandTimeUsec = v13 % v2;
+  v15 = DCONST_DVARINT_com_userCmdMaxTimeStep;
   if ( !DCONST_DVARINT_com_userCmdMaxTimeStep && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxTimeStep") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  integer = v18->current.integer;
-  v20 = truncate_cast<int,unsigned __int64>(v17 / 0x3E8);
-  if ( v20 < integer )
-    integer = v20;
+  Dvar_CheckFrontendServerThread(v15);
+  integer = v15->current.integer;
+  v17 = truncate_cast<int,unsigned __int64>(v14 / 0x3E8);
+  if ( v17 < integer )
+    integer = v17;
   if ( SV_IsDemoPlaying() )
   {
     integer = SV_Demo_GetInt();
@@ -8251,12 +7916,12 @@ void __fastcall SV_ClientMP_UpdateClientBuffering(double _XMM0_8, double _XMM1_8
     {
       if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
         __debugbreak();
-      CommonClient = SvClient::GetCommonClient(v8);
+      CommonClient = SvClient::GetCommonClient(v7);
       if ( CommonClient->state == CS_ACTIVE )
         SV_ClientMP_UpdateCommandThinkTime((SvClientMP *)CommonClient, integer);
-      ++v8;
+      ++v7;
     }
-    while ( v8 < (int)SvClient::ms_clientCount );
+    while ( v7 < (int)SvClient::ms_clientCount );
   }
   PersistentGlobalsMP->frameThinkTime = integer;
   Sys_ProfEndNamedEvent();
@@ -8598,84 +8263,79 @@ SV_ClientMP_UpdateCommandThinkTime
 */
 void SV_ClientMP_UpdateCommandThinkTime(SvClientMP *cl, const int nextThinkTime)
 {
-  const dvar_t *v10; 
+  const dvar_t *v4; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
   int cumulThinkError; 
-  int v13; 
-  int v14; 
+  int v7; 
+  int v8; 
   int UserCommandConstantMsec; 
-  int v16; 
-  int v17; 
+  int v10; 
+  int v11; 
   int MaxThinkTime; 
   SvGameModeApplication *ActiveServerApplication; 
-  int v20; 
-  int v21; 
+  int v14; 
+  int v15; 
   int updated; 
+  const dvar_t *v17; 
+  int v18; 
+  int v19; 
+  const dvar_t *v20; 
   const dvar_t *v23; 
-  int v24; 
-  int v25; 
-  const dvar_t *v26; 
-  const dvar_t *v35; 
+  const dvar_t *v25; 
+  int v27; 
+  const dvar_t *v28; 
+  int v30; 
   int maxCumulThinkTime; 
   int AvailableBufferThinkTime; 
   int MpClientIndex; 
   int CurrentBurstTime; 
-  int v68; 
-  const dvar_t *v69; 
-  const dvar_t *v70; 
-  int v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  const dvar_t *v75; 
+  int v36; 
+  const dvar_t *v37; 
+  const dvar_t *v38; 
+  int v39; 
+  int v40; 
+  int v41; 
+  int v42; 
+  const dvar_t *v43; 
   int time; 
   int lastBurstTime; 
-  int v78; 
-  const dvar_t *v79; 
-  unsigned __int64 v80; 
-  int v81; 
-  __int64 v86; 
-  __int64 v87; 
-  char v90; 
-  void *retaddr; 
+  int v46; 
+  const dvar_t *v47; 
+  unsigned __int64 v48; 
+  int v49; 
+  __int64 v50; 
+  __int64 v51; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5862, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF0000FF, "SV_ClientMP_UpdateCommandThinkTime");
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5816, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  v10 = DVARBOOL_command_buffering_enabled;
+  v4 = DVARBOOL_command_buffering_enabled;
   if ( !DVARBOOL_command_buffering_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_buffering_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled && !SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && cl->testClient == TC_NONE && SV_ClientMP_IsNormalPlaying(cl) )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled && !SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && cl->testClient == TC_NONE && SV_ClientMP_IsNormalPlaying(cl) )
   {
     if ( Com_UseConstantUserCommandTime() )
     {
       PersistentGlobalsMP = SvPersistentGlobalsMP::GetPersistentGlobalsMP();
       cumulThinkError = cl->cumulThinkError;
-      v13 = cumulThinkError + PersistentGlobalsMP->frameThinkTime - cl->cumulThinkTime;
-      v14 = 0;
-      if ( v13 > 0 )
-        v14 = v13;
-      cl->cumulThinkError = v14;
-      if ( !v14 )
+      v7 = cumulThinkError + PersistentGlobalsMP->frameThinkTime - cl->cumulThinkTime;
+      v8 = 0;
+      if ( v7 > 0 )
+        v8 = v7;
+      cl->cumulThinkError = v8;
+      if ( !v8 )
       {
         UserCommandConstantMsec = Com_GetUserCommandConstantMsec();
         if ( cumulThinkError )
         {
-          v16 = cumulThinkError / UserCommandConstantMsec;
-          v17 = 20;
-          if ( v16 < 20 )
-            v17 = v16;
-          ++cl->cmdExtrapolationCmdLengthHistogram[v17];
+          v10 = cumulThinkError / UserCommandConstantMsec;
+          v11 = 20;
+          if ( v10 < 20 )
+            v11 = v10;
+          ++cl->cmdExtrapolationCmdLengthHistogram[v11];
         }
         else
         {
@@ -8684,7 +8344,7 @@ void SV_ClientMP_UpdateCommandThinkTime(SvClientMP *cl, const int nextThinkTime)
       }
       SV_ClientMP_UpdateCommandExtrapTime(cl);
       SV_ClientMP_UpdateCommandBufferError(cl);
-      SV_ClientMP_PrintComandBufferDebug(cl, *(double *)&_XMM1);
+      SV_ClientMP_PrintComandBufferDebug(cl);
       MaxThinkTime = SV_ClientMP_GetMaxThinkTime(cl, nextThinkTime);
       if ( nextThinkTime + cl->cumulThinkError < MaxThinkTime )
         MaxThinkTime = nextThinkTime + cl->cumulThinkError;
@@ -8692,172 +8352,129 @@ void SV_ClientMP_UpdateCommandThinkTime(SvClientMP *cl, const int nextThinkTime)
       goto LABEL_68;
     }
     ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-    v20 = SvGameModeApplication::GetFrameDuration(ActiveServerApplication) - cl->recvThinkTime + cl->cumulBufferError;
-    v21 = 0;
-    if ( v20 > 0 )
-      v21 = v20;
-    cl->cumulBufferError = v21;
-    updated = SV_ClientMP_UpdateBufferBurstTime(cl, v21);
+    v14 = SvGameModeApplication::GetFrameDuration(ActiveServerApplication) - cl->recvThinkTime + cl->cumulBufferError;
+    v15 = 0;
+    if ( v14 > 0 )
+      v15 = v14;
+    cl->cumulBufferError = v15;
+    updated = SV_ClientMP_UpdateBufferBurstTime(cl, v15);
     if ( cl->startBufferBurstTime < cl->targetBufferBurstTime )
     {
-      LODWORD(v87) = cl->targetBufferBurstTime;
-      LODWORD(v86) = cl->startBufferBurstTime;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5894, ASSERT_TYPE_ASSERT, "( cl->startBufferBurstTime ) >= ( cl->targetBufferBurstTime )", "cl->startBufferBurstTime >= cl->targetBufferBurstTime\n\t%i, %i", v86, v87) )
+      LODWORD(v51) = cl->targetBufferBurstTime;
+      LODWORD(v50) = cl->startBufferBurstTime;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5894, ASSERT_TYPE_ASSERT, "( cl->startBufferBurstTime ) >= ( cl->targetBufferBurstTime )", "cl->startBufferBurstTime >= cl->targetBufferBurstTime\n\t%i, %i", v50, v51) )
         __debugbreak();
     }
-    SV_ClientMP_PrintComandBufferDebug(cl, *(double *)&_XMM1);
-    v23 = DVARINT_sv_cmdMinBufferBurst;
+    SV_ClientMP_PrintComandBufferDebug(cl);
+    v17 = DVARINT_sv_cmdMinBufferBurst;
     if ( !DVARINT_sv_cmdMinBufferBurst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdMinBufferBurst") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v23);
-    if ( updated < v23->current.integer )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( updated < v17->current.integer )
     {
-      v69 = DVARINT_sv_cumulThinkTime;
+      v37 = DVARINT_sv_cumulThinkTime;
       if ( !DVARINT_sv_cumulThinkTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cumulThinkTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v69);
-      cl->maxCumulThinkTime = v69->current.integer;
+      Dvar_CheckFrontendServerThread(v37);
+      cl->maxCumulThinkTime = v37->current.integer;
       *(_QWORD *)&cl->cumulThinkError = 0i64;
       cl->cmdTargetError = cl->cmdCurrentError;
       cl->cumulTargetError = 0;
       goto LABEL_52;
     }
-    v24 = updated - cl->cumulBufferError;
-    v25 = 0;
-    if ( v24 > 0 )
-      v25 = v24;
-    cl->cumulTargetError += SV_ClientMP_GetAvailableBufferThinkTime(cl) - v25;
-    v26 = DVARFLT_sv_cmdBufferResponse;
+    v18 = updated - cl->cumulBufferError;
+    v19 = 0;
+    if ( v18 > 0 )
+      v19 = v18;
+    cl->cumulTargetError += SV_ClientMP_GetAvailableBufferThinkTime(cl) - v19;
+    v20 = DVARFLT_sv_cmdBufferResponse;
     if ( !DVARFLT_sv_cmdBufferResponse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdBufferResponse") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v26);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-      vmovss  xmm7, cs:__real@3f000000
-      vaddss  xmm2, xmm1, xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm0, xmm8, xmm2, 1
-      vcvttss2si esi, xmm0
-    }
-    v35 = DVARFLT_sv_cmdBufferCumulResponse;
+    Dvar_CheckFrontendServerThread(v20);
+    _XMM8 = 0i64;
+    __asm { vroundss xmm0, xmm8, xmm2, 1 }
+    v23 = DVARFLT_sv_cmdBufferCumulResponse;
     if ( !DVARFLT_sv_cmdBufferCumulResponse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdBufferCumulResponse") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v35);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+2A5C0h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-      vaddss  xmm3, xmm1, xmm7
-      vroundss xmm1, xmm8, xmm3, 1
-      vcvttss2si ebx, xmm1
-    }
-    cl->maxCumulThinkTime = _ESI + _EBX + SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-    _RBX = DVARFLT_sv_cmdMaxCumulThinkFrac;
+    Dvar_CheckFrontendServerThread(v23);
+    __asm { vroundss xmm1, xmm8, xmm3, 1 }
+    cl->maxCumulThinkTime = (int)*(float *)&_XMM0 + (int)*(float *)&_XMM1 + SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
+    v25 = DVARFLT_sv_cmdMaxCumulThinkFrac;
     if ( !DVARFLT_sv_cmdMaxCumulThinkFrac && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdMaxCumulThinkFrac") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v25);
     SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm3, xmm1, xmm7
-      vroundss xmm1, xmm8, xmm3, 1
-      vcvttss2si esi, xmm1
-    }
-    _RBX = DVARFLT_sv_cmdMinCumulThinkFrac;
+    __asm { vroundss xmm1, xmm8, xmm3, 1 }
+    v27 = (int)*(float *)&_XMM1;
+    v28 = DVARFLT_sv_cmdMinCumulThinkFrac;
     if ( !DVARFLT_sv_cmdMinCumulThinkFrac && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cmdMinCumulThinkFrac") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v28);
     SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm3, xmm1, xmm7
-      vroundss xmm1, xmm8, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
+    __asm { vroundss xmm1, xmm8, xmm3, 1 }
+    v30 = (int)*(float *)&_XMM1;
     maxCumulThinkTime = cl->maxCumulThinkTime;
-    if ( maxCumulThinkTime <= _ESI )
+    if ( maxCumulThinkTime <= v27 )
     {
-      if ( maxCumulThinkTime >= _EAX )
+      if ( maxCumulThinkTime >= v30 )
         goto LABEL_52;
-      cl->maxCumulThinkTime = _EAX;
+      cl->maxCumulThinkTime = v30;
     }
     else
     {
-      cl->maxCumulThinkTime = _ESI;
+      cl->maxCumulThinkTime = v27;
     }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_sv_cmdBufferCumulWindupScale, "sv_cmdBufferCumulWindupScale");
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+2A5C0h]
-      vmulss  xmm0, xmm0, xmm1
-      vaddss  xmm3, xmm0, xmm7
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm1, xmm2, xmm3
-      vroundss xmm0, xmm8, xmm1, 1
-      vcvttss2si eax, xmm0
-    }
-    cl->cumulTargetError = _EAX;
+    Dvar_GetFloat_Internal_DebugName(DVARFLT_sv_cmdBufferCumulWindupScale, "sv_cmdBufferCumulWindupScale");
+    __asm { vroundss xmm0, xmm8, xmm1, 1 }
+    cl->cumulTargetError = (int)*(float *)&_XMM0;
 LABEL_52:
     AvailableBufferThinkTime = SV_ClientMP_GetAvailableBufferThinkTime(cl);
     MpClientIndex = SV_Client_GetMpClientIndex(cl);
     SV_ClientNetPerf_AddBufferedUserCommandForClient(MpClientIndex, AvailableBufferThinkTime);
-    CurrentBurstTime = SV_ClientMP_GetCurrentBurstTime(cl, *(double *)&_XMM1);
-    v68 = SV_Client_GetMpClientIndex(cl);
-    SV_ClientNetPerf_AddBurstUserCommandForClient(v68, CurrentBurstTime);
+    CurrentBurstTime = SV_ClientMP_GetCurrentBurstTime(cl);
+    v36 = SV_Client_GetMpClientIndex(cl);
+    SV_ClientNetPerf_AddBurstUserCommandForClient(v36, CurrentBurstTime);
     goto LABEL_68;
   }
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5954, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   SV_ClientMP_ResetCommandThinkTime(cl);
-  v70 = DVARBOOL_command_buffering_enabled;
+  v38 = DVARBOOL_command_buffering_enabled;
   if ( !DVARBOOL_command_buffering_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_buffering_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v70);
-  if ( !v70->current.enabled && cl->testClient == TC_NONE )
+  Dvar_CheckFrontendServerThread(v38);
+  if ( !v38->current.enabled && cl->testClient == TC_NONE )
   {
-    v71 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
-    v72 = SV_Client_GetMpClientIndex(cl);
-    SV_ClientNetPerf_AddBufferedUserCommandForClient(v72, v71);
-    v73 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
-    v74 = SV_Client_GetMpClientIndex(cl);
-    SV_ClientNetPerf_AddBurstUserCommandForClient(v74, v73);
+    v39 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
+    v40 = SV_Client_GetMpClientIndex(cl);
+    SV_ClientNetPerf_AddBufferedUserCommandForClient(v40, v39);
+    v41 = SV_ClientMP_GetAvailableBufferThinkTime(cl);
+    v42 = SV_Client_GetMpClientIndex(cl);
+    SV_ClientNetPerf_AddBurstUserCommandForClient(v42, v41);
   }
 LABEL_68:
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 5248, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  v75 = DVARINT_sv_cumulThinkTime;
+  v43 = DVARINT_sv_cumulThinkTime;
   if ( !DVARINT_sv_cumulThinkTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_cumulThinkTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v75);
-  if ( cl->recvThinkTime > v75->current.integer )
+  Dvar_CheckFrontendServerThread(v43);
+  if ( cl->recvThinkTime > v43->current.integer )
   {
     time = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
     lastBurstTime = cl->lastBurstTime;
     if ( lastBurstTime )
     {
-      v78 = time - lastBurstTime - cl->recvThinkTime;
-      v79 = DVARINT_command_burst_histogram_range;
+      v46 = time - lastBurstTime - cl->recvThinkTime;
+      v47 = DVARINT_command_burst_histogram_range;
       if ( !DVARINT_command_burst_histogram_range && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "command_burst_histogram_range") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v79);
-      v80 = v79->current.integer / 0x3Cui64;
-      if ( (int)v80 > 0 )
+      Dvar_CheckFrontendServerThread(v47);
+      v48 = v47->current.integer / 0x3Cui64;
+      if ( (int)v48 > 0 )
       {
-        v81 = I_clamp(v78 / (int)v80, 0, 59);
-        ++cl->cmdBurstHistogram[v81];
+        v49 = I_clamp(v46 / (int)v48, 0, 59);
+        ++cl->cmdBurstHistogram[v49];
       }
       goto LABEL_82;
     }
@@ -8868,13 +8485,6 @@ LABEL_82:
   cl->recvThinkTime = 0;
   *(_QWORD *)&cl->cumulCmdCount = 0i64;
   Sys_ProfEndNamedEvent();
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -9114,32 +8724,33 @@ void SV_ClientMP_UpdateUserInfo(SvClientMP *cl)
   char *name; 
   const PartyData *PartyForSession; 
   int MemberByXUID; 
-  const char *v18; 
-  const char *v19; 
+  const char *v15; 
+  const char *v16; 
   const PartyData *ServerLobby; 
-  const char *v23; 
+  const bdSecurityID *ClientPrivatePartyId; 
+  const char *v19; 
+  const char *v20; 
+  const char *v21; 
+  int v22; 
+  char v23; 
   const char *v24; 
-  const char *v25; 
-  int v26; 
-  char v27; 
-  const char *v28; 
   netsrc_t NetId; 
   char *fmt; 
-  __int64 v31; 
-  __int64 v32; 
+  __int64 v27; 
+  __int64 v28; 
   XUID xuid; 
-  __int64 v34; 
+  __int64 v30; 
   XUID result; 
   BG_SynchronizedPlayerInfo playerInfo; 
-  char v37; 
-  char v38; 
-  bool v39; 
+  char v33; 
+  char v34; 
+  bool v35; 
   XNADDR outAddr; 
   char dest[24]; 
   char str[24]; 
   char buffer[176]; 
 
-  v34 = -2i64;
+  v30 = -2i64;
   XUID::XUID(&xuid);
   bdSecurityID::bdSecurityID(&playerInfo.partyId + 1);
   XUID::XUID((XUID *)&playerInfo.platformId);
@@ -9194,23 +8805,14 @@ void SV_ClientMP_UpdateUserInfo(SvClientMP *cl)
           if ( NetConnection::GetXnaddr((NetConnection *)&CommonClient[642].lastUsercmd.sightedClientsMask.data[6], &outAddr) )
           {
             XNADDR::ToString(&outAddr, buffer);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+160h+outAddr.addrBuff]
-              vmovups ymmword ptr [rsp+260h+playerInfo.xnaddr.addrBuff+8], ymm0
-              vmovups ymm1, ymmword ptr [rbp+160h+outAddr.addrBuff+20h]
-              vmovups ymmword ptr [rbp+160h+playerInfo.xnaddr.addrBuff+28h], ymm1
-              vmovups xmm0, xmmword ptr [rbp+160h+outAddr.addrBuff+40h]
-              vmovups xmmword ptr [rbp+160h+playerInfo.xnaddr.addrBuff+48h], xmm0
-            }
-            *(_DWORD *)&playerInfo.partyId.ab[4] = *(_DWORD *)&outAddr.addrBuff[80];
+            *(XNADDR *)((char *)&playerInfo.xnaddr + 8) = outAddr;
             name = cl->name;
           }
           else
           {
             name = cl->name;
-            v18 = XUID::ToDevString(&xuid);
-            Com_PrintWarning(15, "Dropping client %d (%s) with xuid %s because we failed to get their xnaddr\n", MpClientIndex, cl->name, v18);
+            v15 = XUID::ToDevString(&xuid);
+            Com_PrintWarning(15, "Dropping client %d (%s) with xuid %s because we failed to get their xnaddr\n", MpClientIndex, cl->name, v15);
             if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_sv_transmission_error_enabled, "sv_transmission_error_enabled") )
             {
               SV_ClientMP_DropClient(cl, "EXE/TRANSMITERROR_XNADDR_FAILED", 0);
@@ -9233,55 +8835,51 @@ void SV_ClientMP_UpdateUserInfo(SvClientMP *cl)
             }
           }
           if ( Lobby_IsInLobby() )
-            v19 = Info_ValueForKey(cl->userinfo, "platUID");
+            v16 = Info_ValueForKey(cl->userinfo, "platUID");
           else
-            v19 = "0";
-          Core_strcpy(dest, 0x15ui64, v19);
+            v16 = "0";
+          Core_strcpy(dest, 0x15ui64, v16);
           if ( MpClientIndex >= SvClient::ms_clientCount )
           {
-            LODWORD(v31) = MpClientIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7801, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v31, SvClient::ms_clientCount) )
+            LODWORD(v27) = MpClientIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7801, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v27, SvClient::ms_clientCount) )
               __debugbreak();
           }
           ServerLobby = SV_MainMP_GetServerLobby();
-          _RBX = Party_GetClientPrivatePartyId(ServerLobby, MpClientIndex);
-          XNKIDToString(_RBX, str, 21);
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rbx]
-            vmovsd  qword ptr [rbp+160h+playerInfo+5Ch], xmm0
-          }
+          ClientPrivatePartyId = Party_GetClientPrivatePartyId(ServerLobby, MpClientIndex);
+          XNKIDToString(ClientPrivatePartyId, str, 21);
+          *(&playerInfo.partyId + 1) = *ClientPrivatePartyId;
           SV_Record_GetString(buffer);
           SV_Record_GetString(dest);
           SV_Record_GetString(str);
         }
-        v23 = Info_ValueForKey(userinfo, "guest");
-        LOBYTE(v3) = atoi(v23) != 0;
-        v38 = v3;
+        v19 = Info_ValueForKey(userinfo, "guest");
+        LOBYTE(v3) = atoi(v19) != 0;
+        v34 = v3;
         Com_Printf(131087, "Setting client %i GUEST to %i\n", MpClientIndex, v3);
-        v24 = Info_ValueForKey(userinfo, "headless");
-        v39 = atoi(v24) != 0;
-        Com_Printf(131087, "Setting client %i HEADLESS to %i\n", MpClientIndex, v39);
+        v20 = Info_ValueForKey(userinfo, "headless");
+        v35 = atoi(v20) != 0;
+        Com_Printf(131087, "Setting client %i HEADLESS to %i\n", MpClientIndex, v35);
         *(_QWORD *)&playerInfo.natType = I_atoi64(dest);
-        v25 = Info_ValueForKey(userinfo, "platform");
-        v26 = atoi(v25);
-        v27 = v26;
-        if ( (unsigned int)(v26 + 128) > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum ClientPlatform __cdecl truncate_cast_impl<enum ClientPlatform,int>(int)", "signed", (char)v26, "signed", v26) )
+        v21 = Info_ValueForKey(userinfo, "platform");
+        v22 = atoi(v21);
+        v23 = v22;
+        if ( (unsigned int)(v22 + 128) > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum ClientPlatform __cdecl truncate_cast_impl<enum ClientPlatform,int>(int)", "signed", (char)v22, "signed", v22) )
           __debugbreak();
-        v37 = v27;
-        if ( (unsigned __int8)v27 >= 7u )
+        v33 = v23;
+        if ( (unsigned __int8)v23 >= 7u )
         {
-          LODWORD(v32) = 7;
-          LODWORD(v31) = v27;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 3563, ASSERT_TYPE_ASSERT, "(unsigned)( serverPlayerInfo.clientPlatform ) < (unsigned)( ClientPlatform::PLATFORM_COUNT )", "serverPlayerInfo.clientPlatform doesn't index ClientPlatform::PLATFORM_COUNT\n\t%i not in [0, %i)", v31, v32) )
+          LODWORD(v28) = 7;
+          LODWORD(v27) = v23;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 3563, ASSERT_TYPE_ASSERT, "(unsigned)( serverPlayerInfo.clientPlatform ) < (unsigned)( ClientPlatform::PLATFORM_COUNT )", "serverPlayerInfo.clientPlatform doesn't index ClientPlatform::PLATFORM_COUNT\n\t%i not in [0, %i)", v27, v28) )
             __debugbreak();
         }
-        Com_Printf(131087, "Setting client %i PLATFORM to %d\n", MpClientIndex, (unsigned int)v37);
+        Com_Printf(131087, "Setting client %i PLATFORM to %d\n", MpClientIndex, (unsigned int)v33);
         Com_Printf(131087, "Setting client %i XNADDR to %s\n", MpClientIndex, buffer);
         Com_Printf(131087, "Setting client %i PLATFORMUID to %s\n", MpClientIndex, dest);
         Com_Printf(131087, "Setting client %i XNKID to %s\n", MpClientIndex, str);
-        v28 = XUID::ToDevString(&xuid);
-        Com_Printf(131087, "Setting client %i XUID to %s\n", MpClientIndex, v28);
+        v24 = XUID::ToDevString(&xuid);
+        Com_Printf(131087, "Setting client %i XUID to %s\n", MpClientIndex, v24);
         NetId = NetConnection::GetNetId(p_clientConnection);
         Com_Printf(131087, "Setting client %i NETID to %i\n", MpClientIndex, (unsigned int)NetId);
         *(_DWORD *)&playerInfo.pauseStatusChanged = NetId;
@@ -9337,6 +8935,7 @@ SV_ClientMP_UserMove
 */
 char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
 {
+  SvClientMP *v3; 
   int messageAcknowledge; 
   int reliableSequence; 
   int reliableAcknowledge; 
@@ -9398,6 +8997,7 @@ char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
   usercmd_s *p_outCmd; 
   CmdPredict *v65; 
   usercmd_s *v66; 
+  usercmd_s *v67; 
   unsigned int v68; 
   unsigned __int8 *v69; 
   __int64 v70; 
@@ -9441,79 +9041,88 @@ char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
   unsigned int v108; 
   unsigned int v109; 
   int UserCommandTime; 
+  CmdPredict *v111; 
+  usercmd_s *p_lastRecvCommand; 
   __int64 v113; 
+  __int128 v114; 
   unsigned __int64 buttons; 
-  char v120; 
+  char v116; 
   SvClientConnectionState state; 
   int beginCmdIndex; 
   const usercmd_s *p_lastUsercmd; 
-  int v127; 
+  int v120; 
+  int v121; 
+  const usercmd_s *v122; 
+  const usercmd_s *v123; 
+  int v124; 
+  int v125; 
+  int v126; 
+  const usercmd_s *v127; 
   int v128; 
-  const usercmd_s *v129; 
-  const usercmd_s *v130; 
-  int v131; 
-  int v132; 
-  int v133; 
-  const usercmd_s *v134; 
-  int v135; 
-  int v136; 
-  int v137; 
-  unsigned int v138; 
-  unsigned int v139; 
-  const dvar_t *v140; 
-  __int64 v143; 
-  bool v152; 
+  int v129; 
+  int v130; 
+  unsigned int v131; 
+  unsigned int v132; 
+  const dvar_t *v133; 
+  usercmd_s *v134; 
+  const usercmd_s *v135; 
+  __int64 v136; 
+  __int128 v137; 
+  bool v138; 
   int MpClientIndex; 
-  int v154; 
-  __int64 v157; 
-  int v166; 
-  int v167; 
-  int v168; 
-  const dvar_t *v169; 
+  int v140; 
+  CmdPredict *v141; 
+  usercmd_s *v142; 
+  __int64 v143; 
+  __int128 v144; 
+  int v145; 
+  int v146; 
+  int v147; 
+  const dvar_t *v148; 
   char *fmt; 
-  __int64 v171; 
-  __int64 v172; 
-  char v173; 
+  __int64 v150; 
+  __int64 v151; 
+  char v152; 
   int outPredict; 
   CmdPredict *outPredicta; 
   char *outStrBuf; 
-  int v177; 
-  SvClientMP *v178; 
+  int v156; 
+  SvClientMP *v157; 
   msg_t *msga; 
   CmdPredict *cmdPredict; 
   usercmd_s outCmd; 
-  CmdPredict v182; 
-  char v183; 
+  CmdPredict v161; 
+  char v162; 
   usercmd_s to[32]; 
   char dest[1024]; 
 
-  _RBX = cl;
-  v178 = cl;
+  v3 = cl;
+  v157 = cl;
   msga = msg;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6515, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  v173 = 0;
-  memset_0(&v182, 0, 0x78ui64);
-  cmdPredict = (CmdPredict *)&v183;
+  v152 = 0;
+  memset_0(&v161, 0, 0x78ui64);
+  cmdPredict = (CmdPredict *)&v162;
   if ( delta )
-    messageAcknowledge = _RBX->messageAcknowledge;
+    messageAcknowledge = v3->messageAcknowledge;
   else
     messageAcknowledge = -1;
-  _RBX->deltaMessage = messageAcknowledge;
-  reliableSequence = _RBX->reliableSequence;
-  reliableAcknowledge = _RBX->reliableAcknowledge;
-  _RBX->cmdNoDelta = 0;
+  v3->deltaMessage = messageAcknowledge;
+  reliableSequence = v3->reliableSequence;
+  reliableAcknowledge = v3->reliableAcknowledge;
+  v3->cmdNoDelta = 0;
   if ( reliableSequence - reliableAcknowledge < 512 )
   {
-    v10 = &v182;
+    v10 = &v161;
     Byte = MSG_ReadByte(msg);
-    if ( SvClientMP::GetCommandDeltaBaselineForSequence(_RBX, Byte, &outCmd, &v182) )
+    if ( SvClientMP::GetCommandDeltaBaselineForSequence(v3, Byte, &outCmd, &v161) )
     {
-      v177 = MSG_ReadByte(msg);
-      v12 = v177;
-      if ( v177 >= 1 )
+      v156 = MSG_ReadByte(msg);
+      v12 = v156;
+      if ( v156 >= 1 )
       {
-        if ( v177 <= 32 )
+        if ( v156 <= 32 )
         {
           outPredict = MSG_ReadLong(msg);
           Long = MSG_ReadLong(msg);
@@ -9534,7 +9143,7 @@ char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
             --v15;
           }
           while ( v15 );
-          v22 = (unsigned __int8 *)&v182.origin.x + 2;
+          v22 = (unsigned __int8 *)&v161.origin.x + 2;
           v23 = 2i64;
           do
           {
@@ -9576,15 +9185,15 @@ char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
           v54 = ~v16;
           if ( Long == v54 )
           {
-            v55 = _RBX->reliableAcknowledge & 0x1FF;
-            v56 = _RBX->messageAcknowledge ^ fs_checksumFeed;
-            if ( CircularEntryBuffer<512,131072,int,0>::GetStr(&_RBX->netBuf.reliableCommands, v55, (const char **)&outStrBuf) )
+            v55 = v3->reliableAcknowledge & 0x1FF;
+            v56 = v3->messageAcknowledge ^ fs_checksumFeed;
+            if ( CircularEntryBuffer<512,131072,int,0>::GetStr(&v3->netBuf.reliableCommands, v55, (const char **)&outStrBuf) )
             {
               v57 = outStrBuf;
             }
             else
             {
-              if ( !_RBX->reliableOverflowed && _RBX->reliableAcknowledge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6610, ASSERT_TYPE_ASSERT, "(cl->reliableOverflowed || (cl->reliableAcknowledge == 0))", "%s\n\t%i, %s", "cl->reliableOverflowed || (cl->reliableAcknowledge == 0)", _RBX->reliableAcknowledge, _RBX->name) )
+              if ( !v3->reliableOverflowed && v3->reliableAcknowledge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6610, ASSERT_TYPE_ASSERT, "(cl->reliableOverflowed || (cl->reliableAcknowledge == 0))", "%s\n\t%i, %s", "cl->reliableOverflowed || (cl->reliableAcknowledge == 0)", v3->reliableAcknowledge, v3->name) )
                 __debugbreak();
               v57 = (char *)&queryFormat.fmt + 3;
             }
@@ -9602,21 +9211,21 @@ char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
               do
                 ++v62;
               while ( v57[v62] );
-              LODWORD(v172) = v55;
-              LODWORD(v171) = v58;
-              LODWORD(fmt) = _RBX->messageAcknowledge;
-              Com_Printf(15, "SV_UserMove: key:%i, checksumFeed:%i, messageAcknowledge:%i, hash:%u, servercommand(%i):'%s', len:%i\n", v61, (unsigned int)fs_checksumFeed, fmt, v171, v172, v57, v62);
+              LODWORD(v151) = v55;
+              LODWORD(v150) = v58;
+              LODWORD(fmt) = v3->messageAcknowledge;
+              Com_Printf(15, "SV_UserMove: key:%i, checksumFeed:%i, messageAcknowledge:%i, hash:%u, servercommand(%i):'%s', len:%i\n", v61, (unsigned int)fs_checksumFeed, fmt, v150, v151, v57, v62);
             }
             if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_sv_usercmd_print, "sv_usercmd_print") )
             {
-              LODWORD(v172) = v54;
-              LODWORD(v171) = outCmd.commandTime;
-              LODWORD(fmt) = _RBX->netchan.incomingSequence;
-              Com_Printf(16, "SV[%s] -- reading %d commands in packet %d from command time %d with baseline %d\n", _RBX->name, (unsigned int)v12, fmt, v171, v172);
+              LODWORD(v151) = v54;
+              LODWORD(v150) = outCmd.commandTime;
+              LODWORD(fmt) = v3->netchan.incomingSequence;
+              Com_Printf(16, "SV[%s] -- reading %d commands in packet %d from command time %d with baseline %d\n", v3->name, (unsigned int)v12, fmt, v150, v151);
             }
             if ( !SV_IsDemoPlaying() )
               MSG_UserCmd_EnableReadData();
-            LODWORD(outStrBuf) = SV_Client_GetMpClientIndex(_RBX);
+            LODWORD(outStrBuf) = SV_Client_GetMpClientIndex(v3);
             if ( !SV_GameMP_GetEffectivePlayerstateForClientNum((int)outStrBuf) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6643, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
               __debugbreak();
             v63 = 0;
@@ -9624,7 +9233,7 @@ char SV_ClientMP_UserMove(SvClientMP *cl, msg_t *msg, int delta)
             if ( v12 <= 0 )
             {
 LABEL_65:
-              v120 = 0;
+              v116 = 0;
             }
             else
             {
@@ -9632,7 +9241,7 @@ LABEL_65:
               v66 = to;
               do
               {
-                _RDI = v66;
+                v67 = v66;
                 if ( !MSG_UserCmd_ReadCommandFields(msga, v61, p_outCmd, v66) )
                 {
                   Com_Printf(15, "SV_UserMove: can't read delta user cmd key %i\n", v63);
@@ -9662,7 +9271,7 @@ LABEL_65:
                     --v70;
                   }
                   while ( v70 );
-                  v12 = v177;
+                  v12 = v156;
                   v78 = (unsigned __int8 *)&v65->origin.x + 2;
                   v79 = 2i64;
                   do
@@ -9702,291 +9311,258 @@ LABEL_65:
                     --v79;
                   }
                   while ( v79 );
-                  _RBX = v178;
-                  LODWORD(v172) = ~v68;
-                  LODWORD(v171) = v66->commandTime;
-                  LODWORD(fmt) = v177;
-                  Com_Printf(16, "SV[%s] -- reading command[%d/%d] for time %d with checksum %d\n", v178->name, v63, fmt, v171, v172);
+                  v3 = v157;
+                  LODWORD(v151) = ~v68;
+                  LODWORD(v150) = v66->commandTime;
+                  LODWORD(fmt) = v156;
+                  Com_Printf(16, "SV[%s] -- reading command[%d/%d] for time %d with checksum %d\n", v157->name, v63, fmt, v150, v151);
                 }
-                SV_ClientMP_ValidateUserCmd(_RBX, v63, v12, v66, v61);
+                SV_ClientMP_ValidateUserCmd(v3, v63, v12, v66, v61);
                 UserCommandTime = Com_GetUserCommandTime(v66);
-                SV_UserMove_RecordPredictedOrigin(_RBX, UserCommandTime, v65);
-                _RDX = v65;
+                SV_UserMove_RecordPredictedOrigin(v3, UserCommandTime, v65);
+                v111 = v65;
                 p_outCmd = v66++;
                 ++v63;
                 v65 = (CmdPredict *)v10;
-                v10 = _RDX;
+                v10 = v111;
               }
               while ( (int)v63 < v12 );
               if ( v12 <= 0 )
                 goto LABEL_65;
-              _RCX = &_RBX->lastRecvCommand;
+              p_lastRecvCommand = &v3->lastRecvCommand;
               v113 = 2i64;
               do
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rdi]
-                  vmovups xmm1, xmmword ptr [rdi+70h]
-                  vmovups ymmword ptr [rcx], ymm0
-                  vmovups ymm0, ymmword ptr [rdi+20h]
-                  vmovups ymmword ptr [rcx+20h], ymm0
-                  vmovups ymm0, ymmword ptr [rdi+40h]
-                  vmovups ymmword ptr [rcx+40h], ymm0
-                  vmovups xmm0, xmmword ptr [rdi+60h]
-                  vmovups xmmword ptr [rcx+60h], xmm0
-                }
-                _RCX = (usercmd_s *)((char *)_RCX + 128);
-                _RDI = (usercmd_s *)((char *)_RDI + 128);
-                __asm { vmovups xmmword ptr [rcx-10h], xmm1 }
+                v114 = *(_OWORD *)&v67->offHand.weaponAttachments[2];
+                *(__m256i *)&p_lastRecvCommand->buttons = *(__m256i *)&v67->buttons;
+                *(__m256i *)(&p_lastRecvCommand->angles.xy + 1) = *(__m256i *)(&v67->angles.xy + 1);
+                *(__m256i *)&p_lastRecvCommand->weapon.attachmentVariationIndices[1] = *(__m256i *)&v67->weapon.attachmentVariationIndices[1];
+                *(_OWORD *)&p_lastRecvCommand->offHand.weaponIdx = *(_OWORD *)&v67->offHand.weaponIdx;
+                p_lastRecvCommand = (usercmd_s *)((char *)p_lastRecvCommand + 128);
+                v67 = (usercmd_s *)((char *)v67 + 128);
+                *(_OWORD *)&p_lastRecvCommand[-1].sightedClientsMask.data[4] = v114;
                 --v113;
               }
               while ( v113 );
-              buttons = _RDI->buttons;
-              v120 = 1;
-              _RCX->buttons = buttons;
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rdx]
-                vmovups ymmword ptr [rbx+2CF10h], ymm0
-                vmovups xmm1, xmmword ptr [rdx+20h]
-                vmovups xmmword ptr [rbx+2CF30h], xmm1
-                vmovsd  xmm0, qword ptr [rdx+30h]
-                vmovsd  qword ptr [rbx+2CF40h], xmm0
-              }
-              _RBX->lastRecvPredict.vehOrigin.v[2] = _RDX->vehOrigin.v[2];
-              _RBX->cmdCurrentError = outPredict;
-              v173 = 1;
+              buttons = v67->buttons;
+              v116 = 1;
+              p_lastRecvCommand->buttons = buttons;
+              *(__m256i *)v3->lastRecvPredict.origin.v = *(__m256i *)v111->origin.v;
+              *(_OWORD *)v3->lastRecvPredict.extrapData.packedBobCycle = *(_OWORD *)v111->extrapData.packedBobCycle;
+              *(double *)v3->lastRecvPredict.vehOrigin.v = *(double *)v111->vehOrigin.v;
+              v3->lastRecvPredict.vehOrigin.v[2] = v111->vehOrigin.v[2];
+              v3->cmdCurrentError = outPredict;
+              v152 = 1;
             }
             MSG_UserCmd_DisableReadData();
-            state = _RBX->state;
+            state = v3->state;
             if ( state == CS_CLIENTLOADING )
             {
-              SV_ClientMP_EnterWorld(_RBX, to, 1);
-              state = _RBX->state;
+              SV_ClientMP_EnterWorld(v3, to, 1);
+              state = v3->state;
             }
             if ( state == CS_ACTIVE )
             {
-              beginCmdIndex = _RBX->beginCmdIndex;
-              p_lastUsercmd = &_RBX->lastUsercmd;
-              v127 = 0;
-              v128 = Com_GetUserCommandTime(&_RBX->lastUsercmd);
+              beginCmdIndex = v3->beginCmdIndex;
+              p_lastUsercmd = &v3->lastUsercmd;
+              v120 = 0;
+              v121 = Com_GetUserCommandTime(&v3->lastUsercmd);
               if ( v12 > 0 )
               {
                 outPredicta = (CmdPredict *)to;
-                v129 = to;
-                v130 = &to[v12 - 1];
-                v178 = (SvClientMP *)v130;
+                v122 = to;
+                v123 = &to[v12 - 1];
+                v157 = (SvClientMP *)v123;
                 do
                 {
-                  v131 = Com_GetUserCommandTime(v130);
-                  if ( Com_GetUserCommandTime(v129) <= v131 )
+                  v124 = Com_GetUserCommandTime(v123);
+                  if ( Com_GetUserCommandTime(v122) <= v124 )
                   {
-                    v132 = Com_GetUserCommandTime(p_lastUsercmd);
-                    if ( Com_GetUserCommandTime(v129) > v132 )
+                    v125 = Com_GetUserCommandTime(p_lastUsercmd);
+                    if ( Com_GetUserCommandTime(v122) > v125 )
                     {
-                      v133 = _RBX->beginCmdIndex;
-                      if ( _RBX->currCmdIndex == v133 && beginCmdIndex != v133 )
+                      v126 = v3->beginCmdIndex;
+                      if ( v3->currCmdIndex == v126 && beginCmdIndex != v126 )
                       {
-                        LODWORD(v172) = _RBX->beginCmdIndex;
-                        LODWORD(v171) = beginCmdIndex;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6769, ASSERT_TYPE_ASSERT, "( insertCmdIndex ) == ( cl->beginCmdIndex )", "insertCmdIndex == cl->beginCmdIndex\n\t%i, %i", v171, v172) )
+                        LODWORD(v151) = v3->beginCmdIndex;
+                        LODWORD(v150) = beginCmdIndex;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6769, ASSERT_TYPE_ASSERT, "( insertCmdIndex ) == ( cl->beginCmdIndex )", "insertCmdIndex == cl->beginCmdIndex\n\t%i, %i", v150, v151) )
                           __debugbreak();
                       }
                       while ( 1 )
                       {
-                        if ( _RBX->currCmdIndex - beginCmdIndex < 0 )
+                        if ( v3->currCmdIndex - beginCmdIndex < 0 )
                         {
-                          LODWORD(v171) = _RBX->currCmdIndex - beginCmdIndex;
-                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6777, ASSERT_TYPE_ASSERT, "( cl->currCmdIndex - insertCmdIndex ) >= ( 0 )", "cl->currCmdIndex - insertCmdIndex >= 0\n\t%i, %i", v171, 0i64) )
+                          LODWORD(v150) = v3->currCmdIndex - beginCmdIndex;
+                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6777, ASSERT_TYPE_ASSERT, "( cl->currCmdIndex - insertCmdIndex ) >= ( 0 )", "cl->currCmdIndex - insertCmdIndex >= 0\n\t%i, %i", v150, 0i64) )
                             __debugbreak();
                         }
-                        if ( beginCmdIndex - _RBX->beginCmdIndex < 0 )
+                        if ( beginCmdIndex - v3->beginCmdIndex < 0 )
                         {
-                          LODWORD(v171) = beginCmdIndex - _RBX->beginCmdIndex;
-                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6778, ASSERT_TYPE_ASSERT, "( insertCmdIndex - cl->beginCmdIndex ) >= ( 0 )", "insertCmdIndex - cl->beginCmdIndex >= 0\n\t%i, %i", v171, 0i64) )
+                          LODWORD(v150) = beginCmdIndex - v3->beginCmdIndex;
+                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6778, ASSERT_TYPE_ASSERT, "( insertCmdIndex - cl->beginCmdIndex ) >= ( 0 )", "insertCmdIndex - cl->beginCmdIndex >= 0\n\t%i, %i", v150, 0i64) )
                             __debugbreak();
                         }
-                        v134 = &_RBX->cmds[beginCmdIndex % 38];
-                        if ( beginCmdIndex == _RBX->currCmdIndex )
+                        v127 = &v3->cmds[beginCmdIndex % 38];
+                        if ( beginCmdIndex == v3->currCmdIndex )
                           break;
-                        v135 = Com_GetUserCommandTime(v129);
-                        if ( Com_GetUserCommandTime(v134) <= v135 )
+                        v128 = Com_GetUserCommandTime(v122);
+                        if ( Com_GetUserCommandTime(v127) <= v128 )
                         {
-                          v128 = Com_GetUserCommandTime(v134);
+                          v121 = Com_GetUserCommandTime(v127);
                           ++beginCmdIndex;
                         }
-                        v136 = Com_GetUserCommandTime(v129);
-                        if ( Com_GetUserCommandTime(v134) >= v136 )
+                        v129 = Com_GetUserCommandTime(v122);
+                        if ( Com_GetUserCommandTime(v127) >= v129 )
                         {
-                          v137 = Com_GetUserCommandTime(v129);
-                          if ( Com_GetUserCommandTime(v134) != v137 )
+                          v130 = Com_GetUserCommandTime(v122);
+                          if ( Com_GetUserCommandTime(v127) != v130 )
                           {
-                            v138 = Com_GetUserCommandTime(v129);
-                            v139 = Com_GetUserCommandTime(v134);
-                            Com_PrintError(15, "Attempted to buffer out of order command, which should have been filtered out by the NetChan (buf %i vs current %i)\n", v139, v138);
+                            v131 = Com_GetUserCommandTime(v122);
+                            v132 = Com_GetUserCommandTime(v127);
+                            Com_PrintError(15, "Attempted to buffer out of order command, which should have been filtered out by the NetChan (buf %i vs current %i)\n", v132, v131);
                             SV_ClientNetPerf_AddDroppedCommandForClient((const int)outStrBuf, 1);
                           }
                           goto LABEL_120;
                         }
                       }
-                      _RBX->currCmdIndex = ++beginCmdIndex;
-                      if ( beginCmdIndex - _RBX->beginCmdIndex > 38 )
+                      v3->currCmdIndex = ++beginCmdIndex;
+                      if ( beginCmdIndex - v3->beginCmdIndex > 38 )
                       {
-                        v140 = DVARBOOL_sv_usercmd_print;
+                        v133 = DVARBOOL_sv_usercmd_print;
                         if ( !DVARBOOL_sv_usercmd_print && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_usercmd_print") )
                           __debugbreak();
-                        Dvar_CheckFrontendServerThread(v140);
-                        if ( v140->current.enabled )
+                        Dvar_CheckFrontendServerThread(v133);
+                        if ( v133->current.enabled )
                         {
-                          LODWORD(fmt) = _RBX->currCmdIndex;
-                          Com_Printf(16, "SV[%s] -- dropped command[%d/%d].\n", _RBX->name, (unsigned int)_RBX->beginCmdIndex, fmt);
+                          LODWORD(fmt) = v3->currCmdIndex;
+                          Com_Printf(16, "SV[%s] -- dropped command[%d/%d].\n", v3->name, (unsigned int)v3->beginCmdIndex, fmt);
                         }
-                        if ( !v134 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4175, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
+                        if ( !v127 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4175, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
                           __debugbreak();
-                        _RCX = &_RBX->lastUsercmd;
-                        _RAX = v134;
-                        v143 = 2i64;
+                        v134 = &v3->lastUsercmd;
+                        v135 = v127;
+                        v136 = 2i64;
                         do
                         {
-                          _RCX = (usercmd_s *)((char *)_RCX + 128);
-                          __asm { vmovups xmm0, xmmword ptr [rax] }
-                          _RAX = (const usercmd_s *)((char *)_RAX + 128);
-                          __asm
-                          {
-                            vmovups xmmword ptr [rcx-80h], xmm0
-                            vmovups xmm1, xmmword ptr [rax-70h]
-                            vmovups xmmword ptr [rcx-70h], xmm1
-                            vmovups xmm0, xmmword ptr [rax-60h]
-                            vmovups xmmword ptr [rcx-60h], xmm0
-                            vmovups xmm1, xmmword ptr [rax-50h]
-                            vmovups xmmword ptr [rcx-50h], xmm1
-                            vmovups xmm0, xmmword ptr [rax-40h]
-                            vmovups xmmword ptr [rcx-40h], xmm0
-                            vmovups xmm1, xmmword ptr [rax-30h]
-                            vmovups xmmword ptr [rcx-30h], xmm1
-                            vmovups xmm0, xmmword ptr [rax-20h]
-                            vmovups xmmword ptr [rcx-20h], xmm0
-                            vmovups xmm1, xmmword ptr [rax-10h]
-                            vmovups xmmword ptr [rcx-10h], xmm1
-                          }
-                          --v143;
+                          v134 = (usercmd_s *)((char *)v134 + 128);
+                          v137 = *(_OWORD *)&v135->buttons;
+                          v135 = (const usercmd_s *)((char *)v135 + 128);
+                          *(_OWORD *)&v134[-1].offHand.attachmentVariationIndices[13] = v137;
+                          *(_OWORD *)&v134[-1].offHand.weaponCamo = *(_OWORD *)&v135[-1].offHand.weaponCamo;
+                          *(_OWORD *)v134[-1].remoteControlMove = *(_OWORD *)v135[-1].remoteControlMove;
+                          *(_OWORD *)v134[-1].vehAngles = *(_OWORD *)v135[-1].vehAngles;
+                          *(_OWORD *)&v134[-1].vehOrgZ = *(_OWORD *)&v135[-1].vehOrgZ;
+                          *(_OWORD *)&v134[-1].gunYOfs = *(_OWORD *)&v135[-1].gunYOfs;
+                          *(_OWORD *)v134[-1].sightedClientsMask.data = *(_OWORD *)v135[-1].sightedClientsMask.data;
+                          *(_OWORD *)&v134[-1].sightedClientsMask.data[4] = *(_OWORD *)&v135[-1].sightedClientsMask.data[4];
+                          --v136;
                         }
-                        while ( v143 );
-                        v152 = _RBX->state == CS_ACTIVE;
-                        _RCX->buttons = _RAX->buttons;
-                        if ( v152 )
+                        while ( v136 );
+                        v138 = v3->state == CS_ACTIVE;
+                        v134->buttons = v135->buttons;
+                        if ( v138 )
                         {
                           GStatic::SetActiveStatics();
-                          MpClientIndex = SV_Client_GetMpClientIndex(_RBX);
-                          G_ActiveMP_ClientDropThink(MpClientIndex, v134);
+                          MpClientIndex = SV_Client_GetMpClientIndex(v3);
+                          G_ActiveMP_ClientDropThink(MpClientIndex, v127);
                           GStatic::ClearActiveStatics();
                         }
-                        v154 = _RBX->currCmdIndex - 38;
-                        SV_ClientNetPerf_AddDroppedCommandForClient((const int)outStrBuf, v154 - _RBX->beginCmdIndex);
-                        _RBX->beginCmdIndex = v154;
+                        v140 = v3->currCmdIndex - 38;
+                        SV_ClientNetPerf_AddDroppedCommandForClient((const int)outStrBuf, v140 - v3->beginCmdIndex);
+                        v3->beginCmdIndex = v140;
                       }
-                      _RAX = (unsigned __int64 *)outPredicta;
-                      _RCX = (usercmd_s *)v134;
-                      v157 = 2i64;
+                      v141 = outPredicta;
+                      v142 = (usercmd_s *)v127;
+                      v143 = 2i64;
                       do
                       {
-                        _RCX = (usercmd_s *)((char *)_RCX + 128);
-                        __asm { vmovups xmm0, xmmword ptr [rax] }
-                        _RAX += 16;
-                        __asm
-                        {
-                          vmovups xmmword ptr [rcx-80h], xmm0
-                          vmovups xmm1, xmmword ptr [rax-70h]
-                          vmovups xmmword ptr [rcx-70h], xmm1
-                          vmovups xmm0, xmmword ptr [rax-60h]
-                          vmovups xmmword ptr [rcx-60h], xmm0
-                          vmovups xmm1, xmmword ptr [rax-50h]
-                          vmovups xmmword ptr [rcx-50h], xmm1
-                          vmovups xmm0, xmmword ptr [rax-40h]
-                          vmovups xmmword ptr [rcx-40h], xmm0
-                          vmovups xmm1, xmmword ptr [rax-30h]
-                          vmovups xmmword ptr [rcx-30h], xmm1
-                          vmovups xmm0, xmmword ptr [rax-20h]
-                          vmovups xmmword ptr [rcx-20h], xmm0
-                          vmovups xmm1, xmmword ptr [rax-10h]
-                          vmovups xmmword ptr [rcx-10h], xmm1
-                        }
-                        --v157;
+                        v142 = (usercmd_s *)((char *)v142 + 128);
+                        v144 = *(_OWORD *)v141->origin.v;
+                        v141 = (CmdPredict *)((char *)v141 + 128);
+                        *(_OWORD *)&v142[-1].offHand.attachmentVariationIndices[13] = v144;
+                        *(_OWORD *)&v142[-1].offHand.weaponCamo = *(_OWORD *)&v141[-2].origin.z;
+                        *(_OWORD *)v142[-1].remoteControlMove = *(_OWORD *)&v141[-2].extrapData.time;
+                        *(_OWORD *)v142[-1].vehAngles = *(_OWORD *)&v141[-2].vehActive;
+                        *(_OWORD *)&v142[-1].vehOrgZ = *(_OWORD *)&v141[-2].vehOrigin.z;
+                        *(_OWORD *)&v142[-1].gunYOfs = *(_OWORD *)v141[-1].extrapData.offset.v;
+                        *(_OWORD *)v142[-1].sightedClientsMask.data = *(_OWORD *)&v141[-1].extrapData.inputTime;
+                        *(_OWORD *)&v142[-1].sightedClientsMask.data[4] = *(_OWORD *)&v141[-1].vehTarget;
+                        --v143;
                       }
-                      while ( v157 );
-                      _RCX->buttons = *_RAX;
-                      if ( v128 )
+                      while ( v143 );
+                      v142->buttons = *(_QWORD *)v141->origin.v;
+                      if ( v121 )
                       {
-                        v166 = Com_GetUserCommandTime(v134) - v128;
-                        v167 = 0;
-                        if ( v166 > 0 )
-                          v167 = v166;
+                        v145 = Com_GetUserCommandTime(v127) - v121;
+                        v146 = 0;
+                        if ( v145 > 0 )
+                          v146 = v145;
                       }
                       else
                       {
-                        v167 = 0;
+                        v146 = 0;
                       }
-                      _RBX->recvThinkTime += v167;
-                      v168 = Com_GetUserCommandTime(v134);
-                      ++_RBX->recvCmdCount;
-                      v128 = v168;
-                      v169 = DVARBOOL_sv_usercmd_print;
+                      v3->recvThinkTime += v146;
+                      v147 = Com_GetUserCommandTime(v127);
+                      ++v3->recvCmdCount;
+                      v121 = v147;
+                      v148 = DVARBOOL_sv_usercmd_print;
                       if ( !DVARBOOL_sv_usercmd_print && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_usercmd_print") )
                         __debugbreak();
-                      Dvar_CheckFrontendServerThread(v169);
-                      if ( v169->current.enabled )
+                      Dvar_CheckFrontendServerThread(v148);
+                      if ( v148->current.enabled )
                       {
-                        LODWORD(v171) = _RBX->recvCmdCount;
+                        LODWORD(v150) = v3->recvCmdCount;
                         LODWORD(fmt) = 38;
-                        Com_Printf(16, "SV[%s] -- buffering command[%d/%d]. cmdCount %d\n", _RBX->name, (unsigned int)(_RBX->currCmdIndex - _RBX->beginCmdIndex), fmt, v171);
+                        Com_Printf(16, "SV[%s] -- buffering command[%d/%d]. cmdCount %d\n", v3->name, (unsigned int)(v3->currCmdIndex - v3->beginCmdIndex), fmt, v150);
                       }
-                      SV_ClientNetPerf_AddReceivedUserCommandForClient((const int)outStrBuf, v167);
+                      SV_ClientNetPerf_AddReceivedUserCommandForClient((const int)outStrBuf, v146);
 LABEL_120:
-                      p_lastUsercmd = &_RBX->lastUsercmd;
+                      p_lastUsercmd = &v3->lastUsercmd;
                     }
                     else if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_sv_usercmd_print, "sv_usercmd_print") )
                     {
                       LODWORD(fmt) = v12;
-                      Com_Printf(16, "SV[%s] -- skipping command[%d/%d] due to user cmd time\n", _RBX->name, (unsigned int)v127, fmt);
+                      Com_Printf(16, "SV[%s] -- skipping command[%d/%d] due to user cmd time\n", v3->name, (unsigned int)v120, fmt);
                     }
                   }
                   else
                   {
-                    beginCmdIndex = _RBX->currCmdIndex;
-                    _RBX->beginCmdIndex = beginCmdIndex;
+                    beginCmdIndex = v3->currCmdIndex;
+                    v3->beginCmdIndex = beginCmdIndex;
                   }
                   outPredicta = (CmdPredict *)((char *)outPredicta + 264);
-                  ++v127;
-                  v130 = (const usercmd_s *)v178;
-                  ++v129;
+                  ++v120;
+                  v123 = (const usercmd_s *)v157;
+                  ++v122;
                 }
-                while ( v127 < v12 );
+                while ( v120 < v12 );
               }
-              if ( _RBX->currCmdIndex - _RBX->beginCmdIndex > 38 )
+              if ( v3->currCmdIndex - v3->beginCmdIndex > 38 )
               {
-                LODWORD(v172) = 38;
-                LODWORD(v171) = _RBX->currCmdIndex - _RBX->beginCmdIndex;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6865, ASSERT_TYPE_ASSERT, "( cl->currCmdIndex - cl->beginCmdIndex ) <= ( MAX_CLIENT_BUFFER_CMDS )", "cl->currCmdIndex - cl->beginCmdIndex <= MAX_CLIENT_BUFFER_CMDS\n\t%i, %i", v171, v172) )
+                LODWORD(v151) = 38;
+                LODWORD(v150) = v3->currCmdIndex - v3->beginCmdIndex;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6865, ASSERT_TYPE_ASSERT, "( cl->currCmdIndex - cl->beginCmdIndex ) <= ( MAX_CLIENT_BUFFER_CMDS )", "cl->currCmdIndex - cl->beginCmdIndex <= MAX_CLIENT_BUFFER_CMDS\n\t%i, %i", v150, v151) )
                   __debugbreak();
               }
-              return v173;
+              return v152;
             }
             else
             {
-              _RBX->deltaMessage = -1;
-              return v120;
+              v3->deltaMessage = -1;
+              return v116;
             }
           }
           else
           {
-            Com_sprintf(dest, 0x400ui64, "checksumfailed%d", (unsigned int)(_RBX->netchan.incomingSequence - Byte));
-            LODWORD(v171) = v54;
+            Com_sprintf(dest, 0x400ui64, "checksumfailed%d", (unsigned int)(v3->netchan.incomingSequence - Byte));
+            LODWORD(v150) = v54;
             LODWORD(fmt) = Byte;
-            Com_PrintError(15, "SV_UserMove: %s failed reading baseline command for sequence %d(%d) with checksum %d != %d\n", _RBX->name, (unsigned int)(_RBX->netchan.incomingSequence - Byte), fmt, v171, Long);
+            Com_PrintError(15, "SV_UserMove: %s failed reading baseline command for sequence %d(%d) with checksum %d != %d\n", v3->name, (unsigned int)(v3->netchan.incomingSequence - Byte), fmt, v150, Long);
             MSG_UserCmd_PrintCommandFields(&outCmd);
-            MSG_UserCmd_PrintPredictedFields(&v182);
-            SV_ClientMP_DropClient(_RBX, dest, 1);
+            MSG_UserCmd_PrintPredictedFields(&v161);
+            SV_ClientMP_DropClient(v3, dest, 1);
             return 0;
           }
         }
@@ -10010,13 +9586,13 @@ LABEL_120:
     {
       Com_Printf(15, "SV_UserMove: could not find valid delta command\n");
       result = 0;
-      _RBX->cmdNoDelta = 1;
+      v3->cmdNoDelta = 1;
     }
   }
   else
   {
-    LODWORD(v171) = reliableSequence;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6539, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "cl->reliableSequence is %i, cl->reliableAcknowledge is %i for %s", v171, reliableAcknowledge, _RBX->name) )
+    LODWORD(v150) = reliableSequence;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6539, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "cl->reliableSequence is %i, cl->reliableAcknowledge is %i for %s", v150, reliableAcknowledge, v3->name) )
       __debugbreak();
     return 0;
   }
@@ -10032,19 +9608,21 @@ void SV_ClientMP_ValidateUserCmd(SvClientMP *cl, int cmdIndex, int cmdCount, con
 {
   unsigned int MpClientIndex; 
   SvPersistentGlobalsMP *PersistentGlobalsMP; 
-  unsigned int v44; 
-  char *v46; 
-  unsigned int v47; 
-  char *v48; 
-  unsigned int v49; 
+  double v11; 
+  double v14; 
+  double v16; 
+  unsigned int v18; 
+  char *v19; 
+  unsigned int v20; 
+  char *v21; 
+  unsigned int v22; 
   char *i; 
-  int v51; 
-  int v52; 
+  int v24; 
+  int v25; 
   char *outStrBuf; 
 
   if ( !BG_ValidateWeaponNumber(&cmd->weapon) || !BG_ValidateWeaponNumber(&cmd->offHand) )
   {
-    __asm { vmovaps [rsp+48h+var_28], xmm10 }
     Com_Printf(15, "###!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!###\n");
     Com_Printf(15, "Encountered corrupt user command. This means the client's write key and the server read key for the net message were different\n");
     MpClientIndex = SV_Client_GetMpClientIndex(cl);
@@ -10056,86 +9634,49 @@ void SV_ClientMP_ValidateUserCmd(SvClientMP *cl, int cmdIndex, int cmdCount, con
     Com_Printf(15, "commandTime = %i\n", (unsigned int)cmd->commandTime);
     Com_Printf(15, "serverTime = %i\n", (unsigned int)cmd->serverTime);
     Com_Printf(15, "inputTime = %i\n", (unsigned int)cmd->inputTime);
-    __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(cmd->angles.v[0], *(float *)&_XMM1, 0x14u);
-    __asm
-    {
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vxorps  xmm10, xmm10, xmm10
-      vroundss xmm2, xmm10, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    Com_Printf(15, "angles[0] = %i(%f)\n", (unsigned int)cmd->angles.v[0], *(double *)&_XMM3);
-    __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(cmd->angles.v[1], *(float *)&_XMM1, 0x14u);
-    __asm
-    {
-      vmulss  xmm5, xmm0, cs:__real@3b360b61
-      vaddss  xmm3, xmm5, cs:__real@3f000000
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm0, xmm2, xmm3
-      vroundss xmm4, xmm10, xmm0, 1
-      vsubss  xmm2, xmm5, xmm4
-      vmulss  xmm0, xmm2, cs:__real@43b40000
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    Com_Printf(15, "angles[1] = %i(%f)\n", (unsigned int)cmd->angles.v[1], *(double *)&_XMM3);
-    __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(cmd->angles.v[2], *(float *)&_XMM1, 0x14u);
-    __asm
-    {
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm10, xmm0, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    Com_Printf(15, "angles[2] = %i(%f)\n", (unsigned int)cmd->angles.v[2], *(double *)&_XMM3);
+    v11 = MSG_UnpackSignedFloat(cmd->angles.v[0], 180.0, 0x14u);
+    _XMM10 = 0i64;
+    __asm { vroundss xmm2, xmm10, xmm1, 1 }
+    Com_Printf(15, "angles[0] = %i(%f)\n", (unsigned int)cmd->angles.v[0], (float)((float)((float)(*(float *)&v11 * 0.0027777778) - *(float *)&_XMM2) * 360.0));
+    v14 = MSG_UnpackSignedFloat(cmd->angles.v[1], 180.0, 0x14u);
+    __asm { vroundss xmm4, xmm10, xmm0, 1 }
+    Com_Printf(15, "angles[1] = %i(%f)\n", (unsigned int)cmd->angles.v[1], (float)((float)((float)(*(float *)&v14 * 0.0027777778) - *(float *)&_XMM4) * 360.0));
+    v16 = MSG_UnpackSignedFloat(cmd->angles.v[2], 180.0, 0x14u);
+    __asm { vroundss xmm3, xmm10, xmm0, 1 }
+    Com_Printf(15, "angles[2] = %i(%f)\n", (unsigned int)cmd->angles.v[2], (float)((float)((float)(*(float *)&v16 * 0.0027777778) - *(float *)&_XMM3) * 360.0));
     Com_Printf(15, "forwardmove = %i\n", (unsigned int)cmd->forwardmove);
     Com_Printf(15, "rightmove = %i\n", (unsigned int)cmd->rightmove);
     Com_Printf(15, "buttons = %zu\n", cmd->buttons);
     Com_Printf(15, "weaponidx = %i\n", cmd->weapon.weaponIdx);
-    v44 = SV_Client_GetMpClientIndex(cl);
-    Com_Printf(15, "---- %i Client Info\n", v44);
-    __asm { vmovaps xmm10, [rsp+48h+var_28] }
+    v18 = SV_Client_GetMpClientIndex(cl);
+    Com_Printf(15, "---- %i Client Info\n", v18);
     if ( cl->state )
     {
       switch ( cl->state )
       {
         case CS_ZOMBIE:
-          v46 = "zombie";
+          v19 = "zombie";
           break;
         case CS_CONNECTED:
-          v46 = "connected";
+          v19 = "connected";
           break;
         case CS_CLIENTLOADING:
-          v46 = "clientloading";
+          v19 = "clientloading";
           break;
         case CS_ACTIVE:
-          v46 = "active";
+          v19 = "active";
           break;
         default:
-          v46 = j_va("unknown(%i)", (unsigned __int8)cl->state);
+          v19 = j_va("unknown(%i)", (unsigned __int8)cl->state);
           break;
       }
     }
     else
     {
-      v46 = "free";
+      v19 = "free";
     }
-    outStrBuf = v46;
-    Com_Printf(15, "state: %s\n", v46);
+    outStrBuf = v19;
+    Com_Printf(15, "state: %s\n", v19);
     Com_Printf(15, "userinfo: '%s'\n", cl->userinfo);
     Com_Printf(15, "reliableSequence: %i\n", (unsigned int)cl->reliableSequence);
     Com_Printf(15, "reliableAcknowledge: %i\n", (unsigned int)cl->reliableAcknowledge);
@@ -10158,33 +9699,33 @@ void SV_ClientMP_ValidateUserCmd(SvClientMP *cl, int cmdIndex, int cmdCount, con
     Com_Printf(15, "fs_checksumFeed: %i\n", (unsigned int)fs_checksumFeed);
     Com_Printf(15, "cl->messageAcknowledge: %i\n", (unsigned int)cl->messageAcknowledge);
     Com_Printf(15, "cl->largeCommandSequence: %i\n", (unsigned int)cl->largeCommandSequence);
-    v47 = cl->reliableAcknowledge & 0x1FF;
-    Com_Printf(15, "reliableIndex: %i\n", v47);
-    if ( CircularEntryBuffer<512,131072,int,0>::GetStr(&cl->netBuf.reliableCommands, v47, (const char **)&outStrBuf) )
+    v20 = cl->reliableAcknowledge & 0x1FF;
+    Com_Printf(15, "reliableIndex: %i\n", v20);
+    if ( CircularEntryBuffer<512,131072,int,0>::GetStr(&cl->netBuf.reliableCommands, v20, (const char **)&outStrBuf) )
     {
-      v48 = outStrBuf;
+      v21 = outStrBuf;
       Com_Printf(15, "reliableIndex cmd: '%s'\n", outStrBuf);
     }
     else
     {
       Com_Printf(15, "reliableIndex cmd: '<not found>'\n");
-      v48 = (char *)&queryFormat.fmt + 3;
+      v21 = (char *)&queryFormat.fmt + 3;
     }
-    v49 = 0;
-    for ( i = v48; *v48; v49 = v51 ^ (16777619 * v49) )
+    v22 = 0;
+    for ( i = v21; *v21; v22 = v24 ^ (16777619 * v22) )
     {
-      if ( v48 - i >= 32 )
+      if ( v21 - i >= 32 )
         break;
-      v51 = (unsigned __int8)*v48++;
+      v24 = (unsigned __int8)*v21++;
     }
-    Com_Printf(15, "Com_FNV32Hash(reliableIndex cmd: %i\n", v49);
+    Com_Printf(15, "Com_FNV32Hash(reliableIndex cmd: %i\n", v22);
     Com_Printf(15, "key = fs_checksumFeed: %i\n", (unsigned int)fs_checksumFeed);
     Com_Printf(15, "key ^= cl->messageAcknowledge: %i\n", (unsigned int)fs_checksumFeed ^ cl->messageAcknowledge);
-    Com_Printf(15, "key ^= Com_FNV32HashStringWithLimit(cl->netBuf.reliableCommandInfo[cl->reliableAcknowledge&(MAX_RELIABLE_COMMANDS_MP-1)].cmd,32): %i\n", fs_checksumFeed ^ cl->messageAcknowledge ^ v49);
-    v52 = key;
+    Com_Printf(15, "key ^= Com_FNV32HashStringWithLimit(cl->netBuf.reliableCommandInfo[cl->reliableAcknowledge&(MAX_RELIABLE_COMMANDS_MP-1)].cmd,32): %i\n", fs_checksumFeed ^ cl->messageAcknowledge ^ v22);
+    v25 = key;
     Com_Printf(15, "key: %i\n", (unsigned int)key);
-    Com_Printf(15, "key ^= cmd->commandTime: %i\n", cmd->commandTime ^ (unsigned int)v52);
-    Com_Printf(15, "key ^= cmd->serverTime: %i\n", (unsigned int)v52 ^ cmd->serverTime);
+    Com_Printf(15, "key ^= cmd->commandTime: %i\n", cmd->commandTime ^ (unsigned int)v25);
+    Com_Printf(15, "key ^= cmd->serverTime: %i\n", (unsigned int)v25 ^ cmd->serverTime);
     Com_Printf(15, "########################################\n");
     SV_ClientMP_DropClient(cl, &byte_1440DCFC8, 1);
   }
@@ -10689,33 +10230,31 @@ SV_SendConnectResponseToClient
 void SV_SendConnectResponseToClient(SvClientMP *cl, const netadr_t *address, const int isHostMigration)
 {
   int addrHandleIndex; 
-  const char *v7; 
+  const char *v6; 
   __int64 ClientRequiredStatPackets; 
-  int v9; 
-  netadr_t v10; 
+  int v8; 
+  netadr_t v9; 
   msg_t buf; 
   unsigned __int8 data[512]; 
 
-  _RDI = address;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 1544, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   MSG_Init(&buf, data, 512);
   MSG_WriteString(&buf, "connectResponse");
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  addrHandleIndex = _RDI->addrHandleIndex;
-  __asm { vmovups [rsp+2A8h+var_278], xmm0 }
-  v10.addrHandleIndex = addrHandleIndex;
-  v7 = NET_AdrToString(&v10);
-  Com_Printf(131087, "SV_SendConnectResponseToClient: Sending '%s' to client at '%s'.\n", "connectResponse", v7);
+  addrHandleIndex = address->addrHandleIndex;
+  *(_OWORD *)&v9.type = *(_OWORD *)&address->type;
+  v9.addrHandleIndex = addrHandleIndex;
+  v6 = NET_AdrToString(&v9);
+  Com_Printf(131087, "SV_SendConnectResponseToClient: Sending '%s' to client at '%s'.\n", "connectResponse", v6);
   ClientRequiredStatPackets = SV_GetClientRequiredStatPackets(cl);
   MSG_WriteBits(&buf, ClientRequiredStatPackets, 0x36u);
   Com_Printf(15, "StatsDataNeeded = 0x%zx\n", ClientRequiredStatPackets);
   Com_Printf(15, "\n");
   if ( buf.overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 1559, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( &msg ))", "%s\n\tConnect message got too big, need to increase CONNECT_MSG_BUF_SIZE", "!MSG_IsOverflowed( &msg )") )
     __debugbreak();
-  v9 = NET_OutOfBandData(NS_MAXCLIENTS, _RDI, buf.data, buf.cursize);
-  if ( v9 < 0 && !NET_IsBotAddr(_RDI) )
-    Com_PrintError(131087, "Failed to send response to connect: error %d\n", (unsigned int)v9);
+  v8 = NET_OutOfBandData(NS_MAXCLIENTS, address, buf.data, buf.cursize);
+  if ( v8 < 0 && !NET_IsBotAddr(address) )
+    Com_PrintError(131087, "Failed to send response to connect: error %d\n", (unsigned int)v8);
 }
 
 /*
@@ -10726,93 +10265,59 @@ SV_UserMove_RecordPredictedOrigin
 void SV_UserMove_RecordPredictedOrigin(SvClientMP *cl, const int commandTime, const CmdPredict *const cmdPredict)
 {
   int vehTarget; 
-  unsigned int v27; 
-  __int64 v32; 
-  __int64 v33; 
-  __m256i v34; 
-  __int128 v35; 
-  _DWORD v36[4]; 
+  const dvar_t *v7; 
+  float v8; 
+  unsigned int v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __m256i v13; 
+  __int128 v14; 
+  _BYTE v15[12]; 
 
-  _RBX = cmdPredict;
-  _RDI = cl;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6451, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6452, ASSERT_TYPE_ASSERT, "( cmdPredict )", (const char *)&queryFormat, "cmdPredict") )
+  if ( !cmdPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 6452, ASSERT_TYPE_ASSERT, "( cmdPredict )", (const char *)&queryFormat, "cmdPredict") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
-  vehTarget = _RBX->vehTarget;
-  v34.m256i_i32[0] = commandTime;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+var_68+8], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0B8h+var_68+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbx+30h]
-    vmovss  dword ptr [rsp+0B8h+var_68+10h], xmm0
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vmovss  dword ptr [rsp+0B8h+var_68+14h], xmm1
-    vmovss  xmm1, dword ptr [rbx+38h]
-    vmovss  dword ptr [rsp+0B8h+var_68+18h], xmm0
-    vmovss  dword ptr [rsp+0B8h+var_68+1Ch], xmm1
-  }
+  vehTarget = cmdPredict->vehTarget;
+  v13.m256i_i32[0] = commandTime;
+  v13.m256i_i32[2] = LODWORD(cmdPredict->origin.v[0]);
+  v13.m256i_i32[3] = LODWORD(cmdPredict->origin.v[1]);
+  v13.m256i_i32[4] = LODWORD(cmdPredict->origin.v[2]);
+  v13.m256i_i32[5] = LODWORD(cmdPredict->vehOrigin.v[0]);
+  v13.m256i_i32[6] = LODWORD(cmdPredict->vehOrigin.v[1]);
+  v13.m256i_i32[7] = LODWORD(cmdPredict->vehOrigin.v[2]);
   if ( (vehTarget < 0 || (unsigned int)vehTarget > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)vehTarget, "signed", vehTarget) )
     __debugbreak();
-  v34.m256i_i16[2] = vehTarget;
-  _RSI = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
-  v34.m256i_i8[6] = _RBX->vehActive != 0;
+  v13.m256i_i16[2] = vehTarget;
+  v7 = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
+  v13.m256i_i8[6] = cmdPredict->vehActive != 0;
   if ( !DCONST_DVARFLT_com_userCmdMaxExtrapTranslation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxExtrapTranslation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  HIDWORD(v35) = _RBX->extrapData.time;
-  v36[0] = _RBX->extrapData.inputTime;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmulss  xmm3, xmm0, cs:__real@38000100
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+0Ch]
-    vmulss  xmm0, xmm1, xmm3
-    vmovss  dword ptr [rsp+0B8h+var_48], xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, dword ptr [rbx+10h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+14h]
-    vmulss  xmm1, xmm2, xmm3
-    vmulss  xmm2, xmm0, xmm3
-    vmovsd  xmm0, qword ptr [rbx+20h]
-    vmovsd  qword ptr [rsp+0B8h+var_38+4], xmm0
-    vmovss  dword ptr [rsp+0B8h+var_48+4], xmm1
-    vmovss  dword ptr [rsp+0B8h+var_48+8], xmm2
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  HIDWORD(v14) = cmdPredict->extrapData.time;
+  *(_DWORD *)v15 = cmdPredict->extrapData.inputTime;
+  v8 = v7->current.value * 0.000030518509;
+  *(float *)&v14 = (float)cmdPredict->extrapData.offset.v[0] * v8;
+  *(_QWORD *)&v15[4] = *(_QWORD *)cmdPredict->extrapData.packedBobCycle;
+  *((float *)&v14 + 1) = (float)cmdPredict->extrapData.offset.v[1] * v8;
+  *((float *)&v14 + 2) = (float)cmdPredict->extrapData.offset.v[2] * v8;
   if ( commandTime > 0 )
   {
-    v27 = _RDI->m_nextPredictedIndex % 0x26;
-    ++_RDI->m_nextPredictedIndex;
-    if ( v27 >= 0x26 )
+    v9 = cl->m_nextPredictedIndex % 0x26;
+    ++cl->m_nextPredictedIndex;
+    if ( v9 >= 0x26 )
     {
-      LODWORD(v33) = 38;
-      LODWORD(v32) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4268, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( ( sizeof( *array_counter( m_predictedOrigins ) ) + 0 ) )", "predictedIndex doesn't index ARRAY_COUNT( m_predictedOrigins )\n\t%i not in [0, %i)", v32, v33) )
+      LODWORD(v12) = 38;
+      LODWORD(v11) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4268, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( ( sizeof( *array_counter( m_predictedOrigins ) ) + 0 ) )", "predictedIndex doesn't index ARRAY_COUNT( m_predictedOrigins )\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, [rsp+0B8h+var_68]
-      vmovups xmm1, [rsp+0B8h+var_48]
-    }
-    _RCX = v27;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rdi+5C158h], ymm0
-      vmovsd  xmm0, qword ptr [rsp+0B8h+var_38]
-      vmovups xmmword ptr [rcx+rdi+5C178h], xmm1
-      vmovsd  qword ptr [rcx+rdi+5C188h], xmm0
-    }
-    _RDI->m_predictedOrigins[_RCX].extrapData.packedBobCycle[1] = v36[2];
+    v10 = v9;
+    *(__m256i *)&cl->m_predictedOrigins[v10].commandTime = v13;
+    *(_OWORD *)cl->m_predictedOrigins[v10].extrapData.offset.v = v14;
+    *(double *)&cl->m_predictedOrigins[v10].extrapData.inputTime = *(double *)v15;
+    cl->m_predictedOrigins[v10].extrapData.packedBobCycle[1] = *(_DWORD *)&v15[8];
   }
 }
 
@@ -10823,131 +10328,123 @@ SV_WriteClientConfigStrings
 */
 void SV_WriteClientConfigStrings(msg_t *msg)
 {
+  unsigned int v1; 
   unsigned int v2; 
-  unsigned int v3; 
   SvGameGlobals *SvGameGlobalsCommon; 
-  unsigned int v6; 
-  int v7; 
-  __int64 v8; 
-  int v9; 
-  unsigned int v10; 
-  __int64 v11; 
+  unsigned int v5; 
+  int v6; 
+  __int64 v7; 
+  int v8; 
+  unsigned int v9; 
+  __int64 v10; 
   char *DvarInfoString; 
-  scr_string_t v13; 
-  const char *v14; 
-  const dvar_t *v15; 
-  __int64 v16; 
-  unsigned __int64 v17; 
+  scr_string_t v12; 
+  const char *v13; 
+  const dvar_t *v14; 
+  __int64 v15; 
+  unsigned __int64 v16; 
+  int v19; 
+  const char *v20; 
+  int v21; 
   int v22; 
-  const char *v23; 
+  int v23; 
   int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
   int cursize; 
 
+  v1 = 0;
+  v22 = 0;
   v2 = 0;
-  v25 = 0;
-  v3 = 0;
   cursize = msg->cursize;
-  v26 = 0;
-  v27 = 0;
+  v23 = 0;
+  v24 = 0;
   if ( (_BYTE)SvGameGlobals::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_game_globals_mp.h", 146, ASSERT_TYPE_ASSERT, "(ms_allocatedType == ALLOCATION_TYPE)", "%s\n\tTrying to access server globals, but the server isn't running or its game mode is wrong (ms_allocatedType=%d)", "ms_allocatedType == ALLOCATION_TYPE", (unsigned __int8)SvGameGlobals::ms_allocatedType) )
     __debugbreak();
   SvGameGlobalsCommon = SvGameGlobals::GetSvGameGlobalsCommon();
   MSG_WriteBits(msg, 3i64, 4u);
+  v5 = 0;
   v6 = 0;
-  v7 = 0;
-  v8 = 0i64;
+  v7 = 0i64;
   do
   {
-    if ( v6 == 529 || SvGameGlobalsCommon->configstrings[v8] != SvGameGlobalsCommon->emptyConfigString )
-      ++v7;
-    if ( v6 == 528 || SvGameGlobalsCommon->configstrings[v8 + 1] != SvGameGlobalsCommon->emptyConfigString )
-      ++v7;
-    v6 += 2;
-    v8 += 2i64;
+    if ( v5 == 529 || SvGameGlobalsCommon->configstrings[v7] != SvGameGlobalsCommon->emptyConfigString )
+      ++v6;
+    if ( v5 == 528 || SvGameGlobalsCommon->configstrings[v7 + 1] != SvGameGlobalsCommon->emptyConfigString )
+      ++v6;
+    v5 += 2;
+    v7 += 2i64;
   }
-  while ( v6 < 0x2FE );
-  MSG_WriteShort(msg, v7);
-  v9 = -1;
-  v10 = 0;
-  v24 = __rdtsc();
-  v11 = 0i64;
+  while ( v5 < 0x2FE );
+  MSG_WriteShort(msg, v6);
+  v8 = -1;
+  v9 = 0;
+  v21 = __rdtsc();
+  v10 = 0i64;
   do
   {
-    if ( v10 == 529 )
+    if ( v9 == 529 )
     {
       DvarInfoString = SV_MainMP_GetDvarInfoString(4096);
     }
     else
     {
-      v13 = SvGameGlobalsCommon->configstrings[v11];
-      if ( v13 == SvGameGlobalsCommon->emptyConfigString )
+      v12 = SvGameGlobalsCommon->configstrings[v10];
+      if ( v12 == SvGameGlobalsCommon->emptyConfigString )
         goto LABEL_33;
-      DvarInfoString = (char *)SL_ConvertToString(v13);
+      DvarInfoString = (char *)SL_ConvertToString(v12);
     }
-    v14 = DvarInfoString;
-    if ( v7 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2682, ASSERT_TYPE_ASSERT, "(configStringCount >= 0)", (const char *)&queryFormat, "configStringCount >= 0") )
+    v13 = DvarInfoString;
+    if ( v6 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2682, ASSERT_TYPE_ASSERT, "(configStringCount >= 0)", (const char *)&queryFormat, "configStringCount >= 0") )
       __debugbreak();
-    if ( v10 == v9 + 1 )
+    if ( v9 == v8 + 1 )
     {
       MSG_WriteBit1(msg);
     }
     else
     {
       MSG_WriteBit0(msg);
-      MSG_WriteBits(msg, (int)v10, 0xAu);
+      MSG_WriteBits(msg, (int)v9, 0xAu);
     }
-    v9 = v10;
-    MSG_WriteBigString(msg, v14);
-    v15 = DVARBOOL_sv_printConfigStrings;
-    --v7;
+    v8 = v9;
+    MSG_WriteBigString(msg, v13);
+    v14 = DVARBOOL_sv_printConfigStrings;
+    --v6;
     if ( !DVARBOOL_sv_printConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_printConfigStrings") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v15->current.enabled )
-      Com_Printf(15, "CS %4i: %s\n", v10, v14);
-    v16 = -1i64;
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.enabled )
+      Com_Printf(15, "CS %4i: %s\n", v9, v13);
+    v15 = -1i64;
     do
-      ++v16;
-    while ( v14[v16] );
-    v25 += v16;
-    v2 = ++v26;
-    if ( (int)v16 <= v27 )
-      LODWORD(v16) = v27;
-    v3 = v16;
-    v27 = v16;
+      ++v15;
+    while ( v13[v15] );
+    v22 += v15;
+    v1 = ++v23;
+    if ( (int)v15 <= v24 )
+      LODWORD(v15) = v24;
+    v2 = v15;
+    v24 = v15;
 LABEL_33:
+    ++v9;
     ++v10;
-    ++v11;
   }
-  while ( v10 < 0x2FE );
-  if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2716, ASSERT_TYPE_ASSERT, "( configStringCount ) == ( 0 )", "%s == %s\n\t%i, %i", "configStringCount", "0", v7, 0i64) )
+  while ( v9 < 0x2FE );
+  if ( v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 2716, ASSERT_TYPE_ASSERT, "( configStringCount ) == ( 0 )", "%s == %s\n\t%i, %i", "configStringCount", "0", v6, 0i64) )
     __debugbreak();
-  v17 = __rdtsc();
-  __asm
+  v16 = __rdtsc();
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (int)v16 - v21 < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(15, "SV Config String Generation Total: %fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  v19 = msg->cursize - cursize;
+  if ( v19 > 4000 && SV_Game_IsOnlineGame() )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    v20 = j_va("Gamestate Exceeded - size %i - max %i", (unsigned int)v19, 4000i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_GAMESTATEEXCEEDED, 20000, v20, v19);
   }
-  if ( (int)v17 - v24 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r8, xmm2
-  }
-  Com_Printf(15, "SV Config String Generation Total: %fms\n", *(double *)&_XMM2);
-  v22 = msg->cursize - cursize;
-  if ( v22 > 4000 && SV_Game_IsOnlineGame() )
-  {
-    v23 = j_va("Gamestate Exceeded - size %i - max %i", (unsigned int)v22, 4000i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_GAMESTATEEXCEEDED, 20000, v23, v22);
-  }
-  Com_Printf(15, "Gamestate has %i bytes of config strings (%i total config strings)\n", (unsigned int)v22, v2);
-  Com_Printf(15, "   Largest config string was %i bytes\n", v3);
-  Com_Printf(15, "   Average config string was %i bytes\n", (unsigned int)(v25 / (int)v2));
+  Com_Printf(15, "Gamestate has %i bytes of config strings (%i total config strings)\n", (unsigned int)v19, v1);
+  Com_Printf(15, "   Largest config string was %i bytes\n", v2);
+  Com_Printf(15, "   Average config string was %i bytes\n", (unsigned int)(v22 / (int)v1));
 }
 
 /*
@@ -11193,66 +10690,53 @@ SvClientMP::UpdateCommandSequence
 void SvClientMP::UpdateCommandSequence(SvClientMP *this)
 {
   __int64 v2; 
+  usercmd_s *p_lastRecvCommand; 
+  usercmd_s *v4; 
   __int64 v5; 
-  __int64 v18; 
+  __int128 v6; 
+  CmdPredict *v7; 
+  __int64 v8; 
 
-  _RBX = this;
   if ( !this->m_cmdRecvBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4631, ASSERT_TYPE_ASSERT, "( m_cmdRecvBuffer != nullptr )", (const char *)&queryFormat, "m_cmdRecvBuffer != nullptr") )
     __debugbreak();
-  if ( !_RBX->m_cmdRecvPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4632, ASSERT_TYPE_ASSERT, "( m_cmdRecvPredict != nullptr )", (const char *)&queryFormat, "m_cmdRecvPredict != nullptr") )
+  if ( !this->m_cmdRecvPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4632, ASSERT_TYPE_ASSERT, "( m_cmdRecvPredict != nullptr )", (const char *)&queryFormat, "m_cmdRecvPredict != nullptr") )
     __debugbreak();
-  if ( !_RBX->m_cmdRecvSequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4633, ASSERT_TYPE_ASSERT, "( m_cmdRecvSequence != nullptr )", (const char *)&queryFormat, "m_cmdRecvSequence != nullptr") )
+  if ( !this->m_cmdRecvSequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4633, ASSERT_TYPE_ASSERT, "( m_cmdRecvSequence != nullptr )", (const char *)&queryFormat, "m_cmdRecvSequence != nullptr") )
     __debugbreak();
-  if ( _RBX->netchan.incomingSequence < 0 )
+  if ( this->netchan.incomingSequence < 0 )
   {
-    LODWORD(v18) = _RBX->netchan.incomingSequence;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4634, ASSERT_TYPE_ASSERT, "( this->netchan.incomingSequence ) >= ( 0 )", "this->netchan.incomingSequence >= 0\n\t%i, %i", v18, 0i64) )
+    LODWORD(v8) = this->netchan.incomingSequence;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 4634, ASSERT_TYPE_ASSERT, "( this->netchan.incomingSequence ) >= ( 0 )", "this->netchan.incomingSequence >= 0\n\t%i, %i", v8, 0i64) )
       __debugbreak();
   }
-  v2 = (int)(_RBX->netchan.incomingSequence % SvClientMP::ms_cmdCountPerClient);
-  _RBX->m_cmdRecvSequence[v2] = _RBX->netchan.incomingSequence;
-  _RAX = &_RBX->lastRecvCommand;
-  _RDX = &_RBX->m_cmdRecvBuffer[v2];
+  v2 = (int)(this->netchan.incomingSequence % SvClientMP::ms_cmdCountPerClient);
+  this->m_cmdRecvSequence[v2] = this->netchan.incomingSequence;
+  p_lastRecvCommand = &this->lastRecvCommand;
+  v4 = &this->m_cmdRecvBuffer[v2];
   v5 = 2i64;
   do
   {
-    _RDX = (usercmd_s *)((char *)_RDX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rdx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rdx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rdx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rdx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rdx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rdx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v4 = (usercmd_s *)((char *)v4 + 128);
+    v6 = *(_OWORD *)&p_lastRecvCommand->buttons;
+    p_lastRecvCommand = (usercmd_s *)((char *)p_lastRecvCommand + 128);
+    *(_OWORD *)&v4[-1].offHand.attachmentVariationIndices[13] = v6;
+    *(_OWORD *)&v4[-1].offHand.weaponCamo = *(_OWORD *)&p_lastRecvCommand[-1].offHand.weaponCamo;
+    *(_OWORD *)v4[-1].remoteControlMove = *(_OWORD *)p_lastRecvCommand[-1].remoteControlMove;
+    *(_OWORD *)v4[-1].vehAngles = *(_OWORD *)p_lastRecvCommand[-1].vehAngles;
+    *(_OWORD *)&v4[-1].vehOrgZ = *(_OWORD *)&p_lastRecvCommand[-1].vehOrgZ;
+    *(_OWORD *)&v4[-1].gunYOfs = *(_OWORD *)&p_lastRecvCommand[-1].gunYOfs;
+    *(_OWORD *)v4[-1].sightedClientsMask.data = *(_OWORD *)p_lastRecvCommand[-1].sightedClientsMask.data;
+    *(_OWORD *)&v4[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_lastRecvCommand[-1].sightedClientsMask.data[4];
     --v5;
   }
   while ( v5 );
-  _RDX->buttons = _RAX->buttons;
-  __asm { vmovups ymm0, ymmword ptr [rbx+2CF10h] }
-  _RDX = (__int64)&_RBX->m_cmdRecvPredict[v2];
-  __asm
-  {
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups xmm1, xmmword ptr [rbx+2CF30h]
-    vmovups xmmword ptr [rdx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rbx+2CF40h]
-    vmovsd  qword ptr [rdx+30h], xmm0
-  }
-  *(float *)(_RDX + 56) = _RBX->lastRecvPredict.vehOrigin.v[2];
-  _RBX->commandSequence = _RBX->netchan.incomingSequence;
+  v4->buttons = p_lastRecvCommand->buttons;
+  v7 = &this->m_cmdRecvPredict[v2];
+  *(__m256i *)v7->origin.v = *(__m256i *)this->lastRecvPredict.origin.v;
+  *(_OWORD *)v7->extrapData.packedBobCycle = *(_OWORD *)this->lastRecvPredict.extrapData.packedBobCycle;
+  *(double *)v7->vehOrigin.v = *(double *)this->lastRecvPredict.vehOrigin.v;
+  v7->vehOrigin.v[2] = this->lastRecvPredict.vehOrigin.v[2];
+  this->commandSequence = this->netchan.incomingSequence;
 }
 
 /*
@@ -11347,116 +10831,93 @@ SvClientMP::UpdatePingHistogram
 */
 void SvClientMP::UpdatePingHistogram(SvClientMP *this)
 {
-  const dvar_t *v2; 
-  __int64 v4; 
-  unsigned int m_unprocessedCentroidBufferIndex; 
-  int v15; 
+  const dvar_t *v1; 
+  __int64 v3; 
+  int m_unprocessedCentroidBufferIndex; 
+  __int64 v11; 
+  int v12; 
+  int v13; 
+  __int64 v14; 
+  __int64 v15; 
   int v16; 
-  __int64 v17; 
-  __int64 v18; 
-  unsigned int v19; 
+  __int64 v21; 
 
-  v2 = DVARBOOL_sv_recordPingHistogram;
-  _RBX = this;
+  v1 = DVARBOOL_sv_recordPingHistogram;
   if ( !DVARBOOL_sv_recordPingHistogram && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_recordPingHistogram") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled )
+    return;
+  m_unprocessedCentroidBufferIndex = this->pingDigest.m_unprocessedCentroidBufferIndex;
+  _XMM6 = 0i64;
+  __asm { vcvtsi2sd xmm6, xmm6, dword ptr [rbx+370E8h] }
+  if ( (unsigned int)m_unprocessedCentroidBufferIndex < 0x2BC )
+    goto LABEL_8;
+  if ( !this->pingDigest.m_disableAutoMerge )
   {
-    m_unprocessedCentroidBufferIndex = _RBX->pingDigest.m_unprocessedCentroidBufferIndex;
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, dword ptr [rbx+370E8h]
-    }
-    if ( m_unprocessedCentroidBufferIndex >= 0x2BC )
-    {
-      if ( _RBX->pingDigest.m_disableAutoMerge )
-      {
-        DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
-        goto LABEL_9;
-      }
-      DLogTDigest<100,8>::ProcessBufferedCentroids(&_RBX->pingDigest);
-      m_unprocessedCentroidBufferIndex = _RBX->pingDigest.m_unprocessedCentroidBufferIndex;
-    }
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+370F0h]
-      vminsd  xmm1, xmm0, xmm6
-      vmovsd  qword ptr [rbx+370F0h], xmm1
-      vmovsd  xmm0, qword ptr [rbx+370F8h]
-      vmaxsd  xmm1, xmm0, xmm6
-      vmovsd  qword ptr [rbx+370F8h], xmm1
-    }
-    _RAX = 2 * ((int)m_unprocessedCentroidBufferIndex + 103i64);
-    __asm { vmovsd  qword ptr [rbx+rax*8+370F0h], xmm6 }
-    *((_QWORD *)&_RBX->pingDigest.m_max + _RAX) = 0x3FF0000000000000i64;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+37110h]
-      vaddsd  xmm1, xmm0, cs:__real@3ff0000000000000
-    }
-    ++_RBX->pingDigest.m_unprocessedCentroidBufferIndex;
-    __asm { vmovsd  qword ptr [rbx+37110h], xmm1 }
-LABEL_9:
-    v15 = 0;
-    v16 = _RBX->messageAcknowledge - 1;
-    v17 = 1i64;
-    do
-    {
-      if ( v16 < 0 )
-        break;
-      v18 = v16 & 0x3F;
-      v4 = 9 * v18;
-      if ( _RBX->m_frameInfo[v18].sentSequence != v16 )
-        break;
-      if ( _RBX->m_frameInfo[v18].sentTime > 0 )
-      {
-        if ( _RBX->m_frameInfo[v18].ackedTime > 0 )
-          break;
-        ++v15;
-      }
-      v17 = (unsigned int)(v17 + 1);
-      --v16;
-    }
-    while ( (int)v17 < 64 );
-    v19 = _RBX->lostSnapshotsDigest.m_unprocessedCentroidBufferIndex;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, r9d
-    }
-    if ( v19 >= 0x8C )
-    {
-      if ( _RBX->lostSnapshotsDigest.m_disableAutoMerge )
-      {
-        DLog_PrintError("Auto merge disabled - centroid buffer overflow\n", v4, v17);
-        goto LABEL_20;
-      }
-      DLogTDigest<20,8>::ProcessBufferedCentroids(&_RBX->lostSnapshotsDigest);
-      v19 = _RBX->lostSnapshotsDigest.m_unprocessedCentroidBufferIndex;
-    }
-    __asm
-    {
-      vminsd  xmm0, xmm6, qword ptr [rbx+3A960h]
-      vmovsd  qword ptr [rbx+3A960h], xmm0
-      vmaxsd  xmm1, xmm6, qword ptr [rbx+3A968h]
-      vmovsd  qword ptr [rbx+3A968h], xmm1
-    }
-    _RAX = 2 * ((int)v19 + 23i64);
-    __asm { vmovsd  qword ptr [rbx+rax*8+3A960h], xmm6 }
-    *((_QWORD *)&_RBX->lostSnapshotsDigest.m_max + _RAX) = 0x3FF0000000000000i64;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+3A980h]
-      vaddsd  xmm1, xmm0, cs:__real@3ff0000000000000
-    }
-    ++_RBX->lostSnapshotsDigest.m_unprocessedCentroidBufferIndex;
-    __asm { vmovsd  qword ptr [rbx+3A980h], xmm1 }
-LABEL_20:
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    DLogTDigest<100,8>::ProcessBufferedCentroids(&this->pingDigest);
+    m_unprocessedCentroidBufferIndex = this->pingDigest.m_unprocessedCentroidBufferIndex;
+LABEL_8:
+    _XMM0 = *(unsigned __int64 *)&this->pingDigest.m_min;
+    __asm { vminsd  xmm1, xmm0, xmm6 }
+    this->pingDigest.m_min = *(double *)&_XMM1;
+    _XMM0 = *(unsigned __int64 *)&this->pingDigest.m_max;
+    __asm { vmaxsd  xmm1, xmm0, xmm6 }
+    this->pingDigest.m_max = *(double *)&_XMM1;
+    v11 = 2 * (m_unprocessedCentroidBufferIndex + 103i64);
+    *((double *)&this->pingDigest.m_min + v11) = *(double *)&_XMM6;
+    *((_QWORD *)&this->pingDigest.m_max + v11) = 0x3FF0000000000000i64;
+    *(long double *)&_XMM0 = this->pingDigest.m_unprocessedWeightTotal;
+    ++this->pingDigest.m_unprocessedCentroidBufferIndex;
+    this->pingDigest.m_unprocessedWeightTotal = *(double *)&_XMM0 + 1.0;
+    goto LABEL_9;
   }
+  DLog_PrintError("Auto merge disabled - centroid buffer overflow\n");
+LABEL_9:
+  v12 = 0;
+  v13 = this->messageAcknowledge - 1;
+  v14 = 1i64;
+  do
+  {
+    if ( v13 < 0 )
+      break;
+    v15 = v13 & 0x3F;
+    v3 = 9 * v15;
+    if ( this->m_frameInfo[v15].sentSequence != v13 )
+      break;
+    if ( this->m_frameInfo[v15].sentTime > 0 )
+    {
+      if ( this->m_frameInfo[v15].ackedTime > 0 )
+        break;
+      ++v12;
+    }
+    v14 = (unsigned int)(v14 + 1);
+    --v13;
+  }
+  while ( (int)v14 < 64 );
+  v16 = this->lostSnapshotsDigest.m_unprocessedCentroidBufferIndex;
+  _XMM6 = 0i64;
+  __asm { vcvtsi2sd xmm6, xmm6, r9d }
+  if ( (unsigned int)v16 >= 0x8C )
+  {
+    if ( this->lostSnapshotsDigest.m_disableAutoMerge )
+    {
+      DLog_PrintError("Auto merge disabled - centroid buffer overflow\n", v3, v14);
+      return;
+    }
+    DLogTDigest<20,8>::ProcessBufferedCentroids(&this->lostSnapshotsDigest);
+    v16 = this->lostSnapshotsDigest.m_unprocessedCentroidBufferIndex;
+  }
+  __asm { vminsd  xmm0, xmm6, qword ptr [rbx+3A960h] }
+  this->lostSnapshotsDigest.m_min = *(double *)&_XMM0;
+  __asm { vmaxsd  xmm1, xmm6, qword ptr [rbx+3A968h] }
+  this->lostSnapshotsDigest.m_max = *(double *)&_XMM1;
+  v21 = 2 * (v16 + 23i64);
+  *((double *)&this->lostSnapshotsDigest.m_min + v21) = *(double *)&_XMM6;
+  *((_QWORD *)&this->lostSnapshotsDigest.m_max + v21) = 0x3FF0000000000000i64;
+  *(long double *)&_XMM0 = this->lostSnapshotsDigest.m_unprocessedWeightTotal;
+  ++this->lostSnapshotsDigest.m_unprocessedCentroidBufferIndex;
+  this->lostSnapshotsDigest.m_unprocessedWeightTotal = *(double *)&_XMM0 + 1.0;
 }
 
 /*
@@ -11467,31 +10928,24 @@ SvClientMP::UpdateSnapshotEncodingOutput
 void SvClientMP::UpdateSnapshotEncodingOutput(SvClientMP *this, const unsigned int snapshotIndex, const clientSnapshotEncodingOutput_t *newClientSnapEncodingOutput)
 {
   __int64 v3; 
-  __int64 v11; 
+  clientSnapshotEncodingOutput_t *v6; 
+  __int64 v7; 
 
   v3 = snapshotIndex;
-  _RDI = newClientSnapEncodingOutput;
   if ( !newClientSnapEncodingOutput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7873, ASSERT_TYPE_ASSERT, "( newClientSnapEncodingOutput )", (const char *)&queryFormat, "newClientSnapEncodingOutput") )
     __debugbreak();
   if ( (unsigned int)v3 >= SvClientMP::ms_fullSnapFrameCountPerClient )
   {
-    LODWORD(v11) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 1020, ASSERT_TYPE_ASSERT, "(unsigned)( frameIndex ) < (unsigned)( ms_fullSnapFrameCountPerClient )", "frameIndex doesn't index ms_fullSnapFrameCountPerClient\n\t%i not in [0, %i)", v11, SvClientMP::ms_fullSnapFrameCountPerClient) )
+    LODWORD(v7) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 1020, ASSERT_TYPE_ASSERT, "(unsigned)( frameIndex ) < (unsigned)( ms_fullSnapFrameCountPerClient )", "frameIndex doesn't index ms_fullSnapFrameCountPerClient\n\t%i not in [0, %i)", v7, SvClientMP::ms_fullSnapFrameCountPerClient) )
       __debugbreak();
   }
-  _RBX = &this->m_fullSnapshotEncodingOutputs[v3];
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7875, ASSERT_TYPE_ASSERT, "( clientSnapEncodingOutput )", (const char *)&queryFormat, "clientSnapEncodingOutput") )
+  v6 = &this->m_fullSnapshotEncodingOutputs[v3];
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.cpp", 7875, ASSERT_TYPE_ASSERT, "( clientSnapEncodingOutput )", (const char *)&queryFormat, "clientSnapEncodingOutput") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovsd  xmm1, qword ptr [rdi+60h]
-    vmovsd  qword ptr [rbx+60h], xmm1
-  }
+  *(__m256i *)v6->playerEventNeedsFullSerialization.m_data = *(__m256i *)newClientSnapEncodingOutput->playerEventNeedsFullSerialization.m_data;
+  *(__m256i *)&v6->playerEventNeedsFullSerialization.m_data[4] = *(__m256i *)&newClientSnapEncodingOutput->playerEventNeedsFullSerialization.m_data[4];
+  *(__m256i *)&v6->playerEventNeedsFullSerialization.m_data[8] = *(__m256i *)&newClientSnapEncodingOutput->playerEventNeedsFullSerialization.m_data[8];
+  v6->playerEventNeedsFullSerialization.m_data[12] = newClientSnapEncodingOutput->playerEventNeedsFullSerialization.m_data[12];
 }
 

@@ -467,6 +467,8 @@ R_AddRigidSubdivTessFactorsCmd
 */
 char R_AddRigidSubdivTessFactorsCmd(ComputeCmdList *list, const XSurface *surf, int subdivLevel, int tessFactorsOffset, int rigidVertList, const GfxPlacement *placement, float scale, GfxViewDomain viewDomain)
 {
+  char *v12; 
+  const void *v13; 
   int v14; 
   ComputeCmdType i; 
 
@@ -474,31 +476,22 @@ char R_AddRigidSubdivTessFactorsCmd(ComputeCmdList *list, const XSurface *surf, 
     __debugbreak();
   if ( !surf->subdiv && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 2100, ASSERT_TYPE_ASSERT, "(subdivInfo)", (const char *)&queryFormat, "subdivInfo") )
     __debugbreak();
-  _RAX = R_AllocComputeCmdDataAligned(list, 64, 8u);
-  _RSI = _RAX;
-  if ( _RAX )
+  v12 = (char *)R_AllocComputeCmdDataAligned(list, 64, 8u);
+  v13 = v12;
+  if ( v12 )
   {
     v14 = 0;
-    *((_BYTE *)_RAX + 20) = viewDomain;
-    _RAX[13] = rigidVertList;
-    _RCX = placement;
-    *_RAX = 0;
-    *((_QWORD *)_RAX + 1) = surf;
-    _RAX[1] = subdivLevel;
-    _RAX[4] = tessFactorsOffset;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax+18h], xmm0
-      vmovsd  xmm1, qword ptr [rcx+10h]
-      vmovss  xmm0, [rsp+48h+scale]
-      vmovsd  qword ptr [rax+28h], xmm1
-    }
-    _RAX[12] = LODWORD(placement->origin.v[2]);
-    __asm { vmovss  dword ptr [rsi+38h], xmm0 }
+    v12[20] = viewDomain;
+    *((_DWORD *)v12 + 13) = rigidVertList;
+    *(_DWORD *)v12 = 0;
+    *((_QWORD *)v12 + 1) = surf;
+    *((_DWORD *)v12 + 1) = subdivLevel;
+    *((_DWORD *)v12 + 4) = tessFactorsOffset;
+    *(GfxPlacement *)(v12 + 24) = *placement;
+    *((float *)v12 + 14) = scale;
     if ( subdivLevel < 0 )
       return 1;
-    for ( i = COMPUTECMD_SUBDIV_LV0_TESS_FACTORS; R_AddComputeCmd(list, i, _RSI); i += 6 )
+    for ( i = COMPUTECMD_SUBDIV_LV0_TESS_FACTORS; R_AddComputeCmd(list, i, v13); i += 6 )
     {
       if ( ++v14 > subdivLevel )
         return 1;
@@ -601,39 +594,32 @@ R_AddSkinnedSubdivTessFactorsCmd
 */
 char R_AddSkinnedSubdivTessFactorsCmd(ComputeCmdList *list, const XSurface *surf, int subdivLevel, int cacheOffset, int tessFactorsOffset, GfxViewDomain viewDomain, const GfxPlacement *placement)
 {
+  char *v11; 
   const void *v12; 
-  int v14; 
+  int v13; 
   ComputeCmdType i; 
 
   if ( subdivLevel >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 2139, ASSERT_TYPE_ASSERT, "( ( subdivLevel < 4 ) )", "( subdivLevel ) = %i", subdivLevel) )
     __debugbreak();
   if ( !surf->subdiv && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 2142, ASSERT_TYPE_ASSERT, "(subdivInfo)", (const char *)&queryFormat, "subdivInfo") )
     __debugbreak();
-  _RAX = R_AllocComputeCmdDataAligned(list, 64, 8u);
-  v12 = _RAX;
-  if ( _RAX )
+  v11 = (char *)R_AllocComputeCmdDataAligned(list, 64, 8u);
+  v12 = v11;
+  if ( v11 )
   {
-    _RAX[4] = tessFactorsOffset;
-    *((_BYTE *)_RAX + 20) = viewDomain;
-    _RCX = placement;
-    *((_QWORD *)_RAX + 1) = surf;
-    v14 = 0;
-    *_RAX = 1;
-    _RAX[1] = subdivLevel;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rax+18h], xmm0
-      vmovsd  xmm1, qword ptr [rcx+10h]
-      vmovsd  qword ptr [rax+28h], xmm1
-    }
-    _RAX[12] = LODWORD(placement->origin.v[2]);
-    _RAX[13] = cacheOffset;
+    *((_DWORD *)v11 + 4) = tessFactorsOffset;
+    v11[20] = viewDomain;
+    *((_QWORD *)v11 + 1) = surf;
+    v13 = 0;
+    *(_DWORD *)v11 = 1;
+    *((_DWORD *)v11 + 1) = subdivLevel;
+    *(GfxPlacement *)(v11 + 24) = *placement;
+    *((_DWORD *)v11 + 13) = cacheOffset;
     if ( subdivLevel < 0 )
       return 1;
     for ( i = COMPUTECMD_SUBDIV_LV0_TESS_FACTORS; R_AddComputeCmd(list, i, v12); i += 6 )
     {
-      if ( ++v14 > subdivLevel )
+      if ( ++v13 > subdivLevel )
         return 1;
     }
   }
@@ -665,48 +651,48 @@ void R_AllocSurfaceSubdivLevels(XSurface *surf)
   ID3D12Resource **p_regularPatchIndexBuffer; 
   int v7; 
   const void *v8; 
-  ID3D12Resource *v10; 
+  ID3D12Resource *v9; 
+  int v10; 
+  const void *v11; 
   int v12; 
-  const void *v15; 
+  int v13; 
+  const void *v14; 
+  int v15; 
   int v16; 
+  int v17; 
+  int v18; 
   int v19; 
-  const void *v20; 
-  int v22; 
-  int v25; 
-  int v28; 
-  int v31; 
-  int v34; 
   char *fmt; 
   char *fmta; 
   char *fmtb; 
   char *fmtc; 
   char *fmtd; 
   char *fmte; 
+  GfxBufferCreationContext v26; 
+  ID3D12Resource *v27; 
+  ID3D12Resource *v28; 
+  ID3D12Resource *v29[2]; 
+  GfxBufferCreationContext v30; 
+  GfxBufferCreationContext v31; 
+  GfxBufferCreationContext v32; 
+  GfxBufferCreationContext v33; 
+  GfxBufferCreationContext v34; 
+  GfxBufferCreationContext v35; 
+  GfxBufferCreationContext v36; 
+  GfxBufferCreationContext v37; 
+  GfxBufferCreationContext v38; 
+  GfxBufferCreationContext v39; 
+  GfxBufferCreationContext v40; 
+  GfxBufferCreationContext v41; 
+  GfxBufferCreationContext v42; 
   GfxBufferCreationContext v43; 
-  ID3D12Resource *v44; 
-  ID3D12Resource *v45; 
-  ID3D12Resource *v46[2]; 
-  __int128 v47; 
-  __int128 v48; 
-  __int128 v49; 
-  __int128 v50; 
-  __int128 v51; 
-  __int128 v52; 
-  __int128 v53; 
-  __int128 v54; 
-  __int128 v55; 
-  __int128 v56; 
-  __int128 v57; 
-  __int128 v58; 
-  __int128 v59; 
-  __int128 v60; 
-  __int128 v61; 
-  __int128 v62; 
-  __int128 v63; 
+  GfxBufferCreationContext v44; 
+  GfxBufferCreationContext v45; 
+  GfxBufferCreationContext v46; 
   ID3D12Resource *buffer; 
-  ID3D12Resource *v65; 
-  ID3D12Resource *v66; 
-  ID3D12Resource *v67; 
+  ID3D12Resource *v48; 
+  ID3D12Resource *v49; 
+  ID3D12Resource *v50; 
 
   subdiv = surf->subdiv;
   if ( !subdiv && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 228, ASSERT_TYPE_ASSERT, "(subdivInfo)", (const char *)&queryFormat, "subdivInfo") )
@@ -723,173 +709,123 @@ void R_AllocSurfaceSubdivLevels(XSurface *surf)
       if ( v7 )
       {
         v8 = *(p_regularPatchIndexBuffer - 8);
-        *((_QWORD *)&v47 + 1) = "regularPatchIndices";
-        *(_QWORD *)&v47 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rsp+1C0h+var_150]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_AllocStaticIndexBufferWithData(p_regularPatchIndexBuffer, 32 * v7, v8, &v43);
-        v10 = *p_regularPatchIndexBuffer;
-        *((_QWORD *)&v48 + 1) = "regularPatchIndexBufferView";
-        *(_QWORD *)&v48 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_140]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(v10, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 1, &v43);
-        v12 = *((_DWORD *)p_regularPatchIndexBuffer - 35);
-        *((_QWORD *)&v49 + 1) = "regularPatchFlags";
-        *(_QWORD *)&v49 = TrackingZoneName;
-        __asm { vmovups xmm0, [rbp+0C0h+var_130] }
+        v30.objectName = "regularPatchIndices";
+        v30.zoneName = TrackingZoneName;
+        v26 = v30;
+        R_AllocStaticIndexBufferWithData(p_regularPatchIndexBuffer, 32 * v7, v8, &v26);
+        v9 = *p_regularPatchIndexBuffer;
+        v31.objectName = "regularPatchIndexBufferView";
+        v31.zoneName = TrackingZoneName;
+        v26 = v31;
+        R_CreateComputeRawBufferView(v9, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 1, &v26);
+        v10 = *((_DWORD *)p_regularPatchIndexBuffer - 35);
+        v32.objectName = "regularPatchFlags";
+        v32.zoneName = TrackingZoneName;
         fmt = (char *)*(p_regularPatchIndexBuffer - 7);
-        __asm { vmovdqa [rsp+1C0h+var_180], xmm0 }
-        R_CreateComputeRawBuffer(4 * ((v12 + 3) & 0xFFFFFFFC), 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmt, &buffer, &v43);
-        *((_QWORD *)&v50 + 1) = "regularPatchFlagsView";
-        *(_QWORD *)&v50 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_120]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(buffer, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 2, &v43);
+        v26 = v32;
+        R_CreateComputeRawBuffer(4 * ((v10 + 3) & 0xFFFFFFFC), 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmt, &buffer, &v26);
+        v33.objectName = "regularPatchFlagsView";
+        v33.zoneName = TrackingZoneName;
+        v26 = v33;
+        R_CreateComputeRawBufferView(buffer, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 2, &v26);
         R_DestroyComputeBuffer(&buffer);
-        v15 = *(p_regularPatchIndexBuffer - 1);
-        if ( v15 )
+        v11 = *(p_regularPatchIndexBuffer - 1);
+        if ( v11 )
         {
-          v16 = *((_DWORD *)p_regularPatchIndexBuffer - 35);
-          *(_QWORD *)&v51 = TrackingZoneName;
-          *((_QWORD *)&v51 + 1) = "regularPatchCones";
-          __asm
-          {
-            vmovups xmm0, [rbp+0C0h+var_110]
-            vmovdqa [rsp+1C0h+var_180], xmm0
-          }
-          R_CreateComputeRawBuffer(32 * v16, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, v15, &v65, &v43);
-          *((_QWORD *)&v52 + 1) = "regularPatchConesView";
-          *(_QWORD *)&v52 = TrackingZoneName;
-          __asm
-          {
-            vmovups xmm0, [rbp+0C0h+var_100]
-            vmovdqa [rsp+1C0h+var_180], xmm0
-          }
-          R_CreateComputeRawBufferView(v65, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 8, &v43);
-          R_DestroyComputeBuffer(&v65);
+          v12 = *((_DWORD *)p_regularPatchIndexBuffer - 35);
+          v34.zoneName = TrackingZoneName;
+          v34.objectName = "regularPatchCones";
+          v26 = v34;
+          R_CreateComputeRawBuffer(32 * v12, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, v11, &v48, &v26);
+          v35.objectName = "regularPatchConesView";
+          v35.zoneName = TrackingZoneName;
+          v26 = v35;
+          R_CreateComputeRawBufferView(v48, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 8, &v26);
+          R_DestroyComputeBuffer(&v48);
         }
         else
         {
           R_AssignNullShaderBufferView((GfxShaderBufferView *)p_regularPatchIndexBuffer + 8);
         }
       }
-      v19 = *((_DWORD *)p_regularPatchIndexBuffer - 36);
-      if ( v19 )
+      v13 = *((_DWORD *)p_regularPatchIndexBuffer - 36);
+      if ( v13 )
       {
-        v20 = *(p_regularPatchIndexBuffer - 9);
-        *(_QWORD *)&v53 = TrackingZoneName;
-        *((_QWORD *)&v53 + 1) = "faceIndices";
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_F0]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_AllocStaticIndexBufferWithData(p_regularPatchIndexBuffer + 1, 12 * v19, v20, &v43);
+        v14 = *(p_regularPatchIndexBuffer - 9);
+        v36.zoneName = TrackingZoneName;
+        v36.objectName = "faceIndices";
+        v26 = v36;
+        R_AllocStaticIndexBufferWithData(p_regularPatchIndexBuffer + 1, 12 * v13, v14, &v26);
       }
-      v22 = *((_DWORD *)p_regularPatchIndexBuffer - 31);
-      if ( v22 )
+      v15 = *((_DWORD *)p_regularPatchIndexBuffer - 31);
+      if ( v15 )
       {
-        *(_QWORD *)&v54 = TrackingZoneName;
-        *((_QWORD *)&v54 + 1) = "facePoints";
-        __asm { vmovups xmm0, [rbp+0C0h+var_E0] }
+        v37.zoneName = TrackingZoneName;
+        v37.objectName = "facePoints";
         fmta = (char *)*(p_regularPatchIndexBuffer - 6);
-        __asm { vmovdqa [rsp+1C0h+var_180], xmm0 }
-        R_CreateComputeRawBuffer((v22 + 15) & 0xFFFFFFF0, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmta, &v66, &v43);
-        *((_QWORD *)&v55 + 1) = "facePointsView";
-        *(_QWORD *)&v55 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_D0]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(v66, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 3, &v43);
-        R_DestroyComputeBuffer(&v66);
+        v26 = v37;
+        R_CreateComputeRawBuffer((v15 + 15) & 0xFFFFFFF0, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmta, &v49, &v26);
+        v38.objectName = "facePointsView";
+        v38.zoneName = TrackingZoneName;
+        v26 = v38;
+        R_CreateComputeRawBufferView(v49, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 3, &v26);
+        R_DestroyComputeBuffer(&v49);
       }
-      v25 = *((_DWORD *)p_regularPatchIndexBuffer - 30);
-      if ( v25 )
+      v16 = *((_DWORD *)p_regularPatchIndexBuffer - 30);
+      if ( v16 )
       {
-        *(_QWORD *)&v56 = TrackingZoneName;
-        *((_QWORD *)&v56 + 1) = "edgePoints";
-        __asm { vmovups xmm0, [rbp+0C0h+var_C0] }
+        v39.zoneName = TrackingZoneName;
+        v39.objectName = "edgePoints";
         fmtb = (char *)*(p_regularPatchIndexBuffer - 5);
-        __asm { vmovdqa [rsp+1C0h+var_180], xmm0 }
-        R_CreateComputeRawBuffer(8 * ((v25 + 1) & 0xFFFFFFFE), 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmtb, &v67, &v43);
-        *((_QWORD *)&v57 + 1) = "edgePointsView";
-        *(_QWORD *)&v57 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_B0]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(v67, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 4, &v43);
-        R_DestroyComputeBuffer(&v67);
+        v26 = v39;
+        R_CreateComputeRawBuffer(8 * ((v16 + 1) & 0xFFFFFFFE), 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmtb, &v50, &v26);
+        v40.objectName = "edgePointsView";
+        v40.zoneName = TrackingZoneName;
+        v26 = v40;
+        R_CreateComputeRawBufferView(v50, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 4, &v26);
+        R_DestroyComputeBuffer(&v50);
       }
-      v28 = *((_DWORD *)p_regularPatchIndexBuffer - 25);
-      if ( v28 )
+      v17 = *((_DWORD *)p_regularPatchIndexBuffer - 25);
+      if ( v17 )
       {
-        *(_QWORD *)&v58 = TrackingZoneName;
-        *((_QWORD *)&v58 + 1) = "vertexPoints";
-        __asm { vmovups xmm0, [rbp+0C0h+var_A0] }
+        v41.zoneName = TrackingZoneName;
+        v41.objectName = "vertexPoints";
         fmtc = (char *)*(p_regularPatchIndexBuffer - 4);
-        __asm { vmovdqa [rsp+1C0h+var_180], xmm0 }
-        R_CreateComputeRawBuffer((v28 + 15) & 0xFFFFFFF0, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmtc, &v44, &v43);
-        *((_QWORD *)&v59 + 1) = "vertexPointsView";
-        *(_QWORD *)&v59 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_90]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(v44, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 5, &v43);
-        R_DestroyComputeBuffer(&v44);
+        v26 = v41;
+        R_CreateComputeRawBuffer((v17 + 15) & 0xFFFFFFF0, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmtc, &v27, &v26);
+        v42.objectName = "vertexPointsView";
+        v42.zoneName = TrackingZoneName;
+        v26 = v42;
+        R_CreateComputeRawBufferView(v27, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 5, &v26);
+        R_DestroyComputeBuffer(&v27);
       }
       if ( *((_DWORD *)p_regularPatchIndexBuffer - 24) )
       {
-        v31 = *((_DWORD *)p_regularPatchIndexBuffer - 23);
-        *((_QWORD *)&v60 + 1) = "normals";
-        *(_QWORD *)&v60 = TrackingZoneName;
-        __asm { vmovups xmm0, [rbp+0C0h+var_80] }
+        v18 = *((_DWORD *)p_regularPatchIndexBuffer - 23);
+        v43.objectName = "normals";
+        v43.zoneName = TrackingZoneName;
         fmtd = (char *)*(p_regularPatchIndexBuffer - 3);
-        __asm { vmovdqa [rsp+1C0h+var_180], xmm0 }
-        R_CreateComputeRawBuffer((v31 + 15) & 0xFFFFFFF0, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmtd, &v45, &v43);
-        *((_QWORD *)&v61 + 1) = "normalsView";
-        *(_QWORD *)&v61 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_70]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(v45, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 6, &v43);
-        R_DestroyComputeBuffer(&v45);
+        v26 = v43;
+        R_CreateComputeRawBuffer((v18 + 15) & 0xFFFFFFF0, 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmtd, &v28, &v26);
+        v44.objectName = "normalsView";
+        v44.zoneName = TrackingZoneName;
+        v26 = v44;
+        R_CreateComputeRawBufferView(v28, (GfxShaderBufferView *)p_regularPatchIndexBuffer + 6, &v26);
+        R_DestroyComputeBuffer(&v28);
       }
-      v34 = *((_DWORD *)p_regularPatchIndexBuffer - 22);
-      if ( v34 )
+      v19 = *((_DWORD *)p_regularPatchIndexBuffer - 22);
+      if ( v19 )
       {
-        *(_QWORD *)&v62 = TrackingZoneName;
-        *((_QWORD *)&v62 + 1) = "transitionPoints";
-        __asm { vmovups xmm0, [rbp+0C0h+var_60] }
+        v45.zoneName = TrackingZoneName;
+        v45.objectName = "transitionPoints";
         fmte = (char *)*(p_regularPatchIndexBuffer - 2);
-        __asm { vmovdqa [rsp+1C0h+var_180], xmm0 }
-        R_CreateComputeRawBuffer(4 * ((v34 + 3) & 0xFFFFFFFC), 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmte, v46, &v43);
-        *((_QWORD *)&v63 + 1) = "transitionPointsView";
-        *(_QWORD *)&v63 = TrackingZoneName;
-        __asm
-        {
-          vmovups xmm0, [rbp+0C0h+var_50]
-          vmovdqa [rsp+1C0h+var_180], xmm0
-        }
-        R_CreateComputeRawBufferView(v46[0], (GfxShaderBufferView *)p_regularPatchIndexBuffer + 7, &v43);
-        R_DestroyComputeBuffer(v46);
+        v26 = v45;
+        R_CreateComputeRawBuffer(4 * ((v19 + 3) & 0xFFFFFFFC), 2u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, fmte, v29, &v26);
+        v46.objectName = "transitionPointsView";
+        v46.zoneName = TrackingZoneName;
+        v26 = v46;
+        R_CreateComputeRawBufferView(v29[0], (GfxShaderBufferView *)p_regularPatchIndexBuffer + 7, &v26);
+        R_DestroyComputeBuffer(v29);
       }
       ++v4;
       p_regularPatchIndexBuffer += 37;
@@ -1274,353 +1210,304 @@ R_ExecuteSubdivTessFactorsComputeCmds
 */
 void R_ExecuteSubdivTessFactorsComputeCmds(ComputeCmdBufState *cmdBufState, const ComputeCmdList *list, ComputeCmdType type, const ComputeCmdHeader *header, int levelIndex)
 {
+  __m128 v5; 
   const GfxBackEndData *data; 
-  const ComputeCmdHeader *v13; 
-  unsigned int v14; 
-  const ComputeCmdList *v16; 
-  __int64 v20; 
-  __int64 v30; 
-  const float4 *v32; 
-  vector3 *v33; 
-  const XSurface *v34; 
+  const ComputeCmdHeader *v7; 
+  unsigned int v8; 
+  const ComputeCmdList *v10; 
+  const GfxViewParms *v11; 
+  GfxViewParms *DepthHackViewParms; 
+  char *v13; 
+  __int64 v14; 
+  __m256i v15; 
+  __m128 v16; 
+  __int64 v17; 
+  const float4 *v19; 
+  vector3 *v20; 
+  const XSurface *v21; 
   GfxShaderBufferView *subdiv; 
-  int v36; 
+  int v23; 
   ID3D12Resource *resource; 
-  int v53; 
+  __m128 v25; 
+  float v27; 
+  __m128 v29; 
+  int v32; 
+  __m128 v33; 
+  float v34; 
+  __m128 v36; 
   unsigned int SubdivVertex1Stride; 
-  unsigned int v70; 
-  unsigned int v71; 
-  int v80; 
+  unsigned int v40; 
+  unsigned int v41; 
+  __m256i *p_viewProjectionMatrix; 
+  int v43; 
+  int v44; 
+  __m128 v45; 
+  __m128 v46; 
   unsigned int vertCount; 
-  __int64 v84; 
+  __int64 v48; 
   XSurfaceSubdivLevel *levels; 
-  __int64 v86; 
-  __int64 v87; 
-  int v88; 
+  __int64 v50; 
+  __int64 v51; 
+  int v52; 
   ComputeCmdHeader *ComputeCmdOfSameType; 
-  __int64 v96; 
-  __int64 v97; 
+  __int64 v54; 
+  __int64 v55; 
   GfxShaderBufferView *views; 
-  unsigned int v99; 
-  int v100; 
+  unsigned int v57; 
+  int v58; 
   float outScale; 
-  int v102; 
-  const GfxBackEndData *v103; 
+  int v60; 
+  const GfxBackEndData *v61; 
   ComputeShader *computeShader; 
   ComputeCmdHeader *headera; 
-  GfxViewInfo *v106; 
+  GfxViewInfo *v64; 
   ComputeCmdList *lista; 
+  __m256i v66; 
+  __m256i v67; 
+  __m128 v68; 
+  __m128 v69; 
+  __m128 v70; 
+  __m128 v71; 
   GfxViewParms result; 
-  __int128 v113; 
-  __int128 v114; 
+  __m128 v73; 
+  __m128 v74; 
   vec4_t outBoundingBoxData; 
-  int v116; 
-  unsigned int v117; 
-  int v118; 
-  int v119; 
-  int v120; 
+  int v76; 
+  unsigned int v77; 
+  int v78; 
+  int v79; 
+  int v80; 
+  float v81; 
+  float v82; 
+  int v83; 
   tmat44_t<vec4_t> out; 
+  __m256i v85; 
+  __m256i v86; 
+  float v87; 
+  float v88; 
+  float v89; 
   GfxPlacement outPlacement; 
   tmat33_t<vec3_t> axis; 
-  char v132; 
-  char v133; 
-  GfxShaderBufferView *v134[3]; 
-  char v136; 
-  void *retaddr; 
+  char v92; 
+  char v93; 
+  GfxShaderBufferView *v94[3]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
   data = cmdBufState->data;
-  v13 = header;
-  v14 = levelIndex;
+  v7 = header;
+  v8 = levelIndex;
   headera = (ComputeCmdHeader *)header;
-  v16 = list;
+  v10 = list;
   lista = (ComputeCmdList *)list;
-  v100 = levelIndex;
-  v103 = data;
+  v58 = levelIndex;
+  v61 = data;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1795, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
-  v106 = &data->viewInfo[data->viewInfoIndex];
-  _RSI = (const GfxViewParms *)v106;
-  _RAX = R_GetDepthHackViewParms(&result, (const GfxViewParms *)v106);
-  _RCX = &v132;
-  v20 = 3i64;
+  v64 = &data->viewInfo[data->viewInfoIndex];
+  v11 = (const GfxViewParms *)v64;
+  DepthHackViewParms = R_GetDepthHackViewParms(&result, (const GfxViewParms *)v64);
+  v13 = &v92;
+  v14 = 3i64;
   do
   {
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (GfxViewParms *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v20;
+    v13 += 128;
+    v15 = *(__m256i *)DepthHackViewParms->viewMatrix.m.m[0].v;
+    v16 = (__m128)DepthHackViewParms->projectionMatrix.m.m[3];
+    DepthHackViewParms = (GfxViewParms *)((char *)DepthHackViewParms + 128);
+    *((__m256i *)v13 - 4) = v15;
+    *((__m256i *)v13 - 3) = *(__m256i *)&DepthHackViewParms[-1].camera.axis.row1.z;
+    *((__m256i *)v13 - 2) = *(__m256i *)DepthHackViewParms[-1].camera.zPlanes;
+    *((_OWORD *)v13 - 2) = *(_OWORD *)&DepthHackViewParms[-1].camera.visibilityQueryDistance;
+    *((__m128 *)v13 - 1) = v16;
+    --v14;
   }
-  while ( v20 );
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3a83126f
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm10, cs:__real@41700000
-    vmovss  xmm7, cs:__real@7f7fffff
-  }
-  v30 = 296i64 * levelIndex;
-  __asm { vmovaps [rsp+648h+var_48], xmm6 }
+  while ( v14 );
+  v17 = 296i64 * levelIndex;
   do
   {
-    _RBX = (int *)R_GetComputeCmdData(v16, v13);
+    _RBX = (char *)R_GetComputeCmdData(v10, v7);
     if ( !R_ComputeCheckReserveDescriptorHeaps(cmdBufState) )
       Sys_Error((const ObfuscateErrorText)&stru_1443CC330);
-    v34 = (const XSurface *)*((_QWORD *)_RBX + 1);
-    if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1814, ASSERT_TYPE_ASSERT, "(surf)", (const char *)&queryFormat, "surf") )
+    v21 = (const XSurface *)*((_QWORD *)_RBX + 1);
+    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1814, ASSERT_TYPE_ASSERT, "(surf)", (const char *)&queryFormat, "surf") )
       __debugbreak();
-    if ( !v34->subdivLevelCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1815, ASSERT_TYPE_ASSERT, "(surf->subdivLevelCount)", (const char *)&queryFormat, "surf->subdivLevelCount") )
+    if ( !v21->subdivLevelCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1815, ASSERT_TYPE_ASSERT, "(surf->subdivLevelCount)", (const char *)&queryFormat, "surf->subdivLevelCount") )
       __debugbreak();
-    subdiv = (GfxShaderBufferView *)v34->subdiv;
-    v102 = _RBX[4];
+    subdiv = (GfxShaderBufferView *)v21->subdiv;
+    v60 = *((_DWORD *)_RBX + 4);
     if ( !subdiv && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1820, ASSERT_TYPE_ASSERT, "(subdivInfo)", (const char *)&queryFormat, "subdivInfo") )
       __debugbreak();
-    if ( v14 >= v34->subdivLevelCount )
+    if ( v8 >= v21->subdivLevelCount )
     {
-      LODWORD(v97) = v34->subdivLevelCount;
-      LODWORD(v96) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1822, ASSERT_TYPE_ASSERT, "(unsigned)( levelIndex ) < (unsigned)( surf->subdivLevelCount )", "levelIndex doesn't index surf->subdivLevelCount\n\t%i not in [0, %i)", v96, v97) )
+      LODWORD(v55) = v21->subdivLevelCount;
+      LODWORD(v54) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1822, ASSERT_TYPE_ASSERT, "(unsigned)( levelIndex ) < (unsigned)( surf->subdivLevelCount )", "levelIndex doesn't index surf->subdivLevelCount\n\t%i not in [0, %i)", v54, v55) )
         __debugbreak();
     }
-    v36 = *_RBX;
+    v23 = *(_DWORD *)_RBX;
     resource = subdiv->resource;
-    if ( *_RBX )
+    if ( *(_DWORD *)_RBX )
     {
-      if ( v36 == 1 )
+      if ( v23 == 1 )
       {
-        __asm { vmovups xmm0, xmmword ptr [rbx+18h] }
+        v33 = *(__m128 *)(_RBX + 24);
         computeShader = rgp.subdivTessFactorSkinnedComputeShader;
-        Float4UnitQuatToAxis(v33, v32);
+        Float4UnitQuatToAxis(v20, v19);
+        v71 = v16;
+        v70 = v33;
+        out.m[0] = (vec4_t)_mm128_mul_ps(g_one.v, v33);
+        out.m[2] = (vec4_t)_mm128_mul_ps(g_one.v, v5);
+        out.m[1] = (vec4_t)_mm128_mul_ps(g_one.v, v16);
+        v34 = *((float *)_RBX + 10);
+        v74.m128_i32[3] = 0;
+        v36 = v74;
+        v36.m128_f32[0] = v34;
+        _XMM3 = v36;
         __asm
         {
-          vmovups xmm3, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-          vmovups xmmword ptr [rsp+648h+var_558+10h], xmm1
-          vmovups xmmword ptr [rsp+648h+var_558], xmm0
-          vmovups ymm1, [rsp+648h+var_558]
-          vmovups ymmword ptr [rsp+648h+out], ymm1
-          vmulps  xmm1, xmm3, xmmword ptr [rsp+648h+out+10h]
-          vmulps  xmm0, xmm3, xmm0
-          vmovups xmmword ptr [rsp+648h+out], xmm0
-          vmulps  xmm0, xmm3, xmm2
-          vmovups xmmword ptr [rsp+648h+out+20h], xmm0
-          vmovups xmmword ptr [rsp+648h+out+10h], xmm1
-          vmovss  xmm1, dword ptr [rbx+28h]
-        }
-        HIDWORD(v114) = 0;
-        __asm
-        {
-          vmovups xmm3, xmmword ptr [rsp+2B0h]
-          vmovss  xmm3, xmm3, xmm1
           vinsertps xmm3, xmm3, dword ptr [rbx+2Ch], 10h
           vinsertps xmm3, xmm3, dword ptr [rbx+30h], 20h ; ' '
-          vaddps  xmm0, xmm3, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-          vmovups xmmword ptr [rsp+648h+out+30h], xmm0
-          vmovss  xmm1, dword ptr [rsi+100h]
-          vmovss  [rsp+648h+var_298], xmm1
-          vmovss  xmm0, dword ptr [rsi+104h]
-          vmovss  [rsp+648h+var_294], xmm0
-          vmovss  xmm1, dword ptr [rsi+108h]
-          vmovss  [rsp+648h+var_290], xmm1
-          vmovups xmmword ptr [rsp+2B0h], xmm3
         }
-        SubdivVertex1Stride = R_GetSubdivVertex1Stride(v34);
-        v53 = _RBX[13];
-        v70 = SubdivVertex1Stride;
-        views = (GfxShaderBufferView *)&v103->subdivCacheVb->wrappedBuffer.rwView;
+        out.m[3] = (vec4_t)_mm128_add_ps(_XMM3, g_unit.v);
+        v87 = v11->camera.origin.v[0];
+        v88 = v11->camera.origin.v[1];
+        v16 = (__m128)LODWORD(v11->camera.origin.v[2]);
+        v89 = v11->camera.origin.v[2];
+        v74 = _XMM3;
+        SubdivVertex1Stride = R_GetSubdivVertex1Stride(v21);
+        v32 = *((_DWORD *)_RBX + 13);
+        v40 = SubdivVertex1Stride;
+        views = (GfxShaderBufferView *)&v61->subdivCacheVb->wrappedBuffer.rwView;
         R_SetComputeRWViewsWithCounters(cmdBufState, 0, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
         goto LABEL_30;
       }
-      if ( v36 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1865, ASSERT_TYPE_ASSERT, "(cmd->type == SUBDIV_TESS_FACTORS_SMODEL)", (const char *)&queryFormat, "cmd->type == SUBDIV_TESS_FACTORS_SMODEL") )
+      if ( v23 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1865, ASSERT_TYPE_ASSERT, "(cmd->type == SUBDIV_TESS_FACTORS_SMODEL)", (const char *)&queryFormat, "cmd->type == SUBDIV_TESS_FACTORS_SMODEL") )
         __debugbreak();
-      v71 = _RBX[6];
+      v41 = *((_DWORD *)_RBX + 6);
       computeShader = rgp.subdivTessFactorComputeShader;
-      R_StaticModelInstance_GetPlacement(v71, &outPlacement, &outScale);
+      R_StaticModelInstance_GetPlacement(v41, &outPlacement, &outScale);
       QuatToAxis(&outPlacement.quat, &axis);
-      __asm { vmovss  xmm3, [rsp+648h+outScale]; scale }
-      MatrixSet44(&out, &outPlacement.origin, &axis, *(float *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+100h]
-        vmovss  [rsp+648h+var_298], xmm0
-        vmovss  xmm1, dword ptr [rsi+104h]
-        vmovss  [rsp+648h+var_294], xmm1
-        vmovss  xmm0, dword ptr [rsi+108h]
-        vmovss  [rsp+648h+var_290], xmm0
-      }
-      v53 = 0;
-      v99 = R_GetSubdivVertex1Stride(v34);
+      MatrixSet44(&out, &outPlacement.origin, &axis, outScale);
+      v87 = v11->camera.origin.v[0];
+      v16 = (__m128)LODWORD(v11->camera.origin.v[1]);
+      v88 = v11->camera.origin.v[1];
+      v89 = v11->camera.origin.v[2];
+      v32 = 0;
+      v57 = R_GetSubdivVertex1Stride(v21);
       views = subdiv + 3;
       R_SetComputeViews(cmdBufState, 15, 1, (const GfxShaderBufferView *const *)&views);
-      views = (GfxShaderBufferView *)&v103->subdivCacheVb->wrappedBuffer.rwView;
+      views = (GfxShaderBufferView *)&v61->subdivCacheVb->wrappedBuffer.rwView;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+18h]
-        vbroadcastss xmm6, dword ptr [rbx+38h]
-      }
+      v25 = *(__m128 *)(_RBX + 24);
+      __asm { vbroadcastss xmm6, dword ptr [rbx+38h] }
       computeShader = rgp.subdivTessFactorComputeShader;
-      Float4UnitQuatToAxis(v33, v32);
+      Float4UnitQuatToAxis(v20, v19);
+      v68 = v25;
+      v69 = v16;
+      out.m[1] = (vec4_t)_mm128_mul_ps(_XMM6, v16);
+      out.m[0] = (vec4_t)_mm128_mul_ps(v25, _XMM6);
+      out.m[2] = (vec4_t)_mm128_mul_ps(v5, _XMM6);
+      v27 = *((float *)_RBX + 10);
+      v73.m128_i32[3] = 0;
+      v29 = v73;
+      v29.m128_f32[0] = v27;
+      _XMM3 = v29;
       __asm
       {
-        vmovups xmmword ptr [rsp+648h+var_588], xmm0
-        vmovups xmmword ptr [rsp+648h+var_588+10h], xmm1
-        vmovups ymm1, [rsp+648h+var_588]
-        vmovups ymmword ptr [rsp+648h+out], ymm1
-        vmulps  xmm3, xmm6, xmmword ptr [rsp+648h+out+10h]
-        vmovups xmmword ptr [rsp+648h+out+10h], xmm3
-        vmulps  xmm0, xmm0, xmm6
-        vmovups xmmword ptr [rsp+648h+out], xmm0
-        vmulps  xmm0, xmm2, xmm6
-        vmovups xmmword ptr [rsp+648h+out+20h], xmm0
-        vmovss  xmm1, dword ptr [rbx+28h]
-      }
-      HIDWORD(v113) = 0;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rsp+2A0h]
-        vmovss  xmm3, xmm3, xmm1
         vinsertps xmm3, xmm3, dword ptr [rbx+2Ch], 10h
         vinsertps xmm3, xmm3, dword ptr [rbx+30h], 20h ; ' '
-        vaddps  xmm0, xmm3, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-        vmovups xmmword ptr [rsp+648h+out+30h], xmm0
-        vmovss  xmm1, dword ptr [rsi+100h]
-        vmovss  [rsp+648h+var_298], xmm1
-        vmovss  xmm0, dword ptr [rsi+104h]
-        vmovss  [rsp+648h+var_294], xmm0
-        vmovss  xmm1, dword ptr [rsi+108h]
-        vmovss  [rsp+648h+var_290], xmm1
-        vmovups xmmword ptr [rsp+2A0h], xmm3
       }
-      v53 = 0;
-      v99 = R_GetSubdivVertex1Stride(v34);
+      out.m[3] = (vec4_t)_mm128_add_ps(_XMM3, g_unit.v);
+      v87 = v11->camera.origin.v[0];
+      v88 = v11->camera.origin.v[1];
+      v16 = (__m128)LODWORD(v11->camera.origin.v[2]);
+      v89 = v11->camera.origin.v[2];
+      v73 = _XMM3;
+      v32 = 0;
+      v57 = R_GetSubdivVertex1Stride(v21);
       views = subdiv + 3;
       R_SetComputeViews(cmdBufState, 15, 1, (const GfxShaderBufferView *const *)&views);
-      views = (GfxShaderBufferView *)&v103->subdivCacheVb->wrappedBuffer.rwView;
+      views = (GfxShaderBufferView *)&v61->subdivCacheVb->wrappedBuffer.rwView;
     }
     R_SetComputeRWViewsWithCounters(cmdBufState, 1, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-    v70 = v99;
+    v40 = v57;
 LABEL_30:
-    if ( *((_BYTE *)_RBX + 20) == 1 )
-      _RAX = (GfxMatrix *)&v133;
+    if ( _RBX[20] == 1 )
+      p_viewProjectionMatrix = (__m256i *)&v93;
     else
-      _RAX = &v106->viewParmsSet.frames[0].viewParms.viewProjectionMatrix;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rsp+648h+var_5C8], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups [rsp+648h+var_5A8], ymm0
-      vmovups ymm0, [rsp+648h+var_5C8]
-      vmovups ymm1, [rsp+648h+var_5A8]
-      vmovups [rsp+648h+var_2D8], ymm0
-      vmovups [rsp+648h+var_2B8], ymm1
-    }
+      p_viewProjectionMatrix = (__m256i *)&v64->viewParms.viewProjectionMatrix;
+    v66 = *p_viewProjectionMatrix;
+    v67 = p_viewProjectionMatrix[1];
+    v85 = v66;
+    v86 = v67;
+    v43 = *((_DWORD *)_RBX + 1) - v58 + 1;
     if ( rg.adaptiveSubdiv == 2 )
-      v80 = rg.adaptiveSubdiv - 1;
+      v44 = rg.adaptiveSubdiv - 1;
     else
-      v80 = rg.adaptiveSubdiv == 1 && (v34->subdiv->flags & 1) == 0;
-    __asm
+      v44 = rg.adaptiveSubdiv == 1 && (v21->subdiv->flags & 1) == 0;
+    v45 = 0i64;
+    v45.m128_f32[0] = (float)(1 << v43);
+    v5 = v45;
+    v83 = v45.m128_i32[0];
+    if ( v44 )
     {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, eax
-      vmovss  [rsp+648h+var_31C], xmm2
+      v46 = (__m128)LODWORD(FLOAT_1_0);
+      v46.m128_f32[0] = 1.0 / (float)(0.001 * rg.adaptiveSubdivPatchFactor);
+      v16 = v46;
+      v81 = v46.m128_f32[0];
+      v82 = FLOAT_15_0;
     }
+    else
+    {
+      v81 = FLOAT_3_4028235e38;
+      v82 = (float)(1 << v43);
+    }
+    v78 = v60 + 4 * *(_DWORD *)((char *)&resource[1].m_pFunction + v17);
+    if ( v58 )
+    {
+      v48 = v58;
+      levels = v21->subdiv->levels;
+      vertCount = levels[v48 - 1].vertCount;
+      v32 += (v40 + 12) * levels[v48 - 1].vertOffset;
+    }
+    else
+    {
+      vertCount = v21->vertCount;
+    }
+    v76 = v32;
+    v77 = v32 + 12 * vertCount;
+    if ( *(_DWORD *)_RBX || (v50 = *((int *)_RBX + 13), (_DWORD)v50 == -1) )
+    {
+      v79 = 0;
+      v52 = *(unsigned int *)((char *)&resource->m_RefCount + v17);
+    }
+    else
+    {
+      v51 = *(__int64 *)((char *)&resource->m_pFunction + v17) + 16 * v50;
+      v79 = *(_DWORD *)(v51 + 8);
+      v52 = *(_DWORD *)(v51 + 12);
+    }
+    v80 = v52;
+    R_SetBoundingBoxData(&v21->surfBounds, &outBoundingBoxData);
     if ( v80 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm8, cs:?rg@@3Ur_globals_t@@A.adaptiveSubdivPatchFactor; r_globals_t rg
-        vdivss  xmm1, xmm9, xmm1
-        vmovss  [rsp+648h+var_324], xmm1
-        vmovss  [rsp+648h+var_320], xmm10
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  [rsp+648h+var_324], xmm7
-        vmovss  [rsp+648h+var_320], xmm2
-      }
-    }
-    v118 = v102 + 4 * *(_DWORD *)((char *)&resource[1].m_pFunction + v30);
-    if ( v100 )
-    {
-      v84 = v100;
-      levels = v34->subdiv->levels;
-      vertCount = levels[v84 - 1].vertCount;
-      v53 += (v70 + 12) * levels[v84 - 1].vertOffset;
-    }
-    else
-    {
-      vertCount = v34->vertCount;
-    }
-    v116 = v53;
-    v117 = v53 + 12 * vertCount;
-    if ( *_RBX || (v86 = _RBX[13], (_DWORD)v86 == -1) )
-    {
-      v119 = 0;
-      v88 = *(unsigned int *)((char *)&resource->m_RefCount + v30);
-    }
-    else
-    {
-      v87 = *(__int64 *)((char *)&resource->m_pFunction + v30) + 16 * v86;
-      v119 = *(_DWORD *)(v87 + 8);
-      v88 = *(_DWORD *)(v87 + 12);
-    }
-    v120 = v88;
-    R_SetBoundingBoxData(&v34->surfBounds, &outBoundingBoxData);
-    if ( v120 )
     {
       R_SetComputeShader(cmdBufState, computeShader);
       R_UploadAndSetComputeConstants(cmdBufState, 0, &outBoundingBoxData, 0x110u, NULL);
-      v134[0] = (GfxShaderBufferView *)((char *)&resource[10].IGraphicsUnknown + v30 + 8);
-      v134[1] = (GfxShaderBufferView *)((char *)&resource[11].IGraphicsUnknown + v30 + 8);
-      v134[2] = (GfxShaderBufferView *)((char *)&resource[17].IGraphicsUnknown + v30 + 8);
-      R_SetComputeViews(cmdBufState, 5, 3, (const GfxShaderBufferView *const *)v134);
-      R_Dispatch(cmdBufState, (unsigned int)(v120 + 63) >> 6, 1u, 1u);
+      v94[0] = (GfxShaderBufferView *)((char *)&resource[10].IGraphicsUnknown + v17 + 8);
+      v94[1] = (GfxShaderBufferView *)((char *)&resource[11].IGraphicsUnknown + v17 + 8);
+      v94[2] = (GfxShaderBufferView *)((char *)&resource[17].IGraphicsUnknown + v17 + 8);
+      R_SetComputeViews(cmdBufState, 5, 3, (const GfxShaderBufferView *const *)v94);
+      R_Dispatch(cmdBufState, (unsigned int)(v80 + 63) >> 6, 1u, 1u);
     }
-    v16 = lista;
+    v10 = lista;
     ComputeCmdOfSameType = (ComputeCmdHeader *)R_NextComputeCmdOfSameType(lista, headera);
-    _RSI = (const GfxViewParms *)v106;
-    v13 = ComputeCmdOfSameType;
-    v14 = v100;
+    v11 = (const GfxViewParms *)v64;
+    v7 = ComputeCmdOfSameType;
+    v8 = v58;
     headera = ComputeCmdOfSameType;
   }
   while ( ComputeCmdOfSameType );
-  __asm { vmovaps xmm6, [rsp+648h+var_48] }
-  _R11 = &v136;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -1796,41 +1683,23 @@ R_GetModelSubdivLodLevel
 */
 unsigned __int8 R_GetModelSubdivLodLevel(const XModel *model, int lodIndex, const vec3_t *origin, const tmat33_t<vec3_t> *axis, float scale)
 {
-  const XModel *v7; 
-  unsigned __int8 result; 
+  double v8; 
   Bounds baseBounds; 
   Bounds rotatedBounds; 
 
-  v7 = model;
   if ( !rg.adaptiveSubdiv )
     return truncate_cast<unsigned char,int>(rg.subdivLimit);
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [rcx+3Ch]
-    vmovups xmm0, xmmword ptr [rcx+2Ch]
-    vmovups xmmword ptr [rsp+78h+baseBounds.midPoint], xmm0
-    vmovsd  qword ptr [rsp+78h+baseBounds.halfSize+4], xmm1
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovss  xmm6, [rsp+78h+scale]
-    vmulss  xmm2, xmm6, dword ptr [rsp+78h+baseBounds.halfSize+8]
-    vmulss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsp+78h+baseBounds.halfSize], xmm0
-    vmulss  xmm0, xmm1, xmm6
-    vmulss  xmm1, xmm6, dword ptr [rsp+78h+baseBounds.midPoint]
-    vmovss  dword ptr [rsp+78h+baseBounds.halfSize+4], xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+78h+baseBounds.midPoint+4]
-    vmovss  dword ptr [rsp+78h+baseBounds.halfSize+8], xmm2
-    vmulss  xmm2, xmm6, dword ptr [rsp+78h+baseBounds.midPoint+8]
-    vmovss  dword ptr [rsp+78h+baseBounds.midPoint+4], xmm0
-    vmovss  dword ptr [rsp+78h+baseBounds.midPoint], xmm1
-    vmovss  dword ptr [rsp+78h+baseBounds.midPoint+8], xmm2
-  }
+  v8 = *(double *)&model->bounds.halfSize.y;
+  *(_OWORD *)baseBounds.midPoint.v = *(_OWORD *)model->bounds.midPoint.v;
+  *(double *)&baseBounds.halfSize.y = v8;
+  baseBounds.halfSize.v[0] = _mm_shuffle_ps(*(__m128 *)baseBounds.midPoint.v, *(__m128 *)baseBounds.midPoint.v, 255).m128_f32[0] * scale;
+  baseBounds.halfSize.v[1] = *(float *)&v8 * scale;
+  baseBounds.halfSize.v[2] = scale * baseBounds.halfSize.v[2];
+  baseBounds.midPoint.v[1] = scale * baseBounds.midPoint.v[1];
+  baseBounds.midPoint.v[0] = scale * baseBounds.midPoint.v[0];
+  baseBounds.midPoint.v[2] = scale * baseBounds.midPoint.v[2];
   Bounds_Transform(&baseBounds, origin, axis, &rotatedBounds);
-  __asm { vmovaps xmm3, xmm6; scale }
-  result = R_GetModelSubdivLodLevelWithBounds(v7, lodIndex, &rotatedBounds, *(float *)&_XMM3);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  return result;
+  return R_GetModelSubdivLodLevelWithBounds(model, lodIndex, &rotatedBounds, scale);
 }
 
 /*
@@ -1841,86 +1710,91 @@ R_GetModelSubdivLodLevelWithBounds
 
 unsigned __int8 __fastcall R_GetModelSubdivLodLevelWithBounds(const XModel *model, int lodIndex, const Bounds *transformedBounds, double scale)
 {
+  __int128 v7; 
+  __int128 v9; 
+  __m128 v13; 
+  __m128 v17; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v30; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v35; 
   int subdivLimit; 
   const XModelLodInfo *LodInfo; 
-  unsigned __int8 result; 
-  __int128 v52; 
-  __int128 v53; 
-  __int128 v54; 
+  __int128 v42; 
+  __m128 v43; 
+  __m128 v44; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RBX = transformedBounds;
-  __asm { vmovaps xmm6, xmm3 }
+  v7 = *(_OWORD *)&scale;
   if ( !transformedBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 968, ASSERT_TYPE_ASSERT, "(transformedBounds)", (const char *)&queryFormat, "transformedBounds") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg }
-  HIDWORD(v52) = 0;
+  HIDWORD(v42) = 0;
+  v9 = v42;
+  *(float *)&v9 = rg.correctedLodParms.origin.v[0];
+  _XMM5 = v9;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp+30h]
-    vmovss  xmm5, xmm5, xmm0
     vinsertps xmm5, xmm5, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4, 10h; r_globals_t rg
     vinsertps xmm5, xmm5, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8, 20h ; ' '; r_globals_t rg
-    vmovss  xmm0, dword ptr [rbx]
-    vmovups xmmword ptr [rsp+30h], xmm5
   }
-  HIDWORD(v53) = 0;
+  v43 = _XMM5;
+  v43.m128_i32[3] = 0;
+  v13 = v43;
+  v13.m128_f32[0] = transformedBounds->midPoint.v[0];
+  _XMM4 = v13;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+30h]
-    vmovss  xmm4, xmm4, xmm0
     vinsertps xmm4, xmm4, dword ptr [rbx+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rbx+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovups xmmword ptr [rsp+30h], xmm4
-    vsubps  xmm1, xmm5, xmm4
   }
-  HIDWORD(v54) = 0;
+  v44 = _XMM4;
+  _mm128_sub_ps(_XMM5, _XMM4);
+  v44.m128_i32[3] = 0;
+  v17 = v44;
+  v17.m128_f32[0] = transformedBounds->halfSize.v[0];
+  _XMM3 = v17;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+30h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rbx+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [rbx+14h], 20h ; ' '
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vandnps xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm3, xmm2, xmm3
-    vmaxps  xmm1, xmm3, xmm0
-    vmulss  xmm3, xmm6, dword ptr [rdi+44h]
-    vmulps  xmm2, xmm1, xmm1
-    vhaddps xmm0, xmm2, xmm2
-    vhaddps xmm1, xmm0, xmm0
-    vsqrtss xmm0, xmm1, xmm1
-    vmaxss  xmm1, xmm0, cs:__real@3f800000
-    vmulss  xmm2, xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  xmm0, cs:__real@4479ffff
-    vdivss  xmm0, xmm0, dword ptr [rax+28h]
-    vdivss  xmm4, xmm3, xmm2
-    vmulss  xmm0, xmm4, xmm0; X
   }
-  *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-  __asm { vmulss  xmm2, xmm0, cs:__real@40549a78 }
-  subdivLimit = rg.subdivLimit;
+  _XMM0 = g_negativeZero.v;
+  __asm { vandnps xmm2, xmm0, xmm1 }
+  _XMM3 = _mm128_sub_ps(_XMM2, _XMM3);
+  __asm { vmaxps  xmm1, xmm3, xmm0 }
+  v25 = v7;
+  *(float *)&v25 = *(float *)&v7 * model->edgeLength;
+  v24 = v25;
+  _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
   __asm
   {
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm2, xmm2, xmm1
-    vaddss  xmm0, xmm2, cs:__real@3f000000
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm0, 1
-    vcvttss2si eax, xmm3
+    vhaddps xmm0, xmm2, xmm2
+    vhaddps xmm1, xmm0, xmm0
   }
-  if ( _EAX < rg.subdivLimit )
-    subdivLimit = _EAX;
+  v30 = _XMM1;
+  *(float *)&v30 = fsqrt(*(float *)&_XMM1);
+  _XMM0 = v30;
+  __asm { vmaxss  xmm1, xmm0, cs:__real@3f800000 }
+  v32 = v24;
+  *(float *)&v32 = (float)(*(float *)&v24 / (float)(*(float *)&_XMM1 * rg.correctedLodParms.invFovScale)) * (float)(999.99994 / r_adaptiveSubdivBaseFactor->current.value);
+  v33 = v32;
+  *(float *)&v33 = log10f_0(*(float *)&v32);
+  v35 = v33;
+  *(float *)&v35 = *(float *)&v33 * 3.321928;
+  _XMM2 = v35;
+  subdivLimit = rg.subdivLimit;
+  __asm { vmaxss  xmm2, xmm2, xmm1 }
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm0, 1 }
+  if ( (int)*(float *)&_XMM3 < rg.subdivLimit )
+    subdivLimit = (int)*(float *)&_XMM3;
   LodInfo = XModelGetLodInfo(model, lodIndex);
   if ( !LodInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 984, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
     __debugbreak();
   if ( !subdivLimit )
     subdivLimit = (LodInfo->flags & 2) != 0;
-  result = truncate_cast<unsigned char,int>(subdivLimit);
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  return result;
+  return truncate_cast<unsigned char,int>(subdivLimit);
 }
 
 /*
@@ -2186,54 +2060,42 @@ R_SetSubdivPatchParms
 */
 void R_SetSubdivPatchParms(GfxCmdBufContext *context, const XSurface *surf, int levelIndex, int subdivLevel, int tessFactorsCachePos, int tessFactorsCacheStride)
 {
+  char v7; 
+  float v8; 
   GfxCmdBufSourceState *source; 
   GfxCmdBufState *state; 
+  GfxConstantBufferDesc *v11; 
+  GfxConstantBufferDesc v12; 
+  __m256i *bufferData; 
   unsigned int bufferSize; 
   GfxConstantBufferDesc cbuff; 
   GfxConstantBufferDesc result; 
-  __m256i v25; 
+  __m256i v17; 
 
+  v7 = subdivLevel - levelIndex + 1;
   if ( rg.adaptiveSubdiv == 2 || rg.adaptiveSubdiv == 1 && (surf->subdiv->flags & 1) == 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.adaptiveSubdivPatchFactor; r_globals_t rg
-      vmulss  xmm2, xmm0, cs:__real@3a83126f
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  xmm0, cs:__real@41700000
-      vdivss  xmm2, xmm1, xmm2
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmovss  dword ptr [rsp+68h+var_28], xmm2
-      vmovss  dword ptr [rsp+68h+var_28+4], xmm0
-    }
+    v8 = (float)(1 << v7);
+    *(float *)v17.m256i_i32 = 1.0 / (float)(rg.adaptiveSubdivPatchFactor * 0.001);
+    *(float *)&v17.m256i_i32[1] = FLOAT_15_0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@7f7fffff
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmovss  dword ptr [rsp+68h+var_28+4], xmm1
-      vmovss  dword ptr [rsp+68h+var_28], xmm0
-    }
+    v8 = (float)(1 << v7);
+    *(float *)&v17.m256i_i32[1] = v8;
+    *(float *)v17.m256i_i32 = FLOAT_3_4028235e38;
   }
-  v25.m256i_i32[5] = tessFactorsCacheStride;
+  v17.m256i_i32[5] = tessFactorsCacheStride;
   source = context->source;
   state = context->state;
-  *(__int64 *)((char *)&v25.m256i_i64[1] + 4) = __PAIR64__(tessFactorsCachePos, levelIndex);
-  v25.m256i_i32[6] = (*((_BYTE *)source + 11668) & 8) << 21;
-  __asm { vmovss  dword ptr [rsp+68h+var_28+8], xmm1 }
-  _RAX = R_AllocateConstantBufferBegin(&result, state, CBUFFER_SUBDIV_PATCH, 0x20u);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rax, xmm0
-    vmovups xmmword ptr [rsp+68h+cbuff.bufferData], xmm0
-    vmovups ymm0, ymmword ptr [rsp+68h+var_28]
-    vmovups ymmword ptr [rax], ymm0
-  }
+  *(__int64 *)((char *)&v17.m256i_i64[1] + 4) = __PAIR64__(tessFactorsCachePos, levelIndex);
+  v17.m256i_i32[6] = (*((_BYTE *)source + 11668) & 8) << 21;
+  *(float *)&v17.m256i_i32[2] = v8;
+  v11 = R_AllocateConstantBufferBegin(&result, state, CBUFFER_SUBDIV_PATCH, 0x20u);
+  v12 = *v11;
+  bufferData = (__m256i *)v11->bufferData;
+  cbuff = v12;
+  *bufferData = v17;
   R_AllocateConstantBufferEnd(state, &cbuff);
   bufferSize = cbuff.bufferSize;
   state->constants[2][5].bufferData = cbuff.bufferData;
@@ -2306,17 +2168,20 @@ R_SetupEvaluateRigidSubdiv
 void R_SetupEvaluateRigidSubdiv(ComputeCmdBufState *state, XSurface *surf, int levelIndex, GfxSubdivCache *cache, int cacheOffset)
 {
   XSurfaceSubdivInfo *subdiv; 
+  __int64 v7; 
   __int64 v10; 
-  __int64 v13; 
+  XSurfaceSubdivLevel *v11; 
   unsigned int SubdivVertex1Stride; 
-  XSurfaceSubdivInfo *v18; 
+  XSurfaceSubdivInfo *v15; 
   int transitionPointCount; 
-  unsigned int v20; 
+  unsigned int v17; 
+  int v18; 
+  int v19; 
+  unsigned int vertCount; 
   int v21; 
   int v22; 
-  unsigned int vertCount; 
-  int v24; 
-  __int64 v41; 
+  GfxShaderBufferView **v23; 
+  __int64 v31; 
   GfxShaderBufferRWView *views; 
   vec4_t outBoundingBoxData; 
   unsigned int facePointCount; 
@@ -2327,105 +2192,82 @@ void R_SetupEvaluateRigidSubdiv(ComputeCmdBufState *state, XSurface *surf, int l
   unsigned int vertexPointCount; 
   unsigned int vertexPointValence4Count; 
   unsigned int normalCount; 
-  int v52; 
-  unsigned int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  unsigned int v57; 
-  GfxShaderBufferView *v58[4]; 
-  void *retaddr; 
+  int v42; 
+  unsigned int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  unsigned int v47; 
+  GfxShaderBufferView *v48[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   subdiv = surf->subdiv;
-  v10 = levelIndex;
+  v7 = levelIndex;
   if ( !subdiv && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1086, ASSERT_TYPE_ASSERT, "(subdivInfo)", (const char *)&queryFormat, "subdivInfo") )
     __debugbreak();
-  if ( (unsigned int)v10 >= surf->subdivLevelCount )
+  if ( (unsigned int)v7 >= surf->subdivLevelCount )
   {
-    LODWORD(v41) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1088, ASSERT_TYPE_ASSERT, "(unsigned)( levelIndex ) < (unsigned)( surf->subdivLevelCount )", "levelIndex doesn't index surf->subdivLevelCount\n\t%i not in [0, %i)", v41, surf->subdivLevelCount) )
+    LODWORD(v31) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1088, ASSERT_TYPE_ASSERT, "(unsigned)( levelIndex ) < (unsigned)( surf->subdivLevelCount )", "levelIndex doesn't index surf->subdivLevelCount\n\t%i not in [0, %i)", v31, surf->subdivLevelCount) )
       __debugbreak();
   }
-  v13 = v10;
-  _RDI = &subdiv->levels[v10];
-  __asm
-  {
-    vmovq   xmm6, rdi
-    vpunpcklqdq xmm6, xmm6, xmm6
-  }
+  v10 = v7;
+  v11 = &subdiv->levels[v7];
+  _XMM6 = (unsigned __int64)v11;
+  __asm { vpunpcklqdq xmm6, xmm6, xmm6 }
   SubdivVertex1Stride = R_GetSubdivVertex1Stride(surf);
   R_SetBoundingBoxData(&surf->surfBounds, &outBoundingBoxData);
-  v18 = surf->subdiv;
-  facePointCount = _RDI->facePointCount;
-  facePointValence4Count = _RDI->facePointValence4Count;
-  edgePointCount = _RDI->edgePointCount;
-  edgePointSmoothEnd = _RDI->edgePointSmoothEnd;
-  edgePointUVBorderEnd = _RDI->edgePointUVBorderEnd;
-  vertexPointCount = _RDI->vertexPointCount;
-  vertexPointValence4Count = _RDI->vertexPointValence4Count;
-  normalCount = _RDI->normalCount;
-  transitionPointCount = _RDI->transitionPointCount;
-  v53 = SubdivVertex1Stride;
-  v20 = SubdivVertex1Stride + 12;
-  v52 = transitionPointCount;
-  if ( (_DWORD)v10 )
+  v15 = surf->subdiv;
+  facePointCount = v11->facePointCount;
+  facePointValence4Count = v11->facePointValence4Count;
+  edgePointCount = v11->edgePointCount;
+  edgePointSmoothEnd = v11->edgePointSmoothEnd;
+  edgePointUVBorderEnd = v11->edgePointUVBorderEnd;
+  vertexPointCount = v11->vertexPointCount;
+  vertexPointValence4Count = v11->vertexPointValence4Count;
+  normalCount = v11->normalCount;
+  transitionPointCount = v11->transitionPointCount;
+  v43 = SubdivVertex1Stride;
+  v17 = SubdivVertex1Stride + 12;
+  v42 = transitionPointCount;
+  if ( (_DWORD)v7 )
   {
-    v21 = cacheOffset + v20 * v18->levels[v10 - 1].vertOffset;
-    v22 = v21 + 12 * v18->levels[v10 - 1].vertCount;
+    v18 = cacheOffset + v17 * v15->levels[v7 - 1].vertOffset;
+    v19 = v18 + 12 * v15->levels[v7 - 1].vertCount;
   }
   else
   {
-    v21 = cacheOffset;
-    v22 = cacheOffset + 12 * surf->vertCount;
+    v18 = cacheOffset;
+    v19 = cacheOffset + 12 * surf->vertCount;
   }
-  v54 = v21;
-  v55 = v22;
-  vertCount = v18->levels[v13].vertCount;
-  v24 = v20 * v18->levels[v13].vertOffset;
-  _EBX = 0;
-  v56 = cacheOffset + v24;
-  v57 = cacheOffset + v24 + 12 * vertCount;
+  v44 = v18;
+  v45 = v19;
+  vertCount = v15->levels[v10].vertCount;
+  v21 = v17 * v15->levels[v10].vertOffset;
+  v22 = 0;
+  v46 = cacheOffset + v21;
+  v47 = cacheOffset + v21 + 12 * vertCount;
   R_UploadAndSetComputeConstants(state, 0, &outBoundingBoxData, 0x110u, NULL);
   views = &cache->vertexBuffer.rwView;
   R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-  __asm
-  {
-    vmovdqu xmm4, cs:__xmm@00000003000000020000000100000000
-    vmovdqu xmm7, cs:__xmm@00000000000000c800000000000000c8
-  }
-  _ER8 = 4;
-  _RAX = v58;
-  __asm { vmovd   xmm5, r8d }
+  v23 = v48;
   do
   {
+    _XMM1 = (unsigned int)v22;
     __asm
     {
-      vmovd   xmm1, ebx
       vpshufd xmm1, xmm1, 0
-      vmovq   xmm0, xmm4
       vpaddd  xmm1, xmm1, xmm0
       vpmovsxdq xmm2, xmm1
       vpsllq  xmm3, xmm2, xmm5
       vpaddq  xmm0, xmm3, xmm7
       vpaddq  xmm1, xmm0, xmm6
     }
-    _EBX += 2;
-    __asm { vmovdqu xmmword ptr [rax], xmm1 }
-    _RAX += 2;
+    v22 += 2;
+    *(_OWORD *)v23 = _XMM1;
+    v23 += 2;
   }
-  while ( _EBX < 4 );
-  R_SetComputeViews(state, 0, 4, (const GfxShaderBufferView *const *)v58);
-  __asm
-  {
-    vmovaps xmm6, [rsp+1F8h+var_58]
-    vmovaps xmm7, [rsp+1F8h+var_68]
-  }
+  while ( v22 < 4 );
+  R_SetComputeViews(state, 0, 4, (const GfxShaderBufferView *const *)v48);
 }
 
 /*
@@ -2538,17 +2380,20 @@ R_SetupEvaluateSkinnedSubdiv
 void R_SetupEvaluateSkinnedSubdiv(ComputeCmdBufState *state, const XSurface *surf, int levelIndex, int cacheOffset)
 {
   const GfxBackEndData *data; 
-  __int64 v8; 
+  __int64 v5; 
   XSurfaceSubdivInfo *subdiv; 
+  XSurfaceSubdivLevel *v10; 
   unsigned int SubdivVertex1Stride; 
-  XSurfaceSubdivInfo *v17; 
+  XSurfaceSubdivInfo *v14; 
   int transitionPointCount; 
-  unsigned int v19; 
+  unsigned int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
   int v20; 
   int v21; 
-  int v22; 
-  int v23; 
-  __int64 v40; 
+  GfxShaderBufferView **v22; 
+  __int64 v30; 
   GfxShaderBufferRWView *views; 
   vec4_t outBoundingBoxData; 
   unsigned int facePointCount; 
@@ -2559,108 +2404,85 @@ void R_SetupEvaluateSkinnedSubdiv(ComputeCmdBufState *state, const XSurface *sur
   unsigned int vertexPointCount; 
   unsigned int vertexPointValence4Count; 
   unsigned int normalCount; 
-  int v51; 
-  unsigned int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  GfxShaderBufferView *v57[4]; 
-  void *retaddr; 
+  int v41; 
+  unsigned int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  GfxShaderBufferView *v47[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   data = state->data;
-  v8 = levelIndex;
+  v5 = levelIndex;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1421, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   subdiv = surf->subdiv;
   if ( !subdiv && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1424, ASSERT_TYPE_ASSERT, "(subdivInfo)", (const char *)&queryFormat, "subdivInfo") )
     __debugbreak();
-  if ( (unsigned int)v8 >= surf->subdivLevelCount )
+  if ( (unsigned int)v5 >= surf->subdivLevelCount )
   {
-    LODWORD(v40) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1426, ASSERT_TYPE_ASSERT, "(unsigned)( levelIndex ) < (unsigned)( surf->subdivLevelCount )", "levelIndex doesn't index surf->subdivLevelCount\n\t%i not in [0, %i)", v40, surf->subdivLevelCount) )
+    LODWORD(v30) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_subdiv.cpp", 1426, ASSERT_TYPE_ASSERT, "(unsigned)( levelIndex ) < (unsigned)( surf->subdivLevelCount )", "levelIndex doesn't index surf->subdivLevelCount\n\t%i not in [0, %i)", v30, surf->subdivLevelCount) )
       __debugbreak();
   }
-  _RDI = &subdiv->levels[v8];
-  views = (GfxShaderBufferRWView *)(296 * v8);
-  __asm
-  {
-    vmovq   xmm6, rdi
-    vpunpcklqdq xmm6, xmm6, xmm6
-  }
+  v10 = &subdiv->levels[v5];
+  views = (GfxShaderBufferRWView *)(296 * v5);
+  _XMM6 = (unsigned __int64)v10;
+  __asm { vpunpcklqdq xmm6, xmm6, xmm6 }
   SubdivVertex1Stride = R_GetSubdivVertex1Stride(surf);
   R_SetBoundingBoxData(&surf->surfBounds, &outBoundingBoxData);
-  v17 = surf->subdiv;
-  facePointCount = _RDI->facePointCount;
-  facePointValence4Count = _RDI->facePointValence4Count;
-  edgePointCount = _RDI->edgePointCount;
-  edgePointSmoothEnd = _RDI->edgePointSmoothEnd;
-  edgePointUVBorderEnd = _RDI->edgePointUVBorderEnd;
-  vertexPointCount = _RDI->vertexPointCount;
-  vertexPointValence4Count = _RDI->vertexPointValence4Count;
-  normalCount = _RDI->normalCount;
-  transitionPointCount = _RDI->transitionPointCount;
-  v52 = SubdivVertex1Stride;
-  v19 = SubdivVertex1Stride + 12;
-  v51 = transitionPointCount;
-  if ( (_DWORD)v8 )
+  v14 = surf->subdiv;
+  facePointCount = v10->facePointCount;
+  facePointValence4Count = v10->facePointValence4Count;
+  edgePointCount = v10->edgePointCount;
+  edgePointSmoothEnd = v10->edgePointSmoothEnd;
+  edgePointUVBorderEnd = v10->edgePointUVBorderEnd;
+  vertexPointCount = v10->vertexPointCount;
+  vertexPointValence4Count = v10->vertexPointValence4Count;
+  normalCount = v10->normalCount;
+  transitionPointCount = v10->transitionPointCount;
+  v42 = SubdivVertex1Stride;
+  v16 = SubdivVertex1Stride + 12;
+  v41 = transitionPointCount;
+  if ( (_DWORD)v5 )
   {
-    v20 = cacheOffset + v19 * v17->levels[v8 - 1].vertOffset;
-    v21 = v20 + 12 * v17->levels[v8 - 1].vertCount;
+    v17 = cacheOffset + v16 * v14->levels[v5 - 1].vertOffset;
+    v18 = v17 + 12 * v14->levels[v5 - 1].vertCount;
   }
   else
   {
-    v20 = cacheOffset;
-    v21 = cacheOffset + 12 * surf->vertCount;
+    v17 = cacheOffset;
+    v18 = cacheOffset + 12 * surf->vertCount;
   }
-  v53 = v20;
-  v54 = v21;
-  v22 = *(unsigned int *)((char *)&views[2].rwSubresourceToTransition + (unsigned __int64)v17->levels);
-  v23 = v19 * *(_DWORD *)((char *)&views[3].rwResource + (unsigned __int64)v17->levels);
-  _EBX = 0;
-  v55 = cacheOffset + v23;
-  v56 = cacheOffset + v23 + 12 * v22;
+  v43 = v17;
+  v44 = v18;
+  v19 = *(unsigned int *)((char *)&views[2].rwSubresourceToTransition + (unsigned __int64)v14->levels);
+  v20 = v16 * *(_DWORD *)((char *)&views[3].rwResource + (unsigned __int64)v14->levels);
+  v21 = 0;
+  v45 = cacheOffset + v20;
+  v46 = cacheOffset + v20 + 12 * v19;
   R_UploadAndSetComputeConstants(state, 0, &outBoundingBoxData, 0x110u, NULL);
   views = &data->subdivCacheVb->wrappedBuffer.rwView;
   R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-  __asm
-  {
-    vmovdqu xmm4, cs:__xmm@00000003000000020000000100000000
-    vmovdqu xmm7, cs:__xmm@00000000000000c800000000000000c8
-  }
-  _ER8 = 4;
-  _RAX = v57;
-  __asm { vmovd   xmm5, r8d }
+  v22 = v47;
   do
   {
+    _XMM1 = (unsigned int)v21;
     __asm
     {
-      vmovd   xmm1, ebx
       vpshufd xmm1, xmm1, 0
-      vmovq   xmm0, xmm4
       vpaddd  xmm1, xmm1, xmm0
       vpmovsxdq xmm2, xmm1
       vpsllq  xmm3, xmm2, xmm5
       vpaddq  xmm0, xmm3, xmm7
       vpaddq  xmm1, xmm0, xmm6
     }
-    _EBX += 2;
-    __asm { vmovdqu xmmword ptr [rax], xmm1 }
-    _RAX += 2;
+    v21 += 2;
+    *(_OWORD *)v22 = _XMM1;
+    v22 += 2;
   }
-  while ( _EBX < 4 );
-  R_SetComputeViews(state, 0, 4, (const GfxShaderBufferView *const *)v57);
-  __asm
-  {
-    vmovaps xmm6, [rsp+1F8h+var_58]
-    vmovaps xmm7, [rsp+1F8h+var_68]
-  }
+  while ( v21 < 4 );
+  R_SetComputeViews(state, 0, 4, (const GfxShaderBufferView *const *)v47);
 }
 
 /*

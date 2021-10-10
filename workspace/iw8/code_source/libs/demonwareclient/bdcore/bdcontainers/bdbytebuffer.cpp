@@ -1301,10 +1301,9 @@ char bdByteBuffer::readFloat32(bdByteBuffer *this, float *f)
 {
   unsigned int v4; 
   bool v5; 
-  int dest; 
+  float dest; 
   unsigned int newOffset; 
 
-  _RDI = f;
   if ( bdByteBuffer::readDataType(this, BD_BB_FLOAT32_TYPE) )
   {
     v4 = this->m_size + LODWORD(this->m_data) - LODWORD(this->m_readPtr);
@@ -1318,11 +1317,7 @@ char bdByteBuffer::readFloat32(bdByteBuffer *this, float *f)
       this->m_readPtr += 4;
       if ( v5 )
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+48h+arg_10]
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *f = dest;
         return 1;
       }
     }
@@ -1340,9 +1335,8 @@ char bdByteBuffer::readFloat64(bdByteBuffer *this, long double *f)
   unsigned int v4; 
   bool v5; 
   unsigned int newOffset; 
-  __int64 dest; 
+  double dest; 
 
-  _RDI = f;
   if ( bdByteBuffer::readDataType(this, BD_BB_FLOAT64_TYPE) )
   {
     v4 = this->m_size + LODWORD(this->m_data) - LODWORD(this->m_readPtr);
@@ -1356,11 +1350,7 @@ char bdByteBuffer::readFloat64(bdByteBuffer *this, long double *f)
       this->m_readPtr += 8;
       if ( v5 )
       {
-        __asm
-        {
-          vmovsd  xmm0, [rsp+48h+arg_18]
-          vmovsd  qword ptr [rdi], xmm0
-        }
+        *f = dest;
         return 1;
       }
     }
@@ -1937,34 +1927,22 @@ bool bdByteBuffer::writeDataType(bdByteBuffer *this, const bdBitBufferDataType d
 bdByteBuffer::writeFloat32
 ==============
 */
-
-bool __fastcall bdByteBuffer::writeFloat32(bdByteBuffer *this, double f)
+bool bdByteBuffer::writeFloat32(bdByteBuffer *this, const float f)
 {
-  bool v5; 
   bool result; 
-  int data; 
+  bool v4; 
+  float data; 
 
-  __asm
-  {
-    vucomiss xmm1, cs:__real@4f000000
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v5 = !this->m_typeChecked;
+  if ( f == 2147483600.0 )
+    return bdByteBuffer::writeNAN(this);
+  v4 = !this->m_typeChecked;
   LOBYTE(data) = 13;
-  if ( !v5 && !bdByteBuffer::write(this, &data, 1u) )
-    goto LABEL_5;
-  __asm { vmovss  [rsp+38h+data], xmm6 }
-  if ( bdByteBuffer::write(this, &data, 4u) )
+  result = 0;
+  if ( v4 || bdByteBuffer::write(this, &data, 1u) )
   {
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
-  else
-  {
-LABEL_5:
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return 0;
+    data = f;
+    if ( bdByteBuffer::write(this, &data, 4u) )
+      return 1;
   }
   return result;
 }
@@ -1974,34 +1952,22 @@ LABEL_5:
 bdByteBuffer::writeFloat64
 ==============
 */
-
-bool __fastcall bdByteBuffer::writeFloat64(bdByteBuffer *this, double f)
+bool bdByteBuffer::writeFloat64(bdByteBuffer *this, const long double f)
 {
-  bool v5; 
   bool result; 
-  __int64 data; 
+  bool v4; 
+  double data; 
 
-  __asm
-  {
-    vucomisd xmm1, cs:__real@43e0000000000000
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v5 = !this->m_typeChecked;
+  if ( f == 9.223372036854776e18 )
+    return bdByteBuffer::writeNAN(this);
+  v4 = !this->m_typeChecked;
   LOBYTE(data) = 14;
-  if ( !v5 && !bdByteBuffer::write(this, &data, 1u) )
-    goto LABEL_5;
-  __asm { vmovsd  [rsp+38h+data], xmm6 }
-  if ( bdByteBuffer::write(this, &data, 8u) )
+  result = 0;
+  if ( v4 || bdByteBuffer::write(this, &data, 1u) )
   {
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
-  else
-  {
-LABEL_5:
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return 0;
+    data = f;
+    if ( bdByteBuffer::write(this, &data, 8u) )
+      return 1;
   }
   return result;
 }

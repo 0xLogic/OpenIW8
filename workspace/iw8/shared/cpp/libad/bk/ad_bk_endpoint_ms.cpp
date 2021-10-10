@@ -327,677 +327,587 @@ void AD_EndpointConfigure_Platform(AD_Endpoint *const endpoint, const AD_Endpoin
 AD_EndpointConsumeBuffer
 ==============
 */
-
-void __fastcall AD_EndpointConsumeBuffer(AD_Endpoint *const endpoint, double _XMM1_8, double _XMM2_8)
+void AD_EndpointConsumeBuffer(AD_Endpoint *const endpoint)
 {
   AD_Endpoint_Platform *platformData; 
-  unsigned int v16; 
-  __int64 v18; 
+  unsigned int v3; 
+  __m128 v4; 
+  __int64 v5; 
   unsigned int deviceChannelCount; 
-  unsigned int v20; 
+  unsigned int v7; 
+  __int64 v8; 
+  unsigned int v9; 
+  __int64 v10; 
+  __m128 v11; 
+  __int64 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  unsigned __int64 v15; 
+  unsigned int i; 
+  unsigned int v17; 
+  AD_EndpointFormat deviceFormat; 
+  __int32 v19; 
+  __int32 v20; 
   __int64 v21; 
   unsigned int v22; 
-  __int64 v23; 
-  __int64 v24; 
-  unsigned int v29; 
-  unsigned int v34; 
-  AD_EndpointFormat deviceFormat; 
-  __int32 v36; 
-  __int32 v37; 
-  unsigned int v39; 
-  unsigned int v40; 
+  unsigned int v23; 
+  float *v24; 
+  unsigned int v25; 
+  __int64 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int64 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v40; 
+  __int64 v41; 
   unsigned int v42; 
-  int v43; 
-  int v66; 
-  unsigned int v67; 
-  __int64 v68; 
-  unsigned int v84; 
-  unsigned int v85; 
-  unsigned int v87; 
-  int v88; 
-  int v108; 
-  unsigned int v109; 
-  __int64 v110; 
-  unsigned int v126; 
-  unsigned int v127; 
-  unsigned int v129; 
-  int v130; 
-  unsigned int v161; 
-  __int64 v162; 
-  unsigned int v186; 
-  unsigned int v187; 
-  unsigned int v189; 
-  int v190; 
-  int v192; 
-  int v201; 
-  unsigned int v202; 
-  __int64 v203; 
-  unsigned int v230; 
-  unsigned int v231; 
-  int v232; 
-  __int64 v233; 
+  __int64 v43; 
+  float v44; 
+  int v45; 
+  __int128 v46; 
+  __int64 v47; 
+  __int128 v48; 
+  __int64 v49; 
+  unsigned int v50; 
+  unsigned int v51; 
+  float *v52; 
+  unsigned int v53; 
+  __int64 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int64 v57; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v66; 
+  __int64 v67; 
+  unsigned int v68; 
+  __int64 v69; 
+  float v70; 
+  float v71; 
+  int v72; 
+  float v73; 
+  __int128 v74; 
+  __int64 v75; 
+  __int128 v76; 
+  __int64 v77; 
+  unsigned int v78; 
+  unsigned int v79; 
+  float *v80; 
+  unsigned int v81; 
+  int v82; 
+  __int128 v86; 
+  __int128 v88; 
+  __int128 v89; 
+  __int64 v91; 
+  __m128 v92; 
+  __m128 v93; 
+  __m128 v99; 
+  __m128 v107; 
+  __int128 v108; 
+  __int64 v109; 
+  unsigned int v110; 
+  __int64 v111; 
+  __int128 v115; 
+  __int64 v121; 
+  __m128 v126; 
+  __m128 v127; 
+  __m128 v131; 
+  __int128 v133; 
+  __int128 v136; 
+  __int128 v138; 
+  __int64 v139; 
+  unsigned int v140; 
+  unsigned int v141; 
+  float *v142; 
+  unsigned int v143; 
+  __int64 v144; 
+  __m128 v145; 
+  __m128 v146; 
+  __int64 v147; 
+  __m128 v148; 
+  __m128 v149; 
+  __m128 v150; 
+  __m128 v153; 
+  __int64 v154; 
+  unsigned int v155; 
+  __int64 v156; 
+  float v157; 
+  __int64 v158; 
+  float v159; 
+  __m128 v160; 
+  __int64 v161; 
+  __m128 v162; 
+  __int128 v163; 
+  __int128 v164; 
+  unsigned int v165; 
+  unsigned int v166; 
+  int v167; 
+  __int64 v168; 
 
-  __asm
-  {
-    vmovaps [rsp+138h+var_58], xmm6
-    vmovaps [rsp+138h+var_A8], xmm11
-    vmovaps [rsp+138h+var_E8], xmm15
-  }
   if ( endpoint->flow != Screen && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 34, ASSERT_TYPE_ASSERT, "flow == AD_EndpointFlow::Input", "flow == AD_EndpointFlow::Input") )
     __debugbreak();
   platformData = endpoint->platformData;
-  v16 = 1;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  v233 = 0i64;
-  v230 = 0;
-  v232 = 0;
-  v231 = 0;
-  v18 = *(unsigned int *)&platformData[20].currentDeviceId.value[4];
+  v3 = 1;
+  v4 = (__m128)LODWORD(FLOAT_1_0);
+  v168 = 0i64;
+  v165 = 0;
+  v167 = 0;
+  v166 = 0;
+  v5 = *(unsigned int *)&platformData[20].currentDeviceId.value[4];
   deviceChannelCount = platformData->deviceChannelCount;
-  v20 = (*(_DWORD *)&platformData[20].pendingDeviceId.value[20] >> 2) - v18;
-  v21 = (__int64)&platformData[1].audioClient1 + 4 * v18;
+  v7 = (*(_DWORD *)&platformData[20].pendingDeviceId.value[20] >> 2) - v5;
+  v8 = (__int64)&platformData[1].audioClient1 + 4 * v5;
   if ( deviceChannelCount > 1 )
   {
     if ( deviceChannelCount - 1 >= 8 )
     {
-      __asm { vmovss  xmm0, cs:__real@3d813854 }
-      v22 = ((deviceChannelCount - 9) >> 3) + 1;
-      v23 = v22;
-      v16 = 8 * v22 + 1;
+      v9 = ((deviceChannelCount - 9) >> 3) + 1;
+      v10 = v9;
+      v3 = 8 * v9 + 1;
       do
       {
-        __asm { vmulss  xmm6, xmm6, xmm0 }
-        --v23;
+        v11 = v4;
+        v11.m128_f32[0] = v4.m128_f32[0] * 0.063095719;
+        v4 = v11;
+        --v10;
       }
-      while ( v23 );
+      while ( v10 );
     }
-    if ( v16 < deviceChannelCount )
+    if ( v3 < deviceChannelCount )
     {
-      __asm { vmovss  xmm0, cs:__real@3f353bef }
-      v24 = deviceChannelCount - v16;
+      v12 = deviceChannelCount - v3;
       do
       {
-        __asm { vmulss  xmm6, xmm6, xmm0 }
-        --v24;
+        v13 = v4;
+        v13.m128_f32[0] = v4.m128_f32[0] * 0.70794576;
+        v4 = v13;
+        --v12;
       }
-      while ( v24 );
+      while ( v12 );
     }
   }
-  __asm
+  v14 = _mm_shuffle_ps(v4, v4, 0);
+  v15 = _mm_shuffle_ps(v4, v4, 0).m128_u64[0];
+  if ( (*(int (__fastcall **)(_QWORD, unsigned int *))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 40i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], &v166) >= 0 )
   {
-    vmovaps xmm11, xmm6
-    vmovaps xmm15, xmm6
-    vshufps xmm11, xmm11, xmm11, 0
-    vshufps xmm15, xmm15, xmm15, 0
-  }
-  if ( (*(int (__fastcall **)(_QWORD, unsigned int *))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 40i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], &v231) >= 0 )
-  {
-    v29 = v231;
-    if ( v231 )
+    for ( i = v166; v166; i = v166 )
     {
-      __asm
+      if ( i > v7 || (*(int (__fastcall **)(_QWORD, __int64 *, unsigned int *, int *, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 24i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], &v168, &v165, &v167, 0i64, 0i64, v163, *((_QWORD *)&v163 + 1), v164, *((_QWORD *)&v164 + 1)) < 0 )
+        break;
+      v17 = v165;
+      if ( v165 > v7 )
       {
-        vmovaps [rsp+138h+var_68], xmm7
-        vmovaps [rsp+138h+var_78], xmm8
-        vmovaps [rsp+138h+var_88], xmm9
-        vmovaps [rsp+138h+var_98], xmm10
-        vmovaps [rsp+138h+var_B8], xmm12
-        vmovss  xmm12, cs:__real@3c010204
-        vmovaps [rsp+138h+var_C8], xmm13
-        vmovss  xmm13, cs:__real@38000100
-        vmovaps [rsp+138h+var_D8], xmm14
-        vmovsd  xmm14, cs:__real@3e00000000200000
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1006, ASSERT_TYPE_ASSERT, "framesAvailable <= workingDeviceBufferSize", "framesAvailable <= workingDeviceBufferSize") )
+          __debugbreak();
+        v17 = v165;
+        if ( v7 < v165 )
+          v17 = v7;
       }
-      do
+      deviceFormat = platformData->deviceFormat;
+      if ( deviceFormat )
       {
-        if ( v29 > v20 || (*(int (__fastcall **)(_QWORD, __int64 *, unsigned int *, int *, _QWORD, _QWORD))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 24i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], &v233, &v230, &v232, 0i64, 0i64) < 0 )
-          break;
-        v34 = v230;
-        if ( v230 > v20 )
+        v19 = deviceFormat - 2;
+        if ( v19 )
         {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1006, ASSERT_TYPE_ASSERT, "framesAvailable <= workingDeviceBufferSize", "framesAvailable <= workingDeviceBufferSize") )
-            __debugbreak();
-          v34 = v230;
-          if ( v20 < v230 )
-            v34 = v20;
-        }
-        deviceFormat = platformData->deviceFormat;
-        if ( deviceFormat )
-        {
-          v36 = deviceFormat - 2;
-          if ( v36 )
+          v20 = v19 - 1;
+          if ( v20 )
           {
-            v37 = v36 - 1;
-            if ( v37 )
+            if ( v20 == 1 )
             {
-              if ( v37 == 1 )
+              v21 = v168;
+              v22 = 0;
+              if ( v17 )
               {
-                _R8 = v233;
-                v39 = 0;
-                if ( v34 )
+                v23 = deviceChannelCount - 1;
+                v24 = (float *)v8;
+                do
                 {
-                  v40 = deviceChannelCount - 1;
-                  _RSI = v21;
-                  do
+                  v25 = 1;
+                  v26 = deviceChannelCount * v22;
+                  v28 = 0i64;
+                  *(float *)&v28 = (float)((float)(*(unsigned __int8 *)(v26 + v21) - 128) * 0.0078740157) * v4.m128_f32[0];
+                  v27 = v28;
+                  if ( deviceChannelCount > 1 )
                   {
-                    v42 = 1;
-                    v43 = deviceChannelCount * v39;
-                    __asm
+                    if ( v23 >= 8 )
                     {
-                      vxorps  xmm0, xmm0, xmm0
-                      vcvtsi2ss xmm0, xmm0, ecx
-                      vmulss  xmm1, xmm0, xmm12
-                      vmulss  xmm4, xmm1, xmm6
-                    }
-                    if ( deviceChannelCount > 1 )
-                    {
-                      if ( v40 >= 8 )
+                      v29 = (unsigned int)(v26 + 5);
+                      v30 = 0i64;
+                      v31 = 0i64;
+                      do
                       {
+                        v25 += 8;
+                        _XMM0 = *(unsigned int *)((unsigned int)(v29 - 4) + v21);
                         __asm
                         {
-                          vmovdqu xmm8, cs:__xmm@00000080000000800000008000000080
-                          vmovups xmm9, cs:__xmm@3c0102043c0102043c0102043c010204
+                          vpmovzxbd xmm1, xmm0
+                          vpsubd  xmm2, xmm1, xmm8
                         }
-                        _R9 = (unsigned int)(v43 + 5);
+                        _XMM0 = *(unsigned int *)(v29 + v21);
+                        v29 = (unsigned int)(v29 + 8);
+                        v30 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_mm_cvtepi32_ps(_XMM2), (__m128)_xmm), v14), v30);
                         __asm
                         {
-                          vxorps  xmm5, xmm5, xmm5
-                          vxorps  xmm7, xmm7, xmm7
+                          vpmovzxbd xmm1, xmm0
+                          vpsubd  xmm2, xmm1, xmm8
                         }
+                        v31 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_mm_cvtepi32_ps(_XMM2), (__m128)_xmm), v14), v31);
+                      }
+                      while ( v25 < deviceChannelCount - (v23 & 7) );
+                      _XMM1 = _mm128_add_ps(v31, v30);
+                      __asm { vmovhlps xmm0, xmm1, xmm1 }
+                      v40 = _mm128_add_ps(_XMM0, _XMM1);
+                      *(float *)&v28 = *(float *)&v28 + (float)(v40.m128_f32[0] + _mm_shuffle_ps(v40, v40, 245).m128_f32[0]);
+                      v27 = v28;
+                    }
+                    if ( v25 < deviceChannelCount )
+                    {
+                      if ( deviceChannelCount - v25 >= 4 )
+                      {
+                        v41 = v25 + (unsigned int)v26 + 1;
+                        v42 = ((deviceChannelCount - v25 - 4) >> 2) + 1;
+                        v43 = v42;
+                        v25 += 4 * v42;
                         do
                         {
-                          _RAX = (unsigned int)(_R9 - 4);
-                          v42 += 8;
-                          __asm
-                          {
-                            vmovd   xmm0, dword ptr [rax+r8]
-                            vpmovzxbd xmm1, xmm0
-                            vpsubd  xmm2, xmm1, xmm8
-                            vcvtdq2ps xmm3, xmm2
-                            vmulps  xmm0, xmm3, xmm9
-                            vmulps  xmm1, xmm0, xmm11
-                            vmovd   xmm0, dword ptr [r9+r8]
-                          }
-                          _R9 = (unsigned int)(_R9 + 8);
-                          __asm
-                          {
-                            vaddps  xmm5, xmm1, xmm5
-                            vpmovzxbd xmm1, xmm0
-                            vpsubd  xmm2, xmm1, xmm8
-                            vcvtdq2ps xmm3, xmm2
-                            vmulps  xmm0, xmm3, xmm9
-                            vmulps  xmm1, xmm0, xmm11
-                            vaddps  xmm7, xmm1, xmm7
-                          }
+                          v44 = (float)((float)((float)(*(unsigned __int8 *)((unsigned int)(v41 - 1) + v21) - 128) * 0.0078740157) + (float)((float)(*(unsigned __int8 *)(v41 + v21) - 128) * 0.0078740157)) + (float)((float)(*(unsigned __int8 *)((unsigned int)(v41 + 1) + v21) - 128) * 0.0078740157);
+                          v45 = *(unsigned __int8 *)((unsigned int)(v41 + 2) + v21);
+                          v41 = (unsigned int)(v41 + 4);
+                          v46 = v27;
+                          *(float *)&v46 = *(float *)&v27 + (float)((float)(v44 + (float)((float)(v45 - 128) * 0.0078740157)) * v4.m128_f32[0]);
+                          v27 = v46;
+                          --v43;
                         }
-                        while ( v42 < deviceChannelCount - (v40 & 7) );
-                        __asm
-                        {
-                          vaddps  xmm1, xmm7, xmm5
-                          vmovhlps xmm0, xmm1, xmm1
-                          vaddps  xmm2, xmm0, xmm1
-                          vshufps xmm0, xmm2, xmm2, 0F5h ; 'õ'
-                          vaddss  xmm2, xmm2, xmm0
-                          vaddss  xmm4, xmm4, xmm2
-                        }
+                        while ( v43 );
                       }
-                      if ( v42 < deviceChannelCount )
+                      for ( ; v25 < deviceChannelCount; v27 = v48 )
                       {
-                        if ( deviceChannelCount - v42 >= 4 )
-                        {
-                          v66 = v42 + v43 + 1;
-                          v67 = ((deviceChannelCount - v42 - 4) >> 2) + 1;
-                          v68 = v67;
-                          v42 += 4 * v67;
-                          do
-                          {
-                            __asm
-                            {
-                              vxorps  xmm0, xmm0, xmm0
-                              vcvtsi2ss xmm0, xmm0, eax
-                              vmulss  xmm2, xmm0, xmm12
-                              vxorps  xmm0, xmm0, xmm0
-                              vcvtsi2ss xmm0, xmm0, ecx
-                              vmulss  xmm1, xmm0, xmm12
-                              vaddss  xmm3, xmm2, xmm1
-                              vxorps  xmm0, xmm0, xmm0
-                              vcvtsi2ss xmm0, xmm0, eax
-                              vmulss  xmm1, xmm0, xmm12
-                              vaddss  xmm2, xmm3, xmm1
-                            }
-                            v66 += 4;
-                            __asm
-                            {
-                              vxorps  xmm0, xmm0, xmm0
-                              vcvtsi2ss xmm0, xmm0, eax
-                              vmulss  xmm1, xmm0, xmm12
-                              vaddss  xmm2, xmm2, xmm1
-                              vmulss  xmm3, xmm2, xmm6
-                              vaddss  xmm4, xmm4, xmm3
-                            }
-                            --v68;
-                          }
-                          while ( v68 );
-                        }
-                        while ( v42 < deviceChannelCount )
-                        {
-                          ++v42;
-                          __asm
-                          {
-                            vxorps  xmm0, xmm0, xmm0
-                            vcvtsi2ss xmm0, xmm0, eax
-                            vmulss  xmm1, xmm0, xmm12
-                            vmulss  xmm2, xmm1, xmm6
-                            vaddss  xmm4, xmm4, xmm2
-                          }
-                        }
+                        v47 = v25 + (unsigned int)v26;
+                        ++v25;
+                        v48 = v27;
+                        *(float *)&v48 = *(float *)&v27 + (float)((float)((float)(*(unsigned __int8 *)(v47 + v21) - 128) * 0.0078740157) * v4.m128_f32[0]);
                       }
                     }
-                    __asm { vmovss  dword ptr [rsi], xmm4 }
-                    _RSI += 4i64;
-                    ++v39;
                   }
-                  while ( v39 < v34 );
+                  *v24++ = *(float *)&v27;
+                  ++v22;
                 }
-              }
-              else
-              {
-                v34 = 0;
+                while ( v22 < v17 );
               }
             }
             else
             {
-              _R8 = v233;
-              v84 = 0;
-              if ( v34 )
-              {
-                v85 = deviceChannelCount - 1;
-                _RSI = v21;
-                do
-                {
-                  v87 = 1;
-                  v88 = deviceChannelCount * v84;
-                  __asm
-                  {
-                    vxorps  xmm0, xmm0, xmm0
-                    vcvtsi2ss xmm0, xmm0, ecx
-                    vmulss  xmm1, xmm0, xmm13
-                    vmulss  xmm4, xmm1, xmm6
-                  }
-                  if ( deviceChannelCount > 1 )
-                  {
-                    if ( v85 >= 8 )
-                    {
-                      __asm { vmovups xmm8, cs:__xmm@38000100380001003800010038000100 }
-                      _R9 = (unsigned int)(v88 + 5);
-                      __asm
-                      {
-                        vxorps  xmm5, xmm5, xmm5
-                        vxorps  xmm7, xmm7, xmm7
-                      }
-                      do
-                      {
-                        _RAX = (unsigned int)(_R9 - 4);
-                        v87 += 8;
-                        __asm
-                        {
-                          vmovq   xmm0, qword ptr [r8+rax*2]
-                          vpmovsxwd xmm1, xmm0
-                          vcvtdq2ps xmm2, xmm1
-                          vmulps  xmm3, xmm2, xmm8
-                          vmulps  xmm0, xmm3, xmm11
-                          vaddps  xmm5, xmm0, xmm5
-                          vmovq   xmm0, qword ptr [r8+r9*2]
-                        }
-                        _R9 = (unsigned int)(_R9 + 8);
-                        __asm
-                        {
-                          vpmovsxwd xmm1, xmm0
-                          vcvtdq2ps xmm2, xmm1
-                          vmulps  xmm3, xmm2, xmm8
-                          vmulps  xmm0, xmm3, xmm11
-                          vaddps  xmm7, xmm0, xmm7
-                        }
-                      }
-                      while ( v87 < deviceChannelCount - (v85 & 7) );
-                      __asm
-                      {
-                        vaddps  xmm1, xmm7, xmm5
-                        vmovhlps xmm0, xmm1, xmm1
-                        vaddps  xmm2, xmm0, xmm1
-                        vshufps xmm0, xmm2, xmm2, 0F5h ; 'õ'
-                        vaddss  xmm2, xmm2, xmm0
-                        vaddss  xmm4, xmm4, xmm2
-                      }
-                    }
-                    if ( v87 < deviceChannelCount )
-                    {
-                      if ( deviceChannelCount - v87 >= 4 )
-                      {
-                        v108 = v87 + v88 + 1;
-                        v109 = ((deviceChannelCount - v87 - 4) >> 2) + 1;
-                        v110 = v109;
-                        v87 += 4 * v109;
-                        do
-                        {
-                          __asm
-                          {
-                            vxorps  xmm0, xmm0, xmm0
-                            vcvtsi2ss xmm0, xmm0, eax
-                            vmulss  xmm2, xmm0, xmm13
-                            vxorps  xmm0, xmm0, xmm0
-                            vcvtsi2ss xmm0, xmm0, ecx
-                            vmulss  xmm1, xmm0, xmm13
-                            vaddss  xmm3, xmm2, xmm1
-                            vxorps  xmm0, xmm0, xmm0
-                            vcvtsi2ss xmm0, xmm0, eax
-                          }
-                          v108 += 4;
-                          __asm
-                          {
-                            vmulss  xmm1, xmm0, xmm13
-                            vaddss  xmm2, xmm3, xmm1
-                            vxorps  xmm0, xmm0, xmm0
-                            vcvtsi2ss xmm0, xmm0, eax
-                            vmulss  xmm1, xmm0, xmm13
-                            vaddss  xmm2, xmm2, xmm1
-                            vmulss  xmm3, xmm2, xmm6
-                            vaddss  xmm4, xmm4, xmm3
-                          }
-                          --v110;
-                        }
-                        while ( v110 );
-                      }
-                      while ( v87 < deviceChannelCount )
-                      {
-                        ++v87;
-                        __asm
-                        {
-                          vxorps  xmm0, xmm0, xmm0
-                          vcvtsi2ss xmm0, xmm0, eax
-                          vmulss  xmm1, xmm0, xmm13
-                          vmulss  xmm2, xmm1, xmm6
-                          vaddss  xmm4, xmm4, xmm2
-                        }
-                      }
-                    }
-                  }
-                  __asm { vmovss  dword ptr [rsi], xmm4 }
-                  _RSI += 4i64;
-                  ++v84;
-                }
-                while ( v84 < v34 );
-              }
+              v17 = 0;
             }
           }
           else
           {
-            _R8 = v233;
-            v126 = 0;
-            if ( v34 )
+            v49 = v168;
+            v50 = 0;
+            if ( v17 )
             {
-              v127 = deviceChannelCount - 1;
-              _RSI = v21;
+              v51 = deviceChannelCount - 1;
+              v52 = (float *)v8;
               do
               {
-                v129 = 1;
-                v130 = deviceChannelCount * v126;
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2sd xmm0, xmm0, dword ptr [r8+r10*4]
-                  vmulsd  xmm1, xmm0, xmm14
-                  vcvtsd2ss xmm2, xmm1, xmm1
-                  vmulss  xmm7, xmm2, xmm6
-                }
+                v53 = 1;
+                v54 = deviceChannelCount * v50;
+                v56 = 0i64;
+                *(float *)&v56 = (float)((float)*(__int16 *)(v49 + 2 * v54) * 0.000030518509) * v4.m128_f32[0];
+                v55 = v56;
                 if ( deviceChannelCount > 1 )
                 {
-                  if ( v127 >= 4 )
+                  if ( v51 >= 8 )
                   {
-                    __asm
-                    {
-                      vmovupd xmm8, cs:__xmm@3e000000002000003e00000000200000
-                      vxorps  xmm0, xmm0, xmm0
-                    }
-                    _R11 = (unsigned int)(v130 + 3);
-                    __asm
-                    {
-                      vmovups [rsp+138h+var_F8], xmm0
-                      vmovsd  xmm10, qword ptr [rsp+138h+var_F8]
-                      vmovups [rsp+138h+var_108], xmm0
-                      vmovsd  xmm9, qword ptr [rsp+138h+var_108]
-                    }
+                    v57 = (unsigned int)(v54 + 5);
+                    v58 = 0i64;
+                    v59 = 0i64;
                     do
                     {
-                      _RAX = (unsigned int)(_R11 - 2);
-                      v129 += 4;
-                      __asm
-                      {
-                        vmovq   xmm0, qword ptr [r8+rax*4]
-                        vcvtdq2pd xmm1, xmm0
-                        vmulpd  xmm2, xmm1, xmm8
-                        vcvtpd2ps xmm4, xmm2
-                        vxorpd  xmm0, xmm0, xmm0
-                        vmovaps xmm3, xmm15
-                        vmovsd  xmm1, xmm0, xmm3
-                        vmovq   xmm0, qword ptr [r8+r11*4]
-                      }
-                      _R11 = (unsigned int)(_R11 + 4);
-                      __asm
-                      {
-                        vmulps  xmm5, xmm4, xmm1
-                        vcvtdq2pd xmm1, xmm0
-                        vmovaps xmm2, xmm10
-                        vaddps  xmm10, xmm5, xmm2
-                        vmulpd  xmm2, xmm1, xmm8
-                        vcvtpd2ps xmm4, xmm2
-                        vmovaps xmm2, xmm9
-                        vxorpd  xmm0, xmm0, xmm0
-                        vmovsd  xmm1, xmm0, xmm3
-                        vmulps  xmm5, xmm4, xmm1
-                        vaddps  xmm9, xmm5, xmm2
-                        vmovaps xmm1, xmm2
-                      }
+                      v53 += 8;
+                      _XMM0 = *(unsigned __int64 *)(v49 + 2i64 * (unsigned int)(v57 - 4));
+                      __asm { vpmovsxwd xmm1, xmm0 }
+                      v58 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm), v14), v58);
+                      _XMM0 = *(unsigned __int64 *)(v49 + 2 * v57);
+                      v57 = (unsigned int)(v57 + 8);
+                      __asm { vpmovsxwd xmm1, xmm0 }
+                      v59 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm), v14), v59);
                     }
-                    while ( v129 < deviceChannelCount - (v127 & 3) );
-                    __asm
-                    {
-                      vmovaps xmm1, xmm9
-                      vmovaps xmm2, xmm10
-                      vaddps  xmm2, xmm1, xmm2
-                      vmovhlps xmm0, xmm2, xmm2
-                      vaddps  xmm1, xmm0, xmm2
-                      vshufps xmm0, xmm1, xmm1, 0F5h ; 'õ'
-                      vaddss  xmm1, xmm1, xmm0
-                      vaddss  xmm7, xmm7, xmm1
-                    }
+                    while ( v53 < deviceChannelCount - (v51 & 7) );
+                    _XMM1 = _mm128_add_ps(v59, v58);
+                    __asm { vmovhlps xmm0, xmm1, xmm1 }
+                    v66 = _mm128_add_ps(_XMM0, _XMM1);
+                    *(float *)&v56 = *(float *)&v56 + (float)(v66.m128_f32[0] + _mm_shuffle_ps(v66, v66, 245).m128_f32[0]);
+                    v55 = v56;
                   }
-                  if ( v129 < deviceChannelCount )
+                  if ( v53 < deviceChannelCount )
                   {
-                    if ( deviceChannelCount - v129 >= 4 )
+                    if ( deviceChannelCount - v53 >= 4 )
                     {
-                      _R9 = v129 + v130 + 1;
-                      v161 = ((deviceChannelCount - v129 - 4) >> 2) + 1;
-                      v162 = v161;
-                      v129 += 4 * v161;
+                      v67 = v53 + (unsigned int)v54 + 1;
+                      v68 = ((deviceChannelCount - v53 - 4) >> 2) + 1;
+                      v69 = v68;
+                      v53 += 4 * v68;
                       do
                       {
-                        _RAX = (unsigned int)(_R9 - 1);
-                        __asm { vmovd   xmm0, dword ptr [r8+rax*4] }
-                        _RAX = (unsigned int)(_R9 + 1);
-                        __asm
-                        {
-                          vcvtdq2pd xmm0, xmm0
-                          vmulsd  xmm1, xmm0, xmm14
-                          vmovd   xmm0, dword ptr [r8+r9*4]
-                          vcvtdq2pd xmm0, xmm0
-                          vcvtsd2ss xmm3, xmm1, xmm1
-                          vmulsd  xmm1, xmm0, xmm14
-                          vmovd   xmm0, dword ptr [r8+rax*4]
-                        }
-                        _RAX = (unsigned int)(_R9 + 2);
-                        _R9 = (unsigned int)(_R9 + 4);
-                        __asm
-                        {
-                          vcvtdq2pd xmm0, xmm0
-                          vcvtsd2ss xmm2, xmm1, xmm1
-                          vmulsd  xmm1, xmm0, xmm14
-                          vmovd   xmm0, dword ptr [r8+rax*4]
-                          vaddss  xmm4, xmm3, xmm2
-                          vcvtsd2ss xmm2, xmm1, xmm1
-                          vcvtdq2pd xmm0, xmm0
-                          vmulsd  xmm1, xmm0, xmm14
-                          vaddss  xmm3, xmm4, xmm2
-                          vcvtsd2ss xmm2, xmm1, xmm1
-                          vaddss  xmm3, xmm3, xmm2
-                          vmulss  xmm0, xmm3, xmm6
-                          vaddss  xmm7, xmm7, xmm0
-                        }
-                        --v162;
+                        v70 = (float)((float)*(__int16 *)(v49 + 2i64 * (unsigned int)(v67 - 1)) * 0.000030518509) + (float)((float)*(__int16 *)(v49 + 2 * v67) * 0.000030518509);
+                        v71 = (float)*(__int16 *)(v49 + 2i64 * (unsigned int)(v67 + 1));
+                        v72 = *(__int16 *)(v49 + 2i64 * (unsigned int)(v67 + 2));
+                        v67 = (unsigned int)(v67 + 4);
+                        v73 = (float)((float)(v70 + (float)(v71 * 0.000030518509)) + (float)((float)v72 * 0.000030518509)) * v4.m128_f32[0];
+                        v74 = v55;
+                        *(float *)&v74 = *(float *)&v55 + v73;
+                        v55 = v74;
+                        --v69;
                       }
-                      while ( v162 );
+                      while ( v69 );
                     }
-                    while ( v129 < deviceChannelCount )
+                    for ( ; v53 < deviceChannelCount; v55 = v76 )
                     {
-                      ++v129;
-                      __asm
-                      {
-                        vxorpd  xmm0, xmm0, xmm0
-                        vcvtsi2sd xmm0, xmm0, dword ptr [r8+rax*4]
-                        vmulsd  xmm1, xmm0, xmm14
-                        vcvtsd2ss xmm2, xmm1, xmm1
-                        vmulss  xmm3, xmm2, xmm6
-                        vaddss  xmm7, xmm7, xmm3
-                      }
+                      v75 = v53 + (unsigned int)v54;
+                      ++v53;
+                      v76 = v55;
+                      *(float *)&v76 = *(float *)&v55 + (float)((float)((float)*(__int16 *)(v49 + 2 * v75) * 0.000030518509) * v4.m128_f32[0]);
                     }
                   }
                 }
-                __asm { vmovss  dword ptr [rsi], xmm7 }
-                _RSI += 4i64;
-                ++v126;
+                *v52++ = *(float *)&v55;
+                ++v50;
               }
-              while ( v126 < v34 );
+              while ( v50 < v17 );
             }
           }
         }
         else
         {
-          _R8 = v233;
-          v186 = 0;
-          if ( v34 )
+          v77 = v168;
+          v78 = 0;
+          if ( v17 )
           {
-            v187 = deviceChannelCount - 1;
-            _RSI = v21;
+            v79 = deviceChannelCount - 1;
+            v80 = (float *)v8;
             do
             {
-              v189 = 1;
-              v190 = deviceChannelCount * v186;
-              __asm { vmulss  xmm3, xmm6, dword ptr [r8+r10*4] }
+              v81 = 1;
+              v82 = deviceChannelCount * v78;
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, dword ptr [r8+r10*4] }
+              *((_QWORD *)&v86 + 1) = _XMM0.m128_u64[1];
+              *(double *)&v86 = *(double *)_XMM0.m128_u64 * 4.656612875245797e-10;
+              _XMM1 = v86;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              v89 = _XMM2;
+              *(float *)&v89 = *(float *)&_XMM2 * v4.m128_f32[0];
+              v88 = v89;
               if ( deviceChannelCount > 1 )
               {
-                if ( v187 >= 8 )
+                if ( v79 >= 4 )
                 {
-                  v192 = v190 + 5;
-                  __asm
-                  {
-                    vxorps  xmm1, xmm1, xmm1
-                    vxorps  xmm2, xmm2, xmm2
-                  }
+                  __asm { vmovupd xmm8, cs:__xmm@3e000000002000003e00000000200000 }
+                  v91 = (unsigned int)(v82 + 3);
+                  v164 = 0i64;
+                  v92 = 0ui64;
+                  v163 = 0i64;
+                  v93 = 0ui64;
                   do
                   {
-                    v189 += 8;
+                    v81 += 4;
+                    _XMM0 = *(unsigned __int64 *)(v77 + 4i64 * (unsigned int)(v91 - 2));
                     __asm
                     {
-                      vmulps  xmm0, xmm11, xmmword ptr [r8+rax*4]
-                      vaddps  xmm1, xmm0, xmm1
-                      vmulps  xmm0, xmm11, xmmword ptr [r8+r9*4]
+                      vcvtdq2pd xmm1, xmm0
+                      vmulpd  xmm2, xmm1, xmm8
+                      vcvtpd2ps xmm4, xmm2
+                      vxorpd  xmm0, xmm0, xmm0
                     }
-                    v192 += 8;
-                    __asm { vaddps  xmm2, xmm0, xmm2 }
+                    v99.m128_u64[1] = *((_QWORD *)&_XMM0 + 1);
+                    v99.m128_u64[0] = v15;
+                    _XMM0 = *(unsigned __int64 *)(v77 + 4 * v91);
+                    v91 = (unsigned int)(v91 + 4);
+                    __asm { vcvtdq2pd xmm1, xmm0 }
+                    v92 = _mm128_add_ps(_mm128_mul_ps(_XMM4, v99), v92);
+                    __asm
+                    {
+                      vmulpd  xmm2, xmm1, xmm8
+                      vcvtpd2ps xmm4, xmm2
+                      vxorpd  xmm0, xmm0, xmm0
+                    }
+                    v99.m128_u64[1] = *((_QWORD *)&_XMM0 + 1);
+                    v93 = _mm128_add_ps(_mm128_mul_ps(_XMM4, v99), v93);
                   }
-                  while ( v189 < deviceChannelCount - (v187 & 7) );
-                  __asm
-                  {
-                    vaddps  xmm1, xmm2, xmm1
-                    vmovhlps xmm0, xmm1, xmm1
-                    vaddps  xmm2, xmm0, xmm1
-                    vshufps xmm0, xmm2, xmm2, 0F5h ; 'õ'
-                    vaddss  xmm2, xmm2, xmm0
-                    vaddss  xmm3, xmm3, xmm2
-                  }
+                  while ( v81 < deviceChannelCount - (v79 & 3) );
+                  _XMM2 = _mm128_add_ps(v93, v92);
+                  __asm { vmovhlps xmm0, xmm2, xmm2 }
+                  v107 = _mm128_add_ps(_XMM0, _XMM2);
+                  _XMM0 = _mm_shuffle_ps(v107, v107, 245);
+                  v108 = v88;
+                  *(float *)&v108 = *(float *)&v88 + (float)(v107.m128_f32[0] + _XMM0.m128_f32[0]);
+                  v88 = v108;
                 }
-                if ( v189 < deviceChannelCount )
+                if ( v81 < deviceChannelCount )
                 {
-                  if ( deviceChannelCount - v189 >= 4 )
+                  if ( deviceChannelCount - v81 >= 4 )
                   {
-                    v201 = v189 + v190 + 1;
-                    v202 = ((deviceChannelCount - v189 - 4) >> 2) + 1;
-                    v203 = v202;
-                    v189 += 4 * v202;
+                    v109 = v81 + v82 + 1;
+                    v110 = ((deviceChannelCount - v81 - 4) >> 2) + 1;
+                    v111 = v110;
+                    v81 += 4 * v110;
                     do
                     {
-                      _RAX = (unsigned int)(v201 - 1);
+                      _XMM0 = *(unsigned int *)(v77 + 4i64 * (unsigned int)(v109 - 1));
+                      __asm { vcvtdq2pd xmm0, xmm0 }
+                      *((_QWORD *)&v115 + 1) = *((_QWORD *)&_XMM0 + 1);
+                      *(double *)&v115 = *(double *)&_XMM0 * 4.656612875245797e-10;
+                      _XMM1 = v115;
+                      _XMM0 = *(unsigned int *)(v77 + 4 * v109);
                       __asm
                       {
-                        vmovss  xmm0, dword ptr [r8+rax*4]
-                        vaddss  xmm1, xmm0, dword ptr [r8+r9*4]
-                        vaddss  xmm0, xmm1, dword ptr [r8+rax*4]
+                        vcvtdq2pd xmm0, xmm0
+                        vcvtsd2ss xmm3, xmm1, xmm1
                       }
-                      v201 += 4;
+                      *((_QWORD *)&v115 + 1) = *((_QWORD *)&_XMM0 + 1);
+                      *(double *)&v115 = *(double *)&_XMM0 * 4.656612875245797e-10;
+                      _XMM1 = v115;
+                      _XMM0 = *(unsigned int *)(v77 + 4i64 * (unsigned int)(v109 + 1));
+                      v121 = (unsigned int)(v109 + 2);
+                      v109 = (unsigned int)(v109 + 4);
                       __asm
                       {
-                        vaddss  xmm0, xmm0, dword ptr [r8+rax*4]
-                        vmulss  xmm1, xmm0, xmm6
-                        vaddss  xmm3, xmm3, xmm1
+                        vcvtdq2pd xmm0, xmm0
+                        vcvtsd2ss xmm2, xmm1, xmm1
                       }
-                      --v203;
+                      *((_QWORD *)&v115 + 1) = *((_QWORD *)&_XMM0 + 1);
+                      *(double *)&v115 = *(double *)&_XMM0 * 4.656612875245797e-10;
+                      _XMM1 = v115;
+                      _XMM0 = *(unsigned int *)(v77 + 4 * v121);
+                      v127 = _XMM3;
+                      v127.m128_f32[0] = _XMM3.m128_f32[0] + *(float *)&_XMM2;
+                      v126 = v127;
+                      __asm
+                      {
+                        vcvtsd2ss xmm2, xmm1, xmm1
+                        vcvtdq2pd xmm0, xmm0
+                      }
+                      v127.m128_u64[1] = *((_QWORD *)&_XMM0 + 1);
+                      *(double *)v127.m128_u64 = *(double *)&_XMM0 * 4.656612875245797e-10;
+                      _XMM1 = v127;
+                      v131 = v126;
+                      v131.m128_f32[0] = v126.m128_f32[0] + *(float *)&_XMM2;
+                      __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                      v131.m128_f32[0] = (float)(v131.m128_f32[0] + *(float *)&_XMM2) * v4.m128_f32[0];
+                      _XMM0 = v131;
+                      v133 = v88;
+                      *(float *)&v133 = *(float *)&v88 + _XMM0.m128_f32[0];
+                      v88 = v133;
+                      --v111;
                     }
-                    while ( v203 );
+                    while ( v111 );
                   }
-                  while ( v189 < deviceChannelCount )
+                  for ( ; v81 < deviceChannelCount; v88 = v138 )
                   {
-                    ++v189;
+                    ++v81;
                     __asm
                     {
-                      vmulss  xmm0, xmm6, dword ptr [r8+rax*4]
-                      vaddss  xmm3, xmm3, xmm0
+                      vxorpd  xmm0, xmm0, xmm0
+                      vcvtsi2sd xmm0, xmm0, dword ptr [r8+rax*4]
                     }
+                    *((_QWORD *)&v136 + 1) = _XMM0.m128_u64[1];
+                    *(double *)&v136 = *(double *)_XMM0.m128_u64 * 4.656612875245797e-10;
+                    _XMM1 = v136;
+                    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                    v138 = v88;
+                    *(float *)&v138 = *(float *)&v88 + (float)(*(float *)&_XMM2 * v4.m128_f32[0]);
                   }
                 }
               }
-              __asm { vmovss  dword ptr [rsi], xmm3 }
-              _RSI += 4i64;
-              ++v186;
+              *v80++ = *(float *)&v88;
+              ++v78;
             }
-            while ( v186 < v34 );
+            while ( v78 < v17 );
           }
         }
-        *(_DWORD *)&platformData[20].currentDeviceId.value[4] += v34;
-        (*(void (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 32i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], v230);
-        v20 -= v34;
-        v21 += 4i64 * v34;
-        if ( (*(int (__fastcall **)(_QWORD, unsigned int *))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 40i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], &v231) < 0 )
-          break;
-        v29 = v231;
       }
-      while ( v231 );
-      __asm
+      else
       {
-        vmovaps xmm13, [rsp+138h+var_C8]
-        vmovaps xmm12, [rsp+138h+var_B8]
-        vmovaps xmm10, [rsp+138h+var_98]
-        vmovaps xmm9, [rsp+138h+var_88]
-        vmovaps xmm8, [rsp+138h+var_78]
-        vmovaps xmm7, [rsp+138h+var_68]
-        vmovaps xmm14, [rsp+138h+var_D8]
+        v139 = v168;
+        v140 = 0;
+        if ( v17 )
+        {
+          v141 = deviceChannelCount - 1;
+          v142 = (float *)v8;
+          do
+          {
+            v143 = 1;
+            v144 = deviceChannelCount * v140;
+            v146 = v4;
+            v146.m128_f32[0] = v4.m128_f32[0] * *(float *)(v139 + 4 * v144);
+            v145 = v146;
+            if ( deviceChannelCount > 1 )
+            {
+              if ( v141 >= 8 )
+              {
+                v147 = (unsigned int)(v144 + 5);
+                v148 = 0i64;
+                v149 = 0i64;
+                do
+                {
+                  v143 += 8;
+                  v148 = _mm128_add_ps(_mm128_mul_ps(v14, *(__m128 *)(v139 + 4i64 * (unsigned int)(v147 - 4))), v148);
+                  v150 = _mm128_mul_ps(v14, *(__m128 *)(v139 + 4 * v147));
+                  v147 = (unsigned int)(v147 + 8);
+                  v149 = _mm128_add_ps(v150, v149);
+                }
+                while ( v143 < deviceChannelCount - (v141 & 7) );
+                _XMM1 = _mm128_add_ps(v149, v148);
+                __asm { vmovhlps xmm0, xmm1, xmm1 }
+                v153 = _mm128_add_ps(_XMM0, _XMM1);
+                v146.m128_f32[0] = v146.m128_f32[0] + (float)(v153.m128_f32[0] + _mm_shuffle_ps(v153, v153, 245).m128_f32[0]);
+                v145 = v146;
+              }
+              if ( v143 < deviceChannelCount )
+              {
+                if ( deviceChannelCount - v143 >= 4 )
+                {
+                  v154 = v143 + (unsigned int)v144 + 1;
+                  v155 = ((deviceChannelCount - v143 - 4) >> 2) + 1;
+                  v156 = v155;
+                  v143 += 4 * v155;
+                  do
+                  {
+                    v157 = (float)(*(float *)(v139 + 4i64 * (unsigned int)(v154 - 1)) + *(float *)(v139 + 4 * v154)) + *(float *)(v139 + 4i64 * (unsigned int)(v154 + 1));
+                    v158 = (unsigned int)(v154 + 2);
+                    v154 = (unsigned int)(v154 + 4);
+                    v159 = (float)(v157 + *(float *)(v139 + 4 * v158)) * v4.m128_f32[0];
+                    v160 = v145;
+                    v160.m128_f32[0] = v145.m128_f32[0] + v159;
+                    v145 = v160;
+                    --v156;
+                  }
+                  while ( v156 );
+                }
+                for ( ; v143 < deviceChannelCount; v145 = v162 )
+                {
+                  v161 = v143 + (unsigned int)v144;
+                  ++v143;
+                  v162 = v145;
+                  v162.m128_f32[0] = v145.m128_f32[0] + (float)(v4.m128_f32[0] * *(float *)(v139 + 4 * v161));
+                }
+              }
+            }
+            *v142++ = v145.m128_f32[0];
+            ++v140;
+          }
+          while ( v140 < v17 );
+        }
       }
+      *(_DWORD *)&platformData[20].currentDeviceId.value[4] += v17;
+      (*(void (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 32i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], v165);
+      v7 -= v17;
+      v8 += 4i64 * v17;
+      if ( (*(int (__fastcall **)(_QWORD, unsigned int *))(**(_QWORD **)&platformData[20].pendingDeviceId.value[52] + 40i64))(*(_QWORD *)&platformData[20].pendingDeviceId.value[52], &v166) < 0 )
+        break;
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+138h+var_58]
-    vmovaps xmm11, [rsp+138h+var_A8]
-    vmovaps xmm15, [rsp+138h+var_E8]
   }
 }
 
@@ -1112,12 +1022,13 @@ char AD_EndpointOpen_Platform(AD_Endpoint *const endpoint)
   IMMDevice **AddressOf; 
   AD_Output_Endpoint_Platform *OutputPlatformData; 
   bool trySupportSpatialAudio; 
+  AD_Endpoint_Platform *v17; 
   AD_COMContainer<IMMDevice> *p_device; 
   IMMDevice *instance; 
   char *fmt; 
   AD_EndpointRole role; 
   AD_EndpointFlow flow; 
-  int v26; 
+  int v23; 
   AD_WASAPIDeviceInfo deviceInfo; 
   wchar_t dest[56]; 
 
@@ -1168,10 +1079,10 @@ LABEL_29:
   v10 = v9;
   if ( v9 >= 0 )
     goto LABEL_31;
-  v26 = v9;
+  v23 = v9;
   flow = endpoint->flow;
   role = endpoint->role;
-  AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", "829", Error, "Couldn't create custom device '%s' for role %d, flow %d. HRESULT = 0x%x", endpoint->platformData->pendingDeviceId.value, role, flow, v26);
+  AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", "829", Error, "Couldn't create custom device '%s' for role %d, flow %d. HRESULT = 0x%x", endpoint->platformData->pendingDeviceId.value, role, flow, v23);
   if ( (unsigned int)AD_GetLogBreakLevel() <= Error )
     __debugbreak();
 LABEL_30:
@@ -1197,16 +1108,10 @@ LABEL_31:
       if ( AD_EndpointOpen_WASAPI(endpoint, &deviceInfo, (const AD_EndpointRole)endpoint->role) )
         return 1;
     }
-    _RAX = endpoint->platformData;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+258h+deviceInfo.deviceId.value]
-      vmovups ymmword ptr [rax+84h], ymm0
-      vmovups xmm1, xmmword ptr [rsp+258h+deviceInfo.deviceId.value+20h]
-      vmovups xmmword ptr [rax+0A4h], xmm1
-      vmovsd  xmm0, qword ptr [rsp+258h+deviceInfo.deviceId.value+30h]
-      vmovsd  qword ptr [rax+0B4h], xmm0
-    }
+    v17 = endpoint->platformData;
+    *(__m256i *)v17->currentDeviceId.value = *(__m256i *)deviceInfo.deviceId.value;
+    *(_OWORD *)&v17->currentDeviceId.value[32] = *(_OWORD *)&deviceInfo.deviceId.value[32];
+    *(double *)&v17->currentDeviceId.value[48] = *(double *)&deviceInfo.deviceId.value[48];
   }
   AD_EndpointCleanupCOM(endpoint);
   p_device = &endpoint->platformData->device;
@@ -1226,6 +1131,7 @@ AD_EndpointOpen_Spatial
 */
 char AD_EndpointOpen_Spatial(AD_Endpoint *const endpoint, AD_WASAPIDeviceInfo *devInfo, const AD_EndpointRole endpointRole)
 {
+  AD_Endpoint_Platform *platformData; 
   IMMDevice *instance; 
   HRESULT (__fastcall *Activate)(IMMDevice *, const _GUID *, unsigned int, tagPROPVARIANT *, void **); 
   unsigned int v10; 
@@ -1245,22 +1151,24 @@ char AD_EndpointOpen_Spatial(AD_Endpoint *const endpoint, AD_WASAPIDeviceInfo *d
   __int64 v31; 
   unsigned int v32; 
   unsigned int v33; 
-  __int64 v38; 
-  __int64 v40; 
+  AD_WASAPIDeviceInfo *v34; 
+  __int64 v35; 
+  __int64 v37; 
   WAVEFORMATEXTENSIBLE *wfx; 
-  __int64 v42[2]; 
-  __int64 v43[3]; 
-  WAVEFORMATEXTENSIBLE *v44; 
-  __int64 v46; 
-  int v47; 
+  __int64 v39[2]; 
+  __int64 v40[3]; 
+  WAVEFORMATEXTENSIBLE *v41; 
+  int v42; 
+  __int64 v43; 
+  int v44; 
   void *deviceMixEvent; 
-  _QWORD *v49; 
-  unsigned int v50; 
-  AD_WASAPIDeviceInfo *v51; 
-  int v52; 
+  _QWORD *v46; 
+  unsigned int v47; 
+  AD_WASAPIDeviceInfo *v48; 
+  int v49; 
 
-  v51 = devInfo;
-  v42[1] = -2i64;
+  v48 = devInfo;
+  v39[1] = -2i64;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 161, ASSERT_TYPE_ASSERT, "endpoint", "endpoint") )
     __debugbreak();
   if ( !devInfo && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 162, ASSERT_TYPE_ASSERT, "devInfo", "devInfo") )
@@ -1272,37 +1180,37 @@ char AD_EndpointOpen_Spatial(AD_Endpoint *const endpoint, AD_WASAPIDeviceInfo *d
     if ( endpoint->flow && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 40, ASSERT_TYPE_ASSERT, "flow == AD_EndpointFlow::Output", "flow == AD_EndpointFlow::Output") )
       __debugbreak();
   }
-  _RDI = endpoint->platformData;
-  if ( _RDI[656].currentDeviceId.value[45] != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 167, ASSERT_TYPE_ASSERT, "outputPlatformData->supportSpatialAudio == true", "outputPlatformData->supportSpatialAudio == true") )
+  platformData = endpoint->platformData;
+  if ( platformData[656].currentDeviceId.value[45] != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 167, ASSERT_TYPE_ASSERT, "outputPlatformData->supportSpatialAudio == true", "outputPlatformData->supportSpatialAudio == true") )
     __debugbreak();
-  if ( !*(_QWORD *)&_RDI[656].currentDeviceId.value[36] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 171, ASSERT_TYPE_ASSERT, "outputPlatformData->spatialData", "outputPlatformData->spatialData") )
+  if ( !*(_QWORD *)&platformData[656].currentDeviceId.value[36] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 171, ASSERT_TYPE_ASSERT, "outputPlatformData->spatialData", "outputPlatformData->spatialData") )
     __debugbreak();
-  instance = _RDI->device.instance;
+  instance = platformData->device.instance;
   Activate = instance->Activate;
-  if ( **(_QWORD **)&_RDI[656].currentDeviceId.value[36] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.h", 404, ASSERT_TYPE_ASSERT, "instance == nullptr", "instance == nullptr") )
+  if ( **(_QWORD **)&platformData[656].currentDeviceId.value[36] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.h", 404, ASSERT_TYPE_ASSERT, "instance == nullptr", "instance == nullptr") )
     __debugbreak();
   if ( ((int (__fastcall *)(IMMDevice *, GUID *, __int64))Activate)(instance, &IID_ISpatialAudioClient, 1i64) < 0 )
     goto LABEL_69;
-  v52 = 0;
-  if ( (*(int (__fastcall **)(_QWORD, int *))(***(_QWORD ***)&_RDI[656].currentDeviceId.value[36] + 40i64))(**(_QWORD **)&_RDI[656].currentDeviceId.value[36], &v52) < 0 )
+  v49 = 0;
+  if ( (*(int (__fastcall **)(_QWORD, int *))(***(_QWORD ***)&platformData[656].currentDeviceId.value[36] + 40i64))(**(_QWORD **)&platformData[656].currentDeviceId.value[36], &v49) < 0 )
     goto LABEL_69;
-  v50 = 0;
-  v42[0] = 0i64;
-  if ( (*(int (__fastcall **)(_QWORD, __int64 *))(***(_QWORD ***)&_RDI[656].currentDeviceId.value[36] + 48i64))(**(_QWORD **)&_RDI[656].currentDeviceId.value[36], v42) < 0 )
+  v47 = 0;
+  v39[0] = 0i64;
+  if ( (*(int (__fastcall **)(_QWORD, __int64 *))(***(_QWORD ***)&platformData[656].currentDeviceId.value[36] + 48i64))(**(_QWORD **)&platformData[656].currentDeviceId.value[36], v39) < 0 )
     goto LABEL_67;
-  if ( (*(int (__fastcall **)(__int64, unsigned int *))(*(_QWORD *)v42[0] + 24i64))(v42[0], &v50) < 0 )
+  if ( (*(int (__fastcall **)(__int64, unsigned int *))(*(_QWORD *)v39[0] + 24i64))(v39[0], &v47) < 0 )
     goto LABEL_67;
-  if ( !v50 )
+  if ( !v47 )
     goto LABEL_67;
-  if ( !v52 )
+  if ( !v49 )
     goto LABEL_67;
   wfx = NULL;
   v10 = 0;
-  if ( !v50 )
+  if ( !v47 )
     goto LABEL_67;
   do
   {
-    if ( (*(int (__fastcall **)(__int64, _QWORD, WAVEFORMATEXTENSIBLE **))(*(_QWORD *)v42[0] + 32i64))(v42[0], 0i64, &wfx) < 0 )
+    if ( (*(int (__fastcall **)(__int64, _QWORD, WAVEFORMATEXTENSIBLE **))(*(_QWORD *)v39[0] + 32i64))(v39[0], 0i64, &wfx) < 0 )
     {
       v12 = wfx;
     }
@@ -1317,13 +1225,13 @@ char AD_EndpointOpen_Spatial(AD_Endpoint *const endpoint, AD_WASAPIDeviceInfo *d
     }
     ++v10;
   }
-  while ( v10 < v50 );
+  while ( v10 < v47 );
   if ( !v12 )
     goto LABEL_67;
-  _RDI->deviceFormat = AD_DetermineMixFormat(v12);
-  if ( (*(int (__fastcall **)(_QWORD, WAVEFORMATEXTENSIBLE *, unsigned int *))(***(_QWORD ***)&_RDI[656].currentDeviceId.value[36] + 56i64))(**(_QWORD **)&_RDI[656].currentDeviceId.value[36], wfx, &_RDI->deviceBufferSize) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 215, ASSERT_TYPE_ASSERT, "(((HRESULT)(hr)) >= 0)", "SUCCEEDED( hr )") )
+  platformData->deviceFormat = AD_DetermineMixFormat(v12);
+  if ( (*(int (__fastcall **)(_QWORD, WAVEFORMATEXTENSIBLE *, unsigned int *))(***(_QWORD ***)&platformData[656].currentDeviceId.value[36] + 56i64))(**(_QWORD **)&platformData[656].currentDeviceId.value[36], wfx, &platformData->deviceBufferSize) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 215, ASSERT_TYPE_ASSERT, "(((HRESULT)(hr)) >= 0)", "SUCCEEDED( hr )") )
     __debugbreak();
-  if ( _RDI->deviceBufferSize > 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 216, ASSERT_TYPE_ASSERT, "outputPlatformData->deviceBufferSize <= AD_MixerBufferFrames", "outputPlatformData->deviceBufferSize <= AD_MixerBufferFrames") )
+  if ( platformData->deviceBufferSize > 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 216, ASSERT_TYPE_ASSERT, "outputPlatformData->deviceBufferSize <= AD_MixerBufferFrames", "outputPlatformData->deviceBufferSize <= AD_MixerBufferFrames") )
     __debugbreak();
   __asm
   {
@@ -1349,29 +1257,29 @@ char AD_EndpointOpen_Spatial(AD_Endpoint *const endpoint, AD_WASAPIDeviceInfo *d
     vpsrldq xmm0, xmm2, 4
     vpor    xmm0, xmm2, xmm0
   }
-  v44 = wfx;
-  __asm { vmovd   [rsp+0C8h+var_60], xmm0 }
-  v46 = 0i64;
-  v47 = 6;
-  deviceMixEvent = _RDI->deviceMixEvent;
-  v21 = *(_QWORD **)&_RDI[656].currentDeviceId.value[36];
-  v49 = v21 + 18;
-  v43[0] = 65i64;
-  v43[1] = 40i64;
-  v43[2] = (__int64)&v44;
+  v41 = wfx;
+  v42 = _XMM0;
+  v43 = 0i64;
+  v44 = 6;
+  deviceMixEvent = platformData->deviceMixEvent;
+  v21 = *(_QWORD **)&platformData[656].currentDeviceId.value[36];
+  v46 = v21 + 18;
+  v40[0] = 65i64;
+  v40[1] = 40i64;
+  v40[2] = (__int64)&v41;
   v22 = *v21;
   v23 = *(int (__fastcall **)(__int64, __int64 *, GUID *, _QWORD *))(*(_QWORD *)*v21 + 80i64);
   v24 = v21 + 1;
   if ( v21[1] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.h", 404, ASSERT_TYPE_ASSERT, "instance == nullptr", "instance == nullptr") )
     __debugbreak();
-  if ( v23(v22, v43, &IID_ISpatialAudioObjectRenderStream, v24) < 0 )
+  if ( v23(v22, v40, &IID_ISpatialAudioObjectRenderStream, v24) < 0 )
   {
 LABEL_67:
-    v40 = v42[0];
-    if ( v42[0] )
+    v37 = v39[0];
+    if ( v39[0] )
     {
-      v42[0] = 0i64;
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v40 + 16i64))(v40);
+      v39[0] = 0i64;
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v37 + 16i64))(v37);
     }
 LABEL_69:
     AD_EndpointCleanupCOM(endpoint);
@@ -1382,7 +1290,7 @@ LABEL_69:
   v27 = 16i64;
   do
   {
-    v28 = *(_QWORD *)&_RDI[656].currentDeviceId.value[36];
+    v28 = *(_QWORD *)&platformData[656].currentDeviceId.value[36];
     v29 = *(_QWORD *)(v28 + 8);
     v30 = *(int (__fastcall **)(__int64, _QWORD, __int64))(*(_QWORD *)v29 + 80i64);
     v31 = v28 + v26;
@@ -1395,36 +1303,30 @@ LABEL_69:
     --v27;
   }
   while ( v27 );
-  v32 = 16 * _RDI->deviceBufferSize;
+  v32 = 16 * platformData->deviceBufferSize;
   if ( v32 > 0x8000 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 29, ASSERT_TYPE_ASSERT, "s <= T_SIZE", "s <= T_SIZE") )
     __debugbreak();
   v33 = 4 * v32;
   if ( v33 > 0x20000 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 685, ASSERT_TYPE_ASSERT, "s <= T_SIZE", "s <= T_SIZE") )
     __debugbreak();
-  *(_DWORD *)&_RDI[656].pendingDeviceId.value[52] = v33;
-  memset_0(&_RDI[1].audioClient1, 0, v33);
-  _RDI->deviceChannelCount = 16;
-  _RDI->deviceRate = wfx->Format.nSamplesPerSec;
-  _RBX = (__int64)v51;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi+84h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rdi+0A4h], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rdi+0B4h], xmm0
-  }
-  _RDI->deviceFormFactor = *(_DWORD *)(_RBX + 320);
-  _RDI->state = *(_DWORD *)(_RBX + 312);
-  if ( (*(int (__fastcall **)(_QWORD))(**(_QWORD **)(*(_QWORD *)&_RDI[656].currentDeviceId.value[36] + 8i64) + 40i64))(*(_QWORD *)(*(_QWORD *)&_RDI[656].currentDeviceId.value[36] + 8i64)) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 266, ASSERT_TYPE_ASSERT, "(((HRESULT)(hr)) >= 0)", "SUCCEEDED( hr )") )
+  *(_DWORD *)&platformData[656].pendingDeviceId.value[52] = v33;
+  memset_0(&platformData[1].audioClient1, 0, v33);
+  platformData->deviceChannelCount = 16;
+  platformData->deviceRate = wfx->Format.nSamplesPerSec;
+  v34 = v48;
+  *(__m256i *)platformData->currentDeviceId.value = *(__m256i *)v48->deviceId.value;
+  *(_OWORD *)&platformData->currentDeviceId.value[32] = *(_OWORD *)&v34->deviceId.value[32];
+  *(double *)&platformData->currentDeviceId.value[48] = *(double *)&v34->deviceId.value[48];
+  platformData->deviceFormFactor = v34->formFactor;
+  platformData->state = v34->state;
+  if ( (*(int (__fastcall **)(_QWORD))(**(_QWORD **)(*(_QWORD *)&platformData[656].currentDeviceId.value[36] + 8i64) + 40i64))(*(_QWORD *)(*(_QWORD *)&platformData[656].currentDeviceId.value[36] + 8i64)) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 266, ASSERT_TYPE_ASSERT, "(((HRESULT)(hr)) >= 0)", "SUCCEEDED( hr )") )
     __debugbreak();
-  AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", "267", Canceled, "Created spatial render device: %s", (const char *)(_RBX + 56));
-  v38 = v42[0];
-  if ( v42[0] )
+  AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", "267", Canceled, "Created spatial render device: %s", v34->deviceName);
+  v35 = v39[0];
+  if ( v39[0] )
   {
-    v42[0] = 0i64;
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v38 + 16i64))(v38);
+    v39[0] = 0i64;
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v35 + 16i64))(v35);
   }
   return 1;
 }
@@ -1519,176 +1421,173 @@ AD_EndpointSubmitBuffer
 */
 char AD_EndpointSubmitBuffer(AD_Endpoint *const endpoint, const unsigned int numFrames)
 {
+  AD_Endpoint_Platform *platformData; 
   unsigned int deviceChannelCount; 
-  __int64 v7; 
+  __int64 v6; 
   unsigned int i; 
   AD_EndpointFormat deviceFormat; 
+  __int32 v9; 
   __int32 v10; 
-  __int32 v11; 
+  unsigned int j; 
   unsigned int v12; 
-  unsigned int v14; 
-  char *v15; 
-  int v16; 
-  unsigned int v17; 
-  __int64 v18; 
-  char v21; 
-  void **v26; 
-  char v29; 
-  _BYTE *v30; 
-  unsigned int v31; 
+  char *v13; 
+  __int64 v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  __int64 v17; 
+  float v18; 
+  void **v19; 
+  float v20; 
+  _BYTE *v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  char *v25; 
+  __int64 v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  void **v30; 
+  __int64 v31; 
+  unsigned int v32; 
   __int64 v33; 
   unsigned int v34; 
   char *v35; 
-  int v36; 
+  __int64 v36; 
   unsigned int v37; 
   __int64 v38; 
-  void **v47; 
-  unsigned int v50; 
-  __int64 v52; 
-  unsigned int v53; 
-  char *v54; 
-  unsigned int v56; 
-  __int64 v57; 
-  void **v77; 
-  unsigned int v83; 
-  __int64 v84; 
-  unsigned int v85; 
-  char *v86; 
+  __int64 v45; 
+  void **v48; 
+  __int64 v49; 
+  unsigned int v52; 
+  __int64 v53; 
+  unsigned int v54; 
+  char *v55; 
+  __int64 v56; 
+  unsigned int v57; 
+  __int64 v58; 
+  __int64 v59; 
+  __int64 v60; 
+  void **v61; 
+  char *v62; 
+  int v63; 
+  __int64 v65; 
+  unsigned int v66; 
+  unsigned __int64 v67; 
+  AD_EndpointFormat v68; 
+  AD_COMContainer<IAudioClient> *p_audioClient1; 
+  __int32 v70; 
+  unsigned int k; 
+  __int64 v72; 
+  __int64 v74; 
+  char *v80; 
+  unsigned int v81; 
+  unsigned int v82; 
+  char *v83; 
+  unsigned int v84; 
+  float *p_audioClient2; 
+  float v86; 
   __int64 v87; 
-  unsigned int v88; 
-  __int64 v89; 
-  __int64 v90; 
-  __int64 v91; 
-  void **v92; 
-  char *v93; 
-  int v94; 
-  __int64 v96; 
-  unsigned int v97; 
-  AD_EndpointFormat v99; 
-  __int32 v101; 
-  unsigned int v102; 
-  char *v115; 
+  char *v88; 
+  float *v89; 
+  float v90; 
+  unsigned int v91; 
+  __int64 v93; 
+  __int64 v94; 
+  char *v113; 
+  unsigned int v114; 
+  __int64 v115; 
   unsigned int v117; 
-  unsigned int v118; 
-  char *v119; 
-  unsigned int v120; 
-  AD_COMContainer<IAudioClient2> *p_audioClient2; 
-  __int64 v130; 
-  char *v131; 
-  char *v132; 
+  __int64 v118; 
+  __int64 v122; 
+  __int64 v129; 
+  __int64 v133; 
+  __int64 v134; 
   unsigned int v135; 
-  unsigned int v159; 
-  __int64 v160; 
-  unsigned int v162; 
-  unsigned int v186; 
-  __int64 v187; 
-  __int64 v205; 
-  unsigned int v212; 
-  int v218; 
-  double v220; 
-  void *v221[3]; 
-  char v222[184]; 
+  __int64 v136; 
+  __int128 v137; 
+  __int128 v138; 
+  __int64 v147; 
+  __int64 v148; 
+  char *v149; 
+  __int128 v150; 
+  __int128 v151; 
+  char *v154; 
+  unsigned int m; 
+  __int64 v156; 
+  __int64 v157; 
+  double v158; 
+  void *v159[3]; 
+  char v160[184]; 
 
   if ( endpoint->flow && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 40, ASSERT_TYPE_ASSERT, "flow == AD_EndpointFlow::Output", "flow == AD_EndpointFlow::Output") )
     __debugbreak();
-  _RBX = endpoint->platformData;
-  deviceChannelCount = _RBX->deviceChannelCount;
-  if ( _RBX[656].currentDeviceId.value[45] )
+  platformData = endpoint->platformData;
+  deviceChannelCount = platformData->deviceChannelCount;
+  if ( platformData[656].currentDeviceId.value[45] )
   {
-    if ( !*(_QWORD *)&_RBX[656].currentDeviceId.value[36] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1116, ASSERT_TYPE_ASSERT, "outputPlatformData->spatialData", "outputPlatformData->spatialData") )
+    if ( !*(_QWORD *)&platformData[656].currentDeviceId.value[36] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1116, ASSERT_TYPE_ASSERT, "outputPlatformData->spatialData", "outputPlatformData->spatialData") )
       __debugbreak();
     if ( deviceChannelCount != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1117, ASSERT_TYPE_ASSERT, "AD_SpatialBedChannels == channelCount", "AD_SpatialBedChannels == channelCount") )
       __debugbreak();
-    v7 = 16i64;
+    v6 = 16i64;
     for ( i = 0; i < 0x10; ++i )
     {
-      if ( (*(int (__fastcall **)(_QWORD, void **, char *))(**(_QWORD **)(v7 + *(_QWORD *)&_RBX[656].currentDeviceId.value[36]) + 24i64))(*(_QWORD *)(v7 + *(_QWORD *)&_RBX[656].currentDeviceId.value[36]), &v221[i + 2], &v222[4 * i + 120]) < 0 )
+      if ( (*(int (__fastcall **)(_QWORD, void **, char *))(**(_QWORD **)(v6 + *(_QWORD *)&platformData[656].currentDeviceId.value[36]) + 24i64))(*(_QWORD *)(v6 + *(_QWORD *)&platformData[656].currentDeviceId.value[36]), &v159[i + 2], &v160[4 * i + 120]) < 0 )
       {
-        (*(void (__fastcall **)(_QWORD))(**(_QWORD **)(*(_QWORD *)&_RBX[656].currentDeviceId.value[36] + 8i64) + 72i64))(*(_QWORD *)(*(_QWORD *)&_RBX[656].currentDeviceId.value[36] + 8i64));
+        (*(void (__fastcall **)(_QWORD))(**(_QWORD **)(*(_QWORD *)&platformData[656].currentDeviceId.value[36] + 8i64) + 72i64))(*(_QWORD *)(*(_QWORD *)&platformData[656].currentDeviceId.value[36] + 8i64));
         return 0;
       }
-      v7 += 8i64;
+      v6 += 8i64;
     }
-    deviceFormat = _RBX->deviceFormat;
+    deviceFormat = platformData->deviceFormat;
     if ( deviceFormat )
     {
-      v10 = deviceFormat - 2;
-      if ( v10 )
+      v9 = deviceFormat - 2;
+      if ( v9 )
       {
-        v11 = v10 - 1;
-        if ( v11 )
+        v10 = v9 - 1;
+        if ( v10 )
         {
-          if ( v11 == 1 )
+          if ( v10 == 1 )
           {
-            v12 = 0;
-            if ( numFrames )
+            for ( j = 0; j < numFrames; ++j )
             {
-              __asm { vmovss  xmm2, cs:__real@c2fe0000 }
-              do
+              v12 = 0;
+              if ( deviceChannelCount >= 4 )
               {
-                v14 = 0;
-                if ( deviceChannelCount >= 4 )
+                v13 = v160;
+                v14 = deviceChannelCount * j + 1;
+                v15 = ((deviceChannelCount - 4) >> 2) + 1;
+                v16 = v15;
+                v12 = 4 * v15;
+                do
                 {
-                  v15 = v222;
-                  v16 = deviceChannelCount * v12 + 1;
-                  v17 = ((deviceChannelCount - 4) >> 2) + 1;
-                  v18 = v17;
-                  v14 = 4 * v17;
-                  do
-                  {
-                    __asm
-                    {
-                      vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                      vcvttss2si eax, xmm1
-                    }
-                    v21 = 0x80 - _EAX;
-                    _RAX = *((_QWORD *)v15 - 1);
-                    v15 += 32;
-                    *(_BYTE *)(v12 + _RAX) = v21;
-                    __asm
-                    {
-                      vmulss  xmm1, xmm2, dword ptr [rbx+r8*4+100h]
-                      vcvttss2si eax, xmm1
-                    }
-                    *(_BYTE *)(v12 + *((_QWORD *)v15 - 4)) = 0x80 - _RAX;
-                    __asm
-                    {
-                      vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                      vcvttss2si eax, xmm1
-                    }
-                    *(_BYTE *)(v12 + *((_QWORD *)v15 - 3)) = 0x80 - _RAX;
-                    __asm
-                    {
-                      vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                      vcvttss2si eax, xmm1
-                    }
-                    v16 += 4;
-                    *(_BYTE *)(v12 + *((_QWORD *)v15 - 2)) = 0x80 - _RAX;
-                    --v18;
-                  }
-                  while ( v18 );
+                  v17 = *((_QWORD *)v13 - 1);
+                  v13 += 32;
+                  *(_BYTE *)(j + v17) = 0x80 - (int)(float)(-127.0 * *((float *)&platformData[1].audioClient1.instance + (unsigned int)(v14 - 1)));
+                  *(_BYTE *)(j + *((_QWORD *)v13 - 4)) = 0x80 - (int)(float)(-127.0 * *((float *)&platformData[1].audioClient1.instance + v14));
+                  *(_BYTE *)(j + *((_QWORD *)v13 - 3)) = 0x80 - (int)(float)(-127.0 * *((float *)&platformData[1].audioClient1.instance + (unsigned int)(v14 + 1)));
+                  v18 = -127.0 * *((float *)&platformData[1].audioClient1.instance + (unsigned int)(v14 + 2));
+                  v14 = (unsigned int)(v14 + 4);
+                  *(_BYTE *)(j + *((_QWORD *)v13 - 2)) = 0x80 - (int)v18;
+                  --v16;
                 }
-                if ( v14 < deviceChannelCount )
-                {
-                  v26 = &v221[v14 + 2];
-                  do
-                  {
-                    __asm
-                    {
-                      vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                      vcvttss2si eax, xmm1
-                    }
-                    v29 = 0x80 - _EAX;
-                    v30 = *v26;
-                    ++v14;
-                    ++v26;
-                    v30[v12] = v29;
-                  }
-                  while ( v14 < deviceChannelCount );
-                }
-                ++v12;
+                while ( v16 );
               }
-              while ( v12 < numFrames );
+              if ( v12 < deviceChannelCount )
+              {
+                v19 = &v159[v12 + 2];
+                do
+                {
+                  v20 = -127.0 * *((float *)&platformData[1].audioClient1.instance + deviceChannelCount * j + v12);
+                  v21 = *v19;
+                  ++v12;
+                  ++v19;
+                  v21[j] = 0x80 - (int)v20;
+                }
+                while ( v12 < deviceChannelCount );
+              }
             }
           }
           else
@@ -1700,500 +1599,398 @@ char AD_EndpointSubmitBuffer(AD_Endpoint *const endpoint, const unsigned int num
         }
         else
         {
-          v31 = 0;
+          v22 = 0;
           if ( numFrames )
           {
-            __asm { vmovss  xmm2, cs:__real@46fffe00 }
-            v33 = 0i64;
+            v23 = 0i64;
             do
             {
-              v34 = 0;
+              v24 = 0;
               if ( deviceChannelCount >= 4 )
               {
-                v35 = v222;
-                v36 = deviceChannelCount * v31 + 1;
-                v37 = ((deviceChannelCount - 4) >> 2) + 1;
-                v38 = v37;
-                v34 = 4 * v37;
+                v25 = v160;
+                v26 = deviceChannelCount * v22 + 1;
+                v27 = ((deviceChannelCount - 4) >> 2) + 1;
+                v28 = v27;
+                v24 = 4 * v27;
                 do
                 {
-                  v35 += 32;
-                  __asm
-                  {
-                    vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                    vcvttss2si ecx, xmm1
-                  }
-                  *(_WORD *)(v33 + *((_QWORD *)v35 - 5)) = _ECX;
-                  __asm
-                  {
-                    vmulss  xmm1, xmm2, dword ptr [rbx+r8*4+100h]
-                    vcvttss2si ecx, xmm1
-                  }
-                  *(_WORD *)(v33 + *((_QWORD *)v35 - 4)) = _ECX;
-                  __asm
-                  {
-                    vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                    vcvttss2si ecx, xmm1
-                  }
-                  *(_WORD *)(v33 + *((_QWORD *)v35 - 3)) = _ECX;
-                  v36 += 4;
-                  __asm
-                  {
-                    vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                    vcvttss2si ecx, xmm1
-                  }
-                  *(_WORD *)(v33 + *((_QWORD *)v35 - 2)) = _ECX;
-                  --v38;
+                  v25 += 32;
+                  *(_WORD *)(v23 + *((_QWORD *)v25 - 5)) = (int)(float)(32767.0 * *((float *)&platformData[1].audioClient1.instance + (unsigned int)(v26 - 1)));
+                  *(_WORD *)(v23 + *((_QWORD *)v25 - 4)) = (int)(float)(32767.0 * *((float *)&platformData[1].audioClient1.instance + v26));
+                  *(_WORD *)(v23 + *((_QWORD *)v25 - 3)) = (int)(float)(32767.0 * *((float *)&platformData[1].audioClient1.instance + (unsigned int)(v26 + 1)));
+                  v29 = (unsigned int)(v26 + 2);
+                  v26 = (unsigned int)(v26 + 4);
+                  *(_WORD *)(v23 + *((_QWORD *)v25 - 2)) = (int)(float)(32767.0 * *((float *)&platformData[1].audioClient1.instance + v29));
+                  --v28;
                 }
-                while ( v38 );
+                while ( v28 );
               }
-              if ( v34 < deviceChannelCount )
+              if ( v24 < deviceChannelCount )
               {
-                v47 = &v221[v34 + 2];
+                v30 = &v159[v24 + 2];
                 do
                 {
-                  ++v34;
-                  ++v47;
-                  __asm
-                  {
-                    vmulss  xmm1, xmm2, dword ptr [rbx+rax*4+100h]
-                    vcvttss2si ecx, xmm1
-                  }
-                  *(_WORD *)((char *)*(v47 - 1) + v33) = _ECX;
+                  v31 = deviceChannelCount * v22 + v24++;
+                  *(_WORD *)((char *)*v30++ + v23) = (int)(float)(32767.0 * *((float *)&platformData[1].audioClient1.instance + v31));
                 }
-                while ( v34 < deviceChannelCount );
+                while ( v24 < deviceChannelCount );
               }
-              ++v31;
-              v33 += 2i64;
+              ++v22;
+              v23 += 2i64;
             }
-            while ( v31 < numFrames );
+            while ( v22 < numFrames );
           }
         }
       }
       else
       {
-        v50 = 0;
+        v32 = 0;
         if ( numFrames )
         {
-          __asm { vmovsd  xmm2, cs:__real@41dfffffffc00000 }
-          v52 = 0i64;
+          v33 = 0i64;
           do
           {
-            v53 = 0;
+            v34 = 0;
             if ( deviceChannelCount >= 4 )
             {
-              v54 = v222;
-              _R8 = deviceChannelCount * v50 + 1;
-              v56 = ((deviceChannelCount - 4) >> 2) + 1;
-              v57 = v56;
-              v53 = 4 * v56;
+              v35 = v160;
+              v36 = deviceChannelCount * v32 + 1;
+              v37 = ((deviceChannelCount - 4) >> 2) + 1;
+              v38 = v37;
+              v34 = 4 * v37;
               do
               {
-                _RAX = (unsigned int)(_R8 - 1);
-                v54 += 32;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+rax*4+100h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si ecx, xmm1
-                }
-                *(_DWORD *)(v52 + *((_QWORD *)v54 - 5)) = _ECX;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+r8*4+100h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si ecx, xmm1
-                }
-                *(_DWORD *)(v52 + *((_QWORD *)v54 - 4)) = _ECX;
-                _RAX = (unsigned int)(_R8 + 1);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+rax*4+100h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si ecx, xmm1
-                }
-                *(_DWORD *)(v52 + *((_QWORD *)v54 - 3)) = _ECX;
-                _RAX = (unsigned int)(_R8 + 2);
-                _R8 = (unsigned int)(_R8 + 4);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+rax*4+100h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si ecx, xmm1
-                }
-                *(_DWORD *)(v52 + *((_QWORD *)v54 - 2)) = _ECX;
-                --v57;
+                v35 += 32;
+                _XMM1 = COERCE_UNSIGNED_INT64(*((float *)&platformData[1].audioClient1.instance + (unsigned int)(v36 - 1)) * 2147483647.0);
+                __asm { vcvttsd2si ecx, xmm1 }
+                *(_DWORD *)(v33 + *((_QWORD *)v35 - 5)) = _ECX;
+                _XMM1 = COERCE_UNSIGNED_INT64(*((float *)&platformData[1].audioClient1.instance + v36) * 2147483647.0);
+                __asm { vcvttsd2si ecx, xmm1 }
+                *(_DWORD *)(v33 + *((_QWORD *)v35 - 4)) = _ECX;
+                _XMM1 = COERCE_UNSIGNED_INT64(*((float *)&platformData[1].audioClient1.instance + (unsigned int)(v36 + 1)) * 2147483647.0);
+                __asm { vcvttsd2si ecx, xmm1 }
+                *(_DWORD *)(v33 + *((_QWORD *)v35 - 3)) = _ECX;
+                v45 = (unsigned int)(v36 + 2);
+                v36 = (unsigned int)(v36 + 4);
+                _XMM1 = COERCE_UNSIGNED_INT64(*((float *)&platformData[1].audioClient1.instance + v45) * 2147483647.0);
+                __asm { vcvttsd2si ecx, xmm1 }
+                *(_DWORD *)(v33 + *((_QWORD *)v35 - 2)) = _ECX;
+                --v38;
               }
-              while ( v57 );
+              while ( v38 );
             }
-            if ( v53 < deviceChannelCount )
+            if ( v34 < deviceChannelCount )
             {
-              v77 = &v221[v53 + 2];
+              v48 = &v159[v34 + 2];
               do
               {
-                _RAX = deviceChannelCount * v50 + v53++;
-                ++v77;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+rax*4+100h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si ecx, xmm1
-                }
-                *(_DWORD *)((char *)*(v77 - 1) + v52) = _ECX;
+                v49 = deviceChannelCount * v32 + v34++;
+                ++v48;
+                _XMM1 = COERCE_UNSIGNED_INT64(*((float *)&platformData[1].audioClient1.instance + v49) * 2147483647.0);
+                __asm { vcvttsd2si ecx, xmm1 }
+                *(_DWORD *)((char *)*(v48 - 1) + v33) = _ECX;
               }
-              while ( v53 < deviceChannelCount );
+              while ( v34 < deviceChannelCount );
             }
-            ++v50;
-            v52 += 4i64;
+            ++v32;
+            v33 += 4i64;
           }
-          while ( v50 < numFrames );
+          while ( v32 < numFrames );
         }
       }
     }
     else
     {
-      v83 = 0;
+      v52 = 0;
       if ( numFrames )
       {
-        v84 = 0i64;
+        v53 = 0i64;
         do
         {
-          v85 = 0;
+          v54 = 0;
           if ( deviceChannelCount >= 4 )
           {
-            v86 = v222;
-            v87 = deviceChannelCount * v83 + 1;
-            v88 = ((deviceChannelCount - 4) >> 2) + 1;
-            v89 = v88;
-            v85 = 4 * v88;
+            v55 = v160;
+            v56 = deviceChannelCount * v52 + 1;
+            v57 = ((deviceChannelCount - 4) >> 2) + 1;
+            v58 = v57;
+            v54 = 4 * v57;
             do
             {
-              v90 = *((_QWORD *)v86 - 1);
-              v86 += 32;
-              *(_DWORD *)(v84 + v90) = *((_DWORD *)&_RBX[1].audioClient1.instance + (unsigned int)(v87 - 1));
-              *(_DWORD *)(v84 + *((_QWORD *)v86 - 4)) = *((_DWORD *)&_RBX[1].audioClient1.instance + v87);
-              *(_DWORD *)(v84 + *((_QWORD *)v86 - 3)) = *((_DWORD *)&_RBX[1].audioClient1.instance + (unsigned int)(v87 + 1));
-              v91 = (unsigned int)(v87 + 2);
-              v87 = (unsigned int)(v87 + 4);
-              *(_DWORD *)(v84 + *((_QWORD *)v86 - 2)) = *((_DWORD *)&_RBX[1].audioClient1.instance + v91);
-              --v89;
+              v59 = *((_QWORD *)v55 - 1);
+              v55 += 32;
+              *(_DWORD *)(v53 + v59) = *((_DWORD *)&platformData[1].audioClient1.instance + (unsigned int)(v56 - 1));
+              *(_DWORD *)(v53 + *((_QWORD *)v55 - 4)) = *((_DWORD *)&platformData[1].audioClient1.instance + v56);
+              *(_DWORD *)(v53 + *((_QWORD *)v55 - 3)) = *((_DWORD *)&platformData[1].audioClient1.instance + (unsigned int)(v56 + 1));
+              v60 = (unsigned int)(v56 + 2);
+              v56 = (unsigned int)(v56 + 4);
+              *(_DWORD *)(v53 + *((_QWORD *)v55 - 2)) = *((_DWORD *)&platformData[1].audioClient1.instance + v60);
+              --v58;
             }
-            while ( v89 );
+            while ( v58 );
           }
-          if ( v85 < deviceChannelCount )
+          if ( v54 < deviceChannelCount )
           {
-            v92 = &v221[v85 + 2];
+            v61 = &v159[v54 + 2];
             do
             {
-              v93 = (char *)*v92;
-              v94 = *((_DWORD *)&_RBX[1].audioClient1.instance + deviceChannelCount * v83 + v85);
-              ++v92;
-              ++v85;
-              *(_DWORD *)&v93[v84] = v94;
+              v62 = (char *)*v61;
+              v63 = *((_DWORD *)&platformData[1].audioClient1.instance + deviceChannelCount * v52 + v54);
+              ++v61;
+              ++v54;
+              *(_DWORD *)&v62[v53] = v63;
             }
-            while ( v85 < deviceChannelCount );
+            while ( v54 < deviceChannelCount );
           }
-          ++v83;
-          v84 += 4i64;
+          ++v52;
+          v53 += 4i64;
         }
-        while ( v83 < numFrames );
+        while ( v52 < numFrames );
       }
     }
-    if ( (*(int (__fastcall **)(_QWORD))(**(_QWORD **)(*(_QWORD *)&_RBX[656].currentDeviceId.value[36] + 8i64) + 72i64))(*(_QWORD *)(*(_QWORD *)&_RBX[656].currentDeviceId.value[36] + 8i64)) < 0 )
+    if ( (*(int (__fastcall **)(_QWORD))(**(_QWORD **)(*(_QWORD *)&platformData[656].currentDeviceId.value[36] + 8i64) + 72i64))(*(_QWORD *)(*(_QWORD *)&platformData[656].currentDeviceId.value[36] + 8i64)) < 0 )
       return 0;
   }
   else
   {
-    v96 = *(_QWORD *)&_RBX[656].currentDeviceId.value[28];
-    v97 = 0;
-    v221[0] = NULL;
-    if ( (*(int (__fastcall **)(__int64, _QWORD, void **))(*(_QWORD *)v96 + 24i64))(v96, numFrames, v221) < 0 )
+    v65 = *(_QWORD *)&platformData[656].currentDeviceId.value[28];
+    v66 = 0;
+    v159[0] = NULL;
+    if ( (*(int (__fastcall **)(__int64, _QWORD, void **))(*(_QWORD *)v65 + 24i64))(v65, numFrames, v159) < 0 )
       return 0;
-    v99 = _RBX->deviceFormat;
-    _RSI = &_RBX[1].audioClient1;
-    __asm { vmovaps [rsp+148h+var_38], xmm6 }
-    if ( v99 )
+    v68 = platformData->deviceFormat;
+    p_audioClient1 = &platformData[1].audioClient1;
+    if ( v68 )
     {
-      v101 = v99 - 2;
-      if ( v101 )
+      v70 = v68 - 2;
+      if ( v70 )
       {
-        if ( v101 == 1 )
+        if ( v70 == 1 )
         {
           if ( deviceChannelCount == 8 )
           {
-            if ( ((__int64)v221[0] & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1334, ASSERT_TYPE_ASSERT, "size_t(pData) % alignof( __m128 ) == 0", "size_t(pData) % alignof( __m128 ) == 0", v220) )
+            if ( ((__int64)v159[0] & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1334, ASSERT_TYPE_ASSERT, "size_t(pData) % alignof( __m128 ) == 0", "size_t(pData) % alignof( __m128 ) == 0", v158) )
               __debugbreak();
-            if ( ((unsigned __int8)_RBX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1335, ASSERT_TYPE_ASSERT, "size_t(sampleBuffer) % alignof( __m128i ) == 0", "size_t(sampleBuffer) % alignof( __m128i ) == 0", v220) )
+            if ( ((unsigned __int8)platformData & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1335, ASSERT_TYPE_ASSERT, "size_t(sampleBuffer) % alignof( __m128i ) == 0", "size_t(sampleBuffer) % alignof( __m128i ) == 0", v158) )
               __debugbreak();
-            _R9 = (unsigned __int64)v221[0];
-            v102 = 0;
-            __asm { vmovups xmm4, cs:__xmm@46ffff0046ffff0046ffff0046ffff00 }
-            if ( 2 * numFrames )
+            v67 = (unsigned __int64)v159[0];
+            for ( k = 0; k < 2 * numFrames; *(_QWORD *)(v67 + 8i64 * (unsigned int)v74) = _XMM1 )
             {
-              do
+              v72 = k;
+              _XMM0 = _mm128_mul_ps((__m128)_xmm, *(__m128 *)&p_audioClient1[2 * k].instance);
+              v74 = k + 1;
+              k += 2;
+              __asm { vcvttps2dq xmm3, xmm0 }
+              _XMM1 = _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&p_audioClient1[2 * v74].instance, *(__m128 *)&p_audioClient1[2 * v74].instance, 78), (__m128)_xmm);
+              __asm
               {
-                _RDX = v102;
-                __asm { vmulps  xmm0, xmm4, xmmword ptr [rsi+rax*8] }
-                _RAX = v102 + 1;
-                v102 += 2;
-                __asm { vcvttps2dq xmm3, xmm0 }
-                _RCX = (unsigned int)_RAX;
-                _RAX *= 2i64;
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rsi+rax*8]
-                  vshufps xmm0, xmm0, xmm0, 4Eh ; 'N'
-                  vmulps  xmm1, xmm0, xmm4
-                  vcvttps2dq xmm2, xmm1
-                  vpackssdw xmm0, xmm3, xmm3
-                  vpackssdw xmm1, xmm2, xmm2
-                  vmovq   qword ptr [r9+rdx*8], xmm0
-                  vmovq   qword ptr [r9+rcx*8], xmm1
-                }
+                vcvttps2dq xmm2, xmm1
+                vpackssdw xmm0, xmm3, xmm3
+                vpackssdw xmm1, xmm2, xmm2
               }
-              while ( v102 < 2 * numFrames );
+              *(_QWORD *)(v67 + 8 * v72) = _XMM0;
             }
           }
           else
           {
-            v115 = (char *)v221[0];
-            __asm { vmovss  xmm2, cs:__real@46fffe00 }
-            v117 = deviceChannelCount * numFrames;
-            v118 = 0;
+            v80 = (char *)v159[0];
+            v81 = deviceChannelCount * numFrames;
+            v82 = 0;
             if ( deviceChannelCount * numFrames >= 4 )
             {
-              v119 = (char *)v221[0] + 4;
-              v120 = ((v117 - 4) >> 2) + 1;
-              p_audioClient2 = &_RBX[1].audioClient2;
-              _R9 = v120;
-              v118 = 4 * v120;
+              v83 = (char *)v159[0] + 4;
+              v84 = ((v81 - 4) >> 2) + 1;
+              p_audioClient2 = (float *)&platformData[1].audioClient2;
+              v67 = v84;
+              v82 = 4 * v84;
               do
               {
-                v119 += 8;
-                __asm { vmulss  xmm1, xmm2, dword ptr [rdx-8] }
-                p_audioClient2 += 2;
-                __asm { vcvttss2si eax, xmm1 }
-                *((_WORD *)v119 - 6) = _EAX;
-                __asm
-                {
-                  vmulss  xmm1, xmm2, dword ptr [rdx-14h]
-                  vcvttss2si eax, xmm1
-                }
-                *((_WORD *)v119 - 5) = _EAX;
-                __asm
-                {
-                  vmulss  xmm1, xmm2, dword ptr [rdx-10h]
-                  vcvttss2si eax, xmm1
-                }
-                *((_WORD *)v119 - 4) = _EAX;
-                __asm
-                {
-                  vmulss  xmm1, xmm2, dword ptr [rdx-0Ch]
-                  vcvttss2si eax, xmm1
-                }
-                *((_WORD *)v119 - 3) = _EAX;
-                --_R9;
+                v83 += 8;
+                v86 = 32767.0 * *(p_audioClient2 - 2);
+                p_audioClient2 += 4;
+                *((_WORD *)v83 - 6) = (int)v86;
+                *((_WORD *)v83 - 5) = (int)(float)(32767.0 * *(p_audioClient2 - 5));
+                *((_WORD *)v83 - 4) = (int)(float)(32767.0 * *(p_audioClient2 - 4));
+                *((_WORD *)v83 - 3) = (int)(float)(32767.0 * *(p_audioClient2 - 3));
+                --v67;
               }
-              while ( _R9 );
+              while ( v67 );
             }
-            if ( v118 < v117 )
+            if ( v82 < v81 )
             {
-              v130 = v117 - v118;
-              v131 = &v115[2 * v118];
-              v132 = (char *)&_RSI[v118 / 2];
+              v87 = v81 - v82;
+              v88 = &v80[2 * v82];
+              v89 = (float *)&p_audioClient1[v82 / 2];
               do
               {
-                v131 += 2;
-                __asm { vmulss  xmm1, xmm2, dword ptr [rdx] }
-                v132 += 4;
-                __asm { vcvttss2si eax, xmm1 }
-                *((_WORD *)v131 - 1) = _EAX;
-                --v130;
+                v88 += 2;
+                v90 = 32767.0 * *v89++;
+                *((_WORD *)v88 - 1) = (int)v90;
+                --v87;
               }
-              while ( v130 );
+              while ( v87 );
             }
           }
         }
         else
         {
-          v97 = 2;
+          v66 = 2;
         }
       }
       else if ( deviceChannelCount == 8 )
       {
-        if ( ((__int64)v221[0] & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1303, ASSERT_TYPE_ASSERT, "size_t(pData) % alignof( __m128 ) == 0", "size_t(pData) % alignof( __m128 ) == 0", v220) )
+        if ( ((__int64)v159[0] & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1303, ASSERT_TYPE_ASSERT, "size_t(pData) % alignof( __m128 ) == 0", "size_t(pData) % alignof( __m128 ) == 0", v158) )
           __debugbreak();
-        if ( ((unsigned __int8)_RBX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1304, ASSERT_TYPE_ASSERT, "size_t(sampleBuffer) % alignof( __m128i ) == 0", "size_t(sampleBuffer) % alignof( __m128i ) == 0", v220) )
+        if ( ((unsigned __int8)platformData & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1304, ASSERT_TYPE_ASSERT, "size_t(sampleBuffer) % alignof( __m128i ) == 0", "size_t(sampleBuffer) % alignof( __m128i ) == 0", v158) )
           __debugbreak();
-        _R9 = (unsigned __int64)v221[0];
-        v135 = 0;
+        v67 = (unsigned __int64)v159[0];
+        v91 = 0;
         __asm { vmovupd xmm6, cs:__xmm@41dfffffffe0000041dfffffffe00000 }
         if ( 2 * numFrames )
         {
           do
           {
-            _RDX = 2i64 * (v135 + 1);
-            _RCX = 2i64 * v135;
-            v135 += 2;
+            v93 = 2i64 * (v91 + 1);
+            v94 = 2i64 * v91;
+            v91 += 2;
+            _XMM2 = *(__m128 *)&p_audioClient1[v94].instance;
+            _XMM5 = _mm_shuffle_ps(*(__m128 *)&p_audioClient1[v93].instance, *(__m128 *)&p_audioClient1[v93].instance, 78);
+            _XMM0 = _mm_cvtps_pd(_XMM2);
             __asm
             {
-              vmovups xmm2, xmmword ptr [rsi+rcx*8]
-              vmovups xmm0, xmmword ptr [rsi+rdx*8]
-              vshufps xmm5, xmm0, xmm0, 4Eh ; 'N'
-              vcvtps2pd xmm0, xmm2
               vmulpd  xmm1, xmm0, xmm6
               vcvtpd2dq xmm4, xmm1
               vmovhlps xmm0, xmm2, xmm2
-              vcvtps2pd xmm1, xmm0
+            }
+            _XMM1 = _mm_cvtps_pd(_XMM0);
+            __asm
+            {
               vmulpd  xmm2, xmm1, xmm6
               vcvtpd2dq xmm3, xmm2
               vpunpcklqdq xmm0, xmm4, xmm3
-              vmovdqu xmmword ptr [r9+rcx*8], xmm0
-              vcvtps2pd xmm0, xmm5
+            }
+            *(_OWORD *)(v67 + 8 * v94) = _XMM0;
+            _XMM0 = _mm_cvtps_pd(_XMM5);
+            __asm
+            {
               vmulpd  xmm1, xmm0, xmm6
               vmovhlps xmm0, xmm5, xmm5
               vcvtpd2dq xmm4, xmm1
-              vcvtps2pd xmm1, xmm0
+            }
+            _XMM1 = _mm_cvtps_pd(_XMM0);
+            __asm
+            {
               vmulpd  xmm2, xmm1, xmm6
               vcvtpd2dq xmm3, xmm2
               vpunpcklqdq xmm0, xmm4, xmm3
-              vmovdqu xmmword ptr [r9+rdx*8], xmm0
             }
+            *(_OWORD *)(v67 + 8 * v93) = _XMM0;
           }
-          while ( v135 < 2 * numFrames );
+          while ( v91 < 2 * numFrames );
         }
       }
       else
       {
-        _R10 = (char *)v221[0];
-        v159 = deviceChannelCount * numFrames;
-        _R9 = 0i64;
+        v113 = (char *)v159[0];
+        v114 = deviceChannelCount * numFrames;
+        v67 = 0i64;
         if ( deviceChannelCount * numFrames )
         {
-          if ( v159 >= 8 )
+          if ( v114 >= 8 )
           {
-            v160 = v159 - 1;
-            if ( v221[0] > (char *)_RSI + 4 * v160 || (char *)v221[0] + 4 * v160 < (char *)_RSI )
+            v115 = v114 - 1;
+            if ( v159[0] > (char *)p_audioClient1 + 4 * v115 || (char *)v159[0] + 4 * v115 < (char *)p_audioClient1 )
             {
               __asm { vmovupd xmm4, cs:__xmm@41dfffffffc0000041dfffffffc00000 }
-              v162 = 4;
+              v117 = 2;
               do
               {
-                _RAX = (unsigned int)_R9;
-                _R9 = (unsigned int)(_R9 + 8);
+                v118 = (unsigned int)v67;
+                v67 = (unsigned int)(v67 + 8);
+                _XMM2 = _mm_cvtps_pd((__m128)*(unsigned __int64 *)((char *)&p_audioClient1->instance + 4 * v118));
                 __asm
                 {
-                  vmovsd  xmm1, qword ptr [rsi+rax*4]
-                  vcvtps2pd xmm2, xmm1
                   vmulpd  xmm3, xmm2, xmm4
                   vcvttpd2dq xmm0, xmm3
-                  vmovq   qword ptr [r10+rax*4], xmm0
                 }
-                _RAX = v162 - 2;
+                *(_QWORD *)&v113[4 * v118] = _XMM0;
+                v122 = v117 * 2 - 2;
+                _XMM2 = _mm_cvtps_pd((__m128)*(unsigned __int64 *)((char *)&p_audioClient1->instance + 4 * v122));
                 __asm
                 {
-                  vmovsd  xmm1, qword ptr [rsi+rax*4]
-                  vcvtps2pd xmm2, xmm1
                   vmulpd  xmm3, xmm2, xmm4
                   vcvttpd2dq xmm0, xmm3
-                  vmovq   qword ptr [r10+rax*4], xmm0
                 }
-                _RAX = v162;
+                *(_QWORD *)&v113[4 * v122] = _XMM0;
+                _XMM2 = _mm_cvtps_pd((__m128)(unsigned __int64)p_audioClient1[v117].instance);
                 __asm
                 {
-                  vmovsd  xmm1, qword ptr [rsi+rax*4]
-                  vcvtps2pd xmm2, xmm1
                   vmulpd  xmm3, xmm2, xmm4
                   vcvttpd2dq xmm0, xmm3
-                  vmovq   qword ptr [r10+rax*4], xmm0
                 }
-                _RAX = v162 + 2;
-                v162 += 8;
+                *(_QWORD *)&v113[2 * v117] = _XMM0;
+                v129 = v117 * 2 + 2;
+                v117 += 4;
+                _XMM2 = _mm_cvtps_pd((__m128)*(unsigned __int64 *)((char *)&p_audioClient1->instance + 4 * v129));
                 __asm
                 {
-                  vmovsd  xmm1, qword ptr [rsi+rax*4]
-                  vcvtps2pd xmm2, xmm1
                   vmulpd  xmm3, xmm2, xmm4
                   vcvttpd2dq xmm0, xmm3
-                  vmovq   qword ptr [r10+rax*4], xmm0
                 }
+                *(_QWORD *)&v113[4 * v129] = _XMM0;
               }
-              while ( (unsigned int)_R9 < (v159 & 0xFFFFFFF8) );
+              while ( (unsigned int)v67 < (v114 & 0xFFFFFFF8) );
             }
           }
-          if ( (unsigned int)_R9 < v159 )
+          if ( (unsigned int)v67 < v114 )
           {
-            __asm { vmovsd  xmm2, cs:__real@41dfffffffc00000 }
-            if ( v159 - (unsigned int)_R9 >= 4 )
+            if ( v114 - (unsigned int)v67 >= 4 )
             {
-              _RDX = (char *)_RSI - _R10;
-              _RCX = (__int64)&_R10[4 * (unsigned int)_R9 + 4];
-              v186 = ((v159 - (unsigned int)_R9 - 4) >> 2) + 1;
-              v187 = v186;
-              _R9 = (unsigned int)_R9 + 4 * v186;
+              v133 = (char *)p_audioClient1 - v113;
+              v134 = (__int64)&v113[4 * (unsigned int)v67 + 4];
+              v135 = ((v114 - (unsigned int)v67 - 4) >> 2) + 1;
+              v136 = v135;
+              v67 = (unsigned int)v67 + 4 * v135;
               do
               {
-                __asm { vmovss  xmm0, dword ptr [rdx+rcx-4] }
-                _RCX += 16i64;
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si eax, xmm1
-                }
-                *(_DWORD *)(_RCX - 20) = _EAX;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdx+rcx-10h]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si eax, xmm1
-                }
-                *(_DWORD *)(_RCX - 16) = _EAX;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdx+rcx-0Ch]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si eax, xmm1
-                }
-                *(_DWORD *)(_RCX - 12) = _EAX;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdx+rcx-8]
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si eax, xmm1
-                }
-                *(_DWORD *)(_RCX - 8) = _EAX;
-                --v187;
+                v137 = *(unsigned int *)(v133 + v134 - 4);
+                v134 += 16i64;
+                *((_QWORD *)&v138 + 1) = *((_QWORD *)&v137 + 1);
+                *(double *)&v138 = *(float *)&v137 * 2147483647.0;
+                _XMM1 = v138;
+                __asm { vcvttsd2si eax, xmm1 }
+                *(_DWORD *)(v134 - 20) = _EAX;
+                _XMM1 = COERCE_UNSIGNED_INT64(*(float *)(v133 + v134 - 16) * 2147483647.0);
+                __asm { vcvttsd2si eax, xmm1 }
+                *(_DWORD *)(v134 - 16) = _EAX;
+                _XMM1 = COERCE_UNSIGNED_INT64(*(float *)(v133 + v134 - 12) * 2147483647.0);
+                __asm { vcvttsd2si eax, xmm1 }
+                *(_DWORD *)(v134 - 12) = _EAX;
+                _XMM1 = COERCE_UNSIGNED_INT64(*(float *)(v133 + v134 - 8) * 2147483647.0);
+                __asm { vcvttsd2si eax, xmm1 }
+                *(_DWORD *)(v134 - 8) = _EAX;
+                --v136;
               }
-              while ( v187 );
+              while ( v136 );
             }
-            if ( (unsigned int)_R9 < v159 )
+            if ( (unsigned int)v67 < v114 )
             {
-              _RSI = (char *)_RSI - _R10;
-              v205 = v159 - (unsigned int)_R9;
-              _RCX = &_R10[4 * (unsigned int)_R9];
+              v147 = (char *)p_audioClient1 - v113;
+              v148 = v114 - (unsigned int)v67;
+              v149 = &v113[4 * (unsigned int)v67];
               do
               {
-                __asm { vmovss  xmm0, dword ptr [rcx+rsi] }
-                _RCX += 4;
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmulsd  xmm1, xmm0, xmm2
-                  vcvttsd2si eax, xmm1
-                }
-                *((_DWORD *)_RCX - 1) = _EAX;
-                --v205;
+                v150 = *(unsigned int *)&v149[v147];
+                v149 += 4;
+                *((_QWORD *)&v151 + 1) = *((_QWORD *)&v150 + 1);
+                *(double *)&v151 = *(float *)&v150 * 2147483647.0;
+                _XMM1 = v151;
+                __asm { vcvttsd2si eax, xmm1 }
+                *((_DWORD *)v149 - 1) = _EAX;
+                --v148;
               }
-              while ( v205 );
+              while ( v148 );
             }
           }
         }
@@ -2201,35 +1998,25 @@ char AD_EndpointSubmitBuffer(AD_Endpoint *const endpoint, const unsigned int num
     }
     else if ( deviceChannelCount == 8 )
     {
-      if ( ((__int64)v221[0] & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1278, ASSERT_TYPE_ASSERT, "size_t(pData) % alignof( __m128 ) == 0", "size_t(pData) % alignof( __m128 ) == 0", v220) )
+      if ( ((__int64)v159[0] & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1278, ASSERT_TYPE_ASSERT, "size_t(pData) % alignof( __m128 ) == 0", "size_t(pData) % alignof( __m128 ) == 0", v158) )
         __debugbreak();
-      if ( ((unsigned __int8)_RBX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1279, ASSERT_TYPE_ASSERT, "size_t(sampleBuffer) % alignof( __m128 ) == 0", "size_t(sampleBuffer) % alignof( __m128 ) == 0", v220) )
+      if ( ((unsigned __int8)platformData & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint_ms.cpp", 1279, ASSERT_TYPE_ASSERT, "size_t(sampleBuffer) % alignof( __m128 ) == 0", "size_t(sampleBuffer) % alignof( __m128 ) == 0", v158) )
         __debugbreak();
-      _R8 = v221[0];
-      _R9 = 2 * numFrames;
-      v212 = 0;
-      while ( v212 < (unsigned int)_R9 )
+      v154 = (char *)v159[0];
+      v67 = 2 * numFrames;
+      for ( m = 0; m < (unsigned int)v67; *(__m128 *)&v154[8 * v157] = _mm_shuffle_ps(*(__m128 *)&p_audioClient1[v157].instance, *(__m128 *)&p_audioClient1[v157].instance, 78) )
       {
-        _RAX = 2i64 * v212;
-        _RCX = 2i64 * (v212 + 1);
-        v212 += 2;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi+rax*8]
-          vmovups xmmword ptr [r8+rax*8], xmm0
-          vmovups xmm0, xmmword ptr [rsi+rcx*8]
-          vshufps xmm1, xmm0, xmm0, 4Eh ; 'N'
-          vmovups xmmword ptr [r8+rcx*8], xmm1
-        }
+        v156 = 2i64 * m;
+        v157 = 2i64 * (m + 1);
+        m += 2;
+        *(_OWORD *)&v154[8 * v156] = *(_OWORD *)&p_audioClient1[v156].instance;
       }
     }
     else
     {
-      memcpy_0(v221[0], &_RBX[1].audioClient1, 4 * deviceChannelCount * numFrames);
+      memcpy_0(v159[0], &platformData[1].audioClient1, 4 * deviceChannelCount * numFrames);
     }
-    v218 = (*(__int64 (__fastcall **)(_QWORD, _QWORD, _QWORD, unsigned __int64))(**(_QWORD **)&_RBX[656].currentDeviceId.value[28] + 32i64))(*(_QWORD *)&_RBX[656].currentDeviceId.value[28], numFrames, v97, _R9);
-    __asm { vmovaps xmm6, [rsp+148h+var_38] }
-    if ( v218 < 0 )
+    if ( (*(int (__fastcall **)(_QWORD, _QWORD, _QWORD, unsigned __int64))(**(_QWORD **)&platformData[656].currentDeviceId.value[28] + 32i64))(*(_QWORD *)&platformData[656].currentDeviceId.value[28], numFrames, v66, v67) < 0 )
       return 0;
   }
   return 1;

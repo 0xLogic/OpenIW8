@@ -25,54 +25,135 @@ void __fastcall Com_CSpline_DebugRender(LocalClientNum_t localclientNum)
 Com_CSpline_DebugRender
 ==============
 */
-
-void __fastcall Com_CSpline_DebugRender(LocalClientNum_t localclientNum, double _XMM1_8)
+void Com_CSpline_DebugRender(LocalClientNum_t localclientNum)
 {
-  bool v13; 
-  const ScreenPlacement *v14; 
-  unsigned __int16 v15; 
-  const char *v22; 
-  unsigned __int16 v25; 
+  bool v1; 
+  const ScreenPlacement *v2; 
+  unsigned __int16 v3; 
+  __int128 v4; 
+  const char *v5; 
+  unsigned __int16 i; 
   int integer; 
+  double CSplineLength; 
   unsigned __int16 CSplinePointCount; 
-  const char *v33; 
-  unsigned __int16 v36; 
-  int v39; 
-  int v40; 
-  unsigned __int16 v41; 
-  int v42; 
-  int v43; 
+  float v10; 
+  __int128 v11; 
+  const char *v12; 
+  unsigned __int16 v13; 
+  float v14; 
+  int v15; 
+  int v16; 
+  unsigned __int16 v17; 
+  int v18; 
+  int v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v25; 
+  __int128 v26; 
+  __int128 v27; 
+  float v28; 
+  __int128 v29; 
+  __int128 v30; 
+  float v31; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  float v38; 
+  float v39; 
+  float v40; 
+  __int128 v41; 
+  float v42; 
+  float v43; 
   scr_string_t CSplinePointLabel; 
-  const char *v105; 
-  int v146; 
-  char v162; 
-  char v163; 
-  char v265; 
-  char v266; 
+  const char *v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  int v59; 
+  float v60; 
+  float v61; 
+  __int128 v62; 
+  float v66; 
+  __int128 v67; 
+  __int128 v68; 
+  float v69; 
+  __int128 v70; 
+  __int128 v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  __int128 v75; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  __int128 v83; 
+  float v84; 
+  float v85; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  __int128 v99; 
+  float v103; 
+  __int128 v104; 
+  float v105; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  __int128 v113; 
+  float v114; 
+  float v115; 
+  float v116; 
+  float v117; 
+  float v118; 
+  float v119; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
   char *fmt; 
   __int64 forceColor; 
-  float v377; 
-  float v378; 
-  float v379; 
+  float v134; 
   unsigned __int16 CSplineCount; 
+  vec2_t v136; 
   tmat33_t<vec3_t> axes; 
-  vec2_t v386; 
-  vec3_t v387; 
-  vec3_t v388; 
-  vec3_t v389; 
-  vec3_t v390; 
-  vec3_t v391; 
+  vec2_t v138; 
+  vec3_t v139; 
+  vec3_t v140; 
+  vec3_t v141; 
+  vec3_t v142; 
+  vec3_t v143; 
   vec3_t out_position; 
   vec2_t out_dims; 
   vec3_t start; 
   vec3_t end; 
-  vec3_t v396; 
-  vec3_t v397; 
-  vec3_t v398; 
-  vec3_t v399; 
-  vec3_t v400; 
-  vec3_t v401; 
-  vec3_t v402; 
+  vec3_t v148; 
+  vec3_t v149; 
+  vec3_t v150; 
+  vec3_t v151; 
+  vec3_t v152; 
+  vec3_t v153; 
+  vec3_t v154; 
   char dest[128]; 
 
   if ( !cSplineDebugRender->current.enabled )
@@ -82,725 +163,387 @@ void __fastcall Com_CSpline_DebugRender(LocalClientNum_t localclientNum, double 
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v1 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v13 )
+      v1 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v1 )
       __debugbreak();
 LABEL_8:
-    v14 = &scrPlaceFull;
+    v2 = &scrPlaceFull;
     goto LABEL_9;
   }
-  v14 = &scrPlaceViewDisplay[localclientNum];
+  v2 = &scrPlaceViewDisplay[localclientNum];
 LABEL_9:
-  __asm
-  {
-    vmovaps [rsp+2E0h+var_38+8], xmm6
-    vmovaps [rsp+2E0h+var_48+8], xmm7
-    vmovaps [rsp+2E0h+var_58+8], xmm8
-    vmovaps [rsp+2E0h+var_68+8], xmm9
-    vmovaps [rsp+2E0h+var_78+8], xmm10
-    vmovaps [rsp+2E0h+var_88+8], xmm11
-    vmovaps [rsp+2E0h+var_98+8], xmm12
-  }
   CSplineCount = Com_GetCSplineCount();
-  v15 = CSplineCount;
-  __asm { vxorps  xmm12, xmm12, xmm12 }
+  v3 = CSplineCount;
   if ( cSplineDebugRenderData->current.enabled )
   {
-    __asm
+    CG_DrawStringExt(v2, 0.0, 48.0, "Spline Data:", &colorGreen, 0, 1, 12.0, 0);
+    v4 = LODWORD(FLOAT_2_0);
+    v5 = j_va(" Num Splines: %d", CSplineCount);
+    CG_DrawStringExt(v2, 0.0, 60.0, v5, &colorGreen, 0, 1, 12.0, 0);
+    for ( i = 1; i <= CSplineCount; ++i )
     {
-      vmovss  xmm10, cs:__real@41400000
-      vmovss  xmm11, cs:__real@42400000
-      vmovss  [rsp+2E0h+var_2A8], xmm10
-      vmovaps xmm2, xmm11; y
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(v14, *(float *)&_XMM1, *(float *)&_XMM2, "Spline Data:", &colorGreen, 0, 1, v377, 0);
-    __asm { vmovss  xmm9, cs:__real@40000000 }
-    v22 = j_va(" Num Splines: %d", CSplineCount);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42700000; y
-      vmovss  [rsp+2E0h+var_2A8], xmm10
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(v14, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorGreen, 0, 1, v378, 0);
-    v25 = 1;
-    if ( CSplineCount )
-    {
-      __asm { vmovss  xmm8, cs:__real@3f800000 }
-      do
+      integer = cSplineDebugRenderSplineId->current.integer;
+      if ( !integer || integer == i )
       {
-        integer = cSplineDebugRenderSplineId->current.integer;
-        if ( !integer || integer == v25 )
-        {
-          *(double *)&_XMM0 = Com_GetCSplineLength(v25);
-          __asm { vcvtss2sd xmm6, xmm0, xmm0 }
-          CSplinePointCount = Com_GetCSplinePointCount(v25);
-          __asm
-          {
-            vmulss  xmm0, xmm9, xmm10
-            vmovaps xmm3, xmm6
-            vmovq   r9, xmm3
-            vaddss  xmm7, xmm0, xmm11
-            vaddss  xmm9, xmm9, xmm8
-          }
-          v33 = j_va(" Spline %d: points:%d length:%.2f", v25, CSplinePointCount, _R9);
-          __asm
-          {
-            vmovss  [rsp+2E0h+var_2A8], xmm10
-            vmovaps xmm2, xmm7; y
-            vmovaps xmm1, xmm12; x
-          }
-          CG_DrawStringExt(v14, *(float *)&_XMM1, *(float *)&_XMM2, v33, &colorGreen, 0, 1, v379, 0);
-        }
-        ++v25;
+        CSplineLength = Com_GetCSplineLength(i);
+        CSplinePointCount = Com_GetCSplinePointCount(i);
+        v10 = (float)(*(float *)&v4 * 12.0) + 48.0;
+        v11 = v4;
+        *(float *)&v11 = *(float *)&v4 + 1.0;
+        v4 = v11;
+        v12 = j_va(" Spline %d: points:%d length:%.2f", i, CSplinePointCount, *(float *)&CSplineLength);
+        CG_DrawStringExt(v2, 0.0, v10, v12, &colorGreen, 0, 1, 12.0, 0);
       }
-      while ( v25 <= CSplineCount );
     }
   }
-  v36 = 1;
+  v13 = 1;
   if ( CSplineCount )
   {
-    __asm
-    {
-      vmovaps [rsp+2E0h+var_A8+8], xmm13
-      vmovaps [rsp+2E0h+var_B8+8], xmm14
-      vmovss  xmm14, cs:__real@80000000
-      vmovaps [rsp+2E0h+var_C8+8], xmm15
-      vmovss  xmm15, cs:__real@3f000000
-    }
+    v14 = FLOAT_0_5;
     do
     {
-      v39 = cSplineDebugRenderSplineId->current.integer;
-      if ( !v39 || v39 == v36 )
+      v15 = cSplineDebugRenderSplineId->current.integer;
+      if ( !v15 || v15 == v13 )
       {
-        v40 = Com_GetCSplinePointCount(v36);
-        v41 = 0;
-        v42 = cSplineDebugRenderResolution->current.integer / v40;
-        v43 = v40 - 1;
+        v16 = Com_GetCSplinePointCount(v13);
+        v17 = 0;
+        v18 = cSplineDebugRenderResolution->current.integer / v16;
+        v19 = v16 - 1;
         do
         {
+          v20 = LODWORD(FLOAT_1_0);
+          axes.m[2].v[2] = FLOAT_1_0;
+          axes.m[2].v[0] = 0.0;
+          axes.m[2].v[1] = 0.0;
+          Com_GetCSplinePointTangent(v13, v17, &axes.m[1]);
+          v21 = LODWORD(axes.m[1].v[1]);
+          *(float *)&v21 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)(axes.m[1].v[0] * axes.m[1].v[0])) + (float)(axes.m[1].v[2] * axes.m[1].v[2]));
+          _XMM3 = v21;
           __asm
           {
-            vmovss  xmm13, cs:__real@3f800000
-            vmovss  dword ptr [rbp+1E0h+axes+20h], xmm13
-            vmovss  dword ptr [rbp+1E0h+axes+18h], xmm12
-            vmovss  dword ptr [rbp+1E0h+axes+1Ch], xmm12
+            vcmpless xmm0, xmm3, xmm14
+            vblendvps xmm1, xmm3, xmm13, xmm0
           }
-          Com_GetCSplinePointTangent(v36, v41, &axes.m[1]);
+          v26 = LODWORD(axes.m[1].v[0]);
+          v25 = axes.m[1].v[0] * (float)(1.0 / *(float *)&_XMM1);
+          *(float *)&v26 = v25 * axes.m[2].v[2];
+          v27 = v26;
+          v28 = axes.m[1].v[1] * (float)(1.0 / *(float *)&_XMM1);
+          v30 = LODWORD(axes.m[1].v[2]);
+          *(float *)&v30 = axes.m[1].v[2] * (float)(1.0 / *(float *)&_XMM1);
+          v29 = v30;
+          v31 = (float)(*(float *)&v30 * axes.m[2].v[1]) - (float)(v28 * axes.m[2].v[2]);
+          v33 = v27;
+          v32 = *(float *)&v27 - (float)(*(float *)&v29 * axes.m[2].v[0]);
+          v34 = (float)(v28 * axes.m[2].v[0]) - (float)(v25 * axes.m[2].v[1]);
+          *(float *)&v33 = fsqrt((float)((float)(v32 * v32) + (float)(v31 * v31)) + (float)(v34 * v34));
+          _XMM3 = v33;
           __asm
           {
-            vmovss  xmm4, dword ptr [rsp+2E0h+axes+0Ch]
-            vmovss  xmm6, dword ptr [rsp+2E0h+axes+10h]
-            vmovss  xmm5, dword ptr [rsp+2E0h+axes+14h]
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm0, xmm2, xmm1
-            vsqrtss xmm3, xmm0, xmm0
             vcmpless xmm0, xmm3, xmm14
             vblendvps xmm1, xmm3, xmm13, xmm0
-            vdivss  xmm0, xmm13, xmm1
-            vmulss  xmm11, xmm4, xmm0
-            vmulss  xmm3, xmm11, dword ptr [rbp+1E0h+axes+20h]
-            vmulss  xmm10, xmm6, xmm0
-            vmulss  xmm2, xmm10, dword ptr [rbp+1E0h+axes+18h]
-            vmulss  xmm9, xmm5, xmm0
-            vmulss  xmm0, xmm10, dword ptr [rbp+1E0h+axes+20h]
-            vmovss  [rsp+2E0h+var_288], xmm1
-            vmulss  xmm1, xmm9, dword ptr [rbp+1E0h+axes+1Ch]
-            vsubss  xmm8, xmm1, xmm0
-            vmulss  xmm0, xmm9, dword ptr [rbp+1E0h+axes+18h]
-            vmulss  xmm1, xmm11, dword ptr [rbp+1E0h+axes+1Ch]
-            vsubss  xmm6, xmm3, xmm0
-            vsubss  xmm7, xmm2, xmm1
-            vmulss  xmm1, xmm7, xmm7
-            vmulss  xmm3, xmm6, xmm6
-            vmulss  xmm0, xmm8, xmm8
-            vaddss  xmm2, xmm3, xmm0
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm3, xmm2, xmm2
-            vcmpless xmm0, xmm3, xmm14
-            vblendvps xmm1, xmm3, xmm13, xmm0
-            vdivss  xmm0, xmm13, xmm1
-            vmulss  xmm3, xmm7, xmm0
-            vmulss  xmm4, xmm6, xmm0
-            vmulss  xmm5, xmm8, xmm0
-            vmovss  [rsp+2E0h+var_288], xmm1
-            vmulss  xmm1, xmm3, xmm10
-            vmulss  xmm0, xmm4, xmm9
-            vsubss  xmm7, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm11
-            vmulss  xmm2, xmm9, xmm5
-            vsubss  xmm6, xmm2, xmm1
-            vmovss  dword ptr [rsp+2E0h+axes+8], xmm3
-            vmulss  xmm3, xmm4, xmm11
-            vmulss  xmm0, xmm5, xmm10
-            vmulss  xmm2, xmm6, xmm6
-            vmulss  xmm1, xmm7, xmm7
-            vmovss  dword ptr [rsp+2E0h+axes+4], xmm4
-            vsubss  xmm4, xmm3, xmm0
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm1, xmm2, xmm2
+          }
+          *(float *)&_XMM3 = v34 * (float)(1.0 / *(float *)&_XMM1);
+          v38 = v32 * (float)(1.0 / *(float *)&_XMM1);
+          v39 = v31 * (float)(1.0 / *(float *)&_XMM1);
+          v40 = (float)(*(float *)&_XMM3 * v28) - (float)(v38 * *(float *)&v29);
+          v41 = v29;
+          v42 = (float)(*(float *)&v29 * v39) - (float)(*(float *)&_XMM3 * v25);
+          axes.m[0].v[2] = *(float *)&_XMM3;
+          axes.m[0].v[1] = v38;
+          v43 = (float)(v38 * v25) - (float)(v39 * v28);
+          *(float *)&v41 = fsqrt((float)((float)(v42 * v42) + (float)(v40 * v40)) + (float)(v43 * v43));
+          _XMM1 = v41;
+          __asm
+          {
             vcmpless xmm0, xmm1, xmm14
             vblendvps xmm1, xmm1, xmm13, xmm0
-            vdivss  xmm2, xmm13, xmm1
-            vmulss  xmm0, xmm7, xmm2
-            vmovss  dword ptr [rbp+1E0h+axes+18h], xmm0
-            vmovss  [rsp+2E0h+var_288], xmm1
-            vmulss  xmm0, xmm4, xmm2
-            vmulss  xmm1, xmm6, xmm2
-            vmovss  dword ptr [rbp+1E0h+axes+20h], xmm0
-            vmovss  dword ptr [rsp+2E0h+axes+0Ch], xmm11
-            vmovss  dword ptr [rsp+2E0h+axes+10h], xmm10
-            vmovss  dword ptr [rsp+2E0h+axes+14h], xmm9
-            vmovss  dword ptr [rsp+2E0h+axes], xmm5
-            vmovss  dword ptr [rbp+1E0h+axes+1Ch], xmm1
           }
-          CSplinePointLabel = Com_GetCSplinePointLabel(v36, v41);
+          axes.m[2].v[0] = v40 * (float)(1.0 / *(float *)&_XMM1);
+          axes.m[2].v[2] = v43 * (float)(1.0 / *(float *)&_XMM1);
+          axes.m[1].v[0] = v25;
+          axes.m[1].v[1] = v28;
+          axes.m[1].v[2] = *(float *)&v29;
+          axes.m[0].v[0] = v39;
+          axes.m[2].v[1] = v42 * (float)(1.0 / *(float *)&_XMM1);
+          CSplinePointLabel = Com_GetCSplinePointLabel(v13, v17);
           if ( CSplinePointLabel )
           {
-            v105 = SL_ConvertToString(CSplinePointLabel);
-            LODWORD(forceColor) = Com_GetCSplinePointId(v36, v41);
-            LODWORD(fmt) = v41;
-            Com_sprintf(dest, 0x80ui64, "%d:%d:%d:%s", v36, fmt, forceColor, v105);
-            v43 = v40 - 1;
+            v48 = SL_ConvertToString(CSplinePointLabel);
+            LODWORD(forceColor) = Com_GetCSplinePointId(v13, v17);
+            LODWORD(fmt) = v17;
+            Com_sprintf(dest, 0x80ui64, "%d:%d:%d:%s", v13, fmt, forceColor, v48);
+            v19 = v16 - 1;
           }
           else
           {
-            LODWORD(forceColor) = Com_GetCSplinePointId(v36, v41);
-            LODWORD(fmt) = v41;
-            Com_sprintf(dest, 0x80ui64, "%d:%d:%d", v36, fmt, forceColor);
+            LODWORD(forceColor) = Com_GetCSplinePointId(v13, v17);
+            LODWORD(fmt) = v17;
+            Com_sprintf(dest, 0x80ui64, "%d:%d:%d", v13, fmt, forceColor);
           }
-          Com_GetCSplinePointPosition(v36, v41, &out_position);
-          __asm { vmovss  xmm2, cs:__real@40800000; length }
-          CG_DebugAxis(&axes, &out_position, *(float *)&_XMM2, 1, 0);
-          __asm { vmovaps xmm2, xmm15; scale }
-          CG_DebugString(&out_position, &colorGreen, *(float *)&_XMM2, dest, 0, 0);
+          Com_GetCSplinePointPosition(v13, v17, &out_position);
+          CG_DebugAxis(&axes, &out_position, 4.0, 1, 0);
+          CG_DebugString(&out_position, &colorGreen, v14, dest, 0, 0);
           if ( cSplineDebugRenderCorridor->current.enabled )
           {
-            Com_GetCSplinePointCorridorDims(v36, v41, &out_dims);
-            __asm
-            {
-              vmovss  xmm9, dword ptr [rbp+1E0h+out_dims]
-              vmulss  xmm2, xmm9, cs:__real@bf000000
-              vmulss  xmm0, xmm2, dword ptr [rsp+2E0h+axes]
-              vaddss  xmm14, xmm0, dword ptr [rbp+1E0h+out_position]
-              vmulss  xmm0, xmm2, dword ptr [rsp+2E0h+axes+8]
-              vaddss  xmm12, xmm0, dword ptr [rbp+1E0h+out_position+8]
-              vmulss  xmm1, xmm2, dword ptr [rsp+2E0h+axes+4]
-              vaddss  xmm13, xmm1, dword ptr [rbp+1E0h+out_position+4]
-              vmovss  xmm8, dword ptr [rbp+1E0h+out_dims+4]
-              vmulss  xmm2, xmm9, xmm15
-              vmulss  xmm1, xmm2, dword ptr [rsp+2E0h+axes+4]
-              vaddss  xmm10, xmm1, dword ptr [rbp+1E0h+out_position+4]
-              vmulss  xmm0, xmm2, dword ptr [rsp+2E0h+axes]
-              vaddss  xmm9, xmm0, dword ptr [rbp+1E0h+out_position]
-              vmulss  xmm1, xmm8, cs:__real@bf000000
-              vmulss  xmm3, xmm1, dword ptr [rbp+1E0h+axes+1Ch]
-              vmulss  xmm4, xmm1, dword ptr [rbp+1E0h+axes+18h]
-              vmulss  xmm0, xmm2, dword ptr [rsp+2E0h+axes+8]
-              vaddss  xmm11, xmm0, dword ptr [rbp+1E0h+out_position+8]
-              vmulss  xmm2, xmm1, dword ptr [rbp+1E0h+axes+20h]
-              vaddss  xmm0, xmm14, xmm4
-              vmovss  dword ptr [rbp+1E0h+start], xmm0
-              vaddss  xmm0, xmm13, xmm3
-              vmovss  dword ptr [rbp+1E0h+start+4], xmm0
-              vaddss  xmm0, xmm12, xmm2
-              vmovss  dword ptr [rbp+1E0h+start+8], xmm0
-              vaddss  xmm1, xmm9, xmm4
-              vmovss  dword ptr [rbp+1E0h+end], xmm1
-              vaddss  xmm0, xmm10, xmm3
-              vmulss  xmm3, xmm8, xmm15
-              vmulss  xmm5, xmm3, dword ptr [rbp+1E0h+axes+18h]
-              vmulss  xmm4, xmm3, dword ptr [rbp+1E0h+axes+1Ch]
-              vaddss  xmm1, xmm11, xmm2
-              vmulss  xmm2, xmm3, dword ptr [rbp+1E0h+axes+20h]
-              vmovss  dword ptr [rbp+1E0h+end+4], xmm0
-              vmovss  dword ptr [rbp+1E0h+end+8], xmm1
-              vaddss  xmm0, xmm14, xmm5
-              vaddss  xmm1, xmm13, xmm4
-              vmovss  dword ptr [rbp+1E0h+var_1C0], xmm0
-              vmovss  dword ptr [rbp+1E0h+var_1C0+4], xmm1
-              vaddss  xmm0, xmm12, xmm2
-              vaddss  xmm1, xmm9, xmm5
-              vmovss  dword ptr [rbp+1E0h+var_1C0+8], xmm0
-              vmovss  dword ptr [rbp+1E0h+var_1B0], xmm1
-              vaddss  xmm0, xmm10, xmm4
-              vaddss  xmm1, xmm11, xmm2
-              vmovss  dword ptr [rbp+1E0h+var_1B0+4], xmm0
-              vmovss  dword ptr [rbp+1E0h+var_1B0+8], xmm1
-            }
+            Com_GetCSplinePointCorridorDims(v13, v17, &out_dims);
+            v49 = (float)((float)(out_dims.v[0] * -0.5) * axes.m[0].v[0]) + out_position.v[0];
+            v50 = (float)((float)(out_dims.v[0] * -0.5) * axes.m[0].v[2]) + out_position.v[2];
+            v51 = (float)((float)(out_dims.v[0] * -0.5) * axes.m[0].v[1]) + out_position.v[1];
+            v52 = (float)((float)(out_dims.v[0] * v14) * axes.m[0].v[1]) + out_position.v[1];
+            v53 = (float)((float)(out_dims.v[0] * v14) * axes.m[0].v[0]) + out_position.v[0];
+            v54 = (float)(out_dims.v[1] * -0.5) * axes.m[2].v[1];
+            v55 = (float)(out_dims.v[1] * -0.5) * axes.m[2].v[0];
+            v56 = (float)((float)(out_dims.v[0] * v14) * axes.m[0].v[2]) + out_position.v[2];
+            v57 = (float)(out_dims.v[1] * -0.5) * axes.m[2].v[2];
+            start.v[0] = v49 + v55;
+            start.v[1] = v51 + v54;
+            start.v[2] = v50 + v57;
+            end.v[0] = v53 + v55;
+            v58 = (float)(out_dims.v[1] * v14) * axes.m[2].v[0];
+            end.v[1] = v52 + v54;
+            end.v[2] = v56 + v57;
+            v148.v[0] = v49 + v58;
+            v148.v[1] = v51 + (float)((float)(out_dims.v[1] * v14) * axes.m[2].v[1]);
+            v148.v[2] = v50 + (float)((float)(out_dims.v[1] * v14) * axes.m[2].v[2]);
+            v149.v[0] = v53 + v58;
+            v149.v[1] = v52 + (float)((float)(out_dims.v[1] * v14) * axes.m[2].v[1]);
+            v149.v[2] = v56 + (float)((float)(out_dims.v[1] * v14) * axes.m[2].v[2]);
             CG_DebugLine(&start, &end, &colorGreen, 1, 0);
-            CG_DebugLine(&end, &v397, &colorGreen, 1, 0);
-            CG_DebugLine(&v397, &v396, &colorGreen, 1, 0);
-            CG_DebugLine(&v396, &start, &colorGreen, 1, 0);
-            __asm
-            {
-              vmovss  xmm13, cs:__real@3f800000
-              vmovss  xmm14, cs:__real@80000000
-              vxorps  xmm12, xmm12, xmm12
-            }
+            CG_DebugLine(&end, &v149, &colorGreen, 1, 0);
+            CG_DebugLine(&v149, &v148, &colorGreen, 1, 0);
+            CG_DebugLine(&v148, &start, &colorGreen, 1, 0);
+            v20 = LODWORD(FLOAT_1_0);
           }
-          if ( v41 < v43 )
+          if ( v17 < v19 )
           {
-            __asm { vmovsd  xmm0, qword ptr [rbp+1E0h+out_position] }
-            v398.v[2] = out_position.v[2];
-            v146 = 0;
-            v399.v[2] = start.v[2];
-            v400.v[2] = end.v[2];
-            v401.v[2] = v396.v[2];
-            v402.v[2] = v397.v[2];
-            __asm
+            v150 = out_position;
+            v59 = 0;
+            v151 = start;
+            v152 = end;
+            v153 = v148;
+            v154 = v149;
+            v136 = out_dims;
+            if ( v18 > 0 )
             {
-              vmovsd  qword ptr [rbp+1E0h+var_1A0], xmm0
-              vmovss  xmm0, dword ptr [rbp+1E0h+out_dims]
-              vmovss  [rsp+2E0h+var_280], xmm0
-              vmovss  xmm0, dword ptr [rbp+1E0h+out_dims+4]
-              vmovss  [rsp+2E0h+var_27C], xmm0
-              vmovsd  xmm0, qword ptr [rbp+1E0h+start]
-              vmovsd  qword ptr [rbp+1E0h+var_190], xmm0
-              vmovsd  xmm0, qword ptr [rbp+1E0h+end]
-              vmovsd  qword ptr [rbp+1E0h+var_180], xmm0
-              vmovsd  xmm0, qword ptr [rbp+1E0h+var_1C0]
-              vmovsd  qword ptr [rbp+1E0h+var_170], xmm0
-              vmovsd  xmm0, qword ptr [rbp+1E0h+var_1B0]
-              vmovsd  qword ptr [rbp+1E0h+var_160], xmm0
-            }
-            if ( v42 > 0 )
-            {
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vdivss  xmm1, xmm13, xmm0
-                vmovss  [rsp+2E0h+var_288], xmm1
-              }
+              v60 = *(float *)&v20 / (float)(v18 - 1);
+              v134 = v60;
               do
               {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, ebx
-                  vmulss  xmm6, xmm0, xmm1
-                  vmovaps xmm2, xmm6; lambda
-                }
-                Com_CalcCSplinePosition(v36, v41, *(float *)&_XMM2, &v387);
-                CG_DebugLine(&v398, &v387, &colorYellow, 1, 0);
-                __asm { vmovsd  xmm0, qword ptr [rbp+1E0h+var_248] }
-                v398.v[2] = v387.v[2];
-                __asm { vmovsd  qword ptr [rbp+1E0h+var_1A0], xmm0 }
+                v61 = (float)v59 * v60;
+                Com_CalcCSplinePosition(v13, v17, v61, &v139);
+                CG_DebugLine(&v150, &v139, &colorYellow, 1, 0);
+                v150 = v139;
                 if ( cSplineDebugRenderCorridor->current.enabled )
                 {
-                  __asm { vmovaps xmm2, xmm6; lambda }
-                  Com_CalcCSplineCorridor(v36, v41, *(float *)&_XMM2, &v386);
+                  Com_CalcCSplineCorridor(v13, v17, v61, &v138);
+                  axes.m[2].v[0] = 0.0;
+                  axes.m[2].v[1] = 0.0;
+                  axes.m[2].v[2] = *(float *)&v20;
+                  Com_CalcCSplineTangent(v13, v17, v61, &axes.m[1]);
+                  v62 = LODWORD(axes.m[1].v[1]);
+                  *(float *)&v62 = fsqrt((float)((float)(*(float *)&v62 * *(float *)&v62) + (float)(axes.m[1].v[0] * axes.m[1].v[0])) + (float)(axes.m[1].v[2] * axes.m[1].v[2]));
+                  _XMM3 = v62;
                   __asm
                   {
-                    vmovaps xmm2, xmm6; lambda
-                    vmovss  dword ptr [rbp+1E0h+axes+18h], xmm12
-                    vmovss  dword ptr [rbp+1E0h+axes+1Ch], xmm12
-                    vmovss  dword ptr [rbp+1E0h+axes+20h], xmm13
+                    vcmpless xmm0, xmm3, xmm14
+                    vblendvps xmm1, xmm3, xmm13, xmm0
                   }
-                  Com_CalcCSplineTangent(v36, v41, *(float *)&_XMM2, &axes.m[1]);
+                  v67 = LODWORD(axes.m[1].v[0]);
+                  v66 = axes.m[1].v[0] * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  *(float *)&v67 = v66 * axes.m[2].v[2];
+                  v68 = v67;
+                  v69 = axes.m[1].v[1] * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  v71 = LODWORD(axes.m[1].v[2]);
+                  *(float *)&v71 = axes.m[1].v[2] * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  v70 = v71;
+                  v72 = (float)(*(float *)&v71 * axes.m[2].v[1]) - (float)(v69 * axes.m[2].v[2]);
+                  v73 = (float)(v69 * axes.m[2].v[0]) - (float)(v66 * axes.m[2].v[1]);
+                  v75 = v68;
+                  v74 = *(float *)&v68 - (float)(*(float *)&v70 * axes.m[2].v[0]);
+                  *(float *)&v75 = fsqrt((float)((float)(v74 * v74) + (float)(v72 * v72)) + (float)(v73 * v73));
+                  _XMM3 = v75;
                   __asm
                   {
-                    vmovss  xmm4, dword ptr [rsp+2E0h+axes+0Ch]
-                    vmovss  xmm6, dword ptr [rsp+2E0h+axes+10h]
-                    vmovss  xmm5, dword ptr [rsp+2E0h+axes+14h]
-                    vmulss  xmm1, xmm6, xmm6
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm2, xmm1, xmm0
-                    vmulss  xmm1, xmm5, xmm5
-                    vaddss  xmm0, xmm2, xmm1
-                    vsqrtss xmm3, xmm0, xmm0
                     vcmpless xmm0, xmm3, xmm14
                     vblendvps xmm1, xmm3, xmm13, xmm0
-                    vdivss  xmm0, xmm13, xmm1
-                    vmulss  xmm10, xmm4, xmm0
-                    vmulss  xmm3, xmm10, dword ptr [rbp+1E0h+axes+20h]
-                    vmulss  xmm9, xmm6, xmm0
-                    vmulss  xmm2, xmm9, dword ptr [rbp+1E0h+axes+18h]
-                    vmulss  xmm8, xmm5, xmm0
-                    vmulss  xmm1, xmm8, dword ptr [rbp+1E0h+axes+1Ch]
-                    vmulss  xmm0, xmm9, dword ptr [rbp+1E0h+axes+20h]
-                    vsubss  xmm7, xmm1, xmm0
-                    vmulss  xmm0, xmm8, dword ptr [rbp+1E0h+axes+18h]
-                    vmulss  xmm1, xmm10, dword ptr [rbp+1E0h+axes+1Ch]
-                    vsubss  xmm4, xmm2, xmm1
-                    vsubss  xmm6, xmm3, xmm0
-                    vmulss  xmm3, xmm6, xmm6
-                    vmulss  xmm0, xmm7, xmm7
-                    vaddss  xmm2, xmm3, xmm0
-                    vmulss  xmm1, xmm4, xmm4
-                    vaddss  xmm2, xmm2, xmm1
-                    vsqrtss xmm3, xmm2, xmm2
-                    vcmpless xmm0, xmm3, xmm14
-                    vblendvps xmm1, xmm3, xmm13, xmm0
-                    vdivss  xmm0, xmm13, xmm1
-                    vmulss  xmm15, xmm4, xmm0
-                    vmulss  xmm11, xmm7, xmm0
-                    vmulss  xmm7, xmm6, xmm0
-                    vmulss  xmm0, xmm7, xmm8
-                    vmulss  xmm1, xmm15, xmm9
-                    vsubss  xmm6, xmm1, xmm0
-                    vmulss  xmm1, xmm10, xmm15
-                    vmulss  xmm2, xmm8, xmm11
-                    vsubss  xmm5, xmm2, xmm1
-                    vmulss  xmm1, xmm6, xmm6
-                    vmulss  xmm3, xmm10, xmm7
-                    vmulss  xmm0, xmm11, xmm9
-                    vsubss  xmm4, xmm3, xmm0
-                    vmulss  xmm0, xmm4, xmm4
-                    vmulss  xmm2, xmm5, xmm5
-                    vaddss  xmm3, xmm2, xmm1
-                    vaddss  xmm2, xmm3, xmm0
-                    vsqrtss xmm1, xmm2, xmm2
+                  }
+                  v79 = v73 * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  v80 = v72 * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  v81 = v74 * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  v82 = (float)(v79 * v69) - (float)(v81 * *(float *)&v70);
+                  v83 = v70;
+                  v84 = (float)(*(float *)&v70 * v80) - (float)(v66 * v79);
+                  v85 = (float)(v66 * v81) - (float)(v80 * v69);
+                  *(float *)&v83 = fsqrt((float)((float)(v84 * v84) + (float)(v82 * v82)) + (float)(v85 * v85));
+                  _XMM1 = v83;
+                  __asm
+                  {
                     vcmpless xmm0, xmm1, xmm14
                     vblendvps xmm1, xmm1, xmm13, xmm0
-                    vdivss  xmm0, xmm13, xmm1
-                    vmulss  xmm12, xmm6, xmm0
-                    vmovss  xmm6, dword ptr [rbp+1E0h+var_250]
-                    vmulss  xmm2, xmm6, cs:__real@bf000000
-                    vmulss  xmm13, xmm5, xmm0
-                    vmulss  xmm14, xmm4, xmm0
-                    vmovss  dword ptr [rsp+2E0h+axes+0Ch], xmm10
-                    vmovss  dword ptr [rsp+2E0h+axes+10h], xmm9
-                    vmovss  dword ptr [rsp+2E0h+axes+14h], xmm8
-                    vmovss  dword ptr [rsp+2E0h+axes], xmm11
-                    vmovss  dword ptr [rsp+2E0h+axes+4], xmm7
-                    vmovss  dword ptr [rsp+2E0h+axes+8], xmm15
-                    vmovss  dword ptr [rbp+1E0h+axes+18h], xmm12
-                    vmovss  dword ptr [rbp+1E0h+axes+1Ch], xmm13
-                    vmovss  dword ptr [rbp+1E0h+axes+20h], xmm14
-                    vmulss  xmm0, xmm11, xmm2
-                    vaddss  xmm9, xmm0, dword ptr [rbp+1E0h+var_248]
-                    vmulss  xmm0, xmm15, xmm2
-                    vaddss  xmm11, xmm0, dword ptr [rbp+1E0h+var_248+8]
-                    vmulss  xmm1, xmm7, xmm2
-                    vaddss  xmm10, xmm1, dword ptr [rbp+1E0h+var_248+4]
-                    vmulss  xmm2, xmm6, cs:__real@3f000000
-                    vmulss  xmm0, xmm2, dword ptr [rsp+2E0h+axes]
-                    vaddss  xmm6, xmm0, dword ptr [rbp+1E0h+var_248]
-                    vmulss  xmm0, xmm15, xmm2
-                    vaddss  xmm8, xmm0, dword ptr [rbp+1E0h+var_248+8]
-                    vmovss  xmm15, dword ptr [rbp+1E0h+var_250+4]
-                    vmulss  xmm1, xmm2, xmm7
-                    vaddss  xmm7, xmm1, dword ptr [rbp+1E0h+var_248+4]
-                    vmulss  xmm2, xmm15, cs:__real@bf000000
-                    vmulss  xmm5, xmm2, xmm12
-                    vmulss  xmm4, xmm2, xmm13
-                    vmulss  xmm3, xmm2, xmm14
-                    vmulss  xmm2, xmm15, cs:__real@3f000000
-                    vaddss  xmm0, xmm9, xmm5
-                    vmovss  dword ptr [rbp+1E0h+var_238], xmm0
-                    vaddss  xmm0, xmm11, xmm3
-                    vmovss  dword ptr [rbp+1E0h+var_238+8], xmm0
-                    vaddss  xmm1, xmm10, xmm4
-                    vmovss  dword ptr [rbp+1E0h+var_238+4], xmm1
-                    vaddss  xmm0, xmm7, xmm4
-                    vmovss  dword ptr [rbp+1E0h+var_228+4], xmm0
-                    vaddss  xmm1, xmm6, xmm5
-                    vmovss  dword ptr [rbp+1E0h+var_228], xmm1
-                    vmulss  xmm5, xmm2, xmm12
-                    vaddss  xmm1, xmm8, xmm3
-                    vmovss  dword ptr [rbp+1E0h+var_228+8], xmm1
-                    vaddss  xmm0, xmm5, xmm9
-                    vmovss  dword ptr [rbp+1E0h+var_218], xmm0
-                    vmulss  xmm3, xmm2, xmm14
-                    vmulss  xmm4, xmm2, xmm13
-                    vaddss  xmm0, xmm3, xmm11
-                    vaddss  xmm1, xmm4, xmm10
-                    vmovss  dword ptr [rbp+1E0h+var_218+8], xmm0
-                    vaddss  xmm0, xmm4, xmm7
-                    vmovss  dword ptr [rbp+1E0h+var_218+4], xmm1
-                    vaddss  xmm1, xmm5, xmm6
-                    vmovss  dword ptr [rbp+1E0h+var_208+4], xmm0
-                    vmovss  xmm0, dword ptr [rbp+1E0h+var_250]
-                    vmovss  dword ptr [rbp+1E0h+var_208], xmm1
-                    vxorps  xmm12, xmm12, xmm12
-                    vcomiss xmm0, xmm12
-                    vaddss  xmm1, xmm3, xmm8
-                    vmovss  dword ptr [rbp+1E0h+var_208+8], xmm1
                   }
-                  if ( !(v162 | v163) )
-                    goto LABEL_35;
-                  __asm { vcomiss xmm15, xmm12 }
-                  if ( !(v162 | v163) )
+                  axes.m[1].v[0] = v66;
+                  axes.m[1].v[1] = v69;
+                  axes.m[1].v[2] = *(float *)&v70;
+                  axes.m[0].v[0] = v80;
+                  axes.m[0].v[1] = v81;
+                  axes.m[0].v[2] = v79;
+                  axes.m[2].v[0] = v82 * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  axes.m[2].v[1] = v84 * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  axes.m[2].v[2] = v85 * (float)(*(float *)&v20 / *(float *)&_XMM1);
+                  v89 = (float)(v80 * (float)(v138.v[0] * -0.5)) + v139.v[0];
+                  v90 = (float)(v79 * (float)(v138.v[0] * -0.5)) + v139.v[2];
+                  v91 = (float)(v81 * (float)(v138.v[0] * -0.5)) + v139.v[1];
+                  v92 = (float)((float)(v138.v[0] * 0.5) * axes.m[0].v[0]) + v139.v[0];
+                  *(float *)&v70 = (float)(v79 * (float)(v138.v[0] * 0.5)) + v139.v[2];
+                  v93 = v138.v[1];
+                  v94 = (float)((float)(v138.v[0] * 0.5) * v81) + v139.v[1];
+                  v95 = (float)(v138.v[1] * -0.5) * axes.m[2].v[0];
+                  v96 = (float)(v138.v[1] * -0.5) * axes.m[2].v[1];
+                  *(float *)&_XMM3 = (float)(v138.v[1] * -0.5) * axes.m[2].v[2];
+                  v140.v[0] = v89 + v95;
+                  v140.v[2] = v90 + *(float *)&_XMM3;
+                  v140.v[1] = v91 + v96;
+                  v141.v[1] = v94 + v96;
+                  v141.v[0] = v92 + v95;
+                  v97 = (float)(v138.v[1] * 0.5) * axes.m[2].v[0];
+                  v141.v[2] = *(float *)&v70 + *(float *)&_XMM3;
+                  v142.v[0] = v97 + v89;
+                  *(float *)&_XMM3 = (float)(v138.v[1] * 0.5) * axes.m[2].v[2];
+                  v142.v[2] = *(float *)&_XMM3 + v90;
+                  v142.v[1] = (float)((float)(v138.v[1] * 0.5) * axes.m[2].v[1]) + v91;
+                  v143.v[1] = (float)((float)(v138.v[1] * 0.5) * axes.m[2].v[1]) + v94;
+                  v98 = v138.v[0];
+                  v143.v[0] = v97 + v92;
+                  v143.v[2] = *(float *)&_XMM3 + *(float *)&v70;
+                  if ( v138.v[0] > 0.0 || v138.v[1] > 0.0 )
                   {
-LABEL_35:
-                    CG_DebugLine(&v388, &v389, &colorYellow, 1, 0);
-                    CG_DebugLine(&v389, &v391, &colorYellow, 1, 0);
-                    CG_DebugLine(&v391, &v390, &colorYellow, 1, 0);
-                    CG_DebugLine(&v390, &v388, &colorYellow, 1, 0);
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rbp+1E0h+var_250]
-                      vmovss  xmm15, dword ptr [rbp+1E0h+var_250+4]
-                    }
+                    CG_DebugLine(&v140, &v141, &colorYellow, 1, 0);
+                    CG_DebugLine(&v141, &v143, &colorYellow, 1, 0);
+                    CG_DebugLine(&v143, &v142, &colorYellow, 1, 0);
+                    CG_DebugLine(&v142, &v140, &colorYellow, 1, 0);
+                    v98 = v138.v[0];
+                    v93 = v138.v[1];
                   }
-                  __asm
+                  if ( v136.v[0] > 0.0 || v136.v[1] > 0.0 || v98 > 0.0 || v93 > 0.0 )
                   {
-                    vmovss  xmm1, [rsp+2E0h+var_280]
-                    vcomiss xmm1, xmm12
+                    CG_DebugLine(&v151, &v140, &colorLtYellow, 1, 0);
+                    CG_DebugLine(&v152, &v141, &colorLtYellow, 1, 0);
+                    CG_DebugLine(&v153, &v142, &colorLtYellow, 1, 0);
+                    CG_DebugLine(&v154, &v143, &colorLtYellow, 1, 0);
+                    v98 = v138.v[0];
+                    v93 = v138.v[1];
                   }
-                  if ( !(v162 | v163) )
-                    goto LABEL_40;
-                  __asm
-                  {
-                    vmovss  xmm1, [rsp+2E0h+var_27C]
-                    vcomiss xmm1, xmm12
-                  }
-                  if ( !(v162 | v163) )
-                    goto LABEL_40;
-                  __asm { vcomiss xmm0, xmm12 }
-                  if ( !(v162 | v163) )
-                    goto LABEL_40;
-                  __asm { vcomiss xmm15, xmm12 }
-                  if ( !(v162 | v163) )
-                  {
-LABEL_40:
-                    CG_DebugLine(&v399, &v388, &colorLtYellow, 1, 0);
-                    CG_DebugLine(&v400, &v389, &colorLtYellow, 1, 0);
-                    CG_DebugLine(&v401, &v390, &colorLtYellow, 1, 0);
-                    CG_DebugLine(&v402, &v391, &colorLtYellow, 1, 0);
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rbp+1E0h+var_250]
-                      vmovss  xmm15, dword ptr [rbp+1E0h+var_250+4]
-                    }
-                  }
-                  __asm
-                  {
-                    vmovss  xmm13, cs:__real@3f800000
-                    vmovss  [rsp+2E0h+var_280], xmm0
-                    vmovsd  xmm0, qword ptr [rbp+1E0h+var_238]
-                    vmovsd  qword ptr [rbp+1E0h+var_190], xmm0
-                    vmovsd  xmm0, qword ptr [rbp+1E0h+var_228]
-                  }
-                  v399.v[2] = v388.v[2];
-                  __asm
-                  {
-                    vmovsd  qword ptr [rbp+1E0h+var_180], xmm0
-                    vmovsd  xmm0, qword ptr [rbp+1E0h+var_218]
-                  }
-                  v400.v[2] = v389.v[2];
-                  __asm
-                  {
-                    vmovsd  qword ptr [rbp+1E0h+var_170], xmm0
-                    vmovsd  xmm0, qword ptr [rbp+1E0h+var_208]
-                  }
-                  v401.v[2] = v390.v[2];
-                  __asm
-                  {
-                    vmovsd  qword ptr [rbp+1E0h+var_160], xmm0
-                    vmovss  [rsp+2E0h+var_27C], xmm15
-                  }
-                  v402.v[2] = v391.v[2];
+                  v20 = LODWORD(FLOAT_1_0);
+                  v136.v[0] = v98;
+                  v151 = v140;
+                  v152 = v141;
+                  v153 = v142;
+                  v154 = v143;
+                  v136.v[1] = v93;
                 }
-                __asm
-                {
-                  vmovss  xmm1, [rsp+2E0h+var_288]
-                  vmovss  xmm14, cs:__real@80000000
-                }
-                ++v146;
+                v60 = v134;
+                ++v59;
               }
-              while ( v146 < v42 );
+              while ( v59 < v18 );
             }
-            Com_GetCSplinePointPosition(v36, v41 + 1, &v387);
-            CG_DebugLine(&v398, &v387, &colorYellow, 1, 0);
+            Com_GetCSplinePointPosition(v13, v17 + 1, &v139);
+            CG_DebugLine(&v150, &v139, &colorYellow, 1, 0);
             if ( cSplineDebugRenderCorridor->current.enabled )
             {
-              Com_GetCSplinePointCorridorDims(v36, v41 + 1, &v386);
+              Com_GetCSplinePointCorridorDims(v13, v17 + 1, &v138);
+              axes.m[2].v[0] = 0.0;
+              axes.m[2].v[1] = 0.0;
+              axes.m[2].v[2] = *(float *)&v20;
+              Com_GetCSplinePointTangent(v13, v17 + 1, &axes.m[1]);
+              v99 = LODWORD(axes.m[1].v[1]);
+              *(float *)&v99 = fsqrt((float)((float)(*(float *)&v99 * *(float *)&v99) + (float)(axes.m[1].v[0] * axes.m[1].v[0])) + (float)(axes.m[1].v[2] * axes.m[1].v[2]));
+              _XMM3 = v99;
               __asm
               {
-                vmovss  dword ptr [rbp+1E0h+axes+18h], xmm12
-                vmovss  dword ptr [rbp+1E0h+axes+1Ch], xmm12
-                vmovss  dword ptr [rbp+1E0h+axes+20h], xmm13
+                vcmpless xmm0, xmm3, xmm12
+                vblendvps xmm1, xmm3, xmm13, xmm0
               }
-              Com_GetCSplinePointTangent(v36, v41 + 1, &axes.m[1]);
+              v104 = LODWORD(axes.m[1].v[0]);
+              v103 = axes.m[1].v[0] * (float)(*(float *)&v20 / *(float *)&_XMM1);
+              v105 = axes.m[1].v[1] * (float)(*(float *)&v20 / *(float *)&_XMM1);
+              v106 = axes.m[1].v[2] * (float)(*(float *)&v20 / *(float *)&_XMM1);
+              v107 = (float)(v106 * axes.m[2].v[1]) - (float)(v105 * axes.m[2].v[2]);
+              v108 = (float)(v103 * axes.m[2].v[2]) - (float)(v106 * axes.m[2].v[0]);
+              v109 = (float)(v105 * axes.m[2].v[0]) - (float)(v103 * axes.m[2].v[1]);
+              *(float *)&v104 = fsqrt((float)((float)(v108 * v108) + (float)(v107 * v107)) + (float)(v109 * v109));
+              _XMM3 = v104;
               __asm
               {
-                vmovss  xmm4, dword ptr [rsp+2E0h+axes+0Ch]
-                vmovss  xmm6, dword ptr [rsp+2E0h+axes+10h]
-                vmovss  xmm5, dword ptr [rsp+2E0h+axes+14h]
-                vmovss  xmm12, cs:__real@80000000
-                vmulss  xmm1, xmm6, xmm6
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm0, xmm2, xmm1
-                vsqrtss xmm3, xmm0, xmm0
                 vcmpless xmm0, xmm3, xmm12
                 vblendvps xmm1, xmm3, xmm13, xmm0
-                vdivss  xmm0, xmm13, xmm1
-                vmulss  xmm10, xmm4, xmm0
-                vmulss  xmm3, xmm10, dword ptr [rbp+1E0h+axes+20h]
-                vmulss  xmm9, xmm6, xmm0
-                vmulss  xmm2, xmm9, dword ptr [rbp+1E0h+axes+18h]
-                vmulss  xmm8, xmm5, xmm0
-                vmulss  xmm1, xmm8, dword ptr [rbp+1E0h+axes+1Ch]
-                vmulss  xmm0, xmm9, dword ptr [rbp+1E0h+axes+20h]
-                vsubss  xmm7, xmm1, xmm0
-                vmulss  xmm0, xmm8, dword ptr [rbp+1E0h+axes+18h]
-                vmulss  xmm1, xmm10, dword ptr [rbp+1E0h+axes+1Ch]
-                vsubss  xmm6, xmm3, xmm0
-                vsubss  xmm4, xmm2, xmm1
-                vmulss  xmm3, xmm6, xmm6
-                vmulss  xmm0, xmm7, xmm7
-                vaddss  xmm2, xmm3, xmm0
-                vmulss  xmm1, xmm4, xmm4
-                vaddss  xmm2, xmm2, xmm1
-                vsqrtss xmm3, xmm2, xmm2
-                vcmpless xmm0, xmm3, xmm12
-                vblendvps xmm1, xmm3, xmm13, xmm0
-                vdivss  xmm0, xmm13, xmm1
-                vmulss  xmm15, xmm0, xmm4
-                vmulss  xmm11, xmm0, xmm7
-                vmulss  xmm7, xmm0, xmm6
-                vmulss  xmm0, xmm7, xmm8
-                vmulss  xmm1, xmm9, xmm15
-                vsubss  xmm6, xmm1, xmm0
-                vmulss  xmm1, xmm15, xmm10
-                vmulss  xmm2, xmm11, xmm8
-                vsubss  xmm5, xmm2, xmm1
-                vmulss  xmm1, xmm6, xmm6
-                vmulss  xmm3, xmm7, xmm10
-                vmulss  xmm0, xmm11, xmm9
-                vsubss  xmm4, xmm3, xmm0
-                vmulss  xmm0, xmm4, xmm4
-                vmulss  xmm2, xmm5, xmm5
-                vaddss  xmm3, xmm2, xmm1
-                vaddss  xmm2, xmm3, xmm0
-                vsqrtss xmm1, xmm2, xmm2
+              }
+              v113 = v20;
+              v114 = (float)(*(float *)&v20 / *(float *)&_XMM1) * v109;
+              v115 = (float)(*(float *)&v20 / *(float *)&_XMM1) * v107;
+              v116 = (float)(*(float *)&v20 / *(float *)&_XMM1) * v108;
+              v117 = (float)(v105 * v114) - (float)(v116 * v106);
+              v118 = (float)(v115 * v106) - (float)(v114 * v103);
+              v119 = (float)(v116 * v103) - (float)(v115 * v105);
+              *(float *)&v113 = fsqrt((float)((float)(v118 * v118) + (float)(v117 * v117)) + (float)(v119 * v119));
+              _XMM1 = v113;
+              __asm
+              {
                 vcmpless xmm0, xmm1, xmm12
                 vblendvps xmm1, xmm1, xmm13, xmm0
-                vdivss  xmm0, xmm13, xmm1
-                vmulss  xmm12, xmm0, xmm6
-                vmovss  xmm6, dword ptr [rbp+1E0h+var_250]
-                vmulss  xmm2, xmm6, cs:__real@bf000000
-                vmulss  xmm13, xmm0, xmm5
-                vmulss  xmm14, xmm0, xmm4
-                vmulss  xmm0, xmm11, xmm2
-                vmovss  dword ptr [rsp+2E0h+axes+0Ch], xmm10
-                vmovss  dword ptr [rsp+2E0h+axes+10h], xmm9
-                vmovss  dword ptr [rsp+2E0h+axes+14h], xmm8
-                vmovss  dword ptr [rsp+2E0h+axes], xmm11
-                vmovss  dword ptr [rsp+2E0h+axes+4], xmm7
-                vmovss  dword ptr [rsp+2E0h+axes+8], xmm15
-                vmovss  dword ptr [rbp+1E0h+axes+18h], xmm12
-                vmovss  dword ptr [rbp+1E0h+axes+1Ch], xmm13
-                vmovss  dword ptr [rbp+1E0h+axes+20h], xmm14
-                vaddss  xmm9, xmm0, dword ptr [rbp+1E0h+var_248]
-                vmulss  xmm0, xmm2, xmm15
-                vaddss  xmm11, xmm0, dword ptr [rbp+1E0h+var_248+8]
-                vmulss  xmm1, xmm2, xmm7
-                vaddss  xmm10, xmm1, dword ptr [rbp+1E0h+var_248+4]
-                vmulss  xmm2, xmm6, cs:__real@3f000000
-                vmulss  xmm0, xmm2, dword ptr [rsp+2E0h+axes]
-                vaddss  xmm6, xmm0, dword ptr [rbp+1E0h+var_248]
-                vmulss  xmm0, xmm2, xmm15
-                vaddss  xmm8, xmm0, dword ptr [rbp+1E0h+var_248+8]
-                vmovss  xmm15, dword ptr [rbp+1E0h+var_250+4]
-                vmulss  xmm1, xmm2, xmm7
-                vaddss  xmm7, xmm1, dword ptr [rbp+1E0h+var_248+4]
-                vmulss  xmm2, xmm15, cs:__real@bf000000
-                vmulss  xmm5, xmm2, xmm12
-                vmulss  xmm4, xmm2, xmm13
-                vmulss  xmm3, xmm2, xmm14
-                vmulss  xmm2, xmm15, cs:__real@3f000000
-                vaddss  xmm0, xmm5, xmm9
-                vmovss  dword ptr [rbp+1E0h+var_238], xmm0
-                vaddss  xmm1, xmm4, xmm10
-                vmovss  dword ptr [rbp+1E0h+var_238+4], xmm1
-                vaddss  xmm0, xmm3, xmm11
-                vmovss  dword ptr [rbp+1E0h+var_238+8], xmm0
-                vaddss  xmm1, xmm5, xmm6
-                vmovss  dword ptr [rbp+1E0h+var_228], xmm1
-                vaddss  xmm0, xmm4, xmm7
-                vaddss  xmm1, xmm3, xmm8
-                vmovss  dword ptr [rbp+1E0h+var_228+8], xmm1
-                vmulss  xmm5, xmm2, xmm12
-                vmovss  dword ptr [rbp+1E0h+var_228+4], xmm0
-                vmulss  xmm4, xmm2, xmm13
-                vaddss  xmm1, xmm4, xmm10
-                vmovss  dword ptr [rbp+1E0h+var_218+4], xmm1
-                vaddss  xmm1, xmm5, xmm6
-                vaddss  xmm0, xmm5, xmm9
-                vmulss  xmm3, xmm2, xmm14
-                vmovss  dword ptr [rbp+1E0h+var_208], xmm1
-                vaddss  xmm1, xmm3, xmm8
-                vmovss  dword ptr [rbp+1E0h+var_218], xmm0
-                vaddss  xmm0, xmm3, xmm11
-                vmovss  dword ptr [rbp+1E0h+var_208+8], xmm1
-                vmovss  xmm1, [rsp+2E0h+var_280]
-                vmovss  dword ptr [rbp+1E0h+var_218+8], xmm0
-                vxorps  xmm12, xmm12, xmm12
-                vcomiss xmm1, xmm12
-                vaddss  xmm0, xmm4, xmm7
-                vmovss  dword ptr [rbp+1E0h+var_208+4], xmm0
               }
-              if ( !(v265 | v266) )
-                goto LABEL_48;
-              __asm
+              axes.m[1].v[0] = v103;
+              axes.m[1].v[1] = v105;
+              axes.m[1].v[2] = v106;
+              axes.m[0].v[0] = v115;
+              axes.m[0].v[1] = v116;
+              axes.m[0].v[2] = v114;
+              axes.m[2].v[0] = (float)(*(float *)&v20 / *(float *)&_XMM1) * v117;
+              axes.m[2].v[1] = (float)(*(float *)&v20 / *(float *)&_XMM1) * v118;
+              axes.m[2].v[2] = (float)(*(float *)&v20 / *(float *)&_XMM1) * v119;
+              v123 = (float)(v115 * (float)(v138.v[0] * -0.5)) + v139.v[0];
+              v124 = (float)((float)(v138.v[0] * -0.5) * v114) + v139.v[2];
+              v125 = (float)((float)(v138.v[0] * -0.5) * v116) + v139.v[1];
+              v126 = (float)((float)(v138.v[0] * 0.5) * axes.m[0].v[0]) + v139.v[0];
+              v127 = (float)((float)(v138.v[0] * 0.5) * v114) + v139.v[2];
+              v128 = (float)((float)(v138.v[0] * 0.5) * v116) + v139.v[1];
+              v129 = (float)(v138.v[1] * -0.5) * axes.m[2].v[0];
+              v130 = (float)(v138.v[1] * -0.5) * axes.m[2].v[1];
+              *(float *)&_XMM3 = (float)(v138.v[1] * -0.5) * axes.m[2].v[2];
+              v140.v[0] = v129 + v123;
+              v140.v[1] = v130 + v125;
+              v140.v[2] = *(float *)&_XMM3 + v124;
+              v141.v[0] = v129 + v126;
+              v141.v[2] = *(float *)&_XMM3 + v127;
+              v131 = (float)(v138.v[1] * 0.5) * axes.m[2].v[0];
+              v141.v[1] = v130 + v128;
+              v142.v[1] = (float)((float)(v138.v[1] * 0.5) * axes.m[2].v[1]) + v125;
+              v143.v[0] = v131 + v126;
+              v142.v[0] = v131 + v123;
+              v143.v[2] = (float)((float)(v138.v[1] * 0.5) * axes.m[2].v[2]) + v127;
+              v142.v[2] = (float)((float)(v138.v[1] * 0.5) * axes.m[2].v[2]) + v124;
+              v143.v[1] = (float)((float)(v138.v[1] * 0.5) * axes.m[2].v[1]) + v128;
+              if ( v136.v[0] > 0.0 || v136.v[1] > 0.0 || v138.v[0] > 0.0 || v138.v[1] > 0.0 )
               {
-                vmovss  xmm1, [rsp+2E0h+var_27C]
-                vcomiss xmm1, xmm12
-              }
-              if ( !(v265 | v266) )
-                goto LABEL_48;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+1E0h+var_250]
-                vcomiss xmm0, xmm12
-              }
-              if ( !(v265 | v266) )
-                goto LABEL_48;
-              __asm { vcomiss xmm15, xmm12 }
-              if ( !(v265 | v266) )
-              {
-LABEL_48:
-                CG_DebugLine(&v399, &v388, &colorLtYellow, 1, 0);
-                CG_DebugLine(&v400, &v389, &colorLtYellow, 1, 0);
-                CG_DebugLine(&v401, &v390, &colorLtYellow, 1, 0);
-                CG_DebugLine(&v402, &v391, &colorLtYellow, 1, 0);
+                CG_DebugLine(&v151, &v140, &colorLtYellow, 1, 0);
+                CG_DebugLine(&v152, &v141, &colorLtYellow, 1, 0);
+                CG_DebugLine(&v153, &v142, &colorLtYellow, 1, 0);
+                CG_DebugLine(&v154, &v143, &colorLtYellow, 1, 0);
               }
             }
-            v43 = v40 - 1;
+            v19 = v16 - 1;
           }
-          __asm
-          {
-            vmovss  xmm15, cs:__real@3f000000
-            vmovss  xmm14, cs:__real@80000000
-          }
-          ++v41;
+          v14 = FLOAT_0_5;
+          ++v17;
         }
-        while ( v41 < (unsigned __int16)v40 );
-        v15 = CSplineCount;
+        while ( v17 < (unsigned __int16)v16 );
+        v3 = CSplineCount;
       }
-      ++v36;
+      ++v13;
     }
-    while ( v36 <= v15 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+2E0h+var_C8+8]
-      vmovaps xmm14, [rsp+2E0h+var_B8+8]
-      vmovaps xmm13, [rsp+2E0h+var_A8+8]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm11, [rsp+2E0h+var_88+8]
-    vmovaps xmm10, [rsp+2E0h+var_78+8]
-    vmovaps xmm9, [rsp+2E0h+var_68+8]
-    vmovaps xmm8, [rsp+2E0h+var_58+8]
-    vmovaps xmm7, [rsp+2E0h+var_48+8]
-    vmovaps xmm6, [rsp+2E0h+var_38+8]
-    vmovaps xmm12, [rsp+2E0h+var_98+8]
+    while ( v13 <= v3 );
   }
 }
 

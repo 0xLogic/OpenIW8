@@ -448,8 +448,7 @@ ScriptContext_GetFrameRate
 */
 float ScriptContext_GetFrameRate(const scrContext_t *scrContext)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+5D7Ch] }
-  return *(float *)&_XMM0;
+  return scrContext->m_varPub.framerate;
 }
 
 /*
@@ -602,29 +601,41 @@ ScriptContext_InitDumpStack
 */
 void ScriptContext_InitDumpStack(scrContext_t *scrContext)
 {
-  __asm
+  unsigned __int64 v1; 
+  __int128 v6; 
+  unsigned __int64 v8; 
+  __int128 v12; 
+
+  v1 = 0i64;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, dword ptr [rax+28h] }
+  *((_QWORD *)&v6 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v6 = *(double *)&_XMM0 / msecPerRawTimerTick;
+  _XMM2 = v6;
+  if ( *(double *)&_XMM0 / msecPerRawTimerTick >= 9.223372036854776e18 )
   {
-    vmovsd  xmm1, cs:__real@43e0000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, dword ptr [rax+28h]
-    vdivsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcomisd xmm2, xmm1
-    vsubsd  xmm2, xmm2, xmm1
-    vcomisd xmm2, xmm1
-    vcvttsd2si rax, xmm2
+    *(double *)&v6 = *(double *)&v6 - 9.223372036854776e18;
+    _XMM2 = v6;
+    if ( *(double *)&v6 < 9.223372036854776e18 )
+      v1 = 0x8000000000000000ui64;
   }
-  scrContext->m_dumpStack.m_threshRawTimerCount = _RAX;
-  __asm
+  __asm { vcvttsd2si rax, xmm2 }
+  scrContext->m_dumpStack.m_threshRawTimerCount = v1 + _RAX;
+  v8 = 0i64;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, dword ptr [rax+28h] }
+  *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v12 = *(double *)&_XMM0 / msecPerRawTimerTick;
+  _XMM2 = v12;
+  if ( *(double *)&_XMM0 / msecPerRawTimerTick >= 9.223372036854776e18 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, dword ptr [rax+28h]
-    vdivsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcomisd xmm2, xmm1
-    vsubsd  xmm2, xmm2, xmm1
-    vcomisd xmm2, xmm1
-    vcvttsd2si rax, xmm2
+    *(double *)&v12 = *(double *)&v12 - 9.223372036854776e18;
+    _XMM2 = v12;
+    if ( *(double *)&v12 < 9.223372036854776e18 )
+      v8 = 0x8000000000000000ui64;
   }
-  scrContext->m_dumpStack.m_threshRawMaxResetTime = _RAX;
+  __asm { vcvttsd2si rax, xmm2 }
+  scrContext->m_dumpStack.m_threshRawMaxResetTime = v8 + _RAX;
 }
 
 /*

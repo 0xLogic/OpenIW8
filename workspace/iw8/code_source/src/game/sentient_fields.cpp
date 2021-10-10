@@ -174,13 +174,14 @@ SentientScr_SetMaxSightDistSqrd
 */
 void SentientScr_SetMaxSightDistSqrd(scrContext_t *scrContext, sentient_s *pSelf, const sentient_fields_s *pField)
 {
+  double Float; 
+
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient_fields.cpp", 337, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( pSelf->ai )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm1, xmm0; maxSightDistSqrd }
-    Sentient_SetMaxSightDistSqrd(pSelf, *(float *)&_XMM1);
+    Float = Scr_GetFloat(scrContext, 0);
+    Sentient_SetMaxSightDistSqrd(pSelf, *(float *)&Float);
   }
 }
 
@@ -191,13 +192,14 @@ SentientScr_GetMaxSightDistSqrd
 */
 void SentientScr_GetMaxSightDistSqrd(scrContext_t *scrContext, sentient_s *pSelf, const sentient_fields_s *pField)
 {
+  double MaxSightDistSqrd; 
+
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient_fields.cpp", 346, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( pSelf->ai )
   {
-    *(double *)&_XMM0 = Sentient_GetMaxSightDistSqrd(pSelf);
-    __asm { vmovaps xmm1, xmm0; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    MaxSightDistSqrd = Sentient_GetMaxSightDistSqrd(pSelf);
+    Scr_AddFloat(scrContext, *(float *)&MaxSightDistSqrd);
   }
 }
 

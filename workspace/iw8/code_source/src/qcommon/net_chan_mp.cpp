@@ -413,6 +413,7 @@ NET_AdrToString
 char *NET_AdrToString(netadr_t *a)
 {
   int addrHandleIndex; 
+  __int128 v2; 
   _QWORD *v3; 
   __int64 v4; 
   __int64 v5; 
@@ -425,11 +426,11 @@ char *NET_AdrToString(netadr_t *a)
   char buf[16]; 
 
   addrHandleIndex = a->addrHandleIndex;
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
+  v2 = *(_OWORD *)&a->type;
   v3 = NtCurrentTeb()->Reserved1[11];
   v4 = tls_index;
   v12 = addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+78h+addr], xmm0 }
+  *(_OWORD *)addr = v2;
   if ( *(_DWORD *)(v3[tls_index] + 736i64) >= 3u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 175, ASSERT_TYPE_ASSERT, "(unsigned)( s_adrToStringBufferIndex ) < (unsigned)( 3 )", "s_adrToStringBufferIndex doesn't index ADR_TO_STRING_BUFFER_COUNT\n\t%i not in [0, %i)", *(_DWORD *)(v3[tls_index] + 736i64), 3) )
     __debugbreak();
   v5 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v4);
@@ -459,21 +460,18 @@ NET_CompareAdr
 _BOOL8 NET_CompareAdr(netadr_t *a, netadr_t *b)
 {
   int addrHandleIndex; 
-  int v5; 
+  __int128 v3; 
+  int v4; 
   netadr_t ba; 
   netadr_t aa; 
 
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
   addrHandleIndex = a->addrHandleIndex;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+68h+a.type], xmm0
-    vmovups xmm0, xmmword ptr [rdx]
-  }
+  *(_OWORD *)&aa.type = *(_OWORD *)&a->type;
+  v3 = *(_OWORD *)&b->type;
   aa.addrHandleIndex = addrHandleIndex;
-  v5 = b->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+68h+b.type], xmm0 }
-  ba.addrHandleIndex = v5;
+  v4 = b->addrHandleIndex;
+  *(_OWORD *)&ba.type = v3;
+  ba.addrHandleIndex = v4;
   return NET_CompareAdrSigned(&aa, &ba, 0) == 0;
 }
 
@@ -534,21 +532,18 @@ NET_CompareIPAdr
 _BOOL8 NET_CompareIPAdr(netadr_t *a, netadr_t *b)
 {
   int addrHandleIndex; 
-  int v5; 
+  __int128 v3; 
+  int v4; 
   netadr_t ba; 
   netadr_t aa; 
 
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
   addrHandleIndex = a->addrHandleIndex;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+68h+a.type], xmm0
-    vmovups xmm0, xmmword ptr [rdx]
-  }
+  *(_OWORD *)&aa.type = *(_OWORD *)&a->type;
+  v3 = *(_OWORD *)&b->type;
   aa.addrHandleIndex = addrHandleIndex;
-  v5 = b->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+68h+b.type], xmm0 }
-  ba.addrHandleIndex = v5;
+  v4 = b->addrHandleIndex;
+  *(_OWORD *)&ba.type = v3;
+  ba.addrHandleIndex = v4;
   return NET_CompareAdrSigned(&aa, &ba, 1) == 0;
 }
 
@@ -559,31 +554,27 @@ NET_DeferPacketToClient
 */
 void NET_DeferPacketToClient(netadr_t *net_from, msg_t *net_message)
 {
-  __int64 v6; 
-  int v7; 
+  DeferredMsg *v4; 
+  __int64 v5; 
+  int v6; 
 
-  _RSI = net_from;
   if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1177, ASSERT_TYPE_ASSERT, "(Sys_IsServerThread())", (const char *)&queryFormat, "Sys_IsServerThread()") )
     __debugbreak();
   if ( !Com_IsGameLocalServerRunning() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1181, ASSERT_TYPE_ASSERT, "(Com_IsGameLocalServerRunning())", (const char *)&queryFormat, "Com_IsGameLocalServerRunning()") )
     __debugbreak();
-  _RBX = &deferredQueue.msgs[deferredQueue.send & 0xF];
-  memcpy_0(_RBX->data, net_message->data, net_message->cursize);
-  _RBX->datalen = net_message->cursize;
+  v4 = &deferredQueue.msgs[deferredQueue.send & 0xF];
+  memcpy_0(v4->data, net_message->data, net_message->cursize);
+  v4->datalen = net_message->cursize;
   if ( net_message->targetLocalNetID >= (unsigned int)NS_INVALID_NETSRC )
   {
-    v7 = 10004;
-    LODWORD(v6) = net_message->targetLocalNetID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1189, ASSERT_TYPE_ASSERT, "(unsigned)( net_message->targetLocalNetID ) < (unsigned)( NS_INVALID_NETSRC )", "net_message->targetLocalNetID doesn't index NS_INVALID_NETSRC\n\t%i not in [0, %i)", v6, v7) )
+    v6 = 10004;
+    LODWORD(v5) = net_message->targetLocalNetID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1189, ASSERT_TYPE_ASSERT, "(unsigned)( net_message->targetLocalNetID ) < (unsigned)( NS_INVALID_NETSRC )", "net_message->targetLocalNetID doesn't index NS_INVALID_NETSRC\n\t%i not in [0, %i)", v5, v6) )
       __debugbreak();
   }
-  _RBX->targetLocalNetID = net_message->targetLocalNetID;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  _RBX->addr.addrHandleIndex = _RSI->addrHandleIndex;
+  v4->targetLocalNetID = net_message->targetLocalNetID;
+  *(_OWORD *)&v4->addr.type = *(_OWORD *)&net_from->type;
+  v4->addr.addrHandleIndex = net_from->addrHandleIndex;
   if ( ((unsigned __int8)&deferredQueue.send & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &deferredQueue.send) )
     __debugbreak();
   _InterlockedIncrement(&deferredQueue.send);
@@ -615,14 +606,14 @@ NET_GetDeferredClientPacket
 */
 char NET_GetDeferredClientPacket(netadr_t *net_from, msg_t *net_message)
 {
+  DeferredMsg *v5; 
   char *fmt; 
   char *fmta; 
-  __int64 v9; 
+  __int64 v8; 
 
-  _RSI = net_from;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1207, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1208, ASSERT_TYPE_ASSERT, "(net_from)", (const char *)&queryFormat, "net_from") )
+  if ( !net_from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1208, ASSERT_TYPE_ASSERT, "(net_from)", (const char *)&queryFormat, "net_from") )
     __debugbreak();
   if ( !net_message && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1209, ASSERT_TYPE_ASSERT, "(net_message)", (const char *)&queryFormat, "net_message") )
     __debugbreak();
@@ -636,22 +627,18 @@ char NET_GetDeferredClientPacket(netadr_t *net_from, msg_t *net_message)
   }
   if ( deferredQueue.get >= deferredQueue.send )
     return 0;
-  _RBX = &deferredQueue.msgs[deferredQueue.get & 0xF];
-  memcpy_0(net_message->data, _RBX->data, _RBX->datalen);
-  net_message->cursize = _RBX->datalen;
-  if ( _RBX->targetLocalNetID >= (unsigned int)NS_INVALID_NETSRC )
+  v5 = &deferredQueue.msgs[deferredQueue.get & 0xF];
+  memcpy_0(net_message->data, v5->data, v5->datalen);
+  net_message->cursize = v5->datalen;
+  if ( v5->targetLocalNetID >= (unsigned int)NS_INVALID_NETSRC )
   {
-    LODWORD(v9) = _RBX->targetLocalNetID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1235, ASSERT_TYPE_ASSERT, "(unsigned)( msg->targetLocalNetID ) < (unsigned)( NS_INVALID_NETSRC )", "msg->targetLocalNetID doesn't index NS_INVALID_NETSRC\n\t%i not in [0, %i)", v9, 10004) )
+    LODWORD(v8) = v5->targetLocalNetID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 1235, ASSERT_TYPE_ASSERT, "(unsigned)( msg->targetLocalNetID ) < (unsigned)( NS_INVALID_NETSRC )", "msg->targetLocalNetID doesn't index NS_INVALID_NETSRC\n\t%i not in [0, %i)", v8, 10004) )
       __debugbreak();
   }
-  net_message->targetLocalNetID = _RBX->targetLocalNetID;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsi], xmm0
-  }
-  _RSI->addrHandleIndex = _RBX->addr.addrHandleIndex;
+  net_message->targetLocalNetID = v5->targetLocalNetID;
+  *(_OWORD *)&net_from->type = *(_OWORD *)&v5->addr.type;
+  net_from->addrHandleIndex = v5->addr.addrHandleIndex;
   if ( ((unsigned __int8)&deferredQueue.get & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &deferredQueue.get) )
     __debugbreak();
   _InterlockedIncrement(&deferredQueue.get);
@@ -814,7 +801,9 @@ int NET_SendPacket(netsrc_t sock, int length, const void *data, const netadr_t *
 {
   NetPingInfo *v7; 
   __int64 v10; 
+  __int128 v12; 
   _QWORD *v13; 
+  __int128 v14; 
   __int64 v15; 
   __int64 v16; 
   char *v17; 
@@ -824,7 +813,6 @@ int NET_SendPacket(netsrc_t sock, int length, const void *data, const netadr_t *
   netadr_t addr; 
   char buf[16]; 
 
-  _RBX = to;
   v7 = info;
   v10 = sock;
   if ( to->type == NA_BAD )
@@ -836,10 +824,10 @@ int NET_SendPacket(netsrc_t sock, int length, const void *data, const netadr_t *
     if ( showpackets->current.integer && *(_DWORD *)data == -1 )
     {
       v13 = NtCurrentTeb()->Reserved1[11];
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
+      v14 = *(_OWORD *)&to->type;
       v15 = tls_index;
-      addr.addrHandleIndex = _RBX->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rsp+0C8h+addr], xmm0 }
+      addr.addrHandleIndex = to->addrHandleIndex;
+      *(_OWORD *)&addr.type = v14;
       if ( *(_DWORD *)(v13[tls_index] + 736i64) >= 3u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 175, ASSERT_TYPE_ASSERT, "(unsigned)( s_adrToStringBufferIndex ) < (unsigned)( 3 )", "s_adrToStringBufferIndex doesn't index ADR_TO_STRING_BUFFER_COUNT\n\t%i not in [0, %i)", *(_DWORD *)(v13[tls_index] + 736i64), 3) )
         __debugbreak();
       v16 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v15);
@@ -862,13 +850,13 @@ int NET_SendPacket(netsrc_t sock, int length, const void *data, const netadr_t *
     }
     if ( !info )
       v7 = &s_ignored;
-    return Sys_SendPacket((netsrc_t)v10, length, data, _RBX, flags, v7);
+    return Sys_SendPacket((netsrc_t)v10, length, data, to, flags, v7);
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    addr.addrHandleIndex = _RBX->addrHandleIndex;
-    __asm { vmovups xmmword ptr [rsp+0C8h+addr], xmm0 }
+    v12 = *(_OWORD *)&to->type;
+    addr.addrHandleIndex = to->addrHandleIndex;
+    *(_OWORD *)&addr.type = v12;
     return FakeLag_SendPacket((netsrc_t)v10, length, data, &addr, flags, info);
   }
 }
@@ -1031,136 +1019,124 @@ LABEL_11:
 NetProf_UpdateStatistics
 ==============
 */
-
-void __fastcall NetProf_UpdateStatistics(netProfileStream_t *pStream, double _XMM1_8)
+void NetProf_UpdateStatistics(netProfileStream_t *pStream)
 {
+  int v2; 
   int v3; 
   int v4; 
-  int v5; 
-  netProfileStream_t *v6; 
+  netProfileStream_t *v5; 
+  int v6; 
   int v7; 
   int v8; 
-  int v9; 
   int i; 
   int iTime; 
+  int v11; 
   int v12; 
   int v13; 
   int v14; 
-  int v15; 
   int iSize; 
-  int v17; 
-  bool v18; 
+  int v16; 
+  bool v17; 
+  int v18; 
+  int v19; 
   int v20; 
   int v21; 
   int v22; 
-  int v30; 
-  int v32; 
-  int v33; 
-  int v34; 
+  int v24; 
+  int v25; 
+  int v26; 
 
   if ( !pStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 334, ASSERT_TYPE_ASSERT, "(pStream)", (const char *)&queryFormat, "pStream") )
     __debugbreak();
   if ( !net_iProfilingOn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_chan_mp.cpp", 335, ASSERT_TYPE_ASSERT, "(net_iProfilingOn)", (const char *)&queryFormat, "net_iProfilingOn") )
     __debugbreak();
+  v2 = 0;
   v3 = 0;
-  v4 = 0;
-  v5 = -1;
-  v6 = pStream;
-  v32 = Sys_Milliseconds();
-  v7 = 0;
-  v33 = 0;
-  v8 = v32;
-  v34 = 0;
-  v9 = 9999;
+  v4 = -1;
+  v5 = pStream;
+  v24 = Sys_Milliseconds();
+  v6 = 0;
+  v25 = 0;
+  v7 = v24;
+  v26 = 0;
+  v8 = 9999;
   for ( i = 0; i < 200; ++i )
   {
-    v30 = v9;
-    if ( v6->packets[0].iTime )
+    v22 = v8;
+    if ( v5->packets[0].iTime )
     {
-      iTime = v6->packets[0].iTime;
-      v12 = Sys_Milliseconds();
-      v7 = v34;
-      if ( v12 <= iTime + 1000 )
+      iTime = v5->packets[0].iTime;
+      v11 = Sys_Milliseconds();
+      v6 = v26;
+      if ( v11 <= iTime + 1000 )
       {
-        ++v3;
-        v13 = v4 + 1;
-        v14 = iTime;
-        if ( !v6->packets[0].bFragment )
-          v13 = v4;
-        v4 = v13;
-        v15 = i;
-        if ( iTime >= v8 )
-          v15 = v5;
-        if ( iTime >= v8 )
-          v14 = v8;
-        v5 = v15;
-        v32 = v14;
-        iSize = v6->packets[0].iSize;
-        v8 = v14;
-        v33 += iSize;
-        v9 = iSize;
-        if ( iSize >= v30 )
-          v9 = v30;
-        if ( iSize > v34 )
+        ++v2;
+        v12 = v3 + 1;
+        v13 = iTime;
+        if ( !v5->packets[0].bFragment )
+          v12 = v3;
+        v3 = v12;
+        v14 = i;
+        if ( iTime >= v7 )
+          v14 = v4;
+        if ( iTime >= v7 )
+          v13 = v7;
+        v4 = v14;
+        v24 = v13;
+        iSize = v5->packets[0].iSize;
+        v7 = v13;
+        v25 += iSize;
+        v8 = iSize;
+        if ( iSize >= v22 )
+          v8 = v22;
+        if ( iSize > v26 )
         {
-          v7 = v6->packets[0].iSize;
-          v34 = v7;
-          v32 = v14;
+          v6 = v5->packets[0].iSize;
+          v26 = v6;
+          v24 = v13;
         }
       }
     }
-    v6 = (netProfileStream_t *)((char *)v6 + 12);
+    v5 = (netProfileStream_t *)((char *)v5 + 12);
   }
-  v17 = v3;
-  v18 = v3 == 0;
-  _EDI = 0;
-  if ( v18 )
+  v16 = v2;
+  v17 = v2 == 0;
+  v18 = 0;
+  if ( v17 )
   {
     *(_QWORD *)&pStream->iBytesPerSecond = 0i64;
-    v17 = 0;
+    v16 = 0;
     *(_QWORD *)&pStream->iFragmentPercentage = 0i64;
     pStream->iSmallestPacket = 0;
   }
   else
   {
-    if ( v4 )
-      v20 = 100 * v4 / v17;
+    if ( v3 )
+      v19 = 100 * v3 / v16;
     else
-      v20 = 0;
-    pStream->iFragmentPercentage = v20;
-    pStream->iLargestPacket = v7;
-    pStream->iSmallestPacket = v9;
+      v19 = 0;
+    pStream->iFragmentPercentage = v19;
+    pStream->iLargestPacket = v6;
+    pStream->iSmallestPacket = v8;
     if ( pStream->iLastBPSCalcTime + 100 < Sys_Milliseconds() )
     {
-      v21 = Sys_Milliseconds() - v32;
-      if ( v5 == -1 )
+      v20 = Sys_Milliseconds() - v24;
+      if ( v4 == -1 )
       {
-        v22 = v33;
+        v21 = v25;
       }
       else
       {
-        --v17;
-        v22 = v33 - pStream->packets[v5].iSize;
-        if ( pStream->packets[v5].bFragment )
-          --v4;
+        --v16;
+        v21 = v25 - pStream->packets[v4].iSize;
+        if ( pStream->packets[v4].bFragment )
+          --v3;
       }
-      if ( v21 >= 1 && v17 )
+      if ( v20 >= 1 && v16 )
       {
-        if ( v22 )
-        {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@4479ffff
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, r8d
-            vdivss  xmm2, xmm0, xmm1
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, ecx
-            vmulss  xmm2, xmm2, xmm1
-            vcvttss2si edi, xmm2
-          }
-        }
-        pStream->iBytesPerSecond = _EDI;
+        if ( v21 )
+          v18 = (int)(float)((float)(999.99994 / (float)v20) * (float)v21);
+        pStream->iBytesPerSecond = v18;
         pStream->iLastBPSCalcTime = Sys_Milliseconds();
       }
       else
@@ -1168,10 +1144,10 @@ void __fastcall NetProf_UpdateStatistics(netProfileStream_t *pStream, double _XM
         pStream->iBytesPerSecond = 0;
       }
     }
-    _EDI = v4;
+    v18 = v3;
   }
-  pStream->iCountedPackets = v17;
-  pStream->iCountedFragments = _EDI;
+  pStream->iCountedPackets = v16;
+  pStream->iCountedFragments = v18;
 }
 
 /*
@@ -1278,8 +1254,7 @@ char Netchan_GetFragmentType(const int length, const int offset)
 Netchan_Init
 ==============
 */
-
-void __fastcall Netchan_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
+void Netchan_Init(void)
 {
   Dvar_BeginPermanentRegistration();
   showpackets = Dvar_RegisterInt("NMTMKLKLKT", 0, 0, 2, 0, "Show packets");
@@ -1290,14 +1265,8 @@ void __fastcall Netchan_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
   net_showprofile = Dvar_RegisterInt("LTSNMLSNKT", 0, 0, 3, 0, "Show network profiling display");
   msg_dumpEnts = Dvar_RegisterBool("OKKTMOPOKN", 0, 0, "Print snapshot entity info");
   msg_printEntityNums = Dvar_RegisterBool("MLMPORLQRM", 0, 0, "Print entity numbers");
-  __asm { vmovss  xmm3, cs:__real@461c4000; max }
   msg_hudelemspew = Dvar_RegisterBool("MLNLLTNRRK", 0, 0, "Debug hudelem fields changing");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  msg_logPredictionPositionErrors = Dvar_RegisterFloat("LRKQKPLNQS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Logs player position prediction errors less than the set distance");
+  msg_logPredictionPositionErrors = Dvar_RegisterFloat("LRKQKPLNQS", 0.0, 0.0, 10000.0, 0, "Logs player position prediction errors less than the set distance");
   Dvar_EndPermanentRegistration();
   FakeLag_Init();
   FakeBandwidth_Init();

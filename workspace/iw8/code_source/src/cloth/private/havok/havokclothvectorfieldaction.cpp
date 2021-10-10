@@ -25,24 +25,13 @@ void __fastcall HavokCloth_VectorFieldAction::apply(HavokCloth_VectorFieldAction
 HavokCloth_VectorFieldAction::HavokCloth_VectorFieldAction
 ==============
 */
-
-void __fastcall HavokCloth_VectorFieldAction::HavokCloth_VectorFieldAction(HavokCloth_VectorFieldAction *this, const unsigned int globalWorldId, const unsigned int instanceId, double drag)
+void HavokCloth_VectorFieldAction::HavokCloth_VectorFieldAction(HavokCloth_VectorFieldAction *this, const unsigned int globalWorldId, const unsigned int instanceId, const float drag)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
-  _RSI = this;
   hclAction::hclAction(this);
-  _RSI->m_globalWorldId = globalWorldId;
-  _RSI->__vftable = (HavokCloth_VectorFieldAction_vtbl *)&HavokCloth_VectorFieldAction::`vftable';
-  __asm
-  {
-    vmovss  dword ptr [rsi+20h], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  _RSI->m_instanceId = instanceId;
+  this->m_globalWorldId = globalWorldId;
+  this->__vftable = (HavokCloth_VectorFieldAction_vtbl *)&HavokCloth_VectorFieldAction::`vftable';
+  this->m_drag = drag;
+  this->m_instanceId = instanceId;
 }
 
 /*
@@ -50,310 +39,224 @@ void __fastcall HavokCloth_VectorFieldAction::HavokCloth_VectorFieldAction(Havok
 HavokCloth_VectorFieldAction::apply
 ==============
 */
-
-void __fastcall HavokCloth_VectorFieldAction::apply(HavokCloth_VectorFieldAction *this, hclSimClothInstance *simClothInstance, double timeStep, hkVector4f *forceAccumulatorInOut)
+void HavokCloth_VectorFieldAction::apply(HavokCloth_VectorFieldAction *this, hclSimClothInstance *simClothInstance, float timeStep, hkVector4f *forceAccumulatorInOut)
 {
-  bool v14; 
-  bool v15; 
-  float v21; 
+  const hclSimClothData *m_simClothData; 
+  float m_totalMass; 
+  __m128 v10; 
+  __m128 v11; 
+  float v12; 
+  hclSimClothData::ParticleData *m_data; 
+  hkVector4f *v14; 
+  hkVector4f *v15; 
   int m_size; 
-  const dvar_t *v27; 
-  const dvar_t *v29; 
-  const dvar_t *v32; 
-  bool v38; 
-  bool v39; 
+  float v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
+  float v22; 
+  bool v23; 
+  bool v24; 
   Cloth_OwnerType OwnerType; 
-  unsigned int m_instanceId; 
-  unsigned int m_globalWorldId; 
-  __int64 v73; 
-  __int64 v99; 
-  Cloth_OwnerType v112; 
+  __int128 v27; 
+  hkVector4f *v38; 
+  __m128 v39; 
+  __m128 v40; 
+  signed __int64 v41; 
+  __int64 v42; 
+  signed __int64 v43; 
+  __m128 v44; 
+  signed __int64 v45; 
+  __m128 v50; 
+  __m128 v51; 
+  float v52; 
+  __m128 v53; 
+  __m128 v54; 
+  signed __int64 v55; 
+  __int64 v56; 
+  __m128 v57; 
+  signed __int64 v58; 
+  __m128 v59; 
+  __m128 v60; 
+  Cloth_OwnerType v61; 
   float c; 
-  int v121; 
-  __int128 v122; 
+  int v63; 
+  __m128 v64; 
   vec3_t outSample; 
   vec3_t forceVec; 
   float s[2]; 
   vec3_t worldPos; 
-  char v133; 
 
-  __asm
-  {
-    vmovaps [rsp+140h+var_60], xmm8
-    vmovaps [rsp+140h+var_80], xmm10
-  }
-  _RDI = forceAccumulatorInOut;
-  _R14 = this;
-  __asm { vmovaps xmm10, xmm2 }
-  v14 = simClothInstance == NULL;
-  if ( !simClothInstance )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 58, ASSERT_TYPE_ASSERT, "(simClothInstance)", (const char *)&queryFormat, "simClothInstance");
-    v14 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm10, xmm8
-  }
-  if ( v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 59, ASSERT_TYPE_ASSERT, "(timeStep > 0.f)", (const char *)&queryFormat, "timeStep > 0.f") )
+  if ( !simClothInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 58, ASSERT_TYPE_ASSERT, "(simClothInstance)", (const char *)&queryFormat, "simClothInstance") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 60, ASSERT_TYPE_ASSERT, "(forceAccumulatorInOut)", (const char *)&queryFormat, "forceAccumulatorInOut") )
+  if ( timeStep <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 59, ASSERT_TYPE_ASSERT, "(timeStep > 0.f)", (const char *)&queryFormat, "timeStep > 0.f") )
+    __debugbreak();
+  if ( !forceAccumulatorInOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 60, ASSERT_TYPE_ASSERT, "(forceAccumulatorInOut)", (const char *)&queryFormat, "forceAccumulatorInOut") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFA8072, "HavokCloth_VectorFieldAction");
-  _R15 = simClothInstance->m_simClothData;
-  __asm
+  m_simClothData = simClothInstance->m_simClothData;
+  m_totalMass = m_simClothData->m_totalMass;
+  if ( m_totalMass != 0.0 )
   {
-    vmovss  xmm1, dword ptr [r15+108h]
-    vucomiss xmm1, xmm8
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vmovaps [rsp+140h+var_70], xmm9
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm9, xmm0, xmm1
-    }
-    if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 78, ASSERT_TYPE_ASSERT, "(simClothData)", (const char *)&queryFormat, "simClothData") )
+    v11 = (__m128)LODWORD(FLOAT_1_0);
+    v11.m128_f32[0] = 1.0 / m_totalMass;
+    v10 = v11;
+    if ( !m_simClothData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 78, ASSERT_TYPE_ASSERT, "(simClothData)", (const char *)&queryFormat, "simClothData") )
       __debugbreak();
-    v21 = *(float *)&simClothInstance->m_particlePositions.m_size;
-    _RSI = simClothInstance->m_particlePositions.m_data;
-    c = v21;
-    if ( SLODWORD(v21) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 87, ASSERT_TYPE_ASSERT, "(numParticles > 0)", (const char *)&queryFormat, "numParticles > 0") )
+    v12 = *(float *)&simClothInstance->m_particlePositions.m_size;
+    m_data = m_simClothData->m_particleDatas.m_data;
+    v14 = simClothInstance->m_particlePositions.m_data;
+    v15 = simClothInstance->m_particlePositionsPrevious.m_data;
+    c = v12;
+    if ( SLODWORD(v12) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothvectorfieldaction.cpp", 87, ASSERT_TYPE_ASSERT, "(numParticles > 0)", (const char *)&queryFormat, "numParticles > 0") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm3, cs:__real@42000000
-      vmulss  xmm0, xmm3, dword ptr [rsi]
-    }
     m_size = simClothInstance->m_particleNormals.m_size;
-    __asm
-    {
-      vmovss  dword ptr [rbp+40h+worldPos], xmm0
-      vmulss  xmm2, xmm3, dword ptr [rsi+4]
-    }
-    v121 = m_size;
-    v27 = DCONST_DVARBOOL_cloth_VectorFieldOverride;
+    worldPos.v[0] = 32.0 * v14->m_quad.m128_f32[0];
+    v17 = 32.0 * v14->m_quad.m128_f32[1];
+    v63 = m_size;
+    v18 = DCONST_DVARBOOL_cloth_VectorFieldOverride;
     *(_QWORD *)s = DCONST_DVARBOOL_cloth_VectorFieldOverride;
-    __asm
-    {
-      vmovss  dword ptr [rbp+40h+worldPos+4], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rsi+8]
-      vmovss  dword ptr [rbp+40h+worldPos+8], xmm1
-    }
+    worldPos.v[1] = v17;
+    worldPos.v[2] = 32.0 * v14->m_quad.m128_f32[2];
     if ( !DCONST_DVARBOOL_cloth_VectorFieldOverride )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_VectorFieldOverride") )
         __debugbreak();
-      v27 = *(const dvar_t **)s;
+      v18 = *(const dvar_t **)s;
     }
-    __asm
-    {
-      vmovaps [rsp+140h+var_40], xmm6
-      vmovaps [rsp+140h+var_50], xmm7
-    }
-    Dvar_CheckFrontendServerThread(v27);
+    Dvar_CheckFrontendServerThread(v18);
     if ( *(_BYTE *)(*(_QWORD *)s + 40i64) )
     {
-      v29 = DCONST_DVARFLT_cloth_VectorFieldOverrideDirection;
-      *(_QWORD *)&v122 = DCONST_DVARFLT_cloth_VectorFieldOverrideDirection;
+      v19 = DCONST_DVARFLT_cloth_VectorFieldOverrideDirection;
+      v64.m128_u64[0] = (unsigned __int64)DCONST_DVARFLT_cloth_VectorFieldOverrideDirection;
       if ( !DCONST_DVARFLT_cloth_VectorFieldOverrideDirection )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_VectorFieldOverrideDirection") )
           __debugbreak();
-        v29 = (const dvar_t *)v122;
+        v19 = (const dvar_t *)v64.m128_u64[0];
       }
-      Dvar_CheckFrontendServerThread(v29);
-      _RAX = v122;
-      __asm { vmovss  xmm7, dword ptr [rax+28h] }
-      v32 = DCONST_DVARFLT_cloth_VectorFieldOverrideStrength;
-      *(_QWORD *)&v122 = DCONST_DVARFLT_cloth_VectorFieldOverrideStrength;
+      Dvar_CheckFrontendServerThread(v19);
+      v20 = *(float *)(v64.m128_u64[0] + 40);
+      v21 = DCONST_DVARFLT_cloth_VectorFieldOverrideStrength;
+      v64.m128_u64[0] = (unsigned __int64)DCONST_DVARFLT_cloth_VectorFieldOverrideStrength;
       if ( !DCONST_DVARFLT_cloth_VectorFieldOverrideStrength )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_VectorFieldOverrideStrength") )
           __debugbreak();
-        v32 = (const dvar_t *)v122;
+        v21 = (const dvar_t *)v64.m128_u64[0];
       }
-      Dvar_CheckFrontendServerThread(v32);
-      _RAX = v122;
-      __asm
-      {
-        vmovaps xmm0, xmm7; radians
-        vmovss  xmm6, dword ptr [rax+28h]
-      }
-      FastSinCos(*(const float *)&_XMM0, s, &c);
-      __asm
-      {
-        vmulss  xmm1, xmm6, [rbp+40h+s]
-        vmulss  xmm0, xmm6, [rsp+140h+c]
-        vmovss  dword ptr [rsp+140h+outSample], xmm1
-        vmovss  dword ptr [rsp+140h+outSample+4], xmm0
-        vmovss  dword ptr [rsp+140h+outSample+8], xmm8
-        vmovss  dword ptr [rsp+140h+forceVec], xmm8
-        vmovss  dword ptr [rsp+140h+forceVec+4], xmm8
-        vmovss  dword ptr [rsp+140h+forceVec+8], xmm8
-      }
+      Dvar_CheckFrontendServerThread(v21);
+      v22 = *(float *)(v64.m128_u64[0] + 40);
+      FastSinCos(v20, s, &c);
+      outSample.v[0] = v22 * s[0];
+      outSample.v[1] = v22 * c;
+      outSample.v[2] = 0.0;
+      forceVec.v[0] = 0.0;
+      forceVec.v[1] = 0.0;
+      forceVec.v[2] = 0.0;
     }
     else
     {
       Sys_ProfBeginNamedEvent(0xFFFA8072, "Vector Field Query");
-      v38 = CG_Wind_Sample(&worldPos, &outSample, HALF_HALF);
-      v39 = CG_Wind_Sample(&worldPos, &forceVec, HALF) || v38;
+      v23 = CG_Wind_Sample(&worldPos, &outSample, HALF_HALF);
+      v24 = CG_Wind_Sample(&worldPos, &forceVec, HALF) || v23;
       Sys_ProfEndNamedEvent();
-      OwnerType = Cloth_GetOwnerType(_R14->m_globalWorldId, _R14->m_instanceId);
-      Cloth_Debug_Perf_AddClothVectorFieldSearchCount(_R14->m_globalWorldId, OwnerType, 1);
-      if ( !v39 )
+      OwnerType = Cloth_GetOwnerType(this->m_globalWorldId, this->m_instanceId);
+      Cloth_Debug_Perf_AddClothVectorFieldSearchCount(this->m_globalWorldId, OwnerType, 1);
+      if ( !v24 )
       {
-        HavokCloth_Debug_SetVectorFieldBasis(_R14->m_globalWorldId, _R14->m_instanceId, &worldPos, &vec3_origin, &vec3_origin);
-LABEL_43:
-        __asm
-        {
-          vmovaps xmm7, [rsp+140h+var_50]
-          vmovaps xmm6, [rsp+140h+var_40]
-          vmovaps xmm9, [rsp+140h+var_70]
-        }
-        goto LABEL_44;
+        HavokCloth_Debug_SetVectorFieldBasis(this->m_globalWorldId, this->m_instanceId, &worldPos, &vec3_origin, &vec3_origin);
+        goto LABEL_43;
       }
-      v21 = c;
+      v12 = c;
     }
-    m_instanceId = _R14->m_instanceId;
-    m_globalWorldId = _R14->m_globalWorldId;
-    __asm { vmovaps [rsp+140h+var_90], xmm11 }
-    HavokCloth_Debug_SetVectorFieldBasis(m_globalWorldId, m_instanceId, &worldPos, &outSample, &forceVec);
+    HavokCloth_Debug_SetVectorFieldBasis(this->m_globalWorldId, this->m_instanceId, &worldPos, &outSample, &forceVec);
+    v27 = LODWORD(outSample.v[0]);
+    *(float *)&v27 = outSample.v[0] * 0.03125;
+    _XMM7 = v27;
     __asm
     {
-      vmovss  xmm3, cs:__real@3d000000
-      vmulss  xmm4, xmm3, dword ptr [rsp+140h+outSample+4]
-      vmulss  xmm5, xmm3, dword ptr [rsp+140h+outSample+8]
-      vmulss  xmm2, xmm3, dword ptr [rsp+140h+forceVec]
-      vmulss  xmm1, xmm3, dword ptr [rsp+140h+forceVec+4]
-      vmovss  xmm0, dword ptr [rsp+140h+outSample]
-      vmulss  xmm7, xmm0, xmm3
-      vmulss  xmm0, xmm3, dword ptr [rsp+140h+forceVec+8]
       vinsertps xmm7, xmm7, xmm4, 10h
       vinsertps xmm7, xmm7, xmm5, 20h ; ' '
       vinsertps xmm7, xmm7, xmm8, 30h ; '0'
-      vmovss  dword ptr [rsp+140h+var_F0], xmm2
+    }
+    v64.m128_f32[0] = 0.03125 * forceVec.v[0];
+    __asm
+    {
       vdpps   xmm2, xmm7, xmm7, 7Fh
       vrsqrtps xmm6, xmm2
-      vmovss  dword ptr [rsp+140h+var_F0+4], xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vcmpleps xmm5, xmm2, xmm1
-      vmovss  dword ptr [rsp+140h+var_F0+8], xmm0
-      vsubps  xmm0, xmm1, xmm2
-      vcmpltps xmm0, xmm0, xmm1
-      vmulps  xmm1, xmm6, xmm2
-      vmovups xmm2, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-      vmulps  xmm3, xmm1, xmm6
-      vmulps  xmm1, xmm6, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-      vsubps  xmm4, xmm2, xmm3
-      vmulps  xmm3, xmm4, xmm1
-      vandnps xmm2, xmm5, xmm3
-      vmulps  xmm5, xmm2, xmm7
-      vblendvps xmm11, xmm7, xmm5, xmm0
-      vmovss  dword ptr [rsp+140h+var_F0+0Ch], xmm8
     }
-    if ( LODWORD(v21) == v121 )
+    v64.m128_f32[1] = 0.03125 * forceVec.v[1];
+    __asm { vcmpleps xmm5, xmm2, xmm1 }
+    v64.m128_f32[2] = 0.03125 * forceVec.v[2];
+    _XMM0 = _mm128_sub_ps((__m128)0i64, _XMM2);
+    __asm { vcmpltps xmm0, xmm0, xmm1 }
+    _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM6, _XMM2), _XMM6)), _mm128_mul_ps(_XMM6, *(__m128 *)hkMath::hkSse_floatHalf));
+    __asm { vandnps xmm2, xmm5, xmm3 }
+    _mm128_mul_ps(_XMM2, _XMM7);
+    __asm { vblendvps xmm11, xmm7, xmm5, xmm0 }
+    v64.m128_f32[3] = 0.0;
+    if ( LODWORD(v12) == v63 )
     {
-      _RAX = simClothInstance->m_particleNormals.m_data;
-      if ( SLODWORD(v21) > 0 )
+      v38 = simClothInstance->m_particleNormals.m_data;
+      if ( SLODWORD(v12) > 0 )
       {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@bf800000
-          vmovups xmm8, [rsp+140h+var_F0]
-          vdivss  xmm6, xmm0, xmm10
-        }
-        v73 = LODWORD(v21);
-        _RSI = (char *)_RSI - (char *)_RDI;
-        __asm { vshufps xmm6, xmm6, xmm6, 0 }
+        v39 = v64;
+        v40 = (__m128)LODWORD(FLOAT_N1_0);
+        v40.m128_f32[0] = -1.0 / timeStep;
+        v41 = (char *)v15 - (char *)forceAccumulatorInOut;
+        v42 = LODWORD(v12);
+        v43 = (char *)v14 - (char *)forceAccumulatorInOut;
+        v44 = _mm_shuffle_ps(v40, v40, 0);
+        v45 = (char *)m_data - (char *)forceAccumulatorInOut;
         do
         {
-          ++_RDI;
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          ++_RAX;
-          __asm
-          {
-            vdpps   xmm1, xmm0, xmm11, 7Fh
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  xmm2, xmm0, xmm1
-            vmulss  xmm0, xmm9, dword ptr [r15+rdi-10h]
-            vmovups xmm1, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
-            vandnps xmm3, xmm1, xmm2
-            vmulss  xmm4, xmm3, dword ptr [r14+20h]
-            vmulss  xmm5, xmm4, xmm0
-            vmovups xmm0, xmmword ptr [rsi+rdi-10h]
-            vsubps  xmm1, xmm0, xmmword ptr [r12+rdi-10h]
-            vmulps  xmm2, xmm1, xmm6
-            vaddps  xmm3, xmm2, xmm7
-            vshufps xmm5, xmm5, xmm5, 0
-            vmulps  xmm0, xmm3, xmm5
-            vaddps  xmm4, xmm0, xmmword ptr [rdi-10h]
-            vmulps  xmm1, xmm8, xmm5
-            vaddps  xmm2, xmm4, xmm1
-            vmovups xmmword ptr [rdi-10h], xmm2
-          }
-          --v73;
+          ++forceAccumulatorInOut;
+          _XMM0 = v38->m_quad;
+          ++v38;
+          __asm { vdpps   xmm1, xmm0, xmm11, 7Fh }
+          _XMM1 = *(_OWORD *)hkMath::hkSse_signMask;
+          __asm { vandnps xmm3, xmm1, xmm2 }
+          v50 = _XMM3;
+          v50.m128_f32[0] = (float)(_XMM3.m128_f32[0] * this->m_drag) * (float)(v10.m128_f32[0] * *(float *)((char *)forceAccumulatorInOut[-1].m_quad.m128_f32 + v45));
+          v51 = _mm_shuffle_ps(v50, v50, 0);
+          forceAccumulatorInOut[-1].m_quad = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)((char *)&forceAccumulatorInOut[-1].m_quad + v43), *(__m128 *)((char *)&forceAccumulatorInOut[-1].m_quad + v41)), v44), _XMM7), v51), forceAccumulatorInOut[-1].m_quad), _mm128_mul_ps(v39, v51));
+          --v42;
         }
-        while ( v73 );
+        while ( v42 );
       }
     }
     else
     {
-      __asm
+      v52 = this->m_drag * 0.69999999;
+      if ( SLODWORD(v12) > 0 )
       {
-        vmovss  xmm0, dword ptr [r14+20h]
-        vmulss  xmm8, xmm0, cs:__real@3f333333
-      }
-      if ( SLODWORD(v21) > 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@bf800000
-          vdivss  xmm6, xmm0, xmm10
-          vmovups xmm10, [rsp+140h+var_F0]
-        }
-        v99 = LODWORD(v21);
-        __asm { vshufps xmm6, xmm6, xmm6, 0 }
+        v53 = (__m128)LODWORD(FLOAT_N1_0);
+        v53.m128_f32[0] = -1.0 / timeStep;
+        v54 = v64;
+        v55 = (char *)v15 - (char *)v14;
+        v56 = LODWORD(v12);
+        v57 = _mm_shuffle_ps(v53, v53, 0);
+        v58 = (char *)m_data - (char *)v14;
         do
         {
-          ++_RDI;
-          __asm { vmulss  xmm0, xmm9, dword ptr [r15+rsi] }
-          ++_RSI;
-          __asm
-          {
-            vmulss  xmm5, xmm0, xmm8
-            vmovups xmm0, xmmword ptr [rsi-10h]
-            vsubps  xmm1, xmm0, xmmword ptr [r12+rsi-10h]
-            vmulps  xmm2, xmm1, xmm6
-            vaddps  xmm3, xmm2, xmm7
-            vshufps xmm5, xmm5, xmm5, 0
-            vmulps  xmm0, xmm3, xmm5
-            vaddps  xmm4, xmm0, xmmword ptr [rdi-10h]
-            vmulps  xmm1, xmm5, xmm10
-            vaddps  xmm2, xmm4, xmm1
-            vmovups xmmword ptr [rdi-10h], xmm2
-          }
-          --v99;
+          ++forceAccumulatorInOut;
+          v59 = v10;
+          v59.m128_f32[0] = v10.m128_f32[0] * *(float *)((char *)v14->m_quad.m128_f32 + v58);
+          ++v14;
+          v59.m128_f32[0] = v59.m128_f32[0] * v52;
+          v60 = _mm_shuffle_ps(v59, v59, 0);
+          forceAccumulatorInOut[-1].m_quad = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(v14[-1].m_quad, *(__m128 *)((char *)&v14[-1].m_quad + v55)), v57), _XMM7), v60), forceAccumulatorInOut[-1].m_quad), _mm128_mul_ps(v60, v54));
+          --v56;
         }
-        while ( v99 );
+        while ( v56 );
       }
     }
-    v112 = Cloth_GetOwnerType(_R14->m_globalWorldId, _R14->m_instanceId);
-    Cloth_Debug_Perf_AddParticleVectorFieldCount(_R14->m_globalWorldId, v112, SLODWORD(v21));
-    __asm { vmovaps xmm11, [rsp+140h+var_90] }
-    goto LABEL_43;
+    v61 = Cloth_GetOwnerType(this->m_globalWorldId, this->m_instanceId);
+    Cloth_Debug_Perf_AddParticleVectorFieldCount(this->m_globalWorldId, v61, SLODWORD(v12));
   }
-LABEL_44:
+LABEL_43:
   Sys_ProfEndNamedEvent();
-  _R11 = &v133;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-  }
 }
 

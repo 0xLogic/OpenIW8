@@ -159,98 +159,76 @@ DB_BinaryPatch_CopyDataInternal
 */
 void DB_BinaryPatch_CopyDataInternal(DBBinaryPatchStream *r_stream, unsigned __int8 *const posIn, const unsigned __int64 size)
 {
-  unsigned __int64 v6; 
-  int v9; 
-  int v10; 
+  unsigned __int64 v3; 
+  int v6; 
+  int v7; 
   unsigned __int64 destWindowReadOffset; 
   unsigned __int64 destWindowSize; 
-  unsigned __int64 v14; 
+  unsigned __int64 v10; 
+  unsigned __int64 v11; 
+  int v14; 
   unsigned __int64 v15; 
-  int v19; 
-  unsigned __int64 v20; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v6 = size;
-  _RDI = r_stream;
+  v3 = size;
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 305, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
   if ( !posIn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 306, ASSERT_TYPE_ASSERT, "(posIn)", (const char *)&queryFormat, "posIn") )
     __debugbreak();
   ProfLoad_DB_Begin("DB_BinaryPatch_CopyDataInternal");
-  v9 = 0;
-  if ( (v6 > 0x7FFFFFFFFFFFFFFFi64 || v6 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v6, "unsigned", v6) )
+  v6 = 0;
+  if ( (v3 > 0x7FFFFFFFFFFFFFFFi64 || v3 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v3, "unsigned", v3) )
     __debugbreak();
-  v10 = v6;
-  if ( (_DWORD)v6 )
+  v7 = v3;
+  if ( (_DWORD)v3 )
   {
-    destWindowReadOffset = _RDI->destWindowReadOffset;
-    __asm { vmovsd  xmm6, cs:__real@43f0000000000000 }
+    destWindowReadOffset = r_stream->destWindowReadOffset;
     do
     {
-      destWindowSize = _RDI->destWindowSize;
-      v14 = destWindowReadOffset;
+      destWindowSize = r_stream->destWindowSize;
+      v10 = destWindowReadOffset;
       if ( destWindowSize == destWindowReadOffset )
       {
-        _RDI->destWindowReadOffset = 0i64;
-        v15 = __rdtsc();
-        if ( !bdiff(_RDI, &_RDI->diffState, (unsigned __int8 *(__fastcall *)(DBBinaryPatchStream *, unsigned __int64, unsigned __int64))DB_BinaryPatch_LoadSourceData, (unsigned __int8 *(__fastcall *)(DBBinaryPatchStream *, unsigned __int64, unsigned __int64, unsigned __int64 *))DB_BinaryPatch_LoadPatchData, (unsigned __int8 *(__fastcall *)(DBBinaryPatchStream *, unsigned __int64))DB_BinaryPatch_SetupDestData) )
+        r_stream->destWindowReadOffset = 0i64;
+        v11 = __rdtsc();
+        if ( !bdiff(r_stream, &r_stream->diffState, (unsigned __int8 *(__fastcall *)(DBBinaryPatchStream *, unsigned __int64, unsigned __int64))DB_BinaryPatch_LoadSourceData, (unsigned __int8 *(__fastcall *)(DBBinaryPatchStream *, unsigned __int64, unsigned __int64, unsigned __int64 *))DB_BinaryPatch_LoadPatchData, (unsigned __int8 *(__fastcall *)(DBBinaryPatchStream *, unsigned __int64))DB_BinaryPatch_SetupDestData) )
         {
           Com_Printf(0, "BDiff failed\n");
-          Com_Printf(0, "r_stream.diffState.eof        : %u\n", _RDI->diffState.eof);
-          Com_Printf(0, "r_stream.diffState.error      : %u\n", _RDI->diffState.error);
-          Com_Printf(0, "r_stream.diffState.error_code : %u\n", _RDI->diffState.error_code);
-          DB_AsyncIWFileLoad::DirtyDiscError(&_RDI->asyncFileLoad, PatchBDiff, _RDI->diffState.error_code);
+          Com_Printf(0, "r_stream.diffState.eof        : %u\n", r_stream->diffState.eof);
+          Com_Printf(0, "r_stream.diffState.error      : %u\n", r_stream->diffState.error);
+          Com_Printf(0, "r_stream.diffState.error_code : %u\n", r_stream->diffState.error_code);
+          DB_AsyncIWFileLoad::DirtyDiscError(&r_stream->asyncFileLoad, PatchBDiff, r_stream->diffState.error_code);
         }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rax
-        }
-        if ( (__int64)(__rdtsc() - v15) < 0 )
-          __asm { vaddsd  xmm0, xmm0, xmm6 }
-        __asm
-        {
-          vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-          vaddsd  xmm0, xmm0, qword ptr [rdi+1A0h]
-          vmovsd  qword ptr [rdi+1A0h], xmm0
-        }
-        LODWORD(destWindowSize) = _RDI->destWindowSize;
-        LODWORD(destWindowReadOffset) = _RDI->destWindowReadOffset;
-        v14 = _RDI->destWindowReadOffset;
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
+        if ( (__int64)(__rdtsc() - v11) < 0 )
+          *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+        r_stream->timeBDiff = *(double *)&_XMM0 * msecPerRawTimerTick + r_stream->timeBDiff;
+        LODWORD(destWindowSize) = r_stream->destWindowSize;
+        LODWORD(destWindowReadOffset) = r_stream->destWindowReadOffset;
+        v10 = r_stream->destWindowReadOffset;
       }
-      v19 = destWindowSize - destWindowReadOffset;
-      if ( v10 < v19 )
-        v19 = v10;
-      v20 = __rdtsc();
-      memcpy_0(posIn, &_RDI->destWindow[v14], v19);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( (__int64)(__rdtsc() - v20) < 0 )
-        __asm { vaddsd  xmm0, xmm0, xmm6 }
-      __asm
-      {
-        vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vaddsd  xmm0, xmm0, qword ptr [rdi+198h]
-        vmovsd  qword ptr [rdi+198h], xmm0
-      }
-      posIn += v19;
-      v9 += v19;
-      _RDI->destWindowReadOffset += v19;
-      destWindowReadOffset = _RDI->destWindowReadOffset;
-      v10 -= v19;
+      v14 = destWindowSize - destWindowReadOffset;
+      if ( v7 < v14 )
+        v14 = v7;
+      v15 = __rdtsc();
+      memcpy_0(posIn, &r_stream->destWindow[v10], v14);
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (__int64)(__rdtsc() - v15) < 0 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      r_stream->timeDestCopy = *(double *)&_XMM0 * msecPerRawTimerTick + r_stream->timeDestCopy;
+      posIn += v14;
+      v6 += v14;
+      r_stream->destWindowReadOffset += v14;
+      destWindowReadOffset = r_stream->destWindowReadOffset;
+      v7 -= v14;
     }
-    while ( v10 );
-    v6 = size;
+    while ( v7 );
+    v3 = size;
   }
-  if ( v9 != v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 357, ASSERT_TYPE_ASSERT, "(sizeCopied == size)", (const char *)&queryFormat, "sizeCopied == size") )
+  if ( v6 != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 357, ASSERT_TYPE_ASSERT, "(sizeCopied == size)", (const char *)&queryFormat, "sizeCopied == size") )
     __debugbreak();
   ProfLoad_DB_End();
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -262,12 +240,10 @@ void DB_BinaryPatch_FinishLoad(const XZoneTemporaryLoadData *tempData)
 {
   const char *CurrentZoneLoadName; 
   __int64 i; 
+  DBBinaryPatchStream *v4; 
   unsigned __int64 size; 
-  unsigned __int64 v9; 
-  char *fmt; 
-  __int64 v11; 
-  double v12; 
-  __int128 v13; 
+  unsigned __int64 v6; 
+  __int64 v7; 
 
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 434, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
@@ -279,24 +255,15 @@ void DB_BinaryPatch_FinishLoad(const XZoneTemporaryLoadData *tempData)
     {
       if ( !tempData->patchStreams[i] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 445, ASSERT_TYPE_ASSERT, "(tempData.patchStreams[i])", (const char *)&queryFormat, "tempData.patchStreams[i]") )
         __debugbreak();
-      _RBX = tempData->patchStreams[i];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+198h]
-        vmovsd  xmm1, qword ptr [rbx+190h]
-        vmovups [rsp+58h+var_28], xmm0
-        vmovsd  xmm0, qword ptr [rbx+188h]
-        vmovsd  [rsp+58h+var_30], xmm0
-        vmovsd  [rsp+58h+fmt], xmm1
-      }
-      Com_Printf(10, "PATCH TIME %s(%s): %.0fms source read, %.0fms patch read, %.0fms dest copy %.0fms diff time\n", CurrentZoneLoadName, tempData->openData.diff[(unsigned __int64)(unsigned int)i].file.name, *(double *)&fmt, v12, *(double *)&v13, *((double *)&v13 + 1));
-      DB_AsyncIWFileLoad::InflateShutdown(&_RBX->asyncFileLoad);
-      DB_AsyncIWFileLoad::Shutdown(&_RBX->asyncFileLoad);
+      v4 = tempData->patchStreams[i];
+      Com_Printf(10, "PATCH TIME %s(%s): %.0fms source read, %.0fms patch read, %.0fms dest copy %.0fms diff time\n", CurrentZoneLoadName, tempData->openData.diff[(unsigned __int64)(unsigned int)i].file.name, (double)v4->timeSourceRead, (double)v4->timePatchRead, (double)v4->timeDestCopy, (double)v4->timeBDiff);
+      DB_AsyncIWFileLoad::InflateShutdown(&v4->asyncFileLoad);
+      DB_AsyncIWFileLoad::Shutdown(&v4->asyncFileLoad);
     }
     size = tempData->archiveBlocks.blocks[0].size;
-    v9 = tempData->openData.topHeader.xfileHeader.size;
-    LODWORD(v11) = 100 * size / v9;
-    Com_Printf(10, "PATCH MEMORY %s: %zukb overhead, %zukb fastfile size (%d%%)\n", CurrentZoneLoadName, size >> 10, v9 >> 10, v11);
+    v6 = tempData->openData.topHeader.xfileHeader.size;
+    LODWORD(v7) = 100 * size / v6;
+    Com_Printf(10, "PATCH MEMORY %s: %zukb overhead, %zukb fastfile size (%d%%)\n", CurrentZoneLoadName, size >> 10, v6 >> 10, v7);
   }
 }
 
@@ -334,42 +301,42 @@ unsigned __int8 *DB_BinaryPatch_LoadPatchData(DBBinaryPatchStream *const stream,
 {
   size_t patchWindowSize; 
   unsigned __int64 patchWindowOffset; 
+  unsigned __int64 v11; 
   unsigned __int64 v12; 
   unsigned __int64 v13; 
-  unsigned __int64 v14; 
-  unsigned __int8 *v15; 
-  unsigned __int64 v16; 
+  unsigned __int8 *v14; 
+  unsigned __int64 v15; 
+  long double v18; 
 
-  _RDI = stream;
   if ( !stream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 112, ASSERT_TYPE_ASSERT, "(stream)", (const char *)&queryFormat, "stream") )
     __debugbreak();
   if ( offset )
-    _RDI->patchWindowOffsetLast = offset;
+    stream->patchWindowOffsetLast = offset;
   else
-    offset = _RDI->patchWindowOffsetLast;
+    offset = stream->patchWindowOffsetLast;
   if ( pOffset )
     *pOffset = offset;
-  if ( offset < _RDI->patchWindowOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 130, ASSERT_TYPE_ASSERT, "(offset >= r_stream.patchWindowOffset)", (const char *)&queryFormat, "offset >= r_stream.patchWindowOffset") )
+  if ( offset < stream->patchWindowOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 130, ASSERT_TYPE_ASSERT, "(offset >= r_stream.patchWindowOffset)", (const char *)&queryFormat, "offset >= r_stream.patchWindowOffset") )
     __debugbreak();
-  patchWindowSize = _RDI->patchWindowSize;
-  patchWindowOffset = _RDI->patchWindowOffset;
+  patchWindowSize = stream->patchWindowSize;
+  patchWindowOffset = stream->patchWindowOffset;
   if ( offset + size <= patchWindowSize + patchWindowOffset )
-    return &_RDI->patchWindow[offset - patchWindowOffset];
-  v12 = 0i64;
+    return &stream->patchWindow[offset - patchWindowOffset];
+  v11 = 0i64;
   if ( offset != patchWindowOffset )
   {
     if ( offset >= patchWindowSize + patchWindowOffset )
     {
-      v12 = offset - patchWindowSize - patchWindowOffset;
+      v11 = offset - patchWindowSize - patchWindowOffset;
       patchWindowSize = 0i64;
     }
     else
     {
       patchWindowSize -= offset - patchWindowOffset;
-      memmove_0(_RDI->patchWindow, &_RDI->patchWindow[offset - patchWindowOffset], patchWindowSize);
+      memmove_0(stream->patchWindow, &stream->patchWindow[offset - patchWindowOffset], patchWindowSize);
     }
-    _RDI->patchWindowOffset = offset;
-    if ( v12 )
+    stream->patchWindowOffset = offset;
+    if ( v11 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 156, ASSERT_TYPE_ASSERT, "(skip == 0)", (const char *)&queryFormat, "skip == 0") )
         __debugbreak();
@@ -377,46 +344,39 @@ unsigned __int8 *DB_BinaryPatch_LoadPatchData(DBBinaryPatchStream *const stream,
   }
   if ( size && patchWindowSize < size )
   {
-    if ( size > _RDI->patchWindowAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 164, ASSERT_TYPE_ASSERT, "(size <= r_stream.patchWindowAllocated)", (const char *)&queryFormat, "size <= r_stream.patchWindowAllocated") )
+    if ( size > stream->patchWindowAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 164, ASSERT_TYPE_ASSERT, "(size <= r_stream.patchWindowAllocated)", (const char *)&queryFormat, "size <= r_stream.patchWindowAllocated") )
       __debugbreak();
-    if ( patchWindowSize + offset > _RDI->diffUncompSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 166, ASSERT_TYPE_ASSERT, "(( offset + memInWindow ) <= r_stream.diffUncompSize)", (const char *)&queryFormat, "( offset + memInWindow ) <= r_stream.diffUncompSize") )
+    if ( patchWindowSize + offset > stream->diffUncompSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 166, ASSERT_TYPE_ASSERT, "(( offset + memInWindow ) <= r_stream.diffUncompSize)", (const char *)&queryFormat, "( offset + memInWindow ) <= r_stream.diffUncompSize") )
       __debugbreak();
-    v13 = _RDI->diffUncompSize - patchWindowSize - offset;
-    if ( v13 && size > patchWindowSize )
+    v12 = stream->diffUncompSize - patchWindowSize - offset;
+    if ( v12 && size > patchWindowSize )
     {
-      v14 = size - patchWindowSize;
-      if ( v14 <= v13 )
-        v13 = v14;
-      v15 = &_RDI->patchWindow[patchWindowSize];
-      patchWindowSize += v13;
-      if ( patchWindowSize > _RDI->patchWindowAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 180, ASSERT_TYPE_ASSERT, "(( memInWindow + getSize ) <= r_stream.patchWindowAllocated)", (const char *)&queryFormat, "( memInWindow + getSize ) <= r_stream.patchWindowAllocated") )
+      v13 = size - patchWindowSize;
+      if ( v13 <= v12 )
+        v12 = v13;
+      v14 = &stream->patchWindow[patchWindowSize];
+      patchWindowSize += v12;
+      if ( patchWindowSize > stream->patchWindowAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 180, ASSERT_TYPE_ASSERT, "(( memInWindow + getSize ) <= r_stream.patchWindowAllocated)", (const char *)&queryFormat, "( memInWindow + getSize ) <= r_stream.patchWindowAllocated") )
         __debugbreak();
-      v16 = __rdtsc();
-      DB_AsyncIWFileLoad::ReadDataAuthCmp(&_RDI->asyncFileLoad, v15, v13);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( (__int64)(__rdtsc() - v16) < 0 )
-        __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-      __asm
-      {
-        vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vaddsd  xmm1, xmm0, qword ptr [rdi+188h]
-      }
-      _RDI->patchDataOffset += v13;
-      __asm { vmovsd  qword ptr [rdi+188h], xmm1 }
+      v15 = __rdtsc();
+      DB_AsyncIWFileLoad::ReadDataAuthCmp(&stream->asyncFileLoad, v14, v12);
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (__int64)(__rdtsc() - v15) < 0 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      v18 = *(double *)&_XMM0 * msecPerRawTimerTick + stream->timePatchRead;
+      stream->patchDataOffset += v12;
+      stream->timePatchRead = v18;
     }
-    _RDI->patchWindowSize = patchWindowSize;
+    stream->patchWindowSize = patchWindowSize;
     if ( !patchWindowSize )
       return 0i64;
   }
   else
   {
-    _RDI->patchWindowSize = patchWindowSize;
+    stream->patchWindowSize = patchWindowSize;
   }
-  return _RDI->patchWindow;
+  return stream->patchWindow;
 }
 
 /*
@@ -426,66 +386,57 @@ DB_BinaryPatch_LoadSourceData
 */
 unsigned __int8 *DB_BinaryPatch_LoadSourceData(DBBinaryPatchStream *stream, const unsigned __int64 offset, const unsigned __int64 size)
 {
-  size_t sourceWindowSize; 
+  unsigned __int64 sourceWindowSize; 
   unsigned __int64 sourceWindowOffset; 
   unsigned __int8 *result; 
-  unsigned __int64 v10; 
-  void (__fastcall *v11)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64); 
+  unsigned __int64 v9; 
+  void (__fastcall *v10)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64); 
+  unsigned __int64 v11; 
   unsigned __int64 v12; 
-  unsigned __int64 v13; 
 
-  _RBX = stream;
   if ( !stream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 230, ASSERT_TYPE_ASSERT, "(stream)", (const char *)&queryFormat, "stream") )
     __debugbreak();
-  if ( offset < _RBX->sourceWindowOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 235, ASSERT_TYPE_ASSERT, "(offset >= r_stream.sourceWindowOffset)", (const char *)&queryFormat, "offset >= r_stream.sourceWindowOffset") )
+  if ( offset < stream->sourceWindowOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 235, ASSERT_TYPE_ASSERT, "(offset >= r_stream.sourceWindowOffset)", (const char *)&queryFormat, "offset >= r_stream.sourceWindowOffset") )
     __debugbreak();
-  sourceWindowSize = _RBX->sourceWindowSize;
-  sourceWindowOffset = _RBX->sourceWindowOffset;
+  sourceWindowSize = stream->sourceWindowSize;
+  sourceWindowOffset = stream->sourceWindowOffset;
   if ( offset + size <= sourceWindowSize + sourceWindowOffset )
-    return &_RBX->sourceWindow[offset - sourceWindowOffset];
-  v10 = 0i64;
+    return &stream->sourceWindow[offset - sourceWindowOffset];
+  v9 = 0i64;
   if ( offset != sourceWindowOffset )
   {
     if ( offset >= sourceWindowSize + sourceWindowOffset )
     {
-      v10 = offset - sourceWindowSize - sourceWindowOffset;
+      v9 = offset - sourceWindowSize - sourceWindowOffset;
       sourceWindowSize = 0i64;
     }
     else
     {
       sourceWindowSize -= offset - sourceWindowOffset;
-      memmove_0(_RBX->sourceWindow, &_RBX->sourceWindow[offset - sourceWindowOffset], sourceWindowSize);
+      memmove_0(stream->sourceWindow, &stream->sourceWindow[offset - sourceWindowOffset], sourceWindowSize);
     }
-    _RBX->sourceWindowOffset = offset;
+    stream->sourceWindowOffset = offset;
   }
-  if ( size > _RBX->sourceWindowAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 261, ASSERT_TYPE_ASSERT, "(size <= r_stream.sourceWindowAllocated)", (const char *)&queryFormat, "size <= r_stream.sourceWindowAllocated") )
+  if ( size > stream->sourceWindowAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 261, ASSERT_TYPE_ASSERT, "(size <= r_stream.sourceWindowAllocated)", (const char *)&queryFormat, "size <= r_stream.sourceWindowAllocated") )
     __debugbreak();
-  v11 = (void (__fastcall *)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64))DB_BinaryPatch_ReadOriginalFastfile;
-  if ( _RBX->prevStream )
-    v11 = (void (__fastcall *)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64))DB_BinaryPatch_ReadPrevStreamOutput;
-  v12 = __rdtsc();
-  if ( v10 )
-    DB_BinaryPatch_SkipSource(_RBX, v10, v11);
-  _RBX->sourceWindowSize = size;
+  v10 = (void (__fastcall *)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64))DB_BinaryPatch_ReadOriginalFastfile;
+  if ( stream->prevStream )
+    v10 = (void (__fastcall *)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64))DB_BinaryPatch_ReadPrevStreamOutput;
+  v11 = __rdtsc();
+  if ( v9 )
+    DB_BinaryPatch_SkipSource(stream, v9, v10);
+  stream->sourceWindowSize = size;
   if ( sourceWindowSize > size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_binarypatch_load.cpp", 276, ASSERT_TYPE_ASSERT, "(memInWindow <= size)", (const char *)&queryFormat, "memInWindow <= size") )
     __debugbreak();
-  v13 = size - sourceWindowSize;
-  if ( v13 )
-    *(double *)&_XMM0 = ((double (__fastcall *)(DBBinaryPatchStream *, unsigned __int8 *, unsigned __int64))v11)(_RBX, &_RBX->sourceWindow[sourceWindowSize], v13);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v12) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vaddsd  xmm1, xmm0, qword ptr [rbx+190h]
-  }
-  result = _RBX->sourceWindow;
-  __asm { vmovsd  qword ptr [rbx+190h], xmm1 }
+  v12 = size - sourceWindowSize;
+  if ( v12 )
+    v10(stream, &stream->sourceWindow[sourceWindowSize], v12);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v11) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  result = stream->sourceWindow;
+  stream->timeSourceRead = *(double *)&_XMM0 * msecPerRawTimerTick + stream->timeSourceRead;
   return result;
 }
 

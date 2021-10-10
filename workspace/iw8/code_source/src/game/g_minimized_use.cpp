@@ -134,133 +134,120 @@ G_UpdateMinimizedUseOmnvars
 */
 void G_UpdateMinimizedUseOmnvars(const playerState_s *ps, UsableList *useList)
 {
-  UsableList *v5; 
-  unsigned __int16 v7; 
-  unsigned __int16 v8; 
-  UsableListItem *v10; 
+  UsableList *v2; 
+  unsigned __int16 v4; 
+  unsigned __int16 v5; 
+  UsableListItem *v7; 
   HintType CursorHintType; 
-  unsigned int v12; 
+  unsigned int v9; 
   const OmnvarDef *Def; 
   OmnvarData *Data; 
-  unsigned int v15; 
-  unsigned int v16; 
-  const OmnvarDef *v17; 
-  OmnvarData *v18; 
+  unsigned int v12; 
+  unsigned int v13; 
+  const OmnvarDef *v14; 
+  OmnvarData *v15; 
   int CursorHintTag; 
-  unsigned int v20; 
-  const OmnvarDef *v21; 
-  unsigned int *v31; 
-  unsigned int v32; 
-  const OmnvarDef *v33; 
-  OmnvarData *v34; 
+  unsigned int v17; 
+  const OmnvarDef *v18; 
+  OmnvarData *v19; 
+  unsigned int *v23; 
+  unsigned int v24; 
+  const OmnvarDef *v25; 
+  OmnvarData *v26; 
 
-  v5 = useList;
+  v2 = useList;
   if ( !useList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 80, ASSERT_TYPE_ASSERT, "( useList )", (const char *)&queryFormat, "useList") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 81, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPONSTATES_NUM|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 82, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::UI_MINIMIZED_CURSOR_HINTS ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::UI_MINIMIZED_CURSOR_HINTS )") )
     __debugbreak();
-  v7 = 0;
-  v8 = 0;
-  if ( v5->itemCount )
+  v4 = 0;
+  v5 = 0;
+  if ( v2->itemCount )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_48], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vmovaps [rsp+78h+var_38], xmm6
-    }
+    _XMM7 = 0i64;
     do
     {
-      if ( v7 >= 8u )
+      if ( v4 >= 8u )
         break;
-      v10 = &v5->items[v8];
-      if ( UsableRef_GetCursorHintEntIndex(&v10->ref) != ps->cursorHintEntIndex || UsableRef_GetCursorHintClass(&v5->items[v8].ref) != ps->cursorHintClass || UsableRef_GetCursorHintPart(&v5->items[v8].ref) != ps->cursorHintData )
+      v7 = &v2->items[v5];
+      if ( UsableRef_GetCursorHintEntIndex(&v7->ref) != ps->cursorHintEntIndex || UsableRef_GetCursorHintClass(&v2->items[v5].ref) != ps->cursorHintClass || UsableRef_GetCursorHintPart(&v2->items[v5].ref) != ps->cursorHintData )
       {
-        CursorHintType = UsableRef_GetCursorHintType(&v5->items[v8].ref, ps);
+        CursorHintType = UsableRef_GetCursorHintType(&v2->items[v5].ref, ps);
         if ( CursorHintType != HINT_NOICON && CursorHintType != HINT_WEAPON )
         {
-          v12 = s_omnvarIndices[v7][0];
-          Def = BG_Omnvar_GetDef(v12);
-          Data = G_Omnvar_GetData(v12, ps->clientNum, NULL);
-          v15 = UsableKeyEncode(v10->ref.useIndex, (const UsableClass)v10->ref.useClass, v10->ref.useData);
+          v9 = s_omnvarIndices[v4][0];
+          Def = BG_Omnvar_GetDef(v9);
+          Data = G_Omnvar_GetData(v9, ps->clientNum, NULL);
+          v12 = UsableKeyEncode(v7->ref.useIndex, (const UsableClass)v7->ref.useClass, v7->ref.useData);
           if ( Sys_IsServerClientFrameWorker() && (Def->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 119, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (( 1 << 2 ) | ( 1 << 1 ))) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE)) != 0)") )
             __debugbreak();
-          G_Omnvar_SetUnsignedInteger(Def, Data, v15);
+          G_Omnvar_SetUnsignedInteger(Def, Data, v12);
           G_Omnvar_MarkChanged(Data);
-          v16 = s_omnvarIndices[v7][1];
-          v17 = BG_Omnvar_GetDef(v16);
-          v18 = G_Omnvar_GetData(v16, ps->clientNum, NULL);
-          if ( Sys_IsServerClientFrameWorker() && (v17->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 127, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (( 1 << 2 ) | ( 1 << 1 ))) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE)) != 0)") )
+          v13 = s_omnvarIndices[v4][1];
+          v14 = BG_Omnvar_GetDef(v13);
+          v15 = G_Omnvar_GetData(v13, ps->clientNum, NULL);
+          if ( Sys_IsServerClientFrameWorker() && (v14->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 127, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (( 1 << 2 ) | ( 1 << 1 ))) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE)) != 0)") )
             __debugbreak();
-          CursorHintTag = UsableRef_GetCursorHintTag(&v10->ref);
-          if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 20, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
+          CursorHintTag = UsableRef_GetCursorHintTag(&v7->ref);
+          if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 20, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
             __debugbreak();
-          if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 21, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+          if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 21, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
             __debugbreak();
-          if ( v17->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 22, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
+          if ( v14->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 22, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
             __debugbreak();
-          v18->current.integer = CursorHintTag - v17->minvalue;
-          G_Omnvar_MarkChanged(v18);
-          v20 = s_omnvarIndices[v7][2];
-          v21 = BG_Omnvar_GetDef(v20);
-          _RBX = G_Omnvar_GetData(v20, ps->clientNum, NULL);
-          if ( Sys_IsServerClientFrameWorker() && (v21->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 135, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (( 1 << 2 ) | ( 1 << 1 ))) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE)) != 0)") )
+          v15->current.integer = CursorHintTag - v14->minvalue;
+          G_Omnvar_MarkChanged(v15);
+          v17 = s_omnvarIndices[v4][2];
+          v18 = BG_Omnvar_GetDef(v17);
+          v19 = G_Omnvar_GetData(v17, ps->clientNum, NULL);
+          if ( Sys_IsServerClientFrameWorker() && (v18->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 135, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (( 1 << 2 ) | ( 1 << 1 ))) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ((omnvarDef->flags & (OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE)) != 0)") )
             __debugbreak();
-          *(double *)&_XMM0 = UsableRef_GetDisplayRadius(&v10->ref);
-          __asm { vmovaps xmm6, xmm0 }
-          if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 38, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
+          UsableRef_GetDisplayRadius(&v7->ref);
+          if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 38, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
             __debugbreak();
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 39, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+          if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 39, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
             __debugbreak();
-          if ( v21->type != OMNVAR_TYPE_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 40, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_FLOAT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_FLOAT") )
+          if ( v18->type != OMNVAR_TYPE_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 40, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_FLOAT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_FLOAT") )
             __debugbreak();
-          _EAX = 1;
-          __asm { vmovd   xmm1, eax }
-          _EAX = v21->type;
+          _XMM0 = (unsigned int)v18->type;
           __asm
           {
-            vmovd   xmm0, eax
             vpcmpeqd xmm2, xmm0, xmm1
             vblendvps xmm0, xmm7, xmm6, xmm2
-            vmovss  dword ptr [rbx+4], xmm0
           }
-          G_Omnvar_MarkChanged(_RBX);
-          v5 = useList;
-          ++v7;
+          v19->current.value = *(float *)&_XMM0;
+          G_Omnvar_MarkChanged(v19);
+          v2 = useList;
+          ++v4;
         }
       }
-      ++v8;
+      ++v5;
     }
-    while ( v8 < v5->itemCount );
-    __asm
-    {
-      vmovaps xmm6, [rsp+78h+var_38]
-      vmovaps xmm7, [rsp+78h+var_48]
-    }
+    while ( v5 < v2->itemCount );
   }
-  if ( v7 < 8ui64 )
+  if ( v4 < 8ui64 )
   {
-    v31 = s_omnvarIndices[v7];
+    v23 = s_omnvarIndices[v4];
     do
     {
-      v32 = *v31;
-      v33 = BG_Omnvar_GetDef(*v31);
-      v34 = G_Omnvar_GetData(v32, ps->clientNum, NULL);
-      if ( Sys_IsServerClientFrameWorker() && (v33->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 71, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ( ( omnvarDef->flags & ( ( 1 << 2 ) | ( 1 << 1 ) ) ) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ( ( omnvarDef->flags & ( OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE ) ) != 0)") )
+      v24 = *v23;
+      v25 = BG_Omnvar_GetDef(*v23);
+      v26 = G_Omnvar_GetData(v24, ps->clientNum, NULL);
+      if ( Sys_IsServerClientFrameWorker() && (v25->flags & 6) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_minimized_use.cpp", 71, ASSERT_TYPE_ASSERT, "( !Sys_IsServerClientFrameWorker() || ( ( omnvarDef->flags & ( ( 1 << 2 ) | ( 1 << 1 ) ) ) != 0) )", (const char *)&queryFormat, "!Sys_IsServerClientFrameWorker() || ( ( omnvarDef->flags & ( OMNVAR_FLAG_ARCHIVED | OMNVAR_FLAG_CLIENTSCOPE ) ) != 0)") )
         __debugbreak();
-      if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 29, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
+      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 29, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
-      if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 30, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 30, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
         __debugbreak();
-      if ( v33->type != OMNVAR_TYPE_UINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 31, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_UINT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_UINT") )
+      if ( v25->type != OMNVAR_TYPE_UINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 31, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_UINT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_UINT") )
         __debugbreak();
-      v34->current.integer = 2047;
-      G_Omnvar_MarkChanged(v34);
-      v31 += 3;
+      v26->current.integer = 2047;
+      G_Omnvar_MarkChanged(v26);
+      v23 += 3;
     }
-    while ( (__int64)v31 < (__int64)&unk_1491B6200 );
+    while ( (__int64)v23 < (__int64)&unk_1491B6200 );
   }
 }
 

@@ -190,381 +190,342 @@ void __fastcall PMem_ForEachPMemStackSize(void (__fastcall *callback)(const char
 DumpPMemStacksForPool
 ==============
 */
-
-void __fastcall DumpPMemStacksForPool(Mem_Pool poolIndex, double _XMM1_8)
+void DumpPMemStacksForPool(Mem_Pool poolIndex)
 {
-  const char **v8; 
+  const char **v2; 
   PhysicalMemoryStack *stacks; 
-  Mem_Pool v12; 
-  __int64 v13; 
-  int v14; 
-  PhysicalMemoryPool *v16; 
-  unsigned __int64 v17; 
+  Mem_Pool v4; 
+  __int64 v5; 
+  int v6; 
+  PhysicalMemoryPool *v8; 
+  unsigned __int64 v9; 
   PhysicalMemoryPool::Behavior behavior; 
-  __int64 v19; 
-  const char *v20; 
+  __int64 v11; 
+  const char *v12; 
   const char *PoolName; 
   unsigned __int64 size; 
-  int v23; 
-  __int64 v37; 
-  __int64 v38; 
-  int v39; 
-  __int64 v40; 
+  int v15; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int64 v24; 
+  __int64 v25; 
+  int v26; 
+  __int64 v27; 
   __int64 allocCount; 
-  __int64 v42; 
-  unsigned __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
+  __int64 v29; 
+  unsigned __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  __int64 v33; 
   __int64 commitSize; 
-  __int64 v48; 
-  __int128 fmt; 
-  __int128 fmta; 
-  char *fmtb; 
-  char *fmtc; 
+  __int64 v35; 
+  float v36; 
+  float v37; 
+  double v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  double v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  double v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  __int64 v52; 
+  float v53; 
+  float v54; 
+  double v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  double v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  double v65; 
+  float v66; 
+  float v67; 
+  float v68; 
   char *fmt_8; 
-  char *fmt_8a; 
-  char *fmt_8b; 
-  __int64 v101; 
-  double v102; 
-  double v103; 
-  double v104; 
-  double v105; 
-  PhysicalMemoryPool *v106; 
-  __int64 v107; 
-  __int64 v108; 
+  __int64 v70; 
+  PhysicalMemoryPool *v71; 
+  __int64 v72; 
+  __int64 v73; 
   const char **p_name; 
-  const char *const *v110; 
-  char v112; 
-  void *retaddr; 
-  unsigned int v115; 
-  unsigned int v116; 
-  __int64 v117; 
+  const char *const *v75; 
+  unsigned int v77; 
+  unsigned int v78; 
+  __int64 v79; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm6 }
-  v8 = (const char **)s_stackNames;
-  __asm { vmovaps xmmword ptr [rax-68h], xmm7 }
+  v2 = (const char **)s_stackNames;
   stacks = s_pmem.stacks;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@5f800000
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovss  xmm8, cs:__real@35800000
-  }
-  v12 = poolIndex;
-  v13 = poolIndex;
-  __asm { vmovaps [rsp+0F8h+var_88], xmm9 }
-  v108 = poolIndex;
-  v14 = 0;
-  v116 = 0;
-  v110 = s_stackNames;
+  v4 = poolIndex;
+  v5 = poolIndex;
+  v73 = poolIndex;
+  v6 = 0;
+  v78 = 0;
+  v75 = s_stackNames;
   __asm { vxorpd  xmm9, xmm9, xmm9 }
   do
   {
-    v16 = stacks->pools[v13];
-    v106 = v16;
-    if ( v16 )
+    v8 = stacks->pools[v5];
+    v71 = v8;
+    if ( v8 )
     {
-      v17 = stacks->pos[v13];
-      behavior = v16->behavior;
-      v107 = 0i64;
-      v117 = 0i64;
-      v19 = ((v17 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64) - v17;
+      v9 = stacks->pos[v5];
+      behavior = v8->behavior;
+      v72 = 0i64;
+      v79 = 0i64;
+      v11 = ((v9 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64) - v9;
       if ( behavior )
       {
         if ( behavior == COMMIT_MANUALLY )
         {
-          v20 = "Manual";
+          v12 = "Manual";
         }
         else
         {
-          LODWORD(fmt_8) = v16->behavior;
+          LODWORD(fmt_8) = v8->behavior;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 998, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown behavior type %u", fmt_8) )
             __debugbreak();
-          v20 = (char *)&queryFormat.fmt + 3;
+          v12 = (char *)&queryFormat.fmt + 3;
         }
       }
       else
       {
-        v20 = "CommitOnAlloc";
+        v12 = "CommitOnAlloc";
       }
-      PoolName = Mem_Paged_GetPoolName(v12);
-      Com_MemDumpPrintf("------ %s %s: (%s)\n", *v8, PoolName, v20);
-      size = v16->size;
-      v23 = 0;
-      v115 = 0;
-      if ( v17 < size )
+      PoolName = Mem_Paged_GetPoolName(v4);
+      Com_MemDumpPrintf("------ %s %s: (%s)\n", *v2, PoolName, v12);
+      size = v8->size;
+      v15 = 0;
+      v77 = 0;
+      if ( v9 < size )
       {
-        v23 = 1;
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        v115 = 1;
-        __asm { vcvtsi2ss xmm0, xmm0, rax }
-        if ( (__int64)(size - v17) < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm7 }
-        __asm
+        v15 = 1;
+        v16 = size - v9;
+        v77 = 1;
+        v17 = (float)v16;
+        if ( v16 < 0 )
         {
-          vmulss  xmm0, xmm0, xmm8
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovaps xmm3, xmm9
-          vmovsd  [rsp+0F8h+var_C8], xmm2
-          vmovq   r8, xmm2
-          vmovq   r9, xmm3
-          vmovups xmmword ptr [rsp+0F8h+fmt], xmm9
+          v18 = (float)v16;
+          v17 = v18 + 1.8446744e19;
         }
-        Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", "<unused VA space>", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, *((double *)&fmt + 1), v102);
+        Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", "<unused VA space>", (float)(v17 * 0.00000095367432), *(double *)&_XMM9, *(double *)&_XMM9, *((double *)&_XMM9 + 1), (float)(v17 * 0.00000095367432));
       }
-      if ( v19 )
+      if ( v11 )
       {
-        if ( v16->behavior && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 1037, ASSERT_TYPE_ASSERT, "(pool.behavior == PhysicalMemoryPool::Behavior::COMMIT_ON_ALLOC)", (const char *)&queryFormat, "pool.behavior == PhysicalMemoryPool::Behavior::COMMIT_ON_ALLOC") )
+        if ( v8->behavior && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 1037, ASSERT_TYPE_ASSERT, "(pool.behavior == PhysicalMemoryPool::Behavior::COMMIT_ON_ALLOC)", (const char *)&queryFormat, "pool.behavior == PhysicalMemoryPool::Behavior::COMMIT_ON_ALLOC") )
           __debugbreak();
-        v115 = ++v23;
-        __asm
+        v77 = ++v15;
+        v20 = 0i64;
+        *(float *)&v20 = (float)v11;
+        v19 = v20;
+        if ( v11 < 0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rdi
+          *(float *)&v20 = *(float *)&v20 + 1.8446744e19;
+          v19 = v20;
         }
-        if ( v19 < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm7 }
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm8
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovaps xmm3, xmm9
-          vmovaps xmm2, xmm9
-          vmovddup xmm1, xmm1
-          vmovsd  [rsp+0F8h+var_C8], xmm9
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovups xmmword ptr [rsp+0F8h+fmt], xmm1
-        }
-        Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", "<last page waste>", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta, *((double *)&fmta + 1), v103);
-        v37 = ((v17 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64) - v17;
-        v117 = v37;
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&v19 + 1);
+        *(double *)&v21 = (float)(*(float *)&v19 * 0.00000095367432);
+        _XMM1 = v21;
+        __asm { vmovddup xmm1, xmm1 }
+        Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", "<last page waste>", *(double *)&_XMM9, *(double *)&_XMM9, *(double *)&_XMM1, *((double *)&_XMM1 + 1), *(double *)&_XMM9);
+        v24 = ((v9 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64) - v9;
+        v79 = v24;
       }
       else
       {
-        v37 = 0i64;
+        v24 = 0i64;
       }
-      v38 = v37;
-      v39 = stacks->allocCount - 1;
-      if ( v39 >= 0 )
+      v25 = v24;
+      v26 = stacks->allocCount - 1;
+      if ( v26 >= 0 )
       {
-        v40 = v108;
+        v27 = v73;
         allocCount = stacks->allocCount;
-        v115 = allocCount + v23;
-        p_name = &stacks->allocs[v39].name;
-        v42 = 8 * (v108 + 10i64 * v39) + 48;
+        v77 = allocCount + v15;
+        p_name = &stacks->allocs[v26].name;
+        v29 = 8 * (v73 + 10i64 * v26) + 48;
         do
         {
-          if ( v116 >= 7 )
+          if ( v78 >= 7 )
           {
-            LODWORD(v101) = 7;
-            LODWORD(fmt_8) = v116;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 902, ASSERT_TYPE_ASSERT, "(unsigned)( stackIndex ) < (unsigned)( PMEM_STACK_COUNT )", "stackIndex doesn't index PMEM_STACK_COUNT\n\t%i not in [0, %i)", fmt_8, v101) )
+            LODWORD(v70) = 7;
+            LODWORD(fmt_8) = v78;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 902, ASSERT_TYPE_ASSERT, "(unsigned)( stackIndex ) < (unsigned)( PMEM_STACK_COUNT )", "stackIndex doesn't index PMEM_STACK_COUNT\n\t%i not in [0, %i)", fmt_8, v70) )
               __debugbreak();
           }
           if ( (unsigned int)poolIndex >= MEM_POOL_COUNT )
           {
-            LODWORD(v101) = 3;
+            LODWORD(v70) = 3;
             LODWORD(fmt_8) = poolIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 903, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( MEM_POOL_COUNT )", "poolIndex doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", fmt_8, v101) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 903, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( MEM_POOL_COUNT )", "poolIndex doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", fmt_8, v70) )
               __debugbreak();
           }
-          if ( v39 >= stacks->allocCount )
+          if ( v26 >= stacks->allocCount )
           {
-            LODWORD(v101) = stacks->allocCount;
-            LODWORD(fmt_8) = v39;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 906, ASSERT_TYPE_ASSERT, "(unsigned)( allocIndex ) < (unsigned)( stack.allocCount )", "allocIndex doesn't index stack.allocCount\n\t%i not in [0, %i)", fmt_8, v101) )
+            LODWORD(v70) = stacks->allocCount;
+            LODWORD(fmt_8) = v26;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 906, ASSERT_TYPE_ASSERT, "(unsigned)( allocIndex ) < (unsigned)( stack.allocCount )", "allocIndex doesn't index stack.allocCount\n\t%i not in [0, %i)", fmt_8, v70) )
               __debugbreak();
           }
-          if ( v39 == stacks->allocCount - 1 )
-            v43 = stacks->pos[v40];
+          if ( v26 == stacks->allocCount - 1 )
+            v30 = stacks->pos[v27];
           else
-            v43 = stacks->allocs[allocCount].pos[v40];
-          v44 = v43 - *(_QWORD *)((char *)stacks + v42 - 24);
-          if ( v116 >= 7 )
+            v30 = stacks->allocs[allocCount].pos[v27];
+          v31 = v30 - *(_QWORD *)((char *)stacks + v29 - 24);
+          if ( v78 >= 7 )
           {
-            LODWORD(v101) = 7;
-            LODWORD(fmt_8) = v116;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 923, ASSERT_TYPE_ASSERT, "(unsigned)( stackIndex ) < (unsigned)( PMEM_STACK_COUNT )", "stackIndex doesn't index PMEM_STACK_COUNT\n\t%i not in [0, %i)", fmt_8, v101) )
+            LODWORD(v70) = 7;
+            LODWORD(fmt_8) = v78;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 923, ASSERT_TYPE_ASSERT, "(unsigned)( stackIndex ) < (unsigned)( PMEM_STACK_COUNT )", "stackIndex doesn't index PMEM_STACK_COUNT\n\t%i not in [0, %i)", fmt_8, v70) )
               __debugbreak();
           }
           if ( (unsigned int)poolIndex >= MEM_POOL_COUNT )
           {
-            LODWORD(v101) = 3;
+            LODWORD(v70) = 3;
             LODWORD(fmt_8) = poolIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 924, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( MEM_POOL_COUNT )", "poolIndex doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", fmt_8, v101) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 924, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( MEM_POOL_COUNT )", "poolIndex doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", fmt_8, v70) )
               __debugbreak();
           }
-          if ( v39 >= stacks->allocCount )
+          if ( v26 >= stacks->allocCount )
           {
-            LODWORD(v101) = stacks->allocCount;
-            LODWORD(fmt_8) = v39;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 927, ASSERT_TYPE_ASSERT, "(unsigned)( allocIndex ) < (unsigned)( stack.allocCount )", "allocIndex doesn't index stack.allocCount\n\t%i not in [0, %i)", fmt_8, v101) )
+            LODWORD(v70) = stacks->allocCount;
+            LODWORD(fmt_8) = v26;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 927, ASSERT_TYPE_ASSERT, "(unsigned)( allocIndex ) < (unsigned)( stack.allocCount )", "allocIndex doesn't index stack.allocCount\n\t%i not in [0, %i)", fmt_8, v70) )
               __debugbreak();
           }
-          v45 = *(__int64 *)((char *)&stacks->allocName + v42);
-          v46 = v44 - v45;
-          if ( v106->behavior )
+          v32 = *(__int64 *)((char *)&stacks->allocName + v29);
+          v33 = v31 - v32;
+          if ( v71->behavior )
           {
-            if ( v44 != v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 1064, ASSERT_TYPE_ASSERT, "(allocSize == usedSize)", (const char *)&queryFormat, "allocSize == usedSize") )
+            if ( v31 != v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 1064, ASSERT_TYPE_ASSERT, "(allocSize == usedSize)", (const char *)&queryFormat, "allocSize == usedSize") )
               __debugbreak();
             if ( stacks->allocCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 1065, ASSERT_TYPE_ASSERT, "(stack.allocCount == 1)", (const char *)&queryFormat, "stack.allocCount == 1") )
               __debugbreak();
-            commitSize = v106->commitSize;
-            v48 = v44 - commitSize;
+            commitSize = v71->commitSize;
+            v35 = v31 - commitSize;
           }
           else
           {
-            commitSize = v44;
-            v48 = 0i64;
+            commitSize = v31;
+            v35 = 0i64;
           }
-          v107 += v45;
-          v38 += commitSize;
-          v117 += v46;
-          __asm
+          v72 += v32;
+          v25 += commitSize;
+          v79 += v33;
+          v36 = (float)v35;
+          if ( v35 < 0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
+            v37 = (float)v35;
+            v36 = v37 + 1.8446744e19;
           }
-          if ( v48 < 0 )
-            __asm { vaddss  xmm0, xmm0, xmm7 }
-          __asm
-          {
-            vmulss  xmm0, xmm0, xmm8
-            vxorps  xmm1, xmm1, xmm1
-            vcvtss2sd xmm6, xmm0, xmm0
-            vcvtsi2ss xmm1, xmm1, rcx
-          }
+          v38 = (float)(v36 * 0.00000095367432);
+          v39 = (float)commitSize;
           if ( commitSize < 0 )
-            __asm { vaddss  xmm1, xmm1, xmm7 }
-          __asm
           {
-            vmulss  xmm0, xmm1, xmm8
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, rbx
-            vcvtss2sd xmm5, xmm0, xmm0
+            v40 = (float)commitSize;
+            v39 = v40 + 1.8446744e19;
           }
-          if ( v46 < 0 )
-            __asm { vaddss  xmm1, xmm1, xmm7 }
-          __asm
+          v41 = v39 * 0.00000095367432;
+          v42 = (float)v33;
+          v44 = v41;
+          if ( v33 < 0 )
           {
-            vmulss  xmm0, xmm1, xmm8
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, rdi
-            vcvtss2sd xmm4, xmm0, xmm0
+            v43 = (float)v33;
+            v42 = v43 + 1.8446744e19;
           }
-          if ( v45 < 0 )
-            __asm { vaddss  xmm1, xmm1, xmm7 }
-          __asm
+          v45 = v42 * 0.00000095367432;
+          v46 = (float)v32;
+          v48 = v45;
+          if ( v32 < 0 )
           {
-            vmulss  xmm0, xmm1, xmm8
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, rsi
-            vcvtss2sd xmm3, xmm0, xmm0
+            v47 = (float)v32;
+            v46 = v47 + 1.8446744e19;
           }
-          if ( v44 < 0 )
-            __asm { vaddss  xmm1, xmm1, xmm7 }
-          __asm
+          v49 = v46 * 0.00000095367432;
+          v50 = (float)v31;
+          if ( v31 < 0 )
           {
-            vmulss  xmm0, xmm1, xmm8
-            vcvtss2sd xmm2, xmm0, xmm0
-            vmovsd  [rsp+0F8h+var_C8], xmm6
-            vmovsd  [rsp+0F8h+fmt+8], xmm5
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+0F8h+fmt], xmm4
+            v51 = (float)v31;
+            v50 = v51 + 1.8446744e19;
           }
-          Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", *p_name, *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtb, *(double *)&fmt_8a, v104);
-          v40 = v108;
+          Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", *p_name, (float)(v50 * 0.00000095367432), v49, v48, v44, v38);
+          v27 = v73;
           allocCount = (unsigned int)(allocCount - 1);
           p_name -= 10;
-          v42 -= 80i64;
-          --v39;
+          v29 -= 80i64;
+          --v26;
         }
-        while ( v39 >= 0 );
-        v14 = v116;
-        v16 = v106;
-        v37 = v117;
+        while ( v26 >= 0 );
+        v6 = v78;
+        v8 = v71;
+        v24 = v79;
       }
-      if ( v115 > 1 )
+      if ( v77 > 1 )
       {
-        __asm
+        v52 = v8->size;
+        v53 = (float)(v52 - v25);
+        if ( v52 - v25 < 0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
+          v54 = (float)(v52 - v25);
+          v53 = v54 + 1.8446744e19;
         }
-        if ( (signed __int64)(v16->size - v38) < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm7 }
-        __asm
+        v55 = (float)(v53 * 0.00000095367432);
+        v56 = (float)v25;
+        if ( v25 < 0 )
         {
-          vmulss  xmm0, xmm0, xmm8
-          vxorps  xmm1, xmm1, xmm1
-          vcvtss2sd xmm6, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, r12
+          v57 = (float)v25;
+          v56 = v57 + 1.8446744e19;
         }
-        if ( v38 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm7 }
-        __asm
+        v58 = v56 * 0.00000095367432;
+        v59 = (float)v24;
+        v61 = v58;
+        if ( v24 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm8
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdx
-          vcvtss2sd xmm5, xmm0, xmm0
+          v60 = (float)v24;
+          v59 = v60 + 1.8446744e19;
         }
-        if ( v37 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm7 }
-        __asm
+        v62 = v59 * 0.00000095367432;
+        v63 = (float)v72;
+        v65 = v62;
+        if ( v72 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm8
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vcvtss2sd xmm4, xmm0, xmm0
+          v64 = (float)v72;
+          v63 = v64 + 1.8446744e19;
         }
-        if ( v107 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm7 }
-        __asm
+        v66 = v63 * 0.00000095367432;
+        v67 = (float)v52;
+        if ( v52 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm8
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rcx
-          vcvtss2sd xmm3, xmm0, xmm0
+          v68 = (float)v52;
+          v67 = v68 + 1.8446744e19;
         }
-        if ( (v16->size & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm1, xmm1, xmm7 }
-        __asm
-        {
-          vmulss  xmm0, xmm1, xmm8
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovsd  [rsp+0F8h+var_C8], xmm6
-          vmovsd  [rsp+0F8h+fmt+8], xmm5
-          vmovq   r8, xmm2
-          vmovq   r9, xmm3
-          vmovsd  [rsp+0F8h+fmt], xmm4
-        }
-        Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", "<TOTAL>", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtc, *(double *)&fmt_8b, v105);
+        Com_MemDumpPrintf("%-34.34s %-10.3f %-10.3f %-10.3f %-10.3f %-10.3f\n", "<TOTAL>", (float)(v67 * 0.00000095367432), v66, v65, v61, v55);
       }
       Com_MemDumpPrintf("\n");
-      v13 = v108;
-      v12 = poolIndex;
-      v8 = (const char **)v110;
+      v5 = v73;
+      v4 = poolIndex;
+      v2 = (const char **)v75;
     }
-    ++v14;
-    ++v8;
+    ++v6;
+    ++v2;
     ++stacks;
-    v116 = v14;
-    v110 = v8;
+    v78 = v6;
+    v75 = v2;
   }
-  while ( v14 < 7 );
-  _R11 = &v112;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
+  while ( v6 < 7 );
 }
 
 /*
@@ -644,125 +605,124 @@ PMem_AllocWithLoan
 */
 unsigned __int8 *PMem_AllocWithLoan(unsigned __int64 size, unsigned __int64 alignment, Mem_Pool poolIndex, PMem_Stack stackIndex, StreamerMemLoan *optionalLoan, const char *hint)
 {
-  double v6; 
-  __int64 v7; 
-  __int64 v9; 
-  unsigned __int64 v10; 
-  __int64 v11; 
-  PhysicalMemoryStack *v12; 
-  PhysicalMemoryPool *v13; 
+  __int64 v6; 
+  __int64 v8; 
+  unsigned __int64 v9; 
+  __int64 v10; 
+  PhysicalMemoryStack *v11; 
+  PhysicalMemoryPool *v12; 
   const char *PoolName; 
   ThreadContext CurrentThreadContext; 
-  const char *v16; 
+  const char *v15; 
   const char *allocName; 
   const char *ThreadContextName; 
-  const char *v19; 
-  unsigned __int8 *v20; 
-  int v22; 
-  unsigned __int64 v23; 
-  const char *v24; 
+  const char *v18; 
+  unsigned __int8 *v19; 
+  int v21; 
+  unsigned __int64 v22; 
+  const char *v23; 
   PhysicalMemoryPool **pools; 
-  PhysicalMemoryPool **v26; 
-  __int64 v27; 
-  PhysicalMemoryPool *v28; 
+  PhysicalMemoryPool **v25; 
+  __int64 v26; 
+  PhysicalMemoryPool *v27; 
   PhysicalMemoryPool::Behavior behavior; 
-  unsigned __int64 v30; 
-  Mem_Pool v31; 
+  unsigned __int64 v29; 
+  Mem_Pool v30; 
+  const char *v31; 
   const char *v32; 
-  const char *v33; 
+  unsigned __int64 v33; 
   unsigned __int64 v34; 
   unsigned __int64 v35; 
   unsigned __int64 v36; 
-  unsigned __int64 v37; 
+  unsigned __int8 *v37; 
   unsigned __int8 *v38; 
-  unsigned __int8 *v39; 
   Mem_PageRange *inoutPageRange; 
   Mem_PageRange *inoutPageRangea; 
   char *name; 
   char *namea; 
-  __int64 v44; 
+  __int64 v43; 
+  unsigned __int64 v44; 
   unsigned __int64 v45; 
-  unsigned __int64 v46; 
-  unsigned __int64 *v47; 
-  __int64 v48; 
-  __int64 v50; 
-  unsigned __int64 v51; 
+  unsigned __int64 *v46; 
+  __int64 v47; 
+  __int64 v49; 
+  unsigned __int64 v50; 
 
-  v7 = stackIndex;
-  v9 = poolIndex;
-  v10 = size;
+  v6 = stackIndex;
+  v8 = poolIndex;
+  v9 = size;
   if ( !s_pmem.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 570, ASSERT_TYPE_ASSERT, "(s_pmem.isInitialized)", (const char *)&queryFormat, "s_pmem.isInitialized") )
     __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 571, ASSERT_TYPE_ASSERT, "(size > 0)", (const char *)&queryFormat, "size > 0") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 571, ASSERT_TYPE_ASSERT, "(size > 0)", (const char *)&queryFormat, "size > 0") )
     __debugbreak();
   if ( (alignment - 1 > 0xFFFF || ((alignment - 1) & alignment) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 572, ASSERT_TYPE_ASSERT, "(alignment > 0 && alignment <= MEM_PHYSICAL_PAGE_SIZE && IsPowerOf2( alignment ))", (const char *)&queryFormat, "alignment > 0 && alignment <= MEM_PHYSICAL_PAGE_SIZE && IsPowerOf2( alignment )") )
     __debugbreak();
-  v11 = 3i64;
-  if ( (unsigned int)v9 >= 3 )
+  v10 = 3i64;
+  if ( (unsigned int)v8 >= 3 )
   {
-    LODWORD(inoutPageRange) = v9;
+    LODWORD(inoutPageRange) = v8;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 573, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( MEM_POOL_COUNT )", "poolIndex doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", inoutPageRange, 3) )
       __debugbreak();
   }
-  if ( (unsigned int)v7 >= 7 )
+  if ( (unsigned int)v6 >= 7 )
   {
     LODWORD(name) = 7;
-    LODWORD(inoutPageRange) = v7;
+    LODWORD(inoutPageRange) = v6;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 574, ASSERT_TYPE_ASSERT, "(unsigned)( stackIndex ) < (unsigned)( PMEM_STACK_COUNT )", "stackIndex doesn't index PMEM_STACK_COUNT\n\t%i not in [0, %i)", inoutPageRange, name) )
       __debugbreak();
   }
-  v12 = &s_pmem.stacks[v7];
-  if ( !v12->allocName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 577, ASSERT_TYPE_ASSERT, "( stack.allocName != nullptr )", "PMem stack %s hasn't had PMem_BeginAlloc called!", s_stackNames[v7]) )
+  v11 = &s_pmem.stacks[v6];
+  if ( !v11->allocName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 577, ASSERT_TYPE_ASSERT, "( stack.allocName != nullptr )", "PMem stack %s hasn't had PMem_BeginAlloc called!", s_stackNames[v6]) )
     __debugbreak();
-  v13 = v12->pools[v9];
-  v50 = v9;
-  if ( !v13 )
+  v12 = v11->pools[v8];
+  v49 = v8;
+  if ( !v12 )
   {
-    PoolName = Mem_Paged_GetPoolName((Mem_Pool)v9);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 580, ASSERT_TYPE_ASSERT, "( pool != nullptr )", "PMem stack %s doesn't have pool %s assigned to it!", s_stackNames[v7], PoolName) )
+    PoolName = Mem_Paged_GetPoolName((Mem_Pool)v8);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 580, ASSERT_TYPE_ASSERT, "( pool != nullptr )", "PMem stack %s doesn't have pool %s assigned to it!", s_stackNames[v6], PoolName) )
       __debugbreak();
   }
-  if ( (_DWORD)v9 != v13->pool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 581, ASSERT_TYPE_ASSERT, "(poolIndex == pool->pool)", (const char *)&queryFormat, "poolIndex == pool->pool") )
+  if ( (_DWORD)v8 != v12->pool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 581, ASSERT_TYPE_ASSERT, "(poolIndex == pool->pool)", (const char *)&queryFormat, "poolIndex == pool->pool") )
     __debugbreak();
-  if ( v13->behavior == COMMIT_MANUALLY && alignment != 0x10000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 582, ASSERT_TYPE_ASSERT, "(pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || alignment == MEM_PHYSICAL_PAGE_SIZE)", (const char *)&queryFormat, "pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || alignment == MEM_PHYSICAL_PAGE_SIZE") )
+  if ( v12->behavior == COMMIT_MANUALLY && alignment != 0x10000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 582, ASSERT_TYPE_ASSERT, "(pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || alignment == MEM_PHYSICAL_PAGE_SIZE)", (const char *)&queryFormat, "pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || alignment == MEM_PHYSICAL_PAGE_SIZE") )
     __debugbreak();
   CurrentThreadContext = Sys_GetCurrentThreadContext();
-  if ( v12->allocThread._My_val != CurrentThreadContext )
+  if ( v11->allocThread._My_val != CurrentThreadContext )
   {
-    v16 = s_stackNames[v7];
-    allocName = v12->allocName;
-    ThreadContextName = Sys_GetThreadContextName(v12->allocThread._My_val);
-    v19 = Sys_GetThreadContextName(CurrentThreadContext);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 587, ASSERT_TYPE_ASSERT, "( stack.allocThread == currentThread )", "PMem_Alloc called on different thread (thread: %s) than PMem_BeginAlloc (thread: %s) for allocation %s on PMem stack %s!", v19, ThreadContextName, allocName, v16) )
+    v15 = s_stackNames[v6];
+    allocName = v11->allocName;
+    ThreadContextName = Sys_GetThreadContextName(v11->allocThread._My_val);
+    v18 = Sys_GetThreadContextName(CurrentThreadContext);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 587, ASSERT_TYPE_ASSERT, "( stack.allocThread == currentThread )", "PMem_Alloc called on different thread (thread: %s) than PMem_BeginAlloc (thread: %s) for allocation %s on PMem stack %s!", v18, ThreadContextName, allocName, v15) )
       __debugbreak();
-    v10 = size;
+    v9 = size;
   }
-  if ( s_pmem.enableAuxPhysicalAllocations && v13->behavior == COMMIT_ON_ALLOC && v13->pool == MEM_POOL_MAIN && stackIndex == PMEM_STACK_GAME && (!optionalLoan || !StreamerMemLoan::Size(optionalLoan)) )
+  if ( s_pmem.enableAuxPhysicalAllocations && v12->behavior == COMMIT_ON_ALLOC && v12->pool == MEM_POOL_MAIN && stackIndex == PMEM_STACK_GAME && (!optionalLoan || !StreamerMemLoan::Size(optionalLoan)) )
   {
-    IWMem_Profile_Push(v12->allocName);
+    IWMem_Profile_Push(v11->allocName);
     IWMem_Profile_Push(hint);
-    v20 = XB3XMem_AuxMemAlloc(v10, alignment);
+    v19 = XB3XMem_AuxMemAlloc(v9, alignment);
     IWMem_Profile_Pop();
     IWMem_Profile_Pop();
-    if ( v20 )
-      return v20;
+    if ( v19 )
+      return v19;
   }
-  v22 = 0;
-  if ( !v12->allocCount )
+  v21 = 0;
+  if ( !v11->allocCount )
   {
-    LODWORD(v44) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 612, ASSERT_TYPE_ASSERT, "( stack.allocCount ) > ( 0 )", "%s > %s\n\t%u, %u", "stack.allocCount", "0", v44, 0i64) )
+    LODWORD(v43) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 612, ASSERT_TYPE_ASSERT, "( stack.allocCount ) > ( 0 )", "%s > %s\n\t%u, %u", "stack.allocCount", "0", v43, 0i64) )
       __debugbreak();
   }
-  v48 = (__int64)&v12->allocs[v12->allocCount - 1];
-  v47 = &v12->pos[v50];
-  v51 = *v47;
-  v46 = AlignUp<unsigned __int64>(*v47, alignment);
-  v23 = v46 + v10;
-  v45 = v46 + v10;
-  if ( v46 + v10 <= v13->size )
+  v47 = (__int64)&v11->allocs[v11->allocCount - 1];
+  v46 = &v11->pos[v49];
+  v50 = *v46;
+  v45 = AlignUp<unsigned __int64>(*v46, alignment);
+  v22 = v45 + v9;
+  v44 = v45 + v9;
+  if ( v45 + v9 <= v12->size )
   {
-    v31 = poolIndex;
+    v30 = poolIndex;
   }
   else
   {
@@ -773,100 +733,100 @@ unsigned __int8 *PMem_AllocWithLoan(unsigned __int64 size, unsigned __int64 alig
     Com_MemDumpPrintf("----------------------------------------------------------------------------------------------------------------------\n");
     do
     {
-      v24 = Mem_Paged_GetPoolName((Mem_Pool)v22);
-      Com_MemDumpPrintf("--- PMem pool: %s ---\n", v24);
+      v23 = Mem_Paged_GetPoolName((Mem_Pool)v21);
+      Com_MemDumpPrintf("--- PMem pool: %s ---\n", v23);
       Com_MemDumpPrintf("%-34.34s %-10s %-10s %-10s %-10s %-11s\n", (const char *)&queryFormat.fmt + 3, "VaSpace", "stackUsed", "alignWaste", "committed", "uncommitted");
-      DumpPMemStacksForPool((Mem_Pool)v22++, v6);
+      DumpPMemStacksForPool((Mem_Pool)v21++);
     }
-    while ( v22 < 3 );
+    while ( v21 < 3 );
     Com_MemDumpPrintf("----------------------------------------------------------------------------------------------------------------------\n");
-    v10 = size;
-    v23 = v45;
+    v9 = size;
+    v22 = v44;
     if ( Sys_IsMainThread() )
     {
       Com_MemDumpPrintf("\n\n");
       pools = s_pmem.stacks[0].pools;
       do
       {
-        v26 = pools;
-        v27 = 7i64;
+        v25 = pools;
+        v26 = 7i64;
         do
         {
-          v28 = *v26;
-          if ( *v26 && v28->behavior == COMMIT_ON_ALLOC )
-            IWMem_DumpAllocatorProfile(v28->iwMemAlloc);
-          v26 += 258;
-          --v27;
+          v27 = *v25;
+          if ( *v25 && v27->behavior == COMMIT_ON_ALLOC )
+            IWMem_DumpAllocatorProfile(v27->iwMemAlloc);
+          v25 += 258;
+          --v26;
         }
-        while ( v27 );
+        while ( v26 );
         ++pools;
-        --v11;
+        --v10;
       }
-      while ( v11 );
+      while ( v10 );
       Com_MemDumpPrintf("\n");
-      v10 = size;
-      v23 = v45;
+      v9 = size;
+      v22 = v44;
     }
-    behavior = v13->behavior;
-    v30 = v23 - v13->size;
+    behavior = v12->behavior;
+    v29 = v22 - v12->size;
     if ( behavior )
     {
       if ( behavior != COMMIT_MANUALLY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 635, ASSERT_TYPE_ASSERT, "(pool->behavior == PhysicalMemoryPool::Behavior::COMMIT_MANUALLY)", (const char *)&queryFormat, "pool->behavior == PhysicalMemoryPool::Behavior::COMMIT_MANUALLY") )
         __debugbreak();
-      v31 = poolIndex;
-      v33 = Mem_Paged_GetPoolName(poolIndex);
-      Com_PrintError(16, "Need %zu more bytes of pmem for alloc to reserve virtual memory to succeed (stack=%s) (pool=%s). You can probably safely bump the pool's reserve size in PMem_InitStacksAndPools.\n", v30, s_stackNames[stackIndex], v33);
-      Mem_Error_CannotAlloc_Dev(DODGE, "PMem_AllocWithLoan", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 637, "reserve size=%zu, needed %zu more bytes", v10, v30);
+      v30 = poolIndex;
+      v32 = Mem_Paged_GetPoolName(poolIndex);
+      Com_PrintError(16, "Need %zu more bytes of pmem for alloc to reserve virtual memory to succeed (stack=%s) (pool=%s). You can probably safely bump the pool's reserve size in PMem_InitStacksAndPools.\n", v29, s_stackNames[stackIndex], v32);
+      Mem_Error_CannotAlloc_Dev(DODGE, "PMem_AllocWithLoan", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 637, "reserve size=%zu, needed %zu more bytes", v9, v29);
     }
     else
     {
-      v31 = poolIndex;
-      v32 = Mem_Paged_GetPoolName(poolIndex);
-      Com_PrintError(16, "Need %zu more bytes of pmem for alloc to succeed (stack=%s) (pool=%s)\n", v30, s_stackNames[stackIndex], v32);
-      Mem_Error_CannotAlloc_Dev(DODGE, "PMem_AllocWithLoan", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 631, "size=%zu, needed %zu more bytes", v10, v30);
+      v30 = poolIndex;
+      v31 = Mem_Paged_GetPoolName(poolIndex);
+      Com_PrintError(16, "Need %zu more bytes of pmem for alloc to succeed (stack=%s) (pool=%s)\n", v29, s_stackNames[stackIndex], v31);
+      Mem_Error_CannotAlloc_Dev(DODGE, "PMem_AllocWithLoan", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 631, "size=%zu, needed %zu more bytes", v9, v29);
     }
   }
-  v34 = v23 - v51;
-  if ( v23 - v51 < v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 643, ASSERT_TYPE_ASSERT, "(sizeWithAlignmentWaste >= size)", (const char *)&queryFormat, "sizeWithAlignmentWaste >= size") )
+  v33 = v22 - v50;
+  if ( v22 - v50 < v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 643, ASSERT_TYPE_ASSERT, "(sizeWithAlignmentWaste >= size)", (const char *)&queryFormat, "sizeWithAlignmentWaste >= size") )
     __debugbreak();
-  if ( v13->behavior == COMMIT_MANUALLY && v34 != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 644, ASSERT_TYPE_ASSERT, "(pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || sizeWithAlignmentWaste == size)", (const char *)&queryFormat, "pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || sizeWithAlignmentWaste == size") )
+  if ( v12->behavior == COMMIT_MANUALLY && v33 != v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 644, ASSERT_TYPE_ASSERT, "(pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || sizeWithAlignmentWaste == size)", (const char *)&queryFormat, "pool->behavior != PhysicalMemoryPool::Behavior::COMMIT_MANUALLY || sizeWithAlignmentWaste == size") )
     __debugbreak();
-  v35 = v13->base + v46;
+  v34 = v12->base + v45;
   if ( (!alignment || ((alignment - 1) & alignment) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 670, ASSERT_TYPE_ASSERT, "(align > 0 && IsPowerOf2( align ))", (const char *)&queryFormat, "align > 0 && IsPowerOf2( align )") )
     __debugbreak();
-  if ( ((alignment - 1) & v35) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 649, ASSERT_TYPE_ASSERT, "(IsAligned( result, alignment ))", (const char *)&queryFormat, "IsAligned( result, alignment )") )
+  if ( ((alignment - 1) & v34) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 649, ASSERT_TYPE_ASSERT, "(IsAligned( result, alignment ))", (const char *)&queryFormat, "IsAligned( result, alignment )") )
     __debugbreak();
-  *v47 = v23;
-  *(_QWORD *)(v48 + 8i64 * (int)v31 + 32) += v10;
-  if ( v13->behavior == COMMIT_ON_ALLOC )
+  *v46 = v22;
+  *(_QWORD *)(v47 + 8i64 * (int)v30 + 32) += v9;
+  if ( v12->behavior == COMMIT_ON_ALLOC )
   {
-    v36 = (v23 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64;
-    v37 = (v51 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64;
-    if ( v36 > v37 )
+    v35 = (v22 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64;
+    v36 = (v50 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64;
+    if ( v35 > v36 )
     {
-      v38 = (unsigned __int8 *)(v36 + v13->base);
-      v39 = (unsigned __int8 *)(v37 + v13->base);
-      if ( !PMem_CommitMemoryPartialInternal(stackIndex, v39, v38, v39, optionalLoan, (Mem_PageRange *)(v48 + 8i64 * (int)v31 + 56), hint) )
+      v37 = (unsigned __int8 *)(v35 + v12->base);
+      v38 = (unsigned __int8 *)(v36 + v12->base);
+      if ( !PMem_CommitMemoryPartialInternal(stackIndex, v38, v37, v38, optionalLoan, (Mem_PageRange *)(v47 + 8i64 * (int)v30 + 56), hint) )
       {
-        if ( v34 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v34, "unsigned", v34) )
+        if ( v33 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v33, "unsigned", v33) )
           __debugbreak();
-        LODWORD(namea) = Mem_Paged_GetFreePageCountForCommit(v31);
-        LODWORD(inoutPageRangea) = WORD1(v34);
+        LODWORD(namea) = Mem_Paged_GetFreePageCountForCommit(v30);
+        LODWORD(inoutPageRangea) = WORD1(v33);
         Mem_Error_CannotAlloc_Dev(DODGE, "PMem_AllocWithLoan", "c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pmem.cpp", 669, "PMem_Alloc: requiredPages=%d freePages=%d", inoutPageRangea, namea);
       }
-      IWMem_Profile_Push(v12->allocName);
-      IWMem_Alloc(v13->iwMemCommit, v39, v38 - v39);
+      IWMem_Profile_Push(v11->allocName);
+      IWMem_Alloc(v12->iwMemCommit, v38, v37 - v38);
       IWMem_Profile_Pop();
-      v10 = size;
+      v9 = size;
     }
-    memset_0((void *)v35, 153, v10);
+    memset_0((void *)v34, 153, v9);
   }
-  IWMem_Profile_Push(v12->allocName);
+  IWMem_Profile_Push(v11->allocName);
   IWMem_Profile_Push(hint);
-  IWMem_Alloc(v13->iwMemAlloc, (const void *)(v51 + v13->base), v34);
+  IWMem_Alloc(v12->iwMemAlloc, (const void *)(v50 + v12->base), v33);
   IWMem_Profile_Pop();
   IWMem_Profile_Pop();
-  return (unsigned __int8 *)v35;
+  return (unsigned __int8 *)v34;
 }
 
 /*
@@ -1100,15 +1060,15 @@ StreamerMemLoan *PMem_DecommitMemoryPartialInternal(StreamerMemLoan *result, PMe
 PMem_DumpMemStats
 ==============
 */
-void PMem_DumpMemStats(__int64 a1, double a2)
+void PMem_DumpMemStats(void)
 {
   int i; 
   const char *PoolName; 
   PhysicalMemoryPool **pools; 
+  __int64 v3; 
+  PhysicalMemoryPool **v4; 
   __int64 v5; 
-  PhysicalMemoryPool **v6; 
-  __int64 v7; 
-  PhysicalMemoryPool *v8; 
+  PhysicalMemoryPool *v6; 
 
   Com_MemDumpPrintf("----------------------------------------------------------------------------------------------------------------------\n");
   Com_MemDumpPrintf("PMem_DumpMemStats (all sizes in megabytes):\n");
@@ -1120,34 +1080,34 @@ void PMem_DumpMemStats(__int64 a1, double a2)
     PoolName = Mem_Paged_GetPoolName((Mem_Pool)i);
     Com_MemDumpPrintf("--- PMem pool: %s ---\n", PoolName);
     Com_MemDumpPrintf("%-34.34s %-10s %-10s %-10s %-10s %-11s\n", (const char *)&queryFormat.fmt + 3, "VaSpace", "stackUsed", "alignWaste", "committed", "uncommitted");
-    DumpPMemStacksForPool((Mem_Pool)i, a2);
+    DumpPMemStacksForPool((Mem_Pool)i);
   }
   Com_MemDumpPrintf("----------------------------------------------------------------------------------------------------------------------\n");
   if ( Sys_IsMainThread() )
   {
     Com_MemDumpPrintf("\n\n");
     pools = s_pmem.stacks[0].pools;
-    v5 = 3i64;
+    v3 = 3i64;
     do
     {
-      v6 = pools;
-      v7 = 7i64;
+      v4 = pools;
+      v5 = 7i64;
       do
       {
-        v8 = *v6;
-        if ( *v6 )
+        v6 = *v4;
+        if ( *v4 )
         {
-          if ( v8->behavior == COMMIT_ON_ALLOC )
-            IWMem_DumpAllocatorProfile(v8->iwMemAlloc);
+          if ( v6->behavior == COMMIT_ON_ALLOC )
+            IWMem_DumpAllocatorProfile(v6->iwMemAlloc);
         }
-        v6 += 258;
-        --v7;
+        v4 += 258;
+        --v5;
       }
-      while ( v7 );
+      while ( v5 );
       ++pools;
-      --v5;
+      --v3;
     }
-    while ( v5 );
+    while ( v3 );
     Com_MemDumpPrintf("\n");
   }
 }

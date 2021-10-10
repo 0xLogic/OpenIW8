@@ -137,95 +137,81 @@ CG_DrawHits_Activate
 */
 void CG_DrawHits_Activate(LocalClientNum_t localClientIndex, CG_DrawHits_Type type, CG_DrawHits_Filter filter, CG_DrawHits_Options options)
 {
-  __int64 v7; 
-  bool v11; 
-  float v13; 
-  float v14; 
-  CG_DrawHits_Filter v20; 
+  __int64 v4; 
+  bool v8; 
+  CG_DrawHits_Context *v9; 
+  float v10; 
+  float v11; 
+  double v12; 
+  double v13; 
+  CG_DrawHits_Filter v14; 
+  __int64 v15; 
+  __int64 v16; 
+  char Src[4]; 
+  int v18; 
+  int v19; 
+  __int64 v20; 
   __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  char Src[4]; 
-  int v26; 
-  int v27; 
-  __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
-  int v31; 
-  char v33[2740]; 
+  int v23; 
+  float v24; 
+  char v25[2740]; 
 
-  v7 = type;
+  v4 = type;
   if ( (unsigned int)type >= (COUNT|DODGE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", type, 3) )
     __debugbreak();
-  v11 = !s_CG_DrawHits_Contexts[v7].active;
-  _RBX = &s_CG_DrawHits_Contexts[v7];
-  if ( !v11 && _RBX->localClientNum == localClientIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 86, ASSERT_TYPE_ASSERT, "(!CG_DrawHits_IsActive( localClientIndex, type ))", (const char *)&queryFormat, "!CG_DrawHits_IsActive( localClientIndex, type )") )
+  v8 = !s_CG_DrawHits_Contexts[v4].active;
+  v9 = &s_CG_DrawHits_Contexts[v4];
+  if ( !v8 && v9->localClientNum == localClientIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 86, ASSERT_TYPE_ASSERT, "(!CG_DrawHits_IsActive( localClientIndex, type ))", (const char *)&queryFormat, "!CG_DrawHits_IsActive( localClientIndex, type )") )
     __debugbreak();
   if ( (unsigned int)filter >= (Count|0x4) )
   {
-    LODWORD(v22) = 7;
-    LODWORD(v21) = filter;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 87, ASSERT_TYPE_ASSERT, "(unsigned)( filter ) < (unsigned)( CG_DrawHits_Filter::COUNT )", "filter doesn't index CG_DrawHits_Filter::COUNT\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v16) = 7;
+    LODWORD(v15) = filter;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 87, ASSERT_TYPE_ASSERT, "(unsigned)( filter ) < (unsigned)( CG_DrawHits_Filter::COUNT )", "filter doesn't index CG_DrawHits_Filter::COUNT\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
-  v13 = 0.0;
-  __asm { vmovaps [rsp+0B78h+var_28], xmm6 }
-  v14 = 0.0;
-  __asm { vmovaps [rsp+0B78h+var_38], xmm7 }
-  v23 = 0i64;
-  v24 = 0i64;
+  v10 = 0.0;
+  v11 = 0.0;
   if ( options == 1 )
   {
-    __asm { vmovsd  xmm6, qword ptr [rbx+10h] }
-    v13 = _RBX->rayStart.v[2];
-    __asm { vmovsd  xmm7, qword ptr [rbx+1Ch] }
-    v14 = _RBX->rayEnd.v[2];
+    v12 = *(double *)v9->rayStart.v;
+    v10 = v9->rayStart.v[2];
+    v13 = *(double *)v9->rayEnd.v;
+    v11 = v9->rayEnd.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm6, [rsp+0B78h+var_B38]
-      vmovsd  xmm7, [rsp+0B78h+var_B28]
-    }
+    v12 = 0.0;
+    v13 = 0.0;
   }
   Src[0] = 0;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v28 = 0i64;
-  v29 = 0i64;
-  v30 = 0i64;
-  __asm { vmovss  [rsp+0B78h+var_AF0], xmm0 }
-  v31 = 0;
-  v26 = 0;
-  v27 = -1;
-  memset_0(v33, 0, sizeof(v33));
-  memcpy_0(_RBX, Src, sizeof(CG_DrawHits_Context));
+  v20 = 0i64;
+  v21 = 0i64;
+  v22 = 0i64;
+  v24 = 0.0;
+  v23 = 0;
+  v18 = 0;
+  v19 = -1;
+  memset_0(v25, 0, sizeof(v25));
+  memcpy_0(v9, Src, sizeof(CG_DrawHits_Context));
   if ( options == 1 )
   {
-    __asm
-    {
-      vmovsd  qword ptr [rbx+10h], xmm6
-      vmovsd  qword ptr [rbx+1Ch], xmm7
-    }
-    _RBX->rayStart.v[2] = v13;
-    _RBX->rayEnd.v[2] = v14;
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+0B78h+var_38]
-    vmovaps xmm6, [rsp+0B78h+var_28]
+    *(double *)v9->rayStart.v = v12;
+    *(double *)v9->rayEnd.v = v13;
+    v9->rayStart.v[2] = v10;
+    v9->rayEnd.v[2] = v11;
   }
   if ( filter )
   {
-    v20 = NormalSpace;
-    _RBX->active = 1;
-    _RBX->options = options;
-    _RBX->localClientNum = localClientIndex;
+    v14 = NormalSpace;
+    v9->active = 1;
+    v9->options = options;
+    v9->localClientNum = localClientIndex;
     if ( filter < (Count|0x4) )
-      v20 = filter;
-    _RBX->maxLen = 1.0;
-    _RBX->contentMask = s_CG_DrawHits_filterContentMasks[v20];
+      v14 = filter;
+    v9->maxLen = 1.0;
+    v9->contentMask = s_CG_DrawHits_filterContentMasks[v14];
   }
 }
 
@@ -236,195 +222,124 @@ CG_DrawHits_AddHit
 */
 void CG_DrawHits_AddHit(CG_DrawHits_Context *context, const CG_DrawHits_Hit *hit)
 {
+  float coord; 
+  const CG_DrawHits_Hit *v3; 
   unsigned int hitCount; 
-  unsigned int v10; 
+  unsigned int v6; 
+  unsigned int v7; 
+  __int64 v8; 
   CG_DrawHits_ModelType modelType; 
-  __int32 v13; 
-  __int32 v14; 
+  __int32 v10; 
+  __int32 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  unsigned int v14; 
   __int64 v15; 
-  __int64 v18; 
-  char v19; 
-  unsigned int v22; 
-  __int64 v25; 
-  unsigned int v26; 
-  double v60; 
+  int v16; 
+  CG_DrawHits_Hit *v19; 
+  __int128 v20; 
 
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  _RBX = hit;
-  _RDI = context;
-  __asm
-  {
-    vcomiss xmm1, cs:__real@3f800000
-    vcvtss2sd xmm0, xmm1, xmm1
-    vmovsd  [rsp+58h+var_30], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 234, ASSERT_TYPE_ASSERT, "( ( hit.coord >= 0.0f && hit.coord <= 1.0f ) )", "( hit.coord ) = %g", v60) )
+  coord = hit->coord;
+  v3 = hit;
+  if ( (hit->coord < 0.0 || coord > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 234, ASSERT_TYPE_ASSERT, "( ( hit.coord >= 0.0f && hit.coord <= 1.0f ) )", "( hit.coord ) = %g", coord) )
     __debugbreak();
-  hitCount = _RDI->hitCount;
-  v10 = 0;
+  hitCount = context->hitCount;
+  v6 = 0;
+  v7 = 0;
   if ( hitCount )
   {
     do
     {
-      _RSI = v10;
-      modelType = _RDI->hits[_RSI].modelType;
-      if ( modelType == _RBX->modelType )
+      v8 = v7;
+      modelType = context->hits[v8].modelType;
+      if ( modelType == v3->modelType )
       {
         if ( modelType )
         {
-          v13 = modelType - 1;
-          if ( v13 && (v14 = v13 - 1) != 0 )
+          v10 = modelType - 1;
+          if ( v10 && (v11 = v10 - 1) != 0 )
           {
-            if ( v14 == 1 )
+            if ( v11 == 1 )
             {
-              if ( _RDI->hits[_RSI].modelInfo.superTerrain.surfaceIndex != _RBX->modelInfo.superTerrain.surfaceIndex )
-                goto LABEL_19;
+              if ( context->hits[v8].modelInfo.superTerrain.surfaceIndex != v3->modelInfo.superTerrain.surfaceIndex )
+                goto LABEL_21;
             }
             else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 179, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
             {
               __debugbreak();
             }
           }
-          else if ( _RDI->hits[_RSI].modelInfo.model.entNum != _RBX->modelInfo.model.entNum )
+          else if ( context->hits[v8].modelInfo.model.entNum != v3->modelInfo.model.entNum )
           {
-            goto LABEL_19;
+            goto LABEL_21;
           }
         }
-        else if ( _RDI->hits[_RSI].modelInfo.world.surface != _RBX->modelInfo.world.surface )
+        else if ( context->hits[v8].modelInfo.world.surface != v3->modelInfo.world.surface )
         {
-          goto LABEL_19;
+          goto LABEL_21;
         }
-        if ( _RDI->hits[_RSI].material == _RBX->material && _RDI->hits[_RSI].surfaceFlags == _RBX->surfaceFlags && _RDI->hits[_RSI].contentFlags == _RBX->contentFlags )
+        if ( context->hits[v8].material == v3->material && context->hits[v8].surfaceFlags == v3->surfaceFlags && context->hits[v8].contentFlags == v3->contentFlags )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+rdi+30h]
-            vmovaps [rsp+58h+var_28], xmm6
-            vminss  xmm6, xmm0, dword ptr [rbx]
-            vmovss  dword ptr [rsi+rdi+30h], xmm6
-            vmovss  xmm0, dword ptr [rdi+1Ch]
-            vsubss  xmm1, xmm0, dword ptr [rdi+10h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rdi+10h]
-            vmovss  dword ptr [rsi+rdi+34h], xmm3
-            vmovss  xmm0, dword ptr [rdi+20h]
-            vsubss  xmm1, xmm0, dword ptr [rdi+14h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rdi+14h]
-            vmovss  dword ptr [rsi+rdi+38h], xmm3
-            vmovss  xmm0, dword ptr [rdi+24h]
-            vsubss  xmm1, xmm0, dword ptr [rdi+18h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rdi+18h]
-            vmovaps xmm6, [rsp+58h+var_28]
-            vmovss  dword ptr [rsi+rdi+3Ch], xmm3
-          }
+          _XMM0 = LODWORD(context->hits[v8].coord);
+          __asm { vminss  xmm6, xmm0, dword ptr [rbx] }
+          context->hits[v8].coord = *(float *)&_XMM6;
+          context->hits[v8].hitPosition.v[0] = (float)((float)(context->rayEnd.v[0] - context->rayStart.v[0]) * *(float *)&_XMM6) + context->rayStart.v[0];
+          context->hits[v8].hitPosition.v[1] = (float)((float)(context->rayEnd.v[1] - context->rayStart.v[1]) * *(float *)&_XMM6) + context->rayStart.v[1];
+          context->hits[v8].hitPosition.v[2] = (float)((float)(context->rayEnd.v[2] - context->rayStart.v[2]) * *(float *)&_XMM6) + context->rayStart.v[2];
           return;
         }
       }
-LABEL_19:
-      ++v10;
+LABEL_21:
+      ++v7;
     }
-    while ( v10 != hitCount );
+    while ( v7 != hitCount );
   }
-  v15 = 3i64;
+  v12 = 3i64;
   if ( hitCount != 6 )
   {
-    ++_RDI->hitCount;
-LABEL_33:
-    _RDX = (__int64)&_RDI->hits[hitCount];
+    ++context->hitCount;
+LABEL_37:
+    v19 = &context->hits[hitCount];
     do
     {
-      _RDX += 128i64;
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      _RBX = (const CG_DrawHits_Hit *)((char *)_RBX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rdx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-70h]
-        vmovups xmmword ptr [rdx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-60h]
-        vmovups xmmword ptr [rdx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-50h]
-        vmovups xmmword ptr [rdx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-40h]
-        vmovups xmmword ptr [rdx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-30h]
-        vmovups xmmword ptr [rdx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-10h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
-      --v15;
+      v19 = (CG_DrawHits_Hit *)((char *)v19 + 128);
+      v20 = *(_OWORD *)&v3->coord;
+      v3 = (const CG_DrawHits_Hit *)((char *)v3 + 128);
+      *(_OWORD *)v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq = v20;
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[4] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[4];
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8];
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[12] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[12];
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16];
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[20] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[20];
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24];
+      *(_OWORD *)&v19[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[28] = *(_OWORD *)&v3[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[28];
+      --v12;
     }
-    while ( v15 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rdx+30h], xmm1
-    }
-    *(_QWORD *)(_RDX + 64) = *(_QWORD *)&_RBX->modelInfo.superTerrain.layerMaterialCount;
+    while ( v12 );
+    *(_OWORD *)&v19->coord = *(_OWORD *)&v3->coord;
+    *(_OWORD *)&v19->surfaceFlags = *(_OWORD *)&v3->surfaceFlags;
+    *(_OWORD *)&v19->modelType = *(_OWORD *)&v3->modelType;
+    *(_OWORD *)&v19->modelInfo.superTerrain.combinedAlbedoMap = *(_OWORD *)&v3->modelInfo.superTerrain.combinedAlbedoMap;
+    *(_QWORD *)&v19->modelInfo.superTerrain.layerMaterialCount = *(_QWORD *)&v3->modelInfo.superTerrain.layerMaterialCount;
     return;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+30h]
-    vcomiss xmm0, dword ptr [rdi+1F8h]
-    vmovss  xmm0, dword ptr [rdi+3C0h]
-  }
-  v18 = 2i64;
+  v13 = 2i64;
+  if ( context->hits[0].coord < context->hits[1].coord )
+    v6 = 1;
   hitCount = 5;
-  _RCX = 0i64;
-  __asm
-  {
-    vcomiss xmm0, dword ptr [rcx+rdi+30h]
-    vmovss  xmm0, dword ptr [rdi+588h]
-  }
-  if ( ((456 * (unsigned __int128)0) >> 64 != 0) | v19 )
-    v18 = 0i64;
-  v22 = 3;
-  _RAX = 456 * v18;
-  __asm
-  {
-    vcomiss xmm0, dword ptr [rax+rdi+30h]
-    vmovss  xmm0, dword ptr [rdi+750h]
-  }
-  if ( ((unsigned __int128)(456 * (__int128)v18) >> 64 != 0) | v19 )
-    v22 = v18;
-  v25 = v22;
-  v26 = 4;
-  _RAX = 456 * v25;
-  __asm
-  {
-    vcomiss xmm0, dword ptr [rax+rdi+30h]
-    vmovss  xmm0, dword ptr [rdi+918h]
-  }
-  if ( ((unsigned __int128)(456 * (__int128)v25) >> 64 != 0) | v19 )
-    v26 = v25;
-  _RAX = 456i64 * v26;
-  __asm { vcomiss xmm0, dword ptr [rax+rdi+30h] }
-  if ( ((456 * (unsigned __int128)v26) >> 64 != 0) | v19 )
-    hitCount = v26;
-  _RCX = 456i64 * hitCount;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+rdi+30h]
-    vcomiss xmm0, dword ptr [rbx]
-  }
-  if ( !(((456 * (unsigned __int128)hitCount) >> 64 != 0) | v19) )
-    goto LABEL_33;
+  if ( context->hits[2].coord <= context->hits[v6].coord )
+    v13 = v6;
+  v14 = 3;
+  if ( context->hits[3].coord <= context->hits[v13].coord )
+    v14 = v13;
+  v15 = v14;
+  v16 = 4;
+  if ( context->hits[4].coord <= context->hits[v15].coord )
+    v16 = v15;
+  if ( context->hits[5].coord <= context->hits[v16].coord )
+    hitCount = v16;
+  if ( context->hits[hitCount].coord > v3->coord )
+    goto LABEL_37;
 }
 
 /*
@@ -434,227 +349,180 @@ CG_DrawHits_AddNearbyWorldHits
 */
 __int64 CG_DrawHits_AddNearbyWorldHits(CG_DrawHits_Context *context, const vec3_t *center, float4 *rayStart, float4 *rayDelta, float4 *rayCoord, float hitCoord, unsigned int surfaceFlags, unsigned int contentFlags)
 {
-  unsigned __int8 v20; 
-  int v21; 
-  unsigned int *v26; 
-  unsigned int v27; 
-  GfxBackEndData *v28; 
-  GfxWorldDrawVerts *v29; 
-  const vec3_t *v30; 
-  const unsigned __int16 *v31; 
-  __int64 v32; 
-  bool v36; 
-  __int64 v47; 
-  __int64 v49; 
-  __int64 v60; 
+  float v8; 
+  float v9; 
+  float4 *v10; 
+  float4 *v11; 
+  float v12; 
+  unsigned __int8 v15; 
+  int v16; 
+  __m128 v; 
+  __m128 v18; 
+  __m128 v19; 
+  unsigned int *v20; 
+  unsigned int v21; 
+  GfxBackEndData *v22; 
+  GfxWorldDrawVerts *v23; 
+  const vec3_t *v24; 
+  const unsigned __int16 *v25; 
+  __int64 v26; 
+  bool v30; 
+  __m256i *p_hit; 
+  int v32; 
+  float v33; 
+  float v34; 
+  __int64 v35; 
+  int v36; 
+  __int64 v37; 
+  int v38; 
+  int *v39; 
+  __m256i v40; 
+  __int128 v41; 
+  __m256i v42; 
+  __int64 v43; 
   unsigned int *surfCounts; 
   __int64 listCount; 
-  unsigned int v68; 
+  unsigned int v47; 
   GfxSurface **surfLists; 
   int (__fastcall *allowSurf)(int, void *); 
-  float4 *v71; 
-  float4 *v72; 
-  float4 v73; 
-  float4 v74; 
-  float4 v75; 
-  int v76[6]; 
-  __int64 v77; 
-  int v78; 
-  int v79; 
-  unsigned int *v80; 
-  char v81[416]; 
+  float4 *v50; 
+  float4 *v51; 
+  float4 v52; 
+  float4 v53; 
+  float4 v54; 
+  int v55[6]; 
+  __int64 v56; 
+  int v57; 
+  int v58; 
+  unsigned int *v59; 
+  char v60[416]; 
   CG_DrawHits_Hit hit; 
-  float4 v83; 
+  float4 v62; 
   R_CollInfo collInfo; 
-  __int64 v85[256]; 
+  __int64 v64[256]; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [rdx+4]
-  }
-  _RSI = rayCoord;
-  v72 = rayCoord;
-  _RBX = rayDelta;
-  __asm
-  {
-    vmovss  dword ptr [rbp+4C50h+collInfo.sphere.origin], xmm0
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  dword ptr [rbp+4C50h+collInfo.sphere.origin+4], xmm1
-    vmovss  xmm1, cs:__real@3f800000
-  }
-  _R12 = context;
-  v71 = rayDelta;
-  __asm
-  {
-    vmovss  dword ptr [rbp+4C50h+collInfo.sphere.origin+8], xmm0
-    vmovss  [rbp+4C50h+collInfo.sphere.radius], xmm1
-    vmovss  [rbp+4C50h+collInfo.sphere.radiusSq], xmm1
-  }
-  _R13 = rayStart;
+  v8 = center->v[0];
+  v9 = center->v[1];
+  v10 = rayCoord;
+  v51 = rayCoord;
+  v11 = rayDelta;
+  collInfo.sphere.origin.v[0] = v8;
+  v12 = center->v[2];
+  collInfo.sphere.origin.v[1] = v9;
+  v50 = rayDelta;
+  collInfo.sphere.origin.v[2] = v12;
+  collInfo.sphere.radius = FLOAT_1_0;
+  collInfo.sphere.radiusSq = FLOAT_1_0;
   collInfo.nodeCount = 0;
   collInfo.planeCount = 0;
   if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 352, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
     __debugbreak();
   R_SetupSphereStaticGeo(&collInfo, &frontEndDataOut->transientDrawContext);
-  surfLists = (GfxSurface **)v85;
+  surfLists = (GfxSurface **)v64;
   allowSurf = CG_DrawHits_AllowAllSurfacesCallback;
-  if ( R_SphereSurfaces(&collInfo, &allowSurf, NULL, &surfLists, 0x100u, &v68, 1u) )
+  if ( R_SphereSurfaces(&collInfo, &allowSurf, NULL, &surfLists, 0x100u, &v47, 1u) )
     R_WarnOncePerFrame(R_WARN_DRAW_HIT_SURF_ARRAY_TOO_SMALL);
-  v20 = 0;
-  v21 = 0;
-  if ( v68 )
+  v15 = 0;
+  v16 = 0;
+  if ( v47 )
   {
-    __asm
-    {
-      vmovaps [rsp+4D50h+var_40], xmm6
-      vmovaps [rsp+4D50h+var_50], xmm7
-      vmovaps [rsp+4D50h+var_60], xmm8
-      vmovaps [rsp+4D50h+var_70], xmm9
-      vmovss  xmm9, [rbp+4C50h+arg_28]
-    }
     do
     {
-      __asm
-      {
-        vmovups xmm6, xmmword ptr [rsi]
-        vmovups xmm7, xmmword ptr [rbx]
-        vmovups xmm8, xmmword ptr [r13+0]
-      }
-      v26 = (unsigned int *)v85[v21];
+      v = v10->v;
+      v18 = v11->v;
+      v19 = rayStart->v;
+      v20 = (unsigned int *)v64[v16];
       if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 302, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
         __debugbreak();
-      v27 = *((unsigned __int16 *)v26 + 14);
-      v28 = frontEndDataOut;
-      if ( v27 >= frontEndDataOut->transientDrawContext.zoneCount )
+      v21 = *((unsigned __int16 *)v20 + 14);
+      v22 = frontEndDataOut;
+      if ( v21 >= frontEndDataOut->transientDrawContext.zoneCount )
       {
         LODWORD(listCount) = frontEndDataOut->transientDrawContext.zoneCount;
-        LODWORD(surfCounts) = *((unsigned __int16 *)v26 + 14);
+        LODWORD(surfCounts) = *((unsigned __int16 *)v20 + 14);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 42, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( worldTransientContext.zoneCount )", "transientZoneIndex doesn't index worldTransientContext.zoneCount\n\t%i not in [0, %i)", surfCounts, listCount) )
           __debugbreak();
       }
-      v29 = v28->transientDrawContext.drawVertsPtr[(unsigned __int16)v27];
-      if ( v29 )
+      v23 = v22->transientDrawContext.drawVertsPtr[(unsigned __int16)v21];
+      if ( v23 )
       {
-        if ( v26[3] + 3 * *((unsigned __int16 *)v26 + 5) > v29->indexCount )
+        if ( v20[3] + 3 * *((unsigned __int16 *)v20 + 5) > v23->indexCount )
         {
-          LODWORD(listCount) = v29->indexCount;
-          LODWORD(surfCounts) = v26[3] + 3 * *((unsigned __int16 *)v26 + 5);
+          LODWORD(listCount) = v23->indexCount;
+          LODWORD(surfCounts) = v20[3] + 3 * *((unsigned __int16 *)v20 + 5);
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 310, ASSERT_TYPE_ASSERT, "( surface->tris.baseIndex + 3 * surface->tris.triCount ) <= ( drawVerts->indexCount )", "surface->tris.baseIndex + 3 * surface->tris.triCount not in [0, drawVerts->indexCount]\n\t%u not in [0, %u]", surfCounts, listCount) )
             __debugbreak();
         }
-        v30 = (const vec3_t *)&v29->posData[*v26];
-        v31 = &v29->indices[v26[3]];
-        v32 = *((unsigned __int16 *)v26 + 5);
+        v24 = (const vec3_t *)&v23->posData[*v20];
+        v25 = &v23->indices[v20[3]];
+        v26 = *((unsigned __int16 *)v20 + 5);
+        v52.v = v;
+        v53.v = v18;
+        v54.v = v19;
+        XSurface_IntersectRayWithTriangles(&v62, v24, v25, &v25[3 * v26], &v54, &v53, &v52, 1);
+        _XMM0 = v62.v;
         __asm
         {
-          vmovdqa [rsp+4D50h+var_4CE0], xmm6
-          vmovdqa [rbp+4C50h+var_4CD0], xmm7
-          vmovdqa [rbp+4C50h+var_4CC0], xmm8
-        }
-        XSurface_IntersectRayWithTriangles(&v83, v30, v31, &v31[3 * v32], &v75, &v74, &v73, 1);
-        __asm
-        {
-          vmovups xmm0, [rbp+4C50h+var_4910]
           vcmpltps xmm1, xmm0, xmm6
           vmovmskps eax, xmm1
         }
-        v36 = (_EAX & 0xF) != 0;
+        v30 = (_EAX & 0xF) != 0;
       }
       else
       {
-        v36 = 0;
+        v30 = 0;
       }
-      if ( v36 )
+      if ( v30 )
       {
-        v79 = 0;
-        memset_0(v81, 0, 0x198ui64);
-        _RCX = &hit;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r12+1Ch]
-          vsubss  xmm1, xmm0, dword ptr [r12+10h]
-          vmovss  xmm0, dword ptr [r12+20h]
-          vmulss  xmm2, xmm1, xmm9
-          vaddss  xmm3, xmm2, dword ptr [r12+10h]
-          vsubss  xmm1, xmm0, dword ptr [r12+14h]
-          vmovss  xmm0, dword ptr [r12+24h]
-          vmulss  xmm2, xmm1, xmm9
-          vsubss  xmm1, xmm0, dword ptr [r12+18h]
-        }
-        v76[4] = surfaceFlags;
-        v47 = 3i64;
-        __asm
-        {
-          vmovss  [rbp+4C50h+var_4CAC], xmm3
-          vaddss  xmm3, xmm2, dword ptr [r12+14h]
-        }
-        v76[5] = contentFlags;
-        v49 = *((_QWORD *)v26 + 2);
-        __asm
-        {
-          vmulss  xmm2, xmm1, xmm9
-          vmovss  [rbp+4C50h+var_4CA8], xmm3
-          vaddss  xmm3, xmm2, dword ptr [r12+18h]
-        }
-        v77 = v49;
-        _RAX = v76;
-        __asm
-        {
-          vmovss  [rbp+4C50h+var_4CA4], xmm3
-          vmovss  [rbp+4C50h+var_4CB0], xmm9
-        }
-        v78 = 0;
-        v80 = v26;
+        v58 = 0;
+        memset_0(v60, 0, 0x198ui64);
+        p_hit = (__m256i *)&hit;
+        *(float *)&v32 = (float)((float)(context->rayEnd.v[0] - context->rayStart.v[0]) * hitCoord) + context->rayStart.v[0];
+        v33 = (float)(context->rayEnd.v[1] - context->rayStart.v[1]) * hitCoord;
+        v34 = context->rayEnd.v[2] - context->rayStart.v[2];
+        v55[4] = surfaceFlags;
+        v35 = 3i64;
+        v55[1] = v32;
+        *(float *)&v36 = v33 + context->rayStart.v[1];
+        v55[5] = contentFlags;
+        v37 = *((_QWORD *)v20 + 2);
+        v55[2] = v36;
+        *(float *)&v38 = (float)(v34 * hitCoord) + context->rayStart.v[2];
+        v56 = v37;
+        v39 = v55;
+        v55[3] = v38;
+        *(float *)v55 = hitCoord;
+        v57 = 0;
+        v59 = v20;
         do
         {
-          _RCX = (CG_DrawHits_Hit *)((char *)_RCX + 128);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+70h]
-          }
-          _RAX += 32;
-          __asm
-          {
-            vmovups ymmword ptr [rcx-80h], ymm0
-            vmovups ymm0, ymmword ptr [rax-60h]
-            vmovups ymmword ptr [rcx-60h], ymm0
-            vmovups ymm0, ymmword ptr [rax-40h]
-            vmovups ymmword ptr [rcx-40h], ymm0
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [rcx-20h], xmm0
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          --v47;
+          p_hit += 4;
+          v40 = *(__m256i *)v39;
+          v41 = *((_OWORD *)v39 + 7);
+          v39 += 32;
+          p_hit[-4] = v40;
+          p_hit[-3] = *((__m256i *)v39 - 3);
+          p_hit[-2] = *((__m256i *)v39 - 2);
+          *(_OWORD *)p_hit[-1].m256i_i8 = *((_OWORD *)v39 - 2);
+          *(_OWORD *)&p_hit[-1].m256i_u64[2] = v41;
+          --v35;
         }
-        while ( v47 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm0, ymmword ptr [rax+20h]
-        }
-        v60 = *((_QWORD *)_RAX + 8);
-        __asm { vmovups ymmword ptr [rcx+20h], ymm0 }
-        *(_QWORD *)&_RCX->modelInfo.superTerrain.layerMaterialCount = v60;
-        CG_DrawHits_AddHit(_R12, &hit);
-        v20 = 1;
+        while ( v35 );
+        *p_hit = *(__m256i *)v39;
+        v42 = *((__m256i *)v39 + 1);
+        v43 = *((_QWORD *)v39 + 8);
+        p_hit[1] = v42;
+        p_hit[2].m256i_i64[0] = v43;
+        CG_DrawHits_AddHit(context, &hit);
+        v15 = 1;
       }
-      _RBX = v71;
-      _RSI = v72;
-      ++v21;
+      v11 = v50;
+      v10 = v51;
+      ++v16;
     }
-    while ( v21 != v68 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+4D50h+var_70]
-      vmovaps xmm8, [rsp+4D50h+var_60]
-      vmovaps xmm7, [rsp+4D50h+var_50]
-      vmovaps xmm6, [rsp+4D50h+var_40]
-    }
+    while ( v16 != v47 );
   }
-  return v20;
+  return v15;
 }
 
 /*
@@ -710,18 +578,10 @@ CG_DrawHits_CompareHits
 */
 __int64 CG_DrawHits_CompareHits(const void *e0, const void *e1)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rdx]
-    vcomiss xmm0, xmm1
-  }
-  if ( v2 )
+  if ( *(float *)e0 >= *(float *)e1 )
+    return *(float *)e0 > *(float *)e1;
+  else
     return 0xFFFFFFFFi64;
-  __asm { vcomiss xmm0, xmm1 }
-  return 0i64;
 }
 
 /*
@@ -729,69 +589,29 @@ __int64 CG_DrawHits_CompareHits(const void *e0, const void *e1)
 CG_DrawHits_DrawText
 ==============
 */
-
-void __fastcall CG_DrawHits_DrawText(const ScreenPlacement *scrPlace, const char *text, GfxFont *font, double x, float y, int horzAlign, int vertAlign, float scale, const vec4_t *color)
+void CG_DrawHits_DrawText(const ScreenPlacement *scrPlace, const char *text, GfxFont *font, float x, float y, int horzAlign, int vertAlign, float scale, const vec4_t *color)
 {
   const char *m_ptr; 
-  int v18; 
-  const char *v19; 
+  int v13; 
+  const char *v14; 
   _BYTE *i; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
-  float v34; 
   Mem_LargeLocal texta[3]; 
-  char v36; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm8, xmm3
-  }
   Mem_LargeLocal::Mem_LargeLocal(texta, 0x1000ui64, "TextBuffer strippedText");
   m_ptr = (const char *)texta[0].m_ptr;
-  v18 = *text;
-  v19 = text + 1;
-  for ( i = texta[0].m_ptr; v18; v18 = *v19++ )
+  v13 = *text;
+  v14 = text + 1;
+  for ( i = texta[0].m_ptr; v13; v13 = *v14++ )
   {
-    if ( v18 == 94 && (unsigned int)(*v19 - 48) < 0xA )
-      ++v19;
+    if ( v13 == 94 && (unsigned int)(*v14 - 48) < 0xA )
+      ++v14;
     else
-      *i++ = v18;
+      *i++ = v13;
   }
   *i = 0;
-  __asm
-  {
-    vmovss  xmm7, [rsp+0B8h+y]
-    vaddss  xmm1, xmm7, cs:__real@3f800000
-    vaddss  xmm2, xmm8, cs:__real@3f800000
-    vmovss  xmm6, [rsp+0B8h+scale]
-    vmovss  [rsp+0B8h+var_78], xmm6
-    vmovss  [rsp+0B8h+var_90], xmm1
-    vmovss  [rsp+0B8h+var_98], xmm2
-  }
-  UI_DrawText(scrPlace, m_ptr, 0x7FFFFFFF, font, v29, v31, horzAlign, vertAlign, v33, &s_CG_DrawHits_text_shadowColor, 0);
-  __asm
-  {
-    vmovss  [rsp+0B8h+var_78], xmm6
-    vmovss  [rsp+0B8h+var_90], xmm7
-    vmovss  [rsp+0B8h+var_98], xmm8
-  }
-  UI_DrawText(scrPlace, text, 0x7FFFFFFF, font, v30, v32, horzAlign, vertAlign, v34, color, 0);
+  UI_DrawText(scrPlace, m_ptr, 0x7FFFFFFF, font, x + 1.0, y + 1.0, horzAlign, vertAlign, scale, &s_CG_DrawHits_text_shadowColor, 0);
+  UI_DrawText(scrPlace, text, 0x7FFFFFFF, font, x, y, horzAlign, vertAlign, scale, color, 0);
   Mem_LargeLocal::~Mem_LargeLocal(texta);
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -824,35 +644,43 @@ void CG_DrawHits_HitModel(CG_DrawHits_Context *context, const TraceExtents *loca
   const XModel *surface; 
   unsigned int lod; 
   const XModelLodInfo *LodInfo; 
-  unsigned int v13; 
+  unsigned int v11; 
   Material *const *Skins; 
-  int v15; 
-  char v16; 
-  char v17; 
+  int v13; 
+  float maxLen; 
+  float v15; 
   __int64 surfaceIndex; 
   const Material *material; 
-  __int64 v24; 
-  const Material *v25; 
-  __int64 v28; 
-  CG_DrawHits_ModelType v35; 
-  __int64 v46; 
-  __int64 v48; 
-  double permitDoubleSided; 
+  __int64 v18; 
+  const Material *v19; 
+  CG_DrawHits_Hit::ModelInfo *v20; 
+  CG_DrawHits_Hit *v21; 
+  __int64 v22; 
+  __m256i v23; 
+  __int128 v24; 
+  CG_DrawHits_ModelType v25; 
+  CG_DrawHits_Hit *ModelHit; 
+  __m256i *p_hit; 
+  __m256i v28; 
+  __int128 v29; 
+  __m256i v30; 
+  __int64 v31; 
+  CG_DrawHits_Hit *v32; 
+  __int64 v33; 
+  __m256i v34; 
+  __int128 v35; 
   XSurface *surfaces; 
   CG_DrawHits_Hit hit; 
   CG_DrawHits_Hit result; 
   trace_t mem; 
 
-  _RBX = modelInfo;
-  _R14 = context;
   if ( !context->active && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 766, ASSERT_TYPE_ASSERT, "(context.active)", (const char *)&queryFormat, "context.active") )
     __debugbreak();
-  surface = (const XModel *)_RBX->world.surface;
-  lod = _RBX->model.lod;
-  if ( !_RBX->world.surface && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 770, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+  surface = (const XModel *)modelInfo->world.surface;
+  lod = modelInfo->model.lod;
+  if ( !modelInfo->world.surface && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 770, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
-  __asm { vmovss  xmm2, cs:__real@3f800000; fraction }
-  if ( !CM_TraceBox(localRay, &surface->bounds, *(float *)&_XMM2) )
+  if ( !CM_TraceBox(localRay, &surface->bounds, 1.0) )
   {
     if ( !surface && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 231, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
@@ -861,156 +689,102 @@ void CG_DrawHits_HitModel(CG_DrawHits_Context *context, const TraceExtents *loca
     {
       if ( Stream_MeshIsSafeToUse(LodInfo->modelSurfsStaging) )
       {
-        v13 = XModelGetSurfaces(surface, &surfaces, lod);
+        v11 = XModelGetSurfaces(surface, &surfaces, lod);
         Skins = XModelGetSkins(surface, lod);
-        v15 = _R14->contentMask & 0x813;
-        if ( !v15 )
+        v13 = context->contentMask & 0x813;
+        if ( !v13 )
           goto LABEL_29;
         DebugWipe(&mem, 0x58ui64);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r14+28h]
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm1, xmm0
-        }
-        if ( v16 )
-          goto LABEL_16;
-        __asm { vcomiss xmm1, cs:__real@3f800000 }
-        if ( !(v16 | v17) )
-        {
-LABEL_16:
-          __asm
-          {
-            vcvtss2sd xmm0, xmm1, xmm1
-            vmovsd  qword ptr [rsp+4A8h+permitDoubleSided], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 798, ASSERT_TYPE_ASSERT, "( ( context.maxLen >= 0.0f && context.maxLen <= 1.0f ) )", "( context.maxLen ) = %g", permitDoubleSided) )
-            __debugbreak();
-        }
-        __asm { vmovss  xmm0, dword ptr [r14+28h] }
+        maxLen = context->maxLen;
+        if ( (maxLen < 0.0 || maxLen > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 798, ASSERT_TYPE_ASSERT, "( ( context.maxLen >= 0.0f && context.maxLen <= 1.0f ) )", "( context.maxLen ) = %g", maxLen) )
+          __debugbreak();
+        v15 = context->maxLen;
         mem.surfaceIndex = -1;
-        __asm { vmovss  [rsp+4A8h+mem], xmm0 }
-        if ( XModelTraceLineInternal(surface, &mem, &localRay->start, &localRay->end, v15, 1) >= 0 )
+        mem.fraction = v15;
+        if ( XModelTraceLineInternal(surface, &mem, &localRay->start, &localRay->end, v13, 1) >= 0 )
         {
           surfaceIndex = (unsigned int)mem.surfaceIndex;
           material = NULL;
-          v24 = 3i64;
-          if ( (unsigned int)surfaceIndex < v13 )
+          v18 = 3i64;
+          if ( (unsigned int)surfaceIndex < v11 )
           {
-            v25 = Material_FromHandle(Skins[surfaceIndex]);
-            _RBX->model.surfIndex = surfaceIndex;
-            material = v25;
-            if ( v25 )
+            v19 = Material_FromHandle(Skins[surfaceIndex]);
+            modelInfo->model.surfIndex = surfaceIndex;
+            material = v19;
+            if ( v19 )
             {
-              v35 = modelType;
+              v25 = modelType;
 LABEL_26:
-              __asm { vmovss  xmm2, [rsp+4A8h+mem]; hitCoord }
-              _RAX = CG_DrawHits_MakeModelHit(&result, _R14, *(float *)&_XMM2, mem.surfaceFlags, mem.contents, v35, _RBX, material);
-              _RDX = &hit;
+              ModelHit = CG_DrawHits_MakeModelHit(&result, context, mem.fraction, mem.surfaceFlags, mem.contents, v25, modelInfo, material);
+              p_hit = (__m256i *)&hit;
               do
               {
-                _RDX = (CG_DrawHits_Hit *)((char *)_RDX + 128);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups xmm1, xmmword ptr [rax+70h]
-                }
-                _RAX = (CG_DrawHits_Hit *)((char *)_RAX + 128);
-                __asm
-                {
-                  vmovups ymmword ptr [rdx-80h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-60h]
-                  vmovups ymmword ptr [rdx-60h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-40h]
-                  vmovups ymmword ptr [rdx-40h], ymm0
-                  vmovups xmm0, xmmword ptr [rax-20h]
-                  vmovups xmmword ptr [rdx-20h], xmm0
-                  vmovups xmmword ptr [rdx-10h], xmm1
-                }
-                --v24;
+                p_hit += 4;
+                v28 = *(__m256i *)&ModelHit->coord;
+                v29 = *(_OWORD *)&ModelHit->modelInfo.superTerrain.layerMaterials[5];
+                ModelHit = (CG_DrawHits_Hit *)((char *)ModelHit + 128);
+                p_hit[-4] = v28;
+                p_hit[-3] = *(__m256i *)&ModelHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8];
+                p_hit[-2] = *(__m256i *)&ModelHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16];
+                *(_OWORD *)p_hit[-1].m256i_i8 = *(_OWORD *)&ModelHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24];
+                *(_OWORD *)&p_hit[-1].m256i_u64[2] = v29;
+                --v18;
               }
-              while ( v24 );
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rdx], ymm0
-                vmovups ymm0, ymmword ptr [rax+20h]
-              }
-              v46 = *(_QWORD *)&_RAX->modelInfo.superTerrain.layerMaterialCount;
-              __asm { vmovups ymmword ptr [rdx+20h], ymm0 }
-              *(_QWORD *)&_RDX->modelInfo.superTerrain.layerMaterialCount = v46;
-              Sys_EnterCriticalSection((CriticalSection)((unsigned __int8)v24 + 6));
-              CG_DrawHits_AddHit(_R14, &hit);
-              Sys_LeaveCriticalSection((CriticalSection)((unsigned __int8)v24 + 6));
+              while ( v18 );
+              *p_hit = *(__m256i *)&ModelHit->coord;
+              v30 = *(__m256i *)&ModelHit->modelType;
+              v31 = *(_QWORD *)&ModelHit->modelInfo.superTerrain.layerMaterialCount;
+              p_hit[1] = v30;
+              p_hit[2].m256i_i64[0] = v31;
+              Sys_EnterCriticalSection(CRITSECT_DRAW_HITS);
+              CG_DrawHits_AddHit(context, &hit);
+              Sys_LeaveCriticalSection(CRITSECT_DRAW_HITS);
               return;
             }
           }
-          _RCX = _RBX;
-          _R8 = &hit;
-          v28 = 3i64;
+          v20 = modelInfo;
+          v21 = &hit;
+          v22 = 3i64;
           do
           {
-            _R8 = (CG_DrawHits_Hit *)((char *)_R8 + 128);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rcx]
-              vmovups xmm1, xmmword ptr [rcx+70h]
-            }
-            _RCX = (CG_DrawHits_Hit::ModelInfo *)((char *)_RCX + 128);
-            __asm
-            {
-              vmovups ymmword ptr [r8-80h], ymm0
-              vmovups ymm0, ymmword ptr [rcx-60h]
-              vmovups ymmword ptr [r8-60h], ymm0
-              vmovups ymm0, ymmword ptr [rcx-40h]
-              vmovups ymmword ptr [r8-40h], ymm0
-              vmovups xmm0, xmmword ptr [rcx-20h]
-              vmovups xmmword ptr [r8-20h], xmm0
-              vmovups xmmword ptr [r8-10h], xmm1
-            }
-            --v28;
+            v21 = (CG_DrawHits_Hit *)((char *)v21 + 128);
+            v23 = *(__m256i *)&v20->world.surface;
+            v24 = *(_OWORD *)&v20->superTerrain.layerMaterials[10];
+            v20 = (CG_DrawHits_Hit::ModelInfo *)((char *)v20 + 128);
+            *(__m256i *)v21[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq = v23;
+            *(__m256i *)&v21[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8] = *(__m256i *)&v20[-1].superTerrain.layerMaterialsHimipRadiusInvSq[8];
+            *(__m256i *)&v21[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16] = *(__m256i *)&v20[-1].superTerrain.layerMaterialsHimipRadiusInvSq[16];
+            *(_OWORD *)&v21[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24] = *(_OWORD *)&v20[-1].superTerrain.layerMaterialsHimipRadiusInvSq[24];
+            *(_OWORD *)&v21[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[28] = v24;
+            --v22;
           }
-          while ( v28 );
-          __asm { vmovups ymm0, ymmword ptr [rcx] }
-          v35 = modelType;
-          __asm { vmovups ymmword ptr [r8], ymm0 }
-          if ( !CG_DrawHits_HitRenderSurfaces(_R14, localRay, modelType, (CG_DrawHits_Hit::ModelInfo *)&hit) )
+          while ( v22 );
+          v25 = modelType;
+          *(__m256i *)&v21->coord = *(__m256i *)&v20->world.surface;
+          if ( !CG_DrawHits_HitRenderSurfaces(context, localRay, modelType, (CG_DrawHits_Hit::ModelInfo *)&hit) )
             goto LABEL_26;
         }
         else
         {
 LABEL_29:
-          _RAX = &hit;
-          v48 = 3i64;
+          v32 = &hit;
+          v33 = 3i64;
           do
           {
-            _RAX = (CG_DrawHits_Hit *)((char *)_RAX + 128);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbx]
-              vmovups xmm1, xmmword ptr [rbx+70h]
-            }
-            _RBX = (CG_DrawHits_Hit::ModelInfo *)((char *)_RBX + 128);
-            __asm
-            {
-              vmovups ymmword ptr [rax-80h], ymm0
-              vmovups ymm0, ymmword ptr [rbx-60h]
-              vmovups ymmword ptr [rax-60h], ymm0
-              vmovups ymm0, ymmword ptr [rbx-40h]
-              vmovups ymmword ptr [rax-40h], ymm0
-              vmovups xmm0, xmmword ptr [rbx-20h]
-              vmovups xmmword ptr [rax-20h], xmm0
-              vmovups xmmword ptr [rax-10h], xmm1
-            }
-            --v48;
+            v32 = (CG_DrawHits_Hit *)((char *)v32 + 128);
+            v34 = *(__m256i *)&modelInfo->world.surface;
+            v35 = *(_OWORD *)&modelInfo->superTerrain.layerMaterials[10];
+            modelInfo = (CG_DrawHits_Hit::ModelInfo *)((char *)modelInfo + 128);
+            *(__m256i *)v32[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq = v34;
+            *(__m256i *)&v32[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8] = *(__m256i *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[8];
+            *(__m256i *)&v32[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16] = *(__m256i *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[16];
+            *(_OWORD *)&v32[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[24];
+            *(_OWORD *)&v32[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[28] = v35;
+            --v33;
           }
-          while ( v48 );
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rax], ymm0
-          }
-          CG_DrawHits_HitRenderSurfaces(_R14, localRay, modelType, (CG_DrawHits_Hit::ModelInfo *)&hit);
+          while ( v33 );
+          *(__m256i *)&v32->coord = *(__m256i *)&modelInfo->world.surface;
+          CG_DrawHits_HitRenderSurfaces(context, localRay, modelType, (CG_DrawHits_Hit::ModelInfo *)&hit);
         }
       }
     }
@@ -1024,169 +798,148 @@ CG_DrawHits_HitRenderSurfaces
 */
 __int64 CG_DrawHits_HitRenderSurfaces(CG_DrawHits_Context *context, const TraceExtents *localRay, CG_DrawHits_ModelType modelType, CG_DrawHits_Hit::ModelInfo *modelInfo)
 {
+  float v4; 
   const XModel *surface; 
   unsigned int lod; 
-  int v22; 
+  __m128 v9; 
+  float v12; 
+  __m128 v14; 
+  __m128 v17; 
+  int v18; 
   Material *const *Skins; 
-  unsigned __int8 v24; 
-  __int64 v25; 
-  Material *v26; 
-  const XSurface *v27; 
+  unsigned __int8 v20; 
+  __int64 v21; 
+  Material *v22; 
+  const XSurface *v23; 
   MaterialTechniqueSet *techniqueSet; 
-  CG_DrawHits_Context *v32; 
-  CG_DrawHits_Context *v34; 
+  CG_DrawHits_Context *v28; 
+  float v29; 
+  CG_DrawHits_Context *v30; 
   unsigned int surfaceFlags; 
+  CG_DrawHits_Hit *ModelHit; 
+  __m256i *p_hit; 
+  __int64 v34; 
+  __m256i v35; 
+  __int128 v36; 
+  __m256i v37; 
   __int64 v38; 
-  __int64 v46; 
-  __int64 v47; 
   bool modelTypea; 
   const CG_DrawHits_Hit::ModelInfo *modelInfoa; 
   Material *material; 
   XSurface *surfaces; 
-  CG_DrawHits_Hit::ModelInfo *v57; 
+  CG_DrawHits_Hit::ModelInfo *v45; 
   CG_DrawHits_Context *contexta; 
   float4 context_8; 
-  float4 v60; 
-  float4 v61; 
+  float4 v48; 
+  float4 v49; 
   CG_DrawHits_Hit hit; 
   CG_DrawHits_Hit result; 
-  __int128 v64; 
-  float4 v65; 
-  char v66; 
-  void *retaddr; 
+  __m128 v52; 
+  float4 v53; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovss  xmm0, dword ptr [rdx+40h]
-  }
+  v4 = localRay->start.v[0];
   surface = (const XModel *)modelInfo->world.surface;
   lod = modelInfo->model.lod;
-  HIDWORD(v64) = 0;
+  v52.m128_i32[3] = 0;
   contexta = context;
-  v57 = modelInfo;
+  v45 = modelInfo;
+  __asm { vbroadcastss xmm7, dword ptr [rcx+28h] }
+  v9 = v52;
+  v9.m128_f32[0] = v4;
+  _XMM6 = v9;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rbp+330h]
-    vbroadcastss xmm7, dword ptr [rcx+28h]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rdx+44h], 10h
     vinsertps xmm6, xmm6, dword ptr [rdx+48h], 20h ; ' '
-    vmovss  xmm0, dword ptr [rdx+50h]
-    vmovups xmmword ptr [rbp+330h], xmm6
   }
-  HIDWORD(v64) = 0;
+  v12 = localRay->end.v[0];
+  v52 = _XMM6;
+  v52.m128_i32[3] = 0;
+  v14 = v52;
+  v14.m128_f32[0] = v12;
+  _XMM3 = v14;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rbp+330h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdx+54h], 10h
     vinsertps xmm3, xmm3, dword ptr [rdx+58h], 20h ; ' '
-    vmovups xmmword ptr [rbp+330h], xmm3
-    vsubps  xmm8, xmm3, xmm6
   }
+  v52 = _XMM3;
+  v17 = _mm128_sub_ps(_XMM3, _XMM6);
   if ( !surface && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 723, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
-  v22 = XModelGetSurfaces(surface, &surfaces, lod);
+  v18 = XModelGetSurfaces(surface, &surfaces, lod);
   Skins = XModelGetSkins(surface, lod);
-  v24 = 0;
-  *(_QWORD *)&v64 = Skins;
-  v25 = 0i64;
-  if ( v22 )
+  v20 = 0;
+  v52.m128_u64[0] = (unsigned __int64)Skins;
+  v21 = 0i64;
+  if ( v18 )
   {
     do
     {
-      v26 = Skins[v25];
-      v27 = &surfaces[v25];
-      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 455, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
+      v22 = Skins[v21];
+      v23 = &surfaces[v21];
+      if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 455, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
         __debugbreak();
-      if ( !v26->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
+      if ( !v22->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
         __debugbreak();
-      if ( !*v26->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 457, ASSERT_TYPE_ASSERT, "(handle->name[0])", (const char *)&queryFormat, "handle->name[0]") )
+      if ( !*v22->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 457, ASSERT_TYPE_ASSERT, "(handle->name[0])", (const char *)&queryFormat, "handle->name[0]") )
         __debugbreak();
-      if ( !v26->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 719, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
+      if ( !v22->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 719, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
         __debugbreak();
-      techniqueSet = v26->techniqueSet;
-      __asm
-      {
-        vmovdqa xmmword ptr [rsp+4D0h+context+8], xmm7
-        vmovdqa xmmword ptr [rsp+4D0h+var_468+8], xmm8
-      }
+      techniqueSet = v22->techniqueSet;
+      context_8.v = _XMM7;
+      v48.v = v17;
       modelTypea = techniqueSet->flags & 1;
-      __asm { vmovdqa [rbp+3D0h+var_450], xmm6 }
-      XSurface_IntersectRayWithMeshInternal(&v65, v27, &v61, &v60, &context_8, modelTypea);
+      v49.v = _XMM6;
+      XSurface_IntersectRayWithMeshInternal(&v53, v23, &v49, &v48, &context_8, modelTypea);
+      _XMM1 = v53.v;
       __asm
       {
-        vmovups xmm1, [rbp+3D0h+var_90]
         vcmpltps xmm0, xmm1, xmm7
         vmovmskps eax, xmm0
       }
       if ( (_EAX & 0xF) != 0 )
       {
-        material = v26;
-        v32 = contexta;
-        __asm { vmovaps xmm2, xmm1; hitCoord }
-        v34 = contexta;
-        modelInfoa = v57;
-        surfaceFlags = surface->materialHandles[v25]->surfaceFlags;
-        v57->model.surfIndex = v25;
-        _RAX = CG_DrawHits_MakeModelHit(&result, v34, *(float *)&_XMM2, surfaceFlags, surface->contents, modelType, modelInfoa, material);
-        _RCX = &hit;
-        v38 = 3i64;
+        material = v22;
+        v28 = contexta;
+        v29 = v53.v.m128_f32[0];
+        v30 = contexta;
+        modelInfoa = v45;
+        surfaceFlags = surface->materialHandles[v21]->surfaceFlags;
+        v45->model.surfIndex = v21;
+        ModelHit = CG_DrawHits_MakeModelHit(&result, v30, v29, surfaceFlags, surface->contents, modelType, modelInfoa, material);
+        p_hit = (__m256i *)&hit;
+        v34 = 3i64;
         do
         {
-          _RCX = (CG_DrawHits_Hit *)((char *)_RCX + 128);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+70h]
-          }
-          _RAX = (CG_DrawHits_Hit *)((char *)_RAX + 128);
-          __asm
-          {
-            vmovups ymmword ptr [rcx-80h], ymm0
-            vmovups ymm0, ymmword ptr [rax-60h]
-            vmovups ymmword ptr [rcx-60h], ymm0
-            vmovups ymm0, ymmword ptr [rax-40h]
-            vmovups ymmword ptr [rcx-40h], ymm0
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [rcx-20h], xmm0
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          --v38;
+          p_hit += 4;
+          v35 = *(__m256i *)&ModelHit->coord;
+          v36 = *(_OWORD *)&ModelHit->modelInfo.superTerrain.layerMaterials[5];
+          ModelHit = (CG_DrawHits_Hit *)((char *)ModelHit + 128);
+          p_hit[-4] = v35;
+          p_hit[-3] = *(__m256i *)&ModelHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8];
+          p_hit[-2] = *(__m256i *)&ModelHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16];
+          *(_OWORD *)p_hit[-1].m256i_i8 = *(_OWORD *)&ModelHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24];
+          *(_OWORD *)&p_hit[-1].m256i_u64[2] = v36;
+          --v34;
         }
-        while ( v38 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm0, ymmword ptr [rax+20h]
-        }
-        v46 = *(_QWORD *)&_RAX->modelInfo.superTerrain.layerMaterialCount;
-        __asm { vmovups ymmword ptr [rcx+20h], ymm0 }
-        *(_QWORD *)&_RCX->modelInfo.superTerrain.layerMaterialCount = v46;
-        Sys_EnterCriticalSection((CriticalSection)((unsigned __int8)v38 + 6));
-        CG_DrawHits_AddHit(v32, &hit);
+        while ( v34 );
+        *p_hit = *(__m256i *)&ModelHit->coord;
+        v37 = *(__m256i *)&ModelHit->modelType;
+        v38 = *(_QWORD *)&ModelHit->modelInfo.superTerrain.layerMaterialCount;
+        p_hit[1] = v37;
+        p_hit[2].m256i_i64[0] = v38;
+        Sys_EnterCriticalSection(CRITSECT_DRAW_HITS);
+        CG_DrawHits_AddHit(v28, &hit);
         Sys_LeaveCriticalSection(CRITSECT_DRAW_HITS);
-        v24 = 1;
+        v20 = 1;
       }
-      Skins = (Material *const *)v64;
-      v25 = (unsigned int)(v25 + 1);
+      Skins = (Material *const *)v52.m128_u64[0];
+      v21 = (unsigned int)(v21 + 1);
     }
-    while ( (_DWORD)v25 != v22 );
+    while ( (_DWORD)v21 != v18 );
   }
-  v47 = v24;
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-  }
-  return v47;
+  return v20;
 }
 
 /*
@@ -1273,79 +1026,44 @@ bool CG_DrawHits_IsClearSolidSurface(unsigned int surfaceFlags)
 CG_DrawHits_MakeModelHit
 ==============
 */
-
-CG_DrawHits_Hit *__fastcall CG_DrawHits_MakeModelHit(CG_DrawHits_Hit *result, CG_DrawHits_Context *context, double hitCoord, unsigned int surfaceFlags, unsigned int contentFlags, CG_DrawHits_ModelType modelType, const CG_DrawHits_Hit::ModelInfo *modelInfo, const Material *material)
+CG_DrawHits_Hit *CG_DrawHits_MakeModelHit(CG_DrawHits_Hit *result, CG_DrawHits_Context *context, float hitCoord, unsigned int surfaceFlags, unsigned int contentFlags, CG_DrawHits_ModelType modelType, const CG_DrawHits_Hit::ModelInfo *modelInfo, const Material *material)
 {
-  __int64 v13; 
+  __int64 v11; 
+  CG_DrawHits_Hit::ModelInfo *p_modelInfo; 
+  __int128 v14; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RSI = context;
-  _RBX = result;
-  __asm { vmovaps xmm6, xmm2 }
   if ( modelType == World && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 216, ASSERT_TYPE_ASSERT, "(modelType != CG_DrawHits_ModelType::World)", (const char *)&queryFormat, "modelType != CG_DrawHits_ModelType::World") )
     __debugbreak();
-  memset_0(&_RBX->hitPosition, 0, 0x1C4ui64);
-  v13 = 3i64;
-  _RCX = modelInfo;
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm6
-    vmovss  xmm0, dword ptr [rsi+1Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+10h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rsi+10h]
-    vmovss  dword ptr [rbx+4], xmm3
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+14h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rsi+14h]
-    vmovss  dword ptr [rbx+8], xmm3
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+18h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rsi+18h]
-    vmovss  dword ptr [rbx+0Ch], xmm3
-  }
-  _RBX->contentFlags = contentFlags;
-  _RBX->material = material;
-  _RAX = &_RBX->modelInfo;
-  _RBX->surfaceFlags = surfaceFlags;
-  _RBX->modelType = modelType;
+  memset_0(&result->hitPosition, 0, 0x1C4ui64);
+  v11 = 3i64;
+  result->coord = hitCoord;
+  result->hitPosition.v[0] = (float)((float)(context->rayEnd.v[0] - context->rayStart.v[0]) * hitCoord) + context->rayStart.v[0];
+  result->hitPosition.v[1] = (float)((float)(context->rayEnd.v[1] - context->rayStart.v[1]) * hitCoord) + context->rayStart.v[1];
+  result->hitPosition.v[2] = (float)((float)(context->rayEnd.v[2] - context->rayStart.v[2]) * hitCoord) + context->rayStart.v[2];
+  result->contentFlags = contentFlags;
+  result->material = material;
+  p_modelInfo = &result->modelInfo;
+  result->surfaceFlags = surfaceFlags;
+  result->modelType = modelType;
   do
   {
-    _RAX = (CG_DrawHits_Hit::ModelInfo *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX = (const CG_DrawHits_Hit::ModelInfo *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v13;
+    p_modelInfo = (CG_DrawHits_Hit::ModelInfo *)((char *)p_modelInfo + 128);
+    v14 = *(_OWORD *)&modelInfo->world.surface;
+    modelInfo = (const CG_DrawHits_Hit::ModelInfo *)((char *)modelInfo + 128);
+    *(_OWORD *)p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq = v14;
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[4] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[4];
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[8] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[8];
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[12] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[12];
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[16] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[16];
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[20] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[20];
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[24] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[24];
+    *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[28] = *(_OWORD *)&modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[28];
+    --v11;
   }
-  while ( v13 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovups xmmword ptr [rax], xmm0
-    vmovups xmm1, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rax+10h], xmm1
-  }
-  return _RBX;
+  while ( v11 );
+  *(_OWORD *)&p_modelInfo->world.surface = *(_OWORD *)&modelInfo->world.surface;
+  *(_OWORD *)&p_modelInfo->superTerrain.combinedNogMap = *(_OWORD *)&modelInfo->superTerrain.combinedNogMap;
+  return result;
 }
 
 /*
@@ -1353,48 +1071,27 @@ CG_DrawHits_Hit *__fastcall CG_DrawHits_MakeModelHit(CG_DrawHits_Hit *result, CG
 CG_DrawHits_MakeWorldHit
 ==============
 */
-
-CG_DrawHits_Hit *__fastcall CG_DrawHits_MakeWorldHit(CG_DrawHits_Hit *result, CG_DrawHits_Context *context, double hitCoord, unsigned int surfaceFlags, unsigned int contentFlags, const GfxSurface *surface)
+CG_DrawHits_Hit *CG_DrawHits_MakeWorldHit(CG_DrawHits_Hit *result, CG_DrawHits_Context *context, float hitCoord, unsigned int surfaceFlags, unsigned int contentFlags, const GfxSurface *surface)
 {
   Material *material; 
-  CG_DrawHits_Hit *v25; 
+  CG_DrawHits_Hit *v10; 
 
-  _RBX = context;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RSI = result;
-  __asm { vmovaps xmm6, xmm2 }
   memset_0(&result->hitPosition, 0, 0x1C4ui64);
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm6
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vsubss  xmm1, xmm0, dword ptr [rbx+10h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rbx+10h]
-    vmovss  dword ptr [rsi+4], xmm3
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vsubss  xmm1, xmm0, dword ptr [rbx+14h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rbx+14h]
-    vmovss  dword ptr [rsi+8], xmm3
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vsubss  xmm1, xmm0, dword ptr [rbx+18h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rbx+18h]
-    vmovss  dword ptr [rsi+0Ch], xmm3
-  }
-  _RSI->surfaceFlags = surfaceFlags;
-  _RSI->contentFlags = contentFlags;
+  result->coord = hitCoord;
+  result->hitPosition.v[0] = (float)((float)(context->rayEnd.v[0] - context->rayStart.v[0]) * hitCoord) + context->rayStart.v[0];
+  result->hitPosition.v[1] = (float)((float)(context->rayEnd.v[1] - context->rayStart.v[1]) * hitCoord) + context->rayStart.v[1];
+  result->hitPosition.v[2] = (float)((float)(context->rayEnd.v[2] - context->rayStart.v[2]) * hitCoord) + context->rayStart.v[2];
+  result->surfaceFlags = surfaceFlags;
+  result->contentFlags = contentFlags;
   if ( surface )
     material = surface->material;
   else
     material = NULL;
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  _RSI->material = material;
-  v25 = _RSI;
-  _RSI->modelType = World;
-  _RSI->modelInfo.world.surface = surface;
-  return v25;
+  result->material = material;
+  v10 = result;
+  result->modelType = World;
+  result->modelInfo.world.surface = surface;
+  return v10;
 }
 
 /*
@@ -1404,163 +1101,89 @@ CG_DrawHits_OnDrawModel
 */
 void CG_DrawHits_OnDrawModel(LocalClientNum_t localClientIndex, unsigned int entNum, const GfxPlacement *placement, const XModel *model, unsigned int lod)
 {
-  CG_DrawHits_Context *v11; 
-  int v15; 
+  CG_DrawHits_Context *v5; 
+  int v6; 
   vec3_t *p_rayStart; 
-  bool v19; 
-  __int64 v48; 
-  __int64 v61; 
-  __int64 v62; 
-  double v63; 
-  double v64; 
-  double v65; 
-  double v66; 
-  __int64 v67; 
-  double v68; 
-  double v69; 
-  double v70; 
-  const XModel *v71; 
-  unsigned int v72; 
-  unsigned int v74; 
-  CG_DrawHits_Hit::ModelInfo v75; 
+  bool v10; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __m256i *v18; 
+  const XModel **v19; 
+  __int64 v20; 
+  __m256i v21; 
+  __int128 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  const XModel *v26; 
+  unsigned int v27; 
+  float v28; 
+  unsigned int v29; 
+  CG_DrawHits_Hit::ModelInfo v30; 
   tmat43_t<vec3_t> outMat; 
   TraceExtents extents; 
-  char v80; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-  }
-  v11 = s_CG_DrawHits_Contexts;
-  __asm
-  {
-    vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm10, cs:__real@3b03126f
-  }
-  v15 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
+  v5 = s_CG_DrawHits_Contexts;
+  v6 = 0;
   p_rayStart = &s_CG_DrawHits_Contexts[0].rayStart;
-  v19 = 1;
-  _RBP = placement;
+  v10 = 1;
   do
   {
-    if ( !v19 )
+    if ( !v10 )
     {
-      LODWORD(v62) = 3;
-      LODWORD(v61) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", v61, v62) )
+      LODWORD(v24) = 3;
+      LODWORD(v23) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", v23, v24) )
         __debugbreak();
     }
-    if ( v11->active && v11->localClientNum == localClientIndex )
+    if ( v5->active && v5->localClientNum == localClientIndex )
     {
-      __asm
+      v14 = placement->quat.v[1];
+      v15 = placement->quat.v[0];
+      v16 = placement->quat.v[2];
+      v17 = placement->quat.v[3];
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16)) + (float)(v17 * v17)) - 1.0) & _xmm) >= 0.0020000001 )
       {
-        vmovss  xmm5, dword ptr [rbp+4]
-        vmovss  xmm6, dword ptr [rbp+0]
-        vmovss  xmm4, dword ptr [rbp+8]
-        vmovss  xmm7, dword ptr [rbp+0Ch]
-        vmulss  xmm1, xmm6, xmm6
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm2, xmm3, xmm0
-        vsubss  xmm1, xmm2, xmm8
-        vandps  xmm1, xmm1, xmm9
-        vcomiss xmm1, xmm10
-        vmovss  xmm0, dword ptr [rbp+18h]
-        vmovss  xmm1, dword ptr [rbp+14h]
-        vmovss  xmm2, dword ptr [rbp+10h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+4E8h+var_478], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+4E8h+var_480], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+4E8h+var_488], xmm2
+        LODWORD(v25) = lod;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 878, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( placement->quat ))", "%s\n\tBad placement quat (%f %f %f %f ) for material drawing on model '%s' LOD%d at (%f %f %f).", "Vec4IsNormalized( placement->quat )", v15, v14, v16, v17, model->name, v25, placement->origin.v[0], placement->origin.v[1], placement->origin.v[2]) )
+          __debugbreak();
       }
-      LODWORD(v67) = lod;
-      __asm
-      {
-        vcvtss2sd xmm3, xmm7, xmm7
-        vmovsd  [rsp+4E8h+var_4A0], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+4E8h+var_4A8], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+4E8h+var_4B0], xmm5
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  [rsp+4E8h+var_4B8], xmm6
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 878, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( placement->quat ))", "%s\n\tBad placement quat (%f %f %f %f ) for material drawing on model '%s' LOD%d at (%f %f %f).", "Vec4IsNormalized( placement->quat )", v63, v64, v65, v66, model->name, v67, v68, v69, v70) )
-        __debugbreak();
-      CG_DrawHits_UnpackPlacement(&outMat, _RBP);
+      CG_DrawHits_UnpackPlacement(&outMat, placement);
       MatrixTransposeTransformVector43(p_rayStart, &outMat, &extents.start);
       MatrixTransposeTransformVector43(p_rayStart + 1, &outMat, &extents.end);
       CM_CalcTraceExtents(&extents);
-      _RAX = &v75;
-      v71 = model;
-      _RCX = &v71;
-      v72 = lod;
-      v48 = 3i64;
-      v74 = entNum;
-      __asm { vmovss  [rsp+4E8h+var_458], xmm8 }
+      v18 = (__m256i *)&v30;
+      v26 = model;
+      v19 = &v26;
+      v27 = lod;
+      v20 = 3i64;
+      v29 = entNum;
+      v28 = FLOAT_1_0;
       do
       {
-        _RAX = (CG_DrawHits_Hit::ModelInfo *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups xmm1, xmmword ptr [rcx+70h]
-        }
-        _RCX += 16;
-        __asm
-        {
-          vmovups ymmword ptr [rax-80h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-60h]
-          vmovups ymmword ptr [rax-60h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-40h]
-          vmovups ymmword ptr [rax-40h], ymm0
-          vmovups xmm0, xmmword ptr [rcx-20h]
-          vmovups xmmword ptr [rax-20h], xmm0
-          vmovups xmmword ptr [rax-10h], xmm1
-        }
-        --v48;
+        v18 += 4;
+        v21 = *(__m256i *)v19;
+        v22 = *((_OWORD *)v19 + 7);
+        v19 += 16;
+        v18[-4] = v21;
+        v18[-3] = *((__m256i *)v19 - 3);
+        v18[-2] = *((__m256i *)v19 - 2);
+        *(_OWORD *)v18[-1].m256i_i8 = *((_OWORD *)v19 - 2);
+        *(_OWORD *)&v18[-1].m256i_u64[2] = v22;
+        --v20;
       }
-      while ( v48 );
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups ymmword ptr [rax], ymm0
-      }
-      CG_DrawHits_HitModel((CG_DrawHits_Context *)&p_rayStart[-2].z, &extents, (CG_DrawHits_ModelType)((unsigned __int8)v48 + 2), &v75);
+      while ( v20 );
+      *v18 = *(__m256i *)v19;
+      CG_DrawHits_HitModel((CG_DrawHits_Context *)&p_rayStart[-2].z, &extents, DynamicModel, &v30);
     }
-    ++v15;
+    ++v6;
     p_rayStart += 232;
-    ++v11;
-    v19 = (unsigned int)v15 < 3;
+    ++v5;
+    v10 = (unsigned int)v6 < 3;
   }
-  while ( v15 < 3 );
-  __asm
-  {
-    vmovaps xmm7, [rsp+4E8h+var_58]
-    vmovaps xmm6, [rsp+4E8h+var_48]
-  }
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v6 < 3 );
 }
 
 /*
@@ -1570,180 +1193,99 @@ CG_DrawHits_OnDrawModelScaled
 */
 void CG_DrawHits_OnDrawModelScaled(LocalClientNum_t localClientIndex, unsigned int entNum, const GfxScaledPlacement *placement, const XModel *model, unsigned int lod)
 {
-  CG_DrawHits_Context *v11; 
-  int v15; 
-  bool v17; 
+  CG_DrawHits_Context *v5; 
+  int v6; 
+  bool v8; 
   vec3_t *p_rayStart; 
-  __int64 v54; 
-  __int64 v68; 
-  __int64 v69; 
-  double v70; 
-  double v71; 
-  double v72; 
-  double v73; 
-  __int64 v74; 
-  double v75; 
-  double v76; 
-  double v77; 
-  const XModel *v79; 
-  unsigned int v80; 
-  unsigned int v82; 
-  CG_DrawHits_Hit::ModelInfo v83; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  const XModel **v18; 
+  float scale; 
+  __int64 v20; 
+  __m256i *v21; 
+  __m256i v22; 
+  __int128 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  const XModel *v28; 
+  unsigned int v29; 
+  float v30; 
+  unsigned int v31; 
+  CG_DrawHits_Hit::ModelInfo v32; 
   TraceExtents extents; 
   tmat43_t<vec3_t> outMat; 
-  char v87; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-  }
-  v11 = s_CG_DrawHits_Contexts;
-  __asm
-  {
-    vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm10, cs:__real@3b03126f
-  }
-  v15 = 0;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  v17 = 1;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm7 }
+  v5 = s_CG_DrawHits_Contexts;
+  v6 = 0;
+  v8 = 1;
   p_rayStart = &s_CG_DrawHits_Contexts[0].rayStart;
-  _RDI = placement;
   do
   {
-    if ( !v17 )
+    if ( !v8 )
     {
-      LODWORD(v69) = 3;
-      LODWORD(v68) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", v68, v69) )
+      LODWORD(v25) = 3;
+      LODWORD(v24) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
-    if ( v11->active && v11->localClientNum == localClientIndex )
+    if ( v5->active && v5->localClientNum == localClientIndex )
     {
-      __asm
+      v13 = placement->base.quat.v[1];
+      v14 = placement->base.quat.v[0];
+      v15 = placement->base.quat.v[2];
+      v16 = placement->base.quat.v[3];
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v15 * v15)) + (float)(v16 * v16)) - 1.0) & _xmm) >= 0.0020000001 )
       {
-        vmovss  xmm5, dword ptr [rdi+4]
-        vmovss  xmm6, dword ptr [rdi]
-        vmovss  xmm4, dword ptr [rdi+8]
-        vmovss  xmm7, dword ptr [rdi+0Ch]
-        vmulss  xmm1, xmm6, xmm6
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm2, xmm3, xmm0
-        vsubss  xmm1, xmm2, xmm8
-        vandps  xmm1, xmm1, xmm9
-        vcomiss xmm1, xmm10
-        vmovss  xmm0, dword ptr [rdi+18h]
-        vmovss  xmm1, dword ptr [rdi+14h]
-        vmovss  xmm2, dword ptr [rdi+10h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+4F0h+var_480], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+4F0h+var_488], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+4F0h+var_490], xmm2
+        LODWORD(v26) = lod;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 900, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( placement->base.quat ))", "%s\n\tBad placement quat (%f %f %f %f ) for material drawing on scaled model '%s' LOD%d at (%f %f %f).", "Vec4IsNormalized( placement->base.quat )", v14, v13, v15, v16, model->name, v26, placement->base.origin.v[0], placement->base.origin.v[1], placement->base.origin.v[2]) )
+          __debugbreak();
       }
-      LODWORD(v74) = lod;
-      __asm
-      {
-        vcvtss2sd xmm3, xmm7, xmm7
-        vmovsd  [rsp+4F0h+var_4A8], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+4F0h+var_4B0], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+4F0h+var_4B8], xmm5
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  [rsp+4F0h+var_4C0], xmm6
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 900, ASSERT_TYPE_ASSERT, "(Vec4IsNormalized( placement->base.quat ))", "%s\n\tBad placement quat (%f %f %f %f ) for material drawing on scaled model '%s' LOD%d at (%f %f %f).", "Vec4IsNormalized( placement->base.quat )", v70, v71, v72, v73, model->name, v74, v75, v76, v77) )
-        __debugbreak();
-      __asm { vdivss  xmm6, xmm8, dword ptr [rdi+1Ch] }
-      CG_DrawHits_UnpackPlacement(&outMat, &_RDI->base);
+      v17 = 1.0 / placement->scale;
+      CG_DrawHits_UnpackPlacement(&outMat, &placement->base);
       MatrixTransposeTransformVector43(p_rayStart, &outMat, &extents.start);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbp+3F0h+extents.start]
-        vmulss  xmm0, xmm6, dword ptr [rbp+3F0h+extents.start+4]
-        vmulss  xmm2, xmm6, dword ptr [rbp+3F0h+extents.start+8]
-        vmovss  dword ptr [rbp+3F0h+extents.start], xmm1
-        vmovss  dword ptr [rbp+3F0h+extents.start+4], xmm0
-        vmovss  dword ptr [rbp+3F0h+extents.start+8], xmm2
-      }
+      extents.start.v[0] = v17 * extents.start.v[0];
+      extents.start.v[1] = v17 * extents.start.v[1];
+      extents.start.v[2] = v17 * extents.start.v[2];
       MatrixTransposeTransformVector43(p_rayStart + 1, &outMat, &extents.end);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbp+3F0h+extents.end]
-        vmulss  xmm0, xmm6, dword ptr [rbp+3F0h+extents.end+4]
-        vmulss  xmm2, xmm6, dword ptr [rbp+3F0h+extents.end+8]
-        vmovss  dword ptr [rbp+3F0h+extents.end], xmm1
-        vmovss  dword ptr [rbp+3F0h+extents.end+4], xmm0
-        vmovss  dword ptr [rbp+3F0h+extents.end+8], xmm2
-      }
+      extents.end.v[0] = v17 * extents.end.v[0];
+      extents.end.v[1] = v17 * extents.end.v[1];
+      extents.end.v[2] = v17 * extents.end.v[2];
       CM_CalcTraceExtents(&extents);
-      _RCX = &v79;
-      __asm { vmovss  xmm0, dword ptr [rdi+1Ch] }
-      v82 = entNum;
-      v54 = 3i64;
-      __asm { vmovss  [rbp+3F0h+var_450], xmm0 }
-      _RAX = &v83;
-      v79 = model;
-      v80 = lod;
+      v18 = &v28;
+      scale = placement->scale;
+      v31 = entNum;
+      v20 = 3i64;
+      v30 = scale;
+      v21 = (__m256i *)&v32;
+      v28 = model;
+      v29 = lod;
       do
       {
-        _RAX = (CG_DrawHits_Hit::ModelInfo *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups xmm1, xmmword ptr [rcx+70h]
-        }
-        _RCX += 16;
-        __asm
-        {
-          vmovups ymmword ptr [rax-80h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-60h]
-          vmovups ymmword ptr [rax-60h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-40h]
-          vmovups ymmword ptr [rax-40h], ymm0
-          vmovups xmm0, xmmword ptr [rcx-20h]
-          vmovups xmmword ptr [rax-20h], xmm0
-          vmovups xmmword ptr [rax-10h], xmm1
-        }
-        --v54;
+        v21 += 4;
+        v22 = *(__m256i *)v18;
+        v23 = *((_OWORD *)v18 + 7);
+        v18 += 16;
+        v21[-4] = v22;
+        v21[-3] = *((__m256i *)v18 - 3);
+        v21[-2] = *((__m256i *)v18 - 2);
+        *(_OWORD *)v21[-1].m256i_i8 = *((_OWORD *)v18 - 2);
+        *(_OWORD *)&v21[-1].m256i_u64[2] = v23;
+        --v20;
       }
-      while ( v54 );
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups ymmword ptr [rax], ymm0
-      }
-      CG_DrawHits_HitModel((CG_DrawHits_Context *)&p_rayStart[-2].z, &extents, (CG_DrawHits_ModelType)((unsigned __int8)v54 + 2), &v83);
+      while ( v20 );
+      *v21 = *(__m256i *)v18;
+      CG_DrawHits_HitModel((CG_DrawHits_Context *)&p_rayStart[-2].z, &extents, DynamicModel, &v32);
     }
-    ++v15;
+    ++v6;
     p_rayStart += 232;
-    ++v11;
-    v17 = (unsigned int)v15 < 3;
+    ++v5;
+    v8 = (unsigned int)v6 < 3;
   }
-  while ( v15 < 3 );
-  __asm
-  {
-    vmovaps xmm7, [rsp+4F0h+var_58+8]
-    vmovaps xmm6, xmmword ptr [rsp+4F0h+var_48+8]
-  }
-  _R11 = &v87;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v6 < 3 );
 }
 
 /*
@@ -1753,124 +1295,82 @@ CG_DrawHits_OnDrawSModel
 */
 void CG_DrawHits_OnDrawSModel(LocalClientNum_t localClientIndex, unsigned int smodelInstanceIndex, unsigned int smodelCollectionIndex, const GfxPlacement *placement, float scale, const XModel *model, unsigned int lod)
 {
-  CG_DrawHits_Context *v11; 
-  int v14; 
+  CG_DrawHits_Context *v7; 
+  int v8; 
   vec3_t *p_rayStart; 
-  bool v20; 
-  __int64 v30; 
-  __int64 v42; 
-  __int64 v43; 
-  const XModel *v44; 
-  unsigned int v45; 
-  unsigned int v47; 
-  unsigned int v48; 
-  CG_DrawHits_Hit::ModelInfo v49; 
+  bool v14; 
+  const XModel **v16; 
+  __int64 v17; 
+  __m256i *v18; 
+  __m256i v19; 
+  __int128 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  const XModel *v23; 
+  unsigned int v24; 
+  float v25; 
+  unsigned int v26; 
+  unsigned int v27; 
+  CG_DrawHits_Hit::ModelInfo v28; 
   TraceExtents extents; 
   tmat43_t<vec3_t> outMat; 
-  char v53; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-  }
-  v11 = s_CG_DrawHits_Contexts;
-  __asm
-  {
-    vmovss  xmm8, [rbp+390h+scale]
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  v14 = 0;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
+  v7 = s_CG_DrawHits_Contexts;
+  v8 = 0;
   p_rayStart = &s_CG_DrawHits_Contexts[0].rayStart;
-  v20 = 1;
+  v14 = 1;
   do
   {
-    if ( !v20 )
+    if ( !v14 )
     {
-      LODWORD(v43) = 3;
-      LODWORD(v42) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", v42, v43) )
+      LODWORD(v22) = 3;
+      LODWORD(v21) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    if ( v11->active && v11->localClientNum == localClientIndex )
+    if ( v7->active && v7->localClientNum == localClientIndex )
     {
-      __asm { vdivss  xmm6, xmm7, xmm8 }
       CG_DrawHits_UnpackPlacement(&outMat, placement);
       MatrixTransposeTransformVector43(p_rayStart, &outMat, &extents.start);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbp+390h+extents.start]
-        vmulss  xmm0, xmm6, dword ptr [rbp+390h+extents.start+4]
-        vmulss  xmm2, xmm6, dword ptr [rbp+390h+extents.start+8]
-        vmovss  dword ptr [rbp+390h+extents.start], xmm1
-        vmovss  dword ptr [rbp+390h+extents.start+4], xmm0
-        vmovss  dword ptr [rbp+390h+extents.start+8], xmm2
-      }
+      extents.start.v[0] = (float)(1.0 / scale) * extents.start.v[0];
+      extents.start.v[1] = (float)(1.0 / scale) * extents.start.v[1];
+      extents.start.v[2] = (float)(1.0 / scale) * extents.start.v[2];
       MatrixTransposeTransformVector43(p_rayStart + 1, &outMat, &extents.end);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbp+390h+extents.end]
-        vmulss  xmm0, xmm6, dword ptr [rbp+390h+extents.end+4]
-        vmulss  xmm2, xmm6, dword ptr [rbp+390h+extents.end+8]
-        vmovss  dword ptr [rbp+390h+extents.end], xmm1
-        vmovss  dword ptr [rbp+390h+extents.end+4], xmm0
-        vmovss  dword ptr [rbp+390h+extents.end+8], xmm2
-      }
+      extents.end.v[0] = (float)(1.0 / scale) * extents.end.v[0];
+      extents.end.v[1] = (float)(1.0 / scale) * extents.end.v[1];
+      extents.end.v[2] = (float)(1.0 / scale) * extents.end.v[2];
       CM_CalcTraceExtents(&extents);
-      _RCX = &v44;
-      v44 = model;
-      v30 = 3i64;
-      v45 = lod;
-      _RAX = &v49;
-      __asm { vmovss  [rsp+490h+var_430], xmm7 }
-      v47 = smodelInstanceIndex;
-      v48 = smodelCollectionIndex;
+      v16 = &v23;
+      v23 = model;
+      v17 = 3i64;
+      v24 = lod;
+      v18 = (__m256i *)&v28;
+      v25 = FLOAT_1_0;
+      v26 = smodelInstanceIndex;
+      v27 = smodelCollectionIndex;
       do
       {
-        _RAX = (CG_DrawHits_Hit::ModelInfo *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups xmm1, xmmword ptr [rcx+70h]
-        }
-        _RCX += 16;
-        __asm
-        {
-          vmovups ymmword ptr [rax-80h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-60h]
-          vmovups ymmword ptr [rax-60h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-40h]
-          vmovups ymmword ptr [rax-40h], ymm0
-          vmovups xmm0, xmmword ptr [rcx-20h]
-          vmovups xmmword ptr [rax-20h], xmm0
-          vmovups xmmword ptr [rax-10h], xmm1
-        }
-        --v30;
+        v18 += 4;
+        v19 = *(__m256i *)v16;
+        v20 = *((_OWORD *)v16 + 7);
+        v16 += 16;
+        v18[-4] = v19;
+        v18[-3] = *((__m256i *)v16 - 3);
+        v18[-2] = *((__m256i *)v16 - 2);
+        *(_OWORD *)v18[-1].m256i_i8 = *((_OWORD *)v16 - 2);
+        *(_OWORD *)&v18[-1].m256i_u64[2] = v20;
+        --v17;
       }
-      while ( v30 );
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups ymmword ptr [rax], ymm0
-      }
-      CG_DrawHits_HitModel((CG_DrawHits_Context *)&p_rayStart[-2].z, &extents, (CG_DrawHits_ModelType)((unsigned __int8)v30 + 1), &v49);
+      while ( v17 );
+      *v18 = *(__m256i *)v16;
+      CG_DrawHits_HitModel((CG_DrawHits_Context *)&p_rayStart[-2].z, &extents, StaticModel, &v28);
     }
-    ++v14;
+    ++v8;
     p_rayStart += 232;
-    ++v11;
-    v20 = (unsigned int)v14 < 3;
+    ++v7;
+    v14 = (unsigned int)v8 < 3;
   }
-  while ( v14 < 3 );
-  __asm { vmovaps xmm6, xmmword ptr [rsp+490h+var_48+8] }
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  while ( v8 < 3 );
 }
 
 /*
@@ -1881,36 +1381,26 @@ CG_DrawHits_PostWork
 void CG_DrawHits_PostWork(LocalClientNum_t localClientIndex)
 {
   CG_DrawHits_Hit *hits; 
+  int v2; 
+  bool v3; 
+  unsigned int v5; 
+  LocalClientNum_t v6; 
   int v7; 
-  bool v8; 
-  unsigned int v10; 
-  LocalClientNum_t v11; 
-  int v12; 
   tmat33_t<vec3_t> *p_axis; 
   __int64 depthTest; 
   __int64 duration; 
   vec3_t maxs; 
   vec3_t mins; 
-  char v22; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovss  xmm6, cs:__real@bf800000
-    vmovss  xmm7, cs:__real@3f800000
-  }
   hits = s_CG_DrawHits_Contexts[0].hits;
-  v7 = 0;
-  v8 = 1;
+  v2 = 0;
+  v3 = 1;
   do
   {
-    if ( !v8 )
+    if ( !v3 )
     {
       LODWORD(duration) = 3;
-      LODWORD(depthTest) = v7;
+      LODWORD(depthTest) = v2;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 126, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( CG_DrawHits_Type::COUNT )", "type doesn't index CG_DrawHits_Type::COUNT\n\t%i not in [0, %i)", depthTest, duration) )
         __debugbreak();
     }
@@ -1920,43 +1410,34 @@ void CG_DrawHits_PostWork(LocalClientNum_t localClientIndex)
         __debugbreak();
       if ( !LOBYTE(hits[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[20]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 561, ASSERT_TYPE_ASSERT, "(context.active)", (const char *)&queryFormat, "context.active") )
         __debugbreak();
-      v10 = LODWORD(hits[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[31]);
-      if ( v10 )
+      v5 = LODWORD(hits[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[31]);
+      if ( v5 )
       {
-        if ( v10 > 1 )
-          qsort(hits, v10, 0x1C8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)CG_DrawHits_CompareHits);
-        v11 = LODWORD(hits[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[22]);
-        __asm
-        {
-          vmovss  dword ptr [rsp+0B8h+mins], xmm6
-          vmovss  dword ptr [rsp+0B8h+mins+4], xmm6
-          vmovss  dword ptr [rsp+0B8h+mins+8], xmm6
-          vmovss  dword ptr [rsp+0B8h+maxs], xmm7
-          vmovss  dword ptr [rsp+0B8h+maxs+4], xmm7
-          vmovss  dword ptr [rsp+0B8h+maxs+8], xmm7
-        }
-        v12 = 0;
-        p_axis = &CG_GetLocalClientGlobals(v11)->refdef.view.axis;
+        if ( v5 > 1 )
+          qsort(hits, v5, 0x1C8ui64, (_CoreCrtNonSecureSearchSortCompareFunction)CG_DrawHits_CompareHits);
+        v6 = LODWORD(hits[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[22]);
+        mins.v[0] = FLOAT_N1_0;
+        mins.v[1] = FLOAT_N1_0;
+        mins.v[2] = FLOAT_N1_0;
+        maxs.v[0] = FLOAT_1_0;
+        maxs.v[1] = FLOAT_1_0;
+        maxs.v[2] = FLOAT_1_0;
+        v7 = 0;
+        p_axis = &CG_GetLocalClientGlobals(v6)->refdef.view.axis;
         do
         {
-          CL_AddDebugBox(p_axis, &hits[v12].hitPosition, &mins, &maxs, &s_CG_DrawHits_hitColors[v12], 1, 0, 0);
-          ++v12;
+          CL_AddDebugBox(p_axis, &hits[v7].hitPosition, &mins, &maxs, &s_CG_DrawHits_hitColors[v7], 1, 0, 0);
+          ++v7;
         }
-        while ( v12 != v10 );
+        while ( v7 != v5 );
       }
       LOBYTE(hits[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[20]) = 0;
     }
-    ++v7;
+    ++v2;
     hits = (CG_DrawHits_Hit *)((char *)hits + 2784);
-    v8 = (unsigned int)v7 < 3;
+    v3 = (unsigned int)v2 < 3;
   }
-  while ( v7 < 3 );
-  _R11 = &v22;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-  }
+  while ( v2 < 3 );
 }
 
 /*
@@ -2003,187 +1484,229 @@ CG_DrawHits_PreWorkInternal
 */
 void CG_DrawHits_PreWorkInternal(CG_DrawHits_Type type, CG_DrawHits_Context *context)
 {
-  int v13; 
-  float v47; 
-  char *fmt; 
-  __int64 skipEntity; 
-  __int64 skipChildren; 
-  __int64 contentMask; 
-  __int64 locational; 
-  int v92; 
-  int v93; 
-  int v94; 
-  int v95; 
-  int v96; 
-  int v97; 
-  __int128 start; 
+  CG_DrawHits_Type v3; 
+  int skipEntity; 
+  float v5; 
+  __int128 v6; 
+  float v7; 
+  __m128 v12; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  int surfaceFlags; 
+  int contents; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __m128 v29; 
+  char v32; 
+  unsigned int v33; 
+  unsigned int SurfaceCount; 
+  float v35; 
+  float v36; 
+  float v37; 
+  const Material *v38; 
+  CG_DrawHits_Hit *p_hitModelInfoOut; 
+  float v40; 
+  __int64 v41; 
+  float v42; 
+  float v43; 
+  CG_DrawHits_Hit::ModelInfo *p_modelInfo; 
+  __m256i v45; 
+  __int128 v46; 
+  CG_DrawHits_Hit *WorldHit; 
+  __m256i *v48; 
+  __int64 v49; 
+  __m256i v50; 
+  __int128 v51; 
+  __m256i v52; 
+  __int64 v53; 
+  float4 v55; 
+  float4 v56; 
+  float4 v57; 
+  CG_DrawHits_Hit v58; 
+  CG_DrawHits_Hit hit; 
+  __m128 start; 
   vec3_t end; 
+  vec3_t hitPosition; 
+  __m128 v63; 
   trace_t mem; 
+  CG_DrawHits_Hit hitModelInfoOut; 
 
-  _RBX = context;
+  v3 = type;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 446, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  if ( !_RBX->active && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 447, ASSERT_TYPE_ASSERT, "(context.active)", (const char *)&queryFormat, "context.active") )
+  if ( !context->active && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 447, ASSERT_TYPE_ASSERT, "(context.active)", (const char *)&queryFormat, "context.active") )
     __debugbreak();
-  CG_DrawHits_SetupContextTraceRay(_RBX);
-  v13 = _RBX->contentMask & 0xFDFFBFFF;
-  if ( v13 )
+  CG_DrawHits_SetupContextTraceRay(context);
+  skipEntity = context->contentMask & 0xFDFFBFFF;
+  if ( skipEntity )
   {
-    __asm
-    {
-      vmovaps [rsp+770h+var_30], xmm6
-      vmovaps [rsp+770h+var_40], xmm7
-      vmovaps [rsp+770h+var_50], xmm8
-      vmovaps [rsp+770h+var_60], xmm9
-      vmovaps [rsp+770h+var_70], xmm10
-      vmovaps [rsp+770h+var_80], xmm11
-      vmovaps [rsp+770h+var_90], xmm12
-      vmovaps [rsp+770h+var_A0], xmm13
-      vmovaps [rsp+770h+var_B0], xmm14
-    }
     Physics_WaitForAllCommandsToFinish();
+    v5 = context->rayEnd.v[0] - context->rayStart.v[0];
+    v6 = LODWORD(context->rayEnd.v[1]);
+    *(float *)&v6 = context->rayEnd.v[1] - context->rayStart.v[1];
+    v7 = context->rayEnd.v[2] - context->rayStart.v[2];
+    *(float *)&v6 = fsqrt((float)((float)(*(float *)&v6 * *(float *)&v6) + (float)(v5 * v5)) + (float)(v7 * v7));
+    _XMM1 = v6;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vsubss  xmm4, xmm0, dword ptr [rbx+10h]
-      vmovss  xmm1, dword ptr [rbx+20h]
-      vsubss  xmm5, xmm1, dword ptr [rbx+14h]
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vsubss  xmm6, xmm0, dword ptr [rbx+18h]
-      vmovss  xmm9, cs:__real@3f800000
-      vmovups xmm13, cs:__xmm@3f8000003f8000003f8000003f800000
-      vmovups xmm14, cs:__xmm@bf000000bf000000bf000000bf000000
-      vmovss  xmm10, cs:__real@39a00000
-      vmovss  xmm11, cs:__real@3f7fec00
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
-      vmovss  xmm2, cs:__real@40800000
       vblendvps xmm0, xmm1, xmm9, xmm0
-      vdivss  xmm3, xmm9, xmm0
-      vmulss  xmm1, xmm4, xmm3
     }
-    HIDWORD(start) = 0;
+    start.m128_i32[3] = 0;
+    v12 = start;
+    v12.m128_f32[0] = (float)(v5 * (float)(1.0 / *(float *)&_XMM0)) * 4.0;
+    _XMM12 = v12;
     __asm
     {
-      vmovups xmm12, xmmword ptr [rbp+340h]
-      vmulss  xmm4, xmm1, xmm2
-      vmulss  xmm0, xmm5, xmm3
-      vmovss  xmm12, xmm12, xmm4
-      vmulss  xmm5, xmm0, xmm2
-      vmulss  xmm1, xmm6, xmm3
       vinsertps xmm12, xmm12, xmm5, 10h
-      vmulss  xmm0, xmm1, xmm2
       vinsertps xmm12, xmm12, xmm0, 20h ; ' '
-      vmovups xmmword ptr [rbp+340h], xmm12
-      vxorps  xmm6, xmm6, xmm6
-      vmovsd  xmm0, qword ptr [rbx+1Ch]
     }
-    v47 = _RBX->rayEnd.v[2];
-    __asm
+    start = _XMM12;
+    v15 = 0.0;
+    while ( 1 )
     {
-      vmovss  xmm4, dword ptr [rbx+1Ch]
-      vmovsd  qword ptr [rbp+670h+end], xmm0
-      vsubss  xmm0, xmm4, dword ptr [rbx+10h]
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm8, xmm1, dword ptr [rbx+10h]
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+14h]
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm7, xmm2, dword ptr [rbx+14h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+18h]
-    }
-    end.v[2] = v47;
-    __asm
-    {
-      vmovss  [rsp+770h+var_710], xmm8
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm2, xmm2, dword ptr [rbx+18h]
-      vmovss  dword ptr [rbp+670h+start+8], xmm2
-      vmovss  dword ptr [rbp+670h+start], xmm8
-      vmovss  dword ptr [rbp+670h+start+4], xmm7
-    }
-    if ( (v92 & 0x7F800000) == 2139095040 )
-      goto LABEL_16;
-    __asm { vmovss  [rsp+770h+var_710], xmm7 }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_16;
-    __asm { vmovss  [rsp+770h+var_710], xmm2 }
-    if ( (v94 & 0x7F800000) == 2139095040 )
-      goto LABEL_16;
-    __asm { vmovss  [rsp+770h+var_710], xmm4 }
-    if ( (v95 & 0x7F800000) == 2139095040 )
-      goto LABEL_16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmovss  [rsp+770h+var_710], xmm0
-    }
-    if ( (v96 & 0x7F800000) == 2139095040 )
-      goto LABEL_16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vmovss  [rsp+770h+var_710], xmm0
-    }
-    if ( (v97 & 0x7F800000) == 2139095040 )
-    {
-LABEL_16:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+670h+end+8]
-        vmovss  xmm4, dword ptr [rbp+670h+end+4]
-        vmovss  xmm5, dword ptr [rbp+670h+end]
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  qword ptr [rsp+770h+locational], xmm0
-        vcvtss2sd xmm6, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+770h+contentMask], xmm1
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  qword ptr [rsp+770h+skipChildren], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vcvtss2sd xmm3, xmm7, xmm7
-        vcvtss2sd xmm2, xmm8, xmm8
-        vmovsd  qword ptr [rsp+770h+skipEntity], xmm5
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+770h+fmt], xmm6
-      }
-      Com_PrintWarning(0, "CG_DrawHits_PreWork NAN detected. Aborting trace. rayStart ( %f, %f, %f ), rayEnd ( %f, %f, %f ), rayStartCoord %f", _R8, _R9, fmt, skipEntity, skipChildren, contentMask, locational);
-    }
-    else
-    {
+      v16 = context->rayEnd.v[2];
+      *(_QWORD *)end.v = *(_QWORD *)context->rayEnd.v;
+      v17 = (float)((float)(end.v[0] - context->rayStart.v[0]) * v15) + context->rayStart.v[0];
+      v18 = (float)((float)(context->rayEnd.v[1] - context->rayStart.v[1]) * v15) + context->rayStart.v[1];
+      v19 = context->rayEnd.v[2] - context->rayStart.v[2];
+      end.v[2] = v16;
+      v20 = (float)(v19 * v15) + context->rayStart.v[2];
+      start.m128_f32[2] = v20;
+      start.m128_f32[0] = v17;
+      start.m128_f32[1] = v18;
+      if ( (LODWORD(v17) & 0x7F800000) == 2139095040 || (LODWORD(v18) & 0x7F800000) == 2139095040 || (LODWORD(v20) & 0x7F800000) == 2139095040 || (LODWORD(end.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(context->rayEnd.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(context->rayEnd.v[2]) & 0x7F800000) == 2139095040 )
+        break;
       DebugWipe(&mem, 0x58ui64);
-      PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * _RBX->localClientNum + (s_CG_DrawHits_typeUsesDetailedPhysicsWorld[type] != 0) + 3), &mem, (const vec3_t *)&start, &end, &bounds_origin, v13, 0, v13, 1, NULL, All);
-      if ( !mem.allsolid )
+      PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * context->localClientNum + (s_CG_DrawHits_typeUsesDetailedPhysicsWorld[v3] != 0) + 3), &mem, (const vec3_t *)&start, &end, &bounds_origin, skipEntity, 0, skipEntity, 1, NULL, All);
+      if ( mem.allsolid )
+        return;
+      v22 = (float)(mem.fraction / (float)(1.0 - v15)) + v15;
+      v21 = v22;
+      if ( v22 >= 1.0 )
+        return;
+      surfaceFlags = mem.surfaceFlags;
+      if ( SLOBYTE(mem.surfaceFlags) >= 0 )
       {
+        contents = mem.contents;
+        v25 = (float)((float)(context->rayEnd.v[0] - context->rayStart.v[0]) * v22) + context->rayStart.v[0];
+        v26 = (float)((float)(context->rayEnd.v[1] - context->rayStart.v[1]) * v22) + context->rayStart.v[1];
+        v27 = (float)((float)(context->rayEnd.v[2] - context->rayStart.v[2]) * v22) + context->rayStart.v[2];
+        v63.m128_i32[3] = 0;
+        v29 = v63;
+        v29.m128_f32[0] = v25;
+        _XMM1 = v29;
         __asm
         {
-          vmovss  xmm0, [rbp+670h+mem]
-          vsubss  xmm1, xmm9, xmm6
-          vdivss  xmm1, xmm0, xmm1
-          vaddss  xmm7, xmm1, xmm6
-          vcomiss xmm7, xmm9
+          vinsertps xmm1, xmm1, xmm5, 10h
+          vinsertps xmm1, xmm1, xmm4, 20h ; ' '
+        }
+        v63 = _XMM1;
+        v57.v = _mm128_add_ps(_mm128_mul_ps(_XMM12, (__m128)_xmm_bf000000bf000000bf000000bf000000), _XMM1);
+        hitPosition.v[0] = v25;
+        hitPosition.v[1] = v26;
+        hitPosition.v[2] = v27;
+        v55.v = (__m128)_xmm;
+        v56.v = _XMM12;
+        v32 = CG_DrawHits_AddNearbyWorldHits(context, &hitPosition, &v57, &v56, &v55, v21, mem.surfaceFlags, mem.contents);
+        if ( !v32 && mem.hitType == TRACE_HITTYPE_ENTITY && mem.hitSubType == TRACE_HITSUBTYPE_NONE && mem.hitId == 2046 && !mem.modelIndex && !mem.surfaceIndex && (mem.contents & 1) != 0 && !CG_DrawHits_IsClearSolidSurface(mem.surfaceFlags) )
+        {
+          v33 = 0;
+          SurfaceCount = R_ST_GetSurfaceCount();
+          if ( SurfaceCount )
+          {
+            do
+            {
+              if ( R_ST_DrawHitIntersectsSurface(v33, &hitPosition, (CG_DrawHits_StModelInfo *)&hitModelInfoOut) )
+              {
+                v35 = (float)((float)(context->rayEnd.v[0] - context->rayStart.v[0]) * v21) + context->rayStart.v[0];
+                v36 = context->rayEnd.v[1] - context->rayStart.v[1];
+                v37 = context->rayEnd.v[2];
+                v38 = NULL;
+                *(_QWORD *)&hit.modelType = 3i64;
+                p_hitModelInfoOut = &hitModelInfoOut;
+                v40 = v36 * v21;
+                if ( LODWORD(hitModelInfoOut.material) )
+                  v38 = *(const Material **)&hitModelInfoOut.modelType;
+                v41 = 3i64;
+                v42 = v37 - context->rayStart.v[2];
+                hit.hitPosition.v[0] = v35;
+                hit.hitPosition.v[1] = v40 + context->rayStart.v[1];
+                v43 = (float)(v42 * v21) + context->rayStart.v[2];
+                hit.material = v38;
+                p_modelInfo = &hit.modelInfo;
+                hit.hitPosition.v[2] = v43;
+                hit.coord = v21;
+                hit.surfaceFlags = surfaceFlags;
+                hit.contentFlags = contents;
+                do
+                {
+                  p_modelInfo = (CG_DrawHits_Hit::ModelInfo *)((char *)p_modelInfo + 128);
+                  v45 = *(__m256i *)&p_hitModelInfoOut->coord;
+                  v46 = *(_OWORD *)&p_hitModelInfoOut->modelInfo.superTerrain.layerMaterials[5];
+                  p_hitModelInfoOut = (CG_DrawHits_Hit *)((char *)p_hitModelInfoOut + 128);
+                  *(__m256i *)p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq = v45;
+                  *(__m256i *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[8] = *(__m256i *)&p_hitModelInfoOut[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8];
+                  *(__m256i *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[16] = *(__m256i *)&p_hitModelInfoOut[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16];
+                  *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[24] = *(_OWORD *)&p_hitModelInfoOut[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24];
+                  *(_OWORD *)&p_modelInfo[-1].superTerrain.layerMaterialsHimipRadiusInvSq[28] = v46;
+                  --v41;
+                }
+                while ( v41 );
+                *(__m256i *)&p_modelInfo->world.surface = *(__m256i *)&p_hitModelInfoOut->coord;
+                CG_DrawHits_AddHit(context, &hit);
+                v32 = 1;
+              }
+              ++v33;
+            }
+            while ( v33 < SurfaceCount );
+          }
+          v3 = type;
+        }
+        if ( !v32 )
+        {
+          WorldHit = CG_DrawHits_MakeWorldHit(&hitModelInfoOut, context, v21, surfaceFlags, contents, NULL);
+          v48 = (__m256i *)&v58;
+          v49 = 3i64;
+          do
+          {
+            v48 += 4;
+            v50 = *(__m256i *)&WorldHit->coord;
+            v51 = *(_OWORD *)&WorldHit->modelInfo.superTerrain.layerMaterials[5];
+            WorldHit = (CG_DrawHits_Hit *)((char *)WorldHit + 128);
+            v48[-4] = v50;
+            v48[-3] = *(__m256i *)&WorldHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8];
+            v48[-2] = *(__m256i *)&WorldHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16];
+            *(_OWORD *)v48[-1].m256i_i8 = *(_OWORD *)&WorldHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24];
+            *(_OWORD *)&v48[-1].m256i_u64[2] = v51;
+            --v49;
+          }
+          while ( v49 );
+          *v48 = *(__m256i *)&WorldHit->coord;
+          v52 = *(__m256i *)&WorldHit->modelType;
+          v53 = *(_QWORD *)&WorldHit->modelInfo.superTerrain.layerMaterialCount;
+          v48[1] = v52;
+          v48[2].m256i_i64[0] = v53;
+          CG_DrawHits_AddHit(context, &v58);
+        }
+        if ( (contents & 1) != 0 && !CG_DrawHits_IsClearSolidSurface(surfaceFlags) )
+        {
+          context->maxLen = v21;
+          return;
         }
       }
+      v15 = v21 + 0.00030517578;
+      if ( (float)(v21 + 0.00030517578) > 0.99969482 )
+        return;
     }
-    __asm
-    {
-      vmovaps xmm13, [rsp+770h+var_A0]
-      vmovaps xmm12, [rsp+770h+var_90]
-      vmovaps xmm11, [rsp+770h+var_80]
-      vmovaps xmm10, [rsp+770h+var_70]
-      vmovaps xmm9, [rsp+770h+var_60]
-      vmovaps xmm8, [rsp+770h+var_50]
-      vmovaps xmm7, [rsp+770h+var_40]
-      vmovaps xmm6, [rsp+770h+var_30]
-      vmovaps xmm14, [rsp+770h+var_B0]
-    }
+    Com_PrintWarning(0, "CG_DrawHits_PreWork NAN detected. Aborting trace. rayStart ( %f, %f, %f ), rayEnd ( %f, %f, %f ), rayStartCoord %f", v17, v18, v20, end.v[0], end.v[1], end.v[2], v15);
   }
 }
 
@@ -2196,58 +1719,42 @@ void CG_DrawHits_SetupContextTraceRay(CG_DrawHits_Context *context)
 {
   cg_t *LocalClientGlobals; 
   unsigned int refdefViewOrg_aab; 
-  int v19[3]; 
-  __int64 v20; 
-  void *retaddr; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  int v9[3]; 
+  __int64 v10; 
 
-  _RAX = &retaddr;
-  v20 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RDI = context;
+  v10 = -2i64;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 423, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  if ( !_RDI->active && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 424, ASSERT_TYPE_ASSERT, "(context.active)", (const char *)&queryFormat, "context.active") )
+  if ( !context->active && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawhits.cpp", 424, ASSERT_TYPE_ASSERT, "(context.active)", (const char *)&queryFormat, "context.active") )
     __debugbreak();
-  if ( _RDI->options != 1 )
+  if ( context->options != 1 )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)_RDI->localClientNum);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)context->localClientNum);
     if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
     refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
     if ( LocalClientGlobals == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    v19[0] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
-    v19[1] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
-    v19[2] = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
-    __asm
-    {
-      vmovss  xmm4, cs:__real@47000000
-      vmulss  xmm1, xmm4, dword ptr [rsi+6944h]
-      vmovss  xmm5, [rsp+88h+var_58]
-      vaddss  xmm7, xmm1, xmm5
-      vmulss  xmm2, xmm4, dword ptr [rsi+6948h]
-      vmovss  xmm3, [rsp+88h+var_54]
-      vaddss  xmm6, xmm2, xmm3
-      vmulss  xmm1, xmm4, dword ptr [rsi+694Ch]
-      vmovss  xmm2, [rsp+88h+var_50]
-      vaddss  xmm4, xmm1, xmm2
-      vmovss  dword ptr [rdi+10h], xmm5
-      vmovss  dword ptr [rdi+14h], xmm3
-      vmovss  dword ptr [rdi+18h], xmm2
-      vmovss  dword ptr [rdi+1Ch], xmm7
-      vmovss  dword ptr [rdi+20h], xmm6
-      vmovss  dword ptr [rdi+24h], xmm4
-    }
-    memset(v19, 0, sizeof(v19));
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
+    v9[0] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+    v9[1] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+    v9[2] = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
+    v4 = (float)(32768.0 * LocalClientGlobals->refdef.view.axis.m[0].v[0]) + *(float *)v9;
+    v5 = *(float *)&v9[1];
+    v6 = (float)(32768.0 * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + *(float *)&v9[1];
+    v7 = *(float *)&v9[2];
+    v8 = (float)(32768.0 * LocalClientGlobals->refdef.view.axis.m[0].v[2]) + *(float *)&v9[2];
+    context->rayStart.v[0] = *(float *)v9;
+    context->rayStart.v[1] = v5;
+    context->rayStart.v[2] = v7;
+    context->rayEnd.v[0] = v4;
+    context->rayEnd.v[1] = v6;
+    context->rayEnd.v[2] = v8;
+    memset(v9, 0, sizeof(v9));
   }
 }
 
@@ -2313,116 +1820,52 @@ CG_DrawHits_UnpackPlacement
 */
 void CG_DrawHits_UnpackPlacement(tmat43_t<vec3_t> *outMat, const GfxPlacement *placement)
 {
-  double v70; 
-  double v71; 
-  double v72; 
-  double v73; 
-  double v74; 
-  char v76; 
-  void *retaddr; 
+  float v2; 
+  float v3; 
+  float v5; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdx+4]
-    vmovss  xmm5, dword ptr [rdx]
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RBX = placement;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdx+8]
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
-  _RDI = outMat;
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdx+0Ch]
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmulss  xmm0, xmm7, xmm7
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovss  xmm13, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, xmm13
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-    vsqrtss xmm0, xmm2, xmm2
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+0D8h+var_90], xmm1
-    vcvtss2sd xmm0, xmm4, xmm4
-    vcvtss2sd xmm2, xmm7, xmm7
-    vmovsd  [rsp+0D8h+var_98], xmm2
-    vcvtss2sd xmm3, xmm6, xmm6
-    vmovsd  [rsp+0D8h+var_A0], xmm3
-    vmovsd  [rsp+0D8h+var_A8], xmm0
-    vcvtss2sd xmm4, xmm5, xmm5
-    vmovsd  [rsp+0D8h+var_B0], xmm4
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 770, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v70, v71, v72, v73, v74) )
+  v2 = placement->quat.v[1];
+  v3 = placement->quat.v[0];
+  v5 = placement->quat.v[2];
+  v7 = placement->quat.v[3];
+  v8 = (float)((float)((float)(v3 * v3) + (float)(v2 * v2)) + (float)(v5 * v5)) + (float)(v7 * v7);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v8 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 770, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v3, v2, v5, v7, fsqrt(v8)) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx+8]
-    vmovss  xmm3, dword ptr [rbx+0Ch]
-    vmovss  xmm5, cs:__real@40000000
-    vmulss  xmm1, xmm5, dword ptr [rbx]
-    vmulss  xmm12, xmm1, dword ptr [rbx]
-  }
-  _R11 = &v76;
-  __asm
-  {
-    vmulss  xmm9, xmm4, xmm1
-    vmulss  xmm6, xmm2, xmm1
-    vmulss  xmm0, xmm2, xmm5
-    vmulss  xmm11, xmm2, xmm0
-    vmulss  xmm8, xmm4, xmm0
-    vmulss  xmm7, xmm3, xmm0
-    vmulss  xmm10, xmm3, xmm1
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm2, xmm3, xmm0
-    vmulss  xmm5, xmm4, xmm0
-    vaddss  xmm1, xmm5, xmm11
-    vsubss  xmm0, xmm13, xmm1
-    vmovss  dword ptr [rdi], xmm0
-    vsubss  xmm0, xmm9, xmm7
-    vaddss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  dword ptr [rdi+8], xmm0
-    vsubss  xmm1, xmm6, xmm2
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovss  dword ptr [rdi+0Ch], xmm1
-    vaddss  xmm1, xmm8, xmm10
-    vaddss  xmm0, xmm5, xmm12
-    vsubss  xmm0, xmm13, xmm0
-    vmovss  dword ptr [rdi+10h], xmm0
-    vmovss  dword ptr [rdi+14h], xmm1
-    vaddss  xmm0, xmm7, xmm9
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rdi+18h], xmm0
-    vaddss  xmm0, xmm11, xmm12
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vsubss  xmm1, xmm8, xmm10
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rdi+1Ch], xmm1
-    vsubss  xmm0, xmm13, xmm0
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovss  dword ptr [rdi+20h], xmm0
-  }
-  _RDI->m[3].v[0] = _RBX->origin.v[0];
-  _RDI->m[3].v[1] = _RBX->origin.v[1];
-  _RDI->m[3].v[2] = _RBX->origin.v[2];
+  v9 = placement->quat.v[1];
+  v10 = placement->quat.v[2];
+  v11 = placement->quat.v[3];
+  v12 = 2.0 * placement->quat.v[0];
+  v13 = v12 * placement->quat.v[0];
+  v14 = v9 * v12;
+  v15 = v9 * (float)(v9 * 2.0);
+  v16 = v10 * (float)(v9 * 2.0);
+  v17 = v11 * (float)(v9 * 2.0);
+  v18 = v11 * (float)(v10 * 2.0);
+  v19 = v10 * (float)(v10 * 2.0);
+  outMat->m[0].v[0] = 1.0 - (float)(v19 + v15);
+  outMat->m[0].v[1] = v18 + v14;
+  outMat->m[0].v[2] = (float)(v10 * v12) - v17;
+  outMat->m[1].v[0] = v14 - v18;
+  outMat->m[1].v[1] = 1.0 - (float)(v19 + v13);
+  outMat->m[1].v[2] = v16 + (float)(v11 * v12);
+  outMat->m[2].v[0] = v17 + (float)(v10 * v12);
+  outMat->m[2].v[1] = v16 - (float)(v11 * v12);
+  outMat->m[2].v[2] = 1.0 - (float)(v15 + v13);
+  outMat->m[3].v[0] = placement->origin.v[0];
+  outMat->m[3].v[1] = placement->origin.v[1];
+  outMat->m[3].v[2] = placement->origin.v[2];
 }
 
